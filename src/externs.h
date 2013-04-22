@@ -70,7 +70,6 @@ extern int chaos_stats[MAX_PATRON];
 extern int chaos_rewards[MAX_PATRON][20];
 extern martial_arts ma_blows[MAX_MA];
 extern magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS];
-extern magic_power necro_powers[MAX_NECRO_POWERS];
 extern magic_power mimic_powers[MAX_MIMIC_POWERS];
 extern alchemist_recipe alchemist_recipes[MAX_ALCHEMIST_RECIPES];
 extern cptr deity_rarity[2];

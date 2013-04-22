@@ -107,7 +107,7 @@ static cptr desc_moan[] =
 	"discusses its latest theory.",
 	"reminds you of your misspent youth.",
 	"mumbles theorems.",
-        "yells 'All your base are belong to us!'",
+        "yells 'There is no Donkey Theorem!'",
 
         /* Mathilde's sentence */
         "giggles at you.",

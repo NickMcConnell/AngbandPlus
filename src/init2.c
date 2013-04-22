@@ -35,6 +35,10 @@
  */
 
 
+static errr  init_misc(void);
+static errr init_other(void);
+static errr init_alloc(void);
+
 
 /*
  * Find the default paths to all of our important sub-directories.
@@ -325,6 +329,7 @@ static void note(cptr str)
 /*** Initialize from binary image files ***/
 
 
+#if 0
 /*
  * Initialize the "f_info" array, by parsing a binary "image" file
  */
@@ -380,6 +385,7 @@ static errr init_f_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
 
 
@@ -468,11 +474,16 @@ errr init_f_info(char *subdir)
 	fake_text_size = FAKE_TEXT_SIZE;
 
 	/* Allocate the "f_info" array */
-	C_MAKE(f_info, f_head->info_num, feature_type);
+	if (!f_info)
+		C_MAKE(f_info, f_head->info_num, feature_type);
+	else
+		C_WIPE(f_info, f_head->info_num, feature_type);
 
 	/* Hack -- make "fake" arrays */
-	C_MAKE(f_name, fake_name_size, char);
-	C_MAKE(f_text, fake_text_size, char);
+	if (!f_name)
+		C_MAKE(f_name, fake_name_size, char);
+	if (!f_text)
+		C_MAKE(f_text, fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -591,7 +602,7 @@ errr init_f_info(char *subdir)
 }
 
 
-
+#if 0
 /*
  * Initialize the "k_info" array, by parsing a binary "image" file
  */
@@ -647,7 +658,7 @@ static errr init_k_info_raw(int fd)
 	/* Success */
 	return (0);
 }
-
+#endif
 
 
 /*
@@ -732,11 +743,23 @@ errr init_k_info(char *subdir)
 	fake_text_size = FAKE_TEXT_SIZE;
 
 	/* Allocate the "k_info" array */
-	C_MAKE(k_info, k_head->info_num, object_kind);
+	if (!k_info)
+		C_MAKE(k_info, k_head->info_num, object_kind);
+	else
+	{
+		int i;
+		for (i=0;i<k_head->info_num;i++)
+		{
+			k_info[i].name=0;
+			k_info[i].text=0;
+		}
+	}
 
 	/* Hack -- make "fake" arrays */
-	C_MAKE(k_name, fake_name_size, char);
-	C_MAKE(k_text, fake_text_size, char);
+	if (!k_name)
+		C_MAKE(k_name, fake_name_size, char);
+	if (!k_text)
+		C_MAKE(k_text, fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -855,6 +878,7 @@ errr init_k_info(char *subdir)
 
 
 
+#if 0
 /*
  * Initialize the "a_info" array, by parsing a binary "image" file
  */
@@ -910,6 +934,7 @@ static errr init_a_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
 
 
@@ -1117,6 +1142,7 @@ errr init_a_info(char *subdir)
 
 
 
+#if 0
 /*
  * Initialize the "e_info" array, by parsing a binary "image" file
  */
@@ -1172,6 +1198,7 @@ static errr init_e_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
 
 
@@ -1382,6 +1409,7 @@ errr init_e_info(char *subdir)
 }
 
 
+#if 0
 /*
  * Initialize the "ra_info" array, by parsing a binary "image" file
  */
@@ -1418,6 +1446,7 @@ static errr init_ra_info_raw(int fd)
         /* Success */
 	return (0);
 }
+#endif
 
 
 
@@ -1462,6 +1491,7 @@ static errr init_ra_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
+#ifdef ALLOW_BINARY
 
 	/*** Load the binary image file ***/
 
@@ -1496,6 +1526,7 @@ static errr init_ra_info(void)
                 msg_print("Ignoring obsolete/defective 'ra_info.raw' file.");
 		msg_print(NULL);
 	}
+#endif
 
 
 	/*** Make the fake arrays ***/
@@ -1542,7 +1573,7 @@ static errr init_ra_info(void)
                 quit("Error in 'ra_info.txt' file.");
 	}
 
-
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -1572,7 +1603,6 @@ static errr init_ra_info(void)
 		(void)fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
         /* Free the "ra_info" array */
@@ -1581,10 +1611,12 @@ static errr init_ra_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif
 
 #endif	/* ALLOW_TEMPLATES */
 
 
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -1604,6 +1636,7 @@ static errr init_ra_info(void)
 
 	/* Error */
         if (err) quit("Cannot parse 'ra_info.raw' file.");
+#endif
 
 	/* Success */
 	return (0);
@@ -1611,6 +1644,7 @@ static errr init_ra_info(void)
 
 
 
+#if 0
 /*
  * Initialize the "r_info" array, by parsing a binary "image" file
  */
@@ -1666,7 +1700,9 @@ static errr init_r_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
+#if 0
 /*
  * Initialize the "re_info" array, by parsing a binary "image" file
  */
@@ -1710,8 +1746,10 @@ static errr init_re_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
 
+#if 0
 /*
  * Initialize the "d_info" array, by parsing a binary "image" file
  */
@@ -1762,7 +1800,9 @@ static errr init_d_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
+#if 0
 /*
  * Initialize the "st_info" array, by parsing a binary "image" file
  */
@@ -1806,7 +1846,9 @@ static errr init_st_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
+#if 0
 /*
  * Initialize the "ba_info" array, by parsing a binary "image" file
  */
@@ -1850,7 +1892,9 @@ static errr init_ba_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
+#if 0
 /*
  * Initialize the "ow_info" array, by parsing a binary "image" file
  */
@@ -1894,7 +1938,9 @@ static errr init_ow_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
+#if 0
 /*
  * Initialize the "wf_info" array, by parsing a binary "image" file
  */
@@ -1947,6 +1993,7 @@ static errr init_wf_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
 /*
  * Initialize the "r_info" array
@@ -2390,7 +2437,7 @@ static errr init_d_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -2422,6 +2469,7 @@ static errr init_d_info(void)
                 msg_print("Ignoring obsolete/defective 'd_info.raw' file.");
 		msg_print(NULL);
 	}
+#endif
 
 
 	/*** Make the fake arrays ***/
@@ -2474,6 +2522,7 @@ static errr init_d_info(void)
 	}
 
 
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -2522,10 +2571,12 @@ static errr init_d_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif
 
 #endif	/* ALLOW_TEMPLATES */
 
 
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -2545,6 +2596,7 @@ static errr init_d_info(void)
 
 	/* Error */
         if (err) quit("Cannot parse 'd_info.raw' file.");
+#endif
 
 	/* Success */
 	return (0);
@@ -2591,6 +2643,7 @@ static errr init_st_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
+#ifdef ALLOW_BINARY
 
 	/*** Load the binary image file ***/
 
@@ -2623,6 +2676,7 @@ static errr init_st_info(void)
                 msg_print("Ignoring obsolete/defective 'st_info.raw' file.");
 		msg_print(NULL);
 	}
+#endif
 
 
 	/*** Make the fake arrays ***/
@@ -2673,6 +2727,7 @@ static errr init_st_info(void)
 	}
 
 
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -2717,10 +2772,12 @@ static errr init_st_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif
 
 #endif	/* ALLOW_TEMPLATES */
 
 
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -2740,6 +2797,7 @@ static errr init_st_info(void)
 
 	/* Error */
         if (err) quit("Cannot parse 'st_info.raw' file.");
+#endif
 
 	/* Success */
 	return (0);
@@ -2786,6 +2844,7 @@ static errr init_ow_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
+#ifdef ALLOW_BINARY
 
 	/*** Load the binary image file ***/
 
@@ -2818,6 +2877,7 @@ static errr init_ow_info(void)
                 msg_print("Ignoring obsolete/defective 'ow_info.raw' file.");
 		msg_print(NULL);
 	}
+#endif
 
 
 	/*** Make the fake arrays ***/
@@ -2868,6 +2928,7 @@ static errr init_ow_info(void)
 	}
 
 
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -2912,9 +2973,11 @@ static errr init_ow_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif
 
 #endif	/* ALLOW_TEMPLATES */
 
+#ifdef ALLOW_BINARY
 
 	/*** Load the binary image file ***/
 
@@ -2935,6 +2998,7 @@ static errr init_ow_info(void)
 
 	/* Error */
         if (err) quit("Cannot parse 'ow_info.raw' file.");
+#endif
 
 	/* Success */
 	return (0);
@@ -2981,6 +3045,7 @@ static errr init_ba_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
+#ifdef ALLOW_BINARY
 
 	/*** Load the binary image file ***/
 
@@ -3013,6 +3078,7 @@ static errr init_ba_info(void)
                 msg_print("Ignoring obsolete/defective 'ba_info.raw' file.");
 		msg_print(NULL);
 	}
+#endif
 
 
 	/*** Make the fake arrays ***/
@@ -3063,6 +3129,7 @@ static errr init_ba_info(void)
 	}
 
 
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -3107,10 +3174,12 @@ static errr init_ba_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif
 
 #endif	/* ALLOW_TEMPLATES */
 
 
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -3130,6 +3199,7 @@ static errr init_ba_info(void)
 
 	/* Error */
         if (err) quit("Cannot parse 'ba_info.raw' file.");
+#endif
 
 	/* Success */
 	return (0);
@@ -3176,6 +3246,7 @@ static errr init_wf_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
+#ifdef ALLOW_BINARY
 
 	/*** Load the binary image file ***/
 
@@ -3208,6 +3279,7 @@ static errr init_wf_info(void)
                 msg_print("Ignoring obsolete/defective 'wf_info.raw' file.");
 		msg_print(NULL);
 	}
+#endif
 
 	/*** Make the fake arrays ***/
 
@@ -3258,6 +3330,7 @@ static errr init_wf_info(void)
                 quit("Error in 'wf_info.txt' file.");
 	}
 
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -3308,9 +3381,11 @@ static errr init_wf_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif
 
 #endif	/* ALLOW_TEMPLATES */
 
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -3330,11 +3405,13 @@ static errr init_wf_info(void)
 
 	/* Error */
         if (err) quit("Cannot parse 'wf_info.raw' file.");
+#endif
 
 	/* Success */
 	return (0);
 }
 
+#if 0
 /*
  * Initialize the "t_info" array, by parsing a binary "image" file
  */
@@ -3390,6 +3467,7 @@ static errr init_t_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
 /*
  * Initialize the "t_info" array
@@ -3594,6 +3672,7 @@ errr init_t_info(char *subdir)
 	return (0);
 }
 
+#if 0
 /*
  * Initialize the "v_info" array, by parsing a binary "image" file
  */
@@ -3648,6 +3727,7 @@ static errr init_v_info_raw(int fd)
 	/* Success */
 	return (0);
 }
+#endif
 
 
 /*
@@ -3921,6 +4001,9 @@ if(init_t_info(dir))
   }
 init_other();
 init_alloc();
+
+reset_visuals();
+
 }
 
 
@@ -4020,12 +4103,14 @@ static errr init_wilderness(void)
 	return 0;
 }
 
-/*
- * Initialize some other arrays
- */
-static errr init_other(void)
+static errr init_once(void)
 {
 	int i, n;
+static int already_done=0;
+
+	if (already_done)
+		return 0;
+	already_done=1;
 
 
 	/*** Prepare the "dungeon" information ***/
@@ -4038,28 +4123,14 @@ static errr init_other(void)
 	/* Allocate and Wipe the object list */
 	C_MAKE(o_list, max_o_idx, object_type);
 
-	/* Allocate and Wipe the monster list */
-	C_MAKE(m_list, max_m_idx, monster_type);
-
         /* Allocate and Wipe the to keep monster list */
         C_MAKE(km_list, max_m_idx, monster_type);
 
         /* Allocate and Wipe the max dungeon level */
         C_MAKE(max_dlv, max_d_idx, s16b);
 
-        /* Allocate and Wipe the special levels */
-        for (i = 0; i < MAX_DUNGEON_DEPTH; i++)
-        {
-                C_MAKE(special_lvl[i], max_d_idx, bool);
-        }
-
-	/* Allocate and wipe each line of the cave */
-	for (i = 0; i < MAX_HGT; i++)
-	{
-		/* Allocate one row of the cave */
-		C_MAKE(cave[i], MAX_WID, cave_type);
-	}
-
+	/* Allocate and Wipe the monster list */
+	C_MAKE(m_list, max_m_idx, monster_type);
 
 	/*** Prepare the various "bizarre" arrays ***/
 
@@ -4073,6 +4144,7 @@ static errr init_other(void)
 
 	/* Quark variables */
 	C_MAKE(quark__str, QUARK_MAX, cptr);
+	quark__num = 0;
 
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
@@ -4081,12 +4153,6 @@ static errr init_other(void)
 
 	/* Hack -- No messages yet */
 	message__tail = MESSAGE_BUF;
-
-
-	/*** Prepare the Player inventory ***/
-
-	/* Allocate it */
-	C_MAKE(inventory, INVEN_TOTAL, object_type);
 
 
 	/*** Pre-allocate the basic "auto-inscriptions" ***/
@@ -4107,6 +4173,24 @@ static errr init_other(void)
 	(void)quark_add("uncursed");
 	(void)quark_add("on sale");
 
+
+	/*** Prepare the Player inventory ***/
+
+	/* Allocate it */
+	C_MAKE(inventory, INVEN_TOTAL, object_type);
+
+        /* Allocate and Wipe the special levels */
+        for (i = 0; i < MAX_DUNGEON_DEPTH; i++)
+        {
+                C_MAKE(special_lvl[i], max_d_idx, bool);
+        }
+
+	/* Allocate and wipe each line of the cave */
+	for (i = 0; i < MAX_HGT; i++)
+	{
+		/* Allocate one row of the cave */
+		C_MAKE(cave[i], MAX_WID, cave_type);
+	}
 
 	/*** Prepare the options ***/
 
@@ -4159,8 +4243,17 @@ static errr init_other(void)
 	/* Hack -- Just call the "format()" function */
         (void)format("%s (%s).", "James Banks", MAINTAINER);
 
-	/* Success */
-	return (0);
+
+	return 0;
+}
+
+/*
+ * Initialize some other arrays
+ */
+static errr init_other(void)
+{
+
+	return init_once();
 }
 
 

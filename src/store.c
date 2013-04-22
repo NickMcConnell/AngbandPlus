@@ -390,10 +390,6 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
-	/* Hack - merchants have better prices */
-	if (p_ptr->pclass == CLASS_MERCHANT)
-		factor -= p_ptr->lev/2;
-
 	/* Shop is buying */
 	if (flip)
 	{
@@ -490,7 +486,6 @@ static void mass_produce(object_type *o_ptr)
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
 		case TV_CHAOS_BOOK:
-                case TV_NETHER_BOOK:
                 case TV_CRUSADE_BOOK:
                 case TV_SIGALDRY_BOOK:
                 case TV_SYMBIOTIC_BOOK:
@@ -500,7 +495,6 @@ static void mass_produce(object_type *o_ptr)
                 case TV_ILLUSION_BOOK:
                 case TV_TRIBAL_BOOK:
                 case TV_DRUID_BOOK:
-		case TV_DAEMON_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(4, 3);
 			if (cost <= 500L) size += mass_roll(2, 3);
@@ -868,7 +862,6 @@ static bool store_will_buy(object_type *o_ptr)
                                 case TV_MAGERY_BOOK:
                                 case TV_SHADOW_BOOK:
 				case TV_CHAOS_BOOK:
-                                case TV_NETHER_BOOK:
                                 case TV_CRUSADE_BOOK:
                                 case TV_SIGALDRY_BOOK:
                                 case TV_SYMBIOTIC_BOOK:
@@ -876,8 +869,7 @@ static bool store_will_buy(object_type *o_ptr)
                                 case TV_MAGIC_BOOK:
                                 case TV_ILLUSION_BOOK:
                                 case TV_TRIBAL_BOOK:
-				case TV_DAEMON_BOOK:
-                                case TV_DRUID_BOOK:
+				case TV_DRUID_BOOK:
 				case TV_SPIRIT_BOOK:
 				case TV_AMULET:
 				case TV_RING:
@@ -905,7 +897,6 @@ static bool store_will_buy(object_type *o_ptr)
                                                 case TV_MAGERY_BOOK:
                                                 case TV_SHADOW_BOOK:
 						case TV_CHAOS_BOOK:
-                                                case TV_NETHER_BOOK:
                                                 case TV_VALARIN_BOOK:
                                                 case TV_CRUSADE_BOOK:
                                                 case TV_SIGALDRY_BOOK:
@@ -915,7 +906,6 @@ static bool store_will_buy(object_type *o_ptr)
                                                 case TV_PRAYER_BOOK:
                                                 case TV_ILLUSION_BOOK:
                                                 case TV_TRIBAL_BOOK:
-                                                case TV_DAEMON_BOOK:
                                                 case TV_DRUID_BOOK:
 						case TV_SPIRIT_BOOK:
 					break;
@@ -1724,8 +1714,7 @@ void display_store(void)
 	if (cur_store_num == 7)
 	{
                 /* Put the owner name -- mega hack */
-                if ((p_ptr->pclass == CLASS_MERCHANT) && (p_ptr->town_num == TOWN_RANDOM)) put_str("Hole Contents", 3, 30);
-                else put_str("Your Home", 3, 30);
+                put_str("Your Home", 3, 30);
 
 		/* Label the item descriptions */
 		put_str("Item Description", 5, 3);
@@ -3056,17 +3045,6 @@ void store_sell(void)
                 }
 	}
 
-
-	/* Hack -- Cannot put a portable hole into home */
-	if ((p_ptr->pclass == CLASS_MERCHANT) &&
-	    (o_ptr->tval == TV_TOOL) && (o_ptr->sval == SV_PORTABLE_HOLE))
-	{
-		msg_print("Putting it into your home has extra-dimensional problems");
-		
-		return;
-	}
-
-	
 	/* Assume one item */
 	amt = 1;
 
@@ -4398,48 +4376,3 @@ static void pay_for_requested_item(int value, object_type *q_ptr)
 	}
 }
 
-/*
- * Request item for merchants
- */
-void store_request_item(void)
-{
-        char buf[80], name[80];
-        object_type forge, *q_ptr = &forge;
-	store_type *ost_ptr = st_ptr;
-	
-	/* Paranoia */
-        if (p_ptr->pclass != CLASS_MERCHANT)
-        {
-                st_ptr = ost_ptr;
-                return;
-        }
-
-	/* Get the Black Market */
-	st_ptr = &town[p_ptr->town_num].store[6];
-	
-        /* Make an empty string */
-        buf[0] = 0;
-
-        /* Ask for the wish */
-        if (!get_string("Request what? ", buf, 80))
-        {
-                st_ptr = ost_ptr;
-                return;
-        }
-
-        clean_wish_name(buf, name);
-
-        if (test_object_wish(name, q_ptr, &forge, "request"))
-        {
-                int value = object_value_real(q_ptr) * 5;
-			
-                /* Pay for the delivery */
-                pay_for_requested_item(value, q_ptr);
-			
-                /* Don't search any more */
-                st_ptr = ost_ptr;
-                return;
-        }
-	
-	st_ptr = ost_ptr;
-}

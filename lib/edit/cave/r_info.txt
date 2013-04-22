@@ -1,5 +1,5 @@
 # File: r_info.txt
-# For NTAngband 0.3h
+# For NTAngband 0.4
 
 # This file is used to initialize the "lib/raw/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
@@ -178,7 +178,7 @@
 
 # If you wish to add separate monsters for a specific dungeon, 
 # make a monster list as usual, but make sure that their serial numbers
-# are greater than 520.  Then, append it to this file.
+# are greater than 510.  Then, append it to this file.
 
 # Version stamp (required)
 
@@ -327,6 +327,19 @@ F:FEMALE | UNIQUE | NO_SLEEP | NO_CONF | NO_STUN | DROP_CORPSE
 F:SMART | AI_ANNOY
 D:A Shih-Tzu/Chihuahua mix, she yaps and annoys intensely.  
 
+N:22:Blue yeek
+G:y:b
+I:110:2d6:18:14:10
+W:2:1:700:4
+E:1:1:1:2:1:1
+O:25:0:0:55
+B:HIT:HURT:1d5
+F:DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | 
+F:ANIMAL | IM_ACID | 
+F:MORTAL | BASEANGBAND
+D:A small humanoid figure. 
+
 # level 3 
 
 N:30:Geologist
@@ -337,7 +350,7 @@ E:0:1:1:2:1:1
 O:20:0:40:40
 B:MOAN:CONFUSE:2d10
 B:TOUCH:HURT:1d1
-F:MORTAL | SMART | NO_CONF | PASS_WALL | DROP_CORPSE
+F:MORTAL | SMART | NO_CONF | PASS_WALL | DROP_CORPSE | MALE
 D:A respectable scholarly fellow who examines the 
 D:fascinating rock of this cave.  You have interrupted 
 D:his work!
@@ -355,6 +368,20 @@ S:1_IN_1
 S:MULTIPLY | TPORT | BLINK
 D:Nothing but a harmless lie...
 
+N:32:Shrieker mushroom patch
+G:,:R
+I:110:1d1:4:1:0
+W:3:1:40:1
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | WILD_TOO | WILD_SWAMP | DROP_CORPSE | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | BASEANGBAND
+S:1_IN_4 | 
+S:SHRIEK
+D:Yum!  It looks quite tasty.  It doesn't sound so nice, though... 
+
 # level 4
 
 N:40:Casper, the Friendly Ghost
@@ -367,7 +394,7 @@ B:WAIL:*
 B:WAIL:*
 B:WAIL:*
 B:SHOW:HURT:12d4
-F:PET | AI_ANNOY | SMART | UNIQUE | PASS_WALL | INVISIBLE
+F:AI_ANNOY | SMART | UNIQUE | PASS_WALL | INVISIBLE
 S:1_IN_1
 S:HEAL | BLINK
 D:An insecure ghost whose loneliness and attention seeking are sickening.
@@ -382,23 +409,115 @@ B:KICK:HURT:5d5
 B:BITE:HURT:1d10
 B:KICK:HURT:5d5
 B:KICK:HURT:5d10
-F:ANIMAL
+F:ANIMAL | DROP_CORPSE
 D:A normal, healthy, stubborn donkey.
+
+N:42:Brown yeek
+G:y:u
+I:110:4d8:18:18:10
+W:4:1:800:11
+E:1:1:1:2:1:1
+O:0:50:0:30
+B:HIT:HURT:1d6
+F:DROP_60 | DROP_CORPSE | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:ANIMAL | IM_ACID | 
+F:MORTAL | BASEANGBAND
+D:It is a strange small humanoid. 
 
 # level 5
 N:50:'Doom' weenie
 G:l:r
 I:110:1d50:15:0:0
-W:5:5:900:9
+W:5:1:900:9
 E:0:0:0:0:0:0
 O:0:0:0:0
-F:AI_ANNOY | STUPID | MALE
+F:AI_ANNOY | STUPID | MALE | DROP_CORPSE
 S:1_IN_2
 S:ARROW_2
 D:An addict of FPS games, he thinks of himself merely as a hand holding a gun. 
 D:He whines about the obsolete ASCII "graphics".  He has not yet developed a 
 D:capability for abstract thought, and he really can't handle perma-death. 
 D:Annihilate any that move.
+
+N:51:Yeek Skeleton
+G:s:w
+I:105:3d8:1:10:0
+W:5:1:200:5
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:EMPTY_MIND | MORTAL
+D:A shabby, shambling skeleton; the remains of a valiant yeek raised to life 
+D:by evil necromancers.
+
+N:52:Enterobius vermicularis
+G:j:w
+I:150:1d1:1:0:0
+W:5:0:0:2
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:ENGULF:PARASITE:1d1
+B:ENGULF:TERRIFY:1d1
+B:ENGULF:TERRIFY:1d1
+F:INVISIBLE | NEVER_MOVE
+D:Highly annoying, rather humiliating, but not very dangerous.
+
+# level 6
+
+N:60:Spiglax, Yeek Traitor
+G:y:y
+I:115:5d10:5:25:157
+W:6:5:350:0
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:HIT:HURT:10d5
+F:PET | SMART | UNIQUE
+S:1_IN_2
+S:HASTE | S_KIN | ARROW_2 | BLINK | TPORT | HEAL
+D:At 3 feet tall, this yeek towers head and shoulders over the other yeeks.
+D:A mighty yeek of old, he is great in magic and leads a band of disenchanted
+D:yeeks.  His father was murdered by Boldor's henchmen and he is out to avenge
+D:his death.  Fortunately, he is on your side.
+
+N:61:Orfax, Son of Boldor
+G:y:B
+I:120:12d10:18:20:10
+W:6:3:600:80
+E:1:1:1:2:1:1
+O:0:50:50:0
+B:HIT:HURT:1d9
+B:HIT:HURT:1d8
+B:INSULT:*
+B:INSULT:*
+F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ESCORT | ESCORTS | 
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:ANIMAL | EVIL | IM_ACID | 
+F:MORTAL | BASEANGBAND
+S:1_IN_4 | 
+S:HEAL | BLINK | TELE_TO | SLOW | CONF | 
+S:S_MONSTER
+D:He's just like his daddy!  He knows mighty spells, but fortunately he is a 
+D:yeek. 
+
+N:62:Master yeek
+G:y:g
+I:110:12d9:18:24:10
+W:6:2:600:28
+E:1:1:1:2:1:1
+O:0:0:100:0
+B:HIT:HURT:1d8
+F:FORCE_SLEEP | 
+F:DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:ANIMAL | EVIL | IM_ACID | DROP_CORPSE | 
+F:MORTAL | BASEANGBAND
+S:1_IN_4 | 
+S:BLINK | TPORT | BLIND | SLOW | BA_POIS | 
+S:S_MONSTER
+D:A small humanoid that radiates some power. 
 
 # level 7
 
@@ -416,6 +535,27 @@ F:EVIL
 S:1_IN_10
 S:BLINK | MULTIPLY
 D:A little bit of gold-lust can't be that bad, now can it?
+
+N:71:Boldor, King of the Yeeks
+G:y:v
+I:120:18d10:18:24:10
+W:13:3:650:200
+E:1:1:1:2:1:1
+O:0:90:10:0
+B:HIT:HURT:1d9
+B:HIT:HURT:1d9
+B:HIT:HURT:1d8
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ESCORT | ESCORTS | 
+F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD | 
+F:SMART | OPEN_DOOR | BASH_DOOR | CAN_SPEAK | DROP_CORPSE | 
+F:ANIMAL | EVIL | IM_ACID | 
+F:MORTAL | BASEANGBAND
+S:1_IN_3 | 
+S:HEAL | BLINK | TPORT | BLIND | SLOW | 
+S:S_KIN | S_MONSTER
+D:A great yeek, powerful in magic and sorcery, but a yeek all the same. 
 
 # level 10
 
@@ -462,7 +602,7 @@ D:Oh no! They are everywhere!
 
 N:141:Cleanliness
 G:V:W
-I:50:50d20:7:300:254
+I:100:50d20:7:300:254
 W:14:1:0:4
 E:0:0:0:0:0:0
 O:0:0:0:0
@@ -478,7 +618,7 @@ D:Beware the dangerous Lysol this virtue breathes!
 N:150:Spanish Carnival
 G:J:v
 I:120:15d10:2:25:256
-W:15:1:32756:10
+W:15:5:32756:10
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:ENGULF:CONFUSE:2d10
@@ -488,13 +628,23 @@ B:ENGULF:EAT_GOLD:1d5
 F:ATTR_MULTI | DROP_CORPSE | NEVER_MOVE
 S:1_IN_1
 S:TELE_TO
-D:  So this Gascon drug lord finds out about a raid from one of his friends 
-D:among the gendarmes.  He gets his best mule to haul the goods over to
-D:Spain while he takes a boat to Majorca.  However, his nearest connections 
-D:are in Madrid, and there's no time to negotiate with the Barcelona drug ring
-D:for storage, so his mule asks him where to hide the drugs.  The drug lord 
-D:tells him to hide it in the first carnival he finds after crossing the 
-D:Spanish border.  Because no one ever inspects the Spanish Exposition.
+D:Why did the drug-smuggler hide his goods in a Spanish carnival?
+D:Because no one ever inspects the Spanish Exposition.
+
+N:151:Crazy Rainbow Neon Clown
+G:J:v
+I:108:15d15:7:50:150
+W:15:1:1500:25
+E:1:1:1:2:1:1
+O:0:0:0:0
+B:GAZE:TERRIFY:2d15
+B:BITE:CONFUSE:2d5
+B:GAZE:HALLU:2d12
+F:MORTAL | DROP_CORPSE | OPEN_DOOR
+F:AI_ANNOY | ATTR_MULTI
+S:1_IN_4
+S:TELE_TO
+D:It can be seen in the recall windows of certain variants.
 
 # level 48
 
@@ -519,9 +669,9 @@ W:48:1:50:20
 E:0:0:0:0:0:0
 B:BITE:HURT:2d10
 B:BITE:HALLU:1d3
-F:MORTAL | DROP_CORPSE | ELDRITCH_HORROR
+F:MORTAL | DROP_CORPSE | ELDRITCH_HORROR | FRIENDS
 S:1_IN_2
-S:MULTIPLY | BR_CONF
+S:BR_CONF
 D:'All pink.  All pink--as big as mastiffs, with an eye on the top of the 
 D:head and claws all round their ugly mouths.'
 
@@ -533,10 +683,10 @@ I:130:7d7:7:7:77
 W:49:1:0:10
 E:1:1:1:2:1:1
 O:0:0:0:0
-B:BITE:EXP_80
+B:BITE:EXP_80:1d1
 B:BITE:POISON:8d8
 B:BITE:PARASITE:4d4
-B:BITE:DISEASE
+B:BITE:DISEASE:5d5
 F:FEMALE | MORTAL | CAN_FLY | DROP_CORPSE | AURA_FIRE
 S:MULTIPLY
 D:This is the scariest skeeter you've seen since that camping trip in Texas. 
@@ -556,7 +706,7 @@ D:A fine white powder...
 
 # cave level 50 #
 
-N:500:Ivan Tkatchev, the Demented Coder of KaMBand
+N:500:Ivan Tkatchev
 G:N:o
 I:100:200d200:100:100:0
 W:50:1:2:33333
@@ -569,18 +719,18 @@ S:TELE_TO | TPORT
 D:A mysterious maintainer, he will quickly turn you into an unthinking 
 D:vegetable...
 
-N:501:J. K. Banks, the Strange Coder from Around Here
+N:501:James Banks
 G:N:u
-I:155:100d30:137:50:0
+I:160:100d30:137:50:0
 W:50:1:950:222222
 E:1:1:1:2:1:1
 O:25:25:25:25
 B:MOAN:TIME:10d10
 B:GAZE:INSANITY:60d5
-#B:CLAW:PARASITE:4d64
-B:TOUCH:UN_BONUS
-F:MALE | MORTAL | UNIQUE | CAN_SPEAK | NO_CONF | SMART | 
-F:IM_FIRE | IM_COLD | IM_POIS | IM_ACID | IM_ELEC  
+B:TOUCH:DISEASE:10d50
+B:TOUCH:UN_POWER
+F:MALE | MORTAL | UNIQUE | CAN_SPEAK | NO_CONF | NO_SLEEP | SMART | 
+F:IM_FIRE | IM_COLD | IM_POIS | IM_ACID | IM_ELEC | AURA_COLD
 S:1_IN_4
 S:TPORT | BR_SOUN | BR_NEXU
 D:The vicious and demented maintainer of NTA, his piercing gaze and 
@@ -591,7 +741,7 @@ D:of coffee; milk and ice water give him his energy.
 
 # And the following is watered down!
 
-N:502:DarkGod, the Mighty Coder of Hell
+N:502:DarkGod
 G:N:B
 I:140:180d100:111:175:0
 W:50:1:1600:6666666
@@ -606,9 +756,9 @@ F:WEIRD_MIND | DROP_CORPSE | DROP_SKELETON |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
 F:DROP_GOOD | DROP_GREAT | RES_NETH | 
 F:SMART | KILL_WALL | KILL_BODY | RES_TELE | 
-F:REGENERATE | CAN_FLY | CAN_SWIM | 
+F:CAN_FLY | CAN_SWIM | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RES_TELE
+F:NO_CONF | NO_FEAR | NO_STUN | RES_TELE
 F:MORTAL | JOKEANGBAND | HAS_LITE
 S:1_IN_2 | 
 S:BR_CHAO | BA_CHAO | ROCKET | BRAIN_SMASH |  
@@ -633,4 +783,3 @@ D:encounter him, pray your deity holds you in good stead.
 # S: spell frequency |
 # S: spell type | spell type | etc
 # D: Description
-

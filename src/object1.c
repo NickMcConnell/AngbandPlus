@@ -392,7 +392,6 @@ static bool object_easy_know(int i)
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
 		case TV_CHAOS_BOOK:
-                case TV_NETHER_BOOK:
                 case TV_CRUSADE_BOOK:
                 case TV_SIGALDRY_BOOK:
                 case TV_MUSIC_BOOK:
@@ -1497,16 +1496,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 basenm = "& Chaos Spellbook~ #";
 			break;
 		}
-        case TV_NETHER_BOOK:
-		{
-			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
-                basenm = "& Book~ of Nether Magic #";
-            else
-                basenm = "& Nether Spellbook~ #";
-			break;
-		}
-
 
     case TV_CRUSADE_BOOK:
 		{
@@ -1578,15 +1567,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-                /* Daemon Books */
-                case TV_DAEMON_BOOK:
-		{
-			modstr = basenm;
-                        basenm = "& Daemon Blade~ #";
-                        show_weapon = TRUE;
-			break;
-		}
-		
                 /* Druid Books */
                 case TV_DRUID_BOOK:
 		{
@@ -2064,7 +2044,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 case TV_AXE:
 		case TV_SWORD:
 		case TV_DIGGING:
-                case TV_DAEMON_BOOK:
                
 		/* Append a "damage" string */
 		t = object_desc_chr(t, ' ');
@@ -4274,8 +4253,7 @@ s16b wield_slot(object_type *o_ptr)
                 case TV_MSTAFF:
 		case TV_SWORD:
                 case TV_AXE:
-                case TV_DAEMON_BOOK:
-		{
+                {
                         return get_slot(INVEN_WIELD);
 		}
 

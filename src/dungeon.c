@@ -242,18 +242,6 @@ static void sense_inventory(void)
 	/* Analyze the class */
 	switch (p_ptr->pclass)
 	{
-		case CLASS_MERCHANT:
-		{
-			/* Good sensing */
-                        if (0 != rand_int(8000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
 		case CLASS_WARRIOR:
                 case CLASS_WEAPONMASTER:
                 case CLASS_UNBELIEVER:
@@ -302,8 +290,7 @@ static void sense_inventory(void)
 
 		case CLASS_ROGUE:
                 case CLASS_SYMBIANT:
-                case CLASS_NECRO:
-		{
+                {
 			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 
@@ -364,7 +351,6 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_CHAOS_WARRIOR:
-		case CLASS_DAEMONOLOGIST:
 		{
 
 			/* Bad sensing */
@@ -3869,13 +3855,9 @@ static void process_command(void)
                                                 which_power = "forging abilities";
                                         else if (p_ptr->pclass == CLASS_POSSESSOR)
                                                 which_power = "transfering abilities";
-                                        else if (p_ptr->pclass == CLASS_NECRO)
-                                                which_power = "necromantic powers";
                                         else if (p_ptr->pclass == CLASS_UNBELIEVER)
                                                 which_power = "sensing powers";
-                                        else if (p_ptr->pclass == CLASS_MERCHANT)
-                                                which_power = "telekinetic powers";
-
+                                        
 					msg_format("An anti-magic shell disrupts your %s!", which_power);
 
 					energy_use = 0;
@@ -3898,9 +3880,7 @@ static void process_command(void)
                                                 do_cmd_possessor();
                                         else if (p_ptr->pclass == CLASS_UNBELIEVER)
                                                 do_cmd_unbeliever();
-                                        else if (p_ptr->pclass == CLASS_MERCHANT)
-                                                do_cmd_portable_hole();
-					else
+                                        else
 						do_cmd_cast();
 				}
 			}

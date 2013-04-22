@@ -734,6 +734,7 @@ static void alloc_stairs(int feat, int num, int walls, int branch)
 
 			/* Require fewer walls */
 			if (walls) walls--;
+			else break;
 		}
 	}
 }

@@ -1282,7 +1282,7 @@ player_race race_info[MAX_RACES] =
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-                0xFFFFFFFF - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER),
+                0xFFFFFFFF - BIT(CLASS_POWERMAGE) - BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1296,7 +1296,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-                0xFFFFFFFF - BIT(CLASS_PALADIN)- BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER),
+                0xFFFFFFFF - BIT(CLASS_PALADIN)- BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1310,22 +1310,8 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-                0xFFFFFFFF - BIT(CLASS_PRIEST) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_DRUID) - BIT(CLASS_NECRO) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_PRIEST) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
                 { PWR_COOK_FOOD, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Gnome",
-                "Related to dwarves, Gnomes are between Dwarves and Hobbits in size.\nVery good at magic use they are poor as fighters.",
-		{ -1,  2,  0,  2,  1, -2 },
-		10, 12, 12,  3, 6,  13, -8, 12,
-		8,  135,
-		50, 40,
-		42,  3, 90,  6,
-		39,  3, 75,  3,
-		4,
-                0xFFFFFFFF - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_HARPER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
-                { PWR_BLINK, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
 	{
@@ -1338,13 +1324,13 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_NECRO) - BIT(CLASS_DAEMONOLOGIST),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST),
                 { PWR_PASSWALL, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
 	{
                 "Orc",
-                "Quite strong but not very smart.",
+                "Quite strong but not very smart.  Most orcs are\n in the service of Morgoth, but a few have seen him for what he is.",
                 {  2, -1,  0,  1,  1, -4 },
 		-3, -3, -3,  -1,  0, 7, 12, -5,
 		10,  110,
@@ -1352,13 +1338,13 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_MERCHANT),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID),
                 { PWR_UNFEAR, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
 	{
                 "Troll",
-                "They can bear the light of the sun.\nThey are extremely strong and dumb.",
+                "They can bear the light of the sun.\nThey are extremely strong and dumb.  Why you are fighting \nMorgoth, no one knows.",
 		{ 4, -4, -2, -4,  3, -6 },
 		-5, -8, -8, -2,  -1, 5, 20, -10,
 		12,  137,
@@ -1366,7 +1352,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID),
                 { PWR_BERSERK, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1380,7 +1366,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 190, 20,
 		78,  6, 180, 15,
 		0,
-                0xFFFFFFFF - BIT(CLASS_MIMIC) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO),
+                0xFFFFFFFF - BIT(CLASS_MIMIC) - BIT(CLASS_POWERMAGE),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1394,7 +1380,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER),
+                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1408,7 +1394,7 @@ player_race race_info[MAX_RACES] =
 		92, 10, 255, 60,
 		80,  8, 235, 60,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
                 { PWR_EXPL_RUNE, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1422,22 +1408,8 @@ player_race race_info[MAX_RACES] =
 		100,10, 255, 65,
 		80, 10, 240, 64,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
                 { PWR_STM, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-/**/	{
-		"Kobold",
-                "A weaker kind of goblin, related to orcs.",
-		{ 1, -1, 0, 1, 0, -4 },
-		-2, -3, -2, -1, 1, 8, 10, -8,
-		9, 125,
-		11,  3,
-		60,  1, 130,  5,
-		55,  1, 100,  5,
-		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { PWR_POIS_DART, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
 /**/	{
@@ -1450,23 +1422,8 @@ player_race race_info[MAX_RACES] =
 		43,  3, 92,  6,
 		40,  3, 78,  3,
 		5,
-                0xFFFFFFFF - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID) - BIT(CLASS_NECRO)
-                - BIT(CLASS_UNBELIEVER) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_SORCERER),
+                0xFFFFFFFF - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_SORCERER),
                 { PWR_DETECT_TD, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-/**/	{
-		"Dark Elf",
-                "Elves are the first born, the Eldar.\nDark elves are rare on Middle Earth and even though not evil\nthey are not good.",
-		{ -1, 3, 2, 2, -2, 1 },
-		5, 15, 20, 3, 8, 12, -5, 10,
-		9, 150,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		5,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_POWERMAGE) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER),
-                { PWR_MAGIC_MISSILE, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
 	{
@@ -1479,7 +1436,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_NECRO) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_WEAPONMASTER),
                 { PWR_GROW_TREE, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1493,13 +1450,13 @@ player_race race_info[MAX_RACES] =
 		60,  3, 80,  4,
 		54,  3, 70,  4,
                 0,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POWERMAGE) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POWERMAGE) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID),
                 { PWR_ROHAN, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
-/**/	{
-                "DragonRider",
-                "In the distant system of the star Rukbat orbits the planet Pern, home of the\nDragonRiders. Mounting huge, powerful but friendly dragons they are masters of\nteleporatation.",
+	{
+                "DragonRidder",
+                "In the distant system of the star Rub-Cat orbits the planet Pern, home of the\nDragonRidders. Mounting huge, powerful but friendly dragons they are masters of\nteleportation.",
                 {  6,  3,  -10,  0,  6,  8 },
                 6,  0,  10,  -16,  30,  10,  15,  5,
                 15,  400,
@@ -1507,39 +1464,11 @@ player_race race_info[MAX_RACES] =
                 180,  6, 255, 25,
                 150,  4, 230, 20,
                 0,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POWERMAGE) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_NECRO) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POWERMAGE) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
                 { PWR_DRAGON, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
         },
 
-/**/	{
-                "DeathMold",
-                "A pure mass of evilness, DeathMolds cannot move, but they have much more\npower than an average race.",
-                { 10, 0, 10, 0, 10, -15 },
-                15, -5, 15, 25, 0, 10, 25, 25,
-                15, 250,
-                5, 15,
-                10, 1, 50, 1,
-                10, 1, 50, 1,
-                10,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_WARRIOR) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { PWR_DEATHMOLD, -1, -1, -1},
-                {1, 1, 1, 4, 0, 0},
-        },
-/**/    {
-                "Yeek",
-                "The weakest of all the races, bad at everything except gaining levels quickly.",
-                {-5, -5, -5, -5, -5, -5},
-                -5, -5, -10, 0, -5, 0, -10, -10,
-                6, 25,
-                10,  4,
-                40, 5, 50, 10,
-                35, 4, 45, 10,
-                2,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MIMIC) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_WEAPONMASTER),
-                { -1, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-        },
 	{
                 "Wood Elf",
                 "Elves are the first born, the Eldar.\nWood elves live in the great forests of Middle Earth.",
@@ -1550,7 +1479,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
                 4,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1620,9 +1549,9 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0,  0, 0, 0,
                 0,  0, 0, 0,
                 3,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
+                0xFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
                 0,
-                BIT(CLASS_MERCHANT),
+                0,
                 { PWR_VAMPIRISM, -1, -1, -1},
                 {0, 0, 0, 0, 0, 0},
 	},
@@ -1638,16 +1567,16 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0, 0, -10, -5,
                 0, 0, -10, -5,
                 3,
-                0xFFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER) - BIT(RACE_MOLD),
+                0xFFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
                 0,
-                BIT(CLASS_WARRIOR) + BIT(CLASS_UNBELIEVER) + BIT(CLASS_WEAPONMASTER) + BIT(CLASS_ARCHER) + BIT(CLASS_MERCHANT),
+                BIT(CLASS_WARRIOR) + BIT(CLASS_UNBELIEVER) + BIT(CLASS_WEAPONMASTER) + BIT(CLASS_ARCHER),
                 { PWR_SCARE, -1, -1, -1},
                 {0, 0, 0, -1, 0, 0},
 	},
 
 	{
 		"Skeleton",
-                "Yet an other kind of undead. Their physical 'body' is not very vulnerable\nto sharp things.",
+                "Yet another kind of undead. Their physical 'body' is not very vulnerable\nto sharp things.",
                 TRUE,
 		{ 0, -2, -2, 0, 1, -4 },
 		-5, -5, 5, -1, -1, 8, 8, 0,
@@ -1656,10 +1585,10 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0,  0, -10, -5,
                 0,  0, -10, -5,
                 1,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
+                0xFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
                 0,
                 BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_POWERMAGE) + BIT(CLASS_HIGH_MAGE) +
-                BIT(CLASS_ILLUSIONIST) + BIT(CLASS_MERCHANT),
+                BIT(CLASS_ILLUSIONIST),
                 { PWR_REST_LIFE, -1, -1, -1},
                 {0, 0, 0, 0, 0, 0},
 	},
@@ -1675,9 +1604,9 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 1,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
+                0xFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
                 0,
-                BIT(CLASS_MERCHANT),
+                0,
                 { PWR_REST_LIFE, -1, -1, -1},
                 {0, 0, 0, 0, 0, 0},
 	},
@@ -1714,8 +1643,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0, 0, 0, 0,
                 1,
                 0xFFFFFFF - BIT(RACE_HALF_ORC) - BIT(RACE_HALF_TROLL) -
-                        BIT(RACE_HALF_OGRE) - BIT(RACE_HALF_GIANT) -
-                        BIT(RACE_KOBOLD),
+                        BIT(RACE_HALF_OGRE) - BIT(RACE_HALF_GIANT),
                 BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_MAGE) + BIT(CLASS_RUNECRAFTER),
                 BIT(CLASS_WARRIOR) + BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
@@ -1734,7 +1662,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0,  0, 0, 0,
                 0, 0, 0, 0,
                 0,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT),
+                0xFFFFFFF - BIT(RACE_ENT),
                 /* Ents and Death Molds are incorruptable for our purposes. */
                 0,
                 0,
@@ -2026,17 +1954,6 @@ player_class class_info[MAX_CLASS] =
                 CF1_ZERO_FAIL,
 	},
 
-/**/	{
-                "Necromancer",
-                "A necromancer's main goal is to be able to avoid death. When killed they\ncan resurrect themselves if they kill enough monsters in their undead\n form. They can also use the nether magic realm.",
-                {-3, 3, -1, 3, -1, -5},
-                16, 40, 42, 3,  10, 8, 35, 20,
-                9,  16, 3, 0,  0,  0, 10, 5,
-                1, 40,
-                { PWR_NECRO, PWR_COMPANION, -1, -1},
-                CF1_ZERO_FAIL,
-	},
-
 	{
                 "Unbeliever",
                 "Disbelieve so much in magic that they generate an antimagic field\naround themselves to prevent the use of most magics and thus they are\nforbidden the use of most magical items.",
@@ -2048,16 +1965,6 @@ player_class class_info[MAX_CLASS] =
                 0,
 	},
 
-/**/	{ /* Added -SC- */
-		"Daemonologist",
-                "The goal of a daemonologist is to control demons as pets.\nThey use the terrific daemon blades to achieve that goal thus gaining\naccess to the daemon magic realm.",
-		{-2, 3, -1, 1, -1, -1},
-		20, 36, 35, 3,  15, 12, 35, 25,
-		7,  15, 10,  0,  0,  0,  15, 10,
-                0, 30,
-                { -1, -1, -1, -1},
-                0,
-	},
 
 /**/	{
 		"Weaponmaster",
@@ -2069,17 +1976,18 @@ player_class class_info[MAX_CLASS] =
                 { -1, -1, -1, -1},
                 0,
 	},
-
-	{ /* -SC- */
-		"Merchant",
-                "Money can't buy everything... wait, it can!",
-		{ -2, 3, 0, -3, -2, 6},
-		20, 36, 30, 1, 30, 10, 34, 20,
-		9,  13, 10, 0, 0,  0,  15, 15,
-                3, 35,
-                { PWR_MERCHANT, PWR_MIDAS_TCH, -1, -1},
-                0,
-	},
+	
+	{
+		"Mycoparasitologist",
+		"Learned in the foul magic of parasites and fungi, their main power\n is in the summoning and command of molds, mushrooms, and parasites.",
+		{ -1, 3, -5, 2, 5, -15},
+		25, 50, 10, 3, 5, 5, 5, 50,
+		15, 25, 5,  0, 0, 0, 0, 40,
+		10, 30,
+		{ -1, -1, -1, -1},
+		CF1_ZERO_FAIL,
+	}
+		 
 };
 
 /*
@@ -2369,82 +2277,7 @@ magic_type realm_info_base[MAX_REALM][64] =
 				{ 49, 100, 85, 250 }
 			},
 
-        /* Nether Magic */
-        {
-                {  1,  1, 10,   4},
-                {  1,  1, 20,   4},
-                {  1,  2, 15,   4},
-                {  1,  2, 25,   4},
-                {  3,  2, 25,   4},
-                {  3,  3, 27,   4},
-                {  3,  3, 27,   4},
-                {  3,  3, 28,   4},
-
-                {  5,  4, 29,   4},
-                {  5,  4, 30,   4},
-                {  5,  5, 32,   4},
-                {  5,  5, 34,   4},
-                {  7,  6, 36,   4},
-                {  7,  7, 38,   4},
-                {  7,  7, 38,   4},
-                {  7,  7, 38,   4},
-
-                {  9,  6, 38,   4},
-                {  9,  7, 38,   4},
-                {  9,  7, 40,   4},
-                { 11,  8, 42,   4},
-                { 11,  9, 42,   4},
-                { 13,  9, 45,   4},
-                { 15, 11, 45,   4},
-                { 15, 12, 50,   4},
-
-                { 15, 14, 50,   5},
-                { 17, 15, 55,   7},
-                { 21, 16, 60,   7},
-                { 23, 20, 65,   9},
-                { 25, 25, 70,  12},
-                { 33, 25, 90,  15},
-                { 39, 32, 95,  20},
-
-                {  1,  1, 10,   4},
-                {  9,  5, 35,   4},
-                { 11,  7, 45,   4},
-                { 15, 10, 55,   4},
-                { 20, 10, 60,   4},
-                { 25, 20, 70,   4},
-                { 35, 50, 85,   4},
-
-                {  5,  4, 30,   4},
-                {  7,  5, 35,   4},
-                { 15,  8, 45,   4},
-                { 21, 13, 55,   4},
-                { 25, 20, 60,  10},
-                { 39, 50, 90,  50},
-                { 45, 75, 95,  50},
-
-                {  5,  4, 30,   4},
-                {  9,  7, 40,   4},
-                { 19, 12, 55,   4},
-                { 21, 12, 60,  10},
-                { 23, 15, 65,  10},
-                { 31, 20, 80,  10},
-
-                {  3,  5, 30,   4},
-                {  7,  5, 40,   4},
-                { 15, 10, 55,   4},
-                { 23, 25, 65,  10},
-                { 31, 30, 80,  15},
-                { 39, 40, 90,  20},
-                { 42, 50, 95,  20},
-
-                { 11, 10, 40,   4},
-                { 21, 15, 50,   6},
-                { 25, 25, 60,   8},
-                { 33, 30, 70,  10},
-                { 39, 60, 90,  35},
-                { 44, 60, 95,  30},
-        },
-
+        
         /* Crusade Magic */
 
         {
@@ -2914,44 +2747,6 @@ magic_type realm_info_base[MAX_REALM][64] =
                 { 50, 255, 95, 220},
         },
 
-	/* Daemon -SCSCSC- */
-	{
-		{ 1, 1, 10, 4},
-		{ 2, 2, 12, 4},
-		{ 3, 4, 16, 6},
-		{ 3, 7, 20, 8},
-		{ 4, 4, 22, 8},
-		{ 5, 8, 25, 8},
-		{ 7, 9, 28, 10},
-		{ 12, 10, 32, 15},
-
-		{ 3, 2, 15, 6},
-		{ 5, 6, 18, 8},
-		{ 6, 6, 20, 10},
-		{ 10, 14, 30, 12},
-		{ 12, 8, 34, 14},
-		{ 16, 12, 36, 16},
-		{ 18, 16, 40, 18},
-		{ 20, 18, 50, 19},
-
-		{ 20, 25, 55, 45},
-		{ 25, 20, 60, 52},
-		{ 28, 25, 64, 55},
-		{ 32, 44, 68, 59},
-		{ 38, 35, 72, 65},
-		{ 44, 75, 85, 80},
-		{ 22, 18, 50, 50},
-		{ 25, 25, 60, 65},
-
-		{ 26, 18, 55, 55},
-		{ 30, 28, 63, 67},
-		{ 38, 34, 70, 75},
-		{ 45, 72, 85, 110},
-		{ 40, 35, 90, 120},
-		{ 42, 58, 92, 130},
-		{ 45, 40, 94, 140},
-		{ 48, 60, 95, 150},
-        },
 
         /* Spirit */
         {
@@ -3419,23 +3214,6 @@ player_magic magic_info[MAX_CLASS] =
                 4,
 	},
 
-	{
-                /*** Necromancer ***/
-
-                TV_MAGERY_BOOK,
-		0,
-
-                A_CON,
-		1,
-
-                0,
-                0,
-                0,
-		1,
-		350,
-
-                3,
-	},
 
 	{
                 /*** Unbeliever ***/
@@ -3456,23 +3234,6 @@ player_magic magic_info[MAX_CLASS] =
 	},
 
 	{
-                /*** Daemonologist ***/
-                TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                0,
-                0,
-                0,
-                1,
-                300,
-
-                4,
-	},
-
-	{
                 /*** Weaponmaster ***/
 
 		0,
@@ -3490,21 +3251,6 @@ player_magic magic_info[MAX_CLASS] =
                 0,
 	},
 
-	{
-		/*** Merchant ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-		0,
-	},
 };
 
 
@@ -3564,19 +3310,6 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
                 {0x00000000, 0xff000000},
         },
 
-        /* Nether */
-        {
-                { 0x00000000, 0x000000ff },
-                { 0x00000000, 0x0000ff00 },
-                { 0x00000000, 0x00ff0000 },
-                { 0x00000000, 0x7f000000 },
-
-                { 0x0000003f, 0x80000000 },
-                { 0x00001fc0, 0x00000000 },
-                { 0x0007e000, 0x00000000 },
-                { 0x03f80000, 0x00000000 },
-                { 0xfc000000 ,0x00000000 },
-        },
 
         /* Crusade */
         {
@@ -3667,15 +3400,6 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
                 {0x000000ff, 0x00000000},
         },
 
-        /* Daemon */
-        {
-                {0x00000000, 0x000000ff},
-                {0x00000000, 0x0000ff00},
-                {0x00000000, 0x003f0000},
-                {0x00000000, 0x0fc00000},
-                {0x00000000, 0xf0000000},
-        },
-
         /* Spirit */
         {
                 {0x00000000, 0x000000ff},
@@ -3689,16 +3413,16 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
 u32b Mrealm_choices[MAX_CLASS]=
 {
 /* Warrior */       (CH_NONE),
-/* Mage */          (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_MAGIC),
-/* Priest */        (CH_VALARIN | CH_NETHER | CH_PRAYER),
-/* Rogue */         (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_ILLUSION | CH_SPIRIT | CH_SIGALDRY),
+/* Mage */          (CH_MAGERY | CH_SHADOW | CH_MAGIC),
+/* Priest */        (CH_VALARIN | CH_PRAYER),
+/* Rogue */         (CH_MAGERY | CH_SHADOW | CH_ILLUSION | CH_SPIRIT | CH_SIGALDRY),
 /* Ranger */        (CH_ILLUSION | CH_TRIBAL),
 /* Paladin */       (CH_CRUSADE),
 /* Warrior-Mage */  (CH_SIGALDRY),
 /* Chaos Warrior */ (CH_CHAOS),
 /* Monk */          (CH_VALARIN | CH_SPIRIT | CH_ILLUSION | CH_TRIBAL),
 /* Mindcrafter */   (CH_NONE),
-/* High Mage */     (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_SIGALDRY | CH_SPIRIT | CH_ILLUSION),
+/* High Mage */     (CH_MAGERY | CH_SHADOW | CH_SIGALDRY | CH_SPIRIT | CH_ILLUSION),
 /* Mimic       */   (CH_NONE),
 /* BeastMaster */   (CH_TRIBAL),
 /* Alchemist   */   (CH_NONE),
@@ -3707,16 +3431,14 @@ u32b Mrealm_choices[MAX_CLASS]=
 /* Power Mage  */   (CH_NONE),
 /* Runecrafter */   (CH_NONE),
 /* Possessor */     (CH_NONE),
-/* Sorceror */      (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_CHAOS | CH_SIGALDRY |
+/* Sorceror */      (CH_MAGERY | CH_SHADOW | CH_CHAOS | CH_SIGALDRY |
                      CH_ILLUSION | CH_SPIRIT),
 /* Archer */        (CH_NONE),
 /* Illusionist */   (CH_ILLUSION),
 /* Druid */         (CH_DRUID),
-/* Necromancer */   (CH_NETHER),
 /* Unbeliever  */   (CH_NONE),
-/* Daemonologist */ (CH_DAEMON),
 /* Weaponmaster */  (CH_NONE),
-/* Merchant  */     (CH_NONE),
+/* Mycoparasit. */  (CH_NONE),
 };
 
 u32b mrealm_choices[MAX_CLASS]=
@@ -3744,11 +3466,9 @@ u32b mrealm_choices[MAX_CLASS]=
 /* Archer */        (CH_NONE),
 /* Illusionist */   (CH_NONE),
 /* Druid */         (CH_NONE),
-/* Necromancer */   (CH_NONE),
 /* Unbeliever  */   (CH_NONE),
-/* Daemonologist */ (CH_CHAOS),
 /* Weaponmaster */  (CH_NONE),
-/* Merchant  */     (CH_NONE),
+/* Mycoparasit. */  (CH_SYMBIOTIC),
 };
 
 cptr realm_names [] =
@@ -3758,7 +3478,6 @@ cptr realm_names [] =
         "Magery",
         "Shadow",
 	"Chaos",
-        "Nether",
         "Crusade",
         "Sigaldry",
         "Symbiotic",
@@ -3768,8 +3487,7 @@ cptr realm_names [] =
         "Illusion",
         "Tribal",
         "Druidic",
-	"Daemon",
-        "Spirit",
+	"Spirit",
 };
 
 
@@ -4071,91 +3789,6 @@ cptr spell_names[MAX_REALM][64][2] =
                 {"Call the Void", "It will do random powerful things."},
 	},
 
-        /*** Nether Spells ***/
-
-	{
-                /* Nether Openings */
-                {"Detect Unlife", "Detects all non-living 'beings'."},
-                {"Detect Evil", "Detects all evil beings."},
-                {"Horrify", "Scares and stuns a foe."},
-                {"Sleep I", "Sends your foe to sleep."},
-                {"Reveal Invisible", "Allows you to see invisible beings for a short time."},
-                {"Lethargy", "Slows down your foe."},
-                {"Resist Poison", "Allows you to temporarily resist the effects of poison."},
-                {"Stinking Cloud", "Creates a weak cloud of poison."},
-
-                /* Unholy Blessings */
-                {"Resist Cold", "Temporarily allows you to resist the effects of cold."},
-                {"Black Dart", "Creates a magical bolt."},
-                {"Invisibility", "Temporarily makes you invisible to all eyes."},
-                {"Spear of Phantasms", "Fires a frightening illusion beam to scare monsters."},
-                {"Levitation", "Allows you to levitate for a short time."},
-                {"Sleep II", "Causes all monsters near you to fall asleep."},
-                {"Nether Bolt", "Creates a bolt of nether, sapping the soul of your foe."},
-                {"Enslave Undead", "Tries to enslave an undead monster to aid you."},
-
-                /* Necromantic Incantations */
-                {"Icy Touch", "Harnesses the icy coldness of the undead in a chilling bolt."},
-                {"Bloodlust", "Sends you berserk for a short time."},
-                {"Werewolf Form", "Allows you to take on the form of a Werewolf."},
-                {"Draining Touch", "Steals your foe's life-force to strengthen your own."},
-                {"Turn Undead", "Causes Undead creatures to flee from you."},
-                {"Sleep III", "All visible monsters fall asleep."},
-                {"Call Undead", "Calls mighty undead creatures to your aid."},
-                {"Open Chasm", "Opens a dark pit under your foe."},
-
-                /* Curses of Angmar */
-                {"Dark Bolt", "Gathers the forces of the night into a powerful bolt."},
-                {"Vampiric Form", "Allows you to take on the form of a Vampire."},
-                {"Raise Dead", "Raises an undead servant from a dead monster."},
-                {"Spear of Darkness", "Gathers the forces of the night into a beam of unlight."},
-                {"Banish", "Banishes all monsters in line of sight."},
-                {"Dispel Good", "Damages all good monsters in line of sight."},
-                {"Genocide", "Removes from existence all members of the same race on that level."},
-
-                /* Eye of Sauron */
-                {"Detect Monsters", "Detects all nearby monsters."},
-                {"Hypnotic Gaze", "Tries to charm a monster."},
-                {"Piercing Gaze", "Reveals the level around you."},
-                {"Sense Magic", "Senses the strength of the magic in an item."},
-                {"Detection", "Detects all nearby objects, monsters, and special terrain features."},
-                {"Telepathy", "Allows you to see into the minds of nearby monsters."},
-                {"Clairvoyance", "Fully maps the current level."},
-
-                /* Flame of Udun */
-                {"Resist Fire", "Allows you to resist heat for a short time."},
-                {"Fiery Aura", "Surrounds you with a wall of fire."},
-                {"Spear of Fire", "Creates a mighty spear of flame."},
-                {"Fireball", "Unleashes a powerful fireball on your foes."},
-                {"Call Demon", "Calls a mighty demonic servant to your aid."},
-                {"Flame of Udun", "Allows you to take the form of a Balrog."},
-                {"Hellfire", "Unleashes a powerful wave of hellfire, burning *everything* it engulfs."},
-
-                /* Corruptions of Melkor */
-                {"Confuse", "Fires a confusing bolt of energy at a monster."},
-                {"Thralldom", "Attempts to enslave a monster to your will."},
-                {"Polymorph Other", "Polymorphs a monster into a different form."},
-                {"Polymorph Self", "Polymorphs you into a different form."},
-                {"Plague", "Poisons all monsters in line of sight."},
-                {"Ravage Soul", "Gathers the powers of the nether realm and releases a large explosion."},
-
-                /* Crescent of Morgul */
-                {"Absorb Light", "Absorbs the light surrounding you to restore your life-force."},
-                {"Drain Magic", "Drains the magic from objects to restore your own."},
-                {"Spear of Death", "Casts a beam of nether energy at your foes."},
-                {"Restore Life", "Restores your stolen experience."},
-                {"Nightfall", "Harnesses the powers of the night into a powerful ball of darkness."},
-                {"Blood Curse", "Creates a bolt whose damage depends of your mana."},
-                {"Wraithworld", "Allows you to take on the form of a Wraith."},
-
-                /* Morgoth's Ring */
-                {"Invoke Spirits", "Casts a random nasty effect."},
-                {"Vampiric Branding", "Brands a weapon with the Mark of the Vampires."},
-                {"Dispel Life", "Damages all living beings in line of sight."},
-                {"Word of Destruction", "Shatters the level around you."},
-                {"Summon Greater Undead", "Summons a powerful undead servant to your aid."},
-                {"Mass Genocide", "Eradicates all monsters around you."},
-	},
 
         /* Crusade Spellbooks */
 	{
@@ -5111,20 +4744,6 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
                 "Archdruid",
 	},
 
-        /* Necromancer */
-	{
-		"Acolyte",
-		"Curser",
-		"Dark Student",
-		"Initiate",
-		"Slavemaster",
-		"Summoner",
-		"Controller",
-		"Commander",
-		"Dark Master",
-		"Night Lord",
-	},
-
         /* Unbeliever */
 	{
                 "Asker",
@@ -5137,20 +4756,6 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
                 "Disbeliever",
                 "Knower",
                 "Magicbane",
-	},
-
-        /* Daemonologist -SC- */
-	{
-		"Initiate",
-		"Acolyte",
-		"Adept",
-		"Slavemaster",
-		"Spellweaver",
-		"Demonriser",
-		"Controller",
-		"Commander",
-		"Hell Master",
-		"Daemon Lord",
 	},
 
 	/*
@@ -5168,20 +4773,21 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Master",
 		"High Master",
 	},
-
-	/* Merchant */
+        
+	/* Mycoparasitologist */
 	{
-		"Customer",
-		"Apprentice",
-		"Assistant",
-		"Assistant",
-		"Clerk",
-		"Clerk",
-		"Shopkeeper",
-		"Shopkeeper",
-		"Shop Manager",
-		"Shop Manager",
+                "Little Mold",
+                "Mold",
+                "Great Mold",
+                "Tapeworm Charmer",
+                "Tapeworm Master",
+                "Fluke Charmer",
+                "Fluke Master",
+                "Nematode Master",
+                "Worm Lord",
+                "Professor",
 	},
+
 };
 
 
@@ -6483,15 +6089,6 @@ magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
         { 28, 20,  45, "Telekinetic Wave", "Powerful wave of pure telekinetic forces." },      /* Ball -> LOS */
 };
 
-magic_power necro_powers[MAX_NECRO_POWERS] =
-{
-	/* Level gained,  cost,  %fail,  name */
-        {  1,   2, 10, "Call Darkness", "Call upon the darkness to hurt your foes." },       /* Bolt/beam/ball/LOS of dark */
-        {  5,   6, 20, "Raise Dead", "Brings back your foes in the form of various undead." },          /* Ball */
-        { 25,  10, 25, "Summon Undead", "Call undead creatures(s) to your help." },       /* Summon one(some) undead(s) */
-        { 30,  15, 20, "Vampirism", "Drain the life of your foes into your own." },           /* Bolt */
-        { 35, 100, 25, "Death", "Instantly kills you opponent and you, turning yourself into an undead." },               /* The Death word, always bolt put your HP to 1 */
-};
 
 magic_power mimic_powers[MAX_MIMIC_POWERS] =
 {
@@ -7189,14 +6786,14 @@ deity deity_info[MAX_GODS] = {
   { "Ulmo",      "Waters",     3, 0, RACE_ELF, RACE_HUMAN, "The vala of water, he can protect the worthy from poison and sound." },
   { "Aule",      "Earth",      3, 0, RACE_DWARF, RACE_NIBELUNG, "The smith of the vala, associated with earth.  His followers are free to\nmove about the earth and will not be harmed by shards of earth." },
   { "Melkor",    "Darkness",   9, 0, RACE_HALF_ORC, RACE_HALF_TROLL, "Yes, this is Morgoth, the guy you're spending the entire game trying\nto whack.  But you can still worship him.  He grants sustains, and\nprotects his followers from several dark powers." },
-  { "Tilion",    "Moon",       4, 0, RACE_ELF, RACE_DARK_ELF, "Vala of the moon, whose followers need fear neither the dark or the\ncreatures that dwell in it." },
+  { "Tilion",    "Moon",       4, 0, RACE_ELF, -1, "Vala of the moon, whose followers need fear neither the dark or the\ncreatures that dwell in it." },
   { "Arien",     "Sun",        3, 0, RACE_HUMAN, RACE_RKNIGHT, "Vala of the sun, whose followers have no fear during the day." },
   { "Tulkas",    "Rage",       8, 0, RACE_HUMAN, RACE_DWARF, "Vala of rage, his followers are mighty warriors, who cannot be\ndeceived in battle." },
   { "Manwe",     "Winds",      5, 0, RACE_HIGH_ELF, RACE_HALF_ELF, "Vala of the winds, his followers move with supernatural grace and swiftness." },
   { "Varda",     "Stars",      4, 0, RACE_DUNADAN, -1, "Vala of the stars, her followers have keen and clear minds." },
 
   { "Iluvatar",  "Being",      2, 1, RACE_ELF, RACE_HUMAN, "Also known as Eru, he is the creator, the God.  Those who\nfollow him are granted knowledge beyond that of ordinary mortals, but\nthey are so strongly connected to life that it is hard for them to kill\ndirectly." },
-  { "The RNG",   "Randomness", 9, 1, RACE_MOLD, -1, "The god of chaos, it is as unpredictable and irrational as an\nAngband variant maintainer." },
+  { "The RNG",   "Randomness", 9, 1, -1, -1, "The god of chaos, it is as unpredictable and irrational as an\nAngband variant maintainer." },
 };
 
 /* jk - to hit, to dam, to ac, to stealth, to disarm, to saving throw */
@@ -7833,13 +7430,7 @@ power_type powers_type[POWER_MAX] =
                 "You lose the ability to call upon monsters.",
                 0, 0, 0, 0,
         },
-        {
-                "necromantic powers",
-                "You can use the foul necromantic magic.",
-                "You gain the ability to use the foul necromantic magic.",
-                "You lose the ability to use the foul necromantic magic.",
-                0, 0, 0, 0,
-        },
+
         {
                 "Rohan's Knight's Powers",
                 "You can use rohir powers.",
@@ -7895,13 +7486,6 @@ power_type powers_type[POWER_MAX] =
                 "You suddently understand how rogues work.",
                 "You no longer suddently understand how rogues work.",
                 1, 1, A_DEX, 1,
-        },
-        {
-                "Merchant abilities",
-                "You can request items and get loans.",
-                "From now on you can use the merchant abilities.",
-                "You can no longer use the merchant abilities.",
-                0, 0, 0, 0,
         },
         {
                 "turn pet into companion",
@@ -8483,7 +8067,6 @@ tval_desc tval_descs[] =
         {TV_VALARIN_BOOK, "This holy book is used by priests and a few others to call upon their god."},
         {TV_MAGERY_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_SHADOW_BOOK, "This magic book is used by spellcasters to cast spells."},
-        {TV_NETHER_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_ILLUSION_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_TRIBAL_BOOK, "This mystical book is used by rangers and a few others to cast spells."},
         {TV_CHAOS_BOOK, "This magic book is used by chaos warriors and few others to cast spells"},
@@ -8494,7 +8077,6 @@ tval_desc tval_descs[] =
         {TV_MAGIC_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_PRAYER_BOOK, "This holy book is used by priests and a few others to call upon their god."},
         {TV_DRUID_BOOK, "This mystical book is used by druids to call upon the powers of nature."},
-        {TV_DAEMON_BOOK, "This magic book is used by daemonologists to control demons."},
         {TV_SPIRIT_BOOK, "This magic book is used by spellcasters to cast spells."},
         {0, ""},
 };

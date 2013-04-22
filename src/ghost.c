@@ -222,7 +222,6 @@ static void set_ghost_aux_1(void)
                 case CLASS_SORCERER:
                 case CLASS_ILLUSIONIST:
                 case CLASS_DRUID:
-                case CLASS_NECRO:
                 case CLASS_ALCHEMIST:
                 case CLASS_CHAOS_WARRIOR:
 		{
@@ -269,7 +268,6 @@ static void set_ghost_aux_1(void)
 
 		/* Rogue */
 		case CLASS_ROGUE:
-		case CLASS_MERCHANT:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 6;
 			r_ptr->flags6 |= (RF6_BLINK);
@@ -323,7 +321,6 @@ static void set_ghost_aux_1(void)
 
                 /* Beastmaster */
                 case CLASS_BEASTMASTER:
-                case CLASS_DAEMONOLOGIST:
                 {
                         r_ptr->freq_inate = r_ptr->freq_spell = 100 / 3;
                         r_ptr->flags6 |= (RF6_S_KIN);
@@ -389,7 +386,6 @@ static void set_ghost_aux_1(void)
 
 	/* Racial properties */
 	if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
-        if (grace == RACE_KOBOLD) r_ptr->flags3 |= (RF3_ORC);
 	if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
         if (grace == RACE_DRAGONRIDDER) r_ptr->flags3 |= (RF3_DRAGONRIDDER);
 
@@ -441,7 +437,6 @@ static void set_ghost_aux_1(void)
                 case CLASS_MONK:
                 case CLASS_SYMBIANT:
                 case CLASS_BEASTMASTER:
-                case CLASS_DAEMONOLOGIST:
                 case CLASS_POSSESSOR:
                 case CLASS_MIMIC:
 		{
@@ -466,10 +461,8 @@ static void set_ghost_aux_1(void)
                 case CLASS_SORCERER:
                 case CLASS_ILLUSIONIST:
                 case CLASS_DRUID:
-                case CLASS_NECRO:
                 case CLASS_ALCHEMIST:
                 case CLASS_CHAOS_WARRIOR:
-		case CLASS_MERCHANT:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 3 / 2;

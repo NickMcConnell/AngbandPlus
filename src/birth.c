@@ -56,7 +56,6 @@ struct hist_type
  *   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Elf/High-Elf  -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
  *   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
- *   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
  *   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
@@ -115,15 +114,6 @@ static hist_type bg[] =
 	{"Warrior.  ",						 95, 11, 3, 115},
 	{"Mage.  ",							 99, 11, 3, 125},
 	{"Clan Elder.  ",						100, 11, 3, 140},
-
-	{"You are one of several children of a Gnome ",		 85, 13, 14, 45},
-	{"You are the only child of a Gnome ",			100, 13, 14, 55},
-
-	{"Beggar.  ",						 20, 14, 3, 55},
-	{"Braggart.  ",						 50, 14, 3, 70},
-	{"Prankster.  ",						 75, 14, 3, 85},
-	{"Warrior.  ",						 95, 14, 3, 100},
-	{"Mage.  ",							100, 14, 3, 125},
 
 	{"You are one of two children of a Dwarven ",		 25, 16, 17, 40},
 	{"You are the only child of a Dwarven ",			100, 16, 17, 50},
@@ -229,21 +219,6 @@ static hist_type bg[] =
 	{"scabby skin.",						 66, 66, 0, 50},
 	{"leprous skin.",                       100, 66, 0, 50},
 
-	{"You are one of several children of a Dark Elven ",      85, 69, 70, 45},
-	{"You are the only child of a Dark Elven ",          100, 69, 70, 55},
-
-	{"Warrior.  ", 50, 70, 71, 60 },
-	{"Warlock.  ", 80, 70, 71, 75 },
-	{"Noble.  ", 100, 70, 71, 95 },
-
-	{"You have black eyes, ", 100, 71, 72, 50},
-
-	{"straight ",                        70, 72, 73, 50},
-	{"wavy ",                            90, 72, 73, 50},
-	{"curly ",                          100, 72, 73, 50},
-
-	{"black hair and a very dark complexion.", 100, 73, 0, 50 },
-
 	{"Your mother was an Ogre, but it is unacknowledged.  ", 25, 74, 20, 25},
 	{"Your father was an Ogre, but it is unacknowledged.  ", 100, 74, 20, 25},
 
@@ -270,31 +245,7 @@ static hist_type bg[] =
 	{"You are Polyphemos's child.  ", 98, 77, 109, 80 },
 	{"You are Uranos's child.  ", 100, 77, 109, 135 },
 
-	{"You are one of several children of ", 100, 78, 79, 50 },
-
-	{"a Brown Yeek. ", 50, 79, 80, 50 },
-	{"a Blue Yeek.  ", 75, 79, 80, 50 },
-	{"a Master Yeek.  ", 95, 79, 80, 85 },
-	{"Boldor, the King of the Yeeks.  ", 100, 79, 80, 120 },
-
-	{"You have pale eyes, ",    25, 80, 81, 50 },
-	{"You have glowing eyes, ",    50, 80, 81, 50 },
-	{"You have tiny black eyes, ",    75, 80, 81, 50 },
-	{"You have shining black eyes, ",    100, 80, 81, 50 },
-
-	{"no hair at all, ",        20, 81, 65, 50 },
-	{"short black hair, ",        40, 81, 65, 50 },
-	{"long black hair, ",        60, 81, 65, 50 },
-	{"bright red hair, ",        80, 81, 65, 50 },
-	{"colourless albino hair, ",        100, 81, 65, 50 },
-
-	{"You are one of several children of ", 100, 82, 83, 50 },
-
-	{"a Small Kobold.  ",   40, 83, 80, 50 },
-	{"a Kobold.  ",         75, 83, 80, 55 },
-	{"a Large Kobold.  ",   95, 83, 80, 65 },
-	{"Mughash, the Kobold Lord.  ",     100, 83, 80, 100 },
-
+	
     {"You are one of several children ",                     85, 84, 85, 45},
     {"You are the first child ",                            100, 84, 85, 50},
 
@@ -460,48 +411,6 @@ static hist_type bg[] =
 
 	{"You have ", 100, 134, 120, 50 },
 
-	/* Death mold description */
-	
-        {"You were born in dirty bilge-water, ", 10, 200, 201, 30},
-        {"You were born in dirty straw, ", 20, 200, 201, 35},
-        {"You were born in wet mud, ", 30, 200, 201, 40},
-        {"You were born in a pile of dust, ", 40, 200, 201, 45},
-        {"You were born in sand, ", 50, 200, 201, 50},
-        {"You were born in pebbles, ", 60, 200, 201, 50},
-        {"You were born in a kobold corpse, ", 70, 200, 201, 55},
-        {"You were born in dragon droppings, ", 80, 200, 201, 60},
-        {"You were born in a pile of bones, ", 90, 200, 201, 65},
-        {"You were born in a corpse of a mighty hero, ", 100, 200, 201, 70},
-
-        {"created by rotting flesh. ",              10, 201, 202, 30},
-        {"created by a kobold magician. ",          20, 201, 202, 35},
-        {"created by a corrupted apprentice. ",     30, 201, 202, 40},
-        {"created by a curious mage apprentice. ",  40, 201, 202, 45},
-        {"created by an evil Beastmaster. ",        50, 201, 202, 50},
-        {"created by a practicing Necromancer. ",   60, 201, 202, 50},
-        {"created by the Mutant Breeders. ",        70, 201, 202, 55},
-        {"created by a curious adventurer. ",       80, 201, 202, 60},
-        {"called to life by the Witch-King of Angmar. ",  90, 201, 202, 65},
-        {"called to life by Sauron himself. ", 100, 201, 202, 70},
-
-        {"Since then you have given life to ",      100, 202, 203, 50},
-
-        {"no ",                                      10, 203, 204, 30},
-        {"one weak-willed ",          20, 203, 204, 35},
-        {"two ",     30, 203, 204, 40},
-        {"three ",  40, 203, 204, 45},
-        {"four ",        50, 203, 204, 50},
-        {"five ",   60, 203, 204, 50},
-        {"about twenty ",        70, 203, 204, 55},
-        {"dozens of ",       80, 203, 204, 60},
-        {"hundreds of ",  90, 203, 204, 65},
-        {"uncounted multitudes of ", 100, 203, 204, 70},
-
-        {"foul offspring. ", 100, 204, 0, 50},
-
-        {"You are one of five children of a blue Yeek.  ", 25,205,3,  50},
-        {"You are one of five children of a brown Yeek.  ", 75,205,3,  75},
-        {"You are one of five children on a master yeek.  ", 100,205,3, 100},
 };
 
 
@@ -561,22 +470,6 @@ static char *elf_syllable2[] =
 static char *elf_syllable3[] =
 {
 	"l", "las", "lad", "ldor", "ldur", "linde", "lith", "mir", "n", "nd", "ndel", "ndil", "ndir", "nduil", "ng", "mbor", "r", "rith", "ril", "riand", "rion", "s", "thien", "viel", "wen", "wyn",
-};
-
-/* Gnomes */
-static char *gnome_syllable1[] =
-{
-	"Aar", "An", "Ar", "As", "C", "H", "Han", "Har", "Hel", "Iir", "J", "Jan", "Jar", "K", "L", "M", "Mar", "N", "Nik", "Os", "Ol", "P", "R", "S", "Sam", "San", "T", "Ter", "Tom", "Ul", "V", "W", "Y",
-};
-
-static char *gnome_syllable2[] =
-{
-	"a", "aa",  "ai", "e", "ei", "i", "o", "uo", "u", "uu",
-};
-
-static char *gnome_syllable3[] =
-{
-	"ron", "re", "la", "ki", "kseli", "ksi", "ku", "ja", "ta", "na", "namari", "neli", "nika", "nikki", "nu", "nukka", "ka", "ko", "li", "kki", "rik", "po", "to", "pekka", "rjaana", "rjatta", "rjukka", "la", "lla", "lli", "mo", "nni",
 };
 
 /* Hobbit */
@@ -643,22 +536,6 @@ static char *entish_syllable3[] =
 	"tender","planter","shepherd","watcher","grower","warden",
 };
 
-/* Mold */
-static char *cthuloid_syllable1[] =
-{
-	"Cth","Az","Fth","Ts","Xo","Q'N","R'L","Ghata","L","Zz","Fl","Cl","S","Y",
-};
-
-static char *cthuloid_syllable2[] =
-{
-	"nar","loi","ul","lu","noth","thon","ath","'N","rhy","oth","aza","agn","oa","og",
-};
-
-static char *cthuloid_syllable3[] =
-{
-	"l","a","u","oa","oggua","oth","ath","aggua","lu","lo","loth","lotha","agn","axl",
-};
-
 /*
  * Random Name Generator
  * based on a Javascript by Michael Hensley
@@ -680,7 +557,6 @@ void create_random_name(int race, char *name)
 		strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
 		strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
 		break;
-	case RACE_DARK_ELF:
 	case RACE_ELF:
         case RACE_WOOD_ELF:
 	case RACE_HALF_ELF:
@@ -689,13 +565,7 @@ void create_random_name(int race, char *name)
 		strcat(name, elf_syllable2[rand_int(sizeof(elf_syllable2) / sizeof(char*))]);
 		strcat(name, elf_syllable3[rand_int(sizeof(elf_syllable3) / sizeof(char*))]);
 		break;
-	case RACE_GNOME:
-		strcpy(name, gnome_syllable1[rand_int(sizeof(gnome_syllable1) / sizeof(char*))]);
-		strcat(name, gnome_syllable2[rand_int(sizeof(gnome_syllable2) / sizeof(char*))]);
-		strcat(name, gnome_syllable3[rand_int(sizeof(gnome_syllable3) / sizeof(char*))]);
-		break;
 	case RACE_HOBBIT:
-	case RACE_YEEK:
 		strcpy(name, hobbit_syllable1[rand_int(sizeof(hobbit_syllable1) / sizeof(char*))]);
 		strcat(name, hobbit_syllable2[rand_int(sizeof(hobbit_syllable2) / sizeof(char*))]);
 		strcat(name, hobbit_syllable3[rand_int(sizeof(hobbit_syllable3) / sizeof(char*))]);
@@ -711,7 +581,6 @@ void create_random_name(int race, char *name)
 	case RACE_HALF_OGRE:
 	case RACE_HALF_ORC:
 	case RACE_HALF_TROLL:
-	case RACE_KOBOLD:
 		strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
 		strcat(name, orc_syllable2[rand_int(sizeof(orc_syllable2) / sizeof(char*))]);
 		strcat(name, orc_syllable3[rand_int(sizeof(orc_syllable3) / sizeof(char*))]);
@@ -720,11 +589,6 @@ void create_random_name(int race, char *name)
 		strcpy(name, entish_syllable1[rand_int(sizeof(entish_syllable1) / sizeof(char*))]);
 		strcat(name, entish_syllable2[rand_int(sizeof(entish_syllable2) / sizeof(char*))]);
 		strcat(name, entish_syllable3[rand_int(sizeof(entish_syllable3) / sizeof(char*))]);
-		break;
-        case RACE_MOLD:
-		strcpy(name, cthuloid_syllable1[rand_int(sizeof(cthuloid_syllable1) / sizeof(char*))]);
-		strcat(name, cthuloid_syllable2[rand_int(sizeof(cthuloid_syllable2) / sizeof(char*))]);
-		strcat(name, cthuloid_syllable3[rand_int(sizeof(cthuloid_syllable3) / sizeof(char*))]);
 		break;
 		/* Create an empty name */
 	default:
@@ -801,14 +665,7 @@ byte choose_realm(s32b choices)
 		n++;
 	}
 
-        if ((choices & CH_NETHER) && (p_ptr->realm1 != REALM_NETHER))
-	{
-                sprintf(buf, "%c%c %s", I2A(n), p2, "Nether");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=5;
-		n++;
-	}
-
+        
         if ((choices & CH_TRIBAL) && (p_ptr->realm1 != REALM_TRIBAL))
 	{
                 sprintf(buf, "%c%c %s", I2A(n), p2, "Tribal");
@@ -857,7 +714,14 @@ byte choose_realm(s32b choices)
 		n++;
 	}
 
-        /* Get a realm */
+        if ((choices & CH_SYMBIOTIC) && (p_ptr->realm1 != REALM_SYMBIOTIC))
+	{
+                sprintf(buf, "%c%c %s", I2A(n), p2, "Spirit");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+                picks[n] = REALM_SYMBIOTIC;
+		n++;
+	}
+	/* Get a realm */
 	while (1)
 	{
                 sprintf(buf, "Choose a realm (%c-%c), * for random, = for options: ", I2A(0), I2A(n-1));
@@ -956,10 +820,6 @@ static void get_realms()
                                 choices &= ~CH_SIGALDRY;
                                 choices &= ~CH_ILLUSION;
                                 break;
-                        case REALM_NETHER:
-                                choices &= ~CH_SPIRIT;
-                                choices &= ~CH_CRUSADE;
-                                break;
                         case REALM_MAGERY:
                                 choices &= ~CH_SPIRIT;
                                 choices &= ~CH_ILLUSION;
@@ -976,7 +836,6 @@ static void get_realms()
                 switch(p_ptr->realm1)
                 {
                         case REALM_VALARIN:
-                        case REALM_NETHER:
                         case REALM_MAGERY:
                         case REALM_SHADOW:
                                 p_ptr->realm2 = 0;
@@ -1420,11 +1279,6 @@ static void get_history(void)
 			break;
 		}
 
-		case RACE_GNOME:
-		{
-			chart = 13;
-			break;
-		}
 
 		case RACE_DWARF:
 		{
@@ -1444,11 +1298,6 @@ static void get_history(void)
 			break;
 		}
 
-		case RACE_DARK_ELF:
-		{
-			chart = 69;
-			break;
-		}
 		case RACE_HALF_OGRE:
 		{
 			chart = 74;
@@ -1457,11 +1306,6 @@ static void get_history(void)
 		case RACE_HALF_GIANT:
 		{
 			chart = 75;
-			break;
-		}
-		case RACE_KOBOLD:
-		{
-			chart = 82;
 			break;
 		}
                 case RACE_RKNIGHT:
@@ -1484,16 +1328,7 @@ static void get_history(void)
                         chart = 94;
 			break;
 		}
-                case RACE_MOLD:
-		{
-                        chart = 200;
-			break;
-		}
-                case RACE_YEEK:
-                {
-                        chart = 205;
-                        break;
-                }
+                
 		default:
 		{
 			chart = 0;
@@ -1984,14 +1819,14 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Mage */
                 { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_DAGGER },
-                { TV_NETHER_BOOK, 0 } /* Hack: for realm2 book */
+                { TV_SHADOW_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
 	{
 		/* Priest */
                 { TV_MAGERY_BOOK, 0 },
 		{ TV_HAFTED, SV_MACE },
-                { TV_NETHER_BOOK, 0 } /* Hack: for realm2 book */
+                { TV_SHADOW_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
 	{
@@ -2005,7 +1840,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Ranger */
                 { TV_MAGERY_BOOK, 0 },           /* Hack: for realm1 book */
 		{ TV_SWORD, SV_BROAD_SWORD },
-                { TV_NETHER_BOOK, 0 }            /* Hack: for realm2 book */
+                { TV_BOW, SV_LONG_BOW } 
 	},
 
 	{
@@ -2019,7 +1854,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Warrior-Mage */
                 { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_SHORT_SWORD },
-                { TV_NETHER_BOOK, 0 } /* Hack: for realm2 book */
+                { TV_SHADOW_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
 	{
@@ -2109,7 +1944,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	{
                 /* Sorcerer */
                 { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
-                { TV_NETHER_BOOK, 0 }, /* Hack: for realm2 book */
+                { TV_SHADOW_BOOK, 0 }, /* Hack: for realm2 book */
                 { TV_POTION, SV_POTION_RESTORE_MANA },
         },
 
@@ -2135,25 +1970,12 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-                /* Necromancer */
-                { TV_MAGERY_BOOK, 0 },
-                { TV_POLEARM, SV_SICKLE },
-                { TV_SCROLL, SV_SCROLL_DISPEL_UNDEAD },
-	},
-
-	{
                 /* Unbeliever */
                 { TV_RING, SV_RING_RES_FEAR },
                 { TV_SWORD, SV_DARK_SWORD },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
 	},
 
-	{
-                /* Daemonologist -SC- */
-                { TV_MAGERY_BOOK, 0 }, /* Hack: For realm1 book */
-                { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-                { TV_NETHER_BOOK, 0 }  /* Hack: for realm2 book */
-	},
 
 	{
 		/*
@@ -2164,15 +1986,14 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_POTION, SV_POTION_HEROISM },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
 	},
-
+	
 	{
-		/* Merchant */
-		{ TV_TOOL, SV_PORTABLE_HOLE },
-		/* They get a Small Steel Chest which contains ~300 gold and
-		 * 1-2 "useful" items */
-                { TV_CHEST, 3 },
-                { TV_SWORD, SV_LONG_SWORD },
+		/* Mycoparasitologist */
+		{ TV_SCROLL, SV_SCROLL_SUMMON_MINE },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_MAGERY_BOOK, 0 }  /* hack for realm1 book */
 	},
+
 };
 
 byte random_present[MAX_CLASS] =
@@ -2222,8 +2043,6 @@ byte random_present[MAX_CLASS] =
                 /* Illusionnist */
                 BIRTH_NONE,
                 /* Druid */
-                BIRTH_NONE,
-                /* Necromancer */
                 BIRTH_NONE,
                 /* Unbeliever */
                 BIRTH_NONE,
@@ -2490,21 +2309,6 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr, FALSE);
         }
 
-        if (p_ptr->pclass == CLASS_MERCHANT)
-	{
-                /* Hack -- Give the player a Wand of Tame Monsters */
-                object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_CHARM_MONSTER));
-                q_ptr->number = 1;
-                apply_magic(q_ptr, 1, TRUE, FALSE, FALSE);
-                object_aware(q_ptr);
-		object_known(q_ptr);
-
-		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
-
-		(void)inven_carry(q_ptr, FALSE);
-	}
-
 	/* Hack -- Give the player three useful objects */
 	for (i = 0; i < 3; i++)
 	{
@@ -2514,7 +2318,7 @@ static void player_outfit(void)
 
 		/* Hack to initialize spellbooks */
                 if (tv  == TV_MAGERY_BOOK) tv = TV_VALARIN_BOOK + p_ptr->realm1 - 1;
-                else if (tv == TV_NETHER_BOOK) tv = TV_VALARIN_BOOK + p_ptr->realm2 - 1;
+                else if (tv == TV_SHADOW_BOOK) tv = TV_VALARIN_BOOK + p_ptr->realm2 - 1;
 
 		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
                     p_ptr->pracem == RMOD_BARBARIAN)
@@ -2534,16 +2338,6 @@ static void player_outfit(void)
                         q_ptr->name2 = EGO_BRAND_POIS;
                         apply_magic(q_ptr, 1, FALSE, FALSE, FALSE);
                 }
-
-		/* Merchants get a chest which is currently empty */
-		if ((tv == TV_CHEST) && (p_ptr->pclass == CLASS_MERCHANT))
-		{
-			/* Put items into the chest */
-			q_ptr->pval = -5;
-			
-			/* Set the number of items in the chest */
-			q_ptr->pval2 = 6;
-		}
 
 		/* These objects are "storebought" */
 		q_ptr->ident |= IDENT_STOREB;
@@ -2702,8 +2496,6 @@ s16b classes_mage[] =
         CLASS_RUNECRAFTER,
         CLASS_SORCERER,
         CLASS_ILLUSIONIST,
-        CLASS_NECRO,
-        CLASS_DAEMONOLOGIST,
         -1,
 };
 s16b classes_priest[] =
@@ -2720,6 +2512,7 @@ s16b classes_monster[] =
         CLASS_SYMBIANT,
         CLASS_MIMIC,
         CLASS_POSSESSOR,
+	CLASS_MYCOPARA,
         -1,
 };
 s16b classes_other[] =
@@ -2727,7 +2520,6 @@ s16b classes_other[] =
         CLASS_ROGUE,
         CLASS_ALCHEMIST,
         CLASS_HARPER,
-        CLASS_MERCHANT,
         -1,
 };
 
@@ -4543,20 +4335,15 @@ static void validate_bg(void)
         race_chart[RACE_ELF] = 7;
         race_chart[RACE_HIGH_ELF] = 7;
         race_chart[RACE_HOBBIT] = 10;
-        race_chart[RACE_GNOME] = 13;
         race_chart[RACE_DWARF] = 16;
         race_chart[RACE_HALF_ORC] = 19;
         race_chart[RACE_HALF_TROLL] = 22;
-        race_chart[RACE_DARK_ELF] = 69;
         race_chart[RACE_HALF_OGRE] = 74;
         race_chart[RACE_HALF_GIANT] = 75;
-        race_chart[RACE_KOBOLD] = 82;
         race_chart[RACE_RKNIGHT] = 84;
         race_chart[RACE_NIBELUNG] = 87;
         race_chart[RACE_DRAGONRIDDER] = 89;
         race_chart[RACE_ENT] = 94;
-        race_chart[RACE_MOLD] = 200;
-        race_chart[RACE_YEEK] = 205;
         race_chart[RACE_WOOD_ELF] = 7;
 
         /* Check each race */

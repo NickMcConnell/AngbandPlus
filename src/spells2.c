@@ -1214,18 +1214,6 @@ void self_knowledge(FILE *fff)
 		{
 			info[i++] = "You have wings.";
 		}
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			/* Unnecessary */
-		}
 		if (p_ptr->muta3 & MUT3_LIMBER)
 		{
 			info[i++] = "Your body is very limber (+3 DEX).";
@@ -2403,10 +2391,10 @@ bool detect_objects_magic(void)
                     (tv == TV_SCROLL) || (tv == TV_POTION) || (tv == TV_POTION2) ||
                     (tv == TV_VALARIN_BOOK) || (tv == TV_MAGERY_BOOK) ||
                     (tv == TV_SHADOW_BOOK) || (tv == TV_CHAOS_BOOK) || (tv == TV_SPIRIT_BOOK) ||
-                    (tv == TV_NETHER_BOOK) || (tv == TV_DAEMON_BOOK) ||
-                    (tv == TV_CRUSADE_BOOK) || (tv == TV_SIGALDRY_BOOK) ||
-                    (tv == TV_SYMBIOTIC_BOOK) || (tv == TV_MUSIC_BOOK) ||
-		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
+                    (tv == TV_CRUSADE_BOOK) || 
+		    (tv == TV_SIGALDRY_BOOK) || (tv == TV_SYMBIOTIC_BOOK) || 
+		    (tv == TV_MUSIC_BOOK) || ((o_ptr->to_a > 0) || 
+		    (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
 			o_ptr->marked = TRUE;
@@ -2859,7 +2847,6 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
                 case TV_MSTAFF:
-                case TV_DAEMON_BOOK:
                 case TV_BOOMERANG:
                 case TV_SWORD:
                 case TV_AXE:

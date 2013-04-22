@@ -431,7 +431,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 				warrior_artifact_bias = 40;
 				break;
 			case CLASS_CHAOS_WARRIOR:
-			case CLASS_DAEMONOLOGIST:
 				artifact_bias = BIAS_CHAOS;
 				warrior_artifact_bias = 40;
 				break;

@@ -7,3 +7,9 @@ I'll fix up these problems.  When I release the maintainer's cut of
 1.0, I'll include everything, including save files, obsolete files,
 old news.txt files, but the normal releases need to be small, so none
 of those goodies.
+
+Another little note:
+When compiling the executable, make sure ALLOW_BINARY is not defined.
+ALLOW_BINARY is not defined currently, but if you are thinking of doing so,
+don't.  The reason is that the *.raw files won't work well together with the
+separate dungeon files.

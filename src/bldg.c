@@ -1721,10 +1721,6 @@ bool bldg_process_command(store_type *s_ptr, int i)
                 case BACT_STEAL:
                         store_stole();
                         break;
-		case BACT_REQUEST_ITEM:
-			store_request_item();
-			paid = TRUE;
-			break;
 		case BACT_GET_LOAN:
 		{
                         s32b i, price, req;

@@ -1274,7 +1274,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case CLASS_MAGE:
                                                 case CLASS_ALCHEMIST:
 						case CLASS_HIGH_MAGE:
-						case CLASS_DAEMONOLOGIST:
 							if (p_ptr->lev < 20)
 								a = TERM_L_RED;
 							else
@@ -1295,7 +1294,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 							else
 								a = TERM_GREEN;
 							break;
-						case CLASS_MERCHANT:
 						case CLASS_ROGUE:
 							if (p_ptr->lev < 20)
 								a = TERM_SLATE;
@@ -1326,7 +1324,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 					switch (p_ptr->prace)
 					{
-						case RACE_GNOME:
 						case RACE_HOBBIT:
 							c = 144;
 							break;
@@ -1344,7 +1341,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_HIGH_ELF:
 							c = 223;
 							break;
-                                                case RACE_MOLD:
 						case RACE_HALF_OGRE:
 							c = 168;
 							break;
@@ -1354,14 +1350,8 @@ void map_info(int y, int x, byte *ap, char *cp)
                                                 case RACE_RKNIGHT:
 							c = 229;
 							break;
-						case RACE_KOBOLD:
-							c = 204;
-							break;
 						case RACE_NIBELUNG:
 							c = 144;
-							break;
-						case RACE_DARK_ELF:
-							c = 223;
 							break;
                                                 case RACE_DRAGONRIDDER:
 							if (p_ptr->lev < 20)

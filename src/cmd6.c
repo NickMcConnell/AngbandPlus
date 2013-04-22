@@ -737,9 +737,17 @@ void do_cmd_eat_food(void)
 
 	extern bool ate;
 	
-	/* You can only eat once per turn */
-	if(ate) return;
-        /* Restrict choices to food and firestone */
+	/*
+	 * You can only eat twice per turn 
+	 * The first time you eat, you use no energy.
+	 * The second time, you use full energy.
+	 */
+	if(!ate)
+	  energy_use = 0;
+	else
+	  energy_use = 100;
+        
+	/* Restrict choices to food and firescone */
         item_tester_hook = item_tester_hook_eatable;
 
 	/* Get an item */
@@ -987,14 +995,14 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_RATION:
 		case SV_FOOD_BISCUIT:
 		{
-		if(!rand_int(2500))
+		if(!rand_int(500))
 		  do_inc_stat(A_CON);
 		msg_print("Boring, but nutritious.");
 		}
 		
 		case SV_FOOD_JERKY:
 		{ 
-		if(!rand_int(2500))
+		if(!rand_int(500))
 		  do_inc_stat(A_STR);
 		msg_print("That tastes good.");
 		ident = TRUE;
@@ -1018,7 +1026,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_WAYBREAD:
 		{
-            		if(!rand_int(2500))
+            		if(!rand_int(500))
 			  {
 			  do_inc_stat(A_CHR);
 			  do_inc_stat(A_CHR);
@@ -1029,8 +1037,7 @@ void do_cmd_eat_food(void)
 			msg_print("That tastes very good.");
 			(void)set_poisoned(0);
 			(void)hp_player(damroll(4, 8));
-                        set_food(PY_FOOD_MAX - 1);
-			ident = TRUE;
+                        ident = TRUE;
 			break;
 		}
 

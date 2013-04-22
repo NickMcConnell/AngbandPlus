@@ -2879,8 +2879,6 @@ bool player_can_enter(byte feature)
 					(p_ptr->oppose_fire) ||
                                         (p_ptr->ffall))
 					return (TRUE);
-				else if (p_ptr->pclass == CLASS_DAEMONOLOGIST)
-					return (TRUE);
 				else
 					return (FALSE);
 			}
@@ -2894,8 +2892,6 @@ bool player_can_enter(byte feature)
 					(p_ptr->immune_fire) ||
 					(p_ptr->oppose_fire) ||
                                         (p_ptr->ffall))
-					return (TRUE);
-				else if (p_ptr->pclass == CLASS_DAEMONOLOGIST)
 					return (TRUE);
 				else
 					return (FALSE);
@@ -3940,8 +3936,7 @@ static bool run_test(void)
 				{
 					/* Ignore */
 					if (p_ptr->invuln || p_ptr->immune_fire) notice = FALSE;
-					if (p_ptr->pclass == CLASS_DAEMONOLOGIST) notice = FALSE;
-
+					
 					/* Done */
 					break;
 				}

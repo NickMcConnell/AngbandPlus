@@ -38,7 +38,7 @@
 # This Makefile comes with "default" dependancies that may be obsolete.
 #
 
-LIBDIR = /usr/lib/games/pernband
+LIBDIR = /usr/lib/games/nontolk
 BINDIR = /usr/local/games
 
 #
@@ -240,9 +240,9 @@ install: default
 	mkdir -p $(BINDIR)
 	cp -r ../lib/* $(LIBDIR)
 	chown -R games $(LIBDIR)
-	cp -f testing $(BINDIR)/pernband
-	chown games $(BINDIR)/pernband
-	chmod 4755 $(BINDIR)/pernband
+	cp -f testing $(BINDIR)/ntang
+	chown games $(BINDIR)/ntang
+	chmod 4755 $(BINDIR)/ntang
 	
 
 # old-install: testing

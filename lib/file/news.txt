@@ -1,21 +1,22 @@
+
           *********************************************************
-         < NTAngband 8363 --- Non-Tolkienian Angband pronounced... >
-          *********************************************************
-                             ANTI-ANGBAND!!!
-        If this is your first time playing, DO NOT press 'V'!
-        Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
-             and Umoria:    Copyright (c) 1989 James E. Wilson
-       Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
-       ZAngband code:     (Mr) Topi Ylinen (f1toyl@uta.fi)
-                          and Robert Ruehlmann (rr9@angband.org)
-       PernAngband code:  Dark God < darkgod@ifrance.com >
-       NTA code:	  James Banks (: jameskbanks@juno.com :)
-       Internet site:     nothing://null.nowhere.nil/void
+,--------< NTAngband 8363 --- Non-Tolkienian Angband pronounced... >-----------,
+|         *********************************************************ATN fo selbu|
+|                            Not-a-band!                                      o|
+|        If this is your first time playing, DO NOT press 'V'!                r|
+|Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke        ______      T|
+|And Umoria:        Copyright (c) 1989 James E. Wilson           /Bored \      |
+|Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)               | of the |    e|
+|ZAngband code:     (Mr) Topi Ylinen (f1toyl@uta.fi)            | Rings? |    h|
+|                   and Robert Ruehlmann (rr9@angband.org)       \______/     T|
+|PernAngband code:  Dark God < darkgod@ifrance.com >           Then play...    |
+|NTA code:	    James Banks (jameskbanks@juno.com)    |\  | -+-  /\  | | | |
+|Internet site:     nothing://null.nowhere.nil/void       |  \|  |  |--| * * * |
+`---------> Congratulations to Alexander Malmberg, who won the <---------------'
+          Mithril medal in the bugfix event of the 2002 Oiolossics
 
-     Thanks to all the people that help me, see credits.txt for the list
+          Send suggestions for Monty Python stuff, new pronunciations for
+         "NTAngband", tales of dread Software Bugs, legends of features to 
+	           come, &c. to ;( jameskbanks@juno.com );
 
-    Send suggestions for Monty Python stuff, new pronunciations for NTAngband,
-    tales of dread Software Bugs, legends of features to come, &c. to
-                  ;( jameskbanks@juno.com );
-
-    Press ? for help and = for the options screen while playing
+       * Press ? for help and = for the options screen while playing *

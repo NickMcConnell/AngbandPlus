@@ -46,7 +46,7 @@
 #define FAKE_VER_PATCH 1
 
 /* Added for NTAngband */
-#define DEMENTED_NUMBER 8363
+#define DEMENTED_NUMBER 37842
 #define NTMESS "This is member-supported public Angband.  The great thing about\
  public Angband is that there are no commercials.  You get great Angband for\
  free!  So take this time to send some money to the current maintainer."
@@ -162,7 +162,7 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           21
+#define MAX_RACES           16
 
 /*
  * Maximum number of player "race mod" types (see "table.c", etc)
@@ -172,7 +172,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            28
+#define MAX_CLASS            26
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -336,9 +336,6 @@
 
 /* Mindcraft */
 #define MAX_MINDCRAFT_POWERS  12
-
-/* Necromancy */
-#define MAX_NECRO_POWERS  5
 
 /* Mimicry */
 #define MAX_MIMIC_POWERS  5
@@ -592,37 +589,33 @@
 #define CH_MAGERY       0x00000002
 #define CH_SHADOW       0x00000004
 #define CH_CHAOS        0x00000008
-#define CH_NETHER       0x00000010
-#define CH_CRUSADE      0x00000020
-#define CH_SIGALDRY     0x00000040
-#define CH_SYMBIOTIC    0x00000080
-#define CH_MUSIC        0x00000100
-#define CH_MAGIC        0x00000200
-#define CH_PRAYER       0x00000400
-#define CH_ILLUSION     0x00000800
-#define CH_TRIBAL       0x00001000
-#define CH_DRUID        0x00002000
-#define CH_DAEMON       0x00004000
-#define CH_SPIRIT       0x00008000
+#define CH_CRUSADE      0x00000010
+#define CH_SIGALDRY     0x00000020
+#define CH_SYMBIOTIC    0x00000040
+#define CH_MUSIC        0x00000080
+#define CH_MAGIC        0x00000100
+#define CH_PRAYER       0x00000200
+#define CH_ILLUSION     0x00000400
+#define CH_TRIBAL       0x00000800
+#define CH_DRUID        0x00001000
+#define CH_SPIRIT       0x00002000
 
 #define REALM_NONE         0
 #define REALM_VALARIN      1
 #define REALM_MAGERY       2
 #define REALM_SHADOW       3
 #define REALM_CHAOS        4
-#define REALM_NETHER       5
-#define REALM_CRUSADE      6
-#define REALM_SIGALDRY     7
-#define REALM_SYMBIOTIC    8
-#define REALM_MUSIC        9
-#define REALM_MAGIC        10
-#define REALM_PRAYER       11
-#define REALM_ILLUSION     12
-#define REALM_TRIBAL       13
-#define REALM_DRUID        14
-#define REALM_DAEMON       15
-#define REALM_SPIRIT       16
-#define MAX_REALM          17
+#define REALM_CRUSADE      5
+#define REALM_SIGALDRY     6
+#define REALM_SYMBIOTIC    7
+#define REALM_MUSIC        8
+#define REALM_MAGIC        9
+#define REALM_PRAYER       10
+#define REALM_ILLUSION     11
+#define REALM_TRIBAL       12
+#define REALM_DRUID        13
+#define REALM_SPIRIT       14
+#define MAX_REALM          15
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -699,23 +692,18 @@
 #define RACE_HALF_ELF           1
 #define RACE_ELF                2
 #define RACE_HOBBIT             3
-#define RACE_GNOME              4
-#define RACE_DWARF              5
-#define RACE_HALF_ORC           6
-#define RACE_HALF_TROLL         7
-#define RACE_DUNADAN            8
-#define RACE_HIGH_ELF           9
-#define RACE_HALF_OGRE          10
-#define RACE_HALF_GIANT         11
-#define RACE_KOBOLD             12
-#define RACE_NIBELUNG           13
-#define RACE_DARK_ELF           14
-#define RACE_ENT                15
-#define RACE_RKNIGHT            16
-#define RACE_DRAGONRIDDER        17
-#define RACE_MOLD               18
-#define RACE_YEEK               19
-#define RACE_WOOD_ELF           20
+#define RACE_DWARF              4
+#define RACE_HALF_ORC           5
+#define RACE_HALF_TROLL         6
+#define RACE_DUNADAN            7
+#define RACE_HIGH_ELF           8
+#define RACE_HALF_OGRE          9
+#define RACE_HALF_GIANT         10
+#define RACE_NIBELUNG           11
+#define RACE_ENT                12
+#define RACE_RKNIGHT            13
+#define RACE_DRAGONRIDDER       14
+#define RACE_WOOD_ELF           15
 
 /*
  * Player race constants (hard-coded by save-files, arrays, etc)
@@ -756,11 +744,9 @@
 #define CLASS_ARCHER            20
 #define CLASS_ILLUSIONIST       21
 #define CLASS_DRUID             22
-#define CLASS_NECRO             23
-#define CLASS_UNBELIEVER        24
-#define CLASS_DAEMONOLOGIST     25
-#define CLASS_WEAPONMASTER      26
-#define CLASS_MERCHANT          27
+#define CLASS_UNBELIEVER        23
+#define CLASS_WEAPONMASTER      24
+#define CLASS_MYCOPARA		25
 
 /* Class flags */
 #define CF1_ZERO_FAIL           0x00000001L     /* Fail rates can reach 0% */
@@ -1417,7 +1403,7 @@
 
 #define TV_SKELETON      1      /* Skeletons ('s') */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
-#define TV_FIRESTONE     3      /* For DragonRiders */
+#define TV_FIRESTONE     3      /* For DragonRidders */
 #define TV_BATERIE       4      /* For the Alchemists */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_MSTAFF        6      /* Mage Staffs */
@@ -1465,12 +1451,12 @@
 #define TV_RANDART      102     /* Random Artifacts */
 #define TV_RUNE1        104      /* Base runes */
 #define TV_RUNE2        105      /* Modifier runes */
+#define TV_PARA_EGG	106	/* Parasite eggs */
 
 #define TV_VALARIN_BOOK 111
 #define TV_MAGERY_BOOK  112
 #define TV_SHADOW_BOOK  113
 #define TV_CHAOS_BOOK   114
-#define TV_NETHER_BOOK  115
 #define TV_CRUSADE_BOOK 116
 #define TV_SIGALDRY_BOOK 117
 #define TV_SYMBIOTIC_BOOK 118
@@ -1480,12 +1466,10 @@
 #define TV_ILLUSION_BOOK 122
 #define TV_TRIBAL_BOOK  123
 #define TV_DRUID_BOOK   124
-#define TV_DAEMON_BOOK  125
-#define TV_SPIRIT_BOOK  126
+#define TV_SPIRIT_BOOK  125
 
 /* The "sval" codes for TV_TOOL */
 #define SV_TOOL_CLIMB 0
-#define SV_PORTABLE_HOLE 1
 
 /* The "sval" codes for TV_MSTAFF */
 #define SV_MSTAFF 1
@@ -4293,7 +4277,7 @@ extern int PlayerUID;
 /*
  * Powers (mutation, activations, ...)
  */
-#define POWER_MAX                      59
+#define POWER_MAX                      57
 #define POWER_SLOT                     ((POWER_MAX / 32) + 1)
 
 #define PWR_SPIT_ACID                  0
@@ -4345,17 +4329,15 @@ extern int PlayerUID;
 #define PWR_SCARE                       45
 #define PWR_REST_LIFE                   46
 #define PWR_SUMMON_MONSTER              47
-#define PWR_NECRO                       48
-#define PWR_ROHAN                       49
-#define PWR_DRAGON                      50
-#define PWR_DEATHMOLD                   51
-#define PWR_HYPNO                       52
-#define PWR_UNHYPNO                     53
-#define PWR_INCARNATE                   54
-#define PWR_MAGIC_MAP                   55
-#define PWR_LAY_TRAP                    56
-#define PWR_MERCHANT                    57
-#define PWR_COMPANION                   58
+#define PWR_ROHAN                       48
+#define PWR_DRAGON                      49
+#define PWR_DEATHMOLD                   50
+#define PWR_HYPNO                       51
+#define PWR_UNHYPNO                     52
+#define PWR_INCARNATE                   53
+#define PWR_MAGIC_MAP                   54
+#define PWR_LAY_TRAP                    55
+#define PWR_COMPANION                   56
 
 #define ADD_POWER(pow, p)       ((pow)[(p) / 32] |= BIT((p) % 32))
 

@@ -112,7 +112,6 @@ static grouper group_item[] =
         { TV_MAGERY_BOOK,   "Books (Magery)" },
         { TV_SHADOW_BOOK,   "Books (Shadow)" },
 	{ TV_CHAOS_BOOK,    "Books (Chaos)" },
-        { TV_NETHER_BOOK,   "Books (Nether)"},
         { TV_CRUSADE_BOOK,  "Books (Crusade)" },
         { TV_SIGALDRY_BOOK, "Books (Sigaldry)" },
         { TV_SYMBIOTIC_BOOK,"Books (Symbiotic)" },
@@ -121,8 +120,7 @@ static grouper group_item[] =
         { TV_MUSIC_BOOK,    "Books (Music)" },
         { TV_MAGIC_BOOK,    "Books (Magic)" },
         { TV_PRAYER_BOOK,   "Books (Prayer)" },
-	{ TV_DAEMON_BOOK,   "Books (Daemon)" },
-        { TV_SPIRIT_BOOK,   "Books (Spirit)" },
+	{ TV_SPIRIT_BOOK,   "Books (Spirit)" },
 
         { TV_RUNE1,         "Runes" },
         { TV_RUNE2,         NULL },

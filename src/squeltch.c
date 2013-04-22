@@ -94,7 +94,7 @@ static int cat_type[256];
 
 static cptr categories[] =
 {
-        NULL,"Swords","Polearms","Blunt Weapons","Axe","Daemon Books",
+        NULL,"Swords","Polearms","Blunt Weapons","Axe",
         "Bows","Ammo","Dig/M.Staff/Boom/Trap",
         "Body Armour","Dragon Armour","Other Armour",
         "Rings","Amulets",
@@ -103,7 +103,7 @@ static cptr categories[] =
         "Food","Boring Stuff", "Firestones","Essences","Parchments",
         "Instruments","Runes","Stones",
         "Spirit Books","Songbooks","Symbiotic Books","Valarin Books","Magery Books",
-        "Shadow Books","Chaos Books","Nether Books","Crusade Books","Sigaldry Books",
+        "Shadow Books","Chaos Books","Crusade Books","Sigaldry Books",
         "Magic Books","Prayer Books","Illusion Books","Tribal Books","Corpses"
 };
 
@@ -223,14 +223,12 @@ static void init_categories(void)
 	cat_type[TV_MAGERY_BOOK]=ITEM_BOOK_MAGE;
 	cat_type[TV_SHADOW_BOOK]=ITEM_BOOK_SHAD;
 	cat_type[TV_CHAOS_BOOK]=ITEM_BOOK_CHAO;
-	cat_type[TV_NETHER_BOOK]=ITEM_BOOK_NETH;
 	cat_type[TV_CRUSADE_BOOK]=ITEM_BOOK_CRUS;
 	cat_type[TV_SIGALDRY_BOOK]=ITEM_BOOK_SIGA;
 	cat_type[TV_MAGIC_BOOK]=ITEM_BOOK_MAGI;
 	cat_type[TV_PRAYER_BOOK]=ITEM_BOOK_PRAY;
 	cat_type[TV_ILLUSION_BOOK]=ITEM_BOOK_ILLU;
 	cat_type[TV_TRIBAL_BOOK]=ITEM_BOOK_TRIB;
-	cat_type[TV_DAEMON_BOOK]=ITEM_BOOK_DAEM;
 
 	sq_init=TRUE;
 }

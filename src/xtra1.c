@@ -3258,7 +3258,6 @@ void analyze_blow(int *num, int *wgt, int *mul)
 			case CLASS_HIGH_MAGE:
                         case CLASS_POWERMAGE:
                         case CLASS_RUNECRAFTER:
-			case CLASS_MERCHANT:
                                 *num = 4; *wgt = 40; *mul = 2; break;
 
 			/* Priest, Mindcrafter */
@@ -3277,10 +3276,8 @@ void analyze_blow(int *num, int *wgt, int *mul)
 			case CLASS_RANGER:
                                 *num = 5; *wgt = 35; *mul = 4; break;
 
-                        /* Druid, Necromancer */
+                        /* Druid */
                         case CLASS_DRUID:
-                        case CLASS_NECRO:
-			case CLASS_DAEMONOLOGIST:
                                 *num = 4; *wgt = 35; *mul = 3; break;
 
                         case CLASS_ARCHER:
@@ -3555,11 +3552,6 @@ void calc_bonuses(void)
                         if (p_ptr->lev > 24) p_ptr->resist_chaos = TRUE;
 			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
 			break;
-		case CLASS_DAEMONOLOGIST:
-			if (p_ptr->lev > 19) p_ptr->resist_conf = TRUE;
-			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
-			if (p_ptr->lev > 39) p_ptr->free_act = TRUE;
-			break;
 		case CLASS_MINDCRAFTER:
 			if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
 			if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
@@ -3605,9 +3597,6 @@ void calc_bonuses(void)
 		case RACE_HOBBIT:
 			p_ptr->sustain_dex = TRUE;
 			break;
-		case RACE_GNOME:
-			p_ptr->free_act = TRUE;
-			break;
 		case RACE_DWARF:
 			p_ptr->resist_blind = TRUE;
 			break;
@@ -3649,16 +3638,9 @@ void calc_bonuses(void)
 			p_ptr->sustain_str = TRUE;
 			p_ptr->resist_shard = TRUE;
 			break;
-		case RACE_KOBOLD:
-			p_ptr->resist_pois = TRUE;
-			break;
 		case RACE_NIBELUNG:
 			p_ptr->resist_disen = TRUE;
 			p_ptr->resist_dark = TRUE;
-			break;
-		case RACE_DARK_ELF:
-			p_ptr->resist_dark = TRUE;
-			if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
 			break;
                 case RACE_RKNIGHT:
                         /* Rohan's Knights become faster */
@@ -3689,12 +3671,6 @@ void calc_bonuses(void)
 			if (p_ptr->lev > 14) p_ptr->resist_acid = TRUE;
 			if (p_ptr->lev > 19) p_ptr->resist_elec = TRUE;
 			if (p_ptr->lev > 34) p_ptr->resist_pois = TRUE;
-			break;
-                case RACE_MOLD:
-                        p_ptr->immovable = TRUE;
-                        p_ptr->resist_neth = TRUE;
-                        p_ptr->resist_nexus = TRUE;
-                        p_ptr->hold_life = TRUE;
 			break;
 		default:
 			/* Do nothing */

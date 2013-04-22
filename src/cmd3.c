@@ -563,7 +563,7 @@ void do_cmd_drop(void)
 static bool high_level_book(object_type * o_ptr)
 {
     if ((o_ptr->tval == TV_VALARIN_BOOK) || (o_ptr->tval == TV_MAGERY_BOOK) ||
-        (o_ptr->tval == TV_SHADOW_BOOK) || (o_ptr->tval == TV_NETHER_BOOK))
+        (o_ptr->tval == TV_SHADOW_BOOK)) 
         {
             if (o_ptr->sval>3) return TRUE;
             else return FALSE;
@@ -696,21 +696,6 @@ void do_cmd_destroy(void)
 	msg_format("You destroy %s.", o_name);
 	sound(SOUND_DESTITEM);
 
-	if (p_ptr->pclass == CLASS_MERCHANT)
-	{
-		/* Good merchants don't break anything... */
-		s32b value = object_value_real(o_ptr);
-		
-		if (value<0) value=-value;
-		
-		/* ... otherwise they lose some experience */
-		value = value * amt / 10;
-		if (value == 0) value = 1;
-		
-		lose_exp(value);
-                msg_print("Good merchants should not break anything...");
-	}
-	
 	if (high_level_book(o_ptr))
 	{
 		bool gain_expr = FALSE;
@@ -1482,7 +1467,7 @@ static cptr ident_info[] =
 	"g:Guard",
 	"h:Hobbit/Elf/Dwarf",
 	"i:Icky Thing",
-	"j:Jerk",
+	"j:Parasitic worm",
 	"k:K",
 	"l:Loser",
 	"m:Mold",
@@ -2120,116 +2105,3 @@ void do_cmd_sense_grid_mana()
         }
 }
 
-/*
- * Calculate the weight of the portable holes
- */
-s32b portable_hole_weight(void)
-{
-        s32b weight, i;
-        store_type *st_ptr = &town[TOWN_RANDOM].store[STORE_HOME];
-	
-	/* Sum the objects in the appropriate home */
-	for (i = 0, weight = 0; i < st_ptr->stock_num; i++)
-	{
-		object_type *o_ptr = &st_ptr->stock[i];
-		
-		weight += (o_ptr->weight * o_ptr->number);
-	}
-	
-	/* Multiply the sum with 1.5 */
-	weight = (weight * 3) / 2 + 2;
-	return(weight);
-}
-
-void set_portable_hole_weight(void)
-{
-        s32b weight, i, j;
-
-        if (p_ptr->pclass != CLASS_MERCHANT) return;
-
-	/* Calculate the weight of items in home */
-	weight = portable_hole_weight();
-
-	/* Set the weight of portable holes in the shops, ... */
-	for (i = 1; i < max_towns; i++)
-		for (j = 0; j < max_st_idx; j++)
-		{
-			store_type *st_ptr = &town[i].store[j];
-			int k;
-			
-			for (k = 0; k < st_ptr->stock_num; k++)
-			{
-				object_type *o_ptr = &st_ptr->stock[k];
-				
-				if ((o_ptr->tval == TV_TOOL) &&
-				    (o_ptr->sval == SV_PORTABLE_HOLE))
-					o_ptr->weight = weight;
-			}
-		}
-	
-	/* ... in the object list, ... */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-		
-		if ((o_ptr->tval == TV_TOOL) &&
-		    (o_ptr->sval == SV_PORTABLE_HOLE)) o_ptr->weight = weight;
-	}
-	
-	/* ... and in the inventory to the appropriate value */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-		
-		/* Skip non-objects */
-		if ((o_ptr->tval == TV_TOOL) &&
-		    (o_ptr->sval == SV_PORTABLE_HOLE)) o_ptr->weight = weight;
-	}
-}
-
-/*
- * Use a portable hole
- */
-void do_cmd_portable_hole(void)
-{
-	cave_type *c_ptr = &cave[py][px];
-        int feat, special, town_num, i;
-	
-	/* Portable holes can be used only by merchants */
-        if (p_ptr->pclass != CLASS_MERCHANT) return;
-	
-	/* Is it currently wielded? */
-	if (!inventory[INVEN_TOOL].k_idx ||
-	    (inventory[INVEN_TOOL].tval != TV_TOOL) ||
-	    (inventory[INVEN_TOOL].sval != SV_PORTABLE_HOLE))
-	{
-		/* No, it isn't */
-		msg_print("You have to wield a portable hole to use your abilities");
-		return;
-	}
-	
-	/* Mega-hack: Saving the old values, and then... */
-	feat = c_ptr->feat;
-	special = c_ptr->special;
-        town_num = p_ptr->town_num;
-	
-	/* ... change the current grid to the home in town #1 */
-        /* DG -- use the first random town, since random towns cannot have houses */
-	c_ptr->feat = FEAT_SHOP;
-        c_ptr->special = STORE_HOME;
-        p_ptr->town_num = TOWN_RANDOM;
-	
-	/* Now use the portable hole */
-	do_cmd_store();
-	
-	/* Mega-hack part II: change the current grid to the original value */
-	c_ptr->feat = feat;
-	c_ptr->special = special;
-	p_ptr->town_num = town_num;
-	
-	set_portable_hole_weight();
-
-	/* Recalculate bonuses */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-	p_ptr->update |= (PU_BONUS);
-}

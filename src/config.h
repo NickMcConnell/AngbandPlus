@@ -573,7 +573,7 @@
 /*
  * Unallow the using of every race/class combinaison
  */
-/* #define FORBID_BAD_COMBINAISON */
+#define FORBID_BAD_COMBINAISON */
 
 /*
  * Enable the CTRL + L command to quit without saving

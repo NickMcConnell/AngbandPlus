@@ -1,4 +1,3 @@
-/* File: cmd2.c */
 
 /* Purpose: Movement commands (part 2) */
 
@@ -12,7 +11,6 @@
 
 #include "angband.h"
 
-void do_cmd_immovable_special(void);
 
 /* Try to bash an altar. */
 static bool do_cmd_bash_altar(int y, int x) {
@@ -342,9 +340,7 @@ void do_cmd_go_down(void)
     char i;
     int old_dun = dun_level;
     dungeon_info_type *d_ptr = &d_info[dungeon_type];
-msg_print("Begin going down...");
-sleep(1);  
-      /* Between Gates MUST be actived now */
+    /* Between Gates MUST be actived now */
     if (between_effect()) return;
   
     /* Player grid */
@@ -364,8 +360,6 @@ sleep(1);
         if (i != 'y') return;
     }
 
-msg_print("Process hooks...");
-sleep(1);
     /* Can we ? */
     if (process_hooks(HOOK_STAIR, TRUE)) return;
   
@@ -447,8 +441,6 @@ sleep(1);
   
     if (go_down || go_down_many)
     {
-msg_print("We're going down!!!");
-sleep(1);
 #if 0
     /* Hack -- take a turn */
     energy_use = 100;
@@ -498,12 +490,8 @@ sleep(1);
             dungeon_type = c_ptr->special;
 	    
 	    /*Innaytlise da dungienoin spenchtifec *_info.txt files*/ 
-	    msg_print("Foo is entering dung eon");
-	    sleep(5);
 	    init_dun_entry(d_ptr->subdir);
-	    msg_print("Foo has innitialized the dungoen");
-	    sleep(5);
-	        
+	    	        
 	    if ((p_ptr->wilderness_x == d_ptr->ix) && (p_ptr->wilderness_y == d_ptr->iy))
             {
                 dun_level = d_ptr->mindepth;
@@ -2670,16 +2658,7 @@ void do_cmd_walk_jump(int pickup)
  */
 void do_cmd_walk(int pickup)
 {
-        /* Move (usually pickup) */
-  
-        if (p_ptr->immovable)
-        {
-                do_cmd_unwalk();
-        }
-        else
-        {
-                do_cmd_walk_jump(pickup);
-        }
+do_cmd_walk_jump(pickup);
 }
 
 
@@ -2711,14 +2690,7 @@ void do_cmd_run_run()
  */
 void do_cmd_run(void)
 {
-        if (p_ptr->immovable)
-        {
-                return;
-        }
-        else
-        {
-                do_cmd_run_run();
-        }
+do_cmd_run_run();
 }
 
 
@@ -4101,183 +4073,6 @@ void do_cmd_boomerang(void)
 	}
 }
 
-/*
- * Try to ``walk'' using phase door.
- */
-
-void do_cmd_unwalk()
-{
-  int dir, y, x, feat;
-  cave_type *c_ptr;
-
-  bool more = FALSE;
-
-  if (!get_rep_dir(&dir)) return;
-
-#if 0 /* No more, but there are penalities */
-  /* A mold can't blink in small scale mode */
-  if (p_ptr->wild_mode)
-  {
-    msg_print("You cannot move in the overview display.");
-    return;
-  }
-#endif
-
-  y = py + ddy[dir];
-  x = px + ddx[dir];
-
-  c_ptr = &cave[y][x];
-  feat = c_ptr->feat;
-
-  /* Must have knowledge to know feature XXX XXX */
-  if (!(c_ptr->info & (CAVE_MARK))) feat = FEAT_NONE;
-
-  /* Take a turn */
-  energy_use = 100;
-  energy_use *= (p_ptr->wild_mode)?(5 * (MAX_HGT + MAX_WID) / 2):1;
-
-
-  /* Allow repeated command */
-  if (command_arg)
-    {
-      /* Set repeat count */
-      command_rep = command_arg - 1;
-
-      /* Redraw the state */
-      p_ptr->redraw |= (PR_STATE);
-
-      /* Cancel the arg */
-      command_arg = 0;
-    }
-
-  
-        /* Attack monsters */
-        if (c_ptr->m_idx > 0)
-        {
-                /* Attack */
-                py_attack(y, x, -1);
-        }
-
-	/* Exit the area */
-        else if ((!dun_level) && (!p_ptr->wild_mode) &&
-		((x == 0) || (x == cur_wid-1) ||
-		 (y == 0) || (y == cur_hgt-1)))
-	{
-		/* Can the player enter the grid? */
-		if (player_can_enter(c_ptr->mimic))
-		{
-			/* Hack: move to new area */
-			if ((y == 0) && (x == 0))
-			{
-				p_ptr->wilderness_y--;
-				p_ptr->wilderness_x--;
-				p_ptr->oldpy = cur_hgt - 2;
-				p_ptr->oldpx = cur_wid - 2;
-                                ambush_flag = FALSE;
-			}
-
-			else if ((y == 0) && (x == MAX_WID-1))
-			{
-				p_ptr->wilderness_y--;
-				p_ptr->wilderness_x++;
-				p_ptr->oldpy = cur_hgt - 2;
-				p_ptr->oldpx = 1;
-                                ambush_flag = FALSE;
-			}
-
-			else if ((y == MAX_HGT-1) && (x == 0))
-			{
-				p_ptr->wilderness_y++;
-				p_ptr->wilderness_x--;
-				p_ptr->oldpy = 1;
-				p_ptr->oldpx = cur_wid - 2;
-                                ambush_flag = FALSE;
-			}
-
-			else if ((y == MAX_HGT-1) && (x == MAX_WID-1))
-			{
-				p_ptr->wilderness_y++;
-				p_ptr->wilderness_x++;
-				p_ptr->oldpy = 1;
-				p_ptr->oldpx = 1;
-                                ambush_flag = FALSE;
-			}
-
-			else if (y == 0)
-			{
-				p_ptr->wilderness_y--;
-				p_ptr->oldpy = cur_hgt - 2;
-				p_ptr->oldpx = x;
-                                ambush_flag = FALSE;
-			}
-
-			else if (y == cur_hgt-1) 
-			{
-				p_ptr->wilderness_y++;
-				p_ptr->oldpy = 1;
-				p_ptr->oldpx = x;
-                                ambush_flag = FALSE;
-			}
-
-			else if (x == 0) 
-			{
-				p_ptr->wilderness_x--;
-				p_ptr->oldpx = cur_wid - 2;
-				p_ptr->oldpy = y;
-                                ambush_flag = FALSE;
-			}
-
-			else if (x == cur_wid-1) 
-			{
-				p_ptr->wilderness_x++;
-				p_ptr->oldpx = 1;
-				p_ptr->oldpy = y;
-                                ambush_flag = FALSE;
-			}
-
-			p_ptr->leaving = TRUE;
-
-			return;
-		}
-	}
-
-  /* Hack -- Ignore weird terrain types. */
-  else if (!cave_floor_grid(c_ptr)) {
-    teleport_player(10);
-  }
-
-  /* Enter quests */
-  else if (((feat >= FEAT_QUEST_ENTER) && (feat <= FEAT_QUEST_UP)) ||
-           ((feat >= FEAT_LESS) && (feat <= FEAT_MORE))) {
-    move_player(dir, FALSE);
-    more = FALSE;
-  }
-
-        /* Hack -- Ignore wilderness mofe. */
-        else if (p_ptr->wild_mode)
-        {
-                /* Chance to not blink right */
-                if (magik(15))
-                {
-                        do
-                        {
-                                dir = rand_range(1, 9);
-                        }
-                        while (dir == 5);
-                }
-
-                move_player(dir, FALSE);
-        }
-
-  /* Walking semantics */
-  else {
-    teleport_player_directed(10, dir);
-  }
-
-  /* Cancel repetition unless we can continue */
-  if (!more) disturb(0, 0);
-}
-
 static bool tport_vertically(bool how) {
   if ((p_ptr->inside_arena)||(p_ptr->inside_quest)) { /* arena or quest -KMW- */
     msg_print("There is no effect.");
@@ -4317,150 +4112,6 @@ static bool tport_vertically(bool how) {
  * Do a special ``movement'' action. Meant to be used for ``immovable''
  * characters.
  */
-void do_cmd_immovable_special(void) {
-  int i,ii,ij,dir;
-  int foo = p_ptr->immov_cntr;
-  int lose_sp = 0;
-  int lose_hp = 0;
-  bool did_act = FALSE;
-  bool did_load = FALSE;
-
-  if (foo > 1) {
-    if (p_ptr->csp > foo/2) {
-
-      msg_format("This will drain %d mana points!", foo/2);
-      if (!get_check("Proceed? "))
-	return;
-
-      lose_sp = foo/2;
-
-    } else if (p_ptr->chp > foo/2) {
-
-      msg_format("Warning: This will drain %d hit points!", foo/2);
-      if (!get_check("Proceed? "))
-	return;
-
-      lose_hp = foo/2;
-
-    } else {
-      msg_print("You can't use your powers yet.");
-      return;
-    }
-  }
-
-  /* Enter "icky" mode */
-  character_icky = TRUE;
-
-  /* Save the screen */
-  Term_save();
-
-
-  /* Interact until done */
-  while (1) {
-    /* Clear screen */
-    Term_clear();
-
-    /* Ask for a choice */
-    prt("Do what special action:", 2, 0);
-
-    /* Give some choices */
-    prt("(a) Teleport to a specific place.", 4, 5);
-    prt("(b) Fetch an item.", 5, 5);
-    prt("(c) Go up 50'", 6, 5);
-    prt("(d) Go down 50'", 7, 5);
-
-    /* Prompt */
-    prt("Command: ", 9, 0);
-
-    /* Prompt */
-    i = inkey();
-
-    /* Done */
-    if (i == ESCAPE) break;
-
-    /* Tele-to */
-    if (i == 'a') {
-      Term_load();
-      character_icky = FALSE;
-      did_load = TRUE;
-
-      if (!tgt_pt(&ii,&ij)) break;
-
-      /* Teleport to the target */
-      teleport_player_to(ij,ii); 
-
-      did_act = TRUE;
-      break;
-    }
-
-    /* Fetch item */
-    else if (i == 'b') {
-      Term_load();
-      character_icky = FALSE;
-      did_load = TRUE;
-
-      if (!get_aim_dir(&dir)) return;
-      fetch(dir, p_ptr->lev*15, FALSE);
-
-      did_act = TRUE;
-      break;
-    }
-
-    /* Move up */
-    else if (i == 'c') {
-      Term_load();
-      character_icky = FALSE;
-      did_load = TRUE;
-
-      if (!tport_vertically(FALSE)) return;
-
-      did_act = TRUE;
-      break;
-    }
-
-    /* Move down */
-    else if (i == 'd') {
-      Term_load();
-      character_icky = FALSE;
-      did_load = TRUE;
-
-      if (!tport_vertically(TRUE)) return;
-
-      did_act = TRUE;
-      break;
-    }
-
-    /* Unknown option */
-    else {
-      bell();
-    }
-
-  }
-
-  /* Check if screen was restored before */
-  if (!did_load) {
-    /* Restore the screen */
-    Term_load();
-
-    /* Leave "icky" mode */
-    character_icky = FALSE;
-  }
-
-  /* Apply stat losses if something was done */
-  if (did_act) {
-    p_ptr->immov_cntr += 101-(p_ptr->lev*2);
-
-    if (lose_sp) {
-      p_ptr->csp -= lose_sp;
-      p_ptr->redraw |= (PR_MANA);
-    }
-
-    if (lose_hp) {
-      p_ptr->chp -= lose_hp;
-      p_ptr->redraw |= (PR_HP);
-    }
-  }
-}
 
 static bool item_tester_hook_sacrifice(object_type* o_ptr) {
   if (object_value(o_ptr) * o_ptr->number > 0) return TRUE;

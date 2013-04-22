@@ -1799,10 +1799,6 @@ void update_mon(int m_idx, bool full)
 			}
 		}
 
-		/* Merchants sense objects */
-		if ((p_ptr->pclass == CLASS_MERCHANT) && (p_ptr->lev >= 20) &&
-		    (m_ptr->hold_o_idx)) flag = TRUE;
-		
 		/* Apply "detection" spells */
 		if (m_ptr->mflag & (MFLAG_MARK)) flag = TRUE;
 

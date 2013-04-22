@@ -1180,69 +1180,45 @@ void take_hit(int damage, cptr hit_from)
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
-                /* Necromancers get a special treatment */
-                if((p_ptr->pclass != CLASS_NECRO) || ((p_ptr->pclass == CLASS_NECRO) && (p_ptr->class_extra3 & CLASS_UNDEAD)))
+                
+                /* Sound */
+                sound(SOUND_DEATH);
+
+                /* Hack -- Note death */
+                if (!last_words)
                 {
-                        /* Sound */
-                        sound(SOUND_DEATH);
-
-                        /* Hack -- Note death */
-                        if (!last_words)
-                        {
-                                cmsg_print(TERM_RED, "You die.");
-                                msg_print(NULL);
-                        }
-                        else
-                        {
-                                (void)get_rnd_line("death.txt", death_message);
-                                cmsg_print(TERM_RED, death_message);
-                        }
-
-                        /* Note cause of death */
-                        (void)strcpy(died_from, hit_from);
-
-                        if (p_ptr->image) strcat(died_from,"(?)");
-
-                        /* No longer a winner */
-                        total_winner = FALSE;
-
-                        /* Leaving */
-                        p_ptr->leaving = TRUE;
-
-                        /* Note death */
-                        death = TRUE;
-
-                        if (get_check("Dump the screen? "))
-                        {
-                                do_cmd_save_screen();
-                        }
-
-                        /* Dead */
-                        return;
+                        cmsg_print(TERM_RED, "You die.");
+                        msg_print(NULL);
                 }
-                /* Just turn the necromancer into an undead */
                 else
                 {
-                        p_ptr->class_extra3 |= CLASS_UNDEAD;
-                        p_ptr->class_extra4 = p_ptr->lev + (rand_int(p_ptr->lev / 2) - (p_ptr->lev / 4));
-                        if (p_ptr->class_extra4 < 1) p_ptr->class_extra4 = 1;
-                        cmsg_format(TERM_L_DARK, "You have to kill %d monster%s to be brought back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
-
-                        /* MEGA-HACK !!! */
-                        calc_hitpoints();
-
-                        /* Enforce maximum */
-                        p_ptr->chp = p_ptr->mhp;
-                        p_ptr->chp_frac = 0;
-
-                        do_cmd_wiz_cure_all();
-
-                        /* Display the hitpoints */
-                        p_ptr->redraw |= (PR_HP);
-
-                        /* Window stuff */
-                        p_ptr->window |= (PW_PLAYER);
+            		(void)get_rnd_line("death.txt", death_message);
+                        cmsg_print(TERM_RED, death_message);
                 }
+
+                /* Note cause of death */
+                (void)strcpy(died_from, hit_from);
+
+                if (p_ptr->image) strcat(died_from,"(?)");
+
+                /* No longer a winner */
+                total_winner = FALSE;
+
+                /* Leaving */
+                p_ptr->leaving = TRUE;
+
+                /* Note death */
+                death = TRUE;
+
+                if (get_check("Dump the screen? "))
+                {
+                        do_cmd_save_screen();
+                }
+
+                /* Dead */
+                return;
+                
+                
 	}
 
 	/* Hitpoint warning */
@@ -1469,7 +1445,6 @@ static bool hates_fire(object_type *o_ptr)
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
 		case TV_CHAOS_BOOK:
-                case TV_NETHER_BOOK:
                 case TV_CRUSADE_BOOK:
                 case TV_SIGALDRY_BOOK:
                 case TV_SYMBIOTIC_BOOK:
@@ -6742,17 +6717,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by something!");
                         if (p_ptr->realm1 == REALM_VALARIN || p_ptr->realm2 == REALM_VALARIN)
 				dam /= 2;
-                        else if (p_ptr->realm1 == REALM_NETHER || p_ptr->realm2 == REALM_NETHER)
-				dam *= 2;
-			take_hit(dam, killer);
+                        take_hit(dam, killer);
 			break;
 		}
 
 		case GF_HELL_FIRE:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-                        if (p_ptr->realm1 == REALM_NETHER || p_ptr->realm2 == REALM_NETHER)
-				dam /= 2;
                         else if (p_ptr->realm1 == REALM_VALARIN || p_ptr->realm2 == REALM_VALARIN)
 				dam *= 2;
 			take_hit(dam, killer);

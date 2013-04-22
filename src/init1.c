@@ -997,7 +997,6 @@ static cptr str_info_flags1[] =
         "R_BARBARIAN",
         "R_HOGRE",
         "R_HGIANT",
-        "R_KOBOLD",
         "R_NIBELUNG",
         "R_DELF",
         "R_VAMPIRE",
@@ -1038,11 +1037,8 @@ static cptr stc_info_flags1[] =
         "C_ARCHER",
         "C_ILLUSIONIST",
         "C_DRUID",
-        "C_NECRO",
         "C_UNBELIEVER",
-        "C_DAEMONOLOGIST",
         "C_WEAPONMASTER",
-        "C_MERCHANT",
 	0
 };
 
@@ -1066,7 +1062,6 @@ static cptr stm_info_flags1[] =
         "M_ILLUSION",
         "M_TRIBAL",
         "M_DRUID",
-        "M_DAEMON",
 	0
 };
 

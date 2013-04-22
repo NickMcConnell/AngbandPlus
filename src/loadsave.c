@@ -1447,7 +1447,6 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_RING:
 		case TV_HYPNOS:
 		case TV_INSTRUMENT:
-		case TV_DAEMON_BOOK:
 		case TV_TRAPKIT:
                 case TV_TOOL:
 		{

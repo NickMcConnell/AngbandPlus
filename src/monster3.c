@@ -313,9 +313,6 @@ bool can_create_companion()
                 case CLASS_BEASTMASTER:
                         if (mcnt < 4 + (p_ptr->lev / 10)) return (TRUE);
                         else return (FALSE);
-                case CLASS_NECRO:
-                        if (mcnt < 1 + (p_ptr->lev / 10)) return (TRUE);
-                        else return (FALSE);
                 default:
                         if (mcnt < 2) return (TRUE);
                         else return (FALSE);

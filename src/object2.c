@@ -3269,12 +3269,6 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 		case TV_TOOL:
 		{
-			/* Hack - set the weight of portable holes */
-			if ((o_ptr->sval == SV_PORTABLE_HOLE) &&
-			    (p_ptr->pclass == CLASS_MERCHANT))
-			{
-                                o_ptr->weight = portable_hole_weight();
-			}
 			break;
 		}
 		
@@ -3807,7 +3801,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
-                case TV_DAEMON_BOOK:
                 case TV_TRAPKIT:
 		{
 			if (power) a_m_aux_1(o_ptr, lev, power);
@@ -4044,7 +4037,6 @@ bool kind_is_theme(int k_idx)
                 case TV_MAGERY_BOOK:    prob = match_theme.magic; break;
                 case TV_SHADOW_BOOK:    prob = match_theme.magic; break;
                 case TV_CHAOS_BOOK:     prob = match_theme.magic; break;
-                case TV_NETHER_BOOK:    prob = match_theme.magic; break;
                 case TV_CRUSADE_BOOK:   prob = match_theme.magic; break;
                 case TV_SIGALDRY_BOOK:  prob = match_theme.magic; break;
                 case TV_SYMBIOTIC_BOOK: prob = match_theme.magic; break;
@@ -4054,7 +4046,6 @@ bool kind_is_theme(int k_idx)
                 case TV_ILLUSION_BOOK:  prob = match_theme.magic; break;
                 case TV_TRIBAL_BOOK:    prob = match_theme.magic; break;
                 case TV_DRUID_BOOK:     prob = match_theme.magic; break;
-                case TV_DAEMON_BOOK:    prob = match_theme.magic; break;
                 case TV_SPIRIT_BOOK:    prob = match_theme.magic; break;
 
 		case TV_LITE:		prob = match_theme.tools; break;
@@ -4183,7 +4174,6 @@ static bool kind_is_good(int k_idx)
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
 		case TV_CHAOS_BOOK:
-                case TV_NETHER_BOOK:
                 case TV_CRUSADE_BOOK:
                 case TV_MUSIC_BOOK:
                 case TV_SYMBIOTIC_BOOK:
@@ -6064,12 +6054,6 @@ static void spell_info(char *p, int spell, int realm, byte level)
                                 info_spell = FALSE;
 				break;
 
-                        case REALM_NETHER: /* Nether */
-                                info_spell = TRUE;
-                                cast_nether_spell(spell, get_spell_level(realm, spell) - 1);
-                                sprintf(p, spell_txt);
-                                info_spell = FALSE;
-				break;
 
                         case REALM_CRUSADE: /* Crusade */
                                 info_spell = TRUE;
@@ -6125,13 +6109,7 @@ static void spell_info(char *p, int spell, int realm, byte level)
                                 sprintf(p, spell_txt);
                                 info_spell = FALSE;
 				break;
-			case REALM_DAEMON:
-                                info_spell = TRUE;
-                                cast_daemon_spell(spell, get_spell_level(realm, spell) - 1);
-                                sprintf(p, spell_txt);
-                                info_spell = FALSE;
-				break;
-                        default:
+			default:
                                 sprintf(p, "Unknown type: %d.", realm);
                                 break;
 		}

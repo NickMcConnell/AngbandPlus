@@ -1,0 +1,77 @@
+# File: e_info.txt
+
+
+# This file is used to initialize the "lib/raw/ra_info.raw" file, which is
+# used to initialize the "randart parts" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/ra_info.raw" file.
+
+# N:index
+# X:power value:max number of time it can appear on one object
+# T:tval:min sval:max sval  (up to 20 T: lines)
+# W:mininum player level to create it:rarity1:rarity2
+# C:max to dam:max to hit:max to AC:max to pval
+# F:flags
+
+# Version stamp (required)
+
+V:2.8.1
+
+### Mage Staff randarts ###
+
+N:1
+X:10:1
+T:6:0:255
+W:5:1:4
+C:-5:-5:0:5
+F:MANA
+
+N:2
+X:14:1
+T:6:0:255
+W:10:1:8
+C:-10:-10:0:5
+F:SPELL
+
+### Weapons ###
+
+N:3
+X:5:2
+T:15:0:255
+T:16:0:255
+T:17:0:255
+T:18:0:255
+T:19:0:255
+T:20:0:255
+T:21:0:255
+T:22:0:255
+T:23:0:255
+T:24:0:255
+W:1:1:2
+C:0:10:0:0
+
+N:4
+X:5:2
+T:15:0:255
+T:16:0:255
+T:17:0:255
+T:18:0:255
+T:19:0:255
+T:20:0:255
+T:21:0:255
+T:22:0:255
+T:23:0:255
+T:24:0:255
+W:1:1:2
+C:10:0:0:0
+
+N:5
+X:15:1
+T:23:0:255
+T:24:0:255
+W:15:1:25
+C:4:0:0:0
+F:VORPAL

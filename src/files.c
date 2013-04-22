@@ -1524,15 +1524,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 		if (p_ptr->lev > 39)
                         (*esp) |= (ESP_DEMON | ESP_ORC | ESP_TROLL | ESP_GIANT | ESP_UNDEAD | ESP_ANIMAL | ESP_UNIQUE);
 		break;
-	case CLASS_DAEMONOLOGIST:
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_RES_CONF);
-		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_FEAR);
-		if (p_ptr->lev > 39)
-			(*f2) |= (TR2_FREE_ACT);
-		break;
-        case CLASS_WEAPONMASTER:
+	case CLASS_WEAPONMASTER:
                 if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR);
                 break;
 	default:
@@ -1553,9 +1545,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
                 break;
         case RACE_HOBBIT:
                 (*f2) |= (TR2_SUST_DEX);
-		break;
-	case RACE_GNOME:
-		(*f2) |= (TR2_FREE_ACT);
 		break;
 	case RACE_DWARF:
 		(*f2) |= (TR2_RES_BLIND);
@@ -1597,17 +1586,9 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 		(*f2) |= (TR2_RES_SHARDS);
 		(*f2) |= (TR2_SUST_STR);
 		break;
-	case RACE_KOBOLD:
-		(*f2) |= (TR2_RES_POIS);
-		break;
 	case RACE_NIBELUNG:
 		(*f2) |= (TR2_RES_DISEN);
 		(*f2) |= (TR2_RES_DARK);
-		break;
-	case RACE_DARK_ELF:
-		(*f2) |= (TR2_RES_DARK);
-		if (p_ptr->lev > 19)
-			(*f3) |= (TR3_SEE_INVIS);
 		break;
         case RACE_DRAGONRIDDER:
             (*f3) |= TR3_FEATHER;
@@ -1653,12 +1634,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 
         case RACE_RKNIGHT:
         (*f1) |= TR1_SPEED;
-        break;
-
-        case RACE_MOLD:
-        (*f2) |= TR2_RES_NETHER;
-        (*f2) |= TR2_RES_NEXUS;
-        (*f2) |= TR2_HOLD_LIFE;
         break;
 
 	default:

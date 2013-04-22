@@ -4399,15 +4399,6 @@ void verify_panel(void)
 	/* Recalculate the boundaries */
         panel_bounds();
 
-	/* Hack - merchants detect items */
-	if (p_ptr->pclass == CLASS_MERCHANT)
-	{
-                hack_no_detect_message = TRUE;
-		detect_objects_normal();
-		detect_objects_gold();
-                hack_no_detect_message = FALSE;
-	}
-
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);
 
