@@ -1,5 +1,5 @@
 # File: r_info.txt
-# For NTAngband 0.4
+# For NTAngband 0.6
 
 # This file is used to initialize the "lib/raw/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
@@ -134,6 +134,84 @@ G:@:w
 E:1:1:1:2:1:1
 O:0:0:0:0
 
+### Level 46
+N:460:Glaurung
+G:D:r
+I:125:250d100:20:750:0
+W:46:2:50000:500000
+E:0:1:1:4:2:2
+0:50:20:10:0
+B:GAZE:PARALYZE
+B:CLAW:HURT:10d10
+F:EVIL | UNIQUE | DRAGON | MALE | SMART | DROP_CORPSE | CAN_SPEAK
+S:1_IN_1
+S:BR_FIRE | BR_FIRE | BR_POIS | FORGET | BRAIN_SMASH
+D:The first of the Uruloki, he is both a fiersome opponent in battle 
+D:and a cunning enchanter.  He has blanked the mind of Nienor and defiled 
+D:many lands.  He wryly grins at the thought of defiling *your* corpse.
+
+### Level 48
+
+N:480:Ancalagon the Black
+G:D:D
+I:120:300d100:15:600:0
+W:48:5:60000:500000
+E:0:1:1:4:2:2
+O:50:20:10:0
+B:CLAW:HURT:10d10
+F:EVIL | UNIQUE | DRAGON | MALE | DROP_CORPSE | CAN_FLY
+S:1_IN_1 | 
+S:BR_FIRE
+D:The mightiest dragon of all, he defends Angband with terrible fury.
+
+### Level 49
+
+N:490:Balrog
+G:&:D
+I:110:100d100:12:250:2
+W:49:10:25000:10000
+E:2:1:1:2:1:1
+O:10:50:20:0
+B:HIT:FIRE:20d10
+B:HIT:HURT:20d30
+B:HIT:TERRIFY:10d10
+F:DEMON | EVIL |
+F:REGENERATE | SMART | DROP_GREAT | DROP_2D2
+F:NO_SLEEP | NO_CONF | IM_FIRE | IM_ACID | IM_POIS | IM_ELEC
+F:FORCE_MAXHP | AURA_FIRE
+S:1_IN_4 |
+S:BA_DARK 
+D:Of man-shape, maybe, but with great terror and darkness surrounding 
+D:it.  Its evil is so great that light itself cannot endure nearby it.
+D:You cringe from the intense flame of its whip; you imagine your blood 
+D:already on its blade.
+
+N:491:Draugluin
+G:C:D
+I:130:150d100:5:100:150
+W:49:5:2500:500000
+E:0:1:0:0:1:2
+O:0:0:0:0
+B:BITE:HURT:20d20
+B:BITE:HURT:20d20
+F:UNIQUE | MALE | EVIL | REGENERATE
+S:1_IN_4
+S:SUMMON_KIN
+D:The lord and sire of werewolves, his nasty children plague you at his
+D:command.
+
+N:492:Carcharoth
+G:C:r
+I:130:150d100:5:100:150
+W:49:5:2500:500000
+E:0:1:0:0:1:2
+O:0:0:0:0
+B:BITE:FIRE:20d30
+B:BITE:POISON:20d10
+F:UNIQUE | MALE | EVIL | REGENERATE | STUPID
+D:Draugluin's heir, he was fed in hatred and hell-fire by Morgoth himself.
+D:A Silmaril burned his innards; he rushes around madly, killing all he can.
+
 ### Level 50, the level of *Death*
 
 N:500:Gothmog, Lord of Balrogs
@@ -208,8 +286,8 @@ D:creatures with his evil powers. Orcs, Dragons, and Trolls are his most
 D:foul corruptions, causing much pain and suffering in the world to please 
 D:him. His disgusting visage, twisted with evil, is crowned with iron, the 
 D:two remaining Silmarils forever burning him. Grond, the mighty Hammer of 
-D:the Underworld, cries defiance as he limps toward you to crush you to a 
-D:pulp!  
+D:the Underworld, cries defiance as he limps wrathfully toward you to crush 
+D:you to a pulp!  
 
 # N: serial number : monster name
 # G: symbol : color

@@ -411,9 +411,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 			case CLASS_HIGH_MAGE:
 				artifact_bias = BIAS_MAGE;
 				break;
-			case CLASS_PRIEST:
-				artifact_bias = BIAS_PRIESTLY;
-				break;
 			case CLASS_ROGUE:
 				artifact_bias = BIAS_ROGUE;
 				warrior_artifact_bias = 25;
@@ -421,10 +418,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 			case CLASS_RANGER:
 				artifact_bias = BIAS_RANGER;
 				warrior_artifact_bias = 30;
-				break;
-			case CLASS_PALADIN:
-				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 40;
 				break;
 			case CLASS_MONK:
 				artifact_bias = BIAS_PRIESTLY;

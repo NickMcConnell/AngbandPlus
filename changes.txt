@@ -1,223 +1,3 @@
-24/08/1999
-- Add the MAZE flag to the dungeon type flag list, which instead of a normal
-  dungeon generate a full big maze ! And it's EVIL ! Note that there will be
-  no rooms and no vaults generated, just a plain evil maze
-  The algorithm is from <Pierre.Bru@spotimage.fr> on rec.games.roguelike.development
-- Note about the dungeons : A dungeon can't have more than 40 levels
-- You can use SMALLEST, SMALL and BIG as dungeon flags to specify the level's
-  size
-- 6 new dungeon types: a Graveyard, an Illusory Castle, an Orc cave, a Maze
-  a Dragon's Lair and A Forest with specific gfxs and monsters restrictions
-- Some new gfx form Andreas Koch mostly to add more flavor to the towns
-
-29/08/1999
-- You can add a guardian and a guardian artifact to each dungeons types with
-  the following flags: FINAL_ARTIFACT_artifact_number and
-  FINAL_GUARDIAN_guardian_number
-
-29/08/1999 - PernAngband 4.0.0
-
-01/09/1999
-- Fixed the max_dlv non allocation error
-- Fixed the Tribal realm spell descriptions
-
-01/09/1999 - PernAngband 4.0.0b
-- New dungeon type, the Netherworld with Muar and the Wand of Fireball of
-  Mithrandir at the bottom
-- You can't gain a fate before being level 10
-- Some cosmetic changes suggested by Akhronath
-- A new Artifact by Akhronath, The Long Sword of Murazor 4d5, so ... the next
-  time you see a long sword 4d5, beware ...
-
-05/09/1999
-- Add a feature flag to allow running
-- Fixed the Chaos Warriors bug (they were unable to use magic !)
-- Fixed the Chaos Realm descriptions
-- You can't rest on a between gate
-- You can now steal from stores. But beware of the consequences if you fail...
-- Fixed a bug in that when recalling to the town the player was sometimes
-  placed in the upper left corner
-
-08/09/1999
-- Fixed a bug that disallowed the creation of entrances to some vaults
-
-14/09/1999
-- Fixed the Dragon Tower bug
-- Add minimum player level to the random dungeons
-- Add shafts, you can use them do go up/down for up to 4 levels(but you can't
-  ignore quest levels). Original patch from Static Chaos. Idea from GSN
-- Add a dungeon flags to forbid generation of doors
-
-27/09/1999
-- Some tweaks to the possessor code as written by Static Chaos i.e:
-  You must possess a monster that is able to open to door to do so. The
-  same applies to bashing. Your sex is modified by your body. Lots of tweaks
-  to the spells that can be used...
-- The racial power of the Dwarves is now the same as The Pick of Erebor
-  activation: they can find hidden passage in the walls
-- There is 1 chance in 10 that the level is an magical level, which means that
-  each grid will contain more mana than a normal level.
-- Add some new sentences to the monsters sentence lists
-
-04/10/1999
-- Began to add the Druid class. But it's TOTALLY different from the other
-  variant's Druids. They make intense use of the mana flow from within the
-  earth and the elements, thus their spells can regenerate the mana they have
-  used by pumping it from the floor, like the Tunnel spell which will blink
-  the player and will try to absorb enough mana form the grid he/she lands on.
-  They can also (and they are the only to be able to do that) regenerate the
-  mana flow of the earth. They also can use enhanced attack types called
-  Druidic Bolt/Beam/Ball that can follow a mana flow laid by the player.
-- The Druids can sense precisely the amount of mana of a grid
-
-08/10/1999
-- Added some revised graphics by Andreas Koch
-- Added the code provided by Alexey Guzeev(aga@russia.crosswinds.net) to
-  compile PernAngband under OS/2 with EMX
-- It's finally fixed ! the damn bug that was crashing the game when leaving
-  a town on certain system (Mac and Windows) ! this will never happen again !
-
-27/10/1999
-- Finished the Druid class. They have 40 spells (8 * 5 books). The spells that
-  activate Mana Runes is not active for now, but it will in a near future.
-- Add a slightly modified Tom Morton fake artifact patch (it won't print {} at
-  the end)
-
-30/10/1999
-- You can inscribe an object with !! to notify the player when it's recharged
-- Lots of bug fixes thanks to Lothar Lange <100644.2004@compuserve.com>
-- Lots of new ideas thanks to Lothar Lange <100644.2004@compuserve.com>
-
-30/10/1999 - PernAngband 4.0.1
-- "Foolish mortal! Thou hast not pleased me! I'll doom your game with the new
-  horrible DG curse !"
-  Yes I've done it, the DG curse is even worse than the TY one. One of it's
-  most perverse feature is that it can replicate itself to contaminate sane
-  objects that can't be cured. Also if you remove the curse of a DG cursed
-  object, it will recurse itself automatically !
-  Beware of the horrible Long Sword of Murazor because it carries the ancient
-  morgothian curse !
-  Oh, there are also some monsters that give the DG Curse when dying ... but
-  I'll let you find whose they are by yourself :-<|>  (Dark God makes an evil
-  smile). I can just say one thing : you should *REALLY* *NOT* kill Mathilde...
-  But do not worry she's got much more HP, so you can't kill her anymore :)
-
-01/11/1999
-- Add the Rod of Home Summoning, which acts like the old dragon spells
-  "Call Home"
-
-08/11/1999
-- Drastically reduced the recharging time of the Dragon Scale mails in order
-  to render them useful.
-- Added a new weapon ego-item: of Spinning, which will make you spin around
-  in order to hit every monster around you. Note that you'll only get one
-  blow for each monsters whatever your normal number of blow is.
-- Added (ok stolen) the question in the GSNband FAQ about wrists hurting (it can
-  be useful, so everyone should know)
-- Rogues and monks gain more and more stealth as they gain levels (SBF)
-- Added some sentences for the Dwarves (in monspeak.txt)
-- Added the support of two-handed weapons (from GSN). Thus there are weapons
-  that can be handled with two or one hand (but with one hand it halves the
-  damage). A 2 handed weapon can't be wielded with a shield.
-- Added the random character name generation from Cthangband
-- Added rivers (water & lava) from the Steven Fuerst fractal patch. Note that
-  you have to add WATER_RIVER, LAVA_RIVER, WATER_RIVERS or LVA_RIVERS to a
-  dungeon to have some rivers generated (actually in Mordor(lava), Dragon lair
-  (Lava) and Forest(Multiple Water))
-- Updated generate.c to the Steven Fuerst fractal patch room generator (using
-  room_alloc), in order to implement the remaining part of the patch easier.
-  But I'm still having problems adapting it to my extended dungeon generator.
-- Ahah ! I've resolved the problem !! there are now fractal rooms (15%, can be
-  always enabled by specifying the CAVE flag), now the orc caves looks great
-
-10/11/1999
-- Added the Caverns(enabled via the CAVERN flag)
-- Hell has been moved down, it now begins at level 666! :)
-
-12/11/1999
-- Add the Static Chaos persistent dungeon patch that save every level of a
-  dungeon (which has the PERSISTENT flag) on disk and reload it instead of
-  regenerating a new level.
-- Add the Outer World dungeon type (this is an entrance to a place of an
-  incredible stability). It use the PERSISTENT flag and thus will be saved.
-  Only level 50 characters can go there to prevent abuse(like have an old
-  ultra powerful character and a new one and going into the Outer World to
-  exchange some stuff). And yes the saved dungeons are the same for EVERY
-  characters. But to add ... err ... variety,  I've put it from level 300 to
-  305, I've put it to have at least 30 monsters from the beginning AND to have
-  an higher monster generation rate(1/60 instead of 1/160 !), thus you'll
-  NEVER get bored there :)
-- Implemented the much more complex trap system from Angband/64 thanks to the
-  patch made by Static Chaos. There is 169 traps (see tr_info.txt).
-  Beware that on average the traps are deadlier...
-- It comes along with a new feature for stat system: temporary stat drain,
-  it's cool
-
-14/11/1999
-- Renamed Power Batteries to Essences
-- The DG_CURSE can put the NEVER_BLOW flag on a weapon ... sadistic !!!
-
-16/11/1999
-- DSMs now have been granted the FLY flag
-
-19/11/1999
-- The monster memory now colors some important things about the monster (like
-  resists, speed, ...)
-- Fixed a wand of wishing bug, that made them sometimes NOT use a charge
-- Moved the special level DeathWatch to the Orc Cave
-- Moved the special level Treasure Room to the Maze so people are forced
-  to play those dungeons if they want the artifacts
-- Random quests will only occurs on PRINCIPAL dungeons (the one created by
-  splitting the vanilla dungeon into 4 smaller ones, Galgals, Mirkwood,
-  Mordor and Angband itself)
-- To prevent too many YASD from the DG curse of Mathilde she has now been
-  granted 22500 hp, but as usual she can't attack :))
-- Fixed a bug that disabled the guardian at the bottom of some dungeons
-
-25/11/1999
-- Added main-gcu from Angband/64 to allow larger screens
-- Added the new note command that dumps to a file from "Tom Morton"
-  <tmorton@yikesstation.freeserve.co.uk>
-
-27/11/1999
-- Added funny time message from Z
-- Added object experience as suggested by Ceilti <Ceilti@aol.com>
-- Fixed a bug when the magestaves were cursed
-
-29/11/1999
-- Added the small trees (along with a new feature flag: SUPPORT_LIGHT) to
-  replace the walls in the Forest and Mirkwood
-- Some new gfx from Andreas, and the town of Bree with the new tiles
-
-02/12/1999
-- Add 4 dungeons by variaz@hotmail.com: Vanilla Dungeon(only from Vanilla Town,
-  The Small Water Cave, The Sacred Land Of Mountains(if you don't fly ...
-  do not even plan on going there),
-  The Wild Land Of Kurukar(It sure looks great)
-
-04/12/1999
-- New dungeon flags: HOT and COLD that affect object decay
-- Add YA*IF (Yet Another *_info File): wt_info.txt
-  It defines wilderness features *, allowing a better wilderness map. Since
-  it now defines nearly everything a wilderness need to have, the map itself
-  only have to be an array of feature and seed, thus allowing a much bigger
-  wilderness. I also plan to have a Omega wilderness mode where you can have
-  an overview of the wilderness to travel quicker (but time will pass much
-  quicker too:)
-  The structure of w_info is also changed, it's uglier but well .... :)
-  The wilderness size must be EXACTLY the same as the size defined in misc.txt.
-
-06/12/1999
-- Scrolls of Reset Recall are now WORKING !!!!!
-- The new wilderness mode is done ! When you reach the border of a wilderness
-  screen you go to the small scale wilderness map, where you can see all
-  the wilderness map with the towns/dungeons/... A lot of commands are
-  disabled there and moving takes MUCH more time, so beware of the food !
-  You can enter the big scale mode by pressing > (this allow you to enter towns)
-  NOTE: The Death Molds CAN'T reach the small scale mode because their
-  erratic movements are impossible to handle in such a scale.
-  BEWARE: Your imprinted pets WON'T follow you in the wilderness !!!
-
 11/12/1999
 - Add wilderness encounters
 - Add Oangband rod/wand stacking
@@ -1762,3 +1542,28 @@ NTAngband -98752 aka "0.5"
   I have not updated it to the current endgame.
 - I cooked up some strictly Tolkienian *_info.txt files for the (future)
   alternate universes.
+  
+NTAngband 41073 aka "0.6"
+- I removed the Illusionists and their realm
+- And the Sigaldry realm
+- Added the SILLY flag to dungeons so that silly events don't happen in serious
+  dungeons.
+- Seriously damaged my brain removing items in k_info.txt and manually 
+  renumbering the entries ;(  (I will get an auto-renumberer...I will
+  get an auto-renumberer...I will get an auto-renumberer)
+- Bye bye, Shadow realm!
+- I made an auto-renumberer.
+- Added morale.  Don't let it get too low; if random bad things happen,
+  drink lots of alcohol and eat a balanced diet.
+- Removed 'disturb_pets' option.  I don't know why ANYONE would want it on.
+- Removed 'foo_monsters' options.  They don't really apply anymore.  Except
+  joke monsters.  (Remember, DarkGod and his friends are joke monsters,
+  but practical jokes are not)
+- Removed Priests
+- Removed Paladins
+- Removed Vanilla Prayer realm
+- Removed Valarin Realm
+- Removed Crusade Realm
+- Hacked in a "telnet" option that redraws the screen at several points
+  that tend to leave droppings on the screen (monster death and panel
+  change specifically)

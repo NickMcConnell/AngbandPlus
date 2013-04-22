@@ -7112,7 +7112,7 @@ static void process_monster(int m_idx, bool is_frien)
 				disturb_near)))
 			{
 				/* Disturb */
-                                if ((is_friend(m_ptr) < 0) || disturb_pets)
+                                if (is_friend(m_ptr) < 0)
 					disturb(0, 0);
 			}
 

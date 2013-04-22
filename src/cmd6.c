@@ -737,10 +737,13 @@ void do_cmd_eat_food(void)
 
 	extern bool ate;
 	
-	/*
+	/* JKB:
 	 * You can only eat twice per turn 
 	 * The first time you eat, you use no energy.
-	 * The second time, you use full energy.
+	 * The second time, you use full energy.  This is so
+	 * that when you are walking, you can eat, but if you
+	 * want to stop for a long meal, you don't have to 
+	 * keep wandering around.
 	 */
 	if(!ate)
 	  energy_use = 0;
@@ -844,6 +847,9 @@ void do_cmd_eat_food(void)
 				if (set_image(p_ptr->image + rand_int(250) + 250))
 				{
 					ident = TRUE;
+					
+					/* Most trips are good trips */
+					p_ptr->morale += randint(5) - 1;
 				}
 			}
 			break;
@@ -1035,6 +1041,8 @@ void do_cmd_eat_food(void)
 			  do_inc_stat(A_INT);
 			  }
 			msg_print("That tastes very good.");
+			if(!rand_int(2))
+			  p_ptr->morale += 1;
 			(void)set_poisoned(0);
 			(void)hp_player(damroll(4, 8));
                         ident = TRUE;
@@ -1045,7 +1053,29 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_PINT_OF_WINE:
 		{
 			msg_print("That tastes good.");
-			ident = TRUE;
+			/* Drink lifts your spirits */
+			p_ptr->morale += 2;
+			/* And makes you forget */
+			lose_exp(p_ptr->max_exp / 1000);
+			/* But it makes you drunk */
+			if(!rand_int(10) || p_ptr->last_ate == SV_FOOD_PINT_OF_ALE || 
+			   p_ptr->last_ate == SV_FOOD_PINT_OF_WINE || (p_ptr->food < 2000))
+			  {
+			  set_confused(p_ptr->confused + 100);
+			  do_dec_stat(A_INT, STAT_DEC_TEMPORARY);
+			  do_dec_stat(A_WIS, STAT_DEC_TEMPORARY);
+			  }
+			/* Makes you pass out */
+			if(p_ptr->confused && !rand_int(3))
+			  set_paralyzed(p_ptr->paralyzed + 100);
+			/* And it damages your brain */
+			if(!rand_int(100))
+			  {
+			  do_dec_stat(A_INT, STAT_DEC_NORMAL);
+			  if(!rand_int(10))
+			    do_dec_stat(A_INT, STAT_DEC_PERMANENT);
+			  }
+	    		ident = TRUE;
 			break;
 		}
 
@@ -1055,8 +1085,10 @@ void do_cmd_eat_food(void)
                         (void)set_poisoned(0);
                         (void)set_stun(0);
                         (void)set_cut(0);
-                        if (p_ptr->black_breath)
-                        {
+                        if(p_ptr->morale < 0)
+			  p_ptr->morale = 0;
+			if (p_ptr->black_breath)
+			{
                                 msg_print("The hold of the Black Breath on you is broken!");
                                 p_ptr->black_breath = FALSE;
                         }
@@ -1068,24 +1100,28 @@ void do_cmd_eat_food(void)
         switch(o_ptr->sval){
                 case SV_FIRE_SMALL:
 		{
-                        if(p_ptr->ctp<p_ptr->mtp){
+                        if(p_ptr->ctp<p_ptr->mtp)
+				{
                                 msg_print("Grrrmfff ...");
-                                p_ptr->ctp+=4;
-                                if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
+                                p_ptr->ctp += 4;
+                                if(p_ptr->ctp > p_ptr->mtp)
+				  p_ptr->ctp = p_ptr->mtp;
                                 p_ptr->redraw |= (PR_TANK);
                                 ident = TRUE;
-                        }else msg_print("You can't eat more firestones, you vomit!");
+				}
+                        else msg_print("You can't eat more firescones, you vomit!");
 			break;
 		}
                 case SV_FIRESTONE:
 		{
                         if(p_ptr->ctp<p_ptr->mtp){
                                 msg_print("Grrrrmmmmmmfffffff ...");
-                                p_ptr->ctp+=10;
-                                if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
+                                p_ptr->ctp += 10;
+                                if(p_ptr->ctp > p_ptr->mtp)
+				  p_ptr->ctp = p_ptr->mtp;
                                 p_ptr->redraw |= (PR_TANK);
                                 ident = TRUE;
-                        }else msg_print("You can't eat more firestones, you vomit!");
+                        }else msg_print("You can't eat more firescones, you vomit!");
 			break;
 		}
         }
@@ -1214,6 +1250,11 @@ void do_cmd_eat_food(void)
 	
 	/* We've eaten */
 	ate = TRUE;
+
+	/* Eating the same food over and over is depressing */
+	if(p_ptr->last_ate == o_ptr->sval && !(rand_int(6)))
+	  p_ptr->morale -= 1;
+	p_ptr->last_ate = o_ptr->sval;	
 
 	/* Destroy a food in the pack */
         if(!rand_int(o_ptr->pval / 250))

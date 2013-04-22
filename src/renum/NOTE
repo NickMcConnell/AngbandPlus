@@ -1,0 +1,4 @@
+This is a renumbering program for the k_info and e_info files.  It 
+does not strip numbers.  That can be easily done with my editor.
+If your editor does not, then get mcedit (part of the Midnight 
+Commander file manager), or write your own file stripper.

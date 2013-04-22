@@ -857,7 +857,7 @@ static cptr d_info_flags1[] =
         "ADJUST_LEVEL_1",
         "ADJUST_LEVEL_2",
         "NO_RECALL",
-        "XXX1"
+        "SILLY"
 };
 
 /*
@@ -995,7 +995,6 @@ static cptr str_info_flags1[] =
         "R_DUNADAN",
         "R_HI_ELF",
         "R_BARBARIAN",
-        "R_HOGRE",
         "R_HGIANT",
         "R_NIBELUNG",
         "R_DELF",
@@ -1035,7 +1034,6 @@ static cptr stc_info_flags1[] =
         "C_POSSESSOR",
         "C_SORCERER",
         "C_ARCHER",
-        "C_ILLUSIONIST",
         "C_DRUID",
         "C_UNBELIEVER",
         "C_WEAPONMASTER",
@@ -1050,16 +1048,12 @@ static cptr stm_info_flags1[] =
         "M_NONE",
         "M_VALARIN",
         "M_MAGERY",
-        "M_SHADOW",
-        "M_CHAOS",
         "M_NETHER",
         "M_CRUSADE",
-        "M_SIGALDRY",
         "M_SYMBIOTIC",
         "M_MUSIC",
         "M_MAGIC",
         "M_PRAYER",
-        "M_ILLUSION",
         "M_TRIBAL",
         "M_DRUID",
 	0

@@ -1,4 +1,3 @@
-/* File: dungeon.c */
 
 /* Purpose: Angband game engine */
 
@@ -276,7 +275,6 @@ static void sense_inventory(void)
 		}
 
                 case CLASS_HARPER:
-		case CLASS_PRIEST:
 		{
 			/* Good (light) sensing */
 			if (0 != rand_int(10000L / (plev * plev + 40))) return;
@@ -314,18 +312,6 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_PALADIN:
-		{
-			/* Bad sensing */
-			if (0 != rand_int(77777L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
                 case CLASS_DRUID:
 		{
 
@@ -352,17 +338,6 @@ static void sense_inventory(void)
 		{
 			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ILLUSIONIST: /* Added -KMW- */
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
-
-                        heavy_magic = TRUE;
 
 			/* Done */
 			break;
@@ -1356,77 +1331,6 @@ static void process_world(void)
                 if (magik(20)) select_bounties();
 	}
 
-	/* Modify loan */
-	if (p_ptr->loan)
-	{
-		if (p_ptr->loan_time) p_ptr->loan_time--;
-	}
-
-        if ((!(turn % 5000)) && p_ptr->loan && (!p_ptr->loan_time))
-        {
-                cmsg_print(TERM_RED, "You should pay your loan...");
-
-                p_ptr->loan += p_ptr->loan / 12;
-                if (p_ptr->loan > PY_MAX_GOLD) p_ptr->loan = PY_MAX_GOLD;
-
-                /* Do a nasty stuff */
-                if (rand_int(2) || (p_ptr->wild_mode))
-                {
-                        /* Discount player items */
-                        int z, tries = 200;
-                        object_type *o_ptr;
-
-                        while (tries--)
-                        {
-                                z = rand_int(INVEN_TOTAL);
-                                o_ptr = &inventory[z];
-
-                                if (!o_ptr->k_idx) continue;
-
-                                if (o_ptr->discount >= 100) continue;
-
-                                break;
-                        }
-                        if (tries)
-                        {
-                                o_ptr->discount += 70;
-                                if (o_ptr->discount >= 100) o_ptr->discount = 100;
-
-                                inven_item_optimize(z);
-                                inven_item_describe(z);
-                                p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-                        }
-                }
-                else
-                {
-                        int merc = test_monster_name("Mean-looking mercenary"), agent = test_monster_name("Agent of the black market");
-                        int num = 5 + (p_ptr->lev / 3), z;
-
-                        for (z = 0; z < num; z++)
-                        {
-                                int yy, xx, attempts = 200, m_idx;
-
-                                /* Summon */
-                                do
-                                {
-                                        scatter(&yy, &xx, py, px, 6, 0);
-                                }
-                                while (!(in_bounds(yy, xx) && cave_floor_bold(yy, xx)) && --attempts);
-
-                                m_idx = place_monster_one(yy, xx, (magik(80))?merc:agent, 0, FALSE, MSTATUS_ENEMY);
-
-                                /* Level it */
-                                if (m_idx)
-                                {
-                                        monster_type *m_ptr = &m_list[m_idx];
-
-                                        m_ptr->exp = MONSTER_EXP(p_ptr->lev * 2);
-                                        monster_check_experience(m_idx, TRUE);
-                                }
-                        }
-                }
-        }
-
 	/*** Process the monsters ***/
 
 	/* Check for creature generation. */
@@ -1753,9 +1657,6 @@ static void process_world(void)
 
                         mns = (mns / 4) + 1;
 
-                        if (p_ptr->pclass == CLASS_PRIEST) mns *= 2;
-                        else if (p_ptr->pclass == CLASS_PALADIN) mns = (mns * 3) / 2;
-
                         p_ptr->god_favor -= mns;
                 }
         }
@@ -2042,12 +1943,6 @@ static void process_world(void)
 		(void)set_protevil(p_ptr->protevil - 1);
 	}
 
-	/* Protection from good */
-	if (p_ptr->protgood)
-	{
-		(void)set_protgood(p_ptr->protgood - 1);
-	}
-
         /* Protection from undead */
         if (p_ptr->protundead)
 	{
@@ -2214,7 +2109,82 @@ static void process_world(void)
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
-        /* Hack - damage done by the dungeon -SC- */
+	/*** Morale ***/
+	if (!rand_int(100))
+	{
+	    if(!rand_int(50))
+	      p_ptr->morale -= 1;
+	    if(!rand_int(100) && (p_ptr->prace == RACE_HIGH_ELF || 
+	       p_ptr->prace == RACE_DUNADAN))
+	      {
+	      msg_print("You feel pangs of longing for the West.");
+	      p_ptr->morale -= (p_ptr->prace == RACE_HIGH_ELF) ? rand_int(3) + 2 : rand_int(2) + 1;
+	      }
+	    if(p_ptr->morale > 50)
+	      {
+	      set_confused(-1);
+	      set_slow(-1);
+	      set_stun(-1);
+	      set_afraid(-1);
+	      }
+	    if(p_ptr->morale > 35)
+	      {
+	      do_res_stat(A_INT);
+	      do_res_stat(A_WIS);
+	      do_res_stat(A_CHR);
+	      if(!rand_int(10))
+	        {
+		do_res_stat(A_STR);
+		do_res_stat(A_DEX);
+		do_res_stat(A_CON);
+		p_ptr->msane += 5;
+		}
+	      }
+	    if(p_ptr->morale > 25)
+	      set_hero(p_ptr->hero + 100);
+	    if(p_ptr->morale > 20)
+	      p_ptr->csane = p_ptr->msane;
+	    if(p_ptr->morale > 10)
+	      set_fast(p_ptr->fast + 25);
+	    if(p_ptr->morale > 5)
+	      if(p_ptr->confused > 0)  
+	        set_confused(0);
+	    if(p_ptr->morale < 0)
+	      set_hero(p_ptr->hero - 50);
+	    /* Depression and anxiety often go together */
+	    if(p_ptr->morale < -5)
+	      set_afraid(p_ptr->afraid + 10);
+	    if(p_ptr->morale < -10)
+	      set_stun(p_ptr->stun + 10);
+	    if(p_ptr->morale < -20)
+	      set_slow(50);
+	    if(p_ptr->morale < -25)
+	      {
+	      msg_print("You no longer feel inclined to fight."); 
+	      set_paralyzed(p_ptr->paralyzed + rand_int(2));
+	      
+	      /* Hack -- drops equipment slot one */
+	      inven_drop(INVEN_WIELD, 1, py, px, TRUE);      
+    
+	      /* Hack -- don't drop instruments */
+	      if(inventory[INVEN_WIELD + 1].tval != TV_INSTRUMENT)
+	        inven_drop(INVEN_WIELD + 1, 1, py, px, TRUE);
+	      } 
+	    if(p_ptr->morale < -35)
+	      {
+	      msg_print("You slash yourself in depression.");
+	      set_cut(100);
+	      take_hit(damroll(2, 5), "self-mutilation");
+	      }
+	    if(p_ptr->morale < -50)
+	      {
+	      msg_print("You waste away from depression.");
+	      p_ptr->food = 100;
+	      take_sanity_hit(damroll(1, 10), "depression.");
+	      }
+	}
+	
+	/* Hack - damage done by the dungeon -SC- */
         if ((dun_level != 0) && (d_ptr->d_frequency[0] != 0))
         {
                 int i, j, k;

@@ -82,5 +82,5 @@ V:2.8.1
 # The certificate of achievement
 N:1:Certificate of Achievement
 I:8:9:0
-W:50:1:2:0
+W:50:1:5:0
 F:SPECIAL_GENE

@@ -8,4 +8,6 @@ Known bugs:
 
         Monster memory does not fully work for ego monsters
 	Items mutate (!).  Start a DragonRidder and see what happens to
-	your firescones in Angband (if you have the old files)
+		your firescones in Angband (if you have the old files)
+	Spellbooks are wrong.  You cast the right spells, but the books
+		have the wrong names.

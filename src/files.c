@@ -1235,8 +1235,6 @@ static void display_player_middle(void)
 		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_RED);
 	}
 
-	prt_num("Loan           ", p_ptr->loan, 13, 52, TERM_L_GREEN);
-	prt_num("Loan time      ", p_ptr->loan_time, 14, 52, TERM_L_GREEN);
 }
 
 
@@ -1361,8 +1359,6 @@ static void display_player_various(void)
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
             (inventory[INVEN_WIELD].tval == p_ptr->class_extra1))
                 tmp = (p_ptr->to_h - (p_ptr->lev / 2)) + o_ptr->to_h;
-	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
-		tmp = p_ptr->to_h + o_ptr->to_h + 15;
 	else
 		tmp = p_ptr->to_h + o_ptr->to_h;
 
@@ -1498,10 +1494,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 		if (p_ptr->lev > 29)
 			(*f2) |= (TR2_RES_FEAR);
 		break;
-	case CLASS_PALADIN:
-		if (p_ptr->lev > 39)
-			(*f2) |= (TR2_RES_FEAR);
-		break;
 	case CLASS_MONK:
 		if ((p_ptr->lev > 9) && !monk_heavy_armor())
 			(*f1) |= TR1_SPEED;
@@ -1571,14 +1563,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 	case RACE_HIGH_ELF:
 		(*f2) |= (TR2_RES_LITE);
 		(*f3) |= (TR3_SEE_INVIS);
-		break;
-	case RACE_HALF_OGRE:
-		(*f2) |= (TR2_SUST_STR);
-		(*f2) |= (TR2_RES_DARK);
-		break;
-	case RACE_HALF_GIANT:
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_SUST_STR);
 		break;
         case RACE_DRAGONRIDDER:
             (*f3) |= TR3_FEATHER;

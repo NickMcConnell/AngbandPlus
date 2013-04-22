@@ -1248,13 +1248,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 					if (p_ptr->psex == SEX_FEMALE) c = (char)242;
 	                		switch(p_ptr->pclass)
 					{
-						case CLASS_PALADIN:
-							if (p_ptr->lev < 20)
-								a = TERM_L_WHITE;
-							else
-								a = TERM_WHITE;
-							c = 253;
-	                        	   		break;
                                                 case CLASS_UNBELIEVER:
                                                         a = TERM_L_DARK;
                                                         break;
@@ -1265,13 +1258,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 								a = TERM_L_RED;
 							else
 								a = TERM_RED;
-							c = 248;
-							break;
-						case CLASS_PRIEST:
-							if (p_ptr->lev < 20)
-								a = TERM_L_BLUE;
-							else
-								a = TERM_BLUE;
 							c = 248;
 							break;
                                                 case CLASS_DRUID:
@@ -1327,12 +1313,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_HALF_ELF:
 						case RACE_HIGH_ELF:
 							c = 223;
-							break;
-						case RACE_HALF_OGRE:
-							c = 168;
-							break;
-						case RACE_HALF_GIANT:
-							c = 145;
 							break;
                                                 case RACE_RKNIGHT:
 							c = 229;

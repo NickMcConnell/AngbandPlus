@@ -46,10 +46,8 @@
 #define FAKE_VER_PATCH 1
 
 /* Added for NTAngband */
-#define DEMENTED_NUMBER -98752
-#define NTMESS "This is member-supported public Angband.  The great thing about\
- public Angband is that there are no commercials.  You get great Angband for\
- free!  So take this time to send some money to the current maintainer."
+#define DEMENTED_NUMBER 41073
+#define NTMESS "AngBang!!! The Metal band that rocks Bree."
                 
 
 #define ANGBAND_2_8_1
@@ -585,35 +583,23 @@
 
 /* Possible realms that can be chosen */
 #define CH_NONE         0x00000000
-#define CH_VALARIN      0x00000001
-#define CH_MAGERY       0x00000002
-#define CH_SHADOW       0x00000004
-#define CH_CRUSADE      0x00000008
-#define CH_SIGALDRY     0x00000010
-#define CH_SYMBIOTIC    0x00000020
-#define CH_MUSIC        0x00000040
-#define CH_MAGIC        0x00000080
-#define CH_PRAYER       0x00000100
-#define CH_ILLUSION     0x00000200
-#define CH_TRIBAL       0x00000400
-#define CH_DRUID        0x00000800
-#define CH_SPIRIT       0x00001000
+#define CH_MAGERY       0x00000001
+#define CH_SYMBIOTIC    0x00000002
+#define CH_MUSIC        0x00000004
+#define CH_MAGIC        0x00000008
+#define CH_TRIBAL       0x00000010
+#define CH_DRUID        0x00000020
+#define CH_SPIRIT       0x00000040
 
 #define REALM_NONE         0
-#define REALM_VALARIN      1
-#define REALM_MAGERY       2
-#define REALM_SHADOW       3
-#define REALM_CRUSADE      4
-#define REALM_SIGALDRY     5
-#define REALM_SYMBIOTIC    6
-#define REALM_MUSIC        7
-#define REALM_MAGIC        8
-#define REALM_PRAYER       9
-#define REALM_ILLUSION     10
-#define REALM_TRIBAL       11
-#define REALM_DRUID        12
-#define REALM_SPIRIT       13
-#define MAX_REALM          14
+#define REALM_MAGERY       1
+#define REALM_SYMBIOTIC    2
+#define REALM_MUSIC        3
+#define REALM_MAGIC        4
+#define REALM_TRIBAL       5
+#define REALM_DRUID        6
+#define REALM_SPIRIT       7
+#define MAX_REALM          8
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -695,13 +681,11 @@
 #define RACE_HALF_TROLL         6
 #define RACE_DUNADAN            7
 #define RACE_HIGH_ELF           8
-#define RACE_HALF_OGRE          9
-#define RACE_HALF_GIANT         10
-#define RACE_ENT                11
-#define RACE_RKNIGHT            12
-#define RACE_DRAGONRIDDER       13
-#define RACE_WOOD_ELF           14
-#define MAX_RACES		15
+#define RACE_ENT                9
+#define RACE_RKNIGHT            10
+#define RACE_DRAGONRIDDER       11
+#define RACE_WOOD_ELF           12
+#define MAX_RACES		13
 
 /*
  * Player race constants (hard-coded by save-files, arrays, etc)
@@ -721,29 +705,26 @@
  */
 #define CLASS_WARRIOR           0
 #define CLASS_MAGE              1
-#define CLASS_PRIEST            2
-#define CLASS_ROGUE             3
-#define CLASS_RANGER            4
-#define CLASS_PALADIN           5
-#define CLASS_MONK              6
-#define CLASS_MINDCRAFTER       7
-#define CLASS_HIGH_MAGE         8
-#define CLASS_MIMIC             9
-#define CLASS_BEASTMASTER       10
-#define CLASS_ALCHEMIST         11
-#define CLASS_SYMBIANT          12
-#define CLASS_HARPER            13
-#define CLASS_RUNECRAFTER       14
-#define CLASS_POSSESSOR         15
-#define CLASS_SORCERER          16
-#define CLASS_ARCHER            17
-#define CLASS_ILLUSIONIST       18
-#define CLASS_DRUID             19
-#define CLASS_UNBELIEVER        20
-#define CLASS_WEAPONMASTER      21
-#define CLASS_MYCOPARA		22
+#define CLASS_ROGUE             2
+#define CLASS_RANGER            3
+#define CLASS_MONK              4
+#define CLASS_MINDCRAFTER       5
+#define CLASS_HIGH_MAGE         6
+#define CLASS_MIMIC             7
+#define CLASS_BEASTMASTER       8
+#define CLASS_ALCHEMIST         9
+#define CLASS_SYMBIANT          10
+#define CLASS_HARPER            11
+#define CLASS_RUNECRAFTER       12
+#define CLASS_POSSESSOR         13
+#define CLASS_SORCERER          14
+#define CLASS_ARCHER            15
+#define CLASS_DRUID             16
+#define CLASS_UNBELIEVER        17
+#define CLASS_WEAPONMASTER      18
+#define CLASS_MYCOPARA		19
 /*Add one to the number above to get the number below*/
-#define MAX_CLASS		23					
+#define MAX_CLASS		20					
 
 /* Class flags */
 #define CF1_ZERO_FAIL           0x00000001L     /* Fail rates can reach 0% */
@@ -1453,17 +1434,14 @@
 #define TV_VALARIN_BOOK 111
 #define TV_MAGERY_BOOK  112
 #define TV_SHADOW_BOOK  113
-#define TV_CHAOS_BOOK   114
-#define TV_CRUSADE_BOOK 116
-#define TV_SIGALDRY_BOOK 117
-#define TV_SYMBIOTIC_BOOK 118
-#define TV_MUSIC_BOOK   119
-#define TV_MAGIC_BOOK   120
-#define TV_PRAYER_BOOK  121
-#define TV_ILLUSION_BOOK 122
-#define TV_TRIBAL_BOOK  123
-#define TV_DRUID_BOOK   124
-#define TV_SPIRIT_BOOK  125
+#define TV_CRUSADE_BOOK 114
+#define TV_SYMBIOTIC_BOOK 115
+#define TV_MUSIC_BOOK   116
+#define TV_MAGIC_BOOK   117
+#define TV_PRAYER_BOOK  118
+#define TV_TRIBAL_BOOK  119
+#define TV_DRUID_BOOK   120
+#define TV_SPIRIT_BOOK  121
 
 /* The "sval" codes for TV_TOOL */
 #define SV_TOOL_CLIMB 0
@@ -3073,6 +3051,7 @@
 #define DF1_ADJUST_LEVEL_1      0x10000000L
 #define DF1_ADJUST_LEVEL_2      0x20000000L
 #define DF1_NO_RECALL           0x40000000L
+#define DF1_SILLY		0x80000000L
 
 /* Level flags */
 #define LF1_NO_TELEPORT         0x00000001L

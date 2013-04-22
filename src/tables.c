@@ -1296,7 +1296,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_UNBELIEVER),
+                0xFFFFFFFF - BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1310,7 +1310,7 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-                0xFFFFFFFF - BIT(CLASS_PRIEST) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
                 { PWR_COOK_FOOD, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1324,7 +1324,7 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER),
                 { PWR_PASSWALL, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1338,7 +1338,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_RANGER) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID),
                 { PWR_UNFEAR, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1352,7 +1352,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID),
                 { PWR_BERSERK, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1380,36 +1380,8 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_UNBELIEVER),
+                0xFFFFFFFF - BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-/**/	{
-		"Half-Ogre",
-                "A crossbreed between a human and an ogre.\nThey are similar to half-trolls, strong and dumb.",
-		{ 3, -1, -1, -1, 3, -3 },
-		-3, -5, -5, -2, -1, 5, 20, 0,
-		12,  130,
-		40, 10,
-		92, 10, 255, 60,
-		80,  8, 235, 60,
-		3,
-                0xFFFFFFFF - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
-                { PWR_EXPL_RUNE, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-/**/	{
-		"Half-Giant",
-                "A crossbreed between a human and a giant.\nThey are similar to half-trolls, strong and dumb.",
-		{ 4, -2, -2, -2, 3, -3 },
-		-6, -8, -6, -2, -1, 5, 25, 5,
-		13, 150,
-		40, 10,
-		100,10, 255, 65,
-		80, 10, 240, 64,
-		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
-                { PWR_STM, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
 	{
@@ -1422,7 +1394,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_WEAPONMASTER),
                 { PWR_GROW_TREE, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1436,7 +1408,7 @@ player_race race_info[MAX_RACES] =
 		60,  3, 80,  4,
 		54,  3, 70,  4,
                 0,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID),
                 { PWR_ROHAN, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1450,7 +1422,7 @@ player_race race_info[MAX_RACES] =
                 180,  6, 255, 25,
                 150,  4, 230, 20,
                 0,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
                 { PWR_DRAGON, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
         },
@@ -1465,7 +1437,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
                 4,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1573,8 +1545,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 1,
                 0xFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
                 0,
-                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_HIGH_MAGE) +
-                BIT(CLASS_ILLUSIONIST),
+                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_HIGH_MAGE),
                 { PWR_REST_LIFE, -1, -1, -1},
                 {0, 0, 0, 0, 0, 0},
 	},
@@ -1608,11 +1579,9 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0, 0, 0, 0,
                 0, 0, 0, 0,
 		0,
-                BIT(RACE_HUMAN) + BIT(RACE_DWARF) + BIT(RACE_HALF_ORC) + BIT(RACE_HALF_TROLL)
-                + BIT(RACE_HALF_OGRE) + BIT(RACE_HALF_GIANT),
+                BIT(RACE_HUMAN) + BIT(RACE_DWARF) + BIT(RACE_HALF_ORC) + BIT(RACE_HALF_TROLL),
                 0,
-                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_HIGH_MAGE) +
-                + BIT(CLASS_ILLUSIONIST),
+                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_HIGH_MAGE),
                 { PWR_BERSERK, -1, -1, -1},
                 {0, 0, 0, 0, 0, 0},
         },
@@ -1628,8 +1597,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0,  0, 0, 0,
                 0, 0, 0, 0,
                 1,
-                0xFFFFFFF - BIT(RACE_HALF_ORC) - BIT(RACE_HALF_TROLL) -
-                        BIT(RACE_HALF_OGRE) - BIT(RACE_HALF_GIANT),
+                0xFFFFFFF - BIT(RACE_HALF_ORC) - BIT(RACE_HALF_TROLL),
                 BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_MAGE) + BIT(CLASS_RUNECRAFTER),
                 BIT(CLASS_WARRIOR) + BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
@@ -1709,16 +1677,6 @@ player_class class_info[MAX_CLASS] =
                 CF1_NO_GLOVES | CF1_ZERO_FAIL,
 	},
 
-	{
-		"Priest",
-                "A priest serves a god (Vala or Maia) to bring down the empire of\nfear and shadows of Morgoth. They can use various prayer realms\nof which they can learn up to 64 prayers.",
-		{-1, -3, 3, -1, 0, 2},
-		25, 30, 32, 2,  16, 8, 48, 35,
-		7,  10, 12, 0,  0,  0, 20, 20,
-                2, 20,
-                { PWR_DET_CURSE, -1, -1, -1},
-                CF1_BLESS_WEAPON | CF1_ZERO_FAIL,
-	},
 
 	{
 		"Rogue",
@@ -1738,17 +1696,6 @@ player_class class_info[MAX_CLASS] =
 		30, 32, 28, 3,  24, 16, 56, 72,
 		8,  10, 10, 0,  0,  0,  30, 45,
                 4, 30,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-		"Paladin",
-                "The paladin is a holy warrior, using the crusade realm to battle all\nthat is evil on Middle Earth. They can learn up to 32 prayers.",
-		{ 3, -3, 1, 0, 2, 2},
-		20, 24, 26, 1,  12, 2, 68, 40,
-		7,  10, 11, 0,  0,  0,  35, 30,
-                6, 35,
                 { -1, -1, -1, -1},
                 0,
 	},
@@ -1886,17 +1833,6 @@ player_class class_info[MAX_CLASS] =
                 0,
 	},
 
-/**/	{ /* Added -KMW- */
-		"Illusionist",
-                "The illusionist is similar to a mage but prefers to confuse and trick monsters.",
-		{-5, 3, 0, 1, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
-                0, 30,
-                { -1, -1, -1, -1},
-                CF1_ZERO_FAIL,
-	},
-
 /**/	{
                 "Druid",
                 "The druids respect Yavanna, Vala of the forests and nature. They are\nprotectors of nature and as such they gain access to the druid stones\nas the source of their power.",
@@ -1962,82 +1898,6 @@ magic_type realm_info_base[MAX_REALM][64] =
         /* Nothing */
         {
                 {NULL}
-        },
-
-        /* Valarin */
-        {
-                {  1,  1, 10,   4},
-                {  1,  1, 20,   4},
-                {  1,  2, 15,   4},
-                {  1,  2, 25,   4},
-                {  3,  2, 25,   4},
-                {  3,  3, 27,   4},
-                {  3,  3, 27,   4},
-                {  3,  3, 28,   4},
-
-                {  5,  4, 29,   4},
-                {  5,  4, 30,   4},
-                {  5,  5, 32,   4},
-                {  5,  5, 34,   4},
-                {  7,  6, 36,   4},
-                {  7,  7, 38,   4},
-                {  7,  7, 38,   4},
-                {  7,  7, 38,   4},
-
-                {  9,  6, 38,   4},
-                {  9,  7, 38,   4},
-                {  9,  7, 40,   4},
-                { 11,  8, 42,   4},
-                { 11,  9, 42,   4},
-                { 13,  9, 45,   4},
-                { 15, 11, 45,   4},
-                { 15, 12, 50,   4},
-
-                { 15, 14, 50,   5},
-                { 17, 15, 55,   7},
-                { 21, 16, 60,   7},
-                { 23, 20, 65,   9},
-                { 25, 25, 70,  12},
-                { 33, 25, 90,  15},
-                { 39, 32, 95,  20},
-
-                {  7,  5, 30,   4},
-                {  9,  5, 35,   5},
-                { 13,  6, 45,   5},
-                { 17, 25, 55,  10},
-                { 23, 12, 70,  15},
-                { 31, 35, 85,  20},
-                { 35, 65, 90,  30},
-
-                { 11,  8, 42,   4},
-                { 13, 10, 45,   4},
-                { 15, 10, 50,   4},
-                { 19, 15, 55,   5},
-                { 21, 20, 60,  10},
-                { 29, 30, 75,  20},
-                { 35, 35, 85,  30},
-
-                {  7, 10, 35,   4},
-                { 15, 21, 60,  10},
-                { 15, 21, 60,  10},
-                { 25, 25, 75,  10},
-                { 30, 25, 85,  10},
-                { 40, 50, 95, 100},
-                { 47, 100,90, 250},
-
-                { 12, 12, 38,   4},
-                { 21, 21, 38,   4},
-                { 22, 22, 40,   4},
-                { 32, 28, 42,   4},
-                { 32, 30, 42,   4},
-                { 32, 35, 90,   4},
-
-                { 12, 10, 45,   4},
-                { 20, 25, 60,  10},
-                { 25, 25, 70,  10},
-                { 28, 25, 80,  20},
-                { 35, 50, 90,  50},
-                { 49, 75, 95, 250},
         },
 
         /* Magery Magic */
@@ -2115,160 +1975,6 @@ magic_type realm_info_base[MAX_REALM][64] =
                 { 49, 70, 95, 255 },
         },
 
-        /* Shadow Magic */
-        {
-                {1, 1, 10, 4},
-                {1, 2, 10, 4},
-                {2, 2, 11, 4},
-                {2, 4, 15, 5},
-                {3, 4, 18, 6},
-                {3, 4, 20, 7},
-                {4, 6, 22, 7},
-                {5, 8, 30, 8},
-
-                { 7, 10, 30, 10},
-                { 9, 15, 32, 12},
-                {10, 15, 35, 15},
-                {12, 18, 38, 19},
-                {14, 23, 39, 24},
-                {15, 23, 40, 28},
-                {17, 24, 43, 30},
-                {19, 25, 46, 31},
-
-                {21, 25, 50, 40},
-                {23,  0, 53, 45},
-                {25, 30, 56, 52},
-                {28, 32, 60, 59},
-                {30, 34, 62, 63},
-                {31, 36, 64, 68},
-                {32, 36, 68, 70},
-                {34, 45, 70, 75},
-
-                {36, 30, 73, 80},
-                {38, 36, 78, 92},
-                {40, 39, 81, 100},
-                {43, 45, 84, 112},
-                {45, 56, 86, 123},
-                {47, 70, 90, 135},
-                {48, 80, 92, 145},
-                {49, 100, 93, 200},
-
-                {21, 35, 50, 90},
-                {25, 48, 59, 100},
-                {26, 49, 62, 102},
-                {40, 60, 75, 112},
-                {50, 70, 92, 220},
-
-                { 3,   1, 12,  5},
-                { 8,  12, 21, 10},
-                {15,  20, 35, 21},
-                {25,  36, 52, 35},
-                {32,  40, 68, 45},
-                {41, 100, 80, 122},
-
-                {25, 40, 50, 40},
-                {30, 45, 55, 50},
-                {35, 50, 60, 60},
-                {40, 55, 65, 70},
-                {45, 60, 70, 80},
-                {50, 65, 75, 90},
-
-                {13, 11, 53,  9},
-                {20, 19, 60, 13},
-                {26, 26, 63, 18},
-                {29, 34, 69, 23},
-                {34, 45, 75, 45},
-                {38, 50, 80, 56},
-                {46, 67, 86, 95},
-
-                {30, 32, 68, 70},
-                {32, 35, 70, 80},
-                {34, 38, 73, 89},
-                {38, 42, 80, 98},
-                {42, 43, 83, 105},
-                {45, 44, 84, 116},
-                {47, 50, 86, 129},
-                {50, 59, 90, 150},
-        },
-
-        /* Crusade Magic */
-
-        {
-                {  1,  1, 20,   4},
-                {  1,  2, 25,   4},
-                {  1,  2, 25,   4},
-                {  3,  2, 25,   5},
-                {  3,  2, 25,   5},
-                {  3,  2, 30,   5},
-                {  5,  3, 30,   6},
-                {  5,  3, 35,   6},
-
-                {  5,  3, 35,   6},
-                {  7,  5, 40,   7},
-                {  7,  5, 41,   7},
-                {  7,  5, 42,   8},
-                {  9,  7, 44,   5},
-                {  9,  7, 45,   8},
-                {  9,  9, 46,   8},
-                { 11,  9, 48,   9},
-
-                { 11,  5, 49,   5},
-                { 11,  5, 50,   5},
-                { 13,  9, 51,   9},
-                { 13, 11, 53,   9},
-                { 15, 11, 55,   9},
-                { 15,  7, 57,  10},
-                { 17, 11, 59,  10},
-                { 17, 15, 60,  12},
-
-                { 19, 11, 62,  12},
-                { 21, 11, 65,  15},
-                { 23, 13, 67,  15},
-                { 25, 15, 69,  15},
-                { 25, 20, 71,  20},
-                { 29, 20, 75,  30},
-                { 35, 39, 85,  40},
-                { 42, 45, 90,  50},
-        },
-
-        /* Sigaldry Magic */
-        {
-                {  1,  1, 20,   4},
-                {  1,  2, 25,   4},
-                {  1,  2, 25,   4},
-                {  3,  2, 25,   5},
-                {  3,  2, 25,   5},
-                {  3,  2, 30,   5},
-                {  5,  3, 30,   6},
-                {  5,  3, 35,   6},
-
-                {  5,  3, 35,   6},
-                {  7,  5, 40,   7},
-                {  7,  5, 41,   7},
-                {  7,  5, 42,   8},
-                {  9,  7, 44,   5},
-                {  9,  7, 45,   8},
-                {  9,  9, 46,   8},
-                { 11,  9, 48,   9},
-
-                { 11,  5, 49,   5},
-                { 11,  5, 50,   5},
-                { 13,  9, 51,   9},
-                { 13, 11, 53,   9},
-                { 15, 11, 55,   9},
-                { 15,  7, 57,  10},
-                { 17, 11, 59,  10},
-                { 17, 15, 60,  12},
-
-                { 19, 11, 62,  12},
-                { 21, 11, 65,  15},
-                { 23, 13, 67,  15},
-                { 25, 15, 69,  15},
-                { 25, 20, 71,  20},
-                { 29, 20, 75,  30},
-                { 35, 39, 85,  40},
-                { 42, 45, 90,  50},
-        },
                         /* Symbiotic */
 			{
                                 {  1,  2, 25,   4},
@@ -2421,158 +2127,6 @@ magic_type realm_info_base[MAX_REALM][64] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0}
                 },
-                        /* Prayer */
-                {
-			{  1,  1, 10,   4},
-			{  1,  2, 15,   4},
-			{  1,  2, 20,   4},
-			{  1,  2, 25,   4},
-			{  3,  2, 25,   1},
-			{  3,  3, 27,   2},
-			{  3,  3, 27,   2},
-			{  3,  3, 28,   4},
-
-			{  5,  4, 29,   3},
-			{  5,  4, 30,   4},
-			{  5,  4, 32,   4},
-			{  5,  5, 34,   4},
-			{  7,  5, 36,   3},
-			{  7,  5, 38,   4},
-			{  7,  6, 38,   5},
-			{  7,  7, 38,   5},
-
-			{  9,  6, 38,   4},
-			{  9,  7, 38,   4},
-			{  9,  7, 40,   4},
-			{ 11,  8, 42,   4},
-			{ 11,  8, 42,   4},
-			{ 11,  9, 55,   5},
-			{ 13, 10, 45,   4},
-			{ 13, 11, 45,   4},
-			{ 15, 12, 50,   5},
-
-			{ 15, 14, 50,   5},
-			{ 17, 14, 55,   7},
-			{ 21, 16, 60,   7},
-			{ 25, 20, 70,  12},
-			{ 33, 55, 90,  15},
-			{ 39, 32, 95,  20},
-
-			{  3,  3, 50,   2},
-			{ 10, 10, 80,  20},
-			{ 20, 20, 80,  20},
-			{ 25, 10, 80, 150},
-			{ 35, 50, 80, 230},
-
-			{ 15,  5, 50,  25},
-			{ 17,  7, 60,  45},
-			{ 30, 50, 80, 130},
-			{ 35, 70, 90, 230},
-			{ 35, 70, 90, 250},	/* 350 */
-
-			{ 15,  7, 70,  25},
-			{ 20, 10, 75,  60},
-			{ 25, 25, 80, 250},
-			{ 35, 35, 80, 115},
-			{ 45, 60, 75, 250},	/* 350 */
-
-			{  5,  6, 50,  40},
-			{ 15, 20, 80,  25},
-			{ 25, 40, 80, 160},
-			{ 35, 50, 80, 230},
-			{ 37, 60, 85, 250},	/* 325 */
-			{ 45, 95, 85, 250},	/* 530 */
-
-			{  3,  3, 50,   6},
-			{ 10, 10, 50,   8},
-			{ 20, 20, 80,  16},
-			{ 30, 40, 75, 133},
-			{ 35, 50, 75,  11},
-			{ 40, 60, 75, 250},	/* 300 */
-
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0}
-                },
-                /* Illusion */
-		{
-			{  1,  1, 22,   4},
-			{  1,  1, 23,   4},
-			{  1,  2, 24,   4},
-			{  1,  2, 26,   4},
-			{  1,  2, 25,   3},
-			{  3,  3, 25,   3},
-			{  3,  3, 26,   3},
-			{  3,  3, 25,   1},
-			{  3,  3, 27,   3},
-
-			{  3,  4, 30,   1},
-			{  5,  4, 30,   4},
-			{  5,  5, 30,   6},
-			{  5,  5, 30,   4},
-			{  5,  5, 35,   4},
-			{  7,  6, 35,   5},
-			{  7,  6, 30,   5},
-			{  7,  6, 40,   6},
-			{  9,  7, 44,   8},
-
-			{  9,  7, 45,   8},
-			{  9,  7, 75,   9},
-			{  9,  7, 45,   8},
-			{ 11,  7, 45,   9},
-			{ 11,  7, 75,   6},
-			{ 13,  7, 50,   6},
-			{ 15,  9, 50,   6},
-			{ 17,  9, 50,   7},
-
-			{ 19, 12, 55,   8},
-			{ 21, 12, 90,   8},
-			{ 23, 12, 60,   8},
-			{ 25, 12, 65,  10},
-			{ 29, 18, 65,  12},
-			{ 33, 21, 80,  15},
-			{ 37, 25, 95,  21},
-
-			{  7,  7, 20,  28},
-			{  9, 12, 40,  44},
-			{ 15, 17, 60,  29},
-			{ 20, 18, 60,  24},
-			{ 25, 25, 75,  19},
-			{ 45, 50, 60,  30},
-
-			{ 10,  6, 50,  12},
-			{ 12,  9, 60,  16},
-			{ 20, 15, 70,  20},
-			{ 27, 25, 75,  29},
-			{ 35, 35, 85,  34},
-			{ 40, 40, 80,  50},
-			{ 42, 45, 95, 200},
-
-			{ 5,  5,  50,   8},
-			{ 10, 10, 70,  40},
-			{ 15, 20, 80,  50},
-			{ 25, 30, 95, 160},
-			{ 30, 50, 70,  40},
-			{ 40, 75, 80, 100},
-
-			{  4,  5, 50,  20},
-			{  4,  5, 50,  20},
-			{  4,  5, 50,  20},
-			{  8, 10, 75,  40},
-			{ 15, 15, 90,  45},
-			{ 15, 20, 85,  60},
-
-			{  5,  5, 50,  80},
-			{ 10, 12, 75, 120},
-			{ 15, 20, 80, 200},
-			{ 20, 30, 50,  75},
-			{ 22, 30, 50, 250},	/* 350 */
-			{ 45, 70, 75, 250}	/* 450 */
-                },
-
         /* Tribal Magic */
         {
                 {  1,  1, 10,   4},
@@ -2754,24 +2308,6 @@ player_magic magic_info[MAX_CLASS] =
                 6,
 	},
 
-	{
-		/*** Priest ***/
-
-                TV_VALARIN_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-                0,
-                -5,
-                -5,
-		1,
-		350,
-
-                6,
-	},
-
 
 	{
 		/*** Rogue ***/
@@ -2809,26 +2345,6 @@ player_magic magic_info[MAX_CLASS] =
 
                 3,
 	},
-
-
-	{
-		/*** Paladin ***/
-
-        TV_VALARIN_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-                1,
-                9,
-                10,
-		1,
-		400,
-
-                3,
-    },
-
 
 
     {
@@ -3040,24 +2556,6 @@ player_magic magic_info[MAX_CLASS] =
                 1,
 	},
 
-	{	/* Added this class -KMW- */
-		/*** Illusionist ***/
-
-                TV_MAGERY_BOOK,
-		0,
-
-                A_INT,
-		2,
-
-                0,
-                0,
-                0,
-		1,
-		300,
-
-                9,
-	},
-
 	{
                 /*** Druid ***/
 
@@ -3125,19 +2623,6 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
                 {NULL}
         },
 
-        {       /* Valarin */
-                { 0x00000000 ,0x000000ff },
-                { 0x00000000 ,0x0000ff00 },
-                { 0x00000000 ,0x00ff0000 },
-                { 0x00000000 ,0x7f000000 },
-
-                { 0x0000003f ,0x80000000 },
-                { 0x00001fc0, 0x00000000 },
-                { 0x000fe000, 0x00000000 },
-                { 0x03f00000, 0x00000000 },
-                { 0xfc000000, 0x00000000 },
-        },
-
         {
                 /* Magery, only 8 books */
                 {0x00000000, 0x000000ff},
@@ -3149,44 +2634,6 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
                 {0x0000ff00, 0x00000000},
                 {0x00ff0000, 0x00000000},
                 {0xff000000, 0x00000000},
-        },
-
-        /* Shadow */
-        {
-                {0x00000000, 0x000000ff},
-                {0x00000000, 0x0000ff00},
-                {0x00000000, 0x00ff0000},
-                {0x00000000 ,0xff000000},
-
-                {0x0000001f, 0x00000000},
-                {0x000007e0, 0x00000000},
-                {0x0001f800, 0x00000000},
-                {0x00fe0000, 0x00000000},
-                {0xff000000, 0x00000000},
-        },
-
-        {
-                {0x00000000, 0x000000ff},
-                {0x00000000, 0x0000ff00},
-                {0x00000000, 0x00ff0000},
-                {0x00000000, 0xff000000},
-        },
-
-
-        /* Crusade */
-        {
-                {0x00000000, 0x000000ff},
-                {0x00000000, 0x0000ff00},
-                {0x00000000, 0x00ff0000},
-                {0x00000000, 0xff000000},
-        },
-
-        /* Sigaldry */
-        {
-                {0x00000000, 0x000000ff},
-                {0x00000000, 0x0000ff00},
-                {0x00000000, 0x00ff0000},
-                {0x00000000, 0xff000000},
         },
 
         {
@@ -3215,34 +2662,6 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
                 { 0x0001f000, 0x00000000 },
                 { 0x07c00000, 0x00000000 },
                 { 0x00000fc0, 0x00000000 }
-	},
-
-	{
-		/*** Priest spell books ***/
-                { 0x00000000, 0x000000ff },
-                { 0x00000000, 0x0000ff00 },
-                { 0x00000000, 0x01ff0000 },
-                { 0x00000000, 0x7e000000 },
-
-                { 0x03f00000, 0x00000000 },
-                { 0x0000000f, 0x80000000 },
-                { 0x000001f0, 0x00000000 },
-                { 0x000fc000, 0x00000000 },
-                { 0x00003e00, 0x00000000 }
-        },
-
-	{	/* Added these books -KMW- */
-		/*** Illusionist spell books ***/
-                { 0x00000000, 0x000001ff },
-                { 0x00000000, 0x0003fe00 },
-                { 0x00000000, 0x03fc0000 },
-                { 0x00000001, 0xfc000000 },
-
-                { 0x03f00000, 0x00000000 },
-                { 0x0000007e, 0x00000000 },
-                { 0x000fc000, 0x00000000 },
-                { 0xfc000000, 0x00000000 },
-                { 0x00003f80, 0x00000000 }
 	},
 
         /* Tribal */
@@ -3275,14 +2694,12 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
 u32b Mrealm_choices[MAX_CLASS]=
 {
 /* Warrior */       (CH_NONE),
-/* Mage */          (CH_MAGERY | CH_SHADOW | CH_MAGIC),
-/* Priest */        (CH_VALARIN | CH_PRAYER),
-/* Rogue */         (CH_MAGERY | CH_SHADOW | CH_ILLUSION | CH_SPIRIT | CH_SIGALDRY),
-/* Ranger */        (CH_ILLUSION | CH_TRIBAL),
-/* Paladin */       (CH_CRUSADE),
-/* Monk */          (CH_VALARIN | CH_SPIRIT | CH_ILLUSION | CH_TRIBAL),
+/* Mage */          (CH_MAGERY | CH_MAGIC),
+/* Rogue */         (CH_MAGERY | CH_SPIRIT),
+/* Ranger */        (CH_TRIBAL),
+/* Monk */          (CH_SPIRIT | CH_TRIBAL),
 /* Mindcrafter */   (CH_NONE),
-/* High Mage */     (CH_MAGERY | CH_SHADOW | CH_SIGALDRY | CH_SPIRIT | CH_ILLUSION),
+/* High Mage */     (CH_MAGERY | CH_SPIRIT),
 /* Mimic       */   (CH_NONE),
 /* BeastMaster */   (CH_TRIBAL),
 /* Alchemist   */   (CH_NONE),
@@ -3290,10 +2707,8 @@ u32b Mrealm_choices[MAX_CLASS]=
 /* Harper      */   (CH_NONE),
 /* Runecrafter */   (CH_NONE),
 /* Possessor */     (CH_NONE),
-/* Sorceror */      (CH_MAGERY | CH_SHADOW | CH_SIGALDRY |
-                     CH_ILLUSION | CH_SPIRIT),
+/* Sorceror */      (CH_MAGERY | CH_SPIRIT),
 /* Archer */        (CH_NONE),
-/* Illusionist */   (CH_ILLUSION),
 /* Druid */         (CH_DRUID),
 /* Unbeliever  */   (CH_NONE),
 /* Weaponmaster */  (CH_NONE),
@@ -3303,11 +2718,9 @@ u32b Mrealm_choices[MAX_CLASS]=
 u32b mrealm_choices[MAX_CLASS]=
 {
 /* Warrior */       (CH_NONE),
-/* Mage */          (CH_SIGALDRY | CH_SPIRIT),
-/* Priest */        (CH_CRUSADE | CH_ILLUSION),
+/* Mage */          (CH_SPIRIT),
 /* Rogue */         (CH_NONE),
 /* Ranger */        (CH_NONE),
-/* Paladin */       (CH_NONE),
 /* Monk */          (CH_NONE),
 /* Mindcrafter */   (CH_NONE),
 /* High Mage */     (CH_NONE),
@@ -3320,7 +2733,6 @@ u32b mrealm_choices[MAX_CLASS]=
 /* Possessor */     (CH_NONE),
 /* Sorceror */      (CH_NONE),
 /* Archer */        (CH_NONE),
-/* Illusionist */   (CH_NONE),
 /* Druid */         (CH_NONE),
 /* Unbeliever  */   (CH_NONE),
 /* Weaponmaster */  (CH_NONE),
@@ -3330,16 +2742,10 @@ u32b mrealm_choices[MAX_CLASS]=
 cptr realm_names [] =
 {
 	"no magic",
-        "Valarin",
         "Magery",
-        "Shadow",
-        "Crusade",
-        "Sigaldry",
         "Symbiotic",
         "Music",
         "Magic",
-        "Prayer",
-        "Illusion",
         "Tribal",
         "Druidic",
 	"Spirit",
@@ -3355,83 +2761,6 @@ cptr spell_names[MAX_REALM][64][2] =
         {
                 {NULL, NULL},
         },
-
-        /*** Valarin Spells ***/
-	{
-                /* Common Valarin Spellbooks */
-                {"Detect Evil", "Detects all evil monsters, even invisible ones."},
-                {"Call Light", "Permanently lights up the area lit by your light source or a room."},
-                {"Bless", "Bonus to fighting ability and armour class."},
-                {"Remove Fear", "Removes any fear you currently feel."},
-                {"Cure Light Wounds", "Reduces cuts and heals you a little."},
-                {"Slow Poison", "Reduces the amount of poison in your system."},
-                {"Reveal Doors and Stairs", "Detects all doors and stairs on the current panel."},
-                {"Reveal Traps", "Detects hidden traps and doors on the current screen."},
-
-                {"Spear of Light", "Create a ray of light in a given direction."},
-                {"Remove Curse", "Removes normal curses."},
-                {"Cure Serious Wounds", "Removes cuts and heals you."},
-                {"Satisfy Hunger", "Magically feeds you."},
-                {"Holy Chant", "Bonus to fighting ability and armour class."},
-                {"Sense Surroundings", "Maps the local area."},
-                {"Neutralize Poison", "Stops the effect of poison."},
-                {"Resist Fire and Cold", "Provides temporary fire and cold resists."},
-
-                {"Cure Critical Wounds", "Removes cuts and heals you."},
-                {"Holy Orb", "Fires an orb of holy force that does extra damage to evil creatures."},
-                {"Portal", "Teleports your randomly."},
-                {"Sense Unseen", "Provides temporary see invisible"},
-                {"Holy Blade", "Creates a temporary holy avenger."},
-                {"Turn Undead", "Attempts to make an undead monster to turn and run."},
-                {"Perception", "Gives knowledge about an item."},
-                {"Holy Aura", "Temporary protects you form evil monsters and sustain your life force"},
-
-                {"Heroism", "Temporary increase your combat abilities."},
-                {"Word of Recall", "Recalls you to wilderness, or in the last visited dungeon."},
-                {"Dispel Undead", "Harms all undead in line of sight."},
-                {"Heal", "Removes cuts and heals you."},
-                {"Banish", "Teleports away all monsters in line of sight."},
-                {"Dispel Evil", "Harms all evil monsters in line of sight."},
-                {"Holy Word", "Dispels evil, heals you and cures you from fear, poison, stunning and cuts."},
-
-                {"Animal Taming", "Charm an animal."},
-                {"Stone to Mud", "Digs a wall."},
-                {"Sterilization", "Stops breeders from breeding."},
-                {"Summon Animal", "Call animals to your help."},
-                {"Haste Self", "Temporary speeds you."},
-                {"Call Hounds", "Call hounds to your help."},
-                {"Whirlwind Attack", "Attack every monsters around you."},
-
-                {"Unbarring Ways", "Destroy doors and traps around you."},
-                {"Sanctuary", "Tries to sleep all monsters around you."},
-                {"Dispel Curse", "Removes some of the most powerful curses."},
-                {"Tread Waters", "Lets you walk over water for a limited time."},
-                {"Healing", "Greatly heals you and cure from nearly anything."},
-                {"Bless Weapon", "Ask your god to bless a weapon."},
-                {"Glyph of Warding", "Places a glyph on the floor that monsters cannot pass over until it is broken."},
-
-                {"Invisibility", "Your god temporary hides you from the eyes of mortals."},
-                {"Cure Mortal Wounds", "Removes cuts and heals you."},
-                {"Mass Sleep", "Tries to sleep all monsters in line of sight."},
-                {"Remembrance", "Restores your lost experience."},
-                {"Restoration", "Restores your lost stats."},
-                {"Mass Charm", "Tries to charm all monsters in line of sight."},
-                {"Wraithform", "Turns you into a wraith being, letting you pass in walls."},
-
-                {"Chain Lightning", "Fires beams of lightning all around you."},
-                {"Disintegration", "Fires a ball of disintegration."},
-                {"Blizzard", "Creates a sphere of coldness aimed at your opponents."},
-                {"Whirlpool", "Creates a sphere of water aimed at your opponents."},
-                {"Lightning Storm", "Creates a sphere of lightning aimed at your opponents."},
-                {"Meteor Swarm", "Hurls meteors all around you."},
-
-                {"Infusion", "Recharges magical items."},
-                {"Alter Reality", "Regenerates the current level"},
-                {"Restore Life", "Restores your lost experience and heals you."},
-                {"Call Angel", "Call an angel to your help."},
-                {"Earendil's Star", "Calls upon the light of the Silmaril to light the level and burn enemies."},
-                {"Divinity", "Temporary grants you Vala-like powers."},
-	},
 
         /*** Magery Spells ***/
 
@@ -3516,178 +2845,6 @@ cptr spell_names[MAX_REALM][64][2] =
                 {"Anarchy Force", "This spell creates an Armageddon of chaos."},
                 {"Mana Strike", "This ultimate spell will concentrate ambient mana into a bolt."},
 	},
-
-        /*** Shadow Spellbooks ***/
-	{
-                /* Inner Void */
-                {"Dark Hand", "A bolt of living darkness blasts your enemy"},
-                {"Sense the Unseen", "You are able to sense unseen monsters nearby"},
-                {"Dark Light", "A shadowy radiance bathes your surroundings"},
-                {"Armor of Void", "A dim protective aura surrounds you"},
-                {"Fear of the Shadows", "Your aspect takes on a dark and fearsome cast"},
-                {"Sense Shadows", "You are able to sense unseen objects nearby"},
-                {"Shadow Spikes", "Tangible darkness flies from your outstretched hand"},
-                {"Shadow hiding", "The darkness bends around your form"},
-
-                /* Lurkings of the Night */
-                {"Illusory Ball", "Spinning motes of darkness baffle your foes"},
-                {"Darkness Storm", "Dark energy explodes in the midst of your opponents"},
-                {"Energies Channeling", "Your command of the shadows lends you knowledge of your surroundings"},
-                {"Immaterial Beings", "The faded image of an ancestor rallies to your cause"},
-                {"Shadow Enlightenment", "You obtain knowledge through contemplation of the night"},
-                {"Dissolve Matter", "Obscure energies rend the very fabric of your foes"},
-                {"Invoke the Night", "The shadows leech energy from your foes, inducing slumber"},
-                {"Resist Light & Dark", "You feel less vulnerable to the components of shadow"},
-
-                /* Beings of Darkness */
-                {"Teleportation", "You can move from place to place via the shadows"},
-                {"Absorb Light", "You soak up the surrounding light and store it as magical energy"},
-                {"Shadow Regeneration", "You draw sustenance from the night"},
-                {"Steal Shadow", "All things must have a shadow, and without it, they vanish!"},
-                {"Storm in the Shadows", "Unseen energies assault your foes"},
-                {"Shadow of Life", "You infuse your foes with darkness so that they may serve your ends"},
-                {"Shadow of Dragon", "The shadows coalesce into a dragon at your beckon call"},
-                {"Banish Shadows", "Reality splits, and your foes are rent from within"},
-
-                /* Material Shadow */
-                {"Feelings of Darkness", "The weaknesses of your enemies are made known to you"},
-                {"Dark Bolt", "A massive bolt of living darkness blasts your enemy"},
-                {"Shadow Orb", "A throbbing pool of corruption engulfs your foes"},
-                {"Shadow of Undead", "The haggard and ominous form of an ancestor rallies to your cause"},
-                {"Shadow Rain", "An unnatural storm rages about, destroying all in its path"},
-                {"Mirror of Shadow", "Shadows gather into a reflective shield around you"},
-                {"Comet from the Void", "A gigantic blob of nothingness swallows your foes"},
-                {"Call the Void", "Mountains could be leveled in the blast as Shadows collide"},
-
-                /* Aiding Shades */
-                {"Examine Shadow", "Everything has a shadow which can reveal much to you"},
-                {"*Shadow Enlightenment*", "You obtain complete knowledge through contemplation of the night"},
-                {"Remove Curse", "Foul magics leech away into the night"},
-                {"*Remove Curse*", "The foulest magics leech away into the night"},
-                {"Shadow Form", "You are transformed as into the shadows themselves"},
-
-                /* Morgoth's Space-Time Warpings */
-                {"Shadow Portal", "You jump through a shadowy portal to a nearby location"},
-                {"Warping Rift", "You can cause gravity to become unstable in a sphere around you"},
-                {"Void Jumping", "You travel the shadow path out of the dungeon"},
-                {"Shadow Distortion", "You can cause gravity to become unstable in a sphere around your foes"},
-                {"Between Jump", "You create a connecting tunnel between two places"},
-                {"Between Maze", "You surround yourself with connecting tunnels between many places"},
-
-                /* Murazor Tome of Conjuring & Dispelling */
-                {"Dispel Living", "Darkness sucks the life from your foes"},
-                {"Conjure Dragons", "Out of the darkness you call for the protection of a dragon"},
-                {"Dispel Undead", "Darkness is sucked out of your foes"},
-                {"Conjure Undead", "Out of the darkness you call a creature of the dark"},
-                {"Dispel Demons", "Shadows seep out of the hearts of demons"},
-                {"Conjure Demons", "Stepping from the shadows is a demonic nightmare"},
-
-                /* Channeling the Void */
-                {"Recharge I", "You imbue items with the power of the dark"},
-                {"Sphere of Void", "Everything around you dissolves into shadow"},
-                {"Shadow Alteration", "Shadows ripple and change the fabric of reality"},
-                {"Recharge II", "You imbue items with the power of true darkness"},
-                {"Concentrate Light", "You concentrate the light around you into a powerful ball of energy"},
-                {"Shield of Darkness", "You transform darkness into a mighty shield against harm"},
-                {"Tunnel of Shadow", "You follow the shadows to another level"},
-
-                /* Sauron's Forgotten Tome */
-                {"Genocide", "Summons the power of the dark to rid the world of your foes"},
-                {"Enslave Undead", "Minions of shadow around you join your cause"},
-                {"Create Minor Ring", "Shadows twine around the ring and imbue it with their power"},
-                {"Control the Three Rings", "Harness the powers of the rings to control your own shadows"},
-                {"Protection from the Undead", "Prevent creatures of shadow from harming you"},
-                {"Mass Genocide", "Summons the darkness to rid you of the foes surrounding you"},
-                {"Hellfire", "Summons fires of hell from the dark to ravage your foes"},
-                {"Control The Ring", "Releases the dark force of the One Ring in a powerful explosion!"},
-	},
-
-        /* Crusade Spellbooks */
-	{
-                /* Rites of Initiation */
-                {"Boldness", "Makes you forget your fears."},
-                {"Blessing", "Provides temporary protection and assault power."},
-                {"Light Area", "Lights up an area or room around you."},
-                {"See Invisible", "Allows you to see invisible monsters."},
-                {"Touch of Confusion", "Tries to confuse the next monster you hit."},
-                {"Invoke Fear", "Tries to scare a monster."},
-                {"Resist Fire", "Provides temporary resistance to fire."},
-                {"Resist Cold", "Provides temporary resistance to cold."},
-
-                /* Ways of War */
-                {"Spear of Light", "Creates a line of pure, divine light."},
-                {"Heroism", "Provides temporary fighting bonuses."},
-                {"Holy Chant", "Provides temporary protection and assault power."},
-                {"Sense Foes", "Detects monsters around you."},
-                {"Jam Doors", "Allows you to close doors at a distance."},
-                {"Cure Wounds & Poison", "Cures your cuts and cleans out any poison."},
-                {"Wolvish Hunger", "It temporarily morphs you to a wolf."},
-                {"Berserker Rage", "It temporarily turns you into a fighting machine."},
-
-                /* Divine Retribution */
-                {"Vision", "Allows you to sense the world around you."},
-                {"Fiery Aura", "It temporarily surrounds you with a flame shield."},
-                {"Holy Aura", "It temporarily surrounds you with a divine shield."},
-                {"Mend Wounds", "It heals you and cures your cuts."},
-                {"Haste Self", "It temporarily increases your speed."},
-                {"Thunder's Wrath", "It projects sound, force and confusion to your foes."},
-                {"Counterstrike", "Reflects part of the damage done to you back to your foes."},
-                {"Whirlwind Attack", "Allows you to spin around and attack all monsters near you."},
-
-                /* Essence of Fury */
-                {"Call Thunder", "Projects waves of sound onto your foes."},
-                {"Mass Charm", "Tries to charm all monsters in line of sight."},
-                {"True Strike", "It temporarily greatly improves your fighting power."},
-                {"Deadly Blow", "It allows your next few blows to be critical."},
-                {"Healing", "It heals you and cures your wounds."},
-                {"Dragon's Wrath", "It temporarily turns you into a dragon."},
-                {"Summon Angel", "It calls an angel to your help."},
-                {"Wave of Power", "It allows you to project a melee attack to a distant monster."},
-	},
-
-        /* Sigaldry Spellbooks */
-
-	{
-                /* Novice Crafts */
-                {"Detect Monsters", "It will detect monsters near you."},
-                {"Wizard Lock", "It will magically lock a door."},
-                {"Illuminate", "It will light up a room."},
-                {"Locate Doors/Stairs", "It will detect stairs and doors near you."},
-                {"Locate Traps", "It will detect traps near you."},
-                {"Disruption I", "It will create a damaging, stunning or confusing bolt."},
-                {"Blink", "It will teleport you a few squares away."},
-                {"Detect Treasure", "It will detect treasures around you."},
-
-                /* Arcane Channels */
-                {"Detect Objects", "It will detect objects around you."},
-                {"Warding", "It will create a wall of force around you, increasing your shielding."},
-                {"Trap/Door Destruction", "It will destroy traps and doors near you."},
-                {"Sleep I", "It will put a nearby monster to sleep."},
-                {"Preservation", "It will make a corpse last longer."},
-                {"Confuse", "It will confuse a monster."},
-                {"Magic Aura", "Increases your light radius and lets you resist life draining."},
-                {"Appraise Item", "Senses the strength of the magic of an item."},
-
-                /* Sigils of Wizardry */
-                {"Resist Fire", "It will temporarily protect you from fire."},
-                {"Resist Cold", "It will temporarily protect you from cold."},
-                {"Finger of Pain", "It will damage a monster without the need to travel to it."},
-                {"Recharge I", "It will harness magical energies to recharge an item."},
-                {"Magic Mapping", "It reveals the level around you."},
-                {"Sleep II", "It will try to put all monsters near you asleep."},
-                {"Teleport Self", "It will teleport you away."},
-                {"Identify", "It will identify an object."},
-
-                /* Mana Focus */
-                {"True Strike", "It will temporarily help you hit your foes."},
-                {"Between Gate", "Opens a between gate to let you travel from one spot to another."},
-                {"Disruption II", "Creates a damaging, stunning or confusing ball of energy."},
-                {"Drain Magic", "Replenishes your magic by draining the magic from an item."},
-                {"Scribe Scroll", "Creates a spell scroll, containing a magic spell."},
-                {"Infuse Amulet", "Creates a random amulet."},
-                {"Glyph of Warding", "Wards the ground under you, preventing monsters from going there."},
-                {"Implosion", "Creates a powerful implosion."},
-        },
 
         /* Symbiotic Spellbooks */
 
@@ -3861,179 +3018,6 @@ cptr spell_names[MAX_REALM][64][2] =
 	},
 
 
-	/*** Priest Spells ***/
-
-	{
-		/* Beginners Handbook (sval 0) */
-                {"Detect Evil", ""},
-                {"Cure Light Wounds", ""},
-                {"Bless", ""},
-                {"Remove Fear", ""},
-                {"Call Light", ""},
-                {"Find Traps", ""},
-                {"Detect Doors/Stairs", ""},
-                {"Slow Poison", ""},
-
-		/* Words of Wisdom (sval 1) */
-                {"Scare Monster", ""},
-                {"Portal", ""},
-                {"Cure Serious Wounds", ""},
-                {"Chant", ""},
-                {"Sanctuary", ""},
-                {"Satisfy Hunger", ""},
-                {"Remove Curse", ""},
-                {"Resist Heat and Cold", ""},
-
-		/* Chants and Blessings (sval 2) */
-                {"Neutralize Poison", ""},
-                {"Orb of Draining", ""},
-                {"Cure Critical Wounds", ""},
-                {"Sense Invisible", ""},
-                {"Protection from Evil", ""},
-                {"Earthquake", ""},
-                {"Sense Surroundings", ""},
-                {"Cure Mortal Wounds", ""},
-                {"Turn Undead", ""},
-
-		/* Exorcism and Dispelling (sval 3) */
-                {"Prayer", ""},
-                {"Dispel Undead", ""},
-                {"Heal", ""},
-                {"Dispel Evil", ""},
-                {"Glyph of Warding", ""},
-                {"Holy Word", ""},
-
-		/* Godly Insights... (sval 5) */
-                {"Detect Monsters", ""},
-                {"Detection", ""},
-                {"Perception", ""},
-                {"Probing", ""},
-                {"Clairvoyance", ""},
-
-		/* Purifications and Healing (sval 6) */
-                {"Cure Serious Wounds", ""},
-                {"Cure Mortal Wounds", ""},
-                {"Healing", ""},
-                {"Restoration", ""},
-                {"Remembrance", ""},
-
-		/* Wrath of God (sval 8) */
-                {"Dispel Undead", ""},
-                {"Dispel Evil", ""},
-                {"Banishment", ""},
-                {"Word of Destruction", ""},
-                {"Annihilation", ""},
-
-		/* Holy Infusions (sval 7) */
-                {"Unbarring Ways", ""},
-                {"Recharging", ""},
-                {"Dispel Curse", ""},
-                {"Enchant Weapon", ""},
-                {"Enchant Armour", ""},
-                {"Elemental Brand", ""},
-
-		/* Ethereal openings (sval 4) */
-                {"Blink", ""},
-                {"Teleport Self", ""},
-                {"Teleport Other", ""},
-                {"Teleport Level", ""},
-                {"Word of Recall", ""},
-                {"Alter Reality", ""},
-
-                {"(blank)", ""},
-                {"(blank)", ""},
-                {"(blank)", ""},
-                {"(blank)", ""},
-                {"(blank)", ""},
-        },
-
-	/*** Illusionist Spells ***/
-	/* Added by -KMW- */
-
-	{
-		/* Illusions for Beginners (sval 0) */
-                {"Confusion Bolt", "Casts an energy bolt that confuses the monster it hits."},
-                {"Detect Monsters", "Detects visible monsters within an area around you."},
-                {"Phase Door", "Teleports you to a nearby location."},
-                {"Light Area", "Lights up the area around you."},
-                {"Treasure Detection", "Locates treasures in the area around you."},
-                {"Fear", "Causes a monster (or monsters) to become frightened of you."},
-                {"Object Detection", "Locates objects in the area around you."},
-                {"Find Hidden Traps/Doors", "Locates traps, doors and stairs in the area around you."},
-                {"Stinking Cloud", "Casts a cloud of poisonous gas at your foes."},
-
-		/* Tricks and Visions (sval 1) */
-                {"Infravision", "Temporarily increases your ability to see warm-blooded lifeforms."},
-                {"Sleep", "Causes a targetted monster to fall asleep."},
-                {"Trap/Door Destruction", "Destroys all traps and doors next to the caster."},
-                {"Fog Cloud", "Casts a cloud of poison at your foes."},
-                {"Cure Poison", "Cures the caster of the effects of poison."},
-                {"Satisfy Hunger", "Makes the caster feel fully satisfied."},
-                {"Shadow Door", "Creates doors around the caster."},
-                {"Shadow Monster", "Summons an illusionary beast that rushes to attack, then disappears."},
-                {"Turn Stone to Mud", "Causes stone to dissolve."},
-
-		/* Phantasms and Illusions (sval 2) */
-                {"Detect Invisible", "Detects the presence of invisible things."},
-                {"Recharge Item", "Increases the charge within a magical item."},
-                {"Brand Ammo", "Fire/Frost brands a pile of ammunition."},
-                {"Spear of Light", "Casts a beam of light."},
-                {"Chaos", "Unleashes chaotic energy in a powerful explosion."},
-                {"Mental Barrier", "Creates a protective barrier around your intellect."},
-                {"True Sight", "Empowers you with a vision of the area around you."},
-                {"Slow Monster", "Reduces the speed of a nearby monster."},
-
-		/* Shadows and Prisms (sval 3) */
-                {"Shadow Ball", "Casts a ball of shadow to engulf your foes."},
-                {"Bolt of Darkness", "Casts a malevolent bolt of darkness at your foe."},
-                {"Shadow Form", "Alters the caster's form to that of a shadow."},
-                {"Haste Self", "Increases the speed of the caster for a limited time."},
-                {"Prismatic Wall", "Creates a wall of force at a point that no monster may pass."},
-                {"Prismatic Spray", "A ball of light sprays out from your fingertips."},
-                {"Chromatic Shield", "A shield of corruscating light surrounds your form."},
-
-		/* Knowledge of Kenault (sval 5) */
-                {"Wizard Lock", "Magically spikes a door to prevent anyone openning it."},
-                {"Bedlam", "Calls a ball of chaos down upon your foes."},
-                {"Word of Recall", "Teleports you between the dungeon and the town."},
-                {"Detect Enchantment", "Detects objects that contain enchantments."},
-                {"Probing", "Probes monsters to discover their abilities."},
-                {"Sunfire", "Releases the energy of a miniature sun upon your foes."},
-
-		/* Bigby's Handbook (sval 8) */
-                {"Bigby's Interposing Hand", "Surrounds the caster with squares that may not be entered by a monster."},
-                {"Bigby's Phantom Hand", "Creates a line of phantasms that attack and confuse the enemy then disappear."},
-                {"Bigby's Forceful Hand", "Creates a line of shadowy monsters that attack the enemy then disappear."},
-                {"Bigby's Grasping Hand", "Slows a line of monsters."},
-                {"Bigby's Clenched Fist", "A beam of force projects from your clenched fist."},
-                {"Bigby's Crushing Hand", "A beam of crushing gravity projects from the caster."},
-                {"Force Blast", "A ball of pure force explodes upon your foes."},
-
-		/* Otiluke's Spheres (sval 6) */
-                {"Sphere of Light", "Casts a sphere of light at your foes."},
-                {"Sphere of Darkness", "Casts a sphere of darkness at your foes."},
-                {"Sphere of Confusion", "Casts a sphere of confusion at your foes."},
-                {"Sphere of Chaos", "Casts a sphere of chaotic energy at your foes."},
-                {"Sphere of Sound", "Casts a sphere of sound at your foes."},
-                {"Explosion", "Creates a powerful explosion of shrapnel."},
-
-		/* Serten's Immunities (sval 4) */
-                {"Remove Fear", "Allows the caster to regain their failing courage."},
-                {"Resist Light & Dark", "Protects the caster from the ravages of light and darkness."},
-                {"Resist Poison", "Protects the caster from the ravages of poison."},
-                {"Resist Chaos & Confusion", "Protects the caster from the ravages of Chaos and Confusion."},
-                {"Resist Sound & Shards", "Protects the caster from the ravages of Sound and Shards."},
-                {"Resist Nexus", "Protects the caster from the ravages of Nexus."},
-
-		/* Boccob's Book of Shadows (sval 7) */
-                {"Invisibility", "Makes the caster invisible."},
-                {"Shadow Monsters", "Invokes a group of shadowy monsters who attack, then vanish."},
-                {"Shadow Ball", "Creates a ball of darkness to ravage your foes."},
-                {"Shadow Sacrifices", "Sacrifices your lifeforce to increase your magic."},
-                {"Shadow Gate", "Opens a gate to another portion of the level."},
-                {"Summon Shadows", "Summons a spirit to your aid."},
-	},
-
         /* Tribal */
         {
                 {"Slumber", "Sends a monster or group of monsters to sleep."},
@@ -4203,20 +3187,6 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Archimage",
 	},
 
-	/* Priest */
-	{
-		"Believer",
-		"Acolyte",
-		"Adept",
-		"Curate",
-		"Canon",
-		"Priest",
-		"High Priest",
-		"Cardinal",
-		"Inquisitor",
-		"Pope",
-	},
-
 	/* Rogues */
 	{
 		"Cutpurse",
@@ -4244,21 +3214,6 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"High Ranger",
 		"Ranger Lord",
 	},
-
-	/* Paladins */
-	{
-		"Gallant",
-		"Keeper",
-		"Protector",
-		"Defender",
-		"Warder",
-		"Knight",
-		"Guardian",
-		"Low Paladin",
-		"High Paladin",
-		"Paladin Lord",
-	},
-
 
 	/* Monk */
 	{
@@ -4426,20 +3381,6 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
                 "Archer",
                 "Archer",
                 "Great Archer",
-	},
-
-	/* Illusionist -KMW- */
-	{
-		"Novice",
-		"Apprentice",
-		"Trickster",
-		"Cabalist",
-		"Visionist",
-		"Phantasmist",
-		"Spellbinder",
-		"Illusionist",
-		"Shadow",
-		"Shadow Lord",
 	},
 
 	/* Druid */
@@ -4629,8 +3570,8 @@ option_type option_info[] =
         { &use_old_target,              FALSE,  1,      4,
         "use_old_target",               "Use old target by default" },
 
-        { &always_pickup,               FALSE,  1,      5,
-	"always_pickup",                "Pick things up by default" },
+	{ &telnet,			FALSE,  1,	5,
+	"telnet"			"Redraws screen every panel change" },
 
         { &prompt_pickup_heavy,         TRUE,   1,      6,
         "prompt_pickup_heavy",          "Prompt before picking up heavy objects" },
@@ -4638,13 +3579,13 @@ option_type option_info[] =
         { &always_repeat,               TRUE,   1,      7,
 	"always_repeat",                "Repeat obvious commands" },
 
-        { &depth_in_feet,               FALSE,  1,      8,
+        { &depth_in_feet,               TRUE,  1,      8,
 	"depth_in_feet",                "Show dungeon level in feet" },
 
         { &stack_force_notes,           TRUE,  1,       9,
 	"stack_force_notes",            "Merge inscriptions when stacking" },
 
-        { &stack_force_costs,           FALSE,  1,      10,
+        { &stack_force_costs,           TRUE,  1,      10,
 	"stack_force_costs",            "Merge discounts when stacking" },
 
         { &show_labels,                 TRUE,   1,      11,
@@ -4668,10 +3609,9 @@ option_type option_info[] =
         { &show_details,                TRUE,  1,       17,
 	"show_details",                 "Show details in certain sub-windows" },
 
-        { &ring_bell,                   FALSE,   1,     18,
+        { &ring_bell,                   TRUE,   1,     18,
 	"ring_bell",                    "Audible bell (on errors, etc)" },
-	/* Changed to default to FALSE -- it's so extremely annoying!!! -TY */
-
+	
         { &use_color,                   TRUE,   1,      19,
 	"use_color",                    "Use color if possible (slow)" },
 
@@ -4714,7 +3654,7 @@ option_type option_info[] =
         { &alert_failure,               FALSE,  2,      11,
 	"alert_failure",                "Alert user to various failures" },
 
-        { &last_words,                  TRUE,   2,      12,
+        { &last_words,                  FALSE,   2,      12,
 	"last_words",                   "Get last words when the character dies" },
 
         { &speak_unique,                TRUE,   2,      13,
@@ -4729,16 +3669,13 @@ option_type option_info[] =
         { &confirm_stairs,              FALSE,  2,      16,
 	"confirm_stairs",               "Prompt before exiting a dungeon level" },
 
-        { &disturb_pets,                FALSE,  2,      17,
-	"disturb_pets",                 "Disturb when visible pets move" },
-
 #ifdef ALLOW_EASY_OPEN
-        { &easy_open,                   TRUE,   2,      18,
+        { &easy_open,                   FALSE,   2,      18,
         "easy_open",                    "Automatically open doors" },
 #endif /* ALLOW_EASY_OPEN */
 
 #ifdef ALLOW_EASY_DISARM
-        { &easy_disarm,                 TRUE,   2,      19,
+        { &easy_disarm,                 FALSE,   2,      19,
         "easy_disarm",                  "Automatically disarm traps" },
 #endif /* ALLOW_EASY_DISARM */
 
@@ -4803,6 +3740,10 @@ option_type option_info[] =
 
         { &empty_levels,                TRUE,   3,      18,
         "empty_levels",                 "Allow empty 'arena' levels" },
+
+        { &always_pickup,               TRUE,  1,      19,
+	"always_pickup",                "Pick things up by default" },
+
 
 	/*** Efficiency ***/
 
@@ -4915,16 +3856,6 @@ option_type option_info[] =
         { &fast_autoroller,             FALSE,  6,      10,
         "fast_autoroller",              "Fast autoroller(NOT on multiuser systems)" },
 
-        { &cth_monsters,                TRUE,   6,      11,
-        "cth_monsters",                 "Allow use of lovercraftian monsters" },
-
-#if 0
-        { &pern_monsters,               TRUE,   6,      12,
-        "pern_monsters",                "Allow use of some Pern related monsters" },
-#endif
-        { &zang_monsters,               TRUE,   6,      13,
-        "zang_monsters",                "Allow use of 'Zangbandish' monsters" },
-
         { &joke_monsters,               TRUE,   6,      14,
         "joke_monsters",                "Allow use of some 'joke' monsters" },
 
@@ -4941,10 +3872,12 @@ option_type option_info[] =
 
         /*** Stacking ***/
 
-        { &testing_stack,               TRUE,  7,       0,
+	/* JKB: the game is too easy with these options TRUE */
+
+        { &testing_stack,               FALSE,  7,       0,
 	"testing_stack",                "Allow objects to stack on floor" },
 
-        { &testing_carry,               TRUE,  7,       1,
+        { &testing_carry,               FALSE,  7,       1,
 	"testing_carry",                "Allow monsters to carry objects" },
 
 
@@ -7779,10 +6712,8 @@ tval_desc tval_descs[] =
         {TV_VALARIN_BOOK, "This holy book is used by priests and a few others to call upon their god."},
         {TV_MAGERY_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_SHADOW_BOOK, "This magic book is used by spellcasters to cast spells."},
-        {TV_ILLUSION_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_TRIBAL_BOOK, "This mystical book is used by rangers and a few others to cast spells."},
         {TV_CRUSADE_BOOK, "This holy book is used by paladins and a few others to call upon their god."},
-        {TV_SIGALDRY_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_SYMBIOTIC_BOOK, "This mystical book is used by symbiants to extend their symbiosis."},
         {TV_MUSIC_BOOK, "This song book is used by harpers to play songs."},
         {TV_MAGIC_BOOK, "This magic book is used by spellcasters to cast spells."},

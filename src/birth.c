@@ -113,7 +113,7 @@ static hist_type bg[] =
 	{"Burglar.  ",						 80, 11, 3, 110},
 	{"Warrior.  ",						 95, 11, 3, 115},
 	{"Mage.  ",							 99, 11, 3, 125},
-	{"Clan Elder.  ",						100, 11, 3, 140},
+	{"Thain.  ",						100, 11, 3, 140},
 
 	{"You are one of two children of a Dwarven ",		 25, 16, 17, 40},
 	{"You are the only child of a Dwarven ",			100, 16, 17, 50},
@@ -218,32 +218,6 @@ static hist_type bg[] =
 	{"ulcerous skin.",						 33, 66, 0, 50},
 	{"scabby skin.",						 66, 66, 0, 50},
 	{"leprous skin.",                       100, 66, 0, 50},
-
-	{"Your mother was an Ogre, but it is unacknowledged.  ", 25, 74, 20, 25},
-	{"Your father was an Ogre, but it is unacknowledged.  ", 100, 74, 20, 25},
-
-	{"Your mother was a Hill Giant.  ", 10, 75, 20, 50},
-	{"Your mother was a Fire Giant.  ", 12, 75, 20, 55},
-	{"Your mother was a Frost Giant.  ", 20, 75, 20, 60},
-	{"Your mother was a Cloud Giant.  ", 23, 75, 20, 65},
-	{"Your mother was a Storm Giant.  ", 25, 75, 20, 70},
-	{"Your father was a Hill Giant.  ",  60, 75, 20, 50},
-	{"Your father was a Fire Giant.  ",  70, 75, 20, 55},
-	{"Your father was a Frost Giant.  ",  80, 75, 20, 60},
-	{"Your father was a Cloud Giant.  ",  90, 75, 20, 65},
-	{"Your father was a Storm Giant.  ", 100, 75, 20, 70},
-
-	{"Your father was an unknown Titan.  ", 75, 76, 20, 50 },
-	{"Your mother was Themis.  ",        80, 76, 20, 100 },
-	{"Your mother was Mnemosyne.  ",     85, 76, 20, 100 },
-	{"Your father was Okeanoas.  ",      90, 76, 20, 100 },
-	{"Your father was Crius.  ",         95, 76, 20, 100 },
-	{"Your father was Hyperion.  ",      98, 76, 20, 125 },
-	{"Your father was Kronos.  ",       100, 76, 20, 150 },
-
-	{"You are the offspring of an unknown Cyclops.  ", 90, 77, 109, 50 },
-	{"You are Polyphemos's child.  ", 98, 77, 109, 80 },
-	{"You are Uranos's child.  ", 100, 77, 109, 135 },
 
 	
     {"You are one of several children ",                     85, 84, 85, 45},
@@ -542,7 +516,6 @@ void create_random_name(int race, char *name)
 	{
 		/* Create the monster name */
 	case RACE_DWARF:
-	case RACE_HALF_GIANT:
 		strcpy(name, dwarf_syllable1[rand_int(sizeof(dwarf_syllable1) / sizeof(char*))]);
 		strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
 		strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
@@ -568,7 +541,6 @@ void create_random_name(int race, char *name)
 		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
 		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
 		break;
-	case RACE_HALF_OGRE:
 	case RACE_HALF_ORC:
 	case RACE_HALF_TROLL:
 		strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
@@ -606,14 +578,6 @@ byte choose_realm(s32b choices)
 
 	n = 0;
 
-        if ((choices & CH_VALARIN) && (p_ptr->realm1 != REALM_VALARIN))
-	{
-                sprintf(buf, "%c%c %s", I2A(n), p2, "Valarin");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=1;
-		n++;
-	}
-
         if ((choices & CH_MAGERY) && (p_ptr->realm1 != REALM_MAGERY))
 	{
                 sprintf(buf, "%c%c %s", I2A(n), p2, "Magery");
@@ -622,32 +586,7 @@ byte choose_realm(s32b choices)
 		n++;
 	}
 
-        if ((choices & CH_SIGALDRY) && (p_ptr->realm1 != REALM_SIGALDRY))
-	{
-                sprintf(buf, "%c%c %s", I2A(n), p2, "Sigaldry");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=7;
-		n++;
-	}
 
-
-        if ((choices & CH_CRUSADE) && (p_ptr->realm1 != REALM_CRUSADE))
-	{
-                sprintf(buf, "%c%c %s", I2A(n), p2, "Crusade");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=6;
-		n++;
-	}
-
-        if ((choices & CH_SHADOW) && (p_ptr->realm1 != REALM_SHADOW))
-	{
-                sprintf(buf, "%c%c %s", I2A(n), p2, "Shadow");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=3;
-		n++;
-	}
-
-        
         if ((choices & CH_TRIBAL) && (p_ptr->realm1 != REALM_TRIBAL))
 	{
                 sprintf(buf, "%c%c %s", I2A(n), p2, "Tribal");
@@ -664,27 +603,11 @@ byte choose_realm(s32b choices)
 		n++;
 	}
 
-        if ((choices & CH_ILLUSION) && (p_ptr->realm1 != REALM_ILLUSION))
-	{
-                sprintf(buf, "%c%c %s", I2A(n), p2, "Illusion");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-                picks[n]=12;
-		n++;
-	}
-
         if ((choices & CH_MAGIC) && (p_ptr->realm1 != REALM_MAGIC))
 	{
                 sprintf(buf, "%c%c %s", I2A(n), p2, "Vanilla Magic");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
                 picks[n]=REALM_MAGIC;
-		n++;
-	}
-
-        if ((choices & CH_PRAYER) && (p_ptr->realm1 != REALM_PRAYER))
-	{
-                sprintf(buf, "%c%c %s", I2A(n), p2, "Vanilla Prayer");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-                picks[n]=REALM_PRAYER;
 		n++;
 	}
 
@@ -746,7 +669,7 @@ static void get_realms()
         if (p_ptr->pclass == CLASS_SORCERER)
         {
                 p_ptr->realm1 = REALM_MAGERY;
-                p_ptr->realm2 = REALM_SIGALDRY;
+                p_ptr->realm2 = REALM_MAGIC;
                 return;
         }
 
@@ -789,26 +712,16 @@ static void get_realms()
 
         choices = mrealm_choices[pclas];
 
-        if((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_PRIEST))
+        if((p_ptr->pclass == CLASS_MAGE))
         {
                 switch(p_ptr->realm1)
                 {
                         case REALM_MAGIC:
-                        case REALM_PRAYER:
                                 p_ptr->realm2 = 0;
                                 return;
                                 break;
-                        case REALM_VALARIN:
-                                choices &= ~CH_SIGALDRY;
-                                choices &= ~CH_ILLUSION;
-                                break;
                         case REALM_MAGERY:
                                 choices &= ~CH_SPIRIT;
-                                choices &= ~CH_ILLUSION;
-                                break;
-                        case REALM_SHADOW:
-                                choices &= ~CH_CRUSADE;
-                                choices &= ~CH_SIGALDRY;
                                 break;
                 }
         }
@@ -817,9 +730,7 @@ static void get_realms()
         {
                 switch(p_ptr->realm1)
                 {
-                        case REALM_VALARIN:
                         case REALM_MAGERY:
-                        case REALM_SHADOW:
                                 p_ptr->realm2 = 0;
                                 return;
                                 break;
@@ -1280,16 +1191,6 @@ static void get_history(void)
 			break;
 		}
 
-		case RACE_HALF_OGRE:
-		{
-			chart = 74;
-			break;
-		}
-		case RACE_HALF_GIANT:
-		{
-			chart = 75;
-			break;
-		}
                 case RACE_RKNIGHT:
 		{
 			chart = 84;
@@ -1751,8 +1652,6 @@ static void player_wipe(void)
 	/* Initialize allow_one_death */
         p_ptr->allow_one_death = 0;
 
-        p_ptr->loan = p_ptr->loan_time = 0;
-
         /* Wipe the power list */
         for (i = 0; i < POWER_SLOT; i++)
         {
@@ -1910,13 +1809,6 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Illusionist  -KMW-  */
-		{ TV_ILLUSION_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
-	},
-
-	{
                 /* Druid */
                 { TV_MAGERY_BOOK, 0 },
                 { TV_HAFTED, SV_WHIP },
@@ -1989,8 +1881,6 @@ byte random_present[MAX_CLASS] =
                 /* Sorceror */
                 BIRTH_NONE,
                 /* Archer */
-                BIRTH_NONE,
-                /* Illusionnist */
                 BIRTH_NONE,
                 /* Druid */
                 BIRTH_NONE,
@@ -2281,13 +2171,6 @@ static void player_outfit(void)
 		/* Hack -- Give the player an object */
 		object_prep(q_ptr, lookup_kind(tv, sv));
 
-                /* Assassins begin the game with a poisoned dagger */
-                if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
-                        p_ptr->realm1 == REALM_SHADOW) /* Only assassins get a poisoned weapon */
-                {
-                        q_ptr->name2 = EGO_BRAND_POIS;
-                        apply_magic(q_ptr, 1, FALSE, FALSE, FALSE);
-                }
 
 		/* These objects are "storebought" */
 		q_ptr->ident |= IDENT_STOREB;
@@ -2297,50 +2180,6 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr, FALSE);
 	}
 
-#if 0 /* hummm -- DG */
-        /* Hack -- Give the player a random something */
-        if (rand_birth)
-	{
-                tv = -1;
-
-                switch (random_present[p_ptr->pclass])
-                {
-                        case BIRTH_RING:
-                                tv = TV_RING;
-                                do
-                                {
-                                        sv = rand_int(56);
-                                }
-                                while (!lookup_kind(tv, sv) || (sv == SV_RING_SPECIAL));
-                                break;
-                        case BIRTH_AMULET:
-                                tv = TV_AMULET;
-                                do
-                                {
-                                        sv = rand_int(17);
-                                }
-                                while (!lookup_kind(tv, sv));
-                                break;
-                }
-
-                if (tv != -1)
-                {
-                        /* Get local object */
-                        q_ptr = &forge;
-                
-                        /* Hack -- Give the player an object */
-                        object_prep(q_ptr, lookup_kind(tv, sv));
-                        apply_magic(q_ptr, 5, TRUE, FALSE, FALSE);
-
-                        /* These objects are "storebought" */
-                        q_ptr->ident |= IDENT_STOREB;
-
-                        object_aware(q_ptr);
-                        object_known(q_ptr);
-                        (void)inven_carry(q_ptr, FALSE);
-                }
-	}
-#endif
 }
 
 
@@ -2437,13 +2276,10 @@ s16b classes_mage[] =
         CLASS_HIGH_MAGE,
         CLASS_RUNECRAFTER,
         CLASS_SORCERER,
-        CLASS_ILLUSIONIST,
         -1,
 };
 s16b classes_priest[] =
 {
-        CLASS_PRIEST,
-        CLASS_PALADIN,
         CLASS_MINDCRAFTER,
         CLASS_DRUID,
         -1,
@@ -3301,11 +3137,6 @@ repeat_player_class:
                 p_ptr->god_favor = 0;
         }
 	
-	if ((!p_ptr->pgod) && ((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_PALADIN)))
-        {
-                p_ptr->pgod = randint(MAX_GODS - 1);
-        }
-
         /* a god that like us ? more grace ! */
         if ((deity_info[p_ptr->pgod - 1].race1 == p_ptr->prace) || (deity_info[p_ptr->pgod - 1].race2 == p_ptr->prace))
         {
@@ -3314,7 +3145,7 @@ repeat_player_class:
         }
         else
         {
-                if ((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_PALADIN) || (p_ptr->pclass == CLASS_DRUID))
+                if (p_ptr->pclass == CLASS_DRUID)
                 {
                         set_grace(40000);
                         p_ptr->god_favor = -40000;
@@ -3373,9 +3204,6 @@ repeat_player_class:
 	  * the following:
 	  * permanent_levels,
 	  * ironman_rooms,
-	  * cth_monsters,
-	  * zang_monsters,
-	  * joke_monsters,
 	  * always_small_level, and
 	  * fate_option
 	  */
@@ -4280,8 +4108,6 @@ static void validate_bg(void)
         race_chart[RACE_DWARF] = 16;
         race_chart[RACE_HALF_ORC] = 19;
         race_chart[RACE_HALF_TROLL] = 22;
-        race_chart[RACE_HALF_OGRE] = 74;
-        race_chart[RACE_HALF_GIANT] = 75;
         race_chart[RACE_RKNIGHT] = 84;
         race_chart[RACE_DRAGONRIDDER] = 89;
         race_chart[RACE_ENT] = 94;

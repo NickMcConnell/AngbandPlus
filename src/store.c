@@ -486,12 +486,10 @@ static void mass_produce(object_type *o_ptr)
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
                 case TV_CRUSADE_BOOK:
-                case TV_SIGALDRY_BOOK:
                 case TV_SYMBIOTIC_BOOK:
                 case TV_MUSIC_BOOK:
                 case TV_MAGIC_BOOK:
                 case TV_PRAYER_BOOK:
-                case TV_ILLUSION_BOOK:
                 case TV_TRIBAL_BOOK:
                 case TV_DRUID_BOOK:
 		{
@@ -861,11 +859,9 @@ static bool store_will_buy(object_type *o_ptr)
                                 case TV_MAGERY_BOOK:
                                 case TV_SHADOW_BOOK:
                                 case TV_CRUSADE_BOOK:
-                                case TV_SIGALDRY_BOOK:
                                 case TV_SYMBIOTIC_BOOK:
                                 case TV_MUSIC_BOOK:
                                 case TV_MAGIC_BOOK:
-                                case TV_ILLUSION_BOOK:
                                 case TV_TRIBAL_BOOK:
 				case TV_DRUID_BOOK:
 				case TV_SPIRIT_BOOK:
@@ -896,12 +892,10 @@ static bool store_will_buy(object_type *o_ptr)
                                                 case TV_SHADOW_BOOK:
                                                 case TV_VALARIN_BOOK:
                                                 case TV_CRUSADE_BOOK:
-                                                case TV_SIGALDRY_BOOK:
                                                 case TV_SYMBIOTIC_BOOK:
                                                 case TV_MUSIC_BOOK:
                                                 case TV_MAGIC_BOOK:
                                                 case TV_PRAYER_BOOK:
-                                                case TV_ILLUSION_BOOK:
                                                 case TV_TRIBAL_BOOK:
                                                 case TV_DRUID_BOOK:
 						case TV_SPIRIT_BOOK:

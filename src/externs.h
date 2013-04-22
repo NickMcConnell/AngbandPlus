@@ -197,6 +197,7 @@ extern bool prompt_pickup_heavy;
 extern bool always_repeat;
 extern bool use_old_target;
 extern bool depth_in_feet;
+extern bool telnet;
 extern bool use_color;
 extern bool compress_savefile;
 extern bool hilite_player;

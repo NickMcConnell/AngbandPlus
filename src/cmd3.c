@@ -3,7 +3,6 @@
 /* Purpose: Inventory commands */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research, and
  * not for profit purposes provided that this copyright and statement are
@@ -562,8 +561,7 @@ void do_cmd_drop(void)
 
 static bool high_level_book(object_type * o_ptr)
 {
-    if ((o_ptr->tval == TV_VALARIN_BOOK) || (o_ptr->tval == TV_MAGERY_BOOK) ||
-        (o_ptr->tval == TV_SHADOW_BOOK)) 
+    if ((o_ptr->tval == TV_VALARIN_BOOK) || (o_ptr->tval == TV_MAGERY_BOOK)) 
         {
             if (o_ptr->sval>3) return TRUE;
             else return FALSE;
@@ -703,19 +701,6 @@ void do_cmd_destroy(void)
 		if ((p_ptr->pclass == CLASS_WARRIOR) ||
 		    (p_ptr->pclass == CLASS_UNBELIEVER))
 			gain_expr = TRUE;
-		else if (p_ptr->pclass == CLASS_PALADIN)
-		{
-			if (p_ptr->realm1 == REALM_VALARIN)
-			{
-				if (o_ptr->tval != TV_VALARIN_BOOK)
-					gain_expr = TRUE;
-			}
-			else
-			{
-				if (o_ptr->tval == TV_VALARIN_BOOK)
-					gain_expr = TRUE;
-			}
-		}
 		
 		if ((gain_expr) && (p_ptr->exp < PY_MAX_EXP))
 			

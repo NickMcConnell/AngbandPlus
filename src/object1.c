@@ -382,7 +382,6 @@ static bool object_easy_know(int i)
 	switch (k_ptr->tval)
 	{
 		/* Spellbooks */
-                case TV_ILLUSION_BOOK:
                 case TV_DRUID_BOOK:
                 case TV_TRIBAL_BOOK:
                 case TV_MAGIC_BOOK:
@@ -392,7 +391,6 @@ static bool object_easy_know(int i)
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
                 case TV_CRUSADE_BOOK:
-                case TV_SIGALDRY_BOOK:
                 case TV_MUSIC_BOOK:
                 case TV_SYMBIOTIC_BOOK:
 		{
@@ -1496,16 +1494,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-    case TV_SIGALDRY_BOOK:
-		{
-			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
-                basenm = "& Book~ of Sigaldry Magic #";
-            else
-                basenm = "& Sigaldry Spellbook~ #";
-			break;
-		}
-
     case TV_SYMBIOTIC_BOOK:
 		{
 			modstr = basenm;
@@ -1537,14 +1525,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 			basenm = "& Holy Book~ of Prayers #";
-			break;
-		}
-
-                /* Illusion Books */
-                case TV_ILLUSION_BOOK:
-		{
-			modstr = basenm;
-                        basenm = "& Book~ of Illusions #";
 			break;
 		}
 

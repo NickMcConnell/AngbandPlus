@@ -1,5 +1,5 @@
 # File: r_info.txt
-# For NTAngband 0.4
+# For NTAngband 0.6
 
 # This file is used to initialize the "lib/raw/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
@@ -385,7 +385,7 @@ E:0:0:0:0:0:0
 O:0:0:0:0
 B:WAIL:*
 B:WAIL:*
-B:WAIL:*
+B:WAIL:DISEASE
 B:SHOW:HURT:12d4
 F:AI_ANNOY | SMART | UNIQUE | PASS_WALL | INVISIBLE
 S:1_IN_1
@@ -550,6 +550,21 @@ S:HEAL | BLINK | TPORT | BLIND | SLOW |
 S:S_KIN | S_MONSTER
 D:A great yeek, powerful in magic and sorcery, but a yeek all the same. 
 
+# level 8
+N:80:Baby quylthulg
+G:Q:w
+I:115:5d5:1:0:200
+W:8:2:50:0
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:SHOW:*
+F:PET | FRIENDS | EMPTY_MIND | WEIRD_MIND | NEVER_MOVE
+S:1_IN_2
+S:BLINK
+D:Aww... it's so cute... and so disgusting.  A young quylthulg not
+D:yet experienced enough to fear.  It burbles with joy as you approach 
+D:it and quivers as it frolics through space/time. 
+
 # level 9
 N:90:Black Smorn
 G:p:s
@@ -599,7 +614,7 @@ D:Don't worry, it's not contagious.
 N:110:Trichinella spiralis
 G:j:g
 I:150:1d1:0:250:255
-W:11:1:1:11
+W:11:2:1:11
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:ENGULF:PARASITE:1d1
@@ -613,7 +628,7 @@ D:I hope this teaches you to thoroughly cook your meat!
 N:111:boor
 G:+:U
 I:110:1d1:1:100:255
-W:11:1:1250:12
+W:11:5:1250:12
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:HIT:ACID:10d10
@@ -635,7 +650,18 @@ F:DROP_GREAT | DROP_4D2 | UNIQUE
 S:1_IN_2
 S:BR_NEXU | BR_CHAO 
 D:Twisted by the foul powers of Morgoth, this troll pollutes R.G.R.A with 
-D:his irrelevant messages.
+D:his random messages.
+
+N:121:Quylthulg
+G:Q:y
+I:110:10d10:0:0:255
+W:12:1:0:0
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:EMPTY_MIND | DROP_CORPSE | STUPID
+S:1_IN_3
+S:S_MONSTER | BLINK
+D:Don't hurt it!  It is strange, but it means no one any harm.
 
 # level 14
 
@@ -655,7 +681,7 @@ D:Oh no! They are everywhere!
 N:141:Cleanliness
 G:V:W
 I:100:50d20:7:300:254
-W:14:1:0:4
+W:14:5:0:4
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:SHOW:*
@@ -698,13 +724,64 @@ S:1_IN_4
 S:TELE_TO
 D:It can be seen in the recall windows of certain variants.
 
+# level 16
+N:160:Patience
+G:V:u
+I:95:50d20:20:1000:254
+W:16:5:1:100
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:GOOD
+S:1_IN_6
+S:BR_INER
+D:Sometimes you just have to step back and slow down.
+
+N:161:Remorse
+G:v:v
+I:105:20d50:100:10:0
+W:16:5:1:100
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:HIT:TIME:5d5
+F:EVIL
+D:You angrily wonder what might have been.
+
+# level 17
+
+N:170:Resentment
+G:v:v
+I:120:30d50:100:10:0
+W:17:5:1:200
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:HIT:TIME:10d5
+B:HIT:ACID:5d5
+F:EVIL
+S:1_IN_3 | 
+S:BR_ACID | BR_TIME
+D:Bitterness eats away at your innards as you recall wrongs unredressed.
+
+N:171:Nexus quylthulg
+G:Q:R
+I:110:10d12:10:1:0
+W:17:1:3000:300
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:NEVER_MOVE | NEVER_BLOW | 
+F:INVISIBLE | EMPTY_MIND | RES_NEXU | STUPID
+F:NO_CONF | NO_SLEEP | NO_FEAR | RES_TELE 
+S:1_IN_1 | 
+S:BLINK | TELE_AWAY | TPORT
+D:It is a very unstable, strangely pulsing mound of flesh.  Its numerous 
+D:fears provoke it to use its mastery of teleportation often.
+
 # level 48
 
 N:480:Delusion Snake
 G:R:G
 I:100:20d10:5:100:200
 W:48:1:250:20
-E:1:1:1:2:1:1
+E:0:0:1:1:1:0
 O:0:0:0:0
 B:BITE:INSANITY:4d10
 B:GAZE:HURT:1d15
@@ -826,15 +903,34 @@ D:encounter him, pray your deity holds you in good stead.
 
 N:503:slime mold
 G:,:g
-I:150:50d100:10:0:0
+I:150:100d50:10:0:0
 W:50:1:5:0
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:HIT:HURT:30d100
-F:GOOD | UNIQUE | FORCE_SLEEP | SMART | NEVER_MOVE 
+F:GOOD | UNIQUE | FORCE_SLEEP | SMART | NEVER_MOVE | SPECIAL_GENE
 S:1_IN_1
 S:BR_POIS
 D:Touch it and DIE!
+
+N:504:Death mold
+G:m:D
+I:140:100d20:200:60:0
+W:50:1:100:1000
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:SPORE:UN_BONUS:7d8
+B:SPORE:UN_BONUS:8d9
+B:SPORE:UN_BONUS:9d10
+B:SPORE:EXP_80:5d5
+F:FORCE_SLEEP | NEVER_MOVE | CAN_SWIM |
+F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | BASEANGBAND
+S:1_IN_2
+S:DRAIN_MANA
+D:It is the epitome of all that is evil, in a mold. Its lifeless form draws 
+D:power from sucking the souls of those that approach it, a nimbus of pure 
+D:evil surrounds it. Luckily for you, it can't move... 
 
 # N: serial number : monster name
 # G: symbol : color

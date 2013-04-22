@@ -47,7 +47,7 @@ M:U:173
 M:W:30
 
 # Maximum number of owners types in ow_info.txt
-M:N:69
+M:N:67
 
 # Maximum number of owners types in ba_info.txt
 M:B:59

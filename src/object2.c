@@ -4037,12 +4037,10 @@ bool kind_is_theme(int k_idx)
                 case TV_MAGERY_BOOK:    prob = match_theme.magic; break;
                 case TV_SHADOW_BOOK:    prob = match_theme.magic; break;
                 case TV_CRUSADE_BOOK:   prob = match_theme.magic; break;
-                case TV_SIGALDRY_BOOK:  prob = match_theme.magic; break;
                 case TV_SYMBIOTIC_BOOK: prob = match_theme.magic; break;
                 case TV_MUSIC_BOOK:     prob = match_theme.magic; break;
                 case TV_MAGIC_BOOK:     prob = match_theme.magic; break;
                 case TV_PRAYER_BOOK:    prob = match_theme.magic; break;
-                case TV_ILLUSION_BOOK:  prob = match_theme.magic; break;
                 case TV_TRIBAL_BOOK:    prob = match_theme.magic; break;
                 case TV_DRUID_BOOK:     prob = match_theme.magic; break;
                 case TV_SPIRIT_BOOK:    prob = match_theme.magic; break;
@@ -4169,7 +4167,6 @@ static bool kind_is_good(int k_idx)
 
                 /* Books -- High level books are good */
                 case TV_VALARIN_BOOK:
-                case TV_SIGALDRY_BOOK:
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
                 case TV_CRUSADE_BOOK:
@@ -5952,8 +5949,6 @@ bool spell_okay(int spell, bool known, int realm)
 	/* Access the spell */
         s_ptr = &realm_info[realm][spell];
 
-        if((p_ptr->pclass != CLASS_ILLUSIONIST) && (p_ptr->pclass != CLASS_SORCERER) && (realm == REALM_ILLUSION) && (spell > 32)) return FALSE;
-
 	/* Spell is illegal */
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
 
@@ -6024,38 +6019,9 @@ static void spell_info(char *p, int spell, int realm, byte level)
                                 info_spell = FALSE;
                                 break;
 
-                        case REALM_VALARIN: /* Life */
-                                info_spell = TRUE;
-                                cast_valarin_spell(spell, get_spell_level(realm, spell) - 1);
-                                sprintf(p, spell_txt);
-                                info_spell = FALSE;
-				break;
-
                         case REALM_MAGERY: /* Magery */
                                 info_spell = TRUE;
                                 cast_magery_spell(spell, get_spell_level(realm, spell) - 1);
-                                sprintf(p, spell_txt);
-                                info_spell = FALSE;
-				break;
-
-                        case REALM_SHADOW: /* Shadow */
-                                info_spell = TRUE;
-                                cast_shadow_spell(spell, get_spell_level(realm, spell) - 1);
-                                sprintf(p, spell_txt);
-                                info_spell = FALSE;
-				break;
-
-
-                        case REALM_CRUSADE: /* Crusade */
-                                info_spell = TRUE;
-                                cast_crusade_spell(spell, get_spell_level(realm, spell) - 1);
-                                sprintf(p, spell_txt);
-                                info_spell = FALSE;
-				break;
-
-                        case REALM_SIGALDRY: /* Sigaldry */
-                                info_spell = TRUE;
-                                cast_sigaldry_spell(spell, get_spell_level(realm, spell) - 1);
                                 sprintf(p, spell_txt);
                                 info_spell = FALSE;
 				break;
@@ -6077,19 +6043,6 @@ static void spell_info(char *p, int spell, int realm, byte level)
                         case REALM_MAGIC:
                                 info_spell = TRUE;
                                 cast_magic_spell(spell, get_spell_level(realm, spell) - 1);
-                                sprintf(p, spell_txt);
-                                info_spell = FALSE;
-                                break;
-
-                        case REALM_PRAYER:
-                                info_spell = TRUE;
-                                cast_prayer_spell(spell, get_spell_level(realm, spell) - 1);
-                                sprintf(p, spell_txt);
-                                info_spell = FALSE;
-                                break;
-                        case REALM_ILLUSION:
-                                info_spell = TRUE;
-                                cast_illusion_spell(spell, get_spell_level(realm, spell) - 1);
                                 sprintf(p, spell_txt);
                                 info_spell = FALSE;
                                 break;

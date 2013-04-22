@@ -446,7 +446,7 @@ W:40:12:75:300000
 P:8:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | 
-F:LITE1 | SEE_INVIS | ESP_DRAGON | ESP_DRAGONRIDER | ACTIVATE
+F:LITE1 | SEE_INVIS | ESP_DRAGON | ESP_EVIL | ACTIVATE
 D:The legendary dragon helm of Turin Turambar, a object of dread to the 
 D:servants of Morgoth.
 
@@ -1556,9 +1556,6 @@ D:Dark flames wreath the naked steel of the Witch-King of Angmar.
 D:A mighty curse to all those who wield it apart from its master, 
 D:the torture of the wraithworld awaits those who dare.
 
-
-# The XBow/Bolt of the Elves
-# The ULTIMATE bow/bolt for an archer class
 
 # The Broken Sword 'Narsil'
 

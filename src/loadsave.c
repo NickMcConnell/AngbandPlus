@@ -286,6 +286,7 @@ static void do_extra(int flag)
 	do_u16b(&p_ptr->realm1, flag);
 	do_u16b(&p_ptr->realm2, flag);
 	do_byte(&p_ptr->mimic_form, flag);
+	do_byte(&p_ptr->oops, flag);
 	if(flag == LS_SAVE) tmp8u = 0;
 
 	do_byte(&p_ptr->hitdie, flag);
@@ -360,6 +361,8 @@ static void do_extra(int flag)
 	do_s16b(&p_ptr->msane, flag);
 	do_s16b(&p_ptr->csane, flag);
 	do_u16b(&p_ptr->csane_frac, flag);
+
+	do_s16b(&p_ptr->morale, flag);
 
 	do_s16b(&p_ptr->msp, flag);
 	do_s16b(&p_ptr->csp, flag);
@@ -452,8 +455,6 @@ static void do_extra(int flag)
 	do_s16b(&p_ptr->disrupt_shield, flag);
         do_s16b(&p_ptr->parasite, flag);
         do_s16b(&p_ptr->parasite_r_idx, flag);
-        do_ver_u32b(&p_ptr->loan, 19, 0, flag);
-        do_ver_u32b(&p_ptr->loan_time, 19, 0, flag);
 
 	do_s16b(&p_ptr->chaos_patron, flag);
 	do_u32b(&p_ptr->muta1, flag);
@@ -475,7 +476,6 @@ static void do_extra(int flag)
 	do_byte(&vanilla_town, flag);
 
 	do_u16b(&no_breeds, flag);
-	do_s16b(&p_ptr->protgood, flag);
 
 	/* Auxilliary variables */
 	do_u32b(&p_ptr->class_extra1, flag);

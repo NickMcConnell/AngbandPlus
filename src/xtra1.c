@@ -1788,7 +1788,6 @@ static void calc_spells(void)
                         break;
 
                 case CLASS_RANGER:
-                case CLASS_PALADIN:
                 case CLASS_HARPER:
                         class_max = 32;
                         break;
@@ -3225,8 +3224,7 @@ void analyze_blow(int *num, int *wgt, int *mul)
                         case CLASS_RUNECRAFTER:
                                 *num = 4; *wgt = 40; *mul = 2; break;
 
-			/* Priest, Mindcrafter */
-			case CLASS_PRIEST:
+			/* Mindcrafter */
 			case CLASS_MINDCRAFTER:
                                 *num = 5; *wgt = 35; *mul = 3; break;
 
@@ -3248,17 +3246,10 @@ void analyze_blow(int *num, int *wgt, int *mul)
                         case CLASS_ARCHER:
                                 *num = 4; *wgt = 35; *mul = 4; break;
 
-			/* Paladin */
-                        case CLASS_PALADIN:             
-                                *num = 5; *wgt = 30; *mul = 4; break;
-
 			/* Monk */
 			case CLASS_MONK:
                                 *num = (p_ptr->lev<40?3:4); *wgt = 40; *mul = 4; break;
 
-			/* Illusionist -KMW- */
-                        case CLASS_ILLUSIONIST:
-                                *num = 4; *wgt = 35; *mul = 3; break;
 		}
 }
 
@@ -3502,9 +3493,6 @@ void calc_bonuses(void)
                 case CLASS_BEASTMASTER:
                         if (p_ptr->lev > 34) p_ptr->resist_fear = TRUE;
 			break;
-		case CLASS_PALADIN:
-			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
-			break;
 		case CLASS_MINDCRAFTER:
 			if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
 			if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
@@ -3583,15 +3571,7 @@ void calc_bonuses(void)
                         if (p_ptr->pracem != RMOD_VAMPIRE) p_ptr->resist_lite = TRUE;
 			p_ptr->see_inv = TRUE;
 			break;
-		case RACE_HALF_OGRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->sustain_str = TRUE;
-			break;
-		case RACE_HALF_GIANT:
-			p_ptr->sustain_str = TRUE;
-			p_ptr->resist_shard = TRUE;
-			break;
-                case RACE_RKNIGHT:
+	        case RACE_RKNIGHT:
                         /* Rohan's Knights become faster */
                         p_ptr->pspeed += 3;
                         p_ptr->pspeed += (p_ptr->lev) / 5;
@@ -4665,7 +4645,6 @@ void calc_bonuses(void)
                         case CLASS_UNBELIEVER:
 				p_ptr->num_blow += (p_ptr->lev / 15);
 				break;
-                        case CLASS_PALADIN:
 			case CLASS_WEAPONMASTER:
 			/*
 			 * Weaponmasters only get 1 blow with weapons that
@@ -4760,12 +4739,6 @@ void calc_bonuses(void)
 			p_ptr->dis_to_h += (p_ptr->lev/5);
 			p_ptr->dis_to_d += (p_ptr->lev/5);
 			break;
-                case CLASS_PALADIN:
-			p_ptr->to_h += (p_ptr->lev/10);
-			p_ptr->to_d += (p_ptr->lev/10);
-			p_ptr->dis_to_h += (p_ptr->lev/10);
-			p_ptr->dis_to_d += (p_ptr->lev/10);
-			break;
 		/*
 		 * Weaponmasters are fabulous with their preferred weapon
 		 * type and all other weapon types are 'icky'.
@@ -4809,22 +4782,6 @@ void calc_bonuses(void)
                                 p_ptr->dis_to_h = (3 * p_ptr->dis_to_h) / 4;
                                 p_ptr->dis_to_d = (3 * p_ptr->dis_to_d) / 4;
                         }
-                }
-
-                /* Priest weapon penalty for non-blessed edged weapons */
-                if (((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
-                    ((o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))) && (o_ptr->k_idx))
-                {
-                        /* Reduce the real bonuses */
-                        p_ptr->to_h -= 15;
-                        p_ptr->to_d -= 15;
-
-                        /* Reduce the mental bonuses */
-                        p_ptr->dis_to_h -= 15;
-                        p_ptr->dis_to_d -= 15;
-
-                        /* Icky weapon */
-                        p_ptr->icky_wield = TRUE;
                 }
 
                 /* Sorcerer can't wield a weapon unless it's a mage staff */

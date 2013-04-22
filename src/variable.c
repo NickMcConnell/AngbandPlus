@@ -188,6 +188,7 @@ bool always_pickup;             /* Pick things up by default */
 bool prompt_pickup_heavy;       /* Don't pick up the corpses */
 bool always_repeat;             /* Repeat obvious commands */
 bool depth_in_feet;             /* Show dungeon level in feet */
+bool telnet;			/* Telnet option */
 
 bool stack_force_notes;		/* Merge inscriptions when stacking */
 bool stack_force_costs;		/* Merge discounts when stacking */
@@ -234,7 +235,6 @@ bool stupid_monsters;		/* Monsters use old AI */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
-bool disturb_pets;		/* Pets moving nearby disturb us */
 
 
 /* Option Set 3 -- Game-Play */
@@ -1250,7 +1250,7 @@ bool fast_autoroller;
 /*
  * Which monsters are allowed ?
  */
-bool zang_monsters, joke_monsters, pern_monsters, cth_monsters;
+bool joke_monsters;
 
 /*
  * How will mana staf & weapons of life act

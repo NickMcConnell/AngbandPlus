@@ -150,7 +150,7 @@ static bool player_handle_trap_of_walls(void)
             if (!in_bounds(cy, cx)) continue;
             cv_ptr = &cave[cy][cx];
 
-// DGDGDGDG
+/* DGDGDGDG */
             if (cv_ptr->m_idx) continue;
 
             /* Lose room and vault */
@@ -983,7 +983,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
                         }
                         else
                         {
-                           cave[cy][cx].info &=~CAVE_MARK;
+                           cave[cy][cx].info &= ~CAVE_MARK;
                         }
                         if (player_has_los_bold(index_y[i],index_x[i]))
                         {
@@ -1493,7 +1493,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
          else
          {
 	    /* no sense saying this unless you never have tanker point */
-	    if (p_ptr->mtp==0)
+	    if (p_ptr->mtp == 0)
             {
                msg_format("Suddenly you feel glad you're only a %s", rp_ptr->title);
             }

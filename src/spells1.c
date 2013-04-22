@@ -1413,7 +1413,6 @@ static bool hates_fire(object_type *o_ptr)
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
                 case TV_CRUSADE_BOOK:
-                case TV_SIGALDRY_BOOK:
                 case TV_SYMBIOTIC_BOOK:
                 case TV_MUSIC_BOOK:
 		{
@@ -6678,12 +6677,10 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			break;
 		}
 
-		/* Holy Orb -- Player only takes partial damage */
+		/* Holy Orb */
 		case GF_HOLY_FIRE:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-                        if (p_ptr->realm1 == REALM_VALARIN || p_ptr->realm2 == REALM_VALARIN)
-				dam /= 2;
                         take_hit(dam, killer);
 			break;
 		}
@@ -6691,8 +6688,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		case GF_HELL_FIRE:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-                        else if (p_ptr->realm1 == REALM_VALARIN || p_ptr->realm2 == REALM_VALARIN)
-				dam *= 2;
 			take_hit(dam, killer);
 			break;
 		}
@@ -6800,7 +6795,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_conf)
+			if (!(p_ptr->resist_conf || p_ptr->resist_chaos))
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -6813,7 +6808,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
                                         (void)gain_random_corruption(0);
 				}
 			}
-			if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
+			if (!p_ptr->resist_chaos)
 			{
 				if (p_ptr->hold_life && (rand_int(100) < 75))
 				{
@@ -6821,13 +6816,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 				}
 				else if (p_ptr->hold_life)
 				{
-					msg_print("You feel your life slipping away!");
-					lose_exp(500 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
+					msg_print("You feel your mind slipping away!");
+					p_ptr->csane -= p_ptr->msane / 20;
 				}
 				else
 				{
-					msg_print("You feel your life draining away!");
-					lose_exp(5000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
+					msg_print("You feel your mind shatter!");
+					p_ptr->msane -= p_ptr->msane / 20;
 				}
 			}
 			if ((!p_ptr->resist_chaos) || (randint(9)==1))
@@ -6912,6 +6907,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				(void)apply_disenchant(0);
 			}
+			/* Being disenchanted is ... disenchanting */
+			if(p_ptr->morale > 0)
+			  p_ptr->morale = 0;
 			take_hit(dam, killer);
 			break;
 		}
@@ -7129,6 +7127,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		case GF_DISINTEGRATE:
 		{
 			if (fuzzy) msg_print("You are hit by pure energy!");
+			
+			/* Disintegrates the brain */
+			p_ptr->csane -= p_ptr->msane / 3;
 			take_hit(dam, killer);
 			break;
 		}

@@ -1014,15 +1014,6 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
-                /* Zangbandish monsters allowed ? or not ? */
-                if(!zang_monsters && (r_ptr->flags8 & RF8_ZANGBAND)) continue;
-
-                /* Pernian monsters allowed ? or not ? */
-                if(!pern_monsters && (r_ptr->flags8 & RF8_PERNANGBAND)) continue;
-
-                /* Lovercraftian monsters allowed ? or not ? */
-                if(!cth_monsters && (r_ptr->flags8 & RF8_CTHANGBAND)) continue;
-
                 /* Joke monsters allowed ? or not ? */
                 if(!joke_monsters && (r_ptr->flags8 & RF8_JOKEANGBAND)) continue;
 
@@ -1830,7 +1821,7 @@ void update_mon(int m_idx, bool full)
 
 			/* Disturb on appearance */
             if (disturb_move)
-            {   if (disturb_pets || (is_friend(m_ptr) <= 0))
+            {   if (is_friend(m_ptr) <= 0)
                     disturb(1, 0);
                 }
 		}
@@ -1868,7 +1859,7 @@ void update_mon(int m_idx, bool full)
 			/* Disturb on disappearance*/
             if (disturb_move)
             {
-                if (disturb_pets || (is_friend(m_ptr) <= 0))
+                if (is_friend(m_ptr) <= 0)
                     disturb(1, 0);
                 }
 		}
@@ -1890,15 +1881,15 @@ void update_mon(int m_idx, bool full)
 		/* Change */
 		if (!(m_ptr->mflag & (MFLAG_VIEW)))
 		{
-			/* Mark as easily visible */
-			m_ptr->mflag |= (MFLAG_VIEW);
+		    /* Mark as easily visible */
+		    m_ptr->mflag |= (MFLAG_VIEW);
 
 			/* Disturb on appearance */
-            if (disturb_near)
-            {
-                if (disturb_pets || (is_friend(m_ptr) <= 0))
-                    disturb(1, 0);
-                }
+        	    if (disturb_near)
+        	    {
+            		if (is_friend(m_ptr) <= 0)
+                	    disturb(1, 0);
+            	    }
 
 		}
 	}
@@ -1916,11 +1907,11 @@ void update_mon(int m_idx, bool full)
 			p_ptr->window |= (PW_M_LIST);
 
 			/* Disturb on disappearance */
-            if (disturb_near)
-            {
-                if (disturb_pets || (is_friend(m_ptr) <= 0))
-                    disturb(1, 0);
-            }
+        		if (disturb_near)
+        		{
+            		    if (is_friend(m_ptr) <= 0)
+                		disturb(1, 0);
+        		}
 		}
 	}
 }

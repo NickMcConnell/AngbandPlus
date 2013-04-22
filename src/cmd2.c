@@ -473,8 +473,12 @@ void do_cmd_go_down(void)
             /* Ok go in the new dungeon */
             dungeon_type = c_ptr->special;
 	    
-	    /*Innaytlise da dungienoin spenchtifec *_info.txt files*/ 
+	    /*Initialize the dungeon specific *_info.txt files*/ 
 	    init_dun_entry(d_ptr->subdir);
+
+	    /*Finally we have a use for oops ;-)*/
+	    if(d_ptr->flags1 & DF1_SILLY)
+	        p_ptr->oops = TRUE;
 	    	        
 	    if ((p_ptr->wilderness_x == d_ptr->ix) && (p_ptr->wilderness_y == d_ptr->iy))
             {
@@ -2049,7 +2053,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 }
 
 /*
- * Disamrs the monster traps(no failure)
+ * Disarms the monster traps(no failure)
  */
 void do_cmd_disarm_mon_trap(int y, int x)
 {
@@ -3049,8 +3053,6 @@ void do_cmd_fire(void)
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
             (inventory[INVEN_WIELD].tval == p_ptr->class_extra1))
                 bonus = ((p_ptr->to_h - (p_ptr->lev / 2)) + q_ptr->to_h + j_ptr->to_h);
-	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
-		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h + 15);
 	else
 		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
 
@@ -3179,7 +3181,7 @@ void do_cmd_fire(void)
                         /* The player cannot see the missile */
                         else
                         {
-                                /* Pause anyway, for consistancy */
+                                /* Pause anyway, for consistency */
                                 Term_xtra(TERM_XTRA_DELAY, msec);
                         }
 

@@ -1224,6 +1224,7 @@ struct player_type
         u16b realm2;            /* Second magic realm */
         byte mimic_form;        /* Actualy transformation */
         byte oops;              /* Unused */
+				/* JKB: now it is used for silliness */
 
 	byte hitdie;		/* Hit dice (sides) */
         u16b expfact;           /* Experience factor */                            
@@ -1273,6 +1274,8 @@ struct player_type
         s16b csane;                   /* Cur sanity */
         u16b csane_frac;              /* Cur sanity frac */
 
+	s16b morale;			/* Morale */
+
         s16b mtp;                       /* Max tank pts */
         s16b ctp;                       /* Cur tank pts */
         s16b tp_aux1;                   /* aux1 tank pts */
@@ -1287,24 +1290,23 @@ struct player_type
 	s16b stat_max[6];	/* Current "maximal" stat values */
 	s16b stat_cur[6];	/* Current "natural" stat values */
 
-	s16b fast;			/* Timed -- Fast */
-        s16b lightspeed;                /* Timed -- Light Speed */
-	s16b slow;			/* Timed -- Slow */
-	s16b blind;			/* Timed -- Blindness */
+	s16b fast;		/* Timed -- Fast */
+        s16b lightspeed;        /* Timed -- Light Speed */
+	s16b slow;		/* Timed -- Slow */
+	s16b blind;		/* Timed -- Blindness */
 	s16b paralyzed;		/* Timed -- Paralysis */
 	s16b confused;		/* Timed -- Confusion */
 	s16b afraid;		/* Timed -- Fear */
-	s16b image;			/* Timed -- Hallucination */
+	s16b image;		/* Timed -- Hallucination */
 	s16b poisoned;		/* Timed -- Poisoned */
-	s16b cut;			/* Timed -- Cut */
-	s16b stun;			/* Timed -- Stun */
+	s16b cut;		/* Timed -- Cut */
+	s16b stun;		/* Timed -- Stun */
 
         s16b protevil;          /* Timed -- Protection from Evil*/
-        s16b protgood;          /* Timed -- Protection from Good*/
         s16b protundead;        /* Timed -- Protection from Undead*/
 	s16b invuln;		/* Timed -- Invulnerable */
-	s16b hero;			/* Timed -- Heroism */
-	s16b shero;			/* Timed -- Super Heroism */
+	s16b hero;		/* Timed -- Heroism */
+	s16b shero;		/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
         s16b shield_power;      /* Timed -- Shield Spell Power */
         s16b shield_opt;        /* Timed -- Shield Spell options */
@@ -1345,7 +1347,6 @@ struct player_type
         s16b disrupt_shield;/* Timed disruption shield */
         s16b parasite;      /* Timed parasite */
         s16b parasite_r_idx;/* Timed parasite monster */
-        u32b loan, loan_time;/* Timer -- loan */
 
         s16b immov_cntr;    /* Timed -- Last ``immovable'' command. */
 
@@ -1359,8 +1360,9 @@ struct player_type
 
         s32b energy;            /* Current energy */
 
-	s16b food;			/* Current nutrition */
-
+	s16b food;		/* Current nutrition */
+	byte last_ate;		/* JKB: What did we eat most recently? */
+	
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
@@ -1543,7 +1545,7 @@ struct player_type
 
         bool no_mortal;         /* Fated to never die by the hand of a mortal being */
 
-        bool black_breath;      /* The Tolkien's Black Breath */
+        bool black_breath;      /* The Black Breath */
 
         bool precognition;      /* Like the cheat mode */
 

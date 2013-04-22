@@ -1784,51 +1784,6 @@ bool set_protevil(int v)
 	return (TRUE);
 }
 
-/*
- * Set "p_ptr->protgood", notice observable changes
- */
-bool set_protgood(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->protgood)
-		{
-			msg_print("You feel safe from good!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->protgood)
-		{
-			msg_print("You no longer feel safe from good.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->protgood = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
 
 /*
  * Set "p_ptr->protundead", notice observable changes
@@ -4244,6 +4199,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Not afraid */
 		(*fear) = FALSE;
 
+		/* Redraw sometimes */
+		if(telnet)
+		  do_cmd_redraw();
+
 		/* Monster is dead */
 		return (TRUE);
 	}
@@ -4395,14 +4354,19 @@ void verify_panel(void)
 	/* Recalculate the boundaries */
         panel_bounds();
 
-	/* Update stuff */
-	p_ptr->update |= (PU_MONSTERS);
+	if(telnet)
+	  do_cmd_redraw();
+	else
+	  {
+	  /* Update stuff */
+	  p_ptr->update |= (PU_MONSTERS);
 
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
+	  /* Redraw map */
+	  p_ptr->redraw |= (PR_MAP);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	  /* Window stuff */
+	  p_ptr->window |= (PW_OVERHEAD);
+	  }
 }
 
 

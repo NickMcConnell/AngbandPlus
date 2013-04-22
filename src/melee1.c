@@ -243,21 +243,6 @@ bool carried_make_attack_normal(int r_idx)
 				continue;
 			}
 
-			/* Hack -- Apply "protection from good" */
-			if ((p_ptr->protgood > 0) &&
-			    (r_ptr->flags3 & (RF3_GOOD)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
-			{
-				/* Remember the Good-ness */
-                                r_ptr->r_flags3 |= (RF3_GOOD);
-
-				/* Message */
-                                msg_format("Your monster is repelled.");
-
-				/* Hack -- Next attack */
-				continue;
-			}
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -1347,25 +1332,6 @@ bool make_attack_normal(int m_idx, byte divis)
 				if (m_ptr->ml)
 				{
 					r_ptr->r_flags3 |= (RF3_EVIL);
-				}
-
-				/* Message */
-				msg_format("%^s is repelled.", m_name);
-
-				/* Hack -- Next attack */
-				continue;
-			}
-
-			/* Hack -- Apply "protection from good" */
-			if ((p_ptr->protgood > 0) &&
-			    (r_ptr->flags3 & (RF3_GOOD)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
-			{
-				/* Remember the Good-ness */
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_GOOD);
 				}
 
 				/* Message */

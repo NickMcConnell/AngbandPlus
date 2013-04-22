@@ -219,7 +219,6 @@ static void set_ghost_aux_1(void)
                 case CLASS_RUNECRAFTER:
                 case CLASS_HARPER:
                 case CLASS_SORCERER:
-                case CLASS_ILLUSIONIST:
                 case CLASS_DRUID:
                 case CLASS_ALCHEMIST:
 		{
@@ -243,24 +242,6 @@ static void set_ghost_aux_1(void)
 
                         /* Use a "player" color */
                         r_ptr->d_attr = TERM_RED;
-			break;
-		}
-
-		/* Priest */
-		case CLASS_PRIEST:
-		{
-			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 4;
-			r_ptr->flags5 |= (RF5_CAUSE_1 | RF5_SCARE);
-			if (lev > 5) r_ptr->flags6 |= (RF6_HEAL);
-			if (lev > 10) r_ptr->flags5 |= (RF5_BLIND);
-			if (lev > 12) r_ptr->flags5 |= (RF5_CAUSE_2);
-			if (lev > 18) r_ptr->flags5 |= (RF5_HOLD);
-			if (lev > 25) r_ptr->flags5 |= (RF5_CONF);
-			if (lev > 30) r_ptr->flags5 |= (RF5_CAUSE_3);
-			if (lev > 35) r_ptr->flags5 |= (RF5_DRAIN_MANA);
-
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_L_BLUE;
 			break;
 		}
 
@@ -295,24 +276,6 @@ static void set_ghost_aux_1(void)
 
                         /* Use a "player" color */
                         r_ptr->d_attr = TERM_GREEN;
-			break;
-		}
-
-		/* Paladin */
-		case CLASS_PALADIN:
-		{
-			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
-			r_ptr->flags5 |= (RF5_CAUSE_1 | RF5_SCARE);
-			if (lev > 5) r_ptr->flags6 |= (RF6_HEAL);
-			if (lev > 10) r_ptr->flags5 |= (RF5_BLIND);
-			if (lev > 12) r_ptr->flags5 |= (RF5_CAUSE_2);
-			if (lev > 18) r_ptr->flags5 |= (RF5_HOLD);
-			if (lev > 25) r_ptr->flags5 |= (RF5_CONF);
-			if (lev > 30) r_ptr->flags5 |= (RF5_CAUSE_3);
-			if (lev > 35) r_ptr->flags5 |= (RF5_DRAIN_MANA);
-
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_WHITE;
 			break;
 		}
 
@@ -391,7 +354,7 @@ static void set_ghost_aux_1(void)
 	r_ptr->ac = 15 + randint(15);
 	
 	/* Non mage/priest gets extra armor */
-	if ((gclass != CLASS_MAGE) && (gclass != CLASS_PRIEST))
+	if (gclass != CLASS_MAGE)
 	{
 		r_ptr->ac += randint(60);
 	}
@@ -455,7 +418,6 @@ static void set_ghost_aux_1(void)
                 case CLASS_RUNECRAFTER:
                 case CLASS_HARPER:
                 case CLASS_SORCERER:
-                case CLASS_ILLUSIONIST:
                 case CLASS_DRUID:
                 case CLASS_ALCHEMIST:
 		{
@@ -468,8 +430,7 @@ static void set_ghost_aux_1(void)
 			break;
 		}
 
-		/* Priest */
-		case CLASS_PRIEST:
+		/* Mindcrafter */
                 case CLASS_MINDCRAFTER:
 		{
 			/* Sometimes increase damage */
@@ -510,19 +471,6 @@ static void set_ghost_aux_1(void)
 			ghost_blow(1, attack2, RBE_HURT, d1, d2);
 			ghost_blow(2, attack1, RBE_HURT, d1, d2);
 
-			break;
-		}
-
-		/* Paladin */
-		case CLASS_PALADIN:
-		{
-			/* Sometimes increase damage */
-			if (lev >= 30) d2 = d2 * 2;
-
-			/* Normal attacks (three) */
-			ghost_blow(0, attack1, RBE_HURT, d1, d2);
-			ghost_blow(1, attack2, RBE_HURT, d1, d2);
-			ghost_blow(2, attack1, RBE_HURT, d1, d2);
 			break;
 		}
 

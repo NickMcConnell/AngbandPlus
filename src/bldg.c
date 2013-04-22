@@ -11,6 +11,8 @@
  * Changed for ZAngband by Robert Ruehlmann
  *
  * Heavily modified for PernAngband by DarkGod
+ *
+ * Further mutilated by James Banks for NTAngband
  */
 
 #include "angband.h"
@@ -162,7 +164,6 @@ static void reset_tim_flags()
 	p_ptr->stun = 0;            /* Timed -- Stun */
 
 	p_ptr->protevil = 0;        /* Timed -- Protection */
-	p_ptr->protgood = 0;        /* Timed -- Protection */	
 	p_ptr->invuln = 0;          /* Timed -- Invulnerable */
 	p_ptr->hero = 0;            /* Timed -- Heroism */
 	p_ptr->shero = 0;           /* Timed -- Super Heroism */
@@ -576,6 +577,7 @@ static bool inn_comm(int cmd)
                         {
                                 msg_print("The barkeep gives you some gruel and a beer.");
                                 msg_print(NULL);
+				p_ptr->morale += 1;
                                 (void) set_food(PY_FOOD_MAX - 1);
                         }else
                                 msg_print("You're a vampire and I don't have any food for you!");
@@ -594,7 +596,8 @@ static bool inn_comm(int cmd)
 				}
 				else
 				{
-					turn = ((turn/50000)+1)*50000;
+					turn = ((turn / 50000) + 1) * 50000;
+					p_ptr->morale -= 5;
 					p_ptr->chp = p_ptr->mhp;
 					p_ptr->csp = p_ptr->msp;
 					set_blind(0);
@@ -626,8 +629,9 @@ static bool inn_comm(int cmd)
 				}
 				else
 				{
-					turn = ((turn/50000)+1)*50000;
+					turn = ((turn / 50000) + 1) * 50000;
 					p_ptr->chp = p_ptr->mhp;
+					p_ptr->morale += 5;
 					set_blind(0);
 					set_confused(0);
 					p_ptr->stun = 0;
@@ -1030,7 +1034,7 @@ static bool fix_item(int istart, int iend, int ispecific, bool iac, int ireward,
 				else
 					sprintf(out_val, "%-40s: in fine condition", tmp_str);
 			}
-			prt(out_val,j++,0);
+			prt(out_val, j++, 0);
 		}
 	}
 
@@ -1061,7 +1065,7 @@ static bool fix_item(int istart, int iend, int ispecific, bool iac, int ireward,
  */
 static bool research_item(void)
 {
-	clear_bldg(5,18);
+	clear_bldg(5, 18);
 	identify_fully();
 	return (TRUE);
 }
@@ -1422,22 +1426,6 @@ bool bldg_process_command(store_type *s_ptr, int i)
                 return FALSE;
 	}
 
-	/* If player has loan and the time is out, few things work in stores */
-	if (p_ptr->loan && !p_ptr->loan_time)
-	{
-		if ((bact != BACT_SELL) && (bact != BACT_VIEW_BOUNTIES) &&
-		    (bact != BACT_SELL_CORPSES) &&
-		    (bact != BACT_VIEW_QUEST_MON) &&
-		    (bact != BACT_SELL_QUEST_MON) &&
-		    (bact != BACT_EXAMINE) && (bact != BACT_STEAL) &&
-		    (bact != BACT_PAY_BACK_LOAN))
-		{
-                        msg_print("You are not allowed to do that until you have paid back your loan.");
-			msg_print(NULL);
-			return FALSE;
-		}
-	}
-	
 	/* check gold */
         if (bcost > p_ptr->au)
 	{
@@ -1721,60 +1709,6 @@ bool bldg_process_command(store_type *s_ptr, int i)
                 case BACT_STEAL:
                         store_stole();
                         break;
-		case BACT_GET_LOAN:
-		{
-                        s32b i, price, req;
-			
-			if(p_ptr->loan)
-				{
-				msg_print("You already have a loan!");
-				break;
-				}
-			for (i = price = 0; i < INVEN_TOTAL; i++)
-				price += object_value_real(&inventory[i]);
-			price += p_ptr->au;
-			
-			if (price > p_ptr->loan - 30000) price = p_ptr->loan - 30000;
-			
-			msg_format("You have a loan of %i.", p_ptr->loan);
-			
-			req = get_quantity("How much would you like to get? ", price);
-                        if (req > 100000) req = 100000;
-			
-			p_ptr->loan += req;
-			p_ptr->au += req;
-                        if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
-			p_ptr->loan_time += req;
-			
-			msg_format("You receive %i gold pieces", req);
-
-			paid = TRUE;
-			break;
-		}
-		case BACT_PAY_BACK_LOAN:
-		{
-                        s32b req;
-			
-			msg_format("You have a loan of %i.", p_ptr->loan);
-			
-			req = get_quantity("How much would you like to pay back?", p_ptr->loan);
-			
-			if (req > p_ptr->au) req = p_ptr->au;
-			if (req > p_ptr->loan) req = p_ptr->loan;
-			
-			p_ptr->loan -= req;
-			p_ptr->au -= req;
-			
-			if (p_ptr->loan_time)
-				p_ptr->loan_time = MAX(p_ptr->loan/2, p_ptr->loan_time);
-
-                        if (!p_ptr->loan) p_ptr->loan_time = 0;
-			
-			msg_format("You pay back %i gold pieces", req);
-			
-			paid = TRUE;
-			break;
-		}
 	}
 
 	if (paid)

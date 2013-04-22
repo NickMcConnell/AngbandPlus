@@ -183,6 +183,7 @@ W:1:0:5:2
 A:1/1
 
 # New - now Elvish Waybread works as a scroll of Satisfy Hunger
+# New - Not any more
 N:25:& Piece~ of Elvish Waybread
 G:,:B
 I:80:37:14999
@@ -211,7 +212,7 @@ F:SHOW_MODS | TUNNEL
 
 ##### Edged Weapons #####
 
-N:30:& Broken Dagger~
+N:29:& Broken Dagger~
 G:|:D
 I:23:1:0
 W:0:0:5:1
@@ -219,7 +220,7 @@ A:0/2:2/2
 P:0:1d1:-2:-4:0
 F:SHOW_MODS
 
-N:31:& Bastard Sword~
+N:30:& Bastard Sword~
 G:|:W
 I:23:21:0
 W:7:0:140:350
@@ -227,7 +228,7 @@ A:7/1
 P:0:3d4:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:32:& Scimitar~
+N:31:& Scimitar~
 G:|:W
 I:23:18:0
 W:5:0:130:250
@@ -235,7 +236,7 @@ A:5/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
 
-N:33:& Tulwar~
+N:32:& Tulwar~
 G:|:W
 I:23:15:0
 W:2:0:100:200
@@ -243,7 +244,7 @@ A:2/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
 
-N:34:& Broad Sword~
+N:33:& Broad Sword~
 G:|:W
 I:23:16:0
 W:5:0:150:255
@@ -251,7 +252,7 @@ A:5/1:7/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
 
-N:35:& Short Sword~
+N:34:& Short Sword~
 G:|:W
 I:23:10:0
 W:2:0:80:90
@@ -259,7 +260,7 @@ A:2/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
 
-N:37:& Two-Handed Sword~
+N:35:& Two-Handed Sword~
 G:|:W
 I:23:25:0
 W:15:0:200:775
@@ -267,7 +268,7 @@ A:15/1:20/1
 P:0:3d6:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:38:& Main Gauche~
+N:36:& Main Gauche~
 G:|:W
 I:23:5:0
 W:1:0:30:25
@@ -275,7 +276,7 @@ A:1/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
 
-N:39:& Cutlass~
+N:37:& Cutlass~
 G:|:W
 I:23:12:0
 W:2:0:110:85
@@ -283,7 +284,7 @@ A:2/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
 
-N:40:& Executioner's Sword~
+N:38:& Executioner's Sword~
 G:|:r
 I:23:28:0
 W:20:0:260:850
@@ -291,7 +292,7 @@ A:20/1
 P:0:4d5:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:41:& Katana~
+N:39:& Katana~
 G:|:W
 I:23:20:0
 W:10:0:120:400
@@ -299,7 +300,7 @@ A:10/1
 P:0:3d4:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:42:& Long Sword~
+N:40:& Long Sword~
 G:|:W
 I:23:17:0
 W:5:0:130:300
@@ -307,7 +308,7 @@ A:5/1:10/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
 
-N:43:& Dagger~
+N:41:& Dagger~
 G:|:W
 I:23:4:0
 W:0:0:12:10
@@ -315,7 +316,7 @@ A:0/1:2/1:5/1:10/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 
-N:44:& Rapier~
+N:42:& Rapier~
 G:|:W
 I:23:7:0
 W:2:0:40:42
@@ -323,7 +324,7 @@ A:2/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
 
-N:45:& Sabre~
+N:43:& Sabre~
 G:|:W
 I:23:11:0
 W:2:0:50:50
@@ -331,7 +332,7 @@ A:2/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
 
-N:46:& Small Sword~
+N:44:& Small Sword~
 G:|:W
 I:23:8:0
 W:2:0:75:48
@@ -339,7 +340,7 @@ A:2/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
 
-N:47:& Broken Sword~
+N:45:& Broken Sword~
 G:|:D
 I:23:2:0
 W:0:0:30:2
@@ -349,7 +350,7 @@ F:SHOW_MODS
 
 ##### Hafted Weapons #####
 
-N:48:& Ball-and-Chain~
+N:46:& Ball-and-Chain~
 G:\:D
 I:21:6:0
 W:10:0:150:200
@@ -357,7 +358,7 @@ A:10/1
 P:0:2d4:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:49:& Whip~
+N:47:& Whip~
 G:\:D
 I:21:2:0
 W:1:0:30:30
@@ -365,7 +366,7 @@ A:3/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
 
-N:50:& Flail~
+N:48:& Flail~
 G:\:D
 I:21:13:0
 W:5:0:150:353
@@ -373,7 +374,7 @@ A:5/1
 P:0:2d6:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:51:& Two-Handed Flail~
+N:49:& Two-Handed Flail~
 G:\:y
 I:21:18:0
 W:22:0:280:590
@@ -381,7 +382,7 @@ A:22/1
 P:0:3d6:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:52:& Morning Star~
+N:50:& Morning Star~
 G:\:D
 I:21:12:0
 W:5:0:150:396
@@ -389,7 +390,7 @@ A:5/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
 
-N:53:& Mace~
+N:51:& Mace~
 G:\:D
 I:21:5:0
 W:2:0:120:130
@@ -397,7 +398,7 @@ A:2/1
 P:0:2d4:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:54:& Quarterstaff~
+N:52:& Quarterstaff~
 G:\:U
 I:21:3:0
 W:5:0:150:200
@@ -405,7 +406,7 @@ A:5/1
 P:0:1d9:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:55:& War Hammer~
+N:53:& War Hammer~
 G:\:D
 I:21:8:0
 W:2:0:120:225
@@ -413,7 +414,7 @@ A:2/1
 P:0:3d3:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:56:& Lead-Filled Mace~
+N:54:& Lead-Filled Mace~
 G:\:D
 I:21:15:0
 W:7:0:180:502
@@ -421,7 +422,7 @@ A:7/1
 P:0:3d4:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:58:& Lucerne Hammer~
+N:55:& Lucerne Hammer~
 G:\:B
 I:21:10:0
 W:5:0:120:376
@@ -431,7 +432,7 @@ F:SHOW_MODS | COULD2H
 
 ##### Polearms #####
 
-N:59:& Beaked Axe~
+N:56:& Beaked Axe~
 G:/:s
 I:24:10:0
 W:7:0:180:408
@@ -439,7 +440,7 @@ A:7/1
 P:0:2d6:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:60:& Glaive~
+N:57:& Glaive~
 G:/:s
 I:22:13:0
 W:10:0:190:363
@@ -447,7 +448,7 @@ A:10/1
 P:0:2d6:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:61:& Halberd~
+N:58:& Halberd~
 G:/:s
 I:22:15:0
 W:12:0:190:430
@@ -455,7 +456,7 @@ A:12/1
 P:0:3d5:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:62:& Awl-Pike~
+N:59:& Awl-Pike~
 G:/:s
 I:22:4:0
 W:5:0:160:340
@@ -463,7 +464,7 @@ A:5/1
 P:0:1d8:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:63:& Pike~
+N:60:& Pike~
 G:/:s
 I:22:8:0
 W:7:0:160:358
@@ -471,7 +472,7 @@ A:7/1
 P:0:2d5:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:64:& Spear~
+N:61:& Spear~
 G:/:s
 I:22:2:0
 W:2:0:50:36
@@ -479,7 +480,7 @@ A:2/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
 
-N:65:& Trident~
+N:62:& Trident~
 G:/:y
 I:22:5:0
 W:2:0:70:120
@@ -487,7 +488,7 @@ A:2/1
 P:0:1d8:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:66:& Lance~
+N:63:& Lance~
 G:/:s
 I:22:20:0
 W:5:0:300:230
@@ -495,7 +496,7 @@ A:5/1
 P:0:2d8:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:67:& Great Axe~
+N:64:& Great Axe~
 G:/:s
 I:24:25:0
 W:20:0:230:500
@@ -503,7 +504,7 @@ A:20/1
 P:0:4d4:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:68:& Battle Axe~
+N:65:& Battle Axe~
 G:/:s
 I:24:22:0
 W:7:0:170:334
@@ -511,7 +512,7 @@ A:7/1
 P:0:2d8:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:69:& Lochaber Axe~
+N:66:& Lochaber Axe~
 G:/:D
 I:24:28:0
 W:22:0:250:750
@@ -519,7 +520,7 @@ A:22/1
 P:0:3d8:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:70:& Broad Axe~
+N:67:& Broad Axe~
 G:/:s
 I:24:11:0
 W:7:0:160:304
@@ -527,7 +528,7 @@ A:7/1
 P:0:2d6:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:71:& Scythe~
+N:68:& Scythe~
 G:/:s
 I:22:17:0
 W:22:0:250:800
@@ -538,35 +539,35 @@ F:SHOW_MODS | COULD2H
 
 ##### Bows, Crossbows, Slings #####
 
-N:73:& Short Bow~
+N:69:& Short Bow~
 G:}:U
 I:19:12:0
 W:1:0:30:50
 A:3/1:25/2
 F:SHOW_MODS
 
-N:74:& Long Bow~
+N:70:& Long Bow~
 G:}:U
 I:19:13:0
 W:5:0:40:120
 A:5/1:35/2
 F:SHOW_MODS
 
-N:75:& Light Crossbow~
+N:71:& Light Crossbow~
 G:}:s
 I:19:23:0
 W:7:0:110:140
 A:7/1:30/2
 F:SHOW_MODS
 
-N:76:& Heavy Crossbow~
+N:72:& Heavy Crossbow~
 G:}:s
 I:19:24:0
 W:15:0:200:300
 A:15/1:40/2
 F:SHOW_MODS
 
-N:77:& Sling~
+N:73:& Sling~
 G:}:u
 I:19:2:0
 W:1:0:5:5
@@ -576,7 +577,7 @@ F:SHOW_MODS
 
 ##### Missiles #####
 
-N:78:& Arrow~
+N:74:& Arrow~
 G:{:U
 I:17:1:0
 W:1:0:2:1
@@ -584,7 +585,7 @@ A:3/1:7/1:25/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 
-N:79:& Seeker Arrow~
+N:75:& Seeker Arrow~
 G:{:G
 I:17:2:0
 W:27:0:2:20
@@ -592,7 +593,7 @@ A:27/2:40/2
 P:0:4d4:0:0:0
 F:SHOW_MODS
 
-N:80:& Bolt~
+N:76:& Bolt~
 G:{:s
 I:18:1:0
 W:1:0:3:2
@@ -600,7 +601,7 @@ A:3/1:12/1:30/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
 
-N:81:& Seeker Bolt~
+N:77:& Seeker Bolt~
 G:{:B
 I:18:2:0
 W:32:0:3:25
@@ -608,7 +609,7 @@ A:32/2:45/2
 P:0:4d5:0:0:0
 F:SHOW_MODS
 
-N:82:& Rounded Pebble~
+N:78:& Rounded Pebble~
 G:.:s
 I:16:0:0
 W:0:0:4:1
@@ -616,7 +617,7 @@ A:0/1:5/2
 P:0:1d2:0:0:0
 F:SHOW_MODS
 
-N:83:& Iron Shot~
+N:79:& Iron Shot~
 G:.:s
 I:16:1:0
 W:1:0:5:2
@@ -627,7 +628,7 @@ F:SHOW_MODS
 
 ##### Shovels and Picks #####
 
-N:84:& Shovel~
+N:80:& Shovel~
 G:\:s
 I:20:1:1
 W:1:0:60:10
@@ -635,7 +636,7 @@ A:2/2
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:85:& Noldorin Shovel~
+N:81:& Noldorin Shovel~
 G:\:G
 I:20:2:2
 W:10:0:60:100
@@ -643,7 +644,7 @@ A:10/3
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:86:& Dwarven Shovel~
+N:82:& Dwarven Shovel~
 G:\:B
 I:20:3:3
 W:20:0:120:200
@@ -651,7 +652,7 @@ A:20/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:87:& Pick~
+N:83:& Pick~
 G:\:s
 I:20:4:1
 W:2:0:150:50
@@ -659,7 +660,7 @@ A:5/2
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:88:& Orcish Pick~
+N:84:& Orcish Pick~
 G:\:g
 I:20:5:2
 W:15:0:180:300
@@ -667,7 +668,7 @@ A:15/3
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:89:& Dwarven Pick~
+N:85:& Dwarven Pick~
 G:\:b
 I:20:6:3
 W:25:0:200:600
@@ -677,7 +678,7 @@ F:SHOW_MODS | TUNNEL
 
 ##### Armor #####
 
-N:90:& Elven Cloak~
+N:86:& Elven Cloak~
 G:(:G
 I:35:2:0
 W:15:0:5:1500
@@ -686,63 +687,63 @@ P:4:0d0:0:0:4
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 F:STEALTH | SEARCH
 
-N:91:& Pair~ of Soft Leather Boots
+N:87:& Pair~ of Soft Leather Boots
 G:]:U
 I:30:2:0
 W:1:0:20:7
 A:3/1
 P:2:1d1:0:0:0
 
-N:92:& Pair~ of Hard Leather Boots
+N:88:& Pair~ of Hard Leather Boots
 G:]:U
 I:30:3:0
 W:2:0:40:12
 A:2/1
 P:3:1d1:0:0:0
 
-N:93:& Pair~ of Metal Shod Boots
+N:89:& Pair~ of Metal Shod Boots
 G:]:s
 I:30:6:0
 W:10:0:80:50
 A:10/1
 P:6:1d1:0:0:0
 
-N:94:& Hard Leather Cap~
+N:90:& Hard Leather Cap~
 G:]:u
 I:32:2:0
 W:1:0:15:12
 A:3/1
 P:2:0d0:0:0:0
 
-N:95:& Metal Cap~
+N:91:& Metal Cap~
 G:]:s
 I:32:3:0
 W:5:0:20:30
 A:5/1
 P:3:1d1:0:0:0
 
-N:96:& Iron Helm~
+N:92:& Iron Helm~
 G:]:s
 I:32:5:0
 W:10:0:75:75
 A:10/1
 P:5:1d3:0:0:0
 
-N:97:& Steel Helm~
+N:93:& Steel Helm~
 G:]:W
 I:32:6:0
 W:20:0:60:200
 A:20/1
 P:6:1d3:0:0:0
 
-N:98:& Iron Crown~
+N:94:& Iron Crown~
 G:]:s
 I:33:10:0
 W:22:0:20:500
 A:22/1
 P:0:1d1:0:0:0
 
-N:99:& Golden Crown~
+N:95:& Golden Crown~
 G:]:y
 I:33:11:0
 W:22:0:30:1000
@@ -750,7 +751,7 @@ A:22/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-N:100:& Jewel Encrusted Crown~
+N:96:& Jewel Encrusted Crown~
 G:]:v
 I:33:12:0
 W:25:0:40:2000
@@ -758,126 +759,126 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-N:101:& Robe~
+N:97:& Robe~
 G:(:b
 I:36:2:0
 W:1:0:20:4
 A:1/1:25/1
 P:2:0d0:0:0:0
 
-N:102:& Filthy Rag~
+N:98:& Filthy Rag~
 G:(:D
 I:36:1:0
 W:0:0:20:1
 A:0/1
 P:1:0d0:0:0:-1
 
-N:103:Soft Leather Armour~
+N:99:Soft Leather Armour~
 G:(:U
 I:36:4:0
 W:1:0:80:18
 A:3/1
 P:4:0d0:0:0:0
 
-N:104:Soft Studded Leather~
+N:100:Soft Studded Leather~
 G:(:U
 I:36:5:0
 W:1:0:90:35
 A:3/1
 P:5:1d1:0:0:0
 
-N:105:Hard Leather Armour~
+N:101:Hard Leather Armour~
 G:(:U
 I:36:6:0
 W:2:0:100:150
 A:2/1
 P:6:1d1:-1:0:0
 
-N:106:Hard Studded Leather~
+N:102:Hard Studded Leather~
 G:(:U
 I:36:7:0
 W:5:0:110:200
 A:5/1
 P:7:1d2:-1:0:0
 
-N:107:Leather Scale Mail~
+N:103:Leather Scale Mail~
 G:(:U
 I:36:11:0
 W:7:0:140:450
 A:7/1
 P:11:1d1:-1:0:0
 
-N:108:Metal Scale Mail~
+N:104:Metal Scale Mail~
 G:[:s
 I:37:3:0
 W:12:0:250:550
 A:12/1
 P:13:1d4:-2:0:0
 
-N:109:Chain Mail~
+N:105:Chain Mail~
 G:[:s
 I:37:4:0
 W:12:0:220:750
 A:12/1
 P:14:1d4:-2:0:0
 
-N:110:Rusty Chain Mail~
+N:106:Rusty Chain Mail~
 G:[:r
 I:37:1:0
 W:12:0:200:550
 A:12/1
 P:14:1d4:-5:0:-8
 
-N:111:Augmented Chain Mail~
+N:107:Augmented Chain Mail~
 G:[:s
 I:37:6:0
 W:15:0:270:900
 A:15/1
 P:16:1d4:-2:0:0
 
-N:112:Bar Chain Mail~
+N:108:Bar Chain Mail~
 G:[:s
 I:37:8:0
 W:17:0:280:950
 A:17/1
 P:18:1d4:-2:0:0
 
-N:113:Metal Brigandine Armour~
+N:109:Metal Brigandine Armour~
 G:[:s
 I:37:9:0
 W:17:0:290:1100
 A:17/1
 P:19:1d4:-3:0:0
 
-N:114:Partial Plate Armour~
+N:110:Partial Plate Armour~
 G:[:W
 I:37:12:0
 W:22:0:260:1200
 A:22/1
 P:22:1d6:-3:0:0
 
-N:115:Metal Lamellar Armour~
+N:111:Metal Lamellar Armour~
 G:[:W
 I:37:13:0
 W:22:0:340:1250
 A:22/1
 P:23:1d6:-3:0:0
 
-N:116:Full Plate Armour~
+N:112:Full Plate Armour~
 G:[:W
 I:37:15:0
 W:22:0:380:1350
 A:22/1
 P:25:2d4:-3:0:0
 
-N:117:Ribbed Plate Armour~
+N:113:Ribbed Plate Armour~
 G:[:W
 I:37:18:0
 W:25:0:380:1500
 A:25/1
 P:28:2d4:-3:0:0
 
-N:118:Adamantite Plate Mail~
+N:114:Adamantite Plate Mail~
 G:[:G
 I:37:30:0
 W:37:0:420:20000
@@ -885,7 +886,7 @@ A:37/4
 P:40:2d4:-4:0:0
 F:IGNORE_ACID
 
-N:119:Mithril Plate Mail~
+N:115:Mithril Plate Mail~
 G:[:B
 I:37:25:0
 W:30:0:300:15000
@@ -893,7 +894,7 @@ A:30/3
 P:35:2d4:-3:0:0
 F:IGNORE_ACID
 
-N:120:Mithril Chain Mail~
+N:116:Mithril Chain Mail~
 G:[:B
 I:37:20:0
 W:27:0:150:7000
@@ -901,7 +902,7 @@ A:27/3
 P:28:1d4:-1:0:0
 F:IGNORE_ACID
 
-N:121:Double Chain Mail~
+N:117:Double Chain Mail~
 G:[:s
 I:37:7:0
 W:15:0:250:850
@@ -911,7 +912,7 @@ P:16:1d4:-2:0:0
 
 # This shield does not belong here
 
-N:122:& Shield~ of Deflection
+N:118:& Shield~ of Deflection
 G:[:B
 I:34:10:0
 W:35:0:100:10000
@@ -922,14 +923,14 @@ F:IGNORE_ACID
 
 ### The Cloaks ###
 
-N:123:& Cloak~
+N:119:& Cloak~
 G:(:g
 I:35:1:0
 W:1:0:10:3
 A:1/1:10/1
 P:1:0d0:0:0:0
 
-N:124:& Shadow Cloak~
+N:120:& Shadow Cloak~
 G:(:D
 I:35:6:0
 W:30:0:5:7500
@@ -940,21 +941,21 @@ F:RES_DARK | RES_LITE
 
 ### The Gloves ###
 
-N:125:& Set~ of Leather Gloves
+N:121:& Set~ of Leather Gloves
 G:]:U
 I:31:1:0
 W:1:0:5:3
 A:1/1
 P:1:0d0:0:0:0
 
-N:126:& Set~ of Gauntlets
+N:122:& Set~ of Gauntlets
 G:]:U
 I:31:2:0
 W:5:0:25:35
 A:5/1
 P:2:1d1:0:0:0
 
-N:127:& Set~ of Cesti
+N:123:& Set~ of Cesti
 G:]:W
 I:31:5:0
 W:25:0:40:100
@@ -964,28 +965,28 @@ P:5:1d1:0:0:0
 
 ### The shields ###
 
-N:128:& Small Leather Shield~
+N:124:& Small Leather Shield~
 G:):U
 I:34:2:0
 W:1:0:50:30
 A:3/1
 P:2:1d1:0:0:0
 
-N:129:& Large Leather Shield~
+N:125:& Large Leather Shield~
 G:):U
 I:34:4:0
 W:7:0:100:120
 A:7/1
 P:4:1d2:0:0:0
 
-N:130:& Small Metal Shield~
+N:126:& Small Metal Shield~
 G:):s
 I:34:3:0
 W:5:0:65:50
 A:5/1
 P:3:1d2:0:0:0
 
-N:131:& Large Metal Shield~
+N:127:& Large Metal Shield~
 G:):s
 I:34:5:0
 W:15:0:120:200
@@ -995,42 +996,42 @@ P:5:1d3:0:0:0
 
 ##### Rings #####
 
-N:132:Strength
+N:128:Strength
 G:=:d
 I:45:24:0
 W:15:0:2:500
 A:15/1
 F:STR | HIDE_TYPE
 
-N:133:Dexterity
+N:129:Dexterity
 G:=:d
 I:45:26:0
 W:15:0:2:500
 A:15/1
 F:DEX | HIDE_TYPE
 
-N:134:Constitution
+N:130:Constitution
 G:=:d
 I:45:27:0
 W:15:0:2:500
 A:15/1
 F:CON | HIDE_TYPE
 
-N:135:Intelligence
+N:131:Intelligence
 G:=:d
 I:45:25:0
 W:15:0:2:500
 A:15/1
 F:INT | HIDE_TYPE
 
-N:136:Speed
+N:132:Speed
 G:=:d
 I:45:31:0
 W:37:0:2:100000
 A:37/1
 F:SPEED | HIDE_TYPE
 
-N:137:Searching
+N:133:Searching
 G:=:d
 I:45:23:0
 W:2:0:2:250
@@ -1038,63 +1039,63 @@ A:2/1
 F:SEARCH | HIDE_TYPE
 
 # New : It can be activated but at the cost of it's destruction
-N:138:Teleportation
+N:134:Teleportation
 G:=:d
 I:45:4:0
 W:2:0:2:250
 A:2/1
 F:CURSED | TELEPORT | EASY_KNOW | ACTIVATE
 
-N:139:Slow Digestion
+N:135:Slow Digestion
 G:=:d
 I:45:6:0
 W:2:0:2:250
 A:2/1
 F:SLOW_DIGEST | EASY_KNOW
 
-N:140:Fire Resistance
+N:136:Fire Resistance
 G:=:d
 I:45:8:0
 W:5:0:2:250
 A:5/1
 F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
 
-N:141:Cold Resistance
+N:137:Cold Resistance
 G:=:d
 I:45:9:0
 W:5:0:2:250
 A:5/1
 F:RES_COLD | IGNORE_COLD | EASY_KNOW
 
-N:142:Insulation
+N:138:Insulation
 G:=:d
 I:45:7:0
 W:10:0:2:200
 A:2/1
 F:FEATHER | RES_COLD | RES_FIRE | EASY_KNOW
 
-N:143:Poison Resistance
+N:139:Poison Resistance
 G:=:d
 I:45:20:0
 W:30:0:2:16000
 A:30/2
 F:RES_POIS | EASY_KNOW
 
-N:144:Free Action
+N:140:Free Action
 G:=:d
 I:45:21:0
 W:10:0:2:1500
 A:10/1
 F:FREE_ACT | EASY_KNOW
 
-N:145:Weakness
+N:141:Weakness
 G:=:d
 I:45:2:-5
 W:2:0:2:0
 A:2/1
 F:CURSED | STR | HIDE_TYPE
 
-N:146:Flames
+N:142:Flames
 G:=:d
 I:45:18:0
 W:25:0:2:3000
@@ -1102,7 +1103,7 @@ A:25/1
 P:0:0d0:0:0:15
 F:RES_FIRE | IGNORE_FIRE | ACTIVATE
 
-N:147:Acid
+N:143:Acid
 G:=:d
 I:45:17:0
 W:25:0:2:3000
@@ -1110,7 +1111,7 @@ A:25/1
 P:0:0d0:0:0:15
 F:RES_ACID | IGNORE_ACID | ACTIVATE
 
-N:148:Ice
+N:144:Ice
 G:=:d
 I:45:19:0
 W:25:0:2:3000
@@ -1118,95 +1119,95 @@ A:25/1
 P:0:0d0:0:0:15
 F:RES_COLD | IGNORE_COLD | ACTIVATE
 
-N:149:Woe
+N:145:Woe
 G:=:d
 I:45:0:-5
 W:25:0:2:0
 A:25/1
 F:CURSED | TELEPORT | WIS | CHR | HIDE_TYPE | AUTO_CURSE
 
-N:150:Stupidity
+N:146:Stupidity
 G:=:d
 I:45:3:-5
 W:2:0:2:0
 A:2/1
 F:CURSED | INT | HIDE_TYPE
 
-N:151:Damage
+N:147:Damage
 G:=:d
 I:45:29:0
 W:10:0:2:500
 A:10/1
 
-N:152:Accuracy
+N:148:Accuracy
 G:=:d
 I:45:28:0
 W:10:0:2:500
 A:10/1
 
-N:153:Protection
+N:149:Protection
 G:=:d
 I:45:16:0
 W:5:0:2:500
 A:5/1
 
-N:154:Aggravate Monster
+N:150:Aggravate Monster
 G:=:d
 I:45:1:0
 W:2:0:2:0
 A:2/1
 F:CURSED | AGGRAVATE | EASY_KNOW | AUTO_CURSE
 
-N:155:See Invisible
+N:151:See Invisible
 G:=:d
 I:45:22:0
 W:15:0:2:340
 A:15/1
 F:SEE_INVIS | EASY_KNOW
 
-N:156:Sustain Strength
+N:152:Sustain Strength
 G:=:d
 I:45:10:0
 W:10:0:2:400
 A:10/1
 F:SUST_STR | EASY_KNOW
 
-N:157:Sustain Intelligence
+N:153:Sustain Intelligence
 G:=:d
 I:45:11:0
 W:10:0:2:400
 A:10/1
 F:SUST_INT | EASY_KNOW
 
-N:158:Sustain Wisdom
+N:154:Sustain Wisdom
 G:=:d
 I:45:12:0
 W:10:0:2:400
 A:10/1
 F:SUST_WIS | EASY_KNOW
 
-N:159:Sustain Constitution
+N:155:Sustain Constitution
 G:=:d
 I:45:13:0
 W:10:0:2:400
 A:10/1
 F:SUST_CON | EASY_KNOW
 
-N:160:Sustain Dexterity
+N:156:Sustain Dexterity
 G:=:d
 I:45:14:0
 W:10:0:2:400
 A:10/1
 F:SUST_DEX | EASY_KNOW
 
-N:161:Sustain Charisma
+N:157:Sustain Charisma
 G:=:d
 I:45:15:0
 W:10:0:2:400
 A:10/1
 F:SUST_CHR | EASY_KNOW
 
-N:162:Slaying
+N:158:Slaying
 G:=:d
 I:45:30:0
 W:20:0:2:1000
@@ -1215,49 +1216,49 @@ F:SHOW_MODS
 
 ##### Amulets #####
 
-N:163:Brilliance
+N:159:Brilliance
 G:":d
 I:40:6:0
 W:25:0:3:1000
 A:25/4
 F:INT | WIS | HIDE_TYPE | LITE1
 
-N:164:Charisma
+N:160:Charisma
 G:":d
 I:40:7:0
 W:15:0:3:500
 A:15/1
 F:CHR | HIDE_TYPE
 
-N:165:Searching
+N:161:Searching
 G:":d
 I:40:5:0
 W:7:0:3:600
 A:7/1
 F:SEARCH | HIDE_TYPE
 
-N:166:Teleportation
+N:162:Teleportation
 G:":d
 I:40:1:0
 W:5:0:3:250
 A:5/1
 F:CURSED | TELEPORT | EASY_KNOW
 
-N:167:Slow Digestion
+N:163:Slow Digestion
 G:":d
 I:40:3:0
 W:7:0:3:200
 A:7/1
 F:SLOW_DIGEST | EASY_KNOW
 
-N:168:Acid Resistance
+N:164:Acid Resistance
 G:":d
 I:40:4:0
 W:5:0:3:250
 A:5/1
 F:RES_ACID | IGNORE_ACID | EASY_KNOW
 
-N:169:Adornment
+N:165:Adornment
 G:":d
 I:40:2:0
 W:5:0:3:20
@@ -1266,7 +1267,7 @@ F:EASY_KNOW
 
 ##### Extra armor #####
 
-N:170:Double Ring Mail~
+N:166:Double Ring Mail~
 G:[:s
 I:37:5:0
 W:12:0:230:700
@@ -1275,7 +1276,7 @@ P:15:1d4:-2:0:0
 
 ##### Additional amulets #####
 
-N:171:the Magi
+N:167:the Magi
 G:":d
 I:40:8:0
 W:35:0:3:30000
@@ -1285,7 +1286,7 @@ F:INT | SUST_INT | SEARCH |
 F:FREE_ACT | RES_BLIND | RES_CONF | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:172:Doom
+N:168:Doom
 G:":d
 I:40:0:-5
 W:25:0:3:0
@@ -1296,136 +1297,136 @@ F:AUTO_CURSE | CURSE_NO_DROP
 
 ##### Scrolls #####
 
-N:173:Enchant Weapon To-Hit
+N:169:Enchant Weapon To-Hit
 G:?:d
 I:70:17:0
 W:7:0:5:125
 A:7/1
 
-N:174:Enchant Weapon To-Dam
+N:170:Enchant Weapon To-Dam
 G:?:d
 I:70:18:0
 W:7:0:5:125
 A:7/1
 
-N:175:Enchant Armor
+N:171:Enchant Armor
 G:?:d
 I:70:16:0
 W:7:0:5:125
 A:7/1
 
-N:176:Identify
+N:172:Identify
 G:?:d
 I:70:12:0
 W:1:0:5:50
 A:1/1:2/1:5/1:15/1
 
-N:177:*Identify*
+N:173:*Identify*
 G:?:d
 I:70:13:0
 W:15:0:5:1000
 A:15/1:25/2:40/1:50/1
 
-N:178:Rumour
+N:174:Rumour
 G:?:d
 I:70:51:0
 W:1:0:5:10
 A:1/1
 
-N:179:Chaos
+N:175:Chaos
 G:?:d
 I:70:50:0
 W:50:0:5:10000
 A:50/8
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC
 
-N:180:Remove Curse
+N:176:Remove Curse
 G:?:d
 I:70:14:0
 W:5:0:5:100
 A:5/1:10/2:20/2
 
-N:181:Light
+N:177:Light
 G:?:d
 I:70:24:0
 W:0:0:5:15
 A:0/1:3/1:5/1
 
-N:182:Fire
+N:178:Fire
 G:?:d
 I:70:48:0
 W:25:0:5:1000
 A:25/4
 F:IGNORE_FIRE
 
-N:183:Ice
+N:179:Ice
 G:?:d
 I:70:49:0
 W:37:0:5:5000
 A:37/6
 F:IGNORE_COLD
 
-N:184:Summon Monster
+N:180:Summon Monster
 G:?:d
 I:70:4:0
 W:1:0:5:0
 A:1/1
 
-N:185:Phase Door
+N:181:Phase Door
 G:?:d
 I:70:8:0
 W:1:0:5:15
 A:1/1
 
-N:186:Teleportation
+N:182:Teleportation
 G:?:d
 I:70:9:0
 W:5:0:5:40
 A:5/1
 
-N:187:Teleport Level
+N:183:Teleport Level
 G:?:d
 I:70:10:0
 W:10:0:5:50
 A:10/1
 
-N:188:Monster Confusion
+N:184:Monster Confusion
 G:?:d
 I:70:36:0
 W:2:0:5:30
 A:2/1
 
-N:189:Magic Mapping
+N:185:Magic Mapping
 G:?:d
 I:70:25:0
 W:2:0:5:40
 A:2/1
 
-N:190:Rune of Protection
+N:186:Rune of Protection
 G:?:d
 I:70:38:0
 W:25:0:5:500
 A:25/2:45/4
 
-N:191:*Remove Curse*
+N:187:*Remove Curse*
 G:?:d
 I:70:15:0
 W:25:0:5:8000
 A:25/2:37/2:42/2:47/1
 
-N:192:Treasure Detection
+N:188:Treasure Detection
 G:?:d
 I:70:26:0
 W:0:0:5:15
 A:0/1
 
-N:193:Object Detection
+N:189:Object Detection
 G:?:d
 I:70:27:0
 W:0:0:5:15
 A:0/1
 
-N:194:Trap Detection
+N:190:Trap Detection
 G:?:d
 I:70:28:0
 W:2:0:5:35
@@ -1433,7 +1434,7 @@ A:2/1:5/1
 
 ##### Extra ammunition #####
 
-N:195:& Sheaf Arrow~
+N:191:& Sheaf Arrow~
 G:{:o
 I:17:1:0
 W:5:0:4:3
@@ -1441,7 +1442,7 @@ A:7/2:25/2
 P:0:1d5:0:0:0
 F:SHOW_MODS
 
-N:196:& Mithril Shot~
+N:192:& Mithril Shot~
 G:.:B
 I:16:2:0
 W:20:0:4:20
@@ -1451,151 +1452,151 @@ F:SHOW_MODS | IGNORE_ACID
 
 ##### Additional scrolls #####
 
-N:197:Door/Stair Location
+N:193:Door/Stair Location
 G:?:d
 I:70:29:0
 W:2:0:5:35
 A:2/1:5/1:7/1
 
-N:198:Acquirement
+N:194:Acquirement
 G:?:d
 I:70:46:0
 W:10:0:5:100000
 A:10/8
 
-N:199:*Acquirement*
+N:195:*Acquirement*
 G:?:d
 I:70:47:0
 W:30:0:5:200000
 A:30/16
 
-N:200:Mass Genocide
+N:196:Mass Genocide
 G:?:d
 I:70:45:0
 W:25:0:5:1000
 A:25/4:50/4
 
-N:201:Detect Invisible
+N:197:Detect Invisible
 G:?:d
 I:70:30:0
 W:1:0:5:15
 A:1/1
 
-N:202:Aggravate Monster
+N:198:Aggravate Monster
 G:?:d
 I:70:1:0
 W:2:0:5:0
 A:2/1
 
-N:203:Trap Creation
+N:199:Trap Creation
 G:?:d
 I:70:7:0
 W:5:0:5:0
 A:5/1
 
-N:204:Trap/Door Destruction
+N:200:Trap/Door Destruction
 G:?:d
 I:70:39:0
 W:5:0:5:50
 A:5/1
 
-N:205:Artifact Creation
+N:201:Artifact Creation
 G:?:d
 I:70:52:0
 W:35:0:5:200000
 A:35/16
 
-N:206:Recharging
+N:202:Recharging
 G:?:d
 I:70:22:0
 W:20:0:5:200
 A:20/1
 
-N:207:Genocide
+N:203:Genocide
 G:?:d
 I:70:44:0
 W:20:0:5:750
 A:20/4:40/4
 
-N:208:Darkness
+N:204:Darkness
 G:?:d
 I:70:0:0
 W:1:0:5:0
 A:1/1
 
-N:209:Protection from Evil
+N:205:Protection from Evil
 G:?:d
 I:70:37:0
 W:15:0:5:250
 A:15/1
 
-N:210:Satisfy Hunger
+N:206:Satisfy Hunger
 G:?:d
 I:70:32:0
 W:2:0:5:10
 A:2/1:10/1:25/1:37/1
 
-N:211:Dispel Undead
+N:207:Dispel Undead
 G:?:d
 I:70:42:0
 W:20:0:5:200
 A:20/1
 
-N:212:*Enchant Weapon*
+N:208:*Enchant Weapon*
 G:?:d
 I:70:21:0
 W:25:0:5:500
 A:25/1
 
-N:213:Curse Weapon
+N:209:Curse Weapon
 G:?:d
 I:70:3:0
 W:25:0:5:0
 A:25/1
 
-N:214:*Enchant Armor*
+N:210:*Enchant Armor*
 G:?:d
 I:70:20:0
 W:25:0:5:500
 A:25/1:25/1
 
-N:215:Curse Armor
+N:211:Curse Armor
 G:?:d
 I:70:2:0
 W:25:0:5:0
 A:25/1
 
-N:216:Summon Undead
+N:212:Summon Undead
 G:?:d
 I:70:5:0
 W:7:0:5:0
 A:7/1
 
-N:217:Blessing
+N:213:Blessing
 G:?:d
 I:70:33:0
 W:1:0:5:15
 A:1/1
 
-N:218:Holy Chant
+N:214:Holy Chant
 G:?:d
 I:70:34:0
 W:5:0:5:40
 A:5/1
 
-N:219:Holy Prayer
+N:215:Holy Prayer
 G:?:d
 I:70:35:0
 W:12:0:5:80
 A:12/1
 
-N:220:Word of Recall
+N:216:Word of Recall
 G:?:d
 I:70:11:0
 W:2:0:5:150
 A:2/1
 
-N:221:*Destruction*
+N:217:*Destruction*
 G:?:d
 I:70:41:0
 W:20:0:5:250
@@ -1603,7 +1604,7 @@ A:20/1
 
 ##### Potions #####
 
-N:222:Slime Mold Juice
+N:218:Slime Mold Juice
 G:!:d
 I:71:2:400
 W:0:0:4:2
@@ -1611,7 +1612,7 @@ A:0/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:223:Apple Juice
+N:219:Apple Juice
 G:!:d
 I:71:1:250
 W:0:0:4:1
@@ -1619,7 +1620,7 @@ A:0/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:224:Water
+N:220:Water
 G:!:d
 I:71:0:200
 W:0:0:4:1
@@ -1627,14 +1628,14 @@ A:0/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:225:Strength
+N:221:Strength
 G:!:d
 I:71:48:0
 W:10:0:4:8000
 A:10/6:12/3:15/1
 P:0:1d1:0:0:0
 
-N:226:Weakness
+N:222:Weakness
 G:!:d
 I:71:16:0
 W:1:0:4:0
@@ -1642,7 +1643,7 @@ A:3/1
 P:0:3d12:0:0:0
 F:FOUNTAIN
 
-N:227:Restore Strength
+N:223:Restore Strength
 G:!:d
 I:71:42:0
 W:12:0:4:300
@@ -1650,14 +1651,14 @@ A:12/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:228:Intelligence
+N:224:Intelligence
 G:!:d
 I:71:49:0
 W:10:0:4:8000
 A:10/6:12/3:15/1
 P:0:1d1:0:0:0
 
-N:229:Stupidity
+N:225:Stupidity
 G:!:d
 I:71:17:0
 W:10:0:4:0
@@ -1665,7 +1666,7 @@ A:10/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:230:Restore Intelligence
+N:226:Restore Intelligence
 G:!:d
 I:71:43:0
 W:12:0:4:300
@@ -1673,14 +1674,14 @@ A:12/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:231:Wisdom
+N:227:Wisdom
 G:!:d
 I:71:50:0
 W:10:0:4:8000
 A:10/6:12/3:15/1
 P:0:1d1:0:0:0
 
-N:232:Naivety
+N:228:Naivety
 G:!:d
 I:71:18:0
 W:10:0:4:0
@@ -1688,7 +1689,7 @@ A:10/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:233:Restore Wisdom
+N:229:Restore Wisdom
 G:!:d
 I:71:44:0
 W:12:0:4:300
@@ -1696,14 +1697,14 @@ A:12/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:234:Charisma
+N:230:Charisma
 G:!:d
 I:71:53:0
 W:10:0:4:1000
 A:10/1:12/1
 P:0:1d1:0:0:0
 
-N:235:Ugliness
+N:231:Ugliness
 G:!:d
 I:71:21:0
 W:10:0:4:0
@@ -1711,7 +1712,7 @@ A:10/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:236:Restore Charisma
+N:232:Restore Charisma
 G:!:d
 I:71:47:0
 W:10:0:4:300
@@ -1719,7 +1720,7 @@ A:10/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:237:Curing
+N:233:Curing
 G:!:d
 I:71:61:100
 W:9:0:4:250
@@ -1729,21 +1730,21 @@ F:FOUNTAIN
 
 # Note! Invulnerability decreases your food...
 
-N:238:Invulnerability
+N:234:Invulnerability
 G:!:d
 I:71:62:-2500
 W:45:0:4:100000
 A:45/9
 P:0:1d1:0:0:0
 
-N:239:New Life
+N:235:New Life
 G:!:d
 I:71:63:100
 W:25:0:4:750000
 A:25/20:50/10:120/5
 P:0:1d1:0:0:0
 
-N:240:Cure Serious Wounds
+N:236:Cure Serious Wounds
 G:!:d
 I:71:35:100
 W:1:0:4:40
@@ -1751,7 +1752,7 @@ A:3/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:241:Cure Critical Wounds
+N:237:Cure Critical Wounds
 G:!:d
 I:71:36:100
 W:2:0:4:100
@@ -1759,7 +1760,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:242:Healing
+N:238:Healing
 G:!:d
 I:71:37:200
 W:7:0:4:300
@@ -1767,21 +1768,21 @@ A:7/1:15/1:30/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:243:Constitution
+N:239:Constitution
 G:!:d
 I:71:52:0
 W:10:0:4:8000
 A:10/6:12/3:15/1
 P:0:1d1:0:0:0
 
-N:244:Experience
+N:240:Experience
 G:!:d
 I:71:59:0
 W:32:0:4:25000
 A:32/1
 P:0:1d1:0:0:0
 
-N:245:Sleep
+N:241:Sleep
 G:!:d
 I:71:11:100
 W:0:0:4:0
@@ -1789,7 +1790,7 @@ A:0/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:246:Blindness
+N:242:Blindness
 G:!:d
 I:71:7:0
 W:0:0:4:0
@@ -1797,7 +1798,7 @@ A:0/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:247:Booze
+N:243:Booze
 G:!:d
 I:71:9:50
 W:0:0:4:0
@@ -1805,7 +1806,7 @@ A:0/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:248:Poison
+N:244:Poison
 G:!:d
 I:71:6:0
 W:1:0:4:0
@@ -1813,7 +1814,7 @@ A:3/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:249:Speed
+N:245:Speed
 G:!:d
 I:71:29:0
 W:1:0:4:75
@@ -1821,7 +1822,7 @@ A:1/1:20/1:30/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:250:Slowness
+N:246:Slowness
 G:!:d
 I:71:4:50
 W:1:0:4:0
@@ -1829,14 +1830,14 @@ A:1/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:251:Dexterity
+N:247:Dexterity
 G:!:d
 I:71:51:0
 W:10:0:4:8000
 A:10/6:12/3:15/1
 P:0:1d1:0:0:0
 
-N:252:Restore Dexterity
+N:248:Restore Dexterity
 G:!:d
 I:71:45:0
 W:12:0:4:300
@@ -1844,7 +1845,7 @@ A:12/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:253:Restore Constitution
+N:249:Restore Constitution
 G:!:d
 I:71:46:0
 W:12:0:4:300
@@ -1852,7 +1853,7 @@ A:12/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:254:Lose Memories
+N:250:Lose Memories
 G:!:d
 I:71:13:0
 W:5:0:4:0
@@ -1860,7 +1861,7 @@ A:5/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:255:Salt Water
+N:251:Salt Water
 G:!:d
 I:71:5:0
 W:0:0:4:0
@@ -1868,7 +1869,7 @@ A:0/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:256:Enlightenment
+N:252:Enlightenment
 G:!:d
 I:71:56:0
 W:12:0:4:800
@@ -1876,7 +1877,7 @@ A:12/1:25/1:50/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:257:Heroism
+N:253:Heroism
 G:!:d
 I:71:32:0
 W:1:0:4:35
@@ -1884,7 +1885,7 @@ A:1/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:258:Berserk Strength
+N:254:Berserk Strength
 G:!:d
 I:71:33:0
 W:1:0:4:100
@@ -1892,7 +1893,7 @@ A:3/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:259:Boldness
+N:255:Boldness
 G:!:d
 I:71:28:0
 W:1:0:4:10
@@ -1900,7 +1901,7 @@ A:1/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:260:Restore Life Levels
+N:256:Restore Life Levels
 G:!:d
 I:71:41:0
 W:20:0:4:400
@@ -1908,7 +1909,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:261:Resist Heat
+N:257:Resist Heat
 G:!:d
 I:71:30:0
 W:1:0:4:30
@@ -1916,7 +1917,7 @@ A:1/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:262:Resist Cold
+N:258:Resist Cold
 G:!:d
 I:71:31:0
 W:1:0:4:30
@@ -1924,7 +1925,7 @@ A:1/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:263:Detect Invisible
+N:259:Detect Invisible
 G:!:d
 I:71:25:0
 W:1:0:4:50
@@ -1932,7 +1933,7 @@ A:3/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:264:Slow Poison
+N:260:Slow Poison
 G:!:d
 I:71:26:0
 W:1:0:4:25
@@ -1940,7 +1941,7 @@ A:1/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:265:Neutralize Poison
+N:261:Neutralize Poison
 G:!:d
 I:71:27:0
 W:2:0:4:75
@@ -1948,7 +1949,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:266:Restore Mana
+N:262:Restore Mana
 G:!:d
 I:71:40:0
 W:12:0:4:350
@@ -1956,7 +1957,7 @@ A:12/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:267:Infra-vision
+N:263:Infra-vision
 G:!:d
 I:71:24:0
 W:1:0:4:20
@@ -1964,7 +1965,7 @@ A:3/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:268:Resistance
+N:264:Resistance
 G:!:d
 I:71:60:100
 W:10:0:4:250
@@ -1978,28 +1979,28 @@ F:FOUNTAIN
 # Note : some of the old wands have been taken higher (low level characters
 # really need them and they used to be higher in earlier versions...)
 
-N:269:Light
+N:265:Light
 G:-:d
 I:65:7:0
 W:1:0:10:200
 A:3/1
 P:0:1d1:0:0:0
 
-N:270:Tame Monster
+N:266:Tame Monster
 G:-:d
 I:65:17:0
 W:15:0:10:1500
 A:15/2
 P:0:1d1:0:0:0
 
-N:271:Frost Bolts
+N:267:Frost Bolts
 G:-:d
 I:65:19:0
 W:10:0:10:800
 A:10/1
 P:0:1d1:0:0:0
 
-N:272:Fire Bolts
+N:268:Fire Bolts
 G:-:d
 I:65:18:0
 W:15:0:10:1000
@@ -2007,105 +2008,105 @@ A:15/1
 P:0:1d1:0:0:0
 
 # More common now...
-N:273:Stone to Mud
+N:269:Stone to Mud
 G:-:d
 I:65:6:0
 W:5:0:10:300
 A:5/1:20/1:40/1
 P:0:1d1:0:0:0
 
-N:274:Polymorph
+N:270:Polymorph
 G:-:d
 I:65:13:0
 W:10:0:10:400
 A:10/1
 P:0:1d1:0:0:0
 
-N:275:Heal Monster
+N:271:Heal Monster
 G:-:d
 I:65:0:0
 W:2:0:10:0
 A:1/1
 P:0:1d1:0:0:0
 
-N:276:Haste Monster
+N:272:Haste Monster
 G:-:d
 I:65:1:0
 W:2:0:10:0
 A:2/1
 P:0:1d1:0:0:0
 
-N:277:Slow Monster
+N:273:Slow Monster
 G:-:d
 I:65:9:0
 W:2:0:10:500
 A:2/1
 P:0:1d1:0:0:0
 
-N:278:Confuse Monster
+N:274:Confuse Monster
 G:-:d
 I:65:10:0
 W:2:0:10:500
 A:3/1
 P:0:1d1:0:0:0
 
-N:279:Sleep Monster
+N:275:Sleep Monster
 G:-:d
 I:65:8:0
 W:2:0:10:500
 A:2/1
 P:0:1d1:0:0:0
 
-N:280:Drain Life
+N:276:Drain Life
 G:-:d
 I:65:12:0
 W:25:0:10:1200
 A:25/1
 P:0:1d1:0:0:0
 
-N:281:Trap/Door Destruction
+N:277:Trap/Door Destruction
 G:-:d
 I:65:5:0
 W:5:0:10:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:282:Magic Missile
+N:278:Magic Missile
 G:-:d
 I:65:15:0
 W:2:0:10:200
 A:2/1
 P:0:1d1:0:0:0
 
-N:283:Clone Monster
+N:279:Clone Monster
 G:-:d
 I:65:2:0
 W:7:0:10:0
 A:7/1:25/1
 P:0:1d1:0:0:0
 
-N:284:Scare Monster
+N:280:Scare Monster
 G:-:d
 I:65:11:0
 W:5:0:10:500
 A:5/4
 P:0:1d1:0:0:0
 
-N:285:Teleport Other
+N:281:Teleport Other
 G:-:d
 I:65:3:0
 W:10:0:10:350
 A:10/1
 P:0:1d1:0:0:0
 
-N:286:Disarming
+N:282:Disarming
 G:-:d
 I:65:4:0
 W:10:0:10:700
 A:10/1
 P:0:1d1:0:0:0
 
-N:287:Lightning Balls
+N:283:Lightning Balls
 G:-:d
 I:65:21:0
 W:17:0:10:1200
@@ -2113,7 +2114,7 @@ A:17/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
-N:288:Cold Balls
+N:284:Cold Balls
 G:-:d
 I:65:23:0
 W:20:0:10:1500
@@ -2121,7 +2122,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_COLD
 
-N:289:Fire Balls
+N:285:Fire Balls
 G:-:d
 I:65:22:0
 W:25:0:10:1800
@@ -2129,14 +2130,14 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
-N:290:Stinking Cloud
+N:286:Stinking Cloud
 G:-:d
 I:65:14:0
 W:2:0:10:400
 A:2/1
 P:0:1d1:0:0:0
 
-N:291:Acid Balls
+N:287:Acid Balls
 G:-:d
 I:65:20:0
 W:25:0:10:1650
@@ -2144,7 +2145,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-N:292:Wonder
+N:288:Wonder
 G:-:d
 I:65:24:0
 W:1:0:10:250
@@ -2154,7 +2155,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Extra ammunition #####
 
-N:293:& Flight Arrow~
+N:289:& Flight Arrow~
 G:{:y
 I:17:1:0
 W:1:0:1:1
@@ -2164,14 +2165,14 @@ F:SHOW_MODS
 
 ##### Additional wands #####
 
-N:294:Acid Bolts
+N:290:Acid Bolts
 G:-:d
 I:65:16:0
 W:15:0:10:950
 A:15/1
 P:0:1d1:0:0:0
 
-N:295:Dragon's Flame
+N:291:Dragon's Flame
 G:-:d
 I:65:26:0
 W:25:0:10:2400
@@ -2179,7 +2180,7 @@ A:25/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:296:Dragon's Frost
+N:292:Dragon's Frost
 G:-:d
 I:65:27:0
 W:25:0:10:2400
@@ -2187,7 +2188,7 @@ A:25/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:297:Dragon's Breath
+N:293:Dragon's Breath
 G:-:d
 I:65:28:0
 W:30:0:10:2400
@@ -2195,7 +2196,7 @@ A:30/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:298:Annihilation
+N:294:Annihilation
 G:-:d
 I:65:25:0
 W:30:0:10:3000
@@ -2207,210 +2208,210 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Staffs #####
 
-N:300:Trap Location
+N:295:Trap Location
 G:_:d
 I:55:12:0
 W:5:0:50:350
 A:5/1
 P:0:1d2:0:0:0
 
-N:301:Treasure Location
+N:296:Treasure Location
 G:_:d
 I:55:10:0
 W:2:0:50:200
 A:2/1
 P:0:1d2:0:0:0
 
-N:302:Object Location
+N:297:Object Location
 G:_:d
 I:55:11:0
 W:2:0:50:200
 A:2/1
 P:0:1d2:0:0:0
 
-N:303:Teleportation
+N:298:Teleportation
 G:_:d
 I:55:4:0
 W:10:0:50:2000
 A:10/1
 P:0:1d2:0:0:0
 
-N:304:Earthquakes
+N:299:Earthquakes
 G:_:d
 I:55:28:0
 W:20:0:50:350
 A:20/1
 P:0:1d2:0:0:0
 
-N:305:Summoning
+N:300:Summoning
 G:_:d
 I:55:3:0
 W:5:0:50:0
 A:5/1:25/1
 P:0:1d2:0:0:0
 
-N:306:Light
+N:301:Light
 G:_:d
 I:55:8:0
 W:2:0:50:250
 A:2/1
 P:0:1d2:0:0:0
 
-N:307:*Destruction*
+N:302:*Destruction*
 G:_:d
 I:55:29:0
 W:25:0:50:2500
 A:25/1:35/1
 P:0:1d2:0:0:0
 
-N:308:Starlight
+N:303:Starlight
 G:_:d
 I:55:7:0
 W:10:0:50:800
 A:10/1
 P:0:1d2:0:0:0
 
-N:309:Haste Monsters
+N:304:Haste Monsters
 G:_:d
 I:55:2:0
 W:5:0:50:0
 A:5/1
 P:0:1d2:0:0:0
 
-N:310:Slow Monsters
+N:305:Slow Monsters
 G:_:d
 I:55:21:0
 W:5:0:50:800
 A:5/1
 P:0:1d2:0:0:0
 
-N:311:Sleep Monsters
+N:306:Sleep Monsters
 G:_:d
 I:55:20:0
 W:5:0:50:700
 A:5/1
 P:0:1d2:0:0:0
 
-N:312:Cure Light Wounds
+N:307:Cure Light Wounds
 G:_:d
 I:55:16:0
 W:2:0:50:350
 A:2/1
 P:0:1d2:0:0:0
 
-N:313:Detect Invisible
+N:308:Detect Invisible
 G:_:d
 I:55:14:0
 W:2:0:50:200
 A:2/1
 P:0:1d2:0:0:0
 
-N:314:Speed
+N:309:Speed
 G:_:d
 I:55:22:0
 W:20:0:50:1000
 A:20/1
 P:0:1d2:0:0:0
 
-N:315:Slowness
+N:310:Slowness
 G:_:d
 I:55:1:0
 W:20:0:50:0
 A:20/1
 P:0:1d2:0:0:0
 
-N:316:Door/Stair Location
+N:311:Door/Stair Location
 G:_:d
 I:55:13:0
 W:5:0:50:350
 A:5/1
 P:0:1d2:0:0:0
 
-N:317:Remove Curse
+N:312:Remove Curse
 G:_:d
 I:55:6:0
 W:20:0:50:500
 A:20/1
 P:0:1d2:0:0:0
 
-N:318:Detect Evil
+N:313:Detect Evil
 G:_:d
 I:55:15:0
 W:10:0:50:350
 A:10/1
 P:0:1d2:0:0:0
 
-N:319:Curing
+N:314:Curing
 G:_:d
 I:55:17:0
 W:12:0:50:1000
 A:12/1
 P:0:1d2:0:0:0
 
-N:320:Dispel Evil
+N:315:Dispel Evil
 G:_:d
 I:55:24:0
 W:25:0:50:1200
 A:25/1
 P:0:1d2:0:0:0
 
-N:321:Probing
+N:316:Probing
 G:_:d
 I:55:23:0
 W:15:0:50:2000
 A:15/1
 P:0:1d2:0:0:0
 
-N:322:Darkness
+N:317:Darkness
 G:_:d
 I:55:0:0
 W:2:0:50:0
 A:2/1:25/1
 P:0:1d2:0:0:0
 
-N:323:Genocide
+N:318:Genocide
 G:_:d
 I:55:27:0
 W:35:0:50:3500
 A:35/4
 P:0:1d2:0:0:0
 
-N:324:Power
+N:319:Power
 G:_:d
 I:55:25:0
 W:35:0:50:4000
 A:35/2
 P:0:1d2:0:0:0
 
-N:325:the Magi
+N:320:the Magi
 G:_:d
 I:55:19:0
 W:35:0:50:4500
 A:35/2
 P:0:1d2:0:0:0
 
-N:326:Perception
+N:321:Perception
 G:_:d
 I:55:5:0
 W:5:0:50:400
 A:5/1
 P:0:1d2:0:0:0
 
-N:327:Holiness
+N:322:Holiness
 G:_:d
 I:55:26:0
 W:35:0:50:4500
 A:35/2
 P:0:1d2:0:0:0
 
-N:328:Enlightenment
+N:323:Enlightenment
 G:_:d
 I:55:9:0
 W:10:0:50:750
 A:10/1
 P:0:1d2:0:0:0
 
-N:329:Healing
+N:324:Healing
 G:_:d
 I:55:18:0
 W:35:0:50:5000
@@ -2420,56 +2421,56 @@ P:0:1d2:0:0:0
 
 ##### Valarin Books #####
 
-N:330:[Call of the West]
+N:325:[Call of the West]
 G:?:w
 I:111:0:0
 W:2:0:30:25
 A:2/1
 P:0:1d1:0:0:0
 
-N:331:[Light of Valinor]
+N:326:[Light of Valinor]
 G:?:w
 I:111:1:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:332:[Divine Mastery]
+N:327:[Divine Mastery]
 G:?:w
 I:111:2:0
 W:10:0:30:400
 A:10/1
 P:0:1d1:0:0:0
 
-N:333:[Words of Power]
+N:328:[Words of Power]
 G:?:w
 I:111:3:0
 W:15:0:30:800
 A:15/1
 P:0:1d1:0:0:0
 
-N:334:[Apprentice Handbook]
+N:329:[Apprentice Handbook]
 G:?:B
 I:112:0:0
 W:2:0:30:25
 A:2/1
 P:0:1d1:0:0:0
 
-N:335:[Mystical Words]
+N:330:[Mystical Words]
 G:?:B
 I:112:1:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:336:[Arcane Chants]
+N:331:[Arcane Chants]
 G:?:B
 I:112:2:0
 W:10:0:30:400
 A:10/1
 P:0:1d1:0:0:0
 
-N:337:[Locus of Force]
+N:332:[Locus of Force]
 G:?:B
 I:112:3:0
 W:15:0:30:800
@@ -2478,49 +2479,49 @@ P:0:1d1:0:0:0
 
 ##### Chests #####
 
-N:338:& Small wooden chest~
+N:333:& Small wooden chest~
 G:~:s
 I:7:1:0
 W:2:0:250:20
 A:2/1
 P:0:2d3:0:0:0
 
-N:339:& Large wooden chest~
+N:334:& Large wooden chest~
 G:~:s
 I:7:5:0
 W:7:0:500:60
 A:7/1
 P:0:2d5:0:0:0
 
-N:340:& Small iron chest~
+N:335:& Small iron chest~
 G:~:s
 I:7:2:0
 W:12:0:300:100
 A:12/1
 P:0:2d4:0:0:0
 
-N:341:& Large iron chest~
+N:336:& Large iron chest~
 G:~:s
 I:7:6:0
 W:17:0:1000:150
 A:17/1
 P:0:2d6:0:0:0
 
-N:342:& Small steel chest~
+N:337:& Small steel chest~
 G:~:s
 I:7:3:0
 W:22:0:500:200
 A:22/1
 P:0:2d4:0:0:0
 
-N:343:& Large steel chest~
+N:338:& Large steel chest~
 G:~:s
 I:7:7:0
 W:27:0:1000:250
 A:27/1
 P:0:2d6:0:0:0
 
-N:344:& Ruined chest~
+N:339:& Ruined chest~
 G:~:s
 I:7:0:0
 W:0:0:250:0
@@ -2529,14 +2530,14 @@ A:37/1
 
 ##### Various Stuff #####
 
-N:345:& Iron Spike~
+N:340:& Iron Spike~
 G:~:W
 I:5:0:0
 W:1:0:10:1
 A:1/1
 P:0:1d1:0:0:0
 
-N:346:& Wooden Torch~
+N:341:& Wooden Torch~
 G:~:u
 I:39:0:0:4000
 W:1:0:30:2
@@ -2544,7 +2545,7 @@ A:1/1
 P:0:1d1:0:0:0
 F:EASY_KNOW | LITE1 | FUEL_LITE
 
-N:347:& Brass Lantern~
+N:342:& Brass Lantern~
 G:~:U
 I:39:1:0:7500
 W:1:0:50:35
@@ -2552,14 +2553,14 @@ A:3/1
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE | LITE2 | FUEL_LITE
 
-N:348:& Flask~ of oil
+N:343:& Flask~ of oil
 G:!:y
 I:77:0:7500
 W:1:0:10:3
 A:1/1
 P:0:2d6:0:0:0
 
-N:349:& Empty Bottle~
+N:344:& Empty Bottle~
 G:!:w
 I:2:1:0
 W:0:0:2:1
@@ -2571,196 +2572,196 @@ P:0:1d1:0:0:0
 
 ##### Here are the Rod Tips #####
 
-N:350:Havoc
+N:345:Havoc
 G:-:d
 I:66:28:90
 W:47:0:15:150000
 A:50/16
 P:0:1d1:0:0:0
 
-N:351:Door/Stair Location
+N:346:Door/Stair Location
 G:-:d
 I:66:1:10
 W:7:0:15:1000
 A:7/1
 P:0:1d1:0:0:0
 
-N:352:Trap Location
+N:347:Trap Location
 G:-:d
 I:66:29:8
 W:2:0:15:100
 A:2/1
 P:0:1d1:0:0:0
 
-N:353:Probing
+N:348:Probing
 G:-:d
 I:66:7:50
 W:20:0:15:4000
 A:20/4
 P:0:1d1:0:0:0
 
-N:354:Recall
+N:349:Recall
 G:-:d
 I:66:3:80
 W:15:0:15:4000
 A:15/4
 P:0:1d1:0:0:0
 
-N:355:Illumination
+N:350:Illumination
 G:-:d
 I:66:4:8
 W:10:0:15:1000
 A:10/1
 P:0:1d1:0:0:0
 
-N:356:Light
+N:351:Light
 G:-:d
 I:66:15:15
 W:5:0:15:500
 A:5/1
 P:0:1d1:0:0:0
 
-N:357:Lightning Bolts
+N:352:Lightning Bolts
 G:-:d
 I:66:21:30
 W:10:0:15:2000
 A:10/1
 P:0:1d1:0:0:0
 
-N:358:Frost Bolts
+N:353:Frost Bolts
 G:-:d
 I:66:23:35
 W:12:0:15:2500
 A:12/1
 P:0:1d1:0:0:0
 
-N:359:Fire Bolts
+N:354:Fire Bolts
 G:-:d
 I:66:22:40
 W:15:0:15:3000
 A:15/1
 P:0:1d1:0:0:0
 
-N:360:Polymorph
+N:355:Polymorph
 G:-:d
 I:66:19:25
 W:17:0:15:1200
 A:17/1
 P:0:1d1:0:0:0
 
-N:361:Slow Monster
+N:356:Slow Monster
 G:-:d
 I:66:17:25
 W:15:0:15:1500
 A:15/1
 P:0:1d1:0:0:0
 
-N:362:Sleep Monster
+N:357:Sleep Monster
 G:-:d
 I:66:16:25
 W:15:0:15:1500
 A:15/1
 P:0:1d1:0:0:0
 
-N:363:Drain Life
+N:358:Drain Life
 G:-:d
 I:66:18:30
 W:37:0:15:3600
 A:37/4
 P:0:1d1:0:0:0
 
-N:364:Teleport Other
+N:359:Teleport Other
 G:-:d
 I:66:13:60
 W:22:0:15:1400
 A:22/2
 P:0:1d1:0:0:0
 
-N:365:Disarming
+N:360:Disarming
 G:-:d
 I:66:14:50
 W:17:0:15:2100
 A:17/1
 P:0:1d1:0:0:0
 
-N:366:Lightning Balls
+N:361:Lightning Balls
 G:-:d
 I:66:25:50
 W:27:0:15:4000
 A:27/1
 P:0:1d1:0:0:0
 
-N:367:Cold Balls
+N:362:Cold Balls
 G:-:d
 I:66:27:55
 W:30:0:15:4500
 A:30/1
 P:0:1d1:0:0:0
 
-N:368:Fire Balls
+N:363:Fire Balls
 G:-:d
 I:66:26:60
 W:37:0:15:5000
 A:37/1
 P:0:1d1:0:0:0
 
-N:369:Acid Balls
+N:364:Acid Balls
 G:-:d
 I:66:24:60
 W:35:0:15:5500
 A:35/1
 P:0:1d1:0:0:0
 
-N:370:Acid Bolts
+N:365:Acid Bolts
 G:-:d
 I:66:20:40
 W:20:0:15:3500
 A:20/1
 P:0:1d1:0:0:0
 
-N:371:Enlightenment
+N:366:Enlightenment
 G:-:d
 I:66:5:40
 W:32:0:15:10000
 A:32/4
 P:0:1d1:0:0:0
 
-N:372:Perception
+N:367:Perception
 G:-:d
 I:66:2:20
 W:25:0:15:13000
 A:25/8:50/8
 P:0:1d1:0:0:0
 
-N:373:Curing
+N:368:Curing
 G:-:d
 I:66:8:35
 W:32:0:15:15000
 A:32/8
 P:0:1d1:0:0:0
 
-N:374:Healing
+N:369:Healing
 G:-:d
 I:66:9:120
 W:40:0:15:20000
 A:40/8
 P:0:1d1:0:0:0
 
-N:375:Detection
+N:370:Detection
 G:-:d
 I:66:6:80
 W:15:0:15:5000
 A:15/8
 P:0:1d1:0:0:0
 
-N:376:Restoration
+N:371:Restoration
 G:-:d
 I:66:10:140
 W:40:0:15:25000
 A:40/16
 P:0:1d1:0:0:0
 
-N:377:Speed
+N:372:Speed
 G:-:d
 I:66:11:100
 W:42:0:15:50000
@@ -2768,74 +2769,14 @@ A:47/16
 P:0:1d1:0:0:0
 
 
-##### Shadow Books #####
-
-N:378:[Inner Void]
-G:?:D
-I:113:0:0
-W:2:0:30:25
-A:2/1
-P:0:1d1:0:0:0
-
-N:379:[Lurkings of the Night]
-G:?:D
-I:113:1:0
-W:5:0:30:100
-A:5/1
-P:0:1d1:0:0:0
-
-N:380:[Beings of Darkness]
-G:?:D
-I:113:2:0
-W:10:0:30:400
-A:10/1
-P:0:1d1:0:0:0
-
-N:381:[Material Shadow]
-G:?:D
-I:113:3:0
-W:15:0:30:800
-A:15/1
-P:0:1d1:0:0:0
-
-N:383:[Sign of Chaos]
-G:?:R
-I:114:0:0
-W:5:0:30:100
-A:5/1
-P:0:1d1:0:0:0
-
-N:384:[Chaos Mastery]
-G:?:R
-I:114:1:0
-W:10:0:30:1000
-A:10/1
-P:0:1d1:0:0:0
-
-N:385:[Chaos Channels]
-G:?:r
-I:114:2:0
-W:25:0:30:25000
-A:25/1
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:386:[Armageddon Tome]
-G:?:r
-I:114:3:0
-W:50:0:30:100000
-A:50/3
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:387:[Nether Openings]
+N:373:[Nether Openings]
 G:?:G
 I:115:0:0
 W:2:0:30:25
 A:2/1
 P:0:1d1:0:0:0
 
-N:388:[Unholy Blessings]
+N:374:[Unholy Blessings]
 G:?:G
 I:115:1:0
 W:5:0:30:100
@@ -2845,14 +2786,14 @@ P:0:1d1:0:0:0
 
 ##### Firescones #####
 
-N:389:& Firescone~
+N:375:& Firescone~
 G:~:r
 I:3:3:0
 W:2:0:40:20
 A:2/1
 P:0:1d1:0:0:0
 
-N:390:& Small Firescone~
+N:376:& Small Firescone~
 G:~:r
 I:3:6:0
 W:0:0:4:2
@@ -2862,56 +2803,56 @@ P:0:1d1:0:0:0
 
 ##### Skeletons #####
 
-N:391:& Broken Skull~
+N:377:& Broken Skull~
 G:.:w
 I:1:1:0
 W:0:0:1:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:392:& Broken Bone~
+N:378:& Broken Bone~
 G:~:w
 I:1:2:0
 W:0:0:2:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:393:& Canine Skeleton~
+N:379:& Canine Skeleton~
 G:C:w
 I:1:4:0
 W:1:0:10:0
 A:1/1
 P:0:1d1:0:0:0
 
-N:394:& Rodent Skeleton~
+N:380:& Rodent Skeleton~
 G:r:w
 I:1:3:0
 W:1:0:10:0
 A:1/1
 P:0:1d1:0:0:0
 
-N:395:& Human Skeleton~
+N:381:& Human Skeleton~
 G:s:w
 I:1:8:0
 W:2:0:60:0
 A:2/1
 P:0:1d2:0:0:0
 
-N:396:& Dwarf Skeleton~
+N:382:& Dwarf Skeleton~
 G:s:w
 I:1:7:0
 W:2:0:50:0
 A:2/1
 P:0:1d2:0:0:0
 
-N:397:& Teleri Skeleton~
+N:383:& Teleri Skeleton~
 G:s:w
 I:1:6:0
 W:2:0:40:0
 A:2/1
 P:0:1d2:0:0:0
 
-N:398:& Noldor Skeleton~
+N:384:& Noldor Skeleton~
 G:s:w
 I:1:5:0
 W:2:0:30:0
@@ -2920,7 +2861,7 @@ P:0:1d2:0:0:0
 
 ##### Additional weapon #####
 
-N:399:& Great Hammer~
+N:385:& Great Hammer~
 G:\:D
 I:21:19:0
 W:22:0:300:350
@@ -2928,7 +2869,7 @@ A:22/3
 P:0:4d6:0:0:0
 F:SHOW_MODS
 
-N:413:& Dragon Helm~
+N:386:& Dragon Helm~
 G:]:G
 I:32:7:0
 W:22:0:50:10000
@@ -2936,7 +2877,7 @@ A:40/4
 P:8:1d3:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
-N:414:& Dragon Shield~
+N:387:& Dragon Shield~
 G:[:G
 I:34:6:0
 W:35:0:100:10000
@@ -2946,7 +2887,7 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
 ##### Extra potions #####
 
-N:415:Death
+N:388:Death
 G:!:d
 I:71:23:0
 W:27:0:4:0
@@ -2954,7 +2895,7 @@ A:27/4
 P:0:20d20:0:0:0
 F:FOUNTAIN
 
-N:416:Ruination
+N:389:Ruination
 G:!:d
 I:71:15:0
 W:20:0:4:0
@@ -2962,7 +2903,7 @@ A:20/8
 P:0:20d20:0:0:0
 F:FOUNTAIN
 
-N:417:Detonations
+N:390:Detonations
 G:!:d
 I:71:22:0
 W:30:0:4:10000
@@ -2970,7 +2911,7 @@ A:30/8
 P:0:25d25:0:0:0
 F:FOUNTAIN
 
-N:418:Augmentation
+N:391:Augmentation
 G:!:d
 I:71:55:0
 W:20:0:4:60000
@@ -2978,7 +2919,7 @@ A:20/16
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:419:*Healing*
+N:392:*Healing*
 G:!:d
 I:71:38:0
 W:20:0:4:1500
@@ -2986,14 +2927,14 @@ A:20/4:30/2:40/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:420:Life
+N:393:Life
 G:!:d
 I:71:39:0
 W:30:0:4:5000
 A:30/4:50/2
 P:0:1d1:0:0:0
 
-N:421:Self Knowledge
+N:394:Self Knowledge
 G:!:d
 I:71:58:0
 W:20:0:4:2000
@@ -3001,7 +2942,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:422:*Enlightenment*
+N:395:*Enlightenment*
 G:!:d
 I:71:57:0
 W:35:0:4:80000
@@ -3009,105 +2950,105 @@ A:35/4
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:423:[Necromantic Incantations]
+N:396:[Necromantic Incantations]
 G:?:G
 I:115:2:0
 W:10:0:30:400
 A:10/1
 P:0:1d1:0:0:0
 
-N:424:[Curses of Angmar]
+N:397:[Curses of Angmar]
 G:?:G
 I:115:3:0
 W:15:0:30:800
 A:15/1
 P:0:1d1:0:0:0
 
-N:425:Fear Resistance
+N:398:Fear Resistance
 G:=:d
 I:45:38:0
 W:5:0:2:300 
 A:5/2
 F:RES_FEAR | EASY_KNOW
 
-N:426:Light and Darkness Resistance
+N:399:Light and Darkness Resistance
 G:=:d
 I:45:39:0
 W:15:0:2:3000
 A:15/2
 F:RES_LITE | RES_DARK | EASY_KNOW
 
-N:427:Nether Resistance
+N:400:Nether Resistance
 G:=:d
 I:45:40:0
 W:17:0:2:14500
 A:17/2
 F:RES_NETHER | HOLD_LIFE | EASY_KNOW
 
-N:428:Nexus Resistance
+N:401:Nexus Resistance
 G:=:d
 I:45:41:0
 W:12:0:2:3000
 A:12/2
 F:RES_NEXUS | EASY_KNOW
 
-N:429:Sound Resistance
+N:402:Sound Resistance
 G:=:d
 I:45:42:0
 W:13:0:2:3000
 A:13/2
 F:RES_SOUND | EASY_KNOW
 
-N:430:Confusion Resistance
+N:403:Confusion Resistance
 G:=:d
 I:45:43:0
 W:11:0:2:3000
 A:11/2
 F:RES_CONF | EASY_KNOW
 
-N:431:Shard Resistance
+N:404:Shard Resistance
 G:=:d
 I:45:44:0
 W:12:0:2:3000
 A:12/2
 F:RES_SHARDS | EASY_KNOW
 
-N:432:Disenchantment Resistance
+N:405:Disenchantment Resistance
 G:=:d
 I:45:45:0
 W:45:0:2:15000
 A:45/10
 F:RES_DISEN | EASY_KNOW
 
-N:433:Chaos Resistance
+N:406:Chaos Resistance
 G:=:d
 I:45:46:0
 W:25:0:2:13000
 A:25/2
 F:RES_CHAOS | RES_CONF | EASY_KNOW
 
-N:434:Blindness Resistance
+N:407:Blindness Resistance
 G:=:d
 I:45:47:0
 W:30:0:2:7500
 A:30/2
 F:RES_BLIND | EASY_KNOW
 
-N:435:Lordly Protection
+N:408:Lordly Protection
 G:=:d
 I:45:48:0
 W:50:0:2:100000
 A:50/5
 F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT
 
-N:436:Extra Attacks
+N:409:Extra Attacks
 G:=:d
 I:45:49:0
 W:25:0:2:100000
 A:25/2
 F:BLOWS
 
-N:437:Cure Light Wounds
+N:410:Cure Light Wounds
 G:!:d
 I:71:34:50
 W:0:0:4:15
@@ -3115,7 +3056,7 @@ A:0/1:1/1:3/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:438:Clumsiness
+N:411:Clumsiness
 G:!:d
 I:71:19:0
 W:2:0:4:0
@@ -3123,7 +3064,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:439:Sickliness
+N:412:Sickliness
 G:!:d
 I:71:20:0
 W:5:0:4:0
@@ -3134,28 +3075,28 @@ F:FOUNTAIN
 ###### Here start the maps #####
 
 # Map of Bree
-N:440:Map of Bree
+N:413:Map of Bree
 G:?:s
 I:8:200:0
 W:1:100:5:100
 A:3/3
 
 # Map of Gondolin
-N:441:Map of Gondolin
+N:414:Map of Gondolin
 G:?:s
 I:8:201:0
 W:35:100:5:50000
 A:35/3
 
 # Map of Lothlorien
-N:442:Map of Lothlorien
+N:415:Map of Lothlorien
 G:?:s
 I:8:202:0
 W:3:100:5:1000
 A:3/3
 
 # Map of Minas Anor
-N:443:Map of Minas Anor
+N:416:Map of Minas Anor
 G:?:s
 I:8:203:0
 W:18:100:5:10000
@@ -3163,7 +3104,7 @@ A:18/3
 
 # Parasite eggs (they need to be separate because they behave differently
 # than normal eggs).
-N:445:& Parasite Egg~
+N:417:& Parasite Egg~
 G:.:w
 I:106:0:0
 W:5:0:0:5
@@ -3171,35 +3112,35 @@ A:10/1:20/5:40/1
 
 ### Numbers 445-464 unused ###
 
-N:467:Lightning Resistance
+N:418:Lightning Resistance
 G:":d
 I:40:29:0
 W:5:0:3:250
 A:5/1
 F:RES_ELEC | IGNORE_ELEC | EASY_KNOW
 
-N:468:Wisdom
+N:419:Wisdom
 G:":d
 I:40:28:0
 W:15:0:3:500
 A:15/1
 F:WIS | SUST_WIS |  HIDE_TYPE
 
-N:469:Regeneration
+N:420:Regeneration
 G:":d
 I:40:27:0
 W:15:0:3:600
 A:15/3
 F:REGEN | EASY_KNOW
 
-N:470:Infravision
+N:421:Infravision
 G:":d
 I:40:26:0
 W:5:0:3:200
 A:5/1
 F:INFRA | HIDE_TYPE
 
-N:471:Devotion
+N:422:Devotion
 G:":d
 I:40:25:0
 W:35:0:3:30000
@@ -3208,7 +3149,7 @@ F:WIS | CHR | SUST_WIS | SUST_CHR | LITE1 | HIDE_TYPE |
 F:RES_DARK | RES_LITE | RES_FIRE | HOLD_LIFE | 
 #F:INHIBIT_MAGIC
 
-N:472:Weaponmastery
+N:423:Weaponmastery
 G:":d
 I:40:24:0
 W:35:0:3:30000
@@ -3217,7 +3158,7 @@ F:STR | CON | SUST_STR | SUST_CON | FREE_ACT | HIDE_TYPE |
 F:RES_FEAR | RES_DISEN |  
 #F:INHIBIT_MAGIC | INHIBIT_PRAYER | INHIBIT_PSI
 
-N:473:Trickery
+N:424:Trickery
 G:":d
 I:40:23:0
 W:35:0:3:30000
@@ -3225,7 +3166,7 @@ A:35/8
 F:DEX | SUST_DEX | STEALTH | SPEED | INFRA | HIDE_TYPE | 
 F:RES_NEXUS | RES_POIS
 
-N:474:ESP
+N:425:ESP
 G:":d
 I:40:22:0
 W:25:0:3:25000
@@ -3233,7 +3174,7 @@ A:25/6
 F:ESP_ALL | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:475:Sustenance
+N:426:Sustenance
 G:":d
 I:40:21:0
 W:30:0:3:20000
@@ -3244,7 +3185,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # The Palantir of Minas Ithil -- see artifact list
 
-N:476:& Palantir~
+N:427:& Palantir~
 G:~:y
 I:39:107:0
 W:37:0:200:0
@@ -3253,7 +3194,7 @@ F:INSTA_ART
 
 # The Elfstone 'Elessar' -- see artifact list
 
-N:477:& Elfstone~
+N:428:& Elfstone~
 G:":g
 I:40:19:0
 W:30:0:3:50000
@@ -3261,7 +3202,7 @@ F:INSTA_ART
 
 # The Jewel 'Evenstar' -- see artifact list
 
-N:478:& Jewel~
+N:429:& Jewel~
 G:":w
 I:40:20:0
 W:25:0:3:35000
@@ -3269,7 +3210,7 @@ F:INSTA_ART
 
 # The Ring of Durin -- see artifact list
 
-N:479:& Ring~
+N:430:& Ring~
 G:=:d
 I:45:57:0
 W:35:0:2:65000
@@ -3277,87 +3218,87 @@ F:INSTA_ART
 
 ##### And here starts the gold/gems #####
 
-N:480:copper
+N:431:copper
 G:$:u
 I:100:1:0
 W:1:0:0:3
 
-N:481:copper
+N:432:copper
 G:$:u
 I:100:2:0
 W:1:0:0:4
 
-N:482:copper
+N:433:copper
 G:$:u
 I:100:3:0
 W:1:0:0:5
 
-N:483:silver
+N:434:silver
 G:$:s
 I:100:4:0
 W:1:0:0:6
 
-N:484:silver
+N:435:silver
 G:$:s
 I:100:5:0
 W:1:0:0:7
 
-N:485:silver
+N:436:silver
 G:$:s
 I:100:6:0
 W:1:0:0:8
 
-N:486:garnets
+N:437:garnets
 G:$:r
 I:100:7:0
 W:1:0:0:9
 
-N:487:garnets
+N:438:garnets
 G:$:r
 I:100:8:0
 W:1:0:0:10
 
-N:488:gold
+N:439:gold
 G:$:y
 I:100:9:0
 W:1:0:0:12
 
-N:489:gold
+N:440:gold
 G:$:y
 I:100:10:0
 W:1:0:0:14
 
-N:490:gold
+N:441:gold
 G:$:y
 I:100:11:0
 W:1:0:0:16
 
-N:491:opals
+N:442:opals
 G:$:W
 I:100:12:0
 W:1:0:0:18
 
-N:492:sapphires
+N:443:sapphires
 G:$:b
 I:100:13:0
 W:1:0:0:20
 
-N:493:rubies
+N:444:rubies
 G:$:r
 I:100:14:0
 W:1:0:0:24
 
-N:494:diamonds
+N:445:diamonds
 G:$:w
 I:100:15:0
 W:1:0:0:28
 
-N:495:emeralds
+N:446:emeralds
 G:$:g
 I:100:16:0
 W:1:0:0:32
 
-N:496:mithril
+N:447:mithril
 G:$:B
 I:100:17:0
 W:1:0:0:40
@@ -3369,14 +3310,14 @@ W:1:0:0:40
 # without being turned into artifacts.  This simplifies the
 # code for "killing the winner monster".
 
-N:498:& Mighty Hammer~
+N:448:& Mighty Hammer~
 G:\:D
 I:21:50:0
 W:7:0:200:1000
 P:0:3d9:0:0:0
 F:SHOW_MODS | INSTA_ART | MUST2H
 
-N:499:& Massive Iron Crown~
+N:449:& Massive Iron Crown~
 G:]:D
 I:33:50:0
 W:22:0:20:1000
@@ -3412,7 +3353,7 @@ F:INSTA_ART
 
 # The Phial of Galadriel -- see artifact list
 
-N:500:& Phial~
+N:450:& Phial~
 G:~:y
 I:39:100:0
 W:10:0:10:10000
@@ -3421,7 +3362,7 @@ F:INSTA_ART
 
 # The Star of Elendil -- see artifact list
 
-N:501:& Star~
+N:451:& Star~
 G:~:B
 I:39:101:0
 W:15:0:5:25000
@@ -3430,7 +3371,7 @@ F:INSTA_ART
 
 # The Arkenstone of Thrain -- see artifact list
 
-N:502:& Arkenstone~
+N:452:& Arkenstone~
 G:~:R
 I:39:102:0
 W:30:0:5:60000
@@ -3440,7 +3381,7 @@ F:INSTA_ART
 
 # The Amulet of Carlammas -- see artifact list
 
-N:503:& Amulet~
+N:453:& Amulet~
 G:":d
 I:40:10:0
 W:25:0:3:60000
@@ -3448,7 +3389,7 @@ F:INSTA_ART
 
 # The Amulet of Ingwe -- see artifact list
 
-N:504:& Amulet~
+N:454:& Amulet~
 G:":d
 I:40:11:0
 W:30:0:3:90000
@@ -3456,7 +3397,7 @@ F:INSTA_ART
 
 # The Necklace 'Nauglamir' -- see artifact list
 
-N:505:& Necklace~
+N:455:& Necklace~
 G:":d
 I:40:12:0
 W:35:0:3:75000
@@ -3465,7 +3406,7 @@ F:INSTA_ART
 
 # The Ring of Barahir -- see artifact list
 
-N:506:& Ring~
+N:456:& Ring~
 G:=:d
 I:45:32:0
 W:25:0:2:65000
@@ -3473,7 +3414,7 @@ F:INSTA_ART
 
 # The Ring of Tulkas -- see artifact list
 
-N:507:& Ring~
+N:457:& Ring~
 G:=:d
 I:45:33:0
 W:45:0:2:150000
@@ -3481,7 +3422,7 @@ F:INSTA_ART
 
 # The Ring of Power 'Narya' -- see artifact list
 
-N:508:& Ring~
+N:458:& Ring~
 G:=:d
 I:45:34:0
 W:40:0:2:100000
@@ -3489,7 +3430,7 @@ F:INSTA_ART
 
 # The Ring of Power 'Nenya' -- see artifact list
 
-N:509:& Ring~
+N:459:& Ring~
 G:=:d
 I:45:35:0
 W:45:0:2:200000
@@ -3497,7 +3438,7 @@ F:INSTA_ART
 
 # The Ring of Power 'Vilya' -- see artifact list
 
-N:510:& Ring~
+N:460:& Ring~
 G:=:d
 I:45:36:0
 W:50:0:2:300000
@@ -3505,7 +3446,7 @@ F:INSTA_ART
 
 # The Ring of Power 'The One Ring' -- see artifact list
 
-N:511:& Ring~
+N:461:& Ring~
 G:=:y
 I:45:37:0
 W:110:0:2:5000000
@@ -3516,21 +3457,21 @@ F:INSTA_ART
 
 # Crusade Spellbooks
 
-N:512:[Rites of Initiation]
+N:462:[Rites of Initiation]
 G:?:U
 I:116:0:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:513:[Ways of War]
+N:463:[Ways of War]
 G:?:U
 I:116:1:0
 W:10:0:30:1000
 A:10/1
 P:0:1d1:0:0:0
 
-N:514:[Divine Retribution]
+N:464:[Divine Retribution]
 G:?:u
 I:116:2:0
 W:20:0:30:25000
@@ -3538,7 +3479,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:515:[Essence of Fury]
+N:465:[Essence of Fury]
 G:?:u
 I:116:3:0
 W:45:0:30:100000
@@ -3548,21 +3489,21 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Sigaldry Spellbooks
 
-N:516:[Novice Crafts]
+N:466:[Novice Crafts]
 G:?:s
 I:117:0:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:517:[Arcane Channels]
+N:467:[Arcane Channels]
 G:?:s
 I:117:1:0
 W:10:0:30:1000
 A:10/1
 P:0:1d1:0:0:0
 
-N:518:[Sigils of Wizardry]
+N:468:[Sigils of Wizardry]
 G:?:s
 I:117:2:0
 W:20:0:30:25000
@@ -3570,7 +3511,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:519:[Mana Focus]
+N:469:[Mana Focus]
 G:?:s
 I:117:3:0
 W:45:0:30:100000
@@ -3578,7 +3519,7 @@ A:45/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:520:Reflection
+N:470:Reflection
 G:":d
 I:40:9:0
 W:30:0:3:30000
@@ -3588,7 +3529,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #521 and 522 cannot have EASY_KNOW because they may be cursed
 
-N:521:Anti-Magic
+N:471:Anti-Magic
 G:":d
 I:40:13:0
 W:20:0:3:30000
@@ -3596,7 +3537,7 @@ A:20/4
 F:NO_MAGIC
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:522:Anti-Teleportation
+N:472:Anti-Teleportation
 G:":d
 I:40:14:0
 W:15:0:3:15000
@@ -3606,7 +3547,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #523 cannot have EASY_KNOW because it can get random resistances
 
-N:523:Resistance
+N:473:Resistance
 G:":d
 I:40:15:0
 W:25:0:3:25000
@@ -3616,7 +3557,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### New arms #####
 
-N:524:& Zweihander~
+N:474:& Zweihander~
 G:|:w
 I:23:29:0
 W:20:0:280:580
@@ -3625,7 +3566,7 @@ P:0:4d6:0:0:0
 F:SHOW_MODS | MUST2H
 
 # Dwarven lantern
-N:525:& Dwarven Lantern~
+N:475:& Dwarven Lantern~
 G:~:b
 I:39:3:0
 W:7:0:50:5000
@@ -3633,14 +3574,14 @@ A:7/2
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE | LITE2
 
-N:526:Splint Mail~
+N:476:Splint Mail~
 G:[:D
 I:37:10:0
 W:17:0:250:950
 A:17/1
 P:19:1d4:-2:0:0
 
-N:528:& Trifurcate Spear~
+N:477:& Trifurcate Spear~
 G:/:o
 I:22:26:0
 W:17:0:140:400
@@ -3648,7 +3589,7 @@ A:35:3
 P:0:2d9:0:0:0
 F:SHOW_MODS
 
-N:529:& Three Piece Rod~
+N:478:& Three Piece Rod~
 G:\:u
 I:21:11:0
 W:10:0:120:350
@@ -3657,7 +3598,7 @@ P:0:3d3:0:0:0
 F:SHOW_MODS
 
 # Feanorian Lamp
-N:530:& Feanorian Lamp~
+N:479:& Feanorian Lamp~
 G:~:B
 I:39:4:0
 W:12:0:50:15000
@@ -3665,14 +3606,14 @@ A:12/3
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE | LITE3
 
-N:531:& Fur Cloak~
+N:480:& Fur Cloak~
 G:(:W
 I:35:3:0
 W:10:0:30:300
 A:10/2:15/2
 P:3:0d0:0:0:0
 
-N:532:Curing Water
+N:481:Curing Water
 G:!:d
 I:72:18:80
 W:0:0:4:0
@@ -3680,7 +3621,7 @@ A:0/1
 P:0:1d1:0:0:0
 F:SPECIAL_GENE
 
-N:533:& Hatchet~
+N:482:& Hatchet~
 G:/:s
 I:24:1:0
 W:5:0:60:120
@@ -3690,7 +3631,7 @@ F:SHOW_MODS | COULD2H
 
 ##### New weapons #####
 
-N:537:& Sickle~
+N:483:& Sickle~
 G:/:s
 I:22:3:0
 W:5:0:70:110
@@ -3699,21 +3640,21 @@ P:0:2d3:0:0:0
 F:SHOW_MODS
 
 # Spirit books
-N:538:[Psychoportation]
+N:484:[Psychoportation]
 G:?:s
 I:126:0:0
 W:2:0:30:25
 A:2/1
 P:0:1d1:0:0:0
 
-N:539:[Clairsentience]
+N:485:[Clairsentience]
 G:?:s
 I:126:1:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:540:[Telekinesis]
+N:486:[Telekinesis]
 G:?:s
 I:126:2:0
 W:10:0:30:400
@@ -3721,7 +3662,7 @@ A:10/3
 P:0:1d1:0:0:0
 F:IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | IGNORE_ACID
 
-N:541:[Empathy]
+N:487:[Empathy]
 G:?:s
 I:126:3:0
 W:15:0:30:800
@@ -3729,7 +3670,7 @@ A:15/3
 P:0:1d1:0:0:0
 F:IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | IGNORE_ACID
 
-N:542:& Club~
+N:488:& Club~
 G:\:u
 I:21:1:0
 W:0:0:100:3
@@ -3737,7 +3678,7 @@ A:0/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 
-N:543:& Broad Spear~
+N:489:& Broad Spear~
 G:/:w
 I:22:7:0
 W:7:0:100:240
@@ -3745,7 +3686,7 @@ A:7/3
 P:0:1d9:0:0:0
 F:SHOW_MODS
 
-N:544:& Khopesh~
+N:490:& Khopesh~
 G:|:W
 I:23:14:0
 W:5:0:130:190
@@ -3753,7 +3694,7 @@ A:5/2
 P:0:2d4:0:0:0
 F:SHOW_MODS
 
-N:545:& Flamberge~
+N:491:& Flamberge~
 G:|:W
 I:23:26:0
 W:20:0:230:600
@@ -3761,7 +3702,7 @@ A:20/2
 P:0:3d7:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:546:& Claymore~
+N:492:& Claymore~
 G:|:W
 I:23:23:0
 W:20:0:200:600
@@ -3769,7 +3710,7 @@ A:20/2
 P:0:2d8:0:0:0
 F:SHOW_MODS
 
-N:547:& Espadon~
+N:493:& Espadon~
 G:|:W
 I:23:24:0
 W:20:0:200:600
@@ -3777,7 +3718,7 @@ A:20/3
 P:0:2d9:0:0:0
 F:SHOW_MODS
 
-N:548:& Great Scimitar~
+N:494:& Great Scimitar~
 G:|:W
 I:23:22:0
 W:20:0:240:500
@@ -3787,21 +3728,21 @@ F:SHOW_MODS | MUST2H
 
 ### Trapping Kits 
 
-N:549:Arrow
+N:495:Arrow
 G:`:r
 I:46:2:0
 W:5:0:60:150
 A:5/2:25/2
 F:SHOW_MODS
 
-N:550:Bolt
+N:496:Bolt
 G:`:o
 I:46:3:0
 W:10:0:220:300
 A:10/2:25/2
 F:SHOW_MODS
 
-N:551:& Fauchard~
+N:497:& Fauchard~
 G:/:s
 I:22:6:0
 W:9:0:155:301
@@ -3809,7 +3750,7 @@ A:9/2
 P:0:1d10:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:552:& Guisarme~
+N:498:& Guisarme~
 G:/:s
 I:22:16:0
 W:10:0:165:320
@@ -3817,7 +3758,7 @@ A:10/1
 P:0:2d5:0:0:0
 F:SHOW_MODS | COULD2H
 
-N:553:& Heavy Lance~
+N:499:& Heavy Lance~
 G:/:s
 I:22:29:0
 W:21:0:400:700
@@ -3825,7 +3766,7 @@ A:21/2
 P:0:4d8:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:554:& Basillard~
+N:500:& Basillard~
 G:|:w
 I:23:9:0
 W:7:0:80:220
@@ -3835,35 +3776,35 @@ F:SHOW_MODS
 
 ### Trapping Kits 
 
-N:555:Catapult
+N:501:Catapult
 G:`:R
 I:46:1:0
 W:1:0:50:40
 A:1/2:10/2
 F:SHOW_MODS
 
-N:556:Ring Mail~
+N:502:Ring Mail~
 G:[:s
 I:37:2:0
 W:10:0:200:500
 A:10/1
 P:12:1d4:-2:0:0
 
-N:557:Cord Armour~
+N:503:Cord Armour~
 G:(:y
 I:36:9:0
 W:2:0:80:40
 A:2/1
 P:6:1d1:0:0:0
 
-N:558:Paper Armour~
+N:504:Paper Armour~
 G:(:w
 I:36:3:0
 W:2:0:30:40
 A:2/2
 P:4:1d1:0:0:0
 
-N:559:Padded Armour~
+N:505:Padded Armour~
 G:(:y
 I:36:10:0
 W:2:0:60:40
@@ -3872,13 +3813,13 @@ P:4:1d1:0:0:0
 
 ### Trapping Kits 
 
-N:560:Fumes
+N:506:Fumes
 G:`:G
 I:46:4:0
 W:2:0:20:50
 A:2/2:15/2
 
-N:561:Stone and Hide Armour~
+N:507:Stone and Hide Armour~
 G:(:U
 I:36:15:0
 W:17:0:200:500
@@ -3887,35 +3828,35 @@ P:15:1d1:-1:0:0
 
 ### Trapping Kits 
 
-N:562:Magic
+N:508:Magic
 G:`:g
 I:46:5:0
 W:2:0:20:50
 A:2/2:20/2
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
-N:563:Device
+N:509:Device
 G:`:v
 I:46:6:0
 W:10:0:20:50
 A:10/2:20/2:30/2
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
-N:564:Nothing
+N:510:Nothing
 G:?:d
 I:70:53:0
 W:1:0:5:2
 A:1/1
 P:0:1d1:0:0:0
 
-N:565:Poison
+N:511:Poison
 G:*:G
 I:4:1:5
 W:0:0:4:2
 A:0/1
 P:0:1d1:0:0:0
 
-N:566:Nothing
+N:512:Nothing
 G:-:d
 I:65:30:0
 W:2:0:10:20
@@ -3923,14 +3864,14 @@ A:2/1
 P:0:1d1:0:0:0
 F:NO_RECHARGE
 
-N:567:Nothing
+N:513:Nothing
 G:=:d
 I:45:50:0
 W:2:0:2:20
 A:2/1
 P:0:1d1:0:0:0
 
-N:568:Nothing
+N:514:Nothing
 G:_:d
 I:55:30:0
 W:2:0:50:50
@@ -3938,7 +3879,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:NO_RECHARGE
 
-N:569:Nothing
+N:515:Nothing
 G:-:d
 I:66:0:1
 W:2:0:10:50
@@ -3948,14 +3889,14 @@ P:0:1d1:0:0:0
 
 # Here comes the Essences (randomly interspersed with other stuff...)
 
-N:570:Explosion
+N:516:Explosion
 G:*:G
 I:4:2:50
 W:0:0:4:2
 A:0/1:10/1:20/1:30/1
 P:0:1d1:0:0:0
 
-N:571:Teleport
+N:517:Teleport
 G:*:G
 I:4:3:190
 W:0:0:4:2
@@ -3964,7 +3905,7 @@ P:0:1d1:0:0:0
 
 # Amulet of Nothing
 
-N:572:Nothing
+N:518:Nothing
 G:":d
 I:40:16:0
 W:5:0:3:20
@@ -3973,7 +3914,7 @@ P:0:1d1:0:0:0
 
 # An artifact potion! The Blood of Life...
 
-N:573:& Blood~ of Life
+N:519:& Blood~ of Life
 G:!:d
 I:71:3:200
 W:35:0:4:10000
@@ -3982,21 +3923,21 @@ P:0:1d1:0:0:0
 T:71:2
 F:NORM_ART
 
-N:574:Cold
+N:520:Cold
 G:*:G
 I:4:4:200
 W:0:0:4:2
 A:2/1:10/1:20/1:30/1
 P:0:1d1:0:0:0
 
-N:575:Fire
+N:521:Fire
 G:*:G
 I:4:5:200
 W:0:0:4:2
 A:2/1:10/1:20/1:30/1
 P:0:1d1:0:0:0
 
-N:576:Acid
+N:522:Acid
 G:*:G
 I:4:6:200
 W:0:0:4:2
@@ -4005,7 +3946,7 @@ P:0:1d1:0:0:0
 
 # Mage staffs (for Sorcerers to wield.)
 
-N:577:& Mage Staff~
+N:523:& Mage Staff~
 G:\:B
 I:6:1:0
 W:2:0:12:300
@@ -4015,7 +3956,7 @@ F:SHOW_MODS | COULD2H
 
 # An extra ring, out of place
 
-N:578:Lightning
+N:524:Lightning
 G:=:d
 I:45:56:0
 W:25:0:2:3000
@@ -4025,21 +3966,21 @@ F:RES_ELEC | IGNORE_ELEC | ACTIVATE
 
 # More essences
 
-N:579:Life
+N:525:Life
 G:*:G
 I:4:7:300
 W:0:0:4:2
 A:0/1:10/1:20/1:30/1
 P:0:1d1:0:0:0
 
-N:580:Confusion
+N:526:Confusion
 G:*:G
 I:4:8:100
 W:0:0:4:2
 A:0/1:10/1:20/1:30/1
 P:0:1d1:0:0:0
 
-N:581:Light
+N:527:Light
 G:*:G
 I:4:9:60
 W:0:0:4:2
@@ -4048,7 +3989,7 @@ P:0:1d1:0:0:0
 
 # Potion and Fountain of Invisibility
 
-N:583:Invisibility
+N:528:Invisibility
 G:!:d
 I:71:8:0
 W:1:0:4:50
@@ -4056,7 +3997,7 @@ A:3/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:584:Chaos
+N:529:Chaos
 G:*:G
 I:4:10:200
 W:10:0:4:2
@@ -4066,7 +4007,7 @@ F:ATTR_MULTI
 
 # Potion and Fountain of Corruption
 
-N:585:Corruption
+N:530:Corruption
 G:!:d
 I:71:10:0
 W:1:0:4:0
@@ -4076,14 +4017,14 @@ F:FOUNTAIN
 
 # Ring of Invisibility
 
-N:586:Invisibility
+N:531:Invisibility
 G:=:d
 I:45:53:4
 W:25:0:2:10000
 A:25/1
 F:INVIS | HIDE_TYPE
 
-N:587:Time
+N:532:Time
 G:*:G
 I:4:11:600
 W:10:0:4:2
@@ -4092,103 +4033,103 @@ P:0:1d1:0:0:0
 
 ######### Here are the parchments ########
 
-N:588:Deep Thoughts
+N:533:Deep Thoughts
 G:?:o
 I:8:0:0
 W:1:0:5:50
 A:3/1
 
-N:589:More Deep Thoughts
+N:534:More Deep Thoughts
 G:?:o
 I:8:1:0
 W:2:0:5:50
 A:2/1
 
-N:590:Compendium of Deep Thoughts
+N:535:Compendium of Deep Thoughts
 G:?:o
 I:8:2:0
 W:2:0:5:50
 A:2/1
 
-N:591:Artifact Lore Vol. I
+N:536:Artifact Lore Vol. I
 G:?:o
 I:8:6:0
 W:20:0:5:50
 A:20/3
 
-N:592:Artifact Lore Vol. II
+N:537:Artifact Lore Vol. II
 G:?:o
 I:8:7:0
 W:20:0:5:50
 A:20/3
 
-N:593:Artifact Lore Vol. III
+N:538:Artifact Lore Vol. III
 G:?:o
 I:8:8:0
 W:20:0:5:50
 A:20/3
 
-N:594:Monstrous Compendium 1
+N:539:Monstrous Compendium 1
 G:?:o
 I:8:9:0
 W:5:0:5:50
 A:5/2
 
-N:595:Monstrous Compendium 2
+N:540:Monstrous Compendium 2
 G:?:o
 I:8:10:0
 W:5:0:5:50
 A:5/2
 
-N:596:Monstrous Compendium 3
+N:541:Monstrous Compendium 3
 G:?:o
 I:8:11:0
 W:6:0:5:50
 A:6/2
 
-N:597:Monstrous Compendium 4
+N:542:Monstrous Compendium 4
 G:?:o
 I:8:12:0
 W:6:0:5:50
 A:6/2
 
-N:598:Monstrous Compendium 5
+N:543:Monstrous Compendium 5
 G:?:o
 I:8:13:0
 W:7:0:5:50
 A:7/2
 
-N:599:Monstrous Compendium 6
+N:544:Monstrous Compendium 6
 G:?:o
 I:8:14:0
 W:7:0:5:50
 A:7/2
 
-N:600:Monstrous Compendium 7
+N:545:Monstrous Compendium 7
 G:?:o
 I:8:15:0
 W:8:0:5:50
 A:8/2
 
-N:601:Monstrous Compendium 8
+N:546:Monstrous Compendium 8
 G:?:o
 I:8:16:0
 W:8:0:5:50
 A:8/2
 
-N:602:Monstrous Compendium 9
+N:547:Monstrous Compendium 9
 G:?:o
 I:8:17:0
 W:9:0:5:50
 A:9/2
 
-N:603:Monstrous Compendium 10
+N:548:Monstrous Compendium 10
 G:?:o
 I:8:18:0
 W:9:0:5:50
 A:9/2
 
-N:604:Monstrous Compendium 11
+N:549:Monstrous Compendium 11
 G:?:o
 I:8:19:0
 W:10:0:5:50
@@ -4196,7 +4137,7 @@ A:10/2
 
 #### Here come the shape-shifting potions. ####
 
-N:605:Abomination
+N:550:Abomination
 G:!:d
 I:72:1:80
 W:0:0:4:0
@@ -4204,7 +4145,7 @@ A:0/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:606:Wolf-Form
+N:551:Wolf-Form
 G:!:d
 I:72:2:50
 W:2:0:4:300
@@ -4212,7 +4153,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:607:Ape-Form
+N:552:Ape-Form
 G:!:d
 I:72:3:50
 W:2:0:4:300
@@ -4220,7 +4161,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:608:Goat-Form
+N:553:Goat-Form
 G:!:d
 I:72:4:50
 W:2:0:4:300
@@ -4228,7 +4169,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:609:Carapace
+N:554:Carapace
 G:!:d
 I:72:5:40
 W:2:0:4:300
@@ -4236,7 +4177,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:610:Sparrow-Form
+N:555:Sparrow-Form
 G:!:d
 I:72:6:40
 W:2:0:4:300
@@ -4244,7 +4185,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:613:Spider-Form
+N:556:Spider-Form
 G:!:d
 I:72:9:40
 W:2:0:4:300
@@ -4252,7 +4193,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:614:Shape of Mana ball
+N:557:Shape of Mana ball
 G:!:d
 I:72:10:30
 W:2:0:4:300
@@ -4260,7 +4201,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:615:Shape of Fire cloud
+N:558:Shape of Fire cloud
 G:!:d
 I:72:11:35
 W:2:0:4:300
@@ -4268,7 +4209,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:616:Shape of Cold cloud
+N:559:Shape of Cold cloud
 G:!:d
 I:72:12:35
 W:2:0:4:300
@@ -4276,7 +4217,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:617:Shape of Chaos cloud
+N:560:Shape of Chaos cloud
 G:!:d
 I:72:13:30
 W:2:0:4:300
@@ -4286,154 +4227,154 @@ F:FOUNTAIN
 
 # The Mimic's cloaks
 
-N:618:[Wolf]
+N:561:[Wolf]
 G:(:y
 I:35:102:0:50
 W:2:130:30:100
 A:2/1
 P:1:1d1:0:0:0
 
-N:619:[Ape]
+N:562:[Ape]
 G:(:y
 I:35:103:0:45
 W:7:130:30:400
 A:7/1
 P:1:1d1:0:0:0
 
-N:620:[Goat]
+N:563:[Goat]
 G:(:y
 I:35:104:0:35
 W:7:130:30:400
 A:7/1
 P:1:1d1:0:0:0
 
-N:621:[Insect]
+N:564:[Insect]
 G:(:y
 I:35:105:0:40
 W:5:130:30:300
 A:5/1
 P:1:1d1:0:0:0
 
-N:622:[Sparrow]
+N:565:[Sparrow]
 G:(:y
 I:35:106:0:45
 W:10:130:30:300
 A:10/1
 P:1:1d1:0:0:0
 
-N:623:[Ent]
+N:566:[Ent]
 G:(:y
 I:35:107:0:35
 W:7:130:30:400
 A:7/1
 P:1:1d1:0:0:0
 
-N:624:[Vampire]
+N:567:[Vampire]
 G:(:y
 I:35:108:0:55
 W:15:130:30:800
 A:15/1
 P:1:1d1:0:0:0
 
-N:625:[Spider]
+N:568:[Spider]
 G:(:y
 I:35:109:0:55
 W:17:130:30:600
 A:17/1
 P:1:1d1:0:0:0
 
-N:626:[Mana ball]
+N:569:[Mana ball]
 G:(:y
 I:35:110:0:45
 W:17:130:30:700
 A:17/1
 P:1:1d1:0:0:0
 
-N:627:[Fire cloud]
+N:570:[Fire cloud]
 G:(:y
 I:35:111:0:55
 W:15:130:30:800
 A:15/1
 P:1:1d1:0:0:0
 
-N:628:[Cold cloud]
+N:571:[Cold cloud]
 G:(:y
 I:35:112:0:55
 W:15:130:30:800
 A:15/1
 P:1:1d1:0:0:0
 
-N:629:[Chaos Cloud]
+N:572:[Chaos Cloud]
 G:(:y
 I:35:113:0:45
 W:12:130:30:500
 A:12/1
 P:1:1d1:0:0:0
 
-N:630:[Ghost]
+N:573:[Ghost]
 G:(:y
 I:35:114:0:50
 W:10:130:30:600
 A:10/1
 P:1:1d1:0:0:0
 
-N:631:[Kobold]
+N:574:[Kobold]
 G:(:y
 I:35:115:0:45
 W:10:130:30:300
 A:10/1
 P:1:1d1:0:0:0
 
-N:632:[Dragon]
+N:575:[Dragon]
 G:(:y
 I:35:116:0:35
 W:17:130:30:900
 A:17/1
 P:1:1d1:0:0:0
 
-N:633:[Demon]
+N:576:[Demon]
 G:(:y
 I:35:117:0:35
 W:22:130:30:1200
 A:22/1
 P:1:1d1:0:0:0
 
-N:634:[Hound]
+N:577:[Hound]
 G:(:y
 I:35:118:0:45
 W:27:130:30:2000
 A:27/1
 P:1:1d1:0:0:0
 
-N:635:[Quylthulg]
+N:578:[Quylthulg]
 G:(:y
 I:35:119:0:30
 W:17:130:30:800
 A:17/1
 P:1:1d1:0:0:0
 
-N:636:[Maia]
+N:579:[Maia]
 G:(:y
 I:35:120:0:30
 W:37:130:30:60000
 A:37/3
 P:1:1d1:0:0:0
 
-N:637:[Serpent]
+N:580:[Serpent]
 G:(:y
 I:35:121:0:50
 W:12:130:30:400
 A:12/1
 P:1:1d1:0:0:0
 
-N:638:[Giant]
+N:581:[Giant]
 G:(:y
 I:35:122:0:50
 W:30:130:30:1200
 A:30/1
 P:1:1d1:0:0:0
 
-N:639:[Vala]
+N:582:[Vala]
 G:):y
 I:35:123:0:25
 W:50:130:30:100000
@@ -4442,7 +4383,7 @@ P:1:1d1:0:0:0
 
 # One more essence...
 
-N:640:Magic
+N:583:Magic
 G:*:G
 I:4:12:700
 W:10:0:4:2
@@ -4451,7 +4392,7 @@ P:0:1d1:0:0:0
 
 # Here are the corpses
 
-N:641:corpse
+N:584:corpse
 G:~:U
 I:9:1:3000
 W:10:0:80:0
@@ -4459,14 +4400,14 @@ A:15/1
 P:0:1d1:0:0:0
 F:DECAY
 
-N:642:skeleton
+N:585:skeleton
 G:s:w
 I:9:2:800
 W:10:0:2:0
 A:15/1
 P:0:1d1:0:0:0
 
-N:643:head
+N:586:head
 G:.:U
 I:9:3:600
 W:10:0:10:0
@@ -4474,14 +4415,14 @@ A:15/1
 P:0:1d1:0:0:0
 F:DECAY
 
-N:644:skull
+N:587:skull
 G:.:w
 I:9:4:1000
 W:10:0:20:0
 A:15/1
 P:0:1d1:0:0:0
 
-N:645:raw meat
+N:588:raw meat
 G:~:U
 I:9:5:1200
 W:10:0:10:2
@@ -4492,28 +4433,28 @@ F:DECAY
 # To convert monsters into objects for wielding them ! ! ! :)
 # Funny, funny, funny :)
 # pval the monster idx, pval2 for the monster hp
-N:653:& ~
+N:589:& ~
 G:~:y
 I:99:1:0
 W:127:200:60:0
 A:127/255
 P:0:0d0:0:0:0
 
-N:654:Summon never-moving pet
+N:590:Summon never-moving pet
 G:?:d
 I:70:6:0
 W:2:0:5:125
 A:2/1:7/1:12/1:17/1:32/1:42/1:47/1
 
 #Here are the Symbiotic spell books
-N:655:[Life in symbiosis]
+N:591:[Life in symbiosis]
 G:?:G
 I:118:0:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:656:[Perfect Symbiosis]
+N:592:[Perfect Symbiosis]
 G:?:g
 I:118:2:0
 W:25:0:30:80000
@@ -4524,7 +4465,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # The potions of cure insanity, in light, medium, regular, and full
 # versions.
 
-N:657:Cure Light Insanity
+N:593:Cure Light Insanity
 G:!:d
 I:72:14:0
 W:2:5:4:15
@@ -4532,7 +4473,7 @@ A:2/1:1/1:3/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:658:Cure Serious Insanity
+N:594:Cure Serious Insanity
 G:!:d
 I:72:15:0
 W:5:5:4:40
@@ -4540,7 +4481,7 @@ A:5/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:659:Cure Critical Insanity
+N:595:Cure Critical Insanity
 G:!:d
 I:72:16:0
 W:7:5:4:100
@@ -4548,7 +4489,7 @@ A:7/3
 P:0:1d1:0:0:0
 F:FOUNTAIN
 
-N:660:Cure Insanity
+N:596:Cure Insanity
 G:!:d
 I:72:17:0
 W:12:5:4:30
@@ -4566,21 +4507,21 @@ F:FOUNTAIN
 #  Level
 #  Cost
 
-N:662:Random Artifact
+N:597:Random Artifact
 G:~:o
 I:102:0:0
 W:1:0:50:0
 A:1/1:5/1:10/1:15/1
 F:INSTA_ART | ACTIVATE
 
-N:663:Craftmanship
+N:598:Craftmanship
 G:?:d
 I:70:19:0
 W:40:0:5:200000
 A:40/16
 
 # A Parchment, not the Artifact
-N:664:The One Ring
+N:599:The One Ring
 G:?:s
 I:8:4:0
 W:5:100:5:50
@@ -4588,21 +4529,21 @@ A:5/2
 
 ##### Music Books #####
 
-N:665:[Apprentice Handbook]
+N:600:[Apprentice Handbook]
 G:?:o
 I:119:0:0
 W:5:0:30:100
 A:0/1:5/1
 P:0:1d1:0:0:0
 
-N:666:[Minstrel's Music]
+N:601:[Minstrel's Music]
 G:?:o
 I:119:1:0
 W:10:0:30:1000
 A:10/1
 P:0:1d1:0:0:0
 
-N:667:[Harps of Rivendell]
+N:602:[Harps of Rivendell]
 G:?:o
 I:119:2:0
 W:20:0:30:25000
@@ -4610,7 +4551,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:668:[Lays of Beleriand]
+N:603:[Lays of Beleriand]
 G:?:o
 I:119:3:0
 W:45:0:30:100000
@@ -4618,7 +4559,7 @@ A:45/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:669:& Flute~
+N:604:& Flute~
 G:/:W
 I:14:1:0
 W:5:0:30:100
@@ -4626,7 +4567,7 @@ A:5/1
 P:0:1d1:0:0:0
 F:ACTIVATE
 
-N:670:& Drum~
+N:605:& Drum~
 G:/:W
 I:14:5:0
 W:15:0:30:400
@@ -4634,7 +4575,7 @@ A:15/1
 P:0:1d1:0:0:0
 F:ACTIVATE
 
-N:671:& Harp~
+N:606:& Harp~
 G:/:W
 I:14:6:0
 W:17:0:30:400
@@ -4642,7 +4583,7 @@ A:17/1
 P:0:1d1:0:0:0
 F:ACTIVATE
 
-N:672:& Banjo~
+N:607:& Banjo~
 G:/:W
 I:14:2:0
 W:7:0:30:200
@@ -4650,7 +4591,7 @@ A:7/1
 P:0:1d1:0:0:0
 F:ACTIVATE
 
-N:673:& Lute~
+N:608:& Lute~
 G:/:W
 I:14:3:0
 W:10:0:30:200
@@ -4658,7 +4599,7 @@ A:10/1
 P:0:1d1:0:0:0
 F:ACTIVATE
 
-N:674:& Mandolin~
+N:609:& Mandolin~
 G:/:W
 I:14:4:0
 W:12:0:30:300
@@ -4668,7 +4609,7 @@ F:ACTIVATE
 
 # The Palantir of Orthanc -- see artifact list
 
-N:675:& Palantir~
+N:610:& Palantir~
 G:~:y
 I:39:104:0
 W:37:0:200:100000
@@ -4677,7 +4618,7 @@ F:INSTA_ART
 
 # More miscellaneous stuff
 
-N:676:Egg
+N:611:Egg
 G:,:W
 I:10:1:0
 W:2:0:30:100
@@ -4685,7 +4626,7 @@ A:2/1:7/1:12/1:17/1
 P:0:1d1:0:0:0
 F:ACTIVATE
 
-N:677:Reset Recall
+N:612:Reset Recall
 G:?:d
 I:70:23:0
 W:10:0:5:125
@@ -4693,14 +4634,14 @@ A:10/1:12/1:17/1
 
 # Here comes the Runes
 
-N:679:Self
+N:613:Self
 G:?:b
 I:105:0:0
 W:1:5:2:40
 A:3/1
 P:0:1d1:0:0:0
 
-N:680:Ray
+N:614:Ray
 G:?:b
 I:105:2:0
 W:5:5:2:300
@@ -4708,7 +4649,7 @@ A:5/1
 P:0:1d1:0:0:0
 F:IGNORE_COLD | IGNORE_ELEC
 
-N:681:Sphere
+N:615:Sphere
 G:?:b
 I:105:3:0
 W:7:5:2:1000
@@ -4716,21 +4657,21 @@ A:7/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:682:Knowledge
+N:616:Knowledge
 G:?:b
 I:104:91:0
 W:3:5:2:200
 A:3/1
 P:0:1d1:0:0:0
 
-N:683:Life
+N:617:Life
 G:?:d
 I:104:53:0
 W:1:5:2:200
 A:3/1
 P:0:1d1:0:0:0
 
-N:684:Fire
+N:618:Fire
 G:?:r
 I:104:5:0
 W:5:5:2:300
@@ -4738,7 +4679,7 @@ A:5/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
-N:685:Cold
+N:619:Cold
 G:?:b
 I:104:4:0
 W:6:5:2:300
@@ -4746,7 +4687,7 @@ A:6/1
 P:0:1d1:0:0:0
 F:IGNORE_COLD
 
-N:686:Lightning
+N:620:Lightning
 G:?:W
 I:104:1:0
 W:6:5:2:300
@@ -4754,7 +4695,7 @@ A:6/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
-N:687:Acid
+N:621:Acid
 G:?:B
 I:104:3:0
 W:8:5:2:300
@@ -4762,7 +4703,7 @@ A:8/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-N:688:Element
+N:622:Element
 G:?:g
 I:104:10:0
 W:11:5:2:1000
@@ -4770,7 +4711,7 @@ A:11/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:689:Chaos
+N:623:Chaos
 G:?:v
 I:104:30:0
 W:13:5:2:2000
@@ -4779,7 +4720,7 @@ P:0:1d1:0:0:0
 F:ATTR_MULTI
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:690:Mind
+N:624:Mind
 G:?:d
 I:104:85:0
 W:9:5:2:3000
@@ -4787,7 +4728,7 @@ A:9/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
-N:691:Holding
+N:625:Holding
 G:?:d
 I:104:75:0
 W:2:5:2:500
@@ -4795,7 +4736,7 @@ A:2/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-N:692:Arrow
+N:626:Arrow
 G:?:b
 I:105:1:0
 W:3:5:2:100
@@ -4803,7 +4744,7 @@ A:3/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
-N:693:Power Surge
+N:627:Power Surge
 G:?:b
 I:105:4:0
 W:25:5:2:5000
@@ -4811,7 +4752,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_ACID
 
-N:694:Armageddon
+N:628:Armageddon
 G:?:b
 I:105:5:0
 W:15:5:2:4000
@@ -4819,7 +4760,7 @@ A:15/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_ACID
 
-N:695:Gravity
+N:629:Gravity
 G:?:G
 I:104:35:0
 W:8:5:2:300
@@ -4829,7 +4770,7 @@ F:IGNORE_ACID
 
 # And, among the runes, one more essence...
 
-N:696:Extra Life
+N:630:Extra Life
 G:*:G
 I:4:13:900
 W:25:0:4:2
@@ -4838,7 +4779,7 @@ P:0:1d1:0:0:0
 
 # Now, the rest of the runes...
 
-N:697:Undeath
+N:631:Undeath
 G:?:G
 I:104:92:0
 W:17:5:2:1000
@@ -4846,7 +4787,7 @@ A:17/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-N:698:Protection
+N:632:Protection
 G:?:G
 I:104:74:0
 W:22:5:2:1500
@@ -4856,7 +4797,7 @@ F:IGNORE_ACID
 
 ### and another musical instrument.
 
-N:699:& Horn~
+N:633:& Horn~
 G:/:W
 I:14:7:0
 W:7:0:30:400
@@ -4865,7 +4806,7 @@ P:0:1d1:0:0:0
 F:ACTIVATE
 
 # The Ring of Precognition (now a k_info.txt artifact)
-N:700:& Ring~ of Precognition
+N:634:& Ring~ of Precognition
 G:=:d
 I:45:51:0
 W:45:0:2:300000
@@ -4877,7 +4818,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Athelas, cures Black Breath
 
-N:701:& Sprig~ of Athelas
+N:635:& Sprig~ of Athelas
 G:,:g
 I:80:40:0
 W:12:5:2:450
@@ -4885,56 +4826,56 @@ A:12/2:27/1:42/1
 
 ##### Basic Books #####
 
-N:702:[Magic for Beginners]
+N:636:[Magic for Beginners]
 G:?:R
 I:120:0:0
 W:2:0:30:25
 A:2/1
 P:0:1d1:0:0:0
 
-N:703:[Conjurings and Tricks]
+N:637:[Conjurings and Tricks]
 G:?:R
 I:120:1:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:704:[Incantations and Illusions]
+N:638:[Incantations and Illusions]
 G:?:R
 I:120:2:0
 W:10:0:30:400
 A:10/1
 P:0:1d1:0:0:0
 
-N:705:[Sorcery and Evocations]
+N:639:[Sorcery and Evocations]
 G:?:R
 I:120:3:0
 W:15:0:30:800
 A:15/1
 P:0:1d1:0:0:0
 
-N:706:[Beginners Handbook]
+N:640:[Beginners Handbook]
 G:?:G
 I:121:0:0
 W:2:0:30:25
 A:2/1
 P:0:1d1:0:0:0
 
-N:707:[Words of Wisdom]
+N:641:[Words of Wisdom]
 G:?:G
 I:121:1:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:708:[Chants and Blessings]
+N:642:[Chants and Blessings]
 G:?:G
 I:121:2:0
 W:10:0:30:300
 A:10/1
 P:0:1d1:0:0:0
 
-N:709:[Exorcism and Dispelling]
+N:643:[Exorcism and Dispelling]
 G:?:G
 I:121:3:0
 W:15:0:30:900
@@ -4943,7 +4884,7 @@ P:0:1d1:0:0:0
 
 ##### Special Books (note resistances) #####
 
-N:710:[Resistance of Scarabtarices]
+N:644:[Resistance of Scarabtarices]
 G:?:r
 I:120:4:0
 W:20:0:30:5000
@@ -4951,7 +4892,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:711:[Mordenkainen's Escapes]
+N:645:[Mordenkainen's Escapes]
 G:?:r
 I:120:5:0
 W:25:0:30:10000
@@ -4959,7 +4900,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:712:[Kelek's Grimoire of Power]
+N:646:[Kelek's Grimoire of Power]
 G:?:r
 I:120:6:0
 W:30:0:30:30000
@@ -4967,7 +4908,7 @@ A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:713:[Tenser's Transformations]
+N:647:[Tenser's Transformations]
 G:?:r
 I:120:7:0
 W:40:0:30:50000
@@ -4975,7 +4916,7 @@ A:40/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:714:[Raal's Tome of Destruction]
+N:648:[Raal's Tome of Destruction]
 G:?:r
 I:120:8:0
 W:50:0:30:100000
@@ -4983,7 +4924,7 @@ A:50/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:715:[Ethereal Openings]
+N:649:[Ethereal Openings]
 G:?:g
 I:121:4:0
 W:20:0:30:5000
@@ -4991,7 +4932,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:716:[Godly Insights]
+N:650:[Godly Insights]
 G:?:g
 I:121:5:0
 W:25:0:30:10000
@@ -4999,7 +4940,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:717:[Purifications and Healing]
+N:651:[Purifications and Healing]
 G:?:g
 I:121:6:0
 W:30:0:30:30000
@@ -5007,7 +4948,7 @@ A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:718:[Holy Infusions]
+N:652:[Holy Infusions]
 G:?:g
 I:121:7:0
 W:40:0:30:50000
@@ -5015,7 +4956,7 @@ A:40/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:719:[Wrath of God]
+N:653:[Wrath of God]
 G:?:g
 I:121:8:0
 W:50:0:30:100000
@@ -5025,7 +4966,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # The Scroll of Deincarnation (now an artifact)
 
-N:720:& Old Scroll~ of Deincarnation
+N:654:& Old Scroll~ of Deincarnation
 G:?:d
 I:70:40:0
 W:45:0:5:160000
@@ -5034,7 +4975,7 @@ T:70:51
 F:NORM_ART | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:721:& Dark Sword~
+N:655:& Dark Sword~
 G:|:D
 I:23:33:0
 W:12:0:70:500
@@ -5042,25 +4983,25 @@ A:12/1:40/2
 P:0:3d7:0:0:0
 F:SHOW_MODS | ANTIMAGIC_50
 
-N:722:Numenorean for beginners (I)
+N:656:Numenorean for beginners (I)
 G:?:s
 I:8:101:0
 W:5:100:5:50
 A:5/2
 
-N:723:Numenorean for beginners (II)
+N:657:Numenorean for beginners (II)
 G:?:s
 I:8:102:0
 W:2:100:5:50
 A:2/2
 
-N:724:Advanced lessons of Numenorean
+N:658:Advanced lessons of Numenorean
 G:?:s
 I:8:103:0
 W:10:100:5:50
 A:10/2
 
-N:725:Advanced lessons of Sindarin
+N:659:Advanced lessons of Sindarin
 G:?:s
 I:8:104:0
 W:10:100:5:50
@@ -5068,14 +5009,14 @@ A:10/2
 
 ##### Junk #####
 
-N:726:& Shard~ of Pottery
+N:660:& Shard~ of Pottery
 G:~:r
 I:11:3:0
 W:0:0:5:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:727:& Broken Stick~
+N:661:& Broken Stick~
 G:~:r
 I:11:6:0
 W:0:0:3:0
@@ -5083,7 +5024,7 @@ A:0/1
 P:0:1d1:0:0:0
 
 # Wand of Wall Creation
-N:728:Wall Creation
+N:662:Wall Creation
 G:-:d
 I:65:31:0
 W:25:0:10:1000
@@ -5092,35 +5033,35 @@ P:0:1d1:0:0:0
 
 ### Added Illusion Books -KMW- ###
 
-N:729:[Illusions for Beginners]
+N:663:[Illusions for Beginners]
 G:?:R
 I:122:0:0
 W:2:0:30:25
 A:2/1
 P:0:1d1:0:0:0
 
-N:730:[Tricks and Visions]
+N:664:[Tricks and Visions]
 G:?:R
 I:122:1:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:731:[Phantasms and Illusions]
+N:665:[Phantasms and Illusions]
 G:?:R
 I:122:2:0
 W:10:0:30:400
 A:10/1
 P:0:1d1:0:0:0
 
-N:732:[Shadows and Prisms]
+N:666:[Shadows and Prisms]
 G:?:R
 I:122:3:0
 W:15:0:30:800
 A:15/1
 P:0:1d1:0:0:0
 
-N:733:[Serten's Immunities]
+N:667:[Serten's Immunities]
 G:?:r
 I:122:4:0
 W:20:0:30:5000
@@ -5128,7 +5069,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:734:[Knowledge of Kenault]
+N:668:[Knowledge of Kenault]
 G:?:r
 I:122:5:0
 W:25:0:30:10000
@@ -5136,7 +5077,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:735:[Otiluke's Spheres]
+N:669:[Otiluke's Spheres]
 G:?:r
 I:122:6:0
 W:30:0:30:30000
@@ -5144,7 +5085,7 @@ A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:736:[Boccob's Book of Shadows]
+N:670:[Boccob's Book of Shadows]
 G:?:r
 I:122:7:0
 W:40:0:30:50000
@@ -5152,7 +5093,7 @@ A:40/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:737:[Bigby's Handbook]
+N:671:[Bigby's Handbook]
 G:?:r
 I:122:8:0
 W:50:0:30:100000
@@ -5161,7 +5102,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Valarin rare books #####
-N:738:[Hunt of Orome]
+N:672:[Hunt of Orome]
 G:?:w
 I:111:4:0
 W:20:0:30:5000
@@ -5169,7 +5110,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:739:[Holy Sanctifications]
+N:673:[Holy Sanctifications]
 G:?:w
 I:111:5:0
 W:25:0:30:10000
@@ -5177,7 +5118,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:740:[Secrets of the Feanturi]
+N:674:[Secrets of the Feanturi]
 G:?:w
 I:111:6:0
 W:30:0:30:30000
@@ -5185,7 +5126,7 @@ A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:741:[War of Wrath]
+N:675:[War of Wrath]
 G:?:w
 I:111:7:0
 W:40:0:30:50000
@@ -5193,7 +5134,7 @@ A:40/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:742:[Gifts of Iluvatar]
+N:676:[Gifts of Iluvatar]
 G:?:w
 I:111:8:0
 W:50:0:30:100000
@@ -5203,7 +5144,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # The Potion of Learning - another artifact!
 
-N:743:& Potion~ of Learning
+N:677:& Potion~ of Learning
 G:!:d
 I:71:12:200
 W:45:0:4:100000
@@ -5215,14 +5156,14 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
 
 # Scroll
-N:749:Spell
+N:678:Spell
 G:?:d
 I:70:54:0
 W:50:0:5:200000
 A:50/16
 
 # Staff
-N:750:Wishing
+N:679:Wishing
 G:_:d
 I:55:31:0
 W:40:0:2:300000
@@ -5230,26 +5171,26 @@ A:40/50
 P:0:1d2:0:0:0
 F:NO_RECHARGE
 
-N:751:Khuzdul - The hidden tongue of the Dwarves
+N:680:Khuzdul - The hidden tongue of the Dwarves
 G:?:s
 I:8:105:0
 W:2:100:5:50
 A:2/2
 
-N:752:Nandorin for dummies
+N:681:Nandorin for dummies
 G:?:s
 I:8:106:0
 W:10:100:5:50
 A:10/2
 
-N:753:Advanced lessons of Orcish
+N:682:Advanced lessons of Orcish
 G:?:s
 I:8:107:0
 W:15:100:5:50
 A:15/2
 
 # Here's the Ring of Flying
-N:755:Flying
+N:683:Flying
 G:=:d
 I:45:54:0
 W:10:0:2:16000
@@ -5257,7 +5198,7 @@ A:10/3
 F:FLY | EASY_KNOW
 
 ##### Magery rare books #####
-N:756:[Powerful Sigils]
+N:684:[Powerful Sigils]
 G:?:b
 I:112:4:0
 W:20:0:30:5000
@@ -5265,7 +5206,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:758:[Disruptive Forces]
+N:685:[Disruptive Forces]
 G:?:b
 I:112:5:0
 W:25:0:30:10000
@@ -5273,7 +5214,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:759:[Forces of the Mind]
+N:686:[Forces of the Mind]
 G:?:b
 I:112:6:0
 W:35:0:30:30000
@@ -5281,7 +5222,7 @@ A:35/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:760:[Power of Ancient Sorcerors]
+N:687:[Power of Ancient Sorcerors]
 G:?:b
 I:112:7:0
 W:50:0:30:100000
@@ -5290,21 +5231,21 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Tribal Books
-N:761:[Tricks of the Wild]
+N:688:[Tricks of the Wild]
 G:?:y
 I:123:0:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:762:[Mastering the Rituals]
+N:689:[Mastering the Rituals]
 G:?:y
 I:123:1:0
 W:10:0:30:1000
 A:10/1
 P:0:1d1:0:0:0
 
-N:763:[Rites of Power]
+N:690:[Rites of Power]
 G:?:y
 I:123:2:0
 W:25:0:30:25000
@@ -5312,7 +5253,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:764:[Tribal Power]
+N:691:[Tribal Power]
 G:?:y
 I:123:3:0
 W:50:0:30:100000
@@ -5320,7 +5261,7 @@ A:50/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:765:[Aiding Shades]
+N:692:[Aiding Shades]
 G:?:D
 I:113:4:0
 W:20:0:30:5000
@@ -5328,7 +5269,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:766:[Morgoth's Space-Time Warpings]
+N:693:[Morgoth's Space-Time Warpings]
 G:?:D
 I:113:5:0
 W:25:0:30:10000
@@ -5336,7 +5277,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:767:[Murazor's Tome of Conjuring & Dispelling]
+N:694:[Murazor's Tome of Conjuring & Dispelling]
 G:?:D
 I:113:6:0
 W:30:0:30:30000
@@ -5344,7 +5285,7 @@ A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:768:[Channeling the Void]
+N:695:[Channeling the Void]
 G:?:D
 I:113:7:0
 W:40:0:30:50000
@@ -5352,7 +5293,7 @@ A:40/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:769:[Sauron's Forgotten Tome]
+N:696:[Sauron's Forgotten Tome]
 G:?:D
 I:113:8:0
 W:50:0:30:100000
@@ -5360,21 +5301,21 @@ A:50/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:771:[Earth]
+N:697:[Earth]
 G:?:R
 I:124:0:0
 W:5:0:30:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:772:[Fire]
+N:698:[Fire]
 G:?:R
 I:124:1:0
 W:10:0:30:1000
 A:10/1
 P:0:1d1:0:0:0
 
-N:773:[Air]
+N:699:[Air]
 G:?:r
 I:124:2:0
 W:25:0:30:2500
@@ -5382,7 +5323,7 @@ A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:774:[Water]
+N:700:[Water]
 G:?:r
 I:124:3:0
 W:35:0:30:50000
@@ -5390,7 +5331,7 @@ A:35/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:775:[Mana]
+N:701:[Mana]
 G:?:r
 I:124:4:0
 W:50:0:30:100000
@@ -5399,7 +5340,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Rod tip of Home Summoning: now an artifact
-N:776:& Great Rod Tip~ of Home Summoning
+N:702:& Great Rod Tip~ of Home Summoning
 G:-:d
 I:66:30:75
 W:45:0:15:150000
@@ -5410,7 +5351,7 @@ F:NORM_ART |
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC
 
 # Additional swords
-N:777:& Shadow Blade~
+N:703:& Shadow Blade~
 G:|:D
 I:23:32:1
 W:25:900:45:2000
@@ -5418,7 +5359,7 @@ A:24/4:30/2:40/1
 P:0:4d4:-2:2:0
 F:IGNORE_ACID | RES_DARK | STEALTH
 
-N:778:& Bluesteel Blade~
+N:704:& Bluesteel Blade~
 G:|:b
 I:23:31:0
 W:30:1800:50:6000
@@ -5427,7 +5368,7 @@ P:0:1d6:4:0:0
 F:SHOW_MODS | VORPAL
 
 # Amulet
-N:779:the Serpents
+N:705:the Serpents
 G:":G
 I:40:17:0
 W:12:0:3:10000
@@ -5436,35 +5377,35 @@ F:RES_POIS | DEX | ACTIVATE
 
 # Here comes the new Essences
 
-N:780:Darkness
+N:706:Darkness
 G:*:G
 I:4:14:20
 W:0:0:4:1
 A:0/1:10/1:20/1
 P:0:1d1:0:0:0
 
-N:781:Knowledge
+N:707:Knowledge
 G:*:G
 I:4:15:100
 W:0:0:4:1
 A:10/1:15/1:35/1
 P:0:1d1:0:0:0
 
-N:782:Force
+N:708:Force
 G:*:G
 I:4:16:180
 W:0:0:4:1
 A:5/1:20/1
 P:0:1d1:0:0:0
 
-N:783:Lightning
+N:709:Lightning
 G:*:G
 I:4:17:200
 W:0:0:4:1
 A:14/1
 P:0:1d1:0:0:0
 
-N:784:Mana
+N:710:Mana
 G:*:G
 I:4:18:400
 W:0:0:4:1
@@ -5474,7 +5415,7 @@ P:0:1d1:0:0:0
 # The Nine Rings for mortal men doomed to die! When a Nazgul is permanently
 # destroyed, it drops a Ring of Power with random powers.
 
-N:785:Ring~ of Power
+N:711:Ring~ of Power
 G:=:d
 I:45:5:0
 W:50:0:2:1
@@ -5484,7 +5425,7 @@ F:SPECIAL_GENE
 
 # To help people climb mountains...
 
-N:786:Climbing Set
+N:712:Climbing Set
 G:`:B
 I:12:0:0
 W:20:0:2:50000
@@ -5492,7 +5433,7 @@ A:20/3
 F:CLIMB
 
 # Parchment to help beginners
-N:787:Adventurer's guide to Middle Earth
+N:713:Adventurer's guide to Middle Earth
 G:?:o
 I:8:20:0
 W:0:0:5:1
@@ -5500,49 +5441,49 @@ A:0/1
 
 # Rods
 
-N:793:& Wooden Rod~ of#
+N:714:& Wooden Rod~ of#
 G:-:u
 I:67:10:0
 W:5:0:15:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:794:& Copper Rod~ of#
+N:715:& Copper Rod~ of#
 G:-:s
 I:67:20:0
 W:7:0:15:200
 A:7/1
 P:0:1d1:0:0:0
 
-N:795:& Iron Rod~ of#
+N:716:& Iron Rod~ of#
 G:-:D
 I:67:50:0
 W:10:0:15:500
 A:10/1
 P:0:1d1:0:0:0
 
-N:796:& Aluminium Rod~ of#
+N:717:& Aluminium Rod~ of#
 G:-:U
 I:67:75:0
 W:12:0:15:750
 A:12/1
 P:0:1d1:0:0:0
 
-N:797:& Silver Rod~ of#
+N:718:& Silver Rod~ of#
 G:-:s
 I:67:100:0
 W:15:0:15:1000
 A:15/1
 P:0:1d1:0:0:0
 
-N:798:& Golden Rod~ of#
+N:719:& Golden Rod~ of#
 G:-:y
 I:67:125:0
 W:20:0:15:1250
 A:20/2
 P:0:1d1:0:0:0
 
-N:799:& Mithril Rod~ of#
+N:720:& Mithril Rod~ of#
 G:-:B
 I:67:160:0
 W:25:0:15:1600
@@ -5550,7 +5491,7 @@ A:25/5
 P:0:1d1:0:0:0
 
 # Greater Ration of Health - artifact food item (!)
-N:801:& Greater Ration~ of Health
+N:721:& Greater Ration~ of Health
 G:,:g
 I:80:41:0
 W:45:5:2:60000
@@ -5560,7 +5501,7 @@ F:NORM_ART
 D:This food will, once eaten, permanently add 70 hp.
 
 # Scroll of Mass Resurrection - artifact scroll
-N:802:& Crumpled Scroll~ of Mass Resurrection
+N:722:& Crumpled Scroll~ of Mass Resurrection
 G:?:d
 I:70:43:0
 W:27:0:5:0
@@ -5569,7 +5510,7 @@ T:70:1
 F:NORM_ART
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC
 
-N:803:& Cleaver~
+N:723:& Cleaver~
 G:/:s
 I:24:2:0
 W:6:0:110:175
@@ -5577,7 +5518,7 @@ A:6/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
 
-N:804:& Light War Axe~
+N:724:& Light War Axe~
 G:/:s
 I:24:8:0
 W:8:0:140:300
@@ -5587,7 +5528,7 @@ F:SHOW_MODS
 
 # Slaughter Axe
 
-N:805:& Slaughter Axe~
+N:725:& Slaughter Axe~
 G:/:G
 I:24:30:0
 W:35:0:300:6000
@@ -5595,7 +5536,7 @@ A:35/8
 P:0:5d7:0:0:0
 F:SLAY_ANIMAL | SHOW_MODS
 
-N:806:& Runestone~
+N:726:& Runestone~
 G:?:v
 I:105:255:0
 W:5:5:2:300
@@ -5603,13 +5544,13 @@ A:5/3:10/2:15/1:30/1
 P:0:1d1:0:0:0
 F:IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | IGNORE_ACID
 
-N:807:& Fortune cookie~
+N:727:& Fortune cookie~
 G:,:y
 I:80:42:500
 W:0:0:2:10
 A:0/1:2/1:5/1
 
-N:809:Critical Hits
+N:728:Critical Hits
 G:=:d
 I:45:57:0
 W:25:0:2:100000
@@ -5617,7 +5558,7 @@ A:25/3
 F:CRIT
 
 # The Wand of Stone to Mud of Thrain
-N:810:& Wand~ of Digging of Thrain
+N:729:& Wand~ of Digging of Thrain
 G:-:d
 I:65:32:25
 P:0:1d1:0:0:0
@@ -5631,7 +5572,7 @@ D:walls of the dungeon and is quite useful because it will never
 D:be destroyed.
 
 # The Wand of Fire Ball of Mithrandir
-N:811:& Wand~ of Fire Ball of Mithrandir
+N:730:& Wand~ of Fire Ball of Mithrandir
 G:_:d
 I:55:32:0
 W:25:10:10:12000

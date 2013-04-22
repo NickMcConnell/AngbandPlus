@@ -1296,10 +1296,6 @@ void self_knowledge(FILE *fff)
 	{
 		info[i++] = "You are protected from evil.";
 	}
-	if (p_ptr->protgood)
-	{
-		info[i++] = "You are protected from good.";
-	}
 	if (p_ptr->shield)
 	{
 		info[i++] = "You are protected by a mystic shield.";
@@ -1874,11 +1870,6 @@ void report_magics(void)
 		info2[i]  = report_magics_aux(p_ptr->protevil);
 		info[i++] = "You are protected from evil";
 	}
-	if (p_ptr->protgood)
-	{
-		info2[i]  = report_magics_aux(p_ptr->protgood);
-		info[i++] = "You are protected from good";
-	}
 	if (p_ptr->shield)
 	{
 		info2[i]  = report_magics_aux(p_ptr->shield);
@@ -2391,8 +2382,7 @@ bool detect_objects_magic(void)
                     (tv == TV_SCROLL) || (tv == TV_POTION) || (tv == TV_POTION2) ||
                     (tv == TV_VALARIN_BOOK) || (tv == TV_MAGERY_BOOK) ||
                     (tv == TV_SHADOW_BOOK) || (tv == TV_SPIRIT_BOOK) ||
-                    (tv == TV_CRUSADE_BOOK) || 
-		    (tv == TV_SIGALDRY_BOOK) || (tv == TV_SYMBIOTIC_BOOK) || 
+                    (tv == TV_CRUSADE_BOOK) || (tv == TV_SYMBIOTIC_BOOK) || 
 		    (tv == TV_MUSIC_BOOK) || ((o_ptr->to_a > 0) || 
 		    (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
@@ -4224,7 +4214,7 @@ bool identify_fully(void)
 	/* Identify it fully */
 	object_aware(o_ptr);
 	object_known(o_ptr);
-
+		
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
 
@@ -4259,7 +4249,16 @@ bool identify_fully(void)
 		msg_format("On the ground: %s.",
 			   o_name);
 	}
-
+	
+	/* Artifacts make us happy */
+	if(artifact_p(o_ptr))
+	  {
+	  artifact_type *k_ptr;
+	  k_ptr = &a_info[o_ptr->k_idx];
+	  
+	  /* Rare, expensive artifacts make us very happy */
+	  p_ptr->morale += k_ptr->cost * k_ptr->rarity / (k_ptr->level * 1000);
+	  }
         /* If the item was an artifact, and if the auto-note is selected, write a message. */
         if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
         {
