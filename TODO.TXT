@@ -1,0 +1,15 @@
+t/s anchor reduces summoning
+incorporate kangband aggressive pets
+new smart flags for new resistances
+dragon melee attacks s/ be more powerful, maybe
+so should other monsters.
+add meditate power - would do powers better, resist better, heal better
+add coma power - sleep through annoying mutations
+update 'C' 'h' screens
+test call_out
+watch out for ridiculous morgul damage
+exploding force walls?
+domination risks backlash?
+add space/time anomalies
+dominate/charm distinction
+implement auras

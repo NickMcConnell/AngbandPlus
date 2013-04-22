@@ -1,12 +1,6 @@
 /* File: init2.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
- */
+/* Purpose: Initialization (part 2) -BEN- */
 
 #include "angband.h"
 
@@ -365,7 +359,7 @@ static errr init_f_info(void)
 		err = init_f_info_raw(fd);
 
 		/* Close it */
-		fd_close(fd);
+		(void)fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
@@ -435,7 +429,7 @@ static errr init_f_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "f_info.raw");
 
 	/* Kill the old file */
-	fd_kill(buf);
+	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
@@ -456,7 +450,7 @@ static errr init_f_info(void)
 		fd_write(fd, (char*)(f_text), f_head->text_size);
 
 		/* Close */
-		fd_close(fd);
+		(void)fd_close(fd);
 	}
 
 
@@ -491,7 +485,7 @@ static errr init_f_info(void)
 	err = init_f_info_raw(fd);
 
 	/* Close it */
-	fd_close(fd);
+	(void)fd_close(fd);
 
 	/* Error */
 	if (err) quit("Cannot parse 'f_info.raw' file.");
@@ -618,7 +612,7 @@ errr init_k_info(void)
 		err = init_k_info_raw(fd);
 
 		/* Close it */
-		fd_close(fd);
+		(void)fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
@@ -688,7 +682,7 @@ errr init_k_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "k_info.raw");
 
 	/* Kill the old file */
-	fd_kill(buf);
+	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
@@ -709,7 +703,7 @@ errr init_k_info(void)
 		fd_write(fd, (char*)(k_text), k_head->text_size);
 
 		/* Close */
-		fd_close(fd);
+		(void)fd_close(fd);
 	}
 
 
@@ -744,7 +738,7 @@ errr init_k_info(void)
 	err = init_k_info_raw(fd);
 
 	/* Close it */
-	fd_close(fd);
+	(void)fd_close(fd);
 
 	/* Error */
 	if (err) quit("Cannot parse 'k_info.raw' file.");
@@ -871,7 +865,7 @@ errr init_a_info(void)
 		err = init_a_info_raw(fd);
 
 		/* Close it */
-		fd_close(fd);
+		(void)fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
@@ -941,7 +935,7 @@ errr init_a_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
 
 	/* Kill the old file */
-	fd_kill(buf);
+	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
@@ -962,7 +956,7 @@ errr init_a_info(void)
 		fd_write(fd, (char*)(a_text), a_head->text_size);
 
 		/* Close */
-		fd_close(fd);
+		(void)fd_close(fd);
 	}
 
 
@@ -997,7 +991,7 @@ errr init_a_info(void)
 	err = init_a_info_raw(fd);
 
 	/* Close it */
-	fd_close(fd);
+	(void)fd_close(fd);
 
 	/* Error */
 	if (err) quit("Cannot parse 'a_info.raw' file.");
@@ -1124,7 +1118,7 @@ static errr init_e_info(void)
 		err = init_e_info_raw(fd);
 
 		/* Close it */
-		fd_close(fd);
+		(void)fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
@@ -1194,7 +1188,7 @@ static errr init_e_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "e_info.raw");
 
 	/* Kill the old file */
-	fd_kill(buf);
+	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
@@ -1215,7 +1209,7 @@ static errr init_e_info(void)
 		fd_write(fd, (char*)(e_text), e_head->text_size);
 
 		/* Close */
-		fd_close(fd);
+		(void)fd_close(fd);
 	}
 
 
@@ -1250,7 +1244,7 @@ static errr init_e_info(void)
 	err = init_e_info_raw(fd);
 
 	/* Close it */
-	fd_close(fd);
+	(void)fd_close(fd);
 
 	/* Error */
 	if (err) quit("Cannot parse 'e_info.raw' file.");
@@ -1377,7 +1371,7 @@ static errr init_r_info(void)
 		err = init_r_info_raw(fd);
 
 		/* Close it */
-		fd_close(fd);
+		(void)fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
@@ -1447,7 +1441,7 @@ static errr init_r_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
 
 	/* Kill the old file */
-	fd_kill(buf);
+	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
@@ -1468,7 +1462,7 @@ static errr init_r_info(void)
 		fd_write(fd, (char*)(r_text), r_head->text_size);
 
 		/* Close */
-		fd_close(fd);
+		(void)fd_close(fd);
 	}
 
 
@@ -1503,7 +1497,7 @@ static errr init_r_info(void)
 	err = init_r_info_raw(fd);
 
 	/* Close it */
-	fd_close(fd);
+	(void)fd_close(fd);
 
 	/* Error */
 	if (err) quit("Cannot parse 'r_info.raw' file.");
@@ -1629,7 +1623,7 @@ static errr init_v_info(void)
 		err = init_v_info_raw(fd);
 
 		/* Close it */
-		fd_close(fd);
+		(void)fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
@@ -1699,7 +1693,7 @@ static errr init_v_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
 
 	/* Kill the old file */
-	fd_kill(buf);
+	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
@@ -1720,7 +1714,7 @@ static errr init_v_info(void)
 		fd_write(fd, (char*)(v_text), v_head->text_size);
 
 		/* Close */
-		fd_close(fd);
+		(void)fd_close(fd);
 	}
 
 
@@ -1755,7 +1749,7 @@ static errr init_v_info(void)
 	err = init_v_info_raw(fd);
 
 	/* Close it */
-	fd_close(fd);
+	(void)fd_close(fd);
 
 	/* Error */
 	if (err) quit("Cannot parse 'v_info.raw' file.");
@@ -1774,7 +1768,7 @@ static errr init_v_info(void)
 /*
  * Hack -- Objects sold in the stores -- by tval/sval pair.
  */
-static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
+static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 {
 	{
 		/* General Store */
@@ -1783,6 +1777,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
+
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_BISCUIT },
 		{ TV_FOOD, SV_FOOD_JERKY },
@@ -1792,6 +1787,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_TORCH },
+
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_LANTERN },
@@ -1801,6 +1797,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },
+
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },
 		{ TV_SPIKE, 0 },
@@ -1810,10 +1807,31 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_DIGGING, SV_SHOVEL },
+
 		{ TV_DIGGING, SV_PICK },
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK }
+		{ TV_CLOAK, SV_CLOAK },
+
+		{ TV_FOOD, SV_FOOD_RATION },	/* Added +16 objects (Z-2.1.0) */
+		{ TV_FOOD, SV_FOOD_RATION },
+		{ TV_FOOD, SV_FOOD_RATION },
+		{ TV_FOOD, SV_FOOD_RATION },
+
+		{ TV_LITE, SV_LITE_TORCH },
+		{ TV_LITE, SV_LITE_TORCH },
+		{ TV_LITE, SV_LITE_LANTERN },
+		{ TV_LITE, SV_LITE_LANTERN },
+
+		{ TV_FLASK, 0 },
+		{ TV_FLASK, 0 },
+		{ TV_FLASK, 0 },
+		{ TV_FLASK, 0 },
+
+		{ TV_SHOT, SV_AMMO_NORMAL },
+		{ TV_ARROW, SV_AMMO_NORMAL },
+		{ TV_BOLT, SV_AMMO_NORMAL },
+		{ TV_DIGGING, SV_SHOVEL }
 	},
 
 	{
@@ -1823,6 +1841,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
+
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_METAL_CAP },
@@ -1832,6 +1851,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SOFT_ARMOR, SV_ROBE },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+
 		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
 		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
 		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
@@ -1841,6 +1861,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
@@ -1850,10 +1871,31 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
+
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_METAL_SHIELD }
+		{ TV_SHIELD, SV_SMALL_METAL_SHIELD },
+
+		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },	/* +16 */
+		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
+		{ TV_HELM, SV_HARD_LEATHER_CAP },
+		{ TV_HELM, SV_HARD_LEATHER_CAP },
+
+		{ TV_SOFT_ARMOR, SV_ROBE },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
+
+		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
+		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+
+		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
+		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
+		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
+		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD }
 	},
 
 	{
@@ -1863,6 +1905,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_MAIN_GAUCHE },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SMALL_SWORD },
+
 		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_SWORD, SV_SABRE },
 		{ TV_SWORD, SV_CUTLASS },
@@ -1872,6 +1915,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_SCIMITAR },
 		{ TV_SWORD, SV_KATANA },
+
 		{ TV_SWORD, SV_BASTARD_SWORD },
 		{ TV_POLEARM, SV_SPEAR },
 		{ TV_POLEARM, SV_AWL_PIKE },
@@ -1881,6 +1925,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_POLEARM, SV_BEAKED_AXE },
 		{ TV_POLEARM, SV_BROAD_AXE },
 		{ TV_POLEARM, SV_LANCE },
+
 		{ TV_POLEARM, SV_BATTLE_AXE },
 		{ TV_HAFTED, SV_WHIP },
 		{ TV_BOW, SV_SLING },
@@ -1890,10 +1935,31 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_BOW, SV_LIGHT_XBOW },
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_SHOT, SV_AMMO_NORMAL },
+
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
+
+		{ TV_BOW, SV_LONG_BOW },	/* +16 */
+		{ TV_BOW, SV_LIGHT_XBOW },
+		{ TV_ARROW, SV_AMMO_NORMAL },
+		{ TV_ARROW, SV_AMMO_NORMAL },
+
+		{ TV_BOLT, SV_AMMO_NORMAL },
+		{ TV_BOLT, SV_AMMO_NORMAL },
+		{ TV_BOW, SV_SHORT_BOW },
+		{ TV_SWORD, SV_DAGGER },
+
+		{ TV_SWORD, SV_MAIN_GAUCHE },
+		{ TV_SWORD, SV_RAPIER },
+		{ TV_SWORD, SV_SMALL_SWORD },
+		{ TV_SWORD, SV_SHORT_SWORD },
+
+		{ TV_HAFTED, SV_WHIP },
+		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_SWORD, SV_LONG_SWORD },
+		{ TV_SWORD, SV_SCIMITAR }
 	},
 
 	{
@@ -1902,38 +1968,62 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
 		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_MACE },
 		{ TV_HAFTED, SV_BALL_AND_CHAIN },
+
 		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_LUCERN_HAMMER },
 		{ TV_HAFTED, SV_MORNING_STAR },
+		{ TV_HAFTED, SV_FLAIL },
 
-		{ TV_HAFTED, SV_FLAIL },
-		{ TV_HAFTED, SV_FLAIL },
 		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_BLESSING },
 		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
-		{ TV_POTION, SV_POTION_BOLDNESS },
+
 		{ TV_POTION, SV_POTION_HEROISM },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 3 }
+		{ TV_LIFE_BOOK, 0 },
+		{ TV_LIFE_BOOK, 0 },
+		{ TV_LIFE_BOOK, 0 },
+		{ TV_LIFE_BOOK, 0 },
+
+		{ TV_LIFE_BOOK, 1 },
+		{ TV_LIFE_BOOK, 1 },
+		{ TV_LIFE_BOOK, 1 },
+		{ TV_LIFE_BOOK, 1 },
+
+		{ TV_HAFTED, SV_WHIP },		/* +16 */
+		{ TV_HAFTED, SV_MACE },
+		{ TV_HAFTED, SV_BALL_AND_CHAIN },
+		{ TV_HAFTED, SV_WAR_HAMMER },
+
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+
+		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+
+		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
+		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
+		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
+		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE }
 	},
 
 	{
@@ -1943,6 +2033,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
@@ -1950,73 +2041,238 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+		{ TV_SCROLL, SV_SCROLL_TELEPORT },
 		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
+
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
 		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
 		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
 		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
 
-		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },
 		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
 		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 
-		{ TV_POTION, SV_POTION_RESIST_HEAT },
-		{ TV_POTION, SV_POTION_RESIST_COLD },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_TELEPORT },
+
+		{ TV_SCROLL, SV_SCROLL_TELEPORT },
+		{ TV_POTION, SV_POTION_RES_STR },
+		{ TV_POTION, SV_POTION_RES_INT },
+		{ TV_POTION, SV_POTION_RES_WIS },
+
+		{ TV_POTION, SV_POTION_RES_DEX },
+		{ TV_POTION, SV_POTION_RES_CON },
+		{ TV_POTION, SV_POTION_RES_CHR },
+		{ TV_SCROLL, SV_SCROLL_IDENTIFY },  /* +16 */
+
+		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },  /* Yep, occasionally! */
+		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_LIGHT },
+
 		{ TV_POTION, SV_POTION_RES_STR },
 		{ TV_POTION, SV_POTION_RES_INT },
 		{ TV_POTION, SV_POTION_RES_WIS },
 		{ TV_POTION, SV_POTION_RES_DEX },
+
 		{ TV_POTION, SV_POTION_RES_CON },
-		{ TV_POTION, SV_POTION_RES_CHR }
+		{ TV_POTION, SV_POTION_RES_CHR },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
+
+		{ TV_SCROLL, SV_SCROLL_RECHARGING },
+		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
+		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
+		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER }
+
 	},
 
 	{
 		/* Magic-User store */
 
 		{ TV_RING, SV_RING_PROTECTION },
+		{ TV_RING, SV_RING_FEATHER_FALL },
+		{ TV_RING, SV_RING_PROTECTION },
+		{ TV_RING, SV_RING_RESIST_FIRE },
+
+		{ TV_RING, SV_RING_RESIST_COLD },
 		{ TV_AMULET, SV_AMULET_CHARISMA },
 		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
 		{ TV_AMULET, SV_AMULET_RESIST_ACID },
+
+		{ TV_AMULET, SV_AMULET_SEARCHING },
 		{ TV_WAND, SV_WAND_SLOW_MONSTER },
 		{ TV_WAND, SV_WAND_CONFUSE_MONSTER },
-
 		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
+
 		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
 		{ TV_WAND, SV_WAND_STINKING_CLOUD },
 		{ TV_WAND, SV_WAND_WONDER },
+		{ TV_WAND, SV_WAND_DISARMING },
+
 		{ TV_STAFF, SV_STAFF_LITE },
 		{ TV_STAFF, SV_STAFF_MAPPING },
 
 		{ TV_STAFF, SV_STAFF_DETECT_INVIS },
 		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
+
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
+		{ TV_STAFF, SV_STAFF_TELEPORTATION },
+		{ TV_STAFF, SV_STAFF_TELEPORTATION },
+
+		{ TV_STAFF, SV_STAFF_IDENTIFY },
+		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 2 },
-                { TV_MAGIC_BOOK, 3 },
+		{ TV_STAFF, SV_STAFF_IDENTIFY },
+		{ TV_STAFF, SV_STAFF_REMOVE_CURSE },
+		{ TV_STAFF, SV_STAFF_CURE_LIGHT },
+		{ TV_STAFF, SV_STAFF_PROBING },
 
-                { TV_PSI_BOOK, 0},
-                { TV_PSI_BOOK, 0},
-                { TV_PSI_BOOK, 15},
-                { TV_PSI_BOOK, 15},
-                { TV_PSI_BOOK, 3},
-                { TV_PSI_BOOK, 6}
+		{ TV_SORCERY_BOOK, 0 },
+		{ TV_SORCERY_BOOK, 0 },
+		{ TV_SORCERY_BOOK, 1 },
+		{ TV_SORCERY_BOOK, 1 },
+
+		{ TV_PSI_BOOK, 0 },
+		{ TV_PSI_BOOK, 3 },
+		{ TV_PSI_BOOK, 6 },
+		{ TV_PSI_BOOK, 15 },
+
+		{ TV_ARCANE_BOOK, 0 },
+		{ TV_ARCANE_BOOK, 1 },
+		{ TV_ARCANE_BOOK, 2 },
+		{ TV_ARCANE_BOOK, 3 },
+
+	},
+
+	{
+		/* Black Market (unused) */
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+
+	{
+		/* Home (unused) */
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+
+	{
+		/* Bookstore */
+		{ TV_SORCERY_BOOK, 0 },
+		{ TV_SORCERY_BOOK, 0 },
+		{ TV_SORCERY_BOOK, 1 },
+		{ TV_SORCERY_BOOK, 1 },
+
+		{ TV_NATURE_BOOK, 0 },
+		{ TV_NATURE_BOOK, 0 },
+		{ TV_NATURE_BOOK, 1 },
+		{ TV_NATURE_BOOK, 1 },
+
+		{ TV_CHAOS_BOOK, 0 },
+		{ TV_CHAOS_BOOK, 0 },
+		{ TV_CHAOS_BOOK, 1 },
+		{ TV_CHAOS_BOOK, 1 },
+
+		{ TV_DEATH_BOOK, 0 },
+		{ TV_DEATH_BOOK, 0 },
+		{ TV_DEATH_BOOK, 1 },
+		{ TV_DEATH_BOOK, 1 },
+
+		{ TV_TRUMP_BOOK, 0 },		/* +16 */
+		{ TV_TRUMP_BOOK, 0 },
+		{ TV_TRUMP_BOOK, 1 },
+		{ TV_TRUMP_BOOK, 1 },
+
+		{ TV_ARCANE_BOOK, 0 },
+		{ TV_ARCANE_BOOK, 0 },
+		{ TV_ARCANE_BOOK, 1 },
+		{ TV_ARCANE_BOOK, 1 },
+
+		{ TV_ARCANE_BOOK, 2 },
+		{ TV_ARCANE_BOOK, 2 },
+		{ TV_ARCANE_BOOK, 3 },
+		{ TV_ARCANE_BOOK, 3 },
+
+		{ TV_LIFE_BOOK, 0 },
+		{ TV_LIFE_BOOK, 0 },
+		{ TV_LIFE_BOOK, 1 },
+		{ TV_LIFE_BOOK, 1 },
+
+		{ TV_PSI_BOOK, 0 },
+		{ TV_PSI_BOOK, 3 },
+		{ TV_PSI_BOOK, 6 },
+		{ TV_PSI_BOOK, 15 },
 	}
 };
+
 
 
 
@@ -2028,76 +2284,51 @@ static errr init_other(void)
 	int i, k, n;
 
 
-	/*** Prepare the various "bizarre" arrays ***/
+	/*** Prepare the "dungeon" information ***/
 
-	/* Initialize the "macro" package */
-	(void)macro_init();
-
-	/* Initialize the "quark" package */
-	(void)quark_init();
-
-	/* Initialize the "message" package */
-	(void)message_init();
-
-
-	/*** Prepare grid arrays ***/
-
-	/* Array of grids */
-	C_MAKE(view_g, VIEW_MAX, u16b);
-
-	/* Array of grids */
-	C_MAKE(temp_g, TEMP_MAX, u16b);
-
-	/* Hack -- use some memory twice */
-	temp_y = ((byte*)(temp_g)) + 0;
-	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
-
-
-	/*** Prepare dungeon arrays ***/
-
-	/* Padded into array */
-	C_MAKE(cave_info, DUNGEON_HGT, byte_256);
-
-	/* Feature array */
-	C_MAKE(cave_feat, DUNGEON_HGT, byte_wid);
-
-	/* Entity arrays */
-	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);
-	C_MAKE(cave_m_idx, DUNGEON_HGT, s16b_wid);
-
-	/* Flow arrays */
-	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
-	C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
-
-
-	/*** Prepare "vinfo" array ***/
-
-	/* Used by "update_view()" */
-	(void)vinfo_init();
-
-
-	/*** Prepare entity arrays ***/
-
-	/* Objects */
+	/* Allocate and Wipe the object list */
 	C_MAKE(o_list, MAX_O_IDX, object_type);
 
-	/* Monsters */
+	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, MAX_M_IDX, monster_type);
 
 
-	/*** Prepare quest array ***/
+	/* Allocate and wipe each line of the cave */
+	for (i = 0; i < MAX_HGT; i++)
+	{
+		/* Allocate one row of the cave */
+		C_MAKE(cave[i], MAX_WID, cave_type);
+	}
 
-	/* Quests */
-	C_MAKE(q_list, MAX_Q_IDX, quest);
+
+	/*** Prepare the various "bizarre" arrays ***/
+
+	/* Macro variables */
+	C_MAKE(macro__pat, MACRO_MAX, cptr);
+	C_MAKE(macro__act, MACRO_MAX, cptr);
+	C_MAKE(macro__cmd, MACRO_MAX, bool);
+
+	/* Macro action buffer */
+	C_MAKE(macro__buf, 1024, char);
+
+	/* Quark variables */
+	C_MAKE(quark__str, QUARK_MAX, cptr);
+
+	/* Message variables */
+	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
+	C_MAKE(message__buf, MESSAGE_BUF, char);
+
+	/* Hack -- No messages yet */
+	message__tail = MESSAGE_BUF;
 
 
-	/*** Prepare the inventory ***/
+	/*** Prepare the Player inventory ***/
 
 	/* Allocate it */
 	C_MAKE(inventory, INVEN_TOTAL, object_type);
 
 
-	/*** Prepare the stores ***/
+	/*** Prepare the Stores ***/
 
 	/* Allocate the stores */
 	C_MAKE(store, MAX_STORES, store_type);
@@ -2171,18 +2402,47 @@ static errr init_other(void)
 
 	/*** Prepare the options ***/
 
-	/* Initialize the options */
-	for (i = 0; i < OPT_MAX; i++)
+	/* Scan the options */
+	for (i = 0; option_info[i].o_desc; i++)
 	{
-		/* Default value */
-		op_ptr->opt[i] = option_norm[i];
+		int os = option_info[i].o_set;
+		int ob = option_info[i].o_bit;
+
+		/* Set the "default" options */
+		if (option_info[i].o_var)
+		{
+			/* Accept */
+			option_mask[os] |= (1L << ob);
+			
+			/* Set */
+			if (option_info[i].o_norm)
+			{
+				/* Set */
+				option_flag[os] |= (1L << ob);
+			}
+			
+			/* Clear */
+			else
+			{
+				/* Clear */
+				option_flag[os] &= ~(1L << ob);
+			}
+		}
 	}
 
-	/* Initialize the window flags */
+	/* Analyze the windows */
 	for (n = 0; n < 8; n++)
 	{
-		/* Assume no flags */
-		op_ptr->window_flag[n] = 0L;
+		/* Analyze the options */
+		for (i = 0; i < 32; i++)
+		{
+			/* Accept */
+			if (window_flag_desc[i])
+			{
+				/* Accept */
+				window_mask[n] |= (1L << i);
+			}
+		}
 	}
 
 
@@ -2511,7 +2771,7 @@ void init_angband(void)
 	}
 
 	/* Close it */
-	fd_close(fd);
+	(void)fd_close(fd);
 
 
 	/*** Display the "news" file ***/
@@ -2576,7 +2836,7 @@ void init_angband(void)
 	}
 
 	/* Close it */
-	fd_close(fd);
+	(void)fd_close(fd);
 
 
 	/*** Initialize some arrays ***/
@@ -2617,10 +2877,31 @@ void init_angband(void)
 	/*** Load default user pref files ***/
 
 	/* Initialize feature info */
-	note("[Loading basic user pref file...]");
+	note("[Initializing user pref files...]");
+
+	/* Access the "basic" pref file */
+	strcpy(buf, "pref.prf");
 
 	/* Process that file */
-	(void)process_pref_file("pref.prf");
+	process_pref_file(buf);
+
+	/* Access the "user" pref file */
+	sprintf(buf, "user.prf");
+
+	/* Process that file */
+	process_pref_file(buf);
+
+	/* Access the "basic" system pref file */
+	sprintf(buf, "pref-%s.prf", ANGBAND_SYS);
+
+	/* Process that file */
+	process_pref_file(buf);
+
+	/* Access the "user" system pref file */
+	sprintf(buf, "user-%s.prf", ANGBAND_SYS);
+
+	/* Process that file */
+	process_pref_file(buf);
 
 	/* Done */
 	note("[Initialization complete]");

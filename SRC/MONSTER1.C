@@ -1,11 +1,13 @@
-/* File: monster1.c */
+/* File: mon-desc.c */
+
+/* Purpose: describe monsters (using monster memory) */
 
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1989 James E. Wilson, Christopher J. Stuart
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
  */
 
 #include "angband.h"
@@ -103,31 +105,31 @@ static bool know_damage(int r_idx, int i)
  */
 static void roff_aux(int r_idx)
 {
-	monster_race *r_ptr;
+	monster_race	*r_ptr;
 
-	bool old = FALSE;
-	bool sin = FALSE;
+	bool		old = FALSE;
+	bool		sin = FALSE;
 
-	int m, n, r;
+	int			m, n, r;
 
-	cptr p, q;
+	cptr		p, q;
 
-	int msex = 0;
+	int			msex = 0;
 
-	bool breath = FALSE;
-	bool magic = FALSE;
+	bool		breath = FALSE;
+	bool		magic = FALSE;
 
-	u32b flags1;
-	u32b flags2;
-	u32b flags3;
-	u32b flags4;
-	u32b flags5;
-	u32b flags6;
+	u32b		flags1;
+	u32b		flags2;
+	u32b		flags3;
+	u32b		flags4;
+	u32b		flags5;
+	u32b		flags6;
 
-	int vn = 0;
-	cptr vp[64];
+	int			vn = 0;
+	cptr		vp[64];
 
-	monster_race save_mem;
+	monster_race        save_mem;
 
 
 
@@ -152,14 +154,16 @@ static void roff_aux(int r_idx)
 	r_ptr = &r_info[r_idx];
 
 
-	/* Cheat -- know everything */
-	if (cheat_know || r_ptr->r_xtra1)
+	/* Cheat -- Know everything */
+	if (cheat_know)
 	{
 		/* XXX XXX XXX */
 
-		/* Hack -- save memory */
-		COPY(&save_mem, r_ptr, monster_type);
+		/* Save the "old" memory */
+		save_mem = *r_ptr;
 
+		/* Hack -- Maximal kills */
+		r_ptr->r_tkills = MAX_SHORT;
 
 		/* Hack -- Maximal info */
 		r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
@@ -239,7 +243,9 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags3 & (RF3_DEMON)) flags3 |= (RF3_DEMON);
 		if (r_ptr->flags3 & (RF3_UNDEAD)) flags3 |= (RF3_UNDEAD);
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
+        if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
+        if (r_ptr->flags3 & (RF3_AMBERITE)) flags3 |= (RF3_AMBERITE);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -396,13 +402,13 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 #endif
 
 			/* Seek */
-			fd_seek(fd, pos);
+			(void)fd_seek(fd, pos);
 
 			/* Read a chunk of data */
-			fd_read(fd, buf, 2048);
+			(void)fd_read(fd, buf, 2048);
 
 			/* Close it */
-			fd_close(fd);
+			(void)fd_close(fd);
 		}
 
 #else
@@ -541,8 +547,10 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 		}
 
 		/* Describe the "quality" */
+        if (flags2 & (RF2_ELDRITCH_HORROR)) roff(" sanity-blasting");
 		if (flags3 & (RF3_ANIMAL)) roff(" natural");
 		if (flags3 & (RF3_EVIL)) roff(" evil");
+        if (flags3 & (RF3_GOOD)) roff (" good");
 		if (flags3 & (RF3_UNDEAD)) roff(" undead");
 
 		/* Describe the "race" */
@@ -551,6 +559,7 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 		else if (flags3 & (RF3_GIANT)) roff(" giant");
 		else if (flags3 & (RF3_TROLL)) roff(" troll");
 		else if (flags3 & (RF3_ORC)) roff(" orc");
+        else if (flags3 & (RF3_AMBERITE)) roff (" Amberite");
 		else roff(" creature");
 
 		/* Group some variables */
@@ -590,6 +599,24 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 		}
 	}
 
+    if ((flags2 & (RF2_AURA_FIRE)) && (flags2 & (RF2_AURA_ELEC)))
+    {
+        roff(format("%^s is surrounded by flames and electricity.  ", wd_he[msex]));
+    }
+    else if (flags2 & (RF2_AURA_FIRE))
+    {
+        roff(format("%^s is surrounded by flames.  ", wd_he[msex]));
+    }
+    else if (flags2 & (RF2_AURA_ELEC))
+    {
+        roff(format("%^s is surrounded by electricity.  ", wd_he[msex]));
+    }
+
+    if (flags2 & (RF2_REFLECTING))
+    {
+        roff(format("%^s reflects bolt spells.  ", wd_he[msex]));
+    }
+
 
 	/* Describe escorts */
 	if ((flags1 & (RF1_ESCORT)) || (flags1 & (RF1_ESCORTS)))
@@ -609,6 +636,7 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 	/* Collect inate attacks */
 	vn = 0;
 	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
+	if (flags4 & (RF4_ROCKET))      vp[vn++] = "shoot a rocket";
 	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire an arrow";
 	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire arrows";
 	if (flags4 & (RF4_ARROW_3))		vp[vn++] = "fire a missile";
@@ -659,9 +687,9 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 	if (flags4 & (RF4_BR_PLAS))		vp[vn++] = "plasma";
 	if (flags4 & (RF4_BR_WALL))		vp[vn++] = "force";
 	if (flags4 & (RF4_BR_MANA))		vp[vn++] = "mana";
-        if (flags4 & (RF4_BR_INSA))             vp[vn++] = "insanity";
-	if (flags4 & (RF4_XXX7))		vp[vn++] = "something";
-	if (flags4 & (RF4_XXX8))		vp[vn++] = "something";
+    if (flags4 & (RF4_BR_NUKE))     vp[vn++] = "toxic waste";
+    if (flags4 & (RF4_BR_DISI))     vp[vn++] = "disintegration";
+    if (flags6 & RF6_BR_INSA)      vp[vn++] = "insanity";
 
 	/* Describe breaths */
 	if (vn)
@@ -690,8 +718,8 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 	vn = 0;
 	if (flags4 & (RF4_P_BLAST))		vp[vn++] = "produce psionic blasts";
 	if (flags4 & (RF4_P_CRUSH))		vp[vn++] = "crush the psyche";
-	if (flags4 & (RF4_M_WRACK))		vp[vn++] = "wrack the mind";
-	if (flags4 & (RF4_P_WAVE))		   vp[vn++] = "project psychic waves";
+	if (flags6 & (RF6_M_WRACK))		vp[vn++] = "wrack the mind";
+	if (flags6 & (RF6_P_WAVE))		   vp[vn++] = "project psychic waves";
 	if (flags5 & (RF5_BA_ACID))		vp[vn++] = "produce acid balls";
 	if (flags5 & (RF5_BA_ELEC))		vp[vn++] = "produce lightning balls";
 	if (flags5 & (RF5_BA_FIRE))		vp[vn++] = "produce fire balls";
@@ -699,14 +727,17 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 	if (flags5 & (RF5_BA_POIS))		vp[vn++] = "produce poison balls";
 	if (flags5 & (RF5_BA_NETH))		vp[vn++] = "produce nether balls";
 	if (flags5 & (RF5_BA_WATE))		vp[vn++] = "produce water balls";
+    if (flags4 & (RF4_BA_NUKE))     vp[vn++] = "produce balls of radiation";
 	if (flags5 & (RF5_BA_MANA))		vp[vn++] = "invoke mana storms";
 	if (flags5 & (RF5_BA_DARK))		vp[vn++] = "invoke darkness storms";
+    if (flags4 & (RF4_BA_CHAO))     vp[vn++] = "invoke raw Logrus";
+    if (flags6 & (RF6_HAND_DOOM))        vp[vn++] = "invoke the Hand of Doom";
 	if (flags5 & (RF5_DRAIN_MANA))	vp[vn++] = "drain mana";
 	if (flags5 & (RF5_MIND_BLAST))	vp[vn++] = "cause mind blasting";
 	if (flags5 & (RF5_BRAIN_SMASH))	vp[vn++] = "cause brain smashing";
-	if (flags5 & (RF5_CAUSE_1))		vp[vn++] = "cause light wounds";
-	if (flags5 & (RF5_CAUSE_2))		vp[vn++] = "cause serious wounds";
-	if (flags5 & (RF5_CAUSE_3))		vp[vn++] = "cause critical wounds";
+    if (flags5 & (RF5_CAUSE_1))     vp[vn++] = "cause light wounds and cursing";
+    if (flags5 & (RF5_CAUSE_2))     vp[vn++] = "cause serious wounds and cursing";
+    if (flags5 & (RF5_CAUSE_3))     vp[vn++] = "cause critical wounds and cursing";
 	if (flags5 & (RF5_CAUSE_4))		vp[vn++] = "cause mortal wounds";
 	if (flags5 & (RF5_BO_ACID))		vp[vn++] = "produce acid bolts";
 	if (flags5 & (RF5_BO_ELEC))		vp[vn++] = "produce lightning bolts";
@@ -725,13 +756,11 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 	if (flags5 & (RF5_SLOW))		vp[vn++] = "slow";
 	if (flags5 & (RF5_HOLD))		vp[vn++] = "paralyze";
 	if (flags6 & (RF6_HASTE))		vp[vn++] = "haste-self";
-	if (flags6 & (RF6_XXX1))		vp[vn++] = "do something";
+
 	if (flags6 & (RF6_HEAL))		vp[vn++] = "heal-self";
- 	if (flags6 & (RF6_HEAL2))     vp[vn++] = "super heal-self";
+	if (flags6 & (RF6_HEAL2))		vp[vn++] = "heal-self completely";
 	if (flags6 & (RF6_BLINK))		vp[vn++] = "blink-self";
 	if (flags6 & (RF6_TPORT))		vp[vn++] = "teleport-self";
-	if (flags6 & (RF6_XXX3))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX4))		vp[vn++] = "do something";
 	if (flags6 & (RF6_TELE_TO))		vp[vn++] = "teleport to";
 	if (flags6 & (RF6_TELE_AWAY))		vp[vn++] = "teleport away";
 	if (flags6 & (RF6_TELE_LEVEL))	vp[vn++] = "teleport level";
@@ -739,11 +768,9 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX7))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX8))		vp[vn++] = "do something";
-	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
+    if (flags6 & (RF6_S_MONSTER))       vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))	vp[vn++] = "summon monsters";
+    if (flags6 & (RF6_S_KIN))       vp[vn++] = "summon aid";
 	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
 	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
@@ -754,7 +781,8 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 	if (flags6 & (RF6_S_DRAGON))		vp[vn++] = "summon a dragon";
 	if (flags6 & (RF6_S_HI_UNDEAD))	vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON))	vp[vn++] = "summon Ancient Dragons";
-	if (flags6 & (RF6_S_WRAITH))		vp[vn++] = "summon Ring Wraiths";
+    if (flags6 & (RF6_S_CYBER))     vp[vn++] = "summon Cyberdemons";
+    if (flags6 & (RF6_S_WRAITH))        vp[vn++] = "summon Lords of Amber";
 	if (flags6 & (RF6_S_UNIQUE))		vp[vn++] = "summon Unique Monsters";
 
 	/* Describe spells */
@@ -977,7 +1005,7 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 	if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
 	if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
 	if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
-   if (flags3 & RF3_RES_PSI)    vp[vn++] = "psionics";
+    if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
 
 	/* Describe resistances */
 	if (vn)
@@ -1225,7 +1253,7 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 			case RBM_BUTT:	p = "butt"; break;
 			case RBM_CRUSH:	p = "crush"; break;
 			case RBM_ENGULF:	p = "engulf"; break;
-			case RBM_XXX2:	break;
+            case RBM_CHARGE: p = "charge";   break;
 			case RBM_CRAWL:	p = "crawl on you"; break;
 			case RBM_DROOL:	p = "drool on you"; break;
 			case RBM_SPIT:	p = "spit"; break;
@@ -1237,7 +1265,7 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 			case RBM_BEG:	p = "beg"; break;
 			case RBM_INSULT:	p = "insult"; break;
 			case RBM_MOAN:	p = "moan"; break;
-			case RBM_XXX5:	break;
+            case RBM_SHOW:  p = "sing"; break;
 		}
 
 
@@ -1256,7 +1284,7 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 			case RBE_EAT_FOOD:	q = "eat your food"; break;
 			case RBE_EAT_LITE:	q = "absorb light"; break;
 			case RBE_ACID:	q = "shoot acid"; break;
-			case RBE_ELEC:	q = "electrify"; break;
+            case RBE_ELEC:  q = "electrocute"; break;
 			case RBE_FIRE:	q = "burn"; break;
 			case RBE_COLD:	q = "freeze"; break;
 			case RBE_BLIND:	q = "blind"; break;
@@ -1356,11 +1384,11 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
 	roff("\n");
 
 
-	/* Cheat -- know everything */
+	/* Hack -- Restore monster memory */
 	if (cheat_know)
 	{
-		/* Hack -- restore memory */
-		COPY(r_ptr, &save_mem, monster_type);
+		/* Restore memory */
+		*r_ptr = save_mem;
 	}
 }
 
@@ -1373,10 +1401,10 @@ if (cheat_know || (r_ptr->r_xtra1 != 0)) r_ptr->r_tkills = MAX_SHORT;
  */
 static void roff_top(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race	*r_ptr = &r_info[r_idx];
 
-	byte a1, a2;
-	char c1, c2;
+	byte		a1, a2;
+	char		c1, c2;
 
 
 	/* Access the chars */
@@ -1386,6 +1414,10 @@ static void roff_top(int r_idx)
 	/* Access the attrs */
 	a1 = r_ptr->d_attr;
 	a2 = r_ptr->x_attr;
+
+	/* Hack -- fake monochrome */
+	if (!use_color) a1 = TERM_WHITE;
+	if (!use_color) a2 = TERM_WHITE;
 
 
 	/* Clear the top line */

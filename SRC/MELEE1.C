@@ -1,11 +1,13 @@
 /* File: melee1.c */
 
+/* Purpose: Monster attacks */
+
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
  */
 
 #include "angband.h"
@@ -78,27 +80,6 @@ static int check_hit(int power, int level)
 	return (FALSE);
 }
 
-static int check_hit2(int power, int level, int ac)
-{
-	int i, k;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- Always miss or hit */
-	if (k < 10) return (k < 5);
-
-	/* Calculate the "attack quality" */
-	i = (power + (level * 3));
-
-	/* Power and Level compete against Armor */
-	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
-
-	/* Assume miss */
-	return (FALSE);
-}
-
-
 /*
  * Hack -- possible "insult" messages
  */
@@ -133,31 +114,38 @@ static cptr desc_moan[] =
  */
 bool make_attack_normal(int m_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type	*m_ptr = &m_list[m_idx];
 
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race	*r_ptr = &r_info[m_ptr->r_idx];
 
-	int ap_cnt;
+	int			ap_cnt;
 
-	int i, j, k, tmp, ac, rlev;
-	int do_cut, do_stun;
+	int			i, j, k, tmp, ac, rlev;
+	int			do_cut, do_stun;
 
-	s32b gold;
+	s32b		gold;
 
-	object_type *o_ptr;
+	object_type		*o_ptr;
 
-	char o_name[80];
+	char		o_name[80];
 
-	char m_name[80];
+	char		m_name[80];
 
-	char ddesc[80];
+	char		ddesc[80];
 
-	bool blinked;
+	bool		blinked;
 
+    bool        touched = FALSE, fear = FALSE, alive = TRUE;
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
+         /* ...nor if friendly */
+         if (m_ptr->status & STATUS_DOMINATE)  return FALSE;
+
+	if (psi_flags & PEACE)
+	  if (randint(200) < 50 + adj_dex_safe[p_ptr->stat_use[A_CHR]])
+	    return FALSE;
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -198,8 +186,8 @@ bool make_attack_normal(int m_idx)
 		if (!method) break;
 
 
-		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		/* Stop if player is dead or gone */
+		if (!alive || death || new_level_flag) break;
 
 
 		/* Extract visibility (before blink) */
@@ -210,7 +198,7 @@ bool make_attack_normal(int m_idx)
 		/* Extract the attack "power" */
 		switch (effect)
 		{
-			case RBE_HURT: power = 60; break;
+			case RBE_HURT:	power = 60; break;
 			case RBE_POISON:	power =  5; break;
 			case RBE_UN_BONUS:	power = 20; break;
 			case RBE_UN_POWER:	power = 15; break;
@@ -218,11 +206,11 @@ bool make_attack_normal(int m_idx)
 			case RBE_EAT_ITEM:	power =  5; break;
 			case RBE_EAT_FOOD:	power =  5; break;
 			case RBE_EAT_LITE:	power =  5; break;
-			case RBE_ACID:		power =  0; break;
-			case RBE_ELEC:		power = 10; break;
-			case RBE_FIRE:		power = 10; break;
-			case RBE_COLD:		power = 10; break;
-			case RBE_BLIND:		power =  2; break;
+			case RBE_ACID:	power =  0; break;
+			case RBE_ELEC:	power = 10; break;
+			case RBE_FIRE:	power = 10; break;
+			case RBE_COLD:	power = 10; break;
+			case RBE_BLIND:	power =  2; break;
 			case RBE_CONFUSE:	power = 10; break;
 			case RBE_TERRIFY:	power = 10; break;
 			case RBE_PARALYZE:	power =  2; break;
@@ -278,18 +266,21 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "hits you.";
 					do_cut = do_stun = 1;
+                    touched = TRUE;
 					break;
 				}
 
 				case RBM_TOUCH:
 				{
 					act = "touches you.";
+                    touched = TRUE;
 					break;
 				}
 
 				case RBM_PUNCH:
 				{
 					act = "punches you.";
+                    touched = TRUE;
 					do_stun = 1;
 					break;
 				}
@@ -297,6 +288,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_KICK:
 				{
 					act = "kicks you.";
+                    touched = TRUE;
 					do_stun = 1;
 					break;
 				}
@@ -304,6 +296,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_CLAW:
 				{
 					act = "claws you.";
+                    touched = TRUE;
 					do_cut = 1;
 					break;
 				}
@@ -312,12 +305,14 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "bites you.";
 					do_cut = 1;
+                    touched = TRUE;
 					break;
 				}
 
 				case RBM_STING:
 				{
 					act = "stings you.";
+                    touched = TRUE;
 					break;
 				}
 
@@ -331,6 +326,7 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "butts you.";
 					do_stun = 1;
+                    touched = TRUE;
 					break;
 				}
 
@@ -338,24 +334,28 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "crushes you.";
 					do_stun = 1;
+                    touched = TRUE;
 					break;
 				}
 
 				case RBM_ENGULF:
 				{
 					act = "engulfs you.";
+                    touched = TRUE;
 					break;
 				}
 
-				case RBM_XXX2:
+                case RBM_CHARGE:
 				{
-					act = "XXX2's you.";
+                    act = "charges you.";
+                    touched = TRUE;
 					break;
 				}
 
 				case RBM_CRAWL:
 				{
 					act = "crawls on you.";
+                    touched = TRUE;
 					break;
 				}
 
@@ -419,9 +419,12 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX5:
+                case RBM_SHOW:
 				{
-					act = "XXX5's you.";
+                    if (randint(3)==1)
+                        act = "sings 'We are a happy family.'";
+                    else
+                        act = "sings 'I love you, you love me.'";
 					break;
 				}
 			}
@@ -449,17 +452,18 @@ bool make_attack_normal(int m_idx)
 
 					break;
 				}
-
+			
 				case RBE_HURT:
 				{
 					/* Obvious */
 					obvious = TRUE;
 
 					/* Hack -- Player armor reduces total damage */
-					damage -= ((pa_ptr->shadow_form ? 300 : 0) +
-               (pa_ptr->biofeedback ? 50 : 0) +
-					damage * ((ac < 150) ? ac : 150)) / 250;
+					damage -= ((ac < 150) ? ac : 150) * damage / 250;
 
+					if (p_ptr->wraith_form) damage /= 4;
+					else if (p_ptr->biofeedback) damage /= 2;
+					
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -468,7 +472,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_POISON:
 				{
-					/* Take damage */
+					/* Take some damage */
 					take_hit(damage, ddesc);
 
 					/* Take "poison" effect */
@@ -481,14 +485,14 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_POIS);
+					update_smart_learn(m_idx, DRS_POIS);
 
 					break;
 				}
 
 				case RBE_UN_BONUS:
 				{
-					/* Take damage */
+					/* Take some damage */
 					take_hit(damage, ddesc);
 
 					/* Allow complete resist */
@@ -499,14 +503,14 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_DISEN);
+					update_smart_learn(m_idx, DRS_DISEN);
 
 					break;
 				}
 
 				case RBE_UN_POWER:
 				{
-					/* Take damage */
+					/* Take some damage */
 					take_hit(damage, ddesc);
 
 					/* Find an item */
@@ -538,7 +542,7 @@ bool make_attack_normal(int m_idx)
 							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
 							/* Redraw (later) if needed */
-							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+							if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 							/* Uncharge */
 							o_ptr->pval = 0;
@@ -559,7 +563,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_GOLD:
 				{
-					/* Take damage */
+					/* Take some damage */
 					take_hit(damage, ddesc);
 
 					/* Obvious */
@@ -604,7 +608,7 @@ bool make_attack_normal(int m_idx)
 						p_ptr->redraw |= (PR_GOLD);
 
 						/* Window stuff */
-						p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+						p_ptr->window |= (PW_PLAYER);
 
 						/* Blink away */
 						blinked = TRUE;
@@ -615,7 +619,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_ITEM:
 				{
-					/* Take damage */
+					/* Take some damage */
 					take_hit(damage, ddesc);
 
 					/* Saving throw (unless paralyzed) based on dex and level */
@@ -639,9 +643,6 @@ bool make_attack_normal(int m_idx)
 					/* Find an item */
 					for (k = 0; k < 10; k++)
 					{
-						object_type *i_ptr;
-						object_type object_type_body;
-
 						/* Pick an item */
 						i = rand_int(INVEN_PACK);
 
@@ -652,7 +653,7 @@ bool make_attack_normal(int m_idx)
 						if (!o_ptr->k_idx) continue;
 
 						/* Skip artifacts */
-						if (artifact_p(o_ptr)) continue;
+                        if (artifact_p(o_ptr) || o_ptr->art_name) continue;
 
 						/* Get a description */
 						object_desc(o_name, o_ptr, FALSE, 3);
@@ -662,18 +663,79 @@ bool make_attack_normal(int m_idx)
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
 						           o_name, index_to_label(i));
 
-						/* Get local object */
-						i_ptr = &object_type_body;
+						/* Option */
+						if (testing_carry)
+						{
+							s16b o_idx;
 
-						/* Obtain local object */
-						object_copy(i_ptr, o_ptr);
+							/* Make an object */
+							o_idx = o_pop();
 
-						/* Modify number */
-						i_ptr->number = 1;
+							/* Success */
+							if (o_idx)
+							{
+								object_type *j_ptr;
 
-						/* Carry the object */
-						(void)monster_carry(m_idx, i_ptr);
+								/* Get new object */
+								j_ptr = &o_list[o_idx];
 
+								/* Copy object */
+								object_copy(j_ptr, o_ptr);
+
+								/* Modify number */
+								j_ptr->number = 1;
+
+								/* Forget mark */
+								j_ptr->marked = FALSE;
+
+								/* Memorize monster */
+								j_ptr->held_m_idx = m_idx;
+
+								/* Build stack */
+								j_ptr->next_o_idx = m_ptr->hold_o_idx;
+
+								/* Build stack */
+								m_ptr->hold_o_idx = o_idx;
+							}
+                        }
+
+
+                        else
+                        {
+                            if (strstr((r_name + r_ptr->name),"black market")
+                                    && randint(2)!=1)
+                                {
+                                s16b o_idx;
+
+                                /* Make an object */
+                                o_idx = o_pop();
+
+                                /* Success */
+                                if (o_idx)
+                                 {
+                                    object_type *j_ptr;
+                                    if (cheat_xtra || cheat_peek)
+                                          msg_print("Moving object to black market...");
+
+
+                                    /* Get new object */
+                                    j_ptr = &o_list[o_idx];
+
+                                    /* Copy object */
+                                    object_copy(j_ptr, o_ptr);
+
+                                    /* Modify number */
+                                    j_ptr->number = 1;
+
+                                    /* Forget mark */
+                                    j_ptr->marked = FALSE;
+
+                                    move_to_black_market(j_ptr);
+                                  }
+                                }
+
+                        }
+						
 						/* Steal the items */
 						inven_item_increase(i, -1);
 						inven_item_optimize(i);
@@ -693,7 +755,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_FOOD:
 				{
-					/* Take damage */
+					/* Take some damage */
 					take_hit(damage, ddesc);
 
 					/* Steal some food */
@@ -735,7 +797,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_LITE:
 				{
-					/* Take damage */
+					/* Take some damage */
 					take_hit(damage, ddesc);
 
 					/* Access the lite */
@@ -774,7 +836,7 @@ bool make_attack_normal(int m_idx)
 					acid_dam(damage, ddesc);
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_ACID);
+					update_smart_learn(m_idx, DRS_ACID);
 
 					break;
 				}
@@ -787,11 +849,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are struck by electricity!");
 
-					/* Take damage (special) */
+					/* Special damage */
 					elec_dam(damage, ddesc);
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_ELEC);
+					update_smart_learn(m_idx, DRS_ELEC);
 
 					break;
 				}
@@ -804,11 +866,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are enveloped in flames!");
 
-					/* Take damage (special) */
+					/* Special damage */
 					fire_dam(damage, ddesc);
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_FIRE);
+					update_smart_learn(m_idx, DRS_FIRE);
 
 					break;
 				}
@@ -821,11 +883,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are covered with frost!");
 
-					/* Take damage (special) */
+					/* Special damage */
 					cold_dam(damage, ddesc);
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_COLD);
+					update_smart_learn(m_idx, DRS_COLD);
 
 					break;
 				}
@@ -845,7 +907,7 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_BLIND);
+					update_smart_learn(m_idx, DRS_BLIND);
 
 					break;
 				}
@@ -856,7 +918,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_confu)
+					if (!p_ptr->resist_conf)
 					{
 						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
 						{
@@ -865,7 +927,7 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_CONFU);
+					update_smart_learn(m_idx, DRS_CONF);
 
 					break;
 				}
@@ -895,16 +957,13 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_FEAR);
+					update_smart_learn(m_idx, DRS_FEAR);
 
 					break;
 				}
 
 				case RBE_PARALYZE:
 				{
-					/* Hack -- Prevent perma-paralysis via damage */
-					if (p_ptr->paralyzed && (damage < 1)) damage = 1;
-
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -935,7 +994,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_STR:
 				{
-					/* Take damage */
+					/* Damage (physical) */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
@@ -946,7 +1005,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_INT:
 				{
-					/* Take damage */
+					/* Damage (physical) */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
@@ -957,7 +1016,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_WIS:
 				{
-					/* Take damage */
+					/* Damage (physical) */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
@@ -968,7 +1027,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_DEX:
 				{
-					/* Take damage */
+					/* Damage (physical) */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
@@ -979,7 +1038,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_CON:
 				{
-					/* Take damage */
+					/* Damage (physical) */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
@@ -990,7 +1049,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_CHR:
 				{
-					/* Take damage */
+					/* Damage (physical) */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
@@ -1001,7 +1060,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_ALL:
 				{
-					/* Take damage */
+					/* Damage (physical) */
 					take_hit(damage, ddesc);
 
 					/* Damage (stats) */
@@ -1021,9 +1080,10 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Hack -- Reduce damage based on the player armor class */
-					damage -= ((pa_ptr->shadow_form ? 300 : 0) +
-               (pa_ptr->biofeedback ? 50 : 0) +
-					damage * ((ac < 150) ? ac : 150)) / 250;
+					damage -= ((ac < 150) ? ac : 150) * damage / 250;
+
+					if (p_ptr->wraith_form) damage /= 4;
+					else if (p_ptr->biofeedback) damage /= 2;
 
 					/* Take damage */
 					take_hit(damage, ddesc);
@@ -1036,31 +1096,31 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_10:
 				{
-					/* Obvious */
-					obvious = TRUE;
+				  /* Obvious */
+				  obvious = TRUE;
 
-					/* Take damage */
-					take_hit(damage, ddesc);
+				  /* Take damage */
+				  take_hit(damage, ddesc);
 
-					if (p_ptr->hold_life && (rand_int(100) < 95))
+				  if (p_ptr->hold_life && (rand_int(100) < 95))
+				    {
+				      msg_print("You keep hold of your life force!");
+				    }
+				  else
+				    {
+				      s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+				      if (p_ptr->hold_life)
 					{
-						msg_print("You keep hold of your life force!");
+					  msg_print("You feel your life slipping away!");
+					  lose_exp(d/10);
 					}
-					else
+				      else
 					{
-						s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-							msg_print("You feel your life slipping away!");
-							lose_exp(d/10);
-						}
-						else
-						{
-							msg_print("You feel your life draining away!");
-							lose_exp(d);
-						}
+					  msg_print("You feel your life draining away!");
+					  lose_exp(d);
 					}
-					break;
+				    }
+				  break;
 				}
 
 				case RBE_EXP_20:
@@ -1217,7 +1277,49 @@ bool make_attack_normal(int m_idx)
 				/* Apply the stun */
 				if (k) (void)set_stun(p_ptr->stun + k);
 			}
-		}
+            if (touched)
+            {
+                if (p_ptr->sh_fire && alive)
+                {   if (!(r_ptr->flags3 & RF3_IM_FIRE))
+                    {
+                        msg_format("%^s is suddenly very hot!", m_name);
+                        if (mon_take_hit(m_idx, damroll(2,6), &fear,
+                            " turns into a pile of ash."))
+                        {
+                            blinked = FALSE;
+                            alive = FALSE;
+                        }
+                    }
+                    else
+                    {
+                        if (m_ptr->ml)
+                            r_ptr->r_flags3 |= RF3_IM_FIRE;
+
+                    }
+
+                }
+                if (p_ptr->sh_elec && alive)
+                {   if (!(r_ptr->flags3 & RF3_IM_ELEC))
+                    {
+                        msg_format("%^s gets zapped!", m_name);
+                        if (mon_take_hit(m_idx, damroll(2,6), &fear,
+                            " turns into a pile of cinder."))
+                            {
+                                blinked = FALSE;
+                                alive = FALSE;
+                            }
+                    }
+                    else
+                    {
+                            if (m_ptr->ml)
+                            r_ptr->r_flags3 |= RF3_IM_ELEC;
+                    }
+
+                            
+                }
+                touched = FALSE;
+            }
+        }
 
 		/* Monster missed player */
 		else
@@ -1236,7 +1338,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_BUTT:
 				case RBM_CRUSH:
 				case RBM_ENGULF:
-				case RBM_XXX2:
+                case RBM_CHARGE:
 
 				/* Visible monsters */
 				if (m_ptr->ml)
@@ -1272,467 +1374,24 @@ bool make_attack_normal(int m_idx)
 	/* Blink away */
 	if (blinked)
 	{
-		msg_print("There is a puff of smoke!");
+        msg_print("The thief flees laughing!");
 		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 	}
 
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT))
+	if (death && (r_ptr->r_deaths < MAX_SHORT))
 	{
 		r_ptr->r_deaths++;
 	}
+
+    if (m_ptr->ml && fear)
+    {
+        sound (SOUND_FLEE);
+        msg_format("%^s flees in terror!", m_name);
+    }
 
 
 	/* Assume we attacked */
 	return (TRUE);
 }
-
-extern bool project_m(int who, int r, int y, int x, int dam, int typ);
-
-/* Monster attacks monster */
-
-void monst_attack_monst(int m_idx,int t_idx)
-{
-	monster_type    *m_ptr = &m_list[m_idx],*t_ptr = &m_list[t_idx];
-
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx],
-			*tr_ptr =&r_info[t_ptr->r_idx];
-
-	int                     ap_cnt;
-
-	int                     ac, rlev,pt;
-
-	char            m_name[80],t_name[80];
-
-	char            ddesc[80],temp[80];
-
-	bool            blinked;
-
-
-	/* Not allowed to attack */
-	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return;
-
-	/* Total armor */
-	ac = tr_ptr->ac;
-
-	/* Extract the effective monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
-
-
-	/* Get the monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
-
-	/* Get the monster name (or "it") */
-	monster_desc(t_name, t_ptr, 0);
-
-	/* Get the "died from" information (i.e. "a kobold") */
-	monster_desc(ddesc, m_ptr, 0x88);
-
-
-	/* Assume no blink */
-	blinked = FALSE;
-
-	/* Scan through all four blows */
-	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
-	{
-		bool visible = FALSE;
-		bool obvious = FALSE;
-
-		int power = 0;
-		int damage = 0;
-
-		cptr act = NULL;
-
-		/* Extract the attack infomation */
-		int effect = r_ptr->blow[ap_cnt].effect;
-		int method = r_ptr->blow[ap_cnt].method;
-		int d_dice = r_ptr->blow[ap_cnt].d_dice;
-		int d_side = r_ptr->blow[ap_cnt].d_side;
-
-
-		/* Hack -- no more attacks */
-		if (!method) break;
-
-
-		/* Extract visibility (before blink) */
-		if (m_ptr->ml) visible = TRUE;
-
-		/* Extract the attack "power" */
-		switch (effect)
-		{
-			case RBE_HURT:  power = 60; break;
-			case RBE_POISON:        power =  5; break;
-			case RBE_UN_BONUS:      power = 20; break;
-			case RBE_UN_POWER:      power = 15; break;
-			case RBE_EAT_GOLD:      power =  5; break;
-			case RBE_EAT_ITEM:      power =  5; break;
-			case RBE_EAT_FOOD:      power =  5; break;
-			case RBE_EAT_LITE:      power =  5; break;
-			case RBE_ACID:  power =  0; break;
-			case RBE_ELEC:  power = 10; break;
-			case RBE_FIRE:  power = 10; break;
-			case RBE_COLD:  power = 10; break;
-			case RBE_BLIND: power =  2; break;
-			case RBE_CONFUSE:       power = 10; break;
-			case RBE_TERRIFY:       power = 10; break;
-			case RBE_PARALYZE:      power =  2; break;
-			case RBE_LOSE_STR:      power =  0; break;
-			case RBE_LOSE_DEX:      power =  0; break;
-			case RBE_LOSE_CON:      power =  0; break;
-			case RBE_LOSE_INT:      power =  0; break;
-			case RBE_LOSE_WIS:      power =  0; break;
-			case RBE_LOSE_CHR:      power =  0; break;
-			case RBE_LOSE_ALL:      power =  2; break;
-			case RBE_SHATTER:       power = 60; break;
-			case RBE_EXP_10:        power =  5; break;
-			case RBE_EXP_20:        power =  5; break;
-			case RBE_EXP_40:        power =  5; break;
-			case RBE_EXP_80:        power =  5; break;
-		}
-
-
-		/* Monster hits*/
-		if (!effect || check_hit2(power, rlev,ac))
-		{
-			/* Always disturbing */
-			disturb(1, 0);
-
-			/* Describe the attack method */
-			switch (method)
-			{
-				case RBM_HIT:
-				{
-					act = "hits %s.";
-					break;
-				}
-
-				case RBM_TOUCH:
-				{
-					act = "touches %s.";
-					break;
-				}
-
-				case RBM_PUNCH:
-				{
-					act = "punches %s.";
-					break;
-				}
-
-				case RBM_KICK:
-				{
-					act = "kicks %s.";
-					break;
-				}
-
-				case RBM_CLAW:
-				{
-					act = "claws %s.";
-					break;
-				}
-
-				case RBM_BITE:
-				{
-					act = "bites %s.";
-					break;
-				}
-
-				case RBM_STING:
-				{
-					act = "stings %s.";
-					break;
-				}
-
-				case RBM_XXX1:
-				{
-					act = "XXX1's %s.";
-					break;
-				}
-
-				case RBM_BUTT:
-				{
-					act = "butts %s.";
-					break;
-				}
-
-				case RBM_CRUSH:
-				{
-					act = "crushes %s.";
-					break;
-				}
-
-				case RBM_ENGULF:
-				{
-					act = "engulfs %s.";
-					break;
-				}
-
-				case RBM_XXX2:
-				{
-					act = "XXX2's %s.";
-					break;
-				}
-
-				case RBM_CRAWL:
-				{
-					act = "crawls on %s.";
-					break;
-				}
-
-				case RBM_DROOL:
-				{
-					act = "drools on %s.";
-					break;
-				}
-
-				case RBM_SPIT:
-				{
-					act = "spits on %s.";
-					break;
-				}
-
-				case RBM_XXX3:
-				{
-					act = "XXX3's on %s.";
-					break;
-				}
-
-				case RBM_GAZE:
-				{
-					act = "gazes at %s.";
-					break;
-				}
-
-				case RBM_WAIL:
-				{
-					act = "wails at %s.";
-					break;
-				}
-
-				case RBM_SPORE:
-				{
-					act = "releases spores at %s.";
-					break;
-				}
-
-				case RBM_XXX4:
-				{
-					act = "projects XXX4's at %s.";
-					break;
-				}
-
-				case RBM_BEG:
-				{
-					act = "begs %s for money.";
-					break;
-				}
-
-				case RBM_INSULT:
-				{
-					act = desc_insult[rand_int(8)];
-					break;
-				}
-
-				case RBM_MOAN:
-				{
-					act = desc_moan[rand_int(4)];
-					break;
-				}
-
-				case RBM_XXX5:
-				{
-					act = "XXX5's %s.";
-					break;
-				}
-			}
-
-			/* Message */
-			if (act)
-	 {
-	   strfmt(temp,act,t_name);
-	   msg_format("%^s %s", m_name, temp);
-	 }
-
-			/* Hack -- assume all attacks are obvious */
-			obvious = TRUE;
-
-			/* Roll out the damage */
-			damage = damroll(d_dice, d_side);
-
-	 pt = GF_MISSILE;
-
-			/* Apply appropriate damage */
-			switch (effect)
-			{
-				case 0:
-				{
-					damage = 0;
-	       pt  = 0;
-					break;
-				}
-
-				case RBE_HURT:
-				{
-					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
-					break;
-				}
-
-				case RBE_POISON:
-				{
-	       pt = GF_POIS;
-					break;
-				}
-
-				case RBE_UN_BONUS:
-				case RBE_UN_POWER:
-				{
-	       pt = GF_DISENCHANT;
-					break;
-				}
-
-				case RBE_EAT_FOOD:
-				case RBE_EAT_LITE:
-				case RBE_EAT_ITEM:
-				case RBE_EAT_GOLD:
-				{
-	       pt = damage = 0;
-					break;
-				}
-
-				case RBE_ACID:
-				{
-	       pt = GF_ACID;
-					break;
-				}
-
-				case RBE_ELEC:
-				{
-	       pt = GF_ELEC;
-					break;
-				}
-
-				case RBE_FIRE:
-				{
-	       pt = GF_FIRE;
-	       break;
-	    }
-
-				case RBE_COLD:
-				{
-	       pt = GF_COLD;
-					break;
-				}
-
-				case RBE_BLIND:
-				{
-					break;
-				}
-
-				case RBE_CONFUSE:
-				{
-	       pt = GF_CONFUSION;
-					break;
-				}
-
-				case RBE_TERRIFY:
-				{
-	       pt = GF_TURN_ALL;
-					break;
-				}
-
-				case RBE_PARALYZE:
-				{
-	       pt = GF_PSI2; /* sort of close... */
-					break;
-				}
-
-				case RBE_LOSE_STR:
-				case RBE_LOSE_INT:
-				case RBE_LOSE_WIS:
-				case RBE_LOSE_DEX:
-				case RBE_LOSE_CON:
-				case RBE_LOSE_CHR:
-				case RBE_LOSE_ALL:
-				{
-					break;
-				}
-
-				case RBE_SHATTER:
-				{
-					if (damage > 23) earthquake(m_ptr->fy, m_ptr->fx, 8);
-					break;
-				}
-
-				case RBE_EXP_10:
-				case RBE_EXP_20:
-				case RBE_EXP_40:
-				case RBE_EXP_80:
-	    {
-	       pt = GF_NETHER;
-					break;
-				}
-	    default:
-	     pt = 0; break;
-			}
-	 if (pt) project_m(m_idx,0,t_ptr->fy,t_ptr->fx,damage,pt);
-
-	}
-
-		/* Monster missed player */
-		else
-		{
-			/* Analyze failed attacks */
-			switch (method)
-			{
-				case RBM_HIT:
-				case RBM_TOUCH:
-				case RBM_PUNCH:
-				case RBM_KICK:
-				case RBM_CLAW:
-				case RBM_BITE:
-				case RBM_STING:
-				case RBM_XXX1:
-				case RBM_BUTT:
-				case RBM_CRUSH:
-				case RBM_ENGULF:
-				case RBM_XXX2:
-
-				/* Visible monsters */
-				if (m_ptr->ml)
-				{
-					/* Disturbing */
-					disturb(1, 0);
-
-					/* Message */
-					msg_format("%^s misses %^s.", m_name,t_name);
-				}
-
-				break;
-			}
-		}
-
-
-		/* Analyze "visible" monsters only */
-		if (visible)
-		{
-			/* Count "obvious" attacks (and ones that cause damage) */
-			if (obvious || damage || (r_ptr->r_blows[ap_cnt] > 10))
-			{
-				/* Count attacks of this type */
-				if (r_ptr->r_blows[ap_cnt] < MAX_UCHAR)
-				{
-					r_ptr->r_blows[ap_cnt]++;
-				}
-			}
-		}
-	}
-
-
-	/* Blink away */
-	if (blinked)
-	{
-		msg_print("There is a puff of smoke!");
-		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
-	}
-}
-

@@ -44,7 +44,7 @@ something you are more comfortable with.
 
   #   A secret door                   #   A wall
   +   A closed door                   %   A mineral vein
-  +   A locked door                   *   A mineral vein with treasure
+  +   A locked door                   *   A mineral vein + treasure / Pattern
   +   A jammed door                   :   A pile of rubble
 
 
@@ -108,8 +108,9 @@ The town contains many different kinds of people.  There are the street
 urchins, young children who will mob an adventurer for money, and seem to
 come out of the woodwork when excited.  Blubbering idiots are a constant
 annoyance, but not harmful.  Public drunks wander about the town singing,
-and are of no threat to anyone.  Sneaky rogues hang about watching for a
-likely victim to mug.  And finally, what town would be complete without a
+and are of no threat to anyone.  Sneaky rogues who work for the black
+market are always greedily  eyeing  your  backpack  for  potential  new
+'purchases'. . .   And finally,  what town would be complete without  a
 swarm of half drunk warriors, who take offense or become annoyed just for
 the fun of it.
 
@@ -130,31 +131,33 @@ afford.  When bartering, you enter prices you will pay (or accept) for some
 object.  You can either enter the absolute amount, or precede a number with
 a plus or minus sign to give a positive or negative increment on your
 previous offer.  But be warned that the owners can easily be insulted, and
-may even throw you out for a while if you insult them too often. (There is, 
-of course, the option to turn haggling off through the options menu: set the
-"auto_haggle" option to "yes". This will ensure that the shop owner is never 
-angry enough with you to throw you out - even when you sell him stuff that 
-turns out to be cursed - but there is a 10% sales tax, i.e. the price you 
-get is 10% above (when buying) or 10% below (when selling) the amount that 
-would be the shopkeeper's "final offer" if haggling was turned on.) To enter
-a store, simply move onto the entrance, which is represented by a number from 
-1 to 8.
+may even throw you out for a while if you insult them too often.  To enter
+a store, simply move onto the entrance, which is represented by a number
+from 1 to 8.
+
+If you consistently bargain well in a store, that is, you reach the final
+offer much more often than not, then the store owner will eventually
+recognize that you are a superb haggler, and will go directly to the final
+offer instead of haggling with you.  Items which cost less than 10 gold
+pieces do not count, as haggling well with these items is usually either
+very easy or almost impossible.  The more expensive the item is, the less
+likely the store owner is to assume that you are a good haggler.  Note that
+you may disable haggling with a software option, though this will inflict a
+10% "sales tax" on all purchases for which the store owner would have
+required you to haggle.
 
 Once inside a store, you will see the name and race of the store owner, the
 name of the store, the maximum amount of cash that the store owner will pay
 for any one item, and the store inventory, listed along with tentative
 prices, which will become "fixed" (at the "final offer") should you ever
-manage to haggle a store owner down to his final offer. If haggling is off,
-you will see all items at the price you will pay for them.
+manage to haggle a store owner down to his final offer.
 
 You will also see an (incomplete) list of available commands.  Note that
 many of the commands which work in the dungeon work in the stores as well,
 but some do not, especially those which involve "using" objects.
 
 Stores do not always have everything in stock.  As the game progresses,
-they may get new items so check from time to time: there are also certain
-items that they never stock unless you sell them there. (For instance, don't
-expect to find a Ring of Speed in the magic shop.)  Also, if you sell them
+they may get new items so check from time to time.  Also, if you sell them
 an item, it may get sold to a customer while you are adventuring, so don't
 always expect to be able to get back everything you have sold.  Note that
 the inventory of a store will not change while you are in town, even if you
@@ -163,16 +166,7 @@ the store owner to clear out his stock and acquire new items.  If you have
 a lot of spare gold, you can purchase every item in a store, which will
 induce the store owner to bring out new stock, and perhaps even retire.
 
-Very occasionally, one of the stores may change ownership while you are
-in the dungeon: so don't worry, you won't necessarily be stuck with a house
-full of Dragon Scale Mails and an armourer who won't pay more than 5000 gold
-apiece when you could get 30000 from one of his competitors. (It can be a 
-very long wait, though, so don't bank on the store owners changing at all.)
-The maximum price that each owner will pay is noted in brackets after his 
-name at the top of the shop menu: none of them will offer higher than 30000 
-gold pieces under any circumstances.
-
-Store owners will not buy known harmful or useless items.  If an object is
+Store owners will not buy harmful or useless items.  If an object is
 unidentified, they will pay you some base price for it.  Once they have
 bought it they will immediately identify the object.  If it is a good object,
 they will add it to their inventory.  If it was a bad bargain, they simply
@@ -196,19 +190,19 @@ The Weaponsmith's Shop ("3")
 The Temple ("4")
      The Temple deals in healing and restoration potions, as well as bless
      scrolls, word of recall scrolls, some approved priestly weapons, as
-     well as prayer books.
+     well as books of Life magic for priests and paladins.
 
 The Alchemy shop ("5")
      The Alchemy Shop deals in all types of potions and scrolls.
 
 The Magic User's Shop ("6")
      The Magic User's Shop deals in all sorts of rings, wands, amulets, and
-     staves, as well as magic user books and psionic foci.
+     staves, as well as magic user books: most spellbooks (Sorcery, Nature,
+     Chaos and Death) can be bought and sold here.
 
 The Black Market ("7")
      The Black Market will sell and buy anything at extortionate prices.
-     However it occasionally has VERY good items in it - literally anything
-     can turn up here provided it isn't an artifact. The shopkeepers are
+     However it occasionally has VERY good items in it. The shopkeepers are
      not known for their tolerance...
 
 Your Home ("8")
@@ -230,9 +224,9 @@ larger than the screen) by titanium walls.  Once you leave a level by a
 staircase, you will never again find your way back to that region of that
 level, but there are an infinite number of other regions at that same "depth"
 that you can explore later.  So be careful that you have found all the
-treasure before you leave a level, or you may never find it again!  Monsters, 
-of course, can move around, so you may find a monster in another place if you
-leave him behind on one level.
+treasure before you leave a level, or you may never find it again!  The
+monsters, of course, can use the stairs, and you may eventually encounter
+them again.
 
 In the dungeon, there are many things to find, but your character must
 survive many horrible and challenging encounters to find the treasure lying
@@ -260,30 +254,27 @@ The mines are full of objects just waiting to be picked up and used.  How
 did they get there?  Well, the main source for useful items are all the
 foolish adventurers that proceeded into the dungeon before you.  They get
 killed, and the helpful creatures scatter the various treasure throughout
-the dungeon.  Many cursed items are also placed there, often by evil
+the dungeon.  Most cursed items are placed there by the joyful evil
 sorcerers, who enjoy a good joke when it gets you killed.
 
-Only one object (or stack of up to 99 identical objects, such as 99 arrows 
-or bolts) may occupy a given floor location, which may or may not also
-contain one creature: doors, rubble, traps, and staircases are considered
-"objects" for this purpose. (There are options (set to "on" by default) 
-which allow more than one object to stack in a square: but an object cannot
-occupy the same square as a door, trap, staircase or pile of rubble. A 
-monster may occupy the same square as anything - except a closed door, wall
-or pile of rubble, unless it can pass through walls.)
+Only one object may occupy a given floor location, which may or may not also
+contain one creature.  Doors, rubble, traps, and staircases are considered
+"objects" for this purpose.  As below, any item may actually be a "pile" of
+up to 99 identical items.
 
 You pick up objects by moving on top of them.  You can carry up to 23
 different items in your backpack while wearing and wielding up to 12 others.
 Although you are limited to 23 different items, each item may actually be a
-"pile" of up to 99 identical items.  If you somehow manage to stuff 24 items
+"pile" of up to 99 similar items.  If you somehow manage to stuff 24 items
 into your pack, for example, by removing an item from your head while your
 pack is full, then your pack will "overflow" and the most recently added
-item will fall out and onto the ground.
+item will fall out and onto the ground.  You will be warned about any command
+that seems likely to induce this behavior.
 
 You are, however, limited in the total amount of weight that you can carry.
 As you approach this value, you become slower, making it easier for monsters
 to chase you.  Note that there is no upper bound on how much you can carry,
-if you do not mind being slow.  Your weight "limit" is determined by your
+if you do not mind being slow.  Your weight limit is determined by your
 strength.
 
 Many objects found within the dungeon have special commands for their use.
@@ -306,6 +297,12 @@ getting back to the deeper levels of Angband.  Once the scroll has been
 read it takes a while for the spell to act, so don't expect it to save you
 in a crisis.  Reading a second scroll before the first has had a chance to
 take effect will cancel both scrolls.
+Since an accidental dive to a new depth (via a trapdoor, for example), may
+result in the Word of Recall dungeon depth being 'broken', so to speak
+(meaning that the next Word of Recall in town will take you back deeper
+than you would like to), there is a new feature in Zangband which allows
+you to read a scroll of Word of Recall on a different level and 'reset'
+the recall depth to that level (instead of the deepest level).
 
 You may "inscribe" any object with a textual inscription of your choice.
 These inscriptions are not limited in length, though you may not be able to
@@ -327,19 +324,14 @@ though they can be covered up by a real inscription if you so desire.  Try
 Also, occasionally you will notice that something in your inventory or
 equipment list seems to be magical.  High level characters are much more
 likely to notice this than beginning characters.  When you do notice this,
-the item in question will be inscribed with "good" or "cursed", whichever 
-is relevant. Mages, Rangers, Priests and Psionicists have this power, but 
-it is fairly slow to work (somewhat better for priests than for the others.)
+the item in question will be inscribed with "good" or "cursed" as is
+relevant.  Priests acquire this ability far more readily than other
+character classes.
 
-Warriors, Rogues, and Paladins have a special method of "sensing" their
-inventory/equipment items, which tells them not only if an item is "good" or
-"cursed", but also if it is "average", and if it is "special" or "excellent",
-or "terrible" or "worthless". This is because to warriors and paladins, 
-weapons and armor are second nature, and thus they can tell just how good or
-bad such an object is much more readily than other classes: and rogues are
-good at appraising any items at a glance, thanks to their long experience in 
-dealing with stolen goods on the black market where they can spot a bargain 
-or a rip-off instantly.
+Warriors, Rogues, Rangers and Paladins have a special method of "sensing"
+their inventory/equipment items, which tells them not only if an item is
+"good" or "cursed", but also if it is "average", and if it is "special"
+or "excellent", or "terrible" or "worthless".
 
 It is rumored that rings of power and extra rare spell books may be found
 deeper in the dungeon...
@@ -354,14 +346,14 @@ potion will reach out and bite you...
 Some objects, mainly armor and weapons, have had curses laid upon them.
 These horrible objects will look like any other normal item, but will
 detract from your character's stats or abilities if worn.  They will also
-be impossible to remove until a remove curse is performed.  In fact some
-are so badly cursed that even this will not work, and more potent methods
-are needed.
+be impossible to remove until a remove curse is done.  In fact some are
+so badly cursed that even this will not work, and more potent methods are
+needed.
 
-If you wear or wield a cursed item, you will immediately feel deathly cold,
-and the item will be marked with the fake inscription "cursed".
+If you wear or wield a cursed item, you will immediately feel something
+wrong.  The item will also be inscribed "cursed".
 
-Skopkeepers will refuse to buy any item which is known to be cursed.
+Skopkeepers will refuse to buy any known cursed item.
 
 
 === Mining ===
@@ -381,10 +373,11 @@ When a vein of quartz or magma is located, the character may wield his pick
 or shovel and begin digging out a section.  When that section is removed, he
 can locate another section of the vein and begin the process again.  Since
 granite rock is much harder to dig through, it is much faster to follow the
-vein exactly and dig around the granite.  Eventually, it becomes easier to
-simply kill monsters and discover items in the dungeon to sell, than to walk
-around digging for treasure.  But, early on, mineral veins can be a wonderful
-source of easy treasure.
+vein exactly and dig around the granite.  There is an option for highlighting
+magma and quartz.  At a certain point, it becomes more cumbersome to dig out
+treasure than to simply kill monsters and discover items in the dungeon to
+sell.  However, early on mineral veins can be a wonderful source of easy
+treasure.
 
 If the character has a scroll, staff, or spell of treasure location, he can
 immediately locate all strikes of treasure within a vein shown on the
@@ -414,14 +407,11 @@ a down staircase.  You must move your character over the staircase before
 you can use it.
 
 Each level has at least one up staircase and at least two down staircases.
-There are no exceptions to this rule - except those levels on which the most
-terrible monsters (Morgoth, and his greatest servant Sauron) live: in each 
-case, you must kill the guardian before you can find the staircase down. When 
-you return to that level in future, it will be treated as a normal level.
-You may have trouble finding some well hidden secret doors, or you may have 
-to dig through obstructions to get to them, but you can always find the 
-stairs if you look hard enough.  Stairs, like titanium walls, and shop 
-entrances, cannot be destroyed by any means.
+There are no exceptions to this rule.  You may have trouble finding some well
+hidden secret doors, or you may have to dig through obstructions to get to
+them, but you can always find the stairs if you look hard enough.  Stairs,
+like titanium walls, and the doors into shops, cannot be destroyed by any
+means.
 
 Many secret doors are used within the dungeon to confuse and demoralize
 adventurers foolish enough to enter.  But with some luck, and lots of
@@ -440,34 +430,32 @@ For historical reasons, secret doors are never locked.
 
 === Winning The Game ===
 
-Once your character has killed Sauron, who lives on level 99 (4950') in the 
-dungeon, a magical staircase will appear that will allow you to finally reach
-level 100.  Morgoth lurks on this level of his dungeon, and you will not be
-able to go below his level until you have killed him.  Try to avoid wandering
-around on level 100 unless you are ready for him, since he has a habit of
-coming at you across the dungeon, the Mighty Hammer 'Grond' in hand, to slay
-you for your impudence.
+Once your character has killed Oberon, who lives on level 99 (4950') in the
+dungeon, a magical staircase will appear that will finally allow you to reach
+level 100.  The Serpent of Chaos lurks on this level of his dungeon, and you
+will not be able to go below his level until you have killed him.  Try to avoid
+wandering around on level 100 unless you are ready for him, since it has a
+habit of coming at you across the dungeon, to slay you for your impudence.
 
-Morgoth cannot be killed by some of the easier methods used on normal
-creatures.  Morgoth, like all other "Unique" monsters, will simply teleport
-away to another region of the level if you attempt to use a spell such as
-destruction is upon him.  Morgoth, like some other monsters, cannot be
-polymorphed, slept, charmed, or genocided.  Magical spells like Mana Storm 
-and Orb of Draining are effective against him, as are some of the more
-powerful weapons, but he is difficult to kill and if allowed to escape for
-a time he will heal himself rapidly.
+The Serpent of Chaos cannot be killed by some of the easier methods used on
+normal creatures.  The Serpent of Chaos, like all other "Unique" monsters,
+will simply teleport away to another region of the level if you attempt to
+use a spell such as destruction is upon it.   The Serpent of Chaos, like some
+other monsters, cannot be polymorphed, slept, charmed, or genocided.
+Magical spells like Mana Storm and Orb of Draining are effective against it,
+as are some of the more powerful weapons, but it is difficult to kill and if
+allowed to escape for a time it will heal itself rapidly.
 
-If you should actually survive the attempt of killing Morgoth, you will
-receive the status of WINNER.  You may continue to explore, and may even
-save the game and play more later, but since you have defeated the toughest
-creature alive, there is really not much point.  Unless you wish to listen
-to the rumors of a powerful ring buried somewhere in the dungeon, or possibly
-those rumours of the dragon scale mail that resists literally everything...
+If you should actually survive the attempt of killing the Serpent of Chaos,
+you will receive the status of WINNER.  You may continue to explore, and may
+even save the game and play more later, but since you have defeated the
+toughest creature alive, there is really not much point.  Unless you wish to
+listen to the rumors of a powerful ring buried somewhere in the dungeon...
 
-When you are ready to retire, simply "commit suicide" (using the "Q" key)
-to have your character entered into the high score list as a winner.  Note
-that until you retire, you can still be killed, so you may want to retire
-before wandering into a horde of death molds...
+When you are ready to retire, simply "commit suicide" ("^K") to have your
+character entered into the high score list as a winner.  Note that until you
+retire, you can still be killed, so you may want to retire before wandering
+into a hoard of Cyberdemons...
 
 
 === Upon Death and Dying ===
@@ -479,19 +467,15 @@ all your equipment (identified) either on the screen or in a file.
 
 Your character will leave behind a reduced save file, which contains only
 the monster memory and your option choices.  It may be restored, in which
-case a new character is generated exactly as if the file was not there, but
-the new player will find his monster memory containing all the experience
+case the new character is generated exactly as if the file was not there,
+but the new player will find his monster memory containing all the experience
 of past incarnations.
 
-There are a variety of ways to "cheat" death (including using a special
-"cheating option") when it would otherwise occur.  This will fully heal
-your character, returning him to the town, and marking him in various
-ways as a character which has cheated death.  Cheating death, like using
-any of the "cheating options", will prevent your character from appearing
-on the high score list. Unfortunately, the worst way of cheating death - 
-making a backup copy of the savefile and going back to it if your character
-dies or something else bad happens to him (such as reading a scroll of curse
-weapon on the great longsword "Ringil") is undetectable by this means, so we 
-must rely on honesty when claiming to have won the game.
 
+=== Help ===
 
+The newsgroup "rec.games.roguelike.angband" is a good place to ask various
+questions about both game play and game design, and you can email bug
+reports and such to (benh@voicenet.com).  Be sure to include the version
+number you are playing in any bug reports.  Zangband specific bug reports
+should be sent to (f1toyl@uta.fi).

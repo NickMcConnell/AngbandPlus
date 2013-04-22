@@ -2034,8 +2034,8 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		char c = cp[i];
 
 		/* Extract picture */
-		int row = (a & 0x1F);
-		int col = (c & 0x1F);
+        int row = (a & 0x7F);
+        int col = (c & 0x7F);
 
 		/* Location of bitmap cell */
 		x1 = col * w1;

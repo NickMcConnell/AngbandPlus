@@ -8,57 +8,44 @@
  * are included in all such copies.
  */
 
+/* Purpose: Visual Display Support for "term.c", for the IBM */
+
 
 /*
- * This file helps Angband work with DOS computers.
+ * Original code by "Billy Tanksley (wtanksle@ucsd.edu)"
+ * Use "Makefile.ibm" to compile Angband using this file.
  *
- * To use this file with DJGPP, use "Makefile.ibm", which defines "USE_IBM".
+ * Support for DJGPP v2 by "Scott Egashira (egashira@u.washington.edu)"
  *
- * To use this file with Watcom C/C++, use "Makefile.wat", which defines
- * "USE_IBM" and "USE_WAT".
+ * Extensive modifications by "Ben Harrison (benh@phial.com)",
+ * including "collation" of the Watcom C/C++ and DOS-286 patches.
  *
- * To use this file with a DOS-286 machine, use "Makefile.286" (not ready),
- * which defines "USE_IBM", "USE_WAT", "USE_286", and, depending on your
- * compiler, perhaps "USE_CONIO".
+ * Watcom C/C++ changes by "David Boeren (akemi@netcom.com)"
+ * Use "Makefile.wat" to compile this file with Watcom C/C++, and
+ * be sure to define "USE_IBM" and "USE_WAT".
  *
- * See also "main-dos.c" and "main-win.c".
+ * DOS-286 (conio.h) changes by (Roland Jay Roberts (jay@map.com)
+ * Use "Makefile.286" (not ready) to compile this file for DOS-286,
+ * and be sure to define "USE_IBM", "USE_WAT", and "USE_286".  Also,
+ * depending on your compiler, you may need to define "USE_CONIO".
  *
- *
- * The "lib/user/pref-ibm.prf" file contains keymaps, macro definitions,
- * and/or color redefinitions.
- *
- * The "lib/user/font-ibm.prf" contains attr/char mappings for use with the
- * normal DOS fonts.
- *
- * The "lib/user/graf-ibm.prf" contains attr/char mappings for use with the
- * special "lib/xtra/angband.fnt" font file, which is activated by the "-g"
- * flag.
- *
+ * True color palette support by "Mike Marcelais (michmarc@microsoft.com)",
+ * with interface to the "color_table" array by Ben Harrison.
  *
  * Both "shift" keys are treated as "identical", and all the modifier keys
  * (control, shift, alt) are ignored when used with "normal" keys, unless
  * they modify the underlying "ascii" value of the key.  You must use the
  * new "user pref files" to be able to interact with the keypad and such.
  *
+ * The "lib/user/pref-ibm.prf" file contains macro definitions and possible
+ * alternative color set definitions.  The "lib/user/font-ibm.prf" contains
+ * attr/char mappings for walls and floors and such.
+ *
  * Note the "Term_user_ibm()" function hook, which could allow the user
  * to interact with the "main-ibm.c" visual system.  Currently this hook
  * is unused, but, for example, it could allow the user to toggle "sound"
  * or "graphics" modes, or to select the number of screen rows, with the
  * extra screen rows being used for the mirror window.
- *
- *
- * Initial framework (and some code) by Ben Harrison (benh@phial.com).
- *
- * Original code by Billy Tanksley (wtanksle@ucsd.edu).
- *
- * Support for DJGPP v2 by Scott Egashira (egashira@u.washington.edu).
- *
- * Support for DOS-286 (conio.h) by Roland Jay Roberts (jay@map.com).
- *
- * Support for Watcom C/C++ by David Boeren (akemi@netcom.com).
- *
- * True color palette support, and graphics support, by Mike Marcelais
- * (michmarc@microsoft.com).
  */
 
 
@@ -246,26 +233,7 @@ static byte use_color_complex = FALSE;
 /*
  * The "complex" color set
  */
-static long ibm_color_complex[16] =
-{
-	0x000000L,          /* 0 0 0  Dark       */
-	0x3f3f3fL,          /* 4 4 4  White      */
-	0x232323L,          /* 2 2 2  Slate      */
-	0x00233fL,          /* 4 2 0  Orange     */
-	0x000035L,          /* 3 0 0  Red        */
-	0x112300L,          /* 0 2 1  Green      */
-	0x3f0000L,          /* 0 0 4  Blue       */
-	0x001123L,          /* 2 1 0  Umber      */
-	0x111111L,          /* 1 1 1  Lt. Dark   */
-	0x353535L,          /* 3 3 3  Lt. Slate  */
-	0x3f003fL,          /* 4 0 4  Purple     */
-	0x003f3fL,          /* 4 4 0  Yellow     */
-	0x00003fL,          /* 4 0 0  Lt. Red    */
-	0x003f00L,          /* 0 4 0  Lt. Green  */
-	0x3f3f00L,          /* 0 4 4  Lt. Blue   */
-	0x112335L           /* 3 2 1  Lt. Umber  */
-};
-
+static long ibm_color_complex[16];
 
 
 /*
@@ -335,11 +303,7 @@ static byte ibm_color_simple[16] =
 static void activate_color_complex(void)
 {
 	int i;
-
-#if 0
-	/* Is this important? */
 	printf("%c%c%c%c",8,8,8,8);
-#endif
 
 #if 1
 
@@ -907,7 +871,11 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
  *
  * The given parameters are "valid".
  */
+#ifdef USE_TRANSPARENCY
+static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+#else /* USE_TRANSPARENCY */
 static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
+#endif /* USE_TRANSPARENCY */
 {
 	register int i;
 	register byte attr;
@@ -1228,7 +1196,7 @@ void enable_graphic_font(const char *font)
  */
 errr init_ibm(void)
 {
-        int i,rv,gv,bv;
+	int i;
 	int mode;
 
 	term *t = &term_screen_body;
@@ -1247,6 +1215,8 @@ errr init_ibm(void)
 	/* Initialize "color_table" */
 	for (i = 0; i < 16; i++)
 	{
+		long rv, gv, bv;
+
 		/* Extract desired values */
 		rv = angband_color_table[i][1] >> 2;
 		gv = angband_color_table[i][2] >> 2;
@@ -1429,5 +1399,4 @@ errr init_ibm(void)
 
 
 #endif /* USE_IBM */
-
 

@@ -1,11 +1,13 @@
 /* File: config.h */
 
+/* Purpose: Angband specific configuration stuff */
+
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
  */
 
 
@@ -172,20 +174,19 @@
 
 
 /*
- * OPTION: Hack -- Compile in support for "Borg mode"
+ * OPTION: Hack -- Compile in support for "Cyborg" mode
  */
-/* #define ALLOW_BORG */
+/*#define ALLOW_BORG*/
 
 /*
- * OPTION: Hack -- Compile in support for "Debug Commands"
+ * OPTION: Hack -- Compile in support for "Wizard Commands"
  */
-#define ALLOW_DEBUG
+#define ALLOW_WIZARD
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
 #define ALLOW_SPOILERS
-
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time
@@ -201,7 +202,6 @@
  * OPTION: Allow "do_cmd_macros" at run-time
  */
 #define ALLOW_MACROS
-
 
 /*
  * OPTION: Allow characteres to be "auto-rolled"
@@ -290,7 +290,7 @@
 /*
  * Allow "Borgs" to yield "high scores"
  */
-/* #define SCORE_BORGS */
+/*#define SCORE_BORGS*/
 
 /*
  * Allow "Cheaters" to yield "high scores"
@@ -312,21 +312,16 @@
 #define MONSTER_FLOW_DEPTH 32
 
 
-/*
- * OPTION: Support multiple "player" grids in "map_info()"
- */
-/* #define MAP_INFO_MULTIPLE_PLAYERS */
-
 
 /*
- * OPTION: Use the new "update_view()" algorithm
+ * OPTION: Allow use of extended spell info	-DRS-
  */
-#define UPDATE_VIEW_NEW
+#define DRS_SHOW_SPELL_INFO
 
 /*
- * OPTION: Use the "complex" wall illumination code
+ * OPTION: Allow use of the monster health bar	-DRS-
  */
-/* #define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
+#define DRS_SHOW_HEALTH_BAR
 
 
 /*
@@ -340,6 +335,11 @@
  * learning that the player is not harmed by that attack.
  *
  * This adds about 3K to the memory and about 5K to the executable.
+ *
+ * SPECIAL NOTE: In Z, the "smart" field is also used to store such
+ * monster information as "friendly" and "cloned". Therefore this
+ * option should always be defined when compiling Zangband 2.1.0
+ * or later.
  */
 #define DRS_SMART_OPTIONS
 
@@ -356,9 +356,9 @@
 
 
 /*
- * OPTION: Allow the use of random artifacts.
+ * OPTION: Allow the use of random artifacts. (not yet with Zangband)
  */
-#define GJW_RANDART
+/* #define GJW_RANDART */
 
 /*
  * OPTION: Allow the use of "sound" in various places.
@@ -447,6 +447,22 @@
 
 
 /*
+ * OPTION: For some brain-dead computers with no command line interface,
+ * namely Macintosh, there has to be some way of "naming" your savefiles.
+ * The current "Macintosh" hack is to make it so whenever the character
+ * name changes, the savefile is renamed accordingly.  But on normal
+ * machines, once you manage to "load" a savefile, it stays that way.
+ * Macintosh is particularly weird because you can load savefiles that
+ * are not contained in the "lib:save:" folder, and if you change the
+ * player's name, it will then save the savefile elsewhere.  Note that
+ * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
+ */
+#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
+# define SAVEFILE_MUTABLE
+#endif
+
+
+/*
  * OPTION: Capitalize the "user_name" (for "default" player name)
  * This option is only relevant on SET_UID machines.
  */
@@ -457,7 +473,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@phial.com"
+#define MAINTAINER	"rr9@angband.org"
 
 
 /*
@@ -503,7 +519,7 @@
 # undef DRS_SMART_OPTIONS
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
-# undef ALLOW_DEBUG
+# undef ALLOW_WIZARD
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef DELAY_LOAD_R_TEXT
@@ -524,7 +540,37 @@
 #ifdef VERIFY_HONOR
 # define VERIFY_SAVEFILE
 # define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMP
+# define VERIFY_TIMESTAMPS
 #endif
 
+/* Zangband options: */
+
+/* (see above) */
+#ifndef DRS_SMART_OPTIONS
+ #define DRS_SMART_OPTIONS
+#endif
+
+/* Should the player know his / her starting life rate? */
+# define SHOW_LIFE_RATE
+
+/* Do we want different characters for different races? */
+# define VARIABLE_PLAYER_GRAPH
+
+/* To turn on the "confirm staircases" check  -- obsolete in 2.1.0 and later */
+/* # define CONFIRM_STAIRCASES */
+
+/* For longer martial arts descriptions */
+# define VERBOSE_MARTIAL_ARTS
+
+/* Allow hordes of 'similar' monsters */
+# define MONSTER_HORDES
+
+
+/* Wizard mode testing options: */
+
+/* For testing the vaults */
+/* # define FORCE_V_IDX */
+
+/* Testing upkeep */
+/* # define TRACK_FRIENDS */
 

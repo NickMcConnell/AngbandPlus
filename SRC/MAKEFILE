@@ -20,9 +20,8 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o monster1.o monster2.o \
   variable.o tables.o util.o cave.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o
-
-MAINOBJS = main.o main-ibm.o randart.o
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o \
+  main.o main-ibm.o
 
 # Compiler
 CC = gcc
@@ -32,7 +31,6 @@ CFLAGS = -Wall -O2 -s -DUSE_IBM
 
 # Libraries
 LIBS = -lpc
-
 
 #
 # Targets
@@ -53,16 +51,8 @@ all: angband.exe makepref.exe gredit.exe
 # Link executables
 #
 
-../angband.exe: $(OBJS) $(MAINOBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(MAINOBJS) $(LIBS)
-
-../randart.exe: $(OBJS) _randart.o
-	$(CC) $(CFLAGS) -o $@ $(OBJS) _randart.o $(LIBS)
-
-_randart.o:
-	copy randart.c _randart.c
-	$(CC) $(CFLAGS) -o $@ -DSTANDALONE_RANDART
-	del _randart.c
+../angband.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 makepref.exe: makepref.o
 	$(CC) $(CFLAGS) -o $@ makepref.o $(LIBS)

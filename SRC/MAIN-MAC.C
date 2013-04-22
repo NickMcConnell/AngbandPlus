@@ -1,26 +1,38 @@
 /* File: main-mac.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison, Keith Randall, and others
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
- */
-
+/* Purpose: Simple support for MACINTOSH Angband */
 
 /*
- * This file helps Angband work with Macintosh computers.
+ * This file should only be compiled with the "Macintosh" version
  *
- * To use this file, use an appropriate "Makefile" or "Project File", which
- * should define "MACINTOSH".
+ * This file written by "Ben Harrison (benh@phial.com)".
  *
- * The official compilation uses the CodeWarrior Pro compiler.
+ * Some code adapted from "MacAngband 2.6.1" by Keith Randall
  *
- * If you are never going to use "graphics" (especially if you are not
- * compiling support for graphics anyway) then you can delete the "pict"
- * resource with id "1001" with no dangerous side effects.
+ * Maarten Hazewinkel (mmhazewi@cs.ruu.nl) provided some initial
+ * suggestions for the PowerMac port.
  *
+ * Steve Linberg (slinberg@crocker.com) provided the code surrounded
+ * by "USE_SFL_CODE".
+ *
+ * The graphics code is adapted from an extremely minimal subset of
+ * the code from "Sprite World II", an amazing animation package.
+ *
+ * See "z-term.c" for info on the concept of the "generic terminal"
+ *
+ * The preference file is now a text file named "Angband preferences".
+ *
+ * Note that the "preference" file is now a simple text file called
+ * "Angband preferences", which contains the versions information, so
+ * that obsolete preference files can be ignored (this may be bad).
+ *
+ * Note that "init1.c", "init2.c", "load1.c", "load2.c", and "birth.c"
+ * should probably be "unloaded" as soon as they are no longer needed,
+ * to save space, but I do not know how to do this.
+ *
+ * Stange bug -- The first "ClipRect()" call crashes if the user closes
+ * all the windows, switches to another application, switches back, and
+ * then re-opens the main window, for example, using "command-a".
  *
  * By default, this file assumes that you will be using a 68020 or better
  * machine, running System 7 and Color Quickdraw.  In fact, the game will
@@ -37,33 +49,13 @@
  * flag will be automatically defined, which will disable many of the
  * advanced features of the game itself, reducing the total memory usage.
  *
- *
- * Note that the "preference" file is now a simple text file called
- * "Angband Preferences", which contains a version stamp, so that
- * obsolete preference files can be ignored.  This should probably
- * be replaced with a "structured" preference file of some kind.
- *
- * Note that "init1.c", "init2.c", "load1.c", "load2.c", and "birth.c"
- * should probably be "unloaded" as soon as they are no longer needed,
- * to save space, but I do not know how to do this.  XXX XXX XXX
- *
- * Stange bug -- The first "ClipRect()" call crashes if the user closes
- * all the windows, switches to another application, switches back, and
- * re-opens the main window, for example, using "command-a".  XXX XXX XXX
- *
- *
- * Initial framework (and most code) by Ben Harrison (benh@phial.com).
- *
- * Some code adapted from "MacAngband 2.6.1" by Keith Randall
- *
- * Initial PowerMac port by Maarten Hazewinkel (mmhazewi@cs.ruu.nl).
- *
- * Most "USE_SFL_CODE" code provided by Steve Linberg (slinberg@crocker.com).
- *
- * Most of the graphics code is adapted from an extremely minimal subset of
- * the "Sprite World II" package, an amazing (and free) animation package.
- *
- *
+ * If you are never going to use "graphics" (especially if you are not
+ * compiling support for graphics anyway) then you can delete the "pict"
+ * resource with id "1001" with no dangerous side effects.
+ */
+
+
+/*
  * Important Resources in the resource file:
  *
  *   FREF 130 = 'A271' / 'APPL' (application)
@@ -88,8 +80,10 @@
  *   MENU 130 = Edit (undo, -, cut, copy, paste, clear)
  *
  *   PICT 1001 = Graphics tile set
- *
- *
+ */
+
+
+/*
  * File name patterns:
  *   all 'APEX' files have a filename of the form "*:apex:*" (?)
  *   all 'BONE' files have a filename of the form "*:bone:*" (?)
@@ -101,8 +95,10 @@
  * to avoid nasty file type information being spread all through the
  * rest of the code.  (?)  This might require adding hooks into the
  * "fd_open()" and "my_fopen()" functions in "util.c".  XXX XXX XXX
- *
- *
+ */
+
+
+/*
  * Reasons for each header file:
  *
  *   angband.h = Angband header file
@@ -211,20 +207,43 @@
 #endif
 
 
-#ifdef ANGBAND_LITE_MAC
+#if 0
 
 /*
- * Everything in drawn as white on black
+ * The Angband Color Set (0 to 15):
+ *   Black, White, Slate, Orange,    Red, Blue, Green, Umber
+ *   D-Gray, L-Gray, Violet, Yellow, L-Red, L-Blue, L-Green, L-Umber
+ *
+ * Colors 8 to 15 are basically "enhanced" versions of Colors 0 to 7.
+ *
+ * On the Macintosh, we use color quickdraw, and we use actual "RGB"
+ * values below to choose the 16 colors.
+ *
+ * If we are compiled for ancient machines, we bypass color and simply
+ * draw everything in white (letting "z-term.c" automatically convert
+ * "black" into "wipe" calls).
  */
+static RGBColor foo[16] =
+{
+	{0x0000, 0x0000, 0x0000},	/* TERM_DARK */
+	{0xFFFF, 0xFFFF, 0xFFFF},	/* TERM_WHITE */
+	{0x8080, 0x8080, 0x8080},	/* TERM_SLATE */
+	{0xFFFF, 0x8080, 0x0000},	/* TERM_ORANGE */
+	{0xC0C0, 0x0000, 0x0000},	/* TERM_RED */
+	{0x0000, 0x8080, 0x4040},	/* TERM_GREEN */
+	{0x0000, 0x0000, 0xFFFF},	/* TERM_BLUE */
+	{0x8080, 0x4040, 0x0000},	/* TERM_UMBER */
+	{0x4040, 0x4040, 0x4040},	/* TERM_L_DARK */
+	{0xC0C0, 0xC0C0, 0xC0C0},	/* TERM_L_WHITE */
+	{0xFFFF, 0x0000, 0xFFFF},	/* TERM_VIOLET */
+	{0xFFFF, 0xFFFF, 0x0000},	/* TERM_YELLOW */
+	{0xFFFF, 0x0000, 0x0000},	/* TERM_L_RED */
+	{0x0000, 0xFFFF, 0x0000},	/* TERM_L_GREEN */
+	{0x0000, 0xFFFF, 0xFFFF},	/* TERM_L_BLUE */
+	{0xC0C0, 0x8080, 0x4040}	/* TERM_L_UMBER */
+};
 
-#else /* ANGBAND_LITE_MAC */
-
-/*
- * Information about each of the 256 available colors
- */
-static RGBColor color_info[256];
-
-#endif /* ANGBAND_LITE_MAC */
+#endif
 
 
 /*
@@ -237,11 +256,11 @@ typedef struct term_data term_data;
  */
 struct term_data
 {
-	term *t;
+	term		*t;
 
-	Rect r;
+	Rect		r;
 
-	WindowPtr w;
+	WindowPtr	w;
 
 #ifdef ANGBAND_LITE_MAC
 
@@ -261,41 +280,41 @@ struct term_data
 
 #endif /* ANGBAND_LITE_MAC */
 
-	Str15 title;
+	Str15		title;
 
-	s16b oops;
+	s16b		oops;
 
-	s16b keys;
+	s16b		keys;
 
-	s16b last;
+	s16b		last;
 
-	s16b mapped;
+	s16b		mapped;
 
-	s16b rows;
-	s16b cols;
+	s16b		rows;
+	s16b		cols;
 
-	s16b font_id;
-	s16b font_size;
-	s16b font_face;
-	s16b font_mono;
+	s16b		font_id;
+	s16b		font_size;
+	s16b		font_face;
+	s16b		font_mono;
 
-	s16b font_o_x;
-	s16b font_o_y;
-	s16b font_wid;
-	s16b font_hgt;
+	s16b		font_o_x;
+	s16b		font_o_y;
+	s16b		font_wid;
+	s16b		font_hgt;
 
-	s16b tile_o_x;
-	s16b tile_o_y;
-	s16b tile_wid;
-	s16b tile_hgt;
+	s16b		tile_o_x;
+	s16b		tile_o_y;
+	s16b		tile_wid;
+	s16b		tile_hgt;
 
-	s16b size_wid;
-	s16b size_hgt;
+	s16b		size_wid;
+	s16b		size_hgt;
 
-	s16b size_ow1;
-	s16b size_oh1;
-	s16b size_ow2;
-	s16b size_oh2;
+	s16b		size_ow1;
+	s16b		size_oh1;
+	s16b		size_ow2;
+	s16b		size_oh2;
 };
 
 
@@ -405,7 +424,7 @@ static void refnum_to_name(char *buf, long refnum, short vrefnum, char *fname)
 	while (1)
 	{
 		pb.ioDrDirID=pb.ioDrParID;
-		err = PBGetCatInfoSync((CInfoPBPtr)&pb);
+		err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
 		res[i] = ':'; i--;
 		for (j=1; j<=name[0]; j++)
 		{
@@ -545,9 +564,9 @@ static void pstrinsert(StringPtr dst, StringPtr src)
 
 static void PathNameFromDirID(long dirID, short vRefNum, StringPtr fullPathName)
 {
-	CInfoPBRec block;
-	Str255 directoryName;
-	OSErr err;
+	CInfoPBRec	block;
+	Str255	directoryName;
+	OSErr	err;
 
 	fullPathName[0] = '\0';
 
@@ -559,7 +578,7 @@ static void PathNameFromDirID(long dirID, short vRefNum, StringPtr fullPathName)
 		block.dirInfo.ioVRefNum = vRefNum;
 		block.dirInfo.ioFDirIndex = -1;
 		block.dirInfo.ioDrDirID = block.dirInfo.ioDrParID;
-		err = PBGetCatInfoSync(&block);
+		err = PBGetCatInfo(&block, FALSE);
 		pstrcat(directoryName, (StringPtr)"\p:");
 		pstrinsert(fullPathName, directoryName);
 		if (block.dirInfo.ioDrDirID == 2) break;
@@ -632,8 +651,22 @@ static void term_data_color(term_data *td, int a)
 	/* Activate the color */
 	if (td->last != a)
 	{
+		u16b rv, gv, bv;
+
+		RGBColor color;
+
+		/* Extract the R,G,B data */
+		rv = angband_color_table[a][1];
+		gv = angband_color_table[a][2];
+		bv = angband_color_table[a][3];
+
+		/* Set the color */
+		color.red = (rv | (rv << 8));
+		color.green = (gv | (gv << 8));
+		color.blue = (bv | (bv << 8));
+	
 		/* Activate the color */
-		RGBForeColor(&color_info[a]);
+		RGBForeColor(&color);
 
 		/* Memorize color */
 		td->last = a;
@@ -860,9 +893,9 @@ typedef struct FrameRec FrameRec;
  */
 struct FrameRec
 {
-	GWorldPtr framePort;
-	PixMapHandle framePixHndl;
-	PixMapPtr framePix;
+	GWorldPtr 		framePort;
+	PixMapHandle 	framePixHndl;
+	PixMapPtr 		framePix;
 };
 
 
@@ -877,7 +910,7 @@ static FrameRec *frameP = NULL;
  */
 static void BenSWLockFrame(FrameRec *srcFrameP)
 {
-	PixMapHandle pixMapH;
+	PixMapHandle 		pixMapH;
 
 	pixMapH = GetGWorldPixMap(srcFrameP->framePort);
 	(void)LockPixels(pixMapH);
@@ -929,7 +962,7 @@ static OSErr BenSWCreateGWorldFromPict(
 	OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
 
 	/* Create a GWorld */
-	err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
+	err = NewGWorld(&tempGWorld, depth, &pictRect, nil, 
 					theGDH, noNewDevice);
 
 	/* Success */
@@ -955,7 +988,7 @@ static OSErr BenSWCreateGWorldFromPict(
 
 	/* Restore GWorld */
 	SetGWorld(saveGWorld, saveGDevice);
-
+	
 	/* Success */
 	return (0);
 }
@@ -967,7 +1000,7 @@ static OSErr BenSWCreateGWorldFromPict(
 static errr globe_init(void)
 {
 	OSErr err;
-
+	
 	GWorldPtr tempPictGWorldP;
 
 	PicHandle newPictH;
@@ -1039,7 +1072,7 @@ static errr globe_nuke(void)
 		frameP = NULL;
 	}
 
-	/* Flush events */
+	/* Flush events */	
 	FlushEvents(everyEvent, 0);
 
 	/* Success */
@@ -1118,7 +1151,7 @@ static void Term_init_mac(term *t)
 		/* Obtain the rect */
 		tempRect = td->w->portRect;
 
-		/* Obtain the global rect */
+		/* Obtain the global rect */	
 		globalRect = tempRect;
 		LocalToGlobal((Point*)&globalRect.top);
 		LocalToGlobal((Point*)&globalRect.bottom);
@@ -1202,33 +1235,15 @@ static errr Term_xtra_mac_react(void)
 {
 	term_data *td = (term_data*)(Term->data);
 
-	int i;
-
-
-#ifdef ANGBAND_LITE_MAC
-
-	/* Nothing */
-
-#else /* ANGBAND_LITE_MAC */
 
 	/* Reset color */
 	td->last = -1;
 
-	/* Update colors */
-	for (i = 0; i < 256; i++)
-	{
-		u16b rv, gv, bv;
+#ifdef ANGBAND_LITE_MAC
 
-		/* Extract the R,G,B data */
-		rv = angband_color_table[i][1];
-		gv = angband_color_table[i][2];
-		bv = angband_color_table[i][3];
-
-		/* Save the actual color */
-		color_info[i].red = (rv | (rv << 8));
-		color_info[i].green = (gv | (gv << 8));
-		color_info[i].blue = (bv | (bv << 8));
-	}
+	/* Nothing */
+	
+#else /* ANGBAND_LITE_MAC */
 
 	/* Handle sound */
 	if (use_sound != arg_sound)
@@ -1257,7 +1272,7 @@ static errr Term_xtra_mac_react(void)
 		term_data_resize(td);
 
 		/* Reset visuals */
-		reset_visuals(TRUE);
+		reset_visuals();
 	}
 
 #endif /* ANGBAND_LITE_MAC */
@@ -1504,7 +1519,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 	term_data *td = (term_data*)(Term->data);
 
 	/* Set the color */
-	term_data_color(td, a);
+	term_data_color(td, (a & 0x0F));
 
 	/* Starting pixel */
 	xp = x * td->tile_wid + td->tile_o_x + td->size_ow1;
@@ -1607,7 +1622,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			EraseRect(&r2);
 
 			/* Set the color */
-			term_data_color(td, a);
+			term_data_color(td, (a & 0x0F));
 
 			/* Starting pixel */
 			xp = r2.left + td->tile_o_x;
@@ -1709,7 +1724,7 @@ static void SetupAppDir(void)
 	fcbBlock.ioVRefNum = 0;
 	fcbBlock.ioRefNum = CurResFile();
 	fcbBlock.ioFCBIndx = 0;
-	err = PBGetFCBInfoSync(&fcbBlock);
+	err = PBGetFCBInfo(&fcbBlock, FALSE);
 	if (err != noErr)
 	{
 		sprintf(errString, "Fatal PBGetFCBInfo Error #%d.\r Exiting.", err);
@@ -1981,9 +1996,9 @@ static void init_windows(void)
 	if (TRUE)
 	{
 		OSErr	err;
-		short vref;
-		long dirID;
-		char foo[128];
+		short	vref;
+		long	dirID;
+		char	foo[128];
 
 		/* Find the folder */
 		err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder,
@@ -2095,9 +2110,9 @@ static void save_pref_file(void)
 	if (TRUE)
 	{
 		OSErr	err;
-		short vref;
-		long dirID;
-		char foo[128];
+		short	vref;
+		long	dirID;
+		char	foo[128];
 
 		/* Find the folder */
 		err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder,
@@ -2184,7 +2199,7 @@ static pascal Boolean ynfilter(DialogPtr dialog, EventRecord *event, short *ip)
 			Rect r;
 
 			/* Get the button */
-			GetDialogItem(dialog, i, &type, (Handle*)&control, &r);
+			GetDItem(dialog, i, &type, (Handle*)&control, &r);
 
 			/* Blink button for 1/10 second */
 			HiliteControl(control, 1);
@@ -2214,7 +2229,7 @@ static void do_menu_file_new(void)
 	game_in_progress = 1;
 
 	/* Flush input */
-	Term_flush();
+	flush();
 
 	/* Play a game */
 	play_game(TRUE);
@@ -2255,7 +2270,7 @@ static void do_menu_file_open(bool all)
 	pb.ioFDirIndex = 0;
 
 	/* Check for errors */
-	err = PBGetCatInfoSync((CInfoPBPtr)&pb);
+	err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
 
 	/* Success */
 	if ((err == noErr) && (pb.ioFlAttrib & 0x10))
@@ -2268,7 +2283,7 @@ static void do_menu_file_open(bool all)
 		pb.ioFDirIndex = 0;
 
 		/* Check for errors */
-		err = PBGetCatInfoSync((CInfoPBPtr)&pb);
+		err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
 
 		/* Success */
 		if ((err == noErr) && (pb.ioFlAttrib & 0x10))
@@ -2366,7 +2381,7 @@ static void handle_open_when_ready(void)
  *   Edit (130) =    { Cut, Copy, Paste, Clear }   (?)
  *   Font (131) =    { Bold, Extend, -, Monaco, ..., -, ... }
  *   Size (132) =    { ... }
- *   Window (133) =  { Angband, Term-1, Term-2, Term-3,
+ *   Window (133) =  { Angband, Mirror, Recall, Choice,
  *                     Term-4, Term-5, Term-6, Term-7 }
  *   Special (134) = { arg_sound, arg_graphics, -,
  *                     arg_fiddle, arg_wizard }
@@ -2389,7 +2404,7 @@ static void init_menubar(void)
 	InsertMenu(m, 0);
 
 	/* Add the DA's to the "apple" menu */
-	AppendResMenu(m, 'DRVR');
+	AddResMenu(m, 'DRVR');
 
 
 	/* Get the "File" menu */
@@ -2437,7 +2452,7 @@ static void init_menubar(void)
 	TextSize(12);
 
 	/* Add the fonts to the menu */
-	AppendResMenu(m, 'FONT');
+	AddResMenu(m, 'FONT');
 
 	/* Size of menu */
 	n = CountMItems(m);
@@ -2449,7 +2464,8 @@ static void init_menubar(void)
 		short fontNum;
 
 		/* Acquire the font name */
-		GetMenuItemText(m, i, tmpName);
+		/* GetMenuItemText(m, i, tmpName); */
+		GetItem(m, i, tmpName);
 
 		/* Acquire the font index */
 		GetFNum(tmpName, &fontNum);
@@ -2460,8 +2476,9 @@ static void init_menubar(void)
 		/* Remove non-mono-spaced fonts */
 		if ((CharWidth('i') != CharWidth('W')) || (CharWidth('W') == 0))
 		{
-			/* Delete the menu item */
-			DeleteMenuItem(m, i);
+			/* Delete the menu item XXX XXX XXX */
+			/* DeleteMenuItem(m, i); */
+			DelMenuItem(m, i);
 		}
 	}
 
@@ -2472,7 +2489,7 @@ static void init_menubar(void)
 	AppendMenu(m, "\p-");
 
 	/* Add the fonts to the menu */
-	AppendResMenu(m, 'FONT');
+	AddResMenu(m, 'FONT');
 
 
 	/* Make the "Size" menu */
@@ -2485,7 +2502,7 @@ static void init_menubar(void)
 	for (i = 8; i <= 32; i += ((i / 16) + 1))
 	{
 		Str15 buf;
-
+		
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2505,7 +2522,7 @@ static void init_menubar(void)
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		Str15 buf;
-
+		
 		/* Describe the item */
 		sprintf((char*)buf + 1, "%.15s", angband_term_name[i]);
 		buf[0] = strlen((char*)buf + 1);
@@ -2514,7 +2531,7 @@ static void init_menubar(void)
 		AppendMenu(m, buf);
 
 		/* Command-Key shortcuts */
-		if (i < 8) SetItemCmd(m, i + 1, I2D(i));
+		if (i < 8) SetItemCmd(m, i + 1, '0' + i);
 	}
 
 
@@ -2542,7 +2559,7 @@ static void init_menubar(void)
 	for (i = 4; i <= 32; i++)
 	{
 		Str15 buf;
-
+		
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2579,10 +2596,6 @@ static void init_menubar(void)
 
 /*
  * Prepare the menus
- *
- * It is very important that the player not be allowed to "save" the game
- * unless the "inkey_flag" variable is set, indicating that the game is
- * waiting for a new command.  XXX XXX XXX
  */
 static void setup_menus(void)
 {
@@ -2609,7 +2622,7 @@ static void setup_menus(void)
 
 
 	/* File menu */
-	m = GetMenuHandle(129);
+	m = GetMHandle(129);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2637,26 +2650,21 @@ static void setup_menus(void)
 	}
 
 	/* Enable "save" */
-	if (initialized && character_generated && inkey_flag)
+	if (initialized && character_generated)
 	{
 		EnableItem(m, 5);
 	}
 
-	/* Enable "exit" */
+	/* Enable "exit"/"quit" */
 	if (TRUE)
 	{
 		EnableItem(m, 7);
-	}
-
-	/* Enable "quit" */
-	if (!initialized || !character_generated || inkey_flag)
-	{
 		EnableItem(m, 8);
 	}
 
 
 	/* Edit menu */
-	m = GetMenuHandle(130);
+	m = GetMHandle(130);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2681,7 +2689,7 @@ static void setup_menus(void)
 
 
 	/* Font menu */
-	m = GetMenuHandle(131);
+	m = GetMHandle(131);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2701,7 +2709,7 @@ static void setup_menus(void)
 	/* SetItemStyle(m, 2, extend); */
 
 	/* Active window */
-	if (initialized && td)
+	if (td)
 	{
 		/* Enable "bold" */
 		EnableItem(m, 1);
@@ -2722,7 +2730,8 @@ static void setup_menus(void)
 			EnableItem(m, i);
 
 			/* Analyze font */
-			GetMenuItemText(m,i,s);
+			/* GetMenuItemText(m,i,s); */
+			GetItem(m, i, s);
 			GetFNum(s, &value);
 
 			/* Check active font */
@@ -2732,7 +2741,7 @@ static void setup_menus(void)
 
 
 	/* Size menu */
-	m = GetMenuHandle(132);
+	m = GetMHandle(132);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2744,15 +2753,16 @@ static void setup_menus(void)
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
 	}
-
+	
 	/* Active window */
-	if (initialized && td)
+	if (td)
 	{
 		/* Analyze sizes */
 		for (i = 1; i <= n; i++)
 		{
 			/* Analyze size */
-			GetMenuItemText(m,i,s);
+			/* GetMenuItemText(m,i,s); */
+			GetItem(m, i, s);
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
@@ -2766,7 +2776,7 @@ static void setup_menus(void)
 
 
 	/* Windows menu */
-	m = GetMenuHandle(133);
+	m = GetMHandle(133);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2780,7 +2790,7 @@ static void setup_menus(void)
 
 
 	/* Special menu */
-	m = GetMenuHandle(134);
+	m = GetMHandle(134);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2814,7 +2824,7 @@ static void setup_menus(void)
 
 
 	/* TileWidth menu */
-	m = GetMenuHandle(135);
+	m = GetMHandle(135);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2828,13 +2838,14 @@ static void setup_menus(void)
 	}
 
 	/* Active window */
-	if (initialized && td)
+	if (td)
 	{
 		/* Analyze sizes */
 		for (i = 1; i <= n; i++)
 		{
 			/* Analyze size */
-			GetMenuItemText(m,i,s);
+			/* GetMenuItemText(m,i,s); */
+			GetItem(m, i, s);
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
@@ -2848,7 +2859,7 @@ static void setup_menus(void)
 
 
 	/* TileHeight menu */
-	m = GetMenuHandle(136);
+	m = GetMHandle(136);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2862,13 +2873,14 @@ static void setup_menus(void)
 	}
 
 	/* Active window */
-	if (initialized && td)
+	if (td)
 	{
 		/* Analyze sizes */
 		for (i = 1; i <= n; i++)
 		{
 			/* Analyze size */
-			GetMenuItemText(m,i,s);
+			/* GetMenuItemText(m,i,s); */
+			GetItem(m, i, s);
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
@@ -2939,12 +2951,13 @@ static void menu(long mc)
 				MoveWindow(dialog, r.left, r.top, 1);
 				ShowWindow(dialog);
 				ModalDialog(0, &item_hit);
-				DisposeDialog(dialog);
+				DisposDialog(dialog);
 				break;
 			}
 
 			/* Desk accessory */
-			GetMenuItemText(GetMenuHandle(128), selection, s);
+			/* GetMenuItemText(GetMHandle(128),selection,s); */
+			GetItem(GetMHandle(128), selection, s);
 			OpenDeskAcc(s);
 			break;
 		}
@@ -3122,7 +3135,8 @@ static void menu(long mc)
 			}
 
 			/* Get a new font name */
-			GetMenuItemText(GetMenuHandle(131), selection, s);
+			/* GetMenuItemText(GetMHandle(131), selection, s); */
+			GetItem(GetMHandle(131), selection, s);
 			GetFNum(s, &fid);
 
 			/* Save the new font id */
@@ -3181,7 +3195,8 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			GetMenuItemText(GetMenuHandle(132), selection, s);
+			/* GetMenuItemText(GetMHandle(132), selection, s); */
+			GetItem(GetMHandle(132), selection, s);
 			s[s[0]+1]=0;
 			td->font_size = atoi((char*)(s+1));
 
@@ -3214,7 +3229,7 @@ static void menu(long mc)
 			/* Mapped */
 			td->mapped = TRUE;
 
-			/* Link */
+			/* Link */	
 			term_data_link(i);
 
 			/* Mapped (?) */
@@ -3283,7 +3298,8 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			GetMenuItemText(GetMenuHandle(135), selection, s);
+			/* GetMenuItemText(GetMHandle(135), selection, s); */
+			GetItem(GetMHandle(135), selection, s);
 			s[s[0]+1]=0;
 			td->tile_wid = atoi((char*)(s+1));
 
@@ -3311,7 +3327,8 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			GetMenuItemText(GetMenuHandle(136), selection, s);
+			/* GetMenuItemText(GetMHandle(136), selection, s); */
+			GetItem(GetMHandle(136), selection, s);
 			s[s[0]+1]=0;
 			td->tile_hgt = atoi((char*)(s+1));
 
@@ -3343,9 +3360,9 @@ static void menu(long mc)
  */
 static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
 {
-	OSErr aeError;
-	DescType returnedType;
-	Size actualSize;
+	OSErr	aeError;
+	DescType	returnedType;
+	Size	actualSize;
 
 	aeError = AEGetAttributePtr(theAppleEvent, keyMissedKeywordAttr, typeWildCard,
 	                            &returnedType, NULL, 0, &actualSize);
@@ -3417,14 +3434,14 @@ static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
 {
 #pragma unused(reply, handlerRefCon)
 
-	FSSpec myFSS;
-	AEDescList docList;
-	OSErr err;
-	Size actualSize;
-	AEKeyword keywd;
-	DescType returnedType;
-	char foo[128];
-	FInfo myFileInfo;
+	FSSpec		myFSS;
+	AEDescList	docList;
+	OSErr		err;
+	Size		actualSize;
+	AEKeyword	keywd;
+	DescType	returnedType;
+	char		foo[128];
+	FInfo		myFileInfo;
 
 	/* Put the direct parameter (a descriptor list) into a docList */
 	err = AEGetParamDesc(theAppleEvent, keyDirectObject, typeAEList, &docList);
@@ -3663,20 +3680,14 @@ static bool CheckEvents(bool wait)
 				Term_keypress(ch);
 			}
 
-			/* Keypad keys -> trigger plus simple keypress */
+			/* Hack -- normal "keypad keys" -> special keypress */
 			else if (!mc && !ms && !mo && !mx && (ck < 96))
 			{
 				/* Hack -- "enter" is confused */
 				if (ck == 76) ch = '\n';
 
-				/* Begin special trigger */
-				Term_keypress(31);
-
-				/* Send the "keypad" modifier */
-				Term_keypress('K');
-
-				/* Terminate the trigger */
-				Term_keypress(13);
+				/* Send control-caret as a trigger */
+				Term_keypress(30);
 
 				/* Send the "ascii" keypress */
 				Term_keypress(ch);
@@ -3685,7 +3696,7 @@ static bool CheckEvents(bool wait)
 			/* Bizarre key -> encoded keypress */
 			else if (ck <= 127)
 			{
-				/* Begin special trigger */
+				/* Hack -- introduce with control-underscore */
 				Term_keypress(31);
 
 				/* Send some modifier keys */
@@ -3694,11 +3705,11 @@ static bool CheckEvents(bool wait)
 				if (mo) Term_keypress('O');
 				if (mx) Term_keypress('X');
 
-				/* Downshift and encode the keycode */
-				Term_keypress(I2D((ck - 64) / 10));
-				Term_keypress(I2D((ck - 64) % 10));
+				/* Hack -- Downshift and encode the keycode */
+				Term_keypress('0' + (ck - 64) / 10);
+				Term_keypress('0' + (ck - 64) % 10);
 
-				/* Terminate the trigger */
+				/* Hack -- Terminate the sequence */
 				Term_keypress(13);
 			}
 
@@ -3952,7 +3963,7 @@ static vptr lifeboat = NULL;
 /*
  * Hook to "release" memory
  */
-static vptr hook_rnfree(vptr v, huge size)
+static errr hook_rnfree(vptr v, huge size)
 {
 
 #pragma unused (size)
@@ -3970,7 +3981,7 @@ static vptr hook_rnfree(vptr v, huge size)
 #endif
 
 	/* Success */
-	return (NULL);
+	return (0);
 }
 
 /*
@@ -4184,8 +4195,6 @@ static void init_stuff(void)
  */
 void main(void)
 {
-	int i;
-
 	EventRecord tempEvent;
 	int numberOfMasters = 10;
 
@@ -4225,7 +4234,7 @@ void main(void)
 # if defined(powerc) || defined(__powerc)
 
 	/* Assume System 7 */
-
+	
 	/* Assume Color Quickdraw */
 
 # else
@@ -4342,22 +4351,6 @@ void main(void)
 	core_aux = hook_core;
 
 
-	/* Initialize colors */
-	for (i = 0; i < 256; i++)
-	{
-		u16b rv, gv, bv;
-
-		/* Extract the R,G,B data */
-		rv = angband_color_table[i][1];
-		gv = angband_color_table[i][2];
-		bv = angband_color_table[i][3];
-
-		/* Save the actual color */
-		color_info[i].red = (rv | (rv << 8));
-		color_info[i].green = (gv | (gv << 8));
-		color_info[i].blue = (bv | (bv << 8));
-	}
-
 
 	/* Show the "watch" cursor */
 	SetCursor(*(GetCursor(watchCursor)));
@@ -4411,5 +4404,4 @@ void main(void)
 	/* Hack -- Process Events Forever */
 	while (TRUE) CheckEvents(TRUE);
 }
-
 

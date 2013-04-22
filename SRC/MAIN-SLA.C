@@ -1,25 +1,12 @@
 /* File: main-sla.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison, and others
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
- */
-
+/* Purpose: Actual Unix "slang" support for Angband */
 
 /*
- * This file helps Angband work with Unix/slang computers.
- *
- * This file is probably out of date.  XXX XXX XXX
- *
- *
  * Author: hans@grumbeer.pfalz.de (Hans-Joachim Baader)
  *
  * Most of this code is adapted directly from "main-gcu.c"
  */
-
 
 #include "angband.h"
 
@@ -118,7 +105,7 @@ static char *color_terminals [] =
  */
 int has_colors(void)
 {
-	int i;
+	int  i;
 
 	char *terminal;
 
@@ -465,5 +452,4 @@ errr init_sla(void)
 }
 
 #endif /* USE_SLA */
-
 

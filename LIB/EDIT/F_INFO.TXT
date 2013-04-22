@@ -6,6 +6,7 @@
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
+
 # After modifying this file, delete the "lib/raw/f_info.raw" file.
 
 # Note that the terrain feature are grouped into very regular groups,
@@ -16,7 +17,7 @@
 
 # Version stamp (required)
 
-V:2.8.3
+V:2.8.1
 
 
 # 0x00 --> nothing
@@ -283,7 +284,7 @@ N:48:secret door
 G:#:w
 M:56
 
-# 0x31 --> pile of rubble
+# 0x31 --> rubble
 
 N:49:pile of rubble
 G:::w
@@ -366,7 +367,81 @@ N:63:permanent wall
 G:#:w
 M:60
 
-# 0x40 -> force wall
+N:64:explosive rune
+G:*:R
 
-N:64:force wall
+N:65:Pattern startpoint
+G:*:w
+
+N:66:section of the Pattern
+G:*:B
+
+N:67:section of the Pattern
+G:*:b
+
+N:68:section of the Pattern
+G:*:B
+
+N:69:section of the Pattern
+G:*:b
+
+N:70:section of the Pattern
+G:*:W
+
+N:71:section of the Pattern (discharged)
+G:*:W
+
+N:72:Pattern exit
+G:*:w
+
+N:73:corrupted section of the Pattern
+G:*:D
+
+# 0x08 --> shop -- general store (perm)
+
+N:74:General Store
+G:1:U
+
+# 0x09 --> shop -- armoury (perm)
+
+N:75:Armoury
+G:2:s
+
+# 0x0A --> shop -- weapon shop (perm)
+
+N:76:Weapon Smiths
+G:3:w
+
+# 0x0B --> shop -- temple (perm)
+
+N:77:Temple
+G:4:g
+
+# 0x0C --> shop -- alchemist (perm)
+
+N:78:Alchemy Shop
+G:5:b
+
+# 0x0D --> shop -- magic shop (perm)
+
+N:79:Magic Shop
+G:6:r
+
+# 0x0E --> shop -- black market (perm)
+
+N:80:Black Market
+G:7:D
+
+# 0x0F --> shop -- home (perm)
+
+N:81:Home
+G:8:y
+
+# 0x0F --> shop -- bookstore (perm)
+
+N:82:Bookstore
+G:9:o
+
+N:83:force wall
 G:#:b
+

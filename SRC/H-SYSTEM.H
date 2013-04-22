@@ -59,7 +59,7 @@
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
+    !defined(ACORN) && !defined(VM)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else
@@ -125,5 +125,4 @@ extern long atol();
 
 
 #endif
-
 

@@ -1,12 +1,7 @@
 /* File: load1.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison, and others
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
- */
+/* Purpose: support for loading pre-2.7.0 savefiles -BEN- */
+
 
 #include "angband.h"
 
@@ -45,9 +40,6 @@
  * Note that this file should not use the random number generator, the
  * object flavors, the visual attr/char mappings, or anything else which
  * is initialized *after* or *during* the "load character" function.
- *
- * This file assumes that many global variables, including the "dungeon"
- * arrays, are initialized to all zeros.
  */
 
 
@@ -272,18 +264,18 @@ static byte convert_owner[24] =
 /*
  * Old inventory slot values (pre-2.7.3)
  */
-#define OLD_INVEN_WIELD     22
-#define OLD_INVEN_HEAD      23
-#define OLD_INVEN_NECK      24
-#define OLD_INVEN_BODY      25
-#define OLD_INVEN_ARM       26
-#define OLD_INVEN_HANDS     27
-#define OLD_INVEN_RIGHT     28
-#define OLD_INVEN_LEFT      29
-#define OLD_INVEN_FEET      30
-#define OLD_INVEN_OUTER     31
-#define OLD_INVEN_LITE      32
-#define OLD_INVEN_AUX       33
+#define OLD_INVEN_WIELD		22
+#define OLD_INVEN_HEAD		23
+#define OLD_INVEN_NECK		24
+#define OLD_INVEN_BODY		25
+#define OLD_INVEN_ARM		26
+#define OLD_INVEN_HANDS		27
+#define OLD_INVEN_RIGHT		28
+#define OLD_INVEN_LEFT		29
+#define OLD_INVEN_FEET		30
+#define OLD_INVEN_OUTER		31
+#define OLD_INVEN_LITE		32
+#define OLD_INVEN_AUX		33
 
 /*
  * Analyze pre-2.7.3 inventory slots
@@ -316,22 +308,21 @@ static s16b convert_slot(int old)
 
 
 /*
- * Hack -- convert the old "name2" fields into the new name1/name2 fields.
- *
- * Note that the entries below must map one-to-one onto the old "SN_*"
- * defines, shown in the comments after the new values.
- *
- * Note that this code relies on the fact that there are only 128 ego-items
- * and only 128 artifacts in the new system.
+ * Mega-Hack -- convert the old "name2" fields into the new name1/name2
+ * fields.  Note that the entries below must map one-to-one onto the old
+ * "SN_*" defines, shown in the comments after the new values.  Also note
+ * that this code relies on the fact that there are only 128 ego-items and
+ * only 128 artifacts in the new system.  If this changes, the array below
+ * should be modified to contain "u16b" entries instead of "byte" entries.
  */
 static byte convert_old_names[180] =
 {
 	0,						/* 0 = SN_NULL */
-	EGO_RESISTANCE,			/* 1 = SN_R */
-	EGO_RESIST_ACID,		/* 2 = SN_RA */
-	EGO_RESIST_FIRE,		/* 3 = SN_RF */
-	EGO_RESIST_COLD,		/* 4 = SN_RC */
-	EGO_RESIST_ELEC,		/* 5 = SN_RL */
+	EGO_RESISTANCE,			/* 1 = SN_R (XXX) */
+	EGO_RESIST_ACID,		/* 2 = SN_RA (XXX) */
+	EGO_RESIST_FIRE,		/* 3 = SN_RF (XXX) */
+	EGO_RESIST_COLD,		/* 4 = SN_RC (XXX) */
+	EGO_RESIST_ELEC,		/* 5 = SN_RL (XXX) */
 	EGO_HA,					/* 6 = SN_HA */
 	EGO_DF,					/* 7 = SN_DF */
 	EGO_SLAY_ANIMAL,		/* 8 = SN_SA */
@@ -340,22 +331,22 @@ static byte convert_old_names[180] =
 	EGO_SLAY_UNDEAD,		/* 11 = SN_SU */
 	EGO_BRAND_FIRE,			/* 12 = SN_FT */
 	EGO_BRAND_COLD,			/* 13 = SN_FB */
-	EGO_FREE_ACTION,		/* 14 = SN_FREE_ACTION */
-	EGO_SLAYING,			/* 15 = SN_SLAYING */
+	EGO_FREE_ACTION,		/* 14 = SN_FREE_ACTION (XXX) */
+	EGO_SLAYING,			/* 15 = SN_SLAYING (XXX) */
 	EGO_CLUMSINESS,			/* 16 = SN_CLUMSINESS */
 	EGO_WEAKNESS,			/* 17 = SN_WEAKNESS */
 	EGO_SLOW_DESCENT,		/* 18 = SN_SLOW_DESCENT */
 	EGO_SPEED,				/* 19 = SN_SPEED */
-	EGO_STEALTH,			/* 20 = SN_STEALTH */
+	EGO_STEALTH,			/* 20 = SN_STEALTH (XXX) */
 	EGO_SLOWNESS,			/* 21 = SN_SLOWNESS */
 	EGO_NOISE,				/* 22 = SN_NOISE */
 	EGO_ANNOYANCE,			/* 23 = SN_GREAT_MASS */
 	EGO_INTELLIGENCE,		/* 24 = SN_INTELLIGENCE */
 	EGO_WISDOM,				/* 25 = SN_WISDOM */
 	EGO_INFRAVISION,		/* 26 = SN_INFRAVISION */
-	EGO_MIGHT,				/* 27 = SN_MIGHT */
+	EGO_MIGHT,				/* 27 = SN_MIGHT (XXX) */
 	EGO_LORDLINESS,			/* 28 = SN_LORDLINESS */
-	EGO_MAGI,				/* 29 = SN_MAGI */
+	EGO_MAGI,				/* 29 = SN_MAGI (XXX) */
 	EGO_BEAUTY,				/* 30 = SN_BEAUTY */
 	EGO_SEEING,				/* 31 = SN_SEEING */
 	EGO_REGENERATION,		/* 32 = SN_REGENERATION */
@@ -369,9 +360,9 @@ static byte convert_old_names[180] =
 	EGO_IRRITATION,			/* 40 = SN_IRRITATION */
 	EGO_VULNERABILITY,		/* 41 = SN_VULNERABILITY */
 	EGO_ENVELOPING,			/* 42 = SN_ENVELOPING */
-	EGO_BRAND_FIRE,			/* 43 = SN_FIRE */
-	EGO_HURT_EVIL,			/* 44 = SN_SLAY_EVIL */
-	EGO_HURT_DRAGON,		/* 45 = SN_DRAGON_SLAYING */
+	EGO_BRAND_FIRE,			/* 43 = SN_FIRE (XXX) */
+	EGO_HURT_EVIL,			/* 44 = SN_SLAY_EVIL (XXX) */
+	EGO_HURT_DRAGON,		/* 45 = SN_DRAGON_SLAYING (XXX) */
 	0,						/* 46 = SN_EMPTY */
 	0,						/* 47 = SN_LOCKED */
 	0,						/* 48 = SN_POISON_NEEDLE */
@@ -381,7 +372,7 @@ static byte convert_old_names[180] =
 	0,						/* 52 = SN_MULTIPLE_TRAPS */
 	0,						/* 53 = SN_DISARMED */
 	0,						/* 54 = SN_UNLOCKED */
-	EGO_HURT_ANIMAL,		/* 55 = SN_SLAY_ANIMAL */
+	EGO_HURT_ANIMAL,		/* 55 = SN_SLAY_ANIMAL (XXX) */
 	ART_GROND + 128,		/* 56 = SN_GROND */
 	ART_RINGIL + 128,		/* 57 = SN_RINGIL */
 	ART_AEGLOS + 128,		/* 58 = SN_AEGLOS */
@@ -423,7 +414,7 @@ static byte convert_old_names[180] =
 	ART_ANARION + 128,		/* 94 = SN_ANARION */
 	ART_ISILDUR + 128,		/* 95 = SN_ISILDUR */
 	ART_FINGOLFIN + 128,	/* 96 = SN_FINGOLFIN */
-	EGO_ELVENKIND,			/* 97 = SN_ELVENKIND */
+	EGO_ELVENKIND,			/* 97 = SN_ELVENKIND (XXX) */
 	ART_SOULKEEPER + 128,	/* 98 = SN_SOULKEEPER */
 	ART_DOR + 128,			/* 99 = SN_DOR_LOMIN */
 	ART_MORGOTH + 128,		/* 100 = SN_MORGOTH */
@@ -512,7 +503,7 @@ static byte convert_old_names[180] =
 /*
  * Convert old kinds into normal kinds
  *
- * Note the hard-coded use of the new object kind indexes.  XXX XXX XXX
+ * XXX XXX XXX Note hard-coded use of object kind indexes.
  */
 static s16b convert_old_kinds_normal[501] =
 {
@@ -1119,7 +1110,8 @@ static errr rd_item_old(object_type *o_ptr)
 
 
 	/* Paranoia */
-	if ((old_k_idx < 0) || (old_k_idx >= 513) || (old_names >= 180))
+	if ((old_k_idx < 0) || (old_k_idx >= 513) ||
+	    (old_names < 0) || (old_names >= 180))
 	{
 		note("Illegal object!");
 		return (1);
@@ -1139,7 +1131,7 @@ static errr rd_item_old(object_type *o_ptr)
 	else
 	{
 		artifact_type *a_ptr;
-
+		
 		/* Convert */
 		o_ptr->name1 = convert_old_kinds_special[old_k_idx - 501];
 
@@ -1148,7 +1140,7 @@ static errr rd_item_old(object_type *o_ptr)
 
 		/* Lookup the real "kind" */
 		o_ptr->k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-
+		
 		/* Ignore old_names */
 		old_names = 0;
 	}
@@ -1185,7 +1177,7 @@ static errr rd_item_old(object_type *o_ptr)
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
 	/* Hack -- assume "cursed" items */
-	if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	if (k_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
 
 
 	/*** Hack -- repair ego-item names ***/
@@ -1398,7 +1390,7 @@ static errr rd_item_old(object_type *o_ptr)
 		o_ptr->weight = a_ptr->weight;
 
 		/* Assume current "curse" */
-		if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+		if (a_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
 	}
 
 	/* Update ego-items */
@@ -1431,7 +1423,7 @@ static errr rd_item_old(object_type *o_ptr)
 		}
 
 		/* Assume current "curse" */
-		if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+		if (e_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
 	}
 
 
@@ -1498,23 +1490,23 @@ static errr rd_store_old(int n)
 	/* Read the items */
 	for (j = 0; j < num; j++)
 	{
-		object_type *i_ptr;
-		object_type object_type_body;
+		object_type forge;
+		object_type *q_ptr;
 
 		/* Strip the old "fixed cost" */
 		strip_bytes(4);
 
 		/* Get local object */
-		i_ptr = &object_type_body;
+		q_ptr = &forge;
 
 		/* Wipe the object */
-		object_wipe(i_ptr);
+		object_wipe(q_ptr);
 
 		/* Load the item */
-		rd_item_old(i_ptr);
+		rd_item_old(q_ptr);
 
 		/* Forget the inscription */
-		i_ptr->note = 0;
+		q_ptr->note = 0;
 
 		/* Save "valid" items */
 		if (st_ptr->stock_num < STORE_INVEN_MAX)
@@ -1522,7 +1514,7 @@ static errr rd_store_old(int n)
 			int k = st_ptr->stock_num++;
 
 			/* Add that item to the store */
-			object_copy(&st_ptr->stock[k], i_ptr);
+			object_copy(&st_ptr->stock[k], q_ptr);
 		}
 	}
 
@@ -1705,7 +1697,7 @@ static void rd_extra_old(void)
 	int i;
 
 
-	rd_string(op_ptr->full_name, 32);
+	rd_string(player_name, 32);
 
 	rd_byte(&p_ptr->psex);
 	rd_s32b(&p_ptr->au);
@@ -1716,7 +1708,7 @@ static void rd_extra_old(void)
 	rd_s16b(&p_ptr->ht);
 	rd_s16b(&p_ptr->wt);
 	rd_s16b(&p_ptr->lev);
-	rd_s16b(&p_ptr->max_depth);
+	rd_s16b(&p_ptr->max_dlv);
 	strip_bytes(8);
 	rd_s16b(&p_ptr->msp);
 	rd_s16b(&p_ptr->mhp);
@@ -1726,22 +1718,22 @@ static void rd_extra_old(void)
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->prace);
 	rd_byte(&p_ptr->hitdie);
-	rd_byte(&p_ptr->expfact);
+	rd_u16b(&p_ptr->expfact);
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
 	rd_s16b(&p_ptr->chp);
 	rd_u16b(&p_ptr->chp_frac);
 
-	/* Hack -- Repair maximum player level */
-	if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
+	/* Repair maximum player level XXX XXX XXX */
+	if (p_ptr->max_plv < p_ptr->lev) p_ptr->max_plv = p_ptr->lev;
 
-	/* Hack -- Repair maximum dungeon level */
-	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
+	/* Repair maximum dungeon level */
+	if (p_ptr->max_dlv < 0) p_ptr->max_dlv = 1;
 
 	/* Read the history */
 	for (i = 0; i < 4; i++)
 	{
-		rd_string(p_ptr->history[i], 60);
+		rd_string(history[i], 60);
 	}
 
 	/* Read the "maximum" stats */
@@ -1859,65 +1851,116 @@ static void rd_messages_old(void)
 
 
 
+
+
+/*
+ * More obsolete definitions...
+ *
+ * Fval definitions: various types of dungeon floors and walls
+ *
+ * In 2.7.3 (?), the "darkness" quality was moved into the "info" flags.
+ *
+ * In 2.7.6 (?), the grid flags changed completely
+ */
+
+#define NULL_WALL		0	/* Temp value for "generate.c" */
+
+#define ROOM_FLOOR		1	/* Floor, in a room */
+#define VAULT_FLOOR		3	/* Floor, in a vault */
+#define CORR_FLOOR		5	/* Floor, in a corridor */
+
+#define MIN_WALL		8	/* Hack -- minimum "wall" fval */
+
+#define TMP1_WALL		8
+#define TMP2_WALL		9
+
+#define GRANITE_WALL	12	/* Granite */
+#define QUARTZ_WALL		13	/* Quartz */
+#define MAGMA_WALL		14	/* Magma */
+#define BOUNDARY_WALL	15	/* Permanent */
+
+
+/*
+ * Old cave "info" flags
+ */
+#define OLD_CAVE_LR		0x01	/* Grid is part of a room */
+#define OLD_CAVE_FM		0x02	/* Grid is "field marked" */
+#define OLD_CAVE_PL		0x04	/* Grid is perma-lit */
+#define OLD_CAVE_TL		0x08	/* Grid is torch-lit */
+#define OLD_CAVE_INIT	0x10	/* Grid has been "initialized" */
+#define OLD_CAVE_SEEN	0x20	/* Grid is "being processed" */
+#define OLD_CAVE_VIEW	0x40	/* Grid is currently "viewable" */
+#define OLD_CAVE_XTRA	0x80	/* Grid is "easily" viewable */
+
+
+
 /*
  * Read a pre-2.7.0 dungeon
  *
- * All sorts of information is lost from pre-2.7.0 savefiles, because they
- * were not saved in a very intelligent manner.
+ * All sorts of information is lost from pre-2.7.0 savefiles,
+ * because they were not saved in a very intelligent manner.
  *
- * Where important, we attempt to recover lost information, or at least to
- * simulate the presence of such information.
+ * Where important, we attempt to recover lost information, or
+ * at least to simulate the presence of such information.
  *
- * Old savefiles may only contain 512 objects and 1024 monsters.
+ * XXX XXX XXX Prevent old "terrain" objects in inventory.
  *
- * Old savefiles encode some "terrain" information in "fake objects".
+ * XXX XXX XXX Only 512 objects may appear in old savefiles.
+ *
+ * XXX XXX XXX Only 1024 monsters may appear in old savefiles.
  */
 static errr rd_dungeon_old(void)
 {
 	int i, y, x;
 	byte count;
 	byte ychar, xchar;
-	s16b depth;
-	s16b py, px;
-	s16b ymax, xmax;
 	int total_count;
 	byte tmp8u;
 	u16b tmp16u;
 	u16b limit;
+
+	cave_type *c_ptr;
 
 	byte ix[512];
 	byte iy[512];
 
 
 	/* Header info */
-	rd_s16b(&depth);
+	rd_s16b(&dun_level);
 	rd_s16b(&py);
 	rd_s16b(&px);
-	rd_u16b(&tmp16u);
-	rd_s16b(&ymax);
-	rd_s16b(&xmax);
-	rd_u16b(&tmp16u);
-	rd_u16b(&tmp16u);
+	rd_s16b(&num_repro);
+	rd_s16b(&cur_hgt);
+	rd_s16b(&cur_wid);
+	rd_s16b(&max_panel_rows);
+	rd_s16b(&max_panel_cols);
 
 
-	/* Ignore illegal dungeons */
-	if ((depth < 0) || (depth >= MAX_DEPTH))
+	/* Paranoia */
+	if ((dun_level < 0) || (dun_level > MAX_DEPTH))
 	{
-		note(format("Ignoring illegal dungeon depth (%d)", depth));
-		return (0);
+		note("Illegal dungeon level!");
+		return (1);
 	}
 
-	/* Ignore illegal dungeons */
-	if ((ymax != DUNGEON_HGT) || (xmax != DUNGEON_WID))
+	/* Paranoia */
+	if ((cur_wid != 66) && (cur_wid != 198))
 	{
-		note(format("Ignoring illegal dungeon size (%d,%d).", xmax, ymax));
-		return (0);
+		note("Illegal dungeon width!");
+		return (1);
 	}
 
-	/* Ignore illegal dungeons */
-	if (!in_bounds(py, px))
+	/* Paranoia */
+	if ((cur_hgt != 22) && (cur_wid != 66))
 	{
-		note(format("Ignoring illegal player location (%d,%d).", px, py));
+		note("Illegal dungeon height!");
+		return (1);
+	}
+
+	/* Paranoia */
+	if ((px < 0) || (px >= cur_wid) || (py < 0) || (py >= cur_hgt))
+	{
+		note("Illegal player location!");
 		return (1);
 	}
 
@@ -1931,12 +1974,8 @@ static errr rd_dungeon_old(void)
 		ychar = tmp8u;
 		rd_byte(&xchar);
 
-		/* Location */
-		y = ychar;
-		x = xchar;
-
 		/* Invalid cave location */
-		if (!in_bounds(y, x))
+		if ((xchar >= cur_wid) || (ychar >= cur_hgt))
 		{
 			note("Illegal monster location!");
 			return (71);
@@ -1969,12 +2008,8 @@ static errr rd_dungeon_old(void)
 		ychar = tmp8u;
 		rd_byte(&xchar);
 
-		/* Location */
-		y = ychar;
-		x = xchar;
-
 		/* Invalid cave location */
-		if (!in_bounds(y, x))
+		if ((xchar >= cur_wid) || (ychar >= cur_hgt))
 		{
 			note("Illegal object location!");
 			return (72);
@@ -1991,17 +2026,17 @@ static errr rd_dungeon_old(void)
 		}
 
 		/* Remember the location */
-		iy[tmp16u] = y;
-		ix[tmp16u] = x;
+		ix[tmp16u] = xchar;
+		iy[tmp16u] = ychar;
 	}
 
 
 	/* Read in the actual "cave" data */
 	total_count = 0;
-	x = y = 0;
+	xchar = ychar = 0;
 
 	/* Read until done */
-	while (total_count < DUNGEON_HGT * DUNGEON_WID)
+	while (total_count < MAX_HGT * MAX_WID)
 	{
 		/* Extract some RLE info */
 		rd_byte(&count);
@@ -2010,31 +2045,37 @@ static errr rd_dungeon_old(void)
 		/* Apply the RLE info */
 		for (i = count; i > 0; i--)
 		{
-			byte info = 0x00;
-			byte feat = FEAT_FLOOR;
-
 			/* Invalid cave location */
-			if ((x >= DUNGEON_WID) || (y >= DUNGEON_HGT))
+			if ((xchar >= MAX_WID) || (ychar >= MAX_HGT))
 			{
 				note("Dungeon too large!");
 				return (81);
 			}
 
+			/* Access the cave */
+			c_ptr = &cave[ychar][xchar];
+
+			/* Hack -- Clear all the flags */
+			c_ptr->info = 0x00;
+
+			/* Hack -- Clear all the flags */
+			c_ptr->feat = FEAT_NONE;
+
 			/* Extract the old "info" flags */
-			if ((tmp8u >> 4) & 0x1) info |= (CAVE_ROOM);
-			if ((tmp8u >> 5) & 0x1) info |= (CAVE_MARK);
-			if ((tmp8u >> 6) & 0x1) info |= (CAVE_GLOW);
+			if ((tmp8u >> 4) & 0x1) c_ptr->info |= (CAVE_ROOM);
+			if ((tmp8u >> 5) & 0x1) c_ptr->info |= (CAVE_MARK);
+			if ((tmp8u >> 6) & 0x1) c_ptr->info |= (CAVE_GLOW);
 
 			/* Hack -- process old style "light" */
-			if (info & (CAVE_GLOW))
+			if (c_ptr->info & (CAVE_GLOW))
 			{
-				info |= (CAVE_MARK);
+				c_ptr->info |= (CAVE_MARK);
 			}
 
 			/* Mega-Hack -- light all walls */
 			else if ((tmp8u & 0xF) >= 12)
 			{
-				info |= (CAVE_GLOW);
+				c_ptr->info |= (CAVE_GLOW);
 			}
 
 			/* Process the "floor type" */
@@ -2043,27 +2084,27 @@ static errr rd_dungeon_old(void)
 				/* Lite Room Floor */
 				case 2:
 				{
-					info |= (CAVE_GLOW);
+					c_ptr->info |= (CAVE_GLOW);
 				}
 
 				/* Dark Room Floor */
 				case 1:
 				{
-					info |= (CAVE_ROOM);
+					c_ptr->info |= (CAVE_ROOM);
 					break;
 				}
 
 				/* Lite Vault Floor */
 				case 4:
 				{
-					info |= (CAVE_GLOW);
+					c_ptr->info |= (CAVE_GLOW);
 				}
 
 				/* Dark Vault Floor */
 				case 3:
 				{
-					info |= (CAVE_ROOM);
-					info |= (CAVE_ICKY);
+					c_ptr->info |= (CAVE_ROOM);
+					c_ptr->info |= (CAVE_ICKY);
 					break;
 				}
 
@@ -2073,49 +2114,43 @@ static errr rd_dungeon_old(void)
 					break;
 				}
 
-				/* Perma-wall */
+				/* Perma-wall (assume "solid") XXX XXX XXX */
 				case 15:
 				{
-					feat = FEAT_PERM_SOLID;
+					c_ptr->feat = FEAT_PERM_SOLID;
 					break;
 				}
 
-				/* Granite wall */
+				/* Granite wall (assume "basic") XXX XXX XXX */
 				case 12:
 				{
-					feat = FEAT_WALL_EXTRA;
+					c_ptr->feat = FEAT_WALL_EXTRA;
 					break;
 				}
 
 				/* Quartz vein */
 				case 13:
 				{
-					feat = FEAT_QUARTZ;
+					c_ptr->feat = FEAT_QUARTZ;
 					break;
 				}
 
 				/* Magma vein */
 				case 14:
 				{
-					feat = FEAT_MAGMA;
+					c_ptr->feat = FEAT_MAGMA;
 					break;
 				}
 			}
 
-			/* Save the info */
-			cave_info[y][x] = info;
-
-			/* Save the feat */
-			cave_set_feat(y, x, feat);
-
 			/* Advance the cave pointers */
-			x++;
+			xchar++;
 
 			/* Wrap to the next line */
-			if (x >= DUNGEON_WID)
+			if (xchar >= MAX_WID)
 			{
-				x = 0;
-				y++;
+				xchar = 0;
+				ychar++;
 			}
 		}
 
@@ -2123,21 +2158,6 @@ static errr rd_dungeon_old(void)
 		total_count += count;
 	}
 
-
-	/*** Player ***/
-
-	/* Save depth */
-	p_ptr->depth = depth;
-
-	/* Place player in dungeon */
-	if (!player_place(py, px))
-	{
-		note(format("Cannot place player (%d,%d)!", py, px));
-		return (162);
-	}
-
-
-	/*** Objects ***/
 
 	/* Read the item count */
 	rd_u16b(&limit);
@@ -2152,42 +2172,50 @@ static errr rd_dungeon_old(void)
 	/* Read the dungeon items */
 	for (i = 1; i < limit; i++)
 	{
-		object_type *i_ptr;
-		object_type object_type_body;
+		int o_idx;
+
+		object_type forge;
+		object_type *q_ptr;
+
+		object_type *o_ptr;
 
 
 		/* Get local object */
-		i_ptr = &object_type_body;
+		q_ptr = &forge;
 
 		/* Wipe the object */
-		object_wipe(i_ptr);
+		object_wipe(q_ptr);
 
 		/* Read the item */
-		rd_item_old(i_ptr);
+		rd_item_old(q_ptr);
+
 
 		/* Skip dead objects */
-		if (!i_ptr->k_idx) continue;
+		if (!q_ptr->k_idx) continue;
 
 
-		/* Save location */
-		i_ptr->iy = y = iy[i];
-		i_ptr->ix = x = ix[i];
+		/* Save the location */
+		q_ptr->iy = iy[i];
+		q_ptr->ix = ix[i];
 
 		/* Invalid cave location */
-		if ((y >= DUNGEON_HGT) || (x >= DUNGEON_WID))
+		if ((q_ptr->ix >= cur_wid) || (q_ptr->iy >= cur_hgt))
 		{
 			note("Illegal object location!!!");
 			return (72);
 		}
 
+		/* Access grid */
+		c_ptr = &cave[q_ptr->iy][q_ptr->ix];
+
 
 		/* Hack -- convert old "dungeon" objects */
-		if ((i_ptr->k_idx >= 445) && (i_ptr->k_idx <= 479))
+		if ((q_ptr->k_idx >= 445) && (q_ptr->k_idx <= 479))
 		{
-			byte feat = 0;
+			int feat = 0;
 
 			/* Analyze the "dungeon objects" */
-			switch (i_ptr->k_idx)
+			switch (q_ptr->k_idx)
 			{
 				/* Rubble */
 				case 445:
@@ -2296,7 +2324,7 @@ static errr rd_dungeon_old(void)
 			}
 
 			/* Hack -- use the feature */
-			cave_set_feat(y, x, feat);
+			c_ptr->feat = feat;
 
 			/* Done */
 			continue;
@@ -2304,14 +2332,14 @@ static errr rd_dungeon_old(void)
 
 
 		/* Hack -- treasure in walls */
-		if (i_ptr->tval == TV_GOLD)
+		if (q_ptr->tval == TV_GOLD)
 		{
 			/* Quartz or Magma with treasure */
-			if ((cave_feat[y][x] == FEAT_QUARTZ) ||
-			    (cave_feat[y][x] == FEAT_MAGMA))
+			if ((c_ptr->feat == FEAT_QUARTZ) ||
+			    (c_ptr->feat == FEAT_MAGMA))
 			{
 				/* Add treasure */
-				cave_set_feat(y, x, cave_feat[y][x] + 0x04);
+				c_ptr->feat += 4;
 
 				/* Done */
 				continue;
@@ -2319,16 +2347,37 @@ static errr rd_dungeon_old(void)
 		}
 
 
-		/* Give the item to the floor */
-		if (!floor_carry(i_ptr->iy, i_ptr->ix, i_ptr))
+		/* Paranoia */
+		if (c_ptr->o_idx)
 		{
-			note(format("Cannot place object %d!", o_max));
+			note("Multiple objects per grid!");
+			return (153);
+		}
+
+
+		/* Get a new record */
+		o_idx = o_pop();
+
+		/* Oops */
+		if (!o_idx)
+		{
+			note(format("Too many (%d) objects!", o_max));
 			return (152);
 		}
+
+		/* Acquire cave object */
+		o_ptr = &o_list[o_idx];
+
+		/* Copy the item */
+		object_copy(o_ptr, q_ptr);
+
+		/* Build a stack */
+		o_ptr->next_o_idx = c_ptr->o_idx;
+
+		/* Place the object */
+		c_ptr->o_idx = o_idx;
 	}
 
-
-	/*** Monster ***/
 
 	/* Read the monster count */
 	rd_u16b(&limit);
@@ -2343,40 +2392,39 @@ static errr rd_dungeon_old(void)
 	/* Read the monsters (starting at 2) */
 	for (i = 2; i < limit; i++)
 	{
-		monster_race *r_ptr;
+		int m_idx;
 
-		monster_type *n_ptr;
-		monster_type monster_type_body;
+		monster_type forge;
+		monster_type *q_ptr;
+
+		monster_type *m_ptr;
+		monster_race *r_ptr;
 
 
 		/* Get local monster */
-		n_ptr = &monster_type_body;
+		q_ptr = &forge;
 
 		/* Hack -- wipe */
-		WIPE(n_ptr, monster_type);
+		WIPE(q_ptr, monster_type);
 
 		/* Read the current hitpoints */
-		rd_s16b(&n_ptr->hp);
+		rd_s16b(&q_ptr->hp);
 
 		/* Strip max hitpoints */
 		if (!older_than(2, 6, 0)) strip_bytes(2);
 
 		/* Current sleep counter */
-		rd_s16b(&n_ptr->csleep);
+		rd_s16b(&q_ptr->csleep);
 
 		/* Strip speed */
 		strip_bytes(2);
 
 		/* Read race */
-		rd_s16b(&n_ptr->r_idx);
+		rd_s16b(&q_ptr->r_idx);
 
 		/* Read location */
-		rd_byte(&n_ptr->fy);
-		rd_byte(&n_ptr->fx);
-
-		/* Extract location */
-		y = n_ptr->fy;
-		x = n_ptr->fx;
+		rd_byte(&q_ptr->fy);
+		rd_byte(&q_ptr->fx);
 
 		/* Strip confusion, etc */
 		strip_bytes(4);
@@ -2388,39 +2436,73 @@ static errr rd_dungeon_old(void)
 		if (arg_colour) strip_bytes(1);
 
 
-		/* Hack -- ignore "broken" monsters */
-		if (n_ptr->r_idx <= 0) continue;
-
-		/* Hack -- ignore "player ghosts" */
-		if (n_ptr->r_idx >= MAX_R_IDX-1) continue;
-
-
 		/* Invalid cave location */
-		if ((x >= DUNGEON_WID) || (y >= DUNGEON_HGT))
+		if ((q_ptr->fx >= cur_wid) || (q_ptr->fy >= cur_hgt))
 		{
 			note("Illegal monster location!!!");
 			return (71);
 		}
 
 
+		/* Access grid */
+		c_ptr = &cave[q_ptr->fy][q_ptr->fx];
+
+		/* Hack -- Ignore "double" monsters */
+		if (c_ptr->m_idx) continue;
+
+		/* Hack -- ignore "broken" monsters */
+		if (q_ptr->r_idx <= 0) continue;
+
+		/* Hack -- ignore "player ghosts" */
+		if (q_ptr->r_idx >= MAX_R_IDX-1) continue;
+
+
 		/* Access the race */
-		r_ptr = &r_info[n_ptr->r_idx];
+		r_ptr = &r_info[q_ptr->r_idx];
 
 		/* Hack -- recalculate speed */
-		n_ptr->mspeed = r_ptr->speed;
+		q_ptr->mspeed = r_ptr->speed;
 
 		/* Hack -- fake energy */
-		n_ptr->energy = i % 100;
+		q_ptr->energy = i % 100;
 
 		/* Hack -- maximal hitpoints */
-		n_ptr->maxhp = r_ptr->hdice * r_ptr->hside;
+		q_ptr->maxhp = r_ptr->hdice * r_ptr->hside;
 
 
-		/* Place monster in dungeon */
-		if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))
+		/* Get a new record */
+		m_idx = m_pop();
+
+		/* Oops */
+		if (!m_idx)
 		{
-			note(format("Cannot place monster %d!", i));
+			note(format("Too many (%d) monsters!", m_max));
 			return (162);
+		}
+
+		/* Acquire place */
+		m_ptr = &m_list[m_idx];
+
+		/* Copy the monster */
+		COPY(m_ptr, q_ptr, monster_type);
+
+		/* Mark the location */
+		c_ptr->m_idx = m_idx;
+
+		/* Count racial occurances */
+		r_ptr->cur_num++;
+	}
+
+
+	/* Hack -- clean up terrain */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			c_ptr = &cave[y][x];
+
+			/* Convert nothing-ness into floors */
+			if (!c_ptr->feat) c_ptr->feat = FEAT_FLOOR;
 		}
 	}
 
@@ -2432,6 +2514,9 @@ static errr rd_dungeon_old(void)
 	/* Success */
 	return (0);
 }
+
+
+
 
 
 
@@ -2450,7 +2535,7 @@ static void rd_options_old(void)
 	rd_u32b(&tmp32u);
 
 	/* Mega-Hack -- Extract death */
-	p_ptr->is_dead = (tmp32u & 0x80000000) ? TRUE : FALSE;
+	death = (tmp32u & 0x80000000) ? TRUE : FALSE;
 
 	/* Hack -- Unused options */
 	if (!older_than(2, 6, 0)) strip_bytes(12);
@@ -2466,8 +2551,15 @@ static errr rd_inventory_old(void)
 	int slot = 0;
 	s16b ictr;
 
-	object_type *i_ptr;
-	object_type object_type_body;
+	object_type forge;
+	object_type *q_ptr;
+
+	/* No weight */
+	total_weight = 0;
+
+	/* No items */
+	inven_cnt = 0;
+	equip_cnt = 0;
 
 	/* Count the items */
 	rd_s16b(&ictr);
@@ -2483,90 +2575,90 @@ static errr rd_inventory_old(void)
 	for (i = 0; i < ictr; i++)
 	{
 		/* Get local object */
-		i_ptr = &object_type_body;
+		q_ptr = &forge;
 
 		/* Wipe the object */
-		object_wipe(i_ptr);
+		object_wipe(q_ptr);
 
 		/* Read the item */
-		rd_item_old(i_ptr);
+		rd_item_old(q_ptr);
 
 		/* Assume aware */
-		object_aware(i_ptr);
+		object_aware(q_ptr);
 
 		/* Get the next slot */
 		n = slot++;
 
 		/* Copy the object */
-		object_copy(&inventory[n], i_ptr);
+		object_copy(&inventory[n], q_ptr);
 
 		/* Add the weight */
-		p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
+		total_weight += (q_ptr->number * q_ptr->weight);
 
 		/* One more item */
-		p_ptr->inven_cnt++;
+		inven_cnt++;
 	}
 
 	/* Old "normal" equipment */
 	for (i = OLD_INVEN_WIELD; i < OLD_INVEN_AUX; i++)
 	{
 		/* Get local object */
-		i_ptr = &object_type_body;
+		q_ptr = &forge;
 
 		/* Wipe the object */
-		object_wipe(i_ptr);
+		object_wipe(q_ptr);
 
 		/* Read the item */
-		rd_item_old(i_ptr);
+		rd_item_old(q_ptr);
 
 		/* Assume aware */
-		object_aware(i_ptr);
+		object_aware(q_ptr);
 
 		/* Skip "empty" slots */
-		if (!i_ptr->tval) continue;
+		if (!q_ptr->tval) continue;
 
 		/* Hack -- convert old slot numbers */
 		n = convert_slot(i);
 
 		/* Copy the object */
-		object_copy(&inventory[n], i_ptr);
+		object_copy(&inventory[n], q_ptr);
 
 		/* Add the weight */
-		p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
+		total_weight += (q_ptr->number * q_ptr->weight);
 
 		/* One more item */
-		p_ptr->equip_cnt++;
+		equip_cnt++;
 	}
 
 	/* Old "aux" item */
 	for (i = OLD_INVEN_AUX; i <= OLD_INVEN_AUX; i++)
 	{
 		/* Get local object */
-		i_ptr = &object_type_body;
+		q_ptr = &forge;
 
 		/* Wipe the object */
-		object_wipe(i_ptr);
+		object_wipe(q_ptr);
 
 		/* Read the item */
-		rd_item_old(i_ptr);
+		rd_item_old(q_ptr);
 
 		/* Assume aware */
-		object_aware(i_ptr);
+		object_aware(q_ptr);
 
 		/* Skip "empty" slots */
-		if (!i_ptr->tval) continue;
+		if (!q_ptr->tval) continue;
 
 		/* Get the next slot */
 		n = slot++;
 
 		/* Copy the object */
-		object_copy(&inventory[n], i_ptr);
+		object_copy(&inventory[n], q_ptr);
 
 		/* Add the weight */
-		p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
+		total_weight += (q_ptr->number * q_ptr->weight);
 
 		/* One more item */
-		p_ptr->inven_cnt++;
+		inven_cnt++;
 	}
 
 	/* Forget old weight */
@@ -2593,10 +2685,10 @@ static errr rd_savefile_old_aux(void)
 
 	/* Mention the savefile version */
 	note(format("Loading a %d.%d.%d savefile...",
-	            sf_major, sf_minor, sf_patch));
+		sf_major, sf_minor, sf_patch));
 
 
-	/* Mega-Hack */
+	/* XXX XXX XXX */
 	if (older_than(2, 5, 2))
 	{
 		/* Allow use of old MacAngband 1.0 and 2.0.3 savefiles */
@@ -2627,6 +2719,9 @@ static errr rd_savefile_old_aux(void)
 
 	/* Hack -- decrypt */
 	xor_byte = sf_extra;
+
+
+	/* XXX XXX Fake the system info (?) */
 
 
 	/* Read the artifacts */
@@ -2726,6 +2821,8 @@ static errr rd_savefile_old_aux(void)
 	note("Loaded extra information");
 
 
+	/* XXX XXX XXX Important!!! */
+
 	/* Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
 
@@ -2743,7 +2840,7 @@ static errr rd_savefile_old_aux(void)
 		object_kind *k_ptr = &k_info[i];
 
 		/* Hack -- learn about "obvious" items */
-		if (k_ptr->level < p_ptr->max_depth) k_ptr->aware = TRUE;
+		if (k_ptr->level < p_ptr->max_dlv) k_ptr->aware = TRUE;
 	}
 
 
@@ -2752,17 +2849,17 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Read spell flags */
-	rd_u32b(&p_ptr->spell_learned1);
-	rd_u32b(&p_ptr->spell_worked1);
-	rd_u32b(&p_ptr->spell_forgotten1);
-	rd_u32b(&p_ptr->spell_learned2);
-	rd_u32b(&p_ptr->spell_worked2);
-	rd_u32b(&p_ptr->spell_forgotten2);
+	rd_u32b(&spell_learned1);
+	rd_u32b(&spell_worked1);
+	rd_u32b(&spell_forgotten1);
+	rd_u32b(&spell_learned2);
+	rd_u32b(&spell_worked2);
+	rd_u32b(&spell_forgotten2);
 
 	/* Read spell order */
 	for (i = 0; i < 64; i++)
 	{
-		rd_byte(&p_ptr->spell_order[i]);
+		rd_byte(&spell_order[i]);
 	}
 
 	note("Loaded spell information");
@@ -2779,12 +2876,12 @@ static errr rd_savefile_old_aux(void)
 	rd_messages_old();
 
 	/* Some leftover info */
-	rd_u16b(&p_ptr->panic_save);
-	rd_u16b(&p_ptr->total_winner);
-	rd_u16b(&p_ptr->noscore);
+	rd_u16b(&panic_save);
+	rd_u16b(&total_winner);
+	rd_u16b(&noscore);
 
 	/* Read the player_hp array */
-	for (i = 0; i < 50; i++) rd_s16b(&p_ptr->player_hp[i]);
+	for (i = 0; i < 50; i++) rd_s16b(&player_hp[i]);
 
 	/* Strip silly hitpoint information */
 	if (!older_than(2, 6, 2)) strip_bytes(98);
@@ -2807,13 +2904,13 @@ static errr rd_savefile_old_aux(void)
 	rd_u32b(&sf_when);
 
 	/* Read the cause of death, if any */
-	rd_string(p_ptr->died_from, 80);
+	rd_string(died_from, 80);
 
 	note("Loaded all player info");
 
 
 	/* Read dungeon */
-	if (!p_ptr->is_dead)
+	if (!death)
 	{
 		/* Dead players have no dungeon */
 		if (rd_dungeon_old())
@@ -2829,30 +2926,30 @@ static errr rd_savefile_old_aux(void)
 	r_info[MAX_R_IDX-1].max_num = 0;
 
 
-	/* Hack -- reset morgoth */
+	/* Hack -- reset morgoth XXX XXX XXX */
 	r_info[MAX_R_IDX-2].max_num = 1;
 
-	/* Hack -- reset sauron */
+	/* Hack -- reset sauron XXX XXX XXX */
 	r_info[MAX_R_IDX-3].max_num = 1;
 
 
-	/* Hack -- reset morgoth */
+	/* Hack -- reset morgoth XXX XXX XXX */
 	r_info[MAX_R_IDX-2].r_pkills = 0;
 
-	/* Hack -- reset sauron */
+	/* Hack -- reset sauron XXX XXX XXX */
 	r_info[MAX_R_IDX-3].r_pkills = 0;
 
 
-	/* Add first quest */
+	/* Add first quest XXX XXX XXX */
 	q_list[0].level = 99;
 
-	/* Add second quest */
+	/* Add second quest XXX XXX XXX */
 	q_list[1].level = 100;
 
-	/* Reset third quest */
+	/* Reset third quest XXX XXX XXX */
 	q_list[2].level = 0;
 
-	/* Reset fourth quest */
+	/* Reset fourth quest XXX XXX XXX */
 	q_list[3].level = 0;
 
 

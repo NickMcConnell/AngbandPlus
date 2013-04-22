@@ -1,20 +1,10 @@
 /* File: main-gcu.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison, and others
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
- */
+/* Purpose: Allow use of Unix "curses" with Angband -BEN- */
 
 
 /*
- * This file helps Angband run on Unix/Curses machines.
- *
- *
  * To use this file, you must define "USE_GCU" in the Makefile.
- *
  *
  * Hack -- note that "angband.h" is included AFTER the #ifdef test.
  * This was necessary because of annoying "curses.h" silliness.
@@ -32,19 +22,18 @@
  * and uses the "termcap" information directly, or even bypasses the
  * "termcap" information and sends direct vt100 escape sequences.
  *
- * This file provides only a single "term" window.  XXX XXX XXX
- *
- * But in theory, it should be possible to allow a 50 line screen to be
- * split into two (or more) sub-screens.
+ * XXX XXX XXX This file provides only a single "term" window.
  *
  * The "init" and "nuke" hooks are built so that only the first init and
  * the last nuke actually do anything, but the other functions are not
  * "correct" for multiple windows.  Minor changes would also be needed
  * to allow the system to handle the "locations" of the various windows.
  *
- * Consider the use of "savetty()" and "resetty()".  XXX XXX XXX
+ * But in theory, it should be possible to allow a 50 line screen to be
+ * split into two sub-screens (i.e. "term_screen" and "term_mirror").
+ *
+ * XXX XXX XXX Consider the use of "savetty()" and "resetty()".
  */
-
 
 #include "angband.h"
 
@@ -795,7 +784,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
  *
  * Someone should really check the semantics of "initscr()"
  */
-errr init_gcu(int argc, char *argv[])
+errr init_gcu(void)
 {
 	int i;
 

@@ -1,24 +1,16 @@
 /* File: main-acn.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison, Kevin Bracey, and others
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
- */
-
+/* Purpose: Support for Acorn RISC OS Angband */
 
 /*
- * Purpose: Support for Acorn RISC OS Angband
- *
- *
  * Author: Kevin Bracey (kbracey@art.acorn.co.uk)
  *
- *
- * This file is *known* to be out of date.  It needs some work.  XXX XXX XXX
- *
- *
+ */
+
+/* Check compiler flag */
+#ifdef __riscos
+
+/*
  * === Instructions for compiling Angband for RISC OS ===
  *
  * You will require:
@@ -32,10 +24,6 @@
  * RISC OS form, and bug fixes for OSLib.
  *
  */
-
-
-/* Check compiler flag */
-#ifdef __riscos
 
 #define VERSION "2.7.9v6 (07-May-96)"
 
@@ -367,8 +355,8 @@ static void window_to_front(wimp_w w)
 {
 	union
 	{
-		wimp_open open;
-		wimp_window_state state;
+		wimp_open           open;
+		wimp_window_state   state;
 	} a;
 
 	a.state.w=w;
@@ -381,8 +369,8 @@ static void window_hide(wimp_w w)
 {
 	union
 	{
-		wimp_open open;
-		wimp_window_state state;
+		wimp_open           open;
+		wimp_window_state   state;
 	} a;
 
 	a.state.w=w;
@@ -1816,6 +1804,9 @@ int main(int argc, char *argv[])
 	/* Catch nasty signals */
 	signals_init();
 
+	/* No name (yet) */
+	strcpy(player_name, "");
+
 	/* Hack -- Use the "pref-acn.prf" file */
 	ANGBAND_SYS = "acn";
 
@@ -2354,5 +2345,3 @@ errr path_temp(char *buf, int max)
 }
 
 #endif /* __riscos */
-
-

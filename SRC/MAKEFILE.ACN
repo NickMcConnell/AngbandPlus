@@ -49,4 +49,3 @@ angband: $(OBJS)
 
 
 # Dynamic dependencies:
-

@@ -1,12 +1,6 @@
 /* File: init1.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
- */
+/* Purpose: Initialization (part 1) -BEN- */
 
 #include "angband.h"
 
@@ -78,7 +72,7 @@ static cptr r_info_blow_method[] =
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
-	"XXX2",
+	"CHARGE",  /* WAS: XXX2 */
 	"CRAWL",
 	"DROOL",
 	"SPIT",
@@ -90,7 +84,7 @@ static cptr r_info_blow_method[] =
 	"BEG",
 	"INSULT",
 	"MOAN",
-	"XXX5",
+	"SHOW",  /* WAS: XXX5 */
 	NULL
 };
 
@@ -179,20 +173,20 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"XXX1X2",
-	"XXX2X2",
+	"CAN_SPEAK", /* WAS: XXX1X2 */
+	"REFLECTING",
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
 	"WEIRD_MIND",
 	"MULTIPLY",
 	"REGENERATE",
-	"XXX3X2",
-	"XXX4X2",
+	"SHAPECHANGER",	/*  WAS: XXX3X2 */
+	"ATTR_ANY",	/*  WAS: XXX4X2 */
 	"POWERFUL",
-	"XXX5X2",
-	"XXX7X2",
-	"XXX6X2",
+	"ELDRITCH_HORROR",
+	"AURA_FIRE",
+	"AURA_ELEC",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -224,10 +218,10 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"XXX1X3",
-	"XXX2X3",
-	"XXX3X3",
-	"XXX4X3",
+	"AMBERITE",	/* WAS: XXX1X3 */
+	"GOOD",
+	"IM_PSI",
+	"NONLIVING",	/* WAS: XXX4X3 */
 	"HURT_LITE",
 	"HURT_ROCK",
 	"HURT_FIRE",
@@ -237,7 +231,7 @@ static cptr r_info_flags3[] =
 	"IM_FIRE",
 	"IM_COLD",
 	"IM_POIS",
-	"IM_PSI",
+	"RES_TELE",
 	"RES_NETH",
 	"RES_WATE",
 	"RES_PLAS",
@@ -256,9 +250,9 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"P_BLAST",
-	"P_CRUSH",
-	"M_WRACK",
+	"P_BLAST",      /* WAS: XXX4X2 */ 
+	"P_CRUSH",      /* WAS: XXX4X3 */
+	"ROCKET",	/* WAS: XXX4X4 */
 	"ARROW_1",
 	"ARROW_2",
 	"ARROW_3",
@@ -283,10 +277,10 @@ static cptr r_info_flags4[] =
 	"BR_PLAS",
 	"BR_WALL",
 	"BR_MANA",
-        "BR_INSA",
-	"P_WAVE",
-	"XXX7X4",
-	"XXX8X4"
+	"BA_NUKE",	/* WAS: XXX5X4 */
+	"BR_NUKE",	/* WAS: XXX6X4 */
+	"BA_CHAO",	/* WAS: XXX7X4 */
+	"BR_DISI",
 };
 
 /*
@@ -334,13 +328,13 @@ static cptr r_info_flags5[] =
 static cptr r_info_flags6[] =
 {
 	"HASTE",
-	"XXX1X6",
+	"HAND_DOOM",
 	"HEAL",
 	"HEAL2",
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
+	"M_WRACK",
+	"P_WAVE",
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
@@ -348,9 +342,9 @@ static cptr r_info_flags6[] =
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
-	"XXX7X6",
-	"XXX8X6",
+	"BR_INSA",
+	"S_KIN",
+	"S_CYBER",
 	"S_MONSTER",
 	"S_MONSTERS",
 	"S_ANT",
@@ -387,8 +381,8 @@ cptr k_info_flags1[] =
 	"TUNNEL",
 	"SPEED",
 	"BLOWS",
-	"SHOTS",
-	"MIGHT",
+	"CHAOTIC",
+	"VAMPIRIC",
 	"SLAY_ANIMAL",
 	"SLAY_EVIL",
 	"SLAY_UNDEAD",
@@ -398,9 +392,9 @@ cptr k_info_flags1[] =
 	"SLAY_GIANT",
 	"SLAY_DRAGON",
 	"KILL_DRAGON",
-	"XXX5",
-	"XXX6",
-	"XXX7",
+	"VORPAL",
+	"IMPACT",
+	"BRAND_POIS",
 	"BRAND_ACID",
 	"BRAND_ELEC",
 	"BRAND_FIRE",
@@ -410,7 +404,7 @@ cptr k_info_flags1[] =
 /*
  * Object flags
  */
-cptr k_info_flags2[] =
+static cptr k_info_flags2[] =
 {
 	"SUST_STR",
 	"SUST_INT",
@@ -418,16 +412,16 @@ cptr k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"META_PSI1",
-	"META_PSI2",
 	"RES_PSI",
 	"RES_FORCE",
-	"RES_GRAVT",
-	"RES_INERT",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
 	"IM_COLD",
+	"XXX3",
+	"REFLECT",
+	"FREE_ACT",
+	"HOLD_LIFE",
 	"RES_ACID",
 	"RES_ELEC",
 	"RES_FIRE",
@@ -437,11 +431,11 @@ cptr k_info_flags2[] =
 	"RES_LITE",
 	"RES_DARK",
 	"RES_BLIND",
-	"RES_CONFU",
+	"RES_CONF",
 	"RES_SOUND",
-	"RES_SHARD",
+	"RES_SHARDS",
+	"RES_NETHER",
 	"RES_NEXUS",
-	"RES_NETHR",
 	"RES_CHAOS",
 	"RES_DISEN"
 };
@@ -449,42 +443,54 @@ cptr k_info_flags2[] =
 /*
  * Object flags
  */
-cptr k_info_flags3[] =
+static cptr k_info_flags3[] =
 {
-	"SLOW_DIGEST",
-	"FEATHER",
-	"LITE",
-	"REGEN",
-	"TELEPATHY",
-	"SEE_INVIS",
-	"FREE_ACT",
-	"HOLD_LIFE",
-	"XXX1",
-	"XXX2",
+	"SH_FIRE",
+	"SH_ELEC",
 	"XXX3",
 	"XXX4",
-	"IMPACT",
-	"TELEPORT",
-	"AGGRAVATE",
-	"DRAIN_EXP",
+	"NO_TELE",
+	"NO_MAGIC",
+	"WRAITH",
+	"TY_CURSE",
+	"EASY_KNOW",
+	"HIDE_TYPE",
+	"SHOW_MODS",
+	"INSTA_ART",
+	"FEATHER",
+	"LITE",
+	"SEE_INVIS",
+	"TELEPATHY",
+	"SLOW_DIGEST",
+	"REGEN",
+	"XTRA_MIGHT",
+	"XTRA_SHOTS",
 	"IGNORE_ACID",
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"PSI_PSEUDO_ID",
-	"PSI_ERASE",
-	"BLESSED",
 	"ACTIVATE",
-	"INSTA_ART",
-	"EASY_KNOW",
-	"HIDE_TYPE",
-	"SHOW_MODS",
-	"XXX7",
-	"LIGHT_CURSE",
+	"DRAIN_EXP",
+	"TELEPORT",
+	"AGGRAVATE",
+	"BLESSED",
+	"CURSED",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
 };
 
+static cptr k_info_flags4[] =
+{
+  "META_PSI1",
+  "META_PSI2",
+  "PSEUDO_ID",
+  "PSI_ERASE",
+  "FURY",
+  "UNLIFE",
+  "PSI_WPN",
+  "PEACE",
+  NULL
+};
 
 /*
  * Convert a "color letter" into an "actual" color
@@ -666,7 +672,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			                &typ, &rat, &hgt, &wid)) return (1);
+				&typ, &rat, &hgt, &wid)) return (1);
 
 			/* Save the values */
 			v_ptr->typ = typ;
@@ -783,7 +789,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			i = atoi(buf+2);
 
 			/* Verify information */
-			if (i <= error_idx) return (4);
+			/* if (i <= error_idx) return (4); */
 
 			/* Verify information */
 			if (i >= f_head->info_num) return (2);
@@ -851,7 +857,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (1 != sscanf(buf+2, "%d",
-			                &mimic)) return (1);
+				&mimic)) return (1);
 
 			/* Save the values */
 			f_ptr->mimic = mimic;
@@ -871,15 +877,13 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			if (!buf[3]) return (1);
 			if (!buf[4]) return (1);
 
-			/* Extract the attr */
+			/* Extract the color */
 			tmp = color_char_to_attr(buf[4]);
-
-			/* Paranoia */
 			if (tmp < 0) return (1);
 
 			/* Save the values */
-			f_ptr->d_attr = tmp;
-			f_ptr->d_char = buf[2];
+			f_ptr->f_char = buf[2];
+			f_ptr->f_attr = tmp;
 
 			/* Next... */
 			continue;
@@ -941,6 +945,17 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 			k_ptr->flags3 |= (1L << i);
 			return (0);
 		}
+	}
+
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+	  if (k_info_flags4[i] == NULL) break;
+	  if (streq(what, k_info_flags4[i]))
+	    {
+	      k_ptr->flags4 |= (1L << i);
+	      return (0);
+	    }
 	}
 
 	/* Oops */
@@ -1117,8 +1132,8 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			if (tmp < 0) return (1);
 
 			/* Save the values */
-			k_ptr->d_attr = tmp;
-			k_ptr->d_char = sym;
+			k_ptr->k_char = sym;
+			k_ptr->k_attr = tmp;
 
 			/* Next... */
 			continue;
@@ -1131,7 +1146,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &tval, &sval, &pval)) return (1);
+				&tval, &sval, &pval)) return (1);
 
 			/* Save the values */
 			k_ptr->tval = tval;
@@ -1150,7 +1165,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &extra, &wgt, &cost)) return (1);
+				&level, &extra, &wgt, &cost)) return (1);
 
 			/* Save the values */
 			k_ptr->level = level;
@@ -1201,7 +1216,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			                &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+				&ac, &hd1, &hd2, &th, &td, &ta)) return (1);
 
 			k_ptr->ac = ac;
 			k_ptr->dd = hd1;
@@ -1296,6 +1311,17 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 			a_ptr->flags3 |= (1L << i);
 			return (0);
 		}
+	}
+
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+	  if (k_info_flags4[i] == NULL) break;
+	  if (streq(what, k_info_flags4[i]))
+	    {
+	      a_ptr->flags4 |= (1L << i);
+	      return (0);
+	    }
 	}
 
 	/* Oops */
@@ -1458,7 +1484,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &tval, &sval, &pval)) return (1);
+				&tval, &sval, &pval)) return (1);
 
 			/* Save the values */
 			a_ptr->tval = tval;
@@ -1477,7 +1503,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &rarity, &wgt, &cost)) return (1);
+				&level, &rarity, &wgt, &cost)) return (1);
 
 			/* Save the values */
 			a_ptr->level = level;
@@ -1496,7 +1522,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			                &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+				&ac, &hd1, &hd2, &th, &td, &ta)) return (1);
 
 			a_ptr->ac = ac;
 			a_ptr->dd = hd1;
@@ -1591,6 +1617,17 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 			e_ptr->flags3 |= (1L << i);
 			return (0);
 		}
+	}
+
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+	  if (k_info_flags4[i] == NULL) break;
+	  if (streq(what, k_info_flags4[i]))
+	    {
+	      e_ptr->flags4 |= (1L << i);
+	      return (0);
+	    }
 	}
 
 	/* Oops */
@@ -1747,7 +1784,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (2 != sscanf(buf+2, "%d:%d",
-			                &slot, &rating)) return (1);
+				&slot, &rating)) return (1);
 
 			/* Save the values */
 			e_ptr->slot = slot;
@@ -1765,7 +1802,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &rarity, &pad2, &cost)) return (1);
+				&level, &rarity, &pad2, &cost)) return (1);
 
 			/* Save the values */
 			e_ptr->level = level;
@@ -1784,7 +1821,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			                &th, &td, &ta, &pv)) return (1);
+				&th, &td, &ta, &pv)) return (1);
 
 			e_ptr->max_to_h = th;
 			e_ptr->max_to_d = td;
@@ -2091,8 +2128,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			if (tmp < 0) return (1);
 
 			/* Save the values */
-			r_ptr->d_attr = tmp;
 			r_ptr->d_char = sym;
+			r_ptr->d_attr = tmp;
 
 			/* Next... */
 			continue;
@@ -2105,7 +2142,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the other values */
 			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			                &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (1);
+				&spd, &hp1, &hp2, &aaf, &ac, &slp)) return (1);
 
 			/* Save the values */
 			r_ptr->speed = spd;
@@ -2127,7 +2164,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &lev, &rar, &pad, &exp)) return (1);
+				&lev, &rar, &pad, &exp)) return (1);
 
 			/* Save the values */
 			r_ptr->level = lev;
@@ -2294,7 +2331,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
 	strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
 
-	/* Hack -- set the attr/char info */
+	/* Hack -- set the char/attr info */
 	r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;
 	r_ptr->d_char = r_ptr->x_char = 'G';
 
@@ -2327,5 +2364,4 @@ static int i = 0;
 #endif
 
 #endif	/* ALLOW_TEMPLATES */
-
 
