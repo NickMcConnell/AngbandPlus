@@ -3661,7 +3661,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			if (!los(y, x, ty, tx)) continue;
 
 			/* Require floor space */
-			if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
+			if (cave_feat[ty][tx] > FEAT_DIRT) continue;
 
 			/* No objects */
 			k = 0;
@@ -4085,7 +4085,7 @@ void inven_item_optimize(int item)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
 	}
 }
 
@@ -4298,10 +4298,10 @@ s16b inven_carry(object_type *o_ptr)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == mp_ptr->spell_book) &&
-			    (j_ptr->tval != mp_ptr->spell_book)) break;
-			if ((j_ptr->tval == mp_ptr->spell_book) &&
-			    (o_ptr->tval != mp_ptr->spell_book)) continue;
+			if (book_okay(o_ptr->tval, o_ptr->sval) &&
+			    !book_okay(j_ptr->tval, j_ptr->sval)) break;
+			if (book_okay(j_ptr->tval, j_ptr->sval) &&
+			    !book_okay(o_ptr->tval, o_ptr->sval)) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -4647,10 +4647,10 @@ void reorder_pack(void)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == mp_ptr->spell_book) &&
-			    (j_ptr->tval != mp_ptr->spell_book)) break;
-			if ((j_ptr->tval == mp_ptr->spell_book) &&
-			    (o_ptr->tval != mp_ptr->spell_book)) continue;
+			if (book_okay(o_ptr->tval, o_ptr->sval) &&
+			    !book_okay(j_ptr->tval, j_ptr->sval)) break;
+			if (book_okay(j_ptr->tval, j_ptr->sval) &&
+			    !book_okay(o_ptr->tval, o_ptr->sval)) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -4709,20 +4709,85 @@ void reorder_pack(void)
 
 
 /*
+ * Return the book index, given tval and sval
+ */
+s16b lookup_book(int tval, int sval)
+{
+	int i;
+
+	book_type *b_ptr;
+
+	/* Scan the book list */
+	for (i = 0; i < MAX_B_IDX; i++)
+	{
+		/* Examine this book */
+		b_ptr = &b_info[i];
+
+		/* Check for appropriate type */
+		if (b_ptr->tval != tval) continue;
+		if (b_ptr->sval != sval) continue;
+
+		/* Found it */
+		return i;
+	}
+
+	/* No match */
+	return (-1);
+}
+
+
+/*
+ * Returns whether a spellbook is legal for the player or not
+ */
+bool book_okay(int tval, int sval)
+{
+	int i;
+
+	book_type *b_ptr;
+
+	/* Lookup the book */
+	i = lookup_book(tval, sval);
+
+	/* Check for no match */
+	if (i < 0) return FALSE;
+
+	/* Acquire pointer */
+	b_ptr = &b_info[i];
+
+	/* Let script allow otherwise illegal books */
+	if (perform_event(EVENT_BOOK_OK, Py_BuildValue("(i)", i)))
+	{
+		/* Book is legal */
+		return TRUE;
+	}
+
+	/* Check for legality */
+	if (mp_ptr->avail[i / 32] & (1L << (i % 32)))
+	{
+		/* Book is legal */
+		return TRUE;
+	}
+
+	/* Illegal book */
+	return FALSE;
+}
+
+
+/*
  * Returns chance of failure for a spell
  */
 s16b spell_chance(int spell)
 {
 	int chance, minfail;
 
-	magic_type *s_ptr;
+	spell_type *s_ptr;
 
 
 	/* Paranoia -- must be literate */
-	if (!mp_ptr->spell_book) return (100);
+	if (mp_ptr->spell_first == 99) return (100);
 
 	/* Access the spell */
-	s_ptr = &mp_ptr->info[spell];
+	s_ptr = &mp_ptr->spells[spell];
 
 	/* Extract the base spell failure rate */
 	chance = s_ptr->sfail;
@@ -4742,14 +4807,11 @@ s16b spell_chance(int spell)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
-	/* Non mage/priest characters never get better than 5 percent */
-	if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST))
-	{
-		if (minfail < 5) minfail = 5;
-	}
+	/* Check against class minimum fail rate */
+	if (minfail < mp_ptr->spell_minfail) minfail = mp_ptr->spell_minfail;
 
 	/* Priest prayer penalty for "edged" weapons (before minfail) */
-	if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
+	if ((mp_ptr->spell_flags & PM_EDGED) && (p_ptr->icky_wield))
 	{
 		chance += 25;
 	}
@@ -4777,27 +4839,26 @@ s16b spell_chance(int spell)
  */
 bool spell_okay(int spell, bool known)
 {
-	magic_type *s_ptr;
+	spell_type *s_ptr;
 
 	/* Access the spell */
-	s_ptr = &mp_ptr->info[spell];
+	s_ptr = &mp_ptr->spells[spell];
+
+	/* Spell is illegible */
+	if (!s_ptr->slevel) return (FALSE);
 
 	/* Spell is illegal */
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
 
 	/* Spell is forgotten */
-	if ((spell < 32) ?
-	    (p_ptr->spell_forgotten1 & (1L << spell)) :
-	    (p_ptr->spell_forgotten2 & (1L << (spell - 32))))
+	if (p_ptr->spell_forgotten[spell / 32] & (1L << (spell % 32)))
 	{
 		/* Never okay */
 		return (FALSE);
 	}
 
 	/* Spell is learned */
-	if ((spell < 32) ?
-	    (p_ptr->spell_learned1 & (1L << spell)) :
-	    (p_ptr->spell_learned2 & (1L << (spell - 32))))
+	if (p_ptr->spell_learned[spell / 32] & (1L << (spell % 32)))
 	{
 		/* Okay to cast, not to study */
 		return (known);
@@ -4808,6 +4869,7 @@ bool spell_okay(int spell, bool known)
 }
 
 
+#if 0
 
 /*
  * Extra information on a spell		-DRS-
@@ -4900,6 +4962,7 @@ void spell_info(char *p, int spell)
 	}
 }
 
+#endif
 
 /*
  * Print a list of spells (for browsing or casting or viewing)
@@ -4908,7 +4971,7 @@ void print_spells(byte *spells, int num, int y, int x)
 {
 	int i, spell;
 
-	magic_type *s_ptr;
+	spell_type *s_ptr;
 
 	cptr comment;
 
@@ -4929,10 +4992,10 @@ void print_spells(byte *spells, int num, int y, int x)
 		spell = spells[i];
 
 		/* Access the spell */
-		s_ptr = &mp_ptr->info[spell];
+		s_ptr = &mp_ptr->spells[spell];
 
 		/* Skip illegible spells */
-		if (s_ptr->slevel >= 99)
+		if (!s_ptr->slevel)
 		{
 			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
 			prt(out_val, y + i + 1, x);
@@ -4942,34 +5005,29 @@ void print_spells(byte *spells, int num, int y, int x)
 		/* XXX XXX Could label spells above the players level */
 
 		/* Get extra info */
-		spell_info(info, spell);
+		/* spell_info(info, spell); */
+		strcpy(info, "");
 
 		/* Use that info */
 		comment = info;
 
 		/* Analyze the spell */
-		if ((spell < 32) ?
-		    ((p_ptr->spell_forgotten1 & (1L << spell))) :
-		    ((p_ptr->spell_forgotten2 & (1L << (spell - 32)))))
+		if (p_ptr->spell_forgotten[spell / 32] & (1L << (spell % 32)))
 		{
 			comment = " forgotten";
 		}
-		else if (!((spell < 32) ?
-		           (p_ptr->spell_learned1 & (1L << spell)) :
-		           (p_ptr->spell_learned2 & (1L << (spell - 32)))))
+		else if (!(p_ptr->spell_learned[spell / 32] & (1L << (spell % 32))))
 		{
 			comment = " unknown";
 		}
-		else if (!((spell < 32) ?
-		           (p_ptr->spell_worked1 & (1L << spell)) :
-		           (p_ptr->spell_worked2 & (1L << (spell - 32)))))
+		else if (!(p_ptr->spell_worked[spell / 32] & (1L << (spell % 32))))
 		{
 			comment = " untried";
 		}
 
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
-		        I2A(i), spell_names[mp_ptr->spell_type][spell],
+		        I2A(i), n_name + n_info[spell].name,
 		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
 		prt(out_val, y + i + 1, x);
 	}
@@ -5024,29 +5082,31 @@ void display_koff(int k_idx)
 
 
 	/* Warriors are illiterate */
-	if (!mp_ptr->spell_book) return;
+	if (mp_ptr->spell_first == 99) return;
 
 	/* Display spells in readible books */
-	if (i_ptr->tval == mp_ptr->spell_book)
+	if (book_okay(i_ptr->tval, i_ptr->sval))
 	{
-		int sval;
+		int i;
 
 		int spell = -1;
 		int num = 0;
 
-		byte spells[64];
+		byte spells[MAX_N_IDX];
 
+		book_type *b_ptr;
 
-		/* Access the item's sval */
-		sval = i_ptr->sval;
+		/* Lookup book index */
+		i = lookup_book(i_ptr->tval, i_ptr->sval);
+
+		/* Grab the book pointer */
+		b_ptr = &b_info[i];
 
 		/* Extract spells */
-		for (spell = 0; spell < 64; spell++)
+		for (spell = 0; spell < MAX_N_IDX; spell++)
 		{
 			/* Check for this spell */
-			if ((spell < 32) ?
-			    (spell_flags[mp_ptr->spell_type][sval][0] & (1L << spell)) :
-			    (spell_flags[mp_ptr->spell_type][sval][1] & (1L << (spell - 32))))
+			if (b_ptr->avail[spell / 32] & (1L << (spell % 32)))
 			{
 				/* Collect this spell */
 				spells[num++] = spell;

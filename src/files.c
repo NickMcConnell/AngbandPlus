@@ -659,8 +659,8 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 	/* Other */
 	else
 	{
-		/* Accept all printables except spaces and brackets */
-		while (isprint(*s) && !strchr(" []", *s)) ++s;
+		/* Scan (accept identifiers and dollar signs) */
+		while (isalnum(*s) || (*s == '_') || (*s == '$')) s++;
 
 		/* Extract final and Terminate */
 		if ((f = *s) != '\0') *s++ = '\0';
@@ -677,13 +677,13 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			/* Race */
 			else if (streq(b+1, "RACE"))
 			{
-				v = rp_ptr->title;
+				v = pr_name + rp_ptr->name;
 			}
 
 			/* Class */
 			else if (streq(b+1, "CLASS"))
 			{
-				v = cp_ptr->title;
+				v = pc_name + cp_ptr->name;
 			}
 
 			/* Player */
@@ -1337,7 +1337,7 @@ static void display_player_xtra_info(void)
 
 
 	/* Shots */
-	sprintf(buf, "%d/turn", p_ptr->num_fire);
+	sprintf(buf, "%d/turn", p_ptr->num_blow);
 	Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
 	Term_putstr(col+5, 15, -1, TERM_L_BLUE, format("%13s", buf));
 
@@ -1671,12 +1671,12 @@ static void display_player_misc_info(void)
 
 	/* Race */
 	put_str("Race", 4, 1);
-	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 8);
+	c_put_str(TERM_L_BLUE, pr_name + rp_ptr->name, 4, 8);
 
 
 	/* Class */
 	put_str("Class", 5, 1);
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
+	c_put_str(TERM_L_BLUE, pc_name + cp_ptr->name, 5, 8);
 
 
 	/* Title */
@@ -1760,7 +1760,7 @@ static void display_player_stat_info(void)
 		/* Indicate natural maximum */
 		if (p_ptr->stat_max[i] == 18+100)
 		{
-			put_str("!", row+i, col+3);
+			put_str("!", row+i, 3);
 		}
 
 		/* Internal "natural" maximum value */
@@ -2044,7 +2044,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [PAngband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 
@@ -2382,7 +2382,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
+		prt(format("[PAngband %d.%d.%d, %s, Line %d/%d]",
 		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 		           caption, line, size), 0, 0);
 
@@ -2522,17 +2522,13 @@ void do_cmd_help(void)
 
 
 /*
- * Process the player name and extract a clean "base name".
- *
- * If "sf" is TRUE, then we initialize "savefile" based on player name.
- *
- * Some platforms (Windows, Macintosh, Amiga) leave the "savefile" empty
- * when a new character is created, and then when the character is done
- * being created, they call this function to choose a new savefile name.
+ * Process the player name.
+ * Extract a clean "base name".
+ * Build the savefile name if needed.
  */
 void process_player_name(bool sf)
 {
-	int i;
+	int i, k = 0;
 
 
 	/* Cannot be too long */
@@ -2542,43 +2538,71 @@ void process_player_name(bool sf)
 		quit_fmt("The name '%s' is too long!", op_ptr->full_name);
 	}
 
-	/* Process the player name */
+	/* Cannot contain "icky" characters */
+	for (i = 0; op_ptr->full_name[i]; i++)
+	{
+		/* No control characters */
+		if (iscntrl(op_ptr->full_name[i]))
+		{
+			/* Illegal characters */
+			quit_fmt("The name '%s' contains control chars!", op_ptr->full_name);
+		}
+	}
+
+
+#ifdef MACINTOSH
+
+	/* Extract "useful" letters */
 	for (i = 0; op_ptr->full_name[i]; i++)
 	{
 		char c = op_ptr->full_name[i];
 
-		/* No control characters */
-		if (iscntrl(c))
-		{
-			/* Illegal characters */
-			quit_fmt("Illegal control char (0x%02X) in player name", c);
-		}
+		/* Convert "colon" and "period" */
+		if ((c == ':') || (c == '.')) c = '_';
 
-		/* Convert all non-alphanumeric symbols */
-		if (!isalpha(c) && !isdigit(c)) c = '_';
-
-		/* Build "base_name" */
-		op_ptr->base_name[i] = c;
+		/* Accept all the letters */
+		op_ptr->base_name[k++] = c;
 	}
+
+#else
+
+	/* Extract "useful" letters */
+	for (i = 0; op_ptr->full_name[i]; i++)
+	{
+		char c = op_ptr->full_name[i];
+
+		/* Accept some letters */
+		if (isalpha(c) || isdigit(c)) op_ptr->base_name[k++] = c;
+
+		/* Convert space, dot, and underscore to underscore */
+		else if (strchr(". _", c)) op_ptr->base_name[k++] = '_';
+	}
+
+#endif
+
 
 #if defined(WINDOWS) || defined(MSDOS)
 
-	/* Max length */
-	if (i > 8) i = 8;
+	/* Hack -- max length */
+	if (k > 8) k = 8;
 
 #endif
 
 	/* Terminate */
-	op_ptr->base_name[i] = '\0';
+	op_ptr->base_name[k] = '\0';
 
 	/* Require a "base" name */
-	if (!op_ptr->base_name[0])
-	{
-		strcpy(op_ptr->base_name, "PLAYER");
-	}
+	if (!op_ptr->base_name[0]) strcpy(op_ptr->base_name, "PLAYER");
 
 
-	/* Pick savefile name if needed */
+#ifdef SAVEFILE_MUTABLE
+
+	/* Accept */
+	sf = TRUE;
+
+#endif
+
+	/* Change the savefile name */
 	if (sf)
 	{
 		char temp[128];
@@ -2884,7 +2908,7 @@ static void print_tomb(void)
 	put_str(buf, 8, 11);
 
 
-	center_string(buf, cp_ptr->title);
+	center_string(buf, pc_name + cp_ptr->name);
 	put_str(buf, 10, 11);
 
 	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
@@ -3060,6 +3084,9 @@ static void show_info(void)
 
 				/* Acquire inventory color */
 				attr = tval_to_attr[o_ptr->tval & 0x7F];
+
+				/* Disable inventory colors */
+				if (!inventory_colors) attr = TERM_WHITE;
 
 				/* Display the object */
 				c_put_str(attr, o_name, j+2, 7);
@@ -3282,7 +3309,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Angband Hall of Fame", 0, 0);
+		put_str("               PAngband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)
@@ -3340,7 +3367,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 			        place, the_score.pts, the_score.who,
-			        race_info[pr].title, class_info[pc].title,
+			        pr_name + pr_info[pr].name, pc_name + pc_info[pc].name,
 			        clev);
 
 			/* Append a "maximum level" */
@@ -3401,11 +3428,11 @@ void display_scores(int from, int to)
 	/* Open the binary high score file, for reading */
 	highscore_fd = fd_open(buf, O_RDONLY);
 
+	/* Paranoia -- No score file */
+	if (highscore_fd < 0) quit("Score file unavailable.");
+
 	/* Clear screen */
 	Term_clear();
-
-	/* Title */
-	put_str("                Angband Hall of Fame", 0, 0);
 
 	/* Display the scores */
 	display_scores_aux(from, to, -1, NULL);
@@ -3415,11 +3442,6 @@ void display_scores(int from, int to)
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
-
-	/* Wait for response */
-	prt("[Press any key to quit.]", 23, 17);
-	(void)inkey();
-	prt("", 23, 0);
 
 	/* Quit */
 	quit(NULL);

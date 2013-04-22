@@ -1,0 +1,141 @@
+# File: n_info.txt
+
+
+# This file is used to initialize the "lib/raw/n_info.raw" file, which is
+# used to initialize the "spell name" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/raw/n_info.raw" file.
+
+
+# Version stamp (required)
+
+V:0.1.0
+
+
+### Mage spells
+
+N:0:Magic Missile
+N:1:Detect Monsters
+N:2:Phase Door
+N:3:Light Area
+N:4:Treasure Detection
+N:5:Cure Light Wounds
+N:6:Object Detection
+N:7:Find Hidden Traps/Doors
+N:8:Stinking Cloud
+N:9:Confuse Monster
+N:10:Lightning Bolt
+N:11:Trap/Door Destruction
+N:12:Sleep I
+N:13:Cure Poison
+N:14:Teleport Self
+N:15:Spear of Light
+N:16:Frost Bolt
+N:17:Turn Stone to Mud
+N:18:Satisfy Hunger
+N:19:Recharge Item I
+N:20:Sleep II
+N:21:Polymorph Other
+N:22:Identify
+N:23:Sleep III
+N:24:Fire Bolt
+N:25:Slow Monster
+N:26:Frost Ball
+N:27:Recharge Item II
+N:28:Teleport Other
+N:29:Haste Self
+N:30:Fire Ball
+N:31:Word of Destruction
+N:32:Genocide
+N:33:Door Creation
+N:34:Stair Creation
+N:35:Teleport Level
+N:36:Earthquake
+N:37:Word of Recall
+N:38:Acid Bolt
+N:39:Cloud Kill
+N:40:Acid Ball
+N:41:Ice Storm
+N:42:Meteor Swarm
+N:43:Mana Storm
+N:44:Detect Evil
+N:45:Detect Enchantment
+N:46:Recharge Item III
+N:47:Genocide
+N:48:Mass Genocide
+N:49:Resist Fire
+N:50:Resist Cold
+N:51:Resist Acid
+N:52:Resist Poison
+N:53:Resistance
+N:54:Heroism
+N:55:Shield
+N:56:Berserker
+N:57:Essence of Speed
+N:58:Globe of Invulnerability
+N:59:Dispel Monsters
+
+
+### Priest spells
+
+N:64:Detect Evil
+N:65:Cure Light Wounds
+N:66:Bless
+N:67:Remove Fear
+N:68:Call Light
+N:69:Find Traps
+N:70:Detect Doors/Stairs
+N:71:Slow Poison
+N:72:Scare Monster
+N:73:Portal
+N:74:Cure Serious Wounds
+N:75:Chant
+N:76:Sanctuary
+N:77:Satisfy Hunger
+N:78:Remove Curse
+N:79:Resist Heat and Cold
+N:80:Neutralize Poison
+N:81:Orb of Draining
+N:82:Cure Critical Wounds
+N:83:Sense Invisible
+N:84:Protection from Evil
+N:85:Earthquake
+N:86:Sense Surroundings
+N:87:Cure Mortal Wounds
+N:88:Turn Undead
+N:89:Prayer
+N:90:Dispel Undead
+N:91:Heal
+N:92:Dispel Evil
+N:93:Glyph of Warding
+N:94:Holy Word
+N:95:Detect Monsters
+N:96:Detection
+N:97:Perception
+N:98:Probing
+N:99:Clairvoyance
+N:100:Cure Serious Wounds
+N:101:Cure Mortal Wounds
+N:102:Healing
+N:103:Restoration
+N:104:Remembrance
+N:105:Dispel Undead
+N:106:Dispel Evil
+N:107:Banishment
+N:108:Word of Destruction
+N:109:Annihilation
+N:110:Unbarring Ways
+N:111:Recharging
+N:112:Dispel Curse
+N:113:Enchant Weapon
+N:114:Enchant Armour
+N:115:Elemental Brand
+N:116:Blink
+N:117:Teleport Self
+N:118:Teleport Other
+N:119:Teleport Level
+N:120:Word of Recall
+N:121:Alter Reality
+

@@ -451,11 +451,15 @@ void take_hit(int dam, cptr kb_str)
 	p_ptr->redraw |= (PR_HP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
+		/* "Die" event */
+		if (perform_event(EVENT_DIE, Py_BuildValue("()")))
+			return;
+
 		/* Sound */
 		sound(SOUND_DEATH);
 
@@ -832,7 +836,7 @@ static int minus_ac(void)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Item was damaged */
 	return (TRUE);
@@ -1233,7 +1237,7 @@ bool apply_disenchant(int mode)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Notice */
 	return (TRUE);
@@ -1446,7 +1450,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_KILL_WALL:
 		{
 			/* Non-walls (etc) */
-			if (cave_floor_bold(y, x)) break;
+			if (cave_transparent_bold(y, x)) break;
 
 			/* Permanent walls */
 			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) break;
@@ -2004,7 +2008,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Walls protect monsters */
-	if (!cave_floor_bold(y,x)) return (FALSE);
+	if (!cave_transparent_bold(y,x)) return (FALSE);
 
 
 	/* No monster here */
@@ -3908,7 +3912,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Balls explode before reaching walls */
-		if (!cave_floor_bold(ny, nx) && (rad > 0)) break;
+		if (!cave_transparent_bold(ny, nx) && (rad > 0)) break;
 
 		/* Advance */
 		y = ny;

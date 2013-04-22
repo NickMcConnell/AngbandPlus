@@ -115,7 +115,7 @@ bool los(int y1, int x1, int y2, int x2)
 		{
 			for (ty = y1 + 1; ty < y2; ty++)
 			{
-				if (!cave_floor_bold(ty, x1)) return (FALSE);
+				if (!cave_transparent_bold(ty, x1)) return (FALSE);
 			}
 		}
 
@@ -124,7 +124,7 @@ bool los(int y1, int x1, int y2, int x2)
 		{
 			for (ty = y1 - 1; ty > y2; ty--)
 			{
-				if (!cave_floor_bold(ty, x1)) return (FALSE);
+				if (!cave_transparent_bold(ty, x1)) return (FALSE);
 			}
 		}
 
@@ -140,7 +140,7 @@ bool los(int y1, int x1, int y2, int x2)
 		{
 			for (tx = x1 + 1; tx < x2; tx++)
 			{
-				if (!cave_floor_bold(y1, tx)) return (FALSE);
+				if (!cave_transparent_bold(y1, tx)) return (FALSE);
 			}
 		}
 
@@ -149,7 +149,7 @@ bool los(int y1, int x1, int y2, int x2)
 		{
 			for (tx = x1 - 1; tx > x2; tx--)
 			{
-				if (!cave_floor_bold(y1, tx)) return (FALSE);
+				if (!cave_transparent_bold(y1, tx)) return (FALSE);
 			}
 		}
 
@@ -168,7 +168,7 @@ bool los(int y1, int x1, int y2, int x2)
 	{
 		if (ay == 2)
 		{
-			if (cave_floor_bold(y1 + sy, x1)) return (TRUE);
+			if (cave_transparent_bold(y1 + sy, x1)) return (TRUE);
 		}
 	}
 
@@ -177,7 +177,7 @@ bool los(int y1, int x1, int y2, int x2)
 	{
 		if (ax == 2)
 		{
-			if (cave_floor_bold(y1, x1 + sx)) return (TRUE);
+			if (cave_transparent_bold(y1, x1 + sx)) return (TRUE);
 		}
 	}
 
@@ -213,7 +213,7 @@ bool los(int y1, int x1, int y2, int x2)
 		/* the LOS exactly meets the corner of a tile. */
 		while (x2 - tx)
 		{
-			if (!cave_floor_bold(ty, tx)) return (FALSE);
+			if (!cave_transparent_bold(ty, tx)) return (FALSE);
 
 			qy += m;
 
@@ -224,7 +224,7 @@ bool los(int y1, int x1, int y2, int x2)
 			else if (qy > f2)
 			{
 				ty += sy;
-				if (!cave_floor_bold(ty, tx)) return (FALSE);
+				if (!cave_transparent_bold(ty, tx)) return (FALSE);
 				qy -= f1;
 				tx += sx;
 			}
@@ -260,7 +260,7 @@ bool los(int y1, int x1, int y2, int x2)
 		/* the LOS exactly meets the corner of a tile. */
 		while (y2 - ty)
 		{
-			if (!cave_floor_bold(ty, tx)) return (FALSE);
+			if (!cave_transparent_bold(ty, tx)) return (FALSE);
 
 			qx += m;
 
@@ -271,7 +271,7 @@ bool los(int y1, int x1, int y2, int x2)
 			else if (qx > f2)
 			{
 				tx += sx;
-				if (!cave_floor_bold(ty, tx)) return (FALSE);
+				if (!cave_transparent_bold(ty, tx)) return (FALSE);
 				qx -= f1;
 				ty += sy;
 			}
@@ -644,7 +644,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 		    (info & (CAVE_SEEN)))
 		{
 			/* Access floor */
-			f_ptr = &f_info[FEAT_FLOOR];
+			f_ptr = &f_info[cave_feat[y][x]];
 
 			/* Normal char */
 			c = f_ptr->x_char;
@@ -1176,6 +1176,11 @@ static byte priority_table[][2] =
 
 	/* Floors */
 	{ FEAT_FLOOR, 5 },
+	{ FEAT_GRASS, 5 },
+	{ FEAT_DIRT, 5 },
+
+	/* Trees */
+	{ FEAT_TREE_HEAD, 7 },
 
 	/* Walls */
 	{ FEAT_SECRET, 10 },
@@ -2294,7 +2299,7 @@ void forget_view(void)
 	int fast_view_n = view_n;
 	u16b *fast_view_g = view_g;
 
-	byte *fast_cave_info = &cave_info[0][0];
+	u16b *fast_cave_info = &cave_info[0][0];
 
 
 	/* None to forget */
@@ -2435,7 +2440,7 @@ void update_view(void)
 	int fast_temp_n = 0;
 	u16b *fast_temp_g = temp_g;
 
-	byte *fast_cave_info = &cave_info[0][0];
+	u16b *fast_cave_info = &cave_info[0][0];
 
 	byte info;
 
@@ -3251,7 +3256,7 @@ void cave_set_feat(int y, int x, int feat)
 	cave_feat[y][x] = feat;
 
 	/* Handle "wall/door" grids */
-	if (feat >= FEAT_DOOR_HEAD)
+	if (feat & 0x40)
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}
@@ -3403,7 +3408,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			}
 
 			/* Always stop at non-initial wall grids */
-			if ((n > 0) && !cave_floor_bold(y, x)) break;
+			if ((n > 0) && !cave_transparent_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
@@ -3465,7 +3470,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			}
 
 			/* Always stop at non-initial wall grids */
-			if ((n > 0) && !cave_floor_bold(y, x)) break;
+			if ((n > 0) && !cave_transparent_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
@@ -3521,7 +3526,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			}
 
 			/* Always stop at non-initial wall grids */
-			if ((n > 0) && !cave_floor_bold(y, x)) break;
+			if ((n > 0) && !cave_transparent_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
@@ -3571,7 +3576,7 @@ bool projectable(int y1, int x1, int y2, int x2)
 	x = GRID_X(grid_g[grid_n-1]);
 
 	/* May not end in a wall grid */
-	if (!cave_floor_bold(y, x)) return (FALSE);
+	if (!cave_transparent_bold(y, x)) return (FALSE);
 
 	/* May not end in an unrequested grid */
 	if ((y != y2) || (x != x2)) return (FALSE);

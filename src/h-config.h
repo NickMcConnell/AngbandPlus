@@ -272,7 +272,7 @@
  * OPTION: Hack -- Make sure "strchr()" and "strrchr()" will work
  */
 #if defined(SYS_III) || defined(SYS_V) || defined(MSDOS)
-# if !defined(__TURBOC__) && !defined(__WATCOMC__) && !defined(__DJGPP__)
+# if !defined(__TURBOC__) && !defined(__WATCOMC__)
 #  define strchr(S,C) index((S),(C))
 #  define strrchr(S,C) rindex((S),(C))
 # endif
@@ -289,7 +289,7 @@
  */
 #if defined(linux)
 # define HAS_STRICMP
-# define stricmp(S,T) strcasecmp((S),(T))
+# define stricmp strcasecmp
 #endif
 
 

@@ -430,16 +430,8 @@ static void roff_aux(int r_idx)
 	}
 	else if (r_ptr->r_tkills)
 	{
-		if (depth_in_feet)
-		{
-			roff(format("%^s is normally found at depths of %d feet",
-			            wd_he[msex], r_ptr->level * 50));
-		}
-		else
-		{
-			roff(format("%^s is normally found on dungeon level %d",
-			            wd_he[msex], r_ptr->level));
-		}
+		roff(format("%^s is normally found on dungeon level %d",
+		            wd_he[msex], r_ptr->level));
 		old = TRUE;
 	}
 

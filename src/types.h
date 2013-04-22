@@ -51,6 +51,10 @@ typedef byte byte_256[256];
  */
 typedef s16b s16b_256[256];
 
+/*
+ * An array of 256 u16b's
+ */
+typedef u16b u16b_256[256];
 
 /*
  * An array of DUNGEON_WID byte's
@@ -81,8 +85,10 @@ typedef struct alloc_entry alloc_entry;
 typedef struct quest quest;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
+typedef struct name_type name_type;
+typedef struct book_type book_type;
+typedef struct spell_type spell_type;
 typedef struct magic_type magic_type;
-typedef struct player_magic player_magic;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
 typedef struct player_class player_class;
@@ -501,6 +507,8 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+
+	s32b expansion;		/* Extra space (for scripts) */
 };
 
 
@@ -540,16 +548,14 @@ struct monster_type
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
-#ifdef WDT_TRACK_OPTIONS
-
 	byte ty;			/* Y location of target */
 	byte tx;			/* X location of target */
 
-	byte t_dur;			/* How long are we tracking */
+	byte spell;			/* Spell to cast */
 
-	byte t_bit;			/* Up to eight bit flags */
+	byte friendly;			/* How friendly we are to the player */
 
-#endif
+	s32b expansion;			/* Extra space (for scripts) */
 
 #ifdef DRS_SMART_OPTIONS
 
@@ -663,13 +669,34 @@ struct store_type
 
 
 
-
+/*
+ * Spell names
+ */
+struct name_type
+{
+	u16b name;			/* Name (offset) */
+};
 
 /*
- * The "name" of spell 'N' is stored as spell_names[X][N],
- * where X is 0 for mage-spells and 1 for priest-spells.
+ * Information about a spell "book"
+ *
+ * Note that a "book" isn't necessarily a book, but could be anything,
+ * including amulets or rings.
  */
-struct magic_type
+struct book_type
+{
+	u16b name;			/* Name (offset) */
+
+	byte tval;			/* Type of book */
+	byte sval;			/* Subtype of book */
+
+	u32b avail[8];			/* Bitfields of spells in this book */
+};
+
+/*
+ * Information about a spell for a given player class
+ */
+struct spell_type
 {
 	byte slevel;		/* Required level (to learn) */
 	byte smana;			/* Required mana (to cast) */
@@ -679,22 +706,24 @@ struct magic_type
 
 
 /*
- * Information about the player's "magic"
- *
- * Note that a player with a "spell_book" of "zero" is illiterate.
+ * Information about the "magic" of a class
  */
-struct player_magic
+struct magic_type
 {
-	s16b spell_book;		/* Tval of spell books (if any) */
-	s16b spell_xtra;		/* Something for later */
+	u16b name;			/* Name (offset) */
 
-	s16b spell_stat;		/* Stat for spells (if any)  */
-	s16b spell_type;		/* Spell type (mage/priest) */
+	s16b spell_stat;		/* Stat for spells (if any) */
+
+	s16b spell_minfail;		/* Minimum failure rate */
+
+	u16b spell_flags;		/* Misc flags */
 
 	s16b spell_first;		/* Level of first spell */
 	s16b spell_weight;		/* Weight that hurts spells */
 
-	magic_type info[64];	/* The available spells */
+	u32b avail[8];			/* Books available */
+
+	spell_type spells[MAX_N_IDX];	/* The available spells */
 };
 
 
@@ -704,9 +733,9 @@ struct player_magic
  */
 struct player_sex
 {
-	cptr title;			/* Type of sex */
+	char title[16];			/* Type of sex */
 
-	cptr winner;		/* Name of winner */
+	char winner[16];		/* Name of winner */
 };
 
 
@@ -715,7 +744,7 @@ struct player_sex
  */
 struct player_race
 {
-	cptr title;			/* Type of race */
+	u16b name;			/* Name (offset) */
 
 	s16b r_adj[6];		/* Racial stat bonuses */
 
@@ -746,7 +775,7 @@ struct player_race
 
 	byte infra;			/* Infra-vision	range */
 
-	byte choice;		/* Legal class choices */
+	u32b choice;		/* Legal class choices */
 };
 
 
@@ -755,7 +784,7 @@ struct player_race
  */
 struct player_class
 {
-	cptr title;			/* Type of class */
+	u16b name;			/* Name (offset) */
 
 	s16b c_adj[6];		/* Class stat modifier */
 
@@ -779,6 +808,9 @@ struct player_class
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
+
+	byte obj_tval[8];		/* Initial object tvals */
+	byte obj_sval[8];		/* Initial object svals */
 };
 
 
@@ -893,14 +925,11 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
-	u32b spell_learned1;	/* Spell flags */
-	u32b spell_learned2;	/* Spell flags */
-	u32b spell_worked1;		/* Spell flags */
-	u32b spell_worked2;		/* Spell flags */
-	u32b spell_forgotten1;	/* Spell flags */
-	u32b spell_forgotten2;	/* Spell flags */
+	u32b spell_learned[8];	/* Spell flags */
+	u32b spell_worked[8];		/* Spell flags */
+	u32b spell_forgotten[8];	/* Spell flags */
 
-	byte spell_order[64];	/* Spell order */
+	s16b spell_order[MAX_N_IDX];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
@@ -1086,5 +1115,3 @@ struct player_type
 
 	s16b pspeed;		/* Current speed */
 };
-
-

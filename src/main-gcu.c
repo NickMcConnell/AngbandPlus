@@ -8,6 +8,10 @@
  * are included in all such copies.
  */
 
+/*
+ * This file has been modified to use multiple text windows if your screen
+ * is larger than 80x25.  By Keldon Jones (keldon@umr.edu).
+ */
 
 /*
  * This file helps Angband run on Unix/Curses machines.
@@ -66,6 +70,18 @@
 # include <curses.h>
 #endif
 
+typedef struct term_data term_data;
+
+struct term_data
+{
+	term t;
+
+	WINDOW *win;
+};
+
+#define MAX_TERM_DATA 4
+
+static term_data data[MAX_TERM_DATA];
 
 
 /*
@@ -194,11 +210,6 @@ static int            game_local_chars;
  */
 static int active = 0;
 
-
-/*
- * The main screen information
- */
-static term term_screen_body;
 
 
 #ifdef A_COLOR
@@ -501,17 +512,19 @@ static errr Term_xtra_gcu_alive(int v)
  */
 static void Term_init_gcu(term *t)
 {
+	term_data *td = (term_data *)(t->data);
+
 	/* Count init's, handle first */
 	if (active++ != 0) return;
 
 	/* Erase the screen */
-	(void)clear();
+	(void)wclear(td->win);
 
 	/* Reset the cursor */
-	(void)move(0, 0);
+	(void)wmove(td->win, 0, 0);
 
 	/* Flush changes */
-	(void)refresh();
+	(void)wrefresh(td->win);
 
 	/* Game keymap */
 	keymap_game();
@@ -523,6 +536,11 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
+	term_data *td = (term_data *)(t->data);
+
+	/* Delete this window */
+	delwin(td->win);
+
 	/* Count nuke's, handle last */
 	if (--active != 0) return;
 
@@ -661,13 +679,15 @@ static errr Term_xtra_gcu_event(int v)
  */
 static errr Term_xtra_gcu(int n, int v)
 {
+	term_data *td = (term_data *)(Term->data);
+
 	/* Analyze the request */
 	switch (n)
 	{
 		/* Clear screen */
 		case TERM_XTRA_CLEAR:
-		touchwin(stdscr);
-		(void)clear();
+		touchwin(td->win);
+		(void)wclear(td->win);
 		return (0);
 
 		/* Make a noise */
@@ -677,7 +697,7 @@ static errr Term_xtra_gcu(int n, int v)
 
 		/* Flush the Curses buffer */
 		case TERM_XTRA_FRESH:
-		(void)refresh();
+		(void)wrefresh(td->win);
 		return (0);
 
 #ifdef USE_CURS_SET
@@ -718,8 +738,10 @@ static errr Term_xtra_gcu(int n, int v)
  */
 static errr Term_curs_gcu(int x, int y)
 {
+	term_data *td = (term_data *)(Term->data);
+
 	/* Literally move the cursor */
-	move(y, x);
+	wmove(td->win, y, x);
 
 	/* Success */
 	return (0);
@@ -732,19 +754,21 @@ static errr Term_curs_gcu(int x, int y)
  */
 static errr Term_wipe_gcu(int x, int y, int n)
 {
+	term_data *td = (term_data *)(Term->data);
+
 	/* Place cursor */
-	move(y, x);
+	wmove(td->win, y, x);
 
 	/* Clear to end of line */
 	if (x + n >= 80)
 	{
-		clrtoeol();
+		wclrtoeol(td->win);
 	}
 
 	/* Clear some characters */
 	else
 	{
-		while (n-- > 0) addch(' ');
+		while (n-- > 0) waddch(td->win, ' ');
 	}
 
 	/* Success */
@@ -761,6 +785,8 @@ static errr Term_wipe_gcu(int x, int y, int n)
  */
 static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
+	term_data *td = (term_data *)(Term->data);
+
 	int i;
 
 	char text[81];
@@ -770,15 +796,15 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 	text[n] = 0;
 
 	/* Move the cursor and dump the string */
-	move(y, x);
+	wmove(td->win, y, x);
 
 #ifdef A_COLOR
 	/* Set the color */
-	if (can_use_color) attrset(colortable[a & 0x0F]);
+	if (can_use_color) wattrset(td->win, colortable[a & 0x0F]);
 #endif
 
 	/* Add the text */
-	addstr(text);
+	waddstr(td->win, text);
 
 	/* Success */
 	return (0);
@@ -786,6 +812,53 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 
 
 
+static errr term_data_init(term_data *td, int rows, int cols, int y, int x)
+{
+	term *t = &td->t;
+
+	/* Make sure the window has a positive size */
+	if (rows <= 0 || cols <= 0) return (0);
+
+	/* Create a window */
+	td->win = newwin(rows, cols, y, x);
+
+	/* Make sure we succeed */
+	if (!td->win)
+	{
+		plog("Failed to setup curses window.");
+		return (-1);
+	}
+
+	/* Initialize the term */
+	term_init(t, cols, rows, 256);
+
+	/* Avoid the bottom right corner */
+	t->icky_corner = TRUE;
+
+	/* Erase with "white space" */
+	t->attr_blank = TERM_WHITE;
+	t->char_blank = ' ';
+
+	/* Set some hooks */
+	t->init_hook = Term_init_gcu;
+	t->nuke_hook = Term_nuke_gcu;
+
+	/* Set some more hooks */
+	t->text_hook = Term_text_gcu;
+	t->wipe_hook = Term_wipe_gcu;
+	t->curs_hook = Term_curs_gcu;
+	t->xtra_hook = Term_xtra_gcu;
+
+	/* Save the data */
+	t->data = td;
+
+	/* Activate it */
+	Term_activate(t);
+
+
+	/* Success */
+	return (0);
+}
 
 /*
  * Prepare "curses" for use by the file "term.c"
@@ -799,8 +872,7 @@ errr init_gcu(int argc, char *argv[])
 {
 	int i;
 
-	term *t = &term_screen_body;
-
+	int num_term = 4, next_win = 0;
 
 	/* Extract the normal keymap */
 	keymap_norm_prepare();
@@ -818,6 +890,7 @@ errr init_gcu(int argc, char *argv[])
 	/* Hack -- Require large screen, or Quit with message */
 	i = ((LINES < 24) || (COLS < 80));
 	if (i) quit("Angband needs an 80x24 'curses' screen");
+
 
 #ifdef A_COLOR
 
@@ -921,34 +994,60 @@ errr init_gcu(int argc, char *argv[])
 	keymap_game_prepare();
 
 
-	/*** Now prepare the term ***/
+	/*** Now prepare the term(s) ***/
+	for (i = 0; i < num_term; i++)
+	{
+		int rows, cols;
+		int y, x;
 
-	/* Initialize the term */
-	term_init(t, 80, 24, 256);
+		switch (i)
+		{
+			/* Upper left */
+			case 0: rows = 24;
+				cols = 80;
+				y = x = 0;
+				break;
+			/* Lower left */
+			case 1: rows = LINES - 25;
+				cols = 80;
+				y = 25;
+				x = 0;
+				break;
+			/* Upper right */
+			case 2: rows = 24;
+				cols = COLS - 81;
+				y = 0;
+				x = 81;
+				break;
+			/* Lower right */
+			case 3: rows = LINES - 25;
+				cols = COLS - 81;
+				y = 25;
+				x = 81;
+				break;
+			/* XXX */
+			default: rows = cols = 0;
+				 y = x = 0;
+				 break;
+		}
 
-	/* Avoid the bottom right corner */
-	t->icky_corner = TRUE;
+		/* No non-windows */
+		if (rows <= 0 || cols <= 0) continue;
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
-	t->char_blank = ' ';
+		/* Initialize */
+		term_data_init(&data[next_win], rows, cols, y, x);
 
-	/* Set some hooks */
-	t->init_hook = Term_init_gcu;
-	t->nuke_hook = Term_nuke_gcu;
+		/* Store */
+		angband_term[next_win] = Term;
 
-	/* Set some more hooks */
-	t->text_hook = Term_text_gcu;
-	t->wipe_hook = Term_wipe_gcu;
-	t->curs_hook = Term_curs_gcu;
-	t->xtra_hook = Term_xtra_gcu;
+		next_win++;
+	}
 
-	/* Save the term */
-	term_screen = t;
+	/* Activate the "Angband" window screen */
+	Term_activate(&data[0].t);
 
-	/* Activate it */
-	Term_activate(term_screen);
-
+	/* Store */
+	term_screen = &data[0].t;
 
 	/* Success */
 	return (0);

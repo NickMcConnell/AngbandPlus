@@ -1217,8 +1217,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->py = y2;
 		p_ptr->px = x2;
 
-		/* Update the panel */
-		p_ptr->update |= (PU_PANEL);
+		/* Check for new panel (redraw map) */
+		verify_panel();
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
@@ -1250,8 +1250,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->py = y1;
 		p_ptr->px = x1;
 
-		/* Update the panel */
-		p_ptr->update |= (PU_PANEL);
+		/* Check for new panel (redraw map) */
+		verify_panel();
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
@@ -1278,6 +1278,8 @@ s16b player_place(int y, int x)
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] != 0) return (0);
 
+	/* Clear old cave grid */
+	cave_m_idx[p_ptr->py][p_ptr->px] = 0;
 
 	/* Save player location */
 	p_ptr->py = y;
@@ -1496,6 +1498,20 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	/* Give a random starting energy */
 	n_ptr->energy = rand_int(100);
+
+	/* Default friendliness */
+	if (r_ptr->flags3 & (RF3_FRIENDLY))
+	{
+		/* Full friendliness */
+		n_ptr->friendly = 255;
+	}
+
+	/* Neutral toward the player */
+	if (r_ptr->flags3 & (RF3_NEUTRAL))
+	{
+		/* Half-friendly */
+		n_ptr->friendly = 128;
+	}
 
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))

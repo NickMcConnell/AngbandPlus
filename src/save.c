@@ -377,9 +377,9 @@ static errr wr_savefile(void)
 	wr_u32b(spell_forgotten2);
 
 	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < MAX_N_IDX; i++)
 	{
-		wr_byte(spell_order[i]);
+		wr_s16b(spell_order[i]);
 	}
 
 
@@ -756,6 +756,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+	wr_byte(m_ptr->friendly);
 	wr_byte(0);
 }
 
@@ -1009,7 +1010,6 @@ static void wr_ghost(void)
 	/* Hack -- stupid data */
 	for (i = 0; i < 60; i++) wr_byte(0);
 }
-
 
 /*
  * Write some "extra" info
@@ -1436,19 +1436,24 @@ static bool wr_savefile_new(void)
 
 
 	/* Write spell data */
-	wr_u32b(p_ptr->spell_learned1);
-	wr_u32b(p_ptr->spell_learned2);
-	wr_u32b(p_ptr->spell_worked1);
-	wr_u32b(p_ptr->spell_worked2);
-	wr_u32b(p_ptr->spell_forgotten1);
-	wr_u32b(p_ptr->spell_forgotten2);
-
-	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < 8; i++)
 	{
-		wr_byte(p_ptr->spell_order[i]);
+		wr_u32b(p_ptr->spell_learned[i]);
+	}
+	for (i = 0; i < 8; i++)
+	{
+		wr_u32b(p_ptr->spell_worked[i]);
+	}
+	for (i = 0; i < 8; i++)
+	{
+		wr_u32b(p_ptr->spell_forgotten[i]);
 	}
 
+	/* Dump the ordered spells */
+	for (i = 0; i < MAX_N_IDX; i++)
+	{
+		wr_s16b(p_ptr->spell_order[i]);
+	}
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1485,6 +1490,15 @@ static bool wr_savefile_new(void)
 
 		/* Dump the ghost */
 		wr_ghost();
+	}
+
+
+	/* Let the Python scripts store any info they'll need later */
+	if (perform_event(EVENT_SAVE, Py_BuildValue("(O)",
+			PyFile_FromFile(fff, "savefile", "w", NULL))))
+	{
+		/* Error saving */
+		return FALSE;
 	}
 
 
@@ -1830,22 +1844,8 @@ bool load_player(void)
 		/* Clear screen */
 		Term_clear();
 
-		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "new" savefiles */
-		else if (sf_major == 2)
+		/* Parse "PAngband" savefiles */
+		if (sf_major == 0)
 		{
 			/* Attempt to load */
 			err = rd_savefile_new();

@@ -36,7 +36,7 @@ bool hp_player(int num)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 		/* Heal 0-4 */
 		if (num < 5)
@@ -242,15 +242,6 @@ void identify_pack(void)
 		object_aware(o_ptr);
 		object_known(o_ptr);
 	}
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
 
 
@@ -907,7 +898,7 @@ bool lose_all_info(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Mega-Hack -- Forget the map */
 	wiz_dark();
@@ -1718,7 +1709,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Success */
 	return (TRUE);
@@ -1840,7 +1831,7 @@ bool ident_spell(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -1916,7 +1907,7 @@ bool identify_fully(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -3085,7 +3076,7 @@ void lite_room(int y1, int x1)
 		x = temp_x[i], y = temp_y[i];
 
 		/* Walls get lit, but stop light */
-		if (!cave_floor_bold(y, x)) continue;
+		if (!cave_transparent_bold(y, x)) continue;
 
 		/* Spread adjacent */
 		cave_temp_room_aux(y + 1, x);
@@ -3121,7 +3112,7 @@ void unlite_room(int y1, int x1)
 		x = temp_x[i], y = temp_y[i];
 
 		/* Walls get dark, but stop darkness */
-		if (!cave_floor_bold(y, x)) continue;
+		if (!cave_transparent_bold(y, x)) continue;
 
 		/* Spread adjacent */
 		cave_temp_room_aux(y + 1, x);

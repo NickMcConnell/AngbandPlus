@@ -2214,7 +2214,7 @@ static void do_menu_file_new(void)
 	game_in_progress = 1;
 
 	/* Flush input */
-	Term_flush();
+	flush();
 
 	/* Play a game */
 	play_game(TRUE);

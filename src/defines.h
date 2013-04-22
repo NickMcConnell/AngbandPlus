@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.8.3"
+#define VERSION_STRING	"0.1.0"
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	2
-#define VERSION_MINOR	8
-#define VERSION_PATCH	3
+#define VERSION_MAJOR	0
+#define VERSION_MINOR	1
+#define VERSION_PATCH	0
 
 /*
  * This value is not currently used
@@ -125,33 +125,28 @@
  */
 #define MAX_SEXES            2
 
-/*
- * Maximum number of player "race" types (see "table.c", etc)
- */
-#define MAX_RACES           10
-
-/*
- * Maximum number of player "class" types (see "table.c", etc)
- */
-#define MAX_CLASS            6
-
 
 /*
  * Maximum array bounds for template based arrays
  */
-#define MAX_F_IDX	64	/* Max size for "f_info[]" */
-#define MAX_K_IDX	512	/* Max size for "k_info[]" */
+#define MAX_F_IDX	256	/* Max size for "f_info[]" */
+#define MAX_K_IDX	1024	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	549	/* Max size for "r_info[]" */
-#define MAX_V_IDX	16	/* Max size for "v_info[]" */
+#define MAX_R_IDX	1024	/* Max size for "r_info[]" */
+#define MAX_V_IDX	128	/* Max size for "v_info[]" */
+#define MAX_PR_IDX	26	/* Max size for "pr_info[]" */
+#define MAX_PC_IDX	26	/* Max size for "pc_info[]" */
+#define MAX_N_IDX	256	/* Max size for "n_info[]" */
+#define MAX_B_IDX	256	/* Max size for "b_info[]" */
+#define MAX_S_IDX	26	/* Max size for "s_info[]" */
 
 
 /*
  * Maximum array bounds for entity list arrays
  */
-#define MAX_O_IDX	256	/* Max size for "o_list[]" */
-#define MAX_M_IDX	512	/* Max size for "m_list[]" */
+#define MAX_O_IDX	512	/* Max size for "o_list[]" */
+#define MAX_M_IDX	1024	/* Max size for "m_list[]" */
 
 
 /*
@@ -303,6 +298,60 @@
  * The town starts out with 8 residents during the night
  */
 #define MIN_M_ALLOC_TN		8
+
+
+/*
+ * Angband event types.
+ *
+ * Each of these may be mapped to a Python function.
+ */
+#define EVENT_ENTER_LEVEL	1
+#define EVENT_LEAVE_LEVEL	2
+#define EVENT_CREATE_LEVEL	3
+#define EVENT_ATTACK		4
+#define EVENT_HURT_MONSTER	5
+#define EVENT_MOVE		6
+#define EVENT_CAST		7
+#define EVENT_SUNRISE		8
+#define EVENT_START_GAME	10
+#define EVENT_DIE		11	
+#define EVENT_MONSTER_DEATH	12
+#define EVENT_SAVE		13
+#define EVENT_LOAD		14
+#define EVENT_COMMAND		15
+#define EVENT_MONSTER_MOVE	16
+#define EVENT_MONSTER_CAST	17
+#define EVENT_BIRTH_INFO	18
+#define EVENT_AIM_WAND		19
+#define EVENT_CLOSE_DOOR	20
+#define EVENT_DROP		21
+#define EVENT_FIRE		22
+#define EVENT_JAM		23
+#define EVENT_DESTROY		24
+#define EVENT_TARGET		25
+#define EVENT_OPEN		26
+#define EVENT_QUAFF		27
+#define EVENT_READ_SCROLL	28
+#define EVENT_SEARCH		29
+#define EVENT_TAKEOFF		30
+#define EVENT_USE_STAFF		31
+#define EVENT_THROW		32
+#define EVENT_ZAP_ROD		33
+#define EVENT_ACTIVATE		34
+#define EVENT_BASH		35
+#define EVENT_DISARM		36
+#define EVENT_EAT		37
+#define EVENT_FILL		38
+#define EVENT_STUDY		39
+#define EVENT_REST		40
+#define EVENT_TUNNEL		41
+#define EVENT_INSCRIBE		42
+#define EVENT_UNINSCRIBE	43
+#define EVENT_STORE		44
+#define EVENT_BONUSES		45
+#define EVENT_BOOK_OK		46
+#define EVENT_SPELL		47
+#define EVENT_MAX		48
 
 
 /*
@@ -639,46 +688,61 @@
 
 /* Various */
 #define FEAT_FLOOR		0x01
-#define FEAT_INVIS		0x02
-#define FEAT_GLYPH		0x03
-#define FEAT_OPEN		0x04
-#define FEAT_BROKEN		0x05
-#define FEAT_LESS		0x06
-#define FEAT_MORE		0x07
+#define FEAT_GRASS		0x02
+#define FEAT_DIRT		0x03
 
-/* Shops */
-#define FEAT_SHOP_HEAD	0x08
-#define FEAT_SHOP_TAIL	0x0F
+#define FEAT_INVIS		0x08
+#define FEAT_GLYPH		0x09
+#define FEAT_OPEN		0x0A
+#define FEAT_BROKEN		0x0B
+#define FEAT_LESS		0x0C
+#define FEAT_MORE		0x0D
 
 /* Traps */
 #define FEAT_TRAP_HEAD	0x10
 #define FEAT_TRAP_TAIL	0x1F
 
+/* Shops */
+#define FEAT_SHOP_HEAD	0x28
+#define FEAT_SHOP_TAIL	0x2F
+
+/* Trees (different types?) */
+#define FEAT_TREE_HEAD	0x30
+#define FEAT_TREE_TAIL	0x3F
+
+/* Water (different depths?) */
+#define FEAT_WATER_HEAD	0x80
+#define FEAT_WATER_TAIL	0x8F
+
+/* Lava (different temperatures?) */
+#define FEAT_LAVA_HEAD	0x90
+#define FEAT_LAVA_TAIL	0x9F
+
 /* Doors */
-#define FEAT_DOOR_HEAD	0x20
-#define FEAT_DOOR_TAIL	0x2F
+#define FEAT_DOOR_HEAD	0xC0
+#define FEAT_DOOR_TAIL	0xCF
 
 /* Extra */
-#define FEAT_SECRET		0x30
-#define FEAT_RUBBLE		0x31
+#define FEAT_SECRET		0xF0
+#define FEAT_RUBBLE		0xF1
 
 /* Seams */
-#define FEAT_MAGMA		0x32
-#define FEAT_QUARTZ		0x33
-#define FEAT_MAGMA_H	0x34
-#define FEAT_QUARTZ_H	0x35
-#define FEAT_MAGMA_K	0x36
-#define FEAT_QUARTZ_K	0x37
+#define FEAT_MAGMA		0xF2
+#define FEAT_QUARTZ		0xF3
+#define FEAT_MAGMA_H	0xF4
+#define FEAT_QUARTZ_H	0xF5
+#define FEAT_MAGMA_K	0xF6
+#define FEAT_QUARTZ_K	0xF7
 
 /* Walls */
-#define FEAT_WALL_EXTRA	0x38
-#define FEAT_WALL_INNER	0x39
-#define FEAT_WALL_OUTER	0x3A
-#define FEAT_WALL_SOLID	0x3B
-#define FEAT_PERM_EXTRA	0x3C
-#define FEAT_PERM_INNER	0x3D
-#define FEAT_PERM_OUTER	0x3E
-#define FEAT_PERM_SOLID	0x3F
+#define FEAT_WALL_EXTRA	0xF8
+#define FEAT_WALL_INNER	0xF9
+#define FEAT_WALL_OUTER	0xFA
+#define FEAT_WALL_SOLID	0xFB
+#define FEAT_PERM_EXTRA	0xFC
+#define FEAT_PERM_INNER	0xFD
+#define FEAT_PERM_OUTER	0xFE
+#define FEAT_PERM_SOLID	0xFF
 
 
 
@@ -1674,8 +1738,7 @@
 /* xxx (many) */
 #define PU_MONSTERS	0x10000000L	/* Update monsters */
 #define PU_DISTANCE	0x20000000L	/* Update distances */
-/* xxx */
-#define PU_PANEL	0x80000000L	/* Update panel */
+/* xxx (many) */
 
 
 /*
@@ -1707,17 +1770,20 @@
 /* xxx */
 #define PR_EXTRA	0x01000000L	/* Display Extra Info */
 #define PR_BASIC	0x02000000L	/* Display Basic Info */
+#define PR_MAP		0x04000000L	/* Display Map */
+#define PR_WIPE		0x08000000L	/* Hack -- Total Redraw */
 /* xxx */
-#define PR_MAP		0x08000000L	/* Display Map */
-/* xxx (many) */
+/* xxx */
+/* xxx */
+/* xxx */
 
 /*
  * Bit flags for the "p_ptr->window" variable (etc)
  */
 #define PW_INVEN	0x00000001L	/* Display inven/equip */
 #define PW_EQUIP	0x00000002L	/* Display equip/inven */
-#define PW_PLAYER_0	0x00000004L	/* Display player (basic) */
-#define PW_PLAYER_1	0x00000008L	/* Display player (extra) */
+#define PW_SPELL	0x00000004L	/* Display spell list */
+#define PW_PLAYER	0x00000008L	/* Display character */
 /* xxx */
 /* xxx */
 #define PW_MESSAGE	0x00000040L	/* Display messages */
@@ -1730,6 +1796,15 @@
 /* xxx */
 #define PW_BORG_1	0x00004000L	/* Display borg messages */
 #define PW_BORG_2	0x00008000L	/* Display borg status */
+
+
+/*
+ * Bit flags for the "mp_ptr->spell_flags" variable
+ */
+#define PM_RANDOM	0x0001		/* Gain spells at random */
+#define PM_GLOVE	0x0002		/* Gloves reduce mana */
+#define PM_EDGED	0x0004		/* Edged weapons hinder casting */
+#define PM_POWERFUL	0x0008		/* Some spells are more powerful */
 
 
 
@@ -2072,8 +2147,8 @@
 #define RF3_UNDEAD			0x00000020	/* Undead */
 #define RF3_EVIL			0x00000040	/* Evil */
 #define RF3_ANIMAL			0x00000080	/* Animal */
-#define RF3_XXX1			0x00000100	/* (?) */
-#define RF3_XXX2			0x00000200	/* (?) */
+#define RF3_FRIENDLY			0x00000100	/* Friendly */
+#define RF3_NEUTRAL			0x00000200	/* Neutral */
 #define RF3_XXX3			0x00000400	/* Non-Vocal (?) */
 #define RF3_XXX4			0x00000800	/* Non-Living (?) */
 #define RF3_HURT_LITE		0x00001000	/* Hurt by lite */
@@ -2265,7 +2340,7 @@
 #define OPT_use_old_target			4
 #define OPT_always_pickup			5
 #define OPT_always_repeat			6
-#define OPT_depth_in_feet			7
+#define OPT_show_flavors			7
 #define OPT_stack_force_notes		8
 #define OPT_stack_force_costs		9
 #define OPT_show_labels				10
@@ -2273,7 +2348,7 @@
 #define OPT_show_choices			12
 #define OPT_show_details			13
 #define OPT_ring_bell				14
-#define OPT_show_flavors			15
+#define OPT_inventory_colors		15
 #define OPT_run_ignore_stairs		16
 #define OPT_run_ignore_doors		17
 #define OPT_run_cut_corners			18
@@ -2335,7 +2410,7 @@
 #define use_old_target			op_ptr->opt[OPT_use_old_target]
 #define always_pickup			op_ptr->opt[OPT_always_pickup]
 #define always_repeat			op_ptr->opt[OPT_always_repeat]
-#define depth_in_feet			op_ptr->opt[OPT_depth_in_feet]
+#define show_flavors			op_ptr->opt[OPT_show_flavors]
 #define stack_force_notes		op_ptr->opt[OPT_stack_force_notes]
 #define stack_force_costs		op_ptr->opt[OPT_stack_force_costs]
 #define show_labels				op_ptr->opt[OPT_show_labels]
@@ -2343,7 +2418,7 @@
 #define show_choices			op_ptr->opt[OPT_show_choices]
 #define show_details			op_ptr->opt[OPT_show_details]
 #define ring_bell				op_ptr->opt[OPT_ring_bell]
-#define show_flavors			op_ptr->opt[OPT_show_flavors]
+#define inventory_colors		op_ptr->opt[OPT_inventory_colors]
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
 #define run_cut_corners			op_ptr->opt[OPT_run_cut_corners]
@@ -2552,11 +2627,17 @@
  * Determine if a "legal" grid is a "floor" grid
  *
  * Line 1 -- forbid doors, rubble, seams, walls
- *
- * Note the use of the new "CAVE_WALL" flag.
  */
 #define cave_floor_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)))
+	(!(cave_feat[Y][X] & 0x80))
+
+/*
+ * Determine if a "legal" grid is a "transparent" grid
+ *
+ * Line 1 -- forbid doors, rubble, seams, walls, water, lava
+ */
+#define cave_transparent_bold(Y,X) \
+	(!(cave_feat[Y][X] & 0x40))
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid

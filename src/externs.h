@@ -52,13 +52,8 @@ extern owner_type owners[MAX_STORES][MAX_OWNERS];
 extern byte extract_energy[200];
 extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
-extern player_race race_info[MAX_RACES];
-extern player_class class_info[MAX_CLASS];
-extern player_magic magic_info[MAX_CLASS];
-extern u32b spell_flags[2][9][2];
-extern cptr spell_names[2][64];
 extern byte chest_traps[64];
-extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
+extern cptr player_title[MAX_PC_IDX][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
 extern cptr stat_names[6];
 extern cptr stat_names_reduced[6];
@@ -121,6 +116,7 @@ extern s16b o_max;
 extern s16b o_cnt;
 extern s16b m_max;
 extern s16b m_cnt;
+extern char depth_name[32];
 extern s16b feeling;
 extern s16b rating;
 extern bool good_item_flag;
@@ -150,7 +146,7 @@ extern sint temp_n;
 extern u16b *temp_g;
 extern byte *temp_y;
 extern byte *temp_x;
-extern byte (*cave_info)[256];
+extern u16b (*cave_info)[256];
 extern byte (*cave_feat)[DUNGEON_WID];
 extern s16b (*cave_o_idx)[DUNGEON_WID];
 extern s16b (*cave_m_idx)[DUNGEON_WID];
@@ -173,7 +169,7 @@ extern cptr keymap_act[KEYMAP_MODES][256];
 extern player_sex *sp_ptr;
 extern player_race *rp_ptr;
 extern player_class *cp_ptr;
-extern player_magic *mp_ptr;
+extern magic_type *mp_ptr;
 extern player_other *op_ptr;
 extern player_type *p_ptr;
 extern header *v_head;
@@ -200,6 +196,26 @@ extern header *r_head;
 extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
+extern header *pr_head;
+extern player_race *pr_info;
+extern char *pr_name;
+extern char *pr_text;
+extern header *pc_head;
+extern player_class *pc_info;
+extern char *pc_name;
+extern char *pc_text;
+extern header *n_head;
+extern name_type *n_info;
+extern char *n_name;
+extern char *n_text;
+extern header *b_head;
+extern book_type *b_info;
+extern char *b_name;
+extern char *b_text;
+extern header *s_head;
+extern magic_type *s_info;
+extern char *s_name;
+extern char *s_text;
 extern cptr ANGBAND_SYS;
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;
@@ -210,6 +226,7 @@ extern cptr ANGBAND_DIR_FILE;
 extern cptr ANGBAND_DIR_HELP;
 extern cptr ANGBAND_DIR_INFO;
 extern cptr ANGBAND_DIR_SAVE;
+extern cptr ANGBAND_DIR_SCPT;
 extern cptr ANGBAND_DIR_USER;
 extern cptr ANGBAND_DIR_XTRA;
 extern bool item_tester_full;
@@ -260,6 +277,9 @@ extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int unused_flag);
 extern bool is_quest(int level);
+
+/* cavemod.c */
+extern void initcave(void);
 
 /* cmd1.c */
 extern bool test_hit_fire(int chance, int ac, int vis);
@@ -332,7 +352,6 @@ extern void do_cmd_knowledge(void);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
-extern void do_cmd_pray(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -345,6 +364,10 @@ extern void do_cmd_activate(void);
 
 /* dungeon.c */
 extern void play_game(bool new_game);
+
+/* eventmod.c */
+extern void initevent(void);
+extern int perform_event(int type, PyObject *args);
 
 /* files.c */
 extern void safe_setuid_drop(void);
@@ -382,10 +405,21 @@ extern errr init_k_info_txt(FILE *fp, char *buf);
 extern errr init_a_info_txt(FILE *fp, char *buf);
 extern errr init_e_info_txt(FILE *fp, char *buf);
 extern errr init_r_info_txt(FILE *fp, char *buf);
+extern errr init_pr_info_txt(FILE *fp, char *buf);
+extern errr init_pc_info_txt(FILE *fp, char *buf);
+extern errr init_n_info_txt(FILE *fp, char *buf);
+extern errr init_b_info_txt(FILE *fp, char *buf);
+extern errr init_s_info_txt(FILE *fp, char *buf);
 
 /* init2.c */
 extern void init_file_paths(char *path);
 extern void init_angband(void);
+
+/* iomod.c */
+extern void initio(void);
+
+/* kindmod.c */
+extern void initkind(void);
 
 /* load1.c */
 extern errr rd_savefile_old(void);
@@ -399,6 +433,12 @@ extern bool make_attack_normal(int m_idx);
 /* melee2.c */
 extern bool make_attack_spell(int m_idx);
 extern void process_monsters(void);
+
+/* miscmod.c */
+extern void initmisc(void);
+
+/* monmod.c */
+extern void initmonster(void);
 
 /* monster1.c */
 extern void screen_roff(int r_idx);
@@ -496,15 +536,28 @@ extern void inven_drop(int item, int amt);
 extern void combine_pack(void);
 extern void reorder_pack(void);
 extern void display_spell_list(void);
+extern s16b lookup_book(int tval, int sval);
+extern bool book_okay(int tval, int sval);
 extern s16b spell_chance(int spell);
 extern bool spell_okay(int spell, bool known);
-extern void spell_info(char *p, int spell);
 extern void print_spells(byte *spells, int num, int y, int x);
 extern void display_koff(int k_idx);
+
+/* objmod.c */
+extern void initobject(void);
+
+/* playmod.c */
+extern void initplayer(void);
+
+/* racemod.c */
+extern void initrace(void);
 
 /* save.c */
 extern bool save_player(void);
 extern bool load_player(void);
+
+/* spellmod.c */
+extern void initspell(void);
 
 /* spells1.c */
 extern s16b poly_r_idx(int r_idx);

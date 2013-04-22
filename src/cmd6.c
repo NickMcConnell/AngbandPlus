@@ -89,6 +89,12 @@ void do_cmd_eat_food(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_EAT, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Sound */
 	sound(SOUND_EAT);
@@ -382,6 +388,12 @@ void do_cmd_quaff_potion(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_QUAFF, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Sound */
 	sound(SOUND_QUAFF);
@@ -713,7 +725,7 @@ void do_cmd_quaff_potion(void)
 				p_ptr->csp_frac = 0;
 				msg_print("Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				p_ptr->window |= (PW_SPELL | PW_PLAYER);
 				ident = TRUE;
 			}
 			break;
@@ -955,7 +967,7 @@ static bool curse_armor(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 	}
 
 	return (TRUE);
@@ -1019,7 +1031,7 @@ static bool curse_weapon(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 	}
 
 	/* Notice */
@@ -1084,6 +1096,12 @@ void do_cmd_read_scroll(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_READ_SCROLL, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1507,6 +1525,12 @@ void do_cmd_use_staff(void)
 		return;
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_USE_STAFF, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1714,7 +1738,7 @@ void do_cmd_use_staff(void)
 				ident = TRUE;
 				msg_print("Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				p_ptr->window |= (PW_SPELL | PW_PLAYER);
 			}
 			break;
 		}
@@ -1925,6 +1949,12 @@ void do_cmd_aim_wand(void)
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return;
 
+	/* Script event can abort */
+	if (perform_event(EVENT_AIM_WAND, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -2316,6 +2346,12 @@ void do_cmd_zap_rod(void)
 		return;
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_ZAP_ROD, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Get a direction (unless KNOWN not to need it) */
 	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
@@ -2839,6 +2875,12 @@ void do_cmd_activate(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_ACTIVATE, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;

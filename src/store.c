@@ -339,7 +339,7 @@ static owner_type *ot_ptr = NULL;
  * Buying and selling adjustments for race combinations.
  * Entry[owner][player] gives the basic "cost inflation".
  */
-static byte rgold_adj[MAX_RACES][MAX_RACES] =
+static byte rgold_adj[10][10] =
 {
 	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE*/
 
@@ -908,10 +908,10 @@ static int home_carry(object_type *o_ptr)
 		j_ptr = &st_ptr->stock[slot];
 
 		/* Hack -- readable books always come first */
-		if ((o_ptr->tval == mp_ptr->spell_book) &&
-		    (j_ptr->tval != mp_ptr->spell_book)) break;
-		if ((j_ptr->tval == mp_ptr->spell_book) &&
-		    (o_ptr->tval != mp_ptr->spell_book)) continue;
+		if (book_okay(o_ptr->tval, o_ptr->sval) &&
+		    !book_okay(j_ptr->tval, j_ptr->sval)) break;
+		if (book_okay(j_ptr->tval, j_ptr->sval) &&
+		    !book_okay(o_ptr->tval, o_ptr->sval)) continue;
 
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
@@ -1370,6 +1370,9 @@ static void display_entry(int item)
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
+		/* Disable inventory colors */
+		if (!inventory_colors) attr = TERM_WHITE;
+
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
@@ -1400,6 +1403,9 @@ static void display_entry(int item)
 
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
+
+		/* Disable inventory colors */
+		if (!inventory_colors) attr = TERM_WHITE;
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
@@ -1535,7 +1541,7 @@ static void display_store(void)
 	{
 		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
 		cptr owner_name = (ot_ptr->owner_name);
-		cptr race_name = race_info[ot_ptr->owner_race].title;
+		cptr race_name = pr_name + pr_info[ot_ptr->owner_race].name;
 
 		/* Put the owner name and race */
 		sprintf(buf, "%s (%s)", owner_name, race_name);
@@ -2407,9 +2413,6 @@ static void store_purchase(void)
 				/* Buying an object makes you aware of it */
 				object_aware(i_ptr);
 
-				/* Combine / Reorder the pack (later) */
-				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 				/* Clear the "fixed" flag from the object */
 				i_ptr->ident &= ~(IDENT_FIXED);
 
@@ -2706,7 +2709,7 @@ static void store_sell(void)
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -3141,6 +3144,13 @@ void do_cmd_store(void)
 
 	/* Hack -- Extract the store code */
 	which = (cave_feat[py][px] - FEAT_SHOP_HEAD);
+
+	/* Call script */
+	if (perform_event(EVENT_STORE, Py_BuildValue("(i)", which)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Hack -- Check the "locked doors" */
 	if (store[which].store_open >= turn)

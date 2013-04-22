@@ -81,6 +81,10 @@ void do_cmd_go_down(void)
  */
 void do_cmd_search(void)
 {
+	/* "Search" event */
+	if (perform_event(EVENT_SEARCH, Py_BuildValue("()")))
+		return;
+
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -630,6 +634,12 @@ void do_cmd_open(void)
 	/* Verify legality */
 	if (!o_idx && !do_cmd_open_test(y, x)) return;
 
+	/* Call script */
+	if (perform_event(EVENT_OPEN, Py_BuildValue("(i)", dir)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -772,7 +782,6 @@ void do_cmd_close(void)
 
 	bool more = FALSE;
 
-
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
@@ -780,6 +789,12 @@ void do_cmd_close(void)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+	/* Call script */
+	if (perform_event(EVENT_CLOSE_DOOR, Py_BuildValue("(i)", dir)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Verify legality */
 	if (!do_cmd_close_test(y, x)) return;
@@ -849,7 +864,7 @@ static bool do_cmd_tunnel_test(int y, int x)
 	}
 
 	/* Must be a wall/door/etc */
-	if (cave_floor_bold(y, x))
+	if (cave_transparent_bold(y, x))
 	{
 		/* Message */
 		msg_print("You see nothing there to tunnel.");
@@ -876,7 +891,7 @@ static bool do_cmd_tunnel_test(int y, int x)
 static bool twall(int y, int x)
 {
 	/* Paranoia -- Require a wall or door or some such */
-	if (cave_floor_bold(y, x)) return (FALSE);
+	if (cave_transparent_bold(y, x)) return (FALSE);
 
 	/* Sound */
 	sound(SOUND_DIG);
@@ -1110,6 +1125,12 @@ void do_cmd_tunnel(void)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+	/* Call script */
+	if (perform_event(EVENT_TUNNEL, Py_BuildValue("(i)", dir)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Oops */
 	if (!do_cmd_tunnel_test(y, x)) return;
@@ -1303,6 +1324,12 @@ void do_cmd_disarm(void)
 	/* Check for chests */
 	o_idx = chest_check(y, x);
 
+	/* Call script */
+	if (perform_event(EVENT_BASH, Py_BuildValue("(i)", dir)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Verify legality */
 	if (!o_idx && !do_cmd_disarm_test(y, x)) return;
@@ -1512,6 +1539,12 @@ void do_cmd_bash(void)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+	/* Call script */
+	if (perform_event(EVENT_BASH, Py_BuildValue("(i)", dir)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Verify legality */
 	if (!do_cmd_bash_test(y, x)) return;
@@ -1773,6 +1806,12 @@ void do_cmd_spike(void)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+	/* Call script */
+	if (perform_event(EVENT_JAM, Py_BuildValue("(ii)", item, dir)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Verify legality */
 	if (!do_cmd_spike_test(y, x)) return;
@@ -1848,6 +1887,20 @@ static bool do_cmd_walk_test(int y, int x)
 			msg_print("There is a pile of rubble in the way!");
 		}
 
+		/* Water */
+		else if (cave_feat[y][x] < FEAT_WATER_TAIL)
+		{
+			/* Message */
+			msg_print("There is water in the way!");
+		}
+
+		/* Lava */
+		else if (cave_feat[y][x] < FEAT_LAVA_TAIL)
+		{
+			/* Message */
+			msg_print("There is lava in the way!");
+		}
+
 		/* Door */
 		else if (cave_feat[y][x] < FEAT_SECRET)
 		{
@@ -1908,7 +1961,6 @@ static void do_cmd_walk_or_jump(int pickup)
 
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
-
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -2103,6 +2155,12 @@ void do_cmd_rest(void)
 	/* Paranoia */
 	if (p_ptr->command_arg > 9999) p_ptr->command_arg = 9999;
 
+	/* Call script */
+	if (perform_event(EVENT_REST, Py_BuildValue("(i)", p_ptr->command_arg)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Take a turn XXX XXX XXX (?) */
 	p_ptr->energy_use = 100;
@@ -2270,6 +2328,12 @@ void do_cmd_fire(void)
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
+	/* Call script */
+	if (perform_event(EVENT_FIRE, Py_BuildValue("(ii)", item, dir)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -2364,7 +2428,7 @@ void do_cmd_fire(void)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Stop before hitting walls */
-		if (!cave_floor_bold(ny, nx)) break;
+		if (!cave_transparent_bold(ny, nx)) break;
 
 		/* Advance */
 		x = nx;
@@ -2561,6 +2625,12 @@ void do_cmd_throw(void)
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
+	/* Call script */
+	if (perform_event(EVENT_THROW, Py_BuildValue("(ii)", item, dir)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -2647,7 +2717,7 @@ void do_cmd_throw(void)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Stop before hitting walls */
-		if (!cave_floor_bold(ny, nx)) break;
+		if (!cave_transparent_bold(ny, nx)) break;
 
 		/* Advance */
 		x = nx;

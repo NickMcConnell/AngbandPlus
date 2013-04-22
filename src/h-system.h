@@ -123,6 +123,11 @@ extern long atol();
 
 #include <stdarg.h>
 
+/*
+ * This will probably not work unless you edit your Makefile to give
+ * the C compiler the location of this include file.
+ */
+#include <Python.h>
 
 #endif
 

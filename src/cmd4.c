@@ -55,16 +55,13 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
-
-	/* Clear screen */
-	Term_clear();
 
 	/* Hack -- update */
 	handle_stuff();
@@ -824,7 +821,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("PAngband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -2331,7 +2328,7 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Angband %d.%d.%d.  Type '?' for more info.",
+	msg_format("You are playing PAngband %d.%d.%d.  Type '?' for more info.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 }
 

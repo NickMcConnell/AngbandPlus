@@ -2706,7 +2706,7 @@ static int next_to_corr(int y1, int x1)
 		x = x1 + ddx_ddd[i];
 
 		/* Skip non floors */
-		if (!cave_floor_bold(y, x)) continue;
+		if (!cave_transparent_bold(y, x)) continue;
 
 		/* Skip non "empty floor" grids */
 		if (cave_feat[y][x] != FEAT_FLOOR) continue;
@@ -3407,6 +3407,8 @@ void generate_cave(void)
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
+	/* No special name */
+	strcpy(depth_name, "");
 
 	/* Generate */
 	for (num = 0; TRUE; num++)
@@ -3469,19 +3471,23 @@ void generate_cave(void)
 		/* Nothing good here yet */
 		rating = 0;
 
-
-		/* Build the town */
-		if (!p_ptr->depth)
+		/* Call event handler */
+		if (!perform_event(EVENT_CREATE_LEVEL,
+				Py_BuildValue("(i)", p_ptr->depth)))
 		{
-			/* Make a town */
-			town_gen();
-		}
+			/* Build the town */
+			if (!p_ptr->depth)
+			{
+				/* Make a town */
+				town_gen();
+			}
 
-		/* Build a real level */
-		else
-		{
-			/* Make a dungeon */
-			cave_gen();
+			/* Build a real level */
+			else
+			{
+				/* Make a dungeon */
+				cave_gen();
+			}
 		}
 
 

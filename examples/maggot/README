@@ -1,0 +1,8 @@
+README for examples/maggot
+
+	The files in this directory change Farmer Maggot from a moaning
+maniac to a friendly character who can give the player mushrooms.  They
+also add the 'O' command for talking to him, and define actions to
+respond to the player attacking him.
+
+	Keldon

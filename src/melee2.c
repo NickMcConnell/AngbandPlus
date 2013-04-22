@@ -417,7 +417,7 @@ bool make_attack_spell(int m_idx)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int k, chance, thrown_spell, rlev;
+	int k, chance, rlev;
 
 	byte spell[96], num = 0;
 
@@ -554,12 +554,15 @@ bool make_attack_spell(int m_idx)
 	monster_desc(ddesc, m_ptr, 0x88);
 
 
-	/* Choose a spell to cast */
-	thrown_spell = spell[rand_int(num)];
+	/* Default spell to cast */
+	m_ptr->spell = spell[rand_int(num)];
 
+	/* Let script override default spell */
+	perform_event(EVENT_MONSTER_CAST, Py_BuildValue("(iiii)", m_idx,
+	              f4, f5, f6));
 
 	/* Cast the spell. */
-	switch (thrown_spell)
+	switch (m_ptr->spell)
 	{
 		/* RF4_SHRIEK */
 		case 96+0:
@@ -1027,7 +1030,7 @@ bool make_attack_spell(int m_idx)
 				p_ptr->redraw |= (PR_MANA);
 
 				/* Window stuff */
-				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 				/* Heal the monster */
 				if (m_ptr->hp < m_ptr->maxhp)
@@ -1896,23 +1899,23 @@ bool make_attack_spell(int m_idx)
 	if (seen)
 	{
 		/* Inate spell */
-		if (thrown_spell < 32*4)
+		if (m_ptr->spell < 32*4)
 		{
-			r_ptr->r_flags4 |= (1L << (thrown_spell - 32*3));
+			r_ptr->r_flags4 |= (1L << (m_ptr->spell - 32*3));
 			if (r_ptr->r_cast_inate < MAX_UCHAR) r_ptr->r_cast_inate++;
 		}
 
 		/* Bolt or Ball */
-		else if (thrown_spell < 32*5)
+		else if (m_ptr->spell < 32*5)
 		{
-			r_ptr->r_flags5 |= (1L << (thrown_spell - 32*4));
+			r_ptr->r_flags5 |= (1L << (m_ptr->spell - 32*4));
 			if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
 		}
 
 		/* Special spell */
-		else if (thrown_spell < 32*6)
+		else if (m_ptr->spell < 32*6)
 		{
-			r_ptr->r_flags6 |= (1L << (thrown_spell - 32*5));
+			r_ptr->r_flags6 |= (1L << (m_ptr->spell - 32*5));
 			if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
 		}
 	}
@@ -2109,7 +2112,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
  *
  * We store the directions in a special "mm" array
  */
-static void get_moves(int m_idx, int mm[5])
+static bool get_moves(int m_idx, int mm[5])
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -2133,9 +2136,24 @@ static void get_moves(int m_idx, int mm[5])
 	}
 #endif
 
+	/* Set default target */
+	m_ptr->ty = y2;
+	m_ptr->tx = x2;
+
+	/* Non-hostile monsters do not move by default */
+	if (m_ptr->friendly >= 128)
+	{
+		/* Set target location to self location */
+		m_ptr->ty = m_ptr->fy;
+		m_ptr->tx = m_ptr->fx;
+	}
+
+	/* Call script to override default */
+	perform_event(EVENT_MONSTER_MOVE, Py_BuildValue("(i)", m_idx));
+
 	/* Extract the "pseudo-direction" */
-	y = m_ptr->fy - y2;
-	x = m_ptr->fx - x2;
+	y = m_ptr->fy - m_ptr->ty;
+	x = m_ptr->fx - m_ptr->tx;
 
 
 	/* Apply fear */
@@ -2146,6 +2164,8 @@ static void get_moves(int m_idx, int mm[5])
 		x = (-x);
 	}
 
+	/* May not wish to move at all */
+	if (!y && !x) return (FALSE);
 
 	/* Extract the "absolute distances" */
 	ax = ABS(x);
@@ -2333,6 +2353,9 @@ static void get_moves(int m_idx, int mm[5])
 			break;
 		}
 	}
+
+	/* Wants to move */
+	return (TRUE);
 }
 
 
@@ -2650,7 +2673,6 @@ static void process_monster(int m_idx)
 		}
 	}
 
-
 	/* Attempt to cast a spell */
 	if (make_attack_spell(m_idx)) return;
 
@@ -2714,8 +2736,8 @@ static void process_monster(int m_idx)
 	/* Normal movement */
 	if (!stagger)
 	{
-		/* Logical moves */
-		get_moves(m_idx, mm);
+		/* Logical moves, may not move at all */
+		if (!get_moves(m_idx, mm)) return;
 	}
 
 
@@ -2928,6 +2950,13 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 		}
 
+
+		/* The player is in the way, but we are nice */
+		if (do_move && (cave_m_idx[ny][nx] < 0) && (m_ptr->friendly >= 128))
+		{
+			/* Do not move */
+			do_move = FALSE;
+		}
 
 		/* The player is in the way.  Attack him. */
 		if (do_move && (cave_m_idx[ny][nx] < 0))

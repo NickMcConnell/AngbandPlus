@@ -111,6 +111,7 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
+char depth_name[32];		/* Special name of this dungeon level */
 
 /*
  * Dungeon variables
@@ -296,7 +297,7 @@ byte *temp_x;
  * This array is padded to a width of 256 to allow fast access to elements
  * in the array via "grid" values (see the GRID() macros).
  */
-byte (*cave_info)[256];
+u16b (*cave_info)[256];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
@@ -328,7 +329,6 @@ s16b (*cave_o_idx)[DUNGEON_WID];
  * if any, monster or player is in any given grid.
  */
 s16b (*cave_m_idx)[DUNGEON_WID];
-
 
 #ifdef MONSTER_FLOW
 
@@ -429,7 +429,7 @@ cptr keymap_act[KEYMAP_MODES][256];
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
-player_magic *mp_ptr;
+magic_type *mp_ptr;
 
 /*
  * The player other record (static)
@@ -500,6 +500,45 @@ monster_race *r_info;
 char *r_name;
 char *r_text;
 
+/*
+ * The player race arrays
+ */
+header *pr_head;
+player_race *pr_info;
+char *pr_name;
+char *pr_text;
+
+/*
+ * The player class arrays
+ */
+header *pc_head;
+player_class *pc_info;
+char *pc_name;
+char *pc_text;
+
+/*
+ * The spell name arrays
+ */
+header *n_head;
+name_type *n_info;
+char *n_name;
+char *n_text;
+
+/*
+ * The book arrays
+ */
+header *b_head;
+book_type *b_info;
+char *b_name;
+char *b_text;
+
+/*
+ * The magic arrays
+ */
+header *s_head;
+magic_type *s_info;
+char *s_name;
+char *s_text;
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -560,6 +599,12 @@ cptr ANGBAND_DIR_INFO;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_SAVE;
+
+/*
+ * Python scripts to drive the plot
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_SCPT;
 
 /*
  * User "preference" files (ascii)

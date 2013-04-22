@@ -1696,7 +1696,7 @@ void check_experience(void)
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -1727,7 +1727,7 @@ void check_experience(void)
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -2081,6 +2081,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	s32b div, new_exp, new_exp_frac;
 
+	/* "Attack monster" event */
+	if (perform_event(EVENT_HURT_MONSTER, Py_BuildValue("(i)", m_idx)))
+	{
+		/* Abort attack */
+		return (FALSE);
+	}
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -2096,6 +2102,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	if (m_ptr->hp < 0)
 	{
 		char m_name[80];
+
+		/* "Monster death" event */
+		if (perform_event(EVENT_MONSTER_DEATH,
+				Py_BuildValue("(i)", m_idx)))
+		{
+			/* Abort death */
+			return (FALSE);
+		}
 
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
@@ -2273,7 +2287,7 @@ void verify_panel(void)
 	}
 
 	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_HGT;
+	/* if (!p_ptr->depth) i = SCREEN_HGT; */
 
 	/* New panel row */
 	if (p_ptr->wy != i)
@@ -2298,7 +2312,7 @@ void verify_panel(void)
 	}
 
 	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_WID;
+	/* if (!p_ptr->depth) i = SCREEN_WID; */
 
 	/* New panel col */
 	if (p_ptr->wx != i)
@@ -2598,6 +2612,9 @@ void target_set_monster(int m_idx)
 		p_ptr->target_who = m_idx;
 		p_ptr->target_row = m_ptr->fy;
 		p_ptr->target_col = m_ptr->fx;
+
+		/* Call script */
+		perform_event(EVENT_TARGET, Py_BuildValue("()"));
 	}
 
 	/* Clear target */
@@ -2608,6 +2625,9 @@ void target_set_monster(int m_idx)
 		p_ptr->target_who = 0;
 		p_ptr->target_row = 0;
 		p_ptr->target_col = 0;
+
+		/* Call script */
+		perform_event(EVENT_TARGET, Py_BuildValue("()"));
 	}
 }
 
@@ -2625,6 +2645,9 @@ void target_set_location(int y, int x)
 		p_ptr->target_who = 0;
 		p_ptr->target_row = y;
 		p_ptr->target_col = x;
+
+		/* Call script */
+		perform_event(EVENT_TARGET, Py_BuildValue("()"));
 	}
 
 	/* Clear target */
@@ -2635,6 +2658,9 @@ void target_set_location(int y, int x)
 		p_ptr->target_who = 0;
 		p_ptr->target_row = 0;
 		p_ptr->target_col = 0;
+
+		/* Call script */
+		perform_event(EVENT_TARGET, Py_BuildValue("()"));
 	}
 }
 

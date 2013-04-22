@@ -2913,6 +2913,9 @@ void display_inven(void)
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
+		/* Disable inventory colors */
+		if (!inventory_colors) attr = TERM_WHITE;
+
 		/* Display the entry itself */
 		Term_putstr(3, i, n, attr, o_name);
 
@@ -2982,6 +2985,9 @@ void display_equip(void)
 
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
+
+		/* Disable inventory colors */
+		if (!inventory_colors) attr = TERM_WHITE;
 
 		/* Display the entry itself */
 		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
@@ -3081,6 +3087,9 @@ void show_inven(void)
 
 		/* Acquire inventory color */
 		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+
+		/* Disable inventory colors */
+		if (!inventory_colors) out_color[k] = TERM_WHITE;
 
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);
@@ -3187,6 +3196,9 @@ void show_equip(void)
 
 		/* Acquire inventory color */
 		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+
+		/* Disable inventory colors */
+		if (!inventory_colors) out_color[k] = TERM_WHITE;
 
 		/* Save the description */
 		strcpy(out_desc[k], o_name);

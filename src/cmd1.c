@@ -517,7 +517,7 @@ void py_pickup(int pickup)
 			p_ptr->redraw |= (PR_GOLD);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
@@ -905,6 +905,9 @@ void py_attack(int y, int x)
 	/* Disturb the player */
 	disturb(0, 0);
 
+	/* Call event, may abort attack */
+	if (perform_event(EVENT_ATTACK, Py_BuildValue("(i)", cave_m_idx[y][x])))
+		return;
 
 	/* Disturb the monster */
 	m_ptr->csleep = 0;
@@ -1068,6 +1071,9 @@ void move_player(int dir, int do_pickup)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+	/* "Move" event */
+	if (perform_event(EVENT_MOVE, Py_BuildValue("()")))
+		return;
 
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
@@ -1089,6 +1095,22 @@ void move_player(int dir, int do_pickup)
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
 				msg_print("You feel a pile of rubble blocking your way.");
+				cave_info[y][x] |= (CAVE_MARK);
+				lite_spot(y, x);
+			}
+
+			/* Water */
+			else if (cave_feat[y][x] < FEAT_WATER_TAIL)
+			{
+				msg_print("You splash into some water and pull back.");
+				cave_info[y][x] |= (CAVE_MARK);
+				lite_spot(y, x);
+			}
+
+			/* Lava */
+			else if (cave_feat[y][x] < FEAT_LAVA_TAIL)
+			{
+				msg_print("You feel great heat coming from there.");
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
@@ -1117,6 +1139,18 @@ void move_player(int dir, int do_pickup)
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
 				msg_print("There is a pile of rubble blocking your way.");
+			}
+
+			/* Water */
+			else if (cave_feat[y][x] < FEAT_WATER_TAIL)
+			{
+				msg_print("You cannot swim.");
+			}
+
+			/* Lava */
+			else if (cave_feat[y][x] < FEAT_LAVA_TAIL)
+			{
+				msg_print("Only a fool would go there.");
 			}
 
 			/* Closed door */
@@ -1611,6 +1645,14 @@ static bool run_test(void)
 			{
 				/* Floors */
 				case FEAT_FLOOR:
+				case FEAT_GRASS:
+				case FEAT_DIRT:
+
+				/* Trees */
+				case FEAT_TREE_HEAD:
+				
+				/* Water */
+				case FEAT_WATER_HEAD:
 
 				/* Invis traps */
 				case FEAT_INVIS:

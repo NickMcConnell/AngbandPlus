@@ -841,8 +841,7 @@ static errr Infowin_prepare(Window xid)
 
 	Window tmp_win;
 	XWindowAttributes xwa;
-	int x, y;
-	unsigned int w, h, b, d;
+	int x, y, w, h, b, d;
 
 	/* Assign stuff */
 	iwin->win = xid;

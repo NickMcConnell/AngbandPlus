@@ -319,7 +319,7 @@ static void regenhp(int percent)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_SPELL | PW_PLAYER);
 	}
 }
 
@@ -365,7 +365,7 @@ static void regenmana(int percent)
 		p_ptr->redraw |= (PR_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_SPELL | PW_PLAYER);
 	}
 }
 
@@ -485,6 +485,10 @@ static void process_world(void)
 
 			/* Check for dawn */
 			dawn = (!(turn % (10L * TOWN_DAWN)));
+
+			/* "Sunrise" event */
+			perform_event(EVENT_SUNRISE,
+					Py_BuildValue("(i)", dawn));
 
 			/* Day breaks */
 			if (dawn)
@@ -1456,7 +1460,7 @@ static void process_command(void)
 		/* Pray a prayer */
 		case 'p':
 		{
-			do_cmd_pray();
+			do_cmd_cast();
 			break;
 		}
 
@@ -1749,7 +1753,10 @@ static void process_command(void)
 		/* Hack -- Unknown command */
 		default:
 		{
-			prt("Type '?' for help.", 0, 0);
+			/* Let the Python script intercept the command */
+			if (!perform_event(EVENT_COMMAND, Py_BuildValue("(c)", p_ptr->command_cmd)))
+				prt("Type '?' for help.", 0, 0);
+
 			break;
 		}
 	}
@@ -2329,9 +2336,20 @@ static void dungeon(void)
 	character_xtra++;
 
 
-	/* Clear */
-	Term_clear();
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_MONSTER);
+
+	/* Redraw dungeon */
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2342,6 +2360,11 @@ static void dungeon(void)
 	/* Update stuff */
 	update_stuff();
 
+	/* Redraw stuff */
+	redraw_stuff();
+
+	/* Redraw stuff */
+	window_stuff();
 
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
@@ -2349,26 +2372,11 @@ static void dungeon(void)
 	/* Fully update the flow */
 	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
-	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
-
 	/* Update stuff */
 	update_stuff();
 
 	/* Redraw stuff */
 	redraw_stuff();
-
-	/* Redraw stuff */
-	window_stuff();
 
 
 	/* Hack -- Decrease "xtra" depth */
@@ -2591,6 +2599,8 @@ void play_game(bool new_game)
 	/* Process old character */
 	if (!new_game)
 	{
+		/* Process the player name */
+		process_player_name(FALSE);
 	}
 
 	/* Init RNG */
@@ -2637,17 +2647,6 @@ void play_game(bool new_game)
 		turn = 1;
 	}
 
-	/* Normal machine (process player name) */
-	if (savefile[0])
-	{
-		process_player_name(FALSE);
-	}
-
-	/* Weird machine (process player name, pick savefile name) */
-	else
-	{
-		process_player_name(TRUE);
-	}
 
 	/* Flash a message */
 	prt("Please wait...", 0, 0);
@@ -2668,7 +2667,7 @@ void play_game(bool new_game)
 
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);
@@ -2707,6 +2706,16 @@ void play_game(bool new_game)
 
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
+
+	/* Call "start game" event handler */
+	if (new_game)
+	{
+		/* Event -- start game */
+		perform_event(EVENT_START_GAME, Py_BuildValue("()"));
+
+		/* Event -- enter level */
+		perform_event(EVENT_ENTER_LEVEL, Py_BuildValue("()"));
+	}
 
 	/* Process */
 	while (TRUE)
@@ -2819,8 +2828,14 @@ void play_game(bool new_game)
 		/* Handle "death" */
 		if (p_ptr->is_dead) break;
 
+		/* "Leaving level" event */
+		perform_event(EVENT_LEAVE_LEVEL, Py_BuildValue("()"));
+
 		/* Make a new level */
 		generate_cave();
+
+		/* "Entering level" event */
+		perform_event(EVENT_ENTER_LEVEL, Py_BuildValue("()"));
 	}
 
 	/* Close stuff */

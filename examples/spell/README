@@ -1,0 +1,8 @@
+README for examples/spell
+
+	This directory has the necessary lib/edit and lib/scpt files for
+adding a new mage spell to Raal's Tome called Dispel Monsters.  It does
+the same thing as a Staff of Power, but with a bit more damage.  Adding
+new spells to other books is just as straightforward.
+
+	Keldon

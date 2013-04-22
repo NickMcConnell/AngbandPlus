@@ -1,0 +1,95 @@
+# File: pr_info.txt
+
+
+# This file is used to initialize the "lib/raw/pr_info.raw" file, which is
+# used to initialize the "player race" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/raw/pr_info.raw" file.
+
+
+# Version stamp (required)
+
+V:0.1.0
+
+
+# Human
+
+N:0:Human
+S:0:0:0:0:0:0
+K:0:0:0:0:0:10:0:0
+A:72:6:180:25:66:4:150:20
+W:10:100:14:6:0:63
+
+# Half-Elf
+
+N:1:Half-Elf
+S:-1:1:0:1:-1:1
+K:2:3:3:1:6:11:-1:5
+A:66:6:130:15:62:6:100:10
+W:9:110:24:16:2:63
+
+# Elf
+
+N:2:Elf
+S:-1:2:1:1:-2:1
+K:5:6:6:1:8:12:-5:15
+A:60:4:100:6:54:4:80:6
+W:8:120:75:75:3:31
+
+# Hobbit
+
+N:3:Hobbit
+S:-2:2:1:3:2:1
+K:15:18:18:4:12:15:-10:20
+A:36:3:60:3:33:3:50:3
+W:7:110:21:12:4:11
+
+# Gnome
+
+N:4:Gnome
+S:-1:2:0:2:1:-2
+K:10:12:12:3:6:13:-8:12
+A:42:3:90:6:39:3:75:3
+W:8:125:50:40:4:15
+
+# Dwarf
+
+N:5:Dwarf
+S:2:-3:2:-2:2:-3
+K:2:9:9:-1:7:10:15:0
+A:48:3:150:10:46:3:120:10
+W:11:120:35:15:5:5
+
+# Half-Orc
+
+N:6:Half-Orc
+S:2:-1:0:0:1:-4
+K:-3:-3:-3:-1:0:7:12:-5
+A:66:1:150:5:62:1:120:5
+W:10:110:11:4:3:13
+
+# Half-Troll
+
+N:7:Half-Troll
+S:4:-4:-2:-4:3:-6
+K:-5:-8:-8:-2:-1:5:20:-10
+A:96:10:250:50:84:8:225:40
+W:12:120:20:10:3:5
+
+# Dunadan
+
+N:8:Dunadan
+S:1:2:2:2:3:2
+K:4:5:5:2:3:13:15:10
+A:82:5:190:20:78:6:180:15
+W:10:180:50:20:0:63
+
+# High-Elf
+
+N:9:High-Elf
+S:1:3:-1:3:1:5
+K:4:20:20:3:3:14:10:25
+A:90:10:190:20:82:10:180:15
+W:10:200:100:30:4:31

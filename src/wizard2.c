@@ -643,7 +643,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 	}
 }
 
@@ -966,7 +966,7 @@ static void do_cmd_wiz_play(void)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 	}
 
 	/* Ignore change */
@@ -976,6 +976,23 @@ static void do_cmd_wiz_play(void)
 	}
 }
 
+
+/*
+ * Execute an arbitary Python command
+ */
+static void do_cmd_wiz_execute(void)
+{
+	char buf[1024];
+
+	/* Empty string */
+	strcpy(buf, "");
+
+	/* Get string */
+	get_string("Command: ", buf, 1024);
+
+	/* Execute it */
+	PyRun_SimpleString(buf);
+}
 
 /*
  * Wizard routine for creating objects
@@ -1183,7 +1200,7 @@ static void do_cmd_rerate(void)
 	p_ptr->redraw |= (PR_HP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1378,8 +1395,6 @@ static void do_cmd_wiz_query(void)
 	prt_map();
 }
 
-
-
 #ifdef ALLOW_SPOILERS
 
 /*
@@ -1554,6 +1569,13 @@ void do_cmd_debug(void)
 		case 'p':
 		{
 			teleport_player(10);
+			break;
+		}
+
+		/* Execute python commands */
+		case 'r':
+		{
+			do_cmd_wiz_execute();
 			break;
 		}
 

@@ -1,0 +1,7 @@
+README for examples/intro
+
+	This directory contains a rather stupid intro that was used to
+help test the 'io' module.  It has some useful functions for moving text
+around the screen and having it fade in and out.
+
+	Keldon

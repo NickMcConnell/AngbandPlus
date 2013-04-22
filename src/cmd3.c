@@ -269,7 +269,7 @@ void do_cmd_wield(void)
 	p_ptr->update |= (PU_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 }
 
 
@@ -303,6 +303,12 @@ void do_cmd_takeoff(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_TAKEOFF, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Item is cursed */
 	if (cursed_p(o_ptr))
@@ -357,6 +363,13 @@ void do_cmd_drop(void)
 
 	/* Allow user abort */
 	if (amt <= 0) return;
+
+	/* Call script */
+	if (perform_event(EVENT_DROP, Py_BuildValue("(ii)", item, amt)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Hack -- Cannot remove cursed items */
 	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
@@ -428,6 +441,13 @@ void do_cmd_destroy(void)
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
+	}
+
+	/* Call script */
+	if (perform_event(EVENT_DESTROY, Py_BuildValue("(ii)", item, amt)))
+	{
+		/* Script calls for abort */
+		return;
 	}
 
 	/* Take a turn */
@@ -563,6 +583,13 @@ void do_cmd_uninscribe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_UNINSCRIBE, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
+
 	/* Nothing to remove */
 	if (!o_ptr->note)
 	{
@@ -637,6 +664,14 @@ void do_cmd_inscribe(void)
 	/* Get a new inscription (possibly empty) */
 	if (get_string("Inscription: ", tmp, 80))
 	{
+		/* Call script */
+		if (perform_event(EVENT_INSCRIBE,
+		                  Py_BuildValue("(is)", item, tmp)))
+		{
+			/* Script calls for abort */
+			return;
+		}
+
 		/* Save the inscription */
 		o_ptr->note = quark_add(tmp);
 
@@ -700,6 +735,12 @@ static void do_cmd_refill_lamp(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_FILL, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -789,6 +830,12 @@ static void do_cmd_refill_torch(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Call script */
+	if (perform_event(EVENT_FILL, Py_BuildValue("(i)", item)))
+	{
+		/* Script calls for abort */
+		return;
+	}
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -999,8 +1046,8 @@ void do_cmd_locate(void)
 		}
 	}
 
-	/* Verify panel */
-	p_ptr->update |= (PU_PANEL);
+	/* Recenter map */
+	verify_panel();
 
 	/* Handle stuff */
 	handle_stuff();

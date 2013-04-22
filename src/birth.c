@@ -915,62 +915,8 @@ static void player_wipe(void)
 
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+	for (i = 0; i < MAX_N_IDX; i++) p_ptr->spell_order[i] = 999;
 }
-
-
-
-
-/*
- * Each player starts out with a few items, given as tval/sval pairs.
- * In addition, he always has some food and a few torches.
- */
-
-static byte player_init[MAX_CLASS][3][2] =
-{
-	{
-		/* Warrior */
-		{ TV_POTION, SV_POTION_BESERK_STRENGTH },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
-	},
-
-	{
-		/* Mage */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
-	},
-
-	{
-		/* Priest */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEALING }
-	},
-
-	{
-		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
-	},
-
-	{
-		/* Ranger */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_BOW, SV_LONG_BOW }
-	},
-
-	{
-		/* Paladin */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
-	}
-};
-
 
 
 /*
@@ -1008,12 +954,15 @@ static void player_outfit(void)
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
 
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
+	/* Hack -- Give the player up to eight useful objects */
+	for (i = 0; i < 8; i++)
 	{
 		/* Look up standard equipment */
-		tv = player_init[p_ptr->pclass][i][0];
-		sv = player_init[p_ptr->pclass][i][1];
+		tv = cp_ptr->obj_tval[i];
+		sv = cp_ptr->obj_sval[i];
+
+		/* Check for end of list */
+		if (!tv) break;
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -1124,12 +1073,15 @@ static bool player_birth_aux()
 		"Your 'race' determines various intrinsic factors and bonuses.");
 
 	/* Dump races */
-	for (n = 0; n < MAX_RACES; n++)
+	for (n = 0; n < MAX_PR_IDX; n++)
 	{
 		/* Analyze */
 		p_ptr->prace = n;
-		rp_ptr = &race_info[p_ptr->prace];
-		str = rp_ptr->title;
+		rp_ptr = &pr_info[p_ptr->prace];
+		str = pr_name + rp_ptr->name;
+
+		/* Check for end */
+		if (!rp_ptr->name) break;
 
 		/* Display */
 		sprintf(buf, "%c%c %s", I2A(n), p2, str);
@@ -1153,7 +1105,7 @@ static bool player_birth_aux()
 
 	/* Set race */
 	p_ptr->prace = k;
-	rp_ptr = &race_info[p_ptr->prace];
+	rp_ptr = &pr_info[p_ptr->prace];
 
 	/* Clean up */
 	clear_from(15);
@@ -1168,15 +1120,18 @@ static bool player_birth_aux()
 		"Any entries with a (*) should only be used by advanced players.");
 
 	/* Dump classes */
-	for (n = 0; n < MAX_CLASS; n++)
+	for (n = 0; n < MAX_PC_IDX; n++)
 	{
 		cptr mod = "";
 
 		/* Analyze */
 		p_ptr->pclass = n;
-		cp_ptr = &class_info[p_ptr->pclass];
-		mp_ptr = &magic_info[p_ptr->pclass];
-		str = cp_ptr->title;
+		cp_ptr = &pc_info[p_ptr->pclass];
+		mp_ptr = &s_info[p_ptr->pclass];
+		str = pc_name + cp_ptr->name;
+
+		/* Check for end */
+		if (!cp_ptr->name) break;
 
 		/* Verify legality */
 		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
@@ -1203,8 +1158,8 @@ static bool player_birth_aux()
 
 	/* Set class */
 	p_ptr->pclass = k;
-	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
+	cp_ptr = &pc_info[p_ptr->pclass];
+	mp_ptr = &s_info[p_ptr->pclass];
 
 	/* Clean up */
 	clear_from(15);
@@ -1393,6 +1348,13 @@ static bool player_birth_aux()
 
 	/* Clean up */
 	clear_from(10);
+
+	/* Scripts can ask for more information now */
+	if (perform_event(EVENT_BIRTH_INFO, Py_BuildValue("()")))
+	{
+		/* Script wants to restart character generation */
+		return (FALSE);
+	}
 
 
 	/*** Generate ***/
@@ -1594,7 +1556,6 @@ static bool player_birth_aux()
 
 	/* Clear prompt */
 	clear_from(23);
-
 
 	/*** Finish up ***/
 

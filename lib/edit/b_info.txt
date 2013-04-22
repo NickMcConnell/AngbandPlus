@@ -1,0 +1,93 @@
+# File: b_info.txt
+
+
+# This file is used to initialize the "lib/raw/b_info.raw" file, which is
+# used to initialize the "spell book" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/raw/b_info.raw" file.
+
+
+# Version stamp (required)
+
+V:0.1.0
+
+
+### Mage books
+
+N:0:spell
+I:90:0
+S:0:1:2:3:4:5:6:7:8
+
+N:1:spell
+I:90:1
+S:9:10:11:12:13:14:15:16:17
+
+N:2:spell
+I:90:2
+S:18:19:20:21:22:23:24:25
+
+N:3:spell
+I:90:3
+S:26:27:28:29:30:31:32
+
+N:4:spell
+I:90:4
+S:49:50:51:52:53
+
+N:5:spell
+I:90:5
+S:33:34:35:36:37
+
+N:6:spell
+I:90:6
+S:44:45:46:47:48
+
+N:7:spell
+I:90:7
+S:54:55:56:57:58
+
+N:8:spell
+I:90:8
+S:38:39:40:41:42:43
+
+
+### Priest books
+
+N:9:prayer
+I:91:0
+S:64:65:66:67:68:69:70:71
+
+N:10:prayer
+I:91:1
+S:72:73:74:75:76:77:78:79
+
+N:11:prayer
+I:91:2
+S:80:81:82:83:84:85:86:87:88
+
+N:12:prayer
+I:91:3
+S:89:90:91:92:93:94
+
+N:13:prayer
+I:91:4
+S:116:117:118:119:120:121
+
+N:14:prayer
+I:91:5
+S:95:96:97:98:99
+
+N:15:prayer
+I:91:6
+S:100:101:102:103:104
+
+N:16:prayer
+I:91:7
+S:110:111:112:113:114:115
+
+N:17:prayer
+I:91:8
+S:105:106:107:108:109
+

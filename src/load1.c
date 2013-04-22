@@ -2730,11 +2730,11 @@ static errr rd_savefile_old_aux(void)
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Initialize the race/class */
-	rp_ptr = &race_info[p_ptr->prace];
-	cp_ptr = &class_info[p_ptr->pclass];
+	rp_ptr = &pr_info[p_ptr->prace];
+	cp_ptr = &pc_info[p_ptr->pclass];
 
 	/* Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
+	mp_ptr = &s_info[p_ptr->pclass];
 
 
 	/* Fake some "item awareness" */
@@ -2752,12 +2752,12 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Read spell flags */
-	rd_u32b(&p_ptr->spell_learned1);
-	rd_u32b(&p_ptr->spell_worked1);
-	rd_u32b(&p_ptr->spell_forgotten1);
-	rd_u32b(&p_ptr->spell_learned2);
-	rd_u32b(&p_ptr->spell_worked2);
-	rd_u32b(&p_ptr->spell_forgotten2);
+	rd_u32b(&p_ptr->spell_learned[0]);
+	rd_u32b(&p_ptr->spell_worked[0]);
+	rd_u32b(&p_ptr->spell_forgotten[0]);
+	rd_u32b(&p_ptr->spell_learned[1]);
+	rd_u32b(&p_ptr->spell_worked[1]);
+	rd_u32b(&p_ptr->spell_forgotten[1]);
 
 	/* Read spell order */
 	for (i = 0; i < 64; i++)

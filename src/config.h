@@ -88,7 +88,7 @@
 /*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
-/* #define USE_NCURSES */
+#define USE_NCURSES
 
 
 /*
@@ -176,7 +176,7 @@
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-/* #define ALLOW_DEBUG */
+#define ALLOW_DEBUG
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
@@ -228,8 +228,11 @@
  * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
  * about 15K of code in "save-old.c" to parse the old savefile format.
  * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
+ *
+ * NOTE: PAngband doesn't support old savefiles (it won't even read
+ *       the new ones).  Leave this commented.
  */
-#define ALLOW_OLD_SAVEFILES
+/* #define ALLOW_OLD_SAVEFILES */
 
 
 /*
@@ -255,6 +258,36 @@
  * needed, saving ~1K, since "ego-item" descriptions are unused.
  */
 #define DELAY_LOAD_E_TEXT
+
+/*
+ * OPTION: Delay the loading of the "pr_text" array until it is actually
+ * needed, saving ~1K, since "player race" descriptions are unused.
+ */
+#define DELAY_LOAD_PR_TEXT
+
+/*
+ * OPTION: Delay the loading of the "pc_text" array until it is actually
+ * needed, saving ~1K, since "player class" descriptions are unused.
+ */
+#define DELAY_LOAD_PC_TEXT
+
+/*
+ * OPTION: Delay the loading of the "n_text" array until it is actually
+ * needed, saving ~1K, since "spell name" descriptions are unused.
+ */
+#define DELAY_LOAD_N_TEXT
+
+/*
+ * OPTION: Delay the loading of the "b_text" array until it is actually
+ * needed, saving ~1K, since "spell book" descriptions are unused.
+ */
+#define DELAY_LOAD_B_TEXT
+
+/*
+ * OPTION: Delay the loading of the "s_text" array until it is actually
+ * needed, saving ~1K, since "magic" descriptions are unused.
+ */
+#define DELAY_LOAD_S_TEXT
 
 /*
  * OPTION: Delay the loading of the "r_text" array until it is actually
@@ -335,17 +368,6 @@
  * This adds about 3K to the memory and about 5K to the executable.
  */
 #define DRS_SMART_OPTIONS
-
-
-
-/*
- * OPTION: Enable the "track_follow" and "track_target" options.
- * They let monsters follow the player's foot-prints, or remember
- * the player's recent locations.  This code has been removed from
- * the current version because it is being rewritten by Billy, and
- * until it is ready, it will not work.  Do not define this option.
- */
-/* #define WDT_TRACK_OPTIONS */
 
 
 
@@ -433,6 +455,22 @@
  * This may require the 'rpcsvs' library
  */
 /* #define CHECK_LOAD */
+
+
+/*
+ * OPTION: For some brain-dead computers with no command line interface,
+ * namely Macintosh, there has to be some way of "naming" your savefiles.
+ * The current "Macintosh" hack is to make it so whenever the character
+ * name changes, the savefile is renamed accordingly.  But on normal
+ * machines, once you manage to "load" a savefile, it stays that way.
+ * Macintosh is particularly weird because you can load savefiles that
+ * are not contained in the "lib:save:" folder, and if you change the
+ * player's name, it will then save the savefile elsewhere.  Note that
+ * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
+ */
+#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
+# define SAVEFILE_MUTABLE
+#endif
 
 
 /*

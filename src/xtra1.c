@@ -289,7 +289,7 @@ static void prt_sp(void)
 
 
 	/* Do not show mana unless it matters */
-	if (!mp_ptr->spell_book) return;
+	if (mp_ptr->spell_first == 99) return;
 
 
 	put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
@@ -329,13 +329,13 @@ static void prt_depth(void)
 {
 	char depths[32];
 
-	if (!p_ptr->depth)
+	if (strlen(depth_name))
+	{
+		strcpy(depths, depth_name);
+	}
+	else if (!p_ptr->depth)
 	{
 		strcpy(depths, "Town");
-	}
-	else if (depth_in_feet)
-	{
-		sprintf(depths, "%d ft", p_ptr->depth * 50);
 	}
 	else
 	{
@@ -772,8 +772,8 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-	prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
-	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
+	prt_field(pr_name + rp_ptr->name, ROW_RACE, COL_RACE);
+	prt_field(pc_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
 
 	/* Title */
 	prt_title();
@@ -902,9 +902,9 @@ static void fix_equip(void)
 
 
 /*
- * Hack -- display player in sub-windows (mode 0)
+ * Hack -- display flags in sub-windows
  */
-static void fix_player_0(void)
+static void fix_pflags(void)
 {
 	int j;
 
@@ -917,7 +917,40 @@ static void fix_player_0(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_PLAYER_0))) continue;
+		if (!(op_ptr->window_flag[j] & (PW_SPELL))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display flags */
+		display_player(1);
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
+
+/*
+ * Hack -- display character in sub-windows
+ */
+static void fix_player(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_PLAYER))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -933,39 +966,6 @@ static void fix_player_0(void)
 	}
 }
 
-
-
-/*
- * Hack -- display player in sub-windows (mode 1)
- */
-static void fix_player_1(void)
-{
-	int j;
-
-	/* Scan windows */
-	for (j = 0; j < 8; j++)
-	{
-		term *old = Term;
-
-		/* No window */
-		if (!angband_term[j]) continue;
-
-		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_PLAYER_1))) continue;
-
-		/* Activate */
-		Term_activate(angband_term[j]);
-
-		/* Display flags */
-		display_player(1);
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Restore */
-		Term_activate(old);
-	}
-}
 
 
 /*
@@ -1142,13 +1142,13 @@ static void calc_spells(void)
 	int i, j, k, levels;
 	int num_allowed, num_known;
 
-	magic_type *s_ptr;
+	spell_type *s_ptr;
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = "spell";
 
 
 	/* Hack -- must be literate */
-	if (!mp_ptr->spell_book) return;
+	if (mp_ptr->spell_first == 99) return;
 
 	/* Hack -- wait for creation */
 	if (!character_generated) return;
@@ -1171,12 +1171,10 @@ static void calc_spells(void)
 	num_known = 0;
 
 	/* Count the number of spells we know */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < MAX_N_IDX; j++)
 	{
 		/* Count known spells */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
+		if (p_ptr->spell_learned[j / 32] & (1L << (j % 32)))
 		{
 			num_known++;
 		}
@@ -1188,51 +1186,32 @@ static void calc_spells(void)
 
 
 	/* Forget spells which are too hard */
-	for (i = 63; i >= 0; i--)
+	for (i = MAX_N_IDX - 1; i >= 0; i--)
 	{
-		/* Efficiency -- all done */
-		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
-
 		/* Access the spell */
 		j = p_ptr->spell_order[i];
 
 		/* Skip non-spells */
-		if (j >= 99) continue;
+		if (j >= 999) continue;
 
 		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
+		s_ptr = &mp_ptr->spells[j];
 
 		/* Skip spells we are allowed to know */
 		if (s_ptr->slevel <= p_ptr->lev) continue;
 
 		/* Is it known? */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
+		if (p_ptr->spell_learned[j / 32] & (1L << (j % 32)))
 		{
 			/* Mark as forgotten */
-			if (j < 32)
-			{
-				p_ptr->spell_forgotten1 |= (1L << j);
-			}
-			else
-			{
-				p_ptr->spell_forgotten2 |= (1L << (j - 32));
-			}
+			p_ptr->spell_forgotten[j / 32] |= (1L << (j % 32));
 
 			/* No longer known */
-			if (j < 32)
-			{
-				p_ptr->spell_learned1 &= ~(1L << j);
-			}
-			else
-			{
-				p_ptr->spell_learned2 &= ~(1L << (j - 32));
-			}
+			p_ptr->spell_learned[j / 32] &= ~(1L << (j % 32));
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[mp_ptr->spell_type][j]);
+			           n_name + n_info[j].name);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1241,48 +1220,29 @@ static void calc_spells(void)
 
 
 	/* Forget spells if we know too many spells */
-	for (i = 63; i >= 0; i--)
+	for (i = MAX_N_IDX - 1; i >= 0; i--)
 	{
 		/* Stop when possible */
 		if (p_ptr->new_spells >= 0) break;
-
-		/* Efficiency -- all done */
-		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
 
 		/* Get the (i+1)th spell learned */
 		j = p_ptr->spell_order[i];
 
 		/* Skip unknown spells */
-		if (j >= 99) continue;
+		if (j >= 999) continue;
 
 		/* Forget it (if learned) */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
+		if (p_ptr->spell_learned[j / 32] & (1L << (j % 32)))
 		{
 			/* Mark as forgotten */
-			if (j < 32)
-			{
-				p_ptr->spell_forgotten1 |= (1L << j);
-			}
-			else
-			{
-				p_ptr->spell_forgotten2 |= (1L << (j - 32));
-			}
+			p_ptr->spell_forgotten[j / 32] |= (1L << (j % 32));
 
 			/* No longer known */
-			if (j < 32)
-			{
-				p_ptr->spell_learned1 &= ~(1L << j);
-			}
-			else
-			{
-				p_ptr->spell_learned2 &= ~(1L << (j - 32));
-			}
+			p_ptr->spell_learned[j / 32] &= ~(1L << (j % 32));
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[mp_ptr->spell_type][j]);
+			           n_name + n_info[j].name);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1291,54 +1251,35 @@ static void calc_spells(void)
 
 
 	/* Check for spells to remember */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < MAX_N_IDX; i++)
 	{
 		/* None left to remember */
 		if (p_ptr->new_spells <= 0) break;
-
-		/* Efficiency -- all done */
-		if (!p_ptr->spell_forgotten1 && !p_ptr->spell_forgotten2) break;
 
 		/* Get the next spell we learned */
 		j = p_ptr->spell_order[i];
 
 		/* Skip unknown spells */
-		if (j >= 99) break;
+		if (j >= 999) break;
 
 		/* Access the spell */
-		s_ptr = &mp_ptr->info[j];
+		s_ptr = &mp_ptr->spells[j];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
 
 		/* First set of spells */
-		if ((j < 32) ?
-		    (p_ptr->spell_forgotten1 & (1L << j)) :
-		    (p_ptr->spell_forgotten2 & (1L << (j - 32))))
+		if (p_ptr->spell_forgotten[j / 32] & (1L << (j % 32)))
 		{
 			/* No longer forgotten */
-			if (j < 32)
-			{
-				p_ptr->spell_forgotten1 &= ~(1L << j);
-			}
-			else
-			{
-				p_ptr->spell_forgotten2 &= ~(1L << (j - 32));
-			}
+			p_ptr->spell_forgotten[j / 32] &= ~(1L << (j % 32));
 
 			/* Known once more */
-			if (j < 32)
-			{
-				p_ptr->spell_learned1 |= (1L << j);
-			}
-			else
-			{
-				p_ptr->spell_learned2 |= (1L << (j - 32));
-			}
+			p_ptr->spell_learned[j / 32] |= (1L << (j % 32));
 
 			/* Message */
 			msg_format("You have remembered the %s of %s.",
-			           p, spell_names[mp_ptr->spell_type][j]);
+			           p, n_name + n_info[j].name);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1350,18 +1291,16 @@ static void calc_spells(void)
 	k = 0;
 
 	/* Count spells that can be learned */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < MAX_N_IDX; j++)
 	{
 		/* Access the spell */
-		s_ptr = &mp_ptr->info[j];
+		s_ptr = &mp_ptr->spells[j];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
 
 		/* Skip spells we already know */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
+		if (p_ptr->spell_learned[j / 32] & (1L << (j % 32)))
 		{
 			continue;
 		}
@@ -1408,7 +1347,7 @@ static void calc_mana(void)
 
 
 	/* Hack -- Must be literate */
-	if (!mp_ptr->spell_book) return;
+	if (mp_ptr->spell_first == 99) return;
 
 
 	/* Extract "effective" player level */
@@ -1425,7 +1364,7 @@ static void calc_mana(void)
 
 
 	/* Only mages are affected */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
+	if (mp_ptr->spell_flags & PM_GLOVE)
 	{
 		u32b f1, f2, f3;
 
@@ -1499,7 +1438,7 @@ static void calc_mana(void)
 		p_ptr->redraw |= (PR_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_SPELL | PW_PLAYER);
 	}
 
 
@@ -1579,7 +1518,7 @@ static void calc_hitpoints(void)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_SPELL | PW_PLAYER);
 	}
 }
 
@@ -2420,7 +2359,7 @@ static void calc_bonuses(void)
 			p_ptr->redraw |= (PR_STATS);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			p_ptr->window |= (PW_SPELL | PW_PLAYER);
 		}
 
 		/* Notice changes */
@@ -2430,7 +2369,7 @@ static void calc_bonuses(void)
 			p_ptr->redraw |= (PR_STATS);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			p_ptr->window |= (PW_SPELL | PW_PLAYER);
 		}
 
 		/* Notice changes */
@@ -2490,7 +2429,14 @@ static void calc_bonuses(void)
 		p_ptr->redraw |= (PR_ARMOR);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+	}
+
+	/* Let scripts do extra processing, if necessary */
+	if (perform_event(EVENT_BONUSES, Py_BuildValue("()")))
+	{
+		/* Script wants to avoid messages */
+		return;
 	}
 
 	/* Hack -- handle "xtra" mode */
@@ -2673,13 +2619,6 @@ void update_stuff(void)
 		p_ptr->update &= ~(PU_MONSTERS);
 		update_monsters(FALSE);
 	}
-
-
-	if (p_ptr->update & (PU_PANEL))
-	{
-		p_ptr->update &= ~(PU_PANEL);
-		verify_panel();
-	}
 }
 
 
@@ -2699,6 +2638,15 @@ void redraw_stuff(void)
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
 
+
+
+	/* Hack -- clear the screen */
+	if (p_ptr->redraw & (PR_WIPE))
+	{
+		p_ptr->redraw &= ~(PR_WIPE);
+		msg_print(NULL);
+		Term_clear();
+	}
 
 
 	if (p_ptr->redraw & (PR_MAP))
@@ -2721,8 +2669,8 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_MISC))
 	{
 		p_ptr->redraw &= ~(PR_MISC);
-		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
-		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
+		prt_field(pr_name + rp_ptr->name, ROW_RACE, COL_RACE);
+		prt_field(pc_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
 	}
 
 	if (p_ptr->redraw & (PR_TITLE))
@@ -2909,18 +2857,18 @@ void window_stuff(void)
 		fix_equip();
 	}
 
-	/* Display player (mode 0) */
-	if (p_ptr->window & (PW_PLAYER_0))
+	/* Display pflags */
+	if (p_ptr->window & (PW_SPELL))
 	{
-		p_ptr->window &= ~(PW_PLAYER_0);
-		fix_player_0();
+		p_ptr->window &= ~(PW_SPELL);
+		fix_pflags();
 	}
 
-	/* Display player (mode 1) */
-	if (p_ptr->window & (PW_PLAYER_1))
+	/* Display player */
+	if (p_ptr->window & (PW_PLAYER))
 	{
-		p_ptr->window &= ~(PW_PLAYER_1);
-		fix_player_1();
+		p_ptr->window &= ~(PW_PLAYER);
+		fix_player();
 	}
 
 	/* Display overhead view */
