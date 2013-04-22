@@ -1,0 +1,62 @@
+The patch adds the possibility to make new Artifacts and possibility to enchant ordinary items to Ego ones. New artifacts can have activations.
+At the moment this is a beta vesrion. Release version will appear after balancing and (probably) debugging.
+The patch should properly import original savefiles. I hope it really do this.
+
+Warnings:
+1. The patch changes the savefile format. Backup savefiles before execute patched version! 
+2. I have included NewArt.c file only to makefile.bcc. Update your makefile before compilation.
+3. I had to apply rod-wand stacking patch "by hands" :(. I hope I did not make mistakes. By the way, I fixed some minor bugs in zap_rod function (return w/o value), which does not affect gameplay due to Lua scripts.
+
+Changes:
+1. Three new scrolls: Create Ego Item (sval = 40, k_idx = 182), Create Minor Artifact (sval = 23, k_idx = 178) and Create Artifact (sval = 43, k_idx = 183). (There is a save file named "alex" where ironman character has a Scroll of Create Artifact - try it!)
+2. object_info_screen() shows artifacts power, level, and rarity after *Identify*.
+3. Random teleportation induces the message "You are teleported by your equipment."
+4. Two new spells and prayers: Create Ego Item ("Sorcery and Evocations", "Exorcism and Dispelling") and Create Artifact ("Tenser's transformations", "Holy Infusions").
+5. Messages for {experience gained} and (damage taken). (Of course, this is not relevant to artifacts/ego items).
+6. There is a small chance of appearing new random artifact (1/4096).
+7. Enchant Armor/Weapon and Remove Curse also changes a_info[o_ptr->name1]. In other case the next Enchant Artifact will restore the object to previous state.
+8. Scrolls of Remove Curse and *Remove Curse* are now more frequent. Reason: Create Ego, Minor Artifact and Artifact are sources of curses and *curses*.
+
+The usefulness of Create Artifact spell/prayer/scroll depends on player experience. Not only on the number of experience points, but experience in certain actions. E.g. to enchant an artifact with Slay Orcs ability, player has to kill many orcs by weapon (uniques are better). To enchant an artifact with Fire Ball activation, player has to do a lot of (overall) damage by Fire Ball spell/wand/rod/activation (the best).
+At the beginning (AND just after installing the patch) player can not create artifacts (except by means of Create Minor Artifact scroll, where player has no control over creation process).
+
+The patch uses some functions and vars from randart.c:
+	s16b *kinds;//Note that due to using this cache the source becomes complicated and might has well-hidden bugs. I wonder is there a good reason to use cache?
+	cptr names_list;
+	int bow_multiplier(int sval);
+	void do_curse(artifact_type *a_ptr);
+The patch does not use artifact_power(int a_idx) and add_ability(artifact_type *a_ptr) from randart.c.
+
+Good luck
+	Alexander Pirozhkov (pirozh@sci.lebedev.ru).
+
+
+
+
+The following is some Artifact creation hints (do not read this if you wish to explore creation byself; but remember, it can be dangerous!)
+
+
+
+				Power		Tries		Choices
+Scroll of Create Minor Artifact	RN(10,10)	50		0
+Scroll of Create Artifact	RN(L/2+10,20)	20		L/5
+Spell Create Artifact		RN(L/2+S,20)	L		L/5
+
+Power: maximum Artifact Power,
+Tries: number of creation steps,
+Choices: number of abilities player chooses from (every step; 0 means player does not choose).
+RN(Mean, Dev) is Rand_normal(Mean, Dev),
+L is player level,
+S is a number of levels sacrificed by player.
+
+1. Before study the Create Artifact spell/prayer, look at the mana requirement (50).
+2. Before creation, check you equipment. Remember, you can only enchant items currently in use.
+3. Before Create Artifact spell/prayer/scroll check your knowledge of artifact abilities and activations ('~' command). At the beginning of the game (OR just after installing the patch!) you will be unable to receive usefull abilities. Scroll of Create Minor Artifact does not use player knowledge and can be used at the very beginning.
+4. You will sometimes create cursed/heavily cursed artifacts. Be sure to have *Remove Curse* or Remove Curse at least.
+5. Cast spell/prayer of Create Artifact in the Town if you sacrifice many levels. After casting you will have small amount of maximum mana - probably less then required for casting. In this case you will be paralized for a while.
+6. The Create Artifact procedure consists of number of steps. At each step, you will see several proposed abilities. Input a letter to accept one. You can also disable (for this artifact) other abilities. E.g. enter BDaC to disable abilities b, d, c and accept a. You can only disable abilities with capital letters - e.g. B).
+7. Artifact abilities are divided into four rarity groups (Common-Uncommon-Rare-Very_Rare). The most probable rarity of proposed ability depends on delta = MaxPower - CurrentPower: delta < 25 - Common, 25 <= delta < 50 - Uncommon, 50 <= delta < 100 - Rare, 100 < delta - Very Rare.
+8. Before entering you choice consider probability of success.
+9. Abilities/activation success probabilities grow when they are necessary. E.g. success probabilities of abilities +to hit, +to dam, +to ac, +blows etc. grow when player engaged in hand-to-hand combat.
+10. Every time player adds ability/activation, the probability of success for this ability/activation is increased. When player fails to add one, probability of success is also increased but by smaller value.
+11. There is a chance of automatically accept bad artifact abilities (namely Heavy Weight, Random Teleportation, Drain Exp, Aggravation). The chance is 1/(1 + L/10) for player level L < 50 and 0 for L = 50.
