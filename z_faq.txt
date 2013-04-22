@@ -1,219 +1,1 @@
-
-                    ZAngband Official FAQ
-
-                     by Robert Ruehlmann
-                       rr9@angband.org
-
-                      December 29, 1998
-                         Version 0.1.1
-
-
-=====================================================================
-1. About this FAQ
-=====================================================================
-
----------------------------------------------------------------------
-1.1 Introduction
----------------------------------------------------------------------
-
-ZAngband is a freeware roguelike computer roleplaying game,
-based on Angband. This document lists frequently asked
-questions and answers.
-
----------------------------------------------------------------------
-1.2 Table of contents
----------------------------------------------------------------------
-
-1. About this FAQ
-  1.1 Introduction
-  1.2 Table of contents
-  1.3 Where can I get this FAQ?
-
-2. General questions
-  2.1 What is ZAngband?
-  2.2 On what computers can I play it?
-  2.3 Where can I download it?
-
-3. System-specific questions
-  3.1 DOS
-    3.1.1 Can I play it in the old ASCII-mode?
-    3.1.2 Can I use multiple savefiles?
-    3.1.3 Why uses the DOS version only 2/3 of the screen?
-  3.2 Windows 95/98/NT
-    3.2.1 How do I run in the Windows version?
-    3.2.2 Why do I get an error message when I try to switch on
-          graphics?
-
-4. Game-play questions
-  4.1 Artifacts
-    4.1.1 What does the artifact xyz do?
-    4.1.2 I've found an artifact, but it doesn't show up in the list of
-          known artifacts. Is that a bug?
-    4.1.3 I've found an artifact in a store, but I thought artifacts can
-          never appear there if not sold to the store. Is that a bug?
-  4.2 Monsters
-    4.2.1 I've found a 'Greater Hell Beast' that never does any damage to
-          me, and that seems to be immune to my attacks.  What is it?
-
-
----------------------------------------------------------------------
-1.3 Where can I get this FAQ?
----------------------------------------------------------------------
-
-This FAQ is available from:
-http://thangorodrim.angband.org/zangband-faq.txt
-
-
-=====================================================================
-2. General questions
-=====================================================================
-
----------------------------------------------------------------------
-2.1 What is ZAngband?
----------------------------------------------------------------------
-
-ZAngband is one of the many variants of the freeware roguelike
-computer roleplaying game Angband.
-
----------------------------------------------------------------------
-2.2 On what computers can I play it?
----------------------------------------------------------------------
-
-ZAngband is available for many different systems, including
-MS-DOS, Windows 95/98/NT, Macintosh, Amiga, OS/2, Acorn RISC OS,
-and the many different Unix-derivates including Linux.
-
----------------------------------------------------------------------
-2.3 Where can I download it?
----------------------------------------------------------------------
-
-The newest version of ZAngband is always available from
-"Thangorodrim - The Angband Page" at:
-
-http://thangorodrim.angband.org/
-
-and the Angband FTP-Server at:
-
-ftp://export.andrew.cmu.edu/angband/
-
-
-=====================================================================
-3. System-specific questions
-=====================================================================
-
-
----------------------------------------------------------------------
-3.1 DOS
----------------------------------------------------------------------
-
----------------------------------------------------------------------
-3.1.1 Can I play it in the old ASCII-mode?
----------------------------------------------------------------------
-
-Yes, you can. The old IBM-mode is included in the DOS version and can
-be activated with the '-mibm' option. Just run ZAngband with
-'ZAngband.exe -mibm' to switch it on.
-
----------------------------------------------------------------------
-3.1.2 Can I use multiple savefiles?
----------------------------------------------------------------------
-
-Yes, you can. Run ZAngband with the -u<name> option. For example:
-'ZAngband.exe -uFred' loads the character called Fred. If no
-savefile called 'Fred' is found then a new one is created. To use
-another character just run ZAngband with a different name.
-
----------------------------------------------------------------------
-3.1.3 Why uses the DOS version only 2/3 of the screen?
----------------------------------------------------------------------
-
-The lower part of the screen is used for displaying two extra windows
-with additional information. To activate this feature, press '=' to
-access the ZAngband options, then press 'W' to enter the 'Window
-Flags' section. Now you can assign various informations to the two
-special windows lower part of the screen. Move the cursor to the
-'Mirror' column and switch on one of the options with the 'y' key.
-A good choice is the 'Display messages' option. Now move to the
-'Recall' column and select another option (for example 'Display
-inven/equip'). Now press the ESCAPE key two times to leave the
-options menu and press Ctrl-R to redraw the screen.
-
-
----------------------------------------------------------------------
-3.2 Windows 95/98/NT
----------------------------------------------------------------------
-
----------------------------------------------------------------------
-3.2.1 How do I run with the numeric keypad in the Windows version?
----------------------------------------------------------------------
-
-Press the Num-Lock key to switch off Num-Lock mode. Now you should be
-able to run when pressing Shift and a key of the numeric keypad.
-
----------------------------------------------------------------------
-3.2.2 Why do I get an error message when I try to switch on graphics?
----------------------------------------------------------------------
-
-The 'Unusable bitmap palette (255 entries) - Could not initialize
-graphics' error means that you tried to use graphics with a desktop
-set to 256 colors. Switch to high-color or true-color mode to fix
-this problem.
-
-
-=====================================================================
-4. Game-play questions
-=====================================================================
-
-
----------------------------------------------------------------------
-4.1 Artifacts
----------------------------------------------------------------------
-
----------------------------------------------------------------------
-4.1.1 What does the artifact xyz do?
----------------------------------------------------------------------
-
-Most of the artifacts in ZAngband have some random features, and some
-are even completely random, so you have to find out what an artifact
-does by yourself. Try reading a scroll of *Identify* (the stars are
-important), of use 'Research item' service offered by some buildings
-in the towns. Many spellcasting classes get the *Identify* spell at
-higher levels. You can also sell artifacts to a store and buy it back
-immediatly, but this will cost you a lot of money.
-The powers of items that have been *Identified* or bought from stores
-can be displayed at any time with the 'I' command.
-
----------------------------------------------------------------------
-4.1.2 I've found an artifact, but it doesn't show up in the list of
-      known artifacts. Is that a bug?
----------------------------------------------------------------------
-
-No. You've found a 'random artifact'.  These kind of artifacts get
-random powers and names, and they are not displayed in the list of
-known artifacts. The random artifacts can be found in addition to the
-normal ones, and they may even appear in stores from time to time.
-
----------------------------------------------------------------------
-4.1.3 I've found an artifact in a store, but I thought artifacts can
-never appear there if not sold to the store. Is that a bug?
----------------------------------------------------------------------
-
-No. The store is selling a 'random artifact'.  See question 4.1.2.
-
-
----------------------------------------------------------------------
-4.2 Monsters
----------------------------------------------------------------------
-
----------------------------------------------------------------------
-4.2.1 I've found a 'Greater Hell Beast' that never does any damage to
-      me, and that seems to be immune to my attacks.  What is it?
----------------------------------------------------------------------
-
-The 'Greater Hell Beast' is a joke to scare all the veterans who know
-that an "U" is normally a very dangerous greater demon.  It appears
-very early and can't hurt you directly, but it's very annoying.
-The huge amount of hitpoints and the big armor-class make it nearly
-invincible and even if you manage to kill it, it's not worth the
-efforts.
-
+                    ZAngband Official FAQ                     by Robert Ruehlmann                       rr9@angband.org                       June 5th, 1999==========================================================================1. About this FAQ==========================================================================--------------------------------------------------------------------------1.1 Introduction--------------------------------------------------------------------------ZAngband is a freeware roguelike computer roleplaying game,based on Angband. This document lists frequently askedquestions and answers.--------------------------------------------------------------------------1.2 Table of contents--------------------------------------------------------------------------1. About this FAQ  1.1 Introduction  1.2 Table of contents  1.3 Where can I get this FAQ?2. General questions  2.1 What is ZAngband?  2.2 On what computers can I play it?  2.3 Where can I download it?3. System-specific questions  3.1 DOS    3.1.1 Can I play it in the old ASCII-mode?    3.1.2 Can I use multiple savefiles?    3.1.3 Why uses the DOS version only 2/3 of the screen?  3.2 Windows 95/98/NT    3.2.1 How do I run in the Windows version?    3.2.2 Why do I get an error message when I try to switch on          graphics?4. Game-play questions  4.1 Artifacts    4.1.1 What does the artifact xyz do?    4.1.2 I've found an artifact, but it doesn't show up in the list of          known artifacts. Is that a bug?    4.1.3 I've found an artifact in a store, but I thought artifacts can          never appear there if not sold to the store. Is that a bug?  4.2 Monsters    4.2.1 I've found a 'Greater Hell Beast' that never does any damage to          me, and that seems to be immune to my attacks.  What is it?5. Other questions  5.1 Interface    5.1.1 Why can't I see my spells or missiles flying through the air?--------------------------------------------------------------------------1.3 Where can I get this FAQ?--------------------------------------------------------------------------This FAQ is available from:http://thangorodrim.angband.org/zangband-faq.txt==========================================================================2. General questions==========================================================================--------------------------------------------------------------------------2.1 What is ZAngband?--------------------------------------------------------------------------ZAngband is one of the many variants of the freeware roguelikecomputer roleplaying game Angband.--------------------------------------------------------------------------2.2 On what computers can I play it?--------------------------------------------------------------------------ZAngband is available for many different systems, includingMS-DOS, Windows 95/98/NT, Macintosh, Amiga, OS/2, Acorn RISC OS,and the many different Unix-derivates including Linux.--------------------------------------------------------------------------2.3 Where can I download it?--------------------------------------------------------------------------The newest version of ZAngband is always available from"Thangorodrim - The Angband Page" at:http://thangorodrim.angband.org/and the Angband FTP-Server at:ftp://export.andrew.cmu.edu/angband/==========================================================================3. System-specific questions==========================================================================--------------------------------------------------------------------------3.1 DOS----------------------------------------------------------------------------------------------------------------------------------------------------3.1.1 Can I play it in the old ASCII-mode?--------------------------------------------------------------------------Yes, you can. The old IBM-mode is included in the DOS version and canbe activated with the '-mibm' option. Just run ZAngband with'ZAngband.exe -mibm' to switch it on.--------------------------------------------------------------------------3.1.2 Can I use multiple savefiles?--------------------------------------------------------------------------Yes, you can. Run ZAngband with the -u<name> option. For example:'ZAngband.exe -uFred' loads the character called Fred. If nosavefile called 'Fred' is found then a new one is created. To useanother character just run ZAngband with a different name.--------------------------------------------------------------------------3.1.3 Why uses the DOS version only 2/3 of the screen?--------------------------------------------------------------------------The lower part of the screen is used for displaying two extra windowswith additional information. To activate this feature, press '=' toaccess the ZAngband options, then press 'W' to enter the 'WindowFlags' section. Now you can assign various informations to the twospecial windows lower part of the screen. Move the cursor to the'Mirror' column and switch on one of the options with the 'y' key.A good choice is the 'Display messages' option. Now move to the'Recall' column and select another option (for example 'Displayinven/equip'). Now press the ESCAPE key two times to leave theoptions menu and press Ctrl-R to redraw the screen.--------------------------------------------------------------------------3.2 Windows 95/98/NT----------------------------------------------------------------------------------------------------------------------------------------------------3.2.1 How do I run with the numeric keypad in the Windows version?--------------------------------------------------------------------------Press the Num-Lock key to switch off Num-Lock mode. Now you should beable to run when pressing Shift and a key of the numeric keypad.--------------------------------------------------------------------------3.2.2 Why do I get an error message when I try to switch on graphics?--------------------------------------------------------------------------The 'Unusable bitmap palette (255 entries) - Could not initializegraphics' error means that you tried to use graphics with a desktopset to 256 colors. Switch to high-color or true-color mode to fixthis problem.==========================================================================4. Game-play questions==========================================================================--------------------------------------------------------------------------4.1 Artifacts----------------------------------------------------------------------------------------------------------------------------------------------------4.1.1 What does the artifact xyz do?--------------------------------------------------------------------------Most of the artifacts in ZAngband have some random features, and someare even completely random, so you have to find out what an artifactdoes by yourself. Try reading a scroll of *Identify* (the stars areimportant), of use 'Research item' service offered by some buildingsin the towns. Many spellcasting classes get the *Identify* spell athigher levels. You can also sell artifacts to a store and buy it backimmediatly, but this will cost you a lot of money.The powers of items that have been *Identified* or bought from storescan be displayed at any time with the 'I' command.--------------------------------------------------------------------------4.1.2 I've found an artifact, but it doesn't show up in the list of      known artifacts. Is that a bug?--------------------------------------------------------------------------No. You've found a 'random artifact'.  These kind of artifacts getrandom powers and names, and they are not displayed in the list ofknown artifacts. The random artifacts can be found in addition to thenormal ones, and they may even appear in stores from time to time.--------------------------------------------------------------------------4.1.3 I've found an artifact in a store, but I thought artifacts cannever appear there if not sold to the store. Is that a bug?--------------------------------------------------------------------------No. The store is selling a 'random artifact'.  See question 4.1.2.--------------------------------------------------------------------------4.2 Monsters----------------------------------------------------------------------------------------------------------------------------------------------------4.2.1 I've found a 'Greater Hell Beast' that never does any damage to      me, and that seems to be immune to my attacks.  What is it?--------------------------------------------------------------------------The 'Greater Hell Beast' is a joke to scare all the veterans who knowthat an "U" is normally a very dangerous greater demon.  It appearsvery early and can't hurt you directly, but it's very annoying.The huge amount of hitpoints and the big armor-class make it nearlyinvincible and even if you manage to kill it, it's not worth theefforts.==========================================================================5. Other questions==========================================================================--------------------------------------------------------------------------5.1 Interface----------------------------------------------------------------------------------------------------------------------------------------------------5.1.1 Why can't I see my spells or missiles flying through the air?--------------------------------------------------------------------------First change the "base delay factor" in the options menu to a highersetting.  A value of 4 (64 milli-seconds) displays the graphical effectsnicely.  Also check that "Flush output before every command" in theEfficience Options menu is turned on.

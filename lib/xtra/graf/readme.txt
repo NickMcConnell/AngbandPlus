@@ -1,0 +1,1 @@
+The graphic files are available as a seperate archive from:ftp://export.andrew.cmu.edu/angband/Incoming/angband-graf.ziporhttp://thangorodrim.angband.org/angband-graf.zipRobert Ruehlmannrr9@angband.org
