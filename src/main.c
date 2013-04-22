@@ -637,6 +637,30 @@ int main(int argc, char *argv[])
 	if (!done) quit("Unable to prepare any 'display module'!");
 
 
+	/*  Init the RNG */
+	if (Rand_quick)
+	{
+		u32b seed;
+
+		/* Basic seed */
+		seed = (time(NULL));
+
+#ifdef SET_UID
+
+		/* Mutate the seed on Unix machines */
+		seed = ((seed >> 3) * (getpid() << 1));
+
+#endif
+
+		/* Use the complex RNG */
+		Rand_quick = FALSE;
+
+		/* Seed the "complex" RNG */
+		Rand_state_init(seed);
+	}
+
+
+
 	/* Hack -- If requested, display scores and quit */
 	if (show_score > 0) display_scores(0, show_score);
 

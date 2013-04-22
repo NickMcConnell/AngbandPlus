@@ -46,8 +46,8 @@
 #define FAKE_VER_PATCH 1
 
 /* Added for NTAngband */
-#define DEMENTED_NUMBER 5730297
-#define NTMESS "No Tolkien was butchered in the making of this game."
+#define DEMENTED_NUMBER 479832
+#define NTMESS "MU HU Wa ha ha ha! Ah ha ahha. <cough>.  I darest thee to challenge J.K.Banks!"
 
 #define ANGBAND_2_8_1
 

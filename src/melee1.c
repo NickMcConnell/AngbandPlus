@@ -22,7 +22,7 @@
 static int monster_critical(int dice, int sides, int dam)
 {
 	int max = 0;
-	int total = dice * sides;
+        int total = dice * sides;
 
 	/* Must do at least 95% of perfect */
 	if (dam < total * 19 / 20) return (0);

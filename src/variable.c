@@ -91,6 +91,7 @@ s16b command_gap = 50;	/* See "cmd1.c" */
 s16b command_new;		/* Command chaining from inven/equip view */
 
 s32b energy_use;                /* Energy use this turn */
+bool ate;			/* True if character has eaten this turn */
 
 bool create_up_stair;	/* Auto-create "up stairs" */
 bool create_down_stair;	/* Auto-create "down stairs" */

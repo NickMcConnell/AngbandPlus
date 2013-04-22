@@ -205,7 +205,7 @@ O:0:0:0:0
 B:BITE:HURT:1d4
 B:DROOL:HURT:1d1
 B:SHOW:*
-F:PET | MORTAL | WEIRD_MIND | CAN_SPEAK | WILD_TOWN
+F:PET | MORTAL | WEIRD_MIND | CAN_SPEAK | WILD_TOWN | DROP_CORPSE
 D:Awww... How cute.  A young dog, bounding with enthusiasm.
 
 N:2:Giant Worker Ant
@@ -215,7 +215,7 @@ W:0:1:20:0
 E:1:1:1:6:1:6
 O:0:0:0:0
 B:BITE:HURT:1d4
-F:MORTAL | FEMALE | WILD_TOO | WILD_TOWN
+F:MORTAL | FEMALE | WILD_TOO | WILD_TOWN | DROP_CORPSE
 S:1_IN_5
 S:TPORT
 D:A busy ant, minding her own business.  She digs a path 
@@ -244,7 +244,7 @@ B:BEG:EAT_FOOD:2d1
 B:BEG:EAT_GOLD:1d2
 B:BEG:*
 B:TOUCH:EAT_GOLD:1d5
-F:MORTAL | FRIENDS 
+F:MORTAL | FRIENDS | DROP_CORPSE 
 D:A penniless loser who begs you for booze money.
 
 N:13:Grey mold
@@ -297,7 +297,7 @@ O:0:0:0:0
 B:BITE:HURT:1d4
 B:CLAW:HURT:1d3
 B:TOUCH:EAT_FOOD
-F:MORTAL | EVIL 
+F:MORTAL | EVIL | DROP_CORPSE
 S:1_IN_2
 S:MULTIPLY 
 D:The first of many evil monsters.
@@ -311,7 +311,7 @@ O:0:0:0:0
 B:BITE:HURT:10d4
 B:BITE:HURT:5d5
 B:BITE:HURT:2d6
-F:FEMALE | UNIQUE | NO_SLEEP | NO_CONF | NO_STUN | 
+F:FEMALE | UNIQUE | NO_SLEEP | NO_CONF | NO_STUN | DROP_CORPSE
 F:SMART | AI_ANNOY
 D:A Shih-Tzu/Chihuahua mix, she yaps and annoys intensely.  
 
@@ -326,14 +326,14 @@ E:0:1:1:2:1:1
 O:20:0:40:40
 B:MOAN:CONFUSE:2d10
 B:TOUCH:HURT:1d1
-F:MORTAL | SMART | NO_CONF | PASS_WALL 
+F:MORTAL | SMART | NO_CONF | PASS_WALL | DROP_CORPSE
 D:A respectable scholarly fellow, who examines the 
 D:fascinating rock of this cave.  You have interrupted 
 D:his work!
 
 N:31:Little Lie
 G:v:w
-I:140:3d7:100:20:150
+I:140:3d7:2:20:150
 W:3:50:1:11
 E:1:1:1:2:1:1
 O:0:0:0:0
@@ -343,6 +343,38 @@ F:EVIL
 S:1_IN_1
 S:MULTIPLY | TPORT | BLINK
 D:Nothing but a harmless lie...
+
+# level 4
+N:40:Casper, the Friendly Ghost
+G:G:W
+I:130:20d10:10:100:0
+W:4:100:0:100
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:WAIL:*
+B:WAIL:*
+B:WAIL:*
+B:SHOW:HURT:12d4
+F:PET | AI_ANNOY | SMART | UNIQUE | PASS_WALL | INVISIBLE
+S:1_IN_1
+S:HEAL | BLINK
+D:An insecure ghost whose loneliness and attention seeking are sickening.
+
+# level 7
+N:70:Minor Greed
+G:v:y
+I:130:20d10:12:15:0
+W:7:25:0:10
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:BITE:LOSE_CON:2d2
+B:BITE:EXP_10
+B:TOUCH:EAT_GOLD:-1d10
+B:TOUCH:EAT_GOLD
+F:EVIL
+S:1_IN_10
+S:BLINK | MULTIPLY
+D:A little bit of gold-lust can't be that bad, now can it?
 
 # level 10
 
@@ -389,6 +421,33 @@ S:1_IN_7
 S:BR_POIS
 D:Beware the dangerous Lysol this virtue breathes!
 
+# level 48
+N:480:Delusion Snake
+G:R:G
+I:100:20d10:5:100:200
+W:48:1:250:20
+E:1:1:1:2:1:1
+O:0:0:0:0
+B:BITE:INSANITY:4d10
+B:GAZE:HURT:1d15
+B:GAZE:PARALYZE:6d6
+F:MORTAL | DROP_CORPSE | OPEN_DOOR
+S:1_IN_4
+S:BR_CHAO
+D:Expected after trauma and heavy drinking...
+
+N:481:Pink Toad
+G:R:r
+I:120:10d1:10:25:100
+W:48:1:50:20
+B:BITE:HURT:2d10
+B:BITE:CONFUSE:1d3
+F:MORTAL | DROP_CORPSE | ELDRITCH_HORROR
+S:1_IN_2
+S:MULTIPLY | BR_CHAO
+D:'All pink.  All pink--as big as mastiffs, with an eye on the top of the 
+D:head and claws all round their ugly mouths.'
+
 # level 49
 
 N:490:Greater Hell Mosquito
@@ -401,7 +460,7 @@ B:BITE:EXP_80
 B:BITE:POISON:8d8
 B:BITE:PARASITE:4d4
 B:BITE:DISEASE
-F:FEMALE | MORTAL | CAN_FLY
+F:FEMALE | MORTAL | CAN_FLY | DROP_CORPSE | AURA_FIRE
 S:MULTIPLY
 D:This is the scariest skeeter you've seen since that camping trip in Texas. 
 
@@ -431,7 +490,7 @@ B:CLAW:PARASITE:4d64
 B:TOUCH:UN_BONUS
 F:MALE | MORTAL | UNIQUE | CAN_SPEAK | NO_CONF 
 F:IM_FIRE | IM_COLD | IM_POIS | IM_ACID | IM_ELEC  
-S:1_IN_1
+S:1_IN_10
 S:TPORT | BR_SOUN | BR_NEXU
 D:The vicious and demented maintainer of NTA, his piercing gaze and 
 D:horrible singing, (not to mention his theories) ought 

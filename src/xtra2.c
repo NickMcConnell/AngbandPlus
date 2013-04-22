@@ -4186,12 +4186,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
                 {
                         if ((r_ptr->flags7 & RF7_NAZGUL) && r_info[test_monster_name("Sauron, the Sorcerer")].max_num)
                         {
-                                msg_print("Somehow you feel he is not totaly destroyed...");
+                                msg_print("Somehow you feel he is not totally destroyed...");
                                 r_ptr->max_num = 1;
                         }
                         else if ((m_ptr->r_idx == test_monster_name("Sauron, the Sorcerer")) && (quest[QUEST_ONE].status < QUEST_STATUS_FINISHED))
                         {
-                                msg_print("Sauron will not be permanently defeated until the One Ring is eiter destroyed or used...");
+                                msg_print("Sauron will not be permanently defeated until the One Ring is either destroyed or used...");
                                 r_ptr->max_num = 1;
                         }
                         else

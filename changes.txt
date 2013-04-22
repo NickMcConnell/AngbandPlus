@@ -1,23 +1,4 @@
 
-26/10/1998
-- Added potions of Mutation
-- Warrior-Mage now can choose Sorcery instead of Arcane
-- Invisibility, Potion of Invisibility, Ring of Invisibility and
-  The One Ring now has invisibility like in the Lord Of The Rings !!!
-- Added the parchments from Kamband
-
-30/10/1998
-- Ported PernAngband to the new Zangband 2.2.0
-- Added the mimic class
-- Some Zangband bugs are fixed
-- The DragonRider can now only teleport on known terrain, because they must
-  mentally show the destination to their dragons but to do this they MUST
-  have seen the destination before (like in the Anne McCaffrey books) !
-- The Ringwraiths are back!
-- Some uniques like Bert, Tom, Bill are back, while others (Gandalf, Fangorn)
-  are gone!
-- Morgoth and Sauron are back as the final quests
-
 01/11/1998 - PernAngband 3.0.0
 - All reference to Zangband have been removed
 - Added monster corpses
@@ -2576,3 +2557,14 @@ becomes 0, allowing spells to summon fiery blades and such
 - Dumped the Pern monster list, will return dearly beloved nasties
 - Current r_info.txt will be the shared monster list when I implement
   separate monster lists for each dungeon
+
+10/22/2001 - NTAngband 479832 aka "0.2"
+- Rewrote and improved monster list, with mixed lists in mind
+- Added special properties to food
+- Made food more realistic, it takes longer to eat a ration of food than 
+  a Furry Mushroom of Unhealth.  Elvish Waybread much more usable/abusable.
+- Added Random Birth option.  Needs work, certain race/rmod/class combos are 
+  too common.
+- Shrunk the archive, I hope down/uploads will be faster.  Sorry, no binaries.
+- Note: I am slowly deleting Pern changes in the changelog.  If you want the
+  full list, get a copy of Pern.

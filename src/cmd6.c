@@ -735,6 +735,10 @@ void do_cmd_eat_food(void)
 
         bool destroy = TRUE;
 
+	extern bool ate;
+	
+	/* You can only eat once per turn */
+	if(ate) return;
         /* Restrict choices to food and firestone */
         item_tester_hook = item_tester_hook_eatable;
 
@@ -758,10 +762,6 @@ void do_cmd_eat_food(void)
 
 	/* Sound */
 	sound(SOUND_EAT);
-
-
-	/* Take a turn */
-	energy_use = 100;
 
 	/* Identity not known yet */
 	ident = FALSE;
@@ -986,16 +986,24 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_RATION:
 		case SV_FOOD_BISCUIT:
-		case SV_FOOD_JERKY:
 		{
-			msg_print("That tastes good.");
-			ident = TRUE;
-			break;
+		if(!rand_int(2500))
+		  do_inc_stat(A_CON);
+		msg_print("Boring, but nutritious.");
+		}
+		
+		case SV_FOOD_JERKY:
+		{ 
+		if(!rand_int(2500))
+		  do_inc_stat(A_STR);
+		msg_print("That tastes good.");
+		ident = TRUE;
+		break;
 		}
 
 		case SV_FOOD_SLIME_MOLD:
 		{
-			msg_print("That tastes good.");
+			msg_print("That tastes disgusting.  What kind of heathen would eat a cute slime mold?");
 
                         /* 2% chance of getting the mold power */
                         if (magik(2))
@@ -1010,7 +1018,15 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_WAYBREAD:
 		{
-                        msg_print("That tastes very good.");
+            		if(!rand_int(2500))
+			  {
+			  do_inc_stat(A_CHR);
+			  do_inc_stat(A_CHR);
+			  do_inc_stat(A_WIS);          
+			  do_inc_stat(A_INT);
+			  do_inc_stat(A_INT);
+			  }
+			msg_print("That tastes very good.");
 			(void)set_poisoned(0);
 			(void)hp_player(damroll(4, 8));
                         set_food(PY_FOOD_MAX - 1);
@@ -1163,7 +1179,7 @@ void do_cmd_eat_food(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
-        if(!fval) fval = o_ptr->pval;
+        if(!fval) fval = 250;
 
 	/* Food can feed the player */
         if ((p_ptr->pracem == RMOD_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
@@ -1188,10 +1204,12 @@ void do_cmd_eat_food(void)
 	{
                 (void)set_food(p_ptr->food + fval);
 	}
-
+	
+	/* We've eaten */
+	ate = TRUE;
 
 	/* Destroy a food in the pack */
-        if(destroy)
+        if(!rand_int(o_ptr->pval / 250))
         {
                 if (item >= 0)
                 {

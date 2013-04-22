@@ -33,9 +33,13 @@ drop me a line please) in no particular order:
 - All the friendly people of #angband
 - All the friendly people of the PernAngband mailling list
 
--- my credits
+-- NT credits, in order of my adding them to the list
 -Ivan Tkatchev, inspiration
 -DarkGod, a platform
 -Albert, the schizodiskic computer
 -Abe, the little Minix box that could
 -George, the 486 on which I play Vanilla
+-Tanksley, for simplicity suggestions
+-God, for creating the universe
+-Tolkien, obvious reasons
+-DavidB (not Satan!) and Jens Baader, criticisms on archive size

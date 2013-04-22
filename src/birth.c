@@ -19,7 +19,7 @@
  * system may have problems because the user can't stop the
  * autoroller for this number of rolls.
  */
-#define AUTOROLLER_STEP 25L
+#define AUTOROLLER_STEP 250L
 
 /*
  * Maximum number of tries for selection of a proper quest monster
@@ -2943,7 +2943,28 @@ static bool player_birth_aux_ask()
         s16b *class_types;
 
 	/*** Intro ***/
+	if (Rand_quick)
+	{
+		u32b seed;
 
+		/* Basic seed */
+		seed = (time(NULL));
+
+#ifdef SET_UID
+
+		/* Mutate the seed on Unix machines */
+		seed = ((seed >> 3) * (getpid() << 1));
+
+#endif
+
+		/* Use the complex RNG */
+		Rand_quick = FALSE;
+
+		/* Seed the "complex" RNG */
+		Rand_state_init(seed);
+	}
+	/* So there */
+	
 	/* Clear screen */
 	Term_clear();
 
@@ -2970,9 +2991,30 @@ static bool player_birth_aux_ask()
 		"and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
 
-        /*** Quick Start ***/
+	/*** Random Birth ***/
+	
+        while (1)
+        {
+                sprintf(buf, "Random Birth (y/n)?");
+                put_str(buf, 20, 2);
+                c = inkey();
+                if (c == 'Q') quit(NULL);
+                else if (c == 'S') return (FALSE);
+                else if ((c == 'y') || (c == 'Y'))
+                {
+                        rand_birth = TRUE;
+                        break;
+                }
+                else
+                {
+                        rand_birth = FALSE;
+                        break;
+                }
+        }
+        
+	/*** Quick Start ***/
 
-        if (previous_char.quick_ok)
+        if (previous_char.quick_ok && !rand_birth)
         {
                 /* Extra info */
                 Term_putstr(1, 15, -1, TERM_WHITE,
@@ -3088,7 +3130,10 @@ static bool player_birth_aux_ask()
                 sprintf(buf, "Choose a race (%c-%c), * for a random choice, = for options, 8/2/4/6 for movment: ", I2A(0), I2A(MAX_RACES - 1));
                 put_str(buf, 17, 2);
 
-		c = inkey();
+		if(rand_birth)
+		  c = '*';
+		else
+		  c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
 		if (c == '*')
@@ -3202,7 +3247,10 @@ static bool player_birth_aux_ask()
                 {
                         sprintf(buf, "Choose a race modifier (%c-%c), * for a random choice, = for options: ", I2A(0), I2A(max_racem - 1));
                         put_str(buf, 17, 2);
-                        c = inkey();
+                        if(rand_birth)
+			  c = '*';
+			else
+			  c = inkey();
                         if (c == 'Q') quit(NULL);
                         if (c == 'S') return (FALSE);
                         if (c == '*')
@@ -3299,7 +3347,10 @@ repeat_player_class:
 	{
                 sprintf(buf, "Choose a class type (a-e), * for random, = for options: ");
                 put_str(buf, 15, 2);
-		c = inkey();
+		if(rand_birth)
+		  c = '*';
+		else
+		  c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
 		if (c == '*')
@@ -3338,7 +3389,10 @@ repeat_player_class:
 	{
                 sprintf(buf, "Choose a class (%c-%c), * for random, = for options, 8/2/4 for up/down/back: ", I2A(0), (n <= 25)?I2A(n-1):I2D(n-26-1));
                 put_str(buf, 15, 2);
-		c = inkey();
+		if(rand_birth)
+		  c = '*';
+		else
+		  c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
 		if (c == '*')
@@ -3429,10 +3483,13 @@ repeat_player_class:
                 /* Choose */
                 while (1)
                 {
-                        sprintf(buf, "Choose a god (%c-%c), * for a random choice, = for options, 8/2/4/6 for movment: ", I2A(0), I2A(MAX_GODS));
+            	        sprintf(buf, "Choose a god (%c-%c), * for a random choice, = for options, 8/2/4/6 for movment: ", I2A(0), I2A(MAX_GODS));
                         put_str(buf, 19, 2);
 
-                        c = inkey();
+			if(rand_birth)
+			  c = '*';
+			else
+                          c = inkey();
                         if (c == 'Q') quit(NULL);
                         if (c == 'S') return (FALSE);
                         if (c == '*')
@@ -3626,10 +3683,14 @@ repeat_player_class:
 			strcpy(inp, "20");
 
 			/* Get a response (or escape) */
-			if (!askfor_aux(inp, 2)) inp[0] = '\0';
-                        if (inp[0] == '*') v = rand_int(MAX_RANDOM_QUEST);
-                        else v = atoi(inp);
-
+			if(rand_birth)
+		          v = randint(98);
+			else
+			  {
+			  if (!askfor_aux(inp, 2)) inp[0] = '\0';
+                          if (inp[0] == '*') v = rand_int(MAX_RANDOM_QUEST);
+                          else v = atoi(inp);
+			  }
 			/* Break on valid input */
                         if ((v < MAX_RANDOM_QUEST) && ( v >= 0 )) break;
 		}
@@ -4074,7 +4135,7 @@ static bool player_birth_aux_auto()
 			/* Break if "happy" */
 			if (accept) break;
 
-			/* Take note every 25 rolls */
+			/* Take note every few rolls */
 			flag = (!(auto_round % AUTOROLLER_STEP));
 
 			/* Update display occasionally */

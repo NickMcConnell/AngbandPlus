@@ -4425,6 +4425,7 @@ static void process_player(void)
 {
         int i, j;
 
+	extern bool ate;
 	/*** Apply energy ***/
 
         if (hack_corruption)
@@ -4440,7 +4441,9 @@ static void process_player(void)
 	/* No turn yet */
 	if (p_ptr->energy < 100) return;
 
-
+	/* We've eaten */
+	ate = FALSE;
+	
 	/*** Check for interupts ***/
 
 	/* Complete resting */
@@ -5375,27 +5378,6 @@ void play_game(bool new_game)
                 process_player_name(FALSE);
 	}
 #endif
-	/* Init the RNG */
-	if (Rand_quick)
-	{
-		u32b seed;
-
-		/* Basic seed */
-		seed = (time(NULL));
-
-#ifdef SET_UID
-
-		/* Mutate the seed on Unix machines */
-		seed = ((seed >> 3) * (getpid() << 1));
-
-#endif
-
-		/* Use the complex RNG */
-		Rand_quick = FALSE;
-
-		/* Seed the "complex" RNG */
-		Rand_state_init(seed);
-	}
 
 	/* Extract the options */
 	for (i = 0; option_info[i].o_desc; i++)
