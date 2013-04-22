@@ -20,7 +20,7 @@ M:Z:10
 M:R:1041
 
 # Maximum number of monsters in re_info.txt
-M:r:15
+M:r:16
 
 # Maximum number of items in k_info.txt
 M:K:812
@@ -41,7 +41,7 @@ M:E:200
 M:D:30
 
 # Maximum number of trap types in tr_info.txt
-M:U:171
+M:U:173
 
 # Maximum number of terrain types in wf_info.txt
 M:W:30

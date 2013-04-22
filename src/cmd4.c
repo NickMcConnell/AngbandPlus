@@ -1,4 +1,3 @@
-/* File: cmd4.c */
 
 /* Purpose: Interface commands */
 
@@ -696,13 +695,14 @@ void do_cmd_options_aux(int page, cptr info, bool read_only)
 {
 	char	ch;
 
-	int	i, k = 0, n = 0;
+	int	i, ix, k = 0, n = 0;
 
 	int	opt[24];
 
 	char	buf[80];
 
-
+	if(rand_opts && rand_birth != 32)
+	  return;
 	/* Lookup the options */
 	for (i = 0; i < 24; i++) opt[i] = 0;
 
@@ -718,7 +718,7 @@ void do_cmd_options_aux(int page, cptr info, bool read_only)
 	Term_clear();
 
 	/* Interact with the player */
-	while (TRUE)
+	for(ix = 0; ix < n; ++ix)
 	{
 		/* Prompt XXX XXX XXX */
 		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
@@ -744,8 +744,10 @@ void do_cmd_options_aux(int page, cptr info, bool read_only)
 		move_cursor(k + 2, 50);
 
 		/* Get a key */
-		ch = inkey();
-
+		if(rand_opts && rand_birth == 32)
+		  ch = (randint(2) - 1 ? 'y' : 'n');
+		else
+		  ch = inkey();
 		/* Analyze */
 		switch (ch)
 		{
@@ -1106,6 +1108,7 @@ static void do_cmd_pref_file_hack(int row)
 }
 
 
+
 /*
  * Set or unset various options.
  *
@@ -1115,7 +1118,6 @@ static void do_cmd_pref_file_hack(int row)
 void do_cmd_options(void)
 {
 	int k;
-
 
 	/* Enter "icky" mode */
 	character_icky = TRUE;
@@ -1179,7 +1181,10 @@ void do_cmd_options(void)
                         case 'o':
                         case 'O':
                         {
-                                /* Ask for and load a user pref file */
+                    		if(rand_opts) 
+				  break;
+			        
+				/* Ask for and load a user pref file */
                                 do_cmd_pref_file_hack(21);
                                 break;
                         }
@@ -1228,6 +1233,9 @@ void do_cmd_options(void)
 			/* Disturbance Options */
 			case '2':
 			{
+				if(rand_opts && rand_birth != 32)
+				  break;
+				  
 				/* Spawn */
                                 do_cmd_options_aux(2, "Disturbance Options", FALSE);
 				break;
@@ -1236,6 +1244,8 @@ void do_cmd_options(void)
 			/* Inventory Options */
 			case '3':
 			{
+				if(rand_opts && rand_birth != 32)
+				  break;
 				/* Spawn */
                                 do_cmd_options_aux(3, "Game-Play Options", FALSE);
 				break;
@@ -1244,6 +1254,7 @@ void do_cmd_options(void)
 			/* Efficiency Options */
 			case '4':
 			{
+				
 				/* Spawn */
                                 do_cmd_options_aux(4, "Efficiency Options", FALSE);
 				break;
@@ -1252,7 +1263,10 @@ void do_cmd_options(void)
                         /* PernAngband Options */
                         case 'P': case 'p': case '5':
 			{
-                                do_cmd_options_aux(5, "PernAngband Options", FALSE);
+                                
+				if(rand_opts && rand_birth != 32)
+				  break;
+				do_cmd_options_aux(5, "PernAngband Options", FALSE);
 				break;
 			}
 
@@ -1268,6 +1282,8 @@ void do_cmd_options(void)
 			case 'S':
 			case 's':
 			{
+				if(rand_opts && rand_birth != 32)
+				  break;
 				/* Spawn */
                                 do_cmd_options_aux(7, "Stacking Options", FALSE);
 				break;
@@ -1373,6 +1389,7 @@ void do_cmd_options(void)
 
 	/* Leave "icky" mode */
 	character_icky = FALSE;
+	
 }
 
 

@@ -1,3 +1,25 @@
+######====== NTAngband variable-length History ========
+
+Ahehehemn.  This is J. K. Banks, aka jkbanks, aka jkb, aka James.  I first
+started playing Angband a while ago, depending on when you read this.  Anyhow,
+I have ***NEVER*** won a ***SINGLE*** game of ***ANGBAND*** ***!***  I find it
+frustrating, yet strangely addictive, and I wanted to share the frustration
+with people of all levels of Angband skill.  I enjoyed the Tolkien books in
+part of my misspent youth, but after the seventh time through, the Lord of the
+Rings trilogy got old (not that I don't enjoy it).  I am waiting until I start
+going senile so I can read it again.  Until then, I play Angband.
+    One of the most annoying features of Vanilla is all those D&D references.
+They make me cringe.  So I went hunting around for a variant that was truly
+Tolkienian.  After a time, I decided to try PernAngband.  I liked how it was
+more Tolkienian, but still, much was missing, and much was added that didn't 
+seem right.
+    After a few seconds of introspection, I realized that no matter what 
+DarkGod does to it, Pern, or any other game, will pale in comparison with
+the works of Tolkien.  So, I decided, to the Nether Region with that idea, 
+why not make a variant with *NO* Tolkien?  The result is a game as demented
+and YASD-inspiring as KaMBand, as feature-burdened as Pern 5.0.1, and as 
+Non-Tolkienian as Dwar, Dog Lord of Waw.
+
 |||||oy
 #####R====== PernAngband Brief History =======
 

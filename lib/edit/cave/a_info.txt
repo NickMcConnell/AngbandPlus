@@ -1,0 +1,81 @@
+# File: a_info.txt
+
+
+# This file is used to initialize the "lib/raw/a_info.raw" file, which is
+# used to initialize the "artifact" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/a_info.raw" file.
+
+
+# The artifact indexes are defined in "defines.h", and must not be changed.
+
+# Artifacts 1-15 are "special", 16-63 are "armor", and 64-127 are "weapons".
+
+# Hack -- "Grond" and "Morgoth" MUST have a rarity of one, or they might
+# not be dropped when Morgoth is killed.  Note that they, like the "special"
+# artifacts, are never created "accidentally".
+
+# Artifacts now have descriptions.  Special thanks to J.R.R Tolkien, 
+# without whom the words would be unwritten, the images unconceived, 
+# the deed undone.  
+#                                            -Leon Marrick
+# Contributors: Jeff Butler, Neal Hackler, Ethan Sicotte, Pat Tracy, Divia
+
+# Version stamp (required)
+#N:serial number:name
+#I:tval:sval:pval
+#W:depth:rarity:weight:cost
+#P:base ac:damage dice:+to hit:+to dam:+ac 
+#F:flags
+#Z:power
+#D:description
+
+#tval key
+# 19 - bow
+# 33 - headgear
+# 40 - amulet
+
+
+V:2.8.1
+
+# The Amulet of Cure Critical Wounds
+N:7:of Cure Critical Wounds
+I:40:9:0
+W:25:5:5:60000
+F:RES_CONF | RES_BLIND | RES_POIS
+D:With this amulet around your neck, you can leave your potions at home! 
+
+# The Iron Crown of Glincu
+N:17:of Glincu
+I:33:50:6
+W:35:50:50:120000
+P:0:0d0:75:0:-30
+F:STR | DEX | CON
+F:SLOW_DIGEST | FREE_ACT | SEE_INVIS | RES_CONF | RES_SOUND | SEARCH
+D:This crown gives unbelievable accuracy to the aspiring bowman.
+D:It is battle-worn and does a poor job of protecting your head.
+
+# The Cloak that plugs up holes in the Glincu kit
+N:18:'Glincollo'
+I:35:1:12
+W:35:50:10:120000
+P:1:0d0:0:0:15
+F:STEALTH | CHR | RES_DISEN | RES_BLIND | RES_SHARDS
+D:A gleaming cloak that strangely evades notice.
+
+# The Long Bow 'Glincuthalion'
+N:124:'Glincuthalion'
+I:19:13:3
+W:35:50:40:120000
+P:0:0d0:-25:0:-10
+F:RES_NETHER | RES_POIS | RES_LITE | 
+F:REGEN | FEATHER | 
+F:XTRA_SHOTS | XTRA_MIGHT |
+F:STEALTH | STR | DEX | CON
+D:The mighty long bow of Glincu IX, his horrible air hound death could 
+D:have been prevented if he had this bow.  Unfortunately, it requires 
+D:a character with a real eye for bows to use it properly.
+

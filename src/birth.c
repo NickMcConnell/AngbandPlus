@@ -2943,13 +2943,12 @@ static bool player_birth_aux_ask()
         s16b *class_types;
 
 	/*** Intro ***/
-	if (Rand_quick)
+	if (1)
 	{
 		u32b seed;
 
 		/* Basic seed */
-		seed = (time(NULL));
-
+		seed = time(NULL);
 #ifdef SET_UID
 
 		/* Mutate the seed on Unix machines */
@@ -2990,12 +2989,33 @@ static bool player_birth_aux_ask()
         Term_putstr(5, 11, -1, TERM_WHITE,
 		"and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
+	/*** Random Options ***/
+	
+	while (1)
+        {
+                sprintf(buf, "Random options (y/n)?");
+                put_str(buf, 20, 2);
+                c = inkey();
+                if (c == 'Q') quit(NULL);
+                else if (c == 'S') return (FALSE);
+                else if ((c == 'y') || (c == 'Y'))
+                {
+                        rand_opts = TRUE;
+                        do_cmd_options();
+			break;
+                }
+                else
+                {
+                        rand_opts = FALSE;
+                        break;
+                }
+        }
 
 	/*** Random Birth ***/
 	
         while (1)
         {
-                sprintf(buf, "Random Birth (y/n)?");
+                sprintf(buf, "Random birth (y/n)?");
                 put_str(buf, 20, 2);
                 c = inkey();
                 if (c == 'Q') quit(NULL);
@@ -3011,7 +3031,8 @@ static bool player_birth_aux_ask()
                         break;
                 }
         }
-        
+
+	
 	/*** Quick Start ***/
 
         if (previous_char.quick_ok && !rand_birth)

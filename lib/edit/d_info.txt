@@ -21,6 +21,7 @@
 # R:<percent>:<flags mode>
 # M:<monster flags>
 # S:<monster spells>
+# T:<subdirectory for other template files>
 
 # Note for <flags mode> :
 # 0 = No restriction
@@ -43,21 +44,24 @@ A:96:100:56:0:56:0:57:58
 O:20:20:20:20
 F:PRINCIPAL | FLAT | NO_RECALL
 R:100:0
+T:old
 
 ### The principal dungeons, they were created by spliting the vanilla dungeon ###
+# and now they are meaningless, like everything else under the sun. #
 
 N:1:Mirkwood
 D:Mkw:a way to the Mirkwood Forest
-W:11:33:5:2:14:160
+W:51:52:5:2:14:160
 L:89:95:199:5:88:0
 A:96:100:97:0:56:0:202:96
 O:20:20:20:20
 F:PRINCIPAL | NO_DOORS | NO_DESTROY | FLAT
 R:100:0
+T:old
 
 N:2:Mordor
 D:Mdr:a door to the Land of Mordor
-W:34:66:15:3:14:160
+W:53:54:15:3:14:160
 L:88:67:93:33:1:0
 L:0:100:0
 A:97:50:56:50:56:0:57:97
@@ -65,28 +69,28 @@ A:0:100:0
 O:20:20:20:20
 F:PRINCIPAL | LAVA_RIVER | CAVERN
 R:100:0
+T:old
 
 N:3:Angband
 D:Ang:an entrance to the Pits of Angband
-W:67:127:30:0:14:160
+W:55:56:30:0:14:160
 L:1:100:1:0:1:0
 A:56:100:56:0:56:0:57:58
 O:20:20:20:20
-F:PRINCIPAL | CAVERN
+F:PRINCIPAL | CAVERN 
 R:100:0
+T:old
 
-N:4:Barrow-Downs
-D:BDw:a way to the Barrow-Downs
-W:1:10:1:1:14:160
-L:88:78:89:18:199:4
-L:0:95:5
-A:96:34:97:66:56:0:57:97
-A:100:0:0
+# MMyesss... The Cave!!!  J. K. Banks' little repository of weird monsters
+# Some are boring "Natural" monsters.
+N:4:Cave
+D:Cve:a tight crawl.
+W:1:50:1:1:14:160
+L:1:100:1:0:1:0
+A:56:100:56:0:56:0:57:58
 O:20:20:20:20
-F:PRINCIPAL | FLAT
-R:25:1
-M:UNDEAD
-R:75:0
+F:PRINCIPAL | CAVERN | WATER_RIVERS | CIRCULAR_ROOMS | CAVE
+T:cave
 
 # The Additional dungeons
 
@@ -102,6 +106,7 @@ E:2d10:10:FIRE
 F:CAVE | LAVA_RIVER | NO_RECALL
 R:100:1
 M:IM_FIRE
+T:old
 
 # Nether Realm
 # Levels 666-696 (!!!)
@@ -120,6 +125,7 @@ F:LAVA_RIVER | FINAL_GUARDIAN_1032 | FINAL_ARTIFACT_203
 R:5:0
 R:95:3
 M:RES_NETH | R_CHAR_G | R_CHAR_W | R_CHAR_U
+T:old
 
 # The Lost Land of Numenor
 # levels 35-50
@@ -136,6 +142,7 @@ F:FINAL_GUARDIAN_980 | FINAL_ARTIFACT_204
 R:20:0
 R:80:3
 M:AQUATIC | CAN_SWIM | CAN_FLY
+T:old
 
 # Used for astral mode
 N:8:Halls of Mandos
@@ -147,6 +154,7 @@ A:56:100:56:0:56:0:57:58
 F:RANDOM_TOWNS | NO_RECALL
 R:100:2
 M:UNIQUE
+T:old
 
 # Cirith Ungol
 # levels 25-50
@@ -166,6 +174,7 @@ R:49:3
 M:SPIDER | R_CHAR_c | R_CHAR_a | R_CHAR_I | 
 R:49:3
 M:ORC | R_CHAR_w | R_CHAR_m | R_CHAR_j
+T:old
 
 # The Heart of the Earth
 # levels 25-36
@@ -182,6 +191,7 @@ M:R_CHAR_# | R_CHAR_X | R_CHAR_g | R_CHAR_E |
 R:30:3
 M:PASS_WALL | KILL_WALL | HURT_ROCK
 R:30:0
+T:old
 
 # The Graveyard
 # levels 40-70
@@ -198,6 +208,7 @@ R:10:3
 M:R_CHAR_p
 R:85:3
 M:UNDEAD | NONLIVING
+T:old
 
 # The Illusory Castle
 # levels 35-52
@@ -216,6 +227,7 @@ R:70:3
 M:STUPID | WEIRD_MIND | SHAPECHANGER | ATTR_MULTI | CHAR_MULTI | RAND_25 |
 M:RAND_50 | EMPTY_MIND | INVISIBLE | PASS_WALL | KILL_WALL
 S:BR_CONF | BR_CHAO | BA_CHAO | CONF | FORGET | TRAPS | MULTIPLY
+T:old
 
 # The Maze
 # Levels 25-37
@@ -231,6 +243,7 @@ F:FINAL_GUARDIAN_1029 | FINAL_ARTIFACT_38
 R:80:0
 R:20:3
 M:R_CHAR_p
+T:old
 
 # The Orc Cave
 # levels 10-22
@@ -248,6 +261,7 @@ M:TROLL
 R:20:0
 R:50:3
 M:ORC | R_CHAR_k | R_CHAR_o | R_CHAR_O
+T:old
 
 # The Dragon's Lair
 # levels 60-72
@@ -265,6 +279,7 @@ R:60:1
 M:DRAGON | R_CHAR_D
 R:30:1
 M:DRAGON | R_CHAR_d
+T:old
 
 # The Old Forest
 # levels 13-25
@@ -283,6 +298,7 @@ R:40:3
 M:ANIMAL 
 R:30:3
 M:UNDEAD | R_CHAR_h
+T:old
 
 # The Mines of Moria
 # levels 30-50
@@ -304,6 +320,7 @@ M:TROLL | GIANT
 R:20:3
 M:DEMON
 R:10:0
+T:old
 
 # The tower of Dol Guldur
 # Levels 57-70
@@ -324,6 +341,7 @@ M:UNDEAD
 R:30:3
 M:DEMON | DRAGON
 R:10:0
+T:old
 
 # Dungeons from Variaz
 
@@ -346,6 +364,7 @@ M:IM_COLD
 S:BA_WATE
 R:40:3
 M:IM_COLD
+T:old
 
 # The Land of Mountains
 # T'ron the rebel Dragonrider is hiding here, with his suit of 
@@ -362,6 +381,7 @@ F:FINAL_GUARDIAN_789 | FINAL_ARTIFACT_27
 R:60:3
 M:CAN_FLY
 R:40:0
+T:old
 
 # The Land of Rhun
 # levels 26-40
@@ -379,22 +399,20 @@ M:R_CHAR_p | R_CHAR_h
 R:30:3
 M:ANIMAL
 R:40:0
+T:old
 
-# The Sandworm's Lair
-# level 22-29
-# guarded by the Sandworm Queen (and her children), who will drop her armor
-N:27:The Sandworm lair
-D:SwL:a sandhole
-W:22:29:12:0:5:200
-L:91:85:94:10:93:5
-A:98:100:96:0:84:0:94:94
-O:15:5:60:20
-F:NO_DOORS | SAND_VEIN |
-F:FINAL_GUARDIAN_1030 | FINAL_ARTIFACT_153
-R:90:3
-M:R_CHAR_w
-R:10:3
-S:MULTIPLY
+# The Flying Circus
+# level something to the other
+# guarded by the Ghost of Graham Chapman who drops the funniest joke in the 
+# world
+#N:27:The Flying Circus
+#D:FlC:the lair of Monty Python
+#W:22:29:12:0:5:200
+#L:91:85:94:10:93:5
+#A:98:100:96:0:84:0:94:94
+#O:15:5:60:20
+#F:NO_DOORS | SAND_VEIN |
+#T:python
 
 # Used by the death fate
 N:28:Death fate
@@ -405,6 +423,7 @@ A:1:100:1:0:1:0:1:1
 O:1:1:1:1
 F:EMPTY | SMALLEST | NO_RECALL
 R:100:0
+T:.
 
 # The Grinding Ice
 # levels 20-40
@@ -422,6 +441,7 @@ F:DOUBLE | WATER_RIVER | CAVERN |
 F:FINAL_GUARDIAN_1034 | FINAL_ARTIFACT_96
 R:100:1
 M:IM_COLD
+T:old
 
 # N:<index>:<name>
 # D:<3 letter short name>:<long name>

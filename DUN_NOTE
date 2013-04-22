@@ -1,0 +1,9 @@
+A little note about the new separate dungeon, separate list feature:
+There is no "old" directory, so don't go in dungeons that have T:old
+entries in their d_info.txt listings.  If you want the "old" directory,
+download Pern 5.0.1 or thereabouts and copy the text files into a 
+directory named "/old".  When I get one of those rare round tuits
+I'll fix up these problems.  When I release the maintainer's cut of 
+1.0, I'll include everything, including save files, obsolete files,
+old news.txt files, but the normal releases need to be small, so none
+of those goodies.

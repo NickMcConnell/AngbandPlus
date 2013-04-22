@@ -4457,6 +4457,8 @@ void init_angband(void)
 	note("[Initializing values... (misc)]");
 	if (init_misc()) quit("Cannot initialize misc. values");
 
+/* Some of these need to be called on dungeon entry */
+#if 0
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
@@ -4484,6 +4486,7 @@ void init_angband(void)
         /* Initialize ego monster info */
         note("[Initializing arrays... (ego monsters)]");
         if (init_re_info()) quit("Cannot initialize ego monsters");
+#endif
 
         /* Initialize dungeon type info */
         note("[Initializing arrays... (dungeon types)]");

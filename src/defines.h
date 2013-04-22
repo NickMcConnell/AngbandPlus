@@ -46,8 +46,11 @@
 #define FAKE_VER_PATCH 1
 
 /* Added for NTAngband */
-#define DEMENTED_NUMBER 479832
-#define NTMESS "MU HU Wa ha ha ha! Ah ha ahha. <cough>.  I darest thee to challenge J.K.Banks!"
+#define DEMENTED_NUMBER 8363
+#define NTMESS "This is member-supported public Angband.  The great thing about\
+ public Angband is that there are no commercials.  You get great Angband for\
+ free!  So take this time to send some money to the current maintainer."
+                
 
 #define ANGBAND_2_8_1
 
@@ -1007,6 +1010,7 @@
 #define ART_PALANTIR_ITHIL              208
 
 /* Amulets */
+#define ART_CCW				7
 #define ART_CARLAMMAS           4
 #define ART_INGWE                       5
 #define ART_DWARVES                     6
@@ -1015,7 +1019,7 @@
 #define ART_EVENSTAR                    207
 
 /* Rings */
-#define ART_FLAR                        7
+/*#define ART_FLAR                        7*/
 #define ART_BARAHIR                     8
 #define ART_TULKAS                      9
 #define ART_NARYA                       10
@@ -2566,7 +2570,10 @@
 /* DG */
 #define TRAP_OF_ACQUIREMENT               170
 
+/* JKB */
+#define TRAP_OF_PIT			  171
 
+#define NO_SPIKE			  (-1)
 /*** General index values ***/
 
 

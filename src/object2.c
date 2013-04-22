@@ -3297,7 +3297,7 @@ void trap_hack(object_type *o_ptr)
 	}
 }
 
-/* Add a random glag to the ego item */
+/* Add a random flag to the ego item */
 void add_random_ego_flag(object_type *o_ptr, int fego, bool *limit_blows)
 {
                                 if (fego & ETR4_SUSTAIN)

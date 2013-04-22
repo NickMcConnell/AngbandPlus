@@ -1,5 +1,5 @@
 # File: r_info.txt
-# For NTAngband 0.1b
+# For NTAngband 0.2
 
 # This file is used to initialize the "lib/raw/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
@@ -105,9 +105,6 @@
 # The "x" symbol is free for use as an "attr/char mapping" for annoying
 # monsters, such as magic mushrooms, drolems, etc.
 
-# Certain symbols ("X", "Y", "B", "l", "I", etc) are used by
-# very few monsters, and could be reorganized somewhat.
-
 # There are still too many "p" monsters, perhaps they should be broken up.
 
 # As always, you can enforce any "visual picture" you want with a "pref file".
@@ -181,7 +178,7 @@
 
 # If you wish to add separate monsters for a specific dungeon, 
 # make a monster list as usual, but make sure that their serial numbers
-# are greater than 520.  Then, append this to the current file.
+# are greater than 520.  Then, append it to this file.
 
 # Version stamp (required)
 
@@ -221,7 +218,21 @@ S:TPORT
 D:A busy ant, minding her own business.  She digs a path 
 D:down to the mound every so often.
 
+N:3:Earthworm
+G:w:R
+I:90:1d1:1:100:255
+W:0:1:0:0
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:BITE:HURT:10d20
+F:WILD_TOO | CAN_FLY | DROP_CORPSE | NO_CONF | NO_SLEEP | IM_POIS | IM_ACID
+S:1_IN_10
+S:TPORT | MULTIPLY
+D:A useful worm, who would want to kill it?  It occasionally digs its way 
+D:underground, eating dirt.
+
 ##### cave level one #####
+
 N:10:Practical Joke
 G:J:g
 I:100:1d3:2:10:50
@@ -260,7 +271,8 @@ F:STUPID | EMPTY_MIND |
 F:IM_POIS | DROP_CORPSE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 F:MORTAL | BASEANGBAND
-D:A small strange growth. 
+D:THE ULTIMATE UNSPEAKABLE LOVECRAFTIAN HORROR!!!  IT WILL RIP YOUR BODY 
+D:INTO A THOUSAND TINY PIECES!!! FLEE!!! 
 
 N:14:Newt
 G:R:y
@@ -304,7 +316,7 @@ D:The first of many evil monsters.
 
 N:21:Pepper
 G:C:u
-I:120:10d6:3:50:250
+I:120:10d10:3:50:250
 W:2:100:100:500
 E:0:1:0:0:1:2
 O:0:0:0:0
@@ -314,7 +326,6 @@ B:BITE:HURT:2d6
 F:FEMALE | UNIQUE | NO_SLEEP | NO_CONF | NO_STUN | DROP_CORPSE
 F:SMART | AI_ANNOY
 D:A Shih-Tzu/Chihuahua mix, she yaps and annoys intensely.  
-
 
 # level 3 
 
@@ -345,6 +356,7 @@ S:MULTIPLY | TPORT | BLINK
 D:Nothing but a harmless lie...
 
 # level 4
+
 N:40:Casper, the Friendly Ghost
 G:G:W
 I:130:20d10:10:100:0
@@ -360,7 +372,21 @@ S:1_IN_1
 S:HEAL | BLINK
 D:An insecure ghost whose loneliness and attention seeking are sickening.
 
+N:41:Lesser cave burro
+G:q:s
+I:110:5d10:4:15:180
+W:4:2:1000:10
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:KICK:HURT:5d5
+B:BITE:HURT:1d10
+B:KICK:HURT:5d5
+B:KICK:HURT:5d10
+F:ANIMAL
+D:A normal, healthy, stubborn donkey.
+
 # level 7
+
 N:70:Minor Greed
 G:v:y
 I:130:20d10:12:15:0
@@ -369,7 +395,7 @@ E:0:0:0:0:0:0
 O:0:0:0:0
 B:BITE:LOSE_CON:2d2
 B:BITE:EXP_10
-B:TOUCH:EAT_GOLD:-1d10
+B:TOUCH:EAT_GOLD
 B:TOUCH:EAT_GOLD
 F:EVIL
 S:1_IN_10
@@ -378,7 +404,7 @@ D:A little bit of gold-lust can't be that bad, now can it?
 
 # level 10
 
-N:110:Random Number Generator
+N:100:Random Number Generator
 G:I:b
 I:130:1d6:10:50:0
 W:10:1:0:10
@@ -393,9 +419,20 @@ S:MULTIPLY
 D:A feared creation of the Variant Maintainer, it tries to generate Morgoth 
 D:in the town and the One Ring in the magic shop. 
 
+N:101:Cutaneous anthrax
+G:M:w
+I:110:1d1:0:1000:0
+W:10:10:0:10
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:ENGULF:DISEASE
+B:ENGULF:LOSE_CHR:1d4
+F:CAN_FLY | INVISIBLE | WILD_TOO | IM_COLD | FRIENDS
+D:Don't worry, it's not contagious.
+
 # level 14
 
-N:150:Software bug
+N:140:Software bug
 G:I:r
 I:120:2d2:8:25:10
 W:14:1:0:4
@@ -408,7 +445,7 @@ F:ANIMAL | MORTAL | JOKEANGBAND
 S:MULTIPLY
 D:Oh no! They are everywhere! 
 
-N:151:Cleanliness
+N:141:Cleanliness
 G:V:W
 I:50:50d20:7:300:254
 W:14:1:0:4
@@ -421,7 +458,31 @@ S:1_IN_7
 S:BR_POIS
 D:Beware the dangerous Lysol this virtue breathes!
 
+# level 15
+
+N:150:Spanish Carnival
+G:J:v
+I:120:15d10:2:25:256
+W:15:1:32756:10
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:ENGULF:CONFUSE:2d10
+B:ENGULF:HALLU:2d10
+B:ENGULF:PARALYZE:2d10
+B:ENGULF:EAT_GOLD:1d5
+F:ATTR_MULTI | DROP_CORPSE | NEVER_MOVE
+S:1_IN_1
+S:TELE_TO
+D:  So this Gascon drug lord finds out about a raid from one of his friends 
+D:among the gendarmes.  He gets his best mule to haul the goods over to
+D:Spain while he takes a boat to Majorca.  However, his nearest connections 
+D:are in Madrid, and there's no time to negotiate with the Barcelona drug ring
+D:for storage, so his mule asks him where to hide the drugs.  The drug lord 
+D:tells him to hide it in the first carnival he finds after crossing the 
+D:Spanish border.  Because no one ever inspects the Spanish Exposition.
+
 # level 48
+
 N:480:Delusion Snake
 G:R:G
 I:100:20d10:5:100:200
@@ -437,9 +498,10 @@ S:BR_CHAO
 D:Expected after trauma and heavy drinking...
 
 N:481:Pink Toad
-G:R:r
+G:R:R
 I:120:10d1:10:25:100
 W:48:1:50:20
+E:0:0:0:0:0:0
 B:BITE:HURT:2d10
 B:BITE:CONFUSE:1d3
 F:MORTAL | DROP_CORPSE | ELDRITCH_HORROR
@@ -464,7 +526,21 @@ F:FEMALE | MORTAL | CAN_FLY | DROP_CORPSE | AURA_FIRE
 S:MULTIPLY
 D:This is the scariest skeeter you've seen since that camping trip in Texas. 
 
+N:491:Inhalation anthrax
+G:M:w
+I:120:1d1:1:1:1
+W:49:1:0:50
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:ENGULF:LOSE_CON:8d3
+B:ENGULF:DISEASE
+B:ENGULF:POISON:10d10
+B:ENGULF:TERRIFY:10d10
+F:CAN_FLY | FRIENDS | PASS_WALL
+D:A fine white powder...
+
 # cave level 50 #
+
 N:500:Ivan Tkatchev, the Demented Coder of KaMBand
 G:N:o
 I:100:200d200:100:100:0
@@ -488,9 +564,9 @@ B:MOAN:TIME:10d10
 B:GAZE:INSANITY:60d5
 B:CLAW:PARASITE:4d64
 B:TOUCH:UN_BONUS
-F:MALE | MORTAL | UNIQUE | CAN_SPEAK | NO_CONF 
+F:MALE | MORTAL | UNIQUE | CAN_SPEAK | NO_CONF | SMART | 
 F:IM_FIRE | IM_COLD | IM_POIS | IM_ACID | IM_ELEC  
-S:1_IN_10
+S:1_IN_4
 S:TPORT | BR_SOUN | BR_NEXU
 D:The vicious and demented maintainer of NTA, his piercing gaze and 
 D:horrible singing, (not to mention his theories) ought 
@@ -498,10 +574,12 @@ D:to scare you, but if those don't, remember that his fascination with
 D:parasitology has practical uses.  He disdains the mind-altering effects 
 D:of coffee; milk and ice water give him his energy.
 
+# And the following is watered down!
+
 N:502:DarkGod, the Mighty Coder of Hell
 G:N:B
 I:140:180d100:111:175:0
-W:50:1:1600:66666
+W:50:1:1600:6666666
 E:2:0:2:6:1:1
 O:20:20:20:20
 B:GAZE:EAT_GOLD:20d10

@@ -488,6 +488,7 @@ extern bool *m_allow_special;
 extern bool *k_allow_special;
 extern bool *a_allow_special;
 extern bool rand_birth;
+extern bool rand_opts;
 extern bool fast_autoroller;
 extern bool zang_monsters, joke_monsters, pern_monsters, cth_monsters;
 extern bool munchkin_multipliers;

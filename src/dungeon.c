@@ -5379,6 +5379,29 @@ void play_game(bool new_game)
 	}
 #endif
 
+	if (Rand_quick)
+	{
+		u32b seed;
+
+		/* Basic seed */
+		seed = (time(NULL));
+
+#ifdef SET_UID
+
+		/* Mutate the seed on Unix machines */
+		seed = ((seed >> 3) * (getpid() << 1));
+
+#endif
+
+		/* Use the complex RNG */
+		Rand_quick = FALSE;
+
+		/* Seed the "complex" RNG */
+		Rand_state_init(seed);
+	}
+
+
+
 	/* Extract the options */
 	for (i = 0; option_info[i].o_desc; i++)
 	{

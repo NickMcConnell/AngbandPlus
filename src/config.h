@@ -173,7 +173,7 @@
 /*
  * OPTION: Hack -- Compile in support for "Cyborg" mode
  */
-/*#define ALLOW_BORG*/
+/* #define ALLOW_BORG */
 
 /*
  * OPTION: Hack -- Compile in support for "Wizard Commands"
@@ -446,7 +446,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER      "darkgod@ifrance.com"
+#define MAINTAINER      "jameskbanks@juno.com"
 
 
 /*

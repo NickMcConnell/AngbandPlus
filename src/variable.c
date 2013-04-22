@@ -1230,6 +1230,9 @@ bool point_based;
 /* Maximize, preserve, special levels, ironman_rooms */
 bool maximize, preserve, special_lvls, ironman_rooms;
 
+/* For random options */
+bool rand_opts;
+
 /* Notes patch */
 bool take_notes, auto_notes;
 
@@ -1243,7 +1246,7 @@ bool *a_allow_special;
 /*
  * Gives a random object to newly created characters
  */
-bool rand_birth;
+bool rand_birth = 32; /* Why? Because. */
 
 /*
  * Fast autoroller

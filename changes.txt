@@ -1,53 +1,4 @@
 
-01/11/1998 - PernAngband 3.0.0
-- All reference to Zangband have been removed
-- Added monster corpses
-- Added the Beastmaster Shanty for the beastmaster, the Mimic Tower for the
-  Mimic, and the Weaver Tower, where you can ask for corpse quests
-- The corpse quests require you to bring back to the weaver some corpse,
-  head,... of a kind of monster, and you'll get a reward, like maybe
-  the full knowledge about this monster, or some armor made with the corpse
-  (maybe dragon scale mail for dragon, ...)
-- Added susceptibility to fire, for the Ents! They take twice more damage from
-  fire, but it's hopefully cancelled by resist fire.
-- Changed some artifacts / unique monsters to be more pernish
-- Added a new armor type : the DragonRider flying suit[9,+0] resist fire/cold
-- New monster flag : PET , the monster is your pet when it's created
-- Added the army man which use the PET flag will be used to give you an army
-  in some future quest.
-
-03/11/1998
-- The exe file is now pernang.exe(in the dos version)
-- Replaced the AMBERITE monster flag by the DRAGONRIDER flag
-- Some Unique will have the PET flag so they will help you !
-- All the Amberite are now gone and replaced by DragonRiders or uniques
-  (with some of them friendly)
-- Can sell the Mage staves in the Weapon smith and Magic shop.
-- Now when an alchemist tries to extract a power from an item, if he can't
-  it won't show up again in the extractable list the next time
-- The DragonRider must eat more because of their dragon
-- The Troll Fortress quest
-- Added The Battle of the five armies quest !!!
-
-05/11/1998
-- Nature spell : Stop breeders
-- New ego item sword of life, it multiplies your max hitpoints
-- Now some Mimic forms give you bonuses to blows per round like the Vala:
-  +5 blows !!!
-- Added a new Unique : The Philosophy Teacher !
-- Pink horrors are replaced with 2 Blue horrors when they die
-- Bloodletters of Khorne drop a blade of chaos when they die
-- Absorb light mutation bug fixed (I think)
-- Vampires and vampire mimics no longer can get food in the inns.
-- Renamed the artifacts with their real names
-- Replaced the pattern by the Straight Road (idea from GSN-Band)
-- Replaced the pattern weapons with weapons of Valinor (idea from GSN-Band)
-- Player and monsters can't pass through the trees (unless they can fly:)
-- When a Dragonrider dies he drops some firestones
-- Added the Whip of Gothmog, which can be dropped by Gothmog when killed
-- Begin to add a new feature : the between
-- Add a great description of the Ents and the Rohan's Knights from Akhronath
-
 07/11/1998
 - The between is fully implemented now.
 - The dimension door spell is replaced by the between gate.
@@ -2566,5 +2517,16 @@ becomes 0, allowing spells to summon fiery blades and such
 - Added Random Birth option.  Needs work, certain race/rmod/class combos are 
   too common.
 - Shrunk the archive, I hope down/uploads will be faster.  Sorry, no binaries.
-- Note: I am slowly deleting Pern changes in the changelog.  If you want the
+- Note: I am slowly deleting Pern entries in the changelog.  If you want the
   full list, get a copy of Pern.
+
+12/16/2001 - NTAngband 8363 aka "0.3"
+- Ahhh... Every dungeon can now have its own list of *_info.txt files, or
+  at least the most important ones.
+- The news.txt file is fixed.
+- More fun monsters...
+- Item destruction caused by elemental attacks and spells is affected by
+  damage done, so resists help in protecting your inventory.
+- Added the artifact kit that Glincu IX wished he had and simultaneously
+  removed other artifacts.
+- Added Random Options option.  Needs a little polishing ;)

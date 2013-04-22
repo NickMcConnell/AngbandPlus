@@ -791,3 +791,16 @@ N:170:Acquirement Trap
 I:1:40:5:5:18:0d0:v
 D:Woh !
 F:FLOOR | DOOR
+
+# Back to the bad traps
+
+N:171:Pit
+I:20:1:1:1:1:1d1:s
+D:AHHHH!!!
+F:FLOOR | DOOR
+
+N:172:Spiked Pit
+I:20:1:1000:1:1:1d1:s
+D:You see gleaming spikes at the bottom, dripping with nastiness.  You will
+D:quickly find out what kind!
+F:FLOOR | DOOR

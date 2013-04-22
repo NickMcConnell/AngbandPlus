@@ -1151,6 +1151,84 @@ int color_char_to_attr(char c)
 
 /*** Initialize from ascii template files ***/
 
+/*
+ * Initialize ASCII files upon dungeon entry
+ */
+
+void init_dun_entry(dungeon_info_type *d_ptr) 
+{
+char buf[1024];
+char dir[1024];
+FILE *fp;
+
+path_build(dir, 1024, ANGBAND_DIR_EDIT, d_ptr->subdir);
+
+/* Load the *_info.txt files specific to this dungeon */
+path_build(buf, 1024, dir, "v_info.txt");
+fp = my_fopen(buf, "r");
+if(init_v_info_txt(fp, buf, TRUE))
+  {
+  msg_print("Error in v_info.txt!");
+  msg_print("Don't be surprised if your vaults are strange...");
+  }
+
+path_build(buf, 1024, dir, "f_info.txt");
+fp = my_fopen(buf, "r");
+if(init_f_info_txt(fp, buf))
+  {
+  msg_print("Error in f_info.txt!");
+  msg_print("The terrain features should prove interesting...");
+  }
+	    
+path_build(buf, 1024, dir, "k_info.txt");
+fp = my_fopen(buf, "r");
+if(init_k_info_txt(fp, buf))
+  {
+  msg_print("Error in k_info.txt!");
+  msg_print("Your precious stuff may mutate...");
+  }
+	    
+path_build(buf, 1024, dir, "a_info.txt");
+fp = my_fopen(buf, "r");
+if(init_a_info_txt(fp, buf))
+  {
+  msg_print("Error in a_info.txt!");
+  msg_print("Artifacts may not behave the way it says in the spoiler file...");
+  }
+	    
+path_build(buf, 1024, dir, "e_info.txt");
+fp = my_fopen(buf, "r");
+if(init_e_info_txt(fp, buf))
+  {
+  msg_print("Error in e_info.txt!");
+  msg_print("Your Whip (Defender) is now a Whip of Morgul...");
+  }
+	    
+path_build(buf, 1024, dir, "r_info.txt");
+fp = my_fopen(buf, "r");
+if(init_r_info_txt(fp, buf))
+  {
+  msg_print("Error in r_info.txt!");
+  msg_print("If monsters look a little funny, you'll know why...");
+  }
+	    
+path_build(buf, 1024, dir, "re_info.txt");
+fp = my_fopen(buf, "r");
+if(init_re_info_txt(fp, buf))
+  {
+  msg_print("Error in re_info.txt!");
+  msg_print("If monsters look a little funny, you'll know why...");
+  }
+	    
+path_build(buf, 1024, dir, "tr_info.txt");
+fp = my_fopen(buf, "r");
+if(init_t_info_txt(fp, buf))
+  {
+  msg_print("Error in tr_info.txt!");
+  msg_print("Don't even think about setting off any traps in this dungeon!");
+  }
+}
+
 
 /*
  * Initialize the "v_info" array, by parsing an ascii "template" file
@@ -5517,7 +5595,19 @@ errr init_d_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
+		
+		/* Where do we find the Template files for this dungeon? */
+		if(buf[0] == 'T')
+		{
+			/* Skip the colon */
+			s = buf + 2;
+			
+			/* Get the name of the subdirectory */
+			sscanf(s, "%s", d_ptr->subdir);
+		
+			/* Next victim... */
+			continue;
+		}
 		/* Oops */
 		return (6);
 	}

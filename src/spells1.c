@@ -1669,6 +1669,8 @@ static int inven_damage(inven_func typ, int perc)
 
 
 
+/*NT 0.3:  What I did is made the likelihood of inventory and armor
+/*         damage dependent on the amount of damage dished.  
 /*
  * Acid has hit the player, attempt to affect some armor.
  *
@@ -1739,22 +1741,24 @@ static int minus_ac(void)
  */
 void acid_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+    int inv = (dam < 30) ? 1 : ((dam < 60) ? 2 : 3);
 
-	/* Total Immunity */
-	if (p_ptr->immune_acid || (dam <= 0)) return;
+    /* Total Immunity */
+    if (p_ptr->immune_acid || (dam <= 0)) return;
 
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+    /* Vulnerability (Ouch!) */
+    if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
 
-	/* Resist the damage */
-	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
+    /* Resist the damage */
+    if (p_ptr->resist_acid) dam = (dam + 2) / 3;
+    if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
 
-	if ((!(p_ptr->oppose_acid || p_ptr->resist_acid)) &&
-	    randint(HURT_CHANCE)==1)
-		(void) do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+    if ((!(p_ptr->oppose_acid || p_ptr->resist_acid)) &&
+	randint(HURT_CHANCE)==1)
+	    (void) do_dec_stat(A_CHR, STAT_DEC_NORMAL);
 
+    if(dam > randint(2500))
+    	{
 	/* If any armor gets hit, defend the player */
 	if (minus_ac()) dam = (dam + 1) / 2;
 
@@ -1762,8 +1766,11 @@ void acid_dam(int dam, cptr kb_str)
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
-	if (!(p_ptr->oppose_acid && p_ptr->resist_acid))
-		inven_damage(set_acid_destroy, inv);
+        if (!(p_ptr->oppose_acid && p_ptr->resist_acid))
+	    inven_damage(set_acid_destroy, inv);
+	}
+    else
+	take_hit(dam, kb_str);
 }
 
 
@@ -1772,28 +1779,31 @@ void acid_dam(int dam, cptr kb_str)
  */
 void elec_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+    int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	/* Total immunity */
-	if (p_ptr->immune_elec || (dam <= 0)) return;
+    /* Total immunity */
+    if (p_ptr->immune_elec || (dam <= 0)) return;
 
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+    /* Vulnerability (Ouch!) */
+    if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
 
-	/* Resist the damage */
-	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
-	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
+    /* Resist the damage */
+    if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
+    if (p_ptr->resist_elec) dam = (dam + 2) / 3;
 
-	if ((!(p_ptr->oppose_elec || p_ptr->resist_elec)) &&
-	    randint(HURT_CHANCE)==1)
-		(void) do_dec_stat(A_DEX, STAT_DEC_NORMAL);
+    if ((!(p_ptr->oppose_elec || p_ptr->resist_elec)) &&
+        randint(HURT_CHANCE)==1)
+	(void) do_dec_stat(A_DEX, STAT_DEC_NORMAL);
 
-	/* Take damage */
-	take_hit(dam, kb_str);
+    /* Take damage */
+    take_hit(dam, kb_str);
 
+    if(dam > rand_int(2500))
+	{
 	/* Inventory damage */
 	if (!(p_ptr->oppose_elec && p_ptr->resist_elec))
-		inven_damage(set_elec_destroy, inv);
+    	    inven_damage(set_elec_destroy, inv);
+	}
 }
 
 
@@ -1804,30 +1814,33 @@ void elec_dam(int dam, cptr kb_str)
  */
 void fire_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+    int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	/* Totally immune */
-	if (p_ptr->immune_fire || (dam <= 0)) return;
+    /* Totally immune */
+    if (p_ptr->immune_fire || (dam <= 0)) return;
 
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+    /* Vulnerability (Ouch!) */
+    if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
 
-	/* Resist the damage */
-        if (p_ptr->sensible_fire) dam = (dam + 2) * 2;
-	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
+    /* Resist the damage */
+    if (p_ptr->sensible_fire) dam = (dam + 2) * 2;
+    if (p_ptr->resist_fire) dam = (dam + 2) / 3;
+    if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
 
-	if ((!(p_ptr->oppose_fire || p_ptr->resist_fire)) &&
-	    randint(HURT_CHANCE)==1)
-		(void) do_dec_stat(A_STR, STAT_DEC_NORMAL);
+    if ((!(p_ptr->oppose_fire || p_ptr->resist_fire)) &&
+        randint(HURT_CHANCE)==1)
+	    (void) do_dec_stat(A_STR, STAT_DEC_NORMAL);
 
 
-	/* Take damage */
-	take_hit(dam, kb_str);
-
+    /* Take damage */
+    take_hit(dam, kb_str);
+    
+    if(dam > rand_int(2500))
+	{
 	/* Inventory damage */
-	if (!(p_ptr->resist_fire && p_ptr->oppose_fire))
-		inven_damage(set_fire_destroy, inv);
+        if (!(p_ptr->resist_fire && p_ptr->oppose_fire))
+	    inven_damage(set_fire_destroy, inv);
+	}
 }
 
 
@@ -1836,28 +1849,30 @@ void fire_dam(int dam, cptr kb_str)
  */
 void cold_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+    int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	/* Total immunity */
-	if (p_ptr->immune_cold || (dam <= 0)) return;
+    /* Total immunity */
+    if (p_ptr->immune_cold || (dam <= 0)) return;
 
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+    /* Vulnerability (Ouch!) */
+    if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
 
-	/* Resist the damage */
-	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
+    /* Resist the damage */
+    if (p_ptr->resist_cold) dam = (dam + 2) / 3;
+    if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
 
-	if ((!(p_ptr->oppose_cold || p_ptr->resist_cold)) &&
-	    randint(HURT_CHANCE)==1)
-		(void) do_dec_stat(A_STR, STAT_DEC_NORMAL);
+    if ((!(p_ptr->oppose_cold || p_ptr->resist_cold)) &&
+        randint(HURT_CHANCE)==1)
+    	(void) do_dec_stat(A_STR, STAT_DEC_NORMAL);
 
-	/* Take damage */
-	take_hit(dam, kb_str);
-
+    /* Take damage */
+    take_hit(dam, kb_str);
+    if(dam > randint(2500))
+	{
 	/* Inventory damage */
 	if (!(p_ptr->resist_cold && p_ptr->oppose_cold))
-		inven_damage(set_cold_destroy, inv);
+    	    inven_damage(set_cold_destroy, inv);
+	}
 }
 
 

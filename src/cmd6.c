@@ -5038,36 +5038,15 @@ void do_cmd_activate(void)
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
 			}
-                        case ART_FLAR:
+                        
+			case ART_CCW:
 			{
-                                if (dungeon_flags1 & LF1_NO_TELEPORT)
-                                {
-                                        msg_print("No teleport on special levels...");
-                                        break;
-                                }
-
-                                if (dungeon_flags1 & LF1_NO_TELEPORT)
-                                {
-                                        msg_print("Not on special levels!");
-                                        break;
-                                }
-
-                                msg_print("You open a between gate. Choose a destination.");
-                                if (!tgt_pt(&ii,&ij)) return;
-                                p_ptr->energy -= 60 - plev;
-                                if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) ||
-                                    (distance(ij,ii,py,px) > plev + 2) ||
-                                    (!rand_int(plev * plev / 2)))
-                                {
-                                        msg_print("You fail to exit the between correctly!");
-                                        p_ptr->energy -= 100;
-                                        teleport_player(10);
-                                }
-                                else teleport_player_to(ij,ii);
-                                o_ptr->timeout = 100;
-                                break;
+				msg_print("You cure some critical wounds.");
+				set_cut(0);
+				hp_player(damroll(8, 8));
+				o_ptr->timeout = rand_int(3) + 3;
+				break;
 			}
-
 			case ART_BARAHIR:
 			{
                                 msg_print("You exterminate small life.");

@@ -1453,7 +1453,7 @@ static cptr ident_info[] =
 	"J:Joke",
 	"K:Knight",
 	"L:Greater Loser",
-	"M:Multi-Headed Reptile",
+	"M:Microorganism",
 	"N:Greater Nerd",
 	"O:Ogre",
 	"P:Giant Humanoid",

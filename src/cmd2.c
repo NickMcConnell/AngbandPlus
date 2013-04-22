@@ -336,198 +336,200 @@ static bool between_effect(void)
  */
 void do_cmd_go_down(void)
 {
-        cave_type *c_ptr;
-        bool go_down = FALSE, go_down_many = FALSE, prob_traveling = FALSE;
-        bool fall_trap = FALSE;
-        char i;
-        int old_dun = dun_level;
-        dungeon_info_type *d_ptr = &d_info[dungeon_type];
+    cave_type *c_ptr;
+    bool go_down = FALSE, go_down_many = FALSE, prob_traveling = FALSE;
+    bool fall_trap = FALSE;
+    char i;
+    int old_dun = dun_level;
+    dungeon_info_type *d_ptr = &d_info[dungeon_type];
   
-        /* Between Gates MUST be actived now */
-        if (between_effect()) return;
+      /* Between Gates MUST be actived now */
+    if (between_effect()) return;
   
-        /* Player grid */
-        c_ptr = &cave[py][px];
+    /* Player grid */
+    c_ptr = &cave[py][px];
 
-        if (p_ptr->astral && (dun_level == 98)) return;
+    if (p_ptr->astral && (dun_level == 98)) return;
   
-	if (c_ptr->t_idx == TRAP_OF_SINKING) fall_trap = TRUE;
+    if (c_ptr->t_idx == TRAP_OF_SINKING) fall_trap = TRUE;
   
-        /* test if on special level */
-        if ((dungeon_flags1 & LF1_ASK_LEAVE))
-        {
-                prt("Leave this unique level forever (y/n) ? ",0,0);
-                flush();
-                i=inkey();
-                prt("",0,0);
-                if (i != 'y') return;
-        }
+    /* test if on special level */
+    if ((dungeon_flags1 & LF1_ASK_LEAVE))
+    {
+        prt("Leave this unique level forever (y/n) ? ",0,0);
+        flush();
+        i=inkey();
+        prt("",0,0);
+        if (i != 'y') return;
+    }
 
-        /* Can we ? */
-        if (process_hooks(HOOK_STAIR, TRUE)) return;
+    /* Can we ? */
+    if (process_hooks(HOOK_STAIR, TRUE)) return;
   
-        /* Normal up stairs */
-        if (c_ptr->feat == FEAT_SHAFT_DOWN)
+    /* Normal up stairs */
+    if (c_ptr->feat == FEAT_SHAFT_DOWN)
+    {
+        if (!dun_level)
         {
-                if (!dun_level)
-                {
-                        go_down = TRUE;
+            go_down = TRUE;
   
-                        /* Save old player position */
-                        p_ptr->oldpx = px;
-                        p_ptr->oldpy = py;
-                }
-                else
-                {
-                        if (confirm_stairs)
-                        {
-                                if (get_check("Really leave the level? "))
-                                        go_down_many = TRUE;
-                        }
-                        else
-                        {
-                                go_down_many = TRUE;
-                        }
-                }
+            /* Save old player position */
+            p_ptr->oldpx = px;
+            p_ptr->oldpy = py;
         }
+        else
+        {
+            if (confirm_stairs)
+            {
+                if (get_check("Really leave the level? "))
+                    go_down_many = TRUE;
+            }
+            else
+            {
+                go_down_many = TRUE;
+            }
+        }
+    }
         /* Normal stairs */
-        else if (c_ptr->feat == FEAT_MORE)
+    else if (c_ptr->feat == FEAT_MORE)
+    {
+        if (p_ptr->prob_travel)
         {
-                if (p_ptr->prob_travel)
-                {
-                        if (d_ptr->maxdepth == dun_level) return;
-                }
-                if (!dun_level)
-                {
-                        go_down = TRUE;
+	    if (d_ptr->maxdepth == dun_level) return;
+            }
+            if (!dun_level)
+            {
+                go_down = TRUE;
   
-                        /* Save old player position */
-                        p_ptr->oldpx = px;
-                        p_ptr->oldpy = py;
-                }
-                else
-                {
-                        if (confirm_stairs)
-                        {
-                                if (get_check("Really leave the level? "))
-                                        go_down = TRUE;
-                        }
-                        else
-                        {
-                                go_down = TRUE;
-                        }
-                }
-        }
-
-        else if (p_ptr->prob_travel && !p_ptr->inside_quest)
-        {
-                if (d_ptr->maxdepth == dun_level) return;
-
-                prob_traveling = TRUE;
-
+                /* Save old player position */
+                p_ptr->oldpx = px;
+                p_ptr->oldpy = py;
+            }
+            else
+            {
                 if (confirm_stairs)
                 {
-                        if (get_check("Really leave the level? "))
-                                go_down = TRUE;
-                }
-                else
-                {
+                    if (get_check("Really leave the level? "))
                         go_down = TRUE;
                 }
+            else
+            {
+                go_down = TRUE;
+            }
         }
+    }
+
+    else if (p_ptr->prob_travel && !p_ptr->inside_quest)
+    {
+        if (d_ptr->maxdepth == dun_level) return;
+
+        prob_traveling = TRUE;
+
+        if (confirm_stairs)
+        {
+            if (get_check("Really leave the level? "))
+            go_down = TRUE;
+        }
+        else
+        {
+            go_down = TRUE;
+        }
+    }
    
-        else if (!(fall_trap))
-        {
-                msg_print("I see no down staircase here.");
-                return;
-        }
+    else if (!(fall_trap))
+    {
+        msg_print("I see no down staircase here.");
+        return;
+    }
   
-        if (go_down || go_down_many)
-        {
-  
+    if (go_down || go_down_many)
+    {
+ 
 #if 0
-                /* Hack -- take a turn */
-                energy_use = 100;
+    /* Hack -- take a turn */
+    energy_use = 100;
 #else
-                energy_use = 0;
+    energy_use = 0;
 #endif
   
-                if (fall_trap)
-                        msg_print("You deliberately jump through the trap door.");
-                else
-                        /* Success */
-                        msg_print("You enter a maze of down staircases.");
+    if (fall_trap)
+        msg_print("You deliberately jump through the trap door.");
+    else
+        /* Success */
+        msg_print("You enter a maze of down staircases.");
   
-                if (autosave_l)
-                {
-                        is_autosave = TRUE;
-                        msg_print("Autosaving the game...");
-                        do_cmd_save_game();
-                        is_autosave = FALSE;
-                }
+    if (autosave_l)
+    {
+        is_autosave = TRUE;
+        msg_print("Autosaving the game...");
+        do_cmd_save_game();
+        is_autosave = FALSE;
+    }
   
-                /* Go down */
-                if (go_down)
-                {
-                        dun_level++;
-                }
-                else if (go_down_many)
-                {
-                        int i = randint(3) + 1, j;
+    /* Go down */
+    if (go_down)
+    {
+        dun_level++;
+    }
+    else if (go_down_many)
+         {
+            int i = randint(3) + 1, j;
 
-                        for(j = 1; j < i; j++)
-                        {
-                                dun_level++;
-                                if (is_quest(dun_level + i - 1)) break;
-                                if (d_ptr->maxdepth == dun_level) break;
-                        }
-                }
+            for(j = 1; j < i; j++)
+            {
+                dun_level++;
+                if (is_quest(dun_level + i - 1)) break;
+                if (d_ptr->maxdepth == dun_level) break;
+            }
+    }
 
-                /* We change place */
-                if (c_ptr->special && (!prob_traveling))
-                {                        
-                        if(d_info[c_ptr->special].min_plev <= p_ptr->lev)
-                        {
-                                dungeon_info_type *d_ptr = &d_info[c_ptr->special];
+    /* We change place */
+    if (c_ptr->special && (!prob_traveling))
+    {                        
+        if(d_info[c_ptr->special].min_plev <= p_ptr->lev)
+        {
+            dungeon_info_type *d_ptr = &d_info[c_ptr->special];
 
-                                /* Ok go in the new dungeon */
-                                dungeon_type = c_ptr->special;
+            /* Ok go in the new dungeon */
+            dungeon_type = c_ptr->special;
+	    
+	    init_dun_entry(d_ptr);
+	    
+	    if ((p_ptr->wilderness_x == d_ptr->ix) && (p_ptr->wilderness_y == d_ptr->iy))
+            {
+                dun_level = d_ptr->mindepth;
+            }
+            else if ((p_ptr->wilderness_x == d_ptr->ox) && (p_ptr->wilderness_y == d_ptr->oy))
+            {
+                dun_level = d_ptr->maxdepth;
+            }
+            else
+            {
+                dun_level = d_ptr->mindepth;
+            }
 
-                                if ((p_ptr->wilderness_x == d_ptr->ix) && (p_ptr->wilderness_y == d_ptr->iy))
-                                {
-                                        dun_level = d_ptr->mindepth;
-                                }
-                                else if ((p_ptr->wilderness_x == d_ptr->ox) && (p_ptr->wilderness_y == d_ptr->oy))
-                                {
-                                        dun_level = d_ptr->maxdepth;
-                                }
-                                else
-                                {
-                                        dun_level = d_ptr->mindepth;
-                                }
-
-                                msg_format("You go into %s", d_text + d_info[dungeon_type].text);
-                        }
-                        else
-                        {
-                                msg_print("You don't feel yourself experienced enough to go there...");
-                                dun_level = old_dun;
-                                return;
-                        }
-                }
-  
-                /* Leaving */
-                p_ptr->leaving = TRUE;
-
-                if (!fall_trap)
-                {
-                        /* Create a way back */
-                        if (go_down_many)
-                                create_up_shaft = TRUE;
-                        else
-                        create_up_stair = TRUE;
-                }
+            msg_format("You go into %s", d_text + d_info[dungeon_type].text);
         }
+        else
+        {
+            msg_print("You don't feel yourself experienced enough to go there...");
+            dun_level = old_dun;
+            return;
+        }
+    }
+  
+        /* Leaving */
+	p_ptr->leaving = TRUE;
+
+        if (!fall_trap)
+        {
+            /* Create a way back */
+            if (go_down_many)
+                create_up_shaft = TRUE;
+            else
+                create_up_stair = TRUE;
+        }
+    }
 }
 
 

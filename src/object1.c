@@ -3077,9 +3077,9 @@ cptr item_activation(object_type *o_ptr, byte num)
 		{
 			return "protection from evil every 225+d225 turns";
 		}
-                case ART_FLAR:
+                case ART_CCW:
 		{
-                        return "dimension door every 100 turns";
+                        return "heal 8d8 and wounds every 6 turns";
 		}
 		case ART_BARAHIR:
 		{

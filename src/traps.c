@@ -687,6 +687,19 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
             (void)set_slow(p_ptr->slow + randint(25) + 15);
          }
          break;
+      case TRAP_OF_PIT:
+         msg_print("You stumble off the edge of a pit!");
+	 if(p_ptr->ffall)
+	   {
+	   msg_print("You gently float to the bottom of the pit.");
+	   return NO_SPIKE;
+	   }
+	 else
+	   {
+	   msg_print("'Oww!' you shout as you hit the bottom of the pit.");
+	   take_hit(damroll(2 * dun_level, 8), "a pit");
+	   }
+	 break;
       /* Trap of Sinking */
       case TRAP_OF_SINKING:
          msg_print("You fell through a trap door!");
@@ -1572,7 +1585,6 @@ void player_activate_door_trap(s16b y, s16b x)
 	bool ident = FALSE;
 
 	c_ptr = &cave[y][x];
-
 	/* Return if trap or door not found */
 	if ((c_ptr->t_idx == 0) ||
 	    !(f_info[c_ptr->feat].flags1 & FF1_DOOR)) return;
@@ -1588,6 +1600,12 @@ void player_activate_door_trap(s16b y, s16b x)
 
 	/* Hit the trap */
 	ident = player_activate_trap_type(y, x, NULL, -1);
+	if(ident == NO_SPIKE)
+	  {
+	  t_info[c_ptr->t_idx].another = 0;
+	  ident = TRAP_OF_PIT;
+	  }
+	  
 	if (ident)
 	{
 		t_info[c_ptr->t_idx].ident = TRUE;
