@@ -1,3 +1,11 @@
+08/18/2001 - Client Changes (Client 3.2.1) -Zz
+	You can specify an argument in Windows and client will connect directly
+  		bypassing meta server (previously this only worked for Unix clients)
+	Multiple colors for different types of messages in recall window
+  		(death, kill, private messages, etc.)
+	CTRL-O works like CTRL-P except only shows important messages - good for
+  		review after a long fight or long AFK
+
 6/10/00:
 	Fixed a bug that caused a player to become a *KING* after killing Sauron,
 		and revised the winning code to make anyone >= level 40 in the same

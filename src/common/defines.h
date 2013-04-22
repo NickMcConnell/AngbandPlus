@@ -36,8 +36,8 @@
  */
  
 #define VERSION_MAJOR	3
-#define VERSION_MINOR	0
-#define VERSION_PATCH	3
+#define VERSION_MINOR   2
+#define VERSION_PATCH   0
 
 /*
  * This value specifys the suffix to the version info sent to the metaserver.
@@ -47,7 +47,7 @@
  * 2 - "beta"
  * 3 - "development"
  */
-#define VERSION_EXTRA	2
+#define VERSION_EXTRA	0
 
 
 /*
@@ -148,12 +148,12 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           12
+#define MAX_RACES           14
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            7
+#define MAX_CLASS            12
 
 /*
  * Maximum number of parties to allow.  If, while trying to create a new
@@ -166,7 +166,7 @@
 /*
  * Maximum number of houses available.
  */
-#define MAX_HOUSES	1024
+#define MAX_HOUSES	65536	/* temp value... */
 #define HOUSE_KEY	0
 #define HOUSE_PASS	1
 
@@ -185,7 +185,7 @@
 #define MAX_K_IDX	531	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	550     /* Max size for "r_info[]" */
+#define MAX_R_IDX	551     /* Max size for "r_info[]" */
 #define MAX_V_IDX 	256	/* Max size for "v_info[]" */
 
 
@@ -213,7 +213,8 @@
  * involving object and monster creation.  It must be at least 100.
  * Setting it below 128 may prevent the creation of some objects.
  */
-#define MAX_DEPTH	128
+#define MAX_DEPTH       201
+#define MAX_DEPTH_OBJ   128
 
 /* The number of wilderness levels we have allocated.
 */
@@ -255,7 +256,7 @@
  * OPTION: Maximum number of "quarks" (see "io.c")
  * Default: assume at most 512 different inscriptions are used
  */
-#define QUARK_MAX	512
+#define QUARK_MAX	1024
 
 /*
  * OPTION: Maximum number of messages to remember (see "io.c")
@@ -300,6 +301,7 @@
 #define MASTER_BUILD	2
 #define	MASTER_SUMMON	3
 #define MASTER_GENERATE	4
+#define MASTER_PLAYER	5
 
 #define	MASTER_SUMMON_SPEFIC	0	
 #define	MASTER_SUMMON_
@@ -350,12 +352,12 @@
 /*
  * Store constants
  */
-#define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
+#define STORE_INVEN_MAX	48		/* Max number of discrete objs in inven */
 #define STORE_CHOICES	32		/* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
 #define STORE_TURNOVER	9		/* Normal shop turnover, per day */
-#define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
-#define STORE_MAX_KEEP	18		/* Max slots to "always" keep full */
+#define STORE_MIN_KEEP	12		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP	36		/* Max slots to "always" keep full */
 #define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS	500		/* Number of turns between turnovers */
 
@@ -363,7 +365,7 @@
 /*
  * Misc constants
  */
-#define SERVER_SAVE	800		/* How often to save the server state */
+#define SERVER_SAVE	100		/* How often to save the server state */
 #define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
 #define GROW_TREE	5000		/* How often to grow a new tree in town */
 #define BREAK_GLYPH		550		/* Rune of protection resistance */
@@ -443,9 +445,9 @@
 /*
  * Player constants
  */
-#define PY_MAX_EXP	99999999L	/* Maximum exp */
+#define PY_MAX_EXP      999999999L       /* Maximum exp */
 #define PY_MAX_GOLD	999999999L	/* Maximum gold */
-#define PY_MAX_LEVEL	50		/* Maximum level */
+#define PY_MAX_LEVEL    100             /* Maximum level */
 
 /*
  * Player "food" crucial values
@@ -468,7 +470,7 @@
 
 
 /* Randart rarity */
-#define RANDART_RARITY	60
+#define RANDART_RARITY  80
 
 
 /*
@@ -535,18 +537,24 @@
 #define RACE_HIGH_ELF	9
 #define RACE_YEEK   	10
 #define RACE_GOBLIN 	11
+#define RACE_ENT   	12
+#define RACE_DRIDER   	13
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
  */
-#define CLASS_WARRIOR	0
-#define CLASS_MAGE	1
-#define CLASS_PRIEST	2
-#define CLASS_ROGUE	3
-#define CLASS_RANGER	4
-#define CLASS_PALADIN	5
-#define CLASS_SORCERER	6
-
+#define CLASS_WARRIOR		0
+#define CLASS_MAGE		1
+#define CLASS_PRIEST		2
+#define CLASS_ROGUE		3
+#define CLASS_RANGER		4
+#define CLASS_PALADIN		5
+#define CLASS_SORCERER		6
+#define CLASS_MIMIC		7
+#define CLASS_UNBELIEVER	8
+#define CLASS_ARCHER		9
+#define CLASS_MONK              10
+#define CLASS_TELEPATH		11
 
 
 
@@ -941,7 +949,7 @@ that keeps many algorithms happy.
 #define EGO_HA			64
 #define EGO_DF			65
 #define EGO_BLESS_BLADE		66
-/* xxx */
+#define EGO_MSTAFF_POWER       	67
 #define EGO_WEST		68
 #define EGO_ATTACKS		69
 /* xxx */
@@ -1025,10 +1033,11 @@ that keeps many algorithms happy.
  */
 
 #define TV_SKELETON      1	/* Skeletons ('s') */
-#define TV_BOTTLE		 2	/* Empty bottles ('!') */
+#define TV_BOTTLE        2      /* Empty bottles ('!') */
 #define TV_JUNK          3	/* Sticks, Pottery, etc ('~') */
 #define TV_KEY		 4      /* Keys (';') */
 #define TV_SPIKE         5	/* Spikes ('~') */
+#define TV_GOLEM         6      /* Golem parts */
 #define TV_CHEST         7	/* Chests ('~') */
 #define TV_SHOT			16	/* Ammo for slings */
 #define TV_ARROW        17	/* Ammo for bows */
@@ -1057,22 +1066,39 @@ that keeps many algorithms happy.
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
+#define TV_PSI_BOOK 	89
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
 #define TV_SORCERY_BOOK 92
 #define TV_FIGHT_BOOK 	93
 #define TV_SHADOW_BOOK 	94
+#define TV_HUNT_BOOK 	95
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
 /* Maximum "tval" */
 #define TV_MAX		100
 
+/* Sval for golems */
+#define SV_GOLEM_WOOD           0
+#define SV_GOLEM_COPPER         1
+#define SV_GOLEM_IRON           2
+#define SV_GOLEM_ALUM           3
+#define SV_GOLEM_SILVER         4
+#define SV_GOLEM_GOLD           5
+#define SV_GOLEM_MITHRIL        6
+#define SV_GOLEM_ADAM           7
+#define SV_GOLEM_LEG            8
+#define SV_GOLEM_ARM            9
+#define SV_GOLEM_ATTACK         200
+#define SV_GOLEM_FOLLOW         201
+#define SV_GOLEM_GUARD          202
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT		0	/* pebbles */
 #define SV_AMMO_NORMAL		1	/* shots, arrows, bolts */
 #define SV_AMMO_HEAVY		2	/* seeker arrows and bolts */
+#define SV_AMMO_MAGIC		3	/* seeker arrows and bolts */
 
 /* The "sval" codes for TV_BOW (note information in "sval") */
 #define SV_SLING			2	/* (x2) */
@@ -1092,6 +1118,7 @@ that keeps many algorithms happy.
 /* The "sval" values for TV_HAFTED */
 #define SV_WHIP					2	/* 1d6 */
 #define SV_QUARTERSTAFF			3	/* 1d9 */
+#define SV_MSTAFF			4	/* 1d1 */
 #define SV_MACE					5	/* 2d4 */
 #define SV_BALL_AND_CHAIN		6	/* 2d4 */
 #define SV_WAR_HAMMER			8	/* 3d3 */
@@ -1137,6 +1164,7 @@ that keeps many algorithms happy.
 #define SV_BASTARD_SWORD		21	/* 3d4 */
 #define SV_TWO_HANDED_SWORD		25	/* 3d6 */
 #define SV_EXECUTIONERS_SWORD	28	/* 4d5 */
+#define SV_DARK_SWORD  			29	/* 3d7 */
 #define SV_BLADE_OF_CHAOS		30	/* 6d5 */
 
 /* The "sval" codes for TV_SHIELD */
@@ -1239,6 +1267,7 @@ that keeps many algorithms happy.
 #define SV_AMULET_DWARVES		12
 #define SV_AMULET_TERKEN		13
 #define SV_AMULET_SPEED			14
+#define SV_AMULET_LIFE                  15
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE				0
@@ -1246,7 +1275,7 @@ that keeps many algorithms happy.
 #define SV_RING_WEAKNESS		2
 #define SV_RING_STUPIDITY		3
 #define SV_RING_TELEPORTATION	4
-/* xxx */
+#define SV_RING_POLYMORPH	5
 #define SV_RING_SLOW_DIGESTION	6
 #define SV_RING_FEATHER_FALL	7
 #define SV_RING_RESIST_FIRE		8
@@ -1386,9 +1415,9 @@ that keeps many algorithms happy.
 #define SV_SCROLL_CURSE_WEAPON			3
 #define SV_SCROLL_SUMMON_MONSTER		4
 #define SV_SCROLL_SUMMON_UNDEAD			5
-/* xxx (summon?) */
-#define SV_SCROLL_TRAP_CREATION			7
-#define SV_SCROLL_PHASE_DOOR			8
+#define SV_SCROLL_ARTIFACT_CREATION             6
+#define SV_SCROLL_TRAP_CREATION		 	7
+#define SV_SCROLL_PHASE_DOOR		   	8
 #define SV_SCROLL_TELEPORT				9
 #define SV_SCROLL_TELEPORT_LEVEL		10
 #define SV_SCROLL_WORD_OF_RECALL		11
@@ -1399,11 +1428,11 @@ that keeps many algorithms happy.
 #define SV_SCROLL_ENCHANT_ARMOR			16
 #define SV_SCROLL_ENCHANT_WEAPON_TO_HIT	17
 #define SV_SCROLL_ENCHANT_WEAPON_TO_DAM	18
-/* xxx enchant missile? */
+#define SV_SCROLL_BLOOD_BOND			19
 #define SV_SCROLL_STAR_ENCHANT_ARMOR	20
 #define SV_SCROLL_STAR_ENCHANT_WEAPON	21
 #define SV_SCROLL_RECHARGING			22
-/* xxx */
+#define SV_SCROLL_GOLEM                         23
 #define SV_SCROLL_LIGHT					24
 #define SV_SCROLL_MAPPING				25
 #define SV_SCROLL_DETECT_GOLD			26
@@ -1813,6 +1842,7 @@ that keeps many algorithms happy.
 #define GF_RECALL_PLAYER 76
 #define GF_STUN          77
 #define GF_IDENTIFY      78
+#define GF_PSI           79
 
 /*
  * Some things which induce learning
@@ -1921,14 +1951,14 @@ that keeps many algorithms happy.
 #define TR1_CON				0x00000010L	/* CON += "pval" */
 #define TR1_CHR				0x00000020L	/* CHR += "pval" */
 #define TR1_MANA			0x00000040L	/* SP += "pval" * SP / 10 */
-#define TR1_XXX2			0x00000080L	/* Later */
+#define TR1_SPELL_SPEED			0x00000080L	/* Spell Speed += pval */
 #define TR1_STEALTH			0x00000100L	/* Stealth += "pval" */
 #define TR1_SEARCH			0x00000200L	/* Search += "pval" */
 #define TR1_INFRA			0x00000400L	/* Infra += "pval" */
 #define TR1_TUNNEL			0x00000800L	/* Tunnel += "pval" */
 #define TR1_SPEED			0x00001000L	/* Speed += "pval" */
 #define TR1_BLOWS			0x00002000L	/* Blows += "pval" */
-#define TR1_XXX3			0x00004000L	/* Later */
+#define TR1_LIFE		0x00004000L	/* Later */
 #define TR1_XXX4			0x00008000L	/* Later */
 #define TR1_SLAY_ANIMAL		0x00010000L
 #define TR1_SLAY_EVIL		0x00020000L
@@ -1968,7 +1998,7 @@ that keeps many algorithms happy.
 #define TR2_RES_FIRE		0x00040000L
 #define TR2_RES_COLD		0x00080000L
 #define TR2_RES_POIS		0x00100000L
-#define TR2_XXX5			0x00200000L	/* Later */
+#define TR2_ANTI_MAGIC		0x00200000L
 #define TR2_RES_LITE		0x00400000L
 #define TR2_RES_DARK		0x00800000L
 #define TR2_RES_BLIND		0x01000000L
@@ -1981,7 +2011,7 @@ that keeps many algorithms happy.
 #define TR2_RES_DISEN		0x80000000L
 
 
-#define TR3_XXX1			0x00000001L	/* Later */
+#define TR3_KNOWLEDGE			0x00000001L	/* Later */
 #define TR3_XXX2			0x00000002L	/* Later */
 #define TR3_XXX3			0x00000004L	/* Later */
 #define TR3_XXX4			0x00000008L	/* Later */
@@ -2021,9 +2051,9 @@ that keeps many algorithms happy.
  */
 #define TR1_PVAL_MASK	\
         (TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
-         TR1_CON | TR1_CHR | TR1_MANA | TR1_XXX2 | \
+         TR1_CON | TR1_CHR | TR1_MANA | TR1_SPELL_SPEED | \
          TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
-         TR1_SPEED | TR1_BLOWS | TR1_XXX3 | TR1_XXX4)
+         TR1_SPEED | TR1_BLOWS | TR1_LIFE | TR1_XXX4)
 
 
 
@@ -2182,7 +2212,7 @@ that keeps many algorithms happy.
 #define RF3_XXX1			0x00000100	/* (?) */
 #define RF3_XXX2			0x00000200	/* (?) */
 #define RF3_XXX3			0x00000400	/* Non-Vocal (?) */
-#define RF3_XXX4			0x00000800	/* Non-Living (?) */
+#define RF3_IM_TELE                     0x00000800      /* Resist teleportation */
 #define RF3_HURT_LITE		0x00001000	/* Hurt by lite */
 #define RF3_HURT_ROCK		0x00002000	/* Hurt by rock remover */
 #define RF3_HURT_FIRE		0x00004000	/* Hurt badly by fire */
@@ -2192,13 +2222,13 @@ that keeps many algorithms happy.
 #define RF3_IM_FIRE			0x00040000	/* Resist fire a lot */
 #define RF3_IM_COLD			0x00080000	/* Resist cold a lot */
 #define RF3_IM_POIS			0x00100000	/* Resist poison a lot */
-#define RF3_XXX5			0x00200000	/* Immune to (?) */
+#define RF3_IM_PSI			0x00200000	/* Immune to (?) */
 #define RF3_RES_NETH		0x00400000	/* Resist nether a lot */
 #define RF3_RES_WATE		0x00800000	/* Resist water */
 #define RF3_RES_PLAS		0x01000000	/* Resist plasma */
 #define RF3_RES_NEXU		0x02000000	/* Resist nexus */
 #define RF3_RES_DISE		0x04000000	/* Resist disenchantment */
-#define RF3_XXX6			0x08000000	/* Resist (?) */
+#define RF3_RES_PSI			0x08000000	/* Resist (?) */
 #define RF3_NO_FEAR			0x10000000	/* Cannot be scared */
 #define RF3_NO_STUN			0x20000000	/* Cannot be stunned */
 #define RF3_NO_CONF			0x40000000	/* Cannot be confused */
@@ -2239,6 +2269,7 @@ that keeps many algorithms happy.
 #define RF4_XXX6			0x20000000
 #define RF4_XXX7			0x40000000
 #define RF4_XXX8			0x80000000
+#define RF4_PLAYER_SPELLS (RF4_SHRIEK | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA)
 
 /*
  * New monster race bit flags
@@ -2275,6 +2306,7 @@ that keeps many algorithms happy.
 #define RF5_CONF			0x20000000	/* Confuse Player */
 #define RF5_SLOW			0x40000000	/* Slow Player */
 #define RF5_HOLD			0x80000000	/* Paralyze Player */
+#define RF5_PLAYER_SPELLS (0xffffffff) /* Simply all */
 
 /*
  * New monster race bit flags
@@ -2311,7 +2343,7 @@ that keeps many algorithms happy.
 #define RF6_S_HI_DRAGON		0x20000000	/* Summon Ancient Dragon */
 #define RF6_S_WRAITH		0x40000000	/* Summon Unique Wraith */
 #define RF6_S_UNIQUE		0x80000000	/* Summon Unique Monster */
-
+#define RF6_PLAYER_SPELLS (RF6_HASTE | RF6_HEAL | RF6_BLINK | RF6_TPORT | RF6_TELE_AWAY | RF6_TELE_LEVEL)
 
 /* 
 	Different types of terrain, used for the wilderness.
@@ -2751,4 +2783,63 @@ extern int PlayerUID;
 /*
  * Ghost spell "realm"
  */
-#define GHOST_SPELLS	5
+#define GHOST_SPELLS	7
+
+
+/* Kings/Queens abilities */
+#define KING_OWN	0
+
+/* Bows branding */
+#define BOW_BRAND_ELEC          0
+#define BOW_BRAND_COLD          1
+#define BOW_BRAND_FIRE          2
+#define BOW_BRAND_ACID          3
+#define BOW_BRAND_POIS          4
+#define BOW_BRAND_MANA          5
+#define BOW_BRAND_CONF          6
+#define BOW_BRAND_SHARP         7
+#define BOW_BRAND_BALL_FIRE     8
+#define BOW_BRAND_BALL_COLD     9
+#define BOW_BRAND_BALL_ELEC     10
+#define BOW_BRAND_BALL_ACID     11
+#define BOW_BRAND_BALL_SOUND    12
+
+
+/* Diff mode */
+#define MODE_NORMAL 0
+#define MODE_HELL 1
+
+/* Monk martial arts... */
+# define MAX_MA 17
+# define MA_KNEE 1
+# define MA_SLOW 2
+
+/* Mental links */
+#define LINK_NONE 0
+#define LINK_DOMINANT 1
+#define LINK_DOMINATED 2
+
+#define LINKF_VIEW      0x0001 /* Share view */
+#define LINKF_MOV       0x0002 /* Share movments */
+#define LINKF_PAIN      0x0004 /* Share hp & xp */
+#define LINKF_OBJ       0x0008 /* Share obj things */
+#define LINKF_MISC      0x0010 /* Share misc things */
+#define LINKF_OPEN      0x0020 /* Mind Open */
+
+/* Monster gaining levels */
+#define MONSTER_LEVEL_MAX       500
+#define MONSTER_EXP(level)      ((((level) > MONSTER_LEVEL_MAX)?MONSTER_LEVEL_MAX:(level)) * (((level) > MONSTER_LEVEL_MAX)?MONSTER_LEVEL_MAX:(level)) * (((level) > MONSTER_LEVEL_MAX)?MONSTER_LEVEL_MAX:(level)) * 9)
+#define R_INFO(m_ptr)           (r_info_get(m_ptr))
+
+/*
+ * Golem defines
+ */
+#define GOLEM_NONE      0x00
+#define GOLEM_ATTACK    0x01
+#define GOLEM_FOLLOW    0x02
+#define GOLEM_GUARD     0x04
+
+/*
+ * Utility
+ */
+#define BITS(x)  (1 << (x))

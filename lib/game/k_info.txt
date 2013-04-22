@@ -198,9 +198,21 @@ I:80:39:1000
 W:0:0:10:2
 
 
-## XXX 28 XXX ##
+N:28:Polymorphing
+G:=:d
+I:45:5:0
+W:30:0:2:100
+A:30/1
+F:ACTIVATE | HIDE_TYPE
 
-## XXX 29 XXX ##
+
+N:29:& Dark Sword~
+G:|:D
+I:23:29:0
+W:25:0:60:1000
+A:25/4:25:1:40:1
+P:0:3d7:0:0:0
+F:ANTI_MAGIC | SHOW_MODS
 
 
 ##### Edged Weapons #####
@@ -693,7 +705,15 @@ A:50/1
 P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
 
-## XXX 90 XXX ##
+##### Magic Arrows never get lost #####
+
+N:90:& Magic Arrow~
+G:{:v
+I:17:3:0
+W:10:0:2:100
+A:10/1:25/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
 
 
 ##### Armor #####
@@ -1946,7 +1966,13 @@ W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
 
-## XXX 268 XXX ##
+##Scroll of art creation ##
+
+N:268:Artifact Creation
+G:?:d
+I:70:6:0
+W:99:0:5:1000000
+A:99/40
 
 
 ##### Wands #####
@@ -2124,7 +2150,16 @@ A:3/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 293 XXX ##
+## Hunting Book ##
+
+N:293:[Hunting and Tracking]
+G:?:B
+I:95:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+
+####
 
 N:294:Acid Bolts
 G:-:d
@@ -2165,8 +2200,17 @@ A:60/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 299 XXX ##
+## Hunting book ##
 
+N:299:[Killing form Afar]
+G:?:B
+I:95:1:0
+W:50:0:30:15000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+####
 
 ##### Staffs #####
 
@@ -2534,7 +2578,17 @@ P:0:1d1:0:0:0
 
 ##### Here are the Rods #####
 
-## XXX 350 XXX ##
+## Hunting Books ##
+
+N:350:[Arrows of the Master Archers]
+G:?:B
+I:95:2:0
+W:60:0:30:40000
+A:60/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+####
 
 N:351:Door/Stair Location
 G:-:d
@@ -2884,8 +2938,15 @@ W:5:0:30:0
 A:5/1
 P:0:1d2:0:0:0
 
-## XXX 399 XXX ##
+##Now Norcocth can go wild :) ##
 
+N:399:Blood Bond
+G:?:d
+I:70:19:0
+W:15:0:5:125
+A:15/1
+
+####
 
 ##### Dragon Scale Mail #####
 
@@ -2983,7 +3044,7 @@ N:410:Chaos Dragon Scale Mail~
 G:[:v
 I:38:18:0
 W:75:0:200:70000
-A:75/16
+A:75/32
 P:30:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2992,7 +3053,7 @@ N:411:Balance Dragon Scale Mail~
 G:[:v
 I:38:20:0
 W:90:0:200:100000
-A:90/16
+A:90/32
 P:30:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -3001,15 +3062,29 @@ N:412:Power Dragon Scale Mail~
 G:[:v
 I:38:30:0
 W:110:0:200:300000
-A:110/64
+A:110/120
 P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 413 XXX ##
+## Good for Sorcerors ##
+N:413:& Mage Staff~
+G:|:B
+I:21:4:0
+W:20:0:150:400
+A:20/5:40/4:60/3:/80/2:100/1
+P:0:1d1:-5:-5:0
+F:SHOW_MODS
 
-## XXX 414 XXX ##
+## Only for Highlander tornaments ##
+
+N:414:Immortality
+G:":d
+I:40:15:1
+W:127:0:3:1
+A:127/255
+F:WIS | STR | INT | DEX | CON | CHR | LIFE | INFRA | SPEED | HIDE_TYPE
 
 
 ##### Extra potions #####
@@ -3070,9 +3145,21 @@ W:70:0:4:80000
 A:70/4
 P:0:1d1:0:0:0
 
-## XXX 423 XXX ##
+# Psi Crystal
 
-## XXX 424 XXX ##
+N:423:of Telepathy
+G:?:y
+I:89:0:0
+W:10:0:30:25
+A:10/3
+P:0:1d1:0:0:0
+
+N:424:of Psychoportation
+G:?:y
+I:89:1:0
+W:10:0:30:25
+A:10/3
+P:0:1d1:0:0:0
 
 
 ##### Keys #####
@@ -3128,24 +3215,132 @@ G:`:y
 I:80:25:1500
 W:0:0:2:2
 
-##### Items 426 to 439 unused #####
+N:436:of Telekinesis
+G:?:y
+I:89:2:0
+W:10:0:30:25
+A:10/3
+P:0:1d1:0:0:0
 
-##### Items 440 to 444 reserved (old "fake" objects) #####
+N:437:of Claisentiance
+G:?:y
+I:89:3:0
+W:10:0:30:25
+A:10/3
+P:0:1d1:0:0:0
 
+N:438:of Empathy
+G:?:y
+I:89:4:0
+W:10:0:30:25
+A:10/3
+P:0:1d1:0:0:0
+
+N:439:& Massive~ Piece of Wood
+G:*:y
+I:6:0:0
+W:10:0:2500:500
+A:10/40
+P:0:1d1:0:0:0
+
+N:440:& Massive~ Piece of Copper
+G:*:y
+I:6:1:0
+W:30:0:3000:500
+A:30/50
+P:0:1d1:0:0:0
+
+N:441:& Massive~ Piece of Iron
+G:*:y
+I:6:2:0
+W:50:0:3500:500
+A:50/60
+P:0:1d1:0:0:0
+
+N:442:& Massive~ Piece of Aluminium
+G:*:y
+I:6:3:0
+W:70:0:3500:500
+A:70/70
+P:0:1d1:0:0:0
+
+N:443:& Massive~ Piece of Silver
+G:*:y
+I:6:4:0
+W:80:0:4000:500
+A:80/80
+P:0:1d1:0:0:0
+
+N:444:& Massive~ Piece of Gold
+G:*:y
+I:6:5:0
+W:90:0:4500:500
+A:90/90
+P:0:1d1:0:0:0
+
+N:445:& Massive~ Piece of Mithril
+G:*:y
+I:6:6:0
+W:110:0:3500:500
+A:110/110
+P:0:1d1:0:0:0
+
+N:446:& Massive~ Piece of Adamantite
+G:*:y
+I:6:7:0
+W:120:0:6000:500
+A:120/200
+P:0:1d1:0:0:0
+
+N:447:& Golem Arm~
+G:*:v
+I:6:8:0
+W:10:0:400:500
+A:10/30
+P:0:1d1:0:0:0
+
+N:448:& Golem Leg~
+G:*:v
+I:6:9:0
+W:10:0:400:500
+A:10/30
+P:0:1d1:0:0:0
+
+N:449:& Golem Scroll~ of Attack
+G:*:s
+I:6:200:0
+W:10:0:10:500
+A:10/30
+P:0:1d1:0:0:0
+F:ACTIVATE
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:450:& Golem Scroll~ of Following
+G:*:s
+I:6:201:0
+W:10:0:10:500
+A:20/40
+P:0:1d1:0:0:0
+F:ACTIVATE
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:451:& Golem Scroll~ of Guard
+G:*:s
+I:6:202:0
+W:15:0:10:500
+A:15/30
+P:0:1d1:0:0:0
+F:ACTIVATE
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:452:Golem Creation
+G:?:d
+I:70:23:0
+W:10:0:5:1250
+A:10/20
+
+# XXX
 ##### Items 445 to 479 reserved (old "terrain" objects) #####
-
-
-# The old "notice_seams" option is currently unused, but much of its
-# old functionality can be obtained by clever use of 'F' commands in
-# a pref file which define "quartz" and "magma" to look like "granite".
-
-# Note that the "player" picture does not really fit in anywhere, and I
-# have no idea how to go about allowing "redefinition" of that picture.
-# Perhaps by using "monster 0" or "object 0" or "feature 0" or even a
-# special "player picture" which might yield a simple way to show the
-# player in different colors or whatever for different "states", or even
-# a different picture for various "class" or "race" choices.
-
 
 ##### And here starts the gold/gems #####
 
@@ -3510,3 +3705,10 @@ W:70:0:30:300000
 A:70/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:528:of Psychometabolism
+G:?:y
+I:89:5:0
+W:10:0:30:25
+A:10/3
+P:0:1d1:0:0:0

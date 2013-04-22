@@ -29,6 +29,57 @@ static void print_spells(int book)
 	prt("", 2 + i, col);
 }
 
+static void print_mimic_spells()
+{
+	int	i, col, j = 2;
+	char buf[90];
+
+	/* Print column */
+	col = 20;
+
+	/* Title the list */
+	prt("", 1, col);
+	put_str("Name", 1, col + 5);
+
+	prt("", j, col);
+	put_str("a) Polymorph Self", j++, col);
+
+	/* Dump the spells */
+	for (i = 0; i < 32; i++)
+	{
+		/* Check for end of the book */
+	        if (!(p_ptr->innate_spells[0] & (1L << i)))
+		  continue;
+
+		/* Dump the info */
+		sprintf(buf, "%c) %s", I2A(j - 2), monster_spells4[i]);
+		prt(buf, j++, col);
+	}
+	for (i = 0; i < 32; i++)
+	{
+		/* Check for end of the book */
+	        if (!(p_ptr->innate_spells[1] & (1L << i)))
+			continue;
+
+ 		/* Dump the info */
+		sprintf(buf, "%c) %s", I2A(j - 2), monster_spells5[i]);
+		prt(buf, j++, col);
+	}
+	for (i = 0; i < 32; i++)
+	{
+		/* Check for end of the book */
+	        if (!(p_ptr->innate_spells[2] & (1L << i)))
+			continue;
+
+		/* Dump the info */
+		sprintf(buf, "%c) %s", I2A(j - 2), monster_spells6[i]);
+		prt(buf, j++, col);
+	}
+
+	/* Clear the bottom line */
+	prt("", j++, col);
+}
+
 /*
  * Allow user to choose a spell/prayer from the given book.
  */
@@ -275,6 +326,157 @@ void do_pray(int book)
 	/* Tell the server */
 	Send_pray(book, j);
 }
+
+static int get_mimic_spell(int *sn)
+{
+	int		i, num = 1;
+	bool		flag, redraw, okay;
+	char		choice;
+	char		out_val[160];
+	int             corresp[200];
+
+	/* Assume no spells available */
+	(*sn) = -2;
+
+	/* Init the Polymorph power */
+	corresp[0] = 0;
+
+	/* Check for "okay" spells */
+	for (i = 0; i < 32; i++)
+	{
+		/* Look for "okay" spells */
+		if (p_ptr->innate_spells[0] & (1L << i)) 
+		{
+		  corresp[num] = i + 1;
+		  num++;
+		}
+	}
+	for (i = 0; i < 32; i++)
+	{
+		/* Look for "okay" spells */
+		if (p_ptr->innate_spells[1] & (1L << i)) 
+		{
+		  corresp[num] = i + 32 + 1;
+		  num++;
+		}
+	}
+	for (i = 0; i < 32; i++)
+	{
+		/* Look for "okay" spells */
+		if (p_ptr->innate_spells[2] & (1L << i)) 
+		{
+		  corresp[num] = i + 64 + 1;
+		  num++;
+		}
+	}
+
+
+	/* Assume cancelled */
+	(*sn) = -1;
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) use which power? ",
+		I2A(0), I2A(num - 1));
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+			/* Show the list */
+			if (!redraw)
+			{
+				/* Show list */
+				redraw = TRUE;
+
+				/* The screen is icky */
+				screen_icky = TRUE;
+
+				/* Save the screen */
+				Term_save();
+
+				/* Display a list of spells */
+				print_mimic_spells();
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				Term_load();
+
+				/* The screen is OK now */
+				screen_icky = FALSE;
+
+				/* Flush any events */
+				Flush_queue();
+			}
+
+			/* Ask again */
+			continue;
+		}
+		
+	       	/* extract request */
+		i = (islower(choice) ? A2I(choice) : -1);
+	      	if (i >= num) i = -1;
+
+		/* Totally Illegal */
+		if (i < 0)
+		{
+			bell();
+			continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw)
+	{
+		Term_load();
+		screen_icky = FALSE;
+
+		/* Flush any events */
+		Flush_queue();
+	}
+
+
+	/* Abort if needed */
+	if (!flag) return (FALSE);
+
+	/* Save the choice */
+	(*sn) = corresp[i];
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*
+ * Mimic
+ */
+void do_mimic()
+{
+  int spell, j, i;
+
+  /* Ask for the spell */
+  if(!get_mimic_spell(&spell)) return;
+
+  /* Tell the server */
+  Send_mimic(spell);
+}
+
 
 /*
  * Use a technic

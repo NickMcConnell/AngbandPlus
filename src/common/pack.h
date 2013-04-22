@@ -73,7 +73,10 @@
 #define PKT_SPECIAL_LINE	64
 
 
-/* Packet types 70-116 are sent from the client */
+/* Packet types 67-116 are sent from the client */
+#define PKT_MIND		67
+#define PKT_MIMIC		68
+#define PKT_KING		69
 #define PKT_WALK		70
 #define PKT_RUN			71
 #define PKT_TUNNEL		72
@@ -127,6 +130,7 @@
 #define PKT_TARGET_FRIENDLY	117
 #define PKT_MASTER		118 /* dungeon master commands */
 #define PKT_AUTOPHASE		119 /* automatically try to phase */
+#define PKT_HOUSE		120 /* house admin */
 
 /* Packet types 121-122 are more administrative stuff */
 #define PKT_FAILURE		121

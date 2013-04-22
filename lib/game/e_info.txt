@@ -317,7 +317,7 @@ F:SHOW_MODS | HIDE_TYPE
 
 # One power resist
 
-N:53:of Magic
+N:53:of the Magi
 X:34:20
 W:0:0:0:50000
 C:-5:-5:10:10
@@ -416,7 +416,12 @@ C:0:0:0:3
 F:WIS | 
 F:BLESSED
 
-# 67 (unused)
+N:67:of Power
+X:24:20
+W:0:0:0:30000
+C:-10:-10:-10:3
+F:INT | 
+F:WIS | FREE_ACT
 
 N:68:of Westernesse
 X:24:20

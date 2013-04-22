@@ -24,7 +24,9 @@ extern cptr stat_names[6];
 extern cptr stat_names_reduced[6];
 extern cptr ang_term_name[8];
 extern cptr window_flag_desc[32];
-
+extern cptr monster_spells4[32];
+extern cptr monster_spells5[32];
+extern cptr monster_spells6[32];
 
 
 
@@ -41,8 +43,8 @@ extern char inventory_name[INVEN_TOTAL][80];
 
 extern store_type store;
 extern owner_type store_owner;
-extern int store_prices[24];
-extern char store_names[24][80];
+extern int store_prices[STORE_INVEN_MAX];
+extern char store_names[STORE_INVEN_MAX][80];
 extern s16b store_num;
 
 extern char spell_info[9][9][80];
@@ -217,6 +219,7 @@ extern bool get_server_name(void);
 extern void process_command(void);
 extern void cmd_tunnel(void);
 extern void cmd_walk(void);
+extern void cmd_king(void);
 extern void cmd_run(void);
 extern void cmd_stay(void);
 extern void cmd_map(void);
@@ -265,8 +268,10 @@ extern void cmd_browse(void);
 extern void cmd_study(void);
 extern void cmd_cast(void);
 extern void cmd_pray(void);
+extern void cmd_mimic(void);
 extern void cmd_fight(void);
 extern void cmd_ghost(void);
+extern void cmd_mind(void);
 extern void cmd_load_pref(void);
 extern void cmd_redraw(void);
 extern void cmd_purchase_house(void);
@@ -330,7 +335,9 @@ extern void show_browse(int book);
 extern void do_study(int book);
 extern void do_cast(int book);
 extern void do_pray(int book);
+extern void do_fight(int book);
 extern void do_ghost(void);
+extern void do_mimic();
 
 /* c-store.c */
 extern void display_inventory(void);
@@ -382,6 +389,8 @@ extern int Net_start(void);
 extern int Net_input(void);
 extern int Flush_queue(void);
 
+extern int Send_mind();
+extern int Send_mimic(int spell);
 extern int Send_search(void);
 extern int Send_walk(int dir);
 extern int Send_run(int dir);
@@ -437,6 +446,8 @@ extern int Send_suicide(void);
 extern int Send_options(void);
 extern int Send_master(s16b command, cptr buf);
 extern int Send_clear_buffer(void);
+extern int Send_King(byte type);
+extern int Send_admin_house(int dir, cptr buf);
 
 
 

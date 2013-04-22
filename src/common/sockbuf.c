@@ -1,4 +1,4 @@
-/* $Id: sockbuf.c,v 1.2 1999/11/19 19:38:46 adingle Exp $
+/* $Id: sockbuf.c,v 1.2 2001/07/29 00:03:59 darkgod Exp $
  *
  * XPilot, a multiplayer gravity war game.  Copyright (C) 1991-95 by
  *
@@ -25,9 +25,11 @@
 
 # include <winsock.h>
 /* Hack - my errno doesn't include EWOULDBLOCK * - GP */
+#ifndef DUMB_WIN
 # define EWOULDBLOCK WSAEWOULDBLOCK
 /* this next one redefines va_start and va_end, but it is necessary -GP*/
 # include <varargs.h>
+#endif
 #else
 # include <unistd.h>
 # include <stdlib.h>

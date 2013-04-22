@@ -16,10 +16,132 @@ Change list for PernMangband
 - Sorcerors can project wraithfrom, speed, shield on other players
 - Got a permanent server(198.252.166.41) thanks a lot Crimson !
 - Rings & lights artifacts
-- Rogues got a brand new magic realm(6 books)
-- Warriors got books of fighting(2) with fighting technics
-- Separate unique list for each players
-- Call on varda priest spell
-- Way more I just can't remember :)
+...
 
-07/11/2000 - PernMangband 3.0.4
+14/12/2000
+- Damn I always forgot to make this up to date ... ok so lots of
+  things changed ...
+- Mimic class that can polymorph at will into any monster they have
+  "studied"(killed :) enough
+- Much more things I cant remeber .. ok I promise I'll TRY to get this
+  uptodate ... mhh ...
+
+16/12/2000
+- Mimics can now use the powers of the monster they are polymorphed into
+- Old clients no more works with new server(3.0.7)
+
+...
+
+28/03/2001
+- Telepath Class, uses crystals, can fusion with otehr people
+- Grond inscribed with !E wont earthquake
+- Mage Staffs of Power wont increase casting speed
+- Grond WILL increase casting speed by 4
+- DragonRiders get a ESP radius of (lvl/2)
+- DragonRiders lost resist poison
+- DragonRiders resistancess comes at lvl 10 15 20 25
+
+01/04/2001
+- Telepaths can now cast their spells with their energy instead of the
+  controlled guy energy
+- Telepaths got 3 new Telekinesis spells
+- Mind links needs 20 + d15 turns to be ended
+- Telepaths got 1 new Psychoportation spell
+
+16/04/2001
+- Fixed a bug in the polymorph ring generation that could hang the game
+- Mimics polymorph will cycle throught the possible forms instead of
+  randomly selecting them
+
+...
+
+24/07/2001 (evileye)
+- Fixed a bug in server (common/types.h) which has player_type.dun_depth as s16b,
+  but uses pointer to s32b in load/save routines. Likewise with object_type.
+  This does not manifest in some machines.
+- Fixed lack of null termination in self knowledge and *identification*.
+- Fixed the "psi-powers" bug with rods.
+- Fixed wand bug which could reduce the pval of other items.
+- tot_dam_aux_player was getting resistances the wrong way round (and redefining
+  arg p_ptr).
+- uncommented 744/745 of server/xtra1.c
+- made king code multi-king friendly (made movement hook for each player)
+
+25/07/2001 (evileye)
+- Fixed up target_set_friendly so that it works with non party players
+  and respects hostilities.
+- Fixed "the (nothing) you are wearing is cursed" problem which annoys
+  recently deceased players.
+- Blood bond should not crash now.
+- Added curse item spell for rogues (not fully implemented).
+- Cleaned up various code and added protos for some funcs
+
+25/07/2001 (darkgod)
+- Fury, Dig, Spin warrior technics
+- Fixed DSM being dopepd without unpolying
+- Fixed morphing and not lossing eq wit eq is inscribed !
+- /me works in chat
+
+26/07/2001 (evileye)
+- Fixed password prompt in client
+- Bug in netserver which could result in bus fault fixed.
+- Added Player menu to wizard commands (framework mainly)
+- Added wizard level genocide
+
+27/07/2001 (evileye)
+- Fixed double experience bug on priests and sorcerors.
+
+28/07/2001 (darkgod)
+- Ghost cant gain experience
+- Diving as a ghost dont affect recall depth
+
+28/07/2001 (evileye)
+- Cloned monsters do not drop anymore, and yield no experience
+  Mimic count is no longer updated either.
+
+30/07/2007
+- Telepaths dont share hp anymore, it was:
+  1) silyl given the idea of only the spirit of the telepath moving
+  2) cheezy
+- Telepaths only share half their mana
+- Player levels now goes up to 100
+- Monster can ain levels up to 500
+
+02/08/2001
+- Randarts rarer
+- Randart power reduced
+- Max 2 EA on randarts
+- Max +7 mana on randarts
+- Tidal Wave mana/level increased
+- Healing in hellish mode is now only 3/4 instead of 1/2
+- Player Golems! One can find pieces of golem and make a powerfull ally
+- Level requirement for objects, exepct for the char that found it
+- Level requirments on objects
+- One can inscribe an object #of the Fool to get the object to display:
+  "The Dager of the Fool"
+- Races get different mana
+- race restrict class
+- Mana penality for armor increased
+- Increased speed effect at high levels
+
+04/08/2001
+- New houses ready for testing prior to potential server reset
+- Extended dungeon. After level 100(5000') it loops to pseudo level 1
+  but with all monsters gaining +100 level
+- No lev restriction on parties, but only opeople in the +/-7 level range will
+  gain xp
+
+05/08/2001
+- Finished Archers books
+- 90 day player timeout added.
+
+05/08/2001 - PernMangband 3.2.0
+
+08/18/2001 - Client Changes (Client 3.2.1) -Zz
+- You can specify an argument in Windows and client will connect directly
+  bypassing meta server (previously this only worked for Unix clients)
+- Multiple colors for different types of messages in recall window
+  (death, kill, private messages, etc.)
+- CTRL-O works like CTRL-P except only shows important messages - good for
+  review after a long fight or long AFK
+

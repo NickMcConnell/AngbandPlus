@@ -98,23 +98,37 @@ static void choose_sex(void)
 {
 	char        c;
 
-	put_str("m) Male", 21, 2);
-	put_str("f) Female", 21, 17);
+	put_str("m) Male", 20, 2);
+	put_str("f) Female", 20, 17);
+	put_str("M) Hell Male", 21, 2);
+	put_str("F) Hell Female", 21, 17);
 
 	while (1)
 	{
-		put_str("Choose a sex (? for Help, Q to Quit): ", 20, 2);
+		put_str("Choose a sex (? for Help, Q to Quit): ", 19, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
-		if ((c == 'm') || (c == 'M'))
+		if (c == 'm')
 		{
-			sex = TRUE;
+			sex = 1;
 			c_put_str(TERM_L_BLUE, "Male", 4, 15);
 			break;
 		}
-		else if ((c == 'f') || (c == 'F'))
+		if (c == 'M')
 		{
-			sex = FALSE;
+			sex = 3;
+			c_put_str(TERM_L_BLUE, "Male", 4, 15);
+			break;
+		}
+		else if (c == 'f')
+		{
+			sex = 0;
+			c_put_str(TERM_L_BLUE, "Female", 4, 15);
+			break;
+		}
+		else if (c == 'F')
+		{
+			sex = 2;
 			c_put_str(TERM_L_BLUE, "Female", 4, 15);
 			break;
 		}
@@ -195,6 +209,7 @@ static void choose_race(void)
 static void choose_class(void)
 {
 	player_class *cp_ptr;
+        player_race *rp_ptr = &race_info[race];
 	int          j, k, l, m;
 
 	char         c;
@@ -211,6 +226,13 @@ static void choose_class(void)
 	for (j = 0; j < MAX_CLASS; j++)
 	{
 		cp_ptr = &class_info[j];
+
+                if (!(rp_ptr->choice & BITS(j)))
+                {
+                        l += 15;
+                        continue;
+                }
+
 		sprintf(out_val, "%c) %s", I2A(j), cp_ptr->title);
 		put_str(out_val, m, l);
 		l += 15;
@@ -230,6 +252,8 @@ static void choose_class(void)
 		j = (islower(c) ? A2I(c) : -1);
 		if ((j < MAX_CLASS) && (j >= 0))
 		{
+                        if (!(rp_ptr->choice & BITS(j))) continue;
+
 			class = j;
 			cp_ptr = &class_info[j];
 			c_put_str(TERM_L_BLUE, cp_ptr->title, 6, 15);
@@ -453,7 +477,7 @@ static bool enter_server_name(void)
 	move_cursor(5, 1);
 
 	/* Default */
-	strcpy(server_name, "keldon.student.umr.edu");
+        strcpy(server_name, "127.0.0.1");
 
 	/* Ask for server name */
 	return askfor_aux(server_name, 80, 0);

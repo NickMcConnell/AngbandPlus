@@ -1,4 +1,4 @@
-/* $Id: version.h,v 1.1.1.1 1999/10/26 19:20:49 root Exp $
+/* $Id: version.h,v 1.1.1.1 2001/07/24 20:19:25 darkgod Exp $
  *
  * XPilot, a multiplayer gravity war game.  Copyright (C) 1991-96 by
  *

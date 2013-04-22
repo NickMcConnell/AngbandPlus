@@ -89,17 +89,17 @@ void prt_level(int level, int max, int cur, int adv)
 	Term_putstr(0, ROW_LEVEL, -1, TERM_WHITE, "LEVEL ");
 	Term_putstr(COL_LEVEL + 6, ROW_LEVEL, -1, TERM_L_GREEN, tmp);
 
-	sprintf(tmp, "%8ld", (long)cur);
+        sprintf(tmp, "%9ld", (long)cur);
 
 	if (cur >= max)
 	{
-		Term_putstr(0, ROW_EXP, -1, TERM_WHITE, "EXP ");
-		Term_putstr(COL_EXP + 4, ROW_EXP, -1, TERM_L_GREEN, tmp);
+                Term_putstr(0, ROW_EXP, -1, TERM_WHITE, "XP ");
+                Term_putstr(COL_EXP + 3, ROW_EXP, -1, TERM_L_GREEN, tmp);
 	}
 	else
 	{
-		Term_putstr(0, ROW_EXP, -1, TERM_WHITE, "Exp ");
-		Term_putstr(COL_EXP + 4, ROW_EXP, -1, TERM_YELLOW, tmp);
+                Term_putstr(0, ROW_EXP, -1, TERM_WHITE, "Xp ");
+                Term_putstr(COL_EXP + 3, ROW_EXP, -1, TERM_YELLOW, tmp);
 	}
 }
 
@@ -489,17 +489,25 @@ void prt_basic(void)
 		case 8: r = "Dunadan"; break;
 		case 9: r = "High-elf"; break;
 		case RACE_YEEK: r = "Yeek"; break;
+		case RACE_GOBLIN: r = "Goblin"; break;
+		case RACE_ENT: r = "Ent"; break;
+		case RACE_DRIDER: r = "DragonRider"; break;
 	}
 
 	switch(class)
 	{
 		case 0: c = "Warrior"; break;
-		case 1: c = "Mage"; break;
+		case 1: c = "Warlock"; break;
 		case 2: c = "Priest"; break;
 		case 3: c = "Rogue"; break;
 		case 4: c = "Ranger"; break;
 		case 5: c = "Paladin"; break;
 		case CLASS_SORCERER: c = "Sorceror"; break;
+		case CLASS_MIMIC: c = "Mimic"; break;
+		case CLASS_UNBELIEVER: c = "Unbeliever"; break;
+		case CLASS_ARCHER: c = "Archer"; break;
+		case CLASS_MONK: c = "Monk"; break;
+		case CLASS_TELEPATH: c = "Telepath"; break;
 	}
 
 	prt_field(r, ROW_RACE, COL_RACE);
@@ -999,6 +1007,27 @@ void fix_message(void)
         int w, h;
         int x, y;
 
+	/* Display messages in different colors -Zz */
+	char nameA[20];
+	char nameB[20];
+	cptr msg_slainA = "You have slain";
+	cptr msg_slainB = "You have destroyed";
+	cptr msg_slainC = " dies.";
+	cptr msg_slainD = " shrivels away in the light!";
+	cptr msg_slainE = " is destroyed.";
+	cptr msg_slainF = " dissolves!";
+	cptr msg_slainG = " collapses, a mindless husk.";
+	cptr msg_deadA = "You have been killed";
+	cptr msg_deadB = "You die";
+	cptr msg_unique = "was slain by";
+	cptr msg_killed = "was killed by";
+	cptr msg_destroyed = "ghost was destroyed by";
+	cptr msg_suicide = "committed suicide.";
+
+	strcpy(nameA, "[");  strcat(nameA, nick);  strcat(nameA, ":");
+	strcpy(nameB, ":");  strcat(nameB, nick);  strcat(nameB, "]");
+
+
         /* Scan windows */
         for (j = 0; j < 8; j++)
         {
@@ -1024,9 +1053,24 @@ void fix_message(void)
 
 			msg = message_str(i);
 
-			if (msg[0] == '[')
+			/* Display messages in different colors -Zz */
+			if ((strstr(msg, nameA) != NULL) || (strstr(msg, nameB) != NULL))
+				a = TERM_GREEN;
+			else if (msg[0] == '[')
 				a = TERM_L_BLUE;
-			else a = TERM_WHITE;
+			else if ((strstr(msg, msg_slainA) != NULL) || (strstr(msg, msg_slainB) != NULL) || \
+				 (strstr(msg, msg_slainC) != NULL) || (strstr(msg, msg_slainD) != NULL) || \
+				 (strstr(msg, msg_slainE) != NULL) || (strstr(msg, msg_slainF) != NULL) || \
+				 (strstr(msg, msg_slainG) != NULL))
+				a = TERM_YELLOW;
+			else if ((strstr(msg, msg_killed) != NULL) || (strstr(msg, msg_destroyed) != NULL) || (strstr(msg, msg_suicide) != NULL))
+				a = TERM_RED;
+			else if (strstr(msg, msg_unique) != NULL)
+				a = TERM_BLUE;
+			else if ((strstr(msg, msg_deadA) != NULL) || (strstr(msg, msg_deadB) != NULL))
+				a = TERM_L_RED;
+			else 
+				a = TERM_WHITE;
 
                         /* Dump the message on the appropriate line */
                         Term_putstr(0, (h - 1) - i, -1, a, msg);

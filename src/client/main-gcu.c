@@ -64,7 +64,6 @@
 #endif
 
 typedef struct term_data term_data;
-
 struct term_data
 {
 	term t;

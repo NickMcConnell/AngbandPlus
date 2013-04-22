@@ -351,6 +351,8 @@ void display_store(void)
 	/* Clear screen */
 	Term_clear();
 
+	store_top = 0;
+
 	/* Find the "store name" */
 	switch (store_num)
 	{

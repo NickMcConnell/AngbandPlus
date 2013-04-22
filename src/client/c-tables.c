@@ -1345,7 +1345,8 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-		0x3F
+                0xFFFFFFFF,
+                100,
 	},
 
 	{
@@ -1357,7 +1358,8 @@ player_race race_info[MAX_RACES] =
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-		0x3F
+                0xFFFFFFFF - BITS(CLASS_MIMIC) - BITS(CLASS_PALADIN),
+                110,
 	},
 
 	{
@@ -1369,7 +1371,8 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-		0x1F
+                0xFFFFFFFF - BITS(CLASS_MIMIC) - BITS(CLASS_PALADIN) - BITS(CLASS_UNBELIEVER),
+                120,
 	},
 
 	{
@@ -1381,7 +1384,8 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-		0x0B
+                0xFFFFFFFF - BITS(CLASS_PALADIN) - BITS(CLASS_MONK) - BITS(CLASS_TELEPATH),
+                90,
 	},
 
 	{
@@ -1393,7 +1397,8 @@ player_race race_info[MAX_RACES] =
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-		0x0F
+                0xFFFFFFFF - BITS(CLASS_UNBELIEVER),
+                120,
 	},
 
 	{
@@ -1405,7 +1410,8 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-		0x05
+                0xFFFFFFFF - BITS(CLASS_MAGE) - BITS(CLASS_SORCERER) - BITS(CLASS_TELEPATH),
+                95,
 	},
 
 	{
@@ -1417,7 +1423,8 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-		0x0D
+                0xFFFFFFFF - BITS(CLASS_MAGE) - BITS(CLASS_SORCERER) - BITS(CLASS_TELEPATH),
+                50,
 	},
 
 	{
@@ -1429,7 +1436,8 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-		0x05
+                0xFFFFFFFF - BITS(CLASS_MAGE) - BITS(CLASS_SORCERER) - BITS(CLASS_TELEPATH),
+                20,
 	},
 
 	{
@@ -1441,8 +1449,9 @@ player_race race_info[MAX_RACES] =
 		82, 5, 190, 20,
 		78,  6, 180, 15,
 		0,
-		0x3F
-	},
+                0xFFFFFFFF,
+                105,
+        },
 
 	{
 		"High-Elf",
@@ -1453,7 +1462,8 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x1F
+                0xFFFFFFFF - BITS(CLASS_UNBELIEVER),
+                125,
 	},
 
 	{
@@ -1465,8 +1475,47 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-		0x3F
-	}
+                0xFFFFFFFF,
+                50,
+	},
+
+	{
+		"Goblin",
+		{  0, -1, -5,  4,  2, -5 },
+		2, -3, -3,  0,  2, 8, 12, -5,
+		11,  115,
+		11,  4,
+		66,  1, 150,  5,
+		62,  1, 120,  5,
+		3,
+                0xFFFFFFFF - BITS(CLASS_SORCERER) - BITS(CLASS_TELEPATH),
+                70,
+	},
+
+	{
+                "Ent",
+		{ 8, -4, +2, -4,  8, -5 },
+                5, 0, 20, -6, 5, 4, 15, 5,
+                14, 300,
+                255, 70,
+		72, 6, 100, 25,
+		66, 4, 100, 20,
+		5,
+                0xFFFFFFFF - BITS(CLASS_MAGE) - BITS(CLASS_SORCERER),
+                90,
+	},
+	{
+                "DragonRider",
+                {  6,  3,  -10,  0,  5,  5 },
+                6,  0,  10,  -16,  30,  10,  15,  5,
+                12,  450,
+		14,  6,
+                180,  6, 255, 25,
+                150,  4, 230, 20,
+                0,
+                0xFFFFFFFF - BITS(CLASS_MIMIC),
+                95,
+        },
 };
 /*
  * Player Race Information:
@@ -1502,7 +1551,7 @@ player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Mage",
+		"Warlock",
 		{-5, 3, 0, 1, -2, 1},
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
@@ -1547,7 +1596,47 @@ player_class class_info[MAX_CLASS] =
 		35, 40, 30, 2, 16, 20, 30, 20,
 		8,  15,  9, 0,  0,  0, 11, 15,
 		0, 30
-	}
+	},
+
+	{
+		"Mimic",
+		{ 1, 0, 0, 1, 1, -4},
+		25, 35, 28, 7, 18, 18, 60, 66,
+	         9, 10, 10, 0,  0,  0, 40, 30,
+		6, 25
+	},
+	
+	{
+		"Unbeliever",
+		{ 5, -5, -5, 3, 3, 1},
+		25, 3, 32, 2,  18, 4, 75, 55,
+		15, 2, 14, 0,  0,  0, 50, 45,
+		9,  0
+	},
+
+	{
+		"Archer",
+		{ 1, 0, 2, 3, 1, -1},
+		30, 32, 28, 2,  24, 20, 56, 82,
+		8,  10, 10, 0,  0,  0,  30, 55,
+		4, 30
+	},
+
+	{
+		"Monk",
+		{ 2, -1, 1, 3, 2, 1},
+		45, 32, 28, 5, 32, 24, 64, 60,
+		15, 11, 10, 0,  0,  0, 40, 30,
+		6, 40
+	},
+
+	{
+		"Telepath",
+		{ -1, 1, 1, 0, 0, 4},
+		30, 36, 30, 2,  16, 20, 34, 20,
+		7,  13, 9,  0,  0,  0,  15, 15,
+		0, 20
+	},
 };
 
 
@@ -3037,3 +3126,102 @@ option_type option_info[] =
 };
 
 
+cptr monster_spells4[32] =
+{
+  "Shriek",
+  "XXX2",
+  "XXX3",
+  "XXX4",
+  "Arrow",
+  "Arrow",
+  "Arrow",
+  "Arrow",
+  "Breath Acid",
+  "Breath Lightning",
+  "Breath Fire",
+  "Breath Cold",
+  "Breath Poison",
+  "Breath Nether",
+  "Breath Lite",
+  "Breath Darkness",
+  "Breath Confusion",
+  "Breath Sound",
+  "Breath Chaos",
+  "Breath Disenchantment",
+  "Breath Nexus",
+  "Breath Time",
+  "Breath Inertia",
+  "Breath Gravity",
+  "Breath Shards",
+  "Breath Plasma",
+  "Breath Force",
+  "Breath Mana",
+  "XXX",
+  "XXX",
+  "XXX",
+  "XXX",
+};
+
+/*
+ * New monster race bit flags
+ */
+cptr monster_spells5[32] =
+{
+  "Ball of Acid",
+  "Ball of Lightning",
+  "Ball of Fire",
+  "Ball of Cold",
+  "Ball of Poison",
+  "Ball of Nether",
+  "Ball of Water",
+  "Ball of Mana",
+  "Ball of Darkness",
+  "Drain Mana",
+  "Mind Blast",
+  "Brain Smash",
+  "Cause Light Wounds",
+  "Cause Serious Wounds",
+  "Cause Critical Wounds",
+  "Cause Mortal Wounds",
+  "Bolt of Acid",
+  "Bolt of Lightning",
+  "Bolt of Fire",
+  "Bolt of Cold",
+  "Bolt of Poison",
+  "Bolt of Nether",
+  "Bolt of Water",
+  "Bolt of Mana",  "Bolt of Plasma",
+  "Bolt of Ice",
+  "Magic Missile",
+  "Scare",
+  "Blind",
+  "Confusion",
+  "Slow",
+  "Paralyze",
+};
+
+/*
+ * New monster race bit flags
+ */
+cptr monster_spells6[32] =
+{
+  "Speed",
+  "XXX",
+  "Heal",
+  "XXX",
+  "Blink",
+  "Teleport",
+  "XXX",
+  "XXX",
+  "Teleport To",
+  "Teleport Away",
+  "Teleport Level",
+  "XXX",
+  "Darkness",
+  "Traps",
+  "Forget",
+  "XXX",
+  "XXX",
+  "XXX",
+  /* Summons follow, but players can't summon */
+};

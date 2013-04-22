@@ -56,7 +56,7 @@ static void init_stuff(void)
 #if defined(AMIGA) || defined(VM)
 
         /* Hack -- prepare "path" */
-        strcpy(path, "Angband:");
+        strcpy(path, "PMAngband:");
 
 #else /* AMIGA / VM */
 
@@ -309,7 +309,7 @@ void client_init(char *argv1)
 	nick[0] = toupper(nick[0]);
 
 	// Create the net socket and make the TCP connection
-	if ((Socket = CreateClientSocket(server_name, 18346)) == -1)
+	if ((Socket = CreateClientSocket(server_name, 18348)) == -1)
 	{
 		quit("That server either isn't up, or you mistyped the hostname.\n");
 	}
@@ -367,9 +367,9 @@ void client_init(char *argv1)
 
 	/* Connect to server */
 #ifdef UNIX_SOCKETS
-	if ((DgramConnect(Socket, server_name, 18346)) == -1)
+	if ((DgramConnect(Socket, server_name, 18348)) == -1)
 #else
-	// UDP stuffif ((DgramConnect(Socket, server_name, 18346)) == -1)
+	// UDP stuffif ((DgramConnect(Socket, server_name, 18348)) == -1)
 #endif
 	//{
 	//	quit("That server either isn't up, or you mistyped the host name.\n");
@@ -425,7 +425,7 @@ void client_init(char *argv1)
 		switch (status)
 		{
 			case E_VERSION:
-				quit("This version of the client will not work with that server.");
+				quit("This version of the client will not work with that server. http://pernmangband.pernangband.org/ to get the new client.");
 			case E_GAME_FULL:
 				quit("Sorry, the game is full.  Try again later.");
 			case E_IN_USE:

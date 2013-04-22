@@ -28,6 +28,7 @@ int Receive_inven(void);
 int Receive_equip(void);
 int Receive_char_info(void);
 int Receive_various(void);
+int Receive_mimic(void);
 int Receive_plusses(void);
 int Receive_experience(void);
 int Receive_gold(void);

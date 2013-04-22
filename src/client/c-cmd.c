@@ -1,5 +1,7 @@
 #include "angband.h"
 
+static void cmd_clear_buffer(void);
+
 /* Handle all commands */
 
 void process_command()
@@ -179,6 +181,12 @@ void process_command()
                         break;
                 }
 
+                case 'K':
+                {
+                        cmd_king();
+                        break;
+                }
+
 		case '{':
 		{
 			cmd_inscribe();
@@ -290,12 +298,23 @@ void process_command()
                         break;
                 }
 
+                case 'N':
+                {
+                        cmd_mimic();
+                        break;
+                }
+
 		case 'U':
 		{
 			cmd_ghost();
 			break;
 		}
 
+		case 'x':
+		{
+			cmd_mind();
+			break;
+		}
 		/*** Looking/Targetting ***/
 		case '*':
 		{
@@ -379,6 +398,13 @@ void process_command()
 			break;
 		}
 
+		/* Add separate buffer for chat only review (good for afk) -Zz */
+                case KTRL('O'):
+                {
+                        do_cmd_messages_chatonly();
+                        break;
+                }
+
                 case KTRL('P'):
                 {
                         do_cmd_messages();
@@ -438,7 +464,7 @@ void process_command()
 
 
 
-void cmd_clear_buffer(void)
+static void cmd_clear_buffer(void)
 {
 	Send_clear_buffer();
 }
@@ -958,7 +984,7 @@ void cmd_activate(void)
 {
 	int item;
 
-	if (!c_get_item(&item, "Activate what? ", TRUE, FALSE, FALSE))
+        if (!c_get_item(&item, "Activate what? ", TRUE, TRUE, FALSE))
 	{
 		return;
 	}
@@ -1369,7 +1395,18 @@ static bool item_tester_browsable(object_type *o_ptr)
 		return TRUE;
 	}
 	
+	if ((p_ptr->pclass == CLASS_ARCHER) && (o_ptr->tval == TV_HUNT_BOOK))
+	{
+		return TRUE;
+	}
+	
 	if ((p_ptr->pclass == CLASS_WARRIOR) && (o_ptr->tval == TV_FIGHT_BOOK))
+	{
+		return TRUE;
+	}
+
+	/* Mega hack, hope it works */
+	if (p_ptr->pclass == CLASS_TELEPATH)
 	{
 		return TRUE;
 	}
@@ -1418,8 +1455,16 @@ void cmd_study(void)
 static bool item_tester_magicable(object_type *o_ptr)
 {
 	if (((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_RANGER)) && (o_ptr->tval == TV_MAGIC_BOOK)) return TRUE;
+
 	if ((p_ptr->pclass == CLASS_SORCERER) && (o_ptr->tval == TV_SORCERY_BOOK)) return TRUE;
+
 	if ((p_ptr->pclass == CLASS_ROGUE) && (o_ptr->tval == TV_SHADOW_BOOK)) return TRUE;
+
+	if ((p_ptr->pclass == CLASS_ARCHER) && (o_ptr->tval == TV_HUNT_BOOK)) return TRUE;
+
+	/* Mega Hack, hope it works */
+	if (p_ptr->pclass == CLASS_TELEPATH) return TRUE;
+
 	return FALSE;
 }
 
@@ -1427,7 +1472,7 @@ void cmd_cast(void)
 {
 	int item;
 
-	if (class != CLASS_MAGE && class != CLASS_ROGUE && class != CLASS_RANGER && class != CLASS_SORCERER)
+	if ((class != CLASS_MAGE) && (class != CLASS_ROGUE) && (class != CLASS_RANGER) && (class != CLASS_SORCERER) && (class != CLASS_ARCHER) && (class != CLASS_TELEPATH))
 	{
 		c_msg_print("You cannot cast spells!");
 		return;
@@ -1467,6 +1512,20 @@ void cmd_pray(void)
 	do_pray(item);
 }
 
+void cmd_mimic(void)
+{
+	int item;
+
+	if (class != CLASS_MIMIC)
+	{
+		c_msg_print("You are too solid.");
+		return;
+	}
+
+	/* Pick a spell and do it */
+	do_mimic();
+}
+
 void cmd_fight(void)
 {
 	int item;
@@ -1499,6 +1558,11 @@ void cmd_ghost(void)
 	}
 }
 
+void cmd_mind(void)
+{
+	Send_mind();
+}
+
 void cmd_load_pref(void)
 {
 	char buf[80];
@@ -1515,15 +1579,94 @@ void cmd_redraw(void)
 	keymap_init();
 }
 
+void cmd_house_chown(int dir)
+{
+	char i=0;
+	char buf[80];
+
+	Term_clear();
+	Term_putstr(0, 2, -1, TERM_BLUE, "Select owner type");
+	Term_putstr(5, 4, -1, TERM_WHITE, "(1) Player");
+	Term_putstr(5, 5, -1, TERM_WHITE, "(2) Party");
+	Term_putstr(5, 6, -1, TERM_WHITE, "(3) Class");
+	Term_putstr(5, 7, -1, TERM_WHITE, "(4) Race");
+	while(i!=ESCAPE){
+		i=inkey();
+		switch(i){
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+				buf[0]='O';
+				buf[1]=i;
+				buf[2]=0;
+				get_string("Enter new name:",&buf[2],79);
+				Send_admin_house(dir,buf);
+				return;
+			default:
+				bell();
+		}
+		c_msg_print(NULL);
+	}
+}
+
+void cmd_house_chmod(int dir){
+	char buf[80];
+	char mod=ACF_NONE;
+	u16b minlev=0;
+	Term_clear();
+	Term_putstr(0, 2, -1, TERM_BLUE, "Set new permissions");
+	if (get_check("Allow party access? ")) mod |= ACF_PARTY;
+	if (get_check("Allow class access? ")) mod |= ACF_CLASS;
+	if (get_check("Allow race access? ")) mod |= ACF_RACE;
+	minlev=c_get_quantity("Minimum level: ", 127);
+	if(minlev>1) mod |= ACF_LEVEL;
+	buf[0]='M';
+	if((buf[1]=mod))
+		sprintf(&buf[2],"%hd",minlev);
+	Send_admin_house(dir,buf);
+}
+
 void cmd_purchase_house(void)
 {
+	char i=0;
 	int dir;
 
-	if (!get_dir(&dir))
-		return;
+	if (!get_dir(&dir)) return;
+
+	screen_icky=TRUE;
+
+	Term_save();
+	Term_clear();
+	Term_putstr(0, 2, -1, TERM_BLUE, "House commands");
+	Term_putstr(5, 4, -1, TERM_WHITE, "(1) Buy/Sell house");
+	Term_putstr(5, 5, -1, TERM_WHITE, "(2) Change house owner");
+	Term_putstr(5, 6, -1, TERM_WHITE, "(3) Change house permissions");
+
+	while(i!=ESCAPE){
+		i=inkey();
+		switch(i){
+			case '1':
 	
-	/* Send it */
-	Send_purchase_house(dir);
+				/* Send it */
+				Send_purchase_house(dir);
+				i=ESCAPE;
+				break;
+			case '2':
+				cmd_house_chown(dir);
+				i=ESCAPE;
+				break;
+			case '3':
+				cmd_house_chmod(dir);
+				i=ESCAPE;
+				break;
+			default:
+				bell();
+		}
+		c_msg_print(NULL);
+	}
+	Term_load();
+	screen_icky=FALSE;
 }
 
 void cmd_suicide(void)
@@ -1738,7 +1881,8 @@ void cmd_master_aux_build(void)
 		Term_putstr(5, 8, -1, TERM_WHITE, "(5) Grass Mode");
 		Term_putstr(5, 9, -1, TERM_WHITE, "(6) Dirt Mode");
 		Term_putstr(5, 10, -1, TERM_WHITE, "(7) Floor Mode");
-		Term_putstr(5, 11, -1, TERM_WHITE, "(8) Build Mode Off");
+		Term_putstr(5, 11, -1, TERM_WHITE, "(8) House Door Mode");
+		Term_putstr(5, 12, -1, TERM_WHITE, "(9) Build Mode Off");
 
 		/* Prompt */
 		Term_putstr(0, 14, -1, TERM_WHITE, "Command: ");
@@ -1768,8 +1912,13 @@ void cmd_master_aux_build(void)
 			case '6': buf[0] = FEAT_DIRT; break;
 			/* Floor mode on */
 			case '7': buf[0] = FEAT_FLOOR; break;
+			/* House door mode on */
+			case '8':
+				buf[0] = FEAT_HOME_HEAD;
+				get_string("Enter player name:",&buf[2],15);
+				break;
 			/* Build mode off */
-			case '8': buf[0] = FEAT_FLOOR; buf[1] = 'F'; break;
+			case '9': buf[0] = FEAT_FLOOR; buf[1] = 'F'; break;
 			/* Oops */
 			default : bell(); break;		
 		}
@@ -2017,7 +2166,8 @@ void cmd_master_aux_summon(void)
 		Term_putstr(5, 7, -1, TERM_WHITE, "(4) Depth");
 		Term_putstr(5, 8, -1, TERM_WHITE, "(5) Specific");
 		Term_putstr(5, 9, -1, TERM_WHITE, "(6) Mass Genocide");
-		Term_putstr(5, 10, -1, TERM_WHITE, "(7) Summoning mode off");
+		Term_putstr(5, 10, -1, TERM_WHITE, "(7) Level *Genocide*");
+		Term_putstr(5, 11, -1, TERM_WHITE, "(8) Summoning mode off");
 
 
 
@@ -2089,7 +2239,7 @@ void cmd_master_aux_summon(void)
 			{
 				buf[2] = 's';
 				buf[3] = 0;
-				get_string("Summon which mosnter or character? ", &buf[3], 79);
+				get_string("Summon which monster or character? ", &buf[3], 79);
 				if (!buf[3]) redo_hack = 1;
 				break;
 			}
@@ -2106,9 +2256,19 @@ void cmd_master_aux_summon(void)
 
 				redo_hack = 1;
 				break;
-			}	
+			}
 
 			case '7':
+				/* Mass mass genocide. Clear a level */
+				/* Only does town & dungeon ATM */
+				buf[0] = 'Q';
+				buf[1] = c_get_quantity("What depth?", 127);
+				buf[2] = '\0';
+				Send_master(MASTER_SUMMON, buf);
+				redo_hack = 1;
+				break;
+
+			case '8':
 			{
 				/* disable summoning mode */
 				buf[0] = 'F';
@@ -2211,12 +2371,60 @@ void cmd_master_aux_summon(void)
 	}
 }
 
+void cmd_master_aux_player(){
+	char i=0;
+	char buf[80];
+	Term_clear();
+	Term_putstr(0, 2, -1, TERM_BLUE, "Player commands");
+	Term_putstr(5, 4, -1, TERM_WHITE, "(1) Editor (offline)");
+	Term_putstr(5, 5, -1, TERM_WHITE, "(2) Acquirement");
+	Term_putstr(5, 6, -1, TERM_WHITE, "(3) Invoke wrath");
+	Term_putstr(5, 7, -1, TERM_WHITE, "(4) Static player");
+	Term_putstr(5, 8, -1, TERM_WHITE, "(5) Unstatic player");
+	
+	Term_putstr(0, 10, -1, TERM_WHITE, "Command: ");
 
+	while(i!=ESCAPE){
+		/* Get a key */
+		i = inkey();
+		buf[0]='\0';
+		switch(i){
+			case '1':
+				buf[0]='E';
+				get_string("Enter player name:",&buf[1],15);
+				break;
+			case '2':
+				buf[0]='A';
+				get_string("Enter player name:",&buf[1],15);
+				break;
+			case '3':
+				buf[0]='k';
+				get_string("Enter player name:",&buf[1],15);
+				break;
+			case '4':
+				buf[0]='S';
+				get_string("Enter player name:",&buf[1],15);
+				break;
+			case '5':
+				buf[0]='U';
+				get_string("Enter player name:",&buf[1],15);
+				break;
+			case ESCAPE:
+				break;
+			default:
+				bell();
+		}
+		if (buf[0]) Send_master(MASTER_PLAYER, buf);
+
+		/* Flush messages */
+		c_msg_print(NULL);
+	}
+}
 
 /* Dungeon Master commands */
 void cmd_master(void)
 {
-	char i;
+	char i=0;
 	char buf[80];
 
 	/* Screen is icky */
@@ -2228,7 +2436,7 @@ void cmd_master(void)
 	Term_save();
 
 	/* Process requests until done */
-	while (1)
+	while (i!='\e')
 	{
 		/* Clear screen */
 		Term_clear();
@@ -2244,6 +2452,7 @@ void cmd_master(void)
 		Term_putstr(5, 5, -1, TERM_WHITE, "(2) Building Commands");
 		Term_putstr(5, 6, -1, TERM_WHITE, "(3) Summoning Commands");
 		Term_putstr(5, 7, -1, TERM_WHITE, "(4) Generation Commands");
+		Term_putstr(5, 8, -1, TERM_WHITE, "(5) Player Commands");
 
 		/* Prompt */
 		Term_putstr(0, 11, -1, TERM_WHITE, "Command: ");
@@ -2251,40 +2460,28 @@ void cmd_master(void)
 		/* Get a key */
 		i = inkey();
 
-		/* Leave */
-		if (i == ESCAPE) break;
-
-		/* Level commands */
-		else if (i == '1')
-		{
-			cmd_master_aux_level();
-		}
-
-		/* Build commands */
-		else if (i == '2')
-		{
-			cmd_master_aux_build();
-		}
-
-		/* Summon commands */
-		else if (i == '3')
-		{
-			cmd_master_aux_summon();
+		switch(i){
+			case '1':
+				cmd_master_aux_level();
+				break;
+			case '2':
+				cmd_master_aux_build();
+				break;
+			case '3':
+				cmd_master_aux_summon();
+				break;
+			case '4':
+				cmd_master_aux_generate();
+				break;
+			case '5':
+				cmd_master_aux_player();
+				break;
+			case ESCAPE:
+				break;
+			default:
+				bell();
 		}
 		
-		/* Generate commands */
-		else if (i == '4')
-		{
-			cmd_master_aux_generate();
-		}
-
-		/* Oops */
-		else
-		{
-			/* Ring bell */
-			bell();
-		}
-
 		/* Flush messages */
 		c_msg_print(NULL);
 	}
@@ -2302,3 +2499,9 @@ void cmd_master(void)
 	Flush_queue();
 }
 
+void cmd_king()
+{
+	if (!get_check("Do you really want to own this land ?")) return;
+	
+	Send_King(KING_OWN);
+}

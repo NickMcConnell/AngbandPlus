@@ -232,6 +232,7 @@ void quit(cptr str)
 	if ((buf[0] == '-') || (buf[0] == '+')) (void)(exit(atoi(buf)));
 
 	/* Send the string to plog() */
+	plog("Quitting!");
 	plog(buf);
 
 	/* Failure */

@@ -16,7 +16,7 @@
  *
  * This software is provided "as is" without any express or implied warranty.
  *
- * RCS:      $Id: net-ibm.h,v 1.1.1.1 1999/10/26 19:20:49 root Exp $
+ * RCS:      $Id: net-ibm.h,v 1.1.1.1 2001/07/24 20:19:08 darkgod Exp $
  *
  * Revision 1.1.1.1  1992/05/11  12:32:34  bjoerns
  * XPilot v1.0

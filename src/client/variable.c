@@ -14,8 +14,8 @@ char inventory_name[INVEN_TOTAL][80];	/* The client-side copy of the inventory n
 
 store_type store;			/* The general info about the current store */
 owner_type store_owner;			/* The current owner of the store */
-int store_prices[24];			/* The prices of the items in the store */
-char store_names[24][80];		/* The names of the stuff in the store */
+int store_prices[STORE_INVEN_MAX];			/* The prices of the items in the store */
+char store_names[STORE_INVEN_MAX][80];		/* The names of the stuff in the store */
 s16b store_num;				/* The current store number */
 
 char spell_info[9][9][80];		/* Spell information */
@@ -96,12 +96,14 @@ bool party_mode;
 cptr race_title[] = {
 	"Human", "Half-elf", "Elf", "Hobbit",
 	"Gnome", "Dwarf", "Half-Orc", "Half-Troll",
-	"Dunadan", "High-elf", "Yeek"
+	"Dunadan", "High-elf", "Yeek", "Goblin",
+	"Ent", "DragonRider",
 	};
 
 cptr class_title[] = {
-	"Warrior", "Mage", "Priest", "Rogue",
-	"Ranger", "Paladin", "Sorceror"
+	"Warrior", "Warlock", "Priest", "Rogue",
+	"Ranger", "Paladin", "Sorceror", "Mimic",
+	"Unbeliever", "Archer", "Monk", "Telepath",
 	};
 
 cptr ANGBAND_DIR;

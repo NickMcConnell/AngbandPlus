@@ -55,8 +55,8 @@ SERV_SRCS = \
   server/melee1.c server/melee2.c server/save.c server/files.c \
   server/cmd1.c server/cmd2.c server/cmd3.c server/cmd4.c server/cmd5.c \
   server/cmd6.c server/store.c server/birth.c server/load2.c server/randart.c \
-  server/sched.c server/generate.c server/wilderness.c server/dungeon.c \
-  server/init1.c server/init2.c server/netserver.c server/printout.c \
+  server/sched.c server/generate.c server/wild.c server/dungeon.c \
+  server/init1.c server/init2.c server/nserver.c server/printout.c \
   server/main.c
 
 SERV_OBJS = \
@@ -68,8 +68,8 @@ SERV_OBJS = \
   server/melee1.o server/melee2.o server/save.o server/files.o \
   server/cmd1.o server/cmd2.o server/cmd3.o server/cmd4.o server/cmd5.o \
   server/cmd6.o server/store.o server/birth.o server/load2.o server/randart.o \
-  server/sched.o server/generate.o server/wilderness.o server/dungeon.o \
-  server/init1.o server/init2.o server/netserver.o server/printout.o \
+  server/sched.o server/generate.o server/wild.o server/dungeon.o \
+  server/init1.o server/init2.o server/nserver.o server/printout.o \
   server/main.o 
 
 
@@ -79,7 +79,7 @@ CLI_SRCS = \
   client/z-term.c client/c-util.c client/c-cmd.c client/c-inven.c \
   client/c-files.c client/c-tables.c client/c-store.c client/c-init.c \
   client/variable.c client/main-ibm.c client/main-cap.c client/main-gcu.c \
-  client/main-x11.c client/main-xaw.c client/netclient.c client/c-birth.c \
+  client/main-x11.c client/main-xaw.c client/nclient.c client/c-birth.c \
   client/c-xtra1.c client/c-xtra2.c client/c-spell.c client/client.c
 
 CLI_OBJS = \
@@ -88,7 +88,7 @@ CLI_OBJS = \
   client/z-term.o client/c-util.o client/c-cmd.o client/c-inven.o \
   client/c-files.o client/c-tables.o client/c-store.o client/c-init.o \
   client/variable.o client/main-ibm.o client/main-cap.o client/main-gcu.o \
-  client/main-x11.o client/main-xaw.o client/netclient.o client/c-birth.o \
+  client/main-x11.o client/main-xaw.o client/nclient.o client/c-birth.o \
   client/c-xtra1.o client/c-xtra2.o client/c-spell.o client/client.o
 
 
@@ -155,8 +155,8 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-CFLAGS = -Wall -g -pipe -D"USE_X11" -D"USE_GCU" -I/usr/include/ncurses
-LIBS = -L/usr/X11R6/lib -lX11 -lncurses
+CFLAGS = -Wall -g -pipe -D"USE_X11" -D"USE_GCU"
+LIBS = -L/usr/X11R6/lib -lX11 -lcurses
 
 
 ##
