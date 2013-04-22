@@ -58,40 +58,11 @@
 
 
 /*
- * Eat some food (from the pack or floor)
+ * Perform the basic "eat food" command
  */
-void do_cmd_eat_food(void)
+static void do_cmd_eat_food_aux(int item, object_type *o_ptr)
 {
-	int item, ident, lev;
-
-	object_type *o_ptr;
-
-	cptr q, s;
-
-
-	/* Restrict choices to food */
-	item_tester_tval = TV_FOOD;
-
-	/* Get an item */
-	q = "Eat which item? ";
-	s = "You have nothing to eat.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Sound */
-	sound(SOUND_EAT);
+	int ident, lev;
 
 
 	/* Take a turn */
@@ -348,26 +319,24 @@ void do_cmd_eat_food(void)
 }
 
 
-
-
 /*
- * Quaff a potion (from the pack or the floor)
+ * Eat some food (from the pack or floor)
  */
-void do_cmd_quaff_potion(void)
+void do_cmd_eat_food(void)
 {
-	int item, ident, lev;
+	int item;
 
 	object_type *o_ptr;
 
 	cptr q, s;
 
 
-	/* Restrict choices to potions */
-	item_tester_tval = TV_POTION;
+	/* Restrict choices to food */
+	item_tester_tval = TV_FOOD;
 
 	/* Get an item */
-	q = "Quaff which potion? ";
-	s = "You have no potions to quaff.";
+	q = "Eat which item? ";
+	s = "You have nothing to eat.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -382,9 +351,19 @@ void do_cmd_quaff_potion(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Eat it */
+	do_cmd_eat_food_aux(item, o_ptr);
+}
 
-	/* Sound */
-	sound(SOUND_QUAFF);
+
+
+
+/*
+ * Perform the basic "quaff potion" command
+ */
+static void do_cmd_quaff_potion_aux(int item, object_type *o_ptr)
+{
+	int ident, lev;
 
 
 	/* Take a turn */
@@ -899,6 +878,43 @@ void do_cmd_quaff_potion(void)
 
 
 /*
+ * Quaff a potion (from the pack or floor)
+ */
+void do_cmd_quaff_potion(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+
+	/* Restrict choices to potions */
+	item_tester_tval = TV_POTION;
+
+	/* Get an item */
+	q = "Quaff which potion? ";
+	s = "You have no potions to quaff.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Quaff it */
+	do_cmd_quaff_potion_aux(item, o_ptr);
+}
+
+
+/*
  * Curse the players armor
  */
 static bool curse_armor(void)
@@ -1028,61 +1044,18 @@ static bool curse_weapon(void)
 
 
 /*
- * Read a scroll (from the pack or floor).
+ * Perform the basic "read scroll" command.
  *
  * Certain scrolls can be "aborted" without losing the scroll.  These
  * include scrolls with no effects but recharge or identify, which are
  * cancelled before use.  XXX Reading them still takes a turn, though.
  */
-void do_cmd_read_scroll(void)
+static void do_cmd_read_scroll_aux(int item, object_type *o_ptr)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int item, k, used_up, ident, lev;
-
-	object_type *o_ptr;
-
-	cptr q, s;
-
-
-	/* Check some conditions */
-	if (p_ptr->blind)
-	{
-		msg_print("You can't see anything.");
-		return;
-	}
-	if (no_lite())
-	{
-		msg_print("You have no light to read by.");
-		return;
-	}
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-
-	/* Restrict choices to scrolls */
-	item_tester_tval = TV_SCROLL;
-
-	/* Get an item */
-	q = "Read which scroll? ";
-	s = "You have no scrolls to read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	int k, used_up, ident, lev;
 
 
 	/* Take a turn */
@@ -1443,39 +1416,42 @@ void do_cmd_read_scroll(void)
 }
 
 
-
-
-
-
-
 /*
- * Use a staff
- *
- * One charge of one staff disappears.
- *
- * Hack -- staffs of identify can be "cancelled".
+ * Read a scroll (from the pack or floor)
  */
-void do_cmd_use_staff(void)
+void do_cmd_read_scroll(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int item, ident, chance, k, lev;
+	int item;
 
 	object_type *o_ptr;
-
-	/* Hack -- let staffs of identify get aborted */
-	bool use_charge = TRUE;
 
 	cptr q, s;
 
 
-	/* Restrict choices to wands */
-	item_tester_tval = TV_STAFF;
+	/* Check some conditions */
+	if (p_ptr->blind)
+	{
+		msg_print("You can't see anything.");
+		return;
+	}
+	if (no_lite())
+	{
+		msg_print("You have no light to read by.");
+		return;
+	}
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices to scrolls */
+	item_tester_tval = TV_SCROLL;
 
 	/* Get an item */
-	q = "Use which staff? ";
-	s = "You have no staff to use.";
+	q = "Read which scroll? ";
+	s = "You have no scrolls to read.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -1489,6 +1465,33 @@ void do_cmd_use_staff(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	/* Read it */
+	do_cmd_read_scroll_aux(item, o_ptr);
+}
+
+
+
+
+
+
+
+/*
+ * Perform the basic "use staff" command.
+ *
+ * One charge of one staff disappears.
+ *
+ * Hack -- staffs of identify can be "cancelled".
+ */
+static void do_cmd_use_staff_aux(int item, object_type *o_ptr)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int ident, chance, k, lev;
+
+	/* Hack -- let staffs of identify get aborted */
+	bool use_charge = TRUE;
 
 
 	/* Mega-Hack -- refuse to use a pile from the ground */
@@ -1514,7 +1517,7 @@ void do_cmd_use_staff(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
-	/* Hight level objects are harder */
+	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
@@ -1539,10 +1542,6 @@ void do_cmd_use_staff(void)
 		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
-
-
-	/* Sound */
-	sound(SOUND_ZAP);
 
 
 	/* Analyze the staff */
@@ -1856,7 +1855,44 @@ void do_cmd_use_staff(void)
 
 
 /*
- * Aim a wand (from the pack or floor).
+ * Use a staff (from the pack or floor)
+ */
+void do_cmd_use_staff(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+
+	/* Restrict choices to wands */
+	item_tester_tval = TV_STAFF;
+
+	/* Get an item */
+	q = "Use which staff? ";
+	s = "You have no staff to use.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Use it */
+	do_cmd_use_staff_aux(item, o_ptr);
+}
+
+
+/*
+ * Perform the basic "aim wand" command.
  *
  * Use a single charge from a single item.
  * Handle "unstacking" in a logical manner.
@@ -1875,34 +1911,9 @@ void do_cmd_use_staff(void)
  * basic "bolt" rods, but the basic "ball" wands do the same damage
  * as the basic "ball" rods.
  */
-void do_cmd_aim_wand(void)
+static void do_cmd_aim_wand_aux(int item, object_type *o_ptr)
 {
-	int item, lev, ident, chance, dir, sval;
-
-	object_type *o_ptr;
-
-	cptr q, s;
-
-
-	/* Restrict choices to wands */
-	item_tester_tval = TV_WAND;
-
-	/* Get an item */
-	q = "Aim which wand? ";
-	s = "You have no wand to aim.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	int lev, ident, chance, dir, sval;
 
 
 	/* Mega-Hack -- refuse to aim a pile from the ground */
@@ -1932,7 +1943,7 @@ void do_cmd_aim_wand(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
-	/* Hight level objects are harder */
+	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
@@ -1957,10 +1968,6 @@ void do_cmd_aim_wand(void)
 		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
-
-
-	/* Sound */
-	sound(SOUND_ZAP);
 
 
 	/* XXX Hack -- Extract the "sval" effect */
@@ -2256,35 +2263,24 @@ void do_cmd_aim_wand(void)
 }
 
 
-
-
-
 /*
- * Activate (zap) a Rod
- *
- * Unstack fully charged rods as needed.
- *
- * Hack -- rods of perception/genocide can be "cancelled"
- * All rods can be cancelled at the "Direction?" prompt
+ * Aim a wand (from the pack or floor)
  */
-void do_cmd_zap_rod(void)
+void do_cmd_aim_wand(void)
 {
-	int item, ident, chance, dir, lev;
+	int item;
 
 	object_type *o_ptr;
-
-	/* Hack -- let perception get aborted */
-	bool use_charge = TRUE;
 
 	cptr q, s;
 
 
-	/* Restrict choices to rods */
-	item_tester_tval = TV_ROD;
+	/* Restrict choices to wands */
+	item_tester_tval = TV_WAND;
 
 	/* Get an item */
-	q = "Zap which rod? ";
-	s = "You have no rod to zap.";
+	q = "Aim which wand? ";
+	s = "You have no wand to aim.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -2298,6 +2294,29 @@ void do_cmd_zap_rod(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	/* Aim it */
+	do_cmd_aim_wand_aux(item, o_ptr);
+}
+
+
+
+
+
+/*
+ * Perform the basic "zap rod" command.
+ *
+ * Unstack fully charged rods as needed.
+ *
+ * Hack -- rods of perception/genocide can be "cancelled"
+ * All rods can be cancelled at the "Direction?" prompt
+ */
+static void do_cmd_zap_rod_aux(int item, object_type *o_ptr)
+{
+	int ident, chance, dir, lev;
+
+	/* Hack -- let perception get aborted */
+	bool use_charge = TRUE;
 
 
 	/* Mega-Hack -- refuse to zap a pile from the ground */
@@ -2331,7 +2350,7 @@ void do_cmd_zap_rod(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
-	/* Hight level objects are harder */
+	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
@@ -2355,10 +2374,6 @@ void do_cmd_zap_rod(void)
 		msg_print("The rod is still charging.");
 		return;
 	}
-
-
-	/* Sound */
-	sound(SOUND_ZAP);
 
 
 	/* Analyze the rod */
@@ -2643,6 +2658,43 @@ void do_cmd_zap_rod(void)
 }
 
 
+/*
+ * Activate (zap) a Rod (from the pack or floor)
+ */
+void do_cmd_zap_rod(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+
+	/* Restrict choices to rods */
+	item_tester_tval = TV_ROD;
+
+	/* Get an item */
+	q = "Zap which rod? ";
+	s = "You have no rod to zap.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Zap it */
+	do_cmd_zap_rod_aux(item, o_ptr);
+}
+
+
 
 
 /*
@@ -2733,49 +2785,58 @@ static void ring_of_power(int dir)
 
 
 
-
 /*
  * Enchant some bolts
  */
 static bool brand_bolts(void)
 {
-	int i;
+	int item;
+	object_type *o_ptr;
+	cptr q, s;
 
-	/* Use the first acceptable bolts */
-	for (i = 0; i < INVEN_PACK; i++)
+
+	/* Restrict choices to bolts */
+	item_tester_tval = TV_BOLT;
+
+	/* Get an item */
+	q = "Enchant which bolts? ";
+	s = "You have no bolts to brand.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
 	{
-		object_type *o_ptr = &inventory[i];
+		o_ptr = &inventory[item];
+	}
 
-		/* Skip non-bolts */
-		if (o_ptr->tval != TV_BOLT) continue;
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
 
-		/* Skip artifacts and ego-items */
-		if (artifact_p(o_ptr) || ego_item_p(o_ptr)) continue;
+	/* Skip artifacts and ego-items, cursed/broken items */
+	if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
+	    cursed_p(o_ptr) || broken_p(o_ptr))
+	{
+		/* Flush */
+		if (flush_failure) flush();
 
-		/* Skip cursed/broken items */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
-
-		/* Randomize */
-		if (rand_int(100) < 75) continue;
-
-		/* Message */
-		msg_print("Your bolts are covered in a fiery aura!");
-
-		/* Ego-item */
-		o_ptr->name2 = EGO_FLAME;
-
-		/* Enchant */
-		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+		/* Fail */
+		msg_print("The fiery enchantment failed.");
 
 		/* Notice */
 		return (TRUE);
 	}
 
-	/* Flush */
-	if (flush_failure) flush();
+	/* Message */
+	msg_print("Your bolts are covered in a fiery aura!");
 
-	/* Fail */
-	msg_print("The fiery enchantment failed.");
+	/* Ego-item */
+	o_ptr->name2 = EGO_FLAME;
+
+	/* Enchant */
+	enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
 
 	/* Notice */
 	return (TRUE);
@@ -3154,7 +3215,7 @@ void do_cmd_activate(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
-	/* Hight level objects are harder */
+	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
@@ -3178,13 +3239,8 @@ void do_cmd_activate(void)
 		return;
 	}
 
-
 	/* Activate the artifact */
-	msg_print("You activate it...");
-
-	/* Sound */
-	sound(SOUND_ZAP);
-
+	message(MSG_ZAP, 0, "You activate it...");
 
 	/* Artifacts */
 	if (o_ptr->name1)
@@ -3805,6 +3861,232 @@ void do_cmd_activate(void)
 
 	/* Mistake */
 	msg_print("Oops.  That object cannot be activated.");
+}
+
+
+
+
+
+
+/*
+ * Hook to specify "usable item"
+ */
+static bool item_tester_hook_use(object_type *o_ptr)
+{
+	object_type *j_ptr;
+
+	/* Hack - allow ammo */
+	if (o_ptr->tval == p_ptr->ammo_tval) return (TRUE);
+
+	switch (o_ptr->tval)
+	{
+		case TV_FOOD:
+		case TV_POTION:
+		case TV_SCROLL:
+		case TV_STAFF:
+		case TV_WAND:
+		case TV_ROD:
+		case TV_SPIKE:
+		{
+			return (TRUE);
+		}
+
+		case TV_FLASK:
+		{
+			/* Get the light */
+			j_ptr = &inventory[INVEN_LITE];
+
+			/* Only refill lanterns with flasks */
+			if ((j_ptr->tval == TV_LITE) &&
+			    (j_ptr->sval == SV_LITE_LANTERN)) return (TRUE);
+
+			/* Give up */
+			break;
+		}
+
+		case TV_LITE:
+		{
+			/* Get the light */
+			j_ptr = &inventory[INVEN_LITE];
+
+			/* Require identical types */
+			if ((j_ptr->tval == TV_LITE) && (j_ptr->sval == o_ptr->sval))
+			{
+				switch (o_ptr->sval)
+				{
+					case SV_LITE_TORCH:
+					{
+						return (TRUE);
+					}
+
+					case SV_LITE_LANTERN:
+					{
+						/* Only non-empty lanterns */
+						if (o_ptr->pval > 0) return (TRUE);
+						break;
+					}
+				}
+			}
+
+			/* Give up */
+			break;
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
+ * The generic "use item" command
+ */
+void do_cmd_use_item(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+
+
+	/* Restrict choices to usable items */
+	item_tester_hook = item_tester_hook_use;
+
+	/* Get an item */
+	q = "Use which item? ";
+	s = "You have no usable items.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Hack - fire ammo items */
+	if (o_ptr->tval == p_ptr->ammo_tval)
+	{
+		/* Get the "bow" (if any) */
+		object_type *j_ptr = &inventory[INVEN_BOW];
+
+		/* Require a usable launcher */
+		if (!j_ptr->tval)
+		{
+			msg_print("You have nothing to fire with.");
+			return;
+		}
+
+		/* Fire it */
+		do_cmd_fire_aux(item, o_ptr, j_ptr);
+	}
+
+
+	/* Use objects in the appropriate way */
+	switch (o_ptr->tval)
+	{
+		/* Eat food items */
+		case TV_FOOD:
+		{
+			do_cmd_eat_food_aux(item, o_ptr);
+			break;
+		}
+
+		/* Quaff potion items */
+		case TV_POTION:
+		{
+			do_cmd_quaff_potion_aux(item, o_ptr);
+			break;
+		}
+
+		/* Read scroll items */
+		case TV_SCROLL:
+		{
+			/* Check some conditions */
+			if (p_ptr->blind)
+			{
+				msg_print("You can't see anything.");
+				return;
+			}
+			if (no_lite())
+			{
+				msg_print("You have no light to read by.");
+				return;
+			}
+			if (p_ptr->confused)
+			{
+				msg_print("You are too confused!");
+				return;
+			}
+
+			/* Read it */
+			do_cmd_read_scroll_aux(item, o_ptr);
+
+			/* Done */
+			break;
+		}
+
+		/* Use staff items */
+		case TV_STAFF:
+		{
+			do_cmd_use_staff_aux(item, o_ptr);
+			break;
+		}
+
+		/* Aim wand items */
+		case TV_WAND:
+		{
+			do_cmd_aim_wand_aux(item, o_ptr);
+			break;
+		}
+
+		/* Zap rod items */
+		case TV_ROD:
+		{
+			do_cmd_zap_rod_aux(item, o_ptr);
+			break;
+		}
+
+		/* Use spikes to jam doors */
+		case TV_SPIKE:
+		{
+			do_cmd_spike_aux(item);
+			break;
+		}
+
+		/* Use flasks to refuel lanterns */
+		case TV_FLASK:
+		{
+			do_cmd_refill_lamp_aux(item, o_ptr);
+			break;
+		}
+
+		/* Use lites to refuel lites */
+		case TV_LITE:
+		{
+			/* Refill lanterns */
+			if (o_ptr->sval == SV_LITE_LANTERN)
+			{
+				do_cmd_refill_lamp_aux(item, o_ptr);
+			}
+
+			/* Refill torches */
+			else if (o_ptr->sval == SV_LITE_TORCH)
+			{
+				do_cmd_refill_torch_aux(item, o_ptr);
+			}
+
+			/* Done */
+			break;
+		}
+	}
 }
 
 

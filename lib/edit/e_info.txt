@@ -22,10 +22,45 @@
 # Note that several "ego-item" types may share the same "textual name",
 # such as with "Armor of Resistance" and "Shield of Resistance".
 
+# === Understanding e_info.txt ===
+
+# N: serial number : ego type
+# X: inventory slot : rating : xtra
+# C: max to-hit : max to-dam : max to-ac : pval
+# W: depth : rarity : weight : cost
+# T: tval : min_sval : max_sval
+# F: flag | flag | etc
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'X' is for extra information - inventory slot and rating. Slots
+# range from 23 (for ammunition) to 35 (for boots). Rating affects
+# level feelings.  The xtra value determines random extra flags for
+# the ego-item.  Nothing happens with a value of 0, 1 stands for
+# "one random extra sustain", 2 is "one random extra resist", and
+# 3 is "one random extra ability".
+
+# 'C' is for creation bonusses - maximum to-hit, to-dam, to-ac, and
+# pval. Cursed ego-items will negate the given value.
+
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the items value.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'T' is for possible 'tval' and 'sval' values of the base-item.
+# Up to three 'T' entries are possible for a single object. The
+# ego-item can only be generated from items of this tval, with sval
+# in the specified range.
+
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 
 ### Body Armor ###

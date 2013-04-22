@@ -127,11 +127,12 @@ static void roff_aux(int r_idx)
 	u32b flags5;
 	u32b flags6;
 
-	int vn = 0;
+	int vn;
 	cptr vp[64];
 
 	monster_race save_mem;
 
+	long i, j;
 
 
 #if 0
@@ -248,7 +249,6 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
 
 		/* Know "forced" flags */
-		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
 		if (r_ptr->flags1 & (RF1_FORCE_MAXHP)) flags1 |= (RF1_FORCE_MAXHP);
 	}
 
@@ -448,62 +448,60 @@ static void roff_aux(int r_idx)
 	}
 
 
-	/* Describe movement */
-	if (TRUE)
+	/*** Describe movement ***/
+
+	/* Introduction */
+	if (old)
 	{
-		/* Introduction */
-		if (old)
+		roff(", and ");
+	}
+	else
+	{
+		roff(format("%^s ", wd_he[msex]));
+		old = TRUE;
+	}
+	roff("moves");
+
+	/* Random-ness */
+	if ((flags1 & (RF1_RAND_50)) || (flags1 & (RF1_RAND_25)))
+	{
+		/* Adverb */
+		if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
 		{
-			roff(", and ");
+			roff(" extremely");
 		}
-		else
+		else if (flags1 & (RF1_RAND_50))
 		{
-			roff(format("%^s ", wd_he[msex]));
-			old = TRUE;
+			roff(" somewhat");
 		}
-		roff("moves");
-
-		/* Random-ness */
-		if ((flags1 & (RF1_RAND_50)) || (flags1 & (RF1_RAND_25)))
+		else if (flags1 & (RF1_RAND_25))
 		{
-			/* Adverb */
-			if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
-			{
-				roff(" extremely");
-			}
-			else if (flags1 & (RF1_RAND_50))
-			{
-				roff(" somewhat");
-			}
-			else if (flags1 & (RF1_RAND_25))
-			{
-				roff(" a bit");
-			}
-
-			/* Adjective */
-			roff(" erratically");
-
-			/* Hack -- Occasional conjunction */
-			if (r_ptr->speed != 110) roff(", and");
+			roff(" a bit");
 		}
 
-		/* Speed */
-		if (r_ptr->speed > 110)
-		{
-			if (r_ptr->speed > 130) roff(" incredibly");
-			else if (r_ptr->speed > 120) roff(" very");
-			roff(" quickly");
-		}
-		else if (r_ptr->speed < 110)
-		{
-			if (r_ptr->speed < 90) roff(" incredibly");
-			else if (r_ptr->speed < 100) roff(" very");
-			roff(" slowly");
-		}
-		else
-		{
-			roff(" at normal speed");
-		}
+		/* Adjective */
+		roff(" erratically");
+
+		/* Hack -- Occasional conjunction */
+		if (r_ptr->speed != 110) roff(", and");
+	}
+
+	/* Speed */
+	if (r_ptr->speed > 110)
+	{
+		if (r_ptr->speed > 130) roff(" incredibly");
+		else if (r_ptr->speed > 120) roff(" very");
+		roff(" quickly");
+	}
+	else if (r_ptr->speed < 110)
+	{
+		if (r_ptr->speed < 90) roff(" incredibly");
+		else if (r_ptr->speed < 100) roff(" very");
+		roff(" slowly");
+	}
+	else
+	{
+		roff(" at normal speed");
 	}
 
 	/* The code above includes "attack speed" */
@@ -558,41 +556,37 @@ static void roff_aux(int r_idx)
 		else if (flags3 & (RF3_ORC)) roff(" orc");
 		else roff(" creature");
 
-		/* Group some variables */
-		if (TRUE)
-		{
-			long i, j;
+		/*** Group some variables ***/
 
-			/* calculate the integer exp part */
-			i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
+		/* calculate the integer exp part */
+		i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
 
-			/* calculate the fractional exp part scaled by 100, */
-			/* must use long arithmetic to avoid overflow  */
-			j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
-			      (long)1000 / p_ptr->lev + 5) / 10);
+		/* calculate the fractional exp part scaled by 100, */
+		/* must use long arithmetic to avoid overflow  */
+		j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
+		      (long)1000 / p_ptr->lev + 5) / 10);
 
-			/* Mention the experience */
-			roff(format(" is worth %ld.%02ld point%s",
-			            (long)i, (long)j,
-			            (((i == 1) && (j == 0)) ? "" : "s")));
+		/* Mention the experience */
+		roff(format(" is worth %ld.%02ld point%s",
+		            (long)i, (long)j,
+		            (((i == 1) && (j == 0)) ? "" : "s")));
 
-			/* Take account of annoying English */
-			p = "th";
-			i = p_ptr->lev % 10;
-			if ((p_ptr->lev / 10) == 1) /* nothing */;
-			else if (i == 1) p = "st";
-			else if (i == 2) p = "nd";
-			else if (i == 3) p = "rd";
+		/* Take account of annoying English */
+		p = "th";
+		i = p_ptr->lev % 10;
+		if ((p_ptr->lev / 10) == 1) /* nothing */;
+		else if (i == 1) p = "st";
+		else if (i == 2) p = "nd";
+		else if (i == 3) p = "rd";
 
-			/* Take account of "leading vowels" in numbers */
-			q = "";
-			i = p_ptr->lev;
-			if ((i == 8) || (i == 11) || (i == 18)) q = "n";
+		/* Take account of "leading vowels" in numbers */
+		q = "";
+		i = p_ptr->lev;
+		if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
-			/* Mention the dependance on the player's level */
-			roff(format(" for a%s %lu%s level character.  ",
-			            q, (long)i, p));
-		}
+		/* Mention the dependance on the player's level */
+		roff(format(" for a%s %lu%s level character.  ",
+		            q, (long)i, p));
 	}
 
 

@@ -1739,7 +1739,7 @@ static void rd_extra_old(void)
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
 
 	/* Read the history */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < HISTORY_MAX; i++)
 	{
 		rd_string(p_ptr->history[i], 60);
 	}
@@ -1852,7 +1852,7 @@ static void rd_messages_old(void)
 		rd_string(buf, 128);
 
 		/* Save (most of) the messages */
-		if (buf[0] && (i <= last_msg)) message_add(buf);
+		if (buf[0] && (i <= last_msg)) message_add(buf, MSG_GENERIC);
 	}
 }
 
@@ -1910,14 +1910,14 @@ static errr rd_dungeon_old(void)
 	/* Ignore illegal dungeons */
 	if ((ymax != DUNGEON_HGT) || (xmax != DUNGEON_WID))
 	{
-		note(format("Ignoring illegal dungeon size (%d,%d).", xmax, ymax));
+		note(format("Ignoring illegal dungeon size (%d,%d).", ymax, xmax));
 		return (0);
 	}
 
 	/* Ignore illegal dungeons */
 	if (!in_bounds(py, px))
 	{
-		note(format("Ignoring illegal player location (%d,%d).", px, py));
+		note(format("Ignoring illegal player location (%d,%d).", py, px));
 		return (1);
 	}
 
@@ -2831,31 +2831,26 @@ static errr rd_savefile_old_aux(void)
 	r_info[z_info->r_max-1].max_num = 0;
 
 
-	/* Hack -- reset morgoth */
-	r_info[z_info->r_max-2].max_num = 1;
+	/* Add and reset quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		quest *q_ptr = &q_info[i];
+		monster_race *r_ptr = &r_info[q_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[q_ptr->r_idx];
 
-	/* Hack -- reset sauron */
-	r_info[z_info->r_max-3].max_num = 1;
+		/* Set level */
+		q_ptr->level = q_ptr->old_level;
 
+		/* Reset uniques */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			/* Reset kills */
+			r_ptr->max_num = 1;
 
-	/* Hack -- reset morgoth */
-	l_list[z_info->r_max-2].r_pkills = 0;
-
-	/* Hack -- reset sauron */
-	l_list[z_info->r_max-3].r_pkills = 0;
-
-
-	/* Add first quest */
-	q_list[0].level = 99;
-
-	/* Add second quest */
-	q_list[1].level = 100;
-
-	/* Reset third quest */
-	q_list[2].level = 0;
-
-	/* Reset fourth quest */
-	q_list[3].level = 0;
+			/* Reset lore */
+			l_ptr->r_pkills = 0;
+		}
+	}
 
 
 	/* Hack -- maximize mode */

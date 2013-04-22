@@ -51,36 +51,6 @@ static int monster_critical(int dice, int sides, int dam)
 
 
 /*
- * Determine if a monster attack against the player succeeds.
- * Always miss 5% of the time, Always hit 5% of the time.
- * Otherwise, match monster power against player armor.
- */
-static int check_hit(int power, int level)
-{
-	int i, k, ac;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- Always miss or hit */
-	if (k < 10) return (k < 5);
-
-	/* Calculate the "attack quality" */
-	i = (power + (level * 3));
-
-	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
-
-	/* Power and Level compete against Armor */
-	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
-
-	/* Assume miss */
-	return (FALSE);
-}
-
-
-
-/*
  * Hack -- possible "insult" messages
  */
 static cptr desc_insult[] =
@@ -102,10 +72,11 @@ static cptr desc_insult[] =
  */
 static cptr desc_moan[] =
 {
-	"seems sad about something.",
-	"asks if you have seen his dogs.",
+	"wants his mushrooms back.",
+	"looks for his dogs.",
 	"tells you to get off his land.",
-	"mumbles something about mushrooms."
+	"says 'Did you kill my Fang?'",
+	"asks 'Do you want to buy any mushrooms?'"
 };
 
 
@@ -223,9 +194,12 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_80:	power =  5; break;
 		}
 
+		/* Attack "power" depends on monster level, too */
+		power += rlev * 3;
+
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev))
+		if (!effect || check_hit(power))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -398,7 +372,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_MOAN:
 				{
-					act = desc_moan[rand_int(4)];
+					act = desc_moan[rand_int(5)];
 					break;
 				}
 
@@ -857,12 +831,13 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "afraid" */
-					if (p_ptr->resist_fear)
+					if (p_ptr->resist_fear &&
+					    (!adult_turin || (rand_int(100) < p_ptr->skill_sav)))
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+					else if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -890,12 +865,13 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "paralyzed" */
-					if (p_ptr->free_act)
+					if (p_ptr->free_act &&
+					    (!adult_turin || (rand_int(100) < p_ptr->skill_sav)))
 					{
 						msg_print("You are unaffected!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+					else if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 					{
 						msg_print("You resist the effects!");
 						obvious = TRUE;
@@ -1028,7 +1004,7 @@ bool make_attack_normal(int m_idx)
 					else
 					{
 						s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
+						if (p_ptr->hold_life && !adult_turin)
 						{
 							msg_print("You feel your life slipping away!");
 							lose_exp(d/10);
@@ -1057,7 +1033,7 @@ bool make_attack_normal(int m_idx)
 					else
 					{
 						s32b d = damroll(20, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
+						if (p_ptr->hold_life && !adult_turin)
 						{
 							msg_print("You feel your life slipping away!");
 							lose_exp(d/10);
@@ -1086,7 +1062,7 @@ bool make_attack_normal(int m_idx)
 					else
 					{
 						s32b d = damroll(40, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
+						if (p_ptr->hold_life && !adult_turin)
 						{
 							msg_print("You feel your life slipping away!");
 							lose_exp(d/10);
@@ -1115,7 +1091,7 @@ bool make_attack_normal(int m_idx)
 					else
 					{
 						s32b d = damroll(80, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
+						if (p_ptr->hold_life && !adult_turin)
 						{
 							msg_print("You feel your life slipping away!");
 							lose_exp(d/10);

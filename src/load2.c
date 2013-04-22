@@ -1252,7 +1252,7 @@ static errr rd_extra(void)
 
 	rd_string(p_ptr->died_from, 80);
 
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < HISTORY_MAX; i++)
 	{
 		rd_string(p_ptr->history[i], 60);
 	}
@@ -1361,7 +1361,7 @@ static errr rd_extra(void)
 	if (older_than(2, 8, 5)) adult_rand_artifacts = tmp8u;
 
 	/* Future use */
-	for (i = 0; i < 40; i++) rd_byte(&tmp8u);
+	strip_bytes(40);
 
 	/* Read the randart version */
 	rd_u32b(&randart_version);
@@ -1422,7 +1422,6 @@ static errr rd_extra(void)
 #endif /* GJW_RANDART */
 
 	}
-
 
 	/* Read "feeling" */
 	rd_byte(&tmp8u);
@@ -1574,6 +1573,7 @@ static void rd_messages(void)
 {
 	int i;
 	char buf[128];
+	u16b tmp16u;
 
 	s16b num;
 
@@ -1586,8 +1586,14 @@ static void rd_messages(void)
 		/* Read the message */
 		rd_string(buf, 128);
 
+		/* Read the message type */
+		if (!older_than(2, 9, 1))
+			rd_u16b(&tmp16u);
+		else
+			tmp16u = MSG_GENERIC;
+
 		/* Save the message */
-		message_add(buf);
+		message_add(buf, tmp16u);
 	}
 }
 
@@ -2273,7 +2279,7 @@ static errr rd_dungeon(void)
 	if ((ymax != DUNGEON_HGT) || (xmax != DUNGEON_WID))
 	{
 		/* XXX XXX XXX */
-		note(format("Ignoring illegal dungeon size (%d,%d).", xmax, ymax));
+		note(format("Ignoring illegal dungeon size (%d,%d).", ymax, xmax));
 		return (0);
 	}
 
@@ -2281,7 +2287,7 @@ static errr rd_dungeon(void)
 	if ((px < 0) || (px >= DUNGEON_WID) ||
 	    (py < 0) || (py >= DUNGEON_HGT))
 	{
-		note(format("Ignoring illegal player location (%d,%d).", px, py));
+		note(format("Ignoring illegal player location (%d,%d).", py, px));
 		return (1);
 	}
 
@@ -2656,7 +2662,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > 4)
+	if (tmp16u > z_info->q_max)
 	{
 		note(format("Too many (%u) quests!", tmp16u));
 		return (23);
@@ -2665,10 +2671,8 @@ static errr rd_savefile_new_aux(void)
 	/* Load the Quests */
 	for (i = 0; i < tmp16u; i++)
 	{
-		rd_byte(&tmp8u);
-		q_list[i].level = tmp8u;
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
+		rd_byte(&q_info[i].level);
+		rd_s16b(&q_info[i].cur_num);
 		rd_byte(&tmp8u);
 	}
 	if (arg_fiddle) note("Loaded Quests");

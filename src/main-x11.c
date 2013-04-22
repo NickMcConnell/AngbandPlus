@@ -28,70 +28,70 @@
  * Most of this file is by Ben Harrison (benh@phial.com).
  */
 
-
 /*
  * The following shell script can be used to launch Angband, assuming that
  * it was extracted into "~/Angband", and compiled using "USE_X11", on a
  * Linux machine, with a 1280x1024 screen, using 6 windows (with the given
- * characteristics), with gamma correction of "180" (1 / 1.80), and without
- * graphics (add "-g" for graphics).  Just copy this comment into a file,
- * remove the leading " * " characters (and the head/tail of this comment),
- * and make the file executable.
- * 
+ * characteristics), with gamma correction of 1.8 -> (1 / 1.8) * 256 = 142,
+ * and without graphics (add "-g" for graphics).  Just copy this comment
+ * into a file, remove the leading " * " characters (and the head/tail of
+ * this comment), and make the file executable.
+ *
  *
  * #!/bin/csh
- * 
+ *
  * # Describe attempt
  * echo "Launching angband..."
  * sleep 2
- * 
+ *
  * # Main window
  * setenv ANGBAND_X11_FONT_0 10x20
  * setenv ANGBAND_X11_AT_X_0 5
  * setenv ANGBAND_X11_AT_Y_0 510
- * 
+ *
  * # Message window
  * setenv ANGBAND_X11_FONT_1 8x13
  * setenv ANGBAND_X11_AT_X_1 5
  * setenv ANGBAND_X11_AT_Y_1 22
  * setenv ANGBAND_X11_ROWS_1 35
- * 
+ *
  * # Inventory window
  * setenv ANGBAND_X11_FONT_2 8x13
  * setenv ANGBAND_X11_AT_X_2 635
  * setenv ANGBAND_X11_AT_Y_2 182
  * setenv ANGBAND_X11_ROWS_3 23
- * 
+ *
  * # Equipment window
  * setenv ANGBAND_X11_FONT_3 8x13
  * setenv ANGBAND_X11_AT_X_3 635
  * setenv ANGBAND_X11_AT_Y_3 22
  * setenv ANGBAND_X11_ROWS_3 12
- * 
+ *
  * # Monster recall window
  * setenv ANGBAND_X11_FONT_4 6x13
  * setenv ANGBAND_X11_AT_X_4 817
  * setenv ANGBAND_X11_AT_Y_4 847
  * setenv ANGBAND_X11_COLS_4 76
  * setenv ANGBAND_X11_ROWS_4 11
- * 
+ *
  * # Object recall window
  * setenv ANGBAND_X11_FONT_5 6x13
  * setenv ANGBAND_X11_AT_X_5 817
  * setenv ANGBAND_X11_AT_Y_5 520
  * setenv ANGBAND_X11_COLS_5 76
  * setenv ANGBAND_X11_ROWS_5 24
- * 
+ *
  * # The build directory
  * cd ~/Angband
- * 
- * # Gamma correction file
- * setenv ANGBAND_X11_GAMMA lib/file/gamma180.txt
- * 
+ *
+ * # Gamma correction
+ * setenv ANGBAND_X11_GAMMA 142
+ *
  * # Launch Angband
  * ./src/angband -mx11 -- -n6 &
  *
  */
+
 
 
 #include "angband.h"
@@ -496,7 +496,6 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 	m->black = BlackPixelOfScreen(m->screen);
 	m->white = WhitePixelOfScreen(m->screen);
 
-
 	/*** Make some clever Guesses ***/
 
 	/* Guess at the desired 'fg' and 'bg' Pixell's */
@@ -677,7 +676,7 @@ static errr Infowin_prepare(Window xid)
 static errr Infowin_init_real(Window xid)
 {
 	/* Wipe it clean */
-	(void) WIPE(Infowin, infowin);
+	(void)WIPE(Infowin, infowin);
 
 	/* Start out non-nukable */
 	Infowin->nuke = 0;
@@ -707,7 +706,7 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 	Window xid;
 
 	/* Wipe it clean */
-	(void) WIPE(Infowin, infowin);
+	(void)WIPE(Infowin, infowin);
 
 
 	/*** Error Check XXX ***/
@@ -719,19 +718,7 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 
 	/* If no parent given, depend on root */
 	if (dad == None)
-
-/* #ifdef USE_GRAPHICS
-
-		xid = XCreateWindow(Metadpy->dpy, Metadpy->root, x, y, w, h, b, 8, InputOutput, CopyFromParent, 0, 0);
-
-	else
-*/
-
-/* #else */
-
 		dad = Metadpy->root;
-
-/* #endif */
 
 	/* Create the Window XXX Error Check */
 	xid = XCreateSimpleWindow(Metadpy->dpy, dad, x, y, w, h, b, fg, bg);
@@ -1032,7 +1019,7 @@ static errr Infoclr_init_1(GC gc)
 	infoclr *iclr = Infoclr;
 
 	/* Wipe the iclr clean */
-	(void) WIPE(iclr, infoclr);
+	(void)WIPE(iclr, infoclr);
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1127,7 +1114,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 	/*** Initialize ***/
 
 	/* Wipe the iclr clean */
-	(void) WIPE(iclr, infoclr);
+	(void)WIPE(iclr, infoclr);
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1245,7 +1232,7 @@ static errr Infofnt_prepare(XFontStruct *info)
 static errr Infofnt_init_real(XFontStruct *info)
 {
 	/* Wipe the thing */
-	(void) WIPE(Infofnt, infofnt);
+	(void)WIPE(Infofnt, infofnt);
 
 	/* No nuking */
 	Infofnt->nuke = 0;
@@ -1283,7 +1270,7 @@ static errr Infofnt_init_data(cptr name)
 	/*** Init the font ***/
 
 	/* Wipe the thing */
-	(void) WIPE(Infofnt, infofnt);
+	(void)WIPE(Infofnt, infofnt);
 
 	/* Attempt to prepare it */
 	if (Infofnt_prepare(info))
@@ -1450,13 +1437,6 @@ struct term_data
 	infofnt *fnt;
 
 	infowin *win;
-
-#ifdef USE_GRAPHICS
-
-	XImage *tiles;
-
-#endif
-
 };
 
 
@@ -1948,47 +1928,6 @@ static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
 }
 
 
-#ifdef USE_GRAPHICS
-
-/*
- * Draw some graphical characters.
- */
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
-{
-	int i;
-
-	byte a;
-	char c;
-
-	term_data *td = (term_data*)(Term->data);
-
-	y *= Infofnt->hgt;
-	x *= Infofnt->wid;
-
-	for (i = 0; i < n; ++i)
-	{
-		a = *ap++;
-		c = *cp++;
-
-		XPutImage(Metadpy->dpy, td->win->win,
-		          clr[0]->gc,
-		          td->tiles,
-		          (c & 0x7F) * td->fnt->wid,
-		          (a & 0x7F) * td->fnt->hgt,
-		          x, y,
-		          td->fnt->wid,
-		          td->fnt->hgt);
-
-		x += td->fnt->wid;
-	}
-
-	/* Success */
-	return (0);
-}
-
-#endif /* USE_GRAPHICS */
-
-
 
 /*
  * Initialize a term_data
@@ -2038,8 +1977,56 @@ static errr term_data_init(term_data *td, int i)
 	if (!font) font = getenv("ANGBAND_X11_FONT");
 
 	/* No environment variables, use default font */
-	if (!font) font = DEFAULT_X11_FONT;
-
+	if (!font)
+	{
+		switch (i)
+		{
+			case 0:
+			{
+				font = DEFAULT_X11_FONT_0;
+			}
+			break;
+			case 1:
+			{
+				font = DEFAULT_X11_FONT_1;
+			}
+			break;
+			case 2:
+			{
+				font = DEFAULT_X11_FONT_2;
+			}
+			break;
+			case 3:
+			{
+				font = DEFAULT_X11_FONT_3;
+			}
+			break;
+			case 4:
+			{
+				font = DEFAULT_X11_FONT_4;
+			}
+			break;
+			case 5:
+			{
+				font = DEFAULT_X11_FONT_5;
+			}
+			break;
+			case 6:
+			{
+				font = DEFAULT_X11_FONT_6;
+			}
+			break;
+			case 7:
+			{
+				font = DEFAULT_X11_FONT_7;
+			}
+			break;
+			default:
+			{
+				font = DEFAULT_X11_FONT;
+			}
+		}
+	}
 
 	/* Window specific location (x) */
 	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);
@@ -2208,15 +2195,6 @@ errr init_x11(int argc, char *argv[])
 
 	int num_term = MAX_TERM_DATA;
 
-#ifdef USE_GRAPHICS
-
-	char filename[1024];
-
-	int pict_wid = 0;
-	int pict_hgt = 0;
-
-#endif /* USE_GRAPHICS */
-
 
 	/* Parse args */
 	for (i = 1; i < argc; i++)
@@ -2306,78 +2284,6 @@ errr init_x11(int argc, char *argv[])
 
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);
-
-
-#ifdef USE_GRAPHICS
-
-	/* Try graphics */
-	if (arg_graphics)
-	{
-		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
-		{
-			/* Use graphics */
-			use_graphics = TRUE;
-
-			pict_wid = pict_hgt = 16;
-
-			ANGBAND_GRAF = "new";
-		}
-		else
-		{
-			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
-
-			/* Use the "8x8.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				pict_wid = pict_hgt = 8;
-
-				ANGBAND_GRAF = "old";
-			}
-		}
-	}
-
-	/* Load graphics */
-	if (use_graphics)
-	{
-		Display *dpy = Metadpy->dpy;
-
-		XImage *tiles_raw;
-
-		/* Load the graphical tiles */
-		tiles_raw = ReadBMP(dpy, filename);
-
-		/* Initialize the windows */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &data[i];
-
-			term *t = &td->t;
-
-			/* Graphics hook */
-			t->pict_hook = Term_pict_x11;
-
-			/* Use graphics sometimes */
-			t->higher_pict = TRUE;
-
-			/* Resize tiles */
-			td->tiles =
-			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->fnt->wid, td->fnt->hgt);
-		}
-
-		/* Free tiles_raw? XXX XXX */
-	}
-
-#endif /* USE_GRAPHICS */
 
 
 	/* Success */

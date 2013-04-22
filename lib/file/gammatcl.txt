@@ -1,9 +1,0 @@
-# Usage: tcl gammatcl.txt XXX > gammaXXX.txt
-
-set gamma [expr [lindex $argv 0] / 100.0]
-for {set i 0} {$i < 256} {set i [expr $i + 1]} {
-    set v [int [expr 255.0 * [pow $i/255.0 1.0/$gamma] + 0.5]]
-    puts -nonewline [format "%02X" $v] 
-    if {$i % 16 == 15} {puts ""}
-}                                                  
-

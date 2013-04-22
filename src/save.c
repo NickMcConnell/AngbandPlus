@@ -315,8 +315,8 @@ static errr wr_savefile(void)
 	for (i = tmp16u; i-- > 0; )
 	{
 		wr_string(message_str(i));
+		wr_u16b(message_type(i));
 	}
-
 
 	/* Dump the monster lore */
 	tmp16u = z_info->r_max;
@@ -330,16 +330,11 @@ static errr wr_savefile(void)
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
 
-	/* Hack -- Dump the quests */
-	tmp16u = MAX_Q_IDX;
+	/* Dump the quests */
+	tmp16u = z_info->q_max;
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		wr_byte(q_list[i].level);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
-	}
+	for (i = 0; i < tmp16u; i++) wr_quest(i);
+
 
 	/* Hack -- Dump the artifacts */
 	tmp16u = z_info->a_max;
@@ -834,6 +829,23 @@ static void wr_xtra(int k_idx)
 
 
 /*
+ * Write a "quest" record
+ *
+ * Put in a version check?
+ *
+ * Store all quest information?
+ */
+static void wr_quest(int q_idx)
+{
+	quest *q_ptr = &q_info[q_idx];
+
+	wr_byte(q_ptr->level);
+	wr_s16b(q_ptr->cur_num);
+	wr_byte(0);
+}
+
+
+/*
  * Write a "store" record
  */
 static void wr_store(store_type *st_ptr)
@@ -1023,7 +1035,7 @@ static void wr_extra(void)
 
 	wr_string(p_ptr->died_from);
 
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < HISTORY_MAX; i++)
 	{
 		wr_string(p_ptr->history[i]);
 	}
@@ -1389,6 +1401,7 @@ static bool wr_savefile_new(void)
 	for (i = tmp16u; i-- > 0; )
 	{
 		wr_string(message_str((s16b)i));
+		wr_u16b(message_type((s16b)i));
 	}
 
 
@@ -1404,16 +1417,11 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
 
-	/* Hack -- Dump the quests */
-	tmp16u = MAX_Q_IDX;
+	/* Dump the quests */
+	tmp16u = z_info->q_max;
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		wr_byte(q_list[i].level);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
-	}
+	for (i = 0; i < tmp16u; i++) wr_quest(i);
+
 
 	/* Hack -- Dump the artifacts */
 	tmp16u = z_info->a_max;
@@ -1519,7 +1527,7 @@ static bool save_player_aux(char *name)
 {
 	bool ok = FALSE;
 
-	int fd = -1;
+	int fd;
 
 	int mode = 0644;
 

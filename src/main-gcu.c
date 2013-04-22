@@ -37,7 +37,7 @@
  * This file will attempt to redefine the screen colors to conform to
  * standard Angband colors.  It will only do so if the terminal type
  * indicates that it can do so.  See the page:
- * 
+ *
  *     http://www.umr.edu/~keldon/ang-patch/ncurses_color.html
  *
  * for information on this.
@@ -838,37 +838,6 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 	/* Draw each character */
 	for (i = 0; i < n; i++)
 	{
-#ifdef USE_GRAPHICS
-		/* Special character */
-		if (use_graphics && (s[i] & 0x80))
-		{
-			/* Determine picture to use */
-			switch (s[i] & 0x7F)
-			{
-				/* Wall */
-				case '#':
-					pic = ACS_CKBOARD;
-					break;
-
-				/* Mineral vein */
-				case '%':
-					pic = ACS_BOARD;
-					break;
-
-				/* XXX */
-				default:
-					pic = '?';
-					break;
-			}
-
-			/* Draw the picture */
-			waddch(td->win, pic);
-
-			/* Next character */
-			continue;
-		}
-#endif
-
 		/* Draw a normal character */
 		waddch(td->win, s[i]);
 	}
@@ -960,13 +929,6 @@ errr init_gcu(int argc, char *argv[])
 		quit("Angband needs at least an 80x24 'curses' screen");
 	}
 
-
-#ifdef USE_GRAPHICS
-
-	/* Set graphics flag */
-	use_graphics = arg_graphics;
-
-#endif
 
 #ifdef A_COLOR
 

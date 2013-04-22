@@ -694,7 +694,7 @@ static void vault_objects(int y, int x, int num)
 	int i, j, k;
 
 	/* Attempt to place 'num' objects */
-	for (; num > 0; --num)
+	while (num-- > 0)
 	{
 		/* Try up to 11 spots looking for empty space */
 		for (i = 0; i < 11; ++i)
@@ -1473,8 +1473,8 @@ static bool vault_aux_jelly(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline special monsters */
+	if (special_monster(r_idx)) return (FALSE);
 
 	/* Require icky thing, jelly, mold, or mushroom */
 	if (!strchr("ijm,", r_ptr->d_char)) return (FALSE);
@@ -1491,8 +1491,8 @@ static bool vault_aux_animal(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline special monsters */
+	if (special_monster(r_idx)) return (FALSE);
 
 	/* Require "animal" flag */
 	if (!(r_ptr->flags3 & (RF3_ANIMAL))) return (FALSE);
@@ -1509,8 +1509,8 @@ static bool vault_aux_undead(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline special monsters */
+	if (special_monster(r_idx)) return (FALSE);
 
 	/* Require Undead */
 	if (!(r_ptr->flags3 & (RF3_UNDEAD))) return (FALSE);
@@ -1527,8 +1527,8 @@ static bool vault_aux_orc(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline special monsters */
+	if (special_monster(r_idx)) return (FALSE);
 
 	/* Hack -- Require "o" monsters */
 	if (!strchr("o", r_ptr->d_char)) return (FALSE);
@@ -1545,8 +1545,8 @@ static bool vault_aux_troll(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline special monsters */
+	if (special_monster(r_idx)) return (FALSE);
 
 	/* Hack -- Require "T" monsters */
 	if (!strchr("T", r_ptr->d_char)) return (FALSE);
@@ -1563,8 +1563,8 @@ static bool vault_aux_giant(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline special monsters */
+	if (special_monster(r_idx)) return (FALSE);
 
 	/* Hack -- Require "P" monsters */
 	if (!strchr("P", r_ptr->d_char)) return (FALSE);
@@ -1587,8 +1587,8 @@ static bool vault_aux_dragon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline special monsters */
+	if (special_monster(r_idx)) return (FALSE);
 
 	/* Hack -- Require "d" or "D" monsters */
 	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
@@ -1608,8 +1608,8 @@ static bool vault_aux_demon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline special monsters */
+	if (special_monster(r_idx)) return (FALSE);
 
 	/* Hack -- Require "U" monsters */
 	if (!strchr("U", r_ptr->d_char)) return (FALSE);
@@ -2941,36 +2941,32 @@ static void cave_gen(void)
 	}
 
 
-	/* Special boundary walls -- Top */
+	/* Special boundary walls -- Top/Bottom */
 	for (x = 0; x < DUNGEON_WID; x++)
 	{
+		/* Top wall */
 		y = 0;
 
 		/* Clear previous contents, add "solid" perma-wall */
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-	}
 
-	/* Special boundary walls -- Bottom */
-	for (x = 0; x < DUNGEON_WID; x++)
-	{
+		/* Bottom wall */
 		y = DUNGEON_HGT-1;
 
 		/* Clear previous contents, add "solid" perma-wall */
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
 	}
 
-	/* Special boundary walls -- Left */
+	/* Special boundary walls -- Left/Right */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
+		/* Left wall */
 		x = 0;
 
 		/* Clear previous contents, add "solid" perma-wall */
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-	}
 
-	/* Special boundary walls -- Right */
-	for (y = 0; y < DUNGEON_HGT; y++)
-	{
+		/* Right wall */
 		x = DUNGEON_WID-1;
 
 		/* Clear previous contents, add "solid" perma-wall */
@@ -3072,17 +3068,33 @@ static void cave_gen(void)
 	}
 
 	/* Ensure quest monsters */
-	if (is_quest(p_ptr->depth))
+	for (i = 0; i < z_info->q_max; i++)
 	{
-		/* Ensure quest monsters */
-		for (i = 1; i < z_info->r_max; i++)
+		quest *q_ptr = &q_info[i];
+
+		/* Quest levels */
+		if (q_ptr->level == p_ptr->depth)
 		{
-			monster_race *r_ptr = &r_info[i];
+			monster_race *r_ptr = &r_info[q_ptr->r_idx];
+			s16b num_questors;
+
+			if (adult_turin)
+			{
+				/* Reset quest */
+				q_ptr->cur_num = 0;
+
+				/* All quest monsters */
+				num_questors = q_ptr->max_num;
+			}
+
+			else
+			{
+				/* A certain number of questors */
+				num_questors = q_ptr->max_num - q_ptr->cur_num;
+			}
 
 			/* Ensure quest monsters */
-			if ((r_ptr->flags1 & (RF1_QUESTOR)) &&
-			    (r_ptr->level == p_ptr->depth) &&
-			    (r_ptr->cur_num <= 0))
+			while (r_ptr->cur_num < num_questors)
 			{
 				int y, x;
 
@@ -3096,7 +3108,7 @@ static void cave_gen(void)
 				}
 
 				/* Place the questor */
-				place_monster_aux(y, x, i, TRUE, TRUE);
+				place_monster_aux(y, x, q_ptr->r_idx, TRUE, TRUE);
 			}
 		}
 	}
@@ -3480,7 +3492,7 @@ void generate_cave(void)
 		if (good_item_flag && !adult_preserve) feeling = 1;
 
 		/* It takes 1000 game turns for "feelings" to recharge */
-		if ((turn - old_turn) < 1000) feeling = 0;
+		if (((turn - old_turn) < 1000) || adult_turin) feeling = 0;
 
 		/* Hack -- no feeling in the town */
 		if (!p_ptr->depth) feeling = 0;

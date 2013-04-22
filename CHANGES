@@ -1,3 +1,53 @@
+Changes in Angband a2.9.1:
+- You can now get extra attacks with your fist.
+- Added the Wood-Elf race from CatHAngband.
+- Changes to the allowed race/class combinations:
+  - Wood-Elves can no longer be Warriors, but can now be Mages.
+  - Hobbits can now be any class that they want to.
+  - Gnomes and Kobolds can be any class but Paladin.
+  - Dwarves can be Paladins.
+- 'Turin mode' is being implemented as a birth option for those
+  who want a harder game.
+- Object drops can now stack.
+- A standard bug-fix for free sensing of unbreakable items was
+  applied and expanded.
+- Eytan Zweig pointed out an interesting bug relating to
+  low-constitution characters losing hitpoints when they gain
+  levels. The bug has been fixed (I hope).
+- The final quest (i.e. Morgoth) will now produce a staircase and
+  a reward.
+- More miscellaneous bugfixes.
+
+Changes in Angband a2.9.1 beta:
+- Features from 2.9.1 too numerous to list here. Most features from
+  2.9.1 were included, with some notable exceptions including custom
+  activations and the Resistance spell.
+- Fixed various 2.9.1 bugs.
+- Took out all graphics and sound support.
+- Added the Kobold race from GW-Angband to the info files, as well
+  as a Kobold shopkeeper (also from GW-Angband).
+- Implemented level quests. These are not random, but customizable
+  through the q_info.txt file. Random quest generators are welcome.
+
+Changes in Angband a2.9.0c:
+- Applied more standard bugfixes: display_scores, monadic_deva_graf,
+  append_options
+- Moved the randart names back to names.txt. Massive cleanup of the
+  randart code.
+- Added a generic "use item" command (single quote).
+- Pressing '>' while viewing knowledge saves the knowledge to a file.
+- Farmer Maggot's "moan" lines have reverted to those of pre-Ben
+  versions.
+- Player races now have a "pval" field.
+- Disallowed multiple artifact ammo.
+- Made many changes to main-emx.c, guided by Alexey Guzeev's version.
+- Changed the teleport debug commands. Added an original-code debug
+  command for artifact creation.
+- Fixed the 'screen dump' commands again - the screen dump was still
+  being shifted even with the fix, even with the "screen_dump" bugfix.
+- Fixed a spelling error and a grammatical error.
+- Many very minor changes.
+
 Changes in Angband a2.9.0b:
 - Fixed a bug in the new info file parsing - thanks to Bablos for the
   bug report!

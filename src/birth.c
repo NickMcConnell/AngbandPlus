@@ -28,9 +28,9 @@ struct birther
 
 	s32b au;
 
-	s16b stat[6];
+	s16b stat[A_MAX];
 
-	char history[4][60];
+	char history[HISTORY_MAX][60];
 };
 
 
@@ -44,7 +44,14 @@ static birther prev;
 /*
  * Current stats (when rolling a character).
  */
-static s16b stat_use[6];
+static s16b stat_use[A_MAX];
+
+
+/*
+ * Maximum and minimum stat totals
+ */
+#define TOTAL_MIN	42
+#define TOTAL_MAX	54
 
 
 
@@ -72,7 +79,7 @@ static void save_prev_data(void)
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < HISTORY_MAX; i++)
 	{
 		strcpy(prev.history[i], p_ptr->history[i]);
 	}
@@ -105,7 +112,7 @@ static void load_prev_data(void)
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < HISTORY_MAX; i++)
 	{
 		strcpy(temp.history[i], p_ptr->history[i]);
 	}
@@ -128,7 +135,7 @@ static void load_prev_data(void)
 	}
 
 	/* Load the history */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < HISTORY_MAX; i++)
 	{
 		strcpy(p_ptr->history[i], prev.history[i]);
 	}
@@ -150,7 +157,7 @@ static void load_prev_data(void)
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < HISTORY_MAX; i++)
 	{
 		strcpy(prev.history[i], temp.history[i]);
 	}
@@ -241,7 +248,7 @@ static void get_stats(void)
 		}
 
 		/* Verify totals */
-		if ((j > 42) && (j < 54)) break;
+		if ((j > TOTAL_MIN) && (j < TOTAL_MAX)) break;
 	}
 
 	/* Roll the stats */
@@ -346,7 +353,10 @@ static void get_history(void)
 
 
 	/* Clear the previous history strings */
-	for (i = 0; i < 4; i++) p_ptr->history[i][0] = '\0';
+	for (i = 0; i < HISTORY_MAX; i++)
+	{
+		p_ptr->history[i][0] = '\0';
+	}
 
 
 	/* Clear the history text */
@@ -405,7 +415,7 @@ static void get_history(void)
 	i = 0;
 
 	/* Collect the history */
-	while (TRUE)
+	while (i < HISTORY_MAX)
 	{
 		/* Extract remaining length */
 		n = strlen(s);
@@ -522,17 +532,14 @@ static void player_wipe(void)
 	}
 
 
-	/* Start with no quests */
-	for (i = 0; i < MAX_Q_IDX; i++)
+	/* Start with some quests */
+	for (i = 0; i < z_info->q_max; i++)
 	{
-		q_list[i].level = 0;
+		quest *q_ptr = &q_info[i];
+
+		/* Reset level */
+		q_ptr->level = q_ptr->old_level;
 	}
-
-	/* Add a special quest */
-	q_list[0].level = 99;
-
-	/* Add a second quest */
-	q_list[1].level = 100;
 
 
 	/* Reset the "objects" */
@@ -743,7 +750,7 @@ static bool player_birth_aux_1(void)
 
 		/* Display */
 		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		put_str(buf, 20 + (n/5), 2 + 15 * (n%5));
 	}
 
 	/* Choose */
@@ -751,7 +758,7 @@ static bool player_birth_aux_1(void)
 	{
 		sprintf(buf, "Choose a sex (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
+		put_str(buf, 19, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
@@ -791,7 +798,7 @@ static bool player_birth_aux_1(void)
 
 		/* Display */
 		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		put_str(buf, 20 + (n/5), 2 + 15 * (n%5));
 	}
 
 	/* Choose */
@@ -799,7 +806,7 @@ static bool player_birth_aux_1(void)
 	{
 		sprintf(buf, "Choose a race (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
+		put_str(buf, 19, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
@@ -847,7 +854,7 @@ static bool player_birth_aux_1(void)
 
 		/* Display */
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
+		put_str(buf, 20 + (n/3), 2 + 20 * (n%3));
 	}
 
 	/* Get a class */
@@ -855,7 +862,7 @@ static bool player_birth_aux_1(void)
 	{
 		sprintf(buf, "Choose a class (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
+		put_str(buf, 19, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
@@ -1079,13 +1086,13 @@ static bool player_birth_aux_2(void)
 		/* Prev stat */
 		if (ch == '8')
 		{
-			stat = (stat + 5) % 6;
+			stat = (stat + A_MAX - 1) % A_MAX;
 		}
 
 		/* Next stat */
 		if (ch == '2')
 		{
-			stat = (stat + 1) % 6;
+			stat = (stat + 1) % A_MAX;
 		}
 
 		/* Decrease stat */
@@ -1133,9 +1140,9 @@ static bool player_birth_aux_3(void)
 
 #ifdef ALLOW_AUTOROLLER
 
-	s16b stat_limit[6];
+	s16b stat_limit[A_MAX];
 
-	s32b stat_match[6];
+	s32b stat_match[A_MAX];
 
 	s32b auto_round = 0L;
 
@@ -1147,7 +1154,7 @@ static bool player_birth_aux_3(void)
 	/* Initialize */
 	if (adult_auto_roller)
 	{
-		int mval[6];
+		int mval[A_MAX];
 
 		char inp[80];
 
@@ -1541,11 +1548,11 @@ void player_birth(void)
 
 
 	/* Note player birth in the message recall */
-	message_add(" ");
-	message_add("  ");
-	message_add("====================");
-	message_add("  ");
-	message_add(" ");
+	message_add(" ", MSG_GENERIC);
+	message_add("  ", MSG_GENERIC);
+	message_add("====================", MSG_GENERIC);
+	message_add("  ", MSG_GENERIC);
+	message_add(" ", MSG_GENERIC);
 
 
 	/* Hack -- outfit the player */

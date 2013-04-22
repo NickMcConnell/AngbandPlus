@@ -14,7 +14,7 @@ OBJS = \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
-  generate.o dungeon.o init1.o init2.o init3.o \
+  generate.o dungeon.o init1.o init2.o randart.o \
   main-ami.o sound-ami.o main.o
 
 # Header files
@@ -61,7 +61,6 @@ files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
-init3.o: init3.c $(INCS)
 load1.o: load1.c $(INCS)
 load2.o: load2.c $(INCS)
 main-ami.o: main-ami.c $(INCS) sound-ami.h
@@ -72,6 +71,7 @@ monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
+randart.o: randart.c $(INCS)
 save.o: save.c $(INCS)
 sound-ami.o: sound-ami.c sound-ami.h
 spells1.o: spells1.c $(INCS)

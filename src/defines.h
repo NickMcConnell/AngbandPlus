@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.9.0"
+#define VERSION_STRING	"a2.9.1"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -117,6 +117,7 @@
  */
 #define MAX_STORES	8
 
+
 /*
  * Store index definitions (see "store.c", etc)
  */
@@ -134,16 +135,12 @@
  */
 #define MAX_SEXES            2
 
+
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
 #define MAX_CLASS            6
 
-
-/*
- * Hack -- Maximum number of quests
- */
-#define MAX_Q_IDX	4
 
 /*
  * Maximum number of high scores in the high score file
@@ -246,8 +243,8 @@
  */
 #define GREAT_OBJ	20
 
-/* 
- * There is a 1/20 (5%) chance that ego-items with an inflated base-level are 
+/*
+ * There is a 1/20 (5%) chance that ego-items with an inflated base-level are
  * generated when an object is turned into an ego-item (see make_ego_item()
  * in object2.c). As above, lower values yield better ego-items more often.
  */
@@ -391,10 +388,17 @@
 
 
 /*
+ * Maximum number of player history lines (hard-coded)
+ */
+#define HISTORY_MAX		4
+
+
+/*
  * Player sex constants (hard-coded by save-files, arrays, etc)
  */
 #define SEX_FEMALE		0
 #define SEX_MALE		1
+
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
@@ -1778,11 +1782,14 @@
 #define INSCRIP_EXCELLENT	100+7
 #define INSCRIP_SPECIAL		100+8
 #define INSCRIP_UNCURSED	100+9
+#define INSCRIP_UNIQUE		100+10
+#define INSCRIP_POWERFUL	100+11
+#define INSCRIP_MAGIC		100+12
 
 /*
  * Number of special inscriptions, plus one.
  */
-#define MAX_INSCRIP			10
+#define MAX_INSCRIP			13
 
 
 /*
@@ -1952,6 +1959,13 @@
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
 
+/*
+ * Flag set 3 -- mask for "ignore element" flags.
+ */
+#define TR3_IGNORE_MASK \
+	(TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | \
+	 TR3_IGNORE_COLD )
+
 
 /*
  * Hack -- special "xtra" object flag info (type)
@@ -2008,7 +2022,7 @@
 #define RF1_CHAR_MULTI		0x00000020	/* Changes symbol */
 #define RF1_ATTR_CLEAR		0x00000040	/* Absorbs color */
 #define RF1_ATTR_MULTI		0x00000080	/* Changes color */
-#define RF1_FORCE_DEPTH		0x00000100	/* Start at "correct" depth */
+#define RF1_XXX1			0x00000100	/* Force depth XXX XXX XXX */
 #define RF1_FORCE_MAXHP		0x00000200	/* Start with max hitpoints */
 #define RF1_FORCE_SLEEP		0x00000400	/* Start out sleeping */
 #define RF1_FORCE_EXTRA		0x00000800	/* Start out something */
@@ -2485,6 +2499,7 @@
 #define OPT_birth_rand_artifacts	(OPT_BIRTH+7)
 #define OPT_birth_unusual_rooms		(OPT_BIRTH+8)
 #define OPT_birth_steele			(OPT_BIRTH+9)
+#define OPT_birth_turin				(OPT_BIRTH+10)
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)
@@ -2503,6 +2518,7 @@
 #define OPT_adult_rand_artifacts	(OPT_ADULT+7)
 #define OPT_adult_unusual_rooms		(OPT_ADULT+8)
 #define OPT_adult_steele			(OPT_ADULT+9)
+#define OPT_adult_turin				(OPT_ADULT+10)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -2607,6 +2623,7 @@
 #define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
 #define birth_unusual_rooms		op_ptr->opt[OPT_birth_unusual_rooms]
 #define birth_steele			op_ptr->opt[OPT_birth_steele]
+#define birth_turin				op_ptr->opt[OPT_birth_turin]
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear				op_ptr->opt[OPT_cheat_hear]
@@ -2625,6 +2642,7 @@
 #define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
 #define adult_unusual_rooms		op_ptr->opt[OPT_adult_unusual_rooms]
 #define adult_steele			op_ptr->opt[OPT_adult_steele]
+#define adult_turin				op_ptr->opt[OPT_adult_turin]
 /* xxx xxx */
 #define score_peek				op_ptr->opt[OPT_score_peek]
 #define score_hear				op_ptr->opt[OPT_score_hear]
@@ -2912,6 +2930,42 @@ extern int PlayerUID;
 #define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
 
 
+/*** Message constants ***/
+
+
+#define MSG_GENERIC          0
+#define MSG_HIT              1
+#define MSG_MISS             2
+#define MSG_FLEE             3
+#define MSG_DROP             4
+#define MSG_KILL             5
+#define MSG_LEVEL            6
+#define MSG_DEATH            7
+#define MSG_STUDY            8
+#define MSG_TELEPORT         9
+#define MSG_SHOOT           10
+#define MSG_QUAFF           11
+#define MSG_ZAP             12
+#define MSG_WALK            13
+#define MSG_TPOTHER         14
+#define MSG_HITWALL         15
+#define MSG_EAT             16
+#define MSG_STORE1          17
+#define MSG_STORE2          18
+#define MSG_STORE3          19
+#define MSG_STORE4          20
+#define MSG_DIG             21
+#define MSG_OPENDOOR        22
+#define MSG_SHUTDOOR        23
+#define MSG_TPLEVEL         24
+#define MSG_BELL            25
+#define MSG_NOTHING_TO_OPEN 26
+#define MSG_LOCKPICK_FAIL   27
+#define MSG_STAIRS          28
+
+#define MSG_MAX             29
+
+
 /*** Window constants ***/
 
 
@@ -2926,39 +2980,12 @@ extern int PlayerUID;
 
 
 /*
- * Mega-Hack -- some primitive sound support (see "main-win.c")
- *
- * Some "sound" constants for "Term_xtra(TERM_XTRA_SOUND, val)"
- */
-#define SOUND_HIT	    1
-#define SOUND_MISS	    2
-#define SOUND_FLEE	    3
-#define SOUND_DROP	    4
-#define SOUND_KILL	    5
-#define SOUND_LEVEL	    6
-#define SOUND_DEATH	    7
-#define SOUND_STUDY     8
-#define SOUND_TELEPORT  9
-#define SOUND_SHOOT     10
-#define SOUND_QUAFF     11
-#define SOUND_ZAP       12
-#define SOUND_WALK      13
-#define SOUND_TPOTHER   14
-#define SOUND_HITWALL   15
-#define SOUND_EAT       16
-#define SOUND_STORE1    17
-#define SOUND_STORE2    18
-#define SOUND_STORE3    19
-#define SOUND_STORE4    20
-#define SOUND_DIG       21
-#define SOUND_OPENDOOR  22
-#define SOUND_SHUTDOOR  23
-#define SOUND_TPLEVEL   24
-
-/*
  * Mega-Hack -- maximum known sounds
+ *
+ * Should be the same as MSG_MAX for compatibility reasons.
  */
-#define SOUND_MAX 25
+#define SOUND_MAX MSG_MAX
+
 
 
 /*** Hack ***/
@@ -2987,3 +3014,28 @@ extern int PlayerUID;
 #define GRAPHICS_NONE       0
 #define GRAPHICS_ORIGINAL   1
 #define GRAPHICS_ADAM_BOLT  2
+
+
+/*
+ * Parse errors
+ */
+#define PARSE_ERROR_GENERIC                  1
+#define PARSE_ERROR_OBSOLETE_FILE            2
+#define PARSE_ERROR_MISSING_RECORD_HEADER    3
+#define PARSE_ERROR_NON_SEQUENTIAL_RECORDS   4
+#define PARSE_ERROR_INVALID_FLAG             5
+#define PARSE_ERROR_UNDEFINED_DIRECTIVE      6
+#define PARSE_ERROR_OUT_OF_MEMORY            7
+#define PARSE_ERROR_OUT_OF_BOUNDS            8
+#define PARSE_ERROR_TOO_FEW_ARGUMENTS        9
+#define PARSE_ERROR_TOO_MANY_ARGUMENTS      10
+
+#define PARSE_ERROR_MAX                     11
+
+
+/*
+ * List of commands that will be auto-repeated
+ *
+ * ToDo: This string should be user-configurable.
+ */
+#define AUTO_REPEAT_COMMANDS "TBDoc+"

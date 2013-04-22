@@ -13,11 +13,11 @@
 
 
 /*
- * Determine if the player "hits" a monster (normal combat).
+ * Determine if the player "hits" a monster.
  *
  * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
-bool test_hit_fire(int chance, int ac, int vis)
+bool test_hit(int chance, int ac, bool vis)
 {
 	int k;
 
@@ -28,33 +28,6 @@ bool test_hit_fire(int chance, int ac, int vis)
 	if (k < 10) return (k < 5);
 
 	/* Invisible monsters are harder to hit */
-	if (!vis) chance = chance / 2;
-
-	/* Power competes against armor */
-	if ((chance > 0) && (rand_int(chance) >= (ac * 3 / 4))) return (TRUE);
-
-	/* Assume miss */
-	return (FALSE);
-}
-
-
-
-/*
- * Determine if the player "hits" a monster (normal combat).
- *
- * Note -- Always miss 5%, always hit 5%, otherwise random.
- */
-bool test_hit_norm(int chance, int ac, int vis)
-{
-	int k;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- Instant miss or hit */
-	if (k < 10) return (k < 5);
-
-	/* Penalize invisible targets */
 	if (!vis) chance = chance / 2;
 
 	/* Power competes against armor */
@@ -399,6 +372,7 @@ void search(void)
 	/* Penalize various conditions */
 	if (p_ptr->blind || no_lite()) chance = chance / 10;
 	if (p_ptr->confused || p_ptr->image) chance = chance / 10;
+	if (adult_turin) chance = chance / 10;
 
 	/* Search the nearby grids, which are always in bounds */
 	for (y = (py - 1); y <= (py + 1); y++)
@@ -766,11 +740,11 @@ void py_pickup(int pickup)
 
 
 /*
- * Determine if a trap affects the player.
+ * Determine if a monster attack or trap affects the player.
  * Always miss 5% of the time, Always hit 5% of the time.
- * Otherwise, match trap power against player armor.
+ * Otherwise, match monster/trap power against player armor.
  */
-static int check_hit(int power)
+int check_hit(int power)
 {
 	int k, ac;
 
@@ -811,7 +785,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x00:
 		{
 			msg_print("You fall through a trap door!");
-			if (p_ptr->ffall)
+			if (p_ptr->ffall && (!adult_turin || (rand_int(100) < 50)))
 			{
 				msg_print("You float gently down to the next level.");
 			}
@@ -833,7 +807,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x01:
 		{
 			msg_print("You fall into a pit!");
-			if (p_ptr->ffall)
+			if (p_ptr->ffall && (!adult_turin || (rand_int(100) < 50)))
 			{
 				msg_print("You float gently to the bottom of the pit.");
 			}
@@ -849,7 +823,7 @@ void hit_trap(int y, int x)
 		{
 			msg_print("You fall into a spiked pit!");
 
-			if (p_ptr->ffall)
+			if (p_ptr->ffall && (!adult_turin || (rand_int(100) < 50)))
 			{
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
@@ -861,7 +835,7 @@ void hit_trap(int y, int x)
 				dam = damroll(2, 6);
 
 				/* Extra spike damage */
-				if (rand_int(100) < 50)
+				if ((rand_int(100) < 50) && !p_ptr->ffall)
 				{
 					msg_print("You are impaled!");
 
@@ -879,7 +853,7 @@ void hit_trap(int y, int x)
 		{
 			msg_print("You fall into a spiked pit!");
 
-			if (p_ptr->ffall)
+			if (p_ptr->ffall && (!adult_turin || (rand_int(100) < 50)))
 			{
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
@@ -891,7 +865,7 @@ void hit_trap(int y, int x)
 				dam = damroll(2, 6);
 
 				/* Extra spike damage */
-				if (rand_int(100) < 50)
+				if ((rand_int(100) < 50) && !p_ptr->ffall)
 				{
 					msg_print("You are impaled on poisonous spikes!");
 
@@ -1093,10 +1067,6 @@ void py_attack(int y, int x)
 	disturb(0, 0);
 
 
-	/* Disturb the monster */
-	m_ptr->csleep = 0;
-
-
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
@@ -1131,13 +1101,11 @@ void py_attack(int y, int x)
 	while (num++ < p_ptr->num_blow)
 	{
 		/* Test for hit */
-		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+		if (test_hit(chance, r_ptr->ac, m_ptr->ml) &&
+		    (!adult_turin || !m_ptr->csleep))
 		{
-			/* Sound */
-			sound(SOUND_HIT);
-
 			/* Message */
-			msg_format("You hit %s.", m_name);
+			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
@@ -1163,6 +1131,9 @@ void py_attack(int y, int x)
 			{
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
+
+			/* Disturb the monster */
+			m_ptr->csleep = 0;
 
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
@@ -1201,11 +1172,11 @@ void py_attack(int y, int x)
 		/* Player misses */
 		else
 		{
-			/* Sound */
-			sound(SOUND_MISS);
+			/* Disturb the monster */
+			m_ptr->csleep = 0;
 
 			/* Message */
-			msg_format("You miss %s.", m_name);
+			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 		}
 	}
 
@@ -1213,11 +1184,8 @@ void py_attack(int y, int x)
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
 	{
-		/* Sound */
-		sound(SOUND_FLEE);
-
 		/* Message */
-		msg_format("%^s flees in terror!", m_name);
+		message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
 	}
 
 
@@ -1243,7 +1211,7 @@ void py_attack(int y, int x)
  * Note that this routine handles monsters in the destination grid,
  * and also handles attempting to move into walls/doors/rubble/etc.
  */
-void move_player(int dir, int jumping)
+void move_player(int dir, bool jumping)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1275,10 +1243,14 @@ void move_player(int dir, int jumping)
 		if (!p_ptr->command_rep)
 		{
 			/* Hack -- Optional auto-repeat */
-			p_ptr->command_rep = 99;
+			if (always_repeat && (p_ptr->command_arg <= 0))
+			{
+				/* Repeat 99 times */
+				p_ptr->command_rep = 99;
 
-			/* Reset the command count */
-			p_ptr->command_arg = 0;
+				/* Reset the command count */
+				p_ptr->command_arg = 0;
+			}
 		}
 
 		/* Alter */
@@ -1299,7 +1271,7 @@ void move_player(int dir, int jumping)
 			/* Rubble */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
-				msg_print("You feel a pile of rubble blocking your way.");
+				message(MSG_HITWALL, 0, "You feel a pile of rubble blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
@@ -1307,7 +1279,7 @@ void move_player(int dir, int jumping)
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
-				msg_print("You feel a door blocking your way.");
+				message(MSG_HITWALL, 0, "You feel a door blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
@@ -1315,7 +1287,7 @@ void move_player(int dir, int jumping)
 			/* Wall (or secret door) */
 			else
 			{
-				msg_print("You feel a wall blocking your way.");
+				message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
@@ -1327,32 +1299,26 @@ void move_player(int dir, int jumping)
 			/* Rubble */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
-				msg_print("There is a pile of rubble blocking your way.");
+				message(MSG_HITWALL, 0, "There is a pile of rubble blocking your way.");
 			}
 
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
-				msg_print("There is a door blocking your way.");
+				message(MSG_HITWALL, 0, "There is a door blocking your way.");
 			}
 
 			/* Wall (or secret door) */
 			else
 			{
-				msg_print("There is a wall blocking your way.");
+				message(MSG_HITWALL, 0, "There is a wall blocking your way.");
 			}
 		}
-
-		/* Sound */
-		sound(SOUND_HITWALL);
 	}
 
 	/* Normal movement */
 	else
 	{
-		/* Sound XXX XXX XXX */
-		/* sound(SOUND_WALK); */
-
 		/* Move player */
 		monster_swap(py, px, y, x);
 

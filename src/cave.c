@@ -412,38 +412,6 @@ static u16b image_random(void)
 
 
 /*
- * The 16x16 tile of the terrain supports lighting
- */
-bool feat_supports_lighting(byte feat)
-{
-	if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))
-		return TRUE;
-
-	switch (feat)
-	{
-		case FEAT_FLOOR:
-		case FEAT_INVIS:
-		case FEAT_SECRET:
-		case FEAT_MAGMA:
-		case FEAT_QUARTZ:
-		case FEAT_MAGMA_H:
-		case FEAT_QUARTZ_H:
-		case FEAT_WALL_EXTRA:
-		case FEAT_WALL_INNER:
-		case FEAT_WALL_OUTER:
-		case FEAT_WALL_SOLID:
-		case FEAT_PERM_EXTRA:
-		case FEAT_PERM_INNER:
-		case FEAT_PERM_OUTER:
-		case FEAT_PERM_SOLID:
-			return TRUE;
-		default:
-			return FALSE;
-	}
-}
-
-
-/*
  * Extract the attr/char to display at the given (legal) map location
  *
  * Note that this function, since it is called by "lite_spot()" which
@@ -607,6 +575,10 @@ bool feat_supports_lighting(byte feat)
  *
  * The "hidden_player" efficiency option, which only makes sense with a
  * single player, allows the player symbol to be hidden while running.
+ *
+ * ToDo: The transformations for tile colors, or brightness for the 16x16
+ * tiles should be handled differently.  One possibility would be to
+ * extend feature_type with attr/char definitions for the different states.
  */
 #ifdef USE_TRANSPARENCY
 void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
@@ -629,10 +601,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 	s16b image = p_ptr->image;
 
 	int floor_num = 0;
-
-#ifdef USE_AB_TILES
-	bool graf_new = ((strcmp(ANGBAND_GRAF, "new") == 0) && use_graphics);
-#endif /* USE_AB_TILES */
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
@@ -669,11 +637,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			c = f_ptr->x_char;
 
 			/* Special lighting effects */
-#ifdef USE_AB_TILES
-			if (view_special_lite && ((a == TERM_WHITE) || graf_new))
-#else /* USE_AB_TILES */
 			if (view_special_lite && (a == TERM_WHITE))
-#endif /* USE_AB_TILES */
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
@@ -681,70 +645,30 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Only lit by "torch" lite */
 					if (view_yellow_lite && !(info & (CAVE_GLOW)))
 					{
-#ifdef USE_AB_TILES
-						if (graf_new)
-						{
-							/* Use a brightly lit tile */
-							c += 2;
-						}
-						else
-#endif /* USE_AB_TILES */
-						{
-							/* Use "yellow" */
-							a = TERM_YELLOW;
-						}
+						/* Use "yellow" */
+						a = TERM_YELLOW;
 					}
 				}
 
 				/* Handle "blind" */
 				else if (p_ptr->blind)
 				{
-#ifdef USE_AB_TILES
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c++;
-					}
-					else
-#endif /* USE_AB_TILES */
-					{
-						/* Use "dark gray" */
-						a = TERM_L_DARK;
-					}
+					/* Use "dark gray" */
+					a = TERM_L_DARK;
 				}
 
 				/* Handle "dark" grids */
 				else if (!(info & (CAVE_GLOW)))
 				{
-#ifdef USE_AB_TILES
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c++;
-					}
-					else
-#endif /* USE_AB_TILES */
-					{
-						/* Use "dark gray" */
-						a = TERM_L_DARK;
-					}
+					/* Use "dark gray" */
+					a = TERM_L_DARK;
 				}
 
 				/* Handle "view_bright_lite" */
 				else if (view_bright_lite)
 				{
-#ifdef USE_AB_TILES
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c++;
-					}
-					else
-#endif /* USE_AB_TILES */
-					{
-						/* Use "gray" */
-						a = TERM_SLATE;
-					}
+					/* Use "gray" */
+					a = TERM_SLATE;
 				}
 			}
 		}
@@ -782,61 +706,31 @@ void map_info(int y, int x, byte *ap, char *cp)
 			c = f_ptr->x_char;
 
 			/* Special lighting effects (walls only) */
-#ifdef USE_AB_TILES
 			if (view_granite_lite &&
-			   (((a == TERM_WHITE) && !use_transparency && (feat >= FEAT_SECRET)) ||
-			   (use_transparency && feat_supports_lighting(feat))))
-#else /* USE_AB_TILES */
-			if (view_granite_lite && (a == TERM_WHITE) && (feat >= FEAT_SECRET))
-#endif /* USE_AB_TILES */
+			    (((a == TERM_WHITE) && !use_transparency && (feat >= FEAT_SECRET))))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
 				{
-#ifdef USE_AB_TILES
-					if (graf_new)
-					{
-						/* Use a brightly lit tile */
-						c += 2;
-					}
-					else
-#endif /* USE_AB_TILES */
-					{
-						/* Use "white" */
-					}
+					/* Use "white" */
 				}
 
 				/* Handle "blind" */
 				else if (p_ptr->blind)
 				{
-#ifdef USE_AB_TILES
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c++;
-					}
-					else
-#endif /* USE_AB_TILES */
-					{
-						/* Use "dark gray" */
-						a = TERM_L_DARK;
-					}
+					/* Use "dark gray" */
+					a = TERM_L_DARK;
 				}
 
 				/* Handle "view_bright_lite" */
 				else if (view_bright_lite)
 				{
-#ifdef USE_AB_TILES
-					if (graf_new)
-					{
-						/* Use a lit tile */
-					}
-					else
-#endif /* USE_AB_TILES */
-					{
-						/* Use "gray" */
-						a = TERM_SLATE;
-					}
+					/* Use "gray" */
+					a = TERM_SLATE;
+				}
+				else
+				{
+					/* Use "white" */
 				}
 			}
 		}
@@ -856,9 +750,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 	}
 
 #ifdef USE_TRANSPARENCY
+
 	/* Save the terrain info for the transparency effects */
 	(*tap) = a;
 	(*tcp) = c;
+
 #endif /* USE_TRANSPARENCY */
 
 	/* Objects */
@@ -1244,18 +1140,23 @@ void lite_spot(int y, int x)
 	vx = kx + COL_MAP;
 
 #ifdef USE_TRANSPARENCY
+
 	/* Hack -- redraw the grid */
 	map_info(y, x, &a, &c, &ta, &tc);
 
 	/* Hack -- Queue it */
 	Term_queue_char(vx, vy, a, c, ta, tc);
+
 #else /* USE_TRANSPARENCY */
+
 	/* Hack -- redraw the grid */
 	map_info(y, x, &a, &c);
 
 	/* Hack -- Queue it */
 	Term_queue_char(vx, vy, a, c);
+
 #endif /* USE_TRANSPARENCY */
+
 }
 
 
@@ -1290,19 +1191,25 @@ void prt_map(void)
 	{
 		for (x = p_ptr->wx, vx = COL_MAP; vx < tx; vx++, x++)
 		{
+
 #ifdef USE_TRANSPARENCY
+
 			/* Determine what is there */
 			map_info(y, x, &a, &c, &ta, &tc);
 
 			/* Hack -- Queue it */
 			Term_queue_char(vx, vy, a, c, ta, tc);
+
 #else /* USE_TRANSPARENCY */
+
 			/* Determine what is there */
 			map_info(y, x, &a, &c);
 
 			/* Hack -- Queue it */
 			Term_queue_char(vx, vy, a, c);
+
 #endif /* USE_TRANSPARENCY */
+
 		}
 	}
 }
@@ -1310,17 +1217,6 @@ void prt_map(void)
 
 
 
-
-/*
- * Display highest priority object in the RATIO by RATIO area
- */
-#define	RATIO 3
-
-/*
- * Display the entire map
- */
-#define MAP_HGT (DUNGEON_HGT / RATIO)
-#define MAP_WID (DUNGEON_WID / RATIO)
 
 /*
  * Hack -- priority array (see below)
@@ -1401,34 +1297,67 @@ static byte priority(byte a, char c)
 
 
 /*
- * Display a "small-scale" map of the dungeon in the active Term
+ * Maximum size of map.
+ */
+#define MAP_HGT (DUNGEON_HGT / 3)
+#define MAP_WID (DUNGEON_WID / 3)
+
+
+/*
+ * Display a "small-scale" map of the dungeon in the active Term.
  *
- * Note that this function must "disable" the special lighting
- * effects so that the "priority" function will work.
+ * Note that this function must "disable" the special lighting effects so
+ * that the "priority" function will work.
  *
- * Note the use of a specialized "priority" function to allow this
- * function to work with any graphic attr/char mappings, and the
- * attempts to optimize this function where possible.
+ * Note the use of a specialized "priority" function to allow this function
+ * to work with any graphic attr/char mappings, and the attempts to optimize
+ * this function where possible.
+ *
+ * If "cy" and "cx" are not NULL, then returns the screen location at which
+ * the player was displayed, so the cursor can be moved to that location,
+ * and restricts the horizontal map size to SCREEN_WID.  Otherwise, nothing
+ * is returned (obviously), and no restrictions are enforced.
  */
 void display_map(int *cy, int *cx)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i, j, x, y;
+	int map_hgt, map_wid;
+
+	int row, col;
+
+	int x, y;
 
 	byte ta;
 	char tc;
 
 	byte tp;
 
-	byte ma[MAP_HGT + 2][MAP_WID + 2];
-	char mc[MAP_HGT + 2][MAP_WID + 2];
-
-	byte mp[MAP_HGT + 2][MAP_WID + 2];
+	/* Large array on the stack */
+	byte mp[DUNGEON_HGT][DUNGEON_WID];
 
 	bool old_view_special_lite;
 	bool old_view_granite_lite;
+
+	monster_race *r_ptr = &r_info[0];
+
+
+	/* Desired map height */
+	map_hgt = Term->hgt - 2;
+	map_wid = Term->wid - 2;
+
+	/* Prevent accidents */
+	if (map_hgt > DUNGEON_HGT) map_hgt = DUNGEON_HGT;
+	if (map_wid > DUNGEON_WID) map_wid = DUNGEON_WID;
+
+	/* Silliness XXX XXX XXX */
+	if ((cy != NULL) && (map_hgt > SCREEN_HGT)) map_hgt = SCREEN_HGT;
+	if ((cx != NULL) && (map_wid > SCREEN_WID)) map_wid = SCREEN_WID;
+
+
+	/* Prevent accidents */
+	if ((map_wid < 1) || (map_hgt < 1)) return;
 
 
 	/* Save lighting effects */
@@ -1440,90 +1369,103 @@ void display_map(int *cy, int *cx)
 	view_granite_lite = FALSE;
 
 
-	/* Clear the chars and attributes */
-	for (y = 0; y < MAP_HGT+2; ++y)
+	/* Nothing here */
+	ta = TERM_WHITE;
+	tc = ' ';
+
+	/* Clear the small scale map */
+	for (y = 0; y < map_hgt; ++y)
 	{
-		for (x = 0; x < MAP_WID+2; ++x)
+		for (x = 0; x < map_wid; ++x)
 		{
-			/* Nothing here */
-			ma[y][x] = TERM_WHITE;
-			mc[y][x] = ' ';
+			/* Erase the grid */
+			Term_putch(x + 1, y + 1, ta, tc);
 
 			/* No priority */
 			mp[y][x] = 0;
 		}
 	}
 
-	/* Fill in the map */
-	for (i = 0; i < DUNGEON_WID; ++i)
-	{
-		for (j = 0; j < DUNGEON_HGT; ++j)
-		{
-			/* Location */
-			x = i / RATIO + 1;
-			y = j / RATIO + 1;
-
-			/* Extract the current attr/char at that map location */
-#ifdef USE_TRANSPARENCY
-			map_info(j, i, &ta, &tc, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-			map_info(j, i, &ta, &tc);
-#endif /* USE_TRANSPARENCY */
-
-			/* Extract the priority of that attr/char */
-			tp = priority(ta, tc);
-
-			/* Save "best" */
-			if (mp[y][x] < tp)
-			{
-				/* Save the char */
-				mc[y][x] = tc;
-
-				/* Save the attr */
-				ma[y][x] = ta;
-
-				/* Save priority */
-				mp[y][x] = tp;
-			}
-		}
-	}
-
-
 	/* Corners */
 	x = MAP_WID + 1;
 	y = MAP_HGT + 1;
 
 	/* Draw the corners */
-	mc[0][0] = mc[0][x] = mc[y][0] = mc[y][x] = '+';
+	Term_putch(0, 0, ta, '+');
+	Term_putch(x, 0, ta, '+');
+	Term_putch(0, y, ta, '+');
+	Term_putch(x, y, ta, '+');
 
 	/* Draw the horizontal edges */
-	for (x = 1; x <= MAP_WID; x++) mc[0][x] = mc[y][x] = '-';
+	for (x = 1; x <= map_wid; x++)
+	{
+		Term_putch(x, 0, ta, '-');
+		Term_putch(x, y, ta, '-');
+	}
 
 	/* Draw the vertical edges */
-	for (y = 1; y <= MAP_HGT; y++) mc[y][0] = mc[y][x] = '|';
-
-
-	/* Display each map line in order */
-	for (y = 0; y < MAP_HGT+2; ++y)
+	for (y = 1; y <= map_hgt; y++)
 	{
-		/* Start a new line */
-		Term_gotoxy(0, y);
+		Term_putch(0, y, ta, '|');
+		Term_putch(x, y, ta, '|');
+	}
 
-		/* Display the line */
-		for (x = 0; x < MAP_WID+2; ++x)
+
+	/* Analyze the actual map */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
 		{
-			ta = ma[y][x];
-			tc = mc[y][x];
+			row = (y * map_hgt / DUNGEON_HGT);
+			col = (x * map_wid / DUNGEON_WID);
 
-			/* Add the character */
-			Term_addch(ta, tc);
+#ifdef USE_TRANSPARENCY
+
+			/* Get the attr/char at that map location */
+			map_info(y, x, &ta, &tc, &ta, &tc);
+
+#else /* USE_TRANSPARENCY */
+
+			/* Get the attr/char at that map location */
+			map_info(y, x, &ta, &tc);
+
+#endif /* USE_TRANSPARENCY */
+
+			/* Get the priority of that attr/char */
+			tp = priority(ta, tc);
+
+			/* Save "best" */
+			if (mp[row][col] < tp)
+			{
+				/* Add the character */
+				Term_putch(col + 1, row + 1, ta, tc);
+
+				/* Save priority */
+				mp[row][col] = tp;
+			}
 		}
 	}
 
 
 	/* Player location */
-	(*cy) = py / RATIO + 1;
-	(*cx) = px / RATIO + 1;
+	row = (py * map_hgt / DUNGEON_HGT);
+	col = (px * map_wid / DUNGEON_WID);
+
+	/*** Make sure the player is visible ***/
+
+	/* Get the "player" attr */
+	ta = r_ptr->x_attr;
+
+	/* Get the "player" char */
+	tc = r_ptr->x_char;
+
+	/* Draw the player */
+	Term_putch(col + 1, row + 1, ta, tc);
+
+
+	/* Return player location */
+	if (cy != NULL) (*cy) = row + 1;
+	if (cx != NULL) (*cx) = col + 1;
 
 
 	/* Restore lighting effects */
@@ -1560,7 +1502,7 @@ void do_cmd_view_map(void)
 	put_str("Hit any key to continue", 23, 23);
 
 	/* Hilite the player */
-	move_cursor(cy, cx);
+	Term_gotoxy(cx, cy);
 
 	/* Get any key */
 	(void)inkey();
@@ -2149,6 +2091,9 @@ static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
 {
 	long *x = (long*)(u);
 
+	/* Unused */
+	v = v;
+
 	return (x[a] <= x[b]);
 }
 
@@ -2163,6 +2108,9 @@ static void ang_sort_swap_hook_longs(vptr u, vptr v, int a, int b)
 	long *x = (long*)(u);
 
 	long temp;
+
+	/* Unused */
+	v = v;
 
 	/* Swap */
 	temp = x[a];
@@ -2327,14 +2275,9 @@ errr vinfo_init(void)
 	{
 		int e;
 
-		vinfo_type *p;
-
 
 		/* Index */
-		e = queue_head;
-
-		/* Dequeue next grid */
-		p = queue[queue_head++];
+		e = queue_head++;
 
 		/* Main Grid */
 		g = vinfo[e].grid_0;
@@ -3840,8 +3783,11 @@ void object_kind_track(int k_idx)
  *
  * All disturbance cancels repeated commands, resting, and running.
  */
-void disturb(int stop_search, int unused_flag)
+void disturb(int stop_search, bool flag)
 {
+	/* Unused */
+	flag = flag;
+
 	/* Cancel auto-commands */
 	/* p_ptr->command_new = 0; */
 
@@ -3919,17 +3865,14 @@ bool is_quest(int level)
 	if (!level) return (FALSE);
 
 	/* Check quests */
-	for (i = 0; i < MAX_Q_IDX; i++)
+	for (i = 0; i < z_info->q_max; i++)
 	{
+		quest *q_ptr = &q_info[i];
+
 		/* Check for quest */
-		if (q_list[i].level == level) return (TRUE);
+		if (q_ptr->level == level) return (TRUE);
 	}
 
 	/* Nope */
 	return (FALSE);
 }
-
-
-
-
-

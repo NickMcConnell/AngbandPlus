@@ -954,8 +954,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Angband Version %d.%d.%d",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for Angband Version %s",
+	        VERSION_STRING);
 	spoiler_underline(buf);
 }
 
@@ -1267,8 +1267,6 @@ static void spoil_mon_desc(cptr fname)
 {
 	int i, n = 0;
 
-	u16b *who;
-
 	char buf[1024];
 
 	char nam[80];
@@ -1278,6 +1276,9 @@ static void spoil_mon_desc(cptr fname)
 	char ac[80];
 	char hp[80];
 	char exp[80];
+
+	u16b *who;
+	u16b why = 2;
 
 
 	/* Build the filename */
@@ -1297,8 +1298,8 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "Monster Spoilers for Angband Version %s\n",
+	        VERSION_STRING);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1308,7 +1309,7 @@ static void spoil_mon_desc(cptr fname)
 	        "----", "---", "---", "---", "--", "--", "-----------");
 
 
-	/* Create the 'who' array */
+	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
 
 	/* Scan the monsters (except the ghost) */
@@ -1320,6 +1321,12 @@ static void spoil_mon_desc(cptr fname)
 		if (r_ptr->name) who[n++] = i;
 	}
 
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Scan again */
 	for (i = 0; i < n; i++)
@@ -1387,9 +1394,9 @@ static void spoil_mon_desc(cptr fname)
 	/* End it */
 	fprintf(fff, "\n");
 
-
-	/* Destroy the 'who' array */
+	/* Free the "who" array */
 	C_KILL(who, z_info->r_max, u16b);
+
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -1500,6 +1507,9 @@ static void spoil_mon_info(cptr fname)
 	cptr p, q;
 	cptr vp[64];
 	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+	u16b why = 2;
+	s16b *who;
+	int count = 0;
 
 
 	/* Build the filename */
@@ -1520,17 +1530,36 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Monster Spoilers for Angband Version %s\n",
+	        VERSION_STRING);
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
+
+	/* Allocate the "who" array */
+	C_MAKE(who, z_info->r_max, s16b);
+
+	/* Scan the monsters */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Use that monster */
+		if (r_ptr->name) who[count++] = i;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, count);
 
 	/*
 	 * List all monsters in order (except the ghost).
 	 */
-	for (n = 1; n < z_info->r_max - 1; n++)
+	for (n = 0; n < count; n++)
 	{
-		monster_race *r_ptr = &r_info[n];
+		monster_race *r_ptr = &r_info[who[n]];
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags1;
@@ -1579,7 +1608,7 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", n);
+		sprintf(buf, "Num:%d  ", who[n]);
 		spoil_out(buf);
 
 		/* Level */
@@ -1667,11 +1696,6 @@ static void spoil_mon_info(cptr fname)
 
 
 #if 0
-
-		if (!r_ptr->level || (flags1 & (RF1_FORCE_DEPTH)))
-		{
-			sprintf(buf, "%s is never found out of depth.  ", wd_che[msex]);
-		}
 
 		if (flags1 & (RF1_FORCE_SLEEP))
 		{
@@ -2210,6 +2234,9 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out(NULL);
 	}
+
+	/* Free the "who" array */
+	C_KILL(who, z_info->r_max, s16b);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))

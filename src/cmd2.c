@@ -37,7 +37,7 @@ void do_cmd_go_up(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	msg_print("You enter a maze of up staircases.");
+	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
 
 	/* Create a way back */
 	p_ptr->create_down_stair = TRUE;
@@ -69,7 +69,7 @@ void do_cmd_go_down(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	msg_print("You enter a maze of down staircases.");
+	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
 
 	/* Create a way back */
 	p_ptr->create_up_stair = TRUE;
@@ -363,6 +363,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		/* Penalize some conditions */
 		if (p_ptr->blind || no_lite()) i = i / 10;
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
+		if (adult_turin) i = i / 10;
 
 		/* Extract the difficulty */
 		j = i - o_ptr->pval;
@@ -384,7 +385,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 			/* We may continue repeating */
 			more = TRUE;
 			if (flush_failure) flush();
-			msg_print("You failed to pick the lock.");
+			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
 		}
 	}
 
@@ -425,6 +426,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	/* Penalize some conditions */
 	if (p_ptr->blind || no_lite()) i = i / 10;
 	if (p_ptr->confused || p_ptr->image) i = i / 10;
+	if (adult_turin) i = i / 10;
 
 	/* Extract the difficulty */
 	j = i - o_ptr->pval;
@@ -602,7 +604,7 @@ static bool do_cmd_open_test(int y, int x)
 	      (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
 	{
 		/* Message */
-		msg_print("You see nothing there to open.");
+		message(MSG_NOTHING_TO_OPEN, 0, "You see nothing there to open.");
 
 		/* Nope */
 		return (FALSE);
@@ -647,6 +649,7 @@ static bool do_cmd_open_aux(int y, int x)
 		/* Penalize some conditions */
 		if (p_ptr->blind || no_lite()) i = i / 10;
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
+		if (adult_turin) i = i / 10;
 
 		/* Extract the lock power */
 		j = cave_feat[y][x] - FEAT_DOOR_HEAD;
@@ -661,16 +664,13 @@ static bool do_cmd_open_aux(int y, int x)
 		if (rand_int(100) < j)
 		{
 			/* Message */
-			msg_print("You have picked the lock.");
+			message(MSG_OPENDOOR, 0, "You have picked the lock.");
 
 			/* Open the door */
 			cave_set_feat(y, x, FEAT_OPEN);
 
 			/* Update the visuals */
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-			/* Sound */
-			sound(SOUND_OPENDOOR);
 
 			/* Experience */
 			gain_exp(1);
@@ -683,7 +683,7 @@ static bool do_cmd_open_aux(int y, int x)
 			if (flush_failure) flush();
 
 			/* Message */
-			msg_print("You failed to pick the lock.");
+			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
 
 			/* We may keep trying */
 			more = TRUE;
@@ -698,9 +698,6 @@ static bool do_cmd_open_aux(int y, int x)
 
 		/* Update the visuals */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Sound */
-		sound(SOUND_OPENDOOR);
 	}
 
 	/* Result */
@@ -838,6 +835,16 @@ static bool do_cmd_close_test(int y, int x)
 		return (FALSE);
 	}
 
+	/* Objects prevent closing */
+	if (cave_o_idx[y][x] != 0)
+	{
+		/* Message */
+		msg_print("There is an object in the way.");
+
+		/* Nope */
+		return (FALSE);
+	}
+
 	/* Okay */
 	return (TRUE);
 }
@@ -874,9 +881,6 @@ static bool do_cmd_close_aux(int y, int x)
 
 		/* Update the visuals */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Sound */
-		sound(SOUND_SHUTDOOR);
 	}
 
 	/* Result */
@@ -1019,9 +1023,6 @@ static bool twall(int y, int x)
 	/* Paranoia -- Require a wall or door or some such */
 	if (cave_floor_bold(y, x)) return (FALSE);
 
-	/* Sound */
-	sound(SOUND_DIG);
-
 	/* Forget the wall */
 	cave_info[y][x] &= ~(CAVE_MARK);
 
@@ -1056,9 +1057,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Verify legality */
 	if (!do_cmd_tunnel_test(y, x)) return (FALSE);
 
-
-	/* Sound XXX XXX XXX */
-	/* sound(SOUND_DIG); */
 
 	/* Titanium */
 	if (cave_feat[y][x] >= FEAT_PERM_EXTRA)
@@ -1363,6 +1361,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* Penalize some conditions */
 	if (p_ptr->blind || no_lite()) i = i / 10;
 	if (p_ptr->confused || p_ptr->image) i = i / 10;
+	if (adult_turin) i = i / 10;
 
 	/* XXX XXX XXX Variable power? */
 
@@ -1588,9 +1587,6 @@ static bool do_cmd_bash_aux(int y, int x)
 	/* Hack -- attempt to bash down the door */
 	if (rand_int(100) < temp)
 	{
-		/* Message */
-		msg_print("The door crashes open!");
-
 		/* Break down the door */
 		if (rand_int(100) < 50)
 		{
@@ -1603,8 +1599,8 @@ static bool do_cmd_bash_aux(int y, int x)
 			cave_set_feat(y, x, FEAT_OPEN);
 		}
 
-		/* Sound */
-		sound(SOUND_OPENDOOR);
+		/* Message */
+		message(MSG_OPENDOOR, 0, "The door crashes open!");
 
 		/* Update the visuals */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1657,8 +1653,6 @@ void do_cmd_bash(void)
 
 	int y, x, dir;
 
-	bool more = FALSE;
-
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -1705,20 +1699,18 @@ void do_cmd_bash(void)
 
 		/* Attack */
 		py_attack(y, x);
-
-		/* Done */
-		return;
 	}
 
 	/* Door */
 	else
 	{
 		/* Bash the door */
-		more = do_cmd_bash_aux(y, x);
+		if (!do_cmd_bash_aux(y, x))
+		{
+			/* Cancel repeat */
+			disturb(0, 0);
+		}
 	}
-
-	/* Cancel repeat unless told not to */
-	if (!more) disturb(0, 0);
 }
 
 
@@ -1847,39 +1839,6 @@ void do_cmd_alter(void)
 
 
 /*
- * Find the index of some "spikes", if possible.
- *
- * XXX XXX XXX Let user choose a pile of spikes, perhaps?
- */
-static bool get_spike(int *ip)
-{
-	int i;
-
-	/* Check every item in the pack */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Check the "tval" code */
-		if (o_ptr->tval == TV_SPIKE)
-		{
-			/* Save the spike index */
-			(*ip) = i;
-
-			/* Success */
-			return (TRUE);
-		}
-	}
-
-	/* Oops */
-	return (FALSE);
-}
-
-
-/*
  * Determine if a given grid may be "spiked"
  */
 static bool do_cmd_spike_test(int y, int x)
@@ -1911,27 +1870,14 @@ static bool do_cmd_spike_test(int y, int x)
 
 
 /*
- * Jam a closed door with a spike
- *
- * This command may NOT be repeated
+ * Perform the basic "jam door" command
  */
-void do_cmd_spike(void)
+void do_cmd_spike_aux(int item)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int y, x, dir, item;
-
-
-	/* Get a spike */
-	if (!get_spike(&item))
-	{
-		/* Message */
-		msg_print("You have no spikes!");
-
-		/* Done */
-		return;
-	}
+	int y, x, dir;
 
 
 	/* Get a direction (or abort) */
@@ -1996,6 +1942,30 @@ void do_cmd_spike(void)
 	}
 }
 
+
+/*
+ * Jam a closed door with a spike (from the pack or floor)
+ *
+ * This command may NOT be repeated
+ */
+void do_cmd_spike(void)
+{
+	int item;
+
+	cptr q, s;
+
+
+	/* Restrict choices to spikes */
+	item_tester_tval = TV_SPIKE;
+
+	/* Get an item */
+	q = "Jam with which spike? ";
+	s = "You have no spikes!";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Spike a door */
+	do_cmd_spike_aux(item);
+}
 
 
 /*
@@ -2363,7 +2333,7 @@ static int breakage_chance(object_type *o_ptr)
 
 
 /*
- * Fire an object from the pack or floor.
+ * Perform the basic "fire ammo" command.
  *
  * You may only fire items that "match" your missile launcher.
  *
@@ -2390,18 +2360,15 @@ static int breakage_chance(object_type *o_ptr)
  *
  * Note that Bows of "Extra Shots" give an extra shot.
  */
-void do_cmd_fire(void)
+void do_cmd_fire_aux(int item, object_type *o_ptr, object_type *j_ptr)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int dir, item;
+	int dir;
 	int i, j, y, x, ty, tx;
 	int tdam, tdis, thits, tmul;
 	int bonus, chance;
-
-	object_type *o_ptr;
-	object_type *j_ptr;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -2416,39 +2383,7 @@ void do_cmd_fire(void)
 	int path_n = 0;
 	u16b path_g[256];
 
-	cptr q, s;
-
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
-
-
-	/* Get the "bow" (if any) */
-	j_ptr = &inventory[INVEN_BOW];
-
-	/* Require a usable launcher */
-	if (!j_ptr->tval || !p_ptr->ammo_tval)
-	{
-		msg_print("You have nothing to fire with.");
-		return;
-	}
-
-
-	/* Require proper missile */
-	item_tester_tval = p_ptr->ammo_tval;
-
-	/* Get an item */
-	q = "Fire which item? ";
-	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the object */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
 
 
 	/* Get a direction (or cancel) */
@@ -2480,10 +2415,6 @@ void do_cmd_fire(void)
 	}
 
 
-	/* Sound */
-	sound(SOUND_SHOOT);
-
-
 	/* Describe the object */
 	object_desc(o_name, i_ptr, FALSE, 3);
 
@@ -2494,9 +2425,6 @@ void do_cmd_fire(void)
 
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
-
-	/* Use a base distance */
-	tdis = 10;
 
 	/* Base damage from thrown object plus launcher bonus */
 	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d;
@@ -2587,7 +2515,7 @@ void do_cmd_fire(void)
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize distance travelled) */
-			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
+			if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2661,14 +2589,12 @@ void do_cmd_fire(void)
 					{
 						char m_name[80];
 
-						/* Sound */
-						sound(SOUND_FLEE);
-
 						/* Get the monster name (or "it") */
 						monster_desc(m_name, m_ptr, 0);
 
 						/* Message */
-						msg_format("%^s flees in terror!", m_name);
+						message_format(MSG_FLEE, m_ptr->r_idx,
+						               "%^s flees in terror!", m_name);
 					}
 				}
 			}
@@ -2683,6 +2609,53 @@ void do_cmd_fire(void)
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
+}
+
+
+/*
+ * Fire an object (from the pack or floor)
+ */
+void do_cmd_fire(void)
+{
+	int item;
+
+	object_type *o_ptr;
+	object_type *j_ptr;
+
+	cptr q, s;
+
+
+	/* Get the "bow" (if any) */
+	j_ptr = &inventory[INVEN_BOW];
+
+	/* Require a usable launcher */
+	if (!j_ptr->tval || !p_ptr->ammo_tval)
+	{
+		msg_print("You have nothing to fire with.");
+		return;
+	}
+
+
+	/* Require proper missile */
+	item_tester_tval = p_ptr->ammo_tval;
+
+	/* Get an item */
+	q = "Fire which item? ";
+	s = "You have nothing to fire.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the object */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Fire it */
+	do_cmd_fire_aux(item, o_ptr, j_ptr);
 }
 
 
@@ -2718,7 +2691,7 @@ void do_cmd_throw(void)
 
 	char o_name[80];
 
-	int path_n = 0;
+	int path_n;
 	u16b path_g[256];
 
 	cptr q, s;
@@ -2870,7 +2843,7 @@ void do_cmd_throw(void)
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
+			if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2944,14 +2917,12 @@ void do_cmd_throw(void)
 					{
 						char m_name[80];
 
-						/* Sound */
-						sound(SOUND_FLEE);
-
 						/* Get the monster name (or "it") */
 						monster_desc(m_name, m_ptr, 0);
 
 						/* Message */
-						msg_format("%^s flees in terror!", m_name);
+						message_format(MSG_FLEE, m_ptr->r_idx,
+						               "%^s flees in terror!", m_name);
 					}
 				}
 			}

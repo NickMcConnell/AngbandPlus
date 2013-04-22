@@ -288,8 +288,11 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  * Turn a window flag on or off, given a window, flag, and value.
  *   W:<win>:<flag>:<value>
  *
- * Specify visual information, given an index, and some data
+ * Specify visual information, given an index, and some data.
  *   V:<num>:<kv>:<rv>:<gv>:<bv>
+ *
+ * Specify colors for message-types.
+ *   M:<type>:<attr>
  */
 errr process_pref_file_aux(char *buf)
 {
@@ -521,6 +524,26 @@ errr process_pref_file_aux(char *buf)
 	}
 
 
+	/* Process "M:<type>:<attr>" -- colors for message-types */
+	else if (buf[0] == 'M')
+	{
+		if (tokenize(buf+2, 2, zz) == 2)
+		{
+			u16b type = (u16b)strtol(zz[0], NULL, 0);
+			byte color = color_char_to_attr(zz[1][0]);
+
+			/* Ignore illegal types */
+			if (type >= MSG_MAX) return (1);
+
+			/* Store the color */
+			message__color[type] = color;
+
+			/* Success */
+			return (0);
+		}
+	}
+
+
 	/* Failure */
 	return (1);
 }
@@ -691,12 +714,6 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			if (streq(b+1, "SYS"))
 			{
 				v = ANGBAND_SYS;
-			}
-
-			/* Graphics */
-			else if (streq(b+1, "GRAF"))
-			{
-				v = ANGBAND_GRAF;
 			}
 
 			/* Race */
@@ -1433,7 +1450,7 @@ static void display_player_xtra_info(void)
 	col = 5;
 
 	/* History */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < HISTORY_MAX; i++)
 	{
 		put_str(p_ptr->history[i], i + 19, col);
 	}
@@ -1656,8 +1673,18 @@ static void display_player_flag_info(void)
 			/* Default */
 			c_put_str(TERM_SLATE, ".", row, col+n);
 
+			/* Hack -- Check immunities */
+			if ((x == 0) && (y < 4) &&
+			    (f[set] & ((TR2_IM_ACID) << y)))
+			{
+				c_put_str(TERM_WHITE, "*", row, col+n);
+			}
+
 			/* Check flags */
-			if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+			else if (f[set] & flag)
+			{
+				c_put_str(TERM_WHITE, "+", row, col+n);
+			}
 
 			/* Advance */
 			row++;
@@ -1834,7 +1861,6 @@ static void display_player_sust_info(void)
 	object_type *o_ptr;
 	u32b f1, f2, f3;
 	u32b ignore_f2, ignore_f3;
-	s16b k_idx;
 
 	byte a;
 	char c;
@@ -1854,9 +1880,6 @@ static void display_player_sust_info(void)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
-
-		/* Object kind */
-		k_idx = o_ptr->k_idx;
 
 		/* Get the "known" flags */
 		object_flags_known(o_ptr, &f1, &f2, &f3);
@@ -1925,6 +1948,33 @@ static void display_player_sust_info(void)
 		/* Default */
 		a = TERM_SLATE;
 		c = '.';
+
+		/* Boost */
+		if (f1 & 1<<stat)
+		{
+			/* Default */
+			c = '*';
+
+			/* Good */
+			if (rp_ptr->pval > 0)
+			{
+				/* Good */
+				a = TERM_L_GREEN;
+
+				/* Label boost */
+				if (rp_ptr->pval < 10) c = I2D(rp_ptr->pval);
+			}
+
+			/* Bad */
+			if (rp_ptr->pval < 0)
+			{
+				/* Bad */
+				a = TERM_RED;
+
+				/* Label boost */
+				if (rp_ptr->pval > -10) c = I2D(-(rp_ptr->pval));
+			}
+		}
 
 		/* Sustain */
 		if (f2 & 1<<stat)
@@ -2005,13 +2055,7 @@ errr file_character(cptr name, bool full)
 	byte a;
 	char c;
 
-#if 0
-	cptr other = "(";
-#endif
-
-	cptr paren = ")";
-
-	int fd = -1;
+	int fd;
 
 	FILE *fff = NULL;
 
@@ -2021,7 +2065,7 @@ errr file_character(cptr name, bool full)
 
 	char buf[1024];
 
-    int k, info_length;
+	int k, info_length;
 	cptr info[128];
 	cptr blanks = "     ";
 
@@ -2061,16 +2105,11 @@ errr file_character(cptr name, bool full)
 
 
 	/* Invalid file */
-	if (!fff)
-	{
-		/* Error */
-		return (-1);
-	}
+	if (!fff) return (-1);
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "  [Angband %s Character Dump]\n\n", VERSION_STRING);
 
 
 	/* Display player */
@@ -2103,15 +2142,15 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "\n\n");
 
 
-	/* If dead, dump last messages -- Prfnoff */
-	if (p_ptr->is_dead)
+	/* Dump last messages */
+	if (full)
 	{
 		i = message_num();
 		if (i > 15) i = 15;
 		fprintf(fff, "  [Last Messages]\n\n");
 		while (i-- > 0)
 		{
-			fprintf(fff, "> %s\n", message_str(i));
+			fprintf(fff, "> %s\n", message_str((s16b)i));
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -2123,11 +2162,11 @@ errr file_character(cptr name, bool full)
 		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
 			object_desc(o_name, &inventory[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n",
-			        index_to_label(i), paren, o_name);
+			fprintf(fff, "%c) %s\n",
+			        index_to_label(i), o_name);
 
 			/* Describe random object attributes */
-			info_length = identify_random_gen(&inventory[i], info);
+			info_length = identify_random_gen(&inventory[i], info, 128);
 
 			/* Write it */
 			for (k = 0; k < info_length; k++)
@@ -2143,11 +2182,11 @@ errr file_character(cptr name, bool full)
 	for (i = 0; i < INVEN_PACK; i++)
 	{
 		object_desc(o_name, &inventory[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n",
-		        index_to_label(i), paren, o_name);
+		fprintf(fff, "%c) %s\n",
+		        index_to_label(i), o_name);
 
 		/* Describe random object attributes */
-		info_length = identify_random_gen(&inventory[i], info);
+		info_length = identify_random_gen(&inventory[i], info, 128);
 
 		/* Write it */
 		for (k = 0; k < info_length; k++)
@@ -2163,10 +2202,10 @@ errr file_character(cptr name, bool full)
 	for (i = 0; i < 12; i++)
 	{
 		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
+		fprintf(fff, "%c) %s\n", I2A(i), o_name);
 
 		/* Describe random object attributes */
-		info_length = identify_random_gen(&st_ptr->stock[i], info);
+		info_length = identify_random_gen(&st_ptr->stock[i], info, 128);
 
 		/* Write it */
 		for (k = 0; k < info_length; k++)
@@ -2181,7 +2220,16 @@ errr file_character(cptr name, bool full)
 	for (i = 12; i < 24; i++)
 	{
 		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
+		fprintf(fff, "%c) %s\n", I2A(i), o_name);
+
+		/* Describe random object attributes */
+		info_length = identify_random_gen(&st_ptr->stock[i], info, 128);
+
+		/* Write it */
+		for (k = 0; k < info_length; k++)
+		{
+			fprintf(fff, "%s%s\n", blanks, info[k]);
+		}
 	}
 	fprintf(fff, "\n\n");
 
@@ -2194,7 +2242,7 @@ errr file_character(cptr name, bool full)
 	{
 		if (option_desc[i])
 		{
-			fprintf(fff, "%-48s: %s  (%s)\n",
+			fprintf(fff, "%-45s: %s (%s)\n",
 			        option_desc[i],
 			        op_ptr->opt[i] ? "yes" : "no ",
 			        option_text[i]);
@@ -2213,6 +2261,23 @@ errr file_character(cptr name, bool full)
 	return (0);
 }
 
+
+/*
+ * Make a string lower case.
+ */
+static void string_lower(char *buf)
+{
+	cptr buf_ptr;
+
+	/* No string */
+	if (!buf) return;
+
+	/* Lower the string */
+	for (buf_ptr = buf; *buf_ptr != 0; buf_ptr++)
+	{
+		buf[buf_ptr - buf] = tolower(*buf_ptr);
+	}
+}
 
 
 /*
@@ -2237,13 +2302,13 @@ bool show_file(cptr name, cptr what, int line, int mode)
 {
 	int i, k;
 
-	char ch = '\0';
+	char ch;
 
 	/* Number of "real" lines passed by */
 	int next = 0;
 
 	/* Number of "real" lines in the file */
-	int size = 0;
+	int size;
 
 	/* Backup value for "line" */
 	int back = 0;
@@ -2251,11 +2316,14 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* This screen has sub-screens */
 	bool menu = FALSE;
 
+	/* Case sensitive search */
+	bool case_sensitive = FALSE;
+
 	/* Current help file */
 	FILE *fff = NULL;
 
 	/* Find this string (if any) */
-	cptr find = NULL;
+	char *find = NULL;
 
 	/* Hold a string to find */
 	char finder[80];
@@ -2271,6 +2339,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 	/* General buffer */
 	char buf[1024];
+
+	/* Lower case version of the buffer, for searching */
+	char lc_buf[1024];
 
 	/* Sub-menu information */
 	char hook[10][32];
@@ -2428,8 +2499,15 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			/* Count the "real" lines */
 			next++;
 
+			/* Make a copy of the current line for searching */
+			strcpy(lc_buf, buf);
+
+			/* Make the line lower case */
+			if (!case_sensitive)
+				string_lower(lc_buf);
+
 			/* Hack -- keep searching */
-			if (find && !i && !strstr(buf, find)) continue;
+			if (find && !i && !strstr(lc_buf, find)) continue;
 
 			/* Hack -- stop searching */
 			find = NULL;
@@ -2440,7 +2518,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			/* Hilite "shower" */
 			if (shower[0])
 			{
-				cptr str = buf;
+				cptr str = lc_buf;
 
 				/* Display matches */
 				while ((str = strstr(str, shower)) != NULL)
@@ -2448,7 +2526,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-buf, i+2, len, TERM_YELLOW, shower);
+					Term_putstr(str-lc_buf, i+2, len, TERM_YELLOW, &buf[str-lc_buf]);
 
 					/* Advance */
 					str += len;
@@ -2470,9 +2548,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
-		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
-		           caption, line, size), 0, 0);
+		prt(format("[Angband %s, %s, Line %d/%d]",
+		           VERSION_STRING, caption, line, size), 0, 0);
 
 
 		/* Prompt -- menu screen */
@@ -2499,18 +2576,28 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Get a keypress */
 		ch = inkey();
 
-		/* Hack -- Return to last screen */
+		/* Return to last screen */
 		if (ch == '?') break;
 
-		/* Hack -- Try showing */
+		/* Toggle case sensitive on/off */
+		if (ch == '!')
+		{
+			case_sensitive = !case_sensitive;
+		}
+
+		/* Try showing */
 		if (ch == '&')
 		{
 			/* Get "shower" */
 			prt("Show: ", 23, 0);
 			(void)askfor_aux(shower, 80);
+
+			/* Make the "shower" lowercase */
+			if (!case_sensitive)
+				string_lower(shower);
 		}
 
-		/* Hack -- Try finding */
+		/* Try finding */
 		if (ch == '/')
 		{
 			/* Get "finder" */
@@ -2522,12 +2609,16 @@ bool show_file(cptr name, cptr what, int line, int mode)
 				back = line;
 				line = line + 1;
 
+				/* Make the "finder" lowercase */
+				if (!case_sensitive)
+					string_lower(finder);
+
 				/* Show it */
 				strcpy(shower, finder);
 			}
 		}
 
-		/* Hack -- Go to a specific line */
+		/* Go to a specific line */
 		if (ch == '#')
 		{
 			char tmp[80];
@@ -2539,7 +2630,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			}
 		}
 
-		/* Hack -- Go to a specific file */
+		/* Go to a specific file */
 		if (ch == '%')
 		{
 			char ftmp[80];
@@ -2589,6 +2680,34 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (ch == ' ')
 		{
 			line = line + 20;
+		}
+
+		/* Save to file */
+		if (ch == '>')
+		{
+			char ftmp[80], fname[1024];
+			prt("Save to file: ", 23, 0);
+			strcpy(ftmp, "info.txt");
+			if (askfor_aux(ftmp, 80))
+			{
+				/* Close it */
+				my_fclose(fff);
+
+				/* Build the filename */
+				path_build(fname, 1024, ANGBAND_DIR_USER, ftmp);
+
+				/* Ignore errors */
+				(void)fd_copy(path, fname);
+
+				/* Hack -- Re-Open the file */
+				fff = my_fopen(path, "r");
+
+				/* Oops */
+				if (!fff) return (TRUE);
+
+				/* File has been restarted */
+				next = 0;
+			}
 		}
 
 		/* Recurse on numbers */
@@ -2928,7 +3047,7 @@ static void make_bones(void)
 /*
  * Hack - save the time of death
  */
-static time_t death_time = (time_t)0;
+static time_t death_time = (time_t)-1;
 
 
 /*
@@ -3166,7 +3285,7 @@ static void show_info(void)
 
 
 /*
- * Special version of 'do_cmd_examine'
+ * Special version of 'do_cmd_observe'
  */
 static void death_examine(void)
 {
@@ -3331,7 +3450,8 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 {
 	char ch;
 
-	int i, j, k, n, place;
+	int j, k, n, place;
+	int count;
 
 	high_score the_score;
 
@@ -3355,20 +3475,20 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 	if (highscore_seek(0)) return;
 
 	/* Hack -- Count the high scores */
-	for (i = 0; i < MAX_HISCORES; i++)
+	for (count = 0; count < MAX_HISCORES; count++)
 	{
 		if (highscore_read(&the_score)) break;
 	}
 
 	/* Hack -- allow "fake" entry to be last */
-	if ((note == i) && score) i++;
+	if ((note == count) && score) count++;
 
 	/* Forget about the last entries */
-	if (i > to) i = to;
+	if (count > to) count = to;
 
 
 	/* Show 5 per page, until "done" */
-	for (k = from, place = k+1; k < i; k += 5)
+	for (k = from, j = from, place = k+1; k < count; k += 5)
 	{
 		/* Clear screen */
 		Term_clear();
@@ -3379,12 +3499,12 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 		/* Indicate non-top scores */
 		if (k > 0)
 		{
-			sprintf(tmp_val, "(from position %d)", k + 1);
+			sprintf(tmp_val, "(from position %d)", place);
 			put_str(tmp_val, 0, 40);
 		}
 
 		/* Dump 5 entries */
-		for (j = k, n = 0; j < i && n < 5; place++, j++, n++)
+		for (n = 0; j < count && n < 5; place++, j++, n++)
 		{
 			int pr, pc, clev, mlev, cdun, mdun;
 
@@ -3428,6 +3548,14 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			for (when = the_score.day; isspace(*when); when++) /* loop */;
 			for (gold = the_score.gold; isspace(*gold); gold++) /* loop */;
 			for (aged = the_score.turns; isspace(*aged); aged++) /* loop */;
+
+			/* Clean up standard encoded form of "when" */
+			if ((*when == '@') && strlen(when) == 9)
+			{
+				sprintf(tmp_val, "%.4s-%.2s-%.2s",
+				        when + 1, when + 5, when + 7);
+				when = tmp_val;
+			}
 
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
@@ -3518,7 +3646,6 @@ void display_scores(int from, int to)
 }
 
 
-
 /*
  * Hack - save index of player's high score
  */
@@ -3606,8 +3733,7 @@ static errr enter_score(void)
 	(void)WIPE(&the_score, high_score);
 
 	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(the_score.what, "%s", VERSION_STRING);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -3626,8 +3752,8 @@ static errr enter_score(void)
 	sprintf(the_score.day, "%-.6s %-.2s",
 	        ctime(&death_time) + 4, ctime(&death_time) + 22);
 #else
-	/* Save the date in standard form (8 chars) */
-	strftime(the_score.day, 9, "%m/%d/%y", localtime(&death_time));
+	/* Save the date in standard encoded form (9 chars) */
+	strftime(the_score.day, 10, "@%Y%m%d", localtime(&death_time));
 #endif
 
 	/* Save the player name (15 chars) */
@@ -3662,6 +3788,7 @@ static errr enter_score(void)
 	/* Success */
 	return (0);
 }
+
 
 
 /*
@@ -3712,7 +3839,7 @@ static void top_twenty(void)
 /*
  * Predict the players location, and display it.
  */
-static errr predict_score(void)
+errr predict_score(void)
 {
 	int j;
 
@@ -3729,8 +3856,7 @@ static errr predict_score(void)
 
 
 	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(the_score.what, "%s", VERSION_STRING);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -3885,7 +4011,10 @@ static void close_game_aux(void)
 		ch = inkey();
 
 		/* Exit */
-		if (ch == ESCAPE) break;
+		if (ch == ESCAPE)
+		{
+			if (get_check("Do you want to exit? ")) break;
+		}
 
 		/* File dump */
 		else if (ch == 'f')
@@ -3904,7 +4033,7 @@ static void close_game_aux(void)
 					screen_save();
 
 					/* Dump a character file */
-					err = file_character(ftmp, FALSE);
+					err = file_character(ftmp, TRUE);
 
 					/* Load screen */
 					screen_load();

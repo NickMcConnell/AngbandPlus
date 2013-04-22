@@ -829,8 +829,6 @@ static s32b object_value_base(object_type *o_ptr)
  * only have a few of the available flags, primarily of the "slay"
  * and "brand" and "ignore" variety.
  *
- * Armor with a negative armor bonus is worthless.
- *
  * Weapons with negative hit+damage bonuses are worthless.
  *
  * Every wearable item with a "pval" bonus is worth extra (see below).
@@ -985,7 +983,7 @@ static s32b object_value_real(object_type *o_ptr)
 			value += ((o_ptr->to_d - k_ptr->to_d) * 100L);
 
 			/* Give credit for armor bonus */
-			value += ((o_ptr->to_a - k_ptr->to_a) * 100L);
+			value += (o_ptr->to_a * 100L);
 
 			/* Done */
 			break;
@@ -1087,7 +1085,7 @@ s32b object_value(object_type *o_ptr)
 
 
 	/* Apply discount (if any) */
-	if (o_ptr->discount > 0 && o_ptr->discount < INSCRIP_NULL)
+	if ((o_ptr->discount > 0) && (o_ptr->discount < INSCRIP_NULL))
 	{
 		value -= (value * o_ptr->discount / 100L);
 	}
@@ -1705,7 +1703,7 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 			if (o_ptr->tval == e_ptr->tval[j])
 			{
 				/* Require sval in bounds, lower */
-				if (o_ptr->sval >= e_ptr->min_sval[j]) 
+				if (o_ptr->sval >= e_ptr->min_sval[j])
 				{
 					/* Require sval in bounds, upper */
 					if (o_ptr->sval <= e_ptr->max_sval[j])
@@ -1738,8 +1736,8 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 		value = value - table[i].prob3;
 	}
 
-	/* We have one */	
-	o_ptr->name2 = table[i].index;
+	/* We have one */
+	o_ptr->name2 = (byte)table[i].index;
 	return (TRUE);
 }
 
@@ -2406,6 +2404,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
  */
 static void a_m_aux_4(object_type *o_ptr, int level, int power)
 {
+	/* Unused */
+	level = level;
+	power = power;
+
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
 	{
@@ -2880,7 +2882,8 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			j_ptr->number = damroll(6, 7);
+			/* Forbid multiple artifacts */
+			if (!artifact_p(j_ptr)) j_ptr->number = damroll(6, 7);
 		}
 	}
 
@@ -2954,8 +2957,6 @@ bool make_gold(object_type *j_ptr)
  */
 s16b floor_carry(int y, int x, object_type *j_ptr)
 {
-	int n = 0;
-
 	s16b o_idx;
 
 	s16b this_o_idx, next_o_idx = 0;
@@ -2981,9 +2982,6 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 			/* Result */
 			return (this_o_idx);
 		}
-
-		/* Count objects */
-		n++;
 	}
 
 
@@ -3204,14 +3202,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		}
 
 		/* Require floor space */
-		if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
+		if (!cave_floor_bold(by, bx)) continue;
 
 		/* Bounce to that location */
 		by = ty;
 		bx = tx;
-
-		/* Require floor space */
-		if (!cave_clean_bold(by, bx)) continue;
 
 		/* Okay */
 		flag = TRUE;
@@ -3235,9 +3230,6 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		return;
 	}
 
-
-	/* Sound */
-	sound(SOUND_DROP);
 
 	/* Mega-Hack -- no message if "dropped" by player */
 	/* Message when an object falls under the player */
@@ -4320,7 +4312,9 @@ s16b spell_chance(int spell)
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
 	/* Non mage/priest characters never get better than 5 percent */
-	if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST))
+	if ((p_ptr->pclass != CLASS_MAGE) &&
+	    (p_ptr->pclass != CLASS_PRIEST) &&
+	    !adult_turin)
 	{
 		if (minfail < 5) minfail = 5;
 	}
@@ -4444,7 +4438,7 @@ void spell_info(char *p, int spell)
 		int plev = p_ptr->lev;
 
 		/* See below */
-		int orb = (plev / ((p_ptr->pclass == 2) ? 2 : 4));
+		int orb = (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4));
 
 		/* Analyze the spell */
 		switch (spell)
@@ -4621,7 +4615,7 @@ void display_koff(int k_idx)
 	{
 		int sval;
 
-		int spell = -1;
+		int spell;
 		int num = 0;
 
 		byte spells[64];

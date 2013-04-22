@@ -53,8 +53,6 @@ u16b sf_saves;			/* Number of "saves" during this life */
  */
 bool arg_fiddle;			/* Command arg -- Request fiddle mode */
 bool arg_wizard;			/* Command arg -- Request wizard mode */
-bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
 
@@ -85,10 +83,7 @@ s32b turn;				/* Current game turn */
 
 s32b old_turn;			/* Hack -- Level feeling counter */
 
-bool use_sound;			/* The "sound" mode is enabled */
-bool use_graphics;		/* The "graphics" mode is enabled */
-
-s16b signal_count;		/* Hack -- Count interupts */
+s16b signal_count;		/* Hack -- Count interrupts */
 
 bool msg_flag;			/* Player has pending message */
 
@@ -205,29 +200,28 @@ u16b *message__ptr;
  */
 char *message__buf;
 
+/*
+ * The array[MESSAGE_MAX] of u16b for the types of messages
+ */
+u16b *message__type;
+
 
 /*
- * The array[8] of window pointers
+ * Table of colors associated to message-types
+ */
+byte message__color[MSG_MAX];
+
+
+/*
+ * The array of window pointers
  */
 term *angband_term[MAX_TERM_DATA];
 
 
-#ifdef ANGBAND_LITE
-
 /*
  * The array of window names (modifiable?)
  */
-char angband_term_name[MAX_TERM_DATA][16] =
-{
-	"Angband"
-};
-
-#else /* ANGBAND_LITE */
-
-/*
- * The array of window names (modifiable?)
- */
-char angband_term_name[MAX_TERM_DATA][16] =
+char angband_term_name[8][16] =
 {
 	"Angband",
 	"Term-1",
@@ -238,8 +232,6 @@ char angband_term_name[MAX_TERM_DATA][16] =
 	"Term-6",
 	"Term-7"
 };
-
-#endif /* ANGBAND_LITE */
 
 
 /*
@@ -259,7 +251,7 @@ byte angband_color_table[256][4] =
 	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
 	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
 	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
+	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED */
 	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
@@ -267,9 +259,9 @@ byte angband_color_table[256][4] =
 
 
 /*
- * Standard sound names (modifiable?)
+ * Standard sound (and message) names
  */
-char angband_sound_name[SOUND_MAX][16] =
+char angband_sound_name[MSG_MAX][16] =
 {
 	"",
 	"hit",
@@ -295,7 +287,11 @@ char angband_sound_name[SOUND_MAX][16] =
 	"dig",
 	"opendoor",
 	"shutdoor",
-	"tplevel"
+	"tplevel",
+	"bell",
+	"nothing_to_open",
+	"lockpick_fail",
+	"stairs"
 };
 
 
@@ -368,31 +364,22 @@ byte (*cave_when)[DUNGEON_WID];
 
 #endif	/* MONSTER_FLOW */
 
-/*
- * Structure (not array) of size limits
- */
-header *z_head;
-maxima *z_info;
 
 /*
- * Array[MAX_O_IDX] of dungeon objects
+ * Array[z_info->o_max] of dungeon objects
  */
 object_type *o_list;
 
 /*
- * Array[MAX_M_IDX] of dungeon monsters
+ * Array[z_info->m_max] of dungeon monsters
  */
 monster_type *m_list;
 
-/*
- * Array[MAX_R_IDX] of monster lore
- */
-monster_lore *l_list;
 
 /*
- * Hack -- Array[MAX_Q_IDX] of quests
+ * Array[z_info->r_max] of monster lore
  */
-quest *q_list;
+monster_lore *l_list;
 
 
 /*
@@ -407,7 +394,7 @@ object_type *inventory;
 
 
 /*
- * The size of "alloc_kind_table" (at most MAX_K_IDX * 4)
+ * The size of "alloc_kind_table" (at most z_info->k_max * 4)
  */
 s16b alloc_kind_size;
 
@@ -429,7 +416,7 @@ alloc_entry *alloc_ego_table;
 
 
 /*
- * The size of "alloc_race_table" (at most MAX_R_IDX)
+ * The size of "alloc_race_table" (at most z_info->r_max)
  */
 s16b alloc_race_size;
 
@@ -499,6 +486,12 @@ player_type *p_ptr = &player_type_body;
 
 
 /*
+ * Structure (not array) of size limits
+ */
+header *z_head;
+maxima *z_info;
+
+/*
  * The vault generation arrays
  */
 header *v_head;
@@ -546,6 +539,7 @@ monster_race *r_info;
 char *r_name;
 char *r_text;
 
+
 /*
  * The player race arrays
  */
@@ -574,18 +568,20 @@ char *b_name;
 header *g_head;
 byte *g_info;
 
+/*
+ * The quest arrays
+ */
+header *q_head;
+quest *q_info;
+char *q_name;
+char *q_text;
+
 
 /*
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
 cptr ANGBAND_SYS = "xxx";
-
-/*
- * Hack -- The special Angband "Graphics Suffix"
- * This variable is used to choose an appropriate "graf-xxx" file
- */
-cptr ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory

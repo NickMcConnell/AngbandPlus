@@ -251,7 +251,7 @@ static cptr comment_7c[MAX_COMMENT_7C] =
 
 static cptr comment_7d[MAX_COMMENT_7D] =
 {
-	"Yipee!",
+	"Yippee!",
 	"I think I'll retire!",
 	"The shopkeeper jumps for joy.",
 	"The shopkeeper smiles gleefully."
@@ -269,40 +269,28 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	if ((value <= 0) && (price > value))
 	{
 		/* Comment */
-		msg_print(comment_7a[rand_int(MAX_COMMENT_7A)]);
-
-		/* Sound */
-		sound(SOUND_STORE1);
+		message(MSG_STORE1, 0, comment_7a[rand_int(MAX_COMMENT_7A)]);
 	}
 
 	/* Item was cheaper than we thought, and we paid more than necessary */
 	else if ((value < guess) && (price > value))
 	{
 		/* Comment */
-		msg_print(comment_7b[rand_int(MAX_COMMENT_7B)]);
-
-		/* Sound */
-		sound(SOUND_STORE2);
+		message(MSG_STORE2, 0, comment_7b[rand_int(MAX_COMMENT_7B)]);
 	}
 
 	/* Item was a good bargain, and we got away with it */
 	else if ((value > guess) && (value < (4 * guess)) && (price < value))
 	{
 		/* Comment */
-		msg_print(comment_7c[rand_int(MAX_COMMENT_7C)]);
-
-		/* Sound */
-		sound(SOUND_STORE3);
+		message(MSG_STORE3, 0, comment_7c[rand_int(MAX_COMMENT_7C)]);
 	}
 
 	/* Item was a great bargain, and we got away with it */
 	else if ((value > guess) && (price < value))
 	{
 		/* Comment */
-		msg_print(comment_7d[rand_int(MAX_COMMENT_7D)]);
-
-		/* Sound */
-		sound(SOUND_STORE4);
+		message(MSG_STORE4, 0, comment_7d[rand_int(MAX_COMMENT_7D)]);
 	}
 }
 
@@ -792,8 +780,10 @@ static bool store_will_buy(object_type *o_ptr)
 				break;
 				case TV_POLEARM:
 				case TV_SWORD:
-				if (is_blessed(o_ptr)) break;
-				return (FALSE);
+				{
+					/* Known blessed blades are accepted too */
+					if (is_blessed(o_ptr) && object_known_p(o_ptr)) break;
+				}
 				default:
 				return (FALSE);
 			}
@@ -1329,8 +1319,7 @@ static void display_entry(int item)
 
 	char o_name[80];
 	char out_val[160];
-
-	int maxwid = 75;
+	int maxwid;
 
 
 	/* Must be on current "page" to get displayed */
@@ -2100,7 +2089,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 static bool sell_haggle(object_type *o_ptr, s32b *price)
 {
 	s32b purse, cur_ask, final_ask;
-	s32b last_offer = 0, offer = 0;
+	s32b last_offer, offer = 0;
 	s32b x1, x2, x3;
 	s32b min_per, max_per;
 
@@ -2192,7 +2181,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 
 	/* Mega-Hack -- artificial "last offer" value */
 	last_offer = object_value(o_ptr) * o_ptr->number;
-	last_offer = last_offer * ot_ptr->max_inflate / 100L;
+	last_offer *= ot_ptr->max_inflate / 100L;
 
 	/* No offer yet */
 	offer = 0;
@@ -2671,6 +2660,7 @@ static void store_sell(void)
 	/* Get a full description */
 	object_desc(o_name, i_ptr, TRUE, 3);
 
+
 	/* Is there room in the store (or the home?) */
 	if (!store_check_num(i_ptr))
 	{
@@ -2812,6 +2802,58 @@ static void store_sell(void)
 }
 
 
+/*
+ * Examine an item in a store
+ */
+static void store_examine(void)
+{
+	int         item;
+	object_type *o_ptr;
+	char        o_name[80];
+	char        out_val[160];
+
+
+	/* Empty? */
+	if (st_ptr->stock_num <= 0)
+	{
+		if (store_num == STORE_HOME)
+		{
+			msg_print("Your home is empty.");
+		}
+		else
+		{
+			msg_print("I am currently out of stock.");
+		}
+		return;
+	}
+
+
+	/* Prompt */
+	if (rogue_like_commands)
+		sprintf(out_val, "Which item do you want to examine? ");
+	else
+		sprintf(out_val, "Which item do you want to look at? ");
+
+	/* Get the item number to be examined */
+	if (!get_stock(&item, out_val)) return;
+
+	/* Get the actual object */
+	o_ptr = &st_ptr->stock[item];
+
+	/* Description */
+	object_desc_store(o_name, o_ptr, TRUE, 3);
+
+	/* Describe */
+	msg_format("Examining %s...", o_name);
+
+	/* Describe it fully */
+	if (!identify_fully_aux(o_ptr))
+		msg_print("You see nothing special.");
+
+	return;
+}
+
+
 
 /*
  * Hack -- set this to leave the store
@@ -2844,14 +2886,14 @@ static void store_process_command(void)
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
-			/* Leave */
+		/* Leave */
 		case ESCAPE:
 		{
 			leave_store = TRUE;
 			break;
 		}
 
-			/* Browse */
+		/* Browse */
 		case ' ':
 		{
 			if (st_ptr->stock_num <= 12)
@@ -2881,7 +2923,7 @@ static void store_process_command(void)
 			break;
 		}
 
-			/* Ignore */
+		/* Ignore */
 		case '\n':
 		case '\r':
 		{
@@ -2889,7 +2931,7 @@ static void store_process_command(void)
 		}
 
 
-			/* Redraw */
+		/* Redraw */
 		case KTRL('R'):
 		{
 			do_cmd_redraw();
@@ -2897,31 +2939,38 @@ static void store_process_command(void)
 			break;
 		}
 
-			/* Get (purchase) */
+		/* Get (purchase) */
 		case 'g':
 		{
 			store_purchase();
 			break;
 		}
 
-			/* Drop (Sell) */
+		/* Drop (Sell) */
 		case 'd':
 		{
 			store_sell();
 			break;
 		}
 
+		/* Examine */
+		case 'l':
+		{
+			store_examine();
+			break;
+		}
 
-			/*** Inventory Commands ***/
 
-			/* Wear/wield equipment */
+		/*** Inventory Commands ***/
+
+		/* Wear/wield equipment */
 		case 'w':
 		{
 			do_cmd_wield();
 			break;
 		}
 
-			/* Take off equipment */
+		/* Take off equipment */
 		case 't':
 		{
 			do_cmd_takeoff();
@@ -2930,7 +2979,7 @@ static void store_process_command(void)
 
 #if 0
 
-			/* Drop an item */
+		/* Drop an item */
 		case 'd':
 		{
 			do_cmd_drop();
@@ -2939,21 +2988,21 @@ static void store_process_command(void)
 
 #endif
 
-			/* Destroy an item */
+		/* Destroy an item */
 		case 'k':
 		{
 			do_cmd_destroy();
 			break;
 		}
 
-			/* Equipment list */
+		/* Equipment list */
 		case 'e':
 		{
 			do_cmd_equip();
 			break;
 		}
 
-			/* Inventory list */
+		/* Inventory list */
 		case 'i':
 		{
 			do_cmd_inven();
@@ -2961,16 +3010,16 @@ static void store_process_command(void)
 		}
 
 
-			/*** Various commands ***/
+		/*** Various commands ***/
 
-			/* Identify an object */
+		/* Identify an object */
 		case 'I':
 		{
 			do_cmd_observe();
 			break;
 		}
 
-			/* Hack -- toggle windows */
+		/* Hack -- toggle windows */
 		case KTRL('E'):
 		{
 			toggle_inven_equip();
@@ -2979,23 +3028,23 @@ static void store_process_command(void)
 
 
 
-			/*** Use various objects ***/
+		/*** Use various objects ***/
 
-			/* Browse a book */
+		/* Browse a book */
 		case 'b':
 		{
 			do_cmd_browse();
 			break;
 		}
 
-			/* Inscribe an object */
+		/* Inscribe an object */
 		case '{':
 		{
 			do_cmd_inscribe();
 			break;
 		}
 
-			/* Uninscribe an object */
+		/* Uninscribe an object */
 		case '}':
 		{
 			do_cmd_uninscribe();
@@ -3004,23 +3053,23 @@ static void store_process_command(void)
 
 
 
-			/*** Help and Such ***/
+		/*** Help and Such ***/
 
-			/* Help */
+		/* Help */
 		case '?':
 		{
 			do_cmd_help();
 			break;
 		}
 
-			/* Identify symbol */
+		/* Identify symbol */
 		case '/':
 		{
 			do_cmd_query_symbol();
 			break;
 		}
 
-			/* Character description */
+		/* Character description */
 		case 'C':
 		{
 			do_cmd_change_name();
@@ -3028,44 +3077,44 @@ static void store_process_command(void)
 		}
 
 
-			/*** System Commands ***/
+		/*** System Commands ***/
 
-			/* Hack -- User interface */
+		/* Hack -- User interface */
 		case '!':
 		{
 			(void)Term_user(0);
 			break;
 		}
 
-			/* Single line from a pref file */
+		/* Single line from a pref file */
 		case '"':
 		{
 			do_cmd_pref();
 			break;
 		}
 
-			/* Interact with macros */
+		/* Interact with macros */
 		case '@':
 		{
 			do_cmd_macros();
 			break;
 		}
 
-			/* Interact with visuals */
+		/* Interact with visuals */
 		case '%':
 		{
 			do_cmd_visuals();
 			break;
 		}
 
-			/* Interact with colors */
+		/* Interact with colors */
 		case '&':
 		{
 			do_cmd_colors();
 			break;
 		}
 
-			/* Interact with options */
+		/* Interact with options */
 		case '=':
 		{
 			do_cmd_options();
@@ -3075,44 +3124,44 @@ static void store_process_command(void)
 		}
 
 
-			/*** Misc Commands ***/
+		/*** Misc Commands ***/
 
-			/* Take notes */
+		/* Take notes */
 		case ':':
 		{
 			do_cmd_note();
 			break;
 		}
 
-			/* Version info */
+		/* Version info */
 		case 'V':
 		{
 			do_cmd_version();
 			break;
 		}
 
-			/* Repeat level feeling */
+		/* Repeat level feeling */
 		case KTRL('F'):
 		{
 			do_cmd_feeling();
 			break;
 		}
 
-			/* Show previous message */
+		/* Show previous message */
 		case KTRL('O'):
 		{
 			do_cmd_message_one();
 			break;
 		}
 
-			/* Show previous messages */
+		/* Show previous messages */
 		case KTRL('P'):
 		{
 			do_cmd_messages();
 			break;
 		}
 
-			/* Check knowledge */
+		/* Check knowledge */
 		case '~':
 		case '|':
 		{
@@ -3120,14 +3169,14 @@ static void store_process_command(void)
 			break;
 		}
 
-			/* Load "screen dump" */
+		/* Load "screen dump" */
 		case '(':
 		{
 			do_cmd_load_screen();
 			break;
 		}
 
-			/* Save "screen dump" */
+		/* Save "screen dump" */
 		case ')':
 		{
 			do_cmd_save_screen();
@@ -3135,7 +3184,7 @@ static void store_process_command(void)
 		}
 
 
-			/* Hack -- Unknown command */
+		/* Hack -- Unknown command */
 		default:
 		{
 			msg_print("That command does not work in stores.");
@@ -3241,8 +3290,14 @@ void do_cmd_store(void)
 		}
 
 		/* Commands */
-		prt(" g) Get/Purchase an item.", 22, 40);
-		prt(" d) Drop/Sell an item.", 23, 40);
+		prt(" g) Get/Purchase an item.", 22, 31);
+		prt(" d) Drop/Sell an item.", 23, 31);
+
+		/* Add in the eXamine option */
+		if (rogue_like_commands)
+			prt(" x) eXamine an item.", 22, 56);
+		else
+			prt(" l) Look at an item.", 22, 56);
 
 		/* Prompt */
 		prt("You may: ", 21, 0);
@@ -3565,5 +3620,3 @@ void store_init(int which)
 		object_wipe(&st_ptr->stock[k]);
 	}
 }
-
-

@@ -20,7 +20,7 @@
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 
 # General Store
@@ -88,8 +88,8 @@ N:6:0:Lo-Hak the Awful
 I:7:20000:250:150:10:5
 N:6:1:Histor the Goblin
 I:6:20000:250:150:10:5
-N:6:2:Durwin the Shifty
-I:0:30000:250:150:10:5
+N:6:2:Durwin the Blue
+I:10:25000:250:150:10:5
 N:6:3:Drago the Fair
 I:2:30000:250:150:10:5
 

@@ -731,7 +731,7 @@ static int myFile_Open( const char *name, int mode )
 	if ( SWI( 2,1, SWI_OS_Find, mode, name, /**/ &handle ) )
 		return 0;
 	return handle;
-} 
+}
 
 static int myFile_Size( const char *name )
 {
@@ -739,7 +739,7 @@ static int myFile_Size( const char *name )
 	if ( SWI( 2,5, SWI_OS_File, 17, name, /**/ &type,0,0,0, &size ) )
 		return -2;
 	return type ? size : -1;
-} 
+}
 
 static os_error *myFile_Close( const int handle )
 {
@@ -770,7 +770,7 @@ static int myFile_ReadBytes( const int handle, void *buf, const int n )
 static os_error *myFile_SetType( const char *n, const int type )
 {
 	return SWI( 3,0, SWI_OS_File, 18, n, type );
-} 
+}
 
 
 static int myFile_Extent( const int handle )
@@ -2020,7 +2020,7 @@ static void make_r_data( term_data *t )
 		{
 			/* Set up the line offset entry */
 			((int*)r_data)[j] = o - r_data;
-	
+
 			for ( i=0; i<80; i++ )
 				*o++ = a[j][i]!=TERM_DARK ? c[j][i] : ' ';
 			/* 0,2 => end of line */
@@ -2033,10 +2033,10 @@ static void make_r_data( term_data *t )
 		{
 			/* Set up the line offset entry */
 			((int*)r_data)[j] = o - r_data;
-	
+
 			/* Each line starts in white */
 			cf = TERM_WHITE;
-	
+
 			for ( i=0; i<80; i++ )
 			{
 				if ( a[j][i] != cf )
@@ -2601,7 +2601,7 @@ static void clear_all_menu_ticks( menu_ptr mp )
  | fn is the font name to match
  | prefix is the menu text to be prepended to the menu entries due to
  | previous menus (eg. "08x16" will cause fn="08x16.fred" to match menu
- | entry "fred".  
+ | entry "fred".
  |
  | NB: recursive.
  |
@@ -3975,7 +3975,7 @@ static BOOL Hnd_PreQuit( event_pollblock *b, void *ref )
 														e.errmess,260);
 		e.errnum = 0;
 		SWI( 3,2, SWI_Wimp_ReportError, &e,3|16,buffer1, NULL,&ok );
-	
+
 		if ( ok!=1 )
 			return TRUE;	/* no! Pleeeeeease don't kill leeeeddle ol' me! */
 	}
@@ -4001,7 +4001,7 @@ static BOOL Hnd_PreQuit( event_pollblock *b, void *ref )
 
 		SWI( 6,2, SWI_Wimp_ReportError, &e,flags,buffer1,ICONNAME,0,
 			buttons,  NULL,&ok );
-	
+
 		if ( ok==4 )
 			return TRUE;	/* no! Pleeeeeease don't kill leeeeddle ol' me! */
 
@@ -4076,7 +4076,7 @@ static void initialise_terms( void )
 		angband_term[i] = &(data[i].t);
 	}
 
-	angband_term[0] = &(data[0].t);
+	term_screen = &(data[0].t);
 	Term_activate( &(data[0].t) );
 }
 
@@ -4356,7 +4356,7 @@ int main( int argc, char *argv[] )
 							case 'a' : abbr_filecache = on && ALLOW_ABBR_FILECACHE; break;
 							case 's' : smart_filecache = on; break;
 							case 'f' : abbr_tmpfile = on && ALLOW_ABBR_FILECACHE; break;
-							case 'p' : flush_scrap = !on; break; 
+							case 'p' : flush_scrap = !on; break;
 							default :
 								if ( isdigit(argv[i][j]) )
 								{
@@ -4558,7 +4558,6 @@ int main( int argc, char *argv[] )
 	/* Initialise Angband */
 	Start_Hourglass;			/* Paranoia */
 	strcpy(savefile, unixify_name(arg_savefile) );
-	use_sound=1;
 	init_angband();
 	initialised = 1;
 	game_in_progress = 1;
@@ -4748,7 +4747,7 @@ static int cache_zapfontHR( void )
 {
 	int handle,extent;
 	char buffer[260];
-	struct { char id[8]; int w,h,f,l,r1,r2; } zfh; 
+	struct { char id[8]; int w,h,f,l,r1,r2; } zfh;
 	int *op;
 	char *ip;
 	int l,i;
@@ -5707,7 +5706,7 @@ static void init_memory( int daf, int dag )
 			e = SWI( 2,3, SWI_OS_DynamicArea, 2, font_area,
 												 NULL,NULL, &font_area_size );
 			if ( e ) { Error_ReportFatal( e->errnum, "%d:%s", e->errmess ); }
-	
+
 			e = Heap_Initialise( (heap)font_area_base,font_area_size );
 			if ( e ) { Error_ReportFatal( e->errnum, "%d:%s", e->errmess ); }
 			font_heap_size = font_area_size;
@@ -5743,7 +5742,7 @@ static void init_memory( int daf, int dag )
 				NULL,					/* r2 */
 				&game_area_base			/* base address of area */
 			);
-	
+
 		if ( e )
 		{
 			game_area = -1;
@@ -5754,7 +5753,7 @@ static void init_memory( int daf, int dag )
 			e = SWI( 2,3, SWI_OS_DynamicArea, 2, game_area,
 												 NULL,NULL, &game_area_size );
 			if ( e ) { Error_ReportFatal( e->errnum, "%d:%s", e->errmess ); }
-	
+
 			e = Heap_Initialise( (heap)game_area_base,game_area_size );
 			if ( e ) { Error_ReportFatal( e->errnum, "%d:%s", e->errmess ); }
 			game_heap_size = game_area_size;
@@ -6377,10 +6376,10 @@ static errr Term_user_acn(int n)
 				case 7 : Term_gotoxy( 26, 16 ); break;
 				default: Term_gotoxy( 26, optn+8 );
 			}
-	
+
 			k = inkey();
 			adj = (k=='4' || k=='h') ? -1 : (k=='6' || k=='l') ? 1 : 0;
-	
+
 			switch ( k )
 			{
 				case 18 : /* Hack: force the screen to update */
@@ -6583,7 +6582,7 @@ static int compressed_length( char *s )
 static char *abbrv_w[] = {
 	/* These words all begin with a space */
 	" of ", " the ", " you ", " to ", " a ", " says", " is ", " that ", " and ",
-	" your ", " are ", " it ", " be ", " for ", " me", " will ", " in ", 
+	" your ", " are ", " it ", " be ", " for ", " me", " will ", " in ",
 	" not ", " this ", " have ", " can ", " on ", " my ", " with ", " say ",
 	" all", " by ", " get ", " but ", " just ", " die", " as ", " time ", " if ",
 	" like ",
@@ -7004,7 +7003,7 @@ static FileCacheEntry *cache_file( char *name )
 			file_cache[i].name = 0;
 			return NULL;
 		}
-	
+
 		/* And read it into the buffer... */
 		d = file_cache[i].text;
 		while ( !my_fgets(fp,buffer,1024) )
@@ -7019,13 +7018,13 @@ static FileCacheEntry *cache_file( char *name )
 				d += strlen(buffer) + 1;
 			}
 		}
-	
+
 		if ( (d - file_cache[i].text) != size )
 		{
 			debug("Calculated size is %d, pointer offset is %d",size,(d - file_cache[i].text) );
 			core("Cached file is larger than calculated!");
 		}
-	
+
 		/* Close the file */
 		my_fclose( fp );
 	}

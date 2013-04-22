@@ -255,12 +255,6 @@
 
 
 /*
- * OPTION: Allow scrolling while targetting.
- */
-#define ALLOW_SCROLL_TARGET
-
-
-/*
  * OPTION: Delay the loading of the "f_text" array until it is actually
  * needed, saving ~1K, since "feature" descriptions are unused.
  */
@@ -301,6 +295,12 @@
  * needed, saving ~1K, since "race" descriptions are unused.
  */
 #define DELAY_LOAD_P_TEXT
+
+/*
+ * OPTION: Delay the loading of the "q_text" array until it is actually
+ * needed, saving ~1K, since "quest" descriptions are unused.
+ */
+#define DELAY_LOAD_Q_TEXT
 
 
 /*
@@ -367,6 +367,18 @@
 
 
 /*
+ * OPTION: Gamma correct colours (with X11)
+ */
+#define SUPPORT_GAMMA
+
+
+/*
+ * OPTION: Check the modification time of *_info.raw files
+ */
+#define CHECK_MODIFICATION_TIME
+
+
+/*
  * OPTION: Enable the "smart_learn" and "smart_cheat" options.
  * They let monsters make more "intelligent" choices about attacks
  * (including spell attacks) based on their observations of the
@@ -382,20 +394,9 @@
 
 
 /*
- * OPTION: Allow the use of random artifacts (see "init3.c").
+ * OPTION: Allow the use of random artifacts (see "randart.c").
  */
 #define GJW_RANDART
-
-
-/*
- * OPTION: Allow the use of "sound" in various places.
- */
-#define USE_SOUND
-
-/*
- * OPTION: Allow the use of "graphics" in various places
- */
-#define USE_GRAPHICS
 
 
 /*
@@ -467,7 +468,7 @@
  * WARNING - This may allow bypassing of some of the "security"
  * compilation options and may be a security risk!
  */
-/* #define ALLOW_PREF_IN_HOME */
+#define ALLOW_PREF_IN_HOME
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
@@ -499,6 +500,7 @@
  * OPTION: Default font (when using X11).
  */
 #define DEFAULT_X11_FONT		"9x15"
+
 
 /*
  * OPTION: Default fonts (when using X11)
@@ -567,16 +569,3 @@
 # define VERIFY_CHECKSUMS
 # define VERIFY_TIMESTAMP
 #endif
-
-
-/*
- * Allow the Borg to use graphics.
- *
- * XXX - Turned off by default since the Borg crashs when the graphics
- * mode changes after the Borg is initialized.
- */
-#ifdef ALLOW_BORG
-# ifdef USE_GRAPHICS
-/* #  define ALLOW_BORG_GRAPHICS */
-# endif /* USE_GRAPHICS */
-#endif /* ALLOW_BORG */

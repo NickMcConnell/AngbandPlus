@@ -14,6 +14,7 @@
 # S:str:int:wis:dex:con:chr
 # R:dis:dev:sav:stl:srh:fos:thn:thb
 # X:hitdie:expbase:infra
+# P:pval
 # I:history:agebase:agemod
 # H:hgtmale:hgtfemale
 # W:wgtmale:wgtfemale
@@ -23,7 +24,7 @@
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 
 N:0:Human
@@ -62,7 +63,7 @@ I:10:21:12
 H:36:3:33:3
 W:60:3:50:3
 F:SUST_DEX
-C:0|1|3
+C:0|1|2|3|4|5
 
 N:4:Gnome
 S:-1:2:0:2:1:-2
@@ -72,7 +73,7 @@ I:13:50:40
 H:42:3:39:3
 W:90:6:75:3
 F:FREE_ACT
-C:0|1|2|3
+C:0|1|2|3|4
 
 N:5:Dwarf
 S:2:-3:2:-2:2:-3
@@ -82,7 +83,7 @@ I:16:35:15
 H:48:3:46:3
 W:150:10:120:10
 F:RES_BLIND
-C:0|2
+C:0|2|5
 
 N:6:Half-Orc
 S:2:-1:0:0:1:-4
@@ -123,3 +124,24 @@ H:90:10:82:10
 W:190:20:180:15
 F:RES_LITE | SEE_INVIS
 C:0|1|2|3|4
+
+N:10:Kobold
+S:-2:-1:0:2:2:1
+R:10:5:10:4:15:15:-5:15
+X:9:115:5
+I:24:15:10
+H:38:4:36:3
+W:70:5:60:4
+F:RES_POIS
+C:0|1|2|3|4
+
+N:11:Wood-Elf
+S:-3:2:1:5:-4:1
+R:5:6:6:5:8:12:-25:40
+X:7:130:4
+P:1
+I:7:75:75
+H:60:4:54:4
+W:100:6:80:6
+F:RES_LITE | MIGHT
+C:1|2|4

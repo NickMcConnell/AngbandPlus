@@ -253,14 +253,8 @@ void do_cmd_wield(void)
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
 
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Sense the object if allowed */
-		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+		/* Apply "cursed" status */
+		curse_object(o_ptr);
 	}
 
 	/* Recalculate bonuses */
@@ -440,22 +434,36 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
-		int feel = INSCRIP_SPECIAL;
+		int feel = INSCRIP_UNIQUE;
+		bool sense = FALSE;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
+		/* Hack -- convert "good" to "special" */
+		if (o_ptr->discount == INSCRIP_GOOD)
+		{
+			feel = INSCRIP_SPECIAL;
+			sense = TRUE;
+		}
+
+		/* Hack -- convert "cursed" to "terrible" */
+		if ((o_ptr->discount == INSCRIP_CURSED) ||
+		    (o_ptr->discount == INSCRIP_BROKEN))
+		{
+			feel = INSCRIP_TERRIBLE;
+			sense = TRUE;
+		}
 
 		/* Remove special inscription, if any */
 		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
-		/* Sense the object if allowed */
-		if (o_ptr->discount == 0) o_ptr->discount = feel;
+		/* Sense the object if allowed, don't sense ID'ed stuff */
+		if ((o_ptr->discount == 0) && !object_known_p(o_ptr))
+			o_ptr->discount = feel;
 
 		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+		if (sense) o_ptr->ident |= (IDENT_SENSE);
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
@@ -518,15 +526,6 @@ void do_cmd_observe(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
-
-	/* Require full knowledge */
-	if (!(o_ptr->ident & (IDENT_MENTAL)))
-	{
-		msg_print("You have no special knowledge about that item.");
-		return;
-	}
-
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -658,58 +657,11 @@ void do_cmd_inscribe(void)
 
 
 /*
- * An "item_tester_hook" for refilling lanterns
+ * Perform the basic "refill" command on lamps
  */
-static bool item_tester_refill_lantern(object_type *o_ptr)
+void do_cmd_refill_lamp_aux(int item, object_type *o_ptr)
 {
-	/* Flasks of oil are okay */
-	if (o_ptr->tval == TV_FLASK) return (TRUE);
-
-	/* Non-empty lanterns are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN) &&
-	    (o_ptr->pval > 0))
-	{
-		return (TRUE);
-	}
-
-	/* Assume not okay */
-	return (FALSE);
-}
-
-
-/*
- * Refill the players lamp (from the pack or floor)
- */
-static void do_cmd_refill_lamp(void)
-{
-	int item;
-
-	object_type *o_ptr;
 	object_type *j_ptr;
-
-	cptr q, s;
-
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_lantern;
-
-	/* Get an item */
-	q = "Refill with which source of oil? ";
-	s = "You have no sources of oil.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
 
 
 	/* Take a partial turn */
@@ -732,7 +684,7 @@ static void do_cmd_refill_lamp(void)
 	}
 
 	/* Use fuel from a lantern */
-	if (o_ptr->sval == SV_LITE_LANTERN)
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
 	{
 		/* No more fuel */
 		o_ptr->pval = 0;
@@ -768,15 +720,21 @@ static void do_cmd_refill_lamp(void)
 }
 
 
-
 /*
- * An "item_tester_hook" for refilling torches
+ * An "item_tester_hook" for refilling lanterns
  */
-static bool item_tester_refill_torch(object_type *o_ptr)
+static bool item_tester_refill_lantern(object_type *o_ptr)
 {
-	/* Torches are okay */
+	/* Flasks of oil are okay */
+	if (o_ptr->tval == TV_FLASK) return (TRUE);
+
+	/* Non-empty lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
+	    (o_ptr->sval == SV_LITE_LANTERN) &&
+	    (o_ptr->pval > 0))
+	{
+		return (TRUE);
+	}
 
 	/* Assume not okay */
 	return (FALSE);
@@ -784,24 +742,23 @@ static bool item_tester_refill_torch(object_type *o_ptr)
 
 
 /*
- * Refuel the players torch (from the pack or floor)
+ * Refill the players lamp (from the pack or floor)
  */
-static void do_cmd_refill_torch(void)
+static void do_cmd_refill_lamp(void)
 {
 	int item;
 
 	object_type *o_ptr;
-	object_type *j_ptr;
 
 	cptr q, s;
 
 
 	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_torch;
+	item_tester_hook = item_tester_refill_lantern;
 
 	/* Get an item */
-	q = "Refuel with which torch? ";
-	s = "You have no extra torches.";
+	q = "Refill with which source of oil? ";
+	s = "You have no sources of oil.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -815,6 +772,19 @@ static void do_cmd_refill_torch(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	/* Refill the lantern */
+	do_cmd_refill_lamp_aux(item, o_ptr);
+}
+
+
+
+/*
+ * Perform the basic "refill" command on torches
+ */
+void do_cmd_refill_torch_aux(int item, object_type *o_ptr)
+{
+	object_type *j_ptr;
 
 
 	/* Take a partial turn */
@@ -865,6 +835,56 @@ static void do_cmd_refill_torch(void)
 	p_ptr->window |= (PW_EQUIP);
 }
 
+
+/*
+ * An "item_tester_hook" for refilling torches
+ */
+static bool item_tester_refill_torch(object_type *o_ptr)
+{
+	/* Torches are okay */
+	if ((o_ptr->tval == TV_LITE) &&
+	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
+
+	/* Assume not okay */
+	return (FALSE);
+}
+
+
+/*
+ * Refuel the players torch (from the pack or floor)
+ */
+static void do_cmd_refill_torch(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+
+	/* Restrict the choices */
+	item_tester_hook = item_tester_refill_torch;
+
+	/* Get an item */
+	q = "Refuel with which torch? ";
+	s = "You have no extra torches.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Refill the torch */
+	do_cmd_refill_torch_aux(item, o_ptr);
+}
 
 
 
@@ -1182,7 +1202,7 @@ static cptr ident_info[] =
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1257,11 +1277,14 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
 	u16b holder;
+
+	/* Unused */
+	v = v;
 
 	/* Swap */
 	holder = who[a];
@@ -1384,11 +1407,11 @@ void do_cmd_query_symbol(void)
 	prt(buf, 0, 0);
 
 
-	/* Create the 'who' array */
+	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < z_info->r_max-1; i++)
+	for (n = 0, i = 1; i < z_info->r_max - 1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];
@@ -1407,7 +1430,13 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Nothing to recall */
-	if (!n) return;
+	if (!n)
+	{
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, z_info->r_max, u16b);
+
+		return;
+	}
 
 
 	/* Prompt */
@@ -1435,8 +1464,13 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Catch "escape" */
-	if (query != 'y') return;
+	if (query != 'y')
+	{
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, z_info->r_max, u16b);
 
+		return;
+	}
 
 	/* Sort if needed */
 	if (why)
@@ -1529,11 +1563,9 @@ void do_cmd_query_symbol(void)
 	}
 
 
-	/* Destroy the 'who' array */
-	C_KILL(who, z_info->r_max, u16b);
-
 	/* Re-display the identity */
 	prt(buf, 0, 0);
+
+	/* Free the "who" array */
+	C_KILL(who, z_info->r_max, u16b);
 }
-
-

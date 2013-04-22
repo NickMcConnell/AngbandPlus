@@ -11,14 +11,15 @@
 # Background information (see below)
 
 # Chart progression by race:
-#   Human/Dunadan -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Human (all)   -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Elf/High-Elf  -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
+#   Elf (all)     -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
 #   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
 #   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
+#   Kobold        --> 24 --> 25 --> 26 --> 27 --> 28 --> 29 --> 30
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -27,7 +28,7 @@
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 
 N:1:2:10:25
@@ -191,6 +192,73 @@ N:23:62:99:65
 D:Shaman.  
 N:23:62:100:80
 D:Clan Chief.  
+
+N:24:25:20:40
+D:You are the runt of 
+N:24:25:80:50
+D:You come from 
+N:24:25:100:55
+D:You are the largest of 
+
+N:25:26:15:45
+D:a litter of 3 pups.  
+N:25:26:40:45
+D:a litter of 4 pups.  
+N:25:26:70:50
+D:a litter of 5 pups.  
+N:25:26:85:50
+D:a litter of 6 pups.  
+N:25:26:95:55
+D:a litter of 7 pups.  
+N:25:26:100:55
+D:a litter of 8 pups.  
+
+N:26:27:10:40
+D:Your father was a fungus farmer, 
+N:26:27:45:45
+D:Your father was a hunter, 
+N:26:27:70:50
+D:Your father was a warrior, 
+N:26:27:90:55
+D:Your father was a shaman, 
+N:26:27:100:60
+D:Your father was the Chief of his tribe, 
+
+N:27:28:20:45
+D:and your mother was a prisoner of war.  
+N:27:28:30:45
+D:and your mother was a prostitute.  
+N:27:28:95:50
+D:and your mother was a cook.  
+N:27:28:100:55
+D:and your mother was a member of the Chief's harem.  
+
+N:28:29:10:50
+D:You have black eyes, 
+N:28:29:40:50
+D:You have dark brown eyes, 
+N:28:29:80:50
+D:You have brown eyes, 
+N:28:29:99:50
+D:You have light brown eyes, 
+N:28:29:100:55
+D:You have glowing red eyes, 
+
+N:29:30:40:50
+D:dark brown skin, 
+N:29:30:60:50
+D:dark grey skin, 
+N:29:30:95:50
+D:olive green skin, 
+N:29:30:100:55
+D:deep blue skin, 
+
+N:30:0:10:45
+D:and large, flat teeth.
+N:30:0:90:50
+D:and small, sharp teeth.
+N:30:0:100:55
+D:and large, sharp teeth.
 
 N:50:51:20:50
 D:You have dark brown eyes, 

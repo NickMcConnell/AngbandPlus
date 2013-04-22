@@ -17,7 +17,7 @@
 /*
  * And now for Intelligent monster attacks (including spells).
  *
- * Original idea and code by "DRS" (David Reeves Sward).
+ * Original idea and code by "DRS" (David Reeve Sward).
  *
  * Major modifications by "BEN" (Ben Harrison).
  *
@@ -49,7 +49,7 @@
 
 
 /*
- * Internal probablility routine
+ * Internal probability routine
  */
 static bool int_outof(monster_race *r_ptr, int prob)
 {
@@ -318,7 +318,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 }
 
 
-#endif
+#endif /* DRS_SMART_OPTIONS */
 
 
 #ifdef MONSTER_AI
@@ -370,7 +370,7 @@ static bool clean_shot(int y1, int x1, int y2, int x2)
 {
 	int y, x;
 
-	int grid_n = 0;
+	int grid_n;
 	u16b grid_g[512];
 
 	/* Check the projection path */
@@ -393,7 +393,7 @@ static bool clean_shot(int y1, int x1, int y2, int x2)
 	return (TRUE);
 }
 
-#endif  /* MONSTER_AI */
+#endif /* MONSTER_AI */
 
 
 /*
@@ -437,6 +437,15 @@ static void breath(int m_idx, int typ, int dam_hp)
 	(void)project(m_idx, rad, py, px, dam_hp, typ, flg);
 }
 
+
+/*
+ * Offsets for the spell indices
+ */
+#define RF4_OFFSET 32 * 3
+#define RF5_OFFSET 32 * 4
+#define RF6_OFFSET 32 * 5
+
+
 /*
  * Have a monster choose a spell to cast.
  *
@@ -458,15 +467,16 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	u32b f5_mask = 0L;
 	u32b f6_mask = 0L;
 
-	bool has_escape, has_attack, has_summon, has_tactic;
-	bool has_annoy, has_haste, has_heal;
-
 	int num = 0;
 	byte spells[96];
 
 	int i, py = p_ptr->py, px = p_ptr->px;
 
 #ifdef MONSTER_AI
+
+	bool has_escape, has_attack, has_summon, has_tactic;
+	bool has_annoy, has_haste, has_heal;
+
 
 	/* Smart monsters restrict their spell choices. */
 	if (smart_monsters && !(r_ptr->flags2 & (RF2_STUPID)))
@@ -595,19 +605,19 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	/* Extract the "innate" spells */
 	for (i = 0; i < 32; i++)
 	{
-		if (f4 & (1L << i)) spells[num++] = i + 32 * 3;
+		if (f4 & (1L << i)) spells[num++] = i + RF4_OFFSET;
 	}
 
 	/* Extract the "normal" spells */
 	for (i = 0; i < 32; i++)
 	{
-		if (f5 & (1L << i)) spells[num++] = i + 32 * 4;
+		if (f5 & (1L << i)) spells[num++] = i + RF5_OFFSET;
 	}
 
 	/* Extract the "bizarre" spells */
 	for (i = 0; i < 32; i++)
 	{
-		if (f6 & (1L << i)) spells[num++] = i + 32 * 5;
+		if (f6 & (1L << i)) spells[num++] = i + RF6_OFFSET;
 	}
 
 	/* Paranoia */
@@ -668,7 +678,11 @@ bool make_attack_spell(int m_idx)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int k, chance, thrown_spell, rlev, failrate;
+	int k, chance, thrown_spell, rlev;
+
+#ifdef MONSTER_AI
+	int failrate;
+#endif /* MONSTER_AI */
 
 	u32b f4, f5, f6;
 
@@ -734,7 +748,7 @@ bool make_attack_spell(int m_idx)
 		if (rand_int(100) >= (chance / 4)) no_innate = TRUE;
 	}
 
-#else
+#else /* MONSTER_AI */
 
 	/* Only do spells occasionally */
 	if (rand_int(100) >= chance) return (FALSE);
@@ -774,7 +788,7 @@ bool make_attack_spell(int m_idx)
 		f6 &= ~(RF6_INNATE_MASK);
 	}
 
-#endif
+#endif /* MONSTER_AI */
 
 	/* Hack -- allow "desperate" spells */
 	if ((r_ptr->flags2 & (RF2_SMART)) &&
@@ -799,7 +813,7 @@ bool make_attack_spell(int m_idx)
 	/* No spells left */
 	if (!f4 && !f5 && !f6) return (FALSE);
 
-#endif
+#endif /* DRS_SMART_OPTIONS */
 
 #ifdef MONSTER_AI
 
@@ -860,7 +874,7 @@ bool make_attack_spell(int m_idx)
 	if (!smart_monsters || r_ptr->flags2 & (RF2_STUPID)) failrate = 0;
 
 	/* Check for spell failure (innate attacks never fail) */
-	if ((thrown_spell >= 128) && (rand_int(100) < failrate))
+	if ((thrown_spell >= RF5_OFFSET) && (rand_int(100) < failrate))
 	{
 		/* Message */
 		msg_format("%^s tries to cast a spell, but fails.", m_name);
@@ -873,7 +887,7 @@ bool make_attack_spell(int m_idx)
 	switch (thrown_spell)
 	{
 		/* RF4_SHRIEK */
-		case 96+0:
+		case RF4_OFFSET+0:
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -883,25 +897,25 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_XXX2X4 */
-		case 96+1:
+		case RF4_OFFSET+1:
 		{
 			break;
 		}
 
 		/* RF4_XXX3X4 */
-		case 96+2:
+		case RF4_OFFSET+2:
 		{
 			break;
 		}
 
 		/* RF4_XXX4X4 */
-		case 96+3:
+		case RF4_OFFSET+3:
 		{
 			break;
 		}
 
 		/* RF4_ARROW_1 */
-		case 96+4:
+		case RF4_OFFSET+4:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
@@ -911,7 +925,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_ARROW_2 */
-		case 96+5:
+		case RF4_OFFSET+5:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
@@ -921,7 +935,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_ARROW_3 */
-		case 96+6:
+		case RF4_OFFSET+6:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
@@ -931,7 +945,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_ARROW_4 */
-		case 96+7:
+		case RF4_OFFSET+7:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
@@ -941,7 +955,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_ACID */
-		case 96+8:
+		case RF4_OFFSET+8:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -953,7 +967,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_ELEC */
-		case 96+9:
+		case RF4_OFFSET+9:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -965,7 +979,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_FIRE */
-		case 96+10:
+		case RF4_OFFSET+10:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -977,7 +991,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_COLD */
-		case 96+11:
+		case RF4_OFFSET+11:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -989,7 +1003,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_POIS */
-		case 96+12:
+		case RF4_OFFSET+12:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1001,7 +1015,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_NETH */
-		case 96+13:
+		case RF4_OFFSET+13:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1013,7 +1027,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_LITE */
-		case 96+14:
+		case RF4_OFFSET+14:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1025,7 +1039,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_DARK */
-		case 96+15:
+		case RF4_OFFSET+15:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1037,7 +1051,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_CONF */
-		case 96+16:
+		case RF4_OFFSET+16:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1049,7 +1063,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_SOUN */
-		case 96+17:
+		case RF4_OFFSET+17:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1061,7 +1075,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_CHAO */
-		case 96+18:
+		case RF4_OFFSET+18:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1073,7 +1087,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_DISE */
-		case 96+19:
+		case RF4_OFFSET+19:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1085,7 +1099,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_NEXU */
-		case 96+20:
+		case RF4_OFFSET+20:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1097,7 +1111,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_TIME */
-		case 96+21:
+		case RF4_OFFSET+21:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1108,7 +1122,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_INER */
-		case 96+22:
+		case RF4_OFFSET+22:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1119,7 +1133,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_GRAV */
-		case 96+23:
+		case RF4_OFFSET+23:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1130,7 +1144,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_SHAR */
-		case 96+24:
+		case RF4_OFFSET+24:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1142,7 +1156,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_PLAS */
-		case 96+25:
+		case RF4_OFFSET+25:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1153,7 +1167,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_WALL */
-		case 96+26:
+		case RF4_OFFSET+26:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1164,32 +1178,32 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_MANA */
-		case 96+27:
+		case RF4_OFFSET+27:
 		{
 			/* XXX XXX XXX */
 			break;
 		}
 
 		/* RF4_XXX5X4 */
-		case 96+28:
+		case RF4_OFFSET+28:
 		{
 			break;
 		}
 
 		/* RF4_XXX6X4 */
-		case 96+29:
+		case RF4_OFFSET+29:
 		{
 			break;
 		}
 
 		/* RF4_XXX7X4 */
-		case 96+30:
+		case RF4_OFFSET+30:
 		{
 			break;
 		}
 
 		/* RF4_XXX8X4 */
-		case 96+31:
+		case RF4_OFFSET+31:
 		{
 			break;
 		}
@@ -1197,7 +1211,7 @@ bool make_attack_spell(int m_idx)
 
 
 		/* RF5_BA_ACID */
-		case 128+0:
+		case RF5_OFFSET+0:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1209,7 +1223,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BA_ELEC */
-		case 128+1:
+		case RF5_OFFSET+1:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1221,7 +1235,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BA_FIRE */
-		case 128+2:
+		case RF5_OFFSET+2:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1233,7 +1247,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BA_COLD */
-		case 128+3:
+		case RF5_OFFSET+3:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1245,7 +1259,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BA_POIS */
-		case 128+4:
+		case RF5_OFFSET+4:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1257,7 +1271,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BA_NETH */
-		case 128+5:
+		case RF5_OFFSET+5:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1269,7 +1283,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BA_WATE */
-		case 128+6:
+		case RF5_OFFSET+6:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1281,7 +1295,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BA_MANA */
-		case 128+7:
+		case RF5_OFFSET+7:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
@@ -1292,7 +1306,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BA_DARK */
-		case 128+8:
+		case RF5_OFFSET+8:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
@@ -1304,7 +1318,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_DRAIN_MANA */
-		case 128+9:
+		case RF5_OFFSET+9:
 		{
 			if (!direct) break;
 			if (p_ptr->csp)
@@ -1362,7 +1376,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_MIND_BLAST */
-		case 128+10:
+		case RF5_OFFSET+10:
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -1375,14 +1389,15 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s gazes deep into your eyes.", m_name);
 			}
 
-			if (rand_int(100) < p_ptr->skill_sav)
+			if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You resist the effects!");
 			}
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
-				if (!p_ptr->resist_confu)
+				if (!p_ptr->resist_confu ||
+					(adult_turin && !(rand_int(100) < p_ptr->skill_sav)))
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
@@ -1392,7 +1407,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BRAIN_SMASH */
-		case 128+11:
+		case RF5_OFFSET+11:
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -1404,7 +1419,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_format("%^s looks deep into your eyes.", m_name);
 			}
-			if (rand_int(100) < p_ptr->skill_sav)
+			if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1412,31 +1427,37 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("Your mind is blasted by psionic energy.");
 				take_hit(damroll(12, 15), ddesc);
-				if (!p_ptr->resist_blind)
+				if (!p_ptr->resist_blind ||
+					(adult_turin && !(rand_int(100) < p_ptr->skill_sav)))
 				{
 					(void)set_blind(p_ptr->blind + 8 + rand_int(8));
 				}
-				if (!p_ptr->resist_confu)
+				if (!p_ptr->resist_confu ||
+					(adult_turin && !(rand_int(100) < p_ptr->skill_sav)))
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
-				if (!p_ptr->free_act)
+				if (!p_ptr->free_act ||
+					(adult_turin && !(rand_int(100) < p_ptr->skill_sav)))
 				{
 					(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
 				}
-				(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+				if (!(adult_turin && (rand_int(100) < p_ptr->skill_sav)))
+				{
+					(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+				}
 			}
 			break;
 		}
 
 		/* RF5_CAUSE_1 */
-		case 128+12:
+		case RF5_OFFSET+12:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses.", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1448,13 +1469,13 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_CAUSE_2 */
-		case 128+13:
+		case RF5_OFFSET+13:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses horribly.", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1466,13 +1487,13 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_CAUSE_3 */
-		case 128+14:
+		case RF5_OFFSET+14:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles loudly.", m_name);
 			else msg_format("%^s points at you, incanting terribly!", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1484,26 +1505,29 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_CAUSE_4 */
-		case 128+15:
+		case RF5_OFFSET+15:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s screams the word 'DIE!'", m_name);
 			else msg_format("%^s points at you, screaming the word DIE!", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You resist the effects!");
 			}
 			else
 			{
 				take_hit(damroll(15, 15), ddesc);
-				(void)set_cut(p_ptr->cut + damroll(10, 10));
+				if (!(adult_turin && (rand_int(100) < p_ptr->skill_sav)))
+				{
+					(void)set_cut(p_ptr->cut + damroll(10, 10));
+				}
 			}
 			break;
 		}
 
 		/* RF5_BO_ACID */
-		case 128+16:
+		case RF5_OFFSET+16:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1515,7 +1539,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BO_ELEC */
-		case 128+17:
+		case RF5_OFFSET+17:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1527,7 +1551,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BO_FIRE */
-		case 128+18:
+		case RF5_OFFSET+18:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1539,7 +1563,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BO_COLD */
-		case 128+19:
+		case RF5_OFFSET+19:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1551,14 +1575,14 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BO_POIS */
-		case 128+20:
+		case RF5_OFFSET+20:
 		{
 			/* XXX XXX XXX */
 			break;
 		}
 
 		/* RF5_BO_NETH */
-		case 128+21:
+		case RF5_OFFSET+21:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1570,7 +1594,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BO_WATE */
-		case 128+22:
+		case RF5_OFFSET+22:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1581,7 +1605,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BO_MANA */
-		case 128+23:
+		case RF5_OFFSET+23:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1592,7 +1616,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BO_PLAS */
-		case 128+24:
+		case RF5_OFFSET+24:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1603,7 +1627,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BO_ICEE */
-		case 128+25:
+		case RF5_OFFSET+25:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1615,7 +1639,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_MISSILE */
-		case 128+26:
+		case RF5_OFFSET+26:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1626,17 +1650,18 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_SCARE */
-		case 128+27:
+		case RF5_OFFSET+27:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles, and you hear scary noises.", m_name);
 			else msg_format("%^s casts a fearful illusion.", m_name);
-			if (p_ptr->resist_fear)
+			if (p_ptr->resist_fear &&
+			    (!adult_turin || (rand_int(100) < p_ptr->skill_sav)))
 			{
 				msg_print("You refuse to be frightened.");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You refuse to be frightened.");
 			}
@@ -1649,17 +1674,18 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BLIND */
-		case 128+28:
+		case RF5_OFFSET+28:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a spell, burning your eyes!", m_name);
-			if (p_ptr->resist_blind)
+			if (p_ptr->resist_blind &&
+			    (!adult_turin || (rand_int(100) < p_ptr->skill_sav)))
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1672,17 +1698,18 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_CONF */
-		case 128+29:
+		case RF5_OFFSET+29:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
 			else msg_format("%^s creates a mesmerising illusion.", m_name);
-			if (p_ptr->resist_confu)
+			if (p_ptr->resist_confu &&
+			    (!adult_turin || (rand_int(100) < p_ptr->skill_sav)))
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
@@ -1695,16 +1722,17 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_SLOW */
-		case 128+30:
+		case RF5_OFFSET+30:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			msg_format("%^s drains power from your muscles!", m_name);
-			if (p_ptr->free_act)
+			if (p_ptr->free_act &&
+			    (!adult_turin || (rand_int(100) < p_ptr->skill_sav)))
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1717,17 +1745,18 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_HOLD */
-		case 128+31:
+		case RF5_OFFSET+31:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s stares deep into your eyes!", m_name);
-			if (p_ptr->free_act)
+			if (p_ptr->free_act &&
+			    (!adult_turin || (rand_int(100) < p_ptr->skill_sav)))
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_format("You resist the effects!");
 			}
@@ -1742,7 +1771,7 @@ bool make_attack_spell(int m_idx)
 
 
 		/* RF6_HASTE */
-		case 160+0:
+		case RF6_OFFSET+0:
 		{
 			disturb(1, 0);
 			if (blind)
@@ -1772,13 +1801,13 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_XXX1X6 */
-		case 160+1:
+		case RF6_OFFSET+1:
 		{
 			break;
 		}
 
 		/* RF6_HEAL */
-		case 160+2:
+		case RF6_OFFSET+2:
 		{
 			disturb(1, 0);
 
@@ -1843,13 +1872,13 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_XXX2X6 */
-		case 160+3:
+		case RF6_OFFSET+3:
 		{
 			break;
 		}
 
 		/* RF6_BLINK */
-		case 160+4:
+		case RF6_OFFSET+4:
 		{
 			disturb(1, 0);
 			msg_format("%^s blinks away.", m_name);
@@ -1858,7 +1887,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_TPORT */
-		case 160+5:
+		case RF6_OFFSET+5:
 		{
 			disturb(1, 0);
 			msg_format("%^s teleports away.", m_name);
@@ -1867,19 +1896,19 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_XXX3X6 */
-		case 160+6:
+		case RF6_OFFSET+6:
 		{
 			break;
 		}
 
 		/* RF6_XXX4X6 */
-		case 160+7:
+		case RF6_OFFSET+7:
 		{
 			break;
 		}
 
 		/* RF6_TELE_TO */
-		case 160+8:
+		case RF6_OFFSET+8:
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -1889,7 +1918,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_TELE_AWAY */
-		case 160+9:
+		case RF6_OFFSET+9:
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -1899,17 +1928,18 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_TELE_LEVEL */
-		case 160+10:
+		case RF6_OFFSET+10:
 		{
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles strangely.", m_name);
 			else msg_format("%^s gestures at your feet.", m_name);
-			if (p_ptr->resist_nexus)
+			if (p_ptr->resist_nexus &&
+			    (!adult_turin || (rand_int(100) < p_ptr->skill_sav)))
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if ((rand_int(100) < p_ptr->skill_sav) && !adult_turin)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1922,13 +1952,13 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_XXX5 */
-		case 160+11:
+		case RF6_OFFSET+11:
 		{
 			break;
 		}
 
 		/* RF6_DARKNESS */
-		case 160+12:
+		case RF6_OFFSET+12:
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -1939,7 +1969,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_TRAPS */
-		case 160+13:
+		case RF6_OFFSET+13:
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -1950,7 +1980,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_FORGET */
-		case 160+14:
+		case RF6_OFFSET+14:
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -1968,13 +1998,13 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_XXX6X6 */
-		case 160+15:
+		case RF6_OFFSET+15:
 		{
 			break;
 		}
 
 		/* RF6_S_KIN */
-		case 160+16:
+		case RF6_OFFSET+16:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -1996,7 +2026,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_HI_DEMON */
-		case 160+17:
+		case RF6_OFFSET+17:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2013,7 +2043,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_MONSTER */
-		case 160+18:
+		case RF6_OFFSET+18:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2030,7 +2060,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_MONSTERS */
-		case 160+19:
+		case RF6_OFFSET+19:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2047,7 +2077,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_ANT */
-		case 160+20:
+		case RF6_OFFSET+20:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2064,7 +2094,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_SPIDER */
-		case 160+21:
+		case RF6_OFFSET+21:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2081,7 +2111,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_HOUND */
-		case 160+22:
+		case RF6_OFFSET+22:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2098,7 +2128,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_HYDRA */
-		case 160+23:
+		case RF6_OFFSET+23:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2115,7 +2145,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_ANGEL */
-		case 160+24:
+		case RF6_OFFSET+24:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2132,7 +2162,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_DEMON */
-		case 160+25:
+		case RF6_OFFSET+25:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2149,7 +2179,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_UNDEAD */
-		case 160+26:
+		case RF6_OFFSET+26:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2166,7 +2196,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_DRAGON */
-		case 160+27:
+		case RF6_OFFSET+27:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2183,7 +2213,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_HI_UNDEAD */
-		case 160+28:
+		case RF6_OFFSET+28:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2200,7 +2230,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_HI_DRAGON */
-		case 160+29:
+		case RF6_OFFSET+29:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2217,7 +2247,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_WRAITH */
-		case 160+30:
+		case RF6_OFFSET+30:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2238,7 +2268,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF6_S_UNIQUE */
-		case 160+31:
+		case RF6_OFFSET+31:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2325,7 +2355,7 @@ static int mon_will_run(int m_idx)
 	u16b m_chp, m_mhp;
 	u32b p_val, m_val;
 
-#endif
+#endif /* ALLOW_TERROR */
 
 	/* Keep monsters from running too far away */
 	if (m_ptr->cdis > MAX_SIGHT + 5) return (FALSE);
@@ -2363,7 +2393,7 @@ static int mon_will_run(int m_idx)
 	/* Strong players scare strong monsters */
 	if (p_val * m_mhp > m_val * p_mhp) return (TRUE);
 
-#endif
+#endif /* ALLOW_TERROR */
 
 	/* Assume no terror */
 	return (FALSE);
@@ -2583,7 +2613,7 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
  * coded sizes.  At the very least, code should be included which is
  * able to generate and dump these arrays (ala "los()").  XXX XXX XXX
  *
- * Also, the storage needs could be halved by using bytes.  XXX XXX XXX
+ * Also, the storage needs could be reduced by using char.  XXX XXX XXX
  *
  * These arrays could be combined into two big arrays, using sub-arrays
  * to hold the offsets and lengths of each portion of the sub-arrays, and
@@ -2721,6 +2751,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 {
 
 #ifdef MONSTER_AI
+#ifdef MONSTER_FLOW
 
 	monster_type *m_ptr = &m_list[m_idx];
 
@@ -2768,7 +2799,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			}
 
 			/* Check for absence of shot (more or less) */
-			if (!player_can_see_bold(y,x))
+			if (!player_has_los_bold(y,x))
 			{
 				/* Calculate distance from player */
 				dis = distance(y, x, py, px);
@@ -2795,6 +2826,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 		}
 	}
 
+#endif /* MONSTER_FLOW */
 #endif /* MONSTER_AI */
 
 	/* No safe place */
@@ -2852,7 +2884,7 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 			if (!cave_empty_bold(y, x)) continue;
 
 			/* Check for hidden, available grid */
-			if (!player_can_see_bold(y, x) && (clean_shot(fy, fx, y, x)))
+			if (!player_has_los_bold(y, x) && (clean_shot(fy, fx, y, x)))
 			{
 				/* Calculate distance from player */
 				dis = distance(y, x, py, px);
@@ -2917,7 +2949,7 @@ static bool get_moves(int m_idx, int mm[5])
 		(void)get_moves_aux(m_idx, &y2, &x2);
 	}
 
-#endif
+#endif /* MONSTER_FLOW */
 
 	/* Extract the "pseudo-direction" */
 	y = m_ptr->fy - y2;
@@ -2966,6 +2998,7 @@ static bool get_moves(int m_idx, int mm[5])
 		}
 
 #ifdef MONSTER_AI
+#ifdef MONSTER_FLOW
 
 		else
 		{
@@ -2977,6 +3010,7 @@ static bool get_moves(int m_idx, int mm[5])
 			}
 		}
 
+#endif /* MONSTER_FLOW */
 #endif /* MONSTER_AI */
 
 	}
@@ -3723,7 +3757,7 @@ static void process_monster(int m_idx)
 					/* XXX XXX XXX Old test (pval 10 to 20) */
 					if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
 					    40 * (m_ptr->hp - 10 - o_ptr->pval));
-#endif
+#endif /* 0 */
 
 					/* Try to unlock it XXX XXX XXX */
 					if (rand_int(m_ptr->hp / 10) > k)
@@ -3749,7 +3783,7 @@ static void process_monster(int m_idx)
 				/* XXX XXX XXX Old test (pval 10 to 20) */
 				if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
 				    40 * (m_ptr->hp - 10 - o_ptr->pval));
-#endif
+#endif /* 0 */
 
 				/* Attempt to Bash XXX XXX XXX */
 				if (rand_int(m_ptr->hp / 10) > k)
@@ -4142,9 +4176,9 @@ static void process_monster(int m_idx)
  * using any of their spell attacks until the player gets a turn.  This flag
  * is optimized via the "repair_mflag_nice" flag.
  */
-void process_monsters(void)
+void process_monsters(byte minimum_energy)
 {
-	int i, e;
+	int i;
 	int fy, fx;
 
 	monster_type *m_ptr;
@@ -4173,7 +4207,7 @@ void process_monsters(void)
 
 
 	/* Process the monsters (backwards) */
-	for (i = m_max - 1; i >= 1; i--)
+	for (i = m_max; i-- > 1; )
 	{
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
@@ -4191,15 +4225,8 @@ void process_monsters(void)
 		if (m_ptr->mflag & (MFLAG_BORN)) continue;
 
 
-		/* Obtain the energy boost */
-		e = extract_energy[m_ptr->mspeed];
-
-		/* Give this monster some energy */
-		m_ptr->energy += e;
-
-
 		/* Not enough energy to move */
-		if (m_ptr->energy < 100) continue;
+		if (m_ptr->energy < minimum_energy) continue;
 
 		/* Use up "some" energy */
 		m_ptr->energy -= 100;
@@ -4257,10 +4284,7 @@ void process_monsters(void)
 			}
 		}
 
-#endif
+#endif /* MONSTER_FLOW */
 
 	}
 }
-
-
-

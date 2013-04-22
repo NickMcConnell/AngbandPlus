@@ -122,12 +122,6 @@ struct term_data
 
 	FONT *font;
 
-#ifdef USE_GRAPHICS
-
-	BITMAP *tiles;
-
-#endif /* USE_GRAPHICS */
-
 #ifdef USE_BACKGROUND
 
 	int window_type;
@@ -157,84 +151,10 @@ BITMAP *background[17];
 static term_data data[MAX_TERM_DATA];
 
 
-#ifdef USE_GRAPHICS
-
-/*
- * Are graphics already initialized ?
- */
-static bool graphics_initialized = FALSE;
-
-#endif /* USE_GRAPHICS */
-
-
 /*
  * Small bitmap for the cursor
  */
 static BITMAP *cursor;
-
-
-#ifdef USE_SOUND
-
-/*
- * Is the sound already initialized ?
- */
-static bool sound_initialized = FALSE;
-
-# ifdef USE_MOD_FILES
-/*
- * Is the mod-file support already initialized ?
- */
-static bool mod_file_initialized = FALSE;
-
-# endif /* USE_MOD_FILES */
-
-/*
- * Volume settings
- */
-static int digi_volume;
-static int midi_volume;
-
-/*
- * The currently playing song
- */
-static MIDI *midi_song = NULL;
-
-# ifdef USE_MOD_FILES
-
-static JGMOD *mod_song = NULL;
-
-# endif /* USE_MOD_FILES */
-
-static int current_song;
-
-/*
- * The number of available songs
- */
-static int song_number;
-
-/*
- * The maximum number of available songs
- */
-#define MAX_SONGS 255
-
-static char music_files[MAX_SONGS][16];
-
-/*
- * The maximum number of samples per sound-event
- */
-#define SAMPLE_MAX 10
-
-/*
- * An array of sound files
- */
-static SAMPLE* samples[SOUND_MAX][SAMPLE_MAX];
-
-/*
- * The number of available samples for every event
- */
-static int sample_count[SOUND_MAX];
-
-#endif /* USE_SOUND */
 
 
 /*
@@ -297,19 +217,6 @@ static void dos_dump_screen(void);
 static void dos_quit_hook(cptr str);
 static bool init_windows(void);
 errr init_dos(void);
-#ifdef USE_SOUND
-static bool init_sound(void);
-static errr Term_xtra_dos_sound(int v);
-static void play_song(void);
-#endif /* USE_SOUND */
-#ifdef USE_GRAPHICS
-static bool init_graphics(void);
-# ifdef USE_TRANSPARENCY
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp);
-# endif /* USE_TRANSPARENCY */
-#endif /* USE_GRAPHICS */
 
 
 /*
@@ -470,73 +377,20 @@ static void Term_xtra_dos_react(void)
 	 */
 	for (i = 0; i < 16; i++)
 	{
+		RGB color;
+
 		/* Extract desired values */
 		char rv = angband_color_table[i][1] >> 2;
 		char gv = angband_color_table[i][2] >> 2;
 		char bv = angband_color_table[i][3] >> 2;
 
-		RGB color = { rv,  gv,  bv  };
+		/* Set the colors */
+		color.r = rv;
+		color.g = gv;
+		color.b = bv;
 
 		set_color(COLOR_OFFSET + i, &color);
 	}
-
-#ifdef USE_GRAPHICS
-
-	/*
-	 * Handle "arg_graphics"
-	 */
-	if (use_graphics != arg_graphics)
-	{
-		/* Initialize (if needed) */
-		if (arg_graphics && !init_graphics())
-		{
-			/* Warning */
-			plog("Cannot initialize graphics!");
-
-			/* Cannot enable */
-			arg_graphics = GRAPHICS_NONE;
-		}
-
-		/* Change setting */
-		use_graphics = arg_graphics;
-	}
-
-#endif /* USE_GRAPHICS */
-
-#ifdef USE_SOUND
-
-	/*
-	 * Handle "arg_sound"
-	 */
-	if (use_sound != arg_sound)
-	{
-		/* Clear the old song */
-		if (midi_song) destroy_midi(midi_song);
-		midi_song = NULL;
-
-#ifdef USE_MOD_FILES
-		if (mod_file_initialized)
-		{
-			stop_mod();
-			destroy_mod(mod_song);
-		}
-#endif /* USE_MOD_FILES */
-
-		/* Initialize (if needed) */
-		if (arg_sound && !init_sound())
-		{
-			/* Warning */
-			plog("Cannot initialize sound!");
-
-			/* Cannot enable */
-			arg_sound = FALSE;
-		}
-
-		/* Change setting */
-		use_sound = arg_sound;
-	}
-
-#endif /* USE_SOUND */
 
 #ifdef USE_SPECIAL_BACKGROUND
 
@@ -666,40 +520,6 @@ static errr Term_xtra_dos(int n, int v)
 		/* Do something useful if bored */
 		case TERM_XTRA_BORED:
 		{
-#ifdef USE_SOUND
-			/*
-			 * Check for end of song and start a new one
-			 */
-			if (!use_sound) return (0);
-
-#ifdef USE_MOD_FILES
-			if (song_number && (midi_pos == -1) && !is_mod_playing())
-#else /* USE_MOD_FILES */
-			if (song_number && (midi_pos == -1))
-#endif /* USE_MOD_FILES */
-			{
-				if (song_number > 1)
-				{
-					/* Get a *new* song at random */
-					while (1)
-					{
-						n = randint(song_number);
-						if (n != current_song) break;
-					}
-					current_song = n;
-				}
-				else
-				{
-					/* We only have one song, so loop it */
-					current_song = 1;
-				}
-
-				/* Play the song */
-				play_song();
-			}
-
-#endif /* USE_SOUND */
-
 			/* Success */
 			return (0);
 		}
@@ -723,17 +543,6 @@ static errr Term_xtra_dos(int n, int v)
 			/* Success */
 			return (0);
 		}
-
-#ifdef USE_SOUND
-
-		/* Make a sound */
-		case TERM_XTRA_SOUND:
-		{
-			return (Term_xtra_dos_sound(v));
-		}
-
-#endif /* USE_SOUND */
-
 	}
 
 	/* Unknown request */
@@ -765,38 +574,6 @@ static errr Term_user_dos(int n)
 		prt("DOS options", 2, 0);
 
 		/* Give some choices */
-#ifdef USE_SOUND
-		prt("(V) Sound Volume", 4, 5);
-		prt("(M) Music Volume", 5, 5);
-#endif /* USE_SOUND */
-
-#ifdef USE_GRAPHICS
-
-		if (arg_graphics)
-		{
-			strcpy(status, "On");
-		}
-		else
-		{
-			strcpy(status, "Off");
-		}
-		prt(format("(G) Graphics : %s", status), 7, 5);
-
-#endif /* USE_GRAPHICS */
-
-#ifdef USE_SOUND
-
-		if (arg_sound)
-		{
-			strcpy(status, "On");
-		}
-		else
-		{
-			strcpy(status, "Off");
-		}
-		prt(format("(S) Sound/Music : %s", status), 8, 5);
-
-#endif /* USE_SOUND */
 
 		prt("(R) Screen resolution", 12, 5);
 
@@ -814,127 +591,6 @@ static errr Term_user_dos(int n)
 		/* Analyze */
 		switch (k)
 		{
-#ifdef USE_SOUND
-			/* Sound Volume */
-			case 'V':
-			case 'v':
-			{
-				/* Prompt */
-				prt("Command: Sound Volume", 18, 0);
-
-				/* Get a new value */
-				while (1)
-				{
-					prt(format("Current Volume: %d", digi_volume), 22, 0);
-					prt("Change Volume (+, - or ESC to accept): ", 20, 0);
-					k = inkey();
-					if (k == ESCAPE) break;
-					switch (k)
-					{
-						case '+':
-						{
-							digi_volume++;
-							if (digi_volume > 255) digi_volume = 255;
-							break;
-						}
-						case '-':
-						{
-							digi_volume--;
-							if (digi_volume < 0) digi_volume = 0;
-							break;
-						}
-						/* Unknown option */
-						default:
-						{
-							break;
-						}
-					}
-					set_volume(digi_volume, -1);
-				}
-				break;
-			}
-
-			/* Music Volume */
-			case 'M':
-			case 'm':
-			{
-				/* Prompt */
-				prt("Command: Music Volume", 18, 0);
-
-				/* Get a new value */
-				while (1)
-				{
-					prt(format("Current Volume: %d", midi_volume), 22, 0);
-					prt("Change Volume (+, - or ESC to accept): ", 20, 0);
-					k = inkey();
-					if (k == ESCAPE) break;
-					switch (k)
-					{
-						case '+':
-						{
-							midi_volume++;
-							if (midi_volume > 255) midi_volume = 255;
-							break;
-						}
-						case '-':
-						{
-							midi_volume--;
-							if (midi_volume < 0) midi_volume = 0;
-							break;
-						}
-						/* Unknown option */
-						default:
-						{
-							break;
-						}
-					}
-					set_volume(-1, midi_volume);
-				}
-				break;
-			}
-
-#endif /* USE_SOUND */
-
-#ifdef USE_GRAPHICS
-
-			/* Switch graphics on/off */
-			case 'G':
-			case 'g':
-			{
-				/* Toggle "arg_graphics" */
-				arg_graphics = !arg_graphics;
-
-				/* React to changes */
-				Term_xtra_dos_react();
-
-				/* Reset visuals */
-#ifdef ANGBAND_2_8_1
-				reset_visuals();
-#else /* ANGBAND_2_8_1 */
-				reset_visuals(TRUE);
-#endif /* ANGBAND_2_8_1 */
-				break;
-			}
-
-#endif /* USE_GRAPHICS */
-
-#ifdef USE_SOUND
-
-			/* Sound/Music On/Off */
-			case 'S':
-			case 's':
-			{
-				/* Toggle "arg_sound" */
-				arg_sound = !arg_sound;
-
-				/* React to changes */
-				Term_xtra_dos_react();
-
-				break;
-			}
-
-#endif /* USE_SOUND */
-
 			/* Screen Resolution */
 			case 'R':
 			case 'r':
@@ -992,12 +648,8 @@ static errr Term_user_dos(int n)
 			{
 				prt("Saving current options", 18, 0);
 
-#ifdef USE_SOUND
-				set_config_int("sound", "digi_volume", digi_volume);
-				set_config_int("sound", "midi_volume", midi_volume);
-#endif /* USE_SOUND */
-				set_config_int("Angband", "Graphics", arg_graphics);
-				set_config_int("Angband", "Sound", arg_sound);
+				set_config_int("Angband", "Graphics", FALSE);
+				set_config_int("Angband", "Sound", FALSE);
 
 				break;
 			}
@@ -1114,7 +766,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 
 	int x1, y1;
 
-	char text[257];
+	unsigned char text[257];
 
 	/* Location */
 	x1 = x * td->tile_wid + td->x;
@@ -1169,81 +821,6 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 }
 
 
-#ifdef USE_GRAPHICS
-
-/*
- * Place some attr/char pairs on the screen
- *
- * The given parameters are "valid".
- *
- * To prevent crashes, we must not only remove the high bits of the
- * "ap[i]" and "cp[i]" values, but we must map the resulting value
- * onto the legal bitmap size, which is normally 32x32.  XXX XXX XXX
- */
-#ifdef USE_TRANSPARENCY
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
-{
-	term_data *td = (term_data*)(Term->data);
-
-	int i;
-
-	int w, h;
-
-	int x1, y1;
-	int x2, y2;
-
-# ifdef USE_TRANSPARENCY
-
-	int x3, y3;
-
-# endif /* USE_TRANSPARENCY */
-
-	/* Size */
-	w = td->tile_wid;
-	h = td->tile_hgt;
-
-	/* Location (window) */
-	x1 = x * w + td->x;
-	y1 = y * h + td->y;
-
-	/* Dump the tiles */
-	for (i = 0; i < n; i++)
-	{
-		/* Location (bitmap) */
-		x2 = (cp[i] & 0x7F) * w;
-		y2 = (ap[i] & 0x7F) * h;
-
-# ifdef USE_TRANSPARENCY
-		x3 = (tcp[i] & 0x7F) * w;
-		y3 = (tap[i] & 0x7F) * h;
-
-		/* Blit the tile to the screen */
-		blit(td->tiles, screen, x3, y3, x1, y1, w, h);
-
-		/* Blit the tile to the screen */
-		masked_blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# else /* USE_TRANSPARENCY */
-
-		/* Blit the tile to the screen */
-		blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# endif /* USE_TRANSPARENCY */
-
-		/* Advance (window) */
-		x1 += w;
-	}
-
-	/* Success */
-	return (0);
-}
-
-#endif /* USE_GRAPHICS */
-
-
 /*
  * Init a Term
  */
@@ -1262,13 +839,6 @@ static void Term_nuke_dos(term *t)
 
 	/* Free the terminal font */
 	if (td->font) destroy_font(td->font);
-
-#ifdef USE_GRAPHICS
-
-	/* Free the terminal bitmap */
-	if (td->tiles) destroy_bitmap(td->tiles);
-
-#endif /* USE_GRAPHICS */
 }
 
 
@@ -1307,16 +877,6 @@ static void term_data_link(term_data *td)
 	t->user_hook = Term_user_dos;
 	t->text_hook = Term_text_dos;
 
-#ifdef USE_GRAPHICS
-
-	/* Prepare the graphics hook */
-	t->pict_hook = Term_pict_dos;
-
-	/* Use "Term_pict" for "graphic" data */
-	t->higher_pict = TRUE;
-
-#endif /* USE_GRAPHICS */
-
 	/* Remember where we came from */
 	t->data = (vptr)(td);
 }
@@ -1353,35 +913,6 @@ static void dos_quit_hook(cptr str)
 
 #endif /* USE_BACKGROUND */
 
-
-#ifdef USE_SOUND
-
-	if (sound_initialized)
-	{
-		/* Destroy samples */
-		for (i = 1; i < SOUND_MAX; i++)
-		{
-			int j;
-
-			for (j = 0; j < sample_count[i]; j++)
-			{
-				if (samples[i][j]) destroy_sample(samples[i][j]);
-			}
-		}
-	}
-
-	/* Clear the old song */
-	if (midi_song) destroy_midi(midi_song);
-	midi_song =NULL;
-# ifdef USE_MOD_FILES
-	if (mod_file_initialized)
-	{
-		stop_mod();
-		destroy_mod(mod_song);
-	}
-# endif /* USE_MOD_FILES */
-
-#endif /* USE_SOUND */
 
 	/* Shut down Allegro */
 	allegro_exit();
@@ -1756,302 +1287,6 @@ static void init_background(void)
 #endif /* USE_BACKGROUND */
 
 
-#ifdef USE_GRAPHICS
-
-/*
- * Initialize graphics
- */
-static bool init_graphics(void)
-{
-	char filename[1024];
-	char section[80];
-	char name_tiles[128];
-
-	/* Large bitmap for the tiles */
-	BITMAP *tiles = NULL;
-	PALLETE tiles_pallete;
-
-	/* Size of each bitmap tile */
-	int bitmap_wid;
-	int bitmap_hgt;
-
-	int num_windows;
-
-	if (!graphics_initialized)
-	{
-		/* Section name */
-		sprintf(section, "Mode-%d", resolution);
-
-		/* Get bitmap tile size */
-		bitmap_wid = get_config_int(section, "bitmap_wid", 8);
-		bitmap_hgt = get_config_int(section, "bitmap_hgt", 8);
-
-		/* Get bitmap filename */
-		strcpy(name_tiles, get_config_string(section, "bitmap_file", "8x8.bmp"));
-
-		/* Get number of windows */
-		num_windows = get_config_int(section, "num_windows", 1);
-
-		/* Build the name of the bitmap file */
-		path_build(filename, 1024, xtra_graf_dir, name_tiles);
-
-		/* Open the bitmap file */
-		if ((tiles = load_bitmap(filename, tiles_pallete)) != NULL)
-		{
-			int i;
-
-			/*
-			 * Set the graphics mode to "new" if Adam Bolt's
-			 * new 16x16 tiles are used.
-			 */
-			ANGBAND_GRAF = get_config_string(section, "graf-mode", "old");
-
-			/* Use transparent blits */
-			if (streq(ANGBAND_GRAF, "new"))
-				use_transparency = TRUE;
-
-			/* Select the bitmap pallete */
-			set_palette_range(tiles_pallete, 0, COLOR_OFFSET - 1, 0);
-
-			/* Prepare the graphics */
-			for (i = 0; i < num_windows; i++)
-			{
-				term_data *td;
-
-				int col, row;
-				int cols, rows;
-				int width, height;
-				int src_x, src_y;
-				int tgt_x, tgt_y;
-
-				td = &data[i];
-
-				cols = tiles->w / bitmap_wid;
-				rows = tiles->h / bitmap_hgt;
-
-				width = td->tile_wid * cols;
-				height = td->tile_hgt * rows;
-
-				/* Initialize the tile graphics */
-				td->tiles = create_bitmap(width, height);
-
-				for (row = 0; row < rows; ++row)
-				{
-					src_y = row * bitmap_hgt;
-					tgt_y = row * td->tile_hgt;
-
-					for (col = 0; col < cols; ++col)
-					{
-						src_x = col * bitmap_wid;
-						tgt_x = col * td->tile_wid;
-
-						stretch_blit(tiles, td->tiles,
-							src_x, src_y,
-							bitmap_wid, bitmap_hgt,
-							tgt_x, tgt_y,
-							td->tile_wid, td->tile_hgt);
-					}
-				}
-			}
-
-			/* Free the old tiles bitmap */
-			if (tiles) destroy_bitmap(tiles);
-
-			graphics_initialized = TRUE;
-
-			/* Success */
-			return (TRUE);
-		}
-
-		/* Failure */
-		return (FALSE);
-	}
-
-	/* Success */
-	return (TRUE);
-}
-
-#endif /* USE_GRAPHICS */
-
-#ifdef USE_SOUND
-
-/*
- * Initialize sound
- * We try to get a list of the available sound-files from "lib/xtra/sound/sound.cfg"
- * and then preload the samples. Every Angband-sound-event can have several samples
- * assigned. Angband will randomly select which is played. This makes it easy to
- * create "sound-packs", just copy wav-files into the "lib/xtra/sound/" folder and
- * add the filenames to "sound.cfg" in the same folder.
- */
-static bool init_sound(void)
-{
-	int i, j, done;
-
-	char section[128];
-	char filename[1024];
-	char **argv;
-
-	struct ffblk f;
-
-	if (sound_initialized) return (TRUE);
-
-	reserve_voices(16, -1);
-
-	/* Initialize Allegro sound */
-	if (!install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL))
-	{
-#ifdef USE_MOD_FILES
-		/*
-		 * Try to enable support for MOD-, and S3M-files
-		 * The parameter for install_mod() is the number
-		 * of channels reserved for the MOD/S3M-file.
-		 */
-		if (install_mod(8) > 0) mod_file_initialized = TRUE;
-#endif /* USE_MOD_FILES */
-
-		/* Access the new sample */
-		path_build(filename, 1024, xtra_sound_dir, "sound.cfg");
-
-		/* Read config info from "lib/xtra/sound/sound.cfg" */
-		override_config_file(filename);
-
-		/* Sound section */
-		strcpy(section, "Sound");
-
-		/* Prepare the sounds */
-		for (i = 1; i < SOUND_MAX; i++)
-		{
-			/* Get the sample names */
-			argv = get_config_argv(section, angband_sound_name[i], &sample_count[i]);
-
-			/* Limit the number of samples */
-			if (sample_count[i] > SAMPLE_MAX) sample_count[i] = SAMPLE_MAX;
-
-			for (j = 0; j < sample_count[i]; j++)
-			{
-				/* Access the new sample */
-				path_build(filename, 1024, xtra_sound_dir, argv[j]);
-
-				/* Load the sample */
-				samples[i][j] = load_sample(filename);
-			}
-		}
-
-		/*
-		 * Get a list of music files
-		 */
-#ifdef USE_MOD_FILES
-		if (mod_file_initialized)
-		{
-			done = findfirst(format("%s/*.*", xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
-		}
-		else
-#endif /* USE_MOD_FILES */
-		done = findfirst(format("%s/*.mid", xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
-
-
-		while (!done && (song_number <= MAX_SONGS))
-		{
-			/* Add music files */
-			{
-				strcpy(music_files[song_number], f.ff_name);
-				song_number++;
-			}
-
-			done = findnext(&f);
-		}
-
-		/* Use "angdos.cfg" */
-		override_config_file("angdos.cfg");
-
-		/* Sound section */
-		strcpy(section, "Sound");
-
-		/* Get the volume setting */
-		digi_volume = get_config_int(section, "digi_volume", 255);
-		midi_volume = get_config_int(section, "midi_volume", 255);
-
-		/* Set the volume */
-		set_volume(digi_volume, midi_volume);
-
-		/* Success */
-		return (TRUE);
-	}
-
-	/* Init failed */
-	return (FALSE);
-}
-
-
-/*
- * Make a sound
- */
-static errr Term_xtra_dos_sound(int v)
-{
-	int n;
-
-	/* Sound disabled */
-	if (!use_sound) return (1);
-
-	/* Illegal sound */
-	if ((v < 0) || (v >= SOUND_MAX)) return (1);
-
-	/* Get a random sample from the available ones */
-	n = rand_int(sample_count[v]);
-
-	/* Play the sound, catch errors */
-	if (samples[v][n])
-	{
-		return (play_sample(samples[v][n], 255, 128, 1000, 0) == 0);
-	}
-
-	/* Oops */
-	return (1);
-}
-
-
-/*
- * Play a song-file
- */
-static void play_song(void)
-{
-	char filename[256];
-
-	/* Clear the old song */
-	if (midi_song) destroy_midi(midi_song);
-	midi_song = NULL;
-
-#ifdef USE_MOD_FILES
-	if (mod_file_initialized)
-	{
-		stop_mod();
-		destroy_mod(mod_song);
-	}
-#endif /* USE_MOD_FILES */
-
-	/* Access the new song */
-	path_build(filename, 1024, xtra_music_dir, music_files[current_song - 1]);
-
-	/* Load and play the new song */
-	midi_song = load_midi(filename);
-
-	if (midi_song)
-	{
-		play_midi(midi_song, 0);
-	}
-#ifdef USE_MOD_FILES
-	else if (mod_file_initialized)
-	{
-		mod_song = load_mod(filename);
-
-		if (mod_song) play_mod(mod_song, FALSE);
-	}
-#endif /* USE_MOD_FILES */
-}
-
-#endif /* USE_SOUND */
-
-
 /*
  * Attempt to initialize this file
  *
@@ -2143,26 +1378,6 @@ errr init_dos(void)
 
 	/* Initialize the windows */
 	init_windows();
-
-#ifdef USE_SOUND
-
-	/* Look for the sound preferences in "angdos.cfg" */
-	if (!arg_sound)
-	{
-		arg_sound = get_config_int("Angband", "Sound", TRUE);
-	}
-
-#endif /* USE_SOUND */
-
-#ifdef USE_GRAPHICS
-
-	/* Look for the graphic preferences in "angdos.cfg" */
-	if (!arg_graphics)
-	{
-		arg_graphics = get_config_int("Angband", "Graphics", GRAPHICS_ORIGINAL);
-	}
-
-#endif /* USE_GRAPHICS */
 
 	/* Initialize the "complex" RNG for the midi-shuffle function */
 	Rand_quick = FALSE;

@@ -474,7 +474,7 @@ static int wiz_create_itemtype(void)
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
-	/* Me need to know the maximal possible tval_index */
+	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
 	/* Choose! */
@@ -526,7 +526,7 @@ static int wiz_create_itemtype(void)
 		}
 	}
 
-	/* Me need to know the maximal possible remembered object_index */
+	/* We need to know the maximal possible remembered object_index */
 	max_num = num;
 
 	/* Choose! */
@@ -616,10 +616,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 		/* Ask wizard what to do. */
 		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent? ", &ch))
-		{
-			changed = FALSE;
 			break;
-		}
 
 		/* Create/change it! */
 		if (ch == 'A' || ch == 'a')
@@ -741,8 +738,6 @@ static void wiz_statistics(object_type *o_ptr)
 		}
 		else
 		{
-			good = FALSE;
-			great = FALSE;
 			break;
 		}
 
@@ -896,7 +891,7 @@ static void do_cmd_wiz_play(void)
 
 	cptr q, s;
 
-	bool changed;
+	bool changed = FALSE;
 
 
 	/* Get an item */
@@ -915,10 +910,6 @@ static void do_cmd_wiz_play(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
-
-	/* The item was not changed */
-	changed = FALSE;
 
 
 	/* Save screen */
@@ -940,10 +931,7 @@ static void do_cmd_wiz_play(void)
 
 		/* Get choice */
 		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
-		{
-			changed = FALSE;
 			break;
-		}
 
 		if (ch == 'A' || ch == 'a')
 		{
@@ -1047,6 +1035,67 @@ static void wiz_create_item(void)
 
 	/* Drop the object from heaven */
 	drop_near(i_ptr, -1, py, px);
+
+	/* All done */
+	msg_print("Allocated.");
+}
+
+
+/*
+ * Make an artifact given its index
+ */
+static void wiz_make_artifact(int a_idx)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	object_type *o_ptr;
+	object_type object_type_body;
+
+	artifact_type *a_ptr = &a_info[a_idx];
+
+	int k_idx;
+
+
+	/* Skip "empty" artifacts */
+	if (!a_ptr->name) return;
+
+	/* Cannot make an artifact twice */
+	if (a_ptr->cur_num) return;
+
+	/* Get local object */
+	o_ptr = &object_type_body;
+
+	/* Find the base object */
+	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+	/* Assign the template */
+	object_prep(o_ptr, k_idx);
+
+	/* Mega-Hack -- mark the item as an artifact */
+	o_ptr->name1 = a_idx;
+
+	/* Hack -- Mark the artifact as "created" */
+	a_ptr->cur_num = 1;
+
+	/* Extract the other fields */
+	o_ptr->pval = a_ptr->pval;
+	o_ptr->ac = a_ptr->ac;
+	o_ptr->dd = a_ptr->dd;
+	o_ptr->ds = a_ptr->ds;
+	o_ptr->to_a = a_ptr->to_a;
+	o_ptr->to_h = a_ptr->to_h;
+	o_ptr->to_d = a_ptr->to_d;
+	o_ptr->weight = a_ptr->weight;
+
+	/* Hack -- extract the "broken" flag */
+	if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
+
+	/* Hack -- extract the "cursed" flag */
+	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+
+	/* Drop the object from heaven */
+	drop_near(o_ptr, -1, py, px);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -1493,6 +1542,13 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		/* Create an artifact */
+		case 'C':
+		{
+			wiz_make_artifact(p_ptr->command_arg);
+			break;
+		}
+
 		/* Detect everything */
 		case 'd':
 		{
@@ -1525,7 +1581,8 @@ void do_cmd_debug(void)
 		/* Hitpoint rerating */
 		case 'h':
 		{
-			do_cmd_rerate(); break;
+			do_cmd_rerate();
+			break;
 		}
 
 		/* Identify */
@@ -1577,13 +1634,6 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Phase Door */
-		case 'p':
-		{
-			teleport_player(10);
-			break;
-		}
-
 		/* Query the dungeon */
 		case 'q':
 		{
@@ -1602,7 +1652,8 @@ void do_cmd_debug(void)
 		/* Teleport */
 		case 't':
 		{
-			teleport_player(100);
+			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 10;
+			teleport_player(p_ptr->command_arg);
 			break;
 		}
 

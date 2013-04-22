@@ -234,7 +234,7 @@ void *read_bmp_file(void)
 	case 4:
 		/* 4bit non compressed */
 		ptr = pal;
-		
+
 		for (i = 0; i < palsize; i++)
 		{
 			fread(ptr + 3 * i, 1, 3, infile);
@@ -672,7 +672,7 @@ static void term_init_svgalib(term *t)
 	gl_setcontextvgavirtual(VGAMODE);
 	buffer = gl_allocatecontext();
 	gl_getcontext(buffer);
-	
+
 	/* Load bitmap into virtual screen */
 	term_load_bitmap();
 
@@ -721,11 +721,6 @@ errr init_lsl(void)
 	term *t = &term_screen_body;
 
 
-	if (arg_graphics)
-	{
-		use_graphics = TRUE;
-	}
-
 	/* Build the "graf" path */
 	path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
 
@@ -745,12 +740,6 @@ errr init_lsl(void)
 	t->init_hook = term_init_svgalib;
 	t->nuke_hook = term_nuke_svgalib;
 	t->text_hook = term_text_svgalib;
-
-	if (use_graphics)
-	{
-		t->pict_hook = term_pict_svgalib;
-		t->higher_pict = TRUE;
-	}
 
 	t->wipe_hook = term_wipe_svgalib;
 	t->curs_hook = term_curs_svgalib;

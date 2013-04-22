@@ -1651,13 +1651,6 @@ bool set_food(int v)
  */
 void check_experience(void)
 {
-	int i;
-
-
-	/* Note current level */
-	i = p_ptr->lev;
-
-
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
 
@@ -1714,11 +1707,8 @@ void check_experience(void)
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
 
-		/* Sound */
-		sound(SOUND_LEVEL);
-
 		/* Message */
-		msg_format("Welcome to level %d.", p_ptr->lev);
+		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -1829,6 +1819,9 @@ void monster_death(int m_idx)
 
 	int number = 0;
 	int total = 0;
+
+	int completed = 0;
+	int level_total = 0;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -1984,55 +1977,87 @@ void monster_death(int m_idx)
 	}
 
 
-	/* Only process "Quest Monsters" */
-	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
+	/* Only process dungeon kills */
+	if (!p_ptr->depth) return;
 
+	/* Reset counters */
+	completed = 0;
+	level_total = 0;
 
-	/* Hack -- Mark quests as complete */
-	for (i = 0; i < MAX_Q_IDX; i++)
+	/* Count incomplete quests */
+	for (i = 0; i < z_info->q_max; i++)
 	{
-		/* Hack -- note completed quests */
-		if (q_list[i].level == r_ptr->level) q_list[i].level = 0;
+		quest *q_ptr = &q_info[i];
 
-		/* Count incomplete quests */
-		if (q_list[i].level) total++;
-	}
-
-
-	/* Need some stairs */
-	if (total)
-	{
-		/* Stagger around */
-		while (!cave_valid_bold(y, x))
+		/* Quest level? */
+		if (q_ptr->level == p_ptr->depth)
 		{
-			int d = 1;
+			/* One on the level */
+			level_total++;
 
-			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
+			/* Require "Quest Monsters" */
+			if (q_ptr->r_idx == m_ptr->r_idx)
+			{
+				/* Mark kills */
+				q_ptr->cur_num++;
 
-			/* Stagger */
-			y = ny; x = nx;
+				/* Completed quest? */
+				if (q_ptr->cur_num == q_ptr->max_num)
+				{
+					/* Mark complete */
+					q_ptr->level = 0;
+
+					/* One complete */
+					completed++;
+				}
+			}
 		}
 
-		/* Destroy any objects */
-		delete_object(y, x);
-
-		/* Explain the staircase */
-		msg_print("A magical staircase appears...");
-
-		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
-
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Fully update the flow */
-		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+		/* Count incomplete quests */
+		if (q_ptr->level) total++;
 	}
 
+	/* Require a quest level */
+	if (!level_total) return;
+
+	/* Require all quests on this level to be completed */
+	if (completed != level_total) return;
+
+
+	/*** Need some stairs ***/
+
+	/* Stagger around */
+	while (!cave_valid_bold(y, x))
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&ny, &nx, y, x, d, 0);
+
+		/* Stagger */
+		y = ny; x = nx;
+	}
+
+	/* Destroy any objects */
+	delete_object(y, x);
+
+	/* Explain the staircase */
+	msg_print("A magical staircase appears...");
+
+	/* Create stairs down */
+	cave_set_feat(y, x, FEAT_MORE);
+
+	/* Hack -- Quest reward */
+	acquirement(y, x, 1, TRUE);
+
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Nothing left, game over... */
-	else
+	if (!total)
 	{
 		/* Total winner */
 		p_ptr->total_winner = TRUE;
@@ -2102,19 +2127,16 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
-		/* Make a sound */
-		sound(SOUND_KILL);
-
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			msg_format("%^s%s", m_name, note);
+			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
 		}
 
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-			msg_format("You have killed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have killed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- non-living monster */
@@ -2123,13 +2145,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		         (r_ptr->flags2 & (RF2_STUPID)) ||
 		         (strchr("Evg", r_ptr->d_char)))
 		{
-			msg_format("You have destroyed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
-			msg_format("You have slain %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
 
 		/* Maximum player level */
@@ -2243,148 +2265,143 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	return (FALSE);
 }
 
+
 /*
- * Handle a request to change the current panel
+ * Modify the current panel to the given coordinates, adjusting only to
+ * ensure the coordinates are legal, and return TRUE if anything done.
  *
- * Return TRUE if the panel was changed.
+ * Hack -- The town should never be scrolled around.
+ *
+ * Note that monsters are no longer affected in any way by panel changes.
+ *
+ * As a total hack, whenever the current panel changes, we assume that
+ * the "overhead view" window should be updated.
  */
-static bool change_panel(int dir)
+bool modify_panel(int wy, int wx)
 {
-	int y = p_ptr->wy + ddy[dir] * PANEL_HGT;
-	int x = p_ptr->wx + ddx[dir] * PANEL_WID;
+	/* Verify wy, adjust if needed */
+	if (p_ptr->depth == 0) wy = SCREEN_HGT;
+	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
+	else if (wy < 0) wy = 0;
 
-	/* Verify the row */
-	if (y < 0) y = 0;
-	if (y > DUNGEON_HGT - SCREEN_HGT) y = DUNGEON_HGT - SCREEN_HGT;
+	/* Verify wx, adjust if needed */
+	if (p_ptr->depth == 0) wx = SCREEN_WID;
+	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
+	else if (wx < 0) wx = 0;
 
-	/* Verify the col */
-	if (x < 0) x = 0;
-	if (x > DUNGEON_WID - SCREEN_WID) x = DUNGEON_WID - SCREEN_WID;
-
-	/* Handle "changes" */
-	if ((p_ptr->wy != y) || (p_ptr->wx != x))
+	/* React to changes */
+	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
 	{
-		/* Update panel */
-		p_ptr->wy = y;
-		p_ptr->wx = x;
-
-		/* Update stuff */
-		p_ptr->update |= (PU_MONSTERS);
+		/* Save wy, wx */
+		p_ptr->wy = wy;
+		p_ptr->wx = wx;
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
 
-		/* Handle stuff */
-		handle_stuff();
+		/* Hack -- Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
 
-		/* Success */
-		return TRUE;
+		/* Changed */
+		return (TRUE);
 	}
 
 	/* No change */
-	return FALSE;
+	return (FALSE);
 }
 
 
+/*
+ * Perform the minimum "whole panel" adjustment to ensure that the given
+ * location is contained inside the current panel, and return TRUE if any
+ * such adjustment was performed.
+ */
+bool adjust_panel(int y, int x)
+{
+	int wy = p_ptr->wy;
+	int wx = p_ptr->wx;
 
+	/* Adjust as needed */
+	while (y >= wy + SCREEN_HGT) wy += SCREEN_HGT;
+	while (y < wy) wy -= SCREEN_HGT;
+
+	/* Adjust as needed */
+	while (x >= wx + SCREEN_WID) wx += SCREEN_WID;
+	while (x < wx) wx -= SCREEN_WID;
+
+	/* Use "modify_panel" */
+	return (modify_panel(wy, wx));
+}
 
 
 /*
- * Check for, and react to, the player leaving the panel
+ * Change the current panel to the panel lying in the given direction.
  *
- * When the player gets too close to the edge of a panel, the
- * map scrolls one panel in that direction so that the player
+ * Return TRUE if the panel was changed.
+ */
+bool change_panel(int dir)
+{
+	int wy = p_ptr->wy + ddy[dir] * PANEL_HGT;
+	int wx = p_ptr->wx + ddx[dir] * PANEL_WID;
+
+	/* Use "modify_panel" */
+	return (modify_panel(wy, wx));
+}
+
+
+/*
+ * Verify the current panel (relative to the player location).
+ *
+ * By default, when the player gets "too close" to the edge of the current
+ * panel, the map scrolls one panel in that direction so that the player
  * is no longer so close to the edge.
+ *
+ * The "center_player" option allows the current panel to always be centered
+ * around the player, which is very expensive, and also has some interesting
+ * gameplay ramifications.
  */
 void verify_panel(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i;
+	int wy = p_ptr->wy;
+	int wx = p_ptr->wx;
 
-	bool scroll = FALSE;
 
-
-	/* Initial row */
-	i = p_ptr->wy;
-
-	/* Scroll screen when off-center */
+	/* Scroll screen vertically when off-center */
 	if (center_player && (!p_ptr->running || !run_avoid_center) &&
-	    (py != p_ptr->wy + SCREEN_HGT / 2))
+	    (py != wy + SCREEN_HGT / 2))
 	{
-		i = py - SCREEN_HGT / 2;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
+		wy = py - SCREEN_HGT / 2;
 	}
 
-	/* Scroll screen when 2 grids from top/bottom edge */
-	else if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy + SCREEN_HGT - 2))
+	/* Scroll screen vertically when 2 grids from top/bottom edge */
+	else if ((py < wy + 2) || (py >= wy + SCREEN_HGT - 2))
 	{
-		i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
-	}
-
-	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_HGT;
-
-	/* New panel row */
-	if (p_ptr->wy != i)
-	{
-		/* Update panel */
-		p_ptr->wy = i;
-
-		/* Scroll */
-		scroll = TRUE;
+		wy = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
 	}
 
 
-	/* Initial col */
-	i = p_ptr->wx;
-
-	/* Scroll screen when off-center */
+	/* Scroll screen horizontally when off-center */
 	if (center_player && (!p_ptr->running || !run_avoid_center) &&
-	    (px != p_ptr->wx + SCREEN_WID / 2))
+	    (px != wx + SCREEN_WID / 2))
 	{
-		i = px - SCREEN_WID / 2;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+		wx = px - SCREEN_WID / 2;
 	}
 
-	/* Scroll screen when 4 grids from left/right edge */
-	else if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx + SCREEN_WID - 4))
+	/* Scroll screen horizontally when 4 grids from left/right edge */
+	else if ((px < wx + 4) || (px >= wx + SCREEN_WID - 4))
 	{
-		i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
-	}
-
-	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_WID;
-
-	/* New panel col */
-	if (p_ptr->wx != i)
-	{
-		/* Update panel */
-		p_ptr->wx = i;
-
-		/* Scroll */
-		scroll = TRUE;
+		wx = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
 	}
 
 
-	/* Scroll */
-	if (scroll)
+	/* Scroll if needed */
+	if (modify_panel(wy, wx))
 	{
 		/* Optional disturb on "panel change" */
 		if (disturb_panel && !center_player) disturb(0, 0);
-
-		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
 	}
 }
 
@@ -2955,9 +2972,9 @@ static void target_set_interactive_prepare(int mode)
 	temp_n = 0;
 
 	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 		{
 			/* Require line of sight, unless "look" is "expanded" */
 			if (!expand_look && !player_has_los_bold(y, x)) continue;
@@ -3401,11 +3418,15 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
  *
  * Note that this code can be called from "get_aim_dir()".
  *
- * All locations must be on the current panel.  XXX XXX XXX
- *
- * Perhaps consider the possibility of "auto-scrolling" the screen
- * while the cursor moves around.  This may require dynamic updating
- * of the "temp" grid set.  XXX XXX XXX
+ * All locations must be on the current panel, unless the "scroll_target"
+ * option is used, which allows changing the current panel during "look"
+ * and "target" commands.  Currently, when "flag" is true, that is, when
+ * "interesting" grids are being used, and a directional key is used, we
+ * only scroll by a single panel, in the direction requested, and check
+ * for any interesting grids on that panel.  The "correct" solution would
+ * actually involve scanning a larger set of grids, including ones in
+ * panels which are adjacent to the one currently scanned, but this is
+ * overkill for this function.  XXX XXX
  *
  * Hack -- targetting/observing an "outer border grid" may induce
  * problems, so this is not currently allowed.
@@ -3532,28 +3553,14 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
-
-#ifdef ALLOW_SCROLL_TARGET
-
 					if (scroll_target)
 					{
-						/* Recenter the map around the player */
+						/* Recenter around player */
 						verify_panel();
-
-						/* Update stuff */
-						p_ptr->update |= (PU_MONSTERS);
-
-						/* Redraw map */
-						p_ptr->redraw |= (PR_MAP);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_OVERHEAD);
 
 						/* Handle stuff */
 						handle_stuff();
 					}
-
-#endif /* ALLOW_SCROLL_TARGET */
 
 					y = py;
 					x = px;
@@ -3643,93 +3650,40 @@ bool target_set_interactive(int mode)
 			/* Hack -- move around */
 			if (d)
 			{
-
-#ifdef ALLOW_SCROLL_TARGET
-
-				int y2 = p_ptr->wy;
-				int x2 = p_ptr->wx;
-
-#endif /* ALLOW_SCROLL_TARGET */
+				int old_y = temp_y[m];
+				int old_x = temp_x[m];
 
 				/* Find a new monster */
-				i = target_pick(temp_y[m], temp_x[m], ddy[d], ddx[d]);
+				i = target_pick(old_y, old_x, ddy[d], ddx[d]);
 
-#ifdef ALLOW_SCROLL_TARGET
-
-				/* Request to target past last interesting grid */
-				while (scroll_target && flag && (i < 0))
+				/* Scroll to find interesting grid */
+				if (scroll_target && (i < 0))
 				{
-					/* Note the change */
+					int old_wy = p_ptr->wy;
+					int old_wx = p_ptr->wx;
+
+					/* Change if legal */
 					if (change_panel(d))
 					{
-						int v = temp_y[m];
-						int u = temp_x[m];
-
 						/* Recalculate interesting grids */
 						target_set_interactive_prepare(mode);
 
-						/* Look at interesting grids */
-						flag = TRUE;
-
 						/* Find a new monster */
-						i = target_pick(v, u, ddy[d], ddx[d]);
+						i = target_pick(old_y, old_x, ddy[d], ddx[d]);
 
-						/* Use that grid */
-						if (i >= 0) m = i;
-					}
-
-					/* Nothing interesting */
-					else
-					{
-						/* Restore previous position */
-						p_ptr->wy = y2;
-						p_ptr->wx = x2;
-
-						/* Update stuff */
-						p_ptr->update |= (PU_MONSTERS);
-
-						/* Redraw map */
-						p_ptr->redraw |= (PR_MAP);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_OVERHEAD);
+						/* Restore panel if needed */
+						if ((i < 0) && modify_panel(old_wy, old_wx))
+						{
+							/* Recalculate interesting grids */
+							target_set_interactive_prepare(mode);
+						}
 
 						/* Handle stuff */
 						handle_stuff();
-
-						/* Recalculate interesting grids */
-						target_set_interactive_prepare(mode);
-
-						/* Look at boring grids */
-						flag = FALSE;
-
-						/* Move */
-						x += ddx[d];
-						y += ddy[d];
-
-						/* Apply the motion */
-						if ((y >= p_ptr->wy + SCREEN_HGT) || (y < p_ptr->wy) ||
-						    (x >= p_ptr->wx + SCREEN_WID) || (x < p_ptr->wx))
-						{
-							if (change_panel(d))
-							{
-								target_set_interactive_prepare(mode);
-							}
-						}
-
-						/* Slide into legality */
-						if (x >= DUNGEON_WID-1) x = DUNGEON_WID - 2;
-						else if (x <= 0) x = 1;
-
-						/* Slide into legality */
-						if (y >= DUNGEON_HGT-1) y = DUNGEON_HGT - 2;
-						else if (y <= 0) y = 1;
 					}
 				}
 
-#endif /* ALLOW_SCROLL_TARGET */
-
-				/* Use that grid */
+				/* Use interesting grid if found */
 				if (i >= 0) m = i;
 			}
 		}
@@ -3769,28 +3723,14 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
-
-#ifdef ALLOW_SCROLL_TARGET
-
 					if (scroll_target)
 					{
-						/* Recenter the map around the player */
+						/* Recenter around player */
 						verify_panel();
-
-						/* Update stuff */
-						p_ptr->update |= (PU_MONSTERS);
-
-						/* Redraw map */
-						p_ptr->redraw |= (PR_MAP);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_OVERHEAD);
 
 						/* Handle stuff */
 						handle_stuff();
 					}
-
-#endif /* ALLOW_SCROLL_TARGET */
 
 					y = py;
 					x = px;
@@ -3856,23 +3796,37 @@ bool target_set_interactive(int mode)
 				x += ddx[d];
 				y += ddy[d];
 
-				/* Apply the motion */
-				if ((y >= p_ptr->wy + SCREEN_HGT) || (y < p_ptr->wy) ||
-				    (x >= p_ptr->wx + SCREEN_WID) || (x < p_ptr->wx))
+				if (scroll_target)
 				{
-					if (change_panel(d))
+					/* Slide into legality */
+					if (x >= DUNGEON_WID - 1) x--;
+					else if (x <= 0) x++;
+
+					/* Slide into legality */
+					if (y >= DUNGEON_HGT - 1) y--;
+					else if (y <= 0) y++;
+
+					/* Adjust panel if needed */
+					if (adjust_panel(y, x))
 					{
+						/* Handle stuff */
+						handle_stuff();
+
+						/* Recalculate interesting grids */
 						target_set_interactive_prepare(mode);
 					}
 				}
 
-				/* Slide into legality */
-				if (x >= DUNGEON_WID-1) x = DUNGEON_WID - 2;
-				else if (x <= 0) x = 1;
+				else
+				{
+					/* Slide into legality */
+					if (x >= p_ptr->wx + SCREEN_WID) x--;
+					else if (x < p_ptr->wx) x++;
 
-				/* Slide into legality */
-				if (y >= DUNGEON_HGT-1) y = DUNGEON_HGT - 2;
-				else if (y <= 0) y = 1;
+					/* Slide into legality */
+					if (y >= p_ptr->wy + SCREEN_HGT) y--;
+					else if (y < p_ptr->wy) y++;
+				}
 			}
 		}
 	}
@@ -3883,27 +3837,14 @@ bool target_set_interactive(int mode)
 	/* Clear the top line */
 	prt("", 0, 0);
 
-#ifdef ALLOW_SCROLL_TARGET
-
 	if (scroll_target)
 	{
-		/* Recenter the map around the player */
+		/* Recenter around player */
 		verify_panel();
-
-		/* Update stuff */
-		p_ptr->update |= (PU_MONSTERS);
-
-		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
 
 		/* Handle stuff */
 		handle_stuff();
 	}
-
-#endif /* ALLOW_SCROLL_TARGET */
 
 	/* Failure to set target */
 	if (!p_ptr->target_set) return (FALSE);

@@ -16,10 +16,47 @@
 # not be dropped when Morgoth is killed.  Note that they, like the "special"
 # artifacts, are never created "accidentally".
 
+# === Understanding a_info.txt ===
+
+# N: serial number : item name
+# I: tval : sval : pval
+# W: depth : rarity : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# F: flag | flag | etc
+# A: activation : recharge time : recharge time dice
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'I' is for basic information. The tval is for the type of item, the
+# sval identifies the subtype and the pval indicates the amount of
+# effect the item has, if applicable.
+
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the item's value.
+
+# 'P' is for power information. The items base armor class, its base
+# damage and pluses to-hit, to-dam and to-ac.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'A' is for activation.  Activation is the effect the artifact
+# activates for. The recharge time calculates from the recharge time
+# plus a random value between 1 and the recharge time dice (if not 0).
+# If an activation is given then the artifact must also have the
+# ACTIVATE flag.
+
+#
+# Note that changing or adding artifacts will have influence on the
+# random artifacts and will break savefile compatibility!
+#
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 
 

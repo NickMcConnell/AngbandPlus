@@ -151,13 +151,6 @@ struct AngbandPart
 
 	XtCallbackList redraw_callbacks;
 
-#ifdef USE_GRAPHICS
-
-	/* Tiles */
-	XImage *tiles;
-
-#endif /* USE_GRAPHICS */
-
 	/* Private state */
 	XFontStruct *fnt;
 	Dimension fontheight;
@@ -375,45 +368,6 @@ static void AngbandOutputText(AngbandWidget widget, int x, int y,
 }
 
 
-#ifdef USE_GRAPHICS
-
-/*
- * Draw some graphical characters.
- */
-static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
-                              const byte *ap, const char *cp)
-{
-	int i;
-
-	byte a;
-	char c;
-
-	/* Figure out where to place the text */
-	y = (y * widget->angband.fontheight + widget->angband.internal_border);
-	x = (x * widget->angband.fontwidth + widget->angband.internal_border);
-
-	for (i = 0; i < n; ++i)
-	{
-		a = *ap++;
-		c = *cp++;
-
-		XPutImage(XtDisplay(widget), XtWindow(widget),
-		          widget->angband.gc[0],
-		          widget->angband.tiles,
-		          (c & 0x7F) * widget->angband.fontwidth,
-		          (a & 0x7F) * widget->angband.fontheight,
-		          x, y,
-		          widget->angband.fontwidth,
-		          widget->angband.fontheight);
-
-		x += widget->angband.fontwidth;
-	}
-}
-
-#endif /* USE_GRAPHICS */
-
-
-
 /*
  * Private procedures
  */
@@ -455,7 +409,7 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 	/* Get some information about the font */
 	wnew->angband.fnt = getFont(wnew, wnew->angband.font, TRUE);
 	wnew->angband.fontheight = wnew->angband.fnt->ascent +
-	wnew->angband.fnt->descent;
+		wnew->angband.fnt->descent;
 	wnew->angband.fontwidth = wnew->angband.fnt->max_bounds.width;
 	wnew->angband.fontascent = wnew->angband.fnt->ascent;
 
@@ -466,8 +420,7 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 
 	for (i = 0; i < NUM_COLORS; i++)
 	{
-		/* Default to background */
-		unsigned long pixel = bg;
+		unsigned long pixel;
 
 		/* Acquire Angband colors */
 		wnew->angband.color[i][0] = angband_color_table[i][0];
@@ -491,8 +444,11 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 
 		gcv.foreground = pixel;
 
+		/* Copy */
+		gcv.function = 3;
+
 		wnew->angband.gc[i] = XtGetGC((Widget)wnew,
-		                              (GCFont | GCForeground |
+		                              (GCFont | GCForeground | GCFunction |
 		                               GCBackground | GCGraphicsExposures),
 		                              &gcv);
 	}
@@ -500,9 +456,11 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 	/* Create a special GC for highlighting */
 	gcv.foreground = (BlackPixelOfScreen(XtScreen((Widget)wnew)) ^
 	                  WhitePixelOfScreen(XtScreen((Widget)wnew)));
+	gcv.background = 0;
+
 	gcv.function = GXxor;
 	wnew->angband.gc[COLOR_XOR] = XtGetGC((Widget)wnew,
-	                                      (GCFunction | GCForeground |
+	                                      (GCFunction | GCForeground | GCBackground |
 	                                       GCGraphicsExposures),
 	                                      &gcv);
 
@@ -599,7 +557,7 @@ static Boolean SetValues(AngbandWidget current, AngbandWidget request,
 			XFreeFont(XtDisplay((Widget)wnew), current->angband.fnt);
 			/* Update font information */
 			wnew->angband.fontheight = wnew->angband.fnt->ascent +
-			wnew->angband.fnt->descent;
+				wnew->angband.fnt->descent;
 			wnew->angband.fontwidth = wnew->angband.fnt->max_bounds.width;
 			wnew->angband.fontascent = wnew->angband.fnt->ascent;
 		}
@@ -766,6 +724,11 @@ struct term_data
  */
 static term_data data[MAX_TERM_DATA];
 
+
+/*
+ * Current number of windows open
+ */
+static int num_term = MAX_TERM_DATA;
 
 /*
  * The names of the term_data's
@@ -1080,6 +1043,7 @@ static void Term_xtra_xaw_react_aux(term_data *td)
 				                     wnew->angband.color[i][2],
 				                     wnew->angband.color[i][3]);
 
+
 				/* Change */
 				XSetForeground(dpy, wnew->angband.gc[i], pixel);
 			}
@@ -1096,7 +1060,7 @@ static errr Term_xtra_xaw_react(void)
 	int i;
 
 	/* Initialize the windows */
-	for (i = 0; i < MAX_TERM_DATA; i++)
+	for (i = 0; i < num_term; i++)
 	{
 		term_data *td = &data[i];
 
@@ -1216,25 +1180,6 @@ static errr Term_text_xaw(int x, int y, int n, byte a, cptr s)
 }
 
 
-#ifdef USE_GRAPHICS
-
-/*
- * Draw some graphical characters.
- */
-static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp)
-{
-	term_data *td = (term_data*)(Term->data);
-
-	/* Draw the pictures */
-	AngbandOutputPict(td->widget, x, y, n, ap, cp);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* USE_GRAPHICS */
-
-
 /*
  * Raise a term
  */
@@ -1318,16 +1263,6 @@ errr init_xaw(int argc, char *argv[])
 
 	cptr dpy_name = "";
 
-	int num_term = MAX_TERM_DATA;
-
-#ifdef USE_GRAPHICS
-
-	char filename[1024];
-
-	int pict_wid = 0;
-	int pict_hgt = 0;
-
-#endif /* USE_GRAPHICS */
 
 	/* Parse args */
 	for (i = 1; i < argc; i++)
@@ -1357,7 +1292,7 @@ errr init_xaw(int argc, char *argv[])
 
 
 	/* Attempt to open the local display */
-	dpy = XOpenDisplay("");
+	dpy = XOpenDisplay(dpy_name);
 
 	/* Failure -- assume no X11 available */
 	if (!dpy) return (-1);
@@ -1397,147 +1332,8 @@ errr init_xaw(int argc, char *argv[])
 	/* Raise the "Angband" window */
 	term_raise(&data[0]);
 
-
-#ifdef USE_GRAPHICS
-
-	/* Try graphics */
-	if (arg_graphics)
-	{
-		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
-		{
-			/* Use graphics */
-			use_graphics = TRUE;
-
-			pict_wid = pict_hgt = 16;
-
-			ANGBAND_GRAF = "new";
-		}
-		else
-		{
-			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
-
-			/* Use the "8x8.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				pict_wid = pict_hgt = 8;
-
-				ANGBAND_GRAF = "old";
-			}
-		}
-	}
-
-	/* Load graphics */
-	if (use_graphics)
-	{
-		/* Hack -- Get the Display */
-		term_data *td = &data[0];
-		Widget widget = (Widget)(td->widget);
-		Display *dpy = XtDisplay(widget);
-
-		XImage *tiles_raw;
-
-		/* Load the graphical tiles */
-		tiles_raw = ReadBMP(dpy, filename);
-
-		/* Initialize the windows */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &data[i];
-
-			term *t = &td->t;
-
-			t->pict_hook = Term_pict_xaw;
-
-			t->higher_pict = TRUE;
-
-			/* Resize tiles */
-			td->widget->angband.tiles =
-			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->widget->angband.fontwidth,
-			            td->widget->angband.fontheight);
-		}
-
-		/* Free tiles_raw? XXX XXX */
-	}
-
-#endif /* USE_GRAPHICS */
-
 	/* Success */
 	return (0);
 }
 
 #endif /* USE_XAW */
-
-/*
- * The following shell script can be used to launch Angband, assuming that
- * it was extracted into "~/Angband", and compiled using "USE_X11", on a
- * Linux machine, with a 1280x1024 screen, using 6 windows (with the given
- * characteristics), with gamma correction of "180" (1 / 1.80), and without
- * graphics (add "-g" for graphics).  Just copy this comment into a file,
- * remove the leading " * " characters (and the head/tail of this comment),
- * and make the file executable.
- * 
- *
- * #!/bin/csh
- * 
- * # Describe attempt
- * echo "Launching angband..."
- * sleep 2
- * 
- * # Main window
- * setenv ANGBAND_X11_FONT_0 10x20
- * setenv ANGBAND_X11_AT_X_0 5
- * setenv ANGBAND_X11_AT_Y_0 510
- * 
- * # Message window
- * setenv ANGBAND_X11_FONT_1 8x13
- * setenv ANGBAND_X11_AT_X_1 5
- * setenv ANGBAND_X11_AT_Y_1 22
- * setenv ANGBAND_X11_ROWS_1 35
- * 
- * # Inventory window
- * setenv ANGBAND_X11_FONT_2 8x13
- * setenv ANGBAND_X11_AT_X_2 635
- * setenv ANGBAND_X11_AT_Y_2 182
- * setenv ANGBAND_X11_ROWS_3 23
- * 
- * # Equipment window
- * setenv ANGBAND_X11_FONT_3 8x13
- * setenv ANGBAND_X11_AT_X_3 635
- * setenv ANGBAND_X11_AT_Y_3 22
- * setenv ANGBAND_X11_ROWS_3 12
- * 
- * # Monster recall window
- * setenv ANGBAND_X11_FONT_4 6x13
- * setenv ANGBAND_X11_AT_X_4 817
- * setenv ANGBAND_X11_AT_Y_4 847
- * setenv ANGBAND_X11_COLS_4 76
- * setenv ANGBAND_X11_ROWS_4 11
- * 
- * # Object recall window
- * setenv ANGBAND_X11_FONT_5 6x13
- * setenv ANGBAND_X11_AT_X_5 817
- * setenv ANGBAND_X11_AT_Y_5 520
- * setenv ANGBAND_X11_COLS_5 76
- * setenv ANGBAND_X11_ROWS_5 24
- * 
- * # The build directory
- * cd ~/Angband
- * 
- * # Gamma correction file
- * setenv ANGBAND_X11_GAMMA lib/file/gamma180.txt
- * 
- * # Launch Angband
- * ./src/angband -mx11 -- -n6 &
- *
- */
-

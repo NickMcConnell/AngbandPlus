@@ -366,20 +366,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			case 'V':
-			case 'v':
-			{
-				arg_sound = TRUE;
-				break;
-			}
-
-			case 'G':
-			case 'g':
-			{
-				arg_graphics = TRUE;
-				break;
-			}
-
 			case 'R':
 			case 'r':
 			{
@@ -406,7 +392,7 @@ int main(int argc, char *argv[])
 			case 'U':
 			{
 				if (!argv[i][2]) goto usage;
-				strcpy(op_ptr->full_name, &argv[i][2]);
+				(void)strnfmt(op_ptr->full_name, 32, "%s", &argv[i][2]);
 				break;
 			}
 
@@ -442,8 +428,6 @@ int main(int argc, char *argv[])
 				puts("  -n       Start a new character");
 				puts("  -f       Request fiddle mode");
 				puts("  -w       Request wizard mode");
-				puts("  -v       Request sound mode");
-				puts("  -g       Request graphics mode");
 				puts("  -o       Request original keyset");
 				puts("  -r       Request rogue-like keyset");
 				puts("  -s<num>  Show <num> high scores");
@@ -639,16 +623,14 @@ int main(int argc, char *argv[])
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
-
-	/* Hack -- If requested, display scores and quit */
-	if (show_score > 0) display_scores(0, show_score);
-
-
 	/* Catch nasty signals */
 	signals_init();
 
 	/* Initialize */
 	init_angband();
+
+	/* Hack -- If requested, display scores and quit */
+	if (show_score > 0) display_scores(0, show_score);
 
 	/* Wait for response */
 	pause_line(23);

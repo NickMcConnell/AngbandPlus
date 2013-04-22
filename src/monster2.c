@@ -248,7 +248,7 @@ void wipe_m_list(void)
 	int i;
 
 	/* Delete all the monsters */
-	for (i = m_max - 1; i >= 1; i--)
+	for (i = m_max; i-- > 1; )
 	{
 		monster_type *m_ptr = &m_list[i];
 
@@ -341,6 +341,89 @@ s16b m_pop(void)
 
 
 /*
+ * Is this monster race priveleged?
+ */
+bool special_monster(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	int i;
+
+	/* Unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (TRUE);
+
+	/* Dungeon quests */
+	if (p_ptr->depth)
+	{
+		/* Scan quests */
+		for (i = 0; i < z_info->q_max; i++)
+		{
+			quest *q_ptr = &q_info[i];
+
+			/* Current quest monster */
+			if ((q_ptr->level == p_ptr->depth) &&
+			    (q_ptr->r_idx == r_idx))
+			{
+			 	return (TRUE);
+			}
+		}
+	}
+
+	/* Not special */
+	return (FALSE);
+}
+
+
+/*
+ * Can this monster race be generated?
+ */
+static bool allow_monster(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	bool unique = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
+	int i;
+
+	/* Hack -- "unique" monsters must be "unique" */
+	if (unique && (r_ptr->cur_num >= r_ptr->max_num))
+	{
+		return (FALSE);
+	}
+
+	/* Dungeon quests */
+	if (p_ptr->depth)
+	{
+		/* Scan quests */
+		for (i = 0; i < z_info->q_max; i++)
+		{
+			quest *q_ptr = &q_info[i];
+
+			/* Same quest monster */
+			if (q_ptr->r_idx == r_idx)
+			{
+				/* Quest levels */
+				if (q_ptr->level == p_ptr->depth)
+				{
+					/* Hack -- only generate a certain number of quest monsters */
+					if (r_ptr->cur_num >= (q_ptr->max_num - q_ptr->cur_num))
+					{
+						return (FALSE);
+					}
+				}
+
+				/* Forbid other quest uniques */
+				else if (unique && q_ptr->level)
+				{
+					return (FALSE);
+				}
+			}
+		}
+	}
+
+	/* Allowed */
+	return (TRUE);
+}
+
+
+/*
  * Apply a "monster restriction function" to the "monster allocation table"
  */
 errr get_mon_num_prep(void)
@@ -400,11 +483,7 @@ s16b get_mon_num(int level)
 {
 	int i, j, p;
 
-	int r_idx;
-
 	long value, total;
-
-	monster_race *r_ptr;
 
 	alloc_entry *table = alloc_race_table;
 
@@ -449,24 +528,8 @@ s16b get_mon_num(int level)
 		/* Hack -- No town monsters in dungeon */
 		if ((level > 0) && (table[i].level <= 0)) continue;
 
-		/* Get the "r_idx" of the chosen monster */
-		r_idx = table[i].index;
-
-		/* Get the actual race */
-		r_ptr = &r_info[r_idx];
-
-		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
-		    (r_ptr->cur_num >= r_ptr->max_num))
-		{
-			continue;
-		}
-
-		/* Depth Monsters never appear out of depth */
-		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
-		{
-			continue;
-		}
+		/* Hack -- Some monsters are not allowed */
+		if (!allow_monster(table[i].index)) continue;
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -737,10 +800,9 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 void lore_do_probe(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 
 	/* Hack -- Memorize some flags */
 	l_ptr->r_flags1 = r_ptr->flags1;
@@ -772,10 +834,9 @@ void lore_do_probe(int m_idx)
 void lore_treasure(int m_idx, int num_item, int num_gold)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 
 	/* Note the number of things dropped */
 	if (num_item > l_ptr->r_drop_item) l_ptr->r_drop_item = num_item;
@@ -1357,8 +1418,6 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
  * "FORCE_SLEEP", which will cause them to be placed with low energy,
  * which often (but not always) lets the player move before they do.
  *
- * This routine refuses to place out-of-depth "FORCE_DEPTH" monsters.
- *
  * XXX XXX XXX Use special "here" and "dead" flags for unique monsters,
  * remove old "cur_num" and "max_num" fields.
  *
@@ -1403,20 +1462,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	name = (r_name + r_ptr->name);
 
 
-	/* Hack -- "unique" monsters must be "unique" */
-	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
-
-
-	/* Depth monsters may NOT be created out of depth */
-	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
+	/* Some monsters are not allowed */
+	if (!allow_monster(r_idx)) return (FALSE);
 
 
 	/* Powerful monster */
@@ -1538,9 +1585,9 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	int old, n, i;
-	int total = 0, extra = 0;
+	int total, extra = 0;
 
-	int hack_n = 0;
+	int hack_n;
 
 	byte hack_y[GROUP_MAX];
 	byte hack_x[GROUP_MAX];

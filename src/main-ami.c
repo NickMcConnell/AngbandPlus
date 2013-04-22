@@ -735,11 +735,6 @@ PROTO errr init_ami( void )
       chip memory left we're in all sorts of trouble... */
 	blankpointer = AllocMem(BLANKPOINTER_SIZE,MEMF_CLEAR | MEMF_CHIP);
 
-	/* See if we specified graphics | sound via command line */
-
-	use_sound = arg_sound;
-	use_graphics = arg_graphics;
-
 	/* Initialise all terms */
    for ( i = 0; i < MAX_TERM_DATA; i++ )
 		init_term( &data[ i ] );
@@ -756,15 +751,6 @@ PROTO errr init_ami( void )
 
 	/* Read preferences file */
 	read_prefs();
-
-	/* XXX XXX XXX  Command line options have priority */
-	if (arg_graphics)
-		use_graphics = 1;
-	if (arg_sound)
-		use_sound = 1;
-
-	arg_graphics = use_graphics;
-	arg_sound = use_sound;
 
 	/* Initialize keyboard stuff */
 	ie.ie_NextEvent = NULL;
@@ -853,30 +839,6 @@ PROTO errr init_ami( void )
 		}
 		for ( i = 0 ; i < 16; i++ )
 			penconv[ i ] = i;
-
-		/* We want to use 32 colours with graphics */
-		if ( use_graphics && KICK20)
-		{
-			/* Get dimension data for screenmode */
-
-			if ( GetDisplayInfoData( NULL, (UBYTE *) &diminfo, sizeof( struct DimensionInfo ), DTAG_DIMS, scr_m ))
-			{
-				/* Check if we support deep screens */
-				if ( diminfo.MaxDepth > 4 )
-				{
-					/* Use 32 colors */
-					if (screen_depth < 5)
-					{
-						screen_depth = 5;
-						screen_cols = 32;
-					}
-
-					/* Use colors 16..31 for text */
-					for ( i = 0; i < 16; i++ )
-						penconv[ i ] = i + 16;
-				}
-			}
-		}
 
 		if ( KICK20 )
 		{
@@ -1141,41 +1103,6 @@ PROTO errr init_ami( void )
 	/* Bring screen to front */
 	ScreenToFront( use_pub ? pubscr : amiscr );
 
-	/* Load and convert graphics */
-	if ( use_graphics )
-	{
-		MSG( 0, 0, "Loading graphics" );
-		if ( !load_gfx() )
-			FAIL( NULL );
-
-		MSG( 0, 1, "Remapping graphics" );
-		if ( !conv_gfx() )
-		{
-			FAIL( "Not enough memory to remap graphics." );
-		}
-
-		/* Scale the graphics to fit font sizes */
-		for ( i = 0; i < MAX_TERM_DATA; i++ )
-		{
-			if ( data[ i ].use && data[ i ].usegfx )
-			{
-				if ( !size_gfx( &data[ i ] ) )
-				{
-					break;
-//					FAIL( "Out of memory while scaling graphics." );
-				}
-			}
-		}
-	}
-
-	/* Load sound effects */
-	if ( use_sound )
-	{
-		MSG( 0, 2, "Loading sound effects" );
-		sound_name_desc = malloc(4000);
-		init_sound();
-	}
-
 	if (pubscr)
 	{
 		//amiga_palette = FALSE;
@@ -1205,10 +1132,7 @@ PROTO static int load_backpic(term_data *t, char *name)
 			int r,g,b;
 
 			/* Calculate how many colours we need */
-			if (use_graphics)
-				start = 32;
-			else
-				start = 16;
+			start = 16;
 
 			cols = i = *l / 3;
 			colour_table += 8;
@@ -1233,10 +1157,7 @@ PROTO static int load_backpic(term_data *t, char *name)
 			struct BitMap *bkg;
 			long pens[64];
 
-			if (use_graphics)
-				start = 32;
-			else
-				start = 16;
+			start = 16;
 
 			for (i = 0 ; i < cols ; i++)
 				pens[i] = start + i;
@@ -1518,7 +1439,7 @@ PROTO void open_term( int n, bool doall )
 		/* Refresh term */
 		Term_activate( angband_term[ n ] );
 		Term_redraw();
-		Term_activate( angband_term[ 0 ] );
+		Term_activate( term_screen );
 	}
 }
 
@@ -1817,8 +1738,6 @@ PROTO int read_prefs( void )
 			{
 				process_gfx(param);
 			}
-			else if (strreq(type,"sound"))
-				use_sound = process_bool(param);
 			else if (strreq(type,"version"))
 				;
 			else if (strreq(type,"backup"))
@@ -2089,18 +2008,6 @@ PROTO static BOOL process_bool(char *param)
 
 PROTO static void process_gfx(char *param)
 {
-	use_graphics = FALSE;
-	if (*param == 'Y' || *param == 'y' || *param == '1' ||
-		 *param == 'T' || *param == 't')
-		use_graphics = TRUE;
-	if (*param == 'E' || *param == 'e')
-	{
-		use_graphics = TRUE;
-		screen_enhanced = TRUE;
-#ifdef ZANGBAND
-		ANGBAND_GRAF = "new";
-#endif
-	}
 }
 
 PROTO static errr amiga_user( int n )
@@ -2506,7 +2413,7 @@ PROTO static void process_msg(int i,ULONG iclass, UWORD icode, UWORD iqual, APTR
 			Term_redraw();
 			Term_fresh();
 
-			Term_activate(angband_term[ 0 ]);
+			Term_activate(term_screen);
 
 			// Eat the IDCMP_NEWSIZE event coming from ChangeWindowBox(). A hack.
 			while (imsg = (struct IntuiMessage *)GetMsg( win->UserPort ))
@@ -3105,31 +3012,13 @@ PROTO static void cursor_on( term_data *td )
 		if ( !td->cursor_xpos && !td->cursor_ypos )
 			return;
 
-		/* Draw an outlined cursor */
-		if( CUR_A & 0xf0 && use_graphics )
-		{
-			x0 = td->cursor_xpos * td->fw;
-			y0 = td->cursor_ypos * td->fh;
-			x1 = x0 + td->fw - 1;
-			y1 = y0 + td->fh - 1;
-			SetAPen( td->wrp, PEN( CURSOR_PEN ));
-			Move( td->wrp, x0, y0 );
-			Draw( td->wrp, x1, y0 );
-			Draw( td->wrp, x1, y1 );
-			Draw( td->wrp, x0, y1 );
-			Draw( td->wrp, x0, y0 );
-		}
-
 		/* Draw a filled cursor */
-		else
-		{
-			SetBPen( td->wrp, PEN( CURSOR_PEN ));
-			SetAPen( td->wrp, PEN( CURSOR_PEN ));
-			RectFill(td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos, td->fw * (td->cursor_xpos + 1) - 1, td->fh * (td->cursor_ypos + 1) - 1);
-			SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
-			Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
-			Text( td->wrp, &CUR_C, 1 );
-		}
+		SetBPen( td->wrp, PEN( CURSOR_PEN ));
+		SetAPen( td->wrp, PEN( CURSOR_PEN ));
+		RectFill(td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos, td->fw * (td->cursor_xpos + 1) - 1, td->fh * (td->cursor_ypos + 1) - 1);
+		SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
+		Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
+		Text( td->wrp, &CUR_C, 1 );
 
 		td->cursor_lit = TRUE;
 	}
@@ -3139,30 +3028,21 @@ PROTO static void cursor_off( term_data *td )
 {
 	if ( td->cursor_lit && !td->iconified )
 	{
-		/* Restore graphics under cursor */
-		if ( CUR_A & 0xf0 && use_graphics )
-		{
-			put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, CUR_C, CUR_A );
-		}
-
 		/* Restore char/attr under cursor */
+		if (td->background)
+		{
+			BltBitMapRastPort( td->background, td->cursor_xpos * td->fw, td->cursor_ypos * td->fh, td->wrp, td->cursor_xpos * td->fw, td->cursor_ypos * td->fh, td->fw,td->fh, 0xC0);
+			SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
+			SetBPen( td->wrp, PEN( 0 ));
+			Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
+			Text( td->wrp, &CUR_C, 1 );
+		}
 		else
 		{
-			if (td->background)
-			{
-				BltBitMapRastPort( td->background, td->cursor_xpos * td->fw, td->cursor_ypos * td->fh, td->wrp, td->cursor_xpos * td->fw, td->cursor_ypos * td->fh, td->fw,td->fh, 0xC0);
-				SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
-				SetBPen( td->wrp, PEN( 0 ));
-				Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
-				Text( td->wrp, &CUR_C, 1 );
-			}
-			else
-			{
-				SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
-				SetBPen( td->wrp, PEN( 0 ));
-				Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
-				Text( td->wrp, &CUR_C, 1 );
-			}
+			SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
+			SetBPen( td->wrp, PEN( 0 ));
+			Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
+			Text( td->wrp, &CUR_C, 1 );
 		}
 		td->cursor_lit = FALSE;
 	}
@@ -3211,37 +3091,13 @@ PROTO static void cursor_anim( void )
 			block_nasty_gfx = FALSE;
 			return;
       }
-		/* Draw an outlined cursor */
-		if ( CUR_A & 0x80 && use_graphics )
-		{
-			/* First draw the tile under cursor */
-			put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, CUR_C, CUR_A );
-
-			if ( td->cursor_frame < 4 )
-			{
-				x0 = td->cursor_xpos * td->fw;
-				y0 = td->cursor_ypos * td->fh;
-				x1 = x0 + td->fw - 1;
-				y1 = y0 + td->fh - 1;
-				SetAPen( td->wrp, PEN( CURSOR_PEN ));
-				Move( td->wrp, x0, y0 );
-				Draw( td->wrp, x1, y0 );
-				Draw( td->wrp, x1, y1 );
-				Draw( td->wrp, x0, y1 );
-				Draw( td->wrp, x0, y0 );
-			}
-		}
-
 		/* Draw a filled cursor */
-		else
-		{
-			SetBPen( td->wrp, PEN( CURSOR_PEN ));
-			SetAPen( td->wrp, PEN( CURSOR_PEN ));
-			RectFill(td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos, td->fw * (td->cursor_xpos + 1) - 1, td->fh * (td->cursor_ypos + 1) - 1);
-			SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
-			Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
-			Text( td->wrp, &CUR_C, 1 );
-		}
+		SetBPen( td->wrp, PEN( CURSOR_PEN ));
+		SetAPen( td->wrp, PEN( CURSOR_PEN ));
+		RectFill(td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos, td->fw * (td->cursor_xpos + 1) - 1, td->fh * (td->cursor_ypos + 1) - 1);
+		SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
+		Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
+		Text( td->wrp, &CUR_C, 1 );
 	}
 	block_nasty_gfx = FALSE;
 }
@@ -3753,114 +3609,6 @@ PROTO static int amiga_fail( char *msg )
 
 PROTO static void amiga_map( void )
 {
-	term_data *td = &data[ 0 ];
-	int i,j;
-	byte ta,tc;
-#ifdef ANG282
-	int cur_wid = DUNGEON_WID,cur_hgt = DUNGEON_HGT;
-#endif
-
-	/* Only in graphics mode, and not on Kickstart1.3 */
-	if ( !use_graphics || KICK13)
-		return;
-
-	/* Turn off cursor */
-	if ( td->cursor_visible )
-		cursor_off( td );
-
-	/* Save screen */
-	Term_save();
-
-	/* Clear screen */
-	Term_clear();
-	Term_fresh();
-
-	/* Calculate offset values */
-	td->map_x = (( td->fw * 80 ) - ( td->mpt_w * cur_wid )) / 2;
-	td->map_y = (( td->fh * 24 ) - ( td->mpt_h * cur_hgt )) / 2;
-
-	if (td->map_x < 0)
-		td->map_x = 0;
-	if (td->map_y < 0)
-		td->map_y = 0;
-
-	/* Inefficient */
-#ifdef QUICKGFX
-	global_map_x = td->map_x;
-	global_map_y = td->map_y;
-	source_plane_addr = (unsigned long *)&(td->mapbm->Planes[0]);
-	dest_plane_addr = (unsigned long *)&(td->rp->BitMap->Planes[0]);
-	source_row = td->mapbm->BytesPerRow;
-	global_depth = td->mapbm->Depth;
-	dest_row = td->rp->BitMap->BytesPerRow;
-#endif
-
-	/* Draw all "interesting" features */
-	for ( i = 0; i < cur_wid; i++ )
-	{
-		for ( j = 0; j < cur_hgt; j++ )
-		{
-			/* Get frame tile */
-			if ( i==0 || i == cur_wid - 1 || j == 0 || j == cur_hgt - 1 )
-			{
-#ifdef ANG283
-				ta = f_info[ 63 ].x_attr;
-				tc = f_info[ 63 ].x_char;
-#else
-#ifdef ZANGBAND
-				ta = f_info[ 63 ].x_attr;
-				tc = f_info[ 63 ].x_char;
-#else
-				ta = f_info[ 63 ].z_attr;
-				tc = f_info[ 63 ].z_char;
-#endif
-#endif
-			}
-
-			/* Get tile from cave table */
-			else
-			{
-				map_info( j, i, &ta, (char *) &tc );
-			}
-
-			/* Ignore non-graphics */
-			if ( ta & 0x80 )
-			{
-				ta = ta & ((GFXH >> 3) - 1);
-				tc = tc & ((GFXW >> 3) - 1);
-
-				/* Player XXX XXX XXX */
-				if ( ta == 12 && tc == 0 )
-				{
-					ta = get_p_attr();
-					tc = get_p_char();
-				}
-
-				/* Put the graphics to the screen */
-				put_gfx_map( td, i, j, tc, ta );
-			}
-		}
-	}
-
-	/* Draw a small cursor now */
-	td->cursor_map = TRUE;
-
-	/* Wait for a keypress, flush key buffer */
-	Term_inkey( &tc, TRUE, TRUE );
-	Term_flush();
-
-	/* Normal cursor again */
-	td->cursor_map = FALSE;
-
-	/* Restore screen */
-	Term_clear();
-	Term_fresh();
-	Term_load();
-	Term_fresh();
-
-	/* Turn cursor back on */
-	if ( td->cursor_visible )
-		cursor_on( td );
 }
 
 PROTO void load_palette( void )
@@ -3879,9 +3627,9 @@ PROTO void load_palette( void )
 		palette32[ n * 3 + 1 ] = 0;
 		for ( i = 0; i < n; i++ )
 		{
-			palette32[ i * 3 + 1 ] = angband_color_table[ use_graphics ? i : i + 16 ][ 1 ] << 24;
-			palette32[ i * 3 + 2 ] = angband_color_table[ use_graphics ? i : i + 16 ][ 2 ] << 24;
-			palette32[ i * 3 + 3 ] = angband_color_table[ use_graphics ? i : i + 16 ][ 3 ] << 24;
+			palette32[ i * 3 + 1 ] = angband_color_table[ i + 16 ][ 1 ] << 24;
+			palette32[ i * 3 + 2 ] = angband_color_table[ i + 16 ][ 2 ] << 24;
+			palette32[ i * 3 + 3 ] = angband_color_table[ i + 16 ][ 3 ] << 24;
 		}
 		LoadRGB32( &amiscr->ViewPort, palette32 );
 	}
@@ -3889,9 +3637,9 @@ PROTO void load_palette( void )
 	{
 		for ( i = 0; i < n; i++ )
 		{
-			palette4[ i ] =  ( angband_color_table[ use_graphics ? i : i + 16 ][ 1 ] >> 4 ) << 8;
-			palette4[ i ] |= ( angband_color_table[ use_graphics ? i : i + 16 ][ 2 ] >> 4 ) << 4;
-			palette4[ i ] |= ( angband_color_table[ use_graphics ? i : i + 16 ][ 3 ] >> 4 );
+			palette4[ i ] =  ( angband_color_table[ i + 16 ][ 1 ] >> 4 ) << 8;
+			palette4[ i ] |= ( angband_color_table[ i + 16 ][ 2 ] >> 4 ) << 4;
+			palette4[ i ] |= ( angband_color_table[ i + 16 ][ 3 ] >> 4 );
 		}
 		LoadRGB4( &amiscr->ViewPort, palette4, n );
 	}
@@ -4013,7 +3761,7 @@ PROTO void update_menus( void )
 
 	/* Enable/Disable the amiga map according to use_graphics */
 	if ( item = ItemAddress( menu, FULLMENUNUM( 5, 7, 0 )))
-		item->Flags = use_graphics ? item->Flags | ITEMENABLED : item->Flags & ~ITEMENABLED;
+		item->Flags = item->Flags & ~ITEMENABLED;
 
 	/* Enable/Disable the palette requester */
 	if ( item = ItemAddress( menu, FULLMENUNUM( 5, 9, 0 )))
@@ -4033,138 +3781,7 @@ PROTO void update_menus( void )
 
 PROTO int init_sound( void )
 {
-	static char tmp[MAX_PATH_LENGTH];
-	static char buf[MAX_PATH_LENGTH];
-	static char line[256];
-	struct AmiSound *snd;
-	FILE *f;
-	char *s = sound_name_desc;
-	int i,j,k,slev;
-	BOOL memory;
-
-	path_build(buf, MAX_PATH_LENGTH, ANGBAND_DIR_XTRA, "cfg/sound.cfg");
-
-	/* Look for .cfg file */
-	f = fopen(buf,"r");
-	if (!f)
-	{
-		puts("Can't find xtra/cfg/sound.cfg - sound support disabled");
-		return (has_sound = use_sound = FALSE);
-	}
-	while (fgets( line, 200, f ))
-	{
-		for (i = strlen(line) - 1; i >= 0 ; i--)
-		{
-			if (line[i] == 10 || line[i] == 13)
-				line[i] = 32;
-		}
-		for (i = 0; line[i] && line[i] <= 32 ; i++)
-			;
-		if (line[i] == '#' || line[i] == ';' || !line[i])
-			continue;
-		k = i;
-
-		while (line[i] && line[i] != ':')
-			i++;
-		if (!line[i])
-			continue;
-		line[i] = 0;
-		for (j = k ; j < i ; j++)
-		{
-			if (line[j] == 32 || line[j] == 9)
-			{
-				line[j] = 0;
-				break;
-			}
-		}
-		slev = -1;
-		for (j = 1 ; j < SOUND_MAX ; j++)
-		{
-			if (strreq(angband_sound_name[j] , line + k))
-			{
-				slev = j;
-				break;
-			}
-		}
-		if (slev == -1)
-			continue;
-		i++;
-		while (line[i] && (line[i] == 32 || line[i] == 9))
-			i++;
-		if (!line[i])
-			continue;
-		/* Remember sample name, if necessary */
-
-		do
-		{
-			memory = TRUE;
-			if (line[i] == '!')
-			{
-				memory = FALSE;
-				i++;
-			}
-			/* Frankly, this whole thing is a hack. But I won't tell if you
-				don't. */
-
-			while (line[i] > 32)
-				*s++ = line[i++];
-			*s++ = 0;
-			*s++ = slev;
-			*s++ = memory;
-			while (line[i] && (line[i] == 32 || line[i] == 9))
-				i++;
-			sounds_needed++;
-		}
-		while (line[i]);
-
-	}
-	fclose(f);
-
-	path_build(buf, MAX_PATH_LENGTH, ANGBAND_DIR_XTRA, "sound");
-	sound_data = snd = malloc( sizeof(struct AmiSound) * sounds_needed );
-	if (!sound_data)
-		return( has_sound = use_sound = FALSE );
-
-	for (i = 0 ; i < SOUND_MAX ; i++)
-		sound_ref[i][0] = (struct AmiSound *)0;
-
-	s = sound_name_desc;
-	for (i = 0 ; i < sounds_needed ; i++)
-	{
-		snd->Name = s;
-		snd->Volume = 64;
-		snd->Channel = 1;
-		snd->Rate = 0;
-		snd->Repeats = 1;
-		snd->Memory = 1;
-		snd->Address = NULL;
-		while (*s++)
-			;
-		j = *s++;
-		if (!*s++)
-			snd->Memory = 0;
-		sound_ref[j][0] = (struct AmiSound *)((int)sound_ref[j][0] + 1);
-		sound_ref[j][ (int)sound_ref[j][0] ] = snd;
-		if ((int)sound_ref[j][0] == 8)
-		{
-			puts("Too many sounds for one sound_event (8 is max)");
-			sound_ref[j][0] = (struct AmiSound *)7;
-		}
-
-		if ( snd->Memory )
-		{
-			/* Construct filename */
-			path_build(tmp, MAX_PATH_LENGTH, buf, snd->Name );
-
-			/* Load the sample into memory */
-			snd->Address = (struct SoundInfo *) PrepareSound( tmp );
-		}
-
-		snd++;
-	}
-	has_sound = use_sound = TRUE;
-
-	return ( TRUE );
+	return (has_sound = FALSE);
 }
 
 PROTO void free_sound( void )
@@ -4196,7 +3813,6 @@ PROTO void free_sound( void )
 
 	/* Done */
 	has_sound = FALSE;
-	use_sound = FALSE;
 }
 
 PROTO static void play_sound( int v )
@@ -4558,10 +4174,10 @@ PROTO void amiga_redefine_colours( void )
 		GetRGB32(amiscr->ViewPort.ColorMap,0,cols,ctable);
 		for (i = 0 ; i < cols ; i++)
 		{
-			angband_color_table[use_graphics ? i : i + 16][0] = 1;
-			angband_color_table[use_graphics ? i : i + 16][1] = *c++ >> 24;
-			angband_color_table[use_graphics ? i : i + 16][2] = *c++ >> 24;
-			angband_color_table[use_graphics ? i : i + 16][3] = *c++ >> 24;
+			angband_color_table[i + 16][0] = 1;
+			angband_color_table[i + 16][1] = *c++ >> 24;
+			angband_color_table[i + 16][2] = *c++ >> 24;
+			angband_color_table[i + 16][3] = *c++ >> 24;
 		}
 		FreeMem(ctable,cols << 4);
 	}
@@ -4572,10 +4188,10 @@ PROTO void amiga_redefine_colours( void )
       for (i = 0 ; i < cols ; i++)
 		{
 			w = GetRGB4(amiscr->ViewPort.ColorMap,i);
-			angband_color_table[use_graphics ? i : i + 16][0] = 1;
-			angband_color_table[use_graphics ? i : i + 16][1] = (w & 0xF00) >> 4;
-			angband_color_table[use_graphics ? i : i + 16][2] = (w & 0xF0);
-			angband_color_table[use_graphics ? i : i + 16][3] = (w & 0xF) << 4;
+			angband_color_table[i + 16][0] = 1;
+			angband_color_table[i + 16][1] = (w & 0xF00) >> 4;
+			angband_color_table[i + 16][2] = (w & 0xF0);
+			angband_color_table[i + 16][3] = (w & 0xF) << 4;
 		}
 	}
 }

@@ -141,11 +141,10 @@ struct header
 
 	u16b info_size;		/* Size of the "info" array in bytes */
 
-	u16b name_size;		/* Size of the "name" array in bytes */
+	u32b name_size;		/* Size of the "name" array in bytes */
 
-	u16b text_size;		/* Size of the "text" array in bytes */
+	u32b text_size;		/* Size of the "text" array in bytes */
 };
-
 
 
 /*
@@ -154,6 +153,9 @@ struct header
  */
 struct maxima
 {
+	u32b fake_text_size;
+	u32b fake_name_size;
+
 	u16b f_max;		/* Max size for "f_info[]" */
 	u16b k_max;		/* Max size for "k_info[]" */
 
@@ -167,12 +169,11 @@ struct maxima
 	u16b h_max;		/* Max size for "h_info[]" */
 
 	u16b b_max;		/* Max size per element of "b_info[]" */
-	u16b unused;	/* Unused */
+	u16b q_max;		/* Max size for "q_info[]" */
 
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "m_list[]" */
 };
-
 
 
 /*
@@ -180,8 +181,8 @@ struct maxima
  */
 struct feature_type
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte mimic;			/* Feature to mimic */
 
@@ -206,8 +207,8 @@ struct feature_type
  */
 struct object_kind
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Object type */
 	byte sval;			/* Object sub type */
@@ -266,8 +267,8 @@ struct object_kind
  */
 struct artifact_type
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Artifact type */
 	byte sval;			/* Artifact sub type */
@@ -303,8 +304,8 @@ struct artifact_type
  */
 struct ego_item_type
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte slot;			/* Standard slot value */
 	byte rating;		/* Rating boost */
@@ -352,7 +353,7 @@ struct monster_blow
 
 
 /*
- * Monster "race" information
+ * Monster "race" information, including racial memories
  *
  * Note that "d_attr" and "d_char" are used for MORE than "visual" stuff.
  *
@@ -364,11 +365,15 @@ struct monster_blow
  *
  * Note that "max_num" is reset when a new player is created.
  * Note that "cur_num" is reset when a new level is created.
+ *
+ * Maybe "x_attr", "x_char", "cur_num", and "max_num" should
+ * be moved out of this array since they are not read from
+ * "r_info.txt".
  */
 struct monster_race
 {
-	u16b name;				/* Name (offset) */
-	u16b text;				/* Text (offset) */
+	u32b name;				/* Name (offset) */
+	u32b text;				/* Text (offset) */
 
 	byte hdice;				/* Creatures hit dice count */
 	byte hside;				/* Creatures hit dice sides */
@@ -414,14 +419,14 @@ struct monster_race
 };
 
 
-
 /*
  * Monster "lore" information
  *
- * Note that several of these fields, related to "recall", can be
- * scrapped if space becomes an issue, resulting in less "complete"
- * monster recall (no knowledge of spells, etc).  All of the "recall"
- * fields have a special prefix to aid in searching for them. XXX XXX XXX
+ * Note that these fields are related to the "monster recall" and can
+ * be scrapped if space becomes an issue, resulting in less "complete"
+ * monster recall (no knowledge of spells, etc). XXX XXX XXX
+ *
+ * ToDo: The "r_" prefix is no longer needed and should be removed.
  */
 struct monster_lore
 {
@@ -460,8 +465,8 @@ struct monster_lore
  */
 struct vault_type
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte typ;			/* Vault type */
 
@@ -633,11 +638,15 @@ struct alloc_entry
  */
 struct quest
 {
-	byte level;		/* Dungeon level */
-	int r_idx;		/* Monster race */
+	u32b name;		/* Name (offset) */
+	u32b text;		/* Text (offset) */
 
-	int cur_num;	/* Number killed (unused) */
-	int max_num;	/* Number required (unused) */
+	byte level;		/* Dungeon level */
+	byte old_level;	/* Dungeon level */
+	s16b r_idx;		/* Monster race */
+
+	s16b cur_num;	/* Number killed (unused) */
+	s16b max_num;	/* Number required (unused) */
 };
 
 
@@ -648,8 +657,8 @@ struct quest
  */
 struct owner_type
 {
-	u16b owner_name;	/* Name (offset) */
-	u16b unused;		/* Unused */
+	u32b owner_name;	/* Name (offset) */
+	u32b unused;		/* Unused */
 
 	s16b max_cost;		/* Purse limit */
 
@@ -747,8 +756,8 @@ struct player_sex
  */
 struct player_race
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	s16b r_adj[A_MAX];	/* Racial stat bonuses */
 
@@ -786,6 +795,9 @@ struct player_race
 	u32b flags1;		/* Racial Flags, set 1 */
 	u32b flags2;		/* Racial Flags, set 2 */
 	u32b flags3;		/* Racial Flags, set 3 */
+
+	s16b pval;			/* Racial extra info */
+	s16b unused;		/* Unused */
 };
 
 
@@ -821,6 +833,21 @@ struct player_class
 };
 
 
+/*
+ * Player background information
+ */
+struct hist_type
+{
+	u32b unused;			/* Unused */
+	u32b text;			    /* Text (offset) */
+
+	byte roll;			    /* Frequency of this entry */
+	byte chart;			    /* Chart index */
+	byte next;			    /* Next chart index */
+	byte bonus;			    /* Social Class Bonus + 50 */
+};
+
+
 
 /*
  * Some more player information
@@ -839,21 +866,6 @@ struct player_other
 	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
 	byte delay_factor;		/* Delay factor (0 to 9) */
-};
-
-
-/*
- * Player background information
- */
-struct hist_type
-{
-	u16b unused;			/* Unused */
-	u16b text;			    /* Text (offset) */
-
-	byte roll;			    /* Frequency of this entry */
-	byte chart;			    /* Chart index */
-	byte next;			    /* Next chart index */
-	byte bonus;			    /* Social Class Bonus + 50 */
 };
 
 
@@ -959,7 +971,7 @@ struct player_type
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
-	char history[4][60];	/* Initial history */
+	char history[HISTORY_MAX][60];	/* Initial history */
 
 	u16b total_winner;		/* Total winner */
 	u16b panic_save;		/* Panic save */
@@ -1129,6 +1141,10 @@ struct player_type
 	s16b skill_dig;		/* Skill: Digging */
 
 	u32b noise;			/* Derived from stealth */
+
+	s16b extra_blows;	/* Bonus to blows */
+	s16b extra_shots;	/* Bonus to shots */
+	s16b extra_might;	/* Bonus to ammo multiplier */
 
 	s16b num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */

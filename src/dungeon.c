@@ -221,8 +221,12 @@ static void sense_inventory(void)
 		/* Skip non-sense machines */
 		if (!okay) continue;
 
-		/* It already has a discount or special inscription */
-		if (o_ptr->discount > 0) continue;
+		/* It already has a discount */
+		if ((o_ptr->discount > 0) &&
+		    ((o_ptr->discount < INSCRIP_NULL) || adult_turin))
+		{
+			continue;
+		}
 
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
@@ -238,6 +242,47 @@ static void sense_inventory(void)
 
 		/* Skip non-feelings */
 		if (!feel) continue;
+
+		/* Hack -- remove some feelings */
+		if (adult_turin)
+		{
+			/* Hack -- convert "special" or "terrible" to "unique" */
+			if ((feel == INSCRIP_SPECIAL) || 
+			    (feel == INSCRIP_TERRIBLE))
+			{
+				feel = INSCRIP_UNIQUE;
+			}
+
+			/* Hack -- convert "excellent" or "worthless" to "powerful" */
+			if ((feel == INSCRIP_EXCELLENT) ||
+			    (feel == INSCRIP_TERRIBLE))
+			{
+				feel = INSCRIP_POWERFUL;
+			}
+
+			/* Hack -- convert "good" or "cursed" to "magic" */
+			if ((feel == INSCRIP_GOOD) ||
+			    (feel == INSCRIP_CURSED))
+			{
+				feel = INSCRIP_MAGIC;
+			}
+		}
+
+		/* Hack -- convert "unique" */
+		if (o_ptr->discount == INSCRIP_UNIQUE)
+		{
+			/* Hack -- convert "good" plus "unique" to "special" */
+			if (feel == INSCRIP_GOOD)
+			{
+				feel = INSCRIP_SPECIAL;
+			}
+
+			/* Hack -- convert "cursed" plus "unique" to "terrible" */
+			if ((feel == INSCRIP_CURSED) || (feel == INSCRIP_BROKEN))
+			{
+				feel = INSCRIP_TERRIBLE;
+			}
+		}
 
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
@@ -267,7 +312,7 @@ static void sense_inventory(void)
 		o_ptr->discount = feel;
 
 		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+		if (!adult_turin) o_ptr->ident |= (IDENT_SENSE);
 
 
 		/* Combine / Reorder the pack (later) */
@@ -1049,9 +1094,6 @@ static void process_world(void)
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
-
-			/* Sound */
-			sound(SOUND_TPLEVEL);
 		}
 	}
 }
@@ -1557,6 +1599,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Use an item */
+		case '\'':
+		{
+			do_cmd_use_item();
+			break;
+		}
+
 
 		/*** Looking at Things (nearby or on map) ***/
 
@@ -1854,6 +1903,32 @@ static void process_player_aux(void)
 
 
 /*
+ * Apply energy to player and monsters
+ */
+static void apply_energy(void)
+{
+	monster_type *m_ptr;
+	int i;
+
+	/* Give the player some energy */
+	p_ptr->energy += extract_energy[p_ptr->pspeed];
+
+	/* Give energy to all monsters */
+	for (i = m_max; i-- > 1; )
+	{
+		/* Access the monster */
+		m_ptr = &m_list[i];
+
+		/* Ignore "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Give this monster some energy */
+		m_ptr->energy += extract_energy[m_ptr->mspeed];
+	}
+}
+
+
+/*
  * Process the player
  *
  * Notice the annoying code to handle "pack overflow", which
@@ -1876,18 +1951,7 @@ static void process_player(void)
 	int i;
 
 
-	/*** Apply energy ***/
-
-	/* Give the player some energy */
-	if (p_ptr->pspeed > 199) p_ptr->energy += 49;
-	else if (p_ptr->pspeed < 0) p_ptr->energy += 1;
-	else p_ptr->energy += extract_energy[p_ptr->pspeed];
-
-	/* No turn yet */
-	if (p_ptr->energy < 100) return;
-
-
-	/*** Check for interupts ***/
+	/*** Check for interrupts ***/
 
 	/* Complete resting */
 	if (p_ptr->resting < 0)
@@ -1947,11 +2011,28 @@ static void process_player(void)
 	}
 
 
+	/* Hack -- force monster action */
+	p_ptr->energy_use = 100;
+
+
 	/*** Handle actual user input ***/
 
 	/* Repeat until out of energy */
 	while (p_ptr->energy >= 100)
 	{
+		/* Modified energy */
+		if (p_ptr->energy_use)
+		{
+			/* Process monsters with higher energies */
+			process_monsters(p_ptr->energy + 1);
+
+			/* Handle "leaving" */
+			if (p_ptr->leaving) break;
+
+			/* Assume free turn */
+			p_ptr->energy_use = 0;
+		}
+
 		/* Notice stuff (if needed) */
 		if (p_ptr->notice) notice_stuff();
 
@@ -2020,10 +2101,6 @@ static void process_player(void)
 
 		/* Hack -- cancel "lurking browse mode" */
 		if (!p_ptr->command_new) p_ptr->command_see = FALSE;
-
-
-		/* Assume free turn */
-		p_ptr->energy_use = 0;
 
 
 		/* Paralyzed or Knocked Out */
@@ -2452,6 +2529,9 @@ static void dungeon(void)
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
 
+		/* Apply energy */
+		apply_energy();
+
 		/* Process the player */
 		process_player();
 
@@ -2478,7 +2558,7 @@ static void dungeon(void)
 
 
 		/* Process all of the monsters */
-		process_monsters();
+		process_monsters(100);
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2913,5 +2993,3 @@ void play_game(bool new_game)
 	/* Quit */
 	quit(NULL);
 }
-
-

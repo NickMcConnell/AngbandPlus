@@ -24,8 +24,8 @@ s16b poly_r_idx(int r_idx)
 
 	int i, r, lev1, lev2;
 
-	/* Hack -- Uniques never polymorph */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (r_idx);
+	/* Hack -- Special monsters never polymorph */
+	if (special_monster(r_idx)) return (r_idx);
 
 	/* Allowable range of "levels" for resulting monster */
 	lev1 = r_ptr->level - ((randint(20)/randint(9))+1);
@@ -131,9 +131,6 @@ void teleport_away(int m_idx, int dis)
 		min = min / 2;
 	}
 
-	/* Sound */
-	sound(SOUND_TPOTHER);
-
 	/* Swap the monsters */
 	monster_swap(oy, ox, ny, nx);
 }
@@ -203,9 +200,6 @@ void teleport_player(int dis)
 		min = min / 2;
 	}
 
-	/* Sound */
-	sound(SOUND_TELEPORT);
-
 	/* Move player */
 	monster_swap(py, px, y, x);
 
@@ -256,9 +250,6 @@ void teleport_player_to(int ny, int nx)
 		}
 	}
 
-	/* Sound */
-	sound(SOUND_TELEPORT);
-
 	/* Move player */
 	monster_swap(py, px, y, x);
 
@@ -279,9 +270,10 @@ void teleport_player_level(void)
 		return;
 	}
 
+
 	if (!p_ptr->depth)
 	{
-		msg_print("You sink through the floor.");
+		message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
 		/* New depth */
 		p_ptr->depth++;
@@ -292,7 +284,7 @@ void teleport_player_level(void)
 
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
-		msg_print("You rise up through the ceiling.");
+		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
 		/* New depth */
 		p_ptr->depth--;
@@ -303,7 +295,7 @@ void teleport_player_level(void)
 
 	else if (rand_int(100) < 50)
 	{
-		msg_print("You rise up through the ceiling.");
+		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
 		/* New depth */
 		p_ptr->depth--;
@@ -314,7 +306,7 @@ void teleport_player_level(void)
 
 	else
 	{
-		msg_print("You sink through the floor.");
+		message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
 		/* New depth */
 		p_ptr->depth++;
@@ -322,9 +314,6 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
-
-	/* Sound */
-	sound(SOUND_TPLEVEL);
 }
 
 
@@ -448,7 +437,14 @@ void take_hit(int dam, cptr kb_str)
 	disturb(1, 0);
 
 	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->invuln && (dam < 9000)) return;
+	if (p_ptr->invuln && (dam < 9000))
+	{
+		/* Hack -- reduce "invulnerability" */
+		if (adult_turin) set_invuln(p_ptr->invuln - (dam / 100));
+
+		/* No damage */
+		return;
+	}
 
 	/* Hurt the player */
 	p_ptr->chp -= dam;
@@ -462,11 +458,8 @@ void take_hit(int dam, cptr kb_str)
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
-		/* Sound */
-		sound(SOUND_DEATH);
-
 		/* Hack -- Note death */
-		msg_print("You die.");
+		message(MSG_DEATH, 0, "You die.");
 		msg_print(NULL);
 
 		/* Note cause of death */
@@ -860,7 +853,7 @@ void acid_dam(int dam, cptr kb_str)
 	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
 
 	/* If any armor gets hit, defend the player */
-	if (minus_ac()) dam = (dam + 1) / 2;
+	if (minus_ac() && !adult_turin) dam = (dam + 1) / 2;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -1018,7 +1011,7 @@ bool inc_stat(int stat)
  * if your stat is already drained, the "max" value will not drop all
  * the way down to the "cur" value.
  */
-bool dec_stat(int stat, int amount, int permanent)
+bool dec_stat(int stat, int amount, bool permanent)
 {
 	int cur, max, loss, same, res = FALSE;
 
@@ -1172,7 +1165,6 @@ bool apply_disenchant(int mode)
 	/* Unused */
 	mode = mode;
 
-
 	/* Pick a random slot */
 	switch (randint(8))
 	{
@@ -1269,7 +1261,8 @@ static void apply_nexus(monster_type *m_ptr)
 
 		case 6:
 		{
-			if (rand_int(100) < p_ptr->skill_sav)
+			if ((rand_int(100) < p_ptr->skill_sav) &&
+			    (!adult_turin || p_ptr->resist_nexus))
 			{
 				msg_print("You resist the effects!");
 				break;
@@ -1282,7 +1275,8 @@ static void apply_nexus(monster_type *m_ptr)
 
 		case 7:
 		{
-			if (rand_int(100) < p_ptr->skill_sav)
+			if ((rand_int(100) < p_ptr->skill_sav) &&
+			    (!adult_turin || p_ptr->resist_nexus))
 			{
 				msg_print("You resist the effects!");
 				break;
@@ -1344,10 +1338,15 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 {
 	bool obvious = FALSE;
 
-
+#if 0 /* unused */
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
+#endif /* 0 */
 
+	/* Unused */
+	who = who;
+	r = r;
+	dam = dam;
 
 	/* Analyze the type */
 	switch (typ)
@@ -1691,9 +1690,15 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	char o_name[80];
 
-
+#if 0 /* unused */
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
+#endif /* 0 */
+
+	/* Unused */
+	who = who;
+	r = r;
+	dam = dam;
 
 
 	/* Scan all objects in the grid */
@@ -2925,14 +2930,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	if (skipped) return (FALSE);
 
 
-	/* "Unique" monsters cannot be polymorphed */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
-
-
-	/* "Unique" monsters can only be "killed" by the player */
-	if (r_ptr->flags1 & (RF1_UNIQUE))
+	/* "Special" monsters are priveleged */
+	if (special_monster(m_ptr->r_idx))
 	{
-		/* Uniques may only be killed by the player */
+		/* Special monsters cannot be polymorphed */
+		do_poly = FALSE;
+
+		/* Special monsters may only be killed by the player */
 		if ((who > 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
 
@@ -2953,7 +2957,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Pick a "new" monster race */
 		tmp = poly_r_idx(m_ptr->r_idx);
 
-		/* Handle polymorh */
+		/* Handle polymorph */
 		if (tmp != m_ptr->r_idx)
 		{
 			/* Obvious */
@@ -3123,11 +3127,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Take note */
 			if ((fear || do_fear) && (m_ptr->ml))
 			{
-				/* Sound */
-				sound(SOUND_FLEE);
-
 				/* Message */
-				msg_format("%^s flees in terror!", m_name);
+				message_format(MSG_FLEE, m_ptr->r_idx,
+				               "%^s flees in terror!", m_name);
 			}
 
 			/* Hack -- handle sleep */
@@ -3334,13 +3336,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			else
+			if (!p_ptr->resist_nethr || !adult_turin)
 			{
 				if (p_ptr->hold_life && (rand_int(100) < 75))
 				{
 					msg_print("You keep hold of your life force!");
 				}
-				else if (p_ptr->hold_life)
+				else if (p_ptr->hold_life && !adult_turin)
 				{
 					msg_print("You feel your life slipping away!");
 					lose_exp(200 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
@@ -3387,13 +3389,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)set_image(p_ptr->image + randint(10));
 			}
-			if (!p_ptr->resist_nethr && !p_ptr->resist_chaos)
+			if ((!p_ptr->resist_nethr && !p_ptr->resist_chaos) || !adult_turin)
 			{
 				if (p_ptr->hold_life && (rand_int(100) < 75))
 				{
 					msg_print("You keep hold of your life force!");
 				}
-				else if (p_ptr->hold_life)
+				else if (p_ptr->hold_life || !adult_turin)
 				{
 					msg_print("You feel your life slipping away!");
 					lose_exp(500 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
@@ -3481,7 +3483,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			else
+			if (!p_ptr->resist_nexus || adult_turin)
 			{
 				apply_nexus(m_ptr);
 			}
@@ -4007,41 +4009,38 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	gm[1] = grids;
 
 	/* Explode */
-	if (TRUE)
+	/* Hack -- remove final beam grid */
+	if (flg & (PROJECT_BEAM))
 	{
-		/* Hack -- remove final beam grid */
-		if (flg & (PROJECT_BEAM))
-		{
-			grids--;
-		}
+		grids--;
+	}
 
-		/* Determine the blast area, work from the inside out */
-		for (dist = 0; dist <= rad; dist++)
+	/* Determine the blast area, work from the inside out */
+	for (dist = 0; dist <= rad; dist++)
+	{
+		/* Scan the maximal blast area of radius "dist" */
+		for (y = y2 - dist; y <= y2 + dist; y++)
 		{
-			/* Scan the maximal blast area of radius "dist" */
-			for (y = y2 - dist; y <= y2 + dist; y++)
+			for (x = x2 - dist; x <= x2 + dist; x++)
 			{
-				for (x = x2 - dist; x <= x2 + dist; x++)
-				{
-					/* Ignore "illegal" locations */
-					if (!in_bounds(y, x)) continue;
+				/* Ignore "illegal" locations */
+				if (!in_bounds(y, x)) continue;
 
-					/* Enforce a "circular" explosion */
-					if (distance(y2, x2, y, x) != dist) continue;
+				/* Enforce a "circular" explosion */
+				if (distance(y2, x2, y, x) != dist) continue;
 
-					/* Ball explosions are stopped by walls */
-					if (!los(y2, x2, y, x)) continue;
+				/* Ball explosions are stopped by walls */
+				if (!los(y2, x2, y, x)) continue;
 
-					/* Save this grid */
-					gy[grids] = y;
-					gx[grids] = x;
-					grids++;
-				}
+				/* Save this grid */
+				gy[grids] = y;
+				gx[grids] = x;
+				grids++;
 			}
-
-			/* Encode some more "radius" info */
-			gm[dist+1] = grids;
 		}
+
+		/* Encode some more "radius" info */
+		gm[dist+1] = grids;
 	}
 
 

@@ -141,7 +141,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Sustain */
-	if (sust)
+	if (sust && (!adult_turin || (rand_int(100) < 50)))
 	{
 		/* Message */
 		msg_format("You feel very %s for a moment, but the feeling passes.",
@@ -152,7 +152,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Attempt to reduce the stat */
-	if (dec_stat(stat, 10, FALSE))
+	if (dec_stat(stat, 10, (!sust || (rand_int(100) < 5))))
 	{
 		/* Message */
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
@@ -271,6 +271,52 @@ static int enchant_table[16] =
 
 
 /*
+ * Hack -- Apply curse to an object.
+ *
+ * This was moved here for consistency, and is currently only
+ * called when a cursed item is wielded.
+ */
+void curse_object(object_type *o_ptr)
+{
+	/* Curse it */
+	o_ptr->ident &= (IDENT_CURSED);
+
+	/* Hack -- convert "unique" to "terrible" */
+	if (o_ptr->discount == INSCRIP_UNIQUE)
+	{
+		/* Set special inscription */
+		o_ptr->discount = INSCRIP_TERRIBLE;
+	}
+
+	/* Hack -- convert "powerful" to "worthless" */
+	else if (o_ptr->discount == INSCRIP_POWERFUL)
+	{
+		/* Set special inscription */
+		o_ptr->discount = INSCRIP_WORTHLESS;
+	}
+
+	/* Hack -- convert "magic" to "cursed" */
+	else if (o_ptr->discount == INSCRIP_MAGIC)
+	{
+		/* Set special inscription */
+		o_ptr->discount = INSCRIP_CURSED;
+	}
+
+	else
+	{
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Sense the object if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
+	}
+
+	/* The object has been "sensed" */
+	o_ptr->ident |= (IDENT_SENSE);
+}
+
+
+/*
  * Hack -- Removes curse from an object.
  */
 static void uncurse_object(object_type *o_ptr)
@@ -278,11 +324,35 @@ static void uncurse_object(object_type *o_ptr)
 	/* Uncurse it */
 	o_ptr->ident &= ~(IDENT_CURSED);
 
-	/* Remove special inscription, if any */
-	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+	/* Hack -- convert "unique" to "special" */
+	if (o_ptr->discount == INSCRIP_UNIQUE)
+	{
+		/* Set special inscription */
+		o_ptr->discount = INSCRIP_SPECIAL;
+	}
 
-	/* Take note if allowed */
-	if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_UNCURSED;
+	/* Hack -- convert "powerful" to "excellent" */
+	else if (o_ptr->discount == INSCRIP_POWERFUL)
+	{
+		/* Set special inscription */
+		o_ptr->discount = INSCRIP_EXCELLENT;
+	}
+
+	/* Hack -- convert "magic" to "great" */
+	else if (o_ptr->discount == INSCRIP_MAGIC)
+	{
+		/* Set special inscription */
+		o_ptr->discount = INSCRIP_GOOD;
+	}
+
+	else
+	{
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Take note if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_UNCURSED;
+	}
 
 	/* The object has been "sensed" */
 	o_ptr->ident |= (IDENT_SENSE);
@@ -914,7 +984,7 @@ bool lose_all_info(void)
 
 
 /*
- *  Set word of recall as appropriate
+ * Set word of recall as appropriate
  */
 void set_recall(void)
 {
@@ -1610,6 +1680,23 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 }
 
 
+static bool item_tester_unknown(object_type *o_ptr)
+{
+	if (object_known_p(o_ptr))
+		return FALSE;
+	else
+		return TRUE;
+}
+
+
+static bool item_tester_unknown_star(object_type *o_ptr)
+{
+	if (o_ptr->ident & IDENT_MENTAL)
+		return FALSE;
+	else
+		return TRUE;
+}
+
 
 /*
  * Enchant an item
@@ -1845,6 +1932,9 @@ bool ident_spell(void)
 	cptr q, s;
 
 
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_unknown;
+
 	/* Get an item */
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
@@ -1917,6 +2007,9 @@ bool identify_fully(void)
 
 	cptr q, s;
 
+
+	/* Only un-*id*'ed items */
+	item_tester_hook = item_tester_unknown_star;
 
 	/* Get an item */
 	q = "Identify which item? ";
@@ -2350,8 +2443,8 @@ bool genocide(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		/* Hack -- Skip special monsters */
+		if (special_monster(m_ptr->r_idx)) continue;
 
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
@@ -2389,8 +2482,8 @@ bool mass_genocide(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		/* Hack -- Skip special monsters */
+		if (special_monster(m_ptr->r_idx)) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
@@ -2479,6 +2572,9 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 	bool flag = FALSE;
 
+
+	/* Unused */
+	full = full;
 
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)

@@ -211,6 +211,10 @@ A:^V
 C:1:[
 
 
+# Message colors
+%:message.prf
+
+
 ##### System Specific Subfiles #####
 
 ?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]

@@ -1135,8 +1135,6 @@ byte old_blows_table[11][12] =
 #endif
 
 
-
-
 /*
  * This table allows quick conversion from "speed" to "energy"
  * The basic function WAS ((S>=110) ? (S-110) : (100 / (120-S)))
@@ -2505,7 +2503,7 @@ cptr option_text[OPT_MAX] =
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
 	"birth_unusual_rooms",		/* OPT_birth_unusual_rooms */
 	"birth_steele",				/* OPT_birth_steele */
-	NULL,						/* xxx */
+	"birth_turin",				/* OPT_birth_turin */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2569,7 +2567,7 @@ cptr option_text[OPT_MAX] =
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
 	"adult_unusual_rooms",		/* OPT_adult_unusual_rooms */
 	"adult_steele",				/* OPT_adult_steele */
-	NULL,						/* xxx */
+	"adult_turin",				/* OPT_adult_turin */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2769,7 +2767,7 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Randomize some of the artifacts",	/* OPT_birth_rand_artifacts */
 	"Birth: Always create unusual rooms",		/* OPT_birth_unusual_rooms */
 	"Birth: Create at least one unusual room",	/* OPT_birth_steele */
-	NULL,										/* xxx */
+	"Birth: Deny various bonuses",				/* OPT_birth_turin */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2833,7 +2831,7 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Randomize some of the artifacts",	/* OPT_adult_rand_artifacts */
 	"Adult: Always create unusual rooms",		/* OPT_adult_unusual_rooms */
 	"Adult: Create at least one unusual room",	/* OPT_adult_steele */
-	NULL,										/* xxx */
+	"Adult: Deny various bonuses",				/* OPT_adult_turin */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3033,7 +3031,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_rand_artifacts */
 	FALSE,		/* OPT_birth_unusual_rooms */
 	FALSE,		/* OPT_birth_steele */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_turin */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3274,7 +3272,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_rand_artifacts,
 		OPT_birth_unusual_rooms,
 		OPT_birth_steele,
-		255,
+		OPT_birth_turin,
 		255,
 		255,
 		255,
@@ -3324,6 +3322,9 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"good",
 	"excellent",
 	"special",
-	"uncursed"
+	"uncursed",
+	"unique",
+	"powerful",
+	"magical"
 };
 
