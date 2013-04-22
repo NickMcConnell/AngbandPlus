@@ -1,0 +1,56 @@
+***cmd3.c***
+void do_cmd_inven(void)
+  display the inventory
+void do_cmd_equip(void)
+  display the equipment
+static bool item_tester_hook_wear(object_type *o_ptr)
+  Gothmog:  But dad!  I have to wear The Socks of Gorlim (-3 to Chr)! I've got 
+  a date lined up with Shelob!
+  Morgoth:  Waal son.  Let's run that by item_tester_hook_wear.
+  Gothmog:  O-kay.
+  item_tester_hook_wear: 0
+  Morgoth:  Sorry, son.  Looks as if you're already wearing an ULTIMATE item.
+void do_cmd_wield(void)
+  weild some item
+void do_cmd_takeoff(void)
+  take off item
+void do_cmd_drop(void)
+  drop item
+static bool high_level_book(object_type *o_ptr)
+  is <o_ptr> a dungeon spellbook?
+void do_cmd_destroy(void)
+  destroy some item
+void do_cmd_observe(void)
+  look at an item's attributes as discovered by *identify*
+void do_cmd_uninscribe(void)
+  take the inscription off an item
+void do_cmd_inscribe(void)
+  inscribe some item
+static bool item_tester_refill_lantern(object_type *o_ptr)
+  can we refill a lantern with item <o_ptr>?
+static void do_cmd_refill_lamp(void)
+  refill the player's lamp
+static bool item_tester_refill_torch(object_type *o_ptr)
+  can we refuel the player's torch with item <o_ptr>?
+static void do_cmd_refill_torch(void)
+  refuel the player's torch
+void do_cmd_refill(void)
+  refill the player's light
+void do_cmd_target(void)
+  target a monster or location
+void do_cmd_look(void)
+  look somewhere
+void do_cmd_locate(void)
+  expand your mind and have a look at some other sectors, will you?
+static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+  Slays muffins, wreaks havoc, and titillates the masses
+static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+  Sort of swaps hooks
+static void roff_top(int r_idx)
+  displays the attr/char of monster at <r_idx>
+void do_cmd_query_symbol(void)
+  identifies symbols and recalls monsters
+bool research_mon()
+  research, Mon, and get that paper done!
+void do_cmd_sense_grid_mana()
+  sense the mana stored in a grid

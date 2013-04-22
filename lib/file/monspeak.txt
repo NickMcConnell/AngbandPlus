@@ -64,3 +64,14 @@ burbles quietly.
 shudders painfully.
 squeals loudly.
 pulses mournfully.
+
+N:112:Hug
+5
+offers you a flower.
+smiles lovingly.
+snuggles up to something cute and fuzzy.
+purrs contentedly.
+murmurs:  'There, there--it's gonna be OK!'
+2
+protests, 'I thought you loved me!'
+pleads, 'One more cuddle, please?'

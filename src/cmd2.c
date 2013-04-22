@@ -175,7 +175,7 @@ void do_cmd_go_up(void)
                         }
                 }  
         }
-        /* Normal up stairs */
+        /* Shaft (The brown private FEAT that's UP machine for all the @'s) */
         else if (c_ptr->feat == FEAT_SHAFT_UP)
         {
                 if (dun_level == 1)
@@ -465,14 +465,17 @@ void do_cmd_go_down(void)
 
     /* We change place */
     if (c_ptr->special && (!prob_traveling))
-    {                        
+    {                       	
         if(d_info[c_ptr->special].min_plev <= p_ptr->lev)
         {
             dungeon_info_type *d_ptr = &d_info[c_ptr->special];
 
-            /* Ok go in the new dungeon */
-            dungeon_type = c_ptr->special;
+            /* Dump the price information */
+	    dump_price(d_info[dungeon_type].subdir);
 	    
+	    /* Ok go in the new dungeon */
+            dungeon_type = c_ptr->special;
+	        
 	    /*Initialize the dungeon specific *_info.txt files*/ 
 	    init_dun_entry(d_ptr->subdir);
 
@@ -713,15 +716,20 @@ static void chest_trap(int y, int x, s16b o_idx)
 	trap = o_ptr->pval;
 	
 	/* Message */
-	msg_print("You found a trap!");
-	
+	if(!rl_mess)
+	  msg_print("You found a trap!");
+	else
+	  msg_print("trap!");
 	/* Set off trap */
 	ident = player_activate_trap_type(y, x, o_ptr, o_idx);
 	if (ident)
 	{
 		t_info[o_ptr->pval].ident = TRUE;
-		msg_format("You identified the trap as %s.",
+		if(!roguelike_messages)
+		  msg_format("You identified the trap as %s.",
 			   t_name + t_info[trap].name);
+		else
+		  msg_format("%s", t_name + t_info[trap].name);
 	}
 }
 
@@ -1002,8 +1010,10 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 		/* Extract the difficulty XXX XXX XXX */
 		j = i - (j * 4);
 
+#if 0  /*JKB: Not any more... (I'm evil, aren't I?)*/
 		/* Always have a small chance of success */
 		if (j < 2) j = 2;
+#endif
 
 		/* Success */
 		if (rand_int(100) < j)
@@ -1024,7 +1034,8 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 			sound(SOUND_OPENDOOR);
 
 			/* Experience */
-			gain_exp(1);
+			/* JKB: Well, maybe a bit less evil */
+			gain_exp(100 - j);
 		}
 
 		/* Failure */
@@ -1066,7 +1077,8 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 /*
  * Open a closed/locked/jammed door or a closed/locked chest.
  *
- * Unlocking a locked door/chest is worth one experience point.
+ * Unlocking a locked door/chest is worth greater experience for 
+ * less skill (You know, all that "learning from our mistakes" dr*ck)
  */
 void do_cmd_open(void)
 {
@@ -1877,9 +1889,10 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	/* Extract the difficulty */
 	j = i - t_ptr->difficulty * 3;
 
+#if 0
 	/* Always have a small chance of success */
 	if (j < 2) j = 2;
-
+#endif
 	/* Must find the trap first. */
 	if (!object_known_p(o_ptr))
 	{
@@ -1984,7 +1997,10 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 	if (rand_int(100) < j)
 	{
 		/* Message */
-		msg_format("You have disarmed the %s.", name);
+		if(!rl_mess)
+		  msg_format("You have disarmed the %s.", name);
+		else
+		  msg_format("disarmed %s", name);
 
 		/* Reward */
 		gain_exp(power);
@@ -1994,20 +2010,6 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 
 		/* Remove the trap */
 		c_ptr->t_idx = 0;
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
-		/* Move the player onto the trap */
-		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
-                        move_player(dir, easy_disarm);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		/* move the player onto the trap grid */
-		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
-                        move_player(dir, FALSE);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 		/* Remove trap attr from grid */
 		note_spot(y, x);
@@ -2021,7 +2023,8 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		if (flush_failure) flush();
 
 		/* Message */
-		msg_format("You failed to disarm the %s.", name);
+		if(!rl_mess)
+		  msg_format("You failed to disarm the %s.", name);
 
 		/* We may keep trying */
 		more = TRUE;
@@ -2031,8 +2034,10 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 	else
 	{
 		/* Message */
-		msg_format("You set off the %s!", name);
-
+		if(!rl_mess)
+		  msg_format("You set off the %s!", name);
+		else
+		  msg_format("set off %s", name);
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
 		/* Move the player onto the trap */
@@ -2215,8 +2220,8 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 	/* Compare bash power to door power XXX XXX XXX */
 	temp = (bash - (temp * 10));
 
-	/* Hack -- always have a chance */
-	if (temp < 1) temp = 1;
+	/* Hack -- weaklings really shouldn't mess with doors */
+	if (temp < 1) msg_print("This is getting nowhere");
 
 	/* Hack -- attempt to bash down the door */
 	if (rand_int(100) < temp)
@@ -2264,7 +2269,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		more = TRUE;
 	}
 
-	/* High dexterity yields coolness */
+	/* Ah, well, we must all have a low dexterity sometimes */
 	else
 	{
 		/* Message */
@@ -2466,7 +2471,7 @@ void do_cmd_alter(void)
 		else
 		{
 			/* Oops */
-			msg_print("You attack the empty air.");
+			msg_print("You clap your hands.  You stomp your feet.  You jump in the air");
 		}
 	}
 
@@ -2606,14 +2611,23 @@ void do_cmd_walk_jump(int pickup)
 	/* Get a "repeated" direction */
 	if (get_rep_dir(&dir))
 	{
+	    if(dir % 2)
+		{
+		/* Moving diagonally takes longer */
+		energy_use = 100;
+		if(magik(41))
+		  dir = 5;
+		}
+	    else
+		{	
 		/* Take a turn */
 		energy_use = 100;
-
-		/* Actually move the character */
-		move_player(dir, pickup);
+		}
+	    /* Actually move the character */
+	    move_player(dir, pickup);
                 
-		/* Allow more walking */
-		more = TRUE;
+	    /* Allow more walking */
+	    more = TRUE;
 	}
 
         /* Hack -- In small scale wilderness it takes MUCH more time to move */
@@ -2834,13 +2848,13 @@ int breakage_chance(object_type *o_ptr)
 	/* Examine the item type */
 	switch (o_ptr->tval)
 	{
-		/* Always break */
+		/* Always break (Huh?  Food can break?)*/
 		case TV_FLASK:
 		case TV_POTION:
                 case TV_POTION2:
 		case TV_BOTTLE:
 		case TV_FOOD:
-                case TV_FIRESTONE:
+                case TV_FIRESCONE:
 		{
 			return (100);
 		}
@@ -3223,8 +3237,11 @@ void do_cmd_fire(void)
                                         if (!visible)
                                         {
                                                 /* Invisible monster */
-                                                msg_format("The %s finds a mark.", o_name);
-                                        }
+                                                if(!rl_mess)
+						  msg_format("The %s finds a mark.", o_name);
+                                        	else
+						  msg_format("it hits");
+					}
 
                                         /* Handle visible monster */
                                         else
@@ -3235,7 +3252,10 @@ void do_cmd_fire(void)
                                                 monster_desc(m_name, m_ptr, 0);
 
                                                 /* Message */
-                                                msg_format("The %s hits %s.", o_name, m_name);
+                                                if(!rl_mess)
+						  msg_format("The %s hits %s.", o_name, m_name);
+						else
+						  msg_format("it hits");
 
                                                 /* Hack -- Track this monster race */
                                                 if (m_ptr->ml) monster_race_track(m_ptr->r_idx, m_ptr->ego);
@@ -3357,8 +3377,11 @@ void do_cmd_fire(void)
                         tx = px + 99 * ddx[d];
                         ty = py + 99 * ddy[d];
 
-                        msg_format("The %s ricochets!", o_name);
-                }
+                        if(!rl_mess)
+			  msg_format("The %s ricochets!", o_name);
+                	else
+			  msg_format("it ricochets");
+		}
                 else
                         break;
         }
@@ -3601,7 +3624,10 @@ void do_cmd_throw(void)
 				if (!visible)
 				{
 					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+					if(!rl_mess)
+					  msg_format("The %s finds a mark.", o_name);
+					else
+					  msg_format("it hits");
 				}
 
 				/* Handle visible monster */
@@ -3613,8 +3639,11 @@ void do_cmd_throw(void)
 					monster_desc(m_name, m_ptr, 0);
 
 					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
-
+					if(!rl_mess)
+					  msg_format("The %s hits %s.", o_name, m_name);
+					else
+					  msg_format("it hits");
+					
 					/* Hack -- Track this monster race */
                                         if (m_ptr->ml) monster_race_track(m_ptr->r_idx, m_ptr->ego);
 
@@ -3699,8 +3728,11 @@ void do_cmd_throw(void)
 		if ((hit_body) || (hit_wall) || (randint(100) < j))
 		{
 			/* Message */
-			msg_format("The %s shatters!", o_name);
-
+			if(!rl_mess)
+			  msg_format("The %s shatters!", o_name);
+			else
+			  msg_format("it shatters");
+			
                         if (potion_smash_effect(0, y, x, q_ptr->sval))
 			{
                                 if (cave[y][x].m_idx)
@@ -3919,7 +3951,10 @@ void do_cmd_boomerang(void)
 				if (!visible)
 				{
 					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+					if(!rl_mess)
+					  msg_format("The %s finds a mark.", o_name);
+					else
+					  msg_format("it hits");
 				}
 
 				/* Handle visible monster */
@@ -3931,8 +3966,10 @@ void do_cmd_boomerang(void)
 					monster_desc(m_name, m_ptr, 0);
 
 					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
-
+					if(!rl_mess)
+					  msg_format("The %s hits %s.", o_name, m_name);
+					else
+					  msg_format("it hits");
 					/* Hack -- Track this monster race */
                                         if (m_ptr->ml) monster_race_track(m_ptr->r_idx, m_ptr->ego);
 
@@ -3998,7 +4035,8 @@ void do_cmd_boomerang(void)
 						monster_desc(m_name, m_ptr, 0);
 
 						/* Message */
-						msg_format("%^s flees in terror!", m_name);
+						if(!rl_mess)
+						  msg_format("%^s flees in terror!", m_name);
 					}
 				}
 
@@ -4068,23 +4106,22 @@ static bool tport_vertically(bool how) {
   /* Go down */
 
   if (how) {
-#if 0
     if (dun_level >= d_info[dungeon_type].maxdepth) {
-      msg_print("The floor is impermeable.");
+      msg_print("The floor is impermeable.  Your body squishes down.");
+      p_ptr->slow += 5;
       return FALSE;
     }
-#endif
 
     msg_print("You sink through the floor.");
     dun_level++;
     p_ptr->leaving = TRUE;
   } else {
-#if 0
     if (!dun_level) {
-      msg_print("The only thing above you is air.");
+      msg_print("You rise up into the air a few feet, then fall to the ground.");
+      if(!p_ptr->ffall)
+	take_hit(damroll(3, 2), "falling");
       return FALSE;
     }
-#endif
 
     msg_print("You rise through the ceiling.");
     dun_level--;
@@ -4430,7 +4467,7 @@ void do_cmd_create_artifact()
                 flags_select[j][i] = FALSE;
         }
 
-        /* Everlasting love ... ... nevermind :) */
+        /* Everlasting love ... ... nevermind :) (JKB: ???)*/
         while (!done && !abord)
         {
                 /* Chose the flags */
@@ -4579,6 +4616,9 @@ void do_cmd_create_artifact()
    * scan_monst --
    *
    * Return a list of o_list[] indexes of items of the given monster
+   */
+  /*
+   * JKB: That comment should be taken out and shot.
    */
   bool scan_monst(int *items, int *item_num, int m_idx)
   {

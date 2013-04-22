@@ -45,4 +45,5 @@ A rogue begins the game with:
 If they are *very* lucky they may also begin with:
     boots of free action
  
- 
+#####GOccupations
+assassin + magician 

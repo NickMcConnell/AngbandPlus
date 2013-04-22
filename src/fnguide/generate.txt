@@ -1,0 +1,234 @@
+*** generate.c ***
+[Ah yes, this vicious beast]
+
+static void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
+  saves to <rdir> delta x, to <cdir> delta y, of the locations (<x1>, <y1>)
+  and (<x2>, <y2>), but adjusting said deltas to disallow diagonal directions
+static void rand_dir(int *rdir, int *cdir)
+  picks a random direction and saves the deltas in <rdir> and <cdir>
+static bool new_player_spot(void)
+  sets player coordinates to a random new location in SAFE_MAX_ATTEMPTS
+  tries, returning whether or not we could do it in those many tries
+static int next_to_walls(int y, int x)
+  how many walls are next to location (<x>, <y>)
+static void place_rubble(int y, int x)
+  turns the grid at (<x>, <y>) into rubble
+static void place_up_stairs(int y, int x)
+  turns (<x>, <y>) into an up staircase or shaft
+static void place_magical_stairs(int y, int x, byte next)
+  turns (<x>, <y>) into a magical stairway to the <next> dungeon (usually
+  the surface)
+static void place_down_stairs(int y, int x)
+  turns (<x>, <y>) into a down staircase or shaft
+static void place_altar(int y, int x)
+  turns (<x>, <y>) into some kind of altar
+static void place_fountain(int y, int x)
+  turns (<x>, <y>) into a fountain
+static void place_between(int y, int x)
+  turns (<x>, <y>) into a between gate
+static void place_random_stairs(int y, int x)
+  turns (<x>, <y>) into some kind of stairway
+static void place_locked_door(int y, int x)
+  puts a locked door at (<x>, <y>)
+static void place_secret_door(int y, int x)
+  puts a secret door at (<x>, <y>)
+static void place_random_door(int y, int x)
+  puts some kind of door at (<x>, <y>)
+static void alloc_stairs(int feat, int num, int walls, int branch)
+  places a certain <num>ber of stairs at a location adjacent to a
+  number of <walls>, stairs connected to some <branch>, preferably
+  of the given stair <feat>ure type
+static void alloc_object(int set, int typ, int num)
+  places a certain <num>ber of terrain features or items of the 
+  given <typ>e, and influenced by whether it should be <set> down
+  in a corridor or a room
+void build_rectangle(int y1, int x1, int y2, int x2, int feat, int info)
+  makes a rectangle of <feat>s with upper left corner (<x1>, <y1>), 
+  lower right corner (<x2>, <y2>), and given grid <info>rmation
+static void recursive_river(int x1, int y1, int x2, int y2, int feat1, 
+int feat2, int width)
+  carves a river from (<x1>, <y1>) to (<x2>, <y2>) and using either
+  <feat1> or <feat2> about <width> grids wide
+static void add_river(int feat1, int feat2)
+  tosses in a few rivers of either type <feat1> or <feat2>
+static void build_streamer(int feat, int chance)
+  runs a streamer of type <feat>, with a certain <chance> of a grid
+  containing treasure
+static void build_streamer2(int feat, int killwall)
+  makes a streamer of type <feat> (usually tree, water, or lava) and
+  destroys walls if <killwall> to make it all happen
+static void destroy_level(void)
+  makes a destroyed level
+static bool get_is_floor(int x, int y)
+  is (<x>, <y>) a floor tile?
+static void set_floor(int x, int y)
+  makes (<x>, <y>) a floor
+static void check_room_boundary(int x1, int y1, int x2, int y2)
+  tunnels around the room with corners (<x1>, <y1>) and (<x2>, <y2>)
+static void vault_objects(int y, int x, int num)
+  creates up to a certain <num>ber of items at (<x>, <y>)
+static void vault_trap_aux(int y, int x, int yd, int xd)
+  creates a trap at most (<xd>, <yd>) away from (<x>, <y>)
+  (i.e. (<x>, <y>) - ((+/-)<x>, (+/-)<y>))
+static void vault_traps(int y, int x, int yd, int xd, int num)
+  see above, except for a certain <num>ber of traps
+static void vault_monsters(int y1, int x1, int num)
+  puts a certain <num>ber of sleeping monsters near (<x1>, <y1>)
+bool room_alloc(int x,int y,bool crowded,int by0,int bx0,int *xx,int *yy)
+  allocates the memory needed for a given room with height <y>, and width
+  <x>, whether or not it is <crowded> with monsters, center (<xx>, <yy>)
+  <by0> and <bx0> used in the build_type function
+static void build_type1(int by0, int bx0)
+  builds a rectangular room at (<by0>, <bx0>)
+static void build_type2(int by0, int bx0)
+  builds overlapping rectangular rooms at (<by0>, <bx0>)
+static void build_type3(int by0, int bx0)
+  builds a cross-shaped room at (<by0>, <bx0>)
+static void build_type4(int by0, int bx0)
+  builds a large, interesting room at (<by0>, <bx0>)
+static bool vault_aux_jelly(int r_idx)
+  is the monster kind stored at <r_idx> valid for a jelly nest (slime)?
+static bool vault_aux_animal(int r_idx)
+  is the monster kind stored at <r_idx> valid for an animal nest (zoo)?
+static bool vault_aux_undead(int r_idx)
+  is the monster kind stored at <r_idx> valid for an undead nest (graveyard)?
+static bool vault_aux_chapel(int r_idx)
+  is the monster kind stored at <r_idx> valid for a priest nest (chapel)?
+static bool vault_aux_kennel(int r_idx)
+  is the monster kind stored at <r_idx> valid for a canine nest (kennel)?
+static bool vault_aux_treasure(int r_idx)
+  is the monster kind stored at <r_idx> valid for a mimic nest (treasure)?
+static bool vault_aux_clone(int r_idx)
+  is the monster kind stored at <r_idx> valid for a clone nest?
+static bool vault_aux_symbol(int r_idx)
+  is the monster kind stored at <r_idx> valid for a clone symbol nest?
+static bool vault_aux_orc(int r_idx)
+  is the monster kind stored at <r_idx> valid for an orc pit?
+static bool vault_aux_troll(int r_idx)
+  is the monster kind stored at <r_idx> valid for a troll pit?
+static bool vault_aux_giant(int r_idx)
+  is the monster kind stored at <r_idx> valid for a giant pit?
+static bool vault_aux_dragon(int r_idx)
+  is the monster kind stored at <r_idx> valid for a dragon pit?
+static bool vault_aux_demon(int r_idx)
+  is the monster kind stored at <r_idx> valid for a demon pit?
+static void build_type5(int by0, int bx0)
+  builds a nest at (<by0>, <bx0>)
+static void build_type6(int by0, int bx0)
+  builds a pit at (<by0>, <bx0>)
+static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
+  fills in the vault at (<xval>, <yval>) with boundaries <xmax> and <ymax>
+  from certain vault <data>
+static void build_type7(int by0, int bx0)
+  builds a lesser vault at (<bx0>, <by0>)
+static void build_type8(int by0, int bx0)
+  builds a greater vault at (<bx0>, <by0>)
+static void build_type9(int by0, int bx0)
+  builds a vertical oval room at (<bx0>, <by0>)
+static void store_height(int x, int y, int x0, int y0, byte val, int xhsize, int yhsize, int cutoff)
+  does magic for generate_hmap()
+void generate_hmap(int y0, int x0,int xsiz,int ysiz,int grd,int roug,int cutoff)
+  magically creates a height-map fractal cave
+static bool hack_isnt_wall(int y, int x, int cutoff)
+  does more magic for generate_hmap()
+static void fill_hack(int y0, int x0,int y,int x,int xsize,int ysize,int cutoff,int *amount)
+  yet more generate_hmap() magic
+bool generate_fracave(int y0, int x0,int xsize,int ysize,int cutoff,bool light,bool room)
+  generates a fractal cave magically
+static void build_cavern(void)
+  makes a cave system at the center of the dungeon
+static void build_type10(int by0, int bx0)
+  cave maker of the top level
+static void build_small_room(int x0, int y0)
+  builds a small, random room at (<x0>, <y0>)
+static void add_door(int x, int y)
+  adds a door at (<x>, <y>)
+static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
+  fills the empty parts of a room bounded by <x1>, <x2>, <y1>, <y2>, with
+  treasure and monsters by <difficulty>
+static void build_bubble_vault(int x0, int y0, int xsize, int ysize)
+  builds a random bubble vault at (<x0>, <y0>) with vault size 
+  (<xsize>, <ysize>)
+static void convert_extra(int y1, int x1, int y2, int x2)
+  converts FEAT_WALL_EXTRA to normal walls in the area of <x1>, <x2>, 
+  <y1>, <y2>
+static void build_room(int x1, int x2, int y1, int y2)
+  builds a room bounded by <x1>, <x2>, <y1>, <y2>
+static void build_room_vault(int x0, int y0, int xsize, int ysize)
+  builds a random vault of the overlapping rectangle variety at 
+  (<x0>, <y0>) with size <xsize> and <ysize>
+static void build_cave_vault(int x0, int y0, int xsiz, int ysiz)
+  builds a random vault within a cave at (<x0>, <y0>) with size
+  <xsiz> and <ysiz>
+static void r_visit(int y1, int x1, int y2, int x2, int node, int dir, 
+		    int *visited)
+  recursively helps build a maze vault, with boundaries defined by
+  <x1>, <x2>, <y1>, and <y2>, with <dir>, <node>, and <visited> used
+  for magic recursion
+static void build_maze_vault(int x0, int y0, int xsize, int ysize)
+  builds a maze vault centered at (<x0>, <y0>), with size of 
+  <xsize> by <ysize>
+static void build_mini_c_vault(int x0, int y0, int xsize, int ysize)
+  builds a miniature checkerboard vault centered at (<x0>, <y0>), 
+  with size of <xsize> by <ysize>
+static void build_recursive_room(int x1, int y1, int x2, int y2, int power)
+  builds a recursive town/castle structure with boundaries <x1>, <y1>, <x2>,
+  <y2> and given monster <power>
+static void build_castle_vault(int x0, int y0, int xsize, int ysize)
+  builds a castle vault centered at (<x0>, <y0>), with size of <xsize>
+  by <ysize>
+static void add_outer_wall(int x, int y, int light, int x1, int y1,
+			   int x2, int y2)
+  adds outer walls to a floored area, sometimes <light>ing it, with
+  boundaries of <x1>, <y1>, <x2>, <y2>, using (<x>, <y>) for recursive
+  purposes.
+static int dist2(int x1, int y1, int x2, int y2, int h1, int h2, int h3, int h4)
+  finds the distance between the points (<x1>, <y1>) and (<x2>, <y2>), using
+  <h>'s 1 through 4 for foul experimentation
+static void build_target_vault(int x0, int y0, int xsize, int ysize)
+  builds a '+'-shaped vault centered at (<x0>, <y0>), bounded by <xsize>
+  and <ysize>
+static void build_type11(int by0, int bx0)
+  builds a random vault at (<by0>, <bx0>)
+static void build_type12(int by0, int bx0)
+  builds a crypt room at (<bx0>, <by0>)
+void evolve_level(bool noise)
+  evolves a living level, with some <noise>, occasionally
+static void gen_life_level()
+  begins a living level
+static void build_tunnel(int row1, int col1, int row2, int col2, bool water) 
+  builds a tunnel between (<row1>, <col1>), (<row2>, <col2>), adding <water>
+  sometimes
+static int next_to_corr(int y1, int x1)
+  determines if (<x1>, <y1>) is adjacent to a corridor tile
+static bool possible_doorway(int y, int x)
+  can we put a doorway at (<x>, <y>)
+static void try_door(int y, int x)
+  puts a door at (<x>, <y>) if that's allowed
+static bool room_build(int y, int x, int typ)
+  builds a room at of a certain <typ>e at (<x>, <y>), returning its
+  success
+void replace_all_friends()
+  takes your imprinted companions from the last level into this one
+void save_all_friends()
+  saves your friends so that they'll follow you to the next level
+void dig(int x, int y, int d)
+  digs from (<x>, <y>) in a certain <d>irection
+void generate_maze()
+  generates a maze
+byte calc_dungeon_type()
+  returns the dungeon type of the current dungeon
+static bool cave_gen(void)
+  generates a dungeon level
+static void build_arena(void)
+  builds an arena after it is entered
+static void arena_gen(void)
+  prepares an arena and adds monsters
+static void quest_gen(void)
+  generates a quest level
+bool build_special_level(void)
+  builds a special level
+void generate_grid_mana()
+  gives a level's grids some mana
+void generate_cave(void)
+  generates a random dungeon level

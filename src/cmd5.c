@@ -26,14 +26,11 @@ extern bool item_tester_hook_armour(object_type *o_ptr);
 /* adds spell power * 10% */
 long apply_power_dam(long dam, int lvl, byte power)
 {
+	/* Paranoia */
         if (lvl < 0) lvl = 0;
         if (lvl > 50) lvl = 50;
 
-        lvl *= power;
-
-        dam += (lvl * dam) / 10;
-
-        return (dam);
+        return (dam + ((lvl * power * dam) / 10));
 }
 /* adds spell power dice */
 long apply_power_dice(long dice, int lvl, byte power)
@@ -41,11 +38,7 @@ long apply_power_dice(long dice, int lvl, byte power)
         if (lvl < 0) lvl = 0;
         if (lvl > 50) lvl = 50;
 
-        lvl *= power;
-
-        dice += lvl;
-
-        return (dice);
+        return (dice + (lvl * power));
 }
 /* adds spell power parts */
 long apply_power_dur(long dur, int lvl, byte power)
@@ -53,9 +46,7 @@ long apply_power_dur(long dur, int lvl, byte power)
         if (lvl < 0) lvl = 0;
         if (lvl > 50) lvl = 50;
 
-        dur += (dur / power) * lvl;
-
-        return (dur);
+        return (dur + (dur / power) * lvl);
 }
 
 /*
@@ -252,7 +243,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, object_type *o_
                 if ((!spell_okay(spell, known, realm)) && (!get_spell_all_hack))
 		{
 			bell();
-			msg_format("You may not %s that %s.", prompt, p);
+			if(!rl_mess)
+			  msg_format("You may not %s that %s.", prompt, p);
 			continue;
 		}
 
@@ -319,8 +311,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, object_type *o_
  *
  * Note that *all* spells in the book are listed
  *
- * Note that browsing is allowed while confused or blind,
- * and in the dark, primarily to allow browsing in stores.
+ * Note that browsing is allowed while confused
+ * or in the dark, primarily to allow browsing in stores.
  */
 
 /*
@@ -333,7 +325,7 @@ void do_cmd_browse_aux(object_type *o_ptr)
 	int		num = 0;
 
 	byte		spells[64];
-
+	
 	/* Access the item's sval */
 	sval = o_ptr->sval;
 
@@ -523,33 +515,47 @@ void do_cmd_study(void)
 
 	if (!p_ptr->realm1)
 	{
-		msg_print("You cannot read books!");
+		if(!rl_mess)
+		  msg_print("You cannot read books!");
+		else
+		  msg_print("illiterate");
 		return;
 	}
 
 	if (p_ptr->blind || no_lite())
 	{
-		msg_print("You cannot see!");
+		if(!rl_mess)
+		  msg_print("You cannot see!");
+		else
+		  msg_print("blind!");
 		return;
 	}
 
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		if(!rl_mess)
+		  msg_print("You are too confused!");
+		else
+		  msg_print("confused!");
 		return;
 	}
 
 	if (!(p_ptr->new_spells))
 	{
-		msg_format("You cannot learn any new %ss!", p);
+		if(!rl_mess)
+		  msg_format("You cannot learn any new %ss!", p);
+		else
+		  msg_format("no new %ss", p);
 		return;
 	}
 
-	msg_format("You can learn %d new %s%s.", p_ptr->new_spells, p,
+	if(!rl_mess)
+	  {
+	  msg_format("You can learn %d new %s%s.", p_ptr->new_spells, p,
 		(p_ptr->new_spells == 1?"":"s"));
-	msg_print(NULL);
-
-
+	  msg_print(NULL);
+	  }
+	
 	/* Restrict choices to "useful" books */
 	item_tester_tval = mp_ptr->spell_book;
 
@@ -580,44 +586,8 @@ void do_cmd_study(void)
 	handle_stuff();
 
 	/* Mage -- Learn a selected spell */
-#if 0
-        if ((mp_ptr->spell_book != TV_VALARIN_BOOK) || (p_ptr->pclass == CLASS_MONK))
-	{
-		/* Ask for a spell, allow cancel */
-                if (!get_spell(&spell, "study", sval, FALSE, o_ptr, TRUE) && (spell == -1)) return;
-	}
-
-	/* Priest -- Learn a random prayer */
-        else
-	{
-		int k = 0;
-
-		int gift = -1;
-
-		/* Extract spells */
-                for (spell = 0; spell < 64; spell++)
-		{
-			/* Check spells in the book */
-                        if ((fake_spell_flags[o_ptr->tval - TV_VALARIN_BOOK + 1][sval][(spell < 32)] & (1L << (spell % 32))))
-			{
-				/* Skip non "okay" prayers */
-                                if (!spell_okay(spell, FALSE, o_ptr->tval - TV_VALARIN_BOOK + 1)) continue;
-
-				/* Hack -- Prepare the randomizer */
-				k++;
-
-				/* Hack -- Apply the randomizer */
-				if (rand_int(k) == 0) gift = spell;
-			}
-		}
-
-		/* Accept gift */
-		spell = gift;
-	}
-#else
         /* Ask for a spell, allow cancel */
         if (!get_spell(&spell, "study", sval, FALSE, o_ptr, TRUE) && (spell == -1)) return;
-#endif
 
 	/* Nothing to study */
 	if (spell < 0)
@@ -955,7 +925,7 @@ void brand_weapon(int brand_type)
 			}
 			else
 			{
-				act = "glows deep, icy blue!";
+				act = "glows radiant, icy white!";
                                 o_ptr->name2 = EGO_BRAND_COLD;
 			}
 		}
@@ -1557,7 +1527,7 @@ void cast_magery_spell(int spell, byte level)
                         (void)fire_ball(GF_STUN_CONF, dir, dam, 0);
                         (void)fire_ball(GF_OLD_SLOW, dir, dam, 0);
                         break;
-                case 31: /* Collapse Cieling */
+                case 31: /* Collapse Ceiling */
                 {
                         int y, x;
 

@@ -433,21 +433,6 @@ void delete_monster_idx(int i)
 		/* Hack -- efficiency */
 		o_ptr->held_m_idx = 0;
 
-		if ( p_ptr->preserve )
-		{
-			/* Hack -- Preserve unknown artifacts */
-			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
-			{
-				/* Mega-Hack -- Preserve the artifact */
-                                if (o_ptr->tval == TV_RANDART) {
-                                        random_artifacts[o_ptr->sval].generated = FALSE;
-                                }else if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART) {
-                                        k_info[o_ptr->k_idx].artifact = FALSE;
-                                }else{
-                                        a_info[o_ptr->name1].cur_num = 0;
-                                }
-			}
-		}
 		/* Delete the object */
 		delete_object_idx(this_o_idx);
 	}
@@ -3401,7 +3386,7 @@ bool multiply_monster(int m_idx, bool charm, bool clone)
 
         if(no_breeds)
         {
-                msg_print("It tries to breed but he fails!");
+                msg_print("It tries to breed but it fails!");
                 return FALSE;
         }
 

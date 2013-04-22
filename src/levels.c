@@ -248,7 +248,8 @@ void get_level_flags()
                 for (s = buf; *s; )
                 {
                         /* Find the end of this entry */
-                        for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+                        for (t = s; *t && (*t != ' ') && (*t != '|'); ++t)
+			  ;
 
                         /* Nuke and skip any dividers */
                         if (*t)

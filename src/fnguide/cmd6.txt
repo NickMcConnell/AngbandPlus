@@ -1,0 +1,53 @@
+***cmd6.c***
+
+static void corpse_effect(object_type *o_ptr, bool cutting)
+  what effect should eating and/or <cutting> corpse <o_ptr>
+  have on the player?
+static bool item_tester_hook_eatable(object_type *o_ptr)
+  is <o_ptr> edible?
+void do_cmd_eat_food(void)
+  eat some food
+void do_cmd_cut_corpse(void)
+  cut up a corpse for convenience
+void do_cmd_cure_meat(void)
+  cure meat to preserve it
+static bool item_tester_hook_quaffable(object_type *o_ptr)
+  may we drink <o_ptr>?
+static bool quaff_potion(int tval, int sval, int pval)
+  applies the effect of a potion with given <tval>, <sval>, and <pval>
+void do_cmd_quaff_potion(void)
+  quaff a crisp, refreshing potion
+static bool item_tester_hook_fillable(object_type *o_ptr)
+  is this <o_ptr> a TV_BOTTLE?
+void do_cmd_fill_bottle(void)
+  fill an empty bottle
+bool curse_armor(void)
+  curse armor, returning success
+bool curse_weapon(void)
+  curse a wielded weapon, returning success
+static bool item_tester_hook_readable(object_type *o_ptr)
+  can we read <o_ptr>?
+void do_cmd_read_scroll(void)
+  read a scroll
+void do_cmd_use_staff(void)
+  use a staff
+void do_cmd_aim_wand(void)
+  fire a wand
+static bool item_tester_hook_zapable(object_type *o_ptr)
+  can we zap this here <o_ptr>?
+static bool item_tester_hook_attachable(object_type *o_ptr)
+  can we attach a rod tip to this item?
+void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
+  combine rod <q_ptr> with tip type <tip_item>
+void do_cmd_zap_rod(void)
+  zap a rod
+static bool item_tester_hook_activate(object_type *o_ptr)
+  can we activate this stupid <o_ptr>?
+bool brand_bolts(void)
+  brand some bolts, returning TRUE
+void do_cmd_activate(void)
+  activate some item
+static bool activate_random_artifact(object_type *o_ptr)
+  activate random artifact <o_ptr>
+static bool activate_spell(object_type *o_ptr, byte choice)
+  do a runecrafter spell from some item <o_ptr>, given a <choice>

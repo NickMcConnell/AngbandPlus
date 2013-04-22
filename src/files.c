@@ -119,15 +119,19 @@ void safe_setuid_grab(void)
  */
 s16b tokenize(char *buf, s16b num, char **tokens, char delim1, char delim2)
 {
-	int i = 0;
+	/* JKB: [register] probably insignificant, but since loading 
+	 * files takes a while, a little extra speed at low levels 
+	 * never hurts
+	 */
+	register int i = 0;
 
-	char *s = buf;
+	register char *s = buf;
 
 
 	/* Process */
 	while (i < num - 1)
 	{
-		char *t;
+		register char *t;
 
 		/* Scan the string */
 		for (t = s; *t; t++)
@@ -1269,12 +1273,12 @@ static cptr likert(int x, int y)
 		case 0:
 		case 1:
 		{
-			likert_color = TERM_RED;
+			likert_color = TERM_L_DARK;
 			return ("Bad");
 		}
 		case 2:
 		{
-            likert_color = TERM_L_RED;
+            likert_color = TERM_RED;
 			return ("Poor");
 		}
 		case 3:
@@ -1305,7 +1309,7 @@ static cptr likert(int x, int y)
 		case 12:
 		case 13:
 		{
-                        likert_color = TERM_GREEN;
+                        likert_color = TERM_L_GREEN;
 			return ("Superb");
 		}
 		case 14:
@@ -1313,12 +1317,12 @@ static cptr likert(int x, int y)
 		case 16:
 		case 17:
 		{
-			likert_color = TERM_L_GREEN;
+			likert_color = TERM_GREEN;
 			return ("Heroic");
 		}
 		default:
 		{
-			likert_color = TERM_L_GREEN;
+			likert_color = TERM_GREEN;
                         sprintf(dummy,"Legendary[%d]", (int)((((x / y) - 17) * 5) / 2));
 			return dummy;
 		}
@@ -1355,7 +1359,7 @@ static void display_player_various(void)
 	/* Shooting Skill (with current bow and normal missile) */
 	o_ptr = &inventory[INVEN_BOW];
 
-	/* Fix the display for Weaponmasters & Priests -- Gumby */
+	/* Fix the display for Weaponmasters -- Gumby */
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
             (inventory[INVEN_WIELD].tval == p_ptr->class_extra1))
                 tmp = (p_ptr->to_h - (p_ptr->lev / 2)) + o_ptr->to_h;
@@ -1499,16 +1503,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 			(*f1) |= TR1_SPEED;
 		if ((p_ptr->lev>24) && !monk_heavy_armor())
 			(*f2) |= (TR2_FREE_ACT);
-		break;
-	case CLASS_MINDCRAFTER:
-		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_FEAR);
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_SUST_WIS);
-		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_CONF);
-		if (p_ptr->lev > 39)
-                        (*esp) |= (ESP_DEMON | ESP_ORC | ESP_TROLL | ESP_GIANT | ESP_UNDEAD | ESP_ANIMAL | ESP_UNIQUE);
 		break;
 	case CLASS_WEAPONMASTER:
                 if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR);
@@ -2914,7 +2908,7 @@ static void display_player_ben_one(int mode)
 		/* Scan rows */
 		for (y = 0; y < 16; y++)
 		{
-                        cptr name = object_flag_names[32*mode+16*x+y];
+                        cptr name = object_flag_names[(32 * mode) + (16 * x) + y];
 
 			/* No name */
 			if (!name) continue;
@@ -3265,16 +3259,6 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n Maximize Mode:      ON");
 	else
 		fprintf(fff, "\n Maximize Mode:      OFF");
-
-	if (p_ptr->preserve)
-		fprintf(fff, "\n Preserve Mode:      ON");
-	else
-		fprintf(fff, "\n Preserve Mode:      OFF");
-
-	if (auto_scum)
-		fprintf(fff, "\n Autoscum:           ON");
-	else
-		fprintf(fff, "\n Autoscum:           OFF");
 
         if (always_small_level)
                 fprintf(fff, "\n Small Levels:       ALWAYS");
@@ -4563,9 +4547,8 @@ long total_points(void)
 
         if (!comp_death) comp_death = 1;
 
-        if (p_ptr->preserve) mult -= 5; /* Penalize preserve, maximize modes */
+        /* Penalize maximize modes */
         if (p_ptr->maximize) mult -= 5;
-        if (auto_scum) mult -= 20;
 	if (stupid_monsters) mult -= 50;
 	if (vanilla_town)    mult += 30; /* Vanilla town is harder */
         if (small_levels)    mult += ((always_small_level) ? 20 : 50);
@@ -6048,7 +6031,7 @@ void exit_game_panic(void)
 }
 
 
-errr get_rnd_line(char * file_name, char * output)
+errr get_rnd_line(char *file_name, char *output)
 {
 	FILE        *fp;
 
@@ -6092,7 +6075,7 @@ errr get_rnd_line(char * file_name, char * output)
 	return (0);
 }
 
-cptr get_line(char* fname, char* fdir, int line)
+cptr get_line(char *fname, char *fdir, int line)
 {
   FILE* fp;
   static char buf[1024];
@@ -6123,7 +6106,7 @@ cptr get_line(char* fname, char* fdir, int line)
 }
 
 /* MG's PATCH */
-errr get_xtra_line(char * file_name, monster_type *m_ptr, char * output)
+errr get_xtra_line(char *file_name, monster_type *m_ptr, char *output)
 {
 	FILE        *fp;
 	char	buf[1024];

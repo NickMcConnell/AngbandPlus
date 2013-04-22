@@ -37,4 +37,5 @@ An unbeliever begins the game with:
 If they are *very* lucky they may also begin with:
     heavy shield
 
-		
+#####GOccupations
+Anti-magician + warrior		

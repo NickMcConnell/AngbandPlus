@@ -222,6 +222,7 @@ static void change_path(cptr info)
 }
 
 
+
 /*
  * Simple "main" function for multiple platforms.
  *

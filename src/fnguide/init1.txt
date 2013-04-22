@@ -1,0 +1,100 @@
+*** init1.c ***
+[Note: all functions of type 'errr' should be assumed to return the
+success of the function]
+
+errr init_v_info_txt(FILE *fp, char *buf, bool start)
+  initializes vault information in *_info.txt form from a certain file
+  at <fp>, writing to a <buf>fer, whether or not this is called at the
+  <start> of the program
+static errr grab_one_feature_flag(feature_type *f_ptr, cptr what)
+  sets a feature flag for a type of feature at <f_ptr>, depending on <what>
+  it's called
+errr init_f_info_txt(FILE *fp, char *buf)
+  initializes the features from a file at <fp>, writing to a <buf>fer
+static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
+  gives the object kind <k_ptr> a certain flag described by <what> its
+  ASCII name is
+errr init_k_info_txt(FILE *fp, char *buf)
+  initializes the object kinds from a file at <fp>, writing to a <buf>fer
+static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
+  gives the artifact kind <a_ptr> a certain flag described by <what> its
+  ASCII name is
+errr init_a_info_txt(FILE *fp, char *buf)
+  initializes the artifact kinds from a file at <fp>, writing to a <buf>fer
+static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
+  gives the ego kind <e_ptr> a certain flag described by <what> its ASCII 
+  name is, putting said flag at index <n> of the appropriate flags*[] array,
+  returning success
+errr init_e_info_txt(FILE *fp, char *buf) 
+  initializes the ego kinds from a file at <fp>, writing to a <buf>fer  
+static bool grab_one_randart_item_flag(randart_part_type *ra_ptr, cptr what)  
+  gives the random artifact kind <ra_ptr> a certain flag described by <what> 
+  its ASCII name is, returning success
+errr init_ra_info_txt(FILE *fp, char *buf)
+  initializes the artifact kinds from a file at <fp>, writing to a <buf>fer
+static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
+  gives the monster race <r_ptr> a certain flag described by <what> 
+  its ASCII name is, returning success
+static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)  
+  gives the monster race <r_ptr> a certain spell flag described by <what> 
+  its ASCII name is, returning success
+errr init_r_info_txt(FILE *fp, char *buf)
+  initializes the monster races from a file at <fp>, writing to a <buf>fer  
+static errr grab_one_basic_ego_flag(monster_ego *re_ptr, cptr what, bool add)
+  gives the monster ego <re_ptr> a certain flag described by <what> 
+  its ASCII name is, <add>ing a flag sometimes, subtracting other times,
+  returning success
+static errr grab_one_spell_ego_flag(monster_ego *re_ptr, cptr what, bool add)
+  gives the monster ego <re_ptr> a certain spell flag described by <what> 
+  its ASCII name is, <add>ing a flag sometimes, subtracting other times,
+  returning success
+static byte monster_ego_modify(char c)
+  returns the type of operation represented by <c>
+static errr grab_one_ego_flag(monster_ego *re_ptr, cptr what, bool must)
+  gets a monster ego flag based on <what> it's called, storing it in
+  the appropriate part of <re_ptr> depending on whether it <must> be
+  present
+errr init_re_info_txt(FILE *fp, char *buf)  
+  initializes the monster egos from file <fp>, writing to a <buf>fer
+static errr grab_one_trap_type_flag(trap_type *t_ptr, cptr what)
+  grabs trap flag named <what>, storing it in <t_ptr>
+errr init_t_info_txt(FILE *fp, char *buf)
+  initializes traps from <fp>, writing to a <buf>fer
+static errr grab_one_dungeon_flag(dungeon_info_type *d_ptr, cptr what)
+  grabs a dungeon flag named <what>, storing it in <d_ptr>
+static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what, byte rule)
+  grabs a monster flag named <what>, storing it in rule number <rule> of
+  <d_ptr>
+static errr grab_one_spell_monster_flag(dungeon_info_type *d_ptr, cptr what, byte rule)
+  grabs a spell flag named <what>, storing it in rule number <rule> of
+  <d_ptr>
+errr init_d_info_txt(FILE *fp, char *buf)
+  initializes dungeon information from <fp>, writing to a <buf>fer
+static errr grab_one_race_flag(owner_type *ow_ptr, int state, cptr what)
+  grabs an owner race flag named <what> in the <state> of <ow_ptr>
+static errr grab_one_store_flag(store_info_type *st_ptr, cptr what)
+  grabs a flag named <what> and stores in <st_ptr>
+errr init_st_info_txt(FILE *fp, char *buf)
+  initializes store information stored in <fp>, writing to a <buf>fer
+errr init_ba_info_txt(FILE *fp, char *buf)
+  initializes building actions from <fp>, writing to a <buf>fer
+errr init_ow_info_txt(FILE *fp, char *buf)
+  initializes store owners from <fp>, writing to a <buf>fer
+static errr grab_one_wf_info_flag(wilderness_type_info *wf_ptr, cptr what)
+  grabs a wilderness feature flag named <what>, storing it in <wf_ptr>
+errr init_wf_info_txt(FILE *fp, char *buf)
+  initializes wilderness features in <fp>, writing to a <buf>fer
+static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, 
+                                     int xvalstart, int ymax, int xmax)
+  helps process a dungeon file, reading from <buf>, changing start position 
+  (<xval>, <yval>) sometimes, given a certain <xvalstart>, with limits
+  on (<xval>, <yval>) in <ymax> and <xmax>
+static cptr process_dungeon_file_expr(char **sp, char *fp)
+  processes the the expressions in a special dungeon file, modifying
+  <sp> and <fp>, returning the evaluation of the expression
+errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int xmax, 
+                          bool init)
+  processes a dungeon file named <name>, changing start position 
+  (<xval>, <yval>) sometimes, with limits on (<xval>, <yval>) in <ymax> 
+  and <xmax>, depending on if this is done at <init>ialization
+

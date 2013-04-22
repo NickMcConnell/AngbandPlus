@@ -298,24 +298,6 @@ static void set_ghost_aux_1(void)
 			break;
 		}
 
-                /* Mindcrafter */
-                case CLASS_MINDCRAFTER:
-		{
-			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 4;
-			r_ptr->flags5 |= (RF5_CAUSE_1 | RF5_SCARE);
-			if (lev > 5) r_ptr->flags6 |= (RF6_HEAL);
-                        if (lev > 10) r_ptr->flags5 |= (RF5_MIND_BLAST);
-                        if (lev > 12) r_ptr->flags6 |= (RF6_FORGET);
-                        if (lev > 18) r_ptr->flags5 |= (RF5_BRAIN_SMASH);
-			if (lev > 25) r_ptr->flags5 |= (RF5_CONF);
-			if (lev > 30) r_ptr->flags5 |= (RF5_CAUSE_3);
-			if (lev > 35) r_ptr->flags5 |= (RF5_DRAIN_MANA);
-
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_L_BLUE;
-			break;
-		}
-
                 /* Possessor */
                 case CLASS_POSSESSOR:
                 case CLASS_MIMIC:
@@ -353,7 +335,7 @@ static void set_ghost_aux_1(void)
 	/* Armor class */
 	r_ptr->ac = 15 + randint(15);
 	
-	/* Non mage/priest gets extra armor */
+	/* Non mage gets extra armor */
 	if (gclass != CLASS_MAGE)
 	{
 		r_ptr->ac += randint(60);
@@ -426,19 +408,6 @@ static void set_ghost_aux_1(void)
 
 			/* Normal attacks (one) */
 			ghost_blow(0, attack1, RBE_HURT, d1, d2);
-
-			break;
-		}
-
-		/* Mindcrafter */
-                case CLASS_MINDCRAFTER:
-		{
-			/* Sometimes increase damage */
-			if (lev >= 30) d2 = d2 * 3 / 2;
-
-			/* Normal attacks (two) */
-			ghost_blow(0, attack1, RBE_HURT, d1, d2);
-			ghost_blow(0, attack2, RBE_HURT, d1, d2);
 
 			break;
 		}

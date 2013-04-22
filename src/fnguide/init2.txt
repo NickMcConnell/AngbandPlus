@@ -1,0 +1,87 @@
+*** init2.c ***
+
+void init_file_paths(char *path)
+  initializes all the important file paths given a certain base <path>
+static errr check_modification_date(int fd, cptr template_file)
+  is the <template_file> older than the raw file <fd> ?
+static void note(cptr str)
+  puts a <str>ing to line 23
+static errr init_f_info_raw(int fd)
+  loads feature information from raw file <fd>
+errr init_f_info(char *subdir)
+  initializes feature information stored in a certain <subdir>ectory of
+  lib/edit
+static errr init_k_info_raw(int fd)
+  loads object information from raw file <fd>
+errr init_k_info(char *subdir)
+  initializes object information in <subdir>
+static errr init_a_info_raw(int fd)
+  loads artifact information from raw file <fd>
+errr init_a_info(char *subdir)
+  initializes artifact information in <subdir>
+static errr init_e_info_raw(int fd)
+  loads ego item information from a raw file <fd>
+errr init_e_info(char *subdir)
+  initializes ego infromation in <subdir>
+static errr init_ra_info_raw(int fd)
+  loads randart information from raw file <fd>
+static errr init_ra_info(void)
+  initializes random artifacts
+static errr init_r_info_raw(int fd)
+  loads monster information from raw file <fd>
+static errr init_re_info_raw(int fd)
+  loads ego monster information from raw file <fd>
+static errr init_d_info_raw(int fd)
+  loads dungeon information from raw file <fd>
+static errr init_st_info_raw(int fd)
+  loads store information from raw file <fd>
+static errr init_ba_info_raw(int fd)
+  loads building action information from raw file <fd>
+static errr init_ow_info_raw(int fd)
+  loads owner information from raw file <fd>
+static errr init_wf_info_raw(int fd)
+  loads wilderness feature information from raw filee <fd>
+errr init_r_info(char *subdir)
+  initializes monster information stored in <subdir>
+errr init_re_info(char *subdir)
+  initializes monster ego information stored in <subdir>
+static errr init_d_info(void)
+  initializes dungeon information stored in <subdir>
+static errr init_st_info(void)
+  initializes store information
+static errr init_ow_info(void)
+  initializes owner information
+static errr init_ba_info(void)
+  initializes building actions
+static errr init_wf_info(void)
+  initializes wilderness features
+static errr init_t_info_raw(int fd)
+  loads trap infromation from raw file <fd>
+errr init_t_info(char *subdir)
+  initializes trap information stored in <subdir>
+static errr init_v_info_raw(int fd)
+  loads vault information from raw file <fd>
+errr init_v_info(char *subdir)
+  initializes vault information stored in <subdir>
+void init_dun_entry(char *subdir) 
+  initializes the files in <subdir> upon entry of the appropriate dungeon
+static errr init_misc(void)
+  initializes limits
+static errr init_towns(void)
+  initializes towns
+void create_stores_stock(int t)
+  stocks the stores in a certain <t>own
+static errr init_wilderness(void)
+  initializes the wilderness map
+static errr init_once(void)
+  initializes various beginning of the program things
+static errr init_other(void)
+  wrapper on init_once()
+static errr init_alloc(void)
+  initializes miscellaneous other things
+static void init_angband_aux(cptr why)
+  breaks the news to the user that the lib directory is broken, telling
+  a guess <why>
+void init_angband(char *subdir)
+  initializes angband, given a certain starting <subdir>ectory to read 
+  from

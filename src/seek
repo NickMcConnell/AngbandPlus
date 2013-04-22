@@ -1,0 +1,2 @@
+#!/bin/sh
+grep -inl -e$1 $2*.$3

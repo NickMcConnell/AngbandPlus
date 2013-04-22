@@ -41,13 +41,13 @@
 
 /* Added for PernAngband */
 #define FAKE_VERSION   0
-#define FAKE_VER_MAJOR 5
+#define FAKE_VER_MAJOR 0
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_PATCH 7
 
 /* Added for NTAngband */
-#define DEMENTED_NUMBER 41073
-#define NTMESS "AngBang!!! The Metal band that rocks Bree."
+#define DEMENTED_NUMBER 10
+#define NTMESS "Eat flaming death, insolent adventurer!"
                 
 
 #define ANGBAND_2_8_1
@@ -59,6 +59,10 @@
  */
 #define telnet FALSE
 
+/*
+ * And now with additional hackiness!
+ */
+#define rl_mess roguelike_messages
 
 /*
  * This value is not currently used
@@ -157,6 +161,7 @@
 #define STORE_HOME      7
 #define STORE_BOOK      8
 #define STORE_PET       9
+#define MAX_STORES	10
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
@@ -184,44 +189,6 @@
 /* Number of Random Artifacts */
 #define MAX_RANDARTS 84
 #define MAX_T_ACT    52
-
-/* Chaos Warrior: Reward types: */
-#define REW_POLY_SLF    0
-#define REW_GAIN_EXP    1
-#define REW_LOSE_EXP    2
-#define REW_GOOD_OBJ    3
-#define REW_GREA_OBJ    4
-#define REW_CHAOS_WP    5
-#define REW_GOOD_OBS    6
-#define REW_GREA_OBS    7
-#define REW_TY_CURSE    8
-#define REW_SUMMON_M    9
-#define REW_H_SUMMON    10
-#define REW_DO_HAVOC    11
-#define REW_GAIN_ABL    12
-#define REW_LOSE_ABL    13
-#define REW_RUIN_ABL    14
-#define REW_AUGM_ABL    15
-#define REW_POLY_WND    16
-#define REW_HEAL_FUL    17
-#define REW_HURT_LOT    18
-#define REW_CURSE_WP    19
-#define REW_CURSE_AR    20
-#define REW_PISS_OFF    21
-#define REW_WRATH       22
-#define REW_DESTRUCT    23
-#define REW_GENOCIDE    24
-#define REW_MASS_GEN    25
-#define REW_DISPEL_C    26
-#define REW_UNUSED_1    27
-#define REW_UNUSED_2    28
-#define REW_UNUSED_3    29
-#define REW_UNUSED_4    30
-#define REW_UNUSED_5    31
-#define REW_IGNORE      32
-#define REW_SER_UNDE    33
-#define REW_SER_DEMO    34
-#define REW_SER_MONS    35
 
 /* Chaos mutations */
 
@@ -290,7 +257,7 @@
 #define MUT2_CHAOS_GIFT                 0x02000000L
 #define MUT2_WALK_SHAD                  0x04000000L
 #define MUT2_WARNING                    0x08000000L
-#define MUT2_INVULN                     0x10000000L
+#define MUT2_DIABLO                     0x10000000L
 #define MUT2_SP_TO_HP                   0x20000000L
 #define MUT2_HP_TO_SP                   0x40000000L
 #define MUT2_DISARM                     0x80000000L
@@ -337,9 +304,6 @@
 # define MAX_MA 17
 # define MA_KNEE 1
 # define MA_SLOW 2
-
-/* Mindcraft */
-#define MAX_MINDCRAFT_POWERS  12
 
 /* Mimicry */
 #define MAX_MIMIC_POWERS  5
@@ -521,8 +485,9 @@
  * There is a 1/50 (2%) chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
  * Lower values yield harder monsters more often.
+ * JKB: Pff, we wouldn't want anyone to actually win, would we?
  */
-#define NASTY_MON       50              /* 1/chance of inflated monster level */
+#define NASTY_MON       20              /* 1/chance of inflated monster level */
 
 
 
@@ -714,23 +679,21 @@
 #define CLASS_ROGUE             2
 #define CLASS_RANGER            3
 #define CLASS_MONK              4
-#define CLASS_MINDCRAFTER       5
-#define CLASS_HIGH_MAGE         6
-#define CLASS_MIMIC             7
-#define CLASS_BEASTMASTER       8
-#define CLASS_ALCHEMIST         9
-#define CLASS_SYMBIANT          10
-#define CLASS_HARPER            11
-#define CLASS_RUNECRAFTER       12
-#define CLASS_POSSESSOR         13
-#define CLASS_SORCERER          14
-#define CLASS_ARCHER            15
-#define CLASS_DRUID             16
-#define CLASS_UNBELIEVER        17
-#define CLASS_WEAPONMASTER      18
-#define CLASS_MYCOPARA		19
-/*Add one to the number above to get the number below*/
-#define MAX_CLASS		20					
+#define CLASS_HIGH_MAGE         5
+#define CLASS_MIMIC             6
+#define CLASS_BEASTMASTER       7
+#define CLASS_ALCHEMIST         8
+#define CLASS_SYMBIANT          9
+#define CLASS_HARPER            10
+#define CLASS_RUNECRAFTER       11
+#define CLASS_POSSESSOR         12
+#define CLASS_SORCERER          13
+#define CLASS_ARCHER            14
+#define CLASS_DRUID             15
+#define CLASS_UNBELIEVER        16
+#define CLASS_WEAPONMASTER      17
+#define CLASS_MYCOPARA		18
+#define MAX_CLASS		19					
 
 /* Class flags */
 #define CF1_ZERO_FAIL           0x00000001L     /* Fail rates can reach 0% */
@@ -1387,7 +1350,7 @@
 
 #define TV_SKELETON      1      /* Skeletons ('s') */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
-#define TV_FIRESTONE     3      /* For DragonRidders */
+#define TV_FIRESCONE     3      /* For DragonRidders */
 #define TV_BATERIE       4      /* For the Alchemists */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_MSTAFF        6      /* Mage Staffs */
@@ -1456,7 +1419,7 @@
 #define SV_MSTAFF 1
 
 /* The "sval" codes for TV_FIRESTONE */
-#define SV_FIRESTONE  3
+#define SV_FIRESCONE  3
 #define SV_FIRE_SMALL 6
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
@@ -3949,7 +3912,7 @@ extern int PlayerUID;
 #define BACT_GREET                  32
 #define BACT_RECALL                 33
 #define BACT_TELEPORT_LEVEL         34
-#define BACT_BUYFIRESTONE           35
+#define BACT_BUYFIRESCONE           35
 #define BACT_COMEBACKTIME           36
 #define BACT_MIMIC_NORMAL           37
 #define BACT_VIEW_BOUNTIES          38

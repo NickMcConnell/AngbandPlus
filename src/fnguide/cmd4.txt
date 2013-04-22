@@ -1,0 +1,94 @@
+***cmd4.c***
+void do_cmd_redraw(void)
+  redraws the screen
+void do_cmd_change_name(void)
+  changes the player's name
+void do_cmd_message_one(void)
+  recalls the most recent message
+void do_cmd_messages(void)
+  displays and scans through the message recall screen
+static void do_cmd_options_cheat(cptr info)
+  sets or unsets cheat options given message <info>
+s16b toggle_frequency(s16b current)
+  toggles through the values for autosave frequency, returning the next
+  value given a <current> value
+static void do_cmd_options_autosave(cptr info)
+  interacts with autosaving cheat options given guilt message <info>
+void do_cmd_options_aux(int page, cptr info, bool read_only)
+  interacts with a particular set of options (in set number <page>),
+  displaying message <info>, and based on the <read_only> status of
+  this page
+static void do_cmd_options_win(void)
+  interacts with the multiple window settings
+static errr option_dump(cptr fname)
+  dumps options to a file named <fname>, returning -1 on failure and
+  0 on success
+static void do_cmd_pref_file_hack(int row)
+  loads a pref file based on the player's interaction and the number
+  of <row>s allowed in said interaction
+void do_cmd_options(void)
+  interacts with options in general
+void do_cmd_pref(void)
+  gets a user pref command and processes it
+static errr macro_dump(cptr fname)
+  dumps macros to the file named <fname>, returning -1 on error and 0
+  on success
+static void do_cmd_macro_aux(char *buf)
+  asks for a macro trigger from the player, modifying <buf> accordingly
+static void do_cmd_macro_aux_keymap(char *buf)
+  asks for a keymap trigger from the player, modifying <buf> accordingly
+static errr keymap_dump(cptr fname)
+  dumps a keymap to the file named <fname>, returning -1 on failure and 0
+  on success
+void do_cmd_macros(void)
+  interacts with macros
+void do_cmd_visuals(void)
+  interacts with visuals
+void do_cmd_colors(void)
+  interacts with colors
+void do_cmd_note(void)
+  takes notes
+void do_cmd_version(void)
+  displays the version information and a happy message direct from my heart
+void do_cmd_feeling(void)
+  displays the level feeling
+void do_cmd_load_screen(void)
+  load a screen dump
+void do_cmd_save_screen(void)
+  saves a screen dump
+void do_cmd_knowledge_artifacts(void)
+  displays the status of all generated artifacts
+void do_cmd_knowledge_traps(void)
+  displays information about known traps
+static void insert_sort_unique(int *sort_uniques, int *num, int r_idx)
+  inserts the unique with index <r_idx> at the proper location in the
+  unique list <sort_uniques>, given and modifying <num>ber of known 
+  uniques
+static void do_cmd_knowledge_uniques(void)
+  displays information about uniques
+void plural_aux(char *Name)
+  pluralizes <Name>
+static void do_cmd_knowledge_pets(void)
+  displays information about pets
+static void do_cmd_knowledge_kill_count(void)
+  displays kill count
+static void do_cmd_knowledge_objects(void)
+  displays knowledge about objects
+void do_cmd_knowledge_corruptions(void)
+  displays information about corruptions
+static void do_cmd_knowledge_quests(void)
+  displays information about current quests
+static void do_cmd_knowledge_fates(void)
+  displays information about fates
+void do_cmd_knowledge_notes(void)
+  displays notes
+void do_cmd_knowledge(void)
+  displays the proper form of knowledge based on player input
+void do_cmd_checkquest(void)
+  display information on the active quest
+void do_cmd_change_tactic(int i)
+  adjusts tactic by <i>
+void do_cmd_change_movement(int i)
+  adjusts movement style by <i>
+void do_cmd_time()
+  displays date and time

@@ -466,7 +466,6 @@ static void do_extra(int flag)
 	do_byte(&fate_flag, flag);
 	do_byte(&p_ptr->searching, flag);
 	do_byte(&p_ptr->maximize, flag);
-	do_byte(&p_ptr->preserve, flag);
 	do_byte(&p_ptr->special, flag);
         skip_ver_byte(24, flag);
         do_ver_byte(&ambush_flag, 20, FALSE, flag);
@@ -2942,25 +2941,25 @@ if(flag == LS_SAVE)
 		return (FALSE);
 		}
 
-		/* Read number of towns */
-		if(flag == LS_SAVE) town_count = max_towns;
-		do_u16b(&town_count, flag);
-		/* Read the stores */
-		if(flag == LS_SAVE) tmp16u = max_st_idx;
-		do_u16b(&tmp16u, flag);
-		for (i = 1; i < town_count; i++)
-                {
-                        if (!town[i].real) continue;
+	/* Read number of towns */
+	if(flag == LS_SAVE) town_count = max_towns;
+	do_u16b(&town_count, flag);
+	/* Read the stores */
+	if(flag == LS_SAVE) tmp16u = max_st_idx;
+	do_u16b(&tmp16u, flag);
+	for (i = 1; i < town_count; i++)
+        {
+                if (!town[i].real) continue;
 
-                        /* Ultra paranoia */
-                        if (!town[i].stocked) create_stores_stock(i);
+                /* Ultra paranoia */
+                if (!town[i].stocked) create_stores_stock(i);
 
-			for (j = 0; j < tmp16u; j++)
+		for (j = 0; j < tmp16u; j++)
                         {
 				if (!do_store(&town[i].store[j], flag) && (flag == LS_LOAD))
 					 return (FALSE);
 			}
-		}
+	}
 	/* I'm not dead yet... */
 	if (!death)
 		{
@@ -3336,3 +3335,40 @@ note(format("Impossible has occurred")); /* Programmer error */
 exit(0);
 }
 
+
+do_mini_a_info(int flag)
+{
+register int i;
+
+for(i = 0; i < INVEN_TOTAL; ++i)
+  {
+  do_u32b(&a_info[i].name, flag);
+  do_u32b(&a_info[i].text, flag);
+  do_byte(&a_info[i].tval, flag);
+  do_byte(&a_info[i].sval, flag);
+  do_s16b(&a_info[i].pval, flag);
+  do_s16b(&a_info[i].to_h, flag);
+  do_s16b(&a_info[i].to_d, flag);
+  do_s16b(&a_info[i].to_a, flag);
+  do_s16b(&a_info[i].ac, flag);
+  do_byte(&a_info[i].dd, flag);
+  do_byte(&a_info[i].ds, flag);
+  do_s16b(&a_info[i].weight, flag);
+  do_s32b(&a_info[i].cost, flag);
+  do_u32b(&a_info[i].flags1, flag); 
+  do_u32b(&a_info[i].flags2, flag); 
+  do_u32b(&a_info[i].flags3, flag); 
+  do_u32b(&a_info[i].flags4, flag); 
+  do_u32b(&a_info[i].flags5, flag); 
+  do_u32b(&a_info[i].flags6, flag); 
+  do_byte(&a_info[i].level, flag);
+  do_byte(&a_info[i].rarity, flag);
+  do_byte(&a_info[i].cur_num, flag);
+  do_byte(&a_info[i].max_num, flag);
+  do_byte(&a_info[i].d_attr, flag); 
+  do_byte(&a_info[i].d_char, flag); 
+  do_u32b(&a_info[i].esp, flag); 
+  do_s16b(&a_info[i].power, flag); 
+  do_byte(&a_info[i].no_destroy, flag); 
+  }
+}

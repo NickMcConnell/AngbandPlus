@@ -1,6 +1,6 @@
 
           *********************************************************
-,--------< NTAngband 8363 --- Non-Tolkienian Angband pronounced... >-----------,
+,--------< NTAngband 10  ---  Non-Tolkienian Angband pronounced... >-----------,
 |         *********************************************************ATN fo selbu|
 |                            Not-a-band!                                      o|
 |        If this is your first time playing, DO NOT press 'V'!                r|
@@ -10,13 +10,13 @@
 |ZAngband code:     (Mr) Topi Ylinen (f1toyl@uta.fi)            | Rings? |    h|
 |                   and Robert Ruehlmann (rr9@angband.org)       \______/     T|
 |PernAngband code:  Dark God < darkgod@ifrance.com >           Then play...    |
-|NTA code:          James Banks (jameskbanks@juno.com)    |\  | -+-  /\  | | | |
-|Internet site:     nothing://null.nowhere.nil/void       |  \|  |  |--| * * * |
+|NTA code:          James Banks (sknabksemaj@juno.com)    |\  | -+-  /\  | | | |
+|Internet site:     http://angband.oook.cz/nt             |  \|  |  |--| * * * |
 `---------> Congratulations to Alexander Malmberg, who won the <---------------'
           Mithril medal in the bugfix event of the 2002 Oiolossics
 
-          Send suggestions for Monty Python stuff, new pronunciations for
+          Send suggestions for new monsters, new pronunciations for
          "NTAngband", tales of dread Software Bugs, legends of features to 
-	           come, &c. to ;( jameskbanks@juno.com );
+	           come, &c. to ;( sknabksemaj@juno.com );
 
        * Press ? for help and = for the options screen while playing *

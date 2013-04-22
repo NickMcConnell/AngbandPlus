@@ -32,15 +32,6 @@ bool save_hack = TRUE;
  */
 static byte value_check_aux1(object_type *o_ptr)
 {
-	/* Artifacts */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
-	{
-		/* Cursed/Broken */
-                if (cursed_p(o_ptr)) return SENSE_TERRIBLE;
-
-		/* Normal */
-		return SENSE_SPECIAL;
-	}
 
 	/* Ego-Items */
 	if (ego_item_p(o_ptr))
@@ -50,6 +41,16 @@ static byte value_check_aux1(object_type *o_ptr)
 
 		/* Normal */
 		return SENSE_EXCELLENT;
+	}
+
+	/* Artifacts */
+	if (artifact_p(o_ptr) || o_ptr->art_name)
+	{
+		/* Cursed/Broken */
+                if (cursed_p(o_ptr)) return SENSE_TERRIBLE;
+
+		/* Normal */
+		return SENSE_SPECIAL;
 	}
 
 	/* Cursed items */
@@ -76,23 +77,23 @@ static byte value_check_aux1_magic(object_type *o_ptr)
 		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 		/* "Cursed" scrolls/potions have a cost of 0 */
-		if (k_ptr->cost == 0) return SENSE_TERRIBLE;
+		if (pr_info[k_ptr->p_idx].price == 0) return SENSE_TERRIBLE;
 
                 /* Artifacts */
                 if (artifact_p(o_ptr)) return SENSE_SPECIAL;
 
 		/* Scroll of Nothing, Apple Juice, etc. */
-		if (k_ptr->cost < 3) return SENSE_WORTHLESS;
+		if (pr_info[k_ptr->p_idx].price < 3) return SENSE_WORTHLESS;
 
 		/* Identify, Phase Door, Cure Light Wounds, etc. are just
 		 * average*/
-		if (k_ptr->cost < 100) return SENSE_AVERAGE;
+		if (pr_info[k_ptr->p_idx].price < 100) return SENSE_AVERAGE;
 
 		/* Enchant Armor, *Identify*, Restore Stat, etc. */
-		if (k_ptr->cost < 10000) return SENSE_GOOD_HEAVY;
+		if (pr_info[k_ptr->p_idx].price < 10000) return SENSE_GOOD_HEAVY;
 
 		/* Acquirement, Deincarnation, Strength, Blood of Life, ... */
-		if (k_ptr->cost >= 10000) return SENSE_EXCELLENT;
+		if (pr_info[k_ptr->p_idx].price >= 10000) return SENSE_EXCELLENT;
 	}
 
 	/* Food */
@@ -101,16 +102,16 @@ static byte value_check_aux1_magic(object_type *o_ptr)
 		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 		/* "Cursed" food */
-		if (k_ptr->cost == 0) return SENSE_TERRIBLE;
+		if (pr_info[k_ptr->p_idx].price == 0) return SENSE_TERRIBLE;
 
                 /* Artifacts */
                 if (artifact_p(o_ptr)) return SENSE_SPECIAL;
 
 		/* Normal food (no magical properties) */
-		if (k_ptr->cost <= 10) return SENSE_AVERAGE;
+		if (pr_info[k_ptr->p_idx].price <= 10) return SENSE_AVERAGE;
 
 		/* Everything else is good */
-		if (k_ptr->cost > 10) return SENSE_GOOD_HEAVY;
+		if (pr_info[k_ptr->p_idx].price > 10) return SENSE_GOOD_HEAVY;
 	}
 
         return SENSE_NONE;
@@ -151,23 +152,23 @@ static byte value_check_aux2_magic(object_type *o_ptr)
 		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 		/* "Cursed" scrolls/potions have a cost of 0 */
-                if (k_ptr->cost == 0) return SENSE_CURSED;
+                if (pr_info[k_ptr->p_idx].price == 0) return SENSE_CURSED;
 
                 /* Artifacts */
                 if (artifact_p(o_ptr)) return SENSE_GOOD_LIGHT;
 
 		/* Scroll of Nothing, Apple Juice, etc. */
-                if (k_ptr->cost < 3) return SENSE_AVERAGE;
+                if (pr_info[k_ptr->p_idx].price < 3) return SENSE_AVERAGE;
 
 		/* Identify, Phase Door, Cure Light Wounds, etc. are just
 		 * average*/
-		if (k_ptr->cost < 100) return SENSE_AVERAGE;
+		if (pr_info[k_ptr->p_idx].price < 100) return SENSE_AVERAGE;
 
 		/* Enchant Armor, *Identify*, Restore Stat, etc. */
-                if (k_ptr->cost < 10000) return SENSE_GOOD_LIGHT;
+                if (pr_info[k_ptr->p_idx].price < 10000) return SENSE_GOOD_LIGHT;
 
 		/* Acquirement, Deincarnation, Strength, Blood of Life, ... */
-                if (k_ptr->cost >= 10000) return SENSE_GOOD_LIGHT;
+                if (pr_info[k_ptr->p_idx].price >= 10000) return SENSE_GOOD_LIGHT;
 	}
 
 	/* Food */
@@ -176,16 +177,16 @@ static byte value_check_aux2_magic(object_type *o_ptr)
 		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 		/* "Cursed" food */
-                if (k_ptr->cost == 0) return SENSE_CURSED;
+                if (pr_info[k_ptr->p_idx].price == 0) return SENSE_CURSED;
 
                 /* Artifacts */
                 if (artifact_p(o_ptr)) return SENSE_GOOD_LIGHT;
 
 		/* Normal food (no magical properties) */
-		if (k_ptr->cost <= 10) return SENSE_AVERAGE;
+		if (pr_info[k_ptr->p_idx].price <= 10) return SENSE_AVERAGE;
 
 		/* Everything else is good */
-                if (k_ptr->cost > 10) return SENSE_GOOD_LIGHT;
+                if (pr_info[k_ptr->p_idx].price > 10) return SENSE_GOOD_LIGHT;
 	}
 
         return SENSE_NONE;
@@ -300,6 +301,7 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_RANGER:
+		case CLASS_MYCOPARA:
 		{
 
 			/* Bad sensing */
@@ -319,16 +321,6 @@ static void sense_inventory(void)
 			if (0 != rand_int(75000L / (plev * plev + 40))) return;
 
                         heavy_magic = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_MINDCRAFTER:
-		{
-
-			/* Bad sensing */
-			if (0 != rand_int(55000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -465,111 +457,6 @@ static void sense_inventory(void)
  * Go to any level (ripped off from wiz_jump)
  */
 
-static void pattern_teleport(void)
-{
-	/* Ask for level */
-	if (get_check("Teleport level? "))
-	{
-		char	ppp[80];
-
-		char	tmp_val[160];
-
-		/* Prompt */
-		sprintf(ppp, "Teleport to level (0-%d): ", 99);
-
-		/* Default */
-		sprintf(tmp_val, "%d", dun_level);
-
-		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 10)) return;
-
-		/* Extract request */
-		command_arg = atoi(tmp_val);
-	}
-	else if (get_check("Normal teleport? "))
-	{
-		teleport_player(200);
-	        return;
-	}
-	else
-	{
-		return;
-	}
-
-	/* Paranoia */
-	if (command_arg < 0) command_arg = 0;
-
-	/* Paranoia */
-	if (command_arg > 99) command_arg = 99;
-
-	/* Accept request */
-	msg_format("You teleport to dungeon level %d.", command_arg);
-
-	/* Change level */
-	dun_level = command_arg;
-
-	/* Leaving */
-	p_ptr->leaving = TRUE;
-}
-
-
-/* Returns TRUE if we are on the Straight Road... */
-static bool pattern_effect(void)
-{
-	if ((cave[py][px].feat < FEAT_PATTERN_START)
-	    || (cave[py][px].feat > FEAT_PATTERN_XTRA2))
-	return FALSE;
-
-	if (cave[py][px].feat == FEAT_PATTERN_END)
-	{
-		(void)set_poisoned(0);
-		(void)set_image(0);
-		(void)set_stun(0);
-		(void)set_cut(0);
-		(void)set_blind(0);
-		(void)set_afraid(0);
-		(void)do_res_stat(A_STR);
-		(void)do_res_stat(A_INT);
-		(void)do_res_stat(A_WIS);
-		(void)do_res_stat(A_DEX);
-		(void)do_res_stat(A_CON);
-		(void)do_res_stat(A_CHR);
-		(void)restore_level();
-		(void)hp_player(1000);
-		cave_set_feat(py, px, FEAT_PATTERN_OLD);
-                msg_print("This section of the Straight Road looks less powerful.");
-	}
-
-
-	/*
-	 * We could make the healing effect of the
-	 * Pattern center one-time only to avoid various kinds
-	 * of abuse, like luring the win monster into fighting you
-	 * in the middle of the pattern...
-	 */
-
-	else if (cave[py][px].feat == FEAT_PATTERN_OLD)
-	{
-		/* No effect */
-	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA1)
-	{
-		pattern_teleport();
-	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
-	{
-		if (!(p_ptr->invuln))
-                take_hit(200, "walking the corrupted Straight Road");
-	}
-
-	else
-	{
-                if (!(p_ptr->invuln))
-                        take_hit(damroll(1,3), "walking the Straight Road");
-	}
-
-	return TRUE;
-}
 
 /*
  * If player has inscribed the object with "!!", let him know when it's
@@ -739,7 +626,7 @@ static void regen_monsters(void)
 			if (!frac) frac = 1;
 
 			/* Hack -- Some monsters regenerate quickly */
-			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
+			if (r_ptr->flags2 & (RF2_REGENERATE)) frac >>= 1;
 
 
 			/* Hack -- Regenerate */
@@ -943,7 +830,7 @@ static void gere_music(s16b music)
                         set_invuln(2);
                         break;
                 case MUSIC_BEAUTY:
-                        project_hack(GF_DISP_EVIL, damroll(p_ptr->lev/3, 3));
+                        project_hack(GF_DISP_EVIL, damroll(p_ptr->lev / 3, 3));
                         break;
                 case MUSIC_SHADOW:
                         set_shadow(2);
@@ -1142,8 +1029,8 @@ void apply_effect(int y, int x)
                         }
                 }
         }
-        
-}
+}   
+
 
 bool is_recall = FALSE;
 
@@ -1487,7 +1374,7 @@ static void process_world(void)
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
 
-                        /* DragonRider takes more food */
+                        /* DragonRidder takes more food */
                         if (p_ptr->prace==RACE_DRAGONRIDDER) i += 10;
 
                         /* Invisibility consume a lot of food */
@@ -1572,18 +1459,10 @@ static void process_world(void)
 		}
 	}
 
-	/* Are we walking the pattern? */
-	if (pattern_effect())
+	/* Regeneration ability */
+	if (p_ptr->regenerate)
 	{
-		cave_no_regen = TRUE;
-	}
-	else
-	{
-		/* Regeneration ability */
-		if (p_ptr->regenerate)
-		{
-			regen_amount = regen_amount * 2;
-		}
+		regen_amount = regen_amount * 2;
 	}
 
 
@@ -2112,6 +1991,22 @@ static void process_world(void)
 	/*** Morale ***/
 	if (!rand_int(100))
 	{
+	    int j, k;
+	    for(j = -1; j < 1; ++j)  
+	      for(k = -1; k < 1; ++k)
+	        /* Cuddling brings inner peace */
+	        if(r_info[cave[j][k].m_idx].d_char == 'c')
+		  {
+		  if(rl_mess)
+		    msg_print("you cuddle");
+		  else
+		    { 
+		    msg_print("You cuddle up to one of your friends.");
+		    msg_print("You feel happier.");
+		    }
+		  p_ptr->morale += 3;
+		  }
+	    
 	    if(!rand_int(50))
 	      p_ptr->morale -= 1;
 	    if(!rand_int(100) && (p_ptr->prace == RACE_HIGH_ELF || 
@@ -2122,6 +2017,9 @@ static void process_world(void)
 	      }
 	    if(p_ptr->morale > 50)
 	      {
+	      /* A nice hacky benefit. Builds up a buffer of
+	       * un-confusion, etc. that accumulates over time
+	       */
 	      set_confused(-1);
 	      set_slow(-1);
 	      set_stun(-1);
@@ -2715,14 +2613,77 @@ static void process_world(void)
 			else
 				msg_print("You feel lonely.");
 		}
-		if ((p_ptr->muta2 & MUT2_INVULN) && !(p_ptr->anti_magic) &&
-			(randint(5000)==1))
+		if ((p_ptr->muta2 & MUT2_DIABLO) &&
+			(!rand_int(1000)))
 		{
-
+			/*Stupid Hacky Variable*/
+			int foo = rand_int(6);
 			disturb(0,0);
-                        cmsg_print(TERM_L_GREEN, "You feel invincible!");
+                        if(!rand_int(2))
+			  cmsg_print(TERM_L_GREEN, "RAAARGH!!!");
+			else
+			  cmsg_print(TERM_L_GREEN, "RARRGLE!!!");
 			msg_print(NULL);
-			(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+			switch(foo)
+			  {
+			  case 0:
+			  case 1:
+			    msg_print("You shout 'Breakfast! Come get it while it's hot!'");
+			    set_food(PY_FOOD_MAX - 1);
+			    if(!rand_int(3))
+			      {
+			      msg_print("Ohhhh... you feel gas forming.");
+			      p_ptr->muta2 |= MUT2_FLATULENT;
+			      }
+			    msg_print("You have gained new friends.");
+			    if(!rand_int(2))
+			      p_ptr->muta2 |= MUT2_ATT_ANIMAL;
+			    else
+			      p_ptr->muta2 |= MUT2_ATT_DEMON; 
+			  break;
+			  case 2:
+			    msg_print("You become even more like Diablo(tm).");
+			    do_dec_stat(A_CHR, STAT_DEC_PERMANENT);
+			    do_dec_stat(A_CHR, STAT_DEC_PERMANENT);
+			    do_dec_stat(A_CHR, STAT_DEC_PERMANENT);
+			    do_dec_stat(A_CHR, STAT_DEC_PERMANENT);
+			    do_dec_stat(A_CHR, STAT_DEC_PERMANENT);
+			    do_dec_stat(A_INT, STAT_DEC_PERMANENT);
+			    do_dec_stat(A_INT, STAT_DEC_PERMANENT);
+			    p_ptr->muta2 |= MUT2_WEIRD_MIND;
+			    p_ptr->muta2 |= MUT2_COWARDICE;
+			  break;
+			  case 3:
+			    msg_print("AAAH! The ASCII! It HURTS!");
+			    take_sanity_hit(damroll(5, p_ptr->lev), "the power of ASCII");
+			    set_blind(p_ptr->blind + rand_int(1000));
+			    set_confused(p_ptr->confused + rand_int(1000));
+			    set_image(p_ptr->image + 5000);
+			    do_dec_stat(A_INT, STAT_DEC_NORMAL);
+			    do_dec_stat(A_INT, STAT_DEC_NORMAL);
+			  break;
+			  case 4:
+			  case 5:
+			    msg_print("You let out a loud RAARGLE!!!");
+			    p_ptr->aggravate += 600;
+			    summon_specific(py, px, dun_level, SUMMON_NO_UNIQUES);
+			    summon_specific(py, px, dun_level, SUMMON_NO_UNIQUES);
+			    summon_specific(py, px, dun_level, SUMMON_NO_UNIQUES);
+			  break;
+			  case 6:
+			    msg_print("Your friends leave you.");
+			    banish_monsters(100);
+			    if (!dun_level)
+			      {
+			      msg_print("You see one of the shopkeepers running for the hills!");
+                              store_shuffle(rand_int(max_st_idx));
+			      }
+			    msg_print(NULL);
+			    msg_print("You feel very lonely.");
+			    if(p_ptr->morale > -35)
+			      p_ptr->morale = -35;
+			  break;
+			  }
 		}
 		if ((p_ptr->muta2 & MUT2_SP_TO_HP) &&
 			(randint(2000)==1))
@@ -3690,6 +3651,12 @@ static void process_command(void)
 		/* Go up staircase */
 		case '<':
 		{
+#if 0
+                        /* JKB:  Formerly, one could use the '<'
+			 * key to do all sorts of scumming.  I
+			 * didn't like the gameplay that results
+			 * from this mode anyway.  So, byebye.
+			 */
                         if(!p_ptr->wild_mode && !dun_level && !is_quest(dun_level))
                         {
                                 if (!vanilla_town)
@@ -3710,6 +3677,7 @@ static void process_command(void)
                                 }
                         }
                         else
+#endif
                                 do_cmd_go_up();
 			break;
 		}
@@ -3717,6 +3685,10 @@ static void process_command(void)
 		/* Go down staircase */
 		case '>':
 		{
+			/* I leave this in place so that players
+			 * already in wilderness mode won't get
+			 * stuck there until their next ambush
+			 */
                         if(!p_ptr->wild_mode) do_cmd_go_down();
                         else
                         {
@@ -3812,9 +3784,7 @@ static void process_command(void)
                                 else if (p_ptr->anti_magic)
 				{
 					cptr which_power = "magic";
-					if (p_ptr->pclass == CLASS_MINDCRAFTER)
-						which_power = "psionic powers";
-                                        else if (p_ptr->pclass == CLASS_BEASTMASTER)
+                                        if (p_ptr->pclass == CLASS_BEASTMASTER)
                                                 which_power = "summoning powers";
                                         else if (p_ptr->pclass == CLASS_ALCHEMIST)
                                                 which_power = "alchemist powers";
@@ -3839,9 +3809,7 @@ static void process_command(void)
 				}
 				else
 				{
-					if (p_ptr->pclass == CLASS_MINDCRAFTER)
-						do_cmd_mindcraft();
-                                        else if (p_ptr->pclass == CLASS_ALCHEMIST)
+                                        if (p_ptr->pclass == CLASS_ALCHEMIST)
                                                 do_cmd_alchemist();
                                         else if (p_ptr->pclass == CLASS_MIMIC)
                                                 do_cmd_mimic();
@@ -5255,13 +5223,13 @@ void calc_magic()
                         if (tmp < 99)
                         {
                                 tmp += magic_info[p_ptr->pclass].spell_lev;
-                                tmp = (tmp < 1)?1:(tmp > 50)?50:tmp;
+                                tmp = (tmp < 1) ? 1 : (tmp > 50) ? 50 : tmp;
                                 realm_info_base[i][j].slevel = tmp;
                         }
 
                         tmp = realm_info_base[i][j].smana;
                         tmp += (tmp * magic_info[p_ptr->pclass].spell_mana) / 100;
-                        tmp = (tmp < 1)?1:(tmp > 255)?255:tmp;
+                        tmp = (tmp < 1) ? 1 : (tmp > 255) ? 255 : tmp;
                         realm_info_base[i][j].smana = tmp;
 
                         tmp = realm_info_base[i][j].sfail;

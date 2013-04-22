@@ -23,4 +23,6 @@ A warrior begins the game with:
     Chain Mail
 If they are *very* lucky they may also begin with:
     a scroll of *enchant weapon*
-    
+
+#####GOccupations
+warrior    

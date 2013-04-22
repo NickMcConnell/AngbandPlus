@@ -647,8 +647,12 @@ static void hit_trap(void)
 		if (ident)
 		{
 			t_info[c_ptr->t_idx].ident = TRUE;
-			msg_format("You identified the trap as %s.",
+
+			if(!roguelike_messages)
+			  msg_format("You identified the trap as %s.",
 				   t_name + t_info[c_ptr->t_idx].name);
+			else
+			  msg_format("%s", t_name + t_info[c_ptr->t_idx].name);
 		}
 	}
 }
@@ -768,8 +772,11 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Sound */
 		sound(SOUND_HIT);
 
-		msg_format("You hit %s with your %s.", m_name, atk_desc);
-
+		if(!roguelike_messages)
+		  msg_format("You hit %s with your %s.", m_name, atk_desc);
+                else
+		  msg_format("hit %s", m_name);
+		
 		k = damroll(ddd, dss);
 		k = critical_norm(n_weight, p_ptr->to_h, k);
 
@@ -828,7 +835,10 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		sound(SOUND_MISS);
 
 		/* Message */
-		msg_format("You miss %s.", m_name);
+		if(!roguelike_messages)
+		  msg_format("You miss %s.", m_name);
+	        else
+		  msg_format("you miss");
 	}
 }
 
@@ -1297,7 +1307,10 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x, 
                                                 if (t_ptr->ml)
 						{
 							blinked = FALSE;
-                                                        msg_format("You are suddenly very hot!");
+                                                        if(roguelike_messages)
+							  msg_format("You are suddenly very hot!");
+							else
+							  msg_format("it burns!");
 							if(t_ptr->ml)
 								tr_ptr->r_flags2 |= RF2_AURA_FIRE;
 						}
@@ -1313,7 +1326,10 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x, 
                                                 if (t_ptr->ml)
 						{
 							blinked = FALSE;
-                                                        msg_format("You get zapped!");
+                                                        if(!roguelike_messages)
+							  msg_format("You get zapped!");
+							else
+							  msg_format("it shocks!");
 							if(t_ptr->ml)
 								tr_ptr->r_flags2 |= RF2_AURA_ELEC;
 						}
@@ -1382,8 +1398,8 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x, 
 }
 
 /*
- * Carried monster can attack too.
- * Based on monst_attack_monst.
+ * Ahem.  This function is NOT about carried monsters, as previously stated,
+ * but does attacks for possessors based on their current body. Grr. --JKB
  */
 static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x, int y)
 {
@@ -1843,7 +1859,10 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
                                                 if (t_ptr->ml)
 						{
 							blinked = FALSE;
-                                                        msg_format("You are suddenly very hot!");
+                                                        if(!roguelike_messages)
+							  msg_format("You are suddenly very hot!");
+							else
+							  msg_format("it burns!");
 							if(t_ptr->ml)
 								tr_ptr->r_flags2 |= RF2_AURA_FIRE;
 						}
@@ -1859,7 +1878,10 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
                                                 if (t_ptr->ml)
 						{
 							blinked = FALSE;
-                                                        msg_format("You get zapped!");
+                                                        if(!roguelike_messages)
+							  msg_format("You get zapped!");
+							else
+							  msg_format("it shocks!");
 							if(t_ptr->ml)
 								tr_ptr->r_flags2 |= RF2_AURA_ELEC;
 						}
@@ -1896,7 +1918,10 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 						disturb(1, 0);
 
 						/* Message */
-                                                msg_format("You miss %s.", t_name);
+                                                if(!roguelike_messages)
+						  msg_format("You miss %s.", t_name);
+						else
+						  msg_format("you miss");
 					break;
 				}
 			}
@@ -1930,7 +1955,6 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 /*
  * Fetch an attack description from dam_*.txt files.
  */
-
 static void flavored_attack(int percent, char* output) {
   if (percent < 5) {
     if (!flavored_attacks) strcpy(output, "You scratch %s.");
@@ -2005,8 +2029,11 @@ void py_attack_monk(int *k, monster_type *m_ptr)
         {
                 if (r_ptr->flags1 & RF1_MALE)
                 {
-                        msg_format("You hit %s in the groin with your knee!", m_name);
-                        sound(SOUND_PAIN);
+                        if(!roguelike_messages)
+			  msg_format("You hit %s in the groin with your knee!", m_name);
+                        else
+			  msg_format("kneed %s", m_name);
+			sound(SOUND_PAIN);
                         special_effect = MA_KNEE;
                 }
                 else
@@ -2016,8 +2043,11 @@ void py_attack_monk(int *k, monster_type *m_ptr)
         {
                 if (!((r_ptr->flags1 & RF1_NEVER_MOVE) || strchr("UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
                 {
-                        msg_format("You kick %s in the ankle.", m_name);
-                        special_effect = MA_SLOW;
+                        if(!roguelike_messages)
+			  msg_format("You kick %s in the ankle.", m_name);
+                        else
+			  msg_format("kicked %s's ankle", m_name);
+			special_effect = MA_SLOW;
                 }
                 else msg_format(ma_ptr->desc, m_name);
         }
@@ -2035,8 +2065,11 @@ void py_attack_monk(int *k, monster_type *m_ptr)
 
         if ((special_effect == MA_KNEE) && ((*k + p_ptr->to_d) < m_ptr->hp))
         {
-                msg_format("%^s moans in agony!", m_name);
-                stun_effect = 7 + randint(13);
+                if(!roguelike_messages)
+		  msg_format("%^s moans in agony!", m_name);
+                else
+		  msg_format("it moans");
+		stun_effect = 7 + randint(13);
                 resist_stun /= 3;
         }
         else if ((special_effect == MA_SLOW) && ((*k + p_ptr->to_d) < m_ptr->hp))
@@ -2045,8 +2078,11 @@ void py_attack_monk(int *k, monster_type *m_ptr)
                         (randint(p_ptr->lev) > m_ptr->level) &&
                         m_ptr->mspeed > 60)
                 {
-                        msg_format("%^s starts limping slower.", m_name);
-                        m_ptr->mspeed -= 10;
+                        if(!roguelike_messages)
+			  msg_format("%^s starts limping slower.", m_name);
+                        else
+			  msg_format("it limps");
+			m_ptr->mspeed -= 10;
                 }
         }
 
@@ -2067,13 +2103,15 @@ void py_attack_monk(int *k, monster_type *m_ptr)
 /* Apply nazgul effects */
 void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr, object_type *o_ptr)
 {
-        u32b f1, f2, f3, f4, f5, esp;
-
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-
         /* Mega Hack -- Hitting Nazgul is REALY dangerous(ideas from Akhronath) */
         if (r_ptr->flags7 & RF7_NAZGUL)
         {
+		/*Normally, these would be outside the if(), but it is more
+		 *efficient this way
+		 */
+	        u32b f1, f2, f3, f4, f5, esp;
+        	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
                 if ((!o_ptr->name2) && (!artifact_p(o_ptr)))
                 {
                         msg_print("Your weapon *DISINTEGRATES*!");
@@ -2291,13 +2329,15 @@ void py_attack(int y, int x, int max_blow)
 	{
 		if (!(inventory[INVEN_WIELD].art_name))
 		{
-			msg_format("You stop to avoid hitting %s.", m_name);
+			if(!roguelike_messages)
+			  msg_format("You stop to avoid hitting %s.", m_name);
 			return;
 		}
 
-		if (!(streq(quark_str(inventory[INVEN_WIELD].art_name), "'Stormbringer'")))
+		if (!(streq(quark_str(inventory[INVEN_WIELD].art_name), "'Gurthang'")))
 		{
-			msg_format("You stop to avoid hitting %s.", m_name);
+			if(!roguelike_messages)
+			  msg_format("You stop to avoid hitting %s.", m_name);
 			return;
 		}
 
@@ -2309,16 +2349,20 @@ void py_attack(int y, int x, int max_blow)
 	if (p_ptr->afraid)
 	{
 		/* Message */
-		if (m_ptr->ml)
+		if(!roguelike_messages)
+		  {
+		  if (m_ptr->ml)
 			msg_format("You are too afraid to attack %s!", m_name);
-		else
+		  else
 			msg_format ("There is something scary in your way!");
-
+		  }
+		else
+		  msg_format("afraid!");
 		/* Done */
 		return;
 	}
 
-        /* Monsters that can dont use weapons, us etheir natural attacks */
+        /* Monsters that can dont use weapons, use their natural attacks */
         if ((p_ptr->body_monster) && (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON]))
         {
                 incarnate_monster_attack(c_ptr->m_idx, &fear, &mdeath, y, x);
@@ -2439,7 +2483,10 @@ void py_attack(int y, int x, int max_blow)
 				{
 					int step_k = k;
 
-                                        msg_format("Your weapon cuts deep into %s!", m_name);
+                                        if(!roguelike_messages)
+					  msg_format("Your weapon cuts deep into %s!", m_name);
+					else
+					  msg_format("snicker-snack!");
 					do
 					{
 						k += step_k;
@@ -2455,7 +2502,7 @@ void py_attack(int y, int x, int max_blow)
                         /* May it clone the monster ? */
                         if ((f4 & TR4_CLONE) && magik(30))
 			{
-                                msg_format("Oh no ! Your weapon clones %^s!", m_name);
+                                msg_format("Oh no! Your weapon clones %^s!", m_name);
                                 multiply_monster(c_ptr->m_idx, FALSE, TRUE);
 			}
 
@@ -2473,9 +2520,15 @@ void py_attack(int y, int x, int max_blow)
 			{
 				if (!(p_ptr->pclass == CLASS_MONK && monk_empty_hands()))
                                 {
-                                        if (strchr("vwjmelX,.*", r_ptr->d_char)) {
-                                          msg_format("You hit %s.", m_name);
-                                        } else {
+                                        if (strchr("vwjmelX,.*", r_ptr->d_char)) 
+					{
+                                          if(!roguelike_messages)
+					    msg_format("You hit %s.", m_name);
+                                          else
+					    msg_format("you hit");
+					} 
+					else 
+					  {
                                           char buff[255];
 
                                           flavored_attack((100*k)/m_ptr->maxhp, buff);
@@ -2491,17 +2544,17 @@ void py_attack(int y, int x, int max_blow)
 
                                 backstab = FALSE;
 
-				msg_format("You cruelly stab the helpless, sleeping %s!",
-                                    buf);
-                        }
+				if(!roguelike_messages)
+				  msg_format("You slide your blade into the slumbering %s",  buf);
+			}
                         else
                         {
                                 char buf[80];
 
                                 monster_race_desc(buf, m_ptr->r_idx, m_ptr->ego);
 
-				msg_format("You backstab the fleeing %s!",
-                                    buf);
+				if(!roguelike_messages)
+				  msg_format("You stab the fleeing %s in the back.", buf);
                         }
 
 			/* Complex message */
@@ -2572,7 +2625,10 @@ void py_attack(int y, int x, int max_blow)
 
 						if (drain_msg)
 						{
-							msg_format("Your weapon drains life from %s!", m_name);
+							if(!roguelike_messages)
+							  msg_format("Your weapon drains life from %s!", m_name);
+							else
+							  msg_format("weapon drains life");
 							drain_msg = FALSE;
 						}
 
@@ -2589,7 +2645,8 @@ void py_attack(int y, int x, int max_blow)
 				if (p_ptr->confusing)
 				{
 					p_ptr->confusing = FALSE;
-					msg_print("Your hands stop glowing.");
+					if(!roguelike_messages)
+					  msg_print("Your hands stop glowing.");
 				}
 
 				/* Confuse the monster */
@@ -2608,14 +2665,20 @@ void py_attack(int y, int x, int max_blow)
 				}
 				else
 				{
-					msg_format("%^s appears confused.", m_name);
+					if(!roguelike_messages)
+					  msg_format("%^s appears confused.", m_name);
+					else
+					  msg_format("%s confused", m_name);
 					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
 				}
 			}
 
 			else if (chaos_effect == 4)
 			{
-				msg_format("%^s disappears!", m_name);
+				if(!roguelike_messages)
+				  msg_format("%^s disappears!", m_name);
+		 		else
+				  msg_format("it disappears");
 				teleport_away(c_ptr->m_idx, 50);
                                 num = num_blow + 1; /* Can't hit it anymore! */
 				no_extra = TRUE;
@@ -2672,7 +2735,10 @@ void py_attack(int y, int x, int max_blow)
 			backstab = FALSE; /* Clumsy! */
 
 			/* Message */
-			msg_format("You miss %s.", m_name);
+			if(!roguelike_messages)
+			  msg_format("You miss %s.", m_name);
+			else
+			  msg_format("you miss");
 		}
 	}
         }
@@ -2709,7 +2775,8 @@ void py_attack(int y, int x, int max_blow)
 		sound(SOUND_FLEE);
 
 		/* Message */
-		msg_format("%^s flees in terror!", m_name);
+		if(!roguelike_messages)
+		  msg_format("%^s flees in terror!", m_name);
 	}
 
 	/* Mega-Hack -- apply earthquake brand */
@@ -3140,7 +3207,8 @@ void move_player_aux(int dir, int do_pickup, int run)
 			else if (cave_floor_bold(py, px) ||
                             (mr_ptr->flags2 & RF2_PASS_WALL))
 			{
-				msg_format("You push past %s.", m_name);
+				if(!roguelike_messages)
+				  msg_format("You push past %s.", m_name);
 				m_ptr->fy = py;
 				m_ptr->fx = px;
 				cave[py][px].m_idx = c_ptr->m_idx;
@@ -3542,7 +3610,7 @@ static int see_nothing(int dir, int y, int x)
  * as 'o', and he is about to enter the grid marked as 'x'.
  *
  * Of course, if the "requested" move was impossible, then you
- * will of course be blocked, and will stop.
+ * will be blocked, and will stop.
  *
  * Overview: You keep moving until something interesting happens.
  * If you are in an enclosed space, you follow corners. This is
@@ -3805,9 +3873,9 @@ static void run_init(int dir)
 /*
  * Update the current "run" path
  *
- * Return TRUE if the running should be stopped
+ * Return 0 if the running should be stopped, else the new direction
  */
-static bool run_test(void)
+static int run_test(void)
 {
 	int         prev_dir, new_dir, check_dir = 0;
 	int         row, col;
@@ -3846,7 +3914,7 @@ static bool run_test(void)
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 
 			/* Visible monster */
-			if (m_ptr->ml) return (TRUE);
+			if (m_ptr->ml) return (0);
 		}
 
 		/* Visible objects abort running */
@@ -3861,7 +3929,7 @@ static bool run_test(void)
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Visible object */
-			if (o_ptr->marked) return (TRUE);
+			if (o_ptr->marked) return (0);
 		}
 
 
@@ -3977,7 +4045,7 @@ static bool run_test(void)
                         if(f_info[c_ptr->feat].flags1 & FF1_DONT_NOTICE_RUNNING) notice = FALSE;
 
 			/* Interesting feature */
-			if (notice) return (TRUE);
+			if (notice) return (0);
 
 			/* The grid is "visible" */
 			inv = FALSE;
@@ -4001,13 +4069,13 @@ static bool run_test(void)
 			/* Three new directions. Stop running. */
 			else if (option2)
 			{
-				return (TRUE);
+				return (0);
 			}
 
 			/* Two non-adjacent new directions.  Stop running. */
 			else if (option != cycle[chome[prev_dir] + i - 1])
 			{
-				return (TRUE);
+				return (0);
 			}
 
 			/* Two new (adjacent) directions (case 1) */
@@ -4072,7 +4140,7 @@ static bool run_test(void)
 				/* Looking to break right */
 				if (find_breakright)
 				{
-					return (TRUE);
+					return (0);
 				}
 			}
 
@@ -4082,7 +4150,7 @@ static bool run_test(void)
 				/* Looking to break left */
 				if (find_breakleft)
 				{
-					return (TRUE);
+					return (0);
 				}
 			}
 		}
@@ -4109,7 +4177,7 @@ static bool run_test(void)
 				/* Looking to break left */
 				if (find_breakleft)
 				{
-					return (TRUE);
+					return (0);
 				}
 			}
 
@@ -4119,7 +4187,7 @@ static bool run_test(void)
 				/* Looking to break right */
 				if (find_breakright)
 				{
-					return (TRUE);
+					return (0);
 				}
 			}
 		}
@@ -4132,7 +4200,7 @@ static bool run_test(void)
 		/* No options */
 		if (!option)
 		{
-			return (TRUE);
+			return (0);
 		}
 
 		/* One option */
@@ -4180,7 +4248,7 @@ static bool run_test(void)
 				/* STOP: we are next to an intersection or a room */
 				else
 				{
-					return (TRUE);
+					return (0);
 				}
 			}
 
@@ -4205,12 +4273,12 @@ static bool run_test(void)
 	/* About to hit a known wall, stop */
 	if (see_wall(find_current, py, px))
 	{
-		return (TRUE);
+		return (0);
 	}
 
 
 	/* Failure */
-	return (FALSE);
+	return (new_dir);
 }
 
 
@@ -4220,6 +4288,8 @@ static bool run_test(void)
  */
 void run_step(int dir)
 {
+int new_dir;
+
 	/* Start running */
 	if (dir)
 	{
@@ -4248,7 +4318,7 @@ void run_step(int dir)
 	else
 	{
 		/* Update run */
-		if (run_test())
+		if (!(new_dir = run_test()))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -4256,15 +4326,30 @@ void run_step(int dir)
 			/* Done */
 			return;
 		}
+	
+		else
+		{
+		/*
+	         * Small hack -- As direction values are like the numberpad,
+		 * diagonal motions (7, 9, 1, and 3; for NW, NE, SW, SE) are
+		 * not evenly divisible by 2 --JKB
+		 */
+			if(new_dir % 2)
+	    		{
+	    			/* Moving diagonally is slower, due to certain 
+				   laws of geometry :-) */
+	    			energy_use = 141;
+	    		}
+			else
+	    		{
+	    		/* Take time */
+	    		energy_use = 100;
+	    		}
+		}
 	}
-
 	/* Decrease the run counter */
 	if (--running <= 0) return;
-
-	/* Take time */
-	energy_use = 100;
-
-
+	
 	/* Move the player, using the "pickup" flag */
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
@@ -4625,7 +4710,8 @@ void do_cmd_pet(void)
 				}
 			}
 
-			msg_format("You have dismissed %d pet%s.", Dismissed,
+			if(!roguelike_messages)
+			  msg_format("You have dismissed %d pet%s.", Dismissed,
 				(Dismissed == 1 ? "" : "s"));
 			break;
 		}
@@ -4679,7 +4765,7 @@ void do_cmd_pet(void)
 }
 
 /* Incarnate into a body */
-bool do_cmd_integrate_body()
+bool do_cmd_integrate_body(void)
 {
         cptr q, s;
         int item;
@@ -4818,7 +4904,7 @@ bool execute_inscription(byte i, byte y, byte x)
                         }
                         case INSCRIP_CHASM:
                         {
-                monster_type *m_ptr;
+		monster_type *m_ptr;
                 monster_race *r_ptr;
                 cave_type *c_ptr;
                 int     ii = x, ij = y;
@@ -4879,7 +4965,7 @@ bool execute_inscription(byte i, byte y, byte x)
                                         /* Observe the resist */
                                         if (o_ptr->marked)
                                         {
-                                                msg_format("The %s %s simply fly over the chasm!",
+                                                msg_format("The %s %s simply flying over the chasm!",
                                                            o_name, (plural ? "are" : "is"));
                                         }
                                 }
@@ -4909,7 +4995,7 @@ bool execute_inscription(byte i, byte y, byte x)
 }
 
 /* Choose an inscription and engrave it */
-void do_cmd_engrave()
+void do_cmd_engrave(void)
 {
         char buf[41] = "";
         byte i;
@@ -4946,8 +5032,9 @@ void do_cmd_engrave()
  *     y@k
  *     ooT
  * Ah ... all of those will get hit.
+ * JKB: :-)
  */
-void do_spin()
+void do_spin(void)
 {
         int i, j;
 

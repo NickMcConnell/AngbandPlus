@@ -1,0 +1,78 @@
+#include "fnguide.txt"
+
+***bldg.c***
+bool is_state(store_type *s_ptr, int state)
+  figures out if the store "agrees" with you, based on race, class, and realm,
+  using owner type <state>, and, of course, store type <s_ptr>
+static void clear_bldg(int min_row, int max_row)
+  clears the part of the screen used to display building info, defined by
+  <min_row> and <max_row>
+void show_building(store_type *s_ptr)
+  shows building information for store pointed at by <s_ptr>
+static void reset_tim_flags()
+  resets timed flags such as confusion, blindness and temporary speed
+static void arena_comm(int cmd)
+  carries out the arena command <cmd>
+static void display_fruit(int row, int col, int fruit) 
+  displays fruit
+static bool gamble_comm(int cmd)
+  carries out the gambling command <cmd>, returning the success of your
+  having money
+static bool inn_comm(int cmd)
+  carries out the inn command <cmd>, returning the possibility of <cmd>
+  succeeding
+static void share_gold(void)
+  gives you some gold based on your level
+static void get_questinfo(int questnum)
+  displays info for quest number <questnum>
+static bool castle_quest(int y, int x)
+  gets a quest from the Mayo, returning the success of getting a quest
+  using <y> and <x> for bizarre voodoo incantations
+static void town_history(void)
+  displays town_history from bldg.txt (not this one, pudding-lobes)
+static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, 
+int mult, char attr[80], u32b f1, u32b f2, u32b f3, byte color)
+  flee from this monstrosity that "compare_weapon_aux2"'s, according to its
+  original author
+static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
+  "compare_weapon_aux1"'s
+static void list_weapon(object_type *o_ptr, int row, int col)
+  "list_weapon"'s
+static void list_weapon(object_type *o_ptr, int row, int col)
+  this wigle guy sure has little to say about his functions
+static bool fix_item(int istart, int iend, int ispecific, bool iac,
+int ireward, bool set_reward)
+  it would be nice if he would use his punctuation properly when he does
+  make comments
+static bool research_item(void)
+  researches an item, returning TRUE
+static void show_quest_monster(void)
+  shows the current quest monster
+static void show_bounties(void)
+  shows current bounties
+static bool item_tester_hook_bounty(object_type* o_ptr) 
+  is corpse <o_ptr> on the bounty list?
+static bool item_tester_hook_quest_monster(object_type* o_ptr)   
+  answers the vital question: "Does <o_ptr> point to the corpse of a quest
+  monster?"
+static int corpse_value_boost(int sval)
+  returns 1 for valuable corpse types
+static void sell_corpses(void)
+  sells corpses
+static bool mon_hook_bounty(int r_idx)
+  figures out if monster kind <r_idx> is a valid bounty monster, returning
+  validity
+static void select_quest_monster(void)
+  selects a quest monster
+static void sell_quest_monster(void)
+  sells a quest monster's corpse
+void select_bounties(void)
+  fills the bounty list
+bool bldg_process_command(store_type *s_ptr, int i)
+  executes building action <i> of store <s_ptr>
+void do_cmd_quest(void)
+  enter a quest level
+void do_cmd_bldg(void)
+  do building commands
+
+

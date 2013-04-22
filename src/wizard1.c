@@ -128,7 +128,7 @@ static grouper group_item[] =
 	{ TV_SPIKE,         "Various" },
 	{ TV_LITE,          NULL },
 	{ TV_FLASK,         NULL },
-        { TV_FIRESTONE,     NULL },
+        { TV_FIRESCONE,     NULL },
 	{ TV_BOTTLE,        NULL },
 	{ TV_SKELETON,      NULL },
 

@@ -229,8 +229,8 @@ static hist_type bg[] =
     {"of a Marshal of the Riddermark.  ",                    99, 85, 50, 100},
     {"of a King of the Rohirrim.  ",                        100, 85, 50, 120},
 
-        {"You are one of several children of a DragonRider. ", 85, 89, 91, 50  },
-        {"You are the only child of a DragonRider. ", 100, 89, 91, 60 },
+        {"You are one of several children of a DragonRidder. ", 85, 89, 91, 50  },
+        {"You are the only child of a DragonRidder. ", 100, 89, 91, 60 },
 
         {"You have a Green Dragon.", 30, 91, 0, 40 },
         {"You have a Blue Dragon.", 55, 91, 0, 60 },
@@ -657,7 +657,7 @@ byte choose_realm(s32b choices)
 	return (picks[k]);
 }
 
-static void get_realms()
+static void get_realms(void)
 {
 	int pclas = p_ptr->pclass;
         s32b choices = 0;
@@ -1696,13 +1696,6 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Priest */
-                { TV_MAGERY_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-                { TV_SHADOW_BOOK, 0 } /* Hack: for realm2 book */
-	},
-
-	{
 		/* Rogue */
                 { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_DAGGER },
@@ -1717,23 +1710,9 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Paladin */
-                { TV_MAGERY_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
-	},
-
-	{
 		/* Monk */
                 { TV_MAGERY_BOOK, 0 },
 		{ TV_POTION, SV_POTION_HEALING },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-	},
-
-	{
-		/* Mindcrafter */
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_POTION, SV_POTION_RESTORE_MANA },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 	},
 
@@ -1848,19 +1827,11 @@ byte random_present[MAX_CLASS] =
                 BIRTH_NONE,
                 /* Mage */
                 BIRTH_RING,
-                /* Priest */
-                BIRTH_AMULET,
                 /* Rogue */
                 BIRTH_NONE,
                 /* Ranger */
                 BIRTH_NONE,
-                /* Paladin */
-                BIRTH_NONE,
-                /* WArrior Mage */
-                BIRTH_NONE,
                 /* Monk */
-                BIRTH_NONE,
-                /* Mindcrafter */
                 BIRTH_NONE,
                 /* High Mage */
                 BIRTH_NONE,
@@ -2027,8 +1998,8 @@ static void player_outfit(void)
 
         if (p_ptr->prace == RACE_DRAGONRIDDER)
 	{
-                /* Hack -- Give the player some small firestones */
-                object_prep(q_ptr, lookup_kind(TV_FIRESTONE, SV_FIRE_SMALL));
+                /* Hack -- Give the player some small firescones */
+                object_prep(q_ptr, lookup_kind(TV_FIRESCONE, SV_FIRE_SMALL));
                 q_ptr->number = (byte)rand_range(8,15);
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -2280,7 +2251,6 @@ s16b classes_mage[] =
 };
 s16b classes_priest[] =
 {
-        CLASS_MINDCRAFTER,
         CLASS_DRUID,
         -1,
 };
@@ -3191,9 +3161,8 @@ repeat_player_class:
                 }
         }
 
-        /* Set birth options: maximize, preserve, sepcial levels and astral */
+        /* Set birth options: maximize, preserve, special levels and astral */
 	p_ptr->maximize = maximize;
-	p_ptr->preserve = preserve;
 	p_ptr->special = special_lvls;
 	p_ptr->astral = astral_option;
 	 /*

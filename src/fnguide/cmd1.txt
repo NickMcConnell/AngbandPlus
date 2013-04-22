@@ -1,0 +1,94 @@
+***cmd1.c***
+bool test_hit_fire(int chance, int ac, int vis)
+  did the player shoot the monster, given <vis>ability, monster <ac>,
+  and basic <chance>?
+bool test_hit_norm(int chance, int ac, int vis)
+  did the player hit the monster in melee, given <vis>ability, monster
+  <ac>, and basic <chance>
+s16b critical_shot(int weight, int plus, int dam)
+  returns critical damage for items thrown/shot, given ammo <weight>,
+  <plus> to_hit, and plus to-<dam>
+s16b critical_norm(int weight, int plus, int dam)
+  returns critical damage for melee, given weapon <weight>,
+  <plus> to_hit, and plus to-<dam>
+s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, 
+s32b *special)
+  returns <tdam> * appropriate slay, given weapon <o_ptr>, monster
+  type <m_ptr>, and modifies value at <special> to sometimes equal 
+  cuts, etc.
+void search(void)
+  searches for hidden things (traps, secret doors)
+void carry(int pickup)
+  pick up item off floor, given autopickup flag <pickup>
+static void hit_trap(void)
+  sets off a trap
+void touch_zap_player(monster_type *m_ptr)
+  affect the player with the aura proper to <m_ptr>
+static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
+  apply your mutant <attack> to monster <m_idx>, figuring out monster <fear>
+  or death (<mdeath>) as well
+static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath, 
+int x, int y) 
+  your symbiant friends can attack too, given monster at <m_idx>, figuring
+  out monster <fear> or <mdeath>, monster location (<x>, <y>)
+static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, 
+int x, int y)
+  based on <p_ptr->body_monster>, attack monster <m_idx> at (<x>, <y>) with 
+  the proper intrinsic attacks of a possessor's possessed body, modifying 
+  monster <fear> and <mdeath> as necessary
+static void flavored_attack(int percent, char* output)
+  modifies <output> properly according to <percent> of monster health points
+  damaged and whether or not to have <flavored_attacks>
+void py_attack_monk(int *k, monster_type *m_ptr)
+  modifies <k> to be the proper damage against monster <m_ptr> with the proper
+  effects for monks
+void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr, 
+object_type *o_ptr)
+  handles attacks on nazgul, given the number of blows <num_blow>, which
+  <weap>on it is, monster's race <r_ptr>, weapon info <o_ptr>
+void attack_special(monster_type *m_ptr, byte special, int dam)
+  applies <special> attack to monster <m_ptr>, given attack <dam>age
+void py_attack(int y, int x, int max_blow)
+  attacks monster at (<x>, <y>), given maximum number of blows <max_blow>
+static bool pattern_tile(int y, int x)
+  is the grid at (<x>, <y>) part of the Pattern (Straight Road)?
+static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
+  walks the pattern, given current location (<c_x>, <c_y>) and next
+  location (<n_x>, <n_y>), returning the success of moving
+bool player_can_enter(byte feature)
+  can the player enter this grid with given <feature> type?
+void move_player_aux(int dir, int do_pickup, int run)
+  helps move_player go in the <dir>ection, given whether or not to
+  <do_pickup>, and whether we are <run>ning
+void move_player(int dir, int do_pickup)
+  wrapper on move_player_aux, with 0 for run
+static int see_wall(int dir, int y, int x)
+  is there a visible wall in the one space <dir>ection from (<x>, <y>)
+static int see_nothing(int dir, int y, int x)
+  checks for an "unknown" grid one space forward along <dir>ection from
+  (<x>, <y>)
+static void run_init(int dir)
+  initializes the running algorithm for <dir>ection
+static int run_test(void)
+  figures the next direction in a run, returning this direction
+  (or 0 if we stop running) 
+void run_step(int dir)
+  take one step along the current path, initiating a new run on <dir>,
+  given <dir>ection, otherwise continuing along
+void step_effects(int y, int x, int do_pickup)
+  affect the player, any traps, and any objects at (<x>, <y>) whenever
+  the player goes there, given whether or not to <do_pickup>
+void do_cmd_pet(void)
+  does a pet command
+bool do_cmd_integrate_body(void)
+  attempt to possess a body, returning the success of our attempts
+void do_cmd_leave_body(bool drop_body)
+  leave your body, leaving it's remains on the floor if <drop_body> is 
+  TRUE
+bool execute_inscription(byte i, byte y, byte x)
+  executes an inscription <i> at (<x>, <y>), returning FALSE if the
+  <i>nscription is that of protection, else TRUE
+void do_cmd_engrave(void)
+  gets an inscription from the player and engraves it
+void do_spin(void)
+  obscures the truth in a weaselly manner

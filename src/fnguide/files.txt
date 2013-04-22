@@ -1,0 +1,127 @@
+***files.c***
+
+void safe_setuid_drop(void)
+  drops permissions
+void safe_setuid_grab(void)
+  grabs permissions
+s16b tokenize(char *buf, s16b num, char **tokens, char delim1, char delim2)
+  reads a certain <num>ber of strings defined by the <delim>s surrounding
+  them, storing them in <tokens>, returning number actually found
+errr process_pref_file_aux(char *buf)
+  process the pref file stored in <buf>
+static cptr process_pref_file_expr(char **sp, char *fp)
+  evaluate a pref file expression <sp>, storing things in <fp>
+errr process_pref_file(cptr name)
+  process the pref file with given <name>
+errr check_time(void)
+  checks the time to ensure the player is not goofing off
+errr check_time_init(void)
+  initialize arrays used in time checking
+errr check_load(void)
+  checks the load to ensure that NTAngband isn't eating CPU time
+  needed for more important things
+errr check_load_init(void)
+  initializes arrays used in load checking
+static void prt_lnum(cptr header, s32b num, int row, int col, byte color)
+  prints a long <num>ber with a <color> after a certain <header> at the
+  given <row> and <col>umn
+static void prt_num(cptr header, int num, int row, int col, byte color)
+  as above, except for int's
+static void display_player_middle(void)
+  displays some player attributes
+static cptr likert(int x, int y)
+  returns the proper text for how good something is based on x / y, and
+  setting the color to be used to display this text appropriately [A hacky
+  description for a hacky function]
+static void display_player_various(void)
+  displays various player attributes
+void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
+  extract the player's flags as if he were an item (poor fellow) and store
+  them in <f1>, etc. as appropriate
+static void display_player_ben_one(int mode)
+  displays a summary of the player's resistances, using <mode> to
+  help place said summary
+void display_player(int mode)
+  displays player information (a la 'C' command), in various different
+  <modes>
+errr file_character(cptr name, bool full)
+  dumps a chardump to the <name>d file, putting <full> information if
+  requested
+bool show_file(cptr name, cptr what, int line, int mode)
+  shows a <name>d help file, using <what> for a caption, with <line>
+  equalling the line the player sees at present, in the given <mode>
+void do_cmd_help(void)
+  calls up the help menu
+void process_player_base()
+  sets the savefile name to a filename based on the player's name
+void process_player_name(bool sf)
+  processes the player's name to make it acceptable in length and 
+  complexity, changing the savefile name if <sf>
+void get_name(void)
+  changes the player's name
+void do_cmd_suicide(void)
+  end the suffering
+void do_cmd_save_game(void)
+  saves the game
+long total_points(void)
+  returns the total number of points earned
+static void center_string(char *buf, cptr str)
+  centers <str> within a 31 char string, storing the results in <buf>
+static void print_tomb(void)
+  displays a tombstone
+static void show_info(void)
+  does DYWYPI info showing
+static int highscore_seek(int i)
+  returns the location in the highscore file of entry <i>
+static errr highscore_read(high_score *score)
+  reads a score into <score> from scorefile
+static int highscore_write(high_score *score)
+  writes a record to the highscore file
+static int highscore_where(high_score *score)
+  returns where <score> ought to go in proper sequence
+static int highscore_add(high_score *score)
+  add <score> to the highscore table
+static void display_scores_aux(int from, int to, int note, high_score *score)
+  helps display all the scores from score number <from> to score number <to>,
+  using note for various things and allowing for fake entries with <score>'s
+  help
+void display_scores(int from, int to)
+  displays the scores numbered <from> to <to>
+void show_highclass(int building)
+  shows the highscores of a given class based on the type of <building>
+void race_score(int race_num)
+  show high scores for a <race_num>
+void race_legends(void)
+  do race legends
+static errr top_twenty(void)
+  puts the score to the high score list [perhaps the top twenty part is
+  a vestigial function name referring to a time when only the top twenty
+  made it on the high score list]
+static errr predict_score(void)
+  show the player's score so far
+static void kingly(void)
+  change the player into a king
+void wipe_saved()
+  wipe persistent dungeon files
+void close_game(void)
+  close NTAngband
+void exit_game_panic(void)
+  some serious visual bug has occurred to trigger this
+errr get_rnd_line(char *file_name, char *output)
+  picks a random line from <file_name> and stows it in <output>
+cptr get_line(char *fname, char *fdir, int line)
+  returns a specific <line> from file named <fname> in its <dir>ectory
+errr get_xtra_line(char *file_name, monster_type *m_ptr, char *output)
+  monsters (<m_ptr>) talk too, from <file_name> to <output>
+static void handle_signal_suspend(int sig)
+  suspend the game cleanly, given a <sig>nal
+static void handle_signal_simple(int sig)
+  handles a <sig>nal properly
+static void handle_signal_abort(int sig)
+  handle an abortive <sig>nal
+void signals_ignore_tstp(void)
+  ignores SIGTSTP
+void signals_handle_tstp(void)
+  handles SIGTSTP
+void signals_init(void)
+  prepare to handle signals

@@ -79,7 +79,7 @@ A:56:100:56:0:56:0:57:58
 O:20:20:20:20
 F:PRINCIPAL | CAVERN 
 R:100:0
-T:old
+T:tolk
 
 # MMyesss... The Cave!!!  My little repository of weird monsters
 # Some are boring "Natural" monsters.
@@ -194,16 +194,16 @@ M:PASS_WALL | KILL_WALL | HURT_ROCK
 R:30:0
 T:old
 
-# The Graveyard
-# levels 40-70
-# Feagwath is there, guarding Doomcaller
-N:16:Graveyard
-D:Grv:the entrance to a Graveyard.
+# Graceland!  Yes! You too can gorge yourself on Fried Peanut Butter Banana
+# Sandwiches!  Guarded by the Ghost of Elvis with the Rhinestone Jacket of
+# the King
+N:16:Graceland
+D:Grc:the entrance to Graceland.
 W:40:70:18:0:24:100
 L:88:85:84:15:1:0
 A:56:75:87:25:56:0:57:58
 O:30:30:30:2
-F:FINAL_GUARDIAN_804 | FINAL_ARTIFACT_91
+F:FINAL_GUARDIAN_20 | FINAL_ARTIFACT_1
 R:5:0
 R:10:3
 M:R_CHAR_p

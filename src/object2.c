@@ -511,23 +511,6 @@ void wipe_o_list(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Mega-Hack -- preserve artifacts */
-		if (!character_dungeon || p_ptr->preserve)
-		{
-			/* Hack -- Preserve unknown artifacts */
-			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
-			{
-				/* Mega-Hack -- Preserve the artifact */
-                                if (o_ptr->tval == TV_RANDART) {
-                                        random_artifacts[o_ptr->sval].generated = FALSE;
-                                }else if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART) {
-                                        k_info[o_ptr->k_idx].artifact = FALSE;
-                                }else{
-                                        a_info[o_ptr->name1].cur_num = 0;
-                                }
-			}
-		}
-
 		/* Monster */
 		if (o_ptr->held_m_idx)
 		{
@@ -865,9 +848,10 @@ void object_tried(object_type *o_ptr)
 static s32b object_value_base(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
+	
 	/* Aware item -- use template cost */
-        if ((object_aware_p(o_ptr))&&(o_ptr->tval!=TV_EGG)) return (k_ptr->cost);
+        if ((object_aware_p(o_ptr))&&(o_ptr->tval!=TV_EGG)) 
+	  return (pr_info[k_ptr->p_idx].price);
 
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -1161,15 +1145,17 @@ s32b object_value_real(object_type *o_ptr)
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+	s32b obj_price = pr_info[k_ptr->p_idx].price;
+
 	if (o_ptr->tval == TV_RANDART) {
                 return random_artifacts[o_ptr->sval].cost;
 	}
 
 	/* Hack -- "worthless" items */
-	if (!k_ptr->cost) return (0L);
+	if (!obj_price) return (0L);
 
 	/* Base cost */
-	value = k_ptr->cost;
+	value = obj_price;
 
 	/* Extract some flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
@@ -1248,12 +1234,12 @@ s32b object_value_real(object_type *o_ptr)
 			if (!o_ptr->pval) break;
 
 			/* Give credit for stat bonuses */
-			if (f1 & (TR1_STR)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_INT)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_WIS)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_DEX)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_CON)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_STR)) value += (o_ptr->pval * 1000L);
+			if (f1 & (TR1_INT)) value += (o_ptr->pval * 1000L);
+			if (f1 & (TR1_WIS)) value += (o_ptr->pval * 1000L);
+			if (f1 & (TR1_DEX)) value += (o_ptr->pval * 1000L);
+			if (f1 & (TR1_CON)) value += (o_ptr->pval * 1000L);
+			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 1000L);
 
                         if (f5 & (TR5_CRIT)) value += (o_ptr->pval * 500L);
 
@@ -1266,7 +1252,7 @@ s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 50L);
 
 			/* Give credit for extra attacks */
-			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 2000L);
+			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 20000L);
 
 			/* Give credit for speed bonus */
 			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 30000L);
@@ -1315,7 +1301,7 @@ s32b object_value_real(object_type *o_ptr)
                         object_kind *tip_ptr = &k_info[o_ptr->pval];
 
                         /* Pay the spell */
-                        value += tip_ptr->cost;
+                        value += pr_info[tip_ptr->p_idx].price;
 
 			/* Done */
 			break;
@@ -1429,7 +1415,7 @@ s32b object_value(object_type *o_ptr)
 	s32b value;
 
 
-	/* Unknown items -- acquire a base value */
+	/* Known items -- acquire the actual value */
 	if (object_known_p(o_ptr))
 	{
 		/* Cursed items -- worthless */
@@ -1439,7 +1425,7 @@ s32b object_value(object_type *o_ptr)
 		value = object_value_real(o_ptr);
 	}
 
-	/* Known items -- acquire the actual value */
+	/* Unknown items -- acquire the base value */
 	else
 	{
 		/* Hack -- Felt cursed items */
@@ -3990,7 +3976,7 @@ bool kind_is_theme(int k_idx)
 		case TV_SKELETON:
 		case TV_BOTTLE:
 		case TV_JUNK:
-                case TV_FIRESTONE:
+                case TV_FIRESCONE:
                 case TV_CORPSE:
                 case TV_EGG:
                 {
@@ -4421,7 +4407,7 @@ bool make_gold(object_type *j_ptr)
 	object_prep(j_ptr, OBJ_GOLD_LIST + i);
 
 	/* Hack -- Base coin cost */
-	base = k_info[OBJ_GOLD_LIST+i].cost;
+	base = pr_info[k_info[OBJ_GOLD_LIST+i].p_idx].price;
 
 	/* Determine how much the treasure is "worth" */
 	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
@@ -5729,74 +5715,6 @@ void display_spell_list(void)
 	/* Warriors are illiterate */
 	if (!mp_ptr->spell_book) return;
 
-	/* Mindcrafter spell-list */
-	if (p_ptr->pclass == CLASS_MINDCRAFTER)
-	{
-		int             i;
-		int             y = 1;
-		int             x = 1;
-		int             minfail = 0;
-		int             plev = p_ptr->lev;
-		int             chance = 0;
-                magic_power     spell;
-		char            comment[80];
-		char            psi_desc[80];
-
-		/* Display a list of spells */
-		prt("", y, x);
-		put_str("Name", y, x + 5);
-		put_str("Lv Mana Fail Info", y, x + 35);
-
-		/* Dump the spells */
-		for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
-		{
-			byte a = TERM_WHITE;
-
-			/* Access the available spell */
-			spell = mindcraft_powers[i];
-			if (spell.min_lev > plev) break;
-
-			/* Get the failure rate */
-			chance = spell.fail;
-
-			/* Reduce failure rate by "effective" level adjustment */
-			chance -= 3 * (p_ptr->lev - spell.min_lev);
-
-			/* Reduce failure rate by INT/WIS adjustment */
-			chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
-
-			/* Not enough mana to cast */
-			if (spell.mana_cost > p_ptr->csp)
-			{
-				chance += 5 * (spell.mana_cost - p_ptr->csp);
-				a = TERM_ORANGE;
-			}
-
-			/* Extract the minimum failure rate */
-			minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-
-			/* Minimum failure rate */
-			if (chance < minfail) chance = minfail;
-
-			/* Stunning makes spells harder */
-			if (p_ptr->stun > 50) chance += 25;
-			else if (p_ptr->stun) chance += 15;
-
-			/* Always a 5 percent chance of working */
-			if (chance > 95) chance = 95;
-
-			/* Get info */
-			mindcraft_info(comment, i);
-
-			/* Dump the spell */
-			sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
-			    I2A(i), spell.name,
-			    spell.min_lev, spell.mana_cost, chance, comment);
-			Term_putstr(x, y + i + 1, -1, a, psi_desc);
-		}
-		return;
-	}
-
 	/* Normal spellcaster with books */
 
 	/* Scan books */
@@ -5910,16 +5828,13 @@ s16b spell_chance(int spell,int realm)
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
 	/*
-	 * Non mage/priest characters never get too good
-	 * (added high mage, mindcrafter)
+	 * Non mage characters never get too good
+	 * (added high mage)
 	 */
         if (!(cp_ptr->flags1 & CF1_ZERO_FAIL))
 	{
 		if (minfail < 5) minfail = 5;
 	}
-
-	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-        if ((cp_ptr->flags1 & CF1_BLESS_WEAPON) && (p_ptr->icky_wield)) chance += 25;
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;

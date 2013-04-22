@@ -1,0 +1,224 @@
+# File: k_info.txt
+
+
+# This file is used to initialize the "lib/raw/k_info.raw" file, which is
+# used to initialize the "object kind" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/k_info.raw" file.
+
+# Available slots (?): 444-464
+
+# XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
+
+# The old "MULTI_HUED" objects are now "violet", and no other object
+# is violet, so all six violet objects can be made "multi-hued", though
+# this would be a heinous hack.  XXX XXX
+
+# Note that object zero is used for the "stack" picture (unused).
+
+
+# Version stamp (required)
+
+V:2.8.1
+
+
+##### Something special #####
+
+N:0:something
+G:&:w
+
+##### Normal Food #####
+
+N:19:& Fried Peanut-butter and Banana Sandwich~
+G:,:U
+I:80:35:15500
+W:0:0:10:3
+A:0/1:2/1:5/1
+
+N:20:& Fried Chicken~
+G:,:U
+I:80:32:15250
+W:0:0:2:1
+
+N:24:& Can~ of Beer
+G:,:y
+I:80:38:500
+W:0:0:5:1
+
+N:70:& Jailhouse Rock~
+G:{:s
+I:16:0:0
+W:0:0:4:1
+A:0/1:5/2
+P:0:4d8:0:0:0
+F:SHOW_MODS
+
+N:77:& White Polyester Jumpsuit~
+G:(:G
+I:35:2:0
+W:15:0:5:1500
+A:15/4
+P:4:0d0:0:0:4
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
+F:AGGRAVATE
+
+N:78:& Pair~ of Blue Suede Shoes
+G:]:b
+I:30:2:0
+W:1:0:20:7
+A:3/1
+P:2:1d1:0:0:0
+
+N:138:Gaudiness
+G:":d
+I:40:7:0
+W:15:0:3:500
+A:15/1
+F:CHR | HIDE_TYPE
+
+N:140:Toilet Seat
+G:":d
+I:40:1:0
+W:5:0:3:250
+A:5/1
+F:CURSED | TELEPORT | EASY_KNOW
+
+N:167:Acquirement
+G:?:d
+I:70:46:0
+W:10:0:5:100000
+A:10/8
+
+N:168:*Acquirement*
+G:?:d
+I:70:47:0
+W:30:0:5:200000
+A:30/16
+
+N:194:New Life
+G:!:d
+I:71:63:100
+W:25:0:4:750000
+A:25/20:50/10:120/5
+P:0:1d1:0:0:0
+
+N:198:Booze
+G:!:d
+I:71:9:50
+W:0:0:4:0
+A:0/1
+P:0:1d1:0:0:0
+F:FOUNTAIN
+
+N:199:Poison
+G:!:d
+I:71:6:0
+W:1:0:4:0
+A:3/1
+P:0:1d1:0:0:0
+F:FOUNTAIN
+
+# Parasite eggs (they need to be separate because they behave differently
+# than normal eggs).
+N:334:& Parasite Egg~
+G:.:w
+I:106:0:0
+W:5:0:0:5
+A:10/1:20/5:40/1
+
+##### And here starts the gold/gems #####
+
+N:344:copper
+G:$:u
+I:100:1:0
+W:1:0:0:3
+
+N:345:copper
+G:$:u
+I:100:2:0
+W:1:0:0:4
+
+N:346:copper
+G:$:u
+I:100:3:0
+W:1:0:0:5
+
+N:347:silver
+G:$:s
+I:100:4:0
+W:1:0:0:6
+
+N:348:silver
+G:$:s
+I:100:5:0
+W:1:0:0:7
+
+N:349:silver
+G:$:s
+I:100:6:0
+W:1:0:0:8
+
+N:350:garnets
+G:$:r
+I:100:7:0
+W:1:0:0:9
+
+N:351:garnets
+G:$:r
+I:100:8:0
+W:1:0:0:10
+
+N:352:gold
+G:$:y
+I:100:9:0
+W:1:0:0:12
+
+N:353:gold
+G:$:y
+I:100:10:0
+W:1:0:0:14
+
+N:354:gold
+G:$:y
+I:100:11:0
+W:1:0:0:16
+
+N:355:opals
+G:$:W
+I:100:12:0
+W:1:0:0:18
+
+N:356:sapphires
+G:$:b
+I:100:13:0
+W:1:0:0:20
+
+N:357:rubies
+G:$:r
+I:100:14:0
+W:1:0:0:24
+
+N:358:diamonds
+G:$:w
+I:100:15:0
+W:1:0:0:28
+
+N:359:emeralds
+G:$:g
+I:100:16:0
+W:1:0:0:32
+
+N:360:mithril
+G:$:B
+I:100:17:0
+W:1:0:0:40
+
+N:361:adamantite
+G:$:G
+I:100:18:0
+W:1:0:0:80
+
+

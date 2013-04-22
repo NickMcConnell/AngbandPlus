@@ -2161,8 +2161,8 @@ static void calc_mana(void)
 	/* Hack -- Must be literate */
         if ((!mp_ptr->spell_book)&&(p_ptr->pclass!=CLASS_RUNECRAFTER)&&(p_ptr->pclass!=CLASS_MIMIC)&&(p_ptr->pclass!=CLASS_POSSESSOR)) return;
 
-        if ((p_ptr->pclass == CLASS_MINDCRAFTER)||(p_ptr->pclass == CLASS_MIMIC)||
-            (p_ptr->pclass == CLASS_RUNECRAFTER)||(p_ptr->pclass == CLASS_POSSESSOR))
+        if ((p_ptr->pclass == CLASS_MIMIC)||(p_ptr->pclass == CLASS_RUNECRAFTER)
+	  ||(p_ptr->pclass == CLASS_POSSESSOR))
 	{
 		levels = p_ptr->lev;
 	}
@@ -3224,10 +3224,6 @@ void analyze_blow(int *num, int *wgt, int *mul)
                         case CLASS_RUNECRAFTER:
                                 *num = 4; *wgt = 40; *mul = 2; break;
 
-			/* Mindcrafter */
-			case CLASS_MINDCRAFTER:
-                                *num = 5; *wgt = 35; *mul = 3; break;
-
 			/* Rogue */
 			case CLASS_ROGUE:
                         case CLASS_SYMBIANT:
@@ -3492,12 +3488,6 @@ void calc_bonuses(void)
 			break;
                 case CLASS_BEASTMASTER:
                         if (p_ptr->lev > 34) p_ptr->resist_fear = TRUE;
-			break;
-		case CLASS_MINDCRAFTER:
-			if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
-			if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
-			if (p_ptr->lev > 29) p_ptr->resist_conf = TRUE;
-                        if (p_ptr->lev > 39) p_ptr->telepathy |= ESP_DEMON | ESP_ORC | ESP_TROLL | ESP_GIANT | ESP_UNDEAD | ESP_ANIMAL | ESP_UNIQUE;
 			break;
 		case CLASS_MONK:
 			/* Unencumbered Monks become faster every 10 levels */

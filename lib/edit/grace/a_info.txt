@@ -1,0 +1,50 @@
+# File: a_info.txt
+
+
+# This file is used to initialize the "lib/raw/a_info.raw" file, which is
+# used to initialize the "artifact" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/a_info.raw" file.
+
+
+# The artifact indexes are defined in "defines.h", and must not be changed.
+
+# Artifacts 1-15 are "special", 16-63 are "armor", and 64-127 are "weapons".
+
+# Hack -- "Grond" and "Morgoth" MUST have a rarity of one, or they might
+# not be dropped when Morgoth is killed.  Note that they, like the "special"
+# artifacts, are never created "accidentally".
+
+# Artifacts now have descriptions.  Special thanks to J.R.R Tolkien, 
+# without whom the words would be unwritten, the images unconceived, 
+# the deed undone.  
+#                                            -Leon Marrick
+# Contributors: Jeff Butler, Neal Hackler, Ethan Sicotte, Pat Tracy, Divia
+
+# Version stamp (required)
+#N:serial number:name
+#I:tval:sval:pval
+#W:depth:rarity:weight:cost
+#P:base ac:damage dice:+to hit:+to dam:+ac 
+#F:flags
+#Z:power
+#D:description
+
+#tval key
+# 19 - bow
+# 33 - headgear
+# 40 - amulet
+
+
+V:2.8.1
+
+N:1:The Rhinestoned Jacket of Elviskind
+I:36:12:5
+W:2:1:100:20000
+P:12:1d1:-10:1:30
+F:SPECIAL_GENE | ATTR_MULTI | CHR | CON | REFLECT | 
+D:The Rhinestoned Jacket that Elvis wore in his greatest concerts, it
+D:bestows on the wearer Elvis' remarkable charm and portliness.

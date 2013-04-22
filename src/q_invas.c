@@ -89,7 +89,7 @@ bool quest_invasion_plevel_hook(int q_idx)
 
         /* Ok give the quest */
         quick_messages = FALSE;
-        cmsg_print(TERM_YELLOW, "A Dragonrider jumps out of the between in front of you! And says:");
+        cmsg_print(TERM_YELLOW, "A Dragonridder jumps out of the between in front of you! And says:");
         cmsg_print(TERM_YELLOW, "'Hi noble hero, I am L'ron rider of the bronze Tarath, Turgon king of Gondolin sent me.'");
         cmsg_print(TERM_YELLOW, "'Gondolin is being invaded, he needs your help now or everything will be lost.'");
         cmsg_print(TERM_YELLOW, "'I will bring you to Gondolin, but we need to go now.'");

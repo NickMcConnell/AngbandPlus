@@ -55,3 +55,6 @@ Iron Fist       37      8d8     10
 Flying Kick     41      8d10    12
 Dragon Fist     45      10d10   16
 Crushing Blow   48      10d12   18
+
+######GOccupations
+martial-artist + magician

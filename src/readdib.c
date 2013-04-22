@@ -1,5 +1,7 @@
 /* File: readbits.c */
 
+/* We must find a way to slay this poorly written monstrosity! */
+
 /*
  * This package provides a routine to read a DIB file and set up the
  * device dependent version of the image.

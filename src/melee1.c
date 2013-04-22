@@ -54,8 +54,7 @@ static int monster_critical(int dice, int sides, int dam)
 
 /*
  * Determine if a monster attack against the player succeeds.
- * Always miss 5% of the time, Always hit 5% of the time.
- * Otherwise, match monster power against player armor.
+ * Match monster power against player armor.
  */
 static int check_hit(int power, int level)
 {
@@ -65,7 +64,7 @@ static int check_hit(int power, int level)
 	k = rand_int(100);
 
 	/* Hack -- Always miss or hit */
-	if (k < 10) return (k < 5);
+	/* JKB: haha... not anymore */
 
 	/* Calculate the "attack quality" */
 	i = (power + (level * 3));
@@ -107,7 +106,7 @@ static cptr desc_moan[] =
 	"discusses its latest theory.",
 	"reminds you of your misspent youth.",
 	"mumbles theorems.",
-        "yells 'There is no Donkey Theorem!'",
+        "installs Minix on your computer.",
 
         /* Mathilde's sentence */
         "giggles at you.",

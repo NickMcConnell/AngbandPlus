@@ -1,0 +1,127 @@
+***cmd2.c***
+static bool do_cmd_bash_altar(int y, int x)
+  tries to bash the altar at (<x>, <y>), returning whether or not to 
+  continue trying to bash
+static bool do_cmd_bash_fountain(int y, int x)
+  tries to bash the fountain at (<x>, <y>), returning whether or not to 
+  continue trying to bash
+void do_cmd_go_up(void)
+  goes up one or more level, based on whether or not we are using a shaft
+  or a normal staircase
+static bool between_effect(void)
+  causes Between gates to take effect if the player uses them, returning
+  the success of using them
+void do_cmd_go_down(void)
+  goes down one or more level, considering shafts or normal staircases
+void do_cmd_search(void)
+  searches for a turn
+void do_cmd_toggle_search(void)
+  toggles search mode
+static s16b chest_check(int y, int x)
+  is there a chest at (<x>, <y>), and if so, what is it's <o_idx> number?
+static void chest_death(int y, int x, s16b o_idx)
+  allocates items upon chest opening, given chest at (<x>, <y>) and index
+  in <o_list[]> <o_idx>
+static void chest_trap(int y, int x, s16b o_idx)
+  sets off trapped chest <o_idx> at (<x>, <y>)
+static bool do_cmd_open_chest(int y, int x, s16b o_idx)
+  opens chest <o_idx> at (<x>, <y>), returning whether or not we can continue
+  to try disarming
+static int count_dt(int *y, int *x, byte f1, byte f2)
+  returns number of adjacent or present feats such that <f2> < <feat> < <f1>,
+  modifying <x> and <y> to be one of these positions
+static int count_traps(int *y, int *x)
+  returns the number of adjacent or present traps, modifying <x> and <y> to 
+  equal the location of the last trap found
+static int count_chests(int *y, int *x, bool trapped)
+  returns the number of adjacent or present chests (only the trapped ones if
+  <trapped> is true), modifying <x> and <y> to equal the last chest found
+static int coords_to_dir(int y, int x)
+  returns the direction that Mr.@ needs to take to get to location (<x>, <y>).
+static bool do_cmd_open_aux(int y, int x, int dir)
+  opens door at (<x>, <y>), using <dir> for pickle-desecrating, and returning 
+  whether or not we should keep trying to open said door
+void do_cmd_open(void)
+  opens a door in some direction the player tells us
+static bool do_cmd_close_aux(int y, int x, int dir)
+  closes door at (<x>, <y>), using <dir> for pickle-desecrating, and returning 
+  whether or not we should keep trying to close said door (Huh?  How can you
+  fail to close a door?)
+void do_cmd_close(void)
+  closes a door in some direction the player tells us
+static bool do_cmd_tunnel_test(int y, int x)
+  returns whether or not (<x>, <y>) may be tunneled
+static bool twall(int y, int x, byte feat)
+  tunnels wall at (<x>, <y>), setting it's new feature type to <feat>,
+  returning TRUE
+bool do_cmd_tunnel_aux(int y, int x, int dir)
+  helps tunnel wall at (<x>, <y>), using <dir> for pickle-desecrating,
+  returning whether or not we should continue tunnelling
+bool easy_open_door(int y, int x)
+  this function intentionally left undocumented
+static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
+  disarms the chest (with index <o_idx>) at (<x>, <y>), returning whether
+  or not we should continue our disarming efforts
+static bool do_cmd_disarm_aux(int y, int x, int dir)
+  disarms a trap at (<x>, <y>), moving in <dir>ection if the player
+  sets off said trap, returning whether or not... we know this by now, right?
+void do_cmd_disarm_mon_trap(int y, int x)
+  disarms the monster trap at (<x>, <y>)
+void do_cmd_disarm(void)
+  disarms a trap or chest
+static bool do_cmd_bash_aux(int y, int x, int dir)
+  bashes the door at (<x>, <y>), using <dir> for foul equation manipulation
+void do_cmd_bash(void)
+  bashes something
+void do_cmd_alter(void)
+  foully manipulates some grid
+static bool get_spike(int *ip)
+  returns the success of finding the index of some spikes and putting that
+  value in <ip>
+void do_cmd_spike(void)
+  jam some door
+void do_cmd_walk_jump(int pickup)
+  moves some direction whether or not to auto<pickup>
+void do_cmd_walk(int pickup)
+  {
+  do_cmd_walk_jump(int pickup);
+  }
+void do_cmd_run_run()
+  run-runs
+void do_cmd_run(void)
+  runs
+void do_cmd_stay(int pickup)
+  sits serenely, searches sometimes, picks stuff up (if <pickup), or
+  enters a store
+void do_cmd_rest(void)
+  rests
+int breakage_chance(object_type *o_ptr)
+  returns whether or not object <o_ptr> should break when thrown
+void do_cmd_fire(void)
+  fires some ammo
+void do_cmd_throw(void)
+  throws some item
+void do_cmd_boomerang(void)
+  throws a boomerang
+static bool tport_vertically(bool how)
+  teleports vertically
+static bool item_tester_hook_sacrifice(object_type* o_ptr)
+  is <o_ptr> valuable?
+void do_cmd_sacrifice(void)
+  sacrifice some item
+int show_flags(byte flag, s32b *exp, int pval)
+  the documentation of this function is left as an exercise to the reader
+bool item_tester_hook_artifactized(object_type *o_ptr)
+  has this item (<o_ptr>) been artifactized?  I don't know, Timmy, you tell
+  me.
+void do_cmd_create_artifact()
+  create an artifact
+bool scan_monst(int *items, int *item_num, int m_idx)
+  is monster <m_idx> carrying more than one item, and how many items is
+  he carrying (stored in <item_num>), given item list <items>
+byte show_monster_inven(int m_idx, int *monst_list)
+  show what items monster <m_idx> is carrying
+void do_cmd_steal()
+  steal from some monster
+void do_cmd_give()
+  Now, now, Billy, we always share with our monsters

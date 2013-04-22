@@ -1,0 +1,84 @@
+#include "fnguide.txt"
+
+***birth.c***
+void create_random_name(int race, char *name)
+  create <race> appropriate <*name>
+byte choose_realm(s32b choices)
+  given valid <choices>, let user pick their realms
+  and return their choice
+static void get_realms(void)
+  figure out, based on class, what <choices> is
+static void save_prev_data(void)
+  stores current <p_ptr> values to the <previous.char> values for 
+  quick_start
+static void load_prev_data(bool save)
+  restores your <previous.char> values to <p_ptr> for quick_start
+static int adjust_stat(int value, int amount, int auto_roll)
+  returns <value> a stat should have based on its previous <value>,
+  <amount> to adjust, and whether or not we are <auto_roll>ing
+static void get_stats(void)
+  rolls a character's stats
+static void get_extra(void)
+  rolls and initializes some other things that are not stats
+static void get_history(void)
+  uses <bg[]> (the background information) to find character's
+  social class and history text
+errr init_randart(void)
+  initializes the randart array, returning zero at all times
+static void get_ahw(void)
+  figures out the character's height, weight, and age based on race
+  and sex (a real hot-button function, eh?)
+static void get_money(void)
+  figures out the character's starting gold based on social class,
+  stats, and a minimum value of 100
+static void birth_put_stats(void)
+  shows you your character's stats while rolling them
+static void player_wipe(void)
+  initializes all global data related to the character (mostly by
+  clearing it, but in the case of food, setting it to maximum)
+static void player_outfit(void)
+  give the player some nifty things based on <player_init> plus
+  a few other things
+static void gen_random_quests(int n)
+  generates <n> random quests, to be accessed later
+void print_desc(cptr txt)
+  prints <txt> in yellow
+int dump_classes(s16b *classes, int sel, s32b restrict)
+  displays info about the currently selected class and returns <n>
+int dump_races(int sel)
+  displays additional info about the currently selected race, returns 
+  <n> also
+int dump_rmods(int sel, int *racem, int max)
+  displays info about the currently selected <racem>od, returning <n>
+int dump_gods(int sel)
+  same basic idea
+static bool player_birth_aux_ask()
+  asks the player some vital questions determining the state of 
+  <rand_opt>, <rand_birth>, <do_quick_start>, and various <p_ptr>
+  values
+static bool player_birth_aux_point(void)
+  does point-based stat generation with the player's help
+static bool player_birth_aux_auto()
+  autoroller or not, here it rolls!
+static bool player_birth_aux() 
+  coordinates many of the birth.c functions
+static void validate_bg_aux(int chart, bool chart_checked[], char *buf)
+  helps validate <bg[]>
+static void validate_bg(void)
+  validates <bg[]>
+void init_town(int t_idx, int level)
+  initializes a random town stored at <t_idx>, with <level> completely
+  unused
+void player_birth(void)
+  gives birth to a character, with all the other functions in birth.c
+  as its trusty helpers
+int load_savefile_names()
+  loads all the names of savefiles from a given user's <foo>.svg file,
+  returning the <max>imum number of possible choices among the savefiles
+void save_savefile_names()
+  saves names of savefiles to a given user's <foo>.svg file
+static void dump_savefiles(int sel, int max)
+  displays and, with the user's help, selects the proper savefile from
+  a given <foo>.svg file, with <max> 
+bool begin_screen()
+  does all the beginning tasks, returning success

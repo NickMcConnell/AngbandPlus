@@ -713,7 +713,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
  */
 static bool item_tester_hook_eatable(object_type *o_ptr)
 {
-        if (((o_ptr->tval==TV_FIRESTONE)&&(p_ptr->prace==RACE_DRAGONRIDDER))||
+        if (((o_ptr->tval==TV_FIRESCONE)&&(p_ptr->prace==RACE_DRAGONRIDDER))||
         (o_ptr->tval==TV_FOOD)||(o_ptr->tval==TV_CORPSE)) return (TRUE);
 
 	/* Assume not */
@@ -787,7 +787,7 @@ void do_cmd_eat_food(void)
                 case SV_FOOD_GREAT_HEALTH:
                 {
                         p_ptr->hp_mod += 70;
-                        msg_print("As you eat it you begin to feel your life flow getting stronger.");
+                        msg_print("As you eat it you feel more robust.");
                         ident = TRUE;
                         p_ptr->update |= (PU_HP);
                         break;
@@ -848,7 +848,7 @@ void do_cmd_eat_food(void)
 				{
 					ident = TRUE;
 					
-					/* Most trips are good trips */
+					/* Most trips are good trips in NTAngband */
 					p_ptr->morale += randint(5) - 1;
 				}
 			}
@@ -1017,8 +1017,11 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_SLIME_MOLD:
 		{
-			msg_print("That tastes disgusting.  What kind of heathen would eat a cute slime mold?");
+			msg_print("That tastes disgusting.  Intense guilt washes over you as you consider the wanton destruction of life you have caused");
 
+			/* Lose a point of morale for your indiscretion */
+			p_ptr->morale--;
+			
                         /* 2% chance of getting the mold power */
                         if (magik(2))
                         {
@@ -1096,7 +1099,7 @@ void do_cmd_eat_food(void)
                         break;
                 }
 	}
-        }else if(o_ptr->tval==TV_FIRESTONE){
+        }else if(o_ptr->tval==TV_FIRESCONE){
         switch(o_ptr->sval){
                 case SV_FIRE_SMALL:
 		{
@@ -1112,7 +1115,7 @@ void do_cmd_eat_food(void)
                         else msg_print("You can't eat more firescones, you vomit!");
 			break;
 		}
-                case SV_FIRESTONE:
+                case SV_FIRESCONE:
 		{
                         if(p_ptr->ctp<p_ptr->mtp){
                                 msg_print("Grrrrmmmmmmfffffff ...");
@@ -1726,7 +1729,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 
 		case SV_POTION_DEATH:
 		{
-			msg_print("A feeling of Death flows through your body.");
+			msg_print("'Ha ha ha h-', you laugh.");
 			take_hit(5000, "a potion of Death");
 			ident = TRUE;
 			break;
@@ -4815,6 +4818,12 @@ void do_cmd_activate(void)
 				o_ptr->timeout = rand_int(3) + 3;
 				break;
 			}
+			case ART_DAL:
+			{
+				msg_print("You cuddle up to some new friends.");
+				charm_monsters(p_ptr->lev * p_ptr->lev);
+				o_ptr->timeout = 1000 + rand_int(500);
+			}
 		}
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -4940,7 +4949,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
-                                o_ptr->timeout = rand_int(90) + 90;
+                                o_ptr->timeout = rand_int(5) + 1;
 				break;
 			}
 
@@ -4948,7 +4957,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
-                                o_ptr->timeout = rand_int(90) + 90;
+                                o_ptr->timeout = rand_int(5) + 1;
 				break;
 			}
 
@@ -4956,7 +4965,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
-                                o_ptr->timeout = rand_int(90) + 90;
+                                o_ptr->timeout = rand_int(7) + 1;
 				break;
 			}
 
@@ -4964,7 +4973,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
-                                o_ptr->timeout = rand_int(90) + 90;
+                                o_ptr->timeout = rand_int(7) + 1;
 				break;
 			}
 
@@ -4972,7 +4981,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
-                                o_ptr->timeout = rand_int(90) + 90;
+                                o_ptr->timeout = rand_int(5) + 1;
 				break;
 			}
 
@@ -4989,7 +4998,7 @@ void do_cmd_activate(void)
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
 				          dir, 250, 2);
-                                o_ptr->timeout = rand_int(60) + 60;
+                                o_ptr->timeout = rand_int(10) + 2;
 				break;
 			}
 
@@ -4997,7 +5006,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
-                                o_ptr->timeout = rand_int(90) + 90;
+                                o_ptr->timeout = rand_int(10) + 2;
 				break;
 			}
 
@@ -5005,7 +5014,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
-                                o_ptr->timeout = rand_int(90) + 90;
+                                o_ptr->timeout = rand_int(10) + 2;
 				break;
 			}
 
@@ -5016,7 +5025,7 @@ void do_cmd_activate(void)
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 				          dir, 220, 2);
-                                o_ptr->timeout = rand_int(90) + 60;
+                                o_ptr->timeout = rand_int(10) + 3;
 				break;
 			}
 
@@ -5027,7 +5036,7 @@ void do_cmd_activate(void)
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARDS),
 				          dir, 230, 2);
-                                o_ptr->timeout = rand_int(90) + 60;
+                                o_ptr->timeout = rand_int(10) + 3;
 				break;
 			}
 
@@ -5042,7 +5051,7 @@ void do_cmd_activate(void)
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARDS))),
 				          dir, 250, 2);
-                                o_ptr->timeout = rand_int(90) + 60;
+                                o_ptr->timeout = rand_int(11) + 3;
 				break;
 			}
 
@@ -5052,7 +5061,7 @@ void do_cmd_activate(void)
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
 				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
-                                o_ptr->timeout = rand_int(90) + 60;
+                                o_ptr->timeout = rand_int(5) + 2;
 				break;
 			}
 
@@ -5060,7 +5069,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe the elements.");
 				fire_ball(GF_MISSILE, dir, 300, 3);
-                                o_ptr->timeout = rand_int(90) + 60;
+                                o_ptr->timeout = rand_int(15) + 3;
 				break;
 			}
 		}
@@ -5165,7 +5174,7 @@ void do_cmd_activate(void)
 
 
 
-static bool activate_random_artifact(object_type * o_ptr)
+static bool activate_random_artifact(object_type *o_ptr)
 {
 	int plev = p_ptr->lev;
 	int ii = 0, ij = 0, k, dir, dummy = 0;
@@ -6163,7 +6172,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 	return TRUE;
 }
 
-static bool activate_spell(object_type * o_ptr, byte choice)
+static bool activate_spell(object_type *o_ptr, byte choice)
 {
         int mana = 0, gf = 0, mod = 0;
         rune_spell s_ptr;

@@ -1,5 +1,5 @@
 # File: r_info.txt
-# For NTAngband 0.6
+# For NTAngband 0.7
 
 # This file is used to initialize the "lib/raw/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
@@ -176,7 +176,7 @@ O:0:0:0:0
 N:1:Cute Little Puppy Dog
 G:C:y
 I:130:2d8:10:5:180
-W:0:1:50:0
+W:0:5:50:0
 E:1:1:1:1:1:2
 O:0:0:0:0
 B:BITE:HURT:1d4
@@ -188,7 +188,7 @@ D:Awww... How cute.  A young dog, bounding with enthusiasm.
 N:2:Giant Worker Ant
 G:a:D
 I:120:2d5:10:2:255
-W:0:1:20:0
+W:0:5:20:0
 E:1:1:1:6:1:6
 O:0:0:0:0
 B:BITE:HURT:1d4
@@ -201,7 +201,7 @@ D:down to the mound every so often.
 N:3:Earthworm
 G:w:R
 I:90:1d1:1:100:255
-W:0:1:0:0
+W:0:5:0:0
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:BITE:HURT:10d20
@@ -216,11 +216,11 @@ D:underground, eating dirt.
 N:10:Practical Joke
 G:J:g
 I:100:1d3:2:10:50
-W:1:1:0:5
+W:1:150:0:5
 E:1:1:1:2:1:1
 O:0:0:20:0
 B:BITE:HURT:2d4
-B:EXPLODE:HURT:9d4
+B:EXPLODE:HURT:4d4
 F:STUPID | WEIRD_MIND 
 S:MULTIPLY 
 D:A dangerous prank, avoid its backfiring tendency!
@@ -228,7 +228,7 @@ D:A dangerous prank, avoid its backfiring tendency!
 N:11:Bum
 G:l:D
 I:100:2d10:20:9:0
-W:1:1:1000:3
+W:1:5:1000:3
 E:1:1:1:2:1:1
 O:50:0:0:0
 B:BEG:EAT_FOOD:2d1
@@ -241,7 +241,7 @@ D:A penniless loser who begs you for booze money.
 N:13:Grey mold
 G:m:s
 I:110:1d2:2:1:0
-W:1:1:20:3
+W:1:5:20:3
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:SPORE:HURT:1d4
@@ -257,7 +257,7 @@ D:INTO A THOUSAND TINY PIECES!!! FLEE!!!
 N:14:Newt
 G:R:y
 I:110:2d6:8:12:30
-W:1:1:10:2
+W:1:5:10:2
 E:0:1:0:2:1:0
 O:0:0:0:0
 B:BITE:HURT:1d3
@@ -270,7 +270,7 @@ D:A small, harmless lizard.
 N:15:Fruit bat
 G:B:o
 I:120:1d6:20:3:10
-W:1:1:20:1
+W:1:5:20:1
 E:0:1:1:0:1:0
 O:0:0:0:0
 B:BITE:HURT:1d1
@@ -283,7 +283,7 @@ D:A fast-moving pest.
 N:20:Evil mouse
 G:r:w
 I:130:2d4:7:4:200
-W:2:1:5:2
+W:2:5:5:2
 E:1:1:2:1:1:2
 O:0:0:0:0
 B:BITE:HURT:1d4
@@ -310,7 +310,7 @@ D:A Shih-Tzu/Chihuahua mix, she yaps and annoys intensely.
 N:22:Blue yeek
 G:y:b
 I:110:2d6:18:14:10
-W:2:1:700:4
+W:2:5:700:4
 E:1:1:1:2:1:1
 O:25:0:0:55
 B:HIT:HURT:1d5
@@ -323,7 +323,7 @@ D:A small humanoid figure.
 N:23:Cave spider
 G:A:D
 I:120:2d6:8:16:80
-W:2:1:400:7
+W:2:5:400:7
 E:0:1:0:2:1:0
 O:0:0:0:0
 B:BITE:HURT:1d4
@@ -338,7 +338,7 @@ D:It is a black spider that moves in fits and starts.
 N:30:Geologist
 G:n:s
 I:110:1d6:100:8:0
-W:3:1:1000:8
+W:3:5:1000:8
 E:0:1:1:2:1:1
 O:20:0:40:40
 B:MOAN:CONFUSE:2d10
@@ -364,7 +364,7 @@ D:Nothing but a harmless lie...
 N:32:Shrieker mushroom patch
 G:,:R
 I:110:1d1:4:1:0
-W:3:1:40:1
+W:3:5:40:1
 E:0:0:0:0:0:0
 O:0:0:0:0
 F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW | 
@@ -395,7 +395,7 @@ D:An insecure ghost whose loneliness and attention seeking are sickening.
 N:41:Lesser cave burro
 G:q:s
 I:110:5d10:4:15:180
-W:4:2:1000:10
+W:4:10:1000:10
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:KICK:HURT:5d5
@@ -408,7 +408,7 @@ D:A normal, healthy, stubborn donkey.
 N:42:Brown yeek
 G:y:u
 I:110:4d8:18:18:10
-W:4:1:800:11
+W:4:5:800:11
 E:1:1:1:2:1:1
 O:0:50:0:30
 B:HIT:HURT:1d6
@@ -422,7 +422,7 @@ D:It is a strange small humanoid.
 N:50:'Doom' weenie
 G:l:r
 I:110:1d50:15:0:0
-W:5:1:900:9
+W:5:5:900:9
 E:0:0:0:0:0:0
 O:0:0:0:0
 F:AI_ANNOY | STUPID | MALE | DROP_CORPSE
@@ -436,7 +436,7 @@ D:Annihilate any that move.
 N:51:Yeek Skeleton
 G:s:w
 I:105:3d8:1:10:0
-W:5:1:200:5
+W:5:5:200:5
 E:0:0:0:0:0:0
 O:0:0:0:0
 F:EMPTY_MIND | MORTAL
@@ -446,7 +446,7 @@ D:by evil necromancers.
 N:52:Enterobius vermicularis
 G:j:w
 I:150:1d1:1:0:0
-W:5:0:0:2
+W:5:10:0:2
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:ENGULF:PARASITE:1d1
@@ -460,7 +460,7 @@ D:Highly annoying, rather humiliating, but not very dangerous.
 N:60:Spiglax, Yeek Traitor
 G:y:y
 I:115:5d10:5:25:157
-W:6:5:350:0
+W:6:25:350:0
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:HIT:HURT:10d5
@@ -475,7 +475,7 @@ D:his death.  Fortunately, he is on your side.
 N:61:Orfax, Son of Boldor
 G:y:B
 I:120:12d10:18:20:10
-W:6:3:600:80
+W:6:15:600:80
 E:1:1:1:2:1:1
 O:0:50:50:0
 B:HIT:HURT:1d9
@@ -498,7 +498,7 @@ D:yeek.
 N:62:Master yeek
 G:y:g
 I:110:12d9:18:24:10
-W:6:2:600:28
+W:6:10:600:28
 E:1:1:1:2:1:1
 O:0:0:100:0
 B:HIT:HURT:1d8
@@ -530,9 +530,9 @@ S:BLINK | MULTIPLY
 D:A little bit of gold-lust can't be that bad, now can it?
 
 N:71:Boldor, King of the Yeeks
-G:y:v
+G:y:u
 I:120:18d10:18:24:10
-W:13:3:650:200
+W:13:15:650:200
 E:1:1:1:2:1:1
 O:0:90:10:0
 B:HIT:HURT:1d9
@@ -554,7 +554,7 @@ D:A great yeek, powerful in magic and sorcery, but a yeek all the same.
 N:80:Baby quylthulg
 G:Q:w
 I:115:5d5:1:0:200
-W:8:2:50:0
+W:8:10:50:0
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:SHOW:*
@@ -565,11 +565,36 @@ D:Aww... it's so cute... and so disgusting.  A young quylthulg not
 D:yet experienced enough to fear.  It burbles with joy as you approach 
 D:it and quivers as it frolics through space/time. 
 
+N:81:Smoke flea
+G:I:D
+I:115:2d8:1:150:0
+W:8:1:0:5
+E:0:0:0:0:0:0
+O:4:23:1:6
+B:BITE:LOSE_CHR:1d4
+B:BITE:FIRE:3d4
+F:IM_FIRE | STUPID
+S:1_IN_1
+S:MULTIPLY
+D:A smoldering black speck that forms smoke-like clouds with it's leaping 
+D:brethren.  It's burning bite leaves disfiguring lesions.
+
+N:82:Fibonacci spiral
+G:@:r
+I:1:1d2:3:5:8
+W:13:21:34:55
+E:1:1:2:3:5:8
+O:13:21:34:0
+B:BITE:HURT:1d1
+B:MOAN:CONFUSE:1d2
+B:MOAN:LOSE_INT:3d5
+D:It looks somewhat like a nautilus, but much more mathematical.
+
 # level 9
 N:90:Black Smorn
 G:p:s
 I:110:5d15:7:50:125
-W:9:1:1500:15
+W:9:5:1500:15
 E:1:1:1:2:1:1
 O:0:60:25:15
 B:HIT:HURT:2d5
@@ -580,14 +605,24 @@ F:EVIL | OPEN_DOOR | BASH_DOOR | DROP_CORPSE |
 F:MORTAL
 D:Tall and gangly with an acid-blackened face that tells of its allegiance
 D:to the giants of evil.  It is not above using various chemicals to advance
-D:it's cause.
+D:its cause.
+
+N:91:Shadow bunny
+G:r:D
+I:105:4d9:30:0:58
+W:9:4:200:1
+E:0:0:0:0:0:0
+O:0:0:0:0
+S:1_IN_1
+S:DARKNESS | MULTIPLY
+D:It hates light with a passion.
 
 # level 10
 
 N:100:Random Number Generator
 G:I:b
 I:130:1d6:10:50:0
-W:10:25:0:10
+W:10:1000:0:10
 E:0:0:0:0:0:0
 O:20:20:20:20
 B:INSULT:*
@@ -602,7 +637,7 @@ D:in the town and the One Ring in the magic shop.
 N:101:Cutaneous anthrax
 G:M:w
 I:110:1d1:0:1000:0
-W:10:10:0:10
+W:10:50:0:10
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:ENGULF:DISEASE
@@ -610,11 +645,24 @@ B:ENGULF:LOSE_CHR:1d4
 F:CAN_FLY | INVISIBLE | WILD_TOO | IM_COLD | FRIENDS
 D:Don't worry, it's not contagious.
 
+N:102:Practical Joke
+G:J:g
+I:100:1d3:2:10:50
+W:10:2:0:5
+E:1:1:1:2:1:1
+O:0:0:20:0
+B:BITE:HURT:2d4
+B:EXPLODE:HURT:4d4
+F:STUPID | WEIRD_MIND 
+S:MULTIPLY 
+D:A dangerous prank, avoid its backfiring tendency!
+
+
 # level 11
 N:110:Trichinella spiralis
 G:j:g
 I:150:1d1:0:250:255
-W:11:2:1:11
+W:11:10:1:11
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:ENGULF:PARASITE:1d1
@@ -628,7 +676,7 @@ D:I hope this teaches you to thoroughly cook your meat!
 N:111:boor
 G:+:U
 I:110:1d1:1:100:255
-W:11:5:1250:12
+W:11:25:1250:12
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:HIT:ACID:10d10
@@ -636,12 +684,27 @@ F:NEVER_MOVE | STUPID
 D:The product of a stupid typo, this critter blends in perfectly with doors
 D:nearby.
 
+N:112:Hug
+G:c:r
+I:110:10d10:10:25:34
+W:11:5:0:0
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:ENGULF:PARALYZE:2d4
+B:CRUSH:HURT:3d5
+F:GOOD | FRIENDLY | IM_COLD | NO_FEAR | NO_CONF |
+F:FRIENDS | NO_STUN | CAN_SPEAK
+S:1_IN_2
+S:TELE_TO
+D:Two big, soft arms attached to an amorphous, pillowlike mass of plush.
+D:Soft, but with a strong, loving grip.
+
 # level 12
 
 N:120:Mark Constantino
-G:L:W
+G:l:W
 I:120:250d2:100:0:0
-W:12:1:0:12500
+W:12:5:0:12500
 E:0:0:0:0:0:0
 O:20:20:20:20
 B:SHOW:CONFUSE:12d6
@@ -654,8 +717,8 @@ D:his random messages.
 
 N:121:Quylthulg
 G:Q:y
-I:110:10d10:0:0:255
-W:12:1:0:0
+I:110:10d10:30:0:255
+W:12:5:0:0
 E:0:0:0:0:0:0
 O:0:0:0:0
 F:EMPTY_MIND | DROP_CORPSE | STUPID
@@ -663,12 +726,36 @@ S:1_IN_3
 S:S_MONSTER | BLINK
 D:Don't hurt it!  It is strange, but it means no one any harm.
 
+# level 13
+
+N:130:Giant undead cat
+G:f:u
+I:105:7d10:4:50:0
+W:13:3:603:75
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:BITE:COLD:3d6
+B:CLAW:HURT:7d3
+B:GAZE:TERRIFY:6d9
+F:UNDEAD | ANIMAL | STUPID
+D:A massive cat cadaver that restlessly lumbers to find and kill the
+D:necromancer that stole its death.
+
+N:131:Clear fuzzy thing
+G:J:w
+I:110:8d8:20:10:72
+W:13:10:70:10
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:ATTR_CLEAR | PET
+D:A bizzare contradiction that boggles the mind.
+
 # level 14
 
 N:140:Software bug
 G:I:r
 I:120:2d2:8:25:10
-W:14:1:0:4
+W:14:5:0:4
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:BITE:HURT:1d2
@@ -681,7 +768,7 @@ D:Oh no! They are everywhere!
 N:141:Cleanliness
 G:V:W
 I:100:50d20:7:300:254
-W:14:5:0:4
+W:14:25:0:4
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:SHOW:*
@@ -691,12 +778,25 @@ S:1_IN_7
 S:BR_POIS
 D:Beware the dangerous Lysol this virtue breathes!
 
-# level 15
+N:142:Killer night mouse
+G:r:D
+I:110:10d10:3:10:100
+W:14:3:0:15
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:BITE:DISEASE:3d5
+B:CLAW:HURT:1d15
+F:EVIL | MORTAL | FRIENDS
+D:You have heard tales of these creatures, things that will bite your face in 
+D:your sleep!
+
+
+# level 15 -- the multihued depth :)
 
 N:150:Spanish Carnival
 G:J:v
 I:120:15d10:2:25:256
-W:15:5:32756:10
+W:15:25:32756:10
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:ENGULF:CONFUSE:2d10
@@ -712,7 +812,7 @@ D:Because no one ever inspects the Spanish Exposition.
 N:151:Crazy Rainbow Neon Clown
 G:J:v
 I:108:15d15:7:50:150
-W:15:1:1500:25
+W:15:5:1500:25
 E:1:1:1:2:1:1
 O:0:0:0:0
 B:GAZE:TERRIFY:2d15
@@ -724,11 +824,28 @@ S:1_IN_4
 S:TELE_TO
 D:It can be seen in the recall windows of certain variants.
 
+N:152:King Kuddles
+G:c:v
+I:110:10d50:10:25:34
+W:15:5:0:0
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:ENGULF:PARALYZE:6d4
+B:CRUSH:HURT:7d6
+F:GOOD | FRIENDLY | IM_COLD | NO_FEAR | NO_CONF | ATTR_MULTI
+F:FRIENDS | NO_STUN | CAN_SPEAK | MALE
+S:1_IN_2
+S:TELE_TO | HEAL | S_KIN
+D:No ordinary Hug, he's the biggest, softest and most huggable of all Hugkind. 
+D:His rainbow-hued fur gives you a sunny feeling at heart, and his soft brown 
+D:eyes make a snuggle with him hard to resist.  Not only this, but he can
+D:call his kinfolk to make you happier.
+
 # level 16
 N:160:Patience
 G:V:u
 I:95:50d20:20:1000:254
-W:16:5:1:100
+W:16:25:1:100
 E:0:0:0:0:0:0
 O:0:0:0:0
 F:GOOD
@@ -739,7 +856,7 @@ D:Sometimes you just have to step back and slow down.
 N:161:Remorse
 G:v:v
 I:105:20d50:100:10:0
-W:16:5:1:100
+W:16:25:1:100
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:HIT:TIME:5d5
@@ -751,7 +868,7 @@ D:You angrily wonder what might have been.
 N:170:Resentment
 G:v:v
 I:120:30d50:100:10:0
-W:17:5:1:200
+W:17:25:1:200
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:HIT:TIME:10d5
@@ -764,7 +881,7 @@ D:Bitterness eats away at your innards as you recall wrongs unredressed.
 N:171:Nexus quylthulg
 G:Q:R
 I:110:10d12:10:1:0
-W:17:1:3000:300
+W:17:5:3000:300
 E:0:0:0:0:0:0
 O:0:0:0:0
 F:NEVER_MOVE | NEVER_BLOW | 
@@ -775,12 +892,192 @@ S:BLINK | TELE_AWAY | TPORT
 D:It is a very unstable, strangely pulsing mound of flesh.  Its numerous 
 D:fears provoke it to use its mastery of teleportation often.
 
+# level 18
+
+N:180:Black Smorn
+G:p:s
+I:115:10d15:7:75:125
+W:18:5:1600:15
+E:1:1:1:2:1:1
+O:0:60:25:15
+B:HIT:HURT:3d5
+B:TOUCH:CONFUSE
+B:HIT:POISON:2d7
+B:TOUCH:ACID:2d10
+F:EVIL | OPEN_DOOR | BASH_DOOR | DROP_CORPSE | 
+F:MORTAL
+D:Tall and gangly with an acid-blackened face that tells of its allegiance
+D:to the giants of evil.  It is not above using various chemicals to advance
+D:its cause.
+
+N:181:Invisible piranha
+G:~:B
+I:110:5d3:3:0:0
+W:18:5:10:10
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:BITE:HURT:5d6
+B:BITE:HURT:2d3
+B:BITE:HURT:5d2
+F:EVIL | FRIENDS | INVISIBLE | MORTAL | AQUATIC
+D:A vicious fish that can smell you from 30 feet away.  Whole horses have been 
+D:eaten alive by these monsters.  You can see a finger twitching in its 
+D:transparent stomach.
+
+# level 19
+
+N:190:Invisible Ghost
+G:.:w
+I:110:23d19:6:0:47
+W:19:5:0:63
+E:0:0:0:0:0:0
+O:0:62:0:4
+B:TOUCH:LOSE_STR:2d1
+B:WAIL:TERRIFY:1d10
+F:INVISIBLE | EVIL | CHAR_CLEAR | ATTR_CLEAR | PASS_WALL
+S:1_IN_1
+S:BLINK | SCARE
+D:You'll never see it coming.
+
+N:191:Young invisible Law bat
+G:B:b
+I:110:19d19:8:5:185
+W:19:5:50:46
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:BITE:HURT:5d3
+F:INVISIBLE | CAN_FLY | GOOD
+S:1_IN_4
+S:BR_SOUN | BR_SHAR
+D:It supports the forces of Law, punishing you as a lawbreaker.
+
+# level 20
+
+N:200:Greater mummified magma pudding
+G:,:o
+I:110:20d20:8:0:34
+W:20:5:1000:50
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:GAZE:FIRE:1d20
+F:KILL_ITEM | UNDEAD | AURA_FIRE | ELDRITCH_HORROR
+D:An eldritch pudding made of molten rock.  Its charred raiments reek
+D:acridly of bitumen.
+
+N:201:Purwousne the Pin-worm
+G:j:w
+I:120:10d5:10:0:255
+W:20:5:1:100
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:INVISIBLE | MALE
+S:1_IN_1
+S:BR_CONF | BLINK
+D:"'And in the Elder Days, a Great Pin Worm arose in the East.  And the 
+D:Easterlings scratched themselves and brought about a great epidemic. 
+D:The great Public Health Official Seregedhel endeavoured to educate the 
+D:Easterlings with his Great Wand of Public Health Officiating, but --'
+D:'That'll be enough, go along' said the King of Dauphins."
+
+# level 21
+N:210:Iron mold
+G:m:s
+I:110:20d10:1:200:255
+W:21:5:500:75
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:SPORE:HURT:5d10
+F:NEVER_MOVE
+S:1_IN_3
+S:BR_SOUN
+D:"I am / IRON MOLD / I never ever ever ever / do what I'm told"
+
+N:211:Betwixt
+G:+:v
+I:150:3d100:20:0:255
+W:21:5:0:327
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:NEVER_MOVE | FORCE_SLEEP
+S:1_IN_1
+S:TELE_AWAY
+D:It looks remarkably like a between gate
+
+# level 43
+
+N:430:Television
+G:L:v
+I:130:70d200:1000:0:0
+W:43:5:0:50000
+E:0:0:0:0:0:0
+O:25:25:25:25
+B:HIT:TIME:10d20
+B:GAZE:PARALYZE:1d4
+B:SHOW:BLIND:5d5
+F:EMPTY_MIND | ELDRITCH_HORROR | PASS_WALL | ESCORTS
+F:ATTR_MULTI | EVIL | UNDEAD | DEMON | UNIQUE | DROP_GREAT
+F:DROP_4D2 
+S:1_IN_1
+S:BRAIN_SMASH 
+D:It has slain Radio, serious debate in America, the Election Process, 
+D:Decency, and Family Dinners.  For these and other crimes 
+D:it deserves death by your hand.  Stab it deep in its foul
+D:heart, and relish the corporate pigs that fall out.  
+D:Butcher the losers attracted to it, and spare no healing 
+D:potion or enchanted arrow in the pursuit of its demise.  
+D:Avenge the early deaths to obesity and diabetes its
+D:sedentary nature creates.  Avenge the brain-deadness you
+D:suffered for years before you started playing Angband.
+D:Avenge the cancellation of "Freaks and Geeks".  Kill this fiend.
+
+N:431:Ancient Obese Dragon
+G:D:W
+I:90:50d50:1:1000:200
+W:43:5:32756:100
+E:1:2:1:1:6:1
+O:85:5:5:5
+B:CRUSH:HURT:35d20
+B:CRUSH:HURT:20d35
+F:DRAGON | UNIQUE
+S:1_IN_1
+S:BR_POIS
+D:Its vision may be poor, and it may not be able to get around like 
+D:it used to, but it can really let one rip!
+
+# level 47
+
+N:470:Killer storm mold
+G:m:B
+I:120:22d100:10:200:255
+W:47:2:500:50
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:EMPTY_MIND | FORCE_SLEEP | NEVER_MOVE
+S:1_IN_1
+S:BA_WATE | BA_WATE | BO_ELEC | BO_ELEC | BA_ELEC 
+D:A fairly large mold, quietly digesting dungeon rocks and stray water 
+D:molecules. 
+
+N:471:Demonic doom frog
+G:R:r
+I:120:35d75:15:50:250
+W:47:5:50:100
+E:0:0:0:0:0:0
+O:54:2:5:2
+B:BITE:LOSE_ALL:5d2
+B:BITE:UN_BONUS:24d10
+F:EVIL | DEMON | ANIMAL | SMART | IM_FIRE | AURA_FIRE
+S:1_IN_2
+S:HAND_DOOM | BRAIN_SMASH | BA_DARK | BA_FIRE
+D:It is small, but its beady red eyes radiate horrible evil.  It croaks 
+D:foully as it makes your life miserable.
+
 # level 48
 
 N:480:Delusion Snake
 G:R:G
 I:100:20d10:5:100:200
-W:48:1:250:20
+W:48:5:250:20
 E:0:0:1:1:1:0
 O:0:0:0:0
 B:BITE:INSANITY:4d10
@@ -794,7 +1091,7 @@ D:Expected after trauma and heavy drinking...
 N:481:Pink Toad
 G:R:R
 I:120:10d1:10:25:100
-W:48:1:50:20
+W:48:5:50:20
 E:0:0:0:0:0:0
 B:BITE:HURT:2d10
 B:BITE:HALLU:1d3
@@ -809,7 +1106,7 @@ D:head and claws all round their ugly mouths.'
 N:490:Greater Hell Mosquito
 G:I:o
 I:130:7d7:7:7:77
-W:49:1:0:10
+W:49:5:0:10
 E:1:1:1:2:1:1
 O:0:0:0:0
 B:BITE:EXP_80:1d1
@@ -823,7 +1120,7 @@ D:This is the scariest skeeter you've seen since that camping trip in Texas.
 N:491:Inhalation anthrax
 G:M:w
 I:120:1d1:1:1:1
-W:49:1:0:50
+W:49:5:0:50
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:ENGULF:LOSE_CON:8d3
@@ -838,7 +1135,7 @@ D:A fine white powder...
 N:500:Ivan Tkatchev
 G:N:o
 I:100:200d200:100:100:0
-W:50:1:2:33333
+W:50:5:2:33333
 E:1:1:1:2:1:1
 O:25:25:25:25
 B:GAZE:INSANITY:200d2
@@ -851,7 +1148,7 @@ D:vegetable...
 N:501:James Banks
 G:N:u
 I:160:100d30:137:50:0
-W:50:1:950:222222
+W:50:5:950:222222
 E:1:1:1:2:1:1
 O:25:25:25:25
 B:MOAN:TIME:10d10
@@ -873,7 +1170,7 @@ D:of coffee; milk and ice water give him his energy.
 N:502:DarkGod
 G:N:B
 I:140:180d100:111:175:0
-W:50:1:1600:6666666
+W:50:5:1600:6666666
 E:2:0:2:6:1:1
 O:20:20:20:20
 B:GAZE:EAT_GOLD:20d10
@@ -904,7 +1201,7 @@ D:encounter him, pray your deity holds you in good stead.
 N:503:slime mold
 G:,:g
 I:150:100d50:10:0:0
-W:50:1:5:0
+W:50:5:5:0
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:HIT:HURT:30d100
@@ -916,7 +1213,7 @@ D:Touch it and DIE!
 N:504:Death mold
 G:m:D
 I:140:100d20:200:60:0
-W:50:1:100:1000
+W:50:5:100:1000
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:SPORE:UN_BONUS:7d8
@@ -931,6 +1228,24 @@ S:DRAIN_MANA
 D:It is the epitome of all that is evil, in a mold. Its lifeless form draws 
 D:power from sucking the souls of those that approach it, a nimbus of pure 
 D:evil surrounds it. Luckily for you, it can't move... 
+
+N:505:Null, the Living Void
+G:.:d
+I:110:50d100:30:100:20
+W:50:2:0:32500
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:TOUCH:LOSE_ALL:6d16
+B:TOUCH:EXP_80:6d16
+B:TOUCH:UN_POWER:6d16
+F:PASS_WALL | NO_CONF | NO_SLEEP | NONLIVING | IM_ACID | CAN_FLY |
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | SMART | EMPTY_MIND | 
+F:ELDRITCH_HORROR | IM_COLD | RES_NETH | NO_STUN | UNIQUE |
+F:REGENERATE 
+S:1_IN_5
+S:BR_NETH | BRAIN_SMASH | SCARE | S_UNDEAD | S_HI_UNDEAD |
+S:DRAIN_MANA | HEAL | ANIM_DEAD
+D:A black hole in the fabric of reality. It simply is not there. 
 
 # N: serial number : monster name
 # G: symbol : color

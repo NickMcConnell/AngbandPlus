@@ -52,6 +52,7 @@ int template_race;
  * Note that no two corridors may enter a room through adjacent grids,
  * they must either share an entryway or else use entryways at least
  * two grids apart.  This prevents "large" (or "silly") doorways.
+ * (JKB: Hm, what about double doors?  They don't seem so silly to *me*. :-)
  *
  * To create rooms in the dungeon, we first divide the dungeon up
  * into "blocks" of 11x11 grids each, and require that all rooms
@@ -108,16 +109,17 @@ int template_race;
  * Dungeon generation values
  */
 #define DUN_ROOMS	50	/* Number of rooms to attempt */
-#define DUN_UNUSUAL 194 /* Level/chance of unusual room (was 200) */
-#define DUN_DEST    18  /* 1/chance of having a destroyed level */
-#define SMALL_LEVEL 3   /* 1/chance of smaller size (3)*/
-#define EMPTY_LEVEL 15  /* 1/chance of being 'empty' (15)*/
-#define DARK_EMPTY  5   /* 1/chance of arena level NOT being lit (2)*/
-#define XTRA_MAGIC  10  /* 1/chance of having a level with more magic (10)*/
-#define DUN_WILD_VAULT  50     /* Chance of finding a wilderness vault. */
+#define DUN_UNUSUAL 350 /* Level/chance of unusual room (was 194) */
+#define DUN_DEST    20  /* 1/chance of having a destroyed level */
+#define SMALL_LEVEL 5   /* 1/chance of smaller size (3)*/
+#define EMPTY_LEVEL 20  /* 1/chance of being 'empty' (15)*/
+#define DARK_EMPTY  25   /* 1/chance of arena level NOT being lit (2)*/
+#define XTRA_MAGIC  12  /* 1/chance of having a level with more magic (10)*/
+#define DUN_WILD_VAULT  25     /* Chance of finding a wilderness vault. */
 #define DUN_WAT_RNG     2   /* Width of rivers */
-#define DUN_WAT_CHG     50  /* 1 in 50 chance of junction in river */
-#define DUN_CAVERN      30  /* 1/chance of having a cavern level */
+#define DUN_WAT_CHG     75  /* 1 in 50 chance of junction in river */
+#define DUN_CAVERN      5  /* 1/chance of having a cavern level */
+#define SHAFT_CHANCE    3  /* 1/chance of generating a shaft instead of stairs */
 
 /*
  * Dungeon tunnel generation values
@@ -125,8 +127,8 @@ int template_race;
 #define DUN_TUN_RND	10	/* Chance of random direction */
 #define DUN_TUN_CHG	30	/* Chance of changing direction */
 #define DUN_TUN_CON	15	/* Chance of extra tunneling */
-#define DUN_TUN_PEN	25	/* Chance of doors at room entrances */
-#define DUN_TUN_JCT	90	/* Chance of doors at tunnel junctions */
+#define DUN_TUN_PEN	90	/* Chance of doors at room entrances */
+#define DUN_TUN_JCT	25	/* Chance of doors at tunnel junctions */
 
 /*
  * Dungeon streamer generation values
@@ -149,7 +151,7 @@ int template_race;
 #define DUN_AMT_ROOM	9	/* Amount of objects for rooms */
 #define DUN_AMT_ITEM	3	/* Amount of objects for rooms/corridors */
 #define DUN_AMT_GOLD	3	/* Amount of treasure for rooms/corridors */
-#define DUN_AMT_ALTAR   3       /* Amount of altars */
+#define DUN_AMT_ALTAR   1       /* Amount of altars */
 #define DUN_AMT_BETWEEN 2       /* Amount of between gates */
 #define DUN_AMT_FOUNTAIN 1      /* Amount of fountains */
 
@@ -346,7 +348,7 @@ static void rand_dir(int *rdir, int *cdir)
 static bool new_player_spot(void)
 {
 	int	y, x;
-	int max_attempts = 5000;
+	int max_attempts = SAFE_MAX_ATTEMPTS;
 
 	/* Place the player */
 	while (max_attempts--)
@@ -421,7 +423,7 @@ static void place_up_stairs(int y, int x)
 	cave_type *c_ptr = &cave[y][x];
 
 	/* Create up stairs */
-        if (rand_int(3) == 1)
+        if (!rand_int(SHAFT_CHANCE))
                 c_ptr->feat = FEAT_SHAFT_UP;
         else
                 c_ptr->feat = FEAT_LESS;
@@ -435,7 +437,7 @@ static void place_magical_stairs(int y, int x, byte next)
 {
 	cave_type *c_ptr = &cave[y][x];
 
-	/* Create up stairs */
+	/* Create down stairs */
         c_ptr->feat = FEAT_MORE;
         c_ptr->special = next;
 }
@@ -450,7 +452,7 @@ static void place_down_stairs(int y, int x)
 
 	/* Create down stairs */
         /* All thoses tests are necesary because a shaft can jump up to 4 levels */
-        if ((rand_int(3) == 1) && (dun_level + 4 <= d_info[dungeon_type].maxdepth))
+        if (!(rand_int(SHAFT_CHANCE)) && (dun_level + 4 <= d_info[dungeon_type].maxdepth))
                 c_ptr->feat = FEAT_SHAFT_DOWN;
         else
                 c_ptr->feat = FEAT_MORE;
@@ -462,12 +464,13 @@ static void place_down_stairs(int y, int x)
 /*
  * Place an altar at the given location
  */
-static void place_altar(int y, int x) {
+static void place_altar(int y, int x) 
+{
+  cave_type *c_ptr = &cave[y][x];
+  int alt, rar;
 
-        cave_type *c_ptr = &cave[y][x];
-        int alt, rar;
-
-  while (TRUE) {
+  while (TRUE) 
+  {
     alt = rand_int(MAX_GODS - 1);
     rar = deity_info[alt].rarity;
 
@@ -521,7 +524,8 @@ static void place_fountain(int y, int x)
 /*
  * Place a between gate at the given location
  */
-static void place_between(int y, int x) {
+static void place_between(int y, int x) 
+{
 
         cave_type *c_ptr = &cave[y][x],*c1_ptr;
         int gx, gy;
@@ -869,61 +873,61 @@ void build_rectangle(int y1, int x1, int y2, int x2, int feat, int info)
  */
 static void recursive_river(int x1,int y1, int x2, int y2, int feat1, int feat2,int width)
 {
-	int dx,dy,length,l,x,y;
+	int dx, dy, length, l, x, y;
 	int changex, changey;
-	int ty,tx;
+	int ty, tx;
         bool done;
 
-	length=distance(x1,y1,x2,y2);
-	if(length>4)
+	length = distance(x1, y1, x2, y2);
+	if(length > 4)
         {
-		/*Divide path in half and call routine twice.
-		* There is a small chance of splitting the river
-		*/
-		dx=(x2-x1)/2;
-		dy=(y2-y1)/2;
+		/* Divide path in half and call routine twice.
+		 * There is a small chance of splitting the river
+		 */
+		dx = (x2 - x1) / 2;
+		dy = (y2 - y1) / 2;
 
-		if (dy!=0)
+		if (dy != 0)
 		{
 			/* perturbation perpendicular to path */
-			changex=randint(abs(dy))*2-abs(dy);
+			changex = randint(abs(dy)) * 2 - abs(dy);
 		}
         	else
 		{
-			changex=0;
+			changex = 0;
 		}
 
-		if (dx!=0)
+		if (dx != 0)
 		{
 			/* perturbation perpendicular to path */
-			changey=randint(abs(dx))*2-abs(dx);
+			changey = randint(abs(dx)) * 2 - abs(dx);
 		}
 		else
 		{
-			changey=0;
+			changey = 0;
 		}
 
 
 
 		/* construct river out of two smaller ones */
-		recursive_river(x1, y1, x1+dx+changex, y1+dy+changey, feat1, feat2, width);
-		recursive_river(x1+dx+changex, y1+dy+changey, x2, y2, feat1, feat2, width);
+		recursive_river(x1, y1, x1 + dx + changex, y1 + dy + changey, feat1, feat2, width);
+		recursive_river(x1 + dx + changex, y1 + dy + changey, x2, y2, feat1, feat2, width);
 
 		/* Split the river some of the time -junctions look cool */
-		if ((randint(DUN_WAT_CHG)==1)&&(width>0))
+		if ((randint(DUN_WAT_CHG) == 1) && (width > 0))
 		{
-			recursive_river(x1+dx+changex, y1+dy+changey, x1+8*(dx+changex),
-			  y1+8*(dy+changey), feat1, feat2, width-1);
+			recursive_river(x1 + dx + changex, y1 + dy + changey, x1 + 8 * (dx + changex),
+			  y1 + 8 * (dy + changey), feat1, feat2, width - 1);
 		}
 	}
 	else
 	{
 		/*Actually build the river*/
-		for (l=0;l<length;l++)
+		for (l = 0; l < length; l++)
 		{
-			x=x1+l*(x2-x1)/length;
-			y=y1+l*(y2-y1)/length;
-			done=FALSE;
+			x = x1 + l * (x2 - x1) / length;
+			y = y1 + l * (y2 - y1) / length;
+			done = FALSE;
 			while(!done)
  			{
 				for (ty = y - width - 1; ty <= y + width + 1; ty++)
@@ -958,7 +962,7 @@ static void recursive_river(int x1,int y1, int x2, int y2, int feat1, int feat2,
 						cave[ty][tx].info |= CAVE_ICKY;
 					}
 				}
-				done=TRUE;
+				done = TRUE;
 			}
 		}
  	}
@@ -1312,7 +1316,7 @@ static void destroy_level(void)
 }
 
 /* Function that sees if a square is a floor.  (Includes range checking.) */
-static bool get_is_floor(int x,int y)
+static bool get_is_floor(int x, int y)
 {
 	if (!in_bounds(y,x))
 	{
@@ -1327,7 +1331,7 @@ static bool get_is_floor(int x,int y)
 }
 
 /* Set a square to be floor.  (Includes range checking.) */
-static void set_floor(int x,int y)
+static void set_floor(int x, int y)
 {
 	if (!in_bounds(y,x))
 	{
@@ -1347,7 +1351,7 @@ static void set_floor(int x,int y)
 }
 
 /* This function tunnels around a room if it will cut off part of a cave system */
-static void check_room_boundary(int x1,int y1,int x2,int y2)
+static void check_room_boundary(int x1, int y1, int x2, int y2)
 {
 	int count,x,y;
 	bool old_is_floor, new_is_floor;
@@ -2434,9 +2438,8 @@ static bool vault_aux_chapel(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Require "priest" or Angel */
-	if (!((r_ptr->d_char == 'A') ||
-		strstr((r_name + r_ptr->name),"riest")))
+	/* Require "priest"*/
+	if (strstr((r_name + r_ptr->name),"riest"))
 	{
 		return (FALSE);
 	}
@@ -2470,7 +2473,7 @@ static bool vault_aux_treasure(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Require "priest" or Angel */
+	/* Require mimics */
 	if (!((r_ptr->d_char == '!') || (r_ptr->d_char == '|') ||
 		(r_ptr->d_char == '$') || (r_ptr->d_char == '?') ||
 		(r_ptr->d_char == '=')))
@@ -2593,8 +2596,8 @@ static bool vault_aux_demon(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "U" monsters */
-	if (!strchr("U", r_ptr->d_char)) return (FALSE);
+	/* Hack -- Require "&" monsters */
+	if (!strchr("&", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -2616,9 +2619,12 @@ static bool vault_aux_demon(int r_idx)
  * "appropriate" non-unique monsters for the nest.
  *
  * Currently, a monster nest is one of
- *   a nest of "jelly" monsters   (Dungeon level 5 and deeper)
- *   a nest of "animal" monsters  (Dungeon level 30 and deeper)
- *   a nest of "undead" monsters  (Dungeon level 50 and deeper)
+ *   a nest of "jelly" monsters    (Dungeon level 25 and deeper)
+ *   a nest of "animal" monsters   (Dungeon level 40 and deeper)
+ *   a nest of "undead" monsters   (Dungeon level 45 and deeper)
+ *   a nest of "priest" monsters   (Dungeon level 40 and deeper)
+ *   a nest of "treasure" monsters (Dungeon level 40 and deeper)
+ *   a nest of one monster type    (Dungeon level 25 and deeper)
  *
  * Note that the "get_mon_num()" function may (rarely) fail, in which
  * case the nest will be empty, and will not affect the level rating.
@@ -2720,14 +2726,14 @@ static void build_type5(int by0, int bx0)
 		get_mon_num_hook = vault_aux_jelly;
 	}
 
-	else if (tmp < 50)
+	else if (tmp < 40)
 	{
 		name = "treasure";
 		get_mon_num_hook = vault_aux_treasure;
 	}
 
 	/* Monster nest (animal) */
-	else if (tmp < 65)
+	else if (tmp < 45)
 	{
 		if (randint(3)==1)
 		{
@@ -2799,13 +2805,6 @@ static void build_type5(int by0, int bx0)
 
 	/* Increase the level rating */
 	rating += 10;
-
-	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
-	if ((dun_level <= 40) && (randint(dun_level*dun_level + 50) < 300))
-	{
-		good_item_flag = TRUE;
-	}
-
 
 	/* Place some monsters */
 	for (y = yval - 2; y <= yval + 2; y++)
@@ -3162,12 +3161,6 @@ static void build_type6(int by0, int bx0)
 	/* Increase the level rating */
 	rating += 10;
 
-	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
-	if ((dun_level <= 40) && (randint(dun_level*dun_level + 50) < 300))
-	{
-		good_item_flag = TRUE;
-	}
-
 
 	/* Top and bottom rows */
 	for (x = xval - 9; x <= xval + 9; x++)
@@ -3316,6 +3309,24 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
                                 /* Illusion wall */
                         case 'I':
                                 c_ptr->feat = FEAT_ILLUS_WALL;
+				break;
+			case '_':
+				c_ptr->feat = FEAT_FOUNTAIN;
+				break;
+			case 'l':
+				c_ptr->feat = FEAT_SHAL_LAVA;
+				break;
+			case 'L':
+				c_ptr->feat = FEAT_DEEP_LAVA;
+				break;
+			case 'w':
+				c_ptr->feat = FEAT_SHAL_WATER;
+				break;
+			case 'W':
+				c_ptr->feat = FEAT_DEEP_WATER;
+				break;
+			case '`':
+				c_ptr->feat = FEAT_DARK_PIT;
 				break;
 			}
 		}
@@ -3518,12 +3529,6 @@ static void build_type7(int by0, int bx0)
 	/* Boost the rating */
 	rating += v_ptr->rat;
 
-	/* (Sometimes) Cause a special feeling */
-	if ((dun_level <= 50) ||
-		(randint((dun_level-40) * (dun_level-40) + 50) < 400))
-	{
-		good_item_flag = TRUE;
-	}
 
 	/* Hack -- Build the vault */
 	build_vault(yval, xval, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
@@ -3578,13 +3583,6 @@ static void build_type8(int by0, int bx0)
 	/* Boost the rating */
 	rating += v_ptr->rat;
 
-	/* (Sometimes) Cause a special feeling */
-	if ((dun_level <= 50) ||
-        (randint((dun_level-40) * (dun_level-40) + 50) < 400))
-	{
-		good_item_flag = TRUE;
-	}
-
 	/* Hack -- Build the vault */
 	build_vault(yval, xval, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
 }
@@ -3637,18 +3635,20 @@ static void build_type9(int by0, int bx0)
 
 /* Store routine for the fractal cave generator */
 /* this routine probably should be an inline function or a macro. */
-static void store_height(int x,int y,int x0,int y0,byte val,int xhsize,int yhsize,int cutoff)
+static void store_height(int x, int y, int x0, int y0, byte val, int xhsize, 
+			 int yhsize, int cutoff)
 {
-	/* only write to points that are "blank" */
-	if (cave[y0-yhsize+y][x0-xhsize+x].feat!=255) return;
+  /* only write to points that are "blank" */
+  if (cave[y0 - yhsize + y][x0 - xhsize + x].feat != 255) return;
 
-	 /* if on boundary set val>cutoff so walls are not as square */
-	if (((x==0)||(y==0)||(x==xhsize*2)||(y==yhsize*2))&&(val<=cutoff)) val=cutoff+1;
+  /* if on boundary set val>cutoff so walls are not as square */
+  if (((x == 0) || (y == 0) || (x == xhsize * 2) || (y == yhsize * 2)) && (val <= cutoff)) 
+     val = cutoff + 1;
 
-	/* store the value in height-map format */
-	cave[y0-yhsize+y][x0-xhsize+x].feat=val;
+  /* store the value in height-map format */
+  cave[y0 - yhsize + y][x0 - xhsize + x].feat = val;
 
-	return;
+  return;
 }
 
 
@@ -4196,7 +4196,7 @@ static void build_type10(int by0, int bx0)
  * Random vault generation from Z 2.5.1
  */
 /*
- * This funtion makes a very small room centred at (x0, y0)
+ * This function makes a very small room centred at (x0, y0)
  * This is used in crypts, and random elemental vaults.
  *
  * Note - this should be used only on allocated regions
@@ -4722,8 +4722,8 @@ static void build_cave_vault(int x0, int y0, int xsiz, int ysiz)
  * is the rand_int(3) below; it governs the relative density of
  * twists and turns in the labyrinth: smaller number, more twists.
  */
-static void r_visit(int y1, int x1, int y2, int x2,
-                    int node, int dir, int *visited)
+static void r_visit(int y1, int x1, int y2, int x2, 
+		    int node, int dir, int *visited)
 {
 	int i, j, m, n, temp, x, y, adj[4];
 
@@ -5258,8 +5258,7 @@ static void add_outer_wall(int x, int y, int light, int x1, int y1,
  * Hacked distance formula - gives the 'wrong' answer.
  * Used to build crypts
  */
-static int dist2(int x1, int y1, int x2, int y2,
-                 int h1, int h2, int h3, int h4)
+static int dist2(int x1, int y1, int x2, int y2, int h1, int h2, int h3, int h4)
 {
 	int dx, dy;
 	dx = abs(x2 - x1);
@@ -5419,13 +5418,6 @@ static void build_type11(int by0, int bx0)
 
 	/* Boost the rating- higher than lesser vaults and lower than greater vaults */
 	rating += 10;
-
-	/* (Sometimes) Cause a special feeling */
-	if ((dun_level <= 50) ||
-	    (randint((dun_level - 40) * (dun_level - 40) + 1) < 400))
-	{
-		good_item_flag = TRUE;
-	}
 
 	/* Select type of vault */
 	vtype = randint(8);
@@ -5695,7 +5687,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2, bool water)
 	while ((row1 != row2) || (col1 != col2))
 	{
 		/* Mega-Hack -- Paranoia -- prevent infinite loops */
-		if (main_loop_count++ > 2000) break;
+		if (main_loop_count++ > 1000) break;
 
 		/* Allow bends in the tunnel */
 		if (rand_int(100) < DUN_TUN_CHG)
@@ -6217,16 +6209,16 @@ void dig(int x, int y, int d)
          * greaters values (say 75%) the maze is
          * very "turny".
          */
-        if (rand_range(1,100)<50) d=rand_range(0,3);
+        if (rand_range(1,100) < 50) d = rand_range(0, 3);
 
-        for (k=1;k<=4;k++)
+        for (k = 1; k <= 4; k++)
         {
                 switch (d)
                 {
-                        case 0: dx=+1;dy= 0;break;
-                        case 1: dx= 0;dy=-1;break;
-                        case 2: dx=-1;dy= 0;break;
-                        case 3: dx= 0;dy=+1;break;
+                        case 0: dx =+ 1; dy = 0 ; break;
+                        case 1: dx = 0; dy =- 1; break;
+                        case 2: dx =- 1; dy = 0; break;
+                        case 3: dx = 0; dy =+ 1; break;
                 }
                 if (maze[x+dx][y+dy]==0)
                 {
@@ -6383,7 +6375,8 @@ byte calc_dungeon_type()
  */
 static bool cave_gen(void)
 {
-        int i, k, y, x, y1, x1, branch;
+        register int i;
+	int k, y, x, y1, x1, branch;
         dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
 	int max_vault_ok = 2;
@@ -6599,14 +6592,29 @@ static bool cave_gen(void)
 		{
                         /* Roll for room type */
                         k = (ironman_rooms ? 0 : rand_int(100));
-
-                        /* Attempt a very unusual room */ /* test hack */
+			
+			/* JKB: add a little excitement to the game */
+			for(i = 0; i < 5; i++)
+                          {
+			  int yo, xo;
+			  
+			  yo = rand_int(MAX_HGT);
+			  xo = rand_int(MAX_WID);
+			  if(!yo || !xo || (yo == MAX_HGT) || (xo == MAX_WID))
+			    {
+			    i--;
+			    continue;
+			    }
+			  place_secret_door(yo, xo);
+			  }
+			/* Attempt a very unusual room */ /* test hack */
                         if (ironman_rooms || (rand_int(DUN_UNUSUAL) < dun_level))
 			{
 #ifdef FORCE_V_IDX
                                 if (room_build(y, x, 8)) continue;
 #else
-                                /* Type 8 -- Greater vault (10%) */
+                        	for(i = 0; i < 5; i++)
+			        /* Type 8 -- Greater vault (10%) */
                                 if (k < 10)
                                 {
                                     if (max_vault_ok > 1)
@@ -7437,9 +7445,9 @@ static void arena_gen(void)
 	}
 
 	/* Then place some floors */
-	for (y = qy+1; y < qy+SCREEN_HGT-1; y++)
+	for (y = qy + 1; y < qy + SCREEN_HGT - 1; y++)
 	{
-		for (x = qx+1; x < qx+SCREEN_WID-1; x++)
+		for (x = qx + 1; x < qx + SCREEN_WID - 1; x++)
 		{
 			/* Create empty floor */
 			cave[y][x].feat = FEAT_FLOOR;
@@ -7531,7 +7539,8 @@ void generate_grid_mana()
 
         if(randint(XTRA_MAGIC) == 1) xtra_magic = TRUE;
 
-        if (((cheat_room)||(p_ptr->precognition)) && xtra_magic) msg_print("Magical level");
+        if (((cheat_room) || (p_ptr->precognition)) && xtra_magic) 
+	  msg_print("Magical level");
 
         for(y = 0; y < cur_hgt; y++)
         {
@@ -7540,10 +7549,10 @@ void generate_grid_mana()
                         cave_type *c_ptr = &cave[y][x];
 
                         /* Calculate the amount of mana in each grid */
-                        mana = (((XTRA_MAGIC)?3:2) * m_bonus(255, dun_level) / 2) + ((XTRA_MAGIC)?10 + rand_int(10):0);
+                        mana = (((XTRA_MAGIC) ? 3 : 2) * m_bonus(255, dun_level) / 2) + ((XTRA_MAGIC) ? 10 + rand_int(10) : 0);
 
                         /* Never more than 255 or less than 0(parano‹a) */
-                        mana = (mana < 0)?0:(mana > 255)?255:mana;
+                        mana = (mana < 0) ? 0 : (mana > 255) ? 255 : mana;
 
                         c_ptr->mana = mana;
                 }
@@ -7858,7 +7867,7 @@ void generate_cave(void)
 		else feeling = 10;
 
 		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !p_ptr->preserve) feeling = 1;
+		if (good_item_flag) feeling = 1;
 
 		/* It takes 1000 game turns for "feelings" to recharge */
 		if ((turn - old_turn) < 1000) feeling = 0;
@@ -7888,27 +7897,8 @@ void generate_cave(void)
 		}
 
 		/* Mega-Hack -- "auto-scum" */
-                if (auto_scum && (num < 100) && !p_ptr->inside_quest && dun_level)
-		{
-			/* Require "goodness" */
-			if ((feeling > 9) ||
-			    ((dun_level >= 5) && (feeling > 8)) ||
-			    ((dun_level >= 10) && (feeling > 7)) ||
-			    ((dun_level >= 20) && (feeling > 6)) ||
-			    ((dun_level >= 40) && (feeling > 5)))
-			{
-				/* Give message to cheaters */
-				if (cheat_room || cheat_hear ||
-                                    cheat_peek || cheat_xtra || p_ptr->precognition)
-				{
-					/* Message */
-					why = "boring level";
-				}
-
-				/* Try again */
-				okay = FALSE;
-			}
-		}
+		/* JKB: I guess the Society for Prevention of Cruelty
+		   to Mega-Hacks will get me on that one */
 
 		/* Accept */
                 if (okay || town_level) break;
@@ -7946,3 +7936,4 @@ void generate_cave(void)
                 seed_dungeon = old_seed_dungeon;
         }
 }
+                        

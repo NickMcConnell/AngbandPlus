@@ -115,24 +115,28 @@ bool ai_multiply(int m_idx)
         {
                 is_frien = FALSE;
         }		
-		
-        /* Hack -- multiply slower in crowded areas */
-        if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
-        {
-                /* Try to multiply */
-                if (multiply_monster(m_idx, (is_frien), FALSE))
+	
+	/* Poisoned monsters reproduce more slowly */
+	if(m_ptr->poisoned)
+	  k += rand_int(3);	
+    	
+	/* Hack -- multiply slower in crowded areas */
+    	if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
+    	{
+    	    /* Try to multiply */
+            if (multiply_monster(m_idx, (is_frien), FALSE))
+            {
+                /* Take note if visible */
+                if (m_ptr->ml)
                 {
-                        /* Take note if visible */
-                        if (m_ptr->ml)
-                        {
-                                r_ptr->r_flags4 |= (RF4_MULTIPLY);
-                        }
-				
-                        /* Multiplying takes energy */
-                        return TRUE;
+                    r_ptr->r_flags4 |= (RF4_MULTIPLY);
                 }
-        }
-        return FALSE;
+				
+                /* Multiplying takes energy */
+                return TRUE;
+            }
+    	}
+    	return FALSE;
 }
 
 /* Possessor incarnates */

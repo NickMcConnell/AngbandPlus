@@ -70,5 +70,6 @@ A runecrafter begins the game with:
 If they are *very* lucky they may also begin with:
     A runestone
     
-
+#####GOccupations
+runecrafter
 		

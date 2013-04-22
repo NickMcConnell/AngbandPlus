@@ -1,0 +1,42 @@
+# File: v_info.txt
+
+
+# This file is used to initialize the "lib/raw/v_info.raw" file, which is
+# used to initialize the "vault template" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/v_info.raw" file.
+
+# Note that the "spacing" in the "description" lines is very important!
+
+
+# New vault types added for Zangband -TY
+
+# Quest vaults added - rr9
+
+# Version stamp (required)
+
+V:2.8.1
+
+
+### Simple Vaults (type 7) -- maximum size 44x22 ###
+
+
+N:0:Lesser vault (Sacred Loo of Elvis)
+X:7:5:12:20
+D:       %%%%%%       
+D:    %%%######%%%    
+D:  %%###......###%%  
+D: %##............##% 
+D:%#................#%
+D:%#................#%
+D:%#................#%
+D:%#................#%
+D: %##............##% 
+D:  %%###......###%%  
+D:    %%%######%%%    
+D:       %%%%%%       
+
+

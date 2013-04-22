@@ -63,7 +63,7 @@
 
 #define ITEM_FOOD                       20
 #define ITEM_CRAP                       21
-#define ITEM_FIRESTONE          22
+#define ITEM_FIRESCONE          22
 #define ITEM_ESSENCE            23
 #define ITEM_PARCHMENT          24
 #define ITEM_INSTRUMENT         25
@@ -100,7 +100,7 @@ static cptr categories[] =
         "Rings","Amulets",
         "Potions", "Potions(2!)","Scrolls",
         "Rods","Staffs","Wands",
-        "Food","Boring Stuff", "Firestones","Essences","Parchments",
+        "Food","Boring Stuff", "Firescones","Essences","Parchments",
         "Instruments","Runes","Stones",
         "Spirit Books","Songbooks","Symbiotic Books","Valarin Books","Magery Books",
         "Shadow Books","Chaos Books","Crusade Books",
@@ -210,7 +210,7 @@ static void init_categories(void)
 	cat_type[TV_PARCHEMENT]=ITEM_PARCHMENT;
 
 	/* Stuff for particular classes */
-	cat_type[TV_FIRESTONE]=ITEM_FIRESTONE;
+	cat_type[TV_FIRESCONE]=ITEM_FIRESCONE;
 	cat_type[TV_BATERIE]=ITEM_ESSENCE;
 	cat_type[TV_INSTRUMENT]=ITEM_INSTRUMENT;
 	cat_type[TV_RUNE1]=ITEM_RUNE;

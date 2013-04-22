@@ -1,0 +1,105 @@
+***cave.c***
+int distance(int y1, int x1, int y2, int x2)
+  finds the distance between (<x1>, <y1>) and (<x2>, <y2>), returning
+  distance <d>
+static bool is_wall(cave_type *c_ptr)
+  is <c_ptr> considered a wall-type grid?
+bool los(int y1, int x1, int y2, int x2)
+  is (<x1>, <y1>) in line of sight of (<x2>, <y2>)?
+bool player_can_see_bold(int y, int x)
+  returns TRUE for a visible square at (<x>, <y>), else FALSE
+bool no_lite(void)
+  returns TRUE for a dark player grid, else FALSE
+bool cave_valid_bold(int y, int x)
+  can (<x>, <y>) be destroyed?
+static void image_monster(byte *ap, char *cp)
+  changes x_attr <ap> and x_char <cp> to create a hallucinatory effect
+  for monsters
+static void image_object(byte *ap, char *cp)
+  changes x_attr <ap> and x_char <cp> to create a hallucinatory effect
+  for objects
+static void image_random(byte *ap, char *cp)
+  creates a random hallucination for <ap> and <cp>
+static bool feat_supports_lighting(byte feat)
+  can <feat> support lighting?
+char get_shimmer_color()
+  returns one of eight random colors
+#ifdef USE_TRANSPARENCY
+void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
+#else /* USE_TRANSPARENCY */
+void map_info(int y, int x, byte *ap, char *cp)
+#endif /* USE_TRANSPARENCY */
+  figures out what a point (<x>, <y>) on the map with attr <ap> and 
+  char <cp>, with optional transparent attr/char <tap>/<tcp>, should
+  look like (Parse that!)
+void move_cursor_relative(int row, int col)
+  moves the cursor to the location defined by <row> and <col>umn
+void print_rel(char c, byte a, int y, int x)
+  prints char <c>, attr <a> at location (<x>, <y>) if legal
+void note_spot(int y, int x)
+  memorizes "interesting" features/objects at location (<x>, <y>)
+void lite_spot(int y, int x)
+  redraw map position at (<x>, <y>)
+void prt_map(void)
+  prints a map of the dungeon
+static byte priority(byte a, char c)
+  !!! MAGIC ALERT !!! returns priority level of (something) if 
+  (something)'s attr/char == <a>/<c>
+void display_map(int *cy, int *cx)
+  displays a point on a small-scale map in the active Term
+void do_cmd_view_map(void)
+  displays a small-scale map in the active Term
+void forget_lite(void)
+  clears the lite array
+void update_lite(void)
+  recalculates which grids are lit
+void forget_view(void)
+  clears the viewable space
+static bool update_view_aux(int y, int x, int y1, int x1, int y2, int x2)
+  is (<x>, <y>) viewable by the player?
+void update_view(void)
+  calculates the viewable space
+void forget_flow(void)
+  forgets the flow information
+static void update_flow_aux(int y, int x, int n)
+  notice reachable grid at (<x>, <y>), flow cost <n>
+void update_flow(void)
+  figure out flow costs
+void map_area(void)
+  map the current panel (a la "magic mapping")
+void wiz_lite(void)
+  clairvoys
+void wiz_lite_extra(void)
+  helps wiz_lite clairvoy
+void wiz_dark(void)
+  Thinks of Maud
+void cave_set_feat(int y, int x, int feat)
+  sets feature at (<x>, <y>) to <feat>
+void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
+  calculates incremental motion
+bool projectable(int y1, int x1, int y2, int x2)
+  can we hit (<x2>, <y2>) from (<x1>, <y1>)?
+void scatter(int *yp, int *xp, int y, int x, int d, int m)
+  alters (<xp>, <yp>) to equal a valid random grid <d> spaces
+  away from (<x>, <y>), with <m> used to distract the authorities
+  from our true activities
+void health_track(int m_idx)
+  show the health bar of the monster at <m_idx>
+void monster_race_track(int r_idx, int ego)
+  simulates a race between two monsters of kind <r_idx>, with the
+  ego level of the bettors equalling <ego>; it fills the <track[]>
+  array with an approximately oval-shaped track, making a special
+  vault on the fly; it also calls refresh() to serve adult beverages
+void object_kind_track(int k_idx)
+  tracks the given object kind <k_idx>
+void disturb(int stop_search, int unused_flag)
+  disturbs the player, stopping searches on a true <stop_search>,
+  unusing <unused_flag> for foul experimentation
+int is_quest(int level)
+  is <level> a random quest, a fixed quest, or neither?
+int random_quest_number()
+  returns this level's random quest index or 0
+void place_floor(int y, int x)
+  contrary to its name, this function sacrifices chickens, destroys
+  documentation, files tax returns, and stimulates the global 
+  economy by trashing your hardware

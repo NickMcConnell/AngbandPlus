@@ -21,6 +21,7 @@
 s16b ddd[9] =
 { 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
+
 /*
  * Global arrays for converting "keypad direction" into offsets
  */
@@ -1115,7 +1116,7 @@ s16b arena_monsters[MAX_ARENA_MONS] =
  * except to balance out heavy inventory.
  *
  * Note that currently the fastest monster is "Fast (+30)".
- *
+ * (JKB: Not anymore <evil smirk>)
  * It should be possible to lower the energy threshold from
  * 100 units to 50 units, though this may interact badly with
  * the (compiled out) small random energy boost code.  It may
@@ -1310,7 +1311,7 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-                0xFFFFFFFF - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
                 { PWR_COOK_FOOD, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1324,7 +1325,7 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER),
                 { PWR_PASSWALL, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1338,7 +1339,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_RANGER) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_RANGER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID),
                 { PWR_UNFEAR, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1352,7 +1353,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID),
                 { PWR_BERSERK, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1394,7 +1395,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_WEAPONMASTER),
                 { PWR_GROW_TREE, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1408,7 +1409,7 @@ player_race race_info[MAX_RACES] =
 		60,  3, 80,  4,
 		54,  3, 70,  4,
                 0,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID),
                 { PWR_ROHAN, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1712,16 +1713,6 @@ player_class class_info[MAX_CLASS] =
                 CF1_BLESS_WEAPON,
 	},
 
-/**/    {
-                "Mindcrafter",
-                "From within comes the power of a mindcrafter, using his own psychic\nenergies to battle monsters.",
-                {-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
-                30, 30, 30, 3,  22, 16, 50, 40,
-                10, 10, 10, 0,   0,  0, 20, 30,
-                2, 25,
-                { -1, -1, -1, -1},
-                0,
-        },
 
 /**/	{
 	        "High-Mage",
@@ -1758,7 +1749,7 @@ player_class class_info[MAX_CLASS] =
 
 	{
                 "Alchemist",
-                "An alchemists can quickly create powerful magic items through the correct use\nof the essences of magic they can extract from magical objects.",
+                "An alchemist can quickly create powerful magic items through the correct use\nof the essences of magic they can extract from magical objects.",
                 {-2, 3, 4, 2, -2, 0},
                 30, 60, 10, 2,  26, 20, 34, 30,
                 7,  30, 9,  0,  0,  0,  15, 15,
@@ -2366,23 +2357,6 @@ player_magic magic_info[MAX_CLASS] =
     },
 
 	{
-        /*** Mindcrafter ***/
-
-        TV_VALARIN_BOOK,
-		0,
-
-		A_WIS,
-                0,
-
-                0,
-                0,
-                0,
-                99,
-                300,
-
-                1,
-        },
-	{
         /*** High Mage ***/
 
         TV_MAGERY_BOOK,
@@ -2698,7 +2672,6 @@ u32b Mrealm_choices[MAX_CLASS]=
 /* Rogue */         (CH_MAGERY | CH_SPIRIT),
 /* Ranger */        (CH_TRIBAL),
 /* Monk */          (CH_SPIRIT | CH_TRIBAL),
-/* Mindcrafter */   (CH_NONE),
 /* High Mage */     (CH_MAGERY | CH_SPIRIT),
 /* Mimic       */   (CH_NONE),
 /* BeastMaster */   (CH_TRIBAL),
@@ -2722,7 +2695,6 @@ u32b mrealm_choices[MAX_CLASS]=
 /* Rogue */         (CH_NONE),
 /* Ranger */        (CH_NONE),
 /* Monk */          (CH_NONE),
-/* Mindcrafter */   (CH_NONE),
 /* High Mage */     (CH_NONE),
 /* Mimic       */   (CH_NONE),
 /* BeastMaster */   (CH_NONE),
@@ -3229,20 +3201,6 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Grand Master",
 	},
 
-	/* Mindcrafter */
-	{
-		"Trainee",
-		"Acolyte",
-		"Adept",
-		"Immaculate",
-		"Contemplator",
-		"Mentalist",
-		"Psychic",
-		"Psionicist",
-		"Esper",
-		"Mindmaster",
-	},
-
 	/* High Mage; same as Mage */
 	{
 		"Apprentice",
@@ -3614,7 +3572,9 @@ option_type option_info[] =
 	
         { &use_color,                   TRUE,   1,      19,
 	"use_color",                    "Use color if possible (slow)" },
-
+        
+	{ &rl_mess,	                TRUE,   1,      20,
+	"roguelike_messages",           "kestrel hits" },
 
 	/*** Disturbance ***/
 
@@ -3686,9 +3646,6 @@ option_type option_info[] =
 
         { &auto_haggle,                 TRUE,  3,       0,
 	"auto_haggle",                  "Auto-haggle in stores" },
-
-        { &auto_scum,                   TRUE,  3,       1,
-	"auto_scum",                    "Auto-scum for good levels" },
 
         { &stack_allow_items,           TRUE,   3,      2,
 	"stack_allow_items",            "Allow weapons and armor to stack" },
@@ -3800,7 +3757,7 @@ option_type option_info[] =
 
         /*** PernAngband options ***/
 
-        { &flavored_attacks,            TRUE,   5,      0,
+        { &flavored_attacks,            FALSE,   5,      0,
         "flavored_attacks",             "Show silly messages when fighting" },
 
         { &(p_body.help.enabled),       TRUE,   5,      1,
@@ -3825,8 +3782,6 @@ option_type option_info[] =
         { &maximize,                    TRUE,   6,      1,
         "maximize",                     "Maximize stats" },
 
-        { &preserve,                    TRUE,   6,      2,
-        "preserve",                     "Preserve artifacts" },
 
         { &autoroll,                    TRUE,   6,      3,
         "autoroll",                     "Specify 'minimal' stats" },
@@ -3888,186 +3843,6 @@ option_type option_info[] =
 };
 
 
-cptr chaos_patrons[MAX_PATRON] =
-{
-	"Slortar",
-	"Mabelode",
-	"Chardros",
-	"Hionhurn",
-	"Xiombarg",
-
-	"Pyaray",
-	"Balaan",
-	"Arioch",
-	"Eequor",
-	"Narjhan",
-
-	"Balo",
-	"Khorne",
-	"Slaanesh",
-	"Nurgle",
-	"Tzeentch",
-
-	"Khaine"
-};
-
-int chaos_stats[MAX_PATRON] =
-{
-	A_CON,  /* Slortar */
-	A_CON,  /* Mabelode */
-	A_STR,  /* Chardros */
-	A_STR,  /* Hionhurn */
-	A_STR,  /* Xiombarg */
-
-	A_INT,  /* Pyaray */
-	A_STR,  /* Balaan */
-	A_INT,  /* Arioch */
-	A_CON,  /* Eequor */
-	A_CHR,  /* Narjhan */
-
-	-1,     /* Balo */
-	A_STR,  /* Khorne */
-	A_CHR,  /* Slaanesh */
-	A_CON,  /* Nurgle */
-	A_INT,  /* Tzeentch */
-
-	A_STR,  /* Khaine */
-};
-
-
-
-
-int chaos_rewards[MAX_PATRON][20] =
-{
-	/* Slortar the Old: */
-	{
-		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_SLF,
-		REW_POLY_SLF, REW_POLY_SLF, REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP,
-		REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL, REW_AUGM_ABL
-	},
-
-	/* Mabelode the Faceless: */
-	{
-		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_H_SUMMON, REW_SUMMON_M,
-		REW_SUMMON_M, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_WND,
-		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_ABL, REW_SER_UNDE,
-		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GOOD_OBS
-	},
-
-	/* Chardros the Reaper: */
-	{
-		REW_WRATH, REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_H_SUMMON,
-		REW_SUMMON_M, REW_IGNORE, REW_IGNORE, REW_DESTRUCT, REW_SER_UNDE,
-		REW_GENOCIDE, REW_MASS_GEN, REW_MASS_GEN, REW_DISPEL_C, REW_GOOD_OBJ,
-		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
-	},
-
-	/* Hionhurn the Executioner: */
-	{
-		REW_WRATH, REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
-		REW_IGNORE, REW_IGNORE, REW_SER_UNDE, REW_DESTRUCT, REW_GENOCIDE,
-		REW_MASS_GEN, REW_MASS_GEN, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
-		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
-	},
-
-	/* Xiombarg the Sword-Queen: */
-	{
-		REW_TY_CURSE, REW_TY_CURSE, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND, REW_POLY_WND,
-		REW_GENOCIDE, REW_DISPEL_C, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS,
-		REW_GAIN_ABL, REW_CHAOS_WP, REW_GAIN_EXP, REW_AUGM_ABL, REW_GOOD_OBS
-	},
-
-
-	/* Pyaray the Tentacled Whisperer of Impossible Secretes: */
-	{
-		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_H_SUMMON, REW_H_SUMMON,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_SLF,
-		REW_POLY_SLF, REW_SER_DEMO, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
-		REW_CHAOS_WP, REW_DO_HAVOC, REW_GOOD_OBJ, REW_GREA_OBJ, REW_GREA_OBS
-	},
-
-	/* Balaan the Grim: */
-	{
-		REW_TY_CURSE, REW_HURT_LOT, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
-		REW_SUMMON_M, REW_LOSE_EXP, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND,
-		REW_SER_UNDE, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_GAIN_EXP,
-		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GREA_OBS, REW_AUGM_ABL
-	},
-
-	/* Arioch, Duke of Hell: */
-	{
-		REW_WRATH, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_EXP, REW_H_SUMMON,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF,
-		REW_POLY_SLF, REW_MASS_GEN, REW_SER_DEMO, REW_HEAL_FUL, REW_CHAOS_WP,
-		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GAIN_EXP, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Eequor, Blue Lady of Dismay: */
-	{
-		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_CURSE_WP, REW_RUIN_ABL,
-		REW_IGNORE, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND,
-		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS, REW_HEAL_FUL, REW_GAIN_EXP,
-		REW_GAIN_ABL, REW_CHAOS_WP, REW_GOOD_OBS, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Narjhan, Lord of Beggars: */
-	{
-		REW_WRATH, REW_CURSE_AR, REW_CURSE_WP, REW_CURSE_WP, REW_CURSE_AR,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF,
-		REW_POLY_WND, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_AUGM_ABL,
-		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GREA_OBS
-	},
-
-	/* Balo the Jester: */
-	{
-		REW_WRATH, REW_SER_DEMO, REW_CURSE_WP, REW_CURSE_AR, REW_LOSE_EXP,
-		REW_GAIN_ABL, REW_LOSE_ABL, REW_POLY_WND, REW_POLY_SLF, REW_IGNORE,
-		REW_DESTRUCT, REW_MASS_GEN, REW_CHAOS_WP, REW_GREA_OBJ, REW_HURT_LOT,
-		REW_AUGM_ABL, REW_RUIN_ABL, REW_H_SUMMON, REW_GREA_OBS, REW_AUGM_ABL
-	},
-
-	/* Khorne the Bloodgod: */
-	{
-		REW_WRATH, REW_HURT_LOT, REW_HURT_LOT, REW_H_SUMMON, REW_H_SUMMON,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_SER_MONS, REW_SER_DEMO,
-		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GOOD_OBJ,
-		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_GREA_OBJ, REW_GREA_OBS
-	},
-
-	/* Slaanesh: */
-	{
-		REW_WRATH, REW_PISS_OFF, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_LOSE_EXP, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_SER_DEMO,
-		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_EXP,
-		REW_GAIN_EXP, REW_CHAOS_WP, REW_GAIN_ABL, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Nurgle: */
-	{
-		REW_WRATH, REW_PISS_OFF, REW_HURT_LOT, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_LOSE_EXP, REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF,
-		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_ABL,
-		REW_GAIN_ABL, REW_SER_UNDE, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Tzeentch: */
-	{
-		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_LOSE_EXP, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_SLF,
-		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_CHAOS_WP, REW_GREA_OBJ,
-		REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP, REW_GAIN_EXP, REW_AUGM_ABL
-	},
-
-	/* Khaine: */
-	{
-		REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_LOSE_ABL, REW_LOSE_EXP,
-		REW_IGNORE,   REW_IGNORE,   REW_DISPEL_C, REW_DO_HAVOC, REW_DO_HAVOC,
-		REW_POLY_SLF, REW_POLY_SLF, REW_GAIN_EXP, REW_GAIN_ABL, REW_GAIN_ABL,
-		REW_SER_MONS, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GOOD_OBS
-	}
-};
 
 /* Names used for random artifact name generation */
 cptr artifact_names_list =
@@ -4717,22 +4492,6 @@ martial_arts ma_blows[MAX_MA] =
 };
 
 
-magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
-{
-	/* Level gained,  cost,  %fail,  name */
-        { 1,   1,  15, "Precognition", "Detect monsters, traps and level layout and lights up at higher levels." },          /* Det. monsters/traps */
-        { 2,   1,  20, "Neural Blast", "Blast the minds of your foes." },          /* ~MM */
-        { 3,   2,  25, "Minor Displacement", "Short distance teleportation" },    /* Phase/Between gate */
-        { 7,   6,  35, "Major Displacement", "Teleport you and others at high levels." },    /* Tele. Self / All */
-        { 9,   7,  50, "Domination", "Charm monsters" },
-        { 11,  7,  30, "Pulverise", "Fires a bolt of pure sound." },             /* Telekinetic "bolt" */
-        { 13, 12,  50, "Character Armour", "Sets up physical/elemental shield." },      /* Psychic/physical defences */
-        { 15, 12,  60, "Psychometry", "Senses/identifies objects." },
-        { 18, 10,  45, "Mind Wave", "Projects psi waves to crush the minds of your foes." },             /* Ball -> LOS */
-        { 23, 15,  50, "Adrenaline Channeling", "Heals you, cures you and speeds you." },
-        { 25, 10,  40, "Psychic Drain", "Drain your foes life into your mana reserves" },         /* Convert enemy HP to mana */
-        { 28, 20,  45, "Telekinetic Wave", "Powerful wave of pure telekinetic forces." },      /* Ball -> LOS */
-};
 
 
 magic_power mimic_powers[MAX_MIMIC_POWERS] =
@@ -6515,12 +6274,12 @@ quest_type quest[MAX_Q_IDX] =
                 {
                         "The armies of Morgoth are closing in on the last remaining strongholds",
                         "of resistance against him. We are too far apart to help each other.",
-                        "The arrival of our new Dragonrider allies has helped, but can only delay",
+                        "The arrival of our new Dragonridder allies has helped, but can only delay",
                         "the inevitable. We must be able to stand together and reinforce each other,",
-                        "or both our kingdoms will fall separately. The Dragonriders have taught us",
+                        "or both our kingdoms will fall separately. The Dragonridders have taught us",
                         "how to use the Between: we need you to open a Between gate in our own city,",
                         "and that of Gondolin.",
-                        "Simply travel to gondolin, but beware of rebel dragonriders.",
+                        "Simply travel to gondolin, but beware of rebel dragonridders.",
                         NULL,
                         NULL,
                 },
@@ -6639,7 +6398,7 @@ monster_power monster_powers[96] =
         { RF6_RAISE_DEAD, "Raise the Dead", 400, TRUE },
         { 0, "(none)", 0, FALSE },
         { 0, "(none)", 0, FALSE },
-        { RF6_S_DRAGONRIDDER, "Summon DragonRiders", 90, TRUE },
+        { RF6_S_DRAGONRIDDER, "Summon DragonRidders", 90, TRUE },
         { RF6_S_KIN, "Summon Kin", 80, FALSE },
         { RF6_S_HI_DEMON, "Summon Greater Demons", 90, TRUE },
         { RF6_S_MONSTER, "Summon Monster", 50, FALSE },
@@ -6663,7 +6422,7 @@ tval_desc tval_descs[] =
 {
         {TV_BATERIE, "Essenses contain the primitive magic forces which enable Alchemists using them to create powerful magic items from other magic items."},
         {TV_MSTAFF, "Mage Staves are the weapons of predilection of spellcasters, they all reduce spellcasting time to 80% of normal time and some will yield even greater powers."},
-        {TV_FIRESTONE, "DragonRiders can feed their dragons with firestone to allow them to breath fire."},
+        {TV_FIRESCONE, "DragonRidders can feed their dragons with firescones to allow them to breathe fire."},
         {TV_PARCHEMENT, "Parchments can contain useful information ... or useless junk."},
         {TV_EGG, "Eggs are laid by some monsters, if they hatch in your inventory the monster will be your friend."},
         {TV_TOOL, "Tools can be diggers, climbing equipment and such, they have their own slot in your inventory."},
@@ -6674,12 +6433,12 @@ tval_desc tval_descs[] =
         {TV_BOLT, "Bolts are the standard ammunition for crossbows, you can wear them in your quiver if your have a crossbow equiped."},
         {TV_BOW, "Slings, bows and crossbows are used to attack monsters from a distance."},
         {TV_DIGGING, "Tools can be diggers, climbing equipment and such, they have their own slot in your inventory."},
-        {TV_HAFTED, "Hafted weapons are melee weapons. Priests can use them without penalities."},
+        {TV_HAFTED, "Hafted weapons are melee weapons."},
         {TV_SWORD, "Swords are melee weapons."},
         {TV_AXE, "Axes are melee weapons."},
         {TV_POLEARM, "Polearms are melee weapons."},
         {TV_DRAG_ARMOR, "Dragon armors are made from the scales of dead dragons, those mighty armors usually yield great power to their wearer."},
-        {TV_LITE, "Ligths are useful for they allow you to read things and see from afar. Some of them need to be refilled, some do not."},
+        {TV_LITE, "Lights are useful for they allow you to read things and see from afar. Some of them need to be refilled, some do not."},
         {TV_AMULET, "Amulets are fine pieces of jewelry, usualy imbued with arcane magics."},
         {TV_RING, "Rings are fine pieces of jewelry, usualy imbued with arcane magics."},
         {TV_TRAPKIT, "Trapping kits are used by rogues to set deadly monster traps."},
@@ -6709,15 +6468,12 @@ tval_desc tval_descs[] =
         {TV_CLOAK, "Cloaks can shield you from damage, sometimes also providing magical powers."},
         {TV_SOFT_ARMOR, "Soft armor is light, not hindering your combat much."},
         {TV_HARD_ARMOR, "Hard armor provides much more protection than soft armor but also hinders combat much more."},
-        {TV_VALARIN_BOOK, "This holy book is used by priests and a few others to call upon their god."},
         {TV_MAGERY_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_SHADOW_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_TRIBAL_BOOK, "This mystical book is used by rangers and a few others to cast spells."},
-        {TV_CRUSADE_BOOK, "This holy book is used by paladins and a few others to call upon their god."},
         {TV_SYMBIOTIC_BOOK, "This mystical book is used by symbiants to extend their symbiosis."},
         {TV_MUSIC_BOOK, "This song book is used by harpers to play songs."},
         {TV_MAGIC_BOOK, "This magic book is used by spellcasters to cast spells."},
-        {TV_PRAYER_BOOK, "This holy book is used by priests and a few others to call upon their god."},
         {TV_DRUID_BOOK, "This mystical book is used by druids to call upon the powers of nature."},
         {TV_SPIRIT_BOOK, "This magic book is used by spellcasters to cast spells."},
         {0, ""},

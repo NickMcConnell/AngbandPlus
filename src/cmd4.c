@@ -2814,17 +2814,17 @@ void do_cmd_version(void)
  */
 static cptr do_cmd_feeling_text[11] =
 {
-	"Looks like any other level.",
 	"You feel there is something special about this level.",
-	"You have a superb feeling about this level.",
-	"You have an excellent feeling...",
-	"You have a very good feeling...",
-	"You have a good feeling...",
-	"You feel strangely lucky...",
-	"You feel your luck is turning...",
-	"You like the look of this place...",
-	"This level can't be all bad...",
-	"What a boring place..."
+	"You feel there is something special about this level.",
+	"You have an awful feeling about this level.",
+	"Adrenaline rushes to your veins for some reason...",
+	"You feel giddy...",
+	"You can't complain about this level, for some reason...",
+	"You have an average feeling...",
+	"You feel like crying yourself to sleep...",
+	"You have a feeling of happy-cow complacency...",
+	"You have a downright decent feeling...",
+	"You wince as horrible visions of battle-scarred potatoes fill your mind!"
 };
 
 
@@ -2870,7 +2870,7 @@ void do_cmd_feeling(void)
 	{
                 char buf[1024];
 
-                if (!get_level_desc(buf)) msg_print("Someone forgot to describe this level!");
+                if (!get_level_desc(buf)) msg_print("You feel a warm, fuzzy feeling as you think of the brave coder who made this place...");
                 else msg_print(buf);
 		return;
 	}
@@ -2885,14 +2885,14 @@ void do_cmd_feeling(void)
 	/* No useful feeling in town */
 	else if (p_ptr->town_num && !dun_level)
 	{
-		msg_print("Looks like a typical town.");
+		msg_print("Mud spatters the street and small children bark happily.  Street vendors hawk their wares and low-life wander the streets.  This place reminds you of your childhood home.");
 		return;
 	}
 
 	/* No useful feeling in the wilderness */
 	else if (!dun_level)
 	{
-		msg_print("Looks like a typical wilderness.");
+		msg_print("The sky spreads out above and the scenery stretches out ahead of you.  It feels good to be on the road.");
 		return;
 	}
 
@@ -3445,6 +3445,7 @@ static void insert_sort_unique(int *sort_uniques, int *num, int r_idx)
         int level = r_ptr->level;
 
         /* Hack Morgoth always at the bottom of the list */
+	/* JKB: Hmm, future maintainance will find this interesting :) */
         if (r_idx == 862) level = 20000;
 
         /* Find the place */
@@ -3539,7 +3540,7 @@ static void do_cmd_knowledge_uniques(void)
 	fd_kill(file_name);
 }
 
-void plural_aux(char * Name)
+void plural_aux(char *Name)
 {
 	int NameLen = strlen(Name);
 

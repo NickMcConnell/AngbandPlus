@@ -1,0 +1,26 @@
+*** levels.c ***
+
+bool get_command(const char *file, char comm, char *param)
+  modifies <param> to equal the parameters of the first use
+  of a <comm>and in a certain <file>, returning whether the
+  specified command is found in said file
+int get_branch()
+  returns the dungeon branch starting from current dun/level
+int get_fbranch()
+  returns the father branch
+int get_flevel()
+  returns the father level
+bool get_dungeon_save(char *buf)
+  returns the success of storing the savefile corresponding with a
+  certain level in <buf>
+bool get_dungeon_special(char *buf)
+  stores the full special level notation in a <buf>fer, returning
+  success
+bool get_dungeon_name(char *buf)
+  stores the special level name in <buf>, returning success
+static errr grab_one_level_flag(cptr what)
+  grabs one level flag named <what>
+void get_level_flags()
+  despite popular opinion, weasels do *not* live in underground burrows
+bool get_level_desc(char *buf)
+  stores a level's description in <buf>, returning success

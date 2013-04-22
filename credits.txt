@@ -46,3 +46,9 @@ drop me a line please) in no particular order:
 -Alexander Malmberg, for fixing a bug in a day that I couldn't figure out
 -All those people on r.g.r.a. and r.g.r.d whose ideas I steal and whose 
  names I cannot remember
+-Kieron Dunbar, for fixes to "breaking"
+-Ingeborg, for neat monster ideas
+-All those people on #angband whose ideas I steal and whose names I cannot
+ remember
+-DarkGod, again, for finding a stupid, unholy parse error in dungeon.c at 
+ line 1046

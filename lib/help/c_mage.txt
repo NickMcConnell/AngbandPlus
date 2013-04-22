@@ -39,4 +39,5 @@ A mage begins the game with:
 If they are *very* lucky they may also begin with:
     A L2 spellbook of one of the chosen realms
 
-		
+#####GOccupations
+magician + magician		

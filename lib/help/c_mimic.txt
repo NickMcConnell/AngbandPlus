@@ -26,4 +26,5 @@ A mimic begins the game with:
 If they are *very* lucky they may also begin with:
     A cloak of mimicry [Goat]
     
-    
+#####GOccupations
+shapeshifter    

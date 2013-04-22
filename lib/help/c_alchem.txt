@@ -79,4 +79,5 @@ An alchemist begins the game with:
 If they are *very* lucky they may also begin with:
     a rod tip of nothing
 
-		
+#####GOccupations
+alchemist		

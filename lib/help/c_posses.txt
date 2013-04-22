@@ -40,5 +40,6 @@ A possessor begins the game with:
 If they are *very* lucky they may also begin with:
     scrolls of remove curse
     
-
+#####GOccupations
+possessor
 		

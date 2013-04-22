@@ -1284,7 +1284,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 							break;
 						case CLASS_MONK:
                                                 case CLASS_HARPER:
-						case CLASS_MINDCRAFTER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_UMBER;
 							else

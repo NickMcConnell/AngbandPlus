@@ -25,5 +25,6 @@ A high-mage begins the game with:
 If they are *very* lucky they may also begin with:
     potions of restore mana
    
-
+#####GOccupations
+magician + magician
 		

@@ -1,0 +1,58 @@
+***dungeon.c***
+
+static byte value_check_aux1(object_type *o_ptr)
+  what kind of (heavy) feeling do we have about weapon or armor <o_ptr>?
+static byte value_check_aux1_magic(object_type *o_ptr)
+  what kind of heavy feeling do we have about magic item <o_ptr>?
+static byte value_check_aux2(object_type *o_ptr)
+  what kind of light feeling do we have about weapon or armor <o_ptr>?
+static byte value_check_aux2_magic(object_type *o_ptr)
+  what kind of light feeling do we have about magic item <o_ptr>?
+static bool granted_resurrection(void)
+  will the player's god rescue him from death?
+static void sense_inventory(void)
+  sense the inventory based on the player's class
+static void recharged_notice(object_type *o_ptr)
+  notify the player of an object <o_ptr>'s recharging if inscribed with
+  '!!'
+static void regenhp(int percent)
+  regenerate a certain <percent> of the player's hitpoints
+static void regenmana(int percent)
+  regenerate a certain <percent> of the player's spellpoints
+static void regen_monsters(void)
+  heals monsters
+bool psychometry(void)
+  gets the feeling for a particular item, returning whether or not
+  there is a suitable item
+bool decays(object_type *o_ptr)
+  does <o_ptr> decay?
+static void gere_music(s16b music)
+  does the effect of a particular kind of <music>
+static void gere_class_special()
+  does various druid things
+static void check_music()
+  checks to see what kind of music we're using, and then, gere_music the
+  appropriate music
+void apply_effect(int y, int x)
+  causes the terrain at (<x>, <y>) to attack the player based on it's
+  properties
+static void process_world(void)
+  does certain things every 10 turns
+static bool enter_wizard_mode(void)
+  does the player really want to be a wizard?
+static bool enter_debug_mode(void)
+  does the player really want to use debug commands?
+static bool enter_borg_mode(void)
+  does the player really want to be assimilated?
+static void process_command(void)
+  processes the most recent command
+static void process_player(void)
+  creates a processed player food
+static void dungeon(void)
+  interacts with the current dungeon level
+static void load_all_pref_files(void)
+  loads pref files
+void calc_magic()
+  calculates foul incomprehensible magic
+void play_game(bool new_game)
+  plays a game of Angband, starting a new one if <new_game>

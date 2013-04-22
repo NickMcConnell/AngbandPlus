@@ -1787,11 +1787,6 @@ void do_cmd_debug(void)
                         (void) gain_random_corruption(command_arg);
 			break;
 
-		/* Specific reward */
-		case 'r':
-			(void) gain_level_reward(command_arg);
-			break;
-
                 /* Create a trap */
                 case 'R':
                         wiz_place_trap(py, px, command_arg);

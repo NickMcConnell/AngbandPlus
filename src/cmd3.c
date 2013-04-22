@@ -559,17 +559,17 @@ void do_cmd_drop(void)
 }
 
 
-static bool high_level_book(object_type * o_ptr)
+static bool high_level_book(object_type *o_ptr)
 {
     if ((o_ptr->tval == TV_VALARIN_BOOK) || (o_ptr->tval == TV_MAGERY_BOOK)) 
         {
-            if (o_ptr->sval>3) return TRUE;
+            if (o_ptr->sval > 3) return TRUE;
             else return FALSE;
         }
     if ((o_ptr->tval == TV_CRUSADE_BOOK) ||
         (o_ptr->tval == TV_SYMBIOTIC_BOOK) || (o_ptr->tval == TV_MUSIC_BOOK))
         {
-            if (o_ptr->sval>3) return TRUE;
+            if (o_ptr->sval > 3) return TRUE;
             else return FALSE;
         }
         return FALSE;
@@ -581,12 +581,12 @@ static bool high_level_book(object_type * o_ptr)
  */
 void do_cmd_destroy(void)
 {
-	int			item, amt = 1;
-	int			old_number;
+	int		item, amt = 1;
+	int		old_number;
 
 	bool		force = FALSE;
 
-	object_type		*o_ptr;
+	object_type	*o_ptr;
 
 	char		o_name[80];
 
@@ -661,7 +661,7 @@ void do_cmd_destroy(void)
         }
 
 
-        /* Artifacts cannot be destroyed */
+        /* Artifacts cannot be destroyed (JKB: unless we say they can)*/
 	if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
 		byte feel = SENSE_SPECIAL;
@@ -1445,7 +1445,7 @@ static cptr ident_info[] =
 	/* "`:unused", */
 	"a:Ant",
 	"b:Bat",
-	"c:Centipede",
+	"c:Cuddly thing",
 	"d:Dragon",
 	"e:Floating Eye",
 	"f:Feline",

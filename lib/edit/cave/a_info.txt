@@ -38,49 +38,32 @@
 # 33 - headgear
 # 40 - amulet
 
+# Mega-Super-Duper-Hack!  The first 52 values are reserved.  Tread with
+# caution...
 
 V:2.8.1
 
-# The Amulet of Cure Critical Wounds
-#N:7:of Cure Critical Wounds
-#I:40:9:0
-#W:25:5:5:60000
-#F:RES_CONF | RES_BLIND | RES_POIS
-#D:With this amulet around your neck, you can leave your potions at home! 
-
-# The Iron Crown of Glincu
-#N:17:of Glincu
-#I:33:50:6
-#W:35:50:50:120000
-#P:0:0d0:75:0:-30
-#F:STR | DEX | CON
-#F:SLOW_DIGEST | FREE_ACT | SEE_INVIS | RES_CONF | RES_SOUND | SEARCH
-#D:This crown gives unbelievable accuracy to the aspiring bowman.
-#D:It is battle-worn and does a poor job of protecting your head.
-
-# The Cloak that plugs up holes in the Glincu kit
-#N:18:'Glincollo'
-#I:35:1:12
-#W:35:50:10:120000
-#P:1:0d0:0:0:15
-#F:STEALTH | CHR | RES_DISEN | RES_BLIND | RES_SHARDS
-#D:A gleaming cloak that strangely evades notice.
-
-# The Long Bow 'Glincuthalion'
-#N:124:'Glincuthalion'
-#I:19:13:3
-#W:35:50:40:120000
-#P:0:0d0:-25:0:-10
-#F:RES_NETHER | RES_POIS | RES_LITE | 
-#F:REGEN | FEATHER | 
-#F:XTRA_SHOTS | XTRA_MIGHT |
-#F:STEALTH | STR | DEX | CON
-#D:The mighty long bow of Glincu IX, his horrible air hound death could 
-#D:have been prevented if he had this bow.  Unfortunately, it requires 
-#D:a character with a real eye for bows to use it properly.
-
 # The certificate of achievement
-N:1:Certificate of Achievement
+N:53:Certificate of Achievement
 I:8:9:0
 W:50:1:5:0
 F:SPECIAL_GENE
+
+# The Amulet of Cure Critical Wounds
+N:60:of Cure Critical Wounds
+I:40:9:0
+W:25:5:5:60000
+F:RES_CONF | RES_BLIND | RES_POIS | RES_SHARDS
+D:With this amulet around your neck, you can leave your potions at home! 
+
+# The Jewel-encrusted crown of King Kuddles
+# When I get a round tuit (or some kind volunteer does, hint hint)
+# I'll make this a quest reward for some good deed done for King Kuddles
+N:61:of King Kuddles
+I:33:12:4
+W:20:5:30:10000
+F:CHR | RES_FEAR | RES_COLD | FREE_ACT | SUST_CHR
+D:A largish crown of cheap gilded metal, studded with several paste gems: 
+D:rhinestones, false pearls, and a dozen red heart-shaped crystals.  Its magic 
+D:is very real and powerful, though:  whoever wears the crown feels warm and 
+D:secure, able to befriend other creatures easily.

@@ -701,7 +701,7 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You are an animal.";
 		/* Not implemented */
 		else if (r_ptr->flags3 & RF3_DRAGONRIDDER)
-			info[i++] = "You have dragonrider blood in your veins.";
+			info[i++] = "You have dragonridder blood in your veins.";
 		if (r_ptr->flags3 & RF3_EVIL)
 			info[i++] = "You are inherently evil.";
 		else if (r_ptr->flags3 & RF3_GOOD)
@@ -895,7 +895,7 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags6 & RF6_S_RNG)
 			info[i++] = "You can magically summon the RNG.";
 		if (r_ptr->flags6 & RF6_S_DRAGONRIDDER)
-			info[i++] = "You can magically summon some Dragonriders.";
+			info[i++] = "You can magically summon some Dragonridders.";
 		if (r_ptr->flags6 & RF6_S_KIN)
 			info[i++] = "You can magically summon some Kins.";
                 if (r_ptr->flags6 & RF6_S_HI_DEMON)
@@ -1099,9 +1099,9 @@ void self_knowledge(FILE *fff)
 		{
 			info[i++] = "You receive warnings about your foes.";
 		}
-		if (p_ptr->muta2 & MUT2_INVULN)
+		if (p_ptr->muta2 & MUT2_DIABLO)
 		{
-			info[i++] = "You occasionally feel invincible.";
+			info[i++] = "You occassionally turn into Diablo(tm).";
 		}
 		if (p_ptr->muta2 & MUT2_SP_TO_HP)
 		{
@@ -1362,7 +1362,7 @@ void self_knowledge(FILE *fff)
                         if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "You can sense presence of undead.";
                         if (p_ptr->telepathy & ESP_EVIL) info[i++] = "You can sense the presence of evil beings.";
                         if (p_ptr->telepathy & ESP_ANIMAL) info[i++] = "You can sense the presence of animals.";
-                        if (p_ptr->telepathy & ESP_DRAGONRIDDER) info[i++] = "You can sense the presence of dragonriders.";
+                        if (p_ptr->telepathy & ESP_DRAGONRIDDER) info[i++] = "You can sense the presence of dragonridders.";
                         if (p_ptr->telepathy & ESP_GOOD) info[i++] = "You can sense the presence of good beings.";
                         if (p_ptr->telepathy & ESP_NONLIVING) info[i++] = "You can sense the presence of non-living things.";
                         if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "You can sense the presence of unique beings.";
@@ -6891,7 +6891,7 @@ void activate_dg_curse(void)
 			 */
                         if ((dun_level > 25) && !stop_dg)
 			{
-                                msg_print("Oh! You attracted some evil DragonRiders!");
+                                msg_print("Oh! You attracted some evil DragonRidders!");
                                 summon_dragon_riders();
 
                                 /* This is evil -- DG */

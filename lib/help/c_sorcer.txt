@@ -33,3 +33,5 @@ A sorceror begins the game with:
 If they are *very* lucky they may also begin with:
     a L1 spellbook they can use that they don't already have
  
+#####GOccupations
+total magician

@@ -422,9 +422,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 			case CLASS_MONK:
 				artifact_bias = BIAS_PRIESTLY;
 				break;
-			case CLASS_MINDCRAFTER:
-				if (randint(5)>2) artifact_bias = BIAS_PRIESTLY;
-				break;
 			case CLASS_MYCOPARA:
 				artifact_bias = BIAS_CHAOS;
 				break;

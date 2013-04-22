@@ -1,0 +1,106 @@
+***cmd7.c***
+
+void mimic_info(char *p, int power)
+  stores information about a mimic <power> in <p>
+static int get_magic_power(int *sn, magic_power *powers, int max_powers, 
+void (*power_info)(char *p, int power))
+  let's select a magic power from the list of <powers>, length <max_powers>,
+  describing them with <(*power_info)(char *p, int power)> sometimes, and
+  storing this selection in <sn>, and returning success
+static int get_mimic_chance(int chance)
+  returns the new fail <chance> after adjusting it for the mimic class
+void do_cmd_mimic_lore()
+  do mimic shapechanges
+void do_cmd_mimic()
+  do mimic spells
+void do_cmd_beastmaster(void)
+  do beasmaster powers and spells
+static bool item_tester_hook_powerable(object_type *o_ptr)
+  can we juice up <o_ptr> with essences of lavender?
+static bool item_tester_hook_extractable(object_type *o_ptr)
+  can we suck essences out of <o_ptr>?
+bool get_alchemist_target(int *i)  
+  finds a suitable target for alchemy and stores it in <i>, returning
+  the success
+void rod_tip_extract(object_type *o_ptr, int item)
+  snaps the rod tip off a rod <o_ptr>, using <item> for teleportation
+  to Fluffy Bunny Land
+static bool magic_essence()
+  destroys all your essences sometimes, returning success of destruction
+void do_cmd_toggle_artifact(bool finish)
+  start or finish artifact creation based on <finish>
+void do_cmd_alchemist(void)
+  does alchemist commands
+void help_side_effect(void)
+  does something nice for once
+void do_cmd_pray(void)
+  asks for favors from your god
+void cast_magic_spell(int spell, byte level)
+  cast a Vanilla <spell> with given <level> of knowledge
+static void do_sleep_monster(void)
+  make monsters sleep based on clevel
+bool fear_monsters(void)
+  scare some monsters
+bool fear_monsters_touch(void)
+  scare adjacent monsters
+static void do_fear_monster(void)
+  scare a monster based on clevel
+void brand_ammo (int brand_type, int bolts_only)
+  brand some ammo based on <brand_type> and <bolts_only>
+void summon_monster(int sumtype)
+  summon a friend of <sumtype>
+void do_cmd_possessor()
+  be possessive
+static bool item_tester_hook_convertible(object_type *o_ptr)
+  can we turn <o_ptr> into ammo?
+void do_cmd_archer(void)
+  fletch
+static bool item_tester_hook_runestone(object_type *o_ptr)
+  is <o_ptr> a runestone?
+static bool item_tester_hook_runestone_full(object_type *o_ptr)
+  is <o_ptr> a full runestone?
+static bool item_tester_hook_runeable1(object_type *o_ptr)
+  is <o_ptr> "runeable"?
+static bool item_tester_hook_runeable2(object_type *o_ptr)
+  is <o_ptr> "runeable" in some other way?
+s32b sroot(s32b n)
+  returns the square root of <n>
+void rune_calc_power(s32b *power, s32b *powerdiv)
+  calculates the <power> of a runecraft spell, using <powerdiv>isor to
+  smoothe things out
+int spell_chance_rune(rune_spell *spell)
+  how likely are we to fail a certain rune <spell>?
+int rune_exec(rune_spell *spell, int cost)
+  combine runes into a <spell>, returning mana use based on <cost>
+bool test_runespell(rune_spell *spell)
+  do we possess the runes needed to cast <spell>?
+bool get_runespell(rune_spell *spell)
+  what combination of runes should we use for <spell>, and did the
+  player select the runes properly?
+void do_cmd_rune(void)
+  does runecrafter spells
+static void print_runespell_batch(int batch, int max)
+  prints a <batch> of runespells, with a <max>imum number of runespells
+static rune_spell *select_runespell_from_batch(int batch, bool quick, int *s_idx)
+  returns a <rune_spell> from its <batch>, quickified by <quick>, with <s_idx>
+  being its index
+rune_spell *select_runespell(bool quick, int *s_idx)
+  selects a <rune_spell> and stores its <s_idx>, quickified by <quick>
+void do_cmd_rune_cast()
+  casts a memorized runespell
+void do_cmd_runestone()
+  casts a runespell from a runestone
+void do_cmd_rune_add_mem()
+  memorizes yet another runespell
+void do_cmd_rune_carve()
+  carve a spell into a runestone
+void do_cmd_rune_del()
+  deletes a runespell
+void do_cmd_rune_add()
+  add a runespell
+void do_cmd_runecrafter()
+  do runecrafter commands
+void do_cmd_unbeliever_antimagic()
+  do unbeliever antimagic
+void do_cmd_unbeliever()
+  do unbeliever magic

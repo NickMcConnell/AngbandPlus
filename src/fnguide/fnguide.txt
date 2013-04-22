@@ -1,0 +1,20 @@
+***NTAngband function guide*********Notice: ****************Disclaimer:*********
+*                          * I hereby decree that all    * This file is        *
+*       This cell          * variables in this           * not ANSI-compliant. *
+*   intentionally left     * document shall have been    * Please direct your  *
+*        blank             * enclosed in angle brackets. * flames to:          *
+*                          * All violators will have     * wilbur07@aol.com [1]*
+*                          * been prosecuted.            *                     *
+********************************************************************************
+
+These files are meant to be a guide and to make my life simpler.  If you want
+to use them for any purpose (for instance, in a different variant) feel free,
+but give me credit and tell me about it.  (Well, if you're just going to grep
+it or print it out, I don't care, but please leave my name in your revisions.)
+If I am leaving out some vital information, tell me.
+
+[1]: send all other mail related to these documents to sknabksemaj@juno.com,
+or, at your option, a more current e-mail address as provided by the 
+MAINTAINER #define in NTAngband or, even further at your option, from my usenet
+postings or my guinea pig's undercover web site (www.iamacui.com),
+or, at your most extreme of options, from They Who Know.

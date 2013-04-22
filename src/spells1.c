@@ -1342,7 +1342,7 @@ static bool hates_acid(object_type *o_ptr)
 		/* Junk is useless */
 		case TV_SKELETON:
 		case TV_BOTTLE:
-                case TV_FIRESTONE:
+                case TV_FIRESCONE:
                 case TV_EGG:
 		{
 			return (TRUE);
@@ -4565,155 +4565,6 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
                         break;
                 }
 
-		case GF_PSI:
-		{
-			if (seen) obvious = TRUE;
-			if (r_ptr->flags2 & RF2_EMPTY_MIND)
-			{
-				dam = 0;
-				note = " is immune!";
-			}
-			else if ((r_ptr->flags2 & RF2_STUPID) ||
-			         (r_ptr->flags2 & RF2_WEIRD_MIND) ||
-			         (r_ptr->flags3 & RF3_ANIMAL) || 
-                                 (m_ptr->level > randint(3 * dam)))
-			{
-				dam /= 3;
-				note = " resists.";
-
-				/* Powerful demons & undead can turn a mindcrafter's
-				* attacks back on them */
-				if (((r_ptr->flags3 & RF3_UNDEAD) ||
-				     (r_ptr->flags3 & RF3_DEMON)) &&
-                                     (m_ptr->level > p_ptr->lev/2) && 
-				     (randint(2) == 1))
-				{
-					note = NULL;
-					msg_format("%^s%s corrupted mind backlashes your attack!",
-					    m_name, (seen ? "'s" : "s"));
-					/* Saving throw */
-					if (rand_int(100) < p_ptr->skill_sav)
-					{
-						msg_print("You resist the effects!");
-					}
-					else
-					{
-						/* Injure +/- confusion */
-						monster_desc(killer, m_ptr, 0x88);
-						take_hit(dam, killer);  /* has already been /3 */
-						if (randint(4) == 1)
-						{
-							switch (randint(4))
-							{
-								case 1:
-									set_confused(p_ptr->confused + 3 + randint(dam));
-									break;
-								case 2:
-									set_stun(p_ptr->stun + randint(dam));
-									break;
-								case 3:
-								{
-									if (r_ptr->flags3 & (RF3_NO_FEAR))
-										note = " is unaffected.";
-									else
-										set_afraid(p_ptr->afraid + 3 + randint(dam));
-									break;
-								}
-								default:
-									if (!p_ptr->free_act)
-										(void)set_paralyzed(p_ptr->paralyzed + randint(dam));
-									break;
-							}
-						}
-					}
-					dam = 0;
-				}
-			}
-		    
-			if ((dam > 0) && (randint(4) == 1))
-			{
-				switch (randint(4))
-				{
-					case 1:
-						do_conf = 3 + randint(dam);
-						break;
-					case 2:
-						do_stun = 3 + randint(dam);
-						break;
-					case 3:
-						do_fear = 3 + randint(dam);
-						break;
-					default:
-						do_sleep = 3 + randint(dam);
-						break;
-				}
-			}
-		    
-			note_dies = " collapses, a mindless husk.";
-			break;
-		}
-	    
-		case GF_PSI_DRAIN:
-		{
-			if (seen) obvious = TRUE;
-			if (r_ptr->flags2 & RF2_EMPTY_MIND)
-			{
-				dam = 0;
-				note = " is immune!";
-			}
-			else if ((r_ptr->flags2 & RF2_STUPID) ||
-			         (r_ptr->flags2 & RF2_WEIRD_MIND) ||
-			         (r_ptr->flags3 & RF3_ANIMAL) || 
-                                 (m_ptr->level > randint(3 * dam)))
-			{
-				dam /= 3;
-				note = " resists.";
-
-				/*
-				 * Powerful demons & undead can turn a mindcrafter's
-				 * attacks back on them
-				 */
-				if (((r_ptr->flags3 & RF3_UNDEAD) ||
-				     (r_ptr->flags3 & RF3_DEMON)) &&
-                                     (m_ptr->level > p_ptr->lev/2) && 
-				     (randint(2) == 1))
-				{
-					note = NULL;
-					msg_format("%^s%s corrupted mind backlashes your attack!",
-					    m_name, (seen ? "'s" : "s"));
-					/* Saving throw */
-					if (rand_int(100) < p_ptr->skill_sav)
-					{
-						msg_print("You resist the effects!");
-					}
-					else
-					{
-						/* Injure + mana drain */
-						monster_desc(killer, m_ptr, 0x88);
-						msg_print("Your psychic energy is drained!");
-						p_ptr->csp = MAX(0, p_ptr->csp - damroll(5, dam)/2);
-						p_ptr->redraw |= PR_MANA;
-						p_ptr->window |= (PW_SPELL);
-						take_hit(dam, killer);  /* has already been /3 */
-					}
-					dam = 0;
-				}
-			}
-			else if (dam > 0)
-			{
-				int b = damroll(5, dam) / 4;
-				msg_format("You convert %s%s pain into psychic energy!",
-				    m_name, (seen ? "'s" : "s"));
-				b = MIN(p_ptr->msp, p_ptr->csp + b);
-				p_ptr->csp = b;
-				p_ptr->redraw |= PR_MANA;
-				p_ptr->window |= (PW_SPELL);
-			}
-
-			note_dies = " collapses, a mindless husk.";
-			break;
-		}
-
 		case GF_TELEKINESIS:
 		{
 			if (seen) obvious = TRUE;
@@ -4739,100 +4590,6 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 			break;
 		}
-
-		case GF_DOMINATION:
-		{
-                        if (is_friend(m_ptr) > 0) break;
-			if (seen) obvious = TRUE;
-
-			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags3 & (RF3_NO_CONF)) ||
-                            (m_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
-			{
-				/* Memorize a flag */
-				if (r_ptr->flags3 & (RF3_NO_CONF))
-				{
-					if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
-				}
-
-				/* Resist */
-				do_conf = 0;
-			        
-				/*
-				 * Powerful demons & undead can turn a mindcrafter's
-				 * attacks back on them
-				 */
-				if (((r_ptr->flags3 & RF3_UNDEAD) ||
-				     (r_ptr->flags3 & RF3_DEMON)) &&
-                                     (m_ptr->level > p_ptr->lev/2) &&
-				     (randint(2) == 1))
-				{
-					note = NULL;
-					msg_format("%^s%s corrupted mind backlashes your attack!",
-					    m_name, (seen ? "'s" : "s"));
-					/* Saving throw */
-					if (rand_int(100) < p_ptr->skill_sav)
-					{
-						msg_print("You resist the effects!");
-					}
-					else
-					{
-						/* Confuse, stun, terrify */
-						switch (randint(4))
-						{
-							case 1:
-								set_stun(p_ptr->stun + dam / 2);
-								break;
-							case 2:
-								set_confused(p_ptr->confused + dam / 2);
-								break;
-							default:
-							{
-								if (r_ptr->flags3 & (RF3_NO_FEAR))
-									note = " is unaffected.";
-								else
-									set_afraid(p_ptr->afraid + dam);
-							}
-						}
-					}
-				}
-				else
-				{
-					/* No obvious effect */
-					note = " is unaffected!";
-					obvious = FALSE;
-				}
-			}
-			else
-			{
-				if ((dam > 29) && (randint(100) < dam))
-				{
-					note = " is in your thrall!";
-                                        m_ptr->status = MSTATUS_PET;
-				}
-				else
-				{
-					switch (randint(4))
-					{
-						case 1:
-							do_stun = dam/2;
-							break;
-						case 2:
-							do_conf = dam/2;
-							break;
-						default:
-							do_fear = dam;
-					}
-				}
-			}
-
-			/* No "real" damage */
-			dam = 0;
-			break;
-		}
-
-
 
 		/* Ice -- Cold + Cuts + Stun */
 		case GF_ICE:
@@ -6280,13 +6037,13 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		  m_ptr->stunned = (tmp < 200) ? tmp : 200;
 		
 		if(m_ptr->stunned > (-(p_ptr->pclass == CLASS_HARPER) *
-		  (r_ptr->flags2 & RF2_SMART) * 4 +
-		  (r_ptr->flags2 & RF2_WEIRD_MIND) * 4 +
-		  (r_ptr->flags3 & RF3_UNDEAD) * 2 +
-		  (r_ptr->flags3 & RF3_HURT_ROCK) * 2 +
-		  (p_ptr->pclass == CLASS_HARPER) *
-		  (r_ptr->flags4 & RF4_BR_SOUN) +
-		  (m_ptr->level / 10)
+		  !!(r_ptr->flags2 & RF2_SMART) * 4 +
+		  !!(r_ptr->flags2 & RF2_WEIRD_MIND) * 4 +
+		  !!(r_ptr->flags3 & RF3_UNDEAD) * 2 +
+		  !!(r_ptr->flags3 & RF3_HURT_ROCK) * 2 +
+		  !!(p_ptr->pclass == CLASS_HARPER) *
+		  !!(r_ptr->flags4 & RF4_BR_SOUN) +
+		  !!(m_ptr->level / 10)
 		   * 100))
 		  {
 		  m_ptr->ego = 13;
@@ -6323,12 +6080,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		  m_ptr->confused = (tmp < 200) ? tmp : 200;
 		
 		if(m_ptr->confused > (-(p_ptr->pclass == CLASS_HARPER) *
-		  (r_ptr->flags2 & RF2_SMART) * 4 + 
-		  (r_ptr->flags1 & RF1_FRIENDS) * 4 + 
-		  (r_ptr->flags3 & RF3_GOOD) * 3 +
-		  (r_ptr->flags3 & RF3_EVIL) * 2 +
-		  (m_ptr->level / 10) 
-		   * 100))
+		  !!(r_ptr->flags2 & RF2_SMART) * 4 + 
+		  !!(r_ptr->flags1 & RF1_FRIENDS) * 4 + 
+		  !!(r_ptr->flags3 & RF3_GOOD) * 3 +
+		  !!(r_ptr->flags3 & RF3_EVIL) * 2 +
+		  !!(m_ptr->level / 10) 
+		  * 100))
 		  {
 		  m_ptr->ego = 12;
 		  gain_exp((m_ptr->exp * (100 + p_ptr->lev)) / 100);

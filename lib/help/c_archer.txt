@@ -32,3 +32,5 @@ An archer begins the game with:
 If they are *very* lucky they may also begin with:
     a light crossbow and some appropriate ammo
 
+#####GOccupations
+fletcher + bowshot

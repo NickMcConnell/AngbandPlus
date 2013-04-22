@@ -597,6 +597,7 @@ static bool inn_comm(int cmd)
 				else
 				{
 					turn = ((turn / 50000) + 1) * 50000;
+					/* Vampires prefer coffins */
 					p_ptr->morale -= 5;
 					p_ptr->chp = p_ptr->mhp;
 					p_ptr->csp = p_ptr->msp;
@@ -705,6 +706,7 @@ static void get_questinfo(int questnum)
 
 /*
  * Request a quest from the Lord.
+ * (E.g., show Christian love to every monster)
  */
 static bool castle_quest(int y, int x)
 {
@@ -1620,18 +1622,18 @@ bool bldg_process_command(store_type *s_ptr, int i)
                                 paid = TRUE;
                         }
                         break;
-                case BACT_BUYFIRESTONE:
-                        amt = get_quantity("How many firestones (10 gold each)? ", 1000);
+                case BACT_BUYFIRESCONE:
+                        amt = get_quantity("How many firescones (10 gold each)? ", 1000);
 			if (amt > 0)
 			{
                                 bcost=amt*10;
                                 if(p_ptr->au>=bcost){
                                 paid=TRUE;
-                                msg_print("You have bought some firestones !");
+                                msg_print("You have bought some firescones !");
 
-                                /* Hack -- Give the player Firestone! */
+                                /* Hack -- Give the player Firescone! */
                                 q_ptr = &forge;
-                                object_prep(q_ptr, lookup_kind(TV_FIRESTONE, SV_FIRE_SMALL));
+                                object_prep(q_ptr, lookup_kind(TV_FIRESCONE, SV_FIRE_SMALL));
                                 q_ptr->number = amt;
                                 object_aware(q_ptr);
                                 object_known(q_ptr);
@@ -1649,7 +1651,7 @@ bool bldg_process_command(store_type *s_ptr, int i)
                                 if (do_res_stat(A_CHR)) paid = TRUE;
                                 p_ptr->chp-=1000;
                                 if(p_ptr->chp<=0)p_ptr->chp=1;
-                        }else msg_print("Hum .. you are NOT a DragonRider , you need a dragon to go between !");
+                        }else msg_print("Hum .. you are NOT a DragonRidder , you need a dragon to go between !");
 			break;
                 case BACT_MIMIC_NORMAL:
                         set_mimic(0,0);

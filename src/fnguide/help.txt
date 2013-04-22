@@ -1,0 +1,9 @@
+*** help.c ***
+
+bool help_move(int loc)
+  does help on the current <loc>ation, if the user is a total lus^H^H^H
+  newbie, returning FALSE
+bool help_end_turn(int loc)
+  does more (cough) newbie help for current <loc>ation, returning FALSE
+void ingame_help(bool enable)
+  does contextual newbie help, if <enable>

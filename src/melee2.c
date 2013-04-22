@@ -2341,7 +2341,7 @@ static bool monst_spell_monst(int m_idx)
 			{
 				disturb(1, 0);
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
-                                else msg_format("%^s magically summons a DragonRider!", m_name);
+                                else msg_format("%^s magically summons a DragonRidder!", m_name);
 				for (k = 0; k < 1; k++)
 				{
 					if (friendly)
@@ -4293,7 +4293,7 @@ bool make_attack_spell(int m_idx)
 			{
 				disturb(1, 0);
                                 if (blind) msg_format("%^s mumbles.", m_name);
-                                else msg_format("%^s magically summons a DragonRider!", m_name);
+                                else msg_format("%^s magically summons a DragonRidder!", m_name);
 				for (k = 0; k < 1; k++)
 				{
                                          count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDDER);
@@ -7091,6 +7091,19 @@ static void process_monster(int m_idx, bool is_frien)
 			/* Update the monster */
 			update_mon(m_idx, TRUE);
 			
+			/* Before we go on, use some energy */
+			if(d % 2) 
+			    {
+			    /* Diagonals take more juice */
+			    m_ptr->energy -= 141;
+			    }
+			else
+			    {
+			    /* Use some energy */
+			    m_ptr->energy -= 100;
+			    }
+			
+				
 			/* Redraw the old grid */
 			lite_spot(oy, ox);
 			
@@ -7478,8 +7491,6 @@ void process_monsters(void)
 		/* Not enough energy to move */
 		if (m_ptr->energy < 100) continue;
 		
-		/* Use up "some" energy */
-		m_ptr->energy -= 100;
 		
 		
 		/* Hack -- Require proximity */

@@ -1,0 +1,18 @@
+*** ghost.c ***
+
+void make_bones(void)
+  saves a "bones" file for a dead character
+static void ghost_blow(int i, int m, int e, int d, int s)
+  saves the ghost's blow method for blow <i> with <m>ethod,
+  <e>ffect, <d>amage dice, and <s>ides
+static void set_ghost_aux_1(void)
+  prepares the ghost race/class attributes
+static void set_ghost_aux_2(void)
+  prepares other aspects of the ghost
+static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev, 
+		      bool town)
+  prepares the new "ghost" race, named <pname>, with hitpoints <hp>, 
+  race <grace>, class <gclass>, at a certain <lev>el, sometimes killed in
+  the <town>
+s16b place_ghost(void)
+  places a ghost somewhere on the level, returning success

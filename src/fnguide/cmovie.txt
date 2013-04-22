@@ -1,0 +1,10 @@
+***cmovie.c***
+
+s16b do_play_cmovie(cptr cmov_file)
+  play the cmovie stored in <cmov_file>
+void do_record_cmovie(cptr cmovie)
+  begin recording a cmovie and store it in <cmovie>
+void do_stop_cmovie()
+  oh, Edmund, we shan't have time to finish it!
+void do_start_cmovie()
+  yes, do!

@@ -1,0 +1,68 @@
+***cmd5.c***
+
+long apply_power_dam(long dam, int lvl, byte power)
+  returns boosted damage after adding (<lvl> * <power> * <dam>) / 10 to
+  dam
+long apply_power_dice(long dice, int lvl, byte power)
+  applies <dice> to a spell of level <lvl> and <power>
+long apply_power_dur(long dur, int lvl, byte power)
+  returns the new <dur>ation for a timed effect based on current <dur>ation,
+  spell <lvl>, and <power>
+byte get_spell_level(int realm, int spell)
+  returns the spell level of a given <spell> of a given <realm>
+static bool item_tester_hook_scroll_amulet(object_type *o_ptr)
+  is object <o_ptr> a scroll or amulet?
+bool is_magestaff()
+  are we using a mage staff?
+static int get_spell(int *sn, cptr prompt, int sval, bool known, 
+object_type *o_ptr, bool allow_list)
+  lets the user store a valid spell choice in <sn>, displaying a <prompt>,
+  with a magic <sval>, given spellbook <o_ptr> and its <known>ness,
+  and abiding by the <allow_list>
+void do_cmd_browse_aux(object_type *o_ptr)
+  browses spellbook <o_ptr>
+void do_cmd_browse(void)
+  browse some spellbook
+void calc_magic_bonus()
+  calculates how much nicer a spell should be based on multiple learnings
+void do_cmd_study(void)
+  learn a spell in 1 EASY turn!
+void do_poly_wounds(void)
+  polymorph wounds
+void do_poly_self(void)
+  polymorph player
+void brand_weapon(int brand_type)
+  brand the weilded weapon with the <brand_type>
+static void call_the_(void)
+  calls the
+void fetch(int dir, int wgt, bool require_los)
+  fetches an item based on item weight <wgt>, whether or not we <require_los>,
+  and whether or not <dir> == 5
+void shriek_effect()
+  does things upon song failure
+void wild_magic(int spell)
+  does weird things based on <spell> number
+void cast_magery_spell(int spell, byte level)
+  casts magery spell <spell> with a given <level>
+bool check_ring(int art_type)
+  are we wearing the same type ring as <art_type>?
+int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
+  use a symbiotic power based on weilded monster <r_idx>, whether or not 
+  we have <great>ness, returning the number of valid powers if <only_number>,
+  and modified by whether or not we get <no_cost> applied
+void cast_para_spell(int spell, byte level)
+  casts a mycoparasitology <spell> at given <level>
+void cast_symbiotic_spell(int spell, byte level)
+  casts a symbiotic <spell> at given <level>
+void cast_music_spell(int spell, byte level)
+  casts a music <spell> of given <level>
+void cast_tribal_spell(int spell, byte level)
+  I think we know these by now
+void cast_druid_spell(int spell, byte level)
+  Ditto
+void cast_spirit_spell(int spell, byte level)
+  ...
+void cast_spell(int realm, int spell, byte level)
+  cast given <spell> of given <realm> at given <level>
+void do_cmd_cast(void)
+  cast some spell based on various conditions

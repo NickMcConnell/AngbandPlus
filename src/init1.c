@@ -331,7 +331,7 @@ static cptr r_info_flags6[] =
 	"ANIM_DEAD", /* ToDo: Implement ANIM_DEAD */
         "S_BUG",
         "S_RNG",
-        "S_DRAGONRIDDER",  /* DG : Summon DragonRider */
+        "S_DRAGONRIDDER",  /* DG : Summon DragonRidder */
 	"S_KIN",
         "S_HI_DEMON",
 	"S_MONSTER",
@@ -1015,21 +1015,15 @@ static cptr stc_info_flags1[] =
 {
         "C_WARRIOR",
         "C_MAGE",
-        "C_PRIEST",
         "C_ROGUE",
         "C_RANGER",
-        "C_PALADIN",
-        "C_WMAGE",
-        "C_CWARRIOR",
         "C_MONK",
-        "C_MINDCRAFTER",
         "C_HMAGE",
         "C_MIMIC",
         "C_BEASTMASTER",
         "C_ALCHEMIST",
         "C_SYMBIANT",
         "C_HARPER",
-        "C_PMAGE",
         "C_RUNECRAFTER",
         "C_POSSESSOR",
         "C_SORCERER",
@@ -2000,8 +1994,11 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr->level = level;
 			k_ptr->extra = extra;
 			k_ptr->weight = wgt;
-			k_ptr->cost = cost;
-
+			k_ptr->p_idx = i;
+			if(pr_info[k_ptr->p_idx].bought == 0)
+			  if(pr_info[k_ptr->p_idx].sold == 0)
+			    pr_info[k_ptr->p_idx].price = cost;
+			
 			/* Next... */
 			continue;
 		}
@@ -7433,7 +7430,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Variant name */
 			else if (streq(b+1, "VARIANT"))
 			{
-                                v = "PERNANGBAND";
+                                v = "NTANGBAND";
 			}
 
 			/* Wilderness */

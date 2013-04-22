@@ -182,7 +182,7 @@ struct object_kind
 
         s32b weight;            /* Weight */
 
-	s32b cost;			/* Object "base cost" */
+	s16b p_idx;             /* Entry in the pr_info[] array */
 
 	u32b flags1;		/* Flags, set 1 */
 	u32b flags2;		/* Flags, set 2 */
@@ -266,6 +266,7 @@ struct artifact_type
 	u32b flags3;		/* Artifact Flags, set 3 */
         u32b flags4;            /* Artifact Flags, set 4 */
         u32b flags5;            /* Artifact Flags, set 5 */
+	u32b flags6;		/* More flags */
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
@@ -273,9 +274,13 @@ struct artifact_type
 	byte cur_num;		/* Number created (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
 
-        u32b esp;                       /* ESP flags */
+	byte d_char;		/* Default character */
+	byte d_attr;		/* Default color */
 
-        s16b power;                     /* Power granted(if any) */
+        u32b esp;               /* ESP flags */
+
+        s16b power;             /* Power granted(if any) */
+	byte no_destroy;	/* Is it a real, live artifact, mommy? */
 };
 
 
@@ -1224,13 +1229,11 @@ struct player_type
         u16b realm2;            /* Second magic realm */
         byte mimic_form;        /* Actualy transformation */
         byte oops;              /* Unused */
-				/* JKB: now it is used for silliness */
 
 	byte hitdie;		/* Hit dice (sides) */
         u16b expfact;           /* Experience factor */                            
 
 	byte maximize;		/* Maximize stats */
-	byte preserve;		/* Preserve artifacts */
         byte special;           /* Special levels */
         byte allow_one_death;   /* Blood of life */
 
@@ -1569,6 +1572,8 @@ struct player_type
         /* Help */
         help_info help;
 
+	
+
 	/*** Temporary fields ***/
 
         bool leaving;                   /* True if player is leaving */
@@ -1790,7 +1795,63 @@ struct rule_type
         char r_char[5];                 /* Monster race allowed */
 };
 
-/* A structure for the != dungeon types */
+/* JKB: The new free-market price descriptor.  I suppose I could combine
+   bought and sold, but the code needs it this way to prevent incredibly
+   expensive things from filling the markets */
+
+/*
+ * The free market system will work as follows:
+ * all prices will be kept in array of type price
+ * when a character starts, the prices will be loaded from the
+ *   appropriate *_info.txt
+ * the price array will be passed via savefile along the life of the 
+ *   character (although maybe it should apply to all characters?)
+ * whenever an item is bought, price = (price * 105) / 100
+ * whenever an item is sold, price = (price * 100) / 105
+ * shopkeepers figure out which item to stock this way:
+ *   <pick a random item> 
+ *   if(<item fits tval criteria>)
+ *     if(sold > bought)
+ *       {
+ *       if(!rand_int(maxval))
+ *         <stock item>
+ *       }
+ *     else if(!bought)
+ *       {
+ *       if(!rand_int(maxval))
+ *         <stock_item>
+ *       }
+ *     else
+ *       {
+ *       if(rand_int(maxval) < (((bought + 1) - sold) * price))
+ *         <stock_item>
+ *       }
+ * obviously, every time an item is bought, its <bought> is increased,
+ *   and every time it's sold, its <sold> increases
+ * 
+ */   	
+
+typedef struct AWERfcsf price_type;
+
+struct AWERfcsf
+  {
+  s32b price;  /* How much does it cost? */
+  u16b bought; /* How many have we already bought? */
+  u16b sold;   /* How many have we sold? */
+  };
+
+/*
+ * A wee template for the maximum revenues
+ */
+
+typedef struct
+  {
+  u32b max_rev;
+  s16b type;
+  } rev;
+
+
+/* A structure for the dungeon types */
 typedef struct dungeon_info_type dungeon_info_type;
 struct dungeon_info_type
 {

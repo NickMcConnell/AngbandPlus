@@ -203,7 +203,7 @@ bool use_color;				/* Use color if possible (slow) */
 bool show_inven_graph;		/* Show graphics in inventory */
 bool show_equip_graph;		/* Show graphics in equip list */
 bool show_store_graph;		/* Show graphics in store */
-
+bool roguelike_messages;	/* terse */
 
 
 /* Option Set 2 -- Disturbance */
@@ -239,8 +239,6 @@ bool wear_confirm;		/* Confirm before putting on known cursed items */
 /* Option Set 3 -- Game-Play */
 
 bool auto_haggle;			/* Auto-haggle in stores */
-
-bool auto_scum;				/* Auto-scum for good levels */
 
 bool stack_allow_items;		/* Allow weapons and armor to stack */
 bool stack_allow_wands;		/* Allow wands/staffs/rods to stack */
@@ -876,6 +874,18 @@ dungeon_info_type *d_info;
 char *d_name;
 char *d_text;
 
+/* 
+ * The price arrays
+ */
+price_type *pr_info;
+
+/*
+ * The highest (bought - sold) * price
+ * for each store
+ */
+rev revenue[MAX_STORES];
+
+
 /*
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
@@ -1220,8 +1230,8 @@ bool autoroll;
 /* Point based */
 bool point_based;
 
-/* Maximize, preserve, special levels, ironman_rooms */
-bool maximize, preserve, special_lvls, ironman_rooms;
+/* Maximize, special levels, ironman_rooms */
+bool maximize, special_lvls, ironman_rooms;
 
 /* For random options */
 bool rand_opts;
@@ -1315,3 +1325,4 @@ s32b dungeon_flags1;
  * The last character displayed
  */
 birther previous_char;
+

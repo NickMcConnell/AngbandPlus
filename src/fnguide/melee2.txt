@@ -1,0 +1,4 @@
+*** melee2.c ***
+
+bool mon_take_hit_mon(int s_idx, int m_idx, int dam, bool *fear, cptr note)
+  

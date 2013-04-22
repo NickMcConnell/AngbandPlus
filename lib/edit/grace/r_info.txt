@@ -1,0 +1,216 @@
+# File: r_info.txt
+# For NTAngband 0.6
+
+# This file is used to initialize the "lib/raw/r_info.raw" file, which is
+# used to initialize the "monster race" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/r_info.raw" file.
+
+# PernAngband notes:
+
+# Currently, "unique" monsters are just "special" monster races, with
+# the requirement that only one monster of that race can exist at a time,
+# and when it is killed, it can never again be generated.
+
+# ATTR_CLEAR monsters acquire their attr from the item/floor below them,
+# and use "white" for the recall window. See "cave.c" for info.
+
+# ATTR_MULTI monsters have a "flickering" attr, and use "violet" for the
+# recall window. See "cave.c" for info.
+
+# CHAR_CLEAR monsters use special symbols (.) as given below,
+# and use those symbols for the recall window. In theory, normally,
+# these monsters cannot be targetted, and when examined look like normal
+# floors, until the player "notices" them (perhaps check "awake").
+
+# CHAR_MULTI monsters use special symbols (!, ?, =) as given below,
+# and use those symbols for the recall window. In theory, normally,
+# these monsters cannot be targetted, and when examined look like normal
+# objects, until the player "notices" them (perhaps check "awake").
+
+# Note that there are (a few) normal monsters who are "violet" but not
+# ATTR_MULTI, and a lot of monsters which are "white" but not ATTR_CLEAR.
+
+# Note that currently both CHAR_CLEAR and CHAR_MULTI monsters are treated
+# as normal monsters that are just a little hard to see.
+
+# Note that the monster list underwent several changes for Angband 2.7.9,
+# including some monster name changes, some symbol redistributions, and
+# some color changes.
+
+# Some of the old "red" or "brown" monsters became "pink" if they lower
+# strength, while some of the old "fire" monsters became simply "red"
+# monsters. The "dragons" and "hounds" and related monsters underwent
+# a "color scheme regularization" ('w' = White/Cold, 's' = Black/Acid,
+# 'o' = Lite/Dark, 'r' = Red/Fire, 'g' = Green/Poison, 'b' = Blue/Elec,
+# 'u' = Brown/Earth/Force, 'D' = Dark/etc, 'W' = Stone/Inertia/Gravity/etc,
+# 'v' = Multihued/Chaos/Disenchantment/etc, 'y' = Gold/Sound, 'R' = Nexus,
+# 'G' = Nether, 'B' = Left-overs, and 'U' = Bronze/Confusion).
+
+# In several situations, two or more monsters with identical symbols and
+# colors were changed so that maximal information is conveyed by the symbol
+# and color.
+
+# The "people" (p), with more than 50 entries, got a new "color scheme"
+# ('w' = Paladin, 's' = Knight, 'o' = Mystic, 'r' = Mage, 'g' = High Priest,
+# 'b' = Thief, 'u' = Warrior, 'D' = Death knight, 'W' = Ranger/Archer,
+# 'v' = Sorcerer, 'y' = Ninja, 'R' = High Mage, 'G' = Priest, 'B' = High
+# Thief, 'U' = High Warrior). Note that most non-unique "people" already
+# had these colors, or colors close to these colors. A similar color scheme
+# was enforced for the "humanoid" (h) monsters as well, more or less.
+
+# TY: This is no longer entirely accurate. The monster coloring has been
+# changed 'back' to pre-2.7.* coloring in several cases. For example, I
+# prefer "black" thief characters. Also color can be (and should) be used to
+# convey information, but more importantly it is a visual presentation
+# of the creature and should be what the creature "looks" like.
+
+# Mushrooms look just like food (and use the "," symbol for both the recall
+# window and for normal display), Creeping coins look just like coins (and
+# use the "$" symbol for both the recall window and for normal display), and
+# Trappers/Lurkers can never be seen (and use the "." symbol for the recall
+# window). All other monsters use "alphabetic" symbols, and "alphabetic"
+# symbols are used only for monsters.
+
+# The "0" and "9" symbols are reserved for internal debugging use.
+
+# The "&" symbol is reserved for future use as a special "terrain feature".
+
+# The "`" symbol is reserved as an "alternate" open door picture, since
+# the "'" symbol looks like the "," symbol in some fonts (esp. IBM).
+
+# The "x" symbol is free for use as an "attr/char mapping" for annoying
+# monsters, such as magic mushrooms, drolems, etc.
+
+# There are still too many "p" monsters, perhaps they should be broken up.
+
+# As always, you can enforce any "visual picture" you want with a "pref file".
+
+
+###### Understanding the entries ######
+
+# N: serial number : monster name
+# G: symbol : color
+# I: speed : hit points : vision : armor class : alertness
+# W: depth : rarity : corpse weight : experience for kill
+# E: weapons : torso : arms : finger : head : leg
+# O: treasure : combat : magic : tool
+# B: attack method : attack effect : damage
+# F: flag | flag | etc
+# S: spell frequency |
+# S: spell type | spell type | etc
+# D: Description
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. Entry 0 is used for the player.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Dark Gray    w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Black        W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'I' is for information - speed, health, vision in tens of feet,
+#     armor class, and alertness. 110 is normal speed. Alertness ranges
+#     from 0 (ever vigilant for intruders) to 255 (prefers to ignore
+#     intruders).
+
+# 'W' is for more information - level, rarity, corpse weight (expressed
+#     in deci-pounds) [19 deci-pounds seem to get added to these number
+#     in practice], and experience for killing.
+
+# 'E' is for equipment slots - weapon slots, torso slots (the "on body"
+#     and "about body" equipment slots), arm slots (expressed in number
+#     of pairs), finger slots, head slots, and leg slots (expressed
+#     in number of pairs).
+
+# 'O' is for object drop chances - % chance to drop treasure, % chance
+#     to drop combat items, % chance to drop magic type items (not 
+#     items of good blessing), and % chance to drop tools.  The four 
+#     percents added together must be equal to or less than 100.  If
+#     the percent is less than 100, that is the chance for the monster
+#     to drop junk.
+
+# 'B' is for blows - method of attack, effect of attack, and damage
+#     from attack. There may be up to four of these lines; effect and
+#     damage are optional.
+
+# 'S' is for spells. The first S: line must be S:1_IN_X with X the
+#     number of monster turns, on average, before the monster will cast
+#     one of its spells. X must not be zero.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+#     lines may be used as are needed to specify all the flags and flags
+#     are separated by the '|' symbol. The '|' symbol must also be used
+#     to end all but the last line.
+
+# 'D' is for description. As many D: lines may be used as are needed
+#     to describe the monster. Note that lines may need spaces at their
+#     ends to prevent words from running together in the monster memory.
+
+
+# Note that monster zero is used for the "player" picture.
+
+# If you wish to add separate monsters for a specific dungeon, 
+# make a monster list as usual, but make sure that their serial numbers
+# are greater than 510.  Then, append it to this file.
+
+# Version stamp (required)
+
+V:2.8.1
+
+##### The Player #####
+
+N:0:Player
+G:@:w
+E:1:1:1:2:1:1
+O:0:0:0:0
+
+##### Level one of Graceland #####
+
+N:10:Hunka Burnin' Love
+G:*:o
+I:110:15d5:1:34:7
+W:1:1:0:45
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:SHOW:*gr_speak.txt
+B:CRUSH:HURT:1d5
+B:CRUSH:HURT:2d7
+F:AURA_FIRE | AI_ANNOY | STUPID
+S:1_IN_4 |
+S:TELE_TO
+D:A big hunk of love.
+
+N:11:Achy Breaky Heart
+G:~:r
+I:110:1d1:4:1:0
+W:1:1:0:23
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:SHOW:*gr_speak.txt
+B:HIT:CUT:2d3
+B:WAIL:LOSE_SANITY:3d4
+B:BLEED:SAD
+F:AI_ANNOY
+S:1_IN_2
+S:ARROW_1 | SHRIEK
+D:A disembodied heart trampled by the metal-shod boots of love.  Its
+D:wails and shrieks implore you not to break it.  
+
+# N: serial number : monster name
+# G: symbol : color
+# I: speed : hit points : vision : armor class : alertness
+# W: depth : rarity : corpse weight : experience for kill
+# E: weapons : torso : arms : finger : head : leg
+# O: treasure : combat : magic : tool
+# B: attack method : attack effect : damage
+# F: flag | flag | etc
+# S: spell frequency |
+# S: spell type | spell type | etc
+# D: Description
