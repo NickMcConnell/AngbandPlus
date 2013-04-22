@@ -31,8 +31,14 @@ static PyObject *kind_get_field(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "is", &k_idx, &kind_field))
 		return NULL;
 
+	/* Check for "name" field */
+	if (streq(kind_field, "name"))
+	{
+		/* Return name */
+		return Py_BuildValue("s", k_name + k_info[k_idx].name);
+	}
+
 	/* Check for various fields */
-	LOOK_FIELD("name", name);
 	LOOK_FIELD("text", text);
 	LOOK_FIELD("tval", tval);
 	LOOK_FIELD("sval", sval);
@@ -52,7 +58,7 @@ static PyObject *kind_get_field(PyObject *self, PyObject *args)
 	LOOK_FIELD("easy_know", easy_know);
 	LOOK_FIELD("aware", aware);
 	LOOK_FIELD("tried", tried);
-
+	
 	/* Error -- bad field */
 	PyErr_SetString(PyExc_AttributeError, "bad object kind field");
 	return NULL;

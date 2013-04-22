@@ -1030,7 +1030,7 @@ bool make_attack_spell(int m_idx)
 				p_ptr->redraw |= (PR_MANA);
 
 				/* Window stuff */
-				p_ptr->window |= (PW_SPELL | PW_PLAYER);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 				/* Heal the monster */
 				if (m_ptr->hp < m_ptr->maxhp)
@@ -2776,7 +2776,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Permanent wall */
-		else if (cave_feat[ny][nx] >= FEAT_PERM_EXTRA)
+		else if (cave_perma_bold(ny, nx))
 		{
 			/* Nothing */
 		}
@@ -2811,9 +2811,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Handle doors and secret doors */
-		else if (((cave_feat[ny][nx] >= FEAT_DOOR_HEAD) &&
-		          (cave_feat[ny][nx] <= FEAT_DOOR_TAIL)) ||
-		         (cave_feat[ny][nx] == FEAT_SECRET))
+		else if (cave_door_bold(ny, nx))
 		{
 			bool may_bash = TRUE;
 

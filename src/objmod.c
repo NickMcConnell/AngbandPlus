@@ -82,6 +82,8 @@ static int Obj_get_attribute(ObjObject *self, char *name)
  */
 static void object_to_Obj(ObjObject *self, object_type *o_ptr)
 {
+	PyObject *temp;
+
 	Obj_set_attribute(self, "k_idx", o_ptr->k_idx);
 	Obj_set_attribute(self, "iy", o_ptr->iy);
 	Obj_set_attribute(self, "ix", o_ptr->ix);
@@ -104,10 +106,33 @@ static void object_to_Obj(ObjObject *self, object_type *o_ptr)
 	Obj_set_attribute(self, "timeout", o_ptr->timeout);
 	Obj_set_attribute(self, "ident", o_ptr->ident);
 	Obj_set_attribute(self, "marked", o_ptr->marked);
-	Obj_set_attribute(self, "note", o_ptr->note);
 	Obj_set_attribute(self, "next_o_idx", o_ptr->next_o_idx);
 	Obj_set_attribute(self, "held_m_idx", o_ptr->held_m_idx);
 	Obj_set_attribute(self, "expansion", o_ptr->expansion);
+
+	/* Set inscription */
+	if (o_ptr->note)
+	{
+		/* Grab value */
+		temp = Py_BuildValue("s", quark_str(o_ptr->note));
+
+		/* Add to Object */
+		PyDict_SetItemString(self->obj_attr, "note", temp);
+
+		/* Delete temp object */
+		Py_DECREF(temp);
+	}
+	else
+	{
+		/* Default value */
+		temp = Py_BuildValue("s", "");
+
+		/* Add to Object */
+		PyDict_SetItemString(self->obj_attr, "note", temp);
+
+		/* Delete temp object */
+		Py_DECREF(temp);
+	}
 }
 
 /*
@@ -115,6 +140,9 @@ static void object_to_Obj(ObjObject *self, object_type *o_ptr)
  */
 static void Obj_to_object(ObjObject *self, object_type *o_ptr)
 {
+	PyObject *temp;
+	char *value;
+
 	o_ptr->k_idx = Obj_get_attribute(self, "k_idx");
 	o_ptr->iy = Obj_get_attribute(self, "iy");
 	o_ptr->ix = Obj_get_attribute(self, "ix");
@@ -137,10 +165,31 @@ static void Obj_to_object(ObjObject *self, object_type *o_ptr)
 	o_ptr->timeout = Obj_get_attribute(self, "timeout");
 	o_ptr->ident = Obj_get_attribute(self, "ident");
 	o_ptr->marked = Obj_get_attribute(self, "marked");
-	o_ptr->note = Obj_get_attribute(self, "note");
 	o_ptr->next_o_idx = Obj_get_attribute(self, "next_o_idx");
 	o_ptr->held_m_idx = Obj_get_attribute(self, "held_m_idx");
 	o_ptr->expansion = Obj_get_attribute(self, "expansion");
+
+	/* Assume no inscription */
+	o_ptr->note = 0;
+
+	/* Get inscription */
+	temp = PyDict_GetItemString(self->obj_attr, "note");
+
+	/* Check for failure */
+	if (!temp) return;
+
+	/* Extract string */
+	value = PyString_AsString(temp);
+
+	/* Check for failure */
+	if (!value) return;
+
+	/* Check for valid inscription */
+	if (strlen(value))
+	{
+		/* Set inscription */
+		o_ptr->note = quark_add(value);
+	}
 }
 
 /*
@@ -605,6 +654,7 @@ void initobject()
 	add_constant(d, "TV_DRAG_ARMOR", TV_DRAG_ARMOR);
 	add_constant(d, "TV_LITE", TV_LITE);
 	add_constant(d, "TV_AMULET", TV_AMULET);
+	add_constant(d, "TV_PERMA_LITE", TV_PERMA_LITE);
 	add_constant(d, "TV_RING", TV_RING);
 	add_constant(d, "TV_STAFF", TV_STAFF);
 	add_constant(d, "TV_WAND", TV_WAND);
@@ -613,6 +663,7 @@ void initobject()
 	add_constant(d, "TV_POTION", TV_POTION);
 	add_constant(d, "TV_FLASK", TV_FLASK);
 	add_constant(d, "TV_FOOD", TV_FOOD);
+	add_constant(d, "TV_MUSHROOM", TV_MUSHROOM);
 	add_constant(d, "TV_MAGIC_BOOK", TV_MAGIC_BOOK);
 	add_constant(d, "TV_PRAYER_BOOK", TV_PRAYER_BOOK);
 	add_constant(d, "TV_GOLD", TV_GOLD);

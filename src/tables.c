@@ -1413,6 +1413,7 @@ byte chest_traps[64] =
 
 
 
+#if 0
 
 
 
@@ -1510,6 +1511,7 @@ cptr player_title[MAX_PC_IDX][PY_MAX_LEVEL/5] =
 };
 
 
+#endif
 
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
@@ -1564,8 +1566,8 @@ cptr window_flag_desc[32] =
 {
 	"Display inven/equip",
 	"Display equip/inven",
-	"Display player flags",
-	"Display player screen",
+	"Display player (basic)",
+	"Display player (extra)",
 	NULL,
 	NULL,
 	"Display messages",
@@ -1609,7 +1611,7 @@ cptr option_text[OPT_MAX] =
 	"use_old_target",			/* OPT_use_old_target */
 	"always_pickup",			/* OPT_always_pickup */
 	"always_repeat",			/* OPT_always_repeat */
-	"show_flavors",				/* OPT_show_flavors */
+	"depth_in_feet",			/* OPT_depth_in_feet */
 	"stack_force_notes",		/* OPT_stack_force_notes */
 	"stack_force_costs",		/* OPT_stack_force_costs */
 	"show_labels",				/* OPT_show_labels */
@@ -1617,7 +1619,7 @@ cptr option_text[OPT_MAX] =
 	"show_choices",				/* OPT_show_choices */
 	"show_details",				/* OPT_show_details */
 	"ring_bell",				/* OPT_ring_bell */
-	"inventory_colors",			/* OPT_inventory_colors */
+	"show_flavors",				/* OPT_flavors */
 	"run_ignore_stairs",		/* OPT_run_ignore_stairs */
 	"run_ignore_doors",			/* OPT_run_ignore_doors */
 	"run_cut_corners",			/* OPT_run_cut_corners */
@@ -1681,15 +1683,15 @@ cptr option_desc[OPT_MAX] =
 	"Use old target by default",				/* OPT_use_old_target */
 	"Pick things up by default",				/* OPT_always_pickup */
 	"Repeat obvious commands",					/* OPT_always_repeat */
-	"Always display object flavors",			/* OPT_show_flacors */
+	"Show dungeon level in feet",				/* OPT_depth_in_feet */
 	"Merge inscriptions when stacking",			/* OPT_stack_force_notes */
 	"Merge discounts when stacking",			/* OPT_stack_force_costs */
-	"Show labels in object listings",			/* OPT_show_labels */
-	"Show weights in object listings",			/* OPT_show_weights */
-	"Show choices in certain sub-windows",		/* OPT_show_choices */
-	"Show details in certain sub-windows",		/* OPT_show_details */
+	"Show labels in equipment listings",		/* OPT_show_labels */
+	"Show weights in all object listings",		/* OPT_show_weights */
+	"Show choices in inven/equip windows",		/* OPT_show_choices */
+	"Show details in monster descriptions",		/* OPT_show_details */
 	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
-	"Use color for inventory listings",			/* OPT_inventory_colors */
+	"Show flavors in object descriptions",		/* OPT_show_flacors */
 	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
 	"When running, ignore doors",				/* OPT_run_ignore_doors */
 	"When running, cut corners",				/* OPT_run_cut_corners */
@@ -1730,7 +1732,7 @@ cptr option_desc[OPT_MAX] =
 	"Flush input whenever disturbed",			/* OPT_flush_disturb */
 	NULL,										/* xxx */
 	"Flush output before every command",		/* OPT_fresh_before */
-	"Flush output after various things",			/* OPT_fresh_after */
+	"Flush output after various things",		/* OPT_fresh_after */
 	NULL,										/* xxx */
 	"Compress messages in savefiles",			/* OPT_compress_savefile */
 	"Hilite the player with the cursor",		/* OPT_hilite_player */
@@ -1753,7 +1755,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
 	FALSE,		/* OPT_always_repeat */
-	FALSE,		/* OPT_show_flavors */
+	FALSE,		/* OPT_depth_in_feet */
 	FALSE,		/* OPT_stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
@@ -1761,7 +1763,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
 	TRUE,		/* OPT_ring_bell */
-	TRUE,		/* OPT_inventory_colors */
+	TRUE,		/* OPT_show_flavors */
 	TRUE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
@@ -1828,15 +1830,15 @@ byte option_page[4][16] =
 		OPT_use_old_target,
 		OPT_always_pickup,
 		OPT_always_repeat,
-		OPT_show_flavors,
+		OPT_depth_in_feet,
 		OPT_stack_force_notes,
 		OPT_stack_force_costs,
 		OPT_show_labels,
 		OPT_show_weights,
 		OPT_show_choices,
 		OPT_show_details,
-		OPT_ring_bell,
-		OPT_inventory_colors
+		OPT_show_flavors,
+		OPT_ring_bell
 	},
 
 	/*** Disturbance ***/

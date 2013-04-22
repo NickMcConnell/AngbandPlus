@@ -342,10 +342,17 @@ static int next_to_walls(int y, int x)
 {
 	int k = 0;
 
-	if (cave_feat[y+1][x] >= FEAT_WALL_EXTRA) k++;
-	if (cave_feat[y-1][x] >= FEAT_WALL_EXTRA) k++;
-	if (cave_feat[y][x+1] >= FEAT_WALL_EXTRA) k++;
-	if (cave_feat[y][x-1] >= FEAT_WALL_EXTRA) k++;
+	if (cave_feat[y+1][x] >= FEAT_WALL_EXTRA &&
+	    cave_feat[y+1][x] <= FEAT_PERM_SOLID) k++;
+
+	if (cave_feat[y-1][x] >= FEAT_WALL_EXTRA &&
+	    cave_feat[y-1][x] <= FEAT_PERM_SOLID) k++;
+
+	if (cave_feat[y][x+1] >= FEAT_WALL_EXTRA &&
+	    cave_feat[y][x+1] <= FEAT_PERM_SOLID) k++;
+
+	if (cave_feat[y][x-1] >= FEAT_WALL_EXTRA &&
+	    cave_feat[y][x-1] <= FEAT_PERM_SOLID) k++;
 
 	return (k);
 }
@@ -2592,7 +2599,8 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		}
 
 		/* Tunnel through all other walls */
-		else if (cave_feat[tmp_row][tmp_col] >= FEAT_WALL_EXTRA)
+		else if (cave_feat[tmp_row][tmp_col] >= FEAT_WALL_EXTRA &&
+		         cave_feat[tmp_row][tmp_col] <= FEAT_WALL_SOLID)
 		{
 			/* Accept this location */
 			row1 = tmp_row;
@@ -2735,15 +2743,19 @@ static bool possible_doorway(int y, int x)
 	if (next_to_corr(y, x) >= 2)
 	{
 		/* Check Vertical */
-		if ((cave_feat[y-1][x] >= FEAT_MAGMA) &&
-		    (cave_feat[y+1][x] >= FEAT_MAGMA))
+		if ((cave_feat[y-1][x] >= FEAT_MAGMA &&
+		     cave_feat[y-1][x] <= FEAT_WALL_SOLID) &&
+		    (cave_feat[y+1][x] >= FEAT_MAGMA &&
+		     cave_feat[y+1][x] <= FEAT_WALL_SOLID))
 		{
 			return (TRUE);
 		}
 
 		/* Check Horizontal */
-		if ((cave_feat[y][x-1] >= FEAT_MAGMA) &&
-		    (cave_feat[y][x+1] >= FEAT_MAGMA))
+		if ((cave_feat[y][x-1] >= FEAT_MAGMA &&
+		     cave_feat[y][x-1] <= FEAT_WALL_SOLID) &&
+		    (cave_feat[y][x+1] >= FEAT_MAGMA &&
+		     cave_feat[y][x+1] <= FEAT_WALL_SOLID))
 		{
 			return (TRUE);
 		}
@@ -2763,7 +2775,11 @@ static void try_door(int y, int x)
 	if (!in_bounds(y, x)) return;
 
 	/* Ignore walls */
-	if (cave_feat[y][x] >= FEAT_MAGMA) return;
+	if (cave_feat[y][x] >= FEAT_MAGMA &&
+	    cave_feat[y][x] <= FEAT_PERM_SOLID)
+	{
+		return;
+	}
 
 	/* Ignore room grids */
 	if (cave_info[y][x] & (CAVE_ROOM)) return;

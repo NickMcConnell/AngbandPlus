@@ -269,7 +269,7 @@ void do_cmd_wield(void)
 	p_ptr->update |= (PU_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
 
 
@@ -895,8 +895,14 @@ void do_cmd_refill(void)
 	/* Get the light */
 	o_ptr = &inventory[INVEN_LITE];
 
+	/* It is permanent light */
+	if (o_ptr->tval == TV_PERMA_LITE)
+	{
+		msg_print("Your light cannot be refilled.");
+	}
+
 	/* It is nothing */
-	if (o_ptr->tval != TV_LITE)
+	else if (o_ptr->tval != TV_LITE)
 	{
 		msg_print("You are not wielding a light.");
 	}
@@ -1046,8 +1052,8 @@ void do_cmd_locate(void)
 		}
 	}
 
-	/* Recenter map */
-	verify_panel();
+	/* Verify panel */
+	p_ptr->update |= (PU_PANEL);
 
 	/* Handle stuff */
 	handle_stuff();

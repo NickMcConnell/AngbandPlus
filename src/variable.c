@@ -113,6 +113,10 @@ s16b m_cnt = 0;			/* Number of live monsters */
 
 char depth_name[32];		/* Special name of this dungeon level */
 
+char return_string[1024];	/* Special buffer for Python scripts */
+s32b return_number;		/* Special return value for Python scripts */
+
+
 /*
  * Dungeon variables
  */
@@ -539,6 +543,15 @@ header *s_head;
 magic_type *s_info;
 char *s_name;
 char *s_text;
+
+/*
+ * The type info arrays
+ */
+header *t_head;
+tval_type *t_info;
+char *t_name;
+char *t_text;
+
 
 /*
  * Hack -- The special Angband "System Suffix"

@@ -319,7 +319,7 @@ static void regenhp(int percent)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -365,7 +365,7 @@ static void regenmana(int percent)
 		p_ptr->redraw |= (PR_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -868,8 +868,8 @@ static void process_world(void)
 	/* Burn some fuel in the current lite */
 	if (o_ptr->tval == TV_LITE)
 	{
-		/* Hack -- Use some fuel (except on artifacts) */
-		if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+		/* Hack -- Use some fuel (except on perma-lites) */
+		if (o_ptr->pval > 0)
 		{
 			/* Decrease life-span */
 			o_ptr->pval--;
@@ -957,13 +957,13 @@ static void process_world(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Examine all charging rods */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
 			/* Charge it */
-			o_ptr->pval--;
+			o_ptr->timeout--;
 
 			/* Notice changes */
-			if (!(o_ptr->pval)) j++;
+			if (!(o_ptr->timeout)) j++;
 		}
 	}
 
@@ -993,7 +993,7 @@ static void process_world(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Recharge rods on the ground */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval)) o_ptr->pval--;
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout)) o_ptr->timeout--;
 	}
 
 
@@ -2336,20 +2336,9 @@ static void dungeon(void)
 	character_xtra++;
 
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	/* Clear */
+	Term_clear();
 
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
-
-	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2360,11 +2349,6 @@ static void dungeon(void)
 	/* Update stuff */
 	update_stuff();
 
-	/* Redraw stuff */
-	redraw_stuff();
-
-	/* Redraw stuff */
-	window_stuff();
 
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
@@ -2372,11 +2356,26 @@ static void dungeon(void)
 	/* Fully update the flow */
 	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
+	/* Redraw dungeon */
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MONSTER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
 	/* Update stuff */
 	update_stuff();
 
 	/* Redraw stuff */
 	redraw_stuff();
+
+	/* Redraw stuff */
+	window_stuff();
 
 
 	/* Hack -- Decrease "xtra" depth */
@@ -2599,8 +2598,6 @@ void play_game(bool new_game)
 	/* Process old character */
 	if (!new_game)
 	{
-		/* Process the player name */
-		process_player_name(FALSE);
 	}
 
 	/* Init RNG */
@@ -2647,6 +2644,17 @@ void play_game(bool new_game)
 		turn = 1;
 	}
 
+	/* Normal machine (process player name) */
+	if (savefile[0])
+	{
+		process_player_name(FALSE);
+	}
+
+	/* Weird machine (process player name, pick savefile name) */
+	else
+	{
+		process_player_name(TRUE);
+	}
 
 	/* Flash a message */
 	prt("Please wait...", 0, 0);
@@ -2667,7 +2675,7 @@ void play_game(bool new_game)
 
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);

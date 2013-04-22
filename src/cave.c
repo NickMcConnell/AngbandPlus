@@ -625,11 +625,14 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Feature */
 	feat = cave_feat[y][x];
 
+	/* Apply "mimic" field */
+	feat = f_info[feat].mimic;
+
 	/* Cave flags */
 	info = cave_info[y][x];
 
 	/* Hack -- rare random hallucination on non-outer walls */
-	if (image && (!rand_int(256)) && (feat < FEAT_PERM_SOLID))
+	if (image && (!rand_int(256)) && (!cave_perma_bold(y, x)))
 	{
 		int i = image_random();
 		a = PICT_A(i);
@@ -637,7 +640,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	}
 
 	/* Boring grids (floors, etc) */
-	else if (feat <= FEAT_INVIS)
+	else if (feat == FEAT_FLOOR)
 	{
 		/* Memorized (or seen) floor */
 		if ((info & (CAVE_MARK)) ||
@@ -709,9 +712,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Memorized grids */
 		if (info & (CAVE_MARK))
 		{
-			/* Apply "mimic" field */
-			feat = f_info[feat].mimic;
-
 			/* Access feature */
 			f_ptr = &f_info[feat];
 
@@ -723,7 +723,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Special lighting effects (walls only) */
 			if (view_granite_lite && (a == TERM_WHITE) &&
-			    (feat >= FEAT_SECRET))
+			    (!cave_floor_bold(y, x)))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
@@ -1021,7 +1021,7 @@ void print_rel(char c, byte a, int y, int x)
  */
 void note_spot(int y, int x)
 {
-	byte info;
+	byte info, feat;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -1045,12 +1045,17 @@ void note_spot(int y, int x)
 		o_ptr->marked = TRUE;
 	}
 
+	/* Get feature */
+	feat = cave_feat[y][x];
+
+	/* Apply "mimic" field */
+	feat = f_info[feat].mimic;
 
 	/* Hack -- memorize grids */
 	if (!(info & (CAVE_MARK)))
 	{
 		/* Memorize some "boring" grids */
-		if (cave_feat[y][x] <= FEAT_INVIS)
+		if (f_info[feat].flags & (FF_HOLD_OBJECT))
 		{
 			/* Option -- memorize certain floors */
 			if (((info & (CAVE_GLOW)) && view_perma_grids) ||
@@ -2936,7 +2941,8 @@ void update_flow(void)
 			if (cave_when[y][x] == flow_n) continue;
 
 			/* Ignore "walls" and "rubble" */
-			if (cave_feat[y][x] >= FEAT_RUBBLE) continue;
+			if ((!cave_floor_bold(y, x)) && (!cave_door_bold(y, x)))
+				continue;
 
 			/* Save the time-stamp */
 			cave_when[y][x] = flow_n;
@@ -2992,10 +2998,15 @@ void map_area(void)
 		for (x = x1; x < x2; x++)
 		{
 			/* All non-walls are "checked" */
-			if (cave_feat[y][x] < FEAT_SECRET)
+			if (cave_floor_bold(y, x) || cave_door_bold(y, x))
 			{
+				byte feat = cave_feat[y][x];
+
+				/* Apply "mimic" field */
+				feat = f_info[feat].mimic;
+
 				/* Memorize normal features */
-				if (cave_feat[y][x] > FEAT_INVIS)
+				if (!(f_info[feat].flags & (FF_HOLD_OBJECT)))
 				{
 					/* Memorize the object */
 					cave_info[y][x] |= (CAVE_MARK);
@@ -3008,7 +3019,7 @@ void map_area(void)
 					int xx = x + ddx_ddd[i];
 
 					/* Memorize walls (etc) */
-					if (cave_feat[yy][xx] >= FEAT_SECRET)
+					if (!cave_floor_bold(yy, xx))
 					{
 						/* Memorize the walls */
 						cave_info[yy][xx] |= (CAVE_MARK);
@@ -3070,7 +3081,7 @@ void wiz_lite(void)
 		for (x = 1; x < DUNGEON_WID-1; x++)
 		{
 			/* Process all non-walls */
-			if (cave_feat[y][x] < FEAT_SECRET)
+			if (cave_floor_bold(y, x) || cave_door_bold(y, x))
 			{
 				/* Scan all neighbors */
 				for (i = 0; i < 9; i++)
@@ -3078,11 +3089,16 @@ void wiz_lite(void)
 					int yy = y + ddy_ddd[i];
 					int xx = x + ddx_ddd[i];
 
+					byte feat = cave_feat[yy][xx];
+
 					/* Perma-lite the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
 
+					/* Apply "mimic" field */
+					feat = f_info[feat].mimic;
+
 					/* Memorize normal features */
-					if (cave_feat[yy][xx] > FEAT_INVIS)
+					if (!(f_info[feat].flags & (FF_HOLD_OBJECT)))
 					{
 						/* Memorize the grid */
 						cave_info[yy][xx] |= (CAVE_MARK);
@@ -3168,8 +3184,13 @@ void town_illuminate(bool daytime)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
+			byte feat = cave_feat[y][x];
+
+			/* Apply "mimic" field */
+			feat = f_info[feat].mimic;
+
 			/* Interesting grids */
-			if (cave_feat[y][x] > FEAT_INVIS)
+			if (!(f_info[feat].flags & (FF_HOLD_OBJECT)))
 			{
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
@@ -3255,13 +3276,13 @@ void cave_set_feat(int y, int x, int feat)
 	/* Change the feature */
 	cave_feat[y][x] = feat;
 
-	/* Handle "wall/door" grids */
-	if (feat & 0x40)
+	/* Handle "opaque" grids */
+	if (f_info[feat].flags & (FF_OPAQUE))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}
 
-	/* Handle "floor"/etc grids */
+	/* Handle "transparent"/etc grids */
 	else
 	{
 		cave_info[y][x] &= ~(CAVE_WALL);
@@ -3408,7 +3429,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			}
 
 			/* Always stop at non-initial wall grids */
-			if ((n > 0) && !cave_transparent_bold(y, x)) break;
+			if ((n > 0) && !cave_projectable_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
@@ -3470,7 +3491,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			}
 
 			/* Always stop at non-initial wall grids */
-			if ((n > 0) && !cave_transparent_bold(y, x)) break;
+			if ((n > 0) && !cave_projectable_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
@@ -3526,7 +3547,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			}
 
 			/* Always stop at non-initial wall grids */
-			if ((n > 0) && !cave_transparent_bold(y, x)) break;
+			if ((n > 0) && !cave_projectable_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
@@ -3576,7 +3597,7 @@ bool projectable(int y1, int x1, int y2, int x2)
 	x = GRID_X(grid_g[grid_n-1]);
 
 	/* May not end in a wall grid */
-	if (!cave_transparent_bold(y, x)) return (FALSE);
+	if (!cave_projectable_bold(y, x)) return (FALSE);
 
 	/* May not end in an unrequested grid */
 	if ((y != y2) || (x != x2)) return (FALSE);

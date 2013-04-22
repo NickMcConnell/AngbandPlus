@@ -451,7 +451,7 @@ void take_hit(int dam, cptr kb_str)
 	p_ptr->redraw |= (PR_HP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Dead player */
 	if (p_ptr->chp < 0)
@@ -836,7 +836,7 @@ static int minus_ac(void)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Item was damaged */
 	return (TRUE);
@@ -1237,7 +1237,7 @@ bool apply_disenchant(int mode)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Notice */
 	return (TRUE);
@@ -1342,6 +1342,14 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 {
 	bool obvious = FALSE;
 
+
+	/* Let scripts do things */
+	if (perform_event(EVENT_PROJECT_F,
+	                  Py_BuildValue("(ii(ii)ii)", who, r, y, x, dam, typ)))
+	{
+		/* Hack -- assume player saw something */
+		return (TRUE);
+	}
 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
@@ -1450,13 +1458,14 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_KILL_WALL:
 		{
 			/* Non-walls (etc) */
-			if (cave_transparent_bold(y, x)) break;
+			if (cave_floor_bold(y, x)) break;
 
 			/* Permanent walls */
-			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) break;
+			if (cave_perma_bold(y, x)) break;
 
 			/* Granite */
-			if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
+			if (cave_feat[y][x] >= FEAT_WALL_EXTRA &&
+			    cave_feat[y][x] <= FEAT_WALL_SOLID)
 			{
 				/* Message */
 				if (cave_info[y][x] & (CAVE_MARK))
@@ -1473,7 +1482,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			/* Quartz / Magma with treasure */
-			else if (cave_feat[y][x] >= FEAT_MAGMA_H)
+			else if (cave_feat[y][x] >= FEAT_MAGMA_H &&
+			         cave_feat[y][x] <= FEAT_QUARTZ_K)
 			{
 				/* Message */
 				if (cave_info[y][x] & (CAVE_MARK))
@@ -1494,7 +1504,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			/* Quartz / Magma */
-			else if (cave_feat[y][x] >= FEAT_MAGMA)
+			else if (cave_feat[y][x] >= FEAT_MAGMA &&
+			         cave_feat[y][x] <= FEAT_QUARTZ)
 			{
 				/* Message */
 				if (cave_info[y][x] & (CAVE_MARK))
@@ -1621,11 +1632,16 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_DARK_WEAK:
 		case GF_DARK:
 		{
+			byte feat = cave_feat[y][x];
+
+			/* Apply "mimic" field */
+			feat = f_info[feat].mimic;
+
 			/* Turn off the light */
 			cave_info[y][x] &= ~(CAVE_GLOW);
 
 			/* Hack -- Forget "boring" grids */
-			if (cave_feat[y][x] <= FEAT_INVIS)
+			if (f_info[feat].flags & (FF_HOLD_OBJECT))
 			{
 				/* Forget */
 				cave_info[y][x] &= ~(CAVE_MARK);
@@ -1677,6 +1693,15 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 	u32b f1, f2, f3;
 
 	char o_name[80];
+
+
+	/* Let scripts do things */
+	if (perform_event(EVENT_PROJECT_O,
+	                  Py_BuildValue("(ii(ii)ii)", who, r, y, x, dam, typ)))
+	{
+		/* Hack -- assume player saw something */
+		return (TRUE);
+	}
 
 
 	/* Reduce damage by distance */
@@ -2007,8 +2032,21 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	cptr note_dies = " dies.";
 
 
+	/* Hack -- clear return number and string */
+	return_number = 0;
+	strcpy(return_string, "");
+
+	/* Let scripts do things */
+	if (perform_event(EVENT_PROJECT_M,
+	                Py_BuildValue("(ii(ii)ii)", who, r, y, x, dam, typ)))
+	{
+		/* Hack -- assume player saw nothing */
+		return (FALSE);
+	}
+
+
 	/* Walls protect monsters */
-	if (!cave_transparent_bold(y,x)) return (FALSE);
+	if (!cave_projectable_bold(y,x)) return (FALSE);
 
 
 	/* No monster here */
@@ -2894,11 +2932,27 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Default */
 		default:
 		{
-			/* Irrelevant */
-			skipped = TRUE;
+			/* Check for any return values from scripts */
+			if (return_number || *return_string)
+			{
+				/* Damage */
+				dam = return_number;
 
-			/* No damage */
-			dam = 0;
+				/* Pull note if applicable */
+				if (*return_string)
+				{
+					note = return_string;
+					note_dies = return_string;
+				}
+			}
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
 
 			break;
 		}
@@ -3197,6 +3251,16 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 	/* No player here */
 	if (!(cave_m_idx[y][x] < 0)) return (FALSE);
+
+	
+	/* Let scripts do things */
+	if (perform_event(EVENT_PROJECT_P,
+	                  Py_BuildValue("(ii(ii)ii)", who, r, y, x, dam, typ)))
+	{
+		/* Hack -- assume player noticed */
+		return (TRUE);
+	}
+
 
 	/* Never affect projector */
 	if (cave_m_idx[y][x] == who) return (FALSE);
@@ -3912,7 +3976,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Balls explode before reaching walls */
-		if (!cave_transparent_bold(ny, nx) && (rad > 0)) break;
+		if (!cave_projectable_bold(ny, nx) && (rad > 0)) break;
 
 		/* Advance */
 		y = ny;

@@ -611,6 +611,12 @@ void initcave(void)
 	add_constant(d, "DUNGEON_HGT", DUNGEON_HGT);
 	add_constant(d, "DUNGEON_WID", DUNGEON_WID);
 	add_constant(d, "MAX_DEPTH", MAX_DEPTH);
+	add_constant(d, "FF_SOLID", FF_SOLID);
+	add_constant(d, "FF_OPAQUE", FF_OPAQUE);
+	add_constant(d, "FF_PERMANENT", FF_PERMANENT);
+	add_constant(d, "FF_NO_MISSILE", FF_NO_MISSILE);
+	add_constant(d, "FF_HOLD_OBJECT", FF_HOLD_OBJECT);
+	add_constant(d, "FF_DOOR", FF_DOOR);
 	add_constant(d, "FEAT_NONE", FEAT_NONE);
 	add_constant(d, "FEAT_FLOOR", FEAT_FLOOR);
 	add_constant(d, "FEAT_GRASS", FEAT_GRASS);

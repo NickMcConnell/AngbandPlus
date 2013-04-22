@@ -212,6 +212,14 @@ static void change_path(cptr info)
 			break;
 		}
 
+		case 'c':
+		{
+			string_free(ANGBAND_DIR_SCPT);
+			ANGBAND_DIR_SCPT = string_make(s+1);
+			break;
+		}
+
+
 #endif /* VERIFY_SAVEFILE */
 
 		default:
@@ -636,7 +644,7 @@ int main(int argc, char *argv[])
 	if (!done) quit("Unable to prepare any 'display module'!");
 
 
-	/* If requested, display scores and quit */
+	/* Hack -- If requested, display scores and quit */
 	if (show_score > 0) display_scores(0, show_score);
 
 

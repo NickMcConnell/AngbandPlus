@@ -17,10 +17,109 @@
 
 
 /*
+ * Call the "quit" function.
+ */
+static PyObject *misc_quit(PyObject *self, PyObject *args)
+{
+	char *buf = NULL;
+
+	/* Parse arguments */
+	if (!PyArg_ParseTuple(args, "|s", &buf))
+		return NULL;
+
+	/* Quit */
+	quit(buf);
+
+	/* Return nothing */
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+/*
+ * Set the generic "return buffer" to a given string
+ */
+static PyObject *misc_return_string(PyObject *self, PyObject *args)
+{
+	char *p;
+
+	/* Parse arguments */
+	if (!PyArg_ParseTuple(args, "s", &p))
+		return NULL;
+
+	/* Copy string to buffer */
+	strncpy(return_string, p, 1024);
+
+	/* Null-terminate just in case */
+	return_string[1023] = '\0';
+
+	/* Return nothing */
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+/*
+ * Set the generic "return number" to a given integer
+ */
+static PyObject *misc_return_number(PyObject *self, PyObject *args)
+{
+	s32b tmp;
+
+	/* Parse arguments */
+	if (!PyArg_ParseTuple(args, "i", &tmp))
+		return NULL;
+
+	/* Copy to holding value */
+	return_number = tmp;
+
+	/* Return nothing */
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+/*
+ * Return a random number from 0 to n-1
+ */
+static PyObject *misc_rand_int(PyObject *self, PyObject *args)
+{
+	s32b n;
+
+	/* Parse arguments */
+	if (!PyArg_ParseTuple(args, "i", &n))
+		return NULL;
+
+	/* Return random number */
+	return Py_BuildValue("i", rand_int(n));
+}
+
+
+/*
+ * Return the results of a "damage roll" (XdY)
+ */
+static PyObject *misc_damroll(PyObject *self, PyObject *args)
+{
+	s32b x, y;
+
+	/* Parse arguments */
+	if (!PyArg_ParseTuple(args, "ii", &x, &y))
+		return NULL;
+
+	/* Return damage */
+	return Py_BuildValue("i", damroll(x, y));
+}
+
+/*
  * Method table for all functions provided by the module
  */
 static PyMethodDef miscMethods[] =
 {
+	{ "quit", misc_quit, 1 },
+	{ "return_string", misc_return_string, 1 },
+	{ "return_number", misc_return_number, 1 },
+	{ "rand_int", misc_rand_int, 1 },
+	{ "damroll", misc_damroll, 1 },
 	{ NULL, NULL }
 };
 

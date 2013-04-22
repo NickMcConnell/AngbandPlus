@@ -31,7 +31,9 @@ static int get_spell(int *sn, cptr prompt, int b_idx, bool known)
 
 	byte spells[MAX_N_IDX];
 
-	bool flag, redraw, okay, ask;
+	int ver;
+
+	bool flag, redraw, okay;
 	char choice;
 
 	spell_type *s_ptr;
@@ -134,10 +136,10 @@ static int get_spell(int *sn, cptr prompt, int b_idx, bool known)
 
 
 		/* Note verify */
-		ask = (isupper(choice));
+		ver = (isupper(choice));
 
 		/* Lowercase */
-		if (ask) choice = tolower(choice);
+		choice = tolower(choice);
 
 		/* Extract request */
 		i = (islower(choice) ? A2I(choice) : -1);
@@ -161,7 +163,7 @@ static int get_spell(int *sn, cptr prompt, int b_idx, bool known)
 		}
 
 		/* Verify it */
-		if (ask)
+		if (ver)
 		{
 			char tmp_val[160];
 
@@ -1504,13 +1506,6 @@ void do_cmd_cast(void)
 		msg_print("You failed to get the spell off!");
 	}
 
-	/* "Cast spell" event */
-	else if (perform_event(EVENT_CAST, Py_BuildValue("(ii)", spell, 0)))
-	{
-		/* Abort */
-		return;
-	}
-
 	/* Process spell */
 	else
 	{
@@ -1572,7 +1567,7 @@ void do_cmd_cast(void)
 	p_ptr->redraw |= (PR_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 }
 
 

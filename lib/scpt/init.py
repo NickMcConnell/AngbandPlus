@@ -49,7 +49,7 @@ def event_load(fff):
 
 	# Make sure there's not too many
 	if (n > 0):
-		t = "Bad savefile (too many stored objects)."
+		t = "Bad savefile (too many stored script objects)."
 		io.msg_print(t)
 		return 1
 

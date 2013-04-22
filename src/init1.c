@@ -191,8 +191,8 @@ static cptr r_info_flags2[] =
 	"XXX4X2",
 	"POWERFUL",
 	"XXX5X2",
-	"XXX7X2",
 	"XXX6X2",
+	"XXX7X2",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -226,8 +226,8 @@ static cptr r_info_flags3[] =
 	"ANIMAL",
 	"FRIENDLY",
 	"NEUTRAL",
-	"XXX3X3",
-	"XXX4X3",
+	"XXX1X3",
+	"XXX2X3",
 	"HURT_LITE",
 	"HURT_ROCK",
 	"HURT_FIRE",
@@ -237,13 +237,13 @@ static cptr r_info_flags3[] =
 	"IM_FIRE",
 	"IM_COLD",
 	"IM_POIS",
-	"XXX5X3",
+	"XXX3X3",
 	"RES_NETH",
 	"RES_WATE",
 	"RES_PLAS",
 	"RES_NEXU",
 	"RES_DISE",
-	"XXX6X3",
+	"XXX4X3",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -256,9 +256,9 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
+	"XXX1X4",
 	"XXX2X4",
 	"XXX3X4",
-	"XXX4X4",
 	"ARROW_1",
 	"ARROW_2",
 	"ARROW_3",
@@ -283,10 +283,10 @@ static cptr r_info_flags4[] =
 	"BR_PLAS",
 	"BR_WALL",
 	"BR_MANA",
+	"XXX4X4",
 	"XXX5X4",
 	"XXX6X4",
-	"XXX7X4",
-	"XXX8X4"
+	"XXX7X4"
 };
 
 /*
@@ -510,6 +510,37 @@ static cptr s_info_flags[] =
 
 
 /*
+ * Feature flags
+ */
+static cptr f_info_flags[] =
+{
+	"BLOCK_MOVEMENT",
+	"BLOCK_SIGHT",
+	"PERMANENT",
+	"BLOCK_MISSILE",
+	"FLOOR",
+	"DOOR",
+	"XXX1",
+	"XXX2"
+};
+
+/*
+ * Tval flags
+ */
+static cptr t_info_flags[] =
+{
+	"FLAVOR_RING",
+	"FLAVOR_AMULET",
+	"FLAVOR_STAFF",
+	"FLAVOR_WAND",
+	"FLAVOR_ROD",
+	"FLAVOR_MUSHROOM",
+	"FLAVOR_POTION",
+	"FLAVOR_SCROLL"
+};
+
+
+/*
  * Convert a "color letter" into an "actual" color
  * The colors are: dwsorgbuDWvyRGBU, as shown below
  */
@@ -721,6 +752,29 @@ errr init_v_info_txt(FILE *fp, char *buf)
 }
 
 
+/*
+ * Grab one flag in a feature_type from a textual string
+ */
+static errr grab_one_feature_flag(feature_type *f_ptr, cptr what)
+{
+	int i;
+
+	/* Check flags */
+	for (i = 0; i < 8; i++)
+	{
+		if (streq(what, f_info_flags[i]))
+		{
+			f_ptr->flags |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown feature flags '%s'.", what);
+
+	/* Error */
+	return (1);
+}
 
 /*
  * Initialize the "f_info" array, by parsing an ascii "template" file
@@ -729,7 +783,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 {
 	int i;
 
-	char *s;
+	char *s, *t;
 
 	/* Not ready yet */
 	bool okay = FALSE;
@@ -908,6 +962,33 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+		
+		/* Hack -- Process 'F' for "Flags" */
+		if (buf[0] == 'F')
+		{
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_feature_flag(f_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
 
 		/* Oops */
 		return (6);
@@ -2705,8 +2786,6 @@ errr init_pc_info_txt(FILE *fp, char *buf)
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (3);
 
-#if 0
-
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
@@ -2728,8 +2807,6 @@ errr init_pc_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
-#endif
 
 		/* Process 'S' for "Stat adjustments" */
 		if (buf[0] == 'S')
@@ -2801,15 +2878,18 @@ errr init_pc_info_txt(FILE *fp, char *buf)
 		/* Process 'W' for "Extra Info" */
 		if (buf[0] == 'W')
 		{
-			int mhp, exp;
+			int mhp, exp, num, mul, wgt;
 
 			/* Scan for the values */
-			if (2 != sscanf(buf+2, "%d:%d",
-			                &mhp, &exp)) return (1);
+			if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			                &mhp, &exp, &num, &mul, &wgt)) return (1);
 
 			/* Save the values */
 			pc_ptr->c_mhp = mhp;
 			pc_ptr->c_exp = exp;
+			pc_ptr->blows_num = num;
+			pc_ptr->blows_mul = mul;
+			pc_ptr->blows_wgt = wgt;
 
 			/* Next... */
 			continue;
@@ -3469,6 +3549,244 @@ errr init_s_info_txt(FILE *fp, char *buf)
 	/* Completed the "name" and "text" sizes */
 	++s_head->name_size;
 	++s_head->text_size;
+
+
+	/* No version yet */
+	if (!okay) return (2);
+
+	
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Grab one flag in a tval_type from a textual string
+ */
+static errr grab_one_tval_flag(tval_type *t_ptr, cptr what)
+{
+	int i;
+
+	/* Check flags */
+	for (i = 0; i < 8; i++)
+	{
+		if (streq(what, t_info_flags[i]))
+		{
+			t_ptr->flavor |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown tval flag '%s'.", what);
+
+	/* Error */
+	return (1);
+}
+
+/*
+ * Initialize the "t_info" array, by parsing an ascii "template" file
+ */
+errr init_t_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+	char *s, *t;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	tval_type *t_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Prepare the "fake" stuff */
+	t_head->name_size = 0;
+	t_head->text_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || buf[0] == '#') continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != t_head->v_major) ||
+			    (v2 != t_head->v_minor) ||
+			    (v3 != t_head->v_patch))
+			{
+				return (2);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (2);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (1);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (1);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i <= error_idx) return (4);
+
+			/* Verify information */
+			if (i >= t_head->info_num) return (2);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			t_ptr = &t_info[i];
+
+			/* Hack -- Verify space */
+			if (t_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+
+			/* Advance and Save the name index */
+			if (!t_ptr->name) t_ptr->name = ++t_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(t_name + t_head->name_size, s);
+
+			/* Advance the index */
+			t_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current t_ptr */
+		if (!t_ptr) return (3);
+
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Acquire the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (t_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+
+			/* Advance and Save the text index */
+			if (!t_ptr->text) t_ptr->text = ++t_head->text_size;
+
+			/* Append chars to the name */
+			strcpy(t_text + t_head->text_size, s);
+
+			/* Advance the index */
+			t_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'I' for "Info" */
+		if (buf[0] == 'I')
+		{
+			int tmp;
+			char slot, color;
+
+			/* Read the info */
+			if (2 != sscanf(buf+2, "%c:%c",
+			                &slot, &color)) return (1);
+
+			/* Convert slot character to index */
+			tmp = (islower(slot) ? A2I(slot) : -1) + INVEN_WIELD;
+
+			/* Verify range */
+			if ((tmp < INVEN_WIELD) || (tmp >= INVEN_TOTAL))
+			{
+				/* Invalid wield slot */
+				t_ptr->wield_slot = -1;
+			}
+			else
+			{
+				/* Save the slot */
+				t_ptr->wield_slot = tmp;
+			}
+
+			/* Save the values */
+			t_ptr->t_attr = color_char_to_attr(color);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'F' for "Flags" */
+		if (buf[0] == 'F')
+		{
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_tval_flag(t_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Oops */
+		return (6);
+	}
+
+	/* Completed the "name" and "text" sizes */
+	++t_head->name_size;
+	++t_head->text_size;
 
 
 	/* No version yet */

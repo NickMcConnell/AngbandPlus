@@ -88,7 +88,7 @@
 /*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
-#define USE_NCURSES
+/* #define USE_NCURSES */
 
 
 /*
@@ -225,6 +225,13 @@
 #define ALLOW_TEMPLATES
 
 /*
+ * OPTION: Check modification times on each text file and compare to
+ * the modification time on each raw file, and reprocess the text
+ * file automatically if the text file is newer.
+ */
+#define CHECK_MODIFICATION_TIME
+
+/*
  * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
  * about 15K of code in "save-old.c" to parse the old savefile format.
  * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
@@ -267,9 +274,9 @@
 
 /*
  * OPTION: Delay the loading of the "pc_text" array until it is actually
- * needed, saving ~1K, since "player class" descriptions are unused.
+ * needed, saving ~1K, but "destroying" the player titles.
  */
-#define DELAY_LOAD_PC_TEXT
+/* #define DELAY_LOAD_PC_TEXT */
 
 /*
  * OPTION: Delay the loading of the "n_text" array until it is actually
@@ -455,22 +462,6 @@
  * This may require the 'rpcsvs' library
  */
 /* #define CHECK_LOAD */
-
-
-/*
- * OPTION: For some brain-dead computers with no command line interface,
- * namely Macintosh, there has to be some way of "naming" your savefiles.
- * The current "Macintosh" hack is to make it so whenever the character
- * name changes, the savefile is renamed accordingly.  But on normal
- * machines, once you manage to "load" a savefile, it stays that way.
- * Macintosh is particularly weird because you can load savefiles that
- * are not contained in the "lib:save:" folder, and if you change the
- * player's name, it will then save the savefile elsewhere.  Note that
- * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
- */
-#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
-# define SAVEFILE_MUTABLE
-#endif
 
 
 /*

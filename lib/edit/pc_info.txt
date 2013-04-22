@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 
 # Warrior
@@ -20,10 +20,13 @@ N:0:Warrior
 S:5:-2:-2:2:2:-1
 K:25:18:18:1:14:2:70:55
 X:10:7:10:0:0:0:45:45
-W:9:0
+W:9:0:6:5:30
 O:75:33
 O:23:16
 O:37:4
+D:Rookie:Soldier:Mercenary:Veteran:
+D:Swordsman:Champion:Hero:Baron:
+D:Duke:Lord
 
 # Mage
 
@@ -31,10 +34,13 @@ N:1:Mage
 S:-5:3:0:1:-2:1
 K:30:36:30:2:16:20:34:20
 X:7:13:9:0:0:0:15:15
-W:0:30
+W:0:30:4:2:40
 O:90:0
 O:23:4
 O:70:11
+D:Novice:Apprentice:Trickster:Illusionist:
+D:Spellbinder:Evoker:Conjurer:Warlock:
+D:Sorcerer:Mage Lord
 
 # Priest
 
@@ -42,10 +48,13 @@ N:2:Priest
 S:-1:-3:3:-1:0:2
 K:25:30:32:2:16:8:48:35
 X:7:10:12:0:0:0:20:20
-W:2:20
+W:2:20:5:3:35
 O:91:0
 O:21:5
 O:75:37
+D:Believer:Acolyte:Adept:Curate:Canon:
+D:Lama:Patriarch:Priest:High Priest:
+D:Priest Lord
 
 # Rogue
 
@@ -53,10 +62,13 @@ N:3:Rogue
 S:2:1:-2:3:1:-1
 K:45:32:28:5:32:24:60:66
 X:15:10:10:0:0:0:40:30
-W:6:25
+W:6:25:5:3:30
 O:90:0
 O:23:8
 O:36:4
+D:Vagabond:Cutpurse:Robber:Burglar:Filcher:
+D:Sharper:Low Thief:High Thief:Master Thief:
+D:Assassin
 
 # Ranger
 
@@ -64,10 +76,12 @@ N:4:Ranger
 S:2:2:0:1:1:1
 K:30:32:28:3:24:16:56:72
 X:8:10:10:0:0:0:30:45
-W:4:30
+W:4:30:5:4:35
 O:90:0
 O:23:16
 O:19:13
+D:Runner:Strider:Scout:Courser:Tracker:Guide:
+D:Pathfinder:Low Ranger:High Ranger:Ranger Lord
 
 # Paladin
 
@@ -75,7 +89,10 @@ N:5:Paladin
 S:3:-3:1:0:2:2
 K:20:24:25:1:12:2:68:40
 X:7:10:11:0:0:0:35:30
-W:6:35
+W:6:35:5:4:30
 O:91:0
 O:23:16
 O:70:37
+D:Gallant:Keeper:Protector:Defender:Warder:
+D:Knight:Guardian:Low Paladin:High Paladin:
+D:Paladin Lord

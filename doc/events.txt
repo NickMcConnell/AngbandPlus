@@ -1,0 +1,321 @@
+PAngband Events
+
+
+	PAngband is controlled by user-created Python scripts that are
+called at certain specific times.  We call these times "events", and
+they can happen under a variety of circumstances.  The Python scripts
+may set up an arbitrary function to be called when an event occurs, and
+this event may do whatever is needed.  For example, an event is invoked
+when the player enters a new dungeon level.  The scripts can set up an
+event handler to move the player to a preset location if he happens to
+enter dungeon level 100.
+
+	Certain events look at the value returned by the Python event
+handler to do different things depending on the situation.  Most events
+use this to disable certain chunks of normal Angband code, usually
+because the Python event handler did something else, and the Angband
+code is superfluous.
+
+	As an example, let us look at the "level creation" event.
+Angband has a built-in town and dungeon generator, which works well
+under most circumstances.  But for some games, you may wish to have a
+different Town layout than the default.  In this case you would disable
+the normal dungeon generator for level 0, and leave it alone in all
+other cases.  The Python code would look something like this:
+
+----
+
+# Handle the "level generation" event
+def event_generate(depth):
+
+	# Let the default generator handle it if not level 0
+	if (depth != 0):
+		return 0
+
+	# Here we would either make a town, or load one from a file
+	...
+	...
+
+	# Tell the event to disable the normal generation code
+	return 1
+
+----
+
+	Note that we return 1 if we wish for the default to be disabled.
+Events that do not have a handler associated with them are assumed to
+return 0, that is, we pretend that they want us to do the default.
+
+	To associate a Python function with a given event, use the
+"event" module's "add_handler" function.  The first argument is the
+event number (use the symbolic constants provided in the event module),
+and the second argument is the function name.
+
+	Adding new events is very easy, so if you need a new one for
+some reason, let me know and I'll get it in the next version.
+
+
+LIST OF EVENTS
+
+
+	Each event is given its symbolic name (defined in module
+'event'), the arguments it recieves and what is done with the return
+code (if anything).
+
+
+EVENT_ENTER_LEVEL (no arguments)
+
+	Called when the player enters a new dungeon level.  The return
+code is ignored.  May be used for adding some monsters/objects to
+certain levels to spice them up.
+
+EVENT_LEAVE_LEVEL (no arguments)
+
+	Called when the player leaves a dungeon level.  The return code
+is ignored.  May be used to clean up after the player (maybe if a quest
+on that level wasn't finished or something).
+
+EVENT_CREATE_LEVEL (dungeon_depth)
+
+	Called before the dungeon generated is invoked to create a
+level.  If nonzero is returned, the default generator is not called (you
+*must* fill the dungeon in this case, else weird things might happen).
+Else the default generator is run after the event handler finishes.  May
+be used to load a pre-made dungeon from a file or to write a whole new
+dungeon generator.
+
+EVENT_ATTACK (monster_index)
+
+	Called before the player hits (with melee weapon) a monster.
+Not called when spells or arrows hit a monster.  If nonzero is returned,
+the attack is aborted, else the attack proceeds normally.  May be used
+to verify with the player that an attack is really what is wanted, and
+was not a mistake (for friendly monsters).
+
+EVENT_HURT_MONSTER (monster_index)
+
+	Called when a monster is about to take damage.  If nonzero is
+returned, no damage is taken, else normal events ensue.  May be used to
+make a friendly monster angry when hurt.  Note that spells/arrows do
+cause this event but not EVENT_ATTACK.
+
+EVENT_MOVE (no arguments)
+
+	Called when the player takes a step (either walking or running).
+It is not called when teleportation, etc. occurs (maybe it should ??).
+A nonzero return code cancels the movement.  May be used to have
+something happen when the player steps on a certain location.
+
+EVENT_SUNRISE (dawn)
+
+	Called when the sun rises or sets.  "dawn" is 1 at sunrise and 0
+at dusk.  The return code is ignored.  Not sure what you'd use this for,
+but I'm sure someone can find a use.
+
+EVENT_START_GAME (no arguments)
+
+	Called after character generation (and initial town creation).
+The return code is ignored.  This can be used for some sort of
+introduction to what is happening, or to outfit the player with
+additional items.
+
+EVENT_DIE (no arguments)
+
+	Called when the player takes enough damage to go below 0 hit
+points.  If the return code is nonzero, the 'death' is ignored.  Note
+that in this case, it is the scripts responsibility to give the player
+positive hit points, as well as cure any other conditions that may have
+caused death.  You should probably also include a reason why the game
+isn't over.  A zero return code allows the death code to continue, which
+ends the game.  May be used to prevent death, or could be used while
+returning 0 to help implement player ghosts (save info about the current
+character to lib/bone).
+
+EVENT_MONSTER_DEATH (monster_index)
+
+	Called when a monster dies.  A nonzero return code aborts the
+death, though the monster will still have negative hit points unless the
+script does something about it.  A zero return code does the normal
+deletion of the monster, etc.  May be used to drop additional treasure
+from certain monsters, or create a magical stairway downwards.
+
+EVENT_SAVE (save_file)
+
+	Called on saving.  The argument passed to this function is a
+Python file, which should be written to.  The 'pickle' module provided
+by Python is excellent for this.  Use this to save any information that
+needs to persist about the current game.  A nonzero return code
+indicates a failed save, and should be used with extreme caution.
+
+EVENT_LOAD (save_file)
+
+	Called on savefile load.  The argument passed to this function
+is a Python file, which can be read from.  It is extremely important to
+read the same amount of information that the EVENT_SAVE handler wrote
+the last time around!  I recommend a method similar to that shown in the
+examples distributed.  A nonzero return code indicates a failed load,
+and will abort the game.
+
+EVENT_COMMAND (command_character)
+
+	Called when an unknown command is hit by the user.  The argument
+is a one-character string indicating which key was pressed.  A nonzero
+return code pretends that this command really was valid, while a zero
+return code prints the standard "Hit '?' for help" message.  This should
+be used to add new commands to the game.
+
+EVENT_MONSTER_MOVE (monster_index)
+
+	Called before a monster is about to move.  The return code is
+ignored.  The target location that the monster should seek should be
+stored in the monster's "tx" and "ty" fields.  Note that very little
+intelligence is used to get to this target location.
+
+	NOTE -- The EVENT_MONSTER_MOVE event will be replaced by a much
+	        better method soon!
+
+EVENT_MONSTER_CAST (monster_index, flags4, flags5, flags6)
+
+	Called before a monster is about to cast a spell.  The return
+code is ignored.  The 3 flags arguments specify which spells are legal
+to cast (after the "monsters learn from their mistakes" options are
+taken into account).  The spell to cast should be stored in the
+monster's "spell" field.
+
+	NOTE -- The EVENT_MONSTER_CAST event will be replaced by a much
+	        better method soon!
+
+EVENT_BIRTH_INFO (no arguments)
+
+	Called after the normal character generation questions such as
+race, class, maximize, and preserve mode.  This event can ask the user
+for more information about their character.  A nonzero return code
+restarts the character generation process (like the user pressing 'S').
+May be used to get "colors" of magic in a ZAngband-ish game.
+
+EVENT_STORE (store_number)
+
+	Called when the player steps on a store doorway.  A nonzero
+return code disables the normal store code.  May be used to either
+replace some store code, or to effectively close a store at certain
+times.
+
+EVENT_BONUSES (no arguments)
+
+	Called when the player's bonuses are recalculated.  This happens
+at a variety of times, but happens mainly when equipment is worn or
+removed (or at level gain, or stat increase, etc).  A nonzero return
+code avoids the printing of some various messages that this may cause
+(stuff like "You have trouble wielding such a heavy weapon."), otherwise
+the messages may get printed as usual.  This is the place to add
+additional racial bonuses (such as cold resistance at some level).  Note
+that if such bonuses are added in other events and not here, the
+calc_bonuses function will clear them.
+
+EVENT_BOOK_OK (book_index)
+
+	Called any time the game wonders whether an item is legal to be
+used as a spellbook.  Usually only books listed in the s_info.txt file
+for a certain class are legal, but this event lets additional ones be
+legal at certain times.  A nonzero return code lets the book be legal,
+else it is left up to s_info.txt.
+
+EVENT_SPELL (spell_number)
+
+	Called immediately before a cast spell's effects are to happen.
+Note that we treat both prayers and spells identically.  Also note that
+both lack of mana and fail rates have already been taken into account.
+This event is mainly for defining new spell effects.  A nonzero return
+code prevents the normal spell effect code from being used (for defining
+new spells or overriding existing effects).
+
+EVENT_TARGET (no arguments)
+
+	Called when the player's target status changes.  Scripts should
+examine the player's "target_set", "target_who", "target_row", and
+"target_col" fields to find out what the current target situation is.
+
+EVENT_PROJECT_F (who, radius, location, damage, type)
+
+	Called when the "project" function is about to effect a dungeon
+terrain.  "who" is the monster index of the caster (or -1 for the
+player).  "radius" is the distance of this grid from the epicenter.
+"location" is a 2-tuple containing (y,x) of the affected grid.  "damage"
+is the power of the spell.  Note that this is usually reduced by the
+distance from the epicenter (you'll need to do this yourself).  "type"
+is the effect type (GF_???).  A nonzero return code overrides the normal
+effects, usually because you wish for nothing to happen or you've
+provided your own effects.
+
+	EVENT_PROJECT_O, EVENT_PROJECT_M, and EVENT_PROJECT_P all take
+the same arguments, except they affect objects, monsters, and the
+player, respectively.  These events could be used to define new spell
+types (psionic effects, for example).
+
+
+
+COMMAND EVENTS
+
+	The following events are all invoked by one of the normal
+Angband commands.  They all behave about the same.  If "item_slot" is
+non-negative, it refers to an inventory slot.  If negative, it refers to
+an object on the ground.  Negate the argument to get the correct object
+index.  The "direction" argument specifies the direction given by the
+user.  Note that it may be 5, meaning "use current target".  For all of
+these, a nonzero return code disables the normal effects.  In this case,
+if something actually happened, be sure to set the player's "energy_use"
+field to 100, else the player gets free turns.
+
+EVENT_AIM_WAND (item_slot, direction)
+
+EVENT_CLOSE_DOOR (direction)
+
+EVENT_DROP (item_slot, amount)
+
+EVENT_FIRE (item_slot, direction)
+
+EVENT_JAM (item_slot, direction)
+
+EVENT_DESTROY (item_slot, amount)
+
+EVENT_OPEN (direction)
+
+EVENT_QUAFF (item_slot)
+
+EVENT_READ_SCROLL (item_slot)
+
+EVENT_SEARCH (no arguments)
+
+EVENT_TAKEOFF (item_slot)
+
+EVENT_USE_STAFF (item_slot)
+
+EVENT_THROW (item_slot, direction)
+
+EVENT_ZAP_ROD (item_slot)
+
+	Some rods take a direction, others don't.  If you need a
+direction, ask for it manually (there are functions provided for this).
+
+EVENT_ACTIVATE (item_slot)
+
+EVENT_BASH (direction)
+
+EVENT_DISARM (direction)
+
+EVENT_EAT (item_slot)
+
+EVENT_FILL (item_slot)
+
+EVENT_STUDY (item_slot)
+
+EVENT_REST (number_of_turns)
+
+	"number_of_turns" is -2 for the "rest until something happens"
+method ('&'), -1 for the "until fully healed" method ('*') or some
+positive number if a number is given.
+
+EVENT_TUNNEL (direction)
+
+EVENT_INSCRIBE (item_slot, inscription)
+
+EVENT_UNINSCRIBE (item_slot)

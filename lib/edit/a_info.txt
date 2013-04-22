@@ -19,14 +19,14 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 
 
 # The Phial of Galadriel
 
 N:1:of Galadriel
-I:39:4:0
+I:41:4:0
 W:1:1:10:10000
 P:0:1d1:0:0:0
 F:ACTIVATE | 
@@ -36,7 +36,7 @@ F:INSTA_ART
 # The Star of Elendil
 
 N:2:of Elendil
-I:39:5:0
+I:41:5:0
 W:30:25:5:30000
 P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | 
@@ -47,7 +47,7 @@ F:INSTA_ART
 # Was +2 WIS/DEX
 
 N:3:of Thrain
-I:39:6:0
+I:41:6:0
 W:50:50:5:50000
 P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | 

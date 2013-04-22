@@ -573,11 +573,10 @@ void initplayer()
 	add_constant(d, "PR_EXTRA", PR_EXTRA);
 	add_constant(d, "PR_BASIC", PR_BASIC);
 	add_constant(d, "PR_MAP", PR_MAP);
-	add_constant(d, "PR_WIPE", PR_WIPE);
 	add_constant(d, "PW_INVEN", PW_INVEN);
 	add_constant(d, "PW_EQUIP", PW_EQUIP);
-	add_constant(d, "PW_SPELL", PW_SPELL);
-	add_constant(d, "PW_PLAYER", PW_PLAYER);
+	add_constant(d, "PW_PLAYER_0", PW_PLAYER_0);
+	add_constant(d, "PW_PLAYER_1", PW_PLAYER_1);
 	add_constant(d, "PW_MESSAGE", PW_MESSAGE);
 	add_constant(d, "PW_OVERHEAD", PW_OVERHEAD);
 	add_constant(d, "PW_MONSTER", PW_MONSTER);

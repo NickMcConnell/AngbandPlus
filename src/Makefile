@@ -235,7 +235,7 @@ pangband: $(OBJS)
 #
 
 clean:
-	\rm *.bak *.o
+	\rm -f *.bak *.o
 
 
 #

@@ -262,6 +262,37 @@ static errr init_f_info_raw(int fd)
 {
 	header test;
 
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "f_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -514,6 +545,38 @@ static errr init_f_info(void)
 static errr init_k_info_raw(int fd)
 {
 	header test;
+
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "k_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
 
 
 	/* Read and Verify the header */
@@ -768,6 +831,38 @@ static errr init_a_info_raw(int fd)
 {
 	header test;
 
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "a_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -1020,6 +1115,38 @@ static errr init_a_info(void)
 static errr init_e_info_raw(int fd)
 {
 	header test;
+
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "e_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
 
 
 	/* Read and Verify the header */
@@ -1274,6 +1401,38 @@ static errr init_r_info_raw(int fd)
 {
 	header test;
 
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "r_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -1527,6 +1686,38 @@ static errr init_v_info_raw(int fd)
 {
 	header test;
 
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "v_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -1777,6 +1968,38 @@ static errr init_v_info(void)
 static errr init_pr_info_raw(int fd)
 {
 	header test;
+
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "pr_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
 
 
 	/* Read and verify the header */
@@ -2030,6 +2253,38 @@ static errr init_pc_info_raw(int fd)
 {
 	header test;
 
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "pc_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -2281,6 +2536,38 @@ static errr init_pc_info(void)
 static errr init_n_info_raw(int fd)
 {
 	header test;
+
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "n_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
 
 
 	/* Read and verify the header */
@@ -2534,6 +2821,38 @@ static errr init_b_info_raw(int fd)
 {
 	header test;
 
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "b_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -2786,6 +3105,38 @@ static errr init_s_info_raw(int fd)
 {
 	header test;
 
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "s_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -3029,6 +3380,292 @@ static errr init_s_info(void)
 	/* Success */
 	return (0);
 }
+
+
+/*
+ * Initialize the "t_info" array, by parsing a binary "image" file
+ */
+static errr init_t_info_raw(int fd)
+{
+	header test;
+
+#ifdef CHECK_MODIFICATION_TIME
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "t_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+	
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
+
+	/* Read and verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != t_head->v_major) ||
+	    (test.v_minor != t_head->v_minor) ||
+	    (test.v_patch != t_head->v_patch) ||
+	    (test.v_extra != t_head->v_extra) ||
+	    (test.info_num != t_head->info_num) ||
+	    (test.info_len != t_head->info_len) ||
+	    (test.head_size != t_head->head_size) ||
+	    (test.info_size != t_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*t_head) = test;
+
+
+	/* Allocate the "t_info" array */
+	C_MAKE(t_info, t_head->info_num, tval_type);
+
+	/* Read the "t_info" array */
+	fd_read(fd, (char*)(t_info), t_head->info_size);
+
+
+	/* Allocate the "t_name" array */
+	C_MAKE(t_name, t_head->name_size, char);
+
+	/* Read the "t_name" array */
+	fd_read(fd, (char*)(t_name), t_head->name_size);
+
+
+#ifndef DELAY_LOAD_T_TEXT
+
+	/* Allocate the "t_text" array */
+	C_MAKE(t_text, t_head->text_size, char);
+
+	/* Read the "t_text" array */
+	fd_read(fd, (char*)(t_text), t_head->text_size);
+
+#endif
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "t_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_t_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(t_head, header);
+
+	/* Save the "version" */
+	t_head->v_major = VERSION_MAJOR;
+	t_head->v_minor = VERSION_MINOR;
+	t_head->v_patch = VERSION_PATCH;
+	t_head->v_extra = 0;
+
+	/* Save the "record" information */
+	t_head->info_num = MAX_T_IDX;
+	t_head->info_len = sizeof(tval_type);
+
+	/* Save the size of "t_head" and "t_info" */
+	t_head->head_size = sizeof(header);
+	t_head->info_size = t_head->info_num * t_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "t_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+		/* Attempt to parse the "raw" file */
+		err = init_t_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+		msg_print("Ignoring obsolete/defective 't_info.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Fake the size of "t_name" and "t_text" */
+	fake_name_size = 20 * 1024L;
+	fake_text_size = 60 * 1024L;
+
+	/* Allocate the "t_info" array */
+	C_MAKE(t_info, t_head->info_num, tval_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(t_name, fake_name_size, char);
+	C_MAKE(t_text, fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "t_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 't_info.txt' file.");
+
+	/* Parse the file */
+	err = init_t_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 't_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 't_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "t_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(t_head), t_head->head_size);
+
+		/* Dump the "t_info" array */
+		fd_write(fd, (char*)(t_info), t_head->info_size);
+
+		/* Dump the "t_name" array */
+		fd_write(fd, (char*)(t_name), t_head->name_size);
+
+		/* Dump the "t_text" array */
+		fd_write(fd, (char*)(t_text), t_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "t_info" array */
+	C_KILL(t_info, t_head->info_num, tval_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(t_name, fake_name_size, char);
+	C_KILL(t_text, fake_text_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "t_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 't_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_t_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 't_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
 
 /*** Initialize others ***/
 
@@ -3923,6 +4560,10 @@ void init_angband(void)
 	/* Initialize magic info */
 	note("[Initializing arrays... (magic tables)]");
 	if (init_s_info()) quit("Cannot initialize magic tables");
+
+	/* Initialize item type info */
+	note("[Initializing arrays... (item types)]");
+	if (init_t_info()) quit("Cannot initialize item types");
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");

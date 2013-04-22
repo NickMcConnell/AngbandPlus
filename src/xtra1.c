@@ -147,6 +147,8 @@ static void prt_title(void)
 {
 	cptr p = "";
 
+	char buf[80];
+
 	/* Wizard */
 	if (p_ptr->wizard)
 	{
@@ -162,7 +164,38 @@ static void prt_title(void)
 	/* Normal */
 	else
 	{
-		p = player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+		int i;
+		char *t;
+
+		/* Start at beginning of text */
+		p = pc_text + cp_ptr->text;
+
+		/* Find correct title */
+		for (i = 0; i < (p_ptr->lev-1) / 5; i++)
+		{
+			/* Find next colon */
+			t = strchr(p, ':');
+
+			/* Advance pointer */
+			if (t) p = t + 1;
+		}
+
+		/* Find next colon */
+		t = strchr(p, ':');
+
+		/* Copy to buffer */
+		if (t)
+		{
+			strncpy(buf, p, t - p);
+			buf[t - p] = '\0';
+		}
+		else
+		{
+			strcpy(buf, p);
+		}
+
+		/* Point to buffer */
+		p = buf;
 	}
 
 	prt_field(p, ROW_TITLE, COL_TITLE);
@@ -336,6 +369,10 @@ static void prt_depth(void)
 	else if (!p_ptr->depth)
 	{
 		strcpy(depths, "Town");
+	}
+	else if (depth_in_feet)
+	{
+		sprintf(depths, "%d ft", p_ptr->depth * 50);
 	}
 	else
 	{
@@ -902,9 +939,9 @@ static void fix_equip(void)
 
 
 /*
- * Hack -- display flags in sub-windows
+ * Hack -- display player in sub-windows (mode 0)
  */
-static void fix_pflags(void)
+static void fix_player_0(void)
 {
 	int j;
 
@@ -917,40 +954,7 @@ static void fix_pflags(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_SPELL))) continue;
-
-		/* Activate */
-		Term_activate(angband_term[j]);
-
-		/* Display flags */
-		display_player(1);
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Restore */
-		Term_activate(old);
-	}
-}
-
-
-/*
- * Hack -- display character in sub-windows
- */
-static void fix_player(void)
-{
-	int j;
-
-	/* Scan windows */
-	for (j = 0; j < 8; j++)
-	{
-		term *old = Term;
-
-		/* No window */
-		if (!angband_term[j]) continue;
-
-		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_PLAYER))) continue;
+		if (!(op_ptr->window_flag[j] & (PW_PLAYER_0))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -966,6 +970,39 @@ static void fix_player(void)
 	}
 }
 
+
+
+/*
+ * Hack -- display player in sub-windows (mode 1)
+ */
+static void fix_player_1(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_PLAYER_1))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display flags */
+		display_player(1);
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
 
 
 /*
@@ -1438,7 +1475,7 @@ static void calc_mana(void)
 		p_ptr->redraw |= (PR_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
 
@@ -1518,7 +1555,7 @@ static void calc_hitpoints(void)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -1551,9 +1588,13 @@ static void calc_torch(void)
 		{
 			p_ptr->cur_lite = 2;
 		}
+	}
 
-		/* Artifact Lites provide permanent, bright, lite */
-		if (artifact_p(o_ptr)) p_ptr->cur_lite = 3;
+	/* Perma-lites are bright */
+	if (o_ptr->tval == TV_PERMA_LITE)
+	{
+		/* Give large radius */
+		p_ptr->cur_lite = 3;
 	}
 
 	/* Reduce lite when running if requested */
@@ -2274,27 +2315,10 @@ static void calc_bonuses(void)
 
 		int num = 0, wgt = 0, mul = 0, div = 0;
 
-		/* Analyze the class */
-		switch (p_ptr->pclass)
-		{
-			/* Warrior */
-			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
-
-			/* Mage */
-			case CLASS_MAGE:    num = 4; wgt = 40; mul = 2; break;
-
-			/* Priest */
-			case CLASS_PRIEST:  num = 5; wgt = 35; mul = 3; break;
-
-			/* Rogue */
-			case CLASS_ROGUE:   num = 5; wgt = 30; mul = 3; break;
-
-			/* Ranger */
-			case CLASS_RANGER:  num = 5; wgt = 35; mul = 4; break;
-
-			/* Paladin */
-			case CLASS_PALADIN: num = 5; wgt = 30; mul = 4; break;
-		}
+		/* Pull blows information */
+		num = cp_ptr->blows_num;
+		mul = cp_ptr->blows_mul;
+		wgt = cp_ptr->blows_wgt;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
 		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
@@ -2359,7 +2383,7 @@ static void calc_bonuses(void)
 			p_ptr->redraw |= (PR_STATS);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 		}
 
 		/* Notice changes */
@@ -2369,7 +2393,7 @@ static void calc_bonuses(void)
 			p_ptr->redraw |= (PR_STATS);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 		}
 
 		/* Notice changes */
@@ -2429,7 +2453,7 @@ static void calc_bonuses(void)
 		p_ptr->redraw |= (PR_ARMOR);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
 	/* Let scripts do extra processing, if necessary */
@@ -2619,6 +2643,13 @@ void update_stuff(void)
 		p_ptr->update &= ~(PU_MONSTERS);
 		update_monsters(FALSE);
 	}
+
+
+	if (p_ptr->update & (PU_PANEL))
+	{
+		p_ptr->update &= ~(PU_PANEL);
+		verify_panel();
+	}
 }
 
 
@@ -2638,15 +2669,6 @@ void redraw_stuff(void)
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
 
-
-
-	/* Hack -- clear the screen */
-	if (p_ptr->redraw & (PR_WIPE))
-	{
-		p_ptr->redraw &= ~(PR_WIPE);
-		msg_print(NULL);
-		Term_clear();
-	}
 
 
 	if (p_ptr->redraw & (PR_MAP))
@@ -2857,18 +2879,18 @@ void window_stuff(void)
 		fix_equip();
 	}
 
-	/* Display pflags */
-	if (p_ptr->window & (PW_SPELL))
+	/* Display player (mode 0) */
+	if (p_ptr->window & (PW_PLAYER_0))
 	{
-		p_ptr->window &= ~(PW_SPELL);
-		fix_pflags();
+		p_ptr->window &= ~(PW_PLAYER_0);
+		fix_player_0();
 	}
 
-	/* Display player */
-	if (p_ptr->window & (PW_PLAYER))
+	/* Display player (mode 1) */
+	if (p_ptr->window & (PW_PLAYER_1))
 	{
-		p_ptr->window &= ~(PW_PLAYER);
-		fix_player();
+		p_ptr->window &= ~(PW_PLAYER_1);
+		fix_player_1();
 	}
 
 	/* Display overhead view */

@@ -263,108 +263,63 @@ static bool object_flavor(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
-	/* Analyze the item */
-	switch (k_ptr->tval)
+	tval_type *t_ptr = &t_info[k_ptr->tval];
+
+	/* Check for various flavors */
+	if (t_ptr->flavor & (TF_AMULET))
 	{
-		case TV_AMULET:
-		{
-			return (0x80 + amulet_col[k_ptr->sval]);
-		}
+		return (0x80 + amulet_col[k_ptr->sval]);
+	}
 
-		case TV_RING:
-		{
-			return (0x90 + ring_col[k_ptr->sval]);
-		}
+	if (t_ptr->flavor & (TF_RING))
+	{
+		return (0x90 + ring_col[k_ptr->sval]);
+	}
 
-		case TV_STAFF:
-		{
-			return (0xA0 + staff_col[k_ptr->sval]);
-		}
+	if (t_ptr->flavor & (TF_STAFF))
+	{
+		return (0xA0 + staff_col[k_ptr->sval]);
+	}
 
-		case TV_WAND:
-		{
-			return (0xB0 + wand_col[k_ptr->sval]);
-		}
+	if (t_ptr->flavor & (TF_WAND))
+	{
+		return (0xB0 + wand_col[k_ptr->sval]);
+	}
 
-		case TV_ROD:
-		{
-			return (0xC0 + rod_col[k_ptr->sval]);
-		}
+	if (t_ptr->flavor & (TF_ROD))
+	{
+		return (0xC0 + rod_col[k_ptr->sval]);
+	}
 
-		case TV_SCROLL:
-		{
-			return (0xD0 + scroll_col[k_ptr->sval]);
-		}
+	if (t_ptr->flavor & (TF_SCROLL))
+	{
+		return (0xD0 + scroll_col[k_ptr->sval]);
+	}
 
-		case TV_POTION:
-		{
-			return (0xE0 + potion_col[k_ptr->sval]);
-		}
+	if (t_ptr->flavor & (TF_POTION))
+	{
+		return (0xE0 + potion_col[k_ptr->sval]);
+	}
 
-		case TV_FOOD:
-		{
-			if (k_ptr->sval < SV_FOOD_MIN_FOOD)
-			{
-				return (0xF0 + food_col[k_ptr->sval]);
-			}
-
-			break;
-		}
+	if (t_ptr->flavor & (TF_MUSHROOM))
+	{
+		return (0xF0 + food_col[k_ptr->sval]);
 	}
 
 	/* No flavor */
 	return (0);
 }
 
-
 /*
  * Certain items, if aware, are known instantly
  * This function is used only by "flavor_init()"
- *
- * Add "EASY_KNOW" flag to "k_info.txt" file.  XXX XXX XXX
  */
 static bool object_easy_know(int i)
 {
 	object_kind *k_ptr = &k_info[i];
 
-	/* Analyze the "tval" */
-	switch (k_ptr->tval)
-	{
-		/* Spellbooks */
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		{
-			return (TRUE);
-		}
-
-		/* Simple items */
-		case TV_FLASK:
-		case TV_JUNK:
-		case TV_BOTTLE:
-		case TV_SKELETON:
-		case TV_SPIKE:
-		{
-			return (TRUE);
-		}
-
-		/* All Food, Potions, Scrolls, Rods */
-		case TV_FOOD:
-		case TV_POTION:
-		case TV_SCROLL:
-		case TV_ROD:
-		{
-			return (TRUE);
-		}
-
-		/* Some Rings, Amulets, Lites */
-		case TV_RING:
-		case TV_AMULET:
-		case TV_LITE:
-		{
-			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
-			return (FALSE);
-		}
-	}
+	/* Check for "EASY_KNOW" flag */
+	if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
 
 	/* Nope */
 	return (FALSE);
@@ -662,7 +617,7 @@ void reset_visuals(bool unused)
 	for (i = 0; i < 128; i++)
 	{
 		/* Default to white */
-		tval_to_attr[i] = TERM_WHITE;
+		tval_to_attr[i] = t_info[i].t_attr;
 	}
 
 
@@ -917,9 +872,117 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 } while (0)
 
 
+/*
+ * Return a pointer to the end of a substring surrounded by brackets.
+ * 
+ * This function supports four different types of brackets: [], {},
+ * <>, and ().
+ *
+ * Nested brackets are supported correctly.
+ *
+ * If the end of the string is encountered before the end of the
+ * substring, the return value is a pointer to the null terminator.
+ */
+static char *find_end_of_substring(char *p)
+{
+	char c1, c2;
+	
+	int count = 0;
+
+	/* Get current bracket */
+	c1 = *p;
+
+	/* Determine closing bracket type */
+	switch (c1)
+	{
+		case '[': c2 = ']'; break;
+		case '{': c2 = '}'; break;
+		case '<': c2 = '>'; break;
+
+		/* Oops */
+		default: return p;
+	}
+
+	/* Start inside brackets */
+	p++;
+
+	/* Go until end of string */
+	while (*p)
+	{
+		/* Skip escaped characters */
+		if (*p == '\\')
+		{
+			/* Skip backslash */
+			p++;
+
+			/* Paranoia -- Check for end of string */
+			if (!*p) break;
+
+			/* Skip bracket */
+			p++;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Count nested brackets */
+		if (*p == c1) count++;
+
+		/* Check for end of substring */
+		if ((*p == c2) && (!count)) break;
+
+		/* Check for end of nested brackets */
+		if (*p == c2) count--;
+
+		/* Next character */
+		p++;
+	}
+
+	/* Return pointer */
+	return (p);
+}
+
 
 
 /*
+ * This function has been completely rewritten as of PAngband 0.1.1 (KLJ).
+ *
+ * The new method takes a "description template" from the t_info.txt
+ * file and expands it.  First, we take the template and expand the
+ * %x fields, where 'x' is any of the following characters:
+ *
+ *   %k -- Replace with "kind" name
+ *   %e -- Replace with ego-item or artifact name, if item is known
+ *   %o -- Replace with "power" (sval/10, used for bows only)
+ *   %h -- Replace with plus to-hit
+ *   %d -- Replace with plus to-dam
+ *   %c -- Replace with [<plus to-ac>] if to-ac is nonzero
+ *   %g -- Replace with (+hit, +dam) if to_hit and to_dam are nonzero
+ *   %x -- Replace with pval description string if pval is nonzero
+ *   %p -- Replace with pval
+ *   %b -- Replace with base AC
+ *   %a -- Replace with plus to-ac
+ *   %f -- Replace with flavor string
+ *
+ * Then, we run through the string again, this time replacing the
+ * characters:
+ *
+ *   & -- With 'A', 'An', 'The', or a number indicating quantity
+ *   ~ -- 's' or 'es' if quantity is greater than 1
+ *
+ * The template can contain substrings within three different types of
+ * brackets, each of which are used at certain circumstances:
+ *
+ *   [] -- Substring only used if the "mode" parameter is greater than
+ *         the number of brackets currently encountered (can be nested)
+ *   {} -- Substring only used if the item is "known" (no need to nest)
+ *   <> -- Substring only used if a flavor is needed (no need to nest)
+ *
+ * Characters can be escaped via the backslash character.
+ *
+ *
+ * The old description for this function:
+ *
  * Creates a description of the item "o_ptr", and stores it in "out_val".
  *
  * One can choose the "verbosity" of the description, including whether
@@ -979,7 +1042,9 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  */
 void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 {
-	cptr basenm, modstr;
+	cptr basenm;
+
+	int cur_mode = 1, cur_knowledge = 0;
 
 	int power;
 
@@ -988,15 +1053,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	bool flavor;
 
-	bool append_name;
-
-	bool show_weapon;
-	bool show_armour;
-
-	char *t;
+	char *p, *t;
 
 	cptr s;
-	cptr u;
 	cptr v;
 
 	char p1 = '(', p2 = ')';
@@ -1008,6 +1067,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	u32b f1, f2, f3;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	tval_type *t_ptr = &t_info[o_ptr->tval];
 
 
 	/* Extract some flags */
@@ -1026,210 +1087,625 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Allow flavors to be hidden when aware */
 	if (aware && !show_flavors) flavor = FALSE;
 
-	/* Assume no name appending */
-	append_name = FALSE;
-
-	/* Assume no need to show "weapon" bonuses */
-	show_weapon = FALSE;
-
-	/* Assume no need to show "armour" bonuses */
-	show_armour = FALSE;
-
 	/* Extract default "base" string */
 	basenm = (k_name + k_ptr->name);
 
-	/* Assume no "modifier" string */
-	modstr = "";
+	/* Start at the beginning of the template */
+	p = (t_text + t_ptr->text);
 
-
-	/* Analyze the object */
-	switch (o_ptr->tval)
+	/* Hack -- Check for lack of template */
+	if (!(*p))
 	{
-		/* Some objects are easy to describe */
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
-		case TV_SPIKE:
-		case TV_FLASK:
-		case TV_CHEST:
+		/* Copy default string */
+		strcpy(buf, "(nothing)");
+
+		/* Done */
+		return;
+	}
+
+	/* Start dumping the result */
+	t = tmp_val;
+
+	/* Copy the template, expanding as necessary */
+	for ( ; *p; p++)
+	{
+		/* Decide what to do */
+		switch (*p)
 		{
-			break;
-		}
-
-		/* Missiles/Bows/Weapons */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			show_weapon = TRUE;
-			break;
-		}
-
-		/* Armour */
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			show_armour = TRUE;
-			break;
-		}
-
-		/* Lites (including a few "Specials") */
-		case TV_LITE:
-		{
-			break;
-		}
-
-		/* Amulets (including a few "Specials") */
-		case TV_AMULET:
-		{
-			/* Hack -- Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
-
-			/* Color the object */
-			modstr = amulet_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Amulet ~" : "& Amulet~");
-
-			break;
-		}
-
-		/* Rings (including a few "Specials") */
-		case TV_RING:
-		{
-			/* Hack -- Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
-
-			/* Color the object */
-			modstr = ring_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Ring~" : "& Ring~");
-
-			/* Mega-Hack -- The One Ring */
-			if (!aware && (o_ptr->sval == SV_RING_POWER))
+			/* Skip ending angle brackets */
+			case '>':
 			{
-				modstr = "Plain Gold";
+				/* Nothing */
+				break;
 			}
 
-			break;
-		}
+			/* Skip ending curly braces */
+			case '}':
+			{
+				/* Now one knowledge-mode lower */
+				cur_knowledge--;
 
-		/* Staffs */
-		case TV_STAFF:
-		{
-			/* Color the object */
-			modstr = staff_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Staff~" : "& Staff~");
+				break;
+			}
 
-			break;
-		}
+			/* Skip ending square brackets */
+			case ']':
+			{
+				/* Now one mode lower */
+				cur_mode--;
 
-		/* Wands */
-		case TV_WAND:
-		{
-			/* Color the object */
-			modstr = wand_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Wand~" : "& Wand~");
+				break;
+			}
 
-			break;
-		}
+			/* Handle opening curly brace */
+			case '{':
+			{
+				/* Skip substring if item is not aware */
+				if (!known && !aware)
+				{
+					p = find_end_of_substring(p);
+				}
 
-		/* Rods */
-		case TV_ROD:
-		{
-			/* Color the object */
-			modstr = rod_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Rod~" : "& Rod~");
+				/* Skip substring if nested and not known */
+				else if (cur_knowledge > 0 && !known)
+				{
+					p = find_end_of_substring(p);
+				}
 
-			break;
-		}
+				/* Count nested-ness */
+				else
+				{
+					cur_knowledge++;
+				}
 
-		/* Scrolls */
-		case TV_SCROLL:
-		{
-			/* Color the object */
-			modstr = scroll_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
+				break;
+			}
 
-			break;
-		}
+			/* Handle opening bracket */
+			case '[':
+			{
+				/* Skip if mode isn't high enough */
+				if (mode < cur_mode)
+				{
+					p = find_end_of_substring(p);
+				}
+				else
+				{
+					/* We're now one mode higher */
+					cur_mode++;
+				}
 
-		/* Potions */
-		case TV_POTION:
-		{
-			/* Color the object */
-			modstr = potion_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Potion~" : "& Potion~");
+				break;
+			}
 
-			break;
-		}
+			/* Handle opening angle bracket */
+			case '<':
+			{
+				/* Skip if we need no flavor */
+				if (!flavor)
+				{
+					p = find_end_of_substring(p);
+				}
 
-		/* Food */
-		case TV_FOOD:
-		{
-			/* Ordinary food is "boring" */
-			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
+				break;
+			}
 
-			/* Color the object */
-			modstr = food_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
+			/* Handle backslash */
+			case '\\':
+			{
+				/* Skip backslash */
+				p++;
 
-			break;
-		}
+				/* Copy character */
+				object_desc_chr_macro(t, *p);
 
-		/* Magic Books */
-		case TV_MAGIC_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Book~ of Magic Spells #";
-			break;
-		}
+				break;
+			}
 
-		/* Prayer Books */
-		case TV_PRAYER_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Holy Book~ of Prayers #";
-			break;
-		}
+			/* Handle percent sign */
+			case '%':
+			{
+				/* Check next character */
+				p++;
 
-		/* Hack -- Gold/Gems */
-		case TV_GOLD:
-		{
-			strcpy(buf, basenm);
-			return;
-		}
+				/* Hack -- check for end of string */
+				if (!(*p))
+				{
+					/* Repair pointer */
+					p--;
+					
+					break;
+				}
 
-		/* Hack -- Default -- Used in the "inventory" routine */
-		default:
-		{
-			strcpy(buf, "(nothing)");
-			return;
+				/* Decide what to do */
+				switch (*p)
+				{
+					/* Replace with basename */
+					case 'k':
+					{
+						object_desc_str_macro(t, basenm);
+
+						break;
+					}
+
+					/* Replace with ego or artiface name */
+					case 'e':
+					{
+						/* Only if know */
+						if (!known) break;
+
+						/* Grab artifact name */
+						if (o_ptr->name1)
+						{
+							artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+							object_desc_chr_macro(t, ' ');
+							object_desc_str_macro(t, (a_name + a_ptr->name));
+						}
+						
+						/* Grab ego-item name */
+						if (o_ptr->name2)
+						{
+							ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+							object_desc_chr_macro(t, ' ');
+							object_desc_str_macro(t, (e_name + e_ptr->name));
+						}
+
+						break;
+					}
+
+					/* Replace with "power" */
+					case 'o':
+					{
+						power = (o_ptr->sval % 10);
+
+						/* Append power */
+						object_desc_num_macro(t, power);
+
+						break;
+					}
+
+					/* Replace with to-hit */
+					case 'h':
+					{
+						object_desc_int_macro(t, o_ptr->to_h);
+
+						break;
+					}
+
+					/* Replace with to-dam */
+					case 'd':
+					{
+						object_desc_int_macro(t, o_ptr->to_d);
+
+						break;
+					}
+
+					/* Replace with armor string */
+					case 'c':
+					{
+						/* Only if to-armor bonus */
+						if (!o_ptr->to_a) break;
+
+						/* Append string */
+						object_desc_chr_macro(t, ' ');
+						object_desc_chr_macro(t, b1);
+						object_desc_int_macro(t, o_ptr->to_a);
+						object_desc_chr_macro(t, b2);
+
+						break;
+					}
+
+					/* Replace with to-hit, to-dam string */
+					case 'g':
+					{
+						/* Only if bonuses exist */
+						if (!o_ptr->to_h && !o_ptr->to_d) break;
+
+						/* Append string */
+						object_desc_chr_macro(t, ' ');
+						object_desc_chr_macro(t, p1);
+
+						/* Only append to-hit if necessary */
+						if (o_ptr->to_h)
+						{
+							object_desc_int_macro(t, o_ptr->to_h);
+						}
+
+						/* Add comma if necessary */
+						if (o_ptr->to_h && o_ptr->to_d)
+						{
+							object_desc_chr_macro(t, ',');
+						}
+
+						/* Only append to-dam if necessary */
+						if (o_ptr->to_d)
+						{
+							object_desc_int_macro(t, o_ptr->to_d);
+						}
+
+						/* Finish up */
+						object_desc_chr_macro(t, p2);
+
+						break;
+					}
+
+					/* Replace with pval string */
+					case 'x':
+					{
+						cptr tail = "";
+						cptr tail2 = "";
+
+						/* Only if known */
+						if (!known) break;
+
+						/* Only if pval */
+						if (!o_ptr->pval) break;
+
+						/* Only if correct type of pval */
+						if (!(f1 & (TR1_PVAL_MASK))) break;
+
+						/* Start to append */
+						object_desc_chr_macro(t, ' ');
+						object_desc_chr_macro(t, p1);
+
+						/* Dump the pval itself */
+						object_desc_int_macro(t, o_ptr->pval);
+
+						/* Do not display the pval flags */
+						if (f3 & (TR3_HIDE_TYPE))
+						{
+							/* Nothing */
+						}
+						
+						/* Stealth */
+						else if (f1 & (TR1_STEALTH))
+						{
+							tail = " to stealth";
+						}
+
+						/* Searching */
+						else if (f1 & (TR1_SEARCH))
+						{
+							tail = " to searching";
+						}
+
+						/* Infravision */
+						else if (f1 & (TR1_INFRA))
+						{
+							tail = " to infravision";
+						}
+
+						/* Speed */
+						else if (f1 & (TR1_SPEED))
+						{
+							tail = " to speed";
+						}
+
+						/* Blows */
+						else if (f1 & (TR1_BLOWS))
+						{
+							/* Add " attack" */
+							tail = " attack";
+
+							/* Add " attacks" */
+							if (ABS(o_ptr->pval) != 1)
+							{
+								tail2 = "s";
+							}
+						}
+
+						/* Add the descriptor */
+						object_desc_str_macro(t, tail);
+						object_desc_str_macro(t, tail2);
+
+						/* Finish the string */
+						object_desc_chr_macro(t, p2);
+
+						break;
+					}
+
+					/* Replace with chest trap info */
+					case 'y':
+					{
+						cptr tail = "";
+
+						/* Empty */
+						if (!o_ptr->pval)
+						{
+							tail = " (empty)";
+						}
+
+						/* Disarmed */
+						else if (o_ptr->pval < 0)
+						{
+							if (chest_traps[o_ptr->pval])
+							{
+								tail = " (disarmed)";
+							}
+							else
+							{
+								tail = " (unlocked)";
+							}
+						}
+
+						else
+						{
+							/* Describe the traps */
+							switch (chest_traps[o_ptr->pval])
+							{
+								case 0:
+								{
+									tail = " (Locked)";
+									break;
+								}
+								case CHEST_LOSE_STR:
+								case CHEST_LOSE_CON:
+								{
+									tail = " (Poison Needle)";
+									break;
+								}
+								case CHEST_POISON:
+								case CHEST_PARALYZE:
+								{
+									tail = " (Gas Trap)";
+									break;
+								}
+								case CHEST_EXPLODE:
+								{
+									tail = " (Explosion Device)";
+									break;
+								}
+								case CHEST_SUMMON:
+								{
+									tail = " (Summoning Runes)";
+									break;
+								}
+								default:
+								{
+									tail = " (Multiple Traps)";
+									break;
+								}
+							}
+						}
+
+						/* Append the tail */
+						object_desc_str_macro(t, tail);
+
+						break;
+					}
+
+
+					/* Replace with base ac */
+					case 'b':
+					{
+						object_desc_num_macro(t, o_ptr->ac);
+					
+						break;
+					}
+
+					/* Replace with to-ac */
+					case 'a':
+					{
+						object_desc_int_macro(t, o_ptr->to_a);
+
+						break;
+					}
+
+					/* Replace with pval */
+					case 'p':
+					{
+						object_desc_num_macro(t, o_ptr->pval);
+					
+						break;
+					}
+
+					/* Replace with flavor string */
+					case 'f':
+					{
+						cptr modstr = "";
+
+						tval_type *t_ptr = &t_info[o_ptr->tval];
+
+						/* Only if we indeed need flavor */
+						if (!t_ptr->flavor) break;
+
+						/* Ring */
+						if (t_ptr->flavor & (TF_RING))
+						{
+							modstr = ring_adj[o_ptr->sval];
+						}
+
+						/* Amulet */
+						else if (t_ptr->flavor & (TF_AMULET))
+						{
+							modstr = amulet_adj[o_ptr->sval];
+						}
+
+						/* Staff */
+						else if (t_ptr->flavor & (TF_STAFF))
+						{
+							modstr = staff_adj[o_ptr->sval];
+						}
+
+						/* Wand */
+						else if (t_ptr->flavor & (TF_WAND))
+						{
+							modstr = wand_adj[o_ptr->sval];
+						}
+
+						/* Rod */
+						else if (t_ptr->flavor & (TF_ROD))
+						{
+							modstr = rod_adj[o_ptr->sval];
+						}
+
+						/* Mushroom */
+						else if (t_ptr->flavor & (TF_MUSHROOM))
+						{
+							modstr = food_adj[o_ptr->sval];
+						}
+
+						/* Potion */
+						else if (t_ptr->flavor & (TF_POTION))
+						{
+							modstr = potion_adj[o_ptr->sval];
+						}
+
+						/* Scroll */
+						else if (t_ptr->flavor & (TF_SCROLL))
+						{
+							modstr = scroll_adj[o_ptr->sval];
+						}
+
+						/* Append the flavor string */
+						object_desc_str_macro(t, modstr);
+
+						break;
+					}
+				}
+
+				break;
+			}
+
+			/* Just copy over */
+			default:
+			{
+				object_desc_chr_macro(t, *p);
+
+				break;
+			}
 		}
 	}
 
+	/* Terminate string */
+	*t = '\0';
 
-	/* Start dumping the result */
+	/* Restart copying */
 	t = buf;
 
+	/* Start at beginning of temporary string */
+	p = tmp_val;
 
+	/* The object "expects" a number */
+	if (p[0] == '&')
+	{
+		/* Skip the ampersand (and space) */
+		p = p + 2;
+
+		/* No prefix */
+		if (!pref)
+		{
+			/* Nothing */
+		}
+
+		/* Hack -- None left */
+		else if (o_ptr->number <= 0)
+		{
+			object_desc_str_macro(t, "no more ");
+		}
+
+		/* Extract the number */
+		else if (o_ptr->number > 1)
+		{
+			object_desc_num_macro(t, o_ptr->number);
+			object_desc_chr_macro(t, ' ');
+		}
+
+		/* Hack -- The only one of its kind */
+		else if (known && artifact_p(o_ptr))
+		{
+			object_desc_str_macro(t, "The ");
+		}
+
+		/* A single one, and next character will be a vowel */
+		else if (is_a_vowel(*p))
+		{
+			object_desc_str_macro(t, "an ");
+		}
+
+		/* A single one, and next character will be a non-vowel */
+		else
+		{
+			object_desc_str_macro(t, "a ");
+		}
+	}
+	
+	/* Hack -- objects that "never" take an article */
+	else
+	{
+		/* No pref */
+		if (!pref)
+		{
+			/* Nothing */
+		}
+
+		/* Hack -- all gone */
+		else if (o_ptr->number <= 0)
+		{
+			object_desc_str_macro(t, "no more ");
+		}
+
+		/* Prefix a number if required */
+		else if (o_ptr->number > 1)
+		{
+			object_desc_num_macro(t, o_ptr->number);
+			object_desc_chr_macro(t, ' ');
+		}
+
+		/* Hack -- the only one of its kind */
+		else if (known && artifact_p(o_ptr))
+		{
+			object_desc_str_macro(t, "The ");
+		}
+
+		/* Hack -- A single item, so no prefix needed */
+		else
+		{
+			/* Nothing */
+		}
+	}
+
+	/* Copy into final buffer */
+	for ( ; *p; p++)
+	{
+		/* Pluralizer */
+		if (*p == '~')
+		{
+			/* Add a plural if needed */
+			if (o_ptr->number != 1)
+			{
+				/* Look behind us */
+				s = t - 1;
+
+				/* Check for 's' or 'h' */
+				if (*s == 's' || *s == 'h')
+				{
+					/* Add an 'e' */
+					*t++ = 'e';
+				}
+
+				/* Add an 's' */
+				*t++ = 's';
+			}
+		}
+
+		/* Normal */
+		else
+		{
+			/* Copy over */
+			*t++ = *p;
+		}
+	}
+
+	/* Hack -- Append "(charging)" if object is doing so */
+	if (o_ptr->timeout)
+	{
+		object_desc_str_macro(t, " (charging)");
+	}
+
+#if 0
 	/* The object "expects" a "number" */
 	if (basenm[0] == '&')
 	{
@@ -1746,6 +2222,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Hack -- Dump " (charging)" if relevant */
 		object_desc_str_macro(t, " (charging)");
 	}
+
+#endif
 
 
 	/* No more details wanted */
@@ -2640,77 +3118,18 @@ s16b label_to_equip(int c)
  */
 s16b wield_slot(object_type *o_ptr)
 {
-	/* Slot for equipment */
-	switch (o_ptr->tval)
+	/* Mega-Hack -- Rings suck */
+	if (o_ptr->tval == TV_RING)
 	{
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		{
-			return (INVEN_WIELD);
-		}
+		/* Use the right hand first */
+		if (!inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
 
-		case TV_BOW:
-		{
-			return (INVEN_BOW);
-		}
-
-		case TV_RING:
-		{
-			/* Use the right hand first */
-			if (!inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
-
-			/* Use the left hand for swapping (by default) */
-			return (INVEN_LEFT);
-		}
-
-		case TV_AMULET:
-		{
-			return (INVEN_NECK);
-		}
-
-		case TV_LITE:
-		{
-			return (INVEN_LITE);
-		}
-
-		case TV_DRAG_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		{
-			return (INVEN_BODY);
-		}
-
-		case TV_CLOAK:
-		{
-			return (INVEN_OUTER);
-		}
-
-		case TV_SHIELD:
-		{
-			return (INVEN_ARM);
-		}
-
-		case TV_CROWN:
-		case TV_HELM:
-		{
-			return (INVEN_HEAD);
-		}
-
-		case TV_GLOVES:
-		{
-			return (INVEN_HANDS);
-		}
-
-		case TV_BOOTS:
-		{
-			return (INVEN_FEET);
-		}
+		/* Use the left hand for swapping (by default) */
+		return (INVEN_LEFT);
 	}
 
-	/* No slot available */
-	return (-1);
+	/* Use what the tval tells us */
+	return t_info[o_ptr->tval].wield_slot;
 }
 
 
@@ -2913,9 +3332,6 @@ void display_inven(void)
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
-		/* Disable inventory colors */
-		if (!inventory_colors) attr = TERM_WHITE;
-
 		/* Display the entry itself */
 		Term_putstr(3, i, n, attr, o_name);
 
@@ -2985,9 +3401,6 @@ void display_equip(void)
 
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) attr = TERM_WHITE;
 
 		/* Display the entry itself */
 		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
@@ -3087,9 +3500,6 @@ void show_inven(void)
 
 		/* Acquire inventory color */
 		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) out_color[k] = TERM_WHITE;
 
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);
@@ -3196,9 +3606,6 @@ void show_equip(void)
 
 		/* Acquire inventory color */
 		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) out_color[k] = TERM_WHITE;
 
 		/* Save the description */
 		strcpy(out_desc[k], o_name);

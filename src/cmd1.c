@@ -517,7 +517,7 @@ void py_pickup(int pickup)
 			p_ptr->redraw |= (PR_GOLD);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
@@ -1072,7 +1072,7 @@ void move_player(int dir, int do_pickup)
 	x = px + ddx[dir];
 
 	/* "Move" event */
-	if (perform_event(EVENT_MOVE, Py_BuildValue("()")))
+	if (perform_event(EVENT_MOVE, Py_BuildValue("(ii)", dir, do_pickup)))
 		return;
 
 	/* Hack -- attack monsters */
@@ -1099,24 +1099,8 @@ void move_player(int dir, int do_pickup)
 				lite_spot(y, x);
 			}
 
-			/* Water */
-			else if (cave_feat[y][x] < FEAT_WATER_TAIL)
-			{
-				msg_print("You splash into some water and pull back.");
-				cave_info[y][x] |= (CAVE_MARK);
-				lite_spot(y, x);
-			}
-
-			/* Lava */
-			else if (cave_feat[y][x] < FEAT_LAVA_TAIL)
-			{
-				msg_print("You feel great heat coming from there.");
-				cave_info[y][x] |= (CAVE_MARK);
-				lite_spot(y, x);
-			}
-
 			/* Closed door */
-			else if (cave_feat[y][x] < FEAT_SECRET)
+			else if (cave_door_bold(y, x) && cave_feat[y][x] != FEAT_SECRET)
 			{
 				msg_print("You feel a door blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
@@ -1141,20 +1125,8 @@ void move_player(int dir, int do_pickup)
 				msg_print("There is a pile of rubble blocking your way.");
 			}
 
-			/* Water */
-			else if (cave_feat[y][x] < FEAT_WATER_TAIL)
-			{
-				msg_print("You cannot swim.");
-			}
-
-			/* Lava */
-			else if (cave_feat[y][x] < FEAT_LAVA_TAIL)
-			{
-				msg_print("Only a fool would go there.");
-			}
-
 			/* Closed door */
-			else if (cave_feat[y][x] < FEAT_SECRET)
+			else if (cave_door_bold(y, x) && cave_feat[y][x] != FEAT_SECRET)
 			{
 				msg_print("There is a door blocking your way.");
 			}
@@ -1253,8 +1225,12 @@ static int see_wall(int dir, int y, int x)
 	/* Illegal grids are not known walls XXX XXX XXX */
 	if (!in_bounds(y, x)) return (FALSE);
 
-	/* Non-wall grids are not known walls */
-	if (cave_feat[y][x] < FEAT_SECRET) return (FALSE);
+	/* Floor grids are not walls */
+	if (cave_floor_bold(y, x)) return (FALSE);
+
+	/* Normal doors are not walls */
+	if (cave_door_bold(y, x) && cave_feat[y][x] != FEAT_SECRET)
+		return (FALSE);
 
 	/* Unknown walls are not known walls */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (FALSE);
@@ -1640,72 +1616,37 @@ static bool run_test(void)
 		{
 			bool notice = TRUE;
 
-			/* Examine the terrain */
-			switch (cave_feat[row][col])
+			byte feat = cave_feat[row][col];
+
+			/* Apply "mimic" field */
+			feat = f_info[feat].mimic;
+
+			/* Ignore floors */
+			if (f_info[feat].flags & (FF_HOLD_OBJECT)) notice = FALSE;
+
+			/* Ignore walls */
+			if (!cave_floor_bold(row, col)) notice = FALSE;
+
+			/* But not closed doors */
+			if (cave_door_bold(row, col)) notice = TRUE;
+
+			/* Except for secret ones */
+			if (cave_feat[row][col] == FEAT_SECRET) notice = FALSE;
+
+			/* Sometimes ignore stairs */
+			if (cave_feat[row][col] == FEAT_MORE ||
+			    cave_feat[row][col] == FEAT_LESS)
 			{
-				/* Floors */
-				case FEAT_FLOOR:
-				case FEAT_GRASS:
-				case FEAT_DIRT:
+				/* Ignore if option set */
+				if (run_ignore_stairs) notice = FALSE;
+			}
 
-				/* Trees */
-				case FEAT_TREE_HEAD:
-				
-				/* Water */
-				case FEAT_WATER_HEAD:
-
-				/* Invis traps */
-				case FEAT_INVIS:
-
-				/* Secret doors */
-				case FEAT_SECRET:
-
-				/* Normal veins */
-				case FEAT_MAGMA:
-				case FEAT_QUARTZ:
-
-				/* Hidden treasure */
-				case FEAT_MAGMA_H:
-				case FEAT_QUARTZ_H:
-
-				/* Walls */
-				case FEAT_WALL_EXTRA:
-				case FEAT_WALL_INNER:
-				case FEAT_WALL_OUTER:
-				case FEAT_WALL_SOLID:
-				case FEAT_PERM_EXTRA:
-				case FEAT_PERM_INNER:
-				case FEAT_PERM_OUTER:
-				case FEAT_PERM_SOLID:
-				{
-					/* Ignore */
-					notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* Open doors */
-				case FEAT_OPEN:
-				case FEAT_BROKEN:
-				{
-					/* Option -- ignore */
-					if (run_ignore_doors) notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* Stairs */
-				case FEAT_LESS:
-				case FEAT_MORE:
-				{
-					/* Option -- ignore */
-					if (run_ignore_stairs) notice = FALSE;
-
-					/* Done */
-					break;
-				}
+			/* Sometimes ignore open doors */
+			if (cave_feat[row][col] == FEAT_OPEN ||
+			    cave_feat[row][col] == FEAT_BROKEN)
+			{
+				/* Ignore if option set */
+				if (run_ignore_doors) notice = FALSE;
 			}
 
 			/* Interesting feature */
@@ -1791,9 +1732,8 @@ static bool run_test(void)
 			col = px + ddx[new_dir];
 
 			/* Unknown grid or non-wall */
-			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (cave_feat[row][col] < FEAT_SECRET))
+			    (cave_floor_bold(row, col)))
 			{
 				/* Looking to break right */
 				if (p_ptr->run_break_right)
@@ -1822,9 +1762,8 @@ static bool run_test(void)
 			col = px + ddx[new_dir];
 
 			/* Unknown grid or non-wall */
-			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (cave_feat[row][col] < FEAT_SECRET))
+			    (cave_floor_bold(row, col)))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)

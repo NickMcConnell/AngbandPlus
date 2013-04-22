@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 
 # 0x00 --> nothing
@@ -29,16 +29,19 @@ G: :w
 
 N:1:open floor
 G:.:w
+F:FLOOR
 
 # 0x02 --> grass
 
 N:2:grass
 G:.:g
+F:FLOOR
 
 # 0x03 --> dirt
 
 N:3:packed dirt
 G:.:u
+F:FLOOR
 
 # 0x08 --> invisible trap (drawn as open floor)
 
@@ -65,11 +68,13 @@ G:':U
 
 N:12:up staircase
 G:<:w
+F:PERMANENT
 
 # 0x0D --> down stairs (perm)
 
 N:13:down staircase
 G:>:w
+F:PERMANENT
 
 # 0x10 --> visible trap -- trap door
 
@@ -155,464 +160,552 @@ G:^:g
 
 N:40:General Store
 G:1:U
+F:PERMANENT
 
 # 0x29 --> shop -- armoury (perm)
 
 N:41:Armoury
 G:2:s
+F:PERMANENT
 
 # 0x2A --> shop -- weapon shop (perm)
 
 N:42:Weapon Smiths
 G:3:w
+F:PERMANENT
 
 # 0x2B --> shop -- temple (perm)
 
 N:43:Temple
 G:4:g
+F:PERMANENT
 
 # 0x2C --> shop -- alchemist (perm)
 
 N:44:Alchemy Shop
 G:5:b
+F:PERMANENT
 
 # 0x2D --> shop -- magic shop (perm)
 
 N:45:Magic Shop
 G:6:r
+F:PERMANENT
 
 # 0x2E --> shop -- black market (perm)
 
 N:46:Black Market
 G:7:D
+F:PERMANENT
 
 # 0x2F --> shop -- home (perm)
 
 N:47:Home
 G:8:y
+F:PERMANENT
 
 # 0x3x --> tree
 
 N:48:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:49:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:50:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:51:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:52:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:53:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:54:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:55:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:56:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:57:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:58:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:59:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:60:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:61:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:62:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x3x --> tree
 
 N:63:tree
 G:*:g
+F:BLOCK_SIGHT
 
 # 0x8x --> water
 
 N:128:shallow water
 G:~:B
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:129:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:130:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:131:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:132:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:133:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:134:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:135:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:136:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:137:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:138:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:139:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:140:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:141:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:142:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x8x --> water
 
 N:143:water
 G:~:b
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:144:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:145:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:146:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:147:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:148:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:149:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:150:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:151:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:152:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:153:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:154:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:155:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:156:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:157:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:158:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0x9x --> lava
 
 N:159:lava
 G:*:r
+F:BLOCK_MOVEMENT
 
 # 0xCx --> locked door (power 0)
 
 N:192:door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> locked door (power 1)
 
 N:193:locked door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> locked door (power 2)
 
 N:194:locked door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> locked door (power 3)
 
 N:195:locked door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> locked door (power 4)
 
 N:196:locked door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> locked door (power 5)
 
 N:197:locked door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> locked door (power 6)
 
 N:198:locked door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> locked door (power 7)
 
 N:199:locked door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> jammed door (power 0)
 
 N:200:jammed door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> jammed door (power 1)
 
 N:201:jammed door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> jammed door (power 2)
 
 N:202:jammed door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> jammed door (power 3)
 
 N:203:jammed door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> jammed door (power 4)
 
 N:204:jammed door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> jammed door (power 5)
 
 N:205:jammed door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> jammed door (power 6)
 
 N:206:jammed door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xCx --> jammed door (power 7)
 
 N:207:jammed door
 G:+:U
 M:192
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xF0 --> secret door
 
 N:240:secret door
 G:#:w
 M:248
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | DOOR
 
 # 0xF1 --> pile of rubble
 
 N:241:pile of rubble
 G:::w
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xF2 --> magma vein
 
 N:242:magma vein
 G:%:s
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xF3 --> quartz vein
 
 N:243:quartz vein
 G:%:w
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xF4 --> magma vein + treasure
 
 N:244:magma vein
 G:%:s
 M:242
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xF5 --> quartz vein + treasure
 
 N:245:quartz vein
 G:%:w
 M:243
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xF6 --> magma vein + known treasure
 
 N:246:magma vein with treasure
 G:*:o
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xF7 --> quartz vein + known treasure
 
 N:247:quartz vein with treasure
 G:*:o
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xF8 --> granite wall -- basic
 
 N:248:granite wall
 G:#:w
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xF9 --> granite wall -- inner
 
 N:249:granite wall
 G:#:w
 M:248
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xFA --> granite wall -- outer
 
 N:250:granite wall
 G:#:w
 M:248
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xFB --> granite wall -- solid
 
 N:251:granite wall
 G:#:w
 M:248
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE
 
 # 0xFC --> permanent wall -- basic (perm)
 
 N:252:permanent wall
 G:#:w
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | PERMANENT
 
 # 0xFD --> permanent wall -- inner (perm)
 
 N:253:permanent wall
 G:#:w
 M:252
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | PERMANENT
 
 # 0xFE --> permanent wall -- outer (perm)
 
 N:254:permanent wall
 G:#:w
 M:252
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | PERMANENT
 
 # 0xFF --> permanent wall -- solid (perm)
 
 N:255:permanent wall
 G:#:w
 M:252
+F:BLOCK_MOVEMENT | BLOCK_SIGHT | BLOCK_MISSILE | PERMANENT
 

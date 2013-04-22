@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 
 ### Mage spells
@@ -137,4 +137,3 @@ N:118:Teleport Other
 N:119:Teleport Level
 N:120:Word of Recall
 N:121:Alter Reality
-

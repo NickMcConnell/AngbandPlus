@@ -864,7 +864,7 @@ static bool do_cmd_tunnel_test(int y, int x)
 	}
 
 	/* Must be a wall/door/etc */
-	if (cave_transparent_bold(y, x))
+	if (cave_floor_bold(y, x))
 	{
 		/* Message */
 		msg_print("You see nothing there to tunnel.");
@@ -935,13 +935,14 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* sound(SOUND_DIG); */
 
 	/* Titanium */
-	if (cave_feat[y][x] >= FEAT_PERM_EXTRA)
+	if (cave_perma_bold(y, x))
 	{
 		msg_print("This seems to be permanent rock.");
 	}
 
 	/* Granite */
-	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
+	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA &&
+	         cave_feat[y][x] <= FEAT_WALL_SOLID)
 	{
 		/* Tunnel */
 		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x))
@@ -959,14 +960,16 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	}
 
 	/* Quartz / Magma */
-	else if (cave_feat[y][x] >= FEAT_MAGMA)
+	else if (cave_feat[y][x] >= FEAT_MAGMA &&
+	         cave_feat[y][x] <= FEAT_QUARTZ_K)
 	{
 		bool okay = FALSE;
 		bool gold = FALSE;
 		bool hard = FALSE;
 
 		/* Found gold */
-		if (cave_feat[y][x] >= FEAT_MAGMA_H)
+		if (cave_feat[y][x] >= FEAT_MAGMA_H &&
+		    cave_feat[y][x] <= FEAT_QUARTZ_K)
 		{
 			gold = TRUE;
 		}
@@ -1059,7 +1062,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	}
 
 	/* Secret doors */
-	else if (cave_feat[y][x] >= FEAT_SECRET)
+	else if (cave_feat[y][x] == FEAT_SECRET)
 	{
 		/* Tunnel */
 		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x))
@@ -1325,7 +1328,7 @@ void do_cmd_disarm(void)
 	o_idx = chest_check(y, x);
 
 	/* Call script */
-	if (perform_event(EVENT_BASH, Py_BuildValue("(i)", dir)))
+	if (perform_event(EVENT_DISARM, Py_BuildValue("(i)", dir)))
 	{
 		/* Script calls for abort */
 		return;
@@ -1672,28 +1675,35 @@ void do_cmd_alter(void)
 	}
 
 	/* Tunnel through walls */
-	else if (feat >= FEAT_SECRET)
+	else if (!cave_floor_bold(y, x) && !cave_door_bold(y, x))
+	{
+		/* Tunnel */
+		more = do_cmd_tunnel_aux(y, x);
+	}
+
+	/* Tunnel through secret doors */
+	else if (feat == FEAT_SECRET)
 	{
 		/* Tunnel */
 		more = do_cmd_tunnel_aux(y, x);
 	}
 
 	/* Bash jammed doors */
-	else if (feat >= FEAT_DOOR_HEAD + 0x08)
+	else if (feat >= FEAT_DOOR_HEAD + 0x08 && feat <= FEAT_DOOR_TAIL)
 	{
 		/* Tunnel */
 		more = do_cmd_bash_aux(y, x);
 	}
 
 	/* Open closed doors */
-	else if (feat >= FEAT_DOOR_HEAD)
+	else if (feat >= FEAT_DOOR_HEAD && feat <= FEAT_DOOR_TAIL)
 	{
 		/* Tunnel */
 		more = do_cmd_open_aux(y, x);
 	}
 
 	/* Disarm traps */
-	else if (feat >= FEAT_TRAP_HEAD)
+	else if (feat >= FEAT_TRAP_HEAD && feat <= FEAT_TRAP_TAIL)
 	{
 		/* Tunnel */
 		more = do_cmd_disarm_aux(y, x);
@@ -1887,22 +1897,8 @@ static bool do_cmd_walk_test(int y, int x)
 			msg_print("There is a pile of rubble in the way!");
 		}
 
-		/* Water */
-		else if (cave_feat[y][x] < FEAT_WATER_TAIL)
-		{
-			/* Message */
-			msg_print("There is water in the way!");
-		}
-
-		/* Lava */
-		else if (cave_feat[y][x] < FEAT_LAVA_TAIL)
-		{
-			/* Message */
-			msg_print("There is lava in the way!");
-		}
-
 		/* Door */
-		else if (cave_feat[y][x] < FEAT_SECRET)
+		else if (cave_door_bold(y, x) && cave_feat[y][x] != FEAT_SECRET)
 		{
 			/* Message */
 			msg_print("There is a door in the way!");
@@ -2207,6 +2203,7 @@ static int breakage_chance(object_type *o_ptr)
 		case TV_POTION:
 		case TV_BOTTLE:
 		case TV_FOOD:
+		case TV_MUSHROOM:
 		case TV_JUNK:
 		{
 			return (100);
@@ -2428,7 +2425,7 @@ void do_cmd_fire(void)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Stop before hitting walls */
-		if (!cave_transparent_bold(ny, nx)) break;
+		if (!cave_projectable_bold(ny, nx)) break;
 
 		/* Advance */
 		x = nx;
@@ -2717,7 +2714,7 @@ void do_cmd_throw(void)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Stop before hitting walls */
-		if (!cave_transparent_bold(ny, nx)) break;
+		if (!cave_projectable_bold(ny, nx)) break;
 
 		/* Advance */
 		x = nx;

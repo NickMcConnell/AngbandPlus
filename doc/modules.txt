@@ -1,0 +1,273 @@
+NOTE:  This file is incomplete; sorry.  It also doesn't really go into
+enough detail in spots.  Fixing this is one of my top priorities.  In
+the meantime, however, the source code for each module should provide
+enough help if you know enough about the Angband internals.
+
+
+Built-in PAngband Modules
+
+
+	PAngband comes with several (currently 10) built-in modules that
+provide an interface for the scripts to examine and modify internal data
+structures, as well as call internal functions.  Each module also
+contains certain constants that fit with the purpose of each.
+
+	This document will attempt to explain the general purpose of
+each module, and then go in-depth into what each function does.
+
+	Adding new functions or constants to a module is easy, and if
+you need either done, please let me know and I'll include it in the next
+version.
+
+
+MODULE "cave"
+
+	The cave module provides an interface to the dungeon data
+structures.  It provides various functions for computing the distance
+between two grids, checking line-of-sight, wizard-lighting the dungeon,
+checking or modifying the terrain type of a grid, and loading a copy of
+a dungeon level from a file.
+
+	It should be noted that all the "cave" functions that take a
+grid location use a 2-tuple in (y,x) format.  This makes it easy to pass
+around locations while only using a single variable.
+
+distance(location1, location2)
+
+	Returns the distance between two grids.
+
+los(location1, location2)
+
+	Check for direct line-of-sight from the one grid to another.
+
+player_can_see_bold(location)
+
+	Check whether the player can see the given grid.
+
+no_lite( ** no arguments ** )
+
+	Returns nonzero if the player's grid is darkened.
+
+cave_valid_bold(location)
+
+	Returns nonzero if the grid may be "destroyed" (i.e., isn't a
+perma-wall and the grid contains no artifacts).
+
+map_info(location)
+
+	Returns a 2-tuple containing the attr/char of the given grid.
+
+map_area( ** no arguments ** )
+
+	Do a "magic mapping" of the immediate region.
+
+wiz_lite( ** no arguments ** )
+
+	Light up the dungeon.
+
+wiz_dark( ** no arguments ** )
+
+	Cause the player to forget the map of the dungeon.
+
+set_feat(location, value)
+
+	Set the terrain type at the given location to the given value.
+
+get_feat(location)
+
+	Returns the terrain type at the given location.
+
+set_info(location, value)
+
+	Set the cave flags of the given grid to the given value.
+
+get_info(location)
+
+	Returns the cave flags of a given location.
+
+get_o_idx(location)
+
+	Returns the object index of a given location or 0 if no object
+is in that grid.
+
+get_m_idx(location)
+
+	Returns the monster index of a given location or -1 if the
+player is in that grid.  0 is returned if no creature occupies the grid.
+
+scatter(location, distance)
+
+	Returns a location up to "distance" grids away from the given
+location.  The returned grid is always within line-of-sight of the
+starting grid.
+
+dd(direction)
+
+	Returns a 2-tuple containing (dy,dx) of the given direction.
+
+turns( ** no arguments ** )
+
+	Returns the number of game turns elapsed since the game began.
+
+set_name(name)
+
+	Sets the name of the level as shown in the lower-right corner of
+the display.  If not set, the default is used ("Town" or "Level xx" or
+"xxxx ft").  This is cleared once the level is left.
+
+load_map(filename)
+
+	Loads the dungeon map from the given filename.  The file must
+reside in the lib/scpt directory.  The format is similar to the one used
+in the v_info.txt file.
+
+
+MODULE "event"
+
+	The "event" module is used to setup event handlers for any given
+event.  It consists of only one function, "add_handler", which sets the
+event handler of an event to the given function.  This module also
+contains the symbolic names of each event.
+
+add_handler(event_number, handler_function)
+
+	Sets the handler of an event to the given function.  If this
+function is called twice for the same event, only the last function used
+will be the one to be called.
+
+
+MODULE "io"
+
+	The "io" module provides functions for interacting with the
+user.  It contains low-level functions for directly drawing on the
+screen or getting single keypresses from the user.  It also has
+functions for higher-level stuff, like getting a string from the user
+and the all-important "msg_print".
+
+msg_print(message)
+
+	Prints the given message on the message line.  The normal -more-
+prompt may be shown if needed, etc.
+
+inkey(scan)
+
+	The "scan" argument is optional, and if given and nonzero, the
+inkey function does not wait for a key to be pressed, but simply returns
+the next key from the queue (if any).  If no keys are available, then
+nothing is returned.  Else, a one-character string containing the key
+pressed is returned.
+
+get_string(prompt, default)
+
+	Prompts the user for a string.  The "default" argument is
+optional, and if provided, is a default that is used if Enter is
+pressed.  The string from the user is returned.
+
+get_check(prompt)
+
+	Asks the user a simply yes/no question with the given prompt.
+Returns nonzero if yes is chosen, otherwise 0.
+
+get_aim_dir( ** no arguments ** )
+
+	Asks the user for a direction.  A target may be chosen at this
+prompt, and if so, the returned direction is '5'.  If the user hits
+'ESC', 0 is returned.  Otherwise, a normal direction is returned.
+
+get_rep_dir( ** no arguments ** )
+
+	Asks the user for a direction for repeated tasks.  Much like
+get_aim_dir, but no targets may be chosen.
+
+usleep(useconds)
+
+	Sleep for "usecond" microseconds.
+
+sound(type)
+
+	Play sound number "type".
+
+clear( ** no arguments ** )
+
+	Clear the screen.
+
+fresh( ** no arguments ** )
+
+	Refresh the screen.  This actually updates the screen, while
+other functions like "put_str" just update an internal copy.  Functions
+that use "inkey" automatically refresh the screen while waiting for a
+keypress, so this is rarely needed.
+
+save( ** no arguments ** )
+
+	Save a copy of the screen to a special backup area.
+
+load( ** no arguments ** )
+
+	Load the screen from the special backup area.
+
+put_str(location, str, attr)
+
+	Puts the string "str" at location "location" on the screen.  The
+"attr" argument is optional, and defines the color of the string.  It
+defaults to white.  "location" is a 2-tuple, in (y,x) format.
+
+erase(location, length)
+
+	Erases part of a row of text, starting at "location".  The
+"length" argument is optional, and defaults to 255 (which would clear to
+the end of the row).
+
+xtra(type, value)
+
+	Cause the terminal to do something "extra".  The type of thing
+to do is determined by "type".  "Value" is optional, and defaults to 0.
+
+get_cursor( ** no arguments ** )
+
+	Returns a 2-tuple containing the cursor status.  The first part
+of the tuple is the cursor visibility (1 or 0).  The second part is
+another 2-tuple containing the location in (y,x) format.
+
+set_cursor(visibility, location)
+
+	Set the cursor visibility and location.  The "location" argument
+is optional, and defaults to the current cursor location.
+
+what(location)
+
+	The "location" argument is optional, and defaults to the current
+cursor position.  This function returns a 2-tuple containing the
+attr/char of the given screen location.
+
+putch(location, data)
+
+	Puts the char/attr specified by "data" at the given location.
+Location is a standard 2-tuple in (y,x) format and data is a 2-tuple
+containing the attr/char.
+
+
+
+MODULE "kind"
+
+	The "kind" module provides a read-only interface the "object
+kind" database.
+
+get_field(index, field)
+
+	Returns the given field of the specified kind index.  "index" is
+an integer (usually given by an object's k_idx).  "field" is a string
+containing the name of the field needed.
+
+
+
+MODULE "misc"
+
+	The "misc" module provides various miscellaneous constants and
+functions.
+
+quit(why)
+
+	Quits the game.  The "why" argument is optional and, if given,
+is printed as the game exits.  Note that this will not save the current
+game, so use only if necessary!

@@ -1170,7 +1170,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_ROD:
 		{
 			/* Require identical charges */
-			if (o_ptr->pval != j_ptr->pval) return (0);
+			if (o_ptr->timeout != j_ptr->timeout) return (0);
 
 			/* Probably okay */
 			break;
@@ -3661,7 +3661,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			if (!los(y, x, ty, tx)) continue;
 
 			/* Require floor space */
-			if (cave_feat[ty][tx] > FEAT_DIRT) continue;
+			if (!(f_info[cave_feat[ty][tx]].flags & (FF_HOLD_OBJECT))) continue;
 
 			/* No objects */
 			k = 0;
@@ -3751,7 +3751,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		}
 
 		/* Require floor space */
-		if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
+		if (!(f_info[cave_feat[ty][tx]].flags & (FF_HOLD_OBJECT))) continue;
 
 		/* Bounce to that location */
 		by = ty;
@@ -4085,7 +4085,7 @@ void inven_item_optimize(int item)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -4299,9 +4299,9 @@ s16b inven_carry(object_type *o_ptr)
 
 			/* Hack -- readable books always come first */
 			if (book_okay(o_ptr->tval, o_ptr->sval) &&
-			    !book_okay(j_ptr->tval, j_ptr->sval)) break;
+			   !book_okay(j_ptr->tval, j_ptr->sval)) break;
 			if (book_okay(j_ptr->tval, j_ptr->sval) &&
-			    !book_okay(o_ptr->tval, o_ptr->sval)) continue;
+			   !book_okay(o_ptr->tval, o_ptr->sval)) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -4648,9 +4648,9 @@ void reorder_pack(void)
 
 			/* Hack -- readable books always come first */
 			if (book_okay(o_ptr->tval, o_ptr->sval) &&
-			    !book_okay(j_ptr->tval, j_ptr->sval)) break;
+			   !book_okay(j_ptr->tval, j_ptr->sval)) break;
 			if (book_okay(j_ptr->tval, j_ptr->sval) &&
-			    !book_okay(o_ptr->tval, o_ptr->sval)) continue;
+			   !book_okay(o_ptr->tval, o_ptr->sval)) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -5084,7 +5084,7 @@ void display_koff(int k_idx)
 	/* Warriors are illiterate */
 	if (mp_ptr->spell_first == 99) return;
 
-	/* Display spells in readible books */
+	/* Display spells in legal books */
 	if (book_okay(i_ptr->tval, i_ptr->sval))
 	{
 		int i;

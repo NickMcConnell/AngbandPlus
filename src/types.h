@@ -89,6 +89,7 @@ typedef struct name_type name_type;
 typedef struct book_type book_type;
 typedef struct spell_type spell_type;
 typedef struct magic_type magic_type;
+typedef struct tval_type tval_type;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
 typedef struct player_class player_class;
@@ -161,7 +162,7 @@ struct feature_type
 
 	byte mimic;			/* Feature to mimic */
 
-	byte extra;			/* Extra byte (unused) */
+	byte flags;			/* Flags */
 
 	s16b unused;		/* Extra bytes (unused) */
 
@@ -726,7 +727,20 @@ struct magic_type
 	spell_type spells[MAX_N_IDX];	/* The available spells */
 };
 
+/*
+ * Information about an item type
+ */
+struct tval_type
+{
+	u16b name;			/* Name (offset) */
+	u16b text;			/* Text (offset) */
 
+	byte t_attr;			/* Default color in inven */
+
+	s16b wield_slot;		/* Slot wielded in */
+
+	byte flavor;			/* Flavor type */
+};
 
 /*
  * Player sex info
@@ -785,6 +799,7 @@ struct player_race
 struct player_class
 {
 	u16b name;			/* Name (offset) */
+	u16b text;			/* Text (offset) */
 
 	s16b c_adj[6];		/* Class stat modifier */
 
@@ -808,6 +823,10 @@ struct player_class
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
+
+	byte blows_num;			/* Max number of blows */
+	byte blows_mul;			/* Blows multiplier */
+	s16b blows_wgt;			/* Minimum weapon weight for blows */
 
 	byte obj_tval[8];		/* Initial object tvals */
 	byte obj_sval[8];		/* Initial object svals */

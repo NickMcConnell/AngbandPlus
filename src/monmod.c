@@ -105,7 +105,7 @@ static PyObject *Mon_move_to(MonObject *self, PyObject *args)
 	monster_type *m_ptr = &m_list[self->m_idx];
 
 	/* Parse arguments */
-	if (!PyArg_ParseTuple(args, "ii", &y, &x))
+	if (!PyArg_ParseTuple(args, "(ii)", &y, &x))
 		return NULL;
 
 	/* Swap the monster with whatever is in that spot */
@@ -117,12 +117,33 @@ static PyObject *Mon_move_to(MonObject *self, PyObject *args)
 }
 
 /*
+ * Have a monster take damage
+ */
+static PyObject *Mon_take_hit(MonObject *self, PyObject *args)
+{
+	int dam;
+	bool dead, fear;
+	char *note = NULL;
+
+	/* Parse arguments */
+	if (!PyArg_ParseTuple(args, "i|s", &dam, &note))
+		return NULL;
+
+	/* Cause damage */
+	dead = mon_take_hit(self->m_idx, dam, &fear, note);
+
+	/* Return dead and afraid flags */
+	return Py_BuildValue("(ii)", dead, fear);
+}
+
+/*
  * Table of class methods
  */
 static PyMethodDef Mon_methods[] =
 {
 	{ "desc", (PyCFunction)Mon_desc, 1 },
 	{ "move_to", (PyCFunction)Mon_move_to, 1 },
+	{ "take_hit", (PyCFunction)Mon_take_hit, 1 },
 	{ NULL, NULL }
 };
 

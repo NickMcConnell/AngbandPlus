@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.1.0"
+#define VERSION_STRING	"0.1.1"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	1
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 
 /*
  * This value is not currently used
@@ -140,6 +140,7 @@
 #define MAX_N_IDX	256	/* Max size for "n_info[]" */
 #define MAX_B_IDX	256	/* Max size for "b_info[]" */
 #define MAX_S_IDX	26	/* Max size for "s_info[]" */
+#define MAX_T_IDX	128	/* Max size for "t_info[]" */
 
 
 /*
@@ -305,6 +306,7 @@
  *
  * Each of these may be mapped to a Python function.
  */
+#define EVENT_NONE		0
 #define EVENT_ENTER_LEVEL	1
 #define EVENT_LEAVE_LEVEL	2
 #define EVENT_CREATE_LEVEL	3
@@ -351,7 +353,12 @@
 #define EVENT_BONUSES		45
 #define EVENT_BOOK_OK		46
 #define EVENT_SPELL		47
-#define EVENT_MAX		48
+#define EVENT_PROJECT_F		48
+#define EVENT_PROJECT_O		49
+#define EVENT_PROJECT_M		50
+#define EVENT_PROJECT_P		51
+#define EVENT_OBJECT_DESC	52
+#define EVENT_MAX		53
 
 
 /*
@@ -1093,8 +1100,9 @@
 #define TV_SOFT_ARMOR   36	/* Soft Armor */
 #define TV_HARD_ARMOR   37	/* Hard Armor */
 #define TV_DRAG_ARMOR	38	/* Dragon Scale Mail */
-#define TV_LITE         39	/* Lites (including Specials) */
+#define TV_LITE         39	/* Lites */
 #define TV_AMULET       40	/* Amulets (including Specials) */
+#define TV_PERMA_LITE	41	/* Permanent lights (all Specials) */
 #define TV_RING         45	/* Rings (including Specials) */
 #define TV_STAFF        55
 #define TV_WAND         65
@@ -1103,6 +1111,7 @@
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
+#define TV_MUSHROOM	81
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
 #define TV_GOLD         100	/* Gold can only be picked up by players */
@@ -1738,7 +1747,8 @@
 /* xxx (many) */
 #define PU_MONSTERS	0x10000000L	/* Update monsters */
 #define PU_DISTANCE	0x20000000L	/* Update distances */
-/* xxx (many) */
+/* xxx */
+#define PU_PANEL	0x80000000L	/* Update panel */
 
 
 /*
@@ -1770,20 +1780,17 @@
 /* xxx */
 #define PR_EXTRA	0x01000000L	/* Display Extra Info */
 #define PR_BASIC	0x02000000L	/* Display Basic Info */
-#define PR_MAP		0x04000000L	/* Display Map */
-#define PR_WIPE		0x08000000L	/* Hack -- Total Redraw */
 /* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
+#define PR_MAP		0x08000000L	/* Display Map */
+/* xxx (many) */
 
 /*
  * Bit flags for the "p_ptr->window" variable (etc)
  */
 #define PW_INVEN	0x00000001L	/* Display inven/equip */
 #define PW_EQUIP	0x00000002L	/* Display equip/inven */
-#define PW_SPELL	0x00000004L	/* Display spell list */
-#define PW_PLAYER	0x00000008L	/* Display character */
+#define PW_PLAYER_0	0x00000004L	/* Display player (basic) */
+#define PW_PLAYER_1	0x00000008L	/* Display player (extra) */
 /* xxx */
 /* xxx */
 #define PW_MESSAGE	0x00000040L	/* Display messages */
@@ -1805,6 +1812,19 @@
 #define PM_GLOVE	0x0002		/* Gloves reduce mana */
 #define PM_EDGED	0x0004		/* Edged weapons hinder casting */
 #define PM_POWERFUL	0x0008		/* Some spells are more powerful */
+#define PM_XXX1		0x0010
+#define PM_XXX2		0x0020
+#define PM_XXX3		0x0040
+#define PM_XXX4		0x0080
+#define PM_XXX5		0x0100
+#define PM_XXX6		0x0200
+#define PM_XXX7		0x0400
+#define PM_XXX8		0x0800
+#define PM_XXX9		0x1000
+#define PM_XXX10	0x2000
+#define PM_XXX11	0x4000
+#define PM_XXX12	0x8000
+
 
 
 
@@ -1824,8 +1844,33 @@
 #define CAVE_WALL	0x80 	/* wall flag */
 
 
+/*
+ * Feature flags
+ */
+#define FF_SOLID	0x01	/* blocks movement */
+#define FF_OPAQUE	0x02	/* blocks sight */
+#define FF_PERMANENT	0x04	/* cannot be removed */
+#define FF_NO_MISSILE	0x08	/* blocks projectiles */
+#define FF_HOLD_OBJECT	0x10	/* can hold objects (floors) */
+#define FF_DOOR		0x20	/* is a door (secret or otherwise) */
+
+
+
 
 /*** Object flags ***/
+
+
+/*
+ * Tval flavors
+ */
+#define TF_RING		0x01	/* has a flavor (rings) */
+#define TF_AMULET	0x02	/* has a flavor (amulets) */
+#define TF_STAFF	0x04	/* has a flavor (staves) */
+#define TF_WAND		0x08	/* has a flavor (wands) */
+#define TF_ROD		0x10	/* has a flavor (rods) */
+#define TF_MUSHROOM	0x20	/* has a flavor (mushrooms) */
+#define TF_POTION	0x40	/* has a flavor (potions) */
+#define TF_SCROLL	0x80	/* has a flavor (scrolls) */
 
 
 /*
@@ -2117,8 +2162,8 @@
 #define RF2_XXX4			0x00000800	/* (?) */
 #define RF2_POWERFUL		0x00001000	/* Monster has strong breath */
 #define RF2_XXX5			0x00002000	/* (?) */
-#define RF2_XXX7			0x00004000	/* (?) */
-#define RF2_XXX6			0x00008000	/* (?) */
+#define RF2_XXX6			0x00004000	/* (?) */
+#define RF2_XXX7			0x00008000	/* (?) */
 #define RF2_OPEN_DOOR		0x00010000	/* Monster can open doors */
 #define RF2_BASH_DOOR		0x00020000	/* Monster can bash doors */
 #define RF2_PASS_WALL		0x00040000	/* Monster can pass walls */
@@ -2149,8 +2194,8 @@
 #define RF3_ANIMAL			0x00000080	/* Animal */
 #define RF3_FRIENDLY			0x00000100	/* Friendly */
 #define RF3_NEUTRAL			0x00000200	/* Neutral */
-#define RF3_XXX3			0x00000400	/* Non-Vocal (?) */
-#define RF3_XXX4			0x00000800	/* Non-Living (?) */
+#define RF3_XXX1			0x00000400	/* Non-Vocal (?) */
+#define RF3_XXX2			0x00000800	/* Non-Living (?) */
 #define RF3_HURT_LITE		0x00001000	/* Hurt by lite */
 #define RF3_HURT_ROCK		0x00002000	/* Hurt by rock remover */
 #define RF3_HURT_FIRE		0x00004000	/* Hurt badly by fire */
@@ -2160,13 +2205,13 @@
 #define RF3_IM_FIRE			0x00040000	/* Resist fire a lot */
 #define RF3_IM_COLD			0x00080000	/* Resist cold a lot */
 #define RF3_IM_POIS			0x00100000	/* Resist poison a lot */
-#define RF3_XXX5			0x00200000	/* Immune to (?) */
+#define RF3_XXX3			0x00200000	/* Immune to (?) */
 #define RF3_RES_NETH		0x00400000	/* Resist nether a lot */
 #define RF3_RES_WATE		0x00800000	/* Resist water */
 #define RF3_RES_PLAS		0x01000000	/* Resist plasma */
 #define RF3_RES_NEXU		0x02000000	/* Resist nexus */
 #define RF3_RES_DISE		0x04000000	/* Resist disenchantment */
-#define RF3_XXX6			0x08000000	/* Resist (?) */
+#define RF3_XXX4			0x08000000	/* Resist (?) */
 #define RF3_NO_FEAR			0x10000000	/* Cannot be scared */
 #define RF3_NO_STUN			0x20000000	/* Cannot be stunned */
 #define RF3_NO_CONF			0x40000000	/* Cannot be confused */
@@ -2176,9 +2221,9 @@
  * New monster race bit flags
  */
 #define RF4_SHRIEK			0x00000001	/* Shriek for help */
-#define RF4_XXX2			0x00000002	/* (?) */
-#define RF4_XXX3			0x00000004	/* (?) */
-#define RF4_XXX4			0x00000008	/* (?) */
+#define RF4_XXX1			0x00000002	/* (?) */
+#define RF4_XXX2			0x00000004	/* (?) */
+#define RF4_XXX3			0x00000008	/* (?) */
 #define RF4_ARROW_1			0x00000010	/* Fire an arrow (light) */
 #define RF4_ARROW_2			0x00000020	/* Fire an arrow (heavy) */
 #define RF4_ARROW_3			0x00000040	/* Fire missiles (light) */
@@ -2203,10 +2248,10 @@
 #define RF4_BR_PLAS			0x02000000	/* Breathe Plasma */
 #define RF4_BR_WALL			0x04000000	/* Breathe Force */
 #define RF4_BR_MANA			0x08000000	/* Breathe Mana */
-#define RF4_XXX5			0x10000000
-#define RF4_XXX6			0x20000000
-#define RF4_XXX7			0x40000000
-#define RF4_XXX8			0x80000000
+#define RF4_XXX4			0x10000000
+#define RF4_XXX5			0x20000000
+#define RF4_XXX6			0x40000000
+#define RF4_XXX7			0x80000000
 
 /*
  * New monster race bit flags
@@ -2340,7 +2385,7 @@
 #define OPT_use_old_target			4
 #define OPT_always_pickup			5
 #define OPT_always_repeat			6
-#define OPT_show_flavors			7
+#define OPT_depth_in_feet			7
 #define OPT_stack_force_notes		8
 #define OPT_stack_force_costs		9
 #define OPT_show_labels				10
@@ -2348,7 +2393,7 @@
 #define OPT_show_choices			12
 #define OPT_show_details			13
 #define OPT_ring_bell				14
-#define OPT_inventory_colors		15
+#define OPT_show_flavors			15
 #define OPT_run_ignore_stairs		16
 #define OPT_run_ignore_doors		17
 #define OPT_run_cut_corners			18
@@ -2410,7 +2455,7 @@
 #define use_old_target			op_ptr->opt[OPT_use_old_target]
 #define always_pickup			op_ptr->opt[OPT_always_pickup]
 #define always_repeat			op_ptr->opt[OPT_always_repeat]
-#define show_flavors			op_ptr->opt[OPT_show_flavors]
+#define depth_in_feet			op_ptr->opt[OPT_depth_in_feet]
 #define stack_force_notes		op_ptr->opt[OPT_stack_force_notes]
 #define stack_force_costs		op_ptr->opt[OPT_stack_force_costs]
 #define show_labels				op_ptr->opt[OPT_show_labels]
@@ -2418,7 +2463,7 @@
 #define show_choices			op_ptr->opt[OPT_show_choices]
 #define show_details			op_ptr->opt[OPT_show_details]
 #define ring_bell				op_ptr->opt[OPT_ring_bell]
-#define inventory_colors		op_ptr->opt[OPT_inventory_colors]
+#define show_flavors			op_ptr->opt[OPT_show_flavors]
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
 #define run_cut_corners			op_ptr->opt[OPT_run_cut_corners]
@@ -2629,24 +2674,40 @@
  * Line 1 -- forbid doors, rubble, seams, walls
  */
 #define cave_floor_bold(Y,X) \
-	(!(cave_feat[Y][X] & 0x80))
+	(!(f_info[cave_feat[Y][X]].flags & (FF_SOLID)))
 
 /*
  * Determine if a "legal" grid is a "transparent" grid
  *
- * Line 1 -- forbid doors, rubble, seams, walls, water, lava
+ * Note that we use the "CAVE_WALL" flag here, which is given only
+ * to grids containing a feature with the "FF_OPAQUE" flag.  Hence,
+ * the two flags are interchangable, though "CAVE_WALL" is faster.
+ *
+ * Line 1 -- forbid doors, rubble, seams, walls
  */
 #define cave_transparent_bold(Y,X) \
-	(!(cave_feat[Y][X] & 0x40))
+	(!(cave_info[Y][X] & (CAVE_WALL)))
+
+/*
+ * Determine if a "legal" grid is a "projectable" grid
+ */
+#define cave_projectable_bold(Y,X) \
+	(!(f_info[cave_feat[Y][X]].flags & (FF_NO_MISSILE)))
+
+/*
+ * Determine if a "legal" grid is a "door" grid
+ */
+#define cave_door_bold(Y,X) \
+	(f_info[cave_feat[Y][X]].flags & (FF_DOOR))
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid
  *
- * Line 1 -- forbid non-floors
+ * Line 1 -- forbid features that won't hold objects
  * Line 2 -- forbid normal objects
  */
 #define cave_clean_bold(Y,X) \
-	((cave_feat[Y][X] == FEAT_FLOOR) && \
+	((f_info[cave_feat[Y][X]].flags & (FF_HOLD_OBJECT)) && \
 	 (cave_o_idx[Y][X] == 0))
 
 /*
@@ -2662,12 +2723,12 @@
 /*
  * Determine if a "legal" grid is an "naked" floor grid
  *
- * Line 1 -- forbid non-floors
+ * Line 1 -- forbid features that won't hold objects
  * Line 2 -- forbid normal objects
  * Line 3 -- forbid player/monsters
  */
 #define cave_naked_bold(Y,X) \
-	((cave_feat[Y][X] == FEAT_FLOOR) && \
+	((f_info[cave_feat[Y][X]].flags & (FF_HOLD_OBJECT)) && \
 	 (cave_o_idx[Y][X] == 0) && \
 	 (cave_m_idx[Y][X] == 0))
 
@@ -2675,16 +2736,10 @@
 /*
  * Determine if a "legal" grid is "permanent"
  *
- * Line 1 -- perma-walls
- * Line 2-3 -- stairs
- * Line 4-5 -- shop doors
+ * Line 1 -- anything with permanent flag
  */
 #define cave_perma_bold(Y,X) \
-	((cave_feat[Y][X] >= FEAT_PERM_EXTRA) || \
-	 ((cave_feat[Y][X] == FEAT_LESS) || \
-	  (cave_feat[Y][X] == FEAT_MORE)) || \
-	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
+	(f_info[cave_feat[Y][X]].flags & (FF_PERMANENT))
 
 
 /*

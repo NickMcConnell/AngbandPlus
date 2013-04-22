@@ -1,0 +1,245 @@
+# File: t_info.txt
+
+
+# This file is used to initialize the "lib/raw/t_info.raw" file, which is
+# used to initialize the "item type" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/raw/t_info.raw" file.
+
+
+# Version stamp (required)
+
+V:0.1.1
+
+
+# Skeletons
+
+N:1:Skeleton
+I:x:w
+D:%k
+
+# Bottles
+
+N:2:Bottle
+I:x:w
+D:%k
+
+# Junk
+
+N:3:Junk
+I:x:w
+D:%k
+
+# Spikes
+
+N:5:Spike
+I:x:s
+D:%k
+
+# Chests
+
+N:7:Chest
+I:x:s
+D:%k{{%y}}
+
+# Shot
+
+N:16:Shot
+I:x:U
+D:%k{{%e[%c (%h,%d)[%x]]}}
+
+# Arrows
+
+N:17:Arrow
+I:x:U
+D:%k{{%e[%c (%h,%d)[%x]]}}
+
+# Bolts
+
+N:18:Bolt
+I:x:U
+D:%k{{%e[%c (%h,%d)[%x]]}}
+
+# Bow
+
+N:19:Bow
+I:b:u
+D:%k{{%e}}[ (x%o){{ (%h,%d)[%x]}}]
+
+# Digger
+
+N:20:Digger
+I:a:s
+D:%k{{%e[%c (%h,%d)[%x]]}}
+
+# Hafted
+
+N:21:Hafted
+I:a:w
+D:%k{{%e[%c (%h,%d)[%x]]}}
+
+# Polearm
+
+N:22:Polearm
+I:a:w
+D:%k{{%e[%c (%h,%d)[%x]]}}
+
+# Sword
+
+N:23:Sword
+I:a:w
+D:%k{{%e[%c (%h,%d)[%x]]}}
+
+# Boots
+
+N:30:Boots
+I:l:U
+D:%k{{%e[%g \[%b,%a\][%x]]}}
+
+# Gloves
+
+N:31:Gloves
+I:k:U
+D:%k{{%e[%g \[%b,%a\][%x]]}}
+
+# Helm
+
+N:32:Helm
+I:j:U
+D:%k{{%e[%g \[%b,%a\][%x]]}}
+
+# Crown
+
+N:33:Crown
+I:j:U
+D:%k{{%e[%g \[%b,%a\][%x]]}}
+
+# Shield
+
+N:34:Shield
+I:i:U
+D:%k{{%e[%g \[%b,%a\][%x]]}}
+
+# Cloak
+
+N:35:Cloak
+I:h:U
+D:%k{{%e[%g \[%b,%a\][%x]]}}
+
+# Soft Armor
+
+N:36:Soft Armor
+I:g:s
+D:%k{{%e[%g \[%b,%a\][%x]]}}
+
+# Hard Armor
+
+N:37:Hard Armor
+I:g:s
+D:%k{{%e[%g \[%b,%a\][%x]]}}
+
+# Dragon Scale Mail
+
+N:38:Dragon Scale Mail
+I:g:s
+D:%k{{%e[%g \[%b,%a\][%x]]}}
+
+# Light
+
+N:39:Light
+I:f:y
+D:%k[[ (with %p turns of light)]]
+
+# Amulet
+
+N:40:Amulet
+I:e:o
+D:& <%f >Amulet~{{ of %k}}
+F:FLAVOR_AMULET
+
+# Permanent Light
+
+N:41:Permanent Light
+I:f:y
+D:%k{%e}
+
+# Ring
+
+N:45:Ring
+I:d:r
+D:& <%f >Ring~{ of %k[[{%c%g%x}]]}
+F:FLAVOR_RING
+
+# Staff
+
+N:55:Staff
+I:x:U
+D:& <%f >Staff~{ of %k[[{ (%p charges)}]]}
+F:FLAVOR_STAFF
+
+# Wand
+
+N:65:Wand
+I:x:g
+D:& <%f >Wand~{ of %k[[{ (%p charges)}]]}
+F:FLAVOR_WAND
+
+# Rod
+
+N:66:Rod
+I:x:v
+D:& <%f >Rod~{{ of %k}}
+F:FLAVOR_ROD
+
+# Scroll
+
+N:70:Scroll
+I:x:w
+D:& Scroll~< titled "%f">{ of %k}
+F:FLAVOR_SCROLL
+
+# Potion
+
+N:75:Potion
+I:x:B
+D:& <%f >Potion~{ of %k}
+F:FLAVOR_POTION
+
+# Flask
+
+N:77:Flask
+I:x:y
+D:%k
+
+# Food
+
+N:80:Food
+I:x:U
+D:%k
+
+# Mushroom
+
+N:81:Mushroom
+I:x:U
+D:& <%f >Mushroom~{ of %k}
+F:FLAVOR_MUSHROOM
+
+# Magic book
+
+N:90:Magic Book
+I:x:R
+D:& Book~ of Magic Spells %k
+
+# Prayer book
+
+N:91:Prayer Book
+I:x:G
+D:& Holy Book~ of Prayers %k
+
+# Gold
+
+N:100:Gold
+I:x:y
+D:%k

@@ -135,6 +135,11 @@ void initevent(void)
 	add_constant(d, "EVENT_BONUSES", EVENT_BONUSES);
 	add_constant(d, "EVENT_BOOK_OK", EVENT_BOOK_OK);
 	add_constant(d, "EVENT_SPELL", EVENT_SPELL);
+	add_constant(d, "EVENT_PROJECT_F", EVENT_PROJECT_F);
+	add_constant(d, "EVENT_PROJECT_O", EVENT_PROJECT_O);
+	add_constant(d, "EVENT_PROJECT_M", EVENT_PROJECT_M);
+	add_constant(d, "EVENT_PROJECT_P", EVENT_PROJECT_P);
+	add_constant(d, "EVENT_OBJECT_DESC", EVENT_OBJECT_DESC);
 	add_constant(d, "EVENT_MAX", EVENT_MAX);
 }
 
