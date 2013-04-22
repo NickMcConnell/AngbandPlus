@@ -1720,7 +1720,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-                else if (flags3 & (RF3_DRAGONRIDER)) spoil_out (" DragonRider");
+                else if (flags3 & (RF3_DRAGONRIDDER)) spoil_out (" DragonRidder");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1904,7 +1904,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
 		if (flags6 & (RF6_RAISE_DEAD))        vp[vn++] = "raise dead";
-                if (flags6 & (RF6_S_DRAGONRIDER))     vp[vn++] = "summon a dragonrider";
+                if (flags6 & (RF6_S_DRAGONRIDDER))     vp[vn++] = "summon a DragonRidder";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon aid";

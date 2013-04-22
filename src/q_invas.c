@@ -90,12 +90,12 @@ bool quest_invasion_plevel_hook(int q_idx)
         /* Ok give the quest */
         quick_messages = FALSE;
         cmsg_print(TERM_YELLOW, "A Dragonrider jumps out of the between in front of you! And says:");
-        cmsg_print(TERM_YELLOW, "'Hi noble hero, I am L'ron rider of the bronze Tarath, Turgon king of gondolin sent me.'");
+        cmsg_print(TERM_YELLOW, "'Hi noble hero, I am L'ron rider of the bronze Tarath, Turgon king of Gondolin sent me.'");
         cmsg_print(TERM_YELLOW, "'Gondolin is being invaded, he needs your help now or everything will be lost.'");
-        cmsg_print(TERM_YELLOW, "'I will bring you to gondolin, but we need to go now.'");
+        cmsg_print(TERM_YELLOW, "'I will bring you to Gondolin, but we need to go now.'");
         if (!get_check("Will you come?"))
         {
-                cmsg_print(TERM_YELLOW, "'Turgon overestimanted you ... Now Gondolin will fall.'");
+                cmsg_print(TERM_YELLOW, "'Turgon overestimated you ... Now Gondolin will fall.'");
                 cmsg_print(TERM_YELLOW, "'I will return alone and die there. May you be doomed!'");
 
                 cquest.status = QUEST_STATUS_FAILED;
@@ -106,7 +106,7 @@ bool quest_invasion_plevel_hook(int q_idx)
                 process_hooks_restart = TRUE;
                 return (FALSE);
         }
-        if (p_ptr->prace == RACE_DRAGONRIDER)
+        if (p_ptr->prace == RACE_DRAGONRIDDER)
         {
                 cmsg_print(TERM_YELLOW, "'You made the right decision, Tarath will show your dragon the way!'");
         }

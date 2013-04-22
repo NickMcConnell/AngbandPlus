@@ -3958,7 +3958,7 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
                         if (esp & ESP_UNDEAD) info[i++] = "It allows you to sense presence of undead.";
                         if (esp & ESP_EVIL) info[i++] = "It allows you to sense the presence of evil beings.";
                         if (esp & ESP_ANIMAL) info[i++] = "It allows you to sense the presence of animals.";
-                        if (esp & ESP_DRAGONRIDER) info[i++] = "It allows you to sense the presence of dragonriders.";
+                        if (esp & ESP_DRAGONRIDDER) info[i++] = "It allows you to sense the presence of dragonriders.";
                         if (esp & ESP_GOOD) info[i++] = "It allows you to sense the presence of good beings.";
                         if (esp & ESP_NONLIVING) info[i++] = "It allows you to sense the presence of non-living things.";
                         if (esp & ESP_UNIQUE) info[i++] = "It allows you to sense the presence of unique beings.";

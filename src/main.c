@@ -669,7 +669,7 @@ int main(int argc, char *argv[])
 	signals_init();
 
 	/* Initialize */
-	init_angband();
+	init_angband("cave");
 
 	/* Wait for response */
 	pause_line(23);

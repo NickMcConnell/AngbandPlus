@@ -5943,10 +5943,10 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
                         fire_ball(GF_RAISE, dir, 1, 0);
 			break;
 		}
-                case 79: /* Summon dragonrider */
+                case 79: /* Summon dragonridder */
                                 for (k = 0; k < 1; k++)
 				{
-                                                summon_specific_friendly(y, x, rlev, SUMMON_DRAGONRIDER, TRUE);
+                                                summon_specific_friendly(y, x, rlev, SUMMON_DRAGONRIDDER, TRUE);
 				}
                         break;
                 case 80: /* Summon kin */

@@ -255,7 +255,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
-                if (r_ptr->flags3 & (RF3_DRAGONRIDER)) flags3 |= (RF3_DRAGONRIDER);
+                if (r_ptr->flags3 & (RF3_DRAGONRIDDER)) flags3 |= (RF3_DRAGONRIDDER);
                 if (r_ptr->flags7 & (RF7_SPIDER)) flags7 |= (RF7_SPIDER);
 
 		/* Know "forced" flags */
@@ -575,7 +575,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 		else if (flags3 & (RF3_GIANT))      roff(" giant");
 		else if (flags3 & (RF3_TROLL))      roff(" troll");
 		else if (flags3 & (RF3_ORC))        roff(" orc");
-                else if (flags3 & (RF3_DRAGONRIDER))roff(" DragonRider");
+                else if (flags3 & (RF3_DRAGONRIDDER))roff(" DragonRider");
                 else if (flags7 & (RF7_SPIDER))     roff(" spider");
                 else if (flags7 & (RF7_NAZGUL))     roff(" Nazgul");
 		else                                roff(" creature");
@@ -777,7 +777,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 	if (flags6 & (RF6_TELE_TO))         vp[vn++] = "teleport to";
 	if (flags6 & (RF6_TELE_AWAY))       vp[vn++] = "teleport away";
 	if (flags6 & (RF6_TELE_LEVEL))      vp[vn++] = "teleport level";
-        if (flags6 & (RF6_S_DRAGONRIDER))   vp[vn++] = "summon a DragonRider";
+        if (flags6 & (RF6_S_DRAGONRIDDER))   vp[vn++] = "summon a DragonRider";
 	if (flags6 & (RF6_DARKNESS))        vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))           vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))          vp[vn++] = "cause amnesia";

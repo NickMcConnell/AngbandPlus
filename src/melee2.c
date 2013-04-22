@@ -2336,7 +2336,7 @@ static bool monst_spell_monst(int m_idx)
 			}
 			
 
-                        /* RF6_S_DRAGONRIDER */
+                        /* RF6_S_DRAGONRIDDER */
                 case 160+15:
 			{
 				disturb(1, 0);
@@ -2345,9 +2345,9 @@ static bool monst_spell_monst(int m_idx)
 				for (k = 0; k < 1; k++)
 				{
 					if (friendly)
-                                                count += summon_specific_friendly(y, x, rlev, SUMMON_DRAGONRIDER, TRUE);
+                                                count += summon_specific_friendly(y, x, rlev, SUMMON_DRAGONRIDDER, TRUE);
 					else
-                                                count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDER);
+                                                count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDDER);
 				}
 				if (blind && count) msg_print("You hear something appear nearby.");
                                 break;
@@ -4288,7 +4288,7 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 
-                        /* RF6_S_DRAGONRIDER */
+                        /* RF6_S_DRAGONRIDDER */
                 case 160+15:
 			{
 				disturb(1, 0);
@@ -4296,7 +4296,7 @@ bool make_attack_spell(int m_idx)
                                 else msg_format("%^s magically summons a DragonRider!", m_name);
 				for (k = 0; k < 1; k++)
 				{
-                                         count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDER);
+                                         count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDDER);
 				}
 				if (blind && count) msg_print("You hear something appear nearby.");
                                 break;
@@ -4852,7 +4852,12 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 	/* Success */
 	return (TRUE);
 }
+#else
 
+static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
+{
+return(FALSE);
+}
 #endif /* MONSTER_FLOW */
 
 
@@ -4896,7 +4901,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 				/* Check distance */
 				if (distance(y, x, fy, fx) != d) continue;
 				
-				/* Check for "availability" (if monsters can flow) */
+#ifdef MONSTER_FLOW		/* Check for "availability" (if monsters can flow) */
 				if (flow_by_sound)
 				{
 					/* Ignore grids very far from the player */
@@ -4905,7 +4910,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 					/* Ignore too-distant grids */
 					if (cave[y][x].cost > cave[fy][fx].cost + 2 * d) continue;
 				}
-				
+#endif /*MONSTER_FLOW*/				
 				/* Check for absence of shot */
 				if (!projectable(y, x, py, px))
 				{

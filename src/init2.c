@@ -389,7 +389,7 @@ static errr init_f_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_f_info(void)
+errr init_f_info(char *subdir)
 {
 	int fd;
 
@@ -401,7 +401,7 @@ static errr init_f_info(void)
 
 	/* General buffer */
 	char buf[1024];
-
+	char dir[1024];
 
 	/*** Make the header ***/
 
@@ -424,7 +424,7 @@ static errr init_f_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -458,6 +458,7 @@ static errr init_f_info(void)
 		msg_print("Ignoring obsolete/defective 'f_info.raw' file.");
 		msg_print(NULL);
 	}
+#endif /*ALLOW_BINARY*/
 
 
 	/*** Make the fake arrays ***/
@@ -477,12 +478,13 @@ static errr init_f_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "f_info.txt");
+	path_build(dir, 1024, ANGBAND_DIR_EDIT, subdir);
+	path_build(buf, 1024, dir, "f_info.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
-	/* Parse it */
+	/* Did we open it? */
 	if (!fp) quit("Cannot open 'f_info.txt' file.");
 
 	/* Parse the file */
@@ -509,7 +511,7 @@ static errr init_f_info(void)
 		quit("Error in 'f_info.txt' file.");
 	}
 
-
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -558,10 +560,11 @@ static errr init_f_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif /*ALLOW_BINARY*/
 
 #endif	/* ALLOW_TEMPLATES */
 
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -581,6 +584,7 @@ static errr init_f_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'f_info.raw' file.");
+#endif /*ALLOW_BINARY*/
 
 	/* Success */
 	return (0);
@@ -652,7 +656,7 @@ static errr init_k_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_k_info(void)
+errr init_k_info(char *subdir)
 {
 	int fd;
 
@@ -664,7 +668,7 @@ static errr init_k_info(void)
 
 	/* General buffer */
 	char buf[1024];
-
+	char dir[1024];
 
 	/*** Make the header ***/
 
@@ -687,7 +691,7 @@ static errr init_k_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -719,7 +723,7 @@ static errr init_k_info(void)
 		msg_print("Ignoring obsolete/defective 'k_info.raw' file.");
 		msg_print(NULL);
 	}
-
+#endif /*ALLOW_BINARY*/
 
 	/*** Make the fake arrays ***/
 
@@ -738,7 +742,8 @@ static errr init_k_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "k_info.txt");
+	path_build(dir, 1024, ANGBAND_DIR_EDIT, subdir);
+	path_build(buf, 1024, dir, "k_info.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -770,7 +775,7 @@ static errr init_k_info(void)
 		quit("Error in 'k_info.txt' file.");
 	}
 
-
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -806,7 +811,6 @@ static errr init_k_info(void)
 		(void)fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "k_info" array */
@@ -819,10 +823,11 @@ static errr init_k_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif /* ALLOW_BINARY */
 
 #endif	/* ALLOW_TEMPLATES */
 
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -842,6 +847,7 @@ static errr init_k_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'k_info.raw' file.");
+#endif /*ALLOW_BINARY*/
 
 	/* Success */
 	return (0);
@@ -913,7 +919,7 @@ static errr init_a_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_a_info(void)
+errr init_a_info(char *subdir)
 {
 	int fd;
 
@@ -925,7 +931,7 @@ static errr init_a_info(void)
 
 	/* General buffer */
 	char buf[1024];
-
+	char dir[1024];
 
 	/*** Make the "header" ***/
 
@@ -948,7 +954,7 @@ static errr init_a_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -980,7 +986,7 @@ static errr init_a_info(void)
 		msg_print("Ignoring obsolete/defective 'a_info.raw' file.");
 		msg_print(NULL);
 	}
-
+#endif /*ALLOW_BINARY*/
 
 	/*** Make the fake arrays ***/
 
@@ -999,7 +1005,8 @@ static errr init_a_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "a_info.txt");
+	path_build(dir, 1024, ANGBAND_DIR_EDIT, subdir);
+	path_build(buf, 1024, dir, "a_info.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -1031,7 +1038,7 @@ static errr init_a_info(void)
 		quit("Error in 'a_info.txt' file.");
 	}
 
-
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -1067,7 +1074,6 @@ static errr init_a_info(void)
 		(void)fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "a_info" array */
@@ -1080,10 +1086,11 @@ static errr init_a_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif /*ALLOW_BINARY*/
 
 #endif	/* ALLOW_TEMPLATES */
 
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -1103,7 +1110,7 @@ static errr init_a_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'a_info.raw' file.");
-
+#endif /*ALLOW_BINARY*/
 	/* Success */
 	return (0);
 }
@@ -1174,7 +1181,7 @@ static errr init_e_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_e_info(void)
+errr init_e_info(char *subdir)
 {
 	int fd;
 
@@ -1186,7 +1193,7 @@ static errr init_e_info(void)
 
 	/* General buffer */
 	char buf[1024];
-
+	char dir[1024];
 
 	/*** Make the "header" ***/
 
@@ -1209,7 +1216,7 @@ static errr init_e_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -1243,7 +1250,7 @@ static errr init_e_info(void)
 		msg_print("Ignoring obsolete/defective 'e_info.raw' file.");
 		msg_print(NULL);
 	}
-
+#endif /*ALLOW_BINARY*/
 
 	/*** Make the fake arrays ***/
 
@@ -1262,7 +1269,8 @@ static errr init_e_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "e_info.txt");
+	path_build(dir, 1024, ANGBAND_DIR_EDIT, subdir);
+	path_build(buf, 1024, dir, "e_info.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -1294,7 +1302,7 @@ static errr init_e_info(void)
 		quit("Error in 'e_info.txt' file.");
 	}
 
-
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -1343,10 +1351,11 @@ static errr init_e_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif /*ALLOW_BINARY*/
 
 #endif	/* ALLOW_TEMPLATES */
 
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -1366,6 +1375,7 @@ static errr init_e_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'e_info.raw' file.");
+#endif /*ALLOW_BINARY*/
 
 	/* Success */
 	return (0);
@@ -1944,7 +1954,7 @@ static errr init_wf_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_r_info(void)
+errr init_r_info(char *subdir)
 {
 	int fd;
 
@@ -1956,7 +1966,7 @@ static errr init_r_info(void)
 
 	/* General buffer */
 	char buf[1024];
-
+	char dir[1024];
 
 	/*** Make the header ***/
 
@@ -1979,7 +1989,7 @@ static errr init_r_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -2011,7 +2021,7 @@ static errr init_r_info(void)
 		msg_print("Ignoring obsolete/defective 'r_info.raw' file.");
 		msg_print(NULL);
 	}
-
+#endif /*ALLOW_BINARY*/
 
 	/*** Make the fake arrays ***/
 
@@ -2030,7 +2040,8 @@ static errr init_r_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "r_info.txt");
+	path_build(dir, 1024, ANGBAND_DIR_EDIT, subdir);
+	path_build(buf, 1024, dir, "r_info.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -2062,7 +2073,7 @@ static errr init_r_info(void)
 		quit("Error in 'r_info.txt' file.");
 	}
 
-
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -2098,7 +2109,6 @@ static errr init_r_info(void)
 		(void)fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "r_info" array */
@@ -2111,9 +2121,10 @@ static errr init_r_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif /*ALLOW_BINARY*/
 
 #endif	/* ALLOW_TEMPLATES */
-
+#ifdef ALLOW_BINARY
 
 	/*** Load the binary image file ***/
 
@@ -2134,6 +2145,7 @@ static errr init_r_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'r_info.raw' file.");
+#endif /*ALLOW_BINARY*/
 
 	/* Success */
 	return (0);
@@ -2146,7 +2158,7 @@ static errr init_r_info(void)
  * Note that we let each entry have a unique "name" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_re_info(void)
+errr init_re_info(char *subdir)
 {
 	int fd;
 
@@ -2158,7 +2170,7 @@ static errr init_re_info(void)
 
 	/* General buffer */
 	char buf[1024];
-
+	char dir[1024];
 
 	/*** Make the header ***/
 
@@ -2181,7 +2193,7 @@ static errr init_re_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -2213,7 +2225,7 @@ static errr init_re_info(void)
                 msg_print("Ignoring obsolete/defective 're_info.raw' file.");
 		msg_print(NULL);
 	}
-
+#endif /*ALLOW_BINARY*/
 
 	/*** Make the fake arrays ***/
 
@@ -2230,7 +2242,8 @@ static errr init_re_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-        path_build(buf, 1024, ANGBAND_DIR_EDIT, "re_info.txt");
+	path_build(dir, 1024, ANGBAND_DIR_EDIT, subdir);
+        path_build(buf, 1024, dir, "re_info.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -2262,7 +2275,7 @@ static errr init_re_info(void)
                 quit("Error in 're_info.txt' file.");
 	}
 
-
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -2294,8 +2307,6 @@ static errr init_re_info(void)
 		/* Close */
 		(void)fd_close(fd);
 	}
-
-
 	/*** Kill the fake arrays ***/
 
         /* Free the "re_info" array */
@@ -2307,9 +2318,11 @@ static errr init_re_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 
+#endif /*ALLOW_BINARY*/
+
 #endif	/* ALLOW_TEMPLATES */
 
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -2329,6 +2342,7 @@ static errr init_re_info(void)
 
 	/* Error */
         if (err) quit("Cannot parse 're_info.raw' file.");
+#endif /*ALLOW_BINARY*/
 
 	/* Success */
 	return (0);
@@ -3195,7 +3209,6 @@ static errr init_wf_info(void)
 		msg_print(NULL);
 	}
 
-
 	/*** Make the fake arrays ***/
 
         /* Assume the size of "wf_name" and "wf_text" */
@@ -3245,7 +3258,6 @@ static errr init_wf_info(void)
                 quit("Error in 'wf_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -3284,7 +3296,6 @@ static errr init_wf_info(void)
 		(void)fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
         /* Free the "wf_info" array */
@@ -3299,7 +3310,6 @@ static errr init_wf_info(void)
 	fake_text_size = 0;
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -3387,7 +3397,7 @@ static errr init_t_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_t_info(void)
+errr init_t_info(char *subdir)
 {
 	int fd;
 
@@ -3399,7 +3409,7 @@ static errr init_t_info(void)
 
 	/* General buffer */
 	char buf[1024];
-
+	char dir[1024];
 
 	/*** Make the header ***/
 
@@ -3424,6 +3434,7 @@ static errr init_t_info(void)
 #ifdef ALLOW_TEMPLATES
 	/*** Load the binary image file ***/
 
+#ifdef ALLOW_BINARY
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "tr_info.raw");
 
@@ -3448,11 +3459,12 @@ static errr init_t_info(void)
 
 		/* Success */
 		if (!err) return (0);
-
+		
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'tr_info.raw' file.");
 		msg_print(NULL);
 	}
+#endif /*ALLOW_BINARY*/
 
 	/*** Make the fake arrays ***/
 
@@ -3471,7 +3483,8 @@ static errr init_t_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "tr_info.txt");
+	path_build(dir, 1024, ANGBAND_DIR_EDIT, subdir);
+	path_build(buf, 1024, dir, "tr_info.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -3503,6 +3516,7 @@ static errr init_t_info(void)
 		quit("Error in 'tr_info.txt' file.");
 	}
 
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -3541,7 +3555,7 @@ static errr init_t_info(void)
 
 	/*** Kill the fake arrays ***/
 
-	/* Free the "h_info" array */
+	/* Free the "t_info" array */
 	C_KILL(t_info, t_head->info_num, trap_type);
 
 	/* Hack -- Free the "fake" arrays */
@@ -3551,8 +3565,10 @@ static errr init_t_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
+#endif /*ALLOW_BINARY*/
 #endif	/* ALLOW_TEMPLATES */
 
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -3572,6 +3588,7 @@ static errr init_t_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'tr_info.raw' file.");
+#endif /*ALLOW_BINARY*/
 
 	/* Success */
 	return (0);
@@ -3639,7 +3656,7 @@ static errr init_v_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-errr init_v_info(void)
+errr init_v_info(char *subdir)
 {
 	int fd;
 
@@ -3651,8 +3668,8 @@ errr init_v_info(void)
 
 	/* General buffer */
 	char buf[1024];
-
-
+	char dir[1024];
+	
 	/*** Make the header ***/
 
 	/* Allocate the "header" */
@@ -3674,7 +3691,7 @@ errr init_v_info(void)
 
 
 #ifdef ALLOW_TEMPLATES
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -3686,6 +3703,7 @@ errr init_v_info(void)
 #else
 	fd = -1;
 #endif
+
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -3710,7 +3728,7 @@ errr init_v_info(void)
 		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
 		msg_print(NULL);
 	}
-
+#endif /*ALLOW_BINARY*/
 
 	/*** Make the fake arrays ***/
 
@@ -3718,7 +3736,7 @@ errr init_v_info(void)
 	fake_name_size = FAKE_NAME_SIZE;
 	fake_text_size = FAKE_TEXT_SIZE;
 
-	/* Allocate the "k_info" array */
+	/* Allocate the "v_info" array */
 	C_MAKE(v_info, v_head->info_num, vault_type);
 
 	/* Hack -- make "fake" arrays */
@@ -3729,7 +3747,8 @@ errr init_v_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "v_info.txt");
+	path_build(dir, 1024, ANGBAND_DIR_EDIT, subdir);	
+	path_build(buf, 1024, dir, "v_info.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -3761,7 +3780,7 @@ errr init_v_info(void)
 		quit("Error in 'v_info.txt' file.");
 	}
 
-
+#ifdef ALLOW_BINARY
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -3796,8 +3815,6 @@ errr init_v_info(void)
 		/* Close */
 		(void)fd_close(fd);
 	}
-
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "v_info" array */
@@ -3811,9 +3828,11 @@ errr init_v_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
+#endif /*ALLOW_BINARY*/
+
 #endif /* ALLOW_TEMPLATES */
 
-
+#ifdef ALLOW_BINARY
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -3833,9 +3852,75 @@ errr init_v_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'v_info.raw' file.");
+#endif /*ALLOW_BINARY*/
 
 	/* Success */
 	return (0);
+}
+
+/*** Initialize from ascii template files ***/
+
+/*
+ * Initialize ASCII files upon dungeon entry
+ */
+
+void init_dun_entry(char *subdir) 
+{
+char dir[1024];
+
+path_build(dir, 1024, ANGBAND_DIR_EDIT, subdir);
+
+init_misc();
+/* Load the *_info.txt files specific to this dungeon */
+if(init_v_info(dir))
+  {
+  msg_print("Error in v_info.txt!");
+  msg_print("Don't be surprised if your vaults are strange...");
+  }
+
+if(init_f_info(dir))
+  {
+  msg_print("Error in f_info.txt!");
+  msg_print("The terrain features should prove interesting...");
+  }
+	    
+if(init_k_info(dir))
+  {
+  msg_print("Error in k_info.txt!");
+  msg_print("Your precious stuff may mutate...");
+  }
+	    
+if(init_a_info(dir))
+  {
+  msg_print("Error in a_info.txt!");
+  msg_print("Artifacts may not behave the way it says in the spoiler file...");
+  }
+	    
+if(init_e_info(dir))
+  {
+  msg_print("Error in e_info.txt!");
+  msg_print("Your Whip (Defender) is now a Whip of Morgul...");
+  }
+	    
+if(init_r_info(dir))
+  {
+  msg_print("Error in r_info.txt!");
+  msg_print("If monsters look a little funny, you'll know why...");
+  }
+	    
+if(init_re_info(dir))
+  {
+  msg_print("Error in re_info.txt!");
+  msg_print("If monsters look a little funny, you'll know why...");
+  }
+	    
+if(init_t_info(dir))
+  {
+  msg_print("Error in tr_info.txt!");
+  msg_print("Don't even think about setting off any traps in this dungeon!");
+  }
+init_other();
+init_alloc();
 }
 
 
@@ -4072,7 +4157,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-        (void)format("%s (%s).", "Dark God <darkgod@ifrance.com>", MAINTAINER);
+        (void)format("%s (%s).", "James Banks", MAINTAINER);
 
 	/* Success */
 	return (0);
@@ -4349,7 +4434,7 @@ static void init_angband_aux(cptr why)
  * Note that the "graf-xxx.prf" file must be loaded separately,
  * if needed, in the first (?) pass through "TERM_XTRA_REACT".
  */
-void init_angband(void)
+void init_angband(char *subdir)
 {
 	int fd = -1;
 
@@ -4358,7 +4443,8 @@ void init_angband(void)
 	FILE *fp;
 
 	char buf[1024];
-
+	
+	
 
 	/*** Verify the "news" file ***/
 
@@ -4458,68 +4544,70 @@ void init_angband(void)
 	if (init_misc()) quit("Cannot initialize misc. values");
 
 /* Some of these need to be called on dungeon entry */
-#if 0
+#if 1
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
-	if (init_f_info()) quit("Cannot initialize features");
-
+	if (init_f_info(subdir)) quit("Cannot initialize features");
+		
 	/* Initialize object info */
 	note("[Initializing arrays... (objects)]");
-	if (init_k_info()) quit("Cannot initialize objects");
-
+	if (init_k_info(subdir)) quit("Cannot initialize objects");
+		
 	/* Initialize artifact info */
 	note("[Initializing arrays... (artifacts)]");
-	if (init_a_info()) quit("Cannot initialize artifacts");
-
+	if (init_a_info(subdir)) quit("Cannot initialize artifacts");
+		
 	/* Initialize ego-item info */
 	note("[Initializing arrays... (ego-items)]");
-	if (init_e_info()) quit("Cannot initialize ego-items");
+	if (init_e_info(subdir)) quit("Cannot initialize ego-items");
+		
+	/* Initialize monster info */
+	note("[Initializing arrays... (monsters)]");
+	if (init_r_info(subdir)) quit("Cannot initialize monsters");
+
+        /* Initialize ego monster info */
+        note("[Initializing arrays... (ego monsters)]");
+        if (init_re_info(subdir)) quit("Cannot initialize ego monsters");
+		
+	/* Initialize trap info */
+	note("[Initializing arrays... (traps)]");
+	if(init_t_info(subdir)) quit("Cannot initialize traps");
+#else
+	init_dun_entry("cave");
+#endif
 
         /* Initialize randart parts info */
         note("[Initializing arrays... (randarts)]");
         if (init_ra_info()) quit("Cannot initialize randarts");
-
-	/* Initialize monster info */
-	note("[Initializing arrays... (monsters)]");
-	if (init_r_info()) quit("Cannot initialize monsters");
-
-        /* Initialize ego monster info */
-        note("[Initializing arrays... (ego monsters)]");
-        if (init_re_info()) quit("Cannot initialize ego monsters");
-#endif
-
+		
         /* Initialize dungeon type info */
         note("[Initializing arrays... (dungeon types)]");
         if (init_d_info()) quit("Cannot initialize dungeon types");
-
+		
         /* Initialize actions type info */
         note("[Initializing arrays... (action types)]");
         if (init_ba_info()) quit("Cannot initialize action types");
-
+		
         /* Initialize owners type info */
         note("[Initializing arrays... (owners types)]");
         if (init_ow_info()) quit("Cannot initialize owners types");
-
+		
         /* Initialize stores type info */
         note("[Initializing arrays... (stores types)]");
         if (init_st_info()) quit("Cannot initialize stores types");
-
+	
         /* Initialize wilderness features array */
         note("[Initializing arrays... (wilderness features)]");
         if (init_wf_info()) quit("Cannot initialize wilderness features");
-
+		
         /* Initialize wilderness map array */
         note("[Initializing arrays... (wilderness map)]");
         if (init_wilderness()) quit("Cannot initialize wilderness map");
-
+		
 	/* Initialize town array */
 	note("[Initializing arrays... (towns)]");
 	if (init_towns()) quit("Cannot initialize towns");
-
-	/* Initialize trap info */
-	note("[Initializing arrays... (traps)]");
-	if (init_t_info()) quit("Cannot initialize traps");
-
+		
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");
 	if (init_other()) quit("Cannot initialize other stuff");
@@ -4527,7 +4615,7 @@ void init_angband(void)
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
-
+	
         /* Init random artifact names */
         build_prob(artifact_names_list);
 

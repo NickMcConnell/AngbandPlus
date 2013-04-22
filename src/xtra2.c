@@ -3863,7 +3863,7 @@ void monster_death(int m_idx)
 	}
 
         /* Hack - the Dragonriders give some firestone */
-        else if (r_ptr->flags3 & RF3_DRAGONRIDER)
+        else if (r_ptr->flags3 & RF3_DRAGONRIDDER)
 	{
 		/* Get local object */
 		q_ptr = &forge;

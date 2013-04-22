@@ -712,7 +712,7 @@
 #define RACE_DARK_ELF           14
 #define RACE_ENT                15
 #define RACE_RKNIGHT            16
-#define RACE_DRAGONRIDER        17
+#define RACE_DRAGONRIDDER        17
 #define RACE_MOLD               18
 #define RACE_YEEK               19
 #define RACE_WOOD_ELF           20
@@ -1663,7 +1663,7 @@
 #define SV_LEATHER_SCALE_MAIL           11
 #define SV_LEATHER_JACK                 12
 #define SV_STONE_AND_HIDE_ARMOR         15  /* 15 */
-#define SV_DRAGONRIDER_SUIT             16
+#define SV_DRAGONRIDDER_SUIT             16
 
 /* The "sval" codes for TV_HARD_ARMOR */
 #define SV_RUSTY_CHAIN_MAIL              1  /* 14- */
@@ -2608,7 +2608,7 @@
 #define SUMMON_NO_UNIQUES           46
 #define SUMMON_PHANTOM              47
 #define SUMMON_ELEMENTAL            48
-#define SUMMON_DRAGONRIDER          49
+#define SUMMON_DRAGONRIDDER          49
 #define SUMMON_BLUE_HORROR          50
 #define SUMMON_BUG                  51
 #define SUMMON_RNG                  52
@@ -2981,7 +2981,7 @@
 #define ESP_UNDEAD              0x00000020L
 #define ESP_EVIL                0x00000040L
 #define ESP_ANIMAL              0x00000080L
-#define ESP_DRAGONRIDER         0x00000100L
+#define ESP_DRAGONRIDDER         0x00000100L
 #define ESP_GOOD                0x00000200L
 #define ESP_NONLIVING           0x00000400L
 #define ESP_UNIQUE              0x00000800L
@@ -3262,7 +3262,7 @@
 #define RF3_UNDEAD                      0x00000020      /* Undead */
 #define RF3_EVIL                        0x00000040      /* Evil */
 #define RF3_ANIMAL                      0x00000080      /* Animal */
-#define RF3_DRAGONRIDER            0x00000100  /* DG: DragonRider */
+#define RF3_DRAGONRIDDER            0x00000100  /* DG: DragonRider */
 #define RF3_GOOD                        0x00000200      /* Good */
 #define RF3_AURA_COLD                        0x00000400      /* Freezes in melee */
 #define RF3_NONLIVING           0x00000800  /* TY: Non-Living (?) */
@@ -3377,7 +3377,7 @@
 #define RF6_RAISE_DEAD                  0x00001000      /* Raise Dead */
 #define RF6_S_BUG                       0x00002000      /* Summon Software bug */
 #define RF6_S_RNG                       0x00004000      /* Summon RNG */
-#define RF6_S_DRAGONRIDER               0x00008000      /* Summon DragonRiders */
+#define RF6_S_DRAGONRIDDER               0x00008000      /* Summon DragonRiders */
 #define RF6_S_KIN                       0x00010000      /* Summon "kin" */
 #define RF6_S_HI_DEMON                  0x00020000      /* Summon greater demons! */
 #define RF6_S_MONSTER                   0x00040000      /* Summon Monster */
@@ -3475,7 +3475,7 @@
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE | \
-    RF6_S_DRAGONRIDER | RF6_S_BUG | RF6_S_RNG | RF6_S_ANIMALS)
+    RF6_S_DRAGONRIDDER | RF6_S_BUG | RF6_S_RNG | RF6_S_ANIMALS)
 
  
 /*
@@ -3505,7 +3505,7 @@
     (RF6_S_KIN | RF6_S_HI_DEMON | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
      RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
      RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
-     RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_DRAGONRIDER | RF6_S_BUG | RF6_S_RNG)
+     RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_DRAGONRIDDER | RF6_S_BUG | RF6_S_RNG)
 
 
 /*** Macro Definitions ***/

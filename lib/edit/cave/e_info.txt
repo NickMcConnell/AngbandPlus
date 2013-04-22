@@ -1055,7 +1055,7 @@ F:R_ANY | R_LOW | SUSTAIN | R_HIGH
 R:10
 F:R_IMMUNITY | R_ANY
 
-N:99:of the Dragonriders
+N:99:of the Dragonridders
 T:15:0:255
 T:21:0:255
 T:22:0:255

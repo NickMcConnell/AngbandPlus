@@ -700,7 +700,7 @@ void self_knowledge(FILE *fff)
 		else if (r_ptr->flags3 & RF3_ANIMAL)
 			info[i++] = "You are an animal.";
 		/* Not implemented */
-		else if (r_ptr->flags3 & RF3_DRAGONRIDER)
+		else if (r_ptr->flags3 & RF3_DRAGONRIDDER)
 			info[i++] = "You have dragonrider blood in your veins.";
 		if (r_ptr->flags3 & RF3_EVIL)
 			info[i++] = "You are inherently evil.";
@@ -894,7 +894,7 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You can magically summon a Software Bugs.";
 		if (r_ptr->flags6 & RF6_S_RNG)
 			info[i++] = "You can magically summon the RNG.";
-		if (r_ptr->flags6 & RF6_S_DRAGONRIDER)
+		if (r_ptr->flags6 & RF6_S_DRAGONRIDDER)
 			info[i++] = "You can magically summon some Dragonriders.";
 		if (r_ptr->flags6 & RF6_S_KIN)
 			info[i++] = "You can magically summon some Kins.";
@@ -1378,7 +1378,7 @@ void self_knowledge(FILE *fff)
                         if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "You can sense presence of undead.";
                         if (p_ptr->telepathy & ESP_EVIL) info[i++] = "You can sense the presence of evil beings.";
                         if (p_ptr->telepathy & ESP_ANIMAL) info[i++] = "You can sense the presence of animals.";
-                        if (p_ptr->telepathy & ESP_DRAGONRIDER) info[i++] = "You can sense the presence of dragonriders.";
+                        if (p_ptr->telepathy & ESP_DRAGONRIDDER) info[i++] = "You can sense the presence of dragonriders.";
                         if (p_ptr->telepathy & ESP_GOOD) info[i++] = "You can sense the presence of good beings.";
                         if (p_ptr->telepathy & ESP_NONLIVING) info[i++] = "You can sense the presence of non-living things.";
                         if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "You can sense the presence of unique beings.";
@@ -7001,7 +7001,7 @@ void summon_dragon_riders()
 
         for (i = 0; i < max_dr; i++)
 	{
-                (void)summon_specific(py, px, 100, SUMMON_DRAGONRIDER);
+                (void)summon_specific(py, px, 100, SUMMON_DRAGONRIDDER);
 	}
 }
 

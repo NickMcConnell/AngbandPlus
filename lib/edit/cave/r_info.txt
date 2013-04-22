@@ -1,5 +1,5 @@
 # File: r_info.txt
-# For NTAngband 0.2
+# For NTAngband 0.3h
 
 # This file is used to initialize the "lib/raw/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
@@ -338,7 +338,7 @@ O:20:0:40:40
 B:MOAN:CONFUSE:2d10
 B:TOUCH:HURT:1d1
 F:MORTAL | SMART | NO_CONF | PASS_WALL | DROP_CORPSE
-D:A respectable scholarly fellow, who examines the 
+D:A respectable scholarly fellow who examines the 
 D:fascinating rock of this cave.  You have interrupted 
 D:his work!
 
@@ -350,7 +350,7 @@ E:1:1:1:2:1:1
 O:0:0:0:0
 B:WAIL:*
 B:WAIL:CONFUSE:4d2
-F:EVIL
+F:EVIL | CAN_SPEAK 
 S:1_IN_1
 S:MULTIPLY | TPORT | BLINK
 D:Nothing but a harmless lie...
@@ -384,6 +384,21 @@ B:KICK:HURT:5d5
 B:KICK:HURT:5d10
 F:ANIMAL
 D:A normal, healthy, stubborn donkey.
+
+# level 5
+N:50:'Doom' weenie
+G:l:r
+I:110:1d50:15:0:0
+W:5:5:900:9
+E:0:0:0:0:0:0
+O:0:0:0:0
+F:AI_ANNOY | STUPID | MALE
+S:1_IN_2
+S:ARROW_2
+D:An addict of FPS games, he thinks of himself merely as a hand holding a gun. 
+D:He whines about the obsolete ASCII "graphics".  He has not yet developed a 
+D:capability for abstract thought, and he really can't handle perma-death. 
+D:Annihilate any that move.
 
 # level 7
 
@@ -503,10 +518,10 @@ I:120:10d1:10:25:100
 W:48:1:50:20
 E:0:0:0:0:0:0
 B:BITE:HURT:2d10
-B:BITE:CONFUSE:1d3
+B:BITE:HALLU:1d3
 F:MORTAL | DROP_CORPSE | ELDRITCH_HORROR
 S:1_IN_2
-S:MULTIPLY | BR_CHAO
+S:MULTIPLY | BR_CONF
 D:'All pink.  All pink--as big as mastiffs, with an eye on the top of the 
 D:head and claws all round their ugly mouths.'
 
@@ -562,14 +577,14 @@ E:1:1:1:2:1:1
 O:25:25:25:25
 B:MOAN:TIME:10d10
 B:GAZE:INSANITY:60d5
-B:CLAW:PARASITE:4d64
+#B:CLAW:PARASITE:4d64
 B:TOUCH:UN_BONUS
 F:MALE | MORTAL | UNIQUE | CAN_SPEAK | NO_CONF | SMART | 
 F:IM_FIRE | IM_COLD | IM_POIS | IM_ACID | IM_ELEC  
 S:1_IN_4
 S:TPORT | BR_SOUN | BR_NEXU
 D:The vicious and demented maintainer of NTA, his piercing gaze and 
-D:horrible singing, (not to mention his theories) ought 
+D:horrible music, (not to mention his theories) ought 
 D:to scare you, but if those don't, remember that his fascination with 
 D:parasitology has practical uses.  He disdains the mind-altering effects 
 D:of coffee; milk and ice water give him his energy.
@@ -605,8 +620,7 @@ D:Variant Maintainer, the RNGs, and the software bugs. Bull Gates is
 D:nothing next to him. Do not think that since he loves the novels of 
 D:Pern he is to be ignored! He wishes to translate your soul into 
 D:assembler, the one hitch being that he must kill you first. If you 
-D:encounter him, pray your deity holds you in good stead. 
-
+D:encounter him, pray your deity holds you in good stead.
 
 # N: serial number : monster name
 # G: symbol : color

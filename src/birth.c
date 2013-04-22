@@ -703,7 +703,7 @@ void create_random_name(int race, char *name)
 	case RACE_DUNADAN:
 	case RACE_HUMAN:
         case RACE_RKNIGHT:
-        case RACE_DRAGONRIDER:
+        case RACE_DRAGONRIDDER:
 		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
 		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
 		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
@@ -1474,7 +1474,7 @@ static void get_history(void)
 			chart = 87;
 			break;
 		}
-                case RACE_DRAGONRIDER:
+                case RACE_DRAGONRIDDER:
 		{
 			chart = 89;
 			break;
@@ -2366,7 +2366,7 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-        if (p_ptr->prace == RACE_DRAGONRIDER)
+        if (p_ptr->prace == RACE_DRAGONRIDDER)
 	{
                 /* Hack -- Give the player some small firestones */
                 object_prep(q_ptr, lookup_kind(TV_FIRESTONE, SV_FIRE_SMALL));
@@ -4553,7 +4553,7 @@ static void validate_bg(void)
         race_chart[RACE_KOBOLD] = 82;
         race_chart[RACE_RKNIGHT] = 84;
         race_chart[RACE_NIBELUNG] = 87;
-        race_chart[RACE_DRAGONRIDER] = 89;
+        race_chart[RACE_DRAGONRIDDER] = 89;
         race_chart[RACE_ENT] = 94;
         race_chart[RACE_MOLD] = 200;
         race_chart[RACE_YEEK] = 205;

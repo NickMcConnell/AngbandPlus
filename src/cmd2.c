@@ -298,7 +298,7 @@ static bool between_effect(void)
                 msg_print("You fall in the between.");
                 msg_print("Brrrr! It's deadly cold.");
 
-                if (p_ptr->prace != RACE_DRAGONRIDER)
+                if (p_ptr->prace != RACE_DRAGONRIDDER)
                 {
                         int reduc = ((p_ptr->ac + p_ptr->to_a) / 50) + 1;
 
@@ -342,7 +342,8 @@ void do_cmd_go_down(void)
     char i;
     int old_dun = dun_level;
     dungeon_info_type *d_ptr = &d_info[dungeon_type];
-  
+msg_print("Begin going down...");
+sleep(1);  
       /* Between Gates MUST be actived now */
     if (between_effect()) return;
   
@@ -363,6 +364,8 @@ void do_cmd_go_down(void)
         if (i != 'y') return;
     }
 
+msg_print("Process hooks...");
+sleep(1);
     /* Can we ? */
     if (process_hooks(HOOK_STAIR, TRUE)) return;
   
@@ -444,7 +447,8 @@ void do_cmd_go_down(void)
   
     if (go_down || go_down_many)
     {
- 
+msg_print("We're going down!!!");
+sleep(1);
 #if 0
     /* Hack -- take a turn */
     energy_use = 100;
@@ -493,8 +497,13 @@ void do_cmd_go_down(void)
             /* Ok go in the new dungeon */
             dungeon_type = c_ptr->special;
 	    
-	    init_dun_entry(d_ptr);
-	    
+	    /*Innaytlise da dungienoin spenchtifec *_info.txt files*/ 
+	    msg_print("Foo is entering dung eon");
+	    sleep(5);
+	    init_dun_entry(d_ptr->subdir);
+	    msg_print("Foo has innitialized the dungoen");
+	    sleep(5);
+	        
 	    if ((p_ptr->wilderness_x == d_ptr->ix) && (p_ptr->wilderness_y == d_ptr->iy))
             {
                 dun_level = d_ptr->mindepth;

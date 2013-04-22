@@ -295,14 +295,16 @@
 /*
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
  * software options, which enable "monster flowing".
+ * JKB: Keep this option off until I can fix the way init_dun_entry
+ * works.
  */
-#define MONSTER_FLOW
+/* #define MONSTER_FLOW */ 
 
 
 /*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
-#define MONSTER_FLOW_DEPTH 32
+/* #define MONSTER_FLOW_DEPTH 32 */
 
 
 

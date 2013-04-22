@@ -391,7 +391,7 @@ static void set_ghost_aux_1(void)
 	if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
         if (grace == RACE_KOBOLD) r_ptr->flags3 |= (RF3_ORC);
 	if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-        if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+        if (grace == RACE_DRAGONRIDDER) r_ptr->flags3 |= (RF3_DRAGONRIDDER);
 
 
 	/* Armor class */
@@ -592,7 +592,7 @@ static void set_ghost_aux_2(void)
 				r_ptr->flags3 |= (RF3_IM_COLD);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-                                if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+                                if (grace == RACE_DRAGONRIDDER) r_ptr->flags3 |= (RF3_DRAGONRIDDER);
 				r_ptr->ac = 26;
 				r_ptr->speed = 110;
 				
@@ -611,7 +611,7 @@ static void set_ghost_aux_2(void)
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-                                if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+                                if (grace == RACE_DRAGONRIDDER) r_ptr->flags3 |= (RF3_DRAGONRIDDER);
 				r_ptr->ac = 30;
 				r_ptr->speed = 110;
 				r_ptr->hside *= 2;
@@ -630,7 +630,7 @@ static void set_ghost_aux_2(void)
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-                                if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+                                if (grace == RACE_DRAGONRIDDER) r_ptr->flags3 |= (RF3_DRAGONRIDDER);
 				r_ptr->ac = 35;
 				r_ptr->speed = 110;
 				r_ptr->hside *= 2;

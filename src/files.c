@@ -1609,11 +1609,11 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 		if (p_ptr->lev > 19)
 			(*f3) |= (TR3_SEE_INVIS);
 		break;
-        case RACE_DRAGONRIDER:
+        case RACE_DRAGONRIDDER:
             (*f3) |= TR3_FEATHER;
         if (p_ptr->lev > 3)
         {
-            (*esp) |= ESP_DRAGONRIDER | ESP_DRAGON;
+            (*esp) |= ESP_DRAGONRIDDER | ESP_DRAGON;
         }
         if (p_ptr->lev > 4)
         {

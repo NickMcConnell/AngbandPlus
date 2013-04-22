@@ -667,8 +667,8 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
                         (void)set_stun(0);
                 if(r_ptr->flags3 & RF3_NO_CONF)
                         (void)set_confused(0);
-                if(r_ptr->flags6 & RF6_S_DRAGONRIDER)
-                        summon_specific_friendly(py,px,dun_level,SUMMON_DRAGONRIDER,FALSE);
+                if(r_ptr->flags6 & RF6_S_DRAGONRIDDER)
+                        summon_specific_friendly(py,px,dun_level,SUMMON_DRAGONRIDDER,FALSE);
                 if(r_ptr->flags6 & RF6_S_DEMON)
                         summon_specific_friendly(py,px,dun_level,SUMMON_DEMON,FALSE);
                 if(r_ptr->flags6 & RF6_S_DEMON)
@@ -713,7 +713,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
  */
 static bool item_tester_hook_eatable(object_type *o_ptr)
 {
-        if (((o_ptr->tval==TV_FIRESTONE)&&(p_ptr->prace==RACE_DRAGONRIDER))||
+        if (((o_ptr->tval==TV_FIRESTONE)&&(p_ptr->prace==RACE_DRAGONRIDDER))||
         (o_ptr->tval==TV_FOOD)||(o_ptr->tval==TV_CORPSE)) return (TRUE);
 
 	/* Assume not */
@@ -5715,7 +5715,7 @@ void do_cmd_activate(void)
                         {
                                 if (randint(3) == 1)
                                 {
-                                        if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_DRAGONRIDER))
+                                        if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_DRAGONRIDDER))
                                         {
                                                 msg_print("A DragonRider comes from the BETWEEN !");
                                                 msg_print("'I will burn you!'");
@@ -5724,7 +5724,7 @@ void do_cmd_activate(void)
                                 else
                                 {
                                         if (summon_specific_friendly(py, px, ((plev * 3) / 2),
-                                            SUMMON_DRAGONRIDER, (bool)(plev == 50 ? TRUE : FALSE)))
+                                            SUMMON_DRAGONRIDDER, (bool)(plev == 50 ? TRUE : FALSE)))
                                         {
                                                 msg_print("A DragonRider comes from the BETWEEN !");
                                                 msg_print("'I will help you in your difficult task.'");

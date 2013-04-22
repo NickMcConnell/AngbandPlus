@@ -1,0 +1,47 @@
+Bug-fixing competition:
+So you've gone so far as to download the compo version of NTAngband?
+Good for you.  Here's how the competition will work.
+First of all, what's wrong?  Well, if you try to go downstairs into the Cave,
+the game does funny things like crash.  For that matter, if you go downstairs
+into any other dungeon, the game does funny things.  The idea here is to find
+some way to fix this problem.  Now, there are really two events, and so there
+will be two Mithril* medalists, two Mallorn* medalists, and two Gold medalists.
+    The first event is the straight hack event based on speed.  The 
+fastest fix wins, even if it is really inefficient, unreadable, or breaks
+some other part of the game.  The only thing you must make sure it does is
+allow for separate dungeon lists for each dungeon and get rid of the annoying
+crashing upon entering dungeons.  
+    The second event is the well-written code event based on quality.  In this
+case, I'm the judge.  All decisions are final.  I'll leave this event open for
+the next three months so that high-quality code can be sent in.  What I want
+in this event is a fix of the crash-upon-entry bug described above.  However,
+this fix must be clearly written, with ample documentation (preferably in 
+comment form), not cause any other bugs, be reasonably efficient (that's not
+my main goal, though), and fix exactly what's wrong.  I want you to send with
+it a description of what you did and where the code croaked.  Extra points
+to anyone who can tell me why it crashed.  The method of scoring is below.
+
+(circle one from each category below)
+Clearly written?	1	2	3	4
+
+
+Documentation?		1	2	3	4
+
+
+No side effects?	1	2	3	4
+
+
+Efficient?		1	2
+
+
+Precise?		1	2	3	4	5
+
+
+Why?			1	2	3
+
+The maximum is 4+4+4+2+5+3, which equals 22.  In the event of a tie, the
+person who entered the solution first wins.  In the event that they arrive
+simultaneously, they both get medals.  
+
+[*]  Yeah, so what if this is NTAngband?  And what's wrong with a Mallorn
+medal?  Is there some law against wooden medals?

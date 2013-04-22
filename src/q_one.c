@@ -18,8 +18,8 @@ bool quest_one_move_hook(int loc)
                 cmsg_print(TERM_YELLOW, "'The Ennemy is growing in power, Morgoth will be unreachable as long'");
                 cmsg_print(TERM_YELLOW, "'as his most powerful servant, Sauron, lives. But the power of Sauron'");
                 cmsg_print(TERM_YELLOW, "'lies in the One Ring, our only hope is that you find it'");
-                cmsg_print(TERM_YELLOW, "'and destroy it. I know it will be hard, but *NEVER* used it'");
-                cmsg_print(TERM_YELLOW, "'or it would corrupts you forever.'");
+                cmsg_print(TERM_YELLOW, "'and destroy it. I know it will be hard, but *NEVER* use it'");
+                cmsg_print(TERM_YELLOW, "'or it will corrupt you forever.'");
                 cmsg_print(TERM_YELLOW, "'Without the ring being destroyed, Sauron wont be permanently defeated'");
                 cmsg_print(TERM_YELLOW, "'When you have it you will have to bring it to Mount Doom, in Mordor,'");
                 cmsg_print(TERM_YELLOW, "'to destroy it in the Great Fire where it was once forged.'");

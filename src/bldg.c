@@ -1652,7 +1652,7 @@ bool bldg_process_command(store_type *s_ptr, int i)
 			}
 			break;
                 case BACT_COMEBACKTIME:
-                        if(p_ptr->prace==RACE_DRAGONRIDER){
+                        if(p_ptr->prace==RACE_DRAGONRIDDER){
                                 if (do_res_stat(A_STR)) paid = TRUE;
                                 if (do_res_stat(A_INT)) paid = TRUE;
                                 if (do_res_stat(A_WIS)) paid = TRUE;

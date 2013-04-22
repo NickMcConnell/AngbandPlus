@@ -1858,7 +1858,7 @@ struct dungeon_info_type
         s16b t_idx[TOWN_DUNGEON];       /* The towns */
         s16b t_level[TOWN_DUNGEON];     /* The towns levels */
         s16b t_num;                     /* Number of towns */
-	char *subdir;			/* The subdirectory where the dungeon
+	char subdir[14];		/* The subdirectory where the dungeon
 					   specific files are kept */
 };
 

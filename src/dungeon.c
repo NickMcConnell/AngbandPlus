@@ -1633,7 +1633,7 @@ static void process_world(void)
 			if (p_ptr->regenerate) i += 30;
 
                         /* DragonRider takes more food */
-                        if (p_ptr->prace==RACE_DRAGONRIDER) i += 10;
+                        if (p_ptr->prace==RACE_DRAGONRIDDER) i += 10;
 
                         /* Invisibility consume a lot of food */
                         i += p_ptr->invis / 2;
@@ -4578,7 +4578,7 @@ static void process_player(void)
 
 			/* Notice stuff (if needed) */
 			if (p_ptr->notice) notice_stuff();
-
+			
 			/* Update stuff (if needed) */
 			if (p_ptr->update) update_stuff();
 
@@ -4664,7 +4664,7 @@ static void process_player(void)
                         process_command();
 		}
 
-                /* Squektch'em up ! */
+                /* Squeltch'em up ! */
                 squeltch_grid();
                 squeltch_inventory();
 
@@ -4819,10 +4819,9 @@ static void process_player(void)
 			}
 		}
 
-
 		/* Hack -- notice death */
 		if (!alive || death) break;
-
+		
 		/* Handle "leaving" */
                 if (p_ptr->leaving) break;
 	}
@@ -5006,10 +5005,10 @@ static void dungeon(void)
 
 	/* Update stuff */
 	update_stuff();
-
+	
 	/* Redraw stuff */
 	redraw_stuff();
-
+	
 	/* Leave "xtra" mode */
 	character_xtra = FALSE;
 
@@ -5038,7 +5037,7 @@ static void dungeon(void)
 	/* Announce (or repeat) the feeling */
 	if (dun_level) do_cmd_feeling();
 
-
+	sleep(1);
 	/* Hack -- notice death or departure */
 	if (!alive || death) return;
 
@@ -5500,7 +5499,7 @@ void play_game(bool new_game)
 	if (arg_force_roguelike) rogue_like_commands = TRUE;
 
 	/* Initialize vault info */
-	if (init_v_info()) quit("Cannot initialize vaults");
+	if (init_v_info("cave")) quit("Cannot initialize vaults");
 
         /* Initialize hooks */
         init_hooks();

@@ -806,6 +806,7 @@ extern void town_gen(int t_idx);
 
 /* init1.c */
 extern int color_char_to_attr(char c);
+extern void init_dun_entry(char *subdir);
 extern errr init_v_info_txt(FILE *fp, char *buf, bool start);
 extern errr init_f_info_txt(FILE *fp, char *buf);
 extern errr init_k_info_txt(FILE *fp, char *buf);
@@ -825,9 +826,16 @@ extern errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int 
 
 /* init2.c */
 extern void create_stores_stock(int t);
-extern errr init_v_info(void);
+extern errr init_v_info(char *dir);
+extern errr init_r_info(char *dir);
+extern errr init_e_info(char *dir);
+extern errr init_a_info(char *dir);
+extern errr init_re_info(char *dir);
+extern errr init_f_info(char *dir);
+extern errr init_k_info(char *dir);
+extern errr init_t_info(char *dir);
 extern void init_file_paths(char *path);
-extern void init_angband(void);
+extern void init_angband(char *subdir);
 extern errr init_buildings(void);
 #ifdef ALLOW_TEMPLATES
 extern s16b error_idx;

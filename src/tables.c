@@ -1398,7 +1398,7 @@ player_race race_info[MAX_RACES] =
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
-	{
+/**/	{
 		"Half-Ogre",
                 "A crossbreed between a human and an ogre.\nThey are similar to half-trolls, strong and dumb.",
 		{ 3, -1, -1, -1, 3, -3 },
@@ -1412,7 +1412,7 @@ player_race race_info[MAX_RACES] =
                 { PWR_EXPL_RUNE, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
-	{
+/**/	{
 		"Half-Giant",
                 "A crossbreed between a human and a giant.\nThey are similar to half-trolls, strong and dumb.",
 		{ 4, -2, -2, -2, 3, -3 },
@@ -1426,7 +1426,7 @@ player_race race_info[MAX_RACES] =
                 { PWR_STM, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
-	{
+/**/	{
 		"Kobold",
                 "A weaker kind of goblin, related to orcs.",
 		{ 1, -1, 0, 1, 0, -4 },
@@ -1440,7 +1440,7 @@ player_race race_info[MAX_RACES] =
                 { PWR_POIS_DART, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
-	{
+/**/	{
                 "Petty Dwarf",
                 "A nearly extinct subrace of dwarves.\nThey prefer to live in the darkness.",
 		{ 1, -1, 2, 0, 2, -4 },
@@ -1455,7 +1455,7 @@ player_race race_info[MAX_RACES] =
                 { PWR_DETECT_TD, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
-	{
+/**/	{
 		"Dark Elf",
                 "Elves are the first born, the Eldar.\nDark elves are rare on Middle Earth and even though not evil\nthey are not good.",
 		{ -1, 3, 2, 2, -2, 1 },
@@ -1497,7 +1497,7 @@ player_race race_info[MAX_RACES] =
                 { PWR_ROHAN, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
-	{
+/**/	{
                 "DragonRider",
                 "In the distant system of the star Rukbat orbits the planet Pern, home of the\nDragonRiders. Mounting huge, powerful but friendly dragons they are masters of\nteleporatation.",
                 {  6,  3,  -10,  0,  6,  8 },
@@ -1512,7 +1512,7 @@ player_race race_info[MAX_RACES] =
                 {1, 1, 1, 2, 1, 1},
         },
 
-	{
+/**/	{
                 "DeathMold",
                 "A pure mass of evilness, DeathMolds cannot move, but they have much more\npower than an average race.",
                 { 10, 0, 10, 0, 10, -15 },
@@ -1526,7 +1526,7 @@ player_race race_info[MAX_RACES] =
                 { PWR_DEATHMOLD, -1, -1, -1},
                 {1, 1, 1, 4, 0, 0},
         },
-        {
+/**/    {
                 "Yeek",
                 "The weakest of all the races, bad at everything except gaining levels quickly.",
                 {-5, -5, -5, -5, -5, -5},
@@ -1620,7 +1620,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0,  0, 0, 0,
                 0,  0, 0, 0,
                 3,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDER),
+                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
                 0,
                 BIT(CLASS_MERCHANT),
                 { PWR_VAMPIRISM, -1, -1, -1},
@@ -1638,7 +1638,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0, 0, -10, -5,
                 0, 0, -10, -5,
                 3,
-                0xFFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDER) - BIT(RACE_MOLD),
+                0xFFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER) - BIT(RACE_MOLD),
                 0,
                 BIT(CLASS_WARRIOR) + BIT(CLASS_UNBELIEVER) + BIT(CLASS_WEAPONMASTER) + BIT(CLASS_ARCHER) + BIT(CLASS_MERCHANT),
                 { PWR_SCARE, -1, -1, -1},
@@ -1656,7 +1656,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0,  0, -10, -5,
                 0,  0, -10, -5,
                 1,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDER),
+                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
                 0,
                 BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_POWERMAGE) + BIT(CLASS_HIGH_MAGE) +
                 BIT(CLASS_ILLUSIONIST) + BIT(CLASS_MERCHANT),
@@ -1675,7 +1675,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 1,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDER),
+                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
                 0,
                 BIT(CLASS_MERCHANT),
                 { PWR_REST_LIFE, -1, -1, -1},
@@ -1839,7 +1839,7 @@ player_class class_info[MAX_CLASS] =
                 0,
 	},
 
-	{
+/**/	{
                 "Warlock",
                 "Warrior mages, trained in both melee and some forms of magic.\nThey can learn up to 48 spells.",
 		{ 2, 2, 0, 1, 0, 1},
@@ -1850,7 +1850,7 @@ player_class class_info[MAX_CLASS] =
                 0,
 	},
 
-	{
+/**/	{
 		"Chaos-Warrior",
                 "Fighters of chaos, followed by the somewhat unreliable chaos\npatrons they can use the chaos realm to enhance their destructive powers.",
 		{ 2, 1, 0, 1, 2, -2},
@@ -1872,7 +1872,7 @@ player_class class_info[MAX_CLASS] =
                 CF1_BLESS_WEAPON,
 	},
 
-        {
+/**/    {
                 "Mindcrafter",
                 "From within comes the power of a mindcrafter, using his own psychic\nenergies to battle monsters.",
                 {-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
@@ -1883,7 +1883,7 @@ player_class class_info[MAX_CLASS] =
                 0,
         },
 
-	{
+/**/	{
 	        "High-Mage",
                 "A high mage can learn 64 spells and only from one realm\nbut they learn them much better and can get them to higher levels.",
         	{-5, 4, 0, 0, -2, 1},
@@ -1894,7 +1894,7 @@ player_class class_info[MAX_CLASS] =
                 CF1_NO_GLOVES | CF1_ZERO_FAIL | CF1_BEAM,
 	},
 
-	{
+/**/	{
                 "Mimic",
                 "Disguise is the way of the mimic, through the use of cloaks of mimicry\nthey can change shape for a limited time. They also can temporarily\nchange part of their anatomy.",
                 {2, 0, 0, 5, -1, 1},
@@ -1950,7 +1950,7 @@ player_class class_info[MAX_CLASS] =
 	},
 
 	{
-                "Power-Mage",
+/**/            "Power-Mage",
                 "Powermage spells come from within and are different for each character.\nSince attack is the best defence, all their spells are offensive.",
                 {-5, 5, -2, 0, -2, -1},
                 20, 36, 30, 2,  16, 20, 14, 10,
@@ -1960,7 +1960,7 @@ player_class class_info[MAX_CLASS] =
                 0,
 	},
 
-	{
+/**/	{
                 "Runecrafter",         /* Note : spell stat is Dexterity */
                 "Runecrafters use the runes found in Middle Earth to create\nfinely tuned spells for each specific situation.",
                 {-3, 0, 0, 3, -3, 1},
@@ -2004,7 +2004,7 @@ player_class class_info[MAX_CLASS] =
                 0,
 	},
 
-	{ /* Added -KMW- */
+/**/	{ /* Added -KMW- */
 		"Illusionist",
                 "The illusionist is similar to a mage but prefers to confuse and trick monsters.",
 		{-5, 3, 0, 1, -2, 1},
@@ -2015,7 +2015,7 @@ player_class class_info[MAX_CLASS] =
                 CF1_ZERO_FAIL,
 	},
 
-	{
+/**/	{
                 "Druid",
                 "The druids respect Yavanna, Vala of the forests and nature. They are\nprotectors of nature and as such they gain access to the druid stones\nas the source of their power.",
                 {-2, -2, 3, 1, 1, 2},
@@ -2026,7 +2026,7 @@ player_class class_info[MAX_CLASS] =
                 CF1_ZERO_FAIL,
 	},
 
-	{
+/**/	{
                 "Necromancer",
                 "A necromancer's main goal is to be able to avoid death. When killed they\ncan resurrect themselves if they kill enough monsters in their undead\n form. They can also use the nether magic realm.",
                 {-3, 3, -1, 3, -1, -5},
@@ -2048,7 +2048,7 @@ player_class class_info[MAX_CLASS] =
                 0,
 	},
 
-	{ /* Added -SC- */
+/**/	{ /* Added -SC- */
 		"Daemonologist",
                 "The goal of a daemonologist is to control demons as pets.\nThey use the terrific daemon blades to achieve that goal thus gaining\naccess to the daemon magic realm.",
 		{-2, 3, -1, 1, -1, -1},
@@ -2059,7 +2059,7 @@ player_class class_info[MAX_CLASS] =
                 0,
 	},
 
-	{
+/**/	{
 		"Weaponmaster",
                 "Master of one type of weapon (sword, axe, polearms, hafted, blunt)\nbut very poor with anything else.",
                 { 4, -3, -3, 2, 2, -1},
@@ -8410,7 +8410,7 @@ monster_power monster_powers[96] =
         { RF6_RAISE_DEAD, "Raise the Dead", 400, TRUE },
         { 0, "(none)", 0, FALSE },
         { 0, "(none)", 0, FALSE },
-        { RF6_S_DRAGONRIDER, "Summon DragonRiders", 90, TRUE },
+        { RF6_S_DRAGONRIDDER, "Summon DragonRiders", 90, TRUE },
         { RF6_S_KIN, "Summon Kin", 80, FALSE },
         { RF6_S_HI_DEMON, "Summon Greater Demons", 90, TRUE },
         { RF6_S_MONSTER, "Summon Monster", 50, FALSE },

@@ -2884,16 +2884,16 @@ A:5/1
 P:0:1d1:0:0:0
 
 
-##### Firestone #####
+##### Firescones #####
 
-N:389:& Firestone~
+N:389:& Firescone~
 G:~:r
 I:3:3:0
 W:2:0:40:20
 A:2/1
 P:0:1d1:0:0:0
 
-N:390:& Small Firestone~
+N:390:& Small Firescone~
 G:~:r
 I:3:6:0
 W:0:0:4:2
@@ -4726,10 +4726,10 @@ A:15/1
 P:0:1d1:0:0:0
 F:DECAY
 
-# New armor: Dragonrider Coat. (With two low resists, it shouldn't be 
+# New armor: Dragonridder Coat. (With two low resists, it shouldn't be 
 # at only 5th level. Make it 25th. -JLE...)
 
-N:646:& Dragonrider Coat~
+N:646:& Dragonridder Coat~
 G:(:y
 I:36:16:0
 W:2:0:60:400

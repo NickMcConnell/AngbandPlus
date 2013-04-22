@@ -1363,7 +1363,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_DARK_ELF:
 							c = 223;
 							break;
-                                                case RACE_DRAGONRIDER:
+                                                case RACE_DRAGONRIDDER:
 							if (p_ptr->lev < 20)
 								c = 240;
 							else if (p_ptr->lev < 40)

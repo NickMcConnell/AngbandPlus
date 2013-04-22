@@ -62,7 +62,7 @@ int stricmp(cptr a, cptr b)
 *
 * Fake "usleep()" function grabbed from the inl netrek server -cba
 */
-int usleep(huge usecs)
+int usleep(unsigned long usecs)
 {
 	struct timeval      Timer;
 	

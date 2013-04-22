@@ -53,7 +53,7 @@ static void god_bonus(int god, int goodness, bool do_print) {
                 case GOD_AULE:    /* Earth */
                         p_ptr->ffall = TRUE;
                         p_ptr->free_act = TRUE;
-                        if (do_print) msg_print("You feels one with the Earth.");
+                        if (do_print) msg_print("You feel one with the Earth.");
 
                         if (goodness > 1)
                         {
@@ -401,7 +401,7 @@ static void prt_tp(void)
 
 
         /* Do not show tank unless it matters */
-        if (p_ptr->prace!=RACE_DRAGONRIDER) return;
+        if (p_ptr->prace!=RACE_DRAGONRIDDER) return;
 
 
         put_str("TP ", ROW_TP, COL_TP);
@@ -3672,7 +3672,7 @@ void calc_bonuses(void)
                         if (p_ptr->lev > 4) p_ptr->see_inv = TRUE;
                         if (p_ptr->lev > 24) p_ptr->telepathy |= ESP_ORC | ESP_TROLL | ESP_EVIL;
 			break;
-                case RACE_DRAGONRIDER:
+                case RACE_DRAGONRIDDER:
 			p_ptr->ffall = TRUE;
                         if (p_ptr->lev >= 17) p_ptr->fly = TRUE;
 
@@ -3683,7 +3683,7 @@ void calc_bonuses(void)
                         if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
                         p_ptr->redraw |= PR_TANK;
 
-                        if (p_ptr->lev >  3) p_ptr->telepathy |= ESP_DRAGONRIDER | ESP_DRAGON;
+                        if (p_ptr->lev >  3) p_ptr->telepathy |= ESP_DRAGONRIDDER | ESP_DRAGON;
 			if (p_ptr->lev >  4) p_ptr->resist_fire = TRUE;
 			if (p_ptr->lev >  9) p_ptr->resist_cold = TRUE;
 			if (p_ptr->lev > 14) p_ptr->resist_acid = TRUE;
@@ -5134,7 +5134,6 @@ void update_stuff(void)
 	/* Update stuff */
 	if (!p_ptr->update) return;
 
-
         if (p_ptr->update & (PU_BODY))
 	{
                 p_ptr->update &= ~(PU_BODY);
@@ -5145,7 +5144,7 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_BONUS);
                 calc_bonuses();
-
+			
                 /* Ok now THAT is an ugly hack */
                 p_ptr->update &= ~(PU_POWERS);
                 calc_powers();
@@ -5190,7 +5189,6 @@ void update_stuff(void)
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
 
-
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
 
@@ -5224,7 +5222,6 @@ void update_stuff(void)
 	}
 #endif /* MONSTER_LITE */
 
-
 	if (p_ptr->update & (PU_FLOW))
 	{
 		p_ptr->update &= ~(PU_FLOW);
@@ -5246,9 +5243,9 @@ void update_stuff(void)
 		update_monsters(FALSE);
 	}
 #else /* MONSTER_LITE */
-        /* Monster lites must be updated each time */
+	/* Monster lites must be updated each time */
         update_monsters(TRUE);
-        update_view();
+	update_view();
 	update_lite();
 #endif /* MONSTER_LITE */
 }
