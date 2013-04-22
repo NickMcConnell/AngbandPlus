@@ -94,12 +94,6 @@
 
 
 /*
- * Maximum number of terminals
- */
-#define MAX_TERM_DATA 8
-
-
-/*
  * Forward declare
  */
 typedef struct term_data term_data;
@@ -549,7 +543,7 @@ static void Term_xtra_dos_react(void)
 	/*
 	 * Initialize the window backgrounds
 	 */
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		td = &data[i];
 
@@ -1336,7 +1330,7 @@ static void dos_quit_hook(cptr str)
 	int i;
 
 	/* Destroy sub-windows */
-	for (i = MAX_TERM_DATA - 1; i >= 1; i--)
+	for (i = MAX_TERM_DATA; i-- > 1; )
 	{
 		/* Unused */
 		if (!angband_term[i]) continue;
@@ -1512,8 +1506,7 @@ static unsigned char **load_grx_bmps(PACKFILE *f, FNTfile_header *hdr, int numch
 		if (bmp_size > GRX_TMP_SIZE)
 		{
 			free(temp);
-			for (t--; t >= 0; t--)
-			free(bmp[t]);
+			while (t-- > 0) free(bmp[t]);
 			free(bmp);
 			return NULL;
 		}
@@ -1641,7 +1634,7 @@ static bool init_windows(void)
 	num_windows = get_config_int(section, "num_windows", 1);
 
 	/* Paranoia */
-	if (num_windows > 8) num_windows = 8;
+	if (num_windows > MAX_TERM_DATA) num_windows = MAX_TERM_DATA;
 
 	/* Init the terms */
 	for (i = 0; i < num_windows; i++)
@@ -2202,7 +2195,7 @@ errr init_dos(void)
 	     COLOR_OFFSET + TERM_YELLOW);
 
 	/* Activate the main term */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 	/* Place the cursor */
 	Term_curs_dos(0, 0);

@@ -167,6 +167,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 	int mult = 1;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	u32b f1, f2, f3;
 
@@ -190,7 +191,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_ANIMAL);
+					l_ptr->r_flags3 |= (RF3_ANIMAL);
 				}
 
 				if (mult < 2) mult = 2;
@@ -202,7 +203,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_EVIL);
+					l_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
 				if (mult < 2) mult = 2;
@@ -214,7 +215,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_UNDEAD);
+					l_ptr->r_flags3 |= (RF3_UNDEAD);
 				}
 
 				if (mult < 3) mult = 3;
@@ -226,7 +227,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DEMON);
+					l_ptr->r_flags3 |= (RF3_DEMON);
 				}
 
 				if (mult < 3) mult = 3;
@@ -238,7 +239,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_ORC);
+					l_ptr->r_flags3 |= (RF3_ORC);
 				}
 
 				if (mult < 3) mult = 3;
@@ -250,7 +251,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_TROLL);
+					l_ptr->r_flags3 |= (RF3_TROLL);
 				}
 
 				if (mult < 3) mult = 3;
@@ -262,7 +263,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_GIANT);
+					l_ptr->r_flags3 |= (RF3_GIANT);
 				}
 
 				if (mult < 3) mult = 3;
@@ -274,7 +275,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
+					l_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 3) mult = 3;
@@ -286,7 +287,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
+					l_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 5) mult = 5;
@@ -301,7 +302,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_ACID);
+						l_ptr->r_flags3 |= (RF3_IM_ACID);
 					}
 				}
 
@@ -320,7 +321,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_ELEC);
+						l_ptr->r_flags3 |= (RF3_IM_ELEC);
 					}
 				}
 
@@ -339,7 +340,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_FIRE);
+						l_ptr->r_flags3 |= (RF3_IM_FIRE);
 					}
 				}
 
@@ -358,7 +359,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_COLD);
+						l_ptr->r_flags3 |= (RF3_IM_COLD);
 					}
 				}
 
@@ -1071,6 +1072,7 @@ void py_attack(int y, int x)
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
+	monster_lore *l_ptr;
 
 	object_type *o_ptr;
 
@@ -1084,6 +1086,7 @@ void py_attack(int y, int x)
 	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
+	l_ptr = &l_list[m_ptr->r_idx];
 
 
 	/* Disturb the player */
@@ -1178,7 +1181,7 @@ void py_attack(int y, int x)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_NO_CONF);
+						l_ptr->r_flags3 |= (RF3_NO_CONF);
 					}
 
 					msg_format("%^s is unaffected.", m_name);
@@ -1272,11 +1275,10 @@ void move_player(int dir, int jumping)
 		if (!p_ptr->command_rep)
 		{
 			/* Hack -- Optional auto-repeat */
-			if (always_repeat && (p_ptr->command_arg <= 0))
-			{
-				/* Repeat 99 times */
-				p_ptr->command_arg = 99;
-			}
+			p_ptr->command_rep = 99;
+
+			/* Reset the command count */
+			p_ptr->command_arg = 0;
 		}
 
 		/* Alter */

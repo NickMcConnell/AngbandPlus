@@ -344,14 +344,14 @@ static void wiz_display_item(object_type *o_ptr)
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
-	prt("        ehsi  st    iiiiadta  hp", 11, j+32);
-	prt("        aihnf ee    ggggcregb vr", 12, j+32);
-	prt("        sdose eld   nnnntalrl ym", 13, j+32);
-	prt("        yewta ieirmsrrrriieaeccc", 14, j+32);
-	prt("        ktmatlnpgeihaefcvnpvsuuu", 15, j+32);
-	prt("        nyoahivaeggoclioaeoasrrr", 16, j+32);
-	prt("        opdretitsehtierltxrtesss", 17, j+32);
-	prt("        westreshtntsdcedeptedeee", 18, j+32);
+	prt("s   ts h     tadiiii   aiehs  hp", 11, j+32);
+	prt("lf  eefo     egrgggg  bcnaih  vr", 12, j+32);
+	prt("we  lerl    ilgannnn  ltssdo  ym", 13, j+32);
+	prt("da reied    merirrrr  eityew ccc", 14, j+32);
+	prt("itlepnel    ppanaefc  svaktm uuu", 15, j+32);
+	prt("ghigavai    aoveclio  saanyo rrr", 16, j+32);
+	prt("seteticf    craxierl  etropd sss", 17, j+32);
+	prt("trenhste    tttpdced  detwes eee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
 
@@ -500,7 +500,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 57) && (i < MAX_K_IDX); i++)
+	for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -654,6 +654,12 @@ static void wiz_reroll_item(object_type *o_ptr)
 	/* Notice change */
 	if (changed)
 	{
+		/* Restore the position information */
+		i_ptr->iy = o_ptr->iy;
+		i_ptr->ix = o_ptr->ix;
+		i_ptr->next_o_idx = o_ptr->next_o_idx;
+		i_ptr->marked = o_ptr->marked;
+
 		/* Apply changes */
 		object_copy(o_ptr, i_ptr);
 
@@ -1146,7 +1152,7 @@ static void do_cmd_wiz_learn(void)
 	object_type object_type_body;
 
 	/* Scan every object */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -1245,7 +1251,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 
 	/* Paranoia */
 	if (!r_idx) return;
-	if (r_idx >= MAX_R_IDX-1) return;
+	if (r_idx >= z_info->r_max-1) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)

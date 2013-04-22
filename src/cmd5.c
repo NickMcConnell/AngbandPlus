@@ -514,6 +514,9 @@ void do_cmd_study(void)
 
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY);
+
+	/* Redraw object recall */
+	p_ptr->window |= (PW_OBJECT);
 }
 
 
@@ -1067,6 +1070,9 @@ void do_cmd_cast(void)
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
 		}
 	}
 
@@ -1678,6 +1684,9 @@ void do_cmd_pray(void)
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
 		}
 	}
 

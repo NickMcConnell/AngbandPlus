@@ -1,52 +1,126 @@
-# File: Makefile.acn
-# For Acorn machines with RISC OS 3.10 or later
+# Simple makefile for Angband 2.8.3 (Musus Umbra's RISC OS port)
 
-##
-## This makefile is designed for use with Acorn C/C++.
-## It may be possible to modify it for use with
-## GCC or Easy C, or whatever.
-##
-## If you want to alter the behaviour of the game,
-## then fiddle with config.h
-##
+# This makefile is for Acorn C rel. 5 (edit the CCFLAGS for rel.4)
+# and builds both the Borg and non-Borg versions of vanilla 2.8.3
 
-#
-# Here are the basic object files.
-#
+# If you don't have the Borg source files, go and get them... if you
+# don't /want/ the Borg, ammend this file to suit your fancy (eg.
+# remove the "both" target).
+
+
+# Object files the Borg version is built from:
+
+BOBJS = \
+birth.o cave.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
+cmd6.o dungeon_b.o files.o generate.o init1.o init2.o load1.o \
+load2.o main.o main-acn_b.o melee1.o melee2.o monster1.o monster2.o \
+object1.o object2.o save.o spells1.o spells2.o store.o tables.o \
+util_b.o variable.o wizard1.o wizard2.o xtra1.o xtra2.o \
+z-form.o z-rand.o z-term.o z-util.o z-virt.o \
+borg1.o borg2.o borg3.o borg4.o borg5.o borg6.o \
+borg7.o borg8.o borg9.o
+
+
+# Object files the normal (non-Borg) version is built from:
 
 OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o \
-  object1.o object2.o monster1.o monster2.o \
-  xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load1.o load2.o \
-  wizard1.o wizard2.o \
-  generate.o dungeon.o init1.o init2.o init3.o \
-  main-acn.o main.o \
-  C:o.Stubs OSLib:o.OSLib C:o.eventlib
+birth.o cave.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
+cmd6.o dungeon.o files.o generate.o init1.o init2.o load1.o \
+load2.o main.o main-acn.o melee1.o melee2.o monster1.o monster2.o \
+object1.o object2.o save.o spells1.o spells2.o store.o tables.o \
+util.o variable.o wizard1.o wizard2.o xtra1.o xtra2.o \
+z-form.o z-rand.o z-term.o z-util.o z-virt.o
 
+# Libraries:
+
+LIBS = C:o.Stubs DeskLib:o.DeskLib
+
+# Tools:
 
 CC = cc
 LD = link
+SQ = squeeze
+RM = remove
 
-#
-# Remove the #s from the following two lines of flags to generate
-# a debug version
-#
+# Flags:
 
-CFLAGS = -IOS:,C: -throwback -depend !Depend -Wan -ff -zps1 #-g
-LDFLAGS = -s symbols #-d
+CCFLAGS = -Otime -throwback -Wand -depend !Depend
+LDFLAGS = -aif
+SQFLAGS =
+
 
 .SUFFIXES: .o .c
 
-.c.o:;	$(CC) $(CFLAGS) -c -o $@ $<
-
-angband: $(OBJS)
-	$(LD) $(LDFLAGS) -o angband $(OBJS)
-	Squeeze angband ^.!RunImage
+.c.o:;	$(CC) $(CCFLAGS) -c -o $@ $<
 
 
-# Dynamic dependencies:
+# Make both !RunImages by default:
 
+both:		^.!RunImage ^.!RunImageB
+		@echo All done :)
+
+
+# The normal (non-Borg) !RunImage:
+
+^.!RunImage:	$(OBJS) $(LIBS)
+		$(LD) $(LDFLAGS) -o !RunImage $(OBJS) $(LIBS)
+		$(SQ) $(SQFLAGS) !RunImage ^.!RunImage
+		$(RM) !RunImage
+
+
+
+# The Borg !RunImage:
+
+^.!RunImageB:	$(BOBJS) $(LIBS)
+		$(LD) $(LDFLAGS) -o !BorgImage $(BOBJS) $(LIBS)
+		$(SQ) $(SQFLAGS) !BorgImage ^.!RunImageB
+		$(RM) !BorgImage
+
+
+
+
+# These rules govern the making of the Borg specific files.
+# This is yucky, but only these files are affected by defining ALLOW_BORG
+# so it's easiest and quickest to do things this way. 
+
+dungeon_b.o:	dungeon.c
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o dungeon_b.o dungeon.c
+
+util_b.o:	util.c
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o util_b.o util.c
+
+main-acn_b.o:	main-acn.c !!Variant.h
+		$(CC) $(CCFLAGS) -DVERSION="\"2.8.3 (with Borg)\"" -c -o main-acn_b.o main-acn.c
+
+borg1.o:	borg1.c borg.h
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o borg1.o borg1.c
+
+borg2.o:	borg2.c borg.h
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o borg2.o borg2.c
+
+borg3.o:	borg3.c borg.h
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o borg3.o borg3.c
+
+borg4.o:	borg4.c borg.h
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o borg4.o borg4.c
+
+borg5.o:	borg5.c borg.h
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o borg5.o borg5.c
+
+borg6.o:	borg6.c borg.h
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o borg6.o borg6.c
+
+borg7.o:	borg7.c borg.h
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o borg7.o borg7.c
+
+borg8.o:	borg8.c borg.h
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o borg8.o borg8.c
+
+borg9.o:	borg9.c borg.h
+		$(CC) $(CCFLAGS) -DALLOW_BORG -c -o borg9.o borg9.c
+
+
+
+# Static dependencies
+main-acn.o:	main-acn.c
+main-acn.o:	!!variant.h

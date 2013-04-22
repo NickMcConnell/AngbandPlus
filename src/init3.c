@@ -647,14 +647,14 @@ static long lprobs[S_WORD+1][S_WORD+1][S_WORD+1];	/* global, hence init to 0 */
 static long ltotal[S_WORD+1][S_WORD+1];		/* global, hence init to 0 */
 
 /* Temporary space for names, while reading and randomizing them. */
-static char *names[MAX_A_IDX];
+static char **names;
 static int nnames = 0;
 
 /*
  * Cache the results of lookup_kind(), which is expensive and would
  * otherwise be called much too often.
  */
-static s16b kinds[MAX_A_IDX];
+static s16b *kinds;
 
 /* Global just for convenience. */
 static int randart_verbose = 0;
@@ -792,7 +792,7 @@ static int init_names(void)
 
 	build_prob(names_list);
 
-	for (i = 0; i < MAX_A_IDX; i++)
+	for (i = 0; i < z_info->a_max; i++)
 	{
 		char *word = make_word();
 
@@ -829,7 +829,7 @@ static int init_names(void)
 	/* Convert our names array into an a_name structure for later use. */
 	name_size = 0;
 
-	for (i = 1; i < MAX_A_IDX; i++)
+	for (i = 1; i < z_info->a_max; i++)
 	{
 		name_size += strlen(names[i-1]) + 2;	/* skip first char */
 	}
@@ -842,7 +842,7 @@ static int init_names(void)
 
 	a_next = a_base + 1;	/* skip first char */
 
-	for (i = 1; i < MAX_A_IDX; i++)
+	for (i = 1; i < z_info->a_max; i++)
 	{
 		strcpy(a_next, names[i-1]);
 		if (a_info[i].tval > 0)		/* skip unused! */
@@ -873,7 +873,7 @@ static int scramble(void)
 		int a_idx;
 
 		/* Generate all the artifacts. */
-		for (a_idx = 1; a_idx < MAX_A_IDX; a_idx++)
+		for (a_idx = 1; a_idx < z_info->a_max; a_idx++)
 		{
 			scramble_artifact(a_idx);
 		}
@@ -1991,7 +1991,7 @@ static int artifacts_acceptable(void)
 	int gloves = 4, boots = 4;
 	int i;
 
-	for (i = ART_MIN_NORMAL; i < MAX_A_IDX; i++)
+	for (i = ART_MIN_NORMAL; i < z_info->a_max; i++)
 	{
 		switch (a_info[i].tval)
 		{
@@ -2095,11 +2095,17 @@ int do_randart(u32b randart_seed)
 	Rand_value = randart_seed;
 	Rand_quick = TRUE;
 
+	C_MAKE(names, z_info->a_max, char *);
+	C_MAKE(kinds, z_info->a_max, s16b);
+
 	rc = do_randart_aux();
 
 	/* When done, resume use of the Angband "complex" RNG.  Right
 	   now this does nothing, but later it will be important! */
 	Rand_quick = FALSE;
+
+	C_KILL(names, z_info->a_max, char *);
+	C_KILL(kinds, z_info->a_max, s16b);
 
 	return rc;
 }

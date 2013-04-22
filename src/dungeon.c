@@ -1588,6 +1588,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Target special monster */
+		case '$':
+		{
+			do_cmd_target_special();
+			break;
+		}
+
 
 
 		/*** Help and Such ***/
@@ -1795,46 +1802,46 @@ static void process_player_aux(void)
 	/* Tracking a monster */
 	if (p_ptr->monster_race_idx)
 	{
-		monster_race *r_ptr;
+		monster_lore *l_ptr;
 
-		/* Get the monster race */
-		r_ptr = &r_info[p_ptr->monster_race_idx];
+		/* Get the monster recall info */
+		l_ptr = &l_list[p_ptr->monster_race_idx];
 
 		/* Check for change of any kind */
 		if ((old_monster_race_idx != p_ptr->monster_race_idx) ||
-		    (old_r_flags1 != r_ptr->r_flags1) ||
-		    (old_r_flags2 != r_ptr->r_flags2) ||
-		    (old_r_flags3 != r_ptr->r_flags3) ||
-		    (old_r_flags4 != r_ptr->r_flags4) ||
-		    (old_r_flags5 != r_ptr->r_flags5) ||
-		    (old_r_flags6 != r_ptr->r_flags6) ||
-		    (old_r_blows0 != r_ptr->r_blows[0]) ||
-		    (old_r_blows1 != r_ptr->r_blows[1]) ||
-		    (old_r_blows2 != r_ptr->r_blows[2]) ||
-		    (old_r_blows3 != r_ptr->r_blows[3]) ||
-		    (old_r_cast_inate != r_ptr->r_cast_inate) ||
-		    (old_r_cast_spell != r_ptr->r_cast_spell))
+		    (old_r_flags1 != l_ptr->r_flags1) ||
+		    (old_r_flags2 != l_ptr->r_flags2) ||
+		    (old_r_flags3 != l_ptr->r_flags3) ||
+		    (old_r_flags4 != l_ptr->r_flags4) ||
+		    (old_r_flags5 != l_ptr->r_flags5) ||
+		    (old_r_flags6 != l_ptr->r_flags6) ||
+		    (old_r_blows0 != l_ptr->r_blows[0]) ||
+		    (old_r_blows1 != l_ptr->r_blows[1]) ||
+		    (old_r_blows2 != l_ptr->r_blows[2]) ||
+		    (old_r_blows3 != l_ptr->r_blows[3]) ||
+		    (old_r_cast_inate != l_ptr->r_cast_inate) ||
+		    (old_r_cast_spell != l_ptr->r_cast_spell))
 		{
 			/* Memorize old race */
 			old_monster_race_idx = p_ptr->monster_race_idx;
 
 			/* Memorize flags */
-			old_r_flags1 = r_ptr->r_flags1;
-			old_r_flags2 = r_ptr->r_flags2;
-			old_r_flags3 = r_ptr->r_flags3;
-			old_r_flags4 = r_ptr->r_flags4;
-			old_r_flags5 = r_ptr->r_flags5;
-			old_r_flags6 = r_ptr->r_flags6;
+			old_r_flags1 = l_ptr->r_flags1;
+			old_r_flags2 = l_ptr->r_flags2;
+			old_r_flags3 = l_ptr->r_flags3;
+			old_r_flags4 = l_ptr->r_flags4;
+			old_r_flags5 = l_ptr->r_flags5;
+			old_r_flags6 = l_ptr->r_flags6;
 
 			/* Memorize blows */
-			old_r_blows0 = r_ptr->r_blows[0];
-			old_r_blows1 = r_ptr->r_blows[1];
-			old_r_blows2 = r_ptr->r_blows[2];
-			old_r_blows3 = r_ptr->r_blows[3];
+			old_r_blows0 = l_ptr->r_blows[0];
+			old_r_blows1 = l_ptr->r_blows[1];
+			old_r_blows2 = l_ptr->r_blows[2];
+			old_r_blows3 = l_ptr->r_blows[3];
 
 			/* Memorize castings */
-			old_r_cast_inate = r_ptr->r_cast_inate;
-			old_r_cast_spell = r_ptr->r_cast_spell;
+			old_r_cast_inate = l_ptr->r_cast_inate;
+			old_r_cast_spell = l_ptr->r_cast_spell;
 
 			/* Window stuff */
 			p_ptr->window |= (PW_MONSTER);
@@ -2432,14 +2439,14 @@ static void dungeon(void)
 	while (TRUE)
 	{
 		/* Hack -- Compact the monster list occasionally */
-		if (m_cnt + 32 > MAX_M_IDX) compact_monsters(64);
+		if (m_cnt + 32 > z_info->m_max) compact_monsters(64);
 
 		/* Hack -- Compress the monster list occasionally */
 		if (m_cnt + 32 < m_max) compact_monsters(0);
 
 
 		/* Hack -- Compact the object list occasionally */
-		if (o_cnt + 32 > MAX_O_IDX) compact_objects(64);
+		if (o_cnt + 32 > z_info->o_max) compact_objects(64);
 
 		/* Hack -- Compress the object list occasionally */
 		if (o_cnt + 32 < o_max) compact_objects(0);
@@ -2608,13 +2615,13 @@ void play_game(bool new_game)
 
 
 	/* Verify main term */
-	if (!angband_term[0])
+	if (!term_screen)
 	{
 		quit("main window does not exist");
 	}
 
 	/* Make sure main term is active */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 	/* Verify minimum size */
 	if ((Term->hgt < 24) || (Term->wid < 80))
@@ -2748,7 +2755,7 @@ void play_game(bool new_game)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);
 
 	/* Window stuff */
 	window_stuff();

@@ -296,6 +296,12 @@
  */
 /* #define DELAY_LOAD_V_TEXT */
 
+/*
+ * OPTION: Delay the loading of the "p_text" array until it is actually
+ * needed, saving ~1K, since "race" descriptions are unused.
+ */
+#define DELAY_LOAD_P_TEXT
+
 
 /*
  * OPTION: Handle signals

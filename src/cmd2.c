@@ -1800,12 +1800,14 @@ void do_cmd_alter(void)
 		more = do_cmd_tunnel_aux(y, x);
 	}
 
+#if 0
 	/* Bash jammed doors */
 	else if (feat >= FEAT_DOOR_HEAD + 0x08)
 	{
 		/* Tunnel */
 		more = do_cmd_bash_aux(y, x);
 	}
+#endif
 
 	/* Open closed doors */
 	else if (feat >= FEAT_DOOR_HEAD)

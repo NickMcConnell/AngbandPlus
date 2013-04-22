@@ -2306,7 +2306,7 @@ static void build_type7(int y0, int x0)
 	while (TRUE)
 	{
 		/* Get a random vault record */
-		v_ptr = &v_info[rand_int(MAX_V_IDX)];
+		v_ptr = &v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first lesser vault */
 		if (v_ptr->typ == 7) break;
@@ -2342,7 +2342,7 @@ static void build_type8(int y0, int x0)
 	while (TRUE)
 	{
 		/* Get a random vault record */
-		v_ptr = &v_info[rand_int(MAX_V_IDX)];
+		v_ptr = &v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first greater vault */
 		if (v_ptr->typ == 8) break;
@@ -2719,7 +2719,7 @@ static void try_door(int y, int x)
  * Note that we restrict the number of "crowded" rooms to reduce
  * the chance of overflowing the monster list during level creation.
  */
-static bool room_build(int by0, int bx0, int typ)
+static bool room_build(int by0, int bx0, int typ, bool force_create)
 {
 	int y, x;
 	int by, bx;
@@ -2727,7 +2727,7 @@ static bool room_build(int by0, int bx0, int typ)
 
 
 	/* Restrict level */
-	if (p_ptr->depth < room[typ].level) return (FALSE);
+	if (!force_create && (p_ptr->depth < room[typ].level)) return (FALSE);
 
 	/* Restrict "crowded" rooms */
 	if (dun->crowded && ((typ == 5) || (typ == 6))) return (FALSE);
@@ -2813,6 +2813,8 @@ static void cave_gen(void)
 
 	bool destroyed = FALSE;
 
+	bool need_vault = FALSE;
+
 	dun_data dun_body;
 
 
@@ -2859,6 +2861,12 @@ static void cave_gen(void)
 	/* No rooms yet */
 	dun->cent_n = 0;
 
+	/* Do we want a vault? */
+	if (adult_unusual_rooms || adult_steele)
+	{
+		need_vault = TRUE;
+	}
+
 	/* Build some rooms */
 	for (i = 0; i < DUN_ROOMS; i++)
 	{
@@ -2880,9 +2888,19 @@ static void cave_gen(void)
 		if (destroyed)
 		{
 			/* Attempt a "trivial" room */
-			if (room_build(by, bx, 1)) continue;
+			if (room_build(by, bx, 1, FALSE)) continue;
 
 			/* Never mind */
+			continue;
+		}
+
+		/* Force a vault if needed */
+		if (need_vault && room_build(by, bx, 8, TRUE))
+		{
+			/* Disable the option */
+			if (adult_steele) need_vault = FALSE;
+
+			/* Go on */
 			continue;
 		}
 
@@ -2896,30 +2914,30 @@ static void cave_gen(void)
 			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 			{
 				/* Type 8 -- Greater vault (10%) */
-				if ((k < 10) && room_build(by, bx, 8)) continue;
+				if ((k < 10) && room_build(by, bx, 8, FALSE)) continue;
 
 				/* Type 7 -- Lesser vault (15%) */
-				if ((k < 25) && room_build(by, bx, 7)) continue;
+				if ((k < 25) && room_build(by, bx, 7, FALSE)) continue;
 
 				/* Type 6 -- Monster pit (15%) */
-				if ((k < 40) && room_build(by, bx, 6)) continue;
+				if ((k < 40) && room_build(by, bx, 6, FALSE)) continue;
 
 				/* Type 5 -- Monster nest (10%) */
-				if ((k < 50) && room_build(by, bx, 5)) continue;
+				if ((k < 50) && room_build(by, bx, 5, FALSE)) continue;
 			}
 
 			/* Type 4 -- Large room (25%) */
-			if ((k < 25) && room_build(by, bx, 4)) continue;
+			if ((k < 25) && room_build(by, bx, 4, FALSE)) continue;
 
 			/* Type 3 -- Cross room (25%) */
-			if ((k < 50) && room_build(by, bx, 3)) continue;
+			if ((k < 50) && room_build(by, bx, 3, FALSE)) continue;
 
 			/* Type 2 -- Overlapping (50%) */
-			if ((k < 100) && room_build(by, bx, 2)) continue;
+			if ((k < 100) && room_build(by, bx, 2, FALSE)) continue;
 		}
 
 		/* Attempt a trivial room */
-		if (room_build(by, bx, 1)) continue;
+		if (room_build(by, bx, 1, FALSE)) continue;
 	}
 
 
@@ -3030,15 +3048,19 @@ static void cave_gen(void)
 	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
 
 
-	/* Determine the character location */
-	new_player_spot();
-
-
 	/* Basic "amount" */
 	k = (p_ptr->depth / 3);
 	if (k > 10) k = 10;
 	if (k < 2) k = 2;
 
+	/* Put some rubble in corridors */
+	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
+
+	/* Place some traps in the dungeon */
+	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
+
+	/* Determine the character location */
+	new_player_spot();
 
 	/* Pick a base number of monsters */
 	i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -3053,7 +3075,7 @@ static void cave_gen(void)
 	if (is_quest(p_ptr->depth))
 	{
 		/* Ensure quest monsters */
-		for (i = 1; i < MAX_R_IDX; i++)
+		for (i = 1; i < z_info->r_max; i++)
 		{
 			monster_race *r_ptr = &r_info[i];
 
@@ -3079,12 +3101,6 @@ static void cave_gen(void)
 		}
 	}
 
-
-	/* Place some traps in the dungeon */
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
-
-	/* Put some rubble in corridors */
-	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
 
 	/* Put some objects in rooms */
 	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ROOM, 3));
@@ -3471,7 +3487,7 @@ void generate_cave(void)
 
 
 		/* Prevent object over-flow */
-		if (o_max >= MAX_O_IDX)
+		if (o_max >= z_info->o_max)
 		{
 			/* Message */
 			why = "too many objects";
@@ -3481,7 +3497,7 @@ void generate_cave(void)
 		}
 
 		/* Prevent monster over-flow */
-		if (m_max >= MAX_M_IDX)
+		if (m_max >= z_info->m_max)
 		{
 			/* Message */
 			why = "too many monsters";

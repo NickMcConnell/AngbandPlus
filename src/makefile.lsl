@@ -28,7 +28,7 @@ OBJS = \
 
 CC = gcc
 
-CFLAGS = -Wall -D"USE_LSL"
+CFLAGS = -Wall -02 -fno-strength-reduce -D"USE_LSL"
 
 LIBS = -lz -lvgagl -lvga
 

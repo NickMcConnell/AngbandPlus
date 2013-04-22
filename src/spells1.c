@@ -1979,6 +1979,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
+	monster_lore *l_ptr;
 
 	cptr name;
 
@@ -2035,6 +2036,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Obtain monster info */
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
+	l_ptr = &l_list[m_ptr->r_idx];
 	name = (r_name + r_ptr->name);
 	if (m_ptr->ml) seen = TRUE;
 
@@ -2077,7 +2079,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) r_ptr->r_flags3 |= (RF3_IM_ACID);
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_ACID);
 			}
 			break;
 		}
@@ -2090,7 +2092,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) r_ptr->r_flags3 |= (RF3_IM_ELEC);
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_ELEC);
 			}
 			break;
 		}
@@ -2103,7 +2105,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) r_ptr->r_flags3 |= (RF3_IM_FIRE);
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_FIRE);
 			}
 			break;
 		}
@@ -2116,7 +2118,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) r_ptr->r_flags3 |= (RF3_IM_COLD);
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_COLD);
 			}
 			break;
 		}
@@ -2129,7 +2131,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) r_ptr->r_flags3 |= (RF3_IM_POIS);
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_POIS);
 			}
 			break;
 		}
@@ -2142,7 +2144,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 2;
 				note = " is hit hard.";
-				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
 			}
 			break;
 		}
@@ -2175,7 +2177,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " is immune.";
 				dam = 0;
-				if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+				if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
 			}
 			else if (r_ptr->flags4 & (RF4_BR_NETH))
 			{
@@ -2186,7 +2188,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam /= 2;
 				note = " resists somewhat.";
-				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
 			}
 			break;
 		}
@@ -2361,7 +2363,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) r_ptr->r_flags3 |= (RF3_IM_COLD);
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_COLD);
 			}
 			break;
 		}
@@ -2377,11 +2379,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				if (r_ptr->flags3 & (RF3_UNDEAD))
 				{
-					if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+					if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
 				}
 				if (r_ptr->flags3 & (RF3_DEMON))
 				{
-					if (seen) r_ptr->r_flags3 |= (RF3_DEMON);
+					if (seen) l_ptr->r_flags3 |= (RF3_DEMON);
 				}
 
 				note = " is unaffected!";
@@ -2520,7 +2522,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_SLEEP))
 				{
-					if (seen) r_ptr->r_flags3 |= (RF3_NO_SLEEP);
+					if (seen) l_ptr->r_flags3 |= (RF3_NO_SLEEP);
 				}
 
 				/* No obvious effect */
@@ -2556,7 +2558,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
 				{
-					if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
+					if (seen) l_ptr->r_flags3 |= (RF3_NO_CONF);
 				}
 
 				/* Resist */
@@ -2584,7 +2586,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (seen) obvious = TRUE;
 
 				/* Memorize the effects */
-				if (seen) r_ptr->r_flags3 |= (RF3_HURT_LITE);
+				if (seen) l_ptr->r_flags3 |= (RF3_HURT_LITE);
 
 				/* Special effect */
 				note = " cringes from the light!";
@@ -2614,7 +2616,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 			else if (r_ptr->flags3 & (RF3_HURT_LITE))
 			{
-				if (seen) r_ptr->r_flags3 |= (RF3_HURT_LITE);
+				if (seen) l_ptr->r_flags3 |= (RF3_HURT_LITE);
 				note = " cringes from the light!";
 				note_dies = " shrivels away in the light!";
 				dam *= 2;
@@ -2646,7 +2648,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (seen) obvious = TRUE;
 
 				/* Memorize the effects */
-				if (seen) r_ptr->r_flags3 |= (RF3_HURT_ROCK);
+				if (seen) l_ptr->r_flags3 |= (RF3_HURT_ROCK);
 
 				/* Cute little message */
 				note = " loses some skin!";
@@ -2671,7 +2673,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				if (seen) obvious = TRUE;
-				if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+				if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
 				do_dist = dam;
 			}
 
@@ -2695,7 +2697,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				if (seen) obvious = TRUE;
-				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
 				do_dist = dam;
 			}
 
@@ -2734,7 +2736,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				/* Learn about type */
-				if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+				if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2772,7 +2774,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				/* Learn about type */
-				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2836,7 +2838,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				/* Learn about type */
-				if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+				if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2867,7 +2869,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				/* Learn about type */
-				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;

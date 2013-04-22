@@ -30,7 +30,7 @@ static void quit_hook(cptr s)
 	int j;
 
 	/* Scan windows */
-	for (j = 8 - 1; j >= 0; j--)
+	for (j = MAX_TERM_DATA; j-- > 0; )
 	{
 		/* Unused */
 		if (!angband_term[j]) continue;

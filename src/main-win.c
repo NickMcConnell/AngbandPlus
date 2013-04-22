@@ -380,11 +380,6 @@ struct _term_data
 
 
 /*
- * Maximum number of windows XXX XXX XXX
- */
-#define MAX_TERM_DATA 8
-
-/*
  * An array of term_data's
  */
 static term_data data[MAX_TERM_DATA];
@@ -2371,7 +2366,7 @@ static void init_windows(void)
 
 
 	/* Sub windows (reverse order) */
-	for (i = MAX_TERM_DATA - 1; i >= 1; --i)
+	for (i = MAX_TERM_DATA; i-- > 1; )
 	{
 		td = &data[i];
 
@@ -2419,7 +2414,7 @@ static void init_windows(void)
 	if (!td->w) quit("Failed to create Angband window");
 
 	term_data_link(td);
-	angband_term[0] = &td->t;
+	term_screen = &td->t;
 
 	/* Activate the main window */
 	SetActiveWindow(td->w);
@@ -3912,7 +3907,7 @@ static void hook_quit(cptr str)
 	/*** Could use 'Term_nuke_win()' XXX XXX XXX */
 
 	/* Destroy all windows */
-	for (i = MAX_TERM_DATA - 1; i >= 0; --i)
+	for (i = MAX_TERM_DATA; i-- > 0; )
 	{
 		term_force_font(&data[i], NULL);
 		if (data[i].font_want) string_free(data[i].font_want);
@@ -4044,12 +4039,6 @@ static void init_stuff(void)
 
 	/* Validate the "graf" directory */
 	validate_dir(ANGBAND_DIR_XTRA_GRAF);
-
-	/* Build the filename */
-	path_build(path, 1024, ANGBAND_DIR_XTRA_GRAF, "8X8.BMP");
-
-	/* Hack -- Validate the basic graf */
-	validate_file(path);
 
 #endif
 

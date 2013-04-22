@@ -209,13 +209,25 @@ char *message__buf;
 /*
  * The array[8] of window pointers
  */
-term *angband_term[8];
+term *angband_term[MAX_TERM_DATA];
 
+
+#ifdef ANGBAND_LITE
 
 /*
- * The array[8] of window names (modifiable?)
+ * The array of window names (modifiable?)
  */
-char angband_term_name[8][16] =
+char angband_term_name[MAX_TERM_DATA][16] =
+{
+	"Angband"
+};
+
+#else /* ANGBAND_LITE */
+
+/*
+ * The array of window names (modifiable?)
+ */
+char angband_term_name[MAX_TERM_DATA][16] =
 {
 	"Angband",
 	"Term-1",
@@ -226,6 +238,8 @@ char angband_term_name[8][16] =
 	"Term-6",
 	"Term-7"
 };
+
+#endif /* ANGBAND_LITE */
 
 
 /*
@@ -355,6 +369,12 @@ byte (*cave_when)[DUNGEON_WID];
 #endif	/* MONSTER_FLOW */
 
 /*
+ * Structure (not array) of size limits
+ */
+header *z_head;
+maxima *z_info;
+
+/*
  * Array[MAX_O_IDX] of dungeon objects
  */
 object_type *o_list;
@@ -363,6 +383,11 @@ object_type *o_list;
  * Array[MAX_M_IDX] of dungeon monsters
  */
 monster_type *m_list;
+
+/*
+ * Array[MAX_R_IDX] of monster lore
+ */
+monster_lore *l_list;
 
 /*
  * Hack -- Array[MAX_Q_IDX] of quests
@@ -390,6 +415,17 @@ s16b alloc_kind_size;
  * The array[alloc_kind_size] of entries in the "kind allocator table"
  */
 alloc_entry *alloc_kind_table;
+
+
+/*
+ * The size of the "alloc_ego_table"
+ */
+s16b alloc_ego_size;
+
+/*
+ * The array[alloc_ego_size] of entries in the "ego allocator table"
+ */
+alloc_entry *alloc_ego_table;
 
 
 /*
@@ -509,6 +545,34 @@ header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
+
+/*
+ * The player race arrays
+ */
+header *p_head;
+player_race *p_info;
+char *p_name;
+char *p_text;
+
+/*
+ * The player history arrays
+ */
+header *h_head;
+hist_type *h_info;
+char *h_text;
+
+/*
+ * The shop owner arrays
+ */
+header *b_head;
+owner_type *b_info;
+char *b_name;
+
+/*
+ * The racial price adjustment arrays
+ */
+header *g_head;
+byte *g_info;
 
 
 /*

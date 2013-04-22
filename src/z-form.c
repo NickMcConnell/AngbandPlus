@@ -46,7 +46,7 @@
  * removed from the "format sequence", and replaced by the textual form
  * of the next argument in the argument list.  See examples below.
  *
- * Legal format characters: %,n,p,c,s,d,i,o,u,X,x,E,e,F,f,G,g,r,v.
+ * Legal format characters: %,n,c,s,d,i,o,u,X,x,r,v.
  *
  * Format("%%")
  *   Append the literal "%".
@@ -55,18 +55,6 @@
  * Format("%n", int *np)
  *   Save the current length into (*np).
  *   No legal modifiers.
- *
- * Format("%p", vptr v)
- *   Append the pointer "v" (implementation varies).
- *   No legal modifiers.
- *
- * Format("%E", double r)
- * Format("%F", double r)
- * Format("%G", double r)
- * Format("%e", double r)
- * Format("%f", double r)
- * Format("%g", double r)
- *   Append the double "r", in various formats.
  *
  * Format("%ld", long int i)
  *   Append the long integer "i".
@@ -523,38 +511,6 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 					/* Format the argument */
 					sprintf(tmp, aux, arg);
 				}
-
-				/* Done */
-				break;
-			}
-
-			/* Floating Point -- various formats */
-			case 'f':
-			case 'e': case 'E':
-			case 'g': case 'G':
-			{
-				double arg;
-
-				/* Get the next argument */
-				arg = va_arg(vp, double);
-
-				/* Format the argument */
-				sprintf(tmp, aux, arg);
-
-				/* Done */
-				break;
-			}
-
-			/* Pointer -- implementation varies */
-			case 'p':
-			{
-				vptr arg;
-
-				/* Get the next argument */
-				arg = va_arg(vp, vptr);
-
-				/* Format the argument */
-				sprintf(tmp, aux, arg);
 
 				/* Done */
 				break;

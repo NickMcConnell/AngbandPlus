@@ -2079,6 +2079,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 	s32b div, new_exp, new_exp_frac;
 
 
@@ -2164,10 +2166,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
 			/* Count kills this life */
-			if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;
+			if (l_ptr->r_pkills < MAX_SHORT) l_ptr->r_pkills++;
 
 			/* Count kills in all lives */
-			if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
+			if (l_ptr->r_tkills < MAX_SHORT) l_ptr->r_tkills++;
 
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
@@ -2433,6 +2435,24 @@ cptr look_mon_desc(int m_idx)
 	}
 
 	return (living ? "almost dead" : "almost destroyed");
+}
+
+
+
+/*
+ * Monster mark description
+ */
+static cptr look_mon_desc2(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return ("");
+
+	if (l_ptr->r_mark) return (" ($)");
+
+	return ((l_ptr->r_pkills > 0) ? "" : " (*)");
 }
 
 
@@ -2948,11 +2968,23 @@ static void target_set_interactive_prepare(int mode)
 			/* Special mode */
 			if (mode & (TARGET_KILL))
 			{
+				s16b m_idx = cave_m_idx[y][x];
+
 				/* Must contain a monster */
-				if (!(cave_m_idx[y][x] > 0)) continue;
+				if (!(m_idx > 0)) continue;
 
 				/* Must be a targettable monster */
-			 	if (!target_able(cave_m_idx[y][x])) continue;
+			 	if (!target_able(m_idx)) continue;
+
+				/* Only take special monsters */
+				if (mode & (TARGET_XTRA))
+				{
+					monster_type *m_ptr = &m_list[m_idx];
+					monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+					/* Accept never-killed monsters and marked monsters */
+					if ((l_ptr->r_pkills > 0) && !l_ptr->r_mark) continue;
+				}
 			}
 
 			/* Save the location */
@@ -3108,8 +3140,9 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					else
 					{
 						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
-						        s1, s2, s3, m_name, look_mon_desc(cave_m_idx[y][x]), info);
+						sprintf(out_val, "%s%s%s%s (%s)%s [r,%s]",
+						        s1, s2, s3, m_name, look_mon_desc(cave_m_idx[y][x]),
+						        look_mon_desc2(cave_m_idx[y][x]), info);
 						prt(out_val, 0, 0);
 
 						/* Place cursor */
@@ -3447,7 +3480,7 @@ bool target_set_interactive(int mode)
 			/* Allow target */
 			if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]))
 			{
-				strcpy(info, "q,t,p,o,+,-,<dir>");
+				strcpy(info, "q,t,p,o,+,-,{,},<dir>");
 			}
 
 			/* Dis-allow target */
@@ -3549,6 +3582,44 @@ bool target_set_interactive(int mode)
 						health_track(m_idx);
 						target_set_monster(m_idx);
 						done = TRUE;
+					}
+					else
+					{
+						bell("Illegal target!");
+					}
+					break;
+				}
+
+				case '{':
+				{
+					int m_idx = cave_m_idx[y][x];
+
+					if ((m_idx > 0) && target_able(m_idx))
+					{
+						monster_type *m_ptr = &m_list[m_idx];
+						monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+						/* Mark the monster */
+						l_ptr->r_mark = TRUE;
+					}
+					else
+					{
+						bell("Illegal target!");
+					}
+					break;
+				}
+
+				case '}':
+				{
+					int m_idx = cave_m_idx[y][x];
+
+					if ((m_idx > 0) && target_able(m_idx))
+					{
+						monster_type *m_ptr = &m_list[m_idx];
+						monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+						/* Unmark the monster */
+						l_ptr->r_mark = FALSE;
 					}
 					else
 					{

@@ -336,49 +336,6 @@ static owner_type *ot_ptr = NULL;
 
 
 /*
- * Buying and selling adjustments for race combinations.
- * Entry[owner][player] gives the basic "cost inflation".
- */
-static byte rgold_adj[MAX_RACES][MAX_RACES] =
-{
-	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE*/
-
-	/* Human */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
-
-	/* Half-Elf */
-	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100},
-
-	/* Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100},
-
-	/* Halfling */
-	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105},
-
-	/* Gnome */
-	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110},
-
-	/* Dwarf */
-	{ 115, 120, 120, 110, 110,  95, 125, 135, 115, 120},
-
-	/* Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125},
-
-	/* Half-Troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115},
-
-	/* Dunedain  */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
-
-	/* High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100}
-
-};
-
-
-
-
-/*
  * Determine the price of an object (qty one) in a store.
  *
  * This function takes into account the player's charisma, and the
@@ -412,7 +369,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 
 
 	/* Compute the racial factor */
-	factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
+	factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
 
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
@@ -729,6 +686,19 @@ static bool store_check_num(object_type *o_ptr)
 }
 
 
+/*
+ * Determine if a weapon is 'blessed'
+ */
+static bool is_blessed(object_type *o_ptr)
+{
+	u32b f1, f2, f3;
+
+	/* Get the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Is the object blessed? */
+	return ((f3 & TR3_BLESSED) ? TRUE : FALSE);
+}
 
 
 /*
@@ -745,7 +715,7 @@ static bool store_will_buy(object_type *o_ptr)
 	switch (store_num)
 	{
 		/* General Store */
-		case 0:
+		case STORE_GENERAL:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -767,7 +737,7 @@ static bool store_will_buy(object_type *o_ptr)
 		}
 
 		/* Armoury */
-		case 1:
+		case STORE_ARMOR:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -789,7 +759,7 @@ static bool store_will_buy(object_type *o_ptr)
 		}
 
 		/* Weapon Shop */
-		case 2:
+		case STORE_WEAPON:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -810,7 +780,7 @@ static bool store_will_buy(object_type *o_ptr)
 		}
 
 		/* Temple */
-		case 3:
+		case STORE_TEMPLE:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -820,6 +790,10 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_POTION:
 				case TV_HAFTED:
 				break;
+				case TV_POLEARM:
+				case TV_SWORD:
+				if (is_blessed(o_ptr)) break;
+				return (FALSE);
 				default:
 				return (FALSE);
 			}
@@ -827,7 +801,7 @@ static bool store_will_buy(object_type *o_ptr)
 		}
 
 		/* Alchemist */
-		case 4:
+		case STORE_ALCHEMY:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -842,7 +816,7 @@ static bool store_will_buy(object_type *o_ptr)
 		}
 
 		/* Magic Shop */
-		case 5:
+		case STORE_MAGIC:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -1554,8 +1528,8 @@ static void display_store(void)
 	else
 	{
 		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
-		cptr owner_name = (ot_ptr->owner_name);
-		cptr race_name = race_info[ot_ptr->owner_race].title;
+		cptr owner_name = &b_name[ot_ptr->owner_name];
+		cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
 
 		/* Put the owner name and race */
 		sprintf(buf, "%s (%s)", owner_name, race_name);
@@ -2158,6 +2132,12 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	/* No need to haggle */
 	if (noneed || auto_haggle || (final_ask >= purse))
 	{
+		/* Apply Sales Tax (if needed) */
+		if (auto_haggle && !noneed)
+		{
+			final_ask -= final_ask / 10;
+		}
+
 		/* No reason to haggle */
 		if (final_ask >= purse)
 		{
@@ -2189,9 +2169,6 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 
 			/* Ignore haggling */
 			ignore = TRUE;
-
-			/* Apply Sales Tax */
-			final_ask -= final_ask / 10;
 		}
 
 		/* Final price */
@@ -2694,16 +2671,6 @@ static void store_sell(void)
 	/* Get a full description */
 	object_desc(o_name, i_ptr, TRUE, 3);
 
-	/* Remove any inscription for stores */
-	if (store_num != STORE_HOME)
-	{
-		/* Erase the inscription */
-		i_ptr->note = 0;
-
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-	}
-
 	/* Is there room in the store (or the home?) */
 	if (!store_check_num(i_ptr))
 	{
@@ -2749,6 +2716,12 @@ static void store_sell(void)
 
 			/* Get the "apparent" value */
 			dummy = object_value(i_ptr) * i_ptr->number;
+
+			/* Erase the inscription */
+			i_ptr->note = 0;
+
+			/* Remove special inscription, if any */
+			if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
 			/* Identify original object */
 			object_aware(o_ptr);
@@ -3234,7 +3207,7 @@ void do_cmd_store(void)
 
 	/* Save the store and owner pointers */
 	st_ptr = &store[store_num];
-	ot_ptr = &owners[store_num][st_ptr->owner];
+	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
 
 
 	/* Start at the beginning */
@@ -3434,11 +3407,11 @@ void store_shuffle(int which)
 	/* Pick a new owner */
 	for (j = st_ptr->owner; j == st_ptr->owner; )
 	{
-		st_ptr->owner = (byte)rand_int(MAX_OWNERS);
+		st_ptr->owner = (byte)rand_int(z_info->b_max);
 	}
 
 	/* Activate the new owner */
-	ot_ptr = &owners[store_num][st_ptr->owner];
+	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
 
 
 	/* Reset the owner data */
@@ -3486,7 +3459,7 @@ void store_maint(int which)
 	st_ptr = &store[store_num];
 
 	/* Activate the owner */
-	ot_ptr = &owners[store_num][st_ptr->owner];
+	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
 
 
 	/* Store keeper forgives the player */
@@ -3497,7 +3470,7 @@ void store_maint(int which)
 	if (store_num == STORE_B_MARKET)
 	{
 		/* Destroy crappy black market items */
-		for (j = st_ptr->stock_num - 1; j >= 0; j--)
+		for (j = st_ptr->stock_num; j-- > 0; )
 		{
 			object_type *o_ptr = &st_ptr->stock[j];
 
@@ -3571,10 +3544,10 @@ void store_init(int which)
 
 
 	/* Pick an owner */
-	st_ptr->owner = (byte)rand_int(MAX_OWNERS);
+	st_ptr->owner = (byte)rand_int(z_info->b_max);
 
 	/* Activate the new owner */
-	ot_ptr = &owners[store_num][st_ptr->owner];
+	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
 
 
 	/* Initialize the store */

@@ -778,7 +778,7 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-	prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+	prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 
 	/* Title */
@@ -848,7 +848,7 @@ static void fix_inven(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		term *old = Term;
 
@@ -882,7 +882,7 @@ static void fix_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		term *old = Term;
 
@@ -915,7 +915,7 @@ static void fix_player_0(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		term *old = Term;
 
@@ -949,7 +949,7 @@ static void fix_player_1(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		term *old = Term;
 
@@ -986,7 +986,7 @@ static void fix_message(void)
 	int x, y;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		term *old = Term;
 
@@ -1039,7 +1039,7 @@ static void fix_overhead(void)
 	int cy, cx;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		term *old = Term;
 
@@ -1078,7 +1078,7 @@ static void fix_monster(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		term *old = Term;
 
@@ -1111,7 +1111,7 @@ static void fix_object(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		term *old = Term;
 
@@ -1194,7 +1194,7 @@ static void calc_spells(void)
 
 
 	/* Forget spells which are too hard */
-	for (i = 63; i >= 0; i--)
+	for (i = 64; i-- > 0; )
 	{
 		/* Efficiency -- all done */
 		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
@@ -1247,7 +1247,7 @@ static void calc_spells(void)
 
 
 	/* Forget spells if we know too many spells */
-	for (i = 63; i >= 0; i--)
+	for (i = 64; i-- > 0; )
 	{
 		/* Stop when possible */
 		if (p_ptr->new_spells >= 0) break;
@@ -1396,6 +1396,9 @@ static void calc_spells(void)
 
 		/* Redraw Study Status */
 		p_ptr->redraw |= (PR_STUDY);
+
+		/* Redraw object recall */
+		p_ptr->window |= (PW_OBJECT);
 	}
 }
 
@@ -1829,36 +1832,62 @@ static void calc_bonuses(void)
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
 
-	/* Elf */
-	if (p_ptr->prace == RACE_ELF) p_ptr->resist_lite = TRUE;
 
-	/* Hobbit */
-	if (p_ptr->prace == RACE_HOBBIT) p_ptr->sustain_dex = TRUE;
+	/*** Analyze player ***/
 
-	/* Gnome */
-	if (p_ptr->prace == RACE_GNOME) p_ptr->free_act = TRUE;
+	/* Extract the player flags */
+	player_flags(&f1, &f2, &f3);
 
-	/* Dwarf */
-	if (p_ptr->prace == RACE_DWARF) p_ptr->resist_blind = TRUE;
+	/* Good flags */
+	if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+	if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
+	if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
+	if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
+	if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
+	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
+	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 
-	/* Half-Orc */
-	if (p_ptr->prace == RACE_HALF_ORC) p_ptr->resist_dark = TRUE;
+	/* Weird flags */
+	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
-	/* Half-Troll */
-	if (p_ptr->prace == RACE_HALF_TROLL) p_ptr->sustain_str = TRUE;
+	/* Bad flags */
+	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 
-	/* Dunadan */
-	if (p_ptr->prace == RACE_DUNADAN) p_ptr->sustain_con = TRUE;
+	/* Immunity flags */
+	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
+	if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
+	if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
+	if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
 
-	/* High Elf */
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
+	/* Resistance flags */
+	if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
+	if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
+	if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
+	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
+	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
+	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
+	if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
+	if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
+	if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
+	if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
+	if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
+	if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
+	if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
+	if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
 
-	/* Warrior */
-	if (p_ptr->pclass == CLASS_WARRIOR)
-	{
-		if (p_ptr->lev >= 30) p_ptr->resist_fear = TRUE;
-	}
+	/* Sustain flags */
+	if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
+	if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
+	if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
+	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 
 	/*** Analyze equipment ***/
@@ -2725,7 +2754,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_MISC))
 	{
 		p_ptr->redraw &= ~(PR_MISC);
-		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+		prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 	}
 
@@ -2882,7 +2911,7 @@ void window_stuff(void)
 	if (!p_ptr->window) return;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		/* Save usable flags */
 		if (angband_term[j])

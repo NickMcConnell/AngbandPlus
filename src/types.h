@@ -68,12 +68,14 @@ typedef s16b s16b_wid[DUNGEON_WID];
 
 
 typedef struct header header;
+typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
+typedef struct monster_lore monster_lore;
 typedef struct vault_type vault_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
@@ -86,6 +88,7 @@ typedef struct player_magic player_magic;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
 typedef struct player_class player_class;
+typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
 
@@ -141,6 +144,33 @@ struct header
 	u16b name_size;		/* Size of the "name" array in bytes */
 
 	u16b text_size;		/* Size of the "text" array in bytes */
+};
+
+
+
+/*
+ * Information about maximal indices of certain arrays
+ * Actually, these are not the maxima, but the maxima plus one
+ */
+struct maxima
+{
+	u16b f_max;		/* Max size for "f_info[]" */
+	u16b k_max;		/* Max size for "k_info[]" */
+
+	u16b a_max;		/* Max size for "a_info[]" */
+	u16b e_max;		/* Max size for "e_info[]" */
+
+	u16b r_max;		/* Max size for "r_info[]" */
+	u16b v_max;		/* Max size for "v_info[]" */
+
+	u16b p_max;		/* Max size for "p_info[]" */
+	u16b h_max;		/* Max size for "h_info[]" */
+
+	u16b b_max;		/* Max size per element of "b_info[]" */
+	u16b unused;	/* Unused */
+
+	u16b o_max;		/* Max size for "o_list[]" */
+	u16b m_max;		/* Max size for "m_list[]" */
 };
 
 
@@ -282,6 +312,11 @@ struct ego_item_type
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
 
+	byte tval[3];		/* Legal tval */
+	byte min_sval[3];	/* Minimum legal sval */
+	byte max_sval[3];	/* Maximum legal tval */
+	byte xtra;			/* Extra Sustain/Resist/Power */
+
 	byte max_to_h;		/* Maximum to-hit bonus */
 	byte max_to_d;		/* Maximum to-dam bonus */
 	byte max_to_a;		/* Maximum to-ac bonus */
@@ -317,7 +352,7 @@ struct monster_blow
 
 
 /*
- * Monster "race" information, including racial memories
+ * Monster "race" information
  *
  * Note that "d_attr" and "d_char" are used for MORE than "visual" stuff.
  *
@@ -329,11 +364,6 @@ struct monster_blow
  *
  * Note that "max_num" is reset when a new player is created.
  * Note that "cur_num" is reset when a new level is created.
- *
- * Note that several of these fields, related to "recall", can be
- * scrapped if space becomes an issue, resulting in less "complete"
- * monster recall (no knowledge of spells, etc).  All of the "recall"
- * fields have a special prefix to aid in searching for them.
  */
 struct monster_race
 {
@@ -381,8 +411,20 @@ struct monster_race
 	byte max_num;			/* Maximum population allowed per level */
 
 	byte cur_num;			/* Monster population on current level */
+};
 
 
+
+/*
+ * Monster "lore" information
+ *
+ * Note that several of these fields, related to "recall", can be
+ * scrapped if space becomes an issue, resulting in less "complete"
+ * monster recall (no knowledge of spells, etc).  All of the "recall"
+ * fields have a special prefix to aid in searching for them. XXX XXX XXX
+ */
+struct monster_lore
+{
 	s16b r_sights;			/* Count sightings of this monster */
 	s16b r_deaths;			/* Count deaths from this monster */
 
@@ -392,8 +434,8 @@ struct monster_race
 	byte r_wake;			/* Number of times woken up (?) */
 	byte r_ignore;			/* Number of times ignored (?) */
 
-	byte r_xtra1;			/* Something (unused) */
-	byte r_xtra2;			/* Something (unused) */
+	byte r_mark;			/* Special mark for targetting */
+	byte r_xtra;			/* Something (unused) */
 
 	byte r_drop_gold;		/* Max number of gold dropped at once */
 	byte r_drop_item;		/* Max number of item dropped at once */
@@ -606,7 +648,8 @@ struct quest
  */
 struct owner_type
 {
-	cptr owner_name;	/* Name */
+	u16b owner_name;	/* Name (offset) */
+	u16b unused;		/* Unused */
 
 	s16b max_cost;		/* Purse limit */
 
@@ -704,7 +747,8 @@ struct player_sex
  */
 struct player_race
 {
-	cptr title;			/* Type of race */
+	u16b name;			/* Name (offset) */
+	u16b text;			/* Text (offset) */
 
 	s16b r_adj[A_MAX];	/* Racial stat bonuses */
 
@@ -736,6 +780,12 @@ struct player_race
 	byte infra;			/* Infra-vision	range */
 
 	byte choice;		/* Legal class choices */
+
+	s16b hist;			/* Starting history index */
+
+	u32b flags1;		/* Racial Flags, set 1 */
+	u32b flags2;		/* Racial Flags, set 2 */
+	u32b flags3;		/* Racial Flags, set 3 */
 };
 
 
@@ -784,11 +834,26 @@ struct player_other
 
 	bool opt[OPT_MAX];		/* Options */
 
-	u32b window_flag[8];	/* Window flags */
+	u32b window_flag[MAX_TERM_DATA];	/* Window flags */
 
 	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
 	byte delay_factor;		/* Delay factor (0 to 9) */
+};
+
+
+/*
+ * Player background information
+ */
+struct hist_type
+{
+	u16b unused;			/* Unused */
+	u16b text;			    /* Text (offset) */
+
+	byte roll;			    /* Frequency of this entry */
+	byte chart;			    /* Chart index */
+	byte next;			    /* Next chart index */
+	byte bonus;			    /* Social Class Bonus + 50 */
 };
 
 

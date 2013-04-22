@@ -118,11 +118,6 @@
 #define MAX_STORES	8
 
 /*
- * Total number of owners per store (see "store.c", etc)
- */
-#define MAX_OWNERS	4
-
-/*
  * Store index definitions (see "store.c", etc)
  */
 #define STORE_GENERAL	0
@@ -140,32 +135,9 @@
 #define MAX_SEXES            2
 
 /*
- * Maximum number of player "race" types (see "table.c", etc)
- */
-#define MAX_RACES           10
-
-/*
  * Maximum number of player "class" types (see "table.c", etc)
  */
 #define MAX_CLASS            6
-
-
-/*
- * Maximum array bounds for template based arrays
- */
-#define MAX_F_IDX	64	/* Max size for "f_info[]" */
-#define MAX_K_IDX	512	/* Max size for "k_info[]" */
-#define MAX_A_IDX	128	/* Max size for "a_info[]" */
-#define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	549	/* Max size for "r_info[]" */
-#define MAX_V_IDX	64	/* Max size for "v_info[]" */
-
-
-/*
- * Maximum array bounds for entity list arrays
- */
-#define MAX_O_IDX	256	/* Max size for "o_list[]" */
-#define MAX_M_IDX	512	/* Max size for "m_list[]" */
 
 
 /*
@@ -273,6 +245,13 @@
  * Lower values yield better objects more often.
  */
 #define GREAT_OBJ	20
+
+/* 
+ * There is a 1/20 (5%) chance that ego-items with an inflated base-level are 
+ * generated when an object is turned into an ego-item (see make_ego_item()
+ * in object2.c). As above, lower values yield better ego-items more often.
+ */
+#define GREAT_EGO	20
 
 /*
  * There is a 1/50 (2%) chance of inflating the requested monster_level
@@ -416,20 +395,6 @@
  */
 #define SEX_FEMALE		0
 #define SEX_MALE		1
-
-/*
- * Player race constants (hard-coded by save-files, arrays, etc)
- */
-#define RACE_HUMAN		0
-#define RACE_HALF_ELF	1
-#define RACE_ELF		2
-#define RACE_HOBBIT		3
-#define RACE_GNOME		4
-#define RACE_DWARF		5
-#define RACE_HALF_ORC	6
-#define RACE_HALF_TROLL	7
-#define RACE_DUNADAN	8
-#define RACE_HIGH_ELF	9
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
@@ -2518,6 +2483,8 @@
 #define OPT_birth_no_stores			(OPT_BIRTH+5)
 #define OPT_birth_no_artifacts		(OPT_BIRTH+6)
 #define OPT_birth_rand_artifacts	(OPT_BIRTH+7)
+#define OPT_birth_unusual_rooms		(OPT_BIRTH+8)
+#define OPT_birth_steele			(OPT_BIRTH+9)
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)
@@ -2534,6 +2501,8 @@
 #define OPT_adult_no_stores			(OPT_ADULT+5)
 #define OPT_adult_no_artifacts		(OPT_ADULT+6)
 #define OPT_adult_rand_artifacts	(OPT_ADULT+7)
+#define OPT_adult_unusual_rooms		(OPT_ADULT+8)
+#define OPT_adult_steele			(OPT_ADULT+9)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -2636,6 +2605,8 @@
 #define birth_no_stores			op_ptr->opt[OPT_birth_no_stores]
 #define birth_no_artifacts		op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
+#define birth_unusual_rooms		op_ptr->opt[OPT_birth_unusual_rooms]
+#define birth_steele			op_ptr->opt[OPT_birth_steele]
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear				op_ptr->opt[OPT_cheat_hear]
@@ -2652,6 +2623,8 @@
 #define adult_no_stores			op_ptr->opt[OPT_adult_no_stores]
 #define adult_no_artifacts		op_ptr->opt[OPT_adult_no_artifacts]
 #define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
+#define adult_unusual_rooms		op_ptr->opt[OPT_adult_unusual_rooms]
+#define adult_steele			op_ptr->opt[OPT_adult_steele]
 /* xxx xxx */
 #define score_peek				op_ptr->opt[OPT_score_peek]
 #define score_hear				op_ptr->opt[OPT_score_hear]
@@ -2939,6 +2912,16 @@ extern int PlayerUID;
 #define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
 
 
+/*** Window constants ***/
+
+
+/*
+ * Maximum number of terminals
+ */
+#define MAX_TERM_DATA 8
+
+
+
 /*** Sound constants ***/
 
 
@@ -2993,6 +2976,8 @@ extern int PlayerUID;
 # define MESSAGE_MAX	128
 # undef MESSAGE_BUF
 # define MESSAGE_BUF	4096
+# undef MAX_TERM_DATA
+# define MAX_TERM_DATA	1
 #endif
 
 

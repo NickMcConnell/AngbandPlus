@@ -929,6 +929,26 @@ void do_cmd_target(void)
 
 
 /*
+ * Special target command
+ */
+void do_cmd_target_special(void)
+{
+	/* Target set */
+	if (target_set_interactive(TARGET_KILL | TARGET_XTRA))
+	{
+		msg_print("Target Selected.");
+	}
+
+	/* Target aborted */
+	else
+	{
+		msg_print("Target Aborted.");
+	}
+}
+
+
+
+/*
  * Look command
  */
 void do_cmd_look(void)
@@ -1178,8 +1198,8 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 4)
 	{
 		/* Extract player kills */
-		z1 = r_info[w1].r_pkills;
-		z2 = r_info[w2].r_pkills;
+		z1 = l_list[w1].r_pkills;
+		z2 = l_list[w2].r_pkills;
 
 		/* Compare player kills */
 		if (z1 < z2) return (TRUE);
@@ -1191,8 +1211,8 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 3)
 	{
 		/* Extract total kills */
-		z1 = r_info[w1].r_tkills;
-		z2 = r_info[w2].r_tkills;
+		z1 = l_list[w1].r_tkills;
+		z2 = l_list[w2].r_tkills;
 
 		/* Compare total kills */
 		if (z1 < z2) return (TRUE);
@@ -1323,7 +1343,7 @@ void do_cmd_query_symbol(void)
 	bool recall = FALSE;
 
 	u16b why = 0;
-	u16b who[MAX_R_IDX];
+	u16b *who;
 
 
 	/* Get a character, or abort */
@@ -1364,13 +1384,17 @@ void do_cmd_query_symbol(void)
 	prt(buf, 0, 0);
 
 
+	/* Create the 'who' array */
+	C_MAKE(who, z_info->r_max, u16b);
+
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < MAX_R_IDX-1; i++)
+	for (n = 0, i = 1; i < z_info->r_max-1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
 
 		/* Nothing to recall */
-		if (!cheat_know && !r_ptr->r_sights) continue;
+		if (!cheat_know && !l_ptr->r_sights) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
@@ -1504,6 +1528,9 @@ void do_cmd_query_symbol(void)
 		}
 	}
 
+
+	/* Destroy the 'who' array */
+	C_KILL(who, z_info->r_max, u16b);
 
 	/* Re-display the identity */
 	prt(buf, 0, 0);

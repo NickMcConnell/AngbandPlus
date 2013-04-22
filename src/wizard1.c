@@ -322,7 +322,7 @@ static void spoil_obj_desc(cptr fname)
 		}
 
 		/* Get legal item types */
-		for (k = 1; k < MAX_K_IDX; k++)
+		for (k = 1; k < z_info->k_max; k++)
 		{
 			object_kind *k_ptr = &k_info[k];
 
@@ -389,6 +389,7 @@ static grouper group_artifact[] =
 	{ TV_POLEARM,	"Polearms" },
 	{ TV_HAFTED,	"Hafted Weapons" },
 	{ TV_BOW,		"Bows" },
+	{ TV_DIGGING,	"Diggers" },
 
 	{ TV_SOFT_ARMOR,	"Body Armor" },
 	{ TV_HARD_ARMOR,	  NULL },
@@ -1220,7 +1221,7 @@ static void spoil_artifact(cptr fname)
 		}
 
 		/* Now search through all of the artifacts */
-		for (j = 1; j < MAX_A_IDX; ++j)
+		for (j = 1; j < z_info->a_max; ++j)
 		{
 			artifact_type *a_ptr = &a_info[j];
 
@@ -1266,7 +1267,7 @@ static void spoil_mon_desc(cptr fname)
 {
 	int i, n = 0;
 
-	s16b who[MAX_R_IDX];
+	u16b *who;
 
 	char buf[1024];
 
@@ -1307,8 +1308,11 @@ static void spoil_mon_desc(cptr fname)
 	        "----", "---", "---", "---", "--", "--", "-----------");
 
 
+	/* Create the 'who' array */
+	C_MAKE(who, z_info->r_max, u16b);
+
 	/* Scan the monsters (except the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	for (i = 1; i < z_info->r_max - 1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1383,6 +1387,9 @@ static void spoil_mon_desc(cptr fname)
 	/* End it */
 	fprintf(fff, "\n");
 
+
+	/* Destroy the 'who' array */
+	C_KILL(who, z_info->r_max, u16b);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -1521,7 +1528,7 @@ static void spoil_mon_info(cptr fname)
 	/*
 	 * List all monsters in order (except the ghost).
 	 */
-	for (n = 1; n < MAX_R_IDX - 1; n++)
+	for (n = 1; n < z_info->r_max - 1; n++)
 	{
 		monster_race *r_ptr = &r_info[n];
 

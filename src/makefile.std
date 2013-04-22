@@ -156,7 +156,8 @@ CC = gcc
 ## Allows the use of Angband in the console using ncurses,
 ## as well as under X11.
 ##
-CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall -O2 -m486 \
+CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall \
+         -O2 -fno-strength-reduce -m486 \
          -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
 LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
 
@@ -166,7 +167,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
 ##
 ## Allows the use of Angband in the console using curses.
 ##
-#CFLAGS = -Wall -O2 -m486 -pipe -D"USE_GCU"
+#CFLAGS = -Wall -O2 -fno-strength-reduce -m486 -pipe -D"USE_GCU"
 #LIBS = -lcurses
 
 
@@ -175,7 +176,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
 ##
 ## Allows the use of Angband in X11 using the Athena Widget set.
 ##
-#CFLAGS = -Wall -O2 -m486 -pipe -g -D"USE_XAW"
+#CFLAGS = -Wall -O2 -fno-strength-reduce -m486 -pipe -g -D"USE_XAW"
 #LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11
 
 
@@ -183,7 +184,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
 ## Variation -- this might work better than the suggestion above
 ##
 #CFLAGS = -I/usr/include/ncurses \
-#         -Wall -O2 -fomit-frame-pointer \
+#         -Wall -O2 -fno-strength-reduce -fomit-frame-pointer \
 #         -D"USE_X11" -D"USE_GCU" \
 #         -D"USE_TPOSIX" -D"USE_CURS_SET"
 #LIBS = -lX11 -lncurses

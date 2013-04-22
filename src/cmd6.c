@@ -180,7 +180,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_WEAKNESS:
 		{
-			take_hit(damroll(6, 6), "poisonous food.");
+			take_hit(damroll(6, 6), "poisonous food");
 			(void)do_dec_stat(A_STR);
 			ident = TRUE;
 			break;
@@ -188,7 +188,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_SICKNESS:
 		{
-			take_hit(damroll(6, 6), "poisonous food.");
+			take_hit(damroll(6, 6), "poisonous food");
 			(void)do_dec_stat(A_CON);
 			ident = TRUE;
 			break;
@@ -196,7 +196,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_STUPIDITY:
 		{
-			take_hit(damroll(8, 8), "poisonous food.");
+			take_hit(damroll(8, 8), "poisonous food");
 			(void)do_dec_stat(A_INT);
 			ident = TRUE;
 			break;
@@ -204,7 +204,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_NAIVETY:
 		{
-			take_hit(damroll(8, 8), "poisonous food.");
+			take_hit(damroll(8, 8), "poisonous food");
 			(void)do_dec_stat(A_WIS);
 			ident = TRUE;
 			break;
@@ -212,7 +212,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_UNHEALTH:
 		{
-			take_hit(damroll(10, 10), "poisonous food.");
+			take_hit(damroll(10, 10), "poisonous food");
 			(void)do_dec_stat(A_CON);
 			ident = TRUE;
 			break;
@@ -220,7 +220,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_DISEASE:
 		{
-			take_hit(damroll(10, 10), "poisonous food.");
+			take_hit(damroll(10, 10), "poisonous food");
 			(void)do_dec_stat(A_STR);
 			ident = TRUE;
 			break;
@@ -1113,7 +1113,7 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_AGGRAVATE_MONSTER:
 		{
 			msg_print("There is a high pitched humming noise.");
-			aggravate_monsters(1);
+			aggravate_monsters(0);
 			ident = TRUE;
 			break;
 		}

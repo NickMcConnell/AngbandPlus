@@ -522,6 +522,258 @@ static int color_char_to_attr(char c)
 
 
 /*
+ * Initialize the "z_info" structure, by parsing an ascii "template" file
+ */
+errr init_z_info_txt(FILE *fp, char *buf)
+{
+	/* Not ready yet */
+	bool okay = FALSE;
+
+
+	/* Hack - just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != z_head->v_major) ||
+			    (v2 != z_head->v_minor) ||
+			    (v3 != z_head->v_patch))
+			{
+				return (2);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (2);
+
+
+		/* Hack - Verify 'M:x:' format */
+		if (buf[0] != 'M') return (6);
+		if (!buf[2]) return (6);
+		if (buf[3] != ':') return (6);
+
+
+		/* Process 'F' for "Maximum f_info[] index" */
+		if (buf[2] == 'F')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->f_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'K' for "Maximum k_info[] index" */
+		if (buf[2] == 'K')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->k_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'A' for "Maximum a_info[] index" */
+		if (buf[2] == 'A')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->a_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'E' for "Maximum e_info[] index" */
+		if (buf[2] == 'E')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->e_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'R' for "Maximum r_info[] index" */
+		if (buf[2] == 'R')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->r_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'V' for "Maximum v_info[] index" */
+		if (buf[2] == 'V')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->v_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'P' for "Maximum p_info[] index" */
+		if (buf[2] == 'P')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->p_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'H' for "Maximum h_info[] index" */
+		if (buf[2] == 'H')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->h_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'B' for "Maximum b_info[] subindex" */
+		if (buf[2] == 'B')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->b_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'O' for "Maximum o_list[] index" */
+		if (buf[2] == 'O')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->o_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'M' for "Maximum m_list[] index" */
+		if (buf[2] == 'M')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (1);
+
+			/* Save the value */
+			z_info->m_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
+
+		/* Oops */
+		return (6);
+	}
+
+
+	/* No version yet */
+	if (!okay) return (2);
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
  * Initialize the "v_info" array, by parsing an ascii "template" file
  */
 errr init_v_info_txt(FILE *fp, char *buf)
@@ -1608,6 +1860,8 @@ errr init_e_info_txt(FILE *fp, char *buf)
 {
 	int i;
 
+	int cur_t = 0;
+
 	char *s, *t;
 
 	/* Not ready yet */
@@ -1704,6 +1958,9 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			/* Advance the index */
 			e_head->name_size += strlen(s);
 
+			/* Start with the first of the tval indices */
+			cur_t = 0;
+
 			/* Next... */
 			continue;
 		}
@@ -1738,23 +1995,6 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 #endif
 
-		/* Process 'X' for "Xtra" (one line only) */
-		if (buf[0] == 'X')
-		{
-			int slot, rating;
-
-			/* Scan for the values */
-			if (2 != sscanf(buf+2, "%d:%d",
-			                &slot, &rating)) return (1);
-
-			/* Save the values */
-			e_ptr->slot = slot;
-			e_ptr->rating = rating;
-
-			/* Next... */
-			continue;
-		}
-
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
 		{
@@ -1770,6 +2010,49 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			e_ptr->rarity = rarity;
 			/* e_ptr->weight = wgt; */
 			e_ptr->cost = cost;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'X' for "Xtra" (one line only) */
+		if (buf[0] == 'X')
+		{
+			int slot, rating, xtra;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+			                &slot, &rating, &xtra)) return (1);
+
+			/* Save the values */
+			e_ptr->slot = slot;
+			e_ptr->rating = rating;
+			e_ptr->xtra = xtra;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'T' for "Types allowed" (up to three lines) */
+		if (buf[0] == 'T')
+		{
+			int tval, sval1, sval2;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+			                &tval, &sval1, &sval2)) return (1);
+
+			/* Save the values */
+			e_ptr->tval[cur_t] = (byte)tval;
+			e_ptr->min_sval[cur_t] = (byte)sval1;
+			e_ptr->max_sval[cur_t] = (byte)sval2;
+
+			/* increase counter for 'possible tval' index */
+			cur_t++;
+
+			/* only three T: lines allowed */
+			if (cur_t > 3) return (1);
 
 			/* Next... */
 			continue;
@@ -2278,7 +2561,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	/* XXX XXX XXX The ghost is unused */
 
 	/* Mega-Hack -- acquire "ghost" */
-	r_ptr = &r_info[MAX_R_IDX-1];
+	r_ptr = &r_info[z_info->r_max-1];
 
 	/* Get the next index */
 	r_ptr->name = r_head->name_size;
@@ -2307,6 +2590,841 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 	/* Hack -- Try to prevent a few "potential" bugs */
 	r_ptr->mexp = 1L;
+
+
+	/* No version yet */
+	if (!okay) return (2);
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+
+/*
+ * Grab one flag in a player_race from a textual string
+ */
+static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
+{
+	int i;
+
+	/* Check flags1 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags1[i]))
+		{
+			pr_ptr->flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags2 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags2[i]))
+		{
+			pr_ptr->flags2 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags3 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags3[i]))
+		{
+			pr_ptr->flags3 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown player flag '%s'.", what);
+
+	/* Error */
+	return (1);
+}
+
+
+
+/*
+ * Initialize the "p_info" array, by parsing an ascii "template" file
+ */
+errr init_p_info_txt(FILE *fp, char *buf)
+{
+	int i, j;
+
+	char *s, *t;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	player_race *pr_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != p_head->v_major) ||
+			    (v2 != p_head->v_minor) ||
+			    (v3 != p_head->v_patch))
+			{
+				return (2);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (2);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (1);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (1);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i < error_idx) return (4);
+
+			/* Verify information */
+			if (i >= p_head->info_num) return (2);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			pr_ptr = &p_info[i];
+
+			/* Hack -- Verify space */
+			if (p_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+
+			/* Advance and Save the name index */
+			if (!pr_ptr->name) pr_ptr->name = ++p_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(p_name + p_head->name_size, s);
+
+			/* Advance the index */
+			p_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current pr_ptr */
+		if (!pr_ptr) return (3);
+
+
+		/* Process 'S' for "Stats" (one line only) */
+		if (buf[0] == 'S')
+		{
+			int adj;
+
+			/* Start the string */
+			s = buf+1;
+
+			/* For each stat */
+			for (j = 0; j < A_MAX; j++)
+			{
+				/* Find the colon before the subindex */
+				s = strchr(s, ':');
+
+				/* Verify that colon */
+				if (!s) return (1);
+
+				/* Nuke the colon, advance to the subindex */
+				*s++ = '\0';
+
+				/* Get the value */
+				adj = atoi(s);
+
+				/* Save the value */
+				pr_ptr->r_adj[j] = adj;
+
+				/* Next... */
+				continue;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'R' for "Racial Skills" (one line only) */
+		if (buf[0] == 'R')
+		{
+			int dis, dev, sav, stl, srh, fos, thn, thb;
+
+			/* Scan for the values */
+			if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+			                &dis, &dev, &sav, &stl,
+			                &srh, &fos, &thn, &thb)) return (1);
+
+			/* Save the values */
+			pr_ptr->r_dis = dis;
+			pr_ptr->r_dev = dev;
+			pr_ptr->r_sav = sav;
+			pr_ptr->r_stl = stl;
+			pr_ptr->r_srh = srh;
+			pr_ptr->r_fos = fos;
+			pr_ptr->r_thn = thn;
+			pr_ptr->r_thb = thb;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'X' for "Extra Info" (one line only) */
+		if (buf[0] == 'X')
+		{
+			int mhp, exp, infra;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+			                &mhp, &exp, &infra)) return (1);
+
+			/* Save the values */
+			pr_ptr->r_mhp = mhp;
+			pr_ptr->r_exp = exp;
+			pr_ptr->infra = infra;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'I' for "info" and such */
+		if (buf[0] == 'I')
+		{
+			int hist, b_age, m_age;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+			                &hist, &b_age, &m_age)) return (1);
+
+			pr_ptr->hist = hist;
+			pr_ptr->b_age = b_age;
+			pr_ptr->m_age = m_age;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'I' for "info" and such */
+		if (buf[0] == 'I')
+		{
+			int hist, b_age, m_age;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+			                &hist, &b_age, &m_age)) return (1);
+
+			pr_ptr->hist = hist;
+			pr_ptr->b_age = b_age;
+			pr_ptr->m_age = m_age;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'H' for "Height" */
+		if (buf[0] == 'H')
+		{
+			int m_b_ht, m_m_ht, f_b_ht, f_m_ht;
+
+			/* Scan for the values */
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			                &m_b_ht, &m_m_ht, &f_b_ht, &f_m_ht)) return (1);
+
+			pr_ptr->m_b_ht = m_b_ht;
+			pr_ptr->m_m_ht = m_m_ht;
+			pr_ptr->f_b_ht = f_b_ht;
+			pr_ptr->f_m_ht = f_m_ht;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'W' for "Weight" */
+		if (buf[0] == 'W')
+		{
+			int m_b_wt, m_m_wt, f_b_wt, f_m_wt;
+
+			/* Scan for the values */
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			                &m_b_wt, &m_m_wt, &f_b_wt, &f_m_wt)) return (1);
+
+			pr_ptr->m_b_wt = m_b_wt;
+			pr_ptr->m_m_wt = m_m_wt;
+			pr_ptr->f_b_wt = f_b_wt;
+			pr_ptr->f_m_wt = f_m_wt;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'F' for flags */
+		if (buf[0] == 'F')
+		{
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while ((*t == ' ') || (*t == '|')) t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_racial_flag(pr_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'C' for class choices */
+		if (buf[0] == 'C')
+		{
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while ((*t == ' ') || (*t == '|')) t++;
+				}
+
+				/* Hack - Parse this entry */
+				pr_ptr->choice |= (1 << atoi(s));
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Oops */
+		return (6);
+	}
+
+
+	/* Complete the "name" and "text" sizes */
+	++p_head->name_size;
+	++p_head->text_size;
+
+
+	/* No version yet */
+	if (!okay) return (2);
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+
+/*
+ * Initialize the "h_info" array, by parsing an ascii "template" file
+ */
+errr init_h_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+	char *s;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	hist_type *h_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Prepare the "fake" stuff */
+	h_head->text_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != h_head->v_major) ||
+			    (v2 != h_head->v_minor) ||
+			    (v3 != h_head->v_patch))
+			{
+				return (2);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (2);
+
+
+		/* Process 'N' for "New/Number" */
+		if (buf[0] == 'N')
+		{
+			int prv, nxt, prc, soc;
+
+			/* Hack - get the index */
+			i = error_idx + 1;
+
+			/* Verify information */
+			if (i <= error_idx) return (4);
+
+			/* Verify information */
+			if (i >= h_head->info_num) return (2);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			h_ptr = &h_info[i];
+
+			/* Scan for the values */
+			if (4 != sscanf(buf, "N:%d:%d:%d:%d",
+			                &prv, &nxt, &prc, &soc)) return (1);
+
+			/* Save the values */
+			h_ptr->chart = prv;
+			h_ptr->next = nxt;
+			h_ptr->roll = prc;
+			h_ptr->bonus = soc;
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current h_ptr */
+		if (!h_ptr) return (3);
+
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Get the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (h_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+
+			/* Advance and Save the text index */
+			if (!h_ptr->text) h_ptr->text = ++h_head->text_size;
+
+			/* Append chars to the name */
+			strcpy(h_text + h_head->text_size, s);
+
+			/* Advance the index */
+			h_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Oops */
+		return (6);
+	}
+
+
+	/* Complete the "text" size */
+	++h_head->text_size;
+
+
+	/* No version yet */
+	if (!okay) return (2);
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+
+/*
+ * Initialize the "b_info" array, by parsing an ascii "template" file
+ */
+errr init_b_info_txt(FILE *fp, char *buf)
+{
+	int i, j;
+
+	char *s, *t;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	owner_type *ot_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Prepare the "fake" stuff */
+	b_head->name_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != b_head->v_major) ||
+			    (v2 != b_head->v_minor) ||
+			    (v3 != b_head->v_patch))
+			{
+				return (2);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (2);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the subindex */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (1);
+
+			/* Nuke the colon, advance to the subindex */
+			*s++ = '\0';
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Find the colon before the name */
+			t = strchr(s, ':');
+
+			/* Verify that colon */
+			if (!t) return (1);
+
+			/* Nuke the colon, advance to the name */
+			*t++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*t) return (1);
+
+			/* Get the subindex */
+			j = atoi(s);
+
+			/* Verify information */
+			if (j >= z_info->b_max) return (2);
+
+			/* Get the *real* index */
+			i = (i * z_info->b_max) + j;
+
+			/* Verify information */
+			if (i <= error_idx) return (4);
+
+			/* Verify information */
+			if (i >= b_head->info_num) return (2);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			ot_ptr = &b_info[i];
+
+			/* Hack -- Verify space */
+			if (b_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+
+			/* Advance and Save the name index */
+			if (!ot_ptr->owner_name) ot_ptr->owner_name = ++b_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(b_name + b_head->name_size, t);
+
+			/* Advance the index */
+			b_head->name_size += strlen(t);
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current ot_ptr */
+		if (!ot_ptr) return (3);
+
+
+		/* Process 'I' for "Info" (one line only) */
+		if (buf[0] == 'I')
+		{
+			int idx, gld, max, min, hgl, tol;
+
+			/* Scan for the values */
+			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+			                &idx, &gld, &max, &min, &hgl, &tol)) return (1);
+
+			/* Save the values */
+			ot_ptr->owner_race = idx;
+			ot_ptr->max_cost = gld;
+			ot_ptr->max_inflate = max;
+			ot_ptr->min_inflate = min;
+			ot_ptr->haggle_per = hgl;
+			ot_ptr->insult_max = tol;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Oops */
+		return (6);
+	}
+
+
+	/* Complete the "name" and "text" sizes */
+	++b_head->name_size;
+
+
+	/* No version yet */
+	if (!okay) return (2);
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+
+/*
+ * Initialize the "g_info" array:by parsing an ascii "template" file
+ */
+errr init_g_info_txt(FILE *fp, char *buf)
+{
+	int i, j;
+
+	char *s;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	byte *g_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Prepare the "fake" stuff */
+	g_head->text_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != g_head->v_major) ||
+			    (v2 != g_head->v_minor) ||
+			    (v3 != g_head->v_patch))
+			{
+				return (2);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (2);
+
+
+		/* Process 'A' for "Adjustments" */
+		if (buf[0] == 'A')
+		{
+			int adj;
+
+			/* Start the string */
+			s = buf+1;
+
+			/* Initialize the counter to max races */
+			j = z_info->p_max;
+
+			/* Repeat */
+			while (j-- > 0)
+			{
+				/* Hack - get the index */
+				i = error_idx + 1;
+
+				/* Verify information */
+				if (i <= error_idx) return (4);
+
+				/* Verify information */
+				if (i >= g_head->info_num) return (2);
+
+				/* Save the index */
+				error_idx = i;
+
+				/* Point at the "info" */
+				g_ptr = &g_info[i];
+
+				/* Find the colon before the subindex */
+				s = strchr(s, ':');
+
+				/* Verify that colon */
+				if (!s) return (1);
+
+				/* Nuke the colon, advance to the subindex */
+				*s++ = '\0';
+
+				/* Get the value */
+				adj = atoi(s);
+
+				/* Save the value */
+				*g_ptr = adj;
+
+				/* Next... */
+				continue;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Oops */
+		return (6);
+	}
+
+
+	/* Complete the "text" size */
+	++g_head->text_size;
 
 
 	/* No version yet */

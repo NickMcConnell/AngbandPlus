@@ -582,7 +582,7 @@ void flavor_init(void)
 	Rand_quick = FALSE;
 
 	/* Analyze every object */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -621,7 +621,7 @@ void reset_visuals(bool unused)
 
 
 	/* Extract default attr/char code for features */
-	for (i = 0; i < MAX_F_IDX; i++)
+	for (i = 0; i < z_info->f_max; i++)
 	{
 		feature_type *f_ptr = &f_info[i];
 
@@ -631,7 +631,7 @@ void reset_visuals(bool unused)
 	}
 
 	/* Extract default attr/char code for objects */
-	for (i = 0; i < MAX_K_IDX; i++)
+	for (i = 0; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -641,7 +641,7 @@ void reset_visuals(bool unused)
 	}
 
 	/* Extract default attr/char code for monsters */
-	for (i = 0; i < MAX_R_IDX; i++)
+	for (i = 0; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -822,6 +822,87 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 
 
 
+/*
+ * Obtain the "flags" for an item which are known to the player
+ * but which are "random"
+ */
+static void object_flags_known_random(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+{
+	bool spoil = FALSE;
+
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Clear */
+	(*f1) = (*f2) = (*f3) = 0L;
+
+	/* Must be identified */
+	if (!object_known_p(o_ptr)) return;
+
+	/* Nothing interesting */
+	(*f1) = 0;
+	(*f2) = 0;
+	(*f3) = 0;
+
+#ifdef SPOIL_ARTIFACTS
+	/* Full knowledge for some artifacts */
+	if (artifact_p(o_ptr)) spoil = TRUE;
+#endif
+
+#ifdef SPOIL_EGO_ITEMS
+	/* Full knowledge for some ego-items */
+	if (ego_item_p(o_ptr)) spoil = TRUE;
+#endif
+
+	/* Need full knowledge or spoilers */
+	if (!spoil && !(o_ptr->ident & IDENT_MENTAL)) return;
+
+	/* Artifact */
+	if (o_ptr->name1)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		(*f1) = a_ptr->flags1;
+		(*f2) = a_ptr->flags2;
+		(*f3) = a_ptr->flags3;
+
+		/* Hack - remove 'ignore' flags */
+		(*f3) &= ~(TR3_IGNORE_ACID);
+		(*f3) &= ~(TR3_IGNORE_ELEC);
+		(*f3) &= ~(TR3_IGNORE_FIRE);
+		(*f3) &= ~(TR3_IGNORE_COLD);
+	}
+
+	/* Full knowledge for *identified* objects */
+	if (!(o_ptr->ident & IDENT_MENTAL)) return;
+
+	/* Extra powers */
+	switch (o_ptr->xtra1)
+	{
+		case OBJECT_XTRA_TYPE_SUSTAIN:
+		{
+			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
+			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
+			break;
+		}
+
+		case OBJECT_XTRA_TYPE_RESIST:
+		{
+			/* OBJECT_XTRA_WHAT_RESIST == 2 */
+			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
+			break;
+		}
+
+		case OBJECT_XTRA_TYPE_POWER:
+		{
+			/* OBJECT_XTRA_WHAT_POWER == 3 */
+			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
+			break;
+		}
+	}
+}
+
+
+
 
 
 
@@ -925,14 +1006,10 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  * Note that the inscription will be clipped to keep the total description
  * under 79 chars (plus a terminator).
  *
- * This function does no bounds checking.  If object names are altered to
- * be longer than 79 characters, it will cause problems.  Of course, all
- * kinds of user interface code would break anyway, since they sometimes
- * assume that every object name can fit in an 80 (or even 77) character
- * display.  If SAFE_OBJECT_DESC is defined, this function will use a big
- * temporary array to create the description, and will then copy up to 79
- * characters from this array into the buffer, which will prevent crashes
- * (but not ugliness) if any object name uses more than 79 characters.
+ * This function uses a big temporary array to create the description,
+ * and then copies up to 79 characters from this array into the buffer,
+ * which will prevent crashes (but not ugliness) if any object name uses
+ * more than 79 characters.
  *
  * Note the use of "object_desc_int_macro()" and "object_desc_num_macro()"
  * and "object_desc_str_macro()" and "object_desc_chr_macro()" as extremely
@@ -1017,11 +1094,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	char discount_buf[80];
 
-#ifdef SAFE_OBJECT_DESC
-
-	char tmp_buf[1024];
-
-#endif
+	char tmp_buf[128];
 
 	u32b f1, f2, f3;
 
@@ -1244,17 +1317,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 
-#ifdef SAFE_OBJECT_DESC
-
 	/* Start dumping the result */
 	t = b = tmp_buf;
-
-#else
-
-	/* Start dumping the result */
-	t = b = buf;
-
-#endif
 
 	/* Begin */
 	s = basenm;
@@ -1861,21 +1925,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 object_desc_done:
 
-#ifdef SAFE_OBJECT_DESC
-
-	/* Terminate */
-	tmp_buf[79] = '\0';
-
-	/* Reset */
-	t = buf;
-
-	/* Copy the string over */
-	object_desc_str_macro(t, tmp_buf);
-
-#endif /* SAFE_OBJECT_DESC */
-
 	/* Terminate */
 	*t = '\0';
+
+	/* Truncate the string to 80 chars */
+	tmp_buf[79] = '\0';
+
+	/* Copy the string over */
+	strcpy(buf, tmp_buf);
 }
 
 
@@ -2217,6 +2274,379 @@ cptr item_activation(object_type *o_ptr)
 
 	/* Oops */
 	return NULL;
+}
+
+
+/*
+ * Describe an item's random attributes for "character dumps"
+ */
+int identify_random_gen(object_type *o_ptr, cptr *info)
+{
+	int i = 0;
+
+	u32b f1, f2, f3;
+
+
+	/* Extract the "known" and "random" flags */
+	object_flags_known_random(o_ptr, &f1, &f2, &f3);
+
+
+	/* Mega-Hack -- describe activation */
+	if (f3 & (TR3_ACTIVATE))
+	{
+		info[i++] = "It can be activated for...";
+		info[i++] = item_activation(o_ptr);
+		info[i++] = "...if it is being worn.";
+	}
+
+
+	/* Hack -- describe lite's */
+	if (o_ptr->tval == TV_LITE)
+	{
+		if (artifact_p(o_ptr))
+		{
+			info[i++] = "It provides light (radius 3) forever.";
+		}
+	}
+
+
+	/* And then describe it fully */
+
+	if (f1 & (TR1_STR))
+	{
+		info[i++] = "It affects your strength.";
+	}
+	if (f1 & (TR1_INT))
+	{
+		info[i++] = "It affects your intelligence.";
+	}
+	if (f1 & (TR1_WIS))
+	{
+		info[i++] = "It affects your wisdom.";
+	}
+	if (f1 & (TR1_DEX))
+	{
+		info[i++] = "It affects your dexterity.";
+	}
+	if (f1 & (TR1_CON))
+	{
+		info[i++] = "It affects your constitution.";
+	}
+	if (f1 & (TR1_CHR))
+	{
+		info[i++] = "It affects your charisma.";
+	}
+
+	if (f1 & (TR1_STEALTH))
+	{
+		info[i++] = "It affects your stealth.";
+	}
+	if (f1 & (TR1_SEARCH))
+	{
+		info[i++] = "It affects your searching.";
+	}
+	if (f1 & (TR1_INFRA))
+	{
+		info[i++] = "It affects your infravision.";
+	}
+	if (f1 & (TR1_TUNNEL))
+	{
+		info[i++] = "It affects your ability to tunnel.";
+	}
+	if (f1 & (TR1_SPEED))
+	{
+		info[i++] = "It affects your speed.";
+	}
+	if (f1 & (TR1_BLOWS))
+	{
+		info[i++] = "It affects your attack speed.";
+	}
+	if (f1 & (TR1_SHOTS))
+	{
+		info[i++] = "It affects your shooting speed.";
+	}
+	if (f1 & (TR1_MIGHT))
+	{
+		info[i++] = "It affects your shooting power.";
+	}
+
+	if (f1 & (TR1_SLAY_ANIMAL))
+	{
+		info[i++] = "It is especially deadly against natural creatures.";
+	}
+	if (f1 & (TR1_SLAY_EVIL))
+	{
+		info[i++] = "It fights against evil with holy fury.";
+	}
+	if (f1 & (TR1_SLAY_UNDEAD))
+	{
+		info[i++] = "It strikes at undead with holy wrath.";
+	}
+	if (f1 & (TR1_SLAY_DEMON))
+	{
+		info[i++] = "It strikes at demons with holy wrath.";
+	}
+	if (f1 & (TR1_SLAY_ORC))
+	{
+		info[i++] = "It is especially deadly against orcs.";
+	}
+	if (f1 & (TR1_SLAY_TROLL))
+	{
+		info[i++] = "It is especially deadly against trolls.";
+	}
+	if (f1 & (TR1_SLAY_GIANT))
+	{
+		info[i++] = "It is especially deadly against giants.";
+	}
+	if (f1 & (TR1_SLAY_DRAGON))
+	{
+		info[i++] = "It is especially deadly against dragons.";
+	}
+
+	if (f1 & (TR1_KILL_DRAGON))
+	{
+		info[i++] = "It is a great bane of dragons.";
+	}
+
+	if (f1 & (TR1_BRAND_ACID))
+	{
+		info[i++] = "It does extra damage from acid.";
+	}
+	if (f1 & (TR1_BRAND_ELEC))
+	{
+		info[i++] = "It does extra damage from electricity.";
+	}
+	if (f1 & (TR1_BRAND_FIRE))
+	{
+		info[i++] = "It does extra damage from fire.";
+	}
+	if (f1 & (TR1_BRAND_COLD))
+	{
+		info[i++] = "It does extra damage from frost.";
+	}
+
+	if (f2 & (TR2_SUST_STR))
+	{
+		info[i++] = "It sustains your strength.";
+	}
+	if (f2 & (TR2_SUST_INT))
+	{
+		info[i++] = "It sustains your intelligence.";
+	}
+	if (f2 & (TR2_SUST_WIS))
+	{
+		info[i++] = "It sustains your wisdom.";
+	}
+	if (f2 & (TR2_SUST_DEX))
+	{
+		info[i++] = "It sustains your dexterity.";
+	}
+	if (f2 & (TR2_SUST_CON))
+	{
+		info[i++] = "It sustains your constitution.";
+	}
+	if (f2 & (TR2_SUST_CHR))
+	{
+		info[i++] = "It sustains your charisma.";
+	}
+
+	if (f2 & (TR2_IM_ACID))
+	{
+		info[i++] = "It provides immunity to acid.";
+	}
+	else if (f2 & (TR2_RES_ACID))
+	{
+		info[i++] = "It provides resistance to acid.";
+	}
+
+	if (f2 & (TR2_IM_ELEC))
+	{
+		info[i++] = "It provides immunity to electricity.";
+	}
+	else if (f2 & (TR2_RES_ELEC))
+	{
+		info[i++] = "It provides resistance to electricity.";
+	}
+
+	if (f2 & (TR2_IM_FIRE))
+	{
+		info[i++] = "It provides immunity to fire.";
+	}
+	else if (f2 & (TR2_RES_FIRE))
+	{
+		info[i++] = "It provides resistance to fire.";
+	}
+
+	if (f2 & (TR2_IM_COLD))
+	{
+		info[i++] = "It provides immunity to cold.";
+	}
+	else if (f2 & (TR2_RES_COLD))
+	{
+		info[i++] = "It provides resistance to cold.";
+	}
+
+	if (f2 & (TR2_RES_POIS))
+	{
+		info[i++] = "It provides resistance to poison.";
+	}
+
+	if (f2 & (TR2_RES_FEAR))
+	{
+		info[i++] = "It provides resistance to fear.";
+	}
+
+	if (f2 & (TR2_RES_LITE))
+	{
+		info[i++] = "It provides resistance to light.";
+	}
+
+	if (f2 & (TR2_RES_DARK))
+	{
+		info[i++] = "It provides resistance to dark.";
+	}
+
+	if (f2 & (TR2_RES_BLIND))
+	{
+		info[i++] = "It provides resistance to blindness.";
+	}
+
+	if (f2 & (TR2_RES_CONFU))
+	{
+		info[i++] = "It provides resistance to confusion.";
+	}
+
+	if (f2 & (TR2_RES_SOUND))
+	{
+		info[i++] = "It provides resistance to sound.";
+	}
+
+	if (f2 & (TR2_RES_SHARD))
+	{
+		info[i++] = "It provides resistance to shards.";
+	}
+
+	if (f2 & (TR2_RES_NEXUS))
+	{
+		info[i++] = "It provides resistance to nexus.";
+	}
+
+	if (f2 & (TR2_RES_NETHR))
+	{
+		info[i++] = "It provides resistance to nether.";
+	}
+
+	if (f2 & (TR2_RES_CHAOS))
+	{
+		info[i++] = "It provides resistance to chaos.";
+	}
+
+	if (f2 & (TR2_RES_DISEN))
+	{
+		info[i++] = "It provides resistance to disenchantment.";
+	}
+
+	if (f3 & (TR3_SLOW_DIGEST))
+	{
+		info[i++] = "It slows your metabolism.";
+	}
+
+	if (f3 & (TR3_FEATHER))
+	{
+		info[i++] = "It induces feather falling.";
+	}
+
+	if (f3 & (TR3_LITE))
+	{
+		info[i++] = "It provides permanent light.";
+	}
+
+	if (f3 & (TR3_REGEN))
+	{
+		info[i++] = "It speeds your regenerative powers.";
+	}
+
+	if (f3 & (TR3_TELEPATHY))
+	{
+		info[i++] = "It gives telepathic powers.";
+	}
+
+	if (f3 & (TR3_SEE_INVIS))
+	{
+		info[i++] = "It allows you to see invisible monsters.";
+	}
+
+	if (f3 & (TR3_FREE_ACT))
+	{
+		info[i++] = "It provides immunity to paralysis.";
+	}
+
+	if (f3 & (TR3_HOLD_LIFE))
+	{
+		info[i++] = "It provides resistance to life draining.";
+	}
+
+	if (f3 & (TR3_IMPACT))
+	{
+		info[i++] = "It induces earthquakes.";
+	}
+
+	if (f3 & (TR3_TELEPORT))
+	{
+		info[i++] = "It induces random teleportation.";
+	}
+
+	if (f3 & (TR3_AGGRAVATE))
+	{
+		info[i++] = "It aggravates nearby creatures.";
+	}
+
+	if (f3 & (TR3_DRAIN_EXP))
+	{
+		info[i++] = "It drains experience.";
+	}
+
+	if (f3 & (TR3_BLESSED))
+	{
+		info[i++] = "It has been blessed by the gods.";
+	}
+
+	if (cursed_p(o_ptr))
+	{
+		if (f3 & (TR3_PERMA_CURSE))
+		{
+			info[i++] = "It is permanently cursed.";
+		}
+		else if (f3 & (TR3_HEAVY_CURSE))
+		{
+			info[i++] = "It is heavily cursed.";
+		}
+		else
+		{
+			info[i++] = "It is cursed.";
+		}
+	}
+
+	if (f3 & (TR3_IGNORE_ACID))
+	{
+		info[i++] = "It cannot be harmed by acid.";
+	}
+	if (f3 & (TR3_IGNORE_ELEC))
+	{
+		info[i++] = "It cannot be harmed by electricity.";
+	}
+	if (f3 & (TR3_IGNORE_FIRE))
+	{
+		info[i++] = "It cannot be harmed by fire.";
+	}
+	if (f3 & (TR3_IGNORE_COLD))
+	{
+		info[i++] = "It cannot be harmed by cold.";
+	}
+
+
+	/* Return the number of descriptions */
+	return (i);
 }
 
 
@@ -3466,7 +3896,7 @@ void show_floor(int *floor_list, int floor_num)
 		prt("", j + 1, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(j));
+		sprintf(tmp_val, "%c)", index_to_label(out_index[j]));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j + 1, col);
@@ -3499,7 +3929,7 @@ void toggle_inven_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < MAX_TERM_DATA; j++)
 	{
 		/* Unused */
 		if (!angband_term[j]) continue;
@@ -3949,7 +4379,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			int ne = 0;
 
 			/* Scan windows */
-			for (j = 0; j < 8; j++)
+			for (j = 0; j < MAX_TERM_DATA; j++)
 			{
 				/* Unused */
 				if (!angband_term[j]) continue;
@@ -4210,7 +4640,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
-#endif ALLOW_EASY_FLOOR
+#endif /* ALLOW_EASY_FLOOR */
 
 				/* Check each legal object */
 				for (i = 0; i < floor_num; ++i)

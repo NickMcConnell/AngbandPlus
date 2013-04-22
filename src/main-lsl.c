@@ -189,26 +189,26 @@ void *read_bmp_file(void)
 		/* 1bit non compressed */
 		ptr = pal;
 		fread(ptr, 1, 3, infile);
-		
+
 		if (iswindows)
 			fread(&dummy, 1, 1, infile);
-		
+
 		dummy = ptr[0];
 		ptr[0] = ptr[2] / 4;
 		ptr[1] /= 4;
 		ptr[2] = dummy / 4;
 		fread(ptr + 3, 1, 3, infile);
-		
+
 		if (iswindows)
 			fread(&dummy, 1, 1, infile);
-		
+
 		dummy = ptr[3];
 		ptr[3] = ptr[5] / 4;
 		ptr[4] /= 4;
 		ptr[5] = dummy / 4;
 		ptr = bmap;
-		
-		for (j = h - 1; j >= 0; j--)
+
+		for (j = h; j-- > 0; )
 		{
 			for (i = 0, count = 0 ; i < (w >> 3); i++)
 			{
@@ -250,7 +250,7 @@ void *read_bmp_file(void)
 
 		if ((!iswindows) || (bih.biCompression == 0))
 		{
-			for (j = h - 1; j >= 0; j--)
+			for (j = h; j-- > 0; )
 			{
 				for (i = 0, count = 0; i < (w / 2); i++)
 				{
@@ -367,7 +367,7 @@ void *read_bmp_file(void)
 
 		if ((!iswindows) || (bih.biCompression == 0))
 		{
-			for (i = h - 1; i >= 0; i--)
+			for (i = h; i-- > 0; )
 			{
 				fread(ptr + pp->width * i, 1, w, infile);
 			}

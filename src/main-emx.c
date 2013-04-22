@@ -117,11 +117,6 @@
 
 
 /*
- * Maximum windows
- */
-#define MAX_TERM_DATA 8
-
-/*
  * Keypress input modifier flags (copied from main-ibm.c)
  *
  * SWD: these could be changed to the definitions in <os2.h>, which are
@@ -806,7 +801,7 @@ errr init_emx(void)
  	const char *name;
 
 	/* Initialize the pipe windows */
-	for (i = MAX_TERM_DATA-1; i > 0; --i)
+	for (i = MAX_TERM_DATA; i-- > 1; )
 	{
 		name = angband_term_name[i];
   		/* if client connect successful,  add term to list */
@@ -833,8 +828,8 @@ errr init_emx(void)
 	/* Activate it */
 	Term_activate(t);
 
-	/* Assign to angband_term[0] */
- 	angband_term[0] = t;
+	/* Assign to term_screen */
+ 	term_screen = t;
 
 	/* Success */
 	return (0);
@@ -1216,7 +1211,7 @@ errr init_emx(void)
 	/* Activate main window */
 	Term_activate(&emxterm[0]);
 
-	angband_term[0] = &emxterm[0];
+	term_screen = &emxterm[0];
 
 	/* Success */
 	return (0);
@@ -1244,7 +1239,7 @@ static void quit_hook(cptr s)
 {
 	int i;
 
-	for (i = MAX_TERM_DATA - 1; i >= 0; --i)
+	for (i = MAX_TERM_DATA; i-- > 0; )
 	{
 		/* Shut down the term windows */
 		if (angband_term[i])

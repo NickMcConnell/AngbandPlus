@@ -203,10 +203,10 @@ struct term_data
 };
 
 /* Max number of windows on screen */
-#define MAX_TERM_DATA 4
+#define MAX_GCU_TERM 4
 
 /* Information about our windows */
-static term_data data[MAX_TERM_DATA];
+static term_data data[MAX_GCU_TERM];
 
 
 /*
@@ -940,7 +940,7 @@ errr init_gcu(int argc, char *argv[])
 {
 	int i;
 
-	int num_term = MAX_TERM_DATA, next_win = 0;
+	int num_term = MAX_GCU_TERM, next_win = 0;
 
 	/* Extract the normal keymap */
 	keymap_norm_prepare();
