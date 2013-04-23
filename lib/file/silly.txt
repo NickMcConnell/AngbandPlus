@@ -1,5 +1,5 @@
 N:*:Default
-327
+330
 Borg
 Dalek
 Destructor
@@ -94,7 +94,7 @@ Great tit
 Pope
 Tribble
 Jedi knight
-Dark Jedi
+Sith Lord
 Master of Teras Kasi
 Vulcan
 Rancor
@@ -194,7 +194,7 @@ Scatologist
 Brain of Venus
 Brain that would not die
 Breath blaster
-Chickenstein's monster
+The Chookem Meister
 Creature from the Black Lagoon
 Loch Ness monster
 Creeping death
@@ -327,3 +327,6 @@ Spawn
 Neon knight
 Defender of the Faith
 Eternal idol
+Flying Papaya
+Holy Penguin of Doom
+Ice Cream wave

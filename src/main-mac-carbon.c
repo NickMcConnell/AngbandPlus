@@ -899,7 +899,7 @@ static errr process_sound_config_file( const char *name, const char *section )
 		{
 			char		section_string[64];
 			
-			strnfmt( section_string, 64, "[%s]", section );
+			sprintf( section_string, "[%s]", section );
 			
 			if( streq( section_string, buf ) )
 			{
@@ -930,7 +930,7 @@ static errr process_sound_config_file( const char *name, const char *section )
 			/* Find sound effect in pre-defined sound effect list */
 			for( i = 1; i < SOUND_MAX; i++ )
 			{
-				if(streq( angband_sound_name[i], the_name ))
+				if( strcmp( angband_sound_name[i], the_name ) == 0 )
 				{
 					index = i;
 					break;
@@ -976,8 +976,8 @@ static errr process_sound_config_file( const char *name, const char *section )
 	if (err)
 	{
 		/* Useful error message */
-		msgf("Error %d in line %d of file '%s'.", err, num, name);
-		msgf("Parsing '%s'", buf);
+		msg_format("Error %d in line %d of file '%s'.", err, num, name);
+		msg_format("Parsing '%s'", buf);
 	}
 
 	/* Close the file */
@@ -1037,7 +1037,7 @@ static errr process_music_config_file( const char *name, const char *section )
 		{
 			char		section_string[64];
 			
-			strnfmt( section_string, 64, "[%s]", section );
+			sprintf( section_string, "[%s]", section );
 			
 			if( streq( section_string, pbuf ) )
 			{
@@ -1115,7 +1115,7 @@ static errr process_music_config_file( const char *name, const char *section )
 				}
 				else
 				{
-					song_description[index][0] = 0);
+					strcpy( song_description[index], "" );
 				}
 			}
 			
@@ -1191,8 +1191,8 @@ static errr process_music_config_file( const char *name, const char *section )
 	if (err)
 	{
 		/* Useful error message */
-		msgf("Error %d in line %d of file '%s'.", err, num, name);
-		msgf("Parsing '%s'", buf);
+		msg_format("Error %d in line %d of file '%s'.", err, num, name);
+		msg_format("Parsing '%s'", buf);
 	}
 
 	/* Close the file */
@@ -1402,8 +1402,8 @@ static void init_music( void )
 	
 	for( i = 0; i < SONG_MAX; i++ )
 	{
-		song_name[i][0] = 0;
-		song_description[i][0] = 0;
+		strcpy( song_name[i], "" );
+		strcpy( song_description[i], "" );
 		song_volume[i] = ((gSoundVolume*255)/100);
 		song_repeat[i] = 1;
 		song[i] = (Movie)NULL;
@@ -1422,7 +1422,7 @@ static void init_music( void )
 				/*path_build(musicpath, 1024, ANGBAND_DIR_XTRA, "music");*/
 				/*path_build( filepath, 1024, musicpath, song_name[i]);*/
 				
-				strnfmt( filepath, 1024, ":lib:xtra:music:%s", song_name[i] );
+				sprintf( filepath, ":lib:xtra:music:%s", song_name[i] );
 				/*path_build( filepath, 1024, ANGBAND_XTRA_MUSIC, song_name[i] );*/
 				
 				c2p_stringcopy( pFilePath, filepath );
@@ -1496,7 +1496,7 @@ static void init_sounds( void )
 			/*path_build( filepath, 1024, soundpath, sample_name[i][j]);*/
 		
 			/*path_build( filepath, 1024, ANGBAND_XTRA_SOUND, sample_name[i][j] );*/
-			strnfmt( filepath, 1024, ":lib:xtra:sound:%s", sample_name[i][j] );
+			sprintf( filepath, ":lib:xtra:sound:%s", sample_name[i][j] );
 			
 			c2p_stringcopy( pFilePath, filepath );
 	
@@ -2175,8 +2175,9 @@ static errr globe_init(term_data *td)
 				gTileCols = (pictRect.right - pictRect.left) / gTileWidth;
 				gTileCols = (pictRect.bottom - pictRect.top) / gTileHeight;
 				
+				ANGBAND_GRAF = "old";
+				
 				use_transparency = false;
-				use_graphics = GRAPHICS_ORIGINAL;
 				
 				break;
 			}
@@ -2195,8 +2196,9 @@ static errr globe_init(term_data *td)
 				gTileCols = (pictRect.right - pictRect.left) / gTileWidth;
 				gTileCols = (pictRect.bottom - pictRect.top) / gTileHeight;
 				
+				ANGBAND_GRAF = "new";
+				
 				use_transparency = true;
-				use_graphics = GRAPHICS_ADAM_BOLT;
 				
 				break;
 			}
@@ -2204,7 +2206,7 @@ static errr globe_init(term_data *td)
 		case GRAPHICS_NONE:
 		default:
 			{
-				use_graphics = GRAPHICS_NONE;
+				use_graphics = false;
 				use_transparency = false;
 			}
 			return 0;
@@ -2449,12 +2451,20 @@ static errr Term_xtra_mac_react(void)
 		{
 			plog("Cannot initialize graphics!");
 			arg_graphics = GRAPHICS_NONE;
-			use_graphics = GRAPHICS_NONE;
+			use_graphics = false;
 		}
 
 		/* Apply request */
 		current_graphics = arg_graphics;
-		use_graphics = current_graphics;
+		
+		if( current_graphics == GRAPHICS_NONE )
+		{
+			use_graphics = false;
+		}
+		else
+		{
+			use_graphics = true;
+		}
 
 		/* Apply and Verify */
 		term_data_check_size(td);
@@ -2519,7 +2529,7 @@ static errr Term_xtra_mac(int n, int v)
 		case TERM_XTRA_BORED:
 		{
 			/* Process an event */
-			(void)CheckEvents(FALSE);
+			(void)CheckEvents(0);
 
 			/* Success */
 			return (0);
@@ -2539,7 +2549,7 @@ static errr Term_xtra_mac(int n, int v)
 		case TERM_XTRA_FLUSH:
 		{
 			/* Hack -- flush all events */
-			while (CheckEvents(FALSE)) /* loop */;
+			while (CheckEvents(TRUE)) /* loop */;
 
 			/* Success */
 			return (0);
@@ -2606,14 +2616,10 @@ static errr Term_xtra_mac(int n, int v)
 			/* If needed */
 			if (v > 0)
 			{
-				EventRecord tmp;
-				UInt32 ticks;
-				
-				/* Convert milliseconds to ticks */
-				ticks = (v * 60L) / 1000;
-				
-				/* Hack - block for those ticks */
-				WaitNextEvent(~everyEvent, &tmp, ticks, nil);
+				long m = TickCount() + (v * 60L) / 1000;
+
+				/* Wait for it */
+				while (TickCount() < m) /* loop */;
 			}
 
 			/* Success */
@@ -2714,7 +2720,11 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
+#ifdef USE_TRANSPARENCY
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+#else
+static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
+#endif
 {
 	int i;
 	Rect r2;
@@ -2781,8 +2791,10 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp, c
 		byte a = ap[i];
 		char c = cp[i];
 		
+#ifdef USE_TRANSPARENCY
 		byte ta = tap[i];
 		char tc = tcp[i];
+#endif
 
 #ifdef ANGBAND_LITE_MAC
 
@@ -2797,15 +2809,19 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp, c
 			int col, row;
 			Rect r1;
 			
+#ifdef USE_TRANSPARENCY
 			int terrain_col, terrain_row;
 			Rect terrain_rect;
+#endif
 
 			/* Row and Col */
 			row = ((byte)a & 0x7F) % gTileRows;
 			col = ((byte)c & 0x7F) % gTileCols;
 
+#ifdef USE_TRANSPARENCY
 			terrain_row = ((byte)ta & 0x7F) % gTileRows;
 			terrain_col = ((byte)tc & 0x7F) % gTileCols;
+#endif
 			
 			/* Source rectangle */
 			r1.left = col * gTileWidth;
@@ -2818,6 +2834,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp, c
 			ForeColor(blackColor);
 
 			/* Draw the picture */
+#ifdef USE_TRANSPARENCY
 			{
 				int lock_pixels = 0;
 				BitMapPtr	srcBitMap = (BitMapPtr)(frameP->framePix);
@@ -2865,6 +2882,49 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp, c
 					UnlockPixels( GetPortPixMap(GetWindowPort(td->w)) );
 			}
 			
+#else /* USE_TRANSPARENCY : Do not allow terrain */
+			
+			{
+				int lock_pixels = 0;
+				BitMapPtr	srcBitMap = (BitMapPtr)(frameP->framePix);
+				BitMapPtr	destBitMap;
+				
+#ifdef TARGET_CARBON
+				if( use_buffer )
+				{
+					destBitMap = (BitMapPtr)(frameP->bufferPix);
+				}
+				else
+				{
+					PixMapHandle	bMap = 0L;
+					LockPixels( GetPortPixMap(GetWindowPort(td->w)) );
+					bMap = GetPortPixMap(GetWindowPort(td->w));
+					destBitMap = *bMap;
+					lock_pixels = 1;
+					/* destBitMap = GetPortBitMapForCopyBits( (CGrafPtr)(td->w) ); */
+				}
+#else
+				if( use_buffer )
+				{
+					destBitMap = (BitMapPtr)(frameP->bufferPix);
+				}
+				else
+				{
+					destBitMap = (BitMapPtr)&(td->w->portBits);
+				}
+#endif
+
+				/* Draw transparent tile */
+				/* BackColor is ignored and the destination is left untouched */
+				BackColor(blackColor);
+				CopyBits( srcBitMap, destBitMap, &r1, &r2, transparent, NULL );
+				
+				if( lock_pixels == 1 )
+					UnlockPixels( GetPortPixMap(GetWindowPort(td->w)) );
+			}
+
+#endif /* USE_TRANSPARENCY */
+
 			/* Restore colors */
 			BackColor(blackColor);
 			ForeColor(whiteColor);
@@ -3051,7 +3111,7 @@ static void SetupAppDir(void)
 	err = HSetVol(NULL, app_vol, app_dir);
 	if (err != noErr)
 	{
-		strnfmt(errString, 255, "Fatal HSetVol Error #%d.\r Exiting.", err);
+		sprintf(errString, "Fatal HSetVol Error #%d.\r Exiting.", err);
 		mac_warning(errString);
 		ExitToShell();
 	}
@@ -4044,7 +4104,7 @@ static void init_menubar(void)
 			Str15 buf;
 			
 			/* Textual size */
-			strnfmt((char*)buf + 1, 15, "%d", i);
+			sprintf((char*)buf + 1, "%d", i);
 			buf[0] = strlen((char*)buf + 1);
 
 			/* Add the item */
@@ -4065,7 +4125,7 @@ static void init_menubar(void)
 			Str15 buf;
 			
 			/* Describe the item */
-			strnfmt((char*)buf + 1, 15, "%.15s", angband_term_name[i]);
+			sprintf((char*)buf + 1, "%.15s", angband_term_name[i]);
 			buf[0] = strlen((char*)buf + 1);
 
 			/* Add the item */
@@ -4105,7 +4165,7 @@ static void init_menubar(void)
 			Str15 buf;
 			
 			/* Textual size */
-			strnfmt((char*)buf + 1, 15, "%d", i);
+			sprintf((char*)buf + 1, "%d", i);
 			buf[0] = strlen((char*)buf + 1);
 
 			/* Append item */
@@ -4126,7 +4186,7 @@ static void init_menubar(void)
 			Str15 buf;
 
 			/* Textual size */
-			strnfmt((char*)buf + 1, 15, "%d", i);
+			sprintf((char*)buf + 1, "%d", i);
 			buf[0] = strlen((char*)buf + 1);
 
 			/* Append item */
@@ -5041,7 +5101,7 @@ static void menu(long mc)
 				{
 					/* Toggle arg_sound */
 					arg_graphics = GRAPHICS_NONE;
-					use_graphics = GRAPHICS_NONE;
+					use_graphics = false;
 					use_transparency = false;
 					
 					/* React to changes */
@@ -5058,7 +5118,7 @@ static void menu(long mc)
 				{
 					/* Toggle arg_sound */
 					arg_graphics = GRAPHICS_ORIGINAL;
-					use_graphics = GRAPHICS_ORIGINAL;
+					use_graphics = true;
 					use_transparency = false;
 					
 					/* React to changes */
@@ -5075,7 +5135,7 @@ static void menu(long mc)
 				{
 					/* Toggle arg_sound */
 					arg_graphics = GRAPHICS_ADAM_BOLT;
-					use_graphics = GRAPHICS_ADAM_BOLT;
+					use_graphics = true;
 					use_transparency = true;
 					
 					/* React to changes */
@@ -5212,7 +5272,7 @@ static pascal OSErr AEH_Open(const AppleEvent *theAppleEvent,
 	err = FSpGetFInfo(&myFSS, &myFileInfo);
 	if (err)
 	{
-		strnfmt(foo, 128, "Arg!  FSpGetFInfo failed with code %d", err);
+		sprintf(foo, "Arg!  FSpGetFInfo failed with code %d", err);
 		mac_warning (foo);
 		return err;
 	}
@@ -5321,10 +5381,6 @@ static bool CheckEvents(bool wait)
 
 	term_data *td = NULL;
 
-	UInt32 sleep_ticks;
-
-#ifndef TARGET_CARBON
-
 	huge curTicks;
 
 	static huge lastTicks = 0L;
@@ -5339,28 +5395,19 @@ static bool CheckEvents(bool wait)
 	/* Timestamp last check */
 	lastTicks = curTicks;
 
+#ifndef TARGET_CARBON
 	/* Let the "system" run */
 	SystemTask();
+#endif
 
 	if( use_sound )
 	{
 		check_music();
 	}
-	
-	/* Blocking call to WaitNextEvent - Should use MAX_INT XXX XXX XXX */
-	if (wait)
-	{
-		sleep_ticks = 0x7FFFFFFFL;
-	}
-	else
-	{
-		/* Non-blocking call */
-		sleep_ticks = 0L;
-	}
-		
+			
 	/* Get an event (or null) */
-	WaitNextEvent(everyEvent, &event, sleep_ticks, nil);
- 
+	GetNextEvent(everyEvent, &event);
+
 	/* Hack -- Nothing is ready yet */
 	if (event.what == nullEvent) return (FALSE);
 
@@ -5806,8 +5853,10 @@ static vptr lifeboat = NULL;
 /*
  * Hook to "release" memory
  */
-static vptr hook_rnfree(vptr v)
+static vptr hook_rnfree(vptr v, huge size)
 {
+
+#pragma unused (size)
 
 #ifdef USE_MALLOC
 
@@ -6188,8 +6237,9 @@ int main(void)
 	/* Prepare the windows */
 	init_windows();
 	
+	
 	/* Hack -- process all events */
-	while (CheckEvents(FALSE)) /* loop */;
+	while (CheckEvents(TRUE)) /* loop */;
 
 	/* Reset the cursor */
 #ifdef TARGET_CARBON
@@ -6217,7 +6267,7 @@ int main(void)
 
 
 	/* Hack -- process all events */
-	while (CheckEvents(FALSE)) /* loop */;
+	while (CheckEvents(TRUE)) /* loop */;
 
 
 	/* We are now initialized */
@@ -6229,7 +6279,7 @@ int main(void)
 
 
 	/* Prompt the user */
-	prtf(15, 23, "[Choose 'New' or 'Open' from the 'File' menu]");
+	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
 
 	/* Flush the prompt */
 	Term_fresh();

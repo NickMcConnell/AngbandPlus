@@ -99,18 +99,6 @@
 
 #ifdef USE_X11
 
-cptr help_x11[] =
-{
-	"To use X11",
-	"-d    Set display name",
-#ifdef USE_GRAPHICS
-	"-s    Turn off smoothscaling graphics",
-	"-b#   Set tileset bitmap",
-#endif /* USE_GRAPHICS */
-	"-n#   Number of terms to use",
-	NULL
-};
-
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
@@ -515,7 +503,7 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 	m->fg = m->white;
 
 	/* Calculate the Maximum allowed Pixel value.  */
-	m->zg = ((Pixell)1 << m->depth) - 1;
+	m->zg = (1 << m->depth) - 1;
 
 	/* Save various default Flag Settings */
 	m->color = ((m->depth > 1) ? 1 : 0);
@@ -1274,7 +1262,7 @@ static errr Infofnt_init_real(XFontStruct *info)
  * Inputs:
  *	name: The name of the requested Font
  */
-static void Infofnt_init_data(cptr name)
+static errr Infofnt_init_data(cptr name)
 {
 	XFontStruct *info;
 
@@ -1282,13 +1270,13 @@ static void Infofnt_init_data(cptr name)
 	/*** Load the info Fresh, using the name ***/
 
 	/* If the name is not given, report an error */
-	if (!name) quit("Missing font!");
+	if (!name) return (-1);
 
 	/* Attempt to load the font */
 	info = XLoadQueryFont(Metadpy->dpy, name);
 
-	/* The load failed */
-	if (!info) quit_fmt("Failed to find font:\"%s\"", name);
+	/* The load failed, try to recover */
+	if (!info) return (-1);
 
 
 	/*** Init the font ***/
@@ -1303,7 +1291,7 @@ static void Infofnt_init_data(cptr name)
 		XFreeFont(Metadpy->dpy, info);
 
 		/* Fail */
-		quit_fmt("Failed to prepare font:\"%s\"", name);
+		return (-1);
 	}
 
 	/* Save a copy of the font name */
@@ -1311,6 +1299,9 @@ static void Infofnt_init_data(cptr name)
 
 	/* Mark it as nukable */
 	Infofnt->nuke = 1;
+
+	/* Success */
+	return (0);
 }
 
 
@@ -1463,8 +1454,12 @@ struct term_data
 
 	XImage *tiles;
 
+#ifdef USE_TRANSPARENCY
+
 	/* Tempory storage for overlaying tiles. */
 	XImage *TmpImage;
+
+#endif
 
 #endif
 
@@ -1488,11 +1483,13 @@ static term_data data[MAX_TERM_DATA];
  *
  * Also appears in "main-xaw.c".
  */
-static void react_keypress(XKeyEvent *ev)
+static void react_keypress(XKeyEvent *xev)
 {
 	int i, n, mc, ms, mo, mx;
 
 	uint ks1;
+
+	XKeyEvent *ev = (XKeyEvent*)(xev);
 
 	KeySym ks;
 
@@ -1565,7 +1562,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the KeySym */
 	if (ks)
 	{
-		strnfmt(msg, 128, "%c%s%s%s%s_%lX%c", 31,
+		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        (unsigned long)(ks), 13);
@@ -1574,7 +1571,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the Keycode */
 	else
 	{
-		strnfmt(msg, 128, "%c%s%s%s%sK_%X%c", 31,
+		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        ev->keycode, 13);
@@ -1982,13 +1979,19 @@ static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
 /*
  * Draw some graphical characters.
  */
+# ifdef USE_TRANSPARENCY
 static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+# else /* USE_TRANSPARENCY */
+static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
+# endif /* USE_TRANSPARENCY */
 {
 	int i, x1, y1;
 
 	byte a;
 	char c;
 
+
+#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
@@ -1996,6 +1999,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 	int k,l;
 
 	unsigned long pixel, blank;
+#endif /* USE_TRANSPARENCY */
 
 	term_data *td = (term_data*)(Term->data);
 
@@ -2014,6 +2018,8 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 		/* For extra speed - cache these values */
 		x1 = (c&0x7F) * td->fnt->wid;
 		y1 = (a&0x7F) * td->fnt->hgt;
+
+#ifdef USE_TRANSPARENCY
 
 		ta = *tap++;
 		tc = *tcp++;
@@ -2065,6 +2071,17 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 		     	     td->fnt->wid, td->fnt->hgt);
 		}
 
+#else /* USE_TRANSPARENCY */
+
+		/* Draw object / terrain */
+		XPutImage(Metadpy->dpy, td->win->win,
+		          clr[0]->gc,
+		          td->tiles,
+		          x1, y1,
+		          x, y,
+		          td->fnt->wid, td->fnt->hgt);
+
+#endif /* USE_TRANSPARENCY */
 		x += td->fnt->wid;
 	}
 
@@ -2115,23 +2132,23 @@ static errr term_data_init(term_data *td, int i)
 	font = get_default_font(i);
 
 	/* Window specific location (x) */
-	strnfmt(buf, 80, "ANGBAND_X11_AT_X_%d", i);
+	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);
 	str = getenv(buf);
 	x = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific location (y) */
-	strnfmt(buf, 80, "ANGBAND_X11_AT_Y_%d", i);
+	sprintf(buf, "ANGBAND_X11_AT_Y_%d", i);
 	str = getenv(buf);
 	y = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific cols */
-	strnfmt(buf, 80, "ANGBAND_X11_COLS_%d", i);
+	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	strnfmt(buf, 80, "ANGBAND_X11_ROWS_%d", i);
+	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
@@ -2144,13 +2161,13 @@ static errr term_data_init(term_data *td, int i)
 	}
 
 	/* Window specific inner border offset (ox) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOX_%d", i);
+	sprintf(buf, "ANGBAND_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) ox = val;
 
 	/* Window specific inner border offset (oy) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOY_%d", i);
+	sprintf(buf, "ANGBAND_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) oy = val;
@@ -2292,9 +2309,13 @@ errr init_x11(int argc, char *argv[])
 	int pict_wid = 0;
 	int pict_hgt = 0;
 	
-	int graphmode = GRAPHICS_ANY;
+	int bitdepth = 0;
+
+#ifdef USE_TRANSPARENCY
 
 	char *TmpData;
+
+#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -2317,14 +2338,10 @@ errr init_x11(int argc, char *argv[])
 		
 		if (prefix(argv[i], "-b"))
 		{
-			int bitdepth = 0;
-			
 			bitdepth = atoi(&argv[i][2]);
 			
-			/* Paranoia */
-			if (bitdepth == 16) graphmode = GRAPHICS_ADAM_BOLT;
-			if (bitdepth == 8) graphmode = GRAPHICS_ORIGINAL;
-			
+			/* paranoia */
+			if ((bitdepth != 16) && (bitdepth != 8)) bitdepth = 0;
 			continue;
 		}
 #endif /* USE_GRAPHICS */
@@ -2409,7 +2426,44 @@ errr init_x11(int argc, char *argv[])
 	/* Try graphics */
 	if (arg_graphics)
 	{
-		(void) pick_graphics(graphmode, &pict_wid, &pict_hgt, filename);
+		use_graphics = FALSE;
+		
+		if ((bitdepth == 0) || (bitdepth == 16))
+		{
+			/* Try the "16x16.bmp" file */
+			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+
+			/* Use the "16x16.bmp" file if it exists */
+			if (0 == fd_close(fd_open(filename, O_RDONLY)))
+			{
+				/* Use graphics */
+				use_graphics = TRUE;
+
+				use_transparency = TRUE;
+
+				pict_wid = pict_hgt = 16;
+
+				ANGBAND_GRAF = "new";
+			}
+		}
+		
+		/* We failed, or we want 8x8 graphics */
+		if (!use_graphics && ((bitdepth == 0) || (bitdepth == 8)))
+		{
+			/* Try the "8x8.bmp" file */
+			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
+
+			/* Use the "8x8.bmp" file if it exists */
+			if (0 == fd_close(fd_open(filename, O_RDONLY)))
+			{
+				/* Use graphics */
+				use_graphics = TRUE;
+
+				pict_wid = pict_hgt = 8;
+
+				ANGBAND_GRAF = "old";
+			}
+		}
 	}
 
 	/* Load graphics */
@@ -2442,6 +2496,7 @@ errr init_x11(int argc, char *argv[])
 			            td->fnt->wid, td->fnt->hgt);
 		}
 
+#ifdef USE_TRANSPARENCY
 		/* Initialize the transparency masks */
 		for (i = 0; i < num_term; i++)
 		{
@@ -2466,6 +2521,8 @@ errr init_x11(int argc, char *argv[])
 				td->fnt->wid, td->fnt->hgt, 32, 0);
 
 		}
+#endif /* USE_TRANSPARENCY */
+
 
 		/* Free tiles_raw? XXX XXX */
 	}

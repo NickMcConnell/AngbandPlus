@@ -8,7 +8,7 @@
  * are included in all such copies.
  */
 
-/* Purpose: Visual Display Support for "z-term.c", for the IBM */
+/* Purpose: Visual Display Support for "term.c", for the IBM */
 
 
 /*
@@ -53,12 +53,6 @@
 
 
 #ifdef USE_IBM
-
-cptr help_ibm[] =
-{
-	"To use IBM (BIOS text mode)",
-	NULL
-};
 
 
 /*
@@ -384,7 +378,7 @@ static void activate_color_complex(void)
 
 #endif /* 1 */
 
-}
+};
 
 
 /*
@@ -877,15 +871,16 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
  *
  * The given parameters are "valid".
  */
+#ifdef USE_TRANSPARENCY
 static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+#else /* USE_TRANSPARENCY */
+static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
+#endif /* USE_TRANSPARENCY */
 {
 	register int i;
 	register byte attr;
 	register byte *dest;
 
-	/* Unused parameter */
-	(void)tap;
-	(void)tcp;
 
 #ifdef USE_CONIO
 
@@ -955,9 +950,6 @@ static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp, c
  */
 static void Term_init_ibm(term *t)
 {
-	/* Unused parameter */
-	(void)t;
-
 	/* XXX Nothing */
 }
 
@@ -967,6 +959,7 @@ static void Term_init_ibm(term *t)
  */
 static void Term_nuke_ibm(term *t)
 {
+
 #ifdef USE_WAT
 
 	/* Nothing */
@@ -976,9 +969,6 @@ static void Term_nuke_ibm(term *t)
 	union REGS r;
 
 #endif /* USE_WAT */
-
-	/* Unused parameter */
-	(void)t;
 
 	/* Move the cursor to the bottom of the screen */
 	Term_curs_ibm(0, rows-1);
@@ -1150,8 +1140,7 @@ void enable_graphic_font(const char *font)
 {
 	__dpmi_regs dblock = {{0}};
 
-	unsigned int seg, i;
-	int sel;
+	unsigned seg, sel, i;
 
 	/*
 	 * Allocate a block of memory 4096 bytes big in `low memory' so a real
@@ -1187,7 +1176,7 @@ void enable_graphic_font(const char *font)
 
 	/* We're done with the low memory, free it */
 	__dpmi_free_dos_memory(sel);
-}
+};
 
 #endif /* USE_286 */
 
@@ -1197,9 +1186,6 @@ void enable_graphic_font(const char *font)
 
 /*
  * Initialize the IBM "visual module"
- *
- * Hack -- we assume that "blank space" should be "white space"
- * (and not "black space" which might make more sense).
  *
  * Note the use of "((x << 2) | (x >> 4))" to "expand" a 6 bit value
  * into an 8 bit value, without losing much precision, by using the 2
@@ -1321,7 +1307,7 @@ errr init_ibm(void)
 			activate_color_complex();
 
 			/* Use graphics */
-			use_graphics = GRAPHICS_ORIGINAL;
+			use_graphics = TRUE;
 		}
 	}
 

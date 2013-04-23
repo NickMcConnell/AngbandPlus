@@ -18,10 +18,6 @@
  */
 #include "h-basic.h"
 
-/*
- * Configuration
- */
-#include "z-config.h"
 
 /*
  * Include the mid-level includes.
@@ -35,9 +31,15 @@
 /*
  * Include the high-level includes.
  */
+#include "z-config.h"
 #include "defines.h"
 #include "types.h"
 #include "externs.h"
+
+#ifdef USE_SCRIPT
+#include "event.h"
+#endif /* USE_SCRIPT */
+
 
 
 /***** Some older copyright messages follow below *****/
@@ -89,3 +91,4 @@
 
 
 #endif
+

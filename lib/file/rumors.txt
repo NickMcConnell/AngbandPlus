@@ -44,7 +44,7 @@ They say that you should rejoice if you find a scroll labeled ""!
 You don't always have to kill everything you meet!
 If you can't beat it, leave it alone!
 An umber hulk can be a confusing sight.
-There *is* a good use for Potions of Detonations, Ruination and Death...
+There *is* a good use for Potions of Nitro 9, Ruination and Death...
 It's a bad idea to throw away a Longsword (4d5).
 It's a bad idea to wield a Longsword (4d5).
 It's useless to bash monsters with bows - but there's one notable exception...
@@ -122,7 +122,7 @@ They say that only one sword, Nothung, can slay Fafner the Dragon.
 "So when I die, the first thing I will see in heaven is a score list?"
 You're going into the morgue at midnight?
 How dare you! I will not buy that!
-A Potion of Detonations is also known as nitroglycerin...
+A Potion of Nitro 9 is also known as nitroglycerin...
 There is a trap on this level!
 A weapon of Undead Slaying has all you need to kill a ghost.
 A weapon of Dragon Slaying may give you resistance to a dragon's breath attack.
@@ -216,13 +216,13 @@ What happens if you wear a Ring of Extra Ring Fingers (-2) {cursed}?
 Damn! Those alien bastards are gonna pay for shooting up my ride!
 Oremor nhoj em llik tsum uoy emag siht niw ot.
 If I cancel tomorrow the undead will thank me today.
-Hellfire will burn your soul... (if you're not of evil alignment!)
+Hellfire will burn your soul... (even if you're evil of alignment!)
 Never attempt to Call the Void in an enclosed space!
 Call the Void needs a lot of room to cast...
 Call the Void will grant you power over space monsters.
 Why doesn't Detect Monsters show invisible monsters? 'Cos you can't see 'em!
 I'll tell you the truth, son: your soul's gonna burn in a lake of fire!
-Not satisfied with being a human? Then polymorph into an Amberite!
+Not satisfied with being a human? Then polymorph into an Fairy!
 You cruelly stab the helpless, sleeping Software bug!
 Slab: Jus' say AarrghaarrghpleeassennononoUGH.
 You feel the Windows (95) on your hard disk is broken...
@@ -261,7 +261,7 @@ Since confrontation is inevitable: give yourself a crash course of the code.
 It strucks you as something similar to color blindness. Contagious trap!
 Hey young magic coder adept, you still owe some contributions.
 Yes, timing is definitely against you today. Never mind.
-Amberites are able to sustain some pretty awful beatings.
+Uruks are able to sustain some pretty awful beatings.
 You are a secretive person, even in that incarnation, paradoxical too!
 Pass some time in places where the bad things dwell - be red-eyed for a day!
 Go on Goon! But there will be not sufficient time to flee any farther.
@@ -290,7 +290,7 @@ Are you really suffering withdrawal symptoms and want something crushable?
 Smaug and alcohol may disturb your .. was it sanity, courage or boredom?
 Ha, treasures! Like all vaults it was full of depths and dangers.
 The benefits of alchemy are my marriage, danger is my passion.
-Any dungeons offer mazes. But don't they lack the ZAngband sense of humor?
+Any dungeons offer mazes. But don't they lack the STAngband sense of humor?
 Bodychecks, bodycounts itching all my ways but the awful software bugs...
 Be constantly on guard, joker, don't take anything at face value.
 Which is better: mind blast or mind wash? Will lost memories return gradually?

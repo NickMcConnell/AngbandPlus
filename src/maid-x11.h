@@ -9,8 +9,6 @@
  * not for profit purposes provided that this copyright and statement are
  * included in all such copies.
  */
- 
-#include "maid-grf.h"
 
 #ifndef IsModifierKey
 

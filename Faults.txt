@@ -1,0 +1,5 @@
+Incorrect tiles.
+
+Start position not used. (once)
+
+Machines are always identified? (Are they even randomly created?)

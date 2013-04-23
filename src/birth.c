@@ -70,12 +70,12 @@ typedef struct hist_type hist_type;
  */
 struct hist_type
 {
-	cptr info;	/* Textual History */
+	cptr info;			    /* Textual History */
 
-	byte roll;	/* Frequency of this entry */
-	byte chart;	/* Chart index */
-	byte next;	/* Next chart index */
-	byte bonus;	/* Social Class Bonus + 50 */
+	byte roll;			    /* Frequency of this entry */
+	byte chart;			    /* Chart index */
+	byte next;			    /* Next chart index */
+	byte bonus;			    /* Social Class Bonus + 50 */
 };
 
 
@@ -96,501 +96,487 @@ struct hist_type
  */
 static const hist_type bg[] =
 {
-	{"You are the illegitimate and unacknowledged child ", 10, 1, 2, 25},
-	{"You are the illegitimate but acknowledged child ", 20, 1, 2, 35},
-	{"You are one of several children ", 95, 1, 2, 45},
-	{"You are the first child ", 100, 1, 2, 50},
-
-	{"of a Serf.  ", 40, 2, 3, 65},
-	{"of a Yeoman.  ", 65, 2, 3, 80},
-	{"of a Townsman.  ", 80, 2, 3, 90},
-	{"of a Guildsman.  ", 90, 2, 3, 105},
-	{"of a Landed Knight.  ", 96, 2, 3, 120},
-	{"of a Noble Family in the Courts of Chaos.  ", 99, 2, 3, 130},
-	{"of the Royal Blood Line of Amber.  ", 100, 2, 3, 140},
-
-	{"You are the black sheep of the family.  ", 20, 3, 50, 20},
-	{"You are a credit to the family.  ", 80, 3, 50, 55},
-	{"You are a well liked child.  ", 100, 3, 50, 60},
-
-	{"Your mother was of the Teleri.  ", 40, 4, 1, 50},
-	{"Your father was of the Teleri.  ", 75, 4, 1, 55},
-	{"Your mother was of the Noldor.  ", 90, 4, 1, 55},
-	{"Your father was of the Noldor.  ", 95, 4, 1, 60},
-	{"Your mother was of the Vanyar.  ", 98, 4, 1, 65},
-	{"Your father was of the Vanyar.  ", 100, 4, 1, 70},
-
-	{"You are one of several children ", 60, 7, 8, 50},
-	{"You are the only child ", 100, 7, 8, 55},
-
-	{"of a Teleri ", 75, 8, 9, 50},
-	{"of a Noldor ", 95, 8, 9, 55},
-	{"of a Vanyar ", 100, 8, 9, 60},
-
-	{"Ranger.  ", 40, 9, 54, 80},
-	{"Archer.  ", 70, 9, 54, 90},
-	{"Warrior.  ", 87, 9, 54, 110},
-	{"Mage.  ", 95, 9, 54, 125},
-	{"Prince.  ", 99, 9, 54, 140},
-	{"King.  ", 100, 9, 54, 145},
-
-	{"You are one of several children of a Hobbit ", 85, 10, 11, 45},
-	{"You are the only child of a Hobbit ", 100, 10, 11, 55},
-
-	{"Bum.  ", 20, 11, 3, 55},
-	{"Tavern Owner.  ", 30, 11, 3, 80},
-	{"Miller.  ", 40, 11, 3, 90},
-	{"Home Owner.  ", 50, 11, 3, 100},
-	{"Burglar.  ", 80, 11, 3, 110},
-	{"Warrior.  ", 95, 11, 3, 115},
-	{"Mage.  ", 99, 11, 3, 125},
-	{"Clan Elder.  ", 100, 11, 3, 140},
-
-	{"You are one of several children of a Gnome ", 85, 13, 14, 45},
-	{"You are the only child of a Gnome ", 100, 13, 14, 55},
-
-	{"Beggar.  ", 20, 14, 3, 55},
-	{"Braggart.  ", 50, 14, 3, 70},
-	{"Prankster.  ", 75, 14, 3, 85},
-	{"Warrior.  ", 95, 14, 3, 100},
-	{"Mage.  ", 100, 14, 3, 125},
-
-	{"You are one of two children of a Dwarven ", 25, 16, 17, 40},
-	{"You are the only child of a Dwarven ", 100, 16, 17, 50},
-
-	{"Thief.  ", 10, 17, 18, 60},
-	{"Prison Guard.  ", 25, 17, 18, 75},
-	{"Miner.  ", 75, 17, 18, 90},
-	{"Warrior.  ", 90, 17, 18, 110},
-	{"Priest.  ", 99, 17, 18, 130},
-	{"King.  ", 100, 17, 18, 150},
-
-	{"You are the black sheep of the family.  ", 15, 18, 57, 10},
-	{"You are a credit to the family.  ", 85, 18, 57, 50},
-	{"You are a well liked child.  ", 100, 18, 57, 55},
-
-	{"Your mother was an Orc, but it is unacknowledged.  ", 25, 19, 20, 25},
-	{"Your father was an Orc, but it is unacknowledged.  ", 100, 19, 20, 25},
-
-	{"You are the adopted child ", 100, 20, 2, 50},
-
-	{"Your mother was a Cave-Troll ", 30, 22, 23, 20},
-	{"Your father was a Cave-Troll ", 60, 22, 23, 25},
-	{"Your mother was a Hill-Troll ", 75, 22, 23, 30},
-	{"Your father was a Hill-Troll ", 90, 22, 23, 35},
-	{"Your mother was a Water-Troll ", 95, 22, 23, 40},
-	{"Your father was a Water-Troll ", 100, 22, 23, 45},
-
-	{"Cook.  ", 5, 23, 62, 60},
-	{"Warrior.  ", 95, 23, 62, 55},
-	{"Shaman.  ", 99, 23, 62, 65},
-	{"Clan Chief.  ", 100, 23, 62, 80},
-
-	{"You have dark brown eyes, ", 20, 50, 51, 50},
-	{"You have brown eyes, ", 60, 50, 51, 50},
-	{"You have hazel eyes, ", 70, 50, 51, 50},
-	{"You have green eyes, ", 80, 50, 51, 50},
-	{"You have blue eyes, ", 90, 50, 51, 50},
-	{"You have blue-gray eyes, ", 100, 50, 51, 50},
-
-	{"straight ", 70, 51, 52, 50},
-	{"wavy ", 90, 51, 52, 50},
-	{"curly ", 100, 51, 52, 50},
-
-	{"black hair, ", 30, 52, 53, 50},
-	{"brown hair, ", 70, 52, 53, 50},
-	{"auburn hair, ", 80, 52, 53, 50},
-	{"red hair, ", 90, 52, 53, 50},
-	{"blond hair, ", 100, 52, 53, 50},
-
-	{"and a very dark complexion.", 10, 53, 0, 50},
-	{"and a dark complexion.", 30, 53, 0, 50},
-	{"and an average complexion.", 80, 53, 0, 50},
-	{"and a fair complexion.", 90, 53, 0, 50},
-	{"and a very fair complexion.", 100, 53, 0, 50},
-
-	{"You have light grey eyes, ", 85, 54, 55, 50},
-	{"You have light blue eyes, ", 95, 54, 55, 50},
-	{"You have light green eyes, ", 100, 54, 55, 50},
-
-	{"straight ", 75, 55, 56, 50},
-	{"wavy ", 100, 55, 56, 50},
-
-	{"black hair, and a fair complexion.", 75, 56, 0, 50},
-	{"brown hair, and a fair complexion.", 85, 56, 0, 50},
-	{"blond hair, and a fair complexion.", 95, 56, 0, 50},
-	{"silver hair, and a fair complexion.", 100, 56, 0, 50},
-
-	{"You have dark brown eyes, ", 99, 57, 58, 50},
-	{"You have glowing red eyes, ", 100, 57, 58, 60},
-
-	{"straight ", 90, 58, 59, 50},
-	{"wavy ", 100, 58, 59, 50},
-
-	{"black hair, ", 75, 59, 60, 50},
-	{"brown hair, ", 100, 59, 60, 50},
-
-	{"a one foot beard, ", 25, 60, 61, 50},
-	{"a two foot beard, ", 60, 60, 61, 51},
-	{"a three foot beard, ", 90, 60, 61, 53},
-	{"a four foot beard, ", 100, 60, 61, 55},
-
-	{"and a dark complexion.", 100, 61, 0, 50},
-
-	{"You have slime green eyes, ", 60, 62, 63, 50},
-	{"You have puke yellow eyes, ", 85, 62, 63, 50},
-	{"You have blue-bloodshot eyes, ", 99, 62, 63, 50},
-	{"You have glowing red eyes, ", 100, 62, 63, 55},
-
-	{"dirty ", 33, 63, 64, 50},
-	{"mangy ", 66, 63, 64, 50},
-	{"oily ", 100, 63, 64, 50},
-
-	{"sea-weed green hair, ", 33, 64, 65, 50},
-	{"bright red hair, ", 66, 64, 65, 50},
-	{"dark purple hair, ", 100, 64, 65, 50},
-
-	{"and green ", 25, 65, 66, 50},
-	{"and blue ", 50, 65, 66, 50},
-	{"and white ", 75, 65, 66, 50},
-	{"and black ", 100, 65, 66, 50},
-
-	{"ulcerous skin.", 33, 66, 0, 50},
-	{"scabby skin.", 66, 66, 0, 50},
-	{"leprous skin.", 100, 66, 0, 50},
-
-	{"You are an unacknowledged child of ", 50, 67, 68, 45},
-	{"You are a rebel child of ", 80, 67, 68, 65},
-	{"You are a long lost child of ", 100, 67, 68, 55},
-
-	{"an unknown Amberite.  ", 50, 68, 50, 80},
-	{"an unknown third generation Amberite.  ", 65, 68, 50, 90},
-	{"an unknown second generation Amberite.  ", 79, 68, 50, 100},
-	{"Oberon.  ", 80, 68, 50, 130},
-	{"Osric.  ", 83, 68, 50, 105},
-	{"Finndo.  ", 84, 68, 50, 105},
-	{"Brand.  ", 85, 68, 50, 90},
-	{"Flora.  ", 87, 68, 50, 100},
-	{"Gerard.  ", 88, 68, 50, 125},
-	{"Deirdre.  ", 89, 68, 50, 120},
-	{"Random.  ", 90, 68, 50, 140},
-	{"Benedict.  ", 91, 68, 50, 115},
-	{"Corwin.  ", 92, 68, 50, 110},
-	{"Julian.  ", 93, 68, 50, 105},
-	{"Caine.  ", 94, 68, 50, 95},
-	{"Bleys.  ", 95, 68, 50, 115},
-	{"Fiona.  ", 96, 68, 50, 110},
-	{"Eric.  ", 97, 68, 50, 135},
-	{"Rinaldo.  ", 98, 68, 50, 90},
-	{"Merlin.  ", 99, 68, 50, 105},
-	{"Martin.  ", 100, 68, 50, 80},
-
-
-	{"You are one of several children of a Dark Elven ", 85, 69, 70, 45},
-	{"You are the only child of a Dark Elven ", 100, 69, 70, 55},
-
-	{"Warrior.  ", 50, 70, 71, 60},
-	{"Warlock.  ", 80, 70, 71, 75},
-	{"Noble.  ", 100, 70, 71, 95},
-
-	{"You have black eyes, ", 100, 71, 72, 50},
-
-	{"straight ", 70, 72, 73, 50},
-	{"wavy ", 90, 72, 73, 50},
-	{"curly ", 100, 72, 73, 50},
-
-	{"black hair and a very dark complexion.", 100, 73, 0, 50},
-
-	{"Your mother was an Ogre, but it is unacknowledged.  ", 25, 74, 20, 25},
-	{"Your father was an Ogre, but it is unacknowledged.  ", 100, 74, 20, 25},
-
-	{"Your mother was a Hill Giant.  ", 10, 75, 20, 50},
-	{"Your mother was a Fire Giant.  ", 12, 75, 20, 55},
-	{"Your mother was a Frost Giant.  ", 20, 75, 20, 60},
-	{"Your mother was a Cloud Giant.  ", 23, 75, 20, 65},
-	{"Your mother was a Storm Giant.  ", 25, 75, 20, 70},
-	{"Your father was a Hill Giant.  ", 60, 75, 20, 50},
-	{"Your father was a Fire Giant.  ", 70, 75, 20, 55},
-	{"Your father was a Frost Giant.  ", 80, 75, 20, 60},
-	{"Your father was a Cloud Giant.  ", 90, 75, 20, 65},
-	{"Your father was a Storm Giant.  ", 100, 75, 20, 70},
-
-	{"Your father was an unknown Titan.  ", 75, 76, 20, 50},
-	{"Your mother was Themis.  ", 80, 76, 20, 100},
-	{"Your mother was Mnemosyne.  ", 85, 76, 20, 100},
-	{"Your father was Okeanoas.  ", 90, 76, 20, 100},
-	{"Your father was Crius.  ", 95, 76, 20, 100},
-	{"Your father was Hyperion.  ", 98, 76, 20, 125},
-	{"Your father was Kronos.  ", 100, 76, 20, 150},
-
-	{"You are the offspring of an unknown Cyclops.  ", 90, 77, 109, 50},
-	{"You are Polyphemos's child.  ", 98, 77, 109, 80},
-	{"You are Uranos's child.  ", 100, 77, 109, 135},
-
-	{"You are one of several children of ", 100, 78, 79, 50},
-
-	{"a Brown Yeek. ", 50, 79, 80, 50},
-	{"a Blue Yeek.  ", 75, 79, 80, 50},
-	{"a Master Yeek.  ", 95, 79, 80, 85},
-	{"Boldor, the King of the Yeeks.  ", 100, 79, 80, 120},
-
-	{"You have pale eyes, ", 25, 80, 81, 50},
-	{"You have glowing eyes, ", 50, 80, 81, 50},
-	{"You have tiny black eyes, ", 75, 80, 81, 50},
-	{"You have shining black eyes, ", 100, 80, 81, 50},
-
-	{"no hair at all, ", 20, 81, 65, 50},
-	{"short black hair, ", 40, 81, 65, 50},
-	{"long black hair, ", 60, 81, 65, 50},
-	{"bright red hair, ", 80, 81, 65, 50},
-	{"colourless albino hair, ", 100, 81, 65, 50},
-
-	{"You are one of several children of ", 100, 82, 83, 50},
-
-	{"a Small Kobold.  ", 40, 83, 80, 50},
-	{"a Kobold.  ", 75, 83, 80, 55},
-	{"a Large Kobold.  ", 95, 83, 80, 65},
-	{"Mughash, the Kobold Lord.  ", 100, 83, 80, 100},
-
-	{"You are one of several children of a Klackon hive queen.  ", 100, 84, 85,
-	 50},
-
-	{"You have red skin, ", 40, 85, 86, 50},
-	{"You have black skin, ", 90, 85, 86, 50},
-	{"You have yellow skin, ", 100, 85, 86, 50},
-
-	{"and black eyes.", 100, 86, 0, 50},
-
-	{"You are one of several children of ", 100, 87, 88, 89},
-
-	{"a Nibelung Slave.  ", 30, 88, 18, 20},
-	{"a Nibelung Thief.  ", 50, 88, 18, 40},
-	{"a Nibelung Smith.  ", 70, 88, 18, 60},
-	{"a Nibelung Miner.  ", 90, 88, 18, 75},
-	{"a Nibelung Shaman.  ", 95, 88, 18, 100},
-	{"Mime, the Nibelung.  ", 100, 88, 18, 100},
-
-	{"You are ", 100, 89, 135, 50},
-
-	{"the oldest child of a Draconian ", 30, 135, 90, 55},
-	{"the youngest child of a Draconian ", 50, 135, 90, 50},
-	{"the adopted child of a Draconian ", 55, 135, 90, 50},
-	{"an orphaned child of a Draconian ", 60, 135, 90, 45},
-	{"one of several children of a Draconian ", 85, 135, 90, 50},
-	{"the only child of a Draconian ", 100, 135, 90, 55},
-
-	{"Beggar.  ", 10, 90, 91, 20},
-	{"Thief.  ", 21, 90, 91, 30},
-	{"Sailor.  ", 26, 90, 91, 45},
-	{"Mercenary.  ", 42, 90, 91, 45},
-	{"Warrior.  ", 73, 90, 91, 50},
-	{"Merchant.  ", 78, 90, 91, 50},
-	{"Artisan.  ", 85, 90, 91, 55},
-	{"Healer.  ", 89, 90, 91, 60},
-	{"Priest.  ", 94, 90, 91, 65},
-	{"Mage.  ", 97, 90, 91, 70},
-	{"Scholar.  ", 99, 90, 91, 80},
-	{"Noble.  ", 100, 90, 91, 100},
-
-	{"You have ", 100, 91, 136, 50},
-
-	{"charcoal wings, charcoal skin and a smoke-gray belly.", 11, 136, 0, 50},
-	{"bronze wings, bronze skin, and a copper belly.", 16, 136, 0, 50},
-	{"golden wings, and golden skin.", 24, 136, 0, 50},
-	{"white wings, and white skin.", 26, 136, 0, 60},
-	{"blue wings, blue skin, and a cyan belly.", 32, 136, 0, 50},
-	{"multi-hued wings, and multi-hued skin.", 33, 136, 0, 70},
-	{"brown wings, and brown skin.", 37, 136, 0, 45},
-	{"black wings, black skin, and a white belly.", 41, 136, 0, 50},
-	{"lavender wings, lavender skin, and a white belly.", 48, 136, 0, 50},
-	{"green wings, green skin and yellow belly.", 65, 136, 0, 50},
-	{"green wings, and green skin.", 75, 136, 0, 50},
-	{"red wings, and red skin.", 88, 136, 0, 50},
-	{"black wings, and black skin.", 94, 136, 0, 50},
-	{"metallic skin, and shining wings.", 100, 136, 0, 55},
-
-	{"You have slimy skin, empty glowing eyes, and ", 100, 92, 93, 80},
-	{"three tentacles around your mouth.", 20, 93, 0, 45},
-	{"four tentacles around your mouth.", 80, 93, 0, 50},
-	{"five tentacles around your mouth.", 100, 93, 0, 55},
-
-	{"You ancestor was ", 100, 94, 95, 50},
-
-	{"a mindless demonic spawn.  ", 30, 95, 96, 20},
-	{"a minor demon.  ", 60, 95, 96, 50},
-	{"a major demon.  ", 90, 95, 96, 75},
-	{"a demon lord.  ", 100, 95, 96, 99},
-
-	{"You have red skin, ", 50, 96, 97, 50},
-	{"You have brown skin, ", 100, 96, 97, 50},
-
-	{"claws, fangs, spikes, and glowing red eyes.", 40, 97, 0, 50},
-	{"claws, fangs, and glowing red eyes.", 70, 97, 0, 50},
-	{"claws, and glowing red eyes.", 100, 97, 0, 50},
-
-	{"You were shaped from ", 100, 98, 99, 50},
-
-	{"clay ", 40, 99, 100, 50},
-	{"stone ", 80, 99, 100, 50},
-	{"wood ", 85, 99, 100, 40},
-	{"iron ", 99, 99, 100, 50},
-	{"pure gold ", 100, 99, 100, 100},
-
-	{"by a Kabbalist", 40, 100, 101, 50},
-	{"by a Wizard", 65, 100, 101, 50},
-	{"by an Alchemist", 90, 100, 101, 50},
-	{"by a Priest", 100, 100, 101, 60},
-
-	{" to fight evil.", 10, 101, 0, 65},
-	{".", 100, 101, 0, 50},
-
-	{"You were created by ", 100, 102, 103, 50},
-
-	{"a Necromancer.  ", 30, 103, 104, 50},
-	{"a magical experiment.  ", 50, 103, 104, 50},
-	{"an Evil Priest.  ", 70, 103, 104, 50},
-	{"a pact with the demons.  ", 75, 103, 104, 50},
-	{"a restless spirit.  ", 85, 103, 104, 50},
-	{"a curse.  ", 95, 103, 104, 30},
-	{"an oath.  ", 100, 103, 104, 50},
-
-	{"You have ", 100, 104, 105, 50},
-	{"dirty, dry bones, ", 40, 105, 106, 50},
-	{"rotten black bones, ", 60, 105, 106, 50},
-	{"filthy, brown bones, ", 80, 105, 106, 50},
-	{"shining white bones, ", 100, 105, 106, 50},
-
-	{"and glowing eyes.", 30, 106, 0, 50},
-	{"and eyes which burn with hellfire.", 50, 106, 0, 50},
-	{"and empty eyesockets.", 100, 106, 0, 50},
-
-	{"You were created by ", 100, 107, 108, 50},
-
-	{"a Necromancer.  ", 30, 108, 62, 50},
-	{"a Wizard.  ", 50, 108, 62, 50},
-	{"a restless spirit.  ", 60, 108, 62, 50},
-	{"an Evil Priest.  ", 70, 108, 62, 50},
-	{"a pact with the demons.  ", 80, 108, 62, 50},
-	{"a curse.  ", 95, 108, 62, 30},
-	{"an oath.  ", 100, 108, 62, 50},
-
-	{"You have a dark brown eye, ", 20, 109, 110, 50},
-	{"You have a brown eye, ", 60, 109, 110, 50},
-	{"You have a hazel eye, ", 70, 109, 110, 50},
-	{"You have a green eye, ", 80, 109, 110, 50},
-	{"You have a blue eye, ", 90, 109, 110, 50},
-	{"You have a blue-gray eye, ", 100, 109, 110, 50},
-
-	{"straight ", 70, 110, 111, 50},
-	{"wavy ", 90, 110, 111, 50},
-	{"curly ", 100, 110, 111, 50},
-
-	{"black hair, ", 30, 111, 112, 50},
-	{"brown hair, ", 70, 111, 112, 50},
-	{"auburn hair, ", 80, 111, 112, 50},
-	{"red hair, ", 90, 111, 112, 50},
-	{"blond hair, ", 100, 111, 112, 50},
-
-	{"and a very dark complexion.", 10, 112, 0, 50},
-	{"and a dark complexion.", 30, 112, 0, 50},
-	{"and an average complexion.", 80, 112, 0, 50},
-	{"and a fair complexion.", 90, 112, 0, 50},
-	{"and a very fair complexion.", 100, 112, 0, 50},
-
-	{"You arose from an unmarked grave.  ", 20, 113, 114, 50},
-	{"In life you were a simple peasant, the victim of a powerful Vampire Lord.  ", 40, 113, 114, 50},
-	{"In life you were a Vampire Hunter, but they got you.  ", 60, 113, 114,
-	 50},
-	{"In life you were a Necromancer.  ", 80, 113, 114, 50},
-	{"In life you were a powerful noble.  ", 95, 113, 114, 50},
-	{"In life you were a powerful and cruel tyrant.  ", 100, 113, 114, 50},
-
-	{"You have ", 100, 114, 115, 50},
-
-	{"jet-black hair, ", 25, 115, 116, 50},
-	{"matted brown hair, ", 50, 115, 116, 50},
-	{"white hair, ", 75, 115, 116, 50},
-	{"a hairless head, ", 100, 115, 116, 50},
-
-	{"eyes like red coals, ", 25, 116, 117, 50},
-	{"blank white eyes, ", 50, 116, 117, 50},
-	{"feral yellow eyes, ", 75, 116, 117, 50},
-	{"bloodshot red eyes, ", 100, 116, 117, 50},
-
-	{"and a deathly pale complexion.", 100, 117, 0, 50},
-
-	{"You were created by ", 100, 118, 119, 50},
-
-	{"a Necromancer.  ", 30, 119, 134, 50},
-	{"a magical experiment.  ", 50, 119, 134, 50},
-	{"an Evil Priest.  ", 70, 119, 134, 50},
-	{"a pact with the demons.  ", 75, 119, 134, 50},
-	{"a restless spirit.  ", 85, 119, 134, 50},
-	{"a curse.  ", 95, 119, 134, 30},
-	{"an oath.  ", 100, 119, 134, 50},
-
-	{"jet-black hair, ", 25, 120, 121, 50},
-	{"matted brown hair, ", 50, 120, 121, 50},
-	{"white hair, ", 75, 120, 121, 50},
-	{"a hairless head, ", 100, 120, 121, 50},
-
-	{"eyes like red coals, ", 25, 121, 122, 50},
-	{"blank white eyes, ", 50, 121, 122, 50},
-	{"feral yellow eyes, ", 75, 121, 122, 50},
-	{"bloodshot red eyes, ", 100, 121, 122, 50},
-
-	{" and a deathly gray complexion. ", 100, 122, 123, 50},
-	{"An eerie green aura surrounds you.", 100, 123, 0, 50},
-
-	{"Your parents were ", 100, 124, 125, 50},
-
-	{"pixies.  ", 20, 125, 126, 35},
-	{"nixies.  ", 30, 125, 126, 25},
-	{"wood sprites.  ", 75, 125, 126, 50},
-	{"wood spirits.  ", 90, 125, 126, 75},
-	{"noble faerie folk.  ", 100, 125, 126, 85},
-
-	{"You have light blue wings attached to your back, ", 100, 126, 127, 50},
-
-	{"straight blond hair, ", 80, 127, 128, 50},
-	{"wavy blond hair, ", 100, 127, 128, 50},
-
-	{"blue eyes, and a very fair complexion.", 100, 128, 0, 50},
-
-	{"You were produced by a magical experiment.  ", 30, 129, 130, 40},
+	{"You are the illegitimate and unacknowledged child ",   10, 1, 2, 25},
+	{"You are the illegitimate but acknowledged child ",     20, 1, 2, 35},
+	{"You are one of several children ",                     95, 1, 2, 45},
+	{"You are the first child ",                            100, 1, 2, 50},
+
+	{"of a Serf.  ",                                         40, 2, 3, 65},
+	{"of a Yeoman.  ",                                       65, 2, 3, 80},
+	{"of a Townsman.  ",                                     80, 2, 3, 90},
+	{"of a Guildsman.  ",                                    91, 2, 3, 105},
+	{"of a Landed Knight.  ",                                97, 2, 3, 120},
+	{"of a Noble Family in the Courts of Chaos.  ",          100, 2, 3, 130},
+
+	{"You are the black sheep of the family.  ",             20, 3, 4, 20},
+	{"You are a credit to the family.  ",                    80, 3, 4, 55},
+	{"You are a well liked child.  ",                       100, 3, 4, 60},
+
+	{"You have straight brown hair ",			 13, 4, 5, 50},
+	{"You have straight blond hair ",			 26, 4, 5, 50},
+	{"You have straight black hair ",		 	 39, 4, 5, 50},
+	{"You have straight red hair ",			 	 52, 4, 5, 50},
+	{"You have curly brown hair ",				 65, 4, 5, 50},
+	{"You have curly blond hair ",				 78, 4, 5, 50},
+	{"You have curly black hair ",		 		 91, 4, 5, 50},
+	{"You have curly red hair ",		 		 100, 4, 5, 50},
+	
+	{"and blue eyes. ",					 40, 5, 0, 50},
+	{"and brown eyes. ",					 80, 5, 0, 50},
+	{"and hazel eyes. ",					 100, 5, 0, 50},
+
+	{"You are one of several children ",			 60, 7, 8, 50},
+	{"You are the only child ",				100, 7, 8, 55},
+
+	{"of a Teleri ",					75, 8, 9, 50},
+	{"of a Noldor ",					95, 8, 9, 55},
+	{"of a Vanyar ",					100, 8, 9, 60},
+
+	{"Ranger.  ",						40, 9, 54, 80},
+	{"Archer.  ",						70, 9, 54, 90},
+	{"Warrior.  ",						87, 9, 54, 110},
+	{"Mage.  ",						95, 9, 54, 125},
+	{"Prince.  ",						99, 9, 54, 140},
+	{"King.  ",						100, 9, 54, 145},
+
+	{"You are one of several children of a Halfling ",	85, 10, 11, 45},
+	{"You are the only child of a Halfling ",		100, 10, 11, 55},
+
+	{"Bum.  ",						20, 11, 3, 55},
+	{"Tavern Owner.  ",					30, 11, 3, 80},
+	{"Miller.  ",						40, 11, 3, 90},
+	{"Home Owner.  ",					50, 11, 3, 100},
+	{"Burglar.  ",						80, 11, 3, 110},
+	{"Warrior.  ",						95, 11, 3, 115},
+	{"Mage.  ",						99, 11, 3, 125},
+	{"Clan Elder.  ",					100, 11, 3, 140},
+
+	{"You are one of several children of a Gnome ",		 85, 13, 14, 45},
+	{"You are the only child of a Gnome ",			100, 13, 14, 55},
+
+	{"Beggar.  ",						 20, 14, 3, 55},
+	{"Braggart.  ",						 50, 14, 3, 70},
+	{"Prankster.  ",					 75, 14, 3, 85},
+	{"Warrior.  ",						 95, 14, 3, 100},
+	{"Mage.  ",						100, 14, 3, 125},
+
+	{"You are one of two children of a Dwarven ",		 25, 16, 17, 40},
+	{"You are the only child of a Dwarven ",		100, 16, 17, 50},
+
+	{"Thief.  ",						 10, 17, 18, 60},
+	{"Prison Guard.  ",					 25, 17, 18, 75},
+	{"Miner.  ",						 75, 17, 18, 90},
+	{"Warrior.  ",						 90, 17, 18, 110},
+	{"Priest.  ",						 99, 17, 18, 130},
+	{"King.  ",						100, 17, 18, 150},
+
+	{"You are the black sheep of the family.  ",		 15, 18, 57, 10},
+	{"You are a credit to the family.  ",			 85, 18, 57, 50},
+	{"You are a well liked child.  ",			100, 18, 57, 55},
+
+	{"Your mother was an Orc ",				 25, 19, 20, 25},
+	{"Your father was an Orc ",				100, 19, 20, 25},
+
+	{"Shaman. ",						 50, 20, 21, 50},
+	{"Warrior. ",						100, 20, 21, 60},
+	
+	{"You have black hair and a dark complexion.",		50, 21, 0, 50},
+	{"You have red hair and a dark complexion.",		100, 21, 0, 50},
+
+	{"Your mother was a Cave-Troll ",			30, 22, 23, 20},
+	{"Your father was a Cave-Troll ",			60, 22, 23, 25},
+	{"Your mother was a Hill-Troll ",			75, 22, 23, 30},
+	{"Your father was a Hill-Troll ",			90, 22, 23, 35},
+	{"Your mother was a Water-Troll ",			95, 22, 23, 40},
+	{"Your father was a Water-Troll ",			100, 22, 23, 45},
+	
+	{"Cook.  ",						5, 23, 62, 60},
+	{"Warrior.  ",						95, 23, 62, 55},
+	{"Shaman.  ",						99, 23, 62, 65},
+	{"Clan Chief.  ",					100, 23, 62, 80},
+
+	{"Trader.  ",						40, 24, 25, 50},
+	{"Warrior.  ",						60, 24, 25, 55},
+	{"Mage.  ",						80, 24, 25, 55},
+	{"Elder.  ",						100, 24, 25, 60},
+
+	{"You have grey skin ",					34, 25, 26, 50},
+	{"You have light blue skin ",				67, 25, 26, 50},
+	{"You have dark blue skin ",				100, 25, 26, 50},
+	
+	{"and fins. ",						100, 26, 0, 50},
+	
+	{"You have black fur. ",				25, 27, 0, 50},
+	{"You have white fur. ",				50, 27, 0, 50},
+	{"You have brown fur. ",				75, 27, 0, 50},
+	{"You have striped fur. ",				100, 27, 0, 55},
+	
+	{"You have black fur, ",				25, 30, 31, 50},
+	{"You have white fur, ",				50, 30, 31, 50},
+	{"You have brown fur, ",				75, 30, 31, 50},
+	{"You have grey fur, ",					100, 30, 31, 50},
+
+	{"a long tail ",					50, 31, 32, 50},
+	{"a short tail ",					100, 31, 32, 50},
+
+	{"and little eyes. ",					100, 32, 0, 50},
+
+	{"You have curly gold hair, ",				100, 33, 34, 60},
+	
+	{"green eyes ",						60, 34, 128, 50},
+	{"gold eyes ",						100, 34, 128, 50},
+	
+	{"Your parents were Perthoron ",			100, 35, 36, 55},
+	
+	{"Warriors. ",						60, 36, 37, 50},
+	{"Wizards. ",						70, 36, 37, 50},
+	{"Lords. ",						100, 36, 37, 75},
+	
+	{"You have grey feathers. ",				50, 37, 0, 50},
+	{"You have blue feathers. ",				75, 37, 0, 50},
+	{"You have silver feathers. ",				100, 37, 0, 50},
+
+	{"You have red scales, ",				40, 50, 51, 50},
+	{"You have brown scales, ",				60, 50, 51, 50},
+	{"You have yellow scales, ",				90, 50, 51, 50},
+	{"You have orange scales, ",				100, 50, 51, 50},
+
+	{"straight ",						50, 51, 52, 50},
+	{"pointy ",						90, 51, 52, 50},
+	{"curved ",						100, 51, 52, 50},
+
+	{"high crest ",						50, 52, 53, 50},
+	{"short crest ",					100, 52, 53, 50},
+	
+	{"and a short tail.",					20, 53, 0, 50},
+	{"and a long tail.",					40, 53, 0, 50},
+	{"and an average tail.",				70, 53, 0, 50},
+	{"and a thin tail.",					90, 53, 0, 50},
+	{"and a thick tail.",					100, 53, 0, 50},
+
+	{"You have light grey eyes, ",				 55, 54, 55, 50},
+	{"You have light blue eyes, ",				 95, 54, 55, 50},
+	{"You have light green eyes, ",				100, 54, 55, 50},
+
+	{"straight ",						 75, 55, 56, 50},
+	{"wavy ",						100, 55, 56, 50},
+
+	{"black hair, and a fair complexion. ",			 75, 56, 0, 50},
+	{"brown hair, and a fair complexion. ",			 85, 56, 0, 50},
+	{"blond hair, and a fair complexion. ",			 95, 56, 0, 50},
+	{"silver hair, and a fair complexion. ",		100, 56, 0, 50},
+
+	{"You have dark brown eyes, ",				 99, 57, 58, 50},
+	{"You have glowing red eyes, ",				100, 57, 58, 60},
+
+	{"straight ",						 90, 58, 59, 50},
+	{"wavy ",						100, 58, 59, 50},
+
+	{"black hair, ",					 75, 59, 60, 50},
+	{"brown hair, ",					100, 59, 60, 50},
+
+	{"a one foot beard, ",					 25, 60, 61, 50},
+	{"a two foot beard, ",					 60, 60, 61, 51},
+	{"a three foot beard, ",				 90, 60, 61, 53},
+	{"a four foot beard, ",					100, 60, 61, 55},
+
+	{"and a dark complexion.",				100, 61, 0, 50},
+
+	{"You have slime green eyes, ",				 60, 62, 63, 50},
+	{"You have puke yellow eyes, ",				 85, 62, 63, 50},
+	{"You have blue-bloodshot eyes, ",			 99, 62, 63, 50},
+	{"You have glowing red eyes, ",				100, 62, 63, 55},
+
+	{"dirty ",						 33, 63, 64, 50},
+	{"mangy ",						 66, 63, 64, 50},
+	{"oily ",						100, 63, 64, 50},
+
+	{"sea-weed green hair, ",				 33, 64, 65, 50},
+	{"bright red hair, ",					 66, 64, 65, 50},
+	{"dark purple hair, ",					100, 64, 65, 50},
+
+	{"and green ",						 25, 65, 66, 50},
+	{"and blue ",						 50, 65, 66, 50},
+	{"and white ",						 75, 65, 66, 50},
+	{"and black ",						100, 65, 66, 50},
+
+	{"ulcerous skin.",					 33, 66, 0, 50},
+	{"scabby skin.",					 66, 66, 0, 50},
+	{"leprous skin.",                       		100, 66, 0, 50},
+
+	{"You are the child of ",				70, 67, 68, 45},
+	{"You are a rebel child of ",				100, 67, 68, 65},
+
+	{"a Lava Swimmer.  ",					20, 68, 50, 90 },
+	{"a Cook.  ", 						50, 68, 50, 50 },
+	{"a Priestess.  ", 					70, 68, 50, 90 },
+	{"a Fire Blaster.  ",					100, 68, 50, 80 },
+	
+	{"You are one of several children of a Dark Elven ",     85, 69, 70, 45},
+	{"You are the only child of a Dark Elven ",        	100, 69, 70, 55},
+
+	{"Warrior.  ", 						50, 70, 71, 60 },
+	{"Warlock.  ", 						80, 70, 71, 75 },
+	{"Noble.  ", 						100, 70, 71, 95 },
+
+	{"You have black eyes, ", 				100, 71, 72, 50},
+
+	{"straight ",                        			70, 72, 73, 50},
+	{"wavy ",                            			90, 72, 73, 50},
+	{"curly ",                         			100, 72, 73, 50},
+
+	{"black hair and a very dark complexion.", 		100, 73, 0, 50 },
+
+	{"Your mother was an Ogre ", 				25, 74, 20, 25},
+	{"Your father was an Ogre ", 				100, 74, 20, 25},
+
+	{"Your mother was a Mermaid ", 				20, 75, 24, 70},
+	{"Your mother was a Sharku ", 				50, 75, 24, 50},
+	{"Your father was a Merman ",  				80, 75, 24, 50},
+	{"Your father was a Sharku ",  				100, 75, 24, 75},
+
+	{"Your father was a Gadgeteer.  ",			75, 76, 21, 50 },
+	{"Your mother was a Gadgeteer.  ",        		80, 76, 21, 50 },
+	{"Your mother was a Thief.  ",     			85, 76, 21, 50 },
+	{"Your father was a Theif.  ",      			90, 76, 21, 50 },
+	{"Your father was a Warrior.  ",         		95, 76, 21, 50 },
+	{"Your mother was a Mage.  ",      			98, 76, 21, 50 },
+	{"Your father was King.  ",       			100, 76, 21, 100 },
+
+	{"Your parents were Minotaurs.  ", 			50, 77, 109, 50 },
+	{"Your mother was a Minotaur.  ", 			75, 77, 109, 50 },
+	{"Your father was a Minotaur.  ", 			100, 77, 109, 50 },
+
+	{"You are one of several children of ", 		100, 78, 79, 50 },
+
+	{"a Brown Yeek. ", 					50, 79, 80, 50 },
+	{"a Blue Yeek.  ", 					75, 79, 80, 50 },
+	{"a Master Yeek.  ", 					95, 79, 80, 85 },
+	{"Boldor, the King of the Yeeks.  ", 			100, 79, 80, 120 },
+
+	{"You have pale eyes, ",    				25, 80, 81, 50 },
+	{"You have glowing eyes, ",    				50, 80, 81, 50 },
+	{"You have tiny black eyes, ",    			75, 80, 81, 50 },
+	{"You have shining black eyes, ",    			100, 80, 81, 50 },
+
+	{"no hair at all, ",        				20, 81, 65, 50 },
+	{"short black hair, ",        				40, 81, 65, 50 },
+	{"long black hair, ",        				60, 81, 65, 50 },
+	{"bright red hair, ",        				80, 81, 65, 50 },
+	{"colourless albino hair, ",        			100, 81, 65, 50 },
+
+	{"You are one of several children of ", 		100, 82, 83, 50 },
+
+	{"a Small Kobold.  ",   				40, 83, 80, 50 },
+	{"a Kobold.  ",         				75, 83, 80, 55 },
+	{"a Large Kobold.  ",   				95, 83, 80, 65 },
+	{"Mughash, the Kobold Lord.  ",     			100, 83, 80, 100 },
+
+	{"Your parents were Centaur ", 				100, 84, 85, 50 },
+
+	{"Archers. ", 						40, 85, 86, 50 },
+	{"Priests. ", 						60, 85, 86, 50 },
+	{"Warriors. ", 						80, 85, 86, 50 },
+	{"Mages. ", 						100, 85, 86, 50 },
+
+	{"You have a short tail. ", 				50, 86, 4, 50 },
+	{"You have a long tail. ", 				100, 86, 4, 50 },
+
+	{"You are one of several children of ", 		100, 87, 88, 55 },
+
+	{"a Catling Witch.  ", 					40, 88, 27, 40 },
+	{"a Catling Mage.  ", 					60, 88, 27, 50 },
+	{"a Catling Warrior.  ", 				75, 88, 27, 60 },
+	{"a Catling Thief.  ", 					90, 88, 27, 60 },
+	{"a Catling Ninja.  ", 					100, 88, 27, 100 },
+
+	{"You are ", 						100, 89, 135, 50 },
+
+	{"the oldest child of a Draconian ", 			30, 135, 90, 55 },
+	{"the youngest child of a Draconian ", 			50, 135, 90, 50 },
+	{"the adopted child of a Draconian ", 			55, 135, 90, 50 },
+	{"an orphaned child of a Draconian ", 			60, 135, 90, 45 },
+	{"one of several children of a Draconian ", 		85, 135, 90, 50 },
+	{"the only child of a Draconian ", 			100, 135, 90, 55 },
+
+	{"Beggar.  ", 						10, 90, 91, 20 },
+	{"Thief.  ", 						21, 90, 91, 30 },
+	{"Sailor.  ", 						26, 90, 91, 45 },
+	{"Mercenary.  ", 					42, 90, 91, 45 },
+	{"Warrior.  ", 						73, 90, 91, 50 },
+	{"Merchant.  ", 					78, 90, 91, 50 },
+	{"Artisan.  ", 						85, 90, 91, 55 },
+	{"Healer.  ", 						89, 90, 91, 60 },
+	{"Priest.  ", 						94, 90, 91, 65 },
+	{"Mage.  ", 						97, 90, 91, 70 },
+	{"Scholar.  ", 						99, 90, 91, 80 },
+	{"Noble.  ", 						100, 90, 91, 100 },
+
+	{"You have ", 						100, 91, 136, 50 },
+
+	{"purple eyes and silver hair.", 			6, 136, 0, 50 },
+	{"purple eyes and gold hair.", 				12, 136, 0, 50 },
+	{"purple eyes and black hair.", 			18, 136, 0, 50 },
+	{"purple eyes and white hair.", 			24, 136, 0, 50 },
+	{"purple eyes and blond hair.", 			30, 136, 0, 50 },
+	{"purple eyes and red hair.", 				36, 136, 0, 50 },
+	{"orange eyes and silver hair.", 			42, 136, 0, 50 },
+	{"orange eyes and gold hair.", 				48, 136, 0, 50 },
+	{"orange eyes and black hair.", 			54, 136, 0, 50 },
+	{"orange eyes and white hair.", 			60, 136, 0, 50 },
+	{"orange eyes and blond hair.", 			66, 136, 0, 50 },
+	{"orange eyes and red hair.", 				72, 136, 0, 50 },
+	{"green eyes and silver hair.", 			78, 136, 0, 50 },
+	{"green eyes and gold hair.", 				84, 136, 0, 50 },
+	{"green eyes and black hair.", 				90, 136, 0, 50 },
+	{"green eyes and white hair.", 				95, 136, 0, 50 },
+	{"green eyes and blond hair.", 				97, 136, 0, 50 },
+	{"green eyes and red hair.", 				100, 136, 0, 50 },
+
+	{"You have slimy skin, empty glowing eyes, and ", 	100, 92, 93, 80 },
+	
+	{"three tentacles around your mouth.", 			20, 93, 0, 45 },
+	{"four tentacles around your mouth.", 			80, 93, 0, 50 },
+	{"five tentacles around your mouth.", 			100, 93, 0, 55 },
+
+	{"You ancestor was ", 					100, 94, 95, 60 },
+
+	{"a Pine Dryad.  ", 					30, 95, 96, 25 },
+	{"a Gum Ent.  ", 					60, 95, 96, 50 },
+	{"a Citrus Dryad.  ", 					90, 95, 96, 75 },
+	{"an Oak Ent.  ", 					100, 95, 96, 99 },
+
+	{"You have green skin, ", 				50, 96, 97, 50 },
+	{"You have brown skin, ", 				100, 96, 97, 50},
+
+	{"long hair and yellow eyes.", 				40, 97, 0, 50 },
+	{"long hair, leaves and forest green eyes.", 		70, 97, 0, 50 },
+	{"long hair, flowers and sky blue eyes.", 		100, 97, 0, 50 },
+
+	{"You are the child of a ", 				100, 98, 99, 50 },
+
+	{"Faun warrior. ", 					40, 99, 109, 50 },
+	{"Faun thief. ", 					80, 99, 109, 50 },
+	{"Faun mage. ", 					85, 99, 109, 40 },
+	{"Faun cleric. ", 					99, 99, 109, 50 },
+	{"Faun tech. ", 					100, 99, 109, 100},
+
+	{"You have a black shell and dark eyes. ", 		100, 105, 0, 50},
+	
+	{"Warriors. ", 						34, 106, 105, 50 },
+	{"Wizards. ", 						67, 106, 105, 50 },
+	{"Theives. ", 						100, 106, 105, 50 },
+
+	{"You were created by an evil ", 			50, 107, 108, 50 },
+	{"Your parents were Drider ", 				100, 107, 106, 50 },
+
+	{"Necromancer.  ", 					45, 108, 105, 50 },
+	{"Wizard.  ", 						90, 108, 105, 50 },
+	{"Priest.  ", 						100, 108, 105, 50 },
+
+	{"You have tall horns, ",               		30, 109, 110, 60},
+	{"You have short horns, ",                    		70, 109, 110, 50},
+	{"You have curly horns, ",                    		100, 109, 110, 50},
+
+	{"straight ",                        			70, 110, 111, 50},
+	{"wavy ",                            			100, 110, 111, 50},
+
+	{"black hair, ",             				30, 111, 112, 50},
+	{"brown hair, ",                         		70, 111, 112, 50},
+	{"auburn hair, ",                        		80, 111, 112, 50},
+	{"red hair, ",                       			90, 111, 112, 50},
+	{"blond hair, ",                        		100, 111, 112, 50},
+
+	{"and a very dark complexion.",              		10, 112, 0, 50},
+	{"and a dark complexion.",                   		30, 112, 0, 50},
+	{"and an average complexion.",               		80, 112, 0, 50},
+	{"and a fair complexion.",                   		90, 112, 0, 50},
+	{"and a very fair complexion.",             		100, 112, 0, 50},
+
+	{"You arose from an unmarked grave.  ", 		20, 113, 114, 50 },
+	{"In life you were a simple peasant, the victim of a powerful Vampire Lord.  ", 40, 113, 114, 50 },
+	{"In life you were a Vampire Hunter, but they got you.  ", 60, 113, 114, 50 },
+	{"In life you were a Necromancer.  ", 			80, 113, 114, 50 },
+	{"In life you were a powerful noble.  ", 		95, 113, 114, 50 },
+	{"In life you were a powerful and cruel tyrant.  ", 	100, 113, 114, 50 },
+
+	{"You have ", 						100, 114, 115, 50 },
+
+	{"jet-black hair, ", 					25, 115, 116, 50 },
+	{"matted brown hair, ", 				50, 115, 116, 50 },
+	{"white hair, ", 					75, 115, 116, 50 },
+	{"a hairless head, ", 					100, 115, 116, 50 },
+
+	{"eyes like red coals, ", 				25, 116, 117, 50 },
+	{"blank white eyes, ", 					50, 116, 117, 50 },
+	{"feral yellow eyes, ", 				75, 116, 117, 50 },
+	{"bloodshot red eyes, ", 				100, 116, 117, 50 },
+
+	{"and a deathly pale complexion.", 			100, 117, 0, 50 },
+
+	{"You have ", 						100, 118, 120, 55 },
+
+	{"light blue hair, ", 					25, 120, 121, 50 },
+	{"light green hair, ", 					50, 120, 121, 50 },
+	{"white hair, ", 					75, 120, 121, 50 },
+	{"silver hair, ", 					100, 120, 121, 50 },
+
+	{"eyes like gems ", 					25, 121, 122, 50 },
+	{"pale green eyes ", 					50, 121, 122, 50 },
+	{"pale yellow eyes ", 					75, 121, 122, 50 },
+	{"pale blue eyes ", 					100, 121, 122, 50 },
+
+	{"and a snowy complexion. ", 				100, 122, 123, 50 },
+	
+	{"A bright aura surrounds you.", 			100, 123, 0, 75 },
+
+	{"Your parents were ", 					100, 124, 125, 50 },
+
+	{"pixies.  ", 						20, 125, 126, 35 },
+	{"nixies.  ", 						30, 125, 126, 25 },
+	{"wood sprites.  ", 					75, 125, 126, 50 },
+	{"wood spirits.  ", 					90, 125, 126, 75 },
+	{"noble faerie folk.  ", 				100, 125, 126, 85 },
+
+	{"You have light blue wings attached to your back, ", 	100, 126, 127, 50 },
+
+	{"straight blond hair, ",                       	 80, 127, 128, 50},
+	{"wavy blond hair, ",                            	100, 127, 128, 50},
+
+	{"blue eyes, and a very fair complexion.", 		100, 128, 0, 50},
+
+	{"You were produced by a magical experiment.  ", 	30, 129, 130, 40},
 	{"In your childhood, you were stupid enough to stick your head in raw Logrus.  ",
-	 50, 129, 130, 50},
-	{"A Demon Lord of Chaos decided to have some fun, and so he created you.  ",
-	 60, 129, 130, 60},
-	{"You are the magical crossbreed of an animal and a man.  ", 75, 129, 130,
-	 50},
-	{"You are the blasphemous crossbreed of unspeakable creatures of chaos.  ",
-	 100, 129, 130, 30},
+								40, 129, 130, 50 },
+	{"A Lord of Chaos decided to have some fun, and so he created you.  ",
+								60, 129, 130, 60 },
+	{"Your perents were Kaoti.  ", 				80, 129, 130, 50},
+	{"Your mother was a Kaoti.  ", 				90, 129, 130, 50},
+	{"Your mother was a Kaoti.  ", 				100, 129, 130, 50},
+	
+	{"You have green reptilian eyes, ",             	60, 130, 131, 50},
+	{"You have the black eyes of a bird, ",              	85, 130, 131, 50},
+	{"You have the orange eyes of a cat, ",               	99, 130, 131, 50},
+	{"You have the fiery eyes of a demon, ",             	100, 130, 131, 55},
 
+	{"no hair at all, ",                 			10, 131, 133, 50 },
+	{"dirty ",                           			33, 131, 132, 50},
+	{"mangy ",                           			66, 131, 132, 50},
+	{"oily ",                           			100, 131, 132, 50},
 
-	{"You have green reptilian eyes, ", 60, 130, 131, 50},
-	{"You have the black eyes of a bird, ", 85, 130, 131, 50},
-	{"You have the orange eyes of a cat, ", 99, 130, 131, 50},
-	{"You have the fiery eyes of a demon, ", 100, 130, 131, 55},
+	{"brown fur, ",                    			33, 132, 133, 50},
+	{"gray fur, ",                    			66, 132, 133, 50},
+	{"albino fur, ",                  			100, 132, 133, 50},
 
-	{"no hair at all, ", 10, 131, 133, 50},
-	{"dirty ", 33, 131, 132, 50},
-	{"mangy ", 66, 131, 132, 50},
-	{"oily ", 100, 131, 132, 50},
+	{"and the hooves of a goat.",      			50, 133, 0, 50 },
+	{"and human feet.",        				75, 133, 0, 50 },
+	{"and bird's feet.",       				85, 133, 0, 50 },
+	{"and reptilian feet.",    				90, 133, 0, 50 },
+	{"and bovine feet.",       				95, 133, 0, 50 },
+	{"and feline feet.",       				97, 133, 0, 50 },
+	{"and canine feet.",       				100, 133, 0, 50 },
 
-	{"brown fur, ", 33, 132, 133, 50},
-	{"gray fur, ", 66, 132, 133, 50},
-	{"albino fur, ", 100, 132, 133, 50},
-
-	{"and the hooves of a goat.", 50, 133, 0, 50},
-	{"and human feet.", 75, 133, 0, 50},
-	{"and bird's feet.", 85, 133, 0, 50},
-	{"and reptilian feet.", 90, 133, 0, 50},
-	{"and bovine feet.", 95, 133, 0, 50},
-	{"and feline feet.", 97, 133, 0, 50},
-	{"and canine feet.", 100, 133, 0, 50},
-
-	{"You have ", 100, 134, 120, 50},
+	{"You have ", 						100, 134, 120, 50 },
 };
 
 
@@ -648,7 +634,7 @@ static void load_prev_data(void)
 {
 	int i;
 
-	birther temp;
+	birther	temp;
 
 
 	/*** Save the current data ***/
@@ -746,6 +732,77 @@ static void load_prev_data(void)
 }
 
 
+
+
+/*
+ * Returns adjusted stat -JK-  Algorithm by -JWT-
+ *
+ * auto_roll is boolean and states maximum changes should be used rather
+ * than random ones to allow specification of higher values to wait for.
+ *
+ * The "maximize" code is important	-BEN-
+ */
+static int adjust_stat(int value, int amount, int auto_roll)
+{
+	int i;
+
+	/* Negative amounts */
+	if (amount < 0)
+	{
+		/* Apply penalty */
+		for (i = 0; i < (0 - amount); i++)
+		{
+			if (value >= 18+10)
+			{
+				value -= 10;
+			}
+			else if (value > 18)
+			{
+				value = 18;
+			}
+			else if (value > 3)
+			{
+				value--;
+			}
+		}
+	}
+
+	/* Positive amounts */
+	else if (amount > 0)
+	{
+		/* Apply reward */
+		for (i = 0; i < amount; i++)
+		{
+			if (value < 18)
+			{
+				value++;
+			}
+			else if (maximize_mode)
+			{
+				value += 10;
+			}
+			else if (value < 18+70)
+			{
+				value += (auto_roll ? 20 : rand_range(5, 20));
+			}
+			else if (value < 18+90)
+			{
+				value += (auto_roll ? 8 : rand_range(2, 8));
+			}
+			else if (value < 18+100)
+			{
+				value++;
+			}
+		}
+	}
+
+	/* Return the result */
+	return (value);
+}
+
+
+
+
 /*
  * Roll for a characters stats
  *
@@ -753,11 +810,11 @@ static void load_prev_data(void)
  */
 static void get_stats(void)
 {
-	int i, j;
+	int	i, j;
 
-	int bonus;
+	int	bonus;
 
-	int dice[18];
+	int	dice[18];
 
 
 	/* Roll and verify some stats */
@@ -782,16 +839,33 @@ static void get_stats(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		j = 5 + dice[3 * i] + dice[3 * i + 1] + dice[3 * i + 2];
+		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
+
+		/* Save that value */
+		p_ptr->stat_max[i] = j;
 
 		/* Obtain a "bonus" for "race" and "class" */
 		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
-		/* Apply the bonus to the stat (somewhat randomly) */
-		stat_use[i] = adjust_stat(i, j * 10, bonus);
+		/* Variable stat maxes */
+		if (maximize_mode)
+		{
+			/* Start fully healed */
+			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
 
-		/* Start fully healed */
-		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
+			/* Efficiency -- Apply the racial/class bonuses */
+			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus);
+		}
+
+		/* Fixed stat maxes */
+		else
+		{
+			/* Apply the bonus to the stat (somewhat randomly) */
+			stat_use[i] = adjust_stat(p_ptr->stat_max[i], bonus, FALSE);
+
+			/* Save the resulting stat maximum */
+			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
+		}
 	}
 }
 
@@ -812,6 +886,9 @@ static void get_extra(void)
 
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+
+	/* Initialize rewards information -KMW- */
+	p_ptr->inside_quest = 0;
 
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
@@ -860,11 +937,11 @@ static void get_extra(void)
 #ifdef SHOW_LIFE_RATE
 
 	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-					(2 * p_ptr->hitdie +
-					 ((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
+		(2 * p_ptr->hitdie +
+		((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
 
-	msgf("Current Life Rating is %d/100.", percent);
-	message_flush();
+	msg_format("Current Life Rating is %d/100.", percent);
+	msg_print(NULL);
 
 #endif /* SHOW_LIFE_RATE */
 
@@ -881,8 +958,6 @@ static void get_history(void)
 	char *s, *t;
 
 	char buf[240];
-	
-	int len = 0;
 
 	/* Clear the previous history strings */
 	for (i = 0; i < 4; i++) p_ptr->history[i][0] = '\0';
@@ -896,29 +971,22 @@ static void get_history(void)
 	/* Starting place */
 	switch (p_ptr->prace)
 	{
-		case RACE_AMBERITE:
+		case RACE_SAURIAN:
 		{
 			chart = 67;
 			break;
 		}
 		case RACE_HUMAN:
-		case RACE_BARBARIAN:
 		{
 			chart = 1;
 			break;
 		}
-		case RACE_HALF_ELF:
-		{
-			chart = 4;
-			break;
-		}
 		case RACE_ELF:
-		case RACE_HIGH_ELF:
 		{
 			chart = 7;
 			break;
 		}
-		case RACE_HOBBIT:
+		case RACE_HALFLING:
 		{
 			chart = 10;
 			break;
@@ -933,12 +1001,12 @@ static void get_history(void)
 			chart = 16;
 			break;
 		}
-		case RACE_HALF_ORC:
+		case RACE_ORC:
 		{
 			chart = 19;
 			break;
 		}
-		case RACE_HALF_TROLL:
+		case RACE_TROLL:
 		{
 			chart = 22;
 			break;
@@ -948,22 +1016,22 @@ static void get_history(void)
 			chart = 69;
 			break;
 		}
-		case RACE_HALF_OGRE:
+		case RACE_OGRE:
 		{
 			chart = 74;
 			break;
 		}
-		case RACE_HALF_GIANT:
+		case RACE_AQUARIAN:
 		{
 			chart = 75;
 			break;
 		}
-		case RACE_HALF_TITAN:
+		case RACE_GOBLIN:
 		{
 			chart = 76;
 			break;
 		}
-		case RACE_CYCLOPS:
+		case RACE_MINOTAUR:
 		{
 			chart = 77;
 			break;
@@ -978,12 +1046,12 @@ static void get_history(void)
 			chart = 82;
 			break;
 		}
-		case RACE_KLACKON:
+		case RACE_CENTAUR:
 		{
 			chart = 84;
 			break;
 		}
-		case RACE_NIBELUNG:
+		case RACE_CATLING:
 		{
 			chart = 87;
 			break;
@@ -993,27 +1061,27 @@ static void get_history(void)
 			chart = 89;
 			break;
 		}
-		case RACE_MIND_FLAYER:
+		case RACE_ILLITHID:
 		{
 			chart = 92;
 			break;
 		}
-		case RACE_IMP:
+		case RACE_DRYAD:
 		{
 			chart = 94;
 			break;
 		}
-		case RACE_GOLEM:
+		case RACE_FAUN:
 		{
 			chart = 98;
 			break;
 		}
-		case RACE_SKELETON:
+		case RACE_ENT:
 		{
-			chart = 102;
+			chart = 94;
 			break;
 		}
-		case RACE_ZOMBIE:
+		case RACE_DRIDER:
 		{
 			chart = 107;
 			break;
@@ -1023,25 +1091,40 @@ static void get_history(void)
 			chart = 113;
 			break;
 		}
-		case RACE_SPECTRE:
+		case RACE_FAIRY:
 		{
 			chart = 118;
 			break;
 		}
-		case RACE_SPRITE:
+		case RACE_PIXIE:
 		{
 			chart = 124;
 			break;
 		}
-		case RACE_BEASTMAN:
+		case RACE_KAOTI:
 		{
 			chart = 129;
 			break;
 		}
-		case RACE_GHOUL:
+          	case RACE_URUK:
 		{
-			/* The same as Zombie, for now */
-			chart = 107;
+			/* The same as Orc, for now */
+			chart = 19;
+			break;
+		}
+		case RACE_RATLING:
+		{
+			chart = 30;
+			break;
+		}
+		case RACE_LEPRECHAUN:
+		{
+			chart = 33;
+			break;
+		}
+		case RACE_PERTHORON:
+		{
+			chart = 35;
 			break;
 		}
 		default:
@@ -1061,11 +1144,12 @@ static void get_history(void)
 		/* Roll for nobility */
 		roll = randint1(100);
 
+
 		/* Access the proper entry in the table */
 		while ((chart != bg[i].chart) || (roll > bg[i].roll)) i++;
 
 		/* Acquire the textual history */
-		strnfcat(buf, 1024, &len, "%s", bg[i].info);
+		(void)strcat(buf, bg[i].info);
 
 		/* Add in the social class */
 		social_class += (int)(bg[i].bonus) - 50;
@@ -1085,13 +1169,13 @@ static void get_history(void)
 
 
 	/* Skip leading spaces */
-	for (s = buf; *s == ' '; s++) /* loop */ ;
+	for (s = buf; *s == ' '; s++) /* loop */;
 
 	/* Get apparent length */
 	n = strlen(s);
 
 	/* Kill trailing spaces */
-	while ((n > 0) && (s[n - 1] == ' ')) s[--n] = '\0';
+	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
 
 
 	/* Start at first line */
@@ -1114,19 +1198,19 @@ static void get_history(void)
 		}
 
 		/* Find a reasonable break-point */
-		for (n = 60; ((n > 0) && (s[n - 1] != ' ')); n--) /* loop */ ;
+		for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
 
 		/* Save next location */
 		t = s + n;
 
 		/* Wipe trailing spaces */
-		while ((n > 0) && (s[n - 1] == ' ')) s[--n] = '\0';
+		while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
 
 		/* Save one line of history */
 		strcpy(p_ptr->history[i++], s);
 
 		/* Start next line */
-		for (s = t; *s == ' '; s++) /* loop */ ;
+		for (s = t; *s == ' '; s++) /* loop */;
 	}
 }
 
@@ -1144,19 +1228,19 @@ static void get_ahw(void)
 	/* Calculate the height/weight for males */
 	if (p_ptr->psex == SEX_MALE)
 	{
-		p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+		p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
 		h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->m_b_ht);
-		p_ptr->wt = Rand_normal((int)(rp_ptr->m_b_wt) * h_percent / 100,
-								(int)(rp_ptr->m_m_wt) * h_percent / 300);
+		p_ptr->wt = randnor((int)(rp_ptr->m_b_wt) * h_percent / 100,
+			(int)(rp_ptr->m_m_wt) * h_percent / 300);
 	}
 	/* Calculate the height/weight for females */
 	else if (p_ptr->psex == SEX_FEMALE)
 	{
-		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+		p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
 
 		h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
-		p_ptr->wt = Rand_normal((int)(rp_ptr->f_b_wt) * h_percent / 100,
-								(int)(rp_ptr->f_m_wt) * h_percent / 300);
+		p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent / 100,
+			(int)(rp_ptr->f_m_wt) * h_percent / 300);
 	}
 }
 
@@ -1178,8 +1262,7 @@ static void get_money(void)
 		if (stat_use[i] >= 18 + 50) gold -= 300;
 		else if (stat_use[i] >= 18 + 20) gold -= 200;
 		else if (stat_use[i] > 18) gold -= 150;
-		else
-			gold -= (stat_use[i] - 8) * 10;
+		else gold -= (stat_use[i] - 8) * 10;
 	}
 
 	/* Minimum 100 gold */
@@ -1199,41 +1282,45 @@ static void player_wipe(void)
 
 	bool options[OPT_PLAYER];
 	bool birth[OPT_BIRTH];
-	pcave_type *pcave[MAX_HGT];
-	pblk_ptr **pwild;
 
 	/* Hack -- save these allocated arrays */
 	C_COPY(options, p_ptr->options, OPT_PLAYER, bool);
 	C_COPY(birth, p_ptr->birth, OPT_BIRTH, bool);
 
-	/* Hack -- save the cave and wilderness arrays */
-	C_COPY(pcave, p_ptr->pcave, MAX_HGT, pcave_type *);
-	pwild = p_ptr->pwild;
-
-	/*
-	 * Delete the carried objects
-	 */
-	if (p_ptr->inventory) delete_object_list(&p_ptr->inventory);
-
 	/* Hack -- zero the struct */
 	(void)WIPE(p_ptr, player_type);
 
-	/* Hack -- Restore the cave and wilderness arrays */
-	C_COPY(p_ptr->pcave, pcave, MAX_HGT, pcave_type *);
-	p_ptr->pwild = pwild;;
-
-	/* Hack -- Restore the option arrays */
+	/* Hack -- Restore the arrays */
 	C_COPY(p_ptr->options, options, OPT_PLAYER, bool);
 	C_COPY(p_ptr->birth, birth, OPT_BIRTH, bool);
 
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
 	{
-		p_ptr->history[i][0] = 0;
+		strcpy(p_ptr->history[i], "");
 	}
 
+	/* Wipe the quests */
+	for (i = 0; i < max_quests; i++)
+	{
+		quest[i].status = QUEST_STATUS_UNTAKEN;
+
+		quest[i].cur_num = 0;
+		quest[i].max_num = 0;
+		quest[i].type = 0;
+		quest[i].level = 0;
+		quest[i].r_idx = 0;
+	}
+
+	/* Clear the inventory */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_wipe(&inventory[i]);
+	}
+
+
 	/* Start with no artifacts made yet */
-	for (i = 0; i < z_info->a_max; i++)
+	for (i = 0; i < max_a_idx; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 		a_ptr->cur_num = 0;
@@ -1243,7 +1330,7 @@ static void player_wipe(void)
 	k_info_reset();
 
 	/* Reset the "monsters" */
-	for (i = 1; i < z_info->r_max; i++)
+	for (i = 1; i < max_r_idx; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1266,8 +1353,8 @@ static void player_wipe(void)
 	p_ptr->food = PY_FOOD_FULL - 1;
 
 
-	/* None of the spells have been learned yet */
-	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
+	/* Wipe the spells */
+	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
 
 	/* Clean the mutation count */
 	mutant_regenerate_mod = 100;
@@ -1292,81 +1379,218 @@ static void player_wipe(void)
 static const byte player_init[MAX_CLASS][3][2] =
 {
 	{
-	 /* Warrior */
-	 {TV_RING, SV_RING_RES_FEAR},	/* Warriors need it! */
-	 {TV_SWORD, SV_BROAD_SWORD},
-	 {TV_HARD_ARMOR, SV_CHAIN_MAIL}
-	 },
+		/* Warrior */
+		{ TV_RING, SV_RING_RES_FEAR }, /* Warriors need it! */
+		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
+	},
+	
+	{
+		/* Beserker */
+		{ TV_RING, SV_RING_RES_FEAR }, /* Warriors need it! */
+		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
+	},
 
 	{
-	 /* Mage */
-	 {TV_SORCERY_BOOK, 0},		/* Hack: for realm1 book */
-	 {TV_SWORD, SV_DAGGER},
-	 {TV_DEATH_BOOK, 0}			/* Hack: for realm2 book */
-	 },
+		/* Ninja */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+	},
+	
+	{
+		/* Rogue */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+	},
+	
+	{
+		/* Assassin */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+	},
 
 	{
-	 /* Priest */
-	 {TV_SORCERY_BOOK, 0},		/* Hack: for Life / Death book */
-	 {TV_HAFTED, SV_MACE},
-	 {TV_DEATH_BOOK, 0}			/* Hack: for realm2 book */
-	 },
+		/* Thief Mage */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+	},
+	
+	{
+		/* Druid */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for Life book */
+		{ TV_HAFTED, SV_MACE },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
+	
+	{
+		/* Necromancer */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for Death book */
+		{ TV_HAFTED, SV_MACE },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
 
 	{
-	 /* Rogue */
-	 {TV_SORCERY_BOOK, 0},		/* Hack: for realm1 book */
-	 {TV_SWORD, SV_DAGGER},
-	 {TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR}
-	 },
+		/* Priest */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for Order book */
+		{ TV_HAFTED, SV_MACE },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
 
 	{
-	 /* Ranger */
-	 {TV_NATURE_BOOK, 0},
-	 {TV_SWORD, SV_DAGGER},
-	 {TV_DEATH_BOOK, 0}			/* Hack: for realm2 book */
-	 },
+		/* Shaman */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for Chaos book */
+		{ TV_HAFTED, SV_MACE },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
 
 	{
-	 /* Paladin */
-	 {TV_SORCERY_BOOK, 0},
-	 {TV_SWORD, SV_BROAD_SWORD},
-	 {TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL}
-	 },
+		/* Sage */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for Wizard book */
+		{ TV_HAFTED, SV_MACE },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
 
 	{
-	 /* Warrior-Mage */
-	 {TV_SORCERY_BOOK, 0},		/* Hack: for realm1 book */
-	 {TV_SWORD, SV_SHORT_SWORD},
-	 {TV_DEATH_BOOK, 0}			/* Hack: for realm2 book */
-	 },
+		/* Fire Mage */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
+	{
+		/* Water Mage */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
+	{
+		/* Earth Mage */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
+	{
+		/* Air Mage */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
 
 	{
-	 /* Chaos Warrior */
-	 {TV_SORCERY_BOOK, 0},		/* Hack: For realm1 book */
-	 {TV_SWORD, SV_BROAD_SWORD},
-	 {TV_HARD_ARMOR, SV_METAL_SCALE_MAIL}
-	 },
+		/* Wizard */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+	},
 
 	{
-	 /* Monk */
-	 {TV_SORCERY_BOOK, 0},
-	 {TV_POTION, SV_POTION_HEALING},
-	 {TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
-	 },
+		/* Ranger */
+		{ TV_LIFE_BOOK, 0 },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+	},
+	
+	{
+		/* Death Knight */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: For realm1 book */
+		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
+	},
 
 	{
-	 /* Mindcrafter */
-	 {TV_SWORD, SV_DAGGER},
-	 {TV_POTION, SV_POTION_RES_WIS},
-	 {TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
-	 },
+		/* Paladin */
+		{ TV_ORDER_BOOK, 0 },
+		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
+	},
 
 	{
-	 /* High Mage */
-	 {TV_SORCERY_BOOK, 0},		/* Hack: for realm1 book */
-	 {TV_SWORD, SV_DAGGER},
-	 {TV_RING, SV_RING_SUSTAIN_INT}
-	 },
+		/* Chaos Warrior */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: For realm1 book */
+		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
+	},
+	
+	{
+		/* Warrior-Mage */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_SHORT_SWORD },
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
+	},
+
+	{
+		/* Technologist */
+		{ TV_POTION, SV_POTION_CURING },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER }
+	},
+
+	{
+		/* Tech Warrior */
+		{ TV_POTION, SV_POTION_CURING },
+		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER }
+	},
+
+	{
+		/* Tech Thief */
+		{ TV_CLOAK, SV_CLOAK}, 
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER }
+	},
+
+	{
+		/* Tech Cleric */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: For realm1 book */
+		{ TV_HAFTED, SV_MACE },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+	},
+
+	{
+		/* Tech Mage */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: For realm1 book */
+		{ TV_SWORD, SV_SHORT_SWORD },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+	},
+
+	{
+		/* Archer */
+		{ TV_BOW, SV_LONG_BOW}, 
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER }
+	},
+
+	{
+		/* Mindcrafter */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_POTION, SV_POTION_RESTORE_MANA },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+	},
+
+	{
+		/* Monk */
+		{ TV_ORDER_BOOK, 0 },
+		{ TV_POTION, SV_POTION_CURING },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+	},
+
+	{
+		/* Witch */
+		{ TV_HAFTED, SV_CLUB },
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+	},
+
+	{
+		/* High Mage */
+		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_RING, SV_RING_SUSTAIN_INT}
+	},
 };
 
 
@@ -1379,27 +1603,31 @@ static void player_outfit(void)
 {
 	int i, tv, sv;
 
-	object_type *q_ptr;
+	object_type	forge;
+	object_type	*q_ptr;
+
+
+#ifdef USE_SCRIPT
+	if (player_outfit_callback()) return;
+#endif /* USE_SCRIPT */
+
+	/* Get local object */
+	q_ptr = &forge;
 
 	/* Give the player some food */
 	switch (p_ptr->prace)
 	{
-		case RACE_GOLEM:
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
 		case RACE_VAMPIRE:
-		case RACE_SPECTRE:
-		case RACE_GHOUL:
 		{
 			/* Scrolls of satisfy hunger */
-			q_ptr =
-				object_prep(lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
+			object_prep(q_ptr,
+			            lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
 			q_ptr->number = (byte)rand_range(2, 5);
 			object_aware(q_ptr);
 			object_known(q_ptr);
 
 			/* These objects are "storebought" */
-			q_ptr->info |= OB_STOREB;
+			q_ptr->ident |= IDENT_STOREB;
 
 			(void)inven_carry(q_ptr);
 
@@ -1408,7 +1636,7 @@ static void player_outfit(void)
 		default:
 		{
 			/* Food rations */
-			q_ptr = object_prep(lookup_kind(TV_FOOD, SV_FOOD_RATION));
+			object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 			q_ptr->number = (byte)rand_range(3, 7);
 			object_aware(q_ptr);
 			object_known(q_ptr);
@@ -1417,10 +1645,13 @@ static void player_outfit(void)
 		}
 	}
 
+	/* Get local object */
+	q_ptr = &forge;
+
 	if (p_ptr->prace == RACE_VAMPIRE)
 	{
 		/* Hack -- Give the player scrolls of DARKNESS! */
-		q_ptr = object_prep(lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
+		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
 
 		q_ptr->number = (byte)rand_range(2, 5);
 
@@ -1428,42 +1659,47 @@ static void player_outfit(void)
 		object_known(q_ptr);
 
 		/* These objects are "storebought" */
-		q_ptr->info |= OB_STOREB;
+		q_ptr->ident |= IDENT_STOREB;
 
 		(void)inven_carry(q_ptr);
 	}
 	else
 	{
-		/* Hack -- Give the player some torches */
-		q_ptr = object_prep(lookup_kind(TV_LITE, SV_LITE_TORCH));
+		/* Hack -- Give the player some lights */
+		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 		q_ptr->number = (byte)rand_range(3, 7);
 		q_ptr->timeout = rand_range(3, 7) * 500;
-		q_ptr->pval = 0;
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
 		(void)inven_carry(q_ptr);
 	}
 
-	if (p_ptr->pclass == CLASS_RANGER)
+	/* Get local object */
+	q_ptr = &forge;
+
+	if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_ARCHER))
 	{
 		/* Hack -- Give the player some arrows */
-		q_ptr = object_prep(lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
+		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
 		q_ptr->number = (byte)rand_range(15, 20);
 
 		/* These objects are "storebought" */
-		q_ptr->info |= OB_STOREB;
+		q_ptr->ident |= IDENT_STOREB;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
 		(void)inven_carry(q_ptr);
-
+	}
+	
+	if (p_ptr->pclass == CLASS_RANGER)
+	{
 		/* Hack -- Give the player a bow */
-		q_ptr = object_prep(lookup_kind(TV_BOW, SV_SHORT_BOW));
+		object_prep(q_ptr, lookup_kind(TV_BOW, SV_SHORT_BOW));
 
-		/* This object is "storebought" */
-		q_ptr->info |= OB_STOREB;
+		/* These objects are "storebought" */
+		q_ptr->ident |= IDENT_STOREB;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1472,13 +1708,13 @@ static void player_outfit(void)
 	}
 	else if (p_ptr->pclass == CLASS_HIGH_MAGE)
 	{
-		/* Hack -- Give the player a wand of magic missile */
-		q_ptr = object_prep(lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
+		/* Hack -- Give the player some arrows */
+		object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
 		q_ptr->number = 1;
 		q_ptr->pval = (byte)rand_range(25, 30);
 
-		/* This object is "storebought" */
-		q_ptr->info |= OB_STOREB;
+		/* These objects are "storebought" */
+		q_ptr->ident |= IDENT_STOREB;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1494,28 +1730,30 @@ static void player_outfit(void)
 		sv = player_init[p_ptr->pclass][i][1];
 
 		/* Hack to initialize spellbooks */
-		if (tv == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
+		if (tv == TV_ORDER_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
 		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
 
 		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
-				 p_ptr->prace == RACE_BARBARIAN)
+		    p_ptr->prace == RACE_MINOTAUR)
 		{
-			/* Barbarians do not need a ring of resist fear */
+			/* Minotaur do not need a ring of resist fear */
 			sv = SV_RING_SUSTAIN_STR;
 		}
 
+		/* Get local object */
+		q_ptr = &forge;
+
 		/* Hack -- Give the player an object */
-		q_ptr = object_prep(lookup_kind(tv, sv));
+		object_prep(q_ptr, lookup_kind(tv, sv));
 
 		/* Assassins begin the game with a poisoned dagger */
-		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
-			p_ptr->realm1 == REALM_DEATH)
+		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ASSASSIN)
 		{
 			add_ego_flags(q_ptr, EGO_BRAND_POIS);
 		}
 
 		/* These objects are "storebought" */
-		q_ptr->info |= OB_STOREB;
+		q_ptr->ident |= IDENT_STOREB;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1525,7 +1763,11 @@ static void player_outfit(void)
 }
 
 /* Locations of the tables on the screen */
-#define QUESTION_COL	3
+#define HEADER_ROW		1
+#define QUESTION_ROW	7
+#define TABLE_ROW		10
+
+#define QUESTION_COL	3	
 #define SEX_COL			0
 #define RACE_COL		12
 #define RACE_AUX_COL    27
@@ -1533,6 +1775,301 @@ static void player_outfit(void)
 #define CLASS_AUX_COL   48
 #define REALM1_COL		48
 #define REALM2_COL		60
+
+#define INVALID_CHOICE 255
+
+
+/*
+ * Clear the previous question
+ */
+static void clear_question(void)
+{
+	int i;
+
+	for (i = QUESTION_ROW; i < TABLE_ROW; i++)
+	{
+		/* Clear line, position cursor */
+		Term_erase(0, i, 255);
+	}
+}
+
+
+/*
+ * Generic "get choice from menu" function
+ */
+static int get_player_choice(cptr *choices, int num, int col, int wid,
+                             cptr helpfile, void (*hook)(cptr))
+{
+	int top = 0, cur = 0;
+	/* int bot = 13; */
+	int i, dir;
+	char c;
+	char buf[80];
+	bool done = FALSE;
+	int hgt;
+
+
+	/* Autoselect if able */
+	if (num == 1) done = TRUE;
+
+	/* Clear */
+	for (i = TABLE_ROW; i < Term->hgt; i++)
+	{
+		/* Clear */
+		Term_erase(col, i, Term->wid - wid);	
+	}
+
+	/* Choose */
+	while (TRUE)
+	{
+		/*
+		 * Note to Melkor: What happens when the screen is resized?
+		 * There is no 'redraw' hook at this point... 
+		 * (That is why the original code restricted itself to what
+		 * would fit in the smallest possible screen.) -SF-
+		 */
+		hgt = Term->hgt - TABLE_ROW - 1;
+
+		/* Redraw the list */
+		for (i = 0; ((i + top < num) && (i <= hgt)); i++)
+		{
+			if (i + top < 26)
+			{
+				sprintf(buf, "%c) %s", I2A(i + top), choices[i + top]);
+			}
+			else
+			{
+				/* ToDo: Fix the ASCII dependency */
+				sprintf(buf, "%c) %s", 'A' + (i + top - 26), choices[i + top]);
+			}
+
+			/* Clear */
+			Term_erase(col, i + TABLE_ROW, wid);
+
+			/* Display */
+			if (i == (cur - top))
+			{
+				/* Highlight the current selection */
+				Term_putstr(col, i + TABLE_ROW, wid, TERM_L_BLUE, buf);
+			}
+			else
+			{
+				Term_putstr(col, i + TABLE_ROW, wid, TERM_WHITE, buf);
+			}
+		}
+
+		if (done) return (cur);
+
+		/* Display auxiliary information if any is available. */
+		if (hook) hook(choices[cur]);
+
+		/* Move the cursor */
+		put_str("", TABLE_ROW + cur - top, col);
+
+		c = inkey();
+
+		if (c == KTRL('X'))
+		{
+			remove_loc();
+			quit(NULL);
+		}
+		if (c == ESCAPE)
+		{
+			/* Mega Hack - go back. */
+			return (INVALID_CHOICE);
+		}
+		if (c == '*')
+		{
+			/* Select at random */
+			cur = randint0(num);
+
+			/* Move it onto the screen */
+			if ((cur < top) || (cur > top + hgt))
+			{
+				top = cur;
+			}
+
+			/* Done */
+			done = TRUE;
+		}
+		else if (c == '?')
+		{
+			screen_save();
+			(void)show_file(helpfile, NULL, 0, 0);
+			screen_load();
+		}
+		else if (c == '=')
+		{
+			screen_save();
+			do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+			screen_load();
+		}
+		else if ((c == '\n') || (c == '\r'))
+		{
+			/* Done */
+			return (cur);
+		}
+		else if (isdigit(c))
+		{
+			/* Get a direction from the key */
+			dir = get_keymap_dir(c);
+
+			/* Going up? */
+			if (dir == 8)
+			{
+				if (cur != 0)
+				{
+					/* Move selection */
+					cur--;
+				}
+
+				if ((top > 0) && ((cur - top) < 4))
+				{
+					/* Scroll up */
+					top--;
+				}
+			}
+
+			/* Going down? */
+			if (dir == 2)
+			{
+				if (cur != (num - 1))
+				{
+					/* Move selection */
+					cur++;
+				}
+
+				if ((top + hgt < (num - 1)) && ((top + hgt - cur) < 4))
+				{
+					/* Scroll down */
+					top++;
+				}
+			}
+		}
+		else if (isalpha(c))
+		{
+			int choice;
+
+			if (islower(c))
+			{
+				choice = A2I(c);
+			}
+			else
+			{
+				choice = c - 'A' + 26;
+			}
+
+			/* Validate input */
+			if ((choice > -1) && (choice < num))
+			{
+				cur = choice;
+
+				/* Move it onto the screen */
+				if ((cur < top) || (cur > top + hgt))
+				{
+					top = cur;
+				}
+
+				/* Done */
+				done = TRUE;
+			}
+			else
+			{
+				bell();
+			}
+		}
+
+		/* Invalid input */
+		bell();
+	}
+
+	return (INVALID_CHOICE);
+}
+
+
+/*
+ * Sorting hook -- comp function -- strings (see below)
+ *
+ * We use "u" to point to an array of strings.
+ */
+static bool ang_sort_comp_hook_string(const vptr u, const vptr v, int a, int b)
+{
+	cptr *x = (cptr*)(u);
+
+	/* Hack - ignore v */
+	(void)v;
+
+	return (strcmp(x[a], x[b]) <= 0);
+}
+
+
+/*
+ * Sorting hook -- swap function -- array of strings (see below)
+ *
+ * We use "u" to point to an array of strings.
+ */
+static void ang_sort_swap_hook_string(const vptr u, const vptr v, int a, int b)
+{
+	cptr *x = (cptr*)(u);
+
+	cptr temp;
+
+	/* Hack - ignore v */
+	(void)v;
+
+	/* Swap */
+	temp = x[a];
+	x[a] = x[b];
+	x[b] = temp;
+}
+
+
+/*
+ * Present a sorted list to the player, and get a selection
+ */
+static int get_player_sort_choice(cptr *choices, int num, int col, int wid,
+                                  cptr helpfile, void (*hook)(cptr))
+{
+	int i;
+	int choice;
+	cptr *strings;
+
+	C_MAKE(strings, num, cptr);
+
+	/* Initialise the sorted string array */
+	for (i = 0; i < num; i++)
+	{
+		strings[i] = choices[i];
+	}
+
+	/* Sort the strings */
+	ang_sort_comp = ang_sort_comp_hook_string;
+	ang_sort_swap = ang_sort_swap_hook_string;
+
+	/* Sort the (unique) slopes */
+	ang_sort(strings, NULL, num);
+
+	/* Get the choice */
+	choice = get_player_choice(strings, num, col, wid, helpfile, hook);
+
+	/* Invert the choice */
+	for (i = 0; i < num; i++)
+	{
+		/* Does the string match the one we selected? */
+		if (choices[i] == strings[choice])
+		{
+			/* Save the choice + exit */
+			choice = i;
+			break;
+		}
+	}
+
+	/* Free the strings */
+	C_KILL(strings, num, cptr);
+
+	/* Return the value from the list */
+	return (choice);
+}
 
 
 /*
@@ -1544,8 +2081,8 @@ static bool get_player_sex(void)
 	cptr genders[MAX_SEXES];
 
 	/* Extra info */
-	put_fstr(QUESTION_COL, QUESTION_ROW,
-				"Your 'sex' does not have any significant gameplay effects.");
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_WHITE,
+		"Your 'sex' does not have any significant gameplay effects.");
 
 	/* Tabulate genders */
 	for (i = 0; i < MAX_SEXES; i++)
@@ -1554,7 +2091,7 @@ static bool get_player_sex(void)
 	}
 
 	p_ptr->psex = get_player_choice(genders, MAX_SEXES, SEX_COL, 15,
-									"charattr.txt#TheSexes", NULL);
+                                    "charattr.txt#TheSexes", NULL);
 
 	/* No selection? */
 	if (p_ptr->psex == INVALID_CHOICE)
@@ -1575,36 +2112,31 @@ static bool get_player_sex(void)
  */
 static void race_aux_hook(cptr r_str)
 {
-	int race;
+	int race, i;
+	char s[30];
 
 	/* Extract the proper race index from the string. */
 	for (race = 0; race < MAX_RACES; race++)
 	{
-		if (streq(r_str, race_info[race].title)) break;
+		if (!strcmp(r_str, race_info[race].title)) break;
 	}
 
 	if (race == MAX_RACES) return;
 
 	/* Display relevant details. */
-	put_fstr(RACE_AUX_COL, TABLE_ROW,
-    			"%s%+d\n"
-                "%s%+d\n"
-                "%s%+d\n"
-                "%s%+d\n"
-                "%s%+d\n"
-                "%s%+d\n"
-				"Hit die: %d \n"
-				"Experience: %2d%% \n"
-				"Infravision: %d ft",
-                stat_names_reduced[0], race_info[race].r_adj[0],
-                stat_names_reduced[1], race_info[race].r_adj[1],
-                stat_names_reduced[2], race_info[race].r_adj[2],
-                stat_names_reduced[3], race_info[race].r_adj[3],
-                stat_names_reduced[4], race_info[race].r_adj[4],
-                stat_names_reduced[5], race_info[race].r_adj[5],
-				race_info[race].r_mhp,
-				race_info[race].r_exp,
-				race_info[race].infra * 10);
+	for (i = 0; i < A_MAX; i++)
+	{
+		sprintf(s, "%s%+d", stat_names_reduced[i],
+		race_info[race].r_adj[i]);
+		Term_putstr(RACE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
+	}
+
+	sprintf(s, "Hit die: %d ", race_info[race].r_mhp);
+	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
+	sprintf(s, "Experience: %d%%", race_info[race].r_exp);
+	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
+	sprintf(s, "Infravision: %d ft ", race_info[race].infra * 10);
+	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 }
 
 
@@ -1617,8 +2149,8 @@ static bool get_player_race(void)
 	cptr races[MAX_RACES];
 
 	/* Extra info */
-	put_fstr(QUESTION_COL, QUESTION_ROW,
-				"Your 'race' determines various intrinsic factors and bonuses.");
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_WHITE,
+		"Your 'race' determines various intrinsic factors and bonuses.");
 
 	/* Tabulate races */
 	for (i = 0; i < MAX_RACES; i++)
@@ -1627,8 +2159,8 @@ static bool get_player_race(void)
 	}
 
 	p_ptr->prace = get_player_sort_choice(races, MAX_RACES, RACE_COL, 15,
-										  "charattr.txt#TheRaces",
-										  race_aux_hook);
+                                          "charattr.txt#TheRaces",
+                                          race_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->prace == INVALID_CHOICE)
@@ -1637,8 +2169,8 @@ static bool get_player_race(void)
 		return (FALSE);
 	}
 
-	/* Give beastman a mutation at character birth */
-	if (p_ptr->prace == RACE_BEASTMAN)
+	/* Give kaoti a mutation at character birth */
+	if ((p_ptr->prace == RACE_KAOTI) || (p_ptr->prace == RACE_MINOTAUR))
 	{
 		hack_mutation = TRUE;
 	}
@@ -1660,39 +2192,33 @@ static bool get_player_race(void)
  */
 static void class_aux_hook(cptr c_str)
 {
-	int class_idx;
+	int class_idx, i;
 	char s[128];
 
 	/* Extract the proper class index from the string. */
 	for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
 	{
-		if (streq(c_str, class_info[class_idx].title)) break;
+		if (!strcmp(c_str, class_info[class_idx].title)) break;
 
 		/* Also test for titles in parentheses */
-		strnfmt(s, 128, "(%s)", class_info[class_idx].title);
-		if (streq(c_str, s)) break;
+		sprintf(s, "(%s)", class_info[class_idx].title);
+		if (!strcmp(c_str, s)) break;
 	}
 
 	if (class_idx == MAX_CLASS) return;
 
 	/* Display relevant details. */
-	put_fstr(CLASS_AUX_COL, TABLE_ROW,
-    			"%s%+d\n"
-                "%s%+d\n"
-                "%s%+d\n"
-                "%s%+d\n"
-                "%s%+d\n"
-                "%s%+d\n"
-				"Hit die: %d \n"
-				"Experience: %2d%%",
-                stat_names_reduced[0], class_info[class_idx].c_adj[0],
-                stat_names_reduced[1], class_info[class_idx].c_adj[1],
-                stat_names_reduced[2], class_info[class_idx].c_adj[2],
-                stat_names_reduced[3], class_info[class_idx].c_adj[3],
-                stat_names_reduced[4], class_info[class_idx].c_adj[4],
-                stat_names_reduced[5], class_info[class_idx].c_adj[5],
-			 	class_info[class_idx].c_mhp,
-				class_info[class_idx].c_exp);
+	for (i = 0; i < A_MAX; i++)
+	{
+		sprintf(s, "%s%+d", stat_names_reduced[i],
+		class_info[class_idx].c_adj[i]);
+		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
+	}
+
+	sprintf(s, "Hit die: %d ", class_info[class_idx].c_mhp);
+	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
+	sprintf(s, "Experience: %d%%", class_info[class_idx].c_exp);
+	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 }
 
 
@@ -1701,15 +2227,16 @@ static void class_aux_hook(cptr c_str)
  */
 static bool get_player_class(void)
 {
-	int i;
-	char buf[80];
+	int     i;
+	char    buf[80];
 	cptr classes[MAX_CLASS];
 
 
 	/* Extra info */
-	put_fstr(QUESTION_COL, QUESTION_ROW,
-				"Your 'class' determines various intrinsic abilities and bonuses.\n"
-				"Any entries in parentheses should only be used by advanced players.");
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_WHITE,
+		"Your 'class' determines various intrinsic abilities and bonuses.");
+	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_WHITE,
+	    "Any entries in parentheses should only be used by advanced players.");
 
 	/* Tabulate classes */
 	for (i = 0; i < MAX_CLASS; i++)
@@ -1717,11 +2244,11 @@ static bool get_player_class(void)
 		/* Analyze */
 		if (!(rp_ptr->choice & (1L << i)))
 		{
-			strnfmt(buf, 80, "(%s)", class_info[i].title);
+			sprintf(buf, "(%s)", class_info[i].title);
 		}
 		else
 		{
-			strnfmt(buf, 80, "%s", class_info[i].title);
+			sprintf(buf, "%s", class_info[i].title);
 		}
 
 		/* Save the string */
@@ -1729,8 +2256,8 @@ static bool get_player_class(void)
 	}
 
 	p_ptr->pclass = get_player_choice(classes, MAX_CLASS, CLASS_COL, 20,
-									  "charattr.txt#TheClasses",
-									  class_aux_hook);
+                                      "charattr.txt#TheClasses",
+                                      class_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->pclass == INVALID_CHOICE)
@@ -1775,7 +2302,7 @@ static bool get_player_realms(void)
 	select[0] = REALM_NONE;
 
 	/* Get choices */
-	for (i = 1; i < MAX_REALM; i++)
+	for (i = 1; i <= MAX_REALM; i++)
 	{
 		/* Can we use this realm? */
 		if (realm_choices1[p_ptr->pclass] & (1 << (i - 1)))
@@ -1793,12 +2320,13 @@ static bool get_player_realms(void)
 	if (!count) return (TRUE);
 
 	/* Extra info */
-	put_fstr(QUESTION_COL, QUESTION_ROW,
-				"Life and Sorcery are protective, Chaos and Death are destructive.\n"
-				"Nature has both defensive and offensive spells.");
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_WHITE,
+		"Life and Sorcery are protective, Chaos and Death are destructive.");
+	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_WHITE,
+		"Nature has both defensive and offensive spells.");
 
 	choose = get_player_choice(realms, count, REALM1_COL, 10,
-							   "magic.txt#MagicRealms", NULL);
+                               "magic.txt#MagicRealms", NULL);
 
 	/* No selection? */
 	if (choose == INVALID_CHOICE) return (FALSE);
@@ -1813,11 +2341,11 @@ static bool get_player_realms(void)
 	count = 0;
 
 	/* Get choices */
-	for (i = 1; i < MAX_REALM; i++)
+	for (i = 1; i <= MAX_REALM; i++)
 	{
 		/* Can we use this realm? */
 		if ((realm_choices2[p_ptr->pclass] & (1 << (i - 1)))
-			&& (i != p_ptr->realm1))
+			 && (i != p_ptr->realm1))
 		{
 			/* Save the information */
 			select[count] = i;
@@ -1832,7 +2360,7 @@ static bool get_player_realms(void)
 	if (!count) return (TRUE);
 
 	choose = get_player_choice(realms, count, REALM2_COL, 10,
-							   "magic.txt#MagicRealms", NULL);
+                               "magic.txt#MagicRealms", NULL);
 
 	/* No selection? */
 	if (choose == INVALID_CHOICE) return (FALSE);
@@ -1841,6 +2369,149 @@ static bool get_player_realms(void)
 	p_ptr->realm2 = select[choose];
 
 	/* Done */
+	return (TRUE);
+}
+
+
+/*
+ * Quests
+ */
+static bool get_player_quests(void)
+{
+	char inp[80];
+
+	monster_race *r_ptr, *quest_r_ptr;
+	quest_type *q_ptr;
+
+	int	r_idx;
+	int	i, j, v, level;
+
+	/*** User enters number of quests ***/
+	/* Heino Vander Sanden and Jimmy De Laet */
+
+	/* Extra info */
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"You can enter the number of quests you'd like to perform in addition");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"to the two obligatory ones ( Oberon and the Serpent of Chaos )");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"In case you do not want any additional quests, just enter 0");
+
+	Term_putstr(5, 18, -1, TERM_WHITE,
+		"If you want a random number of random quests, just enter *");
+
+	/* Ask the number of additional quests */
+	while (TRUE)
+	{
+		put_str(format("Number of additional quests? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
+
+		/* Get a the number of additional quest */
+		while (TRUE)
+		{
+			/* Move the cursor */
+			put_str("", 20, 37);
+
+			/* Default */
+			strcpy(inp, "20");
+
+			/* Get a response (or escape) */
+			if (!askfor_aux(inp, 2)) inp[0] = '\0';
+
+			/* Check for random number of quests */
+			if (inp[0] == '*')
+			{
+				/* 0 to 49 random quests */
+				v = randint0(50);
+			}
+			else
+			{
+				v = atoi(inp);
+			}
+
+			/* Break on valid input */
+			if ((v <= MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1) && (v >= 0)) break;
+		}
+		break;
+	}
+
+	/* Init the random quests */
+	p_ptr->inside_quest = MIN_RANDOM_QUEST;
+	(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
+	p_ptr->inside_quest = 0;
+
+	/* Prepare allocation table */
+	get_mon_num_prep(monster_quest, NULL);
+
+	/* Generate quests */
+	for (i = MIN_RANDOM_QUEST + v - 1; i >= MIN_RANDOM_QUEST; i--)
+	{
+		q_ptr = &quest[i];
+
+		q_ptr->status = QUEST_STATUS_TAKEN;
+
+		for (j = 0; j < MAX_TRIES; j++)
+		{
+			/*
+			 * Random monster out of depth
+			 * (depending on level + number of quests)
+			 */
+			level = q_ptr->level + 6 +
+			        randint1(q_ptr->level * v / 200 + 1) +
+			        randint1(q_ptr->level * v / 200 + 1);
+
+			r_idx = get_mon_num(level);
+			r_ptr = &r_info[r_idx];
+
+			/* Look at the monster - only "hard" monsters for quests */
+			if (r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_FRIENDS)) continue;
+
+			/* Save the index if the monster is deeper than current monster */
+			if (!q_ptr->r_idx || (r_info[r_idx].level > r_info[q_ptr->r_idx].level))
+			{
+				q_ptr->r_idx = r_idx;
+			}
+
+			/*
+			 * Accept monsters that are 2 - 6 levels
+			 * out of depth depending on the quest level
+			 */
+			if (r_ptr->level > (q_ptr->level + (q_ptr->level / 20) + 1)) break;
+		}
+
+		quest_r_ptr = &r_info[q_ptr->r_idx];
+
+		/* Get the number of monsters */
+		if (quest_r_ptr->flags1 & RF1_UNIQUE)
+		{
+			/* Mark uniques */
+			quest_r_ptr->flags1 |= RF1_QUESTOR;
+
+			q_ptr->max_num = 1;
+		}
+		else if (quest_r_ptr->flags3 & RF3_UNIQUE_7)
+		{
+			/* Mark uniques */
+			quest_r_ptr->flags1 |= RF1_QUESTOR;
+
+			q_ptr->max_num = randint1(quest_r_ptr->max_num);
+		}
+		else
+		{
+			q_ptr->max_num = 5 + (s16b)randint0(q_ptr->level / 3 + 5) /
+									quest_r_ptr->rarity;
+		}
+	}
+
+	/* Init the two main quests (Oberon + Serpent) */
+	p_ptr->inside_quest = QUEST_OBERON;
+	(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
+	quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+
+	p_ptr->inside_quest = QUEST_SERPENT;
+	(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
+	quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
+	p_ptr->inside_quest = 0;
+
 	return (TRUE);
 }
 
@@ -1855,34 +2526,49 @@ static bool get_player_realms(void)
  */
 static bool player_birth_aux_1(void)
 {
+#ifdef USE_SCRIPT
+
+	int result;
+
+	/* Generate the player */
+	result = player_birth_callback();
+
+	/* Restart ? */
+	if (result == -1) return FALSE;
+
+#else /* USE_SCRIPT */
+
 	/*** Instructions ***/
 
 	/* Clear screen */
 	Term_clear();
 
 	/* Display some helpful information */
-	put_fstr(QUESTION_COL, HEADER_ROW,
-			"Please select your character from the menu below.\n"
-			"Use the movement keys to scroll the menu, 'enter' to select the current\n"
-			"menu item, '*' for a random menu item, 'ESC' to restart the character\n"
-			"selection, '=' for the birth options, '?' for help, or 'Ctrl-X' to quit.");
+	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_WHITE,
+	            "Please select your character from the menu below.");
+	Term_putstr(QUESTION_COL, HEADER_ROW + 2, -1, TERM_WHITE,
+	            "Use the movement keys to scroll the menu, 'enter' to select the current");
+	Term_putstr(QUESTION_COL, HEADER_ROW + 3, -1, TERM_WHITE,
+	            "menu item, '*' for a random menu item, 'ESC' to restart the character");
+	Term_putstr(QUESTION_COL, HEADER_ROW + 4, -1, TERM_WHITE,
+	            "selection, '=' for the birth options, '?' for help, or 'Ctrl-X' to quit.");
 
 	if (!get_player_sex()) return (FALSE);
 
 	/* Clean up */
-    clear_region(0, QUESTION_ROW, TABLE_ROW - 1);
+	clear_question();
 
 	/* Choose the players race */
 	if (!get_player_race()) return (FALSE);
 
 	/* Clean up */
-	clear_region(0, QUESTION_ROW, TABLE_ROW - 1);
+	clear_question();
 
 	/* Choose the players class */
 	if (!get_player_class()) return (FALSE);
 
 	/* Clean up */
-	clear_region(0, QUESTION_ROW, TABLE_ROW - 1);
+	clear_question();
 
 	/* Choose the magic realms */
 	if (!get_player_realms()) return (FALSE);
@@ -1892,25 +2578,34 @@ static bool player_birth_aux_1(void)
 
 	/* Display the information so far. */
 	/* Name, Sex, Race, Class */
-	put_fstr(0, 2,
-				"Name     : " CLR_L_BLUE "%s\n" CLR_WHITE
-				"Sex      : " CLR_L_BLUE "%s\n" CLR_WHITE
-				"Race     : " CLR_L_BLUE "%s\n" CLR_WHITE
-				"Class    : " CLR_L_BLUE "%s\n",
-				player_name, sp_ptr->title, rp_ptr->title, cp_ptr->title);
+	put_str("Name     :", 2, 0);
+	put_str("Sex      :", 3, 0);
+	put_str("Race     :", 4, 0);
+	put_str("Class    :", 5, 0);
 
 	if (p_ptr->realm1 || p_ptr->realm2)
 	{
-		put_fstr(0, 6, "Magic    : " CLR_L_BLUE "%s", realm_names[p_ptr->realm1]);
+		put_str("Magic    :", 6, 0);
+	}
+
+	c_put_str(TERM_L_BLUE, player_name, 2, 11);
+	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 11);
+	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 11);
+	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 11);
+
+	if (p_ptr->realm1)
+	{
+		c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 6, 11);
 	}
 
 	if (p_ptr->realm2)
 	{
-		put_fstr(11, 7, CLR_L_BLUE "%s", realm_names[p_ptr->realm2]);
+		c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 7, 11);
 	}
 
-	/* And finally, get the number of random quests */
-	get_player_quests(-1);
+	if (!get_player_quests()) return (FALSE);
+
+#endif /* USE_SCRIPT */
 
 	/* Clear */
 	clear_from(15);
@@ -1923,8 +2618,7 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static const int birth_stat_costs[(18 - 10) + 1] =
-{ 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
 
 
 /*
@@ -1956,6 +2650,8 @@ static bool player_birth_aux_2(void)
 
 	char ch;
 
+	char buf[80];
+
 	int mode = DISPLAY_PLAYER_STANDARD;
 
 
@@ -1982,7 +2678,7 @@ static bool player_birth_aux_2(void)
 	p_ptr->muta1 = 0;
 	p_ptr->muta2 = 0;
 	p_ptr->muta3 = 0;
-
+	
 	/* Interact */
 	while (1)
 	{
@@ -1992,11 +2688,24 @@ static bool player_birth_aux_2(void)
 		/* Process stats */
 		for (i = 0; i < A_MAX; i++)
 		{
-			int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+			/* Variable stat maxes */
+			if (maximize_mode)
+			{
+				/* Reset stats */
+				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
 
-			/* Reset stats */
-			p_ptr->stat_cur[i] = adjust_stat(i, stats[i] * 10, bonus);
-			p_ptr->stat_max[i] = p_ptr->stat_cur[i];
+			}
+
+			/* Fixed stat maxes */
+			else
+			{
+				/* Obtain a "bonus" for "race" and "class" */
+				int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+
+				/* Apply the racial/class bonuses */
+				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
+					modify_stat_value(stats[i], bonus);
+			}
 
 			/* Total cost */
 			cost += birth_stat_costs[stats[i] - 10];
@@ -2006,7 +2715,7 @@ static bool player_birth_aux_2(void)
 		if (cost > 48)
 		{
 			/* Warning */
-			bell("Excessive stats!");
+			bell();
 
 			/* Reduce stat */
 			stats[stat]--;
@@ -2022,7 +2731,7 @@ static bool player_birth_aux_2(void)
 		if (p_ptr->au > 600) p_ptr->au = 600;
 
 		/* Calculate the bonuses and hitpoints */
-		p_ptr->update |= (PU_BONUS | PU_HP);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_RESOURCE);
 
 		/* Update stuff */
 		update_stuff();
@@ -2032,24 +2741,28 @@ static bool player_birth_aux_2(void)
 
 		/* Fully rested */
 		p_ptr->csp = p_ptr->msp;
+		
+		/* Fully loaded */
+		p_ptr->crp = p_ptr->mrp;
 
 		/* Display the player */
 		display_player(mode);
 
 		/* Display the costs header */
-		put_fstr(col + 32, row - 2, "Cost");
+		put_str("Cost", row - 2, col + 32);
 
 		/* Display the costs */
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Display cost */
-			put_fstr(col + 32, row + (i - 1), "%4d", birth_stat_costs[stats[i] - 10]);
+			sprintf(buf, "%4d", birth_stat_costs[stats[i] - 10]);
+			put_str(buf, row + (i-1), col + 32);
 		}
 
 
 		/* Prompt XXX XXX XXX */
-		prtf(0, 0, "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, Enter to accept.",
-				cost);
+		sprintf(buf, "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, Enter to accept.", cost);
+		prt(buf, 0, 0);
 
 		/* Place cursor just after cost of current stat */
 		Term_gotoxy(col + 36, row + stat - 1);
@@ -2091,24 +2804,6 @@ static bool player_birth_aux_2(void)
 		}
 	}
 
-	/* Process stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-		/* Apply some randomness */
-        p_ptr->stat_cur[i] = adjust_stat(i, stats[i] * 10, bonus);
-		p_ptr->stat_max[i] = p_ptr->stat_cur[i];
-	}
-
-	/* Calculate the bonuses and hitpoints */
-	p_ptr->update |= (PU_BONUS | PU_HP);
-
-	/* Update stuff */
-	update_stuff();
-
-	/* Display the player */
-	display_player(mode);
 
 	/* Done */
 	return (TRUE);
@@ -2126,19 +2821,23 @@ static bool player_birth_aux_2(void)
  */
 static bool player_birth_aux_3(void)
 {
-	int i, v;
+	int i, j, m, v;
 
 	bool flag;
 	bool previous = FALSE;
 
 	char ch;
 
+	char b1 = '[';
+	char b2 = ']';
+
+	char buf[80];
+
 	int mode = DISPLAY_PLAYER_STANDARD;
 
 #ifdef ALLOW_AUTOROLLER
 
-	s16b stat_weight[A_MAX];
-	s16b stat_save[A_MAX];
+	s16b stat_limit[A_MAX];
 
 	s32b stat_match[A_MAX];
 
@@ -2150,59 +2849,101 @@ static bool player_birth_aux_3(void)
 	/*** Autoroll ***/
 
 	/* Initialize */
-	if (autoroller && !ironman_moria)
+	if (autoroller)
 	{
+		int mval[A_MAX];
+
 		char inp[80];
+
 
 		/* Clean up */
 		clear_from(10);
 
 		/* Extra info */
-		put_fstr(5, 10,
-					"The auto-roller will generate 500 characters and try to pick\n"
-					"the one with the best stats, according to the weightings you\n"
-					"choose below. Enter a value from 1-100 for each stat.");
+		Term_putstr(5, 10, -1, TERM_WHITE,
+		            "The auto-roller will automatically ignore characters which do");
+		Term_putstr(5, 11, -1, TERM_WHITE,
+		            "not meet the minimum values for any stats specified below.");
+		Term_putstr(5, 12, -1, TERM_WHITE,
+		            "Note that stats are not independant, so it is not possible to");
+		Term_putstr(5, 13, -1, TERM_WHITE,
+		            "get perfect (or even high) values for all your stats.");
 
-		/* Prompt for the stat weights */
-		put_fstr(2, 15, "Enter weight for: ");
+		/* Prompt for the minimum stats */
+		put_str("Enter minimum value for: ", 15, 2);
 
-		/* Output the prompts */
+		/* Output the maximum stats */
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Reset the "success" counter */
 			stat_match[i] = 0;
 
+			/* Race/Class bonus */
+			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+
+			/* Obtain the "maximal" stat */
+			m = adjust_stat(17, j, TRUE);
+
+			/* Save the maximum */
+			mval[i] = m;
+
+			/* Extract a textual format */
+			/* cnv_stat(m, inp); */
+
+			/* Above 18 */
+			if (m > 18)
+			{
+				sprintf(inp, "(Max of 18/%02d):", (m - 18));
+			}
+
+			/* From 3 to 18 */
+			else
+			{
+				sprintf(inp, "(Max of %2d):", m);
+			}
+
+			/* Prepare a prompt */
+			sprintf(buf, "%-5s%-20s", stat_names[i], inp);
+
 			/* Dump the prompt */
-			put_fstr(5, 16 + i, "%-5s", stat_names[i]);
+			put_str(buf, 16 + i, 5);
 		}
 
 		/* Input the minimum stats */
 		for (i = 0; i < A_MAX; i++)
 		{
-			/* In the Antiband version this is dependent on class & stat */
-			int def_weight = 50;
-
 			/* Get a minimum stat */
 			while (TRUE)
 			{
+				char *s;
+
 				/* Move the cursor */
-				Term_gotoxy(10, 16 + i);
+				put_str("", 16 + i, 30);
 
 				/* Default */
-				strnfmt(inp, 80, "%i", def_weight);
+				strcpy(inp, "");
 
 				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 9)) inp[0] = '\0';
+				if (!askfor_aux(inp, 8)) inp[0] = '\0';
 
-				/* Extract an input */
-				v = atoi(inp);
+				/* Hack -- add a fake slash */
+				strcat(inp, "/");
+
+				/* Hack -- look for the "slash" */
+				s = strchr(inp, '/');
+
+				/* Hack -- Nuke the slash */
+				*s++ = '\0';
+
+				/* Hack -- Extract an input */
+				v = atoi(inp) + atoi(s);
 
 				/* Break on valid input */
-				if (v <= 100) break;
+				if (v <= mval[i]) break;
 			}
 
-			/* Save the weight */
-			stat_weight[i] = (v > 0) ? v : def_weight;
+			/* Save the minimum stat */
+			stat_limit[i] = (v > 0) ? v : 0;
 		}
 	}
 
@@ -2220,47 +2961,44 @@ static bool player_birth_aux_3(void)
 		int col = 42;
 
 		/* Feedback */
-		if (autoroller && !ironman_moria)
+		if (autoroller)
 		{
-			s32b best_score;
-			s32b cur_score;
-
 			Term_clear();
 
 			/* Label */
-			put_fstr(col + 5, 2, "Weight");
+			put_str(" Limit", 2, col+5);
 
 			/* Label */
-			put_fstr(col + 13, 2, "  Roll");
+			put_str("  Freq", 2, col+13);
 
-			/* Put the stat weights */
+			/* Label */
+			put_str("  Roll", 2, col+24);
+
+			/* Put the minimal stats */
 			for (i = 0; i < A_MAX; i++)
 			{
 				/* Label stats */
-				put_fstr(col, i + 3, stat_names[i]);
+				put_str(stat_names[i], 3+i, col);
 
-				/* Put the weight */
-				put_fstr(col + 5, i + 3, CLR_L_BLUE "%6i", stat_weight[i]);
+				/* Put the stat */
+				cnv_stat(stat_limit[i], buf);
+				c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
 			}
 
 			/* Note when we started */
 			last_round = auto_round;
 
 			/* Label count */
-			put_fstr(col + 13, 10, "Round:");
+			put_str("Round:", 10, col+13);
 
 			/* Indicate the state */
-			put_fstr(col + 13, 12, "(Hit ESC to stop)");
-
-			best_score = -1;
-			for (i = 0; i < A_MAX; i++)
-			{
-				stat_save[i] = 3;
-			}
+			put_str("(Hit ESC to stop)", 12, col+13);
 
 			/* Auto-roll */
-			while (TRUE)
+			while (1)
 			{
+				bool accept = TRUE;
+
 				/* Get a new character */
 				get_stats();
 
@@ -2270,25 +3008,24 @@ static bool player_birth_aux_3(void)
 				/* Hack -- Prevent overflow */
 				if (auto_round >= 1000000L) break;
 
-				/* Calculate a score for the rolled stats */
-				cur_score = 0;
+				/* Check and count acceptable stats */
 				for (i = 0; i < A_MAX; i++)
 				{
-		   			cur_score += (p_ptr->stat_cur[i]) * stat_weight[i];
-				}
-
-				/* Compare current score against saved stats */
-				if (cur_score > best_score)
-				{
-					best_score = cur_score;
-					for (i = 0; i < A_MAX; i++)
+					/* This stat is okay */
+					if (stat_use[i] >= stat_limit[i])
 					{
-						stat_save[i] = p_ptr->stat_cur[i];
+						stat_match[i]++;
+					}
+
+					/* This stat is not okay */
+					else
+					{
+						accept = FALSE;
 					}
 				}
 
-				/* Break after 500 rolls */
-				if (auto_round >= last_round + 500) break;
+				/* Break if "happy" */
+				if (accept) break;
 
 				/* Take note every x rolls */
 				flag = (!(auto_round % AUTOROLLER_STEP));
@@ -2300,12 +3037,27 @@ static bool player_birth_aux_3(void)
 					for (i = 0; i < A_MAX; i++)
 					{
 						/* Put the stat */
-						put_fstr(col + 13, 3 + i, CLR_L_GREEN "%v",
-								 stat_format, stat_use[i]);
+						cnv_stat(stat_use[i], buf);
+						c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
+
+						/* Put the percent */
+						if (stat_match[i])
+						{
+							int p = 1000L * stat_match[i] / auto_round;
+							byte attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
+							sprintf(buf, "%3d.%d%%", p/10, p%10);
+							c_put_str(attr, buf, 3+i, col+13);
+						}
+
+						/* Never happened */
+						else
+						{
+							c_put_str(TERM_RED, "(NONE)", 3+i, col+13);
+						}
 					}
 
 					/* Dump round */
-					put_fstr(col + 20, 10, "%10ld", auto_round);
+					put_str(format("%10ld", auto_round), 10, col+20);
 
 					/* Make sure they see everything */
 					Term_fresh();
@@ -2314,17 +3066,11 @@ static bool player_birth_aux_3(void)
 					if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
 
 					/* Do not wait for a key */
-					p_ptr->inkey_scan = TRUE;
+					inkey_scan = TRUE;
 
 					/* Check for a keypress */
 					if (inkey()) break;
 				}
-			}
-
-			/* Load best stat set rolled */
-			for (i = 0; i < A_MAX; i++)
-			{
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_save[i];
 			}
 		}
 
@@ -2364,7 +3110,7 @@ static bool player_birth_aux_3(void)
 		while (TRUE)
 		{
 			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP);
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_RESOURCE);
 
 			/* Update stuff */
 			update_stuff();
@@ -2374,13 +3120,21 @@ static bool player_birth_aux_3(void)
 
 			/* Fully rested */
 			p_ptr->csp = p_ptr->msp;
+			
+			/* Fully loaded */
+			p_ptr->crp = p_ptr->mrp;
 
 			/* Display the player */
 			display_player(mode);
 
 			/* Prepare a prompt (must squeeze everything in) */
-			prtf(2, 23, "['r' to reroll%s, 'h' for history, or Enter to accept]",
-				previous ? ", 'p' for prev": "");
+			Term_gotoxy(2, 23);
+			Term_addch(TERM_WHITE, b1);
+			Term_addstr(-1, TERM_WHITE, "'r' to reroll");
+			if (previous) Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
+			Term_addstr(-1, TERM_WHITE, ", 'h' for history");
+			Term_addstr(-1, TERM_WHITE, ", or Enter to accept");
+			Term_addch(TERM_WHITE, b2);
 
 			/* Prompt and get a command */
 			ch = inkey();
@@ -2413,18 +3167,22 @@ static bool player_birth_aux_3(void)
 			/* Help */
 			if (ch == '?')
 			{
+				screen_save();
 				(void)show_file("birth.txt#CharDisplay", NULL, 0, 0);
+				screen_load();
 				continue;
 			}
 			else if (ch == '=')
 			{
+				screen_save();
 				do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER |
-							   OPT_FLAG_PLAYER);
+						 OPT_FLAG_PLAYER);
+				screen_load();
 				continue;
 			}
 
 			/* Warning */
-			bell("Illegal auto-roller command!");
+			bell();
 		}
 
 		/* Are we done? */
@@ -2447,14 +3205,13 @@ static bool player_birth_aux_3(void)
 
 static bool player_birth_aux(void)
 {
-    char ch;
-    int i;
+	char ch;
 
 	/* Ask questions */
 	if (!player_birth_aux_1()) return FALSE;
 
 	/* Point based */
-	if (point_based && !ironman_moria)
+	if (point_based)
 	{
 		if (!player_birth_aux_2()) return FALSE;
 	}
@@ -2463,20 +3220,7 @@ static bool player_birth_aux(void)
 	else
 	{
 		if (!player_birth_aux_3()) return FALSE;
-    }
-
-    /* Apply some randomness */
-    for (i = 0; i < A_MAX; i++)
-    {
-        p_ptr->stat_cur[i] += randint0(10);
-        p_ptr->stat_max[i] = p_ptr->stat_cur[i];
-    }
-
-    /* Calculate the bonuses and hitpoints */
-    p_ptr->update |= (PU_BONUS | PU_HP);
-
-    /* Update stuff */
-    update_stuff();
+	}
 
 	/* Get a name, prepare savefile */
 	get_character_name();
@@ -2488,8 +3232,7 @@ static bool player_birth_aux(void)
 	display_player(DISPLAY_PLAYER_STANDARD);
 
 	/* Prompt for it */
-	prtf(10, 23,
-		"['Ctrl-X' to suicide, 'Del' to start over, or Enter to continue]");
+	prt("['Ctrl-X' to suicide, 'Del' to start over, or Enter to continue]", 23, 10);
 
 	/* Get a key */
 	ch = inkey();
@@ -2498,11 +3241,9 @@ static bool player_birth_aux(void)
 	if (ch == KTRL('X')) quit(NULL);
 
 	/* Start over */
-	if ((ch == 0x7F) || (ch == '.') || (ch == KTRL('H'))) return (FALSE);
+	if ((ch == 0x7F) || (ch == KTRL('H'))) return (FALSE);
 
-	/* Accepted */
-
-	/* Done */
+	/* Accept */
 	return (TRUE);
 }
 
@@ -2532,11 +3273,11 @@ void player_birth(void)
 	}
 
 	/* Note player birth in the message recall */
-	message_add(" ", MSG_GENERIC);
-	message_add("  ", MSG_GENERIC);
-	message_add("====================", MSG_GENERIC);
-	message_add("  ", MSG_GENERIC);
-	message_add(" ", MSG_GENERIC);
+	message_add(" ", TERM_WHITE);
+	message_add("  ", TERM_WHITE);
+	message_add("====================", TERM_WHITE);
+	message_add("  ", TERM_WHITE);
+	message_add(" ", TERM_WHITE);
 
 	/* Hack -- outfit the player */
 	player_outfit();
@@ -2549,4 +3290,3 @@ void player_birth(void)
 	if (!window_flag[2])
 		window_flag[2] |= PW_INVEN;
 }
-

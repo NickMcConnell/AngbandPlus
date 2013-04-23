@@ -51,12 +51,6 @@
 
 #ifdef USE_GCU
 
-cptr help_gcu[] =
-{
-	"To use GCU (GNU Curses)",
-	NULL
-};
-
 /*
  * Hack -- play games with "bool"
  */
@@ -161,11 +155,6 @@ cptr help_gcu[] =
 /* #define nonl() */
 /* #define nl() */
 
-
-/*
- * OPTION: NetBSD seems to like this better
- */
-/* #define can_change_color() can_change_colors() */
 
 /*
  * Save the "normal" and "angband" terminal settings
@@ -1007,7 +996,7 @@ errr init_gcu(void)
 
 #ifdef USE_GRAPHICS
 	/* Set graphics flag */
-	use_graphics = GRAPHICS_NONE;
+	use_graphics = FALSE;
 
 	/* Use the graphical wall tiles? */
 	use_blocks = arg_graphics;

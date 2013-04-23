@@ -1,8 +1,9 @@
 
 
-                             **********************
-                             **  ZAngband 2.7.2  **
-                             **********************
+                              ~~~~~~~~~~~~~~~~~~~~
+                             <~  STAngband 0.7   ~>
+                              ~~~~~~~~~~~~~~~~~~~~
+             By Simon Curtis:    < andre_axem@hotmail.com >
 
               Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
                   and Umoria:    Copyright (c) 1989 James E. Wilson
@@ -10,13 +11,10 @@
            Angband 2.7 - 2.8:    Ben Harrison < benh@phial.com >
 
            Old Zangband code:    (Mr) Topi Ylinen < topiy@luukku.com >
-           New Zangband code:    Robert Ruehlmann < rr9@angband.org >
+           New Zangband code:    Robert Ruehlmann < rr9@thangorodrim.net >
         ZAngband 2.3.0 - ???:    The ZAngband DevTeam
 
-          Visit the ZAngband Homepage at "http://www.zangband.org/"
-
-         Send all comments, patches, etc, to "feedback@zangband.org".
-                   Send bug reports to "bugs@zangband.org".
+                             Based on ZAngband
 
 
           Press ? for help and = for the options screen while playing.

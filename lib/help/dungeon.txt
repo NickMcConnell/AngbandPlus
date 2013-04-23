@@ -1,7 +1,7 @@
 === The Dungeon ===
 
 
-Although Zangband contains an extensive town level featuring multiple
+Although STangband contains an extensive town level featuring multiple
 towns and a large wilderness area, the bulk of your adventuring will
 take place in the dungeon. Symbols appearing on your screen will
 represent the dungeon's walls, floor, objects, features, and creatures
@@ -106,7 +106,7 @@ town. It acts in two manners, depending upon your current location.
 If read within the dungeon, it will teleport you back to town. If read
 in town, it will teleport you back down to the deepest level of the
 dungeon which your character has previously been on. This makes the
-scroll very useful for getting back to the deeper levels of Zangband.
+scroll very useful for getting back to the deeper levels of STangband.
 Once the scroll has been read it takes a while for the spell to act, so
 don't expect it to save you in a crisis. Reading a second scroll before
 the first has had a chance to take effect will cancel both scrolls.
@@ -114,12 +114,12 @@ the first has had a chance to take effect will cancel both scrolls.
 Since an accidental dive to a new depth (via a trapdoor, for example),
 may result in the Word of Recall dungeon depth being 'broken', so to
 speak (meaning that the next Word of Recall in town will take you back
-deeper than you would like to), there is a new feature in Zangband
+deeper than you would like to), there is a new feature in STangband
 which allows you to read a scroll of Word of Recall on a different
 level and 'reset' the recall depth to that level (instead of the
 deepest level).
 
-A more complete description of Zangband objects is found elsewhere in
+A more complete description of STangband objects is found elsewhere in
 the documentation (see objects.txt [2]).
 
 
@@ -219,7 +219,7 @@ other objects that are considered 'great' (see objects.txt)). A feeling
 is only indicative of the level at the time you entered it and has no
 impact on subsequent monsters generated or items dropped.
 
-In Zangband, the nastier the feeling prompt, the better the level. From
+In STangband, the nastier the feeling prompt, the better the level. From
 worst to best, the prompts are as follows:
 
      'What a boring place...'
@@ -232,7 +232,7 @@ worst to best, the prompts are as follows:
      'This level looks very dangerous.'
      'You nearly faint as horrible visions of death fill your mind!'
 
-Zangband also uses two other feeling prompts to denote special things.
+STangband also uses two other feeling prompts to denote special things.
 If you have not yet been on a level long enough to qualify for a prompt
 and press 'Ctrl-F', you will be given the prompt:
 
@@ -266,7 +266,7 @@ these quests can still be very dangerous.
 Random quests always appear on even levels and are equally spaced
 throughout the dungeon (for example, a choice of 49 random quests
 results in one such quest on every even level until level 98 (level
-100 is the Serpent quest)). On entering a random quest level you
+100 is the Morgoth quest)). On entering a random quest level you
 will be told what the quest monster is and how many you have to
 kill (for example, 'This level is guarded by 10 young green
 dragons').
@@ -306,8 +306,8 @@ or tamed.
 --
 Original   : (??)
 Updated    : (??)
-Updated    : Zangband DevTeam
-Last update: May 29, 2000
+Updated    : Simon
+Last update: February 7, 2003
 
 ***** Begin Hyperlinks
 ***** [1] command.txt

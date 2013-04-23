@@ -1,4 +1,4 @@
-=== Zangband Options ===
+=== STangband Options ===
 
 Most of the "options" are accessible through the '=' command, which
 provides an interface to the various "sets" of options available to the
@@ -75,11 +75,13 @@ Merge discounts when stacking    [stack_force_costs]
     discount. This option may cause you to lose "value", but will give
     you optimal pack usage.
 
-***** <toggle_xp>
-Reverse experience display   [toggle_xp]
-    If this option is on, the amount of experience you need to move up
-    to the next level will be displayed on the main screen.  If the
-    option is off, it will show your total experience.
+***** <auto_haggle>
+Auto-haggle in stores    [auto_haggle]
+    Disable "haggling" in stores, resulting in a ten percent sales tax
+    on items which you would have otherwise been forced to haggle for.
+    When this option is on, all prices listed in stores will be the
+    actual price that you pay for an item, as opposed to the price
+    that the shop-keeper will suggest.
 
 ***** <stack_allow_items>
 Allow weapons and armor to stack    [stack_allow_items]
@@ -94,6 +96,13 @@ Allow wands/staffs/rods to stack    [stack_allow_wands]
     may force the items to be "unstacked" to use them, which may result
     in "overflow" of the stack. Also, the entire stack can be recharged
     (and possibly destroyed) at the same time.
+
+***** <expand_look>
+Expand the power of the look command    [expand_look]
+    Expand the "look" command to allow the user to "look" at grids
+    which are not actually in view of the player, allowing the
+    examination of objects/monsters which have only been detected by
+    spells, or sensed via telepathy.
 
 ***** <expand_list>
 Expand the power of the list commands    [expand_list]
@@ -212,7 +221,7 @@ Disturb whenever boring things happen    [disturb_minor]
 
 ***** <disturb_other>
 Disturb whenever random things happen    [disturb_other]
-    In Zangband, uncursed teleporting items may teleport you around
+    In STangband, uncursed teleporting items may teleport you around
     sometimes, asking for your confirmation (and possibly disturbing
     your rest). If you unset this option, they will stop asking you
     and teleporting you randomly. Cursed items will neither ask for
@@ -388,6 +397,11 @@ Flush input whenever disturbed    [flush_disturb]
     which take time, since it will prevent you from continuing your
     macro while being attacked by a monster.
 
+***** <flush_command>
+Flush input before every command    [flush_command]
+    This option forces the game to flush all pending input before every
+    command. This option is silly, unless you are very paranoid.
+
 ***** <fresh_before>
 Flush output before every command    [fresh_before]
     This option forces the game to flush all output before every
@@ -405,6 +419,12 @@ Flush output after every command    [fresh_after]
     may slow down the game a lot, especially on slower machines, and on
     faster machines you normally do not have a chance to see the
     results anyway.
+
+***** <fresh_message>
+Flush output after every message    [fresh_message]
+    This option forces the game to flush all output after every message
+    displayed by the game.  This will give you maximal information, but
+    may slow down the game somewhat.
 
 ***** <compress_savefile>
 Compress messages in savefiles    [compress_savefile]
@@ -431,7 +451,7 @@ Show labels in object lists    [show_labels]
     played for a while, this information is no longer useful, and can
     be annoying. Note that in Zangband 2.1.0 and later this option no
     longer controls the "plain flavored object descriptions": a
-    separate option for them has been added under "Zangband Options".
+    separate option for them has been added under "STangband Options".
 
 ***** <show_weights>
 Show weights in object lists    [show_weights]
@@ -497,7 +517,7 @@ Use special colors for floor grids (slow)    [view_special_lite]
 
 ***** <plain_descriptions>
 Plain object descriptions    [plain_descriptions]
-    In Zangband, this option disables "full" names for identified
+    In STangband, this option disables "full" names for identified
     'flavored' objects, in other words, if this option is not in use,
     an identified Potion of Speed could be listed (for example) as a
     Blue Potion of Speed. If you prefer simpler, less verbose
@@ -524,7 +544,7 @@ Allow monsters to carry lights   [monster_light]
 === Birth Options ===
 
 While cheating makes the game easier, the following options can make
-Zangband harder. So if you think the game is too easy, or if you want
+STangband harder. So if you think the game is too easy, or if you want
 to impress your friends, then switch on the following options. The
 startup-options can only be accessed while creating a new character
 (press '=' while creating the character). There is no way to turn them
@@ -538,9 +558,9 @@ Monsters behave stupidly    [stupid_monsters]
     deadly with the improved AI. If you are a sissy, set this option to
     get the old, really stupid monster AI.
     Note that the new AI is a bit processing power expensive. If you
-    have an old computer (386sx) and Zangband is running too slowly,
+    have an old computer (386sx) and STangband is running too slowly,
     you could try turning stupid_monsters on. Or buying that Pentium II
-    so you can run Zangband. :-)
+    so you can run STangband. :-)
 
 ***** <vanilla_town>
 Use 'vanilla' town without quests and wilderness   [vanilla_town]
@@ -576,7 +596,7 @@ Permanently enable the autoscummer   [ironman_autoscum]
     This option switches the "autoscummer" permanently on, so that only
     "good" levels are created.  This can mean, that there are good
     items on this level, or that the level is protected by especially
-    powerful monsters. In Zangband it often is the later, so use this
+    powerful monsters. In STangband it often is the later, so use this
     option with care.
 
 ***** <ironman_hard_quests>
@@ -599,9 +619,9 @@ Create terrain 'streamers' in the dungeon   [terrain_streams]
 
 ***** <ironman_moria>
 The good old days ...   [ironman_moria]
-    This option induces Zangband to mimic certain aspects of the game
+    This option induces STangband to mimic certain aspects of the game
     of Moria.  This includes the lack of colour, inability to gain the
-    high resists, no targetting, and several other changes to game
+    high resists, no tragetting, and several other changes to game
     play.
 
 ***** <munchkin_death>
@@ -682,6 +702,7 @@ The "delay_factor" value, if non-zero, is used to "slow down" the game,
 which is useful to allow you to "observe" the temporal effects of bolt,
 beam, and ball attacks. The actual delay is equal to "delay_factor"
 cubed, in milliseconds.
+I recomend 3 or 4.
 
 
 ***** <Hitpoint>
@@ -763,6 +784,6 @@ Allow player to avoid death    [cheat_live]
 Original   : Ben Harrison
 Updated    : Zangband 2.1.* by Topi Ylinen
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
-Updated    : Zangband DevTeam
-Last update: February 27, 2002
+Updated    : Simon
+Last update: February 11, 2003
 

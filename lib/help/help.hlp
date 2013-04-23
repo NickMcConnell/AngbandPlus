@@ -1,21 +1,21 @@
-Welcome to the Zangband Online Help System.
+Welcome to the STangband Online Help System.
 
 Please choose one of the following online help files:
 
-    (0) General Information            (general.hlp)
-    (1) Creating a Character           (birth.hlp)
-    (2) Character Attributes           (charattr.hlp)
-    (3) The Town and Wilderness        (town.hlp)
-    (4) The Dungeon                    (dungeon.hlp)
-    (5) Zangband Objects               (objects.hlp)
-    (6) Zangband Monsters              (monster.hlp)
-    (7) Attacking Monsters             (attack.hlp)
-    (8) Defending Yourself             (defend.hlp)
-    (9) Zangband Magic System          (magic.hlp)
-    (a) Zangband Commands              (command.hlp)
-    (b) Zangband Options               (option.hlp)
-    (c) User Preference Files          (pref.hlp)
-    (d) Zangband Spoilers              (spoiler.hlp)
+    (0) General Information             (general.hlp)
+    (1) Creating a Character            (birth.hlp)
+    (2) Character Attributes            (charattr.hlp)
+    (3) The Town and Wilderness         (town.hlp)
+    (4) The Dungeon                     (dungeon.hlp)
+    (5) STangband Objects               (objects.hlp)
+    (6) STangband Monsters              (monster.hlp)
+    (7) Attacking Monsters              (attack.hlp)
+    (8) Defending Yourself              (defend.hlp)
+    (9) STangband Magic System          (magic.hlp)
+    (a) STangband Commands              (command.hlp)
+    (b) STangband Options               (option.hlp)
+    (c) User Preference Files           (pref.hlp)
+    (d) Zangband Spoilers               (spoiler.hlp)
 
 
 ***** [0] general.hlp

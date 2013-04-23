@@ -26,8 +26,6 @@
  *	- Array[h*w] -- Attribute array
  *	- Array[h*w] -- Character array
  *
- *  - Pointer to the next window in the stack.
- *
  * Note that the attr/char pair at (x,y) is a[y][x]/c[y][x]
  * and that the row of attr/chars at (0,y) is a[y]/c[y]
  */
@@ -45,13 +43,14 @@ struct term_win
 	byte *va;
 	char *vc;
 
+#ifdef USE_TRANSPARENCY
 	byte **ta;
 	char **tc;
 
 	byte *vta;
 	char *vtc;
-	
-	term_win *next;
+#endif /* USE_TRANSPARENCY */
+
 };
 
 
@@ -136,6 +135,9 @@ struct term_win
  *	- Displayed screen image
  *	- Requested screen image
  *
+ *	- Temporary screen image
+ *	- Memorized screen image
+ *
  *
  *	- Hook for init-ing the term
  *	- Hook for nuke-ing the term
@@ -200,24 +202,33 @@ struct term
 	term_win *old;
 	term_win *scr;
 
-	void (*init_hook) (term *t);
-	void (*nuke_hook) (term *t);
+	term_win *tmp;
+	term_win *mem;
 
-	errr (*user_hook) (int n);
+	void (*init_hook)(term *t);
+	void (*nuke_hook)(term *t);
 
-	errr (*xtra_hook) (int n, int v);
+	errr (*user_hook)(int n);
 
-	errr (*curs_hook) (int x, int y);
+	errr (*xtra_hook)(int n, int v);
 
-	errr (*wipe_hook) (int x, int y, int n);
+	errr (*curs_hook)(int x, int y);
 
-	errr (*text_hook) (int x, int y, int n, byte a, cptr s);
+	errr (*wipe_hook)(int x, int y, int n);
 
-	void (*resize_hook) (void);
+	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
-	errr (*pict_hook) (int x, int y, int n, const byte *ap, const char *cp,
-					   const byte *tap, const char *tcp);
+	void (*resize_hook)(void);
+
+#ifdef USE_TRANSPARENCY
+	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+#else /* USE_TRANSPARENCY */
+	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp);
+#endif /* USE_TRANSPARENCY */
+
 };
+
+
 
 
 
@@ -243,22 +254,19 @@ struct term
  *
  * The other actions do not need a "v" code, so "zero" is used.
  */
-#define TERM_XTRA_EVENT	1		/* Process some pending events */
-#define TERM_XTRA_FLUSH 2		/* Flush all pending events */
-#define TERM_XTRA_CLEAR 3		/* Clear the entire window */
-#define TERM_XTRA_SHAPE 4		/* Set cursor shape (optional) */
-#define TERM_XTRA_FROSH 5		/* Flush one row (optional) */
-#define TERM_XTRA_FRESH 6		/* Flush all rows (optional) */
-#define TERM_XTRA_NOISE 7		/* Make a noise (optional) */
-#define TERM_XTRA_SOUND 8		/* Make a sound (optional) */
-#define TERM_XTRA_BORED 9		/* Handle stuff when bored (optional) */
-#define TERM_XTRA_REACT 10		/* React to global changes (optional) */
-#define TERM_XTRA_ALIVE 11		/* Change the "hard" level (optional) */
-#define TERM_XTRA_LEVEL 12		/* Change the "soft" level (optional) */
-#define TERM_XTRA_DELAY 13		/* Delay some milliseconds (optional) */
-#define TERM_XTRA_ERMAP 14		/* Erase the overhead map (optional) */
-
-
+#define TERM_XTRA_EVENT	1	/* Process some pending events */
+#define TERM_XTRA_FLUSH 2	/* Flush all pending events */
+#define TERM_XTRA_CLEAR 3	/* Clear the entire window */
+#define TERM_XTRA_SHAPE 4	/* Set cursor shape (optional) */
+#define TERM_XTRA_FROSH 5	/* Flush one row (optional) */
+#define TERM_XTRA_FRESH 6	/* Flush all rows (optional) */
+#define TERM_XTRA_NOISE 7	/* Make a noise (optional) */
+#define TERM_XTRA_SOUND 8	/* Make a sound (optional) */
+#define TERM_XTRA_BORED 9	/* Handle stuff when bored (optional) */
+#define TERM_XTRA_REACT 10	/* React to global changes (optional) */
+#define TERM_XTRA_ALIVE 11	/* Change the "hard" level (optional) */
+#define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
+#define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
 
 
 /**** Available Variables ****/
@@ -271,10 +279,15 @@ extern term *Term;
 extern errr Term_user(int n);
 extern void Term_xtra(int n, int v);
 
+#ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
 
-extern void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta,
-							char *tc);
+extern void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc);
+#else /* USE_TRANSPARENCY */
+extern void Term_queue_char(int x, int y, byte a, char c);
+
+extern void Term_queue_line(int x, int y, int n, byte *a, char *c);
+#endif /* USE_TRANSPARENCY */
 
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
 
@@ -283,7 +296,9 @@ extern errr Term_set_cursor(int v);
 extern void Term_gotoxy(int x, int y);
 extern void Term_draw(int x, int y, byte a, char c);
 extern void Term_addch(byte a, char c);
+extern void Term_addstr(int n, byte a, cptr s);
 extern void Term_putch(int x, int y, byte a, char c);
+extern void Term_putstr(int x, int y, int n, byte a, cptr s);
 extern void Term_erase(int x, int y, int n);
 extern void Term_clear(void);
 extern void Term_redraw(void);
@@ -302,6 +317,8 @@ extern errr Term_inkey(char *ch, bool wait, bool take);
 extern void Term_save(void);
 extern void Term_load(void);
 
+extern errr Term_exchange(void);
+
 extern errr Term_resize(int w, int h);
 
 extern void Term_activate(term *t);
@@ -309,4 +326,6 @@ extern void Term_activate(term *t);
 extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);
 
-#endif /* INCLUDED_Z_TERM_H */
+#endif
+
+

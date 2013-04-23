@@ -72,12 +72,6 @@
 
 #ifdef USE_DOS
 
-cptr help_dos[] =
-{
-	"To use DOS (Graphics)",
-	NULL
-};
-
 #include <allegro.h>
 
 #ifdef USE_MOD_FILES
@@ -318,7 +312,11 @@ static void play_song(void);
 #endif /* USE_SOUND */
 #ifdef USE_GRAPHICS
 static bool init_graphics(void);
+# ifdef USE_TRANSPARENCY
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+# else /* USE_TRANSPARENCY */
+static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp);
+# endif /* USE_TRANSPARENCY */
 #endif /* USE_GRAPHICS */
 
 
@@ -698,7 +696,7 @@ static errr Term_xtra_dos(int n, int v)
 					/* Get a *new* song at random */
 					while (1)
 					{
-						n = Rand_simple(song_number);
+						n = randint1(song_number);
 						if (n != current_song) break;
 					}
 					current_song = n;
@@ -767,9 +765,6 @@ static errr Term_user_dos(int n)
 
 	char section[80];
 
-	/* Unused parameter */
-	(void)n;
-
 	/* Interact */
 	while (1)
 	{
@@ -777,35 +772,51 @@ static errr Term_user_dos(int n)
 		Term_clear();
 
 		/* Print date and time of compilation */
-		prtf(45, 1, "Compiled: %s %s\n", __TIME__, __DATE__);
+		prt(format("Compiled: %s %s\n", __TIME__, __DATE__), 1, 45);
 
 		/* Why are we here */
-		prtf(0, 2, "DOS options");
+		prt("DOS options", 2, 0);
 
 		/* Give some choices */
 #ifdef USE_SOUND
-		prtf(5, 4, "(V) Sound Volume");
-		prtf(5, 5, "(M) Music Volume");
+		prt("(V) Sound Volume", 4, 5);
+		prt("(M) Music Volume", 5, 5);
 #endif /* USE_SOUND */
 
 #ifdef USE_GRAPHICS
 
-		prtf(5, 7, "(G) Graphics : %s", arg_graphics ? "On" : "Off");
+		if (arg_graphics)
+		{
+			strcpy(status, "On");
+		}
+		else
+		{
+			strcpy(status, "Off");
+		}
+		prt(format("(G) Graphics : %s", status), 7, 5);
 
 #endif /* USE_GRAPHICS */
 
 #ifdef USE_SOUND
 
-		prtf(5, 8, "(S) Sound/Music : %s", arg_sound ? "On" : "Off");
+		if (arg_sound)
+		{
+			strcpy(status, "On");
+		}
+		else
+		{
+			strcpy(status, "Off");
+		}
+		prt(format("(S) Sound/Music : %s", status), 8, 5);
 
 #endif /* USE_SOUND */
 
-		prtf(5, 12, "(R) Screen resolution");
+		prt("(R) Screen resolution", 12, 5);
 
-		prtf(5, 14, "(W) Save current options");
+		prt("(W) Save current options", 14, 5);
 
 		/* Prompt */
-		prtf(0, 18, "Command: ");
+		prt("Command: ", 18, 0);
 
 		/* Get command */
 		k = inkey();
@@ -822,13 +833,13 @@ static errr Term_user_dos(int n)
 			case 'v':
 			{
 				/* Prompt */
-				prtf(0, 18, "Command: Sound Volume");
+				prt("Command: Sound Volume", 18, 0);
 
 				/* Get a new value */
 				while (1)
 				{
-					prtf(0, 22, "Current Volume: %d", digi_volume);
-					prtf(0, 20, "Change Volume (+, - or ESC to accept): ");
+					prt(format("Current Volume: %d", digi_volume), 22, 0);
+					prt("Change Volume (+, - or ESC to accept): ", 20, 0);
 					k = inkey();
 					if (k == ESCAPE) break;
 					switch (k)
@@ -861,13 +872,13 @@ static errr Term_user_dos(int n)
 			case 'm':
 			{
 				/* Prompt */
-				prtf(0, 18, "Command: Music Volume");
+				prt("Command: Music Volume", 18, 0);
 
 				/* Get a new value */
 				while (1)
 				{
-					prtf(0, 22, "Current Volume: %d", midi_volume);
-					prtf(0, 20, "Change Volume (+, - or ESC to accept): ");
+					prt(format("Current Volume: %d", midi_volume), 22, 0);
+					prt("Change Volume (+, - or ESC to accept): ", 20, 0);
 					k = inkey();
 					if (k == ESCAPE) break;
 					switch (k)
@@ -903,7 +914,7 @@ static errr Term_user_dos(int n)
 			case 'G':
 			case 'g':
 			{
-				/* Hack - Toggle "arg_graphics" */
+				/* Toggle "arg_graphics" */
 				arg_graphics = !arg_graphics;
 
 				/* React to changes */
@@ -948,14 +959,14 @@ static errr Term_user_dos(int n)
 				Term_clear();
 
 				/* Prompt */
-				prtf(0, 1, "Command: Screen Resolution");
-				prtf(0, 3, "Restart %s to get the new screenmode.", VERSION_NAME);
+				prt("Command: Screen Resolution", 1, 0);
+				prt(format("Restart %s to get the new screenmode.", VERSION_NAME), 3, 0);
 
 				/* Get a list of the available presets */
 				while (1)
 				{
 					/* Section name */
-					strnfmt(section, 80, "Mode-%d", i);
+					sprintf(section, "Mode-%d", i);
 
 					/* Get new values or end the list */
 					if (!(w = get_config_int(section, "screen_wid", 0)) || (i == 16)) break;
@@ -965,14 +976,14 @@ static errr Term_user_dos(int n)
 					descr = get_config_string(section, "Description", "");
 
 					/* Print it */
-					prtf(0, 4 + i, "(%d) %d x %d   %s", i, w, h, descr);
+					prt(format("(%d) %d x %d   %s", i, w, h, descr), 4 + i, 0);
 
 					/* Next */
 					i++;
 				}
 
 				/* Get a new resolution */
-				prtf(0, 20, "Screen Resolution : %d", resolution);
+				prt(format("Screen Resolution : %d", resolution), 20, 0);
 				k = inkey();
 				if (k == ESCAPE) break;
 				if (isdigit(k)) resolution = D2I(k);
@@ -992,7 +1003,7 @@ static errr Term_user_dos(int n)
 			case 'W':
 			case 'w':
 			{
-				prtf(0, 18, "Saving current options");
+				prt("Saving current options", 18, 0);
 
 #ifdef USE_SOUND
 				set_config_int("sound", "digi_volume", digi_volume);
@@ -1012,7 +1023,7 @@ static errr Term_user_dos(int n)
 		}
 
 		/* Flush messages */
-		message_flush();
+		msg_print(NULL);
 	}
 
 	/* Redraw it */
@@ -1182,7 +1193,11 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
  * "ap[i]" and "cp[i]" values, but we must map the resulting value
  * onto the legal bitmap size, which is normally 32x32.  XXX XXX XXX
  */
+#ifdef USE_TRANSPARENCY
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+#else /* USE_TRANSPARENCY */
+static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
+#endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -1192,7 +1207,12 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, c
 
 	int x1, y1;
 	int x2, y2;
+
+# ifdef USE_TRANSPARENCY
+
 	int x3, y3;
+
+# endif /* USE_TRANSPARENCY */
 
 	/* Size */
 	w = td->tile_wid;
@@ -1209,6 +1229,7 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, c
 		x2 = (cp[i] & 0x7F) * w;
 		y2 = (ap[i] & 0x7F) * h;
 
+# ifdef USE_TRANSPARENCY
 		x3 = (tcp[i] & 0x7F) * w;
 		y3 = (tap[i] & 0x7F) * h;
 
@@ -1217,6 +1238,13 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, c
 
 		/* Blit the tile to the screen */
 		masked_blit(td->tiles, screen, x2, y2, x1, y1, w, h);
+
+# else /* USE_TRANSPARENCY */
+
+		/* Blit the tile to the screen */
+		blit(td->tiles, screen, x2, y2, x1, y1, w, h);
+
+# endif /* USE_TRANSPARENCY */
 
 		/* Advance (window) */
 		x1 += w;
@@ -1234,9 +1262,6 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, c
  */
 static void Term_init_dos(term *t)
 {
-	/* Unused parameter */
-	(void)t;
-
 	/* XXX Nothing */
 }
 
@@ -1328,10 +1353,6 @@ static void dos_quit_hook(cptr str)
 {
 	int i;
 
-
-	/* Unused parameter */
-	(void)str;
-
 	/* Destroy windows */
 	for (i = MAX_TERM_DATA - 1; i >= 0; i--)
 	{
@@ -1417,8 +1438,8 @@ static void dos_dump_screen(void)
 	if (bmp) destroy_bitmap(bmp);
 
 	/* Success message */
-	msgf("Screen dump saved.");
-	message_flush();
+	msg_print("Screen dump saved.");
+	msg_print(NULL);
 }
 
 
@@ -1632,7 +1653,7 @@ static bool init_windows(void)
 	char buf[128];
 
 	/* Section name */
-	strnfmt(section, 80, "Mode-%d", resolution);
+	sprintf(section, "Mode-%d", resolution);
 
 	/* Get number of windows */
 	num_windows = get_config_int(section, "num_windows", 1);
@@ -1647,7 +1668,7 @@ static bool init_windows(void)
 		WIPE(td, term_data);
 
 		/* Section name */
-		strnfmt(section, 80, "Term-%d-%d", resolution, i);
+		sprintf(section, "Term-%d-%d", resolution, i);
 
 		/* Term number */
 		td->number = i;
@@ -1786,7 +1807,7 @@ static bool init_graphics(void)
 	if (!graphics_initialized)
 	{
 		/* Section name */
-		strnfmt(section, 80, "Mode-%d", resolution);
+		sprintf(section, "Mode-%d", resolution);
 
 		/* Get bitmap tile size */
 		bitmap_wid = get_config_int(section, "bitmap_wid", 8);
@@ -1805,30 +1826,16 @@ static bool init_graphics(void)
 		if ((tiles = load_bitmap(filename, tiles_pallete)) != NULL)
 		{
 			int i;
-			cptr graf_mode;
-			
 
 			/*
 			 * Set the graphics mode to "new" if Adam Bolt's
 			 * new 16x16 tiles are used.
 			 */
-			graf_mode = get_config_string(section, "graf-mode", "old");
+			ANGBAND_GRAF = get_config_string(section, "graf-mode", "old");
 
-			if (streq(graf_mode, "new"))
-			{
-				arg_graphics = GRAPHICS_ADAM_BOLT;
-
-				/* Use transparent blits */
+			/* Use transparent blits */
+			if (streq(ANGBAND_GRAF, "new"))
 				use_transparency = TRUE;
-			}
-			else if (streq(graf_mode, "old"))
-			{
-				arg_graphics = GRAPHICS_ORIGINAL;
-			}
-			else
-			{
-				arg_graphics = GRAPHICS_NONE;
-			}
 
 			/* Select the bitmap pallete */
 			set_palette_range(tiles_pallete, 0, COLOR_OFFSET - 1, 0);
@@ -1942,7 +1949,7 @@ static bool init_sound(void)
 		for (i = 1; i < SOUND_MAX; i++)
 		{
 			/* Get the sample names */
-			argv = get_config_argv(section, (char *)angband_sound_name[i], &sample_count[i]);
+			argv = get_config_argv(section, angband_sound_name[i], &sample_count[i]);
 
 			/* Limit the number of samples */
 			if (sample_count[i] > SAMPLE_MAX) sample_count[i] = SAMPLE_MAX;
@@ -2016,7 +2023,7 @@ static errr Term_xtra_dos_sound(int v)
 	if ((v < 0) || (v >= SOUND_MAX)) return (1);
 
 	/* Get a random sample from the available ones */
-	n = Rand_simple(sample_count[v]);
+	n = randint0(sample_count[v]);
 
 	/* Play the sound, catch errors */
 	if (samples[v][n])
@@ -2074,13 +2081,6 @@ static void play_song(void)
 /*
  * Attempt to initialize this file
  *
- * Hack -- we assume that "blank space" should be "white space"
- * (and not "black space" which might make more sense).
- *
- * Note the use of "((x << 2) | (x >> 4))" to "expand" a 6 bit value
- * into an 8 bit value, without losing much precision, by using the 2
- * most significant bits as the least significant bits in the new value.
- *
  * We should attempt to "share" bitmaps (and fonts) between windows
  * with the same "tile" size.  XXX XXX XXX
  */
@@ -2109,7 +2109,7 @@ errr init_dos(void)
 	resolution = get_config_int(section, "Resolution", 1);
 
 	/* Section name */
-	strnfmt(section, 80, "Mode-%d", resolution);
+	sprintf(section, "Mode-%d", resolution);
 
 	/* Get the screen dimensions */
 	screen_wid = get_config_int(section, "screen_wid", 640);
@@ -2231,3 +2231,4 @@ errr init_dos(void)
 }
 
 #endif /* USE_DOS */
+

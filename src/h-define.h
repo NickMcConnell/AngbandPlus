@@ -16,7 +16,7 @@
 #  define NULL ((void*)0)
 # else
 #  define NULL ((char*)0)
-# endif	/* __STDC__ */
+# endif /* __STDC__ */
 #endif /* NULL */
 
 
@@ -104,43 +104,28 @@
 #define SGN(a)		(((a) < 0)   ? (-1) : ((a) != 0))
 
 /*
- * Turn on aborts for the assert macro for now
- */
-#define DEBUG_ABORT
-
-
-
-/*
  * An assertion macro
  */
 #undef assert
 
 #ifdef NDEBUG
-# define assert(ignore)	((void) 0)
-#else /* NDEBUG */
-
+	#define assert(ignore)	((void) 0)
+#else
 	/* Pick which type of output to use */
-# ifdef DEBUG_CORE
-#  define __assert_fmt core_fmt
-# else /* DEBUG_CORE */
-#  define __assert_fmt quit_fmt
-# endif /* DEBUG_CORE */
-
-	/* Pick whether to save the game before aborting */
-# ifdef DEBUG_ABORT
-#  define __assert_save ((void) 0)
-# else
-#  define __assert_save save_player()
-# endif
-
-	/* Possibly save the game, and then abort. */
-# define assert(expr)\
+	#ifdef DEBUG_CORE
+		#define __assert_fmt core_fmt
+	#else
+		#define __assert_fmt quit_fmt
+	#endif
+	
+	/* Save the game, and then abort. */
+	#define assert(expr)\
 	do\
 	{\
+		signals_ignore_tstp();\
+		(void) save_player();\
 		if (!(expr))\
 		{\
-			signals_ignore_tstp();\
-			__assert_save;\
 			__assert_fmt("\n%s%s\n%s%s\n%s%d\n\n",\
 			"Assertion failed: ", #expr,\
 			"in file ", __FILE__,\
@@ -148,9 +133,8 @@
 		}\
 	}\
 	while (FALSE)
-#endif /* NDEBUG */
-
-
+#endif
+	
 
 /*
  * Hack -- allow use of "ASCII" and "EBCDIC" for "indexes", "digits",
@@ -177,18 +161,5 @@
 #endif
 
 
-/*
- * Hack - a useful "get array index from pointers" macro.
- *
- * We assume P is a pointer to something in array A.
- */
-#define GET_ARRAY_INDEX(A,P) \
-	((P)-(A))
-
-/*
- * Get number of elements in an array
- */
-#define NUM_ELEMENTS(A) \
-	(sizeof(A) / sizeof ((A)[0]))
-
 #endif
+

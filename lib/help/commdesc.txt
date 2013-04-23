@@ -43,7 +43,7 @@ Equipment list (e)
 Drop an item (d)
      This drops an item from your inventory or equipment onto the
      dungeon floor. If the floor spot you are standing on already has
-     an object in it, Zangband will attempt to drop the item onto an
+     an object in it, STangband will attempt to drop the item onto an
      adjacent space. Be warned that if the floor is full and you
      attempt to drop something, it may disappear and be destroyed.
      Doors and traps are considered objects for the purpose of
@@ -250,12 +250,13 @@ Alter (+)
 ---  Spell and Prayer Commands ---
 
 Browse a book (b) or Peruse a book (P)
-     Only mages, rogues, and rangers can read magic books, and only
-     priests and paladins can read prayer books. Warriors cannot read
-     any books. When this command is used, all of the spells or prayers
+     This can only be used by a character that can use books.
+     When this command is used, all of the spells or prayers
      contained in the selected book are displayed, along with such
      information as their level, the amount of mana required to cast
      them, and whether or not you know the spell or prayer.
+     This will then ask for you to select a spell. If you do, it will
+     display a longer description of the spell.
 
 Gain new spells or prayers (G)
      Use this command to actually learn new spells or prayers. When you
@@ -371,6 +372,12 @@ Zap a rod (z) or Activate a rod (a)
      turns. The recharging time varies depending on the type of rod.
      This command may require a direction (depending on the type of
      rod, and whether you are aware of its type) and can use a target.
+
+Use a machine (x)
+     Machines are very similar to rods but they do not use magic.
+     Instead these devices have been made by Technicians to replace
+     the need for magic. As that can be very unreliable. Other than
+     that and the different effects they are just like rods.
 
 
 ***** <ThrowFire>
@@ -547,12 +554,12 @@ Save and Quit (Ctrl-X)
      your savefile to play again with the same options and such.
 
 Save (Ctrl-S)
-     This command saves the game but doesn't exit Zangband. Use this
+     This command saves the game but doesn't exit STangband. Use this
      frequently if you are paranoid about having the computer crash
      while you are playing.
 
 Quit (commit suicide) (Q)
-     Kills your character and exits Zangband. You will be prompted to
+     Kills your character and exits STangband. You will be prompted to
      make sure you really want to do this, and then asked to verify
      that choice. Note that dead characters are dead forever.
 
@@ -568,11 +575,11 @@ together with a detailed description of this function.
 --- Help ---
 
 Help (?)
-     Brings up the Zangband on-line help system. Note that the help
+     Brings up the STangband on-line help system. Note that the help
      files are just text files in a particular format, and that other
      help files may be available on the Net. In particular, there are
      a variety of spoiler files which do not come with the standard
-     distribution. Check the place you got Zangband from or ask on the
+     distribution. Check the place you got STangband from or ask on the
      newsgroup rec.games.roguelike.angband about them. 
 
 Identify Symbol (/)
@@ -599,7 +606,7 @@ Identify Symbol (/)
      on. Pressing ESCAPE at any point will exit this command.
  
 Game Version (V)
-     This command will tell you what version of Zangband you are using.
+     This command will tell you what version of STangband you are using.
      For more information, see the "version.txt" help file.
 
 
@@ -609,7 +616,7 @@ Game Version (V)
 Toggle Choice Window (^E) 
      Toggles the display in the choice window (if available) between
      your inventory and your equipment. This command only applies if
-     you are running Zangband under a windowing environment and the
+     you are running STangband under a windowing environment and the
      choice window is available. This also redraws the choice window.
 
 Redraw Screen (^R)
@@ -638,8 +645,8 @@ Original   : Alexander Cutler and Andy Astrand
 Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
 Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
-Updated    : Zangband DevTeam
-Last update: June 2, 2000
+Updated    : Simon
+Last update: February 7, 2003
 
 ***** Begin Hyperlinks
 ***** [1] objects.txt#Inscriptions

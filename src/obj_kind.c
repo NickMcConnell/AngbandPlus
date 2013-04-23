@@ -39,7 +39,7 @@ errr k_info_free(void)
 {
 	k_info_size = K_INFO_BASE_SIZE;
 
-	KILL(k_info);
+	C_KILL(k_info, k_info_size, object_kind);
 
 	/* Success */
 	return 0;
@@ -51,7 +51,7 @@ void k_info_reset(void)
 	int i;
 
 	/* Reset the "objects" */
-	for (i = 1; i < z_info->k_max; i++)
+	for (i = 1; i < max_k_idx; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -68,30 +68,28 @@ void k_info_reset(void)
 object_kind *k_info_add(object_kind *k_info_entry)
 {
 	/* Resize if necessary */
-	while (k_info_size <= z_info->k_max)
+	while (k_info_size <= max_k_idx)
 	{
 		k_info_size += K_INFO_RESIZE;
 
 		/* Reallocate the extra memory */
-		k_info =
-			(object_kind *)realloc(k_info, k_info_size * sizeof(object_kind));
+		k_info = (object_kind*)realloc(k_info, k_info_size * sizeof(object_kind));
 
 		/* Failure */
 		if (!k_info) quit("Out of memory!");
 
 		/* Wipe the new memory */
-		(void)C_WIPE(&k_info[(k_info_size - K_INFO_RESIZE)], K_INFO_RESIZE,
-					 object_kind);
+		(void)C_WIPE(&k_info[(k_info_size - K_INFO_RESIZE)], K_INFO_RESIZE, object_kind);
 	}
 
 	/* Increase the maximum index of the array */
-	z_info->k_max++;
+	max_k_idx++;
 
 	/* Copy the new object_kind */
-	COPY(&k_info[z_info->k_max - 1], k_info_entry, object_kind);
+	COPY(&k_info[max_k_idx-1], k_info_entry, object_kind);
 
 	/* Success */
-	return (&k_info[z_info->k_max - 1]);
+	return (&k_info[max_k_idx-1]);
 }
 
 
@@ -119,14 +117,14 @@ errr init_object_alloc(void)
 	/* Free the old "alloc_kind_table" (if it exists) */
 	if (alloc_kind_table)
 	{
-		KILL(alloc_kind_table);
+		C_KILL(alloc_kind_table, alloc_kind_size, alloc_entry);
 	}
 
 	/* Size of "alloc_kind_table" */
 	alloc_kind_size = 0;
 
 	/* Scan the objects */
-	for (i = 1; i < z_info->k_max; i++)
+	for (i = 1; i < max_k_idx; i++)
 	{
 		k_ptr = &k_info[i];
 
@@ -149,7 +147,7 @@ errr init_object_alloc(void)
 	for (i = 1; i < MAX_DEPTH; i++)
 	{
 		/* Group by level */
-		num[i] += num[i - 1];
+		num[i] += num[i-1];
 	}
 
 	/* Paranoia */
@@ -165,7 +163,7 @@ errr init_object_alloc(void)
 	table = alloc_kind_table;
 
 	/* Scan the objects */
-	for (i = 1; i < z_info->k_max; i++)
+	for (i = 1; i < max_k_idx; i++)
 	{
 		k_ptr = &k_info[i];
 
@@ -182,7 +180,7 @@ errr init_object_alloc(void)
 				p = (255 / k_ptr->chance[j]);
 
 				/* Skip entries preceding our locale */
-				y = (x > 0) ? num[x - 1] : 0;
+				y = (x > 0) ? num[x-1] : 0;
 
 				/* Skip previous entries at this locale */
 				z = y + aux[x];
@@ -198,81 +196,81 @@ errr init_object_alloc(void)
 			}
 		}
 	}
-
+	
 	/* Clear the temp arrays */
 	(void)C_WIPE(aux, MAX_DEPTH, s16b);
 	(void)C_WIPE(num, MAX_DEPTH, s16b);
-
+	
 	/* Free the old ego item allocation table (if it exists) */
 	if (alloc_ego_table)
 	{
-		KILL(alloc_ego_table);
+		C_KILL(alloc_ego_table, max_e_idx, alloc_entry);
 	}
-
+	
 	/* Create the ego item allocation table */
-	C_MAKE(alloc_ego_table, z_info->e_max, alloc_entry);
-
+	C_MAKE(alloc_ego_table, max_e_idx, alloc_entry);
+	
 	/* Access the table */
 	table = alloc_ego_table;
-
+	
 	/* No ego items in the table yet */
 	alloc_ego_size = 0;
-
+	
 	/* Count the number of legal entries */
-	for (i = 1; i < z_info->e_max; i++)
+	for (i = 1; i < max_e_idx; i++)
 	{
 		e_ptr = &e_info[i];
-
+		
 		if (e_ptr->slot)
 		{
 			/* Count the item */
 			alloc_ego_size++;
-
+			
 			/* Group by level */
 			num[e_ptr->level]++;
 		}
 	}
-
+	
 	/* Collect the level indexes */
 	for (i = 1; i < MAX_DEPTH; i++)
 	{
 		/* Group by level */
-		num[i] += num[i - 1];
+		num[i] += num[i-1];
 	}
-
-
+	
+	
 	/* Scan the ego items */
-	for (i = 1; i < z_info->e_max; i++)
+	for (i = 1; i < max_e_idx; i++)
 	{
 		e_ptr = &e_info[i];
-
+		
 		if (e_ptr->slot)
 		{
-
+		
 			/* Extract the base level */
 			x = e_ptr->level;
-
+			
 			/* Extract the base probability */
 			p = (255 / e_ptr->rarity);
-
+			
 			/* Skip entries preceding our locale */
-			y = (x > 0) ? num[x - 1] : 0;
-
+			y = (x > 0) ? num[x-1] : 0;
+			
 			/* Skip previous entries at this locale */
 			z = y + aux[x];
-
+			
 			/* Load the entry */
 			table[z].index = i;
 			table[z].level = x;
 			table[z].prob1 = p;
 			table[z].prob2 = p;
-
+			
 			/* Another entry complete for this locale */
 			aux[x]++;
 		}
 	}
-
-
+	
+		
 	/* Success */
 	return (0);
 }

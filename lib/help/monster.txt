@@ -1,6 +1,6 @@
-=== Zangband Monsters ===
+=== STangband Monsters ===
 
-There are hundreds of different creatures in Zangband each of which
+There are hundreds of different creatures in STangband each of which
 poses a unique challenge to the adventurer. As you progress deeper into
 the dungeon, the creatures will become progressively more difficult to
 defeat.
@@ -39,12 +39,12 @@ screen. The exact species or type of creature can be discovered by
   x   (unused)                        X   Xorn/Xaren
   y   Yeek                            Y   Yeti
   z   Zombie/Mummy                    Z   Zephyr Hound
-  $$   Creeping Coins                  ,   Mushroom Patch
+  $   Creeping Coins                  ,   Mushroom Patch
   %   Ent, Huorn                      #   Fumes
 
 Note that some monsters disguise themselves by assuming the shape (ie.
 symbol) of common objects found in the dungeon. These include the
-|, ), ?, !, &, $$ and * symbols.
+|, ), ?, !, &, $ and * symbols.
 
 
 ***** <MonsterColors>
@@ -74,7 +74,7 @@ will probably get cleaned up.
 
 Because there are so many monsters and because often different monsters
 share similar colors and symbols, it is very difficult to keep track of
-the capabilities of various creatures. Luckily, Zangband automatically
+the capabilities of various creatures. Luckily, STangband automatically
 keeps track of your experiences with a particular creature.
  
 This feature is called the monster memory. Your monster memory recalls
@@ -106,9 +106,9 @@ character.
 ***** <Uniques>
 === Unique Monsters ===
 
-The monsters in Zangband are unique in that each variety of monster
+The monsters in STangband are unique in that each variety of monster
 has its own set of physical and, where applicable, magical abilities.
-However, some monsters in Zangband are truly unique and this group
+However, some monsters in STangband are truly unique and this group
 of monsters are often referred to as "Uniques".
 
 The Unique monsters are made unique for several reasons. Primarily,
@@ -153,9 +153,9 @@ check this periodically to gauge your progress.
 Occasionally, you will find that a Unique monster will speak to you
 as it approaches. Typically, a monster will shout obscenities and
 challenges to combat but they may also refer to events relating to
-themselves. Zangband has no mechanism to allow you to respond to the
+themselves. STangband has no mechanism to allow you to respond to the
 monsters (other than with violence). You may prevent Unique monsters
-from speaking by changing the approopriate option under the options
+from speaking by changing the appropriate option under the options
 menus.
 
 --- Rewards for Killing Uniques ---
@@ -170,7 +170,7 @@ is normally found.
 ***** <EldritchHorror>
 === Eldritch Horrors ===
 
-Some of the monsters in the dungeons of Zangband are so fearsome to
+Some of the monsters in the dungeons of STangband are so fearsome to
 look upon that doing so can have serious repurcussions. When you meet
 one of these sanity blasting monsters, one of several nasty things
 may happen to you. These include having your intelligence and/or your
@@ -209,7 +209,7 @@ which can summon or otherwise produce more pets...
 
 You may obtain pets in several different ways. Some magic realms offer
 the ability to summon pets magically or to charm the creatures you
-meet. Mindcrafters may 'dominate' their oponents. Chaos patrons may
+meet. Mindcrafters may 'dominate' their opponents. Chaos patrons may
 grant pets as a gift to their devotees. Magical figurines can be thrown
 to create a pet and wands of charm monster may be used as their name
 suggests.
@@ -238,8 +238,8 @@ not be commanded using the pet commands.
 --
 Original   : (??)
 Updated    : (??)
-Updated    : Zangband DevTeam
-Last update: May 25, 2001
+Updated    : Simon
+Last update: February 11, 2003
 
 ***** Begin Hyperlinks
 ***** [1] commdesc.txt#Looking

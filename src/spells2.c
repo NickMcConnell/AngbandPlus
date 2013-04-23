@@ -46,25 +46,25 @@ void self_knowledge(void)
 
 	int percent;
 
-	Dummy[0] = 0;
-	Liferating[0] = 0;
+	strcpy(Dummy, "");
+	strcpy(Liferating, "");
 
 	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-					(2 * p_ptr->hitdie +
-					 ((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
+		(2 * p_ptr->hitdie +
+		((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
 
-	strnfmt(Liferating, 80, "Your current Life Rating is %d/100.", percent);
+	sprintf(Liferating, "Your current Life Rating is %d/100.", percent);
 	info[i++] = Liferating;
 
 	chg_virtue(V_KNOWLEDGE, 1);
 	chg_virtue(V_ENLIGHTEN, 1);
 
 	/* Acquire item flags from equipment */
-	for (k = 0; k < EQUIP_MAX; k++)
+	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	{
 		u32b t1, t2, t3;
 
-		o_ptr = &p_ptr->equipment[k];
+		o_ptr = &inventory[k];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -86,45 +86,46 @@ void self_knowledge(void)
 
 		strcpy(virt_name, virtue[(p_ptr->vir_types[v_nr]) - 1]);
 
-		strnfmt(vir_desc, 80, "Oops. No info about %s.", virt_name);
+		sprintf(vir_desc, "Oops. No info about %s.", virt_name);
 		if (tester < -100)
-			strnfmt(vir_desc, 80, "You are the polar opposite of %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc, "You are the polar opposite of %s (%d).",
+				virt_name, tester);
 		else if (tester < -80)
-			strnfmt(vir_desc, 80, "You are an arch-enemy of %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc, "You are an arch-enemy of %s (%d).",
+				virt_name, tester);
 		else if (tester < -60)
-			strnfmt(vir_desc, 80, "You are a bitter enemy of %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc, "You are a bitter enemy of %s (%d).",
+				virt_name, tester);
 		else if (tester < -40)
-			strnfmt(vir_desc, 80, "You are an enemy of %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc, "You are an enemy of %s (%d).",
+				virt_name, tester);
 		else if (tester < -20)
-			strnfmt(vir_desc, 80, "You have sinned against %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc, "You have sinned against %s (%d).",
+				virt_name, tester);
 		else if (tester < 0)
-			strnfmt(vir_desc, 80, "You have strayed from the path of %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc, "You have strayed from the path of %s (%d).",
+				virt_name, tester);
 		else if (tester == 0)
-			strnfmt(vir_desc, 80, "You are neutral to %s (%d).", virt_name, tester);
+			sprintf(vir_desc,"You are neutral to %s (%d).",
+				virt_name, tester);
 		else if (tester < 20)
-			strnfmt(vir_desc, 80, "You are somewhat virtuous in %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc,"You are somewhat virtuous in %s (%d).",
+				virt_name, tester);
 		else if (tester < 40)
-			strnfmt(vir_desc, 80, "You are virtuous in %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc,"You are virtuous in %s (%d).",
+				virt_name, tester);
 		else if (tester < 60)
-			strnfmt(vir_desc, 80, "You are very virtuous in %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc,"You are very virtuous in %s (%d).",
+				virt_name, tester);
 		else if (tester < 80)
-			strnfmt(vir_desc, 80, "You are a champion of %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc,"You are a champion of %s (%d).",
+				virt_name, tester);
 		else if (tester < 100)
-			strnfmt(vir_desc, 80, "You are a great champion of %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc,"You are a great champion of %s (%d).",
+				virt_name, tester);
 		else
-			strnfmt(vir_desc, 80, "You are the living embodiment of %s (%d).",
-					virt_name, tester);
+			sprintf(vir_desc,"You are the living embodiment of %s (%d).",
+		virt_name, tester);
 
 		strcpy(v_string[v_nr], vir_desc);
 
@@ -136,7 +137,7 @@ void self_knowledge(void)
 	{
 		mut_ptr = &race_powers[x];
 
-		if ((mut_ptr->which == p_ptr->prace) && (plev >= mut_ptr->level))
+		if ((mut_ptr->which == p_ptr->prace) &&	(plev >= mut_ptr->level))
 		{
 			info[i++] = mut_ptr->desc_text;
 		}
@@ -146,7 +147,7 @@ void self_knowledge(void)
 	for (x = 0; x < MUT_PER_SET * 3; x++)
 	{
 		mut_ptr = &mutations[x];
-
+		
 		/*
 		 * Only show activatable mutations if we
 		 * are of sufficiently high level
@@ -402,6 +403,10 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
 	}
+	if (p_ptr->resist_magic)
+	{
+		info[i++] = "You are resistant to magic";
+	}
 
 	if (p_ptr->sustain_str)
 	{
@@ -480,7 +485,7 @@ void self_knowledge(void)
 
 
 	/* Access the current weapon */
-	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
+	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Analyze the weapon */
 	if (o_ptr->k_idx)
@@ -585,28 +590,28 @@ void self_knowledge(void)
 	screen_save();
 
 	/* Erase the screen */
-    clear_region(13, 1, 23);
+	for (k = 1; k < 24; k++) prt("", k, 13);
 
 	/* Label the information */
-	prtf(15, 1, "     Your Attributes:");
+	prt("     Your Attributes:", 1, 15);
 
 	/* We will print on top of the map (column 13) */
 	for (k = 2, j = 0; j < i; j++)
 	{
 		/* Show the info */
-		prtf(15, k++, info[j]);
+		prt(info[j], k++, 15);
 
 		/* Every 20 entries (lines 2 to 21), start over */
-		if ((k == 22) && (j + 1 < i))
+		if ((k == 22) && (j+1 < i))
 		{
-			prtf(15, k, "-- more --");
+			prt("-- more --", k, 15);
 			(void)inkey();
-			for (; k > 2; k--) prtf(15, k, "");
+			for (; k > 2; k--) prt("", k, 15);
 		}
 	}
 
 	/* Pause */
-	prtf(13, k, "[Press any key to continue]");
+	prt("[Press any key to continue]", k, 13);
 	(void)inkey();
 
 	/* Restore the screen */
@@ -664,133 +669,166 @@ static cptr report_magic_durations[] =
  */
 void report_magics(void)
 {
-	int i = 0, j, k;
-	cptr info[128];
-	int info2[128];
+	int     i = 0, j, k;
+	char    Dummy[80];
+	cptr    info[128];
+	int     info2[128];
 
 
 	if (p_ptr->blind)
 	{
-		info2[i] = report_magics_aux(p_ptr->blind);
+		info2[i]  = report_magics_aux(p_ptr->blind);
 		info[i++] = "You cannot see";
 	}
 	if (p_ptr->confused)
 	{
-		info2[i] = report_magics_aux(p_ptr->confused);
+		info2[i]  = report_magics_aux(p_ptr->confused);
 		info[i++] = "You are confused";
 	}
 	if (p_ptr->afraid)
 	{
-		info2[i] = report_magics_aux(p_ptr->afraid);
+		info2[i]  = report_magics_aux(p_ptr->afraid);
 		info[i++] = "You are terrified";
 	}
 	if (p_ptr->poisoned)
 	{
-		info2[i] = report_magics_aux(p_ptr->poisoned);
+		info2[i]  = report_magics_aux(p_ptr->poisoned);
 		info[i++] = "You are poisoned";
 	}
 	if (p_ptr->image)
 	{
-		info2[i] = report_magics_aux(p_ptr->image);
+		info2[i]  = report_magics_aux(p_ptr->image);
 		info[i++] = "You are hallucinating";
 	}
 	if (p_ptr->blessed)
 	{
-		info2[i] = report_magics_aux(p_ptr->blessed);
+		info2[i]  = report_magics_aux(p_ptr->blessed);
 		info[i++] = "You feel righteous";
 	}
 	if (p_ptr->hero)
 	{
-		info2[i] = report_magics_aux(p_ptr->hero);
+		info2[i]  = report_magics_aux(p_ptr->hero);
 		info[i++] = "You feel heroic";
 	}
 	if (p_ptr->shero)
 	{
-		info2[i] = report_magics_aux(p_ptr->shero);
+		info2[i]  = report_magics_aux(p_ptr->shero);
 		info[i++] = "You are in a battle rage";
 	}
 	if (p_ptr->protevil)
 	{
-		info2[i] = report_magics_aux(p_ptr->protevil);
+		info2[i]  = report_magics_aux(p_ptr->protevil);
 		info[i++] = "You are protected from evil";
 	}
 	if (p_ptr->shield)
 	{
-		info2[i] = report_magics_aux(p_ptr->shield);
+		info2[i]  = report_magics_aux(p_ptr->shield);
 		info[i++] = "You are protected by a mystic shield";
 	}
 	if (p_ptr->invuln)
 	{
-		info2[i] = report_magics_aux(p_ptr->invuln);
+		info2[i]  = report_magics_aux(p_ptr->invuln);
 		info[i++] = "You are invulnerable";
 	}
 	if (p_ptr->wraith_form)
 	{
-		info2[i] = report_magics_aux(p_ptr->wraith_form);
+		info2[i]  = report_magics_aux(p_ptr->wraith_form);
 		info[i++] = "You are incorporeal";
 	}
 	if (p_ptr->confusing)
 	{
-		info2[i] = 7;
+		info2[i]  = 7;
 		info[i++] = "Your hands are glowing dull red.";
 	}
 	if (p_ptr->word_recall)
 	{
-		info2[i] = report_magics_aux(p_ptr->word_recall);
+		info2[i]  = report_magics_aux(p_ptr->word_recall);
 		info[i++] = "You are waiting to be recalled";
 	}
 	if (p_ptr->oppose_acid)
 	{
-		info2[i] = report_magics_aux(p_ptr->oppose_acid);
+		info2[i]  = report_magics_aux(p_ptr->oppose_acid);
 		info[i++] = "You are resistant to acid";
 	}
 	if (p_ptr->oppose_elec)
 	{
-		info2[i] = report_magics_aux(p_ptr->oppose_elec);
+		info2[i]  = report_magics_aux(p_ptr->oppose_elec);
 		info[i++] = "You are resistant to lightning";
 	}
 	if (p_ptr->oppose_fire)
 	{
-		info2[i] = report_magics_aux(p_ptr->oppose_fire);
+		info2[i]  = report_magics_aux(p_ptr->oppose_fire);
 		info[i++] = "You are resistant to fire";
 	}
 	if (p_ptr->oppose_cold)
 	{
-		info2[i] = report_magics_aux(p_ptr->oppose_cold);
+		info2[i]  = report_magics_aux(p_ptr->oppose_cold);
 		info[i++] = "You are resistant to cold";
 	}
 	if (p_ptr->oppose_pois)
 	{
-		info2[i] = report_magics_aux(p_ptr->oppose_pois);
+		info2[i]  = report_magics_aux(p_ptr->oppose_pois);
 		info[i++] = "You are resistant to poison";
+	}
+	if (p_ptr->sh_fire)
+	{
+		info2[i]  = report_magics_aux(p_ptr->sh_fire);
+		info[i++] = "You are surrounded by fire";
+	}
+	if (p_ptr->sh_elec)
+	{
+		info2[i]  = report_magics_aux(p_ptr->sh_elec);
+		info[i++] = "You are surrounded by lightning";
+	}
+	if (p_ptr->ffall)
+	{
+		info2[i]  = report_magics_aux(p_ptr->ffall);
+		info[i++] = "You are as light as a feather";
+	}
+	if (p_ptr->free_act)
+	{
+		info2[i]  = report_magics_aux(p_ptr->free_act);
+		info[i++] = "You are protected from binding";
+	}
+	if (p_ptr->ac1)
+	{
+		info2[i]  = report_magics_aux(p_ptr->ac1);
+		info[i++] = "You have a minor defence boost";
+	}
+	if (p_ptr->ac2)
+	{
+		info2[i]  = report_magics_aux(p_ptr->ac2);
+		info[i++] = "You have a major defence boost";
 	}
 
 	/* Save the screen */
 	screen_save();
 
 	/* Erase the screen */
-    clear_region(13, 1, 23);
+	for (k = 1; k < 24; k++) prt("", k, 13);
 
 	/* Label the information */
-	prtf(15, 1, "     Your Current Magic:");
+	prt("     Your Current Magic:", 1, 15);
 
 	/* We will print on top of the map (column 13) */
 	for (k = 2, j = 0; j < i; j++)
 	{
 		/* Show the info */
-		prtf(15, k++, "%s %s.", info[j], report_magic_durations[info2[j]]);
+		sprintf(Dummy, "%s %s.", info[j],
+			report_magic_durations[info2[j]]);
+		prt(Dummy, k++, 15);
 
 		/* Every 20 entries (lines 2 to 21), start over */
 		if ((k == 22) && (j + 1 < i))
 		{
-			prtf(15, k, "-- more --");
+			prt("-- more --", k, 15);
 			(void)inkey();
-			for (; k > 2; k--) prtf(15, k, "");
+			for (; k > 2; k--) prt("", k, 15);
 		}
 	}
 
 	/* Pause */
-	prtf(13, k, "[Press any key to continue]");
+	prt("[Press any key to continue]", k, 13);
 	(void)inkey();
 
 	/* Restore the screen */
@@ -806,10 +844,13 @@ bool detect_traps(void)
 	int px = p_ptr->px;
 	int py = p_ptr->py;
 
-	int x, y;
-	bool detect = FALSE;
-	cave_type *c_ptr;
-	pcave_type *pc_ptr;
+	int             x, y;
+	bool            detect = FALSE;
+	cave_type       *c_ptr;
+
+	/* Save center of detection radius */
+	p_ptr->detectx = px;
+	p_ptr->detecty = py;
 
 	/* Have detected traps on this level */
 	p_ptr->detected = TRUE;
@@ -820,13 +861,12 @@ bool detect_traps(void)
 	{
 		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
 		{
-			if (!in_bounds2(x, y)) continue;
+			if (!in_bounds2(y, x)) continue;
 
 			if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 			/* Access the grid */
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
+			c_ptr = area(y,x);
 
 			/* Detect traps */
 			if (field_detect_type(c_ptr->fld_idx, FTYPE_TRAP))
@@ -834,63 +874,17 @@ bool detect_traps(void)
 				/* Obvious */
 				detect = TRUE;
 			}
-
-			/* Save the 'detected' status for this square */
-			pc_ptr->player |= GRID_DTCT;
 		}
 	}
 
 	/* Describe */
 	if (detect)
 	{
-		msgf("You sense the presence of traps!");
+		msg_print("You sense the presence of traps!");
 	}
 
 	/* Result */
 	return (detect);
-}
-
-
-/*
- * Place a random type of normal door at the given location.
- * Use this in-game
- */
-void create_closed_door(int x, int y)
-{
-	int tmp;
-
-	/* Invisible wall */
-	if (ironman_nightmare && one_in_(666))
-	{
-		/* Create invisible wall */
-		cave_set_feat(x, y, FEAT_FLOOR);
-		(void)place_field(x, y, FT_WALL_INVIS);
-		return;
-	}
-
-	/* Choose an object */
-	tmp = randint0(400);
-
-	/* Closed doors (300/400) */
-	if (tmp < 300)
-	{
-		/* Create closed door */
-		cave_set_feat(x, y, FEAT_CLOSED);
-	}
-
-	/* Locked doors (99/400) */
-	else if (tmp < 399)
-	{
-		/* Create locked door */
-		make_lockjam_door(x, y, randint1(10) + p_ptr->depth / 10, FALSE);
-	}
-
-	/* Stuck doors (1/400) */
-	else
-	{
-		/* Create jammed door */
-		make_lockjam_door(x, y, randint1(5) + p_ptr->depth / 10, TRUE);
-	}
 }
 
 
@@ -908,36 +902,35 @@ bool detect_doors(void)
 	bool detect = FALSE;
 
 	cave_type *c_ptr;
-	pcave_type *pc_ptr;
 
 	/* Scan a radius MAX_DETECT circle */
 	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
 	{
 		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
 		{
-			if (!in_boundsp(x, y)) continue;
+			if (!in_bounds2(y, x)) continue;
 
 			if (distance(px, py, x, y) > MAX_DETECT) continue;
 
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
+			c_ptr = area(y,x);
 
 			/* Detect secret doors */
 			if (c_ptr->feat == FEAT_SECRET)
 			{
 				/* Pick a door */
-				create_closed_door(x, y);
+				place_closed_door(y, x);
 			}
 
 			/* Detect doors */
 			if ((c_ptr->feat == FEAT_CLOSED) ||
-				(c_ptr->feat == FEAT_OPEN) || (c_ptr->feat == FEAT_BROKEN))
+			    (c_ptr->feat == FEAT_OPEN) ||
+			     (c_ptr->feat == FEAT_BROKEN))
 			{
 				/* Hack -- Memorize */
-				remember_grid(c_ptr, pc_ptr);
+				c_ptr->info |= (CAVE_MARK);
 
 				/* Redraw */
-				lite_spot(x, y);
+				lite_spot(y, x);
 
 				/* Obvious */
 				detect = TRUE;
@@ -948,7 +941,7 @@ bool detect_doors(void)
 	/* Describe */
 	if (detect)
 	{
-		msgf("You sense the presence of doors!");
+		msg_print("You sense the presence of doors!");
 	}
 
 	/* Result */
@@ -969,28 +962,27 @@ bool detect_stairs(void)
 	bool detect = FALSE;
 
 	cave_type *c_ptr;
-	pcave_type *pc_ptr;
 
 	/* Scan a radiuc MAX_DETECT circle */
 	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
 	{
 		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
 		{
-			if (!in_boundsp(x, y)) continue;
+			if (!in_bounds2(y, x)) continue;
 
 			if (distance(px, py, x, y) > MAX_DETECT) continue;
 
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
+			c_ptr = area(y,x);
 
 			/* Detect stairs */
-			if ((c_ptr->feat == FEAT_LESS) || (c_ptr->feat == FEAT_MORE))
+			if ((c_ptr->feat == FEAT_LESS) ||
+			    (c_ptr->feat == FEAT_MORE))
 			{
 				/* Hack -- Memorize */
-				remember_grid(c_ptr, pc_ptr);
+				c_ptr->info |= (CAVE_MARK);
 
 				/* Redraw */
-				lite_spot(x, y);
+				lite_spot(y, x);
 
 				/* Obvious */
 				detect = TRUE;
@@ -1001,12 +993,14 @@ bool detect_stairs(void)
 	/* Describe */
 	if (detect)
 	{
-		msgf("You sense the presence of stairs!");
+		msg_print("You sense the presence of stairs!");
 	}
 
 	/* Result */
 	return (detect);
 }
+
+
 
 
 /*
@@ -1022,28 +1016,38 @@ bool detect_treasure(void)
 	bool detect = FALSE;
 
 	cave_type *c_ptr;
-	pcave_type *pc_ptr;
+
 
 	/* Scan a radius MAX_DETECT circle */
 	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
 	{
 		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
 		{
-			if (!in_boundsp(x, y)) continue;
+			if (!in_bounds2(y, x)) continue;
 
 			if (distance(px, py, x, y) > MAX_DETECT) continue;
 
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
+			c_ptr = area(y,x);
+
+			/* Notice embedded gold */
+
+			/* Does "embeded" gold really exist??? */
+			if ((c_ptr->feat == FEAT_MAGMA_H) ||
+			    (c_ptr->feat == FEAT_QUARTZ_H))
+			{
+				/* Expose the gold */
+				c_ptr->feat += 0x02;
+			}
 
 			/* Magma/Quartz + Known Gold */
-			if ((c_ptr->feat == FEAT_MAGMA_K) || (c_ptr->feat == FEAT_QUARTZ_K))
+			if ((c_ptr->feat == FEAT_MAGMA_K) ||
+			    (c_ptr->feat == FEAT_QUARTZ_K))
 			{
 				/* Hack -- Memorize */
-				remember_grid(c_ptr, pc_ptr);
+				c_ptr->info |= (CAVE_MARK);
 
 				/* Redraw */
-				lite_spot(x, y);
+				lite_spot(y, x);
 
 				/* Detect */
 				detect = TRUE;
@@ -1054,7 +1058,7 @@ bool detect_treasure(void)
 	/* Describe */
 	if (detect)
 	{
-		msgf("You sense the presence of buried treasure!");
+		msg_print("You sense the presence of buried treasure!");
 	}
 
 
@@ -1086,7 +1090,7 @@ bool detect_objects_gold(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip held objects */
-		if (!(o_ptr->ix || o_ptr->iy)) continue;
+		if (o_ptr->held_m_idx) continue;
 
 		/* Location */
 		y = o_ptr->iy;
@@ -1098,10 +1102,10 @@ bool detect_objects_gold(void)
 		if (o_ptr->tval == TV_GOLD)
 		{
 			/* Hack -- memorize it */
-			o_ptr->info |= OB_SEEN;
+			o_ptr->marked = TRUE;
 
 			/* Redraw */
-			lite_spot(x, y);
+			lite_spot(y, x);
 
 			/* Detect */
 			detect = TRUE;
@@ -1111,7 +1115,7 @@ bool detect_objects_gold(void)
 	/* Describe */
 	if (detect)
 	{
-		msgf("You sense the presence of treasure!");
+		msg_print("You sense the presence of treasure!");
 	}
 
 	if (detect_monsters_string("$"))
@@ -1146,7 +1150,7 @@ bool detect_objects_normal(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip held objects */
-		if (!(o_ptr->ix || o_ptr->iy)) continue;
+		if (o_ptr->held_m_idx) continue;
 
 		/* Location */
 		y = o_ptr->iy;
@@ -1158,10 +1162,10 @@ bool detect_objects_normal(void)
 		if (o_ptr->tval != TV_GOLD)
 		{
 			/* Hack -- memorize it */
-			o_ptr->info |= OB_SEEN;
+			o_ptr->marked = TRUE;
 
 			/* Redraw */
-			lite_spot(x, y);
+			lite_spot(y, x);
 
 			/* Detect */
 			detect = TRUE;
@@ -1171,7 +1175,7 @@ bool detect_objects_normal(void)
 	/* Describe */
 	if (detect)
 	{
-		msgf("You sense the presence of objects!");
+		msg_print("You sense the presence of objects!");
 	}
 
 	if (detect_monsters_string("!=?|"))
@@ -1212,7 +1216,7 @@ bool detect_objects_magic(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip held objects */
-		if (!(o_ptr->ix || o_ptr->iy)) continue;
+		if (o_ptr->held_m_idx) continue;
 
 		/* Location */
 		y = o_ptr->iy;
@@ -1225,27 +1229,30 @@ bool detect_objects_magic(void)
 
 		/* Artifacts, misc magic items, or enchanted wearables */
 		if (o_ptr->xtra_name ||
-			(tv == TV_AMULET) ||
+		    (tv == TV_AMULET) ||
 			(tv == TV_RING) ||
-			(tv == TV_STAFF) ||
+		    (tv == TV_STAFF) ||
 			(tv == TV_WAND) ||
 			(tv == TV_ROD) ||
-			(tv == TV_SCROLL) ||
+		    (tv == TV_SCROLL) ||
 			(tv == TV_POTION) ||
-			(tv == TV_LIFE_BOOK) ||
-			(tv == TV_SORCERY_BOOK) ||
-			(tv == TV_NATURE_BOOK) ||
-			(tv == TV_CHAOS_BOOK) ||
-			(tv == TV_DEATH_BOOK) ||
-			(tv == TV_TRUMP_BOOK) ||
-			(tv == TV_ARCANE_BOOK) ||
-			((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
+		    (tv == TV_LIFE_BOOK) ||
+			(tv == TV_ORDER_BOOK) ||
+		    (tv == TV_FIRE_BOOK) ||
+			(tv == TV_AIR_BOOK) ||
+		    (tv == TV_DEATH_BOOK) ||
+		    (tv == TV_CHAOS_BOOK) ||
+			(tv == TV_ASTRAL_BOOK) ||
+			(tv == TV_WATER_BOOK) ||
+			(tv == TV_EARTH_BOOK) ||
+			(tv == TV_WIZARD_BOOK) ||
+		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
-			o_ptr->info |= OB_SEEN;
+			o_ptr->marked = TRUE;
 
 			/* Redraw */
-			lite_spot(x, y);
+			lite_spot(y, x);
 
 			/* Detect */
 			detect = TRUE;
@@ -1255,7 +1262,7 @@ bool detect_objects_magic(void)
 	/* Describe */
 	if (detect)
 	{
-		msgf("You sense the presence of magic objects!");
+		msg_print("You sense the presence of magic objects!");
 	}
 
 	/* Return result */
@@ -1293,10 +1300,10 @@ bool detect_monsters_normal(void)
 
 		/* Do not detect mimics */
 		if (m_ptr->smart & (SM_MIMIC)) continue;
-
+		
 		/* Detect all non-invisible monsters */
 		if ((!(r_ptr->flags2 & RF2_INVISIBLE)) ||
-			p_ptr->see_inv || p_ptr->tim_invis)
+		    p_ptr->see_inv || p_ptr->tim_invis)
 		{
 			/* Repair visibility later */
 			repair_monsters = TRUE;
@@ -1316,7 +1323,7 @@ bool detect_monsters_normal(void)
 	if (flag)
 	{
 		/* Describe result */
-		msgf("You sense the presence of monsters!");
+		msg_print("You sense the presence of monsters!");
 	}
 
 	/* Result */
@@ -1378,7 +1385,7 @@ bool detect_monsters_invis(void)
 	if (flag)
 	{
 		/* Describe result */
-		msgf("You sense the presence of invisible creatures!");
+		msg_print("You sense the presence of invisible creatures!");
 	}
 
 	/* Result */
@@ -1445,7 +1452,7 @@ bool detect_monsters_evil(void)
 	if (flag)
 	{
 		/* Describe result */
-		msgf("You sense the presence of evil creatures!");
+		msg_print("You sense the presence of evil creatures!");
 	}
 
 	/* Result */
@@ -1461,8 +1468,8 @@ bool detect_monsters_nonliving(void)
 	int px = p_ptr->px;
 	int py = p_ptr->py;
 
-	int i, y, x;
-	bool flag = FALSE;
+	int     i, y, x;
+	bool    flag = FALSE;
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -1508,7 +1515,7 @@ bool detect_monsters_nonliving(void)
 	if (flag)
 	{
 		/* Describe result */
-		msgf("You sense the presence of unnatural beings!");
+		msg_print("You sense the presence of unnatural beings!");
 	}
 
 	/* Result */
@@ -1524,8 +1531,8 @@ bool detect_monsters_living(void)
 	int px = p_ptr->px;
 	int py = p_ptr->py;
 
-	int i, y, x;
-	bool flag = FALSE;
+	int     i, y, x;
+	bool    flag = FALSE;
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -1571,7 +1578,7 @@ bool detect_monsters_living(void)
 	if (flag)
 	{
 		/* Describe result */
-		msgf("You sense the presence of natural beings!");
+		msg_print("You sense the presence of natural beings!");
 	}
 
 	/* Result */
@@ -1582,7 +1589,7 @@ bool detect_monsters_living(void)
 /*
  * Detect all (string) monsters in range
  */
-bool detect_monsters_string(cptr match)
+bool detect_monsters_string(cptr Match)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
@@ -1607,7 +1614,7 @@ bool detect_monsters_string(cptr match)
 		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Detect monsters with the same symbol */
-		if (strchr(match, r_ptr->d_char))
+		if (strchr(Match, r_ptr->d_char))
 		{
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1634,7 +1641,7 @@ bool detect_monsters_string(cptr match)
 	if (flag)
 	{
 		/* Describe result */
-		msgf("You sense the presence of monsters!");
+		msg_print("You sense the presence of monsters!");
 	}
 
 	/* Result */
@@ -1650,7 +1657,7 @@ bool detect_monsters_xxx(u32b match_flag)
 	int px = p_ptr->px;
 	int py = p_ptr->py;
 
-	int i, y, x;
+	int  i, y, x;
 	bool flag = FALSE;
 	cptr desc_monsters = "weird monsters";
 
@@ -1711,8 +1718,8 @@ bool detect_monsters_xxx(u32b match_flag)
 		}
 
 		/* Describe result */
-		msgf("You sense the presence of %s!", desc_monsters);
-		message_flush();
+		msg_format("You sense the presence of %s!", desc_monsters);
+		msg_print(NULL);
 	}
 
 	/* Result */
@@ -1752,9 +1759,11 @@ bool detect_all(void)
  */
 bool project_hack(int typ, int dam)
 {
-	int i, x, y;
-	u16b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
-	bool obvious = FALSE;
+	int     i, x, y;
+	u16b    flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
+	bool    obvious = FALSE;
+
+	cave_type *c_ptr;
 
 	/* Mark all (nearby) monsters */
 	for (i = 1; i < m_max; i++)
@@ -1767,12 +1776,11 @@ bool project_hack(int typ, int dam)
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
-		
-		/* Paranoia */
-		if (!in_boundsp(x, y)) continue;
+
+		c_ptr = area(y, x);
 
 		/* Require line of sight */
-		if (!player_has_los_grid(parea(x, y))) continue;
+		if (!player_has_los_grid(c_ptr)) continue;
 
 		/* Mark the monster */
 		m_ptr->mflag |= (MFLAG_TEMP);
@@ -1790,7 +1798,7 @@ bool project_hack(int typ, int dam)
 		m_ptr->mflag &= ~(MFLAG_TEMP);
 
 		/* Jump directly to the target monster */
-		if (project(0, 0, m_ptr->fx, m_ptr->fy, dam, typ, flg)) obvious = TRUE;
+		if (project(0, 0, m_ptr->fy, m_ptr->fx, dam, typ, flg)) obvious = TRUE;
 	}
 
 	/* Result */
@@ -1903,12 +1911,12 @@ bool dispel_demons(int dam)
 /*
  * Raise the dead
  */
-bool raise_dead(int x, int y, bool pet)
+bool raise_dead(int y, int x, bool pet)
 {
 	s16b i;
 	int fx, fy;
 
-	bool obvious = FALSE;
+	bool    obvious = FALSE;
 
 	cave_type *c_ptr;
 
@@ -1922,21 +1930,21 @@ bool raise_dead(int x, int y, bool pet)
 
 		/* Want a corpse / skeleton */
 		if (!(f_ptr->t_idx == FT_CORPSE ||
-			  f_ptr->t_idx == FT_SKELETON)) continue;
+		      f_ptr->t_idx == FT_SKELETON)) continue;
 
 		/* Location */
 		fy = f_ptr->fy;
 		fx = f_ptr->fx;
 
 		/* Require line of sight */
-		if (!los(fx, fy, x, y)) continue;
+		if (!los(fy, fx, y, x)) continue;
 
-		c_ptr = area(fx, fy);
+		c_ptr = area(fy, fx);
 
 		/* Raise Corpses / Skeletons */
-		if (field_hook_special(&c_ptr->fld_idx, FTYPE_CORPSE, pet))
+		if (field_hook_special(&c_ptr->fld_idx, FTYPE_CORPSE, (vptr) &pet))
 		{
-			if (player_has_los_grid(parea(fx, fy))) obvious = TRUE;
+			if (player_has_los_grid(c_ptr)) obvious = TRUE;
 		}
 	}
 
@@ -1951,15 +1959,16 @@ bool raise_dead(int x, int y, bool pet)
  */
 void aggravate_monsters(int who)
 {
-	int i;
-	bool sleep = FALSE;
-	bool speed = FALSE;
+	int     i;
+	bool    sleep = FALSE;
+	bool    speed = FALSE;
+	cave_type *c_ptr;
 
 	/* Aggravate everyone nearby */
 	for (i = 1; i < m_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_type    *m_ptr = &m_list[i];
+		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1979,12 +1988,14 @@ void aggravate_monsters(int who)
 
 				/* Redraw (later) if needed */
 				if (p_ptr->health_who == i)
-					p_ptr->redraw |= (PR_HEALTH);
+						p_ptr->redraw |= (PR_HEALTH);
 			}
 		}
 
+		c_ptr = area(m_ptr->fy, m_ptr->fx);
+
 		/* Speed up monsters in line of sight */
-		if (player_has_los_grid(parea(m_ptr->fx, m_ptr->fy)))
+		if (player_has_los_grid(c_ptr))
 		{
 			/* Speed up (instantly) to racial base + 10 */
 			if (m_ptr->mspeed < r_ptr->speed + 10)
@@ -1997,8 +2008,8 @@ void aggravate_monsters(int who)
 	}
 
 	/* Messages */
-	if (speed) msgf("You feel a sudden stirring nearby!");
-	else if (sleep) msgf("You hear a sudden stirring in the distance!");
+	if (speed) msg_print("You feel a sudden stirring nearby!");
+	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
 }
 
 
@@ -2008,19 +2019,16 @@ void aggravate_monsters(int who)
  */
 bool genocide(int player_cast)
 {
-	int i;
-	char typ;
-	bool result = FALSE;
-	int msec = delay_factor * delay_factor * delay_factor;
+	int     i;
+	char    typ;
+	bool    result = FALSE;
+	int     msec = delay_factor * delay_factor * delay_factor;
 
-	/* Need a better way to control this... (wilderness is a major problem) */
-#if 0
 	/* Prevent genocide in quest levels */
 	if (p_ptr->inside_quest)
 	{
 		return (FALSE);
 	}
-#endif /* 0 */
 
 	/* Mega-Hack -- Get a monster symbol */
 	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
@@ -2028,8 +2036,8 @@ bool genocide(int player_cast)
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < m_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_type    *m_ptr = &m_list[i];
+		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2060,7 +2068,7 @@ bool genocide(int player_cast)
 		}
 
 		/* Visual feedback */
-		move_cursor_relative(p_ptr->px, p_ptr->py);
+		move_cursor_relative(p_ptr->py, p_ptr->px);
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
@@ -2093,24 +2101,22 @@ bool genocide(int player_cast)
  */
 bool mass_genocide(int player_cast)
 {
-	int i;
-	bool result = FALSE;
-	int msec = delay_factor * delay_factor * delay_factor;
+	int     i;
+	bool    result = FALSE;
+	int     msec = delay_factor * delay_factor * delay_factor;
 
-	/* This needs to be rethought - the wilderness is a problem... */
-#if 0
+
 	/* Prevent mass genocide in quest levels */
 	if (p_ptr->inside_quest)
 	{
 		return (FALSE);
 	}
-#endif /* 0 */
 
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_type    *m_ptr = &m_list[i];
+		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2140,7 +2146,7 @@ bool mass_genocide(int player_cast)
 			take_hit(randint1(3), "the strain of casting Mass Genocide");
 		}
 
-		move_cursor_relative(p_ptr->px, p_ptr->py);
+		move_cursor_relative(p_ptr->py, p_ptr->px);
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
@@ -2174,8 +2180,9 @@ bool mass_genocide(int player_cast)
  */
 bool probing(void)
 {
-	int i;
-	bool probe = FALSE;
+	int     i;
+	bool    probe = FALSE;
+	cave_type *c_ptr;
 
 	/* Probe all (nearby) monsters */
 	for (i = 1; i < m_max; i++)
@@ -2185,17 +2192,24 @@ bool probing(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		c_ptr = area(m_ptr->fy, m_ptr->fx);
+
 		/* Require line of sight */
-		if (!player_has_los_grid(parea(m_ptr->fx, m_ptr->fy))) continue;
+		if (!player_has_los_grid(c_ptr)) continue;
 
 		/* Probe visible monsters */
 		if (m_ptr->ml)
 		{
+			char m_name[80];
+
 			/* Start the message */
-			if (!probe) msgf("Probing...");
+			if (!probe) msg_print("Probing...");
+
+			/* Get "the monster" or "something" */
+			monster_desc(m_name, m_ptr, 0x04);
 
 			/* Describe the monster */
-			msgf("%^v has %d hit points.", MONSTER_FMT(m_ptr, 0x04), m_ptr->hp);
+			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
 
 			/* Learn all of the non-spell, non-treasure flags */
 			lore_do_probe(i);
@@ -2211,7 +2225,7 @@ bool probing(void)
 		if (probe)
 			chg_virtue(V_KNOWLEDGE, 1);
 
-		msgf("That's all.");
+		msg_print("That's all.");
 	}
 
 	/* Result */
@@ -2229,16 +2243,14 @@ bool probing(void)
  * "earthquake" by using the (removed) "full" parameter 
  * to select "destruction".
  */
-bool destroy_area(int x1, int y1, int r)
+bool destroy_area(int y1, int x1, int r)
 {
-	int y, x, k, t;
-	bool flag = FALSE;
-
+	int       y, x, k, t;
 	cave_type *c_ptr;
-	pcave_type *pc_ptr;
+	bool      flag = FALSE;
 
 	/* Prevent destruction of quest levels and town */
-	if (!p_ptr->depth || is_quest_level(p_ptr->depth))
+	if (p_ptr->inside_quest || !p_ptr->depth)
 	{
 		return (FALSE);
 	}
@@ -2249,23 +2261,22 @@ bool destroy_area(int x1, int y1, int r)
 		for (x = (x1 - r); x <= (x1 + r); x++)
 		{
 			/* Skip illegal grids */
-			if (!in_boundsp(x, y)) continue;
+			if (!in_bounds(y, x)) continue;
 
 			/* Extract the distance */
-			k = distance(x1, y1, x, y);
+			k = distance(y1, x1, y, x);
 
 			/* Stay in the circle of death */
 			if (k > r) continue;
 
 			/* Access the grid */
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
+			c_ptr = area(y, x);
 
 			/* Lose room and vault */
 			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
 
-			/* Lose light */
-			c_ptr->info &= ~(CAVE_GLOW);
+			/* Lose light and knowledge */
+			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
 
 			/* Hack -- Notice player affect */
 			if ((x == p_ptr->px) && (y == p_ptr->py))
@@ -2291,20 +2302,20 @@ bool destroy_area(int x1, int y1, int r)
 			else
 			{
 				/* Delete the monster (if any) */
-				delete_monster(x, y);
+				delete_monster(y, x);
 			}
 
 			/* Fields can block destruction */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_PERM)) continue;
 
 			/* Destroy the fields on the square */
-			delete_field(x, y);
+			delete_field(y, x);
 
 			/* Destroy "valid" grids */
 			if (cave_valid_grid(c_ptr))
 			{
 				/* Delete objects */
-				delete_object(x, y);
+				delete_object(y, x);
 
 				/* Wall (or floor) type */
 				t = randint0(200);
@@ -2313,33 +2324,30 @@ bool destroy_area(int x1, int y1, int r)
 				if (t < 20)
 				{
 					/* Create granite wall */
-					cave_set_feat(x, y, FEAT_WALL_EXTRA);
+					c_ptr->feat = FEAT_WALL_EXTRA;
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-					cave_set_feat(x, y, FEAT_QUARTZ);
+					c_ptr->feat = FEAT_QUARTZ;
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-					cave_set_feat(x, y, FEAT_MAGMA);
+					c_ptr->feat = FEAT_MAGMA;
 				}
 
 				/* Floor */
 				else
 				{
 					/* Create floor */
-					cave_set_feat(x, y, FEAT_FLOOR);
+					c_ptr->feat = FEAT_FLOOR;
 				}
 			}
-
-			/* Hack - forget the square */
-			forget_grid(pc_ptr);
 		}
 	}
 
@@ -2348,7 +2356,7 @@ bool destroy_area(int x1, int y1, int r)
 	if (flag)
 	{
 		/* Message */
-		msgf("There is a searing blast of light!");
+		msg_print("There is a searing blast of light!");
 
 		/* Blind the player */
 		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
@@ -2357,6 +2365,22 @@ bool destroy_area(int x1, int y1, int r)
 			(void)set_blind(p_ptr->blind + rand_range(10, 20));
 		}
 	}
+
+
+	/* Mega-Hack -- Forget the view */
+	p_ptr->update |= (PU_UN_VIEW);
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
 	/* Success */
 	return (TRUE);
@@ -2381,24 +2405,21 @@ bool destroy_area(int x1, int y1, int r)
  * for a single turn, unless that monster can pass_walls or kill_walls.
  * This has allowed massive simplification of the "monster" code.
  */
-bool earthquake(int cx, int cy, int r)
+bool earthquake(int cy, int cx, int r, int cast)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i, t, y, x, yy, xx, dy, dx, oy, ox;
-	int damage = 0;
-	int sn = 0, sy = 0, sx = 0;
-	bool hurt = FALSE;
-
-	cave_type *c_ptr;
-	pcave_type *pc_ptr;
-
-	bool map[32][32];
-	byte flags;
+	int             i, t, y, x, yy, xx, dy, dx, oy, ox;
+	int             damage = 0;
+	int             sn = 0, sy = 0, sx = 0;
+	bool            hurt = FALSE;
+	cave_type       *c_ptr;
+	bool            map[32][32];
+	field_mon_test	mon_enter_test;
 
 	/* Prevent destruction of quest levels and town */
-	if (!p_ptr->depth || is_quest_level(p_ptr->depth))
+	if (p_ptr->inside_quest || !p_ptr->depth)
 	{
 		return (FALSE);
 	}
@@ -2425,20 +2446,19 @@ bool earthquake(int cx, int cy, int r)
 			xx = cx + dx;
 
 			/* Skip illegal grids */
-			if (!in_boundsp(xx, yy)) continue;
+			if (!in_bounds(yy, xx)) continue;
 
 			/* Skip distant grids */
-			if (distance(cx, cy, xx, yy) > r) continue;
+			if (distance(cy, cx, yy, xx) > r) continue;
 
 			/* Access the grid */
-			c_ptr = area(xx, yy);
-			pc_ptr = parea(xx, yy);
+			c_ptr = area(yy,xx);
 
 			/* Lose room and vault */
 			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
 
-			/* Lose light */
-			c_ptr->info &= ~(CAVE_GLOW);
+			/* Lose light and knowledge */
+			c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
 
 			/* Skip the epicenter */
 			if (!dx && !dy) continue;
@@ -2447,7 +2467,7 @@ bool earthquake(int cx, int cy, int r)
 			if (randint0(100) < 85) continue;
 
 			/* Damage this grid */
-			map[16 + yy - cy][16 + xx - cx] = TRUE;
+			map[16+yy-cy][16+xx-cx] = TRUE;
 
 			/* Hack -- Take note of player damage */
 			if ((yy == py) && (xx == px)) hurt = TRUE;
@@ -2464,16 +2484,16 @@ bool earthquake(int cx, int cy, int r)
 			y = py + ddy_ddd[i];
 			x = px + ddx_ddd[i];
 
-			if (!in_bounds2(x, y)) continue;
+			if (!in_bounds2(y, x)) continue;
 
 			/* Access the grid */
-			c_ptr = area(x, y);
+			c_ptr = area(y, x);
 
 			/* Skip non-empty grids */
 			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* Important -- Skip "quake" grids */
-			if (map[16 + y - cy][16 + x - cx]) continue;
+			if (map[16+y-cy][16+x-cx]) continue;
 
 			/* Check for a field that blocks movement */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
@@ -2488,8 +2508,7 @@ bool earthquake(int cx, int cy, int r)
 			if (randint0(sn) > 0) continue;
 
 			/* Save the safe location */
-			sy = y;
-			sx = x;
+			sy = y; sx = x;
 		}
 
 		/* Random message */
@@ -2497,17 +2516,17 @@ bool earthquake(int cx, int cy, int r)
 		{
 			case 1:
 			{
-				msgf("The cave ceiling collapses!");
+				msg_print("The cave ceiling collapses!");
 				break;
 			}
 			case 2:
 			{
-				msgf("The cave floor twists in an unnatural way!");
+				msg_print("The cave floor twists in an unnatural way!");
 				break;
 			}
 			default:
 			{
-				msgf("The cave quakes!  You are pummeled with debris!");
+				msg_print("The cave quakes!  You are pummeled with debris!");
 				break;
 			}
 		}
@@ -2516,7 +2535,7 @@ bool earthquake(int cx, int cy, int r)
 		if (!sn)
 		{
 			/* Message and damage */
-			msgf("You are severely crushed!");
+			msg_print("You are severely crushed!");
 			damage = 300;
 		}
 
@@ -2528,20 +2547,20 @@ bool earthquake(int cx, int cy, int r)
 			{
 				case 1:
 				{
-					msgf("You nimbly dodge the blast!");
+					msg_print("You nimbly dodge the blast!");
 					damage = 0;
 					break;
 				}
 				case 2:
 				{
-					msgf("You are bashed by rubble!");
+					msg_print("You are bashed by rubble!");
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint1(50));
 					break;
 				}
 				case 3:
 				{
-					msgf("You are crushed between the floor and ceiling!");
+					msg_print("You are crushed between the floor and ceiling!");
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint1(50));
 					break;
@@ -2553,7 +2572,8 @@ bool earthquake(int cx, int cy, int r)
 			ox = px;
 
 			/* Process fields under the player. */
-			field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE);
+			field_hook(&area(py, px)->fld_idx,
+				 FIELD_ACT_PLAYER_LEAVE, NULL);
 
 			/* Move the player */
 			py = sy;
@@ -2563,9 +2583,6 @@ bool earthquake(int cx, int cy, int r)
 			p_ptr->py = sy;
 			p_ptr->px = sx;
 
-			/* Notice movement */
-			Term_move_player();
-
 			if (!p_ptr->depth)
 			{
 				/* Scroll wilderness */
@@ -2573,15 +2590,15 @@ bool earthquake(int cx, int cy, int r)
 				p_ptr->wilderness_y = py;
 				move_wild();
 			}
-
+			
 			/* Redraw the old spot */
-			lite_spot(ox, oy);
+			lite_spot(oy, ox);
 
 			/* Redraw the new spot */
-			lite_spot(px, py);
+			lite_spot(py, px);
 
 			/* Process fields under the player. */
-			field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_ENTER);
+			field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
 			/* Check for new panel */
 			verify_panel();
@@ -2607,10 +2624,10 @@ bool earthquake(int cx, int cy, int r)
 			/* Skip unaffected grids */
 			if (!map[16 + yy - cy][16 + xx - cx]) continue;
 
-			if (!in_bounds2(xx, yy)) continue;
+			if (!in_bounds2(yy, xx)) continue;
 
 			/* Access the grid */
-			c_ptr = area(xx, yy);
+			c_ptr = area(yy, xx);
 
 			/* Process monsters */
 			if (c_ptr->m_idx)
@@ -2622,15 +2639,17 @@ bool earthquake(int cx, int cy, int r)
 				if (r_ptr->flags1 & RF1_QUESTOR)
 				{
 					/* No wall on quest monsters */
-					map[16 + yy - cy][16 + xx - cx] = FALSE;
+					map[16+yy-cy][16+xx-cx] = FALSE;
 
 					continue;
 				}
 
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
-					!(r_ptr->flags2 & (RF2_PASS_WALL)))
+				    !(r_ptr->flags2 & (RF2_PASS_WALL)))
 				{
+					char m_name[80];
+
 					/* Assume not safe */
 					sn = 0;
 
@@ -2644,21 +2663,17 @@ bool earthquake(int cx, int cy, int r)
 							y = yy + ddy_ddd[i];
 							x = xx + ddx_ddd[i];
 
-							if (!in_bounds2(x, y)) continue;
+							if (!in_bounds2(y, x)) continue;
 
 							/* Access the grid */
-							c_ptr = area(x, y);
+							c_ptr = area(y, x);
 
 							/* Skip non-empty grids */
 							if (!cave_empty_grid(c_ptr)) continue;
 
-							/* Not on player */
-							if ((y == py) && (x == px)) continue;
-
 							/* Check for a field that blocks movement */
 							if (fields_have_flags(c_ptr->fld_idx,
-												  FIELD_INFO_NO_ENTER))
-								continue;
+									 FIELD_INFO_NO_ENTER)) continue;
 
 							/*
 							 * Test for fields that will not allow this
@@ -2666,24 +2681,24 @@ bool earthquake(int cx, int cy, int r)
 							 */
 
 							/* Initialise info to pass to action functions */
-							flags = MEG_DO_MOVE;
+							mon_enter_test.m_ptr = NULL;
+							mon_enter_test.do_move = TRUE;
 
 							/* Call the hook */
 							field_hook(&c_ptr->fld_idx,
-									   FIELD_ACT_MON_ENTER_TEST,
-									   (monster_type *) NULL, &flags);
+								 FIELD_ACT_MON_ENTER_TEST,
+								 (vptr) &mon_enter_test);
 
 							/* Get result */
-							if (!(flags & MEG_DO_MOVE)) continue;
+							if (!mon_enter_test.do_move) continue;
 
 							/* ... nor on the Pattern */
-							if (cave_pattern_grid(c_ptr))
-							{
+							if ((c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
+							    (c_ptr->feat >= FEAT_PATTERN_START))
 								continue;
-							}
 
 							/* Important -- Skip "quake" grids */
-							if (map[16 + y - cy][16 + x - cx]) continue;
+							if (map[16+y-cy][16+x-cx]) continue;
 
 							/* Count "safe" grids */
 							sn++;
@@ -2692,13 +2707,15 @@ bool earthquake(int cx, int cy, int r)
 							if (randint0(sn) > 0) continue;
 
 							/* Save the safe grid */
-							sy = y;
-							sx = x;
+							sy = y; sx = x;
 						}
 					}
 
+					/* Describe the monster */
+					monster_desc(m_name, m_ptr, 0);
+
 					/* Scream in pain */
-					msgf("%^v wails out in pain!", MONSTER_FMT(m_ptr, 0));
+					msg_format("%^s wails out in pain!", m_name);
 
 					/* Take damage from the quake */
 					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
@@ -2713,10 +2730,10 @@ bool earthquake(int cx, int cy, int r)
 					if (m_ptr->hp < 0)
 					{
 						/* Message */
-						msgf("%^v is embedded in the rock!", MONSTER_FMT(m_ptr, 0));
+						msg_format("%^s is embedded in the rock!", m_name);
 
 						/* Delete the monster */
-						delete_monster(xx, yy);
+						delete_monster(yy, xx);
 
 						/* No longer safe */
 						sn = 0;
@@ -2725,13 +2742,13 @@ bool earthquake(int cx, int cy, int r)
 					/* Hack -- Escape from the rock */
 					if (sn)
 					{
-						int m_idx = area(xx, yy)->m_idx;
+						int m_idx = area(yy,xx)->m_idx;
 
 						/* Update the new location */
-						area(sx, sy)->m_idx = m_idx;
+						area(sy,sx)->m_idx = m_idx;
 
 						/* Update the old location */
-						area(xx, yy)->m_idx = 0;
+						area(yy,xx)->m_idx = 0;
 
 						/* Move the monster */
 						m_ptr->fy = sy;
@@ -2741,10 +2758,10 @@ bool earthquake(int cx, int cy, int r)
 						update_mon(m_idx, TRUE);
 
 						/* Redraw the old grid */
-						lite_spot(xx, yy);
+						lite_spot(yy, xx);
 
 						/* Redraw the new grid */
-						lite_spot(sx, sy);
+						lite_spot(sy, sx);
 					}
 				}
 			}
@@ -2762,13 +2779,12 @@ bool earthquake(int cx, int cy, int r)
 			xx = cx + dx;
 
 			/* Skip unaffected grids */
-			if (!map[16 + yy - cy][16 + xx - cx]) continue;
+			if (!map[16+yy-cy][16+xx-cx]) continue;
 
-			if (!in_bounds2(xx, yy)) continue;
+			if (!in_bounds2(yy, xx)) continue;
 
 			/* Access the cave grid */
-			c_ptr = area(xx, yy);
-			pc_ptr = parea(xx, yy);
+			c_ptr = area(yy, xx);
 
 			/* Paranoia -- never affect player */
 			if ((yy == py) && (xx == px)) continue;
@@ -2777,15 +2793,15 @@ bool earthquake(int cx, int cy, int r)
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_PERM)) continue;
 
 			/* Destroy the fields on the square */
-			delete_field(xx, yy);
-
+			delete_field(y, x);
+			
 			/* Destroy location (if valid) */
 			if (cave_valid_grid(c_ptr))
 			{
 				bool floor = cave_floor_grid(c_ptr);
 
 				/* Delete objects */
-				delete_object(xx, yy);
+				delete_object(yy, xx);
 
 				/* Wall (or floor) type */
 				t = (floor ? randint0(100) : 200);
@@ -2794,38 +2810,52 @@ bool earthquake(int cx, int cy, int r)
 				if (t < 20)
 				{
 					/* Create granite wall */
-					cave_set_feat(xx, yy, FEAT_WALL_EXTRA);
+					c_ptr->feat = FEAT_WALL_EXTRA;
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-					cave_set_feat(xx, yy, FEAT_QUARTZ);
+					c_ptr->feat = FEAT_QUARTZ;
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-					cave_set_feat(xx, yy, FEAT_MAGMA);
+					c_ptr->feat = FEAT_MAGMA;
 				}
 
 				/* Floor */
 				else
 				{
 					/* Create floor */
-					cave_set_feat(xx, yy, FEAT_FLOOR);
+					c_ptr->feat = FEAT_FLOOR;
 				}
 			}
-
-			/* Hack - forget square */
-			forget_grid(pc_ptr);
 		}
 	}
+	/* extra minor damage */
+	project(cast, r, cy, cx, damroll(6, 6), GF_QUAKE, (PROJECT_KILL | PROJECT_HIDE | PROJECT_JUMP));
+
+	/* Mega-Hack -- Forget the view */
+	p_ptr->update |= (PU_UN_VIEW);
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_DISTANCE);
 
 	/* Update the health bar */
 	p_ptr->redraw |= (PR_HEALTH);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
 	/* Success */
 	return (TRUE);
@@ -2859,10 +2889,10 @@ static void cave_temp_room_lite(void)
 			int y = temp_y[i] + ddy_ddd[j];
 			int x = temp_x[i] + ddx_ddd[j];
 
-			cave_type *c_ptr = area(x, y);
+			cave_type *c_ptr = area(y,x);
 
 			/* Verify */
-			if (!in_bounds2(x, y)) continue;
+			if (!in_bounds2(y, x)) continue;
 
 			/* No longer in the array */
 			c_ptr->info &= ~(CAVE_TEMP);
@@ -2878,9 +2908,12 @@ static void cave_temp_room_lite(void)
 			{
 				int chance = 25;
 
-				monster_type *m_ptr = &m_list[c_ptr->m_idx];
+				monster_type    *m_ptr = &m_list[c_ptr->m_idx];
 
-				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+				monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+				/* Update the monster */
+				update_mon(c_ptr->m_idx, FALSE);
 
 				/* Stupid monsters rarely wake up */
 				if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
@@ -2897,8 +2930,13 @@ static void cave_temp_room_lite(void)
 					/* Notice the "waking up" */
 					if (m_ptr->ml)
 					{
+						char m_name[80];
+
+						/* Acquire the monster name */
+						monster_desc(m_name, m_ptr, 0);
+
 						/* Dump a message */
-						msgf("%^v wakes up.", MONSTER_FMT(m_ptr, 0));
+						msg_format("%^s wakes up.", m_name);
 
 						/* Redraw the health bar */
 						if (p_ptr->health_who == c_ptr->m_idx)
@@ -2908,22 +2946,9 @@ static void cave_temp_room_lite(void)
 			}
 
 			/* Note + Redraw */
-			note_spot(x, y);
+			note_spot(y, x);
 		}
 	}
-
-	/*
-	 * Hack - recalculate the view
-	 *
-	 * The view must be redone afterwards because of the way
-	 * light affects walls.  We simply don't know which squares
-	 * are lit until the effect has completed
-	 */
-	p_ptr->update |= PU_VIEW | PU_MONSTERS;
-
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
 	/* None left */
 	temp_n = 0;
@@ -2954,14 +2979,10 @@ static void cave_temp_room_unlite(void)
 			int y = temp_y[i] + ddy_cdd[j];
 			int x = temp_x[i] + ddx_cdd[j];
 
-			cave_type *c_ptr;
-			pcave_type *pc_ptr;
+			cave_type *c_ptr = area(y,x);
 
 			/* Verify */
-			if (!in_boundsp(x, y)) continue;
-
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
+			if (!in_bounds2(y, x)) continue;
 
 			/* No longer in the array */
 			c_ptr->info &= ~(CAVE_TEMP);
@@ -2969,38 +2990,29 @@ static void cave_temp_room_unlite(void)
 			/* Darken the grid */
 			c_ptr->info &= ~(CAVE_GLOW);
 
+			/* Process affected monsters */
+			if (c_ptr->m_idx)
+			{
+				/* Update the monster */
+				update_mon(c_ptr->m_idx, FALSE);
+			}
+
 			/* Hack -- Forget "boring" grids */
 			if (c_ptr->feat == FEAT_FLOOR)
 			{
 				/* Forget the grid */
-				forget_grid(pc_ptr);
+				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Notice + Redraw */
-				note_spot(x, y);
+				note_spot(y, x);
 			}
 			else
 			{
 				/* Redraw */
-				lite_spot(x, y);
+				lite_spot(y, x);
 			}
 		}
 	}
-
-	/*
-	 * Hack - recalculate the view
-	 *
-	 * The view must be redone afterwards because of the way
-	 * light affects walls.  We simply don't know which squares
-	 * are unlit until the effect has completed.
-	 */
-	p_ptr->update |= PU_VIEW | PU_MONSTERS;
-
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-	/* None left */
-	temp_n = 0;
 
 	/* None left */
 	temp_n = 0;
@@ -3010,7 +3022,7 @@ static void cave_temp_room_unlite(void)
 /*
  * Determine how much contiguous open space this grid is next to
  */
-static int next_to_open(int cx, int cy)
+static int next_to_open(int cy, int cx)
 {
 	int i;
 
@@ -3026,12 +3038,12 @@ static int next_to_open(int cx, int cy)
 		y = cy + ddy_cdd[i % 8];
 		x = cx + ddx_cdd[i % 8];
 
-		if (!in_bounds2(x, y)) continue;
+		if (!in_bounds2(y, x)) continue;
 
-		c_ptr = area(x, y);
+		c_ptr = area(y, x);
 
 		/* Found a wall, break the length */
-		if (cave_wall_grid(c_ptr))
+		if (!cave_floor_grid(c_ptr))
 		{
 			/* Track best length */
 			if (len > blen)
@@ -3051,7 +3063,7 @@ static int next_to_open(int cx, int cy)
 }
 
 
-static int next_to_walls_adj(int cx, int cy)
+static int next_to_walls_adj(int cy, int cx)
 {
 	int i;
 
@@ -3066,11 +3078,11 @@ static int next_to_walls_adj(int cx, int cy)
 		y = cy + ddy_ddd[i];
 		x = cx + ddx_ddd[i];
 
-		if (!in_bounds2(x, y)) continue;
+		if (!in_bounds2(y, x)) continue;
 
-		c_ptr = area(x, y);
+		c_ptr = area(y, x);
 
-		if (cave_wall_grid(c_ptr)) c++;
+		if (!cave_floor_grid(c_ptr)) c++;
 	}
 
 	return c;
@@ -3080,36 +3092,36 @@ static int next_to_walls_adj(int cx, int cy)
 /*
  * Aux function -- see below
  */
-static void cave_temp_room_aux(int x, int y)
+static void cave_temp_room_aux(int y, int x)
 {
 	cave_type *c_ptr;
 
 	/* Verify */
-	if (!in_bounds2(x, y)) return;
+	if (!in_bounds(y, x)) return;
 
 	/* Get the grid */
-	c_ptr = area(x, y);
+	c_ptr = area(y, x);
 
 	/* Avoid infinite recursion */
 	if (c_ptr->info & (CAVE_TEMP)) return;
 
 	/* If a wall, exit */
-	if (cave_wall_grid(c_ptr)) return;
+	if (!cave_floor_grid(c_ptr)) return;
 
 	/* Do not exceed the maximum spell range */
-	if (distance(p_ptr->px, p_ptr->py, x, y) > MAX_RANGE) return;
+	if (distance(p_ptr->py, p_ptr->px, y, x) > MAX_RANGE) return;
 
 
-	/* Verify this grid
-	 *
-	 * The reason why it is ==6 instead of >5 is that 8 is impossible
-	 * due to the check for cave_floor_grid above.
-	 * 7 lights dead-end corridors (you need to do this for the
-	 * checkboard interesting rooms, so that the boundary is lit
-	 * properly.
-	 * This leaves only a check for 6 bounding walls!
-	 */
-	if ((next_to_walls_adj(x, y) == 6) && (next_to_open(x, y) <= 1)) return;
+	/* Verify this grid */
+	/*
+	* The reason why it is ==6 instead of >5 is that 8 is impossible
+	* due to the check for cave_floor_grid above.
+	* 7 lights dead-end corridors (you need to do this for the
+	* checkboard interesting rooms, so that the boundary is lit
+	* properly.
+	* This leaves only a check for 6 bounding walls!
+	*/
+	if ((next_to_walls_adj(y, x) == 6) && (next_to_open(y, x) <= 1)) return;
 
 	/* Paranoia -- verify space */
 	if (temp_n == TEMP_MAX) return;
@@ -3128,36 +3140,36 @@ static void cave_temp_room_aux(int x, int y)
 /*
  * Illuminate any room containing the given location.
  */
-void lite_room(int x1, int y1)
+void lite_room(int y1, int x1)
 {
 	int i, x, y;
 
 	cave_type *c_ptr;
 
 	/* Add the initial grid */
-	cave_temp_room_aux(x1, y1);
+	cave_temp_room_aux(y1, x1);
 
 	/* While grids are in the queue, add their neighbors */
 	for (i = 0; i < temp_n; i++)
 	{
 		x = temp_x[i], y = temp_y[i];
 
-		c_ptr = area(x, y);
+		c_ptr = area(y, x);
 
 		/* Walls get lit, but stop light */
-		if (cave_wall_grid(c_ptr)) continue;
+		if (!cave_floor_grid(c_ptr)) continue;
 
 		/* Spread adjacent */
-		cave_temp_room_aux(x + 1, y);
-		cave_temp_room_aux(x - 1, y);
-		cave_temp_room_aux(x, y + 1);
-		cave_temp_room_aux(x, y - 1);
+		cave_temp_room_aux(y + 1, x);
+		cave_temp_room_aux(y - 1, x);
+		cave_temp_room_aux(y, x + 1);
+		cave_temp_room_aux(y, x - 1);
 
 		/* Spread diagonal */
-		cave_temp_room_aux(x + 1, y + 1);
-		cave_temp_room_aux(x - 1, y - 1);
-		cave_temp_room_aux(x - 1, y + 1);
-		cave_temp_room_aux(x + 1, y - 1);
+		cave_temp_room_aux(y + 1, x + 1);
+		cave_temp_room_aux(y - 1, x - 1);
+		cave_temp_room_aux(y - 1, x + 1);
+		cave_temp_room_aux(y + 1, x - 1);
 	}
 
 	/* Now, lite them all up at once */
@@ -3168,36 +3180,36 @@ void lite_room(int x1, int y1)
 /*
  * Darken all rooms containing the given location
  */
-void unlite_room(int x1, int y1)
+void unlite_room(int y1, int x1)
 {
 	int i, x, y;
 
 	cave_type *c_ptr;
 
 	/* Add the initial grid */
-	cave_temp_room_aux(x1, y1);
+	cave_temp_room_aux(y1, x1);
 
 	/* Spread, breadth first */
 	for (i = 0; i < temp_n; i++)
 	{
 		x = temp_x[i], y = temp_y[i];
 
-		c_ptr = area(x, y);
+		c_ptr = area(y, x);
 
 		/* Walls get dark, but stop darkness */
-		if (cave_wall_grid(c_ptr)) continue;
+		if (!cave_floor_grid(c_ptr)) continue;
 
 		/* Spread adjacent */
-		cave_temp_room_aux(x + 1, y);
-		cave_temp_room_aux(x - 1, y);
-		cave_temp_room_aux(x, y + 1);
-		cave_temp_room_aux(x, y - 1);
+		cave_temp_room_aux(y + 1, x);
+		cave_temp_room_aux(y - 1, x);
+		cave_temp_room_aux(y, x + 1);
+		cave_temp_room_aux(y, x - 1);
 
 		/* Spread diagonal */
-		cave_temp_room_aux(x + 1, y + 1);
-		cave_temp_room_aux(x - 1, y - 1);
-		cave_temp_room_aux(x - 1, y + 1);
-		cave_temp_room_aux(x + 1, y - 1);
+		cave_temp_room_aux(y + 1, x + 1);
+		cave_temp_room_aux(y - 1, x - 1);
+		cave_temp_room_aux(y - 1, x + 1);
+		cave_temp_room_aux(y + 1, x - 1);
 	}
 
 	/* Now, darken them all at once */
@@ -3217,14 +3229,14 @@ bool lite_area(int dam, int rad)
 	/* Hack -- Message */
 	if (!p_ptr->blind)
 	{
-		msgf("You are surrounded by a white light.");
+		msg_print("You are surrounded by a white light.");
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(0, rad, p_ptr->px, p_ptr->py, dam, GF_LITE_WEAK, flg);
+	(void)project(0, rad, p_ptr->py, p_ptr->px, dam, GF_LITE_WEAK, flg);
 
 	/* Lite up the room */
-	lite_room(p_ptr->px, p_ptr->py);
+	lite_room(p_ptr->py, p_ptr->px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3242,14 +3254,14 @@ bool unlite_area(int dam, int rad)
 	/* Hack -- Message */
 	if (!p_ptr->blind)
 	{
-		msgf("Darkness surrounds you.");
+		msg_print("Darkness surrounds you.");
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(0, rad, p_ptr->px, p_ptr->py, dam, GF_DARK_WEAK, flg);
+	(void)project(0, rad, p_ptr->py, p_ptr->px, dam, GF_DARK_WEAK, flg);
 
 	/* Lite up the room */
-	unlite_room(p_ptr->px, p_ptr->py);
+	unlite_room(p_ptr->py, p_ptr->px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3282,9 +3294,8 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(0, rad, tx, ty, dam, typ, flg));
+	return (project(0, rad, ty, tx, dam, typ, flg));
 }
-
 
 /*
  * Switch position with a monster.
@@ -3297,9 +3308,9 @@ bool teleport_swap(int dir)
 	int py = p_ptr->py;
 
 	int tx, ty;
-	cave_type *c_ptr;
-	monster_type *m_ptr;
-	monster_race *r_ptr;
+	cave_type * c_ptr;
+	monster_type * m_ptr;
+	monster_race * r_ptr;
 
 	if (!ironman_moria && (dir == 5) && target_okay())
 	{
@@ -3312,19 +3323,19 @@ bool teleport_swap(int dir)
 		ty = py + ddy[dir];
 	}
 
-	if (!in_bounds2(tx, ty))
+	if (!in_bounds2(ty, tx))
 	{
-		msgf("You can't trade places with that!");
+		msg_print("You can't trade places with that!");
 
 		/* Failure */
 		return FALSE;
 	}
 
-	c_ptr = area(tx, ty);
+	c_ptr = area(ty,tx);
 
 	if (!c_ptr->m_idx)
 	{
-		msgf("You can't trade places with that!");
+		msg_print("You can't trade places with that!");
 
 		/* Failure */
 		return FALSE;
@@ -3335,7 +3346,7 @@ bool teleport_swap(int dir)
 
 	if (r_ptr->flags3 & RF3_RES_TELE)
 	{
-		msgf("Your teleportation is blocked!");
+		msg_print("Your teleportation is blocked!");
 
 		/* Failure */
 		return FALSE;
@@ -3344,14 +3355,14 @@ bool teleport_swap(int dir)
 	sound(SOUND_TELEPORT);
 
 	/* Process fields under the player. */
-	field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE);
+	field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_LEAVE, NULL);
 
 	/* Process fields under the monster. */
-	field_hook(&area(m_ptr->fx, m_ptr->fy)->fld_idx,
-			   FIELD_ACT_MONSTER_LEAVE, m_ptr);
+	field_hook(&area(m_ptr->fy, m_ptr->fx)->fld_idx,
+		 FIELD_ACT_MONSTER_LEAVE, m_ptr);
 
 	/* Move monster */
-	area(px, py)->m_idx = c_ptr->m_idx;
+	area(py, px)->m_idx = c_ptr->m_idx;
 
 	/* Update the old location */
 	c_ptr->m_idx = 0;
@@ -3368,9 +3379,6 @@ bool teleport_swap(int dir)
 	p_ptr->px = tx;
 	p_ptr->py = ty;
 
-	/* Notice movement */
-	Term_move_player();
-
 	tx = m_ptr->fx;
 	ty = m_ptr->fy;
 
@@ -3381,22 +3389,22 @@ bool teleport_swap(int dir)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
-
+	
 	/* Update the monster (new location) */
-	update_mon(area(tx, ty)->m_idx, TRUE);
-
+	update_mon(area(ty, tx)->m_idx, TRUE);
+	
 	/* Redraw the old grid */
-	lite_spot(tx, ty);
+	lite_spot(ty, tx);
 
 	/* Redraw the new grid */
-	lite_spot(px, py);
+	lite_spot(py, px);
 
 	/* Process fields under the player. */
-	field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_ENTER);
+	field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
 	/* Process fields under the monster. */
-	field_hook(&area(m_ptr->fx, m_ptr->fy)->fld_idx,
-			   FIELD_ACT_MONSTER_ENTER, m_ptr);
+	field_hook(&area(m_ptr->fy, m_ptr->fx)->fld_idx,
+		FIELD_ACT_MONSTER_ENTER, (vptr) m_ptr);
 
 	/* Check for new panel (redraw map) */
 	verify_panel();
@@ -3447,7 +3455,7 @@ bool project_hook(int typ, int dir, int dam, u16b flg)
 	}
 
 	/* Analyze the "dir" and the "target", do NOT explode */
-	return (project(0, 0, tx, ty, dam, typ, flg));
+	return (project(0, 0, ty, tx, dam, typ, flg));
 }
 
 
@@ -3490,6 +3498,47 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 	}
 }
 
+/*
+ *Cast a storm to rain down on things
+ *	This should save some room. ´x
+ */
+bool rain_effect(int type, int dam, int fuel, int rad, int range)
+{
+	int x, y;
+	int i;
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+	int b = rand_range(10, 20);
+	cave_type *c_ptr;
+	
+	for (i = 0; i < b; i++)
+	{
+		int count = 0;
+
+			while (count < fuel)
+		{
+			count++;
+				
+			x = px - range/2 + randint1(range);
+			y = py - range/2 + randint1(range);
+
+			/* paranoia */
+			if (!in_bounds(y, x)) continue;
+
+			c_ptr = area(y, x);
+
+			/* keep going if not in LOS */
+			if (!player_has_los_grid(c_ptr)) continue;
+
+			/* if close enough - exit */
+			if (distance(py, px, y, x) < 6) break;
+		}
+
+		if (count >= fuel) break;
+
+		(void)project(0, rad, y, x, dam, type, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
+	}
+}
 
 /*
  * Some of the old functions
@@ -3514,12 +3563,18 @@ bool drain_gain_life(int dir, int dam)
 	return (project_hook(GF_NEW_DRAIN, dir, dam, flg));
 }
 
+/* Drain life from monster, and give it to the player */
+bool steal_soul(int dir, int dam)
+{
+	u16b flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_DEATH_RAY, dir, dam, flg));
+}
+
 bool wall_to_mud(int dir)
 {
 	u16b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 	return (project_hook(GF_KILL_WALL, dir, rand_range(20, 50), flg));
 }
-
 
 bool wizard_lock(int dir)
 {
@@ -3527,13 +3582,11 @@ bool wizard_lock(int dir)
 	return (project_hook(GF_JAM_DOOR, dir, rand_range(20, 50), flg));
 }
 
-
 bool destroy_door(int dir)
 {
 	u16b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
 	return (project_hook(GF_KILL_DOOR, dir, 60, flg));
 }
-
 
 bool disarm_trap(int dir)
 {
@@ -3541,6 +3594,11 @@ bool disarm_trap(int dir)
 	return (project_hook(GF_KILL_TRAP, dir, 60, flg));
 }
 
+bool destroy_traps(int rad)
+{
+	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	return (project(0, rad, p_ptr->py, p_ptr->px, 60, GF_KILL_TRAP, flg));
+}
 
 bool heal_monster(int dir)
 {
@@ -3548,13 +3606,11 @@ bool heal_monster(int dir)
 	return (project_hook(GF_OLD_HEAL, dir, damroll(4, 6), flg));
 }
 
-
 bool speed_monster(int dir)
 {
 	u16b flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
 }
-
 
 bool slow_monster(int dir)
 {
@@ -3637,21 +3693,21 @@ bool teleport_monster(int dir)
 bool door_creation(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, p_ptr->px, p_ptr->py, 0, GF_MAKE_DOOR, flg));
+	return (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_DOOR, flg));
 }
 
 
 bool trap_creation(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, p_ptr->px, p_ptr->py, 0, GF_MAKE_TRAP, flg));
+	return (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_TRAP, flg));
 }
 
 
 bool glyph_creation(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM;
-	return (project(0, 1, p_ptr->px, p_ptr->py, 0, GF_MAKE_GLYPH, flg));
+	return (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_GLYPH, flg));
 }
 
 
@@ -3659,7 +3715,7 @@ bool wall_stone(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 
-	bool dummy = (project(0, 1, p_ptr->px, p_ptr->py, 0, GF_STONE_WALL, flg));
+	bool dummy = (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_STONE_WALL, flg));
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_FLOW);
@@ -3676,18 +3732,38 @@ bool wall_stone(void)
 	return dummy;
 }
 
-
-bool destroy_doors_touch(void)
+bool remove_wall_stone(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, p_ptr->px, p_ptr->py, 60, GF_KILL_DOOR, flg));
+
+	bool dummy = (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_KILL_WALL, flg));
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+	return dummy;
+}
+
+bool destroy_doors(int rad)
+{
+	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	return (project(0, rad, p_ptr->py, p_ptr->px, 60, GF_KILL_DOOR, flg));
 }
 
 
 bool sleep_monsters_touch(void)
 {
 	u16b flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(0, 1, p_ptr->px, p_ptr->py, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(0, 1, p_ptr->py, p_ptr->px, p_ptr->lev, GF_OLD_SLEEP, flg));
 }
 
 
@@ -3697,16 +3773,16 @@ void call_chaos(void)
 	int plev = p_ptr->lev;
 	bool line_chaos = FALSE;
 
-	int hurt_types[30] =
+	int hurt_types[31] =
 	{
-	GF_ELEC, GF_POIS, GF_ACID, GF_COLD,
-	GF_FIRE, GF_MISSILE, GF_ARROW, GF_PLASMA,
-	GF_HOLY_FIRE, GF_WATER, GF_LITE, GF_DARK,
-	GF_FORCE, GF_INERTIA, GF_MANA, GF_METEOR,
-	GF_ICE, GF_CHAOS, GF_NETHER, GF_DISENCHANT,
-	GF_SHARDS, GF_SOUND, GF_NEXUS, GF_CONFUSION,
-	GF_TIME, GF_GRAVITY, GF_ROCKET, GF_NUKE,
-	GF_HELL_FIRE, GF_DISINTEGRATE
+		GF_ELEC,      GF_POIS,    GF_ACID,    GF_COLD,
+		GF_FIRE,      GF_MISSILE, GF_ARROW,   GF_PLASMA,
+		GF_HOLY_FIRE, GF_WATER,   GF_LITE,    GF_DARK,
+		GF_FORCE,     GF_INERTIA, GF_MANA,    GF_METEOR,
+		GF_ICE,       GF_CHAOS,   GF_NETHER,  GF_DISENCHANT,
+		GF_SHARDS,    GF_SOUND,   GF_NEXUS,   GF_CONFUSION,
+		GF_TIME,      GF_GRAVITY, GF_ROCKET,  GF_NUKE,
+		GF_HELL_FIRE, GF_DISINTEGRATE, GF_LAVA
 	};
 
 	Chaos_type = hurt_types[randint0(30)];
@@ -3756,94 +3832,91 @@ bool activate_ty_curse(bool stop_ty, int *count)
 	{
 		switch (randint1(34))
 		{
-			case 28:  case 29:
+			case 28: case 29:
 			{
 				if (!(*count))
 				{
-					msgf("The ground trembles...");
-					(void)earthquake(px, py, rand_range(5, 15));
+					msg_print("The ground trembles...");
+					(void)earthquake(py, px, rand_range(5, 15), 0);
 					if (!one_in_(6)) break;
 				}
-
+				
 				/* Fall through */
 			}
-			case 30:  case 31:
+			case 30: case 31:
 			{
 				if (!(*count))
 				{
-					msgf("A portal opens to a plane of raw mana!");
-					(void)destroy_area(px, py, 20);
-					project(1, 3, px, py, damroll(10, 5), GF_MANA, flg);
+					msg_print("A portal opens to a plane of raw mana!");
+					(void)destroy_area(py, px, 20);
+					project(1, 3, py, px, damroll(10, 5), GF_MANA, flg);
 					if (!one_in_(6)) break;
 				}
-
+				
 				/* Fall through */
 			}
-			case 32:  case 33:
+			case 32: case 33:
 			{
 				if (!(*count))
 				{
-					msgf("Space warps about you!");
+					msg_print("Space warps about you!");
 					teleport_player(damroll(10, 10));
 					if (!one_in_(13)) (*count) += activate_hi_summon();
 					if (!one_in_(6)) break;
 				}
-
+				
 				/* Fall through */
 			}
 			case 34:
 			{
-				msgf("You feel a surge of energy!");
+				msg_print("You feel a surge of energy!");
 				wall_breaker();
 				if (one_in_(7))
 				{
-					(void)project(1, 7, px, py, 50, GF_KILL_WALL, flg);
+					(void)project(1, 7, py, px, 50, GF_KILL_WALL, flg);
 				}
 				if (!one_in_(6)) break;
-
+				
 				/* Fall through */
 			}
-			case 1:  case 2:  case 3:  case 16:  case 17:
+			case 1: case 2: case 3: case 16: case 17:
 			{
 				aggravate_monsters(0);
 				if (!one_in_(6)) break;
-
+				
 				/* Fall through */
 			}
-			case 4:  case 5:  case 6:
+			case 4: case 5: case 6:
 			{
 				(*count) += activate_hi_summon();
 				if (!one_in_(6)) break;
-
+				
 				/* Fall through */
 			}
-			case 7:  case 8:  case 9:  case 18:
+			case 7: case 8: case 9: case 18:
 			{
-				(*count) +=
-					summon_specific(0, px, py, p_ptr->depth, 0, TRUE, FALSE,
-									FALSE);
+				(*count) += summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE);
 				if (!one_in_(6)) break;
-
+				
 				/* Fall through */
 			}
-			case 10:  case 11:  case 12:
+			case 10: case 11: case 12:
 			{
-				msgf("You feel your life draining away...");
+				msg_print("You feel your life draining away...");
 				lose_exp(p_ptr->exp / 16);
 				if (!one_in_(6)) break;
-
+				
 				/* Fall through */
 			}
-			case 13:  case 14:  case 15:  case 19:  case 20:
+			case 13: case 14: case 15: case 19: case 20:
 			{
-				if (stop_ty
-					|| (p_ptr->free_act && (randint1(100) < p_ptr->skill_sav)))
+				if (stop_ty || (p_ptr->free_act && (randint1(100) < p_ptr->skill_sav)))
 				{
 					/* Do nothing */ ;
 				}
 				else
 				{
-					msgf("You feel like a statue!");
+					msg_print("You feel like a statue!");
 					if (p_ptr->free_act)
 					{
 						(void)set_paralyzed(p_ptr->paralyzed + randint1(3));
@@ -3855,22 +3928,22 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					stop_ty = TRUE;
 				}
 				if (!one_in_(6)) break;
-
+				
 				/* Fall through */
 			}
-			case 21:  case 22:  case 23:
+			case 21: case 22: case 23:
 			{
 				(void)do_dec_stat(randint0(6));
 				if (!one_in_(6)) break;
-
+				
 				/* Fall through */
 			}
 			case 24:
 			{
-				msgf("Huh? Who am I? What am I doing here?");
+				msg_print("Huh? Who am I? What am I doing here?");
 				(void)lose_all_info();
 				if (!one_in_(6)) break;
-
+				
 				/* Fall through */
 			}
 			case 25:
@@ -3880,12 +3953,12 @@ bool activate_ty_curse(bool stop_ty, int *count)
 				 */
 				if ((p_ptr->depth > 65) && !stop_ty)
 				{
-					(*count) += summon_cyber(-1, px, py);
+					(*count) += summon_cyber(-1, py, px);
 					stop_ty = TRUE;
 					break;
 				}
 				if (!one_in_(6)) break;
-
+				
 				/* Fall through */
 			}
 			default:
@@ -3921,105 +3994,49 @@ int activate_hi_summon(void)
 
 	for (i = 0; i < (randint1(9) + (p_ptr->depth / 40)); i++)
 	{
-		switch ((randint1(26) + (p_ptr->depth / 20)) / 2)
+		switch (randint1(26) + (p_ptr->depth / 20))
 		{
-			case 1:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_ANT, TRUE,
-									FALSE, FALSE);
+			case 1: case 2:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_ANT, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 2:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_SPIDER,
-									TRUE, FALSE, FALSE);
+			case 3: case 4:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_SPIDER, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 3:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_HOUND, TRUE,
-									FALSE, FALSE);
+			case 5: case 6:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HOUND, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 4:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_HYDRA, TRUE,
-									FALSE, FALSE);
+			case 7: case 8:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HYDRA, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 5:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_ANGEL, TRUE,
-									FALSE, FALSE);
+			case 9: case 10:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_ANGEL, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 6:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_UNDEAD,
-									TRUE, FALSE, FALSE);
+			case 11: case 12:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 7:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_DRAGON,
-									TRUE, FALSE, FALSE);
+			case 13: case 14:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_DRAGON, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 8:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_DEMON, TRUE,
-									FALSE, FALSE);
+			case 15: case 16:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 9:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_AMBERITES,
-									TRUE, FALSE, FALSE);
+			case 17:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 10:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_UNIQUE,
-									TRUE, FALSE, FALSE);
+			case 18: case 19:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 11:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_HI_UNDEAD,
-									TRUE, FALSE, FALSE);
+			case 20: case 21:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 12:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_HI_DRAGON,
-									TRUE, FALSE, FALSE);
+			case 22: case 23:
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
 				break;
-			}
-			case 13:
-			{
-				count +=
-					summon_specific(0, px, py, 100, SUMMON_CYBER, TRUE, FALSE,
-									FALSE);
+			case 24: case 25:
+				count += summon_specific(0, py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
 				break;
-			}
 			default:
-			{
-				count +=
-					summon_specific(0, px, py, (((p_ptr->depth * 3) / 2) + 5),
-									0, TRUE, FALSE, FALSE);
-			}
+				count += summon_specific(0, py, px, (((p_ptr->depth * 3) / 2) + 5), 0, TRUE, FALSE, FALSE);
 		}
 	}
 
@@ -4028,7 +4045,7 @@ int activate_hi_summon(void)
 
 
 /* ToDo: check */
-int summon_cyber(int who, int x, int y)
+int summon_cyber(int who, int y, int x)
 {
 	int i;
 	int max_cyber = (p_ptr->depth / 50) + randint1(6);
@@ -4047,8 +4064,7 @@ int summon_cyber(int who, int x, int y)
 
 	for (i = 0; i < max_cyber; i++)
 	{
-		count +=
-			summon_specific(who, x, y, 100, SUMMON_CYBER, FALSE, friendly, pet);
+		count += summon_specific(who, y, x, 100, SUMMON_CYBER, FALSE, friendly, pet);
 	}
 
 	return count;
@@ -4068,18 +4084,17 @@ void wall_breaker(void)
 	{
 		while (attempts--)
 		{
-			scatter(&x, &y, px, py, 4);
+			scatter(&y, &x, py, px, 4);
 
 			if ((y != py) || (x != px)) break;
 		}
 
-		(void)project(0, 0, x, y, rand_range(20, 50), GF_KILL_WALL,
-					  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID |
-					   PROJECT_ITEM | PROJECT_KILL));
+		(void)project(0, 0, y, x, rand_range(20, 50), GF_KILL_WALL,
+				  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
 	}
 	else if (randint1(100) > 30)
 	{
-		(void)earthquake(px, py, 1);
+		(void)earthquake(py, px, 1, 0);
 	}
 	else
 	{
@@ -4089,14 +4104,13 @@ void wall_breaker(void)
 		{
 			while (1)
 			{
-				scatter(&x, &y, px, py, 4);
+				scatter(&y, &x, py, px, 4);
 
 				if ((y != py) || (x != px)) break;
 			}
 
-			(void)project(0, 0, x, y, rand_range(20, 50), GF_KILL_WALL,
-						  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID |
-						   PROJECT_ITEM | PROJECT_KILL));
+			(void)project(0, 0, y, x, rand_range(20, 50), GF_KILL_WALL,
+					  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
 		}
 	}
 }
@@ -4212,38 +4226,34 @@ bool charm_animal(int dir, int plev)
 	return (project_hook(GF_CONTROL_ANIMAL, dir, plev, flg));
 }
 
-
-bool starlite(void)
+/*
+ * Bolt a random creature.
+ */
+bool wild_blast(int y, int x, int dam, int type, int rad)
 {
-	int k;
-	int num = damroll(5, 3);
-	int y, x;
-	int attempts;
 
-	cave_type *c_ptr;
+	int y2 = p_ptr->py;
+	int x2 = p_ptr->px;
 
-	for (k = 0; k < num; k++)
-	{
-		attempts = 1000;
+	scatter(&y2, &x2, y, x, 5);
 
-		while (attempts--)
-		{
-			scatter(&x, &y, p_ptr->px, p_ptr->py, 4);
+	(void)project(0, rad, y2, x2, dam, type, (PROJECT_STOP 
+		| PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
+	
+}
 
-			/* paranoia */
-			if (!in_bounds2(x, y)) continue;
 
-			c_ptr = area(x, y);
+/*
+ * Create a bridge across harmful terrain.
+ */
+bool bridge(void)
+{
+	int	y = 0;
+	int	x = 0;
+		
+	msg_print(" Bridge to where? ");
+	if (!tgt_pt(&x, &y)) return FALSE;
+	
+	(void)project(0, 0, y, x, 0, GF_BRIDGE, (PROJECT_BEAM | PROJECT_GRID | PROJECT_HIDE));
 
-			if (cave_wall_grid(c_ptr)) continue;
-
-			if ((y != p_ptr->py) || (x != p_ptr->px)) break;
-		}
-
-		(void)project(0, 0, x, y, damroll(6, 8), GF_LITE_WEAK,
-					  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID |
-					   PROJECT_KILL));
-	}
-
-	return (TRUE);
 }

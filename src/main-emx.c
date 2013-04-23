@@ -15,8 +15,6 @@
 /* Current maintainer: silasd@psyber.com (Silas Dunsmore) */
 /* Unless somebody else wants it.... */
 
-#include "angband.h"
-
 #ifdef USE_EMX
 
 /*
@@ -109,6 +107,8 @@
 #define INCL_KBD 1
 #include <os2.h>
 #include <sys/video.h>
+
+#include "angband.h"
 
 
 /*
@@ -816,7 +816,7 @@ static FILE *initPipe(const char *name)
 	char buf[256];
 	FILE *fi;
 
-	strnfmt(buf, 256, "\\pipe\\angband\\%s", name);   /* Name of pipe */
+	sprintf(buf, "\\pipe\\angband\\%s", name);   /* Name of pipe */
 	fi=fopen(buf, "wb");                        /* Look for server */
 	return fi;
 }
@@ -851,7 +851,7 @@ int main(int argc, char **argv)
 	target=strdup(argv[1]);
 	for (c=0; c<strlen(target); c++) target[c]=tolower(target[c]);
 
-	strnfmt(buf, 160, "\\pipe\\angband\\%s", target);
+	sprintf(buf, "\\pipe\\angband\\%s", target);
 
 	do
 	{
@@ -892,7 +892,7 @@ int main(int argc, char **argv)
 
 	printf("Connected.\n");
 
-	strnfmt(buf, 160, "mode co80,%d", lines);
+	sprintf(buf, "mode co80,%d", lines);
 	system(buf);
 
 	/* Infinite loop */

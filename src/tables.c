@@ -70,6 +70,20 @@ const char hexsym[16] =
 
 
 /*
+ * Global array for converting numbers to a logical list symbol
+ */
+const char listsym[] =
+{
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+	'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+	'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+	'\0'
+};
+
+
+/*
  * Encode the screen colors
  */
 cptr color_char = "dwsorgbuDWvyRGBU";
@@ -264,44 +278,44 @@ const byte adj_mag_stat[] =
  */
 const byte adj_chr_gold[] =
 {
-	140     /* 3 */,
-	135     /* 4 */,
-	132     /* 5 */,
-	130     /* 6 */,
-	128     /* 7 */,
-	126     /* 8 */,
-	124     /* 9 */,
-	122     /* 10 */,
-	120     /* 11 */,
-	118     /* 12 */,
-	116     /* 13 */,
-	114     /* 14 */,
-	113     /* 15 */,
-	112     /* 16 */,
-	111     /* 17 */,
-	110     /* 18/00-18/09 */,
-	109     /* 18/10-18/19 */,
-	108     /* 18/20-18/29 */,
-	107     /* 18/30-18/39 */,
-	106     /* 18/40-18/49 */,
-	105     /* 18/50-18/59 */,
-	104     /* 18/60-18/69 */,
-	103     /* 18/70-18/79 */,
-	102     /* 18/80-18/89 */,
-	101     /* 18/90-18/99 */,
-	100     /* 18/100-18/109 */,
-	99      /* 18/110-18/119 */,
-	98      /* 18/120-18/129 */,
-	97      /* 18/130-18/139 */,
-	96      /* 18/140-18/149 */,
-	95      /* 18/150-18/159 */,
-	94      /* 18/160-18/169 */,
-	93      /* 18/170-18/179 */,
-	92      /* 18/180-18/189 */,
-	91      /* 18/190-18/199 */,
-	90      /* 18/200-18/209 */,
-	89      /* 18/210-18/219 */,
-	88      /* 18/220+ */
+	130     /* 3 */,
+	125     /* 4 */,
+	122     /* 5 */,
+	120     /* 6 */,
+	118     /* 7 */,
+	116     /* 8 */,
+	114     /* 9 */,
+	112     /* 10 */,
+	110     /* 11 */,
+	108     /* 12 */,
+	106     /* 13 */,
+	104     /* 14 */,
+	103     /* 15 */,
+	102     /* 16 */,
+	101     /* 17 */,
+	100     /* 18/00-18/09 */,
+	99      /* 18/10-18/19 */,
+	98      /* 18/20-18/29 */,
+	97      /* 18/30-18/39 */,
+	96      /* 18/40-18/49 */,
+	95      /* 18/50-18/59 */,
+	94      /* 18/60-18/69 */,
+	93      /* 18/70-18/79 */,
+	92      /* 18/80-18/89 */,
+	91      /* 18/90-18/99 */,
+	90      /* 18/100-18/109 */,
+	89      /* 18/110-18/119 */,
+	88      /* 18/120-18/129 */,
+	87      /* 18/130-18/139 */,
+	86      /* 18/140-18/149 */,
+	85      /* 18/150-18/159 */,
+	84      /* 18/160-18/169 */,
+	83      /* 18/170-18/179 */,
+	82      /* 18/180-18/189 */,
+	81      /* 18/190-18/199 */,
+	80      /* 18/200-18/209 */,
+	79      /* 18/210-18/219 */,
+	78      /* 18/220+ */
 };
 
 
@@ -1000,49 +1014,79 @@ const byte adj_con_mhp[] =
 };
 
 
-
 /*
- * This is changed for [O] combat V2.  (From L.M.)
+ * This table is used to help calculate the number of blows the player can
+ * make in a single round of attacks (one player turn) with a normal weapon.
  *
- * This table is used to help calculate the number of blows the player 
- * can make in a single round of attacks (one player turn) with a 
- * weapon that is not too heavy to wield effectively.
+ * This number ranges from a single blow/round for weak players to up to six
+ * blows/round for powerful warriors.
  *
- * The player gets "blows_table[P][D]" blows/round, as shown below.
+ * Note that certain artifacts and ego-items give "bonus" blows/round.
+ *
+ * First, from the player class, we extract some values:
+ *
+ *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
+ *    Mage    --> num = 4; mul = 2; div = MAX(40, weapon_weight);
+ *    Priest  --> num = 5; mul = 3; div = MAX(35, weapon_weight);
+ *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
+ *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
+ *    Paladin --> num = 5; mul = 4; div = MAX(30, weapon_weight);
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
- * multiply it by 6, and then divide it by the effective weapon 
- * weight (in deci-pounds), rounding down.
+ * multiply it by "mul", and then divide it by "div", rounding down.
  *
- * To get "D", we look up the relevant "adj_dex_blow[]" (see above).
+ * To get "D", we look up the relevant "adj_dex_blow[]" (see above),
+ * note especially column 6 (DEX 18/101) and 11 (DEX 18/150).
  *
- * (Some interesting calculations)
- * The character cannot get five blows with any weapon greater than 36 
- * lb, and cannot get six with any weapon greater than 20 lb.
+ * The player gets "blows_table[P][D]" blows/round, as shown below,
+ * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
 const byte blows_table[12][12] =
 {
-	            /*  <- Dexterity factor -> */
-	/* 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11+ */
+	/* P/D */
+	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
 
-	{  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 }, /*  0         */
-	{  2,  2,  2,  2,  2,  2,  2,  2,  2,  3,  3,  3 }, /*  1    ^    */
-	{  2,  2,  2,  2,  2,  3,  3,  3,  3,  4,  4,  4 }, /*  2    |    */
-	{  2,  2,  2,  3,  3,  3,  4,  4,  4,  4,  4,  4 }, /*  3         */
-	{  2,  2,  3,  3,  3,  4,  4,  4,  4,  4,  5,  5 }, /*  4  Ratio  */
-	{  2,  2,  3,  3,  4,  4,  4,  4,  4,  5,  5,  5 }, /*  5  of STR */
-	{  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5 }, /*  6  over   */
-	{  2,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5,  6 }, /*  7  weight */
-	{  2,  3,  3,  4,  4,  4,  5,  5,  5,  5,  6,  6 }, /*  8         */
-	{  2,  3,  4,  4,  4,  4,  5,  5,  5,  5,  6,  6 }, /*  9    |    */
-	{  2,  3,  4,  4,  4,  4,  5,  5,  5,  6,  6,  6 }, /* 10    V    */
-	{  2,  3,  4,  4,  4,  4,  5,  5,  6,  6,  6,  6 }  /* 11+        */
+	/* 0  */
+	{  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2},
+
+	/* 1  */
+	{  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   3,   3},
+
+	/* 2  */
+	{  2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3},
+
+	/* 3  */
+	{  2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,   3},
+
+	/* 4  */
+	{  2,   2,   2,   2,   2,   3,   3,   3,   3,   3,   3,   4},
+
+	/* 5  */
+	{  2,   2,   2,   2,   3,   3,   3,   3,   3,   4,   4,   4},
+
+	/* 6  */
+	{  2,   2,   2,   2,   3,   3,   3,   3,   4,   4,   4,   4},
+
+	/* 7  */
+	{  2,   2,   2,   3,   3,   3,   3,   4,   4,   4,   4,   4},
+
+	/* 8  */
+	{  2,   2,   3,   3,   3,   3,   4,   4,   4,   4,   4,   4},
+
+	/* 9  */
+	{  2,   2,   3,   3,   3,   4,   4,   4,   4,   4,   4,   5},
+
+	/* 10 */
+	{  2,   3,   3,   3,   3,   4,   4,   4,   4,   4,   5,   5},
+
+	/* 11+ */
+	{  2,   3,   3,   3,   4,   4,   4,   4,   4,   4,   5,   5}
 };
 
 
 /*
  * Store owners (exactly MAX_OWNERS owners per store, chosen randomly)
- * { name, purse, greed, race}
+ * { name, purse, max greed, min greed, haggle_per, tolerance, race}
  *
  * Lifted extra shopkeepers from CthAngband (don't you just love open source
  * development? ;-)). Since this gave less than 32 unique names for some
@@ -1054,318 +1098,318 @@ const owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* General store - 32 unique names */
-		{ "Bilbo the Friendly",			2,   108, RACE_HOBBIT},
-		{ "Raistlin the Chicken",		2,   108, RACE_HUMAN},
-		{ "Sultan the Midget",			3,   107, RACE_GNOME},
-		{ "Lyar-el the Comely",			3,   107, RACE_ELF},
-		{ "Falilmawen the Friendly",	3,   108, RACE_HOBBIT},
-		{ "Voirin the Cowardly",		5,   108, RACE_HUMAN},
-		{ "Erashnak the Midget",		8,   107, RACE_BEASTMAN},
-		{ "Grug the Comely",			10,  107, RACE_HALF_TITAN},
-		{ "Forovir the Cheap",			2,   108, RACE_HUMAN},
-		{ "Ellis the Fool",				5,   108, RACE_HUMAN},
-		{ "Filbert the Hungry",			7,   107, RACE_VAMPIRE},
-		{ "Fthnargl Psathiggua",		10,	 107, RACE_MIND_FLAYER},
-		{ "Eloise Long-Dead",			3,   108, RACE_SPECTRE},
-		{ "Fundi the Slow",				5,   108, RACE_ZOMBIE},
-		{ "Granthus",					8,   107, RACE_SKELETON},
-		{ "Lorax the Suave",			10,  107, RACE_VAMPIRE},
-		{ "Butch",						3,   108, RACE_HALF_ORC},
-		{ "Elbereth the Beautiful",		5,   108, RACE_HIGH_ELF},
-		{ "Sarleth the Sneaky",			8,   107, RACE_GNOME},
-		{ "Narlock",					10,  107, RACE_DWARF},
-		{ "Haneka the Small",			3,   108, RACE_GNOME},
-		{ "Loirin the Mad",				5,   108, RACE_HALF_GIANT},
-		{ "Wuto Poisonbreath",			8,   107, RACE_DRACONIAN},
-		{ "Araaka the Rotund",			10,  107, RACE_DRACONIAN},
-		{ "Poogor the Dumb",			2,   108, RACE_BEASTMAN},
-		{ "Felorfiliand",				5,   108, RACE_ELF},
-		{ "Maroka the Aged",			7,   107, RACE_GNOME},
-		{ "Sasin the Bold",				10,  107, RACE_HALF_GIANT},
-		{ "Abiemar the Peasant",		2,   108, RACE_HUMAN},
-		{ "Hurk the Poor",				5,   108, RACE_HALF_ORC},
-		{ "Soalin the Wretched",		7,   107, RACE_ZOMBIE},
-		{ "Merulla the Humble",			10,  107, RACE_ELF},
+		{ "Bilbo the Friendly",			2,    170, 108,  5, 15, RACE_HALFLING},
+		{ "Raistlin the Chicken",		2,    175, 108,  4, 12, RACE_HUMAN},
+		{ "Sultan the Midget",			3,    170, 107,  5, 15, RACE_GNOME},
+		{ "Lyar-el the Comely",			3,    165, 107,  6, 18, RACE_ELF},
+		{ "Falilmawen the Friendly",	3,    170, 108,  5, 15, RACE_HALFLING},
+		{ "Voirin the Cowardly",		5,    175, 108,  4, 12, RACE_HUMAN},
+		{ "Erashnak the Midget",		8,    170, 107,  5, 15, RACE_KAOTI},
+		{ "Grug the Comely",			10,   165, 107,  6, 18, RACE_SAURIAN},
+		{ "Forovir the Cheap",			2,    170, 108,  5, 15, RACE_HUMAN},
+		{ "Ellis the Fool",				5,    175, 108,  4, 12, RACE_HUMAN},
+		{ "Filbert the Hungry",			7,    170, 107,  5, 15, RACE_VAMPIRE},
+		{ "Fthnargl Psathiggua",		10,	  165, 107,  6, 18, RACE_ILLITHID},
+		{ "Eloise Long-Dead",			3,    170, 108,  5, 15, RACE_FAIRY},
+		{ "Fundi the Slow",				5,    175, 108,  4, 12, RACE_AQUARIAN},
+		{ "Granthus",					8,    170, 107,  5, 15, RACE_GOBLIN},
+		{ "Lorax the Suave",			10,   165, 107,  6, 18, RACE_VAMPIRE},
+		{ "Butch",						3,    170, 108,  5, 15, RACE_ORC},
+		{ "Elbereth the Beautiful",		5,    175, 108,  4, 12, RACE_CENTAUR},
+		{ "Sarleth the Sneaky",			8,    170, 107,  5, 15, RACE_GNOME},
+		{ "Narlock",					10,   165, 107,  6, 18, RACE_DWARF},
+		{ "Haneka the Small",			3,    170, 108,  5, 15, RACE_GNOME},
+		{ "Loirin the Mad",				5,    175, 108,  4, 12, RACE_MINOTAUR},
+		{ "Wuto Poisonbreath",			8,    170, 107,  5, 15, RACE_DRACONIAN},
+		{ "Araaka the Rotund",			10,   165, 107,  6, 18, RACE_DRACONIAN},
+		{ "Poogor the Dumb",			2,    170, 108,  5, 15, RACE_KAOTI},
+		{ "Felorfiliand",				5,    175, 108,  4, 12, RACE_ELF},
+		{ "Maroka the Aged",			7,    170, 107,  5, 15, RACE_GNOME},
+		{ "Sasin the Bold",				10,   165, 107,  6, 18, RACE_DRYAD},
+		{ "Abiemar the Peasant",		2,    170, 108,  5, 15, RACE_HUMAN},
+		{ "Hurk the Poor",				5,    175, 108,  4, 12, RACE_ORC},
+		{ "Soalin the Wretched",		7,    170, 107,  5, 15, RACE_CATLING},
+		{ "Merulla the Humble",			10,   165, 107,  6, 18, RACE_ELF},
 	},
 	{
 		/* Armoury - 28 unique names */
-		{ "Kon-Dar the Ugly",			50,  115, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",			100, 111, RACE_HUMAN},
-		{ "Decado the Handsome",		250, 112, RACE_AMBERITE},
-		{ "Wieland the Smith",			300, 112, RACE_DWARF},
-		{ "Kon-Dar the Ugly",			100, 115, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",			150, 111, RACE_HUMAN},
-		{ "Decado the Handsome",		250, 112, RACE_AMBERITE},
-		{ "Elo Dragonscale",			300, 112, RACE_ELF},
-		{ "Delicatus",					100, 115, RACE_SPRITE},
-		{ "Gruce the Huge",				150, 111, RACE_HALF_GIANT},
-		{ "Animus",						250, 112, RACE_GOLEM},
-		{ "Malvus",						300, 112, RACE_HALF_TITAN},
-		{ "Selaxis",					100, 115, RACE_ZOMBIE},
-		{ "Deathchill",					50,  111, RACE_SPECTRE},
-		{ "Drios the Faint",			250, 112, RACE_SPECTRE},
-		{ "Bathric the Cold",			300, 112, RACE_VAMPIRE},
-		{ "Vengella the Cruel",			100, 115, RACE_HALF_TROLL},
-		{ "Wyrana the Mighty",			150, 111, RACE_HUMAN},
-		{ "Yojo II",					250, 112, RACE_DWARF},
-		{ "Ranalar the Sweet",			300, 112, RACE_AMBERITE},
-		{ "Horbag the Unclean",			50,  115, RACE_HALF_ORC},
-		{ "Elelen the Telepath",		150, 111, RACE_DARK_ELF},
-		{ "Isedrelias",					250, 112, RACE_SPRITE},
-		{ "Vegnar One-eye",				50,  112, RACE_CYCLOPS},
-		{ "Rodish the Chaotic",			100, 115, RACE_BEASTMAN},
-		{ "Hesin Swordmaster",			150, 111, RACE_NIBELUNG},
-		{ "Elvererith the Cheat",		100, 112, RACE_DARK_ELF},
-		{ "Zzathath the Imp",			300, 112, RACE_IMP},
-		{ "Kon-Dar the Ugly",			50,  115, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",			100, 111, RACE_HUMAN},
-		{ "Decado the Handsome",		250, 112, RACE_AMBERITE},
-		{ "Wieland the Smith",			300, 112, RACE_DWARF},
+		{ "Kon-Dar the Ugly",			50,   210, 115,  5,  7, RACE_ORC},
+		{ "Darg-Low the Grim",			100,  190, 111,  4,  9, RACE_HUMAN},
+		{ "Decado the Handsome",		250,  200, 112,  4, 10, RACE_ENT},
+		{ "Wieland the Smith",			300,  200, 112,  4,  5, RACE_DWARF},
+		{ "Kon-Dar the Ugly",			100,  210, 115,  5,  7, RACE_ORC},
+		{ "Darg-Low the Grim",			150,  190, 111,  4,  9, RACE_HUMAN},
+		{ "Decado the Handsome",		250,  200, 112,  4, 10, RACE_ELF},
+		{ "Elo Dragonscale",			300,  200, 112,  4,  5, RACE_SAURIAN},
+		{ "Delicatus",					100,  210, 115,  5,  7, RACE_PIXIE},
+		{ "Gruce the Huge",				150,  190, 111,  4,  9, RACE_URUK},
+		{ "Animus",						250,  200, 112,  4, 10, RACE_DRIDER},
+		{ "Malvus",						300,  200, 112,  4,  5, RACE_RATLING},
+		{ "Selaxis",					100,  210, 115,  5,  7, RACE_LEPRECHAUN},
+		{ "Deathchill",					50,   190, 111,  4,  9, RACE_FAIRY},
+		{ "Drios the Faint",			250,  200, 112,  4, 10, RACE_KOBOLD},
+		{ "Bathric the Cold",			300,  200, 112,  4,  5, RACE_VAMPIRE},
+		{ "Vengella the Cruel",			100,  210, 115,  5,  7, RACE_TROLL},
+		{ "Wyrana the Mighty",			150,  190, 111,  4,  9, RACE_HUMAN},
+		{ "Yojo II",					250,  200, 112,  4, 10, RACE_DWARF},
+		{ "Ranalar the Sweet",			300,  200, 112,  4,  5, RACE_DRACONIAN},
+		{ "Horbag the Unclean",			50,   210, 115,  5,  7, RACE_ORC},
+		{ "Elelen the Telepath",		150,  190, 111,  4,  9, RACE_DARK_ELF},
+		{ "Isedrelias",					250,  200, 112,  4, 10, RACE_AQUARIAN},
+		{ "Vegnar One-eye",				50,   200, 112,  4,  5, RACE_CATLING},
+		{ "Rodish the Chaotic",			100,  210, 115,  5,  7, RACE_KAOTI},
+		{ "Hesin Swordmaster",			150,  190, 111,  4,  9, RACE_MINOTAUR},
+		{ "Elvererith the Cheat",		100,  200, 112,  4, 10, RACE_DARK_ELF},
+		{ "Zzathath the Imp",			300,  200, 112,  4,  5, RACE_CENTAUR},
+		{ "Kon-Dar the Ugly",			50,   210, 115,  5,  7, RACE_ORC},
+		{ "Darg-Low the Grim",			100,  190, 111,  4,  9, RACE_HUMAN},
+		{ "Decado the Handsome",		250,  200, 112,  4, 10, RACE_TROLL},
+		{ "Wieland the Smith",			300,  200, 112,  4,  5, RACE_DWARF},
 	},
 	{
 		/* Weapon Smith - 28 unique names */
-		{ "Arnold the Beastly",			50,  115, RACE_BARBARIAN},
-		{ "Arndal Beast-Slayer",		100, 110, RACE_HALF_ELF},
-		{ "Eddie Beast-Master",			250, 115, RACE_HALF_ORC},
-		{ "Oglign Dragon-Slayer",		300, 112, RACE_DWARF},
-		{ "Drew the Skilled",			100, 115, RACE_HUMAN},
-		{ "Orrax Dragonson",			150, 110, RACE_DRACONIAN},
-		{ "Anthrax Disease-Carrier",	250, 115, RACE_BEASTMAN},
-		{ "Arkhoth the Stout",			300, 112, RACE_DWARF},
-		{ "Sarlyas the Rotten",			50,  115, RACE_ZOMBIE},
-		{ "Tuethic Bare-Bones",			150, 110, RACE_SKELETON},
-		{ "Bilious",					250, 115, RACE_BEASTMAN},
-		{ "Fasgul",						300, 112, RACE_ZOMBIE},
-		{ "Ellefris the Paladin",		100, 115, RACE_BARBARIAN},
-		{ "K'trrik'k",					150, 110, RACE_KLACKON},
-		{ "Drocus Spiderfriend",		250, 115, RACE_DARK_ELF},
-		{ "Fungus Giant-Slayer",		300, 112, RACE_DWARF},
-		{ "Delantha",					100, 115, RACE_ELF},
-		{ "Solvistani the Ranger",		150, 110, RACE_HALF_ELF},
-		{ "Xoril the Slow",				250, 115, RACE_GOLEM},
-		{ "Aeon Flux",					200, 112, RACE_HALF_ELF},
-		{ "Nadoc the Strong",			100, 115, RACE_HOBBIT},
-		{ "Eramog the Weak",			150, 110, RACE_KOBOLD},
-		{ "Eowilith the Fair",			250, 115, RACE_VAMPIRE},
-		{ "Huimog Balrog-Slayer",		300, 112, RACE_HALF_ORC},
-		{ "Peadus the Cruel",			50,  115, RACE_HUMAN},
-		{ "Vamog Slayer",				150, 110, RACE_HALF_OGRE},
-		{ "Hooshnak the Vicious",		250, 115, RACE_BEASTMAN},
-		{ "Balenn War-Dancer",			300, 112, RACE_BARBARIAN},
-		{ "Arnold the Beastly",			50,  115, RACE_BARBARIAN},
-		{ "Arndal Beast-Slayer",		100, 110, RACE_HALF_ELF},
-		{ "Eddie Beast-Master",			250, 115, RACE_HALF_ORC},
-		{ "Oglign Dragon-Slayer",		300, 112, RACE_DWARF},
+		{ "Arnold the Beastly",			50,   210, 115,  6,  6, RACE_SAURIAN},
+		{ "Arndal Beast-Slayer",		100,  185, 110,  5,  9, RACE_AQUARIAN},
+		{ "Eddie Beast-Master",			250,  190, 115,  5,  7, RACE_ORC},
+		{ "Oglign Dragon-Slayer",		300,  195, 112,  4,  8, RACE_DWARF},
+		{ "Drew the Skilled",			100,  210, 115,  6,  6, RACE_HUMAN},
+		{ "Orrax Dragonson",			150,  185, 110,  5,  9, RACE_DRACONIAN},
+		{ "Anthrax Disease-Carrier",	250,  190, 115,  5,  7, RACE_KAOTI},
+		{ "Arkhoth the Stout",			300,  195, 112,  4,  8, RACE_DWARF},
+		{ "Sarlyas the Rotten",			50,   210, 115,  6,  6, RACE_PIXIE},
+		{ "Tuethic Big-Bones",			150,  185, 110,  5,  9, RACE_MINOTAUR},
+		{ "Bilious",					250,  190, 115,  5,  7, RACE_KAOTI},
+		{ "Fasgul",						300,  195, 112,  4,  8, RACE_CENTAUR},
+		{ "Ellefris the Paladin",		100,  210, 115,  6,  6, RACE_CATLING},
+		{ "K'trrik'k",					150,  185, 110,  5,  9, RACE_DRYAD},
+		{ "Drocus Spiderfriend",		250,  190, 115,  5,  7, RACE_DARK_ELF},
+		{ "Fungus Giant-Slayer",		300,  195, 112,  4,  8, RACE_DWARF},
+		{ "Delantha",					100,  210, 115,  6,  6, RACE_ELF},
+		{ "Solvistani the Ranger",		150,  185, 110,  5,  9, RACE_FAUN},
+		{ "Xoril the Slow",				250,  190, 115,  5,  7, RACE_FAIRY},
+		{ "Aeon Flux",					200,  195, 112,  4,  8, RACE_DRIDER},
+		{ "Nadoc the Strong",			100,  210, 115,  6,  6, RACE_HALFLING},
+		{ "Eramog the Weak",			150,  185, 110,  5,  9, RACE_KOBOLD},
+		{ "Eowilith the Fair",			250,  190, 115,  5,  7, RACE_VAMPIRE},
+		{ "Huimog Balrog-Slayer",		300,  195, 112,  4,  8, RACE_ORC},
+		{ "Peadus the Cruel",			50,   210, 115,  6,  6, RACE_HUMAN},
+		{ "Vamog Slayer",				150,  185, 110,  5,  9, RACE_OGRE},
+		{ "Hooshnak the Vicious",		250,  190, 115,  5,  7, RACE_KAOTI},
+		{ "Balenn War-Dancer",			300,  195, 112,  4,  8, RACE_URUK},
+		{ "Arnold the Beastly",			50,   210, 115,  6,  6, RACE_RATLING},
+		{ "Arndal Beast-Slayer",		100,  185, 110,  5,  9, RACE_ENT},
+		{ "Eddie Beast-Master",			250,  190, 115,  5,  7, RACE_ORC},
+		{ "Oglign Dragon-Slayer",		300,  195, 112,  4,  8, RACE_DWARF},
 	},
 	{
 		/* Temple - 22 unique names */
-		{ "Ludwig the Humble",			50,  109, RACE_DWARF},
-		{ "Gunnar the Paladin",			100, 110, RACE_HALF_TROLL},
-		{ "Torin the Chosen",			250, 107, RACE_HIGH_ELF},
-		{ "Sarastro the Wise",			300, 109, RACE_HUMAN},
-		{ "Sir Parsival the Pure",		250, 107, RACE_HIGH_ELF},
-		{ "Asenath the Holy",			300, 109, RACE_HUMAN},
-		{ "McKinnon",					100, 109, RACE_HUMAN},
-		{ "Mistress Chastity",			150, 110, RACE_HIGH_ELF},
-		{ "Hashnik the Druid",			250, 107, RACE_HOBBIT},
-		{ "Finak",						300, 109, RACE_YEEK},
-		{ "Krikkik",					100, 109, RACE_KLACKON},
-		{ "Morival the Wild",			150, 110, RACE_ELF},
-		{ "Hoshak the Dark",			250, 107, RACE_IMP},
-		{ "Atal the Wise",				300, 109, RACE_HUMAN},
-		{ "Ibenidd the Chaste",			100, 109, RACE_HUMAN},
-		{ "Eridish",					150, 110, RACE_HALF_TROLL},
-		{ "Vrudush the Shaman",			250, 107, RACE_HALF_OGRE},
-		{ "Haob the Berserker",			300, 109, RACE_BARBARIAN},
-		{ "Proogdish the Youthfull",	100, 109, RACE_HALF_OGRE},
-		{ "Lumwise the Mad",			150, 110, RACE_YEEK},
-		{ "Muirt the Virtuous",			250, 107, RACE_KOBOLD},
-		{ "Dardobard the Weak",			300, 109, RACE_SPECTRE},
-		{ "Ludwig the Humble",			50,  109, RACE_DWARF},
-		{ "Gunnar the Paladin",			100, 110, RACE_HALF_TROLL},
-		{ "Torin the Chosen",			250, 107, RACE_HIGH_ELF},
-		{ "Sarastro the Wise",			300, 109, RACE_HUMAN},
-		{ "Sir Parsival the Pure",		250, 107, RACE_HIGH_ELF},
-		{ "Asenath the Holy",			300, 109, RACE_HUMAN},
-		{ "McKinnon",					100, 109, RACE_HUMAN},
-		{ "Mistress Chastity",			150, 110, RACE_HIGH_ELF},
-		{ "Hashnik the Druid",			250, 107, RACE_HOBBIT},
-		{ "Finak",						300, 109, RACE_YEEK},
+		{ "Ludwig the Humble",			50,   175, 109,  6, 15, RACE_DWARF},
+		{ "Gunnar the Paladin",			100,  185, 110,  5, 23, RACE_TROLL},
+		{ "Torin the Chosen",			250,  180, 107,  6, 20, RACE_LEPRECHAUN},
+		{ "Sarastro the Wise",			300,  185, 109,  5, 15, RACE_HUMAN},
+		{ "Sir Parsival the Pure",		250,  180, 107,  6, 20, RACE_SAURIAN},
+		{ "Asenath the Holy",			300,  185, 109,  5, 15, RACE_HUMAN},
+		{ "McKinnon",					100,  175, 109,  6, 15, RACE_HUMAN},
+		{ "Mistress Chastity",			150,  185, 110,  5, 23, RACE_AQUARIAN},
+		{ "Hashnik the Druid",			250,  180, 107,  6, 20, RACE_HALFLING},
+		{ "Finak",						300,  185, 109,  5, 15, RACE_YEEK},
+		{ "Krikkik",					100,  175, 109,  6, 15, RACE_GOBLIN},
+		{ "Morival the Wild",			150,  185, 110,  5, 23, RACE_ELF},
+		{ "Hoshak the Dark",			250,  180, 107,  6, 20, RACE_MINOTAUR},
+		{ "Atal the Wise",				300,  185, 109,  5, 15, RACE_HUMAN},
+		{ "Ibenidd the Chaste",			100,  175, 109,  6, 15, RACE_HUMAN},
+		{ "Eridish",					150,  185, 110,  5, 23, RACE_TROLL},
+		{ "Vrudush the Shaman",			250,  180, 107,  6, 20, RACE_OGRE},
+		{ "Haob the Berserker",			300,  185, 109,  5, 15, RACE_CENTAUR},
+		{ "Proogdish the Youthfull",	100,  175, 109,  6, 15, RACE_OGRE},
+		{ "Lumwise the Mad",			150,  185, 110,  5, 23, RACE_YEEK},
+		{ "Muirt the Virtuous",			250,  180, 107,  6, 20, RACE_KOBOLD},
+		{ "Dardobard the Weak",			300,  185, 109,  5, 15, RACE_FAIRY},
+		{ "Ludwig the Humble",			50,   175, 109,  6, 15, RACE_DWARF},
+		{ "Gunnar the Paladin",			100,  185, 110,  5, 23, RACE_TROLL},
+		{ "Torin the Chosen",			250,  180, 107,  6, 20, RACE_CATLING},
+		{ "Sarastro the Wise",			300,  185, 109,  5, 15, RACE_HUMAN},
+		{ "Sir Parsival the Pure",		250,  180, 107,  6, 20, RACE_DRYAD},
+		{ "Asenath the Holy",			300,  185, 109,  5, 15, RACE_HUMAN},
+		{ "Laura the Friendly",			100,  175, 109,  6, 15, RACE_HUMAN},
+		{ "Mistress Chastity",			150,  185, 110,  5, 23, RACE_FAUN},
+		{ "Hashnik the Druid",			250,  180, 107,  6, 20, RACE_HALFLING},
+		{ "Finak",						300,  185, 109,  5, 15, RACE_YEEK},
 	},
 	{
 		/* Alchemist - 26 unique names */
-		{ "Mauser the Chemist",			100, 111, RACE_HALF_ELF},
-		{ "Wizzle the Chaotic",			100, 110, RACE_HOBBIT},
-		{ "Midas the Greedy",			150, 116, RACE_GNOME},
-		{ "Ja-Far the Alchemist",		150, 111, RACE_ELF},
-		{ "Kakalrakakal",				150, 116, RACE_KLACKON},
-		{ "Jal-Eth the Alchemist",		150, 111, RACE_ELF},
-		{ "Fanelath the Cautious",		100, 111, RACE_DWARF},
-		{ "Runcie the Insane",			100, 110, RACE_HUMAN},
-		{ "Grumbleworth",				150, 116, RACE_GNOME},
-		{ "Flitter",					150, 111, RACE_SPRITE},
-		{ "Xarillus",					100, 111, RACE_HUMAN},
-		{ "Egbert the Old",				100, 110, RACE_DWARF},
-		{ "Valindra the Proud",			150, 116, RACE_HIGH_ELF},
-		{ "Taen the Alchemist",			150, 111, RACE_HUMAN},
-		{ "Cayd the Sweet",				100, 111, RACE_VAMPIRE},
-		{ "Fulir the Dark",				100, 110, RACE_NIBELUNG},
-		{ "Domli the Humble",			150, 116, RACE_DWARF},
-		{ "Yaarjukka Demonspawn",		150, 111, RACE_IMP},
-		{ "Gelaraldor the Herbmaster",	100, 111, RACE_HIGH_ELF},
-		{ "Olelaldan the Wise",			100, 110, RACE_BARBARIAN},
-		{ "Fthoglo the Demonicist",		150, 116, RACE_IMP},
-		{ "Dridash the Alchemist",		150, 111, RACE_HALF_ORC},
-		{ "Nelir the Strong",			100, 111, RACE_CYCLOPS},
-		{ "Lignus the Pungent",			100, 110, RACE_HALF_ORC},
-		{ "Tilba",						150, 116, RACE_HOBBIT},
-		{ "Myrildric the Wealthy",		150, 111, RACE_HUMAN},
-		{ "Mauser the Chemist",			100, 111, RACE_HALF_ELF},
-		{ "Wizzle the Chaotic",			100, 110, RACE_HOBBIT},
-		{ "Midas the Greedy",			150, 116, RACE_GNOME},
-		{ "Ja-Far the Alchemist",		150, 111, RACE_ELF},
-		{ "Kakalrakakal",				150, 116, RACE_KLACKON},
-		{ "Jal-Eth the Alchemist",		150, 111, RACE_ELF},
+		{ "Mauser the Chemist",			100,  190, 111,  5,  8, RACE_ILLITHID},
+		{ "Wizzle the Chaotic",			100,  190, 110,  6,  8, RACE_HALFLING},
+		{ "Midas the Greedy",			150,  200, 116,  6,  9, RACE_GNOME},
+		{ "Ja-Far the Alchemist",		150,  220, 111,  4,  9, RACE_ELF},
+		{ "Kakalrakakal",				150,  200, 116,  6,  9, RACE_ENT},
+		{ "Jal-Eth the Alchemist",		150,  220, 111,  4,  9, RACE_ELF},
+		{ "Fanelath the Cautious",		100,  190, 111,  5,  8, RACE_DWARF},
+		{ "Runcie the Insane",			100,  190, 110,  6,  8, RACE_HUMAN},
+		{ "Grumbleworth",				150,  200, 116,  6,  9, RACE_GNOME},
+		{ "Flitter",					150,  220, 111,  4,  9, RACE_PIXIE},
+		{ "Xarillus",					100,  190, 111,  5,  8, RACE_HUMAN},
+		{ "Egbert the Old",				100,  190, 110,  6,  8, RACE_DWARF},
+		{ "Valindra the Proud",			150,  200, 116,  6,  9, RACE_DRIDER},
+		{ "Taen the Alchemist",			150,  220, 111,  4,  9, RACE_HUMAN},
+		{ "Cayd the Sweet",				100,  190, 111,  5,  8, RACE_VAMPIRE},
+		{ "Fulir the Dark",				100,  190, 110,  6,  8, RACE_RATLING},
+		{ "Domli the Humble",			150,  200, 116,  6,  9, RACE_DWARF},
+		{ "Yaarjukka Demonspawn",		150,  220, 111,  4,  9, RACE_GOBLIN},
+		{ "Gelaraldor the Herbmaster",	100,  190, 111,  5,  8, RACE_LEPRECHAUN},
+		{ "Olelaldan the Wise",			100,  190, 110,  6,  8, RACE_DRACONIAN},
+		{ "Fthoglo the Demonicist",		150,  200, 116,  6,  9, RACE_GOBLIN},
+		{ "Dridash the Alchemist",		150,  220, 111,  4,  9, RACE_ORC},
+		{ "Nelir the Strong",			100,  190, 111,  5,  8, RACE_SAURIAN},
+		{ "Lignus the Pungent",			100,  190, 110,  6,  8, RACE_ORC},
+		{ "Tilba",						150,  200, 116,  6,  9, RACE_HALFLING},
+		{ "Myrildric the Wealthy",		150,  220, 111,  4,  9, RACE_HUMAN},
+		{ "Mauser the Chemist",			100,  190, 111,  5,  8, RACE_AQUARIAN},
+		{ "Wizzle the Chaotic",			100,  190, 110,  6,  8, RACE_HALFLING},
+		{ "Midas the Greedy",			150,  200, 116,  6,  9, RACE_GNOME},
+		{ "Ja-Far the Alchemist",		150,  220, 111,  4,  9, RACE_ELF},
+		{ "Kakalrakakal",				150,  200, 116,  6,  9, RACE_ILLITHID},
+		{ "Jal-Eth the Alchemist",		150,  220, 111,  4,  9, RACE_ELF},
 	},
 	{
 		/* Magic Shop - 23 unique names */
-		{ "Lo Pan the Sorcerer",		200, 110, RACE_HALF_ELF},
-		{ "Buggerby the Great",			200, 113, RACE_GNOME},
-		{ "The Wizard of Yendor",		300, 110, RACE_HUMAN},
-		{ "Rjak the Necromancer",		300, 110, RACE_DARK_ELF},
-		{ "Skidney the Sorcerer",		150, 110, RACE_HALF_ELF},
-		{ "Kyria the Illusionist",		300, 110, RACE_HUMAN},
-		{ "Nikki the Necromancer",		300, 110, RACE_DARK_ELF},
-		{ "Solostoran",					150, 110, RACE_SPRITE},
-		{ "Achshe the Tentacled",		200, 113, RACE_MIND_FLAYER},
-		{ "Kaza the Noble",				300, 110, RACE_HIGH_ELF},
-		{ "Fazzil the Dark",			300, 110, RACE_DARK_ELF},
-		{ "Keldorn the Grand",			150, 110, RACE_DWARF},
-		{ "Philanthropus",				200, 113, RACE_HOBBIT},
-		{ "Agnar the Enchantress",		300, 110, RACE_HUMAN},
-		{ "Buliance the Necromancer",	300, 110, RACE_BEASTMAN},
-		{ "Vuirak the High-Mage",		150, 110, RACE_BEASTMAN},
-		{ "Madish the Smart",			200, 113, RACE_BEASTMAN},
-		{ "Falebrimbor",				300, 110, RACE_HIGH_ELF},
-		{ "Felil-Gand the Subtle",		300, 110, RACE_DARK_ELF},
-		{ "Thalegord the Shaman",		150, 110, RACE_BARBARIAN},
-		{ "Cthoaloth the Mystic",		200, 113, RACE_MIND_FLAYER},
-		{ "Ibeli the Illusionist",		300, 110, RACE_SKELETON},
-		{ "Heto the Necromancer",		300, 110, RACE_YEEK},
-		{ "Lo Pan the Sorcerer",		200, 110, RACE_HALF_ELF},
-		{ "Buggerby the Great",			200, 113, RACE_GNOME},
-		{ "The Wizard of Yendor",		300, 110, RACE_HUMAN},
-		{ "Rjak the Necromancer",		300, 110, RACE_DARK_ELF},
-		{ "Skidney the Sorcerer",		150, 110, RACE_HALF_ELF},
-		{ "Kyria the Illusionist",		300, 110, RACE_HUMAN},
-		{ "Nikki the Necromancer",		300, 110, RACE_DARK_ELF},
-		{ "Solostoran",					150, 110, RACE_SPRITE},
-		{ "Achshe the Tentacled",		200, 113, RACE_MIND_FLAYER},
+		{ "Lo Pan the Sorcerer",		200,  200, 110,  7,  8, RACE_MINOTAUR},
+		{ "Buggerby the Great",			200,  215, 113,  6, 10, RACE_GNOME},
+		{ "The Wizard of Yendor",		300,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Rjak the Necromancer",		300,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Skidney the Sorcerer",		150,  200, 110,  7,  8, RACE_CENTAUR},
+		{ "Kyria the Illusionist",		300,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Nikki the Necromancer",		300,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Solostoran",					150,  200, 110,  7,  8, RACE_PIXIE},
+		{ "Achshe the Tentacled",		200,  215, 113,  6, 10, RACE_ILLITHID},
+		{ "Kaza the Noble",				300,  200, 110,  7, 10, RACE_CATLING},
+		{ "Fazzil the Dark",			300,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Keldorn the Grand",			150,  200, 110,  7,  8, RACE_DWARF},
+		{ "Philanthropus",				200,  215, 113,  6, 10, RACE_HALFLING},
+		{ "Agnar the Enchantress",		300,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Buliance the Necromancer",	300,  175, 110,  5, 11, RACE_KAOTI},
+		{ "Vuirak the High-Mage",		150,  200, 110,  7,  8, RACE_KAOTI},
+		{ "Madish the Smart",			200,  215, 113,  6, 10, RACE_KAOTI},
+		{ "Falebrimbor",				300,  200, 110,  7, 10, RACE_DRYAD},
+		{ "Felil-Gand the Subtle",		300,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Thalegord the Shaman",		150,  200, 110,  7,  8, RACE_ENT},
+		{ "Cthoaloth the Mystic",		200,  215, 113,  6, 10, RACE_ILLITHID},
+		{ "Ibeli the Illusionist",		300,  200, 110,  7, 10, RACE_DRIDER},
+		{ "Heto the Necromancer",		300,  175, 110,  5, 11, RACE_YEEK},
+		{ "Lo Pan the Sorcerer",		200,  200, 110,  7,  8, RACE_RATLING},
+		{ "Buggerby the Great",			200,  215, 113,  6, 10, RACE_GNOME},
+		{ "The Wizard of Yendor",		300,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Rjak the Necromancer",		300,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Skidney the Sorcerer",		150,  200, 110,  7,  8, RACE_LEPRECHAUN},
+		{ "Kyria the Illusionist",		300,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Nikki the Necromancer",		300,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Solostoran",					150,  200, 110,  7,  8, RACE_PIXIE},
+		{ "Achshe the Tentacled",		200,  215, 113,  6, 10, RACE_ILLITHID},
 	},
 	{
 		/* Black Market - 32 unique names */
-		{ "Gary Gygaz",					200, 150, RACE_HALF_TROLL},
-		{ "Histor the Goblin",			200, 150, RACE_HALF_ORC},
-		{ "Quark the Ferengi",			300, 150, RACE_DWARF},
-		{ "Topi the Fair(?)",			300, 150, RACE_HUMAN},
-		{ "Vhassa the Dead",			200, 150, RACE_ZOMBIE},
-		{ "Kyn the Treacherous",		200, 150, RACE_VAMPIRE},
-		{ "Bubonicus",					300, 150, RACE_BEASTMAN},
-		{ "Corpselight",				300, 150, RACE_SPECTRE},
-		{ "Parrish the Bloodthirsty",	200, 150, RACE_VAMPIRE},
-		{ "Vile",						200, 150, RACE_SKELETON},
-		{ "Prentice the Trusted",		300, 150, RACE_SKELETON},
-		{ "Griella Humanslayer",		300, 150, RACE_IMP},
-		{ "Angel",						200, 150, RACE_VAMPIRE},
-		{ "Flotsam the Bloated",		200, 150, RACE_ZOMBIE},
-		{ "Nieval",						300, 150, RACE_VAMPIRE},
-		{ "Anastasia the Luminous",		300, 150, RACE_SPECTRE},
-		{ "Charity the Necromancer",	200, 150, RACE_DARK_ELF},
-		{ "Pugnacious the Pugilist",	200, 150, RACE_HALF_ORC},
-		{ "Footsore the Lucky",			300, 150, RACE_BEASTMAN},
-		{ "Sidria Lighfingered",		300, 150, RACE_HUMAN},
-		{ "Riatho the Juggler",			200, 150, RACE_HOBBIT},
-		{ "Janaaka the Shifty",			200, 150, RACE_GNOME},
-		{ "Cina the Rogue",				300, 150, RACE_GNOME},
-		{ "Arunikki Greatclaw",			300, 150, RACE_DRACONIAN},
-		{ "Chaeand the Poor",			200, 150, RACE_HUMAN},
-		{ "Afardorf the Brigand",		200, 150, RACE_BARBARIAN},
-		{ "Lathaxl the Greedy",			300, 150, RACE_MIND_FLAYER},
-		{ "Falarewyn",					300, 150, RACE_SPRITE},
-		{ "Vosur the Wrinkled",			200, 150, RACE_NIBELUNG},
-		{ "Araord the Handsome",		200, 150, RACE_AMBERITE},
-		{ "Theradfrid the Loser",		300, 150, RACE_HUMAN},
-		{ "One-Legged Eroolo",			300, 150, RACE_HALF_OGRE},
+		{ "Gary Gygaz",					200,  250, 150, 10,  5, RACE_TROLL},
+		{ "Manteg the Hidden",			200,  250, 150, 10,  5, RACE_KAOTI},
+		{ "Quark the Ferengi",			300,  250, 150, 10,  5, RACE_GOBLIN},
+		{ "Topi the Fair(?)",			300,  250, 150, 10,  5, RACE_HUMAN},
+		{ "Vhassa the Dead",			200,  250, 150, 10,  5, RACE_URUK},
+		{ "Kyn the Treacherous",		200,  250, 150, 10,  5, RACE_VAMPIRE},
+		{ "Bubonicus",					300,  250, 150, 10,  5, RACE_KAOTI},
+		{ "Corpselight",				300,  250, 150, 10,  5, RACE_FAIRY},
+		{ "Parrish the Bloodthirsty",	200,  250, 150, 10,  5, RACE_VAMPIRE},
+		{ "Vile",						200,  250, 150, 10,  5, RACE_SAURIAN},
+		{ "Prentice the Trusted",		300,  250, 150, 10,  5, RACE_AQUARIAN},
+		{ "Griella Humanslayer",		300,  250, 150, 10,  5, RACE_ORC},
+		{ "Angel",						200,  250, 150, 10,  5, RACE_VAMPIRE},
+		{ "Flotsam the Bloated",		200,  250, 150, 10,  5, RACE_MINOTAUR},
+		{ "Nieval",						300,  250, 150, 10,  5, RACE_VAMPIRE},
+		{ "Anastasia the Luminous",		300,  250, 150, 10,  5, RACE_FAIRY},
+		{ "Charity the Necromancer",	200,  250, 150, 10,  5, RACE_DARK_ELF},
+		{ "Pugnacious the Pugilist",	200,  250, 150, 10,  5, RACE_ORC},
+		{ "Footsore the Lucky",			300,  250, 150, 10,  5, RACE_KAOTI},
+		{ "Sidria Lighfingered",		300,  250, 150, 10,  5, RACE_HUMAN},
+		{ "Riatho the Juggler",			200,  250, 150, 10,  5, RACE_HALFLING},
+		{ "Janaaka the Shifty",			200,  250, 150, 10,  5, RACE_GNOME},
+		{ "Cina the Rogue",				300,  250, 150, 10,  5, RACE_GNOME},
+		{ "Arunikki Greatclaw",			300,  250, 150, 10,  5, RACE_DRACONIAN},
+		{ "Chaeand the Poor",			200,  250, 150, 10,  5, RACE_HUMAN},
+		{ "Afardorf the Brigand",		200,  250, 150, 10,  5, RACE_URUK},
+		{ "Lathaxl the Greedy",			300,  250, 150, 10,  5, RACE_ILLITHID},
+		{ "Falarewyn",					300,  250, 150, 10,  5, RACE_PIXIE},
+		{ "Vosur the Wrinkled",			200,  250, 150, 10,  5, RACE_CENTAUR},
+		{ "Araord the Handsome",		200,  250, 150, 10,  5, RACE_CATLING},
+		{ "Theradfrid the Loser",		300,  250, 150, 10,  5, RACE_HUMAN},
+		{ "One-Legged Eroolo",			300,  250, 150, 10,  5, RACE_OGRE},
 	},
 	{
 		/* Home */
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
-		{ "Your home",					0,   100, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Your home",					0,    100, 100,  0, 99, 99},
+		{ "Home Sweet Home",				0,    100, 100,  0, 99, 99},
 	},
 	{
 		/* Bookstore - 21 unique names */
-		{ "Dolaf the Greedy",			100, 108, RACE_HUMAN},
-		{ "Odnar the Sage",				150, 105, RACE_HIGH_ELF},
-		{ "Gandar the Neutral",			250, 110, RACE_DARK_ELF},
-		{ "Ro-sha the Patient",			300, 105, RACE_ELF},
-		{ "Randolph Carter",			150, 108, RACE_HUMAN},
-		{ "Sarai the Swift",			150, 108, RACE_HUMAN},
-		{ "Bodril the Seer",			200, 105, RACE_HIGH_ELF},
-		{ "Veloin the Quiet",			250, 110, RACE_ZOMBIE},
-		{ "Vanthylas the Learned",		300, 105, RACE_MIND_FLAYER},
-		{ "Ossein the Literate",		150, 108, RACE_SKELETON},
-		{ "Olvar Bookworm",				200, 105, RACE_VAMPIRE},
-		{ "Shallowgrave",				250, 110, RACE_ZOMBIE},
-		{ "Death Mask",					300, 105, RACE_ZOMBIE},
-		{ "Asuunu the Learned",			150, 108, RACE_MIND_FLAYER},
-		{ "Prirand the Dead",			200, 105, RACE_ZOMBIE},
-		{ "Ronar the Iron",				250, 110, RACE_GOLEM},
-		{ "Galil-Gamir",				300, 105, RACE_ELF},
-		{ "Rorbag Book-Eater",			150, 108, RACE_KOBOLD},
-		{ "Kiriarikirk",				200, 105, RACE_KLACKON},
-		{ "Rilin the Quiet",			250, 110, RACE_DWARF},
-		{ "Isung the Lord",				300, 105, RACE_HIGH_ELF},
-		{ "Dolaf the Greedy",			100, 108, RACE_HUMAN},
-		{ "Odnar the Sage",				150, 105, RACE_HIGH_ELF},
-		{ "Gandar the Neutral",			250, 110, RACE_DARK_ELF},
-		{ "Ro-sha the Patient",			300, 105, RACE_ELF},
-		{ "Randolph Carter",			150, 108, RACE_HUMAN},
-		{ "Sarai the Swift",			150, 108, RACE_HUMAN},
-		{ "Bodril the Seer",			200, 105, RACE_HIGH_ELF},
-		{ "Veloin the Quiet",			250, 110, RACE_ZOMBIE},
-		{ "Vanthylas the Learned",		300, 105, RACE_MIND_FLAYER},
-		{ "Ossein the Literate",		150, 108, RACE_SKELETON},
-		{ "Olvar Bookworm",				200, 105, RACE_VAMPIRE},
+		{ "Dolaf the Greedy",			100,  175, 108, 4, 12, RACE_HUMAN},
+		{ "Odnar the Sage",				150,  120, 105, 6, 16, RACE_DRYAD},
+		{ "Gandar the Neutral",			250,  120, 110, 7, 19, RACE_DARK_ELF},
+		{ "Ro-sha the Patient",			300,  140, 105, 6, 12, RACE_ELF},
+		{ "Randolph Carter",			150,  175, 108, 4, 12, RACE_HUMAN},
+		{ "Sarai the Swift",			150,  175, 108, 4, 12, RACE_HUMAN},
+		{ "Bodril the Seer",			200,  120, 105, 6, 16, RACE_FAUN},
+		{ "Veloin the Quiet",			250,  120, 110, 7, 19, RACE_ENT},
+		{ "Vanthylas the Learned",		300,  140, 105, 6, 12, RACE_ILLITHID},
+		{ "Ossein the Literate",		150,  175, 108, 4, 12, RACE_FAIRY},
+		{ "Olvar Bookworm",				200,  120, 105, 6, 16, RACE_VAMPIRE},
+		{ "Shallowgrave",				250,  120, 110, 7, 19, RACE_DRIDER},
+		{ "Death Mask",					300,  140, 105, 6, 12, RACE_RATLING},
+		{ "Asuunu the Learned",			150,  175, 108, 4, 12, RACE_ILLITHID},
+		{ "Prirand the Dead",			200,  120, 105, 6, 16, RACE_LEPRECHAUN},
+		{ "Ronar the Iron",				250,  120, 110, 7, 19, RACE_DRACONIAN},
+		{ "Galil-Gamir",				300,  140, 105, 6, 12, RACE_ELF},
+		{ "Rorbag Book-Eater",			150,  175, 108, 4, 12, RACE_KOBOLD},
+		{ "Kiriarikirk",				200,  120, 105, 6, 16, RACE_SAURIAN},
+		{ "Rilin the Quiet",			250,  120, 110, 7, 19, RACE_DWARF},
+		{ "Isung the Lord",				300,  140, 105, 6, 12, RACE_AQUARIAN},
+		{ "Dolaf the Greedy",			100,  175, 108, 4, 12, RACE_HUMAN},
+		{ "Odnar the Sage",				150,  120, 105, 6, 16, RACE_MINOTAUR},
+		{ "Gandar the Neutral",			250,  120, 110, 7, 19, RACE_DARK_ELF},
+		{ "Ro-sha the Patient",			300,  140, 105, 6, 12, RACE_ELF},
+		{ "Randolph Carter",			150,  175, 108, 4, 12, RACE_HUMAN},
+		{ "Sarai the Swift",			150,  175, 108, 4, 12, RACE_HUMAN},
+		{ "Bodril the Seer",			200,  120, 105, 6, 16, RACE_CENTAUR},
+		{ "Veloin the Quiet",			250,  120, 110, 7, 19, RACE_CATLING},
+		{ "Vanthylas the Learned",		300,  140, 105, 6, 12, RACE_ILLITHID},
+		{ "Ossein the Literate",		150,  175, 108, 4, 12, RACE_DRYAD},
+		{ "Olvar Bookworm",				200,  120, 105, 6, 16, RACE_VAMPIRE},
 	}
 };
 
@@ -1379,8 +1423,8 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 	{
 		/* Weaponmaster */
 		{ "Suiyan",				150,			RACE_HUMAN},
-		{ "Aadocpeth",			100,			RACE_SKELETON},
-		{ "Ognoqutoin",			95,				RACE_HALF_TROLL},
+		{ "Aadocpeth",			100,			RACE_URUK},
+		{ "Ognoqutoin",			95,				RACE_TROLL},
 		{ "Nothall",			125,			RACE_DWARF},
 		{ "Athoang",			90,				RACE_GNOME},
 	},
@@ -1388,16 +1432,16 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 	{
 		/* Zymurgist */
 		{ "Tanistil",			100,			RACE_ELF},
-		{ "Paitnaw",			110,			RACE_IMP},
-		{ "Thiaeth",			125,			RACE_SPECTRE},
+		{ "Paitnaw",			110,			RACE_GOBLIN},
+		{ "Thiaeth",			125,			RACE_FAIRY},
 		{ "Kaoghequin",			90,				RACE_YEEK},
-		{ "Yaowing",			95,				RACE_HIGH_ELF},
+		{ "Yaowing",			95,				RACE_FAUN},
 	},
 	
 	{
 		/* Magesmith Weapons */
-		{ "Aotnron",			100,			RACE_HALF_ORC},
-		{ "Pwetholn",			95,				RACE_AMBERITE},
+		{ "Aotnron",			100,			RACE_ORC},
+		{ "Pwetholn",			95,				RACE_DRACONIAN},
 		{ "Tim",				120,			RACE_HUMAN},
 		{ "Waowenth",			130,			RACE_ELF},
 		{ "Yiquent",			90,				RACE_VAMPIRE},
@@ -1406,43 +1450,43 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 	{
 		/* Magesmith Armour */
 		{ "Paoingth",			100,			RACE_DARK_ELF},
-		{ "Aargh'nt",			130,			RACE_BEASTMAN},
+		{ "Aargh'nt",			130,			RACE_KAOTI},
 		{ "Wylntes",			125,			RACE_ELF},
 		{ "Baongthan",			90,				RACE_DWARF},
-		{ "Vitholm",			105,			RACE_SPRITE},
+		{ "Vitholm",			105,			RACE_PIXIE},
 	},
 	
 	{
 		/* Mutations */
 		{ "Aaognwth",			120,			RACE_HUMAN},
 		{ "Naothwell",			130,			RACE_DARK_ELF},
-		{ "Jaltip",				95,				RACE_BEASTMAN},
-		{ "Yillwyn",			100,			RACE_KLACKON},
-		{ "Zyxlen",				110,			RACE_GOLEM},
+		{ "Jaltip",				95,				RACE_KAOTI},
+		{ "Yillwyn",			100,			RACE_AQUARIAN},
+		{ "Zyxlen",				110,			RACE_MINOTAUR},
 	},
 	
 	{
 		/* Maps */
 		{ "Fsanong of the East", 90,			RACE_HUMAN},
 		{ "Paginoth the Strider", 100,			RACE_ELF},
-		{ "Xaingol the Wanderer", 110,			RACE_ZOMBIE},
+		{ "Xaingol the Wanderer", 110,			RACE_CENTAUR},
 		{ "Wop of the high",	125,			RACE_GNOME},
-		{ "Kaquin of the West",	95,				RACE_HIGH_ELF},
+		{ "Kaquin of the West",	95,				RACE_CATLING},
 	},
 	
 	{
 		/* Library */
 		{ "Agpoan",				 85,			RACE_HUMAN},
-		{ "Wewton", 			100,			RACE_HALF_ELF},
+		{ "Wewton", 			100,			RACE_DRYAD},
 		{ "Masoognnix", 		110,			RACE_VAMPIRE},
-		{ "Pagpon",				120,			RACE_AMBERITE},
-		{ "Leiwthen",			100,			RACE_HIGH_ELF},
+		{ "Pagpon",				120,			RACE_ENT},
+		{ "Leiwthen",			100,			RACE_LEPRECHAUN},
 	},
 
 	{
 		/* Casino */
 		{ "Key East",			100,			RACE_HUMAN},
-		{ "Point Rip", 			100,			RACE_HALF_ELF},
+		{ "Point Rip", 			100,			RACE_DRIDER},
 		{ "Lean West",		 	100,			RACE_DWARF},
 		{ "Tile Green",			100,			RACE_HUMAN},
 		{ "Gold Red",			100,			RACE_DWARF},
@@ -1451,17 +1495,17 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 	{
 		/* Inn */
 		{ "Pwvnom",				100,			RACE_DARK_ELF},
-		{ "Laign Mawan",		150,			RACE_SPRITE},
+		{ "Laign Mawan",		150,			RACE_PIXIE},
 		{ "Palson",			 	200,			RACE_HUMAN},
-		{ "Thwynyhtm",			250,			RACE_HIGH_ELF},
-		{ "Chaillnew",			50,				RACE_HUMAN},
+		{ "Thwynyhtm",			250,			RACE_GOBLIN},
+		{ "Chaillnew",			50,				RACE_HALFLING},
 	},
 	
 	{
 		/* Healer */
-		{ "Nethlew",			150,			RACE_ELF},
-		{ "Alorn Peln",			80,				RACE_GNOME},
-		{ "Ahsilth Peon",	 	100,			RACE_HOBBIT},
+		{ "Nethlew",			80,			RACE_ELF},
+		{ "Alorn Peln",			150,				RACE_GNOME},
+		{ "Ahsilth Peon",	 	100,			RACE_HALFLING},
 		{ "McPallion",			120,			RACE_HUMAN},
 		{ "Qonwyn",				110,			RACE_DWARF},
 	},
@@ -1580,7 +1624,7 @@ const byte rgold_adj[MAX_RACES][MAX_RACES] =
 	/* Dark Elf */
 	{ 110, 110, 110, 115, 120, 130, 115, 115, 120, 110, 115,
 	  115, 115, 116, 115, 120, 120, 115, 115, 101, 110, 110,
-	  110, 110, 112, 122, 110, 110, 110, 115, 122  },
+	  110, 110, 112, 122, 110, 110, 110, 115  },
 
 	/* Draconian: theoretical, copied from High_Elf */
 	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
@@ -1769,7 +1813,7 @@ player_sex sex_info[MAX_SEXES] =
  *
  *      Title,
  *      {STR,INT,WIS,DEX,CON,CHR},
- *      r_dis, r_dev, r_sav, r_stl, r_sns, r_fos, r_thn, r_thb,
+ *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
  *      hitdie, exp base,
  *      Age (Base, Mod),
  *      Male (Hgt, Wgt),
@@ -1783,342 +1827,342 @@ player_race race_info[MAX_RACES] =
 		"Human",
 		{  0,  0,  0,  0,  0,  0 },
 		0,  0,  0,  0,  0,  10,  0,  0,
-		10,  100,
+		10,  90,
 		14,  6,
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-		0x7FF,
-	},
-	{
-		"Half-Elf",
-		{ -1,  1,  1,  1, -1,  1 },
-		2,  3,  3,  1, 6,  11, -2,  3,
-		9,  110,
-		24, 16,
-		66,  6, 130, 15,
-		62,  6, 100, 10,
-		2,
-		0x7FF,
+		0x7FFFFFFF,
 	},
 	{
 		"Elf",
-		{ -1,  2,  2,  1, -2,  2 },
-		5,  6,  6,  2, 8,  12, -6, 6,
-		8,  120,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		3,
-		0x75F,
-	},
-	{
-		"Hobbit",
-		{ -2,  2,  1,  3,  2,  1 },
-		15, 18, 18, 5, 12,  15, -11, 6,
-		7,  110,
-		21, 12,
-		36,  3, 60,  3,
-		33,  3, 50,  3,
-		4,
-		0x40B,
-	},
-	{
-		"Gnome",
-		{ -1,  2,  0,  2,  1, -2 },
-		10, 12, 12,  3, 6,  13, -8, 0,
-		8,  135,
-		50, 40,
-		42,  3, 90,  6,
-		39,  3, 75,  3,
-		4,
-		0x60F,
+		{ -1,  1,  0,  1, -2,  1 },
+		4,  5,  5,  3, 7,  12, -6,  6,
+		9,  125,
+		24, 16,
+		66,  9, 130, 15,
+		62,  9, 100, 10,
+		2,
+		0x7FFDFF7F,
 	},
 	{
 		"Dwarf",
-		{  2, -2,  2, -2,  2, -3 },
+		{  1, -2, 0, 0,  2, -1 },
 		2,  9,  10,  -1,  7,  10, 7,  0,
 		11,  125,
 		35, 15,
 		48,  3, 150, 10,
 		46,  3, 120, 10,
-		5,
-		0x005,
+		4,
+		0x3FFF07FF,
 	},
 	{
-		"Half-Orc",
-		{  2, -1,  0,  0,  1, -4 },
-		-3, -3, -3,  -1,  0, 7, 3, -3,
-		10,  110,
+		"Halfling",
+		{ -2,  0,  0,  1,  -1,  1 },
+		15, 10, 18, 5, 12,  15, -11, 6,
+		10,  125,
+		21, 12,
+		36,  3, 60,  3,
+		33,  3, 50,  3,
+		3,
+		0x7FFFFFF8,
+	},
+	{
+		"Dark Elf",
+		{ -1, 1, 0, 1, -1, 0 },
+		5, 15, 20, 3, 8, 12, -5, 7,
+		9, 125,
+		75, 75,
+		60,  4, 100,  6,
+		54,  4, 80,  6,
+		4,
+		0x7FFEFFBF,
+	},
+	{
+		"Gnome",
+		{ -2,  1,  1,  -1,  1, 0 },
+		10, 12, 12,  3, 6,  13, -8, 0,
+		8,  125,
+		50, 40,
+		42,  3, 90,  6,
+		39,  3, 75,  3,
+		3,
+		0x7FFFBFFC,
+	},
+	{
+		"Orc",
+		{  2, -2,  0,  -1,  2, -1 },
+		-3, -3, -3,  -1,  0, 7, 4, -3,
+		12,  150,
 		11,  4,
 		66,  1, 150,  5,
 		62,  1, 120,  5,
-		3,
-		0x18D,
+		2,
+		0x3FFB06FF,
 	},
 	{
-		"Half-Troll",
-		{ 4, -4, -2, -4,  3, -6 },
+		"Troll",
+		{ 4, -2, -2,  0,  3, -2 },
 		-5, -8, -8, -2,  -1, 5, 10, -5,
-		12,  137,
+		14,  150,
 		20, 10,
 		96, 10, 250, 50,
 		84,  8, 225, 40,
-		3,
-		0x005,
+		2,
+		0x000003C3,
 	},
 	{
-		"Amberite",
-		{  1,  2,  2,  2,  3,  2 },
-		4,  5,  5,  2, 3, 13, 6, 0,
-		10,  225,
+		"Saurian",
+		{  1,  0,  0,  -2,  1,  0 },
+		4,  5,  5, -2, 3, 13, 6, 0,
+		13,  125,
 		50, 50,
-		82, 5, 190, 20,
-		78,  6, 180, 15,
+		70,  6, 250, 20,
+		70,  5, 225, 15,
 		0,
-		0x7FF,
+		0x7F7FEFC7,
 	},
 	{
-		"High-Elf",
-		{  1,  3,  2,  3,  1,  5 },
-		4,  20, 20,  4,  3, 14, 0, 10,
-		10,  200,
-		100, 30,
+		"Aquarian",
+		{  0,  0,  1,  0,  -1,  0 },
+		7,  1, 3,  4,  3, 14, 0, 0,
+		9,  125,
+		18, 3,
 		90, 10, 190, 20,
 		82, 10, 180, 15,
-		4,
-		0x75F,
+		0,
+		0x7C1FF7FF,
 	},
 	{
-		"Barbarian",
-		{ 3, -2,  -1,  1,  2, -2 },
-		-2, -10, 2,  -1,  1, 7, 10, 0,
-		11, 120,
+		"Goblin",
+		{ 0,  1,  -1,  0,  0, 0 },
+		10, 10, 4, 3, 1, 17, 0, 2,
+		11, 100,
 		14, 8,
-		82, 5, 200, 20,
-		78,  6, 190, 15,
+		60,  5, 200, 20,
+		55,  6, 190, 15,
 		0,
-		0x09D,
+		0x6CE0FFDE,
 	},
 	{
-		"Half-Ogre",
-		{ 3, -1, -1, -1, 3, -3 },
-		-3, -5, -5, -2, -1, 5, 12, 0,
-		12,  130,
+		"Pixie",
+		{ -2, 0, 1, 2, -2, 1 },
+		4, 15, 7, 4, -1, 19, 0, 2,
+		6,  125,
 		40, 10,
-		92, 10, 255, 60,
-		80,  8, 235, 60,
-		3,
-		0x407,
+		42, 10, 100, 6,
+		30,  8, 99, 6,
+		2,
+		0x7FBFDFFC,
 	},
 	{
-		"Half-Giant",
-		{ 4, -2, -2, -2, 3, -3 },
-		-6, -8, -6, -2, -1, 5, 13, 2,
-		13, 150,
-		40, 10,
-		100, 10, 255, 65,
-		80, 10, 240, 64,
-		3,
-		0x011,
+		"Kobold",
+		{ -1, -1, 0, 1, 1, 0 },
+		-2, -3, -2, 1, 1, 8, 8, -5,
+		9, 125,
+		11,  3,
+		60,  1, 130,  5,
+		55,  1, 100,  5,
+		2,
+		0x3FEF07FC,
 	},
 	{
-		"Half-Titan",
-		{ 5, 1, 1, -2, 3, 1 },
-		-5, 5, 2, -2, 1, 8, 13, 0,
-		14, 255,
+		"Kaoti",
+		{ 2, -2, -1, -1, 2, -4 },
+		-5, -2, -1, -1, -1, 5, 9, 5,
+		10, 125,
+		17, 10,
+		65,  15, 180, 45,
+		61,  15, 150, 45,
+		0,
+		0x7FFBFEFF,
+	},
+	{
+		"Illithid",
+		{ -2, 2, 2, 0, -2, 0 },
+		10, 12, 15, 2, 5, 12, -8, -5,
+		9, 125,
+		100, 25,
+		68,  6, 142, 15,
+		63,  6, 112, 10,
+		3,
+		0x7BA0FFF8,
+	},
+	{
+		"Minotaur",
+		{ 4, 0, -2, 0, 0, -2 },
+		-2, 5, 3, 0, 1, 10, 9, 0,
+		14, 150,
+		15, 3,
+		70,  3, 200,  6,
+		70,  3, 175,  3,
+		0,
+		0x66FFF83F,
+	},
+	{
+		"Centaur",
+		{ 0, 0, 2, -2, 0, 0 },
+		-3, 2, -1, 1, -1, 10, -1, 7,
+		12, 150,
+		20, 3,
+		60,  3, 180,  4,
+		54,  3, 170,  4,
+		0,
+		0x7F77FDC3,
+	},
+	{
+		"Vampire",
+		{ 1, 0, 0, 0, 0, -2 },
+		4, 10, 10, 4, 1, 8, 5, 0,
+		11, 100,
 		100, 30,
-		111, 11, 255, 86,
-		99, 11, 250, 86,
-		0,
-		0x727,
+		72,  6, 180, 25,
+		66,  4, 150, 20,
+		4,
+		0x7FFFFFFF,
 	},
 	{
-		"Cyclops",
-		{ 4, -3, -3, -3, 4, -6 },
-		-4, -5, -5, -2, -2, 5, 10, 6,
-		13, 130,
-		50, 24,
+		"Catling",
+		{ 0, 0, -2, 3, -1, 0 },
+		3, 5, 10, 5, 7, 10, 5, 0,
+		10, 125,
+		21, 3,
+		53,  9, 152,  6,
+		50,  9, 148,  3,
+		4,
+		0x6EFFF83F,
+	},
+	{
+		"Dryad",
+		{ 0, 1, 0, -2, 0, 1 },
+		5, 15, 20, 3, 8, 12, -5, 7,
+		8, 125,
+		75, 75,
+		60,  4, 100,  6,
+		54,  4, 80,  6,
+		4,
+		0x78AFFFFC,
+	},
+	{
+		"Ogre",
+		{ 3, -2, -2, -1, 3, -1 },
+		-3, -5, -5, -2, -1, 5, 12, 0,
+		15,  150,
+		40, 10,
 		92, 10, 255, 60,
 		80,  8, 235, 60,
+		2,
+		0x6C00FFE0,
+	},
+	{
+		"Faun",
+		{ 0, 0, 0, 0, 0, 1 },
+		10, 5, 15, 5, 5, 12, -8, -5,
+		9, 125,
+		60, 25,
+		68,  6, 142, 15,
+		63,  6, 112, 10,
+		3,
+		0x7C20FFDB,
+	},
+	{
+		"Ent",
+		{ 5, 0, 1, 0, 5, 1 },
+		7, 12, 11, 5, 9, 10, 5, -15,
+		14, 275,
+		13,  4,
+		200,  30, 450,  50,
+		200,  30, 450,  50,
+		2,
+		0x5FFFFFE9,
+	},
+	{
+		"Fairy",
+		{ 0, 1, 1, 2, 0, 1 },
+		5, 20, 20, 5, 5, 8, 0, 10,
+		12, 200,
+		100, 100,
+		66,  1, 150,  6,
+		62,  1, 150,  6,
+		3,
+		0x7C20FFDB,
+	},
+	{
+		"Drider",
+		{ 2, 2, 0, 2, 0, -1 },
+		-5, 5, 5, -1, -1, 8, 8, 8,
+		12, 175,
+		100, 35,
+		62,  6, 170, 5,
+		56,  4, 160, 5,
+		2,
+		0x7FFEFFBF,
+	},
+	{
+		"Uruk",
+		{ 3, -1, -1, 0, 4, -2 },
+		-5, -5, 8, -1, -1, 5, 30, 20,
+		15, 175,
+		100, 30,
+		72, 6, 200, 25,
+		66, 4, 200, 20,
 		1,
-		0x005,
+		0x45F0007,
 	},
 	{
 		"Yeek",
-		{ -2, 1, 1, 1, -2, -7 },
+		{ -2, 1, 1, 1, -2, 0 },
 		2, 4, 10, 3, 5, 15, -5, -5,
 		7, 100,
 		14, 3,
 		50,  3, 90,  6,
 		50,  3, 75,  3,
-		2,
-		0x60F,
+		1,
+		0x7C20FFDB,
 	},
 	{
-		"Klackon",
-		{ 2, -1, -1, 1, 2, -2 },
-		10, 5, 5, 0, -1, 10, 5, 5,
-		12, 135,
-		20, 3,
-		60,  3, 80,  4,
-		54,  3, 70,  4,
-		2,
-		0x011,
-	},
-	{
-		"Kobold",
-		{ 1, -1, 0, 1, 0, -4 },
-		-2, -3, -2, -1, 1, 8, 8, -8,
-		9, 125,
-		11,  3,
-		60,  1, 130,  5,
-		55,  1, 100,  5,
-		3,
-		0x009,
-	},
-	{
-		"Nibelung",
-		{ 1, -1, 2, 0, 2, -4 },
-		3, 5, 10, 1, 5, 10, 5, 0,
-		11, 135,
-		40, 12,
-		43,  3, 92,  6,
-		40,  3, 78,  3,
-		5,
-		0x40F,
-	},
-	{
-		"Dark-Elf",
-		{ -1, 3, 2, 2, -2, 1 },
-		5, 15, 20, 3, 8, 12, -5, 7,
-		9, 150,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		5,
-		0x7DF,
-	},
-	{
-		"Draconian",
-		{ 2, 1, 1, 1, 2, -3 },
-		-2, 5, 3, 0, 1, 10, 5, 5,
-		11, 250,
-		75, 33,
-		76,  1, 160,  5,
-		72,  1, 130,  5,
-		2,
-		0x757,
-	},
-	{
-		"Mindflayer",
-		{ -3, 4, 4, 0, -2, -5 },
-		10, 25, 15, 2, 5, 12, -8, -5,
-		9, 140,
-		100, 25,
-		68,  6, 142, 15,
-		63,  6, 112, 10,
+		"Ratling",
+		{ 0, 0, 0, 1, 0, 0 },
+		15, 5, 20, 7, 5, 14, -10, -3,
+		7, 125,
+		100, 30,
+		50, 6, 100, 25,
+		50, 4, 100, 20,
 		4,
-		0x746,
+		0x3E0003C,    
 	},
 	{
-		"Imp",
-		{ -1, -1, -1, 1, 2, -3 },
-		-3, 2, -1, 1, -1, 10, 5, -5,
-		10, 110,
-		13,  4,
-		68,  1, 150,  5,
-		64,  1, 120,  5,
-		3,
-		0x7CB,
-	},
-	{
-		"Golem",
-		{ 4, -5, -5, -2, 4, -4 },
-		-5, -5, 10, -1, -1, 8, 10, 0,
-		12, 200,
-		1, 100,
-		66,  1, 200,  6,
-		62,  1, 180,  6,
-		4,
-		0x001,
-	},
-	{
-		"Skeleton",
-		{ 0, -2, -2, 0, 1, -4 },
-		-5, -5, 5, -1, -1, 8, 8, 0,
-		10, 145,
-		100, 35,
-		72,  6, 50, 5,
-		66,  4, 50, 5,
-		2,
-		0x70F,
-	},
-	{
-		"Zombie",
-		{ 2, -6, -6, 1, 4, -5 },
-		-5, -5, 8, -1, -1, 5, 10, 0,
-		13, 135,
-		100, 30,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
-		2,
-		0x001,
-	},
-	{
-		"Vampire",
-		{ 3, 3, -1, -1, 1, 2 },
-		4, 10, 10, 4, 1, 8, 5, 0,
-		11, 200,
-		100, 30,
-		72,  6, 180, 25,
-		66,  4, 150, 20,
-		5,
-		0x7FF,
-	},
-	{
-		"Spectre",
-		{ -5, 4, 4, 2, -3, -6 },
-		10, 25, 20, 5, 5, 14, -10, -5,
-		7, 180,
-		100, 30,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
-		5,
-		0x74E,    /* Mage, Priest, Rogue, Warrior-Mage, Monk */
-	},
-	{
-		"Sprite",
-		{ -4, 3, 3, 3, -2, 2 },
+		"Leprechaun",
+		{ -2, 1, 1, 2, -2, 0 },
 		10, 10, 10, 4, 10, 10, -8, 0,
-		7, 175,
+		6, 125,
 		50, 25,
 		32,  2, 75,  2,
 		29,  2, 65,  2,
-		4,
-		0x65E,
+		3,
+		0x6290F83C,
 	},
 	{
-		"Beastman",
-		{ 2, -2, -1, -1, 2, -4 },
-		-5, -2, -1, -1, -1, 5, 9, 5,
-		11, 140,
+		"Perthoron",
+		{ 1, -1, -1, 2, -1, 0 },
+		-5, -2, -1, -1, 20, 25, 9, 0,
+		11, 125,
 		14, 6,
 		65,  6, 150, 20,
 		61,  6, 120, 15,
-		0,
-		0x7CF,
+		1,
+		0x7FFFFFFF,
 	},
 	{
-		"Ghoul",
-		{ 0, -1, -1, -1, 1, -5 },
-		-3, -3, 6, 1, 0, 5, 5, 0,
-		9, 125,
-		100, 30,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
+		"Draconian",
+		{ 1, 1, 1, 1, 1, 1 },
+		5, 5, 5, 5, 5, 5, 5, 5,
+		12,  200,
+		40, 10,
+		92, 10, 190, 60,
+		80,  8, 175, 60,
 		2,
-		0x70F,
+		0x7FFFFFFF,
 	}
 };
 
@@ -2128,26 +2172,75 @@ player_race race_info[MAX_RACES] =
  *
  *      Title,
  *      {STR,INT,WIS,DEX,CON,CHR},
- *      c_dis, c_dev, c_sav, c_stl, c_sns, c_fos, c_thn, c_thb,
- *      x_dis, x_dev, x_sav, x_stl, x_sns, x_fos, x_thn, x_thb,
+ *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
+ *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
  *      HD, Exp, pet_upkeep_div
  */
 player_class class_info[MAX_CLASS] =
 {
 	{
 		"Warrior",
-		{ 5, -2, -2, 2, 2, -1},
+		{ 3, -3, -3, 2, 2, 0},
 		25, 18, 18, 1,  14, 2, 25, 17,
 		12, 7,  10, 0,  0,  0,  100, 55,
-		9,  0, 20, TRUE
+		9,  0, 20
 	},
-
+	
 	{
-		"Mage",
-		{-5, 3, 0, 1, -2, 1},
-		30, 36, 30, 2,  16, 20, 10, 10,
-		7,  13, 9,  0,  0,  0,  25, 14,
-		0, 30, 15, FALSE
+		"Berserker",
+		{ 5, -3, -3, 1, 2, -1},
+		25, 18, 18, 1,  14, 2, 30, 10,
+		12, 7,  10, 0,  0,  0,  100, 55,
+		9,  0, 20
+	},
+	
+	{
+		"Ninja",
+		{ 2, -2, -2, 3, 1, -1},
+		45, 32, 28, 5, 32, 24, 15, 20,
+		15, 10, 10, 1,  0,  0, 75, 40,
+		6, 25, 20
+	},
+	
+	{
+		"Rogue",
+		{ 0, -1, -1, 3, 0, 0},
+		45, 32, 28, 5, 32, 24, 15, 20,
+		15, 10, 10, 1,  1,  0, 70, 40,
+		6, 25, 20
+	},
+	
+	{
+		"Assassin",
+		{ 1, -1, -1, 3, 0, -1},
+		45, 32, 28, 5, 32, 24, 15, 20,
+		15, 10, 10, 1,  0,  0, 70, 40,
+		3, 25, 20
+	},
+	
+	{
+		"Thief-Mage",
+		{ 0, 2, -1, 2, -1, 0},
+		40, 30, 25, 5, 32, 24, 10, 10,
+		15, 12, 10, 1,  0,  0, 50, 20,
+		6, 25, 18
+	},
+	
+	
+	{
+		"Druid",
+		{-1, -3, 3, -1, 0, 2},
+		25, 30, 32, 2,  16, 8, 16, 7,
+		7,  10, 12, 0,  0,  0, 50, 18,
+		2, 20, 20
+	},
+	
+	{
+		"Necromancer",
+		{-1, -3, 3, -1, 0, 2},
+		25, 30, 32, 2,  16, 8, 16, 7,
+		7,  10, 12, 0,  0,  0, 50, 18,
+		2, 20, 20
 	},
 
 	{
@@ -2155,63 +2248,177 @@ player_class class_info[MAX_CLASS] =
 		{-1, -3, 3, -1, 0, 2},
 		25, 30, 32, 2,  16, 8, 16, 7,
 		7,  10, 12, 0,  0,  0, 50, 18,
-		2, 20, 20, FALSE
+		2, 20, 20
 	},
 
 	{
-		"Rogue",
-		{ 2, 1, -2, 3, 1, -1},
-		45, 32, 28, 5, 32, 24, 15, 20,
-		15, 10, 10, 0,  0,  0, 70, 40,
-		6, 25, 20, TRUE
+		"Shaman",
+		{-1, -3, 3, -1, 0, 2},
+		25, 30, 32, 2,  16, 8, 16, 7,
+		7,  10, 12, 0,  0,  0, 50, 18,
+		2, 20, 20
 	},
+
+	{
+		"Sage",
+		{-1, -3, 3, -1, 0, 2},
+		25, 30, 32, 2,  16, 8, 16, 7,
+		7,  10, 12, 0,  0,  0, 50, 18,
+		2, 20, 20
+	},
+
+	
+	{
+		"Fire Mage",
+		{-5, 3, 0, 1, -2, 1},
+		30, 36, 30, 2,  16, 20, 10, 10,
+		7,  13, 9,  0,  0,  0,  25, 14,
+		0, 30, 15
+	},
+
+	{
+		"Water Mage",
+		{-5, 3, 0, 1, -2, 1},
+		30, 36, 30, 2,  16, 20, 10, 10,
+		7,  13, 9,  0,  0,  0,  25, 14,
+		0, 30, 15
+	},
+
+	{
+		"Earth Mage",
+		{-5, 3, 0, 1, -2, 1},
+		30, 36, 30, 2,  16, 20, 10, 10,
+		7,  13, 9,  0,  0,  0,  25, 14,
+		0, 30, 15
+	},
+
+	{
+		"Air Mage",
+		{-5, 3, 0, 1, -2, 1},
+		30, 36, 30, 2,  16, 20, 10, 10,
+		7,  13, 9,  0,  0,  0,  25, 14,
+		0, 30, 15
+	},
+
+	{
+		"Wizard",
+		{-5, 3, 0, 1, -2, 1},
+		30, 36, 30, 2,  16, 20, 10, 10,
+		7,  13, 9,  0,  0,  0,  25, 14,
+		0, 30, 15
+	},
+
 
 	{
 		"Ranger",
-		{ 2, 2, 0, 1, 1, 1},
-		30, 32, 28, 3,  24, 16, 15, 20,
-		8,  10, 10, 0,  0,  0,  65, 63,
-		4, 30, 20, TRUE
+		{ 0, -1, 1, 1, 0, 0},
+		30, 20, 28, 1,  24, 16, 15, 20,
+		8,  7, 10, 1,  0,  0,  50, 70,
+		4, 35, 20
+	},
+
+	{
+		"Dark Knight",
+		{ 1, -1, 1, 0, 0, 0},
+		20, 25, 25, 1,  14, 12, 20, 10,
+		7,  11, 10, 0,  0,  0,  95, 35,
+		6, 35, 20
 	},
 
 	{
 		"Paladin",
-		{ 3, -3, 1, 0, 2, 2},
-		20, 24, 26, 1,  12, 2, 19, 10,
-		7,  10, 11, 0,  0,  0,  76, 14,
-		6, 35, 20, TRUE
+		{ 1, -1, 1, 0, 0, 0},
+		20, 24, 26, 1,  12, 14, 20, 10,
+		7,  10, 11, 0,  0,  0, 80, 40,
+		6, 35, 20
+	},
+	
+	{
+		"Chaos-Warrior",
+		{ 1, -1, 1, 0, 0, 0},
+		20, 25, 25, 1,  14, 12, 20, 10,
+		7,  11, 10, 0,  0,  0,  75, 40,
+		6, 35, 20
 	},
 
 	{
 		"Warrior-Mage",
-		{ 2, 2, 0, 1, 0, 1},
+		{ 1, 1, -1, 0, 0, 0},
 		30, 30, 28, 2,  18, 16, 20, 20,
 		7,  10,  9, 0,  0,  0,  75, 50,
-		4, 50, 20, FALSE
+		5, 30, 20
 	},
 
 	{
-		"Chaos-Warrior",
-		{ 2, 1, 0, 1, 2, -2},
-		20, 25, 25, 1,  14, 12, 23, 7,
-		7,  11, 10, 0,  0,  0,  90, 40,
-		6, 35, 20, TRUE
+		"Technician",
+		{0, 1, 0, 0, 0, 0},
+		30, 30, 25, 2,  16, 20, 25, 10,
+		8,  13, 9,  0,  0,  0,  30, 15,
+		2, 10, 15
+	},
+	
+	{
+		"Blacksmith",
+		{1, 1, -2, 0, 1, 0},
+		30, 20, 25, 1,  12, 15, 40, 10,
+		8,  13, 9,  0,  0,  0,  85, 17,
+		4, 10, 15
+	},
+	
+	{
+		"Tech-Thief",
+		{-1, 1, -1, 2, 0, 0},
+		30, 20, 25, 3,  20, 25, 25, 10,
+		8,  13, 9,  1,  0,  0,  30, 20,
+		1, 10, 15
+	},
+	
+	{
+		"Tech-Cleric",
+		{-1, 1, 2, 0, -1, 0},
+		30, 30, 25, 2,  17, 22, 30, 15,
+		8,  13, 9,  0,  0,  0,  50, 15,
+		1, 10, 15
+	},
+	
+	{
+		"Tech-Mage",
+		{-1, 3, 0, 0, -1, 0},
+		30, 35, 35, 2,  16, 20, 25, 10,
+		8,  14, 10, 0,  0,  0,  30, 15,
+		1, 10, 15
 	},
 
 	{
-		"Monk",
-		{ 2, -1, 1, 3, 2, 1},
-		45, 32, 28, 5, 16, 24, 12, 14,
-		15, 11, 10, 0,  0,  0, 30, 25,
-		6, 40, 20, FALSE
+		"Archer",
+		{ 2, -2, -2, 2, 1, 0},
+		20, 25, 25, 2,  14, 12, 15, 15,
+		7,  11, 10, 0,  0,  0,  35, 90,
+		6, 15, 20
 	},
-
+	
 	{
 		"Mindcrafter",
 		{-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
 		30, 30, 30, 3,  22, 16, 15, 15,
 		10, 10, 10, 0,   0,  0, 30, 20,
-		2, 25, 20, FALSE
+		2, 25, 20
+	},
+	
+	{
+		"Monk",
+		{ 0, 0, 2, 0, 0, 0},
+		45, 32, 28, 5, 32, 24, 12, 14,
+		15, 11, 10, 0,  0,  0, 30, 25,
+		6, 40, 20
+	},
+
+	{
+		"Witch",
+		{-1, 2, 2, -1, -1, 0},   
+		30, 30, 30, 3,  22, 16, 15, 15,
+		10, 10, 11, 0,   0,  0, 30, 20,
+		2, 25, 20
 	},
 
 	{
@@ -2219,7 +2426,7 @@ player_class class_info[MAX_CLASS] =
 		{-5, 4, 0, 0, -2, 1},
 		30, 36, 30, 2,  16, 20, 10, 10,
 		7,  13, 9,  0,  0,  0,  15, 10,
-		0, 30, 12, FALSE
+		0, 30, 12
 	},
 };
 
@@ -2231,8 +2438,9 @@ player_class class_info[MAX_CLASS] =
  *
  *   Class Name
  *
- *   Spell Book
- *   Spell Xtra
+ *   Spell Book,
+ *   Tech Type,
+ *   Class First,
  *
  *   Spell Stat,
  *   Spell Type,
@@ -2241,6 +2449,9 @@ player_class class_info[MAX_CLASS] =
  *   Spell Encumbrance,
  *
  *   Array of { Lev, Mana, Fail, Exp/Lev }
+ *    The Array does not need to be there for all classes
+ *    and a 0 represents an unusable realm for that class.
+ *					´x
  */
 player_magic magic_info[MAX_CLASS] =
 {
@@ -2248,282 +2459,266 @@ player_magic magic_info[MAX_CLASS] =
 		/*** Warrior ***/
 
 		0,
-		0,
+		2,
+		12,
 
 		A_STR,
 		0,
 
 		99,
 		0,
-		{
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
+		/* No magic */
+	},
+	
+	{
+		/*** Berserker ***/
 
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
+		0,
+		3,
+		13,
 
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
+		A_STR,
+		0,
 
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-
-			{
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-		},
+		99,
+		0,
+		/* No magic */
 	},
 
 	{
-		/*** Mage ***/
+		/*** Ninja ***/
+		TV_LIFE_BOOK,
+		0,
+		0,
 
-		TV_SORCERY_BOOK,
+		A_DEX,
+		0,
+
+		5,
+		350,
+		{	/* Life */
+			{0
+			},
+			/* Order */
+			{0
+			},
+			/* Fire */
+			{0
+			},
+			/* Air */
+			{0
+			},
+			/* Death */
+			{0
+			},
+			/* Chaos */
+			{0
+			},
+
+			/* Rogue Magic (Astral) */
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 7, 44, 5 },
+
+				{ 8, 8, 40, 7 },
+				{ 9, 9, 60, 7 },
+				{ 10, 10, 50, 6 },
+				{ 11, 11, 50, 6 },
+				{ 13, 11, 50, 6 },
+				{ 14, 12, 50, 6 },
+				{ 15, 13, 50, 5 },
+				{ 16, 14, 50, 5 },
+
+				{ 17, 15, 50, 5 },
+				{ 18, 16, 50, 5 },
+				{ 19, 17, 33, 6 },
+				{ 20, 20, 50, 8 },
+				{ 23, 22, 60, 9 },
+				{ 25, 24, 60, 9 },
+				{ 28, 25, 70, 12 },
+				{ 30, 28, 60, 13 },
+
+				{ 35, 30, 80, 40 },
+				{ 39, 36, 80, 25 },
+				{ 42, 37, 60, 25 },
+				{ 44, 38, 70, 25 },
+				{ 46, 40, 66, 30 },
+				{ 47, 42, 80, 40 },
+				{ 48, 60, 70, 50 },
+				{ 50, 125, 80, 200 }
+			},
+			/* Water */
+			/* Earth */
+			/* Wizardy */
+			
+		}
+	},
+	
+	
+	{
+		/*** Rogue ***/
+		TV_LIFE_BOOK,
+		0,
+		0,
+
+		A_DEX,
+		0,
+
+		5,
+		350,
+		{	/* Life */
+			{0
+			},
+			/* Order */
+			{0
+			},
+			/* Fire */
+			{0
+			},
+			/* Air */
+			{0
+			},
+			/* Death */
+			{0
+			},
+			/* Chaos */
+			{0
+			},
+
+			/* Rogue Magic (Astral) */
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 7, 44, 5 },
+
+				{ 8, 8, 40, 7 },
+				{ 9, 9, 60, 7 },
+				{ 10, 10, 50, 6 },
+				{ 11, 11, 50, 6 },
+				{ 13, 11, 50, 6 },
+				{ 14, 12, 50, 6 },
+				{ 15, 13, 50, 5 },
+				{ 16, 14, 50, 5 },
+
+				{ 17, 15, 50, 5 },
+				{ 18, 16, 50, 5 },
+				{ 19, 17, 33, 6 },
+				{ 20, 20, 50, 8 },
+				{ 23, 22, 60, 9 },
+				{ 25, 24, 60, 9 },
+				{ 28, 25, 70, 12 },
+				{ 30, 28, 60, 13 },
+
+				{ 35, 30, 80, 40 },
+				{ 39, 36, 80, 25 },
+				{ 42, 37, 60, 25 },
+				{ 44, 38, 70, 25 },
+				{ 46, 40, 66, 30 },
+				{ 47, 42, 80, 40 },
+				{ 48, 60, 70, 50 },
+				{ 50, 125, 80, 200 }
+			},
+			/* Water */
+			/* Earth */
+			/* Wizardy */
+			
+		}
+	},
+
+
+	{
+		/*** Assassin ***/
+		TV_LIFE_BOOK,
+		0,
+		0,
+
+		A_DEX,
+		0,
+
+		5,
+		350,
+		{	/* Life */
+			{0
+			},
+			/* Order */
+			{0
+			},
+			/* Fire */
+			{0
+			},
+			/* Air */
+			{0
+			},
+			/* Death */
+			{0
+			},
+			/* Chaos */
+			{0
+			},
+
+			/* Rogue Magic (Astral) */
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 7, 44, 5 },
+
+				{ 8, 8, 40, 7 },
+				{ 9, 9, 60, 7 },
+				{ 10, 10, 50, 6 },
+				{ 11, 11, 50, 6 },
+				{ 13, 11, 50, 6 },
+				{ 14, 12, 50, 6 },
+				{ 15, 13, 50, 5 },
+				{ 16, 14, 50, 5 },
+
+				{ 17, 15, 50, 5 },
+				{ 18, 16, 50, 5 },
+				{ 19, 17, 33, 6 },
+				{ 20, 20, 50, 8 },
+				{ 23, 22, 60, 9 },
+				{ 25, 24, 60, 9 },
+				{ 28, 25, 70, 12 },
+				{ 30, 28, 60, 13 },
+
+				{ 35, 30, 80, 40 },
+				{ 39, 36, 80, 25 },
+				{ 42, 37, 60, 25 },
+				{ 44, 38, 70, 25 },
+				{ 46, 40, 66, 30 },
+				{ 47, 42, 80, 40 },
+				{ 48, 60, 70, 50 },
+				{ 50, 125, 80, 200 }
+			},
+			/* Water */
+			/* Earth */
+			/* Wizardy */
+			
+		}
+	},
+
+
+
+	{
+		/*** Thief-Mage ***/
+
+		TV_ORDER_BOOK,
+		0,
 		0,
 
 		A_INT,
@@ -2534,7 +2729,7 @@ player_magic magic_info[MAX_CLASS] =
 
 		{
 			{
-				/* Mage: Life magic */
+				/* Life magic */
 
 				{ 1, 1, 30, 4 },
 				{ 3, 2, 35, 4 },
@@ -2573,7 +2768,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 50, 100, 80, 250 }
 			},
 
-			/* Mage: Sorcery */
+			/* Order */
 
 			{
 				{ 1, 1, 23, 4 },
@@ -2613,7 +2808,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 45, 70, 75, 250 },
 			},
 
-			/* Mage: Nature Magic */
+			/* Fire Magic */
 
 			{
 				{ 1, 1, 23, 4 },
@@ -2654,7 +2849,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 40, 75, 65, 150 }
 			},
 
-				/* Mage: Chaos Magic */
+				/* Air Magic */
 
 			{
 				{ 1, 1, 20, 4 },
@@ -2678,7 +2873,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 11, 7, 45, 9 },
 				{ 15, 15, 80, 35 },
 				{ 16, 14, 80, 35 },
-				{25, 25, 85, 100 },
+				{ 25, 25, 85, 100 },
 				{ 30, 25, 85, 150 },
 				{ 42, 50, 85, 250 },
 				{ 45, 90, 80, 250 },
@@ -2694,7 +2889,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 49, 100, 85, 250 }
 			},
 
-				/* Mage: Death Magic */
+				/* Death Magic */
 
 			{
 				{ 1, 1, 25, 4 },
@@ -2734,7 +2929,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 47, 100, 90, 250 }
 			},
 
-				/* Mage: Trump Magic */
+				/* Chaos Magic */
 
 			{
 				{ 1, 1, 25, 3 },
@@ -2774,65 +2969,152 @@ player_magic magic_info[MAX_CLASS] =
 				{ 49, 100, 40, 220 }
 			},
 
-				/* Mage: Arcane Magic */
+				/* Astral Magic */
+
+			{0
+			},
+			
+			{
+				/* Water magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+			{
+				/* Earth magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Wizardry Magic */
 
 			{
-				{ 1, 1, 20, 4 },
-				{ 1, 1, 33, 5 },
-				{ 1, 1, 33, 4 },
-				{ 2, 1, 33, 5 },
-				{ 2, 2, 33, 5 },
-				{ 4, 4, 40, 6 },
-				{ 5, 5, 33, 7 },
-				{ 6, 5, 44, 5 },
+				{ 1, 1, 23, 4 },
+				{ 1, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
 
-				{ 7, 6, 40, 7 },
-				{ 8, 8, 60, 7 },
-				{ 9, 8, 50, 6 },
-				{ 9, 9, 50, 6 },
-				{ 9, 9, 50, 6 },
-				{ 11, 10, 50, 6 },
-				{ 12, 12, 50, 5 },
-				{ 13, 12, 50, 5 },
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
 
-				{ 14, 12, 50, 5 },
-				{ 15, 12, 50, 5 },
-				{ 16, 14, 33, 6 },
-				{ 18, 15, 50, 8 },
-				{ 20, 16, 60, 9 },
-				{ 23, 18, 60, 9 },
-				{ 25, 20, 70, 12 },
-				{ 25, 20, 60, 13 },
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
 
-				{ 28, 25, 70, 30 },
-				{ 35, 35, 80, 25 },
-				{ 38, 30, 60, 25 },
-				{ 40, 30, 70, 25 },
-				{ 41, 30, 66, 30 },
-				{ 42, 30, 80, 40 },
-				{ 45, 50, 70, 50 },
-				{ 49, 100, 80, 200 }
-			}
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
 		}
 	},
+	
 
 	{
-		/*** Priest ***/
+		/*** Druid ***/
 
 		TV_LIFE_BOOK,
 		0,
-
+		0,
+		
 		A_WIS,
 		1,
 
 		1,
 		350,
 		{
-			/* Priest: Life Magic */
+			/* Life Magic */
 			{
 				{ 1, 1, 10, 4 },
-				{ 1, 2, 15, 4 },
-				{ 1, 2, 20, 4 },
+				{ 1, 1, 15, 4 },
+				{ 1, 1, 20, 4 },
 				{ 3, 2, 25, 1 },
 				{ 3, 3, 27, 2 },
 				{ 4, 4, 28, 2 },
@@ -2867,7 +3149,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 45, 90, 85, 250 },
 			},
 
-			/* Priest: Sorcery */
+			/* Order Magic */
 			{
 				{ 2, 1, 23, 4 },
 				{ 3, 2, 24, 4 },
@@ -2906,7 +3188,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 48, 70, 75, 250 },
 			},
 
-			/* Priest: Nature Magic */
+			/* Fire Magic */
 			{
 				{ 2, 1, 25, 4 },
 				{ 5, 3, 25, 4 },
@@ -2945,7 +3227,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 44, 80, 65, 150 },
 			},
 
-			/* Priest: Chaos Magic */
+			/* Air Magic */
 			{
 				{ 2, 1, 22, 4 },
 				{ 3, 2, 24, 4 },
@@ -2985,48 +3267,13 @@ player_magic magic_info[MAX_CLASS] =
 				{ 50, 100, 95, 250 },
 			},
 
-			/* Priest: Death Magic */
-			{
-				{ 1, 1, 25, 4 },
-				{ 2, 2, 25, 4 },
-				{ 3, 3, 25, 4 },
-				{ 5, 4, 27, 4 },
-				{ 7, 7, 30, 4 },
-				{ 9, 11, 75, 6 },
-				{ 11, 11, 30, 4 },
-				{ 12, 12, 40, 5 },
-
-				{ 14, 14, 40, 5 },
-				{ 16, 16, 30, 4 },
-				{ 21, 20, 50, 10 },
-				{ 25, 24, 60, 16 },
-				{ 33, 75, 90, 30 },
-				{ 35, 35, 60, 16 },
-				{ 40, 30, 95, 100 },
-				{ 50, 52, 95, 150 },
-
-				{ 13, 20, 80, 180 },
-				{ 13, 15, 80, 30 },
-				{ 14, 15, 30, 15 },
-				{ 33, 33, 70, 33 },
-				{ 35, 35, 60, 125 },
-				{ 35, 95, 70, 90 },
-				{ 44, 44, 80, 200 },
-				{ 45, 75, 80, 100 },
-
-				{ 25, 25, 75, 50 },
-				{ 30, 75, 95, 250 },
-				{ 35, 45, 95, 250 },
-				{ 40, 40, 70, 40 },
-				{ 42, 40, 80, 70 },
-				{ 48, 125, 95, 250 },
-				{ 49, 100, 90, 250 },
-				{ 50, 111, 90, 250 },
+			/* Death Magic */
+			{0
 			},
 
-			/* Priest: Trump Magic */
+			/* Chaos Magic */
 			{
-				{ 1, 1, 25, 3 },
+				{ 2, 2, 25, 3 },
 				{ 4, 4, 25, 4 },
 				{ 6, 5, 37, 8 },
 				{ 7, 7, 40, 8 },
@@ -3063,7 +3310,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 50, 125, 40, 220 }
 			},
 
-			/* Priest: Arcane Magic */
+			/* Astral Magic */
 			{
 				{ 1, 1, 20, 4 },
 				{ 1, 1, 33, 5 },
@@ -3100,253 +3347,345 @@ player_magic magic_info[MAX_CLASS] =
 				{ 46, 40, 80, 40 },
 				{ 47, 55, 70, 50 },
 				{ 50, 120, 80, 200 }
-			}
+			},
+			
+			/* Water Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Earth Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Wizardry Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
 		}
 	},
-
+	
+	
 	{
-		/*** Rogue ***/
-		TV_SORCERY_BOOK,
+		/*** Necromancer ***/
+
+		TV_LIFE_BOOK,
+		0,
 		0,
 
-		A_INT,
-		0,
+		A_WIS,
+		1,
 
-		5,
+		1,
 		350,
 		{
-			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
+			/* Life Magic */
+			{0
 			},
 
-			/* Rogue (Burglar): Sorcery */
+			/* Order Magic */
 			{
-				{ 5, 1, 50, 1 },
-				{ 7, 2, 55, 1 },
-				{ 8, 3, 65, 1 },
-				{ 9, 3, 65, 1 },
-				{ 13, 6, 75, 1 },
-				{ 15, 7, 75, 1 },
-				{ 17, 9, 75, 1 },
-				{ 21, 12, 80, 1 },
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
 
-				{ 25, 14, 80, 1 },
-				{ 27, 15, 80, 1 },
-				{ 29, 17, 75, 2 },
-				{ 30, 20, 80, 4 },
-				{ 31, 23, 80, 5 },
-				{ 32, 25, 70, 6 },
-				{ 35, 30, 80, 12 },
-				{ 40, 35, 75, 20 },
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
 
-				{ 9, 3, 65, 5 },
-				{ 13, 10, 70, 5 },
-				{ 14, 10, 80, 8 },
-				{ 15, 10, 80, 8 },
-				{ 16, 10, 60, 10 },
-				{ 17, 20, 80, 20 },
-				{ 18, 17, 60, 30 },
-				{ 30, 35, 75, 15 },
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
 
-				{ 15, 15, 40, 10 },
-				{ 20, 20, 70, 50 },
-				{ 35, 40, 95, 100 },
-				{ 37, 40, 80, 100 },
-				{ 43, 80, 80, 100 },
-				{ 44, 100, 80, 100 },
-				{ 45, 50, 70, 100 },
-				{ 99, 0, 0, 0 },
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
 			},
 
+			/* Fire Magic */
 			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
+				{ 2, 1, 25, 4 },
+				{ 5, 3, 25, 4 },
+				{ 5, 4, 25, 1 },
+				{ 6, 5, 35, 4 },
+				{ 6, 5, 50, 5 },
+				{ 6, 6, 50, 5 },
+				{ 7, 7, 50, 5 },
+				{ 7, 7, 35, 4 },
 
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
+				{ 7, 7, 40, 6 },
+				{ 8, 7, 30, 6 },
+				{ 9, 10, 40, 6 },
+				{ 10, 10, 40, 6 },
+				{ 11, 11, 30, 5 },
+				{ 20, 20, 65, 7 },
+				{ 30, 30, 55, 8 },
+				{ 42, 100, 95, 50 },
 
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
+				{ 9, 9, 20, 28 },
+				{ 11, 12, 40, 44 },
+				{ 12, 13, 75, 120 },
+				{ 18, 20, 85, 60 },
+				{ 35, 35, 80, 50 },
+				{ 39, 40, 90, 200 },
+				{ 40, 50, 85, 250 },
+				{ 42, 90, 90, 250 },
 
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
+				{ 22, 22, 60, 24 },
+				{ 25, 25, 60, 25 },
+				{ 27, 27, 75, 29 },
+				{ 32, 30, 75, 29 },
+				{ 37, 32, 85, 65 },
+				{ 39, 37, 90, 100 },
+				{ 42, 90, 95, 250 },
+				{ 44, 80, 65, 150 },
 			},
 
+			/* Air Magic */
 			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
+				{ 2, 1, 22, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 26, 4 },
+				{ 5, 4, 30, 6 },
+				{ 10, 6, 30, 5 },
+				{ 11, 6, 50, 5 },
+				{ 16, 11, 50, 6 },
+				{ 17, 11, 35, 5 },
 
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
+				{ 19, 15, 50, 7 },
+				{ 21, 16, 50, 9 },
+				{ 23, 18, 80, 20 },
+				{ 25, 18, 50, 11 },
+				{ 27, 20, 65, 12 },
+				{ 29, 22, 60, 8 },
+				{ 33, 23, 80, 15},
+				{ 37, 42, 85, 40 },
 
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
 
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
+				{ 14, 11, 45, 9 },
+				{ 17, 17, 70, 20 },
+				{ 20, 18, 80, 35 },
+				{ 27, 27, 70, 35 },
+				{ 35, 30, 85, 150 },
+				{ 45, 55, 95, 250 },
+				{ 47, 90, 90, 250 },
+				{ 49, 100, 90, 250 },
+
+				{ 25, 25, 66, 8 },
+				{ 37, 37, 85, 35 },
+				{ 39, 37, 75, 50 },
+				{ 43, 45, 85, 100 },
+				{ 45, 47, 90, 150 },
+				{ 47, 50, 95, 200 },
+				{ 49, 95, 80, 200 },
+				{ 50, 100, 95, 250 },
 			},
 
-			/* Rogue (Assassin): Death Magic */
+			/* Death Magic */
 			{
-				{ 5, 3, 40, 1 },
-				{ 7, 4, 40, 1 },
-				{ 9, 5, 50, 1 },
-				{ 13, 7, 60, 1 },
-				{ 15, 7, 80, 1 },
-				{ 17, 15, 80, 1 },
-				{ 19, 17, 30, 1 },
-				{ 19, 19, 30, 1 },
+				{ 1, 1, 25, 4 },
+				{ 1, 1, 25, 4 },
+				{ 3, 3, 25, 4 },
+				{ 5, 4, 27, 4 },
+				{ 7, 7, 30, 4 },
+				{ 9, 11, 75, 6 },
+				{ 11, 11, 30, 4 },
+				{ 12, 12, 40, 5 },
 
-				{ 21, 21, 60, 3 },
-				{ 23, 23, 75, 4 },
-				{ 27, 25, 75, 4 },
-				{ 30, 30, 75, 4 },
-				{ 35, 35, 75, 5 },
-				{ 45, 45, 60, 10 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
+				{ 14, 14, 40, 5 },
+				{ 16, 16, 30, 4 },
+				{ 21, 20, 50, 10 },
+				{ 25, 24, 60, 16 },
+				{ 33, 75, 90, 30 },
+				{ 35, 35, 60, 16 },
+				{ 40, 30, 95, 100 },
+				{ 50, 52, 95, 150 },
 
-				{ 20, 25, 80, 100 },
-				{ 23, 20, 40, 20 },
-				{ 28, 28, 75, 25 },
-				{ 32, 32, 80, 50 },
-				{ 46, 45, 75, 40 },
-				{ 48, 100, 90, 100 },
-				{ 50, 50, 75, 50 },
-				{ 99, 0, 0, 0 },
+				{ 13, 20, 80, 180 },
+				{ 13, 15, 80, 30 },
+				{ 14, 15, 30, 15 },
+				{ 33, 33, 70, 33 },
+				{ 35, 35, 60, 125 },
+				{ 35, 95, 70, 90 },
+				{ 44, 44, 80, 200 },
+				{ 45, 75, 80, 100 },
 
-				{ 30, 30, 80, 50 },
-				{ 31, 80, 80, 250 },
-				{ 32, 40, 90, 150 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-				{ 50, 125, 90, 250 },
+				{ 25, 25, 75, 50 },
+				{ 30, 75, 95, 250 },
+				{ 35, 45, 95, 250 },
+				{ 40, 40, 70, 40 },
+				{ 42, 40, 80, 70 },
+				{ 48, 125, 95, 250 },
+				{ 49, 100, 90, 250 },
+				{ 50, 111, 90, 250 },
 			},
 
-			/* Rogue (Card Shark): Trump Magic */
+			/* Chaos Magic */
 			{
-				{ 5, 2, 25, 3 },
-				{ 7, 5, 25, 4 },
-				{ 9, 7, 37, 8 },
-				{ 11, 9, 40, 8 },
-				{ 13, 11, 20, 4 },
-				{ 15, 13, 30, 6 },
-				{ 19, 15, 30, 6 },
-				{ 21, 20, 30, 5 },
+				{ 2, 2, 25, 3 },
+				{ 4, 4, 25, 4 },
+				{ 6, 5, 37, 8 },
+				{ 7, 7, 40, 8 },
+				{ 9, 9, 20, 4 },
+				{ 11, 11, 30, 6 },
+				{ 17, 14, 30, 6 },
+				{ 19, 17, 30, 5 },
 
-				{ 25, 22, 40, 8 },
-				{ 30, 26, 30, 8 },
-				{ 33, 26, 30, 8 },
-				{ 35, 32, 35, 9 },
-				{ 40, 35, 40, 12 },
-				{ 42, 38, 35, 10 },
-				{ 46, 44, 40, 15 },
-				{ 49, 50, 35, 12 },
+				{ 22, 22, 40, 8 },
+				{ 26, 24, 30, 8 },
+				{ 30, 25, 30, 8 },
+				{ 32, 30, 35, 9 },
+				{ 35, 30, 40, 12 },
+				{ 38, 35, 35, 10 },
+				{ 42, 40, 40, 15 },
+				{ 45, 45, 35, 12 },
 
-				{ 20, 15, 40, 20 },
-				{ 30, 30, 35, 25 },
-				{ 33, 30, 35, 30 },
-				{ 38, 33, 35, 35 },
-				{ 42, 90, 40, 100 },
-				{ 45, 150, 45, 250 },
-				{ 48, 75, 25, 75 },
-				{ 99, 0, 0, 0 },
+				{ 17, 17, 40, 20 },
+				{ 27, 25, 35, 25 },
+				{ 29, 27, 35, 30 },
+				{ 33, 30, 35, 35 },
+				{ 38, 75, 40, 100 },
+				{ 41, 110, 45, 250 },
+				{ 45, 55, 25, 75 },
+				{ 49, 125, 45, 200 },
 
-				{ 35, 30, 30, 50 },
-				{ 42, 65, 45, 100 },
-				{ 44, 100, 40, 150 },
-				{ 46, 100, 40, 150 },
-				{ 99, 0, 0, 0 },
-				{ 49, 125, 40, 150 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
+				{ 32, 30, 30, 50 },
+				{ 38, 55, 45, 100 },
+				{ 40, 85, 40, 150 },
+				{ 43, 85, 40, 150 },
+				{ 46, 110, 40, 200 },
+				{ 48, 115, 40, 150 },
+				{ 49, 120, 40, 200 },
+				{ 50, 125, 40, 220 }
 			},
 
-			/* Rogue (Thief): Arcane Magic */
+			/* Astral Magic */
 			{
 				{ 1, 1, 20, 4 },
 				{ 1, 1, 33, 5 },
@@ -3355,130 +3694,3269 @@ player_magic magic_info[MAX_CLASS] =
 				{ 3, 3, 33, 5 },
 				{ 5, 5, 40, 6 },
 				{ 6, 6, 33, 7 },
-				{ 7, 7, 44, 5 },
+				{ 7, 6, 44, 5 },
 
-				{ 8, 8, 40, 7 },
-				{ 9, 9, 60, 7 },
-				{ 10, 10, 50, 6 },
-				{ 11, 11, 50, 6 },
-				{ 13, 11, 50, 6 },
-				{ 14, 12, 50, 6 },
-				{ 15, 13, 50, 5 },
-				{ 16, 14, 50, 5 },
+				{ 8, 7, 40, 7 },
+				{ 9, 8, 60, 7 },
+				{ 10, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 11, 50, 6 },
+				{ 13, 12, 50, 6 },
+				{ 14, 13, 50, 5 },
+				{ 15, 14, 50, 5 },
 
-				{ 17, 15, 50, 5 },
-				{ 18, 16, 50, 5 },
-				{ 19, 17, 33, 6 },
-				{ 20, 20, 50, 8 },
-				{ 23, 22, 60, 9 },
-				{ 25, 24, 60, 9 },
-				{ 28, 25, 70, 12 },
-				{ 30, 28, 60, 13 },
+				{ 16, 15, 50, 5 },
+				{ 17, 16, 50, 5 },
+				{ 18, 17, 33, 6 },
+				{ 19, 18, 50, 8 },
+				{ 22, 20, 60, 9 },
+				{ 24, 22, 60, 9 },
+				{ 27, 24, 70, 12 },
+				{ 29, 26, 60, 13 },
 
-				{ 35, 30, 80, 40 },
-				{ 39, 36, 80, 25 },
-				{ 42, 37, 60, 25 },
-				{ 44, 38, 70, 25 },
-				{ 46, 40, 66, 30 },
-				{ 47, 42, 80, 40 },
-				{ 48, 60, 70, 50 },
-				{ 50, 125, 80, 200 }
-			}
+				{ 33, 30, 80, 50 },
+				{ 37, 36, 80, 25 },
+				{ 40, 37, 60, 25 },
+				{ 42, 38, 70, 25 },
+				{ 44, 39, 66, 30 },
+				{ 46, 40, 80, 40 },
+				{ 47, 55, 70, 50 },
+				{ 50, 120, 80, 200 }
+			},
+			
+			/* Water Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Earth Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Wizardry Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+		}
+	},
+	
+
+	{
+		/*** Priest ***/
+
+		TV_LIFE_BOOK,
+		7,
+		35,
+
+		A_WIS,
+		1,
+
+		1,
+		350,
+		{
+			/* Life Magic */
+			{
+				{ 2, 2, 10, 4 },
+				{ 3, 2, 15, 4 },
+				{ 4, 2, 20, 4 },
+				{ 5, 2, 25, 1 },
+				{ 6, 3, 27, 2 },
+				{ 7, 4, 28, 2 },
+				{ 8, 4, 32, 4 },
+				{ 10, 5, 38, 4 },
+
+				{ 9, 6, 38, 5 },
+				{ 9, 6, 38, 4 },
+				{ 10, 7, 40, 4 },
+				{ 10, 8, 38, 4 },
+				{ 11, 8, 40, 4 },
+				{ 11, 8, 42, 4 },
+				{ 20, 16, 60, 7 },
+				{ 33, 55, 90, 15 },
+
+				{ 15, 14, 50, 50 },
+				{ 16, 14, 80, 60 },
+				{ 17, 14, 55, 70 },
+				{ 24, 20, 55, 70 },
+				{ 25, 20, 70, 120 },
+				{ 25, 25, 80, 250 },
+				{ 39, 32, 95, 200 },
+				{ 44, 44, 80, 250 },
+
+				{ 5, 5, 50, 80 },
+				{ 15, 14, 50, 100 },
+				{ 30, 50, 80, 130 },
+				{ 35, 70, 90, 250 },
+				{ 40, 50, 80, 130 },
+				{ 40, 40, 80, 200 },
+				{ 42, 90, 85, 200 },
+				{ 45, 90, 85, 250 },
+			},
+
+			/* Order Magic */
+			{
+				{ 1, 1, 23, 4 },
+				{ 1, 1, 24, 4 },
+				{ 2, 3, 25, 1 },
+				{ 3, 4, 30, 1 },
+				{ 4, 5, 30, 1 },
+				{ 6, 6, 35, 5 },
+				{ 8, 7, 30, 4 },
+				{ 10, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+
+			/* Fire Magic */
+			{
+				{ 2, 1, 25, 4 },
+				{ 5, 3, 25, 4 },
+				{ 5, 4, 25, 1 },
+				{ 6, 5, 35, 4 },
+				{ 6, 5, 50, 5 },
+				{ 6, 6, 50, 5 },
+				{ 7, 7, 50, 5 },
+				{ 7, 7, 35, 4 },
+
+				{ 7, 7, 40, 6 },
+				{ 8, 7, 30, 6 },
+				{ 9, 10, 40, 6 },
+				{ 10, 10, 40, 6 },
+				{ 11, 11, 30, 5 },
+				{ 20, 20, 65, 7 },
+				{ 30, 30, 55, 8 },
+				{ 42, 100, 95, 50 },
+
+				{ 9, 9, 20, 28 },
+				{ 11, 12, 40, 44 },
+				{ 12, 13, 75, 120 },
+				{ 18, 20, 85, 60 },
+				{ 35, 35, 80, 50 },
+				{ 39, 40, 90, 200 },
+				{ 40, 50, 85, 250 },
+				{ 42, 90, 90, 250 },
+
+				{ 22, 22, 60, 24 },
+				{ 25, 25, 60, 25 },
+				{ 27, 27, 75, 29 },
+				{ 32, 30, 75, 29 },
+				{ 37, 32, 85, 65 },
+				{ 39, 37, 90, 100 },
+				{ 42, 90, 95, 250 },
+				{ 44, 80, 65, 150 },
+			},
+
+			/* Air Magic */
+			{
+				{ 2, 1, 22, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 26, 4 },
+				{ 5, 4, 30, 6 },
+				{ 10, 6, 30, 5 },
+				{ 11, 6, 50, 5 },
+				{ 16, 11, 50, 6 },
+				{ 17, 11, 35, 5 },
+
+				{ 19, 15, 50, 7 },
+				{ 21, 16, 50, 9 },
+				{ 23, 18, 80, 20 },
+				{ 25, 18, 50, 11 },
+				{ 27, 20, 65, 12 },
+				{ 29, 22, 60, 8 },
+				{ 33, 23, 80, 15},
+				{ 37, 42, 85, 40 },
+
+
+				{ 14, 11, 45, 9 },
+				{ 17, 17, 70, 20 },
+				{ 20, 18, 80, 35 },
+				{ 27, 27, 70, 35 },
+				{ 35, 30, 85, 150 },
+				{ 45, 55, 95, 250 },
+				{ 47, 90, 90, 250 },
+				{ 49, 100, 90, 250 },
+
+				{ 25, 25, 66, 8 },
+				{ 37, 37, 85, 35 },
+				{ 39, 37, 75, 50 },
+				{ 43, 45, 85, 100 },
+				{ 45, 47, 90, 150 },
+				{ 47, 50, 95, 200 },
+				{ 49, 95, 80, 200 },
+				{ 50, 100, 95, 250 },
+			},
+
+			/* Death Magic */
+			{
+				{ 2, 1, 25, 4 },
+				{ 3, 2, 25, 4 },
+				{ 4, 3, 25, 4 },
+				{ 5, 4, 27, 4 },
+				{ 7, 7, 30, 4 },
+				{ 9, 11, 75, 6 },
+				{ 11, 11, 30, 4 },
+				{ 12, 12, 40, 5 },
+
+				{ 14, 14, 40, 5 },
+				{ 16, 16, 30, 4 },
+				{ 21, 20, 50, 10 },
+				{ 25, 24, 60, 16 },
+				{ 33, 75, 90, 30 },
+				{ 35, 35, 60, 16 },
+				{ 40, 30, 95, 100 },
+				{ 50, 52, 95, 150 },
+
+				{ 13, 20, 80, 180 },
+				{ 13, 15, 80, 30 },
+				{ 14, 15, 30, 15 },
+				{ 33, 33, 70, 33 },
+				{ 35, 35, 60, 125 },
+				{ 35, 95, 70, 90 },
+				{ 44, 44, 80, 200 },
+				{ 45, 75, 80, 100 },
+
+				{ 25, 25, 75, 50 },
+				{ 30, 75, 95, 250 },
+				{ 35, 45, 95, 250 },
+				{ 40, 40, 70, 40 },
+				{ 42, 40, 80, 70 },
+				{ 48, 125, 95, 250 },
+				{ 49, 100, 90, 250 },
+				{ 50, 111, 90, 250 },
+			},
+
+			/* Chaos Magic */
+			{0
+			},
+
+			/* Astral Magic */
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 6, 44, 5 },
+
+				{ 8, 7, 40, 7 },
+				{ 9, 8, 60, 7 },
+				{ 10, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 11, 50, 6 },
+				{ 13, 12, 50, 6 },
+				{ 14, 13, 50, 5 },
+				{ 15, 14, 50, 5 },
+
+				{ 16, 15, 50, 5 },
+				{ 17, 16, 50, 5 },
+				{ 18, 17, 33, 6 },
+				{ 19, 18, 50, 8 },
+				{ 22, 20, 60, 9 },
+				{ 24, 22, 60, 9 },
+				{ 27, 24, 70, 12 },
+				{ 29, 26, 60, 13 },
+
+				{ 33, 30, 80, 50 },
+				{ 37, 36, 80, 25 },
+				{ 40, 37, 60, 25 },
+				{ 42, 38, 70, 25 },
+				{ 44, 39, 66, 30 },
+				{ 46, 40, 80, 40 },
+				{ 47, 55, 70, 50 },
+				{ 50, 120, 80, 200 }
+			},
+			
+			/* Water Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Earth Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Wizardry Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+		}
+	},
+
+
+	{
+		/*** Shaman ***/
+
+		TV_LIFE_BOOK,
+		0,
+		0,
+
+		A_WIS,
+		1,
+
+		1,
+		350,
+		{
+			/* Life Magic */
+			{
+				{ 2, 2, 10, 4 },
+				{ 3, 3, 15, 4 },
+				{ 4, 3, 20, 4 },
+				{ 5, 3, 25, 1 },
+				{ 6, 4, 27, 2 },
+				{ 7, 5, 28, 2 },
+				{ 8, 5, 32, 4 },
+				{ 9, 6, 38, 4 },
+
+				{ 7, 6, 38, 5 },
+				{ 9, 6, 38, 4 },
+				{ 9, 7, 40, 4 },
+				{ 10, 8, 38, 4 },
+				{ 10, 8, 40, 4 },
+				{ 11, 8, 42, 4 },
+				{ 20, 16, 60, 7 },
+				{ 33, 55, 90, 15 },
+
+				{ 15, 14, 50, 50 },
+				{ 16, 14, 80, 60 },
+				{ 17, 14, 55, 70 },
+				{ 24, 20, 55, 70 },
+				{ 25, 20, 70, 120 },
+				{ 25, 25, 80, 250 },
+				{ 39, 32, 95, 200 },
+				{ 44, 44, 80, 250 },
+
+				{ 5, 5, 50, 80 },
+				{ 15, 14, 50, 100 },
+				{ 30, 50, 80, 130 },
+				{ 35, 70, 90, 250 },
+				{ 40, 50, 80, 130 },
+				{ 40, 40, 80, 200 },
+				{ 42, 90, 85, 200 },
+				{ 45, 90, 85, 250 },
+			},
+
+			/* Order Magic */
+			{0
+			},
+
+			/* Fire Magic */
+			{
+				{ 2, 1, 25, 4 },
+				{ 5, 3, 25, 4 },
+				{ 5, 4, 25, 1 },
+				{ 6, 5, 35, 4 },
+				{ 6, 5, 50, 5 },
+				{ 6, 6, 50, 5 },
+				{ 7, 7, 50, 5 },
+				{ 7, 7, 35, 4 },
+
+				{ 7, 7, 40, 6 },
+				{ 8, 7, 30, 6 },
+				{ 9, 10, 40, 6 },
+				{ 10, 10, 40, 6 },
+				{ 11, 11, 30, 5 },
+				{ 20, 20, 65, 7 },
+				{ 30, 30, 55, 8 },
+				{ 42, 100, 95, 50 },
+
+				{ 9, 9, 20, 28 },
+				{ 11, 12, 40, 44 },
+				{ 12, 13, 75, 120 },
+				{ 18, 20, 85, 60 },
+				{ 35, 35, 80, 50 },
+				{ 39, 40, 90, 200 },
+				{ 40, 50, 85, 250 },
+				{ 42, 90, 90, 250 },
+
+				{ 22, 22, 60, 24 },
+				{ 25, 25, 60, 25 },
+				{ 27, 27, 75, 29 },
+				{ 32, 30, 75, 29 },
+				{ 37, 32, 85, 65 },
+				{ 39, 37, 90, 100 },
+				{ 42, 90, 95, 250 },
+				{ 44, 80, 65, 150 },
+			},
+
+			/* Air Magic */
+			{
+				{ 2, 1, 22, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 26, 4 },
+				{ 5, 4, 30, 6 },
+				{ 10, 6, 30, 5 },
+				{ 11, 6, 50, 5 },
+				{ 16, 11, 50, 6 },
+				{ 17, 11, 35, 5 },
+
+				{ 19, 15, 50, 7 },
+				{ 21, 16, 50, 9 },
+				{ 23, 18, 80, 20 },
+				{ 25, 18, 50, 11 },
+				{ 27, 20, 65, 12 },
+				{ 29, 22, 60, 8 },
+				{ 33, 23, 80, 15},
+				{ 37, 42, 85, 40 },
+
+
+				{ 14, 11, 45, 9 },
+				{ 17, 17, 70, 20 },
+				{ 20, 18, 80, 35 },
+				{ 27, 27, 70, 35 },
+				{ 35, 30, 85, 150 },
+				{ 45, 55, 95, 250 },
+				{ 47, 90, 90, 250 },
+				{ 49, 100, 90, 250 },
+
+				{ 25, 25, 66, 8 },
+				{ 37, 37, 85, 35 },
+				{ 39, 37, 75, 50 },
+				{ 43, 45, 85, 100 },
+				{ 45, 47, 90, 150 },
+				{ 47, 50, 95, 200 },
+				{ 49, 95, 80, 200 },
+				{ 50, 100, 95, 250 },
+			},
+
+			/* Death Magic */
+			{
+				{ 2, 2, 25, 4 },
+				{ 3, 2, 25, 4 },
+				{ 4, 3, 25, 4 },
+				{ 5, 4, 27, 4 },
+				{ 7, 7, 30, 4 },
+				{ 9, 11, 75, 6 },
+				{ 11, 11, 30, 4 },
+				{ 12, 12, 40, 5 },
+
+				{ 14, 14, 40, 5 },
+				{ 16, 16, 30, 4 },
+				{ 21, 20, 50, 10 },
+				{ 25, 24, 60, 16 },
+				{ 33, 75, 90, 30 },
+				{ 35, 35, 60, 16 },
+				{ 40, 30, 95, 100 },
+				{ 50, 52, 95, 150 },
+
+				{ 13, 20, 80, 180 },
+				{ 13, 15, 80, 30 },
+				{ 14, 15, 30, 15 },
+				{ 33, 33, 70, 33 },
+				{ 35, 35, 60, 125 },
+				{ 35, 95, 70, 90 },
+				{ 44, 44, 80, 200 },
+				{ 45, 75, 80, 100 },
+
+				{ 25, 25, 75, 50 },
+				{ 30, 75, 95, 250 },
+				{ 35, 45, 95, 250 },
+				{ 40, 40, 70, 40 },
+				{ 42, 40, 80, 70 },
+				{ 48, 125, 95, 250 },
+				{ 49, 100, 90, 250 },
+				{ 50, 111, 90, 250 },
+			},
+
+			/* Chaos Magic */
+			{
+				{ 1, 1, 25, 3 },
+				{ 1, 1, 25, 4 },
+				{ 2, 3, 37, 8 },
+				{ 5, 4, 40, 8 },
+				{ 7, 7, 20, 4 },
+				{ 9, 9, 30, 6 },
+				{ 12, 12, 30, 6 },
+				{ 15, 15, 30, 5 },
+
+				{ 22, 22, 40, 8 },
+				{ 26, 24, 30, 8 },
+				{ 30, 25, 30, 8 },
+				{ 32, 30, 35, 9 },
+				{ 35, 30, 40, 12 },
+				{ 38, 35, 35, 10 },
+				{ 42, 40, 40, 15 },
+				{ 45, 45, 35, 12 },
+
+				{ 17, 17, 40, 20 },
+				{ 27, 25, 35, 25 },
+				{ 29, 27, 35, 30 },
+				{ 33, 30, 35, 35 },
+				{ 38, 75, 40, 100 },
+				{ 41, 110, 45, 250 },
+				{ 45, 55, 25, 75 },
+				{ 49, 125, 45, 200 },
+
+				{ 32, 30, 30, 50 },
+				{ 38, 55, 45, 100 },
+				{ 40, 85, 40, 150 },
+				{ 43, 85, 40, 150 },
+				{ 46, 110, 40, 200 },
+				{ 48, 115, 40, 150 },
+				{ 49, 120, 40, 200 },
+				{ 50, 125, 40, 220 }
+			},
+
+			/* Astral Magic */
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 6, 44, 5 },
+
+				{ 8, 7, 40, 7 },
+				{ 9, 8, 60, 7 },
+				{ 10, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 11, 50, 6 },
+				{ 13, 12, 50, 6 },
+				{ 14, 13, 50, 5 },
+				{ 15, 14, 50, 5 },
+
+				{ 16, 15, 50, 5 },
+				{ 17, 16, 50, 5 },
+				{ 18, 17, 33, 6 },
+				{ 19, 18, 50, 8 },
+				{ 22, 20, 60, 9 },
+				{ 24, 22, 60, 9 },
+				{ 27, 24, 70, 12 },
+				{ 29, 26, 60, 13 },
+
+				{ 33, 30, 80, 50 },
+				{ 37, 36, 80, 25 },
+				{ 40, 37, 60, 25 },
+				{ 42, 38, 70, 25 },
+				{ 44, 39, 66, 30 },
+				{ 46, 40, 80, 40 },
+				{ 47, 55, 70, 50 },
+				{ 50, 120, 80, 200 }
+			},
+			
+			/* Water Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Earth Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Wizardry Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
 		}
 	},
 
 	{
-		/*** Ranger ***/
+		/*** Sage ***/
 
-		TV_SORCERY_BOOK,
+		TV_LIFE_BOOK,
+		0,
+		0,
+
+		A_WIS,
+		1,
+
+		1,
+		350,
+		{
+			/* Life Magic */
+			{
+				{ 2, 2, 10, 4 },
+				{ 3, 3, 15, 4 },
+				{ 4, 3, 20, 4 },
+				{ 5, 3, 25, 1 },
+				{ 6, 4, 27, 2 },
+				{ 7, 5, 28, 2 },
+				{ 8, 5, 32, 4 },
+				{ 9, 6, 38, 4 },
+
+				{ 7, 6, 38, 5 },
+				{ 9, 6, 38, 4 },
+				{ 9, 7, 40, 4 },
+				{ 10, 8, 38, 4 },
+				{ 10, 8, 40, 4 },
+				{ 11, 8, 42, 4 },
+				{ 20, 16, 60, 7 },
+				{ 33, 55, 90, 15 },
+
+				{ 15, 14, 50, 50 },
+				{ 16, 14, 80, 60 },
+				{ 17, 14, 55, 70 },
+				{ 24, 20, 55, 70 },
+				{ 25, 20, 70, 120 },
+				{ 25, 25, 80, 250 },
+				{ 39, 32, 95, 200 },
+				{ 44, 44, 80, 250 },
+
+				{ 5, 5, 50, 80 },
+				{ 15, 14, 50, 100 },
+				{ 30, 50, 80, 130 },
+				{ 35, 70, 90, 250 },
+				{ 40, 50, 80, 130 },
+				{ 40, 40, 80, 200 },
+				{ 42, 90, 85, 200 },
+				{ 45, 90, 85, 250 },
+			},
+
+			/* Order Magic */
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+
+			/* Fire Magic */
+			{
+				{ 2, 1, 25, 4 },
+				{ 5, 3, 25, 4 },
+				{ 5, 4, 25, 1 },
+				{ 6, 5, 35, 4 },
+				{ 6, 5, 50, 5 },
+				{ 6, 6, 50, 5 },
+				{ 7, 7, 50, 5 },
+				{ 7, 7, 35, 4 },
+
+				{ 7, 7, 40, 6 },
+				{ 8, 7, 30, 6 },
+				{ 9, 10, 40, 6 },
+				{ 10, 10, 40, 6 },
+				{ 11, 11, 30, 5 },
+				{ 20, 20, 65, 7 },
+				{ 30, 30, 55, 8 },
+				{ 42, 100, 95, 50 },
+
+				{ 9, 9, 20, 28 },
+				{ 11, 12, 40, 44 },
+				{ 12, 13, 75, 120 },
+				{ 18, 20, 85, 60 },
+				{ 35, 35, 80, 50 },
+				{ 39, 40, 90, 200 },
+				{ 40, 50, 85, 250 },
+				{ 42, 90, 90, 250 },
+
+				{ 22, 22, 60, 24 },
+				{ 25, 25, 60, 25 },
+				{ 27, 27, 75, 29 },
+				{ 32, 30, 75, 29 },
+				{ 37, 32, 85, 65 },
+				{ 39, 37, 90, 100 },
+				{ 42, 90, 95, 250 },
+				{ 44, 80, 65, 150 },
+			},
+
+			/* Air Magic */
+			{
+				{ 2, 1, 22, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 26, 4 },
+				{ 5, 4, 30, 6 },
+				{ 10, 6, 30, 5 },
+				{ 11, 6, 50, 5 },
+				{ 16, 11, 50, 6 },
+				{ 17, 11, 35, 5 },
+
+				{ 19, 15, 50, 7 },
+				{ 21, 16, 50, 9 },
+				{ 23, 18, 80, 20 },
+				{ 25, 18, 50, 11 },
+				{ 27, 20, 65, 12 },
+				{ 29, 22, 60, 8 },
+				{ 33, 23, 80, 15},
+				{ 37, 42, 85, 40 },
+
+
+				{ 14, 11, 45, 9 },
+				{ 17, 17, 70, 20 },
+				{ 20, 18, 80, 35 },
+				{ 27, 27, 70, 35 },
+				{ 35, 30, 85, 150 },
+				{ 45, 55, 95, 250 },
+				{ 47, 90, 90, 250 },
+				{ 49, 100, 90, 250 },
+
+				{ 25, 25, 66, 8 },
+				{ 37, 37, 85, 35 },
+				{ 39, 37, 75, 50 },
+				{ 43, 45, 85, 100 },
+				{ 45, 47, 90, 150 },
+				{ 47, 50, 95, 200 },
+				{ 49, 95, 80, 200 },
+				{ 50, 100, 95, 250 },
+			},
+
+			/* Death Magic */
+			{
+				{ 2, 1, 25, 4 },
+				{ 3, 2, 25, 4 },
+				{ 4, 3, 25, 4 },
+				{ 5, 4, 27, 4 },
+				{ 7, 7, 30, 4 },
+				{ 9, 11, 75, 6 },
+				{ 11, 11, 30, 4 },
+				{ 12, 12, 40, 5 },
+
+				{ 14, 14, 40, 5 },
+				{ 16, 16, 30, 4 },
+				{ 21, 20, 50, 10 },
+				{ 25, 24, 60, 16 },
+				{ 33, 75, 90, 30 },
+				{ 35, 35, 60, 16 },
+				{ 40, 30, 95, 100 },
+				{ 50, 52, 95, 150 },
+
+				{ 13, 20, 80, 180 },
+				{ 13, 15, 80, 30 },
+				{ 14, 15, 30, 15 },
+				{ 33, 33, 70, 33 },
+				{ 35, 35, 60, 125 },
+				{ 35, 95, 70, 90 },
+				{ 44, 44, 80, 200 },
+				{ 45, 75, 80, 100 },
+
+				{ 25, 25, 75, 50 },
+				{ 30, 75, 95, 250 },
+				{ 35, 45, 95, 250 },
+				{ 40, 40, 70, 40 },
+				{ 42, 40, 80, 70 },
+				{ 48, 125, 95, 250 },
+				{ 49, 100, 90, 250 },
+				{ 50, 111, 90, 250 },
+			},
+
+			/* Chaos Magic */
+			{
+				{ 2, 2, 25, 3 },
+				{ 4, 4, 25, 4 },
+				{ 6, 5, 37, 8 },
+				{ 7, 7, 40, 8 },
+				{ 9, 9, 20, 4 },
+				{ 11, 11, 30, 6 },
+				{ 17, 14, 30, 6 },
+				{ 19, 17, 30, 5 },
+
+				{ 22, 22, 40, 8 },
+				{ 26, 24, 30, 8 },
+				{ 30, 25, 30, 8 },
+				{ 32, 30, 35, 9 },
+				{ 35, 30, 40, 12 },
+				{ 38, 35, 35, 10 },
+				{ 42, 40, 40, 15 },
+				{ 45, 45, 35, 12 },
+
+				{ 17, 17, 40, 20 },
+				{ 27, 25, 35, 25 },
+				{ 29, 27, 35, 30 },
+				{ 33, 30, 35, 35 },
+				{ 38, 75, 40, 100 },
+				{ 41, 110, 45, 250 },
+				{ 45, 55, 25, 75 },
+				{ 49, 125, 45, 200 },
+
+				{ 32, 30, 30, 50 },
+				{ 38, 55, 45, 100 },
+				{ 40, 85, 40, 150 },
+				{ 43, 85, 40, 150 },
+				{ 46, 110, 40, 200 },
+				{ 48, 115, 40, 150 },
+				{ 49, 120, 40, 200 },
+				{ 50, 125, 40, 220 }
+			},
+
+			/* Astral Magic */
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 6, 44, 5 },
+
+				{ 8, 7, 40, 7 },
+				{ 9, 8, 60, 7 },
+				{ 10, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 11, 50, 6 },
+				{ 13, 12, 50, 6 },
+				{ 14, 13, 50, 5 },
+				{ 15, 14, 50, 5 },
+
+				{ 16, 15, 50, 5 },
+				{ 17, 16, 50, 5 },
+				{ 18, 17, 33, 6 },
+				{ 19, 18, 50, 8 },
+				{ 22, 20, 60, 9 },
+				{ 24, 22, 60, 9 },
+				{ 27, 24, 70, 12 },
+				{ 29, 26, 60, 13 },
+
+				{ 33, 30, 80, 50 },
+				{ 37, 36, 80, 25 },
+				{ 40, 37, 60, 25 },
+				{ 42, 38, 70, 25 },
+				{ 44, 39, 66, 30 },
+				{ 46, 40, 80, 40 },
+				{ 47, 55, 70, 50 },
+				{ 50, 120, 80, 200 }
+			},
+			
+			/* Water Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Earth Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Wizardry Magic */
+			
+			{
+				{ 1, 1, 23, 4 },
+				{ 1, 1, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+		}
+	},
+
+
+	{
+		/*** Fire Mage ***/
+
+		TV_ORDER_BOOK,
+		0,
 		0,
 
 		A_INT,
+		0,
+
+		1,
+		300,
+
+		{
+			{
+				/* Life magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Order Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+			/* Fire Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 1, 1, 25, 3 },
+				{ 3, 3, 25, 1 },
+				{ 4, 4, 35, 4 },
+				{ 4, 4, 50, 5 },
+				{ 4, 5, 50, 5 },
+				{ 5, 5, 50, 5 },
+				{ 5, 5, 35, 4 },
+
+				{ 5, 5, 40, 6 },
+				{ 5, 5, 30, 6 },
+				{ 7, 6, 45, 6 },
+				{ 7, 6, 40, 6 },
+				{ 9, 6, 30, 5 },
+				{ 19, 12, 55, 8 },
+				{ 25, 25, 90, 50 },
+				{ 40, 100, 95, 50 },
+
+				{ 7, 7, 20, 28 },
+				{ 9, 12, 40, 44 },
+				{ 10, 12, 75, 120 },
+				{ 15, 20, 85, 60 },
+				{ 30, 30, 90, 100 },
+				{ 37, 40, 90, 200 },
+				{ 38, 45, 75, 200},
+				{ 40, 90, 90, 250 },
+
+
+				{ 20, 18, 60, 25 },
+				{ 23, 23, 80, 50 },
+				{ 25, 25, 75, 29 },
+				{ 30, 27, 75, 35 },
+				{ 35, 30, 85, 65 },
+				{ 37, 35, 90, 100 },
+				{ 40, 90, 95, 250 },
+				{ 40, 75, 65, 150 }
+			},
+
+				/* Air Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 2, 2, 22, 4 },
+				{ 2, 2, 25, 4 },
+				{ 5, 5, 30, 1 },
+				{ 9, 6, 50, 1 },
+				{ 13, 9, 45, 6 },
+				{ 14, 9, 45, 6 },
+				{ 15, 9, 35, 5 },
+
+				{ 17, 10, 25, 5 },
+				{ 19, 12, 45, 9 },
+				{ 21, 13, 45, 10 },
+				{ 23, 15, 50, 11 },
+				{ 25, 16, 50, 12 },
+				{ 25, 18, 60, 8 },
+				{ 30, 20, 80, 15 },
+				{ 35, 40, 85, 40 },
+
+				{ 11, 7, 45, 9 },
+				{ 15, 15, 80, 35 },
+				{ 16, 14, 80, 35 },
+				{25, 25, 85, 100 },
+				{ 30, 25, 85, 150 },
+				{ 42, 50, 85, 250 },
+				{ 45, 90, 80, 250 },
+				{ 47, 100, 90, 250 },
+
+				{ 20, 20, 66, 8 },
+				{ 35, 32, 85, 35 },
+				{ 37, 34, 75, 40 },
+				{ 41, 42, 85, 100 },
+				{ 43, 44, 80, 150 },
+				{ 45, 48, 85, 200 },
+				{ 47, 75, 80, 200 },
+				{ 49, 100, 85, 250 }
+			},
+
+				/* Death Magic */
+
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 3, 3, 27, 3 },
+				{ 5, 5, 30, 4 },
+				{ 7, 10, 75, 6 },
+				{ 9, 9, 30, 4 },
+				{ 10, 10, 30, 4 },
+
+				{ 12, 12, 40, 5 },
+				{ 13, 12, 30, 4 },
+				{ 18, 15, 50, 10 },
+				{ 23, 20, 60, 16 },
+				{ 30, 75, 50, 30 },
+				{ 33, 35, 60, 16 },
+				{ 37, 25, 95, 25 },
+				{ 45, 50, 95, 150 },
+
+				{ 10, 20, 80, 180 },
+				{ 10, 15, 80, 30 },
+				{ 11, 11, 30, 15 },
+				{ 30, 25, 75, 50 },
+				{ 33, 35, 60, 125 },
+				{ 33, 90, 70, 90 },
+				{ 40, 40, 70, 200 },
+				{ 40, 75, 80, 100 },
+
+				{ 20, 20, 75, 50 },
+				{ 25, 66, 95, 250 },
+				{ 30, 40, 95, 250 },
+				{ 33, 35, 70, 40 },
+				{ 37, 35, 80, 70 },
+				{ 42, 120, 95, 250 },
+				{ 45, 100, 90, 250 },
+				{ 47, 100, 90, 250 }
+			},
+
+				/* Chaos Magic */
+
+			{
+				{ 1, 1, 25, 3 },
+				{ 3, 3, 25, 4 },
+				{ 5, 5, 37, 8 },
+				{ 6, 6, 40, 8 },
+				{ 7, 7, 20, 4 },
+				{ 9, 9, 30, 6 },
+				{ 14, 12, 30, 6 },
+				{ 17, 15, 30, 5 },
+
+				{ 20, 20, 40, 8 },
+				{ 24, 22, 30, 8 },
+				{ 28, 24, 30, 8 },
+				{ 30, 25, 35, 9 },
+				{ 33, 28, 40, 12 },
+				{ 35, 30, 35, 10 },
+				{ 40, 35, 40, 15 },
+				{ 42, 40, 35, 12 },
+
+				{ 15, 15, 40, 20 },
+				{ 24, 24, 35, 25 },
+				{ 26, 26, 35, 30 },
+				{ 30, 30, 35, 35 },
+				{ 35, 70, 40, 100 },
+				{ 40, 100, 45, 250 },
+				{ 42, 50, 25, 75 },
+				{ 45, 100, 45, 200 },
+
+				{ 30, 30, 30, 50 },
+				{ 35, 50, 45, 100 },
+				{ 36, 80, 40, 150 },
+				{ 39, 80, 40, 150 },
+				{ 42, 100, 40, 200 },
+				{ 47, 100, 40, 150 },
+				{ 48, 100, 40, 200 },
+				{ 49, 100, 40, 220 }
+			},
+
+				/* Astral Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 1, 1, 33, 4 },
+				{ 2, 1, 33, 5 },
+				{ 2, 2, 33, 5 },
+				{ 4, 4, 40, 6 },
+				{ 5, 5, 33, 7 },
+				{ 6, 5, 44, 5 },
+
+				{ 7, 6, 40, 7 },
+				{ 8, 8, 60, 7 },
+				{ 9, 8, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 12, 50, 5 },
+				{ 13, 12, 50, 5 },
+
+				{ 14, 12, 50, 5 },
+				{ 15, 12, 50, 5 },
+				{ 16, 14, 33, 6 },
+				{ 18, 15, 50, 8 },
+				{ 20, 16, 60, 9 },
+				{ 23, 18, 60, 9 },
+				{ 25, 20, 70, 12 },
+				{ 25, 20, 60, 13 },
+
+				{ 28, 25, 70, 30 },
+				{ 35, 35, 80, 25 },
+				{ 38, 30, 60, 25 },
+				{ 40, 30, 70, 25 },
+				{ 41, 30, 66, 30 },
+				{ 42, 30, 80, 40 },
+				{ 45, 50, 70, 50 },
+				{ 49, 100, 80, 200 }
+			},
+			{ 0	/* Water magic */
+			},
+			{
+				/* Earth magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Wizardry Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+		}
+	},
+
+	{
+		/*** Water Mage ***/
+
+		TV_ORDER_BOOK,
+		0,
+		0,
+
+		A_INT,
+		0,
+
+		1,
+		300,
+
+		{
+			{
+				/* Life magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Order Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+			/* Fire Magic */
+
+			{0
+			},
+
+				/* Air Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 2, 2, 22, 4 },
+				{ 2, 2, 25, 4 },
+				{ 5, 5, 30, 1 },
+				{ 9, 6, 50, 1 },
+				{ 13, 9, 45, 6 },
+				{ 14, 9, 45, 6 },
+				{ 15, 9, 35, 5 },
+
+				{ 17, 10, 25, 5 },
+				{ 19, 12, 45, 9 },
+				{ 21, 13, 45, 10 },
+				{ 23, 15, 50, 11 },
+				{ 25, 16, 50, 12 },
+				{ 25, 18, 60, 8 },
+				{ 30, 20, 80, 15 },
+				{ 35, 40, 85, 40 },
+
+				{ 11, 7, 45, 9 },
+				{ 15, 15, 80, 35 },
+				{ 16, 14, 80, 35 },
+				{25, 25, 85, 100 },
+				{ 30, 25, 85, 150 },
+				{ 42, 50, 85, 250 },
+				{ 45, 90, 80, 250 },
+				{ 47, 100, 90, 250 },
+
+				{ 20, 20, 66, 8 },
+				{ 35, 32, 85, 35 },
+				{ 37, 34, 75, 40 },
+				{ 41, 42, 85, 100 },
+				{ 43, 44, 80, 150 },
+				{ 45, 48, 85, 200 },
+				{ 47, 75, 80, 200 },
+				{ 49, 100, 85, 250 }
+			},
+
+				/* Death Magic */
+
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 3, 3, 27, 3 },
+				{ 5, 5, 30, 4 },
+				{ 7, 10, 75, 6 },
+				{ 9, 9, 30, 4 },
+				{ 10, 10, 30, 4 },
+
+				{ 12, 12, 40, 5 },
+				{ 13, 12, 30, 4 },
+				{ 18, 15, 50, 10 },
+				{ 23, 20, 60, 16 },
+				{ 30, 75, 50, 30 },
+				{ 33, 35, 60, 16 },
+				{ 37, 25, 95, 25 },
+				{ 45, 50, 95, 150 },
+
+				{ 10, 20, 80, 180 },
+				{ 10, 15, 80, 30 },
+				{ 11, 11, 30, 15 },
+				{ 30, 25, 75, 50 },
+				{ 33, 35, 60, 125 },
+				{ 33, 90, 70, 90 },
+				{ 40, 40, 70, 200 },
+				{ 40, 75, 80, 100 },
+
+				{ 20, 20, 75, 50 },
+				{ 25, 66, 95, 250 },
+				{ 30, 40, 95, 250 },
+				{ 33, 35, 70, 40 },
+				{ 37, 35, 80, 70 },
+				{ 42, 120, 95, 250 },
+				{ 45, 100, 90, 250 },
+				{ 47, 100, 90, 250 }
+			},
+
+				/* Chaos Magic */
+
+			{
+				{ 1, 1, 25, 3 },
+				{ 3, 3, 25, 4 },
+				{ 5, 5, 37, 8 },
+				{ 6, 6, 40, 8 },
+				{ 7, 7, 20, 4 },
+				{ 9, 9, 30, 6 },
+				{ 14, 12, 30, 6 },
+				{ 17, 15, 30, 5 },
+
+				{ 20, 20, 40, 8 },
+				{ 24, 22, 30, 8 },
+				{ 28, 24, 30, 8 },
+				{ 30, 25, 35, 9 },
+				{ 33, 28, 40, 12 },
+				{ 35, 30, 35, 10 },
+				{ 40, 35, 40, 15 },
+				{ 42, 40, 35, 12 },
+
+				{ 15, 15, 40, 20 },
+				{ 24, 24, 35, 25 },
+				{ 26, 26, 35, 30 },
+				{ 30, 30, 35, 35 },
+				{ 35, 70, 40, 100 },
+				{ 40, 100, 45, 250 },
+				{ 42, 50, 25, 75 },
+				{ 45, 100, 45, 200 },
+
+				{ 30, 30, 30, 50 },
+				{ 35, 50, 45, 100 },
+				{ 36, 80, 40, 150 },
+				{ 39, 80, 40, 150 },
+				{ 42, 100, 40, 200 },
+				{ 47, 100, 40, 150 },
+				{ 48, 100, 40, 200 },
+				{ 49, 100, 40, 220 }
+			},
+
+				/* Astral Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 1, 1, 33, 4 },
+				{ 2, 1, 33, 5 },
+				{ 2, 2, 33, 5 },
+				{ 4, 4, 40, 6 },
+				{ 5, 5, 33, 7 },
+				{ 6, 5, 44, 5 },
+
+				{ 7, 6, 40, 7 },
+				{ 8, 8, 60, 7 },
+				{ 9, 8, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 12, 50, 5 },
+				{ 13, 12, 50, 5 },
+
+				{ 14, 12, 50, 5 },
+				{ 15, 12, 50, 5 },
+				{ 16, 14, 33, 6 },
+				{ 18, 15, 50, 8 },
+				{ 20, 16, 60, 9 },
+				{ 23, 18, 60, 9 },
+				{ 25, 20, 70, 12 },
+				{ 25, 20, 60, 13 },
+
+				{ 28, 25, 70, 30 },
+				{ 35, 35, 80, 25 },
+				{ 38, 30, 60, 25 },
+				{ 40, 30, 70, 25 },
+				{ 41, 30, 66, 30 },
+				{ 42, 30, 80, 40 },
+				{ 45, 50, 70, 50 },
+				{ 49, 100, 80, 200 }
+			},
+			{
+				/* Water magic */
+
+				{ 1, 1, 30, 4 },
+				{ 1, 1, 35, 4 },
+				{ 3, 3, 35, 4 },
+				{ 4, 4, 35, 4 },
+				{ 6, 6, 35, 4 },
+				{ 8, 7, 40, 4 },
+				{ 10, 9, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+			{
+				/* Earth magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Wizardry Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+		}
+	},
+
+	{
+		/*** Earth Mage ***/
+
+		TV_ORDER_BOOK,
+		0,
+		0,
+
+		A_INT,
+		0,
+
+		1,
+		300,
+
+		{
+			{
+				/* Life magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Order Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+			/* Fire Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 3, 3, 25, 3 },
+				{ 3, 3, 25, 1 },
+				{ 4, 4, 35, 4 },
+				{ 4, 4, 50, 5 },
+				{ 4, 5, 50, 5 },
+				{ 5, 5, 50, 5 },
+				{ 5, 5, 35, 4 },
+
+				{ 5, 5, 40, 6 },
+				{ 5, 5, 30, 6 },
+				{ 7, 6, 45, 6 },
+				{ 7, 6, 40, 6 },
+				{ 9, 6, 30, 5 },
+				{ 19, 12, 55, 8 },
+				{ 25, 25, 90, 50 },
+				{ 40, 100, 95, 50 },
+
+				{ 7, 7, 20, 28 },
+				{ 9, 12, 40, 44 },
+				{ 10, 12, 75, 120 },
+				{ 15, 20, 85, 60 },
+				{ 30, 30, 90, 100 },
+				{ 37, 40, 90, 200 },
+				{ 38, 45, 75, 200},
+				{ 40, 90, 90, 250 },
+
+
+				{ 20, 18, 60, 25 },
+				{ 23, 23, 80, 50 },
+				{ 25, 25, 75, 29 },
+				{ 30, 27, 75, 35 },
+				{ 35, 30, 85, 65 },
+				{ 37, 35, 90, 100 },
+				{ 40, 90, 95, 250 },
+				{ 40, 75, 65, 150 }
+			},
+
+				/* Air Magic */
+
+			{0
+			},
+
+				/* Death Magic */
+
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 3, 3, 27, 3 },
+				{ 5, 5, 30, 4 },
+				{ 7, 10, 75, 6 },
+				{ 9, 9, 30, 4 },
+				{ 10, 10, 30, 4 },
+
+				{ 12, 12, 40, 5 },
+				{ 13, 12, 30, 4 },
+				{ 18, 15, 50, 10 },
+				{ 23, 20, 60, 16 },
+				{ 30, 75, 50, 30 },
+				{ 33, 35, 60, 16 },
+				{ 37, 25, 95, 25 },
+				{ 45, 50, 95, 150 },
+
+				{ 10, 20, 80, 180 },
+				{ 10, 15, 80, 30 },
+				{ 11, 11, 30, 15 },
+				{ 30, 25, 75, 50 },
+				{ 33, 35, 60, 125 },
+				{ 33, 90, 70, 90 },
+				{ 40, 40, 70, 200 },
+				{ 40, 75, 80, 100 },
+
+				{ 20, 20, 75, 50 },
+				{ 25, 66, 95, 250 },
+				{ 30, 40, 95, 250 },
+				{ 33, 35, 70, 40 },
+				{ 37, 35, 80, 70 },
+				{ 42, 120, 95, 250 },
+				{ 45, 100, 90, 250 },
+				{ 47, 100, 90, 250 }
+			},
+
+				/* Chaos Magic */
+
+			{
+				{ 1, 1, 25, 3 },
+				{ 3, 3, 25, 4 },
+				{ 5, 5, 37, 8 },
+				{ 6, 6, 40, 8 },
+				{ 7, 7, 20, 4 },
+				{ 9, 9, 30, 6 },
+				{ 14, 12, 30, 6 },
+				{ 17, 15, 30, 5 },
+
+				{ 20, 20, 40, 8 },
+				{ 24, 22, 30, 8 },
+				{ 28, 24, 30, 8 },
+				{ 30, 25, 35, 9 },
+				{ 33, 28, 40, 12 },
+				{ 35, 30, 35, 10 },
+				{ 40, 35, 40, 15 },
+				{ 42, 40, 35, 12 },
+
+				{ 15, 15, 40, 20 },
+				{ 24, 24, 35, 25 },
+				{ 26, 26, 35, 30 },
+				{ 30, 30, 35, 35 },
+				{ 35, 70, 40, 100 },
+				{ 40, 100, 45, 250 },
+				{ 42, 50, 25, 75 },
+				{ 45, 100, 45, 200 },
+
+				{ 30, 30, 30, 50 },
+				{ 35, 50, 45, 100 },
+				{ 36, 80, 40, 150 },
+				{ 39, 80, 40, 150 },
+				{ 42, 100, 40, 200 },
+				{ 47, 100, 40, 150 },
+				{ 48, 100, 40, 200 },
+				{ 49, 100, 40, 220 }
+			},
+
+				/* Astral Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 1, 1, 33, 4 },
+				{ 2, 1, 33, 5 },
+				{ 2, 2, 33, 5 },
+				{ 4, 4, 40, 6 },
+				{ 5, 5, 33, 7 },
+				{ 6, 5, 44, 5 },
+
+				{ 7, 6, 40, 7 },
+				{ 8, 8, 60, 7 },
+				{ 9, 8, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 12, 50, 5 },
+				{ 13, 12, 50, 5 },
+
+				{ 14, 12, 50, 5 },
+				{ 15, 12, 50, 5 },
+				{ 16, 14, 33, 6 },
+				{ 18, 15, 50, 8 },
+				{ 20, 16, 60, 9 },
+				{ 23, 18, 60, 9 },
+				{ 25, 20, 70, 12 },
+				{ 25, 20, 60, 13 },
+
+				{ 28, 25, 70, 30 },
+				{ 35, 35, 80, 25 },
+				{ 38, 30, 60, 25 },
+				{ 40, 30, 70, 25 },
+				{ 41, 30, 66, 30 },
+				{ 42, 30, 80, 40 },
+				{ 45, 50, 70, 50 },
+				{ 49, 100, 80, 200 }
+			},
+			{
+				/* Water magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+			{
+				/* Earth magic */
+
+				{ 1, 1, 30, 4 },
+				{ 1, 1, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Wizardry Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+		}
+	},
+
+	{
+		/*** Air Mage ***/
+
+		TV_ORDER_BOOK,
+		0,
+		0,
+
+		A_INT,
+		0,
+
+		1,
+		300,
+
+		{
+			{
+				/* Life magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Order Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+			/* Fire Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 3, 3, 25, 3 },
+				{ 3, 3, 25, 1 },
+				{ 4, 4, 35, 4 },
+				{ 4, 4, 50, 5 },
+				{ 4, 5, 50, 5 },
+				{ 5, 5, 50, 5 },
+				{ 5, 5, 35, 4 },
+
+				{ 5, 5, 40, 6 },
+				{ 5, 5, 30, 6 },
+				{ 7, 6, 45, 6 },
+				{ 7, 6, 40, 6 },
+				{ 9, 6, 30, 5 },
+				{ 19, 12, 55, 8 },
+				{ 25, 25, 90, 50 },
+				{ 40, 100, 95, 50 },
+
+				{ 7, 7, 20, 28 },
+				{ 9, 12, 40, 44 },
+				{ 10, 12, 75, 120 },
+				{ 15, 20, 85, 60 },
+				{ 30, 30, 90, 100 },
+				{ 37, 40, 90, 200 },
+				{ 38, 45, 75, 200},
+				{ 40, 90, 90, 250 },
+
+
+				{ 20, 18, 60, 25 },
+				{ 23, 23, 80, 50 },
+				{ 25, 25, 75, 29 },
+				{ 30, 27, 75, 35 },
+				{ 35, 30, 85, 65 },
+				{ 37, 35, 90, 100 },
+				{ 40, 90, 95, 250 },
+				{ 40, 75, 65, 150 }
+			},
+
+				/* Air Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 22, 4 },
+				{ 2, 2, 25, 4 },
+				{ 5, 5, 30, 1 },
+				{ 9, 6, 50, 1 },
+				{ 13, 9, 45, 6 },
+				{ 14, 9, 45, 6 },
+				{ 15, 9, 35, 5 },
+
+				{ 17, 10, 25, 5 },
+				{ 19, 12, 45, 9 },
+				{ 21, 13, 45, 10 },
+				{ 23, 15, 50, 11 },
+				{ 25, 16, 50, 12 },
+				{ 25, 18, 60, 8 },
+				{ 30, 20, 80, 15 },
+				{ 35, 40, 85, 40 },
+
+				{ 11, 7, 45, 9 },
+				{ 15, 15, 80, 35 },
+				{ 16, 14, 80, 35 },
+				{ 25, 25, 85, 100 },
+				{ 30, 25, 85, 150 },
+				{ 42, 50, 85, 250 },
+				{ 45, 90, 80, 250 },
+				{ 47, 100, 90, 250 },
+
+				{ 20, 20, 66, 8 },
+				{ 35, 32, 85, 35 },
+				{ 37, 34, 75, 40 },
+				{ 41, 42, 85, 100 },
+				{ 43, 44, 80, 150 },
+				{ 45, 48, 85, 200 },
+				{ 47, 75, 80, 200 },
+				{ 49, 100, 85, 250 }
+			},
+
+				/* Death Magic */
+
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 3, 3, 27, 3 },
+				{ 5, 5, 30, 4 },
+				{ 7, 10, 75, 6 },
+				{ 9, 9, 30, 4 },
+				{ 10, 10, 30, 4 },
+
+				{ 12, 12, 40, 5 },
+				{ 13, 12, 30, 4 },
+				{ 18, 15, 50, 10 },
+				{ 23, 20, 60, 16 },
+				{ 30, 75, 50, 30 },
+				{ 33, 35, 60, 16 },
+				{ 37, 25, 95, 25 },
+				{ 45, 50, 95, 150 },
+
+				{ 10, 20, 80, 180 },
+				{ 10, 15, 80, 30 },
+				{ 11, 11, 30, 15 },
+				{ 30, 25, 75, 50 },
+				{ 33, 35, 60, 125 },
+				{ 33, 90, 70, 90 },
+				{ 40, 40, 70, 200 },
+				{ 40, 75, 80, 100 },
+
+				{ 20, 20, 75, 50 },
+				{ 25, 66, 95, 250 },
+				{ 30, 40, 95, 250 },
+				{ 33, 35, 70, 40 },
+				{ 37, 35, 80, 70 },
+				{ 42, 120, 95, 250 },
+				{ 45, 100, 90, 250 },
+				{ 47, 100, 90, 250 }
+			},
+
+				/* Chaos Magic */
+
+			{
+				{ 1, 1, 25, 3 },
+				{ 3, 3, 25, 4 },
+				{ 5, 5, 37, 8 },
+				{ 6, 6, 40, 8 },
+				{ 7, 7, 20, 4 },
+				{ 9, 9, 30, 6 },
+				{ 14, 12, 30, 6 },
+				{ 17, 15, 30, 5 },
+
+				{ 20, 20, 40, 8 },
+				{ 24, 22, 30, 8 },
+				{ 28, 24, 30, 8 },
+				{ 30, 25, 35, 9 },
+				{ 33, 28, 40, 12 },
+				{ 35, 30, 35, 10 },
+				{ 40, 35, 40, 15 },
+				{ 42, 40, 35, 12 },
+
+				{ 15, 15, 40, 20 },
+				{ 24, 24, 35, 25 },
+				{ 26, 26, 35, 30 },
+				{ 30, 30, 35, 35 },
+				{ 35, 70, 40, 100 },
+				{ 40, 100, 45, 250 },
+				{ 42, 50, 25, 75 },
+				{ 45, 100, 45, 200 },
+
+				{ 30, 30, 30, 50 },
+				{ 35, 50, 45, 100 },
+				{ 36, 80, 40, 150 },
+				{ 39, 80, 40, 150 },
+				{ 42, 100, 40, 200 },
+				{ 47, 100, 40, 150 },
+				{ 48, 100, 40, 200 },
+				{ 49, 100, 40, 220 }
+			},
+
+				/* Astral Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 1, 1, 33, 4 },
+				{ 2, 1, 33, 5 },
+				{ 2, 2, 33, 5 },
+				{ 4, 4, 40, 6 },
+				{ 5, 5, 33, 7 },
+				{ 6, 5, 44, 5 },
+
+				{ 7, 6, 40, 7 },
+				{ 8, 8, 60, 7 },
+				{ 9, 8, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 12, 50, 5 },
+				{ 13, 12, 50, 5 },
+
+				{ 14, 12, 50, 5 },
+				{ 15, 12, 50, 5 },
+				{ 16, 14, 33, 6 },
+				{ 18, 15, 50, 8 },
+				{ 20, 16, 60, 9 },
+				{ 23, 18, 60, 9 },
+				{ 25, 20, 70, 12 },
+				{ 25, 20, 60, 13 },
+
+				{ 28, 25, 70, 30 },
+				{ 35, 35, 80, 25 },
+				{ 38, 30, 60, 25 },
+				{ 40, 30, 70, 25 },
+				{ 41, 30, 66, 30 },
+				{ 42, 30, 80, 40 },
+				{ 45, 50, 70, 50 },
+				{ 49, 100, 80, 200 }
+			},
+			{
+				/* Water magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+			{0	/* Earth magic */
+			},
+
+			/* Wizardry Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+		}
+	},
+
+	{
+		/*** Wizard ***/
+
+		TV_ORDER_BOOK,
+		0,
+		0,
+
+		A_INT,
+		0,
+
+		1,
+		300,
+
+		{
+			{
+				/* Life magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Order Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+			/* Fire Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 3, 3, 25, 3 },
+				{ 3, 3, 25, 1 },
+				{ 4, 4, 35, 4 },
+				{ 4, 4, 50, 5 },
+				{ 4, 5, 50, 5 },
+				{ 5, 5, 50, 5 },
+				{ 5, 5, 35, 4 },
+
+				{ 5, 5, 40, 6 },
+				{ 5, 5, 30, 6 },
+				{ 7, 6, 45, 6 },
+				{ 7, 6, 40, 6 },
+				{ 9, 6, 30, 5 },
+				{ 19, 12, 55, 8 },
+				{ 25, 25, 90, 50 },
+				{ 40, 100, 95, 50 },
+
+				{ 7, 7, 20, 28 },
+				{ 9, 12, 40, 44 },
+				{ 10, 12, 75, 120 },
+				{ 15, 20, 85, 60 },
+				{ 30, 30, 90, 100 },
+				{ 37, 40, 90, 200 },
+				{ 38, 45, 75, 200},
+				{ 40, 90, 90, 250 },
+
+
+				{ 20, 18, 60, 25 },
+				{ 23, 23, 80, 50 },
+				{ 25, 25, 75, 29 },
+				{ 30, 27, 75, 35 },
+				{ 35, 30, 85, 65 },
+				{ 37, 35, 90, 100 },
+				{ 40, 90, 95, 250 },
+				{ 40, 75, 65, 150 }
+			},
+
+				/* Air Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 2, 2, 22, 4 },
+				{ 2, 2, 25, 4 },
+				{ 5, 5, 30, 1 },
+				{ 9, 6, 50, 1 },
+				{ 13, 9, 45, 6 },
+				{ 14, 9, 45, 6 },
+				{ 15, 9, 35, 5 },
+
+				{ 17, 10, 25, 5 },
+				{ 19, 12, 45, 9 },
+				{ 21, 13, 45, 10 },
+				{ 23, 15, 50, 11 },
+				{ 25, 16, 50, 12 },
+				{ 25, 18, 60, 8 },
+				{ 30, 20, 80, 15 },
+				{ 35, 40, 85, 40 },
+
+				{ 11, 7, 45, 9 },
+				{ 15, 15, 80, 35 },
+				{ 16, 14, 80, 35 },
+				{25, 25, 85, 100 },
+				{ 30, 25, 85, 150 },
+				{ 42, 50, 85, 250 },
+				{ 45, 90, 80, 250 },
+				{ 47, 100, 90, 250 },
+
+				{ 20, 20, 66, 8 },
+				{ 35, 32, 85, 35 },
+				{ 37, 34, 75, 40 },
+				{ 41, 42, 85, 100 },
+				{ 43, 44, 80, 150 },
+				{ 45, 48, 85, 200 },
+				{ 47, 75, 80, 200 },
+				{ 49, 100, 85, 250 }
+			},
+
+				/* Death Magic */
+
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 3, 3, 27, 3 },
+				{ 5, 5, 30, 4 },
+				{ 7, 10, 75, 6 },
+				{ 9, 9, 30, 4 },
+				{ 10, 10, 30, 4 },
+
+				{ 12, 12, 40, 5 },
+				{ 13, 12, 30, 4 },
+				{ 18, 15, 50, 10 },
+				{ 23, 20, 60, 16 },
+				{ 30, 75, 50, 30 },
+				{ 33, 35, 60, 16 },
+				{ 37, 25, 95, 25 },
+				{ 45, 50, 95, 150 },
+
+				{ 10, 20, 80, 180 },
+				{ 10, 15, 80, 30 },
+				{ 11, 11, 30, 15 },
+				{ 30, 25, 75, 50 },
+				{ 33, 35, 60, 125 },
+				{ 33, 90, 70, 90 },
+				{ 40, 40, 70, 200 },
+				{ 40, 75, 80, 100 },
+
+				{ 20, 20, 75, 50 },
+				{ 25, 66, 95, 250 },
+				{ 30, 40, 95, 250 },
+				{ 33, 35, 70, 40 },
+				{ 37, 35, 80, 70 },
+				{ 42, 120, 95, 250 },
+				{ 45, 100, 90, 250 },
+				{ 47, 100, 90, 250 }
+			},
+
+				/* Chaos Magic */
+
+			{
+				{ 1, 1, 25, 3 },
+				{ 3, 3, 25, 4 },
+				{ 5, 5, 37, 8 },
+				{ 6, 6, 40, 8 },
+				{ 7, 7, 20, 4 },
+				{ 9, 9, 30, 6 },
+				{ 14, 12, 30, 6 },
+				{ 17, 15, 30, 5 },
+
+				{ 20, 20, 40, 8 },
+				{ 24, 22, 30, 8 },
+				{ 28, 24, 30, 8 },
+				{ 30, 25, 35, 9 },
+				{ 33, 28, 40, 12 },
+				{ 35, 30, 35, 10 },
+				{ 40, 35, 40, 15 },
+				{ 42, 40, 35, 12 },
+
+				{ 15, 15, 40, 20 },
+				{ 24, 24, 35, 25 },
+				{ 26, 26, 35, 30 },
+				{ 30, 30, 35, 35 },
+				{ 35, 70, 40, 100 },
+				{ 40, 100, 45, 250 },
+				{ 42, 50, 25, 75 },
+				{ 45, 100, 45, 200 },
+
+				{ 30, 30, 30, 50 },
+				{ 35, 50, 45, 100 },
+				{ 36, 80, 40, 150 },
+				{ 39, 80, 40, 150 },
+				{ 42, 100, 40, 200 },
+				{ 47, 100, 40, 150 },
+				{ 48, 100, 40, 200 },
+				{ 49, 100, 40, 220 }
+			},
+
+				/* Astral Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 1, 1, 33, 4 },
+				{ 2, 1, 33, 5 },
+				{ 2, 2, 33, 5 },
+				{ 4, 4, 40, 6 },
+				{ 5, 5, 33, 7 },
+				{ 6, 5, 44, 5 },
+
+				{ 7, 6, 40, 7 },
+				{ 8, 8, 60, 7 },
+				{ 9, 8, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 12, 50, 5 },
+				{ 13, 12, 50, 5 },
+
+				{ 14, 12, 50, 5 },
+				{ 15, 12, 50, 5 },
+				{ 16, 14, 33, 6 },
+				{ 18, 15, 50, 8 },
+				{ 20, 16, 60, 9 },
+				{ 23, 18, 60, 9 },
+				{ 25, 20, 70, 12 },
+				{ 25, 20, 60, 13 },
+
+				{ 28, 25, 70, 30 },
+				{ 35, 35, 80, 25 },
+				{ 38, 30, 60, 25 },
+				{ 40, 30, 70, 25 },
+				{ 41, 30, 66, 30 },
+				{ 42, 30, 80, 40 },
+				{ 45, 50, 70, 50 },
+				{ 49, 100, 80, 200 }
+			},
+			{
+				/* Water magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 85, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+			/* Earth magic */
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },	
+			},
+
+			/* Wizardry Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 1, 1, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 70, 40 },
+				{ 10, 10, 80, 40 },
+				{ 12, 12, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 25, 30, 95, 160 },
+				{ 30, 40, 80, 120 },
+				{ 40, 80, 95, 200 },
+				{ 40, 100, 95, 200 },
+				{ 42, 50, 90, 175 },
+				{ 45, 70, 75, 250 },
+			},
+
+		}
+	},
+
+
+
+	{
+		/*** Ranger ***/
+
+		TV_LIFE_BOOK,
+		4,
+		14,
+
+		A_WIS,
 		0,
 
 		3,
 		400,
 
 		{
-			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			},
-
-			/* Ranger: Sorcery */
-			{
-				{ 3, 2, 35, 2 },
-				{ 3, 3, 35, 2 },
-				{ 5, 4, 40, 2 },
-				{ 7, 4, 40, 2 },
-				{ 9, 6, 40, 2 },
-				{ 11, 8, 45, 2 },
-				{ 13, 8, 40, 3 },
-				{ 17, 17, 90, 4 },
-
-				{ 20, 19, 85, 4 },
-				{ 23, 25, 90, 3 },
-				{ 25, 25, 60, 3 },
-				{ 27, 25, 85, 3 },
-				{ 31, 27, 70, 3 },
-				{ 34, 35, 70, 4 },
-				{ 38, 37, 70, 8 },
-				{ 42, 40, 90, 10 },
-
-				{ 15, 7, 75, 20 },
-				{ 15, 20, 70, 25 },
-				{ 17, 17, 70, 25 },
-				{ 18, 18, 80, 25 },
-				{ 19, 25, 65, 20 },
-				{ 23, 25, 60, 20 },
-				{ 27, 27, 60, 15 },
-				{ 35, 35, 75, 13 },
-
-				{ 20, 20, 45, 5 },
-				{ 27, 27, 70, 50 },
-				{ 37, 60, 95, 120 },
-				{ 40, 40, 95, 120 },
-				{ 45, 80, 95, 200 },
-				{ 45, 100, 95, 200 },
-				{ 50, 50, 90, 175 },
-				{ 99, 0, 0, 0 },
-			},
-
-			/* Ranger: Nature Magic */
-			{
+			{	/* Life */
 				{ 3, 1, 35, 2 },
 				{ 4, 3, 40, 2 },
 				{ 4, 4, 40, 3 },
@@ -3515,860 +6993,45 @@ player_magic magic_info[MAX_CLASS] =
 				{ 41, 80, 95, 250 },
 				{ 42, 80, 75, 150 },
 			},
-
-			/* Ranger: Chaos Magic */
-			{
-				{ 3, 1, 20, 1 },
-				{ 3, 3, 35, 2 },
-				{ 5, 3, 35, 2 },
-				{ 7, 5, 45, 2 },
-				{ 14, 12, 40, 2 },
-				{ 20, 16, 50, 6 },
-				{ 25, 21, 60, 3 },
-				{ 25, 22, 60, 3 },
-
-				{ 27, 23, 60, 5 },
-				{ 30, 25, 60, 8 },
-				{ 33, 30, 70, 13 },
-				{ 35, 31, 70, 10 },
-				{ 37, 35, 75, 15 },
-				{ 39, 29, 65, 5 },
-				{ 43, 30, 95, 15 },
-				{ 48, 50, 85, 30 },
-
-				{ 22, 20, 60, 30 },
-				{ 25, 25, 70, 20 },
-				{ 28, 25, 80, 45 },
-				{ 35, 32, 70, 35 },
-				{ 38, 35, 85, 150 },
-				{ 42, 75, 95, 250 },
-				{ 48, 100, 90, 250 },
-				{ 99, 0, 0, 0 },
-
-				{ 33, 33, 66, 8 },
-				{ 40, 45, 85, 35 },
-				{ 42, 42, 75, 42 },
-				{ 48, 48, 85, 100 },
-				{ 50, 50, 90, 150 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-			},
-
-			/* Ranger: Death Magic */
-			{
-				{ 5, 2, 40, 3 },
-				{ 5, 3, 40, 3 },
-				{ 7, 4, 50, 3 },
-				{ 9, 5, 40, 3 },
-				{ 11, 8, 40, 3 },
-				{ 17, 25, 75, 4 },
-				{ 19, 19, 50, 3 },
-				{ 22, 22, 50, 3 },
-
-				{ 24, 24, 55, 3 },
-				{ 26, 26, 50, 3 },
-				{ 28, 28, 75, 4 },
-				{ 30, 30, 80, 5 },
-				{ 40, 80, 95, 20 },
-				{ 45, 40, 60, 9 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-
-				{ 25, 30, 80, 125 },
-				{ 25, 25, 80, 100 },
-				{ 27, 27, 40, 40 },
-				{ 39, 39, 76, 50 },
-				{ 45, 45, 80, 100 },
-				{ 46, 100, 90, 100 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-
-				{ 35, 35, 75, 50 },
-				{ 38, 90, 80, 100 },
-				{ 40, 45, 95, 200 },
-				{ 48, 50, 30, 75 },
-				{ 50, 50, 90, 75 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 }
-			},
-
-			/* Ranger: Trump Magic */
-			{
-				{ 3, 1, 25, 3 },
-				{ 6, 6, 25, 4 },
-				{ 9, 7, 37, 8 },
-				{ 10, 8, 40, 8 },
-				{ 13, 10, 20, 4 },
-				{ 17, 15, 30, 6 },
-				{ 20, 17, 30, 6 },
-				{ 22, 20, 30, 5 },
-
-				{ 24, 22, 40, 8 },
-				{ 28, 25, 30, 8 },
-				{ 33, 26, 30, 8 },
-				{ 36, 32, 35, 9 },
-				{ 38, 33, 40, 12 },
-				{ 42, 38, 35, 10 },
-				{ 45, 42, 40, 15 },
-				{ 99, 0, 0, 0 },
-
-				{ 20, 20, 40, 20 },
-				{ 28, 26, 35, 25 },
-				{ 31, 30, 35, 30 },
-				{ 36, 33, 35, 35 },
-				{ 41, 80, 40, 100 },
-				{ 44, 120, 45, 250 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-
-				{ 35, 33, 30, 50 },
-				{ 40, 65, 45, 100 },
-				{ 99, 0, 0, 0 },
-				{ 47, 95, 40, 150 },
-				{ 50, 120, 40, 200 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
-			},
-
-			/* Ranger: Arcane Magic */
-			{
-				{ 3, 2, 20, 4 },
-				{ 3, 2, 33, 5 },
-				{ 4, 3, 33, 4 },
-				{ 4, 3, 33, 5 },
-				{ 5, 4, 33, 5 },
-				{ 6, 6, 40, 6 },
-				{ 7, 7, 33, 7 },
-				{ 8, 8, 44, 5 },
-
-				{ 9, 9, 40, 7 },
-				{ 10, 10, 60, 7 },
-				{ 11, 11, 50, 6 },
-				{ 12, 12, 50, 6 },
-				{ 14, 13, 50, 6 },
-				{ 15, 14, 50, 6 },
-				{ 16, 15, 50, 5 },
-				{ 17, 16, 50, 5 },
-
-				{ 18, 17, 50, 5 },
-				{ 19, 18, 50, 5 },
-				{ 20, 19, 33, 6 },
-				{ 22, 20, 50, 8 },
-				{ 25, 23, 60, 9 },
-				{ 27, 26, 60, 9 },
-				{ 29, 27, 70, 12 },
-				{ 33, 30, 60, 13 },
-
-				{ 38, 36, 80, 40 },
-				{ 42, 38, 80, 25 },
-				{ 44, 38, 60, 25 },
-				{ 46, 40, 70, 25 },
-				{ 47, 42, 66, 30 },
-				{ 48, 44, 80, 40 },
-				{ 49, 65, 70, 50 },
-				{ 99, 0, 0, 0 }
-		    }
+			/* Order */
+			/* Fire */
+			/* Air */
+			/* Death */
+			/* Chaos */
+			/* Astral */
+			/* Water */
+			/* Earth */
+			/* Wizardry */
 		}
 	},
-
+	
+	
 	{
-		/*** Paladin ***/
-
+		/*** Dark Knight ***/
 		TV_LIFE_BOOK,
+		0,
 		0,
 
 		A_WIS,
-		1,
-
-		1,
-		400,
-		{
-			/* Paladin: Life Magic */
-			{
-				{ 1, 1, 30, 4 },
-				{ 2, 2, 35, 4 },
-				{ 3, 3, 35, 4 },
-				{ 4, 3, 35, 4 },
-				{ 5, 4, 35, 4 },
-				{ 8, 5, 40, 4 },
-				{ 11, 9, 40, 3 },
-				{ 13, 10, 45, 3 },
-
-				{ 14, 11, 45, 4},
-				{ 15, 15, 50, 4},
-				{ 17, 15, 50, 4},
-				{ 18, 15, 50, 4},
-				{ 18, 15, 50, 4},
-				{ 19, 15, 50, 4},
-				{ 30, 25, 55, 5},
-				{ 35, 70, 75, 5},
-
-				{ 25, 22, 50, 75 },
-				{ 28, 24, 70, 150 },
-				{ 30, 25, 60, 75 },
-				{ 33, 30, 60, 75 },
-				{ 35, 32, 70, 75 },
-				{ 35, 55, 80, 115 },
-				{ 39, 38, 80, 125 },
-				{ 46, 60, 80, 150 },
-
-				{ 9, 9, 50, 40 },
-				{ 25, 20, 50, 50 },
-				{ 35, 65, 80, 115 },
-				{ 40, 80, 80, 225 },
-				{ 45, 80, 80, 115 },
-				{ 45, 45, 80, 100 },
-				{ 48, 100, 90, 250 },
-				{ 50, 100, 80, 250 }
-			},
-
-			{
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-
-			/* Paladin: Death Magic */
-			{
-				{ 1, 1, 25, 4 },
-				{ 3, 2, 25, 4 },
-				{ 4, 3, 25, 4 },
-				{ 6, 5, 27, 4 },
-				{ 8, 8, 30, 4 },
-				{ 10, 11, 75, 6 },
-				{ 12, 12, 30, 4 },
-				{ 15, 15, 40, 5 },
-
-				{ 17, 17, 40, 5 },
-				{ 19, 19, 30, 4 },
-				{ 23, 23, 50, 10 },
-				{ 28, 26, 60, 16 },
-				{ 35, 75, 90, 30 },
-				{ 40, 35, 60, 16 },
-				{ 45, 35, 95, 100 },
-				{ 50, 52, 95, 150 },
-
-				{ 15, 20, 80, 180 },
-				{ 15, 20, 80, 30 },
-				{ 18, 20, 30, 15 },
-				{ 38, 38, 70, 50 },
-				{ 40, 40, 60, 125 },
-				{ 42, 100, 70, 100 },
-				{ 48, 50, 80, 200 },
-				{ 48, 75, 80, 100 },
-
-				{ 30, 35, 75, 50 },
-				{ 36, 85, 90, 200 },
-				{ 38, 45, 95, 250 },
-				{ 45, 45, 70, 40 },
-				{ 47, 45, 80, 70 },
-				{ 50, 150, 95, 250 },
-				{ 50, 100, 95, 250 },
-				{ 50, 111, 95, 250 }
-			},
-
-			/* Paladin: No Trump magic */
-			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			},
-			/* Paladin: No Arcane Magic */
-			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			}
-		}
-	},
-
-	{
-		/*** Warrior-Mage ***/
-
-		TV_SORCERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		1,
-		350,
-
-		{
-			{
-				{ 2, 2, 30, 4 },
-				{ 4, 4, 35, 4 },
-				{ 5, 5, 35, 4 },
-				{ 6, 6, 35, 4 },
-				{ 8, 8, 35, 4 },
-				{ 9, 9, 40, 4 },
-				{ 14, 14, 40, 3 },
-				{ 16, 16, 45, 3 },
-
-				{ 18, 18, 45, 4},
-				{ 20, 20, 50, 4},
-				{ 22, 22, 50, 4},
-				{ 24, 24, 50, 4},
-				{ 26, 26, 50, 4},
-				{ 28, 28, 50, 4},
-				{ 33, 33, 55, 5},
-				{ 40, 70, 75, 5},
-
-				{ 28, 28, 50, 75 },
-				{ 30, 30, 70, 150 },
-				{ 34, 34, 60, 75 },
-				{ 36, 36, 60, 75 },
-				{ 38, 38, 70, 75 },
-				{ 42, 55, 80, 115 },
-				{ 45, 45, 80, 125 },
-				{ 50, 70, 80, 150 },
-
-				{ 10, 10, 50, 40 },
-				{ 28, 28, 50, 50 },
-				{ 38, 85, 80, 115 },
-				{ 45, 90, 80, 225 },
-				{ 46, 90, 80, 115 },
-				{ 48, 50, 80, 100 },
-				{ 49, 100, 90, 100 },
-				{ 50, 100, 80, 250 }
-			},
-
-			/* Warrior-Mage: Sorcery */
-			{
-				{ 1, 1, 23, 4 },
-				{ 2, 2, 24, 4 },
-				{ 3, 3, 25, 1 },
-				{ 4, 4, 30, 1 },
-				{ 5, 5, 30, 1 },
-				{ 6, 6, 35, 5 },
-				{ 7, 7, 30, 4 },
-				{ 8, 8, 75, 9 },
-
-				{ 10, 9, 75, 8 },
-				{ 11, 10, 75, 8 },
-				{ 12, 11, 75, 7 },
-				{ 13, 12, 50, 6 },
-				{ 20, 15, 60, 8 },
-				{ 27, 18, 60, 8 },
-				{ 33, 25, 70, 15 },
-				{ 40, 40, 75, 20 },
-
-				{ 4, 4, 25, 15 },
-				{ 12, 12, 70, 40 },
-				{ 14, 12, 80, 40 },
-				{ 15, 12, 70, 30 },
-				{ 16, 14, 60, 25 },
-				{ 19, 19, 85, 50 },
-				{ 24, 22, 60, 25 },
-				{ 28, 28, 75, 19 },
-
-				{ 12, 12, 40, 20 },
-				{ 19, 19, 75, 70 },
-				{ 30, 35, 95, 160 },
-				{ 35, 45, 80, 120 },
-				{ 42, 85, 95, 200 },
-				{ 45, 100, 95, 200 },
-				{ 46, 55, 90, 175 },
-				{ 48, 75, 75, 250 },
-			},
-
-			/* Warrior-Mage: Nature Magic */
-			{
-				{ 2, 2, 23, 4 },
-				{ 3, 3, 25, 3 },
-				{ 4, 4, 25, 1 },
-				{ 5, 5, 35, 4 },
-				{ 6, 6, 50, 5 },
-				{ 7, 7, 50, 5 },
-				{ 8, 8, 50, 5 },
-				{ 9, 9, 35, 4 },
-
-				{ 10, 10, 40, 6 },
-				{ 11, 11, 30, 6 },
-				{ 12, 12, 45, 6 },
-				{ 13, 13, 40, 6 },
-				{ 14, 14, 30, 5 },
-				{ 19, 15, 65, 7 },
-				{ 31, 31, 65, 10 },
-				{ 45, 100, 95, 50 },
-
-				{ 9, 9, 20, 28 },
-				{ 12, 12, 40, 44 },
-				{ 15, 15, 75, 120 },
-				{ 20, 22, 85, 60 },
-				{ 38, 38, 85, 80 },
-				{ 40, 42, 90, 200 },
-				{ 45, 48, 75, 200},
-				{ 49, 95, 90, 250 },
-
-				{ 25, 25, 60, 25 },
-				{ 27, 27, 60, 25 },
-				{ 28, 28, 75, 29 },
-				{ 33, 33, 75, 35 },
-				{ 38, 38, 85, 65 },
-				{ 41, 41, 90, 100 },
-				{ 45, 95, 95, 250 },
-				{ 50, 85, 65, 150 },
-			},
-
-			/* Warrior-Mage: Chaos Magic */
-			{
-				{ 2, 2, 20, 4 },
-				{ 3, 3, 22, 4 },
-				{ 4, 4, 25, 4 },
-				{ 5, 5, 30, 6 },
-				{ 8, 8, 30, 1 },
-				{ 11, 11, 45, 5 },
-				{ 17, 15, 45, 6 },
-				{ 18, 17, 35, 5 },
-
-				{ 21, 21, 45, 7 },
-				{ 23, 22, 45, 9 },
-				{ 27, 25, 50, 20 },
-				{ 29, 30, 50, 11 },
-				{ 33, 33, 50, 12 },
-				{ 37, 35, 60, 8 },
-				{ 41, 40, 80, 15 },
-				{ 48, 50, 85, 40 },
-
-				{ 12, 12, 45, 9 },
-				{ 17, 16, 60, 20 },
-				{ 20, 18, 80, 35 },
-				{ 27, 25, 60, 35 },
-				{ 35, 30, 85, 150 },
-				{ 45, 55, 85, 250 },
-				{ 49, 95, 80, 250 },
-				{ 50, 111, 80, 250 },
-
-				{ 24, 20, 66, 8 },
-				{ 40, 35, 85, 35 },
-				{ 42, 40, 75, 40 },
-				{ 46, 44, 85, 100 },
-				{ 48, 48, 80, 150 },
-				{ 49, 50, 85, 200 },
-				{ 50, 100, 80, 250 },
-				{ 50, 100, 85, 250 },
-			},
-
-			/* Warrior-Mage: Death Magic */
-			{
-				{ 1, 1, 25, 4 },
-				{ 2, 2, 25, 4 },
-				{ 3, 3, 25, 4 },
-				{ 4, 4, 27, 3 },
-				{ 7, 7, 30, 4 },
-				{ 9, 10, 75, 6 },
-				{ 10, 10, 30, 4 },
-				{ 12, 12, 30, 4 },
-
-				{ 14, 14, 40, 5 },
-				{ 16, 16, 30, 4 },
-				{ 21, 21, 50, 10 },
-				{ 25, 25, 60, 16 },
-				{ 35, 75, 50, 30 },
-				{ 40, 40, 60, 16 },
-				{ 44, 45, 95, 25 },
-				{ 48, 55, 95, 150 },
-
-				{ 10, 22, 80, 180 },
-				{ 12, 18, 80, 30 },
-				{ 14, 18, 30, 15 },
-				{ 30, 30, 75, 50 },
-				{ 40, 40, 60, 125 },
-				{ 42, 90, 70, 90 },
-				{ 45, 50, 70, 200 },
-				{ 48, 85, 80, 100 },
-
-				{ 24, 24, 75, 50 },
-				{ 33, 80, 75, 150 },
-				{ 35, 45, 95, 250 },
-				{ 42, 50, 70, 40 },
-				{ 45, 55, 80, 70 },
-				{ 50, 135, 95, 250 },
-				{ 50, 100, 95, 250 },
-				{ 50, 123, 95, 250 },
-			},
-
-			/* Warrior-Mage: Trump Magic */
-			{
-				{ 1, 1, 25, 3 },
-				{ 5, 5, 25, 4 },
-				{ 7, 7, 37, 8 },
-				{ 8, 7, 40, 8 },
-				{ 10, 10, 20, 4 },
-				{ 12, 12, 30, 6 },
-				{ 18, 15, 30, 6 },
-				{ 20, 18, 30, 5 },
-
-				{ 24, 23, 40, 8 },
-				{ 28, 25, 30, 8 },
-				{ 31, 26, 30, 8 },
-				{ 33, 30, 35, 9 },
-				{ 38, 32, 40, 12 },
-				{ 40, 38, 35, 10 },
-				{ 44, 42, 40, 15 },
-				{ 48, 46, 35, 12 },
-
-				{ 19, 18, 40, 20 },
-				{ 29, 27, 35, 25 },
-				{ 31, 30, 35, 30 },
-				{ 35, 33, 35, 35 },
-				{ 40, 80, 40, 100 },
-				{ 42, 120, 45, 250 },
-				{ 46, 55, 25, 75 },
-				{ 50, 135, 45, 200 },
-
-				{ 33, 30, 30, 50 },
-				{ 40, 60, 45, 100 },
-				{ 42, 95, 40, 150 },
-				{ 45, 95, 40, 150 },
-				{ 46, 120, 40, 200 },
-				{ 48, 125, 40, 150 },
-				{ 49, 130, 40, 200 },
-				{ 50, 135, 40, 220 }
-			},
-
-			/* Warrior-Mage: Arcane Magic */
-			{
-				{ 1, 1, 20, 4 },
-				{ 2, 1, 33, 5 },
-				{ 2, 2, 33, 4 },
-				{ 3, 3, 33, 5 },
-				{ 4, 4, 33, 5 },
-				{ 5, 5, 40, 6 },
-				{ 6, 6, 33, 7 },
-				{ 7, 7, 44, 5 },
-
-				{ 8, 8, 40, 7 },
-				{ 9, 9, 60, 7 },
-				{ 11, 10, 50, 6 },
-				{ 12, 11, 50, 6 },
-				{ 13, 12, 50, 6 },
-				{ 14, 13, 50, 6 },
-				{ 15, 14, 50, 5 },
-				{ 16, 15, 50, 5 },
-
-				{ 17, 16, 50, 5 },
-				{ 18, 17, 50, 5 },
-				{ 19, 18, 33, 6 },
-				{ 20, 20, 50, 8 },
-				{ 23, 22, 60, 9 },
-				{ 25, 23, 60, 9 },
-				{ 29, 25, 70, 12 },
-				{ 30, 27, 60, 13 },
-
-				{ 35, 30, 80, 50 },
-				{ 39, 38, 80, 25 },
-				{ 41, 40, 60, 25 },
-				{ 43, 42, 70, 25 },
-				{ 45, 44, 66, 30 },
-				{ 47, 45, 80, 40 },
-				{ 48, 65, 70, 50 },
-				{ 50, 140, 80, 200 }
-		    }
-		}
-	},
-
-	{
-		/*** Chaos Warrior ***/
-		TV_SORCERY_BOOK,
-		0,
-
-		A_INT,
 		0,
 
 		2,
 		400,
 
-		{
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
+		{	/* Life */
+			{0
+			},
+			/* Order */
+			{0
+			},
+			/* Fire */
+			{0
 			},
 
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
+			/* Air */
+			{0
 			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-
-			/* Chaos Warrior: Chaos Magic */
+			/* Death */
 			{
 				{ 2, 1, 20, 4 },
 				{ 3, 2, 22, 4 },
@@ -4406,126 +7069,1055 @@ player_magic magic_info[MAX_CLASS] =
 				{ 48, 100, 80, 220 },
 				{ 49, 100, 85, 250 },
 			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
+			/* Chaos magic */
+			{0
 			},
-
-			/* Chaos Warrior: No Trump magic */
-			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			},
-			/* Chaos Warrior: No Arcane Magic */
-			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			}
+			/* Astral */
+			/* Water */
+			/* Earth */
+			/* Wizardry */
+			
 		}
 	},
+	
+
+	{
+		/*** Paladin ***/
+
+		TV_LIFE_BOOK,
+		8,
+		36,
+
+		A_WIS,
+		1,
+
+		1,
+		400,
+		{
+			/* Life */
+			{0
+			},
+			/* Order Magic */
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			/* Fire */
+			/* Air */
+			/* Death */
+			/* Chaos */
+			/* Astral */
+			/* Water */
+			/* Earth */
+			/* Wizardry */
+		}
+	},
+	
+	
+	{
+		/*** Chaos Warrior ***/
+		TV_LIFE_BOOK,
+		0,
+		0,
+
+		A_WIS,
+		0,
+
+		2,
+		400,
+
+		{	/* Life */
+			{0
+			},
+			/* Order */
+			{0
+			},
+			/* Fire */
+			{0
+			},
+
+			/* Air */
+			{0
+			},
+			/* Death */
+			{0
+			},
+			/* Chaos magic */
+			{
+				{ 2, 1, 20, 4 },
+				{ 3, 2, 22, 4 },
+				{ 4, 3, 25, 4 },
+				{ 5, 4, 30, 6 },
+				{ 7, 7, 30, 1 },
+				{ 8, 7, 45, 5 },
+				{ 15, 9, 45, 6 },
+				{ 16, 10, 35, 5 },
+
+				{ 19, 12, 45, 7 },
+				{ 22, 14, 45, 9 },
+				{ 25, 17, 50, 20 },
+				{ 28, 18, 50, 11 },
+				{ 30, 20, 50, 12 },
+				{ 33, 24, 60, 8 },
+				{ 36, 26, 80, 15 },
+				{ 40, 45, 85, 40 },
+
+				{ 11, 11, 45, 9 },
+				{ 14, 14, 60, 20 },
+				{ 16, 15, 80, 35 },
+				{ 23, 23, 60, 35 },
+				{ 30, 30, 85, 150 },
+				{ 42, 50, 85, 250 },
+				{ 45, 90, 80, 250 },
+				{ 47, 100, 80, 250 },
+
+				{ 23, 23, 66, 10},
+				{ 35, 35, 85, 35 },
+				{ 37, 37, 75, 40 },
+				{ 41, 42, 85, 100 },
+				{ 43, 44, 80, 150 },
+				{ 45, 48, 85, 200 },
+				{ 48, 100, 80, 220 },
+				{ 49, 100, 85, 250 },
+			},
+			/* Astral */
+			/* Water */
+			/* Earth */
+			/* Wizardry */
+			
+		}
+	},
+
+
+	{
+		/*** Warrior-Mage ***/
+
+		TV_ORDER_BOOK,
+		0,
+		0,
+
+		A_INT,
+		0,
+
+		1,
+		350,
+
+		{
+			/* Life Magic */
+			{0
+			},
+
+			/* Order Magic */
+			{0
+			},
+
+			/* Fire Magic */
+			{
+				{ 2, 1, 25, 4 },
+				{ 5, 3, 25, 4 },
+				{ 5, 4, 25, 1 },
+				{ 6, 5, 35, 4 },
+				{ 6, 5, 50, 5 },
+				{ 6, 6, 50, 5 },
+				{ 7, 7, 50, 5 },
+				{ 7, 7, 35, 4 },
+
+				{ 7, 7, 40, 6 },
+				{ 8, 7, 30, 6 },
+				{ 9, 10, 40, 6 },
+				{ 10, 10, 40, 6 },
+				{ 11, 11, 30, 5 },
+				{ 20, 20, 65, 7 },
+				{ 30, 30, 55, 8 },
+				{ 42, 100, 95, 50 },
+
+				{ 9, 9, 20, 28 },
+				{ 11, 12, 40, 44 },
+				{ 12, 13, 75, 120 },
+				{ 18, 20, 85, 60 },
+				{ 35, 35, 80, 50 },
+				{ 39, 40, 90, 200 },
+				{ 40, 50, 85, 250 },
+				{ 42, 90, 90, 250 },
+
+				{ 22, 22, 60, 24 },
+				{ 25, 25, 60, 25 },
+				{ 27, 27, 75, 29 },
+				{ 32, 30, 75, 29 },
+				{ 37, 32, 85, 65 },
+				{ 39, 37, 90, 100 },
+				{ 42, 90, 95, 250 },
+				{ 44, 80, 65, 150 },
+			},
+
+			/* Air Magic */
+			{
+				{ 2, 1, 22, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 26, 4 },
+				{ 5, 4, 30, 6 },
+				{ 10, 6, 30, 5 },
+				{ 11, 6, 50, 5 },
+				{ 16, 11, 50, 6 },
+				{ 17, 11, 35, 5 },
+
+				{ 19, 15, 50, 7 },
+				{ 21, 16, 50, 9 },
+				{ 23, 18, 80, 20 },
+				{ 25, 18, 50, 11 },
+				{ 27, 20, 65, 12 },
+				{ 29, 22, 60, 8 },
+				{ 33, 23, 80, 15},
+				{ 37, 42, 85, 40 },
+
+
+				{ 14, 11, 45, 9 },
+				{ 17, 17, 70, 20 },
+				{ 20, 18, 80, 35 },
+				{ 27, 27, 70, 35 },
+				{ 35, 30, 85, 150 },
+				{ 45, 55, 95, 250 },
+				{ 47, 90, 90, 250 },
+				{ 49, 100, 90, 250 },
+
+				{ 25, 25, 66, 8 },
+				{ 37, 37, 85, 35 },
+				{ 39, 37, 75, 50 },
+				{ 43, 45, 85, 100 },
+				{ 45, 47, 90, 150 },
+				{ 47, 50, 95, 200 },
+				{ 49, 95, 80, 200 },
+				{ 50, 100, 95, 250 },
+			},
+
+			/* Death Magic */
+			{0
+			},
+
+			/* Chaos Magic */
+			{0
+			},
+
+			/* Astral Magic */
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 6, 44, 5 },
+
+				{ 8, 7, 40, 7 },
+				{ 9, 8, 60, 7 },
+				{ 10, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 11, 50, 6 },
+				{ 13, 12, 50, 6 },
+				{ 14, 13, 50, 5 },
+				{ 15, 14, 50, 5 },
+
+				{ 16, 15, 50, 5 },
+				{ 17, 16, 50, 5 },
+				{ 18, 17, 33, 6 },
+				{ 19, 18, 50, 8 },
+				{ 22, 20, 60, 9 },
+				{ 24, 22, 60, 9 },
+				{ 27, 24, 70, 12 },
+				{ 29, 26, 60, 13 },
+
+				{ 33, 30, 80, 50 },
+				{ 37, 36, 80, 25 },
+				{ 40, 37, 60, 25 },
+				{ 42, 38, 70, 25 },
+				{ 44, 39, 66, 30 },
+				{ 46, 40, 80, 40 },
+				{ 47, 55, 70, 50 },
+				{ 50, 120, 80, 200 }
+			},
+			
+			/* Water Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Earth Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Wizardry Magic */
+			
+			{
+				{ 2, 1, 23, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+		}
+	},
+	
+
+	{
+		/*** Technician ***/
+
+		0,
+		5,
+		15,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		/* No magic */
+	},
+	
+	
+	{
+		/*** Tech Warrior ***/
+
+		0,
+		5,
+		15,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		/* No magic */
+	},
+	
+	
+	{
+		/*** Tech Thief ***/
+
+		0,
+		5,
+		15,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		/* No magic */
+	},
+	
+	
+	{
+		/*** Tech Cleric ***/
+
+		TV_LIFE_BOOK,
+		5,
+		15,
+
+		A_WIS,
+		1,
+
+		1,
+		350,
+		{
+			/* Life Magic */
+			{
+				{ 1, 1, 10, 4 },
+				{ 3, 2, 15, 4 },
+				{ 4, 3, 20, 4 },
+				{ 5, 3, 25, 1 },
+				{ 6, 4, 27, 2 },
+				{ 7, 5, 28, 2 },
+				{ 8, 5, 32, 4 },
+				{ 9, 6, 38, 4 },
+
+				{ 7, 6, 38, 5 },
+				{ 9, 6, 38, 4 },
+				{ 9, 7, 40, 4 },
+				{ 10, 8, 38, 4 },
+				{ 10, 8, 40, 4 },
+				{ 11, 8, 42, 4 },
+				{ 20, 16, 60, 7 },
+				{ 33, 55, 90, 15 },
+
+				{ 15, 14, 50, 50 },
+				{ 16, 14, 80, 60 },
+				{ 17, 14, 55, 70 },
+				{ 24, 20, 55, 70 },
+				{ 25, 20, 70, 120 },
+				{ 25, 25, 80, 250 },
+				{ 39, 32, 95, 200 },
+				{ 44, 44, 80, 250 },
+
+				{ 5, 5, 50, 80 },
+				{ 15, 14, 50, 100 },
+				{ 30, 50, 80, 130 },
+				{ 35, 70, 90, 250 },
+				{ 40, 50, 80, 130 },
+				{ 40, 40, 80, 200 },
+				{ 42, 90, 85, 200 },
+				{ 45, 90, 85, 250 },
+			},
+
+			/* Order Magic */
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 2, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+
+			/* Fire Magic */
+			{0
+			},
+
+			/* Air Magic */
+			{0
+			},
+
+			/* Death Magic */
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 4, 3, 25, 4 },
+				{ 5, 4, 27, 4 },
+				{ 7, 7, 30, 4 },
+				{ 9, 11, 75, 6 },
+				{ 11, 11, 30, 4 },
+				{ 12, 12, 40, 5 },
+
+				{ 14, 14, 40, 5 },
+				{ 16, 16, 30, 4 },
+				{ 21, 20, 50, 10 },
+				{ 25, 24, 60, 16 },
+				{ 33, 75, 90, 30 },
+				{ 35, 35, 60, 16 },
+				{ 40, 30, 95, 100 },
+				{ 50, 52, 95, 150 },
+
+				{ 13, 20, 80, 180 },
+				{ 13, 15, 80, 30 },
+				{ 14, 15, 30, 15 },
+				{ 33, 33, 70, 33 },
+				{ 35, 35, 60, 125 },
+				{ 35, 95, 70, 90 },
+				{ 44, 44, 80, 200 },
+				{ 45, 75, 80, 100 },
+
+				{ 25, 25, 75, 50 },
+				{ 30, 75, 95, 250 },
+				{ 35, 45, 95, 250 },
+				{ 40, 40, 70, 40 },
+				{ 42, 40, 80, 70 },
+				{ 48, 125, 95, 250 },
+				{ 49, 100, 90, 250 },
+				{ 50, 111, 90, 250 },
+			},
+
+			/* Chaos Magic */
+			{
+				{ 1, 1, 25, 3 },
+				{ 2, 1, 25, 4 },
+				{ 4, 4, 37, 8 },
+				{ 7, 7, 40, 8 },
+				{ 9, 9, 20, 4 },
+				{ 11, 11, 30, 6 },
+				{ 17, 14, 30, 6 },
+				{ 19, 17, 30, 5 },
+
+				{ 22, 22, 40, 8 },
+				{ 26, 24, 30, 8 },
+				{ 30, 25, 30, 8 },
+				{ 32, 30, 35, 9 },
+				{ 35, 30, 40, 12 },
+				{ 38, 35, 35, 10 },
+				{ 42, 40, 40, 15 },
+				{ 45, 45, 35, 12 },
+
+				{ 17, 17, 40, 20 },
+				{ 27, 25, 35, 25 },
+				{ 29, 27, 35, 30 },
+				{ 33, 30, 35, 35 },
+				{ 38, 75, 40, 100 },
+				{ 41, 110, 45, 250 },
+				{ 45, 55, 25, 75 },
+				{ 49, 125, 45, 200 },
+
+				{ 32, 30, 30, 50 },
+				{ 38, 55, 45, 100 },
+				{ 40, 85, 40, 150 },
+				{ 43, 85, 40, 150 },
+				{ 46, 110, 40, 200 },
+				{ 48, 115, 40, 150 },
+				{ 49, 120, 40, 200 },
+				{ 50, 125, 40, 220 }
+			},
+
+			/* Astral Magic */
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 6, 44, 5 },
+
+				{ 8, 7, 40, 7 },
+				{ 9, 8, 60, 7 },
+				{ 10, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 11, 50, 6 },
+				{ 13, 12, 50, 6 },
+				{ 14, 13, 50, 5 },
+				{ 15, 14, 50, 5 },
+
+				{ 16, 15, 50, 5 },
+				{ 17, 16, 50, 5 },
+				{ 18, 17, 33, 6 },
+				{ 19, 18, 50, 8 },
+				{ 22, 20, 60, 9 },
+				{ 24, 22, 60, 9 },
+				{ 27, 24, 70, 12 },
+				{ 29, 26, 60, 13 },
+
+				{ 33, 30, 80, 50 },
+				{ 37, 36, 80, 25 },
+				{ 40, 37, 60, 25 },
+				{ 42, 38, 70, 25 },
+				{ 44, 39, 66, 30 },
+				{ 46, 40, 80, 40 },
+				{ 47, 55, 70, 50 },
+				{ 50, 120, 80, 200 }
+			},
+			
+			/* Water Magic */
+			
+			{0
+			},
+			
+			/* Earth Magic */
+			
+			{0
+			},
+			
+			/* Wizardry Magic */
+			
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 1, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+		}
+	},
+	
+		
+	{
+		/*** Tech Mage ***/
+
+		TV_ORDER_BOOK,
+		5,
+		15,
+
+		A_INT,
+		0,
+
+		1,
+		350,
+		{
+			/* Life Magic */
+			{0
+			},
+
+			/* Order Magic */
+			{0
+			},
+
+			/* Fire Magic */
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 1, 25, 4 },
+				{ 3, 4, 25, 1 },
+				{ 4, 5, 35, 4 },
+				{ 5, 5, 50, 5 },
+				{ 6, 6, 50, 5 },
+				{ 7, 7, 50, 5 },
+				{ 7, 7, 35, 4 },
+
+				{ 7, 7, 40, 6 },
+				{ 8, 7, 30, 6 },
+				{ 9, 10, 40, 6 },
+				{ 10, 10, 40, 6 },
+				{ 11, 11, 30, 5 },
+				{ 20, 20, 65, 7 },
+				{ 30, 30, 55, 8 },
+				{ 42, 100, 95, 50 },
+
+				{ 9, 9, 20, 28 },
+				{ 11, 12, 40, 44 },
+				{ 12, 13, 75, 120 },
+				{ 18, 20, 85, 60 },
+				{ 35, 35, 80, 50 },
+				{ 39, 40, 90, 200 },
+				{ 40, 50, 85, 250 },
+				{ 42, 90, 90, 250 },
+
+				{ 22, 22, 60, 24 },
+				{ 25, 25, 60, 25 },
+				{ 27, 27, 75, 29 },
+				{ 32, 30, 75, 29 },
+				{ 37, 32, 85, 65 },
+				{ 39, 37, 90, 100 },
+				{ 42, 90, 95, 250 },
+				{ 44, 80, 65, 150 },
+			},
+
+			/* Air Magic */
+			{
+				{ 1, 1, 22, 4 },
+				{ 2, 1, 24, 4 },
+				{ 4, 3, 26, 4 },
+				{ 5, 4, 30, 6 },
+				{ 10, 6, 30, 5 },
+				{ 11, 6, 50, 5 },
+				{ 16, 11, 50, 6 },
+				{ 17, 11, 35, 5 },
+
+				{ 19, 15, 50, 7 },
+				{ 21, 16, 50, 9 },
+				{ 23, 18, 80, 20 },
+				{ 25, 18, 50, 11 },
+				{ 27, 20, 65, 12 },
+				{ 29, 22, 60, 8 },
+				{ 33, 23, 80, 15},
+				{ 37, 42, 85, 40 },
+
+
+				{ 14, 11, 45, 9 },
+				{ 17, 17, 70, 20 },
+				{ 20, 18, 80, 35 },
+				{ 27, 27, 70, 35 },
+				{ 35, 30, 85, 150 },
+				{ 45, 55, 95, 250 },
+				{ 47, 90, 90, 250 },
+				{ 49, 100, 90, 250 },
+
+				{ 25, 25, 66, 8 },
+				{ 37, 37, 85, 35 },
+				{ 39, 37, 75, 50 },
+				{ 43, 45, 85, 100 },
+				{ 45, 47, 90, 150 },
+				{ 47, 50, 95, 200 },
+				{ 49, 95, 80, 200 },
+				{ 50, 100, 95, 250 },
+			},
+
+			/* Death Magic */
+			{0
+			},
+
+			/* Chaos Magic */
+			{0
+			},
+
+			/* Astral Magic */
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 6, 44, 5 },
+
+				{ 8, 7, 40, 7 },
+				{ 9, 8, 60, 7 },
+				{ 10, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 11, 50, 6 },
+				{ 13, 12, 50, 6 },
+				{ 14, 13, 50, 5 },
+				{ 15, 14, 50, 5 },
+
+				{ 16, 15, 50, 5 },
+				{ 17, 16, 50, 5 },
+				{ 18, 17, 33, 6 },
+				{ 19, 18, 50, 8 },
+				{ 22, 20, 60, 9 },
+				{ 24, 22, 60, 9 },
+				{ 27, 24, 70, 12 },
+				{ 29, 26, 60, 13 },
+
+				{ 33, 30, 80, 50 },
+				{ 37, 36, 80, 25 },
+				{ 40, 37, 60, 25 },
+				{ 42, 38, 70, 25 },
+				{ 44, 39, 66, 30 },
+				{ 46, 40, 80, 40 },
+				{ 47, 55, 70, 50 },
+				{ 50, 120, 80, 200 }
+			},
+			
+			/* Water Magic */
+			
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 1, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Earth Magic */
+			
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 1, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Wizardry Magic */
+			
+			{
+				{ 1, 1, 23, 4 },
+				{ 2, 1, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+		}
+	},
+	
+	
+	{
+		/*** Archer ***/
+
+		0,
+		4,
+		14,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		/* No magic */
+	},
+	
+	
+	{
+		/*** Mindcrafter ***/
+
+		TV_LIFE_BOOK,
+		1,
+		0,
+
+		A_WIS,
+		0,
+
+		99,
+		300,
+		{0
+			/* No Magic */
+		},
+	},
+
 	{
 		/*** Monk ***/
 
 		TV_LIFE_BOOK,
+		0,
 		0,
 
 		A_WIS,
@@ -4535,559 +8127,154 @@ player_magic magic_info[MAX_CLASS] =
 		300,
 
 		{
-			{
-				{ 1, 1, 30, 4 },
-				{ 2, 2, 35, 4 },
-				{ 3, 3, 35, 4 },
-				{ 4, 4, 35, 4 },
-				{ 5, 5, 35, 4 },
-				{ 8, 6, 40, 4 },
-				{ 11, 10, 40, 3 },
-				{ 13, 12, 45, 3 },
-
-				{ 15, 12, 45, 4},
-				{ 16, 15, 50, 4},
-				{ 17, 15, 50, 4},
-				{ 18, 16, 50, 4},
-				{ 19, 16, 50, 4},
-				{ 20, 18, 50, 4},
-				{ 30, 25, 55, 5},
-				{ 35, 70, 75, 5},
-
-				{ 26, 26, 50, 75 },
-				{ 28, 28, 70, 150 },
-				{ 32, 32, 60, 75 },
-				{ 36, 35, 60, 75 },
-				{ 38, 35, 70, 75 },
-				{ 40, 60, 80, 115 },
-				{ 45, 45, 80, 125 },
-				{ 48, 64, 80, 150 },
-
-				{ 10, 10, 50, 40 },
-				{ 25, 25, 50, 50 },
-				{ 40, 65, 80, 115 },
-				{ 44, 84, 80, 225 },
-				{ 46, 64, 80, 115 },
-				{ 48, 40, 80, 100 },
-				{ 49, 100, 90, 200 },
-				{ 50, 100, 80, 250 }
+			/* Life */
+			{0
+			},
+			/* Order */
+			{0
+			},
+			/* Fire */
+			{0
+			},
+			/* Air */
+			{0
+			},
+			/* Death */
+			{0
+			},
+			/* Chaos */
+			{0
 			},
 
-			/* Monk: Sorcery */
+			/* Astral Magic */
 			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 7, 44, 5 },
 
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
+				{ 8, 8, 40, 7 },
+				{ 9, 9, 60, 7 },
+				{ 10, 10, 50, 6 },
+				{ 11, 11, 50, 6 },
+				{ 13, 11, 50, 6 },
+				{ 14, 12, 50, 6 },
+				{ 15, 13, 50, 5 },
+				{ 16, 14, 50, 5 },
 
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
+				{ 17, 15, 50, 5 },
+				{ 18, 16, 50, 5 },
+				{ 19, 17, 33, 6 },
+				{ 20, 20, 50, 8 },
+				{ 23, 22, 60, 9 },
+				{ 25, 24, 60, 9 },
+				{ 28, 25, 70, 12 },
+				{ 30, 28, 60, 13 },
 
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
+				{ 35, 30, 80, 40 },
+				{ 39, 36, 80, 25 },
+				{ 42, 37, 60, 25 },
+				{ 44, 38, 70, 25 },
+				{ 46, 40, 66, 30 },
+				{ 47, 42, 80, 40 },
+				{ 48, 60, 70, 50 },
+				{ 50, 125, 80, 200 }
 			},
-
-			/* Monk: Nature Magic */
-			{
-				{ 1, 1, 35, 2 },
-				{ 3, 3, 40, 2 },
-				{ 4, 4, 40, 3 },
-				{ 7, 7, 55, 2 },
-				{ 7, 7, 50, 3 },
-				{ 7, 7, 50, 3 },
-				{ 8, 8, 50, 3 },
-				{ 9, 9, 45, 3 },
-
-				{ 10, 8, 80, 4 },
-				{ 11, 9, 40, 3 },
-				{ 12, 10, 40, 4 },
-				{ 14, 12, 55, 4 },
-				{ 16, 12, 55, 4 },
-				{ 18, 22, 65, 8 },
-				{ 31, 31, 75, 10 },
-				{ 40, 100, 95, 50 },
-
-				{ 12, 12, 50, 25 },
-				{ 14, 14, 50, 25 },
-				{ 16, 16, 70, 60 },
-				{ 22, 30, 85, 70 },
-				{ 35, 35, 80, 80 },
-				{ 40, 40, 90, 200 },
-				{ 45, 55, 90, 250 },
-				{ 50, 80, 90, 250 },
-
-				{ 28, 28, 60, 150 },
-				{ 30, 30, 60, 160 },
-				{ 35, 50, 75, 125 },
-				{ 33, 33, 75, 35 },
-				{ 38, 38, 75, 45 },
-				{ 42, 40, 75, 100 },
-				{ 45, 85, 95, 250 },
-				{ 48, 85, 75, 150 }
-			},
-
-			/* Monk: Chaos Magic */
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-
-			/* Monk: Death Magic */
-			{
-				{ 1, 1, 25, 4 },
-				{ 2, 2, 25, 4 },
-				{ 3, 3, 25, 4 },
-				{ 5, 5, 27, 4 },
-				{ 7, 7, 30, 4 },
-				{ 11, 11, 75, 6 },
-				{ 12, 12, 30, 4 },
-				{ 14, 14, 40, 5 },
-
-				{ 16, 16, 40, 5 },
-				{ 19, 19, 30, 4 },
-				{ 22, 22, 50, 10 },
-				{ 25, 25, 60, 16 },
-				{ 33, 80, 90, 30 },
-				{ 40, 40, 60, 16 },
-				{ 45, 45, 95, 100 },
-				{ 50, 60, 95, 150 },
-
-				{ 15, 20, 80, 180 },
-				{ 16, 16, 80, 30 },
-				{ 18, 18, 30, 15 },
-				{ 35, 35, 75, 50 },
-				{ 40, 40, 60, 125 },
-				{ 42, 95, 70, 90 },
-				{ 48, 50, 80, 200 },
-				{ 49, 80, 80, 125 },
-
-				{ 30, 30, 75, 50 },
-				{ 37, 85, 85, 220 },
-				{ 38, 50, 95, 250 },
-				{ 44, 44, 70, 40 },
-				{ 46, 50, 80, 70 },
-				{ 50, 140, 95, 250 },
-				{ 50, 100, 95, 250},
-				{ 50, 115, 95, 250 }
-			},
-
-			/* Monk: No Trump magic */
-			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			},
-
-			/* Monk: No Arcane Magic */
-			{
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			}
+			/* Water */
+			/* Earth */
+			/* Wizardy */
+			
 		}
 	},
 
 	{
-		/*** Mindcrafter ***/
+		/*** Witch ***/
 
-		TV_LIFE_BOOK,
+		TV_ORDER_BOOK,
+		6,
+		30,
+
+		A_INT,
 		0,
 
-		A_WIS,
-		0,
-
-		99,
+		1,
 		300,
+
 		{
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
+			/* Life */
+			{0
+			},
+			/* Order */
+			{0
+			},
+			/* Fire */
+			{0
+			},
+			/* Air */
+			{0
+			},
+			/* Death */
+			{0
+			},
+			/* Chaos */
+			{0
 			},
 
+			/* Astral Magic */
 			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 7, 7, 44, 5 },
 
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
+				{ 8, 8, 40, 7 },
+				{ 9, 9, 60, 7 },
+				{ 10, 10, 50, 6 },
+				{ 11, 11, 50, 6 },
+				{ 13, 11, 50, 6 },
+				{ 14, 12, 50, 6 },
+				{ 15, 13, 50, 5 },
+				{ 16, 14, 50, 5 },
 
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
+				{ 17, 15, 50, 5 },
+				{ 18, 16, 50, 5 },
+				{ 19, 17, 33, 6 },
+				{ 20, 20, 50, 8 },
+				{ 23, 22, 60, 9 },
+				{ 25, 24, 60, 9 },
+				{ 28, 25, 70, 12 },
+				{ 30, 28, 60, 13 },
 
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
+				{ 35, 30, 80, 40 },
+				{ 39, 36, 80, 25 },
+				{ 42, 37, 60, 25 },
+				{ 44, 38, 70, 25 },
+				{ 46, 40, 66, 30 },
+				{ 47, 42, 80, 40 },
+				{ 48, 60, 70, 50 },
+				{ 50, 100, 80, 200 }
 			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-			{
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0},
-				{ 99,  0,  0,   0}
-			},
-		},
+			/* Water */
+			/* Earth */
+			/* Wizardy */
+			
+		}
 	},
+
 
 	{
 		/*** High Mage ***/
 
-		TV_SORCERY_BOOK,
+		TV_ORDER_BOOK,
+		0,
 		0,
 
 		A_INT,
@@ -5100,7 +8287,7 @@ player_magic magic_info[MAX_CLASS] =
 			/* High Mage: Life Magic */
 			{
 				{  1,  1, 20,   4 },
-				{  2,  2, 25,   4 },
+				{  1,  1, 25,   4 },
 				{  3,  3, 25,   4 },
 				{  4,  4, 25,   4 },
 				{  5,  5, 25,   4 },
@@ -5178,7 +8365,7 @@ player_magic magic_info[MAX_CLASS] =
 			/* High Mage: Nature Magic */
 			{
 				{ 1, 1, 15, 4 },
-				{ 2, 1, 15, 3 },
+				{ 1, 1, 15, 3 },
 				{ 2, 2, 15, 1 },
 				{ 3, 2, 25, 4 },
 				{ 3, 3, 40, 5 },
@@ -5295,8 +8482,8 @@ player_magic magic_info[MAX_CLASS] =
 			/* High Mage: Trump Magic */
 			{
 				{ 1, 1, 20, 3 },
-				{ 2, 2, 20, 4 },
-				{ 4, 4, 32, 8 },
+				{ 1, 2, 20, 4 },
+				{ 3, 4, 32, 8 },
 				{ 5, 5, 35, 8 },
 				{ 6, 5, 15, 4 },
 				{ 7, 7, 25, 6 },
@@ -5368,7 +8555,123 @@ player_magic magic_info[MAX_CLASS] =
 				{ 41, 28, 70, 40 },
 				{ 43, 40, 60, 50 },
 				{ 46, 80, 70, 200 }
-			}
+			},
+			{
+				{  1,  1, 20,   4 },
+				{  2,  2, 25,   4 },
+				{  3,  3, 25,   4 },
+				{  4,  4, 25,   4 },
+				{  5,  5, 25,   4 },
+				{  6,  5, 30,   4 },
+				{  9,  9, 30,   3 },
+				{ 12, 10, 35,   3 },
+
+				{ 14, 12, 35,   4 },
+				{ 15, 14, 40,   4 },
+				{ 15, 15, 40,   4 },
+				{ 17, 15, 40,   4 },
+				{ 19, 17, 40,   4 },
+				{ 21, 19, 40,   4 },
+				{ 25, 25, 45,   5 },
+				{ 30, 50, 55,   5 },
+
+				{ 20, 20, 40,  75 },
+				{ 24, 24, 60, 150 },
+				{ 30, 30, 50,  75 },
+				{ 31, 30, 50,  75 },
+				{ 32, 30, 60,  75 },
+				{ 33, 40, 60, 115 },
+				{ 35, 35, 60, 125 },
+				{ 40, 70, 70, 150 },
+
+				{  5,  5, 40,  40 },
+				{ 20, 20, 40,  50 },
+				{ 30, 70, 60, 115 },
+				{ 40, 80, 60, 225 },
+				{ 42, 75, 60, 115 },
+				{ 45, 40, 60, 100 },
+				{ 47, 90, 70, 250 },
+				{ 49, 90, 70, 250 }
+			},
+			/* Earth Magic */
+			
+			{
+				{ 1, 1, 23, 4 },
+				{ 1, 1, 24, 4 },
+				{ 4, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
+			
+			/* Wizardry Magic */
+			
+			{
+				{ 1, 1, 23, 4 },
+				{ 1, 1, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 5, 4, 30, 1 },
+				{ 6, 5, 30, 1 },
+				{ 7, 6, 35, 5 },
+				{ 9, 7, 30, 4 },
+				{ 11, 10, 75, 9 },
+
+				{ 13, 11, 75, 8 },
+				{ 14, 12, 75, 6 },
+				{ 15, 13, 75, 7 },
+				{ 16, 14, 50, 6 },
+				{ 22, 15, 60, 8 },
+				{ 27, 17, 65, 10 },
+				{ 30, 22, 70, 15 },
+				{ 36, 33, 75, 20 },
+
+				{ 7, 7, 25, 15 },
+				{ 12, 12, 70, 40 },
+				{ 14, 14, 80, 40 },
+				{ 15, 15, 80, 40 },
+				{ 18, 18, 60, 25 },
+				{ 20, 20, 85, 50 },
+				{ 22, 22, 60, 25 },
+				{ 27, 27, 75, 19 },
+
+				{ 13, 13, 40, 20 },
+				{ 24, 24, 75, 70 },
+				{ 27, 30, 95, 160 },
+				{ 33, 40, 80, 120 },
+				{ 42, 80, 95, 200 },
+				{ 42, 100, 95, 200 },
+				{ 45, 50, 90, 175 },
+				{ 48, 70, 75, 250 },
+			},
 		}
 	},
 };
@@ -5387,45 +8690,98 @@ const u32b fake_spell_flags[4]=
 };
 
 
-const byte realm_choices1[] =
+const u16b realm_choices1[] =
 {
-	(CH_NONE),					            /* Warrior */
-	(CH_LIFE | CH_SORCERY | CH_NATURE |
-	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE),                            /* Mage */
-	(CH_LIFE | CH_DEATH),                   /* Priest */
-	(CH_SORCERY | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE),                            /* Rogue */
-	(CH_NATURE),                            /* Ranger */
-	(CH_LIFE | CH_DEATH),                   /* Paladin */
-	(CH_ARCANE),                            /* Warrior-Mage */
+	(CH_NONE),				/* Warrior */
+	(CH_NONE),				/* Berserker */
+	(CH_ASTRAL),                            /* Ninja */
+	(CH_ASTRAL),                            /* Rogue */
+	(CH_ASTRAL),                            /* Assassin */
+	(CH_EARTH | CH_ORDER | CH_FIRE |
+	 CH_AIR | CH_DEATH | CH_CHAOS |
+	 CH_WATER | CH_LIFE | CH_WIZARD),       /* Thief Mage */
+	(CH_LIFE ),         		        /* Druid */
+	(CH_DEATH),		                /* Necromancer */
+	(CH_ORDER),		                /* Priest */
+	(CH_CHAOS),   		                /* Shaman */
+	(CH_WIZARD), 		                /* Sage */
+	(CH_FIRE ),       			/* Fire Mage */ 
+	(CH_WATER ),       			/* Water Mage */ 
+	(CH_EARTH ),       			/* Earth Mage */ 
+	(CH_AIR ),       			/* Air Mage */ 
+	(CH_WIZARD ),       			/* Wizard */
+	(CH_LIFE),          			/* Ranger */
+	(CH_DEATH),                             /* Dark Knight */
+	(CH_ORDER),		                /* Paladin */
 	(CH_CHAOS),                             /* Chaos-Warrior */
-	(CH_LIFE | CH_NATURE | CH_DEATH),       /* Monk */
+	(CH_FIRE | CH_AIR | CH_ASTRAL |
+	CH_WATER | CH_EARTH | CH_WIZARD),       /* Warrior-Mage */
+	(CH_NONE),				/* Tech */
+	(CH_NONE),				/* Tech Warrior */
+	(CH_NONE),				/* Tech Thief */
+	(CH_ORDER | CH_DEATH | CH_CHAOS |
+	 CH_LIFE | CH_ASTRAL | CH_WIZARD),      /* Tech Cleric */
+	 (CH_EARTH | CH_FIRE | CH_AIR |
+	 CH_WATER | CH_ASTRAL | CH_WIZARD),     /* Tech Mage */	
+	(CH_NONE),                              /* Archer */
 	(CH_NONE),                              /* Mindcrafter */
-	(CH_LIFE | CH_SORCERY | CH_NATURE |
-	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE),                            /* High-Mage */
+	(CH_ASTRAL),         			/* Monk */
+	(CH_ASTRAL),                            /* Witch */
+	(CH_LIFE | CH_ORDER | CH_FIRE |
+	 CH_AIR | CH_DEATH | CH_CHAOS |
+	 CH_ASTRAL | CH_WATER | CH_EARTH |
+	 CH_WIZARD),      			/* High-Mage */
 };
 
 
-const byte realm_choices2[] =
+const u16b realm_choices2[] =
 {
 	(CH_NONE),                              /* Warrior */
-	(CH_LIFE | CH_SORCERY | CH_NATURE |
-	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE),                            /* Mage */
-	(CH_SORCERY | CH_NATURE | CH_CHAOS |
-	 CH_TRUMP | CH_ARCANE),                 /* Priest */
+	(CH_NONE),				/* Berserker */
+	(CH_NONE),				/* Ninja */
 	(CH_NONE),                              /* Rogue */
-	(CH_SORCERY | CH_CHAOS | CH_DEATH |
-	 CH_TRUMP | CH_ARCANE),                 /* Ranger */
+	(CH_NONE),				/* Assassin */
+	(CH_NONE),				/* Thief-Mage */
+	(CH_ORDER | CH_FIRE | CH_AIR | CH_CHAOS |
+	 CH_ASTRAL | CH_WATER | CH_EARTH | CH_WIZARD),      /* Druid */
+	(CH_ORDER | CH_FIRE | CH_AIR | CH_CHAOS |
+	 CH_ASTRAL | CH_WATER | CH_EARTH | CH_WIZARD),      /* Necromancer */
+	(CH_LIFE | CH_FIRE | CH_AIR | CH_DEATH |
+	 CH_ASTRAL | CH_WATER | CH_EARTH | CH_WIZARD),      /* Priest */
+	(CH_LIFE | CH_FIRE | CH_AIR | CH_DEATH |
+	 CH_ASTRAL | CH_WATER | CH_EARTH | CH_WIZARD),      /* Shaman */
+	(CH_LIFE | CH_ORDER | CH_FIRE |
+	 CH_AIR | CH_DEATH | CH_CHAOS |
+	 CH_ASTRAL | CH_WATER | CH_EARTH),      /* Sage */
+	(CH_LIFE | CH_ORDER | CH_AIR | 
+	 CH_DEATH | CH_CHAOS | CH_ASTRAL | 
+	 CH_EARTH | CH_WIZARD),   		/* Fire Mage */
+	(CH_LIFE | CH_ORDER | CH_AIR | 
+	 CH_DEATH | CH_CHAOS | CH_ASTRAL |
+	 CH_EARTH | CH_WIZARD),      		/* Water Mage */
+	(CH_LIFE | CH_ORDER | CH_FIRE | 
+	 CH_DEATH | CH_CHAOS | CH_ASTRAL | 
+	 CH_WATER |CH_WIZARD),      		/* Earth Mage */
+	(CH_LIFE | CH_ORDER | CH_FIRE | 
+	 CH_DEATH | CH_CHAOS | CH_ASTRAL | 
+	 CH_WATER | CH_WIZARD),     		/* Air Mage */
+	(CH_LIFE | CH_ORDER | CH_FIRE |
+	 CH_AIR | CH_DEATH | CH_CHAOS |
+	 CH_ASTRAL | CH_WATER | CH_EARTH),      /* Wizard */
+	(CH_NONE),                              /* Ranger */
+	(CH_NONE),                              /* Dark Knight */
 	(CH_NONE),                              /* Paladin */
-	(CH_LIFE | CH_NATURE | CH_CHAOS |
-	 CH_DEATH | CH_TRUMP | CH_ARCANE |
-	 CH_SORCERY),                           /* Warrior-Mage */
 	(CH_NONE),                              /* Chaos-Warrior */
-	(CH_NONE),                              /* Monk */
+	(CH_NONE),       			/* Warrior-Mage */
+	(CH_NONE),       			/* Tech */
+	(CH_NONE),       			/* Tech Warrior */
+	(CH_NONE),       			/* Tech Thief */
+	(CH_NONE),       			/* Tech Cleric */
+	(CH_NONE),       			/* Tech Mage */
+	(CH_NONE),                              /* Archer */
 	(CH_NONE),                              /* Mindcrafter */
+	(CH_NONE),                              /* Monk */
+	(CH_NONE),                              /* Witch */
 	(CH_NONE),                              /* High-Mage */
 };
 
@@ -5434,12 +8790,15 @@ cptr realm_names[] =
 {
 	"no magic",
 	"Life",
-	"Sorcery",
-	"Nature",
-	"Chaos",
+	"Order",
+	"Fire",
+	"Air",
 	"Death",
-	"Trump",
-	"Arcane",
+	"Chaos",
+	"Astral",
+	"Water",
+	"Earth",
+	"Wizard",
 	"unknown"
 };
 
@@ -5447,79 +8806,83 @@ cptr realm_names[] =
 /*
  * Names of the spells (mage spells then priest spells)
  */
-cptr spell_names[7][32] =
+cptr spell_names[10][32] =
 {
 	/*** Life Spells ***/
 	{
 		/* Common Life Spellbooks */
-		"Detect Evil",
+		/* Mix of ZAngband life and nature common spells */
+		"Detect Life",
+		"Holy Smite",
 		"Cure Light Wounds",
 		"Bless",
+		"Daylight",
+		"Grow Food",
 		"Remove Fear",
-		"Call Light",
-		"Detect Traps and Secret Doors",
-		"Cure Medium Wounds",
-		"Satisfy Hunger",
+		"Cure",
 
 		"Remove Curse",
-		"Cure Poison",
-		"Cure Critical Wounds",
-		"Sense Unseen",
+		"Tame Animal",
+		"Nature's Awareness",
 		"Holy Orb",
+		"Sunray",
 		"Protection from Evil",
 		"Healing",
-		"Glyph of Warding",
+		"Sanctuary",
 
 		/* Rare Life Spellbooks */
+		/* ZAngband rare nature spells */
+		"Summon Animals",
+		"Create Doors",
+		"Create Stairs",
+		"Resistance True",
+		"Animal Friendship",
+		"Call Sunlight",
+		"Rustproof",
+		"Nature's Wrath",
+		
+		/* ZAngband rare life spells */
 		"Exorcism",
-		"Dispel Curse",
-		"Dispel Undead & Demons",
-		"Day of the Dove",
-		"Dispel Evil",
-		"Banish",
-		"Holy Word",
-		"Warding True",
-
 		"Heroism",
-		"Prayer",
+		"Shadow Bane",
+		"Banish",
 		"Bless Weapon",
-		"Restoration",
-		"Healing True",
-		"Holy Vision",
+		"Mega Heal",
 		"Divine Intervention",
 		"Holy Invulnerability"
 	},
 
-	/*** Sorcery Spells ***/
+	/*** Order Spells ***/
+	/* Based on Sorcery */
 
 	{
-		/* Common Sorcery Spellbooks */
-		"Detect Monsters",
+		/* Common Order Spellbooks */
 		"Phase Door",
+		"Justice",
 		"Detect Doors and Traps",
 		"Light Area",
-		"Confuse Monster",
-		"Teleport",
+		"Identify",
+		"Controlled Shift",
 		"Sleep Monster",
 		"Recharging",
 
 		"Magic Mapping",
-		"Identify",
 		"Slow Monster",
+		"Fire And Ice",
 		"Mass Sleep",
-		"Teleport Away",
 		"Haste Self",
+		"Inertia Bolt",
 		"Detection True",
-		"Identify True",
+		"Greater Identify",
 
-		/* Rare Sorcery Spellbooks */
+		/* Rare Order Spellbooks */
 		"Detect Objects and Treasure",
 		"Detect Enchantment",
-		"Charm Monster",
-		"Dimension Door",
+		"Resist Elements",
 		"Sense Minds",
+		"Cold Flame",
 		"Self Knowledge",
-		"Teleport Level",
+		"Inertia Wave",
 		"Word of Recall",
 
 		"Stasis",
@@ -5529,91 +8892,91 @@ cptr spell_names[7][32] =
 		"Enchant Weapon",
 		"Enchant Armour",
 		"Alchemy",
-		"Globe of Invulnerability"
+		"Pattern Sign"
 	},
 
-	/*** Nature Spellbooks ***/
+	/*** Fire Spellbooks ***/
 
 	{
-		/* Common Nature Spellbooks */
-		"Detect Creatures",
-		"First Aid",
-		"Detect Doors and Traps",
-		"Foraging",
-		"Daylight",
-		"Animal Taming",
-		"Resist Environment",
-		"Cure Wounds & Poison",
-
-		"Stone to Mud",
-		"Lightning Bolt",
-		"Nature Awareness",
-		"Frost Bolt",
-		"Ray of Sunlight",
-		"Entangle",
-		"Summon Animal",
-		"Herbal Healing",
-
-		/* Rare Nature Spellbooks */
-		"Door Building",
-		"Stair Building",
-		"Stone Skin",
-		"Resistance True",
-		"Animal Friendship",
-		"Stone Tell",
-		"Wall of Stone",
-		"Protect from Corrosion",
-
-		"Earthquake",
-		"Whirlwind Attack",
-		"Blizzard",
-		"Lightning Storm",
-		"Whirlpool",
-		"Call Sunlight",
-		"Elemental Branding",
-		"Nature's Wrath"
-	},
-
-	/*** Chaos Spells ***/
-
-	{
-		/* Common Chaos Spellbooks */
-		"Magic Missile",
-		"Trap / Door Destruction",
-		"Flash of Light",
-		"Touch of Confusion",
-		"Mana Burst",
+		/* Common Fire Spellbooks */
+		"Resist Fire",
+		"Ignite",
+		"Firesight",
+		"Globe of Flame",
+		"Fire Light",
+		"Fire Blast",
+		"Destroy Doors",
 		"Fire Bolt",
-		"Fist of Force",
-		"Teleport Self",
 
-		"Wonder",
-		"Chaos Bolt",
-		"Sonic Boom",
-		"Doom Bolt",
+		"Warm Aura",
+		"Flame Thrower",
+		"Refuel",
+		"Engulf",
+		"Recharge",
+		"Explode",
+		"Warmth",
+		"Wildfire",
+
+		/* Rare Fire Spellbooks */
+		"Phoenix Shield",
 		"Fire Ball",
-		"Teleport Other",
-		"Word of Destruction",
-		"Invoke Logrus",
+		"Flame Animation",
+		"Heat Wave",
+		"Phoenix Tear",
+		"Scorching Beam",
+		"Solar Flare",
+		"Dragon's Breath",
 
-		/* Rare Chaos Spellbooks */
-		"Polymorph Other",
+		"Volcanic Forge",
+		"Lava Bolt",
+		"Lava Armour",
+		"Fire Storm",
+		"Melt",
+		"Lava Flow",
+		"Fire Brand",
+		"Volcano"
+	},
+
+	/*** Air Spells ***/
+
+	{
+		/* Common Air Spellbooks */
+		"Resist Lightning",
+		"Zap",
+		"Call light",
+		"Wind Blast",
+		"Speed",
+		"Light Beam",
+		"Air Shift",
+		"Lightning Bolt",
+
+		"Fly",
+		"Shock Ball",
+		"Free Action",
+		"Whirlwind",
+		"Lightning Shift",
+		"Fork Lightning",
+		"Air Detect",
+		"Minor Storm",
+
+		/* Rare Air Spellbooks */
+		"Greater Speed",
+		"AntiGravity",
+		"Essence of Air",
+		"Sonic Boom",
+		"Restore Mind",
+		"Tornado",
+		"Aether Shift",
+		"Cyclone",
+
+		"Lightning Shield",
+		"Ball Lightning",
+		"Recharge",
+		"Storm",
+		"Storm Lore",
 		"Chain Lightning",
-		"Arcane Binding",
-		"Disintegrate",
-		"Alter Reality",
-		"Polymorph Self",
-		"Chaos Branding",
-		"Summon Demon",
-
-		"Beam of Gravity",
-		"Meteor Swarm",
-		"Flame Strike",
-		"Call Chaos",
-		"Magic Rocket",
-		"Mana Storm",
-		"Breathe Logrus",
-		"Call the Void"
+		"Storm Brand",
+		"Mega Storm"
 	},
 
 	/*** Death Spells ***/
@@ -5636,7 +8999,7 @@ cptr spell_names[7][32] =
 		"Poison Branding",
 		"Dispel Good",
 		"Genocide",
-		"Restore Life",
+		"Steal Soul",
 
 		/* Rare Death Spellbooks */
 		"Berserk",
@@ -5654,93 +9017,657 @@ cptr spell_names[7][32] =
 		"Word of Death",
 		"Evocation",
 		"Hellfire",
-		"Omnicide",
+		"Necropotence",
 		"Wraithform"
 	},
 
-	/* Trump Spellbooks */
-
+	/* Chaos Spellbooks */
+	/* Chaos and Trump mix */
 	{
-		/* Common Trump Spellbooks */
-		"Phase Door",
-		"Mind Blast",
+		/* Common Chaos Spellbooks */
+		"Blink",
+		"Crazy Bullet",
 		"Shuffle",
-		"Reset Recall",
-		"Teleport",
-		"Dimension Door",
+		"Weird Light",
+		"Minor Trump",
+		"Confusion",
 		"Trump Spying",
-		"Teleport Away",
+		"Hand of Fate",
 
-		"Trump Reach",
-		"Trump Animal",
-		"Phantasmal Servant",
-		"Trump Monster",
+		"Chaos Bolt",
+		"Trump",
+		"Doom Bolt",
 		"Conjure Elemental",
+		"Teleport Other",
 		"Teleport Level",
-		"Word of Recall",
+		"Invoke Logrus",
 		"Banish",
 
-		/* Rare Trump Spellbooks */
+		/* Rare Chaos Spellbooks */
+		/* All Trump */
 		"Joker Card",
-		"Trump Spiders",
-		"Trump Reptiles",
-		"Trump Hounds",
-		"Trump Branding",
-		"Living Trump",
-		"Death Dealing",
-		"Trump Cyberdemon",
-
-
 		"Trump Divination",
+		"Trump Branding",
 		"Trump Lore",
+		"Creature Trump",
+		"Living Trump",
 		"Trump Undead",
 		"Trump Dragon",
-		"Mass Trump",
-		"Trump Demon",
-		"Trump Ancient Dragon",
-		"Trump Greater Undead"
+
+		/* All Logrus */
+		"Morph Other",
+		"Call Chaos",
+		"Fortean Flicker",
+		"Drink Logrus",
+		"Infinity Bolt",
+		"Breathe Logrus",
+		"Chaos Branding",
+		"Call The Void"
 	},
 
-	/* Arcane Spellbooks (_only_ common spells) */
+	/* Astral Spellbooks (_only_ common spells) */
 
 	{
-		"Zap",
-		"Wizard Lock",
-		"Detect Invisibility",
-		"Detect Monsters",
-		"Blink",
-		"Light Area",
-		"Trap & Door Destruction",
-		"Cure Light Wounds",
+		"Magic Lock",
+		"Detect Invisible",
+		"Phase Door",
+		"Light",
+		"Disarm",
+		"Detect Life",
+		"Detect Unlife",
+		"Magic Missile",
 
-		"Detect Doors & Traps",
-		"Phlogiston",
 		"Detect Treasure",
-		"Detect Enchantment",
-		"Detect Objects",
-		"Cure Poison",
+		"First Aid",
+		"Cure Light Wounds",
+		"Blink",
+		"Detect Portals",
+		"Detect Monsters",
+		"Refuel",
+		"Luck",
+
+		"Multi Missile",
 		"Resist Cold",
 		"Resist Fire",
-
+		"Teleport",
 		"Resist Lightning",
 		"Resist Acid",
-		"Cure Medium Wounds",
-		"Teleport",
-		"Stone to Mud",
-		"Ray of Light",
-		"Satisfy Hunger",
-		"See Invisible",
-
-		"Recharging",
-		"Teleport Level",
 		"Identify",
-		"Teleport Away",
-		"Elemental Ball",
-		"Detection",
+		"Ray of Light",
+
+		"Stone to Mud",
+		"See Invisible",
+		"Satisfy Hunger",
+		"Detect Objects",
 		"Word of Recall",
-		"Clairvoyance"
-	}
+		"Force Bolt",
+		"Aura of Fire",
+		"SEER"
+	},
+	/* Water */
+
+	{
+		"Resist Cold",
+		"Chill",
+		"Resist Acid",
+		"Touch of Acid",
+		"Water Slip",
+		"Rime Circle",
+		"Detect Creatures",
+		"Hydroblast",
+
+		"Quench",
+		"Frost Bolt",
+		"Dew Drop",
+		"Holy Water",
+		"Ice Shield",
+		"Acid Spray",
+		"Healing Waters",
+		"Snowfall",
+
+		"Wave Speed",
+		"Acidic Flow",
+		"Aquarius Shift",
+		"Quicksilver",
+		"Summon Wave",
+		"Acid Rain",
+		"Acid Brand",
+		"Tidal Wave",
+
+		"Ice Lore",
+		"Freeze",
+		"Restore Soul",
+		"Snowflake",
+		"Ice Brand",
+		"Freezing Sphere",
+		"Ice Air",
+		"Arctic Blast"
+	}, 
+	/* Earth */
+
+	{
+		"Shield",
+		"Slow",
+		"Detect Gold",
+		"Rock Bolt",
+		"Sense Invisible",
+		"Stun Bolt",
+		"Dig",
+		"Increase Gravity",
+
+		"Grounding",
+		"Gravity Blast",
+		"Armour",
+		"Multi-stun",
+		"Detect Walls",
+		"Gravity Beam",
+		"Stun Wave",
+		"Greater Detection",
+
+		"Remove Traps",
+		"Tremor",
+		"Tunnel",
+		"Earthquake",
+		"Passage",
+		"Greater Quake",
+		"Earthquake Brand",
+		"Geoforce",
+
+		"Gem Bolt",
+		"Stone Skin",
+		"Crystal Vortex",
+		"Improve Armour",
+		"Crush",
+		"Restore Body",
+		"Rain of Shards",
+		"Crystal Skin"
+	}, 
+	/* Wizard */
+
+	{
+		"Infravision",
+		"Mana Bolt",
+		"Light",
+		"Blink",
+		"Detect Traps+Doors",
+		"Remove Fear",
+		"Detect Danger",
+		"Slow Poison",
+
+		"Teleport",
+		"Haste",
+		"See Invisible",
+		"Dispell",
+		"Slowing Orb",
+		"Magic Report",
+		"Cure Medium Wounds",
+		"Mantle",
+
+		"Disintegrate",
+		"Protection From Evil",
+		"Teleport Other",
+		"Dimensional Door",
+		"Summon Monster",
+		"Hold Monster",
+		"Disintergration Wave",
+		"Recharge",
+
+		"Aura of Energy",
+		"Magic Meteorite",
+		"Word of Recall",
+		"Greater Identify",
+		"Meteorite Storm",
+		"Restoration",
+		"Cosmic Wrath",
+		"Star Shield"
+	} 
 };
+
+
+/*
+ * A description of all spells.(Shown by browse)
+ */
+cptr spell_xtra[10][32] =
+{
+	/*** Life Spells ***/
+	{
+		/* Common Life Spellbooks */
+		"Detect the life energy of monsters",
+		"A small burst of holy energy",
+		"A small amount of healing",
+		"A small boost to help you survive combat.",
+		"The light of day to aid you.",
+		"Grows a bush full of tasty berries.",
+		"Overcome your fears.",
+		"Cures all poison and heals a bit.",
+
+		"Removes light curses from anything you are wielding.",
+		"Make an animal a friend.",
+		"See what Nature sees in the area.",
+		"A blast of Holy Fire.",
+		"A powerful ray of sunlight.",
+		"Repels evil creatures",
+		"Heals 300 points, stops bleeding and stun.",
+		"Grows plants all around you as a shield.",
+
+		/* Rare Life Spellbooks */
+		"Calls upon some animals to aid you.",
+		"Take a guess.",
+		"A quick way up or down.",
+		"Resistance to all elemantal and poison damage.",
+		"Charms all the animals in the area.",
+		"Sheds a little light on the area.",
+		"Makes an item resist corrosion.",
+		"Causes everything in the area to come apart.",
+
+		"Hurts Undead and Demons. Scares evil.",
+		"Improve combat and instills courage.",
+		"Smashes Undead and Demons",
+		"Cause evil to disappear",
+		"The blessing of the gods on a weapon.",
+		"Restores *EVERYTHING*.",
+		"A Holy storm, a Blessing and an Angel.",
+		"Invulnerability + Protection from Evil."
+	},
+
+	/*** Order Spells ***/
+	{
+		/* Common Order Spellbooks */
+		"A spell to get behind a door or wall.",
+		"Deals damage that you've been dealt.",
+		"Detects Doors and Traps.",
+		"Lights the area.",
+		"Basic knowledge of an Item.",
+		"A teleport that you control.",
+		"Puts an enemy to sleep.",
+		"Recharge a magic item.",
+
+		"Shows the walls.",
+		"Slows a monster.",
+		"A bolt that burns and freezes.",
+		"Snooze the whole area.",
+		"Makes you faster.",
+		"Slows and hurts.",
+		"Detect lots of things.",
+		"Complete knowledge of an item.",
+
+		/* Rare Order Spellbooks */
+		"Detects objects and treasure.",
+		"Detects magical items.",
+		"Protects from elemental dammage.",
+		"Grants telepathy.",
+		"An explosion of heat and cold.",
+		"Shows all Virtues, Resistances and Abilities.",
+		"A wave of slowing and damage.",
+		"Read a help file.",
+
+		"Holds any monster.",
+		"Picks up an item from a distance.",
+		"Places an explosive rune on the ground.",
+		"Show the area and telepathy.",
+		"Improves a weapon.",
+		"Improves an armour.",
+		"Turns an item into gold.",
+		"Brands a weapon with a Pattern piece."
+	},
+
+	/*** Fire Spellbooks ***/
+
+	{
+		/* Common Fire Spellbooks */
+		"Hmmm... I wonder.",
+		"Causes the target to burn.",
+		"Shows invisible monsters.",
+		"Flames burn all around you.",
+		"Lights the area.",
+		"A small but powerful explosion.",
+		"Destroys doors.",
+		"A Tennis ball sized flaming projectile.",
+
+		"Warms any cold about to damage you.",
+		"A ray of fire.",
+		"Refills a light item.",
+		"Fire raging around you.",
+		"Recharges a magic item.",
+		"A red ball that explodes on impact.",
+		"A warm glow inside that heals.",
+		"Several out of control bursts of fire.",
+
+		/* Rare Fire Spellbooks */
+		"Surrounds you with fire. Burning all who touch you.",
+		"A Basketball sized flaming projectile.",
+		"Summons Fire elementals.",
+		"A searing wave of heat.",
+		"Heals and restores life levels.",
+		"A scorching beam of Plasma.",
+		"Detection and hurts Undead.",
+		"A really powerful fire breath.",
+
+		"Improves a weapon.",
+		"A hot blob a lava.",
+		"An armour boost.",
+		"Fire raining down on the area.",
+		"Melts nearby nonliving objects.",
+		"A beam of lava.",
+		"Causes a weapon to start flaming.",
+		"Makes a Volcano erupt under you."
+	},
+
+	/*** Air Spells ***/
+
+	{
+		/* Common Air Spellbooks */
+		"Hmmm... I wonder.",
+		"A small spark of electricity.",
+		"Lights the area.",
+		"A gust of wind to knock enemies over.",
+		"Improves your speed.",
+		"A beam of light.",
+		"Blink.",
+		"A bolt of electricity.",
+
+		"Lets you fly.",
+		"Zaps a large area.",
+		"Protects you from holding.",
+		"A circular wind blast.",
+		"Teleport.",
+		"A lightning bolt that splits to hit the next target along.",
+		"Doors, Stairs and creatures.",
+		"An eight-way lightning bolt.",
+
+		/* Rare Air Spellbooks */
+		"Improves speed for longer.",
+		"Causes nearby monsters to fall to the ceiling",
+		"Speed, Flying and Free Action.",
+		"A really LOUD sound.",
+		"Restores intelligence and wisdom.",
+		"Powerful wind that attacks enemies.",
+		"Word of Recall.",
+		"A wind storm that does lots of damage.",
+
+		"A ring of lightning around you that zappes when touched.",
+		"A large ball of lightning.",
+		"Recharge a magic item.",
+		"An eight-way lightning blast.",
+		"*Identify*.",
+		"A wave of powerful electricity.",
+		"Makes a weapon shock when it hits.",
+		"A very powerful version of Storm."
+	},
+
+	/*** Death Spells ***/
+
+	{
+		/* Common Death Spellbooks */
+		"Detects nonliving monsters.",
+		"An Evil bolt of magic.",
+		"Detects evil monsters.",
+		"A cloud of poisonous gas.",
+		"Makes a target fall asleep.",
+		"Hmmm... I wonder.",
+		"Scares a target.",
+		"Gives control of an undead creature.",
+
+		"Anything in the target area decays.",
+		"A bolt of Nether.",
+		"Scares all monsters in the area.",
+		"Drains blood out of the victim.",
+		"Coats a weapon in a deadly poison.",
+		"Blasts all good monsters in the area.",
+		"Kills all monsters of the chosen type.",
+		"Steals life levels from the target and give them to you.",
+
+		/* Rare Death Spellbooks */
+		"Improves attack, decreases defence and stops fear.",
+		"Calls upon the dead to cast a spell to aid you.",
+		"A powerful bolt of darkness.",
+		"Berserk and Haste.",
+		"3 bolts of life draining.",
+		"Makes a weapon work like a Vampire.",
+		"An intense storm of darkness.",
+		"Genocides everything.",
+
+		"Slaying magic kills the target.",
+		"Raises the dead.",
+		"Identify.",
+		"Slaying magic hits all living things in the area.",
+		"Obliterates monsters.",
+		"Floods the chosen area with Hellfire.",
+		"Kills monsters and lets you use their souls as mana.",
+		"Lets you walk through walls."
+	},
+
+	/* Chaos Spellbooks */
+	{
+		/* Common Chaos Spellbooks */
+		"Blink.",
+		"Uncontrolled magic missiles.",
+		"Shuffles a tarot deck.",
+		"A random colour of light.",
+		"A small selection of random book 1 spells.",
+		"Confuses the enemy.",
+		"Telepathy",
+		"Calls upon the hand of fate to strike down an enemy.",
+
+		"A bolt of pure chaos.",
+		"A small selection of random book 2 spells.",
+		"A powerful mana blast.",
+		"Summons a random elemental.",
+		"Teleports monsters.",
+		"A quick escape from the level.",
+		"A blast of pure chaos.",
+		"Banishes monsters to a random plane.",
+
+		/* Rare Chaos Spellbooks */
+		"Summon a weird monster",
+		"Detects all.",
+		"Trump Branding",
+		"Makes a weapon unstable.",
+		"Summons a random creature type.",
+		"Gives a teleport mutation.",
+		"Summon Undead",
+		"Summon Dragon",
+
+		"Polymorphs the enemies.",
+		"A random damage effect.",
+		"Rips reality.",
+		"Polymorph self.",
+		"A powerful damage spell that can continue to infinity.",
+		"A wave of anarchy.",
+		"Dips a weapon in raw Logrus.",
+		"Rockets, Mana Storms and Nukes."
+	},
+
+	/* Astral Spellbooks (_only_ common spells) */
+
+	{
+		"Locks a door.",
+		"Shows invisible monsters.",
+		"Get behind a door.",
+		"Lights the area.",
+		"Disarms traps.",
+		"Detects living creatures.",
+		"Detects nonliving creatures.",
+		"Magic Missile.",
+
+		"Detects money.",
+		"Stops bleeding.",
+		"Cures Light Wounds.",
+		"Blink.",
+		"Detects doors and stairs.",
+		"Detect all monsters.",
+		"Refuels a light source.",
+		"Blesses you.",
+
+		"Magic missiles anyone in the area.",
+		"Resists Cold.",
+		"Resists Fire.",
+		"Teleports you at random.",
+		"Resists Lightning.",
+		"Resists Acid.",
+		"Identify.",
+		"Ray of Light.",
+
+		"Stone to Mud.",
+		"Gives you the ability to see invisible monsters.",
+		"Satisfies Hunger.",
+		"Detects objects.",
+		"Word of Recall.",
+		"A force blast like being hit with a big fist.",
+		"Burns anyone that touches you.",
+		"Shows area and gives telepathy."
+	},
+	/* Water */
+
+	{
+		"Hmmm... I wonder.",
+		"A small bolt of coldness.",
+		"Hmmm... I wonder.",
+		"A small amount of acid hits the target.",
+		"Blink.",
+		"Covers the area in a blanket of frost.",
+		"Detects creatures.",
+		"A blast of water.",
+
+		"Cools fire damage about to hit you.",
+		"A bolt of icy shards.",
+		"Heals light wounds.",
+		"Damages undead.",
+		"A small defence bonus.",
+		"Sprays acid in the chosen direction.",
+		"Cures medium wounds.",
+		"Covers an area in a snow drift.",
+
+		"Grants the speed of water.",
+		"A stream of acid.",
+		"Word of Recall.",
+		"The speed and blessing of water.",
+		"Creates a wave of water.",
+		"Cause it to rain acid in an area.",
+		"Covers a weapon in acid.",
+		"A huge wave rams and the drowns enemies.",
+
+		"*Identify*.",
+		"Attempts to freeze the target in a block of ice.",
+		"Restores charisma and life levels.",
+		"Makes ice form a giant snow flake.",
+		"Makes a weapon icy cold.",
+		"Freezes everything in the area.",
+		"Chills the air so much that monsters slow. Also detects all.",
+		"A powerful storm of razor sharp ice."
+	}, 
+	/* Earth */
+
+	{
+		"A minor defence spell.",
+		"Slows a target.",
+		"Detects gold.",
+		"Throws a hard rock at the target.",
+		"Senses vibrations in the earth caused by invisible monsters.",
+		"Stuns the target.",
+		"Digs throw rock.",
+		"Increases gravity, slowing monsters.",
+
+		"Ground lightning that will hurt you.",
+		"A bolt of gravity.",
+		"Hardens you armour.",
+		"Stuns multiple enemies.",
+		"Maps the area.",
+		"A beam of increased gravity.",
+		"A large wave of stunning magic.",
+		"Detects everything.",
+
+		"Destroys traps in the area.",
+		"Creates a small earthquake towards the target.",
+		"Digs through thicker walls.",
+		"Creates an earthquake centered on you.",
+		"Word of Recall.",
+		"Causes an earthquake where you choose.",
+		"Causes a weapon to have a heavy impact.",
+		"Stuns everyone in the area and strengthens armour.",
+
+		"Throws a razor sharp crystal.",
+		"Turns your skin to stone.",
+		"Creates a vortex of shards.",
+		"Improves your armour, permanently.",
+		"Makes areas of crushing gravity.",
+		"Restores strength, dexterity and constitution.",
+		"Creates sharp crystals that rain down at random.",
+		"Turns your skin into indestructable crystal."
+	}, 
+	/* Wizard */
+
+	{
+		"Grants infravision",
+		"A magic missile spell.",
+		"Lights the area.",
+		"Blink.",
+		"Detects traps, doors and stairs.",
+		"Removes fear.",
+		"Detects traps and monsters even if they are invisible.",
+		"Slows poison.",
+
+		"Teleports the player at random.",
+		"Hastes self.",
+		"Grants the ability to see invisible monsters.",
+		"Dispells bad effects.",
+		"Slows multible targets.",
+		"Reports about magic effects on you.",
+		"Cures medium wounds.",
+		"Boosts your armour.",
+
+		"A bolt of disintegration.",
+		"Repels attacks by evil monsters.",
+		"Teleports monsters.",
+		"A controlled teleport.",
+		"Summons a monster to fight for you.",
+		"Holds the target.",
+		"Makes everything in a direction disintegrate.",
+		"Recharges a magic item.",
+
+		"Zappes anyone that touches you.",
+		"A meteorite strikes the target down.",
+		"Word of Recall.",
+		"Greater Identify.",
+		"Makes meteorites rain down at random.",
+		"Restorse all stats and life levels.",
+		"Dispels monsters in the area.",
+		"Grants extra defence and damages anyone that hits you."
+	} 
+};
+
+
+
+
+
+/*
+ * Conversion of plusses to Deadliness to a percentage added to damage.
+ * Much of this table is not intended ever to be used, and is included
+ * only to handle possible inflation elsewhere. -LM-
+ */
+const byte deadliness_conversion[151] =
+{
+	  0,
+	  5,  10,  14,  18,  22,  26,  30,  33,  36,  39,
+	 42,  45,  48,  51,  54,  57,  60,  63,  66,  69,
+	 72,  75,  78,  81,  84,  87,  90,  93,  96,  99,
+	102, 104, 107, 109, 112, 114, 117, 119, 122, 124,
+	127, 129, 132, 134, 137, 139, 142, 144, 147, 149,
+	152, 154, 157, 159, 162, 164, 167, 169, 172, 174,
+	176, 178, 180, 182, 184, 186, 188, 190, 192, 194,
+	196, 198, 200, 202, 204, 206, 208, 210, 212, 214,
+	216, 218, 220, 222, 224, 226, 228, 230, 232, 234,
+	236, 238, 240, 242, 244, 246, 248, 250, 251, 253,
+
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255
+};
+
+
+
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -5840,18 +9767,103 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Lord",
 	},
 
-	/* Mage */
+	/* Besreker */
 	{
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Ipsissimus",
-		"Archimage",
+		"Rookie",
+		"Soldier",
+		"Mercenary",
+		"Veteran",
+		"Rager",
+		"Rage Champion",
+		"Berserker Hero",
+		"Baron",
+		"Duke",
+		"Berserker Lord",
+	},
+	
+	/* Ninja */
+	{
+		"Cutpurse",
+		"Robber",
+		"Burglar",
+		"Footpad",
+		"Filcher",
+		"Sharper",
+		"Low Ninja",
+		"High Ninja",
+		"Master Ninja",
+		"Shadow Ninja",
+	},
+	
+	/* Rogues */
+	{
+		"Cutpurse",
+		"Robber",
+		"Burglar",
+		"Footpad",
+		"Filcher",
+		"Sharper",
+		"Low Thief",
+		"High Thief",
+		"Master Thief",
+		"Guildmaster",
+	},
+	
+	/* Assassin */
+	{
+		"Cutpurse",
+		"Robber",
+		"Burglar",
+		"Footpad",
+		"Filcher",
+		"Sharper",
+		"Low Assassin",
+		"High Assassin",
+		"Master Slayer",
+		"Fell Assassin",
+	},
+	
+	/* Thief Mage */
+	{
+		"Cutpurse",	
+		"Sneak",	
+		"Burglar",	
+		"Trickster",	
+		"Sharper",	
+		"Mage Thief",	
+		"High Thief",	
+		"Rogue Evoker",	
+		"Far Snatcher",	
+		"Guild Mage",	
+	},
+	
+	
+	/* Druid */
+	{
+		"Believer",
+		"Acolyte",
+		"Adept",
+		"Curate",
+		"Canon",
+		"Druid",
+		"High Druid",
+		"Grove Keeper",
+		"Inquisitor",
+		"Angel",
+	},
+	
+	/* Necromancer */
+	{
+		"Believer",
+		"Acolyte",
+		"Adept",
+		"Curate",
+		"Canon",
+		"Necromancer",
+		"Corpse Master",
+		"Dark Cardinal",
+		"Inquisitor",
+		"Demon",
 	},
 
 	/* Priest */
@@ -5868,18 +9880,102 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Pope",
 	},
 
-	/* Rogues */
+	/* Shaman */
 	{
-		"Cutpurse",
-		"Robber",
-		"Burglar",
-		"Filcher",
-		"Sharper",
-		"Low Thief",
-		"High Thief",
-		"Master Thief",
-		"Assassin",
-		"Guildmaster",
+		"Believer",
+		"Acolyte",
+		"Adept",
+		"Anarchist",
+		"Canon",
+		"Shaman",
+		"High Shaman",
+		"Cardinal",
+		"Inquisitor",
+		"Spirit Master",
+	},
+
+	/* Sage */
+	{
+		"Believer",
+		"Acolyte",
+		"Seeker",
+		"Librarian",
+		"Curate",
+		"Sage",
+		"High Sage",
+		"Curioser",
+		"Inquisitor",
+		"Lore Master",
+	},
+
+	/* Fire Mage */
+	{
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Flame Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Ipsissimus",
+		"Archimage",
+	},
+
+	/* Water Mage */
+	{
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Water Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Ipsissimus",
+		"Archimage",
+	},
+
+	/* Earth Mage */
+	{
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Rock Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Ipsissimus",
+		"Archimage",
+	},
+
+	/* Air Mage */
+	{
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Air Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Ipsissimus",
+		"Archimage",
+	},
+
+	/* Wizard */
+	{
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Ipsissimus",
+		"Archimage",
 	},
 
 	/* Rangers */
@@ -5895,6 +9991,21 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"High Ranger",
 		"Ranger Lord",
 	},
+	
+	/* Dark Knight */
+	{
+		"Rookie",
+		"Soldier",
+		"Mercenary",
+		"Veteran",
+		"Swordsman",
+		"Champion",
+		"Dark Hero",
+		"Dark Baron",
+		"Dark Duke",
+		"Dark Lord",
+	},
+
 
 	/* Paladins */
 	{
@@ -5910,6 +10021,20 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Paladin Lord",
 	},
 
+	/* Chaos Warrior */
+	{
+		"Rookie",
+		"Anarchist",
+		"Mercenary",
+		"Veteran",
+		"Swordsman",
+		"Champion",
+		"Chaos Hero",
+		"Chaos Baron",
+		"Chaos Duke",
+		"Chaos Lord",
+	},
+	
 	/* Warrior-Mage */
 	{
 		"Novice",
@@ -5921,35 +10046,91 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Mage-Hero",
 		"Baron Mage",
 		"Battlemage",
-		"Wizard Lord",
+		"Magic Lord",
+	},
+	
+	/* Technician */
+	{
+		"Trainee",
+		"Apprentice",
+		"Constructer",
+		"Fixer",
+		"Designer",
+		"Shaper",
+		"Crafter",
+		"Devicer",
+		"Technologist",
+		"Tech Master",
+	},
+	
+	/* Tech Warrior */
+	{
+		"Trainee",
+		"Apprentice",
+		"Soldier",
+		"Fixer",
+		"Designer",
+		"Sword Shaper",
+		"Crafter",
+		"Weapon Smith",
+		"Arcane Smith",
+		"Smith Lord",
+	},
+	
+	/* Tech Thief */
+	{
+		"Trainee",
+		"Apprentice",
+		"Sneak",
+		"Constructer",
+		"Designer",
+		"Traper",
+		"Crafter",
+		"Devicer",
+		"Tech Thief",
+		"Guild Master",
+	},
+	
+	/* Tech Cleric */
+	{
+		"Trainee",
+		"Acolyte",
+		"Builder",
+		"Constructer",
+		"Curate",
+		"Shaper",
+		"Crafter",
+		"Curioser",
+		"Tech Cleric",
+		"Relic Master",
 	},
 
-	/* Chaos Warrior */
+	/* Tech Mage */
+	{
+		"Trainee",
+		"Trickster",
+		"Builder",
+		"Charm Maker"
+		"Spell Shaper",
+		"Crafter",
+		"Devicer",
+		"Enchanter",
+		"Tech Mage",
+		"Mage Smith",
+	},
+
+	/* Archer */
 	{
 		"Rookie",
 		"Soldier",
 		"Mercenary",
 		"Veteran",
-		"Swordsman",
+		"Archer",
 		"Champion",
-		"Chaos Hero",
-		"Chaos Baron",
-		"Chaos Duke",
-		"Chaos Lord",
-	},
-
-	/* Monk */
-	{
-		"Initiate",
-		"Brother",
-		"Disciple",
-		"Immaculate",
-		"Master",
-		"Soft Master",
-		"Hard Master",
-		"Flower Master",
-		"Dragon Master",
-		"Grand Master",
+		"Hero",
+		"Baron",
+		"Duke",
+		"Missile Lord",
 	},
 
 	/* Mindcrafter */
@@ -5964,6 +10145,34 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Psionicist",
 		"Esper",
 		"Mindmaster",
+	},
+	
+	/* Monk */
+	{
+		"Initiate",
+		"Brother",
+		"Disciple",
+		"Immaculate",
+		"Master",
+		"Soft Master",
+		"Hard Master",
+		"Lotus Master",
+		"Dragon Master",
+		"Grand Master",
+	},
+
+	/* Witch */
+	{
+		"Apprentice",
+		"Gypsy",
+		"Illusionist",
+		"Spellbinder",
+		"Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Ipsissimus",
+		"Archwitch",
 	},
 
 	/* High Mage; same as Mage */
@@ -6008,71 +10217,6 @@ cptr color_names[16] =
 
 
 /*
- * Table of colour escape sequences for string formatting
- */
-cptr color_seq[16] =
-{
-	CLR_DARK,
-	CLR_WHITE,
-	CLR_SLATE,
-	CLR_ORANGE,
-	CLR_RED,
-	CLR_GREEN,
-	CLR_BLUE,
-	CLR_UMBER,
-	CLR_L_DARK,
-	CLR_L_WHITE,
-	CLR_VIOLET,
-	CLR_YELLOW,
-	CLR_L_RED,
-	CLR_L_GREEN,
-	CLR_L_BLUE,
-	CLR_L_UMBER,
-};
-
-
-/*
- * Hack -- the message colour names (MSG_* in defines.h)
- * Several are unused, although the corresponding sounds are not.
- * ToDo: Use colours where appropriate (eg where sounds are used).
- */
-cptr msg_names[MSG_MAX] =
-{
-	"Generic",
-	"Hit monster",
-	"Miss monster",
-	"Monster flees",
-	"Monster drop (unused)",
-	"Monster kill",
-	"Gain level",
-	"Player death",
-	"Spell/prayer gained",
-	"Teleport (unused)",
-	"Shoot (unused)",
-	"Quaff (unused)",
-	"Activate artifact",
-	"Walk (unused)",
-	"Teleport other (unused)",
-	"Hit wall",
-	"Eat (unused)",
-	"Sell worthless (unidentified) item (unused)",
-	"Sell poor (unidentified) item (unused)",
-	"Sell good (unidentified) item (unused)",
-	"Sell excellent (unidentified) item (unused)",
-	"Dig (unused)",
-	"Pick chest", /* sound is for opening doors */
-	"Shut door",
-	"Teleport level", /* sound also for recall */
-	"Error",
-	"Nothing to open",
-	"Fail to pick lock",
-	"Use stairs",
-	"Hitpoint warning"
-};
-
-
-
-/*
  * Abbreviations of healthy stats
  */
 cptr stat_names[A_MAX] =
@@ -6109,8 +10253,8 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display spell list",
 	"Display character",
-	"Display script variables",
-	"Display script source",
+	NULL,
+	NULL,
 	"Display messages",
 	"Display overhead view",
 	"Display monster recall",
@@ -6118,7 +10262,7 @@ cptr window_flag_desc[32] =
 	"Display dungeon view",
 	"Display snap-shot",
 	"Display visible monsters",
-	NULL,
+	"Display script messages",
 	"Display borg messages",
 	"Display borg status",
 	NULL,
@@ -6147,13 +10291,13 @@ option_type option_info[OPT_MAX] =
 {
 	{FALSE, 1, "rogue_like_commands",	"Rogue-like commands" },
 	{TRUE,  1, "quick_messages",		"Activate quick messages" },
-	{TRUE,  0, NULL,					"Number 2" },
+	{FALSE, 1, "other_query_flag",		"Prompt for various information" },
 	{TRUE,  1, "carry_query_flag",		"Prompt before picking things up" },
 	{FALSE, 1, "use_old_target",		"Use old target by default" },
 	{TRUE,  1, "always_pickup",			"Pick things up by default" },
 	{TRUE,  1, "always_repeat",			"Repeat obvious commands" },
 	{FALSE, 5, "depth_in_feet",			"Show dungeon level in feet" },
-	{TRUE,  0, NULL,					"Number 8" },
+	{TRUE,  1, "stack_force_notes",		"Merge inscriptions when stacking" },
 	{FALSE, 1, "stack_force_costs",		"Merge discounts when stacking" },
 	{TRUE,  5, "show_labels",			"Show labels in object listings" },
 	{TRUE,  5, "show_weights",			"Show weights in object listings" },
@@ -6165,28 +10309,28 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  2, "find_ignore_doors",		"Run through open doors" },
 	{FALSE, 2, "find_cut",				"Run past known corners" },
 	{TRUE,  2, "find_examine",			"Run into potential corners" },
-	{TRUE,  0, NULL,					"Number 20" },
+	{TRUE,  2, "disturb_move",			"Disturb whenever any monster moves" },
 	{TRUE,  2, "disturb_near",			"Disturb whenever viewable monster moves" },
 	{TRUE,  2, "disturb_panel",			"Disturb whenever map panel changes" },
 	{TRUE,  2, "disturb_state",			"Disturb whenever player state changes" },
 	{TRUE,  2, "disturb_minor",			"Disturb whenever boring things happen" },
 	{TRUE,  2, "disturb_other",			"Disturb whenever random things happen" },
 	{TRUE,  2, "disturb_traps",			"Disturb when you leave detection radius" },
-	{TRUE,  0, NULL,					"Number 27" },
+	{FALSE, 2, "alert_failure",			"Alert user to various failures" },
 	{TRUE,  3, "last_words",			"Get last words when the character dies" },
 	{TRUE,  3, "speak_unique",			"Allow uniques to speak" },
 	{TRUE,  3, "small_levels",			"Allow unusually small dungeon levels" },
 	{TRUE,  3, "empty_levels",			"Allow empty 'arena' levels" },
 
-	{TRUE,  0, NULL,					"Number 32" },
-	{TRUE,  0, NULL,					"Number 33" },
-	{TRUE,  0, NULL,					"Number 34" },
+	{TRUE,  1, "auto_haggle",			"Auto-haggle in stores" },
+	{FALSE, 3, "auto_scum",				"Auto-scum for good levels" },
+	{FALSE, 1, "stack_allow_items",		"Allow weapons and armor to stack" },
 	{TRUE,  1, "stack_allow_wands",		"Allow wands/staffs/rods to stack" },
-	{TRUE,  0, NULL,					"Number 36" },
+	{TRUE,  1, "expand_look",			"Expand the power of the look command" },
 	{TRUE,  1, "expand_list",			"Expand the power of the list commands" },
 	{TRUE,  3, "view_perma_grids",		"Map remembers all perma-lit grids" },
 	{FALSE, 3, "view_torch_grids",		"Map remembers all torch-lit grids" },
-	{TRUE,  0, NULL,					"Number 40" },
+	{FALSE, 3, "dungeon_align",			"Generate dungeons with aligned rooms" },
 	{TRUE,  3, "dungeon_stair",			"Generate dungeons with connected stairs" },
 	{TRUE,  0, NULL,					"Number 42" },
 	{TRUE,  0, NULL,					"Number 43" },
@@ -6196,14 +10340,14 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 0, NULL,					"Number 47" },
 	{FALSE, 0, NULL,					"Number 48" },
 	{FALSE, 0, NULL,					"Number 49" },
-	{FALSE, 0, NULL,					"Number 50" },
-	{FALSE, 0, NULL,					"Number 51" },
+	{FALSE, 4, "avoid_abort",			"Avoid checking for user abort" },
+	{FALSE, 4, "avoid_other",			"Avoid processing special colors" },
 	{TRUE,  4, "flush_failure",			"Flush input on various failures" },
 	{FALSE, 4, "flush_disturb",			"Flush input whenever disturbed" },
-	{FALSE, 0, NULL,					"Number 54" },
+	{FALSE, 4, "flush_command",			"Flush input before every command" },
 	{TRUE,  4, "fresh_before",			"Flush output before every command" },
 	{FALSE, 4, "fresh_after",			"Flush output after every command" },
-	{FALSE, 0, NULL,					"Number 57" },
+	{FALSE, 4, "fresh_message",			"Flush output after every message" },
 	{TRUE,  4, "compress_savefile",		"Compress messages in savefiles" },
 	{TRUE,  5, "hilite_player",			"Hilite the player with the cursor" },
 	{FALSE, 5, "view_yellow_lite",		"Use special colors for torch-lit grids" },
@@ -6211,7 +10355,7 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 5, "view_granite_lite",		"Use special colors for wall grids (slow)" },
 	{FALSE, 5, "view_special_lite",		"Use special colors for floor grids (slow)" },
 
-	{TRUE,  5, "view_player_colour",	"Use special colours for the player" },
+	{TRUE,  0, NULL,					"Number 64" },
 	{TRUE,  0, NULL,					"Number 65" },
 	{TRUE,  0, NULL,					"Number 66" },
 	{TRUE,  0, NULL,					"Number 67" },
@@ -6319,11 +10463,11 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  1, "easy_open",				"Automatically open doors" },
 	{TRUE,  1, "easy_disarm",			"Automatically disarm traps" },
 	{FALSE, 1, "easy_floor",			"Display floor stacks in a list" },
-	{TRUE,  0, NULL,					"Number 169" },
+	{FALSE, 1, "use_command",			"Allow unified use command" },
 	{FALSE, 5, "center_player",			"Always center on the player (*slow*)" },
 	{FALSE, 5, "avoid_center",			"Avoid centering while running" },
 	{TRUE,  0, NULL,					"Number 172" },
-	{TRUE,  5, "limit_messages",			"Only display last 50 messages in dumps" },
+	{TRUE,  0, NULL,					"Number 173" },
 	{TRUE,  0, NULL,					"Number 174" },
 	{TRUE,  0, NULL,					"Number 175" },
 	{TRUE,  0, NULL,					"Number 176" },
@@ -6350,19 +10494,19 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 6, "ironman_downward",		"Don't allow climbing upwards/recalling" },
 	{FALSE, 6, "ironman_autoscum",		"Permanently enable the autoscummer" },
 	{FALSE, 6, "ironman_hard_quests",	"Quest monsters get reinforcements" },
-	{TRUE,	0, NULL,						"Number 199" },
+	{FALSE, 6, "ironman_los",			"Monsters use player line of sight" },
 	{FALSE, 6, "ironman_empty_levels",	"Always create empty 'arena' levels" },
 	{TRUE,  6, "terrain_streams",		"Create terrain 'streamers' in the dungeon" },
-	{FALSE, 6, "ironman_moria",			"The good old days..." },
+	{FALSE,  6, "ironman_moria",			"The good old days..." },
 	{FALSE, 6, "munchkin_death",		"Ask for saving death" },
 	{FALSE, 6, "ironman_rooms",			"Always generate very unusual rooms" },
-	{TRUE,  0, NULL,					"Number 205" },
+	{TRUE,  6, "maximize_mode",			"Maximize stats" },
 	{TRUE,  6, "preserve_mode",			"Preserve artifacts" },
-	{TRUE,  6, "autoroller",			"Specify stat weightings" },
+	{TRUE,  6, "autoroller",			"Specify 'minimal' stats" },
 	{FALSE, 6, "point_based",			"Generate character using a point system" },
 	{TRUE,  6, "silly_monsters",		"Allow silly monsters" },
 	{FALSE, 6, "ironman_nightmare",		"Nightmare mode (this isn't even remotely fair!)" },
-	{FALSE, 6, "ironman_deep_quests",   "Random quests are very difficult" },
+	{TRUE,  0, NULL,					"Number 211" },
 	{TRUE,  0, NULL,					"Number 212" },
 	{TRUE,  0, NULL,					"Number 213" },
 	{TRUE,  0, NULL,					"Number 214" },
@@ -6456,9 +10600,9 @@ const int chaos_stats[MAX_PATRON] =
 	A_STR,  /* Hionhurn */
 	A_STR,  /* Xiombarg */
 
-	A_INT,  /* Pyaray */
+	A_WIS,  /* Pyaray */
 	A_STR,  /* Balaan */
-	A_INT,  /* Arioch */
+	A_WIS,  /* Arioch */
 	A_CON,  /* Eequor */
 	A_CHR,  /* Narjhan */
 
@@ -6707,136 +10851,6 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
 	"molests"
 };
 
-
-/* Monster Blow-Method types */
-const rbm_type rbm_info[MAX_RBM] =
-{
-	{
-		NULL, NULL,
-		SOUND_NONE, FALSE, FALSE, FALSE
-	},
-
-	{
-		"hit", "hits %s.",
-		SOUND_HIT, TRUE, TRUE, TRUE
-	},
-
-	{
-		"touch", "touches %s.",
-		SOUND_TOUCH, TRUE, FALSE, FALSE
-	},
-	
-	{
-		"punch", "punches %s.",
-		SOUND_HIT, TRUE, FALSE, TRUE
-	},
-	
-	{
-		"kick", "kicks %s.",
-		SOUND_HIT, TRUE, FALSE, TRUE
-	},
-	
-	{
-		"claw", "claws %s.",
-		SOUND_CLAW, TRUE, TRUE, FALSE
-	},
-	
-	{
-		"bite", "bites %s.",
-		SOUND_BITE, TRUE, TRUE, FALSE
-	},
-	
-	{
-		"sting", "stings %s.",
-		SOUND_STING, TRUE, FALSE, FALSE
-	},
-	
-	{
-		"XXX1","XXX1's %s.",
-		SOUND_NONE, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"butt", "butts %s.",
-		SOUND_HIT, TRUE, FALSE, TRUE
-	},
-	
-	{
-		"crush", "crushes %s.",
-		SOUND_CRUSH, TRUE, FALSE, TRUE
-	},
-	
-	{
-		"engulf", "engulfs %s.",
-		SOUND_CRUSH, TRUE, FALSE, FALSE
-	},
-	
-	{
-		"charge", "charges %s.",
-		SOUND_BUY, TRUE, FALSE, FALSE
-	},
-	
-	{
-		"crawl on you", "crawls on %s.",
-		SOUND_SLIME, TRUE, FALSE, FALSE
-	},
-	
-	{
-		"drool on you", "drools on %s.",
-		SOUND_SLIME, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"spit", "spits on %s.",
-		SOUND_SLIME, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"explode", "explodes.",
-		SOUND_NONE, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"gaze", "gazes at %s.",
-		SOUND_NONE, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"wail", "wails at %s.",
-		SOUND_WAIL, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"release spores", "releases spores at %s.",
-		SOUND_SLIME, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"XXX4", "projects XXX4's at %s.",
-		SOUND_NONE, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"beg", "begs %s for money.",
-		SOUND_MOAN, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"insult", "insults %s.",
-		SOUND_MOAN, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"moan", "moans at %s.",
-		SOUND_MOAN, FALSE, FALSE, FALSE
-	},
-	
-	{
-		"sing", "sings to %s.",
-		SOUND_SHOW, FALSE, FALSE, FALSE
-	}
-};
-
 /* Field function's + names */
 const field_action f_action[] =
 {
@@ -7054,13 +11068,7 @@ const field_action f_action[] =
 	{field_action_healer1, "field_action_healer1"},
 	
 	/* Healer part 2 */
-    {field_action_healer2, "field_action_healer2"},
-
-    /* Mage Tower part 1 */
-    {field_action_magetower1, "field_action_magetower1"},
-
-    /* Mage Tower part 2 */
-    {field_action_magetower2, "field_action_magetower2"},
+	{field_action_healer2, "field_action_healer2"},
 	
 	/* Bookstore */
 	{field_action_isbook_tester, "field_action_isbook_tester"},
@@ -7161,7 +11169,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 		"You can breathe fire.",
 		"You gain the ability to breathe fire.",
 		"You lose the ability to breathe fire.",
-		"Fire breath (lvl*2)",
+		"Fire breath (dam lvl*2)",
 		20, 20, A_CON, 18,
 		0
 	},
@@ -7261,7 +11269,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 	    "You can consume solid rock.",
 	    "The walls look delicious.",
 	    "The walls look unappetizing.",
-	    "Eat rock",
+	    "eat rock",
 	    8, 12, A_CON, 18,
 	    0
 	},
@@ -7540,7 +11548,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 	{
 	    MUT2_HORNS,
 	    "You have horns (dam. 2d6).",
-	    "Horns pop forth into your forehead!",
+	    "You have horns on your forehead!",
 	    "Your horns vanish from your forehead!",
 	    "(nothing)",
 	    0, 0, 0, 0,
@@ -8124,7 +12132,8 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 const mutation_type race_powers[MAX_RACE_POWERS] =
 {
 	{
-	    RACE_DWARF,
+	    
+	   RACE_DWARF,
 	    "You can find traps, doors and stairs.",
 	    "(nothing)",
 	    "(nothing)",
@@ -8134,17 +12143,7 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	},
 
 	{
-	    RACE_NIBELUNG,
-	    "You can find traps, doors and stairs.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Detect doors+traps",
-	    10, 5, A_WIS, 10,
-	    0
-	},
-
-	{
-	    RACE_HOBBIT,
+	    RACE_HALFLING,
 	    "You can forage in the dungeon.",
 	    "(nothing)",
 	    "(nothing)",
@@ -8158,98 +12157,78 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	    "You can move youself accross the dungeon.",
 	    "(nothing)",
 	    "(nothing)",
-	    "Telport (range 10 + lvl)",
+	    "Telport (range 10 + plev)",
 	    5, 10, A_INT, 12,
 	    0
 	},
 
 	{
-	    RACE_HALF_ORC,
-	    "You can conquer your fears.",
+	    RACE_GOBLIN,
+	    "You can recharge items.",
 	    "(nothing)",
 	    "(nothing)",
-	    "Remove fear",
-	    3, 5, A_WIS, 8,
+	    "Recharge",
+	    25, 25, A_WIS, 8,
+	    0
+	},
+
+//	{
+//	    RACE_ORC,
+//	    "You can drive yourself into a berserk frenzy.",
+//	    "(nothing)",
+//	    "(nothing)",
+//	    "Berserk",
+//	    8, 10, A_WIS, 9,
+//	    0
+//	},
+
+	{
+	    RACE_DRYAD,
+	    "You can cure your wounds.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Cure",
+	    10, 12, A_INT, 9,
+	    0
+	},
+	
+	{
+	    RACE_DRACONIAN,
+	    "You can hit multiple enemies at once.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Dragon Swipe",
+	    30, 30, A_STR, 50,
 	    0
 	},
 
 	{
-	    RACE_HALF_TROLL,
-	    "You can drive yourself into a berserk frenzy.",
+	    RACE_DRACONIAN,
+	    "You can cast Dragon spells.",
 	    "(nothing)",
 	    "(nothing)",
-	    "Berserk",
-	    10, 12, A_WIS, 9,
+	    "Dragon Magic",
+	    20, 50, A_INT, 50,
 	    0
 	},
 
 	{
-	    RACE_BARBARIAN,
-	    "You can drive yourself into a berserk frenzy.",
+	    RACE_ENT,
+	    "You can regrow your body.",
 	    "(nothing)",
 	    "(nothing)",
-	    "Berserk",
-	    8, 10, A_WIS, 9,
+	    "Regrow",
+	    25, 60, A_CON, 12,
 	    0
 	},
-
+	
 	{
-	    RACE_AMBERITE,
-	    "You can cross into other shadows.",
+	    RACE_ENT,
+	    "You can dig through rock.",
 	    "(nothing)",
 	    "(nothing)",
-	    "Shadow shifting",
-	    30, 50, A_INT, 50,
-	    0
-	},
-
-	{
-	    RACE_AMBERITE,
-	    "You can mentally walk the pattern.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Pattern mindwalking",
-	    40, 75, A_WIS, 50,
-	    0
-	},
-
-	{
-	    RACE_HALF_OGRE,
-	    "You can set traps for your enemies.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Explosive rune",
-	    25, 35, A_INT, 15,
-	    0
-	},
-
-	{
-	    RACE_HALF_GIANT,
-	    "You can reduce the dungeon to rubble.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Stone to mud",
-	    20, 10, A_STR, 12,
-	    0
-	},
-
-	{
-	    RACE_HALF_TITAN,
-	    "You can learn about the dungeon's inhabitants.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Probing",
-	    35, 20, A_STR, 12,
-	    0
-	},
-
-	{
-	    RACE_CYCLOPS,
-	    "You can throw boulders with great force.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Throw Boulder (3*lvl)/2",
-	    20, 15, A_STR, 12,
+	    "Dig",
+	    20, 20, A_STR, 9,
 	    0
 	},
 
@@ -8264,26 +12243,6 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	},
 
 	{
-	    RACE_SPECTRE,
-	    "You can wail to terrify your enemies.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Scare monsters",
-	    4, 6, A_INT, 3,
-	    0
-	},
-
-	{
-	    RACE_KLACKON,
-	    "You can spit acid.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Spit acid (dam lvl)",
-	    9, 9, A_DEX, 14,
-	    0
-	},
-
-	{
 	    RACE_KOBOLD,
 	    "You can throw poisoned darts.",
 	    "(nothing)",
@@ -8294,72 +12253,12 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	},
 
 	{
-	    RACE_DARK_ELF,
-	    "You can fire magic missiles.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Magic missile",
-	    2, 2, A_INT, 9,
-	    0
-	},
-
-	{
-	    RACE_DRACONIAN,
-	    "You can breathe like a dragon.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Dragon breath",
-	    15, 25, A_CON, 12,
-	    0
-	},
-
-	{
-	    RACE_MIND_FLAYER,
+	    RACE_ILLITHID,
 	    "You can blast your enemies with psionic energy.",
 	    "(nothing)",
 	    "(nothing)",
 	    "Mind blast (dam lvl)",
 	    15, 12, A_INT, 14,
-	    0
-	},
-
-	{
-	    RACE_IMP,
-	    "You can cast fire bolts/balls.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Fire bolt/ball (dam lvl)",
-	    9, 15, A_WIS, 15,
-	    0
-	},
-
-	{
-	    RACE_GOLEM,
-	    "You can turn your skin to stone.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Stone skin (dur 1d20+30)",
-	    20, 15, A_CON, 8,
-	    0
-	},
-
-	{
-	    RACE_SKELETON,
-	    "You can recover lost life force.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Restore life",
-	    30, 30, A_WIS, 18,
-	    0
-	},
-
-	{
-	    RACE_ZOMBIE,
-	    "You can recover lost life force.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Restore life",
-	    30, 30, A_WIS, 18,
 	    0
 	},
 
@@ -8374,7 +12273,17 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	},
 
 	{
-	    RACE_SPRITE,
+	    RACE_FAUN,
+	    "You can induce dreams.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Dream Bolt",
+	    30, 12, A_INT, 15,
+	    0
+	},
+
+	{
+	    RACE_PIXIE,
 	    "You can throw magic dust which induces sleep.",
 	    "(nothing)",
 	    "(nothing)",
@@ -8383,24 +12292,5 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	    0
 	},
 
-	{
-		RACE_GHOUL,
-	    "You can eat corpses and skeletons to gain nutrition.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Eat corpse/skeleton",
-	    1, 0, A_CON, 0,
-		0
-	},
-	
-	{
-		RACE_GHOUL,
-	    "You can sense living creatures.",
-	    "(nothing)",
-	    "(nothing)",
-	    "Sense living",
-	    30, 10, A_WIS, 12,
-		0
-	}
 };    
 

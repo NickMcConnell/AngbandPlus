@@ -42,7 +42,7 @@ bool suffix(cptr s, cptr t)
 	if (tlen > slen) return (FALSE);
 
 	/* Compare "t" to the end of "s" */
-	return (streq(s + slen - tlen, t));
+	return (!strcmp(s + slen - tlen, t));
 }
 
 
@@ -67,7 +67,7 @@ bool prefix(cptr s, cptr t)
 /*
  * Redefinable "plog" action
  */
-void (*plog_aux) (cptr) = NULL;
+void (*plog_aux)(cptr) = NULL;
 
 /*
  * Print (or log) a "warning" message (ala "perror()")
@@ -76,11 +76,10 @@ void (*plog_aux) (cptr) = NULL;
 void plog(cptr str)
 {
 	/* Use the "alternative" function if possible */
-	if (plog_aux) (*plog_aux) (str);
+	if (plog_aux) (*plog_aux)(str);
 
 	/* Just do a labeled fprintf to stderr */
-	else
-		(void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "?", str));
+	else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "?", str));
 }
 
 
@@ -88,7 +87,7 @@ void plog(cptr str)
 /*
  * Redefinable "quit" action
  */
-void (*quit_aux) (cptr) = NULL;
+void (*quit_aux)(cptr) = NULL;
 
 /*
  * Exit (ala "exit()").  If 'str' is NULL, do "exit(0)".
@@ -99,7 +98,7 @@ void (*quit_aux) (cptr) = NULL;
 void quit(cptr str)
 {
 	/* Attempt to use the aux function */
-	if (quit_aux) (*quit_aux) (str);
+	if (quit_aux) (*quit_aux)(str);
 
 	/* Success */
 	if (!str) (void)(exit(0));
@@ -119,7 +118,7 @@ void quit(cptr str)
 /*
  * Redefinable "core" action
  */
-void (*core_aux) (cptr) = NULL;
+void (*core_aux)(cptr) = NULL;
 
 /*
  * Dump a core file, after printing a warning message
@@ -130,7 +129,7 @@ void core(cptr str)
 	char *crash = NULL;
 
 	/* Use the aux function */
-	if (core_aux) (*core_aux) (str);
+	if (core_aux) (*core_aux)(str);
 
 	/* Dump the warning string */
 	if (str) plog(str);

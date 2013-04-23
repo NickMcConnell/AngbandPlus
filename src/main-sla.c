@@ -13,11 +13,7 @@
 
 #ifdef USE_SLA
 
-cptr help_sla[] =
-{
-	"To use SLA (SLANG)",
-	NULL
-};
+
 
 #include <slang.h>
 
@@ -127,7 +123,7 @@ int has_colors(void)
 	/* We want to allow overriding */
 	for (i = 0; color_terminals [i]; i++)
 	{
-		if (streq(color_terminals [i], terminal))
+		if (strcmp (color_terminals [i], terminal) == 0)
 		{
 			SLtt_Use_Ansi_Colors = 1;
 		}

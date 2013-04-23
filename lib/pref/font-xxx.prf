@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2001/05/23 11:30:34 $
+# CVS: Last edit by SimonC on Date: 2002/11/26 2:34:26 
 # File: font-xxx.prf
 
 #
@@ -319,6 +319,9 @@ E:5:0x02
 # CHEST
 E:7:0x02
 
+# MACHINE
+E:11:0x07
+
 # SHOT
 E:16:0x0F
 
@@ -401,25 +404,34 @@ E:77:0x0B
 E:80:0x0F
 
 # LIFE_BOOK
-E:90:0x01
+E:90:0x0B
 
-# SORCERY_BOOK
-E:91:0x0E
+# ORDER_BOOK
+E:91:0x01
 
-# NATURE_BOOK
-E:92:0x0D
+# FIRE_BOOK
+E:92:0x0C
 
-# CHAOS_BOOK
-E:93:0x0C
+# AIR_BOOK
+E:93:0x0A
 
 # DEATH_BOOK
 E:94:0x08
 
-# TRUMP_BOOK
+# CHAOS_BOOK
 E:95:0x03
 
 # ARCANE_BOOK
 E:96:0x09
+
+# WATER_BOOK
+E:97:0x06
+
+# EARTH_BOOK
+E:98:0x05
+
+# WIZARD_BOOK
+E:99:0x02
 
 # FIGURINE
 E:8:0x02

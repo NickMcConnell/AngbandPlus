@@ -1,5 +1,5 @@
 N:*:Default
-82
+90
 What game do you think you are playing anyway?
 Aivan sairas kaveri kun tuollaista aikoo puuhata!
 Insufficient data for further analysis.
@@ -68,7 +68,7 @@ Disk error. (a)bort, (r)etry, (f)ail?
 Are you sure you want to use borg commands?
 You feel oddly normal.
 You cannot cast spells!
-'I grow tired of thee, mortal.'
+'I GROW TIRED OF THEE, MORTAL!'
 You just completed your quest!
 You hear a bell toll three times!
 Successfully created a spoiler file.
@@ -80,5 +80,13 @@ A mysterious force prevents you from doing that.
 This will mark the savefile as a cheater. Continue? (Y)
 You can't do that while wielding a weapon!
 You must first select a target.
-I'm afraid I can't do that, Dave.
-It magically summons mighty undead opponents!
+You are a Loser!
+You are looking for the "m" key.
+You are looking for the "G" key.
+You are looking for the "q" key.
+You are looking for the "r" key.
+You are looking for the "a" key.
+You are looking for the "z" key.
+You are looking for the "A" key.
+You are looking for the "p" key.
+You are looking for the "I" key.

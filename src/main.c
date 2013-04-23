@@ -19,72 +19,12 @@
 
 #if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
 
+#ifdef USE_SCRIPT
 
-/*
- * List of available modules in the order they are tried.
- */
-static const module_type modules[] =
-{
-#ifdef USE_TNB
-	INIT_MODULE(tnb),
-#endif /* USE_TNB */
+#include "Python.h"
 
-#ifdef USE_GTK
-	INIT_MODULE(gtk),
-#endif /* USE_GTK */
+#endif /* USE_SCRIPT */
 
-#ifdef USE_XAW
-	INIT_MODULE(xaw),
-#endif /* USE_XAW */
-
-#ifdef USE_X11
-	INIT_MODULE(x11),
-#endif /* USE_X11 */
-
-#ifdef USE_XPJ
-	INIT_MODULE(xpj),
-#endif /* USE_XPJ */
-
-#ifdef USE_GCU
-	INIT_MODULE(gcu),
-#endif /* USE_GCU */
-
-#ifdef USE_CAP
-	INIT_MODULE(cap),
-#endif /* USE_CAP */
-
-#ifdef USE_DOS
-	INIT_MODULE(dos),
-#endif /* USE_DOS */
-
-#ifdef USE_IBM
-	INIT_MODULE(ibm),
-#endif /* USE_IBM */
-
-#ifdef USE_EMX
-	INIT_MODULE(emx),
-#endif /* USE_EMX */
-
-#ifdef USE_SLA
-	INIT_MODULE(sla),
-#endif /* USE_SLA */
-
-#ifdef USE_LSL
-	INIT_MODULE(lsl),
-#endif /* USE_LSL */
-
-#ifdef USE_AMI
-	INIT_MODULE(ami),
-#endif /* USE_AMI */
-
-#ifdef USE_VME
-	INIT_MODULE(vme),
-#endif /* USE_VME */
-
-#ifdef USE_VCS
-	INIT_MODULE(vcs)
-#endif /* USE_VCS */
-};
 
 /*
  * A hook for "quit()".
@@ -95,11 +35,11 @@ static void quit_hook(cptr s)
 {
 	int j;
 
-	/* Unused parameter */
-	(void)s;
-
+	/* Ignore s */
+	(void) s;
+	
 	/* Scan windows */
-	for (j = ANGBAND_TERM_MAX - 1; j >= 0; j--)
+	for (j = 8 - 1; j >= 0; j--)
 	{
 		/* Unused */
 		if (!angband_term[j]) continue;
@@ -110,24 +50,24 @@ static void quit_hook(cptr s)
 }
 
 
-
 /*
  * Set the stack size (for the Amiga)
  */
 #ifdef AMIGA
-#include <dos.h>
+# include <dos.h>
 __near long __stack = 32768L;
-#endif /* AMIGA */
+#endif
 
 
 /*
  * Set the stack size and overlay buffer (see main-286.c")
  */
 #ifdef USE_286
-#include <dos.h>
+# include <dos.h>
 extern unsigned _stklen = 32768U;
 extern unsigned _ovrbuffer = 0x1500;
-#endif /* USE_286 */
+#endif
+
 
 
 #ifdef PRIVATE_USER_PATH
@@ -143,6 +83,8 @@ static void create_user_dir(void)
 	char dirpath[1024];
 	char subdirpath[1024];
 
+	/* Drop privs */
+	safe_setuid_drop();
 
 	/* Get an absolute path from the filename */
 	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
@@ -155,6 +97,9 @@ static void create_user_dir(void)
 
 	/* Create the directory */
 	mkdir(subdirpath, 0700);
+
+	/* Grab privs */
+	safe_setuid_grab();
 }
 
 #endif /* PRIVATE_USER_PATH */
@@ -185,32 +130,27 @@ static void create_user_dir(void)
 static void init_stuff(void)
 {
 	char path[1024];
-	
-	int len = 0;
 
 #if defined(AMIGA) || defined(VM)
 
 	/* Hack -- prepare "path" */
-	strnfmt(path, 511, "Angband:");
+	strcpy(path, "Angband:");
 
-#else  /* AMIGA / VM */
+#else /* AMIGA / VM */
 
-	cptr tail = NULL;
-	
-	path[0] = 0;
-
-#ifndef FIXED_PATHS
+	cptr tail;
 
 	/* Get the environment variable */
 	tail = getenv("ANGBAND_PATH");
 
-#endif /* FIXED_PATHS */
-
 	/* Use the angband_path, or a default */
-	strnfcat(path, 511, &len, "%s", tail ? tail : DEFAULT_PATH);
+	strncpy(path, tail ? tail : DEFAULT_PATH, 511);
+
+	/* Make sure it's terminated */
+	path[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(path, PATH_SEP)) strnfcat(path, 511, &len, PATH_SEP);
+	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
 
 #endif /* AMIGA / VM */
 
@@ -242,39 +182,45 @@ static void change_path(cptr info)
 	/* Analyze */
 	switch (tolower(info[0]))
 	{
-#ifndef FIXED_PATHS
 		case 'a':
 		{
 			string_free(ANGBAND_DIR_APEX);
-			ANGBAND_DIR_APEX = string_make(s + 1);
+			ANGBAND_DIR_APEX = string_make(s+1);
 			break;
 		}
 
 		case 'f':
 		{
 			string_free(ANGBAND_DIR_FILE);
-			ANGBAND_DIR_FILE = string_make(s + 1);
+			ANGBAND_DIR_FILE = string_make(s+1);
 			break;
 		}
 
 		case 'h':
 		{
 			string_free(ANGBAND_DIR_HELP);
-			ANGBAND_DIR_HELP = string_make(s + 1);
+			ANGBAND_DIR_HELP = string_make(s+1);
 			break;
 		}
 
 		case 'i':
 		{
 			string_free(ANGBAND_DIR_INFO);
-			ANGBAND_DIR_INFO = string_make(s + 1);
+			ANGBAND_DIR_INFO = string_make(s+1);
+			break;
+		}
+
+		case 'u':
+		{
+			string_free(ANGBAND_DIR_USER);
+			ANGBAND_DIR_USER = string_make(s+1);
 			break;
 		}
 
 		case 'x':
 		{
 			string_free(ANGBAND_DIR_XTRA);
-			ANGBAND_DIR_XTRA = string_make(s + 1);
+			ANGBAND_DIR_XTRA = string_make(s+1);
 			break;
 		}
 
@@ -288,53 +234,44 @@ static void change_path(cptr info)
 			quit_fmt("Restricted option '-d%s'", info);
 		}
 
-#else  /* VERIFY_SAVEFILE */
+#else /* VERIFY_SAVEFILE */
 
 		case 'b':
 		{
 			string_free(ANGBAND_DIR_BONE);
-			ANGBAND_DIR_BONE = string_make(s + 1);
+			ANGBAND_DIR_BONE = string_make(s+1);
 			break;
 		}
 
 		case 'd':
 		{
 			string_free(ANGBAND_DIR_DATA);
-			ANGBAND_DIR_DATA = string_make(s + 1);
+			ANGBAND_DIR_DATA = string_make(s+1);
 			break;
 		}
 
 		case 'e':
 		{
 			string_free(ANGBAND_DIR_EDIT);
-			ANGBAND_DIR_EDIT = string_make(s + 1);
+			ANGBAND_DIR_EDIT = string_make(s+1);
 			break;
 		}
 
 		case 's':
 		{
 			string_free(ANGBAND_DIR_SAVE);
-			ANGBAND_DIR_SAVE = string_make(s + 1);
+			ANGBAND_DIR_SAVE = string_make(s+1);
 			break;
 		}
 
 		case 'z':
 		{
 			string_free(ANGBAND_DIR_SCRIPT);
-			ANGBAND_DIR_SCRIPT = string_make(s + 1);
+			ANGBAND_DIR_SCRIPT = string_make(s+1);
 			break;
 		}
 
 #endif /* VERIFY_SAVEFILE */
-
-#endif /* FIXED_PATHS */
-
-		case 'u':
-		{
-			string_free(ANGBAND_DIR_USER);
-			ANGBAND_DIR_USER = string_make(s + 1);
-			break;
-		}
 
 		default:
 		{
@@ -348,49 +285,91 @@ static void change_path(cptr info)
  */
 static void game_usage(void)
 {
-	int i, j;
-
 	/* Dump usage information */
 	puts("Usage: angband [options] [-- subopts]");
 	puts("  -n       Start a new character");
-	puts("  -f       Request fiddle (verbose) mode");
+	puts("  -f       Request fiddle mode");
 	puts("  -w       Request wizard mode");
 	puts("  -v       Request sound mode");
 	puts("  -g       Request graphics mode");
-	puts("  -o       Request original keyset (default)");
+	puts("  -o       Request original keyset");
 	puts("  -r       Request rogue-like keyset");
 	puts("  -M       Request monochrome mode");
-	puts("  -s<num>  Show <num> high scores (default 10)");
+	puts("  -s<num>  Show <num> high scores");
 	puts("  -u<who>  Use your <who> savefile");
 	puts("  -d<def>  Define a 'lib' dir sub-path");
+	
+#ifdef USE_XAW
+	puts("  -mxaw    To use XAW");
+	puts("  --       Sub options");
+	puts("  -- -d    Set display name");
+	puts("  -- -s    Turn off smoothscaling graphics");
+	puts("  -- -b#   Set tileset bitmap");
+	puts("  -- -n#   Number of terms to use");
+#endif /* USE_XAW */
+	
+#ifdef USE_X11
+	puts("  -mx11    To use X11");
+	puts("  --       Sub options");
+	puts("  -- -d    Set display name");
+	puts("  -- -s    Turn off smoothscaling graphics");
+	puts("  -- -b#   Set tileset bitmap");
+	puts("  -- -n#   Number of terms to use");
+#endif /* USE_X11 */
+	
+#ifdef USE_XPJ
+	puts("  -mxpj    To use XPJ");
+	puts("  --       Sub options");
+	puts("  -- -d    Set display name");
+	puts("  -- -s    Turn off smoothscaling graphics");
+	puts("  -- -n#   Number of terms to use");
+#endif /* USE_XPJ */
+	
+#ifdef USE_GCU
+	puts("  -mgcu    To use GCU (GNU Curses)");
+#endif /* USE_GCU */
 
-	/* Print the name and help for each available module */
-	for (i = 0; i < (int)NUM_ELEMENTS(modules); i++)
-	{
-		/* Spacer */
-		puts("");
+#ifdef USE_CAP
+	puts("  -mcap    To use CAP (\"Termcap\" calls)");
+#endif /* USE_CAP */
 
-		for (j = 0; modules[i].help[j]; j++)
-		{
-			if (j)
-			{
-				/* Display seperator */
-				if (j == 1)
-				{
-					puts("  --       Sub options");
-				}
+#ifdef USE_DOS
+	puts("  -mdos    To use DOS (Graphics)");
+#endif /* USE_DOS */
 
-				puts(format("  -- %s", modules[i].help[j]));
-			}
-			else
-			{
-				/* The first line is special */
-				puts(format("  -m%s    %s",
-							modules[i].name, modules[i].help[j]));
-			}
-		}
-	}
+#ifdef USE_IBM
+	puts("  -mibm    To use IBM (BIOS text mode)");
+#endif /* USE_IBM */
 
+#ifdef USE_SLA
+	puts("  -msla    To use SLA (SLANG)");
+#endif /* USE_SLA */
+
+#ifdef USE_LSL
+	puts("  -mlsl    To use LSL (Linux-SVGALIB)");
+#endif /* USE_LSL */
+
+#ifdef USE_AMI
+	puts("  -mami    To use AMI (Amiga)");
+#endif /* USE_AMI */
+
+#ifdef USE_VME
+	puts("  -mvme    To use VME (VAX/ESA)");
+#endif /* USE_VME */
+
+#ifdef USE_GTK
+	puts("  -mgtk    To use GTK toolkit");
+	puts("  --       Sub options");
+	puts("  -- -b#   Set tileset bitmap");
+	puts("  -- -n#   Number of terms to use");
+#endif /* USE_GTK */
+
+#ifdef USE_VCS
+	puts("  -mvcs    To use /dev/vcsa*");
+	puts("  -- x0,y0,x1,y1  Create new term");
+	puts("  -- --noframe    No window frames");
+#endif /* USE_VCS */
+				
 	/* Actually abort the process */
 	quit(NULL);
 }
@@ -421,14 +400,13 @@ int main(int argc, char *argv[])
 	/* Save the "program name" XXX XXX XXX */
 	argv0 = argv[0];
 
-
 #ifdef USE_286
 	/* Attempt to use XMS (or EMS) memory for swap space */
 	if (_OvrInitExt(0L, 0L))
 	{
 		_OvrInitEms(0, 0, 64);
 	}
-#endif /* USE_286 */
+#endif
 
 
 #ifdef SET_UID
@@ -436,12 +414,12 @@ int main(int argc, char *argv[])
 	/* Default permissions on files */
 	(void)umask(022);
 
-#ifdef SECURE
+# ifdef SECURE
 	/* Authenticate */
 	Authenticate();
-#endif /* SECURE */
+# endif
 
-#endif /* SET_UID */
+#endif
 
 
 	/* Get the file paths */
@@ -456,20 +434,19 @@ int main(int argc, char *argv[])
 #ifdef VMS
 	/* Mega-Hack -- Factor group id */
 	player_uid += (getgid() * 1000);
-#endif /* VMS */
+#endif
 
-#ifdef SAFE_SETUID
+# ifdef SAFE_SETUID
 
-#if defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX)
+#  ifdef _POSIX_SAVED_IDS
 
 	/* Save some info for later */
 	player_euid = geteuid();
 	player_egid = getegid();
 
-#endif /* defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX) */
+#  endif
 
-	/* XXX XXX XXX */
-#if 0
+#  if 0	/* XXX XXX XXX */
 
 	/* Redundant setting necessary in case root is running the game */
 	/* If not root or game not setuid the following two calls do nothing */
@@ -484,15 +461,11 @@ int main(int argc, char *argv[])
 		quit("setuid(): cannot set permissions correctly!");
 	}
 
-#endif /* 0 */
+#  endif
 
-#endif /* SAFE_SETUID */
+# endif
 
-#endif /* SET_UID */
-
-
-	/* Drop permissions */
-	safe_setuid_drop();
+#endif
 
 
 #ifdef SET_UID
@@ -509,10 +482,10 @@ int main(int argc, char *argv[])
 		quit("The gates to Angband are closed (bad load).");
 	}
 
-	/* Get the "user name" as a default player name */
+	/* Acquire the "user name" as a default player name */
 #ifdef ANGBAND_2_8_1
 	user_name(player_name, player_uid);
-#else  /* ANGBAND_2_8_1 */
+#else /* ANGBAND_2_8_1 */
 	user_name(op_ptr->full_name, player_uid);
 #endif /* ANGBAND_2_8_1 */
 
@@ -566,7 +539,8 @@ int main(int argc, char *argv[])
 			case 'G':
 			case 'g':
 			{
-				arg_graphics = TRUE;
+				/* HACK - Graphics mode switches on the original tiles */
+				arg_graphics = GRAPHICS_ORIGINAL;
 				break;
 			}
 
@@ -597,16 +571,10 @@ int main(int argc, char *argv[])
 			{
 				if (!argv[i][2]) game_usage();
 #ifdef ANGBAND_2_8_1
-				/* Get the savefile name */
 				strncpy(player_name, &argv[i][2], 32);
-
-				/* Make sure it's terminated */
 				player_name[31] = '\0';
-#else  /* ANGBAND_2_8_1 */
-				/* Get the savefile name */
+#else /* ANGBAND_2_8_1 */
 				strncpy(op_ptr->full_name, &argv[i][2], 32);
-
-				/* Make sure it's terminated */
 				op_ptr->full_name[31] = '\0';
 #endif /* ANGBAND_2_8_1 */
 				break;
@@ -643,8 +611,8 @@ int main(int argc, char *argv[])
 
 			default:
 			{
-				/* Default usage-help */
-				game_usage();
+				 /* Default usage-help */
+				 game_usage();
 			}
 		}
 	}
@@ -665,26 +633,208 @@ int main(int argc, char *argv[])
 	/* Install "quit" hook */
 	quit_aux = quit_hook;
 
-	for (i = 0; i < (int)NUM_ELEMENTS(modules); i++)
+
+	/* 
+	 * Drop privs (so X11 will work correctly)
+	 * unless we are running the Linux-SVGALib version.
+	 *
+	 * (In which case we initialize after safe_setuid_grab()
+	 * is called.)
+	 */
+ 
+ 	safe_setuid_drop();
+
+#ifdef USE_XAW
+	/* Attempt to use the "main-xaw.c" support */
+	if (!done && (!mstr || (streq(mstr, "xaw"))))
 	{
-		if (!mstr || (streq(mstr, modules[i].name)))
+		if (0 == init_xaw(argc, argv))
 		{
-			/* Try to use port */
-			if (0 == modules[i].init(argc, argv, (unsigned char *)&new_game))
-			{
-				/* Set port name */
-				ANGBAND_SYS = modules[i].name;
-				done = TRUE;
-				break;
-			}
+			ANGBAND_SYS = "xaw";
+			done = TRUE;
 		}
 	}
+#endif
+
+
+#ifdef USE_X11
+	/* Attempt to use the "main-x11.c" support */
+	if (!done && (!mstr || (streq(mstr, "x11"))))
+	{
+		if (0 == init_x11(argc, argv))
+		{
+			ANGBAND_SYS = "x11";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_XPJ
+	/* Attempt to use the "main-xpj.c" support */
+	if (!done && (!mstr || (streq(mstr, "xpj"))))
+	{
+		if (0 == init_xpj(argc, argv))
+		{
+			ANGBAND_SYS = "xpj";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_GTK
+	/* Attempt to use the "main-gtk.c" support */
+	if (!done && (!mstr || (streq(mstr, "gtk"))))
+	{
+		if (0 == init_gtk((unsigned char*) &new_game, argc, argv))
+		{
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_GCU
+	/* Attempt to use the "main-gcu.c" support */
+	if (!done && (!mstr || (streq(mstr, "gcu"))))
+	{
+		if (0 == init_gcu())
+		{
+			ANGBAND_SYS = "gcu";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_CAP
+	/* Attempt to use the "main-cap.c" support */
+	if (!done && (!mstr || (streq(mstr, "cap"))))
+	{
+		if (0 == init_cap(argc, argv))
+		{
+			ANGBAND_SYS = "cap";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_DOS
+	/* Attempt to use the "main-dos.c" support */
+	if (!done && (!mstr || (streq(mstr, "dos"))))
+	{
+		if (0 == init_dos())
+		{
+			ANGBAND_SYS = "dos";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_IBM
+	/* Attempt to use the "main-ibm.c" support */
+	if (!done && (!mstr || (streq(mstr, "ibm"))))
+	{
+		if (0 == init_ibm())
+		{
+			ANGBAND_SYS = "ibm";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_EMX
+	/* Attempt to use the "main-emx.c" support */
+	if (!done && (!mstr || (streq(mstr, "emx"))))
+	{
+		if (0 == init_emx())
+		{
+			ANGBAND_SYS = "emx";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_SLA
+	/* Attempt to use the "main-sla.c" support */
+	if (!done && (!mstr || (streq(mstr, "sla"))))
+	{
+		if (0 == init_sla())
+		{
+			ANGBAND_SYS = "sla";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_AMI
+	/* Attempt to use the "main-ami.c" support */
+	if (!done && (!mstr || (streq(mstr, "ami"))))
+	{
+		if (0 == init_ami())
+		{
+			ANGBAND_SYS = "ami";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_VME
+	/* Attempt to use the "main-vme.c" support */
+	if (!done && (!mstr || (streq(mstr, "vme"))))
+	{
+		if (0 == init_vme())
+		{
+			ANGBAND_SYS = "vme";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_VCS
+	/* Attempt to use the "main-vcs.c" support */
+	if (!done && (!mstr || (streq(mstr, "vcs"))))
+	{
+		if (0 == init_vcs(argc, argv))
+		{
+			ANGBAND_SYS = "vcs";
+			done = TRUE;
+		}
+	}
+#endif /* USE_VCS */
+
+	/* Grab privs (dropped above for X11) */
+ 	safe_setuid_grab();
+
+#ifdef USE_LSL
+	/* Attempt to use the "main-lsl.c" support */
+	if (!done && (!mstr || (streq(mstr, "lsl"))))
+	{
+		if (0 == init_lsl())
+		{
+			ANGBAND_SYS = "lsl";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+
 
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
-	/* Gtk and Tk initialise earlier */
-	if (!(streq(ANGBAND_SYS, "gtk") || streq(ANGBAND_SYS, "tnb")))
+
+	/* Hack -- If requested, display scores and quit */
+	if (show_score > 0) display_scores(0, show_score);
+
+	/* Gtk initializes earlier */
+	if (!streq(ANGBAND_SYS, "gtk"))
 	{
 		/* Catch nasty signals */
 		signals_init();
@@ -692,18 +842,12 @@ int main(int argc, char *argv[])
 		/* Initialize */
 		init_angband();
 	}
-
-	/* Hack -- If requested, display scores and quit */
-	if (show_score > 0) display_scores(0, show_score);
-
+	
 	/* Wait for response */
 	pause_line(23);
 
 	/* Play the game */
 	play_game(new_game);
-
-	/* Free resources */
-	cleanup_angband();
 
 	/* Quit */
 	quit(NULL);
@@ -712,4 +856,7 @@ int main(int argc, char *argv[])
 	return (0);
 }
 
-#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) */
+#endif
+
+
+

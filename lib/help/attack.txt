@@ -1,6 +1,6 @@
 === Attacking Monsters ===
  
-Attacking is simple in Zangband. If you move into a creature, you
+Attacking is simple in STangband. If you move into a creature, you
 attack it. If you are wielding a weapon (including digging implements
 which are considered to be weapons) when you do so, the damage for the
 weapon is used when you hit a creature. Otherwise, you will attack with
@@ -80,7 +80,7 @@ weapon before it can be used in a fight. A secondary weapon can be kept
 by keeping it in the backpack, and switching it with the primary weapon
 when needed.
 
-Zangband assumes that your youth in the rough environment near the
+STangband assumes that your youth in the rough environment near the
 dungeons has taught you the relative merits of different weapons, and
 displays as part of their description the damage dice which define
 their capabilities. The dice used for a given weapon is displayed as
@@ -92,7 +92,7 @@ weapon is also a consideration.
 In addition to their base damage, each weapon has two main magical
 characteristics, their bonus to your skill and their bonus to your
 deadliness, expressed as "(+#,+#)". A normal weapon would be "(+0,+0)"
-but many weapons in Zangband have bonuses to your skill and/or
+but many weapons in STangband have bonuses to your skill and/or
 deadliness. These bonuses may be increased, subject to certain upper
 limits, by magical means through a process referred to as 'enchanting'.
 Some weapons are cursed, and will have penalties that hurt the player.
@@ -129,13 +129,6 @@ target's armor class. A hit is a strike that does some damage; a miss
 may in fact reach a target, but fails to do any damage. Higher armor
 class makes it harder to do damage, and so leads to more misses; it
 will also reduce the damage from a strike that actually occurs.
-
-You can find out roughly how much damage your missile weapons will do
-by looking at the (+#/+#) value on the ammunition in your inventory.
-The two numbers indicate the average damage done per shot, and average
-damage done per round.  These numbers take into account whether or not
-you have identified your ammunition and launcher.  The two numbers can
-differ because different launchers take differing energies to fire.
 
 The varying types of missile launchers each have their own strengths
 and weaknesses. Which can be summarized as follows:
@@ -181,7 +174,7 @@ has two attributes that make it deadly to your opponent (for example
 you are fighting a demon and your weapon slays both evil and demons
 (demons are evil)), only the most effective slay will apply.
 
-Zangband has extended the original Angband's concept of adding random
+STangband has extended the original Angband's concept of adding random
 abilities to the various Ego types considerably. These can be either
 guaranteed or have only a varying chance of being granted. (See
 'Randabil.spo' for details of the random powers of Ego Weapons).
@@ -289,7 +282,7 @@ Weapon of Burning
     damage when used against a creature that is not resistant to fire.
     It also provides resistance against fire attacks.
 
-Weapon of Poisoning
+Weapon of Venom
     A magical weapon, coated with poison, that will inflict two times
     the normal damage to creatures not resistant to poison. It also
     provides resistance against toxic and poisonous attacks.
@@ -603,7 +596,7 @@ base damage dice are XdY is as follows:
 === Monk Attacks ===
 
 The Monk character is designed to be a barehanded fighter rather than
-using a weapon like the other Zangband classes. As a Monk's level
+using a weapon like the other STangband classes. As a Monk's level
 increases the number of attacks they get per round increases and new,
 increasingly powerful attacks become available. Higher level attacks
 have a chance to stun the Monk's opponent.
@@ -659,9 +652,9 @@ through walls, and a small number of monsters can chew through walls.
 
 Shoot'n Scoot
 -------------
-Requires a large room, Phase Door, and some type of missile weapon.
+Requires a large room, Blink, and some type of missile weapon.
 Stand at one end of the room, your enemy at the other. Fire your
-missile weapon at him until he gets close, and then Phase Door. Fire
+missile weapon at him until he gets close, and then Blink. Fire
 again, until he gets close, and repeat. By the time you run out of
 ammunition, he should be dead or weak enough for you to finish him HTH
 (Hand to Hand).
@@ -700,8 +693,8 @@ monsters.
 --
 Original   : (??) and Leon Marrick
 Updated    : (??)
-Updated    : Zangband DevTeam
-Last update: May 25, 2001
+Updated    : Simon
+Last update: March 27, 2002
 
 ***** Begin Hyperlinks
 ***** [1] commdesc.txt#ThrowFire

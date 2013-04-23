@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/08/20 18:49:37 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/13 04:55:54 $
 # File: Makefile.wat
 
 # Purpose: Makefile support for "main-ibm.c" for Watcom C/C++
@@ -16,17 +16,15 @@ OBJS = &
   variable.obj tables.obj util.obj cave.obj &
   object1.obj object2.obj monster1.obj monster2.obj &
   xtra1.obj xtra2.obj spells1.obj spells2.obj melee1.obj melee2.obj &
-  load.obj save.obj files.obj fields.obj ui.obj &
+  load.obj save.obj files.obj fields.obj &
   cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj &
   store.obj birth.obj wizard1.obj wizard2.obj &
-  generate.obj dungeon.obj init1.obj init2.obj quest.obj &
+  generate.obj dungeon.obj init1.obj init2.obj &
   effects.obj racial.obj grid.obj streams.obj rooms.obj &
   artifact.obj mutation.obj flavor.obj spells3.obj &
-  mspells1.obj mspells2.obj scores.obj mind.obj maid-grf.obj &
+  mspells1.obj mspells2.obj scores.obj class.obj &
   bldg.obj obj_kind.obj wild1.obj wild2.obj avatar.obj notes.obj &
-  main-ibm.obj main.obj &
-  zborg1.obj zborg2.obj zborg3.obj zborg4.obj zborg5.obj &
-  zborg6.obj zborg7.obj zborg8.obj zborg9.obj
+  main-ibm.obj main.obj
 
 all: angband.exe gredit.exe makepref.exe
 

@@ -1,7 +1,7 @@
 === The Town and Wilderness ===
 
 
-After you have created your character, you will begin your Zangband
+After you have created your character, you will begin your STangband
 adventure in the town. Symbols appearing on your screen will represent
 the walls, floor, objects, features, and creatures lurking about. In
 order to direct your character through his adventure, you will enter
@@ -48,14 +48,14 @@ passes and if you enter the town at night, the town will be dark.
 Fortunately, the various shops and the other special buildings are open
 on a 24-hour basis.
 
-Later versions of Zangband have introduced a dramatically extended town
+Later versions of STangband have introduced a dramatically extended town
 level to the game. In addition to the basic town and the standard nine
 shops, new buildings and multiple towns separated by a wilderness were
 added. 
 
 While most people welcome these new additions, they are not for
 everyone and consequently, there are two possible town options in
-Zangband - the 'Standard' town(s) and the 'Vanilla' town. The default
+STangband - the 'Standard' town(s) and the 'Vanilla' town. The default
 is the standard town. The vanilla town option can be selected during
 character generation. (see option.txt#StartUp [3])
 
@@ -82,7 +82,7 @@ get through the first few levels of the game.  As your character gains
 levels, you will need to journey into the wilderness seeking other
 towns and cities to purchase and sell higher-level objects.
 
-Zangband contains more than 100 different kinds of shops each with
+STangband contains more than 100 different kinds of shops each with
 different themes. Specialist stores may stock powerful items but
 usually at steep premiums.  Note that some shops offer services, rather
 than products. You should also note that the largere towns, do not
@@ -98,7 +98,7 @@ The vanilla town consists of nine shops (including a home) and an
 impenetrable wall which surrounds the town. There are no other
 embellishments. The nine shops available are similar to those in
 standard Angband (withth addition of a book store) and are designed to
-be sufficient for an entire game of Zangband.
+be sufficient for an entire game of STangband.
 
 
 ***** <Townspeople>
@@ -150,8 +150,10 @@ Stores do not always have everything in stock. As the game progresses,
 they may get new items so check from time to time. Also, if you sell
 them an item, it may get sold to a customer while you are adventuring,
 so don't always expect to be able to get back everything you have sold.
-The inventory of a store may change even if you don't go into the
-dungeon. If you have a lot of spare gold, you can purchase every item
+Note that the inventory of a store will not change while you are in
+town, even if you save the game and return. You must spend time in the
+dungeon if you wish the store owner to clear out his stock and acquire
+new items. If you have a lot of spare gold, you can purchase every item
 in a store, which will induce the store owner to bring out new stock,
 and perhaps even retire.
 
@@ -161,6 +163,12 @@ bought it they will immediately identify the object. If it is a good
 object, they will add it to their inventory. If it was a bad bargain,
 they simply throw the item away. In any case, you may receive some
 knowledge of the item if another is encountered.
+
+Note that in STangband, store owners will buy more items than they sell.
+Consequently, it is possible to sell an item to a shopkeeper and not
+to have it appear in the store's inventory of things to sell.  If you
+plan to buy somehting back at a later date, make sure you sell the item
+in a store that stocks such items.
 
 
 ***** <Bartering>

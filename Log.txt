@@ -1,0 +1,65 @@
+Rewritten life spells.
+boosted Brand_weapon.
+Created phased_door: Dimensional door range 2.
+Rewritten order(sorcery) spells.
+Shifted Ranger to Life magic (cleric).
+Started overrighting Nature with Fire.
+	Created a sh_fire and sh_elec in effects.c.
+Finished Fire.
+Started Air.
+	Created a ffall and free_act in effects.c.
+-Decreased all damage from spells (Will be repeated).
+-Changed all Dragon armour so that it does let you Breathe like a Dragon.
+Finished Air.
+Shifted Chaos Warrior to Trump(soon to be Chaos).
+Added in flags for new effects.
+Finally created ac boost (5 and 25)
+Rewritten Death. Not much change there.
+Writing Chaos.
+Created destroy_traps_touch. Destroy traps and doors does not affect traps.
+Finished Chaos.
+Tried making a extra spellbook.
+Added in half the Beserker Class.
+Written new race tables/abilities. Hurt fire/cold are monster only.
+History tables crashing game.
+Fixed History table.
+Fixed Minotaur Horns.
+Finished Races.
+Fixed Save files.
+Started Astral Realm.
+Changed Help Files.
+Fixed Water spellbook items but they crash when you try to read them.
+Fixed spell_names finally.
+Fixed AC1 and AC2 but the armour redraw is not happening.
+Written Water spells.
+Modified destroy_doors_touch and destroy_traps_touch to the same without _touch
+	Now requires radius.
+Made an opposite to wall_stone.
+Created rain_effect.
+Written Earth spells.
+Written Wizardry spells.
+Have written all thief and mage type classes.
+Found a way to greatly shorten tables.c
+Greater Quake now works perfectly.
+Fixed Ranger, Paladin and Chaos Warrior.
+Created Dark Knight and split Priest.
+Fixed 2 realm / patron clash.
+You can now Hallucinate when starving and won't recover from hallucination until fed.
+Created Holy Hand Grenade of Antioch
+Modified Earthquake for monster use and added quake damage.
+Updated monster spells with BO_LAVA, BO_QUAKE, BA_LAVA and QUAKE.
+Made separate summon_elemental for each realm.
+Created wild_blast and used it in the Crazy Bullet spell. 
+Also created Justice spell.
+Changed the mindcrater section to also contain all class powers and have made tech classes.
+Changed realm_choices to use u16b instead of byte.
+	All realms/classes work fine.
+Created machines.
+Magic Resistance added.
+Terrain can be changed by high damage elemental attacks.
+Created a bridge spell that makes a path over dangerous terrain.
+Feelings work on all items. Some bad items are being called broken?
+Extended browse cmd to give an extened spell description.
+Modified everybodies invisibility. Now usable by player.
+Added new things into artifact activation.
+Fixed minor errors.

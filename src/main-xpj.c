@@ -37,18 +37,13 @@
 
 #ifdef USE_XPJ
 
-cptr help_xpj[] =
-{
-	"To use XPJ  (Projected view)",
-	"-d    Set display name",
-	"-s    Turn off smoothscaling graphics",
-	"-n#   Number of terms to use",
-	NULL
-};
-
 
 #ifndef USE_GRAPHICS
 #error "Must have USE_GRAPHICS compile-time flag on."
+#endif
+
+#ifndef USE_TRANSPARENCY
+#error "Must have USE_TRANSPARENCY compile-time flag on."
 #endif
 
 /* 
@@ -75,7 +70,7 @@ cptr help_xpj[] =
 
 
 
-/* Rest of the dependencies */
+/* Rest of the dependancies */
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
@@ -783,7 +778,7 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 	m->fg = m->white;
 
 	/* Calculate the Maximum allowed Pixel value.  */
-	m->zg = ((Pixell)1 << m->depth) - 1;
+	m->zg = (1 << m->depth) - 1;
 
 	/* Save various default Flag Settings */
 	m->color = ((m->depth > 1) ? 1 : 0);
@@ -1220,7 +1215,7 @@ static errr Infofnt_prepare(XFontStruct *info)
  * Inputs:
  *	name: The name of the requested Font
  */
-static void Infofnt_init_data(cptr name)
+static errr Infofnt_init_data(cptr name)
 {
 	XFontStruct *info;
 
@@ -1228,13 +1223,13 @@ static void Infofnt_init_data(cptr name)
 	/*** Load the info Fresh, using the name ***/
 
 	/* If the name is not given, report an error */
-	if (!name) quit("Missing font!");
+	if (!name) return (-1);
 
 	/* Attempt to load the font */
 	info = XLoadQueryFont(Metadpy->dpy, name);
 
-	/* The load failed */
-	if (!info) quit_fmt("Failed to find font:\"%s\"", name);
+	/* The load failed, try to recover */
+	if (!info) return (-1);
 
 
 	/*** Init the font ***/
@@ -1249,7 +1244,7 @@ static void Infofnt_init_data(cptr name)
 		XFreeFont(Metadpy->dpy, info);
 
 		/* Fail */
-		quit_fmt("Failed to prepare font:\"%s\"", name);
+		return (-1);
 	}
 
 	/* Save a copy of the font name */
@@ -1257,6 +1252,9 @@ static void Infofnt_init_data(cptr name)
 
 	/* Mark it as nukable */
 	Infofnt->nuke = 1;
+
+	/* Success */
+	return (0);
 }
 
 
@@ -1332,11 +1330,13 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
  *
  * Also appears in "main-xaw.c".
  */
-static void react_keypress(XKeyEvent *ev)
+static void react_keypress(XKeyEvent *xev)
 {
 	int i, n, mc, ms, mo, mx;
 
 	uint ks1;
+
+	XKeyEvent *ev = (XKeyEvent*)(xev);
 
 	KeySym ks;
 
@@ -1409,7 +1409,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the KeySym */
 	if (ks)
 	{
-		strnfmt(msg, 128, "%c%s%s%s%s_%lX%c", 31,
+		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        (unsigned long)(ks), 13);
@@ -1418,7 +1418,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the Keycode */
 	else
 	{
-		strnfmt(msg, 128, "%c%s%s%s%sK_%X%c", 31,
+		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        ev->keycode, 13);
@@ -2807,6 +2807,8 @@ static XImage *ReadFONT(Display *dpy, char *Name, u16b size)
 
 	char line[16];
 
+	char tmp_string[100];
+
 	int i, j, k, m, total;
 	int num = 0, error_idx = -1;
 
@@ -2833,7 +2835,7 @@ static XImage *ReadFONT(Display *dpy, char *Name, u16b size)
 	/* Failure */
 	if (Res == NULL)
 	{
-		KILL(Data);
+		C_KILL(Data, total, char);
 		fclose(fp);
 		
 		return (NULL);
@@ -2863,7 +2865,8 @@ static XImage *ReadFONT(Display *dpy, char *Name, u16b size)
 		/* Verify correct "colon" format */
 		if (buf[1] != ':')
 		{
-			quit_fmt("Incorrect font file format on line %d", num);
+			sprintf(tmp_string, "Incorrect font file format on line %d", num);
+			quit(tmp_string);
 		}
 
 		/* Get number */
@@ -2875,7 +2878,9 @@ static XImage *ReadFONT(Display *dpy, char *Name, u16b size)
 			/* Verify information */
 			if (i <= error_idx)
 			{
-				quit_fmt("Incorrect font file numbering on line %d", num);
+				sprintf(tmp_string, 
+					"Incorrect font file numbering on line %d", num);
+				quit(tmp_string);
 			}
 
 			error_idx = i;
@@ -2883,13 +2888,17 @@ static XImage *ReadFONT(Display *dpy, char *Name, u16b size)
 			/* Verify information */
 			if (i >= 128)
 			{
-				quit_fmt("Incorrect font file numbering on line %d", num);
+				sprintf(tmp_string, 
+					"Incorrect font file numbering on line %d", num);
+				quit(tmp_string);
 			}
 			
 			/* Verify information */
 			if (j != size)
 			{
-				quit_fmt("Incorrect font size on line %d", num);
+				sprintf(tmp_string, 
+					"Incorrect font size on line %d", num);
+				quit(tmp_string);
 			}
 			
 			/* Start from the top */
@@ -2902,12 +2911,16 @@ static XImage *ReadFONT(Display *dpy, char *Name, u16b size)
 			/* Verify information */
 			if (j >= size)
 			{
-				quit_fmt("Incorrect font size length on line %d", num);
+				sprintf(tmp_string, 
+					"Incorrect font size length on line %d", num);
+				quit(tmp_string);
 			}
 			
 			if (((int) strlen(buf)) != size + 2)
 			{
-				quit_fmt("Incorrect font size width on line %d", num);
+				sprintf(tmp_string, 
+					"Incorrect font size width on line %d", num);
+				quit(tmp_string);
 			}
 			
 			/* Create the line */
@@ -2990,23 +3003,23 @@ static errr term_data_init(term_data *td, int i)
 	font = get_default_font(i);
 
 	/* Window specific location (x) */
-	strnfmt(buf, 80, "ANGBAND_X11_AT_X_%d", i);
+	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);
 	str = getenv(buf);
 	x = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific location (y) */
-	strnfmt(buf, 80, "ANGBAND_X11_AT_Y_%d", i);
+	sprintf(buf, "ANGBAND_X11_AT_Y_%d", i);
 	str = getenv(buf);
 	y = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific cols */
-	strnfmt(buf, 80, "ANGBAND_X11_COLS_%d", i);
+	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	strnfmt(buf, 80, "ANGBAND_X11_ROWS_%d", i);
+	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
@@ -3019,13 +3032,13 @@ static errr term_data_init(term_data *td, int i)
 	}
 
 	/* Window specific inner border offset (ox) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOX_%d", i);
+	sprintf(buf, "ANGBAND_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) ox = val;
 
 	/* Window specific inner border offset (oy) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOY_%d", i);
+	sprintf(buf, "ANGBAND_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) oy = val;
@@ -3177,8 +3190,6 @@ errr init_xpj(int argc, char *argv[])
 
 	int pict_wid = 0;
 	int pict_hgt = 0;
-	
-	int graphmode;
 
 	char *TmpData;
 
@@ -3282,20 +3293,36 @@ errr init_xpj(int argc, char *argv[])
 
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);
-	
-	if (arg_graphics)
+
+	/* Try the "16x16.bmp" file */
+	path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+
+	/* Use the "16x16.bmp" file if it exists */
+	if (0 == fd_close(fd_open(filename, O_RDONLY)))
 	{
-		/* And use tiles */
-		graphmode = GRAPHICS_ADAM_BOLT;
+		if (arg_graphics)
+		{
+			/* Use graphics */
+			use_graphics = TRUE;
+			
+			/* And use tiles */
+			ANGBAND_GRAF = "new";
+		}
+		else
+		{
+			/* Use graphics */
+			use_graphics = TRUE;
+			arg_graphics = TRUE;
+			
+			/* But not for monsters / items */
+			ANGBAND_GRAF = "none";
+		}
+		
+		use_transparency = TRUE;
+
+		pict_wid = pict_hgt = 16;
 	}
 	else
-	{
-		/* But not for monsters / items */
-		graphmode = GRAPHICS_HALF_3D;
-	}
-	
-	/* Try graphics */
-	if  (!pick_graphics(graphmode, &pict_wid, &pict_hgt, filename))
 	{
 		quit("Could not initialise graphics!  (Need 16x16.bmp)");
 	}

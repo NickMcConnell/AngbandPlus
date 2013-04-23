@@ -36,19 +36,6 @@
 
 #ifdef USE_XAW
 
-cptr help_xaw[] =
-{
-	"To use XAW",
-	"-d    Set display name",
-#ifdef USE_GRAPHICS
-	"-s    Turn off smoothscaling graphics",
-	"-b#   Set tileset bitmap",
-#endif /* USE_GRAPHICS */
-	"-n#   Number of terms to use",
-	NULL
-};
-
-
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
@@ -197,8 +184,12 @@ struct AngbandPart
 	/* Tiles */
 	XImage *tiles;
 
+#ifdef USE_TRANSPARENCY
+
 	/* Tempory storage for overlaying tiles. */
 	XImage *TmpImage;
+
+#endif
 
 #endif /* USE_GRAPHICS */
 
@@ -259,23 +250,23 @@ struct AngbandClassRec
  */
 static XtResource resources[] =
 {
-	{ (String) XtNstartRows, (String) XtCValue, (String) XtRInt, sizeof(int),
+	{ XtNstartRows, XtCValue, XtRInt, sizeof(int),
 	  offset(start_rows), XtRImmediate, (XtPointer) 24 },
-	{ (String) XtNstartColumns, (String) XtCValue, (String) XtRInt, sizeof(int),
+	{ XtNstartColumns, XtCValue, XtRInt, sizeof(int),
 	  offset(start_columns), XtRImmediate, (XtPointer) 80 },
-	{ (String) XtNminRows, (String) XtCValue, (String) XtRInt, sizeof(int),
+	{ XtNminRows, XtCValue, XtRInt, sizeof(int),
 	  offset(min_rows), XtRImmediate, (XtPointer) 1 },
-	{ (String) XtNminColumns, (String) XtCValue, (String) XtRInt, sizeof(int),
+	{ XtNminColumns, XtCValue, XtRInt, sizeof(int),
 	  offset(min_columns), XtRImmediate, (XtPointer) 1 },
-	{ (String) XtNmaxRows, (String) XtCValue, (String) XtRInt, sizeof(int),
+	{ XtNmaxRows, XtCValue, XtRInt, sizeof(int),
 	  offset(max_rows), XtRImmediate, (XtPointer) 24 },
-	{ (String) XtNmaxColumns, (String) XtCValue, (String) XtRInt, sizeof(int),
+	{ XtNmaxColumns, XtCValue, XtRInt, sizeof(int),
 	  offset(max_columns), XtRImmediate, (XtPointer) 80 },
-	{ (String) XtNinternalBorder, (String) XtCValue, (String) XtRInt, sizeof(int),
+	{ XtNinternalBorder, XtCValue, XtRInt, sizeof(int),
 	  offset(internal_border), XtRImmediate, (XtPointer) 2 },
-	{ (String) XtNfont, (String) XtCFont, (String) XtRString, sizeof(char *),
-	  offset(font), XtRString, (String) DEFAULT_X11_FONT },
-	{ (String) XtNredrawCallback, (String) XtCCallback, (String) XtRCallback, sizeof(XtPointer),
+	{ XtNfont, XtCFont, XtRString, sizeof(char *),
+	  offset(font), XtRString, DEFAULT_X11_FONT },
+	{ XtNredrawCallback, XtCCallback, XtRCallback, sizeof(XtPointer),
 	  offset(redraw_callbacks), XtRCallback, (XtPointer)NULL }
 };
 
@@ -318,7 +309,7 @@ AngbandClassRec angbandClassRec =
 	{
 		/* Core class fields initialization */
 		/* superclass           */      (WidgetClass) superclass,
-		/* class_name           */      (String) "Angband",
+		/* class_name           */      "Angband",
 		/* widget_size          */      sizeof(AngbandRec),
 		/* class_initialize     */      NULL,
 		/* class_part_initialize*/      NULL,
@@ -426,8 +417,13 @@ static void AngbandOutputText(AngbandWidget widget, int x, int y,
 /*
  * Draw some graphical characters.
  */
+# ifdef USE_TRANSPARENCY
 static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
  const byte *ap, const char *cp, const byte *tap, const char *tcp)
+# else /* USE_TRANSPARENCY */
+static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
+ const byte *ap, const char *cp)
+# endif /* USE_TRANSPARENCY */
 
 
 {
@@ -436,6 +432,7 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 	byte a;
 	char c;
 
+#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
@@ -443,6 +440,7 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 	int k,l;
 
 	unsigned long pixel, blank;
+#endif /* USE_TRANSPARENCY */
 
 	/* Figure out where to place the text */
 	y = (y * widget->angband.fontheight + widget->angband.internal_border);
@@ -456,6 +454,8 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		/* For extra speed - cache these values */
 		x1 = (c&0x7F) * widget->angband.fontwidth;
 		y1 = (a&0x7F) * widget->angband.fontheight;
+
+#ifdef USE_TRANSPARENCY
 
 		ta = *tap++;
 		tc = *tcp++;
@@ -514,6 +514,19 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 			          widget->angband.fontwidth,
 			          widget->angband.fontheight);
 		}
+
+#else /* USE_TRANSPARENCY */
+
+		/* Draw object / terrain */
+		XPutImage(XtDisplay(widget), XtWindow(widget),
+		          widget->angband.gc[0],
+		          widget->angband.tiles,
+		          x1, y1,
+		          x, y,
+		          widget->angband.fontwidth,
+		          widget->angband.fontheight);
+
+#endif /* USE_TRANSPARENCY */
 
 		x += widget->angband.fontwidth;
 	}
@@ -940,7 +953,7 @@ static XFontStruct *getFont(AngbandWidget widget,
 
 	if (!(fnt = XLoadQueryFont(dpy, font)) && fallback)
 	{
-		strnfmt(buf, 256, "Can't find the font \"%s\", trying fixed\n", font);
+		sprintf(buf, "Can't find the font \"%s\", trying fixed\n", font);
 		XtWarning(buf);
 		if (!(fnt = XLoadQueryFont(dpy, "fixed")))
 		{
@@ -971,14 +984,14 @@ static XFontStruct *getFont(AngbandWidget widget,
  */
 char *termNames[MAX_TERM_DATA] =
 {
-	(String) "angband",
-	(String) "term-1",
-	(String) "term-2",
-	(String) "term-3",
-	(String) "term-4",
-	(String) "term-5",
-	(String) "term-6",
-	(String) "term-7"
+	"angband",
+	"term-1",
+	"term-2",
+	"term-3",
+	"term-4",
+	"term-5",
+	"term-6",
+	"term-7"
 };
 
 
@@ -987,13 +1000,13 @@ char *termNames[MAX_TERM_DATA] =
  */
 Arg specialArgs[TERM_FALLBACKS] =
 {
-	{ (String) XtNstartRows,    24},
-	{ (String) XtNstartColumns, 80},
-	{ (String) XtNminRows,      24},
-	{ (String) XtNminColumns,   80},
-	{ (String) XtNmaxRows,      255},
-	{ (String) XtNmaxColumns,   255},
-	{ (String) XtNinternalBorder, 2}
+	{ XtNstartRows,    24},
+	{ XtNstartColumns, 80},
+	{ XtNminRows,      24},
+	{ XtNminColumns,   80},
+	{ XtNmaxRows,      255},
+	{ XtNmaxColumns,   255},
+	{ XtNinternalBorder, 2}
 };
 
 
@@ -1002,13 +1015,13 @@ Arg specialArgs[TERM_FALLBACKS] =
  */
 Arg defaultArgs[TERM_FALLBACKS] =
 {
-	{ (String) XtNstartRows,      24},
-	{ (String) XtNstartColumns,   80},
-	{ (String) XtNminRows,        1},
-	{ (String) XtNminColumns,     1},
-	{ (String) XtNmaxRows,        255},
-	{ (String) XtNmaxColumns,     255},
-	{ (String) XtNinternalBorder, 2}
+	{ XtNstartRows,      24},
+	{ XtNstartColumns,   80},
+	{ XtNminRows,        1},
+	{ XtNminColumns,     1},
+	{ XtNmaxRows,        255},
+	{ XtNmaxColumns,     255},
+	{ XtNinternalBorder, 2}
 };
 
 
@@ -1023,22 +1036,22 @@ XtAppContext appcon;
  */
 static String fallback[] =
 {
-	(String) "Angband.angband.iconName:   Angband",
-	(String) "Angband.angband.title:      Angband",
-	(String) "Angband.term-1.iconName:    Term 1",
-	(String) "Angband.term-1.title:       Term 1",
-	(String) "Angband.term-2.iconName:    Term 2",
-	(String) "Angband.term-2.title:       Term 2",
-	(String) "Angband.term-3.iconName:    Term 3",
-	(String) "Angband.term-3.title:       Term 3",
-	(String) "Angband.term-4.iconName:    Term 4",
-	(String) "Angband.term-4.title:       Term 4",
-	(String) "Angband.term-5.iconName:    Term 5",
-	(String) "Angband.term-5.title:       Term 5",
-	(String) "Angband.term-6.iconName:    Term 6",
-	(String) "Angband.term-6.title:       Term 6",
-	(String) "Angband.term-7.iconName:    Term 7",
-	(String) "Angband.term-7.title:       Term 7",
+	"Angband.angband.iconName:   Angband",
+	"Angband.angband.title:      Angband",
+	"Angband.term-1.iconName:    Term 1",
+	"Angband.term-1.title:       Term 1",
+	"Angband.term-2.iconName:    Term 2",
+	"Angband.term-2.title:       Term 2",
+	"Angband.term-3.iconName:    Term 3",
+	"Angband.term-3.title:       Term 3",
+	"Angband.term-4.iconName:    Term 4",
+	"Angband.term-4.title:       Term 4",
+	"Angband.term-5.iconName:    Term 5",
+	"Angband.term-5.title:       Term 5",
+	"Angband.term-6.iconName:    Term 6",
+	"Angband.term-6.title:       Term 6",
+	"Angband.term-7.iconName:    Term 7",
+	"Angband.term-7.title:       Term 7",
 	NULL
 };
 
@@ -1074,11 +1087,13 @@ static void react_redraw(Widget widget,
  *
  * Also appears in "main-x11.c".
  */
-static void react_keypress(XKeyEvent *ev)
+static void react_keypress(XKeyEvent *xev)
 {
 	int i, n, mc, ms, mo, mx;
 
 	uint ks1;
+
+	XKeyEvent *ev = (XKeyEvent*)(xev);
 
 	KeySym ks;
 
@@ -1151,7 +1166,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the KeySym */
 	if (ks)
 	{
-		strnfmt(msg, 128, "%c%s%s%s%s_%lX%c", 31,
+		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        (unsigned long)(ks), 13);
@@ -1160,7 +1175,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the Keycode */
 	else
 	{
-		strnfmt(msg, 128, "%c%s%s%s%sK_%X%c", 31,
+		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        ev->keycode, 13);
@@ -1434,13 +1449,21 @@ static errr Term_text_xaw(int x, int y, int n, byte a, cptr s)
 /*
  * Draw some graphical characters.
  */
+# ifdef USE_TRANSPARENCY
 static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp,
 	const byte *tap, const char *tcp)
+# else /* USE_TRANSPARENCY */
+static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp)
+# endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
 	/* Draw the pictures */
+# ifdef USE_TRANSPARENCY
 	AngbandOutputPict(td->widget, x, y, n, ap, cp, tap, tcp);
+# else /* USE_TRANSPARENCY */
+	AngbandOutputPict(td->widget, x, y, n, ap, cp);
+# endif /* USE_TRANSPARENCY */
 
 	/* Success */
 	return (0);
@@ -1483,13 +1506,13 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	                            NULL, 0);
 
 	/* Window specific cols */
-	strnfmt(buf, 80, "ANGBAND_X11_COLS_%d", i);
+	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	strnfmt(buf, 80, "ANGBAND_X11_ROWS_%d", i);
+	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
@@ -1508,13 +1531,13 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	/* Hack  ox==oy in xaw port */ 
 	
 	/* Window specific inner border offset (ox) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOX_%d", i);
+	sprintf(buf, "ANGBAND_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) widget_arg[6].value = val;
 
 	/* Window specific inner border offset (oy) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOY_%d", i);
+	sprintf(buf, "ANGBAND_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) widget_arg[6].value = val;
@@ -1643,9 +1666,12 @@ errr init_xaw(int argc, char *argv[])
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
-	int graphmode = GRAPHICS_ANY;
+	int bitdepth = 0;
 	
+#ifdef USE_TRANSPARENCY
+
 	char *TmpData;
+#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -1667,14 +1693,10 @@ errr init_xaw(int argc, char *argv[])
 		
 		if (prefix(argv[i], "-b"))
 		{
-			int bitdepth = 0;
-			
 			bitdepth = atoi(&argv[i][2]);
 			
-			/* Paranoia */
-			if (bitdepth == 16) graphmode = GRAPHICS_ADAM_BOLT;
-			if (bitdepth == 8) graphmode = GRAPHICS_ORIGINAL;
-			
+			/* paranoia */
+			if ((bitdepth != 16) && (bitdepth != 8)) bitdepth = 0;
 			continue;
 		}
 #endif /* USE_GRAPHICS */
@@ -1738,7 +1760,44 @@ errr init_xaw(int argc, char *argv[])
 	/* Try graphics */
 	if (arg_graphics)
 	{
-		(void) pick_graphics(graphmode, &pict_wid, &pict_hgt, filename);
+		use_graphics = FALSE;
+		
+		if ((bitdepth == 0) || (bitdepth == 16))
+		{
+			/* Try the "16x16.bmp" file */
+			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+
+			/* Use the "16x16.bmp" file if it exists */
+			if (0 == fd_close(fd_open(filename, O_RDONLY)))
+			{
+				/* Use graphics */
+				use_graphics = TRUE;
+
+				use_transparency = TRUE;
+
+				pict_wid = pict_hgt = 16;
+
+				ANGBAND_GRAF = "new";
+			}
+		}
+		
+		/* We failed, or we want 8x8 graphics */
+		if (!use_graphics && ((bitdepth == 0) || (bitdepth == 8)))
+		{
+			/* Try the "8x8.bmp" file */
+			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
+
+			/* Use the "8x8.bmp" file if it exists */
+			if (0 == fd_close(fd_open(filename, O_RDONLY)))
+			{
+				/* Use graphics */
+				use_graphics = TRUE;
+
+				pict_wid = pict_hgt = 8;
+
+				ANGBAND_GRAF = "old";
+			}
+		}
 	}
 
 	/* Load graphics */
@@ -1773,6 +1832,7 @@ errr init_xaw(int argc, char *argv[])
 			            td->widget->angband.fontheight);
 		}
 
+#ifdef USE_TRANSPARENCY
 		/* Initialize the transparency temp storage*/
 		for (i = 0; i < num_term; i++)
 		{
@@ -1800,6 +1860,8 @@ errr init_xaw(int argc, char *argv[])
 			        td->widget->angband.fontheight, 8, 0);
 
 		}
+#endif /* USE_TRANSPARENCY */
+
 
 		/* Free tiles_raw? XXX XXX */
 	}

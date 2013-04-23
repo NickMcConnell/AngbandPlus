@@ -3,11 +3,11 @@
 /* Purpose: Angband specific configuration stuff */
 
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
  */
 
 /* Allow debug commands */
@@ -23,7 +23,9 @@
  * whether you wish to keep, comment, or uncomment them.  You should not
  * have to modify any lines not indicated by "OPTION".
  *
- * Note: Also examine the "system" configuration file "h-config.h".
+ * Note: Also examine the "system" configuration file "h-config.h"
+ * and the variable initialization file "variable.c".  If you change
+ * anything in "variable.c", you only need to recompile that file.
  *
  * And finally, remember that the "Makefile" will specify some rather
  * important compile time options, like what visual module to use.
@@ -168,9 +170,9 @@
 
 
 /*
- * OPTION: Hack -- Compile in support for "Borg mode"
+ * OPTION: Hack -- Compile in support for "Cyborg" mode
  */
-#define ALLOW_BORG
+/*#define ALLOW_BORG*/
 
 #ifdef USE_DEBUG
 
@@ -266,31 +268,19 @@
 
 
 /*
- * OPTION: Allow "Wizards" to yield "high scores"
+ * Allow "Wizards" to yield "high scores"
  */
 /* #define SCORE_WIZARDS */
 
 /*
- * OPTION: Allow "Borgs" to yield "high scores"
+ * Allow "Borgs" to yield "high scores"
  */
-/* #define SCORE_BORGS */
+/*#define SCORE_BORGS*/
 
 /*
- * OPTION: Allow "Cheaters" to yield "high scores"
+ * Allow "Cheaters" to yield "high scores"
  */
 /* #define SCORE_CHEATERS */
-
-
-/*
- * OPTION: Gamma correct colours (with X11)
- */
-#define SUPPORT_GAMMA
-
-
-/*
- * OPTION: Check the modification time of *_info.raw files
- */
-#define CHECK_MODIFICATION_TIME
 
 
 #ifdef USE_SPECIAL
@@ -313,7 +303,7 @@
 #endif /* USE_SPECIAL */
 
 /*
- * Hack -- Macintosh stuff
+ * OPTION: Hack -- Macintosh stuff
  */
 #ifdef MACINTOSH
 
@@ -324,7 +314,7 @@
 
 
 /*
- * Hack -- Windows stuff
+ * OPTION: Hack -- Windows stuff
  */
 #ifdef WINDOWS
 
@@ -335,7 +325,7 @@
 
 
 /*
- * Hack -- EMX stuff
+ * OPTION: Hack -- EMX stuff
  */
 #ifdef USE_EMX
 
@@ -349,14 +339,10 @@
  * OPTION: Set the "default" path to the angband "lib" directory.
  *
  * See "main.c" for usage, and note that this value is only used on
- * certain machines, primarily Unix machines.
- *
- * The configure script overrides this value.  Check the "--prefix=<dir>"
- * option of the configure script.
- *
- * This value will be over-ridden by the "ANGBAND_PATH" environment
- * variable, if that variable is defined and accessable.  The final
- * "slash" is required if the value supplied is in fact a directory.
+ * certain machines, primarily Unix machines.  If this value is used,
+ * it will be over-ridden by the "ANGBAND_PATH" environment variable,
+ * if that variable is defined and accessable.  The final slash is
+ * optional, but it may eventually be required.
  *
  * Using the value "./lib/" below tells Angband that, by default,
  * the user will run "angband" from the same directory that contains
@@ -368,7 +354,7 @@
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
-#endif /* DEFAULT_PATH */
+#endif
 
 
 /*
@@ -385,7 +371,7 @@
  */
 #ifdef SET_UID
 # define SAVEFILE_USE_UID
-#endif /* SET_UID */
+#endif
 
 
 /*
@@ -414,18 +400,6 @@
 #if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
 # define SAVEFILE_MUTABLE
 #endif
-
-
-/*
- * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
- * the '-d<what>=<path>' command line option (except for '-du=<path>').
- *
- * This prevents cheating in multi-user installs as well as possible
- * security problems when running setgid.
- */
-#ifdef SET_UID
-#define FIXED_PATHS
-#endif /* SET_UID */
 
 
 /*
@@ -459,6 +433,11 @@
 #define DEFAULT_X11_FONT_6		"5x8"
 #define DEFAULT_X11_FONT_7		"5x8"
 
+/*
+ * OPTION: Gamma correct colours.
+ */
+
+#define SUPPORT_GAMMA
 
 /*
  * Hack -- Special "ancient machine" versions
@@ -485,7 +464,7 @@
 # undef ALLOW_MACROS
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
-# undef USE_DEBUG
+# undef ALLOW_WIZARD
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef DELAY_LOAD_R_TEXT
@@ -506,18 +485,8 @@
 #ifdef VERIFY_HONOR
 # define VERIFY_SAVEFILE
 # define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMP
+# define VERIFY_TIMESTAMPS
 #endif
-
-
-/*
- * Allow the Borg to use graphics.
- */
-#ifdef ALLOW_BORG
-# ifdef USE_GRAPHICS
-#  define ALLOW_BORG_GRAPHICS
-# endif	/* USE_GRAPHICS */
-#endif /* ALLOW_BORG */
 
 
 /* Do we want different characters for different races? */
@@ -542,9 +511,23 @@
 /* #define MONK_HACK */
 
 /*
- * Use a scripting language (required)
+ * Check the modification time of *_info.raw files
+ * (by Keldon Jones)
  */
-#define USE_SCRIPT
+#define CHECK_MODIFICATION_TIME
+
+/*
+ * Use a scripting language
+ */
+/* #define USE_SCRIPT */
+
+#ifdef USE_SCRIPT
+/*
+ * Python is statically linked into ZAngband
+ */
+# define STATIC_PYTHON
+/* # define SCRIPT_OBJ_KIND */
+#endif /* USE_SCRIPT */
 
 /*
  * Monsters can drop corpses when killed
@@ -560,35 +543,3 @@
  * Add pillar tunnels (Annoying)
  */
 /* #define PILLAR_TUNNELS */
-
-/*
- * Optional use of 64bit type
- */
-/* #define USE_64B */
-
-/* Include maid-grf.c stuff */
-#ifdef ALLOW_BORG
-#define TERM_USE_MAP
-#define TERM_CAVE_MAP
-#define TERM_USE_LIST
-#endif /* ALLOW_BORG */
-
-#ifdef USE_AMI
-#define TERM_USE_MAP
-#define TERM_MAP_GLYPH
-#endif /* USE_AMI */
-
-#ifdef USE_TNB
-#define TERM_USE_MAP
-#define TERM_MAP_GLYPH
-#define TERM_CAVE_MAP
-#define TERM_MAP_INFO
-#endif /* USE_TNB */
-
-/*
- * Defining parts of the new term interface requires
- * the callbacks api
- */
-#if defined TERM_USE_MAP || defined TERM_USE_LIST
-#define TERM_USE_CALLBACKS
-#endif /* TERM_USE_MAP || TERM_USE_LIST */

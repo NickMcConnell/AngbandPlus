@@ -101,26 +101,19 @@ static bool know_damage(int r_idx, int i)
  */
 static void roff_aux(int r_idx, int remem)
 {
-	monster_race *r_ptr = &r_info[r_idx];
-
-	bool old = FALSE;
-	bool sin = FALSE;
-
-	int m, n, r;
-	cptr p, q;
-
-	int msex = 0;
-	int speed = (ironman_nightmare) ? r_ptr->speed + 5 : r_ptr->speed;
-
-	bool breath = FALSE;
-	bool magic = FALSE;
-
-	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7;
-
-	int vn = 0;
-	cptr vp[80];
-
-	monster_race save_mem;
+	monster_race    *r_ptr = &r_info[r_idx];
+	bool            old = FALSE;
+	bool            sin = FALSE;
+	int             m, n, r;
+	cptr            p, q;
+	int             msex = 0;
+	int             speed = (ironman_nightmare) ? r_ptr->speed + 5 : r_ptr->speed;
+	bool            breath = FALSE;
+	bool            magic = FALSE;
+	u32b            flags1, flags2, flags3, flags4, flags5, flags6, flags7;
+	int             vn = 0;
+	cptr            vp[80];
+	monster_race    save_mem;
 
 	/* Descriptions */
 	char buf[2048];
@@ -149,12 +142,12 @@ static void roff_aux(int r_idx, int remem)
 
 		/* Hack -- maximal drops */
 		r_ptr->r_drop_gold = r_ptr->r_drop_item =
-			(((r_ptr->flags1 & RF1_DROP_4D2) ? 8 : 0) +
-			 ((r_ptr->flags1 & RF1_DROP_3D2) ? 6 : 0) +
-			 ((r_ptr->flags1 & RF1_DROP_2D2) ? 4 : 0) +
-			 ((r_ptr->flags1 & RF1_DROP_1D2) ? 2 : 0) +
-			 ((r_ptr->flags1 & RF1_DROP_90) ? 1 : 0) +
-			 ((r_ptr->flags1 & RF1_DROP_60) ? 1 : 0));
+		(((r_ptr->flags1 & RF1_DROP_4D2) ? 8 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_3D2) ? 6 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_2D2) ? 4 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_1D2) ? 2 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_90)  ? 1 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_60)  ? 1 : 0));
 
 		/* Hack -- but only "valid" drops */
 		if (r_ptr->flags1 & RF1_ONLY_GOLD) r_ptr->r_drop_item = 0;
@@ -190,34 +183,34 @@ static void roff_aux(int r_idx, int remem)
 
 
 	/* Assume some "obvious" flags */
-	if (r_ptr->flags1 & RF1_UNIQUE) flags1 |= (RF1_UNIQUE);
+	if (r_ptr->flags1 & RF1_UNIQUE)  flags1 |= (RF1_UNIQUE);
 	if (r_ptr->flags1 & RF1_QUESTOR) flags1 |= (RF1_QUESTOR);
-	if (r_ptr->flags1 & RF1_MALE) flags1 |= (RF1_MALE);
-	if (r_ptr->flags1 & RF1_FEMALE) flags1 |= (RF1_FEMALE);
+	if (r_ptr->flags1 & RF1_MALE)    flags1 |= (RF1_MALE);
+	if (r_ptr->flags1 & RF1_FEMALE)  flags1 |= (RF1_FEMALE);
 
 	/* Assume some "creation" flags */
-	if (r_ptr->flags1 & RF1_CHAR_MIMIC) flags1 |= (RF1_CHAR_MIMIC);
+	if (r_ptr->flags1 & RF1_CHAR_MIMIC)  flags1 |= (RF1_CHAR_MIMIC);
 	if (r_ptr->flags1 & RF1_FRIENDS) flags1 |= (RF1_FRIENDS);
-	if (r_ptr->flags1 & RF1_ESCORT) flags1 |= (RF1_ESCORT);
+	if (r_ptr->flags1 & RF1_ESCORT)  flags1 |= (RF1_ESCORT);
 	if (r_ptr->flags1 & RF1_ESCORTS) flags1 |= (RF1_ESCORTS);
 
 	/* Killing a monster reveals some properties */
 	if (r_ptr->r_tkills || cheat_know)
 	{
 		/* Know "race" flags */
-		if (r_ptr->flags3 & RF3_ORC) flags3 |= (RF3_ORC);
-		if (r_ptr->flags3 & RF3_TROLL) flags3 |= (RF3_TROLL);
-		if (r_ptr->flags3 & RF3_GIANT) flags3 |= (RF3_GIANT);
-		if (r_ptr->flags3 & RF3_DRAGON) flags3 |= (RF3_DRAGON);
-		if (r_ptr->flags3 & RF3_DEMON) flags3 |= (RF3_DEMON);
-		if (r_ptr->flags3 & RF3_UNDEAD) flags3 |= (RF3_UNDEAD);
-		if (r_ptr->flags3 & RF3_EVIL) flags3 |= (RF3_EVIL);
-		if (r_ptr->flags3 & RF3_GOOD) flags3 |= (RF3_GOOD);
-		if (r_ptr->flags3 & RF3_ANIMAL) flags3 |= (RF3_ANIMAL);
+		if (r_ptr->flags3 & RF3_ORC)      flags3 |= (RF3_ORC);
+		if (r_ptr->flags3 & RF3_TROLL)    flags3 |= (RF3_TROLL);
+		if (r_ptr->flags3 & RF3_GIANT)    flags3 |= (RF3_GIANT);
+		if (r_ptr->flags3 & RF3_DRAGON)   flags3 |= (RF3_DRAGON);
+		if (r_ptr->flags3 & RF3_DEMON)    flags3 |= (RF3_DEMON);
+		if (r_ptr->flags3 & RF3_UNDEAD)   flags3 |= (RF3_UNDEAD);
+		if (r_ptr->flags3 & RF3_EVIL)     flags3 |= (RF3_EVIL);
+		if (r_ptr->flags3 & RF3_GOOD)     flags3 |= (RF3_GOOD);
+		if (r_ptr->flags3 & RF3_ANIMAL)   flags3 |= (RF3_ANIMAL);
 		if (r_ptr->flags3 & RF3_AMBERITE) flags3 |= (RF3_AMBERITE);
 
 		/* Know 'quantum' flag */
-		if (r_ptr->flags2 & RF2_QUANTUM) flags2 |= (RF2_QUANTUM);
+		if (r_ptr->flags2 & RF2_QUANTUM)  flags2 |= (RF2_QUANTUM);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & RF1_FORCE_DEPTH) flags1 |= (RF1_FORCE_DEPTH);
@@ -234,30 +227,28 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->r_deaths)
 		{
 			/* Killed ancestors */
-			roff("%^s has slain %d of your ancestors",
-									  wd_he[msex], r_ptr->r_deaths);
+			c_roff(TERM_WHITE, format("%^s has slain %d of your ancestors",
+			            wd_he[msex], r_ptr->r_deaths));
 
 			/* But we've also killed it */
 			if (dead)
 			{
-				roff(", but you have avenged %s!  ",
-										  plural(r_ptr->r_deaths, "him",
-												 "them"));
+				c_roff(TERM_WHITE, format(", but you have avenged %s!  ",
+				            plural(r_ptr->r_deaths, "him", "them")));
 			}
 
 			/* Unavenged (ever) */
 			else
 			{
-				roff(", who %s unavenged.  ",
-										  plural(r_ptr->r_deaths, "remains",
-												 "remain"));
+				c_roff(TERM_WHITE, format(", who %s unavenged.  ",
+				            plural(r_ptr->r_deaths, "remains", "remain")));
 			}
 		}
 
 		/* Dead unique who never hurt us */
 		else if (dead)
 		{
-			roff(CLR_L_DARK "You have slain this foe.  ");
+			c_roff(TERM_L_DARK, "You have slain this foe.  ");
 		}
 	}
 
@@ -265,28 +256,32 @@ static void roff_aux(int r_idx, int remem)
 	else if (r_ptr->r_deaths)
 	{
 		/* Dead ancestors */
-		roff("%d of your ancestors %s been killed by this creature, ",
-					  r_ptr->r_deaths, plural(r_ptr->r_deaths, "has", "have"));
+		c_roff(TERM_WHITE,
+			format("%d of your ancestors %s been killed by this creature, ",
+			r_ptr->r_deaths, plural(r_ptr->r_deaths, "has", "have")));
 
 		/* Some kills this life */
 		if (r_ptr->r_pkills)
 		{
-			roff("and you have exterminated at least %d of the creatures.  ",
-					r_ptr->r_pkills);
+			c_roff(TERM_WHITE,
+				format("and you have exterminated at least %d of the creatures.  ",
+				r_ptr->r_pkills));
 		}
 
 		/* Some kills past lives */
 		else if (r_ptr->r_tkills)
 		{
-			roff("and %s have exterminated at least %d of the creatures.  ",
-					"your ancestors", r_ptr->r_tkills);
+			c_roff(TERM_WHITE,
+				format("and %s have exterminated at least %d of the creatures.  ",
+				"your ancestors", r_ptr->r_tkills));
 		}
 
 		/* No kills */
 		else
 		{
-			roff(CLR_RED "and %s is not ever known to have been defeated.  ",
-						  wd_he[msex]);
+			c_roff(TERM_RED,
+				format("and %s is not ever known to have been defeated.  ",
+				wd_he[msex]));
 		}
 	}
 
@@ -296,23 +291,27 @@ static void roff_aux(int r_idx, int remem)
 		/* Killed some this life */
 		if (r_ptr->r_pkills)
 		{
-			roff("You have killed at least %d of these creatures.  ",
-						  r_ptr->r_pkills);
+			c_roff(TERM_WHITE,
+				format("You have killed at least %d of these creatures.  ",
+				r_ptr->r_pkills));
 		}
 
 		/* Killed some last life */
 		else if (r_ptr->r_tkills)
 		{
-			roff("Your ancestors have killed at least %d of these creatures.  ",
-					r_ptr->r_tkills);
+			c_roff(TERM_WHITE,
+			format("Your ancestors have killed at least %d of these creatures.  ",
+			r_ptr->r_tkills));
 		}
 
 		/* Killed none */
 		else
 		{
-			roff("No battles to the death are recalled.  ");
+			c_roff(TERM_WHITE, "No battles to the death are recalled.  ");
 		}
 	}
+
+
 
 
 #ifdef DELAY_LOAD_R_TEXT
@@ -356,8 +355,8 @@ static void roff_aux(int r_idx, int remem)
 #endif
 
 	/* Dump it */
-	roff(buf);
-	roff("  ");
+	c_roff(TERM_WHITE, buf);
+	c_roff(TERM_WHITE, "  ");
 
 
 	/* Nothing yet */
@@ -366,38 +365,22 @@ static void roff_aux(int r_idx, int remem)
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
-		roff("%^s lives in the town", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s lives in the town", wd_he[msex]));
 		old = TRUE;
 	}
 	else if (r_ptr->r_tkills || cheat_know)
 	{
-		roff(CLR_SLATE "%^s is ", wd_he[msex]);
-
-		if (r_ptr->r_tkills * r_ptr->rarity >= 30 || cheat_know)
-		{
-			if (r_ptr->rarity < 2)
-				roff(CLR_SLATE "very common");
-			else if (r_ptr->rarity < 4)
-				roff(CLR_SLATE "common");
-			else if (r_ptr->rarity < 8)
-				roff(CLR_SLATE "uncommon");
-			else if (r_ptr->rarity < 16)
-				roff(CLR_SLATE "rare");
-			else
-				roff(CLR_SLATE "very rare");
-		}
-		else
-		{
-			roff(CLR_SLATE "normally found");
-		}
-		
 		if (depth_in_feet)
 		{
-			roff(CLR_SLATE " at depths of %d feet", r_ptr->level * 50);
+			c_roff(TERM_SLATE, 
+				format("%^s is normally found at depths of %d feet",
+				wd_he[msex], r_ptr->level * 50));
 		}
 		else
 		{
-			roff(CLR_SLATE " on dungeon level %d", r_ptr->level);
+			c_roff(TERM_SLATE,
+				format("%^s is normally found on dungeon level %d",
+				wd_he[msex], r_ptr->level));
 		}
 		old = TRUE;
 	}
@@ -409,14 +392,14 @@ static void roff_aux(int r_idx, int remem)
 		/* Introduction */
 		if (old)
 		{
-			roff(", and ");
+			c_roff(TERM_WHITE, ", and ");
 		}
 		else
 		{
-			roff("%^s ", wd_he[msex]);
+			c_roff(TERM_WHITE, format("%^s ", wd_he[msex]));
 			old = TRUE;
 		}
-		roff("moves");
+		c_roff(TERM_WHITE, "moves");
 
 		/* Random-ness */
 		if ((flags1 & RF1_RAND_50) || (flags1 & RF1_RAND_25))
@@ -424,40 +407,40 @@ static void roff_aux(int r_idx, int remem)
 			/* Adverb */
 			if ((flags1 & RF1_RAND_50) && (flags1 & RF1_RAND_25))
 			{
-				roff(" extremely");
+				c_roff(TERM_WHITE, " extremely");
 			}
 			else if (flags1 & RF1_RAND_50)
 			{
-				roff(" somewhat");
+				c_roff(TERM_WHITE, " somewhat");
 			}
 			else if (flags1 & RF1_RAND_25)
 			{
-				roff(" a bit");
+				c_roff(TERM_WHITE, " a bit");
 			}
 
 			/* Adjective */
-			roff(" erratically");
+			c_roff(TERM_WHITE, " erratically");
 
 			/* Hack -- Occasional conjunction */
-			if (speed != 110) roff(", and");
+			if (speed != 110) c_roff(TERM_WHITE, ", and");
 		}
 
 		/* Speed */
 		if (speed > 110)
 		{
-			if (speed > 130) roff(CLR_GREEN " incredibly");
-			else if (speed > 120) roff(CLR_GREEN " very");
-			roff(CLR_GREEN " quickly");
+			if (speed > 130) c_roff(TERM_GREEN, " incredibly");
+			else if (speed > 120) c_roff(TERM_GREEN, " very");
+			c_roff(TERM_GREEN, " quickly");
 		}
 		else if (speed < 110)
 		{
-			if (speed < 90) roff(CLR_GREEN " incredibly");
-			else if (speed < 100) roff(CLR_GREEN " very");
-			roff(CLR_GREEN " slowly");
+			if (speed < 90) c_roff(TERM_GREEN, " incredibly");
+			else if (speed < 100) c_roff(TERM_GREEN, " very");
+			c_roff(TERM_GREEN, " slowly");
 		}
 		else
 		{
-			roff(CLR_GREEN " at normal speed");
+			c_roff(TERM_GREEN, " at normal speed");
 		}
 	}
 
@@ -467,22 +450,22 @@ static void roff_aux(int r_idx, int remem)
 		/* Introduce */
 		if (old)
 		{
-			roff(", but ");
+			c_roff(TERM_WHITE, ", but ");
 		}
 		else
 		{
-			roff("%^s ", wd_he[msex]);
+			c_roff(TERM_WHITE, format("%^s ", wd_he[msex]));
 			old = TRUE;
 		}
 
 		/* Describe */
-		roff("does not deign to chase intruders");
+		c_roff(TERM_WHITE, "does not deign to chase intruders");
 	}
 
 	/* End this sentence */
 	if (old)
 	{
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 		old = FALSE;
 	}
 
@@ -493,30 +476,28 @@ static void roff_aux(int r_idx, int remem)
 		/* Introduction */
 		if (flags1 & RF1_UNIQUE)
 		{
-			roff("Killing this");
+			c_roff(TERM_WHITE, "Killing this");
 		}
 		else
 		{
-			roff("A kill of this");
+			c_roff(TERM_WHITE, "A kill of this");
 		}
 
 		/* Describe the "quality" */
-		if (flags2 & RF2_XXX_1) roff(CLR_L_BLUE " some property");
-		if (flags3 & RF3_ANIMAL) roff(CLR_L_BLUE " natural");
-		if (flags3 & RF3_EVIL) roff(CLR_L_BLUE " evil");
-		if (flags3 & RF3_GOOD) roff(CLR_L_BLUE " good");
-		if (flags3 & RF3_UNDEAD) roff(CLR_L_BLUE " undead");
+		if (flags3 & RF3_ANIMAL)          c_roff(TERM_L_BLUE, " natural");
+		if (flags3 & RF3_EVIL)            c_roff(TERM_L_BLUE, " evil");
+		if (flags3 & RF3_GOOD)            c_roff(TERM_L_BLUE, " good");
+		if (flags3 & RF3_UNDEAD)          c_roff(TERM_L_BLUE, " undead");
 
 		/* Describe the "race" */
-		if (flags3 & RF3_DRAGON) roff(CLR_L_BLUE " dragon");
-		else if (flags3 & RF3_DEMON) roff(CLR_L_BLUE " demon");
-		else if (flags3 & RF3_GIANT) roff(CLR_L_BLUE " giant");
-		else if (flags3 & RF3_TROLL) roff(CLR_L_BLUE " troll");
-		else if (flags3 & RF3_ORC) roff(CLR_L_BLUE " orc");
-		else if (flags3 & RF3_AMBERITE) roff(CLR_L_BLUE " Amberite");
-		else if (flags2 & RF2_QUANTUM) roff(CLR_L_BLUE " quantum creature");
-		else
-			roff(" creature");
+		if (flags3 & RF3_DRAGON)        c_roff(TERM_L_BLUE, " dragon");
+		else if (flags3 & RF3_DEMON)    c_roff(TERM_L_BLUE, " demon");
+		else if (flags3 & RF3_GIANT)    c_roff(TERM_L_BLUE, " giant");
+		else if (flags3 & RF3_TROLL)    c_roff(TERM_L_BLUE, " troll");
+		else if (flags3 & RF3_ORC)      c_roff(TERM_L_BLUE, " orc");
+		else if (flags3 & RF3_AMBERITE) c_roff(TERM_L_BLUE, " Amberite");
+		else if (flags2 & RF2_QUANTUM)  c_roff(TERM_L_BLUE, " quantum creature");
+		else                            c_roff(TERM_WHITE, " creature");
 
 		/* Group some variables */
 		if (TRUE)
@@ -529,18 +510,17 @@ static void roff_aux(int r_idx, int remem)
 
 			/* calculate the fractional exp part scaled by 100, */
 			/* must use long arithmetic to avoid overflow */
-			new_exp_frac =
-				(((long)new_exp_frac + 0x10000L / 500) * 100) / 0x10000L;
+			new_exp_frac = (((long)new_exp_frac + 0x10000L / 500) * 100) / 0x10000L;
 
 			/* Mention the experience */
-			roff(" is worth %ld.%02ld point%s",
-					(long)new_exp, (long)new_exp_frac,
-					(((new_exp == 1) && (new_exp_frac == 0)) ? "" : "s"));
+			c_roff(TERM_WHITE, format(" is worth %ld.%02ld point%s",
+			            (long)new_exp, (long)new_exp_frac,
+			            (((new_exp == 1) && (new_exp_frac == 0)) ? "" : "s")));
 
 			/* Take account of annoying English */
 			p = "th";
 			i = p_ptr->lev % 10;
-			if ((p_ptr->lev / 10) == 1) /* nothing */ ;
+			if ((p_ptr->lev / 10) == 1) /* nothing */;
 			else if (i == 1) p = "st";
 			else if (i == 2) p = "nd";
 			else if (i == 3) p = "rd";
@@ -551,59 +531,67 @@ static void roff_aux(int r_idx, int remem)
 			if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
 			/* Mention the dependance on the player's level */
-			roff(" for a%s %lu%s level character.  ", q, (long)i, p);
+			c_roff(TERM_WHITE, format(" for a%s %lu%s level character.  ",
+			            q, (long)i, p));
 		}
 	}
 
 	if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC))
 	{
-		roff(CLR_YELLOW "%^s is surrounded by flames and electricity.  ",
-					  wd_he[msex]);
+		c_roff(TERM_YELLOW,
+			format("%^s is surrounded by flames and electricity.  ",
+			wd_he[msex]));
 	}
 	else if ((flags3 & RF3_AURA_COLD) && (flags2 & RF2_AURA_ELEC))
 	{
-		roff(CLR_YELLOW "%^s is surrounded by ice and electricity.  ",
-					  wd_he[msex]);
+		c_roff(TERM_YELLOW,
+			format("%^s is surrounded by ice and electricity.  ",
+			wd_he[msex]));
 	}
 	else if (flags2 & RF2_AURA_FIRE)
 	{
-		roff(CLR_YELLOW "%^s is surrounded by flames.  ", wd_he[msex]);
+		c_roff(TERM_YELLOW,
+			format("%^s is surrounded by flames.  ", wd_he[msex]));
 	}
 	else if (flags3 & RF3_AURA_COLD)
 	{
-		roff(CLR_YELLOW "%^s is surrounded by ice.  ", wd_he[msex]);
+		c_roff(TERM_YELLOW, format("%^s is surrounded by ice.  ", wd_he[msex]));
 	}
 	else if (flags2 & RF2_AURA_ELEC)
 	{
-		roff(CLR_YELLOW "%^s is surrounded by electricity.  ", wd_he[msex]);
+		c_roff(TERM_YELLOW, format("%^s is surrounded by electricity.  ",
+			wd_he[msex]));
 	}
 
 	if (flags2 & RF2_REFLECTING)
 	{
-		roff(CLR_YELLOW "%^s reflects bolt spells.  ", wd_he[msex]);
+		c_roff(TERM_YELLOW, format("%^s reflects bolt spells.  ", wd_he[msex]));
 	}
 
 	/* Describe escorts */
 	if ((flags1 & RF1_ESCORT) || (flags1 & RF1_ESCORTS))
 	{
-		roff("%^s usually appears with escorts.  ", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s usually appears with escorts.  ",
+		            wd_he[msex]));
 	}
 
 	/* Describe friends */
 	else if (flags1 & RF1_FRIENDS)
 	{
-		roff("%^s usually appears in groups.  ", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s usually appears in groups.  ",
+		            wd_he[msex]));
 	}
 
 	else if (flags1 & RF1_CHAR_MIMIC)
 	{
-		roff("%^s is a mimic.  ", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s is a mimic.  ",
+		            wd_he[msex]));
 	}
 
 	/* Collect inate attacks */
-	if (flags4 & RF4_SHRIEK) vp[vn++] = "shriek for help";
+	if (flags4 & RF4_SHRIEK)  vp[vn++] = "shriek for help";
 	if (flags4 & RF4_ELDRITCH_HORROR) vp[vn++] = "blast your sanity";
-	if (flags4 & RF4_ROCKET) vp[vn++] = "shoot a rocket";
+	if (flags4 & RF4_ROCKET)  vp[vn++] = "shoot a rocket";
 	if (flags4 & RF4_ARROW_1) vp[vn++] = "fire an arrow";
 	if (flags4 & RF4_ARROW_2) vp[vn++] = "fire arrows";
 	if (flags4 & RF4_ARROW_3) vp[vn++] = "fire a missile";
@@ -613,50 +601,49 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		roff("%^s", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" may ");
-			else if (n < vn - 1) roff(", ");
-			else
-				roff(" or ");
+			if (n == 0) c_roff(TERM_WHITE, " may ");
+			else if (n < vn-1) c_roff(TERM_WHITE, ", ");
+			else c_roff(TERM_WHITE, " or ");
 
 			/* Dump */
-			roff(CLR_L_RED "%s", vp[n]);
+			c_roff(TERM_L_RED, vp[n]);
 		}
 
 		/* End */
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 	}
 
 
 	/* Collect breaths */
 	vn = 0;
-	if (flags4 & (RF4_BR_ACID)) vp[vn++] = "acid";
-	if (flags4 & (RF4_BR_ELEC)) vp[vn++] = "lightning";
-	if (flags4 & (RF4_BR_FIRE)) vp[vn++] = "fire";
-	if (flags4 & (RF4_BR_COLD)) vp[vn++] = "frost";
-	if (flags4 & (RF4_BR_POIS)) vp[vn++] = "poison";
-	if (flags4 & (RF4_BR_NETH)) vp[vn++] = "nether";
-	if (flags4 & (RF4_BR_LITE)) vp[vn++] = "light";
-	if (flags4 & (RF4_BR_DARK)) vp[vn++] = "darkness";
-	if (flags4 & (RF4_BR_CONF)) vp[vn++] = "confusion";
-	if (flags4 & (RF4_BR_SOUN)) vp[vn++] = "sound";
-	if (flags4 & (RF4_BR_CHAO)) vp[vn++] = "chaos";
-	if (flags4 & (RF4_BR_DISE)) vp[vn++] = "disenchantment";
-	if (flags4 & (RF4_BR_NEXU)) vp[vn++] = "nexus";
-	if (flags4 & (RF4_BR_TIME)) vp[vn++] = "time";
-	if (flags4 & (RF4_BR_INER)) vp[vn++] = "inertia";
-	if (flags4 & (RF4_BR_GRAV)) vp[vn++] = "gravity";
-	if (flags4 & (RF4_BR_SHAR)) vp[vn++] = "shards";
-	if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "plasma";
-	if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
-	if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
-	if (flags4 & (RF4_BR_NUKE)) vp[vn++] = "toxic waste";
-	if (flags4 & (RF4_BR_DISI)) vp[vn++] = "disintegration";
+	if (flags4 & (RF4_BR_ACID))		vp[vn++] = "acid";
+	if (flags4 & (RF4_BR_ELEC))		vp[vn++] = "lightning";
+	if (flags4 & (RF4_BR_FIRE))		vp[vn++] = "fire";
+	if (flags4 & (RF4_BR_COLD))		vp[vn++] = "frost";
+	if (flags4 & (RF4_BR_POIS))		vp[vn++] = "poison";
+	if (flags4 & (RF4_BR_NETH))		vp[vn++] = "nether";
+	if (flags4 & (RF4_BR_LITE))		vp[vn++] = "light";
+	if (flags4 & (RF4_BR_DARK))		vp[vn++] = "darkness";
+	if (flags4 & (RF4_BR_CONF))		vp[vn++] = "confusion";
+	if (flags4 & (RF4_BR_SOUN))		vp[vn++] = "sound";
+	if (flags4 & (RF4_BR_CHAO))		vp[vn++] = "chaos";
+	if (flags4 & (RF4_BR_DISE))		vp[vn++] = "disenchantment";
+	if (flags4 & (RF4_BR_NEXU))		vp[vn++] = "nexus";
+	if (flags4 & (RF4_BR_TIME))		vp[vn++] = "time";
+	if (flags4 & (RF4_BR_INER))		vp[vn++] = "inertia";
+	if (flags4 & (RF4_BR_GRAV))		vp[vn++] = "gravity";
+	if (flags4 & (RF4_BR_SHAR))		vp[vn++] = "shards";
+	if (flags4 & (RF4_BR_PLAS))		vp[vn++] = "plasma";
+	if (flags4 & (RF4_BR_WALL))		vp[vn++] = "force";
+	if (flags4 & (RF4_BR_MANA))		vp[vn++] = "mana";
+	if (flags4 & (RF4_BR_NUKE))		vp[vn++] = "toxic waste";
+	if (flags4 & (RF4_BR_DISI))		vp[vn++] = "disintegration";
 
 	/* Describe breaths */
 	if (vn)
@@ -665,91 +652,91 @@ static void roff_aux(int r_idx, int remem)
 		breath = TRUE;
 
 		/* Intro */
-		roff("%^s", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" may breathe ");
-			else if (n < vn - 1) roff(", ");
-			else
-				roff(" or ");
+			if (n == 0) c_roff(TERM_WHITE, " may breathe ");
+			else if (n < vn-1) c_roff(TERM_WHITE, ", ");
+			else c_roff(TERM_WHITE, " or ");
 
 			/* Dump */
-			roff(CLR_L_RED "%s", vp[n]);
+			c_roff(TERM_L_RED, vp[n]);
 		}
 	}
 
 
 	/* Collect spells */
 	vn = 0;
-	if (flags5 & (RF5_BA_ACID)) vp[vn++] = "produce acid balls";
-	if (flags5 & (RF5_BA_ELEC)) vp[vn++] = "produce lightning balls";
-	if (flags5 & (RF5_BA_FIRE)) vp[vn++] = "produce fire balls";
-	if (flags5 & (RF5_BA_COLD)) vp[vn++] = "produce frost balls";
-	if (flags5 & (RF5_BA_POIS)) vp[vn++] = "produce poison balls";
-	if (flags5 & (RF5_BA_NETH)) vp[vn++] = "produce nether balls";
-	if (flags5 & (RF5_BA_WATE)) vp[vn++] = "produce water balls";
-	if (flags4 & (RF4_BA_NUKE)) vp[vn++] = "produce balls of radiation";
-	if (flags5 & (RF5_BA_MANA)) vp[vn++] = "invoke mana storms";
-	if (flags5 & (RF5_BA_DARK)) vp[vn++] = "invoke darkness storms";
-	if (flags4 & (RF4_BA_CHAO)) vp[vn++] = "invoke raw Logrus";
-	if (flags6 & (RF6_HAND_DOOM)) vp[vn++] = "invoke the Hand of Doom";
-	if (flags5 & (RF5_DRAIN_MANA)) vp[vn++] = "drain mana";
-	if (flags5 & (RF5_MIND_BLAST)) vp[vn++] = "cause mind blasting";
-	if (flags5 & (RF5_BRAIN_SMASH)) vp[vn++] = "cause brain smashing";
-	if (flags5 & (RF5_CAUSE_1)) vp[vn++] = "cause light wounds and cursing";
-	if (flags5 & (RF5_CAUSE_2)) vp[vn++] = "cause serious wounds and cursing";
-	if (flags5 & (RF5_CAUSE_3)) vp[vn++] = "cause critical wounds and cursing";
-	if (flags5 & (RF5_CAUSE_4)) vp[vn++] = "cause mortal wounds";
-	if (flags5 & (RF5_BO_ACID)) vp[vn++] = "produce acid bolts";
-	if (flags5 & (RF5_BO_ELEC)) vp[vn++] = "produce lightning bolts";
-	if (flags5 & (RF5_BO_FIRE)) vp[vn++] = "produce fire bolts";
-	if (flags5 & (RF5_BO_COLD)) vp[vn++] = "produce frost bolts";
-	if (flags5 & (RF5_BO_POIS)) vp[vn++] = "produce poison bolts";
-	if (flags5 & (RF5_BO_NETH)) vp[vn++] = "produce nether bolts";
-	if (flags5 & (RF5_BO_WATE)) vp[vn++] = "produce water bolts";
-	if (flags5 & (RF5_BO_MANA)) vp[vn++] = "produce mana bolts";
-	if (flags5 & (RF5_BO_PLAS)) vp[vn++] = "produce plasma bolts";
-	if (flags5 & (RF5_BO_ICEE)) vp[vn++] = "produce ice bolts";
-	if (flags5 & (RF5_MISSILE)) vp[vn++] = "produce magic missiles";
-	if (flags5 & (RF5_SCARE)) vp[vn++] = "terrify";
-	if (flags5 & (RF5_BLIND)) vp[vn++] = "blind";
-	if (flags5 & (RF5_CONF)) vp[vn++] = "confuse";
-	if (flags5 & (RF5_SLOW)) vp[vn++] = "slow";
-	if (flags5 & (RF5_HOLD)) vp[vn++] = "paralyze";
-	if (flags6 & (RF6_HASTE)) vp[vn++] = "haste-self";
-	if (flags6 & (RF6_HEAL)) vp[vn++] = "heal-self";
-	if (flags6 & (RF6_INVULNER)) vp[vn++] = "make invulnerable";
-	if (flags6 & (RF6_BLINK)) vp[vn++] = "blink-self";
-	if (flags6 & (RF6_TPORT)) vp[vn++] = "teleport-self";
-	if (flags6 & (RF6_XXX3)) vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX4)) vp[vn++] = "do something";
-	if (flags6 & (RF6_TELE_TO)) vp[vn++] = "teleport to";
-	if (flags6 & (RF6_TELE_AWAY)) vp[vn++] = "teleport away";
-	if (flags6 & (RF6_TELE_LEVEL)) vp[vn++] = "teleport level";
-	if (flags6 & (RF6_XXX5)) vp[vn++] = "do something";
-	if (flags6 & (RF6_DARKNESS)) vp[vn++] = "create darkness";
-	if (flags6 & (RF6_TRAPS)) vp[vn++] = "create traps";
-	if (flags6 & (RF6_FORGET)) vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_RAISE_DEAD)) vp[vn++] = "raise dead";
-	if (flags6 & (RF6_S_MONSTER)) vp[vn++] = "summon a monster";
-	if (flags6 & (RF6_S_MONSTERS)) vp[vn++] = "summon monsters";
-	if (flags6 & (RF6_S_KIN)) vp[vn++] = "summon aid";
-	if (flags6 & (RF6_S_ANT)) vp[vn++] = "summon ants";
-	if (flags6 & (RF6_S_SPIDER)) vp[vn++] = "summon spiders";
-	if (flags6 & (RF6_S_HOUND)) vp[vn++] = "summon hounds";
-	if (flags6 & (RF6_S_HYDRA)) vp[vn++] = "summon hydras";
-	if (flags6 & (RF6_S_ANGEL)) vp[vn++] = "summon an angel";
-	if (flags6 & (RF6_S_DEMON)) vp[vn++] = "summon a demon";
-	if (flags6 & (RF6_S_UNDEAD)) vp[vn++] = "summon an undead";
-	if (flags6 & (RF6_S_DRAGON)) vp[vn++] = "summon a dragon";
-	if (flags6 & (RF6_S_HI_UNDEAD)) vp[vn++] = "summon Greater Undead";
-	if (flags6 & (RF6_S_HI_DRAGON)) vp[vn++] = "summon Ancient Dragons";
-	if (flags6 & (RF6_S_CYBER)) vp[vn++] = "summon Cyberdemons";
-	if (flags6 & (RF6_S_AMBERITES)) vp[vn++] = "summon Lords of Amber";
-	if (flags6 & (RF6_S_UNIQUE)) vp[vn++] = "summon Unique Monsters";
+	if (flags5 & (RF5_BA_ACID))         vp[vn++] = "produce acid balls";
+	if (flags5 & (RF5_BA_ELEC))         vp[vn++] = "produce lightning balls";
+	if (flags5 & (RF5_BA_FIRE))         vp[vn++] = "produce fire balls";
+	if (flags5 & (RF5_BA_COLD))         vp[vn++] = "produce frost balls";
+	if (flags5 & (RF5_BA_POIS))         vp[vn++] = "produce poison balls";
+	if (flags5 & (RF5_BA_NETH))         vp[vn++] = "produce nether balls";
+	if (flags5 & (RF5_BA_WATE))         vp[vn++] = "produce water balls";
+	if (flags4 & (RF4_BA_NUKE))         vp[vn++] = "produce balls of radiation";
+	if (flags5 & (RF5_BA_MANA))         vp[vn++] = "invoke mana storms";
+	if (flags5 & (RF5_BA_DARK))         vp[vn++] = "invoke darkness storms";
+	if (flags4 & (RF4_BA_CHAO))         vp[vn++] = "invoke raw Logrus";
+	if (flags6 & (RF6_HAND_DOOM))       vp[vn++] = "invoke the Hand of Doom";
+	if (flags5 & (RF5_DRAIN_MANA))      vp[vn++] = "drain mana";
+	if (flags5 & (RF5_MIND_BLAST))      vp[vn++] = "cause mind blasting";
+	if (flags5 & (RF5_BRAIN_SMASH))     vp[vn++] = "cause brain smashing";
+	if (flags5 & (RF5_CAUSE_1))         vp[vn++] = "cause light wounds and cursing";
+	if (flags5 & (RF5_CAUSE_2))         vp[vn++] = "cause serious wounds and cursing";
+	if (flags5 & (RF5_CAUSE_3))         vp[vn++] = "cause critical wounds and cursing";
+	if (flags5 & (RF5_CAUSE_4))         vp[vn++] = "cause mortal wounds";
+	if (flags5 & (RF5_BO_ACID))         vp[vn++] = "produce acid bolts";
+	if (flags5 & (RF5_BO_ELEC))         vp[vn++] = "produce lightning bolts";
+	if (flags5 & (RF5_BO_FIRE))         vp[vn++] = "produce fire bolts";
+	if (flags5 & (RF5_BO_COLD))         vp[vn++] = "produce frost bolts";
+	if (flags5 & (RF5_BO_POIS))         vp[vn++] = "produce poison bolts";
+	if (flags5 & (RF5_BO_NETH))         vp[vn++] = "produce nether bolts";
+	if (flags5 & (RF5_BO_WATE))         vp[vn++] = "produce water bolts";
+	if (flags5 & (RF5_BO_MANA))         vp[vn++] = "produce mana bolts";
+	if (flags5 & (RF5_BO_PLAS))         vp[vn++] = "produce plasma bolts";
+	if (flags5 & (RF5_BO_ICEE))         vp[vn++] = "produce ice bolts";
+	if (flags4 & (RF4_BO_LAVA))         vp[vn++] = "produce lava bolts";
+	if (flags5 & (RF5_MISSILE))         vp[vn++] = "produce magic missiles";
+	if (flags5 & (RF5_SCARE))           vp[vn++] = "terrify";
+	if (flags5 & (RF5_BLIND))           vp[vn++] = "blind";
+	if (flags5 & (RF5_CONF))            vp[vn++] = "confuse";
+	if (flags5 & (RF5_SLOW))            vp[vn++] = "slow";
+	if (flags5 & (RF5_HOLD))            vp[vn++] = "paralyze";
+	if (flags6 & (RF6_HASTE))           vp[vn++] = "haste-self";
+	if (flags6 & (RF6_HEAL))            vp[vn++] = "heal-self";
+	if (flags6 & (RF6_INVULNER))        vp[vn++] = "make invulnerable";
+	if (flags6 & (RF6_BLINK))           vp[vn++] = "blink-self";
+	if (flags6 & (RF6_TPORT))           vp[vn++] = "teleport-self";
+	if (flags6 & (RF6_BA_LAVA))         vp[vn++] = "produce lava balls";
+	if (flags6 & (RF6_BO_QUAKE))        vp[vn++] = "produce tremors";
+	if (flags6 & (RF6_TELE_TO))         vp[vn++] = "teleport to";
+	if (flags6 & (RF6_TELE_AWAY))       vp[vn++] = "teleport away";
+	if (flags6 & (RF6_TELE_LEVEL))      vp[vn++] = "teleport level";
+	if (flags6 & (RF6_QUAKE))           vp[vn++] = "cause earthquakes";
+	if (flags6 & (RF6_DARKNESS))        vp[vn++] = "create darkness";
+	if (flags6 & (RF6_TRAPS))           vp[vn++] = "create traps";
+	if (flags6 & (RF6_FORGET))          vp[vn++] = "cause amnesia";
+	if (flags6 & (RF6_RAISE_DEAD))      vp[vn++] = "raise dead";
+	if (flags6 & (RF6_S_MONSTER))       vp[vn++] = "summon a monster";
+	if (flags6 & (RF6_S_MONSTERS))      vp[vn++] = "summon monsters";
+	if (flags6 & (RF6_S_KIN))           vp[vn++] = "summon aid";
+	if (flags6 & (RF6_S_ANT))           vp[vn++] = "summon ants";
+	if (flags6 & (RF6_S_SPIDER))        vp[vn++] = "summon spiders";
+	if (flags6 & (RF6_S_HOUND))         vp[vn++] = "summon hounds";
+	if (flags6 & (RF6_S_HYDRA))         vp[vn++] = "summon hydras";
+	if (flags6 & (RF6_S_ANGEL))         vp[vn++] = "summon an angel";
+	if (flags6 & (RF6_S_DEMON))         vp[vn++] = "summon a demon";
+	if (flags6 & (RF6_S_UNDEAD))        vp[vn++] = "summon an undead";
+	if (flags6 & (RF6_S_DRAGON))        vp[vn++] = "summon a dragon";
+	if (flags6 & (RF6_S_HI_UNDEAD))     vp[vn++] = "summon Greater Undead";
+	if (flags6 & (RF6_S_HI_DRAGON))     vp[vn++] = "summon Ancient Dragons";
+	if (flags6 & (RF6_S_CYBER))         vp[vn++] = "summon Cyberdemons";
+	if (flags6 & (RF6_S_AMBERITES))     vp[vn++] = "summon Lords of Amber";
+	if (flags6 & (RF6_S_UNIQUE))        vp[vn++] = "summon Unique Monsters";
 
 	/* Describe spells */
 	if (vn)
@@ -760,30 +747,29 @@ static void roff_aux(int r_idx, int remem)
 		/* Intro */
 		if (breath)
 		{
-			roff(", and is also");
+			c_roff(TERM_WHITE, ", and is also");
 		}
 		else
 		{
-			roff("%^s is", wd_he[msex]);
+			c_roff(TERM_WHITE, format("%^s is", wd_he[msex]));
 		}
 
 		/* Verb Phrase */
-		roff(" magical, casting spells");
+		c_roff(TERM_WHITE, " magical, casting spells");
 
 		/* Adverb */
-		if (flags2 & RF2_SMART) roff(CLR_ORANGE " intelligently");
+		if (flags2 & RF2_SMART) c_roff(TERM_ORANGE, " intelligently");
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" which ");
-			else if (n < vn - 1) roff(", ");
-			else
-				roff(" or ");
+			if (n == 0) c_roff(TERM_WHITE, " which ");
+			else if (n < vn-1) c_roff(TERM_WHITE, ", ");
+			else c_roff(TERM_WHITE, " or ");
 
 			/* Dump */
-			roff(CLR_L_RED "%s", vp[n]);
+			c_roff(TERM_L_RED, vp[n]);
 		}
 	}
 
@@ -800,18 +786,18 @@ static void roff_aux(int r_idx, int remem)
 		/* Describe the spell frequency */
 		if (m > 100)
 		{
-			roff("; 1 time in %d", 100 / n);
+			c_roff(TERM_WHITE, format("; 1 time in %d", 100 / n));
 		}
 
 		/* Guess at the frequency */
 		else if (m)
 		{
 			n = ((n + 9) / 10) * 10;
-			roff("; about 1 time in %d", 100 / n);
+			c_roff(TERM_WHITE, format("; about 1 time in %d", 100 / n));
 		}
 
 		/* End this sentence */
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 	}
 
 
@@ -819,20 +805,21 @@ static void roff_aux(int r_idx, int remem)
 	if (know_armour(r_idx))
 	{
 		/* Armor */
-		roff("%^s has an armor rating of %d", wd_he[msex], r_ptr->ac);
+		c_roff(TERM_WHITE, format("%^s has an armor rating of %d",
+		            wd_he[msex], r_ptr->ac));
 
 		/* Maximized hitpoints */
 		if (flags1 & RF1_FORCE_MAXHP)
 		{
-			roff(" and a life rating of %d.  ",
-									  r_ptr->hdice * r_ptr->hside);
+			c_roff(TERM_WHITE, format(" and a life rating of %d.  ",
+			            r_ptr->hdice * r_ptr->hside));
 		}
 
 		/* Variable hitpoints */
 		else
 		{
-			roff(" and a life rating of %dd%d.  ",
-									  r_ptr->hdice, r_ptr->hside);
+			c_roff(TERM_WHITE, format(" and a life rating of %dd%d.  ",
+			            r_ptr->hdice, r_ptr->hside));
 		}
 	}
 
@@ -854,50 +841,56 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		roff("%^s", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" can ");
-			else if (n < vn - 1) roff(", ");
-			else
-				roff(" and ");
+			if (n == 0) c_roff(TERM_WHITE, " can ");
+			else if (n < vn-1) c_roff(TERM_WHITE, ", ");
+			else c_roff(TERM_WHITE, " and ");
 
 			/* Dump */
-			roff(CLR_L_UMBER "%s", vp[n]);
+			c_roff(TERM_WHITE, vp[n]);
 		}
 
 		/* End */
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 	}
 
 
 	/* Describe special abilities. */
 	if (flags2 & RF2_INVISIBLE)
 	{
-		roff(CLR_L_BLUE "%^s is invisible.  ", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s is invisible.  ", wd_he[msex]));
 	}
 	if (flags2 & RF2_COLD_BLOOD)
 	{
-		roff("%^s is cold blooded.  ", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s is cold blooded.  ", wd_he[msex]));
 	}
 	if (flags2 & RF2_EMPTY_MIND)
 	{
-		roff("%^s is not detected by telepathy.  ", wd_he[msex]);
+		c_roff(TERM_WHITE, 
+			format("%^s is not detected by telepathy.  ", wd_he[msex]));
 	}
 	if (flags2 & RF2_WEIRD_MIND)
 	{
-		roff("%^s is rarely detected by telepathy.  ", wd_he[msex]);
+		c_roff(TERM_WHITE,
+			format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
+	}
+	if (flags2 & RF2_SEE_INVIS)
+	{
+		c_roff(TERM_WHITE,
+			format("%^s can see invisible things.  ", wd_he[msex]));
 	}
 	if (flags2 & RF2_MULTIPLY)
 	{
-		roff(CLR_L_UMBER "%^s breeds explosively.  ", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s breeds explosively.  ", wd_he[msex]));
 	}
 	if (flags2 & RF2_REGENERATE)
 	{
-		roff("%^s regenerates quickly.  ", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s regenerates quickly.  ", wd_he[msex]));
 	}
 
 
@@ -912,23 +905,22 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		roff("%^s", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" is hurt by ");
-			else if (n < vn - 1) roff(", ");
-			else
-				roff(" and ");
+			if (n == 0) c_roff(TERM_WHITE, " is hurt by ");
+			else if (n < vn-1) c_roff(TERM_WHITE, ", ");
+			else c_roff(TERM_WHITE, " and ");
 
 			/* Dump */
-			roff(CLR_YELLOW "%s", vp[n]);
+			c_roff(TERM_YELLOW, vp[n]);
 		}
 
 		/* End */
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 	}
 
 
@@ -944,23 +936,22 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		roff("%^s", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" resists ");
-			else if (n < vn - 1) roff(", ");
-			else
-				roff(" and ");
+			if (n == 0) c_roff(TERM_WHITE, " resists ");
+			else if (n < vn-1) c_roff(TERM_WHITE, ", ");
+			else c_roff(TERM_WHITE, " and ");
 
 			/* Dump */
-			roff(CLR_ORANGE "%s", vp[n]);
+			c_roff(TERM_ORANGE, vp[n]);
 		}
 
 		/* End */
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 	}
 
 
@@ -971,70 +962,66 @@ static void roff_aux(int r_idx, int remem)
 	if (flags3 & RF3_RES_PLAS) vp[vn++] = "plasma";
 	if (flags3 & RF3_RES_NEXU) vp[vn++] = "nexus";
 	if (flags3 & RF3_RES_DISE) vp[vn++] = "disenchantment";
-	if ((flags3 & RF3_RES_TELE)
-		&& !(r_ptr->flags1 & RF1_UNIQUE)) vp[vn++] = "teleportation";
+	if ((flags3 & RF3_RES_TELE) && !(r_ptr->flags1 & RF1_UNIQUE)) vp[vn++] = "teleportation";
 
 	/* Describe resistances */
 	if (vn)
 	{
 		/* Intro */
-		roff("%^s", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" resists ");
-			else if (n < vn - 1) roff(", ");
-			else
-				roff(" and ");
+			if (n == 0) c_roff(TERM_WHITE, " resists ");
+			else if (n < vn-1) c_roff(TERM_WHITE, ", ");
+			else c_roff(TERM_WHITE, " and ");
 
 			/* Dump */
-			roff(CLR_ORANGE "%s", vp[n]);
+			c_roff(TERM_ORANGE, vp[n]);
 		}
 
 		/* End */
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 	}
 
 
 	/* Collect non-effects */
 	vn = 0;
-	if (flags3 & RF3_NO_STUN) vp[vn++] = "stunned";
-	if (flags3 & RF3_NO_FEAR) vp[vn++] = "frightened";
-	if (flags3 & RF3_NO_CONF) vp[vn++] = "confused";
+	if (flags3 & RF3_NO_STUN)  vp[vn++] = "stunned";
+	if (flags3 & RF3_NO_FEAR)  vp[vn++] = "frightened";
+	if (flags3 & RF3_NO_CONF)  vp[vn++] = "confused";
 	if (flags3 & RF3_NO_SLEEP) vp[vn++] = "slept";
-	if ((flags3 & RF3_RES_TELE)
-		&& (r_ptr->flags1 & RF1_UNIQUE)) vp[vn++] = "teleported";
+	if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) vp[vn++] = "teleported";
 
 	/* Describe non-effects */
 	if (vn)
 	{
 		/* Intro */
-		roff("%^s", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" cannot be ");
-			else if (n < vn - 1) roff(", ");
-			else
-				roff(" or ");
+			if (n == 0) c_roff(TERM_WHITE, " cannot be ");
+			else if (n < vn - 1) c_roff(TERM_WHITE, ", ");
+			else c_roff(TERM_WHITE, " or ");
 
 			/* Dump */
-			roff(CLR_YELLOW "%s", vp[n]);
+			c_roff(TERM_YELLOW, vp[n]);
 		}
 
 		/* End */
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 	}
 
 
 	/* Do we know how aware it is? */
 	if ((((int)r_ptr->r_wake * (int)r_ptr->r_wake) > r_ptr->sleep) ||
-		(r_ptr->r_ignore == MAX_UCHAR) ||
-		((r_ptr->sleep == 0) && ((r_ptr->r_tkills >= 10) || cheat_know)))
+	          (r_ptr->r_ignore == MAX_UCHAR) ||
+	         ((r_ptr->sleep == 0) && ((r_ptr->r_tkills >= 10) || cheat_know)))
 	{
 		cptr act;
 
@@ -1083,8 +1070,9 @@ static void roff_aux(int r_idx, int remem)
 			act = "is ever vigilant for";
 		}
 
-		roff("%^s %s intruders, which %s may notice from %d feet.  ",
-					  wd_he[msex], act, wd_he[msex], 10 * r_ptr->aaf);
+		c_roff(TERM_WHITE,
+			format("%^s %s intruders, which %s may notice from %d feet.  ",
+			wd_he[msex], act, wd_he[msex], 10 * r_ptr->aaf));
 	}
 
 
@@ -1095,7 +1083,7 @@ static void roff_aux(int r_idx, int remem)
 		sin = FALSE;
 
 		/* Intro */
-		roff("%^s may carry", wd_he[msex]);
+		c_roff(TERM_WHITE, format("%^s may carry", wd_he[msex]));
 
 		/* Count maximum drop */
 		n = MAX(r_ptr->r_drop_gold, r_ptr->r_drop_item);
@@ -1103,20 +1091,20 @@ static void roff_aux(int r_idx, int remem)
 		/* One drop (may need an "n") */
 		if (n == 1)
 		{
-			roff(" a");
+			c_roff(TERM_WHITE, " a");
 			sin = TRUE;
 		}
 
 		/* Two drops */
 		else if (n == 2)
 		{
-			roff(" one or two");
+			c_roff(TERM_WHITE, " one or two");
 		}
 
 		/* Many drops */
 		else
 		{
-			roff(" up to %d", n);
+			c_roff(TERM_WHITE, format(" up to %d", n));
 		}
 
 
@@ -1144,13 +1132,13 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->r_drop_item)
 		{
 			/* Handle singular "an" */
-			if (sin) roff("n");
+			if (sin) c_roff(TERM_WHITE, "n");
 			sin = FALSE;
 
 			/* Dump "object(s)" */
-			if (p) roff(p);
-			roff(" object");
-			if (n != 1) roff("s");
+			if (p) c_roff(TERM_WHITE, p);
+			c_roff(TERM_WHITE, " object");
+			if (n != 1) c_roff(TERM_WHITE, "s");
 
 			/* Conjunction replaces variety, if needed for "gold" below */
 			p = " or";
@@ -1163,17 +1151,17 @@ static void roff_aux(int r_idx, int remem)
 			if (!p) sin = FALSE;
 
 			/* Handle singular "an" */
-			if (sin) roff("n");
+			if (sin) c_roff(TERM_WHITE, "n");
 			sin = FALSE;
 
 			/* Dump "treasure(s)" */
-			if (p) roff(p);
-			roff(" treasure");
-			if (n != 1) roff("s");
+			if (p) c_roff(TERM_WHITE, p);
+			c_roff(TERM_WHITE, " treasure");
+			if (n != 1) c_roff(TERM_WHITE, "s");
 		}
 
 		/* End this sentence */
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 	}
 
 
@@ -1205,8 +1193,39 @@ static void roff_aux(int r_idx, int remem)
 		d1 = r_ptr->blow[m].d_dice;
 		d2 = r_ptr->blow[m].d_side;
 
+
+		/* No method yet */
+		p = NULL;
+
 		/* Acquire the method */
-		p = rbm_info[method].name;
+		switch (method)
+		{
+			case RBM_HIT:		p = "hit"; break;
+			case RBM_TOUCH:		p = "touch"; break;
+			case RBM_PUNCH:		p = "punch"; break;
+			case RBM_KICK:		p = "kick"; break;
+			case RBM_CLAW:		p = "claw"; break;
+			case RBM_BITE:		p = "bite"; break;
+			case RBM_STING:		p = "sting"; break;
+			case RBM_XXX1:		break;
+			case RBM_BUTT:		p = "butt"; break;
+			case RBM_CRUSH:		p = "crush"; break;
+			case RBM_ENGULF:	p = "engulf"; break;
+			case RBM_CHARGE: 	p = "charge";   break;
+			case RBM_CRAWL:		p = "crawl on you"; break;
+			case RBM_DROOL:		p = "drool on you"; break;
+			case RBM_SPIT:		p = "spit"; break;
+			case RBM_EXPLODE:	p = "explode"; break;
+			case RBM_GAZE:		p = "gaze"; break;
+			case RBM_WAIL:		p = "wail"; break;
+			case RBM_SPORE:		p = "release spores"; break;
+			case RBM_XXX4:		break;
+			case RBM_BEG:		p = "beg"; break;
+			case RBM_INSULT:	p = "insult"; break;
+			case RBM_MOAN:		p = "moan"; break;
+			case RBM_SHOW:  	p = "sing"; break;
+		}
+
 
 		/* Default effect */
 		q = NULL;
@@ -1214,176 +1233,52 @@ static void roff_aux(int r_idx, int remem)
 		/* Acquire the effect */
 		switch (effect)
 		{
-			case RBE_HURT:
-			{
-				q = "attack";
-				break;
-			}
-			case RBE_POISON:
-			{
-				q = "poison";
-				break;
-			}
-			case RBE_UN_BONUS:
-			{
-				q = "disenchant";
-				break;
-			}
-			case RBE_UN_POWER:
-			{
-				q = "drain charges";
-				break;
-			}
-			case RBE_EAT_GOLD:
-			{
-				q = "steal gold";
-				break;
-			}
-			case RBE_EAT_ITEM:
-			{
-				q = "steal items";
-				break;
-			}
-			case RBE_EAT_FOOD:
-			{
-				q = "eat your food";
-				break;
-			}
-			case RBE_EAT_LITE:
-			{
-				q = "absorb light";
-				break;
-			}
-			case RBE_ACID:
-			{
-				q = "shoot acid";
-				break;
-			}
-			case RBE_ELEC:
-			{
-				q = "electrocute";
-				break;
-			}
-			case RBE_FIRE:
-			{
-				q = "burn";
-				break;
-			}
-			case RBE_COLD:
-			{
-				q = "freeze";
-				break;
-			}
-			case RBE_BLIND:
-			{
-				q = "blind";
-				break;
-			}
-			case RBE_CONFUSE:
-			{
-				q = "confuse";
-				break;
-			}
-			case RBE_TERRIFY:
-			{
-				q = "terrify";
-				break;
-			}
-			case RBE_PARALYZE:
-			{
-				q = "paralyze";
-				break;
-			}
-			case RBE_LOSE_STR:
-			{
-				q = "reduce strength";
-				break;
-			}
-			case RBE_LOSE_INT:
-			{
-				q = "reduce intelligence";
-				break;
-			}
-			case RBE_LOSE_WIS:
-			{
-				q = "reduce wisdom";
-				break;
-			}
-			case RBE_LOSE_DEX:
-			{
-				q = "reduce dexterity";
-				break;
-			}
-			case RBE_LOSE_CON:
-			{
-				q = "reduce constitution";
-				break;
-			}
-			case RBE_LOSE_CHR:
-			{
-				q = "reduce charisma";
-				break;
-			}
-			case RBE_LOSE_ALL:
-			{
-				q = "reduce all stats";
-				break;
-			}
-			case RBE_SHATTER:
-			{
-				q = "shatter";
-				break;
-			}
-			case RBE_EXP_10:
-			{
-				q = "lower experience (by 10d6+)";
-				break;
-			}
-			case RBE_EXP_20:
-			{
-				q = "lower experience (by 20d6+)";
-				break;
-			}
-			case RBE_EXP_40:
-			{
-				q = "lower experience (by 40d6+)";
-				break;
-			}
-			case RBE_EXP_80:
-			{
-				q = "lower experience (by 80d6+)";
-				break;
-			}
-			case RBE_DISEASE:
-			{
-				q = "disease";
-				break;
-			}
-			case RBE_TIME:
-			{
-				q = "distrupt the time continuum";
-				break;
-			}
-			case RBE_EXP_VAMP:
-			{
-				q = "drain life force";
-				break;
-			}
+			case RBE_HURT:    	q = "attack"; break;
+			case RBE_POISON:  	q = "poison"; break;
+			case RBE_UN_BONUS:	q = "disenchant"; break;
+			case RBE_UN_POWER:	q = "drain charges"; break;
+			case RBE_EAT_GOLD:	q = "steal gold"; break;
+			case RBE_EAT_ITEM:	q = "steal items"; break;
+			case RBE_EAT_FOOD:	q = "eat your food"; break;
+			case RBE_EAT_LITE:	q = "absorb light"; break;
+			case RBE_ACID:    	q = "shoot acid"; break;
+			case RBE_ELEC:    	q = "electrocute"; break;
+			case RBE_FIRE:    	q = "burn"; break;
+			case RBE_COLD:    	q = "freeze"; break;
+			case RBE_BLIND:   	q = "blind"; break;
+			case RBE_CONFUSE: 	q = "confuse"; break;
+			case RBE_TERRIFY: 	q = "terrify"; break;
+			case RBE_PARALYZE:	q = "paralyze"; break;
+			case RBE_LOSE_STR:	q = "reduce strength"; break;
+			case RBE_LOSE_INT:	q = "reduce intelligence"; break;
+			case RBE_LOSE_WIS:	q = "reduce wisdom"; break;
+			case RBE_LOSE_DEX:	q = "reduce dexterity"; break;
+			case RBE_LOSE_CON:	q = "reduce constitution"; break;
+			case RBE_LOSE_CHR:	q = "reduce charisma"; break;
+			case RBE_LOSE_ALL:	q = "reduce all stats"; break;
+			case RBE_SHATTER:	q = "shatter"; break;
+			case RBE_EXP_10:	q = "lower experience (by 10d6+)"; break;
+			case RBE_EXP_20:	q = "lower experience (by 20d6+)"; break;
+			case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
+			case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
+			case RBE_DISEASE:	q = "disease"; break;
+			case RBE_TIME:      q = "time"; break;
+			case RBE_EXP_VAMP:  q = "drain life force"; break;
 		}
 
 
 		/* Introduce the attack description */
 		if (!r)
 		{
-			roff("%^s can ", wd_he[msex]);
+			c_roff(TERM_WHITE, format("%^s can ", wd_he[msex]));
 		}
-		else if (r < n - 1)
+		else if (r < n-1)
 		{
-			roff(", ");
+			c_roff(TERM_WHITE, ", ");
 		}
 		else
 		{
-			roff(", and ");
+			c_roff(TERM_WHITE, ", and ");
 		}
 
 
@@ -1391,22 +1286,22 @@ static void roff_aux(int r_idx, int remem)
 		if (!p) p = "do something weird";
 
 		/* Describe the method */
-		roff(p);
+		c_roff(TERM_WHITE, p);
 
 
 		/* Describe the effect (if any) */
 		if (q)
 		{
 			/* Describe the attack type */
-			roff(" to ");
-			roff(CLR_L_RED "%s", q);
+			c_roff(TERM_WHITE, " to ");
+			c_roff(TERM_L_RED, q);
 
 			/* Describe damage (if known) */
 			if (d1 && d2 && know_damage(r_idx, m))
 			{
 				/* Display the damage */
-				roff(" with damage");
-				roff(" %dd%d", d1, d2);
+				c_roff(TERM_WHITE, " with damage");
+				c_roff(TERM_WHITE, format(" %dd%d", d1, d2));
 			}
 		}
 
@@ -1418,19 +1313,21 @@ static void roff_aux(int r_idx, int remem)
 	/* Finish sentence above */
 	if (r)
 	{
-		roff(".  ");
+		c_roff(TERM_WHITE, ".  ");
 	}
 
 	/* Notice lack of attacks */
 	else if (flags1 & RF1_NEVER_BLOW)
 	{
-		roff("%^s has no physical attacks.  ", wd_he[msex]);
+		c_roff(TERM_WHITE,
+			format("%^s has no physical attacks.  ", wd_he[msex]));
 	}
 
 	/* Or describe the lack of knowledge */
 	else
 	{
-		roff("Nothing is known about %s attack.  ", wd_his[msex]);
+		c_roff(TERM_WHITE,
+			format("Nothing is known about %s attack.  ", wd_his[msex]));
 	}
 
 
@@ -1440,12 +1337,13 @@ static void roff_aux(int r_idx, int remem)
 	 */
 	if ((flags1 & RF1_QUESTOR) && (r_ptr->r_sights))
 	{
-		roff("You feel an intense desire to kill this monster...  ");
+		c_roff(TERM_WHITE,
+			"You feel an intense desire to kill this monster...  ");
 	}
 
 
 	/* All done */
-	roff("\n");
+	c_roff(TERM_WHITE, "\n");
 
 	/* Cheat -- know everything */
 	if ((cheat_know) && (remem == 0))
@@ -1460,12 +1358,12 @@ static void roff_aux(int r_idx, int remem)
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
-void roff_top(int r_idx)
+static void roff_top(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race	*r_ptr = &r_info[r_idx];
 
-	byte a1, a2;
-	char c1, c2;
+	byte		a1, a2;
+	char		c1, c2;
 
 
 	/* Access the chars */
@@ -1485,34 +1383,40 @@ void roff_top(int r_idx)
 
 
 	/* Clear the top line */
-	clear_msg();
-    
+	Term_erase(0, 0, 255);
+
 	/* Reset the cursor */
 	Term_gotoxy(0, 0);
 
 	/* A title (use "The" for non-uniques) */
 	if (!(r_ptr->flags1 & RF1_UNIQUE))
 	{
-		roff("The ");
+		Term_addstr(-1, TERM_WHITE, "The ");
 	}
 
 	/* Dump the name */
-	roff(r_name + r_ptr->name);
+	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
 
 	/* Append the "standard" attr/char info */
-	roff(" ('");
+	Term_addstr(-1, TERM_WHITE, " ('");
 	Term_addch(a1, c1);
-	roff("')");
+	Term_addstr(-1, TERM_WHITE, "')");
 
 	/* Append the "optional" attr/char info */
-	roff("/('");
+	Term_addstr(-1, TERM_WHITE, "/('");
 	Term_addch(a2, c2);
-	roff("'):");
+	Term_addstr(-1, TERM_WHITE, "'):");
 
 	/* Wizards get extra info */
 	if (p_ptr->wizard)
 	{
-		roff(" (" CLR_L_BLUE "%d)", r_idx);
+		char buf[6];
+
+		sprintf(buf, "%d", r_idx);
+
+		Term_addstr(-1, TERM_WHITE, " (");
+		Term_addstr(-1, TERM_L_BLUE, buf);
+		Term_addch(TERM_WHITE, ')');
 	}
 }
 
@@ -1524,10 +1428,10 @@ void roff_top(int r_idx)
 void screen_roff(int r_idx, int remember)
 {
 	/* Flush messages */
-	message_flush();
+	msg_print(NULL);
 
 	/* Begin recall */
-	clear_row(1);
+	Term_erase(0, 1, 255);
 
 	/* Recall monster */
 	roff_aux(r_idx, remember);
@@ -1544,8 +1448,14 @@ void screen_roff(int r_idx, int remember)
  */
 void display_roff(int r_idx)
 {
+	int y;
+
 	/* Erase the window */
-    clear_from(0);
+	for (y = 0; y < Term->hgt; y++)
+	{
+		/* Erase the line */
+		Term_erase(0, y, 255);
+	}
 
 	/* Begin recall */
 	Term_gotoxy(0, 1);
@@ -1568,17 +1478,25 @@ void display_visible(void)
 	byte a1, a2;
 	monster_race *r_ptr;
 
+
 	/* Erase the window */
-    clear_from(0);
+	for (y = 0; y < Term->hgt; y++)
+	{
+		/* Erase the line */
+		Term_erase(0, y, 255);
+	}
 
 	/* Are we hallucinating? */
 	if (p_ptr->image)
 	{
-		put_fstr(0, 10, CLR_VIOLET "Hallucinations");
-
+		/* Go to top left of screen */
+		Term_gotoxy(0, 10);
+	
+		Term_addstr(-1, TERM_VIOLET, "Hallucinations");
+	
 		return;
 	}
-
+	
 	i = p_ptr->max_seen_r_idx;
 
 	/* Show the list */
@@ -1586,15 +1504,15 @@ void display_visible(void)
 	{
 		/* No more to display */
 		if (!i) return;
-
+		
 		/* Go to left of screen */
 		Term_gotoxy(0, y);
-
+		
 		/* Note we have assumed that r_info.txt has been sorted */
-
+		
 		/* Access monster */
 		r_ptr = &r_info[i];
-
+		
 		/* Access the chars */
 		c1 = r_ptr->d_char;
 		c2 = r_ptr->x_char;
@@ -1613,37 +1531,43 @@ void display_visible(void)
 		/* Dump the name */
 		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
-			roff(CLR_L_BLUE "%s", (r_name + r_ptr->name));
+			Term_addstr(-1, TERM_L_BLUE, (r_name + r_ptr->name));
 		}
 		else
 		{
-			roff(r_name + r_ptr->name);
-		}
+			Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+		}		
 
 		/* Append the "standard" attr/char info */
-		roff(" ('");
+		Term_addstr(-1, TERM_WHITE, " ('");
 		Term_addch(a1, c1);
-		roff("')");
+		Term_addstr(-1, TERM_WHITE, "')");
 
 		/* Append the "optional" attr/char info */
-		roff("/('");
+		Term_addstr(-1, TERM_WHITE, "/('");
 		Term_addch(a2, c2);
-		roff("'):");
+		Term_addstr(-1, TERM_WHITE, "'):");
 
 		/* Wizards get extra info */
 		if (p_ptr->wizard)
 		{
-			roff(" (" CLR_L_BLUE "%d)", i);
+			char buf[6];
+
+			sprintf(buf, "%d", i);
+	
+			Term_addstr(-1, TERM_WHITE, " (");
+			Term_addstr(-1, TERM_L_BLUE, buf);
+			Term_addch(TERM_WHITE, ')');
 		}
-
+		
 		/* Append count */
-		roff("[%d]", r_ptr->r_see);
-
+		Term_addstr(-1, TERM_WHITE, format("[%d]",r_ptr->r_see));
+		
 		/* Look for the next one */
 		while (i > 0)
 		{
 			i--;
-
+			
 			if (r_info[i].r_see)
 			{
 				break;
@@ -1770,7 +1694,8 @@ bool monster_lava_dun(int r_idx)
 	if (!monster_dungeon(r_idx)) return FALSE;
 
 	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
-		 (r_ptr->flags7 & RF7_CAN_FLY)) && !(r_ptr->flags3 & RF3_AURA_COLD))
+	     (r_ptr->flags7 & RF7_CAN_FLY)) &&
+	    !(r_ptr->flags3 & RF3_AURA_COLD))
 		return TRUE;
 	else
 		return FALSE;
@@ -1782,7 +1707,8 @@ bool monster_acid_dun(int r_idx)
 
 	if (!monster_dungeon(r_idx)) return FALSE;
 
-	if (((r_ptr->flags3 & RF3_IM_ACID) || (r_ptr->flags7 & RF7_CAN_FLY)))
+	if (((r_ptr->flags3 & RF3_IM_ACID) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)))
 		return TRUE;
 	else
 		return FALSE;
@@ -1794,7 +1720,8 @@ bool monster_swamp_dun(int r_idx)
 
 	if (!monster_dungeon(r_idx)) return FALSE;
 
-	if (((r_ptr->flags3 & RF3_IM_POIS) || (r_ptr->flags7 & RF7_CAN_FLY)))
+	if (((r_ptr->flags3 & RF3_IM_POIS) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)))
 		return TRUE;
 	else
 		return FALSE;
@@ -1831,15 +1758,13 @@ bool monster_shallow_water_wild(int r_idx)
 bool monster_lava_wild(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-	
-	if ((wild_mon_hook) && (wild_mon_hook != monster_lava_wild))
-	{
-		/* Check wilderness flags */
-		if (!wild_mon_hook(r_idx)) return FALSE;
-	}
+
+	/* Check wilderness flags */
+	if (!wild_mon_hook(r_idx)) return FALSE;
 
 	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
-		 (r_ptr->flags7 & RF7_CAN_FLY)) && !(r_ptr->flags3 & RF3_AURA_COLD))
+	     (r_ptr->flags7 & RF7_CAN_FLY)) &&
+	    !(r_ptr->flags3 & RF3_AURA_COLD))
 		return TRUE;
 	else
 		return FALSE;
@@ -1849,13 +1774,11 @@ bool monster_acid_wild(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if ((wild_mon_hook) && (wild_mon_hook != monster_acid_wild))
-	{
-		/* Check wilderness flags */
-		if (!wild_mon_hook(r_idx)) return FALSE;
-	}
+	/* Check wilderness flags */
+	if (!wild_mon_hook(r_idx)) return FALSE;
 
-	if (((r_ptr->flags3 & RF3_IM_ACID) || (r_ptr->flags7 & RF7_CAN_FLY)))
+	if (((r_ptr->flags3 & RF3_IM_ACID) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)))
 		return TRUE;
 	else
 		return FALSE;
@@ -1868,7 +1791,8 @@ bool monster_swamp_wild(int r_idx)
 	/* Check wilderness flags */
 	if (!wild_mon_hook(r_idx)) return FALSE;
 
-	if (((r_ptr->flags3 & RF3_IM_POIS) || (r_ptr->flags7 & RF7_CAN_FLY)))
+	if (((r_ptr->flags3 & RF3_IM_POIS) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)))
 		return TRUE;
 	else
 		return FALSE;
@@ -1888,7 +1812,7 @@ monster_hook_type get_monster_hook(void)
 }
 
 
-monster_hook_type get_monster_hook2(int x, int y)
+monster_hook_type get_monster_hook2(int y, int x)
 {
 	wild_done_type *w_ptr;
 
@@ -1896,35 +1820,23 @@ monster_hook_type get_monster_hook2(int x, int y)
 	if (p_ptr->depth)
 	{
 		/* Set the monster list */
-		switch (area(x, y)->feat)
+		switch (area(y, x)->feat)
 		{
-			case FEAT_SHAL_WATER:
-			{
-				return &(monster_shallow_water_dun);
-			}
-			case FEAT_DEEP_WATER:
-			{
-				return &(monster_deep_water_dun);
-			}
-			case FEAT_DEEP_LAVA:
-			case FEAT_SHAL_LAVA:
-			{
-				return &(monster_lava_dun);
-			}
-			case FEAT_DEEP_ACID:
-			case FEAT_SHAL_ACID:
-			{
-				return &(monster_acid_dun);
-			}
-			case FEAT_DEEP_SWAMP:
-			case FEAT_SHAL_SWAMP:
-			{
-				return &(monster_swamp_dun);
-			}
-			default:
-			{
-				return NULL;
-			}
+		case FEAT_SHAL_WATER:
+			return &(monster_shallow_water_dun);
+		case FEAT_DEEP_WATER:
+			return &(monster_deep_water_dun);
+		case FEAT_DEEP_LAVA:
+		case FEAT_SHAL_LAVA:
+			return &(monster_lava_dun);
+		case FEAT_DEEP_ACID:
+		case FEAT_SHAL_ACID:
+			return &(monster_acid_dun);
+		case FEAT_DEEP_SWAMP:
+		case FEAT_SHAL_SWAMP:
+			return &(monster_swamp_dun);
+		default:
+			return NULL;
 		}
 	}
 
@@ -1978,46 +1890,32 @@ monster_hook_type get_monster_hook2(int x, int y)
 		}
 	}
 
-	if (w_ptr->place)
+	if (w_ptr->town)
 	{
-		/* Have a place. Hack - use town hook. */
+		/* Have a town */
 		wild_mon_hook = &monster_town;
 	}
 
 	/* Set the monster list */
-	switch (area(x, y)->feat)
+	switch (area(y, x)->feat)
 	{
-		case FEAT_SHAL_WATER:
-		{
-			return &(monster_shallow_water_wild);
-		}
-		case FEAT_DEEP_WATER:
-		{
-			return &(monster_deep_water_wild);
-		}
-		case FEAT_OCEAN_WATER:
-		{
-			return (wild_mon_hook);
-		}
-		case FEAT_DEEP_LAVA:
-		case FEAT_SHAL_LAVA:
-		{
-			return &(monster_lava_wild);
-		}
-		case FEAT_DEEP_ACID:
-		case FEAT_SHAL_ACID:
-		{
-			return &(monster_acid_wild);
-		}
-		case FEAT_DEEP_SWAMP:
-		case FEAT_SHAL_SWAMP:
-		{
-			return &(monster_swamp_wild);
-		}
-		default:
-		{
-			return (wild_mon_hook);
-		}
+	case FEAT_SHAL_WATER:
+		return &(monster_shallow_water_wild);
+	case FEAT_DEEP_WATER:
+		return &(monster_deep_water_wild);
+	case FEAT_OCEAN_WATER:
+		return (wild_mon_hook);
+	case FEAT_DEEP_LAVA:
+	case FEAT_SHAL_LAVA:
+		return &(monster_lava_wild);
+	case FEAT_DEEP_ACID:
+	case FEAT_SHAL_ACID:
+		return &(monster_acid_wild);
+	case FEAT_DEEP_SWAMP:
+	case FEAT_SHAL_SWAMP:
+		return &(monster_swamp_wild);
+	default:
+		return (wild_mon_hook);
 	}
 }
 
@@ -2051,7 +1949,10 @@ void anger_monster(monster_type *m_ptr)
 {
 	if (!is_hostile(m_ptr))
 	{
-		msgf("%^v gets angry!", MONSTER_FMT(m_ptr, 0));
+		char m_name[80];
+
+		monster_desc(m_name, m_ptr, 0);
+		msg_format("%^s gets angry!", m_name);
 		set_hostile(m_ptr);
 
 		chg_virtue(V_INDIVIDUALISM, 1);
@@ -2080,7 +1981,8 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 	if (feat == FEAT_DEEP_WATER)
 	{
 		if ((r_ptr->flags7 & RF7_AQUATIC) ||
-			(r_ptr->flags7 & RF7_CAN_FLY) || (r_ptr->flags7 & RF7_CAN_SWIM))
+		    (r_ptr->flags7 & RF7_CAN_FLY) ||
+		    (r_ptr->flags7 & RF7_CAN_SWIM))
 			return TRUE;
 		else
 			return FALSE;
@@ -2096,33 +1998,40 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 	}
 
 	/* Aquatic monster */
-	if ((r_ptr->flags7 & RF7_AQUATIC) && !(r_ptr->flags7 & RF7_CAN_FLY))
+	if ((r_ptr->flags7 & RF7_AQUATIC) &&
+	    !(r_ptr->flags7 & RF7_CAN_FLY))
 	{
 		return FALSE;
 	}
 
 	/* Lava */
-	if ((feat == FEAT_SHAL_LAVA) || (feat == FEAT_DEEP_LAVA))
+	if ((feat == FEAT_SHAL_LAVA) ||
+	    (feat == FEAT_DEEP_LAVA))
 	{
-		if ((r_ptr->flags3 & RF3_IM_FIRE) || (r_ptr->flags7 & RF7_CAN_FLY))
+		if ((r_ptr->flags3 & RF3_IM_FIRE) ||
+		    (r_ptr->flags7 & RF7_CAN_FLY))
 			return TRUE;
 		else
 			return FALSE;
 	}
 
 	/* Acid */
-	if ((feat == FEAT_SHAL_ACID) || (feat == FEAT_DEEP_ACID))
+	if ((feat == FEAT_SHAL_ACID) ||
+	    (feat == FEAT_DEEP_ACID))
 	{
-		if ((r_ptr->flags3 & RF3_IM_ACID) || (r_ptr->flags7 & RF7_CAN_FLY))
+		if ((r_ptr->flags3 & RF3_IM_ACID) ||
+		    (r_ptr->flags7 & RF7_CAN_FLY))
 			return TRUE;
 		else
 			return FALSE;
 	}
 
 	/* Swamp */
-	if ((feat == FEAT_SHAL_SWAMP) || (feat == FEAT_DEEP_SWAMP))
+	if ((feat == FEAT_SHAL_SWAMP) ||
+	    (feat == FEAT_DEEP_SWAMP))
 	{
-		if ((r_ptr->flags3 & RF3_IM_POIS) || (r_ptr->flags7 & RF7_CAN_FLY))
+		if ((r_ptr->flags3 & RF3_IM_POIS) ||
+		    (r_ptr->flags7 & RF7_CAN_FLY))
 			return TRUE;
 		else
 			return FALSE;
@@ -2142,8 +2051,9 @@ bool are_enemies(const monster_type *m_ptr, const monster_type *n_ptr)
 
 	/* Friendly vs. opposite aligned normal or pet */
 	if (((r_ptr->flags3 & RF3_EVIL) &&
-		 (s_ptr->flags3 & RF3_GOOD)) ||
-		((r_ptr->flags3 & RF3_GOOD) && (s_ptr->flags3 & RF3_EVIL)))
+		  (s_ptr->flags3 & RF3_GOOD)) ||
+		 ((r_ptr->flags3 & RF3_GOOD) &&
+		  (s_ptr->flags3 & RF3_EVIL)))
 	{
 		return TRUE;
 	}
@@ -2174,3 +2084,207 @@ bool monster_living(const monster_race *r_ptr)
 		return TRUE;
 }
 
+
+
+/* Dwarves */
+static char *dwarf_syllable1[] =
+{
+	"B", "D", "F", "G", "Gl", "H", "K", "L", "M", "N", "R", "S", "T", "Th", "V",
+};
+
+static char *dwarf_syllable2[] =
+{
+	"a", "e", "i", "o", "oi", "u",
+};
+
+static char *dwarf_syllable3[] =
+{
+	"bur", "fur", "gan", "gnus", "gnar", "li", "lin", "lir", "mli", "nar",
+	"nus", "rin", "ran", "sin", "sil", "sur",
+};
+
+/* Elves */
+static char *elf_syllable1[] =
+{
+	"Al", "An", "Bal", "Bel", "Cal", "Cel", "El", "Elr", "Elv", "Eow", "F",
+	"Fal", "Fel", "Fin", "G", "Gal", "Gel", "Gl", "Is", "Lan", "Leg", "N",
+	"Nal", "Nel",  "S", "Sal", "Sel", "T", "Tal", "Tel", "Thr", "Tin",
+};
+
+static char *elf_syllable2[] =
+{
+	"a", "adrie", "ara", "e", "ebri", "ele", "ere", "i", "io", "ithra",
+	"ilma", "il-Ga", "ili", "o", "orfi", "u", "y",
+};
+
+static char *elf_syllable3[] =
+{
+	"l", "las", "lad", "ldor", "ldur", "linde", "lith", "mir", "n", "nd",
+	"ndel", "ndil", "ndir", "nduil", "ng", "mbor", "r", "rith", "ril",
+	"riand", "rion", "s", "thien", "viel", "wen", "wyn",
+};
+
+/* Gnomes */
+static char *gnome_syllable1[] =
+{
+	"Aar", "An", "Ar", "As", "C", "H", "Han", "Har", "Hel", "Iir", "J",
+	"Jan", "Jar", "K", "L", "M", "Mar", "N", "Nik", "Os", "Ol", "P", "R",
+	"S", "Sam", "San", "T", "Ter", "Tom", "Ul", "V", "W", "Y",
+};
+
+static char *gnome_syllable2[] =
+{
+	"a", "aa",  "ai", "e", "ei", "i", "o", "uo", "u", "uu",
+};
+
+static char *gnome_syllable3[] =
+{
+	"ron", "re", "la", "ki", "kseli", "ksi", "ku", "ja", "ta", "na",
+	"namari", "neli", "nika", "nikki", "nu", "nukka", "ka", "ko", "li",
+	"kki", "rik", "po", "to", "pekka", "rjaana", "rjatta", "rjukka", "la",
+	"lla", "lli", "mo", "nni",
+};
+
+/* Hobbit */
+static char *hobbit_syllable1[] =
+{
+	"B", "Ber", "Br", "D", "Der", "Dr", "F", "Fr", "G", "H", "L", "Ler",
+	"M", "Mer", "N", "P", "Pr", "Per", "R", "S", "T", "W",
+};
+
+static char *hobbit_syllable2[] =
+{
+	"a", "e", "i", "ia", "o", "oi", "u",
+};
+
+static char *hobbit_syllable3[] =
+{
+	"bo", "ck", "decan", "degar", "do", "doc", "go", "grin", "lba", "lbo",
+	"lda", "ldo", "lla", "ll", "lo", "m", "mwise", "nac", "noc", "nwise",
+	"p", "ppin", "pper", "tho", "to",
+};
+
+/* Human */
+static char *human_syllable1[] =
+{
+	"Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr", "Ar",
+	"B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed", "Eth", "Et",
+	"Er", "El", "Eow", "F", "Fr", "G", "Gr", "Gw", "Gal", "Gl", "H", "Ha",
+	"Ib", "Jer", "K", "Ka", "Ked", "L", "Loth", "Lar", "Leg", "M", "Mir",
+	"N", "Nyd", "Ol", "Oc", "On", "P", "Pr", "R", "Rh", "S", "Sev", "T",
+	"Tr", "Th", "V", "Y", "Z", "W", "Wic",
+};
+
+static char *human_syllable2[] =
+{
+	"a", "ae", "au", "ao", "are", "ale", "ali", "ay", "ardo", "e", "ei",
+	"ea", "eri", "era", "ela", "eli", "enda", "erra", "i", "ia", "ie",
+	"ire", "ira", "ila", "ili", "ira", "igo", "o", "oa", "oi", "oe",
+	"ore", "u", "y",
+};
+
+static char *human_syllable3[] =
+{
+	"a", "and", "b", "bwyn", "baen", "bard", "c", "ctred", "cred", "ch",
+	"can", "d", "dan", "don", "der", "dric", "dfrid", "dus", "f", "g",
+	"gord", "gan", "l", "li", "lgrin", "lin", "lith", "lath", "loth", "ld",
+	"ldric", "ldan", "m", "mas", "mos", "mar", "mond", "n", "nydd", "nidd",
+	"nnon", "nwan", "nyth", "nad", "nn", "nnor", "nd", "p", "r", "ron",
+	"rd", "s", "sh", "seth", "sean", "t", "th", "tha", "tlan", "trem",
+	"tram", "v", "vudd", "w", "wan", "win", "wyn", "wyr", "wyr", "wyth",
+};
+
+/* Orc */
+static char *orc_syllable1[] =
+{
+	"B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr", "M", "Dr",
+};
+
+static char *orc_syllable2[] =
+{
+	"a", "i", "o", "oo", "u", "ui",
+};
+
+static char *orc_syllable3[] =
+{
+	"dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k",
+	"lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol", "urk",
+	"shnak", "mog", "mak", "rak",
+};
+
+
+/*
+ * Random Name Generator
+ * based on a Javascript by Michael Hensley
+ * "http://geocities.com/timessquare/castle/6274/"
+ */
+void create_name(int type, char *name)
+{
+	int cs = sizeof(char*);
+	
+	/* Paranoia */
+	if (!name) return;
+
+	/* Select the monster type */
+	switch (type)
+	{
+		/* Create the monster name */
+		case NAME_DWARF:
+		{
+			strcpy(name, dwarf_syllable1[randint0(sizeof(dwarf_syllable1)/cs)]);
+			strcat(name, dwarf_syllable2[randint0(sizeof(dwarf_syllable2)/cs)]);
+			strcat(name, dwarf_syllable3[randint0(sizeof(dwarf_syllable3)/cs)]);
+			break;
+		}
+		
+		case NAME_ELF:
+		{
+			strcpy(name, elf_syllable1[randint0(sizeof(elf_syllable1) / cs)]);
+			strcat(name, elf_syllable2[randint0(sizeof(elf_syllable2) / cs)]);
+			strcat(name, elf_syllable3[randint0(sizeof(elf_syllable3) / cs)]);
+			break;
+		}
+		
+		case NAME_GNOME:
+		{
+			strcpy(name, gnome_syllable1[randint0(sizeof(gnome_syllable1)/cs)]);
+			strcat(name, gnome_syllable2[randint0(sizeof(gnome_syllable2)/cs)]);
+			strcat(name, gnome_syllable3[randint0(sizeof(gnome_syllable3)/cs)]);
+			break;
+		}
+		
+		case NAME_HOBBIT:
+		{
+			strcpy(name, hobbit_syllable1[randint0(sizeof(hobbit_syllable1)
+				/ cs)]);
+			strcat(name, hobbit_syllable2[randint0(sizeof(hobbit_syllable2)
+				/ cs)]);
+			strcat(name, hobbit_syllable3[randint0(sizeof(hobbit_syllable3)
+				/ cs)]);
+			break;
+		}
+		
+		case NAME_HUMAN:
+		{
+			strcpy(name, human_syllable1[randint0(sizeof(human_syllable1)/cs)]);
+			strcat(name, human_syllable2[randint0(sizeof(human_syllable2)/cs)]);
+			strcat(name, human_syllable3[randint0(sizeof(human_syllable3)/cs)]);
+			break;
+		}
+		
+		case NAME_ORC:
+		{
+			strcpy(name, orc_syllable1[randint0(sizeof(orc_syllable1) / cs)]);
+			strcat(name, orc_syllable2[randint0(sizeof(orc_syllable2) / cs)]);
+			strcat(name, orc_syllable3[randint0(sizeof(orc_syllable3) / cs)]);
+			break;
+		}
+			
+		/* Create an empty name */
+		default:
+		{
+			name[0] = '\0';
+			break;
+		}
+	}
+}
