@@ -4,6 +4,13 @@ Based on Cthangband 4.1.0b and Zangband 2.1.0e
 Changes are added to the top of this file, so for a chronological order
 read from the bottom up.
 
+sCthangband 1.0.7
+* Create an option to flush input if invalid input is given.
+* Add instructions for the stat choice screen, and mention them on it.
+* Fix a bug which prevented old savefiles from being loaded.
+* Fix a bug which overwrote a monster with the ghost.
+* Make the game complain if a shop has no valid shopkeepers.
+
 sCthangband 1.0.6
 * Decrease the number of successes needed to train bows from 10 to 4.
 * Add Bokrug, the Water Lizard to r_info.txt, and change tyrannosaurs' colours.

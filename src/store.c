@@ -4692,6 +4692,54 @@ void do_cmd_store(void)
 
 
 /*
+ * Select an owner for the current shop.
+ */
+static void choose_owner(void)
+{
+	int i,j;
+	C_TNEW(o_table, NUM_OWNERS, int);
+
+	for (i = j = 0; i < NUM_OWNERS; i++)
+	{
+		owner_type *ow_ptr = owners+i;
+
+		/* Different owner. */
+		if ((i != st_ptr->owner) &&
+
+			/* Right type. */
+			(ow_ptr->shop_type == store[cur_store_num].type) &&
+
+		/* Right town. */
+			(ow_ptr->town != cur_store_num/MAX_STORES_PER_TOWN ||
+			ow_ptr->town != TOWN_NONE))
+		{
+			/* Count the owner. */
+			o_table[j++] = i;
+		}
+	}
+
+	/* Pick a shopkeeper, if any were found. */
+	if (j)
+	{
+		st_ptr->owner = o_table[rand_int(j)];
+	}
+	/* No valid shopkeepers. */
+	else
+	{
+		/* Give it a "valid" shopkeeper. */
+		st_ptr->owner = 0;
+
+		/* Warn the player, if desired. */
+		if (alert_failure)
+			msg_format("Shop %d has no (other?) valid shopkeepers.",
+				cur_store_num);
+	}
+
+	/* Finished. */
+	TFREE(o_table);
+}
+
+/*
  * Shuffle one of the stores.
  */
 void store_shuffle(int which)
@@ -4711,27 +4759,14 @@ void store_shuffle(int which)
 	/* Activate that store */
 	st_ptr = &store[cur_store_num];
 
-	/* Pick a new owner */
-	while (1)
+	/* Paranoia - require a sensible owner type. */
+	if (st_ptr->type >= MAX_STORE_TYPES && st_ptr->type != STORE_NONE)
 	{
-		int i = rand_int(NUM_OWNERS);
-		owner_type *ow_ptr = owners+i;
-
-		/* Same shopkeeper. */
-		if (i == st_ptr->owner) continue;
-
-		/* Wrong type of shopkeeper. */
-		if (ow_ptr->shop_type != store[which].type) continue;
-
-		/* Right town. */
-		if (ow_ptr->town == which/MAX_STORES_PER_TOWN ||
-			ow_ptr->town == TOWN_NONE)
-		{
-			/* Accept the owner. */
-			st_ptr->owner = i;
-			break;
-		}
+		quit_fmt("Shop %d has strange type %d.", which, st_ptr->type);
 	}
+
+	/* Pick a new owner */
+	choose_owner();
 
 	/* Activate the new owner */
 	ot_ptr = &owners[st_ptr->owner];

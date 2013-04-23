@@ -1553,6 +1553,15 @@ static bool point_mod_player(void)
 			/* Display everything */
 			display_player_birth(points, details, rolled);
 		}
+
+		/* Give a special mention to the help text at the start. */
+		if (i == IDX_ALL)
+		{
+			/* Display the help text prominently. */
+			put_str("Press ? and then b for detailed instructions.", 0, 0);
+		}
+
+
 		/* Randomise the skill bonuses and set magic up as the player
 		 * wants. If the player aborts the latter, we return here. */
 		if (i == IDX_FINISH)

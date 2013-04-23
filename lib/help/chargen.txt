@@ -5,6 +5,37 @@ Your character in Cthangband is defined by a series of statistics (usually abbre
 
 The main stats of a character, and what they represent are listed below.
 
+Character creation
+==================
+
+The method by which characters' stats are chosen depends on two options, use_autoroller and spend_points.
+
+If neither is set, you should press 'a' to roll for stats until your stats are acceptable. Pressing escape will then start the game.
+
+If use_autoroller is set, you should set the stats to the minimum values for each stat you would be happy with and then press 'a' to roll them. Higher values increase the time it takes to create a character like this.
+
+If spend_points is set, you can simply press escape if the number of points listed at the bottom of the screen is at least 0.
+
+If both are set, you may use either method. The game will indicate a rolled
+character which has fewer than 0 points left for spend_points by displaying the
+total in blue. You can accept this rolled character, but modifying it further
+willl cause it to be treated as a character which has had points spent on it.
+
+There are a number of keys which are used during character creation as follows:
+
+s, i, w, d, c, h: Increase the specified stat for the purposes above.
+S, I, W, D, C, H: Decrease the specified stat.
+               a: Roll a character, repeatedly with minima if allowed.
+               N: Set the character's name.
+               G: Change the character's sex.
+            R, r: Change the character's race.
+            T, t: Change the character's template.
+               /: Change from one birth display to the other.
+               f: Save the current set of stats to a file.
+               l: Load a saved set of stats for this race and template.
+               =: Modify the birth options (see *****chargen.txt*0[chargen.txt] $wfor details).
+               ?: Display help.
+
 Primary Stats
 =============
 

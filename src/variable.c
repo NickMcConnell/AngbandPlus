@@ -114,7 +114,6 @@ bool use_transparency = FALSE; /* Use transparent tiles */
 s16b signal_count;		/* Hack -- Count interupts */
 
 bool inkey_base;		/* See the "inkey()" function */
-bool inkey_xtra;		/* See the "inkey()" function */
 bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
 
@@ -269,6 +268,7 @@ bool view_reduce_view;		/* Reduce view-radius in town */
 bool avoid_abort;			/* Avoid checking for user abort */
 bool avoid_other;			/* Avoid processing special colors */
 
+bool flush_error;			/* Flush input on incorrect keypresses. */
 bool flush_failure;			/* Flush input on any failure */
 bool flush_disturb;			/* Flush input on disturbance */
 bool flush_command;			/* Flush input before every command */

@@ -961,8 +961,7 @@ static void rd_ghost(void)
 {
 	int i;
     
-	monster_race *r_ptr = r_info+
-		convert_r_idx(MON_PLAYER_GHOST, sf_flags, sf_flags_now);
+	monster_race *r_ptr = r_info+MON_PLAYER_GHOST;
 
 	/* Name */
 	rd_string(r_name + r_ptr->name, 64);
@@ -2118,7 +2117,7 @@ static errr rd_savefile_new_aux(void)
 		for (i = 0; i < tmp16u - MAX_STORES_TOTAL; i++) rd_store(0);
 	}
 	
-	for (i = 0; i < MAX(MAX_STORES_TOTAL, tmp16u); i++)
+	for (i = 0; i < MIN(MAX_STORES_TOTAL, tmp16u); i++)
 	{
 		if (rd_store(i)) return (22);
 	}

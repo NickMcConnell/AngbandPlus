@@ -49,7 +49,7 @@
 
 # Version stamp (required)
 
-V:
+V:1.0.7
 
 
 

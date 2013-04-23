@@ -481,9 +481,7 @@ static void wr_ghost(void)
 {
 	int i;
 
-	monster_race *r_ptr = r_info+
-		convert_r_idx(MON_PLAYER_GHOST, sf_flags_now, sf_flags);
-
+	monster_race *r_ptr = r_info+MON_PLAYER_GHOST;
 
 	/* Name */
 	wr_string(r_name + r_ptr->name);

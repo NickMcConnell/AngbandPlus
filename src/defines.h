@@ -42,7 +42,7 @@
  * characters long for main-mac.c. GAME_NAME is less strict.
  */
 #define GAME_NAME	"sCthangband"
-#define GAME_VERSION   ""
+#define GAME_VERSION   "1.0.7"
 
 /*
  * Number of grids used to display the dungeon (vertically).

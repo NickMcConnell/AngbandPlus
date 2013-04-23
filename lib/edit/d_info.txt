@@ -82,7 +82,7 @@
 
 # Version stamp (required)
 
-V:
+V:1.0.7
 
 N:0:Celephais
 D:the Sewers under Celephais

@@ -272,6 +272,10 @@ Avoid checking to see if the user has pressed a key during resting or running or
 $GAvoid processing special colours [avoid_other]
 Avoid processing the "multi-hued" or "clear" attributes of monsters. This will cause all "multi-hued" monsters to appear "violet" and all "clear" monsters to appear "white", and will cause "trappers" and "lurkers" to be visible on some machines, but it may greatly increase efficiency especially when telepathy is active. Certain systems may choose to set this option if they are unable to support the special "colour" processing, but if they handle graphics "correctly", by using attr/char pairs with the "high bits" set, then not only will the game correctly avoid using any "dangerous" colour processing, but it will allow such processing to occur when it is not dangerous. So if you are using graphics, and you use a "normal" attr/char for the "floor" grids, then you can use the "special lighting effects" for floors.
 
+%%%%% <flush_error>
+$GFlush input on incorrect keypresses [flush_error]
+This option forces the game to flush all pending input when input is encountered which does not make sense to the game. If this option is not set, such input will be ignored (although it may still cause a beep).
+
 %%%%% <flush_failure>
 $GFlush input on various failures [flush_failure]
 This option forces the game to flush all pending input whenever various "failures" occur, such as failure to cast a spell, failure to use a wand, etc. This is very useful if you use macros which include "directional" components with commands that can fail, since it will prevent you from walking towards monsters when your spells fail.

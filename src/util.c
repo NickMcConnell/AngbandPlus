@@ -1481,7 +1481,7 @@ static errr macro_init(void)
 /*
  * Local "need flush" variable
  */
-static bool flush_later = FALSE;
+static bool inkey_xtra = FALSE;
 
 
 /*
@@ -1509,7 +1509,7 @@ static bool parse_under = FALSE;
 void flush(void)
 {
 	/* Do it later */
-	flush_later = TRUE;
+	inkey_xtra = TRUE;
 }
 
 
@@ -1524,8 +1524,8 @@ void bell(void)
 	/* Make a bell noise (if allowed) */
 	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
 
-	/* Flush the input (later!) */
-	flush();
+	/* Flush the input if allowed (later!) */
+	if (flush_error) flush();
 }
 
 

@@ -2432,7 +2432,7 @@ cptr window_flag_desc[32] =
 
 
 /*
- * Available Options (full to 3,17), 7 reserved for cheat options
+ * Available Options (full to 3,19), 7 reserved for cheat options
  *
  * Note that birth options should always be followed by BIRTHR ones which
  * store the value used in the game.
@@ -2638,6 +2638,9 @@ option_type option_info[] =
 
 	{ &avoid_other,                 FALSE, OPTS_PERF,      1, 22,
 	"avoid_other",                  "Avoid processing special colors" },
+
+	{ &flush_error,	TRUE, OPTS_PERF, 3, 19,
+	"flush_error", "Flush input on incorrect keypresses." },
 
 	{ &flush_failure,               TRUE, OPTS_PERF,      1, 23,
 	"flush_failure",                "Flush input on various failures" },
