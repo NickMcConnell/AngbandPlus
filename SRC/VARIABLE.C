@@ -74,6 +74,9 @@ bool character_xtra;		/* The game is in an icky startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
+#ifdef GJW_RANDART
+u32b seed_randart;		/* Hack -- consistent random artifacts */
+#endif
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */

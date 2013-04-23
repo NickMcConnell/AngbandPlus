@@ -151,6 +151,17 @@ Changes:
   with Collapse Ceiling and Elemental Bolt.
 
 
+Quest Angband 2.8.2b
+
+Changes:
+- Fixed bug:spells "Elemental Blast" crashed the game
+- Added Random Artifacts (from Greg Wooledge)
+- Added expanded k_info.txt (from Leigh Silas Hanrihan)
+- Added a new EGO-item (Magical infused blade)
+- Upgraded Amulet of the Magi (Int bonus)
+- Added Ring of Mana (Increases your maximum mana)
+
+
 Heino Vander Sanden
 
 Heino.VanderSanden@AdValvas.Be

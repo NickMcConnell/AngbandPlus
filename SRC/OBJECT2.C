@@ -950,6 +950,9 @@ static s32b object_value_real(object_type *o_ptr)
 			/* Give credit for speed bonus */
 			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 30000L);
 
+			/* Give credit for mana bonus (Heino Vander Sanden) */
+			if (f1 & (TR1_ADD_MANA)) value += (o_ptr->pval *1000L);
+
 			break;
 		}
 	}
@@ -1819,6 +1822,13 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			/* Very Good */
 			if (power > 1)
 			{
+
+				if ((o_ptr->weight <= 100) && (rand_int(100) < 10))
+				{
+					o_ptr->name2 = EGO_MAGIC_INF;
+					break;
+				}
+
 				/* Roll for an ego-item */
 				switch (randint(29))
 				{
@@ -2184,8 +2194,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			{
 				/* Hack -- Try for "Robes of the Magi" */
 				if ((o_ptr->tval == TV_SOFT_ARMOR) &&
-				    (o_ptr->sval == SV_ROBE) &&
-				    (rand_int(100) < 10))
+					 (o_ptr->sval == SV_ROBE) &&
+					 (rand_int(100) < 10))
 				{
 					o_ptr->name2 = EGO_PERMANENCE;
 					break;
@@ -2661,6 +2671,26 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					break;
 				}
+				case SV_RING_MANA:
+				{
+					/* Stat bonus */
+					o_ptr->pval = 1 + m_bonus(9, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse pval */
+						o_ptr->pval = 0 - (o_ptr->pval);
+					}
+
+					break;
+				}
 
 				/* Ring of Speed! */
 				case SV_RING_SPEED:
@@ -2904,8 +2934,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Amulet of the Magi -- never cursed */
 				case SV_AMULET_THE_MAGI:
 				{
-					o_ptr->pval = randint(5) + m_bonus(5, level);
-					o_ptr->to_a = randint(5) + m_bonus(5, level);
+					o_ptr->pval = randint(3) + m_bonus(2, level);
+					o_ptr->to_a = randint(10) + m_bonus(10, level);
 
 					/* Boost the rating */
 					rating += 25;
@@ -3203,6 +3233,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			case EGO_PERMANENCE:
 			case EGO_ELVENKIND:
 			case EGO_AMAN:
+			case EGO_MAGIC_INF:
 			{
 				o_ptr->xtra1 = OBJECT_XTRA_TYPE_RESIST;
 				o_ptr->xtra2 = rand_int(OBJECT_XTRA_SIZE_RESIST);

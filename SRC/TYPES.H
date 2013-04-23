@@ -805,6 +805,9 @@ struct player_type
 
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */
+#ifdef GJW_RANDART
+	byte random_artifacts;	/* Random artifacts */
+#endif
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */

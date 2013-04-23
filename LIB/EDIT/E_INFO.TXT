@@ -384,7 +384,14 @@ C:0:0:0:3
 F:WIS | 
 F:BLESSED
 
-# 67 (unused)
+# (Heino Vander Sanden)
+
+N:67:(Magical infused)
+X:24:30
+W:0:0:0:20000
+C:0:0:10:5
+F:INT | DEX | SUST_INT |
+F:RES_LITE | RES_DARK 
 
 N:68:of Westernesse
 X:24:20

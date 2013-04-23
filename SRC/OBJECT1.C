@@ -2294,7 +2294,7 @@ bool identify_fully_aux(object_type *o_ptr)
 	u32b f1, f2, f3;
 
 	cptr info[128];
-
+	char *test;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -2385,6 +2385,11 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f1 & (TR1_MIGHT))
 	{
 		info[i++] = "It affects your shooting power.";
+	}
+   /* (Heino Vander Sanden) */
+	if (f1 & (TR1_ADD_MANA))
+	{
+		info[i++] = "It affects your mana.";
 	}
 
 	if (f1 & (TR1_SLAY_ANIMAL))

@@ -912,7 +912,7 @@
 #define EGO_HA				64
 #define EGO_DF				65
 #define EGO_BLESS_BLADE		66
-/* xxx */
+#define EGO_MAGIC_INF   67
 #define EGO_WEST			68
 #define EGO_ATTACKS			69
 /* xxx */
@@ -1204,7 +1204,7 @@
 #define SV_RING_WEAKNESS		2
 #define SV_RING_STUPIDITY		3
 #define SV_RING_TELEPORTATION	4
-/* xxx */
+#define SV_RING_MANA				5   /* Heino Vander Sanden */
 #define SV_RING_SLOW_DIGESTION	6
 #define SV_RING_FEATHER_FALL	7
 #define SV_RING_RESIST_FIRE		8
@@ -1857,7 +1857,7 @@
 #define TR1_KILL_DRAGON		0x01000000L	/* Weapon kills dragon */
 #define TR1_XXX5			0x02000000L
 #define TR1_XXX6			0x04000000L
-#define TR1_XXX7			0x08000000L
+#define TR1_ADD_MANA			0x08000000L /* Mana += "pval" * 25 (Heino Vander Sanden) */
 #define TR1_BRAND_ACID		0x10000000L	/* Weapon has acid brand */
 #define TR1_BRAND_ELEC		0x20000000L	/* Weapon has elec brand */
 #define TR1_BRAND_FIRE		0x40000000L	/* Weapon has fire brand */
@@ -1938,7 +1938,7 @@
         (TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
          TR1_CON | TR1_CHR | TR1_XXX1 | TR1_XXX2 | \
          TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
-         TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
+			TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT | TR1_ADD_MANA)
 
 
 /*

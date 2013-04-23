@@ -1,11 +1,11 @@
-# File: k_info.txt
-
+# File: k_info.txt
 
 # This file is used to initialize the "lib/raw/k_info.raw" file, which is
 # used to initialize the "object kind" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
+
 # After modifying this file, delete the "lib/raw/k_info.raw" file.
 
 # Available slots (?):
@@ -196,13 +196,23 @@ G:,:r
 I:80:39:1000
 W:0:0:10:2
 
-
-## XXX 28 XXX ##
-
-## XXX 29 XXX ##
-
-
 ##### Edged Weapons #####
+
+N:28:& Ninjato~
+G:|:s
+I:23:19:0
+W:15:0:100:265
+A:15/2
+P:0:1d9:0:0:0
+F:SHOW_MODS
+
+N:29:& No-dachi~
+G:|:W
+I:23:27:0
+W:35:0:190:579
+A:35/3
+P:0:5d4:0:0:0
+F:SHOW_MODS
 
 N:30:& Broken Dagger~
 G:|:D
@@ -430,15 +440,15 @@ A:80/8
 P:0:5d8:0:0:0
 F:SLAY_UNDEAD | SHOW_MODS
 
+##### Polearms #####
+
 N:58:& Lucerne Hammer~
-G:\:B
-I:21:10:0
+G:/:B
+I:22:12:0
 W:10:0:120:376
 A:10/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
-
-##### Polearms #####
 
 N:59:& Beaked Axe~
 G:/:s
@@ -641,10 +651,17 @@ A:3/1
 P:0:1d3:0:0:0
 F:SHOW_MODS
 
+N:84:& Mithril Shot~
+G:{:B
+I:16:3:0
+W:25:0:5:15
+A:25/3
+P:0:4d3:0:0:0
+F:SHOW_MODS
 
 ##### Shovels and Picks #####
 
-N:84:& Shovel~
+N:85:& Shovel~
 G:\:s
 I:20:1:1
 W:1:0:60:10
@@ -652,7 +669,7 @@ A:5/16
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:85:& Gnomish Shovel~
+N:86:& Gnomish Shovel~
 G:\:G
 I:20:2:2
 W:20:0:60:100
@@ -660,7 +677,7 @@ A:20/4
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:86:& Dwarven Shovel~
+N:87:& Dwarven Shovel~
 G:\:B
 I:20:3:3
 W:40:0:120:200
@@ -668,7 +685,7 @@ A:40/1
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:87:& Pick~
+N:88:& Pick~
 G:\:s
 I:20:4:1
 W:5:0:150:50
@@ -676,7 +693,7 @@ A:10/16
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:88:& Orcish Pick~
+N:89:& Orcish Pick~
 G:\:g
 I:20:5:2
 W:30:0:150:300
@@ -684,7 +701,7 @@ A:30/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:89:& Dwarven Pick~
+N:90:& Dwarven Pick~
 G:\:b
 I:20:6:3
 W:50:0:200:600
@@ -692,38 +709,36 @@ A:50/1
 P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
 
-## XXX 90 XXX ##
-
+N:91:& Mattock~
+G:\:D
+I:20:7:2
+W:50:0:250:700
+A:50/1
+P:0:1d8:0:0:0
+F:SHOW_MODS | TUNNEL
 
 ##### Armor #####
 
-N:91:& Pair~ of Soft Leather Boots
+N:92:& Pair~ of Soft Leather Boots
 G:]:U
 I:30:2:0
 W:3:0:20:7
 A:3/1
 P:2:1d1:0:0:0
 
-N:92:& Pair~ of Hard Leather Boots
+N:93:& Pair~ of Hard Leather Boots
 G:]:U
 I:30:3:0
 W:5:0:40:12
 A:5/1
 P:3:1d1:0:0:0
 
-N:93:& Pair~ of Metal Shod Boots
+N:94:& Pair~ of Metal Shod Boots
 G:]:s
 I:30:6:0
 W:20:0:80:50
 A:20/1
 P:6:1d1:0:0:0
-
-N:94:& Hard Leather Cap~
-G:]:u
-I:32:2:0
-W:3:0:15:12
-A:3/1
-P:2:0d0:0:0:0
 
 N:95:& Metal Cap~
 G:]:s
@@ -769,19 +784,19 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-N:101:& Robe~
-G:(:b
-I:36:2:0
-W:1:0:20:4
-A:1/1:50/1
-P:2:0d0:0:0:0
+N:101:& Laminated Helm~
+G:]:D
+I:32:4:0
+W:50:0:80:300
+A:50/3
+P:7:1d2:0:0:0
 
-N:102:& Filthy Rag~
-G:(:D
-I:36:1:0
-W:0:0:20:1
-A:0/1
-P:1:0d0:0:0:-1
+N:102:Stone and Hide Armour~
+G:(:U
+I:36:15:0
+W:35:0:200:500
+A:35/7
+P:15:1d1:-1:0:0
 
 N:103:Soft Leather Armour~
 G:(:U
@@ -919,17 +934,12 @@ W:30:0:250:850
 A:30/1
 P:16:1d4:-2:0:0
 
-
-# This shield does not belong here
-
-N:122:& Shield~ of Deflection
-G:[:B
-I:34:10:0
-W:70:0:100:10000
-A:70/8
-P:10:1d1:0:0:10
-F:IGNORE_ACID
-
+N:122:Ring Mail~
+G:[:s
+I:37:2:0
+W:20:0:200:500
+A:20/1
+P:12:1d4:-2:0:0
 
 ### The Cloaks ###
 
@@ -1273,7 +1283,16 @@ W:15:0:3:20
 A:15/1
 F:EASY_KNOW
 
-## XXX 170 XXX ##
+##### Extra armor #####
+
+N:170:Double Ring Mail~
+G:[:s
+I:37:5:0
+W:25:0:230:700
+A:25/1
+P:15:1d4:-2:0:0
+
+##### Additional amulets #####
 
 N:171:the Magi
 G:":d
@@ -1281,7 +1300,7 @@ I:40:8:0
 W:50:0:3:30000
 A:50/4
 P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH |
+F:FREE_ACT | SEE_INVIS | SEARCH | RES_CONFU | INT |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:172:DOOM
@@ -1290,7 +1309,6 @@ I:40:0:-5
 W:50:0:3:0
 A:50/1
 F:LIGHT_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
-
 
 ##### Scrolls #####
 
@@ -1324,13 +1342,23 @@ I:70:13:0
 W:30:0:5:1000
 A:30/1
 
-## XXX 178 XXX ##
+##### Extra ammunition #####
+
+N:178:& Sheaf Arrow~
+G:{:o
+I:17:3:0
+W:10:0:4:3
+A:10/4:20/2:30/1
+P:0:1d5:0:0:0
+F:SHOW_MODS
 
 N:179:*Word of Recall*
 G:?:d
 I:70:23:0
 W:50:0:5:10000
 A:40/6
+
+##### Additional scrolls #####
 
 N:180:Remove Curse
 G:?:d
@@ -1344,9 +1372,25 @@ I:70:24:0
 W:0:0:5:15
 A:0/1:3/1:10/1
 
-## XXX 182 XXX ##
+##### Extra arms #####
 
-## XXX 183 XXX ##
+N:182:& Flight Arrow~
+G:{:y
+I:17:4:0
+W:3:0:1:1
+A:3/2
+P:0:1d3:0:0:0
+F:SHOW_MODS
+
+N:183:& Great Hammer~
+G:\:D
+I:21:19:0
+W:45:0:300:350
+A:45/3
+P:0:4d6:0:0:0
+F:SHOW_MODS
+
+##### Additional scrolls #####
 
 N:184:Summon Monster
 G:?:d
@@ -1414,9 +1458,25 @@ I:70:28:0
 W:5:0:5:35
 A:5/1:10/1
 
-## XXX 195 XXX ##
+##### Extra weapons #####
 
-## XXX 196 XXX ##
+N:195:& Zweihander~
+G:|:w
+I:23:29:0
+W:40:0:280:580
+A:40/3
+P:0:4d6:0:0:0
+F:SHOW_MODS
+
+N:196:& Tanto~
+G:|:W
+I:23:6:0
+W:3:0:20:30
+A:3/2
+P:0:1d5:0:0:0
+F:SHOW_MODS
+
+##### Additional scrolls #####
 
 N:197:Door/Stair Location
 G:?:d
@@ -1466,7 +1526,16 @@ I:70:39:0
 W:10:0:5:50
 A:10/1
 
-## XXX 205 XXX ##
+##### Extra armor #####
+
+N:205:Splint Mail~
+G:[:D
+I:37:10:0
+W:35:0:250:950
+A:35/1
+P:19:1d4:-2:0:0
+
+##### Additional scrolls #####
 
 N:206:Recharging
 G:?:d
@@ -1888,8 +1957,14 @@ W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
 
-## XXX 268 XXX ##
+##### Extra armor #####
 
+N:268:Plate Mail~
+G:[:s
+I:37:11:0
+W:40:0:290:1020
+A:40/2
+P:20:1d4:-2:0:0
 
 ##### Wands #####
 
@@ -2066,7 +2141,17 @@ A:3/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 293 XXX ##
+##### Extra weapon #####
+
+N:293:& Trifurcate Spear~
+G:/:o
+I:22:26:0
+W:35:0:140:400
+A:35;3
+P:0:2d9:0:0:0
+F:SHOW_MODS
+
+##### Additional wands #####
 
 N:294:Acid Bolts
 G:-:d
@@ -2107,8 +2192,15 @@ A:60/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 299 XXX ##
+##### Extra weapon #####
 
+N:299:& Three Piece Rod~
+G:\:u
+I:21:11:0
+W:20:0:120:350
+A:20/3
+P:0:3d3:0:0:0
+F:SHOW_MODS
 
 ##### Staffs #####
 
@@ -2265,6 +2357,7 @@ I:55:23:0
 W:30:0:50:2000
 A:30/1
 P:0:1d2:0:0:0
+
 
 N:322:Darkness
 G:_:d
@@ -2471,12 +2564,17 @@ W:0:0:2:0
 A:0/1
 P:0:1d1:0:0:0
 
+##### Extra armor #####
 
-
+N:350:O-yoroi~
+G:[:D
+I:37:14:0
+W:45:0:320:1150
+A:45/2
+P:24:1d4:-2:0:0
 
 ##### Here are the Rods #####
 
-## XXX 350 XXX ##
 
 N:351:Door/Stair Location
 G:-:d
@@ -2826,8 +2924,14 @@ W:5:0:30:0
 A:5/1
 P:0:1d2:0:0:0
 
-## XXX 399 XXX ##
+##### Extra armor #####
 
+N:399:Cord Armour~
+G:(:y
+I:36:9:0
+W:5:0:80:40
+A:5/1
+P:6:1d1:0:0:0
 
 ##### Dragon Scale Mail #####
 
@@ -2936,7 +3040,7 @@ I:38:20:0
 W:90:0:200:100000
 A:90/16
 P:30:2d4:-2:0:10
-F:RES_SOUND | RES_SHARD | RES_CHAOS | RES_DISEN |
+F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARD |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:412:Power Dragon Scale Mail~
@@ -2945,14 +3049,28 @@ I:38:30:0
 W:110:0:200:300000
 A:110/64
 P:40:2d4:-3:0:15
-F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
-F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
+F:RES_NETHR | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 413 XXX ##
 
-## XXX 414 XXX ##
+##### Extra weapons #####
 
+N:413:& Hatchet~
+G:/:s
+I:22:1:0
+W:10:0:60:120
+A:10/2
+P:0:1d5:0:0:0
+F:SHOW_MODS
+
+N:414:& Lajatang~
+G:/:s
+I:22:14:0
+W:25:0:175:330
+A:25/2
+P:0:2d7:0:0:0
+F:SHOW_MODS
 
 ##### Extra potions #####
 
@@ -3012,16 +3130,232 @@ W:70:0:4:80000
 A:70/4
 P:0:1d1:0:0:0
 
-## XXX 423 XXX ##
+##### New armor #####
 
-## XXX 424 XXX ##
+N:423:& Shield~ of Deflection
+G:):B
+I:34:10:0
+W:70:0:100:10000
+A:70/8
+P:10:1d1:0:0:10
+F:IGNORE_ACID
 
+N:424:Rhino Hide Armour~
+G:(:s
+I:36:8:0
+W:15:0:110:400
+A:15/1
+P:8:1d1:-1:0:0
 
-##### Items 425 to 439 unused #####
+N:425:Leather Jack~
+G:(:U
+I:36:12:0
+W:20:0:130:550
+A:20/3
+P:12:1d2:-1:0:0
 
-##### Items 440 to 444 reserved (old "fake" objects) #####
+##### New weapons #####
 
-##### Items 445 to 479 reserved (old "terrain" objects) #####
+N:426:& Sickle~
+G:/:s
+I:22:3:0
+W:10:0:70:110
+A:10/3
+P:0:2d3:0:0:0
+F:SHOW_MODS
+
+N:427:& Tetsubo~
+G:\:u
+I:21:16:0
+W:25:0:190:570
+A:25/2
+P:0:2d7:0:0:0
+F:SHOW_MODS
+
+N:428:& Nunchaku~
+G:\:u
+I:21:4:0
+W:16:0:60:120
+A:16/2
+P:0:2d3:0:0:0
+F:SHOW_MODS
+
+N:429:& Bo Staff~
+G:\:U
+I:21:10:0
+W:20:0:160:310
+A:20/1
+P:0:1d11:0:0:0
+F:SHOW_MODS
+
+N:430:& Jo Staff~
+G:\:U
+I:21:7:0
+W:11:0:70:200
+A:11/2
+P:0:1d7:0:0:0
+F:SHOW_MODS
+
+N:431:& Club~
+G:\:u
+I:21:1:0
+W:0:0:100:3
+A:0/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
+
+N:432:& Broad Spear~
+G:/:w
+I:22:7:0
+W:14:0:100:240
+A:14/3
+P:0:1d9:0:0:0
+F:SHOW_MODS
+
+N:433:& Khopesh~
+G:|:W
+I:23:14:0
+W:10:0:130:190
+A:10/2
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:434:& Flamberge~
+G:|:W
+I:23:26:0
+W:40:0:230:600
+A:40/2
+P:0:3d7:0:0:0
+F:SHOW_MODS
+
+N:435:& Claymore~
+G:|:W
+I:23:23:0
+W:40:0:200:600
+A:40/2
+P:0:2d8:0:0:0
+F:SHOW_MODS
+
+N:436:& Espadon~
+G:|:W
+I:23:24:0
+W:40:0:200:600
+A:40/3
+P:0:2d9:0:0:0
+F:SHOW_MODS
+
+N:437:& Great Scimitar~
+G:|:W
+I:23:22:0
+W:40:0:240:500
+A:40/3
+P:0:4d5:0:0:0
+F:SHOW_MODS
+
+N:438:& Wakizashi~
+G:|:W
+I:23:13:0
+W:15:0:90:210
+A:15/3
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:439:& Naginata~
+G:/:s
+I:22:9:0
+W:25:0:150:408
+A:25/2
+P:0:2d6:0:0:0
+F:SHOW_MODS
+
+N:440:& Fauchard~
+G:/:s
+I:22:6:0
+W:18:0:155:301
+A:18/2
+P:0:1d10:0:0:0
+F:SHOW_MODS
+
+N:441:& Guisarme~
+G:/:s
+I:22:16:0
+W:21:0:165:320
+A:21/1
+P:0:2d5:0:0:0
+F:SHOW_MODS
+
+N:442:& Heavy Lance~
+G:/:s
+I:22:29:0
+W:43:0:400:700
+A:43/2
+P:0:4d8:0:0:0
+F:SHOW_MODS
+
+N:443:& Basillard~
+G:|:w
+I:23:9:0
+W:15:0:80:220
+A:15/3
+P:0:1d8:0:0:0
+F:SHOW_MODS
+
+##### Other armour #####
+
+N:444:Padded Armour~
+G:(:y
+I:36:10:0
+W:2:0:60:40
+A:2/1
+P:4:1d1:0:0:0
+
+N:445:& Fur Cloak~
+G:(:W
+I:35:3:0
+W:20:0:30:300
+A:20/2:30/2
+P:3:0d0:0:0:0
+
+N:446:& Hard Leather Cap~
+G:]:u
+I:32:2:0
+W:3:0:15:12
+A:3/1
+P:2:0d0:0:0:0
+
+N:447:& Robe~
+G:(:b
+I:36:2:0
+W:1:0:20:4
+A:1/1:50/1
+P:2:0d0:0:0:0
+
+N:448:& Filthy Rag~
+G:(:D
+I:36:1:0
+W:0:0:20:1
+A:0/1
+P:1:0d0:0:0:-1
+
+N:450:Mana
+G:=:d
+I:45:5:0
+W:50:0:2:12000
+A:50:4
+F:ADD_MANA | HIDE_TYPE
+
+##### 450-479 unused #####
+
+# The old "notice_seams" option is currently unused, but much of its
+# old functionality can be obtained by clever use of 'F' commands in
+# a pref file which define "quartz" and "magma" to look like "granite".
+
+# Note that the "player" picture does not really fit in anywhere, and I
+# have no idea how to go about allowing "redefinition" of that picture.
+# Perhaps by using "monster 0" or "object 0" or "feature 0" or even a
+# special "player picture" which might yield a simple way to show the
+# player in different colors or whatever for different "states", or even
+# a different picture for various "class" or "race" choices.
 
 
 ##### And here starts the gold/gems #####
@@ -3155,7 +3489,7 @@ F:INSTA_ART
 # so we do not need to specify that here.
 #
 # Note that the "INSTA_ART" flag is used to prevent these objects from
-# being created without also turning them into artifacts.  This flag
+# being created without alsoturning them into artifacts.  This flag
 # must be specified both here and in the artifact template.
 #
 # The only reason for having six different "ring" templates and three

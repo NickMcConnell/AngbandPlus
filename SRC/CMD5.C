@@ -1007,6 +1007,7 @@ void do_cmd_cast(void)
 			case 57:
 			{
 				/* Elemental blast (Heino Vander Sanden) */
+				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(0, GF_ELEC, dir,
 										damroll(3 + ((plevdam - 5) / 4), 8 + pbasis));
 				fire_bolt_or_beam(0, GF_FIRE, dir,

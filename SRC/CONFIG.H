@@ -181,6 +181,11 @@
 #define ALLOW_WIZARD
 
 /*
+ * OPTION: Allow the use of random artifacts.
+ */
+#define GJW_RANDART
+
+/*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
 #define ALLOW_SPOILERS

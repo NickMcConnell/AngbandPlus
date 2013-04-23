@@ -569,7 +569,7 @@ static errr init_k_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_k_info(void)
+errr init_k_info(void)
 {
 	int fd;
 
@@ -822,7 +822,7 @@ static errr init_a_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_a_info(void)
+errr init_a_info(void)
 {
 	int fd;
 

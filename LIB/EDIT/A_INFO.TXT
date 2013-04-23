@@ -1213,7 +1213,7 @@ F:SHOW_MODS
 # The Lucerne Hammer 'Turmil'
 
 N:122:'Turmil'
-I:21:10:4
+I:22:12:4
 W:20:15:120:30000
 P:0:2d5:10:6:8
 F:WIS | INFRA | HIDE_TYPE | 

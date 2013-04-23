@@ -1360,10 +1360,20 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
 	rd_byte(&p_ptr->preserve);
+#ifdef GJW_RANDART
+	rd_byte(&p_ptr->random_artifacts);
+#else
 	rd_byte(&tmp8u);
+#endif
 
+#ifdef GJW_RANDART
+	/* Future use */
+	for (i = 0; i < 44; i++) rd_byte(&tmp8u);
+	rd_u32b(&seed_randart);
+#else
 	/* Future use */
 	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
+#endif
 
 	/* Skip the flags */
 	strip_bytes(12);
@@ -1383,6 +1393,12 @@ static errr rd_extra(void)
 	/* Read "death" */
 	rd_byte(&tmp8u);
 	p_ptr->is_dead = tmp8u;
+
+#ifdef GJW_RANDART
+	/* Randomize the artifacts */
+	if (!(p_ptr->is_dead))
+		if (p_ptr->random_artifacts) do_randart (seed_randart);
+#endif
 
 	/* Read "feeling" */
 	rd_byte(&tmp8u);

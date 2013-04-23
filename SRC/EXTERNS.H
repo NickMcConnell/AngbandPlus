@@ -90,6 +90,9 @@ extern bool arg_sound;
 extern bool arg_graphics;
 extern bool arg_force_original;
 extern bool arg_force_roguelike;
+#ifdef GJW_RANDART
+extern u32b seed_randart;
+#endif
 extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
@@ -396,6 +399,10 @@ extern errr init_r_info_txt(FILE *fp, char *buf);
 /* init2.c */
 extern void init_file_paths(char *path);
 extern void init_angband(void);
+#ifdef GJW_RANDART
+extern errr init_a_info(void);
+extern errr init_k_info(void);
+#endif
 
 /* load1.c */
 extern errr rd_savefile_old(void);
@@ -724,6 +731,11 @@ extern bool confuse_dir(int *dp);
 /*
  * Hack -- conditional (or "bizarre") externs
  */
+
+#ifdef GJW_RANDART
+/* randart.c */
+extern int do_randart (u32b randart_seed);
+#endif
 
 #ifndef HAS_MEMSET
 /* util.c */

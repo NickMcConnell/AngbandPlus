@@ -1407,6 +1407,7 @@ static void calc_spells(void)
 static void calc_mana(void)
 {
 	int msp, levels, cur_wgt, max_wgt, over_wgt;
+	u32b f1, f2, f3;
 
 	object_type *o_ptr;
 
@@ -1431,8 +1432,6 @@ static void calc_mana(void)
 	/* Only mages are affected */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
 	{
-		u32b f1, f2, f3;
-
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
 
@@ -1509,6 +1508,16 @@ static void calc_mana(void)
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
 
+	/* Add Mana from Rings (Heino Vander Sanden) */
+	o_ptr = &inventory[INVEN_LEFT];
+	/* Examine the left ring */
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (f1 & (TR1_ADD_MANA)) msp += o_ptr->pval * 25;
+
+	o_ptr = &inventory[INVEN_RIGHT];
+	/* Examine the right ring */
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (f1 & (TR1_ADD_MANA)) msp += o_ptr->pval * 25;
 
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
@@ -1923,6 +1932,9 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
 		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
 		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
+
+      /* Mana Changes (Heino Vander Sanden) */
+		if (f1 & (TR1_ADD_MANA)) p_ptr->update |= (PU_MANA);
 
 		/* Affect stealth */
 		if (f1 & (TR1_STEALTH)) p_ptr->skill_stl += o_ptr->pval;

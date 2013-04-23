@@ -1857,28 +1857,6 @@ void monster_death(int m_idx)
 	object_type object_type_body;
 
 
-	/*
-	 * last quest monster -> great item
-	 * Heino Vander Sanden
-	 */
-	if ((is_quest(p_ptr->depth)) && (r_ptr->flags1 & (RF1_QUESTOR)))
-	{
-		q_idx = get_quest_number ();
-		q_list[q_idx].cur_num++;
-
-		if (q_list[q_idx].cur_num == q_list[q_idx].max_num)
-		{
-			great = TRUE;
-			good = TRUE;
-			/* No gold */
-			do_gold = FALSE;
-
-			/* Drop at least 2 (the stair will probably destroy one */
-			number = 2;
-			quest = TRUE;
-		}
-	}
-
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
@@ -1933,7 +1911,6 @@ void monster_death(int m_idx)
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
 
-
 		/* Get local object */
 		i_ptr = &object_type_body;
 
@@ -1952,15 +1929,36 @@ void monster_death(int m_idx)
 
 
 	/* Determine how much we can drop if not a quest (Heino Vander Sanden) */
-	if (~quest)
+	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
+	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
+	if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
+	if (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
+	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
+	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+
+
+	/*
+	 * last quest monster -> great item
+	 * Heino Vander Sanden
+	 */
+	if ((is_quest(p_ptr->depth)) && (r_ptr->flags1 & (RF1_QUESTOR)))
 	{
-		if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
-		if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
-		if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
-		if (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
-		if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
-		if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+		q_idx = get_quest_number ();
+		q_list[q_idx].cur_num++;
+
+		if (q_list[q_idx].cur_num == q_list[q_idx].max_num)
+		{
+			great = TRUE;
+			good = TRUE;
+			/* No gold */
+			do_gold = FALSE;
+
+			/* Drop at least 2 (the stair will probably destroy one */
+			number = 2;
+			quest = TRUE;
+		}
 	}
+
 
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
