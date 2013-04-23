@@ -83,6 +83,7 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	if (m_ptr->m_timed[MON_TMD_STUN]) my_strcat(buf, ", stunned", max);
 	if ((m_ptr->m_timed[MON_TMD_SLOW]) && (!m_ptr->m_timed[MON_TMD_FAST])) my_strcat(buf, ", slowed", max);
 	if ((!m_ptr->m_timed[MON_TMD_SLOW]) && (m_ptr->m_timed[MON_TMD_FAST])) my_strcat(buf, ", hasted", max);
+	if (m_ptr->m_timed[MON_TMD_BUFF]) my_strcat(buf, ", bloodthirsty", max);
 }
 
 

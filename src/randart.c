@@ -702,6 +702,7 @@ static long eval_max_dam(int r_idx)
 						else if (flag_counter == RF6_CONF) this_dam = rlev;
 						else if (flag_counter == RF6_SLOW) this_dam = rlev;
 						else if (flag_counter == RF6_HOLD) this_dam = 25;
+						else if (flag_counter == RF6_SCREAM) this_dam = rlev;
 						break;
 					}
 					/*All flag7 flags*/

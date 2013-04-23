@@ -53,7 +53,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.0.4"
+#define VERSION_STRING	"2.0.5"
 
 
 /*
@@ -61,7 +61,7 @@
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	0
-#define VERSION_PATCH	4
+#define VERSION_PATCH	5
 #define VERSION_EXTRA	0
 
 
@@ -464,6 +464,7 @@
 #define GF_LAVA  		62
 #define GF_BWATER  		63
 #define GF_BMUD  		64
+#define GF_BUFF         65
 #define GF_LOCK_DOOR	92
 
 #define GF_FEATURE		95

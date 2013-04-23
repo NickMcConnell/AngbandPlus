@@ -4569,8 +4569,13 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 	player_flags(&f1, &f2, &f3, &fn);
 	if ((f2 & TR2_KINGLY) && (p_ptr->max_lev<10))
 	{
-		msg_print("The shopkeeper calls you a ruffian and tells you to get out.");
-		return;
+		if (this_store==STORE_HOME){
+			msg_print("You are a wanderer and have no home (yet).");
+			return;
+		} else {
+			msg_print("The shopkeeper calls you a ruffian and tells you to get out.");
+			return;
+		}
 	}
 
 	/*

@@ -659,7 +659,7 @@ s16b charge_wand(object_type *o_ptr, int percent)
 		case SV_WAND_FIRE_BALL:			pval = randint(4)  + 2; break;
 		case SV_WAND_COLD_BALL:			pval = randint(6)  + 2; break;
 		case SV_WAND_WONDER:			pval = randint(15) + 8; break;
-		case SV_WAND_ANNIHILATION:		pval = randint(2)  + 1; break;
+		case SV_WAND_WALL_BUILDING:		pval = randint(4)  + 2; break;
 		case SV_WAND_DRAGON_FIRE:		pval = randint(3)  + 1; break;
 		case SV_WAND_DRAGON_COLD:		pval = randint(3)  + 1; break;
 		case SV_WAND_DRAGON_BREATH:		pval = randint(3)  + 1; break;
@@ -3115,7 +3115,6 @@ static bool kind_is_rod_wand_staff(int k_idx)
 				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
 			if ((k_ptr->sval == SV_WAND_STONE_TO_MUD) &&
 				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
-			if (k_ptr->sval == SV_WAND_ANNIHILATION) return (TRUE);
 			if (k_ptr->sval == SV_WAND_DRAGON_FIRE) return (TRUE);
 			if (k_ptr->sval == SV_WAND_DRAGON_COLD) return (TRUE);
 			if (k_ptr->sval == SV_WAND_DRAGON_BREATH) return (TRUE);

@@ -2412,7 +2412,7 @@ static bool found_dangerous_grid(int y, int x)
 	if (cave_m_idx[y][x] > 0) return (FALSE);
 
 	/* Flying entities aren't affected by terrain */
-	if (p_ptr->timed[TMD_FLYING] && feat_ff2_match(feat, FF2_CAN_FLY)) return (FALSE);
+	if ((player_flying()) && feat_ff2_match(feat, FF2_CAN_FLY)) return (FALSE);
 
 	/* Player is native to that feature or feature is harmless */
 	if ((f_info[feat].dam_non_native < 1) || is_player_native(y, x)) return (FALSE);

@@ -186,6 +186,27 @@ int drain_charges(object_type *o_ptr, u32b heal)
 }
 
 /*
+ * Cast a ball spell at the player
+ * Can go in squares next to player
+ * Pass over any monsters that may be in the way
+ * Affect grids, objects, monsters, and (specifically) the player
+ */
+static void mon_ball(int m_idx, int typ, int dam, int rad, int py, int px)
+{
+
+	monster_type *m_ptr = &mon_list[m_idx];
+	int fy = m_ptr->fy;
+	int fx = m_ptr->fx;
+
+	u32b flg = (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
+				PROJECT_PLAY | PROJECT_WALL | PROJECT_EFCT | PROJECT_SAME);
+
+	/* Target the player with a ball attack */
+	(void)project(m_idx, rad, fy, fx, py, px, dam, typ, flg, 0, 0);
+}
+
+
+/*
  * Attack the player via physical attacks.
  */
 bool make_attack_normal(monster_type *m_ptr)
@@ -333,10 +354,15 @@ bool make_attack_normal(monster_type *m_ptr)
 			case RBE_EXP_20:     power =  5;  break;
 			case RBE_EXP_40:     power =  5;  break;
 			case RBE_EXP_80:     power =  5;  break;
+			case RBE_EXPLODE:    power = 10;  break;
 		}
 
 		/* Roll out the damage */
 		dam = damroll(d_dice, d_side);
+
+		if (m_ptr->m_timed[MON_TMD_BUFF]>0){
+			dam = (dam * 4) / 3;
+		}
 
 		/* Glyphs of warding halve melee damage */
 		if (player_on_glyph)
@@ -517,13 +543,19 @@ bool make_attack_normal(monster_type *m_ptr)
 				sound_msg = MSG_MON_INSULT;
 				break;
 			}
+			case RBM_EXPLODE:
+			{
+				act = "explodes";
+				sound_msg = MSG_DESTROY;
+				break;
+			}
 		}
 
 		/* No effect */
 		if (no_effect) continue;
 
 		/* Monster hits player */
-		if (!effect || check_hit_player(power, rlev, m_idx))
+		if (!effect || check_hit_player(power, rlev, m_idx) || (method==RBM_EXPLODE))
 		{
 
 			/* Always disturbing */
@@ -1624,6 +1656,16 @@ bool make_attack_normal(monster_type *m_ptr)
 
 					break;
 				}
+
+				case RBE_EXPLODE:
+				{
+					int junk;
+					mon_ball(m_idx, GF_SHARD, m_ptr->maxhp*3, 5, p_ptr->py, p_ptr->px);
+					(void)set_stun(p_ptr->timed[TMD_STUN] + 25);
+					mon_take_hit(m_idx, 9999, &junk, "", SOURCE_OTHER);
+					do_break = 1;
+					break;
+				}
 			}
 
 			/* Handle character death */
@@ -1754,9 +1796,6 @@ bool make_attack_normal(monster_type *m_ptr)
 			}
 		}
 
-		/*hack - stop attacks if monster and player are no longer next to each other*/
-		if (do_break) break;
-
 		/* New - have a go at waking up every monster within a few spaces who has LOS to the @ */
 		n_woken = 0;
 		for (i = 1; i < mon_max; i++)
@@ -1780,6 +1819,9 @@ bool make_attack_normal(monster_type *m_ptr)
 		} else if (n_woken==1){
 			msg_format("A monster is woken up.");
 		}
+
+		/*hack - stop attacks if monster and player are no longer next to each other*/
+		if (do_break) break;
 
 
 	}
@@ -2110,25 +2152,6 @@ static void mon_beam(int m_idx, int typ, int dam, int range)
 	(void)project(m_idx, range, fy, fx, py, px, dam, typ, flg ,0 ,0);
 }
 
-/*
- * Cast a ball spell at the player
- * Can go in squares next to player
- * Pass over any monsters that may be in the way
- * Affect grids, objects, monsters, and (specifically) the player
- */
-static void mon_ball(int m_idx, int typ, int dam, int rad, int py, int px)
-{
-
-	monster_type *m_ptr = &mon_list[m_idx];
-	int fy = m_ptr->fy;
-	int fx = m_ptr->fx;
-
-	u32b flg = (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
-				PROJECT_PLAY | PROJECT_WALL | PROJECT_EFCT | PROJECT_SAME);
-
-	/* Target the player with a ball attack */
-	(void)project(m_idx, rad, fy, fx, py, px, dam, typ, flg, 0, 0);
-}
 
 /*
  * Release a cloud, which is a ball centered on the monster that does not
@@ -3956,10 +3979,52 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* Unused - Was Amnesia attack */
+		/* RF6_SCREAM */
 		case 160+14:
 		{
-			break;
+			disturb(1, 0);
+
+			if (!seen)
+			{
+				msg_print("You hear a far-off shriek!", m_name);
+			}
+			else
+			{
+				msg_format("%^s shrieks at you!", m_name);
+			}
+
+			if (rand_int(100) < p_ptr->state.skills[SKILL_SAVE])
+			{
+				msg_print("You resist the effects!");
+			} else
+			{
+				msg_print("It hurts you!");
+
+			}
+			if (allow_player_confusion() && one_in_(3))
+			{
+				(void)inc_timed(TMD_CONFUSED, rand_int(2) + 2, TRUE);
+			} else if (!(p_ptr->state.resist_fear) && one_in_(3))
+			{
+				i = div_round(r_ptr->level, 10);
+				(void)inc_timed(TMD_AFRAID, i + rand_range(3, 6), TRUE);
+			}
+
+			take_hit(get_dam(m_ptr, attack), ddesc);
+
+			/* Everybody hurts */
+			for (i = 1; i < mon_max; i++)
+			{
+				monster_type *mon_ptr = &mon_list[i];
+				/* Paranoia -- Skip dead monsters */
+				if (!mon_ptr->r_idx) continue;
+
+				if (m_idx == i) continue;
+
+				project(SOURCE_OTHER, 0, mon_ptr->fy, mon_ptr->fx, mon_ptr->fy, mon_ptr->fx, get_dam(m_ptr, attack)/3, GF_SOUND, PROJECT_PASS | PROJECT_KILL, 0, 0);
+
+			}
+			p_ptr->redraw |= PR_MONLIST;
 		}
 
 		/* RF6_DRAIN_MANA */
@@ -4034,9 +4099,47 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF6_XXX6 */
+		/* RF6_REVIVE */
 		case 160+16:
 		{
+			int gain, cost;
+
+			if (in_range)
+			{
+				disturb(1, 0);
+
+				/* Message */
+				if (seen)
+				{
+					msg_format("The %^s is reborn in a ball of fire!", m_name, m_poss);
+				}
+			}
+
+			/* We regain all lost hitpoints */
+			m_ptr->hp = m_ptr->maxhp;
+
+			/* Redraw (later) if needed */
+			if ((p_ptr->health_who == m_idx) && (m_ptr->ml))
+				p_ptr->redraw |= (PR_HEALTH);
+
+			/* Boom */
+			mon_ball(m_idx, GF_FIRE, damroll(2,10), 3, m_ptr->fy, m_ptr->fx);
+			mon_ball(m_idx, GF_FIRE, damroll(2,10), 2, m_ptr->fy, m_ptr->fx);
+			mon_ball(m_idx, GF_FIRE, damroll(2,10), 4, m_ptr->fy, m_ptr->fx);
+			mon_ball(m_idx, GF_FIRE, damroll(2,10), 2, m_ptr->fy, m_ptr->fx);
+			mon_ball(m_idx, GF_FIRE, damroll(2,10), 5, m_ptr->fy, m_ptr->fx);
+
+			/* Cancel fear */
+			if (m_ptr->m_timed[MON_TMD_FEAR])
+			{
+				/* Cancel fear */
+				mon_clear_timed(m_idx, MON_TMD_FEAR , tmd_flag);
+
+			}
+
+			/* Recalculate combat range later */
+			m_ptr->min_range = 0;
+
 			break;
 		}
 
@@ -4173,15 +4276,21 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF6_XXX6 */
+		/* RF6_HEAL_OTHERS */
 		case 160+21:
 		{
+			disturb(1, 0);
+			msg_format("%^s tries to heal nearby monsters.", m_name);
+			(void)project_los(mon_list[m_idx].fy, mon_list[m_idx].fx, 20+2*spower, GF_OLD_HEAL);
 			break;
 		}
 
-		/* RF6_XXX7 */
+		/* RF6_BUFF_OTHERS */
 		case 160+22:
 		{
+			disturb(1, 0);
+			msg_format("%^s lets out a bloodthirsty cry!", m_name);
+			(void)project_los(mon_list[m_idx].fy, mon_list[m_idx].fx, spower, GF_BUFF);
 			break;
 		}
 

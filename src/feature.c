@@ -99,7 +99,7 @@ int feat_adjust_combat_for_player(int chance, bool being_attacked)
 	int bonus;
 
 	/*No adjustments when the player is flying. */
-	if (p_ptr->timed[TMD_FLYING]) return chance;
+	if ((player_flying())) return chance;
 
 	/*native player adjustment to combat*/
 	if (is_player_native(p_ptr->py, p_ptr->px))
@@ -664,7 +664,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 		/* Get the trap effect */
 		effect_type *x_ptr = &x_list[cave_x_idx[y][x]];
 
-		if (p_ptr->timed[TMD_FLYING])
+		if ((player_flying()))
 		{
 			char feat_name[80];
 

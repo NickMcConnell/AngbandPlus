@@ -2199,12 +2199,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			if (desc) return ("Removes standard and heavy curses.");
 			if (cast)
 			{
-				if (remove_curse(FALSE))
-				{
-					msg_print("You feel as if something is watching over you.");
-				} else {
-					msg_print("Nothing happens.");
-				}
+				remove_curse(FALSE);
 			}
 
 			break;
@@ -2583,12 +2578,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc) return ("Removes standard curses.");
 			if (cast)
 			{
-				if (remove_curse(FALSE))
-				{
-					msg_print("You feel as if someone is watching over you.");
-				} else {
-					msg_print("Nothing happens.");
-				}
+				remove_curse(FALSE);
 			}
 
 			break;
@@ -3100,12 +3090,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc) return ("Removes standard and heavy curses.");
 			if (cast)
 			{
-				if (remove_curse(FALSE))
-				{
-					msg_print("You feel as if someone is watching over you.");
-				} else {
-					msg_print("Nothing happens.");
-				}
+				remove_curse(FALSE);
 			}
 
 			break;

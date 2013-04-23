@@ -1049,9 +1049,6 @@ static void grant_reward_object(byte depth, byte type)
 					/*Not the right kind of spellbook*/
 					if (cp_ptr->spell_book != k_ptr->tval) continue;
 
-					/*Not an ironman book*/
-					if (!(k_ptr->k_flags3 & (TR3_IRONMAN_ONLY))) continue;
-
 					/* Book has already been "tried" */
 					if (k_ptr->tried) continue;
 

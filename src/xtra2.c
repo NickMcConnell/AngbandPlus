@@ -97,6 +97,8 @@ void check_experience(void)
 				p_ptr->redraw |= (PR_FEELING);
 		}
 
+		player_flags(&f1, &f2, &f3, &fn);
+
 		if ((p_ptr->max_lev < p_ptr->lev) && (f2 & TR2_DOOMED) && (p_ptr->lev > 26) && (p_ptr->depth>0) && !(p_ptr->total_winner))
 		{
 			doom();
@@ -130,6 +132,7 @@ void check_experience(void)
 				if (gain_stat)
 				{
 					which = rand_range(0, A_MAX - 1);
+					res_stat(which);
 
 					/* Then augment the current/max stat */
 					value = p_ptr->stat_cur[which];

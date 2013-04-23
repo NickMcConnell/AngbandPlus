@@ -996,7 +996,7 @@ s16b move_player(int dir, int jumping)
 		/*Check if the player is native*/
 		if (is_player_native(y, x))
 		{
-			if (!p_ptr->timed[TMD_FLYING])
+			if (!(player_flying()))
 			{
 				/*Mark the lore*/
 				if (f_l_ptr->f_l_native_moves < MAX_UCHAR) f_l_ptr->f_l_native_moves ++;
@@ -1007,7 +1007,7 @@ s16b move_player(int dir, int jumping)
 		}
 		else
 		{
-			if (!p_ptr->timed[TMD_FLYING])
+			if (!(player_flying()))
 			{
 				/*Mark the lore*/
 				if (f_l_ptr->f_l_non_native_moves < MAX_UCHAR) f_l_ptr->f_l_non_native_moves ++;
@@ -1055,7 +1055,7 @@ s16b move_player(int dir, int jumping)
 		}
 
 		/* Discover secrets */
-		else if (_feat_ff1_match(f_ptr, FF1_SECRET) && !p_ptr->timed[TMD_FLYING])
+		else if (_feat_ff1_match(f_ptr, FF1_SECRET) && !(player_flying()))
 		{
 			/* Find the secret */
 			find_secret(y, x);
@@ -1065,7 +1065,7 @@ s16b move_player(int dir, int jumping)
 		}
 
 		/* Record the energy for flying creatures.*/
-		if (p_ptr->timed[TMD_FLYING])	used_energy = BASE_ENERGY_MOVE;
+		if ((player_flying()))	used_energy = BASE_ENERGY_MOVE;
 
 		/* Reveal when you are on shallow or deep  terrain */
 		else if (!(cave_info[y][x] & (CAVE_MARK)) &&

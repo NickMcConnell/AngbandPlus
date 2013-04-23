@@ -1884,6 +1884,10 @@ void acid_dam(int dam, cptr kb_str)
 
 	/* Inventory damage */
 	inven_damage(set_acid_destroy, inv, double_resist);
+
+	if (dam>=40 && !(p_ptr->state.resist_acid)){
+		do_dec_stat(A_CHR);
+	}
 }
 
 
@@ -4000,6 +4004,9 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 	int do_fear = 0;
 	int fear_note = 0;
 
+	int do_buff = 0;
+	int buff_note = 0;
+
 	/* Hold the monster name */
 	char m_name[80];
 
@@ -4608,42 +4615,58 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 		}
 
 
-		/* Heal Monster (use "dam" as amount of healing) */
+		case GF_BUFF:
+		{
+
+			if (seen) obvious = TRUE;
+
+			do_buff = 10 + rand_int(damage);
+
+			damage = 0;
+			break;
+		}
+
+		/* Heal Monster (use "damage" as amount of healing) */
 		case GF_OLD_HEAL:
 		{
 			bool healed = TRUE;
 
-			/*does monster need healing?*/
-			if (m_ptr->hp == m_ptr->maxhp) healed = FALSE;
+			/* nonliving monsters cannot be healed */
+			if (monster_nonliving(r_ptr)){
+				damage = 0;
+			} else {
+				/*does monster need healing?*/
+				if (m_ptr->hp == m_ptr->maxhp) healed = FALSE;
 
-			if (seen) obvious = TRUE;
+				if (seen) obvious = TRUE;
 
-			/* Wake up */
-			mon_clear_timed(mon_idx, MON_TMD_SLEEP, MON_TMD_FLG_NOTIFY);
+				/* Wake up */
+				mon_clear_timed(mon_idx, MON_TMD_SLEEP, MON_TMD_FLG_NOTIFY);
 
-			/* Monster goes active */
-			m_ptr->mflag |= (MFLAG_ACTV);
+				/* Monster goes active */
+				m_ptr->mflag |= (MFLAG_ACTV);
 
-			/* Heal */
-			m_ptr->hp += damage;
+				/* Heal */
+				m_ptr->hp += damage;
 
-			/* No overflow */
-			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+				/* No overflow */
+				if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
-			/* Redraw (later) if needed */
-			if (p_ptr->health_who == mon_idx) p_ptr->redraw |= (PR_HEALTH);
+				/* Redraw (later) if needed */
+				if (p_ptr->health_who == mon_idx) p_ptr->redraw |= (PR_HEALTH);
 
-			/*monster was at full hp to begin*/
-			if (!healed)
-			{
-				obvious = FALSE;
+				/*monster was at full hp to begin*/
+				if (!healed)
+				{
+					obvious = FALSE;
 
-				m_note = MON_MSG_UNAFFECTED;
+					m_note = MON_MSG_UNAFFECTED;
 
+				}
+
+				/* Message */
+				else m_note = MON_MSG_HEALTHIER;
 			}
-
-			/* Message */
-			else m_note = MON_MSG_HEALTHIER;
 
 			/* No "real" damage */
 			damage = 0;
@@ -5382,6 +5405,17 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 		}
 	}
 
+	else if (do_buff)
+	{
+		bool was_buffed = (m_ptr->m_timed[MON_TMD_BUFF] ? TRUE : FALSE);
+
+		if (mon_inc_timed(mon_idx, MON_TMD_BUFF, do_buff, (timed_flag | MON_TMD_FLG_NOMESSAGE)))
+		{
+			if (was_buffed) buff_note = MON_MSG_MORE_BUFFED;
+			else buff_note = MON_MSG_BUFFED;
+		}
+	}
+
 	/* Fear */
 	if (do_fear)
 	{
@@ -5534,6 +5568,7 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 		if (slow_note) add_monster_message(m_name, mon_idx, slow_note);
 		if (haste_note) add_monster_message(m_name, mon_idx, haste_note);
 		if (fear_note) add_monster_message(m_name, mon_idx, fear_note);
+		if (buff_note) add_monster_message(m_name, mon_idx, buff_note);
 		if (sleep_note) add_monster_message(m_name, mon_idx, sleep_note);
 	}
 
@@ -5949,6 +5984,8 @@ bool project_p(int who, int y, int x, int dam, int typ, cptr msg)
 					msg_print("You feel your life draining away!");
 					lose_exp(d);
 				}
+
+				if (dam>=40) do_dec_stat(A_STR);
 			}
 			take_hit(dam, killer);
 			break;
@@ -5989,7 +6026,7 @@ bool project_p(int who, int y, int x, int dam, int typ, cptr msg)
 			{
 				(void)inc_timed(TMD_CONFUSED, rand_int(20) + 10, TRUE);
 			}
-			if (!p_ptr->state.resist_chaos)
+			if ((!p_ptr->state.resist_chaos) && one_in_(3))
 			{
 				(void)inc_timed(TMD_IMAGE, randint(10), TRUE);
 			}
@@ -6063,6 +6100,13 @@ bool project_p(int who, int y, int x, int dam, int typ, cptr msg)
 			if (allow_player_confusion())
 			{
 				(void)inc_timed(TMD_CONFUSED, randint(20) + 10, TRUE);
+				if (dam>=40){
+					if one_in_(2){
+						do_dec_stat(A_INT);
+					} else {
+						do_dec_stat(A_WIS);
+					}
+				}
 			}
 			take_hit(dam, killer);
 			break;

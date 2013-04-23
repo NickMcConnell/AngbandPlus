@@ -46,95 +46,6 @@ void dungeon_change_level(int dlev)
 
 
 
-/*
- * Remove the ironman ego_items of the probability tables.
- */
-static void remove_ironman_ego_items(void)
-{
-	s16b i;
-
-	alloc_entry *table = alloc_ego_table;
-
-	/* Go through "normal" ego-item types */
-	for (i = 0; i < alloc_ego_size; i++)
-	{
-		ego_item_type *e_ptr = &e_info[table[i].index];
-
-		/*
-		 * Mega-hack - Allow fireproof books if store services
-		 * are disabled
-		 */
-		if ((table[i].index == EGO_FIREPROOF) &&
-			adult_no_store_services) continue;
-
-		/* Ignore ironman ego-item types */
-		if (e_ptr->flags3 & TR3_IRONMAN_ONLY)
-		{
-			/*No chance to be created normally*/
-			table[i].prob1 = 0;
-			table[i].prob2 = 0;
-			table[i].prob3 = 0;
-		}
-
-	}
-
-}
-
-/*
- * Remove the ironman items of the probability tables.
- */
-static void remove_ironman_items(void)
-{
-	s16b i;
-
-	alloc_entry *table = alloc_kind_table;
-
-	/* Go through "normal" object types */
-	for (i = 0; i < alloc_kind_size; i++)
-	{
-		object_kind *k_ptr = &k_info[table[i].index];
-
-		/* Ignore ironman object types */
-		if (k_ptr->k_flags3 & TR3_IRONMAN_ONLY)
-		{
-			/*No chance to be generated normally*/
-			table[i].prob1 = 0;
-			table[i].prob2 = 0;
-			table[i].prob3 = 0;
-
-			/*
-			 * Hack - don't let the player cast the spells from
-			 * an ironman_only book.  Note this can be a quest item, so it can be tried.
-			 */
-			if ((k_ptr->tval == cp_ptr->spell_book) && (k_ptr->tried == FALSE))
-			{
-				byte realm, j;
-
-				/*Get the player spell realm*/
-				realm =  get_player_spell_realm(k_ptr->tval);
-
-				/* Extract spells */
-				for (j = 0; j < SPELLS_PER_BOOK; j++)
-				{
-
-					byte sval = k_ptr->sval;
-
-					s16b spell = spell_list[realm][sval][j];
-
-					/*skip blank spell slots*/
-					if (spell == -1) continue;
-
-					/* Don't count Ironman Spells. */
-					p_ptr->spell_flags[spell] |= PY_SPELL_IRONMAN;
-
-				}
-			}
-		}
-	}
-}
-
-
-
 
 /*
  * Regenerate hit points
@@ -700,6 +611,12 @@ static int poison_level(int poison_counter){
 	int level = 1;
 	while (level*level*5 <= poison_counter) level++;
 	return level;
+}
+
+extern bool player_flying(void){
+	u32b f1, f2, f3, fn;
+	player_flags(&f1, &f2, &f3, &fn);
+	return ((f3 & TR3_FLY) || (p_ptr->timed[TMD_FLYING]));
 }
 
 /*
@@ -2499,7 +2416,7 @@ static void dungeon(void)
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
 		/* Update terrain damage every game turn */
-		if ((!is_player_native(p_ptr->py, p_ptr->px)) && (!p_ptr->timed[TMD_FLYING]))
+		if ((!is_player_native(p_ptr->py, p_ptr->px)) && (!(player_flying())))
 		{
 			p_ptr->cumulative_terrain_damage += f_info[cave_feat[p_ptr->py][p_ptr->px]].dam_non_native;
 		}
@@ -2759,13 +2676,6 @@ void play_game(void)
 
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
-
-	/* Remove ironman ego-items if needed */
-	if (!adult_ironman && !adult_no_stores)
-	{
-		remove_ironman_items();
-		remove_ironman_ego_items();
-	}
 
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();

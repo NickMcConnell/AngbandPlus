@@ -13,7 +13,7 @@
 
 # Version stamp (required)
 
-V:2.0.4
+V:2.0.5
 
 
 
@@ -38,7 +38,7 @@ M:A:18:130:35
 M:E:145
 
 # Maximum number of monster races
-M:R:750
+M:R:800
 
 # Maximum number of effects
 M:X:750
@@ -50,13 +50,13 @@ M:G:21
 M:V:61
 
 # Maximum number of player races
-M:P:12
+M:P:13
 
 # Maximum number of player classes
 M:C:11
 
 # Maximum number of player history lines
-M:H:200
+M:H:250
 
 # Maximum number of owners per store
 M:B:4

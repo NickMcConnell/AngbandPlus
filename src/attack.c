@@ -1998,6 +1998,12 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 	/* Analyze the potion */
 	switch (o_ptr->sval)
 	{
+		case SV_POTION_DOD:
+		{
+			
+			ident = explosion(SOURCE_PLAYER, 1, y, x, damroll (2, p_ptr->lev), GF_AWAY_ALL, flag);
+			break;
+		}
 
 		case SV_POTION_SLOWNESS:
 		{

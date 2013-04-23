@@ -201,6 +201,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->m_timed[MON_TMD_FEAR]);
 	wr_s16b(m_ptr->m_timed[MON_TMD_FAST]);
 	wr_s16b(m_ptr->m_timed[MON_TMD_SLOW]);
+	wr_s16b(m_ptr->m_timed[MON_TMD_BUFF]);
 
 	/*save the temporary flags*/
 	tmp32u = m_ptr->mflag & (SAVE_MON_FLAGS);

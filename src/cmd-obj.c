@@ -813,6 +813,13 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
+		case SV_POTION_DOD:
+		{
+			teleport_player(50);
+			*ident = TRUE;
+			break;
+		}
+
 		case SV_POTION_SLOWNESS:
 		{
 			if (inc_timed(TMD_SLOW, randint(25) + 15, TRUE)) *ident = TRUE;
@@ -1377,16 +1384,11 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_SCROLL_SUMMON_UNDEAD:
+		case SV_SCROLL_SCATTERING:
 		{
-			sound(MSG_SUM_UNDEAD);
-			for (k = 0; k < randint(3); k++)
-			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
-				{
-					*ident = TRUE;
-				}
-			}
+			project_los(p_ptr->py, p_ptr->px, 99, GF_AWAY_ALL);
+			teleport_player(100);
+			*ident = TRUE;
 			break;
 		}
 
@@ -1453,7 +1455,6 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		{
 			if (remove_curse(FALSE))
 			{
-				msg_print("You feel as if someone is watching over you.");
 				*ident = TRUE;
 			}
 			break;
@@ -2234,9 +2235,18 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 			break;
 		}
 
-		case SV_WAND_ANNIHILATION:
+		case SV_WAND_WALL_BUILDING:
 		{
-			if (drain_life(dir, 250)) *ident = TRUE;
+
+			int y = p_ptr->py + ddy[dir];
+			int x = p_ptr->px + ddx[dir];
+			if (!(cave_empty_bold(y,x))){
+				msg_print("Nothing happens.");
+			} else {
+				msg_print("Shazam!");
+				cave_set_feat(y,x,FEAT_WALL_EXTRA);
+				*ident = TRUE;
+			}
 			break;
 		}
 	}
@@ -3781,7 +3791,6 @@ static void do_item(item_act act)
 	}
 	else
 		cmd_insert(item_actions[act].command, item);
-
 }
 
 /* Wrappers */

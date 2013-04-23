@@ -67,27 +67,30 @@ errr messages_init(void)
 
 void messages_free(void)
 {
-	msgcolor_t *c = messages->colors;
-	msgcolor_t *nextc;
-	message_t *m = messages->head;
-	message_t *nextm;
-
-	while (m)
+	if (messages)
 	{
-		nextm = m->older;
-		FREE(m->str);
-		FREE(m);
-		m = nextm;
-	}
+		msgcolor_t *c = messages->colors;
+		msgcolor_t *nextc;
+		message_t *m = messages->head;
+		message_t *nextm;
 
-	while (c)
-	{
-		nextc = c->next;
-		FREE(c);
-		c = nextc;
-	}
+		while (m)
+		{
+			nextm = m->older;
+			FREE(m->str);
+			FREE(m);
+			m = nextm;
+		}
 
-	FREE(messages);
+		while (c)
+		{
+			nextc = c->next;
+			FREE(c);
+			c = nextc;
+		}
+
+		FREE(messages);
+	}
 }
 
 u16b messages_num(void)

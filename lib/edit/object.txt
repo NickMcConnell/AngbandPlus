@@ -109,7 +109,7 @@
 
 # Version stamp (required)
 
-V:2.0.4
+V:2.0.5
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -2223,15 +2223,13 @@ D:It has a random effect chosen from the various wand effects, except
 D: Dragon's Flame, Dragon's Frost, Dragon's Breath, Annihilation.
 
 
-N:235:Annihilation
+N:235:Wall Building
 G:-:d
 I:65:25:0
-W:60:0:10:3000
+W:20:0:10:1000
 P:0:1d1:0:0:0
-A:60/4
+A:20/12
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:It inflicts 250 points of damage on a single monster that is not
-D: undead, a demon, an elemental, a golem, or a vortex.
 
 
 N:236:Dragon's Flame
@@ -2615,7 +2613,14 @@ D: appear.  If a monster normally has escorts, it will appear with
 D: escorts. 
 
 
-# XXX Record272 is unused XXX #
+N:272:Scattering
+G:?:w
+I:70:5:0
+W:20:0:5:300
+P:0:0d0:0:0:0
+A:20/8
+F:EASY_KNOW
+D:It teleports you randomly, and all the monsters in your LOS as well.
 
 
 N:273:Summon Unique
@@ -2952,8 +2957,6 @@ D:It grants you the enchantment of protection from evil for a duration
 D: equal to 1d25 plus three times your character level. 
 
 
-# XXX Record303 is unused XXX #
-
 
 N:304:Trap/Door Destruction
 G:?:w
@@ -2987,16 +2990,6 @@ A:40/1
 F:EASY_KNOW
 D:It inflicts 60 points of damage on all undead creatures within line of
 D: sight. 
-
-
-N:308:Create Artifact
-G:?:w
-I:70:43:0
-W:20:0:32:150000
-P:0:0d0:0:0:0
-A:20/32:40/32
-F:IRONMAN_ONLY
-D:It creates a random artifact on the ground near you.
 
 
 # XXX Record309 is unused XXX #
@@ -3259,7 +3252,14 @@ D: also provides nourishment for about 100 turns under normal
 D: conditions. 
 
 
-# XXX Record347 is unused XXX #
+N:347:Dust of Disappearance
+G:!:w
+I:75:54:0
+W:10:0:4:500
+P:0:1d1:0:0:0
+A:10/16:30/12
+F:EASY_KNOW
+D:It teleports you randomly up to 50 squares away.
 
 
 # XXX Record348 is unused XXX #
@@ -3840,15 +3840,6 @@ A:35/4
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 
-N:429:[Tenser's Transformations]
-G:?:r
-I:90:7:0
-W:60:0:30:50000
-P:0:1d1:0:0:0
-A:60/16
-F:IRONMAN_ONLY | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
 
 # XXX Record430 is unused XXX #
 
@@ -3914,16 +3905,6 @@ W:40:0:30:30000
 P:0:1d1:0:0:0
 A:35/4
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:438:[Holy Infusions]
-G:?:b
-I:91:7:0
-W:60:0:30:50000
-P:0:1d1:0:0:0
-A:60/16
-F:IRONMAN_ONLY | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
 
 
 # XXX Record439 is unused XXX #
@@ -4034,16 +4015,6 @@ W:40:0:30:30000
 P:0:1d1:0:0:0
 A:35/4
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:451:[Natural Infusions]
-G:?:g
-I:92:7:0
-W:60:0:30:50000
-P:0:1d1:0:0:0
-A:60/16
-F:IRONMAN_ONLY | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
 
 
 N:452:[Barbarian Fetish]

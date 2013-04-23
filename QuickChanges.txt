@@ -101,15 +101,23 @@ Half-troll casters can wear heavier equipment without losing SP
   You can start the game with 'n' or 'o' in Windows
 )
 
-** Since
+** v2.0.5
 
-Corrected documentation - gnomes only auto-ID wands, not staffs
-Base delay factor now defaults to 3
-Many weak monsters can no longer bash doors
-You can browse spells that you can't cast yet
-Sleep attacks are now much more effective (except against very wakeful monsters)
-High-Con characters have more hp, but low-Con have less
+New race: Sprite
+Chaos attacks only have a 1 in 3 chance of making you hallucinate
+If your stats are badly drained, you may resist further draining
+New monsters (some dangerous), various small monster changes
+Strong unresisted acid attacks can reduce your Cha if you do not have the sustain - ditto Nether your Str, and Confusion your Int or Wis.
+Useful new objects, including the notorious wand of wall building
 
+(and from the 2.0.4 bugfix release:
+  Corrected documentation - gnomes only auto-ID wands, not staffs
+  Base delay factor now defaults to 3
+  Many weak monsters can no longer bash doors
+  You can browse spells that you can't cast yet
+  Sleep attacks are now much more effective (except against very wakeful monsters)
+  High-Con characters have more hp, but low-Con have less
+)
 
 
 

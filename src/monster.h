@@ -164,8 +164,9 @@
 #define RBM_XXX4         20
 #define RBM_BEG          21
 #define RBM_INSULT       22
-#define RBM_XXX5         23
-#define RBM_XXX6         24
+#define RBM_EXPLODE      23
+#define RBM_XXX5         24
+#define RBM_XXX6         25
 
 #define RBE_HURT       1
 #define RBE_WOUND      2
@@ -208,6 +209,8 @@
 #define RBE_EXP_80    34
 
 #define RBE_CONFUSE_OUCH   35
+
+#define RBE_EXPLODE   36
 
 
 /*** Monster flags ***/
@@ -489,15 +492,15 @@
 #define RF6_RF6XXX2        0x00000800  /*  */
 #define RF6_DARKNESS       0x00001000  /* Create Darkness */
 #define RF6_TRAPS          0x00002000  /* Create Traps */
-#define RF6_RF6XXX3        0x00004000  /* Unused */
+#define RF6_SCREAM         0x00004000  /* Unused */
 #define RF6_DRAIN_MANA     0x00008000  /* Drain Mana */
-#define RF6_RF6XXX4        0x00010000  /*  */
+#define RF6_REVIVE         0x00010000  /*  */
 #define RF6_RF6XXX5        0x00020000  /*  */
 #define RF6_MIND_BLAST     0x00040000  /* Blast Mind --> Brain Smash */
 #define RF6_BRAIN_SMASH    0x00080000  /* */
 #define RF6_WOUND          0x00100000  /* Cause Wounds */
-#define RF6_RF6XXX6        0x00200000  /*  */
-#define RF6_RF6XXX7        0x00400000  /*  */
+#define RF6_HEAL_OTHERS    0x00200000  /*  */
+#define RF6_BUFF_OTHERS    0x00400000  /*  */
 #define RF6_RF6XXX8        0x00800000  /*  */
 #define RF6_RF6XXX9        0x01000000  /*  */
 #define RF6_HUNGER         0x02000000  /* Make Player Hungry */
@@ -683,7 +686,7 @@
 
 #define RF6_HARASS_MASK \
 	(RF6_DARKNESS | RF6_TRAPS | RF6_HUNGER | RF6_DRAIN_MANA | \
-         RF6_SCARE | RF6_BLIND | RF6_CONF | RF6_SLOW | RF6_HOLD)
+         RF6_SCARE | RF6_BLIND | RF6_CONF | RF6_SLOW | RF6_HOLD | RF6_SCREAM)
 
 #define RF7_HARASS_MASK \
 	(0L)
@@ -720,7 +723,7 @@
         (0L)
 
 #define RF6_NO_PLAYER_MASK \
-        (RF6_HEAL | RF6_ADD_MANA | RF6_TELE_SELF_TO | RF6_CURE | RF6_TRAP)
+        (RF6_HEAL | RF6_ADD_MANA | RF6_TELE_SELF_TO | RF6_CURE | RF6_TRAP | RF6_SCREAM | RF6_HEAL_OTHERS)
 
 #define RF7_NO_PLAYER_MASK \
         (RF7_S_BESIEGERS)
@@ -784,7 +787,7 @@
 	 RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
 
 #define RF6_ANNOY_MASK \
-	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS)
+	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_BUFF_OTHERS)
 
 
 /*
@@ -797,7 +800,7 @@
 	(RF5_SLOW | RF5_HOLD)
 
 #define RF6_HASTE_MASK \
-	(RF6_HASTE)
+	(RF6_HASTE | RF6_BUFF_OTHERS)
 
 
 /*
@@ -810,7 +813,7 @@
 	(0L)
 
 #define RF6_HEAL_MASK \
-	(RF6_HEAL)
+	(RF6_HEAL | RF6_REVIVE | RF6_HEAL_OTHERS)
 
 
 /*
@@ -988,6 +991,9 @@ enum {
 	MON_MSG_MORE_HASTED,
 	MON_MSG_HASTED,
 	MON_MSG_NOT_HASTED,
+	MON_MSG_MORE_BUFFED,
+	MON_MSG_BUFFED,
+	MON_MSG_NOT_BUFFED,
 	MON_MSG_MORE_AFRAID,
 	MON_MSG_FLEE_IN_TERROR,
 	MON_MSG_NOT_AFRAID,
@@ -1018,6 +1024,7 @@ enum
 	MON_TMD_FEAR,
 	MON_TMD_SLOW,
 	MON_TMD_FAST,
+	MON_TMD_BUFF,
 
 	MON_TMD_MAX
 };

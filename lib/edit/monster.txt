@@ -135,7 +135,7 @@
 
 # Version stamp (required)
 
-V:2.0.4
+V:2.0.5
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -1568,7 +1568,7 @@ B:HIT:HURT:1d6
 F:MALE | FORCE_SLEEP | DROP_90 | OPEN_DOOR | BASH_DOOR
 F:ORC | EVIL | HURT_LIGHT
 S:SPELL_PCT_15 | POW_3
-S:BOLT_MANA | BLINK | WOUND
+S:BOLT_MANA | BLINK | WOUND | BUFF_OTHERS
 D:An orc dressed in skins who gestures wildly.
 
 
@@ -2029,7 +2029,7 @@ B:HIT:HURT:2d3
 F:MALE | FORCE_SLEEP | DROP_1D2 | SMART | HAS_LIGHT
 F:OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | EVIL
 S:SPELL_PCT_45 | POW_8
-S:HOLY_ORB | HEAL | CURE | SCARE | S_MONSTER
+S:HOLY_ORB | CURE | SCARE | S_MONSTER | HEAL_OTHERS
 D:A robed man, dedicated to his god.
 
 
@@ -2124,7 +2124,7 @@ F:MALE | FORCE_SLEEP | ONLY_ITEM | DROP_1D2 | SMART
 F:OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | EVIL | HURT_LIGHT
 F:N_FOREST
 S:SPELL_PCT_20 | POW_5
-S:BALL_DARK | HEAL | CURE | DARKNESS | WOUND
+S:BALL_DARK | HEAL_OTHERS | CURE | DARKNESS | WOUND
 S:BLIND | CONF
 D:A dark elven figure, dressed all in black, chanting curses and waiting
 D: to deliver your soul to hell.
@@ -2270,8 +2270,8 @@ F:ESCORTS | ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD
 F:SMART | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | EVIL
 F:ANIMAL | IM_ACID
 S:SPELL_PCT_40 | POW_13
-S:ADD_MANA | HEAL | BLINK | TPORT | BLIND
-S:SLOW | S_KIN | S_MONSTER
+S:ADD_MANA | BLINK | TPORT | BLIND
+S:SLOW | S_KIN | S_MONSTER | HEAL_OTHERS
 D:A great yeek, powerful in magic and sorcery, but a yeek all the same.
 
 
@@ -2597,7 +2597,6 @@ F:EMPTY_MIND | BASH_DOOR | IM_ACID | IM_ELEC | IM_POIS
 F:NO_CONF | NO_SLEEP
 D:It appears to be a pile of opals, slithering toward you on lots of
 D: tiny legs.
-
 
 N:218:Quasit
 G:u:o
@@ -3151,7 +3150,7 @@ B:BITE:WOUND:2d10
 B:BITE:FIRE:2d6
 F:FORCE_SLEEP | BASH_DOOR | ANIMAL | HURT_COLD | IM_FIRE
 F:N_FIRE | N_SAND
-S:SPELL_PCT_10 | POW_6
+S:SPELL_PCT_15 | POW_6
 S:BRTH_FIRE
 D:It is a strange concoction of goat, lion and dragon, with the heads of
 D: all three beasts.
@@ -3186,18 +3185,6 @@ S:SPELL_PCT_20 | POW_6
 S:ARROW
 D:A large and powerful orc, he looks just like his father.  He is tall
 D: and fast, but fortunately blessed with orcish brains.
-
-
-N:261:Blue dragon bat
-G:b:b
-I:130:4d4:12:26:50
-W:21:1:0:10
-B:BITE:ELEC:1d3
-F:FORCE_SLEEP | RAND_50 | EVASIVE | BASH_DOOR | ANIMAL
-F:FLYING | IM_ELEC
-S:SPELL_PCT_25 | POW_0
-S:BRTH_ELEC
-D:It is a glowing blue bat with a sharp tail.
 
 
 N:262:Fire vortex
@@ -3442,17 +3429,6 @@ S:BOLT
 D:A scarred warrior who moves with confidence.
 
 
-N:281:Red dragon bat
-G:b:r
-I:130:4d8:12:28:50
-W:23:1:0:60
-B:BITE:FIRE:3d3
-F:FORCE_SLEEP | RAND_50 | HAS_LIGHT | EVASIVE | BASH_DOOR
-F:ANIMAL | FLYING | HURT_COLD | IM_FIRE | N_FIRE
-S:SPELL_PCT_25 | POW_0
-S:BRTH_FIRE
-D:It is a sharp-tailed bat, wreathed in fire.
-
 
 N:282:Killer white beetle
 G:K:w
@@ -3500,18 +3476,20 @@ F:IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP
 D:A blood-sucking bat that flies at your neck hungrily.
 
 
-N:287:Banshee
+N:287:Ban Sidhe
 G:G:b
-I:120:8d10:20:24:10
-W:24:2:60:60
+I:120:8d10:90:24:0
+W:24:2:100:60
 B:WAIL:TERRIFY
 B:TOUCH:EXP_20
 F:FEMALE | RAND_50 | DROP_1D2 | INVISIBLE | COLD_BLOOD
-F:PASS_WALL | TAKE_ITEM | UNDEAD | EVIL | FLYING
+F:UNDEAD | EVIL | FLYING
 F:HURT_FIRE | IM_COLD | IM_POIS | NO_FEAR | NO_SLEEP
-S:SPELL_PCT_6 | POW_8
-S:TPORT | DRAIN_MANA
-D:It is a ghostly woman's form that wails mournfully.
+S:SPELL_PCT_8 | POW_20
+S:TPORT | DRAIN_MANA | SCREAM
+D:It is a ghostly woman's form. Her horrible shriek 
+D: chills the listener and is painful to hear, even
+D: from far off.
 
 
 N:288:Mummified human
@@ -3846,7 +3824,7 @@ B:BITE:HURT:3d4
 F:MALE | FORCE_MAXHP | FORCE_SLEEP | DROP_90 | REGENERATE
 F:OPEN_DOOR | BASH_DOOR | TROLL | EVIL | HURT_LIGHT
 S:SPELL_PCT_20 | POW_8
-S:BLINK | DARKNESS | WOUND | SCARE
+S:BLINK | DARKNESS | WOUND | SCARE | HEAL_OTHERS
 D:A troll who is so bright he knows how to read.
 
 
@@ -3862,7 +3840,7 @@ F:MALE | FORCE_MAXHP | ESCORT | ESCORTS | SMART
 F:OPEN_DOOR | BASH_DOOR | EVIL | ANIMAL | IM_ACID
 F:IM_COLD | NO_FEAR
 S:SPELL_PCT_15 | POW_0
-S:DARKNESS
+S:DARKNESS | BUFF_OTHERS
 D:A great wolf-chieftain whose pack is in the service of the Dark Lord,
 D: and whose howls strike fear into even the boldest heart.
 
@@ -4022,7 +4000,7 @@ B:BITE:FIRE:2d10
 B:GAZE:PARALYZE:2d6
 F:FORCE_SLEEP | BASH_DOOR | ANIMAL | HURT_COLD | IM_FIRE
 F:N_SAND
-S:SPELL_PCT_15 | POW_10
+S:SPELL_PCT_17 | POW_10
 S:BRTH_FIRE
 D:The result of evil experiments, this travesty of nature should never
 D: be alive.  It has three heads - goat, dragon and gorgon - all
@@ -4206,7 +4184,7 @@ B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 F:ONLY_ITEM | DROP_1D2 | OPEN_DOOR | BASH_DOOR | ANIMAL
 F:NO_CONF | NO_SLEEP
-S:SPELL_PCT_15 | POW_0
+S:SPELL_PCT_20 | POW_0
 S:BRTH_POIS
 D:An evil reptile that preys on unsuspecting travellers.  Its eyes stare
 D: deeply at you and your soul starts to wilt!
@@ -4224,7 +4202,7 @@ F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_1D2
 F:DROP_GOOD | HAS_LIGHT | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:EVIL
 S:SPELL_PCT_10 | POW_1
-S:S_KIN
+S:S_KIN | BUFF_OTHERS
 D:An evil and cunning man from the East.  Having once sworn allegiance
 D: to the sons of F["e]anor, it was Uldor's treachery that turned the
 D: tide of the Battle of Unnumbered Tears in Morgoth's favour.
@@ -4312,7 +4290,7 @@ D: looks likes the creation of some deranged alchemist.
 N:344:Young blue dragon
 G:d:b
 I:110:36d10:20:50:50
-W:29:1:17:500
+W:25:1:17:500
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
 B:BITE:ELEC:2d6
@@ -4327,7 +4305,7 @@ D: deep blue in hue.  Sparks crackle along its length.
 N:345:Young white dragon
 G:d:w
 I:110:36d10:20:50:50
-W:29:1:17:500
+W:25:1:17:500
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
 B:BITE:COLD:2d6
@@ -4550,7 +4528,7 @@ D:It is a massive statue of purest mithril.  It looks expensive!
 N:361:Young red dragon
 G:d:r
 I:110:40d10:20:60:50
-W:31:1:21:600
+W:25:1:21:600
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
 B:BITE:FIRE:2d8
@@ -4566,7 +4544,7 @@ D: deepest red hue.  Heat radiates from its form.
 N:362:Young black dragon
 G:d:s
 I:110:40d10:20:60:50
-W:31:1:21:700
+W:25:1:21:700
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
 B:BITE:ACID:2d8
@@ -4581,7 +4559,7 @@ D: darkest black hue.  Acid drips from its body.
 N:363:Young gold dragon
 G:d:y2
 I:110:40d10:20:60:50
-W:31:1:21:700
+W:29:1:21:700
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
 B:BITE:CONFUSE:2d8
@@ -4634,7 +4612,7 @@ D:A humanoid clothed in black who moves with blinding speed.
 N:368:Young chromatic dragon
 G:d:v
 I:110:42d10:20:60:50
-W:32:1:21:900
+W:29:1:21:900
 B:CLAW:FIRE:3d6
 B:CLAW:COLD:3d6
 B:BITE:POISON:4d8
@@ -5584,7 +5562,7 @@ F:DROP_2D2 | DROP_GOOD | HAS_LIGHT | OPEN_DOOR | BASH_DOOR
 F:EVIL | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD
 F:IM_POIS | NO_SLEEP
 S:SPELL_PCT_25 | POW_15
-S:TELE_TO | S_MONSTERS
+S:TELE_TO | S_MONSTERS | BUFF_OTHERS
 D:A mighty warrior from the east, Lorgan hates everything that he cannot
 D: control.
 
@@ -6248,7 +6226,7 @@ F:MALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_90
 F:DROP_2D2 | SMART | HAS_LIGHT | OPEN_DOOR | BASH_DOOR
 F:LOW_MANA_RUN | EVIL | NO_CONF | NO_SLEEP
 S:SPELL_PCT_50 | POW_60
-S:ADD_MANA | HEAL | CURE | WOUND | BLIND
+S:ADD_MANA | HEAL_OTHERS | CURE | WOUND | BLIND
 S:HOLD | S_MONSTER | S_UNDEAD | S_BESIEGERS
 D:An evil priest, dressed all in black.  Deadly spells hit you at an
 D: alarming rate as his black spiked mace rains down blow after blow on
@@ -7633,8 +7611,8 @@ D:A lich who is partially immaterial, on its way to a new, ethereal form.
 
 N:550:The Phoenix
 G:B:r
-I:125:36d100:60:130:0
-W:54:3:119:30000
+I:125:18d100:60:130:0
+W:54:3:100:30000
 B:PECK:WOUND:12d6
 B:PECK:WOUND:12d6
 B:HIT:FIRE:9d12
@@ -7644,11 +7622,11 @@ F:DROP_GOOD | HAS_LIGHT | OPEN_DOOR | BASH_DOOR | ANIMAL
 F:FLYING | HURT_COLD | IM_ACID | IM_ELEC | IM_FIRE
 F:IM_POIS | RES_PLAS | NO_CONF | NO_SLEEP | N_LAVA
 F:N_FIRE
-S:SPELL_PCT_40 | POW_85
-S:BRTH_FIRE | BRTH_PLAS | BRTH_LIGHT | BALL_FIRE | BOLT_FIRE
-S:BOLT_PLAS | S_KIN
+S:SPELL_PCT_30 | POW_85
+S:BRTH_FIRE | BRTH_PLAS | BRTH_LIGHT | REVIVE
 D:A massive glowing eagle bathed in flames.  The searing heat chars your
-D: skin and melts your armour.
+D: skin and melts your armour. You have heard legends that this monster
+D: cannot be killed, although this may just be superstition.
 
 
 N:551:Barbazu
@@ -10243,7 +10221,7 @@ D:A more powerful Maia, corrupted by Morgoth from the service of
 D: another. Not all the Maiar that serve the great enemy turned into
 D: demons like the Balrogs, instead serving their master's dark ends in
 D: more subtle ways and appearances. This Maia, one of Morgoth's
-D: greatest, he grows more alike with his master. He sows chaos to Arda
+D: greatest, grows more alike with his master. He sows chaos to Arda
 D: with storms of raw chaotic energy in addition to manipulative words
 D: and fear.
 
@@ -10384,7 +10362,7 @@ S:BOLT | HASTE | ADD_MANA | HEAL | CURE
 S:BLINK | TPORT | TELE_SELF_TO | TELE_TO | TELE_AWAY
 S:DRAIN_MANA | BRAIN_SMASH
 D:A more powerful Maia that serves Tulkas, the Champion of the Valar.
-D: Like Tulkas himself, this Ainu delights in tests of strenght and
+D: Like Tulkas himself, this Ainu delights in tests of strength and
 D: laughs ever, even in the face of Morgoth's wrath. The strongest among
 D: those that follow the Champion of Aman seek to disrupt their opponent
 D: with spells while pummeling them with mighty blows.
@@ -10666,4 +10644,164 @@ S:S_MONSTER | S_SPIDER
 D:Sinister, shrouded in darkness, bitchy and vindictive.
 D: At least she's cute when she's angry (which is all the time).
 
+N:707:Chaos imp
+G:u:b
+I:115:10d10:20:30:10
+W:23:3:48:80
+B:BITE:POISON:1d8
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+F:RAND_25 | ONLY_ITEM | DROP_1D2 | SMART
+F:BASH_DOOR | LOW_MANA_RUN | DEMON | EVIL
+F:IM_FIRE | RES_CHAOS | NO_CONF | ATTR_MULTI | EVASIVE
+S:SPELL_PCT_20 | POW_10
+S:BLINK | CONF | BALL_CHAOS | S_MONSTERS
+D:This little demon sought to ally with the powers of Chaos
+D: in order to become a demon lord, but instead it was
+D: casually warped and cast aside.
 
+N:708:Mundanity vortex
+G:v:v1
+I:120:20d10:100:40:0
+W:33:3:0:600
+B:ENGULF:UN_BONUS:5d5
+F:ATTR_MULTI | FORCE_SLEEP | RAND_25 | RAND_50 | EMPTY_MIND
+F:BASH_DOOR | POWERFUL | FLYING | RES_DISEN | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_18 | POW_0
+S:BRTH_DISEN
+D:A hole in the world, where the magic drains out, like the
+D: water emptying out of a bathtub.
+
+N:709:Mundanity hound
+G:Z:v1
+I:110:30d10:30:30:0
+W:40:3:0:300
+B:BITE:HURT:2d10
+B:BITE:HURT:2d10
+B:CLAW:HURT:3d6
+B:CLAW:HURT:3d6
+F:FORCE_SLEEP | FRIENDS | BASH_DOOR | ANIMAL | RES_DISEN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_20 | POW_0
+S:BRTH_DISEN
+D:A very ordinary looking dog. There is nothing special or
+D: magical about it... and soon the same will be true of you.
+
+N:710:Goblin martyr
+G:g:R1
+I:115:4d8:20:15:0
+W:15:3:0:50
+B:EXPLODE:EXPLODE:1d1
+F:MALE | OPEN_DOOR | BASH_DOOR
+F:ORC | EVIL | HURT_LIGHT
+D:He dashes towards you panting maniacally. There is a lighted
+D: fuse sticking out from under his rags. He wants to die
+D: for his cause and TAKE YOU WITH HIM! 
+
+N:711:Blast spore
+G:e:G1
+I:110:10d10:20:15:0
+W:25:3:0:150
+B:EXPLODE:EXPLODE:1d1
+F:FLYING | NO_FEAR | NO_SLEEP | NO_STUN | NO_CONF
+F:ANIMAL | WEIRD_MIND
+D:This strange fungoid ball drifts through the air towards you.
+D: Filled with some kind of lighter-than-air gas, it is bulging
+D: at the seams. It seems to want to bump against you, but why?
+
+N:712:Lesser Phoenix
+G:B:y
+I:120:50d10:30:70:0
+W:42:3:100:2000
+B:PECK:WOUND:6d6
+B:PECK:WOUND:6d6
+B:HIT:FIRE:9d6
+B:HIT:FIRE:9d6
+F:FORCE_SLEEP | ONLY_ITEM | DROP_2D2
+F:HAS_LIGHT | OPEN_DOOR | BASH_DOOR | ANIMAL
+F:FLYING | HURT_COLD | IM_ACID | IM_ELEC | IM_FIRE
+F:IM_POIS | RES_PLAS | NO_CONF | NO_SLEEP | N_LAVA
+F:N_FIRE
+S:SPELL_PCT_30 | POW_30
+S:BRTH_FIRE | BRTH_LIGHT | REVIVE
+D:A large glowing eagle bathed in flames.  The searing heat singes
+D: your skin. You have heard legends that this monster cannot be 
+D: killed, though that may just be superstition.
+
+N:713:Giant puffball
+G:,:w
+I:115:2d3:2:1:0
+W:3:3:0:1
+B:EXPLODE:EXPLODE
+F:NEVER_MOVE | STUPID | EMPTY_MIND | IM_POIS | NO_FEAR
+F:NO_CONF | NO_SLEEP
+D:A large, innocuous looking white sphere.
+
+N:714:Gnome warder
+G:h:B
+I:110:18d10:18:20:5
+W:20:2:30:300
+B:HIT:ELEC:1d8
+F:MALE | DROP_1D2 | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN
+S:SPELL_PCT_25 | POW_15
+S:BOLT_ELEC
+D:It is his job to defend gnomish settlements from intruders.
+D: In his gnarly little hand he clutches a sizzling metal
+D: baton, glowing with blue sparks. It connects by thin
+D: wires to an odd-looking pack on his back. You can
+D: smell ozone.
+
+N:715:Dark elf vitriol thrower
+G:h:g1
+I:115:18d10:18:20:10
+W:20:2:30:300
+B:HIT:POISON:1d6
+F:FEMALE | DROP_1D2 | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN
+F:EVIL | HURT_LIGHT | IM_ACID | IM_POIS | N_FOREST
+S:SPELL_PCT_25 | POW_15
+S:BOLT_ACID
+D:She approaches you with hatred in her eyes, then suddenly
+D: tries to fling something into your face. Her aim is to
+D: disfigure rather than kill.
+
+N:716:Frozen spirit
+G:G:v
+I:115:7d10:90:24:10
+W:20:3:40:60
+B:HIT:COLD:1d6
+B:TOUCH:EXP_20
+F:MALE | RAND_25 | INVISIBLE | COLD_BLOOD
+F:UNDEAD | EVIL | FLYING | PASS_WALL
+F:HURT_FIRE | IM_COLD | IM_POIS | NO_SLEEP
+F:FRIENDS
+S:SPELL_PCT_12 | POW_8
+S:BLINK | BRTH_COLD
+D:The forlorn ghost of a creature that died of the cold
+D: a long time ago. It is accompanied by a gust of
+D: freezing air. Icicles start to form on the ceiling.
+
+N:717:Orc agitator
+G:o:r2
+I:115:25d10:30:40:10
+W:30:3:50:500
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+F:MALE | FORCE_SLEEP | DROP_90 | OPEN_DOOR | BASH_DOOR
+F:ORC | EVIL | HURT_LIGHT | ONLY_ITEM | ESCORT
+S:SPELL_PCT_25 | POW_8
+S:MISSL | BUFF_OTHERS
+D:He leaps onto a nearby boulder and starts screaming at
+D: nearby monsters. He incites them to fiercely attack
+D: you, throwing away their lives if need be. During his
+D: tirade, he hurls missiles at you.
+
+# N: serial number : monster name
+# G: symbol : color
+# I: speed : hit points : vision : armor class : alertness
+# W: depth : rarity : maximum mana : experience for kill
+# B: attack method : attack effect : damage
+# S: spell frequency | spell power
+# S: spell type | spell type | etc
+# F: flag | flag | etc
+# D: Description

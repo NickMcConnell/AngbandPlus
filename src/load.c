@@ -515,6 +515,11 @@ static void rd_monster(monster_type *m_ptr)
 	}
 	rd_s16b(&m_ptr->m_timed[MON_TMD_FAST]);
 	rd_s16b(&m_ptr->m_timed[MON_TMD_SLOW]);
+	if (!(older_than(2,0,5))){
+		rd_s16b(&m_ptr->m_timed[MON_TMD_BUFF]);
+	} else {
+		m_ptr->m_timed[MON_TMD_BUFF] = 0;
+	}
 	rd_u32b(&m_ptr->mflag);
 	rd_u32b(&m_ptr->smart);
 	rd_byte(&m_ptr->target_y);

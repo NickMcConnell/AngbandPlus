@@ -50,7 +50,7 @@
 
 # Version stamp (required)
 
-V:2.0.4
+V:2.0.5
 
 
 N:0:Human
@@ -171,3 +171,18 @@ H:90:10:82:10
 W:190:20:180:15
 F:SEE_INVIS | IRONMAN
 C:0|1|2|4|5|6|7
+
+N:12:Sprite
+S:-2:1:-2:5:-2:0
+R:0:12:5:0:4:4:-5:5
+X:7:120:0
+I:81:11:4
+H:36:3:33:3
+W:60:3:50:3
+F:FLY | SLOW_DIGEST
+# note Sprite's stealth is increased through flying
+
+# S:str:int:wis:dex:con:chr
+# R:dis:dev:sav:stl:srh:fos:thn:thb
+# X:hitdie:expbase:infra
+# I:history:agebase:agemod

@@ -630,7 +630,7 @@ static void calc_stealth(void)
 	p_ptr->state.skills[SKILL_STEALTH] = rp_ptr->r_stl + cp_ptr->c_stl;
 
 	/* Very simple if flying */
-	if (p_ptr->timed[TMD_FLYING])
+	if ((player_flying()))
 	{
 		/*Very quiet*/
 		p_ptr->state.skills[SKILL_STEALTH] += 3;

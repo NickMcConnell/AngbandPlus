@@ -1595,9 +1595,38 @@ static void remove_useless_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u3
 
 	/* Don't heal if full */
 	if (m_ptr->hp >= m_ptr->maxhp) f6 &= ~(RF6_HEAL);
+	
+	/* Don't heal others if not worthwhile */
+	if ((m_ptr->hp >= m_ptr->maxhp)){
+		int xx, yy, d;
+		int veto = 1;
+		for (d = 0; d < 8; d++)
+		{
+			/* Extract adjacent location */
+			yy = m_ptr->fy + ddy_ddd[d];
+			xx = m_ptr->fx + ddx_ddd[d];
+
+			/* Ignore annoying locations */
+			if (!in_bounds_fully(yy, xx)) continue;
+
+			if (cave_m_idx[yy][xx] != 0){
+				monster_type *m_ptr = &mon_list[cave_m_idx[yy][xx]];
+				if (m_ptr->hp < m_ptr->maxhp){
+					veto = 0;
+				}
+			}
+		}
+		if (veto){
+			f6 &= ~(RF6_HEAL_OTHERS);
+		}
+	}
+
+	/* Don't revive if more than half full */
+	if (m_ptr->hp >= (m_ptr->maxhp / 2)) f6 &= ~(RF6_REVIVE);
 
 	/* Don't Haste if Hasted */
 	if (m_ptr->m_timed[MON_TMD_FAST] > 10) f6 &= ~(RF6_HASTE);
+	if (m_ptr->m_timed[MON_TMD_BUFF]) f6 &= ~(RF6_BUFF_OTHERS);
 
 	/* Don't cure if not needed */
 	if (!((m_ptr->m_timed[MON_TMD_STUN]) ||(m_ptr->m_timed[MON_TMD_FEAR]) ||
@@ -1948,7 +1977,10 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 	else if (m_ptr->hp < m_ptr->maxhp/5) want_hps += 3;
 	else if (m_ptr->hp < m_ptr->maxhp/4) want_hps += 2;
 	else if (m_ptr->hp < m_ptr->maxhp/2) want_hps++;
-	else if (m_ptr->hp == m_ptr->maxhp) f6 &= ~(RF6_HEAL);
+	else if (m_ptr->hp == m_ptr->maxhp){
+		f6 &= ~(RF6_HEAL);
+		f6 &= ~(RF6_REVIVE);
+	}
 
 	/* Figure out if we want mana */
 	if (m_ptr->mana < r_ptr->mana/4) want_mana +=2;
@@ -6008,7 +6040,7 @@ static void recover_monster(monster_type *m_ptr)
 	/* Recover courage */
 	if (m_ptr->m_timed[MON_TMD_FEAR] > 0)
 	{
-		if (m_ptr->m_timed[MON_TMD_FEAR] == 1)
+		if ((m_ptr->m_timed[MON_TMD_FEAR] == 1) || (m_ptr->m_timed[MON_TMD_BUFF]>0))
 		{
 			mon_clear_timed(m_idx, MON_TMD_FEAR, MON_TMD_FLG_NOTIFY);
 			/*re-calculate minimum range */
@@ -6043,6 +6075,20 @@ static void recover_monster(monster_type *m_ptr)
 		}
 
 		else mon_dec_timed(m_idx, MON_TMD_SLOW, 1 , MON_TMD_FLG_NOMESSAGE);
+	}
+
+	/*
+	 * Handle buff counter
+	 */
+	if (m_ptr->m_timed[MON_TMD_BUFF])
+	{
+		if (m_ptr->m_timed[MON_TMD_BUFF] == 1)
+		{
+			mon_clear_timed(m_idx, MON_TMD_BUFF, MON_TMD_FLG_NOTIFY);
+		}
+
+		else mon_dec_timed(m_idx, MON_TMD_BUFF, 1 , MON_TMD_FLG_NOMESSAGE);
+
 	}
 
 	/* Hack -- Update the health and mana bar (always) */

@@ -57,6 +57,8 @@ static mon_timed_effect effects[] =
 	{MON_MSG_SLOWED, MON_SNG_NOT_SLOWED, MON_MSG_MORE_SLOWED, RF3_NO_SLOW  },
 	/*TMD_MON_FAST*/
 	{MON_MSG_HASTED, MON_MSG_NOT_HASTED, MON_MSG_MORE_HASTED, 0L  },
+	/*TMD_MON_BUFF*/
+	{MON_MSG_BUFFED, MON_MSG_NOT_BUFFED, MON_MSG_MORE_BUFFED, 0L  },
 
 };
 
@@ -95,8 +97,16 @@ static int mon_resist_effect(int m_idx, int idx, u16b flag)
 	/* Hasting never fails */
 	if (idx == MON_TMD_FAST) return (ZERO_RESIST);
 
+	/* Buffing never fails */
+	if (idx == MON_TMD_BUFF) return (ZERO_RESIST);
+
 	/* Some effects are marked to never fail */
 	if (flag & (MON_TMD_FLG_NOFAIL)) return (ZERO_RESIST);
+
+	/* Too bloodthirsty to be scared */
+	if ((idx == MON_TMD_FEAR) && (m_ptr->m_timed[MON_TMD_BUFF]>0)){
+		return (FULL_RESIST);
+	}
 
 	/* Stupid, weird, or empty monsters aren't affected by some effects*/
 	if (r_ptr->flags2 & (RF2_STUPID | RF2_EMPTY_MIND | RF2_WEIRD_MIND))
@@ -306,7 +316,7 @@ static bool mon_set_timed(int m_idx, int idx, int v, u16b flag)
 	/*possibly update the monster health bar*/
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
-	if ((idx == MON_TMD_FAST) || (idx == MON_TMD_SLOW))
+	if ((idx == MON_TMD_FAST) || (idx == MON_TMD_SLOW) || (idx == MON_TMD_BUFF))
 	{
 	 	 calc_monster_speed(m_ptr->fy, m_ptr->fx);
 	}
@@ -352,6 +362,9 @@ bool mon_inc_timed(int m_idx, int idx, int v, u16b flag)
 
 	/* Hasting never fails */
 	if (idx == MON_TMD_FAST) flag |= MON_TMD_FLG_NOFAIL;
+
+	/* Buffing never fails */
+	if (idx == MON_TMD_BUFF) flag |= MON_TMD_FLG_NOFAIL;
 
 	/* Can't prolong sleep of sleeping monsters */
 	if ((idx == MON_TMD_SLEEP) &&
@@ -832,6 +845,9 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->r_l_flags6 & RF6_HASTE)       vp[vn++] = "haste-self";
 	if (l_ptr->r_l_flags6 & (RF6_ADD_MANA))		vp[vn++] = "restore mana";
 	if (l_ptr->r_l_flags6 & RF6_HEAL)        vp[vn++] = "heal-self";
+	if (l_ptr->r_l_flags6 & RF6_HEAL_OTHERS)        vp[vn++] = "heal itself and others";
+	if (l_ptr->r_l_flags6 & RF6_BUFF_OTHERS)        vp[vn++] = "buff itself and others";
+	if (l_ptr->r_l_flags6 & RF6_REVIVE)        vp[vn++] = "rebirth itself";
 	if (l_ptr->r_l_flags6 & (RF6_CURE))		vp[vn++] = "cure what ails it";
 	if (l_ptr->r_l_flags6 & RF6_BLINK)       vp[vn++] = "blink-self";
 	if (l_ptr->r_l_flags6 & RF6_TPORT)       vp[vn++] = "teleport-self";
@@ -843,6 +859,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->r_l_flags6 & RF6_DARKNESS)    vp[vn++] = "create darkness";
 	if (l_ptr->r_l_flags6 & RF6_TRAPS)       vp[vn++] = "create traps";
 
+	if (l_ptr->r_l_flags6 & (RF6_DRAIN_MANA))	vp[vn++] = "scream out of line-of-sight";
 	if (l_ptr->r_l_flags6 & (RF6_DRAIN_MANA))	vp[vn++] = "drain mana";
 	if (l_ptr->r_l_flags6 & (RF6_MIND_BLAST))	vp[vn++] = "cause mind blasting";
 	if (l_ptr->r_l_flags6 & (RF6_BRAIN_SMASH))	vp[vn++] = "cause brain smashing";
@@ -1192,6 +1209,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_XXX4:          break;
 			case RBM_BEG:           p = "beg"; break;
 			case RBM_INSULT:        p = "insult"; break;
+			case RBM_EXPLODE:       p = "explode"; break;
 			case RBM_XXX5:          break;
 			case RBM_XXX6:			break;
 		}
@@ -1243,6 +1261,8 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_EXP_20:        q = "lower experience (by 20d6+)"; break;
 			case RBE_EXP_40:        q = "lower experience (by 40d6+)"; break;
 			case RBE_EXP_80:        q = "lower experience (by 80d6+)"; break;
+
+			case RBE_EXPLODE:        q = "explode"; break;
 		}
 
 		/* Introduce the attack description */

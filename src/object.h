@@ -436,7 +436,7 @@
 #define SV_WAND_FIRE_BALL		22
 #define SV_WAND_COLD_BALL		23
 #define SV_WAND_WONDER			24
-#define SV_WAND_ANNIHILATION	25
+#define SV_WAND_WALL_BUILDING	25
 #define SV_WAND_DRAGON_FIRE		26
 #define SV_WAND_DRAGON_COLD		27
 #define SV_WAND_DRAGON_BREATH	28
@@ -481,7 +481,7 @@
 #define SV_SCROLL_CURSE_ARMOR			2
 #define SV_SCROLL_CURSE_WEAPON			3
 #define SV_SCROLL_SUMMON_MONSTER		4
-#define SV_SCROLL_SUMMON_UNDEAD			5
+#define SV_SCROLL_SCATTERING			5
 #define SV_SCROLL_SUMMON_UNIQUE			6
 #define SV_SCROLL_TRAP_CREATION			7
 #define SV_SCROLL_PHASE_DOOR			8
@@ -580,6 +580,7 @@
 #define SV_POTION_INC_DEX			51
 #define SV_POTION_INC_CON			52
 #define SV_POTION_INC_CHR			53
+#define SV_POTION_DOD	54
 /* xxx */
 #define SV_POTION_AUGMENTATION			55
 #define SV_POTION_ENLIGHTENMENT			56
@@ -893,7 +894,7 @@
 #define TR3_FREE_ACT        0x00000040L /* Free action */
 #define TR3_HOLD_LIFE       0x00000080L /* Hold life */
 #define TR3_THORNS          0x00000100L
-#define TR3_IRONMAN_ONLY    0x00000200L	/* Ironman object */
+#define TR3_FLY    0x00000200L	/* Ironman object */
 #define TR3_NEVER_PICKUP    0x00000400L /* monsters can't pickup*/
 #define TR3_ID_SLINGS_SHOTS         0x00000800L
 #define TR3_ID_HARD_ARMOR          0x00001000L /* Earthquake blows */

@@ -249,7 +249,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Sustain */
-	if (sust)
+	if (sust || one_in_(MAX(1,p_ptr->state.stat_ind[stat]-4))|| one_in_(MAX(1,p_ptr->stat_cur[stat]-4)))
 	{
 		/* Message */
 		msg_format("You feel very %s for a moment, but the feeling passes.",
@@ -449,6 +449,9 @@ static int remove_curse_aux(bool heavy)
 
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 		p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
+		msg_print("You feel as if someone is watching over you.");
+	} else {
+		msg_print("Nothing happens.");
 	}
 
 	/* Return "something uncursed" */
@@ -698,7 +701,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You land gently.";
 	}
-	if (p_ptr->timed[TMD_FLYING])
+	if ((player_flying()))
 	{
 		info[i++] = "You are flying.";
 	}

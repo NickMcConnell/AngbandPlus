@@ -1579,7 +1579,7 @@ static void display_special_abilities(int row, int col)
        }
 
 	    /* Print flying */
-       if (p_ptr->timed[TMD_FLYING] > 0)
+       if ((player_flying()))
        {
                msg = "You are ";
 

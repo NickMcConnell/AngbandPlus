@@ -2908,6 +2908,7 @@ void calc_monster_speed(int y, int x)
 
 	/*factor in the hasting and slowing counters*/
 	if (m_ptr->m_timed[MON_TMD_FAST]) speed += 10;
+	if (m_ptr->m_timed[MON_TMD_BUFF]) speed += 3;
 	if (m_ptr->m_timed[MON_TMD_SLOW]) speed -= 10;
 
 	/*set the speed and return*/
@@ -4007,6 +4008,9 @@ static char *msg_repository[MAX_MON_MSG + 1] =
 	"look[s] more hasted.",		/* MON_MSG_MORE_HASTED */
 	"look[s] hasted.",			/* MON_MSG_HASTED */
 	"[is|are] no longer hasted.",/* MON_MSG_NOT_HASTED */
+	"look[s] more bloodthirsty.",		/* MON_MSG_MORE_BUFFED */
+	"look[s] bloodthirsty.",			/* MON_MSG_BUFFED */
+	"[is|are] less bloodthirsty.",/* MON_MSG_NOT_BUFFED */
 	"look[s] more terrified!",	/* MON_MSG_MORE_AFRAID */
 	"flee[s] in terror!",		/* MON_MSG_FLEE_IN_TERROR */
 	"[is|are] no longer afraid.",/* MON_MSG_NOT_AFRAID */

@@ -70,7 +70,7 @@
 
 # Version stamp (required)
 
-V:2.0.4
+V:2.0.5
 
 
 # Here is the list of 'Special' artifacts - Amulets, Light Sources, Rings.

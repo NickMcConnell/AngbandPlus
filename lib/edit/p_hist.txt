@@ -29,7 +29,7 @@
 
 # Version stamp (required)
 
-V:2.0.4
+V:2.0.5
 
 
 N:1:2:10:25
@@ -470,5 +470,34 @@ N:80:54:80:50
 D:eyes full of wisdom.
 N:80:54:100:50
 D:a strange presence about you.
+
+N:81:82:100:50
+D:You are a slender creature with
+
+N:82:83:20:50
+D:diaphanous
+N:82:83:40:50
+D:shimmering
+N:82:83:60:50
+D:gauzy
+N:82:83:80:50
+D:spangly
+N:82:83:100:50
+D:translucent
+
+N:83:84:100:50
+D:wings. You come from the 
+
+N:84:0:20:50
+D:woodlands.
+N:84:0:40:50
+D:upper airs.
+N:84:0:60:50
+D:seashore.
+N:84:0:80:50
+D:meadows.
+N:84:0:100:50
+D:treetops.
+
 
 

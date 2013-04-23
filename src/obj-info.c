@@ -1191,7 +1191,7 @@ void object_info_screen(const object_type *o_ptr)
 	if (!is_my_book)
 	{
 		char buf[200];
-		int price;
+		int price, weight;
 
 		/* Show object history if possible */
 		if (format_object_history(buf, sizeof(buf), o_ptr))
@@ -1219,6 +1219,10 @@ void object_info_screen(const object_type *o_ptr)
 			if (o_ptr->number > 1)	text_out_c(TERM_YELLOW, "They have no value.");
 			else 					text_out_c(TERM_YELLOW, "It has no value.");
 		}
+
+		weight = o_ptr->weight * o_ptr->number;
+		if (o_ptr->number > 1) text_out_c(TERM_YELLOW, "\n\n   They weigh %1d.%1d lb.", weight / 10, weight % 10);
+		else text_out_c(TERM_YELLOW, "\n\n   It weighs %1d.%1d lb.", weight / 10, weight % 10);
 
 		text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
 

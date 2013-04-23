@@ -590,7 +590,7 @@ extern void process_player_terrain_damage(void);
 extern void process_player(void);
 extern void play_game(void);
 extern void doom(void);
-
+extern bool player_flying(void);
 
 /* effect.c */
 extern int scan_effects_grid(int *effects, int size, int y, int x);

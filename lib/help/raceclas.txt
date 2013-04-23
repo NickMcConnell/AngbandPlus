@@ -137,6 +137,12 @@ Saruman to justice.
 (As one of the Maiar, you have great stats and skills, and you can see invisible,
 but you must play ironman - you can never go up, only down.)
 
+**** <Sprite>
+Sprites are a race of winged folk who dwell in forests, meadows and secluded 
+places. They can fly and quickly dart about from place to place. Although they 
+are weak, and sometimes scatterbrained, they can be cunning. Sprites eat almost 
+nothing - some say they live on air.
+(Sprites' flight ability allows them to ignore traps and adverse terrain.)
 
 ====== Classes ======
 
@@ -286,6 +292,7 @@ Vital statistics:
      High-Elf     +1    +3    +1    +3    +1    +3       9       +60%    40 feet
      Kobold       -1    -1     0    +2    +2    -2       8       +15%    50 feet
      Maia         +3    +3    +3    +3    +3    +3      11      +100%    30 feet
+     Sprite       -2    +1    -2    +5    -2     0       7       +30%     None
 
 (*) The Dunadan gains random stat boosts at higher levels.
 
@@ -323,10 +330,11 @@ Abilities:
      Dwarf         6       8       8      -1       8       5       9       5
      Half-Orc      4       4       3      -1       5       4       8       4
      Half-Troll    3       2       1      -2       4       3      10       3
-     Dunadan       7       7       0      +2       6       8       7       7
+     Dunadan       7       7       6      +2       6       8       7       7
      High-Elf      7      10      10      +3       6       9       7      10
      Kobold        8       7       5      +4       7      10       3       7
      Maia          8      10      10      +3       7      10       9       9
+     Sprite        5       9       6      +3       6       6       3       7
 
      Abilities are ranked on a comparative scale ranging from 1 to 10, except
 for stealth, which is an exact value.
