@@ -380,11 +380,12 @@ static martial_arts *choose_ma_attack(int skill)
 
 	for (i = MAX(1, skill/14), ma_ptr = ma_blows+MAX_MA; i; i--)
 	{
+         /* RM: Increasing Skill gradiation. */
 		do
 		{
 			new_ptr = &ma_blows[(rand_int(max))];
 		}
-		while (rand_int(skill/2*2) < new_ptr->chance);
+		while (rand_int(skill) < new_ptr->chance);
 
 		/* keep the highest level attack available we found */
 		if (new_ptr->min_level > ma_ptr->min_level)
@@ -435,7 +436,7 @@ static int do_ma_attack(monster_type *m_ptr)
 
 	/* Calculate the damage. */
 	k = damroll(ma_ptr->dd, ma_ptr->ds);
-	k = critical_norm((skill/2) * (randint(10)), ma_ptr->min_level/2, k);
+	k = critical_norm(skill* randint(10)/2 , ma_ptr->min_level/2, k); /* RM: Skill gradiation */
 
 	/* Hack - say some extra stuff if the monster will survive. */
 	survives = (k + p_ptr->to_d < m_ptr->hp);
@@ -460,7 +461,7 @@ static int do_ma_attack(monster_type *m_ptr)
 		if (survives)
 		{
 			if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-				(randint(skill_set[SKILL_MA].value/2) > r_ptr->level)
+				(randint(skill/2) > r_ptr->level)
 				&& m_ptr->mspeed > 60)
 			{
 				msg_format("%^v starts limping slower.",
@@ -482,8 +483,8 @@ static int do_ma_attack(monster_type *m_ptr)
 
 	if (stun_effect && survives)
 	{
-		if ((skill_set[SKILL_MA].value/2) >
-			randint(r_ptr->level + resist_stun + 10))
+        if ((skill/2) >
+            randint(r_ptr->level + resist_stun + 10))
 		{
 			if (m_ptr->stunned)
 			{
@@ -558,22 +559,22 @@ void py_attack(int y, int x)
 
 
 
-		/* Stop if friendly */
-		if (m_ptr->smart & SM_ALLY &&
-			! (p_ptr->stun || p_ptr->confused || p_ptr->image ||
-				((p_has_mutation(MUT_BERS_RAGE)) && p_ptr->shero) ||
-				!(m_ptr->ml)))
+	/* Stop if friendly */
+	if (m_ptr->smart & SM_ALLY &&
+		! (p_ptr->stun || p_ptr->confused || p_ptr->image ||
+			((p_has_mutation(MUT_BERS_RAGE)) && p_ptr->shero) ||
+			!(m_ptr->ml)))
 	{
 		if (inventory[INVEN_WIELD].name1 != ART_STORMBRINGER)
-	{
-		msg_format("You stop to avoid hitting %s.", m_name);
+	        {
+		        msg_format("You stop to avoid hitting %s.", m_name);
 
-		TFREE(m_name);
-		return;
-	}
+		        TFREE(m_name);
+		        return;
+	        }
 
-			msg_format("Your black blade greedily attacks %s!",
-				m_name);
+		msg_format("Your black blade greedily attacks %s!",
+			m_name);
 
 	}
 
@@ -581,7 +582,7 @@ void py_attack(int y, int x)
 
 	/* Handle player fear */
 	if (p_ptr->afraid)
-	{   /* Message */
+	{       /* Message */
 		if (m_ptr->ml)
 		msg_format("You are too afraid to attack %s!", m_name);
 
@@ -604,38 +605,38 @@ void py_attack(int y, int x)
 
 	/* Attack speed is based on theoretical number of blows per 60 turns*/
 	energy_use=(TURN_ENERGY*60/p_ptr->num_blow);
-		/* Test for hit */
-		if (test_hit(chance, r_ptr->ac, m_ptr->ml))
+	/* Test for hit */
+	if (test_hit(chance, r_ptr->ac, m_ptr->ml))
+	{
+		/* Sound */
+		sound(SOUND_HIT);
+
+		/* Message */
+		if (!(backstab || stab_fleeing))
 		{
-			/* Sound */
-			sound(SOUND_HIT);
+			if (!(ma_empty_hands()))
+				msg_format("You hit %s.", m_name);
+		}
+		else if (backstab)
+		{
+                        msg_format("You sneak-attack the %v.", 
+                                monster_desc_aux_f3, r_ptr, 1, 0);
+			skill_exp(SKILL_STEALTH);
+		}
+		else
+		{
+			msg_format("You attack the fleeing %v!", 
+                            monster_desc_aux_f3, r_ptr, 1, 0);
+			skill_exp(SKILL_STEALTH);
+		}
 
-			/* Message */
-			if (!(backstab || stab_fleeing))
-				{
-					if (!(ma_empty_hands()))
-					msg_format("You hit %s.", m_name);
-				}
-			else if (backstab)
-			{
-				msg_format("You cruelly stab the helpless, sleeping %v!",
-					monster_desc_aux_f3, r_ptr, 1, 0);
-				skill_exp(SKILL_STEALTH);
-			}
-			else
-			{
-				msg_format("You backstab the fleeing %v!",
-					monster_desc_aux_f3, r_ptr, 1, 0);
-				skill_exp(SKILL_STEALTH);
-			}
-
-			/* Give experience if it wasn't too easy */
-			if (chance < (r_ptr->ac * 3))
-			{
-				skill_exp(p_ptr->wield_skill);
-			}
-				/* Hack -- bare hands do one damage */
-			k = 1;
+		/* Give experience if it wasn't too easy */
+		if (chance < (r_ptr->ac * 3))
+		{
+			skill_exp(p_ptr->wield_skill);
+		}
+		/* Hack -- bare hands do one damage */
+		k = 1;
 
 
 		object_flags(o_ptr, &f1, &f2, &f3);
@@ -1763,13 +1764,13 @@ static byte display_list(void (*display)(byte, byte *, char *), void (*confirm)(
 static bool racial_aux(race_power *pw_ptr)
 {
 	const int plev = MAX(1,skill_set[SKILL_RACIAL].value/2);
-	bool use_hp = FALSE;
+	bool use_hp = TRUE;
 	bool use_chi = FALSE;
-	bool use_mana = TRUE;
+	bool use_mana = FALSE;
 	s16b num, denom;
 	int cost = power_cost(pw_ptr, plev);
 
-	if (p_ptr->cchi >= p_ptr->csp)
+	/*if (p_ptr->cchi >= p_ptr->csp)
 	{
 		use_mana = FALSE;
 		use_chi = TRUE;
@@ -1786,7 +1787,7 @@ static bool racial_aux(race_power *pw_ptr)
 			use_mana = FALSE;
 			use_hp = TRUE;
 		}
-	}
+	}*/
 
 
 	if (p_ptr->confused)

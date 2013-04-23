@@ -206,8 +206,8 @@ static int spell_chance(const magic_type *s_ptr)
 	if (p_ptr->stun > 50) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
+	/* Always a 5 percent chance of working, but only if skilled enough. */
+	if (chance > 95 && spell_skill(s_ptr)>=2 ) chance = 95;
 
 	/* Return the chance */
 	return (chance);
@@ -494,14 +494,16 @@ static cptr spell_string(int i, const magic_type *s_ptr, cptr comment)
 		{
 			comment = "too hard";
 		}
-		else
+                /* HACK: Hedge Magic is always known */
+		else if (s_ptr->skill1 != SKILL_HEDGE)
 		{
 			comment = "unknown";
 		}
 	}
-	else if (~s_ptr->flags & MAGIC_WORKED)
+	else if (~s_ptr->flags & MAGIC_WORKED && s_ptr->skill1 != SKILL_HEDGE)
 	{
-		comment = "untried";
+                /* RM: Untried spells are no longer significant. */
+		/* comment = "untried"; */
 	}
 
 
@@ -1511,7 +1513,7 @@ void do_cmd_cantrip(object_type *o_ptr)
 	 * Otherwise, give it a slight chance of breaking anyway.
 	 */
 	if (item_break) {
-		if (rand_int(10) > skill_set[SKILL_HEDGE].value) {
+		if (rand_int(15) > skill_set[SKILL_HEDGE].value+5) {
 			msg_print("The charm remains completely inert.");
 			item_break = FALSE;
 		}
@@ -1567,6 +1569,9 @@ static void annoy_spirit(spirit_type *s_ptr,u32b amount)
 	old_annoy=s_ptr->annoyance;
 	s_ptr->annoyance += amount;
 
+    /* RM: Supressing annoyance messages.  Redundant since it can be easily told
+       by the screen colour. */
+       /*
 	if ((s_ptr->annoyance > 15) && (old_annoy < 16))
 	{
 		msg_format("%s is furious.",s_ptr->name);
@@ -1582,7 +1587,8 @@ static void annoy_spirit(spirit_type *s_ptr,u32b amount)
 	else if((s_ptr->annoyance > 0) && (old_annoy < 1))
 	{
 		msg_format("You have irritated %s.",s_ptr->name);
-	}
+	} 
+    */
 }
 
 /*
@@ -1759,8 +1765,8 @@ void do_cmd_mindcraft(void)
 
 	/* not if confused */
 	if (p_ptr->confused) {
-	msg_print("You are too confused!");
-	return;
+		msg_print("You are too confused!");
+		return;
 	}
 
 	/* get power */
@@ -1770,10 +1776,10 @@ void do_cmd_mindcraft(void)
 
 	/* Verify "dangerous" spells */
 	if (s_ptr->mana > p_ptr->cchi) {
-	/* Warning */
-	msg_print("You do not have enough chi to use this power.");
-	/* Verify */
-	if (!get_check("Attempt it anyway? ")) return;
+		/* Warning */
+		msg_print("You do not have enough chi to use this power.");
+		/* Verify */
+		if (!get_check("Attempt it anyway? ")) return;
 	}
 
 	/* Spell failure chance */

@@ -1386,6 +1386,7 @@ extern bool spoil_base;
 extern bool spoil_stat;
 extern bool spoil_dam;
 extern bool spoil_flag;
+extern bool spoil_skll;
 extern bool cheat_peek;
 extern bool cheat_hear;
 extern bool cheat_room;

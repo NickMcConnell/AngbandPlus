@@ -335,7 +335,8 @@ errr do_cmd_destroy_aux(cptr verb, cptr dative, object_type *q_ptr, object_type 
 	}
 
 	/* Eliminate the item */
-	item_increase(o_ptr, -q_ptr->number);
+	msg_format("You have destroyed %v.", object_desc_f3, q_ptr, TRUE, 3);
+        item_increase(o_ptr, -q_ptr->number);
 	item_describe(o_ptr);
 	item_optimize(o_ptr);
 
@@ -353,8 +354,11 @@ void do_cmd_destroy(object_type *o_ptr)
 
 	if (err != POWER_ERROR_ABORT) energy_use = extract_energy[p_ptr->pspeed];
 
-	if (!err)
-		msg_format("You have destroyed %v.", object_desc_f3, q_ptr, TRUE, 3);
+        
+        /* Moved to do_cmd_destroy_aux */
+	/*if (!err)
+	 *	msg_format("You have destroyed %v.", object_desc_f3, q_ptr, TRUE, 3);
+         */
 }
 
 

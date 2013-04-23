@@ -32,7 +32,7 @@
 
 # Version stamp (required)
 
-V:1.0.18
+V:1.0.19
 
 
 N:0:%-KFlavourless things%+K%k%=K%+E %e%=E%+A %a%=A

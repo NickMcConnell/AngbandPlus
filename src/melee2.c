@@ -664,6 +664,7 @@ static void remove_bad_spells(monster_type *m_ptr,
 				if (int_outof(r_ptr, 100)) f4 &= ~(RF4_ARROW_2);
 				if (int_outof(r_ptr, 100)) f4 &= ~(RF4_ARROW_3);
 				if (int_outof(r_ptr, 100)) f4 &= ~(RF4_ARROW_4);
+				if (int_outof(r_ptr, 100)) f4 &= ~(RF4_BOULDER);
 	}
 
 
@@ -1244,8 +1245,14 @@ static bool monst_spell_monst(int m_idx)
 			break;
 		}
 
-		case (96+iilog(RF4_XXX3)):
+		/* RF4_BOULDER */
+		case (96+iilog(RF4_BOULDER)):
 		{
+			disturb(0);
+			if (!see_either) msg_format("You hear someone grunt with exertion.");
+			if (blind) msg_format("You hear %^s grunt with exertion.", m_name);
+			else msg_format("%^s hurls a boulder at %s.", m_name, t_name);
+			monst_bolt_monst(m_ptr, y, x, GF_ARROW, damroll(1 + r_ptr->level / 7, 12));
 			break;
 		}
 
@@ -1273,7 +1280,7 @@ static bool monst_spell_monst(int m_idx)
 		case (96+iilog(RF4_ARROW_2)):
 		{
 			disturb(0);
-						if (!see_either) msg_print("You hear a strange noise.");
+			if (!see_either) msg_print("You hear a strange noise.");
 			else if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s fires an arrow at %s.", m_name, t_name);
 			monst_bolt_monst(m_ptr, y, x, GF_ARROW, damroll(3, 6));
@@ -2235,8 +2242,16 @@ static bool monst_spell_monst(int m_idx)
 			break;
 		}
 
-		case (160+iilog(RF6_XXX4)):
+		case (160+iilog(RF6_S_ANIMAL)):
 		{
+			disturb(0);
+			if (blind || !see_m) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons monsters!", m_name);
+			for (k = 0; k < 8; k++)
+			{
+				count += summon_specific_aux(y, x, rlev, SUMMON_ANIMAL, TRUE, friendly);
+			}
+			if (blind && count) msg_print("You hear many things appear nearby.");
 			break;
 		}
 
@@ -2294,9 +2309,22 @@ static bool monst_spell_monst(int m_idx)
 			break;
 		}
 
-		case (160+iilog(RF6_XXX5)):
+		case (160+iilog(RF6_XXX4)):
 		{
+			/*
+			disturb(0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons greater demons!", m_name);
+			for (k = 0; k < 8; k++)
+			{
+				count += summon_specific_aux(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_DEMON, TRUE, friendly);
+			}
+			if (blind && count)
+			{
+				msg_print("You hear many evil things appear nearby.");
+			}
 			break;
+			*/
 		}
 
 		case (160+iilog(RF6_DARKNESS)):
@@ -2698,8 +2726,12 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		case (96+iilog(RF4_XXX3)):
+		case (96+iilog(RF4_BOULDER)):
 		{
+			disturb(1);
+			if (blind) msg_format("You hear something grunt with exertion.", m_name);
+			else msg_format("%^s hurls a boulder at you!", m_name);
+			bolt(m_idx, GF_ARROW, damroll(1 + r_ptr->level / 7, 12));
 			break;
 		}
 
@@ -3737,8 +3769,17 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		case (160+iilog(RF6_XXX4)):
+		case (160+iilog(RF6_S_ANIMAL)):
 		{
+			disturb(1);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons help!", m_name);
+			for (k = count = 0; k < 1; k++)
+			{
+				count += summon_specific(y, x, rlev, SUMMON_ANIMAL);
+			}
+			if (blind && count) msg_print("You hear something appear nearby.");
+			break;
 			break;
 		}
 
@@ -3783,9 +3824,22 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		case (160+iilog(RF6_XXX5)):
+		case (160+iilog(RF6_XXX4)):
 		{
+			/*
+			disturb(1);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons greater demons!", m_name);
+			for (k = 0; k < 8; k++)
+			{
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_DEMON);
+			}
+			if (blind && count)
+			{
+				msg_print("You hear many evil things appear nearby.");
+			}
 			break;
+			*/
 		}
 
 		case (160+iilog(RF6_DARKNESS)):
@@ -6228,7 +6282,8 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 
 			/* Kill weaker monsters */
-			if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
+			if (  !(r_ptr->flags1 & (RF1_GUARDIAN | RF1_UNIQUE)) &&
+				(r_ptr->flags2 & (RF2_KILL_BODY)) &&
 				(r_ptr->mexp > z_ptr->mexp) && (cave_floor_bold(ny,nx)) &&
 				!((m_ptr->smart & (SM_ALLY)) &&  (m2_ptr->smart & (SM_ALLY))))
 				/* Friends don't kill friends... */

@@ -1,19 +1,19 @@
 
                           *************************
-                          ** sCthangband 1.0.18  **
+                          ** sCthangband 1.0.19  **
                           *************************
 
            Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:    Copyright (c) 1989 James E. Wilson
 
                 Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
-
                Zangband code:    (Mr) Topi Ylinen <f1toyl@uta.fi>
 
              Cthangband 2.1 - 4.0: Dean Anderson (no current address)
-			 
-			 Cthangband 4.1: David Thornley <david@thornley.net>
+             Cthangband 4.1: David Thornley <david@thornley.net>
 
-       Current maintainer : Kieron Dunbar <kieron@dimetrodon.demon.co.uk>
+     sCthangband 1.0.0 - 1.0.18: Kieron Dunbar <kieron@dimetrodon.demon.co.uk>
+             sCthangband 1.0.19: Raymond Martineau <bk039@ncf.ca>
 
-   sCthangband Web-site <http://www.dimetrodon.demon.co.uk/scthangband.html>
+
+       Please use rec.games.roguelike.angband to discuss sCthangband. 

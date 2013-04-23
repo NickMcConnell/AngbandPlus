@@ -1333,15 +1333,18 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if(r_ptr->r_pkills == 0)
 		{
 			div = div / 3;
+                  if (object_skill_count>0) object_skill_count--;
 		}
 		/* double experience for second or third kill */
 		if (r_ptr->r_pkills == 1)
 		{
 			div = div /2;
+                        if (object_skill_count>0) object_skill_count--;
 		}
 		if (r_ptr->r_pkills == 2)
 		{
 			div = div/2;
+                        if (object_skill_count>0) object_skill_count--;
 		}
 		/* don't divide by 0 */
 		if (div < 1) div = 1;
@@ -1365,12 +1368,18 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Gain experience */
 		gain_exp(new_exp);
+                if (r_ptr->r_pkills < 20)
+                       if (object_skill_count>0) object_skill_count--;
 
 		/* Generate treasure */
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+		if (r_ptr->flags1 & (RF1_UNIQUE)) 
+                {  
+                        r_ptr->max_num = 0;
+                        object_skill_count=0;
+                }
 
 		/* XXX XXX Mega-Hack -- allow another ghost later
 		 * Remove the slain bone file */
@@ -1455,8 +1464,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 			/* XXX XXX XXX Hack -- Add some timed fear */
 			m_ptr->monfear = (randint(10) +
-								(((dam >= m_ptr->hp) && (percentage > 7)) ?
-								20 : ((11 - percentage) * 5)));
+        			(((dam >= m_ptr->hp) && (percentage > 7)) ?
+				20 : ((11 - percentage) * 5)));
 		}
 	}
 

@@ -677,7 +677,10 @@ static bc_type birth_choice(int row, s16b max, cptr prompt, int *option,
 		}
 		else
 		{
-			(*option) = ator(c);
+                        if (c>='a' && c<='z')
+			  (*option) = ator(c);
+                        else
+			  (*option) = ator(c)+26;
 			if (((*option) >= 0) && ((*option) < max)) return BC_OKAY;
 			else bell(0);
 		}
@@ -698,6 +701,9 @@ static bc_type get_init_spirit(bool choice)
 	/* Acquire a random spirit if only temporary. */
 	if (!choice)
 	{
+    	/* Name the spirit. */
+    	generate_spirit_names();
+
 		spirits[rand_int(MAX_SPHERE)].pact = TRUE;
 		return BC_OKAY;
 	}
@@ -732,14 +738,14 @@ static void get_random_skills(bool random)
 		if(skill_set[i].value>10)
 		{
 			skill_set[i].value+= (random ? (byte)rand_int(10) : 4);
-			}
+		}
 		else if(skill_set[i].value>5)
-			{
-		skill_set[i].value+= (random ? (byte)rand_int(5) : 2);
-			}
+		{
+		        skill_set[i].value+= (random ? (byte)rand_int(5) : 2);
+		}
 		else if(skill_set[i].value>0)
 		{
-			skill_set[i].value+= (random ? (byte)rand_int(3) : 1);
+			skill_set[i].value+= (random ? (byte)rand_int(2)+1 : 1);
 		}
 		skill_set[i].max_value=skill_set[i].value;
 	}
@@ -1564,7 +1570,8 @@ static void get_starting_skills(void)
 	/*
 	 * add basic everyman values (mainly from race)
 	 */
-	skill_set[SKILL_TOUGH].value+=4;
+	skill_set[SKILL_TOUGH].value+=3;  /* RM: Down from 4 */
+        skill_set[SKILL_TOUGH].base++;    /* RM: Make toughness easier to train at low skill levels. */
 	skill_set[SKILL_DEVICE].value+=rp_ptr->device_bonus;
 	skill_set[SKILL_DISARM].value+=rp_ptr->disarm_bonus;
 	skill_set[SKILL_CLOSE].value+=rp_ptr->melee_bonus;
@@ -1653,7 +1660,7 @@ static bc_type get_hermetic_skills()
 		b = birth_choice(21, MAX_SCHOOL*2, buf, &k, TRUE);
 		if (b) return b;
 
-		skill_set[magic_skills[k].idx].value += 5;
+		skill_set[magic_skills[k].idx].value += 4;
 	}
 	return BC_OKAY;
 }
@@ -2691,7 +2698,8 @@ static bool quick_start_character(void)
 
 	birther prev_stat[1];
 
-
+	/* Synchronise the birth options initially. */
+	get_birth_options();
 
 	/*** Player sex ***/
 	/* Set sex */

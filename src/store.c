@@ -782,16 +782,16 @@ static bool needtohaggle(s32b purse)
 			/* Message summary */
 			sprintf(message, "You quickly agree upon the price.");
 
-			/* Apply Sales Tax */
+			/* Apply Sales Tax  - DISABLED */
 			if (purse == 0)
 			{
 				/* Buying */
-				final_ask = final_ask * 11 / 10;
+				/* final_ask = final_ask * 11 / 10; */
 			}
 			else
 			{
 				/* Selling */
-				final_ask = final_ask * 9 / 10;
+				/* final_ask = final_ask * 9 / 10; */
 			}
 		}
 
@@ -2272,7 +2272,7 @@ static void display_entry(int pos)
 			v = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
 
 			/* Hack -- Apply Sales Tax if needed */
-			if (!noneedtobargain(v)) v += v / 10;
+			/* if (!noneedtobargain(v)) v += v / 10; */
 		}
 		/* Display a "haggle" cost */
 		else
@@ -2399,7 +2399,7 @@ static void store_title_aux_f0(char *buf, uint max, cptr UNUSED fmt,
 				u32b price = town_defs[town].house_price;
 
 				/* Hack - Must be the same as needtohaggle(). */
-				if (auto_haggle) price = price*11/10;
+				/* if (auto_haggle) price = price*11/10; */
 
 				strnfmt(buf, max, "%28s%s (%ld)", "", "House for Sale", price);
 			}
@@ -2424,8 +2424,8 @@ static void store_title_aux_f0(char *buf, uint max, cptr UNUSED fmt,
 			object_aware(&tmp);
 
 			/* Hack - standardise the player's charisma. */
-			old_charisma = p_ptr->stat_ind[A_CHR];
-			p_ptr->stat_ind[A_CHR] = CHR_PRICE_COMPARE;
+			/* old_charisma = p_ptr->stat_ind[A_CHR]; */
+			/* p_ptr->stat_ind[A_CHR] = CHR_PRICE_COMPARE; */
 
 			/* Show the max price in the store (above prices) */
 			strnfmt(buf, max, "%10s%-40v%v (%ld) [%ld]", "", format_fn,
@@ -2434,7 +2434,7 @@ static void store_title_aux_f0(char *buf, uint max, cptr UNUSED fmt,
 				price_item(&tmp, ot_ptr->min_inflate, TRUE));
 
 			/* Hack - return real charisma. */
-			p_ptr->stat_ind[A_CHR] = old_charisma;
+			/* p_ptr->stat_ind[A_CHR] = old_charisma; */
 		}
 	}
 }
@@ -2968,15 +2968,7 @@ static void service_help(byte type)
 			break;
 		case STORE_TEMPLE: /* Restoration */
 		{
-			object_type q_ptr[1];
-
-			/* This doesn't really describe what the service does. */
-			object_prep(q_ptr, OBJ_FAKE_RESTORING);
-			q_ptr->ident |= IDENT_STORE;
-
-			/* This gives an unwelcome "Item attributes" description. */
-			if (!identify_fully_aux(q_ptr, FALSE))
-				msg_print("This won't help you at present.");
+        		msg_print("Restores lost stats and experience.");
 			break;
 		}
 		case STORE_ALCHEMIST: /* Identify all */
@@ -3064,14 +3056,24 @@ static bool service_haggle(s32b service_cost, s32b *price, cptr service, byte ty
 	bool cancel = FALSE;
 	char out_val[160];
 
+    int factor, adjust;
 
 	pmt = "Asking";
 	*price = 0;
 
+	/* Compute the racial factor */
+	factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
 
-	/* Extract the starting offer and the final offer */
-	cur_ask = service_cost * 2;
-	final_ask = service_cost;
+	/* Add in the charisma factor */
+	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+
+    /* Adjust for greed */
+	adjust = 100 + ((ot_ptr->min_inflate + factor) - 300);
+	if (adjust < 100) adjust = 100;
+
+	/* Compute the final price (with rounding) */
+	final_ask = (service_cost * adjust + 50L) / 100L;
+	cur_ask = final_ask * 2;
 
 	/* Determine if haggling is necessary. */
 	final = needtohaggle(0);
@@ -3508,6 +3510,10 @@ static void store_purchase(void)
 
 				/* Hack -- clear the "store" flag from the item */
 				j_ptr->ident &= ~(IDENT_STORE);
+
+                                /* Hack -- Set the "found information" */
+                                j_ptr->found.level=0;
+                                j_ptr->found.dungeon=cur_town;
 
 				/* Message */
 				if (!auto_haggle || verbose_haggle)
@@ -4076,9 +4082,9 @@ static void store_process_command(void)
 								if (enchant_spell(0,0,4))
 								{
 									p_ptr->au -= price;
-								/* Be happy */
-								decrease_insults();
-								store_prt_gold();
+								        /* Be happy */
+								        decrease_insults();
+								        store_prt_gold();
 								}
 							}
 							p_ptr->window |= (PW_PLAYER);
@@ -4103,9 +4109,9 @@ static void store_process_command(void)
 								if (enchant_spell(4,4,0))
 								{
 									p_ptr->au -= price;
-								/* Be happy */
-								decrease_insults();
-								store_prt_gold();
+								        /* Be happy */
+								        decrease_insults();
+								        store_prt_gold();
 								}
 							}
 							p_ptr->window |= (PW_PLAYER);
@@ -4295,7 +4301,7 @@ static void store_process_command(void)
 								handle_stuff();
 							}
 						}
-					break;
+					        break;
 					}
 				case STORE_PAWN:
 					{

@@ -52,7 +52,7 @@
 
 # Version stamp (required)
 
-V:1.0.18
+V:1.0.19
 
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
@@ -2457,7 +2457,7 @@ D:%X,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,+XX....+XX...X****X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N:109:Bubbles
+N:109:Greater vault (bubbles)
 X:Greater:35
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXX#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
@@ -2473,7 +2473,7 @@ D:%X8X#X8XXX8X#X8XXX8XXX8XXX8XXX8XXX8X#X8X%
 D:%XX#.XX#.XX#.XX#.XX#.XX#.XX#.XX#.XX#.#XX%
 D:%XX.9.X.9.#.9.X.9.#.9.#.9.#.9.#.9.X.9.XX%
 D:%XXX.XXX.XXX.XXX.XXX.XXX.XXX.XXX.XXX.XXX%
-D:%X8X#X8X#X8X#X8XXX8XXX8XXX8XXX8X#X8XXX8X%
+D:%X8X#X8X#X8X#X8XXX8XXX8XXX8XXX8X#X8X#X8X%
 D:%XX#.XX#.XX#.XX#.XX#.XX#.XX#.XX#.XX#.#XX%
 D:%XX.9.#.9.X.9.#.9.#.9.#.9.#.9.#.9.X.9.XX%
 D:%XXX.XXX.XXX.XXX.XXX.XXX.XXX.XXX.XXX.XXX%
@@ -2484,6 +2484,7 @@ D:%XX#.XX#.XX#.XX#.XX#.XX#.XX#.XX#.XX#.#XX%
 D:%X8XXX8XXX8XXX8XXX8XXX8XXX8XXX8XXX8XXX8X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 # *Greater Vaults* Almost impossible to generate, require #Zangband,
 # with the Pattern enabled. Not sure which version first had Pattern vaults,

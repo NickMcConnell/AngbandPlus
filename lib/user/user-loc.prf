@@ -42,3 +42,10 @@ W:Mirror:keymap action:e:e
 
 #Window 'Recall'
 W:Recall:help:a:a
+
+
+# Initial stat dump
+
+D:Male:Human:Adventurer:1:17:10:11:10:17:11:Adwoedan
+D:Male:Human:Ranger:1:17:4:11:16:17:9:Salind
+D:Male:Elf:Tourist:1:4:3:3:3:3:3:Anorfiwen

@@ -142,8 +142,13 @@ static void use_stairs(cptr dir, bool deeper, int start)
 	}
 	else if (!dun_level)
 	{
-		cur_dungeon = wild_grid[wildy][wildx].dungeon;
-		p_ptr->max_dlv = 1;
+                /* RM: Only allow reset if entering a different dungeon.  */
+                if (cur_dungeon != wild_grid[wildy][wildx].dungeon)
+                {
+                        /* Reset recall depth on entering a new dungeon. */
+    	                cur_dungeon = wild_grid[wildy][wildx].dungeon;
+                        p_ptr->max_dlv = 1;
+                }
 		msg_format("You enter %s",dun_name+dun_defs[cur_dungeon].name);
 	}
 	else
@@ -152,7 +157,7 @@ static void use_stairs(cptr dir, bool deeper, int start)
 	}
 
 	/* Never go very far at shallow levels. */
-	if (levels > dun_level) levels = 1;
+	if (levels > dun_level/2+1) levels = 1;
 
 	/* The above already forces the action to be legal. */
 	if (!deeper)
@@ -636,14 +641,25 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 			flag = TRUE;
 		}
 
+
 		/* Failure -- Keep trying */
-		else
+		else if ((i > 4) && (randint(i) > 4))
 		{
 			/* We may continue repeating */
 			more = TRUE;
 			if (flush_failure) flush();
 			msg_print("You failed to pick the lock.");
 		}
+
+
+	        /* Failure -- Set off the trap */
+	        else
+	        {
+		        msg_print("You set off a trap!");
+		        chest_trap(y, x, o_idx);
+	        }
+
+
 	}
 
 	/* Allowed to open */
@@ -1046,7 +1062,7 @@ static const wall_message_type wall_message[WMSG_MAX] =
 	{"You hack away at the %s.", "You leave no mark on the %s.", "You have chopped down the %s."},
 	{"You empty out the %s.", "The %s fills up your tunnel as quickly as you dig!", "You have removed the %s."},
 	{"You tunnel into the %s.", "You make no impression on the %s.", "You have finished the tunnel."},
-	{"You tunnel into the %s.", "You make no impression on the %s.", ""},
+	{"You tunnel into the %s.", "You make no impression on the %s.", "You have found something!"},
 	{"You dig in the %s.", "You make no impression on the %s.", "You have removed the %s."},
 };
 
@@ -1120,8 +1136,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		/* Success */
 	else
 	{
-		bool found = FALSE;
-
 		/* Actually tunnel through wall. */
 		twall(y, x);
 
@@ -1134,7 +1148,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			case WALL_GOLD:
 			{
 				place_gold(y,x, FOUND_DIG, c_ptr->feat);
-				found = TRUE;
 				break;
 			}
 			case WALL_OBJ:
@@ -1144,11 +1157,11 @@ static bool do_cmd_tunnel_aux(int y, int x)
 				place_object(y, x, FALSE, FALSE, FOUND_DIG, c_ptr->feat);
 
 				/* Observe new object */
-				if (player_can_see_bold(y, x)) found = TRUE;
+				if (player_can_see_bold(y, x)) 
+                    msg_print("You have found something!");
 				break;
 			}
 		}
-		if (found) msg_print("You have found something!");
 	}
 
 	/* Result */
@@ -1241,6 +1254,12 @@ static bool easy_open_door(int y, int x)
 	int i, j;
 
 	cave_type *c_ptr = &cave[y][x];
+
+        /* RM: Do not enter function if easy_open is off. */
+        if (!easy_open)
+        {
+            return FALSE;
+        }
 
 	/* Must be a closed door */
 	if (!((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_DOOR_TAIL)))
@@ -2075,6 +2094,10 @@ static void carry(int pickup)
 
 			/* Delete the gold */
 			delete_dun_object(o_ptr);
+
+                        /* Encourage further skill checks... */
+                        if (object_skill_count) object_skill_count--;
+
 		}
 
 		/* gold_only cancels the collection of objects, but gold is picked up
@@ -2090,7 +2113,9 @@ static void carry(int pickup)
 			if (~o_ptr->ident & IDENT_TOUCHED)
 			{
 				/* Allow further skill checks. */
-				object_skill_count = 0;
+				/* object_skill_count = 0; */
+                /* RM: Allow experience gain, but not too quickly.  ... */
+                if (object_skill_count>0) object_skill_count = object_skill_count / 2 - 1;
 
 				/* Only do this once per item. */
 				object_touch(o_ptr);
@@ -2991,8 +3016,8 @@ static void move_player(int y, int x, int do_pickup)
 				msg_print("There is a tree blocking your way.");
 				mark_spot(y, x);
 				lite_spot(y,x);
-			/* Assume that the player didn't really want to do that. */
-						if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
+			        /* Assume that the player didn't really want to do that. */
+				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 					energy_use = 0;
 			}
 
@@ -3002,8 +3027,8 @@ static void move_player(int y, int x, int do_pickup)
 				msg_print("You cannot swim.");
 				mark_spot(y, x);
 				lite_spot(y,x);
-			/* Assume that the player didn't really want to do that. */
-						if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
+			        /* Assume that the player didn't really want to do that. */
+				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 					energy_use = 0;
 			}
 
@@ -3056,14 +3081,13 @@ static void move_player(int y, int x, int do_pickup)
 					return;
 				}
 
-#else /* ALLOW_EASY_OPEN -- TNB */
+#endif /* ALLOW_EASY_OPEN -- TNB */
 
-					msg_print("There is a closed door blocking your way.");
+				msg_print("There is a closed door blocking your way.");
 
-					if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
+				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 						energy_use = 0;
 
-#endif /* ALLOW_EASY_OPEN -- TNB */
 			}
 
 			/* Wall (or secret door) */
@@ -3901,6 +3925,8 @@ static void run_step(int dir)
 	/* Keep fighting */
 	else if (ignm_idx)
 	{
+                /* RM:Is this reachable anymore? */
+
 		/* If the expected monster isn't seen to be there, stop running. */
 		if ((cave[py+ddy[find_current]][px+ddx[find_current]].m_idx != ignm_idx)
 			|| !(m_list[ignm_idx].r_idx) || !(m_list[ignm_idx].ml))
@@ -3939,6 +3965,22 @@ static void run_step(int dir)
 	move_player(py + ddy[find_current], px + ddx[find_current], always_pickup);
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
+
+        /* RM: Prevent a message from disappearing if a monter is somehow killed. */
+	if (ignm_idx)
+	{
+		/* If the expected monster isn't seen to be there, stop running. */
+		if ((cave[py+ddy[find_current]][px+ddx[find_current]].m_idx != ignm_idx)
+			|| !(m_list[ignm_idx].r_idx) || !(m_list[ignm_idx].ml))
+		{
+			/* Disturb */
+			disturb(0);
+
+			/* Done */
+			return;
+		}
+	}
+
 }
 
 

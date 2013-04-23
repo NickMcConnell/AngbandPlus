@@ -759,7 +759,7 @@ static void roff_aux(int r_idx)
 	/* Collect inate attacks */
 	vn = 0;
 	if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-	if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
+	if (flags4 & (RF4_BOULDER)) vp[vn++] = "hurl a boulder";
 	if (flags4 & (RF4_BA_SHARD))      vp[vn++] = "produce shard balls";
 	if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire an arrow (1d6)";
 	if (flags4 & (RF4_ARROW_2)) vp[vn++] = "fire arrows (3d6)";
@@ -886,11 +886,11 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_BLINK)) vp[vn++] = "blink-self";
 	if (flags6 & (RF6_TPORT)) vp[vn++] = "teleport-self";
 	if (flags6 & (RF6_XXX3)) vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX4)) vp[vn++] = "do something";
+	if (flags6 & (RF6_S_ANIMAL)) vp[vn++] = "summon animals";
 	if (flags6 & (RF6_TELE_TO)) vp[vn++] = "teleport to";
 	if (flags6 & (RF6_TELE_AWAY)) vp[vn++] = "teleport away";
 	if (flags6 & (RF6_TELE_LEVEL)) vp[vn++] = "teleport level";
-	if (flags6 & (RF6_XXX5)) vp[vn++] = "do something";
+	/* if (flags6 & (RF6_XXX5)) vp[vn++] = "do something"; */ 
 	if (flags6 & (RF6_DARKNESS)) vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS)) vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET)) vp[vn++] = "cause amnesia";
@@ -901,13 +901,14 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_SPIDER)) vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND)) vp[vn++] = "summon hounds";
 	if (flags6 & (RF6_S_HYDRA)) vp[vn++] = "summon hydras";
-		if (flags6 & (RF6_S_IB)) vp[vn++] = "summon beings of Ib";
+	if (flags6 & (RF6_S_IB)) vp[vn++] = "summon beings of Ib";
 	if (flags6 & (RF6_S_CTHULOID)) vp[vn++] = "summon a Cthuloid entity";
 	if (flags6 & (RF6_S_DEMON)) vp[vn++] = "summon a demon";
 	if (flags6 & (RF6_S_UNDEAD)) vp[vn++] = "summon an undead";
 	if (flags6 & (RF6_S_DRAGON)) vp[vn++] = "summon a dragon";
 	if (flags6 & (RF6_S_HI_UNDEAD)) vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON)) vp[vn++] = "summon Ancient Dragons";
+	/*if (flags6 & (RF6_S_HI_DEMON))  vp[vn++] = "summon Greater Demons"; */
 	if (flags6 & (RF6_S_REAVER))     vp[vn++] = "summon Black Reavers";
 	if (flags6 & (RF6_S_GOO))        vp[vn++] = "summon Great Old Ones";
 	if (flags6 & (RF6_S_UNIQUE)) vp[vn++] = "summon Unique Monsters";

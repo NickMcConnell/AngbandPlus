@@ -280,6 +280,7 @@ bool spoil_base; /* Know complete info about base items */
 bool spoil_stat; /* Know the significance of stat values */
 bool spoil_dam; /* Know the damage done by a melee weapon */
 bool spoil_flag; /* Know the effects of various flags */
+bool spoil_skll; /* Shows an additional digit in Skill screen */
 
 /* Cheating options */
 

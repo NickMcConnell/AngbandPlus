@@ -2117,6 +2117,8 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		}
 
 		case OBJ_SCROLL_LIGHT+PO_K_IDX:
+   		case OBJ_STAFF_LIGHT+PO_K_IDX:
+                case OBJ_ROD_ILLUMINATION+PO_K_IDX:
 		{
 			if (lite_area(damroll(2, 8), 2)) (*ident) = TRUE;
 			return SUCCESS;
@@ -2403,6 +2405,8 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 			(*ident) = TRUE;
 			return SUCCESS;
 		}
+
+
 
 		case OBJ_STAFF_TREASURE_LOCATION+PO_K_IDX:
 		{
@@ -3786,25 +3790,25 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		}
 		case SP_LIGHTNING_BOLT:
 		{
-					if (!dir) return POWER_ERROR_NO_SUCH_DIR;
-					fire_bolt_or_beam(plev-10, GF_ELEC, dir,
-								damroll(3+((plev-5)/4), 8));
+			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
+			fire_bolt_or_beam(plev-10, GF_ELEC, dir,
+				damroll(3+((plev-5)/4), 8));
 			return SUCCESS;
 		}
 		case SP_NATURE_AWARENESS:
 		{
-				map_area();
-				(void)detect_traps();
-				(void)detect_doors();
-				(void)detect_stairs();
-				(void)detect_monsters_normal();
+			map_area();
+			(void)detect_traps();
+			(void)detect_doors();
+			(void)detect_stairs();
+			(void)detect_monsters_normal();
 			return SUCCESS;
 		}
 		case SP_FROST_BOLT:
 		{
-				if (!dir) return POWER_ERROR_NO_SUCH_DIR;
-				fire_bolt_or_beam(plev-10, GF_COLD, dir,
-					damroll(5+((plev-5)/4), 8));
+			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
+			fire_bolt_or_beam(plev-10, GF_COLD, dir,
+				damroll(5+((plev-5)/4), 8));
 			return SUCCESS;
 		}
 		case SP_RAY_OF_SUNLIGHT:
@@ -4050,9 +4054,9 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 
 		case SP_MAGIC_MISSILE:
 		{
-				if (!dir) return POWER_ERROR_NO_SUCH_DIR;
-				fire_bolt_or_beam(plev-10, GF_MISSILE, dir,
-							damroll(3 + ((plev - 1) / 5), 4));
+			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
+			fire_bolt_or_beam(plev-10, GF_MISSILE, dir,
+				damroll(3 + ((plev - 1) / 5), 4));
 			return SUCCESS;
 		}
 		case SP_TOUCH_OF_CONFUSION:
@@ -4091,62 +4095,59 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		}
 		case SP_WONDER:
 		{
+        		/* This spell should become more useful (more
+			controlled) as the player gains experience levels.
+			Thus, add 1/5 of the player's level to the die roll.
+			This eliminates the worst effects later on, while
+			keeping the results quite random.  It also allows
+			some potent effects only at high level. */
+
+			int die = randint(100) + plev / 5;
+
+			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
+			if (die > 100)
+				msg_print ("You feel a surge of power!");
+			if (die < 8) fire_bolt(GF_OLD_CLONE, dir, 0);
+			else if (die < 14) fire_bolt(GF_OLD_SPEED, dir, plev);
+			else if (die < 26) fire_bolt(GF_OLD_HEAL, dir, plev);
+			else if (die < 31) fire_bolt(GF_OLD_POLY, dir, plev);
+			else if (die < 36)
+				fire_bolt_or_beam (plev - 10, GF_MISSILE, dir,
+				      damroll(3 + ((plev - 1) / 5), 4));
+			else if (die < 41) fire_bolt(GF_OLD_CONF, dir, plev);
+			else if (die < 46) fire_ball (GF_POIS, dir, 20 + (plev / 2), 3);
+			else if (die < 51) lite_line (dir);
+			else if (die < 56)
+				fire_bolt_or_beam (plev - 10, GF_ELEC, dir,
+				damroll(3+((plev-5)/4), 8));
+			else if (die < 61)
+				fire_bolt_or_beam (plev - 10, GF_COLD, dir,
+				damroll(5+((plev-5)/4), 8));
+			else if (die < 66)
+				fire_bolt_or_beam (plev, GF_ACID, dir,
+				damroll(6+((plev-5)/4), 8));
+			else if (die < 71)
+				fire_bolt_or_beam (plev, GF_FIRE, dir,
+				damroll(8+((plev-5)/4), 8));
+			else if (die < 76) fire_bolt(GF_OLD_DRAIN, dir, 75);
+			else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
+			else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
+			else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev, 3);
+			else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev, 3);
+			else if (die < 101) fire_bolt(GF_OLD_DRAIN, dir, 100 + plev);
+			else if (die < 104) earthquake(py, px, 12);
+			else if (die < 106) destroy_area(py, px, 15, TRUE);
+			else if (die < 108) genocide(TRUE);
+			else if (die < 110) dispel_monsters(120);
+			else /* RARE */
 			{
-			/* This spell should become more useful (more
-				controlled) as the player gains experience levels.
-				Thus, add 1/5 of the player's level to the die roll.
-				This eliminates the worst effects later on, while
-				keeping the results quite random.  It also allows
-				some potent effects only at high level. */
-
-				int die = randint(100) + plev / 5;
-
-				if (!dir) return POWER_ERROR_NO_SUCH_DIR;
-				if (die > 100)
-					msg_print ("You feel a surge of power!");
-				if (die < 8) fire_bolt(GF_OLD_CLONE, dir, 0);
-				else if (die < 14) fire_bolt(GF_OLD_SPEED, dir, plev);
-				else if (die < 26) fire_bolt(GF_OLD_HEAL, dir, plev);
-				else if (die < 31) fire_bolt(GF_OLD_POLY, dir, plev);
-				else if (die < 36)
-					fire_bolt_or_beam (plev - 10,
-					GF_MISSILE, dir,
-					damroll(3 + ((plev - 1) / 5), 4));
-				else if (die < 41) fire_bolt(GF_OLD_CONF, dir, plev);
-				else if (die < 46) fire_ball (GF_POIS, dir, 20 + (plev / 2), 3);
-				else if (die < 51) lite_line (dir);
-				else if (die < 56)
-					fire_bolt_or_beam (plev - 10, GF_ELEC, dir,
-					damroll(3+((plev-5)/4), 8));
-				else if (die < 61)
-					fire_bolt_or_beam (plev - 10, GF_COLD, dir,
-					damroll(5+((plev-5)/4), 8));
-				else if (die < 66)
-					fire_bolt_or_beam (plev, GF_ACID, dir,
-					damroll(6+((plev-5)/4), 8));
-				else if (die < 71)
-					fire_bolt_or_beam (plev, GF_FIRE, dir,
-					damroll(8+((plev-5)/4), 8));
-				else if (die < 76) fire_bolt(GF_OLD_DRAIN, dir, 75);
-				else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
-				else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
-				else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev, 3);
-				else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev, 3);
-				else if (die < 101) fire_bolt(GF_OLD_DRAIN, dir, 100 + plev);
-				else if (die < 104) earthquake(py, px, 12);
-				else if (die < 106) destroy_area(py, px, 15, TRUE);
-				else if (die < 108) genocide(TRUE);
-				else if (die < 110) dispel_monsters(120);
-				else /* RARE */
-				{
-					dispel_monsters (150);
-					slow_monsters(plev);
-					sleep_monsters(plev);
-					hp_player (300);
-				}
+				dispel_monsters (150);
+				slow_monsters(plev);
+				sleep_monsters(plev);
+				hp_player (300);
+			}
 			return SUCCESS;
 		}
-			}
 		case SP_CHAOS_BOLT:
 		{
 			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
@@ -4156,13 +4157,13 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		}
 		case SP_SONIC_BOOM:
 		{
-					project(0, 2+plev/10, py, px,
+			project(0, 2+plev/10, py, px,
 				45+plev, GF_SOUND, PROJECT_KILL|PROJECT_ITEM);
 			return SUCCESS;
 		}
 		case SP_DOOM_BOLT:
 		{
-				if (!dir) return POWER_ERROR_NO_SUCH_DIR;
+			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
 				fire_beam(GF_MANA, dir, damroll(11+((plev-5)/4), 8));
 			return SUCCESS;
 		}
@@ -4290,19 +4291,17 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 
 		case SP_MIND_BLAST:
 		{
-				if (!dir) return POWER_ERROR_NO_SUCH_DIR;
-				fire_bolt_or_beam(plev-10, GF_PSI, dir,
-								damroll(3 + ((plev - 1) / 5), 3));
+			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
+			fire_bolt_or_beam(plev-10, GF_PSI, dir,
+				damroll(3 + ((plev - 1) / 5), 3));
 			return SUCCESS;
 		}
 		case SP_TAROT_DRAW:
 		{
+			/* A limited power 'wonder' spell */
 
-			{
-				/* A limited power 'wonder' spell */
-
-				int die = die = (randint(110)) + plev / 5;
-				/* get a level bonus */
+			int die = die = (randint(110)) + plev / 5;
+			/* get a level bonus */
 
 			msg_print("You shuffle your Tarot deck and draw a card...");
 
@@ -4435,9 +4434,8 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 				msg_print("It's the World.");
 					msg_print("You feel more experienced.");
 					gain_skills(100);
-				}
-
 			}
+
 			return SUCCESS;
 		}
 		case SP_RESET_RECALL:
@@ -4737,79 +4735,77 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		}
 		case SP_INVOKE_SPIRITS:
 		{
-			{
-				int die = randint(100) + plev / 5;
-				if (!dir) return POWER_ERROR_NO_SUCH_DIR;
+			int die = randint(100) + plev / 5;
+			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
 
-				msg_print("You call on the power of the dead...");
-				if (die > 100)
-				msg_print ("You feel a surge of eldritch force!");
+			msg_print("You call on the power of the dead...");
+       			if (die > 100)
+        			msg_print ("You feel a surge of eldritch force!");
 
-				if (die < 8) {
-				msg_print("Oh no! Mouldering forms rise from the earth around you!");
-				(void) summon_specific(py, px, (dun_depth), SUMMON_UNDEAD);
-				} else if (die < 14) {
-				msg_print("An unnamable evil brushes against your mind...");
-				add_flag(TIMED_AFRAID, randint(4) + 4);
-				} else if (die < 26) {
-				msg_print("Your head is invaded by a horde of gibbering spectral voices...");
-				add_flag(TIMED_CONFUSED, randint(4) + 4);
-				} else if (die < 31) {
-				fire_bolt(GF_OLD_POLY, dir,plev);
-				} else if (die < 36) {
-				fire_bolt_or_beam(plev - 10,
-							GF_MISSILE, dir,
-							damroll(3 + ((plev - 1) / 5), 4));
-				} else if (die < 41) {
-				fire_bolt(GF_OLD_CONF, dir, plev);
-				} else if (die < 46) {
-				fire_ball (GF_POIS, dir, 20 + (plev / 2), 3);
-				} else if (die < 51) {
-				lite_line(dir);
-				} else if (die < 56) {
-				fire_bolt_or_beam(plev - 10, GF_ELEC, dir,
-							damroll(3+((plev-5)/4), 8));
-				} else if (die < 61) {
-				fire_bolt_or_beam(plev - 10, GF_COLD, dir,
-							damroll(5+((plev-5)/4), 8));
-				} else if (die < 66) {
-				fire_bolt_or_beam(plev, GF_ACID, dir,
-							damroll(6+((plev-5)/4), 8));
-				} else if (die < 71) {
-				fire_bolt_or_beam(plev, GF_FIRE, dir,
-							damroll(8+((plev-5)/4), 8));
-				} else if (die < 76) {
-				fire_bolt(GF_OLD_DRAIN, dir, 75);
-				} else if (die < 81) {
-				fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
-				} else if (die < 86) {
-				fire_ball(GF_ACID, dir, 40 + plev, 2);
-				} else if (die < 91) {
-				fire_ball(GF_ICE, dir, 70 + plev, 3);
-				} else if (die < 96) {
-				fire_ball(GF_FIRE, dir, 80 + plev, 3);
-				} else if (die < 101) {
-				fire_bolt(GF_OLD_DRAIN, dir, 100 + plev);
-				} else if (die < 104) {
-				earthquake(py, px, 12);
-				} else if (die < 106) {
-				destroy_area(py, px, 15, TRUE);
-				} else if (die < 108) {
-				genocide(TRUE);
-				} else if (die < 110) {
-				dispel_monsters(120);
-				} else { /* RARE */
-				dispel_monsters (150);
-				slow_monsters(plev);
-				sleep_monsters(plev);
-				hp_player (300);
-				}
+			if (die < 8) {
+	        		msg_print("Oh no! Mouldering forms rise from the earth around you!");
+		        	(void) summon_specific(py, px, (dun_depth), SUMMON_UNDEAD);
+			} else if (die < 14) {
+			        msg_print("An unnamable evil brushes against your mind...");
+			        add_flag(TIMED_AFRAID, randint(4) + 4);
+			} else if (die < 26) {
+			        msg_print("Your head is invaded by a horde of gibbering spectral voices...");
+			        add_flag(TIMED_CONFUSED, randint(4) + 4);
+			} else if (die < 31) {
+			        fire_bolt(GF_OLD_POLY, dir,plev);
+			} else if (die < 36) {
+			        fire_bolt_or_beam(plev - 10,
+				        GF_MISSILE, dir,
+					damroll(3 + ((plev - 1) / 5), 4));
+			} else if (die < 41) {
+			        fire_bolt(GF_OLD_CONF, dir, plev);
+			} else if (die < 46) {
+			        fire_ball (GF_POIS, dir, 20 + (plev / 2), 3);
+			} else if (die < 51) {
+			        lite_line(dir);
+			} else if (die < 56) {
+			        fire_bolt_or_beam(plev - 10, GF_ELEC, dir,
+					damroll(3+((plev-5)/4), 8));
+			} else if (die < 61) {
+			        fire_bolt_or_beam(plev - 10, GF_COLD, dir,
+					damroll(5+((plev-5)/4), 8));
+			} else if (die < 66) {
+			        fire_bolt_or_beam(plev, GF_ACID, dir,
+					damroll(6+((plev-5)/4), 8));
+			} else if (die < 71) {
+			        fire_bolt_or_beam(plev, GF_FIRE, dir,
+					damroll(8+((plev-5)/4), 8));
+			} else if (die < 76) {
+			        fire_bolt(GF_OLD_DRAIN, dir, 75);
+			} else if (die < 81) {
+			        fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
+			} else if (die < 86) {
+			        fire_ball(GF_ACID, dir, 40 + plev, 2);
+			} else if (die < 91) {
+			        fire_ball(GF_ICE, dir, 70 + plev, 3);
+			} else if (die < 96) {
+			        fire_ball(GF_FIRE, dir, 80 + plev, 3);
+			} else if (die < 101) {
+			        fire_bolt(GF_OLD_DRAIN, dir, 100 + plev);
+			} else if (die < 104) {
+			        earthquake(py, px, 12);
+			} else if (die < 106) {
+			        destroy_area(py, px, 15, TRUE);
+			} else if (die < 108) {
+			        genocide(TRUE);
+			} else if (die < 110) {
+			        dispel_monsters(120);
+			} else { /* RARE */
+			        dispel_monsters (150);
+			        slow_monsters(plev);
+                                sleep_monsters(plev);
+			        hp_player (300);
+			}
 
-				if (die < 31)
-				msg_print("Sepulchral voices chuckle. 'Soon you will join us, mortal.'");
+			if (die < 31)
+			        msg_print("Sepulchral voices chuckle. 'Soon you will join us, mortal.'");
 			return SUCCESS;
 		}
-			}
 		case SP_DARK_BOLT:
 		{
 			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
@@ -4920,14 +4916,14 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		}
 		case SP_WRAITHFORM:
 		{
-		add_flag(TIMED_WRAITH, randint(plev/2) + (plev/2));
+        		add_flag(TIMED_WRAITH, randint(plev/2) + (plev/2));
 			return SUCCESS;
 		}
 		case SP_ZAP:
 		{
-				if (!dir) return POWER_ERROR_NO_SUCH_DIR;
-				fire_bolt_or_beam(plev-10, GF_ELEC, dir,
-								damroll(3 + ((plev - 1) / 5), 3));
+			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
+			fire_bolt_or_beam(plev-10, GF_ELEC, dir,
+				damroll(3 + ((plev - 1) / 5), 3));
 			return SUCCESS;
 		}
 		case SP_WIZARD_LOCK:
@@ -4981,8 +4977,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 				case 3: i = GF_COLD; break;
 				default: i = GF_ACID;
 			}
-			fire_ball(i, dir,
-					75 + (plev), 2);
+			fire_ball(i, dir, 75 + (plev), 2);
 			return SUCCESS;
 		}
 		case SP_DETECTION:
@@ -5085,8 +5080,8 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		{
 			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
 			msg_print("You cast a magic missile.");
-			fire_bolt_or_beam(10, GF_MISSILE, dir,
-			damroll(3 + ((plev - 1) / 5), 4));
+			fire_bolt_or_beam(plev-10, GF_MISSILE, dir,
+				damroll(3 + ((plev - 1) / 5), 4));
 			return SUCCESS;
 		}
 		case RP_DRACONIAN:

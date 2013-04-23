@@ -882,7 +882,7 @@ struct magic_type
 
 	byte min; /* Required skill (to learn) */
 	byte mana; /* Required mana (to cast) */
-	byte fail; /* Minimum chance of failure */
+	byte fail; /* Chance of failure at minimum skill */
 	byte flags; /* (Variable) MAGIC_* flags. */
 
 	byte skill1; /* School of spell */
@@ -1301,7 +1301,7 @@ struct martial_arts
 {
 	cptr    desc;    /* A verbose attack description */
 	int     min_level;  /* Minimum skill to use */
-	int     chance;     /* Chance of 'success' */
+	int     chance;     /* Chance of 'success' - rolling under the value indicates the attack won't occurr. */
 	int     dd;        /* Damage dice */
 	int     ds;        /* Damage sides */
 	int     effect;     /* Special effects */

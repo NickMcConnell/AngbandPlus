@@ -1747,7 +1747,7 @@ static s32b critical_average(int weight, int plus, int dam)
  */
 static s32b average_ma_damage(void)
 {
-	int i, j, k, t, skill = skill_set[SKILL_MA].value/2*2;
+	int i, j, k, t, skill = skill_set[SKILL_MA].value;
 	s32b c[MAX_MA], d[MAX_MA], tdam, denom;
 	for (t = 0; t < MAX_MA; t++)
 	{
@@ -2518,7 +2518,11 @@ static void display_player_skills_aux(int skill)
 		}
 	}
 
-	sprintf(buf, "%-17s%d%%", name, sk_ptr->value);
+
+    if (spoil_skll)
+		sprintf(buf, "%-17s%d.%d%%", name, sk_ptr->value, MIN((sk_ptr->experience *10)/(sk_ptr->exp_to_raise * rp_ptr->r_exp),9));
+	else
+		sprintf(buf, "%-17s%d%%", name, sk_ptr->value); 
 
 	/* This should always be true. */
 	if (strchr(buf, ' '))
@@ -2529,7 +2533,7 @@ static void display_player_skills_aux(int skill)
 	}
 
 	/* Print at the desired position. */
-	c_put_str(skill_colour(skill), buf, sk_ptr->y, sk_ptr->x);
+	c_put_str(skill_colour(skill), buf, sk_ptr->y, sk_ptr->x+(spoil_skll ? 0 : 1));
 }
 
 /*
@@ -3971,7 +3975,7 @@ static int find_text(FILE *fff, hyperlink_type *h_ptr, int minline)
 {
 	int y;
 
-	/* This are trivial without a search string. */
+	/* Nothing to do */
 	if (!h_ptr->finder[0]) return minline;
 
 	/* Start at the beginning. */
@@ -3994,6 +3998,36 @@ static int find_text(FILE *fff, hyperlink_type *h_ptr, int minline)
 
 	/* No match, so do nothing. */
 	return minline;
+}
+
+/*
+ * HACK: Find the specified text in a file before a point, return the line
+ * at which it occurs.  
+ */
+static int find_text_reverse (FILE *fff, hyperlink_type *h_ptr, int maxline)
+{
+	int y,z;
+    int line;
+
+	/* Nothing to do. */
+	if (!h_ptr->finder[0]) return maxline;
+
+	/* Start at the beginning. */
+	rewind(fff);
+
+
+	/* Find and skip the indicated line. */
+	for (y = 0, z=maxline; y < maxline; )
+	{
+        if (my_fgets(fff, h_ptr->rbuf, 1024)) return z;
+
+		/* Skip a line */
+		if (strstr(h_ptr->rbuf, h_ptr->finder)) z=y;
+		if (!fake_line(h_ptr->rbuf)) y++;
+	}
+
+    /* Return the match, if any. */
+    return z;
 }
 
 /*
@@ -4437,14 +4471,29 @@ static char show_file_aux(cptr name, cptr what, cptr link)
 			prt("Find: ", hgt - 1, 0);
 			if (askfor_aux(h_ptr->finder, 80))
 			{
-				/* Give repeated searching the expected result. */
-				if (!strcmp(h_ptr->shower, h_ptr->finder)) line++;
+                /* HACK: Reverse the search order for Message Recall. XXX XXX XXX XXX XXX XXX */
+                if (what && !strcmp(what, "Message Recall"))
+                {
+                    /* Give repeated searching the expected result. */
+				    //if (!strcmp(h_ptr->shower, h_ptr->finder)) line;
 
-				/* Find it. */
-				line = find_text(fff, h_ptr, line)-1;
+				    /* Find it. */
+				    line = find_text_reverse(fff, h_ptr, line);
 
-				/* Show it */
-				strcpy(h_ptr->shower, h_ptr->finder);
+				    /* Show it */
+				    strcpy(h_ptr->shower, h_ptr->finder);
+                }
+                else
+                {
+                    /* Give repeated searching the expected result. */
+				    if (!strcmp(h_ptr->shower, h_ptr->finder)) line++;
+
+				    /* Find it. */
+				    line = find_text(fff, h_ptr, line)-1;
+
+				    /* Show it */
+				    strcpy(h_ptr->shower, h_ptr->finder);
+                }
 			}
 		}
 

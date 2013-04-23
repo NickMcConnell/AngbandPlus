@@ -934,8 +934,9 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 
 	/* Identified artefacts, and all identified objects if
 	 * show_flavors is unset, do not include a FLAVOUR string. */
-	if ((~reject & CI_K_IDX) && (plain_descriptions || in_shop ||
-		(o_ptr->ident & IDENT_STOREB)))
+	if ((~reject & CI_K_IDX) && 
+        ( (plain_descriptions && (object_aware_p(o_ptr) || (o_ptr->ident & (IDENT_KNOWN))) ) || in_shop ||
+		(o_ptr->ident & (IDENT_STOREB) )))
 		reject |= 1 << CI_FLAVOUR;
 
 	/* Singular objects take no plural. */
@@ -3278,7 +3279,7 @@ bool identify_fully_aux(object_ctype *o_ptr, bool dump)
 	/* Clear any allocated strings. */
 	identify_fully_clear(info);
 
-	return TRUE;
+	return TRUE;    
 }
 
 
@@ -4509,7 +4510,7 @@ static object_type *get_item_aux(errr *err, cptr pmt, bool equip, bool inven,
 
 				if (!o_ptr)
 				{
-					bell("No such tag");
+ 					bell("No such tag");
 					break;
 				}
 

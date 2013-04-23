@@ -330,7 +330,7 @@ static void do_cmd_wiz_change_aux(void)
 		move_cursor(sk_ptr->y, sk_ptr->x+17);
 
 		/* Default */
-		sprintf(tmp_val, "%d%%", (int)(skills[i]->max_value));
+		sprintf(tmp_val, "%d%%   ", (int)(skills[i]->max_value));
 
 		/* Query */
 		if (!askfor_aux(tmp_val, 3)) return;

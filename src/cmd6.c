@@ -238,7 +238,9 @@ void do_cmd_quaff_potion(object_type *o_ptr)
 
 
 	/* Potions can feed the player (should this be altered for skeletons?) */
-	(void)add_flag(TIMED_FOOD, o_ptr->pval);
+    /* RM: Yes.  Potions of Water, Apple Juice and Slime Mould Juice just provide nutrician. */
+	if (rp_ptr->eat != EAT_SKELETON)
+        (void)add_flag(TIMED_FOOD, o_ptr->pval);
 
 
 	/* Destroy a potion */

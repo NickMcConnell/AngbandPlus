@@ -3661,7 +3661,8 @@ void request_command(bool shopping)
 	}
 
 	/* Use the command */
-	if (!(cmd & 0xFF00)) command_cmd = cmd;
+    /* if (!(cmd & 0xFF00)) command_cmd = cmd; */
+    command_cmd = cmd; 
 
 	/* Remember the command. */
 	record_keymap(cmd);

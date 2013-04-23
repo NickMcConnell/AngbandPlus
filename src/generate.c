@@ -558,13 +558,25 @@ static void plasma_recursive(int x1, int y1, int x2, int y2,
 static int terrain_table[6][9] =
 {
 	{
+			FEAT_WATER,
+			FEAT_WATER,
+			FEAT_WATER,
+
+			FEAT_WATER,
+			FEAT_WATER,
+			FEAT_WATER,
+
+			FEAT_WATER,
+			FEAT_WATER,
+			FEAT_WATER,
+
+		    /*0, 0, 0,
 			0, 0, 0,
-			0, 0, 0,
-			0, 0, 0,
+			0, 0, 0,*/
 	},
 	{
 			FEAT_WATER,
-			FEAT_WATER,
+			FEAT_FLOOR,
 			FEAT_FLOOR,
 
 			FEAT_FLOOR,
@@ -746,7 +758,11 @@ static cptr terrain_gen(void)
 	{
 		for (x = 1; x < cur_wid-1; x++)
 		{
-			cave[y][x].feat = terrain_table[terrain[1][1]][cave[y][x].feat];
+			/* Hack - have the terrain slightly dependant on neighbouring tiles. */ 
+			/* cave[y][x].feat = terrain_table[terrain[1][1]][cave[y][x].feat];*/ 
+			/* cave[y][x].feat = terrain_table[terrain[randint(3)-1][randint(3)-1]][cave[y][x].feat];*/ 
+			/* cave[y][x].feat = terrain_table[terrain[y*3/cur_hgt][x*3/cur_wid]][cave[y][x].feat]; */ 
+			cave[y][x].feat = terrain_table[terrain[one_in(3)?y*3/cur_hgt:1][one_in(3)?x*3/cur_wid:1]][cave[y][x].feat]; 
 		}
 	}
 

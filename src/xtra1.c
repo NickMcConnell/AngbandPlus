@@ -301,7 +301,7 @@ static void prt_spirit(void)
 		}
 		else
 		{
-			*s += sprintf(*s, " $G%c", I2A(j++));
+			*s += sprintf(*s, " $G%c", toupper(I2A(j++)));
 		}
 	}
 	mc_put_lfmt(GET_YX(XY_LIFE_SPIRIT), "%s", life);
@@ -3611,7 +3611,7 @@ static void update_skill_maxima(void)
 static int object_skill_table[] =
 {
 	100, 100, 99, 97, 95, 92, 89, 85, 81, 76,
-	70, 65, 59, 52, 45, 38, 31, 23, 16, 8
+	70, 65, 59, 52, 45, 38, 31, 23, 16, 8, 0
 };
 
 /*
@@ -3620,11 +3620,29 @@ static int object_skill_table[] =
  */
 static bool PURE object_skill_fail(void)
 {
-	/* 0% chance. */
-	if (object_skill_count > (int)N_ELEMENTS(object_skill_table)) return TRUE;
+    int rank, factor;
+    int max = 2;
 
-	/* Use the table above. */
-	return !percent(object_skill_table[object_skill_count++]);
+    if (object_skill_count<0)
+    {
+        object_skill_count = 0;
+    }
+
+    rank = object_skill_count / max;
+    factor = object_skill_count % max;
+
+    /* Make skill advancement slightly harder */
+    if (rank < N_ELEMENTS (object_skill_table))
+        object_skill_count++;
+
+	/* 0% chance. */
+    /* RM: Fixed bug involving array overrun.  In addition, the formula below accesses
+       one element beyond the current failure rank, hence the '-1'. */
+	if (rank >= (int)N_ELEMENTS(object_skill_table)-1)
+       return TRUE;
+
+	/* Use the table above, interpolating as necessairy. */
+	return !percent((object_skill_table[rank]*(max-factor)+object_skill_table[rank+1]*(factor))/max);
 }
 
 /* Test whether a skill can be tested on the current level */
@@ -3642,24 +3660,26 @@ void skill_exp(int index)
 	/* No experience is gained on the surface */
 	if (!dun_level) return;
 
-	if (cheat_skll)
-	{
-		msg_format("Check %s skill, values %d/%d, exp %d/%d.",
-			sk_ptr->name, sk_ptr->value, sk_ptr->base,
-			sk_ptr->experience, sk_ptr->exp_to_raise);
-	}
-
 	if (!skill_check_possible(sk_ptr))
 	{
-		if (cheat_skll)
-		{
-			msg_format("You are not tense enough to improve your %s skill.",
-				sk_ptr->name);
-		}
+		 if (cheat_skll)
+		 {
+            msg_format("Skill %s maxed: value %d/%d",
+			    sk_ptr->name, sk_ptr->value, dun_depth *3/2 + sk_ptr->base+2);
+			 /* 
+			   sk_ptr->experience, sk_ptr->exp_to_raise);
+		       msg_format("You are not tense enough to improve your %s skill.",
+		 	          sk_ptr->name); 
+			 */
+		 }
+         
 		return;
 	}
 
-	if (object_skill_fail())
+
+    /* Check of the player picked up objects recently. Does not apply to the first 
+       gain in a skill slot */
+	if (object_skill_fail() && (sk_ptr->experience>0 || sk_ptr->value>0))
 	{
 		if (cheat_skll)
 		{
@@ -3670,25 +3690,34 @@ void skill_exp(int index)
 	}
 
 	/* Debugging message */
+	//if (cheat_skll)
+	//{
+	//	msg_format("Skill check for %s.",sk_ptr->name);
+	//}
+
+	/* Previous formula meant a player with an expfact of 100 has a 1-1 mapping */
+	/* sk_ptr->experience += 100; */
+	sk_ptr->experience += 100-sk_ptr->value; 
 	if (cheat_skll)
 	{
-		msg_format("Skill check for %s.",sk_ptr->name);
+		msg_format("Skill %s, value %d/%d, exp %d/%d.",
+			sk_ptr->name, sk_ptr->value, dun_depth *3/2 + sk_ptr->base+2,
+			sk_ptr->experience, sk_ptr->exp_to_raise * rp_ptr->r_exp);
 	}
 
-	/* Means a player with an expfact of 100 has a 1-1 mapping */
-	sk_ptr->experience += 100; 
+
 
 	if(sk_ptr->experience >= sk_ptr->exp_to_raise * rp_ptr->r_exp)
 	{
 
 		/* Debugging message */
-		if (cheat_skll)
+		/* if (cheat_skll)
 		{
 			msg_format("%s tested.",sk_ptr->name);
-		}
+		} */
 
 		sk_ptr->experience-=sk_ptr->exp_to_raise * rp_ptr->r_exp;
-		if(((byte)rand_int(100)>=(sk_ptr->value)) && (sk_ptr->value < 100))
+		/* if(((byte)rand_int(100)>=(sk_ptr->value)) && (sk_ptr->value < 100)) */
 		{
 			bool more;
 			sk_ptr->value++;

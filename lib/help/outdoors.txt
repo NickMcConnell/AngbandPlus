@@ -49,7 +49,7 @@ The Beautiful City of Celephais:  Lacks a black market, but has all other shops,
 
 The Picturesque Town of Ulthar:  Also lacks a black market.  The sewers go down to 350', and have the Champion of Cats as a guardian.
 
-The Unwholesome City of Dyath-Leen:  Has no Temple, Alchemy Shop, or Magic Shop, but three black markets make it a great place to shop for players with lots of money.  The sewers go down to 450', and are populated as if they were 50' deeper than they are.
+The Unwholesome City of Dylath-Leen:  Has no Temple, Alchemy Shop, or Magic Shop, but three black markets make it a great place to shop for players with lots of money.  The sewers go down to 450', and are populated as if they were 50' deeper than they are.
 
 Kadath, Home of the Gods:  Well, the relatively mild gods of Earth, but they usually flee the approach of sufficiently strong mortals and call for the Outer Gods to protect them.  Kadath is actually a mountain, and has no shops.  It is crawling with Cthulhoid entities.  The dungeon goes down to 3750', act as if they were 2500' deeper, and are guarded by Nyarlathotep and Azathoth.  Wise adventurers avoid Kadath until they are tremendously strong.
 

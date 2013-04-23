@@ -4047,7 +4047,7 @@ void item_describe(object_ctype *o_ptr)
 		}
 	}
 
-	msg_format("You %s %v", verb, object_desc_f3, o_ptr, TRUE, 3);
+	msg_format("You %s %v.", verb, object_desc_f3, o_ptr, TRUE, 3);
 }
 
 /*

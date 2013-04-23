@@ -2230,7 +2230,7 @@ void process_command(void)
 	/* Parse the command */
 	switch (command_cmd)
 	{
-			/* Ignore */
+		/* Ignore */
 		case ESCAPE: case CMD_DEBUG+ESCAPE:
 		case ' ': case CMD_DEBUG+' ':
 		case '\r': case CMD_DEBUG+'\r':
@@ -2241,7 +2241,7 @@ void process_command(void)
 
 
 
-			/*** Inventory Commands ***/
+		/*** Inventory Commands ***/
 
 		/* Reveal all hidden objects. */
 		case KTRL('K'):
@@ -2250,7 +2250,7 @@ void process_command(void)
 			break;
 		}
 
-			/* Equipment list */
+		/* Equipment list */
 		case 'e':
 		{
 			do_cmd_inven(TRUE);
@@ -2275,9 +2275,9 @@ void process_command(void)
 		}
 
 
-			/*** Standard "Movement" Commands ***/
+		/*** Standard "Movement" Commands ***/
 
-			/* Alter a grid */
+		/* Alter a grid */
 		case '+':
 		{
 			do_cmd_alter();
@@ -3839,8 +3839,11 @@ static void place_roads(void)
  */
 static void create_character(void)
 {
-	/* The dungeon is not ready */
+	/* The dungeon is not ready */ 
 	character_dungeon = FALSE;
+
+    /* RM: Reset the object count. */
+    object_skill_count = 0;
 
 	/* Initialise stuff and add towns in. */
 	place_towns();
@@ -4106,6 +4109,13 @@ void play_game(bool new_game)
 
 			/* Forget died_from. */
 			if (!death) safe_free((vptr)died_from);
+
+            if (death)
+            {
+            	/* RM: No longer a winner - flag should be stripped here. */
+        		total_winner = FALSE; 
+
+            }
 		}
 
 		/* Handle "death" */

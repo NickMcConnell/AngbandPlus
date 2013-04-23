@@ -85,7 +85,7 @@
 
 # Version stamp (required)
 
-V:1.0.18
+V:1.0.19
 
 N:0:Celephais
 D:the Sewers under Celephais
@@ -107,7 +107,7 @@ D:the Sewers under Dylath Leen
 T:25000:the unwholesome city of Dylath-Leen
 S:GENERAL:ARMOURY:WEAPON:BLACK:BLACK:BLACK:HOME:LIBRARY:INN:HALL:PAWN
 I:2-10
-F:START
+#F:START
 
 N:3:Kadath
 D:the Catacombs under Kadath

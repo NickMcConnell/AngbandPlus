@@ -2666,6 +2666,12 @@ static bool summon_specific_okay(int summon_specific_type, int r_idx)
 			return !!strchr("LVW", r_ptr->gfx.dc);
 		}
 
+		case UNFLAG(SUMMON_ANIMAL):
+		{
+			return ((r_ptr->flags3 & (RF3_ANIMAL)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+		}
+
 		case UNFLAG(SUMMON_ANIMAL_RANGER):
 		{
 			return ((r_ptr->flags3 & (RF3_ANIMAL)) &&
@@ -2687,6 +2693,12 @@ static bool summon_specific_okay(int summon_specific_type, int r_idx)
 		{
 			return live_monster_p(r_ptr);
 		}
+
+		case UNFLAG(SUMMON_HI_DEMON):
+		{
+			return (r_ptr->gfx.dc == 'U');
+		}
+
 		case 0: /* No restrictions. */
 		{
 			return TRUE;

@@ -332,7 +332,7 @@ static flag_name info_flags[] =
 
 	{"SHRIEK", RF4, RF4_SHRIEK},
 /* {"XXX3X3", RF4, RF4_XXX2}, */
-/* {"XXX3X4", RF4, RF4_XXX3}, */
+	{"BOULDER", RF4, RF4_BOULDER}, 
 	{"BA_SHARD", RF4, RF4_BA_SHARD}, /* UNUSED */
 	{"ARROW_1", RF4, RF4_ARROW_1},
 	{"ARROW_2", RF4, RF4_ARROW_2},
@@ -401,11 +401,11 @@ static flag_name info_flags[] =
 	{"BLINK", RF6, RF6_BLINK},
 	{"TPORT", RF6, RF6_TPORT},
 /* {"XXX3X6", RF6, RF6_XXX3}, */
-/* {"XXX4X6", RF6, RF6_XXX4}, */
+	{"S_ANIMAL", RF6, RF6_S_ANIMAL},
 	{"TELE_TO", RF6, RF6_TELE_TO},
 	{"TELE_AWAY", RF6, RF6_TELE_AWAY},
 	{"TELE_LEVEL", RF6, RF6_TELE_LEVEL},
-/* {"XXX5X6", RF6, RF6_XXX5}, */
+/* {"S_HI_DEMON", RF6, RF6_S_HI_DEMON}, */
 	{"DARKNESS", RF6, RF6_DARKNESS},
 	{"TRAPS", RF6, RF6_TRAPS},
 	{"FORGET", RF6, RF6_FORGET},

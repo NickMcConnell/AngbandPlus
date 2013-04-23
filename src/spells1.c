@@ -548,6 +548,8 @@ static void set_p_hp(int new_hp)
  * XXX XXX XXX Hack -- this function allows the user to save (or quit)
  * the game when he dies, since the "You die." message is shown before
  * setting the player to "dead".
+ *
+ * Hack - modified code to make MON_CONCENTRATING_TOO_HARD ignore some effects. 
  */
 void take_hit(int damage, cptr hit_from, int monster)
 {
@@ -575,7 +577,9 @@ void take_hit(int damage, cptr hit_from, int monster)
 		}
 		else
 		{
-			return;
+            /* RM: Racial skill abuse fix... */
+            if (monster != MON_CONCENTRATING_TOO_HARD)
+			    return;
 		}
 	}
 
@@ -612,6 +616,9 @@ void take_hit(int damage, cptr hit_from, int monster)
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
+		/* Flush input */
+        	flush();
+
 		/* Sound */
 		sound(SOUND_DEATH);
 		/* Don't give confusing death message if player has ritual */
@@ -630,7 +637,8 @@ void take_hit(int damage, cptr hit_from, int monster)
 		}
 
 		/* No longer a winner (can this make winning impossible?) */
-		total_winner = FALSE;
+        /* RM: It will, especially with the ritual of Recall. */
+		/* total_winner = FALSE; */
 
 		/* Note death */
 		death = TRUE;
@@ -672,7 +680,7 @@ void take_hit(int damage, cptr hit_from, int monster)
 		msg_print("$r*** LOW HITPOINT WARNING! ***");
 		msg_print(NULL);
 	}
-	if (damage > (old_chp/20))
+	if (damage > (old_chp/20) && monster != MON_CONCENTRATING_TOO_HARD)
 	{
 		skill_exp(SKILL_TOUGH);
 	}
@@ -5485,8 +5493,22 @@ done_reflect: /* Success */
 		/* Ensure that no monster is hit twice by this project() effect.
 		 * This isn't stored statically, as potion_smash_effect(), etc.,
 		 * can hurt a monster again. */
+
+		#define C_WIPE(P,N,T) \
+		memset((char*)(P),0,C_SIZE(N,T))
+
+		#define WIPE(P,T) \
+		memset((char*)(P),0,SIZE(T))
+
+#define C_TNEW(P, N, T) \
+	T *P = C_NEW(N, T)
+
+		#define C_NEW(N,T) \
+		((T*)(ralloc(C_SIZE(N,T))))
+
+
 		C_TNEW(m_hurt, m_max, bool);
-		WIPE(m_hurt, m_hurt);
+		C_WIPE(m_hurt, m_max, bool);
 
 		/* No monsters have been hit yet. */
 		project_m_n = 0;

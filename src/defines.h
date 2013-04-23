@@ -34,7 +34,7 @@
 
 
 /*
- * Current version number of sCthangband: 1.0.0
+ * Current version number of sCthangband: 1.0.19
  */
 
 /* <<VERSION STAMP>>
@@ -43,7 +43,7 @@
  * GAME_NAME is less strict.
  */
 #define GAME_NAME "sCthangband"
-#define GAME_VERSION "1.0.18"
+#define GAME_VERSION "1.0.19"
 
 /* Maximum length of GAME_VERSION above, needed for high_score.what, etc.. */
 #define MAX_VERSION_LEN 8
@@ -2284,6 +2284,7 @@ logaux(x, 1) logaux(x, 0) 255)
 #define SUMMON_REAVER (0x0103 | SUMMON_NO_UNIQUES) /* Black reaver alone. */
 #define SUMMON_ANIMAL_RANGER (0x0105 | SUMMON_NO_UNIQUES)
 #define SUMMON_LIVING (0x0108 | SUMMON_NO_UNIQUES)
+#define SUMMON_HI_DEMON (0x0110 | SUMMON_NO_UNIQUES)
 
 
 /*
@@ -2868,7 +2869,7 @@ logaux(x, 1) logaux(x, 0) 255)
  */
 #define RF4_SHRIEK          0x00000001      /* Shriek for help */
 #define RF4_XXX2            0x00000002      /* Takes an unusual article */
-#define RF4_XXX3            0x00000004      /* (?) */
+#define RF4_BOULDER         0x00000004      /* (?) */
 #define RF4_BA_SHARD        0x00000008      /* Fire shard balls */
 #define RF4_ARROW_1         0x00000010      /* Fire an arrow (light) */
 #define RF4_ARROW_2         0x00000020      /* Fire an arrow (heavy) */
@@ -2946,11 +2947,11 @@ logaux(x, 1) logaux(x, 0) 255)
 #define RF6_BLINK           0x00000010      /* Teleport Short */
 #define RF6_TPORT           0x00000020      /* Teleport Long */
 #define RF6_XXX3            0x00000040      /* Move to Player (?) */
-#define RF6_XXX4            0x00000080      /* Move to Monster (?) */
+#define RF6_S_ANIMAL        0x00000080      /* Move to Monster (?) */
 #define RF6_TELE_TO         0x00000100      /* Move player to monster */
 #define RF6_TELE_AWAY       0x00000200      /* Move player far away */
 #define RF6_TELE_LEVEL      0x00000400      /* Move player vertically */
-#define RF6_XXX5            0x00000800      /* Move player (?) */
+#define RF6_XXX4            0x00000800      /* Summon HI Demon (disabled) */
 #define RF6_DARKNESS        0x00001000      /* Create Darkness */
 #define RF6_TRAPS           0x00002000      /* Create Traps */
 #define RF6_FORGET          0x00004000      /* Cause amnesia */

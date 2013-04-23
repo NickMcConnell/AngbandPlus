@@ -516,7 +516,9 @@ bool alchemy(void)
 	/* Find the value for alchemy. */
 	price = object_value(q_ptr, TRUE) * q_ptr->number;
 
-	if (price <= 0)
+    /* RM: Since price is divided by three later, there's a range where an object can
+        be converted into 0 gold coins.  Changed the comparison from 0 to reflect this. */
+	if (price <= 2)
 	{
 		/* Message */
 		msg_format("You have turned %v to fool's gold.",
@@ -527,7 +529,8 @@ bool alchemy(void)
 		price /= 3;
 
 		if (price > 30000) price = 30000;
-		msg_format("You have turned %v to %ld coins worth of gold.",
+		/* RM: Was msg_format("You have turned %v to %ld coins worth of gold.", */
+		msg_format("You have turned %v to %ld gold pieces worth of coins.",
 			object_desc_f3, q_ptr, TRUE, 3, price);
 		p_ptr->au += price;
 
@@ -1270,7 +1273,7 @@ bool detect_doors(void)
 
 			/* Detect doors */
 			if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-				(c_ptr->feat <= FEAT_DOOR_HEAD)) ||
+				(c_ptr->feat <= FEAT_DOOR_TAIL)) ||
 				((c_ptr->feat == FEAT_OPEN) ||
 				(c_ptr->feat == FEAT_BROKEN)))
 			{
@@ -2187,7 +2190,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	else
 	{
 		/* Describe again */
-		msg_format("You now %s %v", (is_inventory_p(o_ptr)) ? "have" : "see",
+		msg_format("You now %s %v.", (is_inventory_p(o_ptr)) ? "have" : "see",
 			object_desc_f3, o_ptr, TRUE, 1);
 
 		/* Forget obsolete stacking information. */
