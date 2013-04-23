@@ -1,0 +1,12 @@
+"Preserve" mode, if set when the character was created, cancels all "special"
+level feelings, but allows "missed" artifacts to be "saved" by wandering
+monsters and found again at a later time.  This only works for artifacts 
+that you have not already identified.
+
+"Maximize" mode, if set when the character was created, causes the race
+and class stat bonuses to be applied as if they were equipment bonuses and
+lowers the stats you can achieve beyond 18 at character creation.  This
+usually makes the character harder at the beginning of the game, but easier
+later on, since the stats are no longer limited to being 18/100 naturally
+but instead possibly much higher, depending on race and class -- 18/150 or
+even higher are quite possible.

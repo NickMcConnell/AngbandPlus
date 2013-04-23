@@ -1,0 +1,122 @@
+/* File: angband.rc */
+
+ANGBAND MENU 
+{
+ POPUP "&File"
+ {
+  MENUITEM "&New", 100
+  MENUITEM "&Open...", 101
+  MENUITEM SEPARATOR
+  MENUITEM "&Save", 110
+  MENUITEM SEPARATOR
+  MENUITEM "&Abort", 120
+  MENUITEM "E&xit", 121
+ }
+
+ POPUP "&Window"
+ {
+  POPUP "&Visibility"
+  {
+   MENUITEM "Term-0 window (Angband)", 200
+   MENUITEM "Term-1 window (Mirror)", 201
+   MENUITEM "Term-2 window (Recall)", 202
+   MENUITEM "Term-3 window (Choice)", 203
+   MENUITEM "Term-4 window", 204
+   MENUITEM "Term-5 window", 205
+   MENUITEM "Term-6 window", 206
+   MENUITEM "Term-7 window", 207
+  }
+
+  POPUP "&Font"
+  {
+   MENUITEM "Term-0 window (Angband)", 210
+   MENUITEM "Term-1 window (Mirror)", 211
+   MENUITEM "Term-2 window (Recall)", 212
+   MENUITEM "Term-3 window (Choice)", 213
+   MENUITEM "Term-4 window", 214
+   MENUITEM "Term-5 window", 215
+   MENUITEM "Term-6 window", 216
+   MENUITEM "Term-7 window", 217
+  }
+
+  MENUITEM SEPARATOR
+
+  POPUP "Bizarre Display"
+  {
+   MENUITEM "Term-0 window (Angband)", 230
+   MENUITEM "Term-1 window (Mirror)", 231
+   MENUITEM "Term-2 window (Recall)", 232
+   MENUITEM "Term-3 window (Choice)", 233
+   MENUITEM "Term-4 window", 234
+   MENUITEM "Term-5 window", 235
+   MENUITEM "Term-6 window", 236
+   MENUITEM "Term-7 window", 237
+  }
+
+  POPUP "Increase Tile Width"
+  {
+   MENUITEM "Term-0 window (Angband)", 240
+   MENUITEM "Term-1 window (Mirror)", 241
+   MENUITEM "Term-2 window (Recall)", 242
+   MENUITEM "Term-3 window (Choice)", 243
+   MENUITEM "Term-4 window", 244
+   MENUITEM "Term-5 window", 245
+   MENUITEM "Term-6 window", 246
+   MENUITEM "Term-7 window", 247
+  }
+
+  POPUP "Decrease Tile Width"
+  {
+   MENUITEM "Term-0 window (Angband)", 250
+   MENUITEM "Term-1 window (Mirror)", 251
+   MENUITEM "Term-2 window (Recall)", 252
+   MENUITEM "Term-3 window (Choice)", 253
+   MENUITEM "Term-4 window", 254
+   MENUITEM "Term-5 window", 255
+   MENUITEM "Term-6 window", 256
+   MENUITEM "Term-7 window", 257
+  }
+
+  POPUP "Increase Tile Height"
+  {
+   MENUITEM "Term-0 window (Angband)", 260
+   MENUITEM "Term-1 window (Mirror)", 261
+   MENUITEM "Term-2 window (Recall)", 262
+   MENUITEM "Term-3 window (Choice)", 263
+   MENUITEM "Term-4 window", 264
+   MENUITEM "Term-5 window", 265
+   MENUITEM "Term-6 window", 266
+   MENUITEM "Term-7 window", 267
+  }
+
+  POPUP "Decrease Tile Height"
+  {
+   MENUITEM "Term-0 window (Angband)", 270
+   MENUITEM "Term-1 window (Mirror)", 271
+   MENUITEM "Term-2 window (Recall)", 272
+   MENUITEM "Term-3 window (Choice)", 273
+   MENUITEM "Term-4 window", 274
+   MENUITEM "Term-5 window", 275
+   MENUITEM "Term-6 window", 276
+   MENUITEM "Term-7 window", 277
+  }
+ }
+
+ POPUP "&Options"
+ {
+  MENUITEM "&Graphics", 400
+  MENUITEM "&Sound", 401
+  MENUITEM SEPARATOR
+  MENUITEM "Unused menu option", 410
+  MENUITEM "Activate Screensaver", 411
+ }
+
+ POPUP "&Help"
+ {
+  MENUITEM "&General", 901
+  MENUITEM "&Spoilers", 902
+ }
+}
+
+ANGBAND ICON "angband.ico"
+

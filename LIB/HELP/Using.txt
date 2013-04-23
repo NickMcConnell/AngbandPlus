@@ -1,0 +1,20 @@
+=== Using the online help ===
+
+You can press Escape at any time to leave the online help.
+
+You can press '?' to return to the previous help file.
+
+You can press Space to advance one page, or Return to advance one line.
+If you reach the end of the help file, you will wrap around to the start.
+
+You can press '-' to back up one half page at a time towards the start of
+the help file (this is very inefficient).
+
+You can press '#' to go to a specific line (defaults to line zero).
+
+You can press '%' to go to a specific file (defaults to "help.hlp").
+
+You can press '/' to search for a string.  This is a very primitive case
+sensitive search.  Slash followed by return will search for the previous
+search string again.  The search does not wrap around at the end of the file.
+To search again from the top, use '#' to go to the top and search again.

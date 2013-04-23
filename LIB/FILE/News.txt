@@ -1,0 +1,22 @@
+
+
+                        ***********************
+                        **   RAngband 1.04   **
+                        ***********************
+
+         Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
+             and Umoria:    Copyright (c) 1989 James E. Wilson
+
+       Angband 2.0 - 2.4: Alex Cutler, Andy Astrand, Sean Marsh, 
+                          Geoff Hill, Charles Teague, and others
+       Angband 2.5 - 2.6: Charles Swiger (cs4w+@andrew.cmu.edu)
+
+       Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
+
+          Windows Module: Ben Harrison, Skirmantas Kligys, and others
+
+          RAngband 1.04: Eric Bock (ebock@micron.net)
+
+ Read the online help files, especially "general.txt" and "version.txt".
+ Visit the Angband Home Page at "http://www.phial.com/angband/".
+ Send comments, bug reports, etc. to "ebock@micron.net".
