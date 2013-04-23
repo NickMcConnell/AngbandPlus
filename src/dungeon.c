@@ -2703,8 +2703,6 @@ static void process_command(void)
 				cptr which_power = "magic";
 				if (p_ptr->pclass == CLASS_MINDCRAFTER)
 					which_power = "psionic powers";
-				else if (mp_ptr->spell_book == TV_SPELL_BOOK)
-					which_power = "prayer";
 
 				msg_format("An anti-magic shell disrupts your %s!", which_power);
 

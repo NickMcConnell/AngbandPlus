@@ -19,4 +19,5 @@ extern void place_trees(int x,int y);
 extern void destroy_level(void);
 extern void build_lake(int type);
 extern void build_cavern(void);
+extern bool build_cavern2(int x, int y, int hi, int lo);
 

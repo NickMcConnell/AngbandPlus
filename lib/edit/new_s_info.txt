@@ -25,6 +25,8 @@
 #    spell code yo use when casting the spell.
 #
 
+N:1:
+
 typedef struct magic_type magic_type;
 
 struct magic_type

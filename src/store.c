@@ -833,11 +833,11 @@ static int home_carry(object_type *o_ptr)
 		j_ptr = &st_ptr->stock[slot];
 
 		/* Hack -- readable books always come first */
-		if ((o_ptr->tval == mp_ptr->spell_book) &&
+/*		if ((o_ptr->tval == mp_ptr->spell_book) &&
 			(j_ptr->tval != mp_ptr->spell_book)) break;
 		if ((j_ptr->tval == mp_ptr->spell_book) &&
 			(o_ptr->tval != mp_ptr->spell_book)) continue;
-
+*/
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
 		if (o_ptr->tval < j_ptr->tval) continue;
@@ -3103,6 +3103,13 @@ static void store_process_command(int *store_top)
 			break;
 		}
 
+      case 'W':
+      {
+         do_cmd_master_book();
+         break;
+      }
+
+
 		/* Inscribe an object */
 		case '{':
 		{
@@ -3512,6 +3519,7 @@ void do_cmd_store(field_type *f1_ptr)
 		{
 		   prt(" g) Get an item.", 22, 31);
 		   prt(" d) Drop an item.", 23, 31);
+         prt(" W) Write Spells", 23, 56);
 		}
 
 		/* Shop commands XXX XXX XXX */

@@ -18,6 +18,97 @@
 /* 1/x chance of reducing stats (for elemental attacks) */
 #define HURT_CHANCE 16
 
+int check_realm(magic_type *spl_ptr)
+{
+   int   i,j;
+
+   i = 0; j = 0;
+
+   if ((spl_ptr->f1 & CH_LIFE)        && (p_ptr->realm1 == 1 || p_ptr->realm2 == 1)) j = 1;
+   if ((spl_ptr->f1 & CH_SORCERY)     && (p_ptr->realm1 == 2 || p_ptr->realm2 == 2)) j = 1;
+   if ((spl_ptr->f1 & CH_NATURE)      && (p_ptr->realm1 == 3 || p_ptr->realm2 == 3)) j = 1;
+   if ((spl_ptr->f1 & CH_CHAOS)       && (p_ptr->realm1 == 4 || p_ptr->realm2 == 4)) j = 1;
+   if ((spl_ptr->f1 & CH_DEATH)       && (p_ptr->realm1 == 5 || p_ptr->realm2 == 5)) j = 1;
+   if ((spl_ptr->f1 & CH_TRUMP)       && (p_ptr->realm1 == 6 || p_ptr->realm2 == 6)) j = 1;
+   if ((spl_ptr->f1 & CH_ARCANE)      && (p_ptr->realm1 == 7 || p_ptr->realm2 == 7)) j = 1;
+   if ((spl_ptr->f1 & CH_CHI)         && (p_ptr->realm1 == 8 || p_ptr->realm2 == 8)) j = 1;
+   if ((spl_ptr->f1 & CH_ELEMENTAL)   && (p_ptr->realm1 == 9 || p_ptr->realm2 == 9)) j = 1;
+   if ((spl_ptr->f1 & CH_GENERAL)     && (p_ptr->realm1 == 10 || p_ptr->realm2 == 10)) j = 1;
+
+   return j;
+}
+
+int check_realm2(magic_type *spl_ptr, int  realm)
+{
+   int   i,j;
+
+   i = 0; j = 0;
+
+   if ((spl_ptr->f1 & CH_LIFE)        && (realm == 1)) j = 1;
+   if ((spl_ptr->f1 & CH_SORCERY)     && (realm == 2)) j = 1;
+   if ((spl_ptr->f1 & CH_NATURE)      && (realm == 3)) j = 1;
+   if ((spl_ptr->f1 & CH_CHAOS)       && (realm == 4)) j = 1;
+   if ((spl_ptr->f1 & CH_DEATH)       && (realm == 5)) j = 1;
+   if ((spl_ptr->f1 & CH_TRUMP)       && (realm == 6)) j = 1;
+   if ((spl_ptr->f1 & CH_ARCANE)      && (realm == 7)) j = 1;
+   if ((spl_ptr->f1 & CH_CHI)         && (realm == 8)) j = 1;
+   if ((spl_ptr->f1 & CH_ELEMENTAL)   && (realm == 9)) j = 1;
+   if ((spl_ptr->f1 & CH_GENERAL)     && (realm == 10)) j = 1;
+
+   return j;
+}
+
+int check_spell(magic_type *spl_ptr)
+{
+   int   i,j,k,l,m;
+
+   i = 0; j = 0; k = 0; l = 0; m = 0;
+
+   if ((spl_ptr->f1 & CH_LIFE)        && (p_ptr->realm1 == 1)) j = 1;
+   if ((spl_ptr->f1 & CH_SORCERY)     && (p_ptr->realm1 == 2)) j = 2;
+   if ((spl_ptr->f1 & CH_NATURE)      && (p_ptr->realm1 == 3)) j = 3;
+   if ((spl_ptr->f1 & CH_CHAOS)       && (p_ptr->realm1 == 4)) j = 4;
+   if ((spl_ptr->f1 & CH_DEATH)       && (p_ptr->realm1 == 5)) j = 5;
+   if ((spl_ptr->f1 & CH_TRUMP)       && (p_ptr->realm1 == 6)) j = 6;
+   if ((spl_ptr->f1 & CH_ARCANE)      && (p_ptr->realm1 == 7)) j = 7;
+   if ((spl_ptr->f1 & CH_CHI)         && (p_ptr->realm1 == 8)) j = 8;
+   if ((spl_ptr->f1 & CH_ELEMENTAL)   && (p_ptr->realm1 == 9)) j = 9;
+   if ((spl_ptr->f1 & CH_GENERAL)     && (p_ptr->realm1 == 10)) j = 10;
+
+   if ((spl_ptr->f1 & CH_LIFE)        && (p_ptr->realm2 == 1)) m =  1;
+   if ((spl_ptr->f1 & CH_SORCERY)     && (p_ptr->realm2 == 2)) m =  2;
+   if ((spl_ptr->f1 & CH_NATURE)      && (p_ptr->realm2 == 3)) m =  3;
+   if ((spl_ptr->f1 & CH_CHAOS)       && (p_ptr->realm2 == 4)) m =  4;
+   if ((spl_ptr->f1 & CH_DEATH)       && (p_ptr->realm2 == 5)) m =  5;
+   if ((spl_ptr->f1 & CH_TRUMP)       && (p_ptr->realm2 == 6)) m =  6;
+   if ((spl_ptr->f1 & CH_ARCANE)      && (p_ptr->realm2 == 7)) m =  7;
+   if ((spl_ptr->f1 & CH_CHI)         && (p_ptr->realm2 == 8)) m =  8;
+   if ((spl_ptr->f1 & CH_ELEMENTAL)   && (p_ptr->realm2 == 9)) m =  9;
+   if ((spl_ptr->f1 & CH_GENERAL)     && (p_ptr->realm2 == 10)) m =  10;
+
+   l = 0;
+
+   if (j != 0 || m != 0)
+   {
+      for (k = 0; k < 32; k++)
+      {
+         if (spl_ptr->index != 0 && (j == 1 || m == 1) && mp_ptr->life[k] == spl_ptr->index) l = 1;
+         if (spl_ptr->index != 0 && (j == 2 || m == 2) && mp_ptr->sorcery[k] == spl_ptr->index) l = 1;
+         if (spl_ptr->index != 0 && (j == 3 || m == 3) && mp_ptr->nature[k] == spl_ptr->index) l = 1;
+         if (spl_ptr->index != 0 && (j == 4 || m == 4) && mp_ptr->chaos[k] == spl_ptr->index) l = 1;
+         if (spl_ptr->index != 0 && (j == 5 || m == 5) && mp_ptr->death[k] == spl_ptr->index) l = 1;
+         if (spl_ptr->index != 0 && (j == 6 || m == 6) && mp_ptr->trump[k] == spl_ptr->index) l = 1;
+         if (spl_ptr->index != 0 && (j == 7 || m == 7) && mp_ptr->arcane[k] == spl_ptr->index) l = 1;
+         if (spl_ptr->index != 0 && (j == 8 || m == 8) && mp_ptr->chi[k] == spl_ptr->index) l = 1;
+         if (spl_ptr->index != 0 && (j == 9 || m == 9) && mp_ptr->elemental[k] == spl_ptr->index) l = 1;
+         if (spl_ptr->index != 0 && (j == 10 || m == 10) && mp_ptr->general[k] == spl_ptr->index) l = 1;
+      }
+   }
+
+   return l;
+}
+
+
 
 /*
  * Teleport a monster, normally up to "dis" grids away.
@@ -1091,9 +1182,7 @@ void call_the_(void)
 	}
 	else
 	{
-		msg_format("You %s the %s too close to a wall!",
-			((mp_ptr->spell_book == TV_SPELL_BOOK) ? "recite" : "cast"),
-			((mp_ptr->spell_book == TV_SPELL_BOOK) ? "prayer" : "spell"));
+		msg_format("You %s the %s too close to a wall!", "cast", "spell");
 		msg_print("There is a loud explosion!");
 
 		if (destroy_area(py, px, 20 + p_ptr->lev))
@@ -2011,6 +2100,42 @@ void identify_item(object_type *o_ptr)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 }
 
+/*
+ * Repair an object
+ */
+void repair_item(object_type *o_ptr, s32b value)
+{
+	char            o_name[80];
+
+	if (p_ptr->muta3 & MUT3_BAD_LUCK)
+	{
+		value /= randint1(4);
+      if (value < 1) value = 1;
+	}
+
+   if (o_ptr->C_Durability + value > o_ptr->O_Durability)
+   {
+      o_ptr->C_Durability = o_ptr->O_Durability;
+   	object_desc(o_name, o_ptr, TRUE, 0);
+      msg_format("Your %s look perfect.", o_name);
+   }
+   else
+   {
+      o_ptr->C_Durability += value;
+   	object_desc(o_name, o_ptr, TRUE, 0);
+      msg_format("Your %s look better.", o_name);
+   }
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_PLAYRES);
+}
+
 
 static bool item_tester_unknown(const object_type *o_ptr)
 {
@@ -2095,6 +2220,49 @@ bool ident_spell(void)
 		msg_format("On the ground: %s.",
 			   o_name);
 	}
+
+	/* Something happened */
+	return (TRUE);
+}
+
+/*
+ * Identify an object in the inventory (or on the floor)
+ * This routine does *not* automatically combine objects.
+ * Returns TRUE if something was identified, else FALSE.
+ */
+bool repair_spell(s32b value)
+{
+	int             item;
+	object_type     *o_ptr;
+	char            o_name[80];
+	cptr            q, s;
+
+	/* Only un-id'ed items */
+/*	item_tester_hook = item_tester_unknown;*/
+
+	/* Get an item */
+	q = "Repair which item? ";
+	s = "You have nothing to repair.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Identify it */
+	repair_item(o_ptr, value);
+
+	/* Description */
+	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Something happened */
 	return (TRUE);
@@ -2927,23 +3095,22 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
  *
  * XXX XXX XXX Need more color coding.
  */
-void display_spell_list(void)
+void display_spell_list(object_type *o_ptr)
 {
 	int             i, j;
 	int             y = 0, x = 0;
-	int             use_realm1 = p_ptr->realm1 - 1;
-	int             use_realm2 = p_ptr->realm2 - 1;
-	const magic_type *s_ptr;
+	int             use_realm1 = p_ptr->realm1;
+	int             use_realm2 = p_ptr->realm2;
+	magic_type      *s_ptr;
 	char            name[80];
 	char            out_val[160];
 	int row = 0, col = 0;
 	unsigned int max_wid = 0;
+   int n = 0;
+  	cptr            tmp;
 
 	/* Erase window */
 	clear_from(0);
-
-	/* Warriors are illiterate */
-	if (!mp_ptr->spell_book) return;
 
 	/* Mindcrafter spell-list */
 	if (p_ptr->pclass == CLASS_MINDCRAFTER)
@@ -2954,6 +3121,8 @@ void display_spell_list(void)
 		mindcraft_power spell;
 		char            comment[80];
 		char            psi_desc[80];
+
+      minfail = 0;
 
 		/* Display a list of spells */
 		put_str("Name", y, x + 3);
@@ -2975,7 +3144,7 @@ void display_spell_list(void)
 			chance -= 3 * (p_ptr->lev - spell.min_lev);
 
 			/* Reduce failure rate by INT/WIS adjustment */
-			chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+/*			chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);*/
 
 			/* Not enough mana to cast */
 			if (spell.mana_cost > p_ptr->csp)
@@ -2985,7 +3154,7 @@ void display_spell_list(void)
 			}
 
 			/* Extract the minimum failure rate */
-			minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+/*			minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];*/
 
 			/* Minimum failure rate */
 			if (chance < minfail) chance = minfail;
@@ -3011,81 +3180,81 @@ void display_spell_list(void)
 	}
 
 	/* Normal spellcaster with books */
-
 	/* Scan books */
-	for (j = 0; j < ((use_realm2 > -1) ? 2 : 1); j++)
+	/* Scan spells */
+	for (i = 0; i < 8; i++)
 	{
-		int n = 0;
+		byte a = TERM_WHITE;
 
-		/* Scan spells */
-		for (i = 0; i < 32; i++)
-		{
-			byte a = TERM_WHITE;
+/*			s_ptr = &mp_ptr->info[(j < 1) ? use_realm1 : use_realm2][i % 32];*/
+      if (o_ptr->spellist[i] != 0)
+      {
+         s_ptr = &s_info[o_ptr->spellist[i]];
+         tmp = s_name + s_ptr->name;
+         strcpy(name, tmp);
+      }
+/*
+		strcpy(name, spell_names[(j < 1) ? use_realm1 : use_realm2][i % 32]);
+*/
+/*      if (s_ptr->slevel > p_ptr->lev) a = TERM_SLATE;*/
+
+/*      if ((s_ptr->slevel > p_ptr->lev) || o_ptr->spellist[i] == 0)
+         a = TERM_SLATE;*/
 
 			/* Access the spell */
-			s_ptr = &mp_ptr->info[(j < 1) ? use_realm1 : use_realm2][i % 32];
-
-			strcpy(name, spell_names[(j < 1) ? use_realm1 : use_realm2][i % 32]);
-
 			/* Illegible */
-			if (s_ptr->slevel >= 99)
+/*			if (s_ptr->slevel >= 99)
 			{
-				/* Illegible */
 				strcpy(name, "(illegible)");
 
-				/* Unusable */
 				a = TERM_L_DARK;
 			}
-
+*/
 			/* Forgotten */
-			else if ((j < 1) ?
+/*			else if ((j < 1) ?
 				((p_ptr->spell_forgotten1 & (1L << i))) :
 				((p_ptr->spell_forgotten2 & (1L << (i % 32)))))
 			{
-				/* Forgotten */
 				a = TERM_ORANGE;
 			}
-
+*/
 			/* Unknown */
-			else if (!((j < 1) ?
+/*			else if (!((j < 1) ?
 				(p_ptr->spell_learned1 & (1L << i)) :
 				(p_ptr->spell_learned2 & (1L << (i % 32)))))
 			{
-				/* Unknown */
 				a = TERM_RED;
 			}
-
+*/
 			/* Untried */
-			else if (!((j < 1) ?
+/*			else if (!((j < 1) ?
 				(p_ptr->spell_worked1 & (1L << i)) :
 				(p_ptr->spell_worked2 & (1L << (i % 32)))))
 			{
-				/* Untried */
 				a = TERM_YELLOW;
 			}
-
+*/
 			/* Dump the spell --(-- */
-			sprintf(out_val, "%c/%c) %s",
-				I2A(n / 8), I2A(n % 8), name);
+		sprintf(out_val, "%c/%c) %s",
+			I2A(n / 8), I2A(n % 8), name);
 
-			max_wid = MAX(max_wid, strlen(out_val) + 1);
+		max_wid = MAX(max_wid, strlen(out_val) + 1);
 
-			/* Dump onto the window */
-			Term_putstr(col, row, -1, a, out_val);
+		/* Dump onto the window */
+		Term_putstr(col, row, -1, a, out_val);
 
-			/* Next row */
-			row++;
+		/* Next row */
+		row++;
 
-			if (row >= Term->hgt)
-			{
-				row = 0;
-				col += max_wid;
-				max_wid = 0;
-			}
-
-			/* Next */
-			n++;
+		if (row >= Term->hgt)
+		{
+			row = 0;
+			col += max_wid;
+			max_wid = 0;
 		}
+
+		/* Next */
+		n++;
 	}
 }
 
@@ -3097,23 +3266,33 @@ void display_spell_list(void)
 s16b spell_chance(int spell, int realm)
 {
 	int chance, minfail;
+   int stat_mod;
 	const magic_type *s_ptr;
 
+   minfail = 0;
+
+   stat_mod = 0;
 
 	/* Paranoia -- must be literate */
-	if (!mp_ptr->spell_book) return (100);
+   if (!p_ptr->realm1) return (100);
 
 	/* Access the spell */
-	s_ptr = &mp_ptr->info[realm][spell];
+   s_ptr = &s_info[spell];
 
 	/* Extract the base spell failure rate */
 	chance = s_ptr->sfail;
 
 	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
+	chance -= 3 * (p_ptr->lev - (s_ptr->slevel + mp_ptr->spell_level_penalty));
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+   if (p_ptr->pclass == CLASS_PRIEST ||
+       p_ptr->pclass == CLASS_PALADIN ||
+       p_ptr->pclass == CLASS_MONK ||
+       p_ptr->pclass == CLASS_MINDCRAFTER ||
+       p_ptr->pclass == CLASS_CHI_WARRIOR) stat_mod = A_WIS; else stat_mod = A_INT;
+
+	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[stat_mod]] - 1);
 
 	/* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
@@ -3122,7 +3301,7 @@ s16b spell_chance(int spell, int realm)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	minfail = adj_mag_fail[p_ptr->stat_ind[stat_mod]];
 
 	/*
 	 * Non mage/priest characters never get too good
@@ -3141,6 +3320,12 @@ s16b spell_chance(int spell, int realm)
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
+
+   if (p_ptr->pclass == CLASS_HIGH_MAGE)
+   {
+      chance *= 2;
+      chance /= 3;
+   }
 
 	/* Stunning makes spells harder */
 	if (p_ptr->stun > 50) chance += 25;
@@ -3162,27 +3347,16 @@ s16b spell_chance(int spell, int realm)
  */
 bool spell_okay(int spell, bool known, int realm)
 {
-	const magic_type *s_ptr;
+	magic_type *s_ptr;
 
 	/* Access the spell */
-	s_ptr = &mp_ptr->info[realm][spell];
+   s_ptr = &s_info[spell];
 
 	/* Spell is illegal */
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
 
-	/* Spell is forgotten */
-	if ((realm == p_ptr->realm2 - 1) ?
-	    (p_ptr->spell_forgotten2 & (1L << spell)) :
-	    (p_ptr->spell_forgotten1 & (1L << spell)))
-	{
-		/* Never okay */
-		return (FALSE);
-	}
-
 	/* Spell is learned */
-	if ((realm == p_ptr->realm2 - 1) ?
-	    (p_ptr->spell_learned2 & (1L << spell)) :
-	    (p_ptr->spell_learned1 & (1L << spell)))
+   if (check_spell( s_ptr))
 	{
 		/* Okay to cast, not to study */
 		return (known);
@@ -3383,93 +3557,67 @@ static void spell_info(char *p, int spell, int realm)
 		}
 	}
 }
-
-
 /*
  * Print a list of spells (for browsing or casting or viewing)
  */
 void print_spells(byte *spells, int num, int y, int x, int realm)
 {
 	int             i, spell;
-	const magic_type *s_ptr;
+	magic_type      *s_ptr;
 	cptr            comment;
 	char            info[80];
 	char            out_val[160];
 	byte            line_attr;
-
-
-	if (((realm < 0) || (realm > MAX_REALM - 1)) && p_ptr->wizard)
-		msg_print("Warning! print_spells called with null realm");
+	cptr            tmp;
+   int             has_realm;
+   int             has_spell;
 
 	/* Title the list */
 	prt("", y, x);
 	put_str("Name", y, x + 5);
 	put_str("Lv Mana Fail Info", y, x + 35);
 
-
 	/* Dump the spells */
 	for (i = 0; i < num; i++)
 	{
+		line_attr = TERM_SLATE;
+
 		/* Access the spell */
 		spell = spells[i];
 
 		/* Access the spell */
-		s_ptr = &mp_ptr->info[realm][spell];
+      s_ptr = &s_info[spell];
+		tmp = s_name + s_ptr->name;
 
-		/* Skip illegible spells */
-		if (s_ptr->slevel >= 99)
-		{
-				sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
-				c_prt(TERM_L_DARK, out_val, y + i + 1, x);
-				continue;
-		}
+      has_realm = 0;
+      has_spell = 0;
 
-		/* XXX XXX Could label spells above the players level */
+      has_realm = check_realm( s_ptr);
+      has_spell = check_spell( s_ptr);
 
 		/* Get extra info */
-		spell_info(info, spell, realm);
+/*		spell_info(info, spell, realm);*/
 
-		/* Use that info */
-		comment = info;
+      comment = " -/-";
 
-		/* Assume spell is known and tried */
-		line_attr = TERM_WHITE;
+      if (!has_realm && !has_spell) line_attr = TERM_SLATE;
 
-		/* Analyze the spell */
-		if ((realm + 1 != p_ptr->realm1) && (realm + 1 != p_ptr->realm2))
-		{
-			comment = " uncastable";
-			line_attr = TERM_SLATE;
-		}
+      if (has_realm && !has_spell) line_attr = TERM_ORANGE;
 
-		/* We know these books */
-		else if ((realm + 1 == p_ptr->realm1) ?
-		    ((p_ptr->spell_forgotten1 & (1L << spell))) :
-		    ((p_ptr->spell_forgotten2 & (1L << spell))))
-		{
-			comment = " forgotten";
-			line_attr = TERM_YELLOW;
-		}
-		else if (!((realm + 1 == p_ptr->realm1) ?
-		    (p_ptr->spell_learned1 & (1L << spell)) :
-		    (p_ptr->spell_learned2 & (1L << spell))))
-		{
-			comment = " unknown";
-			line_attr = TERM_L_BLUE;
-		}
-		else if (!((realm + 1 == p_ptr->realm1) ?
-		    (p_ptr->spell_worked1 & (1L << spell)) :
-		    (p_ptr->spell_worked2 & (1L << spell))))
-		{
-			comment = " untried";
-			line_attr = TERM_L_GREEN;
-		}
+      if (has_realm && has_spell)
+      {
+         if ((s_ptr->slevel + mp_ptr->spell_level_penalty) > p_ptr->lev) line_attr =  TERM_GREEN;
+         else
+         if (s_ptr->smana > p_ptr->csp) line_attr = TERM_YELLOW;
+         else
+         line_attr = TERM_L_GREEN;
+      }
 
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
-		    I2A(i), spell_names[realm][spell], /* realm, spell */
-		    (int)s_ptr->slevel, (int)s_ptr->smana,
-			spell_chance(spell, realm), comment);
+		    I2A(i), tmp, (int)s_ptr->slevel + mp_ptr->spell_level_penalty,
+          (int)s_ptr->smana, spell_chance(spell, 0)
+			 , comment);
 		c_prt(line_attr, out_val, y + i + 1, x);
 	}
 

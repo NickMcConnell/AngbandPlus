@@ -809,12 +809,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* damage dice, damage sides, damage bonus, energy */
 	int		dd, ds, db, energy_use;
 	int		tmul;
-	long	avgdam;
-
+	long	avgdam,avgcheck;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	monster_race *r_ptr = &r_info[o_ptr->pval];
+
+   avgcheck = 0;
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
@@ -1438,10 +1439,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		else
 		{
 			/* calc effects of energy  x2 */
-			avgdam *= (1 + p_ptr->num_fire);
+			avgdam *= (/*1 +*/ p_ptr->num_fire);
 
 			/* rescale */
-			avgdam /= ((int)(4 * (int)(energy_use / 100.0)));
+         avgcheck = 0;
+         avgcheck = ((int)(4 * (int)(energy_use / 100.0)));
+         if (avgcheck < 1) avgcheck = 1;
+			avgdam /= avgcheck;
 			t = object_desc_num(t, avgdam);
 		}
 

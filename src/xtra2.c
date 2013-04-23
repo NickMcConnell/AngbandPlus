@@ -209,6 +209,8 @@ static int get_coin_type(const monster_race *r_ptr)
  */
 bool monster_death(int m_idx, bool explode)
 {
+   char  out_val[80];
+
 	object_type forge;
 	object_type *q_ptr;
 
@@ -869,6 +871,11 @@ bool monster_death(int m_idx, bool explode)
                && !(q_ptr->flags3 & TR3_PERMA_CURSE)
                ) break;
 		   }
+
+         sprintf(out_val, "QI-%d", p_ptr->depth);
+
+         /*  Auto Inscribe Quest Rewards  */
+   		q_ptr->inscription = quark_add(out_val);
 
 		   /* Drop it in the dungeon */
    		(void)drop_near(q_ptr, -1, y, x);

@@ -587,7 +587,7 @@ static void prt_sp(void)
 
 
 	/* Do not show mana unless it matters */
-	if (!mp_ptr->spell_book) return;
+/*	if (!mp_ptr->spell_book) return;*/
 
 
 	put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
@@ -1260,7 +1260,7 @@ static void fix_spell(void)
 		Term_activate(angband_term[j]);
 
 		/* Display spell list */
-		display_spell_list();
+/*		display_spell_list();*/
 
 		/* Fresh */
 		Term_fresh();
@@ -1568,264 +1568,6 @@ static void fix_object(void)
 
 
 /*
- * Calculate number of spells player should have, and forget,
- * or remember, spells until that number is properly reflected.
- *
- * Note that this function induces various "status" messages,
- * which must be bypasses until the character is created.
- */
-static void calc_spells(void)
-{
-	int			i, j, k, levels;
-	int			num_allowed, num_known;
-
-	const magic_type *s_ptr;
-	int use_realm1 = p_ptr->realm1 - 1;
-	int use_realm2 = p_ptr->realm2 - 1;
-	int which;
-
-	/* Save the current number of spells to learn */
-	s16b old_spells = p_ptr->new_spells;
-
-	cptr p = ((mp_ptr->spell_book == TV_SPELL_BOOK) ? "spell" : "prayer");
-
-
-	/* Hack -- must be literate */
-	if (!mp_ptr->spell_book) return;
-
-	/* Hack -- wait for creation */
-	if (!character_generated) return;
-
-	/* Hack -- handle "xtra" mode */
-	if (character_xtra) return;
-
-
-	/* Determine the number of spells allowed */
-	levels = p_ptr->lev - mp_ptr->spell_first + 1;
-
-	/* Hack -- no negative spells */
-	if (levels < 0) levels = 0;
-
-	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 50);
-
-
-	/* Assume none known */
-	num_known = 0;
-
-	/* Count the number of spells we know */
-	for (j = 0; j < 64; j++)
-	{
-		/* Count known spells */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
-		{
-			num_known++;
-		}
-	}
-
-	/* See how many spells we must forget or may learn */
-	p_ptr->new_spells = num_allowed - num_known;
-
-
-	/* Forget spells which are too hard */
-	for (i = 63; i >= 0; i--)
-	{
-		/* Efficiency -- all done */
-		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
-
-		/* Access the spell */
-		j = p_ptr->spell_order[i];
-
-		/* Skip non-spells */
-		if (j >= 99) continue;
-
-
-		/* Get the spell */
-		if (j < 32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
-		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
-
-		/* Skip spells we are allowed to know */
-		if (s_ptr->slevel <= p_ptr->lev) continue;
-
-		/* Is it known? */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
-		{
-			/* Mark as forgotten - no longer known */
-			if (j < 32)
-			{
-				p_ptr->spell_forgotten1 |= (1L << j);
-				p_ptr->spell_learned1 &= ~(1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				p_ptr->spell_forgotten2 |= (1L << (j - 32));
-				p_ptr->spell_learned2 &= ~(1L << (j - 32));
-				which = use_realm2;
-			}
-
-			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-			spell_names[which][j%32]);
-
-			/* One more can be learned */
-			p_ptr->new_spells++;
-		}
-	}
-
-
-	/* Forget spells if we know too many spells */
-	for (i = 63; i >= 0; i--)
-	{
-		/* Stop when possible */
-		if (p_ptr->new_spells >= 0) break;
-
-		/* Efficiency -- all done */
-		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
-
-		/* Get the (i+1)th spell learned */
-		j = p_ptr->spell_order[i];
-
-		/* Skip unknown spells */
-		if (j >= 99) continue;
-
-		/* Forget it (if learned) */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
-		{
-			/* Mark as forgotten - no longer known */
-			if (j < 32)
-			{
-				p_ptr->spell_forgotten1 |= (1L << j);
-				p_ptr->spell_learned1 &= ~(1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				p_ptr->spell_forgotten2 |= (1L << (j - 32));
-				p_ptr->spell_learned2 &= ~(1L << (j - 32));
-				which = use_realm2;
-			}
-
-			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[which][j%32]);
-
-			/* One more can be learned */
-			p_ptr->new_spells++;
-		}
-	}
-
-
-	/* Check for spells to remember */
-	for (i = 0; i < 64; i++)
-	{
-		/* None left to remember */
-		if (p_ptr->new_spells <= 0) break;
-
-		/* Efficiency -- all done */
-		if (!p_ptr->spell_forgotten1 && !p_ptr->spell_forgotten2) break;
-
-		/* Get the next spell we learned */
-		j = p_ptr->spell_order[i];
-
-		/* Skip unknown spells */
-		if (j >= 99) break;
-
-		/* Access the spell */
-		if (j < 32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
-		else
-			s_ptr = &mp_ptr->info[use_realm2][j % 32];
-
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > p_ptr->lev) continue;
-
-		/* First set of spells */
-		if ((j < 32) ?
-		    (p_ptr->spell_forgotten1 & (1L << j)) :
-		    (p_ptr->spell_forgotten2 & (1L << (j - 32))))
-		{
-			/* No longer forgotten - known once more */
-			if (j < 32)
-			{
-				p_ptr->spell_forgotten1 &= ~(1L << j);
-				p_ptr->spell_learned1 |= (1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				p_ptr->spell_forgotten2 &= ~(1L << (j - 32));
-				p_ptr->spell_learned2 |= (1L << (j - 32));
-				which = use_realm2;
-			}
-
-			/* Message */
-			msg_format("You have remembered the %s of %s.",
-			           p, spell_names[which][j%32]);
-
-			/* One less can be learned */
-			p_ptr->new_spells--;
-		}
-	}
-
-
-	/* Assume no spells available */
-	k = 0;
-
-	/* Count spells that can be learned */
-	for (j = 0; j < (p_ptr->realm2 != REALM_NONE ? 64 : 32); j++)
-	{
-		/* Access the spell */
-		if (j < 32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
-		else
-			s_ptr = &mp_ptr->info[use_realm2][j % 32];
-
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > p_ptr->lev) continue;
-
-		/* Skip spells we already know */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
-		{
-			continue;
-		}
-
-		/* Count it */
-		k++;
-	}
-
-	/* Cannot learn more spells than exist */
-	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
-
-	/* Spell count changed */
-	if (old_spells != p_ptr->new_spells)
-	{
-		/* Message if needed */
-		if (p_ptr->new_spells)
-		{
-			/* Message */
-			msg_format("You can learn %d more %s%s.",
-			           p_ptr->new_spells, p,
-			           (p_ptr->new_spells != 1) ? "s" : "");
-		}
-
-		/* Redraw Study Status */
-		p_ptr->redraw |= (PR_STUDY);
-	}
-}
-
-
-/*
  * Calculate maximum mana.  You do not need to know any spells.
  * Note that mana is lowered by heavy (or inappropriate) armor.
  *
@@ -1833,16 +1575,12 @@ static void calc_spells(void)
  */
 static void calc_mana(void)
 {
-	int		msp, levels, cur_wgt, max_wgt;
+	int		i, j, msp, levels, cur_wgt, max_wgt;
 
 	object_type	*o_ptr;
 
 	bool old_cumber_glove = p_ptr->cumber_glove;
 	bool old_cumber_armor = p_ptr->cumber_armor;
-
-
-	/* Hack -- Must be literate */
-	if (!mp_ptr->spell_book) return;
 
 	if (p_ptr->pclass == CLASS_MINDCRAFTER)
 	{
@@ -1850,51 +1588,72 @@ static void calc_mana(void)
 	}
 	else
 	{
-		/* Extract "effective" player level */
-		levels = (p_ptr->lev - mp_ptr->spell_first) + 1;
+		levels = (p_ptr->lev - mp_ptr->spell_level_penalty);
 	}
 
+   msp = 0;
 
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
-	/* Extract total mana */
-	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 25;
+   i = 0;
 
-	/* Hack -- usually add one mana */
-	if (msp) msp++;
+   for (j = 0; j < 10; j++)
+   {
+      if (mp_ptr->has_realm[j] == 1)
+      {
+         i = j;
+      }
+   }
 
-	/* Hack: High mages have a 25% mana bonus */
-	if (msp && (p_ptr->pclass == CLASS_HIGH_MAGE)) msp += msp / 4;
+   if (i == 0) return;
 
+   if (i != 0)
+   {
+      j = 0;
 
-	/* Only mages are affected */
-	if (mp_ptr->spell_book == TV_SPELL_BOOK)
-	{
-		u32b f1, f2, f3, f4, f5, f6;
+      if (p_ptr->pclass == CLASS_PRIEST ||
+          p_ptr->pclass == CLASS_PALADIN ||
+          p_ptr->pclass == CLASS_MONK ||
+          p_ptr->pclass == CLASS_MINDCRAFTER ||
+          p_ptr->pclass == CLASS_CHI_WARRIOR) j = A_WIS; else j = A_INT;
 
-		/* Assume player is not encumbered by gloves */
-		p_ptr->cumber_glove = FALSE;
+   	/* Extract total mana */
+	   msp = adj_mag_mana[p_ptr->stat_ind[j]] * levels / 25;
 
-		/* Get the gloves */
-		o_ptr = &inventory[INVEN_HANDS];
+   	/* Hack -- usually add one mana */
+	   if (msp) msp++;
 
-		/* Examine the gloves */
-		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+   	/* Hack: High mages have a 25% mana bonus */
+	   if (msp && (p_ptr->pclass == CLASS_HIGH_MAGE)) msp += msp / 4;
 
-		/* Normal gloves hurt mage-type spells */
-		if (o_ptr->k_idx &&
-			 !(f2 & (TR2_FREE_ACT)) &&
-			 !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
-		{
-			/* Encumbered */
-			p_ptr->cumber_glove = TRUE;
+   	/* Only mages are affected */
+	   if (j == A_INT)
+   	{
+	   	u32b f1, f2, f3, f4, f5, f6;
 
-			/* Reduce mana */
-			msp = (3 * msp) / 4;
+		   /* Assume player is not encumbered by gloves */
+   		p_ptr->cumber_glove = FALSE;
+
+	   	/* Get the gloves */
+		   o_ptr = &inventory[INVEN_HANDS];
+
+   		/* Examine the gloves */
+	   	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+
+   		/* Normal gloves hurt mage-type spells */
+	   	if (o_ptr->k_idx &&
+		   	 !(f2 & (TR2_FREE_ACT)) &&
+			    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
+   		{
+	   		/* Encumbered */
+		   	p_ptr->cumber_glove = TRUE;
+
+			   /* Reduce mana */
+   			msp = (3 * msp) / 4;
+         }
 		}
 	}
-
 
 	/* Assume player not encumbered by armor */
 	p_ptr->cumber_armor = FALSE;
@@ -1936,6 +1695,7 @@ static void calc_mana(void)
 			/* Mana halved if armour is 40 pounds over weight limit. */
 			case CLASS_PRIEST:
 			case CLASS_MINDCRAFTER:
+         case CLASS_CHI_WARRIOR:
 			{
 				msp -= msp * (cur_wgt - max_wgt) / 800 + 1;
 				break;
@@ -1960,18 +1720,18 @@ static void calc_mana(void)
 			}
 
 			/* For new classes created, but not yet added to this formula. */
+         /*  Now used for all classes w/o magic  */
 			default:
 			{
 				msp -= msp * (cur_wgt - max_wgt) / 800 + 1;
+            msp = 0;
 				break;
 			}
 		}
 	}
 
-
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
-
 
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
@@ -1994,7 +1754,6 @@ static void calc_mana(void)
 		p_ptr->window |= (PW_SPELL);
 	}
 
-
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
@@ -2012,7 +1771,6 @@ static void calc_mana(void)
 		}
 	}
 
-
 	/* Take note when "armor state" changes */
 	if (old_cumber_armor != p_ptr->cumber_armor)
 	{
@@ -2027,7 +1785,6 @@ static void calc_mana(void)
 		}
 	}
 }
-
 
 
 /*
@@ -3051,19 +2808,19 @@ static void calc_bonuses(void)
 			/* Change in INT may affect Mana/Spells */
 			else if (i == A_INT)
 			{
-				if (mp_ptr->spell_stat == A_INT)
+/*				if (mp_ptr->spell_stat == A_INT)
 				{
 					p_ptr->update |= (PU_MANA | PU_SPELLS);
-				}
+				}*/
 			}
 
 			/* Change in WIS may affect Mana/Spells */
 			else if (i == A_WIS)
 			{
-				if (mp_ptr->spell_stat == A_WIS)
+/*				if (mp_ptr->spell_stat == A_WIS)
 				{
 					p_ptr->update |= (PU_MANA | PU_SPELLS);
-				}
+				}*/
 			}
 
 			/* Window stuff */
@@ -3728,13 +3485,6 @@ void update_stuff(void)
 		p_ptr->update &= ~(PU_MANA);
 		calc_mana();
 	}
-
-	if (p_ptr->update & (PU_SPELLS))
-	{
-		p_ptr->update &= ~(PU_SPELLS);
-		calc_spells();
-	}
-
 
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;

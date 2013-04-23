@@ -1,7 +1,7 @@
 
 
                             ************************
-                            **  RandomBand 0.3.3  **
+                            **  RandomBand 0.4.0  **
                             ************************
 
               Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -11,7 +11,7 @@
 
            Old Zangband code:    (Mr) Topi Ylinen < topiy@luukku.com >
            New Zangband code:    Robert Ruehlmann < rr9@angband.org >
-        ZAngband 2.3.0 - ???:    The ZAngband DevTeam
+      ZAngband 2.3.0 - 2.6.2:    The ZAngband DevTeam
 
       RandomBand 0.1.0 - ???:    Kenneth Strom
                                  < the_one_relic@yahoo.com >

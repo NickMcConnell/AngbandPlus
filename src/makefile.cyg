@@ -5,10 +5,12 @@
 #
 # Standard defines
 #
+#  Debuged with -g3 instead of -s
+#
 
 CC      =       gcc
 WRES    =       windres
-LIBS    =       -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
+LIBS    =       -g3 -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
 CFLAGS  =       -Wall -W -pedantic -mno-cygwin -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
 
 

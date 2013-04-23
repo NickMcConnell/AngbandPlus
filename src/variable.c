@@ -842,6 +842,8 @@ player_type p_body;
  */
 player_type *p_ptr = &p_body;
 
+player_magic pmagic;
+
 /*
  * Pointer to the player tables
  * (sex, race, class, magic)
@@ -849,7 +851,7 @@ player_type *p_ptr = &p_body;
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
-player_magic *mp_ptr;
+player_magic *mp_ptr = &pmagic;
 
 /**** Server Information ****/
 
@@ -901,6 +903,21 @@ ego_item_type *e_info;
 char *e_name;
 char *e_text;
 
+/*
+ * The spell realm arrays
+ */
+header *sr_head;
+realm_type *sr_info;
+char *sr_name;
+char *sr_text;
+
+/*
+ * The spell arrays
+ */
+header *s_head;
+magic_type *s_info;
+char *s_name;
+char *s_text;
 
 /*
  * The monster race arrays
@@ -1086,6 +1103,16 @@ u16b max_f_idx;
  * Maximum number of ego-items in e_info.txt
  */
 u16b max_e_idx;
+
+/*
+ * Maximum number of realsm in sr_info.txt
+ */
+u16b max_sr_idx;
+
+/*
+ * Maximum number of spless in s_info.txt
+ */
+u16b max_s_idx;
 
 /*
  * Maximum number of objects in the level

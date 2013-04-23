@@ -641,27 +641,28 @@ static bool cave_gen(void)
 				}
 #endif
 			}
+         if ((k < 10) && build_cavern2(x, y, randint1(4), randint1(4))) continue;
 
 			/* Type 4 -- Large room (15%) */
-			if ((k < 15) && room_build(y, x, 4)) continue;
+			if ((k < 25) && room_build(y, x, 4)) continue;
 
 			/* Type 14 -- Large room (10%) */
-			if ((k < 25) && room_build(y, x, 14)) continue;
+			if ((k < 35) && room_build(y, x, 14)) continue;
 
 			/* Type 13 -- Large Feature room (5%) */
-			if ((k < 30) && room_build(y, x, 13)) continue;
+			if ((k < 40) && room_build(y, x, 13)) continue;
 
 			/* Type 3 -- Cross room (20%) */
-			if ((k < 50) && room_build(y, x, 3)) continue;
+			if ((k < 60) && room_build(y, x, 3)) continue;
 
-			/* Type 2 -- Overlapping (25%) */
-			if ((k < 75) && room_build(y, x, 2)) continue;
+			/* Type 2 -- Overlapping (20%) */
+			if ((k < 80) && room_build(y, x, 2)) continue;
 
 			/* Type 11 -- Parallelagram (5%) */
-			if ((k < 80) && room_build(y, x, 15)) continue;
+			if ((k < 85) && room_build(y, x, 15)) continue;
 
 			/* Type 11 -- Circular (5%) */
-			if ((k < 85) && room_build(y, x, 11)) continue;
+			if ((k < 90) && room_build(y, x, 11)) continue;
 
 			/* Type 12 -- Crypt (15%) */
 			if ((k < 100) && room_build(y, x, 12)) continue;

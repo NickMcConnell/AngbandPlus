@@ -109,6 +109,8 @@ static int get_mindcraft_power(int *sn)
 	mindcraft_power spell;
 	bool            flag, redraw;
 
+   minfail = 0;
+
 	/* Assume cancelled */
 	*sn = (-1);
 
@@ -176,7 +178,7 @@ static int get_mindcraft_power(int *sn)
 					chance -= 3 * (plev - spell.min_lev);
 
 					/* Reduce failure rate by INT/WIS adjustment */
-					chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+/*					chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);*/
 
 					/* Not enough mana to cast */
 					if (spell.mana_cost > p_ptr->csp)
@@ -185,7 +187,7 @@ static int get_mindcraft_power(int *sn)
 					}
 
 					/* Extract the minimum failure rate */
-					minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+/*					minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];*/
 
 					/* Minimum failure rate */
 					if (chance < minfail) chance = minfail;
@@ -466,6 +468,7 @@ void do_cmd_mindcraft(void)
 	mindcraft_power spell;
 	bool            cast;
 
+   minfail = 0;
 
 	/* not if confused */
 	if (p_ptr->confused)
@@ -496,7 +499,7 @@ void do_cmd_mindcraft(void)
 	chance -= 3 * (plev - spell.min_lev);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+/*	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);*/
 
 	/* Not enough mana to cast */
 	if (spell.mana_cost > p_ptr->csp)
@@ -505,7 +508,7 @@ void do_cmd_mindcraft(void)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+/*	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];*/
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;

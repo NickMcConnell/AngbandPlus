@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:10:51 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/05/22 05:36:34 $
 # File: misc.txt
 
 
@@ -30,7 +30,7 @@ M:V:132
 M:F:160
 
 # Maximum number of ego-items in e_info.txt
-M:E:310
+M:E:312
 
 # Maximum number of field types in t_info.txt
 M:T:142

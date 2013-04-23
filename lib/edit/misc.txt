@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:05:07 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/05/22 05:36:34 $
 # File: misc.txt
 
 
@@ -21,7 +21,7 @@ M:WP:30
 M:R:885
 
 # Maximum number of items in k_info.txt
-M:K:625
+M:K:300
 
 # Maximum number of vaults in v_info.txt
 M:V:132
@@ -30,10 +30,16 @@ M:V:132
 M:F:160
 
 # Maximum number of ego-items in e_info.txt
-M:E:128
+M:E:312
 
 # Maximum number of field types in t_info.txt
 M:T:142
+
+# Maximum number of realms in sr_info.txt
+M:SR:11
+
+# Maximum number of spells in s_info.txt
+M:SR:186
 
 # Maximum size for "o_list[]"
 # Increase this if you get lots of 'Generation restarted (too many objects)' messages.

@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.3.3"
+#define VERSION_STRING	"0.4.1"
 
 
 /*
@@ -301,6 +301,8 @@
 #define ST_HALF_INVEN		0x08	/* One page of inventory */
 #define ST_GREED			0x10	/* Double prices */
 #define ST_ULTRA_GREED		0x20	/* Quadruple prices */
+#define ST_RAISED_COST  0x40  /*  Advanced Shops  */
+#define ST_HIGH_COST    0x80  /*  Rare Stuff Shops  */
 
 
 
@@ -769,16 +771,18 @@
  * Possible realms that can be chosen;
  * currently used only by birth.c and tables.c
  */
-#define CH_NONE         0x00
-#define CH_LIFE         0x01
-#define CH_SORCERY      0x02
-#define CH_NATURE       0x04
-#define CH_CHAOS        0x08
-#define CH_DEATH        0x10
-#define CH_TRUMP        0x20
-#define CH_ARCANE       0x40
-#define CH_CHI          0x80
 
+#define CH_NONE         0x00000000L
+#define CH_LIFE         0x00000001L
+#define CH_SORCERY      0x00000002L
+#define CH_NATURE       0x00000004L
+#define CH_CHAOS        0x00000008L
+#define CH_DEATH        0x00000010L
+#define CH_TRUMP        0x00000020L
+#define CH_ARCANE       0x00000040L
+#define CH_CHI          0x00000080L
+#define CH_ELEMENTAL    0x00000100L
+#define CH_GENERAL      0x00000200L
 
 /*
  * Magic realms
@@ -792,7 +796,10 @@
 #define REALM_TRUMP        6
 #define REALM_ARCANE       7
 #define REALM_CHI          8
-#define MAX_REALM          8
+#define REALM_ELEMENTAL    9
+#define REALM_GENERAL      10
+
+#define MAX_REALM          10
 
 /*
  * Magic-books for the realms
@@ -1423,8 +1430,6 @@
 #define ACT_BA_CHAOS             126
 #define ACT_BA_BALANCE           127
 #define ACT_BA_POWER             128
-/*  Defined Power Above  */
-/*  Non repertitive activations below  */
 #define ACT_INC_STR              129
 #define ACT_INC_INT              130
 #define ACT_INC_WIS              131
@@ -1478,6 +1483,166 @@
 #define ACT_AGGRAVATION          179
 #define ACT_TEMP_SEE_INVIS       180
 #define ACT_TEMP_TELEPATHY       181
+#define ACT_REPAIR               182
+#define ACT_STAR_REPAIR          183
+#define ACT_DETECT_EVIL          184
+#define ACT_REMOVE_FEAR          185
+#define ACT_LIGHT                186
+#define ACT_DETECT_TRAPS_DOORS   187
+#define ACT_CURE_POISON          188
+#define ACT_SEE_INIVISBLE        189
+#define ACT_HOLY_ORB             190
+#define ACT_PROTECTION_FROM_EVIL 191
+#define ACT_GLYPH_WARDING        192
+#define ACT_EXORCISM             193
+#define ACT_DISPELL_UNDEAD_AND_DEMONS 194
+#define ACT_DAY_OF_THE_DOVE      195
+#define ACT_DISPEL_EVIL          196
+#define ACT_BANISH_EVIL          197
+#define ACT_HOLY_WORD            198
+#define ACT_WARDING_TRUE         199
+#define ACT_PRAYER               200
+#define ACT_BLESS_WEAPON         201
+#define ACT_RESTORATION          202
+#define ACT_HEALING_TRUE         203
+#define ACT_HOLY_VISION          204
+#define ACT_DIVINE_INTERVENTION  205
+#define ACT_HOLY_INVUNERABILITY  206
+#define ACT_DETECT_MONSTERS      207
+#define ACT_CONFUSE_MONSTER      208
+#define ACT_SLEEP_MONSTER        209
+#define ACT_IDENTIFY             210
+#define ACT_SLOW_MONSTER         211
+#define ACT_MASS_SLEEP           212
+#define ACT_TELEPORT_AWAY        213
+#define ACT_SPEED                214
+#define ACT_DETECT_ALL           215
+#define ACT_STAR_IDENTIFICATION  216
+#define ACT_DETECT_OBJECTS_AND_TREASURE 217
+#define ACT_DETECT_ENCHANTMENT   218
+#define ACT_CHARM_MONSTER        219
+#define ACT_DIMENSION_DOOR       220
+#define ACT_STASIS               221
+#define ACT_TELEKINESIS          222
+#define ACT_EXPLOSIVE_RUNE       223
+#define ACT_CLAIRVOYANCE         224
+#define ACT_SORCERY_ENCHANT_WEAPON 225
+#define ACT_SORCERY_ENCHANT_ARMOR 226
+#define ACT_ALCHEMY              227
+#define ACT_GLOBE_INVUNERABILTY  228
+#define ACT_CHARM_ANIMAL         229
+#define ACT_MINOR_RESISTANCE     230
+#define ACT_LIGHTNING_BOLT       231
+#define ACT_FROST_BOLT           232
+#define ACT_LIGHT_BEAM           233
+#define ACT_ENTANGLE             234
+#define ACT_HERBAL_HEALING       235
+#define ACT_DOOR_BUILDING        236
+#define ACT_CREATE_STAIRS        237
+#define ACT_STONE_SKIN           238
+#define ACT_RESISTANCE_TRUE      239
+#define ACT_ANIMAL_FRIENDSHIP    240
+#define ACT_WALL_OF_STONE        241
+#define ACT_PROTECTION_FROM_CORROSION 242
+#define ACT_EARTHQUAKE           243
+#define ACT_WHIRLWIND            244
+#define ACT_BLIZZARD             245
+#define ACT_LIGHTNING_STORM      246
+#define ACT_WHIRLPOOL            247
+#define ACT_CALL_SUNLIGHT        248
+#define ACT_ELEMENTAL_BRAND      249
+#define ACT_NATURES_WRATH        250
+#define ACT_MAGIC_MISSILE        251
+#define ACT_TRAP_DOOR_DESTRUCTION 252
+#define ACT_TOUCH_CONFUSION      253
+#define ACT_MANA_BURST           254
+#define ACT_FIRE_BOLT            255
+#define ACT_FIST_OF_FORCE        256
+#define ACT_WONDER               257
+#define ACT_CHAOS_BOLT           258
+#define ACT_SONIC_BOOM           259
+#define ACT_DOOM_BOLT            260
+#define ACT_FIRE_BALL            261
+#define ACT_DESTRUCTION          262
+#define ACT_INVOKE_LOGRUS        263
+#define ACT_POLYMORPH_OTHER      264
+#define ACT_CHAIN_LIGHTNING      265
+#define ACT_DISINTEGRATION       266
+#define ACT_ALTER_REALITY        267
+#define ACT_POLYMORPH_SELF       268
+#define ACT_CHAOS_BRANDING       269
+#define ACT_BEAM_OF_GRAVITY      270
+#define ACT_METEOR_SWARM         271
+#define ACT_FIRE_STRIKE          272
+#define ACT_MAGIC_ROCKET         273
+#define ACT_MANA_STORM           274
+#define ACT_BREATH_LOGRUS        275
+#define ACT_CALL_THE_VOID        276
+#define ACT_DETECT_UNLIFE        277
+#define ACT_MALEDICTION          278
+#define ACT_STINKING_CLOUD       279
+#define ACT_RESIST_POISON        280
+#define ACT_HORRIFY              281
+#define ACT_ENSLAVE_UNDEAD       282
+#define ACT_ORB_OF_ENTROPY       283
+#define ACT_NETHER_BOLT          284
+#define ACT_TERROR               285
+#define ACT_VAMPIRIC_DRAIN       286
+#define ACT_POISON_BRAND         287
+#define ACT_DISPEL_GOOD          288
+#define ACT_BERSERK              289
+#define ACT_INVOKE_SPIRITS       290
+#define ACT_DARK_BOLT            291
+#define ACT_BATTLE_FRENZY        292
+#define ACT_VAMPIRISM_TRUE       293
+#define ACT_VAMPIRIC_BRANDING    294
+#define ACT_DARKNESS_STORM       295
+#define ACT_DEATH_RAY            296
+#define ACT_RAISE_DEAD           297
+#define ACT_WORD_OF_DEATH        298
+#define ACT_EVOCATION            299
+#define ACT_HELLFIRE             300
+#define ACT_OMNICIDE             301
+#define ACT_WRAITHFORM           302
+#define ACT_MIND_BLAST           303
+#define ACT_SHUFFLE              304
+#define ACT_RESET_RECALL         305
+#define ACT_REACH                306
+#define ACT_SUMMON_MONSTER       307
+#define ACT_BANISH_MONSTERS      308
+#define ACT_JOKER_CARD           309
+#define ACT_SUMMON_SPIDERS       310
+#define ACT_SUMMON_REPTILES      311
+#define ACT_SUMMON_HOUNDS        312
+#define ACT_TRUMP_BRANDING       313
+#define ACT_LIVING_TRUMP         314
+#define ACT_SUMMON_CYBERDEMON    315
+#define ACT_SUMMON_DRAGON        316
+#define ACT_MASS_SUMMONING       317
+#define ACT_SUMMON_ANCIENT_DRAGON 318
+#define ACT_GREATER_UNDEAD       319
+#define ACT_WIZARD_LOCK          320
+#define ACT_DETECT_INVISIBLE     321
+#define ACT_PHLOGISTON           322
+#define ACT_DETECT_OBJECTS       323
+#define ACT_RESIST_COLD          324
+#define ACT_RESIST_FIRE          325
+#define ACT_RESIST_LIGHTNING     326
+#define ACT_RESIST_ACID          327
+#define ACT_ELEMENTAL_BALL       328
+#define ACT_FORTIFICATION        329
+#define ACT_MYSTIC_SENSING       330
+#define ACT_OBJECT_SCRYING       331
+#define ACT_GUIDING_LIGHT        332
+#define ACT_GREATER_FORTIFICATION 333
+#define ACT_MYSTIC_BOLT          334
+#define ACT_SPINNING_DEATH       335
+#define ACT_MYSTIC_BALL          336
+#define ACT_SUPREME_FORTIFICATION 337
+#define ACT_MYSTIC_BURST         338
+
+#define ACT_MAXIMUM              339
+
 
 /*** Object "tval" and "sval" codes ***/
 /*
@@ -2344,7 +2509,7 @@
 #define TR1_BLOWS               0x00002000L     /* Blows += "pval" */
 #define TR1_CHAOTIC             0x00004000L
 #define TR1_VAMPIRIC            0x00008000L
-#define TR1_CONFUSIION          0x00010000L
+#define TR1_CONFUSION           0x00010000L
 #define TR1_HALLUCINATION       0x00020000L
 #define TR1_DIEASE              0x00040000L
 #define TR1_POISON              0x00080000L
@@ -3878,7 +4043,8 @@ extern int PlayerUID;
 #define BACT_RECALL                 33
 #define BACT_TELEPORT_LEVEL         34
 #define BACT_LOSE_MUTATION          35
-#define MAX_BACT                    36
+#define BACT_MASTER_SPELL_BOOK      36
+#define MAX_BACT                    37
 
 /*
  * Quest status

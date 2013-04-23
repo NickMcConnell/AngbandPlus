@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/04/05 06:22:21 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/05/22 05:36:34 $
 # File: e_info.txt
 
 
@@ -2216,4 +2216,18 @@ C:0:0:0:0:3
 F:ACTIVATE | ACT_KNOWLEDGE
 F:EQUIPABLE | AMULET | RING | ARMOR | WAND | ROD
 F:STAFF | WEAPON | BOW | SCROLL
+
+N:309:of Repair
+X:1:2
+W:2:1:1:50
+C:0:0:0:0:3
+F:ACTIVATE | ACT_REPAIR
+F:SCROLL
+
+N:310:of *Repair*
+X:1:2
+W:2:1:1:650
+C:0:0:0:0:10
+F:ACTIVATE | ACT_STAR_REPAIR
+F:SCROLL
 

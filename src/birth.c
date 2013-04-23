@@ -1385,56 +1385,56 @@ static const byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Mage */
-		{ TV_SPELL_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SPELL_BOOK, 255 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_DAGGER },
-		{ TV_SPELL_BOOK, 0 } /* Hack: for realm2 book */
+		{ TV_SPELL_BOOK, 255 } /* Hack: for realm2 book */
 	},
 
 	{
 		/* Priest */
-		{ TV_SPELL_BOOK, 0 }, /* Hack: for Life / Death book */
+		{ TV_SPELL_BOOK, 255 }, /* Hack: for Life / Death book */
 		{ TV_HAFTED, SV_MACE },
-		{ TV_SPELL_BOOK, 0 } /* Hack: for realm2 book */
+		{ TV_SPELL_BOOK, 255 } /* Hack: for realm2 book */
 	},
 
 	{
 		/* Rogue */
-		{ TV_SPELL_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SPELL_BOOK, 255 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
 	},
 
 	{
 		/* Ranger */
-		{ TV_SPELL_BOOK, 0 },
+		{ TV_SPELL_BOOK, 255 },
 		{ TV_SWORD, SV_DAGGER },
-		{ TV_SPELL_BOOK, 0 }		/* Hack: for realm2 book */
+		{ TV_SPELL_BOOK, 255 }		/* Hack: for realm2 book */
 	},
 
 	{
 		/* Paladin */
-		{ TV_SPELL_BOOK, 0 },
+		{ TV_SPELL_BOOK, 255 },
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SCROLL, SV_ANY }
 	},
 
 	{
 		/* Warrior-Mage */
-		{ TV_SPELL_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SPELL_BOOK, 255 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_SPELL_BOOK, 0 } /* Hack: for realm2 book */
+		{ TV_SPELL_BOOK, 255 } /* Hack: for realm2 book */
 	},
 
 	{
 		/* Chaos Warrior */
-		{ TV_SPELL_BOOK, 0 }, /* Hack: For realm1 book */
+		{ TV_SPELL_BOOK, 255 }, /* Hack: For realm1 book */
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
 	},
 
 	{
 		/* Monk */
-		{ TV_SPELL_BOOK, 0 },
+		{ TV_SPELL_BOOK, 255 },
 		{ TV_POTION, SV_ANY },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 	},
@@ -1448,14 +1448,14 @@ static const byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* High Mage */
-		{ TV_SPELL_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SPELL_BOOK, 255 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_RING, SV_ANY}
 	},
 
 	{
 		/* Chi Warrior */
-		{ TV_SPELL_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SPELL_BOOK, 255 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_RING, SV_ANY }
 	},
@@ -1495,6 +1495,9 @@ static void player_outfit(void)
 			/* Scrolls of satisfy hunger */
 			object_prep(q_ptr,
 			            lookup_kind(TV_SCROLL, SV_ANY));
+
+         q_ptr->activate = ACT_SATIATE;
+
 			q_ptr->number = (byte)rand_range(2, 5);
 			object_aware(q_ptr);
 			object_known(q_ptr);
@@ -1526,6 +1529,8 @@ static void player_outfit(void)
 		/* Hack -- Give the player scrolls of DARKNESS! */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_ANY));
 
+      q_ptr->activate = ACT_BA_DARKNESS;
+
 		q_ptr->number = (byte)rand_range(2, 5);
 
 		object_aware(q_ptr);
@@ -1555,6 +1560,7 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player some arrows */
 		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
+      apply_magic(q_ptr, 10, 30, OC_FORCE_GOOD, FALSE);
 		q_ptr->number = (byte)rand_range(15, 20);
 
 		/* These objects are "storebought" */
@@ -1582,6 +1588,9 @@ static void player_outfit(void)
 		/* Hack -- Give the player some arrows */
 		object_prep(q_ptr, lookup_kind(TV_WAND, SV_ANY));
 		q_ptr->number = 1;
+
+      q_ptr->activate = ACT_MAGIC_MISSILE;
+
 		q_ptr->pval = (byte)rand_range(25, 30);
 
 		/* These objects are "storebought" */
@@ -1601,15 +1610,7 @@ static void player_outfit(void)
 		sv = player_init[p_ptr->pclass][i][1];
 
 		/* Hack to initialize spellbooks */
-		if (tv == TV_SPELL_BOOK) tv = TV_SPELL_BOOK + p_ptr->realm1 - 1;
-		else if (tv == TV_SPELL_BOOK) tv = TV_SPELL_BOOK + p_ptr->realm2 - 1;
-
-		else if (tv == TV_RING && sv == SV_ANY &&
-		    p_ptr->prace == RACE_BARBARIAN)
-		{
-			/* Barbarians do not need a ring of resist fear */
-			sv = SV_ANY;
-		}
+		if (tv == TV_SPELL_BOOK) tv = TV_SPELL_BOOK;
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -1617,6 +1618,9 @@ static void player_outfit(void)
 		/* Hack -- Give the player an object */
 		object_prep(q_ptr, lookup_kind(tv, sv));
 
+      if (tv == TV_SPELL_BOOK)
+      apply_magic(q_ptr, 10, 10, FALSE, FALSE);
+      else
       apply_magic(q_ptr, 10, 30, OC_FORCE_GOOD, FALSE);
 
 		/* Assassins begin the game with a poisoned dagger */
@@ -2149,7 +2153,31 @@ static bool get_player_class(void)
 
 	/* Set class */
 	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
+/*   mp_ptr = NULL;*/
+/*	  mp_ptr = &player_magic;*/
+   /*  Clean Magic out  */
+   for (i = 0; i < 10; i++)
+   {
+      mp_ptr->has_realm[i] = 0;
+      mp_ptr->realm_power[i] = 0;
+   }
+
+   for (i = 0; i < 32; i++)
+   {
+      mp_ptr->general[i] = 0;
+      mp_ptr->life[i] = 0;
+      mp_ptr->death[i] = 0;
+      mp_ptr->sorcery[i] = 0;
+      mp_ptr->nature[i] = 0;
+      mp_ptr->trump[i] = 0;
+      mp_ptr->chaos[i] = 0;
+      mp_ptr->arcane[i] = 0;
+      mp_ptr->chi[i] = 0;
+      mp_ptr->elemental[i] = 0;
+   }
+
+   mp_ptr->spell_level_penalty = 0;
+   mp_ptr->spell_weight = 0;
 
 	for (i = 0; i < MAX_CLASS; i++)
 	{
@@ -2208,6 +2236,8 @@ static bool get_player_realms(void)
 	/* Save the choice */
 	p_ptr->realm1 = select[choose];
 
+   if (p_ptr->realm1) mp_ptr->has_realm[p_ptr->realm1] = 1;
+
 	/* Paranoia - No realms at all? */
 	select[0] = REALM_NONE;
 
@@ -2241,6 +2271,8 @@ static bool get_player_realms(void)
 
 	/* Save the choice */
 	p_ptr->realm2 = select[choose];
+
+   if (p_ptr->realm2) mp_ptr->has_realm[p_ptr->realm2] = 2;
 
 	/* Done */
 	return (TRUE);
@@ -3120,6 +3152,204 @@ static bool player_birth_aux(void)
 }
 
 
+void player_start_spells()
+{
+   int   i,j,k,l;
+   int   ii,jj;
+   magic_type *sp_ptr;
+   int   numspells;
+   int   done;
+   int   st[4];
+
+   ii = 0; jj = 0;
+
+   for (i = 0; i < 4; i++)
+   {
+      st[i] = 0;
+   }
+
+   i = -1;
+   j = 0;
+   k = 2;
+   l = 0;
+   numspells = 0;
+
+   done = 0;
+
+   if (p_ptr->realm1)
+   {
+      numspells = 4;
+
+      if (numspells > 0)
+      {
+         l = 0;
+
+         while (!done)
+         {
+            l++;
+            j = randint1(185);
+
+            sp_ptr = &s_info[j];
+
+            if (sp_ptr->slevel <= i+k && check_realm2( sp_ptr, p_ptr->realm1))
+            {
+               jj = 0;
+               if (i > 0)
+               {
+                  jj = 0;
+                  for (ii = 0; ii < i+1; ii++)
+                  {
+                     if (st[ii] == j) jj = 1;
+                  }
+               }
+               if (jj == 0)
+               {
+                  i++;
+                  numspells--;
+                  st[i] = j;
+                  if (p_ptr->realm1 == 1)  mp_ptr->life[i] = sp_ptr->index;
+                  if (p_ptr->realm1 == 2)  mp_ptr->sorcery[i] = sp_ptr->index;
+                  if (p_ptr->realm1 == 3)  mp_ptr->nature[i] = sp_ptr->index;
+                  if (p_ptr->realm1 == 4)  mp_ptr->chaos[i] = sp_ptr->index;
+                  if (p_ptr->realm1 == 5)  mp_ptr->death[i] = sp_ptr->index;
+                  if (p_ptr->realm1 == 6)  mp_ptr->trump[i] = sp_ptr->index;
+                  if (p_ptr->realm1 == 7)  mp_ptr->arcane[i] = sp_ptr->index;
+                  if (p_ptr->realm1 == 8)  mp_ptr->chi[i] = sp_ptr->index;
+                  if (p_ptr->realm1 == 9)  mp_ptr->elemental[i] = sp_ptr->index;
+                  if (p_ptr->realm1 == 10) mp_ptr->general[i] = sp_ptr->index;
+               }
+            }
+
+            if (l > 100)
+            {
+               k++;
+               l = 0;
+            }
+
+            if (numspells == 0) done = TRUE;
+         }
+      }
+   }
+
+   for (i = 0; i < 4; i++)
+   {
+      st[i] = 0;
+   }
+
+   i = -1;
+   j = 0;
+   k = 2;
+   l = 0;
+   numspells = 0;
+
+   done = 0;
+
+   if (p_ptr->realm2)
+   {
+      numspells = 4;
+
+      if (numspells > 0)
+      {
+         l = 0;
+
+         while (!done)
+         {
+            l++;
+            j = randint1(185);
+
+            sp_ptr = &s_info[j];
+
+            if (sp_ptr->slevel <= i+k && check_realm2( sp_ptr, p_ptr->realm2))
+            {
+               jj = 0;
+               if (i > 0)
+               {
+                  jj = 0;
+                  for (ii = 0; ii < i+1; ii++)
+                  {
+                     if (st[ii] == j) jj = 1;
+                  }
+               }
+               if (jj == 0)
+               {
+                  i++;
+                  numspells--;
+                  st[i] = j;
+                  if (p_ptr->realm2 == 1)  mp_ptr->life[i] = sp_ptr->index;
+                  if (p_ptr->realm2 == 2)  mp_ptr->sorcery[i] = sp_ptr->index;
+                  if (p_ptr->realm2 == 3)  mp_ptr->nature[i] = sp_ptr->index;
+                  if (p_ptr->realm2 == 4)  mp_ptr->chaos[i] = sp_ptr->index;
+                  if (p_ptr->realm2 == 5)  mp_ptr->death[i] = sp_ptr->index;
+                  if (p_ptr->realm2 == 6)  mp_ptr->trump[i] = sp_ptr->index;
+                  if (p_ptr->realm2 == 7)  mp_ptr->arcane[i] = sp_ptr->index;
+                  if (p_ptr->realm2 == 8)  mp_ptr->chi[i] = sp_ptr->index;
+                  if (p_ptr->realm2 == 9)  mp_ptr->elemental[i] = sp_ptr->index;
+                  if (p_ptr->realm2 == 10) mp_ptr->general[i] = sp_ptr->index;
+               }
+            }
+
+            if (l > 100)
+            {
+               k++;
+               l = 0;
+            }
+
+            if (numspells == 0) done = TRUE;
+         }
+      }
+   }
+}
+
+void check_level_penalty()
+{
+   if (p_ptr->pclass == CLASS_ROGUE ||
+       p_ptr->pclass == CLASS_RANGER ||
+       p_ptr->pclass == CLASS_PALADIN )
+         mp_ptr->spell_level_penalty = 2;
+}
+
+void check_spell_weight_penalty()
+{
+	switch (p_ptr->pclass)
+	{
+		/* For these classes, mana is halved if armour
+		 * is 30 pounds over their weight limit. */
+		case CLASS_MAGE:
+		case CLASS_HIGH_MAGE:
+		{
+         mp_ptr->spell_weight = 300;
+			break;
+		}
+
+		/* Mana halved if armour is 40 pounds over weight limit. */
+		case CLASS_PRIEST:
+		case CLASS_MINDCRAFTER:
+      case CLASS_CHI_WARRIOR:
+		{
+         mp_ptr->spell_weight = 400;
+			break;
+		}
+
+		/* Mana halved if armour is 50 pounds over weight limit. */
+		case CLASS_ROGUE:
+		case CLASS_RANGER:
+		case CLASS_MONK:
+		{
+         mp_ptr->spell_weight = 500;
+			break;
+		}
+
+		/* Mana halved if armour is 60 pounds over weight limit. */
+		case CLASS_PALADIN:
+		case CLASS_CHAOS_WARRIOR:
+		case CLASS_WARRIOR_MAGE:
+		{
+         mp_ptr->spell_weight = 600;
+			break;
+		}
+   }
+}
+
 /*
  * Create a new character.
  *
@@ -3152,7 +3382,16 @@ void player_birth(void)
 	message_add(" ", TERM_WHITE);
 
 	/* Hack -- outfit the player */
+/*	player_outfit();*/
+
+   if (p_ptr->realm1 != 0) player_start_spells();
+
+	/* Hack -- outfit the player */
 	player_outfit();
+
+   if (p_ptr->realm1 != 0) check_level_penalty();
+
+   if (p_ptr->realm1 != 0) check_spell_weight_penalty();
 
 	/* Set the message window flag as default */
 	if (!window_flag[1])

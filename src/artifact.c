@@ -1356,7 +1356,7 @@ static void give_activation_power(object_type *o_ptr, int artifact_bias)
 	while (!type || (randint1(100) >= chance))
 	{
 /*  TEMP FIX  */
-		type = randint1(181);
+		type = randint1(339);
       chance = 75;
 		switch (type)
 		{
@@ -1525,6 +1525,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool store_made)
    object_type *to_ptr;
 	char    new_name[1024];
 	int     has_pval = 0;
+   int     has_pval2 = 0;
 	int     power_level;
 	s32b    total_flags;
 	bool    a_cursed = FALSE;
@@ -1640,9 +1641,11 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool store_made)
    if (one_in_(WEIRD_LUCK))
    {
       if (o_ptr->pval < 0) o_ptr->pval = -(o_ptr->pval);
+      if (o_ptr->pval2 < 0) o_ptr->pval2 = -(o_ptr->pval2);
    }
 
    if (o_ptr->pval < 0) o_ptr->pval = 0;
+   if (o_ptr->pval2 < 0) o_ptr->pval2 = 0;
    if (o_ptr->to_a < 0) o_ptr->to_a = 0;
    if (o_ptr->to_d < 0) o_ptr->to_d = 0;
    if (o_ptr->to_a < 0) o_ptr->to_h = 0;
@@ -1768,8 +1771,13 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool store_made)
 	   	{
 		   	case 1: case 2:
                if (to_ptr->pval < 1) to_ptr->pval = 1;
-			   	artifact_bias = random_plus(to_ptr, artifact_bias);
-				   has_pval = 1;
+			   	if (randint1(2) == 1)
+               {
+                  artifact_bias = random_plus(to_ptr, artifact_bias);
+   				   has_pval = 1;
+               }
+               else
+               if (one_in_(3)) o_ptr->pval2++;
    				break;
 	   		case 3: case 4:
 		   		artifact_bias = random_resistance(to_ptr, 0, artifact_bias);
@@ -1874,6 +1882,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool store_made)
 		   give_activation_power(o_ptr, artifact_bias);
    	}
    }
+
+/*   if (o_ptr->activate == 0) o_ptr->pval2 = 0;*/
 
 	/* Just to be sure */
 	o_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |

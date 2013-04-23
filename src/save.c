@@ -525,6 +525,8 @@ static void wr_string(cptr str)
  */
 static void wr_item(const object_type *o_ptr)
 {
+   int i;
+
 	wr_s16b(o_ptr->k_idx);
 
 	/* Location */
@@ -595,6 +597,11 @@ static void wr_item(const object_type *o_ptr)
 	wr_s32b(o_ptr->cost);
 
 	wr_u16b(o_ptr->activate);
+
+   for (i = 0; i < 8; i++)
+   {
+      wr_u32b(o_ptr->spellist[i]);
+   }
 
 	wr_u32b(o_ptr->kn_flags1);
 	wr_u32b(o_ptr->kn_flags2);
@@ -1537,21 +1544,42 @@ static bool wr_savefile_new(void)
 		wr_s16b(p_ptr->player_hp[i]);
 	}
 
+   /*  Write Spell Data  */
+   for (i = 0; i < 10; i++)
+   {
+      wr_u16b( mp_ptr->has_realm[i]);
+      wr_u16b( mp_ptr->realm_power[i]);  /*  No effect yet!  */
+   }
+   for (i = 0; i < 32; i++)
+   {
+      wr_u16b( mp_ptr->life[i]);
+      wr_u16b( mp_ptr->sorcery[i]);
+      wr_u16b( mp_ptr->nature[i]);
+      wr_u16b( mp_ptr->chaos[i]);
+      wr_u16b( mp_ptr->death[i]);
+      wr_u16b( mp_ptr->trump[i]);
+      wr_u16b( mp_ptr->arcane[i]);
+      wr_u16b( mp_ptr->chi[i]);
+      wr_u16b( mp_ptr->elemental[i]);
+      wr_u16b( mp_ptr->general[i]);
+   }
+   wr_u16b( mp_ptr->spell_level_penalty);
+   wr_u16b( mp_ptr->spell_weight);
 
 	/* Write spell data */
-	wr_u32b(p_ptr->spell_learned1);
+/*	wr_u32b(p_ptr->spell_learned1);
 	wr_u32b(p_ptr->spell_learned2);
 	wr_u32b(p_ptr->spell_worked1);
 	wr_u32b(p_ptr->spell_worked2);
 	wr_u32b(p_ptr->spell_forgotten1);
 	wr_u32b(p_ptr->spell_forgotten2);
-
+*/
 	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
+/*	for (i = 0; i < 64; i++)
 	{
 		wr_byte(p_ptr->spell_order[i]);
 	}
-
+*/
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)

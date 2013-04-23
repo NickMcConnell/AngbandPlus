@@ -1,0 +1,1325 @@
+#
+#  Spell Data
+#
+#
+#  RandomBand will use a generic Build Your Own Spell Book System
+#  which will allow a player to add a total of 32 spells per realm
+#  to a spell list while making the spell books any way they want too.
+#  spells are normally gained going up in levels, however, alternate
+#  meathods, such as finding an existing spell book, are available too.
+#
+#
+#  Spell Data
+#
+# N: serial number : spell name
+# L: spell level : mana cost : base failure percent
+# P: base power : exp levels per 1 bonus power point (NOT IMPLEMENTED)
+# M: effect multiplier  used in #/# format
+# F: flags
+# D: description
+#
+# F: will be -->  ANY | LIFE | DEATH | NATURE | TRUMP | SORCERY | CHAOS
+#                 ARCANE | CHI | ELEMENTAL
+#
+# F: Also needs the ACT_<whatever spell> flag that designates the
+#    spell code yo use when casting the spell.
+#
+
+V:2.8.1
+
+N:1:Detect Evil
+L:1:1:20
+M:1/1
+D:Detects evil creatures.
+F:LIFE | DEATH | ARCANE | CHAOS | CHI
+F:ACT_DETECT_EVIL
+
+N:2:Cure Light Wounds
+L:2:2:25
+M:1/1
+D:Cures a small amount of wounds and reduces cuts.
+F:LIFE | ARCANE | CHI | NATURE
+F:ACT_CURE_LW
+
+N:3:Bless
+L:3:3:25
+M:2/1
+D:Grants a small holy bonus.
+F:LIFE
+F:ACT_BLESS
+
+N:4:Remove Fear
+L:4:4:25
+M:1/1
+D:Removes fear.
+F:LIFE | CHI
+F:ACT_REMOVE_FEAR
+
+N:5:Light area
+L:5:5:25
+M:2/1
+D:Calls a weak ball of light to light the area.
+F:LIFE | SORCERY | TRUMP | CHAOS | ARCANE
+F:ACT_LIGHT
+
+N:6:Detect Traps and Doors
+L:6:5:30
+M:1/1
+D:Finds hidden traps and doors.
+F:LIFE | DEATH | NATURE | SORCERY | ARCANE | CHI
+F:ACT_DETECT_TRAPS_DOORS
+
+N:7:Cure Medium Wounds
+L:9:9:30
+M:1/1
+D:Cures serious wounds and close cuts. Cures blindness confusion.
+F:LIFE | ARCANE | CHI | NATURE
+F:ACT_CURE_SW
+
+N:8:Satisfy Hunger
+L:12:10:35
+M:1/1
+D:Self explanatory.
+F:LIFE | NATURE | TRUMP | SORCERY | ARCANE | CHI
+F:ACT_SATIATE
+
+N:9:Remove Curse
+L:14:12:35
+M:1/1
+D:Removes curses from equipped items.
+F:LIFE | SORCERY | CHI
+F:ACT_REMOVE_CURSE
+
+N:10:Cure Poison
+L:15:14:40
+M:1/1
+D:Removes poisoned status.
+F:LIFE | NATURE | ARCANE | CHI
+F:ACT_CURE_POISON
+
+N:11:Cure Critical Wounds
+L:15:15:40
+M:1/1
+D:Cures a great amount of wounds.  Cures poison, cuts, blindness, stun and confusion.
+F:LIFE | NATURE | ARCANE | CHI
+F:ACT_CURE_CW
+
+N:12:Sense Unseen
+L:17:15:40
+M:1/1
+D:Temporarily allows caster to see invisble.
+F:LIFE | DEATH | TRUMP | SORCERY | CHAOS | ARCANE | CHI | ELEMENTAL
+F:ACT_SEE_INIVISBLE
+
+N:13:Holy Orb
+L:19:17:40
+M:1/1
+D:Holy fire ball attack spell.
+F:LIFE
+F:ACT_HOLY_ORB
+
+N:14:Protection from Evil
+L:21:19:40
+M:1/1
+D:Temporary protects caster from evil creatures.
+F:LIFE | CHI
+F:ACT_PROTECTION_FROM_EVIL
+
+N:15:Healing
+L:25:25:45
+M:1/1
+D:Heals an enormous amount of HP and cures cuts and stun.
+F:LIFE | CHI
+F:ACT_HEALING
+
+N:16:Glyph of Warding
+L:30:50:55
+M:1/1
+D:Will create a protection glyph on the floor if unobstructed.
+F:LIFE | CHI
+F:ACT_GLYPH_WARDING
+
+N:17:Exorcism
+L:20:20:40
+M:1/1
+D:Dispells undead and demons. Turns evil creatures.
+F:LIFE | CHI
+F:ACT_EXORCISM
+
+N:18:Dispel Curse
+L:24:24:60
+M:1/1
+D:Removes nearly all curses, as scroll of *Remove Curse*.
+F:LIFE | SORCERY | CHI | TRUMP
+F:ACT_STAR_REMOVE_CURSE
+
+N:19:Dispel Undead and Demons
+L:30:30:50
+M:1/1
+D:Very strong dispell magic against undead and demons.
+F:LIFE
+F:ACT_DISPELL_UNDEAD_AND_DEMONS
+
+N:20:Day of the Dove
+L:31:30:50
+M:1/1
+D:Strong mass charm spell.
+F:LIFE
+F:ACT_DAY_OF_THE_DOVE
+
+N:21:Dispel Evil
+L:32:30:60
+M:3/1
+D:Strong dispel evil spell.
+F:LIFE
+F:ACT_DISPEL_EVIL
+
+N:22:Banish Evil
+L:33:40:60
+M:1/1
+D:Banishes evil creatures.
+F:LIFE
+F:ACT_BANISH_EVIL
+
+N:23:Holy Word
+L:35:35:60
+M:4/1
+D:Dispells evil and heals the caster.
+F:LIFE
+F:ACT_HOLY_WORD
+
+N:24:Warding True
+L:40:70:70
+M:1/1
+D:Surrounds caster with glyphs of warding.
+F:LIFE
+F:ACT_WARDING_TRUE
+
+N:25:Heroism
+L:5:5:40
+M:1/1
+D:Makes you feel like a hero.
+F:LIFE | CHI
+F:ACT_HEROISM
+
+N:26:Prayer
+L:20:20:40
+M:1/1
+D:A holy prayer.
+F:LIFE
+F:ACT_PRAYER
+
+N:27:Bless Weapon
+L:30:70:60
+M:1/1
+D:Allows caster to bless weapons.
+F:LIFE | CHI
+F:ACT_BLESS_WEAPON
+
+N:28:Restoration
+L:40:80:60
+M:1/1
+D:Restore casters attributes.
+F:LIFE | CHI
+F:ACT_RESTORATION
+
+N:29:Healing True
+L:42:75:60
+M:1/1
+D:Powerful healing spell.
+F:LIFE
+F:ACT_HEALING_TRUE
+
+N:30:Holy Vision
+L:45:40:60
+M:1/1
+D:Holy vision.
+F:LIFE
+F:ACT_HOLY_VISION
+
+N:31:Divine Intervention
+L:47:90:70
+M:1/1
+D:Call on a god to rescue you.
+F:LIFE
+F:ACT_DIVINE_INTERVENTION
+
+N:32:Holy Invunerability
+L:49:90:70
+M:1/1
+D:Make caster invunerable for a short period of time.
+F:LIFE | CHI
+F:ACT_HOLY_INVUNERABILITY
+
+N:33:Detect Monsters
+L:1:1:15
+M:1/1
+D:Allows temporary sensing of monsters.
+F:SORCERY | ARCANE | NATURE | ARCANE
+F:ACT_DETECT_MONSTERS
+
+N:34:Phase Door
+L:1:1:15
+M:1/1
+D:Minor teleportation spell.
+F:SORCERY | TRUMP | ARCANE | CHI
+F:ACT_PHASE_DOOR
+
+N:35:Confuse Monster
+L:3:3:20
+M:1/1
+D:Confuses a monster.
+F:SORCERY
+F:ACT_CONFUSE_MONSTER
+
+N:36:Teleport
+L:4:3:25
+M:1/1
+D:Basic random teleportation.
+F:SORCERY | TRUMP | CHAOS | ARCANE | CHI
+F:ACT_TELEPORT
+
+N:37:Sleep Monster
+L:5:4:20
+M:1/1
+D:Puts a monster to sleep.
+F:SORCERY | DEATH
+F:ACT_SLEEP_MONSTER
+
+N:38:Recharging
+L:5:5:65
+M:1/1
+D:Recharges items.
+F:SORCERY | CHAOS | ARCANE | CHI
+F:ACT_RECHARGE
+
+N:39:Magic Mapping
+L:7:5:65
+M:1/1
+D:Maps the walls of an area.
+F:SORCERY
+F:ACT_MAGIC_MAP
+
+N:40:Identify
+L:7:5:65
+M:1/1
+D:Allows caster to basically identify objects.
+F:SORCERY | ARCANE | CHI
+F:ACT_IDENTIFY
+
+N:41:Slow Monster
+L:9:5:65
+M:1/1
+D:Slows a monster.
+F:SORCERY
+F:ACT_SLOW_MONSTER
+
+N:42:Mass Sleep
+L:9:5:65
+M:1/1
+D:Attempts to put all monsters in range to sleep.
+F:SORCERY
+F:ACT_MASS_SLEEP
+
+N:43:Teleport Away
+L:13:8:50
+M:1/1
+D:Attempts to teleport away the selected monster.
+F:SORCERY | CHAOS | TRUMP | ARCANE
+F:ACT_TELEPORT_AWAY
+
+N:44:Haste Self
+L:17:10:50
+M:1/1
+D:Give caster a temporary boost of speed.
+F:SORCERY
+F:ACT_SPEED
+
+N:45:Detection True
+L:24:15:60
+M:1/1
+D:Full detection.
+F:SORCERY | TRUMP | ARCANE | CHI
+F:ACT_DETECT_ALL
+
+N:46:Identify True
+L:28:20:65
+M:1/1
+D:Fully identifies the items.
+F:SORCERY | NATURE | CHI | ARCANE | DEATH | TRUMP | LIFE
+F:ACT_STAR_IDENTIFICATION
+
+N:47:Detect Objects and Treasure
+L:2:2:20
+M:1/1
+D:Detects objects and treasure
+F:SORCERY
+F:ACT_DETECT_OBJECTS_AND_TREASURE
+
+N:48:Detect Enchantment
+L:7:7:60
+M:1/1
+D:Detects enchanted items.
+F:SORCERY | ARCANE
+F:ACT_DETECT_ENCHANTMENT
+
+N:49:Charm Monster
+L:8:8:70
+M:1/1
+D:Caster can try to charm a monster.
+F:SORCERY
+F:ACT_CHARM_MONSTER
+
+N:50:Dimension Door
+L:9:9:70
+M:1/1
+D:Controlled teleportation.
+F:SORCERY | TRUMP | CHI
+F:ACT_DIMENSION_DOOR
+
+N:51:Sense Minds
+L:12:9:50
+M:1/1
+D:Temporary telepathy.
+F:SORCERY | TRUMP | ARCANE | CHI
+F:ACT_TEMP_TELEPATHY
+
+N:52:Self Knowledge
+L:15:12:65
+M:1/1
+D:Knowledge of self.
+F:SORCERY
+F:ACT_SELF_KNOWLEDGE
+
+N:53:Teleport Level
+L:17:12:50
+M:1/1
+D:Teleports up or down a level.
+F:SORCERY | TRUMP | ARCANE
+F:ACT_TELEPORT_LEVEL
+
+N:54:Word of Recall
+L:20:20:65
+M:1/1
+D:Recalls to the last town or dungeon level the caster was at.
+F:SORCERY | TRUMP | ARCANE | CHI
+F:ACT_RECALL
+
+N:55:Stasis
+L:8:8:30
+M:1/1
+D:???
+F:SORCERY
+F:ACT_STASIS
+
+N:56:Telekinesis
+L:20:20:65
+M:1/1
+D:Move objects.
+F:SORCERY
+F:ACT_TELEKINESIS
+
+N:57:Explosive Rune
+L:20:25:85
+M:1/1
+D:Create an explosive rune on a clear floor tile.
+F:SORCERY
+F:ACT_EXPLOSIVE_RUNE
+
+N:58:Clairvoyance
+L:25:30:70
+M:1/1
+D:???
+F:SORCERY
+F:ACT_CLAIRVOYANCE
+
+N:59:Enchant Weapon
+L:30:65:85
+M:1/1
+D:Powerfully enchants a weapon
+F:SORCERY
+F:ACT_SORCERY_ENCHANT_WEAPON
+
+N:60:Enchant Armour
+L:35:80:85
+M:1/1
+D:Enchants armour.
+F:SORCERY
+F:ACT_SORCERY_ENCHANT_ARMOR
+
+N:61:Alchemy
+L:40:40:80
+M:1/1
+D:???
+F:SORCERY
+F:ACT_ALCHEMY
+
+N:62:Globe of Invunerability
+L:42:65:65
+M:1/1
+D:Short term very high proctection globe.
+F:SORCERY
+F:ACT_GLOBE_INVUNERABILTY
+
+N:63:Animal Taming
+L:4:3:40
+M:1/1
+D:Make an animal friendly?
+F:NATURE | CHI
+F:ACT_CHARM_ANIMAL
+
+N:64:Minor Resistance
+L:4:4:40
+M:1/1
+D:Short term resistance to animals.
+F:NATURE
+F:ACT_MINOR_RESISTANCE
+
+N:65:Stone to Mud
+L:5:4:30
+M:1/1
+D:Turns stone to mud
+F:NATURE | ARCANE | CHI
+F:ACT_STONE_TO_MUD
+
+N:66:Lightning Bolt
+L:5:4:20
+M:1/1
+D:Caster can shoot a lightning bolt.
+F:NATURE | ELEMENTAL
+F:ACT_LIGHTNING_BOLT
+
+N:67:Frost Bolt
+L:5:5:35
+M:1/1
+D:Caster can shoot a frost bolt.
+F:NATURE | ELEMENTAL
+F:ACT_FROST_BOLT
+
+N:68:Light Beam
+L:7:5:30
+M:1/1
+D:Caster can shoot a beam of light.
+F:NATURE | ARCANE
+F:ACT_LIGHT_BEAM
+
+N:69:Entangle
+L:14:10:35
+M:1/1
+D:Slows monsters in the area.
+F:NATURE
+F:ACT_ENTANGLE
+
+N:70:Summon Animal
+L:20:20:80
+M:1/1
+D:Summons an animal as a pet.
+F:NATURE | TRUMP | CHI
+F:ACT_SUMMON_ANIMAL
+
+N:71:Herbal Healing
+L:35:80:85
+M:1/1
+D:Greatly heals the caster, unstuns, closes wounds, and purges poison.
+F:NATURE
+F:ACT_HERBAL_HEALING
+
+N:72:Door Building
+L:5:5:10
+M:1/1
+D:Creates doors around caster.
+F:NATURE
+F:ACT_DOOR_BUILDING
+
+N:73:Stair Building
+L:7:7:20
+M:1/1
+D:Creates stairs.
+F:NATURE
+F:ACT_CREATE_STAIRS
+
+N:74:Stone Skin
+L:8:8:65
+M:1/1
+D:Hardens casters skin for AC bonus.
+F:NATURE | CHI
+F:ACT_STONE_SKIN
+
+N:75:Resistance True
+L:12:15:75
+M:1/1
+D:Provides decent resistance.
+F:NATURE | CHI
+F:ACT_RESISTANCE_TRUE
+
+N:76:Animal Friendship
+L:25:25:80
+M:1/1
+D:Caster attempts to charm all animals in the area.
+F:NATURE
+F:ACT_ANIMAL_FRIENDSHIP
+
+N:77:Wall of Stone
+L:35:40:65
+M:1/1
+D:Creates walls of stone around the caster.
+F:NATURE
+F:ACT_WALL_OF_STONE
+
+N:78:Protection from Corrosion
+L:37:65:80
+M:1/1
+D:???
+F:NATURE
+F:ACT_PROTECTION_FROM_CORROSION
+
+N:79:Earthquake
+L:15:15:50
+M:1/1
+D:Cause an earthquake.
+F:NATURE
+F:ACT_EARTHQUAKE
+
+N:80:Whirlwind Attack
+L:20:20:70
+M:1/1
+D:Whirlwind attack.
+F:NATURE
+F:ACT_WHIRLWIND
+
+N:81:Blizzard
+L:22:22:65
+M:1/1
+D:Frozen ball spell.
+F:NATURE | ELEMENTAL
+F:ACT_BLIZZARD
+
+N:82:Lighting Storm
+L:28:25:65
+M:1/1
+D:Electric ball spell.
+F:NATURE | ELEMENTAL
+F:ACT_LIGHTNING_STORM
+
+N:83:Whirlpool
+L:32:28:75
+M:1/1
+D:Water ball spell.
+F:NATURE | ELEMENTAL
+F:ACT_WHIRLPOOL
+
+N:84:Call Sunlight
+L:34:30:80
+M:1/1
+D:???
+F:NATURE
+F:ACT_CALL_SUNLIGHT
+
+N:85:Elemental Branding
+L:36:65:55
+M:1/1
+D:Brand a weapon.
+F:NATURE | ELEMENTAL | CHI
+F:ACT_ELEMENTAL_BRAND
+
+N:86:Nature's Wrath
+L:39:65:55
+M:1/1
+D:???
+F:NATURE
+F:ACT_NATURES_WRATH
+
+N:87:Magic Missile
+L:1:1:15
+M:1/1
+D:Cast a magic missile
+F:CHAOS
+F:ACT_MAGIC_MISSILE
+
+N:88:Trap and Door Destruction
+L:1:1:15
+M:1/1
+D:Destroy traps and doors.
+F:CHAOS | ARCANE
+F:ACT_TRAP_DOOR_DESTRUCTION
+
+N:89:Touch of Confusion
+L:4:2:20
+M:1/1
+D:Gives caster monster confusion status.
+F:CHAOS
+F:ACT_TOUCH_CONFUSION
+
+N:90:Mana Burst
+L:6:4:40
+M:1/1
+D:Mana ball attack.
+F:CHAOS
+F:ACT_MANA_BURST
+
+N:91:Fire Bolt
+L:10:5:35
+M:1/1
+D:Fire bolt attack.
+F:CHAOS | ELEMENTAL
+F:ACT_FIRE_BOLT
+
+N:92:Fist of Force
+L:12:6:35
+M:1/1
+D:Disintegrate bolt attack.
+F:CHAOS
+F:ACT_FIST_OF_FORCE
+
+N:93:Wonder
+L:15:9:20
+M:1/1
+D:Your guess is as good as mine.
+F:CHAOS
+F:ACT_WONDER
+
+N:94:Chaos Bolt
+L:17:10:35
+M:1/1
+D:Chaos bolt.
+F:CHAOS
+F:ACT_CHAOS_BOLT
+
+N:95:Sonic Boom
+L:19:11:35
+M:1/1
+D:Sonic ball.
+F:CHAOS
+F:ACT_SONIC_BOOM
+
+N:96:Doom Bolt
+L:21:12:40
+M:1/1
+D:Doom bolt.
+F:CHAOS
+F:ACT_DOOM_BOLT
+
+N:97:Fire Ball
+L:22:13:40
+M:1/1
+D:Fire Ball
+F:CHAOS | ELEMENTAL
+F:ACT_FIRE_BALL
+
+N:98:Word of Destruction
+L:27:17:70
+M:1/1
+D:Word of Destruction.
+F:CHAOS
+F:ACT_DESTRUCTION
+
+N:99:Invoke Logrus
+L:30:35:75
+M:1/1
+D:Invoke Logrus
+F:CHAOS
+F:ACT_INVOKE_LOGRUS
+
+N:100:Polymorph Other
+L:9:5:35
+M:1/1
+D:Polymorph a monster.
+F:CHAOS
+F:ACT_POLYMORPH_OTHER
+
+N:101:Chain Lightning
+L:12:12:70
+M:1/1
+D:Cast multiple beams of lightning.
+F:CHAOS
+F:ACT_CHAIN_LIGHTNING
+
+N:102:Disintegration
+L:14:12:70
+M:1/1
+D:Cast a ball of disintegration.
+F:CHAOS
+F:ACT_DISINTEGRATION
+
+N:103:Alter Reality
+L:26:22:75
+M:1/1
+D:Alter reality.
+F:CHAOS
+F:ACT_ALTER_REALITY
+
+N:104:Polymorph Self
+L:39:40:75
+M:1/1
+D:Polymorph caster.
+F:CHAOS
+F:ACT_POLYMORPH_SELF
+
+N:105:Chaos Branding
+L:42:80:70
+M:1/1
+D:Chaos brand weapons.
+F:CHAOS
+F:ACT_CHAOS_BRANDING
+
+N:106:Summon Demon
+L:44:90:80
+M:1/1
+D:Summon a demon.
+F:CHAOS | TRUMP
+F:ACT_SUMMON_DEMON
+
+N:107:Beam of Gravity
+L:16:16:55
+M:1/1
+D:Caster fires a beam of gravity.
+F:CHAOS
+F:ACT_BEAM_OF_GRAVITY
+
+N:108:Meteor Swarm
+L:32:30:75
+M:1/1
+D:Meteor swarm.
+F:CHAOS
+F:ACT_METEOR_SWARM
+
+N:109:Flame Strike
+L:34:32:65
+M:1/1
+D:Powerful fireball.
+F:CHAOS
+F:ACT_FIRE_STRIKE
+
+N:110:Call Chaos
+L:36:36:75
+M:1/1
+D:Call Chaos
+F:CHAOS
+F:ACT_CALL_CHAOS
+
+
+N:111:Magic Rocket
+L:38:38:70
+M:1/1
+D:Fire a powerful rocket attack.
+F:CHAOS
+F:ACT_MAGIC_ROCKET
+
+N:112:Mana Storm
+L:40:45:75
+M:1/1
+D:Powerfull mana ball attack.
+F:CHAOS
+F:ACT_MANA_STORM
+
+N:113:Breathe Logrus
+L:43:55:70
+M:1/1
+D:Chaos ball attack who strength depends on character health.
+F:CHAOS
+F:ACT_BREATH_LOGRUS
+
+N:114:Call the Void
+L:46:90:75
+M:1/1
+D:Call the void.
+F:CHAOS
+F:ACT_CALL_THE_VOID
+
+N:115:Detect Unlife
+L:1:1:20
+M:1/1
+D:Detect non living creatures.
+F:DEATH
+F:ACT_DETECT_UNLIFE
+
+N:116:Malediction
+L:1:1:20
+M:1/1
+D:A zero radius ball of hell fire with possibly more damage.
+F:DEATH
+F:ACT_MALEDICTION
+
+N:117:Stinking Cloud
+L:2:2:30
+M:1/1
+D:A poisonous ball spell.
+F:DEATH
+F:ACT_STINKING_CLOUD
+
+N:118:Resist Poison
+L:5:9:55
+M:1/1
+D:Resist Poison
+F:DEATH
+F:ACT_RESIST_POISON
+
+N:119:Horrify
+L:7:7:20
+M:1/1
+D:Scare and stun a monster.
+F:DEATH
+F:ACT_HORRIFY
+
+N:120:Enslave Undead
+L:8:8:20
+M:1/1
+D:Turn an undead monster into a pet
+F:DEATH
+F:ACT_ENSLAVE_UNDEAD
+
+N:121:Orb of Entropy
+L:10:10:30
+M:1/1
+D:Orb of entropy.
+F:DEATH
+F:ACT_ORB_OF_ENTROPY
+
+N:122:Nether Bolt
+L:11:10:20
+M:1/1
+D:Nether bolt.
+F:DEATH
+F:ACT_NETHER_BOLT
+
+N:123:Terror
+L:14:12:40
+M:1/1
+D:Turn monsters.
+F:DEATH
+F:ACT_TERROR
+
+N:124:Vampiric Drain
+L:20:16:50
+M:1/1
+D:Drain target monsters life.
+F:DEATH
+F:ACT_VAMPIRIC_DRAIN
+
+N:125:Poison Branding
+L:26:65:40
+M:1/1
+D:Poison brand a weapon.
+F:DEATH
+F:ACT_POISON_BRAND
+
+N:126:Dispel Good
+L:30:30:50
+M:1/1
+D:Dispels good monsters.
+F:DEATH
+F:ACT_DISPEL_GOOD
+
+N:127:Genocide
+L:33:30:85
+M:1/1
+D:Genocide.
+F:DEATH
+F:ACT_GENOCIDE
+
+N:128:Restore Life
+L:40:40:85
+M:1/1
+D:Restore experience drain.
+F:DEATH
+F:ACT_RESTORE_LIFE
+
+N:129:Berserk
+L:8:15:70
+M:1/1
+D:Berserker rage.
+F:DEATH
+F:ACT_BERSERK
+
+N:130:Invoke Spirits
+L:8:10:70
+M:1/1
+D:???
+F:DEATH
+F:ACT_INVOKE_SPIRITS
+
+N:131:Dark Bolt
+L:9:9:20
+M:1/1
+D:Shoot a bolt of darkness.
+F:DEATH
+F:ACT_DARK_BOLT
+
+N:132:Battle Frenzy
+L:25:20:65
+M:1/1
+D:Fearless, speed and heroic power.
+F:DEATH
+F:ACT_BATTLE_FRENZY
+
+N:133:Vampirism True
+L:30:30:50
+M:1/1
+D:Vampiric draining attack.
+F:DEATH
+F:ACT_VAMPIRISM_TRUE
+
+N:134:Vampiric Branding
+L:30:80:60
+M:1/1
+D:Brand a weapon with drain life.
+F:DEATH
+F:ACT_VAMPIRIC_BRANDING
+
+N:135:Darkness Storm
+L:36:35:60
+M:1/1
+D:Powerful dark ball attack.
+F:DEATH
+F:ACT_DARKNESS_STORM
+
+N:136:Mass Genocide
+L:38:66:70
+M:1/1
+D:Kills creatures nearby.
+F:DEATH
+F:ACT_MASS_GENOCIDE
+
+N:137:Death Ray
+L:16:16:65
+M:1/1
+D:Death ray.
+F:DEATH
+F:ACT_DEATH_RAY
+
+N:138:Raise Dead
+L:22:60:85
+M:1/1
+D:Raises dead.
+F:DEATH
+F:ACT_RAISE_DEAD
+
+N:139:Word of Death
+L:29:30:60
+M:1/1
+D:Destroy living creatures.
+F:DEATH | TRUMP
+F:ACT_WORD_OF_DEATH
+
+N:140:Evocation
+L:33:30:70
+M:1/1
+D:Powerful spell to rid the caster of monsters.
+F:DEATH
+F:ACT_EVOCATION
+
+N:141:Hellfire
+L:39:100:85
+M:1/1
+D:Powerful hellfire attack which damages the caster.
+F:DEATH
+F:ACT_HELLFIRE
+
+N:142:Omnicide
+L:41:85:80
+M:1/1
+D:???
+F:DEATH
+F:ACT_OMNICIDE
+
+N:143:Wraithform
+L:44:75:80
+M:1/1
+D:Temporary wraithform.
+F:DEATH
+F:ACT_WRAITHFORM
+
+N:144:Mind Blast
+L:2:2:20
+M:1/1
+D:Psionic bolt attack.
+F:TRUMP
+F:ACT_MIND_BLAST
+
+N:145:Shuffle
+L:4:4:32
+M:1/1
+D:???
+F:TRUMP
+F:ACT_SHUFFLE
+
+N:146:Reset Recall
+L:5:5:35
+M:1/1
+D:Reset the recall level.
+F:TRUMP
+F:ACT_RESET_RECALL
+
+N:147:Reach
+L:16:16:35
+M:1/1
+D:Call an item to the caster.
+F:TRUMP
+F:ACT_REACH
+
+N:148:Summon Phantom
+L:25:22:25
+M:1/1
+D:Call a phantom
+F:TRUMP
+F:ACT_SUMMON_PHANTOM
+
+N:149:Summon Monster
+L:28:24:30
+M:1/1
+D:Call a monster.
+F:TRUMP
+F:ACT_SUMMON_MONSTER
+
+N:150:Conjure Elemental
+L:30:28:30
+M:1/1
+D:Call an elemental.
+F:TRUMP
+F:ACT_SUMMON_ELEMENTAL
+
+N:151:Banish Monsters
+L:39:36:30
+M:1/1
+D:Banish monsters.
+F:TRUMP
+F:ACT_BANISH_MONSTERS
+
+N:152:Joker Card
+L:11:11:35
+M:1/1
+D:Wild summoning.
+F:TRUMP
+F:ACT_JOKER_CARD
+
+N:153:Summon Spiders
+L:21:21:30
+M:1/1
+D:Summon spiders.
+F:TRUMP
+F:ACT_SUMMON_SPIDERS
+
+N:154:Summon Reptiles
+L:23:23:30
+M:1/1
+D:Summon reptiles.
+F:TRUMP
+F:ACT_SUMMON_REPTILES
+
+N:155:Summon Hounds
+L:25:25:30
+M:1/1
+D:Summon hounds.
+F:TRUMP
+F:ACT_SUMMON_HOUNDS
+
+N:156:Trump Branding
+L:31:65:35
+M:1/1
+D:Trump brand a weapon.
+F:TRUMP
+F:ACT_TRUMP_BRANDING
+
+N:157:Living Trump
+L:36:90:40
+M:1/1
+D:???
+F:TRUMP
+F:ACT_LIVING_TRUMP
+
+N:158:Summon Cyberdemon
+L:42:90:40
+M:1/1
+D:Summon cyberdemons.
+F:TRUMP
+F:ACT_SUMMON_CYBERDEMON
+
+N:159:Summon Undead
+L:34:75:35
+M:1/1
+D:Summons undead.
+F:TRUMP
+F:ACT_SUMMON_UNDEAD
+
+N:160:Summon Dragon
+L:36:75:35
+M:1/1
+D:Summon dragons.
+F:TRUMP
+F:ACT_SUMMON_DRAGON
+
+N:161:Mass Summoning
+L:38:90:35
+M:1/1
+D:Mass summoning.
+F:TRUMP | CHI
+F:ACT_MASS_SUMMONING
+
+N:162:Summmon Ancient Dragon
+L:44:90:35
+M:1/1
+D:Summon ancient dragons.
+F:TRUMP
+F:ACT_SUMMON_ANCIENT_DRAGON
+
+N:163:Summon Greater Undead
+L:46:90:35
+M:1/1
+D:Summon powerful undead.
+F:TRUMP
+F:ACT_GREATER_UNDEAD
+
+N:164:Zap
+L:1:1:15
+M:1/2
+D:Weak lightning bolt attack.
+F:ARCANE | ELEMENTAL
+F:ACT_LIGHTNING_BOLT
+
+N:165:Wizard Lock
+L:1:1:23
+M:1/1
+D:Lock a door.
+F:ARCANE
+F:ACT_WIZARD_LOCK
+
+N:166:Detect Invisibility
+L:1:1:23
+M:1/1
+D:Detects invisible monsters.
+F:ARCANE
+F:ACT_DETECT_INVISIBLE
+
+N:167:Phlogiston
+L:7:7:30
+M:1/1
+D:???
+F:ARCANE
+F:ACT_PHLOGISTON
+
+N:168:Detect Treasure
+L:8:7:40
+M:1/1
+D:Detects treasure.
+F:ARCANE
+F:ACT_DETECT_TREASURE
+
+N:169:Detect Objects
+L:9:8:40
+M:1/1
+D:Detect Objects
+F:ARCANE
+F:ACT_DETECT_OBJECTS
+
+N:170:Resist Cold
+L:10:10:40
+M:1/1
+D:Resist cold.
+F:ARCANE | ELEMENTAL
+F:ACT_RESIST_COLD
+
+N:171:Resist Fire
+L:11:10:40
+M:1/1
+D:Resist fire.
+F:ARCANE | ELEMENTAL
+F:ACT_RESIST_FIRE
+
+N:172:Resist Lightning
+L:12:10:40
+M:1/1
+D:Resist lightning.
+F:ARCANE | ELEMENTAL
+F:ACT_RESIST_LIGHTNING
+
+N:173:Resist Acid
+L:13:10:40
+M:1/1
+D:Resist acid.
+F:ARCANE | ELEMENTAL
+F:ACT_RESIST_ACID
+
+N:174:Elemental Ball
+L:40:28:55
+M:1/1
+D:Ball spell of a random element.
+F:ARCANE | ELEMENTAL
+F:ACT_ELEMENTAL_BALL
+
+N:175:Fortification
+L:1:1:25
+M:1/1
+D:Fortifies player.
+F:CHI
+F:ACT_FORTIFICATION
+
+N:176:Mystic Sensing
+L:4:8:33
+M:1/1
+D:Sense creatures of all types.
+F:CHI
+F:ACT_MYSTIC_SENSING
+
+N:177:Object Scrying
+L:7:14:40
+M:1/1
+D:Sense objects.
+F:CHI
+F:ACT_OBJECT_SCRYING
+
+N:178:Guiding Light
+L:9:18:45
+M:1/1
+D:Lights area and detects monsters.
+F:CHI
+F:ACT_GUIDING_LIGHT
+
+N:179:Greater Fortification
+L:48:65:95
+M:1/1
+D:Powerful aid in combat.
+F:CHI
+F:ACT_GREATER_FORTIFICATION
+
+N:180:Mystic Bolt
+L:30:30:50
+M:1/1
+D:Bolt of random type.
+F:CHI
+F:ACT_MYSTIC_BOLT
+
+N:181:Spinning Death
+L:42:90:70
+M:1/1
+D:Powerful attack against all monsters next to caster.
+F:CHI
+F:ACT_SPINNING_DEATH
+
+N:182:Mystic Ball
+L:33:80:75
+M:1/1
+D:Random ball attack.
+F:CHI
+F:ACT_MYSTIC_BALL
+
+N:183:Supreme Fortification
+L:50:135:95
+M:1/1
+D:Extremely potent but temporary combat and survival power.
+F:CHI
+F:ACT_SUPREME_FORTIFICATION
+
+N:184:Mystic Burst
+L:50:100:95
+M:1/1
+D:Powerful random attack.
+F:CHI
+F:ACT_MYSTIC_BURST
+
+N:185:Knowledge of the Ancients
+L:50:125:95
+M:1/1
+D:Ancient spirits tell you about all you equipment.
+F:CHI
+F:ACT_KNOWLEDGE
+

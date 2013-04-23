@@ -58,8 +58,8 @@ extern player_magic magic_info[MAX_CLASS];
 extern obj_theme qreward_theme[MAX_CLASS];
 /* */
 extern const u32b fake_spell_flags[4];
-extern const byte realm_choices1[];
-extern const byte realm_choices2[];
+extern const s16b realm_choices1[];
+extern const s16b realm_choices2[];
 extern cptr realm_names[];
 extern cptr spell_names[8][32];
 extern const int deadliness_conversion[512];
@@ -80,7 +80,7 @@ extern cptr silly_attacks[MAX_SILLY_ATTACK];
 extern const field_action f_action[];
 extern const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET];
 extern const mutation_type race_powers[MAX_RACE_POWERS];
-
+extern const s16b actcostmod[ACT_MAXIMUM];
 /* variable.c */
 extern cptr copyright[5];
 extern byte version_major;
@@ -264,6 +264,14 @@ extern header *e_head;
 extern ego_item_type *e_info;
 extern char *e_name;
 extern char *e_text;
+extern header *sr_head;
+extern realm_type *sr_info;
+extern char *sr_name;
+extern char *sr_text;
+extern header *s_head;
+extern magic_type *s_info;
+extern char *s_name;
+extern char *s_text;
 extern header *r_head;
 extern monster_race *r_info;
 extern char *r_name;
@@ -298,6 +306,8 @@ extern u16b max_k_idx;
 extern u16b max_v_idx;
 extern u16b max_f_idx;
 extern u16b max_e_idx;
+extern u16b max_sr_idx;
+extern u16b max_s_idx;
 extern u16b max_o_idx;
 extern u16b max_m_idx;
 extern u16b max_fld_idx;
@@ -450,6 +460,7 @@ extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern void do_cmd_pet(void);
+extern void do_cmd_master_book(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -508,6 +519,8 @@ extern errr init_v_info_txt(FILE *fp, char *buf, bool start);
 extern errr init_f_info_txt(FILE *fp, char *buf);
 extern errr init_k_info_txt(FILE *fp, char *buf);
 extern errr init_e_info_txt(FILE *fp, char *buf);
+extern errr init_sr_info_txt(FILE *fp, char *buf);
+extern errr init_s_info_txt(FILE *fp, char *buf);
 extern errr init_r_info_txt(FILE *fp, char *buf);
 extern errr init_w_info_txt(FILE *fp, char *buf);
 extern errr init_t_info_txt(FILE *fp, char *buf);
@@ -630,6 +643,7 @@ extern bool inven_carry_okay(const object_type *o_ptr);
 extern s16b inven_carry(object_type *o_ptr);
 extern s16b inven_takeoff(int item, int amt);
 extern void inven_drop(int item, int amt);
+extern bool item_tester_hook_has_spell(const object_type *o_ptr);
 extern bool item_tester_hook_artifactable(const object_type *o_ptr);  /*  NEW  */
 extern bool item_tester_hook_weapon(const object_type *o_ptr);
 extern bool item_tester_hook_melee_weapon(const object_type *o_ptr);
@@ -813,6 +827,8 @@ extern bool project_hook(int typ, int dir, int dam, u16b flg);
 extern bool project_hack(int typ, int dam);
 
 /* spells3.c */
+extern int check_realm2(magic_type *spl_ptr, int  realm);
+extern int check_spell(magic_type *spl_ptr);
 extern bool teleport_away(int m_idx, int dis);
 extern void teleport_to_player(int m_idx);
 extern void teleport_player(int dis);
@@ -841,13 +857,14 @@ extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
 extern bool artifact_scroll(void);
 extern bool ident_spell(void);
+extern bool repair_spell( s32b value);
 extern bool mundane_spell(void);
 extern void identify_item(object_type *o_ptr);
 extern bool identify_fully(void);
 extern bool recharge(int num);
 extern bool bless_weapon(void);
 extern bool potion_smash_effect(int who, int y, int x, int k_idx);
-extern void display_spell_list(void);
+extern void display_spell_list(object_type *o_ptr);
 extern s16b spell_chance(int spell, int realm);
 extern bool spell_okay(int spell, bool known, int realm);
 extern void print_spells(byte *spells, int num, int y, int x, int realm);
@@ -1252,6 +1269,10 @@ extern void test_compress_module(void);
 extern bool act_magic(int px, int py, int act_num, int s_lev, int s_fail,
                       int s_base, int s_bonus, int act_mult, int act_div,
                       int cast_penalty, int beam_pct);
+
+extern cptr act_desc(int px, int py, int act_num, int s_lev, int s_fail,
+              int s_base, int s_bonus, int act_mult, int act_div,
+              int cast_penalty, int beam_pct);
 
 /*
  * Hack -- conditional (or "bizarre") externs

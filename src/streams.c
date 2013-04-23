@@ -109,7 +109,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 
 						/* Making a door on top of fields is problematical */
 						delete_field_location(c_ptr);
-						
+
 						/*
 						 * Clear previous contents, add feature
 						 * The border mainly gets feat2, while the center gets feat1
@@ -251,7 +251,7 @@ void build_streamer(int feat, int chance)
 
 			/* Hack -- Add some (known) treasure */
 			if (one_in_(chance)) c_ptr->feat += 0x04;
-			
+
 			/*
 			 * So this means that all the treasure is known as soon as it is
 			 * seen or detected...  Why do the FEAT_MAGMA_H and FEAT_QUARTZ_H
@@ -302,7 +302,7 @@ void place_trees(int x, int y)
 			{
 				/* Adding to grids with fields is problematical */
 				delete_field_location(c_ptr);
-				
+
 				/*
 				 * Clear previous contents, add feature
 				 * The border mainly gets trees, while the center gets rubble
@@ -384,7 +384,7 @@ void destroy_level(void)
 				{
 					/* Delete objects */
 					delete_object(y, x);
-					
+
 					/* Delete all fields */
 					delete_field_location(c_ptr);
 
@@ -469,6 +469,64 @@ void build_cavern(void)
 		done = generate_lake(y0 + 1, x0 + 1, xsize, ysize,
 			 cutoff, cutoff, cutoff, LAKE_CAVERN);
 	}
+}
+
+/*
+ * Builds a cave system in the center of the dungeon.
+ */
+bool build_cavern2(int x, int y,int hi, int lo)
+{
+	int grd, roug, cutoff, xsize, ysize, x0, y0;
+	bool done;
+
+	done = FALSE;
+
+	/* Make a cave the size of the dungeon */
+	xsize = damroll( hi, lo) * 5;
+	ysize = xsize;
+	x0 = xsize / 2;
+	y0 = ysize / 2;
+
+	/* Paranoia: make size even */
+	xsize = x0 * 2;
+	ysize = y0 * 2;
+
+   if (x0 < 1) x0 = 1;
+   if (x0 + xsize > max_wid)
+   {
+      while (x0 + xsize > max_wid) xsize--;
+   }
+
+   if (y0 < 1) y0 = 1;
+   if (y0 + ysize > max_hgt)
+   {
+      while (y0 + ysize > max_hgt) ysize--;
+   }
+
+   if (xsize > x0 && ysize > y0)
+   {
+
+   	while (!done)
+	   {
+   		/* testing values for these parameters: feel free to adjust */
+	   	grd = rand_range(4, 8);
+
+		   /* want average of about 16 */
+   		roug = randint1(8) * randint1(4);
+
+	   	/* about size/2 */
+		   cutoff = xsize / 2;
+
+   		 /* make it */
+	   	generate_hmap(y0 + 1, x0 + 1, xsize, ysize, grd, roug, cutoff);
+
+		   /* Convert to normal format+ clean up */
+   		done = generate_lake(y0 + 1, x0 + 1, xsize, ysize,
+	   		 cutoff, cutoff, cutoff, LAKE_SAND);
+      }
+	}
+
+   return TRUE;
 }
 
 /*

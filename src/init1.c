@@ -696,7 +696,7 @@ static cptr k_info_flags6[] =
 
 static cptr k_info_acts[] =
 {
-   "NONE",
+   "ACT_NONE",
    "ACT_TELEPORT",
    "ACT_RESTORE_STR",
    "ACT_RESTORE_INT",
@@ -825,8 +825,6 @@ static cptr k_info_acts[] =
    "ACT_BA_CHAOS",
    "ACT_BA_BALANCE",
    "ACT_BA_POWER",
-
-
    "ACT_INC_STR",
    "ACT_INC_INT",
    "ACT_INC_WIS",
@@ -849,12 +847,12 @@ static cptr k_info_acts[] =
    "ACT_TEMP_SEARCH",
    "ACT_TEMP_INFRA",
    "ACT_TEMP_SPEED",
+   "ACT_DEC_STR",
    "ACT_DEC_INT",
    "ACT_DEC_WIS",
-   "ACT_DEC_CHR",
-   "ACT_DEC_STR",
    "ACT_DEC_DEX",
    "ACT_DEC_CON",
+   "ACT_DEC_CHR",
    "ACT_TEMP_SLOW",
    "ACT_TEMP_STAR_RESIST",
    "ACT_TEMP_SUSTAIN",
@@ -880,7 +878,179 @@ static cptr k_info_acts[] =
    "ACT_AGGRAVATION",
    "ACT_TEMP_SEE_INVIS",
    "ACT_TEMP_TELEPATHY",
-   "ACT_TELEPORT"
+   "ACT_REPAIR",
+   "ACT_STAR_REPAIR",
+   "ACT_DETECT_EVIL",
+   "ACT_REMOVE_FEAR",
+   "ACT_LIGHT",
+   "ACT_DETECT_TRAPS_DOORS",
+   "ACT_CURE_POISON",
+   "ACT_SEE_INIVISBLE",
+   "ACT_HOLY_ORB",
+   "ACT_PROTECTION_FROM_EVIL",
+   "ACT_GLYPH_WARDING",
+   "ACT_EXORCISM",
+   "ACT_DISPELL_UNDEAD_AND_DEMONS",
+   "ACT_DAY_OF_THE_DOVE",
+   "ACT_DISPEL_EVIL",
+   "ACT_BANISH_EVIL",
+   "ACT_HOLY_WORD",
+   "ACT_WARDING_TRUE",
+   "ACT_PRAYER",
+   "ACT_BLESS_WEAPON",
+   "ACT_RESTORATION",
+   "ACT_HEALING_TRUE",
+   "ACT_HOLY_VISION",
+   "ACT_DIVINE_INTERVENTION",
+   "ACT_HOLY_INVUNERABILITY",
+   "ACT_DETECT_MONSTERS",
+   "ACT_CONFUSE_MONSTER",
+   "ACT_SLEEP_MONSTER",
+   "ACT_IDENTIFY",
+   "ACT_SLOW_MONSTER",
+   "ACT_MASS_SLEEP",
+   "ACT_TELEPORT_AWAY",
+   "ACT_SPEED",
+   "ACT_DETECT_ALL",
+   "ACT_STAR_IDENTIFICATION",
+   "ACT_DETECT_OBJECTS_AND_TREASURE",
+   "ACT_DETECT_ENCHANTMENT",
+   "ACT_CHARM_MONSTER",
+   "ACT_DIMENSION_DOOR",
+   "ACT_STASIS",
+   "ACT_TELEKINESIS",
+   "ACT_EXPLOSIVE_RUNE",
+   "ACT_CLAIRVOYANCE",
+   "ACT_SORCERY_ENCHANT_WEAPON",
+   "ACT_SORCERY_ENCHANT_ARMOR",
+   "ACT_ALCHEMY",
+   "ACT_GLOBE_INVUNERABILTY",
+   "ACT_CHARM_ANIMAL",
+   "ACT_MINOR_RESISTANCE",
+   "ACT_LIGHTNING_BOLT",
+   "ACT_FROST_BOLT",
+   "ACT_LIGHT_BEAM",
+   "ACT_ENTANGLE",
+   "ACT_HERBAL_HEALING",
+   "ACT_DOOR_BUILDING",
+   "ACT_CREATE_STAIRS",
+   "ACT_STONE_SKIN",
+   "ACT_RESISTANCE_TRUE",
+   "ACT_ANIMAL_FRIENDSHIP",
+   "ACT_WALL_OF_STONE",
+   "ACT_PROTECTION_FROM_CORROSION",
+   "ACT_EARTHQUAKE",
+   "ACT_WHIRLWIND",
+   "ACT_BLIZZARD",
+   "ACT_LIGHTNING_STORM",
+   "ACT_WHIRLPOOL",
+   "ACT_CALL_SUNLIGHT",
+   "ACT_ELEMENTAL_BRAND",
+   "ACT_NATURES_WRATH",
+   "ACT_MAGIC_MISSILE",
+   "ACT_TRAP_DOOR_DESTRUCTION",
+   "ACT_TOUCH_CONFUSION",
+   "ACT_MANA_BURST",
+   "ACT_FIRE_BOLT",
+   "ACT_FIST_OF_FORCE",
+   "ACT_WONDER",
+   "ACT_CHAOS_BOLT",
+   "ACT_SONIC_BOOM",
+   "ACT_DOOM_BOLT",
+   "ACT_FIRE_BALL",
+   "ACT_DESTRUCTION",
+   "ACT_INVOKE_LOGRUS",
+   "ACT_POLYMORPH_OTHER",
+   "ACT_CHAIN_LIGHTNING",
+   "ACT_DISINTEGRATION",
+   "ACT_ALTER_REALITY",
+   "ACT_POLYMORPH_SELF",
+   "ACT_CHAOS_BRANDING",
+   "ACT_BEAM_OF_GRAVITY",
+   "ACT_METEOR_SWARM",
+   "ACT_FIRE_STRIKE",
+   "ACT_MAGIC_ROCKET",
+   "ACT_MANA_STORM",
+   "ACT_BREATH_LOGRUS",
+   "ACT_CALL_THE_VOID",
+   "ACT_DETECT_UNLIFE",
+   "ACT_MALEDICTION",
+   "ACT_STINKING_CLOUD",
+   "ACT_RESIST_POISON",
+   "ACT_HORRIFY",
+   "ACT_ENSLAVE_UNDEAD",
+   "ACT_ORB_OF_ENTROPY",
+   "ACT_NETHER_BOLT",
+   "ACT_TERROR",
+   "ACT_VAMPIRIC_DRAIN",
+   "ACT_POISON_BRAND",
+   "ACT_DISPEL_GOOD",
+   "ACT_BERSERK",
+   "ACT_INVOKE_SPIRITS",
+   "ACT_DARK_BOLT",
+   "ACT_BATTLE_FRENZY",
+   "ACT_VAMPIRISM_TRUE",
+   "ACT_VAMPIRIC_BRANDING",
+   "ACT_DARKNESS_STORM",
+   "ACT_DEATH_RAY",
+   "ACT_RAISE_DEAD",
+   "ACT_WORD_OF_DEATH",
+   "ACT_EVOCATION",
+   "ACT_HELLFIRE",
+   "ACT_OMNICIDE",
+   "ACT_WRAITHFORM",
+   "ACT_MIND_BLAST",
+   "ACT_SHUFFLE",
+   "ACT_RESET_RECALL",
+   "ACT_REACH",
+   "ACT_SUMMON_MONSTER",
+   "ACT_BANISH_MONSTERS",
+   "ACT_JOKER_CARD",
+   "ACT_SUMMON_SPIDERS",
+   "ACT_SUMMON_REPTILES",
+   "ACT_SUMMON_HOUNDS",
+   "ACT_TRUMP_BRANDING",
+   "ACT_LIVING_TRUMP",
+   "ACT_SUMMON_CYBERDEMON",
+   "ACT_SUMMON_DRAGON",
+   "ACT_MASS_SUMMONING",
+   "ACT_SUMMON_ANCIENT_DRAGON",
+   "ACT_GREATER_UNDEAD",
+   "ACT_WIZARD_LOCK",
+   "ACT_DETECT_INVISIBLE",
+   "ACT_PHLOGISTON",
+   "ACT_DETECT_OBJECTS",
+   "ACT_RESIST_COLD",
+   "ACT_RESIST_FIRE",
+   "ACT_RESIST_LIGHTNING",
+   "ACT_RESIST_ACID",
+   "ACT_ELEMENTAL_BALL",
+   "ACT_FORTIFICATION",
+   "ACT_MYSTIC_SENSING",
+   "ACT_OBJECT_SCRYING",
+   "ACT_GUIDING_LIGHT",
+   "ACT_GREATER_FORTIFICATION",
+   "ACT_MYSTIC_BOLT",
+   "ACT_SPINNING_DEATH",
+   "ACT_MYSTIC_BALL",
+   "ACT_SUPREME_FORTIFICATION",
+   "ACT_MYSTIC_BURST"
+
+};
+
+static cptr s_info_flags[] =
+{
+/*   "NONE",*/
+   "LIFE",
+   "SORCERY",
+   "NATURE",
+   "CHAOS",
+   "DEATH",
+   "TRUMP",
+   "ARCANE",
+   "CHI",
+   "ELEMENTAL",
+   "GENERAL"
 };
 
 /*
@@ -957,7 +1127,82 @@ static int color_char_to_attr(char c)
 
 
 /*** Initialize from ascii template files ***/
+/*
+ * Grab one (spell) flag in a monster_race from a textual string
+ */
+static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
+{
+	int i;
 
+	/* Scan flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags4[i]))
+		{
+			r_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags5 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags5[i]))
+		{
+			r_ptr->flags5 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags6 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags6[i]))
+		{
+			r_ptr->flags6 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown monster flag '%s'.", what);
+
+	/* Failure */
+	return (PARSE_ERROR_GENERIC);
+}
+
+/*
+ * Grab one (spell) flag from a textual string
+ */
+static errr grab_one_spell_list_flag(magic_type *s_ptr, cptr what)
+{
+	int i;
+
+	for (i = 0; i < 10; i++)
+	{
+		if (streq(what, s_info_flags[i]))
+		{
+			s_ptr->f1 |= (1L << i);
+			return (0);
+		}
+	}
+
+   /*  Check Activation Number  */
+   for (i = 0; i < 341; i++)
+   {
+      if (streq(what, k_info_acts[i]))
+      {
+         s_ptr->activation = i;
+         return (0);
+      }
+   }
+
+	/* Oops */
+	msg_format("Unknown spell flag '%s'.", what);
+
+	/* Failure */
+	return (PARSE_ERROR_GENERIC);
+}
 
 /*
  * Initialize the "v_info" array, by parsing an ascii "template" file
@@ -1393,7 +1638,7 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	}
 
    /*  Check Activation Number  */
-   for (i = 0; i < 182; i++)
+   for (i = 0; i < 341; i++)
    {
       if (streq(what, k_info_acts[i]))
       {
@@ -1798,7 +2043,7 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 	}
 
    /*  Check Activation Number  */
-   for (i = 0; i < 182; i++)
+   for (i = 0; i < 341; i++)
    {
       if (streq(what, k_info_acts[i]))
       {
@@ -2059,6 +2304,376 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 
 /*
+ * Initialize the "sr_info" array, by parsing an ascii "template" file
+ */
+errr init_sr_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+	char *s, *t;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	realm_type *sr_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != sr_head->v_major) ||
+			    (v2 != sr_head->v_minor) ||
+			    (v3 != sr_head->v_patch))
+			{
+				return (PARSE_ERROR_OBSOLETE_FILE);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (PARSE_ERROR_GENERIC);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (PARSE_ERROR_GENERIC);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+			/* Verify information */
+			if (i >= sr_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			sr_ptr = &sr_info[i];
+
+         sr_ptr->realm_num = i;
+
+			/* Hack -- Verify space */
+			if (sr_head->name_size + strlen(s) + 8 > fake_name_size) return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the name index */
+			if (!sr_ptr->name) sr_ptr->name = ++sr_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(sr_name + sr_head->name_size, s);
+
+			/* Advance the index */
+			sr_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current sr_ptr */
+		if (!sr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+      /* Process 'M' for "Max Level"  */
+      if (buf[0] == 'M')
+      {
+         int   maxlevel;
+
+         if (1 != sscanf(buf+2,"%d", &maxlevel)) return(PARSE_ERROR_GENERIC);
+
+         sr_ptr->max_spell_level = maxlevel;
+
+         continue;
+      }
+
+      /* Process 'B' for "Bonus"  */
+      if (buf[0] == 'B')
+      {
+         int   bonus;
+
+         if (1 != sscanf(buf+2,"%d", &bonus)) return(PARSE_ERROR_GENERIC);
+
+         sr_ptr->bonus_power = bonus;
+
+         continue;
+      }
+
+      /* Process 'E' for "Bonus"  */
+      if (buf[0] == 'E')
+      {
+         int   realms[10];
+
+         if (10 != sscanf(buf+2,"%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                          &realms[0], &realms[1], &realms[2], &realms[3], &realms[4],
+                          &realms[5], &realms[6], &realms[7], &realms[8], &realms[9])) return(PARSE_ERROR_GENERIC);
+         for (i = 0; i < 10; i++)
+         {
+            sr_ptr->effect_modifier[i] = realms[i];
+         }
+
+         continue;
+      }
+
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+	/* Complete the "name" and "text" sizes */
+	++sr_head->name_size;
+	++sr_head->text_size;
+
+	/* No version yet */
+	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "s_info" array, by parsing an ascii "template" file
+ */
+errr init_s_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+	char *s, *t;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	magic_type *s_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != s_head->v_major) ||
+			    (v2 != s_head->v_minor) ||
+			    (v3 != s_head->v_patch))
+			{
+				return (PARSE_ERROR_OBSOLETE_FILE);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (PARSE_ERROR_GENERIC);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (PARSE_ERROR_GENERIC);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+			/* Verify information */
+			if (i >= s_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			s_ptr = &s_info[i];
+
+         s_ptr->index = i;
+
+			/* Hack -- Verify space */
+			if (s_head->name_size + strlen(s) + 8 > fake_name_size) return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the name index */
+			if (!s_ptr->name) s_ptr->name = ++s_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(s_name + s_head->name_size, s);
+
+			/* Advance the index */
+			s_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current s_ptr */
+		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Acquire the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (s_head->text_size + strlen(s) + 8 > fake_text_size) return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the text index */
+			if (!s_ptr->text) s_ptr->text = ++s_head->text_size;
+
+			/* Append chars to the name */
+			strcpy(s_text + s_head->text_size, s);
+
+			/* Advance the index */
+			s_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+      /* Process 'L' for "Level Mana and Failure"  */
+      if (buf[0] == 'L')
+      {
+         int   lev, mana, fail;
+
+         if (3 != sscanf(buf+2,"%d:%d:%d", &lev, &mana, &fail)) return(PARSE_ERROR_GENERIC);
+
+         s_ptr->slevel = lev;
+         s_ptr->smana = mana;
+         s_ptr->sfail = fail;
+
+         continue;
+      }
+
+
+      /* Process 'M' for "Power Modifiers"  */
+      if (buf[0] == 'M')
+      {
+         int   multi,divis;
+
+         if (2 != sscanf(buf+2,"%d/%d", &multi, &divis)) return(PARSE_ERROR_GENERIC);
+
+         s_ptr->eff1 = multi;
+         s_ptr->eff2 = divis;
+
+         continue;
+      }
+
+		/* Hack -- Process 'F' for flags */
+		if (buf[0] == 'F')
+		{
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while ((*t == ' ') || (*t == '|')) t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_spell_list_flag(s_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+
+				/* Start the next entry */
+				s = t;
+			}
+         /*  Next  */
+         continue;
+      }
+		/* Oops */
+      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+	/* Complete the "name" and "text" sizes */
+	++s_head->name_size;
+	++s_head->text_size;
+
+	/* No version yet */
+	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Grab one (basic) flag in a monster_race from a textual string
  */
 static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
@@ -2131,54 +2746,6 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 	/* Failure */
 	return (PARSE_ERROR_GENERIC);
 }
-
-
-/*
- * Grab one (spell) flag in a monster_race from a textual string
- */
-static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
-{
-	int i;
-
-	/* Scan flags4 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, r_info_flags4[i]))
-		{
-			r_ptr->flags4 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Scan flags5 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, r_info_flags5[i]))
-		{
-			r_ptr->flags5 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Scan flags6 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, r_info_flags6[i]))
-		{
-			r_ptr->flags6 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Oops */
-	msg_format("Unknown monster flag '%s'.", what);
-
-	/* Failure */
-	return (PARSE_ERROR_GENERIC);
-}
-
-
-
 
 /*
  * Initialize the "r_info" array, by parsing an ascii "template" file
@@ -3285,6 +3852,17 @@ static errr process_dungeon_file_aux(char *buf, int init_flags)
 				if (zz[0][1] == 'P')
 					max_towns = atoi(zz[1]);
 			}
+
+         else if (zz[0][0] == 'S')
+			{
+				/*  Maximum realms  */
+				if (zz[0][1] == 'R')
+					max_sr_idx = atoi(zz[1]);
+
+				/*  Maximum spells  */
+				if (zz[0][1] == 'R')
+					max_s_idx = atoi(zz[1]);
+         }
 
 			return (0);
 		}

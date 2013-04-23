@@ -312,6 +312,8 @@ static void strip_bytes(int n)
  */
 static void rd_item(object_type *o_ptr)
 {
+   int i;
+
 	byte old_dd;
 	byte old_ds;
 
@@ -324,24 +326,15 @@ static void rd_item(object_type *o_ptr)
 	/* Old flags from pre [Z] 2.5.3 */
 	byte name1, name2, xtra1, xtra2;
 
+   name1 = 0; name2 = 0; xtra1 = 0; xtra2 = 0;
 
 	/* Kind */
 	rd_s16b(&o_ptr->k_idx);
 
-	if (sf_version < 6)
-	{
-		/* Location */
-		rd_byte(&tmpbyte);
-		o_ptr->iy = tmpbyte;
-		rd_byte(&tmpbyte);
-		o_ptr->ix = tmpbyte;
-	}
-	else
-	{
-		/* Location */
-		rd_s16b(&o_ptr->iy);
-		rd_s16b(&o_ptr->ix);
-	}
+   /* Location */
+	rd_s16b(&o_ptr->iy);
+	rd_s16b(&o_ptr->ix);
+
 	/* Type/Subtype */
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
@@ -354,13 +347,6 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->discount);
 	rd_byte(&o_ptr->number);
 	rd_s16b(&o_ptr->weight);
-
-	if (sf_version < 19)
-	{
-		/* Old ego and artifact number */
-		rd_byte(&name1);
-		rd_byte(&name2);
-	}
 
 	rd_s16b(&o_ptr->timeout);
 
@@ -387,62 +373,13 @@ static void rd_item(object_type *o_ptr)
 	rd_u32b(&o_ptr->flags5);
 	rd_u32b(&o_ptr->flags6);
 
-	/* Lites changed in [Z] 2.6.0 */
-	if ((sf_version < 25) && (o_ptr->tval == TV_LITE))
-	{
-		/* Torches and lanterns use timeout now */
-		if ((o_ptr->sval == SV_LITE_TORCH) ||
-			(o_ptr->sval == SV_LITE_LANTERN))
-		{
-			o_ptr->timeout = o_ptr->pval;
-			o_ptr->pval = 0;
-		}
-		else
-		{
-			/* Other lites are everburning. */
-			o_ptr->flags3 |= TR3_LITE;
-		}
-	}
-
 	/* Monster holding object */
 	rd_s16b(&o_ptr->held_m_idx);
 
-	if (sf_version < 19)
-	{
-		/* Special powers */
-		rd_byte(&xtra1);
-		rd_byte(&xtra2);
-	}
-
-	/* Feeling - from 2.3.1, "savefile version 1" */
-	if (sf_version >= 1)
-	{
-		rd_byte(&o_ptr->feeling);
-	}
+	rd_byte(&o_ptr->feeling);
 
 	/* Inscription */
 	rd_string(buf, 128);
-
-	/* If this savefile is old, maybe we need to translate the feeling */
-	if (sf_version < 1)
-	{
-		byte i;
-
-		for (i = 0; i <= 9; i++)
-		{
-			if (game_inscriptions[i] == NULL)
-			{
-				continue;
-			}
-
-			if (streq(buf, game_inscriptions[i]))
-			{
-				o_ptr->feeling = i;
-				buf[0] = 0;
-				break;
-			}
-		}
-	}
 
 	/* Save the inscription */
 	if (buf[0]) o_ptr->inscription = quark_add(buf);
@@ -450,7 +387,6 @@ static void rd_item(object_type *o_ptr)
 	rd_string(buf, 128);
 	if (buf[0]) o_ptr->xtra_name = quark_add(buf);
 
-	/* The Python object */
 	if (!z_older_than(2, 2, 4))
 	{
 		s32b tmp32s;
@@ -484,6 +420,11 @@ static void rd_item(object_type *o_ptr)
 	rd_s32b(&o_ptr->cost);
 
 	rd_u16b(&o_ptr->activate);
+
+   for (i = 0; i < 8; i++)
+   {
+      rd_u32b(&o_ptr->spellist[i]);
+   }
 
 	rd_u32b(&o_ptr->kn_flags1);
 	rd_u32b(&o_ptr->kn_flags2);
@@ -2923,11 +2864,35 @@ static errr rd_savefile_new_aux(void)
 	cp_ptr = &class_info[p_ptr->pclass];
 
 	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
+
+   for (i = 0; i < 10; i++)
+   {
+      rd_u16b( &mp_ptr->has_realm[i]);
+      rd_u16b( &mp_ptr->realm_power[i]);  /*  No effect yet!  */
+   }
+   for (i = 0; i < 32; i++)
+   {
+      rd_u16b( &mp_ptr->life[i]);
+      rd_u16b( &mp_ptr->sorcery[i]);
+      rd_u16b( &mp_ptr->nature[i]);
+      rd_u16b( &mp_ptr->chaos[i]);
+      rd_u16b( &mp_ptr->death[i]);
+      rd_u16b( &mp_ptr->trump[i]);
+      rd_u16b( &mp_ptr->arcane[i]);
+      rd_u16b( &mp_ptr->chi[i]);
+      rd_u16b( &mp_ptr->elemental[i]);
+      rd_u16b( &mp_ptr->general[i]);
+   }
+   rd_u16b( &mp_ptr->spell_level_penalty);
+   rd_u16b( &mp_ptr->spell_weight);
+
+
+/*  FIX  IT  */
+/* 	mp_ptr = &magic_info[p_ptr->pclass]; */
 
 
 	/* Read spell info */
-	rd_u32b(&p_ptr->spell_learned1);
+/*	rd_u32b(&p_ptr->spell_learned1);
 	rd_u32b(&p_ptr->spell_learned2);
 	rd_u32b(&p_ptr->spell_worked1);
 	rd_u32b(&p_ptr->spell_worked2);
@@ -2938,7 +2903,7 @@ static errr rd_savefile_new_aux(void)
 	{
 		rd_byte(&p_ptr->spell_order[i]);
 	}
-
+*/
 
 	/* Read the inventory */
 	if (rd_inventory())

@@ -412,7 +412,8 @@ static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
-	factor = ((factor + 100) * bo_ptr->inflate) / 400;
+/*	factor = ((factor + 100) * bo_ptr->inflate) / 400;*/
+	factor = ((factor + 100) + bo_ptr->inflate) / 4;
 
    msg_print(NULL);
 	msg_format("%d  -  %d !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", f_ptr->data[0], b_ptr->owner);
@@ -1898,6 +1899,9 @@ static void bldg_process_command(building_type *bldg, int i)
 				p_ptr->redraw |= (PR_STATUS);
 			}
 			break;
+      case BACT_MASTER_SPELL_LIST:
+         do_cmd_master_book();
+         break;
 }
 
 
@@ -1950,7 +1954,8 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
-	factor = ((factor + 100) * bo_ptr->inflate) / 400;
+/*	factor = ((factor + 100) * bo_ptr->inflate) / 400;*/
+	factor = ((factor + 100) + bo_ptr->inflate) / 4;
 
 	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
 		 FIELD_ACT_STORE_ACT2, (vptr) &factor);
@@ -2045,6 +2050,12 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 			do_cmd_inven();
 			break;
 		}
+
+      case 'W':
+      {
+         do_cmd_master_book();
+         break;
+      }
 
 
 		/*** Various commands ***/

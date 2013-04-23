@@ -807,6 +807,8 @@ struct object_type
 
 	u16b activate;		/* Activation type */
 
+   u32b spellist[8]; /*  List of Spells for books or extra activations  */
+
    byte OCraftLevel;  /* Durability Marker */
    byte CCraftLevel; /* Current Durability Marker */
    u32b O_Durability;/* Original Durability level (HP) */
@@ -1087,15 +1089,41 @@ struct quest_type
 	byte flags;             /* quest flags */
 };
 
+typedef struct realm_type realm_type;
+
+struct realm_type
+{
+   u32b  name;
+   u16b  realm_num;
+   u16b  max_spell_level;
+   u16b  bonus_power;
+   s16b  effect_modifier[MAX_REALM];
+};
 
 typedef struct magic_type magic_type;
 
 struct magic_type
 {
-	byte slevel;		/* Required level (to learn) */
-	byte smana;			/* Required mana (to cast) */
-	byte sfail;			/* Minimum chance of failure */
-	byte sexp;			/* Encoded experience bonus */
+   u32b index;
+   u32b name;
+   u32b text;
+
+   u16b slevel;      /*  Required level (to learn)  */
+   u16b smana;       /*  Required mana (to cast)  */
+   u16b sfail;       /*  Minimum chance of failure  */
+
+/*   Currently testing with pvel as base   */
+/*   u16b sbase;*/       /*  base power of attack dd */
+/*   u16b slbonus;*/     /*  add +1dd for every slbonus exp level */
+                     /*  Effects Multiplier
+
+                         ds = (base ds * eff 1) / eff2
+
+                      */
+   u16b eff1;        /*  Multiplier */
+   u16b eff2;        /*  Divider */
+   u32b f1;          /*  Flags for Realm */
+   u16b activation;  /*  Actiavtion power to make casting from */
 };
 
 
@@ -1109,18 +1137,23 @@ typedef struct player_magic player_magic;
 
 struct player_magic
 {
-	int spell_book;		/* Tval of spell books (if any) */
-	int spell_xtra;		/* Something for later */
+   u16b has_realm[10];  /*  Marked as 1st, 2nd, 3rd, etc.  */
+   u16b realm_power[10];
 
-	int spell_stat;		/* Stat for spells (if any) */
-	int spell_type;		/* Spell type (mage/priest) */
+   u16b life[32];
+   u16b sorcery[32];
+   u16b nature[32];
+   u16b chaos[32];
+   u16b death[32];
+   u16b trump[32];
+   u16b arcane[32];
+   u16b chi[32];
+   u16b elemental[32];
+   u16b general[32];
 
-	int spell_first;		/* Level of first spell */
-	int spell_weight;		/* Weight that hurts spells */
-
-	magic_type info[MAX_REALM][32];    /* The available spells */
+	u16b spell_level_penalty;/*  Player Lvl - S_L_P must be positive to cast spell */
+	u16b spell_weight;		/* Weight that hurts spells */
 };
-
 
 
 /*

@@ -22,6 +22,24 @@
 
    ---
 
+   March 22, 2005
+
+   RandomBand 0.4.1
+
+      Bunch of fixes.
+      Still a lot of weirdness, but needs testers.
+
+   ---
+
+   January 2, 2004
+
+   RandomBand 0.4.0
+
+      Player magic now working again.
+
+
+   ---
+
    May 20, 2003
 
    RandomBand 0.3.3
