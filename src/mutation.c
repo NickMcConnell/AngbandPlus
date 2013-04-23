@@ -40,8 +40,8 @@ bool player_has_mut(int mutation)
 	{
 		return (p_ptr->muta3 & mutations[mutation].which ? TRUE : FALSE);
 	}
-} 
- 
+}
+
 
 /*
  * Select a random mutation.
@@ -59,7 +59,7 @@ static bool select_mutation(int choose_mut, bool gain, int *mutation)
 	u32b flag;
 
 	int attempts_left;
-	
+
 	int num = -1;
 
 
@@ -226,7 +226,7 @@ static bool select_mutation(int choose_mut, bool gain, int *mutation)
 			break;
 		case 81: case 82:
 			/* Scorpion */
-			num = 38; 
+			num = 38;
 			break;
 		case 83: case 84:
 			/* Horns */
@@ -483,7 +483,7 @@ static bool select_mutation(int choose_mut, bool gain, int *mutation)
 
 			/* Save the mutation we are using */
 			*mutation = num;
-			
+
 			return ((flag & mutations[num].which ? FALSE : TRUE) == gain);
 		}
 	}
@@ -498,11 +498,11 @@ static bool select_mutation(int choose_mut, bool gain, int *mutation)
 bool gain_mutation(int choose_mut)
 {
 	const mutation_type *mut_ptr;
-	
+
 	u32b muta_which;
 
 	int num;
-	
+
 	/* Choose a mutation */
 	if (!select_mutation(choose_mut, TRUE, &num))
 	{
@@ -547,7 +547,7 @@ bool gain_mutation(int choose_mut)
 		{
 			num = M2_TENTACLES;
 		}
-		
+
 		/* Point to the mutation */
 		mut_ptr = &mutations[num];
 
@@ -555,7 +555,7 @@ bool gain_mutation(int choose_mut)
 
 		msg_print("You mutate!");
 		msg_print(mut_ptr->gain_text);
-		
+
 		/* Gain the mutation */
 		if (num < MUT_PER_SET)
 		{
@@ -715,11 +715,11 @@ bool gain_mutation(int choose_mut)
 bool lose_mutation(int choose_mut)
 {
 	int num;
-	
+
 	u32b muta_which;
 	const mutation_type *mut_ptr;
 
-	
+
 	if (!select_mutation(choose_mut, FALSE, &num))
 	{
 		return FALSE;
@@ -728,11 +728,11 @@ bool lose_mutation(int choose_mut)
 	{
 		/* Point to the mutation */
 		mut_ptr = &mutations[num];
-		
+
 		muta_which = mut_ptr->which;
-		
+
 		msg_print(mut_ptr->lose_text);
-		
+
 		if (num < MUT_PER_SET)
 		{
 			p_ptr->muta1 &= ~(muta_which);
@@ -760,7 +760,7 @@ bool lose_mutation(int choose_mut)
 void dump_mutations(FILE *OutFile)
 {
 	const mutation_type *mut_ptr;
-	
+
 	int i;
 
 	if (!OutFile) return;
@@ -1004,7 +1004,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 	{
 		int x, y, ox, oy;
 		cave_type *c_ptr;
-				
+
 		if (!get_rep_dir(&dir)) return;
 		y = py + ddy[dir];
 		x = px + ddx[dir];
@@ -1067,7 +1067,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		/* Move the player */
 		py = y;
 		px = x;
-		
+
 		/* Move the player */
 		p_ptr->py = y;
 		p_ptr->px = x;
@@ -1079,10 +1079,10 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 			p_ptr->wilderness_y = py;
 			move_wild();
 		}
-		
+
 		lite_spot(py, px);
 		lite_spot(oy, ox);
-		
+
 		/* Process fields under the player. */
 		field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
@@ -1133,7 +1133,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		{
 			(void)hp_player(30);
 		}
-		
+
 		(void)set_shero(p_ptr->shero + rand_range(25, 50));
 		(void)set_afraid(0);
 	}
@@ -1263,7 +1263,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 	else if (mut_ptr->which == MUT1_STERILITY)
 	{
 		msg_print("You suddenly have a headache!");
-		take_hit(rand_range(17, 34), "the strain of forcing abstinence");
+		take_hit(rand_range(17, 34), "the strain of forcing abstinence", FALSE);
 		num_repro += MAX_REPRO;
 	}
 
@@ -1345,7 +1345,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		{
 			msg_print("Your invocation is ineffectual!");
 		}
-	}				
+	}
 	else if (mut_ptr->which == MUT1_COLD_TOUCH)
 	{
 		int x, y;
@@ -1357,9 +1357,9 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 		/* paranoia */
 		if (!in_bounds2(y, x)) return;
-		
+
 		c_ptr = area(y, x);
-		
+
 		if (!c_ptr->m_idx)
 		{
 			msg_print("You wave your hands in the air.");
@@ -1367,7 +1367,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		}
 		(void)fire_bolt(GF_COLD, dir, 2 * lvl);
 	}
-	
+
 	/* Gives a multiplier of 2 at first, up to 3 at level 30 */
 	else if (mut_ptr->which == MUT1_LAUNCHER)
 	{
@@ -1382,7 +1382,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 void mutation_random_aux(const mutation_type *mut_ptr)
 {
 	if (!one_in_(mut_ptr->chance * 100)) return;
-	
+
 	if (mut_ptr->which == MUT2_BERS_RAGE)
 	{
 		disturb(FALSE);
@@ -1399,22 +1399,22 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 			msg_print("It's so dark... so scary!");
 			(void)set_afraid(p_ptr->afraid + rand_range(13, 40));
 		}
-	}			
+	}
 
 	else if (mut_ptr->which == MUT2_RTELEPORT)
 	{
 		if (!p_ptr->resist_nexus && !p_ptr->muta1 & MUT1_VTELEPORT &&
 		    !p_ptr->anti_tele)
 		{
-			disturb(FALSE);				
-			
+			disturb(FALSE);
+
 			/* Teleport player */
 			msg_print("Your position suddenly seems very uncertain...");
 			msg_print(NULL);
 			teleport_player(40);
 		}
 	}
-	
+
 	else if (mut_ptr->which == MUT2_ALCOHOL)
 	{
 		if (!p_ptr->resist_confu && !p_ptr->resist_chaos)
@@ -1422,8 +1422,8 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 			disturb(FALSE);
 			p_ptr->redraw |= PR_EXTRA;
 			msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
-		}			
-		
+		}
+
 		if (!p_ptr->resist_confu)
 		{
 			(void)set_confused(p_ptr->confused + rand_range(15, 35));
@@ -1450,8 +1450,8 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 				}
  			}
 		}
-	}				
-	
+	}
+
 	else if (mut_ptr->which == MUT2_HALLU)
 	{
 		if (!p_ptr->resist_chaos)
@@ -1460,8 +1460,8 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 			p_ptr->redraw |= PR_EXTRA;
 			(void)set_image(p_ptr->image + rand_range(20, 70));
 		}
-	}			
-				
+	}
+
 	else if (mut_ptr->which == MUT2_FLATULENT)
 	{
 		disturb(FALSE);
@@ -1480,7 +1480,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		msg_print(NULL);
 		(void)get_hack_dir(&dire);
 		(void)fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
-	}				
+	}
 
 	else if ((mut_ptr->which == MUT2_ATT_DEMON) && !p_ptr->anti_magic)
 	{
@@ -1572,8 +1572,8 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		 * do 50 points damage to every affected monster
 		 */
 		(void)unlite_area(50, 10);
-	}	
-			
+	}
+
 	else if ((mut_ptr->which == MUT2_ATT_ANIMAL) && !p_ptr->anti_magic)
 	{
 		bool pet = (one_in_(3));
@@ -1710,7 +1710,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 
 			/* Paranoia -- Skip dead monsters */
 			if (!m_ptr->r_idx) continue;
-		
+
 			if (r_ptr->level >= p_ptr->lev)
 			{
 				danger_amount += r_ptr->level - p_ptr->lev + 1;
@@ -1738,20 +1738,20 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		msg_print(NULL);
 		(void)set_invuln(p_ptr->invuln + rand_range(8, 16));
 	}
-				
+
 	else if (mut_ptr->which == MUT2_SP_TO_HP)
 	{
-		int wounds = p_ptr->mhp - p_ptr->chp;		
+		int wounds = p_ptr->mhp - p_ptr->chp;
 
 		if (wounds > 0)
 		{
 			int healing = p_ptr->csp;
-			
+
 			if (healing > wounds)
 			{
 				healing = wounds;
 			}
-	
+
 			(void)hp_player(healing);
 			p_ptr->csp -= healing;
 		}
@@ -1760,7 +1760,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	else if ((mut_ptr->which == MUT2_HP_TO_SP) && !p_ptr->anti_magic)
 	{
 		int wounds = p_ptr->msp - p_ptr->csp;
-		
+
 		if (wounds > 0)
 		{
 			int healing = p_ptr->chp;
@@ -1769,9 +1769,9 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 			{
 				healing = wounds;
 			}
-		
+
 			p_ptr->csp += healing;
-			take_hit(healing, "blood rushing to the head");
+			take_hit(healing, "blood rushing to the head", FALSE);
 		}
 	}
 
@@ -1781,7 +1781,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 
 		disturb(FALSE);
 		msg_print("You trip over your own feet!");
-		take_hit(randint1(p_ptr->wt / 6), "tripping");
+		take_hit(randint1(p_ptr->wt / 6), "tripping", TRUE);
 
 		msg_print(NULL);
 		o_ptr = &inventory[INVEN_WIELD];

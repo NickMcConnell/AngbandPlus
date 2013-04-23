@@ -430,10 +430,10 @@ void Term_xtra(int n, int v)
 {
 	/* Verify the hook */
 	if (!Term->xtra_hook) return;
-	
+
 	/* Call the hook */
 	(void)(*Term->xtra_hook)(n, v);
-	
+
 	/* Done */
 	return;
 }
@@ -679,13 +679,13 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 	/* Queue the attr/chars */
 	for ( ; n; x++, s++, n--)
 	{
-		int oa = scr_aa[x];
-		int oc = scr_cc[x];
+		/*int*/ byte oa = scr_aa[x];
+		/*int*/ char oc = scr_cc[x];
 
 #ifdef USE_TRANSPARENCY
 
-		int ota = scr_taa[x];
-		int otc = scr_tcc[x];
+		/*int*/ byte ota = scr_taa[x];
+		/*int*/ char otc = scr_tcc[x];
 
 		/* Hack -- Ignore non-changes */
 		if ((oa == a) && (oc == *s) && (ota == 0) && (otc == 0)) continue;
@@ -968,7 +968,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				if (fa || always_text)
 				{
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
-				}	
+				}
 				/* Draw pending chars (black) */
 				else
 				{
@@ -1029,7 +1029,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		if (fa || always_text)
 		{
 			(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
-		}	
+		}
 		/* Draw pending chars (black) */
 		else
 		{
@@ -1071,7 +1071,6 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 
 	byte na;
 	char nc;
-
 
 	/* Scan "modified" columns */
 	for (x = x1; x <= x2; x++)
@@ -1289,7 +1288,6 @@ void Term_fresh(void)
 
 	term_win *old = Term->old;
 	term_win *scr = Term->scr;
-
 
 	/* Do nothing unless "mapped" */
 	if (!Term->mapped_flag) return;
@@ -1710,6 +1708,10 @@ void Term_addstr(int n, byte a, cptr s)
 	int w = Term->wid;
 
 	errr res = 0;
+
+   /*  ***** TEST HACK *****  */
+/*   if (a < 0) a = 1;    */
+/*   if (a > 127) a = 5;  */
 
 	/* Handle "unusable" cursor */
 	if (Term->scr->cu) return;

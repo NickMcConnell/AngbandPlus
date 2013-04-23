@@ -429,7 +429,7 @@ errr process_pref_file_command(char *buf)
 			return (0);
 		}
 	}
-	
+
 	/* Process "W:<num>:<a>/<c>" -- xtra attr/char for terrain features */
 	else if (buf[0] == 'W')
 	{
@@ -850,7 +850,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			{
 				v = player_base;
 			}
-			
+
 			/* Town */
 			else if (streq(b+1, "TOWN"))
 			{
@@ -1399,7 +1399,7 @@ static void display_player_abilities(void)
 	char		desc[20];
 	int         muta_att = 0;
 	long		avgdam;
-	u32b            f1, f2, f3;
+	u32b            f1, f2, f3, f4, f5, f6;
 	int		energy_fire;
 	int		shots, shot_frac;
 
@@ -1430,7 +1430,7 @@ static void display_player_abilities(void)
 	{
 		energy_fire = 100;
 	}
-	
+
 	/* Calculate shots per round  - note "strange" formula. */
 
 	/* The real number of shots per round is (1 + n)/2 */
@@ -1445,7 +1445,7 @@ static void display_player_abilities(void)
 	damdice = o_ptr->dd;
 	damsides = o_ptr->ds;
 	blows = p_ptr->num_blow;
-	
+
 
 	/* Basic abilities */
 
@@ -1506,34 +1506,35 @@ static void display_player_abilities(void)
 	put_str("Avg.Dam./Rnd:", 18, COL_SKILLS3);
 
 	/* Deadliness conversion table */
+/*
 	avgdam = deadliness_calc(dambonus);
-
+*/
 	/* Effect of damage dice x2 */
+/*
 	avgdam *= damdice * (damsides + 1);
+*/
+   dambonus = calc_to_dmg_bonus( dambonus);
+
+   avgdam = damdice * (damsides + 1);
+
+   avgdam += dambonus;
 
 	/* number of blows */
 	avgdam *= blows;
 
 	/* Rescale */
-	avgdam /= 200;
+	avgdam /= 2/*00*/;
 
 	/* See if have a weapon with extra power */
 	if (o_ptr->k_idx)
 	{
 		/* Is there a vorpal effect we know about? */
-		object_flags(o_ptr, &f1, &f2, &f3);
-		if ((o_ptr->ident & IDENT_MENTAL) &&
-			 (o_ptr->activate - 128 == ART_VORPAL_BLADE))
-		{
-			/* vorpal blade */
-			avgdam *= 786;
-			avgdam /= 500;
-		}
-		else if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+		if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
 		{
 			/* vorpal flag only */
-			avgdam *= 609;
-			avgdam /= 500;
+			avgdam *= 6/*09*/;
+			avgdam /= 5/*00*/;
 		}
 	}
 
@@ -1563,10 +1564,12 @@ static void display_player_abilities(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-static void player_flags(u32b *f1, u32b *f2, u32b *f3)
+static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *f6)
 {
+   /*****   NEEDS   REWORKING   *****/
+
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	(*f1) = (*f2) = (*f3) = (*f4) = (*f5) = (*f6) = 0L;
 
 	/* Classes */
 	switch (p_ptr->pclass)
@@ -1897,9 +1900,11 @@ static void display_player_flag_aux(int row, int col,
 			char *header, int n, u32b flag1, u32b flag2)
 {
 	int     i;
-	u32b    f[3];
+	u32b    f[6];
+   int     TermColor;
 
 
+   TermColor = 1;
 	/* Header */
 	c_put_str(TERM_WHITE, header, row, col);
 
@@ -1916,28 +1921,38 @@ static void display_player_flag_aux(int row, int col,
 		o_ptr = &inventory[i];
 
 		/* Known flags */
-		object_flags_known(o_ptr, &f[0], &f[1], &f[2]);
+		object_flags_known(o_ptr, &f[0], &f[1], &f[2], &f[3], &f[4], &f[5]);
+
+      TermColor = 2;
+
+		if (!o_ptr->k_idx) TermColor = 0;
+
+   	if (o_ptr->ident & IDENT_CURSED) TermColor = 11;
 
 		/* Default */
-		c_put_str(TERM_SLATE, ".", row, col);
+		c_put_str(TermColor, ".", row, col);
+
+      TermColor = 1;
+
+   	if (o_ptr->ident & IDENT_CURSED) TermColor = 4;
 
 		/* Check flags */
-		if (f[n - 1] & flag1) c_put_str(TERM_WHITE, "+", row, col);
-		if (f[n - 1] & flag2) c_put_str(TERM_WHITE, "*", row, col);
+		if (f[n - 1] & flag1) c_put_str(TermColor, "+", row, col);
+		if (f[n - 1] & flag2) c_put_str(TermColor, "*", row, col);
 
 		/* Advance */
 		col++;
 	}
 
 	/* Player flags */
-	player_flags(&f[0], &f[1], &f[2]);
+	player_flags(&f[0], &f[1], &f[2], &f[3], &f[4], &f[5]);
 
 	/* Default */
-	c_put_str(TERM_SLATE, ".", row, col);
+	c_put_str(2, ".", row, col);
 
 	/* Check flags */
-	if (f[n-1] & flag1) c_put_str(TERM_WHITE, "+", row, col);
-	if (f[n-1] & flag2) c_put_str(TERM_WHITE, "*", row, col);
+	if (f[n-1] & flag1) c_put_str(1, "+", row, col);
+	if (f[n-1] & flag2) c_put_str(1, "*", row, col);
 }
 
 
@@ -1992,10 +2007,9 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(row++, col, "AuraElec:", 3, TR3_SH_ELEC, 0);
 	display_player_flag_aux(row++, col, "NoTelprt:", 3, TR3_NO_TELE, 0);
 	display_player_flag_aux(row++, col, "No Magic:", 3, TR3_NO_MAGIC, 0);
-	display_player_flag_aux(row++, col, "Cursed  :", 3, TR3_HEAVY_CURSE | TR3_PERMA_CURSE , 0);
+	display_player_flag_aux(row++, col, "HPCursed:", 3, TR3_HEAVY_CURSE | TR3_PERMA_CURSE , 0);
 	display_player_flag_aux(row++, col, "DrainExp:", 3, TR3_DRAIN_EXP, 0);
 	display_player_flag_aux(row++, col, "Teleport:", 3, TR3_TELEPORT, 0);
-
 
 	/*** Set 3 ***/
 
@@ -2069,8 +2083,10 @@ static void display_player_stat_info(void)
 	int stat_col, stat;
 	int row, col;
 
+   int TermColor;
+
 	object_type *o_ptr;
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 	s16b k_idx;
 
 	byte a;
@@ -2078,6 +2094,7 @@ static void display_player_stat_info(void)
 
 	char buf[80];
 
+   TermColor = 0;
 
 	/* Column */
 	stat_col = 24;
@@ -2161,13 +2178,21 @@ static void display_player_stat_info(void)
 		k_idx = o_ptr->k_idx;
 
 		/* Acquire "known" flags */
-		object_flags_known(o_ptr, &f1, &f2, &f3);
+		object_flags_known(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+
+   /*****   NEEDS   REWORKING   *****/
+
+      TermColor = 2;
+
+ 		if (!o_ptr->k_idx) TermColor = 0;
+
+     	if (o_ptr->ident & IDENT_CURSED) TermColor = 11;
 
 		/* Initialize color based of sign of pval. */
 		for (stat = 0; stat < A_MAX; stat++)
 		{
 			/* Default */
-			a = TERM_SLATE;
+			a = TermColor;
 			c = '.';
 
 			/* Boost */
@@ -2185,7 +2210,7 @@ static void display_player_stat_info(void)
 					/* Label boost */
 					if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
 				}
-				
+
 				if (f2 & 1 << stat)
 				{
 					/* Dark green for sustained stats. */
@@ -2223,7 +2248,7 @@ static void display_player_stat_info(void)
 	}
 
 	/* Player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4, &f5, &f6);
 
 	/* Check stats */
 	for (stat = 0; stat < A_MAX; stat++)
@@ -2487,7 +2512,7 @@ static void display_player_middle(void)
 					(long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L),
 					12, COL_VALUE, TERM_L_GREEN, 9);
 	}
-	
+
 
 	prt_num("Gold       ", p_ptr->au, 13, COL_VALUE, TERM_L_GREEN, 9);
 
@@ -3006,14 +3031,14 @@ errr file_character(cptr name, bool full)
 
 	/* Add an empty line */
 	fprintf(fff, "\n\n");
-	
+
 	/* Print all homes in the different towns */
 	for (i = 1; i < max_towns; i++)
 	{
 		for (j = 0; j < town[i].numstores; j++)
 		{
 			st_ptr = &town[i].store[j];
-			
+
 			if (st_ptr->type == BUILD_STORE_HOME)
 			{
 				/* Home -- if anything there */
@@ -3028,7 +3053,7 @@ errr file_character(cptr name, bool full)
 						object_desc(o_name, &st_ptr->stock[k], TRUE, 3);
 						fprintf(fff, "%c%s %s\n", I2A(k), paren, o_name);
 					}
-	
+
 					/* Add an empty line */
 					fprintf(fff, "\n\n");
 				}
@@ -4138,6 +4163,9 @@ static void show_info(void)
 		o_ptr->kn_flags1 = o_ptr->flags1;
 		o_ptr->kn_flags2 = o_ptr->flags2;
 		o_ptr->kn_flags3 = o_ptr->flags3;
+		o_ptr->kn_flags4 = o_ptr->flags4;
+		o_ptr->kn_flags5 = o_ptr->flags5;
+		o_ptr->kn_flags6 = o_ptr->flags6;
 	}
 
 	for (i = 1; i < max_towns; i++)
@@ -4145,7 +4173,7 @@ static void show_info(void)
 		for (j = 0; j < town[i].numstores; j++)
 		{
 			st_ptr = &town[i].store[j];
-			
+
 			if (st_ptr->type == BUILD_STORE_HOME)
 			{
 				/* Hack -- Know everything in the home */
@@ -4165,6 +4193,9 @@ static void show_info(void)
 					o_ptr->kn_flags1 = o_ptr->flags1;
 					o_ptr->kn_flags2 = o_ptr->flags2;
 					o_ptr->kn_flags3 = o_ptr->flags3;
+					o_ptr->kn_flags4 = o_ptr->flags4;
+					o_ptr->kn_flags5 = o_ptr->flags5;
+					o_ptr->kn_flags6 = o_ptr->flags6;
 				}
 			}
 		}
@@ -4222,13 +4253,13 @@ static void show_info(void)
 
 		if (inkey() == ESCAPE) return;
 	}
-	
+
 	for (i = 1; i < max_towns; i++)
 	{
 		for (l = 0; l < town[i].numstores; l++)
 		{
 			st_ptr = &town[i].store[l];
-			
+
 			if (st_ptr->type == BUILD_STORE_HOME)
 			{
 				/* Home -- if anything there */
@@ -4265,7 +4296,7 @@ static void show_info(void)
 
 						/* Flush keys */
 						flush();
-		
+
 						/* Wait for it */
 						if (inkey() == ESCAPE) return;
 					}

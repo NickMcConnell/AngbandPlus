@@ -397,35 +397,47 @@ static void building_prt_gold(void)
 static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 {
 	char tmp_str[80];
-	
+
 	const b_own_type *bo_ptr = &b_owners[f_ptr->data[0]][b_ptr->owner];
-	
+
 	int factor;
-	
+
 	cptr build_name = t_info[f_ptr->t_idx].name;
 	cptr owner_name = (bo_ptr->owner_name);
 	cptr race_name = race_info[bo_ptr->owner_race].title;
-	
+
 	/* Compute the racial factor */
 	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
 
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-	
+
 	factor = ((factor + 100) * bo_ptr->inflate) / 400;
 
+   msg_print(NULL);
+	msg_format("%d  -  %d !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", f_ptr->data[0], b_ptr->owner);
+   msg_print(NULL);
 	Term_clear();
-	sprintf(tmp_str, "%s (%s) %s", owner_name, race_name, build_name);
-	prt(tmp_str, 2, 1);
+
+	sprintf(tmp_str, "%d - %d", f_ptr->data[0], b_ptr->owner);
+   prt(tmp_str,3,1);
+	sprintf(tmp_str, "%s", owner_name);
+   prt(tmp_str,3,1);
+	sprintf(tmp_str, "(%s)",race_name);
+   prt(tmp_str,4,1);
+	sprintf(tmp_str, "%s",build_name);
+   prt(tmp_str,5,1);
+/*	sprintf(tmp_str, "%s (%s) %s", owner_name, race_name, build_name);*/
+/*	prt(tmp_str, 2, 1);*/
 	prt("You may:", 19, 0);
-	
-	
+
+
 	/* Display building-specific information */
 	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
 		 FIELD_ACT_STORE_ACT1, (vptr) &factor);
-		 
+
 	prt(" ESC) Exit building", 23, 0);
-		 
+
 	/* Show your gold */
 	building_prt_gold();
 }
@@ -520,15 +532,15 @@ static s32b gamble_init(void)
 {
 	char out_val[160], tmp_str[80];
 	cptr p;
-	
+
 	s32b wager;
 	s32b maxbet;
-	
+
 	/* Save gold before gambling */
 	gamble_oldgold = p_ptr->au;
 
 	screen_save();
-	
+
 	/* No money */
 	if (p_ptr->au < 1)
 	{
@@ -560,10 +572,10 @@ static s32b gamble_init(void)
 	 */
 	if (!get_string(tmp_str, out_val, 32))
 	{
-		screen_load();		
+		screen_load();
 		return (0);
 	}
-	
+
 	/* Strip spaces */
 	for (p = out_val; *p == ' '; p++);
 
@@ -588,7 +600,7 @@ static s32b gamble_init(void)
 		msg_print("Ok, we'll start with 1 gold.");
 		wager = 1;
 	}
-		
+
 	msg_print(NULL);
 
 	sprintf(tmp_str, "Gold before game: %9ld", p_ptr->au);
@@ -599,8 +611,8 @@ static s32b gamble_init(void)
 
 	/* Prevent savefile-scumming of the casino */
 	Rand_quick = TRUE;
-	Rand_value = time(NULL);	
-	
+	Rand_value = time(NULL);
+
 	/* Return the amount of gold bet */
 	return (wager);
 }
@@ -624,15 +636,15 @@ static bool gamble_again(bool win, int odds, s32b wager)
 		p_ptr->au -= wager;
 		prt("", 17, 37);
 	}
-	
+
 	sprintf(tmp_str, "Current Gold:     %9ld", p_ptr->au);
 	prt(tmp_str, 22, 2);
 	prt("Again(Y/N)?", 18, 37);
 	move_cursor(18, 49);
 	again = inkey();
-		
+
 	if ((again != 'y') && (again != 'Y')) return (FALSE);
-		
+
 	if (wager > p_ptr->au)
 	{
 		msg_print("Hey! You don't have the gold - get out of here!");
@@ -641,7 +653,7 @@ static bool gamble_again(bool win, int odds, s32b wager)
 		/* Get out here */
 		return (FALSE);
 	}
-	
+
 	/* The player wants another go */
 	return (TRUE);
 }
@@ -660,9 +672,9 @@ static void gamble_done(void)
 		msg_print("You came out a winner! We'll win next time, I'm sure.");
 	else
 		msg_print("You lost gold! Haha, better head home.");
-	
+
 	msg_print(NULL);
-	
+
 	screen_load();
 }
 
@@ -682,7 +694,7 @@ void gamble_in_between(void)
 {
 	s32b wager = gamble_init();
 	char tmp_str[80];
-	
+
 	int roll1, roll2, choice;
 
 	bool win;
@@ -691,27 +703,27 @@ void gamble_in_between(void)
 	if (!wager) return;
 
 	while (TRUE)
-	{	
+	{
 		win = FALSE;
-		
+
 		c_put_str(TERM_GREEN, "In Between", 5, 2);
-		
+
 		roll1 = randint1(10);
 		roll2 = randint1(10);
 		choice = randint1(10);
-		
+
 		sprintf(tmp_str, "Black die: %d       Black Die: %d", roll1, roll2);
 		prt(tmp_str, 8, 3);
-		
+
 		sprintf(tmp_str, "Red die: %d", choice);
 		prt(tmp_str, 11, 14);
-		
+
 		if (((choice > roll1) && (choice < roll2)) ||
 			((choice < roll1) && (choice > roll2)))
 			win = TRUE;
 		if (!gamble_again(win, 3, wager)) break;
 	}
-	
+
 	gamble_done();
 }
 
@@ -720,7 +732,7 @@ void gamble_craps(void)
 {
 	s32b wager = gamble_init();
 	char tmp_str[80];
-	
+
 	int roll1, roll2, roll3, choice;
 
 	bool win;
@@ -729,7 +741,7 @@ void gamble_craps(void)
 	if (!wager) return;
 
 	while (TRUE)
-	{	
+	{
 		c_put_str(TERM_GREEN, "Craps", 5, 2);
 
 		/* Roll the dice */
@@ -737,11 +749,11 @@ void gamble_craps(void)
 		roll2 = randint1(6);
 		roll3 = roll1 + roll2;
 		choice = roll3;
-		
+
 		sprintf(tmp_str, "First roll: %d %d    Total: %d", roll1,
 			 roll2, roll3);
 		prt(tmp_str, 7, 5);
-		
+
 		/* Is it is result straight away? */
 		if ((roll3 == 7) || (roll3 == 11))
 			win = TRUE;
@@ -768,13 +780,13 @@ void gamble_craps(void)
 					win = FALSE;
 				else
 					continue;
-				
+
 				/* We have a result */
 				break;
 			}
 		if (!gamble_again(win, 1, wager)) break;
 	}
-	
+
 	gamble_done();
 }
 
@@ -783,7 +795,7 @@ void gamble_spin_wheel(void)
 {
 	s32b wager = gamble_init();
 	char tmp_str[80];
-	
+
 	int roll1, choice;
 
 	bool win;
@@ -792,15 +804,15 @@ void gamble_spin_wheel(void)
 	if (!wager) return;
 
 	while (TRUE)
-	{	
+	{
 		win = FALSE;
 
 		c_put_str(TERM_GREEN, "Wheel", 5, 2);
 		prt("1  2  3  4  5  6  7  8  9 10", 7, 5);
 		prt("--------------------------------", 8, 3);
-		
+
 		choice = get_quantity("Pick a number (1-10): ", 10);
-		
+
 		msg_print(NULL);
 		roll1 = randint1(10);
 		sprintf(tmp_str, "The wheel spins to a stop and the winner is %d",
@@ -810,10 +822,10 @@ void gamble_spin_wheel(void)
 		prt("*", 9, (3 * roll1 + 2));
 
 		if (roll1 == choice) win = TRUE;
-		
+
 		if (!gamble_again(win, 8, wager)) break;
 	}
-	
+
 	gamble_done();
 }
 
@@ -822,10 +834,10 @@ void gamble_dice_slots(void)
 {
 	static const char *fruit[6] =
 		 {"Lemon", "Orange", "Sword", "Shield", "Plum", "Cherry"};
-	
+
 	s32b wager = gamble_init();
 	char tmp_str[80];
-	
+
 	int roll1, roll2, choice;
 	int odds;
 
@@ -835,27 +847,27 @@ void gamble_dice_slots(void)
 	if (!wager) return;
 
 	while (TRUE)
-	{	
+	{
 		c_put_str(TERM_GREEN, "Dice Slots", 5, 2);
 		win = FALSE;
 		odds = 0;
-		
+
 		/* Roll the dice */
 		roll1 = randint1(6);
 		roll2 = randint1(6);
 		choice = randint1(6);
-		
+
 		/* Show the result */
 		sprintf(tmp_str, "%s %s %s", fruit[roll1 - 1], fruit[roll2 - 1],
 			 fruit[choice - 1]);
 		prt(tmp_str, 15, 37);
 		prt("/--------------------------\\", 7, 2);
 		prt("\\--------------------------/", 17, 2);
-		
+
 		display_fruit(8,  3, roll1 - 1);
 		display_fruit(8, 12, roll2 - 1);
 		display_fruit(8, 21, choice - 1);
-		
+
 		/* What did we win? */
 		if ((roll1 == roll2) && (roll2 == choice))
 		{
@@ -872,13 +884,13 @@ void gamble_dice_slots(void)
 			win = TRUE;
 			odds = choice + 1;
 		}
-		
+
 		if (!gamble_again(win, odds, wager)) break;
 	}
-	
+
 	gamble_done();
 }
-	
+
 
 /*
  * The Inn
@@ -899,22 +911,22 @@ bool inn_rest(void)
 	{
 		msg_print("The rooms are available only at night.");
 		msg_print(NULL);
-		
+
 		return (FALSE);
 	}
-	
+
 	/* Hurt? */
 	if ((p_ptr->poisoned) || (p_ptr->cut))
 	{
 		msg_print("You need a healer, not a room.");
 		msg_print(NULL);
 		msg_print("Sorry, but don't want anyone dying in here.");
-		msg_print(NULL);			
+		msg_print(NULL);
 
 		return (FALSE);
 	}
 
-	/* Rest all night */		
+	/* Rest all night */
 	turn = ((turn / 50000) + 1) * 50000;
 	p_ptr->chp = p_ptr->mhp;
 
@@ -942,7 +954,7 @@ bool inn_rest(void)
 
 		msg_print("You awake screaming.");
 		msg_print(NULL);
-		
+
 		return (TRUE);
 	}
 
@@ -1150,7 +1162,7 @@ static void compare_weapon_aux2(const object_type *o_ptr, int numblows,
 	dambonus = o_ptr->to_d + p_ptr->to_d;
 
 	mindam = deadliness_calc(dambonus);
-	
+
 	/* Include effects of slaying bonus */
 	mindam = (mindam * slay) / 10;
 
@@ -1186,40 +1198,42 @@ static void compare_weapon_aux2(const object_type *o_ptr, int numblows,
 static void compare_weapon_aux1(const object_type *o_ptr)
 {
 	int r = 10;
-	
-	u32b f1, f2, f3;
+
+	u32b f1, f2, f3, f4, f5, f6;
 
 	/* Get the flags of the weapon */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+
+   /*****   NEEDS   REWORKING   *****/
 
 	/* Print the relevant lines */
-	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+	if (f1 & TR4_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 	 	"Animals:", TERM_YELLOW, 17);
-	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+	if (f1 & TR5_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Evil:", TERM_YELLOW, 15);
-	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR4_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Undead:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR4_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Demons:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR5_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Orcs:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR4_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Trolls:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR4_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Giants:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 	
+	if (f1 & TR4_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Dragons:", TERM_YELLOW, 20);
-	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR4_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Dragons:", TERM_YELLOW, 30);
-	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Acid:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Elec:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Fire:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Cold:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Poison:", TERM_RED, 20);
 }
 
@@ -1234,7 +1248,7 @@ static int hit_prob(int to_h, int ac)
 {
 		int chance = p_ptr->skill_thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
 		int prob = 0;
-		
+
 		if (chance > 0 && ac < chance) prob = (100 * (chance - ac) / chance);
 		return (5 + 95 * prob / 100);
 }
@@ -1250,11 +1264,11 @@ static int critical_prob_aux(int x, int r)
 	 * Ex. r=130 x=60
 	 * x
 	 * 6******.... \
-	 * 5*******... n 
-	 * 4********.. | 
+	 * 5*******... n
+	 * 4********.. |
 	 * 3*********. /
 	 * 2**********
-	 * 1**********  
+	 * 1**********
 	 *  1234567890
 	 */
 	int n = x + 1 - (r - 100);
@@ -1266,7 +1280,7 @@ static int critical_prob_aux(int x, int r)
 	/*
 	 *  Ex. r=130 x=150
 	 *  #(o) = 100*(100-1)/2
-	 *  #(.) = 100*(n-100) 
+	 *  #(.) = 100*(n-100)
 	 *
 	 * x
 	 * 5oooooooooo \
@@ -1283,16 +1297,16 @@ static int critical_prob_aux(int x, int r)
 	 * 4********.. |
 	 * 3*********. /
 	 * 2**********
-	 * 1**********  
+	 * 1**********
 	 *  1234567890
 	 */
-	 
+
 	return (100 * x - 100 * (100 - 1) / 2 - (n - 100) * 100);
 }
 
 
 /*
- * Calculate the probability of critical hit for a weapon 
+ * Calculate the probability of critical hit for a weapon
  *
  * Only accurate for the current weapon, because it includes
  * player's +to_hit.
@@ -1303,24 +1317,24 @@ static int critical_prob(int to_h, int r1, int r2)
 	int chance = p_ptr->skill_thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
 
 	if (chance <= 0) return (0);
-	
+
 	prob1 = critical_prob_aux(chance, r1);
-	
+
 	if (r2 == 0)
 	{
 		prob2 = 100 * chance;
 	}
 	else
 	{
-		prob2 = critical_prob_aux(chance, r2); 
+		prob2 = critical_prob_aux(chance, r2);
 	}
 	/*
 	 *  		chance  	 prob2 - prob1
-	 *   100 *  ------	*  --------------- 
-	 *		  200+chance    100 * chance 
+	 *   100 *  ------	*  ---------------
+	 *		  200+chance    100 * chance
 	 */
-	 
-	 return (chance * (prob2 - prob1) * 100 / ((chance + 200) * chance * 100)); 
+
+	 return (chance * (prob2 - prob1) * 100 / ((chance + 200) * chance * 100));
 }
 
 
@@ -1342,8 +1356,8 @@ static void list_weapon(const object_type *o_ptr)
 
 	/* Modification to the critical multiplier */
 	int mult_crit = 120 / (o_ptr->dd * (o_ptr->ds + 1));
-	
-	/* Bounds checking */      
+
+	/* Bounds checking */
 	if (mult_crit > 20) mult_crit = 20;
 	if (mult_crit < 10) mult_crit = 10;
 
@@ -1364,23 +1378,23 @@ static void list_weapon(const object_type *o_ptr)
 	/* Print hit probabilities */
 	sprintf(tmp_str, "Enemy AC:  Low   Medium  High");
 	put_str(tmp_str, 12, WEP_MAST_COL1);
-	
-	sprintf(tmp_str, "Hit Prob:  %2d%% %2d%% %2d%% %2d%% %2d%%", 
+
+	sprintf(tmp_str, "Hit Prob:  %2d%% %2d%% %2d%% %2d%% %2d%%",
 		hit_prob(o_ptr->to_h, 25), hit_prob(o_ptr->to_h, 50),
 		hit_prob(o_ptr->to_h, 75), hit_prob(o_ptr->to_h, 100),
 		hit_prob(o_ptr->to_h, 200));
 	put_str(tmp_str, 13, WEP_MAST_COL1);
-	
+
 	/* Print critical hit probabilities */
 	sprintf(tmp_str, "Critical: 1.0 %1d.%1d %1d.%1d %1d.%1d %1d.%1d %1d.%1d %1d.%1d",
-		mult_crit * 15 / 100, (mult_crit * 15 / 10) % 10, 
-		mult_crit * 17 / 100, (mult_crit * 17 / 10) % 10, 
-		mult_crit * 20 / 100, (mult_crit * 20 / 10) % 10, 
-		mult_crit * 23 / 100, (mult_crit * 23 / 10) % 10, 
-		mult_crit * 27 / 100, (mult_crit * 27 / 10) % 10, 
+		mult_crit * 15 / 100, (mult_crit * 15 / 10) % 10,
+		mult_crit * 17 / 100, (mult_crit * 17 / 10) % 10,
+		mult_crit * 20 / 100, (mult_crit * 20 / 10) % 10,
+		mult_crit * 23 / 100, (mult_crit * 23 / 10) % 10,
+		mult_crit * 27 / 100, (mult_crit * 27 / 10) % 10,
 		mult_crit * 32 / 100, (mult_crit * 32 / 10) % 10);
 	put_str(tmp_str, 15, WEP_MAST_COL1);
-	
+
 	sprintf(tmp_str, "          %2d%% %2d%% %2d%% %2d%% %2d%% %2d%% %2d%%",
 		100 - critical_prob(o_ptr->to_h, 0, 0),
 		critical_prob(o_ptr->to_h, 0, 100),
@@ -1389,9 +1403,9 @@ static void list_weapon(const object_type *o_ptr)
 		critical_prob(o_ptr->to_h, 210, 250),
 		critical_prob(o_ptr->to_h, 250, 280),
 		critical_prob(o_ptr->to_h, 280, 0));
-  
+
 	put_str(tmp_str, 16, WEP_MAST_COL1);
-	
+
 	c_put_str(TERM_L_BLUE, "Possible Damage:", 6, WEP_MAST_COL2);
 
 	dambonus = o_ptr->to_d + p_ptr->to_d;
@@ -1435,7 +1449,7 @@ bool compare_weapons(void)
 
 	/* Point to wielded weapon */
 	o_ptr = &inventory[INVEN_WIELD];
-	
+
 	/* Check to see if we have one */
 	if (!o_ptr->k_idx)
 	{
@@ -1447,15 +1461,18 @@ bool compare_weapons(void)
 
 	/* Identify the weapon */
 	identify_item(o_ptr);
-	
+
 	/* *Identify* the weapon for the player */
 	o_ptr->ident |= IDENT_MENTAL;
-	
+
 	/* Save all the known flags */
 	o_ptr->kn_flags1 = o_ptr->flags1;
 	o_ptr->kn_flags2 = o_ptr->flags2;
 	o_ptr->kn_flags3 = o_ptr->flags3;
-	
+	o_ptr->kn_flags4 = o_ptr->flags4;
+	o_ptr->kn_flags5 = o_ptr->flags5;
+	o_ptr->kn_flags6 = o_ptr->flags6;
+
 	/* Erase the "feeling" */
 	o_ptr->feeling = FEEL_NONE;
 
@@ -1655,7 +1672,7 @@ void building_recharge(s32b cost)
 	else if (o_ptr->tval == TV_STAFF)
 	{
 		/*
-		 * Price per charge ( = double the price paid 
+		 * Price per charge ( = double the price paid
 		 * by shopkeepers for the charge)
 		 */
 		price = (o_ptr->cost / 10) * o_ptr->number;
@@ -1694,7 +1711,7 @@ void building_recharge(s32b cost)
 
 	/* Factor in shopkeeper greed */
 	price = (price * cost / 100);
-	
+
 	/* Check if the player has enough money */
 	if (p_ptr->au < price)
 	{
@@ -1736,7 +1753,7 @@ void building_recharge(s32b cost)
 
 		/* Recharge */
 		o_ptr->pval += charges;
-		
+
 		/* Hack - no "used" charges */
 		o_ptr->ac = 0;
 
@@ -1766,20 +1783,20 @@ void building_recharge(s32b cost)
 bool building_healer(void)
 {
 	bool paid = FALSE;
-	
-	if (do_res_stat(A_STR)) paid = TRUE;
-	if (do_res_stat(A_INT)) paid = TRUE;
-	if (do_res_stat(A_WIS)) paid = TRUE;
-	if (do_res_stat(A_DEX)) paid = TRUE;
-	if (do_res_stat(A_CON)) paid = TRUE;
-	if (do_res_stat(A_CHR)) paid = TRUE;
-	
+
+	if (do_res_stat(A_STR, 200)) paid = TRUE;
+	if (do_res_stat(A_INT, 200)) paid = TRUE;
+	if (do_res_stat(A_WIS, 200)) paid = TRUE;
+	if (do_res_stat(A_DEX, 200)) paid = TRUE;
+	if (do_res_stat(A_CON, 200)) paid = TRUE;
+	if (do_res_stat(A_CHR, 200)) paid = TRUE;
+
 	if (paid)
 	{
 		msg_print("You are infused with magic, and your ailments disappear.");
-		msg_print(NULL);	
+		msg_print(NULL);
 	}
-	
+
 	return (paid);
 }
 
@@ -1837,12 +1854,12 @@ static void bldg_process_command(building_type *bldg, int i)
 			paid = TRUE;
 			break;
 		case BACT_RESTORE: /* needs work */
-			if (do_res_stat(A_STR)) paid = TRUE;
-			if (do_res_stat(A_INT)) paid = TRUE;
-			if (do_res_stat(A_WIS)) paid = TRUE;
-			if (do_res_stat(A_DEX)) paid = TRUE;
-			if (do_res_stat(A_CON)) paid = TRUE;
-			if (do_res_stat(A_CHR)) paid = TRUE;
+			if (do_res_stat(A_STR, 200)) paid = TRUE;
+			if (do_res_stat(A_INT, 200)) paid = TRUE;
+			if (do_res_stat(A_WIS, 200)) paid = TRUE;
+			if (do_res_stat(A_DEX, 200)) paid = TRUE;
+			if (do_res_stat(A_CON, 200)) paid = TRUE;
+			if (do_res_stat(A_CHR, 200)) paid = TRUE;
 			break;
 		case BACT_GOLD: /* set timed reward flag */
 			if (!p_ptr->rewards[BACT_GOLD])
@@ -1924,27 +1941,27 @@ void do_cmd_quest(void)
 static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 {
 	const b_own_type *bo_ptr = &b_owners[f_ptr->data[0]][b_ptr->owner];
-	
+
 	int		factor;
-	
+
 	/* Compute the racial factor */
 	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
 
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-	
+
 	factor = ((factor + 100) * bo_ptr->inflate) / 400;
-	
+
 	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
 		 FIELD_ACT_STORE_ACT2, (vptr) &factor);
-		
+
 	/* Hack XXX XXX, factor is returned as 2 if we want a redraw */
 	if (factor == 2)
 	{
 		/* Redraw screen */
 		display_build(f_ptr, b_ptr);
 	}
-	
+
 	/* Did we do anything? */
 	return (factor);
 }
@@ -1968,7 +1985,7 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 
 	/* Process the building-specific commands */
 	if (process_build_hook(f_ptr, b_ptr)) return (FALSE);
-	
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -2207,7 +2224,7 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 			break;
 		}
 	}
-	
+
 	return (FALSE);
 }
 
@@ -2222,17 +2239,17 @@ void do_cmd_bldg(field_type *f_ptr)
 	bool	leave_build = FALSE;
 
 	town_type	*twn_ptr = &town[p_ptr->town_num];
-	
+
 	/* Get the building the player is on */
 	for (i = 0; i < twn_ptr->numstores; i++)
 	{
-		if ((p_ptr->py - twn_ptr->y * 16 == twn_ptr->store[i].y) && 
+		if ((p_ptr->py - twn_ptr->y * 16 == twn_ptr->store[i].y) &&
 		 (p_ptr->px - twn_ptr->x * 16 == twn_ptr->store[i].x))
 		{
 			which = i;
 		}
 	}
-	
+
 	/* Paranoia */
 	if (which == -1)
 	{
@@ -2248,7 +2265,7 @@ void do_cmd_bldg(field_type *f_ptr)
 
 	/* Hack -- Increase "icky" depth */
 	character_icky++;
-	
+
 	/* No command argument */
 	p_ptr->command_arg = 0;
 
@@ -2271,10 +2288,10 @@ void do_cmd_bldg(field_type *f_ptr)
 
 		/* Basic commands */
 		prt(" ESC) Exit building", 23, 0);
-		 
+
 		/* Show your gold */
 		building_prt_gold();
-	
+
 		/* Get a command */
 		request_command(FALSE);
 

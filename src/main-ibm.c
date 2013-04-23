@@ -1215,9 +1215,9 @@ errr init_ibm(void)
 		long rv, gv, bv;
 
 		/* Extract desired values */
-		rv = angband_color_table[i][1] >> 2;
-		gv = angband_color_table[i][2] >> 2;
-		bv = angband_color_table[i][3] >> 2;
+		rv = angband_color_table[i][1]/* >> 2*/;
+		gv = angband_color_table[i][2]/* >> 2*/;
+		bv = angband_color_table[i][3]/* >> 2*/;
 
 		/* Extract the "complex" codes */
 		ibm_color_complex[i] = ((rv) | (gv << 8) | (bv << 16));

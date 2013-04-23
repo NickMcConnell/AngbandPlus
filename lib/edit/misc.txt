@@ -1,9 +1,9 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/12 11:14:03 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:05:07 $
 # File: misc.txt
 
 
 # Maximum number of quests
-M:Q:100
+M:Q:255
 
 # Maximum size of the wilderness
 M:WS:129
@@ -15,22 +15,19 @@ M:WN:250
 M:WT:300
 
 # Maximum number of "places" in the wilderness
-M:WP:20
+M:WP:30
 
 # Maximum number of monsters in r_info.txt
 M:R:885
 
 # Maximum number of items in k_info.txt
-M:K:582
+M:K:625
 
 # Maximum number of vaults in v_info.txt
-M:V:126
+M:V:132
 
 # Maximum number of terrain features in f_info.txt
 M:F:160
-
-# Maximum number of artifacts in a_info.txt
-M:A:128
 
 # Maximum number of ego-items in e_info.txt
 M:E:128
@@ -40,14 +37,14 @@ M:T:142
 
 # Maximum size for "o_list[]"
 # Increase this if you get lots of 'Generation restarted (too many objects)' messages.
-M:O:512
+M:O:2048
 
 # Maximum size for "m_list[]"
 # Increase this if you get lots of 'Generation restarted (too many monsters)' messages.
-M:M:1024
+M:M:2048
 
 # Maximum size for "fld_list[]"
 # Increase this if you get lots of 'Compacting fields...' messages.
-M:D:512
+M:D:2048
 
 

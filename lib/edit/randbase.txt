@@ -1,0 +1,4153 @@
+# File: randbase.txt
+#
+# Base Random Monster Information
+#
+
+# Currently, "unique" monsters are just "special" monster races, with
+# the requirement that only one monster of that race can exist at a time,
+# and when it is killed, it can never again be generated.
+
+# ATTR_CLEAR monsters acquire their attr from the item/floor below them,
+# and use "white" for the recall window.  See "cave.c" for info.
+
+# ATTR_MULTI monsters have a "flickering" attr, and use "violet" for the
+# recall window.  See "cave.c" for info.
+
+# CHAR_CLEAR monsters use special symbols (.) as given below,
+# and use those symbols for the recall window.
+
+# CHAR_MIMIC monsters use special symbols (!, ?, =) as given below,
+# and use those symbols for the recall window.
+# Note that there are (a few) normal monsters who are "violet" but not
+# ATTR_MULTI, and a lot of monsters which are "white" but not ATTR_CLEAR.
+
+# Note that currently CHAR_CLEAR monsters are treated
+# as normal monsters that are just a little hard to see.
+
+# CHAR_MIMIC monsters a special-cased in the targetting code.  They can not
+# be looked at or targetted unless 'noticed'.  The monster-list code also
+# handles this flag.
+
+# Monster list...
+
+#   A:Angel
+#   B:Bird
+#   C:Canine
+#   D:Greater Dragon
+#   E:Elemental
+#   F:Flying Insects
+#   G:Greater Spectral Undead
+#   H:Hybrid
+#   I:Ground Insects
+#   J:Snakes
+#   K:Kobolds
+#   L:Major Humaniods
+#   M:Multi Headed Reptile
+#   N:Nightmares/Unspeakable Horrors
+#   O:Giant Humanoids
+#   P:Major Plants
+#   Q:Quylthulg (Pulsing Flesh Mound)
+#   R:Reptiles/Amphibians
+#   S:Major Physical Undead
+#   T:Trolls
+#   U:Major Demon
+#   V:Greater Vortex
+#   W:Water Critters
+#   X:Xenoforms
+#   Y:Yetis/Sasquatches
+#   Z:Zephyr Hound
+#   a:Automaton/Constructs
+#   b:Bats
+#   c:Cat
+#   d:Minor Dragon Types
+#   e:Floating Eye
+#   f:Faery
+#   g:Minor Spectral Undead
+#   h:Humanoid
+#   i:Icky Thing
+#   j:Jelly
+#   k:Goblins
+#   l:Minor Humaniods
+#   m:Mold
+#   n:Naga
+#   o:Orc
+#   p:Minor Plants
+#   q:Quadraped
+#   r:Rodents
+#   s:Minor Physical Undead
+#   t:Townsperson
+#   u:Minor Demon
+#   v:Minor Vortex
+#   w:Worms
+#   /*x:          ??????????*/
+#   y:Yeek
+#   z:Silly/Bizarre Things
+#   $:Treasure Critter
+#   #:Wall Monsters
+#   %:Treasure Wall Monsters
+#   ,:Mushroom Patch
+
+# N: serial number : monster name
+# G: symbol : color
+# I: speed : hit points : vision : armor class : alertness
+# W: depth : rarity : unique name list : experience for kill
+# B: attack method : attack effect : damage
+# S: spell frequency |
+# S: spell type | spell type | etc
+# F: flag | flag | etc
+# D: Description
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. Entry 0 is used for the player.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Dark Gray    w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Black        W - Dark Purple    v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'I' is for information - speed, health, vision in tens of feet,
+# armor class, and alertness. 110 is normal speed. Alertness ranges
+# from 0 (ever vigilant for intruders) to 255 (prefers to ignore
+# intruders).
+
+# 'W' is for more information - level, rarity, and experience for
+# killing.  3rd value is now for monster unique list.  0 means there
+# will be no uniques of that type.
+
+# 'B' is for blows - method of attack, effect of attack, and damage
+# from attack. There may be up to four of these lines; effect and
+# damage are optional.
+
+# 'O' is for object theme.  The three numbers represent the percent
+# chance to drop treasure, combat and magic items.  The chance to
+# drop tools is defined as 100 - the sum of these three numbers.
+# Note that monsters do not drop junk.  Junk can only be generated
+# in the dungeon when you enter it.
+
+# 'S' is for spells. The first S: line must be S:1_IN_X with X the
+# number of monster turns, on average, before the monster will cast
+# one of its spells. X must not be zero.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+#
+# RandomBand uses JOB, DESC, and COLOR for Job, Descriptor and Color
+# setting flags.
+# JOB - Can have an occupation (most the major races like orcs and trolls)
+# DESC - Can have a descriptor
+#        DESC_T - Town
+#        DESC_1 - 1 Descriptor Max (ex., Ancient, Quick, Slimy)
+#        DESC_2 - 2 Descriptors Max (ex., Quick Ancient, Young Slimy)
+# COLOR - Can have a color descriptor (ex. Red, Blue, Green)
+#
+# Having a COLOR flag pretty much gaurantees a COLOR will be assigned
+# descriptors CAN be assigned (and usually are) but aren't 100% for
+# certain.
+#
+
+# 'D' is for description. As many D: lines may be used as are needed
+# to describe the monster. Note that lines may need spaces at their
+# ends to prevent words from running together in the monster memory.
+
+# Version stamp (required)
+
+V:2.8.1
+
+##### The Player #####
+
+N:0:Player
+G:@:w
+
+##### Town Monsters #####
+
+N:1:street urchin
+G:t:D
+I:110:1d4:4:2:40
+W:0:2:0:0
+O:0:0:0
+B:BEG
+B:TOUCH:EAT_GOLD
+F:EVIL | WILD_TOWN
+F:RAND_25 | FRIENDS
+F:TAKE_ITEM | OPEN_DOOR | DROP_CORPSE | DROP_SKELETON
+F:DESC_T
+D:One of many squalid and revolting townfolk.
+
+N:2:cat
+G:f:U
+I:110:1d2:30:3:10
+W:0:3:0:0
+O:0:0:0
+B:CLAW:HURT:1d1
+F:RAND_25 | WILD_TOWN
+F:ANIMAL | DROP_CORPSE | DROP_SKELETON
+F:COLOR_T
+D:A skinny little furball with sharp claws and a menacing look.
+
+N:3:sparrow
+G:B:U
+I:110:1d1:30:2:10
+W:0:3:0:0
+O:0:0:0
+B:BITE:HURT:1d1
+F:RAND_25 | CAN_FLY | WILD_TOWN
+F:ANIMAL | DROP_SKELETON
+F:COLOR_T
+D:Utterly harmless, except when angry.
+
+N:4:chaffinch
+G:B:r
+I:110:1d1:30:2:10
+W:0:3:0:0
+O:0:0:0
+B:BITE:HURT:1d1
+F:RAND_25 | CAN_FLY | WILD_FOREST1 | WILD_FOREST2 | WILD_SWAMP1 | WILD_GRASS
+F:ANIMAL | DROP_SKELETON
+F:COLOR_T
+D:Utterly harmless, except when angry.
+
+N:5:rabbit
+G:r:U
+I:110:1d2:30:2:10
+W:0:3:0:0
+O:0:0:0
+B:BITE:HURT:1d1
+F:RAND_50 | WILD_FOREST1 | WILD_FOREST2 | WILD_GRASS
+F:ANIMAL | DROP_SKELETON | DROP_CORPSE
+F:COLOR_T
+D:It is not a carnivore, but will defend itself if you stray too
+D:close.
+
+N:6:woodsman
+G:p:g
+I:110:3d3:10:5:255
+W:0:1:0:0
+O:0:50:0
+B:HIT:HURT:1d6
+F:MALE | WILD_FOREST1 | WILD_FOREST2
+F:RAND_25 | DROP_SKELETON | DROP_CORPSE |
+F:ONLY_GOLD | DROP_60 |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+F:DESC_T
+D:Has an axe with a sharp and strong edge.
+
+N:7:little dog
+G:C:U
+I:110:1d3:20:3:5
+W:0:3:0:0
+O:0:0:0
+B:BITE:HURT:1d1
+F:RAND_25 | DROP_SKELETON | DROP_CORPSE | WILD_TOWN
+F:ANIMAL
+F:COLOR_T
+D:A thin flea-ridden mutt, growling as you get close.
+
+N:8:farmer
+G:h:w
+I:110:35d10:40:10:3
+W:0:3:1:0
+O:0:100:0
+B:HIT:HURT:1d3
+F:DROP_CORPSE | FRIENDLY
+F:WILD_TOWN
+F:OPEN_DOOR | BASH_DOOR | LITE_1
+F:NO_CONF | NO_SLEEP
+F:DESC_T
+D:Just your average local farmer.
+
+N:9:idiot
+G:t:s
+I:110:1d2:6:1:0
+W:0:1:0:0
+O:0:0:0
+B:DROOL
+F:DROP_CORPSE | DROP_SKELETON | WILD_TOWN
+F:RAND_25 |
+F:TAKE_ITEM
+F:DESC_T
+D:IQ less than shoe size.
+
+N:10:hobo
+G:t:g
+I:110:1d2:6:1:0
+W:0:1:0:0
+O:0:0:0
+B:DROOL
+F:DROP_SKELETON | DROP_CORPSE | WILD_TOWN
+F:RAND_25 |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+F:DESC_T
+D:Ugly.
+
+N:11:lunatic
+G:t:G
+I:120:3d4:6:1:0
+W:0:1:0:0
+O:0:0:0
+B:DROOL
+F:DROP_CORPSE | DROP_SKELETON | WILD_TOWN
+F:RAND_25 |
+F:TAKE_ITEM
+F:DESC_T
+D:Drooling and comical, but then, what do you expect?
+
+N:12:beggar
+G:t:U
+I:110:1d4:10:2:40
+W:0:1:0:0
+O:0:0:0
+B:BEG
+F:DROP_SKELETON | DROP_CORPSE
+F:RAND_25 | WILD_TOWN
+F:TAKE_ITEM | OPEN_DOOR
+F:DESC_T
+D:You just can't help feeling sorry for him.
+
+N:13:leper
+G:t:u
+I:110:1d1:10:2:50
+W:0:1:0:0
+O:0:0:0
+B:BEG
+B:TOUCH:DISEASE
+F:DROP_CORPSE | DROP_SKELETON
+F:RAND_25 | WILD_TOWN
+F:TAKE_ITEM | OPEN_DOOR
+F:DESC_T
+D:You feel it isn't safe to touch him.
+
+N:14:thug
+G:t:D
+I:110:2d8:10:10:99
+W:0:1:0:0
+O:25:50:25
+B:HIT:HURT:1d6
+B:TOUCH:EAT_ITEM
+F:DROP_CORPSE | DROP_SKELETON
+F:DROP_60 | WILD_TOWN |
+F:WILD_SWAMP1 | WILD_SWAMP2 | WILD_FOREST1 | WILD_FOREST2 | WILD_MOUNT1
+F:WILD_MOUNT2 | WILD_GRASS
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+F:EVIL
+F:DESC_T
+D:'Finds' new wares from unwary adventurers...
+
+N:15:drunk
+G:t:y
+I:110:2d3:10:3:0
+W:0:1:0:0
+O:0:0:0
+B:BEG
+F:RAND_50 | DROP_SKELETON | DROP_CORPSE
+F:ONLY_GOLD | DROP_60 | WILD_TOWN
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+F:DESC_T
+D:Makes you glad to be sober.
+
+N:16:merchant
+G:t:o
+I:110:3d3:10:3:255
+W:0:1:0:0
+O:0:0:0
+B:HIT:HURT:1d3
+F:RAND_50 |
+F:ONLY_GOLD | DROP_60 | DROP_SKELETON | DROP_CORPSE
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WILD_TOWN | LITE_1
+F:DESC_T
+D:The typical ponce around town, with purse jingling, and looking for more
+D:amulets of adornment to buy.
+
+N:17:mercenary
+G:t:R
+I:110:4d8:10:10:250
+W:0:1:0:0
+O:0:100:0
+B:HIT:HURT:1d10
+F:DROP_SKELETON | DROP_CORPSE
+F:RAND_50 | DROP_90 | WILD_TOWN | WILD_FOREST1 | WILD_FOREST2
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | LITE_1
+F:EVIL
+F:DESC_T
+D:No job is too low for him.
+
+N:18:veteran
+G:t:r
+I:110:6d8:10:16:250
+W:0:1:0:0
+O:25:50:25
+B:HIT:HURT:2d6
+F:DROP_SKELETON | DROP_CORPSE
+F:RAND_50 | DROP_90 | WILD_TOWN | LITE_1
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+F:DESC_T
+D:He doesn't take to strangers kindly.
+
+##### Dungeon Monsters Start Here #####
+##### Monsters are listed with base attacks #####
+##### These are modified during generation #####
+
+N:19:mold
+G:m:s
+I:110:1d2:2:2:0
+W:2:1:0:9
+O:0:0:0
+B:HIT:HURT:1d4
+B:HIT:HURT:1d4
+F:NEVER_MOVE | WILD_DUNGEON_01
+F:STUPID | EMPTY_MIND |
+F:DROP_CORPSE | NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR
+D:A small strange growth.
+
+N:20:snake
+G:J:w
+I:100:3d6:4:17:99
+W:1:1:0:4
+O:0:0:0
+B:BITE:HURT:1d1
+B:CRUSH:HURT:1d1
+F:RAND_50 | WILD_DUNGEON_01 | WILD_FOREST1 | WILD_FOREST2
+F:BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:ANIMAL
+F:COLOR | DESC_1
+D:It is about eight feet long.
+
+N:21:dot
+G:,:s
+I:110:1d2:2:2:0
+W:3:1:0:23
+O:0:0:0
+B:SPORE:CONFUSE:1d4
+F:NEVER_MOVE | WILD_DUNGEON_01
+F:STUPID | EMPTY_MIND |
+F:IM_POIS | DROP_CORPSE
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_2 |
+S:BLINK
+D:A speck on the dungeon floor.
+
+N:22:newt
+G:R:y
+I:110:2d6:8:8:30
+W:1:1:0:1
+O:0:0:0
+B:BITE:HURT:1d3
+B:BITE:HURT:1d3
+F:WEIRD_MIND | CAN_SWIM | WILD_DUNGEON_01 | WILD_FOREST1 | WILD_SWAMP1
+F:WILD_SWAMP2 | WILD_WASTE1 | WILD_SHORE | WILD_MOUNT1 | WILD_MOUNT2 |
+F:WILD_TOWN
+F:ANIMAL | DROP_CORPSE
+F:COLOR | DESC_1
+D:A small lizard.
+
+N:23:centipede
+G:c:w
+I:110:3d5:7:8:40
+W:3:1:0:11
+O:0:0:0
+B:BITE:HURT:1d2
+B:STING:HURT:1d2
+F:WILD_DUNGEON_01 | WILD_FOREST1
+F:RAND_50 | DROP_SKELETON |
+F:WEIRD_MIND | BASH_DOOR |
+F:ANIMAL
+F:COLOR | DESC_1
+D:It is about four feet long and carnivorous.
+
+N:24:icky thing
+G:i:w
+I:110:3d5:12:6:10
+W:1:1:0:1
+O:0:0:0
+B:TOUCH:HURT:1d2
+F:WILD_DUNGEON_01
+F:RAND_50 | RAND_25 | CAN_SWIM |
+F:EMPTY_MIND | DROP_CORPSE
+F:COLOR | DESC_1
+D:It is a smallish, slimy, icky creature.
+
+N:25:mouse
+G:r:w
+I:110:1d3:8:4:20
+W:3:1:0:2
+O:0:0:0
+B:BITE:HURT:1d2
+F:WILD_DUNGEON_01
+F:RAND_50 | WILD_GRASS |
+F:MULTIPLY | CAN_SWIM |
+F:ANIMAL | DROP_CORPSE
+F:COLOR | DESC_1
+D:It is about three feet long with large teeth.
+
+N:26:kobold
+G:k:g
+I:110:4d6:20:12:10
+W:3:1:0:17
+O:0:50:0
+B:HIT:HURT:1d8
+F:DROP_60 | WILD_DUNGEON_01 | WILD_WASTE1
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:EVIL | IM_POIS
+F:COLOR | DESC_1 | JOB
+D:It is a small, dog-headed humanoid.
+
+N:27:worm mass
+G:w:w
+I:100:3d5:7:3:10
+W:2:1:0:1
+O:0:0:0
+B:CRAWL:POISON:1d2
+F:WILD_DUNGEON_01
+F:RAND_50 | RAND_25 | CAN_SWIM |
+F:STUPID | WEIRD_MIND | MULTIPLY |
+F:ANIMAL | IM_POIS | HURT_LITE | NO_FEAR
+F:COLOR
+D:It is a large slimy mass of worms.
+
+N:28:floating eye
+G:e:b
+I:110:1d2:2:6:10
+W:2:1:0:11
+O:0:0:0
+B:GAZE:PARALYZE
+F:WILD_DUNGEON_01
+F:NEVER_MOVE | CAN_FLY | DROP_CORPSE
+F:HURT_LITE | NO_FEAR
+F:COLOR
+D:A disembodied eye, floating a few feet above the ground.
+
+N:29:lizard
+G:R:U
+I:110:3d4:20:5:15
+W:2:1:0:8
+O:0:0:0
+B:BITE:HURT:1d1
+F:WILD_DUNGEON_01
+F:ANIMAL | CAN_SWIM | WILD_MOUNT1 | WILD_MOUNT2
+F:DROP_CORPSE
+F:COLOR | DESC_1
+D:It is a small lizard with a hardened hide.
+
+N:30:bug
+G:I:v
+I:110:2d4:10:4:10
+W:1:4:0:1
+O:0:0:0
+B:BITE:ELEC:1d4
+F:WILD_DUNGEON_01
+F:RAND_25 | FRIENDS | CAN_FLY |
+F:STUPID | WEIRD_MIND | LITE_1
+F:ANIMAL | NO_FEAR | IM_ELEC
+F:COLOR | DESC_1
+D:A strange electric bug.
+
+N:31:jackal
+G:C:U
+I:110:1d4:10:5:10
+W:4:1:0:13
+O:0:0:0
+B:BITE:HURT:1d1
+F:WILD_DUNGEON_01 | WILD_FOREST1 | WILD_GRASS
+F:FRIENDS |
+F:ANIMAL | DROP_SKELETON | DROP_CORPSE
+F:COLOR | DESC_1
+D:It is a yapping snarling dog, dangerous when in a pack.
+
+N:32:ant
+G:a:u
+I:110:2d5:10:5:10
+W:4:1:0:15
+O:0:0:0
+B:BITE:HURT:1d2
+F:WEIRD_MIND | BASH_DOOR | DROP_SKELETON |
+F:ANIMAL | WILD_DUNGEON_01 | WILD_GRASS
+F:COLOR | DESC_1
+D:A large ant with powerful mandibles.
+
+N:33:bat
+G:b:v
+I:120:2d2:20:11:10
+W:4:1:0:20
+O:0:0:0
+B:BITE:HURT:1d1
+F:ANIMAL | CAN_FLY | WILD_DUNGEON_01 | WILD_FOREST1 | WILD_FOREST2 |
+F:WILD_SWAMP1 | WILD_SWAMP2 | DROP_CORPSE
+F:COLOR | DESC_1
+D:A fast-moving pest.
+
+N:34:insect swarm
+G:I:u
+I:120:2d2:20:8:10
+W:3:1:0:8
+O:0:0:0
+B:BITE:HURT:1d2
+B:STING:HURT:1d2
+F:ANIMAL | WEIRD_MIND | CAN_FLY | RAND_25 | WILD_DUNGEON_01 | WILD_GRASS |
+F:WILD_FOREST1 | WILD_FOREST2 | WILD_SWAMP1 | WILD_SWAMP2
+F:COLOR | DESC_1
+D:A lone insect may be harmless, but there's a whole swarm of
+D:them here!
+
+N:35:mushroom patch
+G:,:R
+I:110:1d1:4:3:0
+W:5:1:0:13
+O:0:0:0
+F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW |
+F:STUPID | EMPTY_MIND |
+F:IM_POIS | WILD_DUNGEON_01 | WILD_SWAMP1 | WILD_SWAMP2 | DROP_CORPSE |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR
+D:Yum!  These look quite tasty.
+
+N:36:jelly
+G:j:w
+I:120:6d8:2:1:99
+W:3:1:0:30
+O:0:0:0
+B:TOUCH:POISON:1d2
+F:NEVER_MOVE | WILD_DUNGEON_01
+F:STUPID | EMPTY_MIND |
+F:HURT_LITE |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+D:Its a large pile of white flesh.
+
+N:37:harpy
+G:H:w
+I:110:2d5:16:18:10
+W:7:1:0:44
+O:0:0:0
+B:CLAW:HURT:1d1
+B:CLAW:HURT:1d1
+B:BITE:HURT:1d2
+F:FEMALE | CAN_FLY | WILD_DUNGEON_01 | WILD_MOUNT1 | WILD_MOUNT2
+F:RAND_50 | DROP_CORPSE
+F:ANIMAL | EVIL
+F:COLOR | DESC_1 | JOB
+D:A flying, screeching bird with a woman's face.
+
+N:38:yeek
+G:y:b
+I:110:2d6:18:15:10
+W:4:1:0:33
+O:25:0:0
+B:HIT:HURT:1d5
+F:DROP_60 | WILD_DUNGEON_01
+F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE
+F:ANIMAL | IM_ACID | LITE_1
+F:COLOR | JOB
+D:A small humanoid figure.
+
+N:39:giant frog
+G:R:g
+I:110:2d8:12:8:30
+W:1:1:0:3
+O:0:0:0
+B:BITE:HURT:1d3
+F:RAND_25 | WILD_SHORE | WILD_SWAMP1 | WILD_SWAMP2 | DROP_CORPSE
+F:BASH_DOOR |
+F:ANIMAL
+F:COLOR | DESC_1
+D:It is as big as a wolf.
+
+N:40:spider
+G:S:D
+I:120:2d4:8:14:80
+W:6:1:0:46
+O:0:0:0
+B:BITE:HURT:1d4
+F:FRIENDS | WILD_DUNGEON_01
+F:WEIRD_MIND | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:ANIMAL | HURT_LITE
+F:COLOR | DESC_1
+D:It is a black spider that moves in fits and starts.
+
+N:41:wild cat
+G:f:U
+I:120:2d6:40:15:0
+W:7:2:0:93
+O:0:0:0
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+F:BASH_DOOR | WILD_DUNGEON_01 | DROP_SKELETON | DROP_CORPSE
+F:ANIMAL | WILD_MOUNT1
+F:COLOR | DESC_1
+D:A larger than normal feline, hissing loudly.  Its velvet claws conceal a
+D:fistful of needles.
+
+N:42:ooze
+G:j:g
+I:120:3d3:8:12:80
+W:3:2:0:8
+O:50:0:25
+B:CRAWL:ACID:1d3
+F:WILD_DUNGEON_01
+F:RAND_50 | RAND_25 | DROP_90 |
+F:STUPID | EMPTY_MIND |
+F:IM_ACID | CAN_SWIM |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+D:It's oozing.
+
+N:43:poltergeist
+G:G:s
+I:130:2d4:8:13:10
+W:5:1:0:70
+O:50:5:30
+B:TOUCH:TERRIFY
+F:RAND_50 | RAND_25 | CAN_FLY | WILD_DUNGEON_01
+F:DROP_60 | DROP_90 |
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | TAKE_ITEM |
+F:EVIL | UNDEAD |
+F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_15 |
+S:BLINK
+D:It is a ghastly, ghostly form.
+
+N:44:giant louse
+G:I:w
+I:120:1d1:6:3:10
+W:5:1:0:3
+O:0:0:0
+B:BITE:HURT:1d1
+F:RAND_50 | RAND_25 |
+F:MULTIPLY | WEIRD_MIND |
+F:ANIMAL | WILD_DUNGEON_01
+F:COLOR
+D:It is six inches long.
+
+N:45:naga
+G:n:D
+I:110:4d9:16:20:120
+W:4:1:0:23
+O:0:75:20
+B:CRUSH:HURT:1d8
+F:FEMALE | WILD_DUNGEON_01
+F:RAND_25 | DROP_60 | DROP_CORPSE
+F:BASH_DOOR | CAN_SWIM |
+F:EVIL
+F:COLOR | DESC_1 | JOB
+D:A large serpent's body with a female torso.
+
+N:46:hobbit
+G:h:s
+I:110:2d6:16:11:10
+W:6:1:0:30
+O:0:50:0
+B:HIT:HURT:1d4
+B:TOUCH:EAT_GOLD
+F:WILD_DUNGEON_01
+F:DROP_60
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:EVIL
+F:DESC_1 | JOB
+D:A short little guy, in bedraggled clothes.  He appears to be looking
+D:for a good tavern.
+
+N:47:light
+G:*:y
+I:120:2d5:8:10:30
+W:8:1:0:41
+O:0:0:0
+B:EXPLODE:BLIND
+F:EMPTY_MIND | CAN_FLY | NONLIVING | WILD_DUNGEON_01 | LITE_1 | LITE_2
+F:COLOR
+D:A fast-moving bright light.
+
+N:48:creeping coins
+G:$:u
+I:100:5d8:3:20:10
+W:8:2:0:51
+O:100:0:0
+B:HIT:HURT:1d4
+B:TOUCH:POISON:2d4
+F:CHAR_MIMIC | ONLY_GOLD | DROP_1D2 | WILD_DUNGEON_01
+F:COLD_BLOOD | BASH_DOOR |
+F:ANIMAL | IM_POIS |
+F:NO_CONF | NO_SLEEP
+F:COLOR |  DESC_1
+D:It is a pile of coins.
+
+N:49:giant rat
+G:r:s
+I:110:2d2:8:6:30
+W:7:1:0:9
+O:0:0:0
+B:BITE:POISON:1d3
+F:RAND_25 | WILD_DUNGEON_01
+F:MULTIPLY |
+F:ANIMAL
+F:COLOR | DESC_1
+D:It is a very vicious rodent.
+
+N:50:snotling
+G:o:G
+I:110:4d5:20:20:30
+W:4:1:0:25
+O:25:50:0
+B:HIT:HURT:1d6
+F:WILD_DUNGEON_01
+F:FRIENDS | DROP_60 | RAND_50 | DROP_SKELETON | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR | WILD_FOREST1 | WILD_FOREST2 |
+F:EVIL | ORC | HURT_LITE
+F:COLOR | JOB
+D:A pathetic breed of tiny snaga-like creatures. They are running
+D:wild and screaming all the time!
+
+N:51:giant leech
+G:w:v
+I:120:5d7:10:15:50
+W:8:1:0:56
+O:0:0:0
+B:BITE:HURT:3d1
+B:BITE:HURT:3d1
+F:ANIMAL | AQUATIC | WEIRD_MIND | RAND_25 | WILD_DUNGEON_01
+F:COLOR | DESC_1
+D:Yech! The disgusting thing only wants your blood!
+
+N:52:sword
+G:|:s
+I:130:5d7:20:20:0
+W:12:5:0:229
+O:50:0:50
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+F:NEVER_MOVE | NONLIVING | NO_FEAR | WILD_DUNGEON_01
+F:STUPID | EMPTY_MIND | COLD_BLOOD | CHAR_MIMIC | NO_CONF | NO_SLEEP |
+F:DROP_90 | EVIL | IM_FIRE | FORCE_MAXHP | IM_POIS |
+F:COLOR | DESC_1
+D:A bloodthirsty blade lurking for prey. Beware!
+
+N:53:nibelung
+G:h:D
+I:110:6d4:20:15:5
+W:8:2:0:36
+O:90:0:0
+B:HIT:HURT:1d6
+B:TOUCH:EAT_GOLD
+F:FRIENDS | DROP_60 | WILD_DUNGEON_01
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+F:HURT_LITE | RES_DISE | DROP_SKELETON | DROP_CORPSE
+F:COLOR | JOB
+D:Night dwarfs collecting new riches for their master, Alberich.
+
+N:54:snaga
+G:o:G
+I:110:6d9:20:16:30
+W:6:1:0:50
+O:20:50:5
+B:HIT:HURT:1d8
+F:WILD_DUNGEON_01
+F:FRIENDS | DROP_60 | WILD_FOREST1 | WILD_WASTE1 | DROP_SKELETON | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | ORC | HURT_LITE
+F:COLOR | JOB
+D:He is one of the many weaker 'slave' orcs, often mistakenly known as a
+D:goblin.
+
+N:55:giant slug
+G:w:U
+I:100:9d9:10:12:25
+W:11:1:0:49
+O:0:0:0
+B:BITE:ACID:2d4
+B:BITE:ACID:2d4
+F:WILD_DUNGEON_01 | WILD_FOREST1
+F:ANIMAL | EMPTY_MIND | KILL_ITEM | KILL_BODY | CAN_SWIM
+F:DROP_CORPSE
+F:COLOR
+S:1_IN_10
+S:BR_ACID
+D:It is slowly making its way towards you, eating everything in
+D:its path...
+
+N:56:creep
+G:s:D
+I:110:4d9:20:15:14
+W:10:2:0:95
+O:0:0:0
+B:CLAW:HURT:1d2
+B:CLAW:HURT:1d2
+B:BITE:POISON
+F:RAND_25 | WILD_DUNGEON_01
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | FRIENDS |
+F:EVIL | UNDEAD | IM_POIS |
+F:NO_CONF | NO_SLEEP | HURT_LITE
+F:COLOR | DESC_1
+S:1_IN_10
+S:CAUSE_1 | S_UNDEAD
+D:Frightening skeletal figures in black robes.
+
+N:57:corpse
+G:z:R
+I:110:6d8:20:15:20
+W:12:1:0:99
+O:0:0:0
+B:CLAW:POISON:1d3
+B:CLAW:POISON:1d3
+F:OPEN_DOOR | BASH_DOOR | FRIENDS | WILD_DUNGEON_01
+F:NO_CONF | NO_SLEEP | UNDEAD | EVIL | NO_FEAR | IM_POIS
+F:IM_COLD | COLD_BLOOD | EMPTY_MIND
+F:DESC_1
+D:Corpses awakened from their sleep by dark sorceries.
+
+N:58:orc
+G:o:U
+I:110:8d9:20:18:30
+W:9:1:0:97
+O:20:80:0
+B:HIT:HURT:1d8
+F:WILD_DUNGEON_01
+F:FRIENDS | DROP_60 | DROP_SKELETON | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | ORC | HURT_LITE
+F:COLOR | DESC_1 | JOB
+D:He is often found in huge numbers in deep caves.
+
+N:59:manes
+G:u:R
+I:110:6d8:20:18:30
+W:10:2:0:51
+O:0:0:0
+B:HIT:HURT:1d8
+F:FRIENDS | WILD_DUNGEON_01
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | DEMON | IM_FIRE | NO_FEAR
+F:COLOR
+D:It is a minor but aggressive demon.
+
+N:60:lost soul
+G:G:u
+I:110:2d6:12:8:10
+W:12:2:0:38
+O:70:0:30
+B:HIT:HURT:2d2
+B:TOUCH:LOSE_WIS
+F:RAND_50 | DROP_60 | DROP_90 | CAN_FLY | WILD_DUNGEON_01
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL |
+F:EVIL | UNDEAD |
+F:IM_COLD | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_15 |
+S:TPORT | DRAIN_MANA
+D:It is almost insubstantial.
+
+N:61:nurgling
+G:u:U
+I:110:6d10:20:16:30
+W:8:2:0:25
+O:0:0:0
+B:BITE:DISEASE:1d8
+F:FRIENDS | WILD_DUNGEON_01
+F:OPEN_DOOR | BASH_DOOR | IM_POIS |
+F:EVIL | DEMON | IM_FIRE | NO_FEAR
+F:COLOR | DESC_1
+D:It is a minor demon servitor of Nurgle. It looks like a hairless
+D:teddy bear, with twisted eyes and rotting, ghoulish skin.
+
+N:62:space monster
+G:.:d
+I:110:18d8:30:15:20
+W:14:2:0:187
+O:0:0:0
+B:HIT:TERRIFY:1d4
+F:WILD_DUNGEON_01
+F:PASS_WALL | NO_CONF | NO_SLEEP | NONLIVING | IM_ACID | CAN_FLY
+F:COLOR | DESC_1
+D:A black hole in the fabric of reality.
+
+N:63:lemure
+G:u:o
+I:110:9d9:20:16:30
+W:11:3:0:63
+O:0:0:0
+B:HIT:HURT:1d8
+F:FRIENDS | WILD_DUNGEON_01
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | DEMON | IM_FIRE | NO_FEAR
+F:COLOR | DESC_1
+D:It is the larval form of a major demon.
+
+N:64:hunting hawk
+G:B:u
+I:120:6d8:30:15:10
+W:3:2:0:27
+O:0:0:0
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d4
+F:ANIMAL | NO_FEAR | CAN_FLY | WILD_FOREST1 | WILD_FOREST2 | DROP_CORPSE
+F:COLOR | DESC_1
+D:Trained to hunt and kill without fear.
+
+N:65:phantom
+G:G:B
+I:110:4d6:20:15:40
+W:12:1:0:30
+O:0:0:0
+B:HIT:HURT:1d11
+B:HIT:HURT:1d11
+F:WILD_DUNGEON_01
+F:PASS_WALL | NO_SLEEP | FRIENDS | COLD_BLOOD | NONLIVING |
+F:NO_FEAR | EMPTY_MIND | CAN_FLY
+F:COLOR | DESC_1
+D:Creatures that are half real, half illusion.
+
+N:66:gremlin
+G:u:u
+I:110:4d6:30:15:20
+W:10:3:0:44
+O:0:0:0
+B:CLAW:EAT_FOOD:1d2
+B:CLAW:EAT_FOOD:1d2
+B:BITE:EAT_FOOD:1d3
+F:WILD_DUNGEON_01
+F:MULTIPLY | IM_POIS | HURT_LITE | EVIL | DEMON | OPEN_DOOR |
+F:TAKE_ITEM | CAN_SWIM
+F:COLOR | DESC_1
+D:Don't splash water on them, and don't feed them after midnight!
+
+N:67:yeti
+G:Y:w
+I:110:8d9:20:12:10
+W:15:3:0:324
+O:0:0:0
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d4
+F:OPEN_DOOR | BASH_DOOR | WILD_DUNGEON_01 | WILD_MOUNT2 | DROP_CORPSE
+F:ANIMAL | IM_COLD
+F:COLOR | DESC_1
+D:A large white figure covered in shaggy fur.
+
+N:68:skaven
+G:r:G
+I:110:8d9:15:20:20
+W:14:1:0:44
+O:40:40:20
+B:HIT:HURT:1d4
+B:HIT:HURT:1d4
+F:EVIL | FRIENDS | DROP_60 | DROP_90 | DROP_SKELETON | DROP_CORPSE
+F:OPEN_DOOR | WILD_DUNGEON_01 | WILD_WASTE1 | WILD_WASTE2
+F:WILD_SWAMP1 | WILD_SWAMP2
+F:COLOR | DESC_1 | JOB
+D:A mutated rat-creature from the great waste, it is vaguely
+D:humanoid in appearance and walks on its hind legs. This race
+D:serves chaos fervently and is greatly feared by others.
+
+N:69:man-o-war
+G:j:v
+I:110:8d10:20:15:75
+W:2:2:0:11
+O:0:0:0
+B:TOUCH:PARALYZE:1d6
+B:TOUCH:PARALYZE:1d6
+F:ANIMAL | AQUATIC | IM_POIS | WILD_SHORE | WILD_OCEAN
+F:COLOR
+D:A strange water creature, whose touch can be deadly.
+
+N:70:mole
+G:r:s
+I:110:9d11:20:15:75
+W:14:2:0:391
+O:0:0:0
+B:BITE:HURT:1d10
+B:BITE:HURT:1d10
+F:WEIRD_MIND | BASH_DOOR | KILL_WALL | KILL_ITEM | DROP_CORPSE
+F:ANIMAL | WILD_DUNGEON_01
+F:COLOR | DESC_1
+D:Despite its minuscule size, this mole creature has fangs powerful
+D:enough to bore through solid rock.
+
+N:71:dragon
+G:d:B
+I:110:7d10:20:15:70
+W:13:2:0:396
+O:50:50:0
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d5
+F:WILD_DUNGEON_01
+F:FORCE_MAXHP | FORCE_SLEEP | DROP_CORPSE
+F:ONLY_GOLD | DROP_60 | DROP_1D2 |
+F:OPEN_DOOR | BASH_DOOR | CAN_FLY |
+F:EVIL | DRAGON | IM_ELEC
+F:COLOR | DESC_2
+S:1_IN_11 |
+S:BR_ELEC
+D:It's a dragon what else do you need to know?.
+
+N:72:cobra
+G:J:g
+I:110:5d10:8:15:1
+W:15:2:0:276
+O:0:0:0
+B:SPIT:BLIND:1d4
+B:BITE:POISON:5d4
+F:RAND_50 | WILD_DUNGEON_01 | WILD_SWAMP1 | WILD_SWAMP2 | WILD_FOREST1
+F:DROP_SKELETON | DROP_CORPSE
+F:BASH_DOOR | CAN_SWIM |
+F:ANIMAL | IM_POIS
+F:COLOR
+D:It is a large snake with a hooded face.
+
+N:73:eagle
+G:B:u
+I:120:7d8:30:20:10
+W:1:2:0:6
+O:0:0:0
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d6
+F:ANIMAL | CAN_FLY | WILD_WASTE1 | WILD_MOUNT2 | WILD_FOREST2
+F:DROP_CORPSE
+F:COLOR | DESC_1
+D:A magnificent huge predatory bird.
+
+N:74:war bear
+G:q:u
+I:110:7d10:10:25:10
+W:16:1:0:203
+O:0:0:0
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:WEIRD_MIND | BASH_DOOR | FRIENDS | DROP_SKELETON | DROP_CORPSE
+F:ANIMAL | WILD_DUNGEON_01
+F:COLOR | DESC_1
+D:Bears with tusks, trained to kill.
+
+N:75:killer bee
+G:I:y
+I:120:2d3:12:25:10
+W:17:2:0:270
+O:0:0:0
+B:STING:POISON:1d4
+B:STING:LOSE_STR:1d4
+F:WEIRD_MIND | FRIENDS | CAN_FLY | WILD_DUNGEON_01 | WILD_FOREST1
+F:ANIMAL
+F:COLOR | DESC_1
+D:It is poisonous and aggressive.
+
+N:76:giant tick
+G:S:w
+I:100:8d8:12:15:20
+W:17:2:0:227
+O:0:0:0
+B:BITE:POISON:2d6
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
+F:ANIMAL | IM_POIS | WILD_DUNGEON_01
+F:COLOR | DESC_1
+D:It is moving slowly towards you.
+
+N:77:sand-dweller
+G:u:U
+I:110:7d9:20:10:20
+W:15:1:0:124
+O:20:50:20
+B:CLAW:HURT:1d6
+B:CLAW:HURT:1d6
+F:FRIENDS | WILD_DUNGEON_01 | WILD_WASTE1 | WILD_WASTE2 | DROP_SKELETON
+F:OPEN_DOOR | BASH_DOOR | HURT_LITE | EVIL | DROP_60 | DROP_90
+F:COLOR | DESC_1
+D:"Rough-skinned, large-eyed, large-eared, with a horrible,
+D:distorted resemblance to the koala bear facially, though
+D:his body had an appearance of emaciation."
+
+N:78:quiver slot
+G:,:U
+I:120:1d1:4:1:0
+W:14:2:0:53
+O:0:0:0
+B:SPORE:CONFUSE:1d1
+F:WILD_DUNGEON_01
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY |
+F:STUPID | EMPTY_MIND |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_5
+S:ARROW_1
+D:It looks weird.
+
+N:79:giant piranha
+G:l:B
+I:120:5d8:30:20:10
+W:17:2:0:194
+O:0:0:0
+B:BITE:HURT:9d1
+B:BITE:HURT:9d1
+F:NO_SLEEP | WILD_DUNGEON_01 | WILD_SHORE | WILD_FOREST2
+F:FRIENDS | AQUATIC | ANIMAL
+F:COLOR | DESC_1
+D:A very large and bloodthirsty fish.
+
+N:80:owlbear
+G:H:o
+I:110:12d8:20:10:20
+W:15:1:0:343
+O:0:0:0
+B:CLAW:HURT:1d6
+B:CLAW:HURT:1d3
+B:CRUSH:HURT:1d10
+F:WILD_DUNGEON_01
+F:EVIL | ANIMAL | OPEN_DOOR | BASH_DOOR | DROP_CORPSE
+F:COLOR | DESC_1
+D:A bizarre bear-creature with the claws and the face of an owl.
+
+N:81:horror
+G:u:B
+I:110:11d9:20:25:20
+W:14:3:0:213
+O:0:0:0
+B:CLAW:TERRIFY:1d6
+B:CLAW:TERRIFY:1d8
+F:FRIENDS | WILD_DUNGEON_01
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | DEMON | IM_FIRE | NO_FEAR | NO_CONF
+F:COLOR
+D:An ugly screaming little demon servant of Tzeentch.
+
+N:82:tengu
+G:u:b
+I:120:11d9:20:16:30
+W:15:1:0:229
+O:0:0:0
+B:HIT:HURT:1d8
+F:OPEN_DOOR | BASH_DOOR | WILD_DUNGEON_01
+F:EVIL | DEMON | IM_FIRE | NO_FEAR | RES_TELE | CAN_FLY
+F:COLOR
+S:1_IN_3 |
+S:BLINK | TELE_TO | TELE_AWAY | TPORT
+D:It is a fast-moving demon that blinks quickly in and out of existence; no
+D:other demon matches its teleporting mastery.
+
+N:83:wolf
+G:C:u
+I:120:4d7:30:15:20
+W:18:1:0:366
+O:0:0:0
+B:BITE:HURT:1d8
+F:RAND_25 |
+F:FRIENDS |
+F:BASH_DOOR | WILD_DUNGEON_01 | WILD_FOREST1 | WILD_FOREST2
+F:WILD_WASTE1 | WILD_WASTE2 | WILD_MOUNT1 | WILD_MOUNT2
+F:ANIMAL | DROP_CORPSE
+F:COLOR | DESC_1
+D:It howls and snaps at you.
+
+N:84:giant fly
+G:I:U
+I:120:1d4:8:7:10
+W:14:6:0:44
+O:0:0:0
+B:BITE:HURT:1d2
+F:RAND_50 | RAND_25 | CAN_FLY | WILD_DUNGEON_01
+F:MULTIPLY | WEIRD_MIND |
+F:ANIMAL
+F:COLOR
+D:A fast-breeding, annoying pest.
+
+N:85:panther
+G:f:D
+I:120:7d8:40:15:2
+W:16:2:0:538
+O:0:0:0
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+F:BASH_DOOR | WILD_DUNGEON_01 | WILD_FOREST1 | WILD_FOREST2 | WILD_GRASS
+F:DROP_SKELETON | DROP_CORPSE
+F:ANIMAL
+F:COLOR
+D:A large black cat, stalking you with intent.  It thinks you're its next
+D:meal.
+
+N:86:shadow creature
+G:h:s
+I:110:7d8:12:10:16
+W:14:2:0:151
+O:20:30:50
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
+F:WILD_DUNGEON_01
+F:BASH_DOOR | OPEN_DOOR | FRIENDS | DROP_60 | IM_POIS | NO_SLEEP | NO_CONF
+F:DROP_SKELETON
+F:COLOR | DESC_1
+D:"There was something unusual about their appearance... For one thing,
+D:all had uniformly bloodshot eyes. Very, very bloodshot eyes. With them,
+D:though, the condition seemed normal. For another, all had an extra joint
+D:to each finger and thumb, and sharp, forward-curving spurs on the backs
+D:of their hands. All of them had prominent jaws (and) forty-four teeth,
+D:most of them longer than human teeth, and several looking to be much
+D:sharper. Their flesh was grayish and hard and shiny. There were
+D:undoubtedly other differences also, but those were sufficient to prove
+D:a point of some sort."
+
+N:87:undead mass
+G:j:u
+I:110:6d8:70:10:5
+W:18:2:0:263
+O:0:0:0
+B:TOUCH:DISEASE:1d6
+B:TOUCH:LOSE_CON:1d6
+F:WILD_DUNGEON_01
+F:UNDEAD | EMPTY_MIND | NO_CONF | NO_SLEEP | IM_POIS | IM_COLD | NO_FEAR |
+F:HURT_LITE | COLD_BLOOD | EVIL | NEVER_MOVE | MULTIPLY
+F:COLOR
+D:A sickening mound of decaying flesh, bones, hands and so on. It seems to
+D:be growing.
+
+N:88:shapechanger
+G:H:v
+I:110:15d9:10:10:12
+W:15:2:0:267
+O:20:50:20
+B:HIT:HURT:1d5
+B:HIT:CONFUSE:1d3
+F:WILD_DUNGEON_01
+F:DROP_60 | EVIL | SHAPECHANGER | ATTR_MULTI | ATTR_ANY
+F:COLOR | DESC_1
+S:1_IN_5
+S:BO_FIRE | BO_COLD | CONF
+D:A vaguely humanoid form constantly changing its appearance.
+
+N:89:hippocampus
+G:H:B
+I:110:14d9:12:7:10
+W:20:1:0:381
+O:0:0:0
+B:BITE:HURT:2d5
+B:BITE:HURT:2d5
+F:AQUATIC | WILD_DUNGEON_01 | WILD_WASTE2 | DROP_CORPSE
+F:ANIMAL
+F:COLOR | DESC_1
+D:A truly strange hybrid of a horse and a fish.
+
+N:90:hippogriff
+G:H:U
+I:110:14d9:12:7:10
+W:18:1:0:377
+O:0:0:0
+B:HIT:HURT:2d5
+B:BITE:HURT:2d5
+F:BASH_DOOR | CAN_FLY | WILD_DUNGEON_01 | WILD_MOUNT2 | WILD_GRASS
+F:ANIMAL | DROP_CORPSE
+F:COLOR | DESC_1
+D:A strange hybrid of eagle, lion and horse.  It looks weird.
+
+N:91:mamba
+G:J:D
+I:120:7d8:10:14:1
+W:19:3:0:579
+O:0:0:0
+B:BITE:POISON:8d4
+F:RAND_50 |
+F:BASH_DOOR | CAN_SWIM | WILD_DUNGEON_01 | WILD_FOREST1 | WILD_FOREST2
+F:WILD_SWAMP1 | WILD_SWAMP2
+F:ANIMAL | IM_POIS | DROP_SKELETON | DROP_CORPSE
+F:COLOR | DESC_1
+D:It has glistening black skin, a sleek body and highly venomous fangs.
+
+N:92:gazer
+G:e:b
+I:110:7d9:15:9:40
+W:25:1:0:326
+O:0:0:0
+B:GAZE:PARALYZE:1d2
+B:GAZE:CONFUSE:1d2
+F:CAN_FLY | IM_POIS | WILD_DUNGEON_01 | WILD_FOREST2 | DROP_CORPSE | EVIL
+F:COLOR | DESC_1
+S:1_IN_8
+S:HOLD | CONF
+D:A floating eye surrounded by number of smaller eyestalks. Its
+D:gaze seems mesmerizing.
+
+N:93:ixitxachitl
+G:l:s
+I:110:9d8:20:15:20
+W:20:1:0:648
+O:0:0:0
+B:STING:POISON:2d5
+B:STING:POISON:2d5
+F:ANIMAL | EVIL | AQUATIC | IM_POIS | WILD_DUNGEON_01 | WILD_SHORE
+F:COLOR | DESC_1 | JOB?
+D:A devil ray of the depths.
+
+N:94:mine-dog
+G:C:u
+I:120:5d6:30:15:20
+W:17:4:0:453
+O:0:0:0
+B:EXPLODE:HURT:6d6
+F:RAND_50 | WILD_DUNGEON_01 | SILLY
+F:FRIENDS |
+F:BASH_DOOR | ANIMAL
+F:COLOR | DESC_1
+D:An explosive charge has been attached to this poor animal, who
+D:has been trained to search for its target and detonate.
+
+N:95:hellcat
+G:f:R
+I:120:7d8:20:15:30
+W:17:1:0:259
+O:0:0:0
+B:CLAW:HURT:1d5
+B:CLAW:HURT:1d5
+B:BITE:HURT:1d8
+F:WILD_DUNGEON_01
+F:ANIMAL | WEIRD_MIND | FRIENDS | RAND_25 | IM_FIRE | EVIL
+F:COLOR
+D:It is as large as a tiger, its yellow eyes are pupilless.
+
+N:96:moon beast
+G:q:s
+I:120:8d9:30:15:20
+W:16:1:0:518
+O:50:0:40
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BUTT:HURT:1d6
+F:WILD_DUNGEON_01
+F:DROP_1D2 | ONLY_ITEM | OPEN_DOOR | BASH_DOOR |
+F:EVIL | IM_FIRE | ANIMAL | DROP_CORPSE
+F:COLOR | DESC_1
+S:1_IN_6
+S:HEAL | BLIND | DARKNESS | CONF | CAUSE_2
+D:"Great greyish-white slippery things which could expand and
+D:contract at will, and whose principle shape... was that of a
+D:sort of toad without any eyes, but with a curious vibrating mass
+D:of short pink tentacles on the end of its blung, vague snout."
+
+N:97:elemental spirit
+G:E:B
+I:130:6d8:12:20:20
+W:17:2:0:475
+O:0:0:0
+B:HIT:HURT:1d3
+F:WILD_DUNGEON_01
+F:RAND_50 | RAND_25 | NONLIVING |
+F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | BASH_DOOR |
+F:EVIL | IM_POIS | CAN_FLY |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+D:A sentient elemental.
+
+N:98:tiger
+G:f:o
+I:120:9d10:40:10:2
+W:20:2:0:660
+O:0:0:0
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:1d6
+F:BASH_DOOR | WILD_DUNGEON_01 | WILD_GRASS | WILD_FOREST2 | WILD_MOUNT2
+F:ANIMAL | DROP_SKELETON | DROP_CORPSE
+F:COLOR | DESC_1
+D:One of the largest of its species, a sleek orange and black shape creeps
+D:towards you, ready to pounce.
+
+N:99:moaning spirit
+G:G:U
+I:120:3d9:14:10:10
+W:19:2:0:302
+O:50:20:30
+B:WAIL:TERRIFY
+B:TOUCH:LOSE_DEX:1d8
+F:FORCE_SLEEP | RAND_25 | WILD_DUNGEON_01
+F:DROP_60 | DROP_90 | CAN_FLY |
+F:INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_15 |
+S:TPORT | SCARE
+D:A ghostly apparition that shrieks horribly.
+
+N:100:frumious bandersnatch
+G:c:b
+I:120:10d8:12:15:30
+W:20:2:0:584
+O:0:0:0
+B:BITE:HURT:2d4
+B:BITE:HURT:2d4
+B:STING:HURT:2d4
+F:WEIRD_MIND | BASH_DOOR | WILD_DUNGEON_01
+F:ANIMAL | DROP_SKELETON
+F:COLOR
+D:It is a vast armoured centipede with massive mandibles and a spiked tail.
+D: Keep it away from sunflowers.
+
+N:101:drider
+G:S:b
+I:110:7d13:8:15:80
+W:18:2:0:846
+O:0:0:0
+B:HIT:HURT:1d10
+B:HIT:HURT:1d10
+B:BITE:POISON:1d10
+F:FORCE_SLEEP | WILD_DUNGEON_01 | WILD_FOREST2
+F:BASH_DOOR | DROP_SKELETON |
+F:EVIL | IM_POIS
+F:COLOR | DESC_1 | JOB
+S:1_IN_8 |
+S:CONF | CAUSE_1 | DARKNESS | MISSILE | ARROW_2
+D:A dark elven torso merged with the bloated form of a giant spider.
+
+N:102:mongbat
+G:b:U
+I:113:8d11:20:40:8
+W:18:3:0:354
+O:0:0:0
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:POISON:1d8
+F:WILD_DUNGEON_01 | WILD_WASTE2
+F:ANIMAL | EVIL | FRIENDS | CAN_FLY | FORCE_MAXHP |
+F:IM_COLD | IM_POIS | WEIRD_MIND | DROP_CORPSE
+F:COLOR | DESC_1
+D:Devil-bats, notoriously difficult to kill.
+
+N:103:killer beetle
+G:K:u
+I:110:9d8:10:20:30
+W:21:2:0:493
+O:0:0:0
+B:BITE:HURT:3d4
+F:WILD_DUNGEON_01
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY | DROP_CORPSE
+F:ANIMAL
+F:COLOR | DESC_1
+D:It is a vicious insect with a tough carapace.
+
+N:104:ogre
+G:O:U
+I:110:9d9:20:16:30
+W:17:2:0:313
+O:10:90:0
+B:HIT:HURT:2d8
+F:FRIENDS | WILD_DUNGEON_01
+F:DROP_60 | WILD_WASTE1 | WILD_FOREST2 | WILD_MOUNT2 | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | GIANT
+F:COLOR | DESC_1 | JOB
+D:A hideous, smallish giant that is often found near or with orcs.
+
+N:105:Nixie
+G:h:B
+I:110:13d10:20:22:50
+W:21:1:0:373
+O:0:0:0
+B:HIT:HURT:6d3
+B:HIT:HURT:6d3
+F:AQUATIC | WILD_DUNGEON_01 | WILD_SHORE
+F:COLOR | DESC_1 | JOB
+D:A race of fair yet belligrent sea elves.
+
+N:106:Vlasta
+G:R:b
+I:120:9d6:12:10:12
+W:20:3:0:483
+O:0:0:0
+B:BITE:BLIND:1d10
+B:BITE:BLIND:1d10
+F:WILD_DUNGEON_01
+F:OPEN_DOOR | DROP_SKELETON | DROP_CORPSE
+F:COLOR | DESC_1
+D:This strange creature looks like a miniature tyrannosaurus. It has
+D:empty, pale eyes and a sharp beak, which it aims at your eyes
+D:as it jumps at you!
+
+N:107:dragon fly
+G:F:w
+I:110:3d9:20:15:50
+W:22:3:0:684
+O:0:0:0
+B:BITE:COLD:1d6
+F:FORCE_SLEEP | WILD_DUNGEON_01 | WILD_WASTE1 | WILD_WASTE2
+F:RAND_50 | CAN_FLY |
+F:WEIRD_MIND | BASH_DOOR |
+F:ANIMAL
+F:COLOR | DESC_1
+S:1_IN_10 |
+S:BR_COLD
+D:It is a large fly that drips frost.
+
+N:108:gibbering mouther
+G:j:o
+I:110:6d6:15:14:20
+W:26:4:0:594
+O:0:0:0
+B:CRAWL:POISON:1d4
+F:WILD_DUNGEON_01 | WILD_WASTE2
+F:NEVER_MOVE | MULTIPLY | EVIL | CAN_SWIM |
+F:IM_POIS | EMPTY_MIND | NO_FEAR |
+F:COLOR | DESC_1
+S:1_IN_7
+S:SCARE | CONF | BR_LITE
+D:A chaotic mass of pulsating flesh, mouths and eyes.
+
+N:109:wolfhound of flora
+G:C:s
+I:120:7d9:20:14:0
+W:20:2:0:546
+O:0:0:0
+B:BITE:HURT:1d5
+B:BITE:HURT:1d5
+F:WILD_DUNGEON_01
+F:ANIMAL | NO_FEAR | FRIENDS | DROP_SKELETON | DROP_CORPSE
+F:COLOR | DESC_1
+D:Well-trained watchdogs, obedient to death.
+
+N:110:giant
+G:P:U
+I:110:12d10:20:22:50
+W:23:1:0:1037
+O:20:50:20
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+F:DROP_60 | WILD_DUNGEON_01 | WILD_MOUNT1 | DROP_SKELETON | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | GIANT
+F:COLOR | DESC_1
+D:A ten foot tall humanoid with powerful muscles.
+
+N:111:golem
+G:g:o
+I:110:9d8:12:15:10
+W:23:1:0:438
+O:0:0:0
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:WILD_DUNGEON_01
+F:EMPTY_MIND | BASH_DOOR | CAN_SWIM |
+F:IM_ELEC
+F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:COLOR | DESC_1
+D:A shambling humanoid monster with long scars.
+
+N:112:warg
+G:C:D
+I:120:6d8:20:12:40
+W:21:2:0:613
+O:0:0:0
+B:BITE:HURT:1d8
+F:RAND_25 |
+F:FRIENDS | WILD_DUNGEON_01 | WILD_FOREST2 | WILD_MOUNT1 | WILD_MOUNT2
+F:DROP_SKELETON | DROP_CORPSE
+F:BASH_DOOR |
+F:ANIMAL | EVIL
+F:COLOR | DESC_1
+D:It is a large wolf with eyes full of cunning.
+
+N:113:leprechaun
+G:h:G
+I:115:2d4:8:6:6
+W:26:2:0:512
+O:100:0:0
+B:TOUCH:EAT_GOLD
+B:TOUCH:EAT_FOOD
+F:WILD_DUNGEON_01
+F:DROP_60 | ONLY_GOLD | RAND_50 | OPEN_DOOR | GOOD
+F:LITE_1
+F:COLOR | DESC_1
+S:1_IN_6
+S:BLINK
+D:A merry little gnome.
+
+N:114:giant flea
+G:I:s
+I:120:1d2:6:3:10
+W:21:1:0:133
+O:0:0:0
+B:BITE:HURT:1d2
+F:RAND_50 | CAN_FLY | WILD_DUNGEON_01
+F:WEIRD_MIND | MULTIPLY |
+F:ANIMAL
+F:COLOR | DESC_1
+D:It makes you itch just to look at it.
+
+N:115:giant octopus
+G:l:v
+I:105:22d11:60:30:60
+W:27:2:0:1749
+O:0:0:0
+B:SPIT:BLIND:1d3
+B:CRUSH:HURT:8d3
+B:CRUSH:HURT:8d3
+B:CRUSH:HURT:8d3
+F:RAND_25 | IM_COLD | RES_WATE | AQUATIC | ANIMAL | WILD_DUNGEON_01 | WILD_SHORE
+F:COLOR | DESC_1
+D:It doesn't move very fast, but when it does - watch out!
+
+N:116:wererat
+G:r:D
+I:110:14d8:10:6:10
+W:23:2:0:1081
+O:40:20:10
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d6
+F:FORCE_SLEEP |
+F:ONLY_GOLD | DROP_60 | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR |
+F:ANIMAL | EVIL | WILD_DUNGEON_01 | WILD_WASTE1 | WILD_WASTE2
+F:COLOR | DESC_1
+S:1_IN_9 |
+S:BLINK | CAUSE_2 | BO_COLD | BA_POIS | S_KIN
+D:A large rat with glowing red eyes.  The wererat is a disgusting creature,
+D:relishing in filth and disease.
+
+N:117:hound
+G:Z:o
+I:110:4d7:30:15:0
+W:23:1:0:1008
+O:0:0:0
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+F:FORCE_SLEEP | DROP_CORPSE
+F:FRIENDS | WILD_DUNGEON_01
+F:BASH_DOOR | LITE_1 | LITE_2
+F:ANIMAL
+F:COLOR | DESC_1
+S:1_IN_5 |
+S:BR_LITE
+D:A brilliant canine form whose light hurts your eyes, even at this distance.
+
+N:118:flying skull
+G:s:s
+I:110:7d10:30:15:20
+W:24:3:0:457
+O:90:0:10
+B:BITE:POISON:1d3
+B:BITE:LOSE_STR:1d4
+F:WILD_DUNGEON_01
+F:UNDEAD | EVIL | IM_POIS | IM_COLD | WEIRD_MIND | NO_FEAR | CAN_FLY |
+F:NO_CONF | NO_SLEEP | DROP_60 | BASH_DOOR | FRIENDS | COLD_BLOOD
+F:COLOR | DESC_1
+D:A skullpack animated by necromantic spells.
+
+N:119:mi-go
+G:I:R
+I:120:10d8:20:15:20
+W:24:2:0:1356
+O:0:0:0
+B:STING:POISON:1d4
+B:BITE:LOSE_STR:1d2
+F:WILD_DUNGEON_01
+F:IM_POIS | IM_COLD | COLD_BLOOD | ANIMAL | EVIL |
+F:NO_SLEEP | NO_CONF | CAN_FLY | DROP_SKELETON
+F:COLOR | DESC_1
+S:1_IN_6
+S:CONF | S_MONSTER | S_DEMON
+D:"They were pinkish things about five feet long; with crustaceous
+D:bodies bearing vast pairs of dorsal fins or membranous wings and
+D:several sets of articulate limbs, and with a sort of convoluted
+D:ellipsoid, covered with multitudes of very short antenna, where
+D:a head would ordinarily be..."
+
+N:120:giant tarantula
+G:S:G
+I:120:7d15:8:16:80
+W:25:3:0:1524
+O:0:0:0
+B:BITE:POISON:3d6
+B:BITE:POISON:3d6
+B:BITE:POISON:3d6
+F:WEIRD_MIND | BASH_DOOR | WILD_DUNGEON_01 | WILD_FOREST1
+F:ANIMAL | IM_POIS | DROP_SKELETON
+F:COLOR | DESC_1
+D:A giant spider with hairy legs.
+
+N:121:griffon
+G:H:u
+I:110:21d8:12:8:10
+W:24:1:0:640
+O:0:0:0
+B:HIT:HURT:3d4
+B:BITE:HURT:2d6
+F:BASH_DOOR | CAN_FLY | WILD_DUNGEON_01 | WILD_FOREST2 | WILD_MOUNT1
+F:WILD_MOUNT2 | WILD_GRASS |
+F:ANIMAL | DROP_CORPSE
+F:COLOR | DESC_1
+D:It is half lion, half eagle.  It flies menacingly towards you.
+
+N:122:homonculous
+G:u:U
+I:110:6d8:20:16:30
+W:22:3:0:419
+O:0:0:0
+B:HIT:PARALYZE:1d2
+B:HIT:HURT:1d10
+F:WILD_DUNGEON_01
+F:OPEN_DOOR | BASH_DOOR | NONLIVING | CAN_FLY |
+F:EVIL | DEMON | IM_FIRE | NO_FEAR
+F:COLOR | DESC_1
+D:It is a small demonic spirit full of malevolence.
+
+N:123:umber hulk
+G:X:u
+I:110:14d10:20:25:10
+W:27:1:0:3720
+O:0:0:0
+B:GAZE:CONFUSE
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:BITE:HURT:2d6
+F:EMPTY_MIND | COLD_BLOOD | WILD_DUNGEON_01 | WILD_MOUNT2
+F:BASH_DOOR | KILL_WALL | DROP_SKELETON
+F:ANIMAL | EVIL |
+F:IM_POIS |
+F:HURT_ROCK | NO_CONF | NO_SLEEP
+F:COLOR
+D:This bizarre creature has glaring eyes and large mandibles capable of
+D:slicing through rock.
+
+N:124:rust monster
+G:q:o
+I:110:15d12:12:28:10
+W:23:2:0:628
+O:0:0:0
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+F:STUPID | WEIRD_MIND | KILL_ITEM | WILD_DUNGEON_01
+F:IM_ACID | IM_POIS | DROP_CORPSE | FORCE_MAXHP |
+F:NO_CONF |
+F:COLOR
+D:It is a weird, small animal with two antennae popping forth from
+D:its forehead. It looks hungry.
+
+N:125:gelatinous cube
+G:j:B
+I:110:27d10:12:6:1
+W:23:4:0:745
+O:50:30:20
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+F:FORCE_MAXHP |
+F:DROP_1D2 | DROP_4D2 | WILD_DUNGEON_01
+F:STUPID | EMPTY_MIND | COLD_BLOOD |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | CAN_SWIM |
+F:IM_ACID | IM_ELEC | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+D:It is a strange, vast gelatinous structure that assumes cubic proportions
+D:as it lines all four walls of the corridors it patrols.  Through its
+D:transparent jelly structure you can see treasures it has engulfed, and a
+D:few corpses as well.
+
+N:126:lizardman
+G:h:R
+I:110:11d10:20:20:20
+W:23:3:0:613
+O:50:50:0
+B:HIT:HURT:4d4
+B:HIT:HURT:4d4
+F:CAN_SWIM | IM_ACID |
+F:FRIENDS | DROP_60 | WILD_DUNGEON_01 | WILD_SHORE |
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | LITE_1
+F:EVIL
+F:COLOR | DESC_1 | JOB
+D:Intelligent lizard beings from the depths.
+
+N:127:quasit
+G:u:s
+I:110:4d8:20:15:20
+W:24:2:0:518
+O:0:50:30
+B:BITE:LOSE_DEX:1d6
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+F:FORCE_SLEEP | CAN_FLY |
+F:RAND_25 | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 |
+F:SMART | INVISIBLE | BASH_DOOR |
+F:EVIL | DEMON | IM_FIRE | NONLIVING |
+F:COLOR
+S:1_IN_10 |
+S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | SCARE
+D:The chaotic evil master's favourite pet.
+
+N:128:sphinx
+G:H:o
+I:110:40d5:20:40:20
+W:26:2:0:2394
+O:100:0:0
+B:CLAW:HURT:2d6
+B:CLAW:HURT:2d6
+F:FORCE_SLEEP |
+F:ONLY_GOLD | DROP_1D2 | CAN_FLY | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR | WILD_DUNGEON_01 | WILD_MOUNT2
+F:ANIMAL
+F:COLOR | DESC_1
+S:1_IN_11 |
+S:SCARE | CONF
+D:It will eat you if you cannot answer its riddle.
+
+N:129:imp
+G:u:r
+I:110:4d8:20:15:20
+W:24:2:0:625
+O:30:20:50
+B:HIT:POISON:3d4
+B:HIT:POISON:3d4
+F:FORCE_SLEEP | CAN_FLY | WILD_DUNGEON_01
+F:RAND_25 |
+F:ONLY_ITEM | DROP_1D2 |
+F:SMART | INVISIBLE | COLD_BLOOD | BASH_DOOR |
+F:EVIL | DEMON | IM_FIRE | RES_TELE
+F:COLOR | DESC_1
+S:1_IN_10 |
+S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | SCARE | BO_FIRE
+D:The lawful evil master's favourite pet.
+
+N:130:troll
+G:T:G
+I:110:14d10:20:25:40
+W:27:1:0:1166
+O:30:70:0
+B:HIT:HURT:1d4
+B:HIT:HURT:1d4
+B:BITE:HURT:1d6
+F:WILD_DUNGEON_01
+F:FRIENDS | DROP_60 | WILD_FOREST2 | DROP_SKELETON | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | TROLL | HURT_LITE
+F:COLOR | DESC_1 | JOB
+D:Ugly.
+
+N:131:sphere
+G:*:w
+I:120:5d5:100:15:0
+W:23:1:0:1314
+O:0:0:0
+B:EXPLODE:COLD:8d8
+F:FORCE_SLEEP | CAN_FLY | WILD_DUNGEON_01
+F:EMPTY_MIND | AURA_COLD |
+F:IM_COLD | NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING
+F:COLOR | DESC_1
+D:The embodiment of cold.
+
+N:132:hydra
+G:M:u
+I:110:75d3:20:30:20
+W:22:2:0:587
+O:100:0:0
+B:BITE:HURT:2d6
+B:BITE:HURT:2d6
+F:FORCE_SLEEP | WILD_DUNGEON_01 | WILD_SHORE | WILD_SWAMP1 |
+F:ONLY_GOLD | DROP_1D2 | CAN_SWIM | DROP_SKELETON | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY |
+F:ANIMAL
+F:COLOR | DESC_1
+S:1_IN_11 |
+S:SCARE
+D:A strange reptilian hybrid with two heads, guarding its hoard.
+
+N:133:swamp thing
+G:H:g
+I:110:10d14:20:30:30
+W:25:2:0:952
+O:0:0:0
+B:CLAW:TERRIFY:2d5
+B:CLAW:TERRIFY:5d2
+F:CAN_SWIM | OPEN_DOOR | BASH_DOOR | WILD_DUNGEON_01 | WILD_SWAMP2
+F:COLOR | DESC_1
+D:A creature that was once human, but is now as green as moss.
+
+N:134:scorpion
+G:S:R
+I:110:10d8:12:34:20
+W:25:1:0:937
+O:0:0:0
+B:BITE:HURT:2d4
+B:STING:LOSE_STR:1d7
+F:WEIRD_MIND | BASH_DOOR | WILD_DUNGEON_01 | WILD_GRASS | WILD_WASTE1
+F:ANIMAL | DROP_SKELETON
+F:COLOR | DESC_1
+D:It is fast and poisonous.
+
+N:135:mimic
+G:!:w
+I:110:7d10:25:15:0
+W:26:3:0:858
+O:0:0:0
+B:HIT:POISON:3d4
+B:HIT:HURT:2d3
+B:HIT:HURT:2d3
+F:CHAR_MIMIC | WILD_DUNGEON_01
+F:FORCE_SLEEP | NEVER_MOVE |
+F:EMPTY_MIND | COLD_BLOOD |
+F:NO_CONF | NO_SLEEP | NO_FEAR |
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:BLIND | CONF | SCARE | CAUSE_2 | BO_COLD
+D:A strange creature that disguises itself as discarded objects to lure
+D:unsuspecting adventurers within reach of its venomous claws.
+
+N:136:dog
+G:C:B
+I:120:6d6:20:30:10
+W:25:2:0:1730
+O:0:0:0
+B:BITE:HURT:1d8
+F:RAND_25 | WILD_DUNGEON_01 | WILD_FOREST2
+F:FRIENDS |
+F:BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:ANIMAL| RES_TELE
+F:COLOR | DESC_1
+D:A strange member of the canine race.
+
+N:137:uruk
+G:o:w
+I:110:6d10:20:25:20
+W:25:1:0:1095
+O:20:80:0
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:WILD_DUNGEON_01 | WILD_MOUNT2
+F:FORCE_MAXHP | FRIENDS | DROP_60 |
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:EVIL | ORC | IM_POIS
+F:COLOR | DESC_1 | JOB
+S:1_IN_12
+S:ARROW_1
+D:He is a cunning orc of power, as tall as a man, and stronger.  It fears
+D:little.
+
+N:138:shambling mound
+G:,:g
+I:110:15d6:20:8:40
+W:23:2:0:219
+O:100:0:0
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:ONLY_GOLD | DROP_90 | WILD_DUNGEON_01 | WILD_SWAMP2 | WILD_SWAMP1
+F:STUPID | EMPTY_MIND | OPEN_DOOR | BASH_DOOR |
+F:EVIL |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:SHRIEK
+D:A pile of rotting vegetation that slides towards you with a disgusting
+D:stench, waking all it nears.
+
+N:139:shark
+G:l:s
+I:120:7d10:20:25:10
+W:26:1:0:1849
+O:0:0:0
+B:BITE:HURT:3d5
+B:BITE:HURT:3d5
+F:ANIMAL | AQUATIC | WILD_DUNGEON_01 | WILD_OCEAN
+F:COLOR | DESC_1
+D:Fast moving hunter of the depths, when this creature moves,
+D:everybody in water is in danger!
+
+N:140:beastman
+G:H:u
+I:110:14d8:20:50:30
+W:30:2:0:2629
+O:30:50:20
+B:HIT:CONFUSE:3d5
+B:HIT:EXP_20:1d5
+F:DROP_1D2 | WILD_DUNGEON_01 | WILD_WASTE1 | WILD_WASTE2
+F:OPEN_DOOR | BASH_DOOR | NO_CONF | NO_SLEEP | DROP_CORPSE
+F:EVIL | IM_FIRE | ATTR_ANY | ATTR_MULTI
+F:COLOR | DESC_1 | JOB
+S:1_IN_8
+S:MISSILE | BO_FIRE | CONF | TPORT
+D:A truly loathsome thing, twisted by chaos, it is a mixture
+D:of several different kinds of creature.
+
+N:141:wall
+G:#:s
+I:110:3d8:45:15:0
+W:25:5:0:794
+O:0:0:0
+B:TOUCH:PARALYZE:10d1
+B:TOUCH:PARALYZE:10d1
+F:WILD_DUNGEON_01
+F:NEVER_MOVE | IM_COLD | COLD_BLOOD | IM_ACID | NO_FEAR |
+F:IM_POIS | NO_CONF | NO_SLEEP | CHAR_MIMIC
+F:EMPTY_MIND | HURT_ROCK
+F:COLOR | DESC_1
+D:A sentient section of wall.
+
+N:142:ghast
+G:z:U
+I:110:9d10:40:20:20
+W:30:10:0:3048
+O:20:40:30
+B:KICK:HURT:3d3
+B:KICK:HURT:9d1
+B:BITE:HURT:6d2
+F:DROP_60 | WILD_DUNGEON_01
+F:NO_SLEEP | NO_CONF | UNDEAD | EVIL | IM_POIS | IM_COLD |
+F:COLD_BLOOD | HURT_LITE | CAN_SWIM
+F:BASH_DOOR | OPEN_DOOR
+F:COLOR | DESC_1
+S:1_IN_10
+S:ELDRITCH_HORROR
+D:A repulsive being which leaps on long hind legs like a kangaroo.
+D:Its face is curiously human despite the absence of a nose, a
+D:forehead, and "other important particulars".
+
+N:143:huorn
+G:%:g
+I:110:35d10:40:22:20
+W:11:1:0:349
+O:30:30:30
+B:CRUSH:HURT:3d6
+B:CRUSH:HURT:3d6
+B:CRUSH:HURT:3d6
+B:CRUSH:HURT:3d6
+F:DROP_60 | NO_SLEEP | NO_CONF | ANIMAL | WEIRD_MIND | EVIL
+F:RES_WATE | IM_COLD | NEVER_MOVE | WILD_FOREST1 | WILD_FOREST2
+F:COLOR | DESC_1
+S:1_IN_9
+S:BLINK | TELE_TO
+D:A very strong near-sentient tree, which has become hostile
+D:to humanoid forms of life.
+
+N:144:Wyvern
+G:d:G
+I:120:75d5:20:32:20
+W:33:2:0:7354
+O:100:0:0
+B:BITE:HURT:2d6
+B:BITE:HURT:2d6
+B:BITE:HURT:2d6
+B:STING:POISON:1d6
+F:FORCE_SLEEP |
+F:ONLY_GOLD | DROP_60 | DROP_90 | IM_POIS | CAN_FLY |
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | DRAGON | WILD_DUNGEON_01 |
+F:WILD_FOREST1 | WILD_MOUNT2 | WILD_MOUNT1 | DROP_SKELETON | DROP_CORPSE
+F:ANIMAL | EVIL
+F:COLOR | DESC_1
+D:A fast-moving and deadly dragonian animal. Beware its poisonous sting!
+
+N:145:livingstone
+G:#:s
+I:110:4d8:45:14:20
+W:28:4:0:693
+O:0:0:0
+B:HIT:HURT:2d5
+B:HIT:HURT:2d5
+F:WILD_DUNGEON_01
+F:MULTIPLY | NEVER_MOVE | IM_COLD | COLD_BLOOD | IM_ACID | NO_FEAR |
+F:IM_POIS | NO_CONF | NO_SLEEP | FRIENDS | CHAR_MIMIC | HURT_ROCK
+F:COLOR | DESC_1
+D:A sentient section of wall.
+
+N:146:chimera
+G:H:y
+I:110:9d8:12:13:10
+W:30:1:0:1581
+O:0:0:0
+B:BITE:HURT:1d10
+B:BITE:FIRE:1d3
+B:BITE:FIRE:1d3
+F:FORCE_SLEEP | CAN_FLY | DROP_CORPSE |
+F:BASH_DOOR | WILD_DUNGEON_01 | WILD_MOUNT2 |
+F:IM_FIRE
+F:COLOR | DESC_1
+S:1_IN_10 |
+S:BR_FIRE
+D:It is a strange concoction of lion, dragon and goat.  It looks very odd
+D:but very avoidable.
+
+N:147:quylthulg
+G:Q:s
+I:110:4d8:10:1:2
+W:28:1:0:1511
+O:0:0:0
+F:WILD_DUNGEON_01
+F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW
+F:EMPTY_MIND | INVISIBLE |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BLINK |
+S:S_MONSTER
+D:It is a strange pulsing mound of flesh.
+
+N:148:sasquatch
+G:Y:s
+I:120:14d19:15:20:10
+W:34:3:0:4490
+O:0:0:0
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+B:BITE:HURT:2d8
+F:OPEN_DOOR | BASH_DOOR | WILD_DUNGEON_01 | WILD_MOUNT2
+F:WILD_FOREST1 | WILD_FOREST2 | WILD_WASTE2 |
+F:ANIMAL | IM_COLD | DROP_SKELETON | DROP_CORPSE
+F:COLOR | DESC_1
+D:A tall shaggy, furry humanoid, it could call the yeti brother.
+
+N:149:weir
+G:C:s
+I:110:7d12:15:15:40
+W:25:2:0:1048
+O:0:0:0
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+F:RAND_25 |
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:ANIMAL | EVIL | FRIENDS | WILD_DUNGEON_01
+F:COLOR | DESC_1
+D:It is a tracker; half human, half beast.
+
+N:150:whale
+G:l:G
+I:110:22d20:15:25:70
+W:30:4:0:2419
+O:0:0:0
+B:CRUSH:HURT:1d20
+B:CRUSH:HURT:1d20
+F:RAND_25 | FORCE_MAXHP | RES_WATE
+F:ANIMAL | AQUATIC | WILD_DUNGEON_01 | WILD_OCEAN
+F:COLOR | DESC_1
+D:Although it looks like a fish and lives in water, it is in fact
+D:a mammal. And it is huge!
+
+N:151:eel
+G:J:B
+I:110:11d15:15:20:70
+W:31:2:0:2008
+O:0:0:0
+B:TOUCH:ELEC:2d7
+B:TOUCH:ELEC:7d2
+B:TOUCH:ELEC:2d7
+F:AQUATIC | ANIMAL | RAND_25 | IM_ELEC | RES_WATE | WILD_DUNGEON_01 | WILD_OCEAN
+F:COLOR | DESC_1
+D:This cute little serpentine creature can create a deadly voltage.
+D:Better watch out!
+
+N:152:werewolf
+G:C:D
+I:110:14d22:15:18:20
+W:28:2:0:1458
+O:0:0:0
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+B:BITE:HURT:1d10
+F:RAND_25 | WILD_DUNGEON_01 | WILD_WASTE1 | WILD_WASTE2
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | DROP_SKELETON |
+F:ANIMAL | EVIL
+F:COLOR | DESC_1
+D:It is a huge wolf with eyes that glow with manly intelligence.
+
+N:153:vortex
+G:v:r
+I:110:6d9:100:12:0
+W:29:1:0:1289
+O:0:0:0
+B:ENGULF:FIRE:3d3
+F:FORCE_SLEEP | RAND_50 | CAN_FLY | WILD_DUNGEON_01 |
+F:EMPTY_MIND | BASH_DOOR | POWERFUL | AURA_FIRE | LITE_2
+F:IM_FIRE | NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:BR_FIRE
+D:A whirling elemental maelstrom.
+
+N:154:arch-vile
+G:u:s
+I:120:8d11:100:15:0
+W:35:1:0:8178
+O:0:0:0
+B:CLAW:HURT:3d9
+B:CLAW:HURT:3d9
+F:WILD_DUNGEON_01
+F:RAND_50 | EVIL | DEMON | FORCE_SLEEP | FORCE_MAXHP |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | COLD_BLOOD |
+F:IM_FIRE | RES_NETH | NO_CONF | NO_SLEEP | NONLIVING | NO_STUN
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BA_FIRE | ANIM_DEAD
+D:A pale, corpse-like lesser demon, who moves very fast and spawns evil
+D:everywhere.
+
+N:155:globefish
+G:l:w
+I:110:14d10:20:15:30
+W:35:1:0:4178
+O:0:0:0
+B:BITE:POISON:5d5
+B:BITE:POISON:5d5
+F:EMPTY_MIND | BASH_DOOR | POWERFUL | AQUATIC |
+F:IM_POIS | NO_STUN | WILD_DUNGEON_01 | WILD_SHORE | FORCE_MAXHP
+F:COLOR | DESC_1
+S:1_IN_7 |
+S:BR_POIS
+D:This cute fish is among the most poisonous creatures there are.
+
+N:156:carrion
+G:B:s
+I:113:11d12:20:15:20
+W:32:1:0:2783
+O:40:30:0
+B:CLAW:POISON:2d3
+B:CLAW:POISON:2d3
+B:BITE:EXP_20:1d8
+F:DROP_90 | WILD_DUNGEON_01
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
+F:EVIL | ANIMAL | UNDEAD | CAN_FLY |
+F:IM_COLD | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+D:A mummified, undead great avian creature, who now serves as
+D:a steed for mighty undead creatures.
+
+N:157:serpent man
+G:J:g
+I:120:12d10:20:20:20
+W:32:3:0:1910
+O:30:20:30
+B:BITE:POISON:5d5
+B:BITE:POISON:5d5
+F:WILD_DUNGEON_01 | WILD_SWAMP1
+F:CAN_SWIM | IM_POIS | IM_ACID |
+F:DROP_60 | DROP_1D2 | FRIENDS | DROP_CORPSE |
+F:OPEN_DOOR | BASH_DOOR | LITE_2
+F:EVIL |
+F:COLOR | DESC_1 | JOB
+S:1_IN_8
+S:BA_POIS | S_MONSTER | SCARE | HOLD | BO_POIS
+D:"They walked lithely and sinnously erect on pre-mammalian
+D:members, their pied and hairless bodies bending with great
+D:suppleness. There was a loud hissing of formulae as they
+D:went to and fro."
+
+N:158:mist
+G:#:D
+I:110:7d8:12:26:10
+W:30:1:0:838
+O:0:0:0
+B:ENGULF:EXP_VAMP:2d6
+F:RAND_25 |
+F:IM_POIS | IM_ACID | RES_NETH | WILD_DUNGEON_01 | WILD_SWAMP2 |
+F:EVIL | EMPTY_MIND | COLD_BLOOD | FRIENDS
+F:COLOR | DESC_1
+D:A cloud of evil, sentient mist.
+
+N:159:dragon bat
+G:b:r
+I:130:2d9:12:14:50
+W:33:1:0:5699
+O:0:0:0
+B:BITE:FIRE:1d3
+F:FORCE_SLEEP | RAND_50 | WILD_DUNGEON_01
+F:BASH_DOOR | CAN_FLY | DROP_CORPSE
+F:ANIMAL | IM_FIRE | LITE_1
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BR_FIRE
+D:It is a sharp-tailed bat, wreathed in fire.
+
+N:160:kouko
+G:W:G
+I:110:8d8:20:15:30
+W:34:1:0:2051
+O:20:0:40
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:TOUCH:EXP_20
+F:FORCE_SLEEP | RAND_25 | WILD_DUNGEON_01
+F:DROP_90 |
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | CAN_FLY |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE |
+F:NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_10 |
+S:SCARE | DRAIN_MANA
+D:It is a ghostly apparition with a humanoid form.
+
+N:161:hell-beast
+G:U:s
+I:115:15d75:10:50:50
+W:36:4:0:6880
+O:0:0:0
+B:GAZE:TERRIFY:1d4
+B:GAZE:TERRIFY:1d4
+B:CRUSH:HURT:44d1
+F:WILD_DUNGEON_01
+F:EVIL | IM_FIRE | IM_POIS
+F:RES_NETH | RES_WATE | RES_PLAS | RES_DISE | RES_NEXU |
+F:KILL_WALL | FORCE_MAXHP | CAN_SWIM | DROP_CORPSE
+F:COLOR | DESC_1
+S:1_IN_9 |
+S:TPORT | BLINK | TELE_AWAY
+D:This creature just might crush you.
+
+N:162:tyrannosaurus
+G:R:g
+I:120:150d3:20:35:20
+W:34:2:0:8095
+O:0:0:0
+B:CLAW:HURT:1d6
+B:CLAW:HURT:1d6
+B:BITE:HURT:3d6
+B:BITE:HURT:3d6
+F:FORCE_SLEEP | WILD_DUNGEON_01 | WILD_FOREST1 | WILD_FOREST2
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | DROP_CORPSE
+F:ANIMAL
+F:COLOR | DESC_1
+D:A horror from prehistory, reawakened by chaos.
+
+N:163:banshee
+G:G:s
+I:120:4d9:20:12:10
+W:35:2:0:1756
+O:80:0:0
+B:WAIL:TERRIFY
+B:TOUCH:EXP_20
+F:FEMALE | WILD_DUNGEON_01
+F:RAND_50 | DROP_90 |
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | CAN_FLY |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_15 |
+S:TPORT | DRAIN_MANA
+D:It is a ghostly woman's form that wails mournfully.
+
+N:164:carrion crawler
+G:c:g
+I:110:14d12:15:20:10
+W:36:2:0:2240
+O:0:0:0
+B:STING:PARALYZE:2d6
+B:STING:PARALYZE:2d6
+F:RAND_25 | WILD_DUNGEON_01
+F:WEIRD_MIND | BASH_DOOR | DROP_SKELETON
+F:ANIMAL | IM_POIS
+F:COLOR | DESC_1
+D:A hideous centipede covered in slime and with glowing tentacles around its
+D:head.
+
+N:165:xiclotlan
+G:#:D
+I:110:19d25:15:30:10
+W:34:2:0:2245
+O:0:0:0
+B:CRUSH:HURT:6d4
+B:CRUSH:HURT:6d4
+B:BITE:HURT:3d2
+F:RAND_25 | WILD_DUNGEON_01
+F:EMPTY_MIND | BASH_DOOR | FORCE_MAXHP |
+F:IM_POIS | IM_ELEC
+F:COLOR | DESC_1
+D:"...a metallically grey tree... about sixteen feet high with
+D:very thick cylindrical branches... cylinders further
+D:divided into six flat circular extensions... and from the top
+D:of what I had taken for a trunk rose a featureless oval... an
+D:orifice gaping at the top."
+
+N:166:silent watcher
+G:g:s
+I:110:60d20:42:40:10
+W:37:5:0:7917
+O:0:0:0
+B:GAZE:TERRIFY
+B:GAZE:PARALYZE
+B:GAZE:LOSE_STR
+F:WILD_DUNGEON_01
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | NONLIVING | NEVER_MOVE |
+F:IM_FIRE | IM_COLD | IM_POIS | EVIL |
+F:HURT_ROCK | HURT_LITE |
+F:NO_CONF | NO_SLEEP | NO_FEAR | RES_TELE
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:SHRIEK | S_MONSTER | S_MONSTERS | HOLD | CONF | MIND_BLAST | DRAIN_MANA
+D:A figure carved from stone, with three vulture faces. Their eyes glow
+D:a malevolent light...
+
+N:167:pukelman
+G:g:u
+I:110:46d12:12:40:10
+W:40:3:0:8584
+O:0:0:0
+B:HIT:HURT:1d12
+B:HIT:HURT:3d6
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR |
+F:IM_COLD | IM_POIS |
+F:HURT_ROCK | NONLIVING |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:SLOW | CONF | BO_ACID
+D:A stumpy figure carved from stone, with glittering eyes.
+
+N:168:wraith
+G:W:w
+I:110:16d5:20:20:10
+W:40:1:0:4140
+O:0:0:0
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:TOUCH:EXP_20
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:DROP_1D2 |
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | CAN_FLY |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_8 |
+S:SCARE | CAUSE_2 | DARKNESS
+D:It is a tangible but ghostly form made of white fog.
+
+N:169:angel
+G:A:b
+I:110:23d10:30:30:255
+W:48:6:0:22613
+O:0:40:60
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+F:WILD_DUNGEON_01
+F:FORCE_MAXHP | FORCE_SLEEP | NO_FEAR |
+F:ONLY_ITEM | DROP_1D2 | GOOD | CAN_FLY |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL |
+F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP | LITE_1
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:BLIND | CONF | SCARE | FORGET
+D:A lesser angel wearing little more than a loincloth - its steely skin
+D:provides all the protection it needs.
+
+N:170:ghoul
+G:z:U
+I:110:11d9:30:15:20
+W:38:1:0:3233
+O:0:50:40
+B:CLAW:DISEASE:1d4
+B:CLAW:DISEASE:1d4
+B:BITE:PARALYZE:1d5
+F:WILD_DUNGEON_01
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | CAN_SWIM |
+F:EVIL | UNDEAD | FRIENDS | IM_POIS | IM_COLD | NO_CONF | NO_SLEEP
+F:COLD_BLOOD | HURT_LITE
+F:COLOR | DESC_1
+S:1_IN_9
+S:SCARE | HOLD
+D:Flesh is falling off in chunks from this decaying abomination.
+
+N:171:algroth
+G:T:s
+I:110:15d12:20:30:40
+W:42:1:0:3973
+O:10:80:0
+B:CLAW:POISON:4d3
+B:CLAW:POISON:4d3
+F:FRIENDS | DROP_60 | WILD_MOUNT2 | WILD_DUNGEON_01 | WILD_SWAMP1 | WILD_SWAMP2
+F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE
+F:EVIL | TROLL
+F:COLOR | DESC_1
+D:A powerful troll form.  Venom drips from its needlelike claws.
+
+N:172:roper
+G:#:D
+I:115:70d9:30:30:255
+W:39:5:0:6611
+O:80:0:20
+B:CRUSH:PARALYZE:3d5
+B:CRUSH:PARALYZE:3d5
+B:CRUSH:PARALYZE:3d5
+B:CRUSH:PARALYZE:3d5
+F:WILD_DUNGEON_01
+F:FORCE_MAXHP | FORCE_SLEEP | NO_FEAR | NEVER_MOVE |
+F:ONLY_GOLD | DROP_2D2 | EVIL
+F:IM_POIS | NO_CONF | NO_SLEEP | IM_FIRE | CHAR_MIMIC
+F:COLOR | DESC_1
+S:1_IN_5 |
+S:BA_FIRE | BA_ELEC | BA_POIS | HASTE |
+S:TRAPS | SHRIEK | HOLD | CONF
+D:This creature look like a pillar of rock. However, a closer
+D:inspection reveals a glaring eye and powerful tentacles,
+D:which crush its prey and feed it to the creature's hungry
+D:mouth.
+
+N:173:headless
+G:H:u
+I:110:19d17:20:25:40
+W:38:1:0:2437
+O:0:100:0
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | WILD_DUNGEON_01 |
+F:WILD_MOUNT1 | WILD_WASTE1 | WILD_WASTE2 | DROP_SKELETON | DROP_CORPSE
+F:EVIL
+F:COLOR | DESC_1
+S:1_IN_6
+S:SCARE
+D:Headless humanoid abominations created by a magical mutation.
+
+N:174:vampire
+G:V:s
+I:110:18d12:20:22:10
+W:41:1:0:3254
+O:20:50:20
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:BITE:EXP_VAMP:1d8
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:COLD_BLOOD | DROP_1D2 |
+F:OPEN_DOOR | BASH_DOOR | REGENERATE | CAN_FLY |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_9 |
+S:TELE_TO | HOLD | SCARE | CAUSE_2 | MIND_BLAST | FORGET | DARKNESS
+D:It is a humanoid with an aura of power.  You notice a sharp set of front
+D:teeth.
+
+N:175:gorgimera
+G:H:D
+I:110:25d14:12:27:10
+W:40:2:0:4546
+O:0:0:0
+B:BITE:FIRE:1d3
+B:BITE:FIRE:1d3
+B:BITE:HURT:1d10
+B:GAZE:PARALYZE:2d4
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:BASH_DOOR | CAN_FLY | DROP_CORPSE
+F:IM_FIRE
+F:COLOR | DESC_1
+S:1_IN_8 |
+S:BR_FIRE
+D:It has 3 heads - gorgon, goat and dragon - all attached to a
+D:lion's body.
+
+N:176:shantak
+G:B:D
+I:120:25d14:12:27:10
+W:42:20:0:6907
+O:0:0:0
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+F:WILD_DUNGEON_01
+F:ANIMAL | IM_ACID | EVIL | CAN_FLY | DROP_CORPSE
+F:COLOR | DESC_1
+S:1_IN_6
+S:SCARE | HASTE | ELDRITCH_HORROR
+D:A scaly bird larger than an elephants, with a horse-like head.
+
+N:177:colbran
+G:g:b
+I:120:56d12:12:40:10
+W:47:2:0:15189
+O:0:0:0
+B:HIT:ELEC:3d8
+B:HIT:ELEC:3d8
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | CAN_FLY |
+F:IM_ELEC | IM_POIS | AURA_ELEC | REFLECTING |
+F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | LITE_1
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:BO_ELEC
+D:A man-shaped form of living lightning, sparks and shocks crackle all over
+D:this madly capering figure, as it leaps and whirls around and about you.
+
+N:178:corpser
+G:,:g
+I:112:23d15:20:37:120
+W:38:2:0:5622
+O:0:0:0
+B:CRUSH:HURT:2d8
+B:CRUSH:HURT:2d8
+B:CRUSH:HURT:2d8
+B:CRUSH:HURT:2d8
+F:WILD_DUNGEON_01 | WILD_GRASS |
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
+F:EVIL | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+D:A creature who lives underground and eats surface
+D:dwellers whom it catches
+D:with its poisonous tentacle, which is the only part of the creature that
+D:is ever seen. Perhaps it is better not to see the part which remains
+D:underground...
+
+N:179:seahorse
+G:l:o
+I:120:40d10:20:30:20
+W:48:2:0:14964
+O:0:0:0
+B:BITE:PARALYZE:4d5
+B:BITE:LOSE_DEX:4d5
+B:BITE:LOSE_CON:4d5
+F:FORCE_SLEEP | AQUATIC | GOOD | ANIMAL |
+F:IM_COLD | IM_POIS | WILD_DUNGEON_01 | WILD_OCEAN
+F:COLOR | DESC_1
+S:1_IN_5 |
+S:BO_WATE | BO_COLD | BO_ICEE | BO_MANA
+D:Your mind is filled with admiration as you view this wondrous,
+D:magical seahorse.
+
+N:180:cyclops
+G:P:u
+I:120:50d12:20:45:20
+W:44:2:0:13549
+O:0:100:0
+B:HIT:HURT:9d8
+B:HIT:HURT:9d8
+F:FORCE_SLEEP |
+F:DROP_90 | TAKE_ITEM | WILD_DUNGEON_01 | WILD_SHORE | WILD_MOUNT1 |
+F:BASH_DOOR | OPEN_DOOR | MOVE_BODY | DROP_CORPSE
+F:EVIL | IM_POIS | IM_ACID | GIANT
+F:COLOR | DESC_1
+S:1_IN_8 |
+S:ARROW_4
+D:A gigantic humanoid with but one eye.
+
+N:181:catoblepas
+G:q:g
+I:110:30d7:15:26:40
+W:43:2:0:11194
+O:100:0:0
+B:GAZE:TERRIFY:2d4
+B:GAZE:BLIND:2d4
+B:BUTT:HURT:2d6
+B:BITE:HURT:2d12
+F:ONLY_GOLD | DROP_2D2 | DROP_CORPSE | EVIL |
+F:BASH_DOOR | CAN_SWIM | WILD_DUNGEON_01 | WILD_SWAMP1 | WILD_SWAMP2
+F:ANIMAL | IM_POIS
+F:COLOR | DESC_1
+D:A strange ox-like form with a huge head but a thin, weak neck, it looks
+D:like the creation of some deranged alchemist.
+
+N:182:basilisk
+G:R:D
+I:120:14d30:15:45:30
+W:46:3:0:17232
+O:50:0:30
+B:GAZE:PARALYZE
+B:BITE:HURT:2d12
+B:BITE:HURT:2d12
+B:BITE:HURT:2d12
+F:ONLY_ITEM | DROP_90 | WILD_DUNGEON_01 | WILD_MOUNT1 | WILD_MOUNT2
+F:OPEN_DOOR | BASH_DOOR | EVIL | IM_POIS | DROP_CORPSE
+F:ANIMAL | NO_CONF | NO_SLEEP | CAN_SWIM
+F:COLOR | DESC_1
+S:1_IN_8
+S:BR_POIS
+D:An evil reptile whose eyes stare deeply at you and
+D:makes your soul wilt!
+
+N:183:dhole
+G:w:s
+I:110:49d12:14:64:25
+W:46:20:0:23716
+O:0:0:0
+B:SPIT:ACID:1d8
+B:ENGULF:ACID:2d8
+B:CRUSH:HURT:4d8
+F:WILD_DUNGEON_01
+F:ANIMAL | EVIL | KILL_WALL | IM_ACID
+F:CAN_SWIM | FORCE_MAXHP | DROP_CORPSE
+F:COLOR | DESC_1
+S:1_IN_6
+S:BR_ACID | ELDRITCH_HORROR |
+D:A gigantic worm dripping with acid. "...even as he looked, one
+D:reared up several hundred feet and leveled a bleached, viscous end
+D:at him."
+
+N:184:archangel
+G:A:B
+I:110:40d7:30:34:255
+W:49:6:0:25853
+O:0:80:20
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:WILD_DUNGEON_01
+F:FORCE_MAXHP | FORCE_SLEEP | NO_FEAR | GOOD |
+F:ONLY_ITEM | DROP_1D2 | CAN_FLY |
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL |
+F:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | RES_TELE | LITE_1
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:HEAL | HASTE | BLIND | CONF | SCARE
+D:A lesser angel protected by an aura of holiness.  Its muscular form looks
+D:extremely powerful next to your own frail body.
+
+N:185:aklash
+G:T:s
+I:110:23d9:14:32:25
+W:44:4:0:6621
+O:0:90:0
+B:CLAW:HURT:1d6
+B:CLAW:HURT:1d6
+B:BITE:POISON:1d20
+B:CRUSH:HURT:2d9
+F:WILD_DUNGEON_01 | WILD_SWAMP2
+F:TROLL | EVIL | FRIENDS | OPEN_DOOR | BASH_DOOR | DROP_CORPSE
+F:IM_POIS | IM_ACID | REGENERATE |
+F:COLOR | DESC_1
+S:1_IN_7
+S:BR_POIS
+D:Pale, bald, fat, hairless troll creatures. Ugly beyond description.
+D:Not to mention how bad their breath smells...
+
+N:186:wight
+G:W:b
+I:110:12d7:20:20:30
+W:41:1:0:6117
+O:0:50:50
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
+B:TOUCH:EXP_20
+F:WILD_DUNGEON_01
+F:FORCE_SLEEP | RAND_25 |
+F:ONLY_ITEM | DROP_90 |
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
+F:EVIL | UNDEAD | CAN_FLY |
+F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_8 |
+S:SCARE | CAUSE_3 | DARKNESS
+D:It is a ghostly form with eyes that haunt you.
+
+N:187:drake
+G:d:D
+I:110:35d7:25:30:30
+W:44:2:0:16119
+O:50:50:0
+B:BITE:COLD:1d6
+B:BITE:COLD:1d6
+B:BITE:COLD:1d6
+F:FORCE_SLEEP | RAND_25 | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 | CAN_FLY | DROP_CORPSE
+F:TAKE_ITEM | INVISIBLE | OPEN_DOOR | BASH_DOOR |
+F:ANIMAL | EVIL | DRAGON | IM_COLD
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:HASTE | SLOW | CONF | SCARE | DARKNESS
+D:It is a dragon-like form wrapped in shadow.  Glowing red eyes shine out in
+D:the dark.
+
+N:188:manticore
+G:H:o
+I:120:25d7:12:15:10
+W:43:2:0:7726
+O:0:0:0
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:BASH_DOOR | CAN_FLY | WILD_DUNGEON_01 | WILD_FOREST2 | DROP_CORPSE
+F:EVIL
+F:COLOR | DESC_1
+S:1_IN_5 |
+S:ARROW_4
+D:It is a winged lion's body with a human torso and a tail covered in
+D:vicious spikes.
+
+N:189:gorgon
+G:H:b
+I:110:30d14:12:44:20
+W:46:2:0:13084
+O:0:0:0
+B:BUTT:HURT:3d9
+B:BUTT:HURT:3d9
+B:BITE:POISON:1d10
+B:KICK:HURT:2d4
+F:FORCE_SLEEP | ANIMAL | MOVE_BODY | WILD_DUNGEON_01 | WILD_FOREST2 |
+F:BASH_DOOR | IM_POIS | IM_ACID | DROP_CORPSE | EVIL
+F:COLOR | DESC_1
+S:1_IN_8 |
+S:BR_POIS
+D:A bull whose skin is made of steel plates. Watch out for its
+D:deadly breath!
+
+N:190:gug
+G:P:D
+I:110:17d15:14:30:30
+W:46:2:0:14837
+O:0:50:50
+B:BITE:HURT:10d4
+B:CLAW:HURT:2d7
+B:CLAW:HURT:2d7
+B:CLAW:HURT:2d7
+F:FORCE_SLEEP |
+F:DROP_90 | TAKE_ITEM | WILD_DUNGEON_01
+F:BASH_DOOR | OPEN_DOOR | DROP_CORPSE
+F:EVIL | IM_POIS | IM_ACID | GIANT
+F:COLOR | DESC_1
+D:A hideous, beastly, four-armed unclean giant: "...large as a
+D:barrel... The eyes jutted two inches from each side, shaded by
+D:bony protuberances overgrown of the mouth. That mouth had great
+D:yellow fangs and ran from the top to the tally."
+
+N:191:ghost
+G:G:w
+I:120:9d8:20:20:10
+W:47:1:0:11190
+O:30:50:0
+B:WAIL:TERRIFY
+B:TOUCH:EXP_20
+B:CLAW:LOSE_INT:1d6
+B:CLAW:LOSE_WIS:1d6
+F:FORCE_SLEEP | RAND_25 | DROP_1D2 | WILD_DUNGEON_01
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL |
+F:EVIL | UNDEAD | IM_COLD | CAN_FLY |
+F:IM_POIS | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_15 |
+S:BLIND | HOLD | DRAIN_MANA
+D:You don't believe in them, and they don't believe in you.
+
+N:192:giant squid
+G:l:g
+I:110:80d7:8:40:80
+W:48:3:0:14202
+O:0:0:0
+B:CRUSH:HURT:8d4
+B:CRUSH:HURT:8d4
+B:CRUSH:HURT:8d4
+F:IM_ACID | RES_WATE | AQUATIC | ANIMAL | IM_COLD | MOVE_BODY
+F:FORCE_MAXHP | WILD_DUNGEON_01 | WILD_OCEAN |
+F:COLOR | DESC_1
+S:1_IN_8
+S:BR_ELEC | BR_ACID | BR_POIS
+D:Besides being capable of dragging whole ships underwater,
+D:this creature can also harm you with ranged attacks.
+
+N:193:moss
+G:,:b
+I:110:1d2:30:1:5
+W:44:3:0:5783
+O:0:0:0
+B:HIT:CONFUSE:1d4
+B:HIT:CONFUSE:1d4
+F:FORCE_SLEEP | NEVER_MOVE | WILD_DUNGEON_01 | WILD_FOREST2
+F:STUPID | EMPTY_MIND |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:FORGET
+D:A mass of green vegetation.  You don't remember seeing anything like it
+D:before.
+
+N:194:spectator
+G:e:B
+I:110:20d7:30:1:5
+W:48:3:0:5486
+O:0:0:0
+B:GAZE:PARALYZE:1d4
+B:GAZE:CONFUSE:1d4
+B:GAZE:UN_BONUS
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:STUPID | EMPTY_MIND | CAN_FLY | DROP_CORPSE |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:FORGET | CAUSE_2 | HOLD | SLOW
+D:It has two small eyestalks and a large central eye.
+
+N:195:biclops
+G:P:u
+I:120:60d9:20:45:20
+W:50:5:0:22508
+O:0:100:0
+B:HIT:HURT:11d8
+B:HIT:HURT:11d8
+F:FORCE_SLEEP | WILD_DUNGEON_01 | WILD_MOUNT1
+F:DROP_90 | TAKE_ITEM | DROP_CORPSE |
+F:BASH_DOOR | OPEN_DOOR | MOVE_BODY |
+F:EVIL | IM_POIS | IM_ACID | GIANT
+F:COLOR | DESC_1
+S:1_IN_8 |
+S:ARROW_4
+D:Oh, no! Aaargh! It is the most unnatural, most disgusting
+D:creature imaginable: a two-eyed cyclops! This perversion
+D:of nature must be exterminated!
+
+N:196:half-troll
+G:T:o
+I:110:18d14:20:30:50
+W:46:2:0:7302
+O:20:80:0
+B:CLAW:HURT:1d5
+B:CLAW:HURT:1d5
+B:CLAW:HURT:1d5
+B:BITE:HURT:2d6
+F:MALE | WILD_DUNGEON_01 | WILD_WASTE1
+F:FRIENDS |
+F:ONLY_ITEM | DROP_60 | DROP_SKELETON | DROP_CORPSE |
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | TROLL | IM_POIS
+F:COLOR | DESC_1 | JOB
+D:A huge, ugly, half-human in search of plunder.
+
+N:197:spectre
+G:G:G
+I:120:14d15:20:20:10
+W:51:3:0:13406
+O:0:0:100
+B:WAIL:TERRIFY
+B:TOUCH:EXP_40
+B:CLAW:LOSE_WIS:5d5
+F:FORCE_SLEEP | RAND_25 | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 | CAN_FLY |
+F:COLD_BLOOD | TAKE_ITEM | PASS_WALL |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS |
+F:NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_15 |
+S:BLIND | HOLD | DRAIN_MANA | FORGET
+D:A phantasmal shrieking spirit.  Its wail drives the intense cold of pure
+D:evil deep within your body.
+
+N:198:elemental
+G:E:r
+I:110:21d8:12:25:50
+W:49:2:0:13533
+O:0:0:0
+B:HIT:FIRE:4d6
+B:HIT:FIRE:4d6
+F:FORCE_SLEEP | RAND_25 |
+F:EMPTY_MIND | CAN_FLY | WILD_DUNGEON_01
+F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | AURA_FIRE |
+F:EVIL | IM_FIRE | IM_POIS | NONLIVING | LITE_1
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:BO_FIRE
+D:It is a towering inferno of flames.
+
+N:199:cherub
+G:A:s
+I:120:45d7:30:35:255
+W:55:6:0:32965
+O:0:90:10
+B:HIT:HURT:4d3
+B:HIT:HURT:3d8
+B:HIT:HURT:4d3
+B:HIT:HURT:3d8
+F:WILD_DUNGEON_01
+F:FORCE_SLEEP | FORCE_MAXHP | NO_FEAR | GOOD | CAN_FLY |
+F:ONLY_ITEM | DROP_2D2 | REFLECTING | RES_TELE |
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
+F:IM_ACID | IM_ELEC | IM_POIS |
+F:NO_CONF | NO_SLEEP | LITE_2
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE |
+S:S_MONSTERS
+D:It is an angel moving very quickly, wielding a holy war hammer and casting
+D:a volley of powerful spells in your direction.
+
+N:200:lich
+G:L:w
+I:110:30d7:20:30:60
+W:49:3:0:21187
+O:0:10:90
+B:TOUCH:EXP_40
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d8
+B:TOUCH:LOSE_DEX:2d8
+F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 | WILD_DUNGEON_01
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE |
+F:NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SLOW | SCARE |
+S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
+D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
+
+N:201:gas spore
+G:e:g
+I:110:25d7:30:1:5
+W:55:4:0:12467
+O:0:0:0
+B:EXPLODE:DISEASE:40d2
+F:FORCE_SLEEP |
+F:STUPID | EMPTY_MIND | CAN_FLY | WILD_DUNGEON_01
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+D:From a distance, this creature is often mistaken for the
+D:much more dangerous beholder.
+
+N:202:mummy
+G:z:s
+I:110:41d13:30:34:255
+W:50:3:0:11143
+O:50:50:0
+B:CLAW:LOSE_CON:1d6
+B:CLAW:DISEASE:1d6
+B:GAZE:EXP_VAMP:3d4
+B:GAZE:TERRIFY:1d4
+F:FORCE_SLEEP | FORCE_MAXHP | NO_FEAR | EVIL | UNDEAD |
+F:COLD_BLOOD | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 | DROP_90 | RES_TELE
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
+F:IM_COLD | IM_POIS |
+F:NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:HEAL | HASTE | BLIND | SCARE | S_UNDEAD | ANIM_DEAD
+S:BA_POIS | BA_NETH | BA_COLD | DRAIN_MANA |
+S:MIND_BLAST | CAUSE_3 | DARKNESS | FORGET
+D:Once a powerful ruler, now an even more powerful undead menace.
+
+N:203:gargoyle
+G:u:s
+I:110:18d9:10:25:15
+W:52:2:0:11258
+O:100:0:0
+B:CLAW:HURT:2d6
+B:CLAW:HURT:2d6
+B:BITE:HURT:1d6
+F:DROP_60 | ONLY_GOLD | EVIL | DEMON | FRIENDS | HURT_LITE |
+F:WILD_DUNGEON_01 | WILD_MOUNT1 | WILD_WASTE1 | WILD_WASTE2
+F:IM_POIS | IM_COLD | HURT_ROCK | NONLIVING
+F:COLOR | DESC_1 | JOB
+S:1_IN_12
+S:BR_ELEC | BR_FIRE
+D:A weird demon creature with a stone-like skin.
+
+N:204:dread
+G:G:o
+I:120:25d14:20:15:10
+W:54:2:0:23554
+O:0:50:50
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+B:HIT:LOSE_STR:3d4
+F:FORCE_SLEEP | RAND_25 | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 |
+F:TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | CAN_FLY |
+F:NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_15 |
+S:BLIND | HOLD | CONF | DRAIN_MANA | BO_NETH
+D:It is a form that screams its presence against the eye.  Death incarnate,
+D:its hideous black body seems to struggle against reality as the universe
+D:itself struggles to banish it.
+
+N:205:olog
+G:T:g
+I:110:25d10:20:35:50
+W:51:1:0:16870
+O:10:90:0
+B:HIT:HURT:1d12
+B:HIT:HURT:1d12
+B:BITE:HURT:2d3
+B:BITE:HURT:2d3
+F:WILD_DUNGEON_01
+F:FORCE_MAXHP | OPEN_DOOR | FRIENDS | DROP_60 |
+F:SMART | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:EVIL | TROLL | IM_POIS
+F:COLOR | DESC_1
+D:It is a massive intelligent troll with needle sharp fangs.
+
+N:206:cytoplasm
+G:j:G
+I:120:24d10:12:12:1
+W:49:5:0:11791
+O:50:0:50
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+F:FORCE_MAXHP | TAKE_ITEM | COLD_BLOOD | WILD_DUNGEON_01
+F:DROP_1D2 | DROP_2D2 |
+F:STUPID | EMPTY_MIND | OPEN_DOOR | BASH_DOOR |
+F:IM_ACID | IM_POIS |
+F:NO_FEAR | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+D:A disgusting animated blob of destruction.  Flee its gruesome hunger!
+
+N:207:mumak
+G:q:s
+I:110:54d10:20:30:100
+W:49:3:0:14187
+O:0:0:0
+B:BUTT:HURT:4d6
+B:BUTT:HURT:4d6
+B:CRUSH:HURT:4d4
+F:BASH_DOOR | DROP_CORPSE | WILD_DUNGEON_01
+F:ANIMAL
+F:COLOR | DESC_1
+D:A massive elephantine form with eyes twisted by madness.
+
+N:208:revenant
+G:W:u
+I:125:83d2:30:35:5
+W:53:1:0:23219
+O:0:0:100
+B:HIT:HURT:2d10
+B:HIT:HURT:2d10
+F:FORCE_SLEEP | FORCE_MAXHP | REGENERATE | WILD_DUNGEON_01
+F:DROP_90 |
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
+F:EVIL | UNDEAD | HURT_LITE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_4|
+S:BO_FIRE
+D:Back from the grave, to wreak vengeance upon the living. A gaunt, tall,
+D:skeletal figure wearing a ruined plate mail.
+
+N:209:colossus
+G:g:y
+I:105:30d70:15:75:10
+W:55:4:0:30102
+O:0:0:0
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+F:FORCE_MAXHP | WILD_DUNGEON_01
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR |
+F:IM_FIRE | IM_COLD
+F:IM_POIS | NONLIVING | REFLECTING |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_8
+S:ARROW_4
+D:An enormous construct resembling a titan made from stone.  It strides
+D:purposefully towards you, swinging its slow fists with earth-shattering
+D:power.
+
+N:210:bodak
+G:u:D
+I:110:21d10:10:30:90
+W:53:2:0:21806
+O:0:0:0
+B:HIT:FIRE:4d6
+B:HIT:FIRE:4d6
+B:GAZE:EXP_20
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
+F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BO_FIRE | BA_FIRE |
+S:S_DEMON
+D:It is a humanoid form composed of flames and hatred.
+
+N:211:mezzodaemon
+G:u:o
+I:110:30d13:10:34:90
+W:54:2:0:34286
+O:0:0:0
+B:CLAW:HURT:5d6
+B:CLAW:HURT:5d6
+F:FORCE_SLEEP | PASS_WALL | INVISIBLE | WILD_DUNGEON_01
+F:IM_POIS | IM_ACID | IM_FIRE |
+F:NO_SLEEP | NO_CONF | NO_STUN | NONLIVING |
+F:EVIL | DEMON
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BLINK | DARKNESS | S_DEMON
+D:An ugly demon with insect-like extremities and large bulbous eyes.
+
+N:212:elder thing
+G:u:G
+I:110:26d13:10:35:50
+W:48:3:0:21242
+O:0:0:0
+B:CRUSH:HURT:4d6
+B:CRUSH:HURT:4d6
+B:CRUSH:HURT:4d6
+B:TOUCH:LOSE_WIS
+F:FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | NONLIVING | WILD_DUNGEON_01
+F:DEMON | IM_POIS | IM_ACID | NO_CONF | NO_SLEEP | RES_TELE |
+F:CAN_SWIM |
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:SCARE | TELE_AWAY | BA_NUKE | CAUSE_4 | BA_POIS |
+S:CONF | S_DEMON | S_UNDEAD
+D:"...some ridged barrel-shaped objects with thin
+D:horizontal arms radiating spoke-like from a central ring and with
+D:vertical knobs or bulbs projecting from the head and base of the
+D:barrel. Each of these knobs was the hub of a system of five long,
+D:flat, triangularly tapering arms arranged around it like the arms
+D:of a starfish."
+
+N:213:Ipsissimus
+G:p:D
+I:110:17d10:20:25:10
+W:57:2:0:14802
+O:10:0:90
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+F:MALE |
+F:FORCE_SLEEP | FORCE_MAXHP | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_90 | DROP_SKELETON
+F:SMART | OPEN_DOOR | BASH_DOOR |
+F:EVIL
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:HASTE | TPORT | TELE_TO | BLIND | HOLD | SCARE | CAUSE_3 |
+S:BO_NETH | MIND_BLAST | FORGET |
+S:S_UNDEAD | S_DEMON | ANIM_DEAD
+D:A gaunt figure, clothed in black robes.
+
+N:214:spawn
+G:e:u
+I:110:20d26:20:25:20
+W:51:2:0:10265
+O:0:0:0
+B:GAZE:HURT:10d10
+B:GAZE:UN_BONUS:5d2
+B:GAZE:EXP_VAMP:5d2
+B:GAZE:PARALYZE:5d2
+F:WILD_DUNGEON_01
+F:FORCE_MAXHP | BASH_DOOR | EVIL | CAN_FLY
+F:COLOR | DESC_1
+D:It has two eyestalks and a large central eye. Its gaze can kill.
+
+N:215:thing
+G:L:B
+I:120:120d5:20:30:60
+W:52:3:0:49359
+O:50:50:0
+B:TOUCH:EXP_40
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d10
+B:TOUCH:LOSE_DEX:2d10
+F:WILD_DUNGEON_01
+F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 |
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE |
+F:NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:BLINK | TELE_TO | TELE_AWAY | TELE_LEVEL |
+S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
+D:It is a skeletal form dressed in robes.
+D:It looks evil and devious...
+
+N:216:polyp
+G:l:R
+I:115:35d7:90:35:10
+W:55:20:0:20673
+O:0:0:0
+B:CRUSH:PARALYZE:7d4
+B:CRUSH:PARALYZE:7d4
+B:CRUSH:PARALYZE:7d4
+F:WILD_DUNGEON_01
+F:PASS_WALL | INVISIBLE | FORCE_MAXHP | RES_DISE |
+F:IM_POIS | IM_COLD | IM_ACID |
+F:NO_CONF | NO_SLEEP | EVIL | CAN_FLY |
+F:COLOR | DESC_1
+S:1_IN_7
+S:BR_WALL | ELDRITCH_HORROR |
+D:"They were only partly material and had the power of aerial motion,
+D:despite the absence of wings... Suggestions of monstrous plasticity
+D:and of temporary lapses of visibility..."
+
+N:217:shan
+G:I:B
+I:120:14d10:20:60:20
+W:57:4:0:25550
+O:0:0:0
+F:IM_POIS | IM_COLD | COLD_BLOOD | ANIMAL | EVIL | WILD_DUNGEON_01
+F:NO_SLEEP | NO_CONF | CAN_FLY | NEVER_BLOW
+F:COLOR | DESC_1
+S:1_IN_2
+S:CONF | HOLD | DRAIN_MANA | FORGET | MIND_BLAST | SHRIEK
+D:"Those huge lidless eyes which stared with hate at me, the jointed
+D:tendrils which seemed to twist from the head in cosmic rhythms,
+D:the ten legs, covered with black shining tentacles and folded into
+D:the pallid underbelly, and the semi-circular ridged wings covered
+D:with triangular scales -- all this cannot convey the soul-ripping
+D:horror of the shape which darted at me. I saw the three mouths
+D:of the thing move moistly, and then it was upon me."
+
+N:218:pudding
+G:j:D
+I:110:24d10:12:12:1
+W:49:5:0:2644
+O:100:0:0
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+F:FORCE_MAXHP |
+F:FRIENDS | WILD_DUNGEON_01
+F:DROP_1D2 |
+F:STUPID | EMPTY_MIND | COLD_BLOOD |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+F:IM_ACID | IM_FIRE | IM_ELEC | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_SWIM
+F:COLOR | DESC_1
+D:A lump of rotting flesh that slurrrrrrrps across the dungeon floor.
+
+N:219:beholder
+G:e:g
+I:120:16d70:30:40:10
+W:56:4:0:74169
+O:0:0:0
+B:GAZE:EXP_20:2d4
+B:GAZE:PARALYZE:2d4
+B:GAZE:LOSE_INT:2d6
+B:GAZE:UN_POWER:2d6
+F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE | CAN_FLY |
+F:BASH_DOOR | DROP_CORPSE | WILD_DUNGEON_01
+F:EVIL | IM_POIS | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_2 |
+S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET |
+S:DARKNESS | BO_ACID | BO_FIRE | BO_COLD
+D:A disembodied eye, surrounded by twelve smaller eyes on stalks.
+
+N:220:seraph
+G:A:w
+I:120:50d7:30:34:255
+W:53:6:0:28166
+O:0:50:50
+B:HIT:HURT:4d6
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+B:HIT:HURT:4d6
+F:WILD_DUNGEON_01
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | NO_FEAR | GOOD | CAN_FLY |
+F:ONLY_ITEM | DROP_2D2 | REFLECTING | RES_TELE |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
+F:IM_ACID | IM_FIRE | IM_POIS | LITE_2
+F:NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_11 |
+S:HEAL | HASTE | TELE_AWAY | CONF | BO_MANA | BO_PLAS |
+S:S_MONSTERS | S_ANGEL
+D:It is an angel, fast and strong.  You are stunned by its extreme holiness
+D:and try to resist all desires to obey it.
+
+N:221:nightgaunt
+G:U:D
+I:110:24d7:20:25:80
+W:59:20:0:44690
+O:50:0:50
+B:STING:LOSE_STR:1d5
+B:TOUCH:PARALYZE:3d4
+F:FORCE_SLEEP | FORCE_MAXHP | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_60 |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_FLY |
+F:EVIL | DEMON |
+F:IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_7 |
+S:BLIND | CONF | BO_FIRE | ELDRITCH_HORROR |
+D:"Shocking and uncouth things with smooth, oily, whale-like
+D:surfaces, unpleasant horns that curved inward toward each other,
+D:bat wings whose beating made no sound, ugly prehensile paws, and
+D:barbed tails that lashed needlessly and disquietingly. And worst
+D:of all, they never spoke or laughed, and never smiled because they
+D:had no faces at all to smile with, but only to a suggestive
+D:blankness where a face ought to be."
+
+N:222:baron of hell
+G:U:U
+I:110:113d12:10:65:40
+W:56:3:0:56818
+O:0:0:0
+B:CLAW:HURT:11d2
+B:CLAW:HURT:11d2
+B:CLAW:HURT:22d1
+F:WILD_DUNGEON_01
+F:IM_POIS | OPEN_DOOR | BASH_DOOR | MALE | RES_PLAS | NONLIVING |
+F:IM_FIRE | NO_CONF | NO_SLEEP | EVIL | DEMON | FORCE_MAXHP | RES_TELE
+F:COLOR | DESC_1
+S:1_IN_2 |
+S:BO_PLAS
+D:A minor demon lord with a goat's head, tough to kill.
+
+N:223:chthonian
+G:w:D
+I:120:60d10:20:45:20
+W:53:2:0:101625
+O:100:0:0
+B:CRUSH:SHATTER:8d6
+B:TOUCH:LOSE_CON:1d2
+B:TOUCH:LOSE_CON:1d2
+F:WILD_DUNGEON_01
+F:IM_FIRE | RES_PLAS | IM_COLD | IM_POIS | RES_TELE
+F:KILL_WALL | ONLY_GOLD | DROP_1D2 | DROP_2D2 | CAN_SWIM | DROP_CORPSE
+F:EVIL | FORCE_MAXHP
+F:COLOR | DESC_1
+S:1_IN_5 |
+S:SCARE | CONF | HOLD | S_DEMON |
+S:MIND_BLAST | HEAL | HASTE | FORGET | BRAIN_SMASH | ELDRITCH_HORROR |
+D:"Flowing tentacles and a pulpy gray-black elongated sack of a body...
+D:no distinguishing features at all other than the reaching, groping
+D:tentacles. Or was there -- yes! -- a lump in the upper body of
+D:the thing... a container of sorts for the brain, ganglia, or
+D:whichever diseased organ governed this horror's loathsome life!"
+
+N:224:eldrak
+G:T:r
+I:110:50d10:20:45:50
+W:59:3:0:29818
+O:0:0:0
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+F:FORCE_MAXHP | WILD_DUNGEON_01
+F:DROP_60 |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WILD_SHORE | WILD_FOREST2 |
+F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP | DROP_CORPSE
+F:COLOR | DESC_1 | JOB
+D:A massive troll, larger and stronger than many men together.
+
+N:225:ettin
+G:T:y
+I:110:9d100:20:55:30
+W:59:3:0:27159
+O:0:100:0
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+F:FORCE_MAXHP |
+F:ONLY_ITEM | DROP_60 | WILD_DUNGEON_01 | WILD_MOUNT2 | WILD_FOREST2
+F:WILD_SWAMP1 | WILD_SWAMP2
+F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE
+F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1 | JOB
+D:A massive troll of huge strength.  Ettins are stupid but violent.
+
+N:226:fume
+G:#:v
+I:120:35d7:100:20:0
+W:58:2:0:41870
+O:0:0:0
+B:ENGULF:CONFUSE:8d4
+B:ENGULF:CONFUSE:8d4
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:RAND_50 | RAND_25 | RES_NEXU | AURA_ELEC | IM_FIRE | IM_ELEC |
+F:EMPTY_MIND | BASH_DOOR | POWERFUL |
+F:CAN_FLY | ATTR_MULTI | ATTR_ANY |
+F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:BR_CHAO | BR_NEXU | BR_NUKE
+D:A swirling spiral of mist, constantly changing its appearance.
+
+N:227:titan
+G:P:y
+I:120:6d100:30:35:15
+W:57:3:0:80741
+O:0:100:0
+B:HIT:CONFUSE:6d6
+B:HIT:CONFUSE:6d6
+B:HIT:CONFUSE:6d6
+B:HIT:CONFUSE:6d6
+F:FORCE_SLEEP | FORCE_MAXHP | WILD_DUNGEON_01
+F:DROP_2D2 | DROP_SKELETON | DROP_CORPSE
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+F:EVIL | GIANT | MALE
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:HEAL | TELE_TO | SCARE |
+S:S_MONSTERS
+D:It is a humanoid figure thirty feet tall that gives off an aura of power
+D:and hate.
+
+N:228:minotaur
+G:H:U
+I:130:60d10:13:25:10
+W:59:2:0:30043
+O:0:0:0
+B:BUTT:HURT:4d6
+B:BUTT:HURT:4d6
+B:BUTT:HURT:2d6
+B:BUTT:HURT:2d6
+F:BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:EVIL | WILD_DUNGEON_01 | WILD_MOUNT1 | WILD_MOUNT2
+F:COLOR | DESC_1 | JOB
+D:It is a cross between a human and a bull.
+
+N:229:byakhee
+G:U:D
+I:110:45d7:20:20:80
+W:61:30:0:51395
+O:0:50:50
+B:CLAW:LOSE_STR:3d4
+B:BITE:EXP_20:3d4
+F:FORCE_SLEEP | FORCE_MAXHP | FRIENDS | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_FLY |
+F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_9 |
+S:BO_FIRE |
+S:S_DEMON | CONF | ELDRITCH_HORROR |
+D:"There flapped rhythmically a horde of tame, trained, hybrid
+D:winged things... not altogether crows, nor moles, nor buzzards,
+D:nor ants, nor decomposed human beings, but something I cannot
+D:and must not recall."
+
+N:230:archon
+G:A:y
+I:130:70d35:30:70:255
+W:61:6:0:564221
+O:0:100:0
+B:GAZE:TERRIFY:4d4
+B:GAZE:TERRIFY:4d4
+B:HIT:HURT:8d6
+B:HIT:HURT:8d6
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | NO_FEAR | GOOD | REFLECTING |
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
+F:IM_ACID | IM_COLD | IM_ELEC | IM_POIS | RES_TELE | CAN_FLY | LITE_2
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA |
+S:S_ANGEL | INVULNER
+D:Never a more heavenly being have you seen.  The very holiness of its
+D:presence makes you deeply respect it.  Few creatures can match the powers
+D:of an Archon; fewer still live to tell the tale after attacking one.
+
+N:231:dread
+G:G:o
+I:120:15d20:20:22:10
+W:63:1:0:33040
+O:0:50:50
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+B:HIT:LOSE_STR:3d4
+F:FORCE_SLEEP |
+F:RAND_25 | FRIENDS | CAN_FLY | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_60 |
+F:TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS |
+F:NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_15 |
+S:BLIND | HOLD | CONF | DRAIN_MANA | BO_NETH
+D:It is a form that screams its presence against the eye.  Death incarnate,
+D:its hideous black body seems to struggle against reality as the universe
+D:itself struggles to banish it.
+
+N:232:lloigor
+G:v:B
+I:120:70d15:20:50:20
+W:63:20:0:166480
+O:90:0:10
+B:ENGULF:LOSE_CON:4d10
+B:ENGULF:LOSE_CON:4d10
+B:ENGULF:LOSE_CON:4d10
+F:FORCE_SLEEP | PASS_WALL | FORCE_MAXHP | WILD_DUNGEON_01
+F:INVISIBLE | DROP_3D2 | CAN_FLY | EVIL |
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL | NONLIVING |
+F:SMART | IM_FIRE | IM_COLD | IM_POIS
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BR_WALL | TELE_AWAY | BR_GRAV |
+S:S_KIN | MIND_BLAST | BLIND | BLINK | ELDRITCH_HORROR |
+D:"Invisible ones from the stars... They sometimes took forms...
+D:but existed as vortices of power in their natural state."
+
+N:233:shoggoth
+G:j:D
+I:140:50d14:100:40:20
+W:64:20:0:105903
+O:0:0:0
+B:CRUSH:ACID:5d6
+B:CRUSH:ACID:5d6
+B:CRUSH:ACID:5d6
+B:CRUSH:HURT:9d9
+F:REGENERATE | KILL_ITEM | CAN_SPEAK | WILD_DUNGEON_01
+F:BASH_DOOR | EVIL | DEMON | NO_CONF | NO_FEAR | NO_SLEEP |
+F:KILL_BODY | CAN_SWIM |
+F:FORCE_MAXHP | FORCE_SLEEP | HURT_LITE | POWERFUL |
+F:IM_ACID | IM_FIRE | RES_PLAS | IM_POIS | IM_ELEC | RES_TELE
+F:COLOR | DESC_1
+S:1_IN_10
+S:ELDRITCH_HORROR |
+D:"The nightmare, plastic column of fetid, black iridescence oozed
+D:tightly onward... A shapeless congerie of protoplasmic bubbles,
+D:faintly self-luminous and with myriads of temporary eyes forming
+D:and unforming as pustules of greenish light all over the
+D:tunnel-filling front that bore down upon us, crushing the frantic
+D:penguins and slithering over glistening floor that it and its
+D:kind had swept so evilly free of all litter. Still came that eldritch
+D:mocking cry -- 'Tekeli-li! Tekeli-li!'"
+
+N:234:dreadmaster
+G:G:o
+I:120:12d70:20:50:10
+W:70:2:0:277112
+O:10:50:30
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+B:HIT:LOSE_STR:3d4
+B:HIT:LOSE_STR:3d4
+F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_3D2 | CAN_FLY |
+F:SMART | TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_9 |
+S:TELE_LEVEL | BLIND | HOLD | CONF | CAUSE_4 | DRAIN_MANA | BO_NETH |
+S:S_UNDEAD
+D:It is an unlife of power almost unequaled.  An affront to existence, its
+D:very touch abuses and disrupts the flow of life, and its unearthly limbs,
+D:of purest black, crush rock and flesh with ease.
+
+N:235:reaver
+G:L:D
+I:120:25d70:20:60:50
+W:66:3:0:288444
+O:0:0:100
+B:HIT:UN_BONUS:4d8
+B:HIT:UN_BONUS:4d8
+B:HIT:LOSE_STR:4d6
+B:HIT:LOSE_STR:4d6
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | CAN_SWIM |
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_TELE |
+F:NO_CONF | NO_SLEEP | KILL_WALL | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:TELE_TO | BLIND | HOLD | CONF | CAUSE_3 | DRAIN_MANA |
+S:MIND_BLAST |BA_NETH | ANIM_DEAD
+D:A humanoid form, black as night, advancing steadily and unstoppably.
+
+N:236:fastitocalon
+G:D:g
+I:120:45d70:25:75:30
+W:64:3:0:256578
+O:0:0:0
+B:BITE:HURT:5d8
+B:BITE:HURT:5d8
+B:CRUSH:POISON:3d10
+B:CRUSH:POISON:3d10
+F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE | AQUATIC |
+F:WILD_DUNGEON_01 | WILD_OCEAN |
+F:IM_FIRE | IM_ACID
+F:DRAGON | NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:BR_FIRE | BR_ACID
+D:A huge aquatic dragon, its shell is as large as a small island. Some
+D:have called this creature a dragon-turtle.
+
+N:237:ent
+G:%:G
+I:120:40d70:30:60:15
+W:71:3:0:539952
+O:30:50:20
+B:CRUSH:HURT:10d11
+B:CRUSH:HURT:10d11
+B:CRUSH:HURT:10d11
+B:CRUSH:HURT:10d11
+F:FORCE_SLEEP | FORCE_MAXHP | FRIENDLY | WILD_DUNGEON_01 | WILD_FOREST2
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | MOVE_BODY |
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+F:GOOD | GIANT
+F:COLOR | DESC_1
+D:A treeherd; a sentient, moving tree. Its wrath is fearsome!
+
+N:238:hru
+G:P:s
+I:120:40d70:30:75:15
+W:76:3:0:624942
+O:40:50:0
+B:CRUSH:SHATTER:10d11
+B:CRUSH:SHATTER:10d11
+B:CRUSH:SHATTER:10d11
+F:FORCE_SLEEP | FORCE_MAXHP | HURT_ROCK
+F:WILD_DUNGEON_01 | WILD_MOUNT1 | WILD_MOUNT2
+F:DROP_3D2 | MOVE_BODY | KILL_WALL |
+F:SMART | KILL_ITEM | BASH_DOOR |
+F:EVIL | GIANT | MALE
+F:COLOR | DESC_1
+D:A rock giant, a being made of living stone.
+
+N:239:behemoth
+G:H:g
+I:120:35d100:25:90:30
+W:68:3:0:275580
+O:0:0:0
+B:BITE:FIRE:5d8
+B:BITE:FIRE:5d8
+B:CRUSH:HURT:3d15
+B:CRUSH:HURT:3d15
+F:FORCE_SLEEP | FORCE_MAXHP | CAN_SWIM | ANIMAL | WILD_DUNGEON_01 | WILD_FOREST1
+F:IM_FIRE | IM_ACID | IM_COLD | DROP_CORPSE
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_9
+S:BR_FIRE
+D:A great water-beast, with an almost unpenetrable skin.
+
+N:240:balrog
+G:U:R
+I:120:30d70:20:40:80
+W:63:3:0:581600
+O:0:50:50
+B:HIT:FIRE:2d6
+B:HIT:HURT:5d6
+B:HIT:FIRE:6d2
+B:HIT:HURT:6d5
+F:WILD_DUNGEON_01
+F:FORCE_SLEEP | FORCE_MAXHP | AURA_FIRE | CAN_FLY |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | NONLIVING | LITE_1
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | SMART |
+F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP | KILL_WALL |
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BLIND | CONF | BRAIN_SMASH |
+S:BR_FIRE | BO_PLAS | BA_NETH | S_HI_UNDEAD | S_UNDEAD |
+S:S_DEMON
+D:It is a massive humanoid demon wreathed in flames.
+
+N:241:nightwing
+G:W:D
+I:120:45d30:20:60:10
+W:68:4:0:358560
+O:0:0:100
+B:TOUCH:POISON:3d5
+B:TOUCH:POISON:3d5
+B:HIT:UN_BONUS:6d8
+B:HIT:UN_BONUS:6d8
+F:FORCE_SLEEP | CAN_FLY | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | RES_TELE
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BLIND | SCARE | CAUSE_4 | BRAIN_SMASH |
+S:BO_MANA | BO_NETH | BA_NETH |
+S:S_UNDEAD
+D:Everywhere colours seem paler and the air chiller.  At the centre of the
+D:cold stands a mighty figure.  Its wings envelop you in the chill of death
+D:as the nightwing reaches out to draw you into oblivion.  Your muscles sag
+D:and your mind loses all will to fight as you stand in awe of this mighty
+D:being.
+
+N:242:maulotaur
+G:H:u
+I:130:188d13:13:25:10
+W:66:2:0:292615
+O:0:50:50
+B:HIT:SHATTER:8d8
+B:HIT:SHATTER:8d8
+B:BUTT:HURT:4d6
+B:BUTT:HURT:4d6
+F:ONLY_ITEM | DROP_60 | DROP_GOOD | RES_TELE | WILD_DUNGEON_01
+F:BASH_DOOR | STUPID | DROP_CORPSE
+F:EVIL | IM_FIRE | FORCE_SLEEP | FORCE_MAXHP
+F:COLOR | DESC_1
+S:1_IN_5 |
+S:BO_PLAS | BA_FIRE
+D:It is a belligrent minotaur with some destructive magical arsenal, armed
+D:with a hammer.
+
+N:243:wyrm
+G:D:b
+I:120:17d100:30:65:80
+W:79:2:0:939588
+O:50:50:0
+B:CLAW:HURT:4d12
+B:CLAW:HURT:4d12
+B:CLAW:HURT:4d12
+B:BITE:ELEC:5d14
+F:WILD_DUNGEON_01 | WILD_MOUNT2
+F:FORCE_SLEEP | FORCE_MAXHP | AURA_ELEC | CAN_FLY |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
+F:BASH_DOOR | POWERFUL | MOVE_BODY | DROP_CORPSE
+F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP | LITE_2
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:BLIND | CONF | SCARE |
+S:BR_ELEC
+D:A vast dragon of power.  Storms and lightning crash around its titanic
+D:form.  Deep blue scales reflect the flashes and highlight the creature's
+D:great muscles.  It regards you with contempt.
+
+N:244:kraken
+G:l:G
+I:120:112d22:30:75:80
+W:79:2:0:1188336
+O:25:25:50
+B:CRUSH:HURT:16d12
+B:CRUSH:HURT:16d12
+B:CRUSH:HURT:16d12
+B:CRUSH:HURT:16d12
+F:FORCE_SLEEP | FORCE_MAXHP | AQUATIC | WILD_DUNGEON_01 | WILD_OCEAN |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
+F:BASH_DOOR | POWERFUL | MOVE_BODY | SMART | RES_WATE |
+F:EVIL | IM_ELEC | NO_CONF | NO_SLEEP | IM_POIS | IM_FIRE
+F:COLOR | DESC_1
+S:1_IN_6 |
+S:BLIND | CONF | SCARE | CAUSE_4 | CAUSE_3 |
+S:BA_WATE | DARKNESS | BR_DARK | TELE_TO
+D:An enormously fearsome and powerful inhabitant of the depths. It
+D:resembles a gargantuan octopus and its evil is almost tangible.
+
+N:245:nightcrawler
+G:W:D
+I:120:60d60:20:80:10
+W:75:4:0:503765
+O:40:0:50
+B:STING:LOSE_CON:8d8
+B:STING:LOSE_CON:8d8
+B:BITE:ACID:10d10
+B:BITE:ACID:10d10
+F:FORCE_SLEEP | SMART | KILL_WALL | CAN_SWIM | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
+F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_POIS | RES_TELE
+F:HURT_LITE | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BLIND | SCARE | BRAIN_SMASH |
+S:BO_MANA | BO_NETH | BA_NETH |
+S:BR_NETH |
+S:S_UNDEAD
+D:This intensely evil creature bears the form of a gargantuan black worm.
+D:Its gaping maw is a void of blackness, acid drips from its steely hide.
+D:It is like nothing you have ever seen before, and a terrible chill runs
+D:down your spine as you face it.
+
+N:246:druj
+G:s:D
+I:130:60d7:20:55:10
+W:79:4:0:386118
+O:0:0:0
+F:WILD_DUNGEON_01
+F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | NEVER_BLOW | RES_TELE
+F:SMART | COLD_BLOOD | CAN_SWIM |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_1 |
+S:TELE_AWAY | BLIND | CONF | SCARE | CAUSE_3 | FORGET | DARKNESS
+D:A skeletal hand floating in the air, motionless except for its flexing
+D:fingers.
+
+N:247:bloodthirster
+G:U:r
+I:144:45d70:30:90:20
+W:77:30:0:1051325
+O:0:100:0
+B:HIT:HURT:50d1
+B:HIT:HURT:50d1
+B:HIT:HURT:25d2
+F:WILD_DUNGEON_01
+F:DEMON | EVIL | DROP_GOOD | REGENERATE | CAN_FLY | NONLIVING |
+F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 |
+F:OPEN_DOOR | BASH_DOOR | RES_NETH | RES_NEXU | RES_TELE | MOVE_BODY |
+F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
+F:COLOR | DESC_1
+S:1_IN_10
+S:ELDRITCH_HORROR |
+D:Khorne's mightiest servant, a winged hound-demon walking on
+D:two paws and wielding a mighty axe and a whip in the other
+D:two. Intelligent, bloodthirsty eyes behold you from inside
+D:the bloody demon armour.
+
+N:248:nightwalker
+G:W:D
+I:130:35d65:20:88:10
+W:83:4:0:911958
+O:30:0:70
+B:HIT:UN_BONUS:10d10
+B:HIT:UN_BONUS:10d10
+B:HIT:UN_BONUS:7d7
+B:HIT:UN_BONUS:7d7
+F:FORCE_SLEEP |
+F:ONLY_ITEM | DROP_3D2 | DROP_GOOD | CAN_SWIM | WILD_DUNGEON_01
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | RES_TELE
+F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
+F:HURT_LITE | NO_CONF | NO_SLEEP
+F:COLOR | DESC_1
+S:1_IN_4 |
+S:BLIND | SCARE | BRAIN_SMASH |
+S:BO_MANA | BO_NETH | BA_NETH |
+S:S_UNDEAD
+D:A huge giant garbed in black, more massive than a titan and stronger than
+D:a dragon.  With terrible blows, it breaks your armour from your back,
+D:leaving you defenseless against its evil wrath.  It can smell your fear,
+D:and you in turn smell the awful stench of death as this ghastly figure
+D:strides towards you menacingly.
+
+N:248:shadowlord
+G:G:b
+I:120:30d70:20:75:10
+W:88:2:0:1702202
+O:10:10:70
+B:HIT:EXP_40:6d6
+B:HIT:EXP_40:6d6
+B:HIT:LOSE_STR:4d6
+B:GAZE:TERRIFY:4d6
+F:FORCE_SLEEP | FORCE_MAXHP | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_4D2 |
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL |
+F:EVIL | UNDEAD | CAN_FLY |
+F:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | RES_TELE
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:HOLD | DRAIN_MANA | BLIND | S_UNDEAD | CONF |
+S:SCARE | TELE_TO | TPORT | BRAIN_SMASH | ANIM_DEAD
+S:BA_NETH | DARKNESS | SHRIEK
+D:An aura of hatred, cowardice and falsehood surrounds you as this
+D:cloaked figure floats towards you.
+
+N:249:leviathan
+G:D:b
+I:120:50d70:40:90:30
+W:81:3:0:1196640
+O:0:0:0
+B:BITE:FIRE:5d12
+B:BITE:FIRE:5d12
+B:CRUSH:HURT:6d15
+B:CRUSH:HURT:6d15
+F:FORCE_SLEEP | FORCE_MAXHP | AQUATIC | WILD_DUNGEON_01 | WILD_OCEAN |
+F:IM_FIRE | IM_COLD | IM_POIS | EVIL |
+F:DRAGON | NO_CONF | NO_SLEEP | NO_FEAR | DROP_CORPSE
+F:COLOR | DESC_1
+S:1_IN_9
+S:BR_FIRE | BR_ACID | BR_DARK |
+S:S_DRAGON | S_HYDRA | HEAL | CONF | DARKNESS
+D:An enormous, evil sea-dragon.
+
+N:250:shambler
+G:E:s
+I:130:50d70:40:75:50
+W:92:4:0:3077008
+O:20:20:60
+B:CLAW:HURT:3d12
+B:CLAW:HURT:3d12
+B:CRUSH:HURT:8d12
+B:CRUSH:HURT:8d12
+F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE | WILD_DUNGEON_01
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | CAN_SWIM | DROP_CORPSE |
+F:BASH_DOOR | OPEN_DOOR | POWERFUL | MOVE_BODY |
+F:NO_CONF | NO_SLEEP | EVIL
+F:COLOR | DESC_1
+S:1_IN_3 |
+S:BR_ELEC
+D:This elemental creature is power incarnate; it looks like a huge polar bear
+D:with a huge gaping maw instead of a head.
+
+N:251:unmaker
+G:E:v
+I:120:6d50:60:25:60
+W:89:4:0:849660
+O:20:60:20
+B:TOUCH:LOSE_ALL:10d10
+B:TOUCH:UN_BONUS:10d10
+B:TOUCH:UN_POWER:10d10
+F:KILL_WALL | KILL_ITEM | KILL_BODY | NO_FEAR | WILD_DUNGEON_01
+F:FORCE_SLEEP | FORCE_MAXHP | MULTIPLY | CAN_FLY |
+F:ATTR_MULTI | SHAPECHANGER | ATTR_ANY |
+F:DROP_60 | DROP_GOOD | POWERFUL | AURA_ELEC | AURA_FIRE | AURA_COLD |
+F:BASH_DOOR | IM_ELEC | IM_FIRE | RES_NEXU
+F:IM_POIS | IM_ACID | RES_PLAS | RES_DISE | COLD_BLOOD | NONLIVING | RAND_50
+F:COLOR | DESC_1
+S:1_IN_5 |
+S:BR_CHAO
+D:Summoned from the Courts of Chaos, it is a mass of sentient Logrus,
+D:spreading uncontrollably and destroying everything in its path.
+
+N:252:star-spawn of cthulhu
+G:U:G
+I:130:75d70:90:45:90
+W:95:20:0:10146695
+O:0:0:100
+B:CLAW:POISON:1d30
+B:CLAW:ACID:1d30
+B:TOUCH:UN_POWER:1d10
+B:CRUSH:UN_BONUS:2d33
+F:WILD_DUNGEON_01
+F:RAND_25 | KILL_ITEM | OPEN_DOOR | BASH_DOOR | RES_NETH |
+F:DROP_3D2 | ONLY_ITEM | FORCE_SLEEP | FORCE_MAXHP |
+F:EVIL | DEMON | IM_POIS | IM_ACID | IM_ELEC | RES_TELE | NONLIVING |
+F:POWERFUL | IM_FIRE | CAN_SWIM | NO_CONF | DROP_GOOD
+F:COLOR | DESC_1
+S:1_IN_3
+S:SCARE | CONF | S_DEMON | S_UNDEAD | DRAIN_MANA | BR_ACID |
+S:BR_FIRE | TPORT | S_MONSTERS | BRAIN_SMASH | BR_NETH |
+S:HEAL | MIND_BLAST | BA_NUKE | ANIM_DEAD | ELDRITCH_HORROR
+D:The last remnants of sanity threaten to leave your brain as you
+D:behold this titanic bat-winged, octopus-headed unholy abomination.
+D:"They all lay in stone houses in their great city of R'lyeh,
+D:preserved by the spells of mighty Cthulhu for a glorious
+D:resurrection when the stars and the earth might once more
+D:be ready..."
+
+N:253:Oberon, King of Amber
+G:p:v
+I:145:70d111:100:82:0
+W:99:1:0:12403120
+O:0:100:0
+B:HIT:UN_BONUS:12d12
+B:HIT:UN_POWER:12d12
+B:HIT:CONFUSE:10d2
+B:HIT:BLIND:10d2
+F:UNIQUE | QUESTOR | MALE | CAN_SPEAK | DROP_CORPSE | WILD_DUNGEON_01
+F:ATTR_MULTI | AMBERITE | RES_TELE
+F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT |
+F:DROP_CHOSEN | REFLECTING | AURA_FIRE | AURA_ELEC
+F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | CAN_FLY
+F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | POWERFUL |
+F:NO_CONF | NO_SLEEP | NO_FEAR | LITE_2
+S:1_IN_2 |
+S:TPORT | SCARE | BLIND | S_DEMON | S_ANGEL | S_MONSTERS |
+S:TELE_TO | CONF | BO_MANA | BA_FIRE | BRAIN_SMASH | BA_NETH |
+S:BO_ICEE | CAUSE_4 | BA_WATE | BO_PLAS | TELE_LEVEL | TELE_AWAY |
+S:FORGET | DARKNESS | BA_MANA | S_HI_DRAGON | S_HI_UNDEAD | BA_CHAO
+S:S_AMBERITES | S_CYBER | HAND_DOOM
+D:Oberon, the father or grandfather of most Amberites, is as powerful
+D:as ever. He is afraid that you will upset the balance and will not
+D:let you harm the Serpent of Chaos. "Oberon, Lord of Amber, stood before
+D:me in his green and his gold. High, wide and thick, his beard black and
+D:shot with silver, his hair the same. Green rings in gold settings and
+D:a blade of golden color."
+
+N:254:The Serpent of Chaos
+G:J:D
+I:155:140d180:111:87:0
+W:100:1:0:13311000
+O:0:50:50
+B:CRUSH:SHATTER:22d10
+B:CRUSH:SHATTER:22d10
+B:BITE:LOSE_ALL:10d12
+B:TOUCH:UN_POWER
+F:UNIQUE | QUESTOR | CAN_SPEAK | ATTR_MULTI | ATTR_ANY | WILD_DUNGEON_01
+F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH |
+F:REFLECTING | AURA_FIRE | AURA_ELEC | AURA_COLD |
+F:ONLY_ITEM | DROP_4D2 |
+F:DROP_GOOD | DROP_GREAT | DROP_CHOSEN | RES_NETH |
+F:SMART | KILL_WALL | KILL_BODY | POWERFUL |
+F:REGENERATE | NONLIVING | CAN_FLY | LITE_1
+F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RES_TELE
+S:1_IN_3 |
+S:S_MONSTERS | BR_CHAO | BA_CHAO | ROCKET | BRAIN_SMASH | S_CYBER |
+S:BR_NETH | HASTE | BR_MANA | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
+S:S_AMBERITES | BR_NUKE | BR_POIS | BR_DISI | HAND_DOOM
+D:The Big Boss himself. Before the universe the Serpent was. The Unicorn
+D:of Order fought with Serpent and stole one of its eyes, known as the
+D:Jewel of Judgement. With the Jewel, Dworkin drew the Pattern and thus
+D:gave birth to the infinite worlds of shadow. Now the balance has been
+D:disrupted, the Pattern damaged, and all the shadow is being absorbed by
+D:the Serpent. Unless it is stopped, the word as we know it will come to
+D:an end, all order reverting to Primal Chaos.
+
+

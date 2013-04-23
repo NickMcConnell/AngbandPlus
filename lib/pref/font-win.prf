@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2001/05/23 11:30:34 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:15:44 $
 # File: font-win.prf
 
 #
@@ -26,7 +26,7 @@ F:2:1/31
 
 # Sand -> pebbles.
 F:8:11/31
-F:9:9/31
+F:9:8/31
 F:10:7/31
 F:11:8/31
 F:12:4/31
@@ -43,7 +43,7 @@ F:89:5/31
 F:91:1/31
 
 # snow
-F:135:9/31
+F:135:8/31
 
 
 # Magma (slate / solid block)
@@ -54,8 +54,8 @@ F:52:2/127
 
 # Quartz (light slate / solid block)
 
-F:51:9/127
-F:53:9/127
+F:51:8/127
+F:53:8/127
 
 
 # Secret door (white / solid block)
@@ -81,19 +81,19 @@ R:144:0x00:31
 R:247:0x01:31
 
 # Stunwall
-R:326:0x09:127
+R:326:0x08:127
 
 # Landmine
 R:333:0x01:31
 
 # Livingstone
-R:336:0x09:127
+R:336:0x08:127
 
 # Vampiric mist
 R:365:0x08:127
 
 # It
-R:393:0x09:31
+R:393:0x08:31
 
 # Xiclotlan
 R:396:0x08:127
@@ -102,7 +102,7 @@ R:396:0x08:127
 R:426:0x08:127
 
 # Lesser wall monster
-R:448:0x09:127
+R:448:0x08:127
 
 # Chaos tile
 R:458:0x0A:31
@@ -126,7 +126,7 @@ R:677:0x08:127
 R:678:0x0A:31
 
 # Greater wall monster
-R:718:0x09:127
+R:718:0x08:127
 
 # Ahtu, Avatar of Nyarlathotep
 R:761:0x08:127

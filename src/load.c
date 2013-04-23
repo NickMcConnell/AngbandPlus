@@ -320,7 +320,7 @@ static void rd_item(object_type *o_ptr)
 	object_kind *k_ptr;
 
 	char buf[128];
-	
+
 	/* Old flags from pre [Z] 2.5.3 */
 	byte name1, name2, xtra1, xtra2;
 
@@ -348,6 +348,7 @@ static void rd_item(object_type *o_ptr)
 
 	/* Special pval */
 	rd_s16b(&o_ptr->pval);
+	rd_s16b(&o_ptr->pval2);
 
 	/* New method - old method removed. */
 	rd_byte(&o_ptr->discount);
@@ -360,7 +361,7 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&name1);
 		rd_byte(&name2);
 	}
-	
+
 	rd_s16b(&o_ptr->timeout);
 
 	rd_s16b(&o_ptr->to_h);
@@ -376,10 +377,15 @@ static void rd_item(object_type *o_ptr)
 
 	rd_byte(&o_ptr->marked);
 
+   rd_u16b(&o_ptr->ego_num);
+
 	/* Old flags */
 	rd_u32b(&o_ptr->flags1);
 	rd_u32b(&o_ptr->flags2);
 	rd_u32b(&o_ptr->flags3);
+	rd_u32b(&o_ptr->flags4);
+	rd_u32b(&o_ptr->flags5);
+	rd_u32b(&o_ptr->flags6);
 
 	/* Lites changed in [Z] 2.6.0 */
 	if ((sf_version < 25) && (o_ptr->tval == TV_LITE))
@@ -394,7 +400,7 @@ static void rd_item(object_type *o_ptr)
 		else
 		{
 			/* Other lites are everburning. */
-			o_ptr->flags3 |= TR3_LITE;		
+			o_ptr->flags3 |= TR3_LITE;
 		}
 	}
 
@@ -407,7 +413,7 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&xtra1);
 		rd_byte(&xtra2);
 	}
-	
+
 	/* Feeling - from 2.3.1, "savefile version 1" */
 	if (sf_version >= 1)
 	{
@@ -473,24 +479,25 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->k_idx = 0;
 		return;
 	}
-	
-	/* The new flags as of [Z] 2.5.3 */
-	if (sf_version > 18)
-	{
-		/* The new flags */
-		rd_s32b(&o_ptr->cost);
-		
-		rd_byte(&o_ptr->activate);
-		
-		rd_u32b(&o_ptr->kn_flags1);
-		rd_u32b(&o_ptr->kn_flags2);
-		rd_u32b(&o_ptr->kn_flags3);
-	}
-	else
-	{
-		/* Set the cost to something reasonable */
-		o_ptr->cost = k_ptr->cost;
-	}
+
+	/* The new flags */
+	rd_s32b(&o_ptr->cost);
+
+	rd_u16b(&o_ptr->activate);
+
+	rd_u32b(&o_ptr->kn_flags1);
+	rd_u32b(&o_ptr->kn_flags2);
+	rd_u32b(&o_ptr->kn_flags3);
+	rd_u32b(&o_ptr->kn_flags4);
+	rd_u32b(&o_ptr->kn_flags5);
+	rd_u32b(&o_ptr->kn_flags6);
+
+   rd_byte(&o_ptr->OCraftLevel);
+   rd_byte(&o_ptr->CCraftLevel);
+   rd_u32b(&o_ptr->O_Durability);
+   rd_u32b(&o_ptr->C_Durability);
+
+   rd_byte(&o_ptr->aware);
 
 	/* Repair non "wearable" items */
 	if (!wearable_p(o_ptr))
@@ -513,12 +520,15 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->weight = k_ptr->weight;
 
 		/* Paranoia */
-		o_ptr->activate = 0;
+/*		o_ptr->activate = 0;*/
 
 		/* Reset flags */
 		o_ptr->flags1 = k_ptr->flags1;
 		o_ptr->flags2 = k_ptr->flags2;
 		o_ptr->flags3 = k_ptr->flags3;
+		o_ptr->flags4 = k_ptr->flags4;
+		o_ptr->flags5 = k_ptr->flags5;
+		o_ptr->flags6 = k_ptr->flags6;
 
 		/* All done */
 		return;
@@ -526,7 +536,7 @@ static void rd_item(object_type *o_ptr)
 
 	/* Hack -- extract the "broken" flag */
 	if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
-	
+
 	if (sf_version < 19)
 	{
 		/* Convert old ego items to current format */
@@ -540,20 +550,14 @@ static void rd_item(object_type *o_ptr)
 			{
 				/* Save the flags */
 				add_ego_flags(o_ptr, name2);
-				
+
 				/* Keep the damage dice */
 				o_ptr->dd = old_dd;
 				o_ptr->ds = old_ds;
 
 				/* Hack -- extract the "broken" flag */
 				if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-				
-				if (name2 == EGO_TRUMP)
-				{
-					/* Mega-Hack -- set activation */
-					o_ptr->activate = ACT_TELEPORT_1;
-				}
-				
+
 				/* Change the price */
 				if (!e_ptr->cost)
 				{
@@ -563,61 +567,15 @@ static void rd_item(object_type *o_ptr)
 				{
 					o_ptr->cost += e_ptr->cost;
 				}
-				
+
 				/* Note: the xtra1 value is ignored here. */
-			}
-		}
-				
-		/* Convert old artifacts to current format */
-		else if (name1)
-		{
-			artifact_type *a_ptr;
-
-			/* Obtain the artifact info */
-			a_ptr = &a_info[name1];
-			
-			/* Acquire new artifact "pval" */
-			o_ptr->pval = a_ptr->pval;
-
-			/* Acquire new artifact fields */
-			o_ptr->ac = a_ptr->ac;
-			o_ptr->dd = a_ptr->dd;
-			o_ptr->ds = a_ptr->ds;
-
-			/* Acquire new artifact weight */
-			o_ptr->weight = a_ptr->weight;
-
-			/* Hack -- extract the "broken" flag */
-			if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-			
-			/* Save the artifact flags */
-			o_ptr->flags1 |= a_ptr->flags1;
-			o_ptr->flags2 |= a_ptr->flags2;
-			o_ptr->flags3 |= a_ptr->flags3;
-			
-			/* Mega-Hack -- set activation */
-			o_ptr->activate = name1 + 128;
-			
-			/* Save the inscription */
-			o_ptr->xtra_name = quark_add(a_name + a_ptr->name);
-
-			/* Set the cost */		
-			if (!a_ptr->cost)
-			{
-				/* Hack -- "worthless" artifacts */
-				o_ptr->cost = 0L;
-			}
-			else
-			{
-				/* Hack - use the artifact price */
-				o_ptr->cost = a_ptr->cost;
 			}
 		}
 		/* Convert Random artifacts */
 		else if (o_ptr->xtra_name)
 		{
 			o_ptr->activate = xtra2;
-			
+
 			/* Make the object an artifact */
 			o_ptr->flags3 |= TR3_INSTA_ART;
 
@@ -631,13 +589,16 @@ static void rd_item(object_type *o_ptr)
 			/* Set cost for normal items */
 			o_ptr->cost = k_info[o_ptr->k_idx].cost;
 		}
-		
+
 		/* Identification status */
 		if (o_ptr->ident & (IDENT_MENTAL))
 		{
 			o_ptr->kn_flags1 = o_ptr->flags1;
 			o_ptr->kn_flags2 = o_ptr->flags2;
 			o_ptr->kn_flags3 = o_ptr->flags3;
+			o_ptr->kn_flags4 = o_ptr->flags4;
+			o_ptr->kn_flags5 = o_ptr->flags5;
+			o_ptr->kn_flags6 = o_ptr->flags6;
 		}
 	}
 
@@ -655,8 +616,8 @@ static void rd_item(object_type *o_ptr)
 
 		/* Acquire standard weight */
 		o_ptr->weight = k_ptr->weight;
-		
-		
+
+
 		/* Obtain tval/sval from k_info */
 		o_ptr->tval = k_ptr->tval;
 		o_ptr->sval = k_ptr->sval;
@@ -727,12 +688,12 @@ static void rd_field(field_type *f_ptr)
 {
 	s32b tmp32s;
 	int i;
-	
+
 	s16b t_idx;
 
 	/* Type */
 	rd_s16b(&t_idx);
-	
+
 	/* Prepare the field */
 	field_prep(f_ptr, t_idx);
 
@@ -845,7 +806,7 @@ static void rd_store(int town_number, int store_number)
 
 	s16b good_buy, bad_buy, insult_cur;
 	s32b store_open;
-	
+
 	byte num, owner, type = 0;
 
 	/* Read the basic info */
@@ -855,28 +816,28 @@ static void rd_store(int town_number, int store_number)
 	rd_byte(&num);
 	rd_s16b(&good_buy);
 	rd_s16b(&bad_buy);
-	
+
 	if (sf_version > 20)
 	{
 		rd_u16b(&st_ptr->x);
 		rd_u16b(&st_ptr->y);
-		
+
 		/* Hack - only listen to 'type' in recent savefiles */
 		rd_byte(&type);
 	}
-	
-	
+
+
 	/* Hack - Initialise the store (even if not really a store) */
 	store_init(town_number, store_number, type);
 
-	
+
 	/* Restore the saved parameters */
 	st_ptr->store_open = store_open;
 	st_ptr->insult_cur = insult_cur;
 	st_ptr->owner = owner;
 	st_ptr->good_buy = good_buy;
 	st_ptr->bad_buy = bad_buy;
-	
+
 
 	if (!z_older_than(2, 1, 3))
 	{
@@ -889,7 +850,7 @@ static void rd_store(int town_number, int store_number)
 		st_ptr->last_visit = turn;
 	}
 
-	
+
 
 	/*
 	 * Hack - allocate store if it has stock
@@ -1123,7 +1084,7 @@ static void rd_ghost(void)
 	rd_string(buf, 64);
 
 	/* ghosts */
-	
+
 	/* Strip old data */
 	strip_bytes(60);
 }
@@ -1335,7 +1296,7 @@ static void rd_extra(void)
 
 	/* Calc the regeneration modifier for mutations */
 	mutant_regenerate_mod = calc_mutant_regenerate_mod();
-	
+
 	rd_byte(&p_ptr->confusing);
 	rd_byte(&tmp8u); /* oops */
 	rd_byte(&tmp8u); /* oops */
@@ -1346,7 +1307,16 @@ static void rd_extra(void)
 	rd_byte(&tmp8u);
 
 	/* Future use */
-	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
+/*	for (i = 0; i < 48; i++) rd_byte(&tmp8u);*/
+	for (i = 0; i < 32; i++) rd_byte(&tmp8u);
+   rd_u16b(&p_ptr->BaseSeed);
+   rd_u16b(&p_ptr->TypeSeed);
+   rd_u16b(&p_ptr->UniqueSeed);
+	strip_bytes(2);
+   rd_u16b(&p_ptr->ArtLites);
+   rd_u16b(&p_ptr->ArtWeapons);
+   rd_u16b(&p_ptr->ArtArmor);
+   rd_u16b(&p_ptr->ArtJewelry);
 
 	/* Skip the flags */
 	strip_bytes(12);
@@ -1354,7 +1324,7 @@ static void rd_extra(void)
 
 	/* Hack -- the two "special seeds" */
 	rd_u32b(&seed_flavor);
-	
+
 	if (sf_version < 24)
 	{
 		/* No more seed_town */
@@ -1380,12 +1350,12 @@ static void rd_extra(void)
 
 	/* Current turn */
 	rd_s32b(&turn);
-	
+
 	if (sf_version > 17)
 	{
 		/* Get trap detection status */
 		rd_byte((byte *)&player_detected);
-		
+
 		/* Get location of detection */
 		rd_s16b(&p_ptr->detecty);
 		rd_s16b(&p_ptr->detectx);
@@ -1532,21 +1502,21 @@ static void fix_tile(cave_type *c_ptr)
 			/* Get rid of it */
 			c_ptr->feat = FEAT_FLOOR;
 		}
-				
+
 		/* Glyph of warding */
 		if (c_ptr->feat == 0x03)
 		{
 			/* Get rid of it */
 			c_ptr->feat = FEAT_FLOOR;
 		}
-				
+
 		/* Explosive Rune */
 		if (c_ptr->feat == 0x40)
 		{
 			/* Get rid of it */
 			c_ptr->feat = FEAT_FLOOR;
 		}
-				
+
 		/* Traps */
 		if ((c_ptr->feat == 0x02) ||
 			(c_ptr->feat >= 0x10 && c_ptr->feat <=0x1F) ||
@@ -1555,14 +1525,14 @@ static void fix_tile(cave_type *c_ptr)
 			/* Get rid of it */
 			c_ptr->feat = FEAT_FLOOR;
 		}
-				
+
 		/* Doors */
 		if ((c_ptr->feat > 0x20) && (c_ptr->feat < 0x28))
 		{
 			/* Locked door -> closed door*/
 			c_ptr->feat = FEAT_CLOSED;
 		}
-				
+
 		if ((c_ptr->feat >= 0x28) && (c_ptr->feat <= 0x2F))
 		{
 			/* Stuck door -> closed door*/
@@ -1631,7 +1601,7 @@ static void load_map(int ymax, int ymin, int xmax, int xmin)
 
 			/* Extract "feat" */
 			c_ptr->feat = tmp8u;
-			
+
 			/* Quick hack to fix various removed features */
 			fix_tile(c_ptr);
 
@@ -1663,7 +1633,7 @@ static void load_map(int ymax, int ymin, int xmax, int xmin)
 			for (i = count; i > 0; i--)
 			{
 				/* Ignore this (The mimic field has been removed) */
-			
+
 				/* Advance/Wrap */
 				if (++x >= xmax)
 				{
@@ -1797,7 +1767,7 @@ static void strip_map(int ymax, int ymin, int xmax, int xmin)
 			}
 		}
 	}
-	
+
 	/*** Run length decoding ***/
 
 	/* This isn't stored in later versions. */
@@ -1910,7 +1880,7 @@ static void load_wild_data(void)
 				wild_cache[i + WILD_GRID_SIZE * j];
 		}
 	}
-	
+
 	/* If not in dungeon - reset the bounds */
 	if (!p_ptr->depth)
 	{
@@ -1941,7 +1911,7 @@ static errr rd_dungeon(void)
 	u16b dun_level_backup, px_back, py_back;
 
 	s16b cur_wid, cur_hgt;
-	
+
 	/* Hack - Reset the object theme */
 	dun_theme.treasure = 20;
 	dun_theme.combat = 20;
@@ -1973,20 +1943,20 @@ static errr rd_dungeon(void)
 	rd_s16b(&max_panel_rows);
 	rd_s16b(&max_panel_cols);
 
-	/* The player may not be in the dungeon */ 
+	/* The player may not be in the dungeon */
 	character_dungeon = FALSE;
-	
+
 	/* Assume we are in the dungeon */
 	max_hgt = cur_hgt;
 	min_hgt = 0;
 	max_wid = cur_wid;
 	min_wid = 0;
-	
+
 	if (sf_version < 12)
 	{
 		max_panel_cols = max_panel_cols * (wid - COL_MAP - 1) / 2;
 		max_panel_rows = max_panel_rows * (hgt - ROW_MAP - 1) / 2;
-		
+
 		/* Reset the panel */
 		panel_row_min = max_panel_rows;
 		panel_col_min = max_panel_cols;
@@ -2003,7 +1973,7 @@ static errr rd_dungeon(void)
 		py_back = py;
 
 		create_wilderness();
-		
+
 		p_ptr->depth = dun_level_backup;
 
 		/* if in the dungeon - restore the player location */
@@ -2031,29 +2001,29 @@ static errr rd_dungeon(void)
 		if (p_ptr->depth)
 		{
 			dun_level_backup = p_ptr->depth;
-			
+
 			change_level(p_ptr->depth);
-			
+
 			/* Save player location */
 			px_back = px;
 			py_back = py;
 
 			create_wilderness();
-			
+
 			p_ptr->depth = dun_level_backup;
-			
+
 			change_level(p_ptr->depth);
-			
+
 			/* Load dungeon map */
 			load_map(cur_hgt, 0, cur_wid, 0);
 
 			/* Strip the wilderness map */
 			strip_map(wild_grid.y_max, wild_grid.y_min,
 			         wild_grid.x_max, wild_grid.x_min);
-			
+
 			px = px_back;
 			py = py_back;
-			
+
 			/* Restore the bounds */
 			max_hgt = cur_hgt;
 			min_hgt = 0;
@@ -2090,7 +2060,7 @@ static errr rd_dungeon(void)
 			         wild_grid.x_max, wild_grid.x_min);
 
 			change_level(p_ptr->depth);
-			
+
 			/* Restore the bounds */
 			max_hgt = cur_hgt;
 			min_hgt = 0;
@@ -2153,7 +2123,7 @@ static errr rd_dungeon(void)
 		if (o_ptr->held_m_idx)
 		{
 			monster_type *m_ptr;
-			
+
 			/* Monster */
 			m_ptr = &m_list[o_ptr->held_m_idx];
 
@@ -2183,7 +2153,7 @@ static errr rd_dungeon(void)
 				return (152);
 			}
 
-			
+
 			/* Access the item location */
 			c_ptr = area(o_ptr->iy,o_ptr->ix);
 
@@ -2235,7 +2205,7 @@ static errr rd_dungeon(void)
 				note(format("Monster allocation error (%d <> %d)", i, m_idx));
 				return (162);
 			}
-			
+
 			/* Access grid */
 			c_ptr = area(m_ptr->fy,m_ptr->fx);
 
@@ -2318,9 +2288,9 @@ static errr rd_dungeon(void)
 			min_hgt = 0;
 			max_wid = cur_wid;
 			min_wid = 0;
-			
+
 			/* Delete the fields */
-			
+
 		}
 		else
 		{
@@ -2328,19 +2298,19 @@ static errr rd_dungeon(void)
 			wipe_o_list();
 			wipe_m_list();
 		}
-		
+
 		/* enter the level */
 		change_level(p_ptr->depth);
 	}
-	
-	/* 
+
+	/*
 	 * Set the trap detected flag.
 	 *
 	 * This is done here because it needs to be below all calls
 	 * to "change_level()"
 	 */
 	 p_ptr->detected = player_detected;
-	
+
 	/* Success */
 	return (0);
 }
@@ -2572,8 +2542,6 @@ static errr rd_savefile_new_aux(void)
 					{
 						rd_s16b(&quest[i].k_idx);
 
-						if (quest[i].k_idx)
-							a_info[quest[i].k_idx].flags3 |= TR3_QUESTITEM;
 					}
 
 					/* Load quest flags */
@@ -2799,7 +2767,7 @@ static errr rd_savefile_new_aux(void)
 
 			/* We must have a race by now */
 			assert(r_ptr);
-			
+
 			/* Get the number of monsters */
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
@@ -2891,7 +2859,7 @@ static errr rd_savefile_new_aux(void)
 
 		/* Extra info */
 		Term_putstr(5, 14, -1, TERM_WHITE,
-			"'Wilderness' mode enables the extended wilderness of ZAngband");
+			"'Wilderness' mode enables the extended wilderness of RandomBand");
 		Term_putstr(5, 15, -1, TERM_WHITE,
 			"giving you a wilderness and several new towns to explore.");
 		Term_putstr(5, 16, -1, TERM_WHITE,
@@ -2925,29 +2893,6 @@ static errr rd_savefile_new_aux(void)
 		/* Clear */
 		clear_from(14);
 	}
-
-
-	/* Load the Artifacts */
-	rd_u16b(&tmp16u);
-
-	/* Incompatible save files */
-	if (tmp16u > max_a_idx)
-	{
-		note(format("Too many (%u) artifacts!", tmp16u));
-		return (24);
-	}
-
-	/* Read the artifact flags */
-	for (i = 0; i < tmp16u; i++)
-	{
-		rd_byte(&tmp8u);
-		a_info[i].cur_num = tmp8u;
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
-	}
-	if (arg_fiddle) note("Loaded Artifacts");
-
 
 	/* Read the extra stuff */
 	rd_extra();
@@ -3028,14 +2973,14 @@ static errr rd_savefile_new_aux(void)
 	{
 		/* Read the stores */
 		rd_u16b(&tmp16u);
-		
+
 		for (i = 1; i < town_count; i++)
 		{
 			town[i].numstores = tmp16u;
-		
+
 			/* Allocate the stores */
 			C_MAKE(town[i].store, town[i].numstores, store_type);
-			
+
 			/* HACK - ignore the empty towns */
 			if (z_older_than(2, 2, 3) && (i >= 6))
 			{
@@ -3067,7 +3012,7 @@ static errr rd_savefile_new_aux(void)
 
 			/* Type */
 			rd_u16b(&town[i].type);
-			
+
 			if (sf_version > 21)
 			{
 				rd_byte(&town[i].pop);
@@ -3080,7 +3025,7 @@ static errr rd_savefile_new_aux(void)
 				rd_byte(&town[i].gates_x[1]);
 				rd_byte(&town[i].gates_x[2]);
 				rd_byte(&town[i].gates_x[3]);
-				
+
 				rd_byte(&town[i].gates_y[0]);
 				rd_byte(&town[i].gates_y[1]);
 				rd_byte(&town[i].gates_y[2]);
@@ -3095,9 +3040,9 @@ static errr rd_savefile_new_aux(void)
 			if (sf_version < 26)
 			{
 				char temp_buffer[32];
-				
+
 				rd_string(temp_buffer, 32);
-				
+
 				/* Get a new name */
 				if (vanilla_town)
 				{
@@ -3112,7 +3057,7 @@ static errr rd_savefile_new_aux(void)
 			{
 				rd_string(town[i].name, T_NAME_LEN);
 			}
-			
+
 			/* Allocate the stores */
 			C_MAKE(town[i].store, town[i].numstores, store_type);
 

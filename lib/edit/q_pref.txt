@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:51 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:05:14 $
 # File: q_pref.txt
 
 # Preferences for quest features

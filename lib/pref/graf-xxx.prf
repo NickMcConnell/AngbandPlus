@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/07/09 10:28:25 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:15:44 $
 ##### Special attr/char values #####
 
 
@@ -1692,7 +1692,7 @@ R:464:0x98:0x98
 # Skeleton troll
 R:465:0x9D:0x96
 
-# Skeletal tyrannosaur 
+# Skeletal tyrannosaur
 R:466:0xC0:0x9B
 
 # Jaws
@@ -2962,7 +2962,7 @@ F:7:0x81:0x9E
 F:8:0xCF:0x8E
 
 #N:9:salt
-#G:.:W
+#G:.:s
 
 #N:10:wet mud
 F:10:0xCF:0x8C

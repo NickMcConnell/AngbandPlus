@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/29 10:19:05 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:05:07 $
 # File: k_info.txt
 
 
@@ -47,7 +47,7 @@
 
 # 'I' is for basic information. The tval is for the type of item, the
 # sval identifies the subtype and the pval indicates the amount of
-# effect the item has, if applicable. 
+# effect the item has, if applicable.
 
 # 'W' is for extra information. Depth is the depth the object is
 # normally found at, rarity determines how common the object is,
@@ -268,7 +268,7 @@ F:SHOW_MODS | TUNNEL
 ##### Edged Weapons #####
 
 N:29:& No-dachi~
-G:|:W
+G:|:s
 I:23:27:0
 W:61:0:190:1000
 A:61/3:80/1
@@ -284,7 +284,7 @@ P:0:1d1:-2:-4:0
 F:SHOW_MODS
 
 N:31:& Bastard Sword~
-G:|:W
+G:|:s
 I:23:21:0
 W:26:0:140:350
 A:26/1
@@ -292,7 +292,7 @@ P:0:3d4:0:0:0
 F:SHOW_MODS
 
 N:32:& Scimitar~
-G:|:W
+G:|:s
 I:23:18:0
 W:17:0:130:250
 A:17/1
@@ -300,7 +300,7 @@ P:0:2d5:0:0:0
 F:SHOW_MODS
 
 N:33:& Tulwar~
-G:|:W
+G:|:s
 I:23:15:0
 W:9:0:100:200
 A:9/1
@@ -308,7 +308,7 @@ P:0:2d4:0:0:0
 F:SHOW_MODS
 
 N:34:& Broad Sword~
-G:|:W
+G:|:s
 I:23:16:0
 W:17:0:150:255
 A:17/1:26/1
@@ -316,7 +316,7 @@ P:0:2d5:0:0:0
 F:SHOW_MODS
 
 N:35:& Short Sword~
-G:|:W
+G:|:s
 I:23:10:0
 W:5:0:80:90
 A:9/1
@@ -332,7 +332,7 @@ P:0:6d5:0:0:0
 F:RES_CHAOS | SHOW_MODS
 
 N:37:& Two-Handed Sword~
-G:|:W
+G:|:s
 I:23:25:0
 W:53:0:200:775
 A:53/1:65/1:80/1
@@ -340,7 +340,7 @@ P:0:3d6:0:0:0
 F:SHOW_MODS
 
 N:38:& Main Gauche~
-G:|:W
+G:|:s
 I:23:5:0
 W:3:0:30:25
 A:5/2
@@ -348,7 +348,7 @@ P:0:1d5:0:0:0
 F:SHOW_MODS
 
 N:39:& Cutlass~
-G:|:W
+G:|:s
 I:23:12:0
 W:5:0:110:85
 A:9/1
@@ -364,7 +364,7 @@ P:0:4d5:0:0:0
 F:SHOW_MODS
 
 N:41:& Katana~
-G:|:W
+G:|:s
 I:23:20:0
 W:35:0:120:400
 A:35/1
@@ -372,7 +372,7 @@ P:0:3d4:0:0:0
 F:SHOW_MODS
 
 N:42:& Long Sword~
-G:|:W
+G:|:s
 I:23:17:0
 W:17:0:130:300
 A:17/1:35/1
@@ -380,7 +380,7 @@ P:0:2d5:0:0:0
 F:SHOW_MODS
 
 N:43:& Dagger~
-G:|:W
+G:|:s
 I:23:4:0
 W:0:0:12:10
 A:1/1:9/2
@@ -388,7 +388,7 @@ P:0:1d4:0:0:0
 F:SHOW_MODS
 
 N:44:& Rapier~
-G:|:W
+G:|:s
 I:23:7:0
 W:5:0:40:42
 A:9/1
@@ -396,7 +396,7 @@ P:0:1d6:0:0:0
 F:SHOW_MODS
 
 N:45:& Sabre~
-G:|:W
+G:|:s
 I:23:11:0
 W:5:0:50:50
 A:9/1
@@ -404,7 +404,7 @@ P:0:1d7:0:0:0
 F:SHOW_MODS
 
 N:46:& Small Sword~
-G:|:W
+G:|:s
 I:23:8:0
 W:5:0:75:48
 A:9/1
@@ -816,7 +816,7 @@ A:35/1
 P:5:1d3:0:0:0
 
 N:97:& Steel Helm~
-G:]:W
+G:]:s
 I:32:6:0
 W:50:0:60:200
 A:65/1
@@ -937,28 +937,28 @@ A:61/1
 P:19:1d4:-3:0:0
 
 N:114:Partial Plate Armour~
-G:[:W
+G:[:s
 I:37:12:0
 W:70:0:260:2000
 A:70/1
 P:22:1d6:-3:0:0
 
 N:115:Metal Lamellar Armour~
-G:[:W
+G:[:s
 I:37:13:0
 W:70:0:340:2500
 A:70/1
 P:23:1d6:-3:0:0
 
 N:116:Full Plate Armour~
-G:[:W
+G:[:s
 I:37:15:0
 W:75:0:380:5000
 A:75/1
 P:25:2d4:-3:0:0
 
 N:117:Ribbed Plate Armour~
-G:[:W
+G:[:s
 I:37:18:0
 W:80:0:380:6000
 A:80/1
@@ -1042,7 +1042,7 @@ A:17/1:40/1
 P:2:1d1:0:0:0
 
 N:127:& Set~ of Cesti
-G:]:W
+G:]:s
 I:31:5:0
 W:65:0:40:100
 A:75/1
@@ -1376,7 +1376,7 @@ I:40:0:-5
 W:30:0:3:0
 A:80/2
 P:0:7d7:-5:-5:5
-F:CURSED | HEAVY_CURSE | STR | INT | WIS | DEX | CON | CHR | 
+F:CURSED | HEAVY_CURSE | STR | INT | WIS | DEX | CON | CHR |
 F:TY_CURSE | NO_TELE | NO_MAGIC | REGEN | HIDE_TYPE
 
 
@@ -2566,7 +2566,7 @@ P:0:1d2:0:0:0
 ##### Basic Books #####
 
 N:330:[Book of Common Prayer]
-G:?:W
+G:?:s
 I:90:0:0
 W:17:0:30:100
 A:17/1
@@ -2574,7 +2574,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 
 N:331:[High Mass]
-G:?:W
+G:?:s
 I:90:1:0
 W:20:0:30:1000
 A:35/1
@@ -2671,7 +2671,7 @@ A:70/1
 P:0:2d4:0:0:0
 
 N:343:& Large steel chest~
-G:&:W
+G:&:s
 I:7:7:0
 W:80:0:1000:1000
 A:80/1
@@ -2687,7 +2687,7 @@ A:90/1
 ##### Various Stuff #####
 
 N:345:& Iron Spike~
-G:~:W
+G:~:s
 I:5:0:0
 W:1:0:2:1
 A:1/1
@@ -2965,7 +2965,7 @@ F:EASY_KNOW
 N:379:[Call of the Wild]
 G:?:G
 I:92:0:0
-W:17:0:30:100 
+W:17:0:30:100
 A:17/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -2973,7 +2973,7 @@ F:EASY_KNOW
 N:380:[Nature Mastery]
 G:?:G
 I:92:1:0
-W:20:0:30:1000 
+W:20:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -3256,7 +3256,7 @@ I:38:30:0
 W:110:0:250:175000
 A:110/64
 P:40:2d4:-3:0:15
-F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -3366,7 +3366,7 @@ F:EASY_KNOW
 N:425:Fear Resistance
 G:=:d
 I:45:38:0
-W:17:0:2:150 
+W:17:0:2:150
 A:17/2
 F:RES_FEAR | EASY_KNOW
 
@@ -3533,7 +3533,7 @@ I:100:11:0
 W:1:0:0:16
 
 N:491:opals
-G:$:W
+G:$:s
 I:100:12:0
 W:1:0:0:18
 
@@ -3566,155 +3566,6 @@ N:497:adamantite
 G:$:G
 I:100:18:0
 W:1:0:0:80
-
-
-##### Objects 498 and 499 are the "Morgoth Artifacts" #####
-
-# These objects, like objects 500 to 511, are never created
-# without being turned into artifacts.
-
-N:498:& Mighty Hammer~
-G:\:D
-I:21:50:0
-W:15:0:200:1000
-P:0:3d9:0:0:0
-F:SHOW_MODS
-F:INSTA_ART
-
-N:499:& Massive Iron Crown~
-G:]:D
-I:33:50:0
-W:44:0:20:1000
-P:0:1d1:0:0:0
-F:INSTA_ART
-
-##### Objects 500 to 511 are the "Special Artifacts" #####
-
-# These objects do not specify "full names" because the artifact name
-# is added in "obj-desc.c" via the saved 'quark' of the name, generated
-# on creation of the artifact, by copying it from a_info.txt
-#
-# These objects do specify a "base name", which is used when the object
-# is "aware" (always true for lites)
-#
-# The Lites (and the One Ring) specify "physical colors", which
-# over-ride the "flavor" colors, if any.  Note that the "One Ring"
-# also has a specific check for "unknown" in which it changes its
-# name to "a plain gold ring".  See "obj-desc.c"  (Hack XXX)
-#
-# Note that ALL artifacts are given "IGNORE_ACID/ELEC/FIRE/COLD",
-# so we do not need to specify that here.
-#
-# The only reason for having six different "ring" templates and three
-# different "amulet" templates is to allow each "special artifact" to
-# have a different "color" and "flavor", and also to allow the use of
-# special "base names" (such as "Necklace").
-#
-# It is also nice to simplify the artifact creation code.  (Otherwise
-# these would be special cases.)  Also, this allows us to have a the
-# debug command that creates objects able to create these artifacts.
-
-
-# The Phial of Galadriel -- see artifact list
-
-N:500:& Phial~
-G:!:y
-I:39:4:0
-W:1:0:10:10000
-P:0:1d1:0:0:0
-F:INSTA_ART
-
-# The Star of Elendil -- see artifact list
-
-N:501:& Star~
-G:*:y
-I:39:5:0
-W:30:0:5:25000
-P:0:1d1:0:0:0
-F:INSTA_ART
-
-# The Arkenstone of Thrain -- replaced with Jewel of Judgement
-
-N:502:& Jewel~
-G:*:R
-I:39:6:0
-W:60:0:5:60000
-P:0:1d1:0:0:0
-F:INSTA_ART
-
-# The Amulet of Carlammas -- see artifact list
-
-N:503:& Amulet~
-G:":d
-I:40:10:0
-W:50:0:3:60000
-F:INSTA_ART
-
-# The Amulet of Ingwe -- see artifact list
-
-N:504:& Amulet~
-G:":d
-I:40:11:0
-W:60:0:3:90000
-F:INSTA_ART
-
-# The Necklace of the Dwarves -- see artifact list
-
-N:505:& Necklace~
-G:":d
-I:40:12:0
-W:70:0:3:75000
-F:INSTA_ART
-
-# The Ring of Barahir -- see artifact list
-
-N:506:& Ring~
-G:=:d
-I:45:32:0
-W:50:0:2:65000
-F:INSTA_ART
-
-# The Ring of Tulkas -- see artifact list
-
-N:507:& Ring~
-G:=:d
-I:45:33:0
-W:90:0:2:150000
-F:INSTA_ART
-
-# The Ring of Power (Narya) -- see artifact list
-
-N:508:& Ring~
-G:=:d
-I:45:34:0
-W:80:0:2:100000
-F:INSTA_ART
-
-# The Ring of Power (Nenya) -- see artifact list
-
-N:509:& Ring~
-G:=:d
-I:45:35:0
-W:90:0:2:200000
-F:INSTA_ART
-
-# The Ring of Power (Vilya) -- see artifact list
-
-N:510:& Ring~
-G:=:d
-I:45:36:0
-W:100:0:2:300000
-F:INSTA_ART
-
-# The Ring of Power (The One Ring) -- see artifact list
-
-N:511:& Ring~
-G:=:y
-I:45:37:0
-W:110:0:2:5000000
-F:INSTA_ART
-
-### Room for new objects added after 511 (Zangband 2.1.0): 512-575
 
 # Trump Spellbooks
 
@@ -3833,7 +3684,7 @@ P:0:4d6:0:0:0
 F:SHOW_MODS
 
 N:525:& Tanto~
-G:|:W
+G:|:s
 I:23:6:0
 W:3:0:20:30
 A:5/2
@@ -3878,7 +3729,7 @@ A:75/2
 P:24:1d4:-2:0:0
 
 N:531:& Fur Cloak~
-G:(:W
+G:(:s
 I:35:3:0
 W:40:0:30:200
 A:35/2:52/2
@@ -3975,7 +3826,7 @@ P:0:1d20:0:0:0
 F:SHOW_MODS
 
 N:544:& Khopesh~
-G:|:W
+G:|:s
 I:23:14:0
 W:17:0:130:190
 A:17/2
@@ -3983,7 +3834,7 @@ P:0:2d4:0:0:0
 F:SHOW_MODS
 
 N:545:& Flamberge~
-G:|:W
+G:|:s
 I:23:26:0
 W:65:0:230:600
 A:65/2:87/2
@@ -3991,7 +3842,7 @@ P:0:3d7:0:0:0
 F:SHOW_MODS
 
 N:546:& Claymore~
-G:|:W
+G:|:s
 I:23:23:0
 W:65:0:200:600
 A:65/2
@@ -3999,7 +3850,7 @@ P:0:2d8:0:0:0
 F:SHOW_MODS
 
 N:547:& Espadon~
-G:|:W
+G:|:s
 I:23:24:0
 W:65:0:200:600
 A:65/3
@@ -4007,7 +3858,7 @@ P:0:2d9:0:0:0
 F:SHOW_MODS
 
 N:548:& Great Scimitar~
-G:|:W
+G:|:s
 I:23:22:0
 W:65:0:240:500
 A:85/3:98/3
@@ -4015,7 +3866,7 @@ P:0:4d5:0:0:0
 F:SHOW_MODS
 
 N:549:& Wakizashi~
-G:|:W
+G:|:s
 I:23:13:0
 W:26:0:90:210
 A:26/3
@@ -4126,20 +3977,13 @@ W:56:0:280:1320
 A:56/2
 P:17:1d4:-2:0:0
 
-N:564:& Incandescent Light~
-G:!:y
-I:39:3:0
-W:20:10:5:20000
-P:0:1d1:0:0:0
-F:INSTA_ART
-
 N:565:& Diamond Edge~
 G:|:w
 I:23:31:0
 W:120:0:150:20000
 A:100/16
 P:0:7d5:0:0:0
-F:SHOW_MODS | VORPAL 
+F:SHOW_MODS | VORPAL
 
 N:566:Mundanity
 G:?:d
@@ -4152,7 +3996,7 @@ N:567:& Magical Figurine~ of #
 G:`:g
 I:8:0:0
 W:50:0:50:100
-A:26/6:52/3:90/1
+A:10/1:20/1:30/1:40/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
@@ -4192,7 +4036,7 @@ A:43/3
 P:0:2d4:0:0:0
 
 N:573:& Silver Statue~ of #
-G:`:W
+G:`:s
 I:9:5:0
 W:32:0:500:1000
 A:52/3
@@ -4250,11 +4094,349 @@ P:1:1d1:0:0:0
 ##### New Bolt #####
 
 N:581:& Steel Bolt~
-G:{:W
+G:{:s
 I:18:1:0
 W:55:0:3:25
 A:43/2:70/2
 P:0:3d5:0:0:0
 F:SHOW_MODS
 
+##### Identify Pack #####
+
+N:582:Knowledge
+G:?:d
+I:70:53:0
+W:40:0:5:500
+A:30/1:60/1:90/1
+F:EASY_KNOW
+
+N:583:[Chi Control]
+G:?:y
+I:97:0:0
+W:17:0:30:100
+A:17/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:584:[Chi Manipulation]
+G:?:y
+I:97:1:0
+W:20:0:30:1000
+A:35/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:585:[Chi Knowledge]
+G:?:U
+I:97:2:0
+W:65:0:30:25000
+A:65/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:EASY_KNOW
+
+N:586:[Chi Force]
+G:?:U
+I:97:3:0
+W:95:0:30:100000
+A:95/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:EASY_KNOW
+
+N:587:& Yellow Glow Stone~
+G:*:y
+I:39:2:0
+W:3:0:3:100
+A:3/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:588:& Black Glow Stone~
+G:*:d
+I:39:3:0
+W:5:0:3:105
+A:5/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:589:& White Glow Stone~
+G:*:w
+I:39:4:0
+W:7:0:3:110
+A:7/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:590:& Blue Glow Stone~
+G:*:b
+I:39:5:0
+W:10:0:3:115
+A:10/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:591:& Black Glow Stone~
+G:*:d
+I:39:6:0
+W:12:0:3:120
+A:12/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:592:& Red Glow Stone~
+G:*:r
+I:39:7:0
+W:15:0:3:125
+A:15/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:593:& Green Glow Stone~
+G:*:g
+I:39:8:0
+W:17:0:3:130
+A:17/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:594:& Yellow Glow Stone~
+G:*:y
+I:39:9:0
+W:20:0:3:135
+A:20/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:595:& Blue Glow Stone~
+G:*:b
+I:39:10:0
+W:22:0:3:140
+A:22/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:596:& White Glow Stone~
+G:*:w
+I:39:11:0
+W:25:0:3:145
+A:25/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:597:& Gray Glow Stone~
+G:*:s
+I:39:12:0
+W:27:0:3:150
+A:27/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:598:& Shining Glow Stone~
+G:*:W
+I:39:13:0
+W:30:0:3:155
+A:30/2
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:599:& Shining Glow Stone~
+G:*:W
+I:39:14:0
+W:32:0:3:160
+A:32/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:600:& Shining Glow Stone~
+G:*:W
+I:39:15:0
+W:35:0:3:165
+A:35/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:601:& Violet Glow Stone~
+G:*:v
+I:39:16:0
+W:37:0:3:170
+A:37/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:602:& Earthen Glow Stone~
+G:*:u
+I:39:17:0
+W:40:0:3:175
+A:40/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:603:& Violet Glow Stone~
+G:*:v
+I:39:18:0
+W:42:0:3:180
+A:42/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:604:& Red Glow Stone~
+G:*:r
+I:39:19:0
+W:45:0:3:185
+A:45/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:605:& Green Glow Stone~
+G:*:g
+I:39:20:0
+W:47:0:3:190
+A:47/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:606:& Swirling Glow Stone~
+G:*:R
+I:39:21:0
+W:50:0:3:195
+A:50/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:607:& Heavy Glow Stone~
+G:*:D
+I:39:22:0
+W:52:0:3:200
+A:52/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:608:& Heavy Glow Stone~
+G:*:D
+I:39:23:0
+W:55:0:3:205
+A:55/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:609:& Gray Glow Stone~
+G:*:s
+I:39:24:0
+W:57:0:3:210
+A:57/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:610:& Swirling Glow Stone~
+G:*:R
+I:39:25:0
+W:60:0:3:215
+A:60/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:611:& Earthen Glow Stone~
+G:*:u
+I:39:26:0
+W:62:0:3:220
+A:62/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:612:& Burning Glow Stone~
+G:*:o
+I:39:27:0
+W:65:0:3:225
+A:65/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:613:& Burning Glow Stone~
+G:*:o
+I:39:28:0
+W:67:0:3:230
+A:67/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:614:& Radiating Glow Stone~
+G:*:B
+I:39:29:0
+W:70:0:3:235
+A:70/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:615:& Radiating Glow Stone~
+G:*:B
+I:39:30:0
+W:72:0:3:240
+A:72/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:616:& Skull Glow Stone~
+G:*:w
+I:39:31:0
+W:75:0:3:245
+A:75/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:617:& Skull Glow Stone~
+G:*:w
+I:39:32:0
+W:77:0:3:250
+A:77/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:618:& Bone Glow Stone~
+G:*:s
+I:39:33:0
+W:80:0:3:255
+A:80/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:619:& Bone Glow Stone~
+G:*:s
+I:39:34:0
+W:82:0:3:260
+A:82/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:620:& Pulsing Glow Stone~
+G:*:G
+I:39:35:0
+W:85:0:3:265
+A:85/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:621:& Pulsing Glow Stone~
+G:*:G
+I:39:36:0
+W:87:0:3:270
+A:87/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:622:& Hollow Glow Stone~
+G:*:U
+I:39:37:0
+W:90:0:3:275
+A:90/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
+
+N:623:& Hollow Glow Stone~
+G:*:U
+I:39:38:0
+W:92:0:3:280
+A:92/3
+P:0:1d1:0:0:0
+F:ACTIVATE | LITE | EASY_KNOW
 

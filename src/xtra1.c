@@ -154,7 +154,7 @@ static void clear_status_bar(void)
 static void show_status_bar(cptr letter, byte *colour, int num)
 {
 	int i;
-	
+
 	if (!use_color || ironman_moria)
 	{
 		/* Make the symbols white if colour is not used */
@@ -473,7 +473,7 @@ static void prt_exp(void)
 {
 	char out_val[32];
 	byte attr;
-	
+
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
 		attr = TERM_L_GREEN;
@@ -482,7 +482,7 @@ static void prt_exp(void)
 	{
 		attr = TERM_YELLOW;
 	}
-	
+
 	put_str("EXP ", ROW_EXP, 0);
 
 	if (toggle_xp)
@@ -497,7 +497,7 @@ static void prt_exp(void)
 			(void)sprintf(out_val, "%8ld",
 				 (long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)
 				 	 - (long)p_ptr->exp);
-					 
+
 			c_put_str(attr, out_val, ROW_EXP, COL_EXP + 4);
 		}
 	}
@@ -505,7 +505,7 @@ static void prt_exp(void)
 	{
 		/* Use the 'old' experience display */
 		(void)sprintf(out_val, "%8ld", (long)p_ptr->exp);
-		
+
 		c_put_str(attr, out_val, ROW_EXP, COL_EXP + 4);
 	}
 }
@@ -888,14 +888,14 @@ static void prt_speed(void)
 
 		strcpy(buf, "Paralyzed!");
 	}
-	
+
 	/* Fast */
 	else if (i > 110)
 	{
 		attr = TERM_L_GREEN;
-		
+
 		if (i <= 110 + 99)
-		{ 
+		{
 			/* Two digits */
 			sprintf(buf, "Fast (+%d)", (i - 110));
 		}
@@ -910,7 +910,7 @@ static void prt_speed(void)
 	else if (i < 110)
 	{
 		attr = TERM_L_UMBER;
-		
+
 		if (i >= 110 - 99)
 		{
 			/* Two digits */
@@ -1303,6 +1303,38 @@ static void fix_player(void)
 	}
 }
 
+/*
+ * Hack -- display character in sub-windows
+ */
+static void fix_player2(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(window_flag[j] & (PW_PLAYRES))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display player */
+		display_player(DISPLAY_PLAYER_SUMMARY);
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
 
 
 /*
@@ -1555,7 +1587,7 @@ static void calc_spells(void)
 	/* Save the current number of spells to learn */
 	s16b old_spells = p_ptr->new_spells;
 
-	cptr p = ((mp_ptr->spell_book == TV_SORCERY_BOOK) ? "spell" : "prayer");
+	cptr p = ((mp_ptr->spell_book == TV_SPELL_BOOK) ? "spell" : "prayer");
 
 
 	/* Hack -- must be literate */
@@ -1837,9 +1869,9 @@ static void calc_mana(void)
 
 
 	/* Only mages are affected */
-	if (mp_ptr->spell_book == TV_SORCERY_BOOK)
+	if (mp_ptr->spell_book == TV_SPELL_BOOK)
 	{
-		u32b f1, f2, f3;
+		u32b f1, f2, f3, f4, f5, f6;
 
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
@@ -1848,7 +1880,7 @@ static void calc_mana(void)
 		o_ptr = &inventory[INVEN_HANDS];
 
 		/* Examine the gloves */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
@@ -2049,10 +2081,10 @@ static void calc_torch(void)
 {
 	int i;
 	object_type *o_ptr;
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
 	s16b old_lite = p_ptr->cur_lite;
-	
+
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
 
@@ -2065,19 +2097,29 @@ static void calc_torch(void)
 		if ((i == INVEN_LITE) && (o_ptr->k_idx) && (o_ptr->tval == TV_LITE))
 		{
 			/* Artifact Lites provide permanent, bright, lite */
-			if (o_ptr->flags3 & TR3_LITE)
+			if ((o_ptr->flags3 & TR3_LITE) &&
+             ((o_ptr->sval < SV_YELLOW_GLOWSTONE) ||
+              (o_ptr->flags3 & TR3_INSTA_ART)))
 			{
 				p_ptr->cur_lite += 3;
 				continue;
 			}
-			
+
+         if (o_ptr->sval >= SV_YELLOW_GLOWSTONE)
+         {
+            p_ptr->cur_lite += 1;
+
+            p_ptr->cur_lite += rand_range(1, 3);
+            continue;
+         }
+
 			/* Lanterns (with fuel) provide more lite */
 			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->timeout > 0))
 			{
 				p_ptr->cur_lite += 2;
 				continue;
 			}
-			
+
 			/* Torches (with fuel) provide some lite */
 			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->timeout > 0))
 			{
@@ -2091,7 +2133,7 @@ static void calc_torch(void)
 			if (!o_ptr->k_idx) continue;
 
 			/* Extract the flags */
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 			/* does this item glow? */
 			if (f3 & TR3_LITE) p_ptr->cur_lite++;
@@ -2122,7 +2164,7 @@ static void calc_torch(void)
 
 		/* Update the monsters */
 		p_ptr->update |= (PU_MONSTERS);
-		
+
 		/* Update the monster lighting */
 		p_ptr->update |= (PU_MON_LITE);
 
@@ -2361,7 +2403,7 @@ static void calc_bonuses(void)
 	int             extra_blows;
 	int             extra_shots;
 	object_type     *o_ptr;
-	u32b            f1, f2, f3;
+	u32b            f1, f2, f3, f4, f5, f6;
 
 	bool old_heavy_wield = p_ptr->heavy_wield;
 	bool old_heavy_shoot = p_ptr->heavy_shoot;
@@ -2384,7 +2426,7 @@ static void calc_bonuses(void)
 	extra_blows = extra_shots = 0;
 
 	/* Calculate monk armour status */
-	if (p_ptr->pclass == CLASS_MONK) 
+	if (p_ptr->pclass == CLASS_MONK)
 	{
 		u16b monk_arm_wgt = 0;
 
@@ -2407,7 +2449,7 @@ static void calc_bonuses(void)
 			p_ptr->monk_armour_stat = FALSE;
 		}
 	}
-	
+
 	/* Clear the stat modifiers */
 	for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] = 0;
 
@@ -2552,11 +2594,11 @@ static void calc_bonuses(void)
 					{
 						p_ptr->pspeed += (p_ptr->lev) / 10;
 					}
-				
+
 					/* Free action if unencumbered at level 25 */
 					if (p_ptr->lev > 24) p_ptr->free_act = TRUE;
 				}
-				
+
 				break;
 		}
 
@@ -2740,7 +2782,7 @@ static void calc_bonuses(void)
 	{
 		mutation_effect();
 	}
-	
+
 
 	/* Remove flags that were not in Moria */
 	if (ironman_moria)
@@ -2757,12 +2799,12 @@ static void calc_bonuses(void)
 		p_ptr->resist_nexus = FALSE;
 		p_ptr->resist_chaos = FALSE;
 		p_ptr->resist_disen = FALSE;
-		
+
 		p_ptr->sh_fire = FALSE;
 		p_ptr->sh_elec = FALSE;
 		p_ptr->anti_tele = FALSE;
 		p_ptr->anti_magic = FALSE;
-		
+
 		p_ptr->lite = FALSE;
 	}
 
@@ -2775,7 +2817,7 @@ static void calc_bonuses(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the item flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 		/* Affect stats */
 		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
@@ -3232,7 +3274,7 @@ static void calc_bonuses(void)
 			case SV_LONG_BOW:
 			{
 				p_ptr->ammo_tval = TV_ARROW;
-				
+
 				if (p_ptr->stat_use[A_STR] >= 16)
 				{
 					p_ptr->ammo_mult = 3;
@@ -3242,7 +3284,7 @@ static void calc_bonuses(void)
 					/* weak players cannot use a longbow well */
 					p_ptr->ammo_mult = 2;
 				}
-				
+
 				p_ptr->bow_energy = 100;
 				break;
 			}
@@ -3254,11 +3296,11 @@ static void calc_bonuses(void)
 				p_ptr->bow_energy = 120;
 				break;
 			}
-			
+
 			case SV_HEAVY_XBOW:
 			{
 				p_ptr->ammo_tval = TV_BOLT;
-				
+
 				p_ptr->ammo_mult = 5;
 				if (p_ptr->stat_use[A_DEX] >= 16)
 				{
@@ -3288,7 +3330,7 @@ static void calc_bonuses(void)
 
 				/* Extra shot at level 30 */
 				if (p_ptr->lev >= 30) p_ptr->num_fire++;
-				
+
 				/* Extra shot at level 45 */
 				if (p_ptr->lev >= 45) p_ptr->num_fire++;
 			}
@@ -3398,6 +3440,10 @@ static void calc_bonuses(void)
 			/* Monk */
 			case CLASS_MONK:
 				num = ((p_ptr->lev < 40) ? 2 : 3); wgt = 40; mul = 4; break;
+
+         /*  Chi Warrior  */
+			case CLASS_CHI_WARRIOR:
+				num = 5; wgt = 30; mul = 5; break;
 		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */
@@ -3457,7 +3503,7 @@ static void calc_bonuses(void)
 			p_ptr->dis_to_h += (p_ptr->lev / 3);
 			p_ptr->dis_to_d += (p_ptr->lev / 3);
 		}
-		
+
 		p_ptr->num_blow += extra_blows;
 	}
 	/* Everyone gets two blows if not wielding a weapon. -LM- */
@@ -3696,10 +3742,10 @@ void update_stuff(void)
 
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
-	
+
 	if (p_ptr->update & (PU_VIEW))
 	{
-		p_ptr->update &= ~(PU_VIEW);		
+		p_ptr->update &= ~(PU_VIEW);
 		update_view();
 	}
 
@@ -3721,7 +3767,7 @@ void update_stuff(void)
 		p_ptr->update &= ~(PU_MONSTERS);
 		update_monsters(FALSE);
 	}
-	
+
 	if ((p_ptr->update & (PU_MON_LITE)) && monster_light)
 	{
 		p_ptr->update &= ~(PU_MON_LITE);
@@ -3986,6 +4032,13 @@ void window_stuff(void)
 		fix_player();
 	}
 
+	/* Display Resistances */
+	if (p_ptr->window & (PW_PLAYRES))
+	{
+		p_ptr->window &= ~(PW_PLAYRES);
+		fix_player2();
+	}
+
 	/* Display overhead view */
 	if (p_ptr->window & (PW_MESSAGE))
 	{
@@ -4013,7 +4066,7 @@ void window_stuff(void)
 		p_ptr->window &= ~(PW_MONSTER);
 		fix_monster();
 	}
-	
+
 	/* Display monster list */
 	if (p_ptr->window & (PW_VISIBLE))
 	{

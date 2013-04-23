@@ -28,7 +28,7 @@
 #define ROAD_MIN		3
 
 /* Minimum separation between towns */
-#define TOWN_MIN_DIST	16
+#define TOWN_MIN_DIST	/*16*/12
 
 
 /* Dodgy replacement for SCREEN_WID and SCREEN_HGT */
@@ -38,7 +38,7 @@
 #define TOWN_HGT	22
 
 /* Starting town has pre-defined stores */
-#define START_STORE_NUM		6
+#define START_STORE_NUM		7
 
 
 /* Road constants used to define with of the path */
@@ -49,7 +49,7 @@
 
 /* Decision tree constants */
 
-/* Lower two bits describe cut */ 
+/* Lower two bits describe cut */
 #define DT_HGT		0x01
 #define DT_POP		0x02
 #define DT_LAW		0x03
@@ -82,14 +82,14 @@ struct wild_building_type
 {
 	u16b	gen;	/* Created */
 	u16b	field;	/* Field type, if applicable */
-	
+
 	byte	type;	/* Type of building */
-	
+
 	/* Suggested location in parameter space */
 	byte	pop;
 	byte	magic;
 	byte	law;
-	
+
 	u16b	rarity;	/* Rarity of store */
 };
 

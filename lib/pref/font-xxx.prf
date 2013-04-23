@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2001/05/23 11:30:34 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:15:53 $
 # File: font-xxx.prf
 
 #
@@ -419,7 +419,10 @@ E:94:0x08
 E:95:0x03
 
 # ARCANE_BOOK
-E:96:0x09
+E:96:0x08
+
+# CHI_BOOK
+E:97:0x0E
 
 # FIGURINE
 E:8:0x02

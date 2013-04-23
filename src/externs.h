@@ -54,12 +54,15 @@ extern player_sex sex_info[MAX_SEXES];
 extern player_race race_info[MAX_RACES];
 extern player_class class_info[MAX_CLASS];
 extern player_magic magic_info[MAX_CLASS];
+/* */
+extern obj_theme qreward_theme[MAX_CLASS];
+/* */
 extern const u32b fake_spell_flags[4];
 extern const byte realm_choices1[];
 extern const byte realm_choices2[];
 extern cptr realm_names[];
-extern cptr spell_names[7][32];
-extern const byte deadliness_conversion[151];
+extern cptr spell_names[8][32];
+extern const int deadliness_conversion[512];
 extern const byte chest_traps[64];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
@@ -172,7 +175,7 @@ extern s16b panel_row_min, panel_row_max;
 extern s16b panel_col_min, panel_col_max;
 extern s16b panel_col_prt, panel_row_prt;
 extern byte *mp_a;
-extern char *mp_c;	
+extern char *mp_c;
 #ifdef USE_TRANSPARENCY
 extern byte *mp_ta;
 extern char *mp_tc;
@@ -255,7 +258,6 @@ extern object_kind *k_info;
 extern char *k_name;
 extern char *k_text;
 extern header *a_head;
-extern artifact_type *a_info;
 extern char *a_name;
 extern char *a_text;
 extern header *e_head;
@@ -295,7 +297,6 @@ extern u16b max_r_idx;
 extern u16b max_k_idx;
 extern u16b max_v_idx;
 extern u16b max_f_idx;
-extern u16b max_a_idx;
 extern u16b max_e_idx;
 extern u16b max_o_idx;
 extern u16b max_m_idx;
@@ -312,6 +313,7 @@ extern cptr gf_color[MAX_GF];
 extern int highscore_fd;
 extern bool monster_terrain_sensitive;
 extern int mutant_regenerate_mod;
+extern int cost_matrix[500];
 
 /* birth.c */
 extern void player_birth(void);
@@ -371,6 +373,7 @@ extern void search(void);
 extern bool auto_pickup_okay(object_type *o_ptr);
 extern void py_pickup_aux(int o_idx);
 extern void carry(int pickup);
+extern int calc_to_dmg_bonus(int todamage);
 extern void py_attack(int y, int x);
 extern void move_player(int dir, int do_pickup);
 extern void run_step(int dir);
@@ -504,7 +507,6 @@ extern void generate_cave(void);
 extern errr init_v_info_txt(FILE *fp, char *buf, bool start);
 extern errr init_f_info_txt(FILE *fp, char *buf);
 extern errr init_k_info_txt(FILE *fp, char *buf);
-extern errr init_a_info_txt(FILE *fp, char *buf);
 extern errr init_e_info_txt(FILE *fp, char *buf);
 extern errr init_r_info_txt(FILE *fp, char *buf);
 extern errr init_w_info_txt(FILE *fp, char *buf);
@@ -607,8 +609,8 @@ extern void object_desc_store(char *buf, const object_type *o_ptr, int pref, int
 /* object2.c */
 
 extern void reset_visuals(void);
-extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
-extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *f6);
+extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *f6);
 extern bool identify_fully_aux(const object_type *o_ptr);
 extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
@@ -628,6 +630,7 @@ extern bool inven_carry_okay(const object_type *o_ptr);
 extern s16b inven_carry(object_type *o_ptr);
 extern s16b inven_takeoff(int item, int amt);
 extern void inven_drop(int item, int amt);
+extern bool item_tester_hook_artifactable(const object_type *o_ptr);  /*  NEW  */
 extern bool item_tester_hook_weapon(const object_type *o_ptr);
 extern bool item_tester_hook_melee_weapon(const object_type *o_ptr);
 extern bool item_tester_hook_nonsword(const object_type *o_ptr);
@@ -676,12 +679,13 @@ extern bool object_similar(const object_type *o_ptr, const object_type *j_ptr);
 extern void object_absorb(object_type *o_ptr, object_type *j_ptr);
 extern s16b lookup_kind(int tval, int sval);
 extern void object_wipe(object_type *o_ptr);
+extern void set_durability(object_type *d_ptr, int dval); /* NEW */
 extern void object_prep(object_type *o_ptr, int k_idx);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
-extern void add_ego_flags(object_type *o_ptr, byte ego);
+extern void add_ego_flags(object_type *o_ptr, int ego);
 extern bool make_artifact(object_type *o_ptr);
 extern void add_ego_power(int power, object_type *o_ptr);
-extern void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags);
+extern void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags, bool store);
 extern void init_match_hook(byte tval, byte sval);
 extern byte kind_is_match(int k_idx);
 extern void init_match_theme(obj_theme theme);
@@ -699,6 +703,7 @@ extern bool can_player_destroy_object(object_type *o_ptr);
 extern void display_koff(int k_idx);
 extern bool scan_floor(int *items, int *item_num, int y, int x, int mode);
 extern void show_floor(int y, int x);
+extern void set_cost_matrix();
 
 /* racial.c */
 extern bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty);
@@ -710,7 +715,7 @@ extern bool load_player(void);
 extern void remove_loc(void);
 
 /* spells1.c */
-extern void take_hit(int damage, cptr kb_str);
+extern void take_hit(int damage, cptr kb_str, bool Physical);/*  3rd is for Durability */
 extern void bolt_pict(int y, int x, int ny, int nx, int typ, byte *a, byte *c);
 extern int dist_to_line(int y, int x, int y1, int x1, int y2, int x2);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg);
@@ -827,6 +832,7 @@ extern void alter_reality(void);
 extern bool warding_glyph(void);
 extern bool explosive_rune(void);
 extern void identify_pack(void);
+extern void identify_pack2(void);
 extern bool remove_curse(void);
 extern bool remove_all_curse(void);
 extern bool alchemy(void);
@@ -853,7 +859,7 @@ extern int set_acid_destroy(object_type *o_ptr);
 extern int set_elec_destroy(object_type *o_ptr);
 extern int set_fire_destroy(object_type *o_ptr);
 extern int set_cold_destroy(object_type *o_ptr);
-extern int inven_damage(inven_func typ, int perc);
+extern int inven_damage(inven_func typ, int perc, int Damage);
 extern void acid_dam(int dam, cptr kb_str);
 extern void elec_dam(int dam, cptr kb_str);
 extern void fire_dam(int dam, cptr kb_str);
@@ -996,13 +1002,14 @@ extern bool set_oppose_pois(int v);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
-extern bool inc_stat(int stat);
+extern bool inc_stat(int stat, int power);
 extern bool dec_stat(int stat, int amount, int permanent);
-extern bool res_stat(int stat);
+extern bool res_stat(int stat, int power);
 extern bool hp_player(int num);
+extern bool sp_player(int num);
 extern bool do_dec_stat(int stat);
-extern bool do_res_stat(int stat);
-extern bool do_inc_stat(int stat);
+extern bool do_res_stat(int stat, int power);
+extern bool do_inc_stat(int stat, int power);
 extern bool restore_level(void);
 extern bool lose_all_info(void);
 extern void gain_exp(s32b amount);
@@ -1042,11 +1049,10 @@ extern bool clean_shot(int y1, int x1, int y2, int x2, bool friendly);
 extern bool monst_spell_monst(int m_idx);
 
 /* artifact.c */
-extern bool create_artifact(object_type *o_ptr, bool a_scroll);
+extern bool create_artifact(object_type *o_ptr, bool a_scroll, bool store_made);
 extern int random_resistance(object_type *o_ptr, int specific, int artifact_bias);
+extern int random_misc(object_type *o_ptr, int artifact_bias);
 extern bool activate_effect(object_type *o_ptr);
-extern void random_artifact_resistance(object_type *o_ptr);
-extern void create_named_art(int a_idx, int y, int x);
 
 /* scores.c */
 extern void display_scores_aux(int from, int to, int note, const high_score *score);
@@ -1243,6 +1249,9 @@ extern bool field_action_issupplies_tester(field_type *f_ptr, vptr input);
 /* compress.c */
 extern void test_compress_module(void);
 
+extern bool act_magic(int px, int py, int act_num, int s_lev, int s_fail,
+                      int s_base, int s_bonus, int act_mult, int act_div,
+                      int cast_penalty, int beam_pct);
 
 /*
  * Hack -- conditional (or "bizarre") externs
@@ -1268,4 +1277,11 @@ extern errr script_execute(char *name);
 extern errr init_script(void);
 #endif /* USE_SCRIPT */
 
+/*
+ * Lair Level Info
+ */
+extern header *l_head;
+extern layout_type *l_info;
+extern char *l_name;
+extern char *l_text;
 

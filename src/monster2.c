@@ -110,7 +110,7 @@ void delete_monster_idx(int i)
 	{
 		update_mon_vis(m_ptr->r_idx, -1);
 	}
-	
+
 	/* Hack -- remove target monster */
 	if (i == p_ptr->target_who) p_ptr->target_who = 0;
 
@@ -298,7 +298,7 @@ void compact_monsters(int size)
 
 			/* All monsters get a saving throw */
 			if (randint0(100) < chance) continue;
-			
+
 			/* Delete the monster */
 			delete_monster_idx(i);
 
@@ -361,7 +361,7 @@ void wipe_m_list(void)
 		r_ptr->cur_num--;
 
 		/* Clear seen list */
-		r_ptr->r_see = 0;		
+		r_ptr->r_see = 0;
 
 		/* Check to see if monster is accessable on map */
 		y = m_ptr->fy;
@@ -395,7 +395,7 @@ void wipe_m_list(void)
 
 	/* Hack -- no more tracking */
 	health_track(0);
-	
+
 	/* Hack -- reset "visible" counter */
 	p_ptr->max_seen_r_idx = 0;
 	p_ptr->window |= PW_VISIBLE;
@@ -629,7 +629,7 @@ s16b get_mon_num(int level)
 	if (p < 60)
 	{
 		value2 = randint0(total);
-		
+
 		/* Is it better? */
 		if (value2 > value1)
 		{
@@ -637,12 +637,12 @@ s16b get_mon_num(int level)
 			value1 = value2;
 		}
 	}
-	
+
 	/* Try for a "better" monster twice (10%) */
 	if (p < 10)
 	{
 		value2 = randint0(total);
-		
+
 		/* Is it better? */
 		if (value2 > value1)
 		{
@@ -663,7 +663,7 @@ s16b get_mon_num(int level)
 		/* Decrement */
 		value1 -= table[i].prob3;
 	}
-	
+
 	msg_format("Aborting - Could not generate a monster!!!! %d", total);
 
 	/* Result */
@@ -948,10 +948,10 @@ void update_mon_vis(u16b r_idx, int increment)
 	/* Ignore the bug, until we know what is really going on. */
 	if (!r_ptr->r_see && (increment == -1)) return;
 #endif /* 0 */
-	
+
 	/* Update the counter */
 	r_ptr->r_see += increment;
-	
+
 	/* Update 'most powerful seen monster' */
 	if (r_ptr->r_see)
 	{
@@ -972,7 +972,7 @@ void update_mon_vis(u16b r_idx, int increment)
 				/* Can we see this monster? */
 				if (r_info[i].r_see) break;
 			}
-			
+
 			/* Record it */
 			p_ptr->max_seen_r_idx = i;
 		}
@@ -1214,7 +1214,7 @@ void update_mon(int m_idx, bool full)
 			{
 				update_mon_vis(m_ptr->r_idx, 1);
 			}
-			
+
 			/* Draw the monster */
 			lite_spot(fy, fx);
 
@@ -1247,7 +1247,7 @@ void update_mon(int m_idx, bool full)
 			{
 				update_mon_vis(m_ptr->r_idx, -1);
 			}
-			
+
 			/* Erase the monster */
 			lite_spot(fy, fx);
 
@@ -1403,27 +1403,27 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 		/* Cannot create */
 		return (FALSE);
 	}
-	
+
 	/* Check to see if fields dissallow placement */
 	if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
-	{ 
+	{
 		/* Cannot create */
 		return (FALSE);
 	}
-	
-	/* 
+
+	/*
 	 * Test for fields that will not allow monsters to
 	 * be generated on them.  (i.e. Glyph of warding)
 	 */
-		 
+
 	/* Initialise information to pass to action functions */
 	mon_enter_test.m_ptr = NULL;
 	mon_enter_test.do_move = TRUE;
-		
+
 	/* Call the hook */
 	field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
 		 (vptr) &mon_enter_test);
-			 
+
 	/* Get result */
 	if (!mon_enter_test.do_move) return (FALSE);
 
@@ -1574,7 +1574,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	}
 
 	/* Hack - are we a mimic? */
-	if (r_ptr->flags1 & RF1_CHAR_MIMIC) 
+	if (r_ptr->flags1 & RF1_CHAR_MIMIC)
 	{
 		/* The player doesn't know about us yet */
 		m_ptr->smart |= SM_MIMIC;
@@ -1979,7 +1979,7 @@ bool alloc_monster(int dis, bool slp)
 
 
 #ifdef MONSTER_HORDES
-	if (randint1(5000) <= p_ptr->depth)
+	if (randint1(1000) <= p_ptr->depth)
 	{
 		if (alloc_horde(y, x))
 		{
@@ -2345,24 +2345,24 @@ bool summon_specific(int who, int y1, int x1, int lev, int type,
 		if ((c_ptr->feat >= FEAT_PATTERN_START) &&
 		    (c_ptr->feat <= FEAT_PATTERN_XTRA2))
 			continue;
-		
+
 		/* Check for a field that blocks movement */
 		if (fields_have_flags(c_ptr->fld_idx,
 			FIELD_INFO_NO_ENTER)) continue;
-							
-		/* 
+
+		/*
 		 * Test for fields that will not allow this
 		 * specific monster to pass. (i.e. Glyph of warding)
 		 */
-		 
+
 		/* Initialise info to pass to action functions */
 		mon_enter_test.m_ptr = NULL;
 		mon_enter_test.do_move = TRUE;
-		
+
 		/* Call the hook */
-		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST, 
+		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
 			 (vptr) &mon_enter_test);
-			 
+
 		/* Get result */
 		if (!mon_enter_test.do_move) continue;
 

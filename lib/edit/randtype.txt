@@ -1,0 +1,260 @@
+# File: randtype.txt
+#
+# Base Random Monster Information - TYPES
+#
+
+# Currently, "unique" monsters are just "special" monster races, with
+# the requirement that only one monster of that race can exist at a time,
+# and when it is killed, it can never again be generated.
+
+# ATTR_CLEAR monsters acquire their attr from the item/floor below them,
+# and use "white" for the recall window.  See "cave.c" for info.
+
+# ATTR_MULTI monsters have a "flickering" attr, and use "violet" for the
+# recall window.  See "cave.c" for info.
+
+# CHAR_CLEAR monsters use special symbols (.) as given below,
+# and use those symbols for the recall window.
+
+# CHAR_MIMIC monsters use special symbols (!, ?, =) as given below,
+# and use those symbols for the recall window.
+# Note that there are (a few) normal monsters who are "violet" but not
+# ATTR_MULTI, and a lot of monsters which are "white" but not ATTR_CLEAR.
+
+# Note that currently CHAR_CLEAR monsters are treated
+# as normal monsters that are just a little hard to see.
+
+# CHAR_MIMIC monsters a special-cased in the targetting code.  They can not
+# be looked at or targetted unless 'noticed'.  The monster-list code also
+# handles this flag.
+
+# Monster list...
+
+#   A:Angel
+#   B:Bird
+#   C:Canine
+#   D:Greater Dragon
+#   E:Elemental
+#   F:Flying Insects
+#   G:Greater Spectral Undead
+#   H:Hybrid
+#   I:Ground Insects
+#   J:Snakes
+#   K:Kobolds
+#   L:Major Humaniods
+#   M:Multi Headed Reptile
+#   N:Nightmares/Unspeakable Horrors
+#   O:Giant Humanoids
+#   P:Major Plants
+#   Q:Quylthulg (Pulsing Flesh Mound)
+#   R:Reptiles/Amphibians
+#   S:Major Physical Undead
+#   T:Trolls
+#   U:Major Demon
+#   V:Greater Vortex
+#   W:Water Critters
+#   X:Xenoforms
+#   Y:Yetis/Sasquatches
+#   Z:Zephyr Hound
+#   a:Automaton/Constructs
+#   b:Bats
+#   c:Cat
+#   d:Minor Dragon Types
+#   e:Floating Eye
+#   f:Faery
+#   g:Minor Spectral Undead
+#   h:Humanoid
+#   i:Icky Thing
+#   j:Jelly
+#   k:Goblins
+#   l:Minor Humaniods
+#   m:Mold
+#   n:Naga
+#   o:Orc
+#   p:Minor Plants
+#   q:Quadraped
+#   r:Rodents
+#   s:Minor Physical Undead
+#   t:Townsperson
+#   u:Minor Demon
+#   v:Minor Vortex
+#   w:Worms
+#   /*x:          ??????????*/
+#   y:Yeek
+#   z:Silly/Bizarre Things
+#   $:Treasure Critter
+#   #:Wall Monsters
+#   %:Treasure Wall Monsters
+#   ,:Mushroom Patch
+
+# N: serial number : monster name
+# G: symbol : color
+# I: speed : hit points : vision : armor class : alertness
+# W: depth : rarity : unique name list : experience for kill
+# B: attack method : attack effect : damage
+# S: spell frequency |
+# S: spell type | spell type | etc
+# F: flag | flag | etc
+# D: Description
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. Entry 0 is used for the player.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Dark Gray    w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Black        W - Dark Purple    v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'I' is for information - speed, health, vision in tens of feet,
+# armor class, and alertness. 110 is normal speed. Alertness ranges
+# from 0 (ever vigilant for intruders) to 255 (prefers to ignore
+# intruders).
+
+# 'W' is for more information - level, rarity, and experience for
+# killing.  3rd value is now for monster unique list.  0 means there
+# will be no uniques of that type.
+
+# 'B' is for blows - method of attack, effect of attack, and damage
+# from attack. There may be up to four of these lines; effect and
+# damage are optional.
+
+# 'O' is for object theme.  The three numbers represent the percent
+# chance to drop treasure, combat and magic items.  The chance to
+# drop tools is defined as 100 - the sum of these three numbers.
+# Note that monsters do not drop junk.  Junk can only be generated
+# in the dungeon when you enter it.
+
+# 'S' is for spells. The first S: line must be S:1_IN_X with X the
+# number of monster turns, on average, before the monster will cast
+# one of its spells. X must not be zero.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+#
+# RandomBand uses JOB, DESC, and COLOR for Job, Descriptor and Color
+# setting flags.
+# JOB - Can have an occupation (most the major races like orcs and trolls)
+# DESC - Can have a descriptor
+#        DESC_T - Town
+#        DESC_1 - 1 Descriptor Max (ex., Ancient, Quick, Slimy)
+#        DESC_2 - 2 Descriptors Max (ex., Quick Ancient, Young Slimy)
+# COLOR - Can have a color descriptor (ex. Red, Blue, Green)
+#
+# Having a COLOR flag pretty much gaurantees a COLOR will be assigned
+# descriptors CAN be assigned (and usually are) but aren't 100% for
+# certain.
+#
+
+#
+# NEGATIVE flag means to reduce the base by that much, if the type
+# doesn't have a NEGATIVE flag it will add that % to the base.
+#
+
+# 'D' is for description. As many D: lines may be used as are needed
+# to describe the monster. Note that lines may need spaces at their
+# ends to prevent words from running together in the monster memory.
+
+# Version stamp (required)
+
+V:2.8.1
+
+##### The Player #####
+
+N:0:Player
+G:@:w
+
+#====================================================================
+#     Townfolk descriptors
+#====================================================================
+
+N:1:Moronic
+G:t:y
+I:0:0d0:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK
+D:IQ *MIGHT* be as much as the shoe size.
+
+N:2:Drunken
+G:t:W
+I:0:10d10:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK
+D:Definitely drunk!
+
+N:3:Lazy
+G:t:w
+I:0:10d10:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK | NEGATIVE
+D:Doesn't look like this one wants to do anything.
+
+N:4:Crazy
+G:t:G
+I:0:100d100:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK
+D:Looks to be 50 cards short of a full deck.
+
+N:5:Battle-scarred
+G:t:b
+I:0:100d100:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK
+D:Look like this one went through a war.
+
+N:6:Mean-looking
+G:t:B
+I:0:50d50:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK
+D:Tough looking character.
+
+N:7:Religious
+G:t:o
+I:0:50d50:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK
+F:GOOD
+D:Preaching religion!
+
+N:8:Mangy
+G:t:o
+I:0:0d0:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK
+D:Eeewwww!
+
+N:9:Happy
+G:t:g
+I:0:0d0:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK
+D:Smiling all the time!
+
+N:10:Nervous
+G:t:g
+I:0:0d50:0:0:0
+W:0:0:0:0
+F:DESC_TOWNFOLK
+D:One very gittery townfolk!
+
+#====================================================================
+#     Color Adjective Type Descriptors
+#====================================================================
+
+Red, Fiery, Burning, Flaming, Blazing, Green, Venom, Toxic, White,
+Icey, Glacial, Black, Acidic, Blue, Water, Multi-Hued, Prismatic,
+Chromatic, Dark, Shadowy, Shady, Light,
+
+#====================================================================
+#     Normal Adjective Type Descriptors
+#====================================================================
+
+Quick, Rapid, Swift, Nimble, Novice, Apprentice, Fledgling, Seasoned,
+Verteran, Experienced, Master, Mummified, Zombified, Skeletal,
+

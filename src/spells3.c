@@ -36,9 +36,9 @@ bool teleport_away(int m_idx, int dis)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	cave_type *c_ptr = NULL;
-	
+
 	field_mon_test	mon_enter_test;
-	
+
 	/* Paranoia */
 	if (!m_ptr->r_idx) return (FALSE);
 
@@ -79,33 +79,33 @@ bool teleport_away(int m_idx, int dis)
 			if (!in_bounds(ny, nx)) continue;
 
 			c_ptr = area(ny, nx);
-			
+
 			/* Check for a field that blocks movement */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
 			{
 				continue;
 			}
-			
+
 			/* Require "empty" floor space */
 			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* ...nor onto the Pattern */
 			if ((c_ptr->feat >= FEAT_PATTERN_START) &&
 			    (c_ptr->feat <= FEAT_PATTERN_XTRA2)) continue;
-				
-			/* 
+
+			/*
 			 * Test for fields that will not allow monsters to
 			 * be generated on them.  (i.e. Glyph of warding)
 			 */
-		 
+
 			/* Initialise information to pass to action functions */
 			mon_enter_test.m_ptr = NULL;
 			mon_enter_test.do_move = TRUE;
-		
+
 			/* Call the hook */
 			field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
 				 (vptr) &mon_enter_test);
-			 
+
 			/* Get result */
 			if (!mon_enter_test.do_move) continue;
 
@@ -132,7 +132,7 @@ bool teleport_away(int m_idx, int dis)
 
 	/* Sound */
 	sound(SOUND_TPOTHER);
-	
+
 	/* Process fields under the monster. */
 	field_hook(&c_ptr->fld_idx,
 			 FIELD_ACT_MONSTER_LEAVE, (vptr) m_ptr);
@@ -146,20 +146,20 @@ bool teleport_away(int m_idx, int dis)
 	/* Move the monster */
 	m_ptr->fy = ny;
 	m_ptr->fx = nx;
-	
+
 	/* Update the monster (new location) */
 	update_mon(m_idx, TRUE);
-	
+
 	/* Process fields under the monster. */
 	field_hook(&c_ptr->fld_idx,
 			 FIELD_ACT_MONSTER_ENTER, (vptr) m_ptr);
-	
+
 	/* Redraw the old grid */
 	lite_spot(oy, ox);
 
 	/* Redraw the new grid */
 	lite_spot(ny, nx);
-	
+
 	/* Notice changes in view */
 	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
 	{
@@ -229,26 +229,26 @@ void teleport_to_player(int m_idx)
 			if (!in_bounds(ny, nx)) continue;
 
 			c_ptr = area(ny, nx);
-			
+
 			/* Check for a field that blocks movement */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
 			{
 				continue;
 			}
-			
-			/* 
+
+			/*
 			 * Test for fields that will not allow monsters to
 			 * be generated on them.  (i.e. Glyph of warding)
 			 */
-		 
+
 			/* Initialise information to pass to action functions */
 			mon_enter_test.m_ptr = NULL;
 			mon_enter_test.do_move = TRUE;
-		
+
 			/* Call the hook */
 			field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
 				 (vptr) &mon_enter_test);
-			 
+
 			/* Get result */
 			if (!mon_enter_test.do_move) continue;
 
@@ -280,7 +280,7 @@ void teleport_to_player(int m_idx)
 
 	/* Sound */
 	sound(SOUND_TPOTHER);
-	
+
 	/* Process fields under the monster. */
 	field_hook(&c_ptr->fld_idx,
 			 FIELD_ACT_MONSTER_LEAVE, (vptr) m_ptr);
@@ -294,10 +294,10 @@ void teleport_to_player(int m_idx)
 	/* Move the monster */
 	m_ptr->fy = ny;
 	m_ptr->fx = nx;
-	
+
 	/* Update the monster (new location) */
 	update_mon(m_idx, TRUE);
-	
+
 	/* Process fields under the monster. */
 	field_hook(&c_ptr->fld_idx,
 			 FIELD_ACT_MONSTER_ENTER, (vptr) m_ptr);
@@ -307,7 +307,7 @@ void teleport_to_player(int m_idx)
 
 	/* Redraw the new grid */
 	lite_spot(ny, nx);
-	
+
 	/* Notice changes in view */
 	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
 	{
@@ -346,7 +346,7 @@ void teleport_player(int dis)
 
 	monster_type *m_ptr;
 	u16b m_idx;
-	
+
 	bool look = TRUE;
 	cave_type *c_ptr;
 
@@ -392,13 +392,13 @@ void teleport_player(int dis)
 
 			/* No non-movement */
 			if ((y == py) && (x == px)) continue;
-			
+
 			/* Check for a field that blocks movement */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
 			{
 				continue;
 			}
-			
+
 			/* No teleporting into vaults and such */
 			if (c_ptr->info & CAVE_ICKY) continue;
 
@@ -433,11 +433,11 @@ void teleport_player(int dis)
 	/* Move the player */
 	py = y;
 	px = x;
-	
+
 	/* Move the player */
 	p_ptr->py = y;
 	p_ptr->px = x;
-	
+
 	if (!p_ptr->depth)
 	{
 		/* Scroll wilderness */
@@ -445,13 +445,13 @@ void teleport_player(int dis)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
-	
+
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
-		
+
 	/* Redraw the new spot */
 	lite_spot(py, px);
-	
+
 	/* Process fields under the player. */
 	field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
@@ -468,12 +468,12 @@ void teleport_player(int dis)
 			{
 				x = ox + xx;
 				y = oy + yy;
-				
+
 				if (in_bounds2(y, x) && area(y, x)->m_idx)
 				{
 					m_idx = area(y, x)->m_idx;
 					m_ptr = &m_list[m_idx];
-					
+
 					if ((r_info[m_ptr->r_idx].flags6 & RF6_TPORT) &&
 					    !(r_info[m_ptr->r_idx].flags3 & RF3_RES_TELE) &&
 						!(m_ptr->csleep))
@@ -541,14 +541,14 @@ void teleport_player_to(int ny, int nx)
 
 		/* Accept "naked" floor grids */
 		c_ptr = area(y, x);
-		
+
 		/* Can enter grid? */
 		if (cave_naked_grid(c_ptr) && !(fields_have_flags(c_ptr->fld_idx,
 				 FIELD_INFO_NO_ENTER))) break;
 
 		/* No non-movement */
 		if ((y == py) && (x == px)) continue;
-		
+
 		/* Occasionally advance the distance */
 		if (++ctr > (4 * dis * dis + 4 * dis + 1))
 		{
@@ -571,11 +571,11 @@ void teleport_player_to(int ny, int nx)
 	/* Move the player */
 	py = y;
 	px = x;
-	
+
 	/* Move the player */
 	p_ptr->py = y;
 	p_ptr->px = x;
-	
+
 	if (!p_ptr->depth)
 	{
 		/* Scroll wilderness */
@@ -583,7 +583,7 @@ void teleport_player_to(int ny, int nx)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
-	
+
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
 
@@ -623,7 +623,7 @@ void teleport_player_level(void)
 		msg_print("There is no effect.");
 		return;
 	}
-	
+
 	if (!check_down_wild()) return;
 
 	if (p_ptr->anti_tele)
@@ -690,13 +690,13 @@ bool check_down_wild(void)
 		msg_print("Nothing happens.");
 		return (FALSE);
 	}
-	
+
 	/* Cannot recall in towns with no dungeon */
 	if ((!vanilla_town) && (!p_ptr->depth))
 	{
 		bool found = FALSE;
 		int i;
-		
+
 		/* Look for stairs */
 		for (i = 0; i < town[p_ptr->town_num].numstores; i++)
 		{
@@ -706,7 +706,7 @@ bool check_down_wild(void)
 				break;
 			}
 		}
-		
+
 		if (!found)
 		{
 			msg_print("Nothing happens.");
@@ -735,8 +735,8 @@ void recall_player(int turns)
 		return;
 	}
 
-	if (!check_down_wild()) return;	
-	
+	if (!check_down_wild()) return;
+
 	if (p_ptr->depth && (p_ptr->max_depth > p_ptr->depth) &&
 		 !p_ptr->inside_quest)
 	{
@@ -850,7 +850,7 @@ bool apply_disenchant(void)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 
 	/* Notice */
 	return (TRUE);
@@ -1003,32 +1003,32 @@ void brand_weapon(int brand_type)
 		{
 		case 4:
 			act = "seems very unstable now.";
-			ego = EGO_TRUMP;
+			ego = 39;
 			o_ptr->pval = randint1(2);
-			o_ptr->activate = ACT_TELEPORT_1;
+/*			o_ptr->activate = ACT_TELEPORT_1;*/
 			break;
 		case 3:
 			act = "thirsts for blood!";
-			ego = EGO_VAMPIRIC;
+			ego = 38;
 			break;
 		case 2:
 			act = "is coated with poison.";
-			ego = EGO_BRAND_POIS;
+			ego = 34;
 			break;
 		case 1:
 			act = "is engulfed in raw Logrus!";
-			ego = EGO_CHAOTIC;
+			ego = 35;
 			break;
 		default:
 			if (randint0(100) < 25)
 			{
 				act = "is covered in a fiery shield!";
-				ego = EGO_BRAND_FIRE;
+				ego = 32;
 			}
 			else
 			{
 				act = "glows deep, icy blue!";
-				ego = EGO_BRAND_COLD;
+				ego = 33;
 			}
 		}
 
@@ -1044,14 +1044,14 @@ void brand_weapon(int brand_type)
 
 		chg_virtue(V_ENCHANT, -2);
 	}
-	
+
 	if (ego)
 	{
 		/* Hack - save the price */
 		s32b cost = o_ptr->cost;
-		
+
 		add_ego_flags(o_ptr, ego);
-		
+
 		o_ptr->cost = cost;
 	}
 }
@@ -1092,8 +1092,8 @@ void call_the_(void)
 	else
 	{
 		msg_format("You %s the %s too close to a wall!",
-			((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
-			((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell"));
+			((mp_ptr->spell_book == TV_SPELL_BOOK) ? "recite" : "cast"),
+			((mp_ptr->spell_book == TV_SPELL_BOOK) ? "prayer" : "spell"));
 		msg_print("There is a loud explosion!");
 
 		if (destroy_area(py, px, 20 + p_ptr->lev))
@@ -1101,7 +1101,7 @@ void call_the_(void)
 		else
 			msg_print("The dungeon trembles.");
 
-		take_hit(rand_range(100, 250), "a suicidal Call the Void");
+		take_hit(rand_range(100, 250), "a suicidal Call the Void", TRUE);
 	}
 }
 
@@ -1197,8 +1197,8 @@ void fetch(int dir, int wgt, bool require_los)
 		msg_print("The object is too heavy.");
 		return;
 	}
-	
-	/* 
+
+	/*
 	 * Hack - do not get artifacts.
 	 * This interacts badly with preserve mode.
 	 */
@@ -1221,7 +1221,7 @@ void fetch(int dir, int wgt, bool require_los)
 
 	/* Notice the moved object (The player gets redrawn) */
 	note_spot(py, px);
-	
+
 	/* Redraw the map???  Can we just use lite_spot() a few times? */
 	p_ptr->redraw |= PR_MAP;
 }
@@ -1314,6 +1314,52 @@ void identify_pack(void)
 	}
 }
 
+/*
+ * Identify everything being carried.
+ * Done by a potion of "self knowledge".
+ */
+void identify_pack2(void)
+{
+	int i;
+	char  o_name[80];
+
+
+	/* Simply identify and know every item */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+      if (!(o_ptr->ident & (IDENT_MENTAL)))
+   	{
+         /* Identify it */
+	      identify_item(o_ptr);
+
+      	/* Mark the item as fully known */
+   	   o_ptr->ident |= (IDENT_MENTAL);
+
+   	   /* Save all the known flags */
+	      o_ptr->kn_flags1 = o_ptr->flags1;
+      	o_ptr->kn_flags2 = o_ptr->flags2;
+	      o_ptr->kn_flags3 = o_ptr->flags3;
+	      o_ptr->kn_flags4 = o_ptr->flags4;
+      	o_ptr->kn_flags5 = o_ptr->flags5;
+	      o_ptr->kn_flags6 = o_ptr->flags6;
+
+      	/* Handle stuff */
+   	   handle_stuff();
+
+   	   /* Description */
+	      object_desc(o_name, o_ptr, TRUE, 3);
+
+      	/* Describe it fully */
+	      (void)identify_fully_aux(o_ptr);
+      }
+	}
+}
+
 
 /*
  * Used by the "enchant" function (chance of failure)
@@ -1345,7 +1391,7 @@ static int remove_curse_aux(int all)
 	/* Attempt to uncurse items being worn */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		u32b f1, f2, f3;
+		u32b f1, f2, f3, f4, f5, f6;
 
 		object_type *o_ptr = &inventory[i];
 
@@ -1356,7 +1402,8 @@ static int remove_curse_aux(int all)
 		if (!cursed_p(o_ptr)) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+   /*****   NEEDS   REWORKING   *****/
 
 		/* Heavily Cursed Items need a special spell */
 		if (!all && (f3 & TR3_HEAVY_CURSE)) continue;
@@ -1546,7 +1593,7 @@ void stair_creation(void)
 		msg_print("The object resists the spell.");
 		return;
 	}
-	
+
 	if (!check_down_wild()) return;
 
 	/* XXX XXX XXX */
@@ -1586,10 +1633,11 @@ void stair_creation(void)
  */
 static void break_curse(object_type *o_ptr)
 {
-	u32b    f1, f2, f3;
+	u32b    f1, f2, f3, f4, f5, f6;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+   /*****   NEEDS   REWORKING   *****/
 
 	if (cursed_p(o_ptr) && !(f3 & TR3_PERMA_CURSE) && (randint0(100) < 25))
 	{
@@ -1713,7 +1761,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 
 	/* Success */
 	return (TRUE);
@@ -1801,7 +1849,7 @@ bool artifact_scroll(void)
 
 
 	/* Enchant weapon/armour */
-	item_tester_hook = item_tester_hook_weapon_armour;
+	item_tester_hook = item_tester_hook_artifactable;  /*  NEW  */
 
 	/* Get an item */
 	q = "Enchant which item? ";
@@ -1820,7 +1868,6 @@ bool artifact_scroll(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
@@ -1829,40 +1876,19 @@ bool artifact_scroll(void)
 	          ((item >= 0) ? "Your" : "The"), o_name,
 	          ((o_ptr->number > 1) ? "" : "s"));
 
-	/* No artifact creation of Dragon Scale Mail */
-	if (o_ptr->tval == TV_DRAG_ARMOR)
+   if (o_ptr->number > 1 && (o_ptr->tval != TV_SHOT && o_ptr->tval != TV_ARROW && o_ptr->tval != TV_BOLT))
 	{
-		/* ToDo: Maybe allow some of the DSMs to be enchanted */
-		msg_format("The %s %s already magical!",
-		    o_name, ((o_ptr->number > 1) ? "are" : "is"));
+		msg_print("Not enough enough energy to enchant more than one object!");
+		msg_format("%d of your %s %s destroyed!", (o_ptr->number) - 1,
+		           o_name, ((o_ptr->number > 2) ? "were" : "was"));
 
-		okay = FALSE;
+		/* Change the weight */
+		p_ptr->total_weight -= ((o_ptr->number - 1) * o_ptr->weight);
+
+		o_ptr->number = 1;
 	}
 
-	else if (o_ptr->xtra_name)
-	{
-		msg_format("The %s %s already %s!",
-		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
-		    ((o_ptr->number > 1) ? "powerful items" : "a powerful item"));
-		okay = FALSE;
-	}
-
-	else
-	{
-		if (o_ptr->number > 1)
-		{
-			msg_print("Not enough enough energy to enchant more than one object!");
-			msg_format("%d of your %s %s destroyed!", (o_ptr->number) - 1,
-			           o_name, ((o_ptr->number > 2) ? "were" : "was"));
-			
-			/* Change the weight */
-			p_ptr->total_weight -= ((o_ptr->number - 1) * o_ptr->weight);
-			
-			o_ptr->number = 1;
-		}
-
-		okay = create_artifact(o_ptr, TRUE);
-	}
+	okay = create_artifact(o_ptr, TRUE, FALSE);
 
 	/* Failure */
 	if (!okay)
@@ -1909,7 +1935,7 @@ static void bad_luck(object_type *o_ptr)
 			o_ptr->number = number;
 
 			/* Apply bad magic */
-			apply_magic(o_ptr, p_ptr->depth, 0, OC_FORCE_BAD);
+			apply_magic(o_ptr, p_ptr->depth, 0, OC_FORCE_BAD, FALSE);
 		}
 
 		/* Now curse it */
@@ -1929,9 +1955,12 @@ static void bad_luck(object_type *o_ptr)
 		o_ptr->flags1 = 0;
 		o_ptr->flags2 = 0;
 		o_ptr->flags3 = 0;
+		o_ptr->flags4 = 0;
+		o_ptr->flags5 = 0;
+		o_ptr->flags6 = 0;
 
-		add_ego_flags(o_ptr, EGO_BLASTED);
-		
+		add_ego_flags(o_ptr, 92);
+
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
 
@@ -1945,7 +1974,7 @@ static void bad_luck(object_type *o_ptr)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 	}
 }
 
@@ -1972,32 +2001,6 @@ void identify_item(object_type *o_ptr)
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
-	/* Save knowledge of artifact */
-	if (o_ptr->activate > 127)
-	{
-		/* Have we seen it before? */
-		if (a_info[o_ptr->activate - 128].cur_num != 2)
-		{
-			/*
-			 * If the item was an artifact, and if the
-			 * auto-note is selected, write a message.
-			 */
-			if (auto_notes && take_notes)
-			{
-				char note[80];
-				char item_name[80];
-				object_desc(item_name, o_ptr, FALSE, 0);
-	
-				/* Build note and write */
-				sprintf(note, "Found The %s", item_name);
-
-				add_note(note, 'A');
-			}
-		}
-		
-		a_info[o_ptr->activate - 128].cur_num = 2;
-	}
-
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -2005,20 +2008,20 @@ void identify_item(object_type *o_ptr)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 }
 
 
 static bool item_tester_unknown(const object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	
+
 	/* Check to see if we don't know the flavor */
 	if (k_ptr->flavor && !k_ptr->aware) return (TRUE);
-	
+
 	/* Check to see if we have identified the item */
 	if (object_known_p(o_ptr)) return (FALSE);
-	
+
 	return (TRUE);
 }
 
@@ -2026,13 +2029,13 @@ static bool item_tester_unknown(const object_type *o_ptr)
 static bool item_tester_unknown_star(const object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	
+
 	/* Check to see if we don't know the flavor */
 	if (k_ptr->flavor && !k_ptr->aware) return (TRUE);
-	
+
 	/* Check to see if we have identified the item */
 	if (o_ptr->ident & IDENT_MENTAL) return (FALSE);
-	
+
 	return (TRUE);
 }
 
@@ -2141,7 +2144,7 @@ bool mundane_spell(void)
 
 	/* Erase the inscription */
 	o_ptr->inscription = 0;
-	
+
 	/* Erase the activation */
 	o_ptr->activate = 0;
 
@@ -2171,6 +2174,9 @@ bool mundane_spell(void)
 	o_ptr->flags1 = 0;
 	o_ptr->flags2 = 0;
 	o_ptr->flags3 = 0;
+	o_ptr->flags4 = 0;
+	o_ptr->flags5 = 0;
+	o_ptr->flags6 = 0;
 
 	/* For rod-stacking */
 	if (o_ptr->tval == TV_ROD)
@@ -2232,6 +2238,9 @@ bool identify_fully(void)
 	o_ptr->kn_flags1 = o_ptr->flags1;
 	o_ptr->kn_flags2 = o_ptr->flags2;
 	o_ptr->kn_flags3 = o_ptr->flags3;
+	o_ptr->kn_flags4 = o_ptr->flags4;
+	o_ptr->kn_flags5 = o_ptr->flags5;
+	o_ptr->kn_flags6 = o_ptr->flags6;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2401,12 +2410,12 @@ bool recharge(int power)
 
 			/* Recharge the wand or staff. */
 			o_ptr->pval += recharge_amount;
-			
+
 			/* Reduce "used" charges */
 			if (o_ptr->tval == TV_WAND)
 			{
 				o_ptr->ac -= recharge_amount;
-				
+
 				/* Never less than zero */
 				if (o_ptr->ac < 0) o_ptr->ac = 0;
 			}
@@ -2440,7 +2449,7 @@ bool recharge(int power)
 				{
 					o_ptr->ac += o_ptr->pval;
 				}
-			
+
 				o_ptr->pval = 0;
 			}
 		}
@@ -2531,10 +2540,10 @@ bool recharge(int power)
 				{
 					o_ptr->ac += o_ptr->pval;
 					o_ptr->pval = 0;
-					
+
 					reduce_charges(o_ptr, 1);
 				}
-				
+
 				/* Reduce and describe inventory */
 				if (item >= 0)
 				{
@@ -2598,7 +2607,7 @@ bool bless_weapon(void)
 {
 	int             item;
 	object_type     *o_ptr;
-	u32b            f1, f2, f3;
+	u32b            f1, f2, f3, f4, f5, f6;
 	char            o_name[80];
 	cptr            q, s;
 
@@ -2628,7 +2637,8 @@ bool bless_weapon(void)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+   /*****   NEEDS   REWORKING   *****/
 
 	if (cursed_p(o_ptr))
 	{
@@ -2729,7 +2739,7 @@ bool bless_weapon(void)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 
 	return TRUE;
 }
@@ -2765,6 +2775,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 
 	switch (k_ptr->sval)
 	{
+      /*
 		case SV_POTION_SALT_WATER:
 		case SV_POTION_SLIME_MOLD:
 		case SV_POTION_LOSE_MEMORIES:
@@ -2774,7 +2785,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 		case SV_POTION_DEC_DEX:
 		case SV_POTION_DEC_CON:
 		case SV_POTION_DEC_CHR:
-		case SV_POTION_WATER:   /* perhaps a 'water' attack? */
+		case SV_POTION_WATER:    perhaps a 'water' attack?
 		case SV_POTION_APPLE_JUICE:
 			return TRUE;
 
@@ -2808,7 +2819,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 		case SV_POTION_RESISTANCE:
 		case SV_POTION_INVULNERABILITY:
 		case SV_POTION_NEW_LIFE:
-			/* All of the above potions have no effect when shattered */
+			 All of the above potions have no effect when shattered
 			return FALSE;
 		case SV_POTION_SLOWNESS:
 			dt = GF_OLD_SLOW;
@@ -2827,7 +2838,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 			ident = TRUE;
 			angry = TRUE;
 			break;
-		case SV_POTION_CONFUSION: /* Booze */
+		case SV_POTION_CONFUSION:  Booze
 			dt = GF_OLD_CONF;
 			ident = TRUE;
 			angry = TRUE;
@@ -2845,7 +2856,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 			ident = TRUE;
 			break;
 		case SV_POTION_DEATH:
-			dt = GF_DEATH_RAY;    /* !! */
+			dt = GF_DEATH_RAY;     !!
 			dam = damroll(25, 25);
 			angry = TRUE;
 			radius = 1;
@@ -2883,14 +2894,15 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 			radius = 1;
 			ident = TRUE;
 			break;
-		case SV_POTION_RESTORE_MANA:   /* MANA */
+		case SV_POTION_RESTORE_MANA:    MANA
 			dt = GF_MANA;
 			dam = damroll(10, 10);
 			radius = 1;
 			ident = TRUE;
 			break;
 		default:
-			/* Do nothing */  ;
+			 Do nothing   ;
+      */
 	}
 
 	(void)project(who, radius, y, x, dam, dt,
@@ -2902,7 +2914,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 		k_ptr->aware = TRUE;
 		gain_exp((k_ptr->level + p_ptr->lev / 2) / p_ptr->lev);
 	}
-	
+
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
@@ -3358,6 +3370,14 @@ static void spell_info(char *p, int spell, int realm)
 				}
 				break;
 
+			case 7: /*  Chi  */
+				switch (spell)
+				{
+					case  1: sprintf(p, " range %d", (10+(plev / 3))); break;
+					case 14: sprintf(p, " range %d", (plev * 7)); break;
+				}
+				break;
+
 			default:
 				sprintf(p, "Unknown type: %d.", realm);
 		}
@@ -3562,13 +3582,7 @@ bool hates_fire(const object_type *o_ptr)
 		}
 
 		/* Books */
-		case TV_LIFE_BOOK:
-		case TV_SORCERY_BOOK:
-		case TV_NATURE_BOOK:
-		case TV_CHAOS_BOOK:
-		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
-		case TV_ARCANE_BOOK:
+		case TV_SPELL_BOOK:
 		{
 			return (TRUE);
 		}
@@ -3615,9 +3629,9 @@ bool hates_cold(const object_type *o_ptr)
  */
 int set_acid_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 	if (!hates_acid(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 	if (f3 & TR3_IGNORE_ACID) return (FALSE);
 	return (TRUE);
 }
@@ -3628,9 +3642,9 @@ int set_acid_destroy(object_type *o_ptr)
  */
 int set_elec_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 	if (!hates_elec(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 	if (f3 & TR3_IGNORE_ELEC) return (FALSE);
 	return (TRUE);
 }
@@ -3641,9 +3655,9 @@ int set_elec_destroy(object_type *o_ptr)
  */
 int set_fire_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 	if (!hates_fire(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 	if (f3 & TR3_IGNORE_FIRE) return (FALSE);
 	return (TRUE);
 }
@@ -3654,9 +3668,9 @@ int set_fire_destroy(object_type *o_ptr)
  */
 int set_cold_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 	if (!hates_cold(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 	if (f3 & TR3_IGNORE_COLD) return (FALSE);
 	return (TRUE);
 }
@@ -3669,18 +3683,20 @@ int set_cold_destroy(object_type *o_ptr)
  * New-style wands and rods handled correctly. -LM-
  * Returns number of items destroyed.
  */
-int inven_damage(inven_func typ, int perc)
+int inven_damage(inven_func typ, int perc, int Damage)
 {
-	int         i, j, k, amt;
+	int         i, j, k, amt, amt2, dmg = 0;
 	object_type *o_ptr;
 	char        o_name[80];
 
+   /*  NEW Mods For Durability  */
 
 	/* Count the casualties */
-	k = 0;
+	k = 0; amt2 = 0; dmg = 0;
 
 	/* Scan through the slots backwards */
-	for (i = 0; i < INVEN_PACK; i++)
+   /*  Need to Check Everything  */
+	for (i = 0; i < /*INVEN_PACK*/INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -3688,7 +3704,8 @@ int inven_damage(inven_func typ, int perc)
 		if (!o_ptr->k_idx) continue;
 
 		/* Hack -- for now, skip artifacts */
-		if (o_ptr->flags3 & TR3_INSTA_ART) continue;
+/*		if (o_ptr->flags3 & TR3_INSTA_ART) continue;*/
+      /*  Artifacts can take damage too  */
 
 		/* Give this item slot a shot at death */
 		if ((*typ)(o_ptr))
@@ -3699,38 +3716,97 @@ int inven_damage(inven_func typ, int perc)
 				if (randint0(100) < perc) amt++;
 			}
 
+         msg_format("DMG : %d  AMT : %d", Damage, amt);
+
 			/* Some casualities */
 			if (amt)
 			{
-				/* Get a description */
-				object_desc(o_name, o_ptr, FALSE, 3);
+            if (o_ptr->number > 1)
+            {
+               /*  Stack of Stuff  */
+               dmg = randint1(Damage);
 
-				/* Message */
-				msg_format("%sour %s (%c) %s destroyed!",
-				    ((o_ptr->number > 1) ?
-				    ((amt == o_ptr->number) ? "All of y" :
-				    (amt > 1 ? "Some of y" : "One of y")) : "Y"),
-				    o_name, index_to_label(i),
-				    ((amt > 1) ? "were" : "was"));
+               j = (o_ptr->C_Durability / o_ptr->number);
 
-				/* Potions smash open */
-				if (object_is_potion(o_ptr))
-				{
-					int px = p_ptr->px;
-					int py = p_ptr->py;
+               if (dmg > j)
+               {
+                  amt2 = o_ptr->number;
+               }
+               else
+               {
+                  o_ptr->C_Durability -= dmg;
 
-					(void)potion_smash_effect(0, py, px, o_ptr->k_idx);
-				}
+   				   /* Get a description */
+      				object_desc(o_name, o_ptr, FALSE, 3);
 
-				/* Reduce the charges of rods/wands */
-				reduce_charges(o_ptr, amt);
+	      			/* Message */
+		      		msg_format("%sour %s (%c) %s damaged!",
+			      	    ((o_ptr->number > 1) ?
+				          ((amt == o_ptr->number) ? "All of y" :
+				          (amt > 1 ? "Some of y" : "One of y")) : "Y"),
+      				    o_name, index_to_label(i),
+	      			    ((amt > 1) ? "were" : "was"));
+               }
 
-				/* Destroy "amt" items */
-				inven_item_increase(i, -amt);
-				inven_item_optimize(i);
+            }
+            else
+            {
+               /*  Single Item  */
+               dmg = randint1(Damage);
 
-				/* Count the casualties */
-				k += amt;
+               if ((u32b)dmg > o_ptr->C_Durability)
+               {
+                  amt2++;
+               }
+               else
+               {
+                  o_ptr->C_Durability -= dmg;
+
+   				   /* Get a description */
+      				object_desc(o_name, o_ptr, FALSE, 3);
+
+	      			/* Message */
+		      		msg_format("%sour %s (%c) %s damaged!",
+			      	    ((o_ptr->number > 1) ?
+				          ((amt == o_ptr->number) ? "All of y" :
+				          (amt > 1 ? "Some of y" : "One of y")) : "Y"),
+      				    o_name, index_to_label(i),
+	      			    ((amt > 1) ? "were" : "was"));
+               }
+            }
+
+            if (amt2)
+            {
+				   /* Get a description */
+   				object_desc(o_name, o_ptr, FALSE, 3);
+
+	   			/* Message */
+		   		msg_format("%sour %s (%c) %s destroyed!",
+			   	    ((o_ptr->number > 1) ?
+				       ((amt2 == o_ptr->number) ? "All of y" :
+				       (amt2 > 1 ? "Some of y" : "One of y")) : "Y"),
+   				    o_name, index_to_label(i),
+	   			    ((amt2 > 1) ? "were" : "was"));
+
+		   		/* Potions smash open */
+			   	if (object_is_potion(o_ptr))
+				   {
+   					int px = p_ptr->px;
+	   				int py = p_ptr->py;
+
+			   		(void)potion_smash_effect(0, py, px, o_ptr->k_idx);
+				   }
+
+   				/* Reduce the charges of rods/wands */
+	   			reduce_charges(o_ptr, amt2);
+
+		   		/* Destroy "amt2" items */
+			   	inven_item_increase(i, -amt2);
+				   inven_item_optimize(i);
+
+   				/* Count the casualties */
+	   			k = amt2;
+            }
 			}
 		}
 	}
@@ -3750,7 +3826,7 @@ int inven_damage(inven_func typ, int perc)
 static int minus_ac(void)
 {
 	object_type *o_ptr = NULL;
-	u32b        f1, f2, f3;
+	u32b        f1, f2, f3, f4, f5, f6;
 	char        o_name[80];
 
 
@@ -3776,7 +3852,7 @@ static int minus_ac(void)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 	/* Object resists */
 	if (f3 & TR3_IGNORE_ACID)
@@ -3796,7 +3872,7 @@ static int minus_ac(void)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 
 	/* Item was damaged */
 	return (TRUE);
@@ -3827,11 +3903,11 @@ void acid_dam(int dam, cptr kb_str)
 	if (minus_ac()) dam = (dam + 1) / 2;
 
 	/* Take damage */
-	take_hit(dam, kb_str);
+	take_hit(dam, kb_str, TRUE);
 
 	/* Inventory damage */
 	if (!(p_ptr->oppose_acid && p_ptr->resist_acid))
-		(void)inven_damage(set_acid_destroy, inv);
+		(void)inven_damage(set_acid_destroy, inv, dam);
 }
 
 
@@ -3856,11 +3932,11 @@ void elec_dam(int dam, cptr kb_str)
 		(void)do_dec_stat(A_DEX);
 
 	/* Take damage */
-	take_hit(dam, kb_str);
+	take_hit(dam, kb_str, TRUE);
 
 	/* Inventory damage */
 	if (!(p_ptr->oppose_elec && p_ptr->resist_elec))
-		(void)inven_damage(set_elec_destroy, inv);
+		(void)inven_damage(set_elec_destroy, inv, dam);
 }
 
 
@@ -3885,11 +3961,11 @@ void fire_dam(int dam, cptr kb_str)
 		(void)do_dec_stat(A_STR);
 
 	/* Take damage */
-	take_hit(dam, kb_str);
+	take_hit(dam, kb_str, TRUE);
 
 	/* Inventory damage */
 	if (!(p_ptr->resist_fire && p_ptr->oppose_fire))
-		(void)inven_damage(set_fire_destroy, inv);
+		(void)inven_damage(set_fire_destroy, inv, dam);
 }
 
 
@@ -3914,11 +3990,11 @@ void cold_dam(int dam, cptr kb_str)
 		(void)do_dec_stat(A_STR);
 
 	/* Take damage */
-	take_hit(dam, kb_str);
+	take_hit(dam, kb_str, TRUE);
 
 	/* Inventory damage */
 	if (!(p_ptr->resist_cold && p_ptr->oppose_cold))
-		(void)inven_damage(set_cold_destroy, inv);
+		(void)inven_damage(set_cold_destroy, inv, dam);
 }
 
 
@@ -4017,8 +4093,11 @@ bool curse_armor(void)
 		o_ptr->flags1 = 0;
 		o_ptr->flags2 = 0;
 		o_ptr->flags3 = 0;
+		o_ptr->flags4 = 0;
+		o_ptr->flags5 = 0;
+		o_ptr->flags6 = 0;
 
-		add_ego_flags(o_ptr, EGO_BLASTED);
+		add_ego_flags(o_ptr, 92);
 
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
@@ -4033,7 +4112,7 @@ bool curse_armor(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 	}
 
 	return (TRUE);
@@ -4086,8 +4165,11 @@ bool curse_weapon(void)
 		o_ptr->flags1 = 0;
 		o_ptr->flags2 = 0;
 		o_ptr->flags3 = 0;
+		o_ptr->flags4 = 0;
+		o_ptr->flags5 = 0;
+		o_ptr->flags6 = 0;
 
-		add_ego_flags(o_ptr, EGO_SHATTERED);
+		add_ego_flags(o_ptr, 91);
 
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
@@ -4102,7 +4184,7 @@ bool curse_weapon(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 	}
 
 	/* Notice */
@@ -4137,8 +4219,8 @@ bool brand_bolts(void)
 		/* Message */
 		msg_print("Your bolts are covered in a fiery aura!");
 
-		/* Ego-item */	
-		add_ego_flags(o_ptr, EGO_FLAME);
+		/* Ego-item */
+		add_ego_flags(o_ptr, 32);
 
 		/* Enchant */
 		(void)enchant(o_ptr, rand_range(2, 6), ENCH_TOHIT | ENCH_TODAM);
@@ -4250,7 +4332,7 @@ bool polymorph_monster(int y, int x)
 
 	/* Update some things */
 	p_ptr->update |= (PU_MON_LITE);
-	
+
 	return (polymorphed);
 }
 
@@ -4296,7 +4378,7 @@ void map_wilderness(int radius, s32b x, s32b y)
 {
 	int i, j;
 	int dist;
-	
+
 	/* Map a rough circle around the target position in the wilderness */
 	for (i = x - radius; i < x + radius + 1; i++)
 	{
@@ -4306,7 +4388,7 @@ void map_wilderness(int radius, s32b x, s32b y)
 			if ((i >= 0) && (i < max_wild) && (j >=0) && (j < max_wild))
 			{
 				dist = distance(i, j, x, y);
-				
+
 				if ((randint0(dist) < radius / 2) && (dist < radius))
 				{
 					/* Memorise the location */
@@ -4337,7 +4419,7 @@ void sanity_blast(const monster_type *m_ptr)
 	else power *= 2;
 
 	/* Can we see it? */
-	if (!m_ptr->ml) return; 
+	if (!m_ptr->ml) return;
 
 	/* Paranoia */
 	if (!(r_ptr->flags4 & RF4_ELDRITCH_HORROR)) return;

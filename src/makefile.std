@@ -68,7 +68,7 @@ PSRCS = \
 
 #
 # The generated object files
-#	
+#
 
 
 POBJS = \
@@ -76,7 +76,7 @@ POBJS = \
 	commands_wrap.o objects_wrap.o random_wrap.o system_wrap.o \
 	event_wrap.o pclass_wrap.o realms_wrap.o terrain_wrap.o \
 	io_wrap.o player_wrap.o spells_wrap.o util_wrap.o
-	
+
 endif
 
 
@@ -95,7 +95,7 @@ SRCS = \
 	wizard1.c wizard2.c grid.c streams.c rooms.c \
 	generate.c dungeon.c init1.c init2.c \
 	effects.c racial.c \
-	artifact.c mutation.c flavor.c spells3.c \
+	actmagic.c artifact.c mutation.c flavor.c spells3.c \
 	mspells1.c mspells2.c scores.c mind.c maid-x11.c\
 	bldg.c obj_kind.c wild1.c wild2.c avatar.c notes.c\
 	main-cap.c main-gcu.c main-x11.c main-xaw.c main-xpj.c\
@@ -112,7 +112,7 @@ OBJS = \
 	wizard1.o wizard2.o grid.o streams.o rooms.o \
 	generate.o dungeon.o init1.o init2.o \
 	effects.o racial.o \
-	artifact.o mutation.o flavor.o spells3.o \
+	actmagic.o artifact.o mutation.o flavor.o spells3.o \
 	mspells1.o mspells2.o scores.o mind.o maid-x11.o\
 	bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
 	main-cap.o main-gcu.o main-x11.o main-xaw.o main-xpj.o\
@@ -223,7 +223,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 
 
 ##
-## Variation - Debian 
+## Variation - Debian
 ##
 #
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
@@ -237,7 +237,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 #
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
 #         -D"USE_GCU" -D"USE_TRANSPARENCY" -D"USE_XPJ"
-#		 
+#
 #LIBS = -lX11 -lcurses -lncurses -L/usr/X11R6/lib $(PYLIB)
 
 
@@ -247,13 +247,13 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 ##
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g  -D"USE_GCU" -D"USE_VCS"\
 #         -D"USE_TRANSPARENCY" -D"USE_XPJ" -D"USE_X11" -D"USE_XAW" -D"USE_LSL"
-#         `gtk-config --cflags` -D"USE_GTK" 
-#		 
+#         `gtk-config --cflags` -D"USE_GTK"
+#
 #LIBS = -lX11 -lcurses -lncurses -L/usr/X11R6/lib -lz -lvgagl -lvga $(PYLIB) \
 #       -lXaw -lXext -lSM -lICE -lXmu -lXt -lgtk `gtk-config --libs`
 
 ##
-## Variation -- OpenBSD 
+## Variation -- OpenBSD
 ##
 #
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g -I/usr/x11r6/include \
@@ -286,8 +286,8 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 ## Variation -- Use "main-gtk.c"
 ##
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g  -D"USE_GCU"\
-#         -D"USE_TRANSPARENCY" `gtk-config --cflags` -D"USE_GTK" 
-#		 
+#         -D"USE_TRANSPARENCY" `gtk-config --cflags` -D"USE_GTK"
+#
 #LIBS = -lcurses -lncurses -L/usr/X11R6/lib $(PYLIB) \
 #       -lgtk `gtk-config --libs`
 
@@ -385,19 +385,19 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 
 
 #
-# Build the "ZAngband" program
+# Build the "randband" program
 #
 
-zangband: $(OBJS)
-	$(CC) $(CFLAGS) -o zangband $(OBJS) $(LDFLAGS) $(LIBS)
+randband: $(OBJS)
+	$(CC) $(CFLAGS) -o randband $(OBJS) $(LDFLAGS) $(LIBS)
 
 
 #
 # Hack -- "install" as the base target
 #
 
-install: zangband
-	cp zangband ..
+install: randband
+	cp randband ..
 
 
 #
@@ -431,6 +431,7 @@ INCS = \
 
 
 artifact.o: artifact.c $(INCS)
+actmagic.o: actmagic.c $(INCS)
 avatar.o: avatar.c $(INCS)
 bldg.o: bldg.c $(INCS)
 birth.o: birth.c $(INCS)

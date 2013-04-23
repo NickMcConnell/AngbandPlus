@@ -33,7 +33,7 @@ void self_knowledge(void)
 	int v_nr;
 	char v_string[8][128];
 
-	u32b f1 = 0L, f2 = 0L, f3 = 0L;
+	u32b f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L, f5 = 0L, f6 = 0L;
 
 	object_type *o_ptr;
 	const mutation_type *mut_ptr;
@@ -62,7 +62,7 @@ void self_knowledge(void)
 	/* Acquire item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	{
-		u32b t1, t2, t3;
+		u32b t1, t2, t3, t4, t5, t6;
 
 		o_ptr = &inventory[k];
 
@@ -70,12 +70,15 @@ void self_knowledge(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &t1, &t2, &t3);
+		object_flags(o_ptr, &t1, &t2, &t3, &t4, &t5, &t6);
 
 		/* Extract flags */
 		f1 |= t1;
 		f2 |= t2;
 		f3 |= t3;
+		f4 |= t4;
+		f5 |= t5;
+		f6 |= t6;
 	}
 
 	for (v_nr = 0; v_nr < MAX_PLAYER_VIRTUES; v_nr++)
@@ -147,7 +150,7 @@ void self_knowledge(void)
 	for (x = 0; x < MUT_PER_SET * 3; x++)
 	{
 		mut_ptr = &mutations[x];
-		
+
 		/*
 		 * Only show activatable mutations if we
 		 * are of sufficiently high level
@@ -536,41 +539,41 @@ void self_knowledge(void)
 		}
 
 		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_ANIMAL))
+		if (f1 & (TR4_SLAY_ANIMAL))
 		{
 			info[i++] = "Your weapon strikes at animals with extra force.";
 		}
-		if (f1 & (TR1_SLAY_EVIL))
+		if (f1 & (TR5_SLAY_EVIL))
 		{
 			info[i++] = "Your weapon strikes at evil with extra force.";
 		}
-		if (f1 & (TR1_SLAY_UNDEAD))
+		if (f1 & (TR4_SLAY_UNDEAD))
 		{
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
 		}
-		if (f1 & (TR1_SLAY_DEMON))
+		if (f1 & (TR4_SLAY_DEMON))
 		{
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
 		}
-		if (f1 & (TR1_SLAY_ORC))
+		if (f1 & (TR5_SLAY_ORC))
 		{
 			info[i++] = "Your weapon is especially deadly against orcs.";
 		}
-		if (f1 & (TR1_SLAY_TROLL))
+		if (f1 & (TR4_SLAY_TROLL))
 		{
 			info[i++] = "Your weapon is especially deadly against trolls.";
 		}
-		if (f1 & (TR1_SLAY_GIANT))
+		if (f1 & (TR4_SLAY_GIANT))
 		{
 			info[i++] = "Your weapon is especially deadly against giants.";
 		}
-		if (f1 & (TR1_SLAY_DRAGON))
+		if (f1 & (TR4_SLAY_DRAGON))
 		{
 			info[i++] = "Your weapon is especially deadly against dragons.";
 		}
 
 		/* Special "kill" flags */
-		if (f1 & (TR1_KILL_DRAGON))
+		if (f1 & (TR4_KILL_DRAGON))
 		{
 			info[i++] = "Your weapon is a great bane of dragons.";
 		}
@@ -1200,13 +1203,7 @@ bool detect_objects_magic(void)
 			(tv == TV_ROD) ||
 		    (tv == TV_SCROLL) ||
 			(tv == TV_POTION) ||
-		    (tv == TV_LIFE_BOOK) ||
-			(tv == TV_SORCERY_BOOK) ||
-		    (tv == TV_NATURE_BOOK) ||
-			(tv == TV_CHAOS_BOOK) ||
-		    (tv == TV_DEATH_BOOK) ||
-		    (tv == TV_TRUMP_BOOK) ||
-			(tv == TV_ARCANE_BOOK) ||
+		    (tv == TV_SPELL_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1261,7 +1258,7 @@ bool detect_monsters_normal(void)
 
 		/* Do not detect mimics */
 		if (m_ptr->smart & (SM_MIMIC)) continue;
-		
+
 		/* Detect all non-invisible monsters */
 		if ((!(r_ptr->flags2 & RF2_INVISIBLE)) ||
 		    p_ptr->see_inv || p_ptr->tim_invis)
@@ -2025,7 +2022,7 @@ bool genocide(int player_cast)
 		if (player_cast)
 		{
 			/* Take damage */
-			take_hit(randint1(4), "the strain of casting Genocide");
+			take_hit(randint1(4), "the strain of casting Genocide", FALSE);
 		}
 
 		/* Visual feedback */
@@ -2104,7 +2101,7 @@ bool mass_genocide(int player_cast)
 		if (player_cast)
 		{
 			/* Hack -- visual feedback */
-			take_hit(randint1(3), "the strain of casting Mass Genocide");
+			take_hit(randint1(3), "the strain of casting Mass Genocide", FALSE);
 		}
 
 		move_cursor_relative(p_ptr->py, p_ptr->px);
@@ -2201,7 +2198,7 @@ bool probing(void)
  * This spell "deletes" monsters (instead of "killing" them).
  *
  * Later we may use one function for both "destruction" and
- * "earthquake" by using the (removed) "full" parameter 
+ * "earthquake" by using the (removed) "full" parameter
  * to select "destruction".
  */
 bool destroy_area(int y1, int x1, int r)
@@ -2551,7 +2548,7 @@ bool earthquake(int cy, int cx, int r)
 				p_ptr->wilderness_y = py;
 				move_wild();
 			}
-			
+
 			/* Redraw the old spot */
 			lite_spot(oy, ox);
 
@@ -2569,7 +2566,7 @@ bool earthquake(int cy, int cx, int r)
 		map[16 + py - cy][16 + px - cx] = FALSE;
 
 		/* Take some damage */
-		if (damage) take_hit(damage, "an earthquake");
+		if (damage) take_hit(damage, "an earthquake", TRUE);
 	}
 
 
@@ -2755,7 +2752,7 @@ bool earthquake(int cy, int cx, int r)
 
 			/* Destroy the fields on the square */
 			delete_field(y, x);
-			
+
 			/* Destroy location (if valid) */
 			if (cave_valid_grid(c_ptr))
 			{
@@ -3350,10 +3347,10 @@ bool teleport_swap(int dir)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
-	
+
 	/* Update the monster (new location) */
 	update_mon(area(ty, tx)->m_idx, TRUE);
-	
+
 	/* Redraw the old grid */
 	lite_spot(ty, tx);
 
@@ -3733,7 +3730,7 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					(void)earthquake(py, px, rand_range(5, 15));
 					if (!one_in_(6)) break;
 				}
-				
+
 				/* Fall through */
 			}
 			case 30: case 31:
@@ -3745,7 +3742,7 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					project(1, 3, py, px, damroll(10, 5), GF_MANA, flg);
 					if (!one_in_(6)) break;
 				}
-				
+
 				/* Fall through */
 			}
 			case 32: case 33:
@@ -3757,7 +3754,7 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					if (!one_in_(13)) (*count) += activate_hi_summon();
 					if (!one_in_(6)) break;
 				}
-				
+
 				/* Fall through */
 			}
 			case 34:
@@ -3769,28 +3766,28 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					(void)project(1, 7, py, px, 50, GF_KILL_WALL, flg);
 				}
 				if (!one_in_(6)) break;
-				
+
 				/* Fall through */
 			}
 			case 1: case 2: case 3: case 16: case 17:
 			{
 				aggravate_monsters(0);
 				if (!one_in_(6)) break;
-				
+
 				/* Fall through */
 			}
 			case 4: case 5: case 6:
 			{
 				(*count) += activate_hi_summon();
 				if (!one_in_(6)) break;
-				
+
 				/* Fall through */
 			}
 			case 7: case 8: case 9: case 18:
 			{
 				(*count) += summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE);
 				if (!one_in_(6)) break;
-				
+
 				/* Fall through */
 			}
 			case 10: case 11: case 12:
@@ -3798,7 +3795,7 @@ bool activate_ty_curse(bool stop_ty, int *count)
 				msg_print("You feel your life draining away...");
 				lose_exp(p_ptr->exp / 16);
 				if (!one_in_(6)) break;
-				
+
 				/* Fall through */
 			}
 			case 13: case 14: case 15: case 19: case 20:
@@ -3821,14 +3818,14 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					stop_ty = TRUE;
 				}
 				if (!one_in_(6)) break;
-				
+
 				/* Fall through */
 			}
 			case 21: case 22: case 23:
 			{
 				(void)do_dec_stat(randint0(6));
 				if (!one_in_(6)) break;
-				
+
 				/* Fall through */
 			}
 			case 24:
@@ -3836,7 +3833,7 @@ bool activate_ty_curse(bool stop_ty, int *count)
 				msg_print("Huh? Who am I? What am I doing here?");
 				(void)lose_all_info();
 				if (!one_in_(6)) break;
-				
+
 				/* Fall through */
 			}
 			case 25:
@@ -3851,7 +3848,7 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					break;
 				}
 				if (!one_in_(6)) break;
-				
+
 				/* Fall through */
 			}
 			default:

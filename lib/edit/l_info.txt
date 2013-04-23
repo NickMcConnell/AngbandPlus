@@ -1,0 +1,264 @@
+# l_info.txt - Special Level Information File
+# v1.01
+
+# This file is used to set up special levels.  These can include monster
+# lair levels, or any other special levels that can be generated, but
+# need specific information to be properly set up.
+
+# === Understanding l_info.txt ===
+
+# N:Index:Name
+# D:Level Feeling
+# R:Floor Type:Size
+# W:Wall/Terrain Type:Chance:Place_Method
+# W:...(8 Max?)
+# M:Min:Max:Chance:OOD Mod:Monster Number:Monster Type
+# M:...(8 Max?)
+# I:Min:Max:Chance:OOD Mod:Item Number:Item Type
+# I:...(8 Max?)
+
+#
+# 'N' Lists the Index number and name of the special level.
+#
+# 'D' Special feeling for this type of level.
+#
+# 'R' Basic level, room and floor layout.
+# floor types - NORMAL, makes a normal random generated level
+#             - OPEN, normal open level area, large open spaces with rooms
+#             - ARENA, arena type levels
+#             - BARE, only outer walls exists with no inner structures
+#               at all
+# max size    - NORMAL, generates normal random method
+#             - SMALL
+#             - MEDIUM
+#             - LARGE
+#             - MAXIMUM
+#
+# 'W' wall and floor flags, are set as a multi part section one
+# per line, normally very few of these are set since it is used
+# to make specific levels full or having large amounts of a specific
+# terrain type or to make certain that specific wall sections show up.
+# Wall and floor flags use a multi flag setting the first is type, the
+# second is percent chance, and the third is placement method. The types
+# are listed below as Wall Flags, and Floor Flags.  The chance is one
+# of two methods.  If the place method is random than any of that type
+# Wall or Floor, has chance% of becoming that type of terrain.  If the
+# place method is anything else it is a % chance per tile (using the
+# 'L'ook command) that that type of pattern will show up, and patterns can
+# merge or overlay others.
+#
+# (Currently Just Using F_INFO.TXT)
+#
+# Wall Flags  - PERMA
+#             - GRANITE
+#             - VEIN (Normal Random)
+#             - TVEIN (Treasure Vein Random)
+#             - MAGMA_VEIN
+#             - QUARTZ_VEIN
+#             - TMAGMA_VEIN
+#             - TQUARTZ_VEIN
+#             - KTMAGMA_VEIN
+#             - KTQUARTZ_VEIN
+#             - WRUBBLE (Wall section has turned to rubble)
+#             - WOPEN (Wall section is now open)
+#
+# (More floor types can be added as other terrain is created)
+# Floor Flags - OPEN
+#             - WET_MUD
+#             - DRY_MUD
+#             - TILED_FLOOR
+#             - WOODEN_FLOOR
+#             - PEBBLES
+#             - SOLIDIFIED_LAVA
+#             - RUBBLE
+#             - DEEP_WATER
+#             - SHALLOW_WATER
+#             - DEEP_LAVA
+#             - SHALLOW_LAVA
+#             - GRASS
+#             - VERY_DEEP_WATER
+#             - SHALLOW_ACID
+#             - SUBMERGED_TREE
+#             - TREE
+#             - ROCK_FACE
+#             - BOULDER
+#             - PINE_TREE
+#             - OBELISK
+#             - PILLAR
+#             - STONE_FENCE
+#             - WELL
+#             - FOUNTAIN
+#             - JUNGLE
+#             - BUSH
+#             - DEAD_BUSH
+#             - LONG_GRASS
+#             - ROCK
+#             - DEAD_TREE
+#             - SNOW
+#             - THICK_SWAMP
+#             - SWAMP
+#             - TRAP
+#
+# Placement Methods
+# (Probably will be added too later)
+#
+# Place Method - RANDOM
+#              - SMALL_STREAMER
+#              - NORMAL_STREAMER
+#              - LONG_STREAMER
+#              - SMALL_CIRCLE
+#              - MEDIUM_CIRCLE
+#              - LARGE_CIRCLE
+#              - SMALL_SQUARE
+#              - MEDIUM_SQUARE
+#              - LARGE_SQUARE
+#
+# 'M' Allocates specific monsters or specific types of monsters to the
+# level.
+# Monster Number - 0 or the r_idx number of the specific type of monster
+#                  that you want to appear on the level.  0 means that
+#                  there is not a specific monster numebr being used, and
+#                  use monster type instead.
+#
+# Monster Type - NONE (Use if Monster Number <> 0)
+# (Rest Are Taken From the RF Defs Define.h)
+#              - CHAR_CLEAR
+#              - CHAR_MULTI
+#              - ATTR_CLEAR
+#              - ATTR_MULTI
+#              - FRIEND
+#              - FRIENDS
+#              - ESCORT
+#              - ESCORTS
+#              - NEVER_MOVE
+#              - STUPID
+#              - SMART
+#              - INVISIBLE
+#              - COLD_BLOOD
+#              - EMPTY_MIND
+#              - WEIRD_MIND
+#              - MULTIPLY
+#              - REGENERATE
+#              - POWERFUL
+#              - AURA_FIRE
+#              - AURA_ELEC
+#              - PASS_WALL
+#              - KILL_WALL
+#              - TAKE_ITEM
+#              - KILL_ITEM
+#              - ORC
+#              - TROLL
+#              - GIANT
+#              - DRAGON
+#              - DEMON
+#              - UNDEAD
+#              - EVIL
+#              - ANIMAL
+#              - AMBERITE
+#              - GOOD
+#              - AURA_COLD
+#              - NONLIVING
+#              - AQUATIC
+#              - CAN_SWIM
+#              - CAN_FLY
+#              - SILLY
+#
+# Min, Max and Chance, are for placing # of that type(s) of monster on the
+# level.  If Min and Max are set then Chance should be ingnored.
+#
+# Min - Minimum Number
+# Max - Maximum Number
+# Generate Min + ( randint ( Max - Min ))
+#
+# If Chance is used and no Min and Max Values are set (set to 0) then
+# Each open tile (floor) will have a %Chance of being that type of monster.
+#
+# Finally OOD Mod.  This is the out of depth modifier for creating Monster
+# Type monsters, it will have no effect on r_idx set monsters since they
+# are statically set.  Typed monsters such as ORC can easily be made to
+# OOD types.
+#
+# 'I' is for any specific items found on the level.
+# Item Number - 0 or the i_idx number of the type of item you wish to
+#               place on the level.  If the number is 0 then Item Type
+#               is checked.
+#
+# Item Type - RANDOM (Any random object - Check OOD Mod for max depth)
+#           - RANDOM_WEAPON
+#           - COINS (Random Gold)
+#           - GEMS (Random Gems/High Gold?)
+#           - RANDOM_AMMO
+#           - RANDOM_ARMOR
+#           - RANDOM_JEWELRY (Ring or Amulet)
+#           - RANDOM_SPELLBOOK
+#           - RANDOM_CASTER (Wand, Staff, or Rod)
+#           - SWORD
+#           - POLEARM
+#           - HAFTED_WEAPON
+#           - BOW
+#           - ARROWS
+#           - BOLTS
+#           - SHOTS
+#           - SHIELD
+#           - CROWN
+#           - HELM
+#           - GLOVES
+#           - BOOTS
+#           - CLOAK
+#           - DRAGON_SCALE_MAIL
+#           - HARD_ARMOR
+#           - SOFT_ARMOR
+#           - RING
+#           - AMULET
+#           - LITE
+#           - POTION
+#           - SCROLL
+#           - WAND
+#           - STAFF
+#           - ROD
+#           - LIFE_SPELLBOOK
+#           - SORCERY_SPELLBOOK
+#           - NATURE_SPELLBOOK
+#           - CHAOS_SPELLBOOK
+#           - DEATH_SPELLBOOK
+#           - TRUMP_SPELLBOOK
+#           - ARCANE_SPELLBOOK
+#           - SPIKES
+#           - DIGGER
+#           - CHEST
+#           - MAGICAL_FIGURINE
+#           - STATUE
+#           - CORPSE
+#           - FOOD
+#           - FLASK
+#           - JUNK
+#           - SKELETON
+#
+# Min, Max and Chance, are for placing # of that type(s) of item on the
+# level.  If Min and Max are set then Chance should be ingnored.
+#
+# Min - Minimum Number
+# Max - Maximum Number
+# Generate Min + ( randint ( Max - Min ))
+#
+# If Chance is used and no Min and Max Values are set (set to 0) then
+# Each open tile (floor) will have a %Chance of being that type of item.
+#
+# Finally OOD Mod.  This is the out of depth modifier for creating item
+# type and quality, it will have an effect on i_idx set items since they
+# can have the bonuses or penalties easily modified.
+#
+
+# Some Sample Levels To Start With
+
+N:1:Dragons Lair
+D:Dragon's dung up to the knees. This can't be good!
+R:OPEN:MAXIMUM
+W:TVEIN:10:RANDOM
+W:TRAP:3:RANDOM
+M:50:200:0:5:0:DRAGON
+I:0:0:5:1:0:COINS
+I:25:100:0:2:0:GEMS
+I:0:0:1:3:0:RANDOM
+
+

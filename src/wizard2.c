@@ -76,17 +76,18 @@ void do_cmd_rerate(void)
  * Create the artifact of the specified number -- DAN
  *
  */
+/*
 static void wiz_create_named_art(int a_idx)
 {
 	int px = p_ptr->px;
-	int py = p_ptr->py;
+	int py = p_ptr->py;*/
 
 	/* Create the artifact */
-	create_named_art(a_idx, py, px);
+/*	create_named_art(a_idx, py, px);*/
 
 	/* All done */
-	msg_print("Allocated.");
-}
+/*	msg_print("Allocated.");
+}*/
 
 
 /*
@@ -510,11 +511,11 @@ static void learn_map(void)
 static void wiz_display_item(const object_type *o_ptr)
 {
 	int i, j = 13;
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 	char buf[256];
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 	/* Clear the screen */
 	for (i = 1; i <= 23; i++) prt("", i, j - 2);
@@ -536,7 +537,7 @@ static void wiz_display_item(const object_type *o_ptr)
 	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
 
 	prt(format("activate = %-4d  cost = %ld",
-	           o_ptr->activate, (long)object_value(o_ptr)), 7, j);
+	           o_ptr->activate, (long)object_value_real(o_ptr)), 7, j);
 
 	prt(format("ident = %04x  timeout = %-d",
 	           o_ptr->ident, o_ptr->timeout), 8, j);
@@ -608,13 +609,7 @@ static const tval_desc tvals[] =
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-	{ TV_LIFE_BOOK,         "Life Spellbook"       },
-	{ TV_SORCERY_BOOK,      "Sorcery Spellbook"    },
-	{ TV_NATURE_BOOK,       "Nature Spellbook"     },
-	{ TV_CHAOS_BOOK,        "Chaos Spellbook"      },
-	{ TV_DEATH_BOOK,        "Death Spellbook"      },
-	{ TV_TRUMP_BOOK,        "Trump Spellbook"      },
-	{ TV_ARCANE_BOOK,       "Arcane Spellbook"     },
+	{ TV_SPELL_BOOK,        "Spellbook"       },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -830,15 +825,6 @@ static void wiz_reroll_item(object_type *o_ptr)
 		/* Ask wizard what to do. */
 		if (!get_com("[a]ccept, [w]orthless, [n]ormal, [e]xcellent, [s]pecial? ", &ch))
 		{
-			/* Preserve wizard-generated artifacts */
-			if ((q_ptr->flags3 & TR3_INSTA_ART) && (q_ptr->activate > 128))
-			{
-				a_info[q_ptr->activate - 128].cur_num = 0;
-				q_ptr->activate = 0;
-				q_ptr->xtra_name = 0;
-			}
-
-			break;
 		}
 
 		/* Create/change it! */
@@ -848,38 +834,27 @@ static void wiz_reroll_item(object_type *o_ptr)
 			break;
 		}
 
-		/* Preserve wizard-generated artifacts */
-		if ((q_ptr->flags3 & TR3_INSTA_ART) && (q_ptr->activate > 128))
-		{
-			a_info[q_ptr->activate - 128].cur_num = 0;
-			q_ptr->activate = 0;
-			q_ptr->xtra_name = 0;
-			
-			/* Remove the artifact flag */
-			o_ptr->flags3 &= ~(TR3_INSTA_ART);
-		}
-
 		switch (ch)
 		{
 			/* Apply bad magic, but first clear object */
 			case 'w': case 'W':
 			{
 				object_prep(q_ptr, o_ptr->k_idx);
-				apply_magic(q_ptr, p_ptr->depth, 0, OC_FORCE_BAD);
+				apply_magic(q_ptr, p_ptr->depth, 0, OC_FORCE_BAD, FALSE);
 				break;
 			}
 			/* Apply normal magic, but first clear object */
 			case 'n': case 'N':
 			{
 				object_prep(q_ptr, o_ptr->k_idx);
-				apply_magic(q_ptr, p_ptr->depth, 0, OC_NORMAL);
+				apply_magic(q_ptr, p_ptr->depth, 0, OC_NORMAL, FALSE);
 				break;
 			}
 			/* Apply great magic, but first clear object */
 			case 'e': case 'E':
 			{
 				object_prep(q_ptr, o_ptr->k_idx);
-				apply_magic(q_ptr, p_ptr->depth, 30, OC_FORCE_GOOD);
+				apply_magic(q_ptr, p_ptr->depth, 30, OC_FORCE_GOOD, FALSE);
 				break;
 			}
 			case 's': case 'S':
@@ -887,7 +862,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 				object_prep(q_ptr, o_ptr->k_idx);
 
 				/* Make a random artifact */
-				(void)create_artifact(q_ptr, FALSE);
+				(void)create_artifact(q_ptr, FALSE, FALSE);
 				break;
 			}
 		}
@@ -913,7 +888,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_PLAYRES);
 	}
 }
 
@@ -1099,7 +1074,7 @@ static void do_cmd_wiz_play(void)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_PLAYRES);
 	}
 
 	/* Ignore change */
@@ -1123,7 +1098,7 @@ static void wiz_create_item(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-	int i;
+/*	int i;*/
 
 	object_type	forge;
 	object_type *q_ptr;
@@ -1153,33 +1128,34 @@ static void wiz_create_item(void)
 
 	k_ptr = &k_info[k_idx];
 
+/*
 	if (k_ptr->flags3 & TR3_INSTA_ART)
-	{
+	{*/
 		/* Find the "special" artifact this object belongs to */
-		for (i = 1; i < max_a_idx; i++)
+/*		for (i = 1; i < max_a_idx; i++)
 		{
-			artifact_type *a_ptr = &a_info[i];
+			artifact_type *a_ptr = &a_info[i];*/
 
 			/* Skip "empty" artifacts */
-			if (!a_ptr->name) continue;
+/*			if (!a_ptr->name) continue;
 
 			if ((a_ptr->tval == k_ptr->tval) && (a_ptr->sval == k_ptr->sval))
-			{
+			{*/
 				/* found it */
-				create_named_art(i, py, px);
+/*				create_named_art(i, py, px);*/
 
 				/* All done */
-				msg_print("Allocated.");
+/*				msg_print("Allocated.");
 
 				return;
 			}
 		}
 	}
 	else
-	{
+	{*/
 		/* Apply magic */
-		apply_magic(q_ptr, p_ptr->depth, 0, 0);
-	}
+		apply_magic(q_ptr, p_ptr->depth, 0, 0, FALSE);
+/*	}*/
 
 	/* Drop the object from heaven */
 	(void)drop_near(q_ptr, -1, py, px);
@@ -1198,12 +1174,12 @@ static void do_cmd_wiz_cure_all(void)
 	(void)remove_all_curse();
 
 	/* Restore stats */
-	(void)res_stat(A_STR);
-	(void)res_stat(A_INT);
-	(void)res_stat(A_WIS);
-	(void)res_stat(A_CON);
-	(void)res_stat(A_DEX);
-	(void)res_stat(A_CHR);
+	(void)res_stat(A_STR, 200);
+	(void)res_stat(A_INT, 200);
+	(void)res_stat(A_WIS, 200);
+	(void)res_stat(A_CON, 200);
+	(void)res_stat(A_DEX, 200);
+	(void)res_stat(A_CHR, 200);
 
 	/* Restore the level */
 	(void)restore_level();
@@ -1842,7 +1818,7 @@ void do_cmd_debug(void)
 
 		/* Create a named artifact */
 		case 'C':
-			wiz_create_named_art(p_ptr->command_arg);
+/*			wiz_create_named_art(p_ptr->command_arg);*/
 		break;
 
 		/* Detect everything */
@@ -1901,7 +1877,7 @@ void do_cmd_debug(void)
 		case 'J':
 			/* test_compress_module(); */
 		break;
-		
+
 		/* Self-Knowledge */
 		case 'k':
 			self_knowledge();
@@ -1911,7 +1887,7 @@ void do_cmd_debug(void)
 		case 'l':
 			do_cmd_wiz_learn();
 		break;
-		
+
 		/* Lose Mutation */
 		case 'L':
 			(void)lose_mutation(p_ptr->command_arg);

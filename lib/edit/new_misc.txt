@@ -1,0 +1,50 @@
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:10:51 $
+# File: misc.txt
+
+
+# Maximum number of quests
+M:Q:255
+
+# Maximum size of the wilderness
+M:WS:129
+
+# Maximum number of nodes in the wilderness decision tree
+M:WN:250
+
+# Maximum number of wilderness block generation types
+M:WT:300
+
+# Maximum number of "places" in the wilderness
+M:WP:30
+
+# Maximum number of monsters in r_info.txt
+M:R:885
+
+# Maximum number of items in k_info.txt
+M:K:300
+
+# Maximum number of vaults in v_info.txt
+M:V:132
+
+# Maximum number of terrain features in f_info.txt
+M:F:160
+
+# Maximum number of ego-items in e_info.txt
+M:E:310
+
+# Maximum number of field types in t_info.txt
+M:T:142
+
+# Maximum size for "o_list[]"
+# Increase this if you get lots of 'Generation restarted (too many objects)' messages.
+M:O:2048
+
+# Maximum size for "m_list[]"
+# Increase this if you get lots of 'Generation restarted (too many monsters)' messages.
+M:M:2048
+
+# Maximum size for "fld_list[]"
+# Increase this if you get lots of 'Compacting fields...' messages.
+M:D:2048
+
+

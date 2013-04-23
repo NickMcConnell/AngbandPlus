@@ -100,13 +100,7 @@ static const grouper group_item[] =
 	{ TV_WAND,          "Wands" },
 	{ TV_STAFF,         "Staffs" },
 
-	{ TV_LIFE_BOOK,     "Books (Life)" },
-	{ TV_SORCERY_BOOK,  "Books (Sorcery)" },
-	{ TV_NATURE_BOOK,   "Books (Nature)" },
-	{ TV_CHAOS_BOOK,    "Books (Chaos)" },
-	{ TV_DEATH_BOOK,    "Books (Death)" },
-	{ TV_TRUMP_BOOK,    "Books (Trump)" },
-	{ TV_ARCANE_BOOK,   "Books (Arcane)" },
+	{ TV_SPELL_BOOK,    "Books (Spell)" },
 
 	{ TV_CHEST,         "Chests" },
 
@@ -339,7 +333,7 @@ static void spoil_obj_desc(cptr fname)
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
-	
+
 	my_fclose(fff);
 
 	/* Message */
@@ -464,15 +458,15 @@ static const flag_desc pval_flags1_desc[] =
 
 static const flag_desc slay_flags_desc[] =
 {
-	{ TR1_SLAY_ANIMAL,        "Animal" },
-	{ TR1_SLAY_EVIL,          "Evil" },
-	{ TR1_SLAY_UNDEAD,        "Undead" },
-	{ TR1_SLAY_DEMON,         "Demon" },
-	{ TR1_SLAY_ORC,           "Orc" },
-	{ TR1_SLAY_TROLL,         "Troll" },
-	{ TR1_SLAY_GIANT,         "Giant" },
-	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" }
+	{ TR4_SLAY_ANIMAL,        "Animal" },
+	{ TR5_SLAY_EVIL,          "Evil" },
+	{ TR4_SLAY_UNDEAD,        "Undead" },
+	{ TR4_SLAY_DEMON,         "Demon" },
+	{ TR5_SLAY_ORC,           "Orc" },
+	{ TR4_SLAY_TROLL,         "Troll" },
+	{ TR4_SLAY_GIANT,         "Giant" },
+	{ TR4_SLAY_DRAGON,        "Dragon" },
+	{ TR4_KILL_DRAGON,        "Xdragon" }
 };
 
 /*
@@ -734,7 +728,7 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
 				TR1_DEX | TR1_CON | TR1_CHR);
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
 	cptr *affects_list;
 
@@ -747,7 +741,7 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 	}
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 	affects_list = p_ptr->pval_affects;
 
@@ -781,9 +775,9 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 /* Note the slaying specialties of a weapon */
 static void analyze_slay(const object_type *o_ptr, cptr *slay_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 	slay_list = spoiler_flag_aux(f1, slay_flags_desc, slay_list,
 				     N_ELEMENTS(slay_flags_desc));
@@ -795,9 +789,9 @@ static void analyze_slay(const object_type *o_ptr, cptr *slay_list)
 /* Note an object's elemental brands */
 static void analyze_brand(const object_type *o_ptr, cptr *brand_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 	brand_list = spoiler_flag_aux(f1, brand_flags_desc, brand_list,
 				      N_ELEMENTS(brand_flags_desc));
@@ -810,9 +804,9 @@ static void analyze_brand(const object_type *o_ptr, cptr *brand_list)
 /* Note the resistances granted by an object */
 static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 	resist_list = spoiler_flag_aux(f2, resist_flags_desc,
 				       resist_list, N_ELEMENTS(resist_flags_desc));
@@ -825,9 +819,9 @@ static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 /* Note the immunities granted by an object */
 static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 	immune_list = spoiler_flag_aux(f2, immune_flags_desc,
 				       immune_list, N_ELEMENTS(immune_flags_desc));
@@ -843,9 +837,9 @@ static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
 	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
 				   TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 	/* Simplify things if an item sustains all stats */
 	if ((f2 & all_sustains) == all_sustains)
@@ -872,9 +866,9 @@ static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
  */
 static void analyze_misc_magic(const object_type *o_ptr, cptr *misc_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 	misc_list = spoiler_flag_aux(f2, misc_flags2_desc, misc_list,
 				     N_ELEMENTS(misc_flags2_desc));
@@ -929,27 +923,6 @@ static void analyze_misc_magic(const object_type *o_ptr, cptr *misc_list)
 }
 
 
-
-
-/*
- * Determine the minimum depth an artifact can appear, its rarity, its weight,
- * and its value in gold pieces
- */
-static void analyze_misc(const object_type *o_ptr, char *misc_desc)
-{
-	artifact_type *a_ptr;
-
-	/* Only look at artifacts */
-	if (o_ptr->activate < 128) return;
-
-	a_ptr = &a_info[o_ptr->activate - 128];
-
-	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
-		(uint)a_ptr->level, (uint)a_ptr->rarity,
-		a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
-}
-
-
 /*
  * Fill in an object description structure for a given object
  */
@@ -971,7 +944,7 @@ static void object_analyze(const object_type *o_ptr, obj_desc_list *desc_ptr)
 
 	analyze_misc_magic(o_ptr, desc_ptr->misc_magic);
 
-	analyze_misc(o_ptr, desc_ptr->misc_desc);
+/*	analyze_misc(o_ptr, desc_ptr->misc_desc);*/
 
 	desc_ptr->activation = item_activation(o_ptr);
 
@@ -1123,193 +1096,6 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	fprintf(fff, "%s\n", line);
 }
 
-
-/*
- * Create a spoiler file entry for an artifact
- */
-static void spoiler_print_art(obj_desc_list *art_ptr)
-{
-	pval_info_type *pval_ptr = &art_ptr->pval_info;
-
-	char buf[80];
-
-	/* Don't indent the first line */
-	fprintf(fff, "%s\n", art_ptr->description);
-
-	/* An "empty" pval description indicates that the pval affects nothing */
-	if (pval_ptr->pval_desc[0])
-	{
-		/* Mention the effects of pval */
-		sprintf(buf, "%s to", pval_ptr->pval_desc);
-		spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
-	}
-
-	/* Now deal with the description lists */
-
-	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
-
-	spoiler_outlist("", art_ptr->brands, LIST_SEP);
-
-	spoiler_outlist("Immunity to", art_ptr->immunities, ITEM_SEP);
-
-	spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
-
-	spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
-
-	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
-
-
-	/* Write out the possible activation at the primary indention level */
-	if (art_ptr->activation)
-	{
-		fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
-	}
-
-	/* End with the miscellaneous facts */
-	fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
-}
-
-
-/*
- * Hack -- Create a "forged" artifact
- */
-static bool make_fake_artifact(object_type *o_ptr, int a_idx)
-{
-	int i;
-
-	artifact_type *a_ptr = &a_info[a_idx];
-
-	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return FALSE;
-
-	/* Acquire the "kind" index */
-	i = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-	/* Oops */
-	if (!i) return (FALSE);
-
-	/* Create the artifact */
-	object_prep(o_ptr, i);
-
-	/* Save the artifact flags */
-	o_ptr->flags1 |= a_ptr->flags1;
-	o_ptr->flags2 |= a_ptr->flags2;
-	o_ptr->flags3 |= a_ptr->flags3;
-
-	/* Set the fields */
-	o_ptr->pval = a_ptr->pval;
-	o_ptr->ac = a_ptr->ac;
-	o_ptr->dd = a_ptr->dd;
-	o_ptr->ds = a_ptr->ds;
-	o_ptr->to_a = a_ptr->to_a;
-	o_ptr->to_h = a_ptr->to_h;
-	o_ptr->to_d = a_ptr->to_d;
-	o_ptr->weight = a_ptr->weight;
-
-	/* Mega-Hack -- set activation */
-	o_ptr->activate = a_idx + 128;
-
-	/* Do not make another one */
-	a_ptr->cur_num = 1;
-
-	/* Hack: Some artifacts get random extra powers */
-	random_artifact_resistance(o_ptr);
-	
-	/* Save the inscription */
-	o_ptr->xtra_name = quark_add(a_name + a_ptr->name);
-
-	/* Success */
-	return (TRUE);
-}
-
-
-/*
- * Create a spoiler file for artifacts
- */
-static void spoil_artifact(cptr fname)
-{
-	int i, j;
-
-	object_type forge;
-	object_type *q_ptr;
-
-	obj_desc_list artifact;
-
-	char buf[1024];
-
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Open the file */
-	fff = my_fopen(buf, "w");
-
-	/* Oops */
-	if (!fff)
-	{
-		msg_print("Cannot create spoiler file.");
-		return;
-	}
-
-	/* Dump the header */
-	print_header();
-
-	/* List the artifacts by tval */
-	for (i = 0; group_artifact[i].tval; i++)
-	{
-		/* Write out the group title */
-		if (group_artifact[i].name)
-		{
-			spoiler_blanklines(2);
-			spoiler_underline(group_artifact[i].name);
-			spoiler_blanklines(1);
-		}
-
-		/* Now search through all of the artifacts */
-		for (j = 1; j < max_a_idx; ++j)
-		{
-			artifact_type *a_ptr = &a_info[j];
-
-			/* We only want objects in the current group */
-			if (a_ptr->tval != group_artifact[i].tval) continue;
-
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Wipe the object */
-			object_wipe(q_ptr);
-
-			/* Attempt to "forge" the artifact */
-			if (!make_fake_artifact(q_ptr, j)) continue;
-
-			/* Analyze the artifact */
-			object_analyze(q_ptr, &artifact);
-
-			/* Write out the artifact description to the spoiler file */
-			spoiler_print_art(&artifact);
-		}
-	}
-
-	/* Check for errors */
-	if (ferror(fff))
-	{
-		msg_print("Cannot close spoiler file.");
-		return;
-	}
-	
-	my_fclose(fff);
-
-	/* Message */
-	msg_print("Successfully created a spoiler file.");
-}
-
-
-
-
-
 /*
  * Create a spoiler file for monsters   -BEN-
  */
@@ -1452,7 +1238,7 @@ static void spoil_mon_desc(cptr fname)
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
-	
+
 	my_fclose(fff);
 
 	/* Worked */
@@ -2388,16 +2174,16 @@ static void spoil_mutation(cptr fname)
 			/* Random mutations */
 			sprintf(buf, "Randomly activating mutations");
 			spoiler_underline(buf);
-			spoil_out(NULL);		
+			spoil_out(NULL);
 		}
 		else if (i == MUT_PER_SET * 2)
 		{
 			/* Other mutations */
 			sprintf(buf, "Other mutations");
 			spoiler_underline(buf);
-			spoil_out(NULL);		
+			spoil_out(NULL);
 		}
-		
+
 		/* Describe mutation */
 		sprintf(buf, mut_ptr->desc_text);
 		spoil_out(buf);
@@ -2414,14 +2200,14 @@ static void spoil_mutation(cptr fname)
 			sprintf(buf, "- HP/SP Cost: %d \n", mut_ptr->cost);
 			spoil_out(buf);
 
-			sprintf(buf, "- Statistic : %3s \n", 
+			sprintf(buf, "- Statistic : %3s \n",
 				stat_names_reduced[mut_ptr->stat]);
 			spoil_out(buf);
 
 			sprintf(buf, "- Difficulty: %d \n", mut_ptr->diff);
 			spoil_out(buf);
 		}
-		
+
 		/* Type 2? */
 		else if (i < MUT_PER_SET * 2)
 		{
@@ -2429,7 +2215,7 @@ static void spoil_mutation(cptr fname)
 			{
 				sprintf(buf, "- Chance/turn: 1-in-%d\n", mut_ptr->chance * 100);
 				spoil_out(buf);
-			}	
+			}
 		}
 
 		spoiler_blanklines(1);
@@ -2441,7 +2227,7 @@ static void spoil_mutation(cptr fname)
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
-	
+
 	my_fclose(fff);
 
 	/* Message */
@@ -2522,7 +2308,7 @@ static void spoil_rac_pow(cptr fname)
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
-	
+
 	my_fclose(fff);
 
 	/* Message */
@@ -2587,10 +2373,10 @@ void do_cmd_spoilers(void)
 		}
 
 		/* Option (2) */
-		else if (i == '2')
+/*		else if (i == '2')
 		{
 			spoil_artifact("artifact.spo");
-		}
+		}*/
 
 		/* Option (3) */
 		else if (i == '3')
@@ -2603,7 +2389,7 @@ void do_cmd_spoilers(void)
 		{
 			spoil_mon_info("mon-info.spo");
 		}
-		
+
 		/* Option (5) */
 		else if (i == '5')
 		{
@@ -2615,7 +2401,7 @@ void do_cmd_spoilers(void)
 		{
 			spoil_rac_pow("rac-pow.spo");
 		}
-		
+
 		/* Oops */
 		else
 		{

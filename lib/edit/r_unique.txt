@@ -1,0 +1,81 @@
+#####################################################################
+#
+# Random Monster unique file
+#
+#####################################################################
+#
+#   A:Angel
+#   B:Bird
+#   C:Canine
+#   D:Greater Dragon
+#   E:Elemental
+#   F:Flying Insects
+#   G:Greater Spectral Undead
+#   H:Hybrid
+#   I:Ground Insects
+#   J:Snakes
+#   K:Kobolds
+#   L:Major Humaniods
+#   M:Multi Headed Reptile
+#   N:Nightmares/Unspeakable Horrors
+#   O:Giant Humanoids
+#   P:Major Plants
+#   Q:Quylthulg (Pulsing Flesh Mound)
+#   R:Reptiles/Amphibians
+#   S:Major Physical Undead
+#   T:Trolls
+#   U:Major Demon
+#   V:Greater Vortex
+#   W:Water Critters
+#   X:Xenoforms
+#   Y:Yetis/Sasquatches
+#   Z:Zephyr Hound
+#   a:Automaton/Constructs
+#   b:Bats
+#   c:Cat
+#   d:Minor Dragon Types
+#   e:Floating Eye
+#   f:Faery
+#   g:Minor Spectral Undead
+#   h:Humanoid
+#   i:Icky Thing
+#   j:Jelly
+#   k:Goblins
+#   l:Minor Humaniods
+#   m:Mold
+#   n:Naga
+#   o:Orc
+#   p:Minor Plants
+#   q:Quadraped
+#   r:Rodents
+#   s:Minor Physical Undead
+#   t:Townsperson
+#   u:Minor Demon
+#   v:Minor Vortex
+#   w:Worms
+#   /*x:          ??????????*/
+#   y:Yeek
+#   z:Silly/Bizarre Things
+#   $:Treasure Critter
+#   #:Wall Monsters
+#   %:Treasure Wall Monsters
+#   ,:Mushroom Patch
+#
+#####################################################################
+#
+# This file uses the same % modifiers as the randtype does.
+# It will be checked by symbol only when generating new random
+# monsters.
+#
+# N: serial number
+# G: symbol
+# I: speed : hit points : vision : armor class : alertness
+# W: depth : rarity : unused : experience for kill
+# B: attack method : attack effect : damage
+# S: spell frequency |
+# S: spell type | spell type | etc
+# F: flag | flag | etc
+# D: Description
+#
+#####################################################################
+

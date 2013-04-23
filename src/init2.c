@@ -847,268 +847,6 @@ static errr init_k_info(void)
 }
 
 
-
-/*
- * Initialize the "a_info" array, by parsing a binary "image" file
- */
-static errr init_a_info_raw(int fd)
-{
-	header test;
-
-	/* Read and Verify the header */
-	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != a_head->v_major) ||
-	    (test.v_minor != a_head->v_minor) ||
-	    (test.v_patch != a_head->v_patch) ||
-	    (test.v_extra != a_head->v_extra) ||
-	    (test.info_num != a_head->info_num) ||
-	    (test.info_len != a_head->info_len) ||
-	    (test.head_size != a_head->head_size) ||
-	    (test.info_size != a_head->info_size))
-	{
-		/* Error */
-		return (-1);
-	}
-
-
-	/* Accept the header */
-	(*a_head) = test;
-
-
-	/* Allocate the "a_info" array */
-	C_MAKE(a_info, a_head->info_num, artifact_type);
-
-	/* Read the "a_info" array */
-	(void)fd_read(fd, (char*)(a_info), a_head->info_size);
-
-
-	/* Allocate the "a_name" array */
-	C_MAKE(a_name, a_head->name_size, char);
-
-	/* Read the "a_name" array */
-	(void)fd_read(fd, (char*)(a_name), a_head->name_size);
-
-
-#ifndef DELAY_LOAD_A_TEXT
-
-	/* Allocate the "a_text" array */
-	C_MAKE(a_text, a_head->text_size, char);
-
-	/* Read the "a_text" array */
-	(void)fd_read(fd, (char*)(a_text), a_head->text_size);
-
-#endif /* DELAY_LOAD_A_TEXT */
-
-
-	/* Success */
-	return (0);
-}
-
-
-
-/*
- * Initialize the "a_info" array
- *
- * Note that we let each entry have a unique "name" and "text" string,
- * even if the string happens to be empty (everyone has a unique '\0').
- */
-static errr init_a_info(void)
-{
-	int fd;
-
-	int mode = 0644;
-
-	errr err = 0;
-
-	FILE *fp;
-
-	/* General buffer */
-	char buf[1024];
-
-
-	/*** Make the "header" ***/
-
-	/* Allocate the "header" */
-	MAKE(a_head, header);
-
-	/* Save the "version" */
-	a_head->v_major = VERSION_MAJOR;
-	a_head->v_minor = VERSION_MINOR;
-	a_head->v_patch = VERSION_PATCH;
-	a_head->v_extra = 0;
-
-	/* Save the "record" information */
-	a_head->info_num = max_a_idx;
-	a_head->info_len = sizeof(artifact_type);
-
-	/* Save the size of "a_head" and "a_info" */
-	a_head->head_size = sizeof(header);
-	a_head->info_size = a_head->info_num * a_head->info_len;
-
-
-#ifdef ALLOW_TEMPLATES
-
-	/*** Load the binary image file ***/
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
-
-	/* Attempt to open the "raw" file */
-	fd = fd_open(buf, O_RDONLY);
-
-	/* Process existing "raw" file */
-	if (fd >= 0)
-	{
-#ifdef CHECK_MODIFICATION_TIME
-
-		err = check_modification_date(fd, "a_info.txt");
-
-#endif /* CHECK_MODIFICATION_TIME */
-
-		/* Attempt to parse the "raw" file */
-		if (!err)
-			err = init_a_info_raw(fd);
-
-		/* Close it */
-		(void)fd_close(fd);
-
-		/* Success */
-		if (!err) return (0);
-
-#if 0
-		/* Information */
-		msg_print("Ignoring obsolete/defective 'a_info.raw' file.");
-		msg_print(NULL);
-#endif
-	}
-
-
-	/*** Make the fake arrays ***/
-
-	/* Fake the size of "a_name" and "a_text" */
-	fake_name_size = FAKE_NAME_SIZE;
-	fake_text_size = FAKE_TEXT_SIZE;
-
-	/* Allocate the "a_info" array */
-	C_MAKE(a_info, a_head->info_num, artifact_type);
-
-	/* Hack -- make "fake" arrays */
-	C_MAKE(a_name, fake_name_size, char);
-	C_MAKE(a_text, fake_text_size, char);
-
-
-	/*** Load the ascii template file ***/
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "a_info.txt");
-
-	/* Open the file */
-	fp = my_fopen(buf, "r");
-
-	/* Parse it */
-	if (!fp) quit("Cannot open 'a_info.txt' file.");
-
-	/* Parse the file */
-	err = init_a_info_txt(fp, buf);
-
-	/* Close it */
-	my_fclose(fp);
-
-	/* Errors */
-	if (err)
-	{
-		cptr oops;
-
-		/* Error string */
-		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
-
-		/* Oops */
-		msg_format("Error %d at line %d of 'a_info.txt'.", err, error_line);
-		msg_format("Record %d contains a '%s' error.", error_idx, oops);
-		msg_format("Parsing '%s'.", buf);
-		msg_print(NULL);
-
-		/* Quit */
-		quit("Error in 'a_info.txt' file.");
-	}
-
-
-	/*** Dump the binary image file ***/
-
-	/* File type is "DATA" */
-	FILE_TYPE(FILE_TYPE_DATA);
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
-
-	/* Kill the old file */
-	(void)fd_kill(buf);
-
-	/* Attempt to create the raw file */
-	fd = fd_make(buf, mode);
-
-	/* Dump to the file */
-	if (fd >= 0)
-	{
-		/* Dump it */
-		(void)fd_write(fd, (char*)(a_head), a_head->head_size);
-
-		/* Dump the "a_info" array */
-		(void)fd_write(fd, (char*)(a_info), a_head->info_size);
-
-		/* Dump the "a_name" array */
-		(void)fd_write(fd, (char*)(a_name), a_head->name_size);
-
-		/* Dump the "a_text" array */
-		(void)fd_write(fd, (char*)(a_text), a_head->text_size);
-
-		/* Close */
-		(void)fd_close(fd);
-	}
-
-
-	/*** Kill the fake arrays ***/
-
-	/* Free the "a_info" array */
-	C_KILL(a_info, a_head->info_num, artifact_type);
-
-	/* Hack -- Free the "fake" arrays */
-	C_KILL(a_name, fake_name_size, char);
-	C_KILL(a_text, fake_text_size, char);
-
-	/* Forget the array sizes */
-	fake_name_size = 0;
-	fake_text_size = 0;
-
-#endif	/* ALLOW_TEMPLATES */
-
-
-	/*** Load the binary image file ***/
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
-
-	/* Attempt to open the "raw" file */
-	fd = fd_open(buf, O_RDONLY);
-
-	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot open 'a_info.raw' file.");
-
-	/* Attempt to parse the "raw" file */
-	err = init_a_info_raw(fd);
-
-	/* Close it */
-	(void)fd_close(fd);
-
-	/* Error */
-	if (err) quit("Cannot parse 'a_info.raw' file.");
-
-	/* Success */
-	return (0);
-}
-
-
-
 /*
  * Initialize the "e_info" array, by parsing a binary "image" file
  */
@@ -1963,7 +1701,7 @@ errr init_t_info(void)
 	/* Later must add in python support. */
 	C_MAKE(t_info, max_t_idx, field_thaum);
 	C_MAKE(fld_list, max_fld_idx, field_type);
-	
+
 
 	/*** Load the ascii template file ***/
 
@@ -2103,8 +1841,8 @@ static errr init_other(void)
 
 	/* Allocate the towns */
 	C_MAKE(town, max_towns, town_type);
-	
-	
+
+
 	/*** Prepare "vinfo" array ***/
 
 	/* Used by "update_view()" */
@@ -2125,7 +1863,7 @@ static errr init_other(void)
 	C_MAKE(quark__str, QUARK_MAX, cptr);
 	C_MAKE(quark__use, QUARK_MAX, u16b);
 
-	
+
 	/* Prepare the "message" package */
 	message_init();
 
@@ -2142,8 +1880,8 @@ static errr init_other(void)
 
 	/*** Prepare the options ***/
 	init_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
-	
-	
+
+
 	/* Analyze the options */
 	for (i = 0; i < OPT_MAX; i++)
 	{
@@ -2154,7 +1892,7 @@ static errr init_other(void)
 		}
 	}
 
-	
+
 	/* Analyze the windows */
 	for (n = 0; n < 8; n++)
 	{
@@ -2491,8 +2229,8 @@ void init_angband(void)
 	if (init_k_info()) quit("Cannot initialize objects");
 
 	/* Initialize artifact info */
-	note("[Initializing arrays... (artifacts)]");
-	if (init_a_info()) quit("Cannot initialize artifacts");
+/*	note("[Initializing arrays... (artifacts)]");
+	if (init_a_info()) quit("Cannot initialize artifacts");*/
 
 	/* Initialize ego-item info */
 	note("[Initializing arrays... (ego-items)]");
@@ -2546,7 +2284,7 @@ void init_angband(void)
 
 	/* Initialise the fake monochrome flag */
 	fake_monochrome = (!use_graphics || streq(ANGBAND_SYS, "ibm")) ? TRUE:FALSE;
-	
+
 	/* Done */
 	note("[Initialization complete]");
 }

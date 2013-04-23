@@ -150,7 +150,8 @@ static int wild_first_town[START_STORE_NUM] =
 	BUILD_STORE_HOME,
 	BUILD_SUPPLIES0,
 	BUILD_WARHALL0,
-	BUILD_STORE_TEMPLE,
+	BUILD_SCROLL0/*STORE_TEMPLE*/,
+   BUILD_POTION0/*STORE_ALCHEMIST*/,
 	BUILD_STORE_MAGIC
 };
 
@@ -167,13 +168,13 @@ void select_town_name(char *name, int pop)
 {
 	char buf[T_NAME_LEN + 1];
 	int len;
-	
+
 	/* Get a normal 'elvish' name */
 	get_table_name(buf, FALSE);
-	
+
 	/* Get length */
 	len = strlen(buf) - 1;
-	
+
 	if (pop < T_SIZE_SMALL)
 	{
 		/* Hamlet */
@@ -223,17 +224,17 @@ void select_town_name(char *name, int pop)
 		/* Castle */
 		if ((len < T_NAME_LEN - 7) && one_in_(2))
 		{
-			strcat(buf, " Castle");	
+			strcat(buf, " Castle");
 		}
 		else if ((len < T_NAME_LEN - 5) && one_in_(2))
 		{
 			strcat(buf, " Keep");
 		}
 	}
-	
+
 	/* Copy into result */
 	strcpy(name, buf);
-} 
+}
 
 
 /* Select a store or building "appropriate" for a given position */
@@ -247,7 +248,6 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 	/* Draw stairs first for small towns */
 	if ((build_num < 11) && (!build[BUILD_STAIRS])) return (BUILD_STAIRS);
 
-
 	for (i = 0; i < MAX_CITY_BUILD; i++)
 	{
 		/* Work out total effects due to location */
@@ -257,7 +257,7 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 
 		/* Effect due to rarity */
 		total += wild_build[i].rarity;
-		
+
 		/* Effect due to total count */
 		total +=  build[i] * 20;
 
@@ -266,12 +266,12 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 	}
 
 	/* Note that cities of size 11 have a small chance to have stairs. */
-	
+
 	/* Effects for cities */
 	if (build_num > 11)
 	{
 		/* Hack - Dungeons are not in large cities */
-		wild_build[BUILD_STAIRS].gen = 0;
+/*		wild_build[BUILD_STAIRS].gen = 0;*/
 
 		/* Hack - Increase possibility of 'general' features */
 		for (i = 0; i < MAX_CITY_BUILD; i++)
@@ -442,11 +442,11 @@ static bool create_city(int x, int y, int town_num)
 
 	/* Hack - the first town is special */
 	if (town_num == 1)
-	{ 
+	{
 		/* Use a low pop - we don't want too many blank buildings */
 		pop = 32 + 128;
 	}
-		
+
 	/* Wipe the list of allocated buildings */
 	(void)C_WIPE(build, MAX_CITY_BUILD, u16b);
 	(void)C_WIPE(build_list, (WILD_BLOCK_SIZE * WILD_BLOCK_SIZE), u16b);
@@ -845,7 +845,7 @@ static void init_towns(int xx, int yy)
 			/* Try the "easiest" spot in the wilderness */
 			x = xx;
 			y = yy;
-			
+
 			/* Only try once here */
 			first_try = FALSE;
 		}
@@ -855,7 +855,7 @@ static void init_towns(int xx, int yy)
 			x = randint0(max_wild);
 			y = randint0(max_wild);
 		}
-		
+
 		/*
 		 * See if a city will fit.
 		 * (Need a 8x8 block free.)
@@ -889,7 +889,7 @@ static void init_towns(int xx, int yy)
 			town_count++;
 		}
 	}
-	
+
 	/* Hack - the starting town uses pre-defined stores */
 	for (i = 0; i < town[best_town].numstores; i++)
 	{
@@ -898,16 +898,20 @@ static void init_towns(int xx, int yy)
 			/* Hack - make stairs */
 			store_init(best_town, i, wild_first_town[i]);
 		}
-		else if (i < START_STORE_NUM)
+		else if (i > 0 && i < START_STORE_NUM)
 		{
 			/* Hack - use the pre-defined stores */
 			store_init(best_town, i, wild_first_town[i]);
 		}
-		else
-		{
+		else if (i > START_STORE_NUM - 1)
+      {
+         store_init(best_town, i, randint0(110));
+      }
+/*      else
+		{*/
 			/* Blank spot */
-			general_init(best_town, i, BUILD_NONE);
-		}
+/*			general_init(best_town, i, BUILD_NONE);
+		}*/
 	}
 
 	/* Build starting city / town */
@@ -4127,7 +4131,7 @@ void create_wilderness(void)
 
 	/* Rescale minimum. */
 	law_min *= 16;
-	
+
 	/* Best place in wilderness for starting town */
 	x = -1;
 	y = -1;

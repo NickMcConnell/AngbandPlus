@@ -293,7 +293,7 @@
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-#define USE_GRAPHICS
+/*#define USE_GRAPHICS*/
 
 /*
  * OPTION: Allow the use of "music" in various places
@@ -500,7 +500,7 @@
 # define VERBOSE_MARTIAL_ARTS
 
 /* Allow hordes of 'similar' monsters */
-# define MONSTER_HORDES
+#define MONSTER_HORDES
 
 /* Allow Klackon- and Sprite-Monks to get extra speed
  *
@@ -508,7 +508,7 @@
  * Klackons and Sprites are not *supposed* to be
  * playing monks in the first place
  */
-/* #define MONK_HACK */
+#define MONK_HACK
 
 /*
  * Check the modification time of *_info.raw files

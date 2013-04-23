@@ -56,16 +56,58 @@ static byte value_check_aux1(const object_type *o_ptr)
 	{
 		/* Cursed good item? */
 		if (cursed_p(o_ptr)) return FEEL_DUBIOUS;
-		
+
 		/* Normal good item */
-		return FEEL_GOOD;	
+		return FEEL_GOOD;
 	}
-	
+
 	/* Cursed items */
 	if (cursed_p(o_ptr)) return FEEL_CURSED;
 
 	/* Worthless is "bad" */
 	if (!object_value(o_ptr)) return FEEL_BAD;
+
+	/* Default to "average" */
+	return FEEL_AVERAGE;
+}
+
+/*
+ * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
+ */
+/*
+ * Magic Stuff Check Heavy
+ */
+
+static byte value_check_aux1_1(const object_type *o_ptr)
+{
+   s32b TrueVal;
+
+   TrueVal = 0;
+
+   TrueVal = object_value_real(o_ptr);
+
+	/* Artifacts */
+	if (o_ptr->flags3 & TR3_INSTA_ART)
+	{
+		/* Cursed/Broken */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return FEEL_TERRIBLE;
+
+		/* Normal */
+		return FEEL_SPECIAL;
+	}
+
+	/* Cursed items */
+	if (cursed_p(o_ptr)) return FEEL_CURSED;
+
+	/* Worthless is "bad" */
+	if (TrueVal < 1) return FEEL_BAD;
+
+	/* Good bonus */
+   if (TrueVal > 0 && TrueVal < 500) return FEEL_AVERAGE;
+
+   if (TrueVal > 499 && TrueVal < 2500) return FEEL_GOOD;
+
+   if (TrueVal > 2499) return FEEL_EXCELLENT;
 
 	/* Default to "average" */
 	return FEEL_AVERAGE;
@@ -102,7 +144,314 @@ static byte value_check_aux2(const object_type *o_ptr)
 	return FEEL_NONE;
 }
 
+/*
+ * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
+ */
+/*
+ * Magic Stuff Check Light
+ */
+static byte value_check_aux2_1(const object_type *o_ptr)
+{
+   s32b TrueVal;
 
+   TrueVal = 0;
+
+   TrueVal = object_value_real(o_ptr);
+
+   if (TrueVal < 1) return FEEL_BAD;
+
+   if (TrueVal > 0 && TrueVal < 1000) return FEEL_AVERAGE;
+
+   if (TrueVal > 999) return FEEL_GOOD;
+
+	return FEEL_NONE;
+}
+
+
+/*
+ * Sense the Magic Stuff (Completely made up)  :)
+ */
+static void sense_inventory2(void)
+{
+	int         i;
+	int         plev = p_ptr->lev;
+	bool        heavy = FALSE;
+	byte        feel;
+	object_type *o_ptr;
+	char        o_name[80];
+
+#ifdef USE_SCRIPT
+	int         result;
+#endif /* USE_SCRIPT */
+
+
+	/*** Check for "sensing" ***/
+
+	/* No sensing when confused */
+	if (p_ptr->confused) return;
+
+#ifdef USE_SCRIPT
+
+	result = sense_inventory_callback();
+
+	if (result == -1)
+		heavy = TRUE;
+
+	if (!result)
+
+#endif /* USE_SCRIPT */
+
+	{
+		/* Analyze the class */
+		switch (p_ptr->pclass)
+		{
+			case CLASS_WARRIOR:
+			{
+				/* Good sensing */
+				if (!one_in_(240000L / (plev + 5))) return;
+
+				/* Done */
+				break;
+			}
+
+			case CLASS_MAGE:
+			case CLASS_HIGH_MAGE:
+			{
+				/* Very bad (light) sensing */
+				if (!one_in_(9000L / (plev * plev + 40))) return;
+
+				/* Heavy sensing */
+				heavy = TRUE;
+
+				break;
+			}
+
+			case CLASS_PRIEST:
+			{
+				/* Good (light) sensing */
+				if (!one_in_(20000L / (plev * plev + 40))) return;
+
+				/* Heavy sensing */
+				heavy = TRUE;
+
+				break;
+			}
+
+			case CLASS_ROGUE:
+			{
+				/* Okay sensing */
+				if (!one_in_(15000L / (plev * plev + 40))) return;
+
+				/* Done */
+				break;
+			}
+
+			case CLASS_RANGER:
+			{
+				/* Bad sensing */
+				if (!one_in_(40000L / (plev * plev + 40))) return;
+
+				/* Changed! */
+				heavy = TRUE;
+
+				/* Done */
+				break;
+			}
+
+			case CLASS_PALADIN:
+			{
+				/* Bad sensing */
+				if (!one_in_(35353L / (plev * plev + 40))) return;
+
+				/* Done */
+				break;
+			}
+
+			case CLASS_WARRIOR_MAGE:
+			{
+				/* Bad sensing */
+				if (!one_in_(37500L / (plev * plev + 40))) return;
+
+				/* Done */
+				break;
+			}
+
+			case CLASS_MINDCRAFTER:
+			{
+				/* Bad sensing */
+				if (!one_in_(55000L / (plev * plev + 40))) return;
+
+				/* Done */
+				break;
+			}
+
+			case CLASS_CHAOS_WARRIOR:
+			{
+				/* Bad sensing */
+				if (!one_in_(40000L / (plev * plev + 40))) return;
+
+				/* Done */
+				break;
+			}
+
+			case CLASS_MONK:
+			{
+				/* Okay sensing */
+				if (!one_in_(20000L / (plev * plev + 40))) return;
+
+				/* Heavy sensing */
+				heavy = TRUE;
+
+				/* Done */
+				break;
+			}
+
+			case CLASS_CHI_WARRIOR:
+			{
+				/* Very bad (light) sensing */
+				if (!one_in_(9000L / (plev * plev + 40))) return;
+
+				/* Heavy sensing */
+				heavy = TRUE;
+
+				break;
+			}
+		}
+	}
+
+	/*** Sense everything ***/
+
+	/* Check everything */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		bool okay = FALSE;
+
+		o_ptr = &inventory[i];
+
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
+		{
+			case TV_AMULET:
+			case TV_RING:
+			case TV_STAFF:
+			case TV_WAND:
+			case TV_ROD:
+			case TV_SCROLL:
+			case TV_POTION:
+			{
+				okay = TRUE;
+				break;
+			}
+		}
+
+		/* Skip non-sense machines */
+		if (!okay) continue;
+
+		/* We know about it already, do not tell us again */
+		if (o_ptr->ident & (IDENT_SENSE)) continue;
+
+		/* It is fully known, no information needed */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Occasional failure on inventory items */
+		if ((i < INVEN_WIELD) && !one_in_(5)) continue;
+
+		/* Good luck */
+		if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && !one_in_(13))
+		{
+			heavy = TRUE;
+		}
+
+		/* Check for a feeling */
+		feel = (heavy ? value_check_aux1_1(o_ptr) : value_check_aux2_1(o_ptr));
+
+		/* Skip non-feelings */
+		if (!feel) continue;
+
+		/* Bad luck */
+		if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !one_in_(13))
+		{
+			switch (feel)
+			{
+				case FEEL_TERRIBLE:
+				{
+					feel = FEEL_SPECIAL;
+					break;
+				}
+				case FEEL_WORTHLESS:
+				{
+					feel = FEEL_EXCELLENT;
+					break;
+				}
+				case FEEL_CURSED:
+				{
+					feel = one_in_(3) ? FEEL_AVERAGE : FEEL_GOOD;
+					break;
+				}
+				case FEEL_AVERAGE:
+				{
+					feel = one_in_(2) ? FEEL_BAD : FEEL_GOOD;
+					break;
+				}
+				case FEEL_GOOD:
+				case FEEL_BAD:
+				{
+					feel = one_in_(3) ? FEEL_AVERAGE : FEEL_CURSED;
+					break;
+				}
+				case FEEL_EXCELLENT:
+				{
+					feel = FEEL_WORTHLESS;
+					break;
+				}
+				case FEEL_SPECIAL:
+				{
+					feel = FEEL_TERRIBLE;
+					break;
+				}
+			}
+		}
+
+		/* Stop everything */
+		if (disturb_minor) disturb(FALSE);
+
+		/* Get an object description */
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		/* Message (equipment) */
+		if (i >= INVEN_WIELD)
+		{
+			msg_format("You feel the %s (%c) you are %s %s %s...",
+						  o_name, index_to_label(i), describe_use(i),
+						  ((o_ptr->number == 1) ? "is" : "are"),
+						game_inscriptions[feel]);
+		}
+
+		/* Message (inventory) */
+		else
+		{
+			msg_format("You feel the %s (%c) in your pack %s %s...",
+			           o_name, index_to_label(i),
+			           ((o_ptr->number == 1) ? "is" : "are"),
+					   game_inscriptions[feel]);
+		}
+
+		/* We have "felt" it */
+		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Set the "inscription" */
+		o_ptr->feeling = feel;
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	}
+}
 
 
 
@@ -253,6 +602,17 @@ static void sense_inventory(void)
 				if (!one_in_(20000L / (plev * plev + 40))) return;
 
 				/* Done */
+				break;
+			}
+
+			case CLASS_CHI_WARRIOR:
+			{
+				/* Very bad (light) sensing */
+				if (!one_in_(9000L / (plev * plev + 40))) return;
+
+				/* Heavy sensing */
+				heavy = TRUE;
+
 				break;
 			}
 		}
@@ -492,7 +852,7 @@ static void wreck_the_pattern(void)
 	msg_print("Something terrible happens!");
 
 	if (!p_ptr->invuln)
-		take_hit(damroll(10, 8), "corrupting the Pattern");
+		take_hit(damroll(10, 8), "corrupting the Pattern", TRUE);
 
 	to_ruin = rand_range(35, 80);
 
@@ -536,12 +896,12 @@ static bool pattern_effect(void)
 		(void)set_cut(0);
 		(void)set_blind(0);
 		(void)set_afraid(0);
-		(void)do_res_stat(A_STR);
-		(void)do_res_stat(A_INT);
-		(void)do_res_stat(A_WIS);
-		(void)do_res_stat(A_DEX);
-		(void)do_res_stat(A_CON);
-		(void)do_res_stat(A_CHR);
+		(void)do_res_stat(A_STR, 200);
+		(void)do_res_stat(A_INT, 200);
+		(void)do_res_stat(A_WIS, 200);
+		(void)do_res_stat(A_DEX, 200);
+		(void)do_res_stat(A_CON, 200);
+		(void)do_res_stat(A_CHR, 200);
 		(void)restore_level();
 		(void)hp_player(1000);
 		c_ptr->feat = FEAT_PATTERN_OLD;
@@ -567,14 +927,14 @@ static bool pattern_effect(void)
 	else if (c_ptr->feat == FEAT_PATTERN_XTRA2)
 	{
 		if (!p_ptr->invuln)
-		take_hit(200, "walking the corrupted Pattern");
+		take_hit(200, "walking the corrupted Pattern", TRUE);
 	}
 	else
 	{
 		if ((p_ptr->prace == RACE_AMBERITE) && one_in_(2))
 			return TRUE;
 		else if (!p_ptr->invuln)
-			take_hit(damroll(1, 3), "walking the Pattern");
+			take_hit(damroll(1, 3), "walking the Pattern", TRUE);
 	}
 
 	return TRUE;
@@ -826,7 +1186,7 @@ bool psychometry(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 
 	/* Something happened */
 	return (TRUE);
@@ -886,7 +1246,7 @@ static void process_world(void)
 	u16b x, y;
 
 	object_type *o_ptr;
-	u32b f1 = 0 , f2 = 0 , f3 = 0;
+	u32b f1 = 0 , f2 = 0 , f3 = 0, f4 = 0, f5 = 0, f6 = 0;
 	int temp;
 	object_kind *k_ptr;
 	cave_type *c_ptr = area(p_ptr->py, p_ptr->px);
@@ -1029,7 +1389,7 @@ static void process_world(void)
 	if (p_ptr->poisoned && !p_ptr->invuln)
 	{
 		/* Take damage */
-		take_hit(1, "poison");
+		take_hit(1, "poison", FALSE);
 	}
 
 
@@ -1043,33 +1403,9 @@ static void process_world(void)
 			{
 				/* Take damage */
 				msg_print("The sun's rays scorch your undead flesh!");
-				take_hit(1, "sunlight");
+				take_hit(1, "sunlight", FALSE);
 				cave_no_regen = TRUE;
 			}
-		}
-
-		if (inventory[INVEN_LITE].tval &&
-		    (inventory[INVEN_LITE].sval >= SV_LITE_GALADRIEL) &&
-		    (inventory[INVEN_LITE].sval < SV_LITE_THRAIN) &&
-		    !p_ptr->resist_lite)
-		{
-			char o_name[80];
-			char ouch[80];
-			
-			o_ptr = &inventory[INVEN_LITE];
-
-			/* Get an object description */
-			object_desc(o_name, o_ptr, FALSE, 0);
-
-			msg_format("The %s scorches your undead flesh!", o_name);
-
-			cave_no_regen = TRUE;
-
-			/* Get an object description */
-			object_desc(o_name, o_ptr, TRUE, 0);
-
-			sprintf(ouch, "wielding %s", o_name);
-			if (!p_ptr->invuln) take_hit(1, ouch);
 		}
 	}
 
@@ -1085,7 +1421,7 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msg_print("The lava burns you!");
-			take_hit(damage, "shallow lava");
+			take_hit(damage, "shallow lava", TRUE);
 			cave_no_regen = TRUE;
 		}
 	}
@@ -1117,7 +1453,7 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msg_print(message);
-			take_hit(damage, hit_from);
+			take_hit(damage, hit_from, TRUE);
 
 			cave_no_regen = TRUE;
 		}
@@ -1135,7 +1471,7 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msg_print("The acid burns you!");
-			take_hit(damage, "shallow acid");
+			take_hit(damage, "shallow acid", TRUE);
 			cave_no_regen = TRUE;
 		}
 	}
@@ -1167,7 +1503,7 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msg_print(message);
-			take_hit(damage, hit_from);
+			take_hit(damage, hit_from, TRUE);
 
 			cave_no_regen = TRUE;
 		}
@@ -1184,7 +1520,7 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msg_print("The plants poison you!");
-			take_hit(damage, "swamp");
+			take_hit(damage, "swamp", FALSE);
 			cave_no_regen = TRUE;
 		}
 	}
@@ -1216,7 +1552,7 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msg_print(message);
-			take_hit(damage, hit_from);
+			take_hit(damage, hit_from, FALSE);
 
 			cave_no_regen = TRUE;
 		}
@@ -1229,7 +1565,7 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msg_print("You are drowning!");
-			take_hit(randint1(p_ptr->lev), "drowning");
+			take_hit(randint1(p_ptr->lev), "drowning", FALSE);
 			cave_no_regen = TRUE;
 		}
 	}
@@ -1272,11 +1608,11 @@ static void process_world(void)
 				dam_desc = "solid rock";
 			}
 
-			take_hit(1 + (p_ptr->lev / 5), dam_desc);
+			take_hit(1 + (p_ptr->lev / 5), dam_desc, FALSE);
 		}
 	}
 
-	/* 
+	/*
 	 * Fields you are standing on may do something.
 	 */
 	field_hook(&c_ptr->fld_idx, FIELD_ACT_PLAYER_ON, NULL);
@@ -1359,7 +1695,7 @@ static void process_world(void)
 		}
 
 		/* Take damage */
-		take_hit(i, "a fatal wound");
+		take_hit(i, "a fatal wound", FALSE);
 	}
 
 
@@ -1406,7 +1742,7 @@ static void process_world(void)
 		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
 
 		/* Take damage */
-		if (!p_ptr->invuln) take_hit(i, "starvation");
+		if (!p_ptr->invuln) take_hit(i, "starvation", FALSE);
 	}
 
 	/* Default regeneration */
@@ -1681,7 +2017,7 @@ static void process_world(void)
 	for (i = MUT_PER_SET; i < MUT_PER_SET * 2; i++)
 	{
 		mut_ptr = &mutations[i];
-		
+
 		/*
 		 * Do we have this mutation and
 		 * is it truly a randomly activating one?
@@ -1706,18 +2042,6 @@ static void process_world(void)
 		}
 	}
 
-	/* Rarely, take damage from the Jewel of Judgement */
-	if (one_in_(999) && !p_ptr->anti_magic)
-	{
-		if ((inventory[INVEN_LITE].tval) && !p_ptr->invuln &&
-		    (inventory[INVEN_LITE].sval == SV_LITE_THRAIN))
-		{
-			msg_print("The Jewel of Judgement drains life from you!");
-			take_hit(MIN(p_ptr->lev, 50), "the Jewel of Judgement");
-		}
-	}
-
-
 	/* Process equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -1727,7 +2051,7 @@ static void process_world(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
 		/* TY Curse */
 		if ((f3 & TR3_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
@@ -1735,16 +2059,6 @@ static void process_world(void)
 			int count = 0;
 
 			(void)activate_ty_curse(FALSE, &count);
-		}
-
-		/* Make a chainsword noise */
-		if ((o_ptr->activate == ART_CHAINSWORD + 128) &&
-			one_in_(CHAINSWORD_NOISE))
-		{
-			char noise[1024];
-			if (!get_rnd_line("chainswd.txt", 0, noise))
-				msg_print(noise);
-			disturb(FALSE);
 		}
 
 		/*
@@ -1776,12 +2090,19 @@ static void process_world(void)
 			}
 		}
 
+      /*  !!!GLOWSTONE HACK!!!  */
+   	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval >= SV_YELLOW_GLOWSTONE))
+		{
+   		/* Calculate torch radius */
+			p_ptr->update |= (PU_TORCH);
+		}
+
 		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0)
 		{
 			/* Recharge */
 			o_ptr->timeout--;
-			
+
 			/* Lights are special */
 			if ((o_ptr->tval == TV_LITE) && !(o_ptr->flags3 & TR3_LITE))
 			{
@@ -1796,7 +2117,7 @@ static void process_world(void)
 			else if (!o_ptr->timeout)
 			{
 				recharged_notice(o_ptr);
-				
+
 				/* Window stuff */
 				p_ptr->window |= (PW_EQUIP);
 			}
@@ -1836,7 +2157,7 @@ static void process_world(void)
 			if (temp > (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval)
 			{
 				recharged_notice(o_ptr);
-				
+
 				/* Combine pack */
 				p_ptr->notice |= (PN_COMBINE);
 
@@ -1848,6 +2169,7 @@ static void process_world(void)
 
 	/* Feel the inventory */
 	sense_inventory();
+	sense_inventory2();
 
 
 	/*** Process Objects ***/
@@ -1860,7 +2182,7 @@ static void process_world(void)
 
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
-		
+
 		/* Exit if not in dungeon */
 		if (o_ptr->held_m_idx) continue;
 
@@ -2375,13 +2697,13 @@ static void process_command(void)
 		/* Cast a spell */
 		case 'm':
 		{
-			
+
 			if (p_ptr->anti_magic)
 			{
 				cptr which_power = "magic";
 				if (p_ptr->pclass == CLASS_MINDCRAFTER)
 					which_power = "psionic powers";
-				else if (mp_ptr->spell_book == TV_LIFE_BOOK)
+				else if (mp_ptr->spell_book == TV_SPELL_BOOK)
 					which_power = "prayer";
 
 				msg_format("An anti-magic shell disrupts your %s!", which_power);
@@ -2395,7 +2717,7 @@ static void process_command(void)
 				else
 					do_cmd_cast();
 			}
-			
+
 			break;
 		}
 
@@ -3048,7 +3370,7 @@ static void process_player(void)
 						{
 							/* Forget flag */
 							m_ptr->mflag &= ~(MFLAG_MARK);
-							
+
 							/* Update the monster */
 							update_mon(i, FALSE);
 						}
@@ -3203,10 +3525,10 @@ static void dungeon(void)
 
 	/* Option -- no connected stairs */
 	if (!dungeon_stair) p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
-	
+
 	/* Nightmare mode is no fun... */
 	if (ironman_nightmare) p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
-	
+
 	/* Option -- no up stairs */
 	if (ironman_downward) p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 
@@ -3250,7 +3572,7 @@ static void dungeon(void)
 	character_xtra = TRUE;
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_PLAYRES);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER | PW_MESSAGE | PW_VISIBLE);
@@ -3417,10 +3739,10 @@ static void dungeon(void)
 
 		/* Process the world */
 		process_world();
-		
+
 		/* Hack -- Notice death or departure */
 		if (!p_ptr->playing || p_ptr->is_dead) break;
-		
+
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
@@ -3526,6 +3848,8 @@ void play_game(bool new_game)
 	/* Hack -- Character is "icky" */
 	character_icky = TRUE;
 
+   set_cost_matrix();
+
 	/* Verify main term */
 	if (!angband_term[0])
 	{
@@ -3536,10 +3860,10 @@ void play_game(bool new_game)
 	Term_activate(angband_term[0]);
 
 	if (!angband_term[0]) quit("Main term does not exist!");
-	
+
 	/* Initialise the resize hooks */
 	angband_term[0]->resize_hook = resize_map;
-	
+
 	for (i = 1; i < 8; i++)
 	{
 		/* Does the term exist? */
@@ -3548,7 +3872,7 @@ void play_game(bool new_game)
 			/* Add the redraw on resize hook */
 			angband_term[i]->resize_hook = redraw_window;
 		}
-	}	
+	}
 
 	/* Verify minimum size */
 	if ((Term->hgt < 24) || (Term->wid < 80))
@@ -3567,8 +3891,8 @@ void play_game(bool new_game)
 
 	/* Initialize field info */
 	if (init_t_info()) quit("Cannot initialize fields");
-	
-		
+
+
 	/* Attempt to load */
 	if (!load_player())
 	{
@@ -3613,11 +3937,11 @@ void play_game(bool new_game)
 		/* Seed the "complex" RNG */
 		Rand_state_init(seed);
 	}
-	
+
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
 	if (arg_force_roguelike) rogue_like_commands = TRUE;
-	
+
 	/* Roll new character */
 	if (new_game)
 	{
@@ -3656,10 +3980,10 @@ void play_game(bool new_game)
 		/* Hack -- seed for flavors */
 		seed_flavor = randint0(0x10000000);
 	}
-	
+
 	/* Reset the visual mappings */
 	reset_visuals();
-	
+
 	/* Normal machine (process player name) */
 	if (savefile[0])
 	{
@@ -3696,7 +4020,7 @@ void play_game(bool new_game)
 
 	/*
 	 * Set or clear "rogue_like_commands" if requested
-	 * (Do it again, because of loading the pref files 
+	 * (Do it again, because of loading the pref files
 	 *  can stomp on the options.)
 	 */
 	if (arg_force_original) rogue_like_commands = FALSE;
@@ -3724,37 +4048,37 @@ void play_game(bool new_game)
 
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
-	
+
 	/* Resize / init the map */
 	map_panel_size();
 
 	/* Verify the (possibly resized) panel */
 	verify_panel();
-		
+
 	/* Enter "xtra" mode */
 	character_xtra = TRUE;
 
 	/* Need to recalculate some transient things */
 	p_ptr->update |= (PU_BONUS | PU_SPELLS);
-	
+
 	/* Update some stuff not stored in the savefile any more */
 	p_ptr->update |= (PU_VIEW | PU_MON_LITE);
-	
+
 	/* Update stuff */
 	update_stuff();
-	
+
 	/* Leave "xtra" mode */
-	character_xtra = FALSE;	
-	
+	character_xtra = FALSE;
+
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_PLAYRES);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);
 
 	/* Window stuff */
 	window_stuff();
-	
+
 	/* Process */
 	while (TRUE)
 	{

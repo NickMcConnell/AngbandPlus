@@ -60,13 +60,13 @@
 /* What variant is this? Used in the highscore dump */
 
 /* Yep, Bablos, this is still a mess! ;) */
-#define VERTITLE "Zangband 2.5.2b"
-#define VERSION "Zangband"
-#define VERS "2.5.2b"
-#define VARIANT "Zangband 2.5.2b"
+#define VERTITLE "RandomBand 0.2.0"
+#define VERSION "RandomBand"
+#define VERS "0.20"
+#define VARIANT "RandomBand 0.2.0"
 
 /* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
-#define VERPATH "Zangband:"
+#define VERPATH "randband:"
 
 #define CGXSUPPORT					/* Define for RTG support. Leave on */
 //#define SANGBAND					/* Define if this is Sangband. */
@@ -5326,7 +5326,7 @@ void amiga_hs_to_ascii(void)
 }
 
 /* Provides name of the last used save file in 'buf', by reading
-   'user/data-ami.prf'. This is a hack, but works for most player names. 
+   'user/data-ami.prf'. This is a hack, but works for most player names.
    Insert in main.c */
 void amiga_user_name( char *buf )
 {

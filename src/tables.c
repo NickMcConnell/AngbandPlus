@@ -1428,7 +1428,7 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Nothall",			125,			RACE_DWARF},
 		{ "Athoang",			90,				RACE_GNOME},
 	},
-	
+
 	{
 		/* Zymurgist */
 		{ "Tanistil",			100,			RACE_ELF},
@@ -1437,7 +1437,7 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Kaoghequin",			90,				RACE_YEEK},
 		{ "Yaowing",			95,				RACE_HIGH_ELF},
 	},
-	
+
 	{
 		/* Magesmith Weapons */
 		{ "Aotnron",			100,			RACE_HALF_ORC},
@@ -1446,7 +1446,7 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Waowenth",			130,			RACE_ELF},
 		{ "Yiquent",			90,				RACE_VAMPIRE},
 	},
-	
+
 	{
 		/* Magesmith Armour */
 		{ "Paoingth",			100,			RACE_DARK_ELF},
@@ -1455,7 +1455,7 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Baongthan",			90,				RACE_DWARF},
 		{ "Vitholm",			105,			RACE_SPRITE},
 	},
-	
+
 	{
 		/* Mutations */
 		{ "Aaognwth",			120,			RACE_HUMAN},
@@ -1464,7 +1464,7 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Yillwyn",			100,			RACE_KLACKON},
 		{ "Zyxlen",				110,			RACE_GOLEM},
 	},
-	
+
 	{
 		/* Maps */
 		{ "Fsanong of the East", 90,			RACE_HUMAN},
@@ -1473,7 +1473,7 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Wop of the high",	125,			RACE_GNOME},
 		{ "Kaquin of the West",	95,				RACE_HIGH_ELF},
 	},
-	
+
 	{
 		/* Library */
 		{ "Agpoan",				 85,			RACE_HUMAN},
@@ -1491,7 +1491,7 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Tile Green",			100,			RACE_HUMAN},
 		{ "Gold Red",			100,			RACE_DWARF},
 	},
-	
+
 	{
 		/* Inn */
 		{ "Pwvnom",				100,			RACE_DARK_ELF},
@@ -1500,7 +1500,7 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Thwynyhtm",			250,			RACE_HIGH_ELF},
 		{ "Chaillnew",			50,				RACE_HUMAN},
 	},
-	
+
 	{
 		/* Healer */
 		{ "Nethlew",			150,			RACE_ELF},
@@ -1818,7 +1818,7 @@ player_sex sex_info[MAX_SEXES] =
  *      Age (Base, Mod),
  *      Male (Hgt, Wgt),
  *      Female (Hgt, Wgt)
- *      infra,
+ *      infra, deadliness mod
  *      class-choices
  */
 player_race race_info[MAX_RACES] =
@@ -1831,7 +1831,7 @@ player_race race_info[MAX_RACES] =
 		14,  6,
 		72,  6, 180, 25,
 		66,  4, 150, 20,
-		0,
+		0, 25,
 		0x7FF,
 	},
 	{
@@ -1842,7 +1842,7 @@ player_race race_info[MAX_RACES] =
 		24, 16,
 		66,  6, 130, 15,
 		62,  6, 100, 10,
-		2,
+		2, 20,
 		0x7FF,
 	},
 	{
@@ -1853,7 +1853,7 @@ player_race race_info[MAX_RACES] =
 		75, 75,
 		60,  4, 100,  6,
 		54,  4, 80,  6,
-		3,
+		3, 20,
 		0x75F,
 	},
 	{
@@ -1864,7 +1864,7 @@ player_race race_info[MAX_RACES] =
 		21, 12,
 		36,  3, 60,  3,
 		33,  3, 50,  3,
-		4,
+		4, 20,
 		0x40B,
 	},
 	{
@@ -1875,7 +1875,7 @@ player_race race_info[MAX_RACES] =
 		50, 40,
 		42,  3, 90,  6,
 		39,  3, 75,  3,
-		4,
+		4, 20,
 		0x60F,
 	},
 	{
@@ -1886,7 +1886,7 @@ player_race race_info[MAX_RACES] =
 		35, 15,
 		48,  3, 150, 10,
 		46,  3, 120, 10,
-		5,
+		5, 30,
 		0x005,
 	},
 	{
@@ -1897,7 +1897,7 @@ player_race race_info[MAX_RACES] =
 		11,  4,
 		66,  1, 150,  5,
 		62,  1, 120,  5,
-		3,
+		3, 35,
 		0x18D,
 	},
 	{
@@ -1908,7 +1908,7 @@ player_race race_info[MAX_RACES] =
 		20, 10,
 		96, 10, 250, 50,
 		84,  8, 225, 40,
-		3,
+		3, 35,
 		0x005,
 	},
 	{
@@ -1919,7 +1919,7 @@ player_race race_info[MAX_RACES] =
 		50, 50,
 		82, 5, 190, 20,
 		78,  6, 180, 15,
-		0,
+		0, 35,
 		0x7FF,
 	},
 	{
@@ -1930,7 +1930,7 @@ player_race race_info[MAX_RACES] =
 		100, 30,
 		90, 10, 190, 20,
 		82, 10, 180, 15,
-		4,
+		4, 30,
 		0x75F,
 	},
 	{
@@ -1941,7 +1941,7 @@ player_race race_info[MAX_RACES] =
 		14, 8,
 		82, 5, 200, 20,
 		78,  6, 190, 15,
-		0,
+		0, 40,
 		0x09D,
 	},
 	{
@@ -1952,7 +1952,7 @@ player_race race_info[MAX_RACES] =
 		40, 10,
 		92, 10, 255, 60,
 		80,  8, 235, 60,
-		3,
+		3, 35,
 		0x407,
 	},
 	{
@@ -1963,7 +1963,7 @@ player_race race_info[MAX_RACES] =
 		40, 10,
 		100, 10, 255, 65,
 		80, 10, 240, 64,
-		3,
+		3, 35,
 		0x011,
 	},
 	{
@@ -1974,7 +1974,7 @@ player_race race_info[MAX_RACES] =
 		100, 30,
 		111, 11, 255, 86,
 		99, 11, 250, 86,
-		0,
+		0, 35,
 		0x727,
 	},
 	{
@@ -1985,7 +1985,7 @@ player_race race_info[MAX_RACES] =
 		50, 24,
 		92, 10, 255, 60,
 		80,  8, 235, 60,
-		1,
+		1, 35,
 		0x005,
 	},
 	{
@@ -1996,7 +1996,7 @@ player_race race_info[MAX_RACES] =
 		14, 3,
 		50,  3, 90,  6,
 		50,  3, 75,  3,
-		2,
+		2, 15,
 		0x60F,
 	},
 	{
@@ -2007,7 +2007,7 @@ player_race race_info[MAX_RACES] =
 		20, 3,
 		60,  3, 80,  4,
 		54,  3, 70,  4,
-		2,
+		2, 20,
 		0x011,
 	},
 	{
@@ -2018,7 +2018,7 @@ player_race race_info[MAX_RACES] =
 		11,  3,
 		60,  1, 130,  5,
 		55,  1, 100,  5,
-		3,
+		3, 20,
 		0x009,
 	},
 	{
@@ -2029,7 +2029,7 @@ player_race race_info[MAX_RACES] =
 		40, 12,
 		43,  3, 92,  6,
 		40,  3, 78,  3,
-		5,
+		5, 30,
 		0x40F,
 	},
 	{
@@ -2040,7 +2040,7 @@ player_race race_info[MAX_RACES] =
 		75, 75,
 		60,  4, 100,  6,
 		54,  4, 80,  6,
-		5,
+		5, 35,
 		0x7DF,
 	},
 	{
@@ -2051,7 +2051,7 @@ player_race race_info[MAX_RACES] =
 		75, 33,
 		76,  1, 160,  5,
 		72,  1, 130,  5,
-		2,
+		2, 40,
 		0x757,
 	},
 	{
@@ -2062,7 +2062,7 @@ player_race race_info[MAX_RACES] =
 		100, 25,
 		68,  6, 142, 15,
 		63,  6, 112, 10,
-		4,
+		4, 20,
 		0x746,
 	},
 	{
@@ -2073,7 +2073,7 @@ player_race race_info[MAX_RACES] =
 		13,  4,
 		68,  1, 150,  5,
 		64,  1, 120,  5,
-		3,
+		3, 25,
 		0x7CB,
 	},
 	{
@@ -2084,7 +2084,7 @@ player_race race_info[MAX_RACES] =
 		1, 100,
 		66,  1, 200,  6,
 		62,  1, 180,  6,
-		4,
+		4, 25,
 		0x001,
 	},
 	{
@@ -2095,7 +2095,7 @@ player_race race_info[MAX_RACES] =
 		100, 35,
 		72,  6, 50, 5,
 		66,  4, 50, 5,
-		2,
+		2, 25,
 		0x70F,
 	},
 	{
@@ -2106,7 +2106,7 @@ player_race race_info[MAX_RACES] =
 		100, 30,
 		72, 6, 100, 25,
 		66, 4, 100, 20,
-		2,
+		2, 30,
 		0x001,
 	},
 	{
@@ -2117,7 +2117,7 @@ player_race race_info[MAX_RACES] =
 		100, 30,
 		72,  6, 180, 25,
 		66,  4, 150, 20,
-		5,
+		5, 35,
 		0x7FF,
 	},
 	{
@@ -2128,7 +2128,7 @@ player_race race_info[MAX_RACES] =
 		100, 30,
 		72, 6, 100, 25,
 		66, 4, 100, 20,
-		5,
+		5, 30,
 		0x74E,    /* Mage, Priest, Rogue, Warrior-Mage, Monk */
 	},
 	{
@@ -2139,7 +2139,7 @@ player_race race_info[MAX_RACES] =
 		50, 25,
 		32,  2, 75,  2,
 		29,  2, 65,  2,
-		4,
+		4, 20,
 		0x65E,
 	},
 	{
@@ -2150,7 +2150,7 @@ player_race race_info[MAX_RACES] =
 		14, 6,
 		65,  6, 150, 20,
 		61,  6, 120, 15,
-		0,
+		0, 25,
 		0x7CF,
 	},
 	{
@@ -2161,7 +2161,7 @@ player_race race_info[MAX_RACES] =
 		100, 30,
 		72, 6, 100, 25,
 		66, 4, 100, 20,
-		2,
+		2, 25,
 		0x70F,
 	}
 };
@@ -2174,7 +2174,7 @@ player_race race_info[MAX_RACES] =
  *      {STR,INT,WIS,DEX,CON,CHR},
  *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
  *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
- *      HD, Exp, pet_upkeep_div
+ *      HD, Exp, pet_upkeep_div, base_deadliness
  */
 player_class class_info[MAX_CLASS] =
 {
@@ -2183,7 +2183,7 @@ player_class class_info[MAX_CLASS] =
 		{ 5, -2, -2, 2, 2, -1},
 		25, 18, 18, 1,  14, 2, 25, 17,
 		12, 7,  10, 0,  0,  0,  100, 55,
-		9,  0, 20
+		9,  0, 20, /*65*/98
 	},
 
 	{
@@ -2191,7 +2191,7 @@ player_class class_info[MAX_CLASS] =
 		{-5, 3, 0, 1, -2, 1},
 		30, 36, 30, 2,  16, 20, 10, 10,
 		7,  13, 9,  0,  0,  0,  25, 14,
-		0, 30, 15
+		0, 30, 15, /*15*/23
 	},
 
 	{
@@ -2199,7 +2199,7 @@ player_class class_info[MAX_CLASS] =
 		{-1, -3, 3, -1, 0, 2},
 		25, 30, 32, 2,  16, 8, 16, 7,
 		7,  10, 12, 0,  0,  0, 50, 18,
-		2, 20, 20
+		2, 20, 20, /*35*/53
 	},
 
 	{
@@ -2207,15 +2207,24 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 1, -2, 3, 1, -1},
 		45, 32, 28, 5, 32, 24, 15, 20,
 		15, 10, 10, 0,  0,  0, 70, 40,
-		6, 25, 20
+		6, 25, 20, /*30*/45
 	},
 
+/*  Original
+	{
+		"Ranger",
+		{ 2, 2, 0, 1, 1, 1},
+		30, 32, 28, 3,  24, 16, 16, 25,
+		8,  10, 10, 0,  0,  0,  65, 100,
+		4, 30, 20
+	},
+*/
 	{
 		"Ranger",
 		{ 2, 2, 0, 1, 1, 1},
 		30, 32, 28, 3,  24, 16, 15, 20,
 		8,  10, 10, 0,  0,  0,  65, 63,
-		4, 30, 20
+		4, 30, 20, /*45*/68
 	},
 
 	{
@@ -2223,7 +2232,7 @@ player_class class_info[MAX_CLASS] =
 		{ 3, -3, 1, 0, 2, 2},
 		20, 24, 26, 1,  12, 2, 19, 10,
 		7,  10, 11, 0,  0,  0,  76, 14,
-		6, 35, 20
+		6, 35, 20, /*45*/68
 	},
 
 	{
@@ -2231,7 +2240,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 2, 0, 1, 0, 1},
 		30, 30, 28, 2,  18, 16, 20, 20,
 		7,  10,  9, 0,  0,  0,  75, 50,
-		4, 50, 20
+		4, 50, 20, /*40*/60
 	},
 
 	{
@@ -2239,7 +2248,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 1, 0, 1, 2, -2},
 		20, 25, 25, 1,  14, 12, 23, 7,
 		7,  11, 10, 0,  0,  0,  90, 40,
-		6, 35, 20
+		6, 35, 20, /*40*/60
 	},
 
 	{
@@ -2247,7 +2256,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, -1, 1, 3, 2, 1},
 		45, 32, 28, 5, 32, 24, 12, 14,
 		15, 11, 10, 0,  0,  0, 30, 25,
-		6, 40, 20
+		6, 40, 20, /*50*/75
 	},
 
 	{
@@ -2255,7 +2264,7 @@ player_class class_info[MAX_CLASS] =
 		{-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
 		30, 30, 30, 3,  22, 16, 15, 15,
 		10, 10, 10, 0,   0,  0, 30, 20,
-		2, 25, 20
+		2, 25, 20, /*25*/38
 	},
 
 	{
@@ -2263,12 +2272,73 @@ player_class class_info[MAX_CLASS] =
 		{-5, 4, 0, 0, -2, 1},
 		30, 36, 30, 2,  16, 20, 10, 10,
 		7,  13, 9,  0,  0,  0,  15, 10,
-		0, 30, 12
+		0, 30, 12, /*15*/23
 	},
+
+	{
+		"Chi Warrior",
+		{ 2, 2, 2, 0, 0, 0},
+		25, 18, 30, 3, 40, 20, 19, 19,
+		12, 7,  10, 0, 10, 10,  35, 35,
+		8, 25, 20, /*50*/75
+	},
+
 };
 
 
+obj_theme qreward_theme[MAX_CLASS] =
+{
+   /*  treasure, combat, magic, tools  */
+   /*  Warrior  */
+   {
+      10,70,5,15
+   },
+   /*  Mage  */
+   {
+      15,15,55,15
+   },
+   /*  Priest  */
+   {
+      10,40,40,10
+   },
+   /*  Rogue  */
+   {
+      25,25,25,25
+   },
+   /*  Ranger  */
+   {
+      20,30,30,20
+   },
+   /*  Paladin  */
+   {
+      15,40,30,15
+   },
+   /*  Warrior Mage  */
+   {
+      10,50,30,10
+   },
+   /*  Chaos-Warrior  */
+   {
+      5,55,30,10
+   },
+   /*  Monk  */
+   {
+      10,35,35,20
+   },
+   /*  MindCrafter  */
+   {
+      20,30,30,20
+   },
+   /*  High-Mage  */
+   {
+      10,10,70,10
+   },
+   /*  Chi Warrior  */
+   {
+      25,25,25,25
+   },
 
+};
 
 /*
  * Hack -- the spell information table.
@@ -2376,7 +2446,46 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99,  0,  0,   0},
 				{ 99,  0,  0,   0}
 			},
+
 			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+         {
 				{ 99,  0,  0,   0},
 				{ 99,  0,  0,   0},
 				{ 99,  0,  0,   0},
@@ -2561,13 +2670,14 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99,  0,  0,   0},
 				{ 99,  0,  0,   0}
 			},
+
 		},
 	},
 
 	{
 		/*** Mage ***/
 
-		TV_SORCERY_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_INT,
@@ -2856,14 +2966,52 @@ player_magic magic_info[MAX_CLASS] =
 				{ 42, 30, 80, 40 },
 				{ 45, 50, 70, 50 },
 				{ 49, 100, 80, 200 }
-			}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		}
 	},
 
 	{
 		/*** Priest ***/
 
-		TV_LIFE_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_WIS,
@@ -3144,13 +3292,51 @@ player_magic magic_info[MAX_CLASS] =
 				{ 46, 40, 80, 40 },
 				{ 47, 55, 70, 50 },
 				{ 50, 120, 80, 200 }
-			}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		}
 	},
 
 	{
 		/*** Rogue ***/
-		TV_SORCERY_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_INT,
@@ -3427,14 +3613,52 @@ player_magic magic_info[MAX_CLASS] =
 				{ 47, 42, 80, 40 },
 				{ 48, 60, 70, 50 },
 				{ 50, 125, 80, 200 }
-			}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		}
 	},
 
 	{
 		/*** Ranger ***/
 
-		TV_SORCERY_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_INT,
@@ -3714,14 +3938,52 @@ player_magic magic_info[MAX_CLASS] =
 				{ 48, 44, 80, 40 },
 				{ 49, 65, 70, 50 },
 				{ 99, 0, 0, 0 }
-		    }
+   	   },
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		}
 	},
 
 	{
 		/*** Paladin ***/
 
-		TV_LIFE_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_WIS,
@@ -3996,14 +4258,52 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
-			}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		}
 	},
 
 	{
 		/*** Warrior-Mage ***/
 
-		TV_SORCERY_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_INT,
@@ -4283,13 +4583,51 @@ player_magic magic_info[MAX_CLASS] =
 				{ 47, 45, 80, 40 },
 				{ 48, 65, 70, 50 },
 				{ 50, 140, 80, 200 }
-		    }
+		    },
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		}
 	},
 
 	{
 		/*** Chaos Warrior ***/
-		TV_SORCERY_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_INT,
@@ -4563,13 +4901,51 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
-			}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		}
 	},
 	{
 		/*** Monk ***/
 
-		TV_LIFE_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_WIS,
@@ -4849,14 +5225,52 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
-			}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		}
 	},
 
 	{
 		/*** Mindcrafter ***/
 
-		TV_LIFE_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_WIS,
@@ -5125,13 +5539,51 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99,  0,  0,   0},
 				{ 99,  0,  0,   0}
 			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		},
 	},
 
 	{
 		/*** High Mage ***/
 
-		TV_SORCERY_BOOK,
+		TV_SPELL_BOOK,
 		0,
 
 		A_INT,
@@ -5412,8 +5864,361 @@ player_magic magic_info[MAX_CLASS] =
 				{ 41, 28, 70, 40 },
 				{ 43, 40, 60, 50 },
 				{ 46, 80, 70, 200 }
-			}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
 		}
+	},
+
+	{
+		/*** Chi Warrior ***/
+
+		TV_SPELL_BOOK,
+		0,
+
+		A_WIS,
+		0,
+
+		1,
+		300,
+      {
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+         {
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 4, 25, 4 },
+				{ 3, 6, 25, 4 },
+				{ 4, 8, 33, 3 },
+				{ 7, 14, 40, 4 },
+				{ 9, 18, 45, 6 },
+				{ 10, 20, 50, 4 },
+				{ 12, 24, 75, 4 },
+
+				{ 14, 20, 30, 5 },
+				{ 16, 18, 35, 4 },
+				{ 21, 30, 40, 10 },
+				{ 25, 50, 60, 16 },
+				{ 35, 35, 50, 30 },
+				{ 40, 40, 60, 16 },
+				{ 44, 45, 65, 25 },
+				{ 48, 65, 95, 150 },
+
+				{ 10, 20, 60, 180 },
+				{ 12, 18, 65, 30 },
+				{ 14, 32, 90, 15 },
+				{ 30, 30, 50, 50 },
+				{ 40, 40, 60, 125 },
+				{ 42, 90, 70, 90 },
+				{ 45, 50, 75, 200 },
+				{ 48, 85, 80, 100 },
+
+				{ 24, 24, 75, 50 },
+				{ 33, 80, 75, 150 },
+				{ 35, 45, 95, 250 },
+				{ 42, 60, 80, 40 },
+				{ 45, 55, 75, 70 },
+				{ 50, 135, 95, 250 },
+				{ 50, 100, 95, 250 },
+				{ 50, 125, 95, 250 },
+			},
+		},
 	},
 };
 
@@ -5449,6 +6254,7 @@ const byte realm_choices1[] =
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
 	 CH_ARCANE),                            /* High-Mage */
+   (CH_CHI),
 };
 
 
@@ -5471,6 +6277,7 @@ const byte realm_choices2[] =
 	(CH_NONE),                              /* Monk */
 	(CH_NONE),                              /* Mindcrafter */
 	(CH_NONE),                              /* High-Mage */
+   (CH_NONE),
 };
 
 
@@ -5484,6 +6291,7 @@ cptr realm_names[] =
 	"Death",
 	"Trump",
 	"Arcane",
+   "Chi",
 	"unknown"
 };
 
@@ -5491,7 +6299,7 @@ cptr realm_names[] =
 /*
  * Names of the spells (mage spells then priest spells)
  */
-cptr spell_names[7][32] =
+cptr spell_names[8][32] =
 {
 	/*** Life Spells ***/
 	{
@@ -5783,6 +6591,45 @@ cptr spell_names[7][32] =
 		"Detection",
 		"Word of Recall",
 		"Clairvoyance"
+	},
+
+	/* Chi Spellbooks (Chi spells) */
+	{
+		"Fortification",
+		"Minor Teleport",
+		"Mystic Meal",
+		"Mystic Sensing",
+		"Object Scrying",
+		"Guiding Light",
+		"Remove Curse",
+		"Mind Sight",
+
+		"Portal",
+		"Stone to Mud",
+		"Resistance",
+		"Identification",
+		"Harden Skin",
+		"Mystic Healing",
+		"Teleportation",
+		"Greater Fortification",
+
+		"Protection From Evil",
+		"Animal Charming",
+		"Summon Animals",
+		"Mystic Bolt",
+		"Recall",
+		"Spinning Death",
+		"Detection",
+		"Greater Healing",
+
+		"Recharging",
+		"Mystic Ball",
+		"Restoration",
+		"Summoning",
+		"Brand Weapon",
+		"Supreme Fortification",
+		"Mystic Burst",
+		"Knowledge of the Ancients"
 	}
 };
 
@@ -5792,25 +6639,60 @@ cptr spell_names[7][32] =
  * Much of this table is not intended ever to be used, and is included
  * only to handle possible inflation elsewhere. -LM-
  */
-const byte deadliness_conversion[151] =
+const int deadliness_conversion[512] =
 {
-	  0,
-	  5,  10,  14,  18,  22,  26,  30,  33,  36,  39,
-	 42,  45,  48,  51,  54,  57,  60,  63,  66,  69,
-	 72,  75,  78,  81,  84,  87,  90,  93,  96,  99,
-	102, 104, 107, 109, 112, 114, 117, 119, 122, 124,
-	127, 129, 132, 134, 137, 139, 142, 144, 147, 149,
-	152, 154, 157, 159, 162, 164, 167, 169, 172, 174,
-	176, 178, 180, 182, 184, 186, 188, 190, 192, 194,
-	196, 198, 200, 202, 204, 206, 208, 210, 212, 214,
-	216, 218, 220, 222, 224, 226, 228, 230, 232, 234,
-	236, 238, 240, 242, 244, 246, 248, 250, 251, 253,
-
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255
+	  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+	  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+	  20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+	  30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+	  40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+	  50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+	  60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+	  70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+	  80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+	  90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
+	  100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
+	  110, 111, 112, 113, 114, 115, 116, 117, 118, 119,
+	  120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+	  130, 131, 132, 133, 134, 135, 136, 137, 138, 139,
+	  140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
+	  150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
+	  160, 161, 162, 163, 164, 165, 166, 167, 168, 169,
+	  170, 171, 172, 173, 174, 175, 176, 177, 178, 179,
+	  180, 181, 182, 183, 184, 185, 186, 187, 188, 189,
+	  190, 191, 192, 193, 194, 195, 196, 197, 198, 199,
+	  200, 201, 202, 203, 204, 205, 206, 207, 208, 209,
+	  210, 211, 212, 213, 214, 215, 216, 217, 218, 219,
+	  220, 221, 222, 223, 224, 225, 226, 227, 228, 229,
+	  230, 231, 232, 233, 234, 235, 236, 237, 238, 239,
+	  240, 241, 242, 243, 244, 245, 246, 247, 248, 249,
+	  250, 251, 252, 253, 254, 255, 256, 257, 258, 259,
+	  260, 261, 262, 263, 264, 265, 266, 267, 268, 269,
+	  270, 271, 272, 273, 274, 275, 276, 277, 278, 279,
+	  280, 281, 282, 283, 284, 285, 286, 287, 288, 289,
+	  290, 291, 292, 293, 294, 295, 296, 297, 298, 299,
+	  300, 301, 302, 303, 304, 305, 306, 307, 308, 309,
+	  310, 311, 312, 313, 314, 315, 316, 317, 318, 319,
+	  320, 321, 322, 323, 324, 325, 326, 327, 328, 329,
+	  330, 331, 332, 333, 334, 335, 336, 337, 338, 339,
+	  340, 341, 342, 343, 344, 345, 346, 347, 348, 349,
+	  350, 351, 352, 353, 354, 355, 356, 357, 358, 359,
+	  360, 361, 362, 363, 364, 365, 366, 367, 368, 369,
+	  370, 371, 372, 373, 374, 375, 376, 377, 378, 379,
+	  380, 381, 382, 383, 384, 385, 386, 387, 388, 389,
+	  390, 391, 392, 393, 394, 395, 396, 397, 398, 399,
+	  400, 401, 402, 403, 404, 405, 406, 407, 408, 409,
+	  410, 411, 412, 413, 414, 415, 416, 417, 418, 419,
+	  420, 421, 422, 423, 424, 425, 426, 427, 428, 429,
+	  430, 431, 432, 433, 434, 435, 436, 437, 438, 439,
+	  440, 441, 442, 443, 444, 445, 446, 447, 448, 449,
+	  450, 451, 452, 453, 454, 455, 456, 457, 458, 459,
+	  460, 461, 462, 463, 464, 465, 466, 467, 468, 469,
+	  470, 471, 472, 473, 474, 475, 476, 477, 478, 479,
+	  480, 481, 482, 483, 484, 485, 486, 487, 488, 489,
+	  490, 491, 492, 493, 494, 495, 496, 497, 498, 499,
+	  500, 501, 502, 503, 504, 505, 506, 507, 508, 509,
+	  510, 511,
 };
 
 
@@ -6053,6 +6935,21 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Ipsissimus",
 		"Archimage",
 	},
+
+	/* Chi Warrior */
+	{
+		"Initiate",
+		"Sentry",
+		"Watchmen",
+		"Guardian",
+		"Warrior",
+		"Protector",
+		"Sentinel",
+		"Archon",
+		"Master",
+		"Grand Master",
+	},
+
 };
 
 
@@ -6118,7 +7015,7 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display spell list",
 	"Display character",
-	NULL,
+	"Display resistances",
 	NULL,
 	"Display messages",
 	"Display overhead view",
@@ -6252,7 +7149,7 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  0, NULL,					"Number 93" },
 	{TRUE,  0, NULL,					"Number 94" },
 	{TRUE,  0, NULL,					"Number 95" },
-	
+
 	{TRUE,  0, NULL,					"Number 96" },
 	{TRUE,  0, NULL,					"Number 97" },
 	{TRUE,  0, NULL,					"Number 98" },
@@ -6720,284 +7617,284 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
 const field_action f_action[] =
 {
 	/* Null - Do absolutely nothing */
-	{NULL, "nothing"}, 
-	
+	{NULL, "nothing"},
+
 	/* Test - Do absolutely nothing */
 	{field_action_nothing, "field_action_nothing"},
-	
+
 	/* Delete the field */
 	{field_action_delete, "field_action_delete"},
-	
+
 	/* Glyph of warding function */
 	{field_action_glyph_warding, "field_action_glyph_warding"},
-	
+
 	/* Explosive rune function */
 	{field_action_glyph_explode, "field_action_glyph_explode"},
-	
+
 	/* Corpse decay function */
 	{field_action_corpse_decay, "field_action_corpse_decay"},
-	
+
 	/* Initialise corpse on load of savefile */
 	{field_action_corpse_load, "field_action_corpse_load"},
-	
+
 	/* Corpse init function */
 	{field_action_corpse_init, "field_action_corpse_init"},
-	
+
 	/* Corpse raising function for spell */
 	{field_action_corpse_raise, "field_action_corpse_raise"},
-	
+
 	/* Function returning name of the monster the corpse once was. */
 	{field_action_corpse_look, "field_action_corpse_look"},
-	
+
 	/* Tunnel into a "standard" wall to pass */
 	{field_action_wall_tunnel, "field_action_wall_tunnel"},
-	
+
 	/* Walls interact with GF_KILL_WALL */
 	{field_action_wall_gf, "field_action_wall_gf"},
-	
+
 	/* Interact with grid 'tunnels' */
 	{field_action_interact_tunnel, "field_action_interact_tunnel"},
-	
+
 	/* Interact with grid 'disarms' */
 	{field_action_interact_disarm, "field_action_interact_disarm"},
-	
+
 	/* Interact with grid 'opens' */
 	{field_action_interact_open, "field_action_interact_open"},
-		
+
 	/* Trap init function */
 	{field_action_trap_init, "field_action_trap_init"},
-	
+
 	/* Trap disarming function */
 	{field_action_trap_disarm, "field_action_trap_disarm"},
 
 	/* Trap magical interaction */
 	{field_action_trap_gf, "field_action_trap_gf"},
-	
+
 	/* Trapdoor */
 	{field_action_hit_trap_door, "field_action_hit_trap_door"},
-	
+
 	/* Pit */
 	{field_action_hit_trap_pit, "field_action_hit_trap_pit"},
-	
+
 	/* Spiked Pit */
 	{field_action_hit_trap_spike, "field_action_hit_trap_spike"},
-	
+
 	/* Poisoned Spiked Pit */
 	{field_action_hit_trap_poison_pit, "field_action_hit_trap_poison_pit"},
-	
+
 	/* Curse Trap */
 	{field_action_hit_trap_curse, "field_action_hit_trap_curse"},
-	
+
 	/* Teleport Trap */
 	{field_action_hit_trap_teleport, "field_action_hit_trap_teleport"},
-	
+
 	/* Elemental Trap */
 	{field_action_hit_trap_element, "field_action_hit_trap_element"},
-	
+
 	/* Elemental Ball Trap */
 	{field_action_hit_trap_ba_element, "field_action_hit_trap_ba_element"},
-	
+
 	/* Gas Trap */
 	{field_action_hit_trap_gas, "field_action_hit_trap_gas"},
-	
+
 	/* Trap Trap */
 	{field_action_hit_trap_traps, "field_action_hit_trap_trap"},
-	
+
 	/* Temp Drain Stat Trap */
 	{field_action_hit_trap_temp_stat, "field_action_hit_trap_temp_stat"},
-	
+
 	/* Perm Drain Stat Trap */
 	{field_action_hit_trap_perm_stat, "field_action_hit_trap_perm_stat"},
-	
+
 	/* Lose XP Trap */
 	{field_action_hit_trap_lose_xp, "field_action_hit_trap_lose_xp"},
-	
+
 	/* Disenchant Trap */
 	{field_action_hit_trap_disenchant, "field_action_hit_trap_disenchant"},
-	
+
 	/* Drop Item Trap */
 	{field_action_hit_trap_drop_item, "field_action_hit_trap_drop_item"},
-	
+
 	/* Mutation Trap */
 	{field_action_hit_trap_mutate, "field_action_hit_trap_mutate"},
-	
+
 	/* New Life Trap */
 	{field_action_hit_trap_new_life, "field_action_hit_trap_new_life"},
-	
+
 	/* Light sucking Trap */
 	{field_action_hit_trap_no_lite, "field_action_hit_trap_no_lite"},
-	
+
 	/* Hunger Trap */
 	{field_action_hit_trap_hunger, "field_action_hit_trap_hunger"},
-	
+
 	/* Gold destruction Trap */
 	{field_action_hit_trap_no_gold, "field_action_hit_trap_no_gold"},
-	
+
 	/* Haste Monster Trap */
 	{field_action_hit_trap_haste_mon, "field_action_hit_trap_haste_monster"},
-	
+
 	/* Raise Monster Trap */
 	{field_action_hit_trap_raise_mon, "field_action_hit_trap_raise_mon"},
-	
+
 	/* Drain charges Trap */
 	{field_action_hit_trap_drain_magic, "field_action_hit_trap_drain_magic"},
-	
+
 	/* Aggravate Monster Trap */
 	{field_action_hit_trap_aggravate, "field_action_hit_trap_aggravate"},
-	
+
 	/* Summon Monster Trap */
 	{field_action_hit_trap_summon, "field_action_hit_trap_summon"},
-	
+
 	/* Lose Memory Trap */
 	{field_action_hit_trap_lose_memory, "field_action_hit_trap_lose_memory"},
-	
+
 	/* Initialise a field with a counter */
 	{field_action_counter_init, "field_action_counter_init"},
-	
+
 	/* Attempt to unlock a door */
 	{field_action_door_unlock, "field_action_door_unlock"},
-		
+
 	/* Attempt to bash a door */
 	{field_action_door_bash, "field_action_door_bash"},
-	
+
 	/* Monster attemts to enter locked door */
 	{field_action_door_lock_monster, "field_action_door_lock_monster"},
-	
+
 	/* Monster attemts to enter jammed door */
 	{field_action_door_jam_monster, "field_action_door_jam_monster"},
-	
+
 	/* Doors interact with magic */
 	{field_action_door_gf, "field_action_door_gf"},
-	
+
 	/* Stores open when walked on */
 	{field_action_door_store, "field_action_door_store"},
-	
+
 	/* Buildings open when walked on */
 	{field_action_door_build, "field_action_door_build"},
 
 	/* Weaponmaster part 1 */
 	{field_action_weaponmaster1, "field_action_weaponmaster1"},
-	
+
 	/* Weaponmaster part 2 */
 	{field_action_weaponmaster2, "field_action_weaponmaster2"},
-	
+
 	/* Recharge items part 1 */
 	{field_action_recharge1, "field_action_recharge1"},
-	
+
 	/* Recharge items part 2 */
 	{field_action_recharge2, "field_action_recharge2"},
-	
+
 	/* Enchant weapons part 1 */
 	{field_action_weaponplus1, "field_action_weaponplus1"},
-	
+
 	/* Enchant weapons part 2 */
 	{field_action_weaponplus2, "field_action_weaponplus2"},
-	
+
 	/* Enchant armour part 1 */
 	{field_action_armourplus1, "field_action_armourplus1"},
-	
+
 	/* Enchant armour part 2 */
 	{field_action_armourplus2, "field_action_armourplus2"},
-	
+
 	/* Mutatalist part 1 */
 	{field_action_mutate1, "field_action_mutate1"},
-	
+
 	/* Mutatalist part 2 */
 	{field_action_mutate2, "field_action_mutate2"},
-	
+
 	/* Map maker part 1 */
 	{field_action_buymap1, "field_action_buymap1"},
-	
+
 	/* Map maker part 2 */
 	{field_action_buymap2, "field_action_buymap2"},
-	
+
 	/* Library part 1 */
 	{field_action_library1, "field_action_library1"},
-	
+
 	/* Librry part 2 */
 	{field_action_library2, "field_action_library2"},
-	
+
 	/* Casino part 1 */
 	{field_action_casino1, "field_action_casino1"},
-	
+
 	/* Casino part 2 */
 	{field_action_casino2, "field_action_casino2"},
-	
+
 	/* Inn part 1 */
 	{field_action_inn1, "field_action_inn1"},
-	
+
 	/* Inn part 2 */
 	{field_action_inn2, "field_action_inn2"},
-	
+
 	/* Healer part 1 */
 	{field_action_healer1, "field_action_healer1"},
-	
+
 	/* Healer part 2 */
 	{field_action_healer2, "field_action_healer2"},
-	
+
 	/* Bookstore */
 	{field_action_isbook_tester, "field_action_isbook_tester"},
-	
+
 	/* Weaponstore */
 	{field_action_isweapon_tester, "field_action_isweapon_tester"},
-	
+
 	/* Armourstore */
 	{field_action_isarmour_tester, "field_action_isarmour_tester"},
-	
+
 	/* Weapon/Armour store */
 	{field_action_isweaparmour_tester, "field_action_isweaparmour_tester"},
-	
+
 	/* Ammostore */
 	{field_action_isammo_tester, "field_action_isammo_tester"},
-	
+
 	/* Potion store */
 	{field_action_ispotion_tester, "field_action_ispotion_tester"},
-	
+
 	/* Scroll store */
 	{field_action_isscroll_tester, "field_action_isscroll_tester"},
-	
+
 	/* Statue store */
 	{field_action_isstatue_tester, "field_action_isstatue_tester"},
-	
+
 	/* Figurine store */
 	{field_action_isfigurine_tester, "field_action_isfigurine_tester"},
-	
+
 	/* Food store */
 	{field_action_isfood_tester, "field_action_isfood_tester"},
-	
+
 	/* Rechargable items store */
 	{field_action_isrecharge_tester, "field_action_isrecharge_tester"},
-	
+
 	/* Jewels store */
 	{field_action_isjewel_tester, "field_action_isjewel_tester"},
-	
+
 	/* Wieldable items store */
 	{field_action_iswield_tester, "field_action_iswield_tester"},
-	
+
 	/* Fletcher store */
 	{field_action_isfletcher_tester, "field_action_isfletcher_tester"},
-	
+
 	/* Swordsman */
 	{field_action_issword_tester, "field_action_issword_tester"},
-	
+
 	/* Axeman */
 	{field_action_isnonsword_tester, "field_action_isnonsword_tester"},
 
 	/* Shieldsman */
 	{field_action_isshield_tester, "field_action_isshield_tester"},
-	
+
 	/* Clothes store */
 	{field_action_isclothes_tester, "field_action_isclothes_tester"},
-	
+
 	/* Hard Armour store */
 	{field_action_ishardarmour_tester, "field_action_ishardarmour_tester"},
-	
+
 	/* Pure Hard armour store */
 	{field_action_isphardarmour_tester, "field_action_isphardarmour_tester"},
-	
+
 	/* Helms maker */
 	{field_action_ishelm_tester, "field_action_ishelm_tester"},
-	
+
 	/* Non-scroll magic items maker */
 	{field_action_issupplies_tester, "field_action_issupplies_tester"},
 
@@ -8265,7 +9162,7 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	    1, 0, A_CON, 0,
 		0
 	},
-	
+
 	{
 		RACE_GHOUL,
 	    "You can sense living creatures.",
@@ -8275,5 +9172,5 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	    30, 10, A_WIS, 12,
 		0
 	}
-};    
+};
 

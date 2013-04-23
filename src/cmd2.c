@@ -364,7 +364,7 @@ static void chest_death(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
-	/* 
+	/*
 	 * Pick type of item to find in the chest.
 	 *
 	 * Hack - chests are not on this list...
@@ -376,7 +376,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		{
 			/* Swords */
 			tval = TV_SWORD;
-			sval = SV_ANY;		
+			sval = SV_ANY;
 			break;
 		}
 		case 2:
@@ -386,15 +386,15 @@ static void chest_death(int y, int x, s16b o_idx)
 			sval = SV_ANY;
 			break;
 		}
-		
+
 		case 3:
 		{
 			/* Rings */
 			tval = TV_RING;
-			sval = SV_ANY;	
+			sval = SV_ANY;
 			break;
 		}
-		
+
 		case 4:
 		{
 			/* Staves */
@@ -402,28 +402,28 @@ static void chest_death(int y, int x, s16b o_idx)
 			sval = SV_ANY;
 			break;
 		}
-		
+
 		case 5:
 		{
 			/* Potions */
 			tval = TV_POTION;
-			sval = SV_ANY;	
+			sval = SV_ANY;
 			break;
 		}
-		
+
 		case 6:
 		{
 			/* Cloaks */
 			tval = TV_CLOAK;
-			sval = SV_ANY;	
+			sval = SV_ANY;
 			break;
 		}
-		
+
 		case 7:
 		{
 			/* Rods */
 			tval = TV_ROD;
-			sval = SV_ANY;	
+			sval = SV_ANY;
 			break;
 		}
 		default:
@@ -522,7 +522,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_LOSE_STR))
 	{
 		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(damroll(1, 4), "a poison needle", FALSE);
 		(void)do_dec_stat(A_STR);
 	}
 
@@ -530,7 +530,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_LOSE_CON))
 	{
 		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(damroll(1, 4), "a poison needle", FALSE);
 		(void)do_dec_stat(A_CON);
 	}
 
@@ -577,7 +577,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("Everything inside the chest is destroyed!");
 		o_ptr->pval = 0;
 		sound(SOUND_EXPLODE);
-		take_hit(damroll(5, 8), "an exploding chest");
+		take_hit(damroll(5, 8), "an exploding chest", TRUE);
 	}
 }
 
@@ -830,7 +830,7 @@ bool do_cmd_open_aux(int y, int x)
 	int i;
 
 	cave_type *c_ptr;
-	
+
 	s16b *fld_ptr;
 
 	/* Take a turn */
@@ -838,17 +838,17 @@ bool do_cmd_open_aux(int y, int x)
 
 	/* Get requested grid */
 	c_ptr = area(y, x);
-	
+
 	/* Must be a closed door */
 	if (c_ptr->feat != FEAT_CLOSED)
 	{
 		/* Nope */
 		return (FALSE);
 	}
-	
+
 	/* Get fields */
 	fld_ptr = field_is_type(&c_ptr->fld_idx, FTYPE_DOOR);
-	
+
 	/* If the door is locked / jammed */
 	if (*fld_ptr)
 	{
@@ -1033,11 +1033,11 @@ static bool do_cmd_close_aux(int y, int x)
 	{
 		/* You cannot close a door beneith yourself */
 		msg_print("You cannot close it now.");
-		
+
 		/* No more */
 		return (more);
 	}
-	
+
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
@@ -1193,19 +1193,19 @@ static bool twall(int y, int x, byte feat)
 static bool do_cmd_tunnel_aux(int y, int x)
 {
 	bool more = FALSE;
-	
+
 	cave_type *c_ptr = area(y, x);
-	
+
 	int action;
-	
+
 	int dig = p_ptr->skill_dig;
-	
+
 	s16b *fld_ptr = field_hook_find(&c_ptr->fld_idx,
 			 FIELD_ACT_INTERACT_TEST, (vptr) &action);
-			 
+
 	/* Take a turn */
 	p_ptr->energy_use = 100;
-	
+
 	/* Sound */
 	sound(SOUND_DIG);
 
@@ -1230,11 +1230,11 @@ static bool do_cmd_tunnel_aux(int y, int x)
 				p_ptr->update |= (PU_VIEW | PU_FLOW |
 					 PU_MONSTERS | PU_MON_LITE);
 			}
-			
+
 			/* Finished tunneling */
 			return (FALSE);
 		}
-		
+
 		/* Keep on tunneling */
 		return (TRUE);
 	}
@@ -1500,6 +1500,44 @@ void do_cmd_tunnel(void)
 
 	bool		more = FALSE;
 
+	object_type     *o_ptr;
+
+	u32b            f1, f2, f3, f4, f5, f6;
+
+	o_ptr = &inventory[INVEN_WIELD];
+
+   object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+
+   /*****   NEEDS   REWORKING   *****/
+
+   /*  Handle Durability if using weapon or tool */
+   if (o_ptr->k_idx)
+   {
+      if (f1 & TR1_TUNNEL)
+      {
+         if (o_ptr->C_Durability > 2)
+         {
+            o_ptr->C_Durability -= randint0(2);
+         }
+         else
+         {
+            msg_format("Your %s disintegrates!",get_object_name(o_ptr));
+            object_wipe(o_ptr);
+         }
+      }
+      else
+      {
+         if (o_ptr->C_Durability > 3)
+         {
+            o_ptr->C_Durability -= randint1(3);
+         }
+         else
+         {
+            msg_format("Your %s disintegrates!",get_object_name(o_ptr));
+            object_wipe(o_ptr);
+         }
+      }
+   }
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -1687,31 +1725,31 @@ bool do_cmd_disarm_aux(cave_type *c_ptr, int dir)
 	s16b *fld_ptr;
 
 	bool more = FALSE;
-	
+
 	int xp;
-	
+
 	/* Get trap */
 	fld_ptr = field_first_known(&c_ptr->fld_idx, FTYPE_TRAP);
-	
+
 	/* This should never happen - no trap here to disarm */
 	if (!(*fld_ptr))
 	{
-		msg_print("Error condition:  Trying to disarm a non-existant trap.");	
+		msg_print("Error condition:  Trying to disarm a non-existant trap.");
 		return (FALSE);
 	}
-	
+
 	/* Take a turn */
 	p_ptr->energy_use = 100;
-	
+
 	/* Point to field */
 	f_ptr = &fld_list[*fld_ptr];
-	
+
 	/* Get amount of xp for a successful disarm */
 	xp = f_ptr->data[0] * f_ptr->data[0];
-	
+
 	/* Get type of trap */
 	t_ptr = &t_info[f_ptr->t_idx];
-	 
+
 	/* Get the "disarm" factor */
 	i = p_ptr->skill_dis;
 
@@ -1937,14 +1975,14 @@ void do_cmd_alter(void)
 					more = do_cmd_tunnel_aux(y, x);
 					break;
 				}
-				
+
 				case 1:
 				{
 					/* Disarm */
 					more = do_cmd_disarm_aux(c_ptr, dir);
 					break;
 				}
-				
+
 				case 2:
 				{
 					/* Unlock / open */
@@ -2098,7 +2136,7 @@ void do_cmd_spike(void)
 
 			/* Successful jamming */
 			msg_print("You jam the door with a spike.");
-			
+
 			/* Make a jammed door on the square */
 			make_lockjam_door(y, x, 1, TRUE);
 
@@ -2221,7 +2259,7 @@ void do_cmd_stay(int pickup)
 	/* Handle "objects" */
 	carry(pickup);
 
-	/* 
+	/*
 	 * Fields you are standing on may do something.
 	 */
 	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
@@ -2461,7 +2499,7 @@ static sint critical_shot(int chance, int sleeping_bonus,
 		mult_a_crit = 10;
 	}
 
-	return (mult_a_crit);
+	return ((int)(mult_a_crit/10.0));
 }
 
 
@@ -2510,7 +2548,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	int terrain_bonus = 0;
 
 	long tdam;
-	int tdam_remainder, tdam_whole;
+/*	int tdam_remainder, tdam_whole;*/
 
 #if 0
 	/* Assume no weapon of velocity or accuracy bonus. */
@@ -2600,6 +2638,17 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	/* Sound */
 	sound(SOUND_SHOOT);
 
+   /*  Reduce Durability  */
+   if (j_ptr->C_Durability > 2)
+   {
+       j_ptr->C_Durability -= randint1(2);
+   }
+   else
+   {
+      msg_format("Your %s disintegrates!",get_object_name(j_ptr));
+      object_wipe(j_ptr);
+   }
+
 	/* Describe the object */
 	object_desc(o_name, i_ptr, FALSE, 0);
 
@@ -2612,7 +2661,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 	/* Cursed arrows tend not to hit anything */
 	if (cursed_p(i_ptr)) chance = chance / 2;
-	
+
 	/* Shooter properties */
 	p_ptr->energy_use = p_ptr->bow_energy;
 	tmul = p_ptr->ammo_mult;
@@ -2627,7 +2676,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	if (tdis > MAX_RANGE) tdis = MAX_RANGE;
 
 	/* Take a (partial) turn - note strange formula. */
-	
+
 	/* The real number of shots per round is (1 + n)/2 */
 	p_ptr->energy_use = (2 * p_ptr->energy_use / (1 + thits));
 
@@ -2644,7 +2693,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		tdam = damroll(tmul * 4, i_ptr->ds);
 
 		/* Inflict both normal and wound damage. */
-		take_hit(tdam, "ammo of backbiting.");
+		take_hit(tdam, "ammo of backbiting.", TRUE);
 		set_cut(randint1(tdam * 3));
 
 		/* That ends that shot! */
@@ -2727,7 +2776,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			chance2 = chance - cur_dis;
+			chance2 = (int)((float)chance * ((float)deadliness_calc(total_deadliness) / 100.0)) - cur_dis;
 
 			/* Note the collision */
 			hit_body = TRUE;
@@ -2760,7 +2809,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			armour = r_ptr->ac + terrain_bonus;
 
 			/* Adjacent monsters are harder to hit if awake */
-			if ((cur_dis == 1) && (!sleeping_bonus)) armour += armour;
+			if ((cur_dis == 1) && (!sleeping_bonus) && (p_ptr->pclass != CLASS_RANGER)) armour += armour;
 
 #if 0
 			/* Weapons of velocity sometimes almost negate monster armour. */
@@ -2771,16 +2820,16 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
 			{
 				char m_name2[80];
-		
+
 				/* Get name */
 				monster_desc (m_name2, m_ptr, 0x88);
-				
+
 				/* Toggle flag */
 				m_ptr->smart &= ~(SM_MIMIC);
-				
+
 				/* It is in the monster list now */
 				update_mon_vis(m_ptr->r_idx, 1);
-		
+
 				/* We've spotted it */
 				msg_format("You've found %s!", m_name2);
 			}
@@ -2821,7 +2870,6 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				/* Multiply by the missile weapon multiplier. */
 				tdam *= tmul;
 
-
 				/* multiply by slays or brands. (10x inflation) */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
 
@@ -2833,21 +2881,27 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				 * Convert total Deadliness into a percentage, and apply
 				 * it as a bonus or penalty. (100x inflation)
 				 */
+/*
 				tdam *= deadliness_calc(total_deadliness);
+*/
 
 				/* Get the whole number of dice by deflating the result. */
+/*
 				tdam_whole = tdam / 10000;
-
+*/
 				/* Calculate the remainder (the fractional die, x10000). */
+/*
 				tdam_remainder = tdam % 10000;
-
+*/
 				/*
 				 * Calculate and combine the damages of the whole and
 				 * fractional dice.
 				 */
+/*
 				tdam = damroll(tdam_whole, i_ptr->ds) +
 					(tdam_remainder * damroll(1, i_ptr->ds) / 10000);
-
+*/
+            tdam = damroll( tdam, i_ptr->ds) + i_ptr->to_d;
 #if 0
 				/* If a weapon of velocity activates, increase damage. */
 				if (special_dam)
@@ -2956,13 +3010,13 @@ void do_cmd_throw_aux(int mult)
 	int dir, item;
 	int y, x, ny, nx, ty, tx;
 	int sl = 0, sq = 0;
-	int chance, chance2, tdis;
+	int chance, chance2, chance3, tdis;
 	int breakage;
 	int mul, div;
 	int cur_dis;
 
 	long tdam;
-	int tdam_remainder, tdam_whole;
+/*	int tdam_remainder, tdam_whole;*/
 
 	int total_deadliness;
 	int sleeping_bonus = 0;
@@ -2981,7 +3035,7 @@ void do_cmd_throw_aux(int mult)
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 	cptr q, s;
 
 	cave_type *c_ptr;
@@ -3023,7 +3077,9 @@ void do_cmd_throw_aux(int mult)
 	object_copy(q_ptr, o_ptr);
 
 	/* Extract the thrown object's flags. */
-	object_flags(q_ptr, &f1, &f2, &f3);
+	object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+
+   /*****   NEEDS   REWORKING   *****/
 
 	/* Distribute the charges of rods/wands between the stacks */
 	distribute_charges(o_ptr, q_ptr, 1);
@@ -3163,6 +3219,7 @@ void do_cmd_throw_aux(int mult)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Calculate the projectile accuracy, modified by distance. */
+
 			chance2 = chance - distance(py, px, y, x);
 
 			/* Monsters in rubble can take advantage of cover. -LM- */
@@ -3192,20 +3249,20 @@ void do_cmd_throw_aux(int mult)
 			if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
 			{
 				char m_name2[80];
-		
+
 				/* Get name */
 				monster_desc (m_name2, m_ptr, 0x88);
-				
+
 				/* Toggle flag */
 				m_ptr->smart &= ~(SM_MIMIC);
-				
+
 				/* It is in the monster list now */
 				update_mon_vis(m_ptr->r_idx, 1);
-		
+
 				/* We've spotted it */
 				msg_format("You've found %s!", m_name2);
 			}
-			
+
 			/* Did we hit it (penalize range) */
 			if (test_hit_fire(chance - cur_dis, r_ptr->ac + terrain_bonus, m_ptr->ml))
 			{
@@ -3233,6 +3290,7 @@ void do_cmd_throw_aux(int mult)
 				/* sum all the applicable additions to Deadliness. */
 				total_deadliness = p_ptr->to_d + q_ptr->to_d;
 
+            chance3 = (int)((float)chance * ((float)deadliness_calc(total_deadliness) / 100.0));
 
 				/* The basic damage-determination formula is the same in
 				 * throwing as it is in melee (apart from the thrown weapon
@@ -3261,13 +3319,13 @@ void do_cmd_throw_aux(int mult)
 				 * (10x inflation)
 				 */
 				if (f2 & (TR2_THROW)) tdam *= critical_shot
-					(chance2, sleeping_bonus, o_name, m_name, m_ptr->ml);
+					(chance3, sleeping_bonus, o_name, m_name, m_ptr->ml);
 				else tdam *= 10;
 
 				/* Convert total or object-only Deadliness into a percen-
 				 * tage, and apply it as a bonus or penalty (100x inflation)
 				 */
-				if (f2 & (TR2_THROW))
+/*				if (f2 & (TR2_THROW))
 				{
 					tdam *= deadliness_calc(total_deadliness);
 				}
@@ -3275,20 +3333,21 @@ void do_cmd_throw_aux(int mult)
 				{
 					tdam *= deadliness_calc(q_ptr->to_d);
 				}
-
+*/
 				/* Get the whole number of dice by deflating the result. */
-				tdam_whole = tdam / 10000;
-
+/*				tdam_whole = tdam / 10000;
+*/
 				/* Calculate the remainder (the fractional die, x10000). */
-				tdam_remainder = tdam % 10000;
-
+/*				tdam_remainder = tdam % 10000;
+*/
 
 				/* Calculate and combine the damages of the whole and
 				 * fractional dice.
 				 */
-				tdam = damroll(tdam_whole, q_ptr->ds) +
+/*				tdam = damroll(tdam_whole, q_ptr->ds) +
 					(tdam_remainder * damroll(1, q_ptr->ds) / 10000);
-
+*/
+            tdam = damroll( tdam, o_ptr->ds) + o_ptr->to_d;
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
 

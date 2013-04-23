@@ -23,14 +23,14 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = zangband.exe
+EXE_FILE = randband.exe
 
 
 ###################################################################
 #
 # Debug mode (un-comment for debugging)
 
-# DBGOPT= -v -N -x -xp
+DBGOPT= -v -N -x -xp
 
 
 ###################################################################
@@ -106,6 +106,7 @@ OBJ = \
 	bldg.obj \
 	birth.obj \
 	avatar.obj \
+   actmagic.obj \
 	artifact.obj
 
 all : $(EXE_FILE)

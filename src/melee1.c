@@ -489,7 +489,7 @@ bool make_attack_normal(int m_idx)
 						damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						break;
 					}
@@ -497,7 +497,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_POISON:
 					{
 						/* Take some damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Take "poison" effect */
 						if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -517,7 +517,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_UN_BONUS:
 					{
 						/* Take some damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Allow complete resist */
 						if (!p_ptr->resist_disen)
@@ -535,7 +535,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_UN_POWER:
 					{
 						/* Take some damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Find an item */
 						for (k = 0; k < 10; k++)
@@ -596,7 +596,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_EAT_GOLD:
 					{
 						/* Take some damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Confused monsters cannot steal successfully. -LM-*/
 						if (m_ptr->confused) break;
@@ -659,7 +659,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_EAT_ITEM:
 					{
 						/* Take some damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Confused monsters cannot steal successfully. -LM-*/
 						if (m_ptr->confused) break;
@@ -686,7 +686,7 @@ bool make_attack_normal(int m_idx)
 						for (k = 0; k < 10; k++)
 						{
 							s16b o_idx;
-							
+
 							/* Pick an item */
 							i = randint0(INVEN_PACK);
 
@@ -719,13 +719,13 @@ bool make_attack_normal(int m_idx)
 
 								/* Get new object */
 								j_ptr = &o_list[o_idx];
-								
+
 								/* Copy object */
 								object_copy(j_ptr, o_ptr);
 
 								/* Modify number */
 								j_ptr->number = 1;
-									
+
 								/* Wand / rod stacking */
 								distribute_charges(o_ptr, j_ptr,
 									 --o_ptr->number);
@@ -763,7 +763,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_EAT_FOOD:
 					{
 						/* Take some damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Steal some food */
 						for (k = 0; k < 10; k++)
@@ -805,7 +805,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_EAT_LITE:
 					{
 						/* Take some damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Access the lite */
 						o_ptr = &inventory[INVEN_LITE];
@@ -903,7 +903,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_BLIND:
 					{
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Increase "blind" */
 						if (!p_ptr->resist_blind)
@@ -923,7 +923,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_CONFUSE:
 					{
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Increase "confused" */
 						if (!p_ptr->resist_confu)
@@ -943,7 +943,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_TERRIFY:
 					{
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Increase "afraid" */
 						if (p_ptr->resist_fear)
@@ -976,7 +976,7 @@ bool make_attack_normal(int m_idx)
 						if (p_ptr->paralyzed && (damage < 1)) damage = 1;
 
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Increase "paralyzed" */
 						if (p_ptr->free_act)
@@ -991,8 +991,9 @@ bool make_attack_normal(int m_idx)
 						}
 						else
 						{
-							if (set_paralyzed(p_ptr->paralyzed + 3 + randint1(rlev)))
-							{
+                     if (!(p_ptr->paralyzed))
+                     {
+							   set_paralyzed(p_ptr->paralyzed + 3 + randint1(rlev));
 								obvious = TRUE;
 							}
 						}
@@ -1006,7 +1007,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_LOSE_STR:
 					{
 						/* Damage (physical) */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Damage (stat) */
 						if (do_dec_stat(A_STR)) obvious = TRUE;
@@ -1017,7 +1018,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_LOSE_INT:
 					{
 						/* Damage (physical) */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Damage (stat) */
 						if (do_dec_stat(A_INT)) obvious = TRUE;
@@ -1028,7 +1029,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_LOSE_WIS:
 					{
 						/* Damage (physical) */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Damage (stat) */
 						if (do_dec_stat(A_WIS)) obvious = TRUE;
@@ -1039,7 +1040,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_LOSE_DEX:
 					{
 						/* Damage (physical) */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Damage (stat) */
 						if (do_dec_stat(A_DEX)) obvious = TRUE;
@@ -1050,7 +1051,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_LOSE_CON:
 					{
 						/* Damage (physical) */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Damage (stat) */
 						if (do_dec_stat(A_CON)) obvious = TRUE;
@@ -1061,7 +1062,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_LOSE_CHR:
 					{
 						/* Damage (physical) */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Damage (stat) */
 						if (do_dec_stat(A_CHR)) obvious = TRUE;
@@ -1072,7 +1073,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_LOSE_ALL:
 					{
 						/* Damage (physical) */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Damage (stats) */
 						if (do_dec_stat(A_STR)) obvious = TRUE;
@@ -1094,7 +1095,7 @@ bool make_attack_normal(int m_idx)
 						damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Radius 8 earthquake centered at the monster */
 						if (damage > 23)
@@ -1111,7 +1112,7 @@ bool make_attack_normal(int m_idx)
 						obvious = TRUE;
 
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						if (p_ptr->hold_life && (randint0(100) < 95))
 						{
@@ -1140,7 +1141,7 @@ bool make_attack_normal(int m_idx)
 						obvious = TRUE;
 
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						if (p_ptr->hold_life && (randint0(100) < 90))
 						{
@@ -1169,7 +1170,7 @@ bool make_attack_normal(int m_idx)
 						obvious = TRUE;
 
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						if (p_ptr->hold_life && (randint0(100) < 75))
 						{
@@ -1198,7 +1199,7 @@ bool make_attack_normal(int m_idx)
 						obvious = TRUE;
 
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						if (p_ptr->hold_life && (randint0(100) < 50))
 						{
@@ -1224,7 +1225,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_DISEASE:
 					{
 						/* Take some damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						/* Take "poison" effect */
 						if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -1291,7 +1292,7 @@ bool make_attack_normal(int m_idx)
 								break;
 							}
 						}
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						break;
 					}
@@ -1301,7 +1302,7 @@ bool make_attack_normal(int m_idx)
 						obvious = TRUE;
 
 						/* Take damage */
-						take_hit(damage, ddesc);
+						take_hit(damage, ddesc, TRUE);
 
 						if (p_ptr->hold_life && (randint0(100) < 50))
 						{
@@ -1526,13 +1527,13 @@ bool make_attack_normal(int m_idx)
 				{
 					r_ptr->r_blows[ap_cnt]++;
 				}
-				
+
 				/* Look to see if we've spotted a mimic */
 				if (m_ptr->smart & SM_MIMIC)
 				{
 					/* Toggle flag */
 					m_ptr->smart &= ~(SM_MIMIC);
-					
+
 					/* It is in the monster list now */
 					update_mon_vis(m_ptr->r_idx, 1);
 				}

@@ -149,13 +149,11 @@ void do_cmd_wield(void)
 	{
 		o_ptr = &inventory[item];
 	}
-
 	/* Get the item (on the floor) */
 	else
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
@@ -287,7 +285,7 @@ void do_cmd_wield(void)
 	p_ptr->redraw |= (PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_PLAYRES);
 }
 
 
@@ -405,12 +403,7 @@ void do_cmd_drop(void)
 
 static bool high_level_book(const object_type *o_ptr)
 {
-	if ((o_ptr->tval == TV_LIFE_BOOK) ||
-	    (o_ptr->tval == TV_SORCERY_BOOK) ||
-	    (o_ptr->tval == TV_NATURE_BOOK) ||
-	    (o_ptr->tval == TV_CHAOS_BOOK) ||
-	    (o_ptr->tval == TV_DEATH_BOOK) ||
-	    (o_ptr->tval == TV_TRUMP_BOOK))
+	if ((o_ptr->tval == TV_SPELL_BOOK))
 	{
 		if (o_ptr->sval > 1)
 			return TRUE;
@@ -425,18 +418,18 @@ static bool high_level_book(const object_type *o_ptr)
 bool destroy_item_aux(object_type *o_ptr, int amt)
 {
 	char o_name[80];
-	
+
 	bool gain_expr = FALSE;
-	
+
 	object_desc(o_name, o_ptr, TRUE, 3);
-	
+
 #ifdef USE_SCRIPT
 
 	if (destroy_object_callback(o_ptr, amt)) return (FALSE);
 
 #endif /* USE_SCRIPT */
 
-	
+
 	/* Can the player destroy the object? */
 	if (!can_player_destroy_object(o_ptr))
 	{
@@ -446,10 +439,10 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 		/* Done */
 		return (FALSE);
 	}
-	
+
 	/* Take a turn */
 	p_ptr->energy_use += 100;
-	
+
 	/* Describe the object (with {terrible/special}) */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
@@ -467,11 +460,11 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 		{
 			if (p_ptr->realm1 == REALM_LIFE)
 			{
-				if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
+				if (o_ptr->tval != TV_SPELL_BOOK) gain_expr = TRUE;
 			}
 			else
 			{
-				if (o_ptr->tval == TV_LIFE_BOOK) gain_expr = TRUE;
+				if (o_ptr->tval == TV_SPELL_BOOK) gain_expr = TRUE;
 			}
 		}
 
@@ -486,12 +479,12 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 			gain_exp(tester_exp * amt);
 		}
 
-		if (high_level_book(o_ptr) && o_ptr->tval == TV_LIFE_BOOK)
+		if (high_level_book(o_ptr) && o_ptr->tval == TV_SPELL_BOOK)
 		{
 			chg_virtue(V_UNLIFE, 1);
 			chg_virtue(V_VITALITY, -1);
 		}
-		else if (high_level_book(o_ptr) && o_ptr->tval == TV_DEATH_BOOK)
+		else if (high_level_book(o_ptr) && o_ptr->tval == TV_SPELL_BOOK)
 		{
 			chg_virtue(V_UNLIFE, -1);
 			chg_virtue(V_VITALITY, 1);
@@ -509,7 +502,7 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 
 	if (o_ptr->to_a != 0 || o_ptr->to_d != 0 || o_ptr->to_h != 0)
 		chg_virtue(V_HARMONY, 1);
-	
+
 	/* We destroyed the item(s) */
 	return (TRUE);
 }
@@ -842,10 +835,10 @@ static void do_cmd_refill_lamp(void)
 	}
 	else
 	{
-		/* Lanterns use the timeout to store the fuel */ 
+		/* Lanterns use the timeout to store the fuel */
 		j_ptr->timeout += o_ptr->timeout;
 	}
-	
+
 	/* Message */
 	msg_print("You fuel your lamp.");
 
@@ -878,7 +871,7 @@ static void do_cmd_refill_lamp(void)
 	{
 		/* The lantern is empty */
 		o_ptr->timeout = 0;
-		
+
 		/* Optimise pack space */
 		if (item >=0)
 		{
@@ -1072,7 +1065,7 @@ void do_cmd_locate(void)
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
-	
+
 	/* Offset */
 	wid -= COL_MAP + 1;
 	hgt -= ROW_MAP + 1;
@@ -1345,7 +1338,7 @@ void ang_sort_swap_hook(const vptr u, const vptr v, int a, int b)
 
 	/* Hack - ignore v */
 	(void) v;
-	
+
 	/* Swap */
 	holder = who[a];
 	who[a] = who[b];

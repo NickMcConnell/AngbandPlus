@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/03/25 04:56:18 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:05:14 $
 # File: q_info.txt
 
 # Includes all the quest files
@@ -16,6 +16,6 @@
 
 
 # Random quests (always adressed with number 40)
-?:[EQU $QUEST_NUMBER 40]
+?:[EQU $QUEST_NUMBER 101]
 %:q_random.txt
 

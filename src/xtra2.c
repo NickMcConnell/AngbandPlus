@@ -144,7 +144,7 @@ void check_experience(void)
 				gain_level_reward(0);
 				multi_rew = TRUE;
 			}
-			
+
 			level_reward = FALSE;
 		}
 
@@ -209,6 +209,11 @@ static int get_coin_type(const monster_race *r_ptr)
  */
 bool monster_death(int m_idx, bool explode)
 {
+	object_type forge;
+	object_type *q_ptr;
+
+	cave_type *c_ptr;
+
 	int i, j, y, x, ny, nx, i2, j2;
 
 	int dump_item = 0;
@@ -218,6 +223,12 @@ bool monster_death(int m_idx, bool explode)
 
 	int number = 0;
 
+   int QUniqueVal;  /*  NEW  */
+   int QMonLevel;
+   int ExtraReward;
+   int RewardCount;
+   int NumRewards;
+   int GreatReward;
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -237,10 +248,11 @@ bool monster_death(int m_idx, bool explode)
 
 	int quest_num;
 
-	object_type forge;
-	object_type *q_ptr;
-
-	cave_type *c_ptr;
+   QUniqueVal = 0;  /*  NEW  */
+   QMonLevel = 0;
+   ExtraReward = 0;
+   NumRewards = 0;
+   GreatReward = 0;
 
 	/* Notice changes in view */
 	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
@@ -248,7 +260,7 @@ bool monster_death(int m_idx, bool explode)
 		/* Update some things */
 		p_ptr->update |= (PU_MON_LITE);
 	}
-	
+
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
@@ -414,7 +426,7 @@ bool monster_death(int m_idx, bool explode)
 
 				/* Do not count clones */
 				if (m_ptr->smart & SM_CLONED) break;
-				
+
 				quest[i].cur_num++;
 
 				if (quest[i].cur_num >= quest[i].max_num)
@@ -570,9 +582,9 @@ bool monster_death(int m_idx, bool explode)
 						 FIELD_ACT_INIT, m_ptr);
 				}
 			}
-			
+
 			/* We dropped a corpse */
-			dropped_corpse = TRUE;		
+			dropped_corpse = TRUE;
 		}
 	}
 #endif /* USE_CORPSES */
@@ -689,7 +701,7 @@ bool monster_death(int m_idx, bool explode)
 		/* Prepare to make a Blade of Chaos */
 		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
 
-		apply_magic(q_ptr, object_level, 0, 0);
+		apply_magic(q_ptr, object_level, 0, 0, FALSE);
 
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
@@ -715,15 +727,11 @@ bool monster_death(int m_idx, bool explode)
 	}
 
 	/* Mega-Hack -- drop "winner" treasures */
+   /* Add something spiffy!!! */
 	else if (r_ptr->flags1 & RF1_DROP_CHOSEN)
 	{
 		if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
 		{
-			/* Make Grond */
-			create_named_art(ART_GROND, y, x);
-			
-			/* Make Crown of Morgoth */
-			create_named_art(ART_MORGOTH, y, x);
 		}
 		else
 		{
@@ -734,97 +742,14 @@ bool monster_death(int m_idx, bool explode)
 			{
 				if (one_in_(3))
 				{
-					a_idx = ART_THRAIN;
-					chance = 33;
 				}
 				else
 				{
-					a_idx = ART_GONDOR;
-					chance = 50;
 				}
-			}
-			else if (strstr((r_name + r_ptr->name), "Barimen"))
-			{
-				a_idx = ART_THRAIN;
-				chance = 20;
-			}
-			else if (strstr((r_name + r_ptr->name), "Sauron,"))
-			{
-				a_idx = ART_POWER;
-				chance = 25;
-			}
-			else if (strstr((r_name + r_ptr->name), "Brand, "))
-			{
-				if (one_in_(3))
-				{
-					a_idx = ART_ANGUIREL;
-					chance = 33;
-				}
-				else
-				{
-					a_idx = ART_BRAND;
-					chance = 25;
-				}
-			}
-			else if (strstr((r_name + r_ptr->name), "Corwin,"))
-			{
-				if (one_in_(3))
-				{
-					a_idx = ART_CORWIN;
-					chance = 33;
-				}
-				else
-				{
-					a_idx = ART_GRAYSWANDIR;
-					chance = 33;
-				}
-			}
-			else if (strstr((r_name + r_ptr->name), "Saruman of"))
-			{
-				a_idx = ART_ELENDIL;
-				chance = 20;
-			}
-			else if (strstr((r_name + r_ptr->name), "Fiona the"))
-			{
-				a_idx = ART_BELANGIL;
-				chance = 50;
-			}
-			else if (strstr((r_name + r_ptr->name), "Julian, "))
-			{
-				a_idx = ART_CELEBORN;
-				chance = 45;
-			}
-			else if (strstr((r_name + r_ptr->name), "Klings"))
-			{
-				a_idx = ART_OROME;
-				chance = 40;
-			}
-			else if (strstr((r_name + r_ptr->name), "Groo"))
-			{
-				a_idx = ART_GROO;
-				chance = 75;
-			}
-			else if (strstr((r_name + r_ptr->name), "Hagen,"))
-			{
-				a_idx = ART_NIMLOTH;
-				chance = 66;
-			}
-			else if (strstr((r_name + r_ptr->name), "Caine,"))
-			{
-				a_idx = ART_ANGRIST;
-				chance = 50;
 			}
 
 			if ((a_idx > 0) && ((randint1(99) < chance) || (p_ptr->wizard)))
 			{
-				if (a_info[a_idx].cur_num == 0)
-				{
-					/* Create the artifact */
-					create_named_art(a_idx, y, x);
-
-					/* The artifact has been created */
-					a_info[a_idx].cur_num = 1;
-				}
 			}
 		}
 	}
@@ -889,34 +814,67 @@ bool monster_death(int m_idx, bool explode)
 	 */
 	if (reward)
 	{
-		while (TRUE)
-		{
-			/* Get local object */
-			q_ptr = &forge;
+      QUniqueVal = 100; /*  NEW  */
+      if (r_ptr->flags1 & RF1_UNIQUE) QUniqueVal *= 3; /*  NEW  */
+      QMonLevel = r_ptr->level;
+      ExtraReward = r_ptr->level - p_ptr->depth;
 
-			/* Wipe the object */
-			object_wipe(q_ptr);
+      NumRewards = 1;
 
-			/* Average of 20 great objects per game */
-			if (randint0(number_of_quests()) < 20)
-			{
-				/* Make a great object */
-				(void)make_object(q_ptr, 30, dun_theme);
-			}
-			else
-			{
-				/* Make a good object */
-				(void)make_object(q_ptr, 15, dun_theme);
-			}
-		
-			/* We need a 'good' item - so check the price */
-			if (object_value_real(q_ptr) > 100 * p_ptr->depth) break;
-		}
-		
-		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, y, x);
+      GreatReward = 0;
+
+      if (one_in_(ExtraReward * ExtraReward)) GreatReward = 1;
+
+      if (QUniqueVal == 300) ExtraReward += randint1(ExtraReward);
+
+      if (GreatReward)
+      {
+         QUniqueVal *= 2;
+         ExtraReward += randint1(ExtraReward);
+   		msg_print("You are worthy of a great reward!");
+			msg_print(NULL);
+      }
+
+      for (RewardCount = NumRewards; RewardCount < ExtraReward; RewardCount++)
+      {
+         if (one_in_(RewardCount * RewardCount)) NumRewards++;
+      }
+
+      for (RewardCount = 0; RewardCount < NumRewards; RewardCount++)
+      {
+         while (TRUE)
+	   	{
+		   	/* Get local object */
+			   q_ptr = &forge;
+
+   			/* Wipe the object */
+	   		object_wipe(q_ptr);
+
+		   	/* Average of 20 great objects per game */
+			   if (randint0(number_of_quests()) < 20)
+   			{
+	   			/* Make a great object */
+		   		(void)make_object(q_ptr, 30, qreward_theme[p_ptr->pclass]);
+			   }
+   			else
+	   		{
+			   	/* Make a good object */
+		   		(void)make_object(q_ptr, 15, qreward_theme[p_ptr->pclass]);
+   			}
+
+	   		/* We need a 'good' item - so check the price */
+		   	if (object_value_real(q_ptr) > (QUniqueVal * QMonLevel)
+               && !(q_ptr->flags3 & TR3_CURSED)
+               && !(q_ptr->flags3 & TR3_HEAVY_CURSE)
+               && !(q_ptr->flags3 & TR3_PERMA_CURSE)
+               ) break;
+		   }
+
+		   /* Drop it in the dungeon */
+   		(void)drop_near(q_ptr, -1, y, x);
+      }
 	}
-	
+
 	/* Reset the object level */
 	object_level = base_level;
 
@@ -941,7 +899,7 @@ bool monster_death(int m_idx, bool explode)
 		msg_print("You have won the game!");
 		msg_print("You may retire (commit suicide) when you are ready.");
 	}
-	
+
 	/* Return TRUE if we dropped a corpse for the player to see */
 	return (dropped_corpse);
 }
@@ -959,7 +917,7 @@ int mon_damage_mod(const monster_type *m_ptr, int dam, int type)
 {
 	/* Hack - ignore type for now */
 	(void) type;
-	
+
 	if (m_ptr->invulner && !one_in_(PENETRATE_INVULNERABILITY))
 		return (0);
 	else
@@ -1205,7 +1163,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Generate treasure */
 		corpse = monster_death(m_idx, TRUE);
-		
+
 		/* Handle fractional experience */
 		new_exp_frac += p_ptr->exp_frac;
 
@@ -1258,7 +1216,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
 		}
-		
+
 		/* Don't kill Amberites */
 		if ((r_ptr->flags3 & RF3_AMBERITE) && one_in_(2))
 		{
@@ -1370,7 +1328,7 @@ bool change_panel(int dy, int dx)
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
-	
+
 	/* Offset */
 	hgt -= ROW_MAP + 1;
 	wid -= COL_MAP + 1;
@@ -1384,7 +1342,7 @@ bool change_panel(int dy, int dx)
 	if (y < min_hgt) y = min_hgt;
 	if (x > max_wid - wid) x = max_wid - wid;
 	if (x < min_wid) x = min_wid;
-	
+
 	if (vanilla_town && (!p_ptr->depth))
 	{
 		x = max_wild * WILD_BLOCK_SIZE / 2 - wid / 2 - 15;
@@ -1445,14 +1403,14 @@ void verify_panel(void)
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
-	
+
 	/* Offset */
 	hgt -= ROW_MAP + 1;
 	wid -= COL_MAP + 1;
 
 	max_prow_min = max_panel_rows - hgt;
 	max_pcol_min = max_panel_cols - wid;
-	
+
 	/* Bounds checking */
 	if (max_prow_min < 0) max_prow_min = 0;
 	if (max_pcol_min < 0) max_pcol_min = 0;
@@ -1476,9 +1434,9 @@ void verify_panel(void)
 		pcol_min = panel_col_min;
 
 		/* Scroll screen when 2 grids from top/bottom edge */
-		if (y > panel_row_max - 2)
+		if (y > panel_row_max - 4)
 		{
-			while (y > prow_min + hgt - 2)
+			while (y > prow_min + hgt - 4)
 			{
 				prow_min += (hgt / 2);
 			}
@@ -1486,9 +1444,9 @@ void verify_panel(void)
 			if (prow_min > max_prow_min) prow_min = max_prow_min;
 		}
 
-		if (y < panel_row_min + 2)
+		if (y < panel_row_min + 4)
 		{
-			while (y < prow_min + 2)
+			while (y < prow_min + 4)
 			{
 				prow_min -= (hgt / 2);
 			}
@@ -1497,19 +1455,19 @@ void verify_panel(void)
 		}
 
 		/* Scroll screen when 4 grids from left/right edge */
-		if (x > panel_col_max - 4)
+		if (x > panel_col_max - 8)
 		{
-			while (x > pcol_min + wid - 4)
+			while (x > pcol_min + wid - 8)
 			{
 				pcol_min += (wid / 2);
 			}
 
 			if (pcol_min > max_pcol_min) pcol_min = max_pcol_min;
 		}
-		
-		if (x < panel_col_min + 4)
+
+		if (x < panel_col_min + 8)
 		{
-			while (x < pcol_min + 4)
+			while (x < pcol_min + 8)
 			{
 				pcol_min -= (wid / 2);
 			}
@@ -1530,20 +1488,20 @@ void verify_panel(void)
 
 	/* Recalculate the boundaries */
 	panel_recalc_bounds();
-	
+
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
-	
+
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 }
 
-   
 
-   
+
+
 
 /*
  * Center the dungeon display around the player
@@ -1559,14 +1517,14 @@ void panel_center(void)
 		(void)change_panel(0, 0);
 		return;
 	}
-	
+
 	/* Get the screen size */
 	Term_get_size(&wid, &hgt);
 
 	/* Calculate the dimensions of the displayed map */
 	hgt -= ROW_MAP + 1;
 	wid -= COL_MAP + 1;
-	
+
 	/* Center the map around the player */
 	new_panel_row = p_ptr->py - (hgt / 2);
 	new_panel_col = p_ptr->px - (wid / 2);
@@ -1592,7 +1550,7 @@ void panel_center(void)
 
 	/* Recalculate the boundaries */
 	panel_recalc_bounds();
-	
+
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);
 
@@ -1744,7 +1702,7 @@ bool target_able(int m_idx)
 
 	/* Monster must not be a mimic */
 	if (m_ptr->smart & SM_MIMIC) return (FALSE);
-	
+
 	/* Monster must be projectable */
 	if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return (FALSE);
 
@@ -1770,14 +1728,14 @@ static bool mimic_desc(char *m_name, const monster_race *r_ptr)
 			strcpy(m_name, r_name + r_ptr->name	+ sizeof("Creeping ") - 1);
 			return (TRUE);
 		}
-			
+
 		case '|':
 		{
 			/* Hack */
 			strcpy(m_name, r_name + r_ptr->name);
 			return (TRUE);
 		}
-			
+
 		case '?':
 		{
 			if (strstr(r_ptr->name + r_name, "Tome "))
@@ -1788,58 +1746,58 @@ static bool mimic_desc(char *m_name, const monster_race *r_ptr)
 			{
 				strcpy(m_name, "scroll");
 			}
-			
+
 			return (TRUE);
 		}
-		
+
 		case '!':
 		{
 			strcpy(m_name, "potion");
 			return (TRUE);
 		}
-		
+
 		case '=':
 		{
 			strcpy(m_name, "ring");
 			return (TRUE);
 		}
-		
+
 		case '+':
 		{
 			strcpy(m_name, "door");
 			return (TRUE);
 		}
-		
+
 		case '&':
 		{
 			strcpy(m_name, "chest");
 			return (TRUE);
 		}
-		
+
 		case '(':
 		{
 			strcpy(m_name, "cloak");
 			return (TRUE);
 		}
-		
+
 		case '>':
 		{
 			strcpy(m_name, "down staircase");
 			return (TRUE);
 		}
-		
+
 		case '.':
 		{
 			/* Hack - do not notice lurkers etc. */
 			return (FALSE);
 		}
-		
+
 		case '#':
 		{
 			strcpy(m_name, "granite wall");
 			return (TRUE);
 		}
-	
+
 		default:
 		{
 			return (TRUE);
@@ -2045,7 +2003,7 @@ static bool target_set_accept(int y, int x)
 		/* Memorized object */
 		if (o_ptr->marked) return (TRUE);
 	}
-	
+
 	/* Scan all fields in the grid */
 	for (this_f_idx = c_ptr->fld_idx; this_f_idx; this_f_idx = next_f_idx)
 	{
@@ -2135,7 +2093,7 @@ static void target_set_prepare(int mode)
 
 			/* Paranoia */
 			if (temp_n >= TEMP_MAX) continue;
-			
+
 			/* Save the location */
 			temp_x[temp_n] = x;
 			temp_y[temp_n] = y;
@@ -2248,7 +2206,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				bool recall = FALSE;
 
 				char m_name[80];
-				
+
 				/* Not boring */
 				boring = FALSE;
 
@@ -2274,7 +2232,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					/* Preposition */
 					s2 = "on ";
 				}
-				
+
 				/* Normal monsters */
 				else
 				{
@@ -2283,7 +2241,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 					/* Hack -- track this monster race */
 					monster_race_track(m_ptr->r_idx);
-	
+
 					/* Hack -- health bar for this monster */
 					health_track(c_ptr->m_idx);
 
@@ -2304,7 +2262,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 							/* Hack -- Complete the prompt (again) */
 							Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
-	
+
 							/* Command */
 							query = inkey();
 
@@ -2365,7 +2323,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 					{
 						char o_name[80];
-	
+
 						object_type *o_ptr;
 
 						/* Acquire object */
@@ -2385,7 +2343,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 						/* Always stop at "normal" keys */
 						if ((query != '\r') && (query != '\n') && (query != ' ')) break;
-	
+
 						/* Sometimes stop at "space" key */
 						if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
 
@@ -2520,20 +2478,20 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 		/* Double break */
 		if (this_o_idx) break;
-		
+
 		/* Scan all fields in the grid */
 		for (this_f_ptr = &c_ptr->fld_idx; *this_f_ptr; this_f_ptr = next_f_ptr)
 		{
 			field_type *f_ptr = &fld_list[*this_f_ptr];
 			field_thaum *t_ptr = &t_info[f_ptr->t_idx];
-			
+
 			cptr name = t_ptr->name;
 
 			char fld_name[40];
 
 			/* Acquire next field */
 			next_f_ptr = &f_ptr->next_f_idx;
-			
+
 			/* Do not describe this field */
 			if (f_ptr->info & FIELD_INFO_NO_LOOK) continue;
 
@@ -2546,7 +2504,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					/* Get the name */
 					(void)field_hook_single(this_f_ptr, FIELD_ACT_LOOK,
 						 (vptr)fld_name);
-					
+
 					/* Point to it */
 					name = fld_name;
 				}
@@ -2555,10 +2513,10 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					/* Just use the normal name of the field */
 					name = t_ptr->name;
 				}
-					
+
 				/* Not boring */
 				boring = FALSE;
-				
+
 				s3 = is_a_vowel(name[0]) ? "an " : "a ";
 
 				/* Describe the field */
@@ -2579,21 +2537,21 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 				/* Preposition */
 				s2 = "on ";
-				
+
 				/* Hack - we've seen a field here */
 				seen = TRUE;
-				
+
 			}
 		}
-		
+
 		/* Sometimes a field stops the feat from being mentioned */
 		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NFT_LOOK))
 		{
-			/* 
+			/*
 			 * Only if we know about the field will it stop the
 			 * feat from being described.
 			 */
-			
+
 			/* If we have seen something */
 			if (seen)
 			{
@@ -2606,7 +2564,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				{
 					/* Back for more */
 					continue;
-				}	
+				}
 			}
 		}
 
@@ -2865,7 +2823,7 @@ bool target_set(int mode)
 
 					y = py;
 					x = px;
-					
+
 					/* Fall through */
 				}
 
@@ -3058,7 +3016,7 @@ bool target_set(int mode)
 
 					y = py;
 					x = px;
-					
+
 					/* Fall through */
 				}
 
@@ -3559,13 +3517,13 @@ void gain_level_reward(int chosen_reward)
 			}
 
 			object_prep(q_ptr, lookup_kind(tval, sval));
-			
+
 			q_ptr->to_h = 3 + randint1(p_ptr->depth) % 10;
 			q_ptr->to_d = 3 + randint1(p_ptr->depth) % 10;
-			
+
 			(void) random_resistance(q_ptr, rand_range(5, 38), 0);
-			
-			add_ego_flags(q_ptr, EGO_CHAOTIC);
+
+			add_ego_flags(q_ptr, 35);
 
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, py, px);
@@ -3616,9 +3574,9 @@ void gain_level_reward(int chosen_reward)
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Stay, mortal, and let me mold thee.'");
 			if (one_in_(3) && !(chaos_stats[p_ptr->chaos_patron] < 0))
-				(void)do_inc_stat(chaos_stats[p_ptr->chaos_patron]);
+				(void)do_inc_stat(chaos_stats[p_ptr->chaos_patron], 1);
 			else
-				(void)do_inc_stat(randint0(A_MAX));
+				(void)do_inc_stat(randint0(A_MAX), 1);
 			break;
 		case REW_LOSE_ABL:
 			msg_format("The voice of %s booms out:",
@@ -3650,7 +3608,7 @@ void gain_level_reward(int chosen_reward)
 			msg_print("'Receive this modest gift from me!'");
 			for (i = 0; i < A_MAX; i++)
 			{
-				(void)do_inc_stat(i);
+				(void)do_inc_stat(i, 1);
 			}
 			break;
 		case REW_HURT_LOT:
@@ -3658,7 +3616,7 @@ void gain_level_reward(int chosen_reward)
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Suffer, pathetic fool!'");
 			(void)fire_ball(GF_DISINTEGRATE, 0, p_ptr->lev * 4, 4);
-			take_hit(p_ptr->lev * 4, wrath_reason);
+			take_hit(p_ptr->lev * 4, wrath_reason, FALSE);
 			break;
 	   case REW_HEAL_FUL:
 			msg_format("The voice of %s booms out:",
@@ -3674,7 +3632,7 @@ void gain_level_reward(int chosen_reward)
 			(void)hp_player(5000);
 			for (i = 0; i < A_MAX; i++)
 			{
-				(void)do_res_stat(i);
+				(void)do_res_stat(i, 200);
 			}
 			break;
 		case REW_CURSE_WP:
@@ -3720,7 +3678,7 @@ void gain_level_reward(int chosen_reward)
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Die, mortal!'");
 
-			take_hit(p_ptr->lev * 4, wrath_reason);
+			take_hit(p_ptr->lev * 4, wrath_reason, FALSE);
 
 			for (i = 0; i < A_MAX; i++)
 			{

@@ -14,6 +14,7 @@ CFLAGS  =       -Wall -W -pedantic -mno-cygwin -O2 -fno-strength-reduce -DUSE_TR
 
 SRCS = \
 	angband.rc \
+   actmagic.c \
 	artifact.c \
 	avatar.c \
 	birth.c \
@@ -72,11 +73,12 @@ SRCS = \
 	z-rand.c \
 	z-term.c \
 	z-util.c \
-	z-virt.c 
+	z-virt.c
 
 
 EXOBJS = \
 	angband.res \
+   actmagic.o \
 	artifact.o \
 	avatar.o \
 	birth.o \
@@ -135,7 +137,7 @@ EXOBJS = \
 	z-rand.o \
 	z-term.o \
 	z-util.o \
-	z-virt.o 
+	z-virt.o
 
 
 HDRS = \
@@ -158,18 +160,18 @@ INCS = \
 #
 
 
-default:	zangband
+default:	randband
 
-install:	zangband movebin
+install:	randband movebin
 
 movebin:
-	mv -f zangband.exe ../zangband.exe
+	mv -f randband.exe ../randband.exe
 
 cleanobjs:
 	rm -f $(EXOBJS)
 
 cleanbin:
-	rm -f zangband
+	rm -f randband
 
 clean:	cleanobjs cleanbin
 
@@ -178,8 +180,8 @@ clean:	cleanobjs cleanbin
 # Dependency rules
 #
 
-zangband: $(EXOBJS)
-	$(CC) -o zangband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
+randband: $(EXOBJS)
+	$(CC) -o randband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
 
 
 #
@@ -201,6 +203,9 @@ angband.res : angband.rc
 #
 
 artifact.o: artifact.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+actmagic.o: actmagic.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 avatar.o: avatar.c $(INCS)

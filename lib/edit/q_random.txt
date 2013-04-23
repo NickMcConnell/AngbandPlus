@@ -1,151 +1,298 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:50 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:05:14 $
 # q_random.txt
 
 
-Q:40:N:Random Quest
-Q:40:Q:7:0:0:0:50:0:0
+Q:101:N:Random Quest
+Q:1012:Q:7:0:0:0:50:0:0
 
-Q:41:N:Random Quest
-Q:41:Q:7:0:0:0:24:0:0
+Q:102:N:Random Quest
+Q:102:Q:7:0:0:0:24:0:0
 
-Q:42:N:Random Quest
-Q:42:Q:7:0:0:0:76:0:0
+Q:103:N:Random Quest
+Q:103:Q:7:0:0:0:76:0:0
 
-Q:43:N:Random Quest
-Q:43:Q:7:0:0:0:12:0:0
+Q:104:N:Random Quest
+Q:104:Q:7:0:0:0:12:0:0
 
-Q:44:N:Random Quest
-Q:44:Q:7:0:0:0:88:0:0
+Q:105:N:Random Quest
+Q:105:Q:7:0:0:0:88:0:0
 
-Q:45:N:Random Quest
-Q:45:Q:7:0:0:0:38:0:0
+Q:106:N:Random Quest
+Q:106:Q:7:0:0:0:38:0:0
 
-Q:46:N:Random Quest
-Q:46:Q:7:0:0:0:62:0:0
+Q:107:N:Random Quest
+Q:107:Q:7:0:0:0:62:0:0
 
-Q:47:N:Random Quest
-Q:47:Q:7:0:0:0:44:0:0
+Q:108:N:Random Quest
+Q:108:Q:7:0:0:0:44:0:0
 
-Q:48:N:Random Quest
-Q:48:Q:7:0:0:0:56:0:0
+Q:109:N:Random Quest
+Q:109:Q:7:0:0:0:56:0:0
 
-Q:49:N:Random Quest
-Q:49:Q:7:0:0:0:6:0:0
+Q:110:N:Random Quest
+Q:110:Q:7:0:0:0:6:0:0
 
-Q:50:N:Random Quest
-Q:50:Q:7:0:0:0:94:0:0
+Q:111:N:Random Quest
+Q:111:Q:7:0:0:0:94:0:0
 
-Q:51:N:Random Quest
-Q:51:Q:7:0:0:0:18:0:0
+Q:112:N:Random Quest
+Q:112:Q:7:0:0:0:18:0:0
 
-Q:52:N:Random Quest
-Q:52:Q:7:0:0:0:82:0:0
+Q:113:N:Random Quest
+Q:113:Q:7:0:0:0:82:0:0
 
-Q:53:N:Random Quest
-Q:53:Q:7:0:0:0:32:0:0
+Q:114:N:Random Quest
+Q:114:Q:7:0:0:0:32:0:0
 
-Q:54:N:Random Quest
-Q:54:Q:7:0:0:0:68:0:0
+Q:115:N:Random Quest
+Q:115:Q:7:0:0:0:68:0:0
 
-Q:55:N:Random Quest
-Q:55:Q:7:0:0:0:28:0:0
+Q:116:N:Random Quest
+Q:116:Q:7:0:0:0:28:0:0
 
-Q:56:N:Random Quest
-Q:56:Q:7:0:0:0:72:0:0
+Q:117:N:Random Quest
+Q:117:Q:7:0:0:0:72:0:0
 
-Q:57:N:Random Quest
-Q:57:Q:7:0:0:0:8:0:0
+Q:118:N:Random Quest
+Q:118:Q:7:0:0:0:8:0:0
 
-Q:58:N:Random Quest
-Q:58:Q:7:0:0:0:92:0:0
+Q:119:N:Random Quest
+Q:119:Q:7:0:0:0:92:0:0
 
-Q:59:N:Random Quest
-Q:59:Q:7:0:0:0:46:0:0
+Q:120:N:Random Quest
+Q:120:Q:7:0:0:0:46:0:0
 
-Q:60:N:Random Quest
-Q:60:Q:7:0:0:0:54:0:0
+Q:121:N:Random Quest
+Q:121:Q:7:0:0:0:54:0:0
 
-Q:61:N:Random Quest
-Q:61:Q:7:0:0:0:40:0:0
+Q:122:N:Random Quest
+Q:122:Q:7:0:0:0:40:0:0
 
-Q:62:N:Random Quest
-Q:62:Q:7:0:0:0:60:0:0
+Q:123:N:Random Quest
+Q:123:Q:7:0:0:0:60:0:0
 
-Q:63:N:Random Quest
-Q:63:Q:7:0:0:0:16:0:0
+Q:124:N:Random Quest
+Q:124:Q:7:0:0:0:16:0:0
 
-Q:64:N:Random Quest
-Q:64:Q:7:0:0:0:84:0:0
+Q:125:N:Random Quest
+Q:125:Q:7:0:0:0:84:0:0
 
-Q:65:N:Random Quest
-Q:65:Q:7:0:0:0:34:0:0
+Q:126:N:Random Quest
+Q:126:Q:7:0:0:0:34:0:0
 
-Q:66:N:Random Quest
-Q:66:Q:7:0:0:0:66:0:0
+Q:127:N:Random Quest
+Q:127:Q:7:0:0:0:66:0:0
 
-Q:67:N:Random Quest
-Q:67:Q:7:0:0:0:22:0:0
+Q:128:N:Random Quest
+Q:128:Q:7:0:0:0:22:0:0
 
-Q:68:N:Random Quest
-Q:68:Q:7:0:0:0:78:0:0
+Q:129:N:Random Quest
+Q:129:Q:7:0:0:0:78:0:0
 
-Q:69:N:Random Quest
-Q:69:Q:7:0:0:0:10:0:0
+Q:130:N:Random Quest
+Q:130:Q:7:0:0:0:10:0:0
 
-Q:70:N:Random Quest
-Q:70:Q:7:0:0:0:90:0:0
+Q:131:N:Random Quest
+Q:131:Q:7:0:0:0:90:0:0
 
-Q:71:N:Random Quest
-Q:71:Q:7:0:0:0:48:0:0
+Q:132:N:Random Quest
+Q:132:Q:7:0:0:0:48:0:0
 
-Q:72:N:Random Quest
-Q:72:Q:7:0:0:0:52:0:0
+Q:133:N:Random Quest
+Q:133:Q:7:0:0:0:52:0:0
 
-Q:73:N:Random Quest
-Q:73:Q:7:0:0:0:14:0:0
+Q:134:N:Random Quest
+Q:134:Q:7:0:0:0:14:0:0
 
-Q:74:N:Random Quest
-Q:74:Q:7:0:0:0:86:0:0
+Q:135:N:Random Quest
+Q:135:Q:7:0:0:0:86:0:0
 
-Q:75:N:Random Quest
-Q:75:Q:7:0:0:0:20:0:0
+Q:136:N:Random Quest
+Q:136:Q:7:0:0:0:20:0:0
 
-Q:76:N:Random Quest
-Q:76:Q:7:0:0:0:80:0:0
+Q:137:N:Random Quest
+Q:137:Q:7:0:0:0:80:0:0
 
-Q:77:N:Random Quest
-Q:77:Q:7:0:0:0:26:0:0
+Q:138:N:Random Quest
+Q:138:Q:7:0:0:0:26:0:0
 
-Q:78:N:Random Quest
-Q:78:Q:7:0:0:0:74:0:0
+Q:139:N:Random Quest
+Q:139:Q:7:0:0:0:74:0:0
 
-Q:79:N:Random Quest
-Q:79:Q:7:0:0:0:30:0:0
+Q:140:N:Random Quest
+Q:140:Q:7:0:0:0:30:0:0
 
-Q:80:N:Random Quest
-Q:80:Q:7:0:0:0:70:0:0
+Q:141:N:Random Quest
+Q:141:Q:7:0:0:0:70:0:0
 
-Q:81:N:Random Quest
-Q:81:Q:7:0:0:0:36:0:0
+Q:142:N:Random Quest
+Q:142:Q:7:0:0:0:36:0:0
 
-Q:82:N:Random Quest
-Q:82:Q:7:0:0:0:64:0:0
+Q:143:N:Random Quest
+Q:143:Q:7:0:0:0:64:0:0
 
-Q:83:N:Random Quest
-Q:83:Q:7:0:0:0:42:0:0
+Q:144:N:Random Quest
+Q:144:Q:7:0:0:0:42:0:0
 
-Q:84:N:Random Quest
-Q:84:Q:7:0:0:0:58:0:0
+Q:145:N:Random Quest
+Q:145:Q:7:0:0:0:58:0:0
 
-Q:85:N:Random Quest
-Q:85:Q:7:0:0:0:4:0:0
+Q:146:N:Random Quest
+Q:146:Q:7:0:0:0:4:0:0
 
-Q:86:N:Random Quest
-Q:86:Q:7:0:0:0:96:0:0
+Q:147:N:Random Quest
+Q:147:Q:7:0:0:0:96:0:0
 
-Q:87:N:Random Quest
-Q:87:Q:7:0:0:0:2:0:0
+Q:148:N:Random Quest
+Q:148:Q:7:0:0:0:2:0:0
 
-Q:88:N:Random Quest
-Q:88:Q:7:0:0:0:98:0:0
+Q:149:N:Random Quest
+Q:149:Q:7:0:0:0:98:0:0
+
+Q:150:N:Random Quest
+Q:150:Q:7:0:0:0:51:0:0
+
+Q:151:N:Random Quest
+Q:151:Q:7:0:0:0:25:0:0
+
+Q:152:N:Random Quest
+Q:152:Q:7:0:0:0:77:0:0
+
+Q:153:N:Random Quest
+Q:153:Q:7:0:0:0:13:0:0
+
+Q:154:N:Random Quest
+Q:154:Q:7:0:0:0:87:0:0
+
+Q:155:N:Random Quest
+Q:155:Q:7:0:0:0:39:0:0
+
+Q:156:N:Random Quest
+Q:156:Q:7:0:0:0:63:0:0
+
+Q:157:N:Random Quest
+Q:157:Q:7:0:0:0:45:0:0
+
+Q:158:N:Random Quest
+Q:158:Q:7:0:0:0:57:0:0
+
+Q:159:N:Random Quest
+Q:159:Q:7:0:0:0:7:0:0
+
+Q:160:N:Random Quest
+Q:160:Q:7:0:0:0:95:0:0
+
+Q:161:N:Random Quest
+Q:161:Q:7:0:0:0:19:0:0
+
+Q:162:N:Random Quest
+Q:162:Q:7:0:0:0:83:0:0
+
+Q:163:N:Random Quest
+Q:163:Q:7:0:0:0:33:0:0
+
+Q:164:N:Random Quest
+Q:164:Q:7:0:0:0:69:0:0
+
+Q:165:N:Random Quest
+Q:165:Q:7:0:0:0:29:0:0
+
+Q:166:N:Random Quest
+Q:166:Q:7:0:0:0:73:0:0
+
+Q:167:N:Random Quest
+Q:167:Q:7:0:0:0:9:0:0
+
+Q:168:N:Random Quest
+Q:168:Q:7:0:0:0:93:0:0
+
+Q:169:N:Random Quest
+Q:169:Q:7:0:0:0:47:0:0
+
+Q:170:N:Random Quest
+Q:170:Q:7:0:0:0:55:0:0
+
+Q:171:N:Random Quest
+Q:171:Q:7:0:0:0:41:0:0
+
+Q:172:N:Random Quest
+Q:172:Q:7:0:0:0:61:0:0
+
+Q:173:N:Random Quest
+Q:173:Q:7:0:0:0:17:0:0
+
+Q:174:N:Random Quest
+Q:174:Q:7:0:0:0:85:0:0
+
+Q:175:N:Random Quest
+Q:175:Q:7:0:0:0:35:0:0
+
+Q:176:N:Random Quest
+Q:176:Q:7:0:0:0:67:0:0
+
+Q:177:N:Random Quest
+Q:177:Q:7:0:0:0:23:0:0
+
+Q:178:N:Random Quest
+Q:178:Q:7:0:0:0:79:0:0
+
+Q:179:N:Random Quest
+Q:179:Q:7:0:0:0:11:0:0
+
+Q:180:N:Random Quest
+Q:180:Q:7:0:0:0:91:0:0
+
+Q:181:N:Random Quest
+Q:181:Q:7:0:0:0:49:0:0
+
+Q:182:N:Random Quest
+Q:182:Q:7:0:0:0:53:0:0
+
+Q:183:N:Random Quest
+Q:183:Q:7:0:0:0:15:0:0
+
+Q:184:N:Random Quest
+Q:184:Q:7:0:0:0:87:0:0
+
+Q:185:N:Random Quest
+Q:185:Q:7:0:0:0:21:0:0
+
+Q:186:N:Random Quest
+Q:186:Q:7:0:0:0:81:0:0
+
+Q:187:N:Random Quest
+Q:187:Q:7:0:0:0:27:0:0
+
+Q:188:N:Random Quest
+Q:188:Q:7:0:0:0:75:0:0
+
+Q:189:N:Random Quest
+Q:189:Q:7:0:0:0:31:0:0
+
+Q:190:N:Random Quest
+Q:190:Q:7:0:0:0:71:0:0
+
+Q:191:N:Random Quest
+Q:191:Q:7:0:0:0:37:0:0
+
+Q:192:N:Random Quest
+Q:192:Q:7:0:0:0:65:0:0
+
+Q:193:N:Random Quest
+Q:193:Q:7:0:0:0:43:0:0
+
+Q:194:N:Random Quest
+Q:194:Q:7:0:0:0:59:0:0
+
+Q:195:N:Random Quest
+Q:195:Q:7:0:0:0:5:0:0
+
+Q:196:N:Random Quest
+Q:196:Q:7:0:0:0:97:0:0
+
+Q:197:N:Random Quest
+Q:197:Q:7:0:0:0:3:0:0
+
+Q:198:N:Random Quest
+Q:198:Q:7:0:0:0:1:0:0
 

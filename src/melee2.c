@@ -46,7 +46,7 @@ static bool get_enemy_dir(monster_type *m_ptr, int *mm)
 
 		/* Paranoia -- Skip dead monsters */
 		if (!t_ptr->r_idx) continue;
-		
+
 		/* Monster must be 'an enemy' */
 		if (!are_enemies(m_ptr, t_ptr)) continue;
 
@@ -55,7 +55,7 @@ static bool get_enemy_dir(monster_type *m_ptr, int *mm)
 		{
 			continue;
 		}
-		
+
 		if (is_pet(m_ptr))
 		{
 			/* Hack -- only fight away from player */
@@ -240,7 +240,7 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 
 			/* Generate treasure */
 			(void)monster_death(m_idx, TRUE);
-			
+
 			/* Delete the monster */
 			delete_monster_idx(m_idx);
 
@@ -409,7 +409,7 @@ static void get_moves_aux(int m_idx, int *yp, int *xp)
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	
+
 	/* Monster can go through rocks */
 	if (r_ptr->flags2 & RF2_PASS_WALL) return;
 	if (r_ptr->flags2 & RF2_KILL_WALL) return;
@@ -1521,16 +1521,16 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 				if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
 				{
 					char m_name2[80];
-		
+
 					/* Get name */
 					monster_desc (m_name2, m_ptr, 0x88);
-		
+
 					/* Toggle flag */
 					m_ptr->smart &= ~(SM_MIMIC);
-					
+
 					/* It is in the monster list now */
 					update_mon_vis(m_ptr->r_idx, 1);
-		
+
 					/* We've spotted it */
 					msg_format("You see %s!", m_name2);
 				}
@@ -1539,16 +1539,16 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 				if ((t_ptr->smart & SM_MIMIC) && t_ptr->ml)
 				{
 					char t_name2[80];
-		
+
 					/* Get name */
 					monster_desc (t_name2, t_ptr, 0x88);
-					
+
 					/* Toggle flag */
 					t_ptr->smart &= ~(SM_MIMIC);
 
 					/* It is in the monster list now */
 					update_mon_vis(t_ptr->r_idx, 1);
-		
+
 					/* We've spotted it */
 					msg_format("You see %s!", t_name2);
 				}
@@ -1918,7 +1918,7 @@ static void process_monster(int m_idx)
 
 	monster_type    *y_ptr;
 
-	
+
 	char m_name[80];
 
 	bool            do_turn;
@@ -1934,7 +1934,7 @@ static void process_monster(int m_idx)
 	bool            did_kill_wall;
 	bool            gets_angry = FALSE;
 	field_mon_test	mon_enter_test;
-	
+
 	/* Quantum monsters are odd */
 	if (r_ptr->flags2 & (RF2_QUANTUM))
 	{
@@ -1953,7 +1953,7 @@ static void process_monster(int m_idx)
 			{
 				/* Acquire the monster name */
 				monster_desc(m_name, m_ptr, 0);
-				
+
 				/* Oops */
 				msg_format("%^s disappears!", m_name);
 			}
@@ -1972,11 +1972,11 @@ static void process_monster(int m_idx)
 			return;
 		}
 	}
-	
+
 	/* Get the origin */
 	oy = m_ptr->fy;
 	ox = m_ptr->fx;
-	
+
 	/* Access that cave grid */
 	c_ptr = area(oy,ox);
 
@@ -2147,7 +2147,7 @@ static void process_monster(int m_idx)
 	/* No one wants to be your friend if you're aggravating */
 	if (!is_hostile(m_ptr) && p_ptr->aggravate)
 		gets_angry = TRUE;
-		
+
 	/* Acquire the monster name */
 	monster_desc(m_name, m_ptr, 0);
 
@@ -2502,29 +2502,29 @@ static void process_monster(int m_idx)
 			/* Note changes to viewable region */
 			if (player_can_see_bold(ny, nx)) do_view = TRUE;
 		}
-		
+
 		else if (c_ptr->feat & 0x20)
 		{
 			/* This monster cannot walk through walls */
 			do_move = FALSE;
 		}
-		
-		/* 
+
+		/*
 		 * Test for fields that will not allow this
 		 * specific monster to pass.  (i.e. Glyph of warding)
 		 */
-		 
+
 		/* Initialise information to pass to action functions */
 		mon_enter_test.m_ptr = m_ptr;
 		mon_enter_test.do_move = do_move;
-		
+
 		/* Call the hook */
 		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
 			 (vptr) &mon_enter_test);
-			 
+
 		/* Take turn in some cases. */
 		if (!mon_enter_test.do_move && do_move) do_turn = TRUE;
-		
+
 		/* Get result */
 		do_move = mon_enter_test.do_move;
 
@@ -2538,7 +2538,7 @@ static void process_monster(int m_idx)
 			/* Do not move */
 			do_move = FALSE;
 		}
-		
+
 		/* Require "empty" fields */
 		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
 		{
@@ -2556,14 +2556,14 @@ static void process_monster(int m_idx)
 
 			/* Handle viewable doors */
 			if (player_can_see_bold(ny, nx)) do_view = TRUE;
-				
+
 			/* Take a turn */
 			do_turn = TRUE;
-				
+
 			/* Do not move in any case. */
 			do_move = FALSE;
-			
-			/* The door was opened */ 
+
+			/* The door was opened */
 			did_open_door = TRUE;
 		}
 		else if (((c_ptr->feat == FEAT_CLOSED) || (c_ptr->feat == FEAT_SECRET))
@@ -2665,7 +2665,7 @@ static void process_monster(int m_idx)
 		if (do_move)
 		{
 			s16b this_o_idx, next_o_idx;
-			
+
 			cave_type *old_ptr = area(oy, ox);
 
 			/* Take a turn */
@@ -2675,16 +2675,16 @@ static void process_monster(int m_idx)
 			if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
 			{
 				char m_name2[80];
-		
+
 				/* Get name */
 				monster_desc (m_name2, m_ptr, 0x88);
-				
+
 				/* Toggle flag */
 				m_ptr->smart &= ~(SM_MIMIC);
-		
+
 				/* It is in the monster list now */
 				update_mon_vis(m_ptr->r_idx, 1);
-						
+
 				/* We've spotted it */
 				msg_format("You see %s!", m_name2);
 			}
@@ -2692,7 +2692,7 @@ static void process_monster(int m_idx)
 			/* Process fields under the monster. */
 			field_hook(&old_ptr->fld_idx,
 				 FIELD_ACT_MONSTER_LEAVE, (vptr) m_ptr);
-			
+
 			/* Hack -- Update the old location */
 			old_ptr->m_idx = c_ptr->m_idx;
 
@@ -2716,10 +2716,10 @@ static void process_monster(int m_idx)
 			/* Move the monster */
 			m_ptr->fy = ny;
 			m_ptr->fx = nx;
-			
+
 			/* Update the monster */
 			update_mon(m_idx, TRUE);
-			
+
 			/* Process fields under the monster. */
 			field_hook(&old_ptr->fld_idx,
 				 FIELD_ACT_MONSTER_ENTER, (vptr) m_ptr);
@@ -2764,14 +2764,16 @@ static void process_monster(int m_idx)
 				if ((r_ptr->flags2 & (RF2_TAKE_ITEM | RF2_KILL_ITEM)) &&
 					 (!is_pet(m_ptr) || p_ptr->pet_pickup_items))
 				{
-					u32b f1, f2, f3;
+					u32b f1, f2, f3, f4, f5, f6;
 
 					u32b flg3 = 0L;
 
 					char o_name[80];
 
 					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
+					object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+
+   /*****   NEEDS   REWORKING   *****/
 
 					/* Acquire the object name */
 					object_desc(o_name, o_ptr, TRUE, 3);
@@ -2780,15 +2782,15 @@ static void process_monster(int m_idx)
 					monster_desc(m_name, m_ptr, 0x04);
 
 					/* React to objects that hurt the monster */
-					if (f1 & TR1_KILL_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_TROLL)  flg3 |= (RF3_TROLL);
-					if (f1 & TR1_SLAY_GIANT)  flg3 |= (RF3_GIANT);
-					if (f1 & TR1_SLAY_ORC)    flg3 |= (RF3_ORC);
-					if (f1 & TR1_SLAY_DEMON)  flg3 |= (RF3_DEMON);
-					if (f1 & TR1_SLAY_UNDEAD) flg3 |= (RF3_UNDEAD);
-					if (f1 & TR1_SLAY_ANIMAL) flg3 |= (RF3_ANIMAL);
-					if (f1 & TR1_SLAY_EVIL)   flg3 |= (RF3_EVIL);
+					if (f1 & TR4_KILL_DRAGON) flg3 |= (RF3_DRAGON);
+					if (f1 & TR4_SLAY_DRAGON) flg3 |= (RF3_DRAGON);
+					if (f1 & TR4_SLAY_TROLL)  flg3 |= (RF3_TROLL);
+					if (f1 & TR4_SLAY_GIANT)  flg3 |= (RF3_GIANT);
+					if (f1 & TR5_SLAY_ORC)    flg3 |= (RF3_ORC);
+					if (f1 & TR4_SLAY_DEMON)  flg3 |= (RF3_DEMON);
+					if (f1 & TR4_SLAY_UNDEAD) flg3 |= (RF3_UNDEAD);
+					if (f1 & TR4_SLAY_ANIMAL) flg3 |= (RF3_ANIMAL);
+					if (f1 & TR5_SLAY_EVIL)   flg3 |= (RF3_EVIL);
 
 					/* The object cannot be picked up by the monster */
 					if ((o_ptr->flags3 & TR3_INSTA_ART) ||
@@ -3123,7 +3125,7 @@ void process_monsters(int min_energy)
 			test = TRUE;
 		}
 
-		/* 
+		/*
 		 * Hack -- Monsters can "smell" the player from far away
 		 * Note that most monsters have "aaf" of "20" or so
 		 */

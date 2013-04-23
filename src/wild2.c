@@ -343,9 +343,9 @@ void van_town_gen(u16b town_num)
 	int y, x;
 
 	/* Place transparent area */
-	for (y = 0; y < MAX_HGT; y++)
+	for (y = 0; y < (MAX_HGT / 3); y++)
 	{
-		for (x = 0; x < MAX_WID; x++)
+		for (x = 0; x < (MAX_WID / 3); x++)
 		{
 			/* Create empty area */
 			cave[y][x].feat = FEAT_PERM_EXTRA;
@@ -390,7 +390,7 @@ static bool get_city_block_locat(int *x, int *y)
 	*y = (*y - town_offset_y * 2) * 8;
 
 
-	if ((*x >=0) && (*y >= 0) && (*x < MAX_WID - 8) && (*y < MAX_HGT - 8))
+	if ((*x >=0) && (*y >= 0) && (*x < (MAX_WID / 3) - 8) && (*y < (MAX_HGT / 3) - 8))
 	{
 		return (TRUE);
 	}
@@ -680,9 +680,9 @@ void draw_city(u16b town_num)
 	town_type *t_ptr = &town[town_num];
 
 	/* Place transparent area */
-	for (j = 0; j < MAX_HGT; j++)
+	for (j = 0; j < (MAX_HGT / 3); j++)
 	{
-		for (i = 0; i < MAX_WID; i++)
+		for (i = 0; i < (MAX_WID / 3); i++)
 		{
 			/* Create empty area */
 			cave[j][i].feat = FEAT_NONE;
@@ -941,7 +941,7 @@ static void overlay_town(int y, int x, u16b w_town, blk_ptr block_ptr)
 
 			/* Only copy if there is something there. */
 			if (c_ptr->feat == FEAT_NONE) continue;
-			
+
 			/* Copy the terrain */
 			block_ptr[j][i].feat = c_ptr->feat;
 
@@ -1070,9 +1070,9 @@ void change_level(int level)
 
 		/* Reset the bounds */
 		min_hgt = 0;
-		max_hgt = MAX_HGT;
+		max_hgt = (MAX_HGT / 3);
 		min_wid = 0;
-		max_wid = MAX_WID;
+		max_wid = (MAX_WID / 3);
 
 		/* Access the cave */
 		area = access_cave;
@@ -2566,7 +2566,7 @@ void move_wild(void)
 
 	/* Redraw depth */
 	p_ptr->redraw |= (PR_DEPTH);
-	
+
 	dx = x - wild_grid.x;
 	dy = y - wild_grid.y;
 

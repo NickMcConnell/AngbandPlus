@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2001/05/06 00:24:39 $ */
 /* File: main-mac.c */
 
 /* Purpose: Simple support for MACINTOSH Angband */
@@ -665,7 +664,7 @@ static void term_data_color(term_data *td, int a)
 		color.red = (rv | (rv << 8));
 		color.green = (gv | (gv << 8));
 		color.blue = (bv | (bv << 8));
-	
+
 		/* Activate the color */
 		RGBForeColor(&color);
 
@@ -909,11 +908,11 @@ struct FrameRec
 	GWorldPtr 		framePort;
 	PixMapHandle 	framePixHndl;
 	PixMapPtr 		framePix;
-	
+
 	GWorldPtr		maskPort;
 	PixMapHandle	maskPixHndl;
 	PixMapPtr		maskPix;
-	
+
 	GWorldPtr		bufferPort;
 	PixMapHandle	bufferPixHndl;
 	PixMapPtr		bufferPix;
@@ -937,13 +936,13 @@ static void BenSWLockFrame(FrameRec *srcFrameP)
 	HLockHi((Handle)pixMapH);
 	srcFrameP->framePixHndl = pixMapH;
 	srcFrameP->framePix = (PixMapPtr)StripAddress(*(Handle)pixMapH);
-	
+
 	pixMapH = GetGWorldPixMap(srcFrameP->maskPort);
 	(void)LockPixels(pixMapH);
 	HLockHi((Handle)pixMapH);
 	srcFrameP->maskPixHndl = pixMapH;
 	srcFrameP->maskPix = (PixMapPtr)StripAddress(*(Handle)pixMapH);
-	
+
 	pixMapH = GetGWorldPixMap(srcFrameP->bufferPort);
 	(void)LockPixels(pixMapH);
 	HLockHi((Handle)pixMapH);
@@ -964,7 +963,7 @@ static void BenSWUnlockFrame(FrameRec *srcFrameP)
 	}
 
 	srcFrameP->framePix = NULL;
-	
+
 	if (srcFrameP->maskPort != NULL)
 	{
 		HUnlock((Handle)srcFrameP->maskPixHndl);
@@ -972,7 +971,7 @@ static void BenSWUnlockFrame(FrameRec *srcFrameP)
 	}
 
 	srcFrameP->maskPix = NULL;
-	
+
 	if (srcFrameP->bufferPort != NULL)
 	{
 		HUnlock((Handle)srcFrameP->bufferPixHndl);
@@ -1136,7 +1135,7 @@ static OSErr BenSWCreateGWorldFromPict(
 static errr globe_init(void)
 {
 	OSErr err;
-	
+
 	GWorldPtr tempPictGWorldP;
 	GWorldPtr tempPictMaskGWorldP;
 	GWorldPtr tempPictBufferGWorldP;
@@ -1165,7 +1164,7 @@ static errr globe_init(void)
 	if (err == noErr)
 	{
 		/* Create GWorld */
-		err = BenSWCreateGWorldFromPict(&tempPictGWorldP, 
+		err = BenSWCreateGWorldFromPict(&tempPictGWorldP,
 										&tempPictMaskGWorldP,
 										&tempPictBufferGWorldP,
 										newPictH,
@@ -1175,7 +1174,7 @@ static errr globe_init(void)
 		/* Release resource */
 		ReleaseResource((Handle)newPictH);
 		ReleaseResource((Handle)newMaskH);
-		
+
 		/* Error */
 		if (err == noErr)
 		{
@@ -1198,7 +1197,7 @@ static errr globe_init(void)
 			}
 		}
 	}
-	
+
 
 	/* Result */
 	return (err);
@@ -1227,9 +1226,9 @@ static errr globe_nuke(void)
 		/* Forget */
 		frameP = NULL;
 	}
-	
 
-	/* Flush events */	
+
+	/* Flush events */
 	FlushEvents(everyEvent, 0);
 
 	/* Success */
@@ -1308,7 +1307,7 @@ static void Term_init_mac(term *t)
 		/* Obtain the rect */
 		tempRect = td->w->portRect;
 
-		/* Obtain the global rect */	
+		/* Obtain the global rect */
 		globalRect = tempRect;
 		LocalToGlobal((Point*)&globalRect.top);
 		LocalToGlobal((Point*)&globalRect.bottom);
@@ -1399,7 +1398,7 @@ static errr Term_xtra_mac_react(void)
 #ifdef ANGBAND_LITE_MAC
 
 	/* Nothing */
-	
+
 #else /* ANGBAND_LITE_MAC */
 
 	/* Handle sound */
@@ -1537,13 +1536,13 @@ static errr Term_xtra_mac(int n, int v)
 						}
 						/*
 						if (!found)
-						{ 
+						{
 							SndPlay(0L, (SndListHandle)handle, false);
 						}
 						*/
 					}
 				}
-	            
+
 				/* Unlock and release */
 				HUnlock(handle);
 				ReleaseResource(handle);
@@ -1742,7 +1741,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  * Erase "n" characters starting at (x,y)
  */
 #ifdef USE_TRANSPARENCY
-	
+
 	static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
 
 #else
@@ -1755,7 +1754,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 	Rect dirtyRect;
 	Rect r2;
 	term_data *td = (term_data*)(Term->data);
-		
+
 	/* Destination rectangle */
 	r2.left = x * td->tile_wid + td->size_ow1;
 	r2.right = r2.left + td->tile_wid;
@@ -1769,7 +1768,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 
 		byte a = ap[i];
 		char c = cp[i];
-		
+
 #ifdef USE_TRANSPARENCY
 		byte ta = tap[i];
 		char tc = tcp[i];
@@ -1787,7 +1786,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 		{
 			int col, row;
 			Rect r1;
-			
+
 #ifdef USE_TRANSPARENCY
 			int terrain_col, terrain_row;
 			Rect terrain_rect;
@@ -1801,7 +1800,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 			terrain_row = ((byte)ta & 0x7F) % kPictRows;
 			terrain_col = ((byte)tc & 0x7F) % kPictCols;
 #endif
-			
+
 			/* Source rectangle */
 			r1.left = col * kGrafWidth;
 			r1.top = row * kGrafHeight;
@@ -1824,7 +1823,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 			terrain_rect.top = terrain_row * kGrafHeight;
 			terrain_rect.right = terrain_rect.left + kGrafWidth;
 			terrain_rect.bottom = terrain_rect.top + kGrafHeight;
-			
+
 			CopyBits((BitMap*)frameP->framePix,
 						&(td->w->portBits),
 					 &terrain_rect, &r2, srcCopy, NULL);
@@ -1879,7 +1878,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 		r2.left += td->tile_wid;
 		r2.right += td->tile_wid;
 	}
-		
+
 	/* Success */
 	return (0);
 }
@@ -2094,7 +2093,7 @@ static void load_prefs(void)
 
 	old_sound = getshort();
 	old_graphics = getshort();
-	
+
 	arg_graphics = old_graphics;
 	arg_sound = old_sound;
 	/* Windows */
@@ -2260,7 +2259,7 @@ static void init_windows(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "zAngband 2.5 Preferences");
+			strcat(foo, "RandomBand Preferences");
 
 			/* Open the preference file */
 			fff = fopen(foo, "r");
@@ -2283,8 +2282,8 @@ static void init_windows(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the file */
-		fff = fopen(":Preferences:zAngband 2.5 Preferences", "r");
-		if (!fff) fff = fopen(":zAngband 2.5 Preferences", "r");
+		fff = fopen(":Preferences:RandomBand Preferences", "r");
+		if (!fff) fff = fopen(":RandomBand Preferences", "r");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -2374,7 +2373,7 @@ static void save_pref_file(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "zAngband 2.5 Preferences");
+			strcat(foo, "RandomBand Preferences");
 
 			/* Open the preference file */
 			fff = fopen(foo, "w");
@@ -2397,8 +2396,8 @@ static void save_pref_file(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the preference file */
-		fff = fopen(":Preferences:zAngband 2.5 Preferences", "w");
-		if (!fff) fff = fopen(":zAngband 2.5 Preferences", "w");
+		fff = fopen(":Preferences:RandomBand Preferences", "w");
+		if (!fff) fff = fopen("RandomBand 2.5 Preferences", "w");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -2748,7 +2747,7 @@ static void init_menubar(void)
 	for (i = 8; i <= 32; i += ((i / 16) + 1))
 	{
 		Str15 buf;
-		
+
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2768,7 +2767,7 @@ static void init_menubar(void)
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		Str15 buf;
-		
+
 		/* Describe the item */
 		sprintf((char*)buf + 1, "%.15s", angband_term_name[i]);
 		buf[0] = strlen((char*)buf + 1);
@@ -2805,7 +2804,7 @@ static void init_menubar(void)
 	for (i = 4; i <= 32; i++)
 	{
 		Str15 buf;
-		
+
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2999,7 +2998,7 @@ static void setup_menus(void)
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
 	}
-	
+
 	/* Active window */
 	if (td)
 	{
@@ -3475,7 +3474,7 @@ static void menu(long mc)
 			/* Mapped */
 			td->mapped = TRUE;
 
-			/* Link */	
+			/* Link */
 			term_data_link(i);
 
 			/* Mapped (?) */
@@ -4484,7 +4483,7 @@ int main(void)
 # if defined(powerc) || defined(__powerc)
 
 	/* Assume System 7 */
-	
+
 	/* Assume Color Quickdraw */
 
 # else

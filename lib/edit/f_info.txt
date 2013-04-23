@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/03 06:33:12 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:04:40 $
 # File: f_info.txt
 
 
@@ -82,7 +82,7 @@ N:8:sand
 G:.:y
 
 N:9:salt
-G:.:W
+G:.:s
 
 N:10:wet mud
 G:.:u
@@ -209,7 +209,7 @@ G:#:s
 # 0x33 --> quartz vein
 
 N:51:quartz vein
-G:#:W
+G:#:s
 
 # 0x34 --> magma vein + treasure
 # This terrain type may not actually be needed...
@@ -219,7 +219,7 @@ G:#:s
 # 0x35 --> quartz vein + treasure
 # This terrain type may not actually be needed...
 N:53:quartz vein
-G:#:W
+G:#:s
 
 # 0x36 --> magma vein + known treasure
 
@@ -290,10 +290,10 @@ N:69:section of the Pattern
 G:*:b
 
 N:70:section of the Pattern
-G:*:W
+G:*:s
 
 N:71:section of the Pattern (discharged)
-G:*:W
+G:*:s
 
 N:72:Pattern exit
 G:*:w
@@ -394,7 +394,7 @@ N:97:rock face
 G:::u
 
 N:98:snow covered rock face
-G:::W
+G:::s
 
 N:99:boulder
 G:::y
@@ -456,7 +456,7 @@ N:134:dead tree
 G:%:u
 
 N:135:snow
-G:.:W
+G:.:s
 
 N:136:thick swamp
 G:;:g

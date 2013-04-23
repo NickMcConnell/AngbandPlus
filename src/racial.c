@@ -60,23 +60,23 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 		return (((sum * 100) / difficulty) / stat);
 }
 
-/* 
+/*
  * Helper function for ghouls.
  * I realize it is somewhat illogical to have this as a "power" rather
  * than an extension of the "eat" command, but I could not think of
  * a handy solution to the conceptual/UI problem of having food objects AND
  * an edible corpse in the same square...
- * Eating corpses should probably take more than 1 turn (realistically). 
+ * Eating corpses should probably take more than 1 turn (realistically).
  * (OTOH, you can swap your full-plate armour for a dragonscalemail in
- * 1 turn *shrug*) 
+ * 1 turn *shrug*)
  */
 static void eat_corpse(void)
 {
 	s16b fld_idx;
 	field_type *f_ptr;
-	
+
 	fld_idx = area(p_ptr->py, p_ptr->px)->fld_idx;
-	
+
 	/* While there are fields in the linked list */
 	while (fld_idx)
 	{
@@ -100,19 +100,19 @@ static void eat_corpse(void)
 			sound(SOUND_EAT);
 
 			delete_field_idx(fld_idx);
-				
+
 			/* Done */
 			return;
 		}
 
 		/* Get next field in list */
 		fld_idx = f_ptr->next_f_idx;
-	} 
+	}
 
 	/* Nothing to eat */
 	msg_print("There is no fresh skeleton or corpse here!");
 	p_ptr->energy_use = 0;
-	
+
 	/* Done */
     return;
 }
@@ -176,7 +176,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	if (use_hp)
 	{
 		take_hit(rand_range(cost / 2, cost),
-			"concentrating too hard");
+			"concentrating too hard", FALSE);
 	}
 	else
 	{
@@ -191,7 +191,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	p_ptr->window |= (PW_PLAYER | PW_SPELL);
 
 	/* Success? */
-	if (randint1(p_ptr->stat_cur[use_stat]) >= 
+	if (randint1(p_ptr->stat_cur[use_stat]) >=
 		rand_range(difficulty / 2, difficulty))
 	{
 		return TRUE;
@@ -218,7 +218,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				(void)detect_doors();
 				(void)detect_stairs();
 				break;
-			}		
+			}
 
 			case RACE_HOBBIT:
 			{
@@ -234,7 +234,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				/* Drop the object from heaven */
 				(void)drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
 				msg_print("You cook some food.");
-				
+
 				break;
 			}
 
@@ -261,7 +261,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				}
 				(void)set_afraid(0);
 				(void)set_shero(p_ptr->shero + 10 + randint1(plev));
-				
+
 				break;
 			}
 
@@ -277,12 +277,12 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 					(void)set_cut(0);
 					(void)set_blind(0);
 					(void)set_afraid(0);
-					(void)do_res_stat(A_STR);
-					(void)do_res_stat(A_INT);
-					(void)do_res_stat(A_WIS);
-					(void)do_res_stat(A_DEX);
-					(void)do_res_stat(A_CON);
-					(void)do_res_stat(A_CHR);
+					(void)do_res_stat(A_STR, 200);
+					(void)do_res_stat(A_INT, 200);
+					(void)do_res_stat(A_WIS, 200);
+					(void)do_res_stat(A_DEX, 200);
+					(void)do_res_stat(A_CON, 200);
+					(void)do_res_stat(A_CHR, 200);
 					(void)restore_level();
 				}
 
@@ -313,7 +313,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				{
 					(void)hp_player(30);
 				}
-				
+
 				(void)set_afraid(0);
 				(void)set_shero(p_ptr->shero + 10 + randint1(plev));
 				break;
@@ -509,7 +509,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 					msg_print("You concentrate and your eyes glow red...");
 					(void)fire_bolt(GF_PSI, dir, plev);
 				}
-				
+
 				break;
 			}
 
@@ -648,7 +648,7 @@ void do_cmd_racial_power(void)
 	bool            flag, redraw;
 	char            choice;
 	char            out_val[160];
-	
+
 	const mutation_type	*mut_ptr;
 
 	/* Wipe desc */
@@ -673,7 +673,7 @@ void do_cmd_racial_power(void)
 	for (i = 0; i < MAX_RACE_POWERS; i++)
 	{
 		mut_ptr = &race_powers[i];
-		
+
 		if (mut_ptr->which == p_ptr->prace)
 		{
 			strcpy(power_desc[num].name, mut_ptr->name);
@@ -683,7 +683,7 @@ void do_cmd_racial_power(void)
 				racial_chance(mut_ptr->level, mut_ptr->stat, mut_ptr->diff);
 			power_desc[num].number = -1;
 			power_desc[num++].power = mut_ptr;
-		}	
+		}
 	}
 
 	/* Not if we don't have any */
@@ -693,14 +693,14 @@ void do_cmd_racial_power(void)
 		p_ptr->energy_use = 0;
 		return;
 	}
-	
+
 	/* Look for appropriate mutations */
 	if (p_ptr->muta1)
 	{
 		for (i = 0; i < MUT_PER_SET; i++)
 		{
 			mut_ptr = &mutations[i];
-			
+
 			if (p_ptr->muta1 & mut_ptr->which)
 			{
 				strcpy(power_desc[num].name, mut_ptr->name);
@@ -825,7 +825,7 @@ void do_cmd_racial_power(void)
 			if (ask)
 			{
 				char tmp_val[160];
-	
+
 				/* Prompt */
 				(void)strnfmt(tmp_val, 78, "Use %s? ", power_desc[i].name);
 
@@ -850,8 +850,8 @@ void do_cmd_racial_power(void)
         repeat_push(i);
 	}
 
-	
-	
+
+
 	if (power_desc[i].number == -1)
 	{
 		cmd_racial_power_aux(power_desc[i].power);

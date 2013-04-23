@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/29 10:23:50 $
+# CVS: Last edit by $Author: the_one_relic $ on $Date: 2003/03/27 22:04:40 $
 # File: e_info.txt
 
 

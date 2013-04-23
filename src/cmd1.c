@@ -24,24 +24,24 @@
  */
 int deadliness_calc(int attack_power)
 {
-	if (attack_power > 255)
+	if (attack_power > 511)
 	{
 		/* Really high deadliness */
-		return (355);
+		return (611);
 	}
-	
+
 	if (attack_power > 0)
 	{
 		/* Normal deadliness */
-		return (100 + deadliness_conversion[attack_power]);
+		return (/*100 +*/ rp_ptr->deadly_mod + cp_ptr->base_deadly + deadliness_conversion[attack_power]);
 	}
-	
+
 	if (attack_power > -31)
 	{
 		/* Cursed items */
-		return (100 - deadliness_conversion[ABS(attack_power)]);
+		return (/*100*/ rp_ptr->deadly_mod + cp_ptr->base_deadly - (deadliness_conversion[ABS(attack_power)]));
 	}
-	
+
 	/* Really powerful minus yields zero damage */
 	return (0);
 }
@@ -202,7 +202,7 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 		msg_format("You hit %s.", m_name);
 	}
 
-	return (mult_m_crit);
+	return ((int)(mult_m_crit/10.0));
 }
 
 
@@ -274,13 +274,14 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 	 */
 	int mult = 10;
 
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+
+   /*****   NEEDS   REWORKING   *****/
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -294,7 +295,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f1 & TR1_SLAY_ANIMAL) &&
+			if ((f1 & TR4_SLAY_ANIMAL) &&
 			    (r_ptr->flags3 & RF3_ANIMAL))
 			{
 				if (m_ptr->ml)
@@ -306,7 +307,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Evil */
-			if ((f1 & TR1_SLAY_EVIL) &&
+			if ((f1 & TR5_SLAY_EVIL) &&
 			    (r_ptr->flags3 & RF3_EVIL))
 			{
 				if (m_ptr->ml)
@@ -318,7 +319,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Undead */
-			if ((f1 & TR1_SLAY_UNDEAD) &&
+			if ((f1 & TR4_SLAY_UNDEAD) &&
 			    (r_ptr->flags3 & RF3_UNDEAD))
 			{
 				if (m_ptr->ml)
@@ -330,7 +331,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Demon */
-			if ((f1 & TR1_SLAY_DEMON) &&
+			if ((f1 & TR4_SLAY_DEMON) &&
 			    (r_ptr->flags3 & RF3_DEMON))
 			{
 				if (m_ptr->ml)
@@ -342,7 +343,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Orc */
-			if ((f1 & TR1_SLAY_ORC) &&
+			if ((f1 & TR5_SLAY_ORC) &&
 			    (r_ptr->flags3 & RF3_ORC))
 			{
 				if (m_ptr->ml)
@@ -354,7 +355,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Troll */
-			if ((f1 & TR1_SLAY_TROLL) &&
+			if ((f1 & TR4_SLAY_TROLL) &&
 			    (r_ptr->flags3 & RF3_TROLL))
 			{
 				if (m_ptr->ml)
@@ -366,7 +367,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Giant */
-			if ((f1 & TR1_SLAY_GIANT) &&
+			if ((f1 & TR4_SLAY_GIANT) &&
 			    (r_ptr->flags3 & RF3_GIANT))
 			{
 				if (m_ptr->ml)
@@ -378,7 +379,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Dragon */
-			if ((f1 & TR1_SLAY_DRAGON) &&
+			if ((f1 & TR4_SLAY_DRAGON) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
@@ -390,7 +391,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Execute Dragon */
-			if ((f1 & TR1_KILL_DRAGON) &&
+			if ((f1 & TR4_KILL_DRAGON) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
@@ -500,7 +501,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 
 	/* Return the total damage */
-	return (tdam * mult);
+	return (tdam * (int)(mult/10.0));
 }
 
 
@@ -514,13 +515,13 @@ void search(void)
 
 	int y, x, chance;
 	int old_count;
-	
-	/* 
+
+	/*
 	 * Temp variables to store x and y because the
 	 * count_traps() function stomps on its inputs.
 	 */
 	int tx, ty;
-	
+
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -571,7 +572,7 @@ void search(void)
 					/* Save x and y into temp variables */
 					tx = x;
 					ty = y;
-										
+
 					/* See if the number of known traps has changed */
 					if (old_count != count_traps(&ty, &tx, TRUE))
 					{
@@ -591,7 +592,7 @@ void search(void)
 
 					/* Pick a door */
 					place_closed_door(y, x);
-					
+
 					/* Notice + Lite this */
 					note_spot(y, x);
 
@@ -704,7 +705,7 @@ void py_pickup_aux(int o_idx)
  * Note that we ONLY handle things that can be picked up.
  * See "move_player()" for handling of other things.
  *
- * If the easy floor option is true: 
+ * If the easy floor option is true:
  *		Make the player carry everything in a grid
  *
  * 		If "pickup" is FALSE then only gold will be picked up
@@ -722,19 +723,19 @@ void carry(int pickup)
 	int floor_num = 0, floor_list[23], floor_o_idx = 0;
 
 	int can_pickup = 0;
-	
+
 	/* Recenter the map around the player */
 	verify_panel();
-	
+
 	/* Update stuff */
 	p_ptr->update |= PU_MONSTERS;
-	
+
 	/* Redraw map */
 	p_ptr->redraw |= PR_MAP;
-	
+
 	/* Window stuff */
 	p_ptr->window |= PW_OVERHEAD;
-	
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -763,7 +764,7 @@ void carry(int pickup)
 				(long)o_ptr->pval, o_name);
 
 			sound(SOUND_SELL);
-			
+
 			/* Collect the gold */
 			p_ptr->au += o_ptr->pval;
 
@@ -813,12 +814,12 @@ void carry(int pickup)
 				{
 					int i;
 					char out_val[160];
-					
+
 					/* Paranoia XXX XXX XXX */
 					msg_print(NULL);
-					
+
 					sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
-					
+
 					/* Prompt for it */
 					prt(out_val, 0, 0);
 
@@ -834,13 +835,13 @@ void carry(int pickup)
 
 					/* Erase the prompt */
 					prt("", 0, 0);
-					
+
 					if ((i == 'Y') || (i == 'y'))
 					{
 						/* Pick up the object */
 						py_pickup_aux(this_o_idx);
 					}
-					
+
 					if ((i == 'K') || (i == 'k'))
 					{
 						/* Physically try to destroy the item */
@@ -850,7 +851,7 @@ void carry(int pickup)
 						}
 					}
 				}
-				
+
 				/* Attempt to pick up an object. */
 				else
 				{
@@ -858,7 +859,7 @@ void carry(int pickup)
 					py_pickup_aux(this_o_idx);
 				}
 			}
-		
+
 			/* Get the next object */
 			continue;
 		}
@@ -942,24 +943,24 @@ void carry(int pickup)
 	{
 		/* Remember the object to pick up */
 		this_o_idx = floor_o_idx;
-		
+
 		/* Access the object */
 		o_ptr = &o_list[this_o_idx];
-		
+
 		/* Hack -- query every object */
 		if (carry_query_flag)
 		{
 			int i;
 			char out_val[160];
-					
+
 			/* Paranoia XXX XXX XXX */
 			msg_print(NULL);
-			
+
 			/* Describe the object */
 			object_desc(o_name, o_ptr, TRUE, 3);
-					
+
 			sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
-					
+
 			/* Prompt for it */
 			prt(out_val, 0, 0);
 
@@ -975,13 +976,13 @@ void carry(int pickup)
 
 			/* Erase the prompt */
 			prt("", 0, 0);
-					
+
 			if ((i == 'Y') || (i == 'y'))
 			{
 				/* Pick up the object */
 				py_pickup_aux(this_o_idx);
 			}
-					
+
 			if ((i == 'K') || (i == 'k'))
 			{
 				/* Physically try to destroy the item */
@@ -991,7 +992,7 @@ void carry(int pickup)
 				}
 			}
 
-			/* Done */					
+			/* Done */
 			return;
 		}
 	}
@@ -1049,7 +1050,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			if (p_ptr->oppose_fire) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_fire) aura_damage = (aura_damage + 2) / 3;
 
-			take_hit(aura_damage, aura_dam);
+			take_hit(aura_damage, aura_dam, TRUE);
 			r_ptr->r_flags2 |= RF2_AURA_FIRE;
 			handle_stuff();
 		}
@@ -1071,7 +1072,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			if (p_ptr->oppose_cold) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_cold) aura_damage = (aura_damage + 2) / 3;
 
-			take_hit(aura_damage, aura_dam);
+			take_hit(aura_damage, aura_dam, TRUE);
 			r_ptr->r_flags3 |= RF3_AURA_COLD;
 			handle_stuff();
 		}
@@ -1092,7 +1093,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			if (p_ptr->resist_elec) aura_damage = (aura_damage + 2) / 3;
 
 			msg_print("You get zapped!");
-			take_hit(aura_damage, aura_dam);
+			take_hit(aura_damage, aura_dam, TRUE);
 			r_ptr->r_flags2 |= RF2_AURA_ELEC;
 			handle_stuff();
 		}
@@ -1441,6 +1442,22 @@ static void monk_attack(monster_type *m_ptr, long *k, char *m_name)
 	}
 }
 
+/*
+ *  Tone down excessive + with this routine
+ */
+int calc_to_dmg_bonus(int todamage)
+{
+   s32b   i,j,k;
+
+   i = 0; j = 0; k = 0;
+
+   for (i = 0; i < todamage; i++)
+   {
+      j += 100 - k;
+      if (k < 98) k++;
+   }
+   return ((j+50) / 100);
+}
 
 /*
  * Player attacks a (poor, defenseless) creature        -RAK-
@@ -1453,7 +1470,7 @@ void py_attack(int y, int x)
 	long k;
 
 	/* The whole and fractional damage dice and their resulting damage. */
-	int k_remainder, k_whole;
+/*	int k_remainder, k_whole;*/
 
 	/* blow count */
 	int num = 0;
@@ -1464,7 +1481,7 @@ void py_attack(int y, int x)
 	/* Bonus to effective monster ac if it can take cover in terrain. */
 	int terrain_bonus = 0;
 
-	int bonus, chance, total_deadliness;
+	int bonus, chance, chance2, total_deadliness;
 
 	int blows;
 
@@ -1488,7 +1505,7 @@ void py_attack(int y, int x)
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
 	s16b            ghoul_paral = -1;
 	bool            ghoul_hack = FALSE;
-	u32b            f1, f2, f3;
+	u32b            f1, f2, f3, f4, f5, f6;
 	bool            no_extra = FALSE;
 
 
@@ -1508,7 +1525,7 @@ void py_attack(int y, int x)
 	}
 
 	/* It is not honorable etc to attack helpless victims -- in most cases */
-	if ((m_ptr->csleep) && (ghoul_paral > -1)) 
+	if ((m_ptr->csleep) && (ghoul_paral > -1))
 	{
 		chg_virtue(V_COMPASSION, -1);
 		if (!(p_ptr->pclass == CLASS_ROGUE)) chg_virtue(V_HONOUR, -1);
@@ -1538,21 +1555,21 @@ void py_attack(int y, int x)
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(c_ptr->m_idx);
-	
+
 	/* Look to see if we've spotted a mimic */
 	if (m_ptr->smart & SM_MIMIC)
 	{
 		char m_name2[80];
-		
+
 		/* Get name */
 		monster_desc (m_name2, m_ptr, 0x88);
-		
+
 		/* Toggle flag */
 		m_ptr->smart &= ~(SM_MIMIC);
-		
+
 		/* It is in the monster list now if visible */
 		if (m_ptr->ml) update_mon_vis(m_ptr->r_idx, 1);
-		
+
 		/* We've spotted it */
 		msg_format("You've found %s!", m_name2);
 	}
@@ -1632,6 +1649,8 @@ void py_attack(int y, int x)
 	 */
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+   /*  Mod Chance By Deadliness  */
+   chance2 = (int)((float)chance * ((float)deadliness_calc(total_deadliness) / 100.0));
 
 	/* Attack once for each legal blow */
 	while (num++ < blows)
@@ -1646,7 +1665,9 @@ void py_attack(int y, int x)
 			/* Hack -- bare hands do one damage */
 			k = 1;
 
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+
+   /*****   NEEDS   REWORKING   *****/
 
 			/* Select a chaotic effect (50% chance) */
 			if ((f1 & TR1_CHAOTIC) && (one_in_(2)))
@@ -1704,10 +1725,22 @@ void py_attack(int y, int x)
 				/* Make a special monk attack */
 				monk_attack(m_ptr, &k, m_name);
 			}
-		        
+
 			/* Handle normal weapon */
 			else if (o_ptr->k_idx)
 			{
+            /*  Reduce Durability  */
+            if (o_ptr->C_Durability > o_ptr->dd)
+            {
+               o_ptr->C_Durability -= randint1(o_ptr->dd);
+            }
+            else
+            {
+               o_ptr->C_Durability = 0;
+               msg_format("Your %s disintegrates!",get_object_name(o_ptr));
+               object_wipe(o_ptr);
+            }
+
 				/* base damage dice. */
 				k = o_ptr->dd;
 
@@ -1715,32 +1748,34 @@ void py_attack(int y, int x)
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 
 				/* multiply by critical hit. (10x inflation) */
-				k *= critical_melee(chance, sleeping_bonus, m_name, o_ptr);
+				k *= critical_melee(chance2, sleeping_bonus, m_name, o_ptr);
 
 				/*
 				 * Convert total Deadliness into a percentage, and apply
 				 * it as a bonus or penalty. (100x inflation)
 				 */
+/*
 				k *= deadliness_calc(total_deadliness);
-
+*/
 				/* Get the whole number of dice by deflating the result. */
-				k_whole = k / 10000;
-
+/*				k_whole = k / 10000;
+*/
 				/* Calculate the remainder (the fractional die, x10000). */
-				k_remainder = k % 10000;
-
+/*				k_remainder = k % 10000;
+*/
 
 				/*
 				 * Calculate and combine the damages of the whole and
 				 * fractional dice.
 				 */
-				k = damroll(k_whole, o_ptr->ds) +
+/*				k = damroll(k_whole, o_ptr->ds) +
 					(k_remainder * damroll(1, o_ptr->ds) / 10000);
+*/
+/*   REPLACED !!   */
+            k = damroll( k, o_ptr->ds) + calc_to_dmg_bonus(p_ptr->to_d + o_ptr->to_d );
 
 				/* hack -- check for earthquake. */
 				if (p_ptr->impact && (k > 49)) do_quake = TRUE;
-
-
 
 				if ((p_ptr->impact && ((k > 50) || one_in_(7))) ||
 				    (chaos_effect == 2))
@@ -1748,44 +1783,17 @@ void py_attack(int y, int x)
 					do_quake = TRUE;
 				}
 
-				/* 
-				 * All of these artifact-specific effects
-				 * should be pythonized.
-				 */
-				 if ((f1 & TR1_VORPAL) &&
-				  (one_in_((o_ptr->activate + 128 == ART_VORPAL_BLADE)
-				  	 ? 3 : 6)))
+   			if ((f1 & TR1_VORPAL) && (one_in_(6)))
 				{
 					/*
-					 * The vorpal blade does average:
-					 *	(e+2)/3 x normal damage.
 					 * A normal weapon with the vorpal flag does average:
 					 *   e-3/2 x normal damage.
-					 * Note: this has changed from before - the vorpal blade
-					 *  has been toned down because of the oangband based
-					 *  combat.
 					 */
 					int mult = 2;
 
-					int inc_chance = (o_ptr->activate + 128 == ART_VORPAL_BLADE) ? 2 : 4;
+					int inc_chance = 4;
 
-					if ((o_ptr->activate + 128 == ART_CHAINSWORD) && one_in_(2))
-					{
-						char chainsword_noise[1024];
-						if (!get_rnd_line("chainswd.txt", 0, chainsword_noise))
-						{
-							msg_print(chainsword_noise);
-						}
-					}
-
-					if (o_ptr->activate + 128 == ART_VORPAL_BLADE)
-					{
-						msg_print("Your Vorpal Blade goes snicker-snack!");
-					}
-					else
-					{
-						msg_format("Your weapon cuts deep into %s!", m_name);
-					}
+   				msg_format("Your weapon cuts deep into %s!", m_name);
 
 					/* Try to increase the damage */
 					while (one_in_(inc_chance))
@@ -1816,7 +1824,7 @@ void py_attack(int y, int x)
 					}
 				}
 			}
-			
+
 			/* Bare hands and not a monk */
 			else
 			{
@@ -2020,7 +2028,7 @@ void py_attack(int y, int x)
 			natural_attack(c_ptr->m_idx, MUT2_TENTACLES, &fear, &mdeath);
 	}
 
-	/* 
+	/*
 	 * Hack -- delay paralysis (otherwise, consecutive attacks would make
 	 * it counterproductive
 	 */
@@ -2031,7 +2039,7 @@ void py_attack(int y, int x)
 		{
 			msg_format("%^s falls asleep!", m_name);
 		}
-		
+
 		/* Sleep */
 		m_ptr->csleep += 5 * ghoul_paral;
 		ghoul_paral = 0;
@@ -2123,7 +2131,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 		{
 			if (get_check("Really step onto the Pattern here? "))
 			{
-				take_hit(100, "Stepping onto the Pattern");
+				take_hit(100, "Stepping onto the Pattern", TRUE);
 
 				if (one_in_(3)) summon_pattern_vortex(n_y, n_x);
 
@@ -2148,7 +2156,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 		{
 			if (get_check("Really step off of the Pattern? "))
 			{
-				take_hit(10, "Stepping off of the Pattern");
+				take_hit(10, "Stepping off of the Pattern", TRUE);
 
 				if (one_in_(6)) summon_pattern_vortex(n_y, n_x);
 
@@ -2166,7 +2174,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 		{
 			if (get_check("Really step off of the Pattern? "))
 			{
-				take_hit(100, "Stepping off of the Pattern");
+				take_hit(100, "Stepping off of the Pattern", TRUE);
 
 				if (one_in_(2)) summon_pattern_vortex(n_y, n_x);
 
@@ -2188,7 +2196,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 		{
 			if (get_check("Really step onto the Pattern here? "))
 			{
-				take_hit(25, "Stepping onto the Pattern");
+				take_hit(25, "Stepping onto the Pattern", TRUE);
 
 				if (one_in_(6)) summon_pattern_vortex(n_y, n_x);
 
@@ -2231,7 +2239,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 			{
 				if (!pattern_tile(n_y, n_x) && get_check("Really step off of the Pattern? "))
 				{
-					take_hit(50, "Stepping off of the Pattern");
+					take_hit(50, "Stepping off of the Pattern", TRUE);
 
 					if (one_in_(3)) summon_pattern_vortex(n_y, n_x);
 
@@ -2240,7 +2248,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 
 				else if (pattern_tile(n_y, n_x) && get_check("Really stray from the proper path? "))
 				{
-					take_hit(25, "Walking backwards along the Pattern");
+					take_hit(25, "Walking backwards along the Pattern", TRUE);
 
 					if (one_in_(5)) summon_pattern_vortex(n_y, n_x);
 
@@ -2378,7 +2386,7 @@ void move_player(int dir, int do_pickup)
 			oktomove = FALSE;
 		}
 	}
-	
+
 	/* Fields can block movement */
 	else if (!(p_can_pass_walls || p_can_pass_fields))
 	{
@@ -2458,7 +2466,7 @@ void move_player(int dir, int do_pickup)
 				{
 					(void)do_cmd_open_aux(y, x);
 					return;
-				} 
+				}
 
 				msg_print("There is a closed door blocking your way.");
 
@@ -2520,7 +2528,7 @@ void move_player(int dir, int do_pickup)
 				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 					p_ptr->energy_use = 0;
 			}
-			
+
 			/* Pillar */
 			else if (c_ptr->feat == FEAT_PILLAR)
 			{
@@ -2589,16 +2597,16 @@ void move_player(int dir, int do_pickup)
 			p_ptr->wilderness_y = y;
 			move_wild();
 		}
-		
+
 		/* Redraw new spot */
-		lite_spot(y, x);		
+		lite_spot(y, x);
 
 		/* Redraw old spot */
 		lite_spot(oy, ox);
-		
+
 		/* Process fields under the player. */
 		field_hook(&area(y, x)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
- 
+
 		/* Sound */
 		/* sound(SOUND_WALK); */
 
@@ -2613,22 +2621,22 @@ void move_player(int dir, int do_pickup)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		
+
 		/* Warn about traps */
-		
-		/* 
+
+		/*
 		 * Is the disturb_traps option set +
 		 * out of detection range +
 		 * we are running?
 		 */
-		if (disturb_traps && p_ptr->detected && p_ptr->running && 
+		if (disturb_traps && p_ptr->detected && p_ptr->running &&
 			(distance(y, x, p_ptr->detecty, p_ptr->detectx) >= MAX_DETECT))
 		{
 			/* We are out of range */
-				
+
 			/* Disturb */
 			disturb(FALSE);
-				
+
 			/* Reset the detection flag */
 			p_ptr->detected = FALSE;
 		}
@@ -3092,7 +3100,7 @@ static bool run_test(void)
 			/* Visible object */
 			if (o_ptr->marked) return (TRUE);
 		}
-		
+
 		/* Visible traps abort running */
 		if (is_visible_trap (c_ptr)) return TRUE;
 

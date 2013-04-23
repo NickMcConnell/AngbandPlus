@@ -1,0 +1,125 @@
+#
+#  Spell Realm Data
+#
+#
+#  RandomBand will use a generic Build Your Own Spell Book System
+#  which will allow a player to add a total of 32 spells per realm
+#  to a spell list while making the spell books any way they want too.
+#  spells are normally gained going up in levels, however, alternate
+#  meathods, such as finding an existing spell book are available too.
+#
+#
+#  Realm Data
+#
+#  Total Number of spells learnable is hard coded 40 for general and 32
+#  for all others.
+#
+# N: serial number | Realm Name
+# M: Max Spell Level
+# B: Bonus Power  (for single realm will be 1/2 for two realms)
+# E: Effect modifier for use with each other realm
+#
+# E: General:Life:Death:Sorcery:Nature:Trump:Chaos:Arcane:Chi:Elemental
+#
+#
+# Very simply stated when general magic is used with any other realm
+# the effectiveness of both realms is only 75% normal.  Other than the
+# Life Death realm combo, this is the worst.  The penalties % is added
+# together for all known realms.  So technically you can use all 9
+# normal realms, however, you would be at a 90% defficiency on most
+# and even worse on life & death magic.
+#
+# Example a PC with Life, Trump, Nature would be...
+# Life = 0(life) + -20(trump) + -20(nature) = -40% eff +40% cost
+# Which means all life spells cost 40% more to cast and are 40% more
+# likely to fail and the effects *may* be reduced by 40%.
+#
+# This is done to keep casters from getting too powerful.
+#
+
+N:1:General
+M:20
+B:1
+E:0:-50:-50:-50:-50:-50:-50:-50:-50:-50
+
+N:2:Life
+M:50
+B:4
+E:-50:0:-60:-20:-20:-20:-30:-20:-20:-20
+
+N:3:Death
+M:50
+B:3
+E:-50:-60:0:-20:-20:-20:-20:-20:-20:-20
+
+N:4:Sorcery
+M:50
+B:4
+E:-50:-20:-20:0:-20:-20:-20:-20:-20:-20
+F:SORCERY
+
+N:5:Nature
+M:50
+B:3
+E:-50:-20:-20:-20:0:-20:-20:-20:-20:-20
+
+N:6:Trump
+M:50
+B:3
+E:-50:-20:-20:-20:-20:0:-20:-20:-20:-20
+
+N:7:Chaos
+M:50
+B:3
+E:-50:-30:-20:-20:-20:-20:0:-20:-20:-20
+
+N:8:Arcane
+M:50
+B:4
+E:-50:-20:-20:-20:-20:-20:-20:0:-20:-20
+
+N:9:Chi
+M:50
+B:3
+E:-50:-20:-20:-20:-20:-20:-20:-20:0:-20
+
+N:10:Elemental
+M:50
+B:4
+E:-50:-20:-20:-20:-20:-20:-20:-20:-20:0
+
+/*  Modified struct  */
+
+typedef struct player_magic player_magic;
+
+struct player_magic
+{
+   u16b has_realm[10];  /*  Marked as 1st, 2nd, 3rd, etc.  */
+   u16b realm_power[10];
+
+   u16b general[40];
+   u16b life[32];
+   u16b death[32];
+   u16b sorcery[32];
+   u16b nature[32];
+   u16b trump[32];
+   u16b chaos[32];
+   u16b arcane[32];
+   u16b chi[32];
+   u16b elemental[32];
+
+   /*  Needed to track for XP loss  */
+
+   u16b useable_general[40];
+   u16b useable_life[32];
+   u16b useable_death[32];
+   u16b useable_sorcery[32];
+   u16b useable_nature[32];
+   u16b useable_trump[32];
+   u16b useable_chaos[32];
+   u16b useable_arcane[32];
+   u16b useable_chi[32];
+   u16b useable_elemental[32];
+};
+
+

@@ -1,0 +1,52 @@
+#
+#  Spell Data
+#
+#
+#  RandomBand will use a generic Build Your Own Spell Book System
+#  which will allow a player to add a total of 32 spells per realm
+#  to a spell list while making the spell books any way they want too.
+#  spells are normally gained going up in levels, however, alternate
+#  meathods, such as finding an existing spell book are available too.
+#
+#
+#  Spell Data
+#
+# N: serial number : spell name
+# L: spell level : mana cost : base failure percent
+# P: base power : exp levels per 1 bonus power point
+# M: effect multiplier  used in #/# format
+# F: flags
+# D: description
+#
+# F: will be -->  ANY | LIFE | DEATH | NATURE | TRUMP | SORCERY | CHAOS
+#                 ARCANE | CHI | ELEMENTAL
+#
+# F: Also needs the ACT_<whatever spell> flag that designates the
+#    spell code yo use when casting the spell.
+#
+
+typedef struct magic_type magic_type;
+
+struct magic_type
+{
+   u32b index;
+   char *name;
+
+   byte slevel;      /* Required level (to learn) */
+   byte smana;       /* Required mana (to cast) */
+   byte sfail;       /* Minimum chance of failure */
+
+   byte sbase;       /* base power of attack dd */
+   byte slbonus;     /* add +1dd for every slbonus exp level */
+                     /* Effects Multiplier
+
+                        ds = (base ds * eff 1) / eff2
+
+                      */
+   byte eff1;        /* Multiplier */
+   byte eff2;        /* Divider */
+   u32b f1;          /* Flags for Realm */
+   u16b activation;  /* Actiavtion power to make casting from */
+};
+
+

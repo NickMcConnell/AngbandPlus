@@ -1,0 +1,107 @@
+
+   RandomBand Generic Info File.
+
+      RandomBand will have random monsters generated each new game,
+   but  that will take a while to implement properly.  If you have any
+   ideas, look in the lib\edit directory for the randbase, randtype
+   and r_unique files to see some of what will be used.  I am always
+   looking for new ideas to use for random monster generation.
+
+   Yahoo group...
+
+   http://groups.yahoo.com/group/RandomBand/
+
+   (To be updated whenever I change something I hope!)
+
+   First note...
+      I haven't added or changed any documentation, therefore, I am
+      including this text file with some basic change info.
+
+      Once I get done with the vast majority of changes I will look
+      into properly updating the documentation.
+
+   ---
+
+   May 20, 2003
+
+   RandomBand 0.3.3
+
+      New ego system is mostly working.
+      Actmagic system is now working.
+      Both of these should be complete in the next version.
+         You will still need to rename the files new_?_info.txt
+         to their proper ?_info.txt.  These won't be done till I
+         am done making egos.
+
+   ---
+
+   April 4, 2003
+
+   Forgot to update the number.
+
+      Got CVS working so I now have the following.
+      No player magic right now.
+      New ego system with over 300 ego types.
+      Reduced number of object kinds, many became egos.
+
+   RandomBand 0.3.1
+
+   March 27,  2003
+
+      Fixed Artifact System
+      Modified to-damage bonus to work better with the current combat.
+
+   ---
+
+   RandomBand 0.3.0
+
+   March 13,  2003
+
+      Some work done, a lot more to go.
+
+   Some of the big changes...
+
+      Randarts - No set artifact list, everyone will be a randart.
+
+      Glowstones - perma light (shifting radius) and activate for one
+      of numerous ball spells.  These were added to make sure that
+      some randart lights were generated.
+
+      Chi Warrior / Chi Magic - More of an experiment trying to figure
+      out what was needed to get new magic, and classes working.  They
+      are pretty decent fighters and have some very powerful magic,
+      but usually have to rely on fortification in the early game to
+      survive.
+
+      Dungeons - Maximum size has been increased, but normal level
+      start small at the top and get bigger as you go down.
+
+      Item Durabilty - Still working on this but most is implemented.
+      Basically everything has a value from (J) Junk to (M) Mint.
+      This is pretty much and index of the hit points of the object.
+      Each object has a different value, and you will see
+      deterioration.  Artifacts wear out just like normal equipment,
+      but it takes a lot longer.  Also, anything with a normal AC
+      value or a +AC value can absorb attack damage.  This usually
+      won't stop all of the attack unless you have some really
+      powerfully enchanted items, but it can reduce damage easily.
+      The reduction in damage goes against the durability of the item
+      deteriorating it faster.  Digging with a non-digging item can
+      quickly erode the quality of the weapon and end up
+      disintegrating it if used too much.  (Note : No way to repair
+      anything exists yet, there will be in future versions.)
+
+      Combat - Combat was switched to
+
+         (# Dice D Dice Sides) + (To D bonuses)
+
+      Deadliness now play a more important role of determining chance
+      of critical hits.
+
+      Mage Sensing - Works like Warriors normal pseudo sensing but
+      works on potions, wands, staves, scroll, rings and amulets.
+
+
+
+
+

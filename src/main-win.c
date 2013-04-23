@@ -1757,7 +1757,6 @@ static errr Term_xtra_win_react(void)
 		if (change) (void)new_palette();
 	}
 
-
 #ifdef USE_SOUND
 
 	/* Handle "arg_sound" */
@@ -2461,7 +2460,7 @@ static void windows_map_aux(void)
 	td->map_tile_hgt = (td->tile_hgt * td->rows) / MAX_HGT;
 
 #ifdef ZANGBAND_WILDERNESS
-	
+
 	min_x = min_wid;
 	min_y = min_hgt;
 	max_x = max_wid;
@@ -2622,7 +2621,7 @@ static void init_windows(void)
 	td->size_oh2 = 2;
 	td->pos_x = 7 * 30;
 	td->pos_y = 7 * 20;
-	
+
 	/* Sub windows */
 	for (i = 1; i < MAX_TERM_DATA; i++)
 	{
@@ -3456,7 +3455,7 @@ static void process_menus(WORD wCmd)
 
 				/* React to changes */
 				Term_xtra_win_react();
-				
+
 				/* Hack -- Force redraw */
 				Term_key_push(KTRL('R'));
 			}
@@ -3480,7 +3479,7 @@ static void process_menus(WORD wCmd)
 
 				/* React to changes */
 				Term_xtra_win_react();
-				
+
 				/* Hack -- Force redraw */
 				Term_key_push(KTRL('R'));
 			}
@@ -3958,7 +3957,7 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 		{
 			uint cols;
 			uint rows;
-			
+
 			/* this message was sent before WM_NCCREATE */
 			if (!td) return 1;
 

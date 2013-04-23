@@ -534,6 +534,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
 	wr_s16b(o_ptr->pval);
+   wr_s16b(o_ptr->pval2);
 
 	wr_byte(o_ptr->discount);
 	wr_byte(o_ptr->number);
@@ -552,9 +553,14 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_byte(o_ptr->marked);
 
+   wr_u16b(o_ptr->ego_num);
+
 	wr_u32b(o_ptr->flags1);
 	wr_u32b(o_ptr->flags2);
 	wr_u32b(o_ptr->flags3);
+	wr_u32b(o_ptr->flags4);
+	wr_u32b(o_ptr->flags5);
+	wr_u32b(o_ptr->flags6);
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
@@ -587,12 +593,22 @@ static void wr_item(const object_type *o_ptr)
 
 	/* The new flags */
 	wr_s32b(o_ptr->cost);
-	
-	wr_byte(o_ptr->activate);
-	
+
+	wr_u16b(o_ptr->activate);
+
 	wr_u32b(o_ptr->kn_flags1);
 	wr_u32b(o_ptr->kn_flags2);
 	wr_u32b(o_ptr->kn_flags3);
+	wr_u32b(o_ptr->kn_flags4);
+	wr_u32b(o_ptr->kn_flags5);
+	wr_u32b(o_ptr->kn_flags6);
+
+   wr_byte(o_ptr->OCraftLevel);
+   wr_byte(o_ptr->CCraftLevel);
+   wr_u32b(o_ptr->O_Durability);
+   wr_u32b(o_ptr->C_Durability);
+
+   wr_byte(o_ptr->aware);
 }
 
 
@@ -745,7 +761,7 @@ static void wr_store(const store_type *st_ptr)
 	/* Position in the town */
 	wr_u16b(st_ptr->x);
 	wr_u16b(st_ptr->y);
-	
+
 	/* Type of store */
 	wr_byte(st_ptr->type);
 
@@ -827,7 +843,7 @@ static void wr_options(void)
 	wr_s16b(autosave_freq);
 
 	/*** Normal options ***/
-	
+
 	/* Analyze the options */
 	for (n = 0; n < 8; n++)
 	{
@@ -845,11 +861,11 @@ static void wr_options(void)
 				flag &= ~(1L << i);
 			}
 		}
-		
+
 		/* Dump the flag */
 		wr_u32b(flag);
 	}
-	
+
 	/* Oops */
 	for (i = 0; i < 8; i++) wr_u32b(option_mask[i]);
 
@@ -1027,7 +1043,18 @@ static void wr_extra(void)
 	wr_byte(0);
 
 	/* Future use */
-	for (i = 0; i < 12; i++) wr_u32b(0L);
+/*	for (i = 0; i < 12; i++) wr_u32b(0L);*/
+	for (i = 0; i < 8; i++) wr_u32b(0L);
+   /* Used Now */
+   wr_u16b(p_ptr->BaseSeed);
+   wr_u16b(p_ptr->TypeSeed);
+   wr_u16b(p_ptr->UniqueSeed);
+   wr_u16b(0);
+   wr_u16b(p_ptr->ArtLites);
+   wr_u16b(p_ptr->ArtWeapons);
+   wr_u16b(p_ptr->ArtArmor);
+   wr_u16b(p_ptr->ArtJewelry);
+
 
 	/* Ignore some flags */
 	wr_u32b(0L);    /* oops */
@@ -1056,10 +1083,10 @@ static void wr_extra(void)
 
 	/* Current turn */
 	wr_s32b(turn);
-	
+
 	/* Trap detection status */
 	wr_byte(p_ptr->detected);
-	
+
 	/* Coords of last trap detection spell */
 	wr_s16b(p_ptr->detecty);
 	wr_s16b(p_ptr->detectx);
@@ -1204,7 +1231,7 @@ static void save_map(int ymax, int ymin, int xmax, int xmin)
 		wr_byte((byte)count);
 		wr_byte((byte)prev_char);
 	}
-	
+
 }
 
 /*
@@ -1257,7 +1284,7 @@ static void save_wild_data(void)
 static void wr_dungeon(void)
 {
 	int i;
-	
+
 	int cur_wid = max_wid;
 	int cur_hgt = max_hgt;
 
@@ -1284,7 +1311,7 @@ static void wr_dungeon(void)
 
 		/* Hack - the player is not in this dungeon */
 		character_dungeon = FALSE;
-		
+
 		/* Save wilderness map */
 		change_level(0);
 
@@ -1292,10 +1319,10 @@ static void wr_dungeon(void)
 		         wild_grid.x_max, wild_grid.x_min);
 
 		change_level(p_ptr->depth);
-		
+
 		/* The character is back in the dungeon */
 		character_dungeon = TRUE;
-		
+
 		/* Restore bounds */
 		max_hgt = cur_hgt;
 		max_wid = cur_wid;
@@ -1499,20 +1526,6 @@ static bool wr_savefile_new(void)
 	wr_s32b((s32b) max_wild);
 	wr_s32b((s32b) max_wild);
 
-	/* Hack -- Dump the artifacts */
-	tmp16u = max_a_idx;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
-	}
-
-
-
 	/* Write the "extra" information */
 	wr_extra();
 
@@ -1574,13 +1587,13 @@ static bool wr_savefile_new(void)
 		/* Type */
 		wr_u16b(town[i].type);
 		wr_byte(town[i].pop);
-		
+
 		/* Gates */
 		wr_byte(town[i].gates_x[0]);
 		wr_byte(town[i].gates_x[1]);
 		wr_byte(town[i].gates_x[2]);
 		wr_byte(town[i].gates_x[3]);
-		
+
 		wr_byte(town[i].gates_y[0]);
 		wr_byte(town[i].gates_y[1]);
 		wr_byte(town[i].gates_y[2]);

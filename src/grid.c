@@ -21,7 +21,7 @@
 bool new_player_spot(void)
 {
 	int	y, x;
-	int max_attempts = 5000;
+	int max_attempts = 2000;
 
 	cave_type *c_ptr;
 
@@ -44,7 +44,7 @@ bool new_player_spot(void)
 		break;
 	}
 
-	if (max_attempts < 1) /* Should be -1, actually if we failed... */
+	if (max_attempts < 0) /* Should be -1, actually if we failed... */
 		return FALSE;
 
 
@@ -120,7 +120,7 @@ void place_random_door(int y, int x)
 
 	/* Making a door on top of fields is problematical */
 	delete_field(y, x);
-	
+
 	/* Invisible wall */
 	if (ironman_nightmare && one_in_(666))
 	{
@@ -177,7 +177,7 @@ void place_closed_door(int y, int x)
 
 	/* Choose an object */
 	tmp = randint0(400);
-	
+
 	/* Closed doors (300/400) */
 	if (tmp < 300)
 	{
@@ -347,7 +347,7 @@ void vault_monsters(int y1, int x1, int num)
 			monster_level = base_level + 2;
 			(void)place_monster(y, x, TRUE, TRUE);
 			monster_level = base_level;
-			
+
 			/* Have placed a monster */
 			break;
 		}
@@ -381,7 +381,7 @@ int next_to_walls(int y, int x)
 void generate_room(int y1, int x1, int y2, int x2, int light)
 {
 	int y, x;
-	
+
 	cave_type *c_ptr;
 
 	for (y = y1; y <= y2; y++)
@@ -390,7 +390,7 @@ void generate_room(int y1, int x1, int y2, int x2, int light)
 		{
 			/* Point to grid */
 			c_ptr = &cave[y][x];
-			
+
 			c_ptr->info |= (CAVE_ROOM);
 			if (light) c_ptr->info |= (CAVE_GLOW);
 		}
@@ -587,7 +587,7 @@ void generate_door(int y1, int x1, int y2, int x2, bool secret)
 			break;
 		}
 	}
-	
+
 	/* Add the door */
 	if (secret)
 	{
@@ -659,7 +659,7 @@ bool get_is_floor(int x, int y)
 void set_floor(int x, int y)
 {
 	cave_type *c_ptr;
-	
+
 	if (!in_bounds(y, x))
 	{
 		/* Out of bounds */
@@ -667,7 +667,7 @@ void set_floor(int x, int y)
 	}
 
 	c_ptr = &cave[y][x];
-	
+
 	if (c_ptr->info & CAVE_ROOM)
 	{
 		/* A room border don't touch. */
@@ -1438,12 +1438,12 @@ void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd, int roug, int cu
 	 * this gives 8 binary places of fractional part + 8 places of normal part
 	 */
 
-	u16b xstep, xhstep, ystep, yhstep;
-	u16b xstep2, xhstep2, ystep2, yhstep2;
-	u16b i, j, ii, jj, diagsize, xxsize, yysize;
+	u32b xstep, xhstep, ystep, yhstep;
+	u32b xstep2, xhstep2, ystep2, yhstep2;
+	u32b i, j, ii, jj, diagsize, xxsize, yysize;
 
 	/* Cache for speed */
-	u16b xm, xp, ym, yp;
+	u32b xm, xp, ym, yp;
 
 	/* redefine size so can change the value if out of range */
 	xsize = xsiz;
@@ -1483,9 +1483,9 @@ void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd, int roug, int cu
 	maxsize = (xsize > ysize) ? xsize : ysize;
 
 	/* Clear the section */
-	for (i = 0; i <= xsize; i++)
+	for (i = 0; i <= (u32b)xsize; i++)
 	{
-		for (j = 0; j <= ysize; j++)
+		for (j = 0; j <= (u32b)ysize; j++)
 		{
 			/* 255 is a flag for "not done yet" */
 			cave[(int)(fill_data.ymin + j)][(int)(fill_data.xmin + i)].feat = 255;
@@ -1540,7 +1540,7 @@ void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd, int roug, int cu
 				/* Test square */
 				if (cave[jj][ii].feat == 255)
 				{
-					if (xhstep2 > grd)
+					if (xhstep2 > (u32b)grd)
 					{
 						/* If greater than 'grid' level then is random */
 						store_height(ii, jj, randint1(maxsize));
@@ -1570,7 +1570,7 @@ void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd, int roug, int cu
 				/* Test square */
 				if (cave[jj][ii].feat == 255)
 				{
-					if (xhstep2 > grd)
+					if (xhstep2 > (u32b)grd)
 					{
 						/* If greater than 'grid' level then is random */
 						store_height(ii, jj, randint1(maxsize));
@@ -1599,7 +1599,7 @@ void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd, int roug, int cu
 				/* Test square */
 				if (cave[jj][ii].feat == 255)
 				{
-					if (xhstep2 > grd)
+					if (xhstep2 > (u32b)grd)
 					{
 						/* If greater than 'grid' level then is random */
 						store_height(ii, jj, randint1(maxsize));
@@ -1680,7 +1680,7 @@ static bool hack_isnt_wall(int y, int x, int c1, int c2, int c3,
 			c_ptr->feat = feat3;
 			return TRUE;
 		}
-		
+
 		/* if greater than cutoff then is a wall */
 		else
 		{
@@ -1701,18 +1701,18 @@ static void cave_fill(int y, int x)
 {
 	int i, j, d;
 	int ty, tx;
-		
+
 	int flow_tail = 1;
 	int flow_head = 0;
-	
-	
+
+
 	/*** Start Grid ***/
 
 	/* Enqueue that entry */
 	temp_y[0] = y;
 	temp_x[0] = x;
-	
-	
+
+
 	/* Now process the queue */
 	while (flow_head != flow_tail)
 	{
@@ -1731,7 +1731,7 @@ static void cave_fill(int y, int x)
 			/* Child location */
 			j = ty + ddy_ddd[d];
 			i = tx + ddx_ddd[d];
-			
+
 			/* Paranoia Don't leave the cave */
 			if (!in_bounds(j, i)) return;
 
@@ -1744,7 +1744,7 @@ static void cave_fill(int y, int x)
 					fill_data.c1, fill_data.c2, fill_data.c3,
 					fill_data.feat1, fill_data.feat2, fill_data.feat3))
 		 		{
-					
+
 					/* Enqueue that entry */
 					temp_y[flow_tail] = j;
 					temp_x[flow_tail] = i;
@@ -1811,24 +1811,24 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 	if (fill_data.amount < 10)
 	{
 		/* too small - clear area and try again later */
-		
+
 		/* Clear the height map */
 		generate_fill(y0 - yhsize , x0 - xhsize,
 			 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1, FEAT_WALL_EXTRA);
-		
+
 		/* Clear the icky flag */
 		clear_vault(y0 - yhsize , x0 - xhsize,
-			 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1);		
-		
+			 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1);
+
 		/* Try again */
 		return FALSE;
 	}
-	
+
 	/* Get the cave info value to logical OR to the grids */
 	info = CAVE_ROOM;
-	if (light) info |= CAVE_GLOW; 
-	
-	
+	if (light) info |= CAVE_GLOW;
+
+
 	/*
 	 * Do boundarys-check to see if they are next to a filled region
 	 * If not then they are set to normal granite
@@ -1838,7 +1838,7 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 	{
 		/* top boundary */
 		c_ptr = &cave[0 + y0 - yhsize][i + x0 - xhsize];
-		
+
 		if (c_ptr->info & CAVE_ICKY)
 		{
 			/* Next to a 'filled' region? - set to be room walls */
@@ -1849,7 +1849,7 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 		{
 			/* set to be normal granite */
 			c_ptr->feat = FEAT_WALL_EXTRA;
-		}	
+		}
 
 		/* bottom boundary */
 		c_ptr = &cave[ysize + y0 - yhsize][i + x0 - xhsize];
@@ -1871,7 +1871,7 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 	{
 		/* left boundary */
 		c_ptr = &cave[i + y0 - yhsize][0 + x0 - xhsize];
-		
+
 		if (c_ptr->info & CAVE_ICKY)
 		{
 			/* room boundary */
@@ -1906,7 +1906,7 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 		for (y = 1; y < ysize; ++y)
 		{
 			c_ptr = &cave[y0 + y - yhsize][x0 + x - xhsize];
-			
+
 			if (!(c_ptr->info & CAVE_ICKY))
 			{
 				/* Clear the unconnected regions */
@@ -1919,7 +1919,7 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 			}
 		}
 	}
-	
+
 	/* Clear the icky flag */
 	clear_vault(y0 - yhsize , x0 - xhsize,
 		 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1);
@@ -1962,7 +1962,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_FLOOR;
 			break;
 		}
-		
+
 		case LAKE_WATER:
 		{
 			/* Water */
@@ -1971,7 +1971,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_FLOOR;
 			break;
 		}
-		
+
 		case LAKE_DESTROY:
 		{
 			/* Collapsed cave */
@@ -1980,7 +1980,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_RUBBLE;
 			break;
 		}
-		
+
 		case LAKE_EEARTH:
 		{
 			/* Earth vault */
@@ -1989,7 +1989,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_RUBBLE;
 			break;
 		}
-		
+
 		case LAKE_EAIR:
 		{
 			/* Air vault */
@@ -1998,7 +1998,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_FLOOR;
 			break;
 		}
-		
+
 		case LAKE_EWATER:
 		{
 			/* Water vault */
@@ -2007,7 +2007,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_SHAL_WATER;
 			break;
 		}
-		
+
 		case LAKE_EFIRE:
 		{
 			/* Fire Vault */
@@ -2016,7 +2016,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_SHAL_LAVA;
 			break;
 		}
-		
+
 		case LAKE_CAVERN:
 		{
 			/* Cavern */
@@ -2025,7 +2025,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_FLOOR;
 			break;
 		}
-		
+
 		case LAKE_RUBBLE:
 		{
 			/* Rubble everywhere */
@@ -2034,16 +2034,16 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_FLOOR;
 			break;
 		}
-		
+
 		case LAKE_SAND:
 		{
 			/* Sand everywhere */
 			feat1 = FEAT_SAND;
 			feat2 = FEAT_SAND;
 			feat3 = FEAT_FLOOR;
-			break;		
+			break;
 		}
-		
+
 		case LAKE_ROCK:
 		{
 			/* Rock formation */
@@ -2052,7 +2052,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 			feat3 = FEAT_FLOOR;
 			break;
 		}
-		
+
 		/* Paranoia */
 		default: return FALSE;
 	}
@@ -2085,15 +2085,15 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 	if (fill_data.amount < 3)
 	{
 		/* too small -clear area and try again later */
-		
+
 		/* Clear the height map */
 		generate_fill(y0 - yhsize , x0 - xhsize,
 			 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1, FEAT_WALL_EXTRA);
-		
+
 		/* Clear the icky flag */
 		clear_vault(y0 - yhsize , x0 - xhsize,
 			 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1);
-			 
+
 		/* Try again */
 		return FALSE;
 	}
@@ -2108,7 +2108,7 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 		for (y = 1; y < ysize; ++y)
 		{
 			c_ptr = &cave[y0 + y - yhsize][x0 + x - xhsize];
-			
+
 			/* Fill unconnected regions with granite */
 			if ((!(c_ptr->info & CAVE_ICKY)) || (c_ptr->feat == FEAT_WALL_OUTER))
 			{

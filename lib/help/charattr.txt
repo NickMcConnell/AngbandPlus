@@ -30,7 +30,7 @@ is contained later in this document (see below [2]).
 
 --- Experience ---
 
-Experience affects almost everything else about your character. 
+Experience affects almost everything else about your character.
 Experience can be gained as your character kills monsters, casts spells
 or prays for the first time, learns about an object kind by using it,
 disarms traps and unlocks doors.  Certain classes may also gain
@@ -73,7 +73,7 @@ shop-keeper for more gold.
 Each character has an armor class, representing how well the character
 can avoid damage. Your armor class is affected by your dexterity and
 your equipment. A more detailed discussion of Armor Class can be found
-in the Combat section (see attack.txt#Armor [3]). 
+in the Combat section (see attack.txt#Armor [3]).
 
 --- Hit Points ---
 
@@ -121,7 +121,7 @@ There are thirty different races that you can choose from in Zangband.
 Each race has various strengths and weaknesses and its own adjustments
 to a character's stats and abilities. Many races also have intrinsic
 abilities and powers.
- 
+
 Human
      The human is the base character. All other races are compared
      to them. Humans can choose any class and are average at
@@ -142,7 +142,7 @@ Elf
      and also have better wisdom. Elves are better at searching,
      disarming, perception, stealth, bows, and magic, but they are not
      as good at hand weapons. They resist light effects intrinsically.
- 
+
 Hobbit
      Hobbits, or Halflings, are very good at bows, throwing, and have
      good saving throws. They also are very good at searching,
@@ -153,7 +153,7 @@ Hobbit
      They have their dexterity sustained. They are very fond of food,
      and learn, in due time, to cook a delicious meal from available
      ingredients.
- 
+
 Gnome
      Gnomes are smaller than dwarves but larger than Halflings. They,
      like the Halflings, live in the earth in burrow-like homes. Gnomes
@@ -164,7 +164,7 @@ Gnome
      detect warm-blooded creatures at a distance. Gnomes are protected
      intrinsically against paralysis and some slowing effects. At
      higher levels, Gnomes learn to teleport at will.
- 
+
 Dwarf
      Dwarves are the headstrong miners and fighters of legend. They
      tend to be stronger and tougher but slower and less intelligent
@@ -177,7 +177,7 @@ Dwarf
      have miserable stealth. They can never be blinded. Dwarves also
      learn to study the structure of a dungeon, and can spot things
      that go unseen by the other races.
- 
+
 Half-Orc
      Half-Orcs make excellent warriors and decent priests, but are
      terrible at magic. They are as bad as dwarves at stealth, and
@@ -188,7 +188,7 @@ Half-Orc
      points. Because of their preference to living underground to on
      the surface, Half-Orcs resist darkness attacks. A Half-Orc will
      learn to dispel any fear that may be upon him or her.
- 
+
 Half-Troll
      Half-Trolls are incredibly strong, and have more hit points than
      most other races. They are also very stupid and slow. They will
@@ -365,7 +365,7 @@ Zombie
     nutrition from the food of mortals. However, Zombies are, as the
     name implies, practically mindless: in this company, Groo would
     seem a genius.
- 
+
 Vampire
     One of the mightier undead creatures, the Vampire is an
     awe-inspiring sight. Yet this mighty creature has a serious
@@ -424,14 +424,14 @@ Beastman
 
 ***** <TheClasses>
 === Classes ===
- 
+
 There are eleven different classes that you can choose from in
 Zangband. Each class has various strengths and weaknesses and its own
 adjustments to a character's stats and abilities. Many classes also
 have intrinsic abilities and powers. These are often linked to the
 character's experience level and only become available later in the
 game.
- 
+
 --- The Classes ---
 
 Warrior
@@ -464,7 +464,7 @@ Mage
     is no rule that says a mage cannot become a good fighter, but
     spells are the mage's true strength. With two notable exceptions,
     mages should avoid wearing armor on their hands as this can
-    restrict their spell casting ability. 
+    restrict their spell casting ability.
 
     Unlike other spellcasting classes, mages can freely choose any two
     magic realms, although they will never be as good at Life magic as
@@ -629,7 +629,7 @@ Monk
     no armor or weapons. To gain the resistances necessary for
     survival at higher levels a monk may need to wear some kind of
     armor, but if the armor he wears is too heavy, it will severely
-    disturb his martial arts maneuvers. 
+    disturb his martial arts maneuvers.
 
     As a monk gains in experience he learns, new, powerful forms of
     attack and is able to land more blows per round. His defensive
@@ -694,7 +694,9 @@ High Mage
     High mages may freely choose any realm but it should be noted that
     a high mage specializing in Life Magic will not learn it as well as
     a priest.
- 
+
+Chi Warrior
+    <Still working on it.>
 
 ***** <PrimaryStats>
 === Primary Statistcs ===
@@ -728,7 +730,7 @@ Strength
      your opponent. Characters with low strength may receive penalties.
      Strength is also useful in tunneling, bashing and in carrying
      heavy items without being slowed down.
- 
+
 Intelligence
      Intelligence affects the spellcasting abilities of mage-like
      spellcasters (high mages, mages, warrior-mages, rangers, chaos
@@ -738,17 +740,17 @@ Intelligence
      cannot learn spells if their intelligence is 7 or lower. Also,
      intelligent characters are better at using magic devices, picking
      locks and disarming traps.
- 
+
 Wisdom
      Wisdom affects the ability of priest-like spellcasters (priests,
      paladins and monks) to use prayers. Wisdom will affect the number
      of spells these classes may learn each level, the number of spell
-     points they receive and their spell fail rates. In addition, 
+     points they receive and their spell fail rates. In addition,
      wisdom is also used to determine a mindcrafter's ability to use
      his or her mental powers. These classes cannot learn spells if
      their wisdom is 7 or lower. Wise character's will have better
      chances of resisting magical spells cast upon them by monsters.
- 
+
 Dexterity
      Dexterity is a combination of agility and quickness. A high
      dexterity may allow a character to get multiple blows with lighter
@@ -757,7 +759,7 @@ Dexterity
      enemies. Dexterity is also useful in picking locks, disarming
      traps, and protecting yourself from some of the thieves that
      inhabit the dungeons.
- 
+
 Constitution
      Constitution is a character's ability to resist damage to his
      body, and to recover from damage received. Therefore a character
@@ -771,7 +773,7 @@ Charisma
      charisma may be robbed blind. A high charisma will also mean more
      starting money for the character. Charisma is also used when
      calculating the success of a mindcrafter at dominating a monster.
- 
+
 
 ***** <PrimarySkills>
 === Primary Skills ===
@@ -781,7 +783,7 @@ survive. The starting abilities of a character are based upon race and
 class. Abilities may be adjusted by high or low stats, and may increase
 with the level of the character with the rate of increase dependent
 upon the level of the character.
- 
+
 Melee
      Melee is the ability to hit and do damage with weapons or fists.
      Normally a character gets a single blow from any weapon, but if
@@ -789,14 +791,14 @@ Melee
      blows per round with lighter weapons. Strength and dexterity both
      modify the ability to hit an opponent. This skill increases with
      the level of the character.
- 
+
 Bows and Throws
      Using ranged missile weapons (and throwing objects) is included in
      this skill. Different stats apply to different weapons, but this
      ability may modify the distance an object is thrown/fired, the
      amount of damage done, and the ability to hit a creature. This
      skill increases with the level of the character.
- 
+
 Saving Throws
      A Saving Throw is the ability of a character to resist the effects
      of a spell cast on him by another person/creature. This does not
@@ -805,7 +807,7 @@ Saving Throws
      the character, but then most high level creatures are better at
      casting spells, so it tends to even out. A high wisdom also
      increases this ability.
- 
+
 Stealth
      The ability to move silently about is very useful. Characters with
      good stealth can usually surprise their opponents, gaining the
@@ -813,7 +815,7 @@ Stealth
      character entirely, allowing a player to avoid certain fights.
      This skill is based entirely upon race and class, and will never
      improve unless magically enhanced.
- 
+
 Disarming
      Disarming is the ability to remove traps (safely), and includes
      picking locks on traps and doors. A successful disarming will gain
@@ -821,19 +823,19 @@ Disarming
      be disarmed. Dexterity and intelligence both modify the ability to
      disarm, and this ability increases with the level of the
      character.
- 
+
 Magical Devices
      Using a magical device such as a wand or staff requires experience
      and knowledge. Spell users such as magi and priests are therefore
      much better at using a magical device than say a warrior. This
      skill is modified by intelligence, and increases with the level of
      the character.
- 
+
 Perception (Searching Frequency)
      Perception is the ability to notice something without actively
      seeking it out. This skill is based entirely upon race and class,
      and will never improve unless magically enhanced.
- 
+
 Searching (Searching Ability)
      To search is to actively look for secret doors, floor traps, and
      traps on chests. Rogues are the best at searching, but magi,
@@ -861,7 +863,7 @@ starting statistics an experience penalty. The experience penalty is
 designed to 'balance' the races with better starting statistics and
 abilities by requiring them to earn more experience before advancing a
 level.
- 
+
 
 --- Table 1 - Race Statistic Bonus Table ---
 
@@ -912,7 +914,7 @@ Chaos Warrior +2   +1    0   +1   +2   -2      +5         +35
 Monk          +2   -1   +1   +3   +2   +1      +6         +40%
 Mindcrafter   -1    0   +3   -1   -1   +2      +2         +25%
 High Mage     -5   +4    0    0   -2   +1       0         +30%
- 
+
 
 ***** <SkillBonusTable>
 === Ability Tables ===

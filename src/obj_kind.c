@@ -196,81 +196,82 @@ errr init_object_alloc(void)
 			}
 		}
 	}
-	
+
 	/* Clear the temp arrays */
 	(void)C_WIPE(aux, MAX_DEPTH, s16b);
 	(void)C_WIPE(num, MAX_DEPTH, s16b);
-	
+
 	/* Free the old ego item allocation table (if it exists) */
 	if (alloc_ego_table)
 	{
 		C_KILL(alloc_ego_table, max_e_idx, alloc_entry);
 	}
-	
+
 	/* Create the ego item allocation table */
 	C_MAKE(alloc_ego_table, max_e_idx, alloc_entry);
-	
+
 	/* Access the table */
 	table = alloc_ego_table;
-	
+
 	/* No ego items in the table yet */
 	alloc_ego_size = 0;
-	
+
 	/* Count the number of legal entries */
 	for (i = 1; i < max_e_idx; i++)
 	{
 		e_ptr = &e_info[i];
-		
-		if (e_ptr->slot)
-		{
+
+	/*	if (e_ptr->rating slot)
+		{*/
 			/* Count the item */
 			alloc_ego_size++;
-			
+
 			/* Group by level */
 			num[e_ptr->level]++;
-		}
+/*		}*/
 	}
-	
+
 	/* Collect the level indexes */
 	for (i = 1; i < MAX_DEPTH; i++)
 	{
 		/* Group by level */
 		num[i] += num[i-1];
 	}
-	
-	
+
+
 	/* Scan the ego items */
 	for (i = 1; i < max_e_idx; i++)
 	{
 		e_ptr = &e_info[i];
-		
-		if (e_ptr->slot)
-		{
-		
+
+/*		if (e_ptr->rating*/ /*slot*/ /*)*/
+/*		{*/
+
 			/* Extract the base level */
 			x = e_ptr->level;
-			
+
 			/* Extract the base probability */
+         e_ptr->rarity++;
 			p = (255 / e_ptr->rarity);
-			
+
 			/* Skip entries preceding our locale */
 			y = (x > 0) ? num[x-1] : 0;
-			
+
 			/* Skip previous entries at this locale */
 			z = y + aux[x];
-			
+
 			/* Load the entry */
 			table[z].index = i;
 			table[z].level = x;
 			table[z].prob1 = p;
 			table[z].prob2 = p;
-			
+
 			/* Another entry complete for this locale */
 			aux[x]++;
-		}
+/*		}*/
 	}
-	
-		
+
+
 	/* Success */
 	return (0);
 }

@@ -39,7 +39,7 @@ void reset_visuals(void)
 		/* Assume we will use the underlying values */
 		f_ptr->x_attr = f_ptr->d_attr;
 		f_ptr->x_char = f_ptr->d_char;
-		
+
 		/* No extra information */
 		f_ptr->w_attr = 0;
 		f_ptr->w_char = 0;
@@ -64,7 +64,7 @@ void reset_visuals(void)
 		r_ptr->x_attr = r_ptr->d_attr;
 		r_ptr->x_char = r_ptr->d_char;
 	}
-	
+
 	/* Extract default attr/char code for fields */
 	for (i = 0; i < max_t_idx; i++)
 	{
@@ -91,7 +91,7 @@ void reset_visuals(void)
 
 	/* Reset the fake monochrome flag */
 	fake_monochrome = (!use_graphics || streq(ANGBAND_SYS, "ibm")) ? TRUE:FALSE;
-	
+
 	/* Fields have to notice the change of visuals. */
 	init_fields();
 }
@@ -100,7 +100,7 @@ void reset_visuals(void)
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *f6)
 {
 	const object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -108,21 +108,24 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	(*f1) = k_ptr->flags1 | o_ptr->flags1;
 	(*f2) = k_ptr->flags2 | o_ptr->flags2;
 	(*f3) = k_ptr->flags3 | o_ptr->flags3;
+	(*f4) = k_ptr->flags4 | o_ptr->flags4;
+	(*f5) = k_ptr->flags5 | o_ptr->flags5;
+	(*f6) = k_ptr->flags6 | o_ptr->flags6;
 
-	/* Remove the Moria flags */
-	if (ironman_moria)
+	/*  Removed the Moria flags  */
+/*	if (ironman_moria)
 	{
 		(*f1) &= TR1_MORIA_MASK;
 		(*f2) &= TR2_MORIA_MASK;
 		(*f3) &= TR3_MORIA_MASK;
-	}
+	}*/
 }
 
 
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *f6)
 {
 	const object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -136,6 +139,9 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	(*f1) = k_ptr->flags1;
 	(*f2) = k_ptr->flags2;
 	(*f3) = k_ptr->flags3;
+	(*f4) = k_ptr->flags4;
+	(*f5) = k_ptr->flags5;
+	(*f6) = k_ptr->flags6;
 
 	/* Show modifications to stats */
 	(*f1) |= (o_ptr->flags1 &
@@ -145,23 +151,26 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Identified? */
 	if (o_ptr->ident & (IDENT_KNOWN | IDENT_MENTAL))
 	{
-		/* 
+		/*
 		 * *Identify* sets these flags,
 		 * and ego items have some set on creation.
 		 */
-		
+
 		(*f1) |= o_ptr->kn_flags1;
 		(*f2) |= o_ptr->kn_flags2;
 		(*f3) |= o_ptr->kn_flags3;
+		(*f4) |= o_ptr->kn_flags4;
+		(*f5) |= o_ptr->kn_flags5;
+		(*f6) |= o_ptr->kn_flags6;
 	}
-	
-	/* Remove the Moria flags */
-	if (ironman_moria)
+
+	/*  Removed the Moria flags  */
+/*	if (ironman_moria)
 	{
 		(*f1) &= TR1_MORIA_MASK;
 		(*f2) &= TR2_MORIA_MASK;
 		(*f3) &= TR3_MORIA_MASK;
-	}
+	}*/
 }
 
 
@@ -171,10 +180,11 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  */
 cptr item_activation(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+   /*****   NEEDS   REWORKING   *****/
 
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return ("nothing");
@@ -183,7 +193,7 @@ cptr item_activation(const object_type *o_ptr)
 	{
 		switch (o_ptr->activate)
 		{
-			case ACT_SUNLIGHT:
+/*			case ACT_SUNLIGHT:
 			{
 				return "beam of sunlight every 10 turns";
 			}
@@ -485,245 +495,16 @@ cptr item_activation(const object_type *o_ptr)
 			}
 			default:
 			{
-				/* No randart activation */
+				 No randart activation
 				break;
 			}
-		}
-	}	
-	else
-	{
-		/* Some artifacts can be activated */
-		switch (o_ptr->activate - 128)
-		{
-			case ART_NARTHANC:
-			{
-				return "fire bolt (11d8) every 8+d8 turns";
-			}
-			case ART_NIMTHANC:
-			{
-				return "frost bolt (8d8) every 7+d7 turns";
-			}
-			case ART_DETHANC:
-			{
-				return "lightning bolt (6d8) every 6+d6 turns";
-			}
-			case ART_RILIA:
-			{
-				return "stinking cloud (25) every 4+d4 turns";
-			}
-			case ART_BELANGIL:
-			{
-				return "frost ball (100) every 5+d5 turns";
-			}
-			case ART_DAL:
-			{
-				return "remove fear and cure poison every 5 turns";
-			}
-			case ART_RINGIL:
-			{
-				return "frost ball (200) every 300 turns";
-			}
-			case ART_DAWN:
-			{
-				return "summon the Legion of the Dawn every 500+d500 turns";
-			}
-			case ART_ANDURIL:
-			{
-				return "fire ball (150) every 400 turns";
-			}
-			case ART_FIRESTAR:
-			{
-				return "large fire ball (200) every 100 turns";
-			}
-			case ART_FEANOR:
-			{
-				return "haste self (20+d20 turns) every 200 turns";
-			}
-			case ART_THEODEN:
-			{
-				return "drain life (200) every 400 turns";
-			}
-			case ART_TURMIL:
-			{
-				return "drain life (200) every 70 turns";
-			}
-			case ART_CASPANION:
-			{
-				return "door and trap destruction every 10 turns";
-			}
-			case ART_AVAVIR:
-			{
-				return "word of recall every 200 turns";
-			}
-			case ART_TARATOL:
-			{
-				return "haste self (20+d20 turns) every 100+d100 turns";
-			}
-			case ART_ERIRIL:
-			{
-				return "identify every 10 turns";
-			}
-			case ART_OLORIN:
-			{
-				return "probing, detection and full id every 1000 turns";
-			}
-			case ART_EONWE:
-			{
-				return "mass genocide every 1000 turns";
-			}
-			case ART_LOTHARANG:
-			{
-				return "cure wounds (100) every 3+d3 turns";
-			}
-			case ART_BRAND:
-			{
-				return "fire branding of bolts every 999 turns";
-			}
-			case ART_ANGUIREL:
-			{
-				return "a getaway every 35 turns";
-			}
-			case ART_AEGLOS:
-			{
-				return "lightning ball (200) every 500 turns";
-			}
-			case ART_OROME:
-			{
-				return "stone to mud every 5 turns";
-			}
-			case ART_SOULKEEPER:
-			{
-				return "heal (1000) every 888 turns";
-			}
-			case ART_BELEGENNON:
-			{
-				return ("heal (777), curing and heroism every 300 turns");
-			}
-			case ART_CELEBORN:
-			{
-				return "genocide every 500 turns";
-			}
-			case ART_LUTHIEN:
-			{
-				return "restore life levels every 450 turns";
-			}
-			case ART_ULMO:
-			{
-				return "teleport away every 150 turns";
-			}
-			case ART_COLLUIN:
-			{
-				return "resistance (20+d20 turns) every 111 turns";
-			}
-			case ART_HOLCOLLETH:
-			{
-				return "Sleep II every 55 turns";
-			}
-			case ART_THINGOL:
-			{
-				return "recharge item every 70 turns";
-			}
-			case ART_COLANNON:
-			{
-				return "teleport every 45 turns";
-			}
-			case ART_TOTILA:
-			{
-				return "confuse monster every 15 turns";
-			}
-			case ART_CAMMITHRIM:
-			{
-				return "magic missile (3d6) every 2 turns";
-			}
-			case ART_PAURHACH:
-			{
-				return "fire bolt (11d8) every 8+d8 turns";
-			}
-			case ART_CORWIN:
-			{
-				return "frost bolt (8d8) every 7+d7 turns";
-			}
-			case ART_PAURAEGEN:
-			{
-				return "lightning bolt (6d8) every 6+d6 turns";
-			}
-			case ART_PAURNEN:
-			{
-				return "acid bolt (8d8) every 5+d5 turns";
-			}
-			case ART_FINGOLFIN:
-			{
-				return "a magical arrow (250) every 90+d90 turns";
-			}
-			case ART_HOLHENNETH:
-			{
-				return "detection every 55+d55 turns";
-			}
-			case ART_GONDOR:
-			{
-				return "heal (700) every 250 turns";
-			}
-			case ART_RAZORBACK:
-			{
-				return "star ball (1500) every 100 turns";
-			}
-			case ART_BLADETURNER:
-			{
-				return "breathe elements (1500), berserk rage, bless, and resistance";
-			}
-			case ART_GALADRIEL:
-			{
-				return "illumination every 10+d10 turns";
-			}
-			case ART_ELENDIL:
-			{
-				return "magic mapping and light every 50+d50 turns";
-			}
-			case ART_THRAIN:
-			{
-				return "clairvoyance and recall, draining you";
-			}
-			case ART_INGWE:
-			{
-				return "dispel evil (x5) every 300+d300 turns";
-			}
-			case ART_CARLAMMAS:
-			{
-				return "protection from evil every 225+d225 turns";
-			}
-			case ART_BARAHIR:
-			{
-				return "a strangling attack (200) every 100+d100 turns";
-			}
-			case ART_TULKAS:
-			{
-				return "haste self (75+d75 turns) every 150+d150 turns";
-			}
-			case ART_NARYA:
-			{
-				return "large fire ball (250) every 225+d225 turns";
-			}
-			case ART_NENYA:
-			{
-				return "large frost ball (400) every 325+d325 turns";
-			}
-			case ART_VILYA:
-			{
-				return "large lightning ball (500) every 425+d425 turns";
-			}
-			case ART_POWER:
-			{
-				return "bizarre things every 450+d450 turns";
-			}
-			case ART_DOR: case ART_TERROR:
-			{
-				return "rays of fear in every direction";
-			}
+         */
 		}
 	}
 
 	if (o_ptr->tval == TV_RING)
 	{
+      /*
 		switch (o_ptr->sval)
 		{
 			case SV_RING_FLAMES:
@@ -735,7 +516,92 @@ cptr item_activation(const object_type *o_ptr)
 			default:
 				return NULL;
 		}
+      */
 	}
+
+   if (o_ptr->tval == TV_LITE)
+   {
+      switch (o_ptr->sval)
+      {
+         case SV_YELLOW_GLOWSTONE:
+            return "ball of light";
+         case SV_YELLOW_GLOWSTONE2:
+            return "ball of sound";
+         case SV_WHITE_GLOWSTONE:
+            return "ball of cold";
+         case SV_WHITE_GLOWSTONE2:
+            return "ball of ice";
+         case SV_BLUE_GLOWSTONE:
+            return "ball of electricity";
+         case SV_BLUE_GLOWSTONE2:
+            return "ball of water";
+         case SV_RED_GLOWSTONE:
+            return "ball of fire";
+         case SV_RED_GLOWSTONE2:
+            return "ball of plasma";
+         case SV_GREEN_GLOWSTONE:
+            return "ball of poison";
+         case SV_GREEN_GLOWSTONE2:
+            return "ball of nether";
+         case SV_BLACK_GLOWSTONE:
+            return "ball of darkness";
+         case SV_BLACK_GLOWSTONE2:
+            return "ball of acid";
+         case SV_GREY_GLOWSTONE:
+            return "ball of arrows";
+         case SV_GREY_GLOWSTONE2:
+            return "ball of missiles";
+         case SV_SWIRLING_GLOWSTONE:
+            return "ball of mana";
+         case SV_SWIRLING_GLOWSTONE2:
+            return "ball of nexus";
+         case SV_HEAVY_GLOWSTONE:
+            return "ball of inertia";
+         case SV_HEAVY_GLOWSTONE2:
+            return "ball of force";
+         case SV_EARTHEN_GLOWSTONE:
+            return "ball of shards";
+         case SV_EARTHEN_GLOWSTONE2:
+            return "ball of meteors";
+         case SV_VIOLET_GLOWSTONE:
+            return "ball of confusion";
+         case SV_VIOLET_GLOWSTONE2:
+            return "ball of chaos";
+         case SV_SKULL_GLOWSTONE:
+            return "ball of dispell good";
+         case SV_SKULL_GLOWSTONE2:
+            return "ball of dispell evil";
+         case SV_BURNING_GLOWSTONE:
+            return "ball of holy fire";
+         case SV_BURNING_GLOWSTONE2:
+            return "ball of hell fire";
+         case SV_BONE_GLOWSTONE:
+            return "ball of dispell undead";
+         case SV_BONE_GLOWSTONE2:
+            return "ball of dispell living";
+         case SV_RADIATING_GLOWSTONE:
+            return "ball of death ray";
+         case SV_RADIATING_GLOWSTONE2:
+            return "ball of disintegrate";
+         case SV_PULSING_GLOWSTONE:
+            return "ball of rocket";
+         case SV_PULSING_GLOWSTONE2:
+            return "ball of nuke";
+         case SV_SHINING_GLOWSTONE:
+            return "ball of control animal";
+         case SV_SHINING_GLOWSTONE2:
+            return "ball of control undead";
+         case SV_SHINING_GLOWSTONE3: /*  NOTE #3  */
+            return "ball of charm";
+         case SV_HOLLOW_GLOWSTONE:
+            return "ball of dispell demon";
+         case SV_HOLLOW_GLOWSTONE2:
+            return "ball of dispell all";
+
+         default:
+            return NULL;
+      }
+   }
 
 	/* Require dragon scale mail */
 	if (o_ptr->tval != TV_DRAG_ARMOR) return ("a strange glow");
@@ -809,14 +675,15 @@ bool identify_fully_aux(const object_type *o_ptr)
 {
 	int                     i = 0, j, k;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4, f5, f6;
 
 	cptr            info[128];
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
+   /*****   NEEDS   REWORKING   *****/
 
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
@@ -850,10 +717,14 @@ bool identify_fully_aux(const object_type *o_ptr)
 		{
 			info[i++] = "It provides light (radius 2) when fueled.";
 		}
-		else
+		else if (o_ptr->sval == SV_LITE_TORCH)
 		{
 			info[i++] = "It provides light (radius 1) when fueled.";
 		}
+      else
+      {
+         info[i++] = "It glows!";
+      }
 	}
 
 
@@ -951,39 +822,39 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It is very sharp and can cut your foes.";
 	}
 
-	if (f1 & (TR1_KILL_DRAGON))
+	if (f1 & (TR4_KILL_DRAGON))
 	{
 		info[i++] = "It is a great bane of dragons.";
 	}
-	else if (f1 & (TR1_SLAY_DRAGON))
+	else if (f1 & (TR4_SLAY_DRAGON))
 	{
 		info[i++] = "It is especially deadly against dragons.";
 	}
-	if (f1 & (TR1_SLAY_ORC))
+	if (f1 & (TR5_SLAY_ORC))
 	{
 		info[i++] = "It is especially deadly against orcs.";
 	}
-	if (f1 & (TR1_SLAY_TROLL))
+	if (f1 & (TR4_SLAY_TROLL))
 	{
 		info[i++] = "It is especially deadly against trolls.";
 	}
-	if (f1 & (TR1_SLAY_GIANT))
+	if (f1 & (TR4_SLAY_GIANT))
 	{
 		info[i++] = "It is especially deadly against giants.";
 	}
-	if (f1 & (TR1_SLAY_DEMON))
+	if (f1 & (TR4_SLAY_DEMON))
 	{
 		info[i++] = "It strikes at demons with holy wrath.";
 	}
-	if (f1 & (TR1_SLAY_UNDEAD))
+	if (f1 & (TR4_SLAY_UNDEAD))
 	{
 		info[i++] = "It strikes at undead with holy wrath.";
 	}
-	if (f1 & (TR1_SLAY_EVIL))
+	if (f1 & (TR5_SLAY_EVIL))
 	{
 		info[i++] = "It fights against evil with holy fury.";
 	}
-	if (f1 & (TR1_SLAY_ANIMAL))
+	if (f1 & (TR4_SLAY_ANIMAL))
 	{
 		info[i++] = "It is especially deadly against natural creatures.";
 	}
@@ -1111,9 +982,9 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It provides resistance to disenchantment.";
 	}
 
-	if (f3 & (TR3_XXX7))
+	if (f3 & (TR3_RESTORE_MANA))
 	{
-		info[i++] = "It renders you XXX7'ed.";
+		info[i++] = "It restores your mana.";
 	}
 	if (f3 & (TR3_FEATHER))
 	{
@@ -1532,6 +1403,42 @@ bool item_tester_hook_weapon(const object_type *o_ptr)
 }
 
 /*
+ * Hook to specify "Artifactable Item"
+ */
+bool item_tester_hook_artifactable(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		case TV_DRAG_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_CROWN:
+		case TV_HELM:
+		case TV_BOOTS:
+		case TV_GLOVES:
+      case TV_AMULET:
+      case TV_RING:
+      case TV_LITE:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
  * Hook to specify "melee weapon"
  */
 bool item_tester_hook_melee_weapon(const object_type *o_ptr)
@@ -1793,15 +1700,17 @@ bool item_tester_hook_tval(const object_type *o_ptr)
 
 bool item_tester_hook_is_blessed(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
-	object_flags(o_ptr, &f1, &f2, &f3);
-	
+	u32b f1, f2, f3, f4, f5, f6;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
+
+   /*****   NEEDS   REWORKING   *****/
+
 	/* Is it blessed? */
 	if (f3 & TR3_BLESSED) return (TRUE);
-	
+
 	/* Check for unallowable weapons */
 	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) return (FALSE);
-	
+
 	/* Everthing else is ok */
 	return (TRUE);
 }
@@ -1809,16 +1718,16 @@ bool item_tester_hook_is_blessed(const object_type *o_ptr)
 bool item_tester_hook_is_good(const object_type *o_ptr)
 {
 	if (cursed_p(o_ptr)) return (FALSE);
-	
+
 	/* Ego item or artifact */
 	if (o_ptr->xtra_name) return (TRUE);
-	
+
 	/* Positve AC bonus */
 	if (o_ptr->to_a > 0) return (TRUE);
-	
+
 	/* Good attack + defence */
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (TRUE);
-	
+
 	/* Everthing else isn't good */
 	return (FALSE);
 }
@@ -1827,10 +1736,10 @@ bool item_tester_hook_is_good(const object_type *o_ptr)
 bool item_tester_hook_is_great(const object_type *o_ptr)
 {
 	if (cursed_p(o_ptr)) return (FALSE);
-	
+
 	/* Ego item or artifact */
 	if (o_ptr->xtra_name) return (TRUE);
-	
+
 	/* Everthing else isn't great */
 	return (FALSE);
 }
@@ -1841,18 +1750,11 @@ bool item_tester_hook_is_book(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
-		case TV_SORCERY_BOOK:
-		case TV_NATURE_BOOK:
-		case TV_CHAOS_BOOK:
-		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
-		case TV_ARCANE_BOOK:
-		case TV_LIFE_BOOK:
-		
-		/* It is a book */	
+		case TV_SPELL_BOOK:
+		/* It is a book */
 		return (TRUE);
 	}
-	
+
 	/* It isn't a book */
 	return (FALSE);
 }
@@ -1884,8 +1786,8 @@ bool item_tester_okay(const object_type *o_ptr)
 	if (item_tester_tval)
 	{
 		/* Is it a spellbook? If so, we need a hack -- TY */
-		if ((item_tester_tval <= TV_DEATH_BOOK) &&
-			(item_tester_tval >= TV_LIFE_BOOK))
+		if ((item_tester_tval <= TV_SPELL_BOOK) &&
+			(item_tester_tval >= TV_SPELL_BOOK))
 			return check_book_realm(o_ptr->tval);
 		else
 			if (item_tester_tval != o_ptr->tval) return (FALSE);
@@ -1960,7 +1862,7 @@ void display_inven(void)
 		attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && 
+		if (o_ptr->timeout &&
 			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			attr = TERM_L_DARK;
@@ -2038,7 +1940,7 @@ void display_equip(void)
 		attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && 
+		if (o_ptr->timeout &&
 			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			attr = TERM_L_DARK;
@@ -2145,12 +2047,12 @@ void show_inven(void)
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && 
+		if (o_ptr->timeout &&
 			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			out_color[k] = TERM_L_DARK;
 		}
-		
+
 		/* Fake monochrome */
 		if (!use_color || ironman_moria)
 		{
@@ -2283,12 +2185,12 @@ void show_equip(void)
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && 
+		if (o_ptr->timeout &&
 			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			out_color[k] = TERM_L_DARK;
 		}
-		
+
 		/* Fake monochrome */
 		if (!use_color || ironman_moria)
 		{

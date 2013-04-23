@@ -55,7 +55,7 @@ void do_cmd_redraw(void)
 	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_PLAYRES);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON |
@@ -93,7 +93,7 @@ void resize_map(void)
 {
 	/* Only if the dungeon exists */
 	if (!character_dungeon) return;
-	
+
 	/* Mega-Hack -- no panel yet */
 	panel_row_min = 0;
 	panel_row_max = 0;
@@ -102,7 +102,7 @@ void resize_map(void)
 
 	/* Reset the panels */
 	map_panel_size();
-				
+
 	if (character_dungeon)
 	{
 		verify_panel();
@@ -144,15 +144,15 @@ void redraw_window(void)
 {
 	/* Only if the dungeon exists */
 	if (!character_dungeon) return;
-	
+
 	/* Hack - Activate term zero for the redraw */
 	Term_activate(&term_screen[0]);
-	
+
 	/* Hack -- react to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_PLAYRES);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON |
@@ -406,7 +406,7 @@ void init_options(byte flags)
 {
 	int birth_counter = 0, server_counter = 0, player_counter = 0;
 	int i;
-	
+
 	for (i = 0; i < OPT_MAX; i++)
 	{
 		/* A birth option? */
@@ -423,11 +423,11 @@ void init_options(byte flags)
 				/* Restore the option to its original value */
 				option_info[i].o_val = p_ptr->birth[birth_counter];
 			}
-			
+
 			/* Increment birth option counter */
 			birth_counter++;
 		}
-		
+
 		/* A server option? */
 		else if (i == server_options[server_counter])
 		{
@@ -442,11 +442,11 @@ void init_options(byte flags)
 				/* Restore the option to its original value */
 				option_info[i].o_val = svr_ptr->options[server_counter];
 			}
-			
+
 			/* Increment server option counter */
 			server_counter++;
 		}
-		
+
 		/* A player option */
 		else
 		{
@@ -461,7 +461,7 @@ void init_options(byte flags)
 				/* Restore the option to its original value */
 				option_info[i].o_val = p_ptr->options[player_counter];
 			}
-			
+
 			/* Increment player option counter */
 			player_counter++;
 		}
@@ -773,7 +773,7 @@ static void do_cmd_options_aux(int page, cptr info)
 		/* There are no options */
 		msg_print("There are no available options there at the moment.");
 		msg_print(NULL);
-		
+
 		/* Bail out */
 		return;
 	}
@@ -938,7 +938,7 @@ static void do_cmd_options_win(void)
 			for (j = 0; j < 8; j++)
 			{
 				char c = '.';
-				
+
 				a = TERM_WHITE;
 
 				/* Use color */
@@ -946,7 +946,7 @@ static void do_cmd_options_win(void)
 				{
 					a = TERM_L_BLUE;
 				}
-				
+
 				/* Active flag */
 				if (window_flag[j] & (1L << i)) c = 'X';
 
@@ -1113,7 +1113,7 @@ void do_cmd_options(byte flags)
 			{
 				/* Spawn */
 				do_cmd_options_aux(1, "User Interface Options");
-				
+
 				/* Save the changes */
 				init_options(flags);
 				break;
@@ -1124,7 +1124,7 @@ void do_cmd_options(byte flags)
 			{
 				/* Spawn */
 				do_cmd_options_aux(2, "Disturbance Options");
-				
+
 				/* Save the changes */
 				init_options(flags);
 				break;
@@ -1135,7 +1135,7 @@ void do_cmd_options(byte flags)
 			{
 				/* Spawn */
 				do_cmd_options_aux(3, "Game-Play Options");
-				
+
 				/* Save the changes */
 				init_options(flags);
 				break;
@@ -1146,7 +1146,7 @@ void do_cmd_options(byte flags)
 			{
 				/* Spawn */
 				do_cmd_options_aux(4, "Efficiency Options");
-				
+
 				/* Save the changes */
 				init_options(flags);
 				break;
@@ -1162,7 +1162,7 @@ void do_cmd_options(byte flags)
 				init_options(flags);
 				break;
 			}
-			
+
 			/* Birth Options */
 			case '6':
 			{
@@ -1179,7 +1179,7 @@ void do_cmd_options(byte flags)
 			{
 				/* Spawn */
 				do_cmd_options_aux(7, "Artificial Intelligence Options");
-				
+
 				/* Save the changes */
 				init_options(flags);
 				break;
@@ -1190,7 +1190,7 @@ void do_cmd_options(byte flags)
 			{
 				/* Spawn */
 				do_cmd_options_aux(8, "Testing Options");
-				
+
 				/* Save the changes */
 				init_options(flags);
 				break;
@@ -1219,7 +1219,8 @@ void do_cmd_options(byte flags)
 				/* Spawn */
 				do_cmd_options_win();
 				p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL |
-				                  PW_PLAYER | PW_MESSAGE | PW_OVERHEAD |
+				                  PW_PLAYER | PW_PLAYRES | PW_MESSAGE |
+                              PW_OVERHEAD |
 				                  PW_MONSTER | PW_OBJECT | PW_SNAPSHOT |
 				                  PW_BORG_1 | PW_BORG_2 | PW_DUNGEON);
 				break;
@@ -2486,7 +2487,7 @@ void do_cmd_visuals(void)
 				if (i == 'C') f_info[f].x_char = (byte)(cc - 1);
 			}
 		}
-		
+
 		/* Modify feature attr/chars */
 		else if (i == '9')
 		{
@@ -2733,7 +2734,7 @@ void do_cmd_colors(void)
 				for (j = 0; j < 16; j++)
 				{
 					/* Exhibit this color */
-					Term_putstr(j * 4, 20, -1, a, "###");
+					Term_putstr(j * 4, 20, -1, a, format("%3d", a));
 
 					/* Exhibit all colors */
 					Term_putstr(j*4, 22, -1, j, format("%3d", j));
@@ -3504,7 +3505,7 @@ static void do_cmd_knowledge_kill_count(void)
 
 	/* Save total kills for later */
 	temp = Total;
-	
+
 	/* Zero out total so we can calculate kills of known monsters */
 	Total = 0;
 
@@ -3561,7 +3562,7 @@ static void do_cmd_knowledge_kill_count(void)
 
 	/* Subtract off monsters you know you have killed */
 	temp -= Total;
-	
+
 	/* Have we killed any monsters we did not see? */
 	if (temp)
 	{
@@ -3569,7 +3570,7 @@ static void do_cmd_knowledge_kill_count(void)
 		fprintf(fff, " Unseen: %lu creature%s killed.\n",
 	       temp, (temp == 1 ? "" : "s"));
 	}
-	
+
 	/* Free the "who" array */
 	C_KILL(who, max_r_idx, u16b);
 
@@ -3686,7 +3687,7 @@ static void do_cmd_knowledge_quests(void)
 	int i;
 	int rand_level = 100;
 
-	
+
 	/* Open a temporary file */
 	fff = my_fopen_temp(file_name, 1024);
 
@@ -3799,7 +3800,6 @@ static void do_cmd_knowledge_notes(void)
 	(void)show_file(fname, "Notes", 0, 0);
 }
 
-
 /*
  * Interact with "knowledge"
  */
@@ -3829,7 +3829,7 @@ void do_cmd_knowledge(void)
 		prt("(4) Display mutations", 7, 5);
 		prt("(5) Display current pets", 8, 5);
 		prt("(6) Display current quests", 9, 5);
-		/* prt("(7) Display virtues", 10, 5); */
+		/*prt("(7) Display monster recall", 10, 5); */
 		if (take_notes)
 			prt("(8) Display notes", 11, 5);
 
@@ -3863,7 +3863,7 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_quests();
 			break;
 		case '7': /* Virtues */
-			do_cmd_knowledge_virtues();
+			/*do_cmd_knowledge_virtues();*/
 			break;
 		case '8': /* Notes */
 			if (take_notes)

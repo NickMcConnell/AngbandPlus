@@ -35,7 +35,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	const magic_type  *s_ptr;
 	char        out_val[160];
 	int         use_realm = (realm_2 ? p_ptr->realm2 : p_ptr->realm1);
-	cptr        p = ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell");
+	cptr        p = ((mp_ptr->spell_book == TV_SPELL_BOOK) ? "prayer" : "spell");
 
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
@@ -337,7 +337,7 @@ void do_cmd_study(void)
 	/* Spells of realm2 will have an increment of +32 */
 	int	spell = -1;
 
-	cptr p = ((mp_ptr->spell_book == TV_SORCERY_BOOK) ? "spell" : "prayer");
+	cptr p = ((mp_ptr->spell_book == TV_SPELL_BOOK) ? "spell" : "prayer");
 
 	object_type *o_ptr;
 
@@ -404,7 +404,7 @@ void do_cmd_study(void)
 	handle_stuff();
 
 	/* Mage -- Learn a selected spell */
-	if (mp_ptr->spell_book != TV_LIFE_BOOK)
+	if (mp_ptr->spell_book != TV_SPELL_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
 		if (!get_spell(&spell, "study", sval, FALSE,
@@ -482,7 +482,7 @@ void do_cmd_study(void)
 		p, spell_names
 		[(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 - 1)][spell % 32]);
 
-	if (mp_ptr->spell_book == TV_LIFE_BOOK)
+	if (mp_ptr->spell_book == TV_SPELL_BOOK)
 		chg_virtue(V_FAITH, 1);
 	else
 		chg_virtue(V_KNOWLEDGE, 1);
@@ -785,12 +785,12 @@ static bool cast_life_spell(int spell)
 	case 26:
 		return bless_weapon();
 	case 27: /* Restoration */
-		(void)do_res_stat(A_STR);
-		(void)do_res_stat(A_INT);
-		(void)do_res_stat(A_WIS);
-		(void)do_res_stat(A_DEX);
-		(void)do_res_stat(A_CON);
-		(void)do_res_stat(A_CHR);
+		(void)do_res_stat(A_STR, 200);
+		(void)do_res_stat(A_INT, 200);
+		(void)do_res_stat(A_WIS, 200);
+		(void)do_res_stat(A_DEX, 200);
+		(void)do_res_stat(A_CON, 200);
+		(void)do_res_stat(A_CHR, 200);
 		(void)restore_level();
 		break;
 	case 28: /* Healing True */
@@ -1008,7 +1008,7 @@ static bool cast_nature_spell(int spell)
 		if ((p_ptr->prace == RACE_VAMPIRE) && !p_ptr->resist_lite)
 		{
 			msg_print("The daylight scorches your flesh!");
-			take_hit(damroll(2, 2), "daylight");
+			take_hit(damroll(2, 2), "daylight", FALSE);
 		}
 		break;
 	case 5: /* Animal Taming */
@@ -1138,7 +1138,7 @@ static bool cast_nature_spell(int spell)
 		if ((p_ptr->prace == RACE_VAMPIRE) && !p_ptr->resist_lite)
 		{
 			msg_print("The sunlight scorches your flesh!");
-			take_hit(50, "sunlight");
+			take_hit(50, "sunlight", FALSE);
 		}
 		break;
 	case 30: /* Elemental Brand */
@@ -1382,7 +1382,7 @@ static bool cast_chaos_spell(int spell)
 				while (count < 1000)
 				{
 					count++;
-					
+
 					x = px - 5 + randint1(10);
 					y = py - 5 + randint1(10);
 
@@ -1745,7 +1745,7 @@ static bool cast_death_spell(int spell)
 			else
 			{
 				msg_print("Nothing happens.");
-			}	
+			}
 			break;
 		}
 	case 26: /* Esoteria */
@@ -1766,11 +1766,11 @@ static bool cast_death_spell(int spell)
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		(void)fire_ball(GF_HELL_FIRE, dir, 666, 3);
-		take_hit(rand_range(50, 100), "the strain of casting Hellfire");
+		take_hit(rand_range(50, 100), "the strain of casting Hellfire", FALSE);
 		break;
 	case 30: /* Omnicide */
 		p_ptr->csp -= 100;
-		
+
 		/* Display doesn't show mana cost (100)
 		 * as deleted until the spell has finished. This gives a
 		 * false impression of how high your mana is climbing.
@@ -1798,12 +1798,12 @@ static bool cast_death_spell(int spell)
 				/* Update some things */
 				p_ptr->update |= (PU_MON_LITE);
 			}
-			
+
 			/* Delete the monster */
 			delete_monster_idx(i);
 
 			/* Take damage */
-			take_hit(randint1(4), "the strain of casting Omnicide");
+			take_hit(randint1(4), "the strain of casting Omnicide", FALSE);
 
 			/* Absorb power of dead soul - up to twice max. mana */
 			if (p_ptr->csp < (p_ptr->msp * 2))
@@ -2628,6 +2628,370 @@ static bool cast_arcane_spell(int spell)
 	return TRUE;
 }
 
+static bool cast_chi_spell(int spell)
+{
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
+	int	dir,checkval;
+	int	beam;
+	int	plev = p_ptr->lev;
+	int	dummy = 0;
+	bool    no_trump = FALSE;
+
+	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
+	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+	else beam = plev / 2;
+
+   checkval = 0;
+
+	switch (spell)
+	{
+	case 0: /*  Fortification  */
+		(void)set_afraid(0);
+		(void)set_hero(p_ptr->hero + rand_range(15, 30));
+		(void)set_blessed(p_ptr->blessed + rand_range(15, 30));
+		(void)hp_player(damroll(3, 5));
+		break;
+	case 1: /*  Minor Teleport  */
+		teleport_player(10+(plev / 3));
+		break;
+	case 2: /*  Mystic Meal  */
+		(void)set_food(PY_FOOD_MAX - 1);
+		break;
+	case 3: /*  Mystic Sensing  */
+		(void)detect_monsters_normal();
+		(void)detect_monsters_evil();
+		(void)detect_monsters_nonliving();
+		(void)detect_monsters_invis();
+		break;
+	case 4: /*  Object Scrying  */
+		(void)detect_treasure();
+		(void)detect_objects_gold();
+		(void)detect_objects_magic();
+		(void)detect_objects_normal();
+		break;
+	case 5: /*  Guiding Light  */
+		(void)lite_area(damroll(2, plev), (plev / 10) + 1);
+		(void)detect_traps();
+		(void)detect_doors();
+		(void)detect_stairs();
+		break;
+	case 6: /*  Remove Curse  */
+		(void)remove_curse();
+		break;
+	case 7: /*  Mind Sight  */
+		/*wiz_lite();*/
+		if (!p_ptr->telepathy)
+		{
+			(void)set_tim_esp(p_ptr->tim_esp + rand_range(25, 50));
+		}
+      if (!p_ptr->tim_invis)
+      {
+		   (void)set_tim_invis(p_ptr->tim_invis + rand_range(25, 50));
+      }
+		break;
+	case 8: /*  Portal  */
+		msg_print("You open a portal. Choose a destination.");
+		return dimension_door();
+		break;
+	case 9: /*  Stone to Mud  */
+		if (!get_aim_dir(&dir)) return FALSE;
+		(void)wall_to_mud(dir);
+		break;
+	case 10: /*  Resistance  */
+		(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(30, 60));
+		(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(30, 60));
+		(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(30, 60));
+		(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(30, 60));
+		(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(30, 60));
+		break;
+	case 11: /*  Identification */
+		return ident_spell();
+		break;
+	case 12: /*  Harden Skin  */
+		(void)set_shield(p_ptr->shield + rand_range(50, 100));
+		break;
+	case 13: /*  Mystic Healing  */
+		(void)set_poisoned(0);
+		(void)set_stun(0);
+		(void)set_cut(0);
+		(void)set_afraid(0);
+		(void)hp_player(damroll(40, 5));
+		break;
+	case 14: /*  Teleportation  */
+		teleport_player(plev * 7);
+		break;
+	case 15: /*  Greater Fortification  */
+		(void)set_poisoned(0);
+		(void)set_stun(0);
+		(void)set_cut(0);
+		(void)set_afraid(0);
+		(void)set_hero(p_ptr->hero + rand_range(30, 60));
+		(void)set_blessed(p_ptr->blessed + rand_range(30, 60));
+		(void)set_shield(p_ptr->shield + rand_range(50, 100));
+		(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(30, 60));
+		(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(30, 60));
+		(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(30, 60));
+		(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(30, 60));
+		(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(30, 60));
+		(void)set_protevil(p_ptr->protevil + randint1(25) + 3 * p_ptr->lev);
+		(void)hp_player(damroll(20, 15));
+		break;
+	case 16: /*  Protection from Evil  */
+		(void)set_protevil(rand_range( 5, p_ptr->lev) * 7);
+		break;
+	case 17: /*  Charm Animals  */
+		(void)charm_animals(plev * 3);
+		break;
+	case 18: /*  Summon Animals  */
+		if (!(summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, TRUE, TRUE)))
+			no_trump = TRUE;
+		break;
+	case 19: /*  Mystic Bolt  */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		switch (randint1(16))
+		{
+			case 1:  dummy = GF_ELEC; break;
+			case 2:  dummy = GF_POIS; break;
+			case 3:  dummy = GF_ACID; break;
+			case 4:  dummy = GF_COLD; break;
+			case 5:  dummy = GF_FIRE; break;
+			case 6:  dummy = GF_WATER; break;
+			case 7:  dummy = GF_LITE; break;
+			case 8:  dummy = GF_DARK; break;
+			case 9:  dummy = GF_CHAOS; break;
+			case 10: dummy = GF_FORCE; break;
+			case 11:  dummy = GF_SHARDS; break;
+			case 12:  dummy = GF_CHARM; break;
+			case 13:  dummy = GF_HOLY_FIRE; break;
+			case 14:  dummy = GF_HELL_FIRE; break;
+			case 15:  dummy = GF_DEATH_RAY; break;
+			default:  dummy = GF_AWAY_ALL; break;
+		}
+
+		(void)fire_bolt_or_beam(beam - 10, dummy, dir,
+			damroll(3 + ((plev - 5) / 4), 8));
+		break;
+	case 20: /*  Recall  */
+		word_of_recall();
+		break;
+	case 21: /*  Spinning Death */
+      {
+		   int y = 0, x = 0, nt = 0;
+			cave_type *c_ptr;
+			monster_type *m_ptr;
+
+         for (nt = 0; nt < 3; nt++)
+         {
+   			for (dir = 0; dir <= 9; dir++)
+	   		{
+		   		y = py + ddy[dir];
+			   	x = px + ddx[dir];
+
+				   /* paranoia */
+   				if (!in_bounds2(y, x)) continue;
+	   			c_ptr = area(y, x);
+
+		   		/* Get the monster */
+			   	m_ptr = &m_list[c_ptr->m_idx];
+
+				   /* Hack -- attack monsters */
+   				if (c_ptr->m_idx && (m_ptr->ml || cave_floor_grid(c_ptr)))
+	   				py_attack(y, x);
+            }
+			}
+      }
+		break;
+	case 22: /*  Detection  */
+		(void)detect_all();
+		break;
+	case 23: /*  Greater Healing  */
+		(void)set_poisoned(0);
+		(void)set_stun(0);
+		(void)set_cut(0);
+		(void)set_afraid(0);
+		(void)hp_player(damroll(100, 4));
+		break;
+	case 24: /*  Recharging  */
+		return recharge(plev * 4);
+	case 25: /*  Mystic Ball  */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		switch (randint1(16))
+		{
+			case 1:  dummy = GF_ELEC; break;
+			case 2:  dummy = GF_POIS; break;
+			case 3:  dummy = GF_ACID; break;
+			case 4:  dummy = GF_COLD; break;
+			case 5:  dummy = GF_FIRE; break;
+			case 6:  dummy = GF_WATER; break;
+			case 7:  dummy = GF_LITE; break;
+			case 8:  dummy = GF_DARK; break;
+			case 9:  dummy = GF_CHAOS; break;
+			case 10: dummy = GF_FORCE; break;
+			case 11:  dummy = GF_SHARDS; break;
+			case 12:  dummy = GF_CHARM; break;
+			case 13:  dummy = GF_HOLY_FIRE; break;
+			case 14:  dummy = GF_HELL_FIRE; break;
+			case 15:  dummy = GF_DEATH_RAY; break;
+			default:  dummy = GF_AWAY_ALL; break;
+		}
+		(void)fire_ball(dummy, dir, (plev * 2), randint1(3)+1);
+		break;
+	case 26: /*  Restoration  */
+		(void)do_res_stat(A_STR, 200);
+		(void)do_res_stat(A_INT, 200);
+		(void)do_res_stat(A_WIS, 200);
+		(void)do_res_stat(A_DEX, 200);
+		(void)do_res_stat(A_CON, 200);
+		(void)do_res_stat(A_CHR, 200);
+		(void)restore_level();
+      break;
+	case 27: /*  Summoning  */
+		{
+         int nt = rand_range( 1, (plev/7));
+
+         for (checkval = 0; checkval < nt; checkval++)
+         {
+	   		bool pet = ((randint1(100) > 90) ? FALSE : TRUE);
+            /*  TRUE;  */ /* was (randint1(10) > 3) */
+			   bool group = ((randint1(100) < 50) ? FALSE : TRUE);
+
+            switch (randint1(21))
+            {
+               case  1: dummy =  SUMMON_ANIMAL; break;
+               case  2: dummy =  SUMMON_ANIMAL_RANGER; break;
+               case  3: dummy =  SUMMON_ANT; break;
+               case  4: dummy =  SUMMON_SPIDER; break;
+               case  5: dummy =  SUMMON_HOUND; break;
+               case  6: dummy =  SUMMON_HYDRA; break;
+               case  7: dummy =  SUMMON_ANGEL; break;
+               case  8: dummy =  SUMMON_DEMON; break;
+               case  9: dummy =  SUMMON_UNDEAD; break;
+               case 10: dummy =  SUMMON_DRAGON; break;
+               case 11: dummy =  SUMMON_HI_UNDEAD; break;
+               case 12: dummy =  SUMMON_HI_DRAGON; break;
+               case 13: dummy =  SUMMON_AMBERITES; break;
+               case 14: dummy =  SUMMON_KIN; break;
+               case 15: dummy =  SUMMON_DAWN; break;
+               case 16: dummy =  SUMMON_HI_UNDEAD_NO_UNIQUES; break;
+               case 17: dummy =  SUMMON_HI_DRAGON_NO_UNIQUES; break;
+               case 18: dummy =  SUMMON_NO_UNIQUES; break;
+               case 19: dummy =  SUMMON_PHANTOM; break;
+               case 20: dummy =  SUMMON_ELEMENTAL; break;
+               default: dummy =  SUMMON_BLUE_HORROR; break;
+            }
+
+   			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, dummy, group, FALSE, pet))
+	   		{
+		   		if (!pet)
+			   		msg_print("Eeeeppp!!");
+   			}
+         }
+/*			break;*/
+		}
+
+		break;
+	case 28: /*  Brand Weapon  */
+		brand_weapon(randint0(4));
+		break;
+	case 29: /*  Supreme Fortification */
+		(void)dispel_monsters(plev * 4);
+		(void)set_poisoned(0);
+		(void)set_stun(0);
+		(void)set_cut(0);
+		(void)set_afraid(0);
+		(void)set_hero(p_ptr->hero + rand_range(30, 60));
+		(void)set_blessed(p_ptr->blessed + rand_range(30, 60));
+		(void)set_shield(p_ptr->shield + rand_range(50, 100));
+		(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(30, 60));
+		(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(30, 60));
+		(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(30, 60));
+		(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(30, 60));
+		(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(30, 60));
+		(void)set_protevil(p_ptr->protevil + randint1(25) + 3 * p_ptr->lev);
+		(void)hp_player(damroll(50, 10));
+		(void)set_invuln(p_ptr->invuln + rand_range(10, 20));
+		break;
+	case 30: /*  Mystic Burst  */
+      {
+		   int y = 0, x = 0, nt = 0;
+			cave_type *c_ptr;
+
+  			for (dir = 0; dir <= 9; dir++)
+   		{
+            nt = 0;
+
+      		switch (randint1(16))
+		      {
+      			case 1:  dummy = GF_ELEC; break;
+		      	case 2:  dummy = GF_POIS; break;
+      			case 3:  dummy = GF_ACID; break;
+		      	case 4:  dummy = GF_COLD; break;
+      			case 5:  dummy = GF_FIRE; break;
+		      	case 6:  dummy = GF_WATER; break;
+      			case 7:  dummy = GF_LITE; break;
+		      	case 8:  dummy = GF_DARK; break;
+      			case 9:  dummy = GF_CHAOS; break;
+		      	case 10: dummy = GF_FORCE; break;
+      			case 11:  dummy = GF_SHARDS; break;
+		      	case 12:  dummy = GF_CHARM; break;
+      			case 13:  dummy = GF_HOLY_FIRE; break;
+		      	case 14:  dummy = GF_HELL_FIRE; break;
+      			case 15:  dummy = GF_DEATH_RAY; break;
+		      	default:  dummy = GF_AWAY_ALL; break;
+      		}
+
+	   		y = py + ddy[dir];
+		   	x = px + ddx[dir];
+
+			   /* paranoia */
+  				if (!in_bounds2(y, x)) continue;
+   			c_ptr = area(y, x);
+
+            nt = rand_range( 1, 3);
+
+            /*  Bolt  */
+            if (nt == 1)
+            {
+      		   (void)fire_bolt_or_beam(1, dummy, dir,
+		      	   damroll(3 + ((plev - 5) / 4), 8));
+
+            }
+            /*  Beam  */
+            if (nt == 2)
+            {
+      		   (void)fire_bolt_or_beam(100, dummy, dir,
+		         	damroll(3 + ((plev - 5) / 4), 10));
+            }
+            /*  Ball  */
+            if (nt == 3)
+            {
+      		   (void)fire_ball(dummy, dir, damroll(3 + ((plev - 5) / 4), 12), randint1(3)+1);
+            }
+			}
+      }
+		break;
+	case 31: /*  Knowledge of the Ancients */
+      (void)identify_pack2();
+		(void)detect_all();
+		break;
+	default:
+		msg_format("You cast an unknown Chi spell: %d.", spell);
+		msg_print(NULL);
+	}
+
+	if (no_trump)
+	{
+		msg_print("Nothing appears.");
+	}
+
+
+	return TRUE;
+}
+
 
 /*
  * Cast a spell
@@ -2643,7 +3007,7 @@ void do_cmd_cast(void)
 	int	use_realm;
 	bool cast;
 
-	const cptr prayer = ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell");
+	const cptr prayer = ((mp_ptr->spell_book == TV_SPELL_BOOK) ? "prayer" : "spell");
 
 	object_type	*o_ptr;
 
@@ -2712,7 +3076,7 @@ void do_cmd_cast(void)
 	else realm = p_ptr->realm1;
 
 	/* Ask for a spell */
-	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
+	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_SPELL_BOOK) ? "recite" : "cast"),
 	               sval, TRUE, (bool)(increment ? TRUE : FALSE)))
 	{
 		if (spell == -2)
@@ -2732,7 +3096,7 @@ void do_cmd_cast(void)
 	{
 		/* Warning */
 		msg_format("You do not have enough mana to %s this %s.",
-			((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
+			((mp_ptr->spell_book == TV_SPELL_BOOK) ? "recite" : "cast"),
 			prayer);
 
 		/* Verify */
@@ -2751,7 +3115,7 @@ void do_cmd_cast(void)
 		msg_format("You failed to get the %s off!", prayer);
 		sound(SOUND_FAIL);
 
-		if ((randint1(100) < chance) && (mp_ptr->spell_book == TV_LIFE_BOOK))
+		if ((randint1(100) < chance) && (mp_ptr->spell_book == TV_SPELL_BOOK))
 			chg_virtue(V_FAITH, -1);
 		else if (randint1(100) < chance)
 			chg_virtue(V_KNOWLEDGE, -1);
@@ -2761,17 +3125,17 @@ void do_cmd_cast(void)
 		{
 			(void)cast_trump_spell(spell, FALSE);
 		}
-		else if ((o_ptr->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
+		else if ((o_ptr->tval == TV_SPELL_BOOK) && (randint1(100) < spell))
 		{
 			msg_print("You produce a chaotic effect!");
 			wild_magic(spell);
 		}
-		else if ((o_ptr->tval == TV_DEATH_BOOK) && (randint1(100) < spell))
+		else if ((o_ptr->tval == TV_SPELL_BOOK) && (randint1(100) < spell))
 		{
 			if ((sval == 3) && one_in_(2))
 			{
 				msg_print("Your sanity is shaken by reading the Necronomicon!");
-				
+
 				/* Mind blast */
 				if (!saving_throw(p_ptr->skill_sav * 100))
 				{
@@ -2795,7 +3159,7 @@ void do_cmd_cast(void)
 			else
 			{
 				msg_print("It hurts!");
-				take_hit(damroll(o_ptr->sval + 1, 6), "a miscast Death spell");
+				take_hit(damroll(o_ptr->sval + 1, 6), "a miscast Death spell", FALSE);
 				if ((spell > 15) && one_in_(6) && !p_ptr->hold_life)
 					lose_exp(spell * 250);
 			}
@@ -2807,7 +3171,7 @@ void do_cmd_cast(void)
 	{
 		if ((randint1(100) < chance) && (chance < 50))
 		{
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
+			if (mp_ptr->spell_book == TV_SPELL_BOOK)
 				chg_virtue(V_FAITH, 1);
 			else
 				chg_virtue(V_KNOWLEDGE, 1);
@@ -2837,6 +3201,9 @@ void do_cmd_cast(void)
 		case REALM_ARCANE: /* ARCANE */
 			cast = cast_arcane_spell(spell);
 			break;
+      case REALM_CHI:
+         cast = cast_chi_spell(spell);
+         break;
 		default:
 			cast = FALSE;
 			msg_format("You cast a spell from an unknown realm: realm %d, spell %d.", realm, spell);
@@ -2866,7 +3233,7 @@ void do_cmd_cast(void)
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
 
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
+			if (mp_ptr->spell_book == TV_SPELL_BOOK)
 				chg_virtue(V_FAITH, 1);
 			else
 				chg_virtue(V_KNOWLEDGE, 1);
@@ -2898,7 +3265,7 @@ void do_cmd_cast(void)
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
 
-		if (mp_ptr->spell_book == TV_LIFE_BOOK)
+		if (mp_ptr->spell_book == TV_SPELL_BOOK)
 			chg_virtue(V_FAITH, -10);
 		else
 			chg_virtue(V_KNOWLEDGE, -10);
@@ -3200,7 +3567,7 @@ void do_cmd_pet(void)
 							/* Update some things */
 							p_ptr->update |= (PU_MON_LITE);
 						}
-												
+
 						delete_monster_idx(pet_ctr);
 						Dismissed++;
 					}

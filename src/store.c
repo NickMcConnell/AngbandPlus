@@ -411,7 +411,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		/* Mega-Hack -- Black market sucks */
 		if (info_flags & ST_GREED)
 			price = price * 2;
-			
+
 		if (info_flags & ST_ULTRA_GREED)
 			price = price * 4;
 	}
@@ -459,13 +459,7 @@ static void mass_produce(object_type *o_ptr)
 			break;
 		}
 
-		case TV_LIFE_BOOK:
-		case TV_SORCERY_BOOK:
-		case TV_NATURE_BOOK:
-		case TV_CHAOS_BOOK:
-		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
-		case TV_ARCANE_BOOK:
+		case TV_SPELL_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);
 			if (cost <= 500L) size += damroll(1, 3);
@@ -521,7 +515,7 @@ static void mass_produce(object_type *o_ptr)
 				else if (cost < 3201L) size += damroll(1, 3);
 			}
 
-			/* 
+			/*
 			 * Ensure that mass-produced rods and wands
 			 * get the correct pvals.
 			 */
@@ -636,7 +630,7 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 	/* Combine quantity, lose excess items */
 	o_ptr->number = (total > 99) ? 99 : total;
 
-	/* 
+	/*
 	 * Hack -- if rods are stacking, add the pvals
 	 * (maximum timeouts) together. -LM-
 	 */
@@ -649,7 +643,7 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 	if (o_ptr->tval == TV_WAND)
 	{
 		o_ptr->pval += j_ptr->pval;
-		
+
 		/* No "used" charges in store stock */
 		o_ptr->ac = 0;
 	}
@@ -709,21 +703,21 @@ static bool store_check_num(object_type *o_ptr)
 static bool store_will_buy(const object_type *o_ptr)
 {
 	obj_theme theme;
-	
+
 	/* Check restriction flags */
-	
+
 	/* Blessed items only */
 	if (info_flags & ST_REST_BLESSED)
 	{
 		if (!item_tester_hook_is_blessed(o_ptr)) return (FALSE);
 	}
-	
+
 	/* Good items only */
 	if ((info_flags & ST_REST_GOOD) || (info_flags & ST_REST_GREAT))
 	{
 		if (!item_tester_hook_is_good(o_ptr)) return (FALSE);
 	}
-	
+
 	/* Ignore "worthless" items XXX XXX XXX */
 	if (object_value(o_ptr) <= 0) return (FALSE);
 
@@ -737,9 +731,9 @@ static bool store_will_buy(const object_type *o_ptr)
 
 	/* Initialise the theme tester */
 	init_match_theme(theme);
-	
+
 	/*
-	 * Final check: 
+	 * Final check:
 	 * Does the object have a chance of being made?
 	 */
 	return (kind_is_theme(o_ptr->k_idx));
@@ -763,23 +757,23 @@ static bool store_will_stock(object_type *o_ptr)
 {
 	/* Thing to pass to the action functions */
 	field_obj_test f_o_t;
-	
+
 	/* Save information to pass to the field action function */
 	f_o_t.o_ptr = o_ptr;
-	
+
 	/* Default is to reject this rejection */
 	f_o_t.result = FALSE;
-	
+
 	/* Will the store !not! buy this item? */
 	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
 		 FIELD_ACT_STORE_ACT1, (vptr) &f_o_t);
-	
+
 	/* We don't want this item type? */
 	if (f_o_t.result == TRUE) return (FALSE);
-	
+
 	/* Change the default to acceptance */
 	f_o_t.result = TRUE;
-	
+
 	/* Will the store buy this item? */
 	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
 		 FIELD_ACT_STORE_ACT2, (vptr) &f_o_t);
@@ -925,11 +919,14 @@ static int store_carry(object_type *o_ptr)
 
 	/* All store items are fully *identified* */
 	o_ptr->ident |= IDENT_MENTAL;
-	
+
 	/* Save all the known flags */
 	o_ptr->kn_flags1 = o_ptr->flags1;
 	o_ptr->kn_flags2 = o_ptr->flags2;
 	o_ptr->kn_flags3 = o_ptr->flags3;
+	o_ptr->kn_flags4 = o_ptr->flags4;
+	o_ptr->kn_flags5 = o_ptr->flags5;
+	o_ptr->kn_flags6 = o_ptr->flags6;
 
 	/* Erase the inscription */
 	o_ptr->inscription = 0;
@@ -1081,7 +1078,7 @@ static void store_delete(void)
 	/* Hack -- sometimes, only destroy a single item */
 	if (one_in_(2)) num = 1;
 
-	/* 
+	/*
 	 * Hack -- decrement the maximum timeouts and
 	 * total charges of rods and wands. -LM-
 	 */
@@ -1107,11 +1104,11 @@ static void store_create(void)
 
 	object_type forge;
 	object_type *q_ptr;
-	
+
 	obj_theme theme;
 
 	byte restricted = f_ptr->data[7];
-		
+
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->max_stock) return;
 
@@ -1120,7 +1117,7 @@ static void store_create(void)
 	theme.combat = f_ptr->data[4];
 	theme.magic = f_ptr->data[5];
 	theme.tools = f_ptr->data[6];
-		
+
 	/* Select items based on "theme" */
 	init_match_theme(theme);
 
@@ -1138,10 +1135,10 @@ static void store_create(void)
 	{
 		/* Get level to use */
 		level = rand_range(f_ptr->data[1], f_ptr->data[2]);
-		
+
 		/* Get an item */
 		kind = 	get_obj_num(level, 0);
-		
+
 		/* Handle failure */
 		if (!kind) continue;
 
@@ -1150,27 +1147,27 @@ static void store_create(void)
 
 		/* Create a new object of the chosen kind */
 		object_prep(q_ptr, kind);
-		
+
 		/* Create object based on restrictions */
 		if (restricted & ST_REST_GREAT)
 		{
 			/* Apply some "low-level" magic (great) */
-			apply_magic(q_ptr, level, 30, OC_FORCE_GOOD);
+			apply_magic(q_ptr, level, 30, OC_FORCE_GOOD, TRUE);
 		}
 		else if (restricted & ST_REST_GOOD)
 		{
 			/* Apply some "low-level" magic (good) */
-			apply_magic(q_ptr, level, 15, OC_NONE);
+			apply_magic(q_ptr, level, 15, OC_NONE, TRUE);
 		}
 		else
 		{
 			/* Apply some "low-level" magic (normal) */
-			apply_magic(q_ptr, level, 0, OC_NONE);
+			apply_magic(q_ptr, level, 0, OC_NONE, TRUE);
 		}
 
 		/* Require valid object */
 		if (!store_will_stock(q_ptr)) continue;
-		
+
 		/* Mega-Hack -- no chests in stores */
 		if (q_ptr->tval == TV_CHEST) continue;
 
@@ -1196,7 +1193,7 @@ static void store_create(void)
 		/* Definitely done */
 		break;
 	}
-	
+
 	/* Clear restriction */
 	get_obj_num_hook = NULL;
 }
@@ -1275,7 +1272,7 @@ static void display_entry(int pos)
 	char		c;
 
 	int maxwid;
-	
+
 	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	/* Get the item */
@@ -1354,7 +1351,7 @@ static void display_entry(int pos)
 			x = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
 
 			/* Actually draw the price (not fixed) */
-			(void)sprintf(out_val, "%9ld F", (long)x);
+			(void)sprintf(out_val, "%10ld F", (long)x);/*9*/
 			put_str(out_val, i+6, 68);
 		}
 
@@ -1368,7 +1365,7 @@ static void display_entry(int pos)
 			if (!noneedtobargain(x)) x += x / 10;
 
 			/* Actually draw the price (with tax) */
-			(void)sprintf(out_val, "%9ld  ", (long)x);
+			(void)sprintf(out_val, "%10ld  ", (long)x);/*9*/
 			put_str(out_val, i+6, 68);
 		}
 
@@ -1379,7 +1376,7 @@ static void display_entry(int pos)
 			x = price_item(o_ptr, ot_ptr->max_inflate, FALSE);
 
 			/* Actually draw the price (not fixed) */
-			(void)sprintf(out_val, "%9ld  ", (long)x);
+			(void)sprintf(out_val, "%10ld  ", (long)x);/*9*/
 			put_str(out_val, i+6, 68);
 		}
 	}
@@ -1442,7 +1439,7 @@ static void store_prt_gold(void)
 static void display_store(int store_top)
 {
 	char buf[80];
-	
+
 	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	/* Clear screen */
@@ -1520,7 +1517,7 @@ static void store_maint(void)
 
 	/* Sell a few items */
 	j = j - randint1(STORE_TURNOVER);
-	
+
 	if (st_ptr->max_stock == STORE_INVEN_MAX)
 	{
 		/* Never keep more than "STORE_MAX_KEEP" slots */
@@ -1552,7 +1549,7 @@ static void store_maint(void)
 
 	/* Buy some more items */
 	j = j + randint1(STORE_TURNOVER);
-	
+
 	if (st_ptr->max_stock == STORE_INVEN_MAX)
 	{
 		/* Never keep more than "STORE_MAX_KEEP" slots */
@@ -1580,7 +1577,7 @@ static void store_maint(void)
 	{
 		/* Increment counter so we avoid taking too long */
 		i++;
-		
+
 		/* Try to allocate some items */
 		store_create();
 	}
@@ -1627,7 +1624,7 @@ static void store_shuffle(store_type *st_ptr)
 		{
 			o_ptr->discount = 50;
 		}
-		
+
 		/* Hack -- Items are no longer "fixed price" */
 		o_ptr->ident &= ~(IDENT_FIXED);
 
@@ -1709,7 +1706,7 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 static bool increase_insults(void)
 {
 	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
-	
+
 	/* Increase insults */
 	st_ptr->insult_cur++;
 
@@ -2114,10 +2111,10 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	bool    cancel = FALSE;
 	cptr    pmt = "Offer";
 	char    out_val[160];
-	
+
 	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
-	*price = 0;	
+	*price = 0;
 
 	/* Obtain the starting offer and the final offer */
 	cur_ask = price_item(o_ptr, ot_ptr->max_inflate, TRUE);
@@ -2309,7 +2306,7 @@ static void store_purchase(int *store_top)
 	char o_name[80];
 
 	char out_val[160];
-	
+
 	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	/* Empty? */
@@ -2499,7 +2496,7 @@ static void store_purchase(int *store_top)
 				if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
 				{
 					o_ptr->pval -= j_ptr->pval;
-					
+
 					/* No used charges in store stock */
 					o_ptr->ac = 0;
 				}
@@ -2664,8 +2661,8 @@ static void store_sell(int *store_top)
 		/* Only allow items the store will buy */
 		item_tester_hook = store_will_buy;
 	}
-	
-	
+
+
 	/* Get an item */
 	s = "You have nothing that I want.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
@@ -2723,7 +2720,7 @@ static void store_sell(int *store_top)
 	if (o_ptr->tval == TV_WAND)
 	{
 		q_ptr->pval = (o_ptr->pval + o_ptr->ac) * amt / o_ptr->number;
-		
+
 		/* Remove "used" charges */
 		if (q_ptr->pval < o_ptr->ac)
 		{
@@ -2734,7 +2731,7 @@ static void store_sell(int *store_top)
 			q_ptr->pval -= o_ptr->ac;
 		}
 	}
-	
+
 	if (o_ptr->tval == TV_ROD)
 	{
 		q_ptr->pval = o_ptr->pval  * amt / o_ptr->number;
@@ -2812,7 +2809,7 @@ static void store_sell(int *store_top)
 			 * and retained, unless all are being sold. -LM-
 			 */
 			distribute_charges(o_ptr, q_ptr, amt);
-			
+
 			/* Get the "actual" value */
 			value = object_value(q_ptr) * q_ptr->number;
 
@@ -2824,7 +2821,7 @@ static void store_sell(int *store_top)
 
 			if (!((q_ptr->tval == TV_FIGURINE) && (value > 0)))
 			{
-				/* 
+				/*
 				 * Analyze the prices (and comment verbally)
 				 * unless object is a figurine
 				 */
@@ -2836,13 +2833,13 @@ static void store_sell(int *store_top)
 				/* Reset timeouts of the sold items */
 				q_ptr->timeout = 0;
 			}
-			
+
 			if (q_ptr->tval == TV_WAND)
 			{
 				/* Reset the "used" charges. */
 				q_ptr->ac = 0;
 			}
-			
+
 			/* Take the item from the player, describe the result */
 			inven_item_increase(item, -amt);
 			inven_item_describe(item);
@@ -3360,7 +3357,7 @@ bool allocate_store(store_type *st_ptr)
 
 	/* Add store to end of cache */
 	store_cache[store_cache_num] = st_ptr;
-	
+
 	C_MAKE(st_ptr->stock, STORE_INVEN_MAX, object_type);
 
 	/* The number in the cache has increased */
@@ -3388,36 +3385,36 @@ void do_cmd_store(field_type *f1_ptr)
 	int tmp_chr;
 	int i;
 	int store_top;
-	
+
 	town_type	*twn_ptr = &town[p_ptr->town_num];
-	
+
 	/* Get the store the player is on */
 	for (i = 0; i < twn_ptr->numstores; i++)
 	{
-		if ((p_ptr->py - twn_ptr->y * 16 == twn_ptr->store[i].y) && 
+		if ((p_ptr->py - twn_ptr->y * 16 == twn_ptr->store[i].y) &&
 		 (p_ptr->px - twn_ptr->x * 16 == twn_ptr->store[i].x))
 		{
 			which = i;
 		}
 	}
-	
+
 	/* Paranoia */
 	if (which == -1)
 	{
 		msg_print("Could not locate building!");
 		return;
 	}
-	
+
 	/* Hack - save f1_ptr for later */
 	f_ptr = f1_ptr;
 
 	/* Save the store pointer */
 	st_ptr = &twn_ptr->store[which];
-	
+
 	/* Hack - save interesting flags for later */
 	info_flags = f_ptr->data[7];
-	
-	
+
+
 	/* Hack -- Check the "locked doors" */
 	if ((st_ptr->store_open >= turn) || (ironman_shops))
 	{
@@ -3456,7 +3453,7 @@ void do_cmd_store(field_type *f1_ptr)
 		{
 			store_maint();
 		}
-		
+
 		/* Save the visit */
 		st_ptr->last_visit = turn;
 	}
@@ -3623,7 +3620,7 @@ void do_cmd_store(field_type *f1_ptr)
 		{
 			display_inventory(store_top);
 		}
-		
+
 		/* Hack -- get kicked out of the store */
 		if (st_ptr->store_open >= turn) leave_store = TRUE;
 	}
@@ -3680,10 +3677,10 @@ void store_init(int town_num, int store_num, byte store_type)
 
 	/* Do not allocate the stock yet. */
 	st_ptr->stock = NULL;
-	
+
 	/* Set the store type */
 	st_ptr->type = store_type;
-	
+
 	/* Initialize the store */
 	st_ptr->store_open = 0;
 	st_ptr->insult_cur = 0;
@@ -3692,7 +3689,7 @@ void store_init(int town_num, int store_num, byte store_type)
 
 	/* Nothing in stock */
 	st_ptr->stock_num = 0;
-	
+
 	/*
 	 * Hack - maximum items in stock
 	 * (This number may be changed when the store

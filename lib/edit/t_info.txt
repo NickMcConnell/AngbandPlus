@@ -8,9 +8,9 @@
 
 # N: serial number : field name
 # G: symbol : color
-# W: priority : type : counter initial value 
+# W: priority : type : counter initial value
 # I: flag | flag | flag
-# D: Data[8] 
+# D: Data[8]
 # F: location,function | location,function | location,function
 
 
@@ -328,7 +328,7 @@ F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # bright rune
 N:29:bright rune
-G:^:W
+G:^:s
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
 D:5:125:0:0:0:0:0:0
@@ -348,7 +348,7 @@ F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # spiral rune
 N:31:spiral rune
-G:^:W
+G:^:s
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
 D:5:75:0:0:0:0:0:0
@@ -446,7 +446,7 @@ G:6:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:20:40:0:0:100:0:0
-F:2,field_action_door_store 
+F:2,field_action_door_store
 F:18,field_action_ispotion_tester
 
 # Black Market
@@ -548,7 +548,7 @@ F:19,field_action_isweapon_tester
 
 # Weapon Smiths
 N:51:Arcane Weapon Smiths
-G:3:W
+G:3:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:75:127:0:100:0:0:24
@@ -557,7 +557,7 @@ F:19,field_action_isweapon_tester
 
 # Weapon Smiths
 N:52:Obscure Weapon Smiths
-G:3:W
+G:3:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:42
@@ -566,7 +566,7 @@ F:19,field_action_isweapon_tester
 
 # Weapon Smiths
 N:53:Rare Weapon Smiths
-G:3:W
+G:3:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:62
@@ -692,7 +692,7 @@ F:19,field_action_isshield_tester
 
 # Shieldsman
 N:67:Expert Shieldsman
-G:2:W
+G:2:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:30:75:0:100:0:0:8
@@ -701,7 +701,7 @@ F:19,field_action_isshield_tester
 
 # Shieldsman
 N:68:Arcane Shieldsman
-G:2:W
+G:2:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:75:127:0:100:0:0:42
@@ -863,7 +863,7 @@ F:19,field_action_isweaparmour_tester
 
 # Warrior Hall
 N:86:Expert Warrior Hall
-G:0:W
+G:0:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:40:75:0:100:0:0:8
@@ -872,7 +872,7 @@ F:19,field_action_isweaparmour_tester
 
 # Warrior Hall
 N:87:Arcane Warrior Hall
-G:0:W
+G:0:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:75:127:0:100:0:0:24
@@ -1133,7 +1133,7 @@ F:19,field_action_ispotion_tester
 
 # Scroll Store
 N:116:Scroll Store
-G:5:W
+G:5:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:1:30:0:0:100:0:0
@@ -1142,7 +1142,7 @@ F:19,field_action_isscroll_tester
 
 # Scroll Store
 N:117:Crafted Scroll Store
-G:5:W
+G:5:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:20:50:0:0:100:0:8
@@ -1151,7 +1151,7 @@ F:19,field_action_isscroll_tester
 
 # Scroll Store
 N:118:Expensive Scroll Store
-G:5:W
+G:5:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:40:70:0:0:100:0:24

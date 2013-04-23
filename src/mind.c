@@ -333,7 +333,7 @@ static bool cast_mindcrafter_spell(int spell)
 		{
 			(void)set_tim_esp(p_ptr->tim_esp + plev);
 		}
-		
+
 		if (!b) msg_print("You feel safe.");
 		break;
 	case MINDCRAFT_MINOR_DISPLACEMENT:
@@ -613,7 +613,7 @@ void do_cmd_mindcraft(void)
 	p_ptr->redraw |= (PR_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER | PW_PLAYRES);
 	p_ptr->window |= (PW_SPELL);
 }
 

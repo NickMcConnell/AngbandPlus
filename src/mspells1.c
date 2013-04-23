@@ -70,7 +70,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	if (r_ptr->flags2 & RF2_STUPID) return;
 
 	/* Update acquired knowledge */
-	
+
 	/* Hack -- Occasionally forget player status */
 	if (m_ptr->smart && one_in_(100)) m_ptr->smart = 0L;
 
@@ -315,27 +315,27 @@ static bool summon_possible(int y1, int x1)
 			/* ...nor on the Pattern */
 			if ((c_ptr->feat >= FEAT_PATTERN_START) &&
 			    (c_ptr->feat <= FEAT_PATTERN_XTRA2)) continue;
-				
+
 			/* Check to see if fields dissallow placement */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
-			{ 
+			{
 				/* Cannot create */
 				return (FALSE);
 			}
-			
-			/* 
+
+			/*
 			 * Test for fields that will not allow monsters to
 			 * be generated on them.  (i.e. Glyph of warding)
 			 */
-		 
+
 			/* Initialise information to pass to action functions */
 			mon_enter_test.m_ptr = NULL;
 			mon_enter_test.do_move = TRUE;
-		
+
 			/* Call the hook */
 			field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
 				 (vptr) &mon_enter_test);
-			 
+
 			/* Get result */
 			if (!mon_enter_test.do_move) return (FALSE);
 
@@ -369,7 +369,7 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friendly)
 {
 	int grid_n;
 	coord grid_g[512];
-	
+
 	u16b flg;
 
 	/* Try not to hit friends. */
@@ -381,15 +381,15 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friendly)
 	{
 		flg = PROJECT_STOP;
 	}
-	
+
 	if (ironman_los)
 	{
 		/* Check the projection path - endpoints reversed */
 		grid_n = project_path(grid_g, y2, x2, y1, x1, flg);
-		
+
 		/* No grid is ever projectable from itself */
 		if (!grid_n) return (FALSE);
-	
+
 		/* May not end in an unrequested grid */
 		if ((grid_g[grid_n-1].y != y1) ||
 			 (grid_g[grid_n-1].x != x1)) return (FALSE);
@@ -398,7 +398,7 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friendly)
 	{
 		/* Check the projection path */
 		grid_n = project_path(grid_g, y1, x1, y2, x2, flg);
-		
+
 		/* No grid is ever projectable from itself */
 		if (!grid_n) return (FALSE);
 
@@ -406,7 +406,7 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friendly)
 		if ((grid_g[grid_n-1].y != y2) ||
 			 (grid_g[grid_n-1].x != x2)) return (FALSE);
 	}
-	
+
 	return (TRUE);
 }
 
@@ -457,14 +457,14 @@ static void breath(int m_idx, int typ, int dam_hp, int rad, bool breath)
 void curse_equipment(int chance, int heavy_chance)
 {
 	bool        changed = FALSE;
-	u32b        o1, o2, o3;
+	u32b        o1, o2, o3, o4, o5, o6;
 	object_type *o_ptr = &inventory[INVEN_WIELD + randint0(12)];
 
 	if (randint1(100) > chance) return;
 
 	if (!o_ptr->k_idx) return;
 
-	object_flags(o_ptr, &o1, &o2, &o3);
+	object_flags(o_ptr, &o1, &o2, &o3, &o4, &o5, &o6);
 
 
 	/* Extra, biased saving throw for blessed items */
@@ -801,7 +801,7 @@ bool make_attack_spell(int m_idx)
 
 	/* Stop if player is leaving */
 	if (p_ptr->leaving) return (FALSE);
-	
+
 	/* Only do spells occasionally */
 	if (randint0(100) >= chance) return (FALSE);
 
@@ -1470,7 +1470,7 @@ bool make_attack_spell(int m_idx)
 					(void)set_image(p_ptr->image + rand_range(150, 400));
 				}
 
-				take_hit(damroll(8, 8), ddesc);
+				take_hit(damroll(8, 8), ddesc, FALSE);
 			}
 			break;
 		}
@@ -1496,7 +1496,7 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
-				take_hit(damroll(12, 15), ddesc);
+				take_hit(damroll(12, 15), ddesc, FALSE);
 				if (!p_ptr->resist_blind)
 				{
 					(void)set_blind(p_ptr->blind + rand_range(8, 16));
@@ -1538,7 +1538,7 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				curse_equipment(33, 0);
-				take_hit(damroll(3, 8), ddesc);
+				take_hit(damroll(3, 8), ddesc, FALSE);
 			}
 			break;
 		}
@@ -1557,7 +1557,7 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				curse_equipment(50, 5);
-				take_hit(damroll(8, 8), ddesc);
+				take_hit(damroll(8, 8), ddesc, FALSE);
 			}
 			break;
 		}
@@ -1576,7 +1576,7 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				curse_equipment(80, 15);
-				take_hit(damroll(10, 15), ddesc);
+				take_hit(damroll(10, 15), ddesc, FALSE);
 			}
 			break;
 		}
@@ -1594,7 +1594,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				take_hit(damroll(15, 15), ddesc);
+				take_hit(damroll(15, 15), ddesc, FALSE);
 				(void)set_cut(p_ptr->cut + damroll(10, 10));
 			}
 			break;
@@ -1880,7 +1880,7 @@ bool make_attack_spell(int m_idx)
 			{
 				int dummy = (((s32b) (rand_range(65, 90) * (p_ptr->chp))) / 100);
 				msg_print("Your feel your life fade away!");
-				take_hit(dummy, m_name);
+				take_hit(dummy, m_name, FALSE);
 				curse_equipment(100, 20);
 
 				if (p_ptr->chp < 1) p_ptr->chp = 1;
@@ -2357,13 +2357,13 @@ bool make_attack_spell(int m_idx)
 		{
 			/* Toggle flag */
 			m_ptr->smart &= ~(SM_MIMIC);
-			
+
 			/* It is in the monster list now if visible */
 			if (m_ptr->ml) update_mon_vis(m_ptr->r_idx, 1);
-		
+
 			/*Hack - no need for a message */
 		}
-		
+
 		/* Inate spell */
 		if (thrown_spell < 32 * 4)
 		{

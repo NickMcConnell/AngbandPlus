@@ -259,7 +259,7 @@ static bool object_easy_know(int i)
 	object_kind *k_ptr = &k_info[i];
 
 	if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
-	
+
 	/* Nope */
 	return (FALSE);
 }
@@ -339,7 +339,7 @@ void get_table_name(char *out_string, bool quotes)
 	{
 		out_string[0] = 0;
 	}
-	
+
 	if (one_in_(3))
 	{
 		while (testcounter--)
@@ -365,7 +365,7 @@ void get_table_name(char *out_string, bool quotes)
 	{
 		out_string[0] = toupper(out_string[0]);
 	}
-	
+
 	out_string[18] = '\0';
 
 	return;
@@ -781,7 +781,7 @@ static char *object_desc_int(char *t, sint v)
 void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 {
 	cptr            basenm, modstr;
-	int             power, indexx;
+	int             power, indexx, durable;
 
 	bool            aware = FALSE;
 	bool            known = FALSE;
@@ -797,13 +797,14 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	char            p1 = '(', p2 = ')';
 	char            b1 = '[', b2 = ']';
 	char            c1 = '{', c2 = '}';
+   char            pv1 = '<', pv2 = '>';
 
 	char            tmp_val[160];
 	char            tmp_val2[90];
 
-	u32b            f1, f2, f3;
+	u32b            f1, f2, f3, f4, f5, f6;
 
-	object_type	*bow_ptr;	
+	object_type	*bow_ptr;
 
 	/* damage dice, damage sides, damage bonus, energy */
 	int		dd, ds, db, energy_use;
@@ -816,8 +817,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	monster_race *r_ptr = &r_info[o_ptr->pval];
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &f6);
 
+   /*****   NEEDS   REWORKING   *****/
+
+   durable = 0;
 
 	/* See if the object is "aware" */
 	if (object_aware_p(o_ptr)) aware = TRUE;
@@ -833,7 +837,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	/* Assume no "modifier" string */
 	modstr = "";
-
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
@@ -911,39 +914,24 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_AMULET:
 		{
 			/* Known artifacts */
-			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware &&
-				 (o_ptr->activate > 128)) break;
+			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware) break;
 
 			/* Color the object */
 			modstr = amulet_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Amulet~";
-			else
-				basenm = aware ? "& # Amulet~" : "& # Amulet~";
 			break;
+
 		}
 
 		/* Rings (including a few "Specials") */
 		case TV_RING:
 		{
 			/* Known artifacts */
-			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware &&
-				 (o_ptr->activate > 128)) break;
+			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware) break;
 
 			/* Color the object */
 			modstr = ring_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Ring~";
-			else
-				basenm = aware ? "& # Ring~" : "& # Ring~";
-
 			/* Hack -- The One Ring */
-			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";
-
+			/*if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";*/
 			break;
 		}
 
@@ -951,11 +939,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			/* Color the object */
 			modstr = staff_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Staff~";
-			else
-				basenm = aware ? "& # Staff~" : "& # Staff~";
 			break;
 		}
 
@@ -963,11 +946,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			/* Color the object */
 			modstr = wand_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Wand~";
-			else
-				basenm = aware ? "& # Wand~" : "& # Wand~";
 			break;
 		}
 
@@ -975,11 +953,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			/* Color the object */
 			modstr = rod_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Rod~";
-			else
-				basenm = aware ? "& # Rod~" : "& # Rod~";
 			break;
 		}
 
@@ -987,11 +960,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			/* Color the object */
 			modstr = scroll_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Scroll~";
-			else
-				basenm = aware ? "& Scroll~ titled \"#\"" : "& Scroll~ titled \"#\"";
 			break;
 		}
 
@@ -999,11 +967,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			/* Color the object */
 			modstr = potion_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Potion~";
-			else
-				basenm = aware ? "& # Potion~" : "& # Potion~";
 			break;
 		}
 
@@ -1014,85 +977,15 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 			/* Color the object */
 			modstr = food_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Mushroom~";
-			else
-				basenm = aware ? "& # Mushroom~" : "& # Mushroom~";
 			break;
 		}
 
 		/* Magic Books */
-		case TV_LIFE_BOOK:
+		case TV_SPELL_BOOK:
 		{
 			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Life Magic #";
-			else
-				basenm = "& Life Spellbook~ #";
 			break;
 		}
-
-		case TV_SORCERY_BOOK:
-		{
-			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Sorcery #";
-			else
-				basenm = "& Sorcery Spellbook~ #";
-			break;
-		}
-
-		case TV_NATURE_BOOK:
-		{
-			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Nature Magic #";
-			else
-				basenm = "& Nature Spellbook~ #";
-			break;
-		}
-
-		case TV_CHAOS_BOOK:
-		{
-			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Chaos Magic #";
-			else
-				basenm = "& Chaos Spellbook~ #";
-			break;
-		}
-
-		case TV_DEATH_BOOK:
-		{
-			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Death Magic #";
-			else
-				basenm = "& Death Spellbook~ #";
-			break;
-		}
-
-		case TV_TRUMP_BOOK:
-		{
-			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Trump Magic #";
-			else
-				basenm = "& Trump Spellbook~ #";
-			break;
-		}
-
-		case TV_ARCANE_BOOK:
-		{
-			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Arcane Magic #";
-			else
-				basenm = "& Arcane Spellbook~ #";
-			break;
-		}
-
 
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
@@ -1111,6 +1004,20 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	/* Start dumping the result */
 	t = tmp_val;
+
+   /* Durability Check */
+   durable = (o_ptr->C_Durability / (o_ptr->weight * 3));
+   if (durable > 7) durable = 7;
+
+   if (durable ==  0) t = object_desc_str(t, "(J) ");
+   if (durable ==  1) t = object_desc_str(t, "(B) ");
+   if (durable ==  2) t = object_desc_str(t, "(P) ");
+   if (durable ==  3) t = object_desc_str(t, "(N) ");
+   if (durable ==  4) t = object_desc_str(t, "(G) ");
+   if (durable ==  5) t = object_desc_str(t, "(E) ");
+   if (durable ==  6) t = object_desc_str(t, "(W) ");
+   if (durable ==  7) t = object_desc_str(t, "(M) ");
+
 
 	/* The object "expects" a "number" */
 	if (basenm[0] == '&')
@@ -1500,11 +1407,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		dd = o_ptr->dd;
 		ds = o_ptr->ds;
 
-		avgdam = deadliness_calc(db);
+/*		avgdam = deadliness_calc(db);*/
 
 		/* effect of damage dice x2 */
-		avgdam *= dd * (ds + 1);
-		
+		avgdam = dd * (ds + 1);
+
+      avgdam += db;
+
 		/* Bow properties */
 		energy_use = p_ptr->bow_energy;
 		tmul = p_ptr->ammo_mult;
@@ -1518,13 +1427,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		/* display (shot damage/ avg damage) */
 		t = object_desc_chr(t, ' ');
 		t = object_desc_chr(t, p1);
-		t = object_desc_num(t, avgdam / 200);
+		t = object_desc_num(t, avgdam / 2/*00*/);
 		t = object_desc_chr(t, '/');
 
 		tmul = p_ptr->num_fire;
 		if (tmul == 0)
 		{
-			t = object_desc_chr(t, '0');
+			t = object_desc_chr(t, '-');
 		}
 		else
 		{
@@ -1532,7 +1441,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			avgdam *= (1 + p_ptr->num_fire);
 
 			/* rescale */
-			avgdam /= 4 * energy_use;
+			avgdam /= ((int)(4 * (int)(energy_use / 100.0)));
 			t = object_desc_num(t, avgdam);
 		}
 
@@ -1654,60 +1563,71 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Dump "pval" flags for wearable items */
 	if (known && (f1 & (TR1_PVAL_MASK)))
 	{
-		/* Start the display */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
+      if (o_ptr->tval != TV_STAFF && o_ptr->tval != TV_ROD && o_ptr->tval != TV_POTION && o_ptr->tval != TV_FOOD && o_ptr->tval != TV_WAND && o_ptr->tval != TV_SCROLL)
+      {
+   		/* Start the display */
+	   	t = object_desc_chr(t, ' ');
+		   t = object_desc_chr(t, p1);
 
-		/* Dump the "pval" itself */
-		t = object_desc_int(t, o_ptr->pval);
+   		/* Dump the "pval" itself */
+	   	t = object_desc_int(t, o_ptr->pval);
 
-		/* Do not display the "pval" flags */
-		if (f3 & (TR3_HIDE_TYPE))
-		{
-			/* Nothing */
-		}
+		   /* Do not display the "pval" flags */
+   		if (f3 & (TR3_HIDE_TYPE))
+	   	{
+		   	/* Nothing */
+   		}
 
-		/* Speed */
-		else if (f1 & (TR1_SPEED))
-		{
-			/* Dump " to speed" */
-			t = object_desc_str(t, " to speed");
-		}
+	   	/* Speed */
+		   else if (f1 & (TR1_SPEED))
+   		{
+	   		/* Dump " to speed" */
+		   	t = object_desc_str(t, " to speed");
+   		}
 
-		/* Attack speed */
-		else if (f1 & (TR1_BLOWS))
-		{
-			/* Add " attack" */
-			t = object_desc_str(t, " attack");
+	   	/* Attack speed */
+		   else if (f1 & (TR1_BLOWS))
+   		{
+	   		/* Add " attack" */
+		   	t = object_desc_str(t, " attack");
 
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
-		}
+			   /* Add "attacks" */
+   			if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
+	   	}
 
-		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
-		{
-			/* Dump " to stealth" */
-			t = object_desc_str(t, " to stealth");
-		}
+   		/* Stealth */
+	   	else if (f1 & (TR1_STEALTH))
+		   {
+   			/* Dump " to stealth" */
+	   		t = object_desc_str(t, " to stealth");
+		   }
 
-		/* Search */
-		else if (f1 & (TR1_SEARCH))
-		{
-			/* Dump " to searching" */
-			t = object_desc_str(t, " to searching");
-		}
+   		/* Search */
+	   	else if (f1 & (TR1_SEARCH))
+		   {
+			   /* Dump " to searching" */
+   			t = object_desc_str(t, " to searching");
+	   	}
 
-		/* Infravision */
-		else if (f1 & (TR1_INFRA))
-		{
-			/* Dump " to infravision" */
-			t = object_desc_str(t, " to infravision");
-		}
+		   /* Infravision */
+   		else if (f1 & (TR1_INFRA))
+	   	{
+		   	/* Dump " to infravision" */
+			   t = object_desc_str(t, " to infravision");
+   		}
 
-		/* Finish the display */
-		t = object_desc_chr(t, p2);
+	   	/* Finish the display */
+		   t = object_desc_chr(t, p2);
+      }
 	}
+
+   if (known && o_ptr->pval2)
+   {
+		t = object_desc_chr(t, ' ');
+		t = object_desc_chr(t, pv1);
+		t = object_desc_num(t, o_ptr->pval2);
+		t = object_desc_chr(t, pv2);
+   }
 
 	/* Indicate charging objects, but not rods. */
 	if (known && o_ptr->timeout && o_ptr->tval != TV_ROD

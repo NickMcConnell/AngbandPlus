@@ -103,7 +103,7 @@ struct header
  * can be itterated over to get a 'flight path' for arrows
  * and thrown items...
  */
- 
+
 typedef struct project_type project_type;
 
 struct project_type
@@ -111,7 +111,7 @@ struct project_type
 	/* Offset of square */
 	byte x;
 	byte y;
-	
+
 	/* Index into array if this square is a wall */
 	byte slope;
 	byte square;
@@ -135,7 +135,7 @@ struct feature_type
 
 	byte x_attr;		/* Desired feature attribute */
 	char x_char;		/* Desired feature character */
-	
+
 	byte w_attr;		/* Desired extra feature attribute */
 	char w_char;		/* Desired extra feature character */
 };
@@ -158,6 +158,7 @@ struct object_kind
 	byte sval;			/* Object sub type */
 
 	s16b pval;			/* Object extra info */
+   s16b pval2;
 
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
@@ -174,14 +175,17 @@ struct object_kind
 	u32b flags1;		/* Flags, set 1 */
 	u32b flags2;		/* Flags, set 2 */
 	u32b flags3;		/* Flags, set 3 */
+	u32b flags4;		/* Flags, set 1 */
+	u32b flags5;		/* Flags, set 2 */
+	u32b flags6;		/* Flags, set 3 */
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
 
-	byte level;			/* Level */	
-	
-	byte extra;			/* Unused for now */
-	
+	byte level;			/* Level */
+
+	u16b extra;			/*  Activation Index ** MAY NEED u16b **  */
+
 	byte d_attr;		/* Default object attribute */
 	char d_char;		/* Default object character */
 
@@ -236,6 +240,7 @@ struct artifact_type
 	byte sval;			/* Artifact sub type */
 
 	s16b pval;			/* Artifact extra info */
+   s16b pval2;
 
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
@@ -252,6 +257,9 @@ struct artifact_type
 	u32b flags1;		/* Artifact Flags, set 1 */
 	u32b flags2;		/* Artifact Flags, set 2 */
 	u32b flags3;		/* Artifact Flags, set 3 */
+	u32b flags4;		/* Artifact Flags, set 1 */
+	u32b flags5;		/* Artifact Flags, set 2 */
+	u32b flags6;		/* Artifact Flags, set 3 */
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
@@ -283,12 +291,23 @@ struct ego_item_type
 	byte max_to_a;		/* Maximum to-ac bonus */
 
 	byte max_pval;		/* Maximum pval */
+   byte max_pval2;   /*  Maximum Secondary pval  */
 
 	s32b cost;			/* Ego-item "cost" */
 
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
+	u32b flags4;		/* Ego-Item Flags, set 1 */
+	u32b flags5;		/* Ego-Item Flags, set 2 */
+	u32b flags6;		/* Ego-Item Flags, set 3 */
+
+   u16b activation;  /*  Activation Effect  */
+
+   bool aware;       /*  Aware of this type of Ego  */
+   bool tried;
+
+   u16b ego_num;     /*  Ego Num  */
 };
 
 
@@ -416,7 +435,7 @@ struct monster_race
 	u32b r_flags5;			/* Observed racial flags */
 	u32b r_flags6;			/* Observed racial flags */
 	u32b r_flags7;			/* Observed racial flags */
-	
+
 	obj_theme obj_drop;		/* Type of objects to drop when killed */
 
 	u16b r_see;				/* Number of monsters of this type visible */
@@ -442,10 +461,6 @@ struct vault_type
 	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
 };
-
-
-
-
 
 /*
  * A single "grid" in a Cave
@@ -742,6 +757,7 @@ struct object_type
 	byte sval;			/* Item sub-type (from kind) */
 
 	s16b pval;			/* Item extra-parameter */
+   s16b pval2;       /*  Secondary pval  */
 
 	byte discount;		/* Discount (if any) */
 
@@ -757,7 +773,7 @@ struct object_type
 
 	s16b timeout;		/* Timeout Counter */
 
-	byte dd, ds;		/* Damage dice/sides */	
+	byte dd, ds;		/* Damage dice/sides */
 
 	byte ident;			/* Special flags */
 
@@ -765,24 +781,38 @@ struct object_type
 
 	u16b inscription;	/* Inscription index */
 	u16b xtra_name;      /* Extra Name (Artifacts and ego items) */
+   u16b ego_num;
 
 	u32b flags1;        /* Flags, set 1 */
 	u32b flags2;        /* Flags, set 2 */
 	u32b flags3;        /* Flags, set 3 */
-	
+	u32b flags4;        /* Flags, set 1 */
+	u32b flags5;        /* Flags, set 2 */
+	u32b flags6;        /* Flags, set 3 */
+
 	u32b kn_flags1;     /* Known Flags, set 1 */
 	u32b kn_flags2;     /* Known Flags, set 2 */
 	u32b kn_flags3;     /* Known Flags, set 3 */
+	u32b kn_flags4;     /* Known Flags, set 1 */
+	u32b kn_flags5;     /* Known Flags, set 2 */
+	u32b kn_flags6;     /* Known Flags, set 3 */
 
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
 
 	s32b cost;			/* Object "base cost" */
-	
+
 	byte feeling;       /* Game generated inscription number (eg, pseudo-id) */
 
-	byte activate;		/* Activation type */
+	u16b activate;		/* Activation type */
+
+   byte OCraftLevel;  /* Durability Marker */
+   byte CCraftLevel; /* Current Durability Marker */
+   u32b O_Durability;/* Original Durability level (HP) */
+   u32b C_Durability;/* Current Durability level (HP) */
+
+	bool aware;			/* The player is "aware" of the item's effects */
 
 #ifdef SCRIPT_OBJ_KIND
 	char *name;
@@ -800,7 +830,6 @@ struct object_type
 	bool easy_know;		/* This object is always known (if aware) */
 
 
-	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
 #endif /* SCRIPT_OBJ_KIND */
@@ -878,7 +907,7 @@ struct field_thaum
 {
 	byte f_attr;			/* attribute */
 	char f_char;			/* character */
-	
+
 	byte d_attr;			/* Default attribute */
 	char d_char;			/* Default char */
 
@@ -903,7 +932,7 @@ struct field_thaum
  * The field structure.
  *
  * Fields will be used to create a variety of effects from
- * the ability to place traps on _all_ terrains (not just 
+ * the ability to place traps on _all_ terrains (not just
  * dungeon floor), to the nightmare mode automatic corpse raising.
  *
  * The new building / store code will use this structure.
@@ -927,7 +956,7 @@ struct field_type
 	byte data[8];
 
 	s16b counter;			/* Counter for timed effects */
-	
+
 	byte priority;			/* LOS priority higher = more visible */
 };
 
@@ -946,7 +975,7 @@ struct field_action
 };
 
 
-/* 
+/*
  * Structure required to pass infomation to the
  * FIELD_ACT_MAGIC_TARGET action functions.
  */
@@ -962,7 +991,7 @@ struct field_magic_target
 	bool known;	/* Can the player see us? */
 };
 
-/* 
+/*
  * Structure required to pass infomation to the
  * FIELD_ACT_MON_ENTER_TEST action functions.
  */
@@ -1147,6 +1176,8 @@ struct player_race
 
 	byte infra;			/* Infra-vision	range */
 
+   s16b deadly_mod;  /* Deadliness Modifier */
+
 	u16b choice;        /* Legal class choices */
 };
 
@@ -1185,6 +1216,7 @@ struct player_class
 	s16b c_exp;			/* Class experience factor */
 
 	byte pet_upkeep_div; /* Pet upkeep divider */
+   s16b base_deadly; /* Class Base Deadliness */
 };
 
 
@@ -1215,11 +1247,11 @@ struct player_type
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
 	byte realm1;		/* First magic realm */
-	
+
 	byte realm2;		/* Second magic realm */
 	byte hitdie;		/* Hit dice (sides) */
 	s16b age;			/* Characters age */
-	
+
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
@@ -1230,8 +1262,8 @@ struct player_type
 	u16b exp_frac;		/* Cur exp frac (times 2^16) */
 
 	s32b max_exp;		/* Max experience */
-	s32b exp;			/* Cur experience */	
-	
+	s32b exp;			/* Cur experience */
+
 	s32b au;			/* Current Gold */
 
 	s16b town_num;		/* Current town number */
@@ -1280,7 +1312,7 @@ struct player_type
 	s16b tim_esp;		/* Timed ESP */
 	s16b wraith_form;		/* Timed wraithform */
 	s16b resist_magic;	/* Timed Resist Magic (later) */
-	
+
 	s16b tim_xtra1;		/* Later */
 	s16b tim_xtra2;		/* Later */
 	s16b tim_xtra3;		/* Later */
@@ -1296,7 +1328,7 @@ struct player_type
 
 	s16b virtues[MAX_PLAYER_VIRTUES];
 	s16b vir_types[MAX_PLAYER_VIRTUES];
-	
+
 	s16b chaos_patron;	/* Players Chaos Patron */
 	s16b word_recall;		/* Word of recall counter */
 
@@ -1321,7 +1353,7 @@ struct player_type
 	byte searching;		/* Currently searching */
 
 	u16b total_winner;	/* Total winner */
-	
+
 	u16b panic_save;		/* Panic save */
 	u16b noscore;		/* Cheating flags */
 
@@ -1342,7 +1374,7 @@ struct player_type
 	bool create_down_stair;	/* Create down stair on next level */
 
 	s32b align;			/* Good/evil/neutral */
-	
+
 	s16b detectx;		/* Coords of last detect traps casting */
 	s16b detecty;		/* Coords of last detect traps casting */
 	bool detected;		/* Have cast detect_traps on this level */
@@ -1506,17 +1538,28 @@ struct player_type
 	s16b pet_follow_distance;	/* Length of the imaginary "leash" for pets */
 	byte pet_open_doors;		/* flag - allow pets to open doors */
 	byte pet_pickup_items;		/* flag - allow pets to pickup items */
-	
+
 	/* Options */
 	bool options[OPT_PLAYER];
 	bool birth[OPT_BIRTH];
-	
+
 	/* Extra player-specific flags */
 	bool skip_more;			/* Skip the --more-- prompt */
 	bool mon_fight;			/* Monster fighting indicator */
-	
+
 	u16b max_seen_r_idx;	/* Most powerful monster visible */
 	bool monk_armour_stat;	/* Status of monk armour */
+
+   /* Randmon List Seeds */
+   u16b BaseSeed;
+   u16b TypeSeed;
+   u16b UniqueSeed;
+
+   /* Randart Dispersal Counters */
+   u16b ArtLites;
+   u16b ArtWeapons;
+   u16b ArtArmor;
+   u16b ArtJewelry;
 };
 
 
@@ -1626,7 +1669,7 @@ struct store_type
 	byte max_stock;			/* Stock -- Max number of entries */
 	byte stock_num;			/* Stock -- Number of entries */
 	object_type *stock;		/* Stock -- Actual stock items */
-	
+
 	u16b x;					/* Location x coord. */
 	u16b y;					/* Location y coord. */
 };
@@ -1643,16 +1686,16 @@ struct town_type
 	char        name[T_NAME_LEN];	/* Town name */
 	u32b        seed;		/* Seed for RNG */
 	store_type	*store;		/* The stores[numstores] */
-	
+
 	u16b 	    type;		/* Type of town / dungeon / special */
-	
+
 	byte        numstores;
-	
+
 	byte		x;			/* Location mod 16 in wilderness */
 	byte		y;
-	
+
 	byte		pop;		/* population density (from wilderness) */
-	
+
 	byte		gates_x[MAX_GATES];	/* Position of the town gates */
 	byte		gates_y[MAX_GATES];
 };
@@ -1734,13 +1777,57 @@ struct mutation_type
 
 	char name[39];		/* Short description (activatable mutations) */
 	byte level;			/* Minimum level (activatable mutations) */
-	
+
 	int cost;			/* Mana/HP Cost (activatable mutations) */
 	int stat;			/* Stat dependency (activatable mutations) */
 	int diff;			/* Difficulty (activatable mutations) */
 	int chance;			/* Chance of occuring (random mutations) / 100 */
-	
+
 };
 
+typedef struct layout_wall_terrain layout_wall_terrain;
 
+struct layout_wall_terrain
+{
+   byte type;
+   byte chance;
+   byte place_method;
+};
+
+typedef struct layout_monster layout_monster;
+
+struct layout_monster
+{
+   u16b r_idx;
+   byte type;
+   u16b min;
+   u16b max;
+   byte chance;
+   byte ood;
+};
+
+typedef struct layout_item layout_item;
+
+struct layout_item
+{
+   byte tval;
+   byte sval;
+   u16b min;
+   u16b max;
+   byte chance;
+   byte ood;
+};
+
+typedef struct layout_type layout_type;
+
+struct layout_type
+{
+   u16b name;
+   u16b text;
+   byte type;
+   byte size;
+   layout_wall_terrain walls[MAX_LAYOUT_WALL];
+   layout_monster monsters[MAX_LAYOUT_MONSTERS];
+   layout_item items[MAX_LAYOUT_ITEMS];
+};
 
