@@ -1023,6 +1023,9 @@ void update_mon(int m_idx, bool full)
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
+			/* Update monster list window */
+			p_ptr->window |= (PW_M_LIST);
+
 			/* Hack -- Count "fresh" sightings */
 			if (l_ptr->r_sights < MAX_SHORT) l_ptr->r_sights++;
 
@@ -1045,6 +1048,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+
+			/* Update monster list window */
+			p_ptr->window |= (PW_M_LIST);
 
 			/* Disturb on disappearance */
 			if (disturb_move) disturb(1, 0);

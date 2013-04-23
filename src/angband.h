@@ -32,8 +32,9 @@
 #include "defines.h"
 #include "types.h"
 #include "externs.h"
-
-
+#ifdef ALLOW_BORG
+#include "borg.h"
+#endif
 
 /***** Some older copyright messages follow below *****/
 

@@ -3161,6 +3161,8 @@ void request_command(bool shopping)
 	/* No "direction" yet */
 	p_ptr->command_dir = 0;
 
+	/* Start the borg? DvE */
+	if (auto_play)  do_cmd_borg();
 
 	/* Get command */
 	while (1)

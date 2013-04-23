@@ -723,3 +723,23 @@ bool use_transparency = FALSE;
  * Game can be saved
  */
 bool can_save = TRUE;
+/*
+ * Set these to TRUE to autostart the borg DvE
+ * Some of these must be initialised for it to work on unix
+ */
+bool auto_play;
+bool keep_playing;
+int auto_race = -1;
+int auto_class = -1;
+int auto_str = -1;
+int auto_int = -1;
+int auto_wis = -1;
+int auto_dex = -1;
+int auto_con = -1;
+int auto_chr = -1;
+int dump_lines = 15;
+int dump_level = 20;
+
+#ifdef SET_UID
+pid_t borgchild = 0;
+#endif

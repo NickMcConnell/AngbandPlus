@@ -106,7 +106,7 @@
 /*
  * Hack -- allow use of "screen saver" mode
  */
-#define USE_SAVER
+#define USE_SAVER 
 
 #endif /* ALLOW_BORG */
 
@@ -1106,6 +1106,17 @@ static void load_prefs(void)
 	gamma_correction = GetPrivateProfileInt("Angband", "Gamma", 0, ini_file);
 
 #endif /* SUPPORT_GAMMA */
+	/* Race, class, autoroller stats for the Borg */
+	auto_race = GetPrivateProfileInt("Borg","race",-1,ini_file);
+	auto_class = GetPrivateProfileInt("Borg","class",-1,ini_file);
+	auto_str = GetPrivateProfileInt("Borg","STR",-1,ini_file);
+	auto_int = GetPrivateProfileInt("Borg","INT",-1,ini_file);
+	auto_wis = GetPrivateProfileInt("Borg","WIS",-1,ini_file);
+	auto_dex = GetPrivateProfileInt("Borg","DEX",-1,ini_file);
+	auto_con = GetPrivateProfileInt("Borg","CON",-1,ini_file);
+	auto_chr = GetPrivateProfileInt("Borg","CHR",-1,ini_file);
+	dump_lines = GetPrivateProfileInt("Borg","Lines",0,ini_file);
+	dump_level = GetPrivateProfileInt("Borg","Level",0,ini_file);
 
 	/* Load window prefs */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -3097,7 +3108,22 @@ static void check_for_save_file(LPSTR cmd_line)
 	/* Extract filename */
 	strcat(savefile, s);
 
-	/* Validate the file */
+	/* HACK -- if savefile is invalid we'll start a new character and the borg DvE */
+	if (!check_file(savefile))
+	{
+		/* Build the filename */
+		path_build(savefile, 1024, ANGBAND_DIR_SAVE, "player");
+		auto_play = TRUE;
+		if (!check_file(savefile))
+		{
+			/* Reset the savefile */
+			savefile[0] = '\0';
+
+			play_game(TRUE);
+			return;
+		}
+	}
+
 	validate_file(savefile);
 
 	/* Game in progress */

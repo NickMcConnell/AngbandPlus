@@ -41,7 +41,7 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Angband"
+#define VERSION_NAME "Borgband"
 
 
 /*
@@ -1893,7 +1893,7 @@
 #define PW_EQUIP		0x00000002L	/* Display equip/inven */
 #define PW_PLAYER_0		0x00000004L	/* Display player (basic) */
 #define PW_PLAYER_1		0x00000008L	/* Display player (extra) */
-/* xxx */
+#define PW_M_LIST		0x00000010L /* Display monster list */
 /* xxx */
 #define PW_MESSAGE		0x00000040L	/* Display messages */
 #define PW_OVERHEAD		0x00000080L	/* Display overhead view */
@@ -2677,6 +2677,8 @@
 #define OPT_birth_no_stores			(OPT_BIRTH+5)
 #define OPT_birth_no_artifacts		(OPT_BIRTH+6)
 #define OPT_birth_rand_artifacts	(OPT_BIRTH+7)
+#define OPT_birth_take_notes            (OPT_BIRTH+8)
+#define OPT_birth_auto_notes            (OPT_BIRTH+9)
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)
@@ -2795,6 +2797,8 @@
 #define birth_no_stores			op_ptr->opt[OPT_birth_no_stores]
 #define birth_no_artifacts		op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
+#define birth_take_notes        op_ptr->opt[OPT_birth_take_notes]
+#define birth_auto_notes        op_ptr->opt[OPT_birth_auto_notes]
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear				op_ptr->opt[OPT_cheat_hear]

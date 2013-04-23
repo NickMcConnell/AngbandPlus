@@ -401,6 +401,54 @@ int main(int argc, char *argv[])
 		/* Analyze option */
 		switch (argv[i][1])
 		{
+			case 'C':
+			case 'c':
+			{
+				if ((argc - i - 2) > -1) 
+				{
+					auto_class = atoi(&argv[i + 1][0]);
+					auto_play = TRUE;
+					new_game = TRUE;
+					i += 1;
+				} 
+				break;	
+			}
+			case 'E':
+			case 'e':
+			{
+				if ((argc - i - 2) > -1) 
+				{
+					auto_race = atoi(&argv[i + 1][0]);
+					auto_play = TRUE;
+					new_game = TRUE;
+					i += 1;
+				} 
+				break;
+			}
+			case 'A':
+			case 'a':
+			{
+				if ((argc - i - 2) > 4) 
+				{
+					/* Enough arguments left */
+					auto_str = atoi(&argv[i + 1][0]);
+					auto_int = atoi(&argv[i + 2][0]);
+					auto_wis = atoi(&argv[i + 3][0]);
+					auto_dex = atoi(&argv[i + 4][0]);
+					auto_con = atoi(&argv[i + 5][0]);
+					auto_chr = atoi(&argv[i + 6][0]);
+					auto_play = TRUE;
+					new_game = TRUE;
+					i += 6;
+				} 
+				break;
+			}
+            case 'B':
+			case 'b':
+			{
+				auto_play = TRUE;
+				break;
+			}
 			case 'N':
 			case 'n':
 			{
@@ -512,6 +560,12 @@ int main(int argc, char *argv[])
 				puts("  -u<who>  Use your <who> savefile");
 				puts("  -m<sys>  Force 'main-<sys>.c' usage");
 				puts("  -d<def>  Define a 'lib' dir sub-path");
+				puts("  -b       Autostart borg"); /* DvE */
+				/* Following added by CvA for unix boxes */
+				puts("  -a <str> <int> <wis> <dex> <con> <chr>");
+				puts("           Request minimum autoroller stats (implies -b -n)");
+				puts("  -c <num> Request a character class (implies -b -n)");
+				puts("  -e <num> Request a character race (implies -b -n)");
 
 				/* Actually abort the process */
 				quit(NULL);
@@ -525,8 +579,36 @@ int main(int argc, char *argv[])
 		argc = 1;
 		argv[1] = NULL;
 	}
-
-
+#ifdef SET_UID
+	/* Code for auto-running under a system with SET_UID */
+	if (auto_play) 
+	{
+		while (1) 
+		{
+			borgchild = fork();
+			if (borgchild) 
+			{
+				if (borgchild == -1) 
+				{	
+					/* Error invoking a child */
+					quit("Unable to spawn a child process!");
+				} 
+				else 
+				{		
+					/* Parent so put the child to sleep */
+					kill(borgchild, SIGSTOP);
+					break;
+				}
+			} 
+			else 
+			{			
+				/* Child so go to sleep ready for awakening */
+				sleep(10);
+			}
+		}
+	}
+#endif
+	
 	/* Process the player name */
 	process_player_name(TRUE);
 

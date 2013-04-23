@@ -2760,6 +2760,26 @@ void play_game(bool new_game)
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
+	/* Hack - if note file exists, load it */
+	if (!new_game && birth_take_notes) 
+	{
+		char long_day[30];
+		time_t ct = time((time_t*)NULL);
+		FILE *fff;
+
+		/* Open file */
+		fff = my_fopen(notes_file(), "a");
+
+		/* Get the date */
+		strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
+	
+		/* Add in continuation info */
+		fprintf(fff, "================================================\n");
+		fprintf(fff, "New session start: %s\n\n", long_day);
+
+		/* Close file */
+		my_fclose(fff);
+	}
 
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
@@ -2782,6 +2802,9 @@ void play_game(bool new_game)
 	/* Process */
 	while (TRUE)
 	{
+		/* Update monster list window */
+		p_ptr->window |= (PW_M_LIST);
+
 		/* Process the level */
 		dungeon();
 

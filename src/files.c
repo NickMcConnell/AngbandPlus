@@ -9,7 +9,10 @@
  */
 
 #include "angband.h"
-
+/* Needed for Borgband in Windows DvE */
+#ifdef WINDOWS
+#include <process.h>
+#endif
 
 
 /*
@@ -2096,8 +2099,15 @@ errr file_character(cptr name, bool full)
 		/* Build query */
 		sprintf(out_val, "Replace existing file %s? ", buf);
 
-		/* Ask */
-		if (get_check(out_val)) fd = -1;
+		/* Ask, but not for the borg DvE */
+		if (!keep_playing)
+		{
+			if (get_check(out_val)) fd = -1;
+		}
+		else
+		{
+			fd = -1;
+		}
 	}
 
 	/* Open the non-existing file */
@@ -2147,7 +2157,7 @@ errr file_character(cptr name, bool full)
 	if (p_ptr->is_dead)
 	{
 		i = message_num();
-		if (i > 15) i = 15;
+		if (i > 50) i = 50;
 		fprintf(fff, "  [Last Messages]\n\n");
 		while (i-- > 0)
 		{
@@ -2806,7 +2816,7 @@ void process_player_name(bool sf)
 	op_ptr->base_name[i] = '\0';
 
 	/* Require a "base" name */
-	if (!op_ptr->base_name[0])
+	if ((!op_ptr->base_name[0]) || (auto_play))
 	{
 		strcpy(op_ptr->base_name, "PLAYER");
 	}
@@ -4038,6 +4048,48 @@ static void close_game_aux(void)
 	/* Flush messages */
 	message_flush();
 
+	/* Don't do this if we're Borg, write to a borg.dat instead DvE */
+	if (keep_playing) 
+	{
+		char buf[1024];
+		FILE *borg_log_file;
+		time_t death_time;
+
+		char ftmp[80];
+
+		errr err;
+
+		path_build(buf, 1024, ANGBAND_DIR_USER, "borg.dat");
+
+		/* Append to the file */
+		borg_log_file = my_fopen(buf, "a");
+
+		/* Failure */
+		if (!borg_log_file) return;
+
+		/* Get time of death */
+		(void)time(&death_time);
+
+		/* dump stuff for easy import to database */
+		fprintf(borg_log_file, "%s, %s, %d, %d, %s\n", p_name + p_info[p_ptr->prace].name,
+		class_info[p_ptr->pclass].title, p_ptr->lev, p_ptr->depth, p_ptr->died_from);
+
+		/* Close the file */
+		my_fclose(borg_log_file);
+
+		/* dump the char for analysis */
+		/* use the full name (if any) otherwise use the base name (player) */
+		if (op_ptr->full_name) sprintf(ftmp, "%s.txt", op_ptr->full_name);
+		else sprintf(ftmp, "%s.txt", op_ptr->base_name);
+
+		err = file_character(ftmp, FALSE);
+
+		/* Flush messages */
+		message_flush();
+
+		return;
+	}
+
 	/* Forever */
 	while (1)
 	{
@@ -4189,6 +4241,27 @@ void close_game(void)
 		/* Save the game */
 		do_cmd_save_game();
 
+		/* If note-taking enabled, write session end to notes file */
+		if (birth_take_notes) 
+		{
+			/* Variables */
+			time_t ct = time((time_t*)NULL);
+			FILE *fff;
+			char long_day[30];
+
+			/* Open file */
+			fff = my_fopen(notes_file(), "a");
+
+			/* Get time */
+			strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
+
+			/* Write note */
+			fprintf(fff, "\nSession end: %s\n", long_day);
+
+			/* Close file */
+			my_fclose(fff);
+		}
+
 		/* Prompt for scores XXX XXX XXX */
 		prt("Press Return (or Escape).", 0, 40);
 
@@ -4207,9 +4280,21 @@ void close_game(void)
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;
 
+	/* keep playing DvE */
+
+	if ((keep_playing) && (p_ptr->is_dead))
+	{
+#ifdef WINDOWS		
+		spawnl(_P_NOWAIT, "Borgband.exe", "Borgband.exe", "-n", NULL);
+#endif
+	}
+
 
 	/* Allow suspending now */
 	signals_handle_tstp();
+
+	/* DvE ?? */
+	quit(NULL);
 }
 
 

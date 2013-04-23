@@ -169,8 +169,7 @@
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
  */
-/* #define ALLOW_BORG */
-
+#define ALLOW_BORG
 
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
@@ -304,7 +303,7 @@
 /*
  * OPTION: Allow "Borgs" to yield "high scores"
  */
-/* #define SCORE_BORGS */
+#define SCORE_BORGS
 
 /*
  * OPTION: Allow "Cheaters" to yield "high scores"
@@ -503,7 +502,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"dpvanes@plex.nl"
 
 
 /*
@@ -583,11 +582,11 @@
 /*
  * Allow the Borg to use graphics.
  */
-#ifdef ALLOW_BORG
-# ifdef USE_GRAPHICS
-#  define ALLOW_BORG_GRAPHICS
-# endif /* USE_GRAPHICS */
-#endif /* ALLOW_BORG */
+/* #ifdef ALLOW_BORG */
+/* # ifdef USE_GRAPHICS */
+/* #  define ALLOW_BORG_GRAPHICS */
+/* # endif /* USE_GRAPHICS */
+/* #endif /* ALLOW_BORG */
 
 /*
  * OPTION: Enable some old code for compatibility with weird systems.

@@ -208,7 +208,15 @@ Auto-scum for good levels    [auto_scum]
     in the dungeon.  This option may be extremely slow on some machines,
     especially deep in the dungeon.  The minimum "goodness" of the level
     is based on the dungeon level, so the deeper you go, the better the
-    level will be.  A lot of people consider this option to be cheating.
+    level will be.  Be warned: "good" level feelings are as likely to be 
+    caused by dangerous monsters as they are by good items, so while your 
+    character may gain power more quickly, he will also get into danger 
+    more quickly, and may die more often... Some purists consider this 
+    option to be nearly cheating. Others say that it does nothing that 
+    the player himself could not do over time, and indeed most players 
+    were actually doing it - going up and down staircases again avoiding
+    levels with a "boring" feeling, until they got one with an "interesting"
+    feeling.
 
 ***** <expand_look>
 Expand the power of the look command    [expand_look]
@@ -524,11 +532,11 @@ Restrict the use of stairs/recall    [birth_ironman]
 
 ***** <birth_no_stores>
 Restrict the use of stores/home    [birth_no_stores]
-     The stores are all closed. The home is someone else's, and locked. You 
-     can keep nothing but what you carry with you, and get nothing but what 
+     The stores are all closed. The home is locked. You can keep 
+     nothing but what you carry with you, and get nothing but what 
      you find in the dungeon. No selling items, or buying potions of 
      restore stat... Not recommended for new players, or indeed for 
-     sane players.
+     sane players (if that kind of player exists - which is debatable.)
 
 ***** <birth_no_artifacts>
 Restrict the creation of artifacts    [birth_no_artifacts]

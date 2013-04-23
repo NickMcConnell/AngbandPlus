@@ -4299,7 +4299,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Validate the item */
 				if (!get_item_okay(k))
 				{
-					bell("Illegal object choice (normal)!");
+					bell(format("Illegal object choice (normal)! (object = %c)",k));
 					break;
 				}
 

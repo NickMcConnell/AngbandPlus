@@ -236,8 +236,27 @@ extern bool (*get_obj_num_hook)(int k_idx);
 extern int highscore_fd;
 extern bool use_transparency;
 extern bool can_save;
+/* DvE, Used to autostart the borg */
+extern bool auto_play;
+extern bool keep_playing;
+extern int auto_race;
+extern int auto_class;
+extern int auto_str;
+extern int auto_int;
+extern int auto_wis;
+extern int auto_dex;
+extern int auto_con;
+extern int auto_chr;
+extern int dump_lines;
+extern int dump_level;
 
+#ifdef SET_UID
+extern pid_t borgchild;
+#endif
 
+/* Gob */
+extern void (*restart_aux)(void);
+extern void restart_borg(void);
 /*
  * Automatically generated "function declarations"
  */
@@ -346,6 +365,8 @@ extern void do_cmd_macros(void);
 extern void do_cmd_visuals(void);
 extern void do_cmd_colors(void);
 extern void do_cmd_note(void);
+extern void add_note(char *note, char code);
+extern char *notes_file(void);
 extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);
 extern void do_cmd_load_screen(void);

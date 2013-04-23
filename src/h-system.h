@@ -87,6 +87,7 @@
 # include <pwd.h>
 
 # include <unistd.h>
+# include <signal.h> /* Added for Borgband (CvA) */
 
 # include <sys/stat.h>
 

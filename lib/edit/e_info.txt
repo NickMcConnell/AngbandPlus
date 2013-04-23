@@ -781,7 +781,7 @@ F:SHOTS
 # Note the 'weird' rarities #
 
 N:112:of Hurt Animal
-X:23:10:0:0
+X:23:10:0
 W:0:25:0:25
 T:16:0:99
 T:17:0:99

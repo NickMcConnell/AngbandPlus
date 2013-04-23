@@ -690,6 +690,167 @@ static void player_outfit(void)
 
 
 /*
+ * Name segments for random player names
+ * Copied Cth by DvE
+ */
+
+/* Dwarves */
+static char *dwarf_syllable1[] =
+{
+	"B", "D", "F", "G", "Gl", "H", "K", "L", "M", "N", "R", "S", "T", "Th", "V",
+};
+
+static char *dwarf_syllable2[] =
+{
+	"a", "e", "i", "o", "oi", "u",
+};
+
+static char *dwarf_syllable3[] =
+{
+	"bur", "fur", "gan", "gnus", "gnar", "li", "lin", "lir", "mli", "nar", "nus", "rin", "ran", "sin", "sil", "sur",
+};
+
+/* Elves */
+static char *elf_syllable1[] =
+{
+	"Al", "An", "Bal", "Bel", "Cal", "Cel", "El", "Elr", "Elv", "Eow", "Ear", "F", "Fal", "Fel", "Fin", "G", "Gal", "Gel", "Gl", "Is", "Lan", "Leg", "Lom", "N", "Nal", "Nel",  "S", "Sal", "Sel", "T", "Tal", "Tel", "Thr", "Tin",
+};
+
+static char *elf_syllable2[] =
+{
+	"a", "adrie", "ara", "e", "ebri", "ele", "ere", "i", "io", "ithra", "ilma", "il-Ga", "ili", "o", "orfi", "u", "y",
+};
+
+static char *elf_syllable3[] =
+{
+	"l", "las", "lad", "ldor", "ldur", "linde", "lith", "mir", "n", "nd", "ndel", "ndil", "ndir", "nduil", "ng", "mbor", "r", "rith", "ril", "riand", "rion", "s", "thien", "viel", "wen", "wyn",
+};
+
+/* Gnomes */
+static char *gnome_syllable1[] =
+{
+	"Aar", "An", "Ar", "As", "C", "H", "Han", "Har", "Hel", "Iir", "J", "Jan", "Jar", "K", "L", "M", "Mar", "N", "Nik", "Os", "Ol", "P", "R", "S", "Sam", "San", "T", "Ter", "Tom", "Ul", "V", "W", "Y",
+};
+
+static char *gnome_syllable2[] =
+{
+	"a", "aa",  "ai", "e", "ei", "i", "o", "uo", "u", "uu",
+};
+
+static char *gnome_syllable3[] =
+{
+	"ron", "re", "la", "ki", "kseli", "ksi", "ku", "ja", "ta", "na", "namari", "neli", "nika", "nikki", "nu", "nukka", "ka", "ko", "li", "kki", "rik", "po", "to", "pekka", "rjaana", "rjatta", "rjukka", "la", "lla", "lli", "mo", "nni",
+};
+
+/* Hobbit */
+static char *hobbit_syllable1[] =
+{
+	"B", "Ber", "Br", "D", "Der", "Dr", "F", "Fr", "G", "H", "L", "Ler", "M", "Mer", "N", "P", "Pr", "Per", "R", "S", "T", "W",
+};
+
+static char *hobbit_syllable2[] =
+{
+	"a", "e", "i", "ia", "o", "oi", "u",
+};
+
+static char *hobbit_syllable3[] =
+{
+	"bo", "ck", "decan", "degar", "do", "doc", "go", "grin", "lba", "lbo", "lda", "ldo", "lla", "ll", "lo", "m", "mwise", "nac", "noc", "nwise", "p", "ppin", "pper", "tho", "to",
+};
+
+/* Human */
+static char *human_syllable1[] =
+{
+	"Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr", "Ar", "B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed", "Eth", "Et", "Er", "El", "Eow", "F", "Fr", "G", "Gr", "Gw", "Gal", "Gl", "H", "Ha", "Ib", "Jer", "K", "Ka", "Ked", "L", "Loth", "Lar", "Leg", "M", "Mir", "N", "Nyd", "Ol", "Oc", "On", "P", "Pr", "R", "Rh", "S", "Sev", "T", "Tr", "Th", "V", "Y", "Z", "W", "Wic",
+};
+
+static char *human_syllable2[] =
+{
+	"a", "ae", "au", "ao", "are", "ale", "ali", "ay", "ardo", "e", "ei", "ea", "eri", "era", "ela", "eli", "enda", "erra", "i", "ia", "ie", "ire", "ira", "ila", "ili", "ira", "igo", "o", "oa", "oi", "oe", "ore", "u", "y",
+};
+
+static char *human_syllable3[] =
+{
+	"a", "and", "b", "bwyn", "baen", "bard", "c", "ctred", "cred", "ch", "can", "d", "dan", "don", "der", "dric", "dfrid", "dus", "f", "g", "gord", "gan", "l", "li", "lgrin", "lin", "lith", "lath", "loth", "ld", "ldric", "ldan", "m", "mas", "mos", "mar", "mond", "n", "nydd", "nidd", "nnon", "nwan", "nyth", "nad", "nn", "nnor", "nd", "p", "r", "ron", "rd", "s", "sh", "seth", "sean", "t", "th", "tha", "tlan", "trem", "tram", "v", "vudd", "w", "wan", "win", "wyn", "wyr", "wyr", "wyth",
+};
+
+/* Orc */
+static char *orc_syllable1[] =
+{
+	"B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr", "M", "Dr",
+};
+
+static char *orc_syllable2[] =
+{
+	"a", "i", "o", "oo", "u", "ui",
+};
+
+static char *orc_syllable3[] =
+{
+	"dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k", "lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol", "urk", "shnak", "mog", "mak", "rak",
+};
+
+
+/*
+ * Random Name Generator
+ * based on a Javascript by Michael Hensley
+ * "http://geocities.com/timessquare/castle/6274/"
+ * Copied from Cth by DvE
+ */
+static void create_random_name(int race, char *name)
+{
+	/* Paranoia */
+	if (!name) return;
+
+	/* Select the monster type */
+	switch (race)
+	{
+		/* Create the monster name */
+	case 5: /* Dwarf */
+		strcpy(name, dwarf_syllable1[rand_int(sizeof(dwarf_syllable1) / sizeof(char*))]);
+		strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
+		strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
+		break;
+	case 2: /* Elf */
+	case 1: /* Half-Elf */
+	case 9: /* High-Elf */
+		strcpy(name, elf_syllable1[rand_int(sizeof(elf_syllable1) / sizeof(char*))]);
+		strcat(name, elf_syllable2[rand_int(sizeof(elf_syllable2) / sizeof(char*))]);
+		strcat(name, elf_syllable3[rand_int(sizeof(elf_syllable3) / sizeof(char*))]);
+		break;
+	case 4: /* Gnome */
+		strcpy(name, gnome_syllable1[rand_int(sizeof(gnome_syllable1) / sizeof(char*))]);
+		strcat(name, gnome_syllable2[rand_int(sizeof(gnome_syllable2) / sizeof(char*))]);
+		strcat(name, gnome_syllable3[rand_int(sizeof(gnome_syllable3) / sizeof(char*))]);
+		break;
+	case 3: /* Hobbit */
+		strcpy(name, hobbit_syllable1[rand_int(sizeof(hobbit_syllable1) / sizeof(char*))]);
+		strcat(name, hobbit_syllable2[rand_int(sizeof(hobbit_syllable2) / sizeof(char*))]);
+		strcat(name, hobbit_syllable3[rand_int(sizeof(hobbit_syllable3) / sizeof(char*))]);
+		break;
+	case 0: /* Human */
+	case 8: /* Dunadan */
+		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
+		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
+		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
+		break;
+	case 6: /* Half-Orc */
+	case 7: /* Half-Troll */
+		strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
+		strcat(name, orc_syllable2[rand_int(sizeof(orc_syllable2) / sizeof(char*))]);
+		strcat(name, orc_syllable3[rand_int(sizeof(orc_syllable3) / sizeof(char*))]);
+		break;
+		/* Create a human name */
+	default:
+		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
+		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
+		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
+		break;
+	}
+}
+
+
+/*
  * Helper function for 'player_birth()'.
  *
  * This function allows the player to select a sex, race, and class, and
@@ -710,6 +871,7 @@ static bool player_birth_aux_1(void)
 
 	char buf[80];
 
+	u32b	seed;
 
 	/*** Instructions ***/
 
@@ -726,6 +888,20 @@ static bool player_birth_aux_1(void)
 	Term_putstr(5, 13, -1, TERM_WHITE,
 	            "and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
+	/* For random character generation ensure random numbers
+     * code lifted from dungeon.c CvA */
+	if (auto_play)
+	{
+		seed = (time(NULL));
+#ifdef SET_UID
+		/* Mutate the seed on Unix machines */
+		seed = ((seed >> 3) * (getpid() << 1));
+#endif
+		/* Use the complex RNG */
+		Rand_quick = FALSE;
+		/* Seed the "complex" RNG */
+		Rand_state_init(seed);
+	}
 
 	/*** Player sex ***/
 
@@ -752,6 +928,12 @@ static bool player_birth_aux_1(void)
 		sprintf(buf, "Choose a sex (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
+		/* DvE auto_play? */
+		if (auto_play) 
+		{
+			k = rand_int(MAX_SEXES);
+			break;
+		}
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
@@ -797,6 +979,13 @@ static bool player_birth_aux_1(void)
 	/* Choose */
 	while (1)
 	{
+		/* DvE auto_play? */
+		if (auto_play) 
+		{
+			if ((auto_race >=0) && (auto_race < z_info->p_max)) k = auto_race;
+			else k = rand_int(z_info->p_max);
+			break;
+		}
 		sprintf(buf, "Choose a race (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
@@ -818,6 +1007,10 @@ static bool player_birth_aux_1(void)
 	/* Race */
 	put_str("Race", 4, 1);
 	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 8);
+
+	/* Get a random name */
+	create_random_name(p_ptr->prace,op_ptr->full_name);
+
 
 	/* Clean up */
 	clear_from(15);
@@ -853,6 +1046,13 @@ static bool player_birth_aux_1(void)
 	/* Get a class */
 	while (1)
 	{
+		/* DvE auto_play? */
+		if (auto_play) 
+		{
+			if ((auto_class >=0) && (auto_class < MAX_CLASS)) k = auto_class;
+			else k = rand_int(MAX_CLASS);
+			break;
+		}
 		sprintf(buf, "Choose a class (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
@@ -904,6 +1104,12 @@ static bool player_birth_aux_1(void)
 	{
 		sprintf(buf, "Modify options (y/n)? ");
 		put_str(buf, 20, 2);
+		/* DvE auto_play? */
+		if (auto_play) 
+		{
+			ch = 'n';
+			break;
+		}
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
@@ -1212,42 +1418,97 @@ static bool player_birth_aux_3(void)
 			/* Dump the prompt */
 			put_str(buf, 16 + i, 5);
 		}
-
-		/* Input the minimum stats */
-		for (i = 0; i < A_MAX; i++)
+		if (auto_play)
 		{
-			/* Get a minimum stat */
-			while (TRUE)
+			switch (p_ptr->pclass)
 			{
-				char *s;
+				case CLASS_WARRIOR:
+				case CLASS_RANGER:
+				case CLASS_ROGUE:
+				case CLASS_PALADIN:
+				if (auto_str == -1)	stat_limit[0] = mval[0];
+				else stat_limit[0] = MIN(mval[0], auto_str);
+				if (auto_int == -1) stat_limit[1] = 0;
+				else stat_limit[1] = MIN(mval[1], auto_int);
+				if (auto_wis == -1)	stat_limit[2] = 0;
+				else stat_limit[2] = MIN(mval[2], auto_wis);
+				if (auto_dex == -1)	stat_limit[3] = mval[3];
+				else stat_limit[3] = MIN(mval[3], auto_dex);
+				if (auto_con == -1) stat_limit[4] = 0;
+				else stat_limit[4] = MIN(mval[4], auto_con);
+				if (auto_chr == -1)	stat_limit[5] = 0;
+				else stat_limit[5] = MIN(mval[5], auto_chr);
+				break;
+				case CLASS_MAGE:
+				if (auto_str == -1)	stat_limit[0] = mval[0];
+				else stat_limit[0] = MIN(mval[0], auto_str);
+				if (auto_int == -1) stat_limit[1] = mval[1];
+				else stat_limit[1] = MIN(mval[1], auto_int);
+				if (auto_wis == -1)	stat_limit[2] = 0;
+				else stat_limit[2] = MIN(mval[2], auto_wis);
+				if (auto_dex == -1)	stat_limit[3] = 0;
+				else stat_limit[3] = MIN(mval[3], auto_dex);
+				if (auto_con == -1) stat_limit[4] = 0;
+				else stat_limit[4] = MIN(mval[4], auto_con);
+				if (auto_chr == -1)	stat_limit[5] = 0;
+				else stat_limit[5] = MIN(mval[5], auto_chr);
+				break;
+				case CLASS_PRIEST:
+				if (auto_str == -1)	stat_limit[0] = mval[0];
+				else stat_limit[0] = MIN(mval[0], auto_str);
+				if (auto_int == -1) stat_limit[1] = 0;
+				else stat_limit[1] = MIN(mval[1], auto_int);
+				if (auto_wis == -1)	stat_limit[2] = mval[2];
+				else stat_limit[2] = MIN(mval[2], auto_wis);
+				if (auto_dex == -1)	stat_limit[3] = 0;
+				else stat_limit[3] = MIN(mval[3], auto_dex);
+				if (auto_con == -1) stat_limit[4] = 0;
+				else stat_limit[4] = MIN(mval[4], auto_con);
+				if (auto_chr == -1)	stat_limit[5] = 0;
+				else stat_limit[5] = MIN(mval[5], auto_chr);
 
-				/* Move the cursor */
-				put_str("", 16 + i, 30);
-
-				/* Default */
-				strcpy(inp, "");
-
-				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 8)) inp[0] = '\0';
-
-				/* Hack -- add a fake slash */
-				strcat(inp, "/");
-
-				/* Hack -- look for the "slash" */
-				s = strchr(inp, '/');
-
-				/* Hack -- Nuke the slash */
-				*s++ = '\0';
-
-				/* Hack -- Extract an input */
-				v = atoi(inp) + atoi(s);
-
-				/* Break on valid input */
-				if (v <= mval[i]) break;
+				break;
 			}
 
-			/* Save the minimum stat */
-			stat_limit[i] = (v > 0) ? v : 0;
+		}
+		else
+		{
+			/* Input the minimum stats */
+		for (i = 0; i < A_MAX; i++)
+			{
+				/* Get a minimum stat */
+				while (TRUE)
+				{
+					char *s;
+	
+					/* Move the cursor */
+					put_str("", 16 + i, 30);
+
+					/* Default */
+					strcpy(inp, "");
+	
+					/* Get a response (or escape) */
+					if (!askfor_aux(inp, 8)) inp[0] = '\0';
+
+					/* Hack -- add a fake slash */
+					strcat(inp, "/");
+	
+					/* Hack -- look for the "slash" */
+					s = strchr(inp, '/');
+
+					/* Hack -- Nuke the slash */
+					*s++ = '\0';
+
+					/* Hack -- Extract an input */
+					v = atoi(inp) + atoi(s);
+
+					/* Break on valid input */
+					if (v <= mval[i]) break;
+				}
+
+				/* Save the minimum stat */
+				stat_limit[i] = (v > 0) ? v : 0;
+			}
 		}
 	}
 
@@ -1366,8 +1627,9 @@ static bool player_birth_aux_3(void)
 					/* Make sure they see everything */
 					Term_fresh();
 
-					/* Delay 1/10 second */
-					if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
+				/* Delay 2/100 second */
+				/* CHANGE BACK TO 100 FOR MULTIUSER MACHINES -LM- */
+				if (flag) Term_xtra(TERM_XTRA_DELAY, 20);
 
 					/* Do not wait for a key */
 					inkey_scan = TRUE;
@@ -1430,7 +1692,9 @@ static bool player_birth_aux_3(void)
 			Term_addch(TERM_WHITE, b2);
 
 			/* Prompt and get a command */
-			ch = inkey();
+			/* DvE auto_play? */
+			if (auto_play) ch = ESCAPE;
+			else ch = inkey();
 
 			/* Quit */
 			if (ch == 'Q') quit(NULL);
@@ -1507,7 +1771,8 @@ static bool player_birth_aux(void)
 	}
 
 	/* Get a name, prepare savefile */
-	get_name();
+	/* DvE auto_play? */
+	if (!auto_play) get_name();
 
 	/* Display the player */
 	display_player(0);
@@ -1516,7 +1781,9 @@ static bool player_birth_aux(void)
 	prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
 
 	/* Get a key */
-	ch = inkey();
+	/* DvE auto_play? */
+	if (auto_play) ch = ESCAPE;
+	else ch = inkey();
 
 	/* Quit */
 	if (ch == 'Q') quit(NULL);
@@ -1550,6 +1817,32 @@ void player_birth(void)
 		if (player_birth_aux()) break;
 	}
 
+	/* Make a note file if that option is set */
+	if (birth_take_notes)
+	{
+		/* Variables */
+		char long_day[30];
+		time_t ct = time((time_t*)NULL);
+		FILE *fff;
+ 
+		/* Open the file */
+		fff = my_fopen(notes_file(), "a");
+ 
+		/* Get date */
+		(void)strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
+ 
+		/* Add in "character start" information */
+		fprintf(fff, "================================================\n");
+		fprintf(fff, "%s the %s %s\n", op_ptr->full_name, 
+					p_name + rp_ptr->name,
+					class_info[p_ptr->pclass].title );
+		fprintf(fff, "Born on %s\n",long_day);
+		fprintf(fff, "================================================\n\n");
+ 
+		/* Close file */
+		my_fclose(fff);
+	}
+ 
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);

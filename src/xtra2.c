@@ -1690,6 +1690,9 @@ void check_experience(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			
+		/* DvE Redraw experience */
+		p_ptr->redraw |= (PR_EXP);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -1710,6 +1713,18 @@ void check_experience(void)
 		/* Message */
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
+		/* If auto-note taking enabled, write a note to the file. */
+		if (birth_take_notes && birth_auto_notes) 
+		{
+			char note[80];
+ 
+			/* Build the message */
+			sprintf(note, "Reached level %d", p_ptr->lev);
+ 
+			/* Write message */
+			add_note(note, 'L');
+		}
+
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
@@ -1718,6 +1733,9 @@ void check_experience(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+		/* DvE Redraw experience */
+		p_ptr->redraw |= (PR_EXP);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -1902,6 +1920,8 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
+	/* Update monster list window */
+	p_ptr->window |= (PW_M_LIST);
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2176,6 +2196,17 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+
+		/* If the player kills a Unique, and the notes options are on, write a note */
+		if ((r_ptr->flags1 & RF1_UNIQUE) && birth_take_notes && birth_auto_notes) 
+		{
+			char note[80];
+
+			/* Write note */
+			sprintf(note, "Killed %s", m_name);
+
+			add_note(note, 'U');
+		}
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))

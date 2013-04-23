@@ -1920,6 +1920,21 @@ bool ident_spell(void)
 		           o_name);
 	}
 
+	/* If the item was an artifact, and if the auto-note is selected, write a 
+	 * message.  XXX - It shouldn't add a note every time you ID it.
+	 */
+	if (birth_take_notes && birth_auto_notes && (artifact_p(o_ptr) || o_ptr->name1)) 
+	{
+		char note[80];
+		char item_name[80];
+		object_desc(item_name, o_ptr, FALSE, 0);
+ 	  
+		/* Build note and write */
+		sprintf(note, "Found the %s", item_name);
+
+		add_note(note, 'A');
+}
+
 	/* Something happened */
 	return (TRUE);
 }

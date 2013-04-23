@@ -2474,7 +2474,7 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display player (basic)",
 	"Display player (extra)",
-	NULL,
+	"Display visible monsters",
 	NULL,
 	"Display messages",
 	"Display overhead view",
@@ -2646,8 +2646,8 @@ cptr option_text[OPT_MAX] =
 	"birth_no_stores",			/* OPT_birth_no_stores */
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+ 	"birth_take_notes",			/* OPT_birth_take_notes */
+ 	"birth_auto_notes",			/* OPT_birth_auto_notes */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2910,8 +2910,8 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Birth: Allow notes to be written to a file",	/* OPT_birth_take_notes */
+ 	"Birth: Automatically note important events", /* OPT_birth_auto_notes */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3174,8 +3174,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+ 	TRUE,		/* OPT_birth_take_notes */
+ 	TRUE,		/* OPT_birth_auto_notes */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3415,8 +3415,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
-		255,
-		255,
+ 		OPT_birth_take_notes,
+ 		OPT_birth_auto_notes,
 		255,
 		255,
 		255,

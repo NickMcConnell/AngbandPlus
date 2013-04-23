@@ -2309,6 +2309,85 @@ void do_cmd_colors(void)
 }
 
 
+/* Take notes. This function either adds a note to a file or to the message
+ * recall. -CK-
+ */
+ 
+void add_note(char *note, char code)
+{
+	char buf[80];
+ 
+	/* Default */
+	strcpy(buf, "");
+
+	strncpy(buf, note, 60);
+
+	/* If the note taking option is on, append lots of stuff and write it to 
+	 * the file, otherwise directly write to the message recall.
+	 */
+ 
+	if (birth_take_notes) 
+	{
+
+		char final_note[80];
+		char long_day[25];
+		time_t ct = time((time_t*)NULL);
+		char depths[32];
+		FILE *fff;
+
+		/* Get depth  */
+ 
+		if (!p_ptr->depth)
+		{
+			strcpy(depths, "  Town");
+		}
+		else if (depth_in_feet)
+		{
+			sprintf(depths, "%4dft", p_ptr->depth * 50);
+		}
+		else
+		{
+		sprintf(depths, "Lev%3d", p_ptr->depth);
+		}
+    
+		/* Get date and time */
+		strftime(long_day, 10, "%H:%M:%S", localtime(&ct));
+ 
+		/* Make note */
+		sprintf(final_note, "%s %9ld %s %c: %s\n", long_day, turn, depths, code, note);
+     
+		/* Open notes file */
+		fff = my_fopen(notes_file(), "a");
+
+		/* Add note, and close note file */
+		fprintf(fff, final_note);
+ 
+		my_fclose(fff);
+ 
+	}
+	else msg_format("Note: %s", buf);
+ 
+}
+ 
+ 
+/* A short helper function for add_note and other commands that returns the name
+ * of the note file.
+ */
+ 
+char *notes_file(void)
+{
+
+	char fname[40];
+	static char buf[500];
+
+	/* Create the file name from the character's name plus .txt */
+	sprintf(fname, "%s.txt", op_ptr->base_name);
+	path_build(buf, 500, ANGBAND_DIR_SAVE, fname);  
+
+	return buf;
+} 
+ 
+
 /*
  * Note something in the message recall
  */
@@ -2325,8 +2404,8 @@ void do_cmd_note(void)
 	/* Ignore empty notes */
 	if (!tmp[0] || (tmp[0] == ' ')) return;
 
-	/* Add the note to the message recall */
-	msg_format("Note: %s", tmp);
+	/* Call add_note to write it */
+	add_note(tmp, ' ');
 }
 
 
@@ -2784,7 +2863,8 @@ static void do_cmd_knowledge_uniques(void)
 		if (dead) killed++;
 
 		/* Print a message */
-		fprintf(fff, "     %s is %s\n",
+		fprintf(fff, "  (%3d)   %s is %s\n",
+				r_ptr->level,
 			    (r_name + r_ptr->name),
 			    (dead ? "dead" : "alive"));
 	}
@@ -2864,6 +2944,21 @@ static void do_cmd_knowledge_objects(void)
 	fd_kill(file_name);
 }
 
+/*
+ * Print the notes file 
+ */
+
+void do_cmd_knowledge_notes(void) 
+{
+ 
+	char fname[80];
+
+	strcpy(fname, notes_file());
+
+	show_file(fname, "Notes", 0, 0);
+
+}
+
 
 /*
  * Interact with "knowledge"
@@ -2895,8 +2990,14 @@ void do_cmd_knowledge(void)
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
 
+		if (birth_take_notes) 
+		{
+			prt("(4) View your notes file", 7, 5);
+		}
+
+
 		/* Prompt */
-		prt("Command: ", 8, 0);
+		prt("Command: ", 9, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -2923,6 +3024,13 @@ void do_cmd_knowledge(void)
 		{
 			/* Spawn */
 			do_cmd_knowledge_objects();
+		}
+
+		/* Notes */
+		else if (ch == '4' && birth_take_notes)
+		{
+			/* Spawn */
+			do_cmd_knowledge_notes();
 		}
 
 		/* Unknown option */
