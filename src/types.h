@@ -174,6 +174,7 @@ struct object_kind
 	u32b flags1;		/* Flags, set 1 */
 	u32b flags2;		/* Flags, set 2 */
 	u32b flags3;		/* Flags, set 3 */
+	u32b flags4;		/* Flags, set 4 */
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
@@ -252,6 +253,7 @@ struct artifact_type
 	u32b flags1;		/* Artifact Flags, set 1 */
 	u32b flags2;		/* Artifact Flags, set 2 */
 	u32b flags3;		/* Artifact Flags, set 3 */
+	u32b flags4;		/* Artifact Flags, set 4 */
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
@@ -289,6 +291,7 @@ struct ego_item_type
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
+	u32b flags4;		/* Ego-Item Flags, set 4 */
 };
 
 
@@ -769,10 +772,12 @@ struct object_type
 	u32b flags1;        /* Flags, set 1 */
 	u32b flags2;        /* Flags, set 2 */
 	u32b flags3;        /* Flags, set 3 */
+	u32b flags4;        /* Flags, set 4 */
 	
 	u32b kn_flags1;     /* Known Flags, set 1 */
 	u32b kn_flags2;     /* Known Flags, set 2 */
 	u32b kn_flags3;     /* Known Flags, set 3 */
+	u32b kn_flags4;     /* Known Flags, set 4 */
 
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
@@ -836,6 +841,7 @@ struct monster_type
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
 	byte invulner;          /* Monster is temporarily invulnerable */
+	byte paralyzed;		/* Monster is paralysed */
 
 	byte cdis;			/* Current dis from player */
 
@@ -1081,8 +1087,6 @@ typedef struct player_magic player_magic;
 struct player_magic
 {
 	int spell_book;		/* Tval of spell books (if any) */
-	int tech_type;		/* Class uses resources */
-	int class_first;	/* Level of first ability */
 
 	int spell_stat;		/* Stat for spells (if any) */
 	int spell_type;		/* Spell type (mage/priest) */
@@ -1253,6 +1257,9 @@ struct player_type
 	s16b mrp;			/* Max resource pts */
 	s16b crp;			/* Cur resource pts */
 	u16b crp_frac;		/* Cur mana frac (times 2^16) */
+	
+	s16b fatigue;			/* Tiredness */
+	bool dual_wield;		/* Is the player using 2 weapons */
 
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
@@ -1278,24 +1285,32 @@ struct player_type
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
+	
+	s16b tim_sh_fire;		/* Timed -- Fiery 'immolation' effect */
+	s16b tim_sh_elec;		/* Timed -- Electric 'immolation' effect */
+	s16b tim_sh_cold;		/* Timed -- Icy 'immolation' effect */
+	s16b tim_sh_acid;		/* Timed -- Acidic 'immolation' effect */
+	s16b tim_ffall;			/* Timed -- Feather Falling */
+	s16b tim_free_act;		/* Timed -- Free Action */
 
 	s16b oppose_acid;		/* Timed -- oppose acid */
 	s16b oppose_elec;		/* Timed -- oppose lightning */
 	s16b oppose_fire;		/* Timed -- oppose heat */
 	s16b oppose_cold;		/* Timed -- oppose cold */
 	s16b oppose_pois;		/* Timed -- oppose poison */
-	s16b tim_esp;		/* Timed ESP */
+	s16b tim_esp;			/* Timed ESP */
 	s16b wraith_form;		/* Timed wraithform */
-	s16b resist_magic;	/* Timed Resist Magic (later) */
+	s16b resist_magic;		/* Timed Resist Magic */
 	
 	s16b tim_nonvis;		/* Invisible */
-	s16b tim_xtra2;		/* Later */
-	s16b tim_xtra3;		/* Later */
-	s16b tim_xtra4;		/* Later */
-	s16b tim_xtra5;		/* Later */
-	s16b tim_xtra6;		/* Later */
-	s16b tim_xtra7;		/* Later */
-	s16b tim_xtra8;		/* Later */
+	s16b boost_str;			/* Stat Boost */
+	s16b boost_int;			/* Stat Boost */
+	s16b boost_wis;			/* Stat Boost */
+	s16b boost_dex;			/* Stat Boost */
+	s16b boost_con;			/* Stat Boost */
+	s16b boost_chr;			/* Stat Boost */
+	s16b boost_all;			/* Stat Boost */
+	s16b vitality;			/* Vitality */
 
 	u32b muta1;			/* Mutations */
 	u32b muta2;			/* Mutations */
@@ -1443,6 +1458,8 @@ struct player_type
 	bool reflect;		/* Reflect 'bolt' attacks */
 	bool sh_fire;		/* Fiery 'immolation' effect */
 	bool sh_elec;		/* Electric 'immolation' effect */
+	bool sh_cold;		/* Icy 'immolation' effect */
+	bool sh_acid;		/* Acidic 'immolation' effect */
 
 	bool anti_magic;		/* Anti-magic */
 	bool anti_tele;		/* Prevent teleportation */
@@ -1455,6 +1472,7 @@ struct player_type
 	bool sustain_chr;		/* Keep charisma */
 
 	bool slow_digest;		/* Slower digestion */
+	bool extra_sp;		/* Slower digestion */
 	bool ffall;			/* No damage falling */
 	bool lite;			/* Permanent light */
 	bool regenerate;		/* Regenerate hit pts */
@@ -1568,7 +1586,6 @@ typedef struct class_power class_power;
 struct class_power
 {
 	int     min_lev;
-	int	tech_type;
 	int	use_stat;
 	int     cost;
 	cptr	fail_stat;
@@ -1745,7 +1762,8 @@ struct mutation_type
 	char name[39];		/* Short description (activatable mutations) */
 	byte level;			/* Minimum level (activatable mutations) */
 	
-	int cost;			/* Mana/HP Cost (activatable mutations) */
+	int cost;			/* Mana/Fatigue Cost (activatable mutations) */
+	int use;			/* Does it take mana or something other */
 	int stat;			/* Stat dependency (activatable mutations) */
 	int diff;			/* Difficulty (activatable mutations) */
 	int chance;			/* Chance of occuring (random mutations) / 100 */

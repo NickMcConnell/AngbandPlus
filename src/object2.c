@@ -883,9 +883,9 @@ static s32b sqvalue(s32b x)
 s32b flag_cost(const object_type *o_ptr, int plusses)
 {
 	s32b total = 0;
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	if (f1 & TR1_STR) total += (500 * plusses);
 	if (f1 & TR1_INT) total += (500 * plusses);
@@ -893,45 +893,45 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (f1 & TR1_DEX) total += (500 * plusses);
 	if (f1 & TR1_CON) total += (500 * plusses);
 	if (f1 & TR1_CHR) total += (250 * plusses);
-	if (f1 & TR1_CHAOTIC) total += 5000;
-	if (f1 & TR1_VAMPIRIC) total += 5000;
+	if (f4 & TR4_CHAOTIC) total += 5000;
+	if (f4 & TR4_VAMPIRIC) total += 5000;
 	if (f1 & TR1_STEALTH) total += (50 * plusses);
 	if (f1 & TR1_SEARCH) total += (50 * plusses);
 	if (f1 & TR1_INFRA) total += (30 * plusses);
 	if (f1 & TR1_TUNNEL) total += (20 * plusses);
 	if ((f1 & TR1_SPEED) && (plusses > 0)) total += (500 * sqvalue(plusses));
 	if ((f1 & TR1_BLOWS) && (plusses > 0)) total += (500 * sqvalue(plusses));
-	if (f1 & TR1_XXX1) total += 0;
-	if (f1 & TR1_XXX2) total += 0;
-	if (f1 & TR1_SLAY_ANIMAL) total += 750;
-	if (f1 & TR1_SLAY_EVIL) total += 750;
-	if (f1 & TR1_SLAY_UNDEAD) total += 750;
-	if (f1 & TR1_SLAY_DEMON) total += 750;
-	if (f1 & TR1_SLAY_ORC) total += 300;
-	if (f1 & TR1_SLAY_TROLL) total += 750;
-	if (f1 & TR1_SLAY_GIANT) total += 750;
-	if (f1 & TR1_SLAY_DRAGON) total += 750;
-	if (f1 & TR1_KILL_DRAGON) total += 1500;
-	if (f1 & TR1_VORPAL) total += 1500;
-	if (f1 & TR1_IMPACT) total += 1500;
-	if (f1 & TR1_BRAND_POIS) total += 1500;
-	if (f1 & TR1_BRAND_ACID) total += 1500;
-	if (f1 & TR1_BRAND_ELEC) total += 1500;
-	if (f1 & TR1_BRAND_FIRE) total += 1500;
-	if (f1 & TR1_BRAND_COLD) total += 1500;
-	if (f2 & TR2_SUST_STR) total += 200;
-	if (f2 & TR2_SUST_INT) total += 200;
-	if (f2 & TR2_SUST_WIS) total += 200;
-	if (f2 & TR2_SUST_DEX) total += 200;
-	if (f2 & TR2_SUST_CON) total += 200;
-	if (f2 & TR2_SUST_CHR) total += 100;
+	if (f1 & TR1_XTRA_SP) total += 500;
+	if (f1 & TR1_SAV) total += (40 * plusses);
+	if (f4 & TR4_SLAY_ANIMAL) total += 750;
+	if (f4 & TR4_SLAY_EVIL) total += 750;
+	if (f4 & TR4_SLAY_UNDEAD) total += 750;
+	if (f4 & TR4_SLAY_DEMON) total += 750;
+	if (f4 & TR4_SLAY_ORC) total += 300;
+	if (f4 & TR4_SLAY_TROLL) total += 750;
+	if (f4 & TR4_SLAY_GIANT) total += 750;
+	if (f4 & TR4_SLAY_DRAGON) total += 750;
+	if (f4 & TR4_KILL_DRAGON) total += 1500;
+	if (f4 & TR4_VORPAL) total += 1500;
+	if (f4 & TR4_IMPACT) total += 1500;
+	if (f4 & TR4_BRAND_POIS) total += 1500;
+	if (f4 & TR4_BRAND_ACID) total += 1500;
+	if (f4 & TR4_BRAND_ELEC) total += 1500;
+	if (f4 & TR4_BRAND_FIRE) total += 1500;
+	if (f4 & TR4_BRAND_COLD) total += 1500;
+	if (f1 & TR1_SUST_STR) total += 200;
+	if (f1 & TR1_SUST_INT) total += 200;
+	if (f1 & TR1_SUST_WIS) total += 200;
+	if (f1 & TR1_SUST_DEX) total += 200;
+	if (f1 & TR1_SUST_CON) total += 200;
+	if (f1 & TR1_SUST_CHR) total += 100;
 	if (f2 & TR2_RES_MAGIC) total += 5000;
-	if (f2 & TR2_INVIS) total += 2000;
+	if (f3 & TR3_INVIS) total += 2000;
 	if (f2 & TR2_IM_ACID) total += 10000;
 	if (f2 & TR2_IM_ELEC) total += 10000;
 	if (f2 & TR2_IM_FIRE) total += 10000;
 	if (f2 & TR2_IM_COLD) total += 10000;
-	if (f2 & TR2_THROW) total += 2000;
+	if (f3 & TR3_THROW) total += 2000;
 	if (f2 & TR2_REFLECT) total += 5000;
 	if (f2 & TR2_FREE_ACT) total += 3000;
 	if (f2 & TR2_HOLD_LIFE) total += 2000;
@@ -953,8 +953,10 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (f2 & TR2_RES_DISEN) total += 5000;
 	if (f3 & TR3_SH_FIRE) total += 1000;
 	if (f3 & TR3_SH_ELEC) total += 1000;
+	if (f3 & TR3_SH_COLD) total += 1000;
+	if (f3 & TR3_SH_ACID) total += 1000;
 	if (f3 & TR3_QUESTITEM) total += 0;
-	if (f3 & TR3_XXX4) total += 0;
+	if (f4 & TR4_BRAND_SLEEP) total += 1500;
 	if (f3 & TR3_NO_TELE) total += 1500;
 	if (f3 & TR3_NO_MAGIC) total += 1500;
 	if (f3 & TR3_TY_CURSE) total -= 15000;
@@ -968,8 +970,9 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (f3 & TR3_TELEPATHY) total += 10000;
 	if (f3 & TR3_SLOW_DIGEST) total += 750;
 	if (f3 & TR3_REGEN) total += 1000;
-	if (f3 & TR3_XTRA_MIGHT) total += 5000;
-	if (f3 & TR3_XTRA_SHOTS) total += 5000;
+	if (f4 & TR4_XTRA_MIGHT) total += 5000;
+	if (f4 & TR4_XTRA_SHOTS) total += 5000;
+	if (f4 & TR4_XTRA_FORCE) total += 5000;
 	if (f3 & TR3_IGNORE_ACID) total += 200;
 	if (f3 & TR3_IGNORE_ELEC) total += 50;
 	if (f3 & TR3_IGNORE_FIRE) total += 50;
@@ -1105,7 +1108,7 @@ s32b object_value_real(const object_type *o_ptr)
 {
 	s32b value;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -1116,7 +1119,7 @@ s32b object_value_real(const object_type *o_ptr)
 	if (!value) return (0L);
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Mega Hack - extra price due to some flags... */
 
@@ -1161,6 +1164,7 @@ s32b object_value_real(const object_type *o_ptr)
 			/* Give credit for stealth and searching */
 			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 100L);
 			if (f1 & (TR1_SEARCH)) value += (o_ptr->pval * 100L);
+			if (f1 & (TR1_SAV)) value += (o_ptr->pval * 100L);
 
 			/* Give credit for infra-vision and tunneling */
 			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 30L);
@@ -2109,6 +2113,8 @@ static void init_ego_item(object_type *o_ptr, byte ego)
 			 */
 			o_ptr->pval += randint1(e_ptr->max_pval);
 		}
+		if ((e_ptr->slot >= EGO_EXPLODE) && (e_ptr->slot <= EGO_METEOR))
+			o_ptr->pval = e_ptr->max_pval;
 	}
 
 	/* Hack -- apply rating bonus */
@@ -2130,11 +2136,13 @@ void add_ego_flags(object_type *o_ptr, byte ego)
 	o_ptr->flags1 |= e_ptr->flags1;
 	o_ptr->flags2 |= e_ptr->flags2;
 	o_ptr->flags3 |= e_ptr->flags3;
+	o_ptr->flags4 |= e_ptr->flags4;
 
 	/* Save all the known ego flags */
 	o_ptr->kn_flags1 = e_ptr->flags1;
 	o_ptr->kn_flags2 = e_ptr->flags2;
 	o_ptr->kn_flags3 = e_ptr->flags3;
+	o_ptr->kn_flags4 = e_ptr->flags4;
 
 	/* Save the inscription */
 	o_ptr->xtra_name = quark_add(e_name + e_ptr->name);
@@ -2165,7 +2173,7 @@ bool make_artifact(object_type *o_ptr)
 	/* Moria had no artifacts */
 	if (ironman_moria) return (FALSE);
 
-	/* No artifacts in the town  Why???  (There is a wilderness...) */
+	/* No artifacts in the town  Why???  (There is a wilderness...) * /
 	if (!p_ptr->depth) return (FALSE);
 
 	/* Check the artifact list */
@@ -2215,6 +2223,7 @@ bool make_artifact(object_type *o_ptr)
 		o_ptr->flags1 |= a_ptr->flags1;
 		o_ptr->flags2 |= a_ptr->flags2;
 		o_ptr->flags3 |= a_ptr->flags3;
+		o_ptr->flags4 |= a_ptr->flags4;
 
 		/* Set the fields */
 		o_ptr->pval = a_ptr->pval;
@@ -2368,10 +2377,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 						{
 							o_ptr->flags1 |= TR1_BLOWS;
 
-							o_ptr->pval =  randint1(4);
-
-							/* tone down number of attacks */
-							o_ptr->pval -= o_ptr->dd / 2;
+							o_ptr->pval =  randint1(4) / 2;
 
 							if (o_ptr->pval < 1) o_ptr->pval = 1;
 						}
@@ -2453,18 +2459,13 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 						
 						if (one_in_(5))
 						{
-							o_ptr->flags1 |= TR1_BRAND_POIS;
+							o_ptr->flags4 |= TR4_BRAND_POIS;
 						}
 
 						break;
 					}
-					case EGO_TRUMP:
+					case EGO_SHIFT:
 					{
-						if (one_in_(5))
-						{
-							o_ptr->flags1 |= TR1_SLAY_DEMON;
-						}
-
 						/* Add activation */
 						o_ptr->activate = ACT_TELEPORT_1;
 
@@ -2533,6 +2534,39 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 								if (o_ptr->pval < 1) o_ptr->pval = 1;
 							}
 						}
+					}
+					case EGO_BRAND_ACID:
+					{
+						o_ptr->pval = m_bonus(3, level) + 1;
+						break;
+					}
+					case EGO_ELVEN:
+					{
+						add_ego_power(EGO_XTRA_POWER, o_ptr);
+						break;
+					}
+					case EGO_DEMON:
+					{
+						/* Choose a brand. */
+						switch (randint0(8))
+						{
+							case 0: (o_ptr->flags4) |= (TR4_BRAND_POIS); break;
+							case 1: (o_ptr->flags4) |= (TR4_BRAND_ACID); break;
+							case 2: (o_ptr->flags4) |= (TR4_BRAND_FIRE); break;
+							case 3: (o_ptr->flags4) |= (TR4_BRAND_COLD); break;
+							case 4: (o_ptr->flags4) |= (TR4_BRAND_ELEC); break;
+							case 5: (o_ptr->flags4) |= (TR4_BRAND_MAGIC); break;
+							case 6: (o_ptr->flags4) |= (TR4_IMPACT); break;
+							case 7: (o_ptr->flags4) |= (TR4_CHAOTIC); break;
+						}
+						
+						break;
+					}
+					case EGO_MORGUL:
+					{
+						/* Supercharge the damage dice */
+						o_ptr->ds += (o_ptr->ds * randint1(5)) / 4;
+						break;
 					}
 				}
 
@@ -2611,7 +2645,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 				
 				/* Hack -- super-charge the damage dice */
 				if (one_in_(10L * o_ptr->dd * o_ptr->ds) ||
-					 (ego == EGO_SLAYING_BOLT))
+					 (ego == EGO_SLAYING))
 				{
 					o_ptr->ds += (o_ptr->ds * randint1(5)) / 5;
 				}
@@ -2754,6 +2788,20 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 
 						break;
 					}
+					case EGO_MAGI_ROBE:
+					{
+						/* Hack - only on robes. */
+						if (!((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_ROBE)))
+						{
+							ego = 0;
+						}
+						else
+						{
+							add_ego_power(EGO_XTRA_ABILITY, o_ptr);
+						}
+
+						break;
+					}
 					case EGO_RESISTANCE:
 					{
 						if (one_in_(4))
@@ -2767,6 +2815,12 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 					}
 
 					case EGO_ELVENKIND:
+					{
+						add_ego_power(EGO_XTRA_POWER, o_ptr);
+
+						break;
+					}
+					case EGO_DWARVENKIND:
 					{
 						add_ego_power(EGO_XTRA_POWER, o_ptr);
 
@@ -3535,29 +3589,71 @@ static void a_m_aux_4(object_type *o_ptr)
 
 		case TV_WAND:
 		{
+			if (one_in_(40))
+			{
+				/* Randart wand */
+				(void)create_artifact(o_ptr, FALSE);
+			}
+			
 			/*
 			 * The wand or staff gets a number of initial charges equal
 			 * to between 1/2 (+1) and the full object kind's pval. -LM-
 			 */
 			o_ptr->pval = k_ptr->pval / 2 + randint1((k_ptr->pval + 1) / 2);
+			
+			/* More charges for Artifacts */
+			if (o_ptr->flags3 & TR3_INSTA_ART)
+				o_ptr->pval = o_ptr->pval * 2 + randint0(2);
 
-			/* The number of "used" charges starts out as zero */
-			o_ptr->ac = 0;
+			/* This is to variate how long it takes for it to recharge first charge */
+			o_ptr->timeout = randint1(250 + k_ptr->level * 10);
 			break;
 		}
 
 		case TV_STAFF:
 		{
+			if (one_in_(40))
+			{
+				/* Randart staff */
+				(void)create_artifact(o_ptr, FALSE);
+			}
+			
 			/*
 			 * The wand or staff gets a number of initial charges equal
 			 * to between 1/2 (+1) and the full object kind's pval. -LM-
 			 */
 			o_ptr->pval = k_ptr->pval / 2 + randint1((k_ptr->pval + 1) / 2);
+			
+			/* More charges for Artifacts */
+			if (o_ptr->flags3 & TR3_INSTA_ART)
+				o_ptr->pval = o_ptr->pval * 2 + randint0(1);
+				
+			/* This is to variate how long it takes for it to recharge first charge */
+			o_ptr->timeout = randint1(250 + k_ptr->level * 10);
 			break;
 		}
 
 		case TV_ROD:
 		{
+			if (one_in_(40))
+			{
+				/* Randart rod */
+				(void)create_artifact(o_ptr, FALSE);
+			}
+			
+			/* Transfer the pval. -LM- */
+			o_ptr->pval = k_ptr->pval;
+			break;
+		}
+		
+		case TV_TECH:
+		{
+			if (one_in_(40))
+			{
+				/* Randart machine */
+				(void)create_artifact(o_ptr, FALSE);
+			}
+			
 			/* Transfer the pval. -LM- */
 			o_ptr->pval = k_ptr->pval;
 			break;
@@ -3673,12 +3769,12 @@ void add_ego_power(int power, object_type *o_ptr)
 			/* Choose a sustain */
 			switch (randint0(6))
 			{
-				case 0: (o_ptr->flags2) |= (TR2_SUST_STR); break;
-				case 1: (o_ptr->flags2) |= (TR2_SUST_INT); break;
-				case 2: (o_ptr->flags2) |= (TR2_SUST_WIS); break;
-				case 3: (o_ptr->flags2) |= (TR2_SUST_DEX); break;
-				case 4: (o_ptr->flags2) |= (TR2_SUST_CON); break;
-				case 5: (o_ptr->flags2) |= (TR2_SUST_CHR); break;
+				case 0: (o_ptr->flags1) |= (TR1_SUST_STR); break;
+				case 1: (o_ptr->flags1) |= (TR1_SUST_INT); break;
+				case 2: (o_ptr->flags1) |= (TR1_SUST_WIS); break;
+				case 3: (o_ptr->flags1) |= (TR1_SUST_DEX); break;
+				case 4: (o_ptr->flags1) |= (TR1_SUST_CON); break;
+				case 5: (o_ptr->flags1) |= (TR1_SUST_CHR); break;
 			}
 
 			break;
@@ -3687,7 +3783,7 @@ void add_ego_power(int power, object_type *o_ptr)
 		case EGO_XTRA_POWER:
 		{
 			/* Choose a power */
-			switch (randint0(11))
+			switch (randint0(12))
 			{
 				case  0: (o_ptr->flags2) |= (TR2_RES_BLIND);  break;
 				case  1: (o_ptr->flags2) |= (TR2_RES_CONF);   break;
@@ -3700,6 +3796,7 @@ void add_ego_power(int power, object_type *o_ptr)
 				case  8: (o_ptr->flags2) |= (TR2_RES_POIS);   break;
 				case  9: (o_ptr->flags2) |= (TR2_RES_DARK);   break;
 				case 10: (o_ptr->flags2) |= (TR2_RES_LITE);   break;
+				case 11: (o_ptr->flags2) |= (TR2_RES_MAGIC);   break;
 			}
 
 			break;
@@ -3812,7 +3909,7 @@ void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags)
 
 	/* Change level feeling for random artifacts */
 	if (o_ptr->flags3 & TR3_INSTA_ART) rating += 30;
-
+	
 	/* Examine real objects */
 	if (o_ptr->k_idx)
 	{
@@ -3913,8 +4010,8 @@ byte kind_is_theme(int k_idx)
 		case TV_SHIELD:		return (match_theme.combat);
 		case TV_CLOAK:		return (match_theme.combat);
 		case TV_SOFT_ARMOR:	return (match_theme.combat);
-		case TV_HARD_ARMOR: return (match_theme.combat);
-		case TV_DRAG_ARMOR: return (match_theme.treasure + match_theme.combat);
+		case TV_HARD_ARMOR: 	return (match_theme.combat);
+		case TV_DRAG_ARMOR: 	return (match_theme.treasure + match_theme.combat);
 		case TV_LITE:		return (match_theme.tools);
 		case TV_AMULET:		return (match_theme.treasure);
 		case TV_RING:		return (match_theme.treasure);
@@ -3926,15 +4023,16 @@ byte kind_is_theme(int k_idx)
 		case TV_FLASK:		return (match_theme.tools);
 		case TV_FOOD:		return (match_theme.tools);
 		case TV_LIFE_BOOK:	return (match_theme.magic);
-		case TV_ORDER_BOOK:   return (match_theme.magic);
-		case TV_FIRE_BOOK:  return (match_theme.magic);
-		case TV_AIR_BOOK:   return (match_theme.magic);
-		case TV_DEATH_BOOK:   return (match_theme.magic);
-		case TV_CHAOS_BOOK:   return (match_theme.magic);
-		case TV_ASTRAL_BOOK:  return (match_theme.magic);
-		case TV_WATER_BOOK:  return (match_theme.magic);
-		case TV_EARTH_BOOK:  return (match_theme.magic);
-		case TV_WIZARD_BOOK:  return (match_theme.magic);
+		case TV_ORDER_BOOK:   	return (match_theme.magic);
+		case TV_FIRE_BOOK:  	return (match_theme.magic);
+		case TV_AIR_BOOK:   	return (match_theme.magic);
+		case TV_DEATH_BOOK:   	return (match_theme.magic);
+		case TV_CHAOS_BOOK:   	return (match_theme.magic);
+		case TV_ASTRAL_BOOK:  	return (match_theme.magic);
+		case TV_WATER_BOOK:  	return (match_theme.magic);
+		case TV_EARTH_BOOK:  	return (match_theme.magic);
+		case TV_WIZARD_BOOK:  	return (match_theme.magic);
+		case TV_TECH:  		return (match_theme.tools);
 		
 		/* Paranoia */
 		default:	return (0);
@@ -4658,9 +4756,9 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 
 	/* Set theme - more weapons than normal */
 	theme.treasure = 10;
-	theme.combat = 80;
+	theme.combat = 70;
 	theme.magic = 10;
-	theme.tools = 0;
+	theme.tools = 10;
 
 	/* Acquirement */
 	while (num--)
@@ -5217,6 +5315,13 @@ s16b inven_takeoff(int item, int amt)
 		act = "You were holding";
 	}
 
+	/* Took off second weapon? */
+	else if ((item == INVEN_ARM) && (p_ptr->dual_wield))
+	{
+		act = "You were wielding";
+		p_ptr->dual_wield = FALSE;
+	}
+	
 	/* Took off something */
 	else
 	{

@@ -100,7 +100,7 @@ void reset_visuals(void)
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	const object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -108,6 +108,7 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	(*f1) = k_ptr->flags1 | o_ptr->flags1;
 	(*f2) = k_ptr->flags2 | o_ptr->flags2;
 	(*f3) = k_ptr->flags3 | o_ptr->flags3;
+	(*f4) = k_ptr->flags4 | o_ptr->flags4;
 
 	/* Remove the Moria flags */
 	if (ironman_moria)
@@ -115,6 +116,7 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f1) &= TR1_MORIA_MASK;
 		(*f2) &= TR2_MORIA_MASK;
 		(*f3) &= TR3_MORIA_MASK;
+		(*f4) &= TR4_MORIA_MASK;
 	}
 }
 
@@ -122,12 +124,12 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	const object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	(*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
 	/* Must be identified */
 	if (!object_known_p(o_ptr)) return;
@@ -136,6 +138,7 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	(*f1) = k_ptr->flags1;
 	(*f2) = k_ptr->flags2;
 	(*f3) = k_ptr->flags3;
+	(*f4) = k_ptr->flags4;
 
 	/* Show modifications to stats */
 	(*f1) |= (o_ptr->flags1 &
@@ -153,6 +156,7 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f1) |= o_ptr->kn_flags1;
 		(*f2) |= o_ptr->kn_flags2;
 		(*f3) |= o_ptr->kn_flags3;
+		(*f4) |= o_ptr->kn_flags4;
 	}
 	
 	/* Remove the Moria flags */
@@ -161,6 +165,7 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f1) &= TR1_MORIA_MASK;
 		(*f2) &= TR2_MORIA_MASK;
 		(*f3) &= TR3_MORIA_MASK;
+		(*f4) &= TR4_MORIA_MASK;
 	}
 }
 
@@ -171,10 +176,10 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  */
 cptr item_activation(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return ("nothing");
@@ -833,13 +838,13 @@ bool identify_fully_aux(const object_type *o_ptr)
 {
 	int                     i = 0, j, k;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	cptr            info[128];
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* Mega-Hack -- describe activation */
@@ -912,6 +917,10 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "It affects your stealth.";
 	}
+	if (f1 & (TR1_SAV))
+	{
+		info[i++] = "It affects your saving throws.";
+	}
 	if (f1 & (TR1_SEARCH))
 	{
 		info[i++] = "It affects your searching.";
@@ -933,116 +942,29 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It affects your attack speed.";
 	}
 
-	if (f1 & (TR1_BRAND_ACID))
-	{
-		info[i++] = "It does extra damage from acid.";
-	}
-	if (f1 & (TR1_BRAND_ELEC))
-	{
-		info[i++] = "It does extra damage from electricity.";
-	}
-	if (f1 & (TR1_BRAND_FIRE))
-	{
-		info[i++] = "It does extra damage from fire.";
-	}
-	if (f1 & (TR1_BRAND_COLD))
-	{
-		info[i++] = "It does extra damage from frost.";
-	}
-
-	if (f1 & (TR1_BRAND_POIS))
-	{
-		info[i++] = "It poisons your foes.";
-	}
-
-	if (f1 & (TR1_CHAOTIC))
-	{
-		info[i++] = "It produces chaotic effects.";
-	}
-
-	if (f1 & (TR1_VAMPIRIC))
-	{
-		info[i++] = "It drains life from your foes.";
-	}
-
-	if (f1 & (TR1_IMPACT))
-	{
-		info[i++] = "It can cause earthquakes.";
-	}
-
-	if (f1 & (TR1_VORPAL))
-	{
-		info[i++] = "It is very sharp and can cut your foes.";
-	}
-
-	if (f1 & (TR1_KILL_DRAGON))
-	{
-		info[i++] = "It is a great bane of dragons.";
-	}
-	else if (f1 & (TR1_SLAY_DRAGON))
-	{
-		info[i++] = "It is especially deadly against dragons.";
-	}
-	if (f1 & (TR1_SLAY_ORC))
-	{
-		info[i++] = "It is especially deadly against orcs.";
-	}
-	if (f1 & (TR1_SLAY_TROLL))
-	{
-		info[i++] = "It is especially deadly against trolls.";
-	}
-	if (f1 & (TR1_SLAY_GIANT))
-	{
-		info[i++] = "It is especially deadly against giants.";
-	}
-	if (f1 & (TR1_SLAY_DEMON))
-	{
-		info[i++] = "It strikes at demons with holy wrath.";
-	}
-	if (f1 & (TR1_SLAY_UNDEAD))
-	{
-		info[i++] = "It strikes at undead with holy wrath.";
-	}
-	if (f1 & (TR1_SLAY_EVIL))
-	{
-		info[i++] = "It fights against evil with holy fury.";
-	}
-	if (f1 & (TR1_SLAY_ANIMAL))
-	{
-		info[i++] = "It is especially deadly against natural creatures.";
-	}
-
-	if (f2 & (TR2_SUST_STR))
+	if (f1 & (TR1_SUST_STR))
 	{
 		info[i++] = "It sustains your strength.";
 	}
-	if (f2 & (TR2_SUST_INT))
+	if (f1 & (TR1_SUST_INT))
 	{
 		info[i++] = "It sustains your intelligence.";
 	}
-	if (f2 & (TR2_SUST_WIS))
+	if (f1 & (TR1_SUST_WIS))
 	{
 		info[i++] = "It sustains your wisdom.";
 	}
-	if (f2 & (TR2_SUST_DEX))
+	if (f1 & (TR1_SUST_DEX))
 	{
 		info[i++] = "It sustains your dexterity.";
 	}
-	if (f2 & (TR2_SUST_CON))
+	if (f1 & (TR1_SUST_CON))
 	{
 		info[i++] = "It sustains your constitution.";
 	}
-	if (f2 & (TR2_SUST_CHR))
+	if (f1 & (TR1_SUST_CHR))
 	{
 		info[i++] = "It sustains your charisma.";
-	}
-	if (f2 & (TR2_RES_MAGIC))
-	{
-		info[i++] = "It provides magic resistance.";
-	}
-	if (f2 & (TR2_INVIS))
-	{
-		info[i++] = "It makes you invisible.";
 	}
 
 	if (f2 & (TR2_IM_ACID))
@@ -1061,12 +983,10 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "It provides immunity to cold.";
 	}
-
-	if (f2 & (TR2_THROW))
+	if (f2 & (TR2_REFLECT))
 	{
-		info[i++] = "It is perfectly balanced for throwing.";
+		info[i++] = "It reflects bolts and arrows.";
 	}
-
 	if (f2 & (TR2_FREE_ACT))
 	{
 		info[i++] = "It provides immunity to paralysis.";
@@ -1108,7 +1028,6 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "It provides resistance to dark.";
 	}
-
 	if (f2 & (TR2_RES_BLIND))
 	{
 		info[i++] = "It provides resistance to blindness.";
@@ -1125,7 +1044,6 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "It provides resistance to shards.";
 	}
-
 	if (f2 & (TR2_RES_NETHER))
 	{
 		info[i++] = "It provides resistance to nether.";
@@ -1142,10 +1060,38 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "It provides resistance to disenchantment.";
 	}
-
-	if (f3 & (TR3_XXX7))
+	if (f2 & (TR2_RES_MAGIC))
 	{
-		info[i++] = "It renders you XXX7'ed.";
+		info[i++] = "It provides magic resistance.";
+	}
+
+	if (f3 & (TR3_SH_FIRE))
+	{
+		info[i++] = "It produces a fiery sheath.";
+	}
+	if (f3 & (TR3_SH_ELEC))
+	{
+		info[i++] = "It produces an electric sheath.";
+	}
+	if (f3 & (TR3_SH_COLD))
+	{
+		info[i++] = "It produces an icy shield.";
+	}
+	if (f3 & (TR3_SH_ACID))
+	{
+		info[i++] = "It produces an acidic bubble.";
+	}
+	if (f3 & (TR3_NO_MAGIC))
+	{
+		info[i++] = "It produces an anti-magic shell.";
+	}
+	if (f3 & (TR3_NO_TELE))
+	{
+		info[i++] = "It prevents teleportation.";
+	}
+	if (f3 & (TR3_THROW))
+	{
+		info[i++] = "It is perfectly balanced for throwing.";
 	}
 	if (f3 & (TR3_FEATHER))
 	{
@@ -1171,35 +1117,10 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "It speeds your regenerative powers.";
 	}
-	if (f2 & (TR2_REFLECT))
+	if (f3 & (TR3_INVIS))
 	{
-		info[i++] = "It reflects bolts and arrows.";
+		info[i++] = "It makes you invisible.";
 	}
-	if (f3 & (TR3_SH_FIRE))
-	{
-		info[i++] = "It produces a fiery sheath.";
-	}
-	if (f3 & (TR3_SH_ELEC))
-	{
-		info[i++] = "It produces an electric sheath.";
-	}
-	if (f3 & (TR3_NO_MAGIC))
-	{
-		info[i++] = "It produces an anti-magic shell.";
-	}
-	if (f3 & (TR3_NO_TELE))
-	{
-		info[i++] = "It prevents teleportation.";
-	}
-	if (f3 & (TR3_XTRA_MIGHT))
-	{
-		info[i++] = "It fires missiles with extra might.";
-	}
-	if (f3 & (TR3_XTRA_SHOTS))
-	{
-		info[i++] = "It fires missiles excessively fast.";
-	}
-
 	if (f3 & (TR3_DRAIN_EXP))
 	{
 		info[i++] = "It drains experience.";
@@ -1212,7 +1133,6 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "It aggravates nearby creatures.";
 	}
-
 	if (f3 & TR3_BLESSED)
 	{
 		info[i++] = "It has been blessed by the gods.";
@@ -1233,12 +1153,10 @@ bool identify_fully_aux(const object_type *o_ptr)
 			info[i++] = "It is cursed.";
 		}
 	}
-
 	if (f3 & TR3_TY_CURSE)
 	{
 		info[i++] = "It carries an ancient foul curse.";
 	}
-
 	if (f3 & (TR3_IGNORE_ACID))
 	{
 		info[i++] = "It cannot be harmed by acid.";
@@ -1255,8 +1173,107 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "It cannot be harmed by cold.";
 	}
-
-
+	
+	if (f4 & (TR4_BRAND_ACID))
+	{
+		info[i++] = "It does extra damage from acid.";
+	}
+	if (f4 & (TR4_BRAND_ELEC))
+	{
+		info[i++] = "It does extra damage from electricity.";
+	}
+	if (f4 & (TR4_BRAND_FIRE))
+	{
+		info[i++] = "It does extra damage from fire.";
+	}
+	if (f4 & (TR4_BRAND_COLD))
+	{
+		info[i++] = "It does extra damage from frost.";
+	}
+	if (f4 & (TR4_BRAND_POIS))
+	{
+		info[i++] = "It poisons your foes.";
+	}
+	if (f4 & (TR4_BRAND_MAGIC))
+	{
+		info[i++] = "It does extra damage with magic.";
+	}
+	if (f4 & (TR4_BRAND_SLEEP))
+	{
+		info[i++] = "It puts your enemies to sleep.";
+	}
+	if (f4 & (TR4_CHAOTIC))
+	{
+		info[i++] = "It produces chaotic effects.";
+	}
+	if (f4 & (TR4_VAMPIRIC))
+	{
+		info[i++] = "It drains life from your foes.";
+	}
+	if (f4 & (TR4_IMPACT))
+	{
+		info[i++] = "It can cause earthquakes.";
+	}
+	if (f4 & (TR4_VORPAL))
+	{
+		info[i++] = "It is very sharp and can cut your foes.";
+	}
+	if (f4 & (TR4_KILL_DRAGON))
+	{
+		info[i++] = "It is a great bane of dragons.";
+	}
+	else if (f4 & (TR4_SLAY_DRAGON))
+	{
+		info[i++] = "It is especially deadly against dragons.";
+	}
+	if (f4 & (TR4_SLAY_ORC))
+	{
+		info[i++] = "It is especially deadly against orcs.";
+	}
+	if (f4 & (TR4_SLAY_TROLL))
+	{
+		info[i++] = "It is especially deadly against trolls.";
+	}
+	if (f4 & (TR4_SLAY_GIANT))
+	{
+		info[i++] = "It is especially deadly against giants.";
+	}
+	if (f4 & (TR4_SLAY_DEMON))
+	{
+		info[i++] = "It strikes at demons with holy wrath.";
+	}
+	if (f4 & (TR4_SLAY_UNDEAD))
+	{
+		info[i++] = "It strikes at undead with holy wrath.";
+	}
+	if (f4 & (TR4_SLAY_EVIL))
+	{
+		info[i++] = "It fights against evil with holy fury.";
+	}
+	if (f4 & (TR4_SLAY_ANIMAL))
+	{
+		info[i++] = "It is especially deadly against natural creatures.";
+	}
+	if (f4 & (TR4_XTRA_MIGHT))
+	{
+		info[i++] = "It fires missiles with extra might.";
+	}
+	if (f4 & (TR4_XTRA_SHOTS))
+	{
+		info[i++] = "It fires missiles excessively fast.";
+	}
+	if (f4 & (TR4_XTRA_FORCE))
+	{
+		if (o_ptr->sval == SV_SLING)
+		{
+			info[i++] = "Its missiles can stun your foes.";
+		}
+		else
+		{
+			info[i++] = "Its missiles can go straight through you foes.";
+		}
+	}
+	
 	/* No special effects */
 	if (!i) return (FALSE);
 
@@ -1374,6 +1391,10 @@ s16b wield_slot(const object_type *o_ptr)
 		}
 
 		case TV_BOW:
+		case TV_WAND:
+		case TV_ROD:
+		case TV_STAFF:
+		case TV_TECH:
 		{
 			return (INVEN_BOW);
 		}
@@ -1466,7 +1487,7 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[change_form(A_STR)] < o_ptr->weight / 10)
 		{
 			p = "Just lifting";
 		}
@@ -1477,7 +1498,7 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[change_form(A_STR)] < o_ptr->weight / 10)
 		{
 			p = "Just holding";
 		}
@@ -1518,7 +1539,7 @@ cptr describe_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[change_form(A_STR)] < o_ptr->weight / 10)
 		{
 			p = "just lifting";
 		}
@@ -1529,9 +1550,20 @@ cptr describe_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[change_form(A_STR)] < o_ptr->weight / 10)
 		{
 			p = "just holding";
+		}
+	}
+	
+	/* Is it a bow? */
+	if (i == INVEN_BOW)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+		if (o_ptr->tval != TV_BOW)
+		{
+			p = "casting with";
 		}
 	}
 
@@ -1825,8 +1857,8 @@ bool item_tester_hook_tval(const object_type *o_ptr)
 
 bool item_tester_hook_is_blessed(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
-	object_flags(o_ptr, &f1, &f2, &f3);
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	
 	/* Is it blessed? */
 	if (f3 & TR3_BLESSED) return (TRUE);
@@ -1995,7 +2027,7 @@ void display_inven(void)
 		attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && 
+		if (o_ptr->timeout && o_ptr->tval != TV_WAND && o_ptr->tval != TV_STAFF && 
 			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			attr = TERM_L_DARK;
@@ -2073,7 +2105,7 @@ void display_equip(void)
 		attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && 
+		if (o_ptr->timeout && o_ptr->tval != TV_WAND && o_ptr->tval != TV_STAFF &&
 			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			attr = TERM_L_DARK;
@@ -2180,7 +2212,7 @@ void show_inven(void)
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && 
+		if (o_ptr->timeout && o_ptr->tval != TV_WAND && o_ptr->tval != TV_STAFF &&
 			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			out_color[k] = TERM_L_DARK;
@@ -2318,7 +2350,7 @@ void show_equip(void)
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && 
+		if (o_ptr->timeout && o_ptr->tval != TV_WAND && o_ptr->tval != TV_STAFF &&
 			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			out_color[k] = TERM_L_DARK;

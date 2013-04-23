@@ -876,7 +876,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 	cptr    q, s;
 
 
-	if (!(racial_aux(mut_ptr->level, mut_ptr->cost, mut_ptr->stat,
+	if (!(racial_aux(mut_ptr->level, mut_ptr->cost, mut_ptr->use, mut_ptr->stat,
 		 mut_ptr->diff))) return;
 
 	if (mut_ptr->which == MUT1_SPIT_ACID)

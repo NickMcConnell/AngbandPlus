@@ -468,15 +468,15 @@ static const flag_desc pval_flags1_desc[] =
 
 static const flag_desc slay_flags_desc[] =
 {
-	{ TR1_SLAY_ANIMAL,        "Animal" },
-	{ TR1_SLAY_EVIL,          "Evil" },
-	{ TR1_SLAY_UNDEAD,        "Undead" },
-	{ TR1_SLAY_DEMON,         "Demon" },
-	{ TR1_SLAY_ORC,           "Orc" },
-	{ TR1_SLAY_TROLL,         "Troll" },
-	{ TR1_SLAY_GIANT,         "Giant" },
-	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" }
+	{ TR4_SLAY_ANIMAL,        "Animal" },
+	{ TR4_SLAY_EVIL,          "Evil" },
+	{ TR4_SLAY_UNDEAD,        "Undead" },
+	{ TR4_SLAY_DEMON,         "Demon" },
+	{ TR4_SLAY_ORC,           "Orc" },
+	{ TR4_SLAY_TROLL,         "Troll" },
+	{ TR4_SLAY_GIANT,         "Giant" },
+	{ TR4_SLAY_DRAGON,        "Dragon" },
+	{ TR4_KILL_DRAGON,        "Xdragon" }
 };
 
 /*
@@ -489,16 +489,19 @@ static const flag_desc slay_flags_desc[] =
  */
 static const flag_desc brand_flags_desc[] =
 {
-	{ TR1_BRAND_ACID,         "Acid Brand" },
-	{ TR1_BRAND_ELEC,         "Lightning Brand" },
-	{ TR1_BRAND_FIRE,         "Fire Brand" },
-	{ TR1_BRAND_COLD,         "Frost Brand" },
-	{ TR1_BRAND_POIS,         "Poisoned" },
+	{ TR4_BRAND_ACID,         "Acid Brand" },
+	{ TR4_BRAND_ELEC,         "Lightning Brand" },
+	{ TR4_BRAND_FIRE,         "Fire Brand" },
+	{ TR4_BRAND_COLD,         "Frost Brand" },
+	{ TR4_BRAND_POIS,         "Poisoned" },
+	{ TR4_BRAND_MAGIC,        "Magic Brand" },
+	{ TR4_BRAND_SLEEP,        "Sleep Brand" },
 
-	{ TR1_CHAOTIC,            "Mark of Chaos" },
-	{ TR1_VAMPIRIC,           "Vampiric" },
-	{ TR1_IMPACT,             "Earthquake impact on hit" },
-	{ TR1_VORPAL,             "Very sharp" },
+
+	{ TR4_CHAOTIC,            "Mark of Chaos" },
+	{ TR4_VAMPIRIC,           "Vampiric" },
+	{ TR4_IMPACT,             "Earthquake impact on hit" },
+	{ TR4_VORPAL,             "Very sharp" },
 };
 
 
@@ -543,12 +546,12 @@ static const flag_desc immune_flags_desc[] =
  */
 static const flag_desc sustain_flags_desc[] =
 {
-	{ TR2_SUST_STR,   "STR" },
-	{ TR2_SUST_INT,   "INT" },
-	{ TR2_SUST_WIS,   "WIS" },
-	{ TR2_SUST_DEX,   "DEX" },
-	{ TR2_SUST_CON,   "CON" },
-	{ TR2_SUST_CHR,   "CHR" },
+	{ TR1_SUST_STR,   "STR" },
+	{ TR1_SUST_INT,   "INT" },
+	{ TR1_SUST_WIS,   "WIS" },
+	{ TR1_SUST_DEX,   "DEX" },
+	{ TR1_SUST_CON,   "CON" },
+	{ TR1_SUST_CHR,   "CHR" },
 };
 
 /*
@@ -557,7 +560,7 @@ static const flag_desc sustain_flags_desc[] =
 
 static const flag_desc misc_flags2_desc[] =
 {
-	{ TR2_THROW,      "Throwing" },
+	{ TR3_THROW,      "Throwing" },
 	{ TR2_REFLECT,    "Reflection" },
 	{ TR2_FREE_ACT,   "Free Action" },
 	{ TR2_HOLD_LIFE,  "Hold Life" },
@@ -574,6 +577,8 @@ static const flag_desc misc_flags3_desc[] =
 {
 	{ TR3_SH_FIRE,            "Fiery Aura" },
 	{ TR3_SH_ELEC,            "Electric Aura" },
+	{ TR3_SH_COLD,            "Icy Aura" },
+	{ TR3_SH_ACID,            "Acidic Aura" },
 	{ TR3_NO_TELE,            "Prevent Teleportation" },
 	{ TR3_NO_MAGIC,           "Anti-Magic" },
 	{ TR3_FEATHER,            "Levitation" },
@@ -581,7 +586,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_TELEPATHY,          "ESP" },
 	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
 	{ TR3_REGEN,              "Regeneration" },
-	{ TR3_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
+	{ TR4_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
 	{ TR3_DRAIN_EXP,          "Drains Experience" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
 	{ TR3_BLESSED,            "Blessed Blade" },
@@ -738,7 +743,7 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
 				TR1_DEX | TR1_CON | TR1_CHR);
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	cptr *affects_list;
 
@@ -751,7 +756,7 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 	}
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	affects_list = p_ptr->pval_affects;
 
@@ -785,9 +790,9 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 /* Note the slaying specialties of a weapon */
 static void analyze_slay(const object_type *o_ptr, cptr *slay_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	slay_list = spoiler_flag_aux(f1, slay_flags_desc, slay_list,
 				     N_ELEMENTS(slay_flags_desc));
@@ -799,9 +804,9 @@ static void analyze_slay(const object_type *o_ptr, cptr *slay_list)
 /* Note an object's elemental brands */
 static void analyze_brand(const object_type *o_ptr, cptr *brand_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	brand_list = spoiler_flag_aux(f1, brand_flags_desc, brand_list,
 				      N_ELEMENTS(brand_flags_desc));
@@ -814,9 +819,9 @@ static void analyze_brand(const object_type *o_ptr, cptr *brand_list)
 /* Note the resistances granted by an object */
 static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	resist_list = spoiler_flag_aux(f2, resist_flags_desc,
 				       resist_list, N_ELEMENTS(resist_flags_desc));
@@ -829,9 +834,9 @@ static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 /* Note the immunities granted by an object */
 static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	immune_list = spoiler_flag_aux(f2, immune_flags_desc,
 				       immune_list, N_ELEMENTS(immune_flags_desc));
@@ -844,12 +849,12 @@ static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
 
 static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
 {
-	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
-				   TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
+	const u32b all_sustains = (TR1_SUST_STR | TR1_SUST_INT | TR1_SUST_WIS |
+				   TR1_SUST_DEX | TR1_SUST_CON | TR1_SUST_CHR);
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Simplify things if an item sustains all stats */
 	if ((f2 & all_sustains) == all_sustains)
@@ -858,9 +863,9 @@ static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
 	}
 
 	/* Should we bother? */
-	else if ((f2 & all_sustains))
+	else if ((f1 & all_sustains))
 	{
-		sustain_list = spoiler_flag_aux(f2, sustain_flags_desc,
+		sustain_list = spoiler_flag_aux(f1, sustain_flags_desc,
 						sustain_list,
 						N_ELEMENTS(sustain_flags_desc));
 	}
@@ -876,9 +881,9 @@ static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
  */
 static void analyze_misc_magic(const object_type *o_ptr, cptr *misc_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	misc_list = spoiler_flag_aux(f2, misc_flags2_desc, misc_list,
 				     N_ELEMENTS(misc_flags2_desc));

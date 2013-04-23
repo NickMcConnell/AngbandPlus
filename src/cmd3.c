@@ -38,7 +38,7 @@ void do_cmd_inven(void)
 
 	sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
 	    p_ptr->total_weight / 10, p_ptr->total_weight % 10,
-	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+	    (p_ptr->total_weight * 100) / ((adj_str_wgt[change_form(A_STR)] * 100) / 2));
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -91,7 +91,7 @@ void do_cmd_equip(void)
 	/* Build a prompt */
 	sprintf(out_val, "Equipment: carrying %d.%d pounds (%d%% of capacity). Command: ",
 	    p_ptr->total_weight / 10, p_ptr->total_weight % 10,
-	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+	    (p_ptr->total_weight * 100) / ((adj_str_wgt[change_form(A_STR)] * 100) / 2));
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -124,6 +124,8 @@ void do_cmd_equip(void)
 void do_cmd_wield(void)
 {
 	int item, slot;
+	bool was_dual = p_ptr->dual_wield;
+	bool new_dual = p_ptr->dual_wield;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -159,6 +161,23 @@ void do_cmd_wield(void)
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
+	
+	if ((slot == INVEN_WIELD) && (inventory[INVEN_WIELD].k_idx))
+	{
+		char dummy[512];
+
+		/* Describe it */
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		sprintf(dummy, "Dual wield with %s as second weapon? ", o_name);
+
+		if (get_check(dummy))
+		{
+			/* Set dual wield flag and change slot */
+			new_dual = TRUE;
+			slot = INVEN_ARM;
+		}
+	}
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
@@ -170,6 +189,9 @@ void do_cmd_wield(void)
 		msg_format("The %s you are %s appears to be cursed.",
 		           o_name, describe_use(slot));
 
+		/* Reset dual wield flag */
+		p_ptr->dual_wield = was_dual;
+		
 		/* Cancel the command */
 		return;
 	}
@@ -185,7 +207,12 @@ void do_cmd_wield(void)
 		sprintf(dummy, "Really use the %s {cursed}? ", o_name);
 
 		if (!get_check(dummy))
+		{
+			/* Reset dual wield flag */
+			p_ptr->dual_wield = was_dual;
+			
 			return;
+		}
 	}
 
 	/* Take a turn */
@@ -240,11 +267,11 @@ void do_cmd_wield(void)
 	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
-	if (slot == INVEN_WIELD)
+	if ((slot == INVEN_WIELD) || ((slot == INVEN_BOW) && (q_ptr->tval != TV_BOW)))
 	{
 		act = "You are wielding";
 	}
-	else if (slot == INVEN_BOW)
+	else if ((slot == INVEN_BOW) && (q_ptr->tval == TV_BOW))
 	{
 		act = "You are shooting with";
 	}
@@ -274,6 +301,8 @@ void do_cmd_wield(void)
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
 	}
+
+	p_ptr->dual_wield = new_dual;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);

@@ -480,32 +480,32 @@ static cptr k_info_flags1[] =
 	"DEX",
 	"CON",
 	"CHR",
-	"XXX1",
-	"XXX2",
+	"XTRA_SP",
+	"SAV",
 	"STEALTH",
 	"SEARCH",
 	"INFRA",
 	"TUNNEL",
 	"SPEED",
 	"BLOWS",
-	"CHAOTIC",
-	"VAMPIRIC",
-	"SLAY_ANIMAL",
-	"SLAY_EVIL",
-	"SLAY_UNDEAD",
-	"SLAY_DEMON",
-	"SLAY_ORC",
-	"SLAY_TROLL",
-	"SLAY_GIANT",
-	"SLAY_DRAGON",
-	"KILL_DRAGON",
-	"VORPAL",
-	"IMPACT",
-	"BRAND_POIS",
-	"BRAND_ACID",
-	"BRAND_ELEC",
-	"BRAND_FIRE",
-	"BRAND_COLD"
+	"SUST_STR",
+	"SUST_INT",
+	"SUST_WIS",
+	"SUST_DEX",
+	"SUST_CON",
+	"SUST_CHR",
+	"XXX1",
+	"XXX2",
+	"XXX3",
+	"XXX4",
+	"XXX5",
+	"XXX6",
+	"XXX7",
+	"XXX8",
+	"XXX9",
+	"XXX10",
+	"XXX11",
+	"XXX12",
 };
 
 /*
@@ -513,19 +513,10 @@ static cptr k_info_flags1[] =
  */
 static cptr k_info_flags2[] =
 {
-	"SUST_STR",
-	"SUST_INT",
-	"SUST_WIS",
-	"SUST_DEX",
-	"SUST_CON",
-	"SUST_CHR",
-	"RES_MAGIC",
-	"INVIS",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
 	"IM_COLD",
-	"THROW",
 	"REFLECT",
 	"FREE_ACT",
 	"HOLD_LIFE",
@@ -544,7 +535,16 @@ static cptr k_info_flags2[] =
 	"RES_NETHER",
 	"RES_NEXUS",
 	"RES_CHAOS",
-	"RES_DISEN"
+	"RES_DISEN",
+	"RES_MAGIC",
+	"XXX13",
+	"XXX14",
+	"XXX15",
+	"XXX16",
+	"XXX17",
+	"XXX18",
+	"XXX19",
+	"XXX20"
 };
 
 /*
@@ -554,37 +554,77 @@ static cptr k_info_flags3[] =
 {
 	"SH_FIRE",
 	"SH_ELEC",
-	"QUESTITEM",
-	"XXX4",
+	"SH_COLD",
+	"SH_ACID",
 	"NO_TELE",
 	"NO_MAGIC",
-	"XXX7",
-	"TY_CURSE",
-	"EASY_KNOW",
-	"HIDE_TYPE",
-	"SHOW_MODS",
-	"INSTA_ART",
+	"THROW",
 	"FEATHER",
 	"LITE",
 	"SEE_INVIS",
 	"TELEPATHY",
 	"SLOW_DIGEST",
 	"REGEN",
-	"XTRA_MIGHT",
-	"XTRA_SHOTS",
-	"IGNORE_ACID",
-	"IGNORE_ELEC",
-	"IGNORE_FIRE",
-	"IGNORE_COLD",
-	"ACTIVATE",
+	"INVIS",
 	"DRAIN_EXP",
 	"TELEPORT",
 	"AGGRAVATE",
 	"BLESSED",
 	"CURSED",
 	"HEAVY_CURSE",
-	"PERMA_CURSE"
+	"PERMA_CURSE",
+	"TY_CURSE",
+	"EASY_KNOW",
+	"HIDE_TYPE",
+	"SHOW_MODS",
+	"INSTA_ART",
+	"QUESTITEM",
+	"IGNORE_ACID",
+	"IGNORE_ELEC",
+	"IGNORE_FIRE",
+	"IGNORE_COLD",
+	"ACTIVATE"
 };
+
+/*
+ * Object flags
+ */
+static cptr k_info_flags4[] =
+{
+	"CHAOTIC",
+	"VAMPIRIC",
+	"VORPAL",
+	"IMPACT",
+	"SLAY_ANIMAL",
+	"SLAY_EVIL",
+	"SLAY_UNDEAD",
+	"SLAY_DEMON",
+	"SLAY_ORC",
+	"SLAY_TROLL",
+	"SLAY_GIANT",
+	"SLAY_DRAGON",
+	"KILL_DRAGON",
+	"BRAND_POIS",
+	"BRAND_ACID",
+	"BRAND_ELEC",
+	"BRAND_FIRE",
+	"BRAND_COLD",
+	"BRAND_MAGIC",
+	"BRAND_SLEEP",
+	"XTRA_MIGHT",
+	"XTRA_SHOTS",
+	"XTRA_FORCE",
+	"PIERC_AC",
+	"VELOCITY",
+	"XXX23",
+	"XXX24",
+	"XXX25",
+	"XXX26",
+	"XXX27",
+	"XXX28",
+	"XXX29"
+};
+
 
 /*
  * Wilderness Flags
@@ -1064,6 +1104,16 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 			return (0);
 		}
 	}
+	
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			k_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
 
 	/* Oops */
 	msg_format("Unknown object flag '%s'.", what);
@@ -1430,6 +1480,16 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 			return (0);
 		}
 	}
+	
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			a_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
 
 	/* Oops */
 	msg_format("Unknown artifact flag '%s'.", what);
@@ -1722,6 +1782,16 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 		if (streq(what, k_info_flags3[i]))
 		{
 			e_ptr->flags3 |= (1L << i);
+			return (0);
+		}
+	}
+	
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			e_ptr->flags4 |= (1L << i);
 			return (0);
 		}
 	}
@@ -3223,7 +3293,7 @@ static errr process_dungeon_file_aux(char *buf, int init_flags)
 
 
 static char tmp[8];
-static cptr variant = "ZANGBAND";
+static cptr variant = "STANGBAND";
 
 
 /*

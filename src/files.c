@@ -267,6 +267,7 @@ static const named_num gf_desc[] =
 	{"GF_TEMP",			GF_TEMP		},
 	{"GF_QUAKE",			GF_QUAKE		},
 	{"GF_LAVA",			GF_LAVA		},
+	{"GF_GROWTH",			GF_GROWTH	},
 	{NULL, 						0					}
 };
 
@@ -646,6 +647,16 @@ errr process_pref_file_command(char *buf)
 				return (0);
 			}
 		}
+	}
+	else if (buf[0] == 'H')
+	{
+		hitpoint_warn = A2I(buf[2]);
+		return (0);
+	}
+	else if (buf[0] == 'D')
+	{
+		delay_factor = A2I(buf[2]);
+		return (0);
 	}
 
 
@@ -1399,10 +1410,10 @@ static void display_player_abilities(void)
 	int         tmp, damdice, damsides, dambonus, blows;
 	int			xthn, xthb, xfos, xsrh;
 	int			xdis, xdev, xsav, xstl;
-	char		desc[20];
+	char		desc[20], desc2[20];
 	int         muta_att = 0;
-	long		avgdam;
-	u32b            f1, f2, f3;
+	long		avgdam1, avgdam2;
+	u32b            f1, f2, f3, f4;
 	int		energy_fire;
 	int		shots, shot_frac;
 
@@ -1425,7 +1436,7 @@ static void display_player_abilities(void)
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
 	/* Is the player is wielding a shooter? */
-	if (o_ptr->k_idx)
+	if ((o_ptr->k_idx) && (o_ptr->tval == TV_BOW))
 	{
 		energy_fire = p_ptr->bow_energy;
 	}
@@ -1449,6 +1460,83 @@ static void display_player_abilities(void)
 	damsides = o_ptr->ds;
 	blows = p_ptr->num_blow;
 	
+	/* Deadliness conversion table */
+	avgdam1 = deadliness_calc(dambonus);
+
+	/* Effect of damage dice x2 */
+	avgdam1 *= damdice * (damsides + 1);
+
+	/* number of blows */
+	avgdam1 *= blows;
+
+	/* Rescale */
+	avgdam1 /= 200;
+
+	/* See if have a weapon with extra power */
+	if (o_ptr->k_idx)
+	{
+		/* Is there a vorpal effect we know about? */
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+		if ((o_ptr->ident & IDENT_MENTAL) &&
+			 (o_ptr->activate - 128 == ART_VORPAL_BLADE))
+		{
+			/* vorpal blade */
+			avgdam1 *= 786;
+			avgdam1 /= 500;
+		}
+		else if (object_known_p(o_ptr) && (f4 & TR4_VORPAL))
+		{
+			/* vorpal flag only */
+			avgdam1 *= 609;
+			avgdam1 /= 500;
+		}
+	}
+		
+	/* Two weapons? */
+	if (p_ptr->dual_wield)
+	{
+		/* Average damage per round */
+		o_ptr = &inventory[INVEN_ARM];
+		dambonus = p_ptr->dis_to_d;
+		if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
+		damdice = o_ptr->dd;
+		damsides = o_ptr->ds;
+		blows = p_ptr->num_blow;
+
+		/* Deadliness conversion table */
+		avgdam2 = deadliness_calc(dambonus);
+
+		/* Effect of damage dice x2 */
+		avgdam2 *= damdice * (damsides + 1);
+
+		/* number of blows */
+		avgdam2 *= blows;
+
+		/* Rescale */
+		avgdam2 /= 200;
+
+		/* See if have a weapon with extra power */
+		if (o_ptr->k_idx)
+		{
+			/* Is there a vorpal effect we know about? */
+			object_flags(o_ptr, &f1, &f2, &f3, &f4);
+			if ((o_ptr->ident & IDENT_MENTAL) &&
+				 (o_ptr->activate - 128 == ART_VORPAL_BLADE))
+			{
+				/* vorpal blade */
+				avgdam2 *= 786;
+				avgdam2 /= 500;
+			}
+			else if (object_known_p(o_ptr) && (f4 & TR4_VORPAL))
+			{
+				/* vorpal flag only */
+				avgdam2 *= 609;
+				avgdam2 /= 500;
+			}
+		}
+	}
+	/* No damage from second weapon */
+	else avgdam2 = 0;
 
 	/* Basic abilities */
 
@@ -1508,42 +1596,10 @@ static void display_player_abilities(void)
 
 	put_str("Avg.Dam./Rnd:", 18, COL_SKILLS3);
 
-	/* Deadliness conversion table */
-	avgdam = deadliness_calc(dambonus);
-
-	/* Effect of damage dice x2 */
-	avgdam *= damdice * (damsides + 1);
-
-	/* number of blows */
-	avgdam *= blows;
-
-	/* Rescale */
-	avgdam /= 200;
-
-	/* See if have a weapon with extra power */
-	if (o_ptr->k_idx)
-	{
-		/* Is there a vorpal effect we know about? */
-		object_flags(o_ptr, &f1, &f2, &f3);
-		if ((o_ptr->ident & IDENT_MENTAL) &&
-			 (o_ptr->activate - 128 == ART_VORPAL_BLADE))
-		{
-			/* vorpal blade */
-			avgdam *= 786;
-			avgdam /= 500;
-		}
-		else if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
-		{
-			/* vorpal flag only */
-			avgdam *= 609;
-			avgdam /= 500;
-		}
-	}
-
 	/* normal players get two 1d1 punches */
-	if (!o_ptr->k_idx && (p_ptr->pclass != CLASS_MONK)) avgdam = 2;
+	if (!o_ptr->k_idx && (p_ptr->pclass != CLASS_MONK)) avgdam1 = 2;
 
-	if (avgdam == 0)
+	if (avgdam1 == 0)
 	{
 		if ((p_ptr->pclass == CLASS_MONK) && (!o_ptr->k_idx))
 			sprintf(desc, "%d", monk_avg_damage[p_ptr->lev] * blows / 100);
@@ -1552,7 +1608,7 @@ static void display_player_abilities(void)
 	}
 	else
 	{
-		sprintf(desc, "%d", (int)avgdam);
+		sprintf(desc, "%d", (int)(avgdam1 + avgdam2));
 	}
 
 	put_str(desc, 18, COL_SKILLS3 + WID_SKILLS);
@@ -1566,10 +1622,10 @@ static void display_player_abilities(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-static void player_flags(u32b *f1, u32b *f2, u32b *f3)
+static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	(*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
 	/* Classes */
 	switch (p_ptr->pclass)
@@ -1604,7 +1660,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		if (p_ptr->lev > 9)
 			(*f2) |= (TR2_RES_FEAR);
 		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_SUST_WIS);
+			(*f1) |= (TR1_SUST_WIS);
 		if (p_ptr->lev > 29)
 			(*f2) |= (TR2_RES_CONF);
 		if (p_ptr->lev > 39)
@@ -1623,7 +1679,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_DISEN);
 		break;
 	case RACE_HALFLING:
-		(*f2) |= (TR2_SUST_DEX);
+		(*f1) |= (TR1_SUST_DEX);
 		break;
 	case RACE_GNOME:
 		(*f2) |= (TR2_FREE_ACT);
@@ -1637,23 +1693,8 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_FEAR);
 		}
 		break;
-	case RACE_TROLL:
-		(*f2) |= (TR2_SUST_STR);
-		if (p_ptr->lev > 24)
-		{
-			(*f3) |= (TR3_REGEN);
-			if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_BERSERK))
-			{
-				(*f3) |= (TR3_SLOW_DIGEST);
-				/*
-				 * Let's not make Regeneration a disadvantage
-				 * for the poor warriors who can never learn
-				 * a spell that satisfies hunger (actually
-				 * neither can rogues, but half-trolls are not
-				 * supposed to play rogues)
-				 */
-			}
-		}
+	case RACE_TROLL_SWAMP:
+		(*f3) |= (TR3_REGEN);
 		break;
 	case RACE_SAURIAN:
 		if (p_ptr->lev > 4)
@@ -1667,7 +1708,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		(*f2) |= (TR2_RES_FEAR);
 		break;
 	case RACE_OGRE:
-		(*f2) |= (TR2_SUST_STR);
+		(*f1) |= (TR1_SUST_STR);
 		if (p_ptr->lev > 24)
 			(*f2) |= (TR2_RES_SHARDS);
 		break;
@@ -1692,6 +1733,8 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		(*f2) |= (TR2_RES_ACID);
 		if (p_ptr->lev > 19)
 			(*f2) |= (TR2_IM_ACID);
+		if (p_ptr->lev > 34)
+			(*f3) |= (TR3_SH_ACID);
 		break;
 	case RACE_FAUN:
 		(*f2) |= (TR2_FREE_ACT);
@@ -1702,7 +1745,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	case RACE_DRIDER:
 		(*f3) |= (TR3_LITE);
 		(*f2) |= (TR2_RES_DARK);
-		(*f2) |= (TR2_SUST_DEX);
+		(*f1) |= (TR1_SUST_DEX);
 		break;
 	case RACE_DARK_ELF:
 		(*f2) |= (TR2_RES_DARK);
@@ -1711,12 +1754,12 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		break;
 	case RACE_URUK:
 		(*f2) |= (TR2_RES_DARK);
-		(*f2) |= (TR2_SUST_STR);
-		(*f2) |= (TR2_SUST_CON);
+		(*f1) |= (TR1_SUST_STR);
+		(*f1) |= (TR1_SUST_CON);
 		break;
 	case RACE_ILLITHID:
-		(*f2) |= (TR2_SUST_INT);
-		(*f2) |= (TR2_SUST_WIS);
+		(*f1) |= (TR1_SUST_INT);
+		(*f1) |= (TR1_SUST_WIS);
 		if (p_ptr->lev > 14)
 			(*f3) |= (TR3_SEE_INVIS);
 		if (p_ptr->lev > 29)
@@ -1756,8 +1799,19 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_CHAOS);
 		break;
 	case RACE_ENT:
-		(*f2) |= (TR2_SUST_CON);
+		(*f1) |= (TR1_SUST_CON);
 		(*f2) |= (TR2_RES_POIS);
+		break;
+	case RACE_TROLL_STONE:
+		(*f1) |= (TR1_SUST_STR);
+		break;
+	case RACE_SHADE:
+		(*f2) |= (TR2_HOLD_LIFE);
+		(*f2) |= (TR2_RES_DARK);
+		(*f2) |= (TR2_RES_NETHER);
+		(*f2) |= (TR2_RES_POIS);
+		(*f2) |= (TR2_RES_COLD);
+//		(*f3) |= (TR3_SLOW_DIGEST);
 		break;
 	default:
 		; /* Do nothing */
@@ -1821,6 +1875,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		(*f1) &= TR1_MORIA_MASK;
 		(*f2) &= TR2_MORIA_MASK;
 		(*f3) &= TR3_MORIA_MASK;
+		(*f4) &= TR4_MORIA_MASK;
 	}
 }
 
@@ -1871,11 +1926,13 @@ void print_equippy(void)
 
 /*
  * Helper function, see below
+ *	WARNING Messy.
  */
 static void display_player_flag_aux(int row, int col,
-			char *header, int n, u32b flag1, u32b flag2)
+			char *header, int n, u32b flag1, u32b flag2, u32b flag3, int f3_colour)
 {
 	int     i;
+	int	colour;
 	u32b    f[3];
 
 
@@ -1895,28 +1952,44 @@ static void display_player_flag_aux(int row, int col,
 		o_ptr = &inventory[i];
 
 		/* Known flags */
-		object_flags_known(o_ptr, &f[0], &f[1], &f[2]);
+		object_flags_known(o_ptr, &f[0], &f[1], &f[2], &f[3]);
 
 		/* Default */
 		c_put_str(TERM_SLATE, ".", row, col);
 
+		/* Aura fiddle */	
+		if (f[n - 1 + 1] & flag3)
+		{
+			c_put_str(f3_colour, "o", row, col);
+			colour = f3_colour;			
+		}
+		else	colour = TERM_WHITE;
+	
 		/* Check flags */
-		if (f[n - 1] & flag1) c_put_str(TERM_WHITE, "+", row, col);
-		if (f[n - 1] & flag2) c_put_str(TERM_WHITE, "*", row, col);
+		if (f[n - 1] & flag1) c_put_str(colour, "+", row, col);
+		if (f[n - 1] & flag2) c_put_str(colour, "*", row, col);
 
 		/* Advance */
 		col++;
 	}
 
 	/* Player flags */
-	player_flags(&f[0], &f[1], &f[2]);
+	player_flags(&f[0], &f[1], &f[2], &f[3]);
 
 	/* Default */
 	c_put_str(TERM_SLATE, ".", row, col);
-
+	
+	/* Aura fiddle */	
+	if (f[n - 1 + 1] & flag3)
+	{
+		c_put_str(f3_colour, "o", row, col);
+		colour = f3_colour;			
+	}
+	else	colour = TERM_WHITE;
+	
 	/* Check flags */
-	if (f[n-1] & flag1) c_put_str(TERM_WHITE, "+", row, col);
-	if (f[n-1] & flag2) c_put_str(TERM_WHITE, "*", row, col);
+	if (f[n-1] & flag1) c_put_str(colour, "+", row, col);
+	if (f[n-1] & flag2) c_put_str(colour, "*", row, col);
 }
 
 
@@ -1938,23 +2011,23 @@ static void display_player_flag_info(void)
 
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col + 8);
 
-	display_player_flag_aux(row++, col, "Acid  :", 2, TR2_RES_ACID, TR2_IM_ACID);
-	display_player_flag_aux(row++, col, "Elec  :", 2, TR2_RES_ELEC, TR2_IM_ELEC);
-	display_player_flag_aux(row++, col, "Fire  :", 2, TR2_RES_FIRE, TR2_IM_FIRE);
-	display_player_flag_aux(row++, col, "Cold  :", 2, TR2_RES_COLD, TR2_IM_COLD);
-	display_player_flag_aux(row++, col, "Poison:", 2, TR2_RES_POIS, 0);
-	display_player_flag_aux(row++, col, "Fear  :", 2, TR2_RES_FEAR, 0);
-	display_player_flag_aux(row++, col, "Light :", 2, TR2_RES_LITE, 0);
-	display_player_flag_aux(row++, col, "Dark  :", 2, TR2_RES_DARK, 0);
-	display_player_flag_aux(row++, col, "Shard :", 2, TR2_RES_SHARDS, 0);
-	display_player_flag_aux(row++, col, "Blind :", 2, TR2_RES_BLIND, 0);
-	display_player_flag_aux(row++, col, "Conf  :", 2, TR2_RES_CONF, 0);
-	display_player_flag_aux(row++, col, "Sound :", 2, TR2_RES_SOUND, 0);
-	display_player_flag_aux(row++, col, "Nether:", 2, TR2_RES_NETHER, 0);
-	display_player_flag_aux(row++, col, "Nexus :", 2, TR2_RES_NEXUS, 0);
-	display_player_flag_aux(row++, col, "Chaos :", 2, TR2_RES_CHAOS, 0);
-	display_player_flag_aux(row++, col, "Disnch:", 2, TR2_RES_DISEN, 0);
-	display_player_flag_aux(row++, col, "Magic :", 2, TR2_RES_MAGIC, 0);
+	display_player_flag_aux(row++, col, "Acid  :", 2, TR2_RES_ACID, TR2_IM_ACID, TR3_SH_ACID, TERM_L_GREEN);
+	display_player_flag_aux(row++, col, "Elec  :", 2, TR2_RES_ELEC, TR2_IM_ELEC, TR3_SH_ELEC, TERM_VIOLET);
+	display_player_flag_aux(row++, col, "Fire  :", 2, TR2_RES_FIRE, TR2_IM_FIRE, TR3_SH_FIRE, TERM_RED);
+	display_player_flag_aux(row++, col, "Cold  :", 2, TR2_RES_COLD, TR2_IM_COLD, TR3_SH_COLD, TERM_L_BLUE);
+	display_player_flag_aux(row++, col, "Poison:", 2, TR2_RES_POIS, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Fear  :", 2, TR2_RES_FEAR, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Light :", 2, TR2_RES_LITE, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Dark  :", 2, TR2_RES_DARK, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Shard :", 2, TR2_RES_SHARDS, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Blind :", 2, TR2_RES_BLIND, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Conf  :", 2, TR2_RES_CONF, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Sound :", 2, TR2_RES_SOUND, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Nether:", 2, TR2_RES_NETHER, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Nexus :", 2, TR2_RES_NEXUS, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Chaos :", 2, TR2_RES_CHAOS, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Disnch:", 2, TR2_RES_DISEN, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Magic :", 2, TR2_RES_MAGIC, 0, 0, 0);
 
 
 	/*** Set 2 ***/
@@ -1966,16 +2039,14 @@ static void display_player_flag_info(void)
 
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col + 10);
 
-	display_player_flag_aux(row++, col, "Speed   :", 1, TR1_SPEED, 0);
-	display_player_flag_aux(row++, col, "Reflect :", 2, TR2_REFLECT, 0);
-	display_player_flag_aux(row++, col, "AuraFire:", 3, TR3_SH_FIRE, 0);
-	display_player_flag_aux(row++, col, "AuraElec:", 3, TR3_SH_ELEC, 0);
-	display_player_flag_aux(row++, col, "NoTelprt:", 3, TR3_NO_TELE, 0);
-	display_player_flag_aux(row++, col, "No Magic:", 3, TR3_NO_MAGIC, 0);
-	display_player_flag_aux(row++, col, "Cursed  :", 3, TR3_HEAVY_CURSE | TR3_PERMA_CURSE , 0);
-	display_player_flag_aux(row++, col, "DrainExp:", 3, TR3_DRAIN_EXP, 0);
-	display_player_flag_aux(row++, col, "Teleport:", 3, TR3_TELEPORT, 0);
-	display_player_flag_aux(row++, col, "Invis.  :", 3, TR2_INVIS, 0);
+	display_player_flag_aux(row++, col, "Speed   :", 1, TR1_SPEED, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Reflect :", 2, TR2_REFLECT, 0, 0, 0);
+	display_player_flag_aux(row++, col, "NoTelprt:", 3, TR3_NO_TELE, 0, 0, 0);
+	display_player_flag_aux(row++, col, "No Magic:", 3, TR3_NO_MAGIC, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Cursed  :", 3, TR3_HEAVY_CURSE | TR3_PERMA_CURSE , 0, 0, 0);
+	display_player_flag_aux(row++, col, "DrainExp:", 3, TR3_DRAIN_EXP, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Teleport:", 3, TR3_TELEPORT, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Invis.  :", 3, TR3_INVIS, 0, 0, 0);
 
 
 	/*** Set 3 ***/
@@ -1987,16 +2058,16 @@ static void display_player_flag_info(void)
 
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col + 11);
 
-	display_player_flag_aux(row++, col, "Free Actn:", 2, TR2_FREE_ACT, 0);
-	display_player_flag_aux(row++, col, "SeeInvis.:", 3, TR3_SEE_INVIS, 0);
-	display_player_flag_aux(row++, col, "Hold Life:", 2, TR2_HOLD_LIFE, 0);
-	display_player_flag_aux(row++, col, "Telepathy:", 3, TR3_TELEPATHY, 0);
-	display_player_flag_aux(row++, col, "SlwDigstn:", 3, TR3_SLOW_DIGEST, 0);
-	display_player_flag_aux(row++, col, "Regen.   :", 3, TR3_REGEN, 0);
-	display_player_flag_aux(row++, col, "Levitate :", 3, TR3_FEATHER, 0);
-	display_player_flag_aux(row++, col, "PermLite :", 3, TR3_LITE, 0);
-	display_player_flag_aux(row++, col, "Aggravate:", 3, TR3_AGGRAVATE, 0);
-	display_player_flag_aux(row++, col, "EvilCurse:", 3, TR3_TY_CURSE, 0);
+	display_player_flag_aux(row++, col, "Free Actn:", 2, TR2_FREE_ACT, 0, 0, 0);
+	display_player_flag_aux(row++, col, "SeeInvis.:", 3, TR3_SEE_INVIS, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Hold Life:", 2, TR2_HOLD_LIFE, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Telepathy:", 3, TR3_TELEPATHY, 0, 0, 0);
+	display_player_flag_aux(row++, col, "SlwDigstn:", 3, TR3_SLOW_DIGEST, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Regen.   :", 3, TR3_REGEN, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Levitate :", 3, TR3_FEATHER, 0, 0, 0);
+	display_player_flag_aux(row++, col, "PermLite :", 3, TR3_LITE, 0, 0, 0);
+	display_player_flag_aux(row++, col, "Aggravate:", 3, TR3_AGGRAVATE, 0, 0, 0);
+	display_player_flag_aux(row++, col, "EvilCurse:", 3, TR3_TY_CURSE, 0, 0, 0);
 }
 
 #if 0
@@ -2053,7 +2124,7 @@ static void display_player_stat_info(void)
 	int row, col;
 
 	object_type *o_ptr;
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 	s16b k_idx;
 
 	byte a;
@@ -2082,15 +2153,15 @@ static void display_player_stat_info(void)
 		e_adj = 0;
 
 		/* Icky formula to deal with the 18 barrier */
-		if ((p_ptr->stat_max[i] > 18) && (p_ptr->stat_top[i] > 18))
-			e_adj = (p_ptr->stat_top[i] - p_ptr->stat_max[i]) / 10;
-		if ((p_ptr->stat_max[i] <= 18) && (p_ptr->stat_top[i] <= 18))
+//		if ((p_ptr->stat_max[i] > 18) && (p_ptr->stat_top[i] > 18))
+//			e_adj = (p_ptr->stat_top[i] - p_ptr->stat_max[i]) / 10;
+//		if ((p_ptr->stat_max[i] <= 18) && (p_ptr->stat_top[i] <= 18))
 			e_adj = p_ptr->stat_top[i] - p_ptr->stat_max[i];
-		if ((p_ptr->stat_max[i] <= 18) && (p_ptr->stat_top[i] > 18))
-			e_adj = (p_ptr->stat_top[i] - 18) / 10 - p_ptr->stat_max[i] + 18;
+//		if ((p_ptr->stat_max[i] <= 18) && (p_ptr->stat_top[i] > 18))
+//			e_adj = (p_ptr->stat_top[i] - 18) / 10 - p_ptr->stat_max[i] + 18;
 
-		if ((p_ptr->stat_max[i] > 18) && (p_ptr->stat_top[i] <= 18))
-			e_adj = p_ptr->stat_top[i] - (p_ptr->stat_max[i] - 18) / 10 - 19;
+//		if ((p_ptr->stat_max[i] > 18) && (p_ptr->stat_top[i] <= 18))
+//			e_adj = p_ptr->stat_top[i] - (p_ptr->stat_max[i] - 18) / 10 - 19;
 
 		/* Deduct class and race bonuses if in maximize */
 		if (maximize_mode)
@@ -2144,7 +2215,7 @@ static void display_player_stat_info(void)
 		k_idx = o_ptr->k_idx;
 
 		/* Acquire "known" flags */
-		object_flags_known(o_ptr, &f1, &f2, &f3);
+		object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Initialize color based of sign of pval. */
 		for (stat = 0; stat < A_MAX; stat++)
@@ -2206,7 +2277,7 @@ static void display_player_stat_info(void)
 	}
 
 	/* Player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4);
 
 	/* Check stats */
 	for (stat = 0; stat < A_MAX; stat++)
@@ -2489,7 +2560,11 @@ static void display_player_middle(void)
 
 	prt_num("Max Hit Points", p_ptr->mhp, 9, COL_LIFE, TERM_L_GREEN, 5);
 
-	if (p_ptr->chp >= p_ptr->mhp)
+	if (p_ptr->chp > p_ptr->mhp)
+	{
+		attr = TERM_BLUE;
+	}
+	else if (p_ptr->chp >= p_ptr->mhp - ((p_ptr->mhp * hitpoint_warn) / 10))
 	{
 		attr = TERM_L_GREEN;
 	}
@@ -2506,7 +2581,11 @@ static void display_player_middle(void)
 
 	prt_num("Max SP (Mana) ", p_ptr->msp, 11, COL_LIFE, TERM_L_GREEN, 5);
 
-	if (p_ptr->csp >= p_ptr->msp)
+	if (p_ptr->csp > p_ptr->msp)
+	{
+		attr = TERM_BLUE;
+	}
+	else if (p_ptr->csp >= p_ptr->msp - ((p_ptr->msp * hitpoint_warn) / 10))
 	{
 		attr = TERM_L_GREEN;
 	}

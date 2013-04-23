@@ -305,7 +305,7 @@ static void do_cmd_wiz_change_aux(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
-		sprintf(ppp, "%s (3-118): ", stat_names[i]);
+		sprintf(ppp, "%s (3-50): ", stat_names[i]);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
@@ -317,7 +317,7 @@ static void do_cmd_wiz_change_aux(void)
 		tmp_int = atoi(tmp_val);
 
 		/* Verify */
-		if (tmp_int > 18+100) tmp_int = 18+100;
+		if (tmp_int > 50) tmp_int = 50;
 		else if (tmp_int < 3) tmp_int = 3;
 
 		/* Save it */
@@ -510,11 +510,11 @@ static void learn_map(void)
 static void wiz_display_item(const object_type *o_ptr)
 {
 	int i, j = 13;
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 	char buf[256];
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Clear the screen */
 	for (i = 1; i <= 23; i++) prt("", i, j - 2);

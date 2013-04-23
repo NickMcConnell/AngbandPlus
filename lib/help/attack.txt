@@ -44,6 +44,13 @@ target the same monster every time you attack it. An explanation of
 this option is found the section on User Interface Options (see
 option.txt#UserInterface [2]).
 
+A special note for spellcasters: Wands, Rods, Staves and Machines may
+be wielded in the bow slot and (f)ired. Doing so will be quicker than
+using from your pack. Also if you are a Mage, wands and staves will
+slowly recharge in your bow slot and rods will recharge faster.
+Clerics will get the same effect for rods and staves, while Technicians
+will have machines recharged quicker.
+
 ***** <AttackWalls>
 --- Attacking Monsters in Walls ---
 
@@ -80,7 +87,14 @@ weapon before it can be used in a fight. A secondary weapon can be kept
 by keeping it in the backpack, and switching it with the primary weapon
 when needed.
 
-STangband assumes that your youth in the rough environment near the
+It is also possible to wield two weapons at once by wielding the second
+weapon in your shield slot. This means that you will trade your shield
+bash chance and extra defence for more attacks with a second weapon.
+Wielding two weapons will drop your skill and deadliness to two thirds
+of their normal value. Rangers, however will get a bonus for fighting 
+with two weapons.
+
+STAngband assumes that your youth in the rough environment near the
 dungeons has taught you the relative merits of different weapons, and
 displays as part of their description the damage dice which define
 their capabilities. The dice used for a given weapon is displayed as
@@ -92,10 +106,10 @@ weapon is also a consideration.
 In addition to their base damage, each weapon has two main magical
 characteristics, their bonus to your skill and their bonus to your
 deadliness, expressed as "(+#,+#)". A normal weapon would be "(+0,+0)"
-but many weapons in STangband have bonuses to your skill and/or
+but many weapons in STAngband have bonuses to your skill and/or
 deadliness. These bonuses may be increased, subject to certain upper
 limits, by magical means through a process referred to as 'enchanting'.
-Some weapons are cursed, and will have penalties that hurt the player.
+Some weapons are cursed, and may have penalties that hurt the player.
 Cursed weapons cannot be unwielded until the curse is lifted. Note that
 identifying a weapon will inform you of the magical bonuses and
 penalties and whether or not it is cursed.
@@ -174,7 +188,7 @@ has two attributes that make it deadly to your opponent (for example
 you are fighting a demon and your weapon slays both evil and demons
 (demons are evil)), only the most effective slay will apply.
 
-STangband has extended the original Angband's concept of adding random
+Zangband has extended the original Angband's concept of adding random
 abilities to the various Ego types considerably. These can be either
 guaranteed or have only a varying chance of being granted. (See
 'Randabil.spo' for details of the random powers of Ego Weapons).
@@ -202,8 +216,8 @@ Weapon of Westernesse
     dexterity, and constitution. It also allows you to see invisible
     creatures and protects from paralyzation and some slowing attacks.
 
-(Trump Weapon)
-    A Trump Weapon is especially deadly against evil creatures and will
+Weapon of Shifting
+    A Weapon of Shifting is especially useful for rogue players and will
     increase your ability to discover hidden dungeon features. It will
     help you regenerate hit-points and mana faster and at the same time
     will reduce your rate of food consumption. It provides resistance
@@ -262,30 +276,63 @@ Implement of Digging
     from the hapless victim, transferring the life energy to its
     master and healing them in the process.
 
-Weapon of Melting
+Weapon of Dissolving
     A magical weapon of acid that will inflict two times the normal
     damage when used against a creature that is not resistant to acid.
-    It also provides resistance against acid attacks.
+    It also provides resistance against acid attacks and improves digging.
 
-Weapon of Shocking
+(Stormbrand)
     A magical weapon of lightning that will inflict two times the
     normal damage when used against a creature that is not resistant to
     electricity. It also provides resistance against lightning attacks.
 
-Weapon of Freezing
+(Frozen)
     A magical weapon of ice that will inflict two times the normal
     damage when used against a creature that is not resistant to cold.
     It also provides resistance against cold attacks.
 
-Weapon of Burning
+(Flaming)
     A magical weapon of fire that will inflict two times the normal
     damage when used against a creature that is not resistant to fire.
-    It also provides resistance against fire attacks.
+    It also provides resistance against fire attacks and increases light.
 
 Weapon of Venom
     A magical weapon, coated with poison, that will inflict two times
     the normal damage to creatures not resistant to poison. It also
     provides resistance against toxic and poisonous attacks.
+
+(Enchanted)
+    A magically enchanted that will inflict two times the normal
+    damage when used against a creature that is not resistant to magic.
+    It also provides resistance against magic attacks.
+
+Weapon of Morgul
+    A powerful weapon with high damage that lets you see invisible monsters.
+    Unfortunately it is also heavily cursed and make monsters hate you.
+
+Weapon of Sleep
+    This weapon is coated with a special toxin that at a touch will put
+    most monster to sleep, leaving them vulnerable.
+
+(Elven)
+    A beautiful ornate weapon that makes you look very classy, improving
+    your charisma. It is also a blessed weapon.
+
+Weapon of Shadows
+    These weapons look like they are made entirely of shadows, their dark
+    nature causes them to do double damage unless the victim is resistant 
+    to poison and it can also drain their life. The dark enchantment makes
+    them cursed and the wielder will lose charisma.
+
+(Demonic)
+    These weapons are really demons that have been turned into weapons.
+    They are exceptionally sharp, provide resistance to nether and will
+    have an additional branding that depends on the demon. They are 
+    however not happy with their shape and their wrath can be dangerous.
+
+(Magebane)
+    Watch out magic users: These weapons gives the wielder resistance to
+    magic and disenchantment. They also won't let the wielder cast spells.
 
 --- Weapons of Slay {Monster-Type} ---
 
@@ -333,7 +380,8 @@ Weapon of *Slay* Animal
 Weapon of *Slay* Evil
     This weapon is especially effective against evil creatures and will
     do 1.7 times the normal damage against such creatures. It will
-    increase your wisdom and will also be a blessed blade.
+    increase your wisdom, protect you from fear and will also be a 
+    blessed blade.
 
 Weapon of *Slay* Undead
     This weapon is especially effective against undead creatures and
@@ -370,16 +418,24 @@ Weapon of *Slay* Dragon
 --- Missile Launchers ---
 
 Launcher of Accuracy
-    These missile launchers have an unusually high bonus to hit.
+    These missile launchers have an unusually high bonus to hit and
+    have a chance to pierce armour.
 
 Launcher of Velocity
-    These missile launchers have an unusually high bonus to dam.
+    These missile launchers have an unusually high bonus to dam and 
+    have a chance of doing extra.
 
 Launcher of Extra Might
     These missile launchers have an unusually high damage multiplier.
 
 Launcher of Extra Shots
     These missile launchers grant additional shots per round.
+
+Launcher of Extra Force
+    These missile launchers have a chance to shoot straight through the
+    target or stun if they are a sling.
+
+Launchers also come in fire, cold, acid or electricity brandings.
 
 --- Ammunition ---
 
@@ -393,6 +449,10 @@ Ammunition of Hurt Evil
 
 Ammunition of Hurt Dragon
     This ammunition is especially effective against dragons and will do
+    two times the normal damage against such creatures.
+
+Ammunition of Hurt Demon
+    This ammunition is especially effective against demons and will do
     two times the normal damage against such creatures.
 
 Ammunition of Shocking
@@ -412,6 +472,10 @@ Ammunition of Slaying
 
 Ammunition of Wounding
     This ammunition will have unusually bonuses +to-hit and +to-dam.
+
+There are also special ammuntion to be found in the dungeon that have
+been carefully made by mages, these missile turn into a spell when 
+launched and use your skill with that launcher to decide damage.
 
 --- Other Items ---
 
@@ -694,7 +758,7 @@ monsters.
 Original   : (??) and Leon Marrick
 Updated    : (??)
 Updated    : Simon
-Last update: March 27, 2002
+Last update: January 17, 2004
 
 ***** Begin Hyperlinks
 ***** [1] commdesc.txt#ThrowFire

@@ -1,0 +1,59 @@
+=== STAngband General Info ===
+
+What am I?
+
+I am an Angband Variant that was made with the ZAngband2.6.2 source
+code. I lake adventuring and admiring big dungeons. The main things 
+that make me special are: My varied player races, my different classes, 
+my tweaked graphics, the Technician class, class abilities, my mystical 
+magic system, 2 new statistics and several other special tweaks.
+
+My magic system is the same as Zangband's except that there are more
+realms and they are differently flavoured. I have 10 different
+realms. There are 4 Arcane realms: Life, Death, Order and Chaos. 
+4 Elemental realms: Fire, Water, Earth and Air.  Plus 2 metamagic 
+realms: Astral and Wizardry.
+
+A lot of my new classes have special class abilities. The 
+Technician classes use these class abilities as well as Mindcrafter.
+Technicians use one of the new stats, like spell points, to do
+things like creating items. The other new stat, Fatigue, is used
+to make it harder for casters continuously using their highest level
+spells. Fatigue is also increases when permanent spells like identify
+and brandings are cast. Fatigue also lets warriors use their spin 
+attack without costing valuable hit points.
+
+
+***** <Tips>
+=== STAngband Tips ===
+
+<1> Read the Help files:
+     The help files have been made for you to read, at any time, any
+     dungeon level. Don't understand something? Look it up.
+
+<2> Word of Recall:
+     Word Of Recall is your friend! It is the only way for you to 
+     travel quickly between the dungeon and the towns. It is hard
+     to use as an escape spell though, as it takes time to activate.
+
+<3> Equipment:
+     You have a variety of equipment slots, try to fill them. The 
+     more armour you have on the less damage you recieve.
+
+<4> Non-Melee Combat:
+     The are many way to kill monsters without whacking them with
+     a sword. Collect Wands, Rods and other things. Use missile
+     weapons. Before diciding your missile weapon skill is too
+     low, equip a missile launcher to check for bonusses with
+     that type of launcher.
+
+<5> Rumours:
+     Read the Rumours.
+
+<6> Rumours:
+     Don't read the Rumours.
+
+<7> Feedback:
+     Found a bug? Something too easy? Something too hard? Going
+     to explode if you don't tell anybody your idea?
+     Email me. It will probably be more interesting than Spam.

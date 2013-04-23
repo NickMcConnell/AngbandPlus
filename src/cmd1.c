@@ -278,10 +278,10 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -295,7 +295,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f1 & TR1_SLAY_ANIMAL) &&
+			if ((f4 & TR4_SLAY_ANIMAL) &&
 			    (r_ptr->flags3 & RF3_ANIMAL))
 			{
 				if (m_ptr->ml)
@@ -307,7 +307,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Evil */
-			if ((f1 & TR1_SLAY_EVIL) &&
+			if ((f4 & TR4_SLAY_EVIL) &&
 			    (r_ptr->flags3 & RF3_EVIL))
 			{
 				if (m_ptr->ml)
@@ -319,7 +319,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Undead */
-			if ((f1 & TR1_SLAY_UNDEAD) &&
+			if ((f4 & TR4_SLAY_UNDEAD) &&
 			    (r_ptr->flags3 & RF3_UNDEAD))
 			{
 				if (m_ptr->ml)
@@ -331,7 +331,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Demon */
-			if ((f1 & TR1_SLAY_DEMON) &&
+			if ((f4 & TR4_SLAY_DEMON) &&
 			    (r_ptr->flags3 & RF3_DEMON))
 			{
 				if (m_ptr->ml)
@@ -343,7 +343,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Orc */
-			if ((f1 & TR1_SLAY_ORC) &&
+			if ((f4 & TR4_SLAY_ORC) &&
 			    (r_ptr->flags3 & RF3_ORC))
 			{
 				if (m_ptr->ml)
@@ -355,7 +355,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Troll */
-			if ((f1 & TR1_SLAY_TROLL) &&
+			if ((f4 & TR4_SLAY_TROLL) &&
 			    (r_ptr->flags3 & RF3_TROLL))
 			{
 				if (m_ptr->ml)
@@ -367,7 +367,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Giant */
-			if ((f1 & TR1_SLAY_GIANT) &&
+			if ((f4 & TR4_SLAY_GIANT) &&
 			    (r_ptr->flags3 & RF3_GIANT))
 			{
 				if (m_ptr->ml)
@@ -379,7 +379,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Dragon */
-			if ((f1 & TR1_SLAY_DRAGON) &&
+			if ((f4 & TR4_SLAY_DRAGON) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
@@ -391,7 +391,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Execute Dragon */
-			if ((f1 & TR1_KILL_DRAGON) &&
+			if ((f4 & TR4_KILL_DRAGON) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
@@ -403,7 +403,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Acid) */
-			if (f1 & TR1_BRAND_ACID)
+			if (f4 & TR4_BRAND_ACID)
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_ACID)
@@ -422,7 +422,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if (f1 & TR1_BRAND_ELEC)
+			if (f4 & TR4_BRAND_ELEC)
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_ELEC)
@@ -441,7 +441,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Fire) */
-			if (f1 & TR1_BRAND_FIRE)
+			if (f4 & TR4_BRAND_FIRE)
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_FIRE)
@@ -460,7 +460,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if (f1 & TR1_BRAND_COLD)
+			if (f4 & TR4_BRAND_COLD)
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_COLD)
@@ -478,7 +478,7 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Poison) */
-			if (f1 & TR1_BRAND_POIS)
+			if (f4 & TR4_BRAND_POIS)
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_POIS)
@@ -487,6 +487,28 @@ s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					{
 						r_ptr->r_flags3 |= RF3_IM_POIS;
 					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 20) mult = 20;
+				}
+			}
+			
+			/* Brand (Magic) */
+			if (f4 & TR4_BRAND_MAGIC)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags7 & RF7_RES_MAGIC)
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags7 |= RF7_RES_MAGIC;
+					}
+					
+					/* Only resist */
+					if (mult < 15) mult = 15;
 				}
 
 				/* Otherwise, take the damage */
@@ -1232,7 +1254,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr,
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* No shield on arm, no bash. */
-	if (!inventory[INVEN_ARM].k_idx)
+	if ((!inventory[INVEN_ARM].k_idx) || (p_ptr->dual_wield))
 	{
 		bash_chance = 0;
 	}
@@ -1248,7 +1270,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr,
 
 	/* Bashing chance depends on melee Skill, Dex, and a class level bonus. */
 	else bash_chance = p_ptr->skill_thn +
-	                   (adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128 +
+	                   (adj_dex_th[change_form(A_DEX)]) - 128 +
 	                   (((p_ptr->pclass == CLASS_WARRIOR) ||
 	                     (p_ptr->pclass == CLASS_BERSERK) ||
 	                     (p_ptr->pclass == CLASS_PALADIN) ||
@@ -1282,7 +1304,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr,
 		bash_dam *= bash_quality / 20 + p_ptr->lev / 7;
 
 		/* Strength bonus. */
-		bash_dam += (adj_str_td[p_ptr->stat_ind[A_STR]] - 128);
+		bash_dam += (adj_str_td[change_form(A_STR)] - 128);
 
 		/* Paranoia. */
 		if (bash_dam > 125) bash_dam = 125;
@@ -1323,7 +1345,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr,
 		}
 
 		/* The player will sometimes stumble. */
-		if ((30 + adj_dex_th[p_ptr->stat_ind[A_DEX]] - 128) < randint1(60))
+		if ((30 + adj_dex_th[change_form(A_DEX)] - 128) < randint1(60))
 			*blows -= randint1(*blows);
 	}
 
@@ -1483,7 +1505,8 @@ void py_attack(int y, int x)
 
 	bool            fear = FALSE;
 	bool            mdeath = FALSE;
-
+	
+	int		i = 0;
 	int             chaos_effect = 0;
 	bool            do_quake = FALSE;
 	bool            drain_msg = TRUE;
@@ -1491,7 +1514,7 @@ void py_attack(int y, int x)
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
 	s16b            ghoul_paral = -1;
 	bool            ghoul_hack = FALSE;
-	u32b            f1, f2, f3;
+	u32b            f1, f2, f3, f4;
 	bool            no_extra = FALSE;
 
 
@@ -1501,26 +1524,27 @@ void py_attack(int y, int x)
 	/* Initial blows available. */
 	blows = p_ptr->num_blow;
 
-//	Saving for use in a weapon of sleep?
-//	/* Prepare for ghoul paralysis? */
-//	if (!(inventory[INVEN_WIELD].k_idx) && (p_ptr->prace == RACE_GHOUL))
-//	{
-//		ghoul_paral = 0;
-//
-//		/* Prevent bogus falls asleep messages */
-//		if (!(m_ptr->csleep)) ghoul_hack = TRUE;
-//	}
+	/* Access the weapon */
+	o_ptr = &inventory[INVEN_WIELD];
+	
 
-	/* It is not honorable etc to attack helpless victims -- in most cases */
-	if (m_ptr->csleep) // &&          (ghoul_paral > -1)) 
+	/* Prepare for sleep */
+	if (o_ptr->flags4 & TR4_BRAND_SLEEP)
 	{
-		chg_virtue(V_COMPASSION, -1);
-		if (!((p_ptr->pclass == CLASS_ROGUE) || (p_ptr->pclass == CLASS_NINJA) || (p_ptr->pclass == CLASS_ASSASSIN)
-		 || (p_ptr->pclass == CLASS_THIEF_MAGE))) chg_virtue(V_HONOUR, -1);
+		ghoul_paral = 0;
+
+		/* Prevent bogus falls asleep messages */
+		if (!(m_ptr->csleep)) ghoul_hack = TRUE;
 	}
 
-	if ((p_ptr->pclass == CLASS_ROGUE) || (p_ptr->pclass ==CLASS_NINJA) || (p_ptr->pclass ==CLASS_ASSASSIN)
-			 || (p_ptr->pclass ==CLASS_THIEF_MAGE))
+	/* It is not honorable etc to attack helpless victims -- in most cases */
+	if ((m_ptr->csleep) && (ghoul_paral > -1)) 
+	{
+		chg_virtue(V_COMPASSION, -1);
+		if (!(is_rogue(p_ptr))) chg_virtue(V_HONOUR, -1);
+	}
+
+	if (is_rogue(p_ptr))
 	{
 		if (m_ptr->csleep && m_ptr->ml)
 		{
@@ -1627,392 +1651,412 @@ void py_attack(int y, int x)
 	if (monster_bash(&blows, sleeping_bonus, c_ptr, &fear, m_name)) return;
 
 
-	/* Access the weapon */
-	o_ptr = &inventory[INVEN_WIELD];
 
-	/* Initialize. */
-	total_deadliness = p_ptr->to_d + o_ptr->to_d;
-
-	/* Calculate the "attack quality".  As BTH_PLUS_ADJ has been reduced
-	 * to 1, base skill and modifiers to skill are given equal weight. -LM-
-	 */
-	bonus = p_ptr->to_h + o_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
-
-	/* Attack once for each legal blow */
-	while (num++ < blows)
+	/* Two Weapons? */
+	if (p_ptr->dual_wield)
 	{
-		/* Test for hit */
-		if (test_hit_combat(chance + sleeping_bonus,
-		                    r_ptr->ac + terrain_bonus, m_ptr->ml))
+		i = 1;
+	}
+	
+	do
+	{
+		/* Initialize. */
+		total_deadliness = p_ptr->to_d + o_ptr->to_d;
+
+		/* Calculate the "attack quality".  As BTH_PLUS_ADJ has been reduced
+		 * to 1, base skill and modifiers to skill are given equal weight. -LM-
+		 */
+		bonus = p_ptr->to_h + o_ptr->to_h;
+		chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+		/* Reset attacks */
+		num = 0;
+		
+		/* Attack once for each legal blow */
+		while (num++ < blows)
 		{
-			/* Sound */
-			sound(SOUND_HIT);
-
-			/* Hack -- bare hands do one damage */
-			k = 1;
-
-			object_flags(o_ptr, &f1, &f2, &f3);
-
-			/* Select a chaotic effect (50% chance) */
-			if ((f1 & TR1_CHAOTIC) && (one_in_(2)))
+			/* Test for hit */
+			if (test_hit_combat(chance + sleeping_bonus,
+			                    r_ptr->ac + terrain_bonus, m_ptr->ml))
 			{
-				if (one_in_(10)) chg_virtue(V_CHANCE, 1);
+				/* Sound */
+				sound(SOUND_HIT);
 
-				if (randint1(5) < 3)
+				/* Hack -- bare hands do one damage */
+				k = 1;
+
+				object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+				/* Select a chaotic effect (50% chance) */
+				if ((f4 & TR4_CHAOTIC) && (one_in_(2)))
 				{
-					/* Vampiric (20%) */
-					chaos_effect = 1;
-				}
-				else if (one_in_(250))
-				{
-					/* Quake (0.12%) */
-					chaos_effect = 2;
-				}
-				else if (!one_in_(10))
-				{
-					/* Confusion (26.892%) */
-					chaos_effect = 3;
-				}
-				else if (one_in_(2))
-				{
-					/* Teleport away (1.494%) */
-					chaos_effect = 4;
-				}
-				else
-				{
-					/* Polymorph (1.494%) */
-					chaos_effect = 5;
-				}
-			}
+					if (one_in_(10)) chg_virtue(V_CHANCE, 1);
 
-			/* Vampiric drain */
-			if ((f1 & TR1_VAMPIRIC) || (chaos_effect == 1))
-			{
-				/* Only drain "living" monsters */
-				if (monster_living(r_ptr))
-					drain_result = m_ptr->hp;
-				else
-					drain_result = 0;
-			}
-
-			/* Ghoul paralysis */
-			if ((ghoul_paral > -1) && !(r_ptr->flags3 & RF3_NO_SLEEP) &&
-			    (r_ptr->level < randint0(1 + ((p_ptr->lev) * 2))))
-			{
- 				ghoul_paral += 25 +  randint1(p_ptr->lev / 2);
-			}
-
-			/* Monk attack? */
-			if ((p_ptr->pclass == CLASS_MONK) &&
-				 (!(inventory[INVEN_WIELD].k_idx)))
-			{
-				/* Make a special monk attack */
-				monk_attack(m_ptr, &k, m_name);
-			}
-		        
-			/* Handle normal weapon */
-			else if (o_ptr->k_idx)
-			{
-				/* base damage dice. */
-				k = o_ptr->dd;
-
-				/* multiply by slays or brands. (10x inflation) */
-				k = tot_dam_aux(o_ptr, k, m_ptr);
-
-				/* multiply by critical hit. (10x inflation) */
-				k *= critical_melee(chance, sleeping_bonus, m_name, o_ptr);
-
-				/*
-				 * Convert total Deadliness into a percentage, and apply
-				 * it as a bonus or penalty. (100x inflation)
-				 */
-				k *= deadliness_calc(total_deadliness);
-
-				/* Get the whole number of dice by deflating the result. */
-				k_whole = k / 10000;
-
-				/* Calculate the remainder (the fractional die, x10000). */
-				k_remainder = k % 10000;
-
-
-				/*
-				 * Calculate and combine the damages of the whole and
-				 * fractional dice.
-				 */
-				k = damroll(k_whole, o_ptr->ds) +
-					(k_remainder * damroll(1, o_ptr->ds) / 10000);
-
-				/* hack -- check for earthquake. */
-				if (p_ptr->impact && (k > 49)) do_quake = TRUE;
-
-
-
-				if ((p_ptr->impact && ((k > 50) || one_in_(7))) ||
-				    (chaos_effect == 2))
-				{
-					do_quake = TRUE;
+					if (randint1(5) < 3)
+					{
+						/* Vampiric (20%) */
+						chaos_effect = 1;
+					}
+					else if (one_in_(250))
+					{
+						/* Quake (0.12%) */
+						chaos_effect = 2;
+					}
+					else if (!one_in_(10))
+					{
+						/* Confusion (26.892%) */
+						chaos_effect = 3;
+					}
+					else if (one_in_(2))
+					{
+						/* Teleport away (1.494%) */
+						chaos_effect = 4;
+					}
+					else
+					{
+						/* Polymorph (1.494%) */
+						chaos_effect = 5;
+					}
 				}
 
-				/* 
-				 * All of these artifact-specific effects
-				 * should be pythonized.
-				 */
-				 if ((f1 & TR1_VORPAL) &&
-				  (one_in_((o_ptr->activate + 128 == ART_VORPAL_BLADE)
-				  	 ? 3 : 6)))
+				/* Vampiric drain */
+				if ((f4 & TR4_VAMPIRIC) || (chaos_effect == 1))
 				{
+					/* Only drain "living" monsters */
+					if (monster_living(r_ptr))
+						drain_result = m_ptr->hp;
+					else
+						drain_result = 0;
+				}
+
+				/* Ghoul paralysis */
+				if ((ghoul_paral > -1) && !(r_ptr->flags3 & RF3_NO_SLEEP) &&
+				    (r_ptr->level < randint0(1 + ((p_ptr->lev) * 2))))
+				{
+ 					ghoul_paral += 25 +  randint1(p_ptr->lev / 2);
+				}
+
+				/* Monk attack? */
+				if ((p_ptr->pclass == CLASS_MONK) &&
+					 (!(inventory[INVEN_WIELD].k_idx)))
+				{
+					/* Make a special monk attack */
+					monk_attack(m_ptr, &k, m_name);
+				}
+        
+				/* Handle normal weapon */
+				else if (o_ptr->k_idx)
+				{
+					/* base damage dice. */
+					k = o_ptr->dd;
+
+					/* multiply by slays or brands. (10x inflation) */
+					k = tot_dam_aux(o_ptr, k, m_ptr);
+
+					/* multiply by critical hit. (10x inflation) */
+					k *= critical_melee(chance, sleeping_bonus, m_name, o_ptr);
+
 					/*
-					 * The vorpal blade does average:
-					 *	(e+2)/3 x normal damage.
-					 * A normal weapon with the vorpal flag does average:
-					 *   e-3/2 x normal damage.
-					 * Note: this has changed from before - the vorpal blade
-					 *  has been toned down because of the oangband based
-					 *  combat.
+					 * Convert total Deadliness into a percentage, and apply
+					 * it as a bonus or penalty. (100x inflation)
 					 */
-					int mult = 2;
+					k *= deadliness_calc(total_deadliness);
 
-					int inc_chance = (o_ptr->activate + 128 == ART_VORPAL_BLADE) ? 2 : 4;
+					/* Get the whole number of dice by deflating the result. */
+					k_whole = k / 10000;
 
-					if ((o_ptr->activate + 128 == ART_CHAINSWORD) && one_in_(2))
+					/* Calculate the remainder (the fractional die, x10000). */
+					k_remainder = k % 10000;
+
+
+					/*
+					 * Calculate and combine the damages of the whole and
+					 * fractional dice.
+					 */
+					k = damroll(k_whole, o_ptr->ds) +
+						(k_remainder * damroll(1, o_ptr->ds) / 10000);
+
+					/* hack -- check for earthquake. */
+					if (p_ptr->impact && (k > 49)) do_quake = TRUE;
+
+
+
+					if ((p_ptr->impact && ((k > 50) || one_in_(7))) ||
+					    (chaos_effect == 2))
 					{
-						char chainsword_noise[1024];
-						if (!get_rnd_line("chainswd.txt", 0, chainsword_noise))
+						do_quake = TRUE;
+					}
+
+					/* 
+					 * All of these artifact-specific effects
+					 * should be pythonized.
+					 */
+					 if ((f4 & TR4_VORPAL) &&
+				  	(one_in_((o_ptr->activate + 128 == ART_VORPAL_BLADE)
+				  		 ? 3 : 6)))
+					{
+						/*
+						 * The vorpal blade does average:
+						 *	(e+2)/3 x normal damage.
+						 * A normal weapon with the vorpal flag does average:
+						 *   e-3/2 x normal damage.
+						 * Note: this has changed from before - the vorpal blade
+						 *  has been toned down because of the oangband based
+						 *  combat.
+						 */
+						int mult = 2;
+
+						int inc_chance = (o_ptr->activate + 128 == ART_VORPAL_BLADE) ? 2 : 4;
+	
+						if ((o_ptr->activate + 128 == ART_CHAINSWORD) && one_in_(2))
 						{
-							msg_print(chainsword_noise);
+							char chainsword_noise[1024];
+							if (!get_rnd_line("chainswd.txt", 0, chainsword_noise))
+							{
+								msg_print(chainsword_noise);
+							}	
 						}
-					}
 
-					if (o_ptr->activate + 128 == ART_VORPAL_BLADE)
-					{
-						msg_print("Your Vorpal Blade goes snicker-snack!");
-					}
-					else
-					{
-						msg_format("Your weapon cuts deep into %s!", m_name);
-					}
-
-					/* Try to increase the damage */
-					while (one_in_(inc_chance))
-					{
-						mult++;
-						inc_chance++;
-					}
-
-					k *= mult;
-
-					/* Ouch! */
-					if (k > m_ptr->hp)
-					{
-						msg_format("You cut %s in half!", m_name);
-					}
-					else
-					{
-						switch (mult)
+						if (o_ptr->activate + 128 == ART_VORPAL_BLADE)
 						{
-							case 2: msg_format("You gouge %s!", m_name); break;
-							case 3: msg_format("You maim %s!", m_name); break;
-							case 4: msg_format("You carve %s!", m_name); break;
-							case 5: msg_format("You cleave %s!", m_name); break;
-							case 6: msg_format("You smite %s!", m_name); break;
-							case 7: msg_format("You eviscerate %s!", m_name); break;
-							default: msg_format("You shred %s!", m_name); break;
-						}
-					}
-				}
-			}
-			
-			/* Bare hands and not a monk */
-			else
-			{
-				msg_format("You %s %s.",
-				           ((p_ptr->prace ==  RACE_PERTHORON ) ? "claw" : "punch"),
-				           m_name);
-			}
-
-			/* No negative damage */
-			if (k < 0) k = 0;
-
-			/* Modify the damage */
-			k = mon_damage_mod(m_ptr, k, 0);
-
-			/* Complex message */
-			if (p_ptr->wizard)
-			{
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-			}
-
-			/* Damage, check for fear and death */
-			if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL))
-			{
-				/* Hack -- High-level warriors can spread their attacks out
-				 * among weaker foes. -LM-
-				 */
-				if (((p_ptr->pclass == CLASS_WARRIOR) ||
-				     (p_ptr->pclass == CLASS_BERSERK) ||
-				     (p_ptr->pclass == CLASS_PALADIN) ||
-				     (p_ptr->pclass == CLASS_DARK_KNIGHT) ||
-				     (p_ptr->pclass == CLASS_CHAOS_WARRIOR)) &&
-				     (p_ptr->lev > 39) && (num < p_ptr->num_blow) &&
-					(p_ptr->energy_use))
-				{
-					p_ptr->energy_use = p_ptr->energy_use * num / p_ptr->num_blow;
-				}
-
-				mdeath = TRUE;
-				break;
-			}
-
-			/* Anger the monster */
-			if (k > 0) anger_monster(m_ptr);
-
-			touch_zap_player(m_ptr);
-
-			/*
-			 * Are we draining it?  A little note: If the monster is
-			 * dead, the drain does not work...
-			 */
-			if (drain_result)
-			{
-				/* Calculate the difference */
-				drain_result -= m_ptr->hp;
-
-				/* Did we really hurt it? */
-				if (drain_result > 0)
-				{
-					drain_heal = damroll(4, drain_result / 6);
-
-					if (cheat_xtra)
-					{
-						msg_format("Draining left: %d", drain_left);
-					}
-
-					if (drain_left)
-					{
-						if (drain_heal < drain_left)
-						{
-							drain_left -= drain_heal;
+							msg_print("Your Vorpal Blade goes snicker-snack!");
 						}
 						else
 						{
-							drain_heal = drain_left;
-							drain_left = 0;
+							msg_format("Your weapon cuts deep into %s!", m_name);
 						}
 
-						if (drain_msg)
+						/* Try to increase the damage */
+						while (one_in_(inc_chance))
 						{
-							msg_format("Your weapon drains life from %s!", m_name);
-							drain_msg = FALSE;
+							mult++;
+							inc_chance++;
 						}
 
-						/* We get to keep some of it! */
-						drain_heal = (drain_heal * mutant_regenerate_mod) / 100;
-						hp_player(drain_heal);
+						k *= mult;
+
+						/* Ouch! */
+						if (k > m_ptr->hp)
+						{
+							msg_format("You cut %s in half!", m_name);
+						}
+						else
+						{
+							switch (mult)
+							{
+								case 2: msg_format("You gouge %s!", m_name); break;
+								case 3: msg_format("You maim %s!", m_name); break;
+								case 4: msg_format("You carve %s!", m_name); break;
+								case 5: msg_format("You cleave %s!", m_name); break;
+								case 6: msg_format("You smite %s!", m_name); break;
+								case 7: msg_format("You eviscerate %s!", m_name); break;
+								default: msg_format("You shred %s!", m_name); break;
+							}
+						}
 					}
 				}
-			}
-
-			/* Confusion attack */
-			if (p_ptr->confusing || (chaos_effect == 3))
-			{
-				/* Cancel glowing hands */
-				if (p_ptr->confusing)
-				{
-					p_ptr->confusing = FALSE;
-					msg_print("Your hands stop glowing.");
-					p_ptr->redraw |= (PR_STATUS);
-				}
-
-				/* Confuse the monster */
-				if (r_ptr->flags3 & RF3_NO_CONF)
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= RF3_NO_CONF;
-					}
-
-					msg_format("%^s is unaffected.", m_name);
-				}
-				else if (randint0(100) < r_ptr->level)
-				{
-					msg_format("%^s is unaffected.", m_name);
-				}
+	
+				/* Bare hands and not a monk */
 				else
 				{
-					msg_format("%^s appears confused.", m_name);
-					m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
-				}
-			}
-			else if (chaos_effect == 4)
-			{
-				bool resists_tele = FALSE;
-
-				if (r_ptr->flags3 & RF3_RES_TELE)
-				{
-					if (r_ptr->flags1 & RF1_UNIQUE)
-					{
-						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
-						msg_format("%^s is unaffected!", m_name);
-						resists_tele = TRUE;
-					}
-					else if (r_ptr->level > randint1(100))
-					{
-						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
-						msg_format("%^s resists!", m_name);
-						resists_tele = TRUE;
-					}
+					msg_format("You %s %s.",
+					           ((p_ptr->prace ==  RACE_PERTHORON ) ? "claw" : "punch"),
+				        	   m_name);
 				}
 
-				if (!resists_tele)
+				/* No negative damage */
+				if (k < 0) k = 0;
+
+				/* Modify the damage */
+				k = mon_damage_mod(m_ptr, k, 0);
+
+				/* Complex message */
+				if (p_ptr->wizard)
 				{
-					msg_format("%^s disappears!", m_name);
-					teleport_away(c_ptr->m_idx, 50);
-					num = p_ptr->num_blow + 1; /* Can't hit it anymore! */
-					no_extra = TRUE;
+					msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 				}
-			}
-			else if ((chaos_effect == 5) && cave_floor_grid(c_ptr) &&
-			         (randint1(90) > r_ptr->level))
-			{
-				if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-				    !(r_ptr->flags4 & RF4_BR_CHAO) &&
-				    !(r_ptr->flags1 & RF1_QUESTOR))
+
+				/* Damage, check for fear and death */
+				if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL))
 				{
-					if (polymorph_monster(y, x))
+					/* Hack -- High-level warriors can spread their attacks out
+					 * among weaker foes. -LM-
+					 */
+					if (((p_ptr->pclass == CLASS_WARRIOR) ||
+					     (p_ptr->pclass == CLASS_BERSERK) ||
+					     (p_ptr->pclass == CLASS_PALADIN) ||
+					     (p_ptr->pclass == CLASS_DARK_KNIGHT) ||
+					     (p_ptr->pclass == CLASS_CHAOS_WARRIOR)) &&
+					     (p_ptr->lev > 39) && (num < p_ptr->num_blow) &&
+						(p_ptr->energy_use))
 					{
-						msg_format("%^s changes!", m_name);
-
-						/* Hack -- Get new monster */
-						m_ptr = &m_list[c_ptr->m_idx];
-
-						/* Oops, we need a different name... */
-						monster_desc(m_name, m_ptr, 0);
-
-						/* Hack -- Get new race */
-						r_ptr = &r_info[m_ptr->r_idx];
-
-						fear = FALSE;
+						p_ptr->energy_use = p_ptr->energy_use * num / p_ptr->num_blow;
 					}
-					else
+
+					mdeath = TRUE;
+					break;
+				}
+
+				/* Anger the monster */
+				if (k > 0) anger_monster(m_ptr);
+
+				touch_zap_player(m_ptr);
+
+				/*
+				 * Are we draining it?  A little note: If the monster is
+				 * dead, the drain does not work...
+				 */
+				if (drain_result)
+				{
+					/* Calculate the difference */
+					drain_result -= m_ptr->hp;
+
+					/* Did we really hurt it? */
+					if (drain_result > 0)
+					{
+						drain_heal = damroll(4, drain_result / 6);
+
+						if (cheat_xtra)
+						{
+							msg_format("Draining left: %d", drain_left);
+						}
+
+						if (drain_left)
+						{
+							if (drain_heal < drain_left)
+							{
+								drain_left -= drain_heal;
+							}
+							else
+							{
+								drain_heal = drain_left;
+								drain_left = 0;
+							}
+
+							if (drain_msg)
+							{
+								msg_format("Your weapon drains life from %s!", m_name);
+								drain_msg = FALSE;
+							}
+
+							/* We get to keep some of it! */
+							drain_heal = (drain_heal * mutant_regenerate_mod) / 100;
+							hp_player(drain_heal);
+						}
+					}
+				}
+
+				/* Confusion attack */
+				if (p_ptr->confusing || (chaos_effect == 3))
+				{
+					/* Cancel glowing hands */
+					if (p_ptr->confusing)
+					{
+						p_ptr->confusing = FALSE;
+						msg_print("Your hands stop glowing.");
+						p_ptr->redraw |= (PR_STATUS);
+					}
+
+					/* Confuse the monster */
+					if (r_ptr->flags3 & RF3_NO_CONF)
+					{
+						if (m_ptr->ml)
+						{
+							r_ptr->r_flags3 |= RF3_NO_CONF;
+						}
+
+						msg_format("%^s is unaffected.", m_name);
+					}
+					else if (randint0(100) < r_ptr->level)
 					{
 						msg_format("%^s is unaffected.", m_name);
 					}
+					else
+					{
+						msg_format("%^s appears confused.", m_name);
+						m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
+					}
+				}
+				else if (chaos_effect == 4)
+				{
+					bool resists_tele = FALSE;
+
+					if (r_ptr->flags3 & RF3_RES_TELE)
+					{
+						if (r_ptr->flags1 & RF1_UNIQUE)
+						{
+							if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
+							msg_format("%^s is unaffected!", m_name);
+							resists_tele = TRUE;
+						}
+						else if (r_ptr->level > randint1(100))
+						{
+							if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
+							msg_format("%^s resists!", m_name);
+							resists_tele = TRUE;
+						}
+					}
+
+					if (!resists_tele)
+					{
+						msg_format("%^s disappears!", m_name);
+						teleport_away(c_ptr->m_idx, 50);
+						num = p_ptr->num_blow + 1; /* Can't hit it anymore! */
+						no_extra = TRUE;
+					}
+				}
+				else if ((chaos_effect == 5) && cave_floor_grid(c_ptr) &&
+				         (randint1(90) > r_ptr->level))
+				{
+					if (!(r_ptr->flags1 & RF1_UNIQUE) &&
+					    !(r_ptr->flags4 & RF4_BR_CHAO) &&
+					    !(r_ptr->flags1 & RF1_QUESTOR))
+					{
+						if (polymorph_monster(y, x))
+						{
+							msg_format("%^s changes!", m_name);
+
+							/* Hack -- Get new monster */
+							m_ptr = &m_list[c_ptr->m_idx];
+
+							/* Oops, we need a different name... */
+							monster_desc(m_name, m_ptr, 0);
+
+							/* Hack -- Get new race */
+							r_ptr = &r_info[m_ptr->r_idx];
+
+							fear = FALSE;
+						}
+						else
+						{
+							msg_format("%^s is unaffected.", m_name);
+						}
+					}
 				}
 			}
-		}
 
-		/* Player misses */
-		else
+			/* Player misses */
+			else
+			{
+				/* Sound */
+				sound(SOUND_MISS);
+
+				/* Message */
+				msg_format("You miss %s.", m_name);
+			}
+			
+			/* Using two weapons takes more energy */
+			if (p_ptr->dual_wield)
+				p_ptr->energy_use += 10;
+		}
+		/* Don't use second weapon if monster dead */
+		if (mdeath) i--;
+		if ((p_ptr->dual_wield) && (!mdeath))
 		{
-			/* Sound */
-			sound(SOUND_MISS);
-
-			/* Message */
-			msg_format("You miss %s.", m_name);
+			/* Access the second weapon and loop... */
+			o_ptr = &inventory[INVEN_ARM];
 		}
-	}
-
+	/* Second weapon?*/
+	}while(i-- == 1);
 
 	/* Mutations which yield extra 'natural' attacks */
 	if (!no_extra)

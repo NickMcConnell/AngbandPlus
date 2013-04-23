@@ -61,7 +61,6 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 }
 
 /* 
- * Helper function for ghouls.
  * I realize it is somewhat illogical to have this as a "power" rather
  * than an extension of the "eat" command, but I could not think of
  * a handy solution to the conceptual/UI problem of having food objects AND
@@ -122,12 +121,9 @@ static void eat_corpse(void)
 /*
  * Note: return value indicates that we have succesfully used the power
  */
-bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
+bool racial_aux(s16b min_level, int cost, int use_stat, int fail_stat, int difficulty)
 {
-	bool use_hp = FALSE;
-
-	/* Not enough mana - use hp */
-	if (p_ptr->csp < cost) use_hp = TRUE;
+	bool use_life = FALSE;
 
 	/* Power is not available yet */
 	if (p_ptr->lev < min_level)
@@ -146,13 +142,33 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	}
 
 	/* Risk death? */
-	else if (use_hp && (p_ptr->chp < cost))
+	else if ((use_stat == HP) && (p_ptr->chp < cost))
 	{
 		if (!get_check("Really use the power in your weakened state? "))
 		{
 			p_ptr->energy_use = 0;
 			return FALSE;
 		}
+	}
+
+	else if ((use_stat == SP) && (p_ptr->csp < cost))
+	{
+		if (!get_check("Use life force in spell? "))
+		{
+			p_ptr->energy_use = 0;
+			return FALSE;
+		}
+		else
+		{
+			use_life = TRUE;
+		}
+	}
+	
+	else if ((use_stat == RP) && (p_ptr->crp < cost))
+	{
+		msg_print("You do not have enough resources. ");
+		p_ptr->energy_use = 0;
+		return FALSE;
 	}
 
 	/* Else attempt to do it! */
@@ -173,25 +189,37 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	/* take time and pay the price */
 	p_ptr->energy_use = 100;
 
-	if (use_hp)
+	if (use_life)
 	{
-		take_hit(rand_range(cost / 2, cost),
-			"concentrating too hard");
+		cost -= p_ptr->csp;
+		take_hit(rand_range(cost/2,cost*2), "using lifeforce as mana");
+		p_ptr->csp = 0;
 	}
-	else
+	else if (use_stat == HP)
 	{
-		p_ptr->csp -= (s16b)rand_range(cost / 2, cost);
+		take_hit(cost, "concentrating too hard");
 	}
-
+	else if (use_stat == SP)
+	{
+		p_ptr->csp -= cost;
+	}
+	else if (use_stat == RP)
+	{
+		p_ptr->crp -= cost;
+	}
+	else if (use_stat == FP)
+	{
+		p_ptr->fatigue += cost;
+	}
 
 	/* Redraw mana and hp */
-	p_ptr->redraw |= (PR_HP | PR_MANA);
+	p_ptr->redraw |= (PR_HP | PR_MANA | PR_FATIGUE);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER | PW_SPELL);
 
 	/* Success? */
-	if (randint1(p_ptr->stat_cur[use_stat]) >= 
+	if (randint1(p_ptr->stat_cur[fail_stat]) >= 
 		rand_range(difficulty / 2, difficulty))
 	{
 		return TRUE;
@@ -207,7 +235,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 	s16b        plev = p_ptr->lev;
 	int         dir = 0;
 
-	if (racial_aux(mut_ptr->level, mut_ptr->cost, mut_ptr->stat, mut_ptr->diff))
+	if (racial_aux(mut_ptr->level, mut_ptr->cost, mut_ptr->use, mut_ptr->stat, mut_ptr->diff))
 	{
 
 		switch (p_ptr->prace)
@@ -253,19 +281,6 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				break;
 			}
 
-//			case RACE_ORC:
-//			{
-//				msg_print("RAAAGH!");
-//				if (!p_ptr->shero)
-//				{
-//					(void)hp_player(30);
-//				}
-//				(void)set_afraid(0);
-//				(void)set_shero(p_ptr->shero + 10 + randint1(plev));
-//				
-//				break;
-//			}
-
 			case RACE_DRYAD:
 			{
 				(void)hp_player(damroll(4, 10));
@@ -276,17 +291,24 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			}
 
 			case RACE_DRACONIAN:
-			{	
+			{
+				if (!get_aim_dir(&dir)) return FALSE;
+
+				(void)fire_ball(GF_DOMINATION, dir, plev*2, -3);
+			}
+			break;
+				
+/*			{	
 				int px = p_ptr->px;
 				int py = p_ptr->py;
 				for (dir != ( 0 || 5 ); dir <= 9; dir++)
-				/* Hack - use levels to choose ability */
+				/* Hack - use levels to choose ability * /
 				if (mut_ptr->level == 20)
 				{	
 					int  Type = (one_in_(3) ? GF_COLD : GF_FIRE);
 					int  DamM;
 					cptr Name = ((Type == GF_COLD) ? "cold" : "fire");
-					/* No effect if not a magic user */
+					/* No effect if not a magic user * /
 					if (p_ptr->realm1 == REALM_NONE)
 					{
 						msg_print("You don't use magic.");
@@ -484,32 +506,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 					}
 				}
 
-				
-				else if (mut_ptr->level == 30)
-				{
-					int y = 0, x = 0;
-					cave_type *c_ptr;
-					monster_type *m_ptr;
-		
-					{
-						y = py + ddy[dir];
-						x = px + ddx[dir];
-		
-						/* paranoia */
-						if (!in_bounds2(y, x)) continue;
-						c_ptr = area(y, x);
-		
-						/* Get the monster */
-						m_ptr = &m_list[c_ptr->m_idx];
-		
-						/* Hack -- attack monsters */
-						if (c_ptr->m_idx && (m_ptr->ml || cave_floor_grid(c_ptr)))
-							py_attack(y, x);
-					}
-					}
-				break;
-			
-			}
+			} */
 			
 			case RACE_ENT:
 			{
@@ -616,13 +613,19 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 					(void)sleep_monsters();
 				break;
 			}
+			
+			case RACE_TROLL_SWAMP:
+			case RACE_WOLFMAN:
+			{
+				eat_corpse();
+			}
 	
 		}
 					
 	}
 
 	/* Redraw mana and hp */
-	p_ptr->redraw |= (PR_HP | PR_MANA);
+	p_ptr->redraw |= (PR_HP | PR_MANA | PR_FATIGUE);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER | PW_SPELL);
@@ -636,6 +639,7 @@ struct power_desc_type
 	char name[40];
 	int  level;
 	int  cost;
+	int  use;
 	int  fail;
 	int  number;
 	const mutation_type *power;

@@ -244,25 +244,8 @@ your backpack. This sensing ability is called 'pseudo-id' and is
 limited to weapons and armor. The speed and accuracy of your pseudo-id
 ability depends on a number of factors but the primary considerations
 are your class and level. Pseudo-id can be 'strong' or 'weak' and
-'slow', 'medium' or 'fast'.
-
-
-Table 1 - Pseudo-Id ability of the Classes
-
-    Class                     Method     Speed
-    ----------------------------------------
-    Warrior/Beserker/Archer   Strong     Very Fast
-    Mage/High-Mage/Wizard     Weak       Slow
-    Clerics                   Weak       Very Fast
-    Rogues                    Strong     Fast
-    Tech/Thief-Mage           Weak       Fast
-    Ranger                    Strong     Medium
-    Paladin                   Strong     Medium
-    Warrior-Mage              Weak       Medium
-    Mindcrafter               Weak       Medium
-    Chaos Warrior/Dark Knight Strong     Medium
-    Monk/Witch                Weak       Fast
-
+'slow', 'medium' or 'fast'. Example: Warriors will sense the quality of 
+weapons quickly and strongly.
 
 When you pseudo-id an item, it will be inscribed (see below [4]) with
 the quality level you have determined it to be of. This inscription
@@ -294,6 +277,7 @@ Table 3 - Weak Pseudo-Id
                    items and artifacts)
     good           an enchanted item (includes good
                    ego items and artifacts)
+    average        an average item
 
 
 ***** <Identifying>

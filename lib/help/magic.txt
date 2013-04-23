@@ -1,17 +1,17 @@
-=== STangband Magic System ===
+=== STAngband Magic System ===
 
 In the official releases of Angband there are only two types magic
-spells: Magic spells and priestly prayers. If the character is a mage,
-ranger or a rogue (s)he can learn magic spells; if (s)he is a priest or
-a paladin, (s)he can learn prayers. All mages can learn the same spells
-and all priests can learn the same spells.
+spells: Magic spells and priestly prayers. If the character is a mage 
+(s)he can learn magic spells; if (s)he is a cleric (s)he can learn 
+prayers. All mages can learn the same spells and all priests can learn
+the same spells.
 
 The magic system in STangband uses 10 realms of magic. 
 There are 4 Arcane realms: Life, Death, Order and Chaos. 
-	4 Elemental realms: Fire, Water, Earthand Air. 
+	4 Elemental realms: Fire, Water, Earth and Air. 
 	Plus 2 metamagic realms: Astral and Wizardry.
 
-If you paly a spellcasting class you can select either one or two 
+If you play a spellcasting class you can select either one or two 
 realms from those available. Note that certain realms may be prohibited
 for some classes. Since a character can have (at most) two realms of 
 magic, and the old spells have been split between the existing realms,
@@ -124,7 +124,7 @@ Cleric
 
  () Air ()
      The Air realm covers Wind, Lightning and Sound magic. Air is 
-     the best realm for speed and has lost of spells to avoid some 
+     the best realm for speed and has lots of spells to avoid some 
      bad situations. It has lots of attack spells and not all can
      be resisted. Air is a bit low on defence but it does have lots
      of escape spells.
@@ -165,13 +165,13 @@ Cleric
 
  && Chaos &&
      The Chaos realm is split into Logrus and Trump spells.
-     Trump is very powerful but it has the potential to do anything.
+     Trump is very powerful and it has the potential to do anything.
      Sounds good? Maybe you did not want to Identify in front of that 
      Dragon? Do not be put off by the strangeness of these spells. 
-     Having to recast the spell next turn is usually worth it since it
-     really counts as multiple spells.
-     Logrus is pure Chaos and is usually liquid. It is very destructive
-     and is the most powerful and bizarre attack in the game.
+     Having to recast the spell next turn is usually worth it since each
+     spell really counts as multiple spells.
+     Logrus is pure Chaos. It is very destructive and is the most powerful
+     and bizarre attack in the game.
      Chaos has a lot of Teleportation, Summoning and Polymorphing spells.
 
 ||| Meta Realms |||
@@ -192,10 +192,10 @@ Cleric
 
  \\ Wizardry \\
      Here is a more powerful version of the Astral realm. It contains most 
-     of your D&D spells and still has powerful, rare spellbooks. Do not think
-     that because it is a Meta realm it is not powerful. It contains spells
-     like Disintegrate and Magic Meteorite. It also has some powerful 
-     defencive spells in it.
+     of your D&D spells (not in the other realms) and still has powerful, 
+     rare spellbooks. Do not think that because it is a Meta realm it is not
+     powerful. It contains spells like Disintegrate and Magic Meteorite. It 
+     also has some powerful defencive spells as well.
 
 ***** <CastingSpells>
 === On Casting Spells ... ===
@@ -243,12 +243,19 @@ the casting was successful or not.
 --- Spell Durations ---
 
 Some spells such as Haste-Self or Resistance grant an effect which
-wears off after a certain period of time. With very few exceptions,
+wears off after a certain period of time. With a few exceptions,
 multiple castings of such spells are not cumulative in terms of the
 duration of the spell. In other words, casting a spell which has a
 duration of 20 turns three times will not result in a duration of
 60 turns. Typically, the subsequent castings will add only a small
 amount to the total duration.
+
+--- Fatigue ---
+
+Some spells, especially permanent spells like enchantments, take
+more out of the caster than they appear to. Very powerful castings
+will make the caster tired and sleepy, which could spell their doom
+when in the dungeon.
 
 ***** <SpellTypes>
 === Spell Types ===
@@ -273,7 +280,7 @@ direction you are aiming. Secondly, they have a radius (which
 varies from spell to spell). A radius value of one or more will
 result in the spell affecting monsters (and possibly objects, etc)
 around the target in addition to the target itself. Lots of ball
-spells are targeting the player hitting all around you.
+spells are targeting the player hitting everything around you.
 
 --- Wave ---
 
@@ -299,10 +306,10 @@ If you miss the `old` magic user, try picking Astral and Wizardy magic
 to get the most commonly used mage spells early on (Magic Missile,
 Detect Monsters + Traps + etc, Identify).
 
-It is generally a good idea to pick one defensive realm and one 
-offensive realm. For example try using life or order with chaos or
-death magic. Elementals are somewhat neutral: it has both offensive and
-defensive spells.
+It is generally a good idea to pick one offensive realm and one 
+defensive realm. For example try using life or order with death or
+chaos magic. Elementals are somewhat neutral: they both have offensive 
+and defensive spells.
 
 If you pick the realms always in the same order (e.g. fire as your
 first realm and life as your second realm, not the other way around)
@@ -318,16 +325,12 @@ has a level of at least one above yours.
 ***** <SpellLists>
 === Spell Lists ===
 
-NB: Please don't get too attached to these spells. As they will be
-changed in version 0.9 to include: Magic resistance, Invisibility
-and Time Stop.
-
 FIRE: Standard Spellbooks
 
 Magic Flames
      1. Resist Fire
      2. Ignite
-     3. FireSight
+     3. Smoke
      4. Globe of Flame
      5. Fire Light
      6. Fire Blast
@@ -386,8 +389,7 @@ Tidal Force
      It also has the most powerful Acid spells in existance.
 
 Arctic Chill
-     Razor sharp ice and the power to freeze. But can it make
-     an Ice Palace?
+     Razor sharp ice and the power to freeze. 
 
 
 EARTH: Standard Spellbooks
@@ -420,7 +422,7 @@ Techtonics
      Hold the most powerful force of Earth.
 
 Crystal Magic
-     Almost indestructible and very sharp the spells in
+     Almost indestructible and very sharp, the spells in
      this book will make you almost invulnerable.
 
 

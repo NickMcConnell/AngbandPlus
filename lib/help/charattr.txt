@@ -32,7 +32,7 @@ is contained later in this document (see below [2]).
 
 Experience affects almost everything else about your character. 
 Experience can be gained as your character kills monsters, casts spells
-or prays for the first time, learns about an object kind by using it,
+or prayers for the first time, learns about an object kind by using it,
 disarms traps and unlocks doors.  Certain classes may also gain
 experience by destroying specific dungeon spell books and there are
 potions in the dungeon that will boost your experience if you quaff
@@ -99,7 +99,7 @@ be bones, ores or other magical ingredients. These are used for things
 similar to spells but they usually result in the creation of an item.
 The amount you can carry depends on your intelligence and wisdom. But
 beware, while they weigh nothing. If you exceed your carrying capacity
-your maximum points will suffer.
+your maximum resource points will suffer.
 
 --- Character Skills ---
 
@@ -141,10 +141,10 @@ Human
 
 Elf
      Elves are better magicians then humans, but not as good at
-     fighting. They tend to be smarter than either humans or half-elves
-     and also have better wisdom. Elves are better at searching,
-     disarming, perception, stealth, bows, and magic, but they are not
-     as good at hand weapons. They resist light effects intrinsically.
+     fighting. They tend to be smarter than either humans. Elves are 
+     better at searching, disarming, perception, stealth, bows, and 
+     magic, but they are not as good at hand weapons. They resist 
+     light effects intrinsically.
  
 Halfling
      Hobbits, or Halflings, are very good at bows, throwing, and have
@@ -188,31 +188,35 @@ Orc
      let's face it, ugly. They tend to pay more for goods in town.
      Orcs do make good warriors and rogues, for the simple reason
      that Orcs tend to have great constitutions and lots of hit
-     points.
-     An Orc will learn to be fearless.
+     points. An Orc will learn to be fearless.
  
-Troll
+Stone Troll
      Trolls are incredibly strong, and have more hit points than
-     most other races. They are also very stupid and slow. They will
+     most other races. They are also very stupid. They will
      make great warriors and iffy rogues. They are bad at searching,
      disarming, perception, and stealth. They are so ugly that a
      Orc grimaces in their presence. They also happen to be fun to
-     run... trolls always have their strength sustained. At higher
-     levels, Trolls learn to regenerate wounds automatically.
+     run... trolls always have their strength sustained.
+
+Swamp Troll
+     Almost the same as their Stone Troll cousins, These Trolls are less
+     strong but slightly more agile. Swamp Trolls regenerate wounds 
+     very quickly and need lots of food to sustain themselves.
 
 Ogre
      Ogres are like Orcs, only more so. They are big, bad,
      and stupid. For warriors, they have all the necessary attributes,
      and they can even become combat mages: after all, they are related 
-     to Ogre Magi. Like Trolls, they have their strength sustained 
-     and at high levels there tough skin resists shards.
+     to Ogre Magi. Like Stone Trolls, they have their strength sustained 
+     and at high levels their tough skin resists shards.
 
 Yeek
      Yeeks are among the most pathetic creatures. Fortunately, their
      horrible screams can scare away less confident foes, and their
      skin becomes more and more resistant to acid, as they gain
-     experience. But having said that, even a mediocre monster can wipe
-     the proverbial floor with an unwary Yeek.
+     experience. At very high levels their skin will drip acid that 
+     burns enemies. But having said that, even a mediocre monster can 
+     wipe the proverbial floor with an unwary Yeek.
 
 Kobold
      Kobolds are a weak goblin race. They love poisoned weapons, and
@@ -228,10 +232,11 @@ Dark Elf
      priests, and they can resist nether at a high level. 
      
 Draconian
-     A humanoid race with dragon blood. They have the ability to do a 
-     Dragon Swipe with the weapon to hit multiple at once and they can
-     use Dragon magic which also hits multiple targets. The exact type 
-     of the magic weapon depends on the Draconian's first magic realm. 
+     A humanoid race with dragon blood. Proud and Noble just like a Dragon, 
+     this powerful race has a tendency to hoard treasure. While they
+     don't have scales, don't roar and their breathe weapon could be
+     fought with a mint, they do have the ability to dominate other
+     creatures with ease, at high levels.
 
 Illithid
      (or Mind Flayer)
@@ -263,13 +268,14 @@ Vampire
     vampire from the adverse effects of sunlight.
 
 Fairy
-    Another powerful undead creature: the Fairy is a heavenly
+    A powerful ethereal creature: the Fairy is a heavenly
     apparition, surrounded by an unearthly white glow. They exist only
     partially on our plane of existence: half-corporeal, they can pass
     through walls, although the density of the wall will hurt them in
-    the process of doing this. As undead, they have a firm hold on their 
-    life force, see invisible, and can fly. They also love light and resist
-    light attacks. At higher levels they get faster.
+    the process of doing this. As ethereal, they have a firm hold on their 
+    life force, see invisible and can use their large butterfly wings to 
+    fly. They also love light and resist light attacks. At higher levels
+    they get faster.
 
 Pixie
     One of the lesser fairy races, Pixies are very small. They have
@@ -290,15 +296,17 @@ Kaoti
     gaining yet another mutation.
 
 Saurian
-    Saurian are a reptilian race that love Fire. They live near volcanoes
-    or deserts. They have great temples to Fire and celebrate when a 
-    Red Dragon comes to visit. They believe that Red Dragons are 
+    Saurian are a reptilian race that love Fire and Heat. They live near
+    volcanoes or deserts. They have great temples to Fire and celebrate when 
+    a Red Dragon comes to visit. They believe that Red Dragons are 
     supreme and all other Dragons are inferior. Their hard scales work
     as well as most armour and they resist fire easily. They make good
-    honourable warriors but are no good as rogues.
+    honourable warriors but are no good as rogues. Unfortunately, since 
+    they are cold blooded they should avoid cold attacks since they
+    are slowed by cold.
 
 Aquarian
-    Aquarians are half-merman creature that live near water. They are very
+    Aquarians are half-merman creatures that live near water. They are very
     wise but are a bit fragile out of water. They hate fire as it dries 
     them out. They resist cold but will not touch fire magic. Also due to
     their damp environments any machines they have rust, so they do not
@@ -312,11 +320,11 @@ Goblin
     not so good clerics.
 
 Minotaur
-    Minotaur are half Human half Bull. They are very strong and never afraid
-    This makes them excellent warriors. They are not very wise but have 
-    no penalty to intelligence. Minotaur don't like other races that much 
-    and have to pay more in shops. Minotaur have horns on their head that 
-    they use as a deadly weapon.
+    Minotaur are half Human half Bull that love mazes and other puzzles. 
+    They are very strong and never afraid. This makes them excellent warriors.
+    They are not very wise but have no penalty to intelligence. Minotaur don't
+    like other races that much and have to pay more in shops. Minotaur have 
+    horns on their head that they use as a deadly weapon.
 
 Centaur
     Centaur are half Humanoid half Horse. They start faster than other 
@@ -326,50 +334,70 @@ Centaur
 
 Catling
    Catlings are humanoid cats that are extremely agile and get faster as
-   they get experience. They are not very wise and have a slightly weak
-   health. They make excellent rogues but not very good clerics.
+   they get experience. They enjoy games and love to play with their enemies. 
+   They are not very wise and have a slightly weak health. They make 
+   excellent rogues but not very good clerics.
 
 Dryad
    A Dryad is a tree spirit that is smart and very beautiful. They are not
-   very agile and should not be rogues. They can learn to see invisibe and 
-   to cure wounds.
+   very agile and should not be rogues. They can learn to see invisible and 
+   to cure wounds. Being very natural creatures they have a dislike of
+   anything to do with technology.
 
 Faun
    (or Satyr)
-   Fauns have goat legs and horns and like their god they love nature.
+   Fauns have goat legs and horns and like their god, they love nature.
    They are good natured creatures that can control dreams.
-   They would not be happy if you said there god is the Devil and the 
-   Devil would also not be happy at the mix-up.
+   Always happy for a reason to party, Fauns love music and celebration
+   more than anybody else.
 
 Ent
    Ents are large moving trees. They are very similar to Dryads and 
    they live for a long time. Ents are very slow learners because they 
-   like to think things over more then "hasty folk". They resist poison
+   like to think things over more than "hasty folk". They resist poison
    and have their constition sustained. They gain the ability to regrow 
    themselves when they get a bit beaten up.
 
 Drider
-   Drider are a Hybrid of Dark Elves and Spiders. They are strong and agile
+   Drider are a hybrid of Dark Elves and Spiders. They are the bane of 
+   unwary adventurers that travel underground. They are strong and agile
    but slow learners. They resist dark and can see in the dark.
    Their dexterity is sustained.
 
-Uruk
-   Uruks are the largest of the Goblinoid race. They have the best combat
-   skill in the game and learn very slowly. They resist dark and 
-   have their strength and toughness sustained.
+Uruk-Hai
+   Uruk-Hai are the largest of the Orcish races. They live only for war 
+   and have the best combat skill in the game but learn very slowly. They 
+   resist dark and have their strength and toughness sustained.
 
 Ratling
-   Ratling are humanoid shaped Rats, hunted by Catlings and mistaken by wererats. 
-   They are agile, good learners and very cheerful. They do not smell no 
-   matter what you might think.
+   Ratling are humanoid shaped Rats, hunted by Catlings and mistaken for wererats. 
+   They are agile, good learners and very cheerful. They do not smell bad and
+   are very conscious of good hygiene.
 
 Leprechaun
-   These little Fey are agile and smart and really *like* gold. But they are not
+   These little Fey are agile, smart and really *like* gold. But they are not
    greedy about it. They are physically weak and should avoid close combat.
+   They work well with any magic and enjoy telling jokes.
 
 Perthoron
    Perthoron is Eldarin for Half Eagle. These noble creatures dislike evil. They 
-   can fly and get faster as they get levels.
+   can fly and get faster as they get levels. Ever vigilant, they are great at
+   spotting hidden things.
+
+Shadow
+   Another Undead race. Theses shades of their formar life are very insubstantial
+   and similar to fairies. They cannot walk through walls though, they only 
+   recieve half damage from any attack, except Nether of which they are made, as 
+   this heals them. Being undead they are resistant to cold and poison but they 
+   are weak of physical strength.
+
+Wolfman
+   Half Human, Half Wolf, 100 percent vicious. Stronger and more agile than the 
+   average human, these fearsome predators can be horrifying to fight against.
+   They are a bit low on wisdom and charisma. And although they are low on 
+   constitution they have high hitpoints.
+
+
 
 ***** <TheClasses>
 === Classes ===
@@ -381,11 +409,13 @@ character's stats and abilities. Many classes also have intrinsic
 abilities and powers. These are often linked to the character's 
 experience level and only become available later in the game.
 These abilities are activated with the "y" key.
+Most classes can be summed up by a combination of 2 basic class types.
+
  
 --- The Classes ---
 
 
-Warrior Type:
+Warrior Type:   Warrior/Berserker/Ninja/Blacksmith
     A Warrior is a hack-and-slash character, who solves most of his
     problems by cutting them to pieces, but will occasionally fall back
     on the help of a magical device. Unfortunately, many high-level
@@ -403,7 +433,16 @@ Warrior Type:
     confident in his ability to defeat his opponents and eventually
     will become resistant to fear attacks.
 
-Mage Type:
+    Warriors know the usefulness of good training and should their
+    body get out of shape while adventuring they will learn the Training
+    ability to restore their physical stats quickly.
+    Berserkers will eventually master the Berserk state but while they
+    are still learning they can use it in small bursts.
+    If a warrior gets surrounded by monsters than the monsters better duck,
+    the Spin Attack ability gives a warrior a quick burst of speed to 
+    attack all nearby monsters.
+
+Mage Type:   (Fire/Water/Earth/Air/Thief/Warrior/Tech) Mage/Wizard
     A Mage is a spell caster that must live by his wits as he cannot
     hope to simply hack his way through the dungeon like a warrior. In
     addition to his spellbooks, a mage should carry a range of magical
@@ -420,8 +459,11 @@ Mage Type:
 
     Most Mage type characters get to chose any realm they wish unless
     it clashes with their fixed realm.
+    As their knowledge of magic increses, mages get the ability to Focus
+    nearby magic to replenish their spell points.
+    At later levels they will learn to detect magical items.
 
-Cleric Type:
+Cleric Type:   Driud/Necromancer/Priest/Shaman/Sage/Tech Cleric
     A Cleric is a character devoted to serving a higher power. They
     explore the dungeon in the service of their God and if treasure
     just happens to fall into their packs, well, so much more to the
@@ -448,7 +490,14 @@ Cleric Type:
     Spirit Patron. A Sage searches for knowledge and receives the
     Wizardry realm.
 
-Rogue Type:
+    A Priest will learn the Turn Undead ability to assist in destroying
+    their corrupted form of living.
+    A Necromancer will get access to a powerful spell that does not 
+    require spell points. Blood Fire uses their own blood instead.
+    High level Shamans can Tear Reality apart to let the Chaos flow 
+    freely but it can be dangerous to do.
+
+Rogue Type:   Rogue/Assassin/Ninja/Thief Mage/Tech Thief
     A Rogue is a character that prefers to live by his cunning, but is
     capable of fighting his way out of a tight spot. Rogues are good at
     locating hidden traps and doors and are the masters of disarming
@@ -465,9 +514,12 @@ Rogue Type:
 
     As a rogue increases in experience, his proficiency with the sling
     improves and he will ultimately gain two additional shots per round
-    with his favorite missile launcher.
+    with his favorite missile launcher. They also improve their senses to
+    the point where they can detect invisible monsters (but while they are
+    still learning this their imagination could interfere). Later they 
+    learn enough about the arts of invisibility to cast the spell themselves.
 
-Tech Type:
+Tech Type:   Technician/Blacksmith/Tech Mage/Tech Cleric/Tech Thief
     Tech type characters specialise in the making of items. They are good
     at using all devices and are the best at using machines. Their primary
     stat is intelligence which is checked to use their unique abilities.
@@ -486,33 +538,33 @@ Tech Type:
     own weapons and potions. Unfortunatly due to their quality these will
     not sell well in shops.
 
-Cleric Warrior Type:
+Cleric Warrior Type:   Paladin/Chaos Warrior/Ranger/Dark Knight
     These are the fighters who defend the religion with more force than
-    others. Since they still worship their gods and get prayers they will
+    others. Since they still worship their gods and to get prayers they will
     need a high wisdom. Their other primary stat is strength with the
-    exception to Rangers who prefer missile weapons and needs dexterity.
+    exception to Rangers who prefer missile weapons and may prefer dexterity.
 
     Rangers live with the land and worship Life. They prefer to use a bow
     for fighting but can use other weapons when necessary. Since they use
     missile weapons they can make their own missiles using things they
     find in the dungeon.
 
-    Paladins a warriors of thruth and worship Order. They are good with
+    Paladins are warriors of truth and worship Order. They are good with
     armour and a sword but lack in other skills. Paladins fight for justice
-    and learn to be completely fearless.
+    and learn to be completely fearless. They can learn the Healing touch.
 
     Dark Knights enjoy spilling the blood of whoever gets in their way.
     They worship Death and are almost as good as a Warrior at fighting
     though they are not very good with missiles. They learn to resist fear
-    at the same time as Warriors.
+    at the same time as Warriors. Like Necromancers they can use Blood Fire.
 
     Chaos Warriors fight for the spirits of chaos and are slightly better
     at using missile weapons than Paladins. Chaos Warriors get gifts from
-    their spirit like Shamans and learn to resist chaos.
+    their spirit, like Shamans and learn to resist chaos. They to can
+    Tear Reality but it is still dangerous for them.
 
     Cleric Warriors have no respect for the magic of the opposite type and
     gain experience for destroying books of the opposite realm.
-
 
 Warrior-Mage:
     A Warrior-Mage is precisely what the name suggests: a cross between
@@ -529,7 +581,6 @@ Warrior-Mage:
     mages, they will eventually learn every spell in their realm, thus
     making a very competitive choice for players who have not learnt to
     use magic effectively.
-
 
 Monk:
     The Monk character class is very different from all other classes.
@@ -554,7 +605,7 @@ Monk:
 
     Monks use magic through meditaion giving a similar effect to the
     cleric. They need wisdom to use their magic which is every spell
-    in the Astral realm.
+    in the Astral realm. They also gain a couple of useful abilities.
 
 Mindcrafter:
     The Mindcrafter is a unique class that uses the powers of the mind
@@ -591,8 +642,9 @@ Archer:
     the dungeon.
 
 Witch:
+    A Witch will get the job done without all the ego involved with wizards.
     Witchs prefer more subtle magic and therefore only learn the Astral
-    realm. Though they learn it very well. They can also use dungeon
+    realm, though they learn it very well. They can also use dungeon
     materials to make potions and recharge items.
     Their primary stats are intelligence and wisdom but they can be hard
     keep alive.
@@ -622,20 +674,8 @@ High Mage:
 Each character has six primary "stats", strength, intelligence, wisdom,
 dexterity, constitution, and charisma, which modify the abilities of
 the character in a variety of ways. Every stat has a numerical value,
-ranging from a minimum of 3, up to a normal maximum of 18, and even
-higher, into the "percentile" range, represented as  "18/01" through
-"18/100". Actually, every stat can be raised even above 18/100 by
-magical means, up to a pure maximum of 18/220, which is represented as
-"18/***".
-
-Traditionally, a percentile stat such as "18/50" has been thought of as
-representing a value part way between 18 and 19, and this is one way to
-think of them. However, often, the best way to view the "bonus" values
-after the "18/" is as "tenth" points, since it often takes the same
-magic to raise a stat from, say, 4 to 5, or 16 to 17, as it does from,
-say, 18/40 to 18/50. The important thing to remember is that almost all
-internal calculations "ignore" the final digit of any "bonus", so that,
-for example, "18/40" and "18/49" are always have the same effects.
+ranging from a minimum of 3, up to a normal maximum of about 40.
+The average is about 14 but primary stats will be about 18.
 
 --- The Primary Statistics ---
 
@@ -651,16 +691,17 @@ Strength
  
 Intelligence
      Intelligence affects the spellcasting abilities of mage-like
-     spellcasters (high mages, mages, warrior-mages, rangers, chaos
-     warriors and rogues). Intelligence will affect the number of
-     spells these classes may learn each level, the number of spell
-     points they receive and their spell fail rates. These classes
-     cannot learn spells if their intelligence is 7 or lower. Also,
-     intelligent characters are better at using magic devices, picking
-     locks and disarming traps.
+     spellcasters (high mages, mages, warrior-mages and witchs). 
+     Intelligence will affect the number of spells these classes may 
+     learn each level, the number of spell points they receive and 
+     their spell fail rates. These classes cannot learn spells if their
+     intelligence is 7 or lower. Also, intelligent characters are better
+     at using magic devices, picking locks and disarming traps.
+     Intelligence is also used for tech abilities just like it is 
+     used for magic.
  
 Wisdom
-     Wisdom affects the ability of priest-like spellcasters (priests,
+     Wisdom affects the ability of priest-like spellcasters (clerics,
      paladins and monks) to use prayers. Wisdom will affect the number
      of spells these classes may learn each level, the number of spell
      points they receive and their spell fail rates. In addition, 
@@ -668,6 +709,7 @@ Wisdom
      his or her mental powers. These classes cannot learn spells if
      their wisdom is 7 or lower. Wise character's will have better
      chances of resisting magical spells cast upon them by monsters.
+     Wisdom also increases your maximum resource points.
  
 Dexterity
      Dexterity is a combination of agility and quickness. A high
@@ -767,7 +809,7 @@ Infra-vision
      see walls and objects. Infra-vision will allow a character to see
      any warm-blooded creatures up to a certain distance. This ability
      works equally well with or with out a light source. The majority
-     of Zangband's creatures are cold-blooded, and will not be detected
+     of STAngband's creatures are cold-blooded, and will not be detected
      unless lit up by a light source. Most non human races have innate
      infra-vision ability. Human can gain infra-vision only if it is
      magically enhanced.
@@ -786,17 +828,18 @@ level.
 --- Table 1 - Race Statistic Bonus Table ---
 
               STR  INT  WIS  DEX  CON  CHR  Hit Dice  Exp Penalty
-Human          0    0    0    0    0    0      10         -35%
+Human          0    0    0    0    0    0      10         -10%
 Elf           -1   +1    0   +1   -2   +1       9         +0%
 Dwarf         +1   -2    0    0    2   -1      11         +0%
 Halfling      -2    0    0   +1   -1   +1      10         +0%
 Dark Elf      -1   +1    0   +1   -1    0       9         +0%
 Gnome         -2   +1   +1   -1   +1    0       8         +0%
 Orc           +2   -2    0   -1   +1   -1      12         +25%
-Troll         +4   -2   -2    0   +3   -2      14         +25%
+Stone Troll   +4   -2   -2    0   +3   -2      14         +25%
+Swamp Troll   +3   -2   -2   +1   +3   -2      14         +50%
 Saurian       +1    0    0   -2   +1    0      13         +0%
-Aquarian       0    0   +1    0   -1    0       9         +0%
-Goblin         0   +1   -1    0    0    0      11         -25%
+Aquarian       0    0   +1    0   -1    0       9         +25%
+Goblin         0   +1   -1    0    0    0      11         +0%
 Pixie         -2    0   +1   +2   -2   +1       6         +0%
 Kobold        -1   -1    0   +1   +1    0       9         +0%
 Kaoti          0    0    0    0    0    0      10         +0%

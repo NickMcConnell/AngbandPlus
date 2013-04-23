@@ -248,6 +248,10 @@ bool set_paralyzed(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	/* Be nice to the player. */
+	if (v >> p_ptr->paralyzed)
+		return FALSE;
+
 	/* Open */
 	if (v)
 	{
@@ -482,7 +486,7 @@ bool set_shield(int v)
 	{
 		if (!p_ptr->shield)
 		{
-			msg_print("You feel really tough.");
+			msg_print("You feel really defended.");
 			notice = TRUE;
 		}
 	}
@@ -492,7 +496,7 @@ bool set_shield(int v)
 	{
 		if (p_ptr->shield)
 		{
-			msg_print("You feel less tough.");
+			msg_print("You feel less defended.");
 			notice = TRUE;
 		}
 	}
@@ -1487,7 +1491,8 @@ bool set_cut(int v)
 
 	if (p_ptr->prace == RACE_FAIRY ||
 	    p_ptr->prace == RACE_KAOTI ||
-		(p_ptr->prace == RACE_TROLL && p_ptr->lev > 11))
+	    p_ptr->prace == RACE_SHADE ||
+		(p_ptr->prace == RACE_TROLL_STONE && p_ptr->lev > 11))
 		v = 0;
 
 	/* Mortal wound */
@@ -1713,6 +1718,11 @@ bool set_food(int v)
 	/* Hack -- Force good values */
 	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
 
+	if ((p_ptr->prace == RACE_SHADE) && (v >> PY_FOOD_MAX))
+	{
+		v = PY_FOOD_MAX - 1;		
+	}
+
 	/* Fainting / Starving */
 	if (p_ptr->food < PY_FOOD_FAINT)
 	{
@@ -1911,36 +1921,11 @@ bool inc_stat(int stat)
 	value = p_ptr->stat_cur[stat];
 
 	/* Cannot go above 18/100 */
-	if (value < 18+100)
+	if (value < 40)
 	{
 		/* Gain one (sometimes two) points */
-		if (value < 18)
-		{
-			gain = ((randint0(100) < 75) ? 1 : 2);
-			value += gain;
-		}
-
-		/* Gain 1/6 to 1/3 of distance to 18/100 */
-		else if (value < 18+98)
-		{
-			/* Approximate gain value */
-			gain = (((18+100) - value) / 2 + 3) / 2;
-
-			/* Paranoia */
-			if (gain < 1) gain = 1;
-
-			/* Apply the bonus */
-			value += randint1(gain) + gain / 2;
-
-			/* Maximal value */
-			if (value > 18+99) value = 18 + 99;
-		}
-
-		/* Gain one point at a time */
-		else
-		{
-			value++;
-		}
+		gain = ((randint0(100) < 75) ? 1 : 2);
+		value += gain;
 
 		/* Save the new value */
 		p_ptr->stat_cur[stat] = value;
@@ -2124,13 +2109,6 @@ bool hp_player(int num)
 
 		/* Gain hitpoints */
 		p_ptr->chp += num;
-
-		/* Enforce maximum */
-		if (p_ptr->chp >= p_ptr->mhp)
-		{
-			p_ptr->chp = p_ptr->mhp;
-			p_ptr->chp_frac = 0;
-		}
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
@@ -2664,6 +2642,11 @@ void take_hit(int damage, cptr hit_from)
 		damage /= 10;
 		if ((damage == 0) && one_in_(10)) damage = 1;
 	}
+	
+	if (p_ptr->prace == RACE_SHADE)
+	{
+		damage /= 2;
+	}
 
 	/* Hurt the player */
 	p_ptr->chp -= damage;
@@ -2792,9 +2775,9 @@ bool set_sh_fire(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->sh_fire)
+		if (!p_ptr->tim_sh_fire)
 		{
-			msg_print("You are covered in red flames!");
+			msg_print("You are surrounded in red flames!");
 			notice = TRUE;
 		}
 	}
@@ -2802,7 +2785,7 @@ bool set_sh_fire(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->sh_fire)
+		if (p_ptr->tim_sh_fire)
 		{
 			msg_print("The flames go out.");
 			notice = TRUE;
@@ -2810,7 +2793,7 @@ bool set_sh_fire(int v)
 	}
 
 	/* Use the value */
-	p_ptr->sh_fire = v;
+	p_ptr->tim_sh_fire = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -2838,7 +2821,7 @@ bool set_sh_elec(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->sh_elec)
+		if (!p_ptr->tim_sh_elec)
 		{
 			msg_print("Sparks of electricity leap at nearby objects!");
 			notice = TRUE;
@@ -2848,7 +2831,7 @@ bool set_sh_elec(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->sh_elec)
+		if (p_ptr->tim_sh_elec)
 		{
 			msg_print("You stop zapping things.");
 			notice = TRUE;
@@ -2856,7 +2839,100 @@ bool set_sh_elec(int v)
 	}
 
 	/* Use the value */
-	p_ptr->sh_elec = v;
+	p_ptr->tim_sh_elec = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+bool set_sh_cold(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_sh_cold)
+		{
+			msg_print("You are surrounded by icy air!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sh_cold)
+		{
+			msg_print("The air warms.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sh_cold = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_sh_acid(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_sh_acid)
+		{
+			msg_print("A bubble of acid forms around you!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sh_acid)
+		{
+			msg_print("The bubble pops.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sh_acid = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -2884,7 +2960,7 @@ bool set_ffall(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->ffall)
+		if (!p_ptr->tim_ffall)
 		{
 			msg_print("You suddenly feel as light as a feather!");
 			notice = TRUE;
@@ -2894,7 +2970,7 @@ bool set_ffall(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->ffall)
+		if (p_ptr->tim_ffall)
 		{
 			msg_print("Gravity grabs you.");
 			notice = TRUE;
@@ -2902,7 +2978,7 @@ bool set_ffall(int v)
 	}
 
 	/* Use the value */
-	p_ptr->ffall = v;
+	p_ptr->tim_ffall = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -2931,7 +3007,7 @@ bool set_free_act(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->free_act)
+		if (!p_ptr->tim_free_act)
 		{
 			msg_print("You feel free!");
 			notice = TRUE;
@@ -2941,7 +3017,7 @@ bool set_free_act(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->free_act)
+		if (p_ptr->tim_free_act)
 		{
 			msg_print("You feel less free.");
 			notice = TRUE;
@@ -2949,7 +3025,7 @@ bool set_free_act(int v)
 	}
 
 	/* Use the value */
-	p_ptr->free_act = v;
+	p_ptr->tim_free_act = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -3156,6 +3232,538 @@ bool set_invisible(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->boost_str", notice observable changes
+ */
+bool set_boost_str(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->boost_str)
+		{
+			msg_print("You feel really strong!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->boost_str)
+		{
+			msg_print("You feel less strong.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->boost_str = v;
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->redraw |= (PR_STATS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->boost_int", notice observable changes
+ */
+bool set_boost_int(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->boost_int)
+		{
+			msg_print("You feel really intelligent!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->boost_str)
+		{
+			msg_print("You feel less intelligent.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->boost_int = v;
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->redraw |= (PR_STATS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->boost_wis", notice observable changes
+ */
+bool set_boost_wis(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->boost_wis)
+		{
+			msg_print("You feel really wise!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->boost_wis)
+		{
+			msg_print("You feel less wise.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->boost_wis = v;
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->redraw |= (PR_STATS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->boost_dex", notice observable changes
+ */
+bool set_boost_dex(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->boost_dex)
+		{
+			msg_print("You feel really dextrous!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->boost_dex)
+		{
+			msg_print("You feel less dextrous.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->boost_dex = v;
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->redraw |= (PR_STATS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->boost_con", notice observable changes
+ */
+bool set_boost_con(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->boost_con)
+		{
+			msg_print("You feel really tough!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->boost_con)
+		{
+			msg_print("You feel less tough.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->boost_con = v;
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->redraw |= (PR_STATS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->boost_chr", notice observable changes
+ */
+bool set_boost_chr(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->boost_chr)
+		{
+			msg_print("You feel really charismatic!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->boost_chr)
+		{
+			msg_print("You feel less charismatic.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->boost_chr = v;
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->redraw |= (PR_STATS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->boost_all", notice observable changes
+ */
+bool set_boost_all(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->boost_all)
+		{
+			msg_print("You feel lucky!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->boost_all)
+		{
+			msg_print("You feel less lucky.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->boost_all = v;
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->redraw |= (PR_STATS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->vitality", notice observable changes
+ */
+bool set_vitality(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->vitality)
+		{
+			msg_print("You feel full of life!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->vitality)
+		{
+			msg_print("Your life energy returns to normal.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->vitality = v;
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->redraw |= (PR_HP);
+	p_ptr->update |= (PU_HP);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * This should be used for all conventional
+ * Healing spells.
+ *
+ *	Cure Light: 2d10 + 5%
+ *	Cure Moderate: 4d10 + 10%
+ *	Cure Serious: 6d10 + 20%
+ *	Cure Critical: 8d10 + 33.3%
+ *	Cure Mortal: 10d10 + 50%
+ *	Heal: 100%
+ *
+ * The percentage is of maximum hitpoints.
+ * This system should give more balanced healing spells.
+ * It ensures that no matter how many hitpoints you have
+ * a Critical wound is a Critical wound.
+ * ie. A high level warrior does no need 5 potions of cure
+ * critical wounds to heal themselves.
+ * Cure Mortal wounds should bridge the *very* wide gap
+ * that was between cure critical and heal.
+ */
+bool cure_wounds(int type)
+{
+	int	mhp = p_ptr->mhp;
+	
+	switch (type)
+	{
+		case 1:	// Cure Light
+		{
+			(void)hp_player(damroll(2,10) + mhp/20);
+			break;
+		}
+		case 2:	// Cure Moderate
+		{
+			(void)hp_player(damroll(4,10) + mhp/10);
+			break;
+		}
+		case 3:	// Cure Serious
+		{
+			(void)hp_player(damroll(6,10) + mhp/5);
+			break;
+		}
+		case 4:	// Cure Critical
+		{
+			(void)hp_player(damroll(8,10) + mhp/3);
+			break;
+		}
+		case 5:	// Cure Mortal
+		{
+			(void)hp_player(damroll(10,10) + mhp/2);
+			break;
+		}
+		case 6:	// Heal
+		{
+			p_ptr->chp += p_ptr->mhp;
+			break;
+		}
+	}
+}
+
+
+/*
+ * Set "p_ptr->fatigue", notice observable changes
+ *
+ */
+bool set_fatigue(int v, bool msg)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
+
+
+	if (p_ptr->fatigue < v)
+	{
+		if (msg)
+			msg_print("You feel drained.  ");
+		/* Change */
+		notice = TRUE;
+	}
+	
+	if (p_ptr->fatigue > v)
+	{
+		if (msg)
+			msg_print("You feel more alert.  ");
+		/* Change */
+		notice = TRUE;
+	}
+
+	/* Use the value */
+	p_ptr->fatigue = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw fatigue */
+	p_ptr->redraw |= (PR_FATIGUE);
 
 	/* Handle stuff */
 	handle_stuff();

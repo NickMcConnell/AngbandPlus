@@ -4,7 +4,7 @@ STangband is a roleplaying game, in which you, the player, control a
 character in the world of STangband. Perhaps the most important thing
 you control is the birth of your character, in which you choose or
 allow to be chosen various attributes that will affect the future life
-of your character.
+(and death) of your character.
 
 Character creation, or birth, is controlled through a variety of
 choices as to constraints on the type of character you wish to play,
@@ -28,7 +28,7 @@ on the final screen, use delete or backspace to restart.
 During character generation you may press '=' at any time to access
 the options screen. A more detailed description of the various options
 can be found in the section on the Options Page (see option.txt [3]).
-Here you may set yout 'Birth options' which are options set at birth
+Here you may set your 'Birth options' which are options set at birth
 and which cannot be changed again during the game. Note that you may
 change your birth option preferences in game but these will only have
 effect in your next character. Perhaps one of the most important
@@ -60,7 +60,7 @@ Each character has a few secondary attributes, height, weight, social
 class, and background history, which are randomly determined, but which
 are affected by the sex and race of the character. In general, these
 attributes are only used to provide "flavor" to the character, to
-assist in the roll playing, but they do have a few minor effects on the
+assist in the role playing, but they do have a few minor effects on the
 game. For example, background history affects social class, which
 affects the amount of money the character will start with. And weight
 affects carrying capacity and bashing ability.
@@ -81,7 +81,7 @@ warriors as spellcasting requires a player more familiar with dungeon
 survival techniques.
 
 There was a table here but it became *very* large and was not really
-necessary since the bracket are quite clear.
+necessary since the brackets are quite clear.
 
 
 ***** <ChoosingMagic>
@@ -103,13 +103,14 @@ realms and spellcasting in general can be found in the section on the
 Magic Realms (see magic.txt#MagicRealms [7]).
 
 All spell books now have a fair amount of Attack, Defence and Utility
-spells. High Mage is not recomended because all attack spells are based 
-around one or two damage types. So you may discover you cannot damage 
-a creature because it has resistance. High Mage may be removed or 
-modified later. If you pick the realms always in the same
-order (e.g. nature as your first realm and chaos as your second realm,
-not the other way around) you will be less confused when trying to
-pick the correct spellbook to use in the game.
+spells. High Mage is not recomended for an unexperienced player because 
+all attack spells are based around one or two damage types. So you may 
+discover you cannot damage a creature because it has resistance. A High 
+Mage needs to carry around a good selection of magical items to survive. 
+If you pick the realms always in the same order (e.g. fire as your first 
+realm and chaos as your second realm, not the other way around) you will 
+be less confused when trying to pick the correct spellbook to use in 
+the game.
 
 ***** <Restrictions>
 --- Class/Realm Restrictions ---
@@ -137,7 +138,7 @@ Fire Mage       2nd  2nd   2nd   2nd  1st  2nd       2nd    2nd    2nd
 Water Mage      2nd  2nd   2nd   2nd       2nd  1st  2nd    2nd    2nd
 Air Mage        2nd  2nd   2nd   2nd  2nd  1st  2nd         2nd    2nd
 Earth Mage      2nd  2nd   2nd   2nd  2nd       2nd  1st    2nd    2nd
-Wizard          2nd  2nd   2nd   2nd  2nd  2nd  2nd  2nd    2nd    2nd
+Wizard          2nd  2nd   2nd   2nd  2nd  2nd  2nd  2nd    2nd    1st
 Warrior Mage                          2nd  2nd  2nd  2nd    2nd    2nd
 Ranger          1st
 Dark Knight                1st

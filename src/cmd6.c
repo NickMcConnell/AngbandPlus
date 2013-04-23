@@ -236,7 +236,7 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_CURE_SERIOUS:
 			{
-				if (hp_player(75)) ident = TRUE;
+				if (cure_wounds(3)) ident = TRUE;
 				break;
 			}
 
@@ -277,7 +277,7 @@ static void do_cmd_eat_food_aux(int item)
 			{
 				msg_print("That tastes good.");
 				(void)set_poisoned(0);
-				(void)hp_player(damroll(4, 8));
+				cure_wounds(1);
 				ident = TRUE;
 				break;
 			}
@@ -324,35 +324,6 @@ static void do_cmd_eat_food_aux(int item)
 		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
 			msg_print("Your hunger can only be satisfied with fresh blood!");
 	}
-//	else if (p_ptr->prace == RACE_SKELETON)
-//	{
-//		if (!((o_ptr->sval == SV_FOOD_WAYBREAD) ||
-//		      (o_ptr->sval < SV_FOOD_BISCUIT)))
-//		{
-//			object_type forge;
-//			object_type *q_ptr = &forge;
-//
-//			msg_print("The food falls through your jaws!");
-//
-//			/* Create the item */
-//			object_prep(q_ptr, lookup_kind(o_ptr->tval, o_ptr->sval));
-//
-//			/* Drop the object from heaven */
-//			(void)drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
-//		}
-//		else
-//		{
-//			msg_print("The food falls through your jaws and vanishes!");
-//		}
-//	}
-//	else if ((p_ptr->prace == RACE_GOLEM) ||
-//	         (p_ptr->prace == RACE_ZOMBIE) ||
-//	         (p_ptr->prace == RACE_SPECTRE) ||
-//	         (p_ptr->prace == RACE_GHOUL))
-//	{
-//		msg_print("The food of mortals is poor sustenance for you.");
-//		(void)set_food(p_ptr->food + ((o_ptr->pval) / 20));
-//	}
 	else
 	{
 		(void)set_food(p_ptr->food + o_ptr->pval);
@@ -387,6 +358,12 @@ void do_cmd_eat_food(void)
 
 	/* Restrict choices to food */
 	item_tester_tval = TV_FOOD;
+	
+	if (p_ptr->prace == RACE_SHADE)
+	{
+		msg_print("You can only eat soul energy. ");
+		return;
+	}
 
 	/* Get an item */
 	q = "Eat which item? ";
@@ -512,7 +489,6 @@ static void do_cmd_quaff_potion_aux(int item)
 				{
 					ident = TRUE;
 					if (one_in_(3)) (void)lose_all_info();
-					else wiz_dark();
 					teleport_player(100);
 					wiz_dark();
 					msg_print("You wake up somewhere with a sore head...");
@@ -719,7 +695,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(38)) ident = TRUE;
+			if (cure_wounds(1)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
 			break;
@@ -727,7 +703,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(75)) ident = TRUE;
+			if (cure_wounds(3)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
@@ -736,7 +712,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(150)) ident = TRUE;
+			if (cure_wounds(4)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -747,7 +723,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+			if (cure_wounds(5)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -758,7 +734,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_STAR_HEALING:
 		{
-			if (hp_player(1200)) ident = TRUE;
+			if (cure_wounds(6)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -790,7 +766,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			/* Recalculate max. hitpoints */
 			update_stuff();
 
-			(void)hp_player(5000);
+			cure_wounds(6);
 			ident = TRUE;
 			break;
 		}
@@ -799,14 +775,14 @@ static void do_cmd_quaff_potion_aux(int item)
 		{
 			if (p_ptr->csp < p_ptr->msp)
 			{
-				p_ptr->csp = p_ptr->msp;
-				p_ptr->csp_frac = 0;
 				msg_print("Your feel your head clear.");
-				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_PLAYER);
-				p_ptr->window |= (PW_SPELL);
-				ident = TRUE;
 			}
+			p_ptr->csp += p_ptr->msp/2;
+			p_ptr->csp_frac = 0;
+			p_ptr->redraw |= (PR_MANA);
+			p_ptr->window |= (PW_PLAYER);
+			p_ptr->window |= (PW_SPELL);
+			ident = TRUE;
 			break;
 		}
 
@@ -965,7 +941,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_CURING:
 		{
-			if (hp_player(150)) ident = TRUE;
+			if (cure_wounds(3)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
@@ -1033,15 +1009,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		case RACE_VAMPIRE:
 			(void)set_food(p_ptr->food + (o_ptr->pval / 10));
 			break;
-//		case RACE_SKELETON:
-//			/* Do nothing */
-//			break;
-//		case RACE_GOLEM:
-//		case RACE_ZOMBIE:
-//		case RACE_SPECTRE:
-//		case RACE_GHOUL:
-//			(void)set_food(p_ptr->food + ((o_ptr->pval) / 20));
-//			break;
 		default:
 			(void)set_food(p_ptr->food + o_ptr->pval);
 	}
@@ -1615,12 +1582,13 @@ void do_cmd_read_scroll(void)
  *
  * Hack -- staffs of identify can be "cancelled".
  */
-static void do_cmd_use_staff_aux(int item)
+void do_cmd_use_staff_aux(int item)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-
+	int mod = 2; /* Divide number by 2 */
 	int         ident, chance, k, lev;
+	u32b f1, f2, f3, f4;
 	object_type *o_ptr;
 
 
@@ -1644,7 +1612,7 @@ static void do_cmd_use_staff_aux(int item)
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
-		msg_print("You must first pick up the staffs.");
+		msg_print("You must first pick up the staves.");
 		return;
 	}
 
@@ -1697,7 +1665,13 @@ static void do_cmd_use_staff_aux(int item)
 		
 		return;
 	}
+	
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
+	/* Artifacts do more */
+	if (f3 & (TR3_INSTA_ART))
+		mod = 3;
 
 	/* Sound */
 	sound(SOUND_ZAP);
@@ -1718,7 +1692,7 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_SLOWNESS:
 		{
-			if (set_slow(p_ptr->slow + rand_range(15, 45))) ident = TRUE;
+			if (set_slow(p_ptr->slow + rand_range(15, 45) * mod / 2)) ident = TRUE;
 			break;
 		}
 
@@ -1742,7 +1716,7 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_TELEPORTATION:
 		{
-			teleport_player(100);
+			teleport_player(100 * mod / 2);
 			ident = TRUE;
 			break;
 		}
@@ -1769,7 +1743,7 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_STARLITE:
 		{
-			int num = damroll(5, 3);
+			int num = damroll(5, 3) * mod / 2;
 			int y, x;
 			int attempts;
 
@@ -1808,7 +1782,7 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_LITE:
 		{
-			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
+			if (lite_area(damroll(2, 8) * mod / 2, 2)) ident = TRUE;
 			break;
 		}
 
@@ -1859,13 +1833,13 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_CURE_LIGHT:
 		{
-			if (hp_player(50)) ident = TRUE;
+			if (cure_wounds(2)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_CURING:
 		{
-			if (hp_player(150)) ident = TRUE;
+			if (cure_wounds(3)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
@@ -1877,7 +1851,7 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+			if (cure_wounds(5)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -1888,7 +1862,7 @@ static void do_cmd_use_staff_aux(int item)
 			if (do_res_stat(A_INT)) ident = TRUE;
 			if (p_ptr->csp < p_ptr->msp)
 			{
-				p_ptr->csp = p_ptr->msp;
+				p_ptr->csp += p_ptr->msp/2;
 				p_ptr->csp_frac = 0;
 				ident = TRUE;
 				msg_print("Your feel your head clear.");
@@ -1915,7 +1889,7 @@ static void do_cmd_use_staff_aux(int item)
 		{
 			if (!p_ptr->fast)
 			{
-				if (set_fast(rand_range(15, 45))) ident = TRUE;
+				if (set_fast(rand_range(15, 45) * mod / 2)) ident = TRUE;
 			}
 			else
 			{
@@ -1933,20 +1907,20 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_DISPEL_EVIL:
 		{
-			if (dispel_evil(60)) ident = TRUE;
+			if (dispel_evil(60 * mod / 2)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_POWER:
 		{
-			if (dispel_monsters(300)) ident = TRUE;
+			if (dispel_monsters(300 * mod / 2)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_HOLINESS:
 		{
-			if (dispel_evil(300)) ident = TRUE;
-			k = 3 * p_ptr->lev;
+			if (dispel_evil(300 * mod / 2)) ident = TRUE;
+			k = 3 * p_ptr->lev * mod / 2;
 			if (set_protevil(p_ptr->protevil + randint1(25) + k)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
@@ -1965,11 +1939,11 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_EARTH:
 		{
-			if (earthquake(py, px, 10, 0))
+			if (earthquake(py, px, 10 * mod / 2, 0))
 				ident = TRUE;
 			else
 				msg_print("The dungeon trembles.");
-			if (one_in_(3) && (p_ptr->realm1 == REALM_EARTH))
+			if (one_in_(3) && (p_ptr->pclass == CLASS_MAGE_EARTH))
 			{
 				set_shield(p_ptr->shield + randint1(25) + p_ptr->lev);
 			}
@@ -1979,7 +1953,7 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_DESTRUCTION:
 		{
-			if (destroy_area(py, px, 15))
+			if (destroy_area(py, px, 15 * mod / 2))
 				ident = TRUE;
 
 			break;
@@ -1987,18 +1961,18 @@ static void do_cmd_use_staff_aux(int item)
 		
 		case SV_STAFF_FIRE:
 		{
-			if (one_in_(3) && (p_ptr->realm1 == REALM_FIRE))
+			if (one_in_(3) && (p_ptr->pclass == CLASS_MAGE_FIRE))
 			{
-				for (k = 0; k <= 10; k++)
+				for (k = 0; k <= 10 * mod / 2; k++)
 				{
-					wild_blast(py, px, 100, GF_LAVA, 3);
+					wild_blast(py, px, 100 * mod / 2, GF_LAVA, 2);
 				}
 			}
 			else
 			{
-				for (k = 0; k <= 10; k++)
+				for (k = 0; k <= 10 * mod / 2; k++)
 				{
-					wild_blast(py, px, 100, GF_FIRE, 3);
+					wild_blast(py, px, 100 * mod / 2, GF_FIRE, 2);
 				}
 			}
 			ident = TRUE;
@@ -2007,10 +1981,10 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_WATER:
 		{
-			(void)fire_ball(GF_WATER, 0, 100, 4);
-			if (one_in_(3) && (p_ptr->realm1 == REALM_WATER))
+			(void)fire_ball(GF_WATER, 0, 200 * mod / 2, 3 * mod / 2);
+			if (one_in_(3) && (p_ptr->pclass == CLASS_MAGE_WATER))
 			{
-				(void)hp_player(damroll(4, 10));
+				cure_wounds(2);
 				(void)set_cut((p_ptr->cut / 2) - 20);
 				(void)set_poisoned(0);
 			}
@@ -2022,22 +1996,22 @@ static void do_cmd_use_staff_aux(int item)
 		{
 			for (k = 1; k <= 9; k++)
 			{
-				(void)fire_ball(GF_ELEC, k, 100, 3);
+				(void)fire_ball(GF_ELEC, k, 100 * mod / 2, 2);
 			}
 
-			if (one_in_(3) && (p_ptr->realm1 == REALM_AIR))
+			if (one_in_(3) && (p_ptr->pclass == CLASS_MAGE_AIR))
 			{
 				set_slow(0);
 				if (!p_ptr->fast)
 				{
-					(void)set_fast(randint1(50) + 50);
+					(void)set_fast(randint1(50) + 50 * mod / 2);
 				}
 				else
 				{
 					(void)set_fast(p_ptr->fast + randint1(10));
 				}
-				(void)set_ffall(p_ptr->ffall + rand_range(20, 100));
-				(void)set_free_act(p_ptr->free_act + rand_range(20, 100));
+				(void)set_ffall(p_ptr->ffall + rand_range(20, 100) * mod / 2);
+				(void)set_free_act(p_ptr->free_act + rand_range(20, 100) * mod / 2);
 			}
 			ident = TRUE;
 			break;
@@ -2153,9 +2127,11 @@ void do_cmd_use_staff(void)
  * basic "bolt" rods, but the basic "ball" wands do the same damage
  * as the basic "ball" rods.
  */
-static void do_cmd_aim_wand_aux(int item)
+void do_cmd_aim_wand_aux(int item)
 {
 	int         lev, ident, chance, dir, sval;
+	int mod = 2; /* Divide number by 2 */
+	u32b f1, f2, f3, f4;
 	object_type *o_ptr;
 
 
@@ -2232,6 +2208,12 @@ static void do_cmd_aim_wand_aux(int item)
 		return;
 	}
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Artifacts do more */
+	if (f3 & (TR3_INSTA_ART))
+		mod = 3;
 
 	/* Sound */
 	sound(SOUND_ZAP);
@@ -2315,19 +2297,19 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_CONFUSE_MONSTER:
 		{
-			if (confuse_monster(dir, 20)) ident = TRUE;
+			if (confuse_monster(dir, 20 * mod / 2)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FEAR_MONSTER:
 		{
-			if (fear_monster(dir, 20)) ident = TRUE;
+			if (fear_monster(dir, 20 * mod / 2)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 150)) ident = TRUE;
+			if (drain_life(dir, 150 * mod / 2)) ident = TRUE;
 			break;
 		}
 
@@ -2339,61 +2321,61 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			ident = fire_ball(GF_POIS, dir, 15, 2);
+			ident = fire_ball(GF_POIS, dir, 15 * mod / 2, 2);
 			break;
 		}
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			ident = fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
+			ident = fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6) * mod / 2);
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			ident = fire_bolt_or_beam(20, GF_ACID, dir, damroll(6, 8));
+			ident = fire_bolt_or_beam(20, GF_ACID, dir, damroll(6, 8) * mod / 2);
 			break;
 		}
 
 		case SV_WAND_CHARM_MONSTER:
 		{
-			ident = charm_monster(dir, 45);
+			ident = charm_monster(dir, 45 * mod / 2);
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			ident = fire_bolt_or_beam(20, GF_FIRE, dir, damroll(10, 8));
+			ident = fire_bolt_or_beam(20, GF_FIRE, dir, damroll(10, 8) * mod / 2);
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			ident = fire_bolt_or_beam(20, GF_COLD, dir, damroll(6, 8));
+			ident = fire_bolt_or_beam(20, GF_COLD, dir, damroll(6, 8) * mod / 2);
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			ident = fire_ball(GF_ACID, dir, 125, 2);
+			ident = fire_ball(GF_ACID, dir, 125 * mod / 2, 2 * mod / 2);
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			ident = fire_ball(GF_ELEC, dir, 75, 2);
+			ident = fire_ball(GF_ELEC, dir, 75 * mod / 2, 2 * mod / 2);
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			ident = fire_ball(GF_FIRE, dir, 150, 2);
+			ident = fire_ball(GF_FIRE, dir, 150 * mod / 2, 2 * mod / 2);
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			ident = fire_ball(GF_COLD, dir, 100, 2);
+			ident = fire_ball(GF_COLD, dir, 100 * mod / 2, 2 * mod / 2);
 			break;
 		}
 
@@ -2405,31 +2387,31 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			ident = fire_ball(GF_FIRE, dir, 250, -3);
+			ident = fire_ball(GF_FIRE, dir, 250 * mod / 2, -3);
 			break;
 		}
 
 		case SV_WAND_CONE_COLD:
 		{
-			ident = fire_ball(GF_COLD, dir, 200, -3);
+			ident = fire_ball(GF_COLD, dir, 200 * mod / 2, -3);
 			break;
 		}
 
 		case SV_WAND_WHIRLPOOL:
 		{
-			ident = fire_ball(GF_WATER, dir, 200, 3);
+			ident = fire_ball(GF_WATER, dir, 200 * mod / 2, 3);
 			break;
 		}
 
 		case SV_WAND_ANNIHILATION:
 		{
-			ident = fire_ball(GF_DISINTEGRATE, dir, rand_range(125, 225), 2);
+			ident = fire_ball(GF_DISINTEGRATE, dir, rand_range(125, 225) * mod / 2, 2);
 			break;
 		}
 
 		case SV_WAND_STUNNING:
 		{
-			(void)fire_ball(GF_STUN, dir, 250, 2);
+			(void)fire_ball(GF_STUN, dir, 250 * mod / 2, 2 * mod / 2);
 			ident = TRUE;
 			break;
 		}
@@ -2461,7 +2443,6 @@ static void do_cmd_aim_wand_aux(int item)
 
 	/* Use a single charge */
 	o_ptr->pval--;
-	o_ptr->ac++;
 
 
 	/* Describe the charges in the pack */
@@ -2506,9 +2487,11 @@ void do_cmd_aim_wand(void)
  *
  * pvals are defined for each rod in k_info. -LM-
  */
-static void do_cmd_zap_rod_aux(int item)
+void do_cmd_zap_rod_aux(int item)
 {
 	int         ident, chance, dir, lev;
+	int mod = 2; /* Divide number by 2 */
+	u32b f1, f2, f3, f4;
 	object_type *o_ptr;
 
 	/* Hack -- let perception get aborted */
@@ -2596,6 +2579,13 @@ static void do_cmd_zap_rod_aux(int item)
 		return;
 	}
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Artifacts do more */
+	if (f3 & (TR3_INSTA_ART))
+		mod = 3;
+
 	/* Sound */
 	sound(SOUND_ZAP);
 
@@ -2618,10 +2608,14 @@ static void do_cmd_zap_rod_aux(int item)
 			break;
 		}
 
-		case SV_ROD_IDENTIFYF:
+		case SV_ROD_IDENTIFY:
 		{
 			ident = TRUE;
-			if (!identify_fully()) use_charge = FALSE;
+			if (mod == 3)
+			{
+				if (!identify_fully()) use_charge = FALSE;
+			}
+			else if (!ident_spell()) use_charge = FALSE;
 			break;
 		}
 
@@ -2634,7 +2628,7 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_ILLUMINATION:
 		{
-			if (lite_area(damroll(4, 8), 2)) ident = TRUE;
+			if (lite_area(damroll(4, 8) * mod / 2, 2)) ident = TRUE;
 			break;
 		}
 		
@@ -2646,7 +2640,7 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_CURING:
 		{
-			if (hp_player(200)) ident = TRUE;
+			if (cure_wounds(3)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
@@ -2658,7 +2652,7 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_HEALING:
 		{
-			if (hp_player(500)) ident = TRUE;
+			if (cure_wounds(4)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -2680,7 +2674,7 @@ static void do_cmd_zap_rod_aux(int item)
 		{
 			if (!p_ptr->fast)
 			{
-				if (set_fast(rand_range(15, 45))) ident = TRUE;
+				if (set_fast(rand_range(15, 45) * mod / 2)) ident = TRUE;
 			}
 			else
 			{
@@ -2692,7 +2686,7 @@ static void do_cmd_zap_rod_aux(int item)
 		case SV_ROD_HAVOC:
 		{
 			call_chaos();
-			if (one_in_(3) && (p_ptr->realm1 == REALM_CHAOS)) call_chaos();
+			if (one_in_(3) && (p_ptr->pclass == CLASS_SHAMAN)) call_chaos();
 			ident = TRUE;
 			break;
 		}
@@ -2700,10 +2694,10 @@ static void do_cmd_zap_rod_aux(int item)
 		case SV_ROD_HOLY:
 		{
 			remove_curse();
-			turn_evil(75);
-			if (one_in_(3) && (p_ptr->realm1 == REALM_LIFE))
+			turn_evil(75 * mod / 2);
+			if (one_in_(3) && (p_ptr->pclass == CLASS_DRUID))
 			{
-				dispel_undead(300);
+				dispel_undead(300 * mod / 2);
 				set_protevil(p_ptr->protevil + randint1(25) + 3 * p_ptr->lev);
 			}
 			ident = TRUE;
@@ -2714,7 +2708,7 @@ static void do_cmd_zap_rod_aux(int item)
 		{
 			self_knowledge();
 			report_magics();
-			if (one_in_(5) && (p_ptr->realm1 == REALM_ORDER))
+			if (one_in_(5) && (p_ptr->pclass == CLASS_PRIEST))
 			{
 				identify_pack();
 			}
@@ -2724,7 +2718,7 @@ static void do_cmd_zap_rod_aux(int item)
 		
 		case SV_ROD_PESTICIDE:
 		{
-			ident = fire_ball(GF_POIS, dir, 8, 3);
+			ident = fire_ball(GF_POIS, dir, 8 * mod / 2, 3 * mod / 2);
 			break;
 		}
 
@@ -2762,8 +2756,8 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 150)) ident = TRUE;
-			if (one_in_(3) && (p_ptr->realm1 == REALM_DEATH)) fire_ball(GF_NETHER, 0, 100, 3);
+			if (drain_life(dir, 150 * mod / 2)) ident = TRUE;
+			if (one_in_(3) && (p_ptr->pclass == CLASS_NECROMANCER)) fire_ball(GF_NETHER, 0, 100 * mod / 2, 3);
 			break;
 		}
 
@@ -2775,49 +2769,49 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_ACID_BOLT:
 		{
-			ident = fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
+			ident = fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8) * mod / 2);
 			break;
 		}
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			ident = fire_bolt_or_beam(10, GF_ELEC, dir, damroll(5, 8));
+			ident = fire_bolt_or_beam(10, GF_ELEC, dir, damroll(5, 8) * mod / 2);
 			break;
 		}
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			ident = fire_bolt_or_beam(10, GF_FIRE, dir, damroll(10, 8));
+			ident = fire_bolt_or_beam(10, GF_FIRE, dir, damroll(10, 8) * mod / 2);
 			break;
 		}
 
 		case SV_ROD_COLD_BOLT:
 		{
-			ident = fire_bolt_or_beam(10, GF_COLD, dir, damroll(6, 8));
+			ident = fire_bolt_or_beam(10, GF_COLD, dir, damroll(6, 8) * mod / 2);
 			break;
 		}
 
 		case SV_ROD_ACID_BALL:
 		{
-			ident = fire_ball(GF_ACID, dir, 125, 2);
+			ident = fire_ball(GF_ACID, dir, 125 * mod / 2, 2 * mod / 2);
 			break;
 		}
 
 		case SV_ROD_ELEC_BALL:
 		{
-			ident = fire_ball(GF_ELEC, dir, 75, 2);
+			ident = fire_ball(GF_ELEC, dir, 75 * mod / 2, 2 * mod / 2);
 			break;
 		}
 
 		case SV_ROD_FIRE_BALL:
 		{
-			ident = fire_ball(GF_FIRE, dir, 150, 2);
+			ident = fire_ball(GF_FIRE, dir, 150 * mod / 2, 2 * mod / 2);
 			break;
 		}
 
 		case SV_ROD_COLD_BALL:
 		{
-			ident = fire_ball(GF_COLD, dir, 100, 2);
+			ident = fire_ball(GF_COLD, dir, 100 * mod / 2, 2 * mod / 2);
 			break;
 		}
 
@@ -2883,9 +2877,11 @@ void do_cmd_zap_rod(void)
  *
  * pvals are defined for each rod in k_info. -LM-
  */
-static void do_cmd_tech_item_aux(int item)
+void do_cmd_tech_item_aux(int item)
 {
 	int     ident, chance, dir, lev;
+	int mod = 2; /* Divide number by 2 */
+	u32b f1, f2, f3, f4;
 	int 	tech_skill = p_ptr->skill_dev;
 	object_type *o_ptr;
 	
@@ -2895,15 +2891,9 @@ static void do_cmd_tech_item_aux(int item)
 	object_kind *k_ptr;
 
 	/* Modify tech skill */
-	if ((p_ptr->pclass == CLASS_TECH_FULL) || (p_ptr->pclass == CLASS_TECH_WAR) || 
-		(p_ptr->pclass == CLASS_TECH_THIEF) || (p_ptr->pclass == CLASS_TECH_CLERIC) ||
-		(p_ptr->pclass == CLASS_TECH_MAGE))
+	if (is_tech(p_ptr))
 	{
 		tech_skill += p_ptr->lev / 10;
-	}
-	else
-	{
-		tech_skill -= p_ptr->lev / 10;
 	}
 	
 	/* Get the item (in the pack) */
@@ -2985,6 +2975,13 @@ static void do_cmd_tech_item_aux(int item)
 		return;
 	}
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Artifacts do more */
+	if (f3 & (TR3_INSTA_ART))
+		mod = 3;
+
 	/* Sound */
 	sound(SOUND_ZAP);
 
@@ -2996,13 +2993,13 @@ static void do_cmd_tech_item_aux(int item)
 	{
 		case SV_TECH_PISTOL:
 		{
-			if (fire_bolt(GF_MISSILE, dir, damroll(7, 8))) ident = TRUE;
+			if (fire_bolt(GF_MISSILE, dir, damroll(7, 8) * mod / 2)) ident = TRUE;
 			break;
 		}
 		
 		case SV_TECH_RLAUNCH:
 		{
-			ident = fire_ball(GF_ROCKET, dir, 150, 2);
+			ident = fire_ball(GF_ROCKET, dir, 150 * mod / 2, 2 * mod / 2);
 			break;
 		}
 		case SV_TECH_SCANNER:
@@ -3014,49 +3011,54 @@ static void do_cmd_tech_item_aux(int item)
 		case SV_TECH_IDENT:
 		{
 			ident = TRUE;
+			if (mod == 3)
+			{
+				identify_pack();
+			}
+			else
 			if (!ident_spell()) use_charge = FALSE;
 			break;
 		}
 
 		case SV_TECH_FLAMETHROW:
 		{
-			ident = fire_beam(GF_FIRE, dir, damroll(10, 10));
+			ident = fire_beam(GF_FIRE, dir, damroll(10, 10) * mod / 2);
 			break;
 		}
 
 		case SV_TECH_ICER:
 		{
-			ident = fire_beam(GF_COLD, dir, damroll(6, 10));
+			ident = fire_beam(GF_COLD, dir, damroll(6, 10) * mod / 2);
 			break;
 		}
 
 		case SV_TECH_SHOCKER:
 		{
-			ident = fire_beam(GF_ELEC, dir, damroll(9, 10));
+			ident = fire_beam(GF_ELEC, dir, damroll(9, 10) * mod / 2);
 			break;
 		}
 
 		case SV_TECH_SHAKER:
 		{
-			ident = fire_beam(GF_QUAKE, dir, damroll(8, 10));
+			ident = fire_beam(GF_QUAKE, dir, damroll(8, 10) * mod / 2);
 			break;
 		}
 
 		case SV_TECH_ACID_BEAM:
 		{
-			ident = fire_beam(GF_ACID, dir, damroll(7, 10));
+			ident = fire_beam(GF_ACID, dir, damroll(7, 10) * mod / 2);
 			break;
 		}
 		
 		case SV_TECH_FLARE:
 		{
-			ident = fire_ball(GF_LITE, dir, 50, 3);
+			ident = fire_ball(GF_LITE_WEAK, dir, 50 * mod / 2, 3 * mod / 2);
 			break;
 		}
 		
 		case SV_TECH_PLASMA_BALL:
 		{
-			ident = fire_ball(GF_PLASMA, dir, 250, 2);
+			ident = fire_ball(GF_PLASMA, dir, 250 * mod / 2, 2 * mod / 2);
 			break;
 		}
 		
@@ -3075,37 +3077,37 @@ static void do_cmd_tech_item_aux(int item)
 
 		case SV_TECH_FIRE_RING:
 		{
-			ident = fire_ball(GF_FIRE, 0, 250, 3);
+			ident = fire_ball(GF_FIRE, 0, 250 * mod / 2, 3 * mod / 2);
 			break;
 		}
 		
 		case SV_TECH_COLD_RING:
 		{
-			ident = fire_ball(GF_COLD, 0, 220, 3);
+			ident = fire_ball(GF_COLD, 0, 220 * mod / 2, 3 * mod / 2);
 			break;
 		}
 
 		case SV_TECH_ELEC_RING:
 		{
-			ident = fire_ball(GF_ELEC, 0, 240, 3);
+			ident = fire_ball(GF_ELEC, 0, 240 * mod / 2, 3 * mod / 2);
 			break;
 		}
 
 		case SV_TECH_STUN_RING:
 		{
-			ident = fire_ball(GF_STUN, 0, 200, 3);
+			ident = fire_ball(GF_STUN, 0, 200 * mod / 2, 3 * mod / 2);
 			break;
 		}
 
 		case SV_TECH_ACID_RING:
 		{
-			ident = fire_ball(GF_ACID, 0, 230, 3);
+			ident = fire_ball(GF_ACID, 0, 230 * mod / 2, 3 * mod / 2);
 			break;
 		}
 
 		case SV_TECH_SONIC:
 		{
-			ident = fire_ball(GF_SOUND, 0, 200, 4);
+			ident = fire_ball(GF_SOUND, 0, 200 * mod / 2, 4 * mod / 2);
 			break;
 		}
 
@@ -3125,7 +3127,7 @@ static void do_cmd_tech_item_aux(int item)
 	
 		case SV_TECH_PROTECT:
 		{
-			ident = set_shield(p_ptr->shield + rand_range(25, 50));
+			ident = set_shield(p_ptr->shield + rand_range(25, 50) * mod / 2);
 			break;
 		}
 		
@@ -3143,8 +3145,8 @@ static void do_cmd_tech_item_aux(int item)
 		
 		case SV_TECH_SIGHT:
 		{
-			set_tim_invis(p_ptr->tim_invis + 50);
-			set_tim_infra(p_ptr->tim_infra + 50);
+			set_tim_invis(p_ptr->tim_invis + 50 * mod / 2);
+			set_tim_infra(p_ptr->tim_infra + 50 * mod / 2);
 			ident = TRUE;
 			break;
 		}
@@ -3205,7 +3207,7 @@ void do_cmd_tech_item(void)
  */
 static bool item_tester_hook_activate(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Check statues */
 	if (o_ptr->tval == TV_STATUE) return (TRUE);
@@ -3217,7 +3219,7 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	if (!object_known_p(o_ptr)) return (FALSE);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Check activation flag */
 	if (f3 & (TR3_ACTIVATE)) return (TRUE);
@@ -3348,8 +3350,21 @@ static void do_cmd_activate_aux(int item)
 		return;
 	}
 
+	/* Artifact mage-items use a charge instead */
+	if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
+	{
+		if (!o_ptr->pval)
+		{
+			msg_print("The wand has no charges left.");
+			return;
+		}
+		else
+		{
+			o_ptr->pval--;
+		}
+	}
 	/* Check the recharge */
-	if (o_ptr->timeout)
+	else if (o_ptr->timeout)
 	{
 		msg_print("It whines, glows and fades...");
 		return;
@@ -3586,7 +3601,7 @@ void do_cmd_activate(void)
  */
 static bool item_tester_hook_use(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Ammo */
 	if (o_ptr->tval == p_ptr->ammo_tval)
@@ -3602,6 +3617,7 @@ static bool item_tester_hook_use(const object_type *o_ptr)
 		case TV_SCROLL:
 		case TV_POTION:
 		case TV_FOOD:
+		case TV_TECH:
 		{
 			return (TRUE);
 		}
@@ -3619,7 +3635,7 @@ static bool item_tester_hook_use(const object_type *o_ptr)
 				if (&inventory[i] == o_ptr)
 				{
 					/* Extract the flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
+					object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 					/* Check activation flag */
 					if (f3 & TR3_ACTIVATE) return (TRUE);

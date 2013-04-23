@@ -407,7 +407,7 @@ static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
 
 	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	factor += adj_chr_gold[change_form(A_CHR)];
 	
 	factor = ((factor + 100) * bo_ptr->inflate) / 400;
 
@@ -1184,39 +1184,39 @@ static void compare_weapon_aux1(const object_type *o_ptr)
 {
 	int r = 10;
 	
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Get the flags of the weapon */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Print the relevant lines */
-	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+	if (f4 & TR4_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 	 	"Animals:", TERM_YELLOW, 17);
-	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+	if (f4 & TR4_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 		"Evil:", TERM_YELLOW, 15);
-	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Undead:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Demons:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Orcs:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Trolls:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Giants:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 	
+	if (f4 & TR4_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 	
 		"Dragons:", TERM_YELLOW, 20);
-	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Dragons:", TERM_YELLOW, 30);
-	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Acid:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Elec:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Fire:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Cold:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+	if (f4 & TR4_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
 		"Poison:", TERM_RED, 20);
 }
 
@@ -1928,7 +1928,7 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
 
 	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	factor += adj_chr_gold[change_form(A_CHR)];
 	
 	factor = ((factor + 100) * bo_ptr->inflate) / 400;
 	

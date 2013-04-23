@@ -823,6 +823,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	bool            aware = FALSE;
 	bool            known = FALSE;
+	bool		sense = FALSE;
 
 	bool            append_name = FALSE;
 
@@ -839,7 +840,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	char            tmp_val[160];
 	char            tmp_val2[90];
 
-	u32b            f1, f2, f3;
+	u32b            f1, f2, f3, f4;
 
 	object_type	*bow_ptr;	
 
@@ -854,7 +855,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	monster_race *r_ptr = &r_info[o_ptr->pval];
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* See if the object is "aware" */
@@ -862,6 +863,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	/* See if the object is "known" */
 	if (object_known_p(o_ptr)) known = TRUE;
+	
+	/* Just a little something to allow mages to know charges before identifying */
+	if (o_ptr->ident & (IDENT_SENSE)) sense = TRUE;
 
 	/* Hack -- Extract the sub-type "indexx" */
 	indexx = o_ptr->sval;
@@ -1449,7 +1453,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
 
 	/* Display the item like armour */
-	if ((o_ptr->ac) && (o_ptr->tval != TV_WAND)) show_armour = TRUE;
+	if (o_ptr->ac) show_armour = TRUE;
 
 	/* Dump base weapon info */
 	switch (o_ptr->tval)
@@ -1515,7 +1519,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Apply the "Extra Might" flag */
-		if (f3 & (TR3_XTRA_MIGHT)) power++;
+		if (f4 & (TR4_XTRA_MIGHT)) power++;
 
 		/* Append a special "damage" string */
 		t = object_desc_chr(t, ' ');
@@ -1667,9 +1671,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	 * Hack -- Wands and Staffs have charges.  Make certain how many charges
 	 * a stack of staffs really has is clear. -LM-
 	 */
-	if (known &&
-	    ((o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND)))
+	if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)) && (known || (sense && is_mage(p_ptr)))) 
 	{
 		/* Dump " (N charges)" */
 		t = object_desc_chr(t, ' ');
@@ -1831,7 +1833,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	/* Indicate charging objects, but not rods. */
 	if (known && o_ptr->timeout && o_ptr->tval != TV_ROD
-		 && o_ptr->tval != TV_TECH && o_ptr->tval != TV_LITE)
+		 && o_ptr->tval != TV_TECH && o_ptr->tval != TV_LITE
+		 && o_ptr->tval != TV_WAND && o_ptr->tval != TV_STAFF)
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		t = object_desc_str(t, " (charging)");
@@ -1860,7 +1863,14 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Use the game-generated "feeling" otherwise, if available */
 	else if (o_ptr->feeling)
 	{
-		strcpy(tmp_val2, game_inscriptions[o_ptr->feeling]);
+		if (!aware && object_tried_p(o_ptr))
+		{
+			sprintf(tmp_val2, " %d tried", game_inscriptions[o_ptr->feeling]);
+		}
+		else
+		{
+			strcpy(tmp_val2, game_inscriptions[o_ptr->feeling]);
+		}
 	}
 
 	/* Note "cursed" if the item is known to be cursed */

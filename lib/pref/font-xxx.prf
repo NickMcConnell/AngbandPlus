@@ -319,9 +319,6 @@ E:5:0x02
 # CHEST
 E:7:0x02
 
-# MACHINE
-E:11:0x07
-
 # SHOT
 E:16:0x0F
 
@@ -390,6 +387,9 @@ E:65:0x05
 
 # ROD
 E:66:0x0A
+
+# MACHINE
+E:67:0x07
 
 # SCROLL
 E:70:0x01

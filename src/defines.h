@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.8.0"
+#define VERSION_STRING	"0.8.5"
 
 
 /*
@@ -52,7 +52,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 0
 #define FAKE_VER_MINOR 8
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 5
 #else /* USE_SCRIPT */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
@@ -485,44 +485,53 @@
 #define MINDCRAFT_NEURAL_BLAST           0
 #define MINDCRAFT_PRECOGNITION           1
 #define MINDCRAFT_MINOR_DISPLACEMENT     2
-#define MINDCRAFT_MAJOR_DISPLACEMENT     3
-#define MINDCRAFT_DOMINATION             4
-#define MINDCRAFT_PULVERISE              5
-#define MINDCRAFT_CHARACTER_ARMOUR       6
-#define MINDCRAFT_PSYCHOMETRY            7
-#define MINDCRAFT_MIND_WAVE              8
-#define MINDCRAFT_ADRENALINE_CHANNELING  9
-#define MINDCRAFT_PSYCHIC_DRAIN         10
-#define MINDCRAFT_TELEKINETIC_WAVE      11
-#define WARRIOR_TRAINING		12
-#define BERSERK_BERSERK			13
-#define CREATE_MISSILE			14
-#define TECH_REFUEL			15
-#define TECH_DART			16
-#define TECH_SPEED_POTION		17
-#define TECH_CREATE_WEAPON		18
-#define TECH_HEAL_POTION		19
-#define TECH_BOMB			20
-#define TECH_PROTECT_POTION		21
-#define TECH_RECHARGE			22
-#define TECH_CREATE_WEAPON2		23
-#define TECH_RESTORE_POTION		24
-#define TECH_IMPROVE_WEAPON		25
-#define TECH_IMPROVE_ARMOUR		26
-#define TECH_FISSION_BEAM		27
-#define TECH_NITRO9			28
-#define TECH_MEGA_NUKE			29
-#define WITCH_SPEED_POTION		30
-#define WITCH_HEAL_POTION		31
-#define WITCH_PROTECT_POTION		32
-#define WITCH_RECHARGE			33
-#define WITCH_RESTORE_POTION		34
-#define PRIEST_TURN_UNDEAD		35
-#define PALADIN_HEAL_TOUCH		36
-#define CLASS_ABILITY_MAX		37
+#define MINDCRAFT_MINOR_TELEKINESIS	 3
+#define MINDCRAFT_MAJOR_DISPLACEMENT     4
+#define MINDCRAFT_DOMINATION             5
+#define MINDCRAFT_PULVERISE              6
+#define MINDCRAFT_CHARACTER_ARMOUR       7
+#define MINDCRAFT_PSYCHOMETRY            8
+#define MINDCRAFT_MIND_WAVE              9
+#define MINDCRAFT_CHARM			10
+#define MINDCRAFT_ADRENALINE_CHANNELING 11
+#define MINDCRAFT_PSYCHIC_DRAIN         12
+#define MINDCRAFT_TELEKINETIC_WAVE      13
+#define WARRIOR_TRAINING		14
+#define BERSERK_BERSERK			15
+#define CREATE_MISSILE			16
+#define TECH_REFUEL			17
+#define TECH_DART			18
+#define TECH_SPEED_POTION		19
+#define TECH_CREATE_WEAPON		20
+#define TECH_HEAL_POTION		21
+#define TECH_BOMB			22
+#define TECH_PROTECT_POTION		23
+#define TECH_RECHARGE			24
+#define TECH_CREATE_WEAPON2		25
+#define TECH_RESTORE_POTION		26
+#define TECH_IMPROVE_WEAPON		27
+#define TECH_IMPROVE_ARMOUR		28
+#define TECH_FISSION_BEAM		29
+#define TECH_NITRO9			30
+#define TECH_MEGA_NUKE			31
+#define PRIEST_TURN_UNDEAD		32
+#define PALADIN_HEAL_TOUCH		33
+#define MAGE_FOCUS_MANA			34
+#define SPIN_ATTACK			35
+#define MAGE_SENSE			36
+#define ROGUE_SENSE_INVIS		37
+#define ROGUE_BE_INVIS			38
+#define DEATH_BLOOD_FIRE		39
+#define CLASS_ABILITY_MAX		40
 
 /* Hallucination stuff */
 #define MAX_SILLY_ATTACK		28
+
+/* Different stats to be used as ability cost. */
+#define HP	0	// Hit points
+#define SP	1	// Spell points
+#define RP	2	// Resource points
+#define FP	3	// Fatigue points
 
 /*
  * Size of memory reserved for initialization of some arrays
@@ -783,6 +792,13 @@
 #define PY_FOOD_STARVE  100		/* Food value (Starving) */
 
 /*
+ * Player Fatigue constants
+ */
+#define PY_FATIGUE_ALERT	10000	/* Max before Tired */
+#define PY_FATIGUE_TIRED	15000	/* Max before Drowsy */
+#define PY_FATIGUE_DROWSY	17500	/* Max before Forced Sleep */
+
+/*
  * Player regeneration constants
  */
 #define PY_REGEN_NORMAL         197             /* Regen factor*2^16 when full */
@@ -790,7 +806,7 @@
 #define PY_REGEN_FAINT          33              /* Regen factor*2^16 when fainting */
 #define PY_REGEN_HPBASE         1442		    /* Min amount hp regen*2^16 */
 #define PY_REGEN_MNBASE         524             /* Min amount mana regen*2^16 */
-#define PY_REGEN_RPBASE         70              /* Min amount gear regen*2^16 */
+#define PY_REGEN_RPBASE         63              /* Min amount gear regen*2^16 */
 
 /*
  * Possible realms that can be chosen;
@@ -909,7 +925,7 @@
 #define RACE_DARK_ELF            4
 #define RACE_GNOME               5
 #define RACE_ORC                 6
-#define RACE_TROLL               7
+#define RACE_TROLL_SWAMP         7
 #define RACE_SAURIAN             8
 #define RACE_AQUARIAN            9
 #define RACE_GOBLIN             10
@@ -933,11 +949,14 @@
 #define RACE_LEPRECHAUN         28
 #define RACE_PERTHORON          29
 #define RACE_DRACONIAN          30
+#define RACE_TROLL_STONE	31
+#define RACE_SHADE		32
+#define RACE_WOLFMAN		33
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES               31
+#define MAX_RACES               34
 
 
 /*
@@ -1495,11 +1514,6 @@
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
 
-/* Nothing */
-/* xxx */
-/* xxx */
-/* xxx */
-
 /* Body Armor */
 #define EGO_RESIST_ACID         4
 #define EGO_RESIST_ELEC         5
@@ -1509,8 +1523,8 @@
 #define EGO_ELVENKIND           9
 /* xxx */
 #define EGO_PERMANENCE          11
-/* xxx */
-/* xxx */
+#define EGO_DWARVENKIND		12
+#define EGO_MAGI_ROBE		13
 /* xxx */
 /* xxx */
 
@@ -1521,7 +1535,7 @@
 #define EGO_ENDURE_COLD         19
 #define EGO_ENDURANCE           20
 #define EGO_REFLECTION          21
-/* xxx */
+#define EGO_ENDURE_MAGIC	22
 /* xxx */
 
 /* Crowns and Helms */
@@ -1541,107 +1555,119 @@
 #define EGO_NAIVETY             37
 #define EGO_UGLINESS            38
 #define EGO_SICKLINESS          39
+#define EGO_AURA_FIRE		40
+#define EGO_AURA_COLD		41
 
 /* Cloaks */
-#define EGO_PROTECTION          40
-#define EGO_STEALTH             41
-#define EGO_AMAN                42
-#define EGO_AURA_FIRE           43
-#define EGO_ENVELOPING          44
-#define EGO_VULNERABILITY       45
-#define EGO_IRRITATION          46
-#define EGO_AURA_ELEC           47
+#define EGO_PROTECTION          42
+#define EGO_STEALTH             43
+#define EGO_AMAN                44
+#define EGO_AURA_ACID           45
+#define EGO_ENVELOPING          46
+#define EGO_VULNERABILITY       47
+#define EGO_IRRITATION          48
+#define EGO_AURA_ELEC           49
+#define EGO_INVIS		50
+#define EGO_RESILIENCE		51
 
 /* Gloves */
-#define EGO_FREE_ACTION         48
-#define EGO_SLAYING             49
-#define EGO_AGILITY             50
-#define EGO_POWER               51
+#define EGO_FREE_ACTION         52
+#define EGO_SLAYING             53
+#define EGO_AGILITY             54
+#define EGO_POWER               55
+#define EGO_WEAKNESS            56
+#define EGO_CLUMSINESS          57
+#define EGO_DEFLECT		58
 /* xxx */
-/* xxx */
-#define EGO_WEAKNESS            54
-#define EGO_CLUMSINESS          55
 
 /* Boots */
-#define EGO_SLOW_DESCENT        56
-#define EGO_QUIET               57
-#define EGO_MOTION              58
-#define EGO_SPEED               59
-/* xxx */
-#define EGO_NOISE               61
-#define EGO_SLOWNESS            62
-#define EGO_ANNOYANCE           63
+#define EGO_SLOW_DESCENT        60
+#define EGO_QUIET               61
+#define EGO_MOTION              62
+#define EGO_SPEED               63
+#define EGO_NOISE               64
+#define EGO_SLOWNESS            65
+#define EGO_ANNOYANCE           66
+#define EGO_BUTTKICK		67
+#define EGO_ANCHOR		68
 
 /* Weapons */
-#define EGO_HA                  64
-#define EGO_DF                  65
-#define EGO_BLESS_BLADE         66
-/* xxx */
-#define EGO_WEST                68
-#define EGO_ATTACKS             69
-#define EGO_SLAYING_WEAPON      70
-/* xxx */
-#define EGO_BRAND_ACID          72
-#define EGO_BRAND_ELEC          73
-#define EGO_BRAND_FIRE          74
-#define EGO_BRAND_COLD          75
-#define EGO_BRAND_POIS          76
-#define EGO_CHAOTIC             77
-#define EGO_SHARPNESS           78
-#define EGO_EARTHQUAKES         79
-#define EGO_SLAY_ANIMAL         80
-#define EGO_SLAY_EVIL           81
-#define EGO_SLAY_UNDEAD         82
-#define EGO_SLAY_DEMON          83
-#define EGO_SLAY_ORC            84
-#define EGO_SLAY_TROLL          85
-#define EGO_SLAY_GIANT          86
-#define EGO_SLAY_DRAGON         87
-#define EGO_KILL_ANIMAL         88
-#define EGO_KILL_EVIL           89
-#define EGO_KILL_UNDEAD         90
-#define EGO_KILL_DEMON          91
-#define EGO_KILL_ORC            92
-#define EGO_KILL_TROLL          93
-#define EGO_KILL_GIANT          94
-#define EGO_KILL_DRAGON         95
-#define EGO_VAMPIRIC            96
-/* xxx */
-/* xxx */
-#define EGO_TRUMP               98
-#define EGO_PATTERN             99
-#define EGO_DIGGING             100
-/* xxx */
-#define EGO_MORGUL              102
-/* xxx */
+#define EGO_HA                  69
+#define EGO_DF                  70
+#define EGO_BLESS_BLADE         71
+#define EGO_WEST                72
+#define EGO_ATTACKS             73
+#define EGO_SLAYING_WEAPON      74
+#define EGO_BRAND_ACID          75
+#define EGO_BRAND_ELEC          76
+#define EGO_BRAND_FIRE          77
+#define EGO_BRAND_COLD          78
+#define EGO_BRAND_POIS          79
+#define EGO_CHAOTIC             80
+#define EGO_SHARPNESS           81
+#define EGO_EARTHQUAKES         82
+#define EGO_SLAY_ANIMAL         83
+#define EGO_SLAY_EVIL           84
+#define EGO_SLAY_UNDEAD         85
+#define EGO_SLAY_DEMON          86
+#define EGO_SLAY_ORC            87
+#define EGO_SLAY_TROLL          88
+#define EGO_SLAY_GIANT          89
+#define EGO_SLAY_DRAGON         90
+#define EGO_KILL_ANIMAL         91
+#define EGO_KILL_EVIL           92
+#define EGO_KILL_UNDEAD         93
+#define EGO_KILL_DEMON          94
+#define EGO_KILL_ORC            95
+#define EGO_KILL_TROLL          96
+#define EGO_KILL_GIANT          97
+#define EGO_KILL_DRAGON         98
+#define EGO_VAMPIRIC            99
+#define EGO_SHIFT               100
+#define EGO_PATTERN             101
+#define EGO_DIGGING             102
+#define EGO_MORGUL              103
+#define EGO_BRAND_MAGIC		104
+#define EGO_BRAND_SLEEP		105
+#define EGO_ELVEN		106
+#define EGO_SHADOW		107
+#define EGO_DEMON		108
+#define EGO_MAGEBANE		109
 
 /* Bows */
-#define EGO_ACCURACY            104
-#define EGO_VELOCITY            105
-/* xxx */
-/* xxx */
-#define EGO_EXTRA_MIGHT         108
-#define EGO_EXTRA_SHOTS         109
-/* xxx */
-/* xxx */
+#define EGO_ACCURACY            110
+#define EGO_VELOCITY            111
+#define EGO_EXTRA_MIGHT         112
+#define EGO_EXTRA_SHOTS         113
+#define EGO_BURN		114
+#define EGO_SHOCK		115
+#define EGO_FREEZE		116
+#define EGO_MELT		117
+#define EGO_FORCE		118
 
 /* Ammo */
-#define EGO_HURT_ANIMAL         112
-#define EGO_HURT_EVIL           113
+#define EGO_HURT_ANIMAL         119
+#define EGO_HURT_EVIL           120
+#define EGO_HURT_DRAGON         121
+#define EGO_HURT_DEMON		122
+#define EGO_SLAYING        	123
+#define EGO_LIGHTNING      	124
+#define EGO_FLAME               125
+#define EGO_FROST               126
 /* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-#define EGO_HURT_DRAGON         119
-#define EGO_SLAYING_BOLT        120
-#define EGO_LIGHTNING_BOLT      121
-#define EGO_FLAME               122
-#define EGO_FROST               123
-#define EGO_WOUNDING            124
-#define EGO_BACKBITING          125
-#define EGO_SHATTERED           126
-#define EGO_BLASTED             127
+#define EGO_WOUNDING            128
+#define EGO_BACKBITING          129
+#define EGO_EXPLODE		130
+#define EGO_LIGHTNING_BOLT	131
+#define EGO_ACID_SPRAY		132
+#define EGO_SNOW_SPIKE		133
+#define EGO_MAGIC_MISSILE	134
+#define EGO_HEAL		135
+#define EGO_METEOR		136
+
+/* Extra */
+#define EGO_SHATTERED           137
+#define EGO_BLASTED             138
 
 
 /* Activation effects for random artifacts */
@@ -1713,7 +1739,9 @@
 #define ACT_AURA_ELEC           101
 #define ACT_FREE_FALL           102
 #define ACT_INVISIBLE           103
-/* 104 - 110 unused */
+#define ACT_AURA_COLD           104
+#define ACT_AURA_ACID           105
+/* 106 - 110 unused */
 #define ACT_LIGHT               111
 #define ACT_MAP_LIGHT           112
 #define ACT_DETECT_ALL          113
@@ -1755,8 +1783,7 @@
 #define TV_FIGURINE      8      /* Magical figurines */
 #define TV_STATUE        9      /* Statue */
 //#define TV_CORPSE     10      /* Corpses are now fields */
-#define TV_TECH		11	/* Machinery */
-#define TV_QUEST	12	/* Special Items. */
+//#define TV_QUEST	12	/* Special Items. */
 #define TV_SHOT         16      /* Ammo for slings */
 #define TV_ARROW        17      /* Ammo for bows */
 #define TV_BOLT         18      /* Ammo for x-bows */
@@ -1780,6 +1807,7 @@
 #define TV_STAFF        55
 #define TV_WAND         65
 #define TV_ROD          66
+#define TV_TECH		67	/* Machinery */
 #define TV_SCROLL       70
 #define TV_POTION       75
 #define TV_FLASK        77
@@ -2187,7 +2215,7 @@
 /* The "sval" codes for TV_ROD */
 #define SV_ROD_DETECT_TRAP               0
 #define SV_ROD_DETECT_DOOR               1
-#define SV_ROD_IDENTIFYF                 2
+#define SV_ROD_IDENTIFY                  2
 #define SV_ROD_RECALL                    3
 #define SV_ROD_ILLUMINATION              4
 #define SV_ROD_DETECTION                 5
@@ -2569,20 +2597,21 @@
 #define PR_HEALTH       0x00000800L     /* Display Health Bar */
 #define PR_CUT          0x00001000L     /* Display Extra (Cut) */
 #define PR_STUN         0x00002000L     /* Display Extra (Stun) */
-#define PR_HUNGER       0x00004000L     /* Display Extra (Hunger) */
-#define PR_STATUS       0x00008000L     /* Display Status Bar */
-#define PR_BLIND        0x00010000L     /* Display Extra (Blind) */
-#define PR_CONFUSED     0x00020000L     /* Display Extra (Confused) */
-#define PR_AFRAID       0x00040000L     /* Display Extra (Afraid) */
-#define PR_POISONED     0x00080000L     /* Display Extra (Poisoned) */
-#define PR_STATE        0x00100000L     /* Display Extra (State) */
-#define PR_SPEED        0x00200000L     /* Display Extra (Speed) */
-#define PR_STUDY        0x00400000L     /* Display Extra (Study) */
-#define PR_RESOURCE     0x00800000L     /* Display Resource */
-#define PR_EXTRA        0x01000000L     /* Display Extra Info */
-#define PR_BASIC        0x02000000L     /* Display Basic Info */
-#define PR_MAP          0x04000000L     /* Display Map */
-#define PR_WIPE         0x08000000L     /* Hack -- Total Redraw */
+#define PR_FATIGUE      0x00004000L     /* Display Extra (Fatigue) */
+#define PR_HUNGER       0x00008000L     /* Display Extra (Hunger) */
+#define PR_STATUS       0x00010000L     /* Display Status Bar */
+#define PR_BLIND        0x00020000L     /* Display Extra (Blind) */
+#define PR_CONFUSED     0x00040000L     /* Display Extra (Confused) */
+#define PR_AFRAID       0x00080000L     /* Display Extra (Afraid) */
+#define PR_POISONED     0x00100000L     /* Display Extra (Poisoned) */
+#define PR_STATE        0x00200000L     /* Display Extra (State) */
+#define PR_SPEED        0x00400000L     /* Display Extra (Speed) */
+#define PR_STUDY        0x00800000L     /* Display Extra (Study) */
+#define PR_RESOURCE     0x01000000L     /* Display Resource */
+#define PR_EXTRA        0x02000000L     /* Display Extra Info */
+#define PR_BASIC        0x04000000L     /* Display Basic Info */
+#define PR_MAP          0x08000000L     /* Display Map */
+#define PR_WIPE         0x10000000L     /* Hack -- Total Redraw */
 /* xxx */
 /* xxx */
 /* xxx */
@@ -2603,7 +2632,7 @@
 #define PW_OBJECT       0x00000200L     /* Display object recall */
 #define PW_DUNGEON      0x00000400L     /* Display dungeon view */
 #define PW_SNAPSHOT     0x00000800L     /* Display snap-shot */
-#define PW_VISIBLE		0x00001000L		/* Display monster visible list */
+#define PW_VISIBLE	0x00001000L	/* Display monster visible list */
 #define PW_SCRIPT       0x00002000L     /* Display script messages */
 #define PW_BORG_1       0x00004000L     /* Display borg messages */
 #define PW_BORG_2       0x00008000L     /* Display borg status */
@@ -2866,99 +2895,132 @@
 #define TR1_DEX                 0x00000008L     /* DEX += "pval" */
 #define TR1_CON                 0x00000010L     /* CON += "pval" */
 #define TR1_CHR                 0x00000020L     /* CHR += "pval" */
-#define TR1_XXX1                0x00000040L     /* Later */
-#define TR1_XXX2                0x00000080L     /* Later */
+#define TR1_XTRA_SP             0x00000040L     /* Bonus Spell Points */
+#define TR1_SAV                 0x00000080L     /* Saving throw += "pval" */
 #define TR1_STEALTH             0x00000100L     /* Stealth += "pval" */
 #define TR1_SEARCH              0x00000200L     /* Search += "pval" */
 #define TR1_INFRA               0x00000400L     /* Infra += "pval" */
 #define TR1_TUNNEL              0x00000800L     /* Tunnel += "pval" */
 #define TR1_SPEED               0x00001000L     /* Speed += "pval" */
 #define TR1_BLOWS               0x00002000L     /* Blows += "pval" */
-#define TR1_CHAOTIC             0x00004000L
-#define TR1_VAMPIRIC            0x00008000L
-#define TR1_SLAY_ANIMAL         0x00010000L
-#define TR1_SLAY_EVIL           0x00020000L
-#define TR1_SLAY_UNDEAD         0x00040000L
-#define TR1_SLAY_DEMON          0x00080000L
-#define TR1_SLAY_ORC            0x00100000L
-#define TR1_SLAY_TROLL          0x00200000L
-#define TR1_SLAY_GIANT          0x00400000L
-#define TR1_SLAY_DRAGON         0x00800000L
-#define TR1_KILL_DRAGON         0x01000000L     /* Execute Dragon */
-#define TR1_VORPAL              0x02000000L     /* Later */
-#define TR1_IMPACT              0x04000000L     /* Cause Earthquakes */
-#define TR1_BRAND_POIS          0x08000000L
-#define TR1_BRAND_ACID          0x10000000L
-#define TR1_BRAND_ELEC          0x20000000L
-#define TR1_BRAND_FIRE          0x40000000L
-#define TR1_BRAND_COLD          0x80000000L
+#define TR1_SUST_STR            0x00004000L
+#define TR1_SUST_INT            0x00008000L
+#define TR1_SUST_WIS            0x00010000L
+#define TR1_SUST_DEX            0x00020000L
+#define TR1_SUST_CON            0x00040000L
+#define TR1_SUST_CHR            0x00080000L
+#define TR1_XXX1            	0x00100000L
+#define TR1_XXX2            	0x00200000L
+#define TR1_XXX3            	0x00400000L
+#define TR1_XXX4            	0x00800000L
+#define TR1_XXX5            	0x01000000L
+#define TR1_XXX6            	0x02000000L
+#define TR1_XXX7            	0x04000000L
+#define TR1_XXX8            	0x08000000L
+#define TR1_XXX9            	0x10000000L
+#define TR1_XXX10            	0x20000000L
+#define TR1_XXX11           	0x40000000L
+#define TR1_XXX12            	0x80000000L
 
-#define TR2_SUST_STR            0x00000001L
-#define TR2_SUST_INT            0x00000002L
-#define TR2_SUST_WIS            0x00000004L
-#define TR2_SUST_DEX            0x00000008L
-#define TR2_SUST_CON            0x00000010L
-#define TR2_SUST_CHR            0x00000020L
-#define TR2_RES_MAGIC	        0x00000040L
-#define TR2_INVIS               0x00000080L     /* Gives invisibility */
-#define TR2_IM_ACID             0x00000100L
-#define TR2_IM_ELEC             0x00000200L
-#define TR2_IM_FIRE             0x00000400L
-#define TR2_IM_COLD             0x00000800L
-#define TR2_THROW               0x00001000L     /* Throwing items */
-#define TR2_REFLECT             0x00002000L     /* Reflect 'bolts' */
-#define TR2_FREE_ACT            0x00004000L     /* Free Action */
-#define TR2_HOLD_LIFE           0x00008000L     /* Hold Life */
-#define TR2_RES_ACID            0x00010000L
-#define TR2_RES_ELEC            0x00020000L
-#define TR2_RES_FIRE            0x00040000L
-#define TR2_RES_COLD            0x00080000L
-#define TR2_RES_POIS            0x00100000L
-#define TR2_RES_FEAR            0x00200000L     /* Added for Zangband */
-#define TR2_RES_LITE            0x00400000L
-#define TR2_RES_DARK            0x00800000L
-#define TR2_RES_BLIND           0x01000000L
-#define TR2_RES_CONF            0x02000000L
-#define TR2_RES_SOUND           0x04000000L
-#define TR2_RES_SHARDS          0x08000000L
-#define TR2_RES_NETHER          0x10000000L
-#define TR2_RES_NEXUS           0x20000000L
-#define TR2_RES_CHAOS           0x40000000L
-#define TR2_RES_DISEN           0x80000000L
-
+#define TR2_IM_ACID             0x00000001L
+#define TR2_IM_ELEC             0x00000002L
+#define TR2_IM_FIRE             0x00000004L
+#define TR2_IM_COLD             0x00000008L
+#define TR2_REFLECT             0x00000010L     /* Reflect 'bolts' */
+#define TR2_FREE_ACT            0x00000020L     /* Free Action */
+#define TR2_HOLD_LIFE           0x00000040L     /* Hold Life */
+#define TR2_RES_ACID            0x00000080L
+#define TR2_RES_ELEC            0x00000100L
+#define TR2_RES_FIRE            0x00000200L
+#define TR2_RES_COLD            0x00000400L
+#define TR2_RES_POIS            0x00000800L
+#define TR2_RES_FEAR            0x00001000L     /* Added for Zangband */
+#define TR2_RES_LITE            0x00002000L
+#define TR2_RES_DARK            0x00004000L
+#define TR2_RES_BLIND           0x00008000L
+#define TR2_RES_CONF            0x00010000L
+#define TR2_RES_SOUND           0x00020000L
+#define TR2_RES_SHARDS          0x00040000L
+#define TR2_RES_NETHER          0x00080000L
+#define TR2_RES_NEXUS           0x00100000L
+#define TR2_RES_CHAOS           0x00200000L
+#define TR2_RES_DISEN           0x00400000L
+#define TR2_RES_MAGIC	        0x00800000L
+#define TR2_XXX13            	0x01000000L
+#define TR2_XXX14            	0x02000000L
+#define TR2_XXX15            	0x04000000L
+#define TR2_XXX16            	0x08000000L
+#define TR2_XXX17            	0x10000000L
+#define TR2_XXX18            	0x20000000L
+#define TR2_XXX19          	0x40000000L
+#define TR2_XXX20           	0x80000000L
 
 #define TR3_SH_FIRE             0x00000001L     /* Immolation (Fire) */
 #define TR3_SH_ELEC             0x00000002L     /* Electric Sheath */
-#define TR3_QUESTITEM           0x00000004L     /* quest level item -KMW- */
-#define TR3_XXX4                0x00000008L     /* Later */
+#define TR3_SH_COLD             0x00000004L     /* Cold Shield */
+#define TR3_SH_ACID             0x00000008L     /* Acid Bubble */
 #define TR3_NO_TELE             0x00000010L     /* Anti-teleportation */
 #define TR3_NO_MAGIC            0x00000020L     /* Anti-magic */
-#define TR3_XXX7                0x00000040L     /* Later */
-#define TR3_TY_CURSE            0x00000080L     /* The Ancient Curse */
-#define TR3_EASY_KNOW           0x00000100L     /* Aware -> Known */
-#define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
-#define TR3_SHOW_MODS           0x00000400L     /* Always show Tohit/Todam */
-#define TR3_INSTA_ART           0x00000800L     /* Item must be an artifact */
-#define TR3_FEATHER             0x00001000L     /* Feather Falling */
-#define TR3_LITE                0x00002000L     /* Permanent Light */
-#define TR3_SEE_INVIS           0x00004000L     /* See Invisible */
-#define TR3_TELEPATHY           0x00008000L     /* Telepathy */
-#define TR3_SLOW_DIGEST         0x00010000L     /* Item slows down digestion */
-#define TR3_REGEN               0x00020000L     /* Item induces regeneration */
-#define TR3_XTRA_MIGHT          0x00040000L     /* Bows get extra multiplier */
-#define TR3_XTRA_SHOTS          0x00080000L     /* Bows get extra shots */
-#define TR3_IGNORE_ACID         0x00100000L     /* Item ignores Acid Damage */
-#define TR3_IGNORE_ELEC         0x00200000L     /* Item ignores Elec Damage */
-#define TR3_IGNORE_FIRE         0x00400000L     /* Item ignores Fire Damage */
-#define TR3_IGNORE_COLD         0x00800000L     /* Item ignores Cold Damage */
-#define TR3_ACTIVATE            0x01000000L     /* Item can be activated */
-#define TR3_DRAIN_EXP           0x02000000L     /* Item drains Experience */
-#define TR3_TELEPORT            0x04000000L     /* Item teleports player */
-#define TR3_AGGRAVATE           0x08000000L     /* Item aggravates monsters */
-#define TR3_BLESSED             0x10000000L     /* Item is Blessed */
-#define TR3_CURSED              0x20000000L     /* Item is Cursed */
-#define TR3_HEAVY_CURSE         0x40000000L     /* Item is Heavily Cursed */
-#define TR3_PERMA_CURSE         0x80000000L     /* Item is Perma Cursed */
+#define TR3_THROW               0x00000040L     /* Throwing items */
+#define TR3_FEATHER             0x00000080L     /* Feather Falling */
+#define TR3_LITE                0x00000100L     /* Permanent Light */
+#define TR3_SEE_INVIS           0x00000200L     /* See Invisible */
+#define TR3_TELEPATHY           0x00000400L     /* Telepathy */
+#define TR3_SLOW_DIGEST         0x00000800L     /* Item slows down digestion */
+#define TR3_REGEN               0x00001000L     /* Item induces regeneration */
+#define TR3_INVIS               0x00002000L     /* Gives invisibility */
+#define TR3_DRAIN_EXP           0x00004000L     /* Item drains Experience */
+#define TR3_TELEPORT            0x00008000L     /* Item teleports player */
+#define TR3_AGGRAVATE           0x00010000L     /* Item aggravates monsters */
+#define TR3_BLESSED             0x00020000L     /* Item is Blessed */
+#define TR3_CURSED              0x00040000L     /* Item is Cursed */
+#define TR3_HEAVY_CURSE         0x00080000L     /* Item is Heavily Cursed */
+#define TR3_PERMA_CURSE         0x00100000L     /* Item is Perma Cursed */
+#define TR3_TY_CURSE            0x00200000L     /* The Ancient Curse */
+#define TR3_EASY_KNOW           0x00400000L     /* Aware -> Known */
+#define TR3_HIDE_TYPE           0x00800000L     /* Hide "pval" description */
+#define TR3_SHOW_MODS           0x01000000L     /* Always show Tohit/Todam */
+#define TR3_INSTA_ART           0x02000000L     /* Item must be an artifact */
+#define TR3_QUESTITEM           0x04000000L     /* quest level item -KMW- */
+#define TR3_IGNORE_ACID         0x08000000L     /* Item ignores Acid Damage */
+#define TR3_IGNORE_ELEC         0x10000000L     /* Item ignores Elec Damage */
+#define TR3_IGNORE_FIRE         0x20000000L     /* Item ignores Fire Damage */
+#define TR3_IGNORE_COLD         0x40000000L     /* Item ignores Cold Damage */
+#define TR3_ACTIVATE            0x80000000L     /* Item can be activated */
+
+
+#define TR4_CHAOTIC             0x00000001L
+#define TR4_VAMPIRIC            0x00000002L
+#define TR4_VORPAL              0x00000004L     
+#define TR4_IMPACT              0x00000008L     /* Cause Earthquakes */
+#define TR4_SLAY_ANIMAL         0x00000010L
+#define TR4_SLAY_EVIL           0x00000020L
+#define TR4_SLAY_UNDEAD         0x00000040L
+#define TR4_SLAY_DEMON          0x00000080L
+#define TR4_SLAY_ORC            0x00000100L
+#define TR4_SLAY_TROLL          0x00000200L
+#define TR4_SLAY_GIANT          0x00000400L
+#define TR4_SLAY_DRAGON         0x00000800L
+#define TR4_KILL_DRAGON         0x00001000L     /* Execute Dragon */
+#define TR4_BRAND_POIS          0x00002000L
+#define TR4_BRAND_ACID          0x00004000L
+#define TR4_BRAND_ELEC          0x00008000L
+#define TR4_BRAND_FIRE          0x00010000L
+#define TR4_BRAND_COLD          0x00020000L
+#define TR4_BRAND_MAGIC         0x00040000L     
+#define TR4_BRAND_SLEEP         0x00080000L     
+#define TR4_XTRA_MIGHT          0x00100000L     /* Bows get extra multiplier */
+#define TR4_XTRA_SHOTS          0x00200000L     /* Bows get extra shots */
+#define TR4_XTRA_FORCE          0x00400000L     /* Special extra for launchers */
+#define TR4_PIERC_AC	        0x00800000L
+#define TR4_VELOCITY           	0x01000000L
+#define TR4_XXX23            	0x02000000L
+#define TR4_XXX24            	0x04000000L
+#define TR4_XXX25            	0x08000000L
+#define TR4_XXX26            	0x10000000L
+#define TR4_XXX27            	0x20000000L
+#define TR4_XXX28           	0x40000000L
+#define TR4_XXX29            	0x80000000L
 
 
 /*
@@ -2976,19 +3038,24 @@
  * Hack - Flags that were not part of Moria.
  */
 #define TR1_MORIA_MASK \
-	(~(TR1_CHAOTIC | TR1_VAMPIRIC | TR1_VORPAL | \
-	 TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | \
-	 TR1_BRAND_FIRE | TR1_BRAND_COLD))
+	(~(0L))
 
 #define TR2_MORIA_MASK \
 	(~(TR2_REFLECT | TR2_RES_POIS | TR2_RES_FEAR | TR2_RES_LITE | \
 	 TR2_RES_DARK | TR2_RES_CONF | TR2_RES_SOUND | \
 	 TR2_RES_SHARDS | TR2_RES_NETHER | TR2_RES_NEXUS | \
-	 TR2_RES_CHAOS | TR2_RES_DISEN))
+	 TR2_RES_CHAOS | TR2_RES_DISEN | TR2_RES_MAGIC))
 
 #define TR3_MORIA_MASK \
-	(~(TR3_SH_FIRE | TR3_SH_ELEC | TR3_NO_TELE | TR3_NO_MAGIC | \
+	(~(TR3_SH_FIRE | TR3_SH_ELEC | TR3_SH_COLD | TR3_SH_ACID | \
+	 TR3_NO_TELE | TR3_NO_MAGIC | TR3_INVIS | \
 	 TR3_TY_CURSE | TR3_LITE))
+	 
+#define TR4_MORIA_MASK \
+	(~(TR4_CHAOTIC | TR4_VAMPIRIC | TR4_VORPAL | \
+	 TR4_BRAND_POIS | TR4_BRAND_ACID | TR4_BRAND_ELEC | \
+	 TR4_BRAND_FIRE | TR4_BRAND_COLD | TR4_BRAND_MAGIC | \
+	 TR4_BRAND_SLEEP | TR4_XTRA_FORCE))
 
 
 /*** Monster blow constants ***/
@@ -4118,8 +4185,72 @@ extern int PlayerUID;
 # define geteuid() PlayerUID
 #endif
 
+/*
+ * Is the player a mage?
+ */
+#define is_mage(C) \
+	 (((C)->pclass == CLASS_MAGE_FIRE) || \
+	  ((C)->pclass == CLASS_MAGE_WATER) || \
+	  ((C)->pclass == CLASS_MAGE_EARTH) || \
+	  ((C)->pclass == CLASS_MAGE_AIR) || \
+	  ((C)->pclass == CLASS_WIZARD) || \
+	  ((C)->pclass == CLASS_TECH_MAGE) || \
+	  ((C)->pclass == CLASS_THIEF_MAGE) || \
+	  ((C)->pclass == CLASS_WITCH) || \
+	  ((C)->pclass == CLASS_HIGH_MAGE))
+	  
+/*
+ * Is the player a fighter?
+ */
+#define is_fighter(C) \
+	 (((C)->pclass == CLASS_WARRIOR) || \
+	  ((C)->pclass == CLASS_BERSERK) || \
+	  ((C)->pclass == CLASS_NINJA) || \
+	  ((C)->pclass == CLASS_ARCHER) || \
+	  ((C)->pclass == CLASS_MONK))
+	  
+/*
+ * Is the player a fighter/caster?
+ */
+#define is_fight_cast(C) \
+	 (((C)->pclass == CLASS_WARRIOR_MAGE) || \
+	  ((C)->pclass == CLASS_RANGER) || \
+	  ((C)->pclass == CLASS_DARK_KNIGHT) || \
+	  ((C)->pclass == CLASS_PALADIN) || \
+	  ((C)->pclass == CLASS_CHAOS_WARRIOR))
+	  
+/*
+ * Is the player a rogue?
+ */
+#define is_rogue(C) \
+	 (((C)->pclass == CLASS_NINJA) || \
+	  ((C)->pclass == CLASS_ROGUE) || \
+	  ((C)->pclass == CLASS_ASSASSIN) || \
+	  ((C)->pclass == CLASS_THIEF_MAGE) || \
+	  ((C)->pclass == CLASS_TECH_THIEF))
+	  
+/*
+ * Is the player a tech?
+ */
+#define is_tech(C) \
+	 (((C)->pclass == CLASS_TECH_FULL) || \
+	  ((C)->pclass == CLASS_TECH_WAR) || \
+	  ((C)->pclass == CLASS_TECH_CLERIC) || \
+	  ((C)->pclass == CLASS_TECH_MAGE) || \
+	  ((C)->pclass == CLASS_TECH_THIEF))
+	  
+/*
+ * Is the player a cleric?
+ */
+#define is_cleric(C) \
+	 (((C)->pclass == CLASS_DRUID) || \
+	  ((C)->pclass == CLASS_NECROMANCER) || \
+	  ((C)->pclass == CLASS_PRIEST) || \
+	  ((C)->pclass == CLASS_SHAMAN) || \
+	  ((C)->pclass == CLASS_TECH_CLERIC) || \
+	  ((C)->pclass == CLASS_SAGE))	  
 
-
+	  
 /*** Color constants ***/
 
 

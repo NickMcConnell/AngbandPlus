@@ -602,12 +602,13 @@ bool monster_death(int m_idx, bool explode)
 		q_ptr->dd = 6;
 		q_ptr->pval = 2;
 
-		q_ptr->flags1 |= (TR1_VAMPIRIC | TR1_STR | TR1_CON);
+		q_ptr->flags1 |= (TR1_STR | TR1_CON);
 		q_ptr->flags2 |= (TR2_FREE_ACT | TR2_HOLD_LIFE |
 		                  TR2_RES_NEXUS | TR2_RES_CHAOS | TR2_RES_NETHER |
 		                  TR2_RES_CONF); /* No longer resist_disen */
 		q_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
 		                  TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+		q_ptr->flags4 |= TR4_VAMPIRIC;
 
 		/* Just to be sure */
 		q_ptr->flags3 |= TR3_NO_TELE; /* How's that for a downside? */
@@ -750,7 +751,7 @@ bool monster_death(int m_idx, bool explode)
 		/* Get local object */
 		q_ptr = &forge;
 
-		/* Prepare to make the Stormbringer */
+		/* Prepare to make the t-shirt */
 		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_T_SHIRT));
 
 		/* Mega-Hack -- Name the shirt */
@@ -776,8 +777,9 @@ bool monster_death(int m_idx, bool explode)
 			
 			/* Morgoths death curse */
 			msg_print(" Morgoth's voice booms: SO YOU WOULD DESTROY ME.");
-			msg_print(" THEN WITH THE POWER OF MY DEATH I WILL CURSE YOU.");
-			msg_print(" YOU SHALL BE FROZEN IN TIME. FOREVER! ");
+			msg_print(" WELL IF I CAN'T DIVIDE YOU IN TWO,");
+			msg_print(" I'LL DIVIDE YOU BY ZREO,");
+			msg_print(" SEE IF YOUR COMPUTER CAN TAKE THAT! ");
 			p_ptr->is_dead = TRUE;
 			i = 1/0;
  		}
@@ -1278,7 +1280,16 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Gain experience */
 		gain_exp(new_exp);
-
+		
+		/* Eat monster soul */
+		if (p_ptr->prace == RACE_SHADE)
+		{
+			(void)set_food(p_ptr->food + 13);
+			p_ptr->chp++;
+			p_ptr->csp++;
+			p_ptr->redraw |= (PR_BASIC);
+		}
+		
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 0;
 

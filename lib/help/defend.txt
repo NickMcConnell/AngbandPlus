@@ -15,7 +15,7 @@ attacks which may be of varying type, power and effect.
 
 In addition to pure damage, there can be a number of side-effects from
 a monster hitting you. For example, an especially powerful attack may
-stun you wound you. Stunning is cumulative and, if not addressed, may
+stun you or wound you. Stunning is cumulative and, if not addressed, may
 eventually result in you becoming knocked out which allows your
 opponent to continue attacking while you lie helpless. Wounds will
 cause you to lose hit points each round until you either die or your
@@ -180,15 +180,26 @@ of Elvenkind.
      This is the same as Resistance armor, only generally better
      enchanted. It will also make you more stealthy.
 
+of Dwarvenkind.
+     This well made armour is immune to acid. It improves your
+     constitution and saving throws.
+
 of Permanence (Robes Only)
      These robes provide resistance to fire, cold, acid, and
      electricity and cannot be damaged by acid. They also resist life
      draining attacks and sustain all your primary statistics. 
 
+of the Magi (Robes Only)
+     These robes cannot be damaged by acid and provide resistance to
+     magic. They also grant an extra 50 spell points when worn.
+
 of Reflection (Shields Only)
      These shields reflect missiles and bolt spells preventing damage
      to the player character and often damaging the originating
      monster. The reflection is not 100% effective but nearly so. 
+
+of Resist Magic(Shields Only)
+     The same as the other resists but works on pure magic only.
 
 --- Caps/Helms/Crowns ---
 
@@ -223,7 +234,8 @@ of Infravision
      infravision if you are a race which does not get it intrinsically.
 
 of Light
-     This item provides a permanent light source.
+     This item provides a permanent light source and provides resistance
+     to dark attacks.
 
 of Telepathy
      This item grants its wielder telepathy.
@@ -233,6 +245,14 @@ of Regeneration
      quickly than normal, allowing you to fight longer before needing
      to rest. You will use food faster than normal while wearing this
      crown because of the regenerative effects.
+
+of Flames
+     These cloaks cannot be harmed by acid or fire attacks. They also
+     grant resistance to cold and give out a fiery aura.
+
+of Ice
+     These cloaks cannot be harmed by acid or cold attacks. They also
+     grant resistance to fire and give out a icy aura.
 
 --- Cloaks ---
 
@@ -248,14 +268,20 @@ of Aman
      attacks but do not grant resistance to these elements. They also
      make your character more stealthy.
 
-of Immolation
-     These cloaks cannot be harmed by acid or fire attacks. They also
-     grant resistance to fire and give out a fiery aura.
+of Corrosion
+     These cloaks cannot be harmed by acid attacks. They also
+     grant resistance to electricity and give out a acidic aura.
 
-of Electricity
+of Static
      These cloaks cannot be harmed by acid or electricity attacks. They
-     also grant resistance to electricity and give out an electric
-     aura.
+     also grant resistance to acid and give out an electric aura.
+
+of Invisibility
+     These cloaks cannot be harmed by acid and make the wearer 
+     invisible.
+
+of Resilience
+     These cloaks improve the wearers saving throws.
 
 --- Gloves/Gauntlets/Sets of Cesti ---
 
@@ -273,8 +299,10 @@ of Agility
      who wields them will not have their mana penalized.
 
 of Power
-     This item will increase your strength and will also grant a bonus
-     to your +to-hit and +to-dam.
+     This item will increase your strength.
+
+of Deflection
+     These are immune to acid and will reflect bolt attacks.
 
 --- Boots ---
 
@@ -290,6 +318,13 @@ of Free Action
 
 of Speed
      These boots will make your character more speedy.
+
+of Butt-Kicking
+     These boots are immune to acid and improve your strength, skill
+     and deadliness, to help you kick butt.
+
+of Anchoring
+     These boots will stop you from being teleported by any means.
 
 --- Special Items ---
      
@@ -485,7 +520,7 @@ Inertia
     resistance to damage or effects.
 
 Disintegration
-    There is no resistance to the mana and disintegration attacks.
+    There is no resistance to the disintegration attacks.
 
 ***** <Immunities>
 --- Immunities ---

@@ -550,9 +550,9 @@ static const hist_type bg[] =
 								40, 129, 130, 50 },
 	{"A Lord of Chaos decided to have some fun, and so he created you.  ",
 								60, 129, 130, 60 },
-	{"Your perents were Kaoti.  ", 				80, 129, 130, 50},
-	{"Your mother was a Kaoti.  ", 				90, 129, 130, 50},
-	{"Your mother was a Kaoti.  ", 				100, 129, 130, 50},
+	{"Your perents were Kaoti. ", 				80, 129, 130, 50},
+	{"Your father was a Kaoti. ", 				90, 129, 130, 50},
+	{"Your mother was a Kaoti. ", 				100, 129, 130, 50},
 	
 	{"You have green reptilian eyes, ",             	60, 130, 131, 50},
 	{"You have the black eyes of a bird, ",              	85, 130, 131, 50},
@@ -577,6 +577,34 @@ static const hist_type bg[] =
 	{"and canine feet.",       				100, 133, 0, 50 },
 
 	{"You have ", 						100, 134, 120, 50 },
+	
+	{"You arose from an unmarked grave. ",			25, 137, 138, 50 },
+	{"You got dragged into a crypt and they got you. ",	50, 137, 138, 50 },
+	{"You faded with despair. ",				75, 137, 138, 50 },
+	{"You were created by an evil Necromancer. ",		100, 137, 138, 50 },
+	
+	{"You are dark apparition with a blurry outline ",	40, 138, 139, 50 },
+	{"You are dark apparition with a clear outline ",	80, 138, 139, 50 },
+	{"You are dark apparition with a jagged outline ",	100, 138, 139, 55 },
+	
+	{"and hellish red eyes.",				33, 139, 0, 50 },
+	{"and creepy blue eyes.",				66, 139, 0, 50 },
+	{"and evil green eyes.",				100, 139, 0, 50 },
+	
+	{"You were cursed by a big meany. ",			20, 140, 141, 45 },
+	{"You parents were Wolfmen. ",				100, 140, 141, 50 },
+
+	{"You have grey fur, ",					30, 141, 142, 50 },
+	{"You have silver fur, ",				60, 141, 142, 50 },
+	{"You have dark grey fur, ",				90, 141, 142, 50 },
+	{"You have night black fur, ",				100, 141, 142, 55 },
+	
+	{"sharp black claws, ",					40, 142, 143, 50 },
+	{"sharp grey claws, ",					80, 142, 143, 50 },
+	{"sharp white claws, ",					100, 142, 143, 50 },
+	
+	{"and pointed ears.",					100, 143, 0, 50 },
+	 
 };
 
 
@@ -891,7 +919,7 @@ static void get_extra(void)
 	p_ptr->inside_quest = 0;
 
 	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
+	p_ptr->hitdie = rp_ptr->r_mhp * 2 + cp_ptr->c_mhp;
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
@@ -1006,7 +1034,8 @@ static void get_history(void)
 			chart = 19;
 			break;
 		}
-		case RACE_TROLL:
+		case RACE_TROLL_STONE:
+		case RACE_TROLL_SWAMP:
 		{
 			chart = 22;
 			break;
@@ -1125,6 +1154,16 @@ static void get_history(void)
 		case RACE_PERTHORON:
 		{
 			chart = 35;
+			break;
+		}
+		case RACE_SHADE:
+		{
+			chart = 137;
+			break;
+		}
+		case RACE_WOLFMAN:
+		{
+			chart = 140;
 			break;
 		}
 		default:
@@ -1259,8 +1298,8 @@ static void get_money(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Mega-Hack -- reduce gold for high stats */
-		if (stat_use[i] >= 18 + 50) gold -= 300;
-		else if (stat_use[i] >= 18 + 20) gold -= 200;
+		if (stat_use[i] >= 23) gold -= 300;
+		else if (stat_use[i] >= 23) gold -= 200;
 		else if (stat_use[i] > 18) gold -= 150;
 		else gold -= (stat_use[i] - 8) * 10;
 	}
@@ -1580,7 +1619,7 @@ static const byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Witch */
-		{ TV_HAFTED, SV_CLUB },
+		{ TV_SWORD, SV_DAGGER },
 		{ TV_ORDER_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 	},
@@ -1618,6 +1657,7 @@ static void player_outfit(void)
 	switch (p_ptr->prace)
 	{
 		case RACE_VAMPIRE:
+		case RACE_SHADE:
 		{
 			/* Scrolls of satisfy hunger */
 			object_prep(q_ptr,
@@ -2890,17 +2930,7 @@ static bool player_birth_aux_3(void)
 			/* Extract a textual format */
 			/* cnv_stat(m, inp); */
 
-			/* Above 18 */
-			if (m > 18)
-			{
-				sprintf(inp, "(Max of 18/%02d):", (m - 18));
-			}
-
-			/* From 3 to 18 */
-			else
-			{
-				sprintf(inp, "(Max of %2d):", m);
-			}
+			sprintf(inp, "(Max of %2d):", m);
 
 			/* Prepare a prompt */
 			sprintf(buf, "%-5s%-20s", stat_names[i], inp);

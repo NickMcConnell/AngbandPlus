@@ -200,7 +200,7 @@ void get_virtues(void)
 	/* Get one virtue based on race */
 	switch (p_ptr->prace)
 	{
-	case RACE_HUMAN: case RACE_PERTHORON:
+	case RACE_HUMAN: case RACE_PERTHORON: case RACE_WOLFMAN:
 		p_ptr->vir_types[i++] = V_INDIVIDUALISM;
 		break;
 	case RACE_ELF: case RACE_DRYAD: case RACE_ENT:
@@ -218,10 +218,10 @@ void get_virtues(void)
 	case RACE_ORC: case RACE_SAURIAN: case RACE_KOBOLD:
 		p_ptr->vir_types[i++] = V_HONOUR;
 		break;
-	case RACE_TROLL: case RACE_CATLING:
+	case RACE_TROLL_STONE: case RACE_CATLING:
 		p_ptr->vir_types[i++] = V_VALOUR;
 		break;
-	case RACE_FAIRY:
+	case RACE_FAIRY: case RACE_TROLL_SWAMP:
 		p_ptr->vir_types[i++] = V_VITALITY;
 		break;
 	case RACE_CENTAUR: case RACE_LEPRECHAUN:
@@ -245,7 +245,7 @@ void get_virtues(void)
 	case RACE_RATLING: case RACE_PIXIE:
 		p_ptr->vir_types[i++] = V_FAITH;
 		break;
-	case RACE_VAMPIRE:
+	case RACE_VAMPIRE: case RACE_SHADE:
 		p_ptr->vir_types[i++] = V_UNLIFE;
 		break;
 	case RACE_KAOTI:

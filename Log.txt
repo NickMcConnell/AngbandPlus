@@ -3,7 +3,7 @@ boosted Brand_weapon.
 Created phased_door: Dimensional door range 2.
 Rewritten order(sorcery) spells.
 Shifted Ranger to Life magic (cleric).
-Started overrighting Nature with Fire.
+Started overwriting Nature with Fire.
 	Created a sh_fire and sh_elec in effects.c.
 Finished Fire.
 Started Air.
@@ -16,11 +16,11 @@ Added in flags for new effects.
 Finally created ac boost (5 and 25)
 Rewritten Death. Not much change there.
 Writing Chaos.
-Created destroy_traps_touch. Destroy traps and doors does not affect traps.
+Created destroy_traps_touch. Destroy traps and doors did not affect traps.
 Finished Chaos.
 Tried making a extra spellbook.
 Added in half the Beserker Class.
-Written new race tables/abilities. Hurt fire/cold are monster only.
+Written new race tables/abilities. Hurt fire/cold are monster only. :(
 History tables crashing game.
 Fixed History table.
 Fixed Minotaur Horns.
@@ -39,7 +39,7 @@ Created rain_effect.
 Written Earth spells.
 Written Wizardry spells.
 Have written all thief and mage type classes.
-Found a way to greatly shorten tables.c
+Found a way to greatly shorten tables.c (probably bad code though)
 Greater Quake now works perfectly.
 Fixed Ranger, Paladin and Chaos Warrior.
 Created Dark Knight and split Priest.
@@ -63,3 +63,32 @@ Extended browse cmd to give an extened spell description.
 Modified everybodies invisibility. Now usable by player.
 Added new things into artifact activation.
 Fixed minor errors.
+Changed most healing spells.
+0.8: Submitted
+
+Rewrote almost all spells.
+Entangle just removed the stairs!	I think that is now fixed.
+Saurians now slow down when hit with cold. (Cold blooded)
+All spell tables corrected. Spell casting correct.
+Added fatigue to be used by special abilities that use hitpoints.
+Powerful spells now increase fatigue.
+Converted stats to a nice linear number. (18 + 1 = 19)
+Modified explosion graphics.
+Corrected Fatigue fault.
+Enabled 2 weapon fighting. May need ironing.
+Item quality sensing change to class dependent (Stopped "broken" potions).
+Removed charges used from wands. Was interfering with next thingy.
+Wands, Staves, Rods and Machines can be wielded in the bow slot.
+	Then used for 2/3 of the energy cost.
+	Also recharge or increase recharge speed of the item.
+	Artifacts added and are more powerful.
+Fixed object creation to include Machines, they are always identified :(.
+New Ego's.
+All basic elemental auras.
+Class ability code modified for easier use, new abilities added.
+Status bar fixed.
+Added a couple of new races.
+Tweaked help files.
+Restricted spell damage (No more negative damage).
+Allowed hp and sp to be above max. Turns blue and decreases by one per turn.
+Added hitpoint warning and base delay factor values into user pref dump.

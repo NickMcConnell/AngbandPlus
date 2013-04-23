@@ -58,7 +58,7 @@ static bool get_enemy_dir(monster_type *m_ptr, int *mm)
 		
 		/* Do not target invible monsters unless you can see them or you are smart and close */
 		if ((RF2_INVISIBLE) && (!(r_ptr->flags2 & (RF2_SEE_INVIS)) && 
-			(!(r_ptr->flags2 & (RF2_SMART)) && (ABS(m_ptr->fy - t_ptr->fy) + ABS(m_ptr->fx - t_ptr->fx) < 5))))
+			(!(r_ptr->flags2 & (RF2_SMART)) && (ABS(m_ptr->fy - t_ptr->fy) + ABS(m_ptr->fx - t_ptr->fx) <= 5))))
 		{
 			continue;
 		}
@@ -445,14 +445,14 @@ static void get_moves_aux(int m_idx, int *yp, int *xp)
 	/* Hack XXX XXX -- Player can see us, run towards him */
 	if (player_has_los_grid(c_ptr))
 	{
-		if (!(p_ptr->tim_nonvis) || !(TR2_INVIS))
+		if (!(p_ptr->tim_nonvis) || !(TR3_INVIS))
 		{
 			return;
 		}
 		else
 		{
 			if ((r_ptr->flags2 & (RF2_SEE_INVIS)) || ((r_ptr->flags2 & (RF2_SMART)) &&
-				(ABS(y1 - py) + ABS(x1 - px) < 5))) return;
+				(ABS(y1 - py) + ABS(x1 - px) <= 5))) return;
 		}
 	}
 
@@ -2166,6 +2166,37 @@ static void process_monster(int m_idx)
 			msg_format("%^s is no longer invulnerable.", m_name);
 		}
 	}
+	
+	/* Handle Paralyzed */
+	if (m_ptr->paralyzed)
+	{
+		/* Amount of recovery */
+		d = randint1(r_ptr->level / 20 + 1);
+
+		/* Still paralyzed */
+		if (m_ptr->paralyzed > d)
+		{
+			/* Reduce the confusion */
+			m_ptr->paralyzed -= d;
+		}
+
+		/* Recovered */
+		else
+		{
+			/* No longer paralyzed */
+			m_ptr->paralyzed = 0;
+
+			/* Message if visible */
+			if ((m_ptr->ml) && (!(m_ptr->smart & SM_MIMIC)))
+			{
+				/* Acquire the monster name */
+				monster_desc(m_name, m_ptr, 0);
+
+				/* Dump a message */
+				msg_format("%^s is no longer paralyzed.", m_name);
+			}
+		}
+	}
 
 	/* No one wants to be your friend if you're aggravating */
 	if (!is_hostile(m_ptr) && p_ptr->aggravate)
@@ -2787,14 +2818,14 @@ static void process_monster(int m_idx)
 				if ((r_ptr->flags2 & (RF2_TAKE_ITEM | RF2_KILL_ITEM)) &&
 					 (!is_pet(m_ptr) || p_ptr->pet_pickup_items))
 				{
-					u32b f1, f2, f3;
+					u32b f1, f2, f3, f4;
 
 					u32b flg3 = 0L;
 
 					char o_name[80];
 
 					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
+					object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 					/* Acquire the object name */
 					object_desc(o_name, o_ptr, TRUE, 3);
@@ -2803,15 +2834,15 @@ static void process_monster(int m_idx)
 					monster_desc(m_name, m_ptr, 0x04);
 
 					/* React to objects that hurt the monster */
-					if (f1 & TR1_KILL_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_TROLL)  flg3 |= (RF3_TROLL);
-					if (f1 & TR1_SLAY_GIANT)  flg3 |= (RF3_GIANT);
-					if (f1 & TR1_SLAY_ORC)    flg3 |= (RF3_ORC);
-					if (f1 & TR1_SLAY_DEMON)  flg3 |= (RF3_DEMON);
-					if (f1 & TR1_SLAY_UNDEAD) flg3 |= (RF3_UNDEAD);
-					if (f1 & TR1_SLAY_ANIMAL) flg3 |= (RF3_ANIMAL);
-					if (f1 & TR1_SLAY_EVIL)   flg3 |= (RF3_EVIL);
+					if (f4 & TR4_KILL_DRAGON) flg3 |= (RF3_DRAGON);
+					if (f4 & TR4_SLAY_DRAGON) flg3 |= (RF3_DRAGON);
+					if (f4 & TR4_SLAY_TROLL)  flg3 |= (RF3_TROLL);
+					if (f4 & TR4_SLAY_GIANT)  flg3 |= (RF3_GIANT);
+					if (f4 & TR4_SLAY_ORC)    flg3 |= (RF3_ORC);
+					if (f4 & TR4_SLAY_DEMON)  flg3 |= (RF3_DEMON);
+					if (f4 & TR4_SLAY_UNDEAD) flg3 |= (RF3_UNDEAD);
+					if (f4 & TR4_SLAY_ANIMAL) flg3 |= (RF3_ANIMAL);
+					if (f4 & TR4_SLAY_EVIL)   flg3 |= (RF3_EVIL);
 
 					/* The object cannot be picked up by the monster */
 					if ((o_ptr->flags3 & TR3_INSTA_ART) ||

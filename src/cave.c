@@ -939,7 +939,7 @@ static void image_monster(byte *ap, char *cp)
  * Hack -- Legal object codes
  */
 static cptr image_object_hack = \
-"?/|\\\"!$()_-=[]{},~";
+"?/|\\\"!$()_-=[]{},~`";
 
 
 /*

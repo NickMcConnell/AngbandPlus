@@ -1,7 +1,7 @@
 
 
                               ~~~~~~~~~~~~~~~~~~~~
-                             <~  STAngband 0.7   ~>
+                            <~  STAngband 0.8.5   ~>
                               ~~~~~~~~~~~~~~~~~~~~
              By Simon Curtis:    < andre_axem@hotmail.com >
 

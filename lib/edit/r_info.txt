@@ -14685,4 +14685,4 @@ F:NEVER_MOVE | WILD_DUNGEON_01
 F:STUPID | EMPTY_MIND | SILLY
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It looks like cheese!  
-D:Suddenly you wonder about the cheese on the walls.
+D:Suddenly you wonder about the cheese on the walls...

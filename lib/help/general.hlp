@@ -10,6 +10,8 @@ Please choose one of the following online help files:
     (5) Zangband on the Web        (general.txt#Web)
     (6) Version Numbering          (general.txt#VersionNumber)
     (7) Version History            (version.txt)
+    (8) STAngband Information      (stangband.txt)
+    (9) STAngband Tips             (stangband.txt#Tips)
 
     (?) Help System Commands       (helpinfo.txt)
 
@@ -22,3 +24,5 @@ Please choose one of the following online help files:
 ***** [5] general.txt#Web
 ***** [6] general.txt#VersionNumber
 ***** [7] version.txt
+***** [8] stangband.txt
+***** [9] stangband.txt#Tips

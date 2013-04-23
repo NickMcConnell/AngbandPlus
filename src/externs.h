@@ -446,10 +446,6 @@ extern void do_cmd_browse(void);
 extern void do_cmd_browse_aux(const object_type *o_ptr);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
-extern bool cast_water_spell(int); /* Required for (minor)trump spell */
-extern bool cast_earth_spell(int); /* ditto */
-extern bool cast_astral_spell(int); /* ditto */
-extern bool cast_wizard_spell(int); /* ditto */
 extern void do_cmd_pray(void);
 extern void do_cmd_pet(void);
 
@@ -460,6 +456,7 @@ extern void do_cmd_read_scroll(void);
 extern void do_cmd_aim_wand(void);
 extern void do_cmd_use_staff(void);
 extern void do_cmd_zap_rod(void);
+extern void do_cmd_tech_item(void);
 extern void do_cmd_activate(void);
 extern void do_cmd_rerate(void);
 extern void ring_of_power(int dir);
@@ -612,8 +609,8 @@ extern void object_desc_store(char *buf, const object_type *o_ptr, int pref, int
 /* object2.c */
 
 extern void reset_visuals(void);
-extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
-extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4);
+extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4);
 extern bool identify_fully_aux(const object_type *o_ptr);
 extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
@@ -706,7 +703,7 @@ extern bool scan_floor(int *items, int *item_num, int y, int x, int mode);
 extern void show_floor(int y, int x);
 
 /* racial.c */
-extern bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty);
+extern bool racial_aux(s16b min_level, int cost, int use_stat, int fail_stat, int difficulty);
 extern void do_cmd_racial_power(void);
 
 /* save.c */
@@ -715,7 +712,6 @@ extern bool load_player(void);
 extern void remove_loc(void);
 
 /* spells1.c */
-extern void take_hit(int damage, cptr kb_str);
 extern void bolt_pict(int y, int x, int ny, int nx, int typ, byte *a, byte *c);
 extern int dist_to_line(int y, int x, int y1, int x1, int y2, int x2);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg);
@@ -979,6 +975,7 @@ extern void handle_stuff(void);
 
 
 /* effects.c */
+extern void take_hit(int damage, cptr kb_str);
 extern bool set_blind(int v);
 extern bool set_confused(int v);
 extern bool set_poisoned(int v);

@@ -1319,6 +1319,10 @@ void do_cmd_options(byte flags)
 							option_info[i].o_text);
 					}
 				}
+				
+				fprintf(fff, "H:%c\n", I2A(hitpoint_warn)); 
+				fprintf(fff, "D:%c\n", I2A(delay_factor)); 
+
 
 				/* Close the file */
 				my_fclose(fff);

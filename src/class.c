@@ -12,46 +12,246 @@
 
 #include "angband.h"
 
+int *index;
+
+int mindcrafter[] = { 	MINDCRAFT_NEURAL_BLAST, 
+			MINDCRAFT_PRECOGNITION, 
+			MINDCRAFT_MINOR_DISPLACEMENT, 
+			MINDCRAFT_MINOR_TELEKINESIS,
+			MINDCRAFT_MAJOR_DISPLACEMENT,
+			MINDCRAFT_DOMINATION,
+			MINDCRAFT_PULVERISE,
+			MINDCRAFT_CHARACTER_ARMOUR,
+			MINDCRAFT_PSYCHOMETRY,
+			MINDCRAFT_MIND_WAVE,
+			MINDCRAFT_CHARM,
+			MINDCRAFT_ADRENALINE_CHANNELING,
+			MINDCRAFT_PSYCHIC_DRAIN,
+			MINDCRAFT_TELEKINETIC_WAVE,
+			CLASS_ABILITY_MAX
+			};
+
+int warrior[] = { 	WARRIOR_TRAINING,
+			SPIN_ATTACK,
+			CLASS_ABILITY_MAX
+			};
+		
+int berserker[] = { 	WARRIOR_TRAINING,
+			BERSERK_BERSERK,
+			SPIN_ATTACK,
+			CLASS_ABILITY_MAX
+			};
+
+int ranger[] = { 	WARRIOR_TRAINING,
+			CREATE_MISSILE,
+			CLASS_ABILITY_MAX
+			};
+		
+int paladin[] = { 	WARRIOR_TRAINING,
+			PALADIN_HEAL_TOUCH,
+			CLASS_ABILITY_MAX
+			};
+
+int darkknight[] = { 	WARRIOR_TRAINING,
+			DEATH_BLOOD_FIRE,
+			CLASS_ABILITY_MAX
+			};
+			
+int chaoswar[] = { 	WARRIOR_TRAINING,
+			CLASS_ABILITY_MAX
+			};
+		
+int priest[] = { 	PRIEST_TURN_UNDEAD,
+			CLASS_ABILITY_MAX
+			};
+			
+int necromancer[] = {	DEATH_BLOOD_FIRE,
+			CLASS_ABILITY_MAX
+			};
+			
+int shaman[] = {	CLASS_ABILITY_MAX
+			};
+		
+int archer[] = { 	WARRIOR_TRAINING,
+			CREATE_MISSILE,
+			CLASS_ABILITY_MAX
+			};
+
+int witch[] = { 	TECH_SPEED_POTION,
+			TECH_HEAL_POTION,
+			TECH_PROTECT_POTION,
+			TECH_RECHARGE,
+			TECH_RESTORE_POTION,
+			CLASS_ABILITY_MAX
+			};
+
+int tech[] = { 		TECH_REFUEL,
+			TECH_DART,
+			TECH_SPEED_POTION,
+			TECH_CREATE_WEAPON,
+			TECH_HEAL_POTION,
+			TECH_BOMB,
+			TECH_PROTECT_POTION,
+			TECH_RECHARGE,
+			TECH_CREATE_WEAPON2,
+			TECH_RESTORE_POTION,
+			TECH_IMPROVE_WEAPON,
+			TECH_IMPROVE_ARMOUR,
+			TECH_FISSION_BEAM,
+			TECH_NITRO9,
+			TECH_MEGA_NUKE,
+			CLASS_ABILITY_MAX
+			};
+
+int techwar[] = { 	TECH_REFUEL,
+			WARRIOR_TRAINING,
+			TECH_DART,
+			TECH_SPEED_POTION,
+			TECH_CREATE_WEAPON,
+			TECH_HEAL_POTION,
+			TECH_BOMB,
+			TECH_PROTECT_POTION,
+			TECH_RECHARGE,
+			TECH_CREATE_WEAPON2,
+			TECH_RESTORE_POTION,
+			SPIN_ATTACK,
+			TECH_IMPROVE_WEAPON,
+			TECH_IMPROVE_ARMOUR,
+			TECH_FISSION_BEAM,
+			TECH_NITRO9,
+			TECH_MEGA_NUKE,
+			CLASS_ABILITY_MAX
+			};
+
+int techmage[] = { 	TECH_REFUEL,
+			TECH_DART,
+			MAGE_FOCUS_MANA,
+			TECH_SPEED_POTION,
+			TECH_CREATE_WEAPON,
+			TECH_HEAL_POTION,
+			TECH_BOMB,
+			TECH_PROTECT_POTION,
+			TECH_RECHARGE,
+			TECH_CREATE_WEAPON2,
+			TECH_RESTORE_POTION,
+			TECH_IMPROVE_WEAPON,
+			TECH_IMPROVE_ARMOUR,
+			TECH_FISSION_BEAM,
+			MAGE_SENSE,
+			TECH_NITRO9,
+			TECH_MEGA_NUKE,
+			CLASS_ABILITY_MAX
+			};
+			
+int techthief[] = { 	TECH_REFUEL,
+			TECH_DART,
+			TECH_SPEED_POTION,
+			TECH_CREATE_WEAPON,
+			TECH_HEAL_POTION,
+			TECH_BOMB,
+			TECH_PROTECT_POTION,
+			ROGUE_SENSE_INVIS,
+			TECH_RECHARGE,
+			TECH_CREATE_WEAPON2,
+			TECH_RESTORE_POTION,
+			TECH_IMPROVE_WEAPON,
+			TECH_IMPROVE_ARMOUR,
+			ROGUE_BE_INVIS,
+			TECH_FISSION_BEAM,
+			TECH_NITRO9,
+			TECH_MEGA_NUKE,
+			CLASS_ABILITY_MAX
+			};
+			
+int mage[] = {		MAGE_FOCUS_MANA,
+			MAGE_SENSE,
+			CLASS_ABILITY_MAX
+			};
+			
+int warmage[] = {	WARRIOR_TRAINING,
+			MAGE_FOCUS_MANA,
+			SPIN_ATTACK,
+			MAGE_SENSE,
+			CLASS_ABILITY_MAX
+			};
+			
+int rogue[] = {		ROGUE_SENSE_INVIS,
+			ROGUE_BE_INVIS,
+			CLASS_ABILITY_MAX
+			};
+			
+int roguemage[] = {	MAGE_FOCUS_MANA,
+			ROGUE_SENSE_INVIS,
+			ROGUE_BE_INVIS,
+			MAGE_SENSE,
+			CLASS_ABILITY_MAX
+			};
+
+int ninja[] = {		WARRIOR_TRAINING,
+			ROGUE_SENSE_INVIS,
+			ROGUE_BE_INVIS,
+			CLASS_ABILITY_MAX
+			};
+			
+int monk[] = {		WARRIOR_TRAINING,
+			ROGUE_SENSE_INVIS,
+			CLASS_ABILITY_MAX
+			};
+			
+int blank[] = { 	CLASS_ABILITY_MAX
+			};
+		
+		
 class_power class_powers[CLASS_ABILITY_MAX] =
 {
-	/* Level, tech type, Stat to use, cost, fail stat, %fail, name */
-	{ 1,  	1,  	1, 	 1, 	A_WIS, 	15, 	"Neural Blast" },          /* ~MM */
-	{ 2,  	1,  	1, 	 1, 	A_WIS, 	20, 	"Precognition" },          /* Det. monsters/traps */
-	{ 3,  	1,  	1, 	 2, 	A_WIS, 	25, 	"Minor Displacement" },    /* Blink */
-	{ 7,  	1,  	1, 	 6, 	A_WIS,	35, 	"Major Displacement" },    /* Tele. Self / All */
-	{ 9,  	1,  	1, 	 7, 	A_WIS, 	50, 	"Domination" },
-	{ 11, 	1,  	1, 	 7, 	A_WIS, 	30, 	"Pulverise" },             /* Telekinetic "bolt" */
-	{ 13, 	1,  	1, 	12, 	A_WIS, 	50, 	"Character Armour" },      /* Psychic/physical defenses */
-	{ 15, 	1,  	1, 	12, 	A_WIS, 	60, 	"Psychometry" },
-	{ 18, 	1,  	1, 	10, 	A_WIS, 	45, 	"Mind Wave" },             /* Ball -> LOS */
-	{ 23, 	1,  	1, 	15, 	A_WIS, 	50, 	"Adrenaline Channeling" },
-	{ 25, 	1,  	1, 	10, 	A_WIS, 	40, 	"Psychic Drain" },         /* Convert enemy HP to mana */
-	{ 28, 	1,  	1, 	20, 	A_WIS, 	45, 	"Telekinetic Wave" },      /* Ball -> LOS */
-	{ 1,  	2,  	3, 	10, 	A_CON, 	25, 	"Training" },      	   /* Restore Physical Stats */
-	{ 8,  	3,  	3, 	10, 	A_WIS, 	 9, 	"Berserk" },      	   /* Berserk */
-	{ 1,  	4,  	2, 	 6, 	A_INT, 	20, 	"Make Ammunition" },       /* Shots, Arrows and Bolts */
-	{ 1,   	5, 	2, 	 2, 	A_INT, 	10, 	"Refuel" },       	   /* Torches and Lamps */
-	{ 2,   	5, 	2, 	 3, 	A_INT, 	14, 	"Dart" },       	   /* MM */
-	{ 5,   	5, 	2, 	 5, 	A_INT, 	24, 	"Speed Potion" },
-	{ 6,   	5, 	2, 	10, 	A_INT, 	50, 	"Create Weapon" },
-	{ 8,   	5, 	2, 	10, 	A_INT, 	30, 	"Healing Potion" },
-	{ 10,  	5, 	2, 	 7, 	A_INT, 	20, 	"Blast Wave" },       	   /* Ball */      	 
-	{ 15,   5, 	2, 	15, 	A_INT, 	40, 	"Protective Potion" },
-	{ 18,	5,	2,	20,	A_INT,	50,	"Recharge Magic" },
-	{ 20,  	5, 	2, 	25, 	A_INT, 	75, 	"Create Weapon II" },
-	{ 25,  	5, 	2, 	30, 	A_INT, 	60, 	"Restoring Potion" },
-	{ 30,	5,	2,	40,	A_INT,	80,	"Improve weapon" },
-	{ 30,	5,	2,	45,	A_INT,	75,	"Improve armour" },
-	{ 35,	5,	2,	50,	A_INT,	65,	"Fission beam" },
-	{ 40,	5,	2,	60,	A_INT,	70,	"Explosives" },
-	{ 48,	5,	2,	100,	A_INT,	90,	"Nuke" },		   /* Ball */
-	{ 5,   	6, 	2, 	 5, 	A_INT, 	24, 	"Speed Potion" },
-	{ 8,   	6, 	2, 	10, 	A_INT, 	30, 	"Healing Potion" },
-	{ 15,   6, 	2, 	15, 	A_INT, 	40, 	"Protective Potion" },
-	{ 18,	6,	2,	20,	A_INT,	50,	"Recharge Magic" },
-	{ 25,  	6, 	2, 	30, 	A_INT, 	60, 	"Restoring Potion" },
-	{ 5,  	7, 	1, 	10, 	A_WIS, 	10, 	"Turn Undead" },
-	{ 7,  	8, 	1, 	20, 	A_WIS, 	10, 	"Healing Touch" },
+	/* Level, Stat to use, cost, fail stat, %fail, name */
+	{ 1,  	  	SP, 	 1, 	A_WIS, 	15, 	"Neural Blast" },          /* ~MM */
+	{ 2,  	  	SP, 	 1, 	A_WIS, 	20, 	"Precognition" },          /* Det. monsters/traps */
+	{ 3,  	 	SP, 	 2, 	A_WIS, 	25, 	"Minor Displacement" },    /* Blink */
+	{ 5,		SP,	 2,	A_WIS,	30,	"Minor Telekinesis" },
+	{ 7,  	  	SP, 	 6, 	A_WIS,	35, 	"Major Displacement" },    /* Tele. Self / All */
+	
+	{ 9,  	  	SP, 	 7, 	A_WIS, 	50, 	"Domination" },
+	{ 11, 	  	SP, 	 7, 	A_WIS, 	30, 	"Pulverise" },             /* Telekinetic "bolt" */
+	{ 13, 	 	SP, 	12, 	A_WIS, 	50, 	"Character Armour" },      /* Psychic/physical defenses */
+	{ 15, 	  	SP, 	12, 	A_WIS, 	60, 	"Psychometry" },
+	{ 18, 	  	SP, 	10, 	A_WIS, 	45, 	"Mind Wave" },             /* Ball -> LOS */
+	
+	{ 20,		SP,	20,	A_WIS,	55,	"Charm" },
+	{ 23, 	  	SP, 	15, 	A_WIS, 	50, 	"Adrenaline Channeling" },
+	{ 25, 	  	SP, 	10, 	A_WIS, 	40, 	"Psychic Drain" },         /* Convert enemy HP to mana */
+	{ 28, 	  	SP, 	20, 	A_WIS, 	45, 	"Telekinetic Wave" },      /* Ball -> LOS */	
+	{ 1,  	  	FP,    200, 	A_CON, 	25, 	"Training" },      	   /* Restore Physical Stats */
+	
+	{ 8,  	  	FP,    100, 	A_WIS, 	 9, 	"Berserk" },      	   /* Berserk */
+	{ 1,  	  	RP, 	 6, 	A_INT, 	20, 	"Make Ammunition" },       /* Shots, Arrows or Bolts */
+	{ 1,   	 	RP, 	 2, 	A_INT, 	10, 	"Refuel" },       	   /* Torches and Lamps */
+	{ 2,   	 	RP, 	 3, 	A_INT, 	14, 	"Dart" },       	   /* MM */
+	{ 5,   	 	RP, 	 5, 	A_INT, 	24, 	"Speed Potion" },
+	
+	{ 6,   	 	RP, 	10, 	A_INT, 	50, 	"Create Weapon" },
+	{ 8,   	 	RP, 	10, 	A_INT, 	30, 	"Healing Potion" },
+	{ 10,  	 	RP, 	 7, 	A_INT, 	20, 	"Blast Wave" },       	   /* Wave */      	 
+	{ 15,    	RP, 	15, 	A_INT, 	40, 	"Protective Potion" },
+	{ 18,		RP,	20,	A_INT,	50,	"Recharge Magic" },
+	
+	{ 20,  	 	RP, 	25, 	A_INT, 	75, 	"Create Weapon II" },
+	{ 25,  	 	RP, 	30, 	A_INT, 	60, 	"Restoring Potion" },
+	{ 30,		RP,	40,	A_INT,	80,	"Improve weapon" },
+	{ 30,		RP,	45,	A_INT,	75,	"Improve armour" },
+	{ 35,		RP,	50,	A_INT,	65,	"Fission beam" },
+
+	{ 40,		RP,	60,	A_INT,	70,	"Explosives" },
+	{ 48,		RP,    100,	A_INT,	90,	"Nuke" },		   /* Ball */
+	{ 5,  	 	SP, 	10, 	A_WIS, 	10, 	"Turn Undead" },
+	{ 7,  	 	SP, 	20, 	A_WIS, 	10, 	"Healing Touch" },
+	{ 3,		FP,	25,	A_INT,	33,	"Gather Mana" },
+
+	{ 27,		FP,	150,	A_DEX,  40,	"Spin Attack" },
+	{ 36,		FP,	25,	A_INT,	76,	"Mage Sense" },
+	{ 17,		FP,	22,	A_WIS,	27,	"Sense Invisible" },
+	{ 32,		SP,	20,	A_WIS,	56,	"Invisibility" },
+	{ 22,		HP,	50,	A_INT,	66,	"Blood Fire" }
 };
 
 
@@ -69,6 +269,9 @@ void class_ability_info(char *p, int power)
 		case MINDCRAFT_MINOR_DISPLACEMENT:
 			sprintf(p, " range %d", (plev < 25 ? 2 : plev + 2));
 			break;
+		case MINDCRAFT_MINOR_TELEKINESIS:
+			sprintf(p, " max wgt %d", plev * 15 / 10); 
+			break;
 		case MINDCRAFT_MAJOR_DISPLACEMENT:
 			sprintf(p, " range %d", plev * 5);
 			break;
@@ -80,6 +283,9 @@ void class_ability_info(char *p, int power)
 			break;
 		case MINDCRAFT_MIND_WAVE:
 			sprintf(p, " dam %d", plev * ((plev - 5) / 10 + 1));
+			break;
+		case MINDCRAFT_CHARM:
+			strcpy (p, " dur 50-100");
 			break;
 		case MINDCRAFT_ADRENALINE_CHANNELING:
 			sprintf(p, " dur 11-%d", plev + plev / 2 + 10);
@@ -107,6 +313,13 @@ void class_ability_info(char *p, int power)
 			break;
 		case PALADIN_HEAL_TOUCH:
 			sprintf(p, " heal %d", plev * 2);
+			break;
+		case MAGE_FOCUS_MANA:
+			sprintf(p, " +1d%d SP", plev);
+			break;
+		case DEATH_BLOOD_FIRE:
+			sprintf(p, " dam %d", 100 + 3 * plev);
+			break;
 		default:
 			break;
 	}
@@ -152,11 +365,133 @@ static int get_class_power(int *sn)
 	/* Assume cancelled */
 	*sn = (-1);
 
+	switch (p_ptr->pclass)
+	{
+		case CLASS_MINDCRAFTER:
+		{
+			index = &mindcrafter[0];
+			break;
+		}
+		case CLASS_WARRIOR:
+		{
+			index = &warrior[0];
+			break;
+		}
+		case CLASS_BERSERK:
+		{
+			index = &berserker[0];
+			break;
+		}
+		case CLASS_RANGER:
+		{
+			index = &ranger[0];
+			break;
+		}
+		case CLASS_ARCHER:
+		{
+			index = &archer[0];
+			break;
+		}
+		case CLASS_PALADIN:
+		{
+			index = &paladin[0];
+			break;
+		}
+		case CLASS_WITCH:
+		{
+			index = &witch[0];
+			break;
+		}
+		case CLASS_TECH_FULL:
+		case CLASS_TECH_CLERIC:
+		{
+			index = &tech[0];
+			break;
+		}
+		case CLASS_TECH_WAR:
+		{
+			index = &techwar[0];
+			break;
+		}
+		case CLASS_TECH_MAGE:
+		{
+			index = &techmage[0];
+			break;
+		}
+		case CLASS_TECH_THIEF:
+		{
+			index = &techthief[0];
+			break;
+		}
+		case CLASS_MAGE_FIRE:
+		case CLASS_MAGE_WATER:
+		case CLASS_MAGE_EARTH:
+		case CLASS_MAGE_AIR:
+		case CLASS_WIZARD:
+		case CLASS_HIGH_MAGE:
+		{
+			index = &mage[0];
+			break;
+		}
+		case CLASS_WARRIOR_MAGE:
+		{
+			index = &warmage[0];
+			break;
+		}
+		case CLASS_ROGUE:
+		case CLASS_ASSASSIN:
+		{
+			index = &rogue[0];
+			break;
+		}
+		case CLASS_NINJA:
+		{
+			index = &ninja[0];
+			break;
+		}
+		case CLASS_THIEF_MAGE:
+		{
+			index = &roguemage[0];
+			break;
+		}
+		case CLASS_MONK:
+		{
+			index = &monk[0];
+			break;
+		}
+		case CLASS_DARK_KNIGHT:
+		{
+			index = &darkknight[0];
+			break;
+		}
+		case CLASS_CHAOS_WARRIOR:
+		{
+			index = &chaoswar[0];
+			break;
+		}
+		case CLASS_NECROMANCER:
+		{
+			index = &necromancer[0];
+			break;
+		}
+		case CLASS_SHAMAN:
+		{
+			index = &shaman[0];
+			break;
+		}
+
+		default:
+		{
+			index = &blank[0];
+			break;
+		}
+	}
+
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
 	{
 		/* Verify the spell */
-		if (class_powers[*sn].min_lev <= plev)
+		if (class_powers[index[*sn]].min_lev <= plev)
 		{
 			/* Success */
 			return (TRUE);
@@ -169,13 +504,15 @@ static int get_class_power(int *sn)
 	/* No redraw yet */
 	redraw = FALSE;
 
-	for (i = mp_ptr->class_first; i < CLASS_ABILITY_MAX; i++)
+	i = 0;
+
+	do
 	{
-		if ((class_powers[i].min_lev <= plev) && (class_powers[i].tech_type == mp_ptr->tech_type))
+		if (class_powers[index[i]].min_lev <= plev)
 		{
 			num++;
 		}
-	}
+	} while (index[i++] != CLASS_ABILITY_MAX);
 	
 	if (num == 0)
 	{
@@ -209,16 +546,21 @@ static int get_class_power(int *sn)
 				put_str("Name", y, x + 5);
 				put_str("Lv Cost Fail Info", y, x + 35);
 
+				i = 0;
 				/* Dump the spells */
-				for (i = mp_ptr->class_first; i < CLASS_ABILITY_MAX; i++)
+				do
 				{
-					if (class_powers[i].use_stat == 1)
+					if (class_powers[index[i]].use_stat == SP)
 					{
 						thing = p_ptr->csp;
 					}
-					else if (class_powers[i].use_stat == 2)
+					else if (class_powers[index[i]].use_stat == RP)
 					{
 						thing = p_ptr->crp;
+					}
+					else if (class_powers[index[i]].use_stat == FP)
+					{
+						thing = p_ptr->fatigue;
 					}
 					else
 					{
@@ -226,8 +568,8 @@ static int get_class_power(int *sn)
 					}
 					
 					/* Access the spell */
-					spell = class_powers[i];
-					if ((spell.min_lev > plev) || (class_powers[i].tech_type != mp_ptr->tech_type)) break;
+					spell = class_powers[index[i]];
+					if (spell.min_lev > plev) break;
 
 					chance = spell.fail;
 
@@ -235,17 +577,17 @@ static int get_class_power(int *sn)
 					chance -= 3 * (plev - spell.min_lev);
 
 					/* Reduce failure rate by stat adjustment */
-					chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[class_powers[i].fail_stat]] - 1);
+					chance -= 3 * (adj_mag_stat[change_form(class_powers[index[i]].fail_stat)] - 1);
 
 					/* Not enough mana to cast */
-					if (spell.cost > thing)
+					if ((spell.cost > thing) && (class_powers[index[i]].use_stat != FP))
 					{
 						excess = thing;
 						chance += 5 * (spell.cost - excess);
 					}
 
 					/* Extract the minimum failure rate */
-					minfail = adj_mag_fail[p_ptr->stat_ind[class_powers[i].fail_stat]];
+					minfail = adj_mag_fail[change_form(class_powers[index[i]].fail_stat)];
 
 					/* Minimum failure rate */
 					if (chance < minfail) chance = minfail;
@@ -258,19 +600,19 @@ static int get_class_power(int *sn)
 					if (chance > 95) chance = 95;
 
 					/* Get info */
-					class_ability_info(comment, i);
+					class_ability_info(comment, index[i]);
 
 					/* Dump the spell --(-- */
 					sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
-					        I2A(i - mp_ptr->class_first), spell.name,
+					        I2A(i), spell.name,
 					        spell.min_lev, spell.cost, chance, comment);
-					prt(psi_desc, y + i + 1 - mp_ptr->class_first, x);
-				}
+					prt(psi_desc, y + i, x);
+
+				} while (index[i++] != CLASS_ABILITY_MAX);
 
 				/* Clear the bottom line */
-				prt("", y + i + 1 - mp_ptr->class_first, x);
+				prt("", y + i, x);
 			}
-
 			/* Hide the list */
 			else
 			{
@@ -284,7 +626,7 @@ static int get_class_power(int *sn)
 			/* Redo asking */
 			continue;
 		}
-
+		
 		/* Note verify */
 		ask = isupper(choice);
 
@@ -293,18 +635,16 @@ static int get_class_power(int *sn)
 
 		/* Extract request */
 		i = (islower(choice) ? A2I(choice) : -1);
-
-		i += (mp_ptr->class_first);
+		
 		/* Totally Illegal */
-		if ((i < mp_ptr->class_first) || (i >= num + mp_ptr->class_first))
+		if ((i < 0) || (i >= num))
 		{
 			bell();
 			continue;
 		}
-
+		
 		/* Save the spell index */
-		spell = class_powers[i];
-
+		spell = class_powers[index[i]];
 
 		/* Verify it */
 		if (ask)
@@ -312,7 +652,7 @@ static int get_class_power(int *sn)
 			char tmp_val[160];
 
 			/* Prompt */
-			(void)strnfmt(tmp_val, 78, "Use %s? ", class_powers[i].name);
+			(void)strnfmt(tmp_val, 78, "Use %s? ", spell.name);
 
 			/* Belay that order */
 			if (!get_check(tmp_val)) continue;
@@ -334,11 +674,11 @@ static int get_class_power(int *sn)
 	
 	/* Abort if needed */
 	if (!flag) return (FALSE);
-
+	
 	/* Save the choice */
-	(*sn) = i;
+	(*sn) = index[i];
 
-	repeat_push(*sn);
+	repeat_push(index[i]);
 
 	/* Success */
 	return (TRUE);
@@ -759,10 +1099,10 @@ static bool make_weapon(int boost)
 static bool cast_class_spell(int spell)
 {
 	int b;
-	int dir;
+	int dir = 0;
 	int plev = p_ptr->lev;
 	int die;
-
+	int mod = 0;
 
 	/* spell code */
 	switch (spell)
@@ -818,6 +1158,9 @@ static bool cast_class_spell(int spell)
 			return dimension_door(1);
 		}
 		break;
+	case MINDCRAFT_MINOR_TELEKINESIS:
+		fetch(dir, plev * 15, FALSE);
+		break;
 	case MINDCRAFT_MAJOR_DISPLACEMENT:
 		/* Major displace */
 		if (plev > 29) (void)banish_monsters(plev);
@@ -838,7 +1181,6 @@ static bool cast_class_spell(int spell)
 		}
 		break;
 	case MINDCRAFT_PULVERISE:
-		/* Fist of Force  ---  not 'true' TK */
 		if (!get_aim_dir(&dir)) return FALSE;
 		(void)fire_ball(GF_TELEKINESIS, dir, damroll(8 + ((plev - 5) / 4), 8),
 		          (plev > 20 ? (plev - 20) / 8 + 1 : 0));
@@ -866,6 +1208,17 @@ static bool cast_class_spell(int spell)
 			        (plev * 3) / 2, GF_PSI, PROJECT_KILL);
 		else
 			(void)mindblast_monsters(plev * ((plev - 5) / 10 + 1));
+		break;
+	case MINDCRAFT_CHARM:
+		/*  Spot the useless bit ;)*/
+		if (!p_ptr->boost_chr)
+		{
+			(void)set_boost_chr(p_ptr->boost_chr + rand_range(50, 100));
+		}
+		else
+		{
+			(void)set_boost_chr(p_ptr->boost_chr + randint1(plev));
+		}
 		break;
 	case MINDCRAFT_ADRENALINE_CHANNELING:
 		/* Adrenaline */
@@ -914,7 +1267,10 @@ static bool cast_class_spell(int spell)
 	   plev * (plev > 39 ? 4 : 3), GF_TELEKINESIS, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID);
 		break;
 	case WARRIOR_TRAINING:
-		die = (randint1(50) + plev);
+		/* Restores physical stats */
+		if (p_ptr->pclass == CLASS_WARRIOR)
+			mod = 1;
+		die = (randint1(30 + 20 * mod) + plev);
 		msg_print("You train hard.");
 		if (die > 40)
 			{ (void)do_res_stat(A_STR);
@@ -949,14 +1305,12 @@ static bool cast_class_spell(int spell)
 		(void)fire_bolt(GF_MISSILE, dir, damroll(3 + ((plev - 1) / 5), 4));
 		break;
 	case TECH_SPEED_POTION:
-	case WITCH_SPEED_POTION:
 		make_potion(0);
 		break;
 	case TECH_CREATE_WEAPON:
 		make_weapon(0);
 		break;
 	case TECH_HEAL_POTION:
-	case WITCH_HEAL_POTION:
 		make_potion(2);
 		break;
 	case TECH_BOMB:
@@ -964,18 +1318,15 @@ static bool cast_class_spell(int spell)
 		(void)fire_ball(GF_ROCKET, dir, damroll(5, 5), -plev/10 +1);
 		break;
 	case TECH_PROTECT_POTION:
-	case WITCH_PROTECT_POTION:
 		make_potion(3);
 		break;
 	case TECH_RECHARGE:
-	case WITCH_RECHARGE:
 		return recharge(plev * 3);
 		break;
 	case TECH_CREATE_WEAPON2:
 		make_weapon(1);
 		break;
 	case TECH_RESTORE_POTION:
-	case WITCH_RESTORE_POTION:
 		make_potion(1);
 		break;
 	case TECH_IMPROVE_WEAPON:
@@ -1000,7 +1351,7 @@ static bool cast_class_spell(int spell)
 		object_type	forge;
 		object_type     *q_ptr;
 		q_ptr = &forge;
-		object_prep(q_ptr, lookup_kind(TV_POTION, 22));
+		object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_DETONATIONS));
 		q_ptr->discount = 99;
 		msg_print("You make an explosive.");
 		(void)inven_carry(q_ptr);
@@ -1019,8 +1370,60 @@ static bool cast_class_spell(int spell)
 		(void)set_poisoned(0);
 		(void)hp_player(plev*2);
 		break;
+	case MAGE_FOCUS_MANA:
+		p_ptr->csp += randint1(plev);
+		p_ptr->csp_frac = 0;
+		msg_print(" You focus nearby mana. ");
+		p_ptr->redraw |= (PR_MANA);
+		p_ptr->window |= (PW_PLAYER);
+		p_ptr->window |= (PW_SPELL);
+		
+		break;
+	case SPIN_ATTACK:
+	{
+		int y = 0, x = 0;
+		int px = p_ptr->px;
+		int py = p_ptr->py;
+		cave_type *c_ptr;
+		monster_type *m_ptr;
+		
+		for (dir != ( 0 || 5 ); dir <= 9; dir++)
+		{
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+	
+			/* paranoia */
+			if (!in_bounds2(y, x)) continue;
+			c_ptr = area(y, x);
+		
+			/* Get the monster */
+			m_ptr = &m_list[c_ptr->m_idx];
+		
+			/* Hack -- attack monsters */
+			if (c_ptr->m_idx && (m_ptr->ml || cave_floor_grid(c_ptr)))
+				py_attack(y, x);
+		}
+	}
+		break;
+	case MAGE_SENSE:
+		detect_objects_magic();
+		break;
+	case ROGUE_SENSE_INVIS:
+		if (p_ptr->pclass == CLASS_ROGUE)
+			mod = 1;
+		if (randint1(plev - 20 * mod) >> plev)
+			(void)set_image(p_ptr->image + 2);
+		(void)detect_monsters_invis();
+		break;
+	case ROGUE_BE_INVIS:
+		(void)set_invisible(p_ptr->tim_nonvis + rand_range(50, 100));
+		break;
+	case DEATH_BLOOD_FIRE:
+		if (!get_aim_dir(&dir)) return FALSE;
+		(void)fire_ball(GF_MISSILE, dir, 100 + 3 * plev, 3);
+		break;
 	default:
-		msg_format("Unknown Class power!", spell);
+		msg_format("Unknown Class Power!: %i.", spell);
 	}
 
 	return TRUE;
@@ -1040,6 +1443,7 @@ void do_cmd_class(void)
 	int             old_csp = p_ptr->csp;
 	int             old_crp = p_ptr->crp;
 	int             old_chp = p_ptr->chp;
+	int             old_fatigue = p_ptr->fatigue;
 	int		excess, stat;
 	cptr		thing, thing2;
 	class_power 	spell;
@@ -1058,15 +1462,20 @@ void do_cmd_class(void)
 
 	spell = class_powers[n];
 
-	if (class_powers[n].use_stat == 1)
+	if (class_powers[n].use_stat == SP)
 	{
 		thing = p_ptr->csp;
 		thing2 = old_csp;
 	}
-	else if (class_powers[n].use_stat == 2)
+	else if (class_powers[n].use_stat == RP)
 	{
 		thing = p_ptr->crp;
 		thing2 = old_crp;
+	}
+	else if (class_powers[n].use_stat == FP)
+	{
+		thing = p_ptr->fatigue;
+		thing2 = old_fatigue;
 	}
 	else
 	{
@@ -1075,11 +1484,11 @@ void do_cmd_class(void)
 	}
 
 	/* Verify "dangerous" spells */
-	if (spell.cost > thing)
+	if ((spell.cost > thing) && (class_powers[n].use_stat != FP))
 	{
-		if (class_powers[n].use_stat == 2)
+		if (class_powers[n].use_stat == RP)
 		{
-			msg_print("You need more resources");
+			msg_print("You need more resources.");
 			return;
 		}
 		/* Warning */
@@ -1096,17 +1505,17 @@ void do_cmd_class(void)
 	chance -= 3 * (plev - spell.min_lev);
 
 	/* Reduce failure rate by stat adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[class_powers[n].fail_stat]] - 1);
+	chance -= 3 * (adj_mag_stat[change_form(class_powers[n].fail_stat)] - 1);
 
 	/* Not enough mana to cast */
-	if (spell.cost > thing)
+	if ((spell.cost > thing) && (class_powers[n].use_stat != FP))
 	{
 		excess = thing;
 		chance += 5 * (spell.cost - excess);
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[class_powers[n].fail_stat]];
+	minfail = adj_mag_fail[change_form(class_powers[n].fail_stat)];
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
@@ -1173,13 +1582,17 @@ void do_cmd_class(void)
 	p_ptr->energy_use = 100;
 
 	/* Sufficient mana */
-	if (spell.cost <= thing2)
+	if ((spell.cost <= thing2) && (class_powers[n].use_stat != FP))
 	{
 		/* Use some mana */
 		thing -= spell.cost;
 
 		/* Limit */
 		if (thing < 0) thing = 0;
+	}
+	else if (class_powers[n].use_stat == FP)
+	{
+		thing += spell.cost;
 	}
 
 	/* Over-exert the player */
@@ -1215,13 +1628,17 @@ void do_cmd_class(void)
 	
 	/* Use the points */
 	stat = thing;
-	if (class_powers[n].use_stat == 1)
+	if (class_powers[n].use_stat == SP)
 	{
 		p_ptr->csp = stat;
 	}
-	else if (class_powers[n].use_stat == 2)
+	else if (class_powers[n].use_stat == RP)
 	{
 		p_ptr->crp = stat;
+	}
+	else if (class_powers[n].use_stat == FP)
+	{
+		p_ptr->fatigue = stat;
 	}
 	else
 	{
@@ -1237,4 +1654,3 @@ void do_cmd_class(void)
 	p_ptr->window |= (PW_PLAYER);
 	p_ptr->window |= (PW_SPELL);
 }
-

@@ -33,7 +33,7 @@ M:F:160
 M:A:128
 
 # Maximum number of ego-items in e_info.txt
-M:E:128
+M:E:139
 
 # Maximum number of field types in t_info.txt
 M:T:142

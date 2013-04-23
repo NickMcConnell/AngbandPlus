@@ -44,7 +44,7 @@ They say that you should rejoice if you find a scroll labeled ""!
 You don't always have to kill everything you meet!
 If you can't beat it, leave it alone!
 An umber hulk can be a confusing sight.
-There *is* a good use for Potions of Nitro 9, Ruination and Death...
+There *is* a good use for Potions of Explosions, Ruination and Death...
 It's a bad idea to throw away a Longsword (4d5).
 It's a bad idea to wield a Longsword (4d5).
 It's useless to bash monsters with bows - but there's one notable exception...
@@ -122,7 +122,7 @@ They say that only one sword, Nothung, can slay Fafner the Dragon.
 "So when I die, the first thing I will see in heaven is a score list?"
 You're going into the morgue at midnight?
 How dare you! I will not buy that!
-A Potion of Nitro 9 is also known as nitroglycerin...
+A Potion of Explosions is also known as nitroglycerin...
 There is a trap on this level!
 A weapon of Undead Slaying has all you need to kill a ghost.
 A weapon of Dragon Slaying may give you resistance to a dragon's breath attack.
@@ -225,7 +225,7 @@ I'll tell you the truth, son: your soul's gonna burn in a lake of fire!
 Not satisfied with being a human? Then polymorph into an Fairy!
 You cruelly stab the helpless, sleeping Software bug!
 Slab: Jus' say AarrghaarrghpleeassennononoUGH.
-You feel the Windows (95) on your hard disk is broken...
+You feel the Windows ME on your hard disk is broken...
 There is a rare spellbook called [M$ PowerFools] {cursed}
 *** LOW HITPOINT WARNING! ***
 You may be a ***WINNER*** if you recall within 1000 turns!

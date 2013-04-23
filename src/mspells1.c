@@ -465,14 +465,14 @@ static void breath(int m_idx, int typ, int dam_hp, int rad, bool breath)
 void curse_equipment(int chance, int heavy_chance)
 {
 	bool        changed = FALSE;
-	u32b        o1, o2, o3;
+	u32b        o1, o2, o3, o4;
 	object_type *o_ptr = &inventory[INVEN_WIELD + randint0(12)];
 
 	if (randint1(100) > chance) return;
 
 	if (!o_ptr->k_idx) return;
 
-	object_flags(o_ptr, &o1, &o2, &o3);
+	object_flags(o_ptr, &o1, &o2, &o3, &o4);
 
 
 	/* Extra, biased saving throw for blessed items */

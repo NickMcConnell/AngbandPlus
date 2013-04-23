@@ -33,7 +33,7 @@ void self_knowledge(void)
 	int v_nr;
 	char v_string[8][128];
 
-	u32b f1 = 0L, f2 = 0L, f3 = 0L;
+	u32b f1 = 0L, f2 = 0L, f3 = 0L, f4 =0L;
 
 	object_type *o_ptr;
 	const mutation_type *mut_ptr;
@@ -62,7 +62,7 @@ void self_knowledge(void)
 	/* Acquire item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	{
-		u32b t1, t2, t3;
+		u32b t1, t2, t3, t4;
 
 		o_ptr = &inventory[k];
 
@@ -70,12 +70,13 @@ void self_knowledge(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &t1, &t2, &t3);
+		object_flags(o_ptr, &t1, &t2, &t3, &t4);
 
 		/* Extract flags */
 		f1 |= t1;
 		f2 |= t2;
 		f3 |= t3;
+		f4 |= t4;
 	}
 
 	for (v_nr = 0; v_nr < MAX_PLAYER_VIRTUES; v_nr++)
@@ -405,7 +406,7 @@ void self_knowledge(void)
 	}
 	if (p_ptr->resist_magic)
 	{
-		info[i++] = "You are resistant to magic";
+		info[i++] = "You are resistant to magic.";
 	}
 
 	if (p_ptr->sustain_str)
@@ -462,6 +463,10 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your stealth is affected by your equipment.";
 	}
+	if (f1 & (TR1_SAV))
+	{
+		info[i++] = "Your saving throws are affected by your equipment.";
+	}
 	if (f1 & (TR1_SEARCH))
 	{
 		info[i++] = "Your searching ability is affected by your equipment.";
@@ -496,90 +501,98 @@ void self_knowledge(void)
 			info[i++] = "Your weapon has been blessed by the gods.";
 		}
 
-		if (f1 & (TR1_CHAOTIC))
+		if (f4 & (TR4_CHAOTIC))
 		{
 			info[i++] = "Your weapon is branded with the Sign of Logrus.";
 		}
 
 		/* Hack */
-		if (f1 & (TR1_IMPACT))
+		if (f4 & (TR4_IMPACT))
 		{
 			info[i++] = "The impact of your weapon can cause earthquakes.";
 		}
 
-		if (f1 & (TR1_VORPAL))
+		if (f4 & (TR4_VORPAL))
 		{
 			info[i++] = "Your weapon is very sharp.";
 		}
 
-		if (f1 & (TR1_VAMPIRIC))
+		if (f4 & (TR4_VAMPIRIC))
 		{
 			info[i++] = "Your weapon drains life from your foes.";
 		}
 
 		/* Special "Attack Bonuses" */
-		if (f1 & (TR1_BRAND_ACID))
+		if (f4 & (TR4_BRAND_ACID))
 		{
 			info[i++] = "Your weapon melts your foes.";
 		}
-		if (f1 & (TR1_BRAND_ELEC))
+		if (f4 & (TR4_BRAND_ELEC))
 		{
 			info[i++] = "Your weapon shocks your foes.";
 		}
-		if (f1 & (TR1_BRAND_FIRE))
+		if (f4 & (TR4_BRAND_FIRE))
 		{
 			info[i++] = "Your weapon burns your foes.";
 		}
-		if (f1 & (TR1_BRAND_COLD))
+		if (f4 & (TR4_BRAND_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
-		if (f1 & (TR1_BRAND_POIS))
+		if (f4 & (TR4_BRAND_POIS))
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
+		if (f4 & (TR4_BRAND_MAGIC))
+		{
+			info[i++] = "Your weapon hurts your foes with magic.";
+		}
+		if (f4 & (TR4_BRAND_SLEEP))
+		{
+			info[i++] = "Your weapon sleeps your foes.";
+		}
 
 		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_ANIMAL))
+		if (f4 & (TR4_SLAY_ANIMAL))
 		{
 			info[i++] = "Your weapon strikes at animals with extra force.";
 		}
-		if (f1 & (TR1_SLAY_EVIL))
+		if (f4 & (TR4_SLAY_EVIL))
 		{
 			info[i++] = "Your weapon strikes at evil with extra force.";
 		}
-		if (f1 & (TR1_SLAY_UNDEAD))
+		if (f4 & (TR4_SLAY_UNDEAD))
 		{
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
 		}
-		if (f1 & (TR1_SLAY_DEMON))
+		if (f4 & (TR4_SLAY_DEMON))
 		{
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
 		}
-		if (f1 & (TR1_SLAY_ORC))
+		if (f4 & (TR4_SLAY_ORC))
 		{
 			info[i++] = "Your weapon is especially deadly against orcs.";
 		}
-		if (f1 & (TR1_SLAY_TROLL))
+		if (f4 & (TR4_SLAY_TROLL))
 		{
 			info[i++] = "Your weapon is especially deadly against trolls.";
 		}
-		if (f1 & (TR1_SLAY_GIANT))
+		if (f4 & (TR4_SLAY_GIANT))
 		{
 			info[i++] = "Your weapon is especially deadly against giants.";
 		}
-		if (f1 & (TR1_SLAY_DRAGON))
+		if (f4 & (TR4_SLAY_DRAGON))
 		{
 			info[i++] = "Your weapon is especially deadly against dragons.";
 		}
 
 		/* Special "kill" flags */
-		if (f1 & (TR1_KILL_DRAGON))
+		if (f4 & (TR4_KILL_DRAGON))
 		{
 			info[i++] = "Your weapon is a great bane of dragons.";
 		}
 
-		if (f2 & (TR2_THROW))
+		if (f3 & (TR3_THROW))
 		{
 			info[i++] = "Your weapon can be thrown well.";
 		}
@@ -4227,7 +4240,7 @@ bool charm_animal(int dir, int plev)
 }
 
 /*
- * Bolt a random creature.
+ * Blast a random target..
  */
 bool wild_blast(int y, int x, int dam, int type, int rad)
 {
@@ -4235,7 +4248,7 @@ bool wild_blast(int y, int x, int dam, int type, int rad)
 	int y2 = p_ptr->py;
 	int x2 = p_ptr->px;
 
-	scatter(&y2, &x2, y, x, 5);
+	scatter(&y2, &x2, y, x, 3);
 
 	(void)project(0, rad, y2, x2, dam, type, (PROJECT_STOP 
 		| PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));

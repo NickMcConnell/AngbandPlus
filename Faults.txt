@@ -1,5 +1,5 @@
-Incorrect tiles.
+Incorrect tiles, Books.
 
-Start position not used. (once)
+Machines are always identified.
 
-Machines are always identified? (Are they even randomly created?)
+Players start with no SP.

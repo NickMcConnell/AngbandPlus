@@ -160,6 +160,10 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+		case TV_WAND:
+		case TV_STAFF:
+		case TV_ROD:
+		case TV_TECH:
 		{
 			return (TRUE);
 		}
@@ -380,6 +384,7 @@ static void rd_item(object_type *o_ptr)
 	rd_u32b(&o_ptr->flags1);
 	rd_u32b(&o_ptr->flags2);
 	rd_u32b(&o_ptr->flags3);
+	rd_u32b(&o_ptr->flags4);
 
 	/* Lites changed in [Z] 2.6.0 */
 	if ((sf_version < 25) && (o_ptr->tval == TV_LITE))
@@ -485,6 +490,7 @@ static void rd_item(object_type *o_ptr)
 		rd_u32b(&o_ptr->kn_flags1);
 		rd_u32b(&o_ptr->kn_flags2);
 		rd_u32b(&o_ptr->kn_flags3);
+		rd_u32b(&o_ptr->kn_flags4);
 	}
 	else
 	{
@@ -519,6 +525,7 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->flags1 = k_ptr->flags1;
 		o_ptr->flags2 = k_ptr->flags2;
 		o_ptr->flags3 = k_ptr->flags3;
+		o_ptr->flags4 = k_ptr->flags4;
 
 		/* All done */
 		return;
@@ -548,7 +555,7 @@ static void rd_item(object_type *o_ptr)
 				/* Hack -- extract the "broken" flag */
 				if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 				
-				if (name2 == EGO_TRUMP)
+				if (name2 == EGO_SHIFT)
 				{
 					/* Mega-Hack -- set activation */
 					o_ptr->activate = ACT_TELEPORT_1;
@@ -594,6 +601,7 @@ static void rd_item(object_type *o_ptr)
 			o_ptr->flags1 |= a_ptr->flags1;
 			o_ptr->flags2 |= a_ptr->flags2;
 			o_ptr->flags3 |= a_ptr->flags3;
+			o_ptr->flags4 |= a_ptr->flags4;
 			
 			/* Mega-Hack -- set activation */
 			o_ptr->activate = name1 + 128;
@@ -638,6 +646,7 @@ static void rd_item(object_type *o_ptr)
 			o_ptr->kn_flags1 = o_ptr->flags1;
 			o_ptr->kn_flags2 = o_ptr->flags2;
 			o_ptr->kn_flags3 = o_ptr->flags3;
+			o_ptr->kn_flags4 = o_ptr->flags4;
 		}
 	}
 
@@ -1250,7 +1259,8 @@ static void rd_extra(void)
 	strip_bytes(2);
 
 	/* Read the flags */
-	strip_bytes(2); /* Old "rest" */
+	rd_s16b(&p_ptr->fatigue);
+	rd_byte(&p_ptr->dual_wield);     
 	rd_s16b(&p_ptr->blind);
 	rd_s16b(&p_ptr->paralyzed);
 	rd_s16b(&p_ptr->confused);
@@ -1272,10 +1282,12 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->ac1);
 	rd_s16b(&p_ptr->ac2);
 	rd_s16b(&p_ptr->blessed);
-	rd_s16b(&p_ptr->free_act);
-	rd_s16b(&p_ptr->ffall);
-	rd_s16b(&p_ptr->sh_elec);
-	rd_s16b(&p_ptr->sh_fire);
+	rd_s16b(&p_ptr->tim_free_act);
+	rd_s16b(&p_ptr->tim_ffall);
+	rd_s16b(&p_ptr->tim_sh_fire);
+	rd_s16b(&p_ptr->tim_sh_elec);
+	rd_s16b(&p_ptr->tim_sh_cold);
+	rd_s16b(&p_ptr->tim_sh_acid);
 	rd_s16b(&p_ptr->tim_invis);
 	rd_s16b(&p_ptr->word_recall);
 	rd_s16b(&p_ptr->see_infra);
@@ -1293,13 +1305,14 @@ static void rd_extra(void)
 		p_ptr->wraith_form = 0;
 		p_ptr->resist_magic = 0;
 		p_ptr->tim_nonvis = 0;
-		p_ptr->tim_xtra2 = 0;
-		p_ptr->tim_xtra3 = 0;
-		p_ptr->tim_xtra4 = 0;
-		p_ptr->tim_xtra5 = 0;
-		p_ptr->tim_xtra6 = 0;
-		p_ptr->tim_xtra7 = 0;
-		p_ptr->tim_xtra8 = 0;
+		p_ptr->boost_str = 0;
+		p_ptr->boost_int = 0;
+		p_ptr->boost_wis = 0;
+		p_ptr->boost_dex = 0;
+		p_ptr->boost_con = 0;
+		p_ptr->boost_chr = 0;
+		p_ptr->boost_all = 0;
+		p_ptr->vitality = 0;
 		p_ptr->chaos_patron = get_chaos_patron();
 		p_ptr->muta1 = 0;
 		p_ptr->muta2 = 0;
@@ -1313,13 +1326,14 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->wraith_form);
 		rd_s16b(&p_ptr->resist_magic);
 		rd_s16b(&p_ptr->tim_nonvis);
-		rd_s16b(&p_ptr->tim_xtra2);
-		rd_s16b(&p_ptr->tim_xtra3);
-		rd_s16b(&p_ptr->tim_xtra4);
-		rd_s16b(&p_ptr->tim_xtra5);
-		rd_s16b(&p_ptr->tim_xtra6);
-		rd_s16b(&p_ptr->tim_xtra7);
-		rd_s16b(&p_ptr->tim_xtra8);
+		rd_s16b(&p_ptr->boost_str);
+		rd_s16b(&p_ptr->boost_int);
+		rd_s16b(&p_ptr->boost_wis);
+		rd_s16b(&p_ptr->boost_dex);
+		rd_s16b(&p_ptr->boost_con);
+		rd_s16b(&p_ptr->boost_chr);
+		rd_s16b(&p_ptr->boost_all);
+		rd_s16b(&p_ptr->vitality);
 		rd_s16b(&p_ptr->chaos_patron);
 		rd_u32b(&p_ptr->muta1);
 		rd_u32b(&p_ptr->muta2);

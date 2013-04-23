@@ -49,9 +49,6 @@ static int monster_critical(int dice, int sides, int dam)
 }
 
 
-
-
-
 /*
  * Determine if a monster attack against the player succeeds.
  * Always miss 5% of the time, Always hit 5% of the time.
@@ -65,7 +62,7 @@ static int check_hit(int power, int level)
 	k = randint0(100);
 
 	/* Invisble players are hard to hit. */
-	if ((p_ptr->tim_nonvis) || (TR2_INVIS)) k /= 2;
+	if ((p_ptr->tim_nonvis) || (TR3_INVIS)) k /= 2;
 
 	/* Hack -- Always miss or hit */
 	if (k < 10) return (k < 5);
@@ -609,8 +606,7 @@ bool make_attack_normal(int m_idx)
 
 						/* Saving throw (unless paralyzed) based on dex and level */
 						if (!p_ptr->paralyzed &&
-							(randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-											  p_ptr->lev)))
+							(randint0(100) < (adj_dex_safe[change_form(A_DEX)] + p_ptr->lev)))
 						{
 							/* Saving throw message */
 							msg_print("You quickly protect your money pouch!");
@@ -669,8 +665,7 @@ bool make_attack_normal(int m_idx)
 
 						/* Saving throw (unless paralyzed) based on dex and level */
 						if (!p_ptr->paralyzed &&
-							(randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-											  p_ptr->lev)))
+							(randint0(100) < (adj_dex_safe[change_form(A_DEX)] + p_ptr->lev)))
 						{
 							/* Saving throw message */
 							msg_print("You grab hold of your backpack!");
@@ -1473,6 +1468,56 @@ bool make_attack_normal(int m_idx)
 					{
 						if (m_ptr->ml)
 							r_ptr->r_flags3 |= RF3_IM_ELEC;
+					}
+				}
+				
+				if (p_ptr->sh_cold && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_IM_COLD))
+					{
+						int dam = damroll(2, 6);
+
+						/* Modify the damage */
+						dam = mon_damage_mod(m_ptr, dam, 0);
+
+						msg_format("%^s is suddenly very cold!", m_name);
+
+						if (mon_take_hit(m_idx, dam, &fear,
+						    " freezes solid."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (m_ptr->ml)
+							r_ptr->r_flags3 |= RF3_IM_COLD;
+					}
+				}
+
+				if (p_ptr->sh_acid && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_IM_ACID))
+					{
+						int dam = damroll(2, 6);
+
+						/* Modify the damage */
+						dam = mon_damage_mod(m_ptr, dam, 0);
+
+						msg_format("%^s gets dissolved!", m_name);
+
+						if (mon_take_hit(m_idx, dam, &fear,
+						    " turns into a puddle of slime."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (m_ptr->ml)
+							r_ptr->r_flags3 |= RF3_IM_ACID;
 					}
 				}
 				touched = FALSE;

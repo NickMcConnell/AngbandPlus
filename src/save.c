@@ -555,6 +555,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_u32b(o_ptr->flags1);
 	wr_u32b(o_ptr->flags2);
 	wr_u32b(o_ptr->flags3);
+	wr_u32b(o_ptr->flags4);
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
@@ -593,6 +594,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_u32b(o_ptr->kn_flags1);
 	wr_u32b(o_ptr->kn_flags2);
 	wr_u32b(o_ptr->kn_flags3);
+	wr_u32b(o_ptr->kn_flags4);
 }
 
 
@@ -964,7 +966,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->sc);
 	wr_s16b(0);     /* oops */
 
-	wr_s16b(0);             /* old "rest" */
+	wr_s16b(p_ptr->fatigue);
+	wr_byte(p_ptr->dual_wield);      
 	wr_s16b(p_ptr->blind);
 	wr_s16b(p_ptr->paralyzed);
 	wr_s16b(p_ptr->confused);
@@ -987,10 +990,12 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->ac1);
 	wr_s16b(p_ptr->ac2);
 	wr_s16b(p_ptr->blessed);
-	wr_s16b(p_ptr->ffall);
-	wr_s16b(p_ptr->free_act);
-	wr_s16b(p_ptr->sh_fire);
-	wr_s16b(p_ptr->sh_elec);
+	wr_s16b(p_ptr->tim_ffall);
+	wr_s16b(p_ptr->tim_free_act);
+	wr_s16b(p_ptr->tim_sh_fire);
+	wr_s16b(p_ptr->tim_sh_elec);
+	wr_s16b(p_ptr->tim_sh_cold);
+	wr_s16b(p_ptr->tim_sh_acid);
 	wr_s16b(p_ptr->tim_invis);
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
@@ -1004,13 +1009,14 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->wraith_form);
 	wr_s16b(p_ptr->resist_magic);
 	wr_s16b(p_ptr->tim_nonvis);
-	wr_s16b(p_ptr->tim_xtra2);
-	wr_s16b(p_ptr->tim_xtra3);
-	wr_s16b(p_ptr->tim_xtra4);
-	wr_s16b(p_ptr->tim_xtra5);
-	wr_s16b(p_ptr->tim_xtra6);
-	wr_s16b(p_ptr->tim_xtra7);
-	wr_s16b(p_ptr->tim_xtra8);
+	wr_s16b(p_ptr->boost_str);
+	wr_s16b(p_ptr->boost_int);
+	wr_s16b(p_ptr->boost_wis);
+	wr_s16b(p_ptr->boost_dex);
+	wr_s16b(p_ptr->boost_con);
+	wr_s16b(p_ptr->boost_chr);
+	wr_s16b(p_ptr->boost_all);
+	wr_s16b(p_ptr->vitality);
 
 	wr_s16b(p_ptr->chaos_patron);
 	wr_u32b(p_ptr->muta1);
