@@ -1936,10 +1936,10 @@ static int my_strnicmp(char *a, char *b, int n)
 	n--;
 	for (i = 0; i <= n; i++)
 	{
-		if (tolower(b[i]) != tolower(a[i]))
+		if (TOLOWER(b[i]) != TOLOWER(a[i]))
 			break;
 	}
-	return tolower(b[i]) - tolower(a[i]);
+	return TOLOWER(b[i]) - TOLOWER(a[i]);
 }
 
 
@@ -3764,7 +3764,7 @@ static void load_choices(void)
 						if (!strcmp(alarm_types[i], o_))
 							alarm_type = i;
 				}
-				else if (isdigit(*t_))
+				else if (ISDIGIT(*t_))
 				{
 					int t = atoi(t_);
 					if (t >= 0 && t < MAX_TERM_DATA)
@@ -4363,7 +4363,7 @@ static unsigned int htoi(char *s)
 	while (*s)
 	{
 		char *m;
-		int d = toupper(*s++);
+		int d = TOUPPER(*s++);
 		m = strchr(hex, d);
 		if (!m)
 		{
@@ -4569,7 +4569,7 @@ int main(int argc, char *argv[])
 	{
 		if (argv[i][0] == '-')
 		{
-			switch (tolower(argv[i][1]))
+			switch (TOLOWER(argv[i][1]))
 			{
 				case 'm':
 				{
@@ -4582,9 +4582,9 @@ int main(int argc, char *argv[])
 				case 'c':		/* -c[a][s][f][<n>] */
 					for (j = 2; argv[i][j]; j++)
 					{
-						int on = isupper(argv[i][j]);
+						int on = ISUPPER(argv[i][j]);
 
-						switch (tolower(argv[i][j]))
+						switch (TOLOWER(argv[i][j]))
 						{
 #ifdef ABBR_FILECACHE
 							case 'a': abbr_filecache =
@@ -4605,11 +4605,11 @@ int main(int argc, char *argv[])
 								break;
 
 							default:
-								if (isdigit(argv[i][j]))
+								if (ISDIGIT(argv[i][j]))
 								{
 									max_file_cache_size =
 										atoi(argv[i] + j) << 10;
-									while (isdigit(argv[i][++j]))
+									while (ISDIGIT(argv[i][++j]))
 										;
 									if (max_file_cache_size <= 0)
 									{
@@ -4647,7 +4647,7 @@ int main(int argc, char *argv[])
 						vfiletype = htoi(argv[i] + 2);
 					break;
 				case 'd':		/* -df, -dg, -dc or -d : disable DAs */
-					switch (tolower(argv[i][2]))
+					switch (TOLOWER(argv[i][2]))
 					{
 						case 0:	/* -d => disable both */
 							da_font = da_game = 0;
@@ -4827,7 +4827,7 @@ int main(int argc, char *argv[])
 	init_angband();
 	initialised = 1;
 	game_in_progress = 1;
-	pause_line(23);
+	pause_line();
 	flush();
 	/* Stop_Hourglass; */
 	play_game(FALSE);
@@ -6452,7 +6452,7 @@ static void read_sound_config(void)
 		int event_number;
 
 		/* Skip comments and lines that begin with whitespace */
-		if (*buffer == '#' || isspace(*buffer))
+		if (*buffer == '#' || ISSPACE(*buffer))
 		{
 			continue;
 		}
@@ -6465,7 +6465,7 @@ static void read_sound_config(void)
 
 		/* Place a NULL after the event name and find the first sample name */
 		sample_name = buffer;
-		while (*sample_name && !isspace(*sample_name))
+		while (*sample_name && !ISSPACE(*sample_name))
 			sample_name++;
 
 		/* Bad line? */
@@ -6515,7 +6515,7 @@ static void read_sound_config(void)
 			SampNode *sn;
 
 			/* Find the start of the next word */
-			while (isspace(*sample_name) && *sample_name)
+			while (ISSPACE(*sample_name) && *sample_name)
 				sample_name++;
 
 			/* End of line? */
@@ -6526,7 +6526,7 @@ static void read_sound_config(void)
 
 			/* Find the end of the sample name */
 			s = sample_name;	/* start of the name */
-			while (!isspace(*sample_name) && *sample_name)
+			while (!ISSPACE(*sample_name) && *sample_name)
 				sample_name++;
 
 			/* Hack: shorten sample names that are too long */
@@ -6548,7 +6548,7 @@ static void read_sound_config(void)
 			   | Copy the sample name into the node, converting it into
 			   | RISC OS style as we go.
 			 */
-			for (i = 0; !isspace(s[i]) && s[i]; i++)
+			for (i = 0; !ISSPACE(s[i]) && s[i]; i++)
 			{
 				if (s[i] == '.')
 					sn->sample_name[i] = '/';

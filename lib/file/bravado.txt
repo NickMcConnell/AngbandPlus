@@ -3,8 +3,6 @@
 # This is a list of lines monsters (other than Groo and Smeagol) with CAN_SPEAK
 # can utter when nearby and not afraid.
 
-103
-******** BUFFER LINE *********************************** DO NOT REMOVE *******
 cackles evilly.
 cackles diabolically.
 says: 'Surrender, miserable flea!'

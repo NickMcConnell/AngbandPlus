@@ -31,9 +31,9 @@
 # include <sys/types.h>
 
 # if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
-     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
-     defined(__osf__) || defined(ISC) || defined(SGI) || \
-     defined(linux)
+	defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
+	defined(__osf__) || defined(ISC) || defined(SGI) || \
+	defined(linux)
 #  include <sys/time.h>
 # endif
 
@@ -57,7 +57,7 @@
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(RISCOS) && !defined(VM) && !defined(__MWERKS__)
+	!defined(RISCOS) && !defined(VM) && !defined(__MWERKS__)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else

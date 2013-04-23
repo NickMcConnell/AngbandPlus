@@ -219,7 +219,7 @@ static void change_path(cptr info)
 	if (!s) quit_fmt("Try '-d<what>=<path>' not '-d%s'", info);
 
 	/* Analyze */
-	switch (tolower(info[0]))
+	switch (TOLOWER(info[0]))
 	{
 #ifndef FIXED_PATHS
 		case 'a':

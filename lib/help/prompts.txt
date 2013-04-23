@@ -34,7 +34,7 @@ This allows you to select a single object from some or all of your equipment, yo
  a-w   - selects an object in your inventory or equipment as appropriate.
   x    - selects the most expensive item available if spoil_value is set.
   y    - selects the cheapest item available if spoil_value is set.
-  z    - selects a squelched, useless or cursed item which has not been inscribed with !k or !K.
+  z    - selects a squelched item which has not been inscribed with !k or !K.
  0-9   - selects an object inscribed with @n or @zn where n is the number and z the command. An object inscribed with @zn will be used in preference to one inscribed with @n.
 return - selects the item, if there is only one available at the prompt.
   -    - selects a floor item (if possible)

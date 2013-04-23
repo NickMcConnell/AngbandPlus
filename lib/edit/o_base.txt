@@ -32,10 +32,10 @@
 
 # Version stamp (required)
 
-V:1.0.11
+V:1.0.14
 
 
-N:0:%+K%k%=K%+E %e%=E%+A %a%=A
+N:0:%-KFlavourless things%+K%k%=K%+E %e%=E%+A %a%=A
 C:default
 
 N:1:& # Mushroom~ !

@@ -1,10 +1,8 @@
-# monfear.txt
+# mondeath.txt
 #
 # This contains text which monsters which have CAN_SPEAK set may utter as they
 # die.
 
-332
-****** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Live and let live, right..?'
 'AAAAAAAAARRRRRRRRRRRRRRRRGGGGGGGGGGGGGGGGHHHHHHHHHHHHHHHH!!!!!!!!!!!'
 'AAAARRRGGGHHH!!!'

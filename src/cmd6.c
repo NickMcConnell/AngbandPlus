@@ -139,33 +139,7 @@ s16b item_use_energy(object_ctype *o_ptr)
  */
 void do_cmd_eat_food(object_type *o_ptr)
 {
-	bool	normal_food = FALSE;
-
-
-
-	/* Restrict choices to food */
-	item_tester_tval = TV_FOOD;
-
-	/* Get an item if we weren't passed one */
-	if(!o_ptr)
-	{
-		errr err;
-		/* Get an item (from inven or floor) */
-		if (!((o_ptr = get_item(&err, "Eat which item? ", FALSE, TRUE, TRUE))))
-		{
-			if (err == -2) msg_print("You have nothing to eat.");
-			return;
-		}
-	}
-
-	item_tester_tval = TV_FOOD;
-	if(!item_tester_okay(o_ptr))
-	{
-		msg_print("You can't eat that!");
-		item_tester_tval = 0;
-		return;
-	}
-	item_tester_tval = 0;
+	bool normal_food = FALSE;
 
 	/* Sound */
 	sound(SOUND_EAT);
@@ -181,12 +155,12 @@ void do_cmd_eat_food(object_type *o_ptr)
 	object_tried(o_ptr);
 
 	/* Recalculate/redraw stuff (later) */
-	update_object(o_ptr, 0);
+	update_object(o_ptr);
 
 	/* Food can feed the player */
-	switch (p_ptr->prace)
+	switch (rp_ptr->eat)
 	{
-		case RACE_VAMPIRE:
+		case EAT_VAMPIRE:
 		{
 			add_flag(TIMED_FOOD, (o_ptr->pval / 10));
 			msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
@@ -194,16 +168,17 @@ void do_cmd_eat_food(object_type *o_ptr)
 				msg_print("Your hunger can only be satisfied with fresh blood!");
 			break;
 		}
-		case RACE_SKELETON:
+		case EAT_SKELETON:
 		{
-	        if (normal_food)
-	        {
+			if (normal_food)
+			{
 				object_type q_ptr[1];
 
 				msg_print("The food falls through your jaws!");
 
-				/* Create the item (should this be object_copy()?) */
+				/* Create an item. */
 				object_copy(q_ptr, o_ptr);
+				q_ptr->number = 1;
 
 				/* Drop the object from heaven */
 				drop_near(q_ptr, -1, py, px);
@@ -214,9 +189,7 @@ void do_cmd_eat_food(object_type *o_ptr)
 			}
 			break;
 		}
-		case RACE_GOLEM:
-		case RACE_ZOMBIE:
-		case RACE_SPECTRE:
+		case EAT_UNDEAD:
 		{
 			msg_print("The food of mortals is poor sustenance for you.");
 			add_flag(TIMED_FOOD, ((o_ptr->pval) / 20));
@@ -235,35 +208,12 @@ void do_cmd_eat_food(object_type *o_ptr)
 	item_describe(o_ptr);
 	item_optimize(o_ptr);
 }
-    
+
 /*
  * Quaff a potion (from the pack or the floor)
  */
 void do_cmd_quaff_potion(object_type *o_ptr)
 {
-	/* Restrict choices to potions */
-	item_tester_tval = TV_POTION;
-
-	/* Get an item if we weren't passed one */
-	if(!o_ptr)
-	{
-		errr err;
-		/* Get an item (from inven or floor) */
-		if (!((o_ptr = get_item(&err, "Quaff which potion? ", TRUE, TRUE, TRUE))))
-		{
-			if (err == -2) msg_print("You have no potions to quaff.");
-			return;
-		}
-	}
-
-	item_tester_tval = TV_POTION;
-	if(!item_tester_okay(o_ptr))
-	{
-		msg_print("That is not a potion!");
-		return;
-	}
-	item_tester_tval = 0;
-
 	/* Sound */
 	sound(SOUND_QUAFF);
 
@@ -274,14 +224,14 @@ void do_cmd_quaff_potion(object_type *o_ptr)
 	/* Analyze the potion (which is always used up). */
 	use_object(o_ptr, 0);
 
-    if ((p_ptr->prace == RACE_SKELETON) && (randint(12)==1))
-    {
-        msg_print("Some of the fluid falls through your jaws!");
-        potion_smash_effect(0, py, px, o_ptr->k_idx);
-    }
+	if (rp_ptr->eat == EAT_SKELETON && one_in(12))
+	{
+		msg_print("Some of the fluid falls through your jaws!");
+		potion_smash_effect(0, py, px, o_ptr->k_idx);
+	}
 
 	/* Recalculate/redraw stuff (later) */
-	update_object(o_ptr, 0);
+	update_object(o_ptr);
 
 	/* The item has been tried */
 	object_tried(o_ptr);
@@ -328,7 +278,7 @@ static bool curse_object(int o_idx, int e_idx, cptr where)
 
 	/* Tell the player the bad news */
 	o_ptr->ident |= (IDENT_SENSE);
-		
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -370,48 +320,6 @@ void do_cmd_read_scroll(object_type *o_ptr)
 {
 	int used_up;
 
-	/* Check some conditions */
-	if (p_ptr->blind)
-	{
-		msg_print("You can't see anything.");
-		return;
-	}
-	if (no_lite())
-	{
-		msg_print("You have no light to read by.");
-		return;
-	}
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-
-	/* Restrict choices to scrolls */
-	item_tester_tval = TV_SCROLL;
-
-	/* Get an item if we weren't passed one */
-	if(!o_ptr)
-	{
-		errr err;
-		/* Get an item (from inven or floor) */
-		if (!((o_ptr = get_item(&err, "Read which scroll? ", TRUE, TRUE, TRUE))))
-		{
-			if (err == -2) msg_print("You have no scrolls to read.");
-			return;
-		}
-	}
-
-	item_tester_tval = TV_SCROLL;
-	if(!item_tester_okay(o_ptr))
-	{
-		msg_print("That is not a scroll!");
-		item_tester_tval = 0;
-		return;
-	}
-	item_tester_tval = 0;
-
 	/* Take a turn */
 	energy_use = item_use_energy(o_ptr);
 
@@ -420,7 +328,7 @@ void do_cmd_read_scroll(object_type *o_ptr)
 
 
 	/* Recalculate/redraw stuff (later) */
-	update_object(o_ptr, 0);
+	update_object(o_ptr);
 
 	/* The item was tried */
 	object_tried(o_ptr);
@@ -497,7 +405,7 @@ static bool use_device_p(object_type *o_ptr)
 }
 
 /*
- * Use a staff.			-RAK-
+ * Use a staff. -RAK-
  *
  * One charge of one staff disappears.
  *
@@ -506,31 +414,6 @@ static bool use_device_p(object_type *o_ptr)
 void do_cmd_use_staff(object_type *o_ptr)
 {
 	bool use_charge;
-
-
-	/* Restrict choices to wands */
-	item_tester_tval = TV_STAFF;
-
-	/* Get an item if we weren't already passed one */
-	if(!o_ptr)
-	{
-		errr err;
-		/* Get an item (from inven or floor) */
-		if (!((o_ptr = get_item(&err, "Use which staff? ", FALSE, TRUE, TRUE))))
-		{
-			if (err == -2) msg_print("You have no staff to use.");
-			return;
-		}
-	}
-
-	item_tester_tval = TV_STAFF;
-	if(!item_tester_okay(o_ptr))
-	{
-		msg_print("That is not a staff!");
-		item_tester_tval = 0;
-		return;
-	}
-	item_tester_tval = 0;
 
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((!is_inventory_p(o_ptr)) && (o_ptr->number > 1))
@@ -571,7 +454,7 @@ void do_cmd_use_staff(object_type *o_ptr)
 
 
 	/* Recalculate/redraw stuff (later) */
-	update_object(o_ptr, 0);
+	update_object(o_ptr);
 
 	/* Tried the item */
 	object_tried(o_ptr);
@@ -643,31 +526,6 @@ void do_cmd_aim_wand(object_type *o_ptr)
 {
 	int dir;
 
-
-	/* Restrict choices to wands */
-	item_tester_tval = TV_WAND;
-
-	/* Get an item if we weren't passed one */
-	if(!o_ptr)
-	{
-		errr err;
-		/* Get an item (from inven or floor) */
-		if (!((o_ptr = get_item(&err, "Aim which wand? ", TRUE, TRUE, TRUE))))
-		{
-			if (err == -2) msg_print("You have no wand to aim.");
-			return;
-		}
-	}
-
-	item_tester_tval = TV_WAND;
-	if(!item_tester_okay(o_ptr))
-	{
-		msg_print("That is not a wand!");
-		item_tester_tval = 0;
-		return;
-	}
-	item_tester_tval = 0;
-
 	/* Mega-Hack -- refuse to aim a pile from the ground */
 	if ((!is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
@@ -708,7 +566,7 @@ void do_cmd_aim_wand(object_type *o_ptr)
 	use_object(o_ptr, dir);
 
 	/* Recalculate/redraw stuff (later) */
-	update_object(o_ptr, 0);
+	update_object(o_ptr);
 
 	/* Mark it as tried */
 	object_tried(o_ptr);
@@ -766,31 +624,6 @@ void do_cmd_zap_rod(object_type *o_ptr)
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
 
-
-	/* Restrict choices to rods */
-	item_tester_tval = TV_ROD;
-
-	/* Get an item if we do not already have one */
-	if(!o_ptr)
-	{
-		errr err;
-		/* Get an item (from inven or floor) */
-		if (!((o_ptr = get_item(&err, "Zap which rod? ", FALSE, TRUE, TRUE))))
-		{
-			if (err == -2) msg_print("You have no rod to zap.");
-			return;
-		}
-	}
-
-	item_tester_tval = TV_ROD;
-	if(!item_tester_okay(o_ptr))
-	{
-		msg_print("That is not a rod!");
-		item_tester_tval = 0;
-		return;
-	}
-	item_tester_tval = 0;
-
 	/* Mega-Hack -- refuse to zap a pile from the ground */
 	if ((!is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
@@ -838,7 +671,7 @@ void do_cmd_zap_rod(object_type *o_ptr)
 
 
 	/* Recalculate/redraw stuff (later) */
-	update_object(o_ptr, 0);
+	update_object(o_ptr);
 
 	/* Tried the object */
 	object_tried(o_ptr);
@@ -887,28 +720,6 @@ void do_cmd_zap_rod(object_type *o_ptr)
 	}
 }
 
-
-
-
-/*
- * Hook to determine if an object is activatable
- */
-static bool item_tester_hook_activate(object_ctype *o_ptr)
-{
-	u32b f1, f2, f3;
-
-	/* Not known */
-	if (!object_known_p(o_ptr)) return (FALSE);
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Check activation flag */
-	if (f3 & (TR3_ACTIVATE)) return (TRUE);
-
-	/* Assume not */
-	return (FALSE);
-}
 
 
 
@@ -1144,34 +955,6 @@ static int activation_timeout(activation_type *ac_ptr)
 void do_cmd_activate(object_type *o_ptr)
 {
 	activation_type *ac_ptr;
-
-	/* Prepare the hook */
-	item_tester_hook = item_tester_hook_activate;
-
-	/* Get an item if we weren't passed one from the inventory*/
-	if(!o_ptr)
-	{
-		errr err;
-
-		/* Get an item (from equip) */
-		if (!((o_ptr = get_item(&err, "Activate which item? ", TRUE, FALSE, FALSE))))
-		{
-			if (err == -2) msg_print("You have nothing to activate.");
-			return;
-		}
-	}
-
-	/* Prepare the hook */
-	item_tester_hook = item_tester_hook_activate;
-	/* Verify that the item can be used */
-	if(!item_tester_okay(o_ptr))
-	{
-		msg_print("You can't activate that!");
-		item_tester_hook = 0;
-		return;
-	}
-	/* Clear the hook */
-	item_tester_hook = 0;
 
 	/* Take a turn */
 	energy_use = item_use_energy(o_ptr);

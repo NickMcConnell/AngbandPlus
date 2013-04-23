@@ -5062,9 +5062,9 @@ void amiga_hs_to_ascii(void)
 	mdun = atoi(h.max_dun);
 
 	/* Hack -- extract the gold and such */
-	for (when = h.day; isspace(*when); when++) /* loop */;
-	for (gold = h.gold; isspace(*gold); gold++) /* loop */;
-	for (aged = h.turns; isspace(*aged); aged++) /* loop */;
+	for (when = h.day; ISSPACE(*when); when++) /* loop */;
+	for (gold = h.gold; ISSPACE(*gold); gold++) /* loop */;
+	for (aged = h.turns; ISSPACE(*aged); aged++) /* loop */;
 
 	/* Reconfigure Date */
 	if ((*when == '@') && strlen(when) == 9)

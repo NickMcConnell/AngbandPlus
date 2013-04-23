@@ -2,8 +2,6 @@
 #
 # Contains lines Smeagol can utter when scared if speak_uniques is set.
 
-3
-******** BUFFER LINE **************
 says: 'Don't hurt us, mastersisis.'
 says: 'Poor Smeagol, poor Smeagol.'
 says: 'No AH! Don't hurtsis us.'

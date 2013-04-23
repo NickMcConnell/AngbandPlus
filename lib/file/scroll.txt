@@ -3,8 +3,6 @@
 # Contains syllables used to produce random scroll names.
 # This is also used to create names for some of the random artefacts.
 
-164
-******** BUFFER LINE *********************************** DO NOT REMOVE *******
 a
 ab
 ag

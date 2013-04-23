@@ -5,11 +5,11 @@ is today:
 Ken Dubuc, Mario Feldberg, Justin Rail and Iain Maclean for porting it to
 various operating systems.
 
-James Gordon, Doug G., Leon Marrick, Andrew Sidwell, Stig E Sandø and
+James Gordon, Doug G., Leon Marrick, Rob Rowe, Andrew Sidwell, Stig E Sandø and
 Wesley Weimer for various bug reports and fixes.
 
-Various people (including DarkGod, Steven Fuerst, Leon Marrick and Robert
-Ruehlmann) for code I've borrowed from their variants, etc..
+Various people (including DarkGod, Steven Fuerst, Leon Marrick, Iain McFall and
+Robert Ruehlmann) for code of theirs which I have used.
 
 Dean Anderson, Ben Harrison, Robert Alan Koeneke, David Thornley, Topi Ylinen,
 and all the other people who helped to create the game on which this variant is

@@ -2564,7 +2564,7 @@ static void handle_open_when_ready(void)
 		game_in_progress = 1;
 
 		/* Wait for it */
-		pause_line(Term->hgt - 1);
+		pause_line();
 
 		/* Flush input */
 		flush();

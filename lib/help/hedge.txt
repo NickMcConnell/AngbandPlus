@@ -1,6 +1,6 @@
 %%%%% <hedge.txt>
-Hedge Magic
-===========
+Hedge Magic (INT-based)
+=======================
 
 Hedge magic is the least powerful of all the types of magic. However, it is also the easiest to learn which makes it ideally suited to the part- time magician. The power of hedge magic comes from charms - natural items that contain some power. The hedge magician draws the power from these items and forms it into cantrips. Usually, many cantrips can be cast from a single item. However, occasionally the power leaks out from an item and it crumbles to useless dust. A miscast cantrip will always destroy its charm, so the wise hedge magician will always carry spares. The best way to avoid such miscasts is to have a high intelligence.
 

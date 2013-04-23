@@ -91,7 +91,7 @@
 
 # Version stamp (required)
 
-V:1.0.11
+V:1.0.14
 
 ##### Non-objects #####
 
@@ -291,7 +291,7 @@ I:Food:1500:0
 W:0:0.2lb:2
 D:A strip of venison which seems never to spoil.
 
-N:27:& Slime Mold~
+N:27:& Slime Mould~
 G:,:g:0
 I:Food:3000:0
 W:0:0.5lb:2
@@ -2047,7 +2047,7 @@ D:Extra copies of the item are destroyed.
 
 ##### Potions #####
 
-N:250:Slime Mold Juice
+N:250:Slime Mould Juice
 G: :d:6
 I:Potion:400:0
 W:0:0.4lb:2

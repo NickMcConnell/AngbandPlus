@@ -212,171 +212,6 @@ void flavor_init(void)
 
 
 /*
- * Hack -- prepare the default object attr codes by tval
- *
- * XXX XXX XXX Off-load to "pref.prf" file
- */
-static byte default_tval_to_attr(int tval)
-{
-	switch (tval)
-	{
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
-		{
-			return (TERM_WHITE);
-		}
-
-		case TV_CHEST:
-		{
-			return (TERM_SLATE);
-		}
-
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		{
-			return (TERM_L_UMBER);
-		}
-
-		case TV_LITE:
-		{
-			return (TERM_YELLOW);
-		}
-
-		case TV_SPIKE:
-		{
-			return (TERM_SLATE);
-		}
-
-		case TV_BOW:
-		{
-			return (TERM_UMBER);
-		}
-
-		case TV_DIGGING:
-		{
-			return (TERM_SLATE);
-		}
-
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		{
-			return (TERM_L_WHITE);
-		}
-
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		{
-			return (TERM_L_UMBER);
-		}
-
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			return (TERM_SLATE);
-		}
-
-		case TV_AMULET:
-		{
-			return (TERM_ORANGE);
-		}
-
-		case TV_RING:
-		{
-	    return (TERM_ORANGE);
-		}
-
-		case TV_STAFF:
-		{
-	    return (TERM_VIOLET);
-		}
-
-		case TV_WAND:
-		{
-	    return (TERM_VIOLET);
-		}
-
-		case TV_ROD:
-		{
-	    return (TERM_VIOLET);
-		}
-
-		case TV_SCROLL:
-		{
-			return (TERM_WHITE);
-		}
-
-		case TV_POTION:
-		{
-	    return (TERM_BLUE);
-		}
-
-		case TV_FLASK:
-		{
-			return (TERM_YELLOW);
-		}
-
-		case TV_FOOD:
-		{
-	    return (TERM_GREEN);
-		}
-
-	case TV_SORCERY_BOOK:
-		{
-	    return (TERM_L_BLUE);
-		}
-
-	case TV_THAUMATURGY_BOOK:
-		{
-			return (TERM_L_RED);
-		}
-
-    case TV_CONJURATION_BOOK:
-        {
-            return (TERM_ORANGE);
-        }
-    case TV_NECROMANCY_BOOK:
-        {
-            return (TERM_SLATE);
-        }
-	}
-
-	return (TERM_WHITE);
-}
-
-
-/*
- * Hack -- prepare the default object char codes by tval
- *
- * XXX XXX XXX Off-load to "pref.prf" file (?)
- */
-static byte default_tval_to_char(int tval)
-{
-	int i;
-
-	/* Hack -- Guess at "correct" values for tval_to_char[] */
-	for (i = 1; i < MAX_K_IDX; i++)
-	{
-		object_kind *k_ptr = &k_info[i];
-
-		/* Use the first value we find */
-		if (k_ptr->tval == tval) return (k_ptr->d_char);
-	}
-
-	/* Default to space */
-	return (' ');
-}
-
-
-
-/*
  * Reset the "visual" lists
  *
  * This involves resetting various things to their "default"
@@ -400,6 +235,7 @@ void reset_visuals(void)
 	process_pref_file_aux((char*)"K:---reset---", sf_flags);
 	process_pref_file_aux((char*)"U:---reset---", sf_flags);
 	process_pref_file_aux((char*)"R:---reset---", sf_flags);
+	process_pref_file_aux((char*)"E:---reset---", sf_flags);
 
 	/* Extract some info about monster memory colours. */
 	for (i = 0; i < MAX_MONCOL; i++)
@@ -407,16 +243,6 @@ void reset_visuals(void)
 		/* Hack - always default to white */
 		moncol[i].attr = TERM_WHITE;
 	}
-	/* Extract attr/chars for equippy items (by tval) */
-	for (i = 0; i < 128; i++)
-	{
-		/* Extract a default attr */
-		tval_to_attr[i] = default_tval_to_attr(i);
-
-		/* Extract a default char */
-		tval_to_char[i] = default_tval_to_char(i);
-	}
-
 	/* Access the "font" or "graf" pref file, based on "use_graphics" */
 	sprintf(buf, "%s-%s.prf", (use_graphics ? "graf" : "font"), ANGBAND_SYS);
 
@@ -464,9 +290,15 @@ void object_flags(object_ctype *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f3) |= e_ptr->flags3;
 	}
 
-    /* Random artifact ! */
-    if (o_ptr->flags1 || o_ptr->flags2 || o_ptr->flags3)
-    {
+	/* Hack - IDENT_CURSED needs to be set for an item to be cursed. */
+	if (~o_ptr->ident & IDENT_CURSED)
+	{
+		(*f3) &= ~(TR3_CURSED | TR3_HEAVY_CURSE);
+	}
+
+	/* Random artifact ! */
+	if (o_ptr->flags1 || o_ptr->flags2 || o_ptr->flags3)
+	{
 		(*f1) |= o_ptr->flags1;
 		(*f2) |= o_ptr->flags2;
 		(*f3) |= o_ptr->flags3;
@@ -541,8 +373,9 @@ static void object_knowledge(obj_know_type *ok_ptr, object_ctype *o_ptr)
 
 	j_ptr->iy = 1;
 	j_ptr->ix = 1;
-	j_ptr->tval = (aware ||
-		o_base[u_info[k_info[o_ptr->k_idx].u_idx].p_id].tval == o_ptr->tval);
+	j_ptr->tval =
+		(o_base[u_info[k_info[o_ptr->k_idx].u_idx].p_id].tval == o_ptr->tval ||
+		aware);
 	j_ptr->discount = 1;
 	j_ptr->number = 1;
 	j_ptr->marked = 1;
@@ -560,6 +393,16 @@ static void object_knowledge(obj_know_type *ok_ptr, object_ctype *o_ptr)
 	j_ptr->dd = j_ptr->ds = aware;
 
 	j_ptr->pval = known;
+
+	/*
+	 * The player always knows where the object was found. The game does not
+	 * attempt to predict whether the player can tell which monster dropped it,
+	 * but this knowledge doesn't help much for an identified item.
+	 */
+	j_ptr->found.how = known;
+	j_ptr->found.idx = known;
+	j_ptr->found.dungeon = TRUE;
+	j_ptr->found.level = TRUE;
 
 	/* Hack - this should distinguish between knowing timeout and knowing
 	 * whether timeout is 0. Only the latter actually happens, so I've kept
@@ -602,10 +445,10 @@ static void object_knowledge(obj_know_type *ok_ptr, object_ctype *o_ptr)
 		/* Obtain the full flags for o_ptr first. */
 		object_flags(o_ptr, &f1, &f2, &f3);
 
-		/* Start from no knowledge. */
+		/* Start with a little basic knowledge. */
 		j_ptr->flags1 = 0;
 		j_ptr->flags2 = 0;
-		j_ptr->flags3 = 0;
+		j_ptr->flags3 = TR3_SHOW_ARMOUR | TR3_SHOW_MODS | TR3_HIDE_TYPE;
 
 		/* There are some flags unaware items can be known to have. */
 		if (spoil_base && !aware)
@@ -688,6 +531,9 @@ static void object_knowledge(obj_know_type *ok_ptr, object_ctype *o_ptr)
 					(j_ptr->pval && o_ptr->pval <= 0))
 					j_ptr->flags3 |= TR3_TELEPATHY;
 			}
+
+			/* If a pval flag is known to be set, the pval itself is known. */
+			if (f1 & TR1_PVAL_MASK & j_ptr->flags1) j_ptr->pval = 1;
 		}
 
 		/* Cursing uses a separate ident flag. */
@@ -702,22 +548,19 @@ static void object_knowledge(obj_know_type *ok_ptr, object_ctype *o_ptr)
 			}
 		}
 
-		/* If a pval flag is known to be set, the pval itself is known. */
-		if (f1 & TR1_PVAL_MASK & j_ptr->flags1) j_ptr->pval = 1;
-
 		/* If an activation is known to exist, magically know what it is. */
 		j_ptr->activation = !!(f3 & TR3_ACTIVATE);
 
 		/* Special "always show these" flags. */
-		if (f3 & TR3_SHOW_ARMOUR) j_ptr->ac = 1;
-		if (f3 & TR3_SHOW_MODS) j_ptr->dd = j_ptr->ds = 1;
+		if (j_ptr->flags3 & f3 & TR3_SHOW_ARMOUR) j_ptr->ac = 1;
+		if (j_ptr->flags3 & f3 & TR3_SHOW_MODS) j_ptr->dd = j_ptr->ds = 1;
 
 		/* Hack - resist_chaos by any means gives resist_conf. */
 		if (j_ptr->flags2 & f2 & TR2_RES_CHAOS) j_ptr->flags2 |= TR2_RES_CONF;
 	}
 }
 
-/* 
+/*
  * A macro used below to clear a j_ptr field if the corresponding q_ptr field
  * is set to 0.
  */
@@ -738,9 +581,12 @@ static void object_knowledge(obj_know_type *ok_ptr, object_ctype *o_ptr)
  *
  * As far as is practical, the functions which inspect objects should work with
  * objects created by this function in a reasonable way.
+ *
+ * Hack - setting clear_mods causes various things to be cleared rather than
+ * set to a default value.
  */
 static void set_known_fields(object_type *j_ptr, object_ctype *o_ptr,
-	const obj_know_type *ok_ptr)
+	const obj_know_type *ok_ptr, bool clear_mods)
 {
 	/* Start with everything known. */
 	object_copy(j_ptr, o_ptr);
@@ -771,19 +617,37 @@ static void set_known_fields(object_type *j_ptr, object_ctype *o_ptr,
 	OIK_MASK(activation)
 
 	/* OBJ_UNKNOWN has a lot of things set to safe values. */
-	OIK_MASK_SPECIAL(to_h, k_info[j_ptr->k_idx].to_h)
-	OIK_MASK_SPECIAL(to_d, k_info[j_ptr->k_idx].to_d)
-	OIK_MASK_SPECIAL(to_a, k_info[j_ptr->k_idx].to_a)
-	OIK_MASK_SPECIAL(ac, k_info[j_ptr->k_idx].ac)
-	OIK_MASK_SPECIAL(pval, k_info[j_ptr->k_idx].pval)
+	if (clear_mods)
+	{
+		OIK_MASK(to_h)
+		OIK_MASK(to_d)
+		OIK_MASK(to_a)
+		OIK_MASK(ac)
+		OIK_MASK(dd)
+		OIK_MASK(ds)
+		OIK_MASK(pval)
+	}
+	else
+	{
+		object_kind *k_ptr = &k_info[j_ptr->k_idx];
+		OIK_MASK_SPECIAL(to_h, k_ptr->to_h)
+		OIK_MASK_SPECIAL(to_d, k_ptr->to_d)
+		OIK_MASK_SPECIAL(to_a, k_ptr->to_a)
+		OIK_MASK_SPECIAL(ac, k_ptr->ac)
+		OIK_MASK_SPECIAL(dd, k_ptr->dd)
+		OIK_MASK_SPECIAL(ds, k_ptr->ds)
+		OIK_MASK_SPECIAL(pval, k_ptr->pval)
+	}
 	OIK_MASK(timeout)
 	OIK_MASK(weight)
-	OIK_MASK_SPECIAL(dd, k_info[j_ptr->k_idx].dd)
-	OIK_MASK_SPECIAL(ds, k_info[j_ptr->k_idx].ds)
 	OIK_MASK(note)
 	OIK_MASK(art_name)
 	OIK_MASK(next_o_idx)
 	OIK_MASK(held_m_idx)
+	OIK_MASK_SPECIAL(found.how, FOUND_UNKNOWN);
+	OIK_MASK(found.idx);
+	OIK_MASK_SPECIAL(found.dungeon, FOUND_DUN_UNKNOWN);
+	OIK_MASK_SPECIAL(found.level, FOUND_LEV_UNKNOWN);
 }
 
 /*
@@ -794,7 +658,13 @@ void object_info_known(object_type *j_ptr, object_ctype *o_ptr)
 {
 	obj_know_type ok_ptr[1];
 	object_knowledge(ok_ptr, o_ptr);
-	set_known_fields(j_ptr, o_ptr, ok_ptr);
+	set_known_fields(j_ptr, o_ptr, ok_ptr, FALSE);
+
+	if (is_inventory_p(o_ptr))
+	{
+		j_ptr->iy = 0;
+		j_ptr->ix = o_ptr - inventory + 1;
+	}
 }
 
 
@@ -810,6 +680,32 @@ void object_flags_known(object_ctype *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	(*f3) = j.flags3;
 }
 
+/*
+ * Return the inscription to use for an object.
+ */
+cptr PURE get_inscription(object_ctype *o_ptr)
+{
+	/* Inscribed objects are simple. */
+	u16b i = o_ptr->note;
+
+	/* Use the k_idx inscription without anything better, if known. */
+	if (!i)
+	{
+		obj_know_type ok_ptr[1];
+
+		/* Otherwise, look for a default. */
+		object_knowledge(ok_ptr, o_ptr);
+		if (ok_ptr->obj->k_idx)
+		{
+			i = k_info[o_ptr->k_idx].note;
+		}
+	}
+
+	/* Use the p_id inscription without anything better. */
+	if (!i) i = o_base[u_info[k_info[o_ptr->k_idx].u_idx].p_id].note;
+
+	return quark_str(i);
+}
 
 
 
@@ -838,7 +734,7 @@ cptr find_next_good_flag(cptr s, byte reject, byte require)
 
 		/* Ordinary characters do nothing. */
 		if (*s & 0xE0);
-				
+
 		/* NULs are parsed elewhere. */
 		else if (*s == '\0') return s;
 
@@ -874,7 +770,7 @@ cptr find_next_good_flag(cptr s, byte reject, byte require)
 
 	/* The loop finished with a flag-altering character, but
 	 * the character after it may be printable. */
- 	return s+1;
+	return s+1;
 }
 
 /*
@@ -910,6 +806,15 @@ static char *object_desc_str(char *t, cptr s)
 	return (t);
 }
 
+/*
+ * Return TRUE if the pval an object has relates to its flags.
+ */
+static bool PURE pval_is_normal_p(object_type *o_ptr)
+{
+	int i = wield_slot(o_ptr);
+	if (i == INVEN_LITE && !allart_p(o_ptr)) return FALSE;
+	return (i >= INVEN_WIELD && i <= INVEN_FEET);
+}
 
 static const char hidden_name[] = {CH_ARTICLE,
 	'h','i','d','d','e','n',' ','t','h','i','n','g',
@@ -941,13 +846,14 @@ static const char hidden_name[] = {CH_ARTICLE,
  */
 
 /* The number of strings which can be in the process of being printed at once. */
-#define MAX_NAME_LEVEL	8
+#define MAX_NAME_LEVEL 8
 
 static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 	int mode)
 {
 	bool pref = (flags & OD_ART) != 0;
 	bool in_shop = (flags & OD_SHOP) || (o1_ptr->ident & IDENT_STORE);
+	bool no_hide = (flags & OD_NOHIDE);
 
 	/* The strings from which buf is compiled. */
 	cptr strings[8] = {0,0,0,0,0,0,0,0};
@@ -958,9 +864,9 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
  * the output string for the first letter or number, and adds "a" or "an"
  * to the beginning as appropriate. */
 
-#define ARTICLE_NO	0
-#define ARTICLE_REQUEST	1
-#define ARTICLE_LETTER	2
+#define ARTICLE_NO 0
+#define ARTICLE_REQUEST 1
+#define ARTICLE_LETTER 2
 
 	int wants_article = ARTICLE_NO;
 
@@ -973,15 +879,15 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 
 	int                     power,i;
 
-	cptr	r[MAX_NAME_LEVEL];
+	cptr r[MAX_NAME_LEVEL];
 	char            *t;
 
 	/* tmp_val_base is twice as large as necessary as little bounds checking
 	 * is performed. This probably isn't good enough. */
 	C_TNEW(tmp_val_base, len+80, char);
-	char		*tmp_val = tmp_val_base;
+	char *tmp_val = tmp_val_base;
 
-	object_kind	*k1_ptr;
+	object_kind *k1_ptr;
 	unident_type *u1_ptr;
 	o_base_type *ob1_ptr;
 	obj_know_type know_ptr[1];
@@ -1004,7 +910,7 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 	}
 
 	/* Set o_ptr according to the known information. */
-	set_known_fields(o_ptr, o1_ptr, know_ptr);
+	set_known_fields(o_ptr, o1_ptr, know_ptr, TRUE);
 
 	k1_ptr = &k_info[o1_ptr->k_idx];
 	u1_ptr = &u_info[k1_ptr->u_idx];
@@ -1017,8 +923,8 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 	strings[CI_FLAVOUR] = (know_ptr->u_idx) ? u_name+u1_ptr->name : "";
 	strings[CI_BASE] = (know_ptr->p_id) ? ob_name+ob1_ptr->name : "";
 	strings[CI_EGO] = (ok_ptr->name2) ? e_name+e_info[o_ptr->name2].name : "";
- 	strings[CI_ARTEFACT] = (o_ptr->name1) ? a_name+a_info[o_ptr->name1].name :
- 		(o_ptr->art_name) ? quark_str(o_ptr->art_name) : "";
+	strings[CI_ARTEFACT] = (o_ptr->name1) ? a_name+a_info[o_ptr->name1].name :
+		(o_ptr->art_name) ? quark_str(o_ptr->art_name) : "";
 
 	/* If any of the above remain unset, they shall be ignored. */
 	for (i = 0; i < 8; i++)
@@ -1073,7 +979,7 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 	if (!r[this_level]) r[this_level] = "Mystery";
 
 	/* Hack - hidden objects have a special name. */
-	if (o_ptr->ident & IDENT_HIDDEN) r[this_level] = hidden_name;
+	if (!no_hide && o_ptr->ident & IDENT_HIDDEN) r[this_level] = hidden_name;
 
 	/*
 	 * Add an article if required. This is only possible at the start
@@ -1159,7 +1065,7 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 		else if (find_cm(*r[this_level]) != CM_ACT)
 		{
 			r[this_level] = find_next_good_flag(r[this_level], reject | current, ~(reject | current));
-	  	}
+			}
 		/* Paranoia - too many levels.
 		 * As "current" prevents the same string from being
 		 * started recursively, this can't happen. */
@@ -1185,7 +1091,7 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 	if (wants_article == ARTICLE_LETTER)
 	{
 		/* Find the first letter/number. */
-		for (s = tmp_val; !isalnum(*s) && *s; s++);
+		for (s = tmp_val; !ISALNUM(*s) && *s; s++);
 
 		/* And copy an article to it without termination if one is found. */
 		if (is_a_vowel(*s) || *s == '8')
@@ -1193,11 +1099,11 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 			tmp_val -= 3;
 			strncpy(tmp_val, "an ", 3);
 		}
-		else if (isalnum(*s))
+		else if (ISALNUM(*s))
 		{
 			tmp_val -= 2;
 			strncpy(tmp_val, "a ", 2);
-  		}
+			}
 	}
 
 	/* No more details wanted */
@@ -1328,7 +1234,7 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 		}
 	}
 	/* No base armor, but does increase armor */
-	else if (o_ptr->to_a)
+	else if (ok_ptr->to_a && o_ptr->to_a)
 	{
 		t += sprintf(t, " [%+d]", o_ptr->to_a);
 	}
@@ -1339,8 +1245,8 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 
 	/* Hack -- Wands and Staffs have charges */
 	if (ok_ptr->pval &&
-	    ((o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND)))
+		((o_ptr->tval == TV_STAFF) ||
+		(o_ptr->tval == TV_WAND)))
 	{
 		/* Dump " (N charges)" */
 		t += sprintf(t, " (%d charge%s)",
@@ -1356,7 +1262,7 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 
 
 	/* Dump "pval" flags for wearable items */
-	if (o_ptr->flags1 & TR1_PVAL_MASK && o_ptr->pval)
+	if (pval_is_normal_p(o_ptr) && o_ptr->pval)
 	{
 		/* Dump the pval. */
 		t += sprintf(t, " (%+d", o_ptr->pval);
@@ -1410,10 +1316,11 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 	if (mode >= 3)
 	{
 		cptr k[4];
-		int i = 0;
 
 		/* This is long enough for "(2147483647)" and for "100% off".*/
 		char tmp2[2][13];
+
+		i = 0;
 
 		/* Find the sections of inscription. */
 
@@ -1427,26 +1334,26 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 			s32b value;
 			bool worthless;
 
-			value = object_value(o_ptr, FALSE);
+			value = object_value(o1_ptr, FALSE);
 			worthless = !value;
-			if (worthless && cursed_p(o_ptr))
+			if (worthless && cursed_p(o1_ptr))
 			{
 				object_type j_ptr[1];
-				object_copy(j_ptr, o_ptr);
+				object_copy(j_ptr, o1_ptr);
 
 				j_ptr->ident &= ~(IDENT_CURSED);
 				j_ptr->flags3 &= ~(TR3_CURSED | TR3_HEAVY_CURSE);
-	 			value = object_value(j_ptr, FALSE);
+				value = object_value(j_ptr, FALSE);
 			}
 
 			/* Let the player know when a known cursed item is not broken. */
 			if (worthless && value)
 			{
-	 			sprintf(tmp2[0], "(%ld)", value);
+				sprintf(tmp2[0], "(%ld)", value);
 			}
 			else
 			{
-	 			sprintf(tmp2[0], "%ld", value);
+				sprintf(tmp2[0], "%ld", value);
 			}
 			k[i++] = tmp2[0];
 		}
@@ -1465,7 +1372,9 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 			if (feel != SENSE_NONE) k[i++] = feeling_str[feel].str;
 		}
 
-		if (o_ptr->note) k[i++] = quark_str(o_ptr->note);
+		/* Find the inscription, if any. */
+		s = get_inscription(o1_ptr);
+		if (*s) k[i++] = s;
 
 		if (i && t < tmp_val+len-4)
 		{
@@ -1473,7 +1382,7 @@ static void object_desc(char *buf, uint len, object_ctype *o1_ptr, byte flags,
 
 			/* Append the inscriptions from bottom to top. */
 			while (i-- && t < tmp_val+len-2)
-			{ 
+			{
 				/* This leaves enough space for formatting. */
 				sprintf(t, "%.*s", MAX(0, len-(t-tmp_val)-2), k[i]);
 				t = strchr(t, '\0');
@@ -1526,7 +1435,7 @@ void object_k_name_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
  */
-cptr PURE item_activation(object_ctype *o_ptr)
+static cptr PURE item_activation(object_ctype *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -1537,161 +1446,161 @@ cptr PURE item_activation(object_ctype *o_ptr)
 	if (!(f3 & (TR3_ACTIVATE))) return "nothing";
 
 	/* Randarts store their activations in object_type. */
-        switch (o_ptr->activation)
-        {
-            case ACT_SUNLIGHT:
-                return "beam of sunlight every 10 turns";
-            case ACT_BO_MISS_1:
-                return "magic missile (2d6) every 2 turns";
-            case ACT_BA_POIS_1:
-                return "stinking cloud (12), rad. 3, every 4+d4 turns";
-            case ACT_BO_ELEC_1:
-                return "lightning bolt (4d8) every 6+d6 turns";
-            case ACT_BO_ACID_1:
-                return "acid bolt (5d8) every 5+d5 turns";
-            case ACT_BO_COLD_1:
-                return "frost bolt (6d8) every 7+d7 turns";
-            case ACT_BO_FIRE_1:
-                return "fire bolt (9d8) every 8+d8 turns";
-            case ACT_BA_COLD_1:
-                return "ball of cold (48) every 400 turns";
-            case ACT_BA_FIRE_1:
-                return "ball of fire (72) every 400 turns";
-            case ACT_DRAIN_1:
-                return "drain life (100) every 100+d100 turns";
-            case ACT_BA_COLD_2:
-                return "ball of cold (100) every 300 turns";
-            case ACT_BA_ELEC_2:
-                return "ball of lightning (100) every 500 turns";
-            case ACT_DRAIN_2:
-                return "drain life (120) every 400 turns";
-            case ACT_VAMPIRE_1:
-                return "vampiric drain (3*50) every 400 turns";
-            case ACT_BO_MISS_2:
-                return "arrows (150) every 90+d90 turns";
-            case ACT_BA_FIRE_2:
-                return "fire ball (120) every 225+d225 turns";
-            case ACT_BA_COLD_3:
-                return "ball of cold (200) every 325+d325 turns";
-            case ACT_WHIRLWIND:
-                return "whirlwind attack every 250 turns";
-            case ACT_VAMPIRE_2:
-                return "vampiric drain (3*100) every 400 turns";
-            case ACT_CALL_CHAOS:
-                return "call chaos every 350 turns";
-            case ACT_SHARD:
-                return "shard ball (120+level) every 400 turns";
-            case ACT_DISP_EVIL:
-                return "dispel evil (level*5) every 300+d300 turns";
-            case ACT_DISP_GOOD:
-                return "dispel good (level*5) every 300+d300 turns";
-            case ACT_BA_MISS_3:
-                return "elemental breath (300) every 500 turns";
-            case ACT_CONFUSE:
-                return "confuse monster every 15 turns";
-            case ACT_SLEEP:
-                return "sleep nearby monsters every 55 turns";
-            case ACT_QUAKE:
-                return "earthquake (rad 10) every 50 turns";
-            case ACT_TERROR:
-                return "terror every 3 * (level+10) turns";
-            case ACT_TELE_AWAY:
-                return "teleport away every 200 turns";
-            case ACT_BANISH_EVIL:
-                return "banish evil every 250+d250 turns";
-            case ACT_GENOCIDE:
-                return "genocide every 500 turns";
-            case ACT_MASS_GENO:
-                return "mass genocide every 1000 turns";
-            case ACT_CHARM_ANIMAL:
-                return "charm animal every 300 turns";
-            case ACT_CHARM_UNDEAD:
-                return "enslave undead every 333 turns";
-            case ACT_CHARM_OTHER:
-                return "charm monster every 400 turns";
-            case ACT_CHARM_ANIMALS:
-                return "animal friendship every 500 turns";
-            case ACT_CHARM_OTHERS:
-                return "mass charm every 750 turns";
-            case ACT_SUMMON_ANIMAL:
-                return "summon animal every 200+d300 turns";
-            case ACT_SUMMON_PHANTOM:
-                return "summon phantasmal servant every 200+d200 turns";
-            case ACT_SUMMON_ELEMENTAL:
-                return "summon elemental every 750 turns";
-            case ACT_SUMMON_DEMON:
-                return "summon demon every 666+d333 turns";
-            case ACT_SUMMON_UNDEAD:
-                return "summon undead every 666+d333 turns";
-            case ACT_CURE_LW:
-                return "remove fear & heal 30 hp every 10 turns";
-            case ACT_CURE_MW:
-                return "heal 4d8 & wounds every 3+d3 turns";
-            case ACT_CURE_POISON:
-                return "remove fear and cure poison every 5 turns";
-            case ACT_REST_LIFE:
-                return "restore life levels every 450 turns";
-            case ACT_REST_ALL:
-                return "restore stats and life levels every 750 turns";
-            case ACT_CURE_700:
-                return "heal 700 hit points every 250 turns";
-            case ACT_CURE_1000:
-                return "heal 1000 hit points every 888 turns";
-            case ACT_ESP:
-                return "temporary ESP (dur 25+d30) every 200 turns";
-            case ACT_BERSERK:
-                return "heroism and berserk (dur 50+d50) every 100+d100 turns";
-            case ACT_PROT_EVIL:
-                return "protect evil (dur level*3 + d25) every 225+d225 turns";
-            case ACT_RESIST_ALL:
-                return "resist elements (dur 40+d40) every 200 turns";
-            case ACT_SPEED:
-                return "speed (dur 20+d20) every 250 turns";
-            case ACT_XTRA_SPEED:
-                return "speed (dur 75+d75) every 200+d200 turns";
-            case ACT_WRAITH:
-                return "wraith form (level/2 + d(level/2)) every 1000 turns";
-            case ACT_INVULN:
-                return "invulnerability (dur 8+d8) every 1000 turns";
-            case ACT_LIGHT:
-                return "light area (dam 2d15) every 10+d10 turns";
-            case ACT_MAP_LIGHT:
-                return "light (dam 2d15) & map area every 50+d50 turns";
-            case ACT_DETECT_ALL:
-                return "detection every 55+d55 turns";
-            case ACT_DETECT_XTRA:
-                return "detection, probing and identify true every 1000 turns";
-            case ACT_ID_FULL:
-                return "identify true every 750 turns";
-            case ACT_ID_PLAIN:
-                return "identify spell every 10 turns";
-            case ACT_RUNE_EXPLO:
-                return "explosive rune every 200 turns";
-            case ACT_RUNE_PROT:
-                return "rune of protection every 400 turns";
-            case ACT_SATIATE:
-                return "satisfy hunger every 200 turns";
-            case ACT_DEST_DOOR:
-                return "destroy doors every 10 turns";
-            case ACT_STONE_MUD:
-                return "stone to mud every 5 turns";
-            case ACT_RECHARGE:
-                return "recharging every 70 turns";
-            case ACT_ALCHEMY:
-                return "alchemy every 500 turns";
-            case ACT_DIM_DOOR:
-                return "dimension door every 100 turns";
-            case ACT_TELEPORT:
-                return "teleport (range 100) every 45 turns";
+		switch (o_ptr->activation)
+		{
+			case ACT_SUNLIGHT:
+				return "beam of sunlight every 10 turns";
+			case ACT_BO_MISS_1:
+				return "magic missile (2d6) every 2 turns";
+			case ACT_BA_POIS_1:
+				return "stinking cloud (12), rad. 3, every 4+d4 turns";
+			case ACT_BO_ELEC_1:
+				return "lightning bolt (4d8) every 6+d6 turns";
+			case ACT_BO_ACID_1:
+				return "acid bolt (5d8) every 5+d5 turns";
+			case ACT_BO_COLD_1:
+				return "frost bolt (6d8) every 7+d7 turns";
+			case ACT_BO_FIRE_1:
+				return "fire bolt (9d8) every 8+d8 turns";
+			case ACT_BA_COLD_1:
+				return "ball of cold (48) every 400 turns";
+			case ACT_BA_FIRE_1:
+				return "ball of fire (72) every 400 turns";
+			case ACT_DRAIN_1:
+				return "drain life (100) every 100+d100 turns";
+			case ACT_BA_COLD_2:
+				return "ball of cold (100) every 300 turns";
+			case ACT_BA_ELEC_2:
+				return "ball of lightning (100) every 500 turns";
+			case ACT_DRAIN_2:
+				return "drain life (120) every 400 turns";
+			case ACT_VAMPIRE_1:
+				return "vampiric drain (3*50) every 400 turns";
+			case ACT_BO_MISS_2:
+				return "arrows (150) every 90+d90 turns";
+			case ACT_BA_FIRE_2:
+				return "fire ball (120) every 225+d225 turns";
+			case ACT_BA_COLD_3:
+				return "ball of cold (200) every 325+d325 turns";
+			case ACT_WHIRLWIND:
+				return "whirlwind attack every 250 turns";
+			case ACT_VAMPIRE_2:
+				return "vampiric drain (3*100) every 400 turns";
+			case ACT_CALL_CHAOS:
+				return "call chaos every 350 turns";
+			case ACT_SHARD:
+				return "shard ball (120+level) every 400 turns";
+			case ACT_DISP_EVIL:
+				return "dispel evil (level*5) every 300+d300 turns";
+			case ACT_DISP_GOOD:
+				return "dispel good (level*5) every 300+d300 turns";
+			case ACT_BA_MISS_3:
+				return "elemental breath (300) every 500 turns";
+			case ACT_CONFUSE:
+				return "confuse monster every 15 turns";
+			case ACT_SLEEP:
+				return "sleep nearby monsters every 55 turns";
+			case ACT_QUAKE:
+				return "earthquake (rad 10) every 50 turns";
+			case ACT_TERROR:
+				return "terror every 3 * (level+10) turns";
+			case ACT_TELE_AWAY:
+				return "teleport away every 200 turns";
+			case ACT_BANISH_EVIL:
+				return "banish evil every 250+d250 turns";
+			case ACT_GENOCIDE:
+				return "genocide every 500 turns";
+			case ACT_MASS_GENO:
+				return "mass genocide every 1000 turns";
+			case ACT_CHARM_ANIMAL:
+				return "charm animal every 300 turns";
+			case ACT_CHARM_UNDEAD:
+				return "enslave undead every 333 turns";
+			case ACT_CHARM_OTHER:
+				return "charm monster every 400 turns";
+			case ACT_CHARM_ANIMALS:
+				return "animal friendship every 500 turns";
+			case ACT_CHARM_OTHERS:
+				return "mass charm every 750 turns";
+			case ACT_SUMMON_ANIMAL:
+				return "summon animal every 200+d300 turns";
+			case ACT_SUMMON_PHANTOM:
+				return "summon phantasmal servant every 200+d200 turns";
+			case ACT_SUMMON_ELEMENTAL:
+				return "summon elemental every 750 turns";
+			case ACT_SUMMON_DEMON:
+				return "summon demon every 666+d333 turns";
+			case ACT_SUMMON_UNDEAD:
+				return "summon undead every 666+d333 turns";
+			case ACT_CURE_LW:
+				return "remove fear & heal 30 hp every 10 turns";
+			case ACT_CURE_MW:
+				return "heal 4d8 & wounds every 3+d3 turns";
+			case ACT_CURE_POISON:
+				return "remove fear and cure poison every 5 turns";
+			case ACT_REST_LIFE:
+				return "restore life levels every 450 turns";
+			case ACT_REST_ALL:
+				return "restore stats and life levels every 750 turns";
+			case ACT_CURE_700:
+				return "heal 700 hit points every 250 turns";
+			case ACT_CURE_1000:
+				return "heal 1000 hit points every 888 turns";
+			case ACT_ESP:
+				return "temporary ESP (dur 25+d30) every 200 turns";
+			case ACT_BERSERK:
+				return "heroism and berserk (dur 50+d50) every 100+d100 turns";
+			case ACT_PROT_EVIL:
+				return "protect evil (dur level*3 + d25) every 225+d225 turns";
+			case ACT_RESIST_ALL:
+				return "resist elements (dur 40+d40) every 200 turns";
+			case ACT_SPEED:
+				return "speed (dur 20+d20) every 250 turns";
+			case ACT_XTRA_SPEED:
+				return "speed (dur 75+d75) every 200+d200 turns";
+			case ACT_WRAITH:
+				return "wraith form (level/2 + d(level/2)) every 1000 turns";
+			case ACT_INVULN:
+				return "invulnerability (dur 8+d8) every 1000 turns";
+			case ACT_LIGHT:
+				return "light area (dam 2d15) every 10+d10 turns";
+			case ACT_MAP_LIGHT:
+				return "light (dam 2d15) & map area every 50+d50 turns";
+			case ACT_DETECT_ALL:
+				return "detection every 55+d55 turns";
+			case ACT_DETECT_XTRA:
+				return "detection, probing and identify true every 1000 turns";
+			case ACT_ID_FULL:
+				return "identify true every 750 turns";
+			case ACT_ID_PLAIN:
+				return "identify spell every 10 turns";
+			case ACT_RUNE_EXPLO:
+				return "explosive rune every 200 turns";
+			case ACT_RUNE_PROT:
+				return "rune of protection every 400 turns";
+			case ACT_SATIATE:
+				return "satisfy hunger every 200 turns";
+			case ACT_DEST_DOOR:
+				return "destroy doors every 10 turns";
+			case ACT_STONE_MUD:
+				return "stone to mud every 5 turns";
+			case ACT_RECHARGE:
+				return "recharging every 70 turns";
+			case ACT_ALCHEMY:
+				return "alchemy every 500 turns";
+			case ACT_DIM_DOOR:
+				return "dimension door every 100 turns";
+			case ACT_TELEPORT:
+				return "teleport (range 100) every 45 turns";
 			case ACT_TELEPORT_WAIT:
 				return "teleport (range 100) every 50+d50 turns";
-            case ACT_RECALL:
-                return "word of recall every 200 turns";
+			case ACT_RECALL:
+				return "word of recall every 200 turns";
 			case 0:
 				break;
-            default:
-                return "a bad randart activation";
-        }
+			default:
+				return "a bad randart activation";
+		}
 
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
@@ -1710,8 +1619,8 @@ cptr PURE item_activation(object_ctype *o_ptr)
 			return "remove fear and cure poison every 5 turns";
 		case ART_STARLIGHT:
 			return "frost ball (100) every 300 turns";
-        case ART_DAWN:
-            return "summon a Black Reaver every 500+d500 turns";
+		case ART_DAWN:
+			return "summon a Black Reaver every 500+d500 turns";
 		case ART_EVERFLAME:
 			return "fire ball (72) every 400 turns";
 		case ART_FIRESTAR:
@@ -1731,23 +1640,23 @@ cptr PURE item_activation(object_ctype *o_ptr)
 		case ART_ERIRIL:
 			return "identify every 10 turns";
 		case ART_ATAL:
-            return "probing, detection and full id  every 1000 turns";
+			return "probing, detection and full id  every 1000 turns";
 		case ART_TROLLS:
 			return "mass genocide every 1000 turns";
 		case ART_SPLEENSLICER:
 			return "cure wounds (4d7) every 3+d3 turns";
 		case ART_DEATH:
 			return "fire branding of bolts every 999 turns";
-        case ART_KARAKAL:
-            return "a getaway every 35 turns";
+		case ART_KARAKAL:
+			return "a getaway every 35 turns";
 		case ART_ODIN:
-            return "lightning ball (100) every 500 turns";
+			return "lightning ball (100) every 500 turns";
 		case ART_DESTINY:
 			return "stone to mud every 5 turns";
 		case ART_SOULKEEPER:
 			return "heal (1000) every 888 turns";
 		case ART_VAMPLORD:
-            return ("heal (777), curing and heroism every 300 turns");
+			return ("heal (777), curing and heroism every 300 turns");
 		case ART_ORCS:
 			return "genocide every 500 turns";
 		case ART_NYOGTHA:
@@ -1779,23 +1688,23 @@ cptr PURE item_activation(object_ctype *o_ptr)
 		case ART_SKULLKEEPER:
 			return "detection every 55+d55 turns";
 		case ART_SUN:
-            return "heal (700) every 250 turns";
+			return "heal (700) every 250 turns";
 		case ART_RAZORBACK:
 			return "star ball (150) every 1000 turns";
 		case ART_BLADETURNER:
-            return "breathe elements (300), berserk rage, bless, and resistance";
+			return "breathe elements (300), berserk rage, bless, and resistance";
 		case ART_POLARIS:
 			return "illumination every 10+d10 turns";
 		case ART_XOTH:
-            return "magic mapping and light every 50+d50 turns";
+			return "magic mapping and light every 50+d50 turns";
 		case ART_TRAPEZOHEDRON:
-            return "clairvoyance and recall, draining you";
+			return "clairvoyance and recall, draining you";
 		case ART_ALHAZRED:
 			return "dispel evil (x5) every 300+d300 turns";
 		case ART_LOBON:
 			return "protection from evil every 225+d225 turns";
-        case ART_MAGIC:
-            return "a strangling attack (100) every 100+d100 turns";
+		case ART_MAGIC:
+			return "a strangling attack (100) every 100+d100 turns";
 		case ART_BAST:
 			return "haste self (75+d75 turns) every 150+d150 turns";
 		case ART_ELEMFIRE:
@@ -1806,8 +1715,8 @@ cptr PURE item_activation(object_ctype *o_ptr)
 			return "large lightning ball (250) every 425+d425 turns";
 		case ART_NYARLATHOTEP:
 			return "bizarre things every 450+d450 turns";
-        case ART_POWER: case ART_MASK:
-            return "rays of fear in every direction";
+		case ART_POWER: case ART_MASK:
+			return "rays of fear in every direction";
 	}
 
 
@@ -1899,47 +1808,20 @@ cptr list_flags(cptr init, cptr conj, cptr *flags, int total)
 /* The maximum number of strings allowed for identify_fully_aux().
  * This should always be greater than the greatest possible number, as one is
  * currently used for termination. */
-#define MAX_IFA	128
-
-/* Information passed from identify_fully_get() to the output functions. */
-typedef struct ifa_type ifa_type;
-
-struct ifa_type
-{
-	cptr txt;
-	bool alloc;
-	byte attr;
-};
+#define MAX_IFA 128
 
 /*
- * Set i_ptr->txt as an allocated string, remember the fact.
+ * Set *i_ptr as an allocated string, remember the fact.
  */
-static void alloc_ifa(ifa_type *i_ptr, cptr str, ...)
+static void alloc_ifa(cptr *i_ptr, cptr str, ...)
 {
 	va_list vp;
-
-	/*
-	 * Hack - Convert an initial $x to a colour code. 
-	 * I'll change it once I've checked what happens to the string.
-	 */
-	if (str[0] == '$' && strchr(atchar, str[1]))
-	{
-		i_ptr->attr = color_char_to_attr(str[1]);
-		str += 2;
-	}
-	else
-	{
-		i_ptr->attr = TERM_WHITE;
-	}
 
 	/* Begin the Varargs Stuff */
 	va_start(vp, str);
 
 	/* Format and allocate the input string. */
-	i_ptr->txt = string_make(vformat(str, vp));
-
-	/* Remember that it has been allocated. */
-	i_ptr->alloc = TRUE;
+	*i_ptr = safe_string_make(vformat(str, vp));
 
 	/* End the Varargs Stuff */
 	va_end(vp);
@@ -1953,9 +1835,6 @@ static void alloc_ifa(ifa_type *i_ptr, cptr str, ...)
 /* A basic test */
 #define test(x,y) (x[stat_res[y]] - x[p_ptr->stat_ind[y]])
 
-/* The special test required to calculate blows. */
-#define blows(x) (blows_table[MIN(adj_str_blow[x[A_STR]]*mul/div,11)][MIN(adj_dex_blow[x[A_DEX]], 11)])
-
 #define DIF ABS(dif)
 #define DIF_INC ((dif > 0) ? "increases" : "decreases")
 #define DIF_DEC ((dif < 0) ? "increases" : "decreases")
@@ -1964,17 +1843,12 @@ static void alloc_ifa(ifa_type *i_ptr, cptr str, ...)
 
 #define CERT ((act & (A_INCREASE | A_DEC10 | A_DEC25)) ? "at least " : "")
 
-#define A_RESTORE	0x01
-#define A_INCREASE	0x02
-#define A_INCRES	(A_INCREASE | A_RESTORE)
-#define A_DEC10	0x04	/* A small temporary decrease, as do_dec_stat(). */
-#define A_DEC25	0x08	/* A large permanent decrease, as a potion of ruination. */
-#define A_WIELD	0x10	/* Hack - indicates a melee weapon. */
-
-/* Just in case birthrand.diff isn't applied. */
-#ifndef A_MAX
-#define A_MAX 6
-#endif
+#define A_RESTORE 0x01
+#define A_INCREASE 0x02
+#define A_INCRES (A_INCREASE | A_RESTORE)
+#define A_DEC10 0x04 /* A small temporary decrease, as do_dec_stat(). */
+#define A_DEC25 0x08 /* A large permanent decrease, as a potion of ruination. */
+#define A_WIELD 0x10 /* Hack - indicates a melee weapon. */
 
 #define CMPU(X) (pn_ptr->X - po_ptr->X)
 #define CMPUU(X) (ABS(CMPU(X)))
@@ -1989,7 +1863,7 @@ static void alloc_ifa(ifa_type *i_ptr, cptr str, ...)
  * As the modifications have taken place, this just queries the old and new
  * versions of p_ptr to see what has changed.
  */
-static void res_stat_details_comp(player_type *pn_ptr, player_type *po_ptr, int *i, ifa_type *info, byte act)
+static void res_stat_details_comp(player_type *pn_ptr, player_type *po_ptr, int *i, cptr *info, byte act)
 {
 	int j,dif;
 	byte attr;
@@ -2106,7 +1980,7 @@ static void change_stat_min(int stat, int act)
 	{
 		/* Doesn't affect this stat. */
 		if (~stat & 1<<i) continue;
-		
+
 		/* Restores this stat. */
 		if (act & A_RESTORE) (void)res_stat(i);
 
@@ -2119,19 +1993,16 @@ static void change_stat_min(int stat, int act)
 			p_ptr->stat_cur[i] += gain;
 			p_ptr->stat_max[i] += gain;
 		}
-		
+
 		/* A temporary loss of 10 */
 		if ((act & A_DEC10) && (p_ptr->stat_cur[i] > 3))
 		{
 			int loss, cur = p_ptr->stat_cur[i];
 			if (cur < 19) loss = 1;
 
-			else loss =
-#if 0 /* It's always 5, so don't waste time calculating it. */
-			MAX((((cur-18)/2+1)/2+2)*10/100, 10/2);
-#else
-			5;
-#endif
+			/* (((cur-18)/2+1)/2+2)*10/100 <= 5. */
+			else loss = 5;
+
 			if (cur > 18 && cur-loss <= 18)
 				p_ptr->stat_cur[i] = 18;
 			else
@@ -2142,12 +2013,10 @@ static void change_stat_min(int stat, int act)
 		{
 			int loss, cur = p_ptr->stat_max[i];
 			if (cur < 19) loss = 1;
-			else loss =
-#if 0 /* It's always 10, so don't waste time calculating it. */
-			MAX((((cur-18)/2+1)/2+2)*25/100, 25/2);
-#else
-			12;
-#endif
+
+			/* (((cur-18)/2+1)/2+2)*25/100 <= 12 */
+			else loss = 12;
+
 			if (p_ptr->stat_cur[i] > 18 && p_ptr->stat_cur[i]-loss <= 18)
 				p_ptr->stat_cur[i] = 18;
 			else
@@ -2259,9 +2128,18 @@ bool PURE is_worn_p(object_ctype *o_ptr)
 }
 
 /*
+ * Check if an object is in the player's inventory.
+ */
+bool PURE is_inventory_p(object_ctype *o_ptr)
+{
+	o_ptr = get_real_obj(o_ptr);
+	return (o_ptr >= inventory && o_ptr < inventory+INVEN_TOTAL);
+}
+
+/*
  * Find out what, if any, stat changes the given item causes.
  */
-static void res_stat_details(object_type *o_ptr, int real_k_idx, int *i, ifa_type *info)
+static void res_stat_details(object_type *o_ptr, int real_k_idx, int *i, cptr *info)
 {
 	byte stat, act;
 	s16b pval;
@@ -2325,14 +2203,14 @@ static void res_stat_details(object_type *o_ptr, int real_k_idx, int *i, ifa_typ
 		object_copy(j_ptr, inventory+slot);
 
 		/* Hack - the player should know how to wear everything. */
-		if (slot == -1)
+		if (slot == INVEN_NONE)
 		{
 			object_type tmp;
 			object_prep(&tmp, real_k_idx);
 			slot = wield_slot(&tmp);
 
 			/* Paranoia - not a wearable item? */
-			if (slot == -1)
+			if (slot == INVEN_NONE)
 			{
 				p_ptr = &p_body;
 				return;
@@ -2359,7 +2237,7 @@ static void res_stat_details(object_type *o_ptr, int real_k_idx, int *i, ifa_typ
 
 
 /* Offset for a continued string, -1 as these start with a space anyway. */
-#define IFD_OFFSET	3
+#define IFD_OFFSET 3
 
 /*
  * Find the number of characters in in before the last space before the
@@ -2369,10 +2247,10 @@ static int wrap_str(cptr in, int max)
 {
 	int len = strlen(in);
 	cptr t;
-	
+
 	/* Short enough anyway. */
 	if (len < max) return len;
-	
+
 	/* Find the last space before (or including) the max character. */
 	for (t = in+max-1; *t != ' '; t--);
 
@@ -2383,7 +2261,7 @@ static int wrap_str(cptr in, int max)
 /*
  * Show the flags an object has in an interactive way.
  */
-static void identify_fully_show(ifa_type *i_ptr)
+static void identify_fully_show(cptr *i_ptr)
 {
 	int k, len, minx = 15, xlen = Term->wid - minx+1, maxy = Term->hgt;
 	cptr s = "";
@@ -2400,13 +2278,10 @@ static void identify_fully_show(ifa_type *i_ptr)
 	/* We will print on top of the map. */
 	for (k = 2;;)
 	{
-		/* Hack - turn the default colour (black) into white. */
-		byte attr = (i_ptr->attr) ? i_ptr->attr : TERM_WHITE;
-		
 		/* Grab the next string. */
 		if (*s == '\0')
 		{
-			s = (i_ptr++)->txt;
+			s = *i_ptr++;
 
 			/* Finished. */
 			if (!s) break;
@@ -2418,20 +2293,20 @@ static void identify_fully_show(ifa_type *i_ptr)
 		if (*s == ' ')
 		{
 			len = wrap_str(s, xlen-IFD_OFFSET);
-			c_prt(attr, format("%.*s", len, s), k++, minx+IFD_OFFSET);
+			mc_put_fmt(k++, minx+IFD_OFFSET, "%.*s", len, s);
 		}
 		/* If not, don't. */
 		else
 		{
 			len = wrap_str(s, xlen);
-			c_prt(attr, format("%.*s", len, s), k++, minx);
+			mc_put_fmt(k++, minx, "%.*s", len, s);
 		}
 
 		/* Find the next segment. */
 		s += len;
 
 		/* Every 20 entries (lines 2 to 21), start over */
-		if ((k == maxy-1) && (i_ptr->txt))
+		if ((k == maxy-1) && (*i_ptr))
 		{
 			prt("-- more --", k, minx);
 			inkey();
@@ -2451,7 +2326,7 @@ static void identify_fully_show(ifa_type *i_ptr)
 /*
  * Show the first maxy-1 lines of the information stored in info.
  */
-static void identify_fully_dump(ifa_type *i_ptr)
+static void identify_fully_dump(cptr *i_ptr)
 {
 	int j,k, len, minx = 0, xlen = Term->wid - minx+1, maxy = Term->hgt;
 	cptr s = "";
@@ -2461,13 +2336,10 @@ static void identify_fully_dump(ifa_type *i_ptr)
 
 	for (k = 2, j = 0; k <= maxy; k++)
 	{
-		/* Hack - turn the default colour (black) into white. */
-		byte attr = (i_ptr->attr) ? i_ptr->attr : TERM_WHITE;
-		
 		/* Grab the next string. */
 		if (*s == '\0')
 		{
-			s = (i_ptr++)->txt;
+			s = *i_ptr++;
 
 			/* Finished. */
 			if (!s) break;
@@ -2479,15 +2351,15 @@ static void identify_fully_dump(ifa_type *i_ptr)
 		if (*s == ' ')
 		{
 			len = wrap_str(s, xlen-IFD_OFFSET);
-			c_prt(attr, format("%.*s", len, s), k, minx+IFD_OFFSET);
+			mc_put_fmt(k, minx+IFD_OFFSET, "%.*s", len, s);
 		}
 		/* If not, don't. */
 		else
 		{
 			len = wrap_str(s, xlen);
-			c_prt(attr, format("%.*s", len, s), k, minx);
+			mc_put_fmt(k, minx, "%.*s", len, s);
 		}
-		
+
 		/* Find the next segment. */
 		s += len;
 	}
@@ -2498,7 +2370,7 @@ static void identify_fully_dump(ifa_type *i_ptr)
 /*
  * Dump the information stored in info to a specified file.
  */
-static void identify_fully_dump_file(FILE *fff, ifa_type *i_ptr)
+static void identify_fully_dump_file(FILE *fff, cptr *i_ptr)
 {
 	int j,k, len, x, xlen = 80;
 	cptr s = "";
@@ -2508,7 +2380,7 @@ static void identify_fully_dump_file(FILE *fff, ifa_type *i_ptr)
 		/* Grab the next string. */
 		if (*s == '\0')
 		{
-			s = (i_ptr++)->txt;
+			s = *i_ptr++;
 			if (!s) break;
 		}
 
@@ -2522,7 +2394,7 @@ static void identify_fully_dump_file(FILE *fff, ifa_type *i_ptr)
 
 		len = wrap_str(s, xlen-x);
 		fprintf(fff, "%*s%.*s\n", x, "", len, s);
-		
+
 		/* Find the next segment. */
 		s += len;
 	}
@@ -2532,13 +2404,13 @@ static void identify_fully_dump_file(FILE *fff, ifa_type *i_ptr)
 /*
  * Clear any allocated strings in info[].
  */
-static void identify_fully_clear(ifa_type *i_ptr)
+static void identify_fully_clear(cptr *i_ptr)
 {
 	do
 	{
-		if (i_ptr->alloc) FREE(i_ptr->txt);
+		safe_free((vptr)*i_ptr);
 	}
-	while ((++i_ptr)->txt);
+	while (*(++i_ptr));
 }
 
 /*
@@ -2572,7 +2444,7 @@ s16b PURE launcher_type(object_ctype *o_ptr)
 
 		/* Not the right sort of launcher. */
 		if (k_info[k_idx].extra != o_ptr->tval) continue;
-		
+
 		/* Success. */
 		return k_idx;
 	}
@@ -2618,6 +2490,150 @@ byte PURE ammunition_type(object_ctype *o_ptr)
 	alloc_ifa(info+i++, list_flags(init, conj, flags, total))
 
 /*
+ * Add a description of how an object was found to *info.
+ * Call as "identify_fully_found_f1, (object_type *)o_ptr"
+ */
+static void identify_fully_found_f1(char *buf, uint max, cptr UNUSED fmt,
+	va_list *vp)
+{
+	object_ctype *o_ptr = va_arg(*vp, object_ctype *);
+	const object_found *found = &o_ptr->found;
+	char *end = buf+max, *p = buf;
+	const bool plural = (o_ptr->number != 1);
+	const bool unknown = (found->idx == 0);
+	cptr a = (plural) ? "" : "a ";
+	cptr s = (plural) ? "s" : "";
+
+	if (o_ptr->ident & IDENT_STORE)
+	{
+		p += strnfmt(p, end-p, "They are for sale in this shop.");
+		return;
+	}
+	else if (plural)
+		p += strnfmt(p, end-p, "They were");
+	else
+		p += strnfmt(p, end-p, "It was");
+
+	switch (found->how)
+	{
+		case FOUND_UNKNOWN: case FOUND_MIXED:
+		{
+			p += strnfmt(p, end-p, " found");
+			break;
+		}
+		case FOUND_FLOOR:
+		{
+			p += strnfmt(p, end-p, " found on the floor");
+			break;
+		}
+		case FOUND_VAULT:
+		{
+			/* Don't name the vault, as the names are a bit odd. */
+			p += strnfmt(p, end-p, " found in %svault%s", a, s);
+			break;
+		}
+		case FOUND_QUEST:
+		{
+			p += strnfmt(p, end-p, " %squest reward%s", a, s);
+			break;
+		}
+		case FOUND_DIG:
+		{
+			if (unknown)
+				p += strnfmt(p, end-p, " found buried in the ground");
+			else
+				p += strnfmt(p, end-p, " found in %v",
+					feature_desc_f2, found->idx, FDF_INDEF);
+			break;
+		}
+		case FOUND_CHEST:
+		{
+			if (unknown)
+				p += strnfmt(p, end-p, " found in %schest%s", a, s);
+			else
+				p += strnfmt(p, end-p, " found in %v",
+					object_k_name_f1, found->idx);
+			break;
+		}
+		case FOUND_SHOP:
+		{
+			if (unknown)
+				p += strnfmt(p, end-p, "bought from %sshop%s", a, s);
+			else
+				p += strnfmt(p, end-p, " bought from %v",
+					feature_desc_f2, found->idx, FDF_INDEF);
+			break;
+		}
+		case FOUND_BIRTH:
+		{
+			p += strnfmt(p, end-p, " yours from the beginning");
+			break;
+		}
+		case FOUND_SPELL:
+		{
+			p += strnfmt(p, end-p, " conjured out of thin air");
+			break;
+		}
+		case FOUND_CHAOS:
+		{
+			p += strnfmt(p, end-p, " given to you by %s",
+				(unknown) ? "your patron" : chaos_patron_shorts[found->idx-1]);
+			break;
+		}
+		case FOUND_CHEAT:
+		{
+			p += strnfmt(p, end-p, " created to aid debugging");
+			break;
+		}
+		case FOUND_MONSTER:
+		{
+			if (unknown)
+				p += strnfmt(p, end-p, "dropped by %smonster%s", a, s);
+
+			/* Hack - ghosts have unpredictable names. */
+			else if (found->idx == MON_PLAYER_GHOST)
+				p += strnfmt(p, end-p, "dropped by %splayer ghost%s", a, s);
+
+			/* Hack - assume only one monster dropped it. */
+			else
+				p += strnfmt(p, end-p, " dropped by %v",
+					monster_desc_aux_f3, r_info+found->idx, plural ? 2 : 1,
+					MDF_INDEF);
+			break;
+		}
+		default:
+		{
+			/* Paranoia. */
+			p += strnfmt(p, end-p, " obtained mysteriously");
+		}
+	}
+	if (found->dungeon == FOUND_DUN_WILD)
+		strnfmt(p, end-p, " in the wilderness.");
+	else if (found->dungeon == FOUND_DUN_UNKNOWN)
+	{
+		if (suffix(buf, "found")) strnfmt(p, end-p, " somewhere.");
+		else strnfmt(p, end-p, ".");
+	}
+	else if (found->level == FOUND_LEV_UNKNOWN)
+		strnfmt(p, end-p, " somewhere in %s.",
+			dun_name+dun_defs[found->dungeon].name);
+	else if (found->level == 0)
+		strnfmt(p, end-p, " in %s.", town_name+town_defs[found->dungeon].name);
+	else
+	{
+		int depth = dun_defs[found->dungeon].offset+found->level;
+		cptr dun = dun_name+dun_defs[found->dungeon].name;
+		if (depth_in_feet)
+			p += strnfmt(p, end-p, " at %d' in %s.", 50*depth, dun);
+		else
+			p += strnfmt(p, end-p, " on level %d in %s.", depth, dun);
+	}
+}
+
+#define IGET_BRIEF 0x01 /* Omit "less interesting" things. */
+#define IGET_NPLAYER 0x02 /* Omit player-specific things. */
+
+/*
  * Find the strings which describe the flags of o_ptr, place them in info
  * and note whether each was allocated.
  *
@@ -2625,8 +2641,11 @@ byte PURE ammunition_type(object_ctype *o_ptr)
  *
  * If brief is set, various less interesting things are omitted.
  */
-static void identify_fully_get(object_ctype *o1_ptr, ifa_type *info, bool brief)
+static void identify_fully_get(object_ctype *o1_ptr, cptr *info, byte flags)
 {
+	const bool brief = (flags & IGET_BRIEF) != 0;
+	const bool player = (flags & IGET_NPLAYER) == 0;
+
 	int                     i = 0, j;
 
 	cptr board[16];
@@ -2642,9 +2661,9 @@ static void identify_fully_get(object_ctype *o1_ptr, ifa_type *info, bool brief)
 	/* Mega-Hack -- describe activation */
 	if (o_ptr->flags3 & (TR3_ACTIVATE))
 	{
-		info[i++].txt = "It can be activated for...";
-		info[i++].txt = item_activation(o_ptr);
-		info[i++].txt = "...if it is being worn.";
+		info[i++] = "It can be activated for...";
+		info[i++] = item_activation(o_ptr);
+		info[i++] = "...if it is being worn.";
 	}
 
 	/* Describe use of the base object, if any. */
@@ -2653,7 +2672,7 @@ static void identify_fully_get(object_ctype *o1_ptr, ifa_type *info, bool brief)
 		/* There's a description in k_info.txt. */
 		if (k_info[o_ptr->k_idx].text)
 		{
-			info[i++].txt = k_text+k_info[o_ptr->k_idx].text;
+			info[i++] = k_text+k_info[o_ptr->k_idx].text;
 		}
 		/* Give an effect-based description if there was none. */
 		else
@@ -2664,7 +2683,7 @@ static void identify_fully_get(object_ctype *o1_ptr, ifa_type *info, bool brief)
 	}
 
 	j = get_device_chance_dec(o_ptr);
-	if (j) alloc_ifa(info+i++,
+	if (j && player) alloc_ifa(info+i++,
 		"You have a %d.%d%% chance of successfully using it %s.",
 		j/10, j%10, ((o_ptr->flags3 & TR3_ACTIVATE) && !is_worn_p(o_ptr))
 		? "if you wear it" : "at present");
@@ -2674,36 +2693,21 @@ static void identify_fully_get(object_ctype *o1_ptr, ifa_type *info, bool brief)
 	{
 		alloc_ifa(info+i++, "It provides light (radius %d) %s.",
 			k_info[o_ptr->k_idx].extra,
-			((allart_p(o_ptr))) ? "forever" : "when fueled.");
+			((allart_p(o_ptr))) ? "forever" : "when fueled");
 	}
 
 	/* Hack - describe the wield skill of weaponry. */
-	switch (wield_skill(o_ptr))
-	{
- 	case SKILL_CLOSE:
- 		info[i++].txt="It trains your close combat skill.";
- 				break;
-	case SKILL_CRUSH:
- 		info[i++].txt="It trains your crushing weapons skill.";
- 				break;
- 	case SKILL_STAB:
- 		info[i++].txt="It trains your stabbing weapons skill.";
- 		break;
-	case SKILL_SLASH:
- 		info[i++].txt="It trains your slashing weapons skill.";
- 			break;
-	case  SKILL_MISSILE:
- 		info[i++].txt="It trains your missile skill.";
- 		break;
- 	}
+	j = wield_skill(o_ptr);
+	if (j < MAX_SKILLS) alloc_ifa(info+i++,
+		"It trains your %s skill.", skill_set[j].name);
 
 
 	/* And then describe it fully */
 
 	j = 0;
-	
+
 	/* Recognise items which affect stats (detailed) */
-	if (!brief && spoil_stat)
+	if (!brief && player && spoil_stat)
 	{
 		res_stat_details(o_ptr, o1_ptr->k_idx, &i, info);
 	}
@@ -2742,29 +2746,29 @@ static void identify_fully_get(object_ctype *o1_ptr, ifa_type *info, bool brief)
 	}
 
 
-    if (o_ptr->flags1 & (TR1_CHAOTIC))
+	if (o_ptr->flags1 & (TR1_CHAOTIC))
 	{
-        info[i++].txt = "It produces chaotic effects.";
+		info[i++] = "It produces chaotic effects.";
 	}
 
-    if (o_ptr->flags1 & (TR1_VAMPIRIC))
+	if (o_ptr->flags1 & (TR1_VAMPIRIC))
 	{
-        info[i++].txt = "It drains life from your foes.";
+		info[i++] = "It drains life from your foes.";
 	}
 
-    if (o_ptr->flags1 & (TR1_IMPACT))
+	if (o_ptr->flags1 & (TR1_IMPACT))
 	{
-		info[i++].txt = "It can cause earthquakes.";
+		info[i++] = "It can cause earthquakes.";
 	}
 
-    if (o_ptr->flags1 & (TR1_VORPAL))
+	if (o_ptr->flags1 & (TR1_VORPAL))
 	{
-        info[i++].txt = "It is very sharp and can cut your foes.";
+		info[i++] = "It is very sharp and can cut your foes.";
 	}
 
-	/* Calculate actual damage of weapons. 
+	/* Calculate actual damage of weapons.
 	 * This only considers slays and brands at the moment. */
-	if (spoil_dam)
+	if (spoil_dam && player)
 	{
 		cptr s;
 		s16b tohit, todam, weap_blow, mut_blow;
@@ -2881,7 +2885,7 @@ nextbit:
 		}
 		if (*board)
 		{
-			alloc_ifa(info+i++, "It gives you %d,%d %s per turn",
+			alloc_ifa(info+i++, "It gives you %d %d/60 %s per turn",
 				weap_blow/60, weap_blow%60, *board);
 		}
 	}
@@ -2899,7 +2903,7 @@ nextbit:
 		{
 			do_list_flags("It causes extra damage via", "and", board, j);
 		}
-		
+
 		j = 0;
 		if ((o_ptr->flags1 & TR1_ALL_SLAY_DRAGON) == TR1_X15_DRAGON)
 		{
@@ -2947,7 +2951,7 @@ nextbit:
 	if (o_ptr->flags2 & (TR2_SUST_CHR)) board[j++] = "charisma";
 	if (j == 6)
 	{
-		info[i++].txt = "It sustains all of your stats.";
+		info[i++] = "It sustains all of your stats.";
 	}
 	else if (j)
 	{
@@ -2988,61 +2992,61 @@ nextbit:
 		do_list_flags("It provides resistance to", "and", board, j);
 	}
 
-    if (o_ptr->flags3 & (TR3_WRAITH))
-    {
-        info[i++].txt = "It renders you incorporeal.";
-    }
+	if (o_ptr->flags3 & (TR3_WRAITH))
+	{
+		info[i++] = "It renders you incorporeal.";
+	}
 	if (o_ptr->flags3 & (TR3_FEATHER))
 	{
-        info[i++].txt = "It allows you to levitate.";
+		info[i++] = "It allows you to levitate.";
 	}
 	if (o_ptr->flags3 & (TR3_LITE))
 	{
-		info[i++].txt = "It provides permanent light.";
+		info[i++] = "It provides permanent light.";
 	}
 	if (o_ptr->flags3 & (TR3_SEE_INVIS))
 	{
-		info[i++].txt = "It allows you to see invisible monsters.";
+		info[i++] = "It allows you to see invisible monsters.";
 	}
 	if (o_ptr->flags3 & (TR3_TELEPATHY))
 	{
-		info[i++].txt = "It gives telepathic powers.";
+		info[i++] = "It gives telepathic powers.";
 	}
 	if (o_ptr->flags3 & (TR3_SLOW_DIGEST))
 	{
-		info[i++].txt = "It slows your metabolism.";
+		info[i++] = "It slows your metabolism.";
 	}
 	if (o_ptr->flags3 & (TR3_REGEN))
 	{
-		info[i++].txt = "It speeds your regenerative powers.";
+		info[i++] = "It speeds your regenerative powers.";
 	}
-    if (o_ptr->flags2 & (TR2_REFLECT))
-    {
-        info[i++].txt = "It reflects bolts and arrows.";
-    }
-    if (o_ptr->flags3 & (TR3_SH_FIRE))
-    {
-        info[i++].txt = "It produces a fiery sheath.";
-    }
-    if (o_ptr->flags3 & (TR3_SH_ELEC))
-    {
-        info[i++].txt = "It produces an electric sheath.";
-    }
-    if (o_ptr->flags3 & (TR3_NO_MAGIC))
-    {
-        info[i++].txt = "It produces an anti-magic shell.";
-    }
-    if (o_ptr->flags3 & (TR3_NO_TELE))
-    {
-        info[i++].txt = "It prevents teleportation.";
-    }
+	if (o_ptr->flags2 & (TR2_REFLECT))
+	{
+		info[i++] = "It reflects bolts and arrows.";
+	}
+	if (o_ptr->flags3 & (TR3_SH_FIRE))
+	{
+		info[i++] = "It produces a fiery sheath.";
+	}
+	if (o_ptr->flags3 & (TR3_SH_ELEC))
+	{
+		info[i++] = "It produces an electric sheath.";
+	}
+	if (o_ptr->flags3 & (TR3_NO_MAGIC))
+	{
+		info[i++] = "It produces an anti-magic shell.";
+	}
+	if (o_ptr->flags3 & (TR3_NO_TELE))
+	{
+		info[i++] = "It prevents teleportation.";
+	}
 	if (o_ptr->flags3 & (TR3_XTRA_MIGHT))
 	{
-		info[i++].txt = "It fires missiles with extra might.";
+		info[i++] = "It fires missiles with extra might.";
 	}
 	if (o_ptr->flags3 & (TR3_XTRA_SHOTS))
 	{
-		info[i++].txt = "It fires missiles excessively fast.";
+		info[i++] = "It fires missiles excessively fast.";
 	}
 
 	if (!(o_ptr->flags3 & TR3_NO_MAGIC) && cumber_glove(o_ptr))
@@ -3052,11 +3056,11 @@ nextbit:
 			/* Hack - the "no encumbrance" flag isn't set without spoilers.
 			 * so double-check as the player has been told. */
 			if (cumber_glove(o1_ptr))
-				info[i++].txt = "It inhibits spellcasting.";
+				info[i++] = "It inhibits spellcasting.";
 		}
 		else
 		{
-			info[i++].txt = "It may inhibit spellcasting.";
+			info[i++] = "It may inhibit spellcasting.";
 		}
 	}
 
@@ -3067,34 +3071,34 @@ nextbit:
 			/* Hack - the "no encumbrance" flag isn't set without spoilers,
 			 * so double-check as the player has been told. */
 			if (cumber_helm(o1_ptr))
-				info[i++].txt = "It inhibits mindcrafting.";
+				info[i++] = "It inhibits mindcrafting.";
 		}
 		else
 		{
-			info[i++].txt = "It may inhibit mindcrafting.";
+			info[i++] = "It may inhibit mindcrafting.";
 		}
 	}
 
 	if (o_ptr->flags3 & (TR3_DRAIN_EXP))
 	{
-		info[i++].txt = "It drains experience.";
+		info[i++] = "It drains experience.";
 	}
 	if (o_ptr->flags3 & (TR3_TELEPORT))
 	{
-		info[i++].txt = "It induces random teleportation.";
+		info[i++] = "It induces random teleportation.";
 	}
 	if (o_ptr->flags3 & (TR3_AGGRAVATE))
 	{
-		info[i++].txt = "It aggravates nearby creatures.";
+		info[i++] = "It aggravates nearby creatures.";
 	}
 
 	if (o_ptr->flags3 & (TR3_BLESSED))
 	{
-		info[i++].txt = "It has been blessed by the gods.";
+		info[i++] = "It has been blessed by the gods.";
 	}
 
-	/* Describe random possibilities if not *identified*. 
-	 * Note that this only has a precise meaning for artefacts. 
+	/* Describe random possibilities if not *identified*.
+	 * Note that this only has a precise meaning for artefacts.
 	 * Bug - LITE can be mentioned both here and in its own right. Unfortunately it's not easy to fix. */
 
 	j = 0;
@@ -3119,37 +3123,37 @@ nextbit:
 		cptr pref = (o_ptr->name1) ? "It gives you" : "It may give you";
 		do_list_flags(pref, "and", board, j);
 	}
-	
+
 
 		if (o_ptr->flags3 & (TR3_PERMA_CURSE))
 		{
-			info[i++].txt = "It is permanently cursed.";
+			info[i++] = "It is permanently cursed.";
 		}
 		else if (o_ptr->flags3 & (TR3_HEAVY_CURSE))
 		{
-			info[i++].txt = "It is heavily cursed.";
+			info[i++] = "It is heavily cursed.";
 		}
 	else if (o_ptr->flags3 & (TR3_CURSED))
 		{
-			info[i++].txt = "It is cursed.";
+			info[i++] = "It is cursed.";
 		}
 
 	if (o_ptr->flags3 & (TR3_AUTO_CURSE))
 	{
-		info[i++].txt = "It will curse itself.";
+		info[i++] = "It will curse itself.";
 	}
 
-    if (o_ptr->flags3 & (TR3_TY_CURSE))
-    {
-        info[i++].txt = "It carries an ancient foul curse.";
-    }
+	if (o_ptr->flags3 & (TR3_TY_CURSE))
+	{
+		info[i++] = "It carries an ancient foul curse.";
+	}
 
 	/* Hack - simple items don't get ignore flags listed. */
 	if (brief && o_ptr->flags3 & TR3_EASY_KNOW);
-	
+
 	else if ((o_ptr->flags3 & (TR3_IGNORE_ALL)) == TR3_IGNORE_ALL)
 	{
-		info[i++].txt = "It cannot be harmed by the elements.";
+		info[i++] = "It cannot be harmed by the elements.";
 	}
 	else if (!(o_ptr->flags3 & (TR3_IGNORE_ALL)))
 	{
@@ -3177,6 +3181,14 @@ nextbit:
 			do_list_flags(format("It %s be harmed by", board[j]), "and", board, j);
 		}
 	}
+
+	/* Nothing is known, so print nothing. */
+	if (player && (o_ptr->found.how != FOUND_UNKNOWN ||
+		o_ptr->found.dungeon != FOUND_DUN_UNKNOWN ||
+		o_ptr->found.level != FOUND_LEV_UNKNOWN))
+	{
+		alloc_ifa(info+i++, "%v", identify_fully_found_f1, o_ptr);
+	}
 }
 
 
@@ -3191,9 +3203,9 @@ bool identify_fully_aux(object_ctype *o_ptr, byte flags)
 	bool full = (flags & 0x01) != 0;
 	bool paged = (flags & 0x02) == 0;
 
-	ifa_type info[MAX_IFA];
+	cptr info[MAX_IFA];
 
-	C_WIPE(info, MAX_IFA, ifa_type);
+	WIPE(info, info);
 
 	if (full)
 	{
@@ -3203,15 +3215,15 @@ bool identify_fully_aux(object_ctype *o_ptr, byte flags)
 		object_known(q_ptr);
 		object_aware(q_ptr);
 
-		identify_fully_get(o_ptr, info, FALSE);
+		identify_fully_get(o_ptr, info, 0);
 	}
 	else
 	{
-		identify_fully_get(o_ptr, info, FALSE);
+		identify_fully_get(o_ptr, info, 0);
 	}
 
 	/* Nothing was revealed, so show nothing. */
-	if (!info[0].txt) return FALSE;
+	if (!*info) return FALSE;
 
 	if (paged)
 	{
@@ -3232,14 +3244,18 @@ bool identify_fully_aux(object_ctype *o_ptr, byte flags)
 /*
  * Describe item details to a specified stream.
  */
-void identify_fully_file(object_ctype *o_ptr, FILE *fff)
+void identify_fully_file(object_ctype *o_ptr, FILE *fff, bool spoil)
 {
-	ifa_type info[MAX_IFA];
+	cptr info[MAX_IFA];
+	byte flags = IGET_BRIEF;
 
-	C_WIPE(info, MAX_IFA, ifa_type);
+	/* Spoilers do not include any player-specific information. */
+	if (spoil) flags |= IGET_NPLAYER;
+
+	WIPE(info, info);
 
 	/* Grab the flags. */
-	identify_fully_get(o_ptr, info, TRUE);
+	identify_fully_get(o_ptr, info, flags);
 
 	/* Dump the flags, wrapping at 80 characters. */
 	identify_fully_dump_file(fff, info);
@@ -3275,7 +3291,7 @@ static object_type PURE *label_to_inven(int c)
 	int i;
 
 	/* Convert */
-	i = (islower(c) ? A2I(c) : -1);
+	i = (ISLOWER(c) ? A2I(c) : -1);
 
 	/* Verify the index */
 	if ((i < 0) || (i > INVEN_PACK)) return NULL;
@@ -3301,7 +3317,7 @@ static object_type PURE *label_to_equip(int c)
 	int i;
 
 	/* Convert */
-	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
+	i = (ISLOWER(c) ? A2I(c) : -1) + INVEN_WIELD;
 
 	/* Verify the index */
 	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return NULL;
@@ -3410,7 +3426,7 @@ s16b PURE wield_slot(object_ctype *o_ptr)
 	}
 
 	/* No slot available */
-	return (-1);
+	return INVEN_NONE;
 }
 
 
@@ -3524,33 +3540,55 @@ cptr PURE describe_use(object_ctype *o_ptr)
 }
 
 /*
+ * Here is a "pseudo-hook" used during calls to "get_item()" and
+ * "show_inven()", and the choice window routines.
+ */
+static byte item_tester_tval;
+
+/*
+ * The key used for the command which generated this prompt. This is not
+ * command_cmd, as it is only set during do_cmd_use_object().
+ *
+ * This allows one command to be substituted for another within the object
+ * prompt.
+ */
+static s16b item_tester_cmd;
+
+/*
+ * Check that an existing non-gold object is suitable for the tval and hook
+ * specified (if not 0).
+ */
+static bool PURE item_tester_okay_aux(object_ctype *o_ptr,
+	bool (*hook)(object_ctype*), byte tval)
+{
+	/* Check the tval. */
+	if (tval && o_ptr->tval != tval) return FALSE;
+
+	/* Check the hook. */
+	if (hook && !(*hook)(o_ptr)) return FALSE;
+
+	/* Assume okay. */
+	return TRUE;
+}
+
+/* Forward declare. */
+static bool item_tester_try_cmd(s16b cmd, object_ctype *o_ptr);
+
+/*
  * Check an item against the item tester info
  */
 bool item_tester_okay(object_ctype *o_ptr)
 {
-	/* Hack -- allow listing empty slots */
-	if (item_tester_full) return (TRUE);
-
 	/* Require an item */
 	if (!o_ptr->k_idx) return (FALSE);
 
 	/* Hack -- ignore "gold" */
 	if (o_ptr->tval == TV_GOLD) return (FALSE);
 
-	/* Check the tval */
-	if (item_tester_tval)
-	{
-		if (item_tester_tval != o_ptr->tval) return (FALSE);
-	}
-
-	/* Check the hook */
-	if (item_tester_hook)
-	{
-		if (!(*item_tester_hook)(o_ptr)) return (FALSE);
-	}
-
-	/* Assume okay */
-	return (TRUE);
+	if (item_tester_cmd)
+		return item_tester_try_cmd(item_tester_cmd, o_ptr);
+	else
+		return item_tester_okay_aux(o_ptr, item_tester_hook, item_tester_tval);
 }
 
 
@@ -3558,117 +3596,80 @@ bool item_tester_okay(object_ctype *o_ptr)
 
 /*
  * Choice window "shadow" of the "show_inven()" function
+ * This uses the full width of the screen rather than using a smaller area
+ * if the information can fit into the space.
  */
-void display_inven(void)
-{
-	int i, wid, z = 0;
-
-	object_type *o_ptr;
-
-	byte    attr = TERM_WHITE;
-
-
-	Term_get_size(&wid, &i);
-
-	/* Find the "final" slot */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Track */
-		z = i + 1;
-	}
-
-	/* Display the pack */
-	for (i = 0; i < z; i++)
-	{
-		/* Examine the item */
-		o_ptr = &inventory[i];
-
-		/* Display the index if this item is "acceptable" */
-		if (item_tester_okay(o_ptr))
-			put_str(format("%c) ", index_to_label(o_ptr)), i, 0);
-
-		/* Get a color */
-		attr = tval_to_attr[o_ptr->tval % 128];
-
-		/* Display the entry itself */
-		c_put_str(attr, format("%.*v", (show_weights) ? wid-12 : wid-3,
-			object_desc_f3, o_ptr, TRUE, 3), i, 3);
-
-		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			put_str(format("%3d.%1d lb", wgt / 10, wgt % 10), i, wid-9);
-		}
-	}
-}
-
-
-
-/*
- * Choice window "shadow" of the "show_equip()" function
- */
-void display_equip(void)
+void display_inven(bool equip)
 {
 	int i, wid;
-	object_type *o_ptr;
-	byte    attr = TERM_WHITE;
+
+	int min = (equip) ? INVEN_WIELD : 0;
+	int max = (equip) ? INVEN_TOTAL : INVEN_PACK;
 
 	Term_get_size(&wid, &i);
 
-	/* Display the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	/* Find the "final" slot if desired */
+	if (!equip) while (max && !inventory[max-1].k_idx) max--;
+
+	/* Turn wid into the width of each entry. */
+	wid -= 3;
+	if (show_weights) wid -= 9;
+	if (equip && show_labels) wid -= 19;
+
+	/* Display the pack */
+	for (i = min; i < max; i++)
 	{
 		/* Examine the item */
-		o_ptr = &inventory[i];
+		object_type *o_ptr = &inventory[i];
+
+		/* Get a color */
+		char attr = atchar[k_info[o_ptr->k_idx].i_attr];
+
+		cptr slot1, slot2;
+
+		char wgt[16] = "", label[4] = "   ";
+
+		/* Display the slot description (if needed) */
+		if (equip && show_labels)
+		{
+			slot1 = "<--- ";
+			slot2 = mention_use(i);
+		}
+		/* Display nothing. */
+		else
+		{
+			slot1 = slot2 = "";
+		}
+
+		if (show_weights)
+		{
+			int w = o_ptr->weight * o_ptr->number;
+			sprintf(wgt, "%3d.%1d lb", w/10, w%10);
+		}
 
 		/* Display the index if this item is "acceptable" */
 		if (item_tester_okay(o_ptr))
-			put_str(format("%c) ", index_to_label(o_ptr)), i, 0);
+			sprintf(label, "%c) ", index_to_label(o_ptr));
 
-		/* Get the color */
-		attr = tval_to_attr[o_ptr->tval % 128];
-
-		/* Display the entry itself */
-		c_put_str(attr, format("%.*v",
-			wid-3 - (show_weights) ? 9 : 0 - (show_labels) ? 19 : 0,
-			object_desc_f3, o_ptr, TRUE, 3), i-INVEN_WIELD, 3);
-
-		/* Display the slot description (if needed) */
-		if (show_labels)
-		{
-			put_str(format("<--- %s", mention_use(i)), i-INVEN_WIELD, wid-19);
-		}
-
-		/* Display the weight (if needed) */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			put_str(format("%3d.%1d lb", wgt / 10, wgt % 10), i-INVEN_WIELD,
-				(show_labels) ? wid-9 : wid-28);
-		}
+		/* Display the entry itself (including the slot description). */
+		mc_put_fmt(i - min, 3, "%c) $%c%.*v%s%s%s", label, attr, wid,
+			object_desc_f3, o_ptr, TRUE, 3, wgt, slot1, slot2);
 	}
 }
 
 
-
-
-
-
 /*
- * Display the inventory.
+ * Display the inventory or equipment.
  *
- * Hack -- do not display "trailing" empty slots
+ * Hack -- do not display "trailing" empty slots for the inventory.
  */
-void show_inven(void)
+void show_inven(bool equip, bool all)
 {
-	int             i, j, k, l, z = 0;
+	int             i, j, k, l;
 	int             col, len, lim, wid;
+
+	int min = (equip) ? INVEN_WIELD : 0;
+	int max = (equip) ? INVEN_TOTAL : INVEN_PACK;
 
 	object_type     *o_ptr;
 
@@ -3676,7 +3677,7 @@ void show_inven(void)
 
 	int             out_index[23];
 	byte    out_color[23];
-	cptr	out_desc[23], o_name;
+	cptr out_desc[23], o_name;
 
 	/* Ensure that unset out_desc strings are NULL. */
 	C_WIPE(out_desc, 23, char*);
@@ -3693,6 +3694,9 @@ void show_inven(void)
 	/* Maximum space allowed for descriptions */
 	lim = wid - 1 - 3;
 
+	/* Require space for labels (if needed) */
+	if (equip && show_labels) lim -= (14 + 2);
+
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
@@ -3702,36 +3706,30 @@ void show_inven(void)
 	/* Respect the maximum name length. */
 	if (lim > ONAME_MAX) lim = ONAME_MAX;
 
-	/* Find the "final" slot */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Track */
-		z = i + 1;
-	}
+	/* Find the "final" slot if desired */
+	if (!equip) while (max && !inventory[max-1].k_idx) max--;
 
 	/* Display the inventory */
-	for (k = 0, i = 0; i < z; i++)
+	for (k = 0, i = min; i < max; i++)
 	{
 		o_ptr = &inventory[i];
 
 		/* Is this item acceptable? */
-		if (!item_tester_okay(o_ptr)) continue;
+		if (!all && !item_tester_okay(o_ptr)) continue;
 
 		/* Describe the object */
 		o_name = format("%.*v", lim, object_desc_f3, o_ptr, TRUE, 3);
 
 		/* Save the object index, color, and description */
 		out_index[k] = i;
-		out_color[k] = tval_to_attr[o_ptr->tval % 128];
+		out_color[k] = k_info[o_ptr->k_idx].i_attr;
 		out_desc[k] = string_make(o_name);
 
 		/* Find the predicted "line length" */
 		l = strlen(out_desc[k]) + 5;
+
+		/* Require space for labels (if needed) */
+		if (equip && show_labels) lim += (14 + 2);
 
 		/* Be sure to account for the weight */
 		if (show_weights) l += 9;
@@ -3772,139 +3770,7 @@ void show_inven(void)
 		{
 			byte  a = object_attr(o_ptr);
 			char c = object_char(o_ptr);
-			
-#ifdef AMIGA
-			if (a & 0x80) a |= 0x40;
-#endif
 
-			Term_draw(col + 3, j + 1, a, c);
-		}
-
-		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], j + 1, equippy_chars ? (col + 5) : (col + 3));
-
-		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			(void)sprintf(tmp_val, " %3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, wid-9);
-		}
-	}
-
-	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
-
-	/* Save the new column */
-	command_gap = col;
-
-	/* Clean up. */
-	for (k = 0; k < 23; k++) FREE(out_desc[k]);
-}
-
-
-
-/*
- * Display the equipment.
- */
-void show_equip(void)
-{
-	int                     i, j, k, l;
-	int                     col, len, lim, wid;
-
-	object_type             *o_ptr;
-
-	char            tmp_val[80];
-
-	int                     out_index[23];
-	byte            out_color[23];
-	cptr out_desc[23], o_name;
-
-
-	/* Ensure that unset out_desc strings are NULL. */
-	C_WIPE(out_desc, 23, char*);
-
-	/* Starting column */
-	col = command_gap;
-
-	/* Get size */
-	Term_get_size(&wid, &i);
-
-	/* Maximal length */
-	len = wid - 1 - col;
-
-	/* Maximum space allowed for descriptions */
-	lim = wid - 1 - 3;
-
-	/* Require space for labels (if needed) */
-	if (show_labels) lim -= (14 + 2);
-
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
-	if (equippy_chars) lim -= 2;
-
-	/* Respect the maximum name length. */
-	if (lim > ONAME_MAX) lim = ONAME_MAX;
-
-	/* Scan the equipment list */
-	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Is this item acceptable? */
-		if (!item_tester_okay(o_ptr)) continue;
-
-		/* Description */
-		o_name = format("%.*v", lim, object_desc_f3, o_ptr, TRUE, 3);
-
-		/* Save the color */
-		out_index[k] = i;
-		out_color[k] = tval_to_attr[o_ptr->tval % 128];
-		out_desc[k] = string_make(o_name);
-
-		/* Extract the maximal length (see below) */
-		l = strlen(out_desc[k]) + (2 + 3);
-
-		/* Increase length for labels (if needed) */
-		if (show_labels) l += (14 + 2);
-
-		/* Increase length for weight (if needed) */
-		if (show_weights) l += 9;
-		if (equippy_chars) l += 2;
-
-		/* Maintain the max-length */
-		if (l > len) len = l;
-
-		/* Advance the entry */
-		k++;
-	}
-
-	/* Hack -- Find a column to start in */
-	col = (len > wid - 4) ? 0 : (wid - 1 - len);
-
-	/* Output each entry */
-	for (j = 0; j < k; j++)
-	{
-		/* Get the index */
-		i = out_index[j];
-
-		/* Get the item */
-		o_ptr = &inventory[i];
-
-		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
-
-		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(o_ptr));
-
-		/* Clear the line with the (possibly indented) index */
-		put_str(tmp_val, j+1, col);
-
-				if (equippy_chars)
-		{
-			byte a = object_attr(o_ptr);
-			char c = object_char(o_ptr);
-			
 #ifdef AMIGA
 			if (a & 0x80) a |= 0x40;
 #endif
@@ -3913,7 +3779,7 @@ void show_equip(void)
 		}
 
 		/* Use labels */
-		if (show_labels)
+		if (equip && show_labels)
 		{
 			/* Mention the use */
 			(void)sprintf(tmp_val, "%-14s: ", mention_use(i));
@@ -3927,15 +3793,16 @@ void show_equip(void)
 		else
 		{
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, equippy_chars ? col + 5 : col + 3);
+			c_put_str(out_color[j], out_desc[j], j + 1,
+				equippy_chars ? (col + 5) : (col + 3));
 		}
 
 		/* Display the weight if needed */
 		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			(void)sprintf(tmp_val, " %3d.%d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j+1, wid-9);
+			(void)sprintf(tmp_val, " %3d.%1d lb", wgt / 10, wgt % 10);
+			put_str(tmp_val, j + 1, wid-9);
 		}
 	}
 
@@ -4024,7 +3891,7 @@ static bool get_item_allow(object_ctype *o_ptr)
 	cptr s;
 
 	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->note), '!');
+	s = strchr(get_inscription(o_ptr), '!');
 
 	/* Process preventions */
 	while (s)
@@ -4052,7 +3919,7 @@ static bool get_item_allow(object_ctype *o_ptr)
 static bool get_item_okay(object_ctype *o_ptr)
 {
 	/* Illegal items */
-	if (!is_inventory_p(o_ptr) && 
+	if (!is_inventory_p(o_ptr) &&
 		(o_ptr->ix != px || o_ptr->iy != py)) return (FALSE);
 
 	/* Verify the item */
@@ -4065,7 +3932,7 @@ static bool get_item_okay(object_ctype *o_ptr)
 /*
  * Allow the game and the player to reject an item at a prompt.
  */
-static void get_item_valid(object_type **o_ptr, bool *done, bool ver)
+static void get_item_valid(object_type **o_ptr, bool *done, errr *err, bool ver)
 {
 	/* Validate the item */
 	if (!*o_ptr || !get_item_okay(*o_ptr))
@@ -4078,12 +3945,14 @@ static void get_item_valid(object_type **o_ptr, bool *done, bool ver)
 	else if ((ver && !verify("Try", *o_ptr)) || !get_item_allow(*o_ptr))
 	{
 		*o_ptr = NULL;
+		*err = GET_ITEM_ERROR_ABORT;
 		*done = TRUE;
 	}
 
 	/* Good, so accept the item and finish. */
 	else
 	{
+		*err = SUCCESS;
 		*done = TRUE;
 	}
 }
@@ -4131,19 +4000,14 @@ void next_object(object_type **o_ptr)
  */
 static bool get_tag(object_type **o_ptr, char tag, s16b cmd, object_type *first)
 {
-	char cmd_str[3] = "", buf[2*MAX_ASCII_LEN+1];
+	char buf[2*MAX_ASCII_LEN+2];
 	int len;
 	cptr s;
 
 	object_type *j_ptr;
 
 	/* Turn the command into an ASCII representation. */
-	if (cmd & 0xFF00)
-		sprintf(cmd_str, "%c%c", ((cmd & 0xFF00) >> 8), (cmd & 0x00FF));
-	else
-		sprintf(cmd_str, "%c", cmd);
-
-	strnfmt(buf, sizeof(buf), "%v", ascii_to_text_f1, cmd_str);
+	strnfmt(buf, sizeof(buf), "%v", s16b_to_string_f1, cmd);
 	len = strlen(buf);
 
 	/* Check every object */
@@ -4156,7 +4020,7 @@ static bool get_tag(object_type **o_ptr, char tag, s16b cmd, object_type *first)
 		if (!j_ptr->k_idx) continue;
 
 		/* Get the inscription. */
-		s = quark_str(j_ptr->note);
+		s = get_inscription(j_ptr);
 
 		/* Process all tags */
 		while ((s = strchr(s, '@')))
@@ -4182,9 +4046,6 @@ static bool get_tag(object_type **o_ptr, char tag, s16b cmd, object_type *first)
 	return FALSE;
 }
 
-
-#define GET_ITEM_ERROR_ABORT	-1 /* User hit escape */
-#define GET_ITEM_ERROR_NO_ITEMS	-2 /* No legal items to choose */
 
 /*
  * Let the user select an item, return its "index"
@@ -4228,7 +4089,8 @@ static bool get_tag(object_type **o_ptr, char tag, s16b cmd, object_type *first)
  *
  * Note that "Term_save()" / "Term_load()" blocks must not overlap.
  */
-object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
+static object_type *get_item_aux(errr *err, cptr pmt, bool equip, bool inven,
+	bool floor)
 {
 	cave_type *c_ptr = &cave[py][px];
 
@@ -4241,9 +4103,9 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 
 	object_type *i1, *i2, *e1, *e2;
 
-    bool done;
+	bool done;
 
-    bool allow_floor = FALSE;
+	bool allow_floor = FALSE;
 
 	char tmp_val[160];
 
@@ -4252,58 +4114,46 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 	char *t;
 
 #ifdef ALLOW_REPEAT
-     
-     /* Get the item index */
-     if (repeat_pull(&k)) {
-         
+
+	/* Get the item index */
+	if (repeat_pull(&k)) {
+
 		o_ptr = cnv_idx_to_obj(k);
 
-         /* Floor item? */
-         if (o_ptr >= o_list && o_ptr < o_list + MAX_O_IDX) {
+		/* Floor item? */
+		if (o_ptr >= o_list && o_ptr < o_list + MAX_O_IDX) {
 
- 			/* Scan all objects in the grid */
- 			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
- 			{
- 				/* Acquire object */
- 				o_ptr = &o_list[this_o_idx];
- 
- 				/* Acquire next object */
- 				next_o_idx = o_ptr->next_o_idx;
- 
- 				/* Validate the item */
- 				if (!item_tester_okay(o_ptr)) continue;
- 
- 				/* Forget the item_tester_tval restriction */
- 				item_tester_tval = 0;
- 		
- 				/* Forget the item_tester_hook restriction */
- 				item_tester_hook = NULL;
- 				
- 				/* Success */
+			/* Scan all objects in the grid */
+			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
+
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+
+				/* Validate the item */
+				if (!item_tester_okay(o_ptr)) continue;
+
+				/* Success */
 				return o_ptr;
- 	        }
-         }
-         
-         /* Verify the item */
-         else if (get_item_okay(o_ptr)) {
-         
- 	        /* Forget the item_tester_tval restriction */
- 	        item_tester_tval = 0;
- 	
- 	        /* Forget the item_tester_hook restriction */
- 	        item_tester_hook = NULL;
- 	        
- 	        /* Success */
+			}
+		}
+
+		/* Verify the item */
+		else if (get_item_okay(o_ptr)) {
+
+			/* Success */
 			return o_ptr;
-         }
+		}
 		/* Invalid item. */
-		 else
+		else
 		{
 			o_ptr = NULL;
 		}
-     }
- 
- #endif /* ALLOW_REPEAT -- TNB */
+	}
+
+#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
@@ -4361,9 +4211,6 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 	/* Require at least one legal choice */
 	if (!allow_floor && (i1 > i2) && (e1 > e2))
 	{
-		/* Cancel command_see */
-		command_see = FALSE;
-
 		/* Hack -- Nothing to choose */
 		*err = GET_ITEM_ERROR_NO_ITEMS;
 		o_ptr = NULL;
@@ -4409,7 +4256,7 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 
 	/* Allow the user to choose to see everything. */
 	command_see |= show_choices_main;
- 
+
 	/* Hack -- start out in "display" mode */
 	if (command_see) nterm = Term_save_aux();
 
@@ -4424,18 +4271,10 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 			p_ptr->window |= (PW_INVEN | PW_EQUIP);
 		}
 
-		/* Only show a prompt. */
-		if (!command_see);
-
-		/* Inventory screen */
-		else if (!command_wrk)
+		/* Inventory/equipment screen, if allowed. */
+		if (command_see)
 		{
-			show_inven();
-		}
-		/* Equipment screen */
-		else
-		{
-			show_equip();
+			show_inven(command_wrk, FALSE);
 		}
 
 		t = tmp_val;
@@ -4538,7 +4377,7 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 				/* Use floor item */
 				if (allow_floor)
 				{
-                    /* Scan all objects in the grid */
+					/* Scan all objects in the grid */
 					for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 					{
 						/* Acquire object */
@@ -4610,7 +4449,7 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 				}
 
 				/* Check that the item is suitable in various ways. */
-				get_item_valid(&o_ptr, &done, isupper(which));
+				get_item_valid(&o_ptr, &done, err, ISUPPER(which));
 
 				break;
 			}
@@ -4637,7 +4476,7 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 				}
 
 				/* Check that the item is suitable in various ways. */
-				get_item_valid(&o_ptr, &done, FALSE);
+				get_item_valid(&o_ptr, &done, err, FALSE);
 
 				break;
 			}
@@ -4681,18 +4520,16 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 				}
 
 				/* Check that the item is suitable in various ways. */
-				get_item_valid(&o_ptr, &done, FALSE);
+				get_item_valid(&o_ptr, &done, err, FALSE);
 				break;
 			}
 
 			/*
-			 * Select a worthless item if possible.
-			 * Otherwise select a cursed item or nothing.
+			 * Select a squelched object, or nothing.
 			 */
 			case 'z': case 'Z':
 			{
-				object_type *start, *end, j_ptr[1];
-				object_type *cursed = NULL, *broken = NULL, *hidden = NULL;
+				object_type *start, *end;
 				/* Find the range. */
 				if (command_wrk)
 				{
@@ -4707,32 +4544,25 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 				/* Search the items for something cursed or worthless. */
 				for (o_ptr = start ; o_ptr < end; o_ptr++)
 				{
-					object_info_known(j_ptr, o_ptr);
+					cptr inscription = get_inscription(o_ptr);
 
 					/* Skip invalid objects */
 					if (!get_item_okay(o_ptr)) continue;
 
 					/* Skip specified objects */
-					if (strstr(quark_str(o_ptr->note), "!k")) continue;
-					if (strstr(quark_str(o_ptr->note), "!K")) continue;
-
-					/* Found a cursed item. */
-					if (cursed_p(o_ptr)) cursed = o_ptr;
-
-					/* Found an uncursed worthless item. */
-					else if (!object_value(o_ptr, FALSE)) broken = o_ptr;
+					if (strstr(inscription, "!k")) continue;
+					if (strstr(inscription, "!K")) continue;
 
 					/* Found a hidden item. */
-					if (hidden_p(j_ptr)) hidden = o_ptr;
+					if (hidden_p(o_ptr))
+					{
+						/* Check that the item is suitable in various ways. */
+						get_item_valid(&o_ptr, &done, err, ISUPPER(which));
+
+						/* Finished. */
+						break;
+					}
 				}
-
-				/* Select from each category in order. */
-				if (hidden) o_ptr = hidden;
-				else if (broken) o_ptr = broken;
-				else if (cursed) o_ptr = cursed;
-
-				/* Check that the item is suitable in various ways. */
-				get_item_valid(&o_ptr, &done, isupper(which));
 
 				break;
 			}
@@ -4742,7 +4572,7 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 			{
 				object_type *start, *end, *j_ptr;
 				bool high = strchr("Xx", which) != NULL;
-				bool upper = isupper(which);
+				bool upper = ISUPPER(which);
 				s32b UNREAD(best_price);
 
 				/* Can only judge value with spoil_value set. */
@@ -4775,7 +4605,7 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 						else
 						{
 							if (this_price > best_price) continue;
-						}	
+						}
 					}
 					o_ptr = j_ptr;
 					best_price = this_price;
@@ -4788,15 +4618,15 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 				}
 
 				/* Check that the item is suitable in various ways. */
-				get_item_valid(&o_ptr, &done, upper);
+				get_item_valid(&o_ptr, &done, err, upper);
 
 				break;
 			}
 			default:
 			{
 				/* Extract "query" setting */
-				bool upper = isupper(which);
-				if (upper) which = tolower(which);
+				bool upper = ISUPPER(which);
+				if (upper) which = TOLOWER(which);
 
 				/* Convert letter to inventory index */
 				if (!command_wrk)
@@ -4811,7 +4641,7 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 				}
 
 				/* Check that the item is suitable in various ways. */
-				get_item_valid(&o_ptr, &done, upper);
+				get_item_valid(&o_ptr, &done, err, upper);
 
 				break;
 			}
@@ -4828,22 +4658,6 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 	/* Forget the saved screen, if any. */
 	Term_release(nterm);
 
-	/* Hack -- Cancel "display" */
-	command_see = FALSE;
-
-
-	/* Forget the item_tester_tval restriction */
-	item_tester_tval = 0;
-
-	/* Forget the item_tester_hook restriction */
-	item_tester_hook = NULL;
-
-	/* Show item if possible. */
-	if (o_ptr)
-	{
-		object_track(o_ptr);
-	}
-
 	/* Clean up */
 	if (show_choices)
 	{
@@ -4854,15 +4668,589 @@ object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
 
 	/* Clear the prompt line */
 	prt("", 0, 0);
- 
- #ifdef ALLOW_REPEAT
- 
-     if (o_ptr) repeat_push(cnv_obj_to_idx(o_ptr));
-     
- #endif /* ALLOW_REPEAT */
+
+#ifdef ALLOW_REPEAT
+
+	if (o_ptr) repeat_push(cnv_obj_to_idx(o_ptr));
+
+#endif /* ALLOW_REPEAT */
 
 	/* Return the object if something was picked. */
 	return o_ptr;
 }
 
+/*
+ * Select an item, and clean up afterwards.
+ */
+object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor)
+{
+	object_type *o_ptr = get_item_aux(err, pmt, equip, inven, floor);
 
+	/* Hack -- Cancel "display" */
+	command_see = FALSE;
+
+	/* Show item if possible. */
+	if (o_ptr)
+	{
+		object_track(o_ptr);
+	}
+
+	/* Forget the item_tester_tval restriction */
+	item_tester_tval = 0;
+
+	/* Forget the item_tester_hook restriction */
+	item_tester_hook = NULL;
+
+	return o_ptr;
+}
+
+/* Generic "select an object to use" function. */
+
+/*
+ * Structure for "select object to use" function data.
+ *
+ * "hook" should not alter the game state in any obvious way.
+ * "ban" should do so if it returns FALSE (a TRUE return should normally display
+ * a reason for doing so).
+ * "func" is unrestricted.
+ */
+
+typedef struct object_function object_function;
+struct object_function
+{
+	s16b cmd; /* Which command key does this. */
+	void (*func)(object_type *); /* Which function carries it out. */
+	cptr verb; /* How the game describes it. */
+	cptr noun; /* What sort of item the command uses (or "item"). */
+	bool (*ban)(void); /* Forbid the command from looking for objects. */
+	bool (*hook)(object_ctype *); /* Allow items which match this hook. */
+	byte tval; /* Allow items with this tval. */
+	bool equip; /* Allow equipment items. */
+	bool inven; /* Allow inventory items. */
+	bool floor; /* Allow floor items. */
+};
+
+/*
+ * Can it refuel the wielded light?
+ */
+static bool PURE item_tester_refuel(object_ctype *o_ptr)
+{
+	switch (inventory[INVEN_LITE].k_idx)
+	{
+		case OBJ_BRASS_LANTERN:
+		{
+			if (o_ptr->k_idx == OBJ_BRASS_LANTERN) return TRUE;
+			else if (o_ptr->tval == TV_FLASK) return TRUE;
+			else return FALSE;
+		}
+		case OBJ_WOODEN_TORCH:
+		{
+			if (o_ptr->k_idx == OBJ_WOODEN_TORCH) return TRUE;
+			else return FALSE;
+		}
+		default: /* Paranoia - forbid_refuel() should catch this. */
+		{
+			return FALSE;
+		}
+	}
+}
+
+/*
+ * Is it not yet hidden?
+ */
+static bool PURE item_tester_unhidden(object_ctype *o_ptr)
+{
+	return !hidden_p(o_ptr);
+}
+
+/*
+ * Is it a book?
+ */
+static bool PURE item_tester_book(object_ctype *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SORCERY_BOOK:
+		case TV_THAUMATURGY_BOOK:
+		case TV_CONJURATION_BOOK:
+		case TV_NECROMANCY_BOOK:
+			return TRUE;
+		default:
+			return FALSE;
+	}
+}
+
+/*
+ * Can it be dropped?
+ */
+static bool PURE item_tester_hook_drop(object_ctype *o_ptr)
+{
+	object_type j_ptr[1];
+	object_info_known(j_ptr, o_ptr);
+
+	/* Reject known cursed worn items. */
+	if (is_worn_p(o_ptr) && cursed_p(j_ptr)) return FALSE;
+
+	/* Accept everything else. */
+	return TRUE;
+}
+
+/*
+ * Can it be activated?
+ */
+static bool PURE item_tester_hook_activate(object_ctype *o_ptr)
+{
+	u32b f1, f2, f3;
+
+	/* Not known */
+	if (!object_known_p(o_ptr)) return (FALSE);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Check activation flag */
+	if (f3 & (TR3_ACTIVATE)) return (TRUE);
+
+	/* Assume not */
+	return (FALSE);
+}
+
+/*
+ * Can it be fired with the equipped launcher?
+ */
+static bool PURE item_tester_hook_fire(object_ctype *o_ptr)
+{
+	return (o_ptr->tval == p_ptr->tval_ammo);
+}
+
+/*
+ * Hook to determine if an item can be destroyed (or turned to gold).
+ */
+bool PURE item_tester_hook_destroy(object_ctype *o_ptr)
+{
+	object_type j_ptr[1];
+
+	int feel = find_feeling(o_ptr);
+	object_info_known(j_ptr, o_ptr);
+
+	/* Reject known artefacts. */
+	if (allart_p(j_ptr)) return FALSE;
+
+	/* Reject known cursed worn items. */
+	if (is_worn_p(o_ptr) && cursed_p(j_ptr)) return FALSE;
+
+	/* Reject felt artefacts. */
+	if (feel == SENSE_C_ART || feel == SENSE_G_ART || feel == SENSE_Q_ART)
+		return FALSE;
+
+	/* Accept everything else. */
+	return TRUE;
+}
+
+static bool PURE item_tester_unknown_star(object_ctype *o_ptr)
+{
+	if (o_ptr->ident & IDENT_MENTAL)
+		return FALSE;
+	else
+		return TRUE;
+}
+
+/*
+ * Check that the player is wielding a light which can be refuelled.
+ */
+static bool forbid_refuel(void)
+{
+	/* Get the light */
+	object_type *o_ptr = &inventory[INVEN_LITE];
+
+	/* It is nothing */
+	if (o_ptr->tval != TV_LITE)
+	{
+		msg_print("You are not wielding a light.");
+		return TRUE;
+	}
+	switch (o_ptr->k_idx)
+	{
+		case OBJ_BRASS_LANTERN:
+		case OBJ_WOODEN_TORCH:
+			return FALSE;
+		default:
+			msg_print("Your light cannot be refilled.");
+			return TRUE;
+	}
+}
+
+/*
+ * Check that the player has a weapon with which to fire stuff.
+ */
+static bool forbid_fire(void)
+{
+	if (!inventory[INVEN_BOW].tval)
+	{
+		msg_print("You have nothing to fire with.");
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
+/*
+ * Check some conditions which prevent scroll reading.
+ */
+static bool forbid_read(void)
+{
+	if (p_ptr->blind)
+	{
+		msg_print("You can't see anything.");
+	}
+	else if (no_lite())
+	{
+		msg_print("You have no light to read by.");
+	}
+	else if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+	}
+	else
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+/*
+ * Check some conditions which prevent studying (possibly silly).
+ */
+static bool forbid_study(void)
+{
+	if (p_ptr->blind)
+	{
+		msg_print("You cannot see!");
+	}
+	else if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+	}
+	else if (!(p_ptr->new_spells))
+	{
+		msg_print("You cannot learn any new spells!");
+	}
+	else
+	{
+		msg_format("You can learn %d new spell%s.", p_ptr->new_spells,
+			(p_ptr->new_spells == 1 ? "" : "s"));
+		return FALSE;
+	}
+	return TRUE;
+}
+
+/*
+ * Check some conditions which prevent spellcasting.
+ */
+static bool forbid_cast(void)
+{
+	/* Forbid (and reveal) anti-magic shells. */
+	if (p_ptr->anti_magic)
+	{
+		msg_print("An anti-magic shell disrupts your spell!");
+		energy_use = TURN_ENERGY/20; /* Still use a bit */
+	}
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+	}
+	/* Not when confused */
+	else if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+	}
+	else
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+/*
+ * Paranoia - check wizard mode before running a wizard command.
+ * This is only accessible via do_cmd_debug() at present, which performs
+ * its own checks.
+ */
+static bool forbid_non_debug(void)
+{
+	return !cheat_wzrd;
+}
+
+static object_function object_functions[] =
+{
+	{'E', do_cmd_eat_food, "eat", "item",
+		NULL, NULL, TV_FOOD, FALSE, TRUE, TRUE},
+	{'q', do_cmd_quaff_potion, "quaff", "potion",
+		NULL, NULL, TV_POTION, TRUE, TRUE, TRUE},
+	{'r', do_cmd_read_scroll, "read", "scroll",
+		forbid_read, NULL, TV_SCROLL, TRUE, TRUE, TRUE},
+	{'u', do_cmd_use_staff, "use", "staff",
+		NULL, NULL, TV_STAFF, FALSE, TRUE, TRUE},
+	{'a', do_cmd_aim_wand, "aim", "wand",
+		NULL, NULL, TV_WAND, TRUE, TRUE, TRUE},
+	{'z', do_cmd_zap_rod, "zap", "rod",
+		NULL, NULL, TV_ROD, FALSE, TRUE, TRUE},
+	{'A', do_cmd_activate, "activate", "item",
+		NULL, item_tester_hook_activate, 0, TRUE, FALSE, FALSE},
+	{'b', do_cmd_browse, "browse", "book",
+		NULL, item_tester_spells, 0, FALSE, TRUE, TRUE},
+	{'G'+CMD_SHOP, do_cmd_study, "study", "book",
+		forbid_study, item_tester_book, 0, FALSE, TRUE, TRUE},
+	{'m', do_cmd_cast, "use", "book",
+		forbid_cast, item_tester_book, 0, FALSE, TRUE, TRUE},
+	{'h', do_cmd_cantrip, "use", "charm",
+		forbid_cast, NULL, TV_CHARM, TRUE, TRUE, TRUE},
+	{'w', do_cmd_wield, "wear or wield", "item",
+		NULL, item_tester_hook_wear, 0, FALSE, TRUE, TRUE},
+	{'t', do_cmd_takeoff, "take off", "item",
+		NULL, NULL, 0, TRUE, FALSE, FALSE},
+	{'d', do_cmd_drop, "drop", "item",
+		NULL, item_tester_hook_drop, 0, TRUE, TRUE, FALSE},
+	{'k', do_cmd_destroy, "destroy", "item",
+		NULL, item_tester_hook_destroy, 0, TRUE, TRUE, TRUE},
+	{'K', do_cmd_hide_object, "hide", "item",
+		NULL, item_tester_unhidden, 0, TRUE, TRUE, TRUE},
+	{'I', do_cmd_observe, "examine", "item",
+		NULL, NULL, 0, TRUE, TRUE, TRUE},
+	{'}', do_cmd_uninscribe, "un-inscribe", "item",
+		NULL, NULL, 0, TRUE, TRUE, TRUE},
+	{'{', do_cmd_inscribe, "inscribe", "item",
+		NULL, NULL, 0, TRUE, TRUE, TRUE},
+	{KTRL('u'), do_cmd_handle, "use", "item",
+		NULL, NULL, 0, TRUE, TRUE, TRUE},
+	{'f', do_cmd_fire, "fire", "item",
+		forbid_fire, item_tester_hook_fire, 0, FALSE, TRUE, TRUE},
+	{'v', do_cmd_throw, "throw", "item",
+		NULL, item_tester_hook_drop, 0, TRUE, TRUE, TRUE},
+	{'F', do_cmd_refill, "refuel", "item",
+		forbid_refuel, item_tester_refuel, 0, TRUE, TRUE, TRUE},
+	{CMD_DEBUG+'f', do_identify_fully, "identify", "item",
+		forbid_non_debug, item_tester_unknown_star, 0, TRUE, TRUE, TRUE},
+#ifdef ALLOW_WIZARD
+	{CMD_DEBUG+'o', do_cmd_wiz_play, "play with", "object",
+		forbid_non_debug, NULL, 0, TRUE, TRUE, TRUE},
+#endif /* ALLOW_WIZARD */
+};
+
+static object_function PURE *get_object_function(s16b cmd)
+{
+	object_function *ptr;
+
+	/* Hack - handle unify_commands here (without changing command_cmd). */
+	if (unify_commands && !(cmd & 0xFF00) && strchr("AEFabqruz", cmd))
+		cmd = KTRL('u');
+
+	FOR_ALL_IN(object_functions, ptr)
+	{
+		if (ptr->cmd == cmd) return ptr;
+	}
+	return NULL;
+}
+
+/*
+ * Return the s16b encoded in the string via s16b_to_string_f1().
+ */
+static s16b PURE string_to_s16b(cptr s)
+{
+	char buf[2*MAX_ASCII_LEN+3];
+
+	strnfmt(buf, sizeof(buf), "%v", text_to_ascii_f1, s);
+
+	/* Use a special mechanism for 2-character strings. */
+	if (*buf == '&' && buf[1])
+	{
+		return buf[1] << 8 | buf[2];
+	}
+	/* Simple single-character string. */
+	else
+	{
+		return buf[0];
+	}
+}
+
+/*
+ * Look through an object's inscription for a command alias for the given
+ * command.
+ * If one is found, return the object_function which is corresponds with.
+ * Otherwise, return the object_function which corresponds with
+ */
+static object_function PURE *get_function_for_object(s16b cmd,
+	object_ctype *o_ptr)
+{
+	char cmds[2*MAX_ASCII_LEN+3];
+	cptr s;
+
+	/* Turn the command into an ASCII representation. */
+	strnfmt(cmds, sizeof(cmds), "~%v", s16b_to_string_f1, cmd);
+
+	/* Look for the command alias request. */
+	if (o_ptr)
+	{
+		s = strstr(get_inscription(o_ptr), cmds);
+
+		if (s)
+		{
+			/* Extract the command key from the alias. */
+			s16b i = string_to_s16b(s + strlen(cmds));
+
+			/* Accept the aliased command. */
+			if (i) cmd = i;
+		}
+	}
+
+	/* Return the object_function for the command, if any. */
+	return get_object_function(cmd);
+
+}
+
+/*
+ * Look for a key sequence of the form ~ab where a is cmd.
+ */
+static bool item_tester_try_cmd(s16b cmd, object_ctype *o_ptr)
+{
+	object_function *func = get_function_for_object(cmd, o_ptr);
+
+	if (func)
+	{
+		/* Only allow functions which can be performed on this object. */
+		if (is_worn_p(o_ptr))
+		{
+			if (!func->equip) return FALSE;
+		}
+		else if (is_inventory_p(o_ptr))
+		{
+			if (!func->inven) return FALSE;
+		}
+		else
+		{
+			if (!func->floor) return FALSE;
+		}
+	}
+	else
+	{
+		/* Use the hook for the original function. */
+		func = get_object_function(cmd);
+	}
+
+	/* Use the hook from this function. */
+	return item_tester_okay_aux(o_ptr, func->hook, func->tval);
+}
+
+/*
+ * Choose an object appropriate for func.
+ */
+static object_type *get_object(object_function *func)
+{
+	errr err;
+	object_type *o_ptr;
+	char buf[120];
+
+	strnfmt(buf, sizeof(buf), "%^s which %s? ", func->verb, func->noun);
+
+	item_tester_tval = func->tval;
+	item_tester_hook = func->hook;
+
+	o_ptr = get_item(&err, buf, func->equip, func->inven, func->floor);
+
+	/* Found something. */
+	if (o_ptr) return o_ptr;
+
+	/* The player knows he aborted. */
+	if (err == GET_ITEM_ERROR_ABORT) return NULL;
+
+	/* Give an error message for NO_ITEMS. */
+	if (!strcmp(func->noun, "item"))
+		msg_format("You do not have anything to %s.", func->verb);
+	else if (is_a_vowel(func->noun[0]))
+		msg_format("You do not have an %s to %s.", func->noun, func->verb);
+	else
+		msg_format("You do not have a %s to %s.", func->noun, func->verb);
+
+	return NULL;
+}
+
+/*
+ * Look up a function in object_functions[], and return an appropriate
+ * object for it.
+ */
+object_type *get_object_from_function(void (*func)(object_type *))
+{
+	object_function *ptr;
+
+	FOR_ALL_IN(object_functions, ptr)
+	{
+		if (ptr->func == func) return get_object(ptr);
+	}
+	return NULL;
+}
+
+/* Clean up after do_cmd_use_object() and return as requested. */
+#define end_do_cmd_use_object(RC) \
+	do { help_track(NULL); return (RC); } while (0)
+
+/*
+ * Look for a command in object_functions, and try to use it.
+ * Return TRUE if the key pressed corresponds to an object command.
+ */
+bool do_cmd_use_object(s16b cmd)
+{
+	object_type *o_ptr;
+	object_function *func, *old_func;
+	char help_str[20];
+
+	/* Look for the key. */
+	old_func = func = get_object_function(cmd);
+
+	/* Not an object command. */
+	if (!func) return FALSE;
+
+	/* Track the command. */
+	strnfmt(help_str, sizeof(help_str), "cmd=%v", s16b_to_string_f1, cmd);
+	help_track(help_str);
+
+	/* Some functions can be prevented for all objects. */
+	if (func->ban && (*func->ban)()) end_do_cmd_use_object(TRUE);
+
+	/* Store the command key to allow conversion. */
+	item_tester_cmd = cmd;
+
+	/* Obtain an object appropriate for this command. */
+	o_ptr = get_object(func);
+
+	/* Reset item_tester_cmd. */
+	item_tester_cmd = 0;
+
+	/* Aborted, but the command was still processed. */
+	if (!o_ptr) end_do_cmd_use_object(TRUE);
+
+	/* Obtain the function for the command with this object. */
+	func = get_function_for_object(cmd, o_ptr);
+
+	assert(func); /* Checked in item_tester_okay(). */
+
+	/* Check some stuff again if func->ban has changed. */
+	if (func != old_func)
+	{
+		/* Track the new command. */
+		strnfmt(help_str, sizeof(help_str), "cmd=%v", s16b_to_string_f1,
+			func->cmd);
+		help_track(NULL);
+		help_track(help_str);
+
+		if (func->ban && (*func->ban)()) return TRUE;
+	}
+
+	/* Run the command on the object, if one was selected. */
+	if (o_ptr) (*func->func)(o_ptr);
+
+	/* Finished. */
+	end_do_cmd_use_object(TRUE);
+}

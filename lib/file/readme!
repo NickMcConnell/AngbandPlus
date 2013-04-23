@@ -15,6 +15,7 @@ news.txt     The game intro screen
 o_cheat.txt  A text file to be displayed within the "cheat option" menu.
 readme!      You are reading this file right now
 spoiler.txt  A text file to be displayed within the "spoiler option" menu.
+winner.txt   The crown picture (another death screen)
 
 For information about other files, please see the explanatory comment within
 them.

@@ -120,7 +120,7 @@ typedef signed short s16b;
 typedef unsigned short u16b;
 
 /* Signed/Unsigned 32 bit value */
-#ifdef L64	/* 64 bit longs */
+#ifdef L64 /* 64 bit longs */
 typedef signed int s32b;
 typedef unsigned int u32b;
 #else
@@ -157,16 +157,16 @@ typedef cptr *cptr_ptr;
 
 /* These are not prototypes, and they're never used, so I'm leaving them out. */
 #if 0
-typedef void	(*func_void)();
-typedef errr	(*func_errr)();
-typedef char	(*func_char)();
-typedef byte	(*func_byte)();
-typedef bool	(*func_bool)();
-typedef sint	(*func_sint)();
-typedef uint	(*func_uint)();
-typedef real	(*func_real)();
-typedef vptr	(*func_vptr)();
-typedef cptr	(*func_cptr)();
+typedef void (*func_void)();
+typedef errr (*func_errr)();
+typedef char (*func_char)();
+typedef byte (*func_byte)();
+typedef bool (*func_bool)();
+typedef sint (*func_sint)();
+typedef uint (*func_uint)();
+typedef real (*func_real)();
+typedef vptr (*func_vptr)();
+typedef cptr (*func_cptr)();
 #endif
 
 
@@ -174,19 +174,19 @@ typedef cptr	(*func_cptr)();
 /*** Pointers to Functions of special types (for various purposes) ***/
 
 /* A generic function takes a user data and a special data */
-typedef errr	(*func_gen)(vptr, vptr);
+typedef errr (*func_gen)(vptr, vptr);
 
 /* An equality testing function takes two things to compare (bool) */
-typedef bool	(*func_eql)(vptr, vptr);
+typedef bool (*func_eql)(vptr, vptr);
 
 /* A comparison function takes two things and to compare (-1,0,+1) */
-typedef sint	(*func_cmp)(vptr, vptr);
+typedef sint (*func_cmp)(vptr, vptr);
 
 /* A hasher takes a thing (and a max hash size) to hash (0 to siz - 1) */
-typedef uint	(*func_hsh)(vptr, uint);
+typedef uint (*func_hsh)(vptr, uint);
 
 /* A key extractor takes a thing and returns (a pointer to) some key */
-typedef vptr	(*func_key)(vptr);
+typedef vptr (*func_key)(vptr);
 
 
 

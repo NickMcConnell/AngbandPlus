@@ -1,9 +1,7 @@
-# w_med.txt
+# w_cursed.txt
 #
 # Contains possible names for cursed random weapon artefacts.
 
-39
-******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Misery
 of Backbiting
 of Horror

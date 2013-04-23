@@ -746,7 +746,7 @@ static char *analyze_font(char *path, int *wp, int *hp)
 	for (s = p; *s; ++s)
 	{
 		/* Capitalize (be paranoid) */
-		if (islower(*s)) *s = toupper(*s);
+		if (ISLOWER(*s)) *s = TOUPPER(*s);
 	}
 
 	/* Find first 'X' */
@@ -1163,13 +1163,13 @@ static s16b tokenize_whitespace(char *buf, s16b num, char **tokens)
 		char *t;
 
 		/* Skip leading whitespace */
-		for ( ; *s && isspace(*s); ++s) /* loop */;
+		for ( ; *s && ISSPACE(*s); ++s) /* loop */;
 
 		/* All done */
 		if (!*s) break;
 
 		/* Find next whitespace, if any */
-		for (t = s; *t && !isspace(*t); ++t) /* loop */;
+		for (t = s; *t && !ISSPACE(*t); ++t) /* loop */;
 
 		/* Nuke and advance (if necessary) */
 		if (*t) *t++ = '\0';

@@ -2,8 +2,6 @@
 #
 # Contains lines Smeagol can utter when not scared if speak_uniques is set.
 
-27
-******** BUFFER LINE *******************
 sniggers.
 grovels.
 picks his nose.

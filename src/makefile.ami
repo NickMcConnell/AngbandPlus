@@ -7,7 +7,7 @@ all: angband
 # Object files
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o \
+  variable.o tables.o util.o ui.o cave.o \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
@@ -76,6 +76,7 @@ spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
+ui.o: ui.c $(INCS)
 util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
 wizard1.o: wizard1.c $(INCS)

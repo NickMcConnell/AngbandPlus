@@ -19,7 +19,7 @@ INCLDIR = c:\apps\bc45\include;c:\angband\ext-win\src
 
 SRCS = \
   z-util.c z-virt.c z-form.c z-rand.c z-term.c \
-  variable.c tables.c util.c cave.c \
+  variable.c tables.c util.c ui.c cave.c \
   object1.c object2.c monster1.c monster2.c \
   xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c \
@@ -32,7 +32,7 @@ SRCS = \
 
 OBJS = \
   z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj \
-  variable.obj tables.obj util.obj cave.obj \
+  variable.obj tables.obj util.obj ui.obj cave.obj \
   object1.obj object2.obj monster1.obj monster2.obj \
   xtra1.obj xtra2.obj spells1.obj spells2.obj \
   melee1.obj melee2.obj save.obj files.obj \
@@ -45,7 +45,7 @@ OBJS = \
 
 OBJS32 = \
   z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 \
-  variable.o32 tables.o32 util.o32 cave.o32 \
+  variable.o32 tables.o32 util.o32 ui.o32 cave.o32 \
   object1.o32 object2.o32 monster1.o32 monster2.o32 \
   xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 \
   melee1.o32 melee2.o32 save.o32 files.o32 \
@@ -159,7 +159,7 @@ angband: $(OBJS) ..\ext-win\src\angband.rc
 -Twe -P -d -x -Gn -Oc -yx4096 +
 c0wl+
 z-util z-virt z-form z-rand z-term +
-variable tables util cave +
+variable tables util ui cave +
 object1 object2 monster1 monster2 +
 xtra1 xtra2 spells1 spells2 +
 melee1 melee2 save files +
@@ -187,7 +187,7 @@ angband32: $(OBJS32) ..\ext-win\src\angband.rc
 -aa -B:0x400000 -S:0x100000 -P -x +
 c0w32 +
 z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 +
-variable.o32 tables.o32 util.o32 cave.o32 +
+variable.o32 tables.o32 util.o32 ui.o32 cave.o32 +
 object1.o32 object2.o32 monster1.o32 monster2.o32 +
 xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 +
 melee1.o32 melee2.o32 save.o32 files.o32 +

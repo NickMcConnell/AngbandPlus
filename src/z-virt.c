@@ -100,16 +100,16 @@ vptr ralloc(huge len)
 
 
 /*
- * Allocate a constant string, containing the same thing as 'str'
+ * Allocate a string containing the same thing as 'str'
  */
-cptr string_make(cptr str)
+char *string_make(cptr str)
 {
 	huge len = 0;
 	cptr t = str;
 	char *s, *res;
 
 	/* Simple sillyness */
-	if (!str) return (str);
+	if (!str) return NULL;
 
 	/* Get the number of chars in the string, including terminator */
 	while (str[len++]) /* loop */;
@@ -124,4 +124,109 @@ cptr string_make(cptr str)
 	return (res);
 }
 
+/*
+ * Return a pointer in "ap" which is the same as p.
+ * If p is NULL, ap can be enlarged as necessary to create such a pointer.
+ * If a pointer is found, return a pointer to it. Otherwise, return 0.
+ */
+static vptr *get_alloc_pointer(vptr p)
+{
+	static vptr *ap = NULL;
+	static size_t num_ap = 0;
+	vptr *pp;
+
+	/* Search the existing array. */
+	if (num_ap)
+	{
+		for (pp = ap; pp < ap+num_ap; pp++)
+		{
+			if (*pp == p) return pp;
+		}
+	}
+
+	/* Grow the array (start at 128 and double as needed) to find a NULL. */
+	if (!p)
+	{
+		vptr *new_ap;
+		size_t UNREAD(new_num), max_num = 65535U / sizeof(vptr);
+
+		/* Paranoia - 65535 should be more than enough. */
+		if (num_ap == max_num) quit("Out of safe malloc space.");
+		else if (max_num < 2 * num_ap) new_num = max_num;
+		else if (num_ap) new_num = num_ap * 2;
+		else new_num = 128;
+
+		/* Grow the array. */
+		C_MAKE(new_ap, new_num, vptr);
+		if (num_ap) C_COPY(new_ap, ap, num_ap, vptr);
+
+		/* Set ap and num_ap to the new values, and new_ap to the first newly
+		 * allocated pointer.
+		 */
+		ap = new_ap;
+		new_ap += num_ap;
+		num_ap = new_num;
+
+		/* Return the pointer. */
+		return new_ap;
+	}
+	/* Reject any other request for an absent pointer. */
+	else
+	{
+		return NULL;
+	}
+}
+
+/*
+ * Allocate some memory and remember the pointer used.
+ */
+static vptr safe_malloc(huge len)
+{
+	vptr *np = get_alloc_pointer(NULL);
+
+	*np = ralloc(len);
+
+	return *np;
+}
+
+/*
+ * Free a pointer if it was set via safe_malloc() above.
+ * Otherwise, do nothing.
+ *
+ * This takes a pointer to the pointer as input, as it sets it to 0 itself.
+ */
+void safe_free(vptr p)
+{
+	/* Look for the pointer. */
+	vptr *np = get_alloc_pointer(p);
+
+	/* Found it, so free it and set to 0. */
+	if (np) KILL(*np);
+}
+
+/*
+ * Allocate a constant string with safe_malloc, containing the same thing as
+ * 'str'
+ */
+cptr safe_string_make(cptr str)
+{
+	huge len = 0;
+	cptr t = str;
+	char *s, *res;
+
+	/* Simple sillyness */
+	if (!str) return (str);
+
+	/* Get the number of chars in the string, including terminator */
+	while (str[len++]) /* loop */;
+
+	/* Allocate space for the string */
+	s = res = (char*)(safe_malloc(len));
+
+	/* Copy the string (with terminator) */
+	while ((*s++ = *t++) != 0) /* loop */;
+
+	/* Return the allocated, initialized, string */
+	return (res);
+}
 

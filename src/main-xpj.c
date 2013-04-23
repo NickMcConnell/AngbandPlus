@@ -2851,7 +2851,7 @@ static XImage *ReadFONT(Display *dpy, char *Name, u16b size)
 		if (!buf[0]) continue;
 
 		/* Skip "blank" lines */
-		if (isspace(buf[0])) continue;
+		if (ISSPACE(buf[0])) continue;
 
 		/* Skip comments */
 		if (buf[0] == '#') continue;

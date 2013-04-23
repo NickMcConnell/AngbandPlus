@@ -1,9 +1,7 @@
-# w_med.txt
+# w_low.txt
 #
 # Contains possible names for low level random weapon artefacts.
 
-98
-******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Idspispopd'
 'Purple Rain'
 'Uhl Khakhaas'

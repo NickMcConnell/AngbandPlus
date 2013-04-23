@@ -1,0 +1,72 @@
+# File: font-xxx.prf
+
+#
+# This file defines special attr/char mappings for use in either "text" or
+# "graphics" mode (despite its name).
+
+##### Default inventory colours (ignored if use_color is unset) #####
+
+# Reset inventory colours to white
+E:---reset---
+
+# Set various inventory colours
+
+# Spikes
+E:t:5:s
+
+# Chests
+E:t:7:s
+
+# Missiles
+E:t:16:U
+E:t:17:U
+E:t:18:U
+
+# Missile launchers
+E:t:19:u
+
+# Diggers
+E:t:20:s
+
+# Melee weapons
+E:t:21:W
+E:t:22:W
+E:t:23:W
+
+# Non-body armour
+E:t:30:U
+E:t:31:U
+E:t:32:U
+E:t:33:U
+E:t:34:U
+E:t:35:U
+
+# Body armour
+E:t:36:s
+E:t:37:s
+E:t:38:s
+
+# Lights and fuel
+E:t:39:y
+E:t:77:y
+
+# Amulets and rings
+E:t:40:o
+E:t:45:o
+
+# Rods, wands and staves
+E:t:55:v
+E:t:65:v
+E:t:66:v
+
+# Potions
+E:t:75:b
+
+# Food
+E:t:80:g
+
+# Magic books
+E:t:90:B
+E:t:91:R
+E:t:92:o
+E:t:93:s

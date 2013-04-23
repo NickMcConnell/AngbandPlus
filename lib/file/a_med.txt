@@ -1,9 +1,7 @@
-# w_med.txt
+# a_med.txt
 #
 # Contains possible names for medium level random armour artefacts.
 
-84
-******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Resistor'
 'Warrior's Shield'
 of Polonium

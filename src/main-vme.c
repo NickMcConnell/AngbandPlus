@@ -879,7 +879,7 @@ char InKey(void)
 		/* Well, only numbers should be padded with CR.
 		 ** Comment: handle 18/... too.
 		 */
-		if (!isdigit(*ptr)) break;
+		if (!ISDIGIT(*ptr)) break;
 		ptr--;
 		i=1;
 		while (ptr>=info)
@@ -896,7 +896,7 @@ char InKey(void)
 				i=1;
 				break;
 			}
-			if (!isdigit(*ptr))
+			if (!ISDIGIT(*ptr))
 			{
 				i=0;
 				break;
@@ -1134,7 +1134,7 @@ void LoadProfile(void)
 			if (!ptr) continue;
 			ptr += 2;
 			p = ptr;
-			while (isdigit(*p)) ++p;
+			while (ISDIGIT(*p)) ++p;
 			*p++ = 0;
 			pf = atoi(ptr);
 			if (pf < 1 || pf > 24) continue;

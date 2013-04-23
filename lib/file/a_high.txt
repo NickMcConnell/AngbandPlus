@@ -1,9 +1,7 @@
-# w_med.txt
+# a_high.txt
 #
 # Contains possible names for high level random armour artefacts.
 
-66
-******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Super Resistance
 of the Ultimate Defense
 of Ultimax

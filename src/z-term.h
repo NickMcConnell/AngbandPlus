@@ -19,14 +19,14 @@
 /*
  * A term_win is a "window" for a Term
  *
- *	- Cursor Useless/Visible codes
- *	- Cursor Location (see "Useless")
+ * - Cursor Useless/Visible codes
+ * - Cursor Location (see "Useless")
  *
- *	- Array[h] -- Access to the attribute array
- *	- Array[h] -- Access to the character array
+ * - Array[h] -- Access to the attribute array
+ * - Array[h] -- Access to the character array
  *
- *	- Array[h*w] -- Attribute array
- *	- Array[h*w] -- Character array
+ * - Array[h*w] -- Attribute array
+ * - Array[h*w] -- Character array
  *
  * Note that the attr/char pair at (x,y) is a[y][x]/c[y][x]
  * and that the row of attr/chars at (0,y) is a[y]/c[y]
@@ -57,101 +57,101 @@ struct term_win
 /*
  * An actual "term" structure
  *
- *	- Extra "user" info (used by application)
+ * - Extra "user" info (used by application)
  *
- *	- Extra "data" info (used by implementation)
- *
- *
- *	- Flag "user_flag"
- *	  An extra "user" flag (used by application)
+ * - Extra "data" info (used by implementation)
  *
  *
- *	- Flag "data_flag"
- *	  An extra "data" flag (used by implementation)
+ * - Flag "user_flag"
+ *   An extra "user" flag (used by application)
  *
  *
- *	- Flag "active_flag"
- *	  This "term" is "active"
- *
- *	- Flag "mapped_flag"
- *	  This "term" is "mapped"
- *
- *	- Flag "total_erase"
- *	  This "term" should be fully erased
- *
- *	- Flag "fixed_shape"
- *	  This "term" is not allowed to resize
- *
- *	- Flag "icky_corner"
- *	  This "term" has an "icky" corner grid
- *
- *	- Flag "soft_cursor"
- *	  This "term" uses a "software" cursor
- *
- *	- Flag "always_pict"
- *	  Use the "Term_pict()" routine for all text
- *
- *	- Flag "higher_pict"
- *	  Use the "Term_pict()" routine for special text
- *
- *	- Flag "always_text"
- *	  Use the "Term_text()" routine for invisible text
- *
- *	- Flag "unused_flag"
- *	  Reserved for future use
- *
- *	- Flag "never_bored"
- *	  Never call the "TERM_XTRA_BORED" action
- *
- *	- Flag "never_frosh"
- *	  Never call the "TERM_XTRA_FROSH" action
+ * - Flag "data_flag"
+ *   An extra "data" flag (used by implementation)
  *
  *
- *	- Value "attr_blank"
- *	  Use this "attr" value for "blank" grids
+ * - Flag "active_flag"
+ *   This "term" is "active"
  *
- *	- Value "char_blank"
- *	  Use this "char" value for "blank" grids
+ * - Flag "mapped_flag"
+ *   This "term" is "mapped"
+ *
+ * - Flag "total_erase"
+ *   This "term" should be fully erased
+ *
+ * - Flag "fixed_shape"
+ *   This "term" is not allowed to resize
+ *
+ * - Flag "icky_corner"
+ *   This "term" has an "icky" corner grid
+ *
+ * - Flag "soft_cursor"
+ *   This "term" uses a "software" cursor
+ *
+ * - Flag "always_pict"
+ *   Use the "Term_pict()" routine for all text
+ *
+ * - Flag "higher_pict"
+ *   Use the "Term_pict()" routine for special text
+ *
+ * - Flag "always_text"
+ *   Use the "Term_text()" routine for invisible text
+ *
+ * - Flag "unused_flag"
+ *   Reserved for future use
+ *
+ * - Flag "never_bored"
+ *   Never call the "TERM_XTRA_BORED" action
+ *
+ * - Flag "never_frosh"
+ *   Never call the "TERM_XTRA_FROSH" action
  *
  *
- *	- Ignore this pointer
+ * - Value "attr_blank"
+ *   Use this "attr" value for "blank" grids
  *
- *	- Keypress Queue -- various data
- *
- *	- Keypress Queue -- pending keys
- *
- *
- *	- Window Width (max 255)
- *	- Window Height (max 255)
- *
- *	- Minimum modified row
- *	- Maximum modified row
- *
- *	- Minimum modified column (per row)
- *	- Maximum modified column (per row)
+ * - Value "char_blank"
+ *   Use this "char" value for "blank" grids
  *
  *
- *	- Displayed screen image
- *	- Requested screen image
+ * - Ignore this pointer
  *
- *	- Temporary screen image
+ * - Keypress Queue -- various data
+ *
+ * - Keypress Queue -- pending keys
+ *
+ *
+ * - Window Width (max 255)
+ * - Window Height (max 255)
+ *
+ * - Minimum modified row
+ * - Maximum modified row
+ *
+ * - Minimum modified column (per row)
+ * - Maximum modified column (per row)
+ *
+ *
+ * - Displayed screen image
+ * - Requested screen image
+ *
+ * - Temporary screen image
  *
  *
  *
- *	- Hook for init-ing the term
- *	- Hook for nuke-ing the term
+ * - Hook for init-ing the term
+ * - Hook for nuke-ing the term
  *
- *	- Hook for user actions
+ * - Hook for user actions
  *
- *	- Hook for extra actions
+ * - Hook for extra actions
  *
- *	- Hook for placing the cursor
+ * - Hook for placing the cursor
  *
- *	- Hook for drawing some blank spaces
+ * - Hook for drawing some blank spaces
  *
- *	- Hook for drawing a string of chars using an attr
+ * - Hook for drawing a string of chars using an attr
  *
- *	- Hook for drawing a sequence of special attr/char pairs
+ * - Hook for drawing a sequence of special attr/char pairs
  */
 
 typedef struct term term;
@@ -216,7 +216,8 @@ struct term
 
 	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+	errr (*pict_hook)(int x, int y, int n,
+		const byte *ap, const char *cp, const byte *tap, const char *tcp);
 
 	void (*resize_hook)(void);
 };
@@ -247,19 +248,19 @@ struct term
  *
  * The other actions do not need a "v" code, so "zero" is used.
  */
-#define TERM_XTRA_EVENT	1	/* Process some pending events */
-#define TERM_XTRA_FLUSH 2	/* Flush all pending events */
-#define TERM_XTRA_CLEAR 3	/* Clear the entire window */
-#define TERM_XTRA_SHAPE 4	/* Set cursor shape (optional) */
-#define TERM_XTRA_FROSH 5	/* Flush one row (optional) */
-#define TERM_XTRA_FRESH 6	/* Flush all rows (optional) */
-#define TERM_XTRA_NOISE 7	/* Make a noise (optional) */
-#define TERM_XTRA_SOUND 8	/* Make a sound (optional) */
-#define TERM_XTRA_BORED 9	/* Handle stuff when bored (optional) */
-#define TERM_XTRA_REACT 10	/* React to global changes (optional) */
-#define TERM_XTRA_ALIVE 11	/* Change the "hard" level (optional) */
-#define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
-#define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
+#define TERM_XTRA_EVENT 1 /* Process some pending events */
+#define TERM_XTRA_FLUSH 2 /* Flush all pending events */
+#define TERM_XTRA_CLEAR 3 /* Clear the entire window */
+#define TERM_XTRA_SHAPE 4 /* Set cursor shape (optional) */
+#define TERM_XTRA_FROSH 5 /* Flush one row (optional) */
+#define TERM_XTRA_FRESH 6 /* Flush all rows (optional) */
+#define TERM_XTRA_NOISE 7 /* Make a noise (optional) */
+#define TERM_XTRA_SOUND 8 /* Make a sound (optional) */
+#define TERM_XTRA_BORED 9 /* Handle stuff when bored (optional) */
+#define TERM_XTRA_REACT 10 /* React to global changes (optional) */
+#define TERM_XTRA_ALIVE 11 /* Change the "hard" level (optional) */
+#define TERM_XTRA_LEVEL 12 /* Change the "soft" level (optional) */
+#define TERM_XTRA_DELAY 13 /* Delay some milliseconds (optional) */
 
 #endif
 
@@ -290,7 +291,7 @@ struct term
 #define TERM_L_BLUE             14      /* 'B' */       /* 0,4,4 */
 #define TERM_L_UMBER    15      /* 'U' */       /* 3,2,1 */
 
-#define SUCCESS 0	/* No error */
+#define SUCCESS 0 /* No error */
 
 /* Errors from Term_keypress(), etc.. */
 #define TERM_ERROR_BAD_INPUT -501

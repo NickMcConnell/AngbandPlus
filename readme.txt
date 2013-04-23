@@ -1,7 +1,7 @@
 
 
                           *************************
-                          ** sCthangband 1.0.11  **
+                          ** sCthangband 1.0.14  **
                           *************************
 
            Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke

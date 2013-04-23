@@ -145,7 +145,7 @@ int spell_skill(const magic_type *s_ptr)
 
 	/* This turns it into 1-50 for almost all books. */
 	if (total == 0 && s_ptr->skill1 != SKILL_MINDCRAFTING)
-		 total++;
+		total++;
 
 	return (total);
 }
@@ -171,14 +171,14 @@ static int spell_stat(const magic_type *s_ptr)
 			return A_STR;
 	}
 }
-			
+
 
 /*
  * Cast a spell (listed at an offset).
  */
 static bool use_spell(const magic_type *s_ptr)
 {
-	return use_known_power(PO_SPELL + s_ptr->power, spell_skill(s_ptr));
+	return use_known_power(s_ptr->power, spell_skill(s_ptr));
 }
 
 /*
@@ -186,7 +186,7 @@ static bool use_spell(const magic_type *s_ptr)
  */
 static cptr spell_help(const magic_type *s_ptr)
 {
-	return describe_power(PO_SPELL + s_ptr->power, spell_skill(s_ptr));
+	return describe_power(s_ptr->power, spell_skill(s_ptr));
 }
 
 /*
@@ -212,7 +212,7 @@ static void low_mana_check(int *chance, const magic_type *s_ptr)
 			/* Not enough mana to cast */
 			if (s_ptr->mana > p_ptr->cchi)
 			{
-				chance += 5 * (s_ptr->mana - p_ptr->cchi);
+				(*chance) += 5 * (s_ptr->mana - p_ptr->cchi);
 			}
 			return;
 		}
@@ -356,10 +356,10 @@ static void evaluate_text(char *buf, uint max, cptr str,
 			/* Formulae always start with vstr. */
 			*t++ = *s++;
 		}
-		else if (isdigit(*s))
+		else if (ISDIGIT(*s))
 		{
 			d = (int)strtol(s, 0, 0);
-			while (isdigit(*s)) s++;
+			while (ISDIGIT(*s)) s++;
 			i = convert_magic_number(i, op, d);
 		}
 		else if (*s == ';')
@@ -372,7 +372,7 @@ static void evaluate_text(char *buf, uint max, cptr str,
 		else
 		{
 			op = *s++;
- 			assert(convert_magic_number(1, op, 1) != -255);
+			assert(convert_magic_number(1, op, 1) != -255);
 		}
 	}
 
@@ -391,7 +391,7 @@ void evaluate_text_f3(char *buf, uint max, cptr UNUSED fmt,
 	cptr vstr = va_arg(*vp, cptr);
 	int v = va_arg(*vp, int);
 
-	evaluate_text(buf, max, str, vstr, v); 
+	evaluate_text(buf, max, str, vstr, v);
 }
 
 /*
@@ -445,9 +445,9 @@ static void get_magic_info(char *p, uint max, const magic_type *s_ptr)
 u16b spell_energy(u16b skill,u16b min)
 {
 	u32b en;
-	
+
 	/* Safety check to prevent overflows */
-	if (min >= skill) 
+	if (min >= skill)
 	{
 		/* Base calculation gives a square curve */
 		en=TURN_ENERGY+((min-skill)*(min-skill)*TURN_ENERGY/100);
@@ -482,7 +482,7 @@ static u16b magic_energy(const magic_type *s_ptr)
  *
  * It should return the intended top line if called with s_ptr = 0.
  * Otherwise, it should return the desired description.
- * In either case, a return of 0 causes 
+ * In either case, a return of 0 causes
  */
 
 static cptr cantrip_string(int i, const magic_type *s_ptr, cptr comment)
@@ -533,7 +533,7 @@ static cptr spell_string(int i, const magic_type *s_ptr, cptr comment)
 	cptr type;
 
 	if (!s_ptr)
-		return format("     %-26s%s", "Name", "Ty(Sk) Mana Time Fail Info");
+		return format("     %-26s%s", "Name", "Ty(Sk ) Mana Time Fail Info");
 
 	switch(s_ptr->skill2)
 	{
@@ -546,13 +546,13 @@ static cptr spell_string(int i, const magic_type *s_ptr, cptr comment)
 
 	if (s_ptr->flags & MAGIC_FORGOT)
 	{
-		comment = " forgotten";
+		comment = "forgotten";
 	}
 	else if (~s_ptr->flags & MAGIC_LEARNED)
 	{
 		if (spell_skill(s_ptr)<s_ptr->min)
 		{
-			 comment = "too hard";
+			comment = "too hard";
 		}
 		else
 		{
@@ -565,7 +565,7 @@ static cptr spell_string(int i, const magic_type *s_ptr, cptr comment)
 	}
 
 
-	return format("  %c) %-26s%s(%2d) %4d %4d %3d%% %s",
+	return format("  %c) %-26s%s(%3d) %4d %4d %3d%% %s",
 		I2A(i), s_ptr->name, type, s_ptr->min*2, s_ptr->mana,
 		magic_energy(s_ptr), spell_chance(s_ptr), comment);
 }
@@ -580,17 +580,17 @@ static int print_spell_list(byte *spells, book_type *b_ptr, int num,
 	char info[80];
 	cptr str;
 
-   /* Title the list */
-    prt((*get)(0, 0, 0), y++, x);
+	/* Title the list */
+	prt((*get)(0, 0, 0), y++, x);
 
-    /* Dump the spells. */
+	/* Dump the spells. */
 	for (i = 0; i < num; i++)
 	{
 		/* Access the spell. */
 		const magic_type *s_ptr = &(b_ptr->info[spells[i]]);
 
 		get_magic_info(info, sizeof(info), s_ptr);
-			
+
 		/* Get the spell description. */
 		str = (*get)(i, s_ptr, info);
 
@@ -620,8 +620,8 @@ static bool spell_okay(const magic_type *s_ptr, bool known)
 	/* Spell is illegal */
 	if (!magic_okay(s_ptr)) return (FALSE);
 
-    /* Spell is forgotten */
-    if (s_ptr->flags & MAGIC_FORGOT)
+	/* Spell is forgotten */
+	if (s_ptr->flags & MAGIC_FORGOT)
 	{
 		/* Never okay */
 		return (FALSE);
@@ -663,18 +663,16 @@ static bool get_spell_aux(int *sn, book_type *b_ptr, cptr noun, cptr verb,
 	void (*confirm)(char *, uint, const magic_type *, cptr),
 	cptr (*get)(int, const magic_type *, cptr))
 {
-	int		i, num, ask, spell = -1;
+	int i, num, ask, spell = -1;
 	int x = 15, y = 1;
 	int UNREAD(maxy), t_clear, t_list;
 
-	byte		spells[64];
+	byte spells[64];
 
-	bool		flag, redraw, okay;
-	char		choice;
+	bool flag, redraw, okay;
+	char choice;
 
-	const magic_type	*s_ptr;
-
-	char		out_val[160];
+	const magic_type *s_ptr;
 
 
 #ifdef ALLOW_REPEAT
@@ -732,103 +730,115 @@ static bool get_spell_aux(int *sn, book_type *b_ptr, cptr noun, cptr verb,
 		p_ptr->window |= (PW_SPELL);
 	}
 
-	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(%c-%c, *=List, ESC=exit) %^s which %s? ",
-		I2A(0), I2A(num - 1), verb, noun);
-
 	/* Add a resize hook. */
 	add_resize_hook(resize_inkey);
 
 	/* Get a spell from the user */
-	for (t_clear = t_list = 0; !flag && get_com(out_val, &choice); )
+	for (t_clear = t_list = 0; ; )
 	{
-		/* Ensure t_clear and t_list point to the saved screens of this size. */
+		/* Get a choice, or abort. */
+		if (!get_com(&choice, "(%c-%c, *=List, ESC=exit) %^s which %s? ",
+			I2A(0), I2A(num - 1), verb, noun)) break;
+
+		/* Resize the screen. */
 		if (choice == RESIZE_INKEY_KEY)
 		{
+			/* The existing saved windows are now invalid. */
 			Term_release(t_clear);
 			Term_release(t_list);
+			t_list = 0;
 
 			/* Save the screen without the list. */
 			t_clear = Term_save_aux();
 
+			/* Actually display the list in the next cycle if desired. */
 			if (redraw)
 			{
-				/* Display a list of spells */
-				maxy = print_spell_list(spells, b_ptr, num, y, x, get);
-
-				/* Save the screen with the list. */
-				t_list = Term_save_aux();
+				Term_key_push(' ');
+				redraw = FALSE;
 			}
-
-			continue;
 		}
 		/* Request redraw */
 		else if ((choice == ' ') || (choice == '*') || (choice == '?'))
 		{
+			if (redraw)
+			{
+				Term_load_aux(t_clear);
+			}
+			else if (t_list)
+			{
+				Term_load_aux(t_list);
+			}
+			else
+			{
+				maxy = print_spell_list(spells, b_ptr, num, y, x, get);
+				t_list = Term_save_aux();
+			}
 			/* Load the other screen. */
-			int t_new = (redraw) ? t_clear : t_list;
-			Term_load_aux(t_new);
+			if (redraw)
+				Term_load_aux(t_clear);
+			else
+				Term_load_aux(t_list);
 
 			/* Remember the change. */
 			redraw = !redraw;
-
-			/* Redo asking */
-			continue;
 		}
-
-
-		/* Note verify */
-		ask = (isupper(choice));
-
-		/* Lowercase */
-		if (ask) choice = tolower(choice);
-
-		/* Extract request */
-		i = (islower(choice) ? A2I(choice) : -1);
-
-		/* Totally Illegal */
-		if ((i < 0) || (i >= num))
+		else
 		{
-			bell(0);
-			continue;
-		}
+			/* Note verify */
+			ask = (ISUPPER(choice));
 
-		/* Save the spell index */
-		spell = spells[i];
+			/* Lowercase */
+			if (ask) choice = TOLOWER(choice);
 
-		/* Require "okay" spells */
-		if (!(*okay_p)(&b_ptr->info[spell]))
-		{
-			bell(0);
-			msg_format("You may not %s that %s.", verb, noun);
-			continue;
-		}
+			/* Extract request */
+			i = (ISLOWER(choice) ? A2I(choice) : -1);
 
-		/* Verify it */
-		if (ask)
-		{
-			char tmp_val[160];
-
-			/* Access the spell */
-			s_ptr = &b_ptr->info[spell%32];
-
-			/* Display help now. */
-			if (redraw) mc_roff_xy(x, maxy, spell_help(s_ptr));
-
-			/* Prompt */
-			(*confirm)(tmp_val, 78, s_ptr, verb);
-
-			/* Belay that order */
-			if (!get_check(tmp_val))
+			/* Totally Illegal */
+			if ((i < 0) || (i >= num))
 			{
-				/* Return the screen to its previous state. */
-				if (redraw) Term_load_aux(t_list);
+				bell("Illegal spell choice!");
 				continue;
 			}
-		}
 
-		/* Stop the loop */
-		flag = TRUE;
+			/* Save the spell index */
+			spell = spells[i];
+
+			/* Require "okay" spells */
+			if (!(*okay_p)(&b_ptr->info[spell]))
+			{
+				bell("Illegal spell choice!");
+				msg_format("You may not %s that %s.", verb, noun);
+				continue;
+			}
+
+			/* Verify it */
+			if (ask)
+			{
+				char tmp_val[160];
+
+				/* Access the spell */
+				s_ptr = &b_ptr->info[spell%32];
+
+				/* Display help now. */
+				if (redraw) mc_roff_xy(x, maxy, spell_help(s_ptr));
+
+				/* Prompt */
+				(*confirm)(tmp_val, 78, s_ptr, verb);
+
+				/* Belay that order */
+				if (!get_check(tmp_val))
+				{
+					/* Return the screen to its previous state. */
+					if (redraw) Term_load_aux(t_list);
+					continue;
+				}
+			}
+
+			/* Stop the loop */
+			flag = TRUE;
+			break;
+		}
 	}
 
 	/* Reset the resize hook. */
@@ -935,28 +945,27 @@ static bool get_spell(int *sn, cptr prompt, bool known, book_type *b_ptr)
  */
 int get_spirit(int *sn, cptr prompt, bool call)
 {
-	int		i;
-	int		ask;
-	bool		flag, redraw, okay;
-	char		choice;
-	char		out_val[160];
+	int i;
+	int ask;
+	bool flag, redraw, okay;
+	char choice;
 	int valid_spirits[MAX_SPIRITS],total;
 
- #ifdef ALLOW_REPEAT
- 
-     /* Get the spirit, if available */
-     if (repeat_pull(sn)) {
-         
-         /* Verify the spirit */
-         if (spirit_okay(*sn, call)) {
-                    
-             /* Success */
-             return (TRUE);
-         }
-     }
-     
- #endif /* ALLOW_REPEAT -- TNB */
- 
+#ifdef ALLOW_REPEAT
+
+	/* Get the spirit, if available */
+	if (repeat_pull(sn)) {
+
+		/* Verify the spirit */
+		if (spirit_okay(*sn, call)) {
+
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT -- TNB */
+
 
 	/* Assume no usable spells */
 	okay = FALSE;
@@ -1005,12 +1014,10 @@ int get_spirit(int *sn, cptr prompt, bool call)
 		/* No redraw yet */
 		redraw = FALSE;
 	}
-	/* Build a prompt (accept all spirits) */
-	strnfmt(out_val, 78, "(%c-%c, *=List, ESC=exit) %^s which spirit? ",
-		I2A(0), I2A(total - 1), prompt);
 
 	/* Get a spell from the user */
-	while (!flag && get_com(out_val, &choice))
+	while (!flag && get_com(&choice, "(%c-%c, *=List, ESC=exit) %^s which spirit? ",
+		I2A(0), I2A(total - 1), prompt))
 	{
 		/* Request redraw */
 		if ((choice == ' ') || (choice == '*') || (choice == '?'))
@@ -1049,13 +1056,13 @@ int get_spirit(int *sn, cptr prompt, bool call)
 		}
 
 		/* Note verify */
-		ask = (isupper(choice));
+		ask = (ISUPPER(choice));
 
 		/* Lowercase */
-		if (ask) choice = tolower(choice);
+		if (ask) choice = TOLOWER(choice);
 
 		/* Extract request */
-		i = (islower(choice) ? valid_spirits[A2I(choice)] : isdigit(choice) ? choice-'0' : -1);
+		i = (ISLOWER(choice) ? valid_spirits[A2I(choice)] : ISDIGIT(choice) ? choice-'0' : -1);
 
 		/* Totally Illegal */
 		if ((i < 0) || (i >= MAX_SPIRITS))
@@ -1094,12 +1101,12 @@ int get_spirit(int *sn, cptr prompt, bool call)
 	/* Save the choice */
 	(*sn) = i;
 
- #ifdef ALLOW_REPEAT
- 
- 	repeat_push(*sn);
- 
- #endif /* ALLOW_REPEAT -- TNB */
- 
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*sn);
+
+#endif /* ALLOW_REPEAT -- TNB */
+
 	/* Success */
 	return (TRUE);
 }
@@ -1117,13 +1124,13 @@ static bool spirit_okay(int spirit, bool call)
 	spirit_type *s_ptr;
 
 	/* Access the spell */
-    s_ptr = &(spirits[spirit]);
+	s_ptr = &(spirits[spirit]);
 
 	/* Spirit is too powerful */
 	if (s_ptr->minskill > plev) return (FALSE);
 
 	/* Spirit has a pact */
-    if (s_ptr->pact)
+	if (s_ptr->pact)
 	{
 		/* Okay to call upon, not to form a pact with */
 		return (call);
@@ -1144,18 +1151,18 @@ static void print_spirits(int *valid_spirits,int num,int y, int x)
 	spirit_type              *s_ptr;
 	cptr            comment;
 	char            out_val[160];
-	char			full_name[80];
+	char full_name[80];
 
 	/* Hack - Treat an 'x' value of -1 as a request for a default value. */
 	if (x == -1) x = 15;
 
-    /* Title the list */
-    prt("", y, x);
+	/* Title the list */
+	prt("", y, x);
 	put_str("Name", y, x + 7);
 	put_str("Info", y, x + 50);
 
 
-    /* Dump the spirits */
+	/* Dump the spirits */
 	for (i = 0; i < num; i++)
 	{
 		/* Access the spirit */
@@ -1204,44 +1211,21 @@ static void print_spirits(int *valid_spirits,int num,int y, int x)
 
 
 /*
- * Is it a book?
- */
-static PURE bool item_tester_book(object_ctype *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_SORCERY_BOOK:
-		case TV_THAUMATURGY_BOOK:
-		case TV_CONJURATION_BOOK:
-		case TV_NECROMANCY_BOOK:
-			return TRUE;
-		default:
-			return FALSE;
-	}
-}
-
-/*
  * Does it have a book_type associated with it?
  */
-static PURE bool item_tester_book_etc(object_ctype *o_ptr)
+bool PURE item_tester_spells(object_ctype *o_ptr)
 {
 	return (k_idx_to_book(o_ptr->k_idx) != 0);
-}
-
-bool PURE display_spells_p(object_ctype *o_ptr)
-{
-	item_tester_hook = item_tester_book_etc;
-	return item_tester_okay(o_ptr);
 }
 
 void display_spells(int y, int x, object_ctype *o_ptr)
 {
 	book_type *b_ptr;
-	int		num;
+	int num;
 
-	byte		spells[64];
+	byte spells[64];
 
-	assert(display_spells_p(o_ptr));
+	assert(item_tester_spells(o_ptr));
 
 	/* Access the item's spell list. */
 	b_ptr = k_idx_to_book(o_ptr->k_idx);
@@ -1261,25 +1245,9 @@ void display_spells(int y, int x, object_ctype *o_ptr)
  * Note that browsing is allowed while confused or blind,
  * and in the dark, primarily to allow browsing in stores.
  */
-void do_cmd_browse(object_ctype *o_ptr)
+void do_cmd_browse(object_type *o_ptr)
 {
-	/* Get an item if we do not already have one */
-	if(!o_ptr)
-	{
-		errr err;
-
-		/* Restrict choices to books */
-		item_tester_hook = item_tester_book_etc;
-
-		/* Get an item (from inven or floor) */
-		if (!((o_ptr = get_item(&err, "Browse which book? ", FALSE, TRUE, TRUE))))
-		{
-			if (err == -2) msg_print("You have no books that you can read.");
-			return;
-		}
-	}
-
-	if(!display_spells_p(o_ptr))
+	if(!item_tester_spells(o_ptr))
 	{
 		msg_print("You can't read that.");
 		return;
@@ -1316,51 +1284,16 @@ void do_cmd_browse(object_ctype *o_ptr)
 /*
  * Study a book to gain a new spell/prayer
  */
-void do_cmd_study(void)
+void do_cmd_study(object_type *o_ptr)
 {
-	errr err;
-	int	i;
-	int	spell_school = 0;
-	int	spell = -1;
+	int i;
+	int spell_school = 0;
+	int spell = -1;
 
 	cptr p = "spell";
 
-	object_type             *o_ptr;
 	book_type *b_ptr;
 	magic_type *s_ptr;
-
-	if (p_ptr->blind)
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-	if (!(p_ptr->new_spells))
-	{
-		msg_format("You cannot learn any new %ss!", p);
-		return;
-	}
-
-	msg_format("You can learn %d new %s%s.", p_ptr->new_spells, p,
-		(p_ptr->new_spells == 1?"":"s"));
-	msg_print(NULL);
-
-
-	/* Restrict choices to "useful" books */
-	item_tester_hook = item_tester_book;
-
-	/* Get an item (from inven or floor) */
-	if (!((o_ptr = get_item(&err, "Study which book? ", FALSE, TRUE, TRUE))))
-	{
-		if (err == -2) msg_print("You have no books that you can read.");
-		return;
-	}
 
 	/* Access the item's spell list. */
 	b_ptr = k_idx_to_book(o_ptr->k_idx);
@@ -1427,44 +1360,15 @@ void do_cmd_study(void)
 /*
  * Cast a spell
  */
-void do_cmd_cast(void)
+void do_cmd_cast(object_type *o_ptr)
 {
-	errr err;
-	int	spell, chance;
-	int	plev = 0;
-	int	spell_school = 0;
+	int spell, chance;
+	int plev = 0;
+	int spell_school = 0;
 
-	const cptr prayer = "spell";
-
-	object_type	*o_ptr;
 	book_type *b_ptr;
 
-	magic_type	*s_ptr;
-
-	/* Require lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Not when confused */
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-
-	/* Restrict choices to spell books */
-	item_tester_hook = item_tester_book;
-
-	/* Get an item (from inven or floor) */
-	if (!((o_ptr = get_item(&err, "Use which book? ", FALSE, TRUE, TRUE))))
-	{
-        if (err == -2) msg_format("You have no %s books!", prayer);
-		return;
-	}
+	magic_type *s_ptr;
 
 	/* Access the item's spell list. */
 	b_ptr = k_idx_to_book(o_ptr->k_idx);
@@ -1482,7 +1386,7 @@ void do_cmd_cast(void)
 	if (!get_spell(&spell,"cast", TRUE, b_ptr))
 	{
 		if (spell == -2)
-		msg_format("You don't know any %ss in that book.", prayer);
+		msg_print("You don't know any spells in that book.");
 		return;
 	}
 
@@ -1496,9 +1400,7 @@ void do_cmd_cast(void)
 	if (s_ptr->mana > p_ptr->csp)
 	{
 		/* Warning */
-		msg_format("You do not have enough mana to %s this %s.",
-			"cast",
-			prayer);
+		msg_print("You do not have enough mana to cast this spell.");
 
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
@@ -1513,7 +1415,7 @@ void do_cmd_cast(void)
 	{
 		if (flush_failure) flush();
 
-		msg_format("You failed to get the %s off!", prayer);
+		msg_print("You failed to get the spell off!");
 
 		if (o_ptr->tval == TV_THAUMATURGY_BOOK && (randint(100)<spell))
 		{
@@ -1583,43 +1485,14 @@ void do_cmd_cast(void)
 /*
  * Cast a cantrip
  */
-void do_cmd_cantrip(void)
+void do_cmd_cantrip(object_type *o_ptr)
 {
-	errr err;
-	int	spell, chance;
+	int spell, chance;
 
-	const cptr prayer = "cantrip";
 	bool item_break = FALSE;
 
-	object_type	*o_ptr;
-
-	const magic_type	*s_ptr;
+	const magic_type *s_ptr;
 	book_type *b_ptr;
-
-	/* Require lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Not when confused */
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-
-	/* Restrict choices to charms */
-	item_tester_tval = TV_CHARM;
-
-	/* Get an item (from inven or floor) */
-	if (!((o_ptr = get_item(&err, "Use which charm? ", TRUE, TRUE, TRUE))))
-	{
-        if (err == -2) msg_print("You have no charms!");
-		return;
-	}
 
 	/* Access the item's spell list. */
 	b_ptr = k_idx_to_book(o_ptr->k_idx);
@@ -1634,7 +1507,7 @@ void do_cmd_cantrip(void)
 	if (!get_cantrip(&spell, b_ptr))
 	{
 		if (spell == -2)
-		msg_format("You don't know any %ss for that charm.", prayer);
+		msg_print("You don't know any cantrips for that charm.");
 		return;
 	}
 
@@ -1648,7 +1521,7 @@ void do_cmd_cantrip(void)
 	{
 		if (flush_failure) flush();
 
-		msg_format("You failed to cast the %s!", prayer);
+		msg_print("You failed to cast the cantrip!");
 		/* Charm *always* breaks if the spell fails */
 		item_break = TRUE;
 	}
@@ -1719,7 +1592,7 @@ static s32b favour_annoyance(const magic_type *f_ptr)
 
 	/* make sure there is at least a bit */
 	if (annoy <2) annoy = 2;
-	
+
 	return (annoy);
 }
 
@@ -1732,7 +1605,7 @@ static void annoy_spirit(spirit_type *s_ptr,u32b amount)
 	p_ptr->redraw |= (PR_SPIRIT);
 	old_annoy=s_ptr->annoyance;
 	s_ptr->annoyance += amount;
-	
+
 	if ((s_ptr->annoyance > 15) && (old_annoy < 16))
 	{
 		msg_format("%s is furious.",s_ptr->name);
@@ -1779,7 +1652,7 @@ static int spirit_punish(spirit_type *s_ptr, const magic_type *f_ptr)
 			i, f_ptr->min * 1000, f_ptr->min * f_ptr->min);
 	}
 
- 	/* Abandonment. up to 2% chance for a level 45 favour. */
+	/* Abandonment. up to 2% chance for a level 45 favour. */
 	if (i < f_ptr->min * f_ptr->min)
 	{
 		msg_format("%s disowns you!", s_ptr->name);
@@ -1825,12 +1698,12 @@ static int spirit_punish(spirit_type *s_ptr, const magic_type *f_ptr)
  */
 void do_cmd_invoke(void)
 {
-	int	spell, chance;
+	int spell, chance;
 	int spirit;
 
-	spirit_type	*s_ptr;
+	spirit_type *s_ptr;
 	book_type *b_ptr;
-	const magic_type	*f_ptr;
+	const magic_type *f_ptr;
 
 	/* Not when confused */
 	if (p_ptr->confused)
@@ -1917,41 +1790,41 @@ void do_cmd_invoke(void)
 
 void do_cmd_mindcraft(void)
 {
-    int   n = 0,  b = 0;
-    int chance;
+	int   n = 0,  b = 0;
+	int chance;
 	book_type *b_ptr = MINDCRAFT_BOOK;
-    int psi = spell_skill(&b_ptr->info[0]);
+	int psi = spell_skill(&b_ptr->info[0]);
 	const magic_type *s_ptr;
-    
-    /* not if confused */
-    if (p_ptr->confused) {
+
+	/* not if confused */
+	if (p_ptr->confused) {
 	msg_print("You are too confused!");
 	return;
-    }
-    
+	}
+
 	/* get power */
 	if (!get_mindcraft_power(b_ptr, &n))  return;
-	
+
 	s_ptr = &b_ptr->info[n];
-    
-    /* Verify "dangerous" spells */
-    if (s_ptr->mana > p_ptr->cchi) {
+
+	/* Verify "dangerous" spells */
+	if (s_ptr->mana > p_ptr->cchi) {
 	/* Warning */
 	msg_print("You do not have enough chi to use this power.");
 	/* Verify */
 	if (!get_check("Attempt it anyway? ")) return;
-    }
-    
-    /* Spell failure chance */
-    chance = spell_chance(s_ptr);
+	}
 
-    /* Failed spell */
+	/* Spell failure chance */
+	chance = spell_chance(s_ptr);
+
+	/* Failed spell */
 	if (rand_int(100) < chance)
 	{
-	    if (flush_failure) flush();
-	    msg_print("You failed to concentrate hard enough!");
+		if (flush_failure) flush();
+		msg_print("You failed to concentrate hard enough!");
 
-	    if (randint(100) < (chance/2))
+		if (randint(100) < (chance/2))
 		{    /* Backfire */
 			b = randint(100);
 			if (b < 5)
@@ -1974,24 +1847,29 @@ void do_cmd_mindcraft(void)
 				add_flag(TIMED_STUN, randint(8));
 			}
 			else
-			{   /* Mana storm */
+			{   /* Mana storm (use a fake monster to let it hurt the player). */
+				m_list->r_idx = MON_CONCENTRATING_TOO_HARD;
+
 				msg_print("Your mind unleashes its power in an uncontrollable storm!");
-				project(1, 2+psi/10, py, px,
-                psi * 2, GF_MANA,PROJECT_JUMP|PROJECT_KILL|PROJECT_GRID|PROJECT_ITEM);
+				project(m_list, 2+psi/10, py, px, psi * 2, GF_MANA,
+					PROJECT_JUMP|PROJECT_KILL|PROJECT_GRID|PROJECT_ITEM);
+				b = p_ptr->cchi - psi * MAX(1, psi/10);
 				if (p_ptr->cchi < s_ptr->mana)
 				{
-				p_ptr->cchi = MAX(0, p_ptr->cchi - psi * MAX(1, psi/10));
-				} else {
-					p_ptr->cchi = MAX(s_ptr->mana, p_ptr->cchi - psi * MAX(1, psi/10));
+					p_ptr->cchi = MAX(0, b);
+				}
+				else
+				{
+					p_ptr->cchi = MAX(s_ptr->mana, b);
 				}
 			}
-	    }
+		}
 	}
 	else
 	{
 		/* Aborted. */
 		if (!use_spell(s_ptr)) return;
-		
+
 		/* Get some practice */
 		if (skill_set[SKILL_MINDCRAFTING].value < s_ptr->min * 2 + 50) {
 			skill_exp(SKILL_MINDCRAFTING);
@@ -2021,7 +1899,7 @@ void do_cmd_mindcraft(void)
 		msg_print("You faint from the effort!");
 
 		/* Hack -- Bypass free action */
-        (void)add_flag(TIMED_PARALYZED, randint(5 * oops + 1));
+		(void)add_flag(TIMED_PARALYZED, randint(5 * oops + 1));
 
 		/* Damage WIS (possibly permanently) */
 		if (rand_int(100) < 50)
@@ -2065,18 +1943,23 @@ void display_spell_list(void)
 #ifdef CHECK_ARRAYS
 
 /*
- * Check various things about the magic_info[] array.
+ * Check various things about the book_info[] array (and its associated spells).
  */
 void check_magic_info(void)
 {
 	cptr error = 0;
-	const book_type *b_ptr;
 	const magic_type *s_ptr;
 	char buf[1024];
-	int i;
-	for (b_ptr = book_info; b_ptr < END_PTR(book_info); b_ptr++)
+	int i, j;
+	for (j = 0; j < (int)N_ELEMENTS(book_info); j++)
 	{
-		if (!b_ptr->flags) quit_fmt("Book %d is empty.", b_ptr-book_info);
+		book_type *b_ptr = book_info+j;
+
+		if (b_ptr->idx != j) quit_fmt("Book %d has index %d", j, b_ptr->idx);
+
+		if (!b_ptr->flags) quit_fmt("Book %d is empty.", j);
+
+		if (!b_ptr->info) quit_fmt("Book %d has no spells.", j);
 
 		for (i = 0; i < MAX_SPELLS_PER_BOOK; i++)
 		{

@@ -2,8 +2,6 @@
 #
 # Contains possible names for medium level random weapon artefacts.
 
-106
-******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Skull Smasher'
 'Mauler'
 of Gideon

@@ -5,6 +5,104 @@ Based on Cthangband 4.1.0b and Zangband 2.1.0e
 Changes are added to the top of this file, so for a chronological order
 read from the bottom up.
 
+sCthangband 1.0.14
+* Skill improvements become rarer, and then impossible, if the player does
+  enough things without coming across a new object in the process.
+* An inscription of (e.g.) ~vf on an object causes the "throw" command to 
+  attempt to "fire" it instead.
+* Selecting "z" at an object prompt only selects squelched objects.
+* No feature can hide the player on the small scale map.
+* No two features have the same priority for the small scale map.
+* Objects can have default inscriptions which are given to identified items of
+  that type, or to all similar unidentified items.
+* Objects get a line in their "examine" text describing where they were found.
+* The inscribe_depth option no longer exists.
+* Names can be used for races, templates and sexes in initial stat dumps.
+* Monster spoilers give as much information as monster memory.
+* Player templates are defined in an external text file.
+* Monsters can be set to drop ego items in r_info.txt.
+* Fix the following bugs:
+  * The SUMMON_KIN flag created a lot of error messages but very little else.
+  * Starting the game with -n gave too many quests.
+  * Town monsters could be created elsewhere at level generation, and nothing
+    could be produced in the town.
+  * Birth options were set to the user-defined value inappropriately on loading.
+  * Gaining a chaos power opposed to another not possessed gave an odd message.
+  * Tried unaware objects never gained an inscription.
+  * spoil_value always gave a value of 1 for unaware objects.
+  * A few chaos powers allowed a target, but only understood directions.
+  * Two directions were ignored when something looked to escape an earthquake.
+  * Functions such as isdigit() and tolower() were called incorrectly.
+  * Aborting an object prompt gave a "no objects" error message.
+  * Non-fatal errors on loading gave a -more- prompt after the message had gone.
+  * Incorrect monster indices, etc., in pref files may have caused inappropriate
+    memory access.
+  * The spirit display on the map screen was squashed and inverted, and wasn't
+    redrawn when a new spirit was contacted.
+  * Aggravate monster scrolls, and most other sources of aggravation, did not
+    affect monster 1.
+
+sCthangband 1.0.13
+* Monsters do not recover from fear if they have too few HP to survive one of
+  your past attacks on them.
+* Monsters will not paralyse a paralysed character, and damaging attacks may
+  wake the player.
+* Generate dungeon-specific monsters asleep at level creation.
+* Never generate light-sensitive monsters during the day on the surface.
+* Seal the entrance to the orc tower during the day.
+* Allow coloured recall messages.
+* Ignore the "hidden" flag for objects shown in character dumps.
+* Allow the player to display the spell list of a charm in a shop.
+* Allow the wizard mode jump command to take the character to the surface.
+* Create a cheat option to prevent saving when the game quits normally.
+* Split the UI options into UI and display options.
+* Add a display option to prevent the game from using "fake monochrome".
+* Make the description of encumbering armour in the display menu clearer.
+* Correct/alter some documentation.
+* Fix the following bugs:
+  * Potions of detect invisible did nothing.
+  * Inscriptions containing ! could crash the game.
+  * Objects were described as "powerful" incorrectly.
+  * Identifying an object didn't always reveal its pval.
+  * The 'z' key could select items with curses the player knew nothing about.
+  * Compiling with BCC still led to frequent crashes.
+  * Characters could get a chaos power on creation if patrons were disabled.
+  * Some indirect help commands did not restore the screen after they finished.
+  * The find command in help often left the searched text off-screen.
+  * The game claimed that the character gained a chaos feature it already had.
+  * Mindflayers could gain tentacles by their mouths and lose them again from
+    their sides.
+  * skip_chaos_feature was always treated as being set.
+  * The player could try to refuel a lamp with itself.
+  * Messages given when destroying part of a stack referred to the total size.
+  * C and c (and possibly A and a) didn't work correctly in the visual prefs.
+  * Skeletons could multiply normal food by trying to eat some from a pile.
+  * Reduced stats were displayed incorrectly on the character screen.
+  * Removing (e.g.) a dagger (+0,+0) when carrying several gives an odd message.
+  * Unidentified objects could have spurious pvals, to-hit bonuses, etc., shown.
+  * Unidentified objects could have a real (unknown) pval shown.
+  * Death by failed mindcraft, etc., were attributed to a random monster.
+  * Pref lines such as "L:blindness:7:-1" weren't parsed correctly.
+  * "quest" was always pluralised in dumps.
+  * project_m() leaked memory if its buffers were allocated.
+  * pause_line() was called with an argument in some main* files.
+
+sCthangband 1.0.12
+* Dodging blows because of martial arts gives experience in the skill.
+* A player who is capable of martial arts gains a +5 AC bonus because of this.
+* Allow chaos patrons to be eliminated with a birth option.
+* Make the "chaos patron" corruption give extra chaos rewards, if allowed.
+* Add a special help file for new users.
+* Find the next copy of a string if a player searches for it twice in a file.
+* Pressing ? displays the skills help on the skill display screen.
+* Improve race, template and speed help.
+* Fix the following bugs:
+  * The game crashed during initialisation if compiled with BCC.
+  * Spoiler files could not be generated.
+  * The martial arts damage calculation was never actually used.
+  * The damage claimed for vorpal weapons was too low.
+  * Too many messages were given if the player has no room to pick something up.
+
 sCthangband 1.0.11
 * Regain SP and CHI, and become hungry, while resting in a house or inn.
 * Always benefit from stealth when attacking a sleeping monster.
@@ -30,7 +128,7 @@ sCthangband 1.0.11
 * Consider critical hits in calculating average weapon damage.
 * Calculate average martial arts damage fairly accurately.
 * The last object to be highlighted can be selected with !.
-* Avoid using energy whenever a magic device is used.
+* Avoid using energy whenever the player cancels using a magic device.
 * The game will attempt to increase the size of o_list and m_list as necessary
   with an appropriate compile-time option.
 * Give specific help for some spells if the player selects them with a capital

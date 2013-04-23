@@ -653,7 +653,7 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 			{
 				/* Draw pending attr/char pairs */
 				(void)((*Term->pict_hook)(fx, y, fn,
-				       &scr_aa[fx], &scr_cc[fx],&scr_taa[fx], &scr_tcc[fx]));
+						&scr_aa[fx], &scr_cc[fx],&scr_taa[fx], &scr_tcc[fx]));
 
 				/* Forget */
 				fn = 0;
@@ -979,6 +979,55 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 
 
 
+/*
+ * Clear the remembered version of a term_win on the current term and
+ * move the cursor to the top-left.
+ */
+static void Term_win_clear(term_win *win)
+{
+	int x, y;
+
+	int w = Term->wid;
+	int h = Term->hgt;
+
+	byte na = Term->attr_blank;
+	char nc = Term->char_blank;
+
+	/* Cursor usable */
+	win->cu = 0;
+
+	/* Cursor to the top left */
+	win->cx = win->cy = 0;
+
+	/* Wipe each row */
+	for (y = 0; y < h; y++)
+	{
+		byte *aa = win->a[y];
+		char *cc = win->c[y];
+
+		byte *taa = win->ta[y];
+		char *tcc = win->tc[y];
+
+		/* Wipe each column */
+		for (x = 0; x < w; x++)
+		{
+			*aa++ = na;
+			*cc++ = nc;
+
+			*taa++ = 0;
+			*tcc++ = 0;
+		}
+
+		/* This row has changed */
+		Term->x1[y] = 0;
+		Term->x2[y] = w - 1;
+	}
+
+	/* Every row has changed */
+	Term->y1 = 0;
+	Term->y2 = h - 1;
+}
+
 
 /*
  * Actually perform all requested changes to the window
@@ -1094,7 +1143,7 @@ static void Term_fresh_row_text(int y, int x1, int x2)
  */
 void Term_fresh(void)
 {
-	int x, y;
+	int y;
 
 	int w = Term->wid;
 	int h = Term->hgt;
@@ -1112,11 +1161,11 @@ void Term_fresh(void)
 
 	/* Trivial Refresh */
 	if ((y1 > y2) &&
-	    (scr->cu == old->cu) &&
-	    (scr->cv == old->cv) &&
-	    (scr->cx == old->cx) &&
-	    (scr->cy == old->cy) &&
-	    !(Term->total_erase))
+		(scr->cu == old->cu) &&
+		(scr->cv == old->cv) &&
+		(scr->cx == old->cx) &&
+		(scr->cy == old->cy) &&
+		!(Term->total_erase))
 	{
 		/* Nothing */
 		return /*(1)*/;
@@ -1133,49 +1182,21 @@ void Term_fresh(void)
 	/* Handle "total erase" */
 	if (Term->total_erase)
 	{
-		byte na = Term->attr_blank;
-		char nc = Term->char_blank;
-
 		/* Physically erase the entire window */
 		Term_xtra(TERM_XTRA_CLEAR, 0);
 
-		/* Hack -- clear all "cursor" data */
-		old->cv = old->cu = old->cx = old->cy = 0;
+		/* Hide the cursor. */
+		old->cv = 0;
 
-		/* Wipe each row */
-		for (y = 0; y < h; y++)
-		{
-			byte *aa = old->a[y];
-			char *cc = old->c[y];
-
-			byte *taa = old->ta[y];
-			char *tcc = old->tc[y];
-
-			/* Wipe each column */
-			for (x = 0; x < w; x++)
-			{
-				/* Wipe each grid */
-				*aa++ = na;
-				*cc++ = nc;
-
-				*taa++ = 0;
-				*tcc++ = 0;
-			}
-		}
-
-		/* Redraw every row */
-		Term->y1 = y1 = 0;
-		Term->y2 = y2 = h - 1;
-
-		/* Redraw every column */
-		for (y = 0; y < h; y++)
-		{
-			Term->x1[y] = 0;
-			Term->x2[y] = w - 1;
-		}
+		/* Clear the displayed screen image. */
+		Term_win_clear(old);
 
 		/* Forget "total erase" */
 		Term->total_erase = FALSE;
+
+		/* Update local stuff. */
+		y1 = Term->y1;
+		y2 = Term->y2;
 	}
 
 
@@ -1448,15 +1469,15 @@ void Term_draw(int x, int y, byte a, char c)
  * positive value (warning), future calls to either function will
  * return negative ones (errors).
  */
-errr Term_addch(byte a, char c)
+void Term_addch(byte a, char c)
 {
 	int w = Term->wid;
 
 	/* Handle "unusable" cursor */
-	if (Term->scr->cu) return TERM_ERROR_OUT_OF_BOUNDS;
+	if (Term->scr->cu) return /* TERM_ERROR_OUT_OF_BOUNDS */;
 
 	/* Paranoia -- no illegal chars */
-	if (!c) return TERM_ERROR_BAD_INPUT;
+	if (!c) return /* TERM_ERROR_BAD_INPUT */;
 
 	/* Queue the given character for display */
 	Term_queue_char(Term->scr->cx, Term->scr->cy, a, c, 0, 0);
@@ -1465,13 +1486,13 @@ errr Term_addch(byte a, char c)
 	Term->scr->cx++;
 
 	/* Success */
-	if (Term->scr->cx < w) return SUCCESS;
+	if (Term->scr->cx < w) return /* SUCCESS */;
 
 	/* Note "Useless" cursor */
 	Term->scr->cu = 1;
 
 	/* Note "Useless" cursor */
-	return WARN(TERM_ERROR_OUT_OF_BOUNDS);
+	return /* WARN(TERM_ERROR_OUT_OF_BOUNDS) */;
 }
 
 
@@ -1494,7 +1515,7 @@ errr Term_addch(byte a, char c)
  * positive value, future calls to either function will
  * return negative ones.
  */
-errr Term_addstr(int n, byte a, cptr s)
+void Term_addstr(int n, byte a, cptr s)
 {
 	int k;
 
@@ -1503,7 +1524,7 @@ errr Term_addstr(int n, byte a, cptr s)
 	errr res = 0;
 
 	/* Handle "unusable" cursor */
-	if (Term->scr->cu) return TERM_ERROR_OUT_OF_BOUNDS;
+	if (Term->scr->cu) return /* TERM_ERROR_OUT_OF_BOUNDS */;
 
 	/* Obtain maximal length */
 	k = (n < 0) ? (w + 1) : n;
@@ -1524,7 +1545,7 @@ errr Term_addstr(int n, byte a, cptr s)
 	if (res) Term->scr->cu = 1;
 
 	/* Success (usually) */
-	return (res);
+	return /* (res) */;
 }
 
 
@@ -1533,16 +1554,11 @@ errr Term_addstr(int n, byte a, cptr s)
  */
 void Term_putch(int x, int y, byte a, char c)
 {
-	errr res;
-
 	/* Move first */
-	if ((res = Term_gotoxy(x, y)) != 0) return /* (res) */;
+	if (Term_gotoxy(x, y)) return;
 
 	/* Then add the char */
-	if ((res = Term_addch(a, c)) != 0) return /* (res) */;
-
-	/* Success */
-	return /* (0) */;
+	Term_addch(a, c);
 }
 
 
@@ -1551,16 +1567,11 @@ void Term_putch(int x, int y, byte a, char c)
  */
 void Term_putstr(int x, int y, int n, byte a, cptr s)
 {
-	errr res;
-
 	/* Move first */
-	if ((res = Term_gotoxy(x, y)) != 0) return /* (res) */;
+	if (Term_gotoxy(x, y)) return;
 
 	/* Then add the string */
-	if ((res = Term_addstr(n, a, s)) != 0) return /* (res) */;
-
-	/* Success */
-	return /* (0) */;
+	Term_addstr(n, a, s);
 }
 
 
@@ -1588,7 +1599,7 @@ errr Term_erase(int x, int y, int n)
 	char *scr_tcc;
 
 	/* Place cursor */
-	if (Term_gotoxy(x, y)) return (-1);
+	if (Term_gotoxy(x, y)) return TERM_ERROR_OUT_OF_BOUNDS;
 
 	/* Force legal size */
 	if (x + n > w) n = w - x;
@@ -1612,7 +1623,7 @@ errr Term_erase(int x, int y, int n)
 		/* Save the "literal" information */
 		scr_aa[x] = na;
 		scr_cc[x] = nc;
-		
+
 		scr_taa[x] = 0;
 		scr_tcc[x] = 0;
 
@@ -1636,7 +1647,7 @@ errr Term_erase(int x, int y, int n)
 	}
 
 	/* Success */
-	return (0);
+	return SUCCESS;
 }
 
 
@@ -1645,55 +1656,13 @@ errr Term_erase(int x, int y, int n)
  *
  * Note the use of the special "total_erase" code
  */
-errr Term_clear(void)
+void Term_clear(void)
 {
-	int x, y;
-
-	int w = Term->wid;
-	int h = Term->hgt;
-
-	byte na = Term->attr_blank;
-	char nc = Term->char_blank;
-
-	/* Cursor usable */
-	Term->scr->cu = 0;
-
-	/* Cursor to the top left */
-	Term->scr->cx = Term->scr->cy = 0;
-
-	/* Wipe each row */
-	for (y = 0; y < h; y++)
-	{
-		byte *scr_aa = Term->scr->a[y];
-		char *scr_cc = Term->scr->c[y];
-
-		byte *scr_taa = Term->scr->ta[y];
-		char *scr_tcc = Term->scr->tc[y];
-
-		/* Wipe each column */
-		for (x = 0; x < w; x++)
-		{
-			scr_aa[x] = na;
-			scr_cc[x] = nc;
-
-			scr_taa[x] = 0;
-			scr_tcc[x] = 0;
-		}
-
-		/* This row has changed */
-		Term->x1[y] = 0;
-		Term->x2[y] = w - 1;
-	}
-
-	/* Every row has changed */
-	Term->y1 = 0;
-	Term->y2 = h - 1;
+	/* Clear the requested screen image. */
+	Term_win_clear(Term->scr);
 
 	/* Force "total erase" */
 	Term->total_erase = TRUE;
-
-	/* Success */
-	return (0);
 }
 
 
@@ -1703,23 +1672,20 @@ errr Term_clear(void)
 /*
  * Redraw (and refresh) the whole window.
  */
-errr Term_redraw(void)
+void Term_redraw(void)
 {
 	/* Force "total erase" */
 	Term->total_erase = TRUE;
 
 	/* Hack -- Refresh */
 	Term_fresh();
-
-	/* Success */
-	return (0);
 }
 
 
 /*
  * Redraw part of a widow.
  */
-errr Term_redraw_section(int x1, int y1, int x2, int y2)
+void Term_redraw_section(int x1, int y1, int x2, int y2)
 {
 	int i, j;
 
@@ -1754,9 +1720,6 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 
 	/* Hack -- Refresh */
 	Term_fresh();
-
-	/* Success */
-	return (0);
 }
 
 
@@ -1773,40 +1736,28 @@ void Term_get_cursor(bool *v)
 {
 	/* Extract visibility */
 	(*v) = Term->scr->cv;
-
-	/* Success (?) */
-	return;
 }
 
 
 /*
  * Extract the current window size
  */
-errr Term_get_size(int *w, int *h)
+void Term_get_size(int *w, int *h)
 {
 	/* Access the cursor */
 	(*w) = Term->wid;
 	(*h) = Term->hgt;
-
-	/* Success */
-	return (0);
 }
 
 
 /*
  * Extract the current cursor location
  */
-errr Term_locate(int *x, int *y)
+void Term_locate(int *x, int *y)
 {
 	/* Access the cursor */
 	(*x) = Term->scr->cx;
 	(*y) = Term->scr->cy;
-
-	/* Warn about "useless" cursor */
-	if (Term->scr->cu) return (1);
-
-	/* Success */
-	return (0);
 }
 
 
@@ -2011,7 +1962,7 @@ errr Term_inkey(char *ch, bool wait, bool take)
 /* The size of the term_wins[] array. This should be chosen so that it is at
  * least as high as the greatest number of displays the game will have saved
  * at once. */
-#define NUM_TERM_WINS	8
+#define NUM_TERM_WINS 8
 
 static int cur_saved_term = 0;
 

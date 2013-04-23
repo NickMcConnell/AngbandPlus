@@ -1,0 +1,182 @@
+# File: template.txt
+
+# This file is used to initialize the "lib/raw/template.raw" file, which is
+# used to initialize the "template" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, you may need to delete the "lib/raw/template.raw"
+# file.
+
+# === Understanding template.txt ===
+
+# N: index : name
+# X: choices
+# S: strength : intelligence : wisdom : dexterity : constitution : charisma
+# A: bias 1 : bias 2 : bias 2 chance
+# K: close=XX : slashing=XX : ...
+# E: k<k_idx> : e<ego type> : a<artefact num> : (<min no.>-<max no.>)
+# O: k<k_idx> : e<ego type> : a<artefact num> : (<min no.>-<max no.>)
+
+# 'N' starts off each entry, giving the name of the template and an index which
+# identifies it in save files.
+
+# 'X' contains some extra information. This currently gives the number of
+# opportunities the player gets to improve hermetic magic schools above the
+# base values.
+
+# 'S' gives the permanent stat modifiers for this template.
+
+# 'A' gives the bias sometimes used when a scroll of artefact creation is used
+# on a suitable item. 3/4 of the time, no such bias is used (a bias will often
+# be added during creation, but this is entirely random). If a bias is used,
+# this is "bias 2" "bias 2 chance"% of the time, and "bias 1" otherwise.
+# See macro.txt for some valid bias values (0, meaning no bias, is also
+# acceptable).
+
+# 'K' gives the skill bonuses for this template. The full names of skills as
+# shown on the skill screen can be used, as can any abbreviation which cannot
+# be confused.
+
+# E and O gives up to three objects characters with this template start with.
+# There can be up to three E lines, each of which will be given to a character
+# of a race with no intrinsic resistances.
+
+# If there is an O line, and the E line before it indicates a piece of equipment
+# which is entirely redundant with the player's race (e.g. a ring of free action
+# for a dwarf), the object described in the O line will be given instead.
+
+# Note that the player will also gain some basic equipment (typically food and
+# torches), and characters with some spell points also gain a useful spellbook.
+
+# Version stamp (required)
+
+V:1.0.14
+
+N:0:Adventurer
+S:3:1:-1:2:2:-1
+A:Rogue:Warrior:25
+K:Tough=1:Disarm=5:Devices=5:Resist=20:Stealth=5:Search=5:Perception=10
+K:Close=20:Missile=20:Stab=20:Slash=20:Crush=20:Hedge=5:Sensing=20
+E:Fear Resistance
+O:Sustain Strength
+E:& Cutlass~
+E:& Lump~ of Sulphur
+
+N:1:Swashbuckler
+S:1:0:-2:3:2:1
+A:Warrior:0:0
+K:Tough=1:Disarm=5:Devices=5:Resist=15:Stealth=5:Search=5:Perception=15
+K:Close=15:Missile=15:Stab=35:Slash=15:Crush=15:Sensing=30
+E:k274
+E:& Rapier~
+E:Hard Leather Armour~
+
+N:2:Gladiator
+S:5:-1:-1:1:3:-1
+A:Warrior:0:0
+K:Tough=2:Disarm=5:Devices=5:Resist=10:Stealth=5:Search=5:Perception=10
+K:Close=30:Missile=10:Martial=1:Stab=30:Slash=30:Crush=30:Sensing=40
+E:Free Action
+O:Fear Resistance
+E:& Broad Sword~
+E:& Small Metal Shield~
+
+N:3:Warrior-Monk
+S:2:0:-2:5:1:-1
+A:Warrior:0:0
+K:Tough=1:Disarm=5:Devices=5:Resist=10:Stealth=15:Search=5:Perception=15
+K:Close=35:Missile=10:Martial=4:Stab=10:Slash=10:Crush=10:Sensing=30
+E:Sustain Dexterity
+O:Sustain Strength
+E:Monster Confusion
+E:Soft Leather Armour~
+
+N:4:Zen-Monk
+S:2:-1:2:2:0:-1
+A:Priest:0:40
+K:Disarm=5:Devices=5:Resist=10:Stealth=10:Search=10:Perception=15:Sensing=40
+K:Close=25:Missile=10:Martial=2:Mindcraft=1:Chi=1:Stab=10:Slash=10:Crush=10
+E:Sustain Wisdom
+O:Sustain Constitution
+E:Soft Leather Armour~
+E:Monster Confusion
+
+N:5:Assassin
+S:1:0:0:3:2:-2
+A:Rogue:Warrior:25
+K:Disarm=20:Devices=5:Resist=10:Stealth=30:Search=20:Perception=20
+K:Close=30:Missile=10:Stab=20:Slash=20:Crush=20:Sensing=30
+E:Poison Resistance
+O:Disenchantment Resistance
+E:EGO:& Dagger~:of Poisoning
+E:Soft Leather Armour~
+
+N:6:Ranger
+S:2:-1:-1:3:3:2
+A:Ranger:Warrior:30
+K:Tough=1:Disarm=10:Devices=5:Resist=10:Stealth=20:Search=20:Perception=30
+K:Close=15:Missile=35:Stab=15:Slash=15:Crush=15:Spirit=2:Sensing=10
+E:& Long Bow~
+E:& Arrow~:(15-45)
+E:Hard Leather Armour~
+
+N:7:Shaman
+S:-1:1:1:-2:2:5
+A:Priest:0:0
+K:Disarm=5:Devices=10:Resist=20:Stealth=5:Search=10:Perception=15
+K:Close=15:Missile=15:Stab=15:Slash=15:Crush=15:Spirit=5:Sensing=20
+E:& Quarterstaff~
+E:k283
+E:Protection from Evil
+
+N:8:Mindcrafter
+S:-2:2:5:-1:0:1
+A:Priest:0:40
+K:Disarm=5:Devices=10:Resist=15:Stealth=5:Search=10:Perception=15
+K:Close=15:Missile=15:Mindcraft=4:Chi=2:Stab=15:Slash=15:Crush=15:Sensing=15
+E:Sustain Wisdom
+O:Confusion Resistance
+E:& Short Sword~
+E:Soft Leather Armour~
+
+N:9:Wizard
+S:-2:5:2:1:-1:1
+A:Mage:0:0
+K:Mana=4:Disarm=5:Devices=25:Resist=20:Stealth=5:Search=10:Perception=15
+K:Close=10:Missile=10:Stab=10:Slash=10:Crush=10:Sensing=5
+E:Sustain Intelligence
+O:Light and Darkness Resistance
+E:Restore Mana
+E:Soft Leather Armour~
+
+N:10:Warlock
+S:1:3:-1:0:2:-1
+A:Mage:0:0
+K:Tough=1:Mana=2:Disarm=5:Devices=10:Resist=15:Stealth=5:Search=10
+K:Perception=10:Close=15:Missile=10:Stab=15:Slash=15:Crush=20:Sensing=10
+E:Sustain Intelligence
+O:Sustain Strength
+E:& Small Sword~
+E:Soft Leather Armour~
+
+N:11:Powerweaver
+S:-3:3:3:-2:-2:3
+A:Mage:0:0
+K:Mana=2:Disarm=5:Devices=15:Resist=15:Stealth=5:Search=10:Perception=10
+K:Close=5:Missile=5:Mindcraft=3:Chi=2:Stab=5:Slash=5:Crush=5:Spirit=3:Sensing=10
+E:Sustain Intelligence
+O:See Invisible
+E:Sustain Wisdom
+O:Light and Darkness Resistance
+E:Restore Mana
+
+N:12:Tourist
+S:0:0:0:0:2:-1
+A:Rogue:Warrior:25
+K:Disarm=5:Devices=5:Resist=5:Stealth=5:Search=5:Perception=5
+K:Close=10:Missile=10:Stab=10:Slash=10:Crush=10:Sensing=20
+E:& Dagger~
+E:& Pair~ of Hard Leather Boots
+E:& Cloak~

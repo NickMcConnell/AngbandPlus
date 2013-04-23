@@ -1,0 +1,24 @@
+%%%%% <beginner.txt>
+Help for new players
+====================
+
+(For detailed navigation instructions, press *****/?hlponhlp.txt*[?].)
+
+Hello, and welcome to sCthangband.
+
+As you have now created a character, you may be wondering what you should do next. The game will place your character in a town, the name of which is printed below the main map display. There will be a variety of shops here which offer a variety of goods and services. These are represented by capital letters and numbers (the shops a town may have are described *****shops*[here], but not every towns has every type). You may want to visit shop 1 to buy a lantern and shop 2 for some armour. If you have a spell book, you should visit shop 9 to learn a spell from it to cast in the dungeon.
+
+You can leave the town by passing through the gates (') or going down the stairs (>). The latter is recommended at first, as the wilderness beyond the gates is more dangerous than the first few dungeon levels as well as being less rewarding.
+
+Once you do feel strong enough to brave the wilderness, you should first examine the world map (accessed by pressing *****cmd=M*[M] on the surface) to find the various dungeons and towers which are scattered around it. You can explore the sewers under one of the other *****towns*[towns], or some of the shallower *****dungeons*[dungeons and towers]. You should avoid the more dangerous dungeons at first, as there are likely to be powerful monsters lurking nearby.
+
+One important point on which sCthangband differs from most similar games is the speed system. Instead of a monster and a player at +0 speed having alternate turns for almost any action, the speed of both parties also depends on what action each performs. More details are given *****speed.txt*[here].
+
+You can read further instructions from the *****help.hlp*[main menu], which can normally be accessed by pressing ? when the game is waiting for a command. This file can be accessed by pressing ?, then a.
+
+You may like to do so even if you think you know what will be there. Some things
+have changed...
+
+If you do not wish to see this file again, you may prevent it from being shown at the start of the game by pressing =, then 1, then Return until the "beginner_help" is shown and then N.
+
+One final warning - there are some powerful monsters out there which are hazardous to look at, and some which can even call on others to avenge themselves from beyond the grave. So beware!

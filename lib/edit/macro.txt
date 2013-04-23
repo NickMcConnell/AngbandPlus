@@ -68,7 +68,7 @@
 
 # Version stamp (required)
 
-V:1.0.11
+V:1.0.14
 
 # There are several macros which apply to all files used by object_desc().
 # To simplify things, these macros create them with a single line.
@@ -97,6 +97,14 @@ X:#:object_desc() names
 A:F:o_base:N:3
 F:macros:#
 
+X:#:object_desc() names
+A:F:template:O
+F:macros:#
+
+X:#:object_desc() names
+A:F:template:E
+F:macros:#
+
 X:#:monster_desc() names
 A:F:r_info:N:3
 F:macros:#
@@ -109,6 +117,14 @@ F:macros:#
 
 X:#:feature_desc() names
 A:F:f_info:N:3
+F:macros:#
+
+# Simplify pluralisation rules.
+
+X:#:plural names
+A:#:monster_desc() names
+A:#:object_desc() names
+A:#:feature_desc() names
 F:macros:#
 
 # % masking (part 2)
@@ -159,16 +175,19 @@ X:%=P
 M:4
 #:object_desc() names
 #:monster_desc() names
+#:feature_desc() names
 
 X:%+P
 M:12
 #:object_desc() names
 #:monster_desc() names
+#:feature_desc() names
 
 X:%-P
 M:20
 #:object_desc() names
 #:monster_desc() names
+#:feature_desc() names
 
 X:%=E
 M:5
@@ -649,7 +668,7 @@ A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Gold
-A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
 # All artefacts ignore the elements
@@ -1548,67 +1567,63 @@ F:k_info:W:3
 
 X:~
 Y:%+Ps%=P
-#:monster_desc() names
-#:object_desc() names
+#:plural names
 
 X:s~
 Y:s%+Pes%=P
-#:monster_desc() names
-#:object_desc() names
+#:plural names
 
 X:ch~
 Y:ch%+Pes%=P
-#:monster_desc() names
-#:object_desc() names
+#:plural names
 
 X:ich~
 Y:ich%+Ps%=P
-#:monster_desc() names
-#:object_desc() names
+#:plural names
 
 X:y~
 Y:%-Py%+Pies%=P
-#:monster_desc() names
+#:plural names
 
 X:ouse~
 Y:%-Pous%+Pic%=Pe
-#:monster_desc() names
+#:plural names
 
 X:ay~
 Y:ay%+Ps%=P
-#:monster_desc() names
+#:plural names
 
 X:thief~
 Y:thie%-Pf%+Pves%=P
-#:monster_desc() names
+#:plural names
 
 X:olf~
 Y:ol%-Pf%+Pves%=P
-#:monster_desc() names
+#:plural names
 
 X:ex~
 Y:%-Pex%+Pices%=P
-#:monster_desc() names
+#:plural names
 
 X: Man~
 Y: M%-Pa%+Pe%=Pn
-#:monster_desc() names
+#:plural names
 
 X:kelman~
 Y:kelm%-Pa%+Pe%=Pn
-#:monster_desc() names
+#:plural names
 
 X:Townsman~
 Y:Townsm%-Pa%+Pe%=Pn
-#:monster_desc() names
+#:plural names
 
 X:child~
 Y:child%+Pren%=P
-#:monster_desc() names
+#:plural names
 
 X:lous~
 Y:l%-Pous%+Pi%=P
-#:monster_desc() names
+#:plural names
 
 # Variable default timeouts for rods
 
@@ -1869,3 +1884,80 @@ X:random pval
 Y:30
 F:k_info:I:4
 
+# Randart biases for template.txt.
+
+X:Electricity
+Y:1
+F:template:A
+
+X:Poison
+Y:2
+F:template:A
+
+X:Fire
+Y:3
+F:template:A
+
+X:Cold
+Y:4
+F:template:A
+
+X:Acid
+Y:5
+F:template:A
+
+X:Strength
+Y:6
+F:template:A
+
+X:Intelligence
+Y:7
+F:template:A
+
+X:Wisdom
+Y:8
+F:template:A
+
+X:Dexterity
+Y:9
+F:template:A
+
+X:Constitution
+Y:10
+F:template:A
+
+X:Charisma
+Y:11
+F:template:A
+
+X:Chaos
+Y:12
+F:template:A
+
+X:Priest
+Y:13
+F:template:A
+
+X:Necromancer
+Y:14
+F:template:A
+
+X:Law
+Y:15
+F:template:A
+
+X:Rogue
+Y:16
+F:template:A
+
+X:Mage
+Y:17
+F:template:A
+
+X:Warrior
+Y:18
+F:template:A
+
+X:Ranger
+Y:19
+F:template:A

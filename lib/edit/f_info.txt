@@ -14,10 +14,14 @@
 
 # Note that terrain feature zero contains the "darkness" picture.
 
+# Note that this file has no effect on which features the game produces, but
+# only on how they are displayed.
+
 # === Understanding f_info.txt ===
 
 # N:serial number:terrain name
 # G:priority:symbol:color
+# M:feature to mimic
 
 # N' indicates the beginning of an entry. The serial number must
 # increase for each new item.
@@ -32,415 +36,423 @@
 # d - Black        W - Light Gray     v - Violet        y - Yellow
 # R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
 
+# 'M' is the index of a feature to mimic. If an entry has such a field, the
+# feature with that index is used for graphical information instead of the
+# current one.
+
+# An entry with an 'M' line should not have a 'G' one, as mimicry replaces this
+# information. Similarly, the index given should be that of a feature with a 'G'
+# line, as the graphics of that feature will be used.
+
 
 # Version stamp (required)
 
-V:1.0.11
+V:1.0.14
 
 
-# 0x00 --> nothing
+# 0x00 --> unknown
 
-N:0:nothing
-G:2: :w
+N:0:& unknown grid~
+G:3: :w
 
 
 # 0x01 --> open floor
 
 N:1:open floor
-G:5:.:w
+G:6:.:w
 
 # 0x02 --> invisible trap (drawn as open floor)
 
-N:2:& invisible trap
+N:2:& invisible trap~
 M:1
 
 # 0x03 --> glyph of warding
 
-N:3:& glyph of warding
-G:100:;:y
+N:3:& glyph~ of warding
+G:84:;:y
 
 # 0x04 --> open door
 
-N:4:& open door
-G:15:':U
+N:4:& open door~
+G:55:':U
 
 # 0x05 --> broken door
 
-N:5:& broken door
-G:15:':U
+N:5:& broken door~
+G:54:':u
 
 # 0x06 --> up stairs (perm)
 
-N:6:& up staircase
-G:110:<:w
+N:6:& up staircase~
+G:88:<:w
 
 # 0x07 --> down stairs (perm)
 
-N:7:& down staircase
-G:110:>:w
+N:7:& down staircase~
+G:87:>:w
 
 # 0x08 --> Path
 
-N:8:& path
-G:100:.:y
+N:8:& path~
+G:9:.:y
 
-# 0x09 --> nothing (has been checked for traps)
+# 0x09 --> unknown (has been checked for traps)
 
-N:9:nothing (checked for traps)
-G:3:.:u
+N:9:& unknown grid~ (checked for traps)
+G:4:.:u
 
 # 0x0A --> unmapped squares - used when the level is smaller than the window.
 # This isn't shown on the small-scale map, so its priority is unused.
 
-N:10:& unmapped square
+N:10:& unmapped square~
 G:0: :d
 
 # 0x0B-0x0F unused.
 
 # 0x10 --> visible trap -- trap door
 
-N:16:& trap door
-G:100:^:w
+N:16:& trap door~
+G:71:^:w
 
 # 0x11 --> visible trap -- open pit
 
-N:17:& pit
-G:100:^:s
+N:17:& pit~
+G:66:^:s
 
 # 0x12 --> visible trap -- spiked pit
 
-N:18:& pit
+N:18:& pit~
 M:17
 
 # 0x13 --> visible trap -- poison pit
 
-N:19:& pit
+N:19:& pit~
 M:17
 
 # 0x14 --> visible trap -- rune -- summon
 
-N:20:& strange rune
-G:100:^:o
+N:20:& strange rune~
+G:70:^:o
 
 # 0x15 --> visible trap -- rune -- teleport
 
-N:21:& strange rune
+N:21:& strange rune~
 M:20
 
 # 0x16 --> visible trap -- spot -- fire
 
-N:22:& discolored spot
-G:100:^:u
+N:22:& discolored spot~
+G:68:^:u
 
 # 0x17 --> visible trap -- spot -- acid
 
-N:23:& discolored spot
+N:23:& discolored spot~
 M:22
 
 # 0x18 --> visible trap -- dart -- slow
 
-N:24:& dart trap
-G:100:^:r
+N:24:& dart trap~
+G:68:^:r
 
 # 0x19 --> visible trap -- dart -- lose str
 
-N:25:& dart trap
+N:25:& dart trap~
 M:24
 
 # 0x1A --> visible trap -- dart -- lose dex
 
-N:26:& dart trap
+N:26:& dart trap~
 M:24
 
 # 0x1B --> visible trap -- dart -- lose con
 
-N:27:& dart trap
+N:27:& dart trap~
 M:24
 
 # 0x1C --> visible trap -- gas -- blind
 
-N:28:& gas trap
-G:100:^:g
+N:28:& gas trap~
+G:67:^:g
 
 # 0x1D --> visible trap -- gas -- confuse
 
-N:29:& gas trap
+N:29:& gas trap~
 M:28
 
 # 0x1E --> visible trap -- gas -- poison
 
-N:30:& gas trap
+N:30:& gas trap~
 M:28
 
 # 0x1F --> visible trap -- gas -- sleep
 
-N:31:& gas trap
+N:31:& gas trap~
 M:28
 
 # 0x2x --> locked door (power 0)
 
-N:32:& door
-G:17:+:U
+N:32:& door~
+G:57:+:U
 
 # 0x2x --> locked door (power 1)
 
-N:33:& locked door
+N:33:& locked door~
 M:32
 
 # 0x2x --> locked door (power 2)
 
-N:34:& locked door
+N:34:& locked door~
 M:32
 
 # 0x2x --> locked door (power 3)
 
-N:35:& locked door
+N:35:& locked door~
 M:32
 
 # 0x2x --> locked door (power 4)
 
-N:36:& locked door
+N:36:& locked door~
 M:32
 
 # 0x2x --> locked door (power 5)
 
-N:37:& locked door
+N:37:& locked door~
 M:32
 
 # 0x2x --> locked door (power 6)
 
-N:38:& locked door
+N:38:& locked door~
 M:32
 
 # 0x2x --> locked door (power 7)
 
-N:39:& locked door
+N:39:& locked door~
 M:32
 
 # 0x2x --> jammed door (power 0)
 
-N:40:& jammed door
+N:40:& jammed door~
 M:32
 
 # 0x2x --> jammed door (power 1)
 
-N:41:& jammed door
+N:41:& jammed door~
 M:32
 
 # 0x2x --> jammed door (power 2)
 
-N:42:& jammed door
+N:42:& jammed door~
 M:32
 
 # 0x2x --> jammed door (power 3)
 
-N:43:& jammed door
+N:43:& jammed door~
 M:32
 
 # 0x2x --> jammed door (power 4)
 
-N:44:& jammed door
+N:44:& jammed door~
 M:32
 
 # 0x2x --> jammed door (power 5)
 
-N:45:& jammed door
+N:45:& jammed door~
 M:32
 
 # 0x2x --> jammed door (power 6)
 
-N:46:& jammed door
+N:46:& jammed door~
 M:32
 
 # 0x2x --> jammed door (power 7)
 
-N:47:& jammed door
+N:47:& jammed door~
 M:32
 
 # 0x30 --> secret door
 
-N:48:& secret door
+N:48:& secret door~
 M:56
 
 # 0x31 --> rubble
 
-N:49:& pile of rubble
-G:13:::w
+N:49:& pile~ of rubble
+G:33:::w
 
 # 0x32 --> magma vein
 
-N:50:& magma vein
-G:12:%:s
+N:50:& magma vein~
+G:18:%:s
 
 # 0x33 --> quartz vein
 
-N:51:& quartz vein
-G:11:%:w
+N:51:& quartz vein~
+G:21:%:w
 
 # 0x34 --> magma vein + treasure
 
-N:52:& magma vein
+N:52:& magma vein~
 M:50
 
 # 0x35 --> quartz vein + treasure
 
-N:53:& quartz vein
+N:53:& quartz vein~
 M:51
 
 # 0x36 --> magma vein + known treasure
 
-N:54:& magma vein with treasure
-G:19:*:o
+N:54:& magma vein~ with treasure
+G:36:*:o
 
 # 0x37 --> quartz vein + known treasure
 
-N:55:& quartz vein with treasure
-G:19:*:o
+N:55:& quartz vein~ with treasure
+G:37:*:U
 
 # 0x38 --> granite wall -- basic
 
-N:56:& granite wall
-G:100:#:w
+N:56:& granite wall~
+G:12:#:w
 
 # 0x39 --> granite wall -- inner
 
-N:57:& granite wall
+N:57:& granite wall~
 M:56
 
 # 0x3A --> granite wall -- outer
 
-N:58:& granite wall
+N:58:& granite wall~
 M:56
 
 # 0x3B --> granite wall -- solid
 
-N:59:& granite wall
+N:59:& granite wall~
 M:56
 
 # 0x3C --> permanent wall -- building (perm)
 
-N:60:& building wall
-G:50:#:w
+N:60:& building wall~
+G:15:#:w
 
 # 0x3D --> permanent wall -- inner (perm)
 
-N:61:& permanent wall
-G:100:#:w
+N:61:& permanent wall~
+G:16:#:w
 
 
 # 0x3E --> permanent wall -- outer (perm)
 
-N:62:& permanent wall
+N:62:& permanent wall~
 M:61
 
 # 0x3F --> permanent wall -- solid (perm)
 
-N:63:& permanent wall
+N:63:& permanent wall~
 M:61
 
-N:64:& explosive rune
-G:100:*:R
+N:64:& explosive rune~
+G:85:*:R
 
-N:65:& Pattern startpoint
-G:100:*:w
+N:65:& Pattern startpoint~
+G:79:*:w
 
-N:66:& section of the Pattern
-G:100:*:B
+N:66:& section~ of the Pattern
+G:74:*:B
 
-N:67:& section of the Pattern
-G:100:*:b
+N:67:& section~ of the Pattern
+G:75:*:b
 
-N:68:& section of the Pattern
-G:100:*:B
+N:68:& section~ of the Pattern
+G:76:*:B
 
 N:69:& section of the Pattern
-G:100:*:b
+G:77:*:b
 
-N:70:& section of the Pattern
-G:100:*:W
+N:70:& section~ of the Pattern
+G:78:*:W
 
-N:71:& section of the Pattern (discharged)
-G:100:*:W
+N:71:& section~ of the Pattern (discharged)
+G:80:*:W
 
-N:72:& Pattern exit
-G:100:*:w
+N:72:& Pattern exit~
+G:81:*:w
 
-N:73:& corrupted section of the Pattern
-G:100:*:D
+N:73:& corrupted section~ of the Pattern
+G:82:*:D
 
 # 0x08 --> shop -- general store (perm)
 
-N:74:& General Store
-G:75:1:U
+N:74:& General Store~
+G:39:1:U
 
 # 0x09 --> shop -- armoury (perm)
 
-N:75:& Armoury
-G:75:2:s
+N:75:& Armoury~
+G:40:2:s
 
 # 0x0A --> shop -- weapon shop (perm)
 
 N:76:& Weapon Smiths
-G:75:3:w
+G:41:3:w
 
 # 0x0B --> shop -- temple (perm)
 
-N:77:& Temple
-G:75:4:g
+N:77:& Temple~
+G:42:4:g
 
 # 0x0C --> shop -- alchemist (perm)
 
-N:78:& Alchemy Shop
-G:75:5:b
+N:78:& Alchemy Shop~
+G:43:5:b
 
 # 0x0D --> shop -- magic shop (perm)
 
-N:79:& Magic Shop
-G:75:6:r
+N:79:& Magic Shop~
+G:44:6:r
 
 # 0x0E --> shop -- black market (perm)
 
-N:80:& Black Market
-G:75:7:D
+N:80:& Black Market~
+G:45:7:D
 
 # 0x0F --> shop -- home (perm)
 
-N:81:& Home
-G:75:8:y
+N:81:& Home~
+G:46:8:y
 
 # 0x0F --> shop -- Bookstore (perm)
 
-N:82:& Bookstore
-G:75:9:o
+N:82:& Bookstore~
+G:47:9:o
 
-N:83:& Inn
-G:75:I:w
+N:83:& Inn~
+G:48:I:w
 
-N:84:& Hall of Records
-G:75:H:y
+N:84:& Hall~ of Records
+G:49:H:y
 
 N:85:& Pawnbrokers
-G:75:P:g
+G:50:P:g
 
 # 86-95 unused.
 
-N:96:& town gate
-G:100:+:u
+N:96:& town gate~
+G:60:+:u
 
 N:97:water
-G:100:#:B
+G:30:#:B
 
-N:98:& tree
-G:100:#:G
+N:98:& tree~
+G:27:#:G
 
-N:99:& bush
-G:100:#:g
+N:99:& bush~
+G:24:#:g
 
-N:100:& border
+N:100:& border~
 M:1
 
 N:101:sea
 M:97
 
-N:102:& path border
+N:102:& path border~
 M:8

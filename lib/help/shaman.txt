@@ -1,6 +1,6 @@
 %%%%% <shaman.txt>
-Shamanism
-=========
+Shamanism (CHR-based)
+=====================
 
 The power of shamanism is that of the spirits. The shaman makes pacts with various spirits and then calls on them for aid. The spirits will perform favours for the shaman when asked, as this is their side of the pact. However, they will only co-operate when calm. Asking for favours too often will anger them and they may even take retribution on the shaman who annoys them.
 

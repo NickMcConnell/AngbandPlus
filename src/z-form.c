@@ -332,7 +332,7 @@ static uint vstrnfmt_do(char *buf, uint max, cptr fmt, va_list *vp)
 			}
 
 			/* Handle "alphabetic" chars */
-			if (isalpha(*s))
+			if (ISALPHA(*s))
 			{
 				/* Hack -- handle "long" request */
 				if (*s == 'l')
@@ -547,7 +547,7 @@ static uint vstrnfmt_do(char *buf, uint max, cptr fmt, va_list *vp)
 			case 'v':
 			{
 				vstrnfmt_aux_func tmp_func;
-				char tmp2[1024];
+				char tmp2[1024]="";
 
 				/* Extract the requested precision now. */
 				long max = get_precision(aux);
@@ -591,10 +591,10 @@ static uint vstrnfmt_do(char *buf, uint max, cptr fmt, va_list *vp)
 			for (q = 0; tmp[q]; q++)
 			{
 				/* Notice first non-space */
-				if (!isspace(tmp[q]))
+				if (!ISSPACE(tmp[q]))
 				{
 					/* Capitalize if possible */
-					if (islower(tmp[q])) tmp[q] = toupper(tmp[q]);
+					if (ISLOWER(tmp[q])) tmp[q] = TOUPPER(tmp[q]);
 
 					/* Done */
 					break;
@@ -720,34 +720,6 @@ uint strnfmt(char *buf, uint max, cptr fmt, ...)
 	/* Return the number of bytes written */
 	return (len);
 }
-
-
-#if 0
-/*
- * Do a vstrnfmt (see above) into a buffer of unknown size.
- * Since the buffer size is unknown, the user better verify the args.
- */
-uint strfmt(char *buf, cptr fmt, ...)
-{
-	uint len;
-
-	va_list vp;
-
-	/* Begin the Varargs Stuff */
-	va_start(vp, fmt);
-
-	/* Build the string, assume 32K buffer */
-	len = vstrnfmt(buf, 32767, fmt, vp);
-
-	/* End the Varargs Stuff */
-	va_end(vp);
-
-	/* Return the number of bytes written */
-	return (len);
-}
-#endif
-
-
 
 
 /*

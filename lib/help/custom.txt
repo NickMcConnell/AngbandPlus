@@ -11,27 +11,7 @@ Various concepts are mentioned in the descriptions below, including "disturb", (
 A date/version in brackets refers to when the option was added, or when it was substantially modified. No annotation indicates an option which was present in Cthangband 4.0.1, and usually much earlier.
 
 %%%%%
-=== User Interface options ===
-
-%%%%% <rogue_like_commands>
-$GRogue-like commands [rogue_like_commands]
-Selects the "roguelike" command set (see "command.txt" for info).
-
-%%%%% <quick_messages>
-$GQuick -more- prompts [quick_messages] (altered 17/1/2001)
-Allows the use of any keypress as a response to the "-more-" prompt (useful for monster farming).
-
-%%%%% <quick_prompt>
-$GQuick [y/n] prompts [quick_messages] (17/1/2001)
-Allows most keys to mean "no" to any "[y/n]" prompt.
-
-%%%%% <other_query_flag>
-$GPrompt for various information [other_query_flag]
-Allows the user to select objects from the center of stacks. Without this option, the uppermost appropriate object will always be selected.
-
-%%%%% <always_repeat>
-$GRepeat obvious commands [always_repeat]
-Tells the game that when you attempt to "open" a door or chest, "bash" a door, "tunnel" through walls, "disarm" traps or chests, or "alter" any grid, that you wish to automatically "repeat" the command 99 times (see "command.txt"), unless an explicit repeat count was given.
+=== Display options ===
 
 %%%%% <depth_in_feet>
 $GShow dungeon level in feet [depth_in_feet]
@@ -57,29 +37,56 @@ Attempt to make a "bell" noise when various "errors" occur.
 $GUse colour if possible (slow) [use_color]
 This option enables the software support for "colour". This makes the game slower, so you may choose to disable it on slow computers.
 
-%%%%% <player_symbols>
-$GUse special symbols for the player char [player_symbols]
-If this option has been compiled in, it allows you to display your character using race / class / sex dependent colours and graphical symbols. Note that the support for this option may not have been compiled in on all platforms.
-
 %%%%% <hilite_player>
 $GHilite the player with the cursor [hilite_player]
 Place the visible cursor on the player. This looks fine on some Unix machines, but horrible on most graphics machines. Note that only some machines are able to *not* show the cursor, but on those machines, hiding the cursor often speeds up the game and looks better.
-
-%%%%% <confirm_stairs>
-$GPrompt before exiting a dungeon level [confirm_stairs]
-Some players often accidentally press the '<' key and exit a Special feeling level. If this option is set, the program asks for confirmation before you go up or down the stairs. Others may find the prompt annoying, they should of course not set this option. :-)
 
 %%%%% <centre_view>
 $GCentre view around player [centre_view]
 Keeps the player's character in the center of the screen, and moves the dungeon around the player. Can be useful to prevent off-screen breaths.
 
+%%%%% <scroll_edge>
+$GScroll until detection reaches the edge [scroll_edge] (1.0.4)
+This only has an effect if the main window is larger than the default size, so that the visible area is larger than the detection area. If set, the map moves until the player's detection area includes the corner. If unset, the map stops moving when the visible area includes the corner.
+
+%%%%% <allow_fake_colour>
+$GUse special monochrome display for emphasis [allow_fake_colour] (1.0.13)
+This causes the screen to turn monochrome if one of a small number of special things happen.
+
+%%%%%
+=== User Interface options ===
+
+%%%%% <rogue_like_commands>
+$GRogue-like commands [rogue_like_commands]
+Selects the "roguelike" command set (see "command.txt" for info).
+
+%%%%% <quick_messages>
+$GQuick -more- prompts [quick_messages] (altered 17/1/2001)
+Allows the use of any keypress as a response to the "-more-" prompt (useful for monster farming).
+
+%%%%% <quick_prompt>
+$GQuick [y/n] prompts [quick_messages] (17/1/2001)
+Allows most keys to mean "no" to any "[y/n]" prompt.
+
+%%%%% <other_query_flag>
+$GPrompt for various information [other_query_flag]
+Allows the user to select objects from the center of stacks. Without this option, the uppermost appropriate object will always be selected.
+
+%%%%% <always_repeat>
+$GRepeat obvious commands [always_repeat]
+Tells the game that when you attempt to "open" a door or chest, "bash" a door, "tunnel" through walls, "disarm" traps or chests, or "alter" any grid, that you wish to automatically "repeat" the command 99 times (see "command.txt"), unless an explicit repeat count was given.
+
+%%%%% <confirm_stairs>
+$GPrompt before exiting a dungeon level [confirm_stairs]
+Some players often accidentally press the '<' key and exit a Special feeling level. If this option is set, the program asks for confirmation before you go up or down the stairs. Others may find the prompt annoying, they should of course not set this option. :-)
+
 %%%%% <macro_edit>
 $GUse macros as edit keys in prompts [macro_edit] (1.0.1)
 String prompts (such as with the "Inscribe" command) have a small number of edit commands available (see prompts.txt for details). If this option is off, the special command mode is turned on and off with the Tab (or Ctrl-I) key. If this option is on, accessing these keys through a macro (on many systems this happens when you use the number pad) gives them their special meaning and accessing them without a macro does not. Turn this off if you have trouble inscribing an object with "1" or using the edit commands.
 
-%%%%% <scroll_edge>
-$GScroll until detection reaches the edge [scroll_edge] (1.0.4)
-This only has an effect if the main window is larger than the default size, so that the visible area is larger than the detection area. If set, the map moves until the player's detection area includes the corner. If unset, the map stops moving when the visible area includes the corner.
+%%%%% <beginner_help>
+$GDisplay beginner help on startup [beginner_help] (1.0.12)
+Display a help file for new players at the beginning of the game to reduce the confusion and misunderstandings a new player may have.
 
 %%%%%
 === Disturbance options ===
@@ -214,10 +221,6 @@ Display "labels" (what an object is being used for) for objects in all "equipmen
 $GShow weights in all object listings [show_weights]
 Display "weights" (in pounds) of objects in all "inventory", "equipment", "store items", and "home items" listings.
 
-%%%%% <inscribe_depth>
-$GInscribe depth on items at creation [inscribe_depth] (21/5/2001)
-Inscribe the depth or level at which an item is found on it when it is created.
-
 %%%%% <stack_allow_items>
 $GAllow weapons and armor to stack [stack_allow_items]
 Allow identical weapons and armor to be combined into a stack. This also allows unidentified, but identical, ammo to be combined, which may result in the auto-identification of some of the ammo, but which makes it a lot easier to actually use unidentified ammo.
@@ -288,10 +291,6 @@ This option forces the game to flush all pending input whenever various "failure
 %%%%% <flush_disturb>
 $GFlush input whenever disturbed [flush_disturb]
 This option forces the game to flush all pending input whenever the character is "disturbed". This is useful if you use macros which take time, since it will prevent you from continuing your macro while being attacked by a monster.
-
-%%%%% <flush_command>
-$GFlush input before every command [flush_command]
-This option forces the game to flush all pending input before every command. This option is silly, unless you are very paranoid.
 
 %%%%% <fresh_before>
 $GFlush output before every command [fresh_before]
@@ -453,6 +452,7 @@ These control where everything on the main window apart from the map (which is c
 n/N: Move to the next/previous display type.
 x/X: Move the display one square left/right.
 y/Y: Move the display one square down/up.
+l/L: Increase/decrease the length allowed to this display.
 Tab: Represent unused space with black dots/empty space.
 ?  : Show this help.
 
@@ -573,6 +573,10 @@ This informs you about each use of a skill which does not take place on the surf
 $GWizard (Debug) Mode active [cheat_wzrd]
 This sets cheat_live and cheat_skll, forces special monster drops to always occur, allows friendly uniques to be generated, causes amulets of adornment to remove the requirement for food, allows the debug commands (Ctrl+a) to be used and gives a variety of extra messages.
 
+%%%%% <cheat_save>
+$GDon't auto-save on in-game events [cheat_save] (1.0.14)
+This prevents the game from being saved when it exits via the *****cmd=^X*[Save and Quit] command or on your character's death. Other things which may save the game (such as auto-save) work as normal.
+
 %%%%% <option=B>
 === Birth options ===
 
@@ -587,7 +591,7 @@ confusing explanation simple, you get better starting stats in non-maximize mode
 
 %%%%% <preserve_mode>
 $GArtifacts are not lost if you never saw them [preserve_mode]
-If preserve mode is "off", you can get a level feeling that you *NEVER* get with preserve mode "on": a "special" feeling. This means that there is an artifact, a pit or a vault on the level: and while a pit or vault may not necessarily cause a special feeling, an artifact CERTAINLY will. This is principally of use in finding out which levels are *not* "special", i.e. which ones can be left in a hurry without worrying about leaving something behind - if it's not "special", there is no artifact unless a monster has dropped one when you killed it. This is particularly important because, with preserve mode off, no artifact can be generated more than once in the game. If it's on a level and you miss it, it's gone forever. With preserve mode "on", if you miss an artifact, it can turn up later provided you didn't identify it the first time (in which case there is no excuse for losing it.) But you don't get the "special" feeling. (Chances are that a vault will provide a good level feeling anyway, and quite possibly a couple of good items which may or may not include an artifact.)
+If preserve mode is "off", you can get a level feeling that you *NEVER* get with preserve mode "on": a "special" feeling. This means that there is an artifact, a pit or a vault on the level: and while a pit or vault may not necessarily cause a special feeling, an artifact CERTAINLY will. This is principally of use in finding out which levels are *not* "special", i.e. which ones can be left in a hurry without worrying about leaving something behind - if it's not "special", there is no artifact unless a monster has dropped one when you killed it. This is particularly important because, with preserve mode off, no artifact can be generated more than once in the game. If it's on a level and you miss it, it's gone forever. With preserve mode "on", if you miss an artifact, it can turn up later. But you don't get the "special" feeling. (Chances are that a vault will provide a good level feeling anyway, and quite possibly a couple of good items which may or may not include an artifact.)
 
 %%%%% <allow_quickstart>
 $GAllow the player to start by using Quick-Start [allow_quickstart] (21/5/2001)
@@ -629,13 +633,61 @@ This option closes all shops except for libraries (which are open as normal).
 $GLevel feelings are only given after 2500 turns [ironman_feeling] (1.0.1)
 This option causes level feelings to be given after 2500 turns on the level instead of giving the feeling immediately. 
 
+%%%%% <chaos_patrons>
+$GChaos patrons give your character gifts [chaos_patrons]
+This option causes chaos patrons to give the character gifts on improving its prowess at thaumaturgy or (for Broo) innate powers. These may not be entirely helpful, however...
+
 %%%%% <option=Q>
 === Squelch options ===
 
 This menu controls which objects the game will hide as the player walks over them. In the first menu, you may choose an object category from which to modify the squelch settings. You may also save the current settings or temporarily disable squelching altogether (useful for the *****cmd=^K*[reveal object command], which usually uses a keymap to do this).
 
-In the second menu, you can change the squelch settings for any or all of the indicated objects to the settings which are suitable for them. These range from "none", via various degrees of power and cursedness, to "all". Not all settings are available for every object.
+This uses the following commands:
+   a-r    - Enter the indicated sub-menu (to modify it, etc.).
+  Ctrl-A  - Enable/disable auto-squelching.
+  Ctrl-S  - Save the auto-squelch and inscription options to a file.
 
+%%%%% <option=Qa>
+In the second menu, you can change the squelch settings for any or all of the indicated objects according to taste. The settings available range from "none",
+via various degrees of power and cursedness, to "all". Not all settings are
+available for every object. You can also set a default inscription for each object.
+
+This uses the following commands:
+a-z, etc. - change the squelch setting for one object.
+  Ctrl-A  - squelch all displayed objects.
+  Ctrl-N  - unsquelch all displayed objects.
+  Ctrl-S  - move the squelch setting for all displayed objects by one place.
+
+%%%%%
 Things to note about these options include:
 1. No squelch settings are stored in the save file, so they must be saved if the player wishes to retain them from session to session.
 2. As squelched objects are *****cmd=K*[hidden] rather than *****cmd=k*[destroyed] them, squelching will not identify cursed artefacts immediately. However, squelched objects in inventory (although not on the floor) can be destroyed by destroying object z.
+
+%%%%% <option=I>
+=== Inscription options ===
+
+This menu controls what inscription an object which doesn't have an inscription
+of its own will have active. This is useful as there are a number of special commands which can be included within inscriptions (see the *****cmd={*[inscribe command] for details).
+
+In the first menu, you simply need to select a character for the type of object you want. There are a number of (hopefully self-explanatory) object categories and one labelled "Unidentified items" which allows you to set the inscription for (e.g.) all unidentified potions.
+
+This uses the following commands:
+a-z, etc. - choose a category of item (including unidentified items) within
+            which to set the default inscription.
+  Ctrl-S  - Save the inscriptions to a file.
+  Escape  - Leave the menu, accepting any changes made.
+
+%%%%% <option=Ia>
+The items in the chosen which are available are displayed on the second menu. If there is enough space, each will list the inscription which is currently assigned to it in curly brackets.
+
+Pressing the character in square brackets before an entry will allow you to change the default inscription for the item type or unidentified item category.
+
+The "object" inscription will then be used for all similar objects, provided that you know what such objects look like. The "unidentified" inscription will be used for every object which uses the same set of unidentified descriptions as the listed one.
+
+This means that a "Gold Ring" will use the inscription assigned to "Zircon Ring", but a "Plain Gold Ring" will not do so as no object can be represented as a "Zircon Ring" in one game but a "Plain Gold Ring" in the next. 
+
+This uses the following commands:
+a-z, etc. - change the default inscription for the selected item or unidentified item class.
+  Ctrl-A  - change the default inscription for all of the displayed items.
+  Ctrl-U  - remove an existing inscription from an item (prompted for).
+  Escape  - Leave the menu, accepting any changes made.

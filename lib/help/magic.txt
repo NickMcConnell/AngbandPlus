@@ -1,0 +1,17 @@
+%%%%% <magic.txt>
+Magic
+=====
+
+sCthangband has several types of magic the player may learn:
+
+Hermetic magic allows a clever character with an appropriate book to cast a wide variety of spells using SP to power them.
+Hedge magic allows a character with an appropriate charm to cast a more limited set of spells using the charm's internal power to cast spells for as long as the charm remains.
+Shamanism allows a charismatic player who has been properly introduced to a spirit by a high priest to call on it for a variety of favours.
+Mindcraft allows a wise character to use his internal energy (called Chi) to cause a variety of increasingly powerful effects.
+
+For more details, select one of the following links:
+
+    *****/ahermetic.txt*[[a$]] Hermetic Magic
+    *****/bhedge.txt*[[b$]] Hedge Magic
+    *****/cshaman.txt*[[c$]] Shamanism
+    *****/dmindcrft.txt*[[d$]] Mindcrafting

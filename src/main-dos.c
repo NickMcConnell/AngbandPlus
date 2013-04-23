@@ -989,7 +989,7 @@ static errr Term_user_dos(int n)
 				prt(format("Screen Resolution : %d", resolution), 20, 0);
 				k = inkey();
 				if (k == ESCAPE) break;
-				if (isdigit(k)) resolution = D2I(k);
+				if (ISDIGIT(k)) resolution = D2I(k);
 
 				/* Check for min, max value */
 				if ((resolution < 1) || (resolution >= i)) resolution = 1;

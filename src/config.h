@@ -256,12 +256,7 @@
 
 
 /*
- * OPTION: Allow use of extended spell info	-DRS-
- */
-#define DRS_SHOW_SPELL_INFO
-
-/*
- * OPTION: Allow use of the monster health bar	-DRS-
+ * OPTION: Allow use of the monster health bar -DRS-
  */
 #define DRS_SHOW_HEALTH_BAR
 
@@ -394,22 +389,6 @@
 
 
 /*
- * OPTION: For some brain-dead computers with no command line interface,
- * namely Macintosh, there has to be some way of "naming" your savefiles.
- * The current "Macintosh" hack is to make it so whenever the character
- * name changes, the savefile is renamed accordingly.  But on normal
- * machines, once you manage to "load" a savefile, it stays that way.
- * Macintosh is particularly weird because you can load savefiles that
- * are not contained in the "lib:save:" folder, and if you change the
- * player's name, it will then save the savefile elsewhere.  Note that
- * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
- */
-#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
-# define SAVEFILE_MUTABLE
-#endif
-
-
-/*
  * OPTION: Capitalize the "user_name" (for "default" player name)
  * This option is only relevant on SET_UID machines.
  */
@@ -421,13 +400,13 @@
  * OPTION: Person to bother if something goes wrong.
  */
 #define MAINT_NAME "Kieron Dunbar"
-#define MAINTAINER	"kieron@dimetrodon.demon.co.uk"
+#define MAINTAINER "kieron@dimetrodon.demon.co.uk"
 
 
 /*
  * OPTION: Default font (when using X11).
  */
-#define DEFAULT_X11_FONT		"5x8"
+#define DEFAULT_X11_FONT "5x8"
 
 #define DEFAULT_X11_FONT_0            "9x15"
 #define DEFAULT_X11_FONT_1            "6x12"
@@ -484,14 +463,14 @@
 #ifdef VERIFY_HONOR
 # define VERIFY_SAVEFILE
 # define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMPS
+# define VERIFY_TIMESTAMP
 #endif
 
 /* Zangband options: */
 
 /* (see above) */
 #ifndef DRS_SMART_OPTIONS
- #define DRS_SMART_OPTIONS
+#define DRS_SMART_OPTIONS
 #endif
 
 /* For longer martial arts descriptions */
@@ -508,21 +487,21 @@
 /* Testing upkeep */
 /* # define TRACK_FRIENDS */
 
- /*
-  * OPTION: Repeat last command -- TNB
-  */
- #define ALLOW_REPEAT
- 
- /*
-  * OPTION: Make opening and closing things easy -- TNB
-  */
- #define ALLOW_EASY_OPEN
- 
- /*
-  * OPTION: Make disarming traps easy -- TNB
-  */
- #define ALLOW_EASY_DISARM
- 
+/*
+ * OPTION: Repeat last command -- TNB
+ */
+#define ALLOW_REPEAT
+
+/*
+ * OPTION: Make opening and closing things easy -- TNB
+ */
+#define ALLOW_EASY_OPEN
+
+/*
+ * OPTION: Make disarming traps easy -- TNB
+ */
+#define ALLOW_EASY_DISARM
+
 /*
  * Check the modification time of *_info.raw files
  * (by Keldon Jones)

@@ -1,6 +1,6 @@
 %%%%% <hermetic.txt>
-Hermetic Magic
-==============
+Hermetic Magic (INT-based)
+==========================
 
 Hermetic magic is the most powerful of the types of magic available in Cthangband. It is also the most difficult to learn and use. A high intelligence is essential for a hermetic wizard. Hermetic magic comes from spells written in books. Casting these spells uses 'Mana' which you channel using your 'Mana Channeling' skill. The more skill you have, the more mana you will be able to channel.
 
@@ -239,7 +239,7 @@ This spell summons one of the most powerful of the undead to serve you.
 
 Thaumaturgy
 
-Thaumaturgy is the magic of chaos and destruction. The chaos gods take a particular interest in anyone learning thaumaturgy magic and will encourage such learning by giving gifts to the student - although such gifts are not always welcome, but that is the nature of chaos.
+Thaumaturgy is the magic of chaos and destruction. If they exist, the lords of chaos will take a particular interest in anyone learning thaumaturgy magic and will encourage such learning by giving gifts to the student - although such gifts are not always welcome, but that is the nature of chaos.
 
 Sign of Chaos
 

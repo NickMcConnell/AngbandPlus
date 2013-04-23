@@ -20,7 +20,7 @@
  *
  */
 
- #include "angband.h"
+#include "angband.h"
 
 /*
  * Get the current quest, if any.
@@ -61,7 +61,7 @@ int get_quest_monster(void)
 void print_quest_message(void)
 {
 	quest_type *q_ptr = get_quest();
-	monster_race	*r_ptr = &r_info[q_ptr->r_idx];
+	monster_race *r_ptr = &r_info[q_ptr->r_idx];
 	int q_num = q_ptr->max_num - q_ptr->cur_num_known;
 	byte flag = (q_ptr->max_num == 1) ? MDF_DEF : MDF_NUMBER;
 
@@ -78,7 +78,7 @@ static cptr find_quest[5] =
 	"You see a message inscribed in the wall",
 	"There is a sign saying",
 	"Something is writen on the staircase",
-    "You find a scroll with the following message",
+	"You find a scroll with the following message",
 };
 
 /*
@@ -89,7 +89,7 @@ static cptr find_quest[5] =
 void quest_discovery(bool new)
 {
 	quest_type *q_ptr = get_quest();
-	monster_race	*r_ptr = &r_info[q_ptr->r_idx];
+	monster_race *r_ptr = &r_info[q_ptr->r_idx];
 	int q_num = q_ptr->max_num;
 
 	/* Get a properly formatted name. Note that no monster will actually

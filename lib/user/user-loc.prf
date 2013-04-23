@@ -15,8 +15,8 @@
 
 # Initial stat dump
 
-D:b:s:a:1:17:10:11:10:17:11:Adwoedan
-D:b:s:g:1:17:4:11:16:17:9:Salind
+D:Male:Human:Adventurer:1:17:10:11:10:17:11:Adwoedan
+D:Male:Human:Ranger:1:17:4:11:16:17:9:Salind
 
 # Monster memory attr definitions
 

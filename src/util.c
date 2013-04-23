@@ -70,9 +70,9 @@ int usleep(huge usecs)
 	int                 nfds = 0;
 
 #ifdef FD_SET
-	fd_set		*no_fds = NULL;
+	fd_set *no_fds = NULL;
 #else
-	int			*no_fds = NULL;
+	int *no_fds = NULL;
 #endif
 
 
@@ -105,7 +105,7 @@ int usleep(huge usecs)
 /*
  * Hack -- External functions
  */
-#ifndef	_PWD_H
+#ifndef _PWD_H
 extern struct passwd *getpwuid();
 extern struct passwd *getpwnam();
 #endif /* _PWD_H */
@@ -126,7 +126,7 @@ void user_name(char *buf, int id)
 
 #ifdef CAPITALIZE_USER_NAME
 		/* Hack -- capitalize the user name */
-		if (islower(buf[0])) buf[0] = toupper(buf[0]);
+		if (ISLOWER(buf[0])) buf[0] = TOUPPER(buf[0]);
 #endif /* CAPITALIZE_USER_NAME */
 
 		return;
@@ -162,11 +162,12 @@ void user_name(char *buf, int id)
  *
  * Note that "canonical" filenames use a leading "slash" to indicate an absolute
  * path, and a leading "tilde" to indicate a special directory, and default to a
- * relative path, but MSDOS uses a leading "drivename plus colon" to indicate the
- * use of a "special drive", and then the rest of the path is parsed "normally",
- * and MACINTOSH uses a leading colon to indicate a relative path, and an embedded
- * colon to indicate a "drive plus absolute path", and finally defaults to a file
- * in the current working directory, which may or may not be defined.
+ * relative path, but MSDOS uses a leading "drivename plus colon" to indicate
+ * the use of a "special drive", and then the rest of the path is parsed
+ * "normally", and MACINTOSH uses a leading colon to indicate a relative path,
+ * and an embedded colon to indicate a "drive plus absolute path", and finally
+ * defaults to a file in the current working directory, which may or may not be
+ * defined.
  *
  * We should probably parse a leading "~~/" as referring to "ANGBAND_DIR". (?)
  */
@@ -194,8 +195,8 @@ void user_name(char *buf, int id)
  */
 static errr path_parse(char *buf, uint max, cptr file)
 {
-	cptr		u, s;
-	struct passwd	*pw;
+	cptr u, s;
+	struct passwd *pw;
 
 
 	/* Assume no result */
@@ -272,7 +273,7 @@ static errr path_parse(char *buf, int max, cptr file)
  *
  * This filename is always in "system-specific" form.
  */
-static errr path_temp(char *buf, int max)
+static errr path_temp(char *buf, uint max)
 {
 	cptr s;
 
@@ -280,10 +281,10 @@ static errr path_temp(char *buf, int max)
 	s = tmpnam(NULL);
 
 	/* Oops */
-	if (!s) return (-1);
+	if (!s || strlen(s) >= max) return (-1);
 
 	/* Format to length */
-	strnfmt(buf, max, "%s", s);
+	strcpy(buf, s);
 
 	/* Success */
 	return (0);
@@ -313,14 +314,14 @@ static void path_build(char *buf, uint max, cptr path, cptr file)
 		/* Use the file itself */
 		strnfmt(buf, max, "%s", file);
 	}
-	
+
 	/* Absolute file, on "normal" systems */
 	else if (prefix(file, PATH_SEP) && !streq(PATH_SEP, ""))
 	{
 		/* Use the file itself */
 		strnfmt(buf, max, "%s", file);
 	}
-	
+
 	/* No path given */
 	else if (!path[0])
 	{
@@ -376,7 +377,7 @@ errr my_fclose(FILE *fff)
 /*
  * Process a path_build() function as a vstrnfmt_aux function.
  *
- * Format: 
+ * Format:
  * "%v", path_build_f2, (cptr)path, (cptr)file
  */
 void path_build_f2(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
@@ -413,7 +414,8 @@ FILE *my_fopen_temp(char *buf, uint max)
 	/* Paranoia */
 	if (strlen("/tmp/anXXXXXX") >= max)
 	{
-		if (alert_failure) msg_print("Buffer too short for temporary file name!");
+		if (alert_failure)
+			msg_print("Buffer too short for temporary file name!");
 		return (NULL);
 	}
 
@@ -530,7 +532,7 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 		}
 
 		/* Ignore non-printables */
-		else if (isprint(c))
+		else if (ISPRINT(c))
 		{
 			/* Store character in the buffer */
 			buf[i++] = c;
@@ -582,16 +584,20 @@ errr my_fgets_long(char *buf, size_t n, FILE *fff)
  * format buffer.
  */
 #define get_va_arg_string(fmt) \
+do { \
 	va_list vp; \
 	va_start(vp, (fmt)); \
 	vformat((fmt), vp); \
-	va_end(vp);
+	va_end(vp); \
+} while (0)
 
 #define get_va_arg_buf(buf, fmt) \
+do { \
 	va_list vp; \
 	va_start(vp, (fmt)); \
 	vstrnfmt((buf), sizeof(buf), (fmt), vp); \
-	va_end(vp);
+	va_end(vp); \
+} while (0)
 
 /*
  * A version of "fprintf()" which uses strnfmt to process its arguments.
@@ -602,7 +608,7 @@ errr my_fgets_long(char *buf, size_t n, FILE *fff)
  */
 int my_fprintf(FILE *fff, cptr fmt, ...)
 {
-	get_va_arg_string(fmt)
+	get_va_arg_string(fmt);
 
 	return fprintf(fff, "%s", format(0));
 }
@@ -734,7 +740,7 @@ errr my_mkdir(cptr path, uint mode)
 	if (!rc) return SUCCESS;
 
 	else if (errno == EEXIST) return FILE_ERROR_FILE_EXISTS;
-	
+
 	else return FILE_ERROR_CANNOT_OPEN_FILE;
 }
 #endif /* PRIVATE_USER_PATH */
@@ -878,34 +884,11 @@ errr fd_seek(int fd, huge n)
 	if (p < 0) return (1);
 
 	/* Failure */
-	if (p != (long)n) return (1); 
+	if (p != (long)n) return (1);
 
 	/* Success */
 	return (0);
 }
-
-
-#if 0
-/*
- * Hack -- attempt to truncate a file descriptor
- */
-static errr fd_chop(int fd, huge n)
-{
-	/* XXX XXX */
-	n = n ? n : 0;
-
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#if defined(SUNOS) || defined(ULTRIX) || defined(NeXT)
-	/* Truncate */
-	ftruncate(fd, n);
-#endif
-
-	/* Success */
-	return (0);
-}
-#endif
 
 
 /*
@@ -1052,274 +1035,140 @@ void move_cursor(int row, int col)
 
 
 
-/*
- * Convert a decimal to a single digit octal number
- */
-static char octify(uint i)
-{
-	return (hexsym[i%8]);
-}
+static cptr ascii_text_conv[512];
 
-/*
- * Convert a decimal to a single digit hex number
- */
-static char hexify(uint i)
+/* Hard-coded conversions, to be used in preference to the value-based ones. */
+typedef struct ascii_conv ascii_conv;
+struct ascii_conv
 {
-	return (hexsym[i%16]);
-}
+	byte ch;
+	cptr str;
+};
 
-
-/*
- * Convert a octal-digit into a decimal
- */
-static int deoct(char c)
+static ascii_conv ascii_text_conv_hardcoded[] =
 {
-	if (isdigit(c)) return (D2I(c));
-	return (0);
-}
+	{ESCAPE, "\\e"},
+	{' ', "\\s"},
+	{'\b', "\\b"},
+	{'\t', "\\t"},
+	{'\n', "\\n"},
+	{'\r', "\\r"},
+	{'^', "\\^"},
+	{'\\', "\\\\"}
+};
 
 /*
- * Convert a hexidecimal-digit into a decimal
+ * Fill the ascii_text_conv[] table with strings for each ascii character.
  */
-static int dehex(char c)
+void init_ascii_text_conv(void)
 {
-	if (isdigit(c)) return (D2I(c));
-	if (islower(c)) return (A2I(c) + 10);
-	if (isupper(c)) return (A2I(tolower(c)) + 10);
-	return (0);
-}
+	int i;
+	ascii_conv *ptr;
+	for (i = 0; i < 256; i++)
+	{
+		char buf[MAX_ASCII_LEN+1];
+		cptr s = NULL;
 
+		FOR_ALL_IN(ascii_text_conv_hardcoded, ptr)
+		{
+			if (i == ptr->ch) s = ptr->str;
+		}
+
+		if (i < 32)
+		{
+			sprintf(buf, "^%c", i+64);
+		}
+		else if (i < 127)
+		{
+			sprintf(buf, "%c", i);
+		}
+		else
+		{
+			sprintf(buf, "\\x%c%c", hexsym[i/16], hexsym[i%16]);
+		}
+
+		if (s)
+		{
+			ascii_text_conv[i] = s;
+			ascii_text_conv[i+256] = string_make(buf);
+		}
+		else
+		{
+			ascii_text_conv[i] = ascii_text_conv[i+256] = string_make(buf);
+		}
+	}
+}
 
 /*
  * Hack -- convert a printable string into real ascii
  *
- * I have no clue if this function correctly handles, for example,
- * parsing "\xFF" into a (signed) char.  Whoever thought of making
- * the "sign" of a "char" undefined is a complete moron.  Oh well.
- */
-static void text_to_ascii(char *buf, uint max, cptr str)
-{
-	char *s = buf;
-
-	/* Analyze the "ascii" string */
-	while (*str && s+1 < buf+max-1)
-	{
-		/* Backslash codes */
-		if (*str == '\\')
-		{
-			/* Skip the backslash */
-			str++;
-
-			/* Hex-mode XXX */
-			if (*str == 'x')
-			{
-				*s = 16 * dehex(*++str);
-				*s++ += dehex(*++str);
-			}
-
-			/* Hack -- simple way to specify "backslash" */
-			else if (*str == '\\')
-			{
-				*s++ = '\\';
-			}
-
-			/* Hack -- simple way to specify "caret" */
-			else if (*str == '^')
-			{
-				*s++ = '^';
-			}
-
-			/* Hack -- simple way to specify "space" */
-			else if (*str == 's')
-			{
-				*s++ = ' ';
-			}
-
-			/* Hack -- simple way to specify Escape */
-			else if (*str == 'e')
-			{
-				*s++ = ESCAPE;
-			}
-
-			/* Backspace */
-			else if (*str == 'b')
-			{
-				*s++ = '\b';
-			}
-
-			/* Newline */
-			else if (*str == 'n')
-			{
-				*s++ = '\n';
-			}
-
-			/* Return */
-			else if (*str == 'r')
-			{
-				*s++ = '\r';
-			}
-
-			/* Tab */
-			else if (*str == 't')
-			{
-				*s++ = '\t';
-			}
-
-			/* Octal-mode */
-			else if (*str == '0')
-			{
-				*s = 8 * deoct(*++str);
-				*s++ += deoct(*++str);
-			}
-
-			/* Octal-mode */
-			else if (*str == '1')
-			{
-				*s = 64 + 8 * deoct(*++str);
-				*s++ += deoct(*++str);
-			}
-
-			/* Octal-mode */
-			else if (*str == '2')
-			{
-				*s = 64 * 2 + 8 * deoct(*++str);
-				*s++ += deoct(*++str);
-			}
-
-			/* Octal-mode */
-			else if (*str == '3')
-			{
-				*s = 64 * 3 + 8 * deoct(*++str);
-				*s++ += deoct(*++str);
-			}
-
-			/* Skip the final char */
-			str++;
-		}
-
-		/* Normal Control codes */
-		else if (*str == '^')
-		{
-			str++;
-			*s++ = (*str++ & 037);
-		}
-
-		/* Normal chars */
-		else
-		{
-			*s++ = *str++;
-		}
-	}
-
-	/* Terminate */
-	*s = '\0';
-}
-
-/*
- * Call text_to_ascii() as a vstrnfmt_aux function.
- *
- * Format: 
+ * Format:
  * "%v", text_to_ascii_f1, (cptr)str
  */
 void text_to_ascii_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
 {
 	cptr str = va_arg(*vp, cptr);
-	text_to_ascii(buf, max, str);
-}
-
-/*
- * Hack -- convert a string into a printable form
- */
-static void ascii_to_text(char *buf, uint max, cptr str)
-{
 	char *s = buf;
+	int i;
 
-	/* Analyze the "ascii" string */
-	while (*str && s+MAX_ASCII_LEN < buf+max-1)
+	for (; *str && s+MAX_ASCII_LEN < buf+max-1; )
 	{
-		byte i = (byte)(*str++);
-
-		if (i == ESCAPE)
+		for (i = 0; i < 512; i++)
 		{
-			*s++ = '\\';
-			*s++ = 'e';
+			if (prefix(str, ascii_text_conv[i]))
+			{
+				*s++ = i % 256;
+				str += strlen(ascii_text_conv[i]);
+				goto next;
+			}
 		}
-		else if (i == ' ')
-		{
-			*s++ = '\\';
-			*s++ = 's';
-		}
-		else if (i == '\b')
-		{
-			*s++ = '\\';
-			*s++ = 'b';
-		}
-		else if (i == '\t')
-		{
-			*s++ = '\\';
-			*s++ = 't';
-		}
-		else if (i == '\n')
-		{
-			*s++ = '\\';
-			*s++ = 'n';
-		}
-		else if (i == '\r')
-		{
-			*s++ = '\\';
-			*s++ = 'r';
-		}
-		else if (i == '^')
-		{
-			*s++ = '\\';
-			*s++ = '^';
-		}
-		else if (i == '\\')
-		{
-			*s++ = '\\';
-			*s++ = '\\';
-		}
-		else if (i < 32)
-		{
-			*s++ = '^';
-			*s++ = i + 64;
-		}
-		else if (i < 127)
-		{
-			*s++ = i;
-		}
-		else if (i < 64)
-		{
-			*s++ = '\\';
-			*s++ = '0';
-			*s++ = octify(i / 8);
-			*s++ = octify(i % 8);
-		}
-		else
-		{
-			*s++ = '\\';
-			*s++ = 'x';
-			*s++ = hexify(i / 16);
-			*s++ = hexify(i % 16);
-		}
+		/* Paranoia - an unrecognised sequence. */
+		*s++ = *str++;
+next:
+		continue;
 	}
 
-	/* Terminate */
+	/* Finish the string off. */
 	*s = '\0';
 }
 
 /*
- * Call ascii_to_text() as a vstrnfmt_aux function.
+ * Hack - convert a string into a printable form.
  *
- * Format: 
+ * Format:
  * "%v", ascii_to_text_f1, (cptr)str
  */
 void ascii_to_text_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
 {
 	cptr str = va_arg(*vp, cptr);
-	ascii_to_text(buf, max, str);
+	char *s = buf;
+
+	/* Analyze the "ascii" string */
+	for (; *str && s+MAX_ASCII_LEN < buf+max-1; str++)
+	{
+		s += sprintf(s, "%s", ascii_text_conv[(byte)*str]);
+	}
 }
 
+void s16b_to_string_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+{
+	char str[4];
+
+	int cmd = va_arg(*vp, int);
+
+	/* Paranoia - ignore very high bits. */
+	cmd &= 0xFFFF;
+
+	if (cmd & 0xFF00)
+	{
+		sprintf(str, "&%c%c", ((cmd & 0xFF00) >> 8), (cmd & 0x00FF));
+	}
+	else
+	{
+		sprintf(str, "%c", cmd);
+	}
+	strnfmt(buf, max, "%v", ascii_to_text_f1, str);
+}
 
 
 /*
@@ -1513,24 +1362,6 @@ errr macro_add(cptr pat, cptr act)
 	return (0);
 }
 
-
-
-#if 0
-/*
- * Initialize the "macro" package
- */
-static errr macro_init(void)
-{
-	/* Macro patterns */
-	C_MAKE(macro__pat, MACRO_MAX, cptr);
-
-	/* Macro actions */
-	C_MAKE(macro__act, MACRO_MAX, cptr);
-
-	/* Success */
-	return (0);
-}
-#endif
 
 
 /*
@@ -1785,8 +1616,25 @@ static cptr inkey_next = NULL;
  * *Hack* - a second such sequence which can be added from the game code
  * as necessary. This is checked before the above.
  */
-cptr inkey_gnext = NULL;
+static cptr inkey_gnext = NULL;
 
+/*
+ * Set inkey_gnext. Notice if it was already set, but don't do anything yet
+ * as the appropriate course of action is not obvious.
+ */
+void set_gnext(cptr next)
+{
+	assert(next); /* Caller */
+
+	if (!gnext_clear() && alert_failure) bell("inkey_gnext overlap error.");
+
+	inkey_gnext = next;
+}
+
+bool gnext_clear(void)
+{
+	return (!inkey_gnext || !*inkey_gnext);
+}
 
 #ifdef ALLOW_BORG
 
@@ -1820,7 +1668,7 @@ bool is_keymap_or_macro(void)
 
 	/* Keymap */
 	if (is_keymap()) return TRUE;
-	
+
 	/* Macro */
 	if (!Term_inkey(&c, FALSE, FALSE) && c & 0xE0) return TRUE;
 
@@ -1986,7 +1834,7 @@ char inkey(void)
 	{
 		/* Hack -- Handle "inkey_scan" */
 		if (!inkey_base && inkey_scan &&
-		    (0 != Term_inkey(&kk, FALSE, FALSE)))
+			(0 != Term_inkey(&kk, FALSE, FALSE)))
 		{
 			break;
 		}
@@ -2008,7 +1856,7 @@ char inkey(void)
 			Term_activate(term_screen);
 
 			/* Mega-Hack -- reset saved flag */
-  			character_saved = FALSE;
+			character_saved = FALSE;
 
 			/* Mega-Hack -- reset signal counter */
 			signal_count = 0;
@@ -2055,7 +1903,7 @@ char inkey(void)
 
 					/* Excessive delay */
 					if (w >= 100) break;
-		
+
 					/* Delay */
 					Term_xtra(TERM_XTRA_DELAY, w);
 				}
@@ -2153,12 +2001,17 @@ char inkey(void)
  * Note that "quark zero" is NULL and should not be "dereferenced".
  */
 
+/* The number of quarks */
+static u16b quark__num;
+
+
+
 /*
  * Add a new "quark" to the set of quarks.
  */
-s16b quark_add(cptr str)
+u16b quark_add(cptr str)
 {
-	int i;
+	uint i;
 
 	/* Look for an existing quark */
 	for (i = 1; i < quark__num; i++)
@@ -2191,7 +2044,7 @@ cptr quark_str(u16b i)
 	/* Verify */
 	if (i >= quark__num)
 		quit("Out of bounds quark string error.");
-	
+
 	/* Access the quark */
 	q = quark__str[i];
 
@@ -2223,6 +2076,10 @@ cptr quark_str(u16b i)
  * extremely efficient, both in space and time, for use with the Borg.
  */
 
+static u16b message__next; /* The next "free" index to use */
+static u16b message__last; /* The index of the oldest message. */
+static u16b message__head; /* The next "free" offset */
+static u16b message__tail = MESSAGE_BUF; /* The oldest used char offset */
 
 
 /*
@@ -2339,7 +2196,7 @@ void message_add(cptr str)
 		if (*t)
 		{
 			/* Message is too small */
-			if (strlen(buf) < 6) break;
+			if (t - buf < 2) break;
 
 			/* Drop the space */
 			*(t - 1) = '\0';
@@ -2517,10 +2374,8 @@ void message_add(cptr str)
  */
 static void msg_flush(int x)
 {
-	byte a = TERM_L_BLUE;
-
 	/* Pause for response */
-	Term_putstr(x, 0, -1, a, MORE_STR);
+	mc_put_fmt(0, x, "$B" MORE_STR);
 
 	/* Get an acceptable keypress */
 	while (!auto_more)
@@ -2536,6 +2391,12 @@ static void msg_flush(int x)
 	Term_erase(0, 0, 255);
 }
 
+
+/*
+ * Hack - prevent messages from being printed or remembered until further
+ * notice.
+ */
+bool no_msg_print = FALSE;
 
 /*
  * Output a message to the top line of the screen.
@@ -2574,6 +2435,8 @@ void msg_print(cptr msg)
 
 	char buf[1024];
 
+	/* *Hack* - disable. */
+	if (no_msg_print) return;
 
 	/* Hack -- Reset */
 	if (!msg_flag) p = 0;
@@ -2635,7 +2498,7 @@ void msg_print(cptr msg)
 		t[split] = '\0';
 
 		/* Display part of the message */
-		Term_putstr(0, 0, split, TERM_WHITE, t);
+		mc_put_fmt(0, 0, "%.*s", split, t);
 
 		/* Flush it */
 		msg_flush(split + 1);
@@ -2655,7 +2518,7 @@ void msg_print(cptr msg)
 
 
 	/* Display the tail of the message */
-	Term_putstr(p, 0, n, TERM_WHITE, t);
+	mc_put_fmt(0, p, "%s", t);
 
 	/* Memorize the tail */
 	/* if (character_generated) message_add(t); */
@@ -2713,45 +2576,26 @@ void c_put_str(byte attr, cptr str, int row, int col)
 void put_str(cptr str, int row, int col)
 {
 	/* Spawn */
-	Term_putstr(col, row, -1, TERM_WHITE, str);
+	c_put_str(TERM_WHITE, str, row, col);
 }
 
 
 
 /*
- * Display a string on the screen using an attribute, and clear
+ * Display a string on the screen in white, and clear
  * to the end of the line.
  */
-void c_prt(byte attr, cptr str, int row, int col)
+void prt(cptr str, int row, int col)
 {
 	/* Clear line, position cursor */
 	Term_erase(col, row, 255);
 
 	/* Dump the attr/text */
-	Term_addstr(-1, attr, str);
-}
-
-/*
- * As above, but in "white"
- */
-void prt(cptr str, int row, int col)
-{
-	/* Spawn */
-	c_prt(TERM_WHITE, str, row, col);
+	Term_addstr(-1, TERM_WHITE, str);
 }
 
 
 
-
-/*
- * Check whether the cursor is in a legal state.
- * In particular, check that it hasn't been moved out of the screen area.
- */
-static bool useless_cursor(void)
-{
-	int i[2];
-	return (Term_locate(i, i+1) == 1);
-}
 
 /*
  * Move the cursor to the beginning of the next line and clear it.
@@ -2767,7 +2611,7 @@ static bool next_line(int nx)
 /*
  * Wrap the text on the current line as the cursor.
  * Return FALSE on errors.
- */ 
+ */
 static bool wrap_text(int nx)
 {
 	int x, y, w, h, i, n;
@@ -2811,6 +2655,8 @@ static bool wrap_text(int nx)
 }
 
 
+#define DEFAULT -1
+
 /*
  * Print a multi-coloured string where colour-changes are denoted as follows:
  *
@@ -2823,27 +2669,40 @@ static bool wrap_text(int nx)
  *
  * Anything else is printed directly.
  *
- * This function returns under three circumstances:
+ * This function returns under four circumstances:
  *
  * 1. The cursor goes out of bounds (returns the first unprinted character).
  * 2. The end of the string is reached (returns the \0).
  * 3. A \n is found (returns the \n).
- */ 
-static cptr mc_add(cptr s, int *dattr, int *attr, bool *ignore)
+ */
+static cptr mc_add(cptr s, int mx, int *dattr, int *attr, bool *ignore)
 {
 	int nattr;
 
-	for (; *s && *s != '\n' && !useless_cursor(); s++)
+	/* With no specified width, use however much space is left on the line. */
+	if (mx == DEFAULT)
+	{
+		int cx, y;
+		Term_get_size(&mx, &y);
+		Term_locate(&cx, &y);
+
+		mx -= cx;
+	}
+
+	/* Print until either the space or the string is exhausted. */
+	for (; *s && *s != '\n' && mx; s++)
 	{
 		if (*ignore || *s != '$')
 		{
 			/* Add the character, finish if the cursor has gone too far. */
 			Term_addch(*attr, *s);
+			mx--;
 		}
 		/* $$ prints $. */
 		else if (*(++s) == '$')
 		{
 			Term_addch(*attr, '$');
+			mx--;
 		}
 		/* $< saves the current colour as a default. */
 		else if (*s == '<')
@@ -2865,11 +2724,11 @@ static cptr mc_add(cptr s, int *dattr, int *attr, bool *ignore)
 		{
 			*attr = nattr;
 		}
-		/* An incorrect request is printed normally. */
+		/* An incorrect request gives a warning. */
 		else
 		{
-			Term_addch(*attr, '$');
-			Term_addch(*attr, *s);
+			Term_addch(TERM_RED, '$');
+			mx--;
 		}
 	}
 	return s;
@@ -2885,7 +2744,7 @@ static void mc_roff_aux(int x, cptr s)
 	int dattr = TERM_WHITE, attr = TERM_WHITE;
 	bool ignore = FALSE;
 
-	while (*((s = mc_add(s, &dattr, &attr, &ignore))))
+	while (*((s = mc_add(s, DEFAULT, &dattr, &attr, &ignore))))
 	{
 		if (strchr(" \n", *s))
 		{
@@ -2909,42 +2768,50 @@ void mc_roff_xy(int x, int y, cptr s)
 }
 
 /*
- * As above, starting at the current position and wrapping to 0.
+ * Print a string (as above) which starts in a particular colour and wraps to
+ * the left margin.
  */
-void mc_roff(cptr s)
+void c_roff(byte a, cptr str)
 {
-	mc_roff_aux(0, s);
+	char buf[1024];
+	sprintf(buf, "$%c$!", atchar[a]);
+	while (*str)
+	{
+		str += sprintf(buf+4, "%.1019s", str);
+		mc_roff_aux(0, buf);
+	}
 }
-
-/*
- * Print a string (as above) which starts in a particular colour.
- */
-bool c_roff(byte a, cptr str)
-{
-	mc_roff(format("$%c%s", atchar[a], str));
-	return TRUE;
-}
-
-/*
- * As above, but in "white"
- */
-void roff(cptr str)
-{
-	/* Spawn */
-	c_roff(TERM_WHITE, str);
-}
-
 
 /*
  * Write a line of (possibly multicolour) text to the screen using mc_add()
- * above.
- */ 
-void mc_put_str(const int y, const int x, cptr str)
+ * above. The maximum of characters printed will be l, or as many as will fit
+ * if l is DEFAULT.
+ */
+static void mc_add_str_aux(const int l, cptr str)
 {
 	int attr, dattr = attr = TERM_WHITE;
 	bool ignore = FALSE;
+	mc_add(str, l, &dattr, &attr, &ignore);
+}
+
+void mc_put_str(const int y, const int x, cptr str)
+{
 	if (Term_gotoxy(x, y)) return;
-	mc_add(str, &dattr, &attr, &ignore);
+	mc_add_str_aux(DEFAULT, str);
+}
+
+/*
+ * Write a line of formatted multicolour text at the current cursor location
+ * using mc_add().
+ */
+void mc_add_fmt(cptr fmt, ...)
+{
+	/* Get the string. */
+	char str[257];
+	get_va_arg_buf(str, fmt);
+
+	/* Print it. */
+	mc_add_str_aux(DEFAULT, str);
 }
 
 /*
@@ -2953,12 +2820,39 @@ void mc_put_str(const int y, const int x, cptr str)
  */
 void mc_put_fmt(const int y, const int x, cptr fmt, ...)
 {
-	/* The screen can only be 255 characters wide, so this is enough. */
-	char buf[256];
+	/* The screen can only be 256 characters wide, so this is enough. */
+	char buf[257];
 
+	/* Print it. */
 	get_va_arg_buf(buf, fmt);
 	mc_put_str(y, x, buf);
 }
+
+/*
+ * Hack - enter a coloured formatted string into a field of a specified
+ * width.
+ *
+ * This takes the width as a separate parameter (which should be turned into
+ * a general "precision" specifier), and acts as if the last used parameter
+ * was clear_f0 without an explicit call.
+ * This makes sense as the function is only used in one way at present.
+ */
+void mc_put_lfmt(const int y, const int x, const int l, cptr fmt, ...)
+{
+	/* The screen can only be 256 characters wide, so this is enough. */
+	char buf[257], *t;
+
+	/* Hack - allow the caller to request a limit. */
+	get_va_arg_buf(buf, fmt);
+
+	/* Hack - add a lot of space to the end of buf as an implicit clear_f0. */
+	for (t = strchr(buf, '\0'); t < END_PTR(buf)-1; t++) *t = ' ';
+	*t = '\0';
+
+	if (Term_gotoxy(x, y)) return;
+	mc_add_str_aux(l, buf);
+}
+
 
 /*
  * Clear part of the screen
@@ -2982,7 +2876,8 @@ void clear_from(int row)
  * Get some input at the cursor location.
  * Assume the buffer is initialized to a default string.
  * Note that this string is often "empty" (see below).
- * The default buffer is displayed in yellow until cleared or made the current string.
+ * The default buffer is displayed in yellow until cleared or made the current
+ * string.
  * Pressing RETURN right away accepts the default entry.
  * Normal chars clear the default and append the char.
  * Backspace clears the default or deletes the char before the cursor.
@@ -3026,8 +2921,7 @@ bool askfor_aux(char *buf, int len)
 
 
 	/* Display the default answer */
-	Term_erase(x, y, len);
-	Term_putstr(x, y, -1, TERM_YELLOW, buf);
+	mc_put_fmt(y, x, "$y$!%-*s", len, buf);
 
 	/* Reset edit_mode to ensure that each prompt is the same. */
 	if (!macro_edit) edit_mode = FALSE;
@@ -3065,11 +2959,11 @@ bool askfor_aux(char *buf, int len)
 			case '\010':
 			if (l > 0)
 			{
- 				k--;
+				k--;
 				l--;
 				for (j = l; j < k; j++)
 					buf[j] = buf[j+1];
- 			}
+			}
 			break;
 
 			case '\t':
@@ -3103,7 +2997,7 @@ bool askfor_aux(char *buf, int len)
 			{
 				if (l < k) l++;
 				break;
-			}			
+			}
 			case '7':
 			if (edit_mode)
 			{
@@ -3115,17 +3009,17 @@ bool askfor_aux(char *buf, int len)
 			{
 				if (l < k)
 				{
- 					k--;
+					k--;
 					for (j = l; j < k; j++)
 						buf[j] = buf[j+1];
 				}
 				break;
- 			}
-				
+			}
+
 			/* Parse normall if the above are not macros. */
 
 			default:
-			if ((k < len) && (isprint(i)))
+			if ((k < len) && (ISPRINT(i)))
 			{
 				for (j = k; j >= l; j--)
 					buf[j+1] = buf[j];
@@ -3143,8 +3037,7 @@ bool askfor_aux(char *buf, int len)
 		buf[k] = '\0';
 
 		/* Update the entry */
-		Term_erase(x, y, len);
-		Term_putstr(x, y, -1, TERM_WHITE, buf);
+		mc_put_fmt(y, x, "$!%-*s", len, buf);
 	}
 
 	/* Remove help. */
@@ -3286,8 +3179,12 @@ bool get_check(cptr prompt)
  *
  * Returns TRUE unless the character is "Escape"
  */
-bool get_com(cptr prompt, char *command)
+bool get_com(char *command, cptr fmt, ...)
 {
+	char prompt[257];
+
+	get_va_arg_buf(prompt, fmt);
+
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
 
@@ -3338,22 +3235,22 @@ s16b get_quantity(cptr prompt, int max,bool allbydefault)
 		return (amt);
 	}
 
- #ifdef ALLOW_REPEAT
-     
- 	/* Get the item index */
- 	if ((max != 1) && repeat_pull(&amt)) {
- 
- 		/* Enforce the maximum */
- 		if (amt > max) amt = max;
- 	
- 		/* Enforce the minimum */
- 		if (amt < 0) amt = 0;
- 
- 		/* Use it */
- 		return (amt);
- 	}
- 
- #endif /* ALLOW_REPEAT -- TNB */
+#ifdef ALLOW_REPEAT
+
+	/* Get the item index */
+	if ((max != 1) && repeat_pull(&amt)) {
+
+		/* Enforce the maximum */
+		if (amt > max) amt = max;
+
+		/* Enforce the minimum */
+		if (amt < 0) amt = 0;
+
+		/* Use it */
+		return (amt);
+	}
+
+#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Build a prompt if needed */
 	if (!prompt)
@@ -3370,7 +3267,7 @@ s16b get_quantity(cptr prompt, int max,bool allbydefault)
 	amt =1;
 	/* unless allbydefault is true */
 	if(allbydefault) amt=max;
-	
+
 	/* Build the default */
 	sprintf(buf, "%d", amt);
 
@@ -3381,7 +3278,7 @@ s16b get_quantity(cptr prompt, int max,bool allbydefault)
 	amt = atoi(buf);
 
 	/* A letter means "all" */
-	if (isalpha(buf[0])) amt = max;
+	if (ISALPHA(buf[0])) amt = max;
 
 	/* Enforce the maximum */
 	if (amt > max) amt = max;
@@ -3389,12 +3286,12 @@ s16b get_quantity(cptr prompt, int max,bool allbydefault)
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
- #ifdef ALLOW_REPEAT
- 
-     if (amt) repeat_push(amt);
-     
- #endif /* ALLOW_REPEAT -- TNB */
- 
+#ifdef ALLOW_REPEAT
+
+	if (amt) repeat_push(amt);
+
+#endif /* ALLOW_REPEAT -- TNB */
+
 
 	/* Return the result */
 	return (amt);
@@ -3417,11 +3314,6 @@ void pause_line(void)
 {
 	pause_line_aux(Term->hgt - 1);
 }
-
-/*
- * Hack -- special buffer to hold the action of the current keymap
- */
-static char request_command_buffer[256];
 
 /*
  * Find the keymap mode.
@@ -3453,7 +3345,7 @@ static cptr get_keymap(char trigger)
 /*
  * Request a command from the user.
  *
- * Sets p_ptr->command_cmd, p_ptr->command_dir, p_ptr->command_rep,
+ * Sets p_ptr->command_cmd, p_ptr->command_dir,
  * p_ptr->command_arg.  May modify p_ptr->command_new.
  *
  * Note that "caret" ("^") is treated specially, and is used to
@@ -3471,17 +3363,11 @@ static cptr get_keymap(char trigger)
  */
 void request_command(bool shopping)
 {
-	int i;
-
-	s16b cmd;
-	char cmd_char;
+	int i, cmd;
 
 	cptr act;
 
 
-
-	/* No command yet */
-	command_cmd = 0;
 
 	/* No "argument" yet (exclude special modes). */
 	if (!(command_new & 0xFF00)) command_arg = 0;
@@ -3493,6 +3379,8 @@ void request_command(bool shopping)
 	/* Get command */
 	while (1)
 	{
+		char cmd_char;
+
 		/* Hack -- auto-commands */
 		if (command_new)
 		{
@@ -3522,14 +3410,16 @@ void request_command(bool shopping)
 		/* Clear top line */
 		prt("", 0, 0);
 
-
-		/* Command Count */
-		if (cmd == '0')
+		/* There can be only one argument. */
+		if (cmd == '0' && command_arg)
 		{
-			int old_arg = command_arg;
-
+			bell("Command count already present.");
+		}
+		/* Command Count */
+		else if (cmd == '0')
+		{
 			/* Reset */
-			command_arg = 0;
+			int arg = 0;
 
 			/* Begin the input */
 			prt("Count: ", 0, 0);
@@ -3544,34 +3434,34 @@ void request_command(bool shopping)
 				if ((cmd == 0x7F) || (cmd == KTRL('H')))
 				{
 					/* Delete a digit */
-					command_arg = command_arg / 10;
+					arg /= 10;
 
 					/* Show current count */
-					prt(format("Count: %d", command_arg), 0, 0);
+					prt(format("Count: %d", arg), 0, 0);
 				}
 
 				/* Actual numeric data */
 				else if (cmd >= '0' && cmd <= '9')
 				{
 					/* Stop count at 9999 */
-					if (command_arg >= 1000)
+					if (arg >= 1000)
 					{
 						/* Warn */
 						bell(0);
 
 						/* Limit */
-						command_arg = 9999;
+						arg = 9999;
 					}
 
 					/* Increase count */
 					else
 					{
 						/* Incorporate that digit */
-						command_arg = command_arg * 10 + D2I(cmd);
+						arg = arg * 10 + D2I(cmd);
 					}
 
 					/* Show current count */
-					prt(format("Count: %d", command_arg), 0, 0);
+					mc_put_fmt(0, 0, "Count: %d%v", arg, clear_f0);
 				}
 
 				/* Exit on "unusable" input */
@@ -3582,40 +3472,25 @@ void request_command(bool shopping)
 			}
 
 			/* Hack -- Handle "zero" */
-			if (command_arg == 0)
+			if (!arg)
 			{
 				/* Default to 99 */
-				command_arg = 99;
-
-				/* Show current count */
-				prt(format("Count: %d", command_arg), 0, 0);
+				arg = 99;
 			}
 
-			/* Hack -- Handle "old_arg" */
-			if (old_arg != 0)
-			{
-				/* Restore old_arg */
-				command_arg = old_arg;
-
-				/* Show current count */
-				prt(format("Count: %d", command_arg), 0, 0);
-			}
+			/* Show current count */
+			mc_put_fmt(0, 0, "Count: %d%v", arg, clear_f0);
 
 			/* Hack -- white-space means "enter command now" */
 			if ((cmd == ' ') || (cmd == '\n') || (cmd == '\r'))
 			{
-				/* Get a real command */
-				bool tmp = get_com("Command: ", &cmd_char);
+				/* Get a real command, or forget this. */
+				if (!get_com(&cmd_char, "Command: ")) continue;
 				cmd = cmd_char;
-				if (!tmp)
-				{
-					/* Clear count */
-					command_arg = 0;
-
-					/* Continue */
-					continue;
-				}
 			}
+
+			/* Accept the argument. */
+			command_arg = arg;
 		}
 
 
@@ -3623,7 +3498,7 @@ void request_command(bool shopping)
 		if (cmd == '\\')
 		{
 			/* Get a real command */
-			(void)get_com("Command: ", &cmd_char);
+			(void)get_com(&cmd_char, "Command: ");
 			cmd = cmd_char;
 
 			/* Hack -- bypass keymaps */
@@ -3635,40 +3510,37 @@ void request_command(bool shopping)
 		if (cmd == '^')
 		{
 			/* Get a new command and controlify it */
-			if (get_com("Control: ", &cmd_char)) cmd = KTRL(cmd_char);
+			if (get_com(&cmd_char, "Control: ")) cmd = KTRL(cmd_char);
 		}
 
 
 		/* Look up applicable keymap if allowed. */
-		if (!(cmd & 0xFF00))
+		if (!(cmd & 0xFF00) && !inkey_next)
 		{
-		act = get_keymap(cmd);
+			act = get_keymap(cmd);
 
-		/* Apply keymap if not inside a keymap already */
-		if (act && !inkey_next)
-		{
-			/* Install the keymap (limited buffer size) */
-			strnfmt(request_command_buffer, 256, "%s", act);
+			/* Apply keymap if not inside a keymap already */
+			if (act)
+			{
+				/* Hack - store the current keymap here. */
+				static char request_command_buffer[256];
 
-			/* Start using the buffer */
-			inkey_next = request_command_buffer;
+				/* Install the keymap (limited buffer size) */
+				strnfmt(request_command_buffer, 256, "%s", act);
 
-			/* Continue */
-			continue;
+				/* Start using the buffer */
+				inkey_next = request_command_buffer;
+
+				continue;
+			}
 		}
-		}
 
-
-		/* Paranoia */
-		if (!cmd) continue;
-
-
-		/* Use command */
-		command_cmd = cmd;
-
-		/* Done */
-		break;
+		/* Found a command, so finish. */
+		if (cmd) break;
 	}
+
+	/* Use the command */
+	command_cmd = cmd;
 
 	/* Hack -- Auto-repeat certain commands */
 	if (always_repeat && (command_arg <= 0))
@@ -3711,7 +3583,7 @@ void request_command(bool shopping)
 		if (!o_ptr->k_idx) continue;
 
 		/* Obtain the inscription, if any. */
-		s = quark_str(o_ptr->note);
+		s = get_inscription(o_ptr);
 
 		/* Find a '^' */
 		s = strchr(s, '^');
@@ -3768,7 +3640,7 @@ bool is_a_vowel(int ch)
 
 
 
- 
+
 /*
  * Extract a direction from the keymap of the key pressed.
  */
@@ -3795,92 +3667,92 @@ int get_keymap_dir(char ch)
 		/* Convert to a direction */
 		for (s = act; *s; ++s)
 		{
- 			/* Use any digits in keymap */
-			if (isdigit(*s)) d = D2I(*s);
+			/* Use any digits in keymap */
+			if (ISDIGIT(*s)) d = D2I(*s);
 		}
 	}
 	return d;
 }
- 
- 
- #ifdef ALLOW_REPEAT
- 
- #define REPEAT_MAX		20
- 
- /* Number of chars saved */
- static int repeat__cnt = 0;
- 
- /* Current index */
- static int repeat__idx = 0;
- 
- /* Saved "stuff" */
- static int repeat__key[REPEAT_MAX];
- 
- void repeat_push(int what)
- {
- 	/* Too many keys */
- 	if (repeat__cnt == REPEAT_MAX) return;
- 	
- 	/* Push the "stuff" */
- 	repeat__key[repeat__cnt++] = what;
- 	
- 	/* Prevents us from pulling keys */
- 	++repeat__idx;
- }
- 
- bool repeat_pull(int *what)
- {
- 	/* All out of keys */
- 	if (repeat__idx == repeat__cnt) return (FALSE);
- 	
- 	/* Grab the next key, advance */
- 	*what = repeat__key[repeat__idx++];
- 	
- 	/* Success */
- 	return (TRUE);
- }
- 
- void repeat_check(void)
- {
- 	int		what;
- 
-     /* Ignore some commands */
-     if (command_cmd == ESCAPE) return;
-     if (command_cmd == ' ') return;
-     if (command_cmd == '\r') return;
-     if (command_cmd == '\n') return;
-     
- 	/* Repeat Last Command */
- 	if (command_cmd == 'n') {
- 		
- 		/* Reset */
- 		repeat__idx = 0;
- 		
- 		/* Get the command */
- 		if (repeat_pull(&what)) {
- 		
- 			/* Save the command */
- 			command_cmd = what;
- 		}
- 	}
- 	
- 	/* Start saving new command */
- 	else {
- 		
- 		/* Reset */
- 		repeat__cnt = 0;
- 		repeat__idx = 0;
- 		
- 		what = command_cmd;
- 		
- 		/* Save this command */
- 		repeat_push(what);
- 	}
- }
- 
- #endif /* ALLOW_REPEAT -- TNB */
- 
- 
+
+
+#ifdef ALLOW_REPEAT
+
+#define REPEAT_MAX 20
+
+/* Number of chars saved */
+static int repeat__cnt = 0;
+
+/* Current index */
+static int repeat__idx = 0;
+
+/* Saved "stuff" */
+static int repeat__key[REPEAT_MAX];
+
+void repeat_push(int what)
+{
+	/* Too many keys */
+	if (repeat__cnt == REPEAT_MAX) return;
+
+	/* Push the "stuff" */
+	repeat__key[repeat__cnt++] = what;
+
+	/* Prevents us from pulling keys */
+	++repeat__idx;
+}
+
+bool repeat_pull(int *what)
+{
+	/* All out of keys */
+	if (repeat__idx == repeat__cnt) return (FALSE);
+
+	/* Grab the next key, advance */
+	*what = repeat__key[repeat__idx++];
+
+	/* Success */
+	return (TRUE);
+}
+
+void repeat_check(void)
+{
+	int what;
+
+	/* Ignore some commands */
+	if (command_cmd == ESCAPE) return;
+	if (command_cmd == ' ') return;
+	if (command_cmd == '\r') return;
+	if (command_cmd == '\n') return;
+
+	/* Repeat Last Command */
+	if (command_cmd == 'n') {
+
+		/* Reset */
+		repeat__idx = 0;
+
+		/* Get the command */
+		if (repeat_pull(&what)) {
+
+			/* Save the command */
+			command_cmd = what;
+		}
+	}
+
+	/* Start saving new command */
+	else {
+
+		/* Reset */
+		repeat__cnt = 0;
+		repeat__idx = 0;
+
+		what = command_cmd;
+
+		/* Save this command */
+		repeat_push(what);
+	}
+}
+
+#endif /* ALLOW_REPEAT -- TNB */
+
+
 #ifdef SUPPORT_GAMMA
 
 /* Table of gamma values */
@@ -3969,7 +3841,8 @@ void build_gamma_table(int gamma)
 			 * divided by 256*256 each itteration, to get back to
 			 * the original power series.
 			 */
-			diff = (((diff / 256) * gamma_helper[i]) * (gamma - 256)) / (256 * n);
+			diff = (((diff / 256) * gamma_helper[i]) * (gamma - 256)) /
+				(256 * n);
 		}
 
 		/*

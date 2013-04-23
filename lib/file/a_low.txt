@@ -1,9 +1,7 @@
-# w_med.txt
+# a_low.txt
 #
 # Contains possible names for low level random armour artefacts.
 
-85
-******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Ehr Rhee'
 of the East
 'Zir Dawn'

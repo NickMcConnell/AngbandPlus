@@ -4,6 +4,7 @@ The Great Outdoors
 
 Cthangband has a collection of towns, towers, and dungeons set in a wilderness map, which must be traversed to get from one to another. Each dungeon and tower has at least one guardian, and the sewers of several towns also have guardians.  In order to win the game, all guardians must be defeated.
 
+%%%%% <shops>
 Shops
 =====
 
@@ -36,6 +37,7 @@ Pawnbrokers (green 'P'): Will purchase items.
 Town Hall (yellow 'H'):  Will show records of other players, and will sell you a house if one is available in town.
 
 
+%%%%% <towns>
 Towns
 =====
 
@@ -59,6 +61,7 @@ The Industrious Town of Inganok:  Lacks a magic shop, or a house for sale. The s
 
 The Hamlet of Nir:  Not much here, but it has a general store and an inn. There are a lot of assorted people walking through town.  The sewers go to 350', and are guarded by Robin Hood.
 
+%%%%% <dungeons>
 Dungeons and Towers
 ======== === ======
 

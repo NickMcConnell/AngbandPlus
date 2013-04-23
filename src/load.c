@@ -39,22 +39,22 @@
 /*
  * Local "savefile" pointer
  */
-static FILE	*fff;
+static FILE *fff;
 
 /*
  * Hack -- old "encryption" byte
  */
-static byte	xor_byte, sf_extra;
+static byte xor_byte, sf_extra;
 
 /*
  * Hack -- simple "checksum" on the actual values
  */
-static u32b	v_check = 0L;
+static u32b v_check = 0L;
 
 /*
  * Hack -- simple "checksum" on the encoded bytes
  */
-static u32b	x_check = 0L;
+static u32b x_check = 0L;
 
 
 
@@ -198,28 +198,24 @@ static void rd_s32b(s32b *ip)
 
 
 /*
- * Hack -- read a string
+ * Hack -- read a string, truncating if necessary to prevent overflow.
  */
 static void rd_string(char *str, int max)
 {
-	char c;
-	int i;
+	char *s = str;
 
 	/* Read the string */
-	for (i = 0, c = 1; c && i < max-1; i++)
+	while (1)
 	{
 		/* Read a char */
-		rd_char(str+i);
-		
-		/* Put it somewhere convenient. */
-		c = str[i];
+		rd_char(s);
+
+		/* Stop at the end of the string. */
+		if (!*s) break;
+
+		/* Advance if safe. */
+		if (s < str+max-1) s++;
 	}
-
-	/* Terminate if a termination character wasn't read above. */
-	if (c) str[max-1] = '\0';
-
-	/* Read any extra characters at the end. */
-	while (c) rd_char(&c);
 }
 
 
@@ -391,6 +387,20 @@ static void rd_item(object_type *o_ptr)
 	/* Set the stack number. */
 	if (has_flag(SF_STACK_IDX)) rd_byte(&o_ptr->stack);
 
+	if (has_flag(SF_OBJECT_HISTORY))
+	{
+		rd_byte(&o_ptr->found.how);
+		rd_s16b(&o_ptr->found.idx);
+		rd_byte(&o_ptr->found.dungeon);
+		rd_byte(&o_ptr->found.level);
+	}
+	else
+	{
+		o_ptr->found.how = FOUND_UNKNOWN;
+		o_ptr->found.dungeon = FOUND_DUN_UNKNOWN;
+		o_ptr->found.level = FOUND_LEV_UNKNOWN;
+	}
+
 	if (o_ptr->k_idx < 0 || o_ptr->k_idx >= MAX_K_IDX)
 	{
 		note("Destroying object with a bad k_idx.");
@@ -552,8 +562,14 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
-    rd_u32b(&m_ptr->smart);
+	rd_u32b(&m_ptr->smart);
 	rd_byte(&tmp8u);
+
+	if (has_flag(SF_FEAR_DAMAGE))
+	{
+		rd_s16b(&m_ptr->pl_mdam);
+		rd_s16b(&m_ptr->pl_cdam);
+	}
 
 	if (m_ptr->r_idx < 0 || m_ptr->r_idx >= MAX_R_IDX ||
 		!r_info[m_ptr->r_idx].name)
@@ -584,13 +600,7 @@ static void rd_lore(monster_race *r_ptr)
 		rd_byte(&r_ptr->r_wake);
 		rd_byte(&r_ptr->r_ignore);
 
-		/* Extra stuff */
-#if 0
-		rd_byte(&r_ptr->r_xtra1);
-		rd_byte(&r_ptr->r_xtra2);
-#else
 		strip_bytes(2);
-#endif
 
 		/* Count drops */
 		rd_byte(&r_ptr->r_drop_gold);
@@ -769,10 +779,10 @@ static void rd_randomizer(void)
 
 	/* Tmp */
 	rd_u16b(&tmp16u);
-	
+
 	/* Place */
 	rd_u16b(&Rand_place);
-	
+
 	/* State */
 	for (i = 0; i < RAND_DEG; i++)
 	{
@@ -808,6 +818,7 @@ static void rd_options(void)
 	u32b flag[8];
 	u32b mask[8];
 	byte flagw[8][32];
+	option_type *op_ptr, *o2_ptr;
 
 
 	/*** Oops ***/
@@ -859,60 +870,31 @@ static void rd_options(void)
 	for (n = 0; n < 8; n++) rd_u32b(&mask[n]);
 
 	/* Analyze the options */
-	for (n = 0; n < 8; n++)
+	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
 	{
-		/* Analyze the options */
-		for (i = 0; i < 32; i++)
-		{
-			/* Process valid flags */
-			if (mask[n] & (1L << i))
-			{
-				/* Process valid flags */
-				if (option_mask[n] & (1L << i))
-				{
-					/* Set */
-					if (flag[n] & (1L << i))
-					{
-						/* Set */
-						option_flag[n] |= (1L << i);
-					}
-				
-					/* Clear */
-					else
-					{
-						/* Clear */
-						option_flag[n] &= ~(1L << i);
-					}
-				}
-			}
-		}
+		int bit = op_ptr->o_bit, set = op_ptr->o_set;
+
+		/* Not a known option. */
+		if (!(mask[set] & (1L << bit))) continue;
+
+		/* Copy the saved value to the option. */
+		op_ptr->o_var[0] = (0 != (flag[set] & (1L << bit)));
 	}
 
 	/* Copy across the birth options if they weren't previously known. */
+	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
 	{
-		option_type *op_ptr, *o2_ptr;
+		if (op_ptr->o_page != OPTS_BIRTH) continue;
+		o2_ptr = op_ptr+1;
 
-		for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
-		{
-			if (op_ptr->o_page != OPTS_BIRTH) continue;
-			o2_ptr = op_ptr+1;
+		/* Only some birth options affect the game later on. */
+		if (o2_ptr->o_page != OPTS_BIRTHR) continue;
 
-			/* Only some birth options affect the game later on. */
-			if (o2_ptr->o_page != OPTS_BIRTHR) continue;
+		/* Only set previously undefined options. */
+		if (mask[o2_ptr->o_set] & (1L << o2_ptr->o_bit)) continue;
 
-			/* Only set previously undefined options. */
-			if (option_mask[o2_ptr->o_set] & 1L << (o2_ptr->o_bit)) continue;
-
-			/* Copy the BIRTH option to the BIRTHR equivalent. */
-			if (option_flag[op_ptr->o_set] & 1L << (op_ptr->o_bit))
-			{
-				option_flag[o2_ptr->o_set] |= 1L << (o2_ptr->o_bit);
-			}
-			else
-			{
-				option_flag[o2_ptr->o_set] &= ~(1L << (o2_ptr->o_bit));
-			}
-		}
+		/* Copy the BIRTH option to the BIRTHR equivalent. */
+		o2_ptr->o_var[0] = op_ptr->o_var[0];
 	}
 
 	/*** Window Options ***/
@@ -920,16 +902,16 @@ static void rd_options(void)
 	/* Read the window flags */
 	if (has_flag(SF_3D_WINPRI))
 	{
-	for (n = 0; n < 8; n++)
-	{
-		for (i = 0; i < 32; i++)
+		for (n = 0; n < 8; n++)
 		{
+			for (i = 0; i < 32; i++)
+			{
 				rd_byte(&flagw[n][i]);
 			}
 		}
-					}
-					else
-					{
+	}
+	else
+	{
 		for (n = 0; n < 8; n++)
 		{
 			u32b temp;
@@ -944,9 +926,9 @@ static void rd_options(void)
 				{
 					flagw[n][i] = 0x00;
 				}
-					}
-					}
-				}                           
+			}
+		}
+	}
 
 
 	/* Read the window masks */
@@ -985,7 +967,7 @@ static void rd_options(void)
 static void rd_ghost(void)
 {
 	int i;
-    
+
 	monster_race *r_ptr = r_info+MON_PLAYER_GHOST;
 
 	/* Name */
@@ -1012,12 +994,7 @@ static void rd_ghost(void)
 	/* Experience */
 	rd_s32b(&r_ptr->mexp);
 
-	/* Extra */
-#if 0
-	rd_s16b(&r_ptr->extra);
-#else
 	strip_bytes(2);
-#endif
 
 	/* Frequency */
 	rd_byte(&r_ptr->freq_inate);
@@ -1056,7 +1033,7 @@ static void skill_copy(int to, int from)
 {
 	player_skill *sf_ptr = skill_set+from;
 	player_skill *st_ptr = skill_set+to;
-	
+
 	st_ptr->value = sf_ptr->value;
 	st_ptr->max_value = sf_ptr->max_value;
 	st_ptr->base = sf_ptr->base;
@@ -1079,7 +1056,7 @@ static void rd_extra(void)
 	{
 		char buf[1024];
 		rd_string(buf, 1024);
-		died_from = string_make(buf);
+		died_from = safe_string_make(buf);
 	}
 
 	for (i = 0; i < 4; i++)
@@ -1145,9 +1122,10 @@ static void rd_extra(void)
 		strip_bytes(6*(tmp8u-MAX_SKILLS));
 		if (has_flag(SF_SKILL_BASE)) strip_bytes(2*(tmp8u-MAX_SKILLS));
 	}
-	
+
 	if (tmp8u < SKILL_PSEUDOID) skill_copy(SKILL_PSEUDOID, SKILL_DEVICE);
 
+	if (has_flag(SF_OBJECT_SKILL)) rd_byte(&object_skill_count);
 
 	rd_s16b(&p_ptr->mhp);
 	rd_s16b(&p_ptr->chp);
@@ -1219,9 +1197,7 @@ static void rd_extra(void)
 	}
 	strip_bytes(18);
 	rd_s16b(&p_ptr->chaos_patron);
-	rd_u32b(&p_ptr->muta1);
-	rd_u32b(&p_ptr->muta2);
-	rd_u32b(&p_ptr->muta3);
+	for (i = 0; i < 3; i++) rd_u32b(&p_ptr->muta[i]);
 
 	rd_byte(&p_ptr->confusing);
 	if (!has_flag(SF_QUEST_DIRECT)) strip_bytes(8);
@@ -1258,7 +1234,7 @@ static void rd_extra(void)
 			wild_grid[i][j].dungeon=tmp8u;
 
 			/* Fill in the town and dungeon locations if possible */
-			
+
 			if(tmp8u < MAX_CAVES)
 			{
 				dun_defs[tmp8u].y=i;
@@ -1274,8 +1250,9 @@ static void rd_extra(void)
 		}
 	}
 
+	strip_bytes(2);
+
 	/* Special stuff */
-	rd_u16b(&panic_save);
 	rd_u16b(&total_winner);
 	rd_u16b(&noscore);
 
@@ -1413,31 +1390,6 @@ static void rd_messages(void)
 
 
 /*
- * Old "cave grid" flags -- saved in savefile
- */
-#define OLD_GRID_W_01   0x0001  /* Wall type (bit 1) */
-#define OLD_GRID_W_02   0x0002  /* Wall type (bit 2) */
-#define OLD_GRID_PERM   0x0004  /* Wall type is permanent */
-#define OLD_GRID_QQQQ   0x0008  /* Unused */
-#define OLD_GRID_MARK   0x0010  /* Grid is memorized */
-#define OLD_GRID_GLOW   0x0020  /* Grid is illuminated */
-#define OLD_GRID_ROOM   0x0040  /* Grid is part of a room */
-#define OLD_GRID_ICKY   0x0080  /* Grid is anti-teleport */
-
-/*
- * Masks for the new grid types
- */
-#define OLD_GRID_WALL_MASK      0x0003  /* Wall type */
-
-/*
- * Legal results of OLD_GRID_WALL_MASK
- */
-#define OLD_GRID_WALL_NONE              0x0000  /* No wall */
-#define OLD_GRID_WALL_MAGMA             0x0001  /* Magma vein */
-#define OLD_GRID_WALL_QUARTZ    0x0002  /* Quartz vein */
-#define OLD_GRID_WALL_GRANITE   0x0003  /* Granite wall */
-
-/*
  * Read the dungeon
  *
  * The monsters/objects must be loaded in the same order
@@ -1571,7 +1523,7 @@ static errr rd_dungeon(void)
 	/* Read the dungeon items */
 	for (i = 1; i < MIN(limit, MAX_O_IDX); i++)
 	{
-		
+
 		int o_idx;
 
 		object_type *o_ptr;
@@ -1611,7 +1563,7 @@ static errr rd_dungeon(void)
 			/* Place the object */
 			m_ptr->hold_o_idx = o_idx;
 		}
-		
+
 		/* Dungeon */
 		else
 		{
@@ -1752,7 +1704,7 @@ static void rd_spell_flags(void)
 /*
  * Actually read the savefile
  */
-static errr rd_savefile_new_aux(void)
+static errr rd_savefile_new_aux(bool new_game)
 {
 	int i;
 	bool warn;
@@ -2100,12 +2052,12 @@ good:
 		msg_format("Deleting %u unrecognised stores", tmp16u - MAX_STORES_TOTAL);
 		for (i = 0; i < tmp16u - MAX_STORES_TOTAL; i++) rd_store(0);
 	}
-	
+
 	for (i = 0; i < MIN(MAX_STORES_TOTAL, tmp16u); i++)
 	{
 		if (rd_store(i)) return (22);
 	}
-	
+
 	/* I'm not dead yet... */
 	if (!death)
 	{
@@ -2122,7 +2074,7 @@ good:
 	}
 
 	/* New characters use the base quest list. */
-	if (death)
+	if (death || new_game)
 	{
 		FREE(q_list_new);
 	}
@@ -2175,7 +2127,7 @@ good:
 /*
  * Actually read the savefile
  */
-static errr rd_savefile_new(void)
+static errr rd_savefile_new(bool new_game)
 {
 	errr err;
 
@@ -2186,7 +2138,7 @@ static errr rd_savefile_new(void)
 	if (!fff) return (-1);
 
 	/* Call the sub-function */
-	err = rd_savefile_new_aux();
+	err = rd_savefile_new_aux(new_game);
 
 	/* Check for errors */
 	if (ferror(fff)) err = -1;
@@ -2223,7 +2175,7 @@ static errr rd_savefile_new(void)
  * Note that we always try to load the "current" savefile, even if
  * there is no such file, so we must check for "empty" savefile names.
  */
-bool load_player(void)
+bool load_player(bool new_game)
 {
 	int             fd = -1;
 
@@ -2347,16 +2299,16 @@ bool load_player(void)
 	{
 
 		/* Extract version */
-        sf_major = vvv[0];
-        sf_minor = vvv[1];
-        sf_patch = vvv[2];
+		sf_major = vvv[0];
+		sf_minor = vvv[1];
+		sf_patch = vvv[2];
 		sf_extra = vvv[3];
 
 		/* Clear screen */
 		Term_clear();
 
 		/* Attempt to load */
-		err = rd_savefile_new();
+		err = rd_savefile_new(new_game);
 		/* Message (below) */
 		if (err) what = "Cannot parse savefile";
 	}
@@ -2377,7 +2329,7 @@ bool load_player(void)
 	{
 		/* Hack -- Verify the timestamp */
 		if (sf_when > (statbuf.st_ctime + 100) ||
-		    sf_when < (statbuf.st_ctime - 100))
+			sf_when < (statbuf.st_ctime - 100))
 		{
 			/* Message */
 			what = "Invalid timestamp";
@@ -2395,14 +2347,13 @@ bool load_player(void)
 		byte cur[3];
 		current_version(sf_flags_sf, cur, cur+1, cur+2);
 		/* Give a conversion warning */
-        if ((cur[0] != sf_major) ||
-            (cur[1] != sf_minor) ||
-            (cur[2] != sf_patch))
+		if ((cur[0] != sf_major) ||
+			(cur[1] != sf_minor) ||
+			(cur[2] != sf_patch))
 		{
 			/* Message */
-            msg_format("Converted a %d.%d.%d savefile.",
-                       sf_major, sf_minor, sf_patch);
-			msg_print(NULL);
+			msg_format("Converted a %d.%d.%d savefile.",
+						sf_major, sf_minor, sf_patch);
 		}
 
 		/* Player is dead */
@@ -2427,14 +2378,14 @@ bool load_player(void)
 		/* Still alive */
 		if (p_ptr->chp >= 0)
 		{
-			/* Froget the cause of death from the save file. */
-			FREE(died_from);
+			/* Forget the cause of death, if none. */
+			safe_free((vptr)died_from);
 
 			/* Reset cause of death */
 			died_from = "(alive and well)";
 
 			/* Accept the quest list. */
-			
+
 		}
 
 		/* Success */
@@ -2462,7 +2413,7 @@ bool load_player(void)
 
 	/* Message */
 	msg_format("Error (%s) reading %d.%d.%d savefile.",
-		   what, sf_major, sf_minor, sf_patch);
+		what, sf_major, sf_minor, sf_patch);
 	msg_print(NULL);
 
 	/* Oops */

@@ -12,7 +12,7 @@ CFLAGS  = /mf /3r /3 /wx /s /oneatx /DUSE_IBM /DUSE_WAT
 
 OBJS = &
   z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj &
-  variable.obj tables.obj util.obj cave.obj &
+  variable.obj tables.obj util.obj ui.obj cave.obj &
   object1.obj object2.obj monster1.obj monster2.obj &
   xtra1.obj xtra2.obj spells1.obj spells2.obj melee1.obj melee2.obj &
   load.obj loadsave.obj save.obj files.obj &

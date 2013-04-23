@@ -35,20 +35,20 @@
 
 #ifdef USE_IBM
 
-  /*
-   * OPTION: Compile on an IBM (automatic)
-   */
-  #ifndef MSDOS
-    #define MSDOS
-  #endif
+/*
+ * OPTION: Compile on an IBM (automatic)
+ */
+#ifndef MSDOS
+	#define MSDOS
+#endif
 
 
-  /* Use the new SVGA code */
-  #ifndef USE_IBM_SVGA
-    #define USE_IBM_SVGA
-  #endif
+/* Use the new SVGA code */
+#ifndef USE_IBM_SVGA
+	#define USE_IBM_SVGA
+#endif
 
- 
+
 #endif
 
 /*
@@ -161,8 +161,8 @@
  * Extract the "WINDOWS" flag from the compiler
  */
 #if defined(_Windows) || defined(__WINDOWS__) || \
-    defined(__WIN32__) || defined(WIN32) || \
-    defined(__WINNT__) || defined(__NT__)
+	defined(__WIN32__) || defined(WIN32) || \
+	defined(__WINNT__) || defined(__NT__)
 # ifndef WINDOWS
 #  define WINDOWS
 # endif
@@ -193,8 +193,8 @@
  * or for the "Atari" platform which is Unix-like, apparently
  */
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
-    !defined(MSDOS) && !defined(USE_EMX) && \
-    !defined(AMIGA) && !defined(ACORN) && !defined(VM)
+	!defined(MSDOS) && !defined(USE_EMX) && \
+	!defined(AMIGA) && !defined(ACORN) && !defined(VM)
 # define SET_UID
 #endif
 
@@ -208,7 +208,7 @@
  */
 #ifdef SET_UID
 # if defined(SYS_III) || defined(SYS_V) || defined(SOLARIS) || \
-     defined(HPUX) || defined(SGI) || defined(ATARI)
+	defined(HPUX) || defined(SGI) || defined(ATARI)
 #  ifndef USG
 #   define USG
 #  endif
@@ -305,15 +305,15 @@
  */
 #ifdef SET_UID
 # if !defined(HPUX) && !defined(ULTRIX) && !defined(SOLARIS) && \
-     !defined(SGI) && !defined(ISC)
+	!defined(SGI) && !defined(ISC)
 #  define HAS_USLEEP
 # endif
 #endif
 
 #ifdef USE_IBM
-    #ifndef HAS_USLEEP
-    #define HAS_USLEEP /* Set for gcc (djgpp-v2), TY */
-    #endif
+	#ifndef HAS_USLEEP
+	#define HAS_USLEEP /* Set for gcc (djgpp-v2), TY */
+	#endif
 #endif
 
 /*

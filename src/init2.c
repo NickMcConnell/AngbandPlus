@@ -65,7 +65,7 @@ static void create_user_dir(void)
 		case SUCCESS:
 		{
 			char from[1024], to[1024];
-			/* New directory, so copy default user file to it. 
+			/* New directory, so copy default user file to it.
 			 * Maybe it should copy all pref files in ANGBAND_DIR_USER... */
 
 			/* Build the paths. */
@@ -123,9 +123,6 @@ void init_file_paths(cptr path)
 {
 	/*** Free everything ***/
 
-	/* Free the main path */
-	FREE(ANGBAND_DIR);
-
 	/* Free the sub-paths */
 	FREE(ANGBAND_DIR_APEX);
 	FREE(ANGBAND_DIR_BONE);
@@ -141,9 +138,6 @@ void init_file_paths(cptr path)
 
 
 	/*** Prepare the "path" ***/
-
-	/* Hack -- save the main directory */
-	ANGBAND_DIR = string_make(path);
 
 #ifdef VM
 
@@ -255,9 +249,7 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"undefined directive",
 	"out of memory",
 	"value out of bounds",
-	"too few arguments",
 	"too many arguments",
-	"too many allocation entries",
 	"invalid spell frequency",
 	"incorrect syntax",
 };
@@ -306,7 +298,7 @@ static errr check_modification_date(int fd, cptr template_file)
 
 #endif /* CHECK_MODIFICATION_TIME && HAS_STAT */
 
-/* 
+/*
  * A hook for a function which compares the modification date of a raw fd
  * to the text file from which it was derived.
  */
@@ -366,7 +358,7 @@ static errr init_info_raw(int fd, header *head)
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 		(!streq(test.version, head->version)) ||
 		(test.header_num != head->header_num) ||
-	    (test.info_len != head->info_len))
+		(test.info_len != head->info_len))
 	{
 		/* Error */
 		return (-1);
@@ -432,7 +424,7 @@ static void display_parse_error(cptr filename, errr err, cptr buf)
 	message_flush();
 
 	/* Quit */
-	quit_fmt("Error in '%s.txt' file.", filename);
+	quit_fmt("Error in '%s' file.", filename);
 }
 
 #endif /* ALLOW_TEMPLATES */
@@ -722,7 +714,7 @@ static void init_x_final(int num)
 	}
 	return;
 }
-		
+
 #ifdef ALLOW_TEMPLATES
 #define IF_AT(X) X
 #else /* ALLOW_TEMPLATES */
@@ -744,562 +736,53 @@ static void init_x_final(int num)
 
 
 
-/*** Initialize others ***/
-
-
+/*
+ * Sort features in priority_table by priority.
+ */
+static bool ang_sort_comp_priority(vptr UNUSED u, vptr UNUSED v, int a, int b)
+{
+	return (priority_table[a]->priority >= priority_table[b]->priority);
+}
 
 /*
- * Hack -- Objects sold in the stores -- by k_idx.
+ * Swap hook for features in priority_table.
  */
-s16b store_table[MAX_STORE_TYPES][STORE_CHOICES] =
+static void ang_sort_swap_priority(vptr UNUSED u, vptr UNUSED v, int a, int b)
 {
+	feature_type *f_ptr = priority_table[a];
+	priority_table[a] = priority_table[b];
+	priority_table[b] = f_ptr;
+}
+
+/*
+ * Initialise the priority table for the small scale dungeon map.
+ * This could be stored in a raw file if desired.
+ */
+static void init_feature_priorities(void)
+{
+	feature_type *f_ptr;
+	int t;
+	for (f_ptr = f_info, t = 0; f_ptr < f_info+z_info->f_max; f_ptr++)
 	{
-		/* 0 = General Store */
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-
-		OBJ_RATION_OF_FOOD,
-		OBJ_HARD_BISCUIT,
-		OBJ_STRIP_OF_VENISON,
-		OBJ_STRIP_OF_VENISON,
-
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-		OBJ_WOODEN_TORCH,
-		OBJ_WOODEN_TORCH,
-
-		OBJ_WOODEN_TORCH,
-		OBJ_WOODEN_TORCH,
-		OBJ_BRASS_LANTERN,
-		OBJ_BRASS_LANTERN,
-
-		OBJ_FLASK_OF_OIL,
-		OBJ_FLASK_OF_OIL,
-		OBJ_FLASK_OF_OIL,
-		OBJ_FLASK_OF_OIL,
-
-		OBJ_FLASK_OF_OIL,
-		OBJ_FLASK_OF_OIL,
-		OBJ_FLASK_OF_OIL,
-		OBJ_FLASK_OF_OIL,
-
-		OBJ_FLASK_OF_OIL,
-		OBJ_FLASK_OF_OIL,
-		OBJ_IRON_SPIKE,
-		OBJ_IRON_SPIKE,
-
-		OBJ_ARROW,
-		OBJ_BOLT,
-		OBJ_IRON_SHOT,
-		OBJ_SHOVEL,
-
-		OBJ_ARROW,
-		OBJ_BOLT,
-		OBJ_IRON_SHOT,
-		OBJ_SHOVEL,
-
-		OBJ_PICK,
-		OBJ_CLOAK,
-		OBJ_CLOAK,
-		OBJ_CLOAK,
-
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-
-		OBJ_WOODEN_TORCH,
-		OBJ_WOODEN_TORCH,
-		OBJ_BRASS_LANTERN,
-		OBJ_BRASS_LANTERN,
-	},
-
-	{
-		/* 1 = Armoury */
-
-		OBJ_SOFT_LEATHER_BOOTS,
-		OBJ_SOFT_LEATHER_BOOTS,
-		OBJ_HARD_LEATHER_BOOTS,
-		OBJ_HARD_LEATHER_BOOTS,
-
-		OBJ_HARD_LEATHER_CAP,
-		OBJ_HARD_LEATHER_CAP,
-		OBJ_METAL_CAP,
-		OBJ_IRON_HELM,
-
-		OBJ_ROBE,
-		OBJ_ROBE,
-		OBJ_SOFT_LEATHER_ARMOUR,
-		OBJ_SOFT_LEATHER_ARMOUR,
-
-		OBJ_HARD_LEATHER_ARMOUR,
-		OBJ_HARD_LEATHER_ARMOUR,
-		OBJ_HARD_STUDDED_LEATHER,
-		OBJ_HARD_STUDDED_LEATHER,
-
-		OBJ_LEATHER_SCALE_MAIL,
-		OBJ_LEATHER_SCALE_MAIL,
-		OBJ_METAL_SCALE_MAIL,
-		OBJ_CHAIN_MAIL,
-
-		OBJ_CHAIN_MAIL,
-		OBJ_AUGMENTED_CHAIN_MAIL,
-		OBJ_BAR_CHAIN_MAIL,
-		OBJ_DOUBLE_CHAIN_MAIL,
-
-		OBJ_METAL_BRIGANDINE_ARMOUR,
-		OBJ_LEATHER_GLOVES,
-		OBJ_LEATHER_GLOVES,
-		OBJ_GAUNTLETS,
-
-		OBJ_SMALL_LEATHER_SHIELD,
-		OBJ_SMALL_LEATHER_SHIELD,
-		OBJ_LARGE_LEATHER_SHIELD,
-		OBJ_SMALL_METAL_SHIELD,
-
-		OBJ_HARD_LEATHER_BOOTS,
-		OBJ_HARD_LEATHER_BOOTS,
-		OBJ_HARD_LEATHER_CAP,
-		OBJ_HARD_LEATHER_CAP,
-
-		OBJ_ROBE,
-		OBJ_SOFT_LEATHER_ARMOUR,
-		OBJ_SOFT_LEATHER_ARMOUR,
-		OBJ_HARD_LEATHER_ARMOUR,
-
-		OBJ_LEATHER_SCALE_MAIL,
-		OBJ_METAL_SCALE_MAIL,
-		OBJ_CHAIN_MAIL,
-		OBJ_CHAIN_MAIL,
-
-		OBJ_LEATHER_GLOVES,
-		OBJ_GAUNTLETS,
-		OBJ_SMALL_LEATHER_SHIELD,
-		OBJ_SMALL_LEATHER_SHIELD,
-	},
-
-	{
-		/* 2 = Weaponsmith */
-		OBJ_DAGGER,
-		OBJ_MAIN_GAUCHE,
-		OBJ_RAPIER,
-		OBJ_SMALL_SWORD,
-
-		OBJ_SHORT_SWORD,
-		OBJ_SABRE,
-		OBJ_CUTLASS,
-		OBJ_TULWAR,
-
-		OBJ_BROAD_SWORD,
-		OBJ_LONG_SWORD,
-		OBJ_SCIMITAR,
-		OBJ_KATANA,
-
-		OBJ_BASTARD_SWORD,
-		OBJ_SPEAR,
-		OBJ_AWL_PIKE,
-		OBJ_TRIDENT,
-
-		OBJ_PIKE,
-		OBJ_BEAKED_AXE,
-		OBJ_BROAD_AXE,
-		OBJ_LANCE,
-
-		OBJ_BATTLE_AXE,
-		OBJ_WHIP,
-		OBJ_SLING,
-		OBJ_SHORT_BOW,
-
-		OBJ_LONG_BOW,
-		OBJ_LIGHT_CROSSBOW,
-		OBJ_ARROW,
-		OBJ_BOLT,
-
-		OBJ_IRON_SHOT,
-		OBJ_ARROW,
-		OBJ_BOLT,
-		OBJ_IRON_SHOT,
-
-		OBJ_LONG_BOW,
-		OBJ_LIGHT_CROSSBOW,
-		OBJ_ARROW,
-		OBJ_BOLT,
-
-		OBJ_ARROW,
-		OBJ_BOLT,
-		OBJ_SHORT_BOW,
-		OBJ_DAGGER,
-
-		OBJ_MAIN_GAUCHE,
-		OBJ_RAPIER,
-		OBJ_SMALL_SWORD,
-		OBJ_SHORT_SWORD,
-
-		OBJ_WHIP,
-		OBJ_BROAD_SWORD,
-		OBJ_LONG_SWORD,
-		OBJ_LUCERNE_HAMMER,
-	},
-
-	{
-		/* 3 = Temple */
-		OBJ_WHIP,
-		OBJ_QUARTERSTAFF,
-		OBJ_MACE,
-		OBJ_BALL_AND_CHAIN,
-
-		OBJ_WAR_HAMMER,
-		OBJ_WAR_HAMMER,
-		OBJ_MORNING_STAR,
-		OBJ_FLAIL,
-
-		OBJ_LEAD_FILLED_MACE,
-		OBJ_SCROLL_REMOVE_CURSE,
-		OBJ_SCROLL_BLESSING,
-		OBJ_SCROLL_HOLY_CHANT,
-
-		OBJ_POTION_HEROISM,
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_SCROLL_WORD_OF_RECALL,
-
-		OBJ_POTION_CURE_LIGHT,
-		OBJ_POTION_CURE_SERIOUS,
-		OBJ_POTION_CURE_SERIOUS,
-		OBJ_POTION_CURE_CRITICAL,
-
-		OBJ_POTION_CURE_CRITICAL,
-		OBJ_POTION_RES_LIFE_LEVELS,
-		OBJ_POTION_RES_LIFE_LEVELS,
-		OBJ_POTION_RES_LIFE_LEVELS,
-
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_POTION_CURE_CRITICAL,
-
-		OBJ_POTION_CURE_LIGHT,
-		OBJ_POTION_CURE_SERIOUS,
-		OBJ_POTION_CURE_SERIOUS,
-		OBJ_POTION_CURE_CRITICAL,
-
-		OBJ_WHIP,
-		OBJ_MACE,
-		OBJ_BALL_AND_CHAIN,
-		OBJ_WAR_HAMMER,
-
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_POTION_CURE_CRITICAL,
-
-		OBJ_POTION_CURE_CRITICAL,
-		OBJ_POTION_RES_LIFE_LEVELS,
-		OBJ_POTION_RES_LIFE_LEVELS,
-		OBJ_POTION_RES_LIFE_LEVELS,
-
-		OBJ_SCROLL_REMOVE_CURSE,
-		OBJ_SCROLL_REMOVE_CURSE,
-		OBJ_SCROLL_STAR_REMOVE_CURSE,
-		OBJ_SCROLL_STAR_REMOVE_CURSE,
-	},
-
-	{
-		/* 4 = Alchemy shop */
-		OBJ_SCROLL_ENCHANT_WEAPON_TO_HIT,
-		OBJ_SCROLL_ENCHANT_WEAPON_TO_DAM,
-		OBJ_SCROLL_ENCHANT_ARMOUR,
-		OBJ_SCROLL_IDENTIFY,
-
-		OBJ_SCROLL_IDENTIFY,
-		OBJ_SCROLL_IDENTIFY,
-		OBJ_SCROLL_IDENTIFY,
-		OBJ_SCROLL_LIGHT,
-
-		OBJ_SCROLL_PHASE_DOOR,
-		OBJ_SCROLL_PHASE_DOOR,
-		OBJ_SCROLL_TELEPORTATION,
-		OBJ_SCROLL_MONSTER_CONFUSION,
-
-		OBJ_SCROLL_MAGIC_MAPPING,
-		OBJ_SCROLL_TREASURE_DETECTION,
-		OBJ_SCROLL_OBJECT_DETECTION,
-		OBJ_SCROLL_TRAP_DETECTION,
-
-		OBJ_SCROLL_DETECT_INVIS,
-		OBJ_SCROLL_RECHARGING,
-		OBJ_SCROLL_SATISFY_HUNGER,
-		OBJ_SCROLL_WORD_OF_RECALL,
-
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_SCROLL_WORD_OF_RECALL,
-		OBJ_SCROLL_TELEPORTATION,
-
-		OBJ_SCROLL_TELEPORTATION,
-		OBJ_POTION_RES_STR,
-		OBJ_POTION_RES_INT,
-		OBJ_POTION_RES_WIS,
-
-		OBJ_POTION_RES_DEX,
-		OBJ_POTION_RES_CON,
-		OBJ_POTION_RES_CHR,
-		OBJ_SCROLL_IDENTIFY,
-
-		OBJ_SCROLL_IDENTIFY,
-		OBJ_SCROLL_STAR_IDENTIFY,
-		OBJ_SCROLL_STAR_IDENTIFY,
-		OBJ_SCROLL_LIGHT,
-
-		OBJ_POTION_RES_STR,
-		OBJ_POTION_RES_INT,
-		OBJ_POTION_RES_WIS,
-		OBJ_POTION_RES_DEX,
-
-		OBJ_POTION_RES_CON,
-		OBJ_POTION_RES_CHR,
-		OBJ_SCROLL_ENCHANT_ARMOUR,
-		OBJ_SCROLL_ENCHANT_ARMOUR,
-
-		OBJ_SCROLL_RECHARGING,
-		OBJ_SCROLL_SATISFY_HUNGER,
-		OBJ_SCROLL_SATISFY_HUNGER,
-		OBJ_SCROLL_SATISFY_HUNGER,
-
-	},
-
-	{
-		/* 5 = Magic-User store */
-		OBJ_RING_PROTECTION,
-		OBJ_RING_LEVITATION,
-		OBJ_RING_PROTECTION,
-		OBJ_RING_RES_FIRE,
-
-		OBJ_RING_RES_COLD,
-		OBJ_AMULET_INC_CHR,
-		OBJ_AMULET_SLOW_DIGESTION,
-		OBJ_AMULET_RES_ACID,
-
-		OBJ_AMULET_SEARCHING,
-		OBJ_WAND_SLOW_MONSTER,
-		OBJ_WAND_CONFUSE_MONSTER,
-		OBJ_WAND_SLEEP_MONSTER,
-
-		OBJ_WAND_MAGIC_MISSILE,
-		OBJ_WAND_STINKING_CLOUD,
-		OBJ_WAND_WONDER,
-		OBJ_WAND_DISARMING,
-
-		OBJ_STAFF_LIGHT,
-		OBJ_STAFF_ENLIGHTENMENT,
-		OBJ_STAFF_TRAP_LOCATION,
-		OBJ_STAFF_DOOR_STAIR_LOCATION,
-
-		OBJ_STAFF_TREASURE_LOCATION,
-		OBJ_STAFF_OBJECT_LOCATION,
-		OBJ_STAFF_DETECT_INVIS,
-		OBJ_STAFF_DETECT_EVIL,
-
-		OBJ_STAFF_TELEPORTATION,
-		OBJ_STAFF_TELEPORTATION,
-		OBJ_STAFF_TELEPORTATION,
-		OBJ_STAFF_TELEPORTATION,
-
-		OBJ_STAFF_PERCEPTION,
-		OBJ_STAFF_PERCEPTION,
-		OBJ_STAFF_PERCEPTION,
-		OBJ_STAFF_PERCEPTION,
-
-		OBJ_STAFF_PERCEPTION,
-		OBJ_STAFF_REMOVE_CURSE,
-		OBJ_STAFF_CURE_LIGHT,
-		OBJ_STAFF_PROBING,
-
-		OBJ_LUMP_OF_SULPHUR,
-		OBJ_LUMP_OF_SULPHUR,
-		OBJ_HEMLOCK_TWIG,
-		OBJ_SILVER_UNICORN_HORN,
-
-		OBJ_CRYSTAL,
-		OBJ_FLY_AGARIC_TOADSTOOL,
-		OBJ_CLOVE_OF_GARLIC,
-		OBJ_GEODE,
-
-		OBJ_SORCERY_BEGINNERS_HANDBOOK,
-		OBJ_THAUMATURGY_SIGN_OF_CHAOS,
-		OBJ_CONJURATION_MINOR_CONJURINGS,
-		OBJ_NECROMANCY_BLACK_PRAYERS
-	},
-
-	{
-		/* 6 = Black Market (unused) */
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-	},
-
-	{
-		/* 7 = Home (unused) */
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-	},
-
-	{
-		/* 8 = Bookstore */
-		OBJ_SORCERY_BEGINNERS_HANDBOOK,
-		OBJ_SORCERY_BEGINNERS_HANDBOOK,
-		OBJ_SORCERY_MASTER_SORCERERS_HANDBOOK,
-		OBJ_SORCERY_MASTER_SORCERERS_HANDBOOK,
-
-		OBJ_SORCERY_BEGINNERS_HANDBOOK,
-		OBJ_SORCERY_BEGINNERS_HANDBOOK,
-		OBJ_SORCERY_MASTER_SORCERERS_HANDBOOK,
-		OBJ_SORCERY_MASTER_SORCERERS_HANDBOOK,
-
-		OBJ_SORCERY_BEGINNERS_HANDBOOK,
-		OBJ_SORCERY_BEGINNERS_HANDBOOK,
-		OBJ_SORCERY_MASTER_SORCERERS_HANDBOOK,
-		OBJ_SORCERY_MASTER_SORCERERS_HANDBOOK,
-
-		OBJ_THAUMATURGY_SIGN_OF_CHAOS,
-		OBJ_THAUMATURGY_SIGN_OF_CHAOS,
-		OBJ_THAUMATURGY_CHAOS_MASTERY,
-		OBJ_THAUMATURGY_CHAOS_MASTERY,
-
-		OBJ_THAUMATURGY_SIGN_OF_CHAOS,
-		OBJ_THAUMATURGY_SIGN_OF_CHAOS,
-		OBJ_THAUMATURGY_CHAOS_MASTERY,
-		OBJ_THAUMATURGY_CHAOS_MASTERY,
-
-		OBJ_THAUMATURGY_SIGN_OF_CHAOS,
-		OBJ_THAUMATURGY_SIGN_OF_CHAOS,
-		OBJ_THAUMATURGY_CHAOS_MASTERY,
-		OBJ_THAUMATURGY_CHAOS_MASTERY,
-
-		 OBJ_NECROMANCY_BLACK_PRAYERS,
-		 OBJ_NECROMANCY_BLACK_PRAYERS,
-		 OBJ_NECROMANCY_BLACK_MASS,
-		 OBJ_NECROMANCY_BLACK_MASS,
-
-		 OBJ_NECROMANCY_BLACK_PRAYERS,
-		 OBJ_NECROMANCY_BLACK_PRAYERS,
-		 OBJ_NECROMANCY_BLACK_MASS,
-		 OBJ_NECROMANCY_BLACK_MASS,
-
-		 OBJ_NECROMANCY_BLACK_PRAYERS,
-		 OBJ_NECROMANCY_BLACK_PRAYERS,
-		 OBJ_NECROMANCY_BLACK_MASS,
-		 OBJ_NECROMANCY_BLACK_MASS,
-
-		OBJ_CONJURATION_MINOR_CONJURINGS,
-		OBJ_CONJURATION_MINOR_CONJURINGS,
-		OBJ_CONJURATION_CONJURING_MASTERY,
-		OBJ_CONJURATION_CONJURING_MASTERY,
-
-		OBJ_CONJURATION_MINOR_CONJURINGS,
-		OBJ_CONJURATION_MINOR_CONJURINGS,
-		OBJ_CONJURATION_CONJURING_MASTERY,
-		OBJ_CONJURATION_CONJURING_MASTERY,
-
-		OBJ_CONJURATION_MINOR_CONJURINGS,
-		OBJ_CONJURATION_MINOR_CONJURINGS,
-		OBJ_CONJURATION_CONJURING_MASTERY,
-		OBJ_CONJURATION_CONJURING_MASTERY,
-	},
-
-	{
-		/* 9 = Inn  - A bit repetitive, this one... */
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-
-		OBJ_RATION_OF_FOOD,
-		OBJ_HARD_BISCUIT,
-		OBJ_STRIP_OF_VENISON,
-		OBJ_STRIP_OF_VENISON,
-
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-
-		OBJ_RATION_OF_FOOD,
-		OBJ_HARD_BISCUIT,
-		OBJ_STRIP_OF_VENISON,
-		OBJ_STRIP_OF_VENISON,
-
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-		OBJ_RATION_OF_FOOD,
-
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-
-		OBJ_SCROLL_SATISFY_HUNGER,
-		OBJ_SCROLL_SATISFY_HUNGER,
-		OBJ_SCROLL_SATISFY_HUNGER,
-		OBJ_SCROLL_SATISFY_HUNGER,
-
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-		OBJ_BOTTLE_OF_FINE_WINE,
-		OBJ_PINT_OF_FINE_ALE,
-	},
-
-	{
-		/* 10 = Hall (unused) */
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-	},
-
-	{
-		/* 11 = Pawnbrokers (unused) */
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,
+		if (f_info+f_ptr->mimic == f_ptr) t++;
 	}
-};
 
+	feature_priorities = t;
+	priority_table = C_NEW(t, feature_type *);
+
+	for (f_ptr = f_info, t = 0; f_ptr < f_info+z_info->f_max; f_ptr++)
+	{
+		if (f_info+f_ptr->mimic == f_ptr)
+		{
+			priority_table[t++] = f_ptr;
+		}
+	}
+
+	/* Sort by decreasing priority, so that only the first match matters. */
+	ang_sort(0, 0, t, ang_sort_comp_priority, ang_sort_swap_priority);
+}
+
+/*** Initialize others ***/
 
 
 
@@ -1309,6 +792,7 @@ s16b store_table[MAX_STORE_TYPES][STORE_CHOICES] =
 static errr init_other(void)
 {
 	int i, j, n;
+	option_type *op_ptr;
 
 	/*** Prepare the "dungeon" information ***/
 
@@ -1337,7 +821,6 @@ static errr init_other(void)
 	/* Macro variables */
 	C_MAKE(macro__pat, MACRO_MAX, cptr);
 	C_MAKE(macro__act, MACRO_MAX, cptr);
-	C_MAKE(macro__cmd, MACRO_MAX, bool);
 
 	/* Macro action buffer */
 	C_MAKE(macro__buf, 1024, char);
@@ -1351,9 +834,6 @@ static errr init_other(void)
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
-
-	/* Hack -- No messages yet */
-	message__tail = MESSAGE_BUF;
 
 
 	/*** Prepare the Stores ***/
@@ -1374,7 +854,7 @@ static errr init_other(void)
 
 			/* Allocate the stock */
 			C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
-			
+
 			/* Get the type of store */
 			st_ptr->type = town_defs[i].store[j];
 		}
@@ -1383,31 +863,10 @@ static errr init_other(void)
 	/*** Prepare the options ***/
 
 	/* Scan the options */
-	for (i = 0; option_info[i].o_desc; i++)
+	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
 	{
-		int os = option_info[i].o_set;
-		int ob = option_info[i].o_bit;
-
-		/* Set the "default" options */
-		if (option_info[i].o_var)
-		{
-			/* Accept */
-			option_mask[os] |= (1L << ob);
-			
-			/* Set */
-			if (option_info[i].o_norm)
-			{
-				/* Set */
-				option_flag[os] |= (1L << ob);
-			}
-			
-			/* Clear */
-			else
-			{
-				/* Clear */
-				option_flag[os] &= ~(1L << ob);
-			}
-		}
+		/* Set the variable to its default value. */
+		op_ptr->o_var[0] = op_ptr->o_norm;
 	}
 
 	/* Analyze the windows */
@@ -1428,14 +887,26 @@ static errr init_other(void)
 	(void)format("");
 
 	/* Prepare the stat_default array */
-	C_MAKE(stat_default, MAX_STAT_DEFAULT, stat_default_type);
-	(void)add_stats(0,0,0,DEFAULT_STATS,8,8,8,8,8,8,"Default");
+	{
+		s16b stat[A_MAX];
+		C_MAKE(stat_default, MAX_STAT_DEFAULT, stat_default_type);
+		for (i = 0; i < A_MAX; i++) stat[i] = 8;
+		add_stats(0, 0, 0, DEFAULT_STATS, stat, "Default");
+	}
 
 	/* Initialise the term_wins array. */
 	init_term_wins();
 
-	/* Initialise the squelch information. */
-	init_squelch();
+	/* Initialise the chaos feature information. */
+	init_chaos();
+
+	/* Initialise the feature priority table. */
+	init_feature_priorities();
+
+#ifdef ALLOW_VISUALS
+	/* Copy across the sizes of the visual tables. */
+	init_visuals();
+#endif /* ALLOW_VISUALS */
 
 	/* Success */
 	return (0);
@@ -1596,7 +1067,7 @@ static errr init_alloc(void)
 	/* Access the table entry */
 	table = alloc_race_table;
 
-	/* Scan the monsters (not the ghost) */
+	/* Scan the monsters. */
 	for (i = 1; i < MAX_R_IDX; i++)
 	{
 		int p, x, y, z;
@@ -1623,8 +1094,6 @@ static errr init_alloc(void)
 		table[z].index = i;
 		table[z].level = x;
 		table[z].prob1 = p;
-		table[z].prob2 = p;
-		table[z].prob3 = p;
 
 		/* Another entry complete for this locale */
 		aux[x]++;
@@ -1637,6 +1106,9 @@ static errr init_alloc(void)
 
 
 
+#define FOR_ALL_IN_CNT(ARRAY, PTR, CNT) \
+	for ((PTR) = (ARRAY), (CNT) = 0; (PTR) < END_PTR(ARRAY); (PTR)++, (CNT)++)
+
 #ifdef CHECK_ARRAYS
 
 /*
@@ -1644,14 +1116,14 @@ static errr init_alloc(void)
  */
 static void check_screen_coords(void)
 {
-	const co_ord *co_ptr;
-	for (co_ptr = screen_coords; co_ptr < END_PTR(screen_coords); co_ptr++)
+	const redraw_type *ptr;
+	int i;
+	FOR_ALL_IN_CNT(screen_coords, ptr, i)
 	{
-		if (co_ptr->idx != co_ptr)
+		if (ptr->idx != i)
 		{
 			quit_fmt("The %s screen co-ordinates have index %d rather than %d",
-				co_ptr->name, co_ptr - screen_coords,
-				co_ptr->idx - screen_coords);
+				ptr->name, i, ptr->idx);
 		}
 	}
 }
@@ -1664,7 +1136,11 @@ static void check_skill_set(void)
 	const player_skill *ptr;
 	for (ptr = skill_set; ptr < END_PTR(skill_set); ptr++)
 	{
-		if (ptr != skill_set+ptr->idx)
+		if (strlen(ptr->name) >= SKILL_NAME_LEN)
+		{
+			quit_fmt("SKILL_NAME_LEN is too short for \"%s\".", ptr->name);
+		}
+		else if (ptr != skill_set+ptr->idx)
 		{
 			quit_fmt("The %s skill has index %d rather than %d.", ptr->name,
 				ptr - skill_set, ptr->idx);
@@ -1689,7 +1165,7 @@ static void check_options(void)
 	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
 	{
 		/* Negative categories are special. */
-		if (op_ptr->o_page >= 0 && n[op_ptr->o_page]++ >= MAX_OPTS_PER_PAGE)
+		if (n[op_ptr->o_page]++ >= MAX_OPTS_PER_PAGE)
 		{
 			plog_fmt("The %s option overflows its category.", op_ptr->o_text);
 			error = TRUE;
@@ -1735,24 +1211,6 @@ static void check_options(void)
 	{
 		/* Exit. */
 		quit("Failed to parse option_info.");
-	}	
-}
-
-/*
- * Check that book_info[] uses the correct indices.
- */
-static void check_book_info(void)
-{
-	int i;
-	for (i = 0; i < N_ELEMENTS(book_info); i++)
-	{
-		const book_type *b_ptr = book_info+i;
-
-		/* Bad index. */
-		if (b_ptr->idx != i) quit_fmt("Book %d has index %d.", i, b_ptr->idx);
-
-		/* Bad value. */
-		if (!b_ptr->info || !b_ptr->flags) quit_fmt("Book %d is malformed.", i);
 	}
 }
 
@@ -1824,10 +1282,11 @@ static void check_arrays(void)
 	check_options();
 	check_skill_set();
 	check_activation_info();
-	check_book_info();
 	check_magic_info();
 	check_ma_blows();
 	check_feeling_str();
+
+	format("%v", equippy_f0);
 }
 #else /* CHECK_ARRAYS */
 /*
@@ -1843,8 +1302,7 @@ static void check_arrays(void)
  */
 static void note(cptr str)
 {
-	Term_erase(0, 23, 255);
-	Term_putstr(20, 23, -1, TERM_WHITE, str);
+	mc_put_fmt(23, 0, "%20s%s%v", "", str, clear_f0);
 	Term_fresh();
 }
 
@@ -1929,8 +1387,6 @@ void init_angband(void)
 
 	int mode = 0644;
 
-	FILE *fp;
-
 	char buf[1024];
 	header head[1];
 
@@ -1976,27 +1432,8 @@ void init_angband(void)
 	/* Clear screen */
 	Term_clear();
 
-	/* Open the News file */
-	fp = my_fopen_path(ANGBAND_DIR_FILE, "news.txt", "r");
-
-	/* Dump */
-	if (fp)
-	{
-		int i = 0;
-
-		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, 1024))
-		{
-			/* Display and advance */
-			Term_putstr(0, i++, -1, TERM_WHITE, buf);
-		}
-
-		/* Close */
-		my_fclose(fp);
-	}
-
-	/* Flush it */
-	Term_fresh();
+	/* Display the News file */
+	showfile("news.txt", 1);
 
 
 	/*** Verify (or create) the "high score" file ***/
@@ -2103,14 +1540,18 @@ void init_angband(void)
 	 */
 	init_x_info("quests", quest_type, parse_q_list, "d_quest", q_list,
 		dummy, dummy, quests, Q_HEAD)
- 
-	/* Initialize feature info */
+
+	/* Initialise vault info */
 	init_x_info("vaults", vault_type, parse_v_info, "v_info", v_info,
 		v_name, v_text, v_max, V_HEAD)
 
-	/* Initialize feature info */
+	/* Initialise shopkeeper info */
 	init_x_info("shopkeepers", owner_type, parse_s_info, "s_info", owners,
 		s_name, dummy, owners, S_HEAD)
+
+	/* Initialise player template info. */
+	init_x_info("player templates", player_template, parse_template, "template",
+		template_info, tp_name, dummy, templates, TPL_HEAD)
 
 	/* Delete the fake arrays, we're done with them. */
 	KILL(head->fake_info_ptr);
@@ -2138,11 +1579,11 @@ void init_angband(void)
 	/* Initialize feature info */
 	note("[Initializing user pref files...]");
 
-	/* build a name for the basic 'help' index */
-	syshelpfile = "help.hlp";
-
 	/* Initialise the help file links. */
 	init_help_files();
+
+	/* Initialise ascii_to_text(). */
+	init_ascii_text_conv();
 
 	/* Access the "basic" pref file */
 	strcpy(buf, "pref.prf");

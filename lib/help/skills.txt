@@ -27,6 +27,7 @@ Skills which this character has never used are always displayed in white.
 
 Grey and orange skills only appear if they are drained, for instance by a special monster attack. 
 
+%%%%% <cmd=C1>
 Skill Descriptions
 ==================
 

@@ -32,7 +32,7 @@ SRCS = \
   main-ros.c main-sla.c main-vcs.c main-vme.c main-win.c main-x11.c main-xaw.c \
   main-xpj.c main-xxx.c main.c melee1.c melee2.c monster1.c monster2.c \
   object1.c object2.c quest.c powers.c readdib.c save.c spells1.c spells2.c \
-  squelch.c store.c tables.c util.c variable.c wizard1.c wizard2.c xtra1.c \
+  squelch.c store.c tables.c util.c ui.c variable.c wizard1.c wizard2.c xtra1.c \
   xtra2.c z-form.c z-rand.c z-term.c z-util.c z-virt.c main-crb.c
 
 OBJS = \
@@ -42,7 +42,7 @@ OBJS = \
   main-ros.o main-sla.o main-vcs.o main-vme.o main-win.o main-x11.o main-xaw.o \
   main-xpj.o main-xxx.o main.o melee1.o melee2.o monster1.o monster2.o \
   object1.o object2.o quest.o powers.o readdib.o save.o spells1.o spells2.o \
-  squelch.o store.o tables.o util.o variable.o wizard1.o wizard2.o xtra1.o \
+  squelch.o store.o tables.o util.o ui.o variable.o wizard1.o wizard2.o xtra1.o \
   xtra2.o z-form.o z-rand.o z-term.o z-util.o z-virt.o main-crb.o
 
 
@@ -73,7 +73,10 @@ OBJS = \
 # This is my compiler of choice, it seems to work most everywhere
 #
 CC = gcc
-STD_CFLAGS = $(GCC_CFLAGS)
+
+# One possible set of CFLAGS/LIBS. Modify as desired.
+CFLAGS = $(GCC_CFLAGS) $(X11_CFLAGS) $(GCU_CFLAGS) $(GTK_CFLAGS)
+LIBS =                 $(X11_LIBS)   $(GCU_LIBS)   $(GTK_LIBS)
 
 #
 # Standard version (see main-x11.c, main-gtk.c and main-gcu.c)
@@ -146,10 +149,6 @@ CAP_LIBS = -ltermcap
 # (Untested) OSX/gcc port.
 OSX_CFLAGS = -D"MACH_O_CARBON"
 OSX_LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
-
-# One possible set of CFLAGS/LIBS. Add/remove matching pairs as desired.
-CFLAGS = $(STD_CFLAGS) $(X11_CFLAGS) $(GCU_CFLAGS) $(GTK_CFLAGS)
-LIBS =                 $(X11_LIBS)   $(GCU_LIBS)   $(GTK_LIBS)
 
 
 
@@ -317,7 +316,7 @@ spells2.o: spells2.c $(INCS)
 squelch.o: squelch.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
-util.o: util.c $(INCS)
+util.o: util.c ui.c $(INCS)
 variable.o: variable.c $(INCS)
 wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)

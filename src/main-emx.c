@@ -1307,7 +1307,7 @@ void angbandThread(void *arg)
 	init_angband();
 
 	/* Wait for response */
-	pause_line(Term->hgt - 1);
+	pause_line();
 
 	/* Play the game */
 	play_game(new_game);

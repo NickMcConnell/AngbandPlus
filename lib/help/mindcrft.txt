@@ -1,6 +1,6 @@
 %%%%% <mindcrft.txt>
-Mindcrafting
-============
+Mindcrafting (WIS-based)
+========================
 
 The power of mindcrafting is one of the magical powers available in Cthangband. Mindcrafting involves using your natural energy (called 'Chi') to perform actions.
 

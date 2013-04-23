@@ -37,7 +37,7 @@ EXE_FILE = angband.exe
 #
 # Set any compiler options
 
-CCOPTS = -jb -j1 -Hc -tW -lGn -e$(EXE_FILE) -w- \
+CCOPTS = -Od -jb -j1 -Hc -tW -lGn -e$(EXE_FILE) -w- \
 	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400 \
 	-DUSE_TRANSPARENCY
 
@@ -79,6 +79,7 @@ OBJ = \
   spells2.obj \
   store.obj \
   tables.obj \
+  ui.obj \
   util.obj \
   variable.obj \
   wizard1.obj \

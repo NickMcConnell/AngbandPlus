@@ -32,7 +32,8 @@
 # Minimum/Maximum level: The range of levels over which this dungeon is spread.
 # Bias: A special restriction which is placed on monster creation approximately
 #     30% of the time. If the game cannot create such a monster (e.g. because
-# it is too out of depth), nothing is created. It can be any of the following:
+# it is too out of depth), a random monster is created. It can be any of the
+# following:
 # CTHULOID, DEMON, UNDEAD, DRAGON, GREAT_OLD_ONE, ORC, ANIMAL, UNIQUE:
 #     Creates monsters with the given flag.
 # HI_DEMON: Creates demons with the L, V or W symbol.
@@ -73,6 +74,8 @@
 # bias rather than following the bias of the dungeon.
 # NO_UNIQUES: This prevents uniques from being generated when the game creates
 # a monster according to the above bias.
+# NIGHTTIME: This prevents the dungeon entrance from being accessible during the
+# day
 
 # Some of the changes which can be made to this file (including all changes
 # relating to quests apart from removing the level a quest is on) only have
@@ -82,7 +85,7 @@
 
 # Version stamp (required)
 
-V:1.0.11
+V:1.0.14
 
 N:0:Celephais
 D:the Sewers under Celephais
@@ -144,7 +147,7 @@ Q:7:1:Robin Hood, the Outlaw
 F:NO_UNIQUES
 
 N:y:Yeek Lair
-D:the Yeek Kings Lair
+D:the Yeek King's Lair
 I:3-10:y
 Q:9:1:Orfax, Son of Boldor
 Q:10:1:Boldor, King of the Yeeks
@@ -155,7 +158,7 @@ D:the Orc Tower
 I:4-20:o
 Q:19:1:Bolg, Son of Azog
 Q:20:1:Azog, King of the Uruk-Hai
-F:TOWER | NO_UNIQUES
+F:TOWER | NO_UNIQUES | NIGHTTIME
 
 N:z:Tomb
 D:Khufu's Tomb

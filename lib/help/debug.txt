@@ -4,92 +4,92 @@
 This is a list of commands provided to enable efficient testing of various
 aspects of the game.
 
-%%%%% <cmd=\xE1?>
+%%%%% <cmd=&^A?>
 ? = Display wizard command help.
 
-%%%%% <cmd=\xE1a>
+%%%%% <cmd=&^Aa>
 a = Cure all ailments.
 
-%%%%% <cmd=\xE1e>
+%%%%% <cmd=&^Ae>
 e = Edit stats/skills.
 
-%%%%% <cmd=\xE1h>
+%%%%% <cmd=&^Ah>
 h = Reroll hitpoints.
 
-%%%%% <cmd=\xE1k>
+%%%%% <cmd=&^Ak>
 k = Self knowledge.
 
-%%%%% <cmd=\xE1M>
+%%%%% <cmd=&^AM>
 M = Gain random/specified chaos feature (use 0 to select).
 
-%%%%% <cmd=\xE1r>
+%%%%% <cmd=&^Ar>
 r = Gain level reward.
 
-%%%%% <cmd=\xE1x>
+%%%%% <cmd=&^Ax>
 x = Practice skills (if in dungeon).
 
-%%%%% <cmd=\xE1b>
-b = Teleport to target (use * to select).
+%%%%% <cmd=&^Ab>
+b = Teleport to target
 
-%%%%% <cmd=\xE1j>
+%%%%% <cmd=&^Aj>
 j = Teleport to another level.
 
-%%%%% <cmd=\xE1p>
+%%%%% <cmd=&^Ap>
 p = Phase door.
 
-%%%%% <cmd=\xE1t>
+%%%%% <cmd=&^At>
 t = Teleport.
 
-%%%%% <cmd=\xE1s>
+%%%%% <cmd=&^As>
 s = Summon random monster.
 
-%%%%% <cmd=\xE1n>
+%%%%% <cmd=&^An>
 n = Summon particular monster (use 0 to select).
 
-%%%%% <cmd=\xE1N>
+%%%%% <cmd=&^AN>
 N = Summon particular friendly monster (use 0 to select).
 
-%%%%% <cmd=\xE1H>
+%%%%% <cmd=&^AH>
 H = Summon random horde.
 
-%%%%% <cmd=\xE1z>
+%%%%% <cmd=&^Az>
 z = Delete monsters within 20 squares.
 
-%%%%% <cmd=\xE1Z>
+%%%%% <cmd=&^AZ>
 Z = Delete specific monster.
 
-%%%%% <cmd=\xE1">
+%%%%% <cmd=&^A">
 " = Generate spoilers.
 
-%%%%% <cmd=\xE1d>
+%%%%% <cmd=&^Ad>
 d = Detect all (as rod of detection).
 
-%%%%% <cmd=\xE1m>
+%%%%% <cmd=&^Am>
 m = Map area (as scroll of magic mapping).
 
-%%%%% <cmd=\xE1w>
+%%%%% <cmd=&^Aw>
 w = Wizard light (as potion of enlightenment).
 
-%%%%% <cmd=\xE1c>
+%%%%% <cmd=&^Ac>
 c = Create specific item.
 
-%%%%% <cmd=\xE1C>
+%%%%% <cmd=&^AC>
 C = Create specific artefact (use 0 to select).
 
-%%%%% <cmd=\xE1f>
+%%%%% <cmd=&^Af>
 f = Identify a specific object fully.
 
-%%%%% <cmd=\xE1g>
+%%%%% <cmd=&^Ag>
 g = Create a random good object.
 
-%%%%% <cmd=\xE1i>
+%%%%% <cmd=&^Ai>
 i = Identify pack.
 
-%%%%% <cmd=\xE1l>
+%%%%% <cmd=&^Al>
 l = Become aware of lots of objects (use 0 to set a maximum depth).
 
-%%%%% <cmd=\xE1o>
+%%%%% <cmd=&^Ao>
 o = Edit specific object.
 
-%%%%% <cmd=\xE1v>
+%%%%% <cmd=&^Av>
 v = Create a random very good object.

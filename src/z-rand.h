@@ -48,16 +48,9 @@
 
 
 /*
- * Evaluate to TRUE "P" percent of the time
- */
-#define magik(P) \
-	(rand_int(100) < (P))
-
-#endif
-
-
-/*
  * Evaluate to TRUE 1 time in X.
  */
 #define one_in(X) \
 	(!rand_int(X))
+
+#endif /* INCLUDED_Z_RAND_H */
