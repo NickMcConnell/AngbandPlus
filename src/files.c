@@ -2094,6 +2094,86 @@ static void display_player_right(void)
 	mc_put_fmt(19, 52, "Infra-Vision:   $G%3d feet", p_ptr->see_infra*10);
 }
 
+/*
+ * Display various things there isn't space for normally during character creation.
+ * It could be argued that this would be better placed in files.c, but it's easier here.
+ */
+static void display_player_birth_details(void)
+{
+	byte i;
+
+		/* Clear some space */
+	for (i = 16; i < 20; i++)
+	{
+		Term_erase(0, i, 80);
+	}
+
+	for (i = 0; i < 12; i++)
+	{
+		byte r = i%4;
+		byte c = i/4;
+		cptr string, temp;
+
+		/* Find the number. These must correspond with the strings above. */
+		switch (i)
+		{
+			case 0:
+			string = "Spells at 100%";
+			temp = format("%d", adj_mag_study[ind_stat(p_ptr->stat_top[A_INT])]*25+1);
+			break;
+			case 1:
+			string = "SP at 100%";
+			temp = format("%d", adj_mag_mana[ind_stat(p_ptr->stat_top[A_INT])]*25+1);
+			break;
+			case 2:
+			string = "Min spell fail";
+			temp = format("%d%%", adj_mag_fail[ind_stat(p_ptr->stat_top[A_INT])]);
+			break;
+			case 3:
+			string = "Min favour fail";
+			temp = format("%d%%", adj_mag_fail[ind_stat(p_ptr->stat_top[A_CHR])]);
+			break;
+			case 4:
+			string = "Chi at 100%";
+			temp = format("%d", adj_mag_mana[ind_stat(p_ptr->stat_top[A_WIS])]*25+1);
+			break;
+			case 5:
+			string = "Min mindcraft fail";
+			temp = format("%d%%", adj_mag_fail[ind_stat(p_ptr->stat_top[A_WIS])]);
+			break;
+			case 6:
+			string = "Saving throw bonus";
+			temp = format("%d%%", adj_wis_sav[ind_stat(p_ptr->stat_top[A_WIS])]);
+			break;
+			case 7:
+			string = "Disarming bonus";
+			temp = format("%d", adj_dex_dis[ind_stat(p_ptr->stat_top[A_DEX])]+adj_int_dis[ind_stat(p_ptr->stat_top[A_INT])]);
+			break;
+			case 8:
+			string = "Weight limit";
+			temp = format("%d", adj_str_wgt[ind_stat(p_ptr->stat_top[A_STR])]*10);
+			break;
+			case 9:
+			string = "Weapon weight limit";
+			temp = format("%d", adj_str_hold[ind_stat(p_ptr->stat_top[A_STR])]);
+			break;
+			case 10:
+			string = "Regeneration rate";
+			temp = format("%d", adj_con_fix[ind_stat(p_ptr->stat_top[A_CON])]);
+			break;
+			case 11:
+			string = "Theft avoidance";
+			temp = format("%d%%", adj_dex_safe[ind_stat(p_ptr->stat_top[A_DEX])]);
+			break;
+			default:
+			string = "Error!";
+			temp = "Error!";
+		}
+		/* Insert the string. */
+		mc_put_fmt(16+r, 1+51*c/2, "%-19s: $G%s", string, temp);
+	}
+}
+
 static name_centry likert_table[] =
 {
 	{0, "$DVery Bad"},
@@ -3180,6 +3260,9 @@ bool display_player(int mode)
 
 			/* HP, etc. */
 			display_player_right();
+
+			display_player_birth_details();
+
 			return TRUE;
 		}
 		case DPLAY_PLAYER:

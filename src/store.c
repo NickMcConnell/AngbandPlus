@@ -3897,10 +3897,10 @@ static s32b max_player_skill(void)
 /* Stat loss for spirit_associate(). */
 static name_centry spirit_stats[A_MAX] =
 {
-	{A_CHR, "You recieve scars during the ritual."},
+	{A_CHR, "You receive scars during the ritual."},
 	{A_CON, "The fasting damages your constitution."},
 	{A_STR, "The blood sacrifice saps your strength."},
-	{A_DEX, "The halucinagenic herbs give you a twitch."},
+	{A_DEX, "The hallucinogenic herbs give you a twitch."},
 };
 
 /*

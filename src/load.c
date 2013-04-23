@@ -795,9 +795,6 @@ static void rd_randomizer(void)
 	{
 		rd_u32b(&Rand_state[i]);
 	}
-
-	/* Accept */
-	Rand_quick = FALSE;
 }
 
 

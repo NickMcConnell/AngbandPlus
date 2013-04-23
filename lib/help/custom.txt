@@ -577,7 +577,7 @@ $GWizard (Debug) Mode active [cheat_wzrd]
 This sets cheat_live and cheat_skll, forces special monster drops to always occur, allows friendly uniques to be generated, causes amulets of adornment to remove the requirement for food, allows the debug commands (Ctrl+a) to be used and gives a variety of extra messages.
 
 %%%%% <cheat_save>
-$GDon't auto-save on in-game events [cheat_save] (1.0.15)
+$GDon't auto-save on in-game events [cheat_save] (1.0.16)
 This prevents the game from being saved when it exits via the *****cmd=^X*[Save and Quit] command or on your character's death. Other things which may save the game (such as auto-save) work as normal.
 
 %%%%% <option=B>

@@ -53,7 +53,7 @@ bool rand_unbiased;
 /*
  * Use the "simple" LCRNG
  */
-bool Rand_quick = TRUE;
+bool Rand_quick;
 
 
 /*
@@ -64,8 +64,9 @@ u32b Rand_value;
 
 /*
  * Current "index" for the "complex" RNG
+ * Hack - this is set to RAND_DEG until the RNG is initialised.
  */
-u16b Rand_place;
+u16b Rand_place = RAND_DEG;
 
 /*
  * Current "state" table for the "complex" RNG
@@ -92,7 +93,7 @@ void Rand_state_init(u32b seed)
 	for (i = 1; i < RAND_DEG; i++) Rand_state[i] = LCRNG(Rand_state[i-1]);
 
 	/* Cycle the table ten times per degree */
-	for (i = 0; i < RAND_DEG * 10; i++)
+	for (Rand_place = i = 0; i < RAND_DEG * 10; i++)
 	{
 		/* Acquire the next index */
 		j = Rand_place + 1;

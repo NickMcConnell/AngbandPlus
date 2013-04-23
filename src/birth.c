@@ -561,7 +561,6 @@ static bc_type get_hermetic_skills(void);
 static void get_ahw_average(void);
 static void get_money(bool randomly);
 static s16b get_social_average(byte);
-static void display_player_birth_details(void);
 static void get_final(void);
 static bc_type load_stat_set(bool);
 static void roll_stats_auto(bool point_mod);
@@ -914,7 +913,6 @@ static void display_player_birth(int points, bool details, bool rolled)
 	if (details)
 	{
 		display_player(DPLAY_BIRTH);
-		display_player_birth_details();
 	}
 	else
 	{
@@ -923,12 +921,12 @@ static void display_player_birth(int points, bool details, bool rolled)
 	/* Display the information required during creation. */
 	clear_from(23);
 
-	mc_put_fmt(2, 73, "<-S/s->");
-	mc_put_fmt(3, 73, "<-I/s->");
-	mc_put_fmt(4, 73, "<-W/s->");
-	mc_put_fmt(5, 73, "<-D/s->");
-	mc_put_fmt(6, 73, "<-C/s->");
-	mc_put_fmt(7, 73, "<-H/s->");
+	mc_put_fmt(2, 73, "<-S/s+>");
+	mc_put_fmt(3, 73, "<-I/i+>");
+	mc_put_fmt(4, 73, "<-W/w+>");
+	mc_put_fmt(5, 73, "<-D/d+>");
+	mc_put_fmt(6, 73, "<-C/c+>");
+	mc_put_fmt(7, 73, "<-H/h+>");
 
 	/* These should be the same as in display_player_misc_info() */
 	mc_put_fmt(2, 1, "<N>Name");
@@ -958,86 +956,6 @@ static void display_player_birth(int points, bool details, bool rolled)
 
 	/* Write the third string. */
 	mc_put_fmt(23, 2, "['a' to roll%s, or '?' for help.]", arstr);
-}
-
-/*
- * Display various things there isn't space for normally during character creation.
- * It could be argued that this would be better placed in files.c, but it's easier here.
- */
-static void display_player_birth_details(void)
-{
-	byte i;
-
-		/* Clear some space */
-	for (i = 16; i < 20; i++)
-	{
-		Term_erase(0, i, 80);
-	}
-
-	for (i = 0; i < 12; i++)
-	{
-		byte r = i%4;
-		byte c = i/4;
-		cptr string, temp;
-
-		/* Find the number. These must correspond with the strings above. */
-		switch (i)
-		{
-			case 0:
-			string = "Spells at 100%";
-			temp = format("%d", adj_mag_study[ind_stat(p_ptr->stat_top[A_INT])]*25+1);
-			break;
-			case 1:
-			string = "SP at 100%";
-			temp = format("%d", adj_mag_mana[ind_stat(p_ptr->stat_top[A_INT])]*25+1);
-			break;
-			case 2:
-			string = "Min spell fail";
-			temp = format("%d%%", adj_mag_fail[ind_stat(p_ptr->stat_top[A_INT])]);
-			break;
-			case 3:
-			string = "Min favour fail";
-			temp = format("%d%%", adj_mag_fail[ind_stat(p_ptr->stat_top[A_CHR])]);
-			break;
-			case 4:
-			string = "Chi at 100%";
-			temp = format("%d", adj_mag_mana[ind_stat(p_ptr->stat_top[A_WIS])]*25+1);
-			break;
-			case 5:
-			string = "Min mindcraft fail";
-			temp = format("%d%%", adj_mag_fail[ind_stat(p_ptr->stat_top[A_WIS])]);
-			break;
-			case 6:
-			string = "Saving throw bonus";
-			temp = format("%d%%", adj_wis_sav[ind_stat(p_ptr->stat_top[A_WIS])]);
-			break;
-			case 7:
-			string = "Disarming bonus";
-			temp = format("%d", adj_dex_dis[ind_stat(p_ptr->stat_top[A_DEX])]+adj_int_dis[ind_stat(p_ptr->stat_top[A_INT])]);
-			break;
-			case 8:
-			string = "Weight limit";
-			temp = format("%d", adj_str_wgt[ind_stat(p_ptr->stat_top[A_STR])]*10);
-			break;
-			case 9:
-			string = "Weapon weight limit";
-			temp = format("%d", adj_str_hold[ind_stat(p_ptr->stat_top[A_STR])]);
-			break;
-			case 10:
-			string = "Regeneration rate";
-			temp = format("%d", adj_con_fix[ind_stat(p_ptr->stat_top[A_CON])]);
-			break;
-			case 11:
-			string = "Theft avoidance";
-			temp = format("%d%%", adj_dex_safe[ind_stat(p_ptr->stat_top[A_DEX])]);
-			break;
-			default:
-			string = "Error!";
-			temp = "Error!";
-		}
-		/* Insert the string. */
-		mc_put_fmt(16+r, 1+51*c/2, "%-19s: $G%s", string, temp);
-	}
 }
 
 /* A macro for A = (A+B) mod M */
@@ -1738,7 +1656,7 @@ static bc_type get_hermetic_skills()
 /*
  * Save the current data for later
  */
-static void save_prev_data(birther prev_stat)
+static void save_prev_data(birther *prev_stat)
 {
 	int i;
 
@@ -1746,22 +1664,22 @@ static void save_prev_data(birther prev_stat)
 	/*** Save the current data ***/
 
 	/* Save the data */
-	prev_stat.age = p_ptr->age;
-	prev_stat.wt = p_ptr->wt;
-	prev_stat.ht = p_ptr->ht;
-	prev_stat.sc = p_ptr->sc;
-	prev_stat.au = p_ptr->au;
+	prev_stat->age = p_ptr->age;
+	prev_stat->wt = p_ptr->wt;
+	prev_stat->ht = p_ptr->ht;
+	prev_stat->sc = p_ptr->sc;
+	prev_stat->au = p_ptr->au;
 
 	/* Save the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		prev_stat.stat[i] = p_ptr->stat_max[i];
+		prev_stat->stat[i] = p_ptr->stat_max[i];
 	}
 
 	/* Save the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(prev_stat.history[i], history[i]);
+		strcpy(prev_stat->history[i], history[i]);
 	}
 }
 
@@ -1769,7 +1687,7 @@ static void save_prev_data(birther prev_stat)
 /*
  * Load the previous data
  */
-static void load_prev_data(birther prev_stat)
+static void load_prev_data(birther *prev_stat)
 {
 	int        i;
 
@@ -1778,70 +1696,36 @@ static void load_prev_data(birther prev_stat)
 
 	/*** Save the current data ***/
 
-	/* Save the data */
-	temp.age = p_ptr->age;
-	temp.wt = p_ptr->wt;
-	temp.ht = p_ptr->ht;
-	temp.sc = p_ptr->sc;
-	temp.au = p_ptr->au;
-	temp.birthday = p_ptr->birthday;
-
-	/* Save the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		temp.stat[i] = p_ptr->stat_max[i];
-	}
-
-	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(temp.history[i], history[i]);
-	}
+	save_prev_data(&temp);
 
 
 	/*** Load the previous data ***/
 
 	/* Load the data */
-	p_ptr->age = prev_stat.age;
-	p_ptr->wt = prev_stat.wt;
-	p_ptr->ht = prev_stat.ht;
-	p_ptr->sc = prev_stat.sc;
-	p_ptr->au = prev_stat.au;
+	p_ptr->age = prev_stat->age;
+	p_ptr->wt = prev_stat->wt;
+	p_ptr->ht = prev_stat->ht;
+	p_ptr->sc = prev_stat->sc;
+	p_ptr->au = prev_stat->au;
 
 	/* Load the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		p_ptr->stat_max[i] = prev_stat.stat[i];
-		p_ptr->stat_cur[i] = prev_stat.stat[i];
+		p_ptr->stat_max[i] = prev_stat->stat[i];
+		p_ptr->stat_cur[i] = prev_stat->stat[i];
 	}
 
 	/* Load the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(history[i], prev_stat.history[i]);
+		strcpy(history[i], prev_stat->history[i]);
 	}
 
 
 	/*** Save the current data ***/
 
 	/* Save the data */
-	prev_stat.age = temp.age;
-	prev_stat.wt = temp.wt;
-	prev_stat.ht = temp.ht;
-	prev_stat.sc = temp.sc;
-	prev_stat.au = temp.au;
-
-	/* Save the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		prev_stat.stat[i] = temp.stat[i];
-	}
-
-	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(prev_stat.history[i], temp.history[i]);
-	}
+	COPY(prev_stat, &temp, birther);
 }
 
 
@@ -2304,7 +2188,7 @@ static void birth_put_stats(s32b *stat_match, s32b auto_round)
 		{
 			int p = 1000L * stat_match[i] / auto_round;
 			char attr = (p < 100) ? 'y' : 'G';
-			mc_put_fmt(2+i, 73, "$%c%3d.%d%%", attr, p/10, p%10);
+			mc_put_fmt(2+i, 73, "$%c%3d.%d%% ", attr, p/10, p%10);
 		}
 
 		/* Never happened */
@@ -2799,7 +2683,7 @@ static bool quick_start_character(void)
 
 	char UNREAD(c);
 
-	birther prev_stat;
+	birther prev_stat[1];
 
 
 
@@ -2865,9 +2749,6 @@ static bool quick_start_character(void)
 		/* Input loop */
 		while (TRUE)
 		{
-			cptr prevs = (prev) ? "'p' for prev" : "";
-			cptr modes = (mode) ? "'h' for Misc." : "'h' for History";
-
 			/* Calculate the bonuses and hitpoints */
 			p_ptr->update |= (PU_BONUS | PU_HP);
 
@@ -2885,8 +2766,9 @@ static bool quick_start_character(void)
 			display_player(mode);
 
 			/* Prepare a prompt (must squeeze everything in) */
-			mc_put_fmt(23, 2, "['r' to reroll%s, %s, or ESC to accept]",
-				prevs, modes);
+			mc_put_fmt(23, 2,
+				"['r' to reroll, %s'/' to change display, or ESC to accept]",
+				prev ? "'p' for prev, " : "");
 
 			/* Prompt and get a command */
 			c = inkey();
@@ -2911,7 +2793,7 @@ static bool quick_start_character(void)
 			}
 
 			/* Toggle the display */
-			if ((c == 'H') || (c == 'h'))
+			if (c == '/')
 			{
 				mode = ((mode != DPLAY_PLAYER) ? DPLAY_PLAYER : DPLAY_BIRTH);
 				continue;
