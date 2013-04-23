@@ -335,7 +335,7 @@ static void prt_depth(void)
 	}
 	else if (depth_in_feet)
 	{
-		sprintf(depths, "%d ft", p_ptr->depth * 50);
+		sprintf(depths, "%d ft", p_ptr->depth * 75);
 	}
 	else
 	{
@@ -704,6 +704,16 @@ static void prt_stun(void)
  */
 static void health_redraw(void)
 {
+   int s;
+
+   monster_type *m_ptr = &m_list[p_ptr->health_who];
+   monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Notice slow monsters */
+	if (m_ptr->slow) s = TERM_SLATE;
+	else if (m_ptr->fast) s = TERM_WHITE;
+   else s = TERM_L_WHITE;
+
 	/* Not tracking */
 	if (!p_ptr->health_who)
 	{
@@ -712,7 +722,7 @@ static void health_redraw(void)
 	}
 
 	/* Tracking an unseen monster */
-	else if (!m_list[p_ptr->health_who].ml)
+	else if (!m_ptr->ml)
 	{
 		/* Indicate that the monster health is "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
@@ -726,7 +736,7 @@ static void health_redraw(void)
 	}
 
 	/* Tracking a dead monster (???) */
-	else if (!m_list[p_ptr->health_who].hp < 0)
+	else if (!m_ptr->hp < 0)
 	{
 		/* Indicate that the monster health is "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
@@ -737,37 +747,47 @@ static void health_redraw(void)
 	{
 		int pct, len;
 
-		monster_type *m_ptr = &m_list[p_ptr->health_who];
-
 		/* Default to almost dead */
 		byte attr = TERM_RED;
 
 		/* Extract the "percent" of health */
 		pct = 100L * m_ptr->hp / m_ptr->maxhp;
 
-		/* Badly wounded */
-		if (pct >= 10) attr = TERM_L_RED;
-
-		/* Wounded */
-		if (pct >= 25) attr = TERM_ORANGE;
-
-		/* Somewhat Wounded */
-		if (pct >= 60) attr = TERM_YELLOW;
-
-		/* Healthy */
-		if (pct >= 100) attr = TERM_L_GREEN;
-
-		/* Afraid */
-		if (m_ptr->monfear) attr = TERM_VIOLET;
-
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
+
+		/* Knocked out */
+		else if (m_ptr->stunned > 100) attr = TERM_L_DARK;
+
+		/* Heavily stunned */
+		else if (m_ptr->stunned > 50) attr = TERM_SLATE;
+
+		/* Stunned */
+		else if (m_ptr->stunned) attr = TERM_L_WHITE;
+
+      /* Confused */
+      else if (m_ptr->confused) attr = TERM_L_UMBER;
+
+		/* Afraid */
+		else if (m_ptr->monfear) attr = TERM_VIOLET;
+
+		/* Healthy */
+		else if (pct >= 100) attr = TERM_L_GREEN;
+
+		/* Somewhat Wounded */
+		else if (pct >= 60) attr = TERM_YELLOW;
+
+		/* Wounded */
+		else if (pct >= 25) attr = TERM_ORANGE;
+
+		/* Badly wounded */
+		else if (pct >= 10) attr = TERM_L_RED;
 
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
 		/* Default to "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
+		Term_putstr(COL_INFO, ROW_INFO, 12, s, "[----------]");
 
 		/* Dump the current "health" (use '*' symbols) */
 		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
@@ -862,7 +882,7 @@ static void fix_inven(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_INVEN))) continue;
+		if (!(op_ptr->term_flag[j] & (PW_INVEN))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -896,7 +916,7 @@ static void fix_equip(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_EQUIP))) continue;
+		if (!(op_ptr->term_flag[j] & (PW_EQUIP))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -929,7 +949,7 @@ static void fix_pflags(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_SPELL))) continue;
+		if (!(op_ptr->term_flag[j] & (PW_SPELL))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -962,7 +982,7 @@ static void fix_player(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_PLAYER))) continue;
+		if (!(op_ptr->term_flag[j] & (PW_PLAYER))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -1000,7 +1020,7 @@ static void fix_message(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_MESSAGE))) continue;
+		if (!(op_ptr->term_flag[j] & (PW_MESSAGE))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -1053,7 +1073,7 @@ static void fix_overhead(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_OVERHEAD))) continue;
+		if (!(op_ptr->term_flag[j] & (PW_OVERHEAD))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -1092,7 +1112,7 @@ static void fix_monster(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_MONSTER))) continue;
+		if (!(op_ptr->term_flag[j] & (PW_MONSTER))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -1125,7 +1145,7 @@ static void fix_object(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_OBJECT))) continue;
+		if (!(op_ptr->term_flag[j] & (PW_OBJECT))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -1689,7 +1709,7 @@ static int weight_limit(void)
  */
 static void calc_bonuses(void)
 {
-	int i, hold;
+	int i, k, hold;
    s32b j, old_speed;
 
 	int old_telepathy;
@@ -1738,6 +1758,10 @@ static void calc_bonuses(void)
 	/* Reset player speed */
 	p_ptr->pspeed = 110;
 
+	/* Reset inventory info */
+	p_ptr->total_wt = 0;
+	p_ptr->total_bulk = 0;
+
 	/* Reset "blow" info */
 	p_ptr->num_blow = 1;
 	extra_blows = 0;
@@ -1771,6 +1795,7 @@ static void calc_bonuses(void)
 	p_ptr->slow_digest = FALSE;
 	p_ptr->regenerate = FALSE;
 	p_ptr->ffall = FALSE;
+	p_ptr->hfall = FALSE;
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
 	p_ptr->lite = FALSE;
@@ -1935,6 +1960,11 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+		if (f3 & (TR3_HEAVY))
+		{
+			p_ptr->ffall = FALSE;
+			p_ptr->hfall = TRUE;
+		}
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -1967,6 +1997,9 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
 		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+
+		/* Hack -- ignore shield when berserk */
+		if (p_ptr->shero && (i == INVEN_ARM)) continue;
 
 		/* Modify the base armor class */
 		p_ptr->ac += o_ptr->ac;
@@ -2025,14 +2058,14 @@ static void calc_bonuses(void)
 		/* Save the new value */
 		p_ptr->stat_use[i] = use;
 
-		/* Values: 3, 4, ..., 17 */
-		if (use <= 18) ind = (use - 3);
+		/* Values: 1, 2, ..., 17 */
+		if (use <= 18) ind = MAX(0, (use - 1));
 
 		/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
-		else if (use <= 18+219) ind = (15 + (use - 18) / 10);
+		else if (use <= 18+219) ind = (17 + (use - 18) / 10);
 
 		/* Range: 18/220+ */
-		else ind = (37);
+		else ind = (39);
 
 		/* Save the new index */
 		p_ptr->stat_ind[i] = ind;
@@ -2097,13 +2130,23 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary "fast" */
-	if (p_ptr->fast)
+	if (p_ptr->fast > 100)
+	{
+		p_ptr->pspeed += 20;
+	}
+	/* Temporary "fast" */
+	else if (p_ptr->fast)
 	{
 		p_ptr->pspeed += 10;
 	}
 
 	/* Temporary "slow" */
-	if (p_ptr->slow)
+	if (p_ptr->slow > 50)
+	{
+		p_ptr->pspeed -= 20;
+	}
+	/* Temporary "slow" */
+	else if (p_ptr->slow)
 	{
 		p_ptr->pspeed -= 10;
 	}
@@ -2139,6 +2182,21 @@ static void calc_bonuses(void)
 	/*** Analyze weight ***/
 
 	/* Extract the current weight (in tenth pounds) */
+	for (k = 0; k <= INVEN_PACK; k++)
+	{
+		o_ptr = &inventory[k];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Accumulate weight */
+		p_ptr->total_wt += o_ptr->wt * o_ptr->number;
+
+		/* Accumulate bulk */
+		p_ptr->total_bulk += o_ptr->bulk * o_ptr->number;
+	}
+
+	/* Extract weight */
 	j = p_ptr->total_wt;
 
 	/* Extract the "weight limit" (in tenth pounds) */
@@ -2149,8 +2207,8 @@ static void calc_bonuses(void)
 
 	/* Bloating slows the player down (a little) */
 	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
-   if (p_ptr->food >= PY_FOOD_PAIN) p_ptr->pspeed -= 10;
-   if (p_ptr->food >= PY_FOOD_DEATH) p_ptr->pspeed -= 10;
+	if (p_ptr->food >= PY_FOOD_PAIN) p_ptr->pspeed -= 10;
+	if (p_ptr->food >= PY_FOOD_DEATH) p_ptr->pspeed -= 10;
 
 	/* Searching slows the player down */
 	if (p_ptr->searching) p_ptr->pspeed -= 10;
@@ -2159,13 +2217,13 @@ static void calc_bonuses(void)
 	/*** Apply modifier bonuses ***/
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+	if (!p_ptr->shero) p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+	if (!p_ptr->shero) p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
@@ -2177,7 +2235,7 @@ static void calc_bonuses(void)
 	p_ptr->skill_stl += 1;
 
 	/* Affect Skill -- disarming (DEX and INT) */
-	p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
+	if (!p_ptr->shero) p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
 	p_ptr->skill_dis += adj_int_dis[p_ptr->stat_ind[A_INT]];
 
 	/* Affect Skill -- magic devices (INT) */
@@ -2238,7 +2296,7 @@ static void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
 
-	/* It is hard to carholdry a heavy bow */
+	/* It is hard to wield a heavy bow */
 	if (hold < o_ptr->wt / 10)
 	{
 		/* Hard to wield a heavy bow */
@@ -2909,7 +2967,7 @@ void window_stuff(void)
 		if (angband_term[j])
 		{
 			/* Build the mask */
-			mask |= op_ptr->window_flag[j];
+			mask |= op_ptr->term_flag[j];
 		}
 	}
 

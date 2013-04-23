@@ -159,12 +159,9 @@ s16b critical_norm(s32b weight, int plus, int dam)
 }
 
 
-
 /*
- * Extract the "total damage" from a given object hitting a given monster.
- *
- * Note that "flasks of oil" do NOT do fire damage, although they
- * certainly could be made to do so.  XXX XXX
+ * Extract the "total damage" and any effects from a given object
+ * hitting a given monster.
  *
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
@@ -178,8 +175,47 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 	u32b f1, f2, f3;
 
+	int y = m_ptr->fy;
+	int x = m_ptr->fx;
+
+	/* Polymorph setting (true or false) */
+	int do_poly = 0;
+
+	/* Teleport setting (max distance) */
+	int do_dist = 0;
+
+	/* Confusion setting (amount to confuse) */
+	int do_conf = 0;
+
+	/* Stunning setting (amount to stun) */
+	int do_stun = 0;
+
+	/* Sleep amount (amount to sleep) */
+	int do_sleep = 0;
+
+	/* Fear amount (amount to fear) */
+	int do_fear = 0;
+
+	/* Permanent damage amount (amount to weaken) */
+	int do_perm = 0;
+
+	/* Earthquake brand */
+	bool do_quake = FALSE;
+
+	char m_name[80];
+
+	/* Assume no note */
+	cptr note = NULL;
+
+	int tmp;
+
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+
+	if (p_ptr->impact && (tdam > 50)) do_quake = TRUE;
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -194,7 +230,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		{
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
-			    (r_ptr->flags3 & (RF3_ANIMAL)))
+				 (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
 				if (m_ptr->ml)
 				{
@@ -230,7 +266,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 			/* Slay Demon */
 			if ((f1 & (TR1_SLAY_DEMON)) &&
-			    (r_ptr->flags3 & (RF3_DEMON)))
+				 (r_ptr->flags3 & (RF3_DEMON)))
 			{
 				if (m_ptr->ml)
 				{
@@ -266,7 +302,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 			/* Slay Giant */
 			if ((f1 & (TR1_SLAY_GIANT)) &&
-			    (r_ptr->flags3 & (RF3_GIANT)))
+				 (r_ptr->flags3 & (RF3_GIANT)))
 			{
 				if (m_ptr->ml)
 				{
@@ -278,7 +314,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 			/* Slay Dragon  */
 			if ((f1 & (TR1_SLAY_DRAGON)) &&
-			    (r_ptr->flags3 & (RF3_DRAGON)))
+				 (r_ptr->flags3 & (RF3_DRAGON)))
 			{
 				if (m_ptr->ml)
 				{
@@ -313,6 +349,18 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					}
 				}
 
+				/* Hurt by acid */
+				else if (r_ptr->flags3 & RF3_HURT_ACID)
+				{
+					if (mult < 6) mult = 6;
+
+					/* Electrocution */
+					if (tdam > m_ptr->hp / 4)
+					{
+						do_stun = (randint(15));
+					}
+				}
+
 				/* Otherwise, take the damage */
 				else
 				{
@@ -329,6 +377,18 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					if (m_ptr->ml)
 					{
 						l_ptr->flags3 |= (RF3_IM_ELEC);
+					}
+				}
+
+				/* Hurt by electricity */
+				else if (r_ptr->flags3 & RF3_HURT_ELEC)
+				{
+					if (mult < 6) mult = 6;
+
+					/* Electrocution */
+					if (tdam > m_ptr->hp / 4)
+					{
+						do_stun = (randint(15));
 					}
 				}
 
@@ -351,6 +411,18 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					}
 				}
 
+				/* Hurt by fire */
+				else if (r_ptr->flags3 & RF3_HURT_FIRE)
+				{
+					if (mult < 6) mult = 6;
+
+					/* Hyperthermia */
+					if (tdam > m_ptr->hp / 4)
+					{
+						do_stun = (randint(15));
+					}
+				}
+
 				/* Otherwise, take the damage */
 				else
 				{
@@ -370,6 +442,18 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					}
 				}
 
+				/* Hurt by cold */
+				else if (r_ptr->flags3 & RF3_HURT_COLD)
+				{
+					if (mult < 6) mult = 6;
+
+					/* Hypothermia */
+					if (tdam > m_ptr->hp / 4)
+					{
+						do_stun = (randint(15));
+					}
+				}
+
 				/* Otherwise, take the damage */
 				else
 				{
@@ -381,6 +465,132 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		}
 	}
 
+	/* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
+	if (do_poly && (randint(90) > r_ptr->level))
+	{
+		/* Default -- assume no polymorph */
+		note = " is unaffected!";
+
+		/* Pick a "new" monster race */
+		tmp = poly_r_idx(m_ptr->r_idx);
+
+		/* Handle polymorph */
+		if (tmp != m_ptr->r_idx)
+		{
+			/* Monster polymorphs */
+			note = " changes!";
+
+			/* Get the health fraction */
+			tdam = m_ptr->maxhp / m_ptr->hp;
+
+			/* Only one of each unique */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num--;
+
+			/* Check for quest completion */
+			if (r_ptr->flags1 & (RF1_QUESTOR)) check_quest(r_ptr, m_ptr, FALSE);
+
+			/* "Kill" the "old" monster */
+			delete_monster_idx(cave_m_idx[y][x]);
+
+			/* Create a new monster (no groups) */
+			(void)place_monster_aux(y, x, tmp, FALSE, FALSE);
+
+			/* XXX XXX XXX Hack -- Assume success */
+
+			/* Hack -- Get new monster */
+			m_ptr = &m_list[cave_m_idx[y][x]];
+
+			/* Correct hitpoints */
+			m_ptr->hp = m_ptr->maxhp / tdam;
+
+			tdam = 0;
+
+			/* Hack -- Get new race */
+			r_ptr = &r_info[m_ptr->r_idx];
+		}
+	}
+
+	/* Handle "teleport" */
+	if (do_dist)
+	{
+		/* Teleport */
+		teleport_away(cave_m_idx[y][x], do_dist);
+
+		/* No movement */
+		if ((y == m_ptr->fy) && (x == m_ptr->fx))
+		{
+			/* Message */
+			note = " stumbles.";
+		}
+		/* Visible */
+		else if (projectable(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx))
+		{
+			/* Message */
+			note = " blinks away.";
+		}
+		else
+		{
+			/* Message */
+			note = " disappears!";
+		}
+	}
+
+	if (do_stun)
+	{
+		tmp = m_ptr->stunned + do_stun;
+
+		/* Get confused */
+		if (tmp > 100) note = " is knocked out.";
+		else if (m_ptr->stunned) note = " is more dazed.";
+		else note = " is dazed.";
+
+		/* Apply stun */
+		m_ptr->stunned = (tmp < 200) ? tmp : 200;
+	}
+
+	/* Confusion and Chaos breathers (and sleepers) never confuse */
+	if (do_conf &&
+				!(r_ptr->flags3 & (RF3_NO_CONF)) &&
+				!(r_ptr->flags4 & (RF4_BR_CONF)) &&
+				!(r_ptr->flags4 & (RF4_BR_CHAO)))
+	{
+		tmp = m_ptr->confused + do_conf;
+
+		if (m_ptr->confused) note = " looks more confused.";
+		else note = " looks confused.";
+
+		/* Apply confusion */
+		m_ptr->confused = (tmp < 200) ? tmp : 200;
+	}
+
+
+	/* Fear */
+	if (do_fear)
+	{
+		/* Increase fear */
+		tmp = m_ptr->monfear + do_fear;
+
+		/* Set fear */
+		m_ptr->monfear = (tmp < 200) ? tmp : 200;
+	}
+
+	/* Permanent */
+	if (do_perm)
+	{
+		/* Weaken */
+		m_ptr->maxhp -= do_perm;
+	}
+
+	/* Mega-Hack -- apply earthquake brand */
+	if (do_quake)
+	{
+		int py = p_ptr->py;
+		int px = p_ptr->px;
+
+		earthquake(py, px, 10);
+	}
+
+	if (note) msg_format("%^s%s", m_name, note);
 
 	/* Return the total damage */
 	return (tdam * mult);
@@ -480,7 +690,7 @@ void search(void)
 
 
 /*
- * Make the player carry everything in a grid
+ * Pick up an item and all gold.
  *
  * If "pickup" is FALSE then only gold will be picked up
  */
@@ -491,20 +701,26 @@ void py_pickup(int pickup)
 
 	s16b this_o_idx, next_o_idx = 0;
 
+	cptr q, s;
+
+	int item, amt;
+
+	object_type *o_ptr;
+
+	object_type object_type_body;
+	object_type *j_ptr;
+
 	char o_name[80];
 
 	bool plural;
+	bool none = TRUE;
+	bool lots = FALSE;
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
-
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
-
-		plural = FALSE;
-		if (o_ptr->number > 1) plural = TRUE;
 
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
@@ -534,65 +750,155 @@ void py_pickup(int pickup)
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
 		}
-
-		/* Pick up objects */
+		else if (!none)
+		{
+			lots = TRUE;
+		}
 		else
 		{
+			none = FALSE;
+		}
+
+		if (lots)
+		{
+			strcpy(o_name, "many items");
+		}
+	}
+
+	if (none) return;
+
+	/* Describe the object */
+	if (!pickup)
+	{
+		msg_format("You %s %s.", (p_ptr->blind ? "feel" : "see"), o_name);
+
+		/* Done */
+		return;
+	}
+
+	/* Pick up some items */
+	while(cave_o_idx[py][px])
+	{
+		/* Is there just one object left? */
+		o_ptr = &o_list[cave_o_idx[py][px]];
+		if (!o_ptr->next_o_idx)
+		{
+			/* Describe the object */
+			object_desc(o_name, o_ptr, TRUE, 3);
+			
+			lots = FALSE;
+		}
+
+		j_ptr = &object_type_body;
+		plural = FALSE;
+
+		/* Carry everything */
+		if (!carry_query_flag)
+		{
+			item = 0 - cave_o_idx[py][px];
+			p_ptr->command_arg = 99;
+		}
+		/* Let the player choose */
+		else if (lots)
+		{
+			/* Get an item */
+			q = "Pick up which item? ";
+			s = "There is nothing here.";
+			if (!get_item(&item, q, s, USE_FLOOR)) return;
+		}
+		/* Just one, ask to pick it up */
+		else
+		{
+			bool okay;
+
+			char out_val[160];
+			sprintf(out_val, "Pick up %s? ", o_name);
+			okay = get_check(out_val);
+
+			if (!okay) return;
+
+			item = 0 - cave_o_idx[py][px];
+		}
+
+		/* Get the item */
+		o_ptr = &o_list[0 - item];
+
+		/* No need to count single items */
+		if (o_ptr->number == 1)
+		{
+			p_ptr->command_arg = 1;
+		}
+
+		/* Use "p_ptr->command_arg" if requested */
+		if (!p_ptr->command_arg && (o_ptr->number > 1))
+		{
+			/* Player doesn't have to press '0' */
+			get_count(o_ptr->number, o_ptr->number);
+		}
+
+		/* Extract a number */
+		amt = p_ptr->command_arg;
+
+		/* Clear "p_ptr->command_arg" */
+		p_ptr->command_arg = 0;
+
+		/* Enforce the maximum */
+		if (amt > o_ptr->number) amt = o_ptr->number;
+
+		/* Allow zero items */
+		if (amt == 0) return;
+
+		object_copy(j_ptr, o_ptr);
+
+		j_ptr->number = amt;
+
+		/* Describe the object */
+		object_desc(o_name, j_ptr, TRUE, 3);
+
+		if (j_ptr->number > 1) plural = TRUE;
+
+		/* Note that the pack would be too heavy */
+		if (pack_heavy(j_ptr))
+		{
+			msg_format("%^s %s too heavy to carry.", o_name,
+						  (plural ? "are" : "is"));
+			return;
+		}
+
+		/* Note that the item is too bulky */
+		else if (pack_bulky(j_ptr))
+		{
+			msg_format("%^s will not fit in your pack.", o_name);
+			return;
+		}
+
+		/* Note that the pack is too full */
+		else if (!inven_carry_okay(j_ptr))
+		{
+			msg_format("You have no room for %s.", o_name);
+			return;
+		}
+
+		/* Attempt to pick up an object. */
+		else
+		{
+			int slot;
+
+			/* Carry the item */
+			slot = inven_carry(j_ptr);
+
+			/* Get the item again */
+			j_ptr = &inventory[slot];
 
 			/* Describe the object */
-			if (!pickup)
-			{
-				msg_format("You %s %s.",
-							  (p_ptr->blind ? "feel" : "see"), o_name);
-			}
+			object_desc(o_name, j_ptr, TRUE, 3);
 
-			/* Note that the pack would be too heavy */
-			else if (pack_heavy(o_ptr))
-			{
-				msg_format("%^s %s too heavy to pick up.", o_name,
-							  (plural ? "are" : "is"));
-			}
+			/* Message */
+			msg_format("You have %s.", o_name);
 
-			/* Note that the pack is too full */
-			else if (!inven_carry_okay(o_ptr))
-			{
-				msg_format("You have no room for %s.", o_name);
-			}
-
-			/* Pick up the item (if requested and allowed) */
-			else
-			{
-				int okay = TRUE;
-
-				/* Hack -- query every item */
-				if (carry_query_flag)
-				{
-					char out_val[160];
-					sprintf(out_val, "Pick up %s? ", o_name);
-					okay = get_check(out_val);
-				}
-
-				/* Attempt to pick up an object. */
-				if (okay)
-				{
-					int slot;
-
-					/* Carry the item */
-					slot = inven_carry(o_ptr);
-
-					/* Get the item again */
-					o_ptr = &inventory[slot];
-
-					/* Describe the object */
-					object_desc(o_name, o_ptr, TRUE, 3);
-
-					/* Message */
-					msg_format("You have %s (%c).", o_name, index_to_label(slot));
-
-					/* Delete the object */
-					delete_object_idx(this_o_idx);
-				}
-			}
+			/* Delete the object */
+			floor_item_increase(0 - item, -amt);
+			floor_item_optimize(0 - item);
 		}
 	}
 }
@@ -654,10 +960,20 @@ void hit_trap(int y, int x)
 			{
 				msg_print("You float gently down to the next level.");
 			}
+			else if (p_ptr->hfall)
+			{
+				msg_print("You drop like a stone to the next level.");
+				dam = damroll(9, 12);
+				take_hit(dam, name);
+
+				(void)set_stun(p_ptr->stun + randint(dam));
+			}
 			else
 			{
-				dam = damroll(2, 8);
+				dam = damroll(3, 12);
 				take_hit(dam, name);
+
+				(void)set_stun(p_ptr->stun + randint(dam));
 			}
 
 			/* New depth */
@@ -676,10 +992,20 @@ void hit_trap(int y, int x)
 			{
 				msg_print("You float gently to the bottom of the pit.");
 			}
+			else if (p_ptr->hfall)
+			{
+				msg_print("You plunge to the bottom of the pit.");
+				dam = damroll(9, 8);
+				take_hit(dam, name);
+
+				(void)set_stun(p_ptr->stun + randint(dam));
+			}
 			else
 			{
-				dam = damroll(2, 6);
+				dam = damroll(3, 8);
 				take_hit(dam, name);
+
+				(void)set_stun(p_ptr->stun + randint(dam));
 			}
 			break;
 		}
@@ -693,11 +1019,23 @@ void hit_trap(int y, int x)
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
 			}
+			else if (p_ptr->hfall)
+			{
+				msg_print("You plunge to the bottom of the pit.");
+				dam = damroll(9, 8);
 
+				msg_print("You are impaled!");
+				dam *= 3;
+				(void)set_cut(p_ptr->cut + randint(dam));
+
+				take_hit(dam, name);
+
+				(void)set_stun(p_ptr->stun + randint(dam));
+			}
 			else
 			{
 				/* Base damage */
-				dam = damroll(2, 6);
+				dam = damroll(3, 8);
 
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
@@ -710,6 +1048,8 @@ void hit_trap(int y, int x)
 
 				/* Take the damage */
 				take_hit(dam, name);
+
+				(void)set_stun(p_ptr->stun + randint(dam));
 			}
 			break;
 		}
@@ -723,11 +1063,33 @@ void hit_trap(int y, int x)
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
 			}
+			else if (p_ptr->hfall)
+			{
+				msg_print("You plunge to the bottom of the pit.");
+				dam = damroll(9, 8);
 
+				msg_print("You are impaled on poisonous spikes!");
+				dam *= 3;
+				(void)set_cut(p_ptr->cut + randint(dam));
+
+				if (p_ptr->resist_pois || p_ptr->oppose_pois)
+				{
+					msg_print("The poison does not affect you.");
+				}
+				else
+				{
+					dam = dam * 2;
+					(void)set_poisoned(p_ptr->poisoned + randint(dam));
+				}
+
+				take_hit(dam, name);
+
+				(void)set_stun(p_ptr->stun + randint(dam));
+			}
 			else
 			{
 				/* Base damage */
-				dam = damroll(2, 6);
+				dam = damroll(3, 8);
 
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
@@ -739,7 +1101,7 @@ void hit_trap(int y, int x)
 
 					if (p_ptr->resist_pois || p_ptr->oppose_pois)
 					{
-						msg_print("The poison does not affect you!");
+						msg_print("The poison does not affect you.");
 					}
 
 					else
@@ -751,6 +1113,8 @@ void hit_trap(int y, int x)
 
 				/* Take the damage */
 				take_hit(dam, name);
+
+				(void)set_stun(p_ptr->stun + randint(dam));
 			}
 
 			break;
@@ -815,7 +1179,7 @@ void hit_trap(int y, int x)
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
 				take_hit(dam, name);
-				(void)do_dec_stat(A_STR);
+				(void)do_dec_stat(A_STR, 10, FALSE);
 			}
 			else
 			{
@@ -831,7 +1195,7 @@ void hit_trap(int y, int x)
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
 				take_hit(dam, name);
-				(void)do_dec_stat(A_DEX);
+				(void)do_dec_stat(A_DEX, 10, FALSE);
 			}
 			else
 			{
@@ -847,7 +1211,7 @@ void hit_trap(int y, int x)
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
 				take_hit(dam, name);
-				(void)do_dec_stat(A_CON);
+				(void)do_dec_stat(A_CON, 10, FALSE);
 			}
 			else
 			{
@@ -966,88 +1330,82 @@ void py_attack(int y, int x)
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
 
-	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
+	/* Test for hit */
+	if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 	{
-		/* Test for hit */
-		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+		/* Sound */
+		sound(SOUND_HIT);
+
+		/* Message */
+		msg_format("You hit %s.", m_name);
+
+		/* Hack -- bare hands do one damage */
+		k = 1;
+
+		/* Handle normal weapon */
+		if (o_ptr->k_idx)
 		{
-			/* Sound */
-			sound(SOUND_HIT);
-
-			/* Message */
-			msg_format("You hit %s.", m_name);
-
-			/* Hack -- bare hands do one damage */
-			k = 1;
-
-			/* Handle normal weapon */
-			if (o_ptr->k_idx)
-			{
-				k = damroll(o_ptr->dd, o_ptr->ds);
-				k = tot_dam_aux(o_ptr, k, m_ptr);
-				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-				k = critical_norm(o_ptr->wt, o_ptr->to_h, k);
-				k += o_ptr->to_d;
-			}
-
-			/* Apply the player damage bonuses */
-			k += p_ptr->to_d;
-
-			/* No negative damage */
-			if (k < 0) k = 0;
-
-			/* Complex message */
-			if (p_ptr->wizard)
-			{
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-			}
-
-			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
-
-			/* Confusion attack */
-			if (p_ptr->confusing)
-			{
-				/* Cancel glowing hands */
-				p_ptr->confusing = FALSE;
-
-				/* Message */
-				msg_print("Your hands stop glowing.");
-
-				/* Confuse the monster */
-				if (r_ptr->flags3 & (RF3_NO_CONF))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->flags3 |= (RF3_NO_CONF);
-					}
-
-					msg_format("%^s is unaffected.", m_name);
-				}
-				else if (rand_int(100) < r_ptr->level)
-				{
-					msg_format("%^s is unaffected.", m_name);
-				}
-				else
-				{
-					msg_format("%^s appears confused.", m_name);
-					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
-				}
-			}
+			k = damroll(o_ptr->dd, o_ptr->ds);
+			k = tot_dam_aux(o_ptr, k, m_ptr);
+			k = critical_norm(o_ptr->wt, o_ptr->to_h, k);
+			k += o_ptr->to_d;
 		}
 
-		/* Player misses */
-		else
+		/* Apply the player damage bonuses */
+		k += p_ptr->to_d;
+
+		/* No negative damage */
+		if (k < 0) k = 0;
+
+		/* Complex message */
+		if (p_ptr->wizard)
 		{
-			/* Sound */
-			sound(SOUND_MISS);
+			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+		}
+
+		/* Damage, check for fear and death */
+		if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL));
+
+		/* Confusion attack */
+		else if (p_ptr->confusing)
+		{
+			/* Cancel glowing hands */
+			p_ptr->confusing = FALSE;
 
 			/* Message */
-			msg_format("You miss %s.", m_name);
+			msg_print("Your hands stop glowing.");
+
+			/* Confuse the monster */
+			if (r_ptr->flags3 & (RF3_NO_CONF))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_NO_CONF);
+				}
+
+				msg_format("%^s is unaffected.", m_name);
+			}
+			else if (rand_int(100) < r_ptr->level)
+			{
+				msg_format("%^s is unaffected.", m_name);
+			}
+			else
+			{
+				msg_format("%^s appears confused.", m_name);
+				m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
+			}
 		}
 	}
 
+	/* Player misses */
+	else
+	{
+		/* Sound */
+		sound(SOUND_MISS);
+
+		/* Message */
+		msg_format("You miss %s.", m_name);
+	}
 
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
@@ -1057,16 +1415,6 @@ void py_attack(int y, int x)
 
 		/* Message */
 		msg_format("%^s flees in terror!", m_name);
-	}
-
-
-	/* Mega-Hack -- apply earthquake brand */
-	if (do_quake)
-	{
-		int py = p_ptr->py;
-		int px = p_ptr->px;
-
-		earthquake(py, px, 10);
 	}
 }
 
@@ -1098,6 +1446,9 @@ void move_player(int dir, int do_pickup)
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
+		/* Use some energy */
+		p_ptr->energy_use = 100 / p_ptr->num_blow;
+
 		/* Attack */
 		py_attack(y, x);
 	}

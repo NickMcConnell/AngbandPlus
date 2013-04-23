@@ -318,8 +318,6 @@ static void compact_objects_aux(int i1, int i2)
 
 	object_type *o_ptr;
 
-	char o_name[80];
-
 	/* Do nothing */
 	if (i1 == i2) return;
 
@@ -512,8 +510,6 @@ void compact_objects(int size)
 }
 
 
-
-
 /*
  * Delete all the items when player leaves the level
  *
@@ -539,7 +535,47 @@ void wipe_o_list(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		if (artifact_p(o_ptr)) a_ptr = &a_info[o_ptr->name1];
+		if (artifact_p(o_ptr))
+		{
+			a_ptr = &a_info[o_ptr->name1];
+
+			if (o_ptr->name1 == ART_POWER)
+			{
+				/* Oops!  Now Sauron has the Ring! */
+				if (o_ptr->held_m_idx)
+				{
+					int i;
+
+					monster_race *r_ptr;
+
+					/* Sauron has the Ring; it can't be found by anyone */
+					a_ptr->cur_num = 1;
+
+					for(i = RACE_MAX_NORMAL - 1; i; i--)
+					{
+						r_ptr = &r_info[i];
+						if (strstr(r_ptr->name + r_name, "Lidless Eye")) break;
+					}
+
+					/* The Lidless Eye is gone */
+					r_ptr->max_num = 0;
+
+					for(i = RACE_MAX_NORMAL - 1; i; i--)
+					{
+						r_ptr = &r_info[i];
+						if (strstr(r_ptr->name + r_name, "Dark Lord")) break;
+					}
+
+					/* Let the Lidless Eye become the Dark Lord */
+					r_ptr->max_num = 1;
+				}
+				else
+				{
+					/* The Ring always turns up somewhere */
+					a_ptr->cur_num = 0;
+				}
+			}
+		}
 
 		/* Mega-Hack -- preserve artifacts */
 		if (!character_dungeon || p_ptr->preserve)
@@ -961,7 +997,29 @@ void object_tried(object_type *o_ptr)
 	k_info[o_ptr->k_idx].tried = TRUE;
 }
 
+static bool object_decent(object_type *o_ptr)
+{
+	/* Cursed items (all of them) */
+	if (cursed_p(o_ptr)) return FALSE;
 
+	/* Broken items (all of them) */
+	if (broken_p(o_ptr)) return FALSE;
+
+	/* Artifacts -- except cursed/broken ones */
+	if (artifact_p(o_ptr)) return TRUE;
+
+	/* Ego-Items -- except cursed/broken ones */
+	if (ego_item_p(o_ptr)) return TRUE;
+
+	/* Good armor bonus */
+	if (o_ptr->to_a > 0) return TRUE;
+
+	/* Good weapon bonuses */
+	if (o_ptr->to_h + o_ptr->to_d > 0) return TRUE;
+
+	/* Normal */
+	return FALSE;
+}
 
 /*
  * Return the "value" of an "unknown" item
@@ -972,7 +1030,45 @@ static s32b object_value_base(object_type *o_ptr)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Aware item -- use template cost */
-	if (object_aware_p(o_ptr)) return (k_ptr->cost);
+	if (object_aware_p(o_ptr))
+	{
+		/* Hack -- Broken daggers/swords are worthless unless good */
+		if (o_ptr->tval == TV_SWORD)
+		{
+			switch (o_ptr->sval)
+			{
+				case SV_BROKEN_DAGGER:
+				case SV_BROKEN_SWORD:
+				{
+               /* Unknown, average, cursed, or shattered broken daggers/swords are worthless */
+					if (!(o_ptr->ident & IDENT_SENSE) || !object_decent(o_ptr))
+					{
+						return 0;
+					}
+				}
+			}
+		}
+
+		/* Check for variation */
+		if (k_ptr->ac)
+		{
+			return (k_ptr->cost * o_ptr->ac / k_ptr->ac);
+		}
+
+		/* Check for variation */
+		if (k_ptr->dd)
+		{
+			return (k_ptr->cost * o_ptr->dd / k_ptr->dd);
+		}
+
+		/* Check for variation */
+		if (k_ptr->ds)
+		{
+			return (k_ptr->cost * o_ptr->ds / k_ptr->ds);
+		}
+
+		return (k_ptr->cost);
+	}
 
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -1351,8 +1447,10 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_STAFF:
 		case TV_WAND:
 		{
-			/* Require knowledge */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return FALSE;
+			/* Combine empty staffs/wands */
+			if ((o_ptr->ident & IDENT_EMPTY) && (j_ptr->ident & IDENT_EMPTY));
+			/* Require knowledge otherwise */
+			else if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return FALSE;
 
 			/* Fall through */
 		}
@@ -1579,6 +1677,9 @@ void artifact_prep(artifact_type *a_ptr, int k_idx)
 	/* Default "pval" */
 	a_ptr->pval = k_ptr->pval;
 
+	/* Default bulk */
+	a_ptr->bulk = k_ptr->bulk;
+
 	/* Default weight */
 	a_ptr->wt = k_ptr->wt;
 
@@ -1621,6 +1722,9 @@ void object_prep(object_type *o_ptr, int k_idx)
 
 	/* Default number */
 	o_ptr->number = 1;
+
+	/* Default bulk */
+	o_ptr->bulk = k_ptr->bulk;
 
 	/* Default weight */
 	o_ptr->wt = k_ptr->wt;
@@ -1989,6 +2093,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	int to_hit2 = m_bonus(10, level);
 	int to_dam2 = m_bonus(10, level);
 
+	int new_dd = randnor(o_ptr->dd, MAX(1, o_ptr->dd / 4));
+	int new_ds = randnor(o_ptr->ds, MAX(1, o_ptr->ds / 4));
+
+	/* Variation */
+	o_ptr->dd = MAX(0, new_dd);
+	o_ptr->ds = MAX(0, new_ds);
 
 	/* Good */
 	if (power > 0)
@@ -2202,7 +2312,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				}
 
 				/* Hack -- Super-charge the damage dice */
-				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
+				while (rand_int(10L * (o_ptr->dd + o_ptr->ds)) == 0) o_ptr->dd++;
 
 				/* Hack -- Lower the damage dice */
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
@@ -2347,7 +2457,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				}
 
 				/* Hack -- super-charge the damage dice */
-				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
+				while (rand_int(10L * (o_ptr->dd + o_ptr->ds)) == 0) o_ptr->dd++;
 
 				/* Hack -- restrict the damage dice */
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
@@ -2381,6 +2491,10 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 	int to_ac2 = m_bonus(10, level);
 
+	int new_ac = randnor(o_ptr->ac, MAX(1, o_ptr->ac / 4));
+
+	/* Variation */
+	o_ptr->ac = MAX(0, new_ac);
 
 	/* Good */
 	if (power > 0)
@@ -2642,7 +2756,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			else if (power < -1)
 			{
 				/* Roll for ego-item */
-				switch (randint(3))
+				switch (randint(4))
 				{
 					case 1:
 					{
@@ -2657,6 +2771,11 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					case 3:
 					{
 						o_ptr->name2 = EGO_ANNOYANCE;
+						break;
+					}
+					case 4:
+					{
+						o_ptr->name2 = EGO_FAST_DESCENT;
 						break;
 					}
 				}
@@ -3986,11 +4105,11 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
  */
 void drop_near(object_type *j_ptr, int chance, int y, int x)
 {
-	int i, k, d, s;
+	int i, k, d;
 
-	s16b explode, explode_dam;
+	bool explode;
 
-	int bs, bn;
+	int bn;
 	int by, bx;
 	int dy, dx;
 	int ty, tx;
@@ -4014,11 +4133,10 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Handle normal "breakage" */
 	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
 	{
-		/* Object might explode */
-		explode = hates_dam(j_ptr);
+		int typ, dam, rad;
 
-		/* Damage from explosion */
-		explode_dam = object_force(j_ptr) * j_ptr->number;
+		/* Object might explode */
+		explode = hates_dam(j_ptr, &typ, &dam, &rad);
 
 		/* Message if visible */
 		if (player_can_see_bold(y, x))
@@ -4026,11 +4144,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			msg_format("The %s break%s.", o_name, (plural ? "" : "s"));
 		}
 
-		if (explode && explode_dam)
+		if (explode)
 		{
 			int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP;
 
-			project(0, 1, y, x, explode_dam, explode, flg);
+			project(0, rad, y, x, dam, typ, flg);
 		}
 
 		/* Debug */
@@ -4040,98 +4158,83 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		return;
 	}
 
-
-	/* Score */
-	bs = -1;
-
-	/* Picker */
-	bn = 0;
-
 	/* Default */
 	by = y;
 	bx = x;
 
-	/* Scan local grids */
-	for (dy = -3; dy <= 3; dy++)
+	/* Examine close grids first */
+	for (d = 0; (d <= 10) && !flag; d++)
 	{
+		/* Picker */
+		bn = 0;
+
 		/* Scan local grids */
-		for (dx = -3; dx <= 3; dx++)
+		for (dy = -3; dy <= 3; dy++)
 		{
-			bool comb = FALSE;
-
-			/* Calculate actual distance */
-			d = (dy * dy) + (dx * dx);
-
-			/* Ignore distant grids */
-			if (d > 10) continue;
-
-			/* Location */
-			ty = y + dy;
-			tx = x + dx;
-
-			/* Skip illegal grids */
-			if (!in_bounds_fully(ty, tx)) continue;
-
-			/* Require line of sight */
-			if (!los(y, x, ty, tx)) continue;
-
-			/* Require floor space */
-			if (!is_floor(cave_feat[ty][tx])) continue;
-
-			/* No objects */
-			k = 0;
-
-			/* Scan objects in that grid */
-			for (this_o_idx = cave_o_idx[ty][tx]; this_o_idx; this_o_idx = next_o_idx)
+			/* Scan local grids */
+			for (dx = -3; dx <= 3; dx++)
 			{
-				object_type *o_ptr;
+				bool comb = FALSE;
 
-				/* Acquire object */
-				o_ptr = &o_list[this_o_idx];
+				/* Calculate actual distance */
+				if ((dy * dy) + (dx * dx) > d) continue;
 
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
+				/* Location */
+				ty = y + dy;
+				tx = x + dx;
 
-				/* Check for possible combination */
-				if (object_similar(o_ptr, j_ptr)) comb = TRUE;
+				/* Skip illegal grids */
+				if (!in_bounds_fully(ty, tx)) continue;
 
-				/* Count objects */
-				k++;
+				/* Require line of sight */
+				if (!los(y, x, ty, tx)) continue;
+
+				/* Require floor space */
+				if (!is_floor(cave_feat[ty][tx])) continue;
+
+				/* No objects */
+				k = 0;
+
+				/* Scan objects in that grid */
+				for (this_o_idx = cave_o_idx[ty][tx]; this_o_idx; this_o_idx = next_o_idx)
+				{
+					object_type *o_ptr;
+
+					/* Acquire object */
+					o_ptr = &o_list[this_o_idx];
+
+					/* Acquire next object */
+					next_o_idx = o_ptr->next_o_idx;
+
+					/* Check for possible combination */
+					if (object_similar(o_ptr, j_ptr)) comb = TRUE;
+
+					/* Count objects */
+					k++;
+				}
+
+				/* Add new object */
+				if (!comb) k++;
+
+				/* Overflow */
+				if (k > 99) continue;
+
+				/* Apply the randomizer to equivalent values */
+				if ((++bn >= 2) && (rand_int(bn) != 0)) continue;
+
+				/* Track it */
+				by = ty;
+				bx = tx;
+
+				/* Okay */
+				flag = TRUE;
 			}
-
-			/* Add new object */
-			if (!comb) k++;
-
-			/* Paranoia */
-			if (k > 99) continue;
-
-			/* Calculate score, avoid "splattering" */
-			s = 1000 - (d * 5 + k * 5);
-
-			/* Skip bad values */
-			if (s < bs) continue;
-
-			/* New best value */
-			if (s > bs) bn = 0;
-
-			/* Apply the randomizer to equivalent values */
-			if ((++bn >= 2) && (rand_int(bn) != 0)) continue;
-
-			/* Keep score */
-			bs = s;
-
-			/* Track it */
-			by = ty;
-			bx = tx;
-
-			/* Okay */
-			flag = TRUE;
 		}
 	}
 
 
 	/* Handle lack of space */
-	if (!flag && !artifact_p(j_ptr))
+	if (player_can_see_bold(y, x) && !flag && !artifact_p(j_ptr))
 	{
 		/* Message */
 		msg_format("The %s disappear%s.",
@@ -4158,8 +4261,8 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		/* Random locations */
 		else
 		{
-			ty = rand_int(DUNGEON_HGT);
-			tx = rand_int(DUNGEON_WID);
+			ty = rand_range(1, DUNGEON_HGT - 2);
+			tx = rand_range(1, DUNGEON_WID - 2);
 		}
 
 		/* Require floor space */
@@ -4180,12 +4283,15 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Give it to the floor */
 	if (!floor_carry(by, bx, j_ptr))
 	{
-		/* Message */
-		msg_format("The %s disappear%s.",
-					  o_name, (plural ? "" : "s"));
+		if (player_can_see_bold(y, x) && !flag && !artifact_p(j_ptr))
+		{
+			/* Message */
+			msg_format("The %s disappear%s.",
+						  o_name, (plural ? "" : "s"));
 
-		/* Debug */
-		if (p_ptr->wizard) msg_print("Breakage (too many objects).");
+			/* Debug */
+			if (p_ptr->wizard) msg_print("Breakage (too many objects).");
+		}
 
 		/* Hack -- Preserve artifacts */
 		a_info[j_ptr->name1].cur_num = 0;
@@ -4195,14 +4301,17 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	}
 
 
-	/* Sound */
-	sound(SOUND_DROP);
+	if (player_can_see_bold(y, x) && !flag && !artifact_p(j_ptr))
+	{
+		/* Sound */
+		sound(SOUND_DROP);
+	}
 
 	/* Mega-Hack -- no message if "dropped" by player */
 	/* Message when an object falls under the player */
 	if (chance && (cave_m_idx[by][bx] < 0))
 	{
-		msg_print("You feel something roll beneath your feet.");
+		msg_print("Something rolls beneath your feet.");
 	}
 }
 
@@ -4318,7 +4427,8 @@ void pick_trap(int y, int x)
 		feat = FEAT_TRAP_HEAD + rand_int(16);
 
 		/* Hack -- no trap doors on quest levels */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && is_quest(p_ptr->depth)) continue;
+		if ((feat == FEAT_TRAP_HEAD + 0x00) &&
+			 (is_quest(p_ptr->depth) || p_ptr->quest_max)) continue;
 
 		/* Hack -- no trap doors on the deepest level */
 		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
@@ -4342,38 +4452,44 @@ void place_corpse(monster_type *m_ptr)
 	object_type *i_ptr;
    object_type object_type_body;
 
-   object_type *w_ptr = &inventory[INVEN_WIELD];
+	int x = m_ptr->fx;
+	int y = m_ptr->fy;
 
-   int x = m_ptr->fx;
-   int y = m_ptr->fy;
-   int i = w_ptr->wt + ((p_ptr->to_h + w_ptr->to_h) * 5) + (p_ptr->lev * 3);
+	/* Handle decapitations */
+	bool crit = (randint(5000) <= 100);
+	bool decapitate = ((rand_int(m_ptr->maxhp) <= -(m_ptr->hp)) && crit);
 
-	/* Handle decapitations. This is not allowed with hafted weapons. */
-   bool crit = (randint(5000) <= i);
-   bool decapitate = ((rand_int(m_ptr->maxhp) <= -(m_ptr->hp)) &&
-                       (w_ptr->tval != TV_HAFTED) && crit);
+	/* Classify */
+	int has_body = (r_ptr->flags3 & RF3_HAS_BODY);
+	int has_bones = (r_ptr->flags3 & RF3_HAS_BONES);
+	int has_head = (r_ptr->flags3 & RF3_HAS_HEAD);
+	int has_skull = (r_ptr->flags3 & RF3_HAS_SKULL);
+	bool only_head = (!has_body && !has_bones);
+	bool drop_head = (decapitate || only_head);
+	int unique = (r_ptr->flags1 & RF1_UNIQUE);
 
-  	/* Get local object */
+	/* Get local object */
 	i_ptr = &object_type_body;
 
-   /* It has a physical form */
-   if (r_ptr->flags3 & RF3_HAS_BODY)
-   {
+	/* It has a physical form */
+	if (has_body)
+	{
 		/* Wipe the object */
   		object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_CORPSE));
 
      	/* Unique corpses are unique */
-     	if (r_ptr->flags1 & RF1_UNIQUE)
+		if (unique)
      	{
         	object_aware(i_ptr);
      		i_ptr->name1 = 1;
      	}
 
      	/* Calculate length of time before decay */
-     	i_ptr->pval = r_ptr->wt + rand_int(r_ptr->wt);
+		i_ptr->pval = r_ptr->wt + rand_int(r_ptr->wt);
 
-		/* Set weight */
-     	i_ptr->wt = r_ptr->wt + rand_int(r_ptr->wt) / 10;
+		/* Set weight and bulk */
+		i_ptr->wt = r_ptr->wt + rand_int(r_ptr->wt) / 10;
+		i_ptr->bulk = i_ptr->wt;
 
      	/* Remember what we are */
      	i_ptr->r_idx = m_ptr->r_idx;
@@ -4383,44 +4499,40 @@ void place_corpse(monster_type *m_ptr)
    }
 
    /* The creature is an animated skeleton. */
-   if (!(r_ptr->flags3 & RF3_HAS_BODY) && (r_ptr->flags3 & RF3_HAS_BONES))
-   {
+	if (!has_body && has_bones)
+	{
 		/* Wipe the object */
-  		object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKELETON));
+		object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKELETON));
 
-     	/* Unique corpses are unique */
-     	if (r_ptr->flags1 & RF1_UNIQUE)
-     	{
+		/* Unique corpses are unique */
+		if (unique)
+		{
 			object_aware(i_ptr);
-     		i_ptr->name1 = 1;
-     	}
+			i_ptr->name1 = 1;
+		}
 
-      i_ptr->pval = 0;
+		i_ptr->pval = 0;
 
 		/* Set weight */
-     	i_ptr->wt = r_ptr->wt / 4 + rand_int(r_ptr->wt) / 40;
+		i_ptr->wt = r_ptr->wt / 4 + rand_int(r_ptr->wt) / 40;
+		i_ptr->bulk = i_ptr->wt;
 
-     	/* Remember what we are */
-     	i_ptr->r_idx = m_ptr->r_idx;
+		/* Remember what we are */
+		i_ptr->r_idx = m_ptr->r_idx;
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
-   }
+	}
 
-   /*
-    * Decapitated it if it has a head, or if it *is* a head.
-    * This is rather messy.
-    */
-   if ((r_ptr->flags3 & RF3_HAS_HEAD) && (decapitate ||
-   	 (!(r_ptr->flags3 & RF3_HAS_BODY) &&
-       !(r_ptr->flags3 & RF3_HAS_BONES))))
-   {
+	/* Decapitated it if it has a head, or if it *is* a head. */
+	if (has_head && drop_head)
+	{
 		/* Wipe the object */
   		object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_HEAD));
 
-     	/* Unique heads are unique */
-      if (r_ptr->flags1 & RF1_UNIQUE)
-      {
+		/* Unique heads are unique */
+		if (unique)
+		{
          object_aware(i_ptr);
         	i_ptr->name1 = 1;
 		}
@@ -4429,7 +4541,8 @@ void place_corpse(monster_type *m_ptr)
      	i_ptr->pval = r_ptr->wt / 30 + rand_int(r_ptr->wt) / 30;
 
 		/* Set weight */
-  	   i_ptr->wt = r_ptr->wt / 30 + rand_int(r_ptr->wt) / 300;
+		i_ptr->wt = r_ptr->wt / 30 + rand_int(r_ptr->wt) / 300;
+		i_ptr->bulk = i_ptr->wt;
 
       /* Remember what we are */
      	i_ptr->r_idx = m_ptr->r_idx;
@@ -4438,16 +4551,14 @@ void place_corpse(monster_type *m_ptr)
 		drop_near(i_ptr, -1, y, x);
    }
 
-   /* It has a skull, but no head */
-   if (!(r_ptr->flags3 & RF3_HAS_HEAD) && (r_ptr->flags3 & RF3_HAS_SKULL) &&
-       (decapitate || (!(r_ptr->flags3 & RF3_HAS_BODY) &&
-       !(r_ptr->flags3 & RF3_HAS_BONES))))
-   {
+	/* It has a skull, but no head */
+	if (!has_head && has_skull && drop_head)
+	{
 		/* Wipe the object */
-  		object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKULL));
+		object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKULL));
 
      	/* Unique heads are unique */
-      if (r_ptr->flags1 & RF1_UNIQUE)
+		if (unique)
 		{
 			object_aware(i_ptr);
 			i_ptr->name1 = 1;
@@ -4457,6 +4568,7 @@ void place_corpse(monster_type *m_ptr)
 
 		/* Set weight */
 		i_ptr->wt = r_ptr->wt / 60 + rand_int(r_ptr->wt) / 600;
+		i_ptr->bulk = i_ptr->wt;
 
 		/* Remember what we are */
 		i_ptr->r_idx = m_ptr->r_idx;
@@ -4557,9 +4669,6 @@ void inven_item_increase(int item, int num)
 	{
 		/* Add the number */
 		o_ptr->number += num;
-
-		/* Add the weight */
-		p_ptr->total_wt += (num * o_ptr->wt);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -4731,7 +4840,20 @@ bool pack_heavy(object_type *o_ptr)
 
    j += o_ptr->wt * o_ptr->number;
 
-	return (j > adj_str_wgt[p_ptr->stat_ind[A_STR]] * 300);
+	return (j > adj_str_hold[p_ptr->stat_ind[A_STR]] * 100);
+}
+
+
+/*
+ * Check if the pack will be too heavy with another object
+ */
+bool pack_bulky(object_type *o_ptr)
+{
+	s16b j = p_ptr->total_bulk;
+
+	j += o_ptr->bulk * o_ptr->number;
+
+	return (j > PACK_SIZE);
 }
 
 /*
@@ -4802,9 +4924,6 @@ s16b inven_carry(object_type *o_ptr)
 		{
 			/* Combine the items */
 			object_absorb(j_ptr, o_ptr);
-
-			/* Increase the weight */
-			p_ptr->total_wt += (o_ptr->number * o_ptr->wt);
 
 			/* Recalculate bonuses */
 			p_ptr->update |= (PU_BONUS);
@@ -4914,9 +5033,6 @@ s16b inven_carry(object_type *o_ptr)
 	/* No longer marked */
 	j_ptr->marked = FALSE;
 
-	/* Increase the weight */
-	p_ptr->total_wt += (j_ptr->number * j_ptr->wt);
-
 	/* Count the items */
 	p_ptr->inven_cnt++;
 
@@ -5012,7 +5128,7 @@ s16b inven_takeoff(int item, int amt)
 	slot = inven_carry(i_ptr);
 
 	/* Message */
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+	msg_format("%s %s.", act, o_name);
 
 	/* Return slot */
 	return (slot);
@@ -5167,6 +5283,8 @@ void reorder_pack(void)
 	s32b o_value;
 	s32b j_value;
 
+	object_kind *k_ptr;
+
 	object_type *o_ptr;
 	object_type *j_ptr;
 
@@ -5188,6 +5306,8 @@ void reorder_pack(void)
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
 
+		k_ptr = &k_info[o_ptr->k_idx];
+
 		/* Get the "value" of the item */
 		o_value = object_value(o_ptr);
 
@@ -5204,11 +5324,15 @@ void reorder_pack(void)
 			if ((o_ptr->tval == mp_ptr->spell_book) &&
 			    (j_ptr->tval != mp_ptr->spell_book)) break;
 			if ((j_ptr->tval == mp_ptr->spell_book) &&
-			    (o_ptr->tval != mp_ptr->spell_book)) continue;
+				 (o_ptr->tval != mp_ptr->spell_book)) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
 			if (o_ptr->tval < j_ptr->tval) continue;
+
+			/* Empty staffs/wands come last */
+			if (o_ptr->ident & IDENT_EMPTY) continue;
+			if (j_ptr->ident & IDENT_EMPTY) break;
 
 			/* Non-aware (flavored) items always come last */
 			if (!object_aware_p(o_ptr)) continue;
@@ -5221,6 +5345,17 @@ void reorder_pack(void)
 			/* Unidentified objects always come last */
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
+
+			/* Activatibles sort by increasing timeout */
+			if (o_ptr->timeout < j_ptr->timeout) break;
+			if (o_ptr->timeout > j_ptr->timeout) continue;
+
+			/* Rods sort by increasing pval */
+			if (o_ptr->tval == TV_ROD)
+			{
+				if (o_ptr->pval < j_ptr->pval) break;
+				if (o_ptr->pval > j_ptr->pval) continue;
+			}
 
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
@@ -5281,49 +5416,45 @@ void pack_decay(int item)
 
    byte gone = 1;
 
-  	char desc[80];
-
-  	/* Player notices each decaying object */
-  	object_desc(desc, o_ptr, TRUE, 3);
-  	msg_format("You feel %s decompose.", desc);
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
-   /* Remember what creature we were */
-   m_type = o_ptr->r_idx;
+	/* Remember what creature we were */
+	m_type = o_ptr->r_idx;
 
-   /* and how much we weighed */
-   wt = r_ptr->wt;
+	/* and how much we weighed */
+	wt = r_ptr->wt;
 
-   /* Get rid of decayed object */
+	/* Get rid of decayed object */
 	inven_item_increase(item, -amt);
 	inven_item_optimize(item);
 
 	if (i_ptr->tval == TV_SKELETON)
-   {
-      /* Monster must have a skull for its head to become one */
+	{
+		/* Monster must have a skull for its head to become one */
 		if ((i_ptr->sval == SV_HEAD) && (r_ptr->flags3 & RF3_HAS_SKULL))
-      {
-         /* Replace the head with a skull */
-      	object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKULL));
-         i_ptr->wt = wt / 60 + rand_int(wt) / 600;
+		{
+			/* Replace the head with a skull */
+			object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKULL));
+			i_ptr->wt = wt / 60 + rand_int(wt) / 600;
+			i_ptr->bulk = i_ptr->wt;
 
-         /* Stay here */
-         gone = 0;
-      }
-      /* Monster must have a skeleton for its corpse to become one */
+			/* Stay here */
+			gone = 0;
+		}
+		/* Monster must have a skeleton for its corpse to become one */
 		if ((i_ptr->sval == SV_CORPSE) && (r_ptr->flags3 & RF3_HAS_BONES))
-      {
-         /* Replace the corpse with a skeleton */
-      	object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKELETON));
-         i_ptr->wt = wt / 4 + rand_int(wt) / 40;
+		{
+			/* Replace the corpse with a skeleton */
+			object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKELETON));
+			i_ptr->wt = wt / 4 + rand_int(wt) / 40;
+			i_ptr->bulk = i_ptr->wt;
 
-         /* Stay here */
-         gone = 0;
+			/* Stay here */
+			gone = 0;
       }
 
       /* Don't restore if the item is gone */
@@ -5340,9 +5471,9 @@ void pack_decay(int item)
          	/* Named skeletons are artifacts */
          	i_ptr->name1 = 1;
       	}
-      	inven_carry(i_ptr);
+			inven_carry(i_ptr);
       }
-   }
+	}
 }
 
 /*
@@ -5352,35 +5483,23 @@ void floor_decay(int item)
 {
 	object_type *o_ptr=&o_list[item];
 
-   monster_race *r_ptr = &r_info[o_ptr->r_idx];
+	monster_race *r_ptr = &r_info[o_ptr->r_idx];
 
 	object_type *i_ptr;
 	object_type object_type_body;
 
-   int amt = o_ptr->number;
+	int amt = o_ptr->number;
 
-   s16b m_type;
+	s16b m_type;
 	s32b wt;
 
 	byte known = o_ptr->name1;
 
-   /* Assume we disappear */
-   byte gone = 1;
+	/* Assume we disappear */
+	byte gone = 1;
 
-   byte x = o_ptr->ix;
-   byte y = o_ptr->iy;
-
-   /* Maybe the player sees it */
-  	bool visible = player_can_see_bold(o_ptr->iy, o_ptr->ix);
-  	char desc[80];
-
-  	if (visible)
-  	{
-  		/* Player notices each decaying object */
-		object_desc(desc, o_ptr, TRUE, 3);
-     	msg_format("You see %s decompose.", desc);
-  	}
-
+	byte x = o_ptr->ix;
+	byte y = o_ptr->iy;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -5388,37 +5507,39 @@ void floor_decay(int item)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
-   /* Remember what creature we were */
-   m_type = o_ptr->r_idx;
+	/* Remember what creature we were */
+	m_type = o_ptr->r_idx;
 
-   /* and how much we weighed */
-   wt = r_ptr->wt;
+	/* and how much we weighed */
+	wt = r_ptr->wt;
 
-   floor_item_increase(item, -amt);
-   floor_item_optimize(item);
+	floor_item_increase(item, -amt);
+	floor_item_optimize(item);
 
 	if (i_ptr->tval == TV_SKELETON)
-   {
-      /* Monster must have a skull for its head to become one */
+	{
+		/* Monster must have a skull for its head to become one */
 		if ((i_ptr->sval == SV_HEAD) && (r_ptr->flags3 & RF3_HAS_SKULL))
-      {
-         /* Replace the head with a skull */
-      	object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKULL));
-         i_ptr->wt = wt / 60 + rand_int(wt) / 600;
+		{
+			/* Replace the head with a skull */
+			object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKULL));
+			i_ptr->wt = wt / 60 + rand_int(wt) / 600;
+			i_ptr->bulk = i_ptr->wt;
 
-         /* Stay here */
-         gone = 0;
-      }
+			/* Stay here */
+			gone = 0;
+		}
 
-      /* Monster must have a skeleton for its corpse to become one */
+		/* Monster must have a skeleton for its corpse to become one */
 		if ((i_ptr->sval == SV_CORPSE) && (r_ptr->flags3 & RF3_HAS_BONES))
-      {
-         /* Replace the corpse with a skeleton */
-      	object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKELETON));
-         i_ptr->wt = wt / 4 + rand_int(wt) / 40;
+		{
+			/* Replace the corpse with a skeleton */
+			object_prep(i_ptr, lookup_kind(TV_SKELETON, SV_SKELETON));
+			i_ptr->wt = wt / 4 + rand_int(wt) / 40;
+   		i_ptr->bulk = i_ptr->wt;
 
-         /* Stay here */
-         gone = 0;
+			/* Stay here */
+			gone = 0;
       }
 
       /* Don't restore if the item is gone */
@@ -5435,7 +5556,7 @@ void floor_decay(int item)
          	/* Named skeletons are artifacts */
          	i_ptr->name1 = 1;
       	}
-      	floor_carry(y, x, i_ptr);
+			floor_carry(y, x, i_ptr);
       }
    }
 }

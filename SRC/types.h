@@ -43,6 +43,7 @@
 
 typedef struct header header;
 typedef struct feature_type feature_type;
+typedef struct new_feature_type new_feature_type;
 typedef struct object_kind object_kind;
 typedef struct gibber_type gibber_type;
 typedef struct artifact_type artifact_type;
@@ -60,6 +61,7 @@ typedef struct quest quest;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
+typedef struct spell_type spell_type;
 typedef struct player_magic player_magic;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
@@ -107,11 +109,9 @@ struct header
 	byte v_patch;		/* Version -- patch */
 	byte v_extra;		/* Version -- extra */
 
-
 	u16b info_num;		/* Number of "info" records */
 
 	u16b info_len;		/* Size of each "info" record */
-
 
 	u16b head_size;		/* Size of the "header" in bytes */
 
@@ -121,7 +121,6 @@ struct header
 
 	u16b text_size;		/* Size of the "text" array in bytes */
 };
-
 
 
 /*
@@ -137,6 +136,31 @@ struct feature_type
 	byte extra;			/* Extra byte (unused) */
 
 	s16b unused;		/* Extra bytes (unused) */
+
+	byte f_attr;		/* Object "attribute" */
+	char f_char;		/* Object "symbol" */
+
+	byte z_attr;		/* The desired attr for this feature */
+	char z_char;		/* The desired char for this feature */
+};
+
+
+/*
+ * Information about terrain "features"
+ */
+struct new_feature_type
+{
+	u16b name;			/* Name (offset) */
+	u16b text;			/* Text (offset) */
+
+	byte mimic;			/* Feature to mimic */
+
+	byte tran;			/* Floor type */
+	byte wall;			/* Wall type */
+	byte trap;			/* Trap type */
+	byte xtra;			/* Effect type */
+
+	byte prty;			/* Priority when mapped */
 
 	byte f_attr;		/* Object "attribute" */
 	char f_char;		/* Object "symbol" */
@@ -165,11 +189,12 @@ struct object_kind
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
 
-	s16b ac;			/* Base armor */
+	s16b ac;				/* Base armor */
 
 	byte dd, ds;		/* Damage dice/sides */
 
-	s32b wt;		/* Weight. Corpses need large numbers. */
+	s16b bulk;			/* Bulkiness */
+	s32b wt;				/* Weight. Corpses need large numbers. */
 
 	s32b cost;			/* Object "base cost" */
 
@@ -181,7 +206,6 @@ struct object_kind
 	byte chance[4];		/* Allocation chance(s) */
 
 	byte level;			/* Level */
-	byte extra;			/* Something */
 
 
 	byte k_attr;		/* Standard object attribute */
@@ -234,11 +258,12 @@ struct artifact_type
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
 
-	s16b ac;			/* Base armor */
+	s16b ac;				/* Base armor */
 
 	byte dd, ds;		/* Damage when hits */
 
-	s32b wt;		/* Weight */
+	s16b bulk;			/* Bulkiness */
+	s32b wt;				/* Weight */
 
 	s32b cost;			/* Artifact "cost" */
 
@@ -389,7 +414,7 @@ struct monster_xtra
 {
 	monster_blow blow[4];	/* Up to four blows per round */
 
-	monster_inv inv[10]; /* Tentative 10-tval inventory */
+	monster_inv inv[10]; 	/* 10-tval inventory */
 };
 
 /* Monster recall information */
@@ -486,6 +511,7 @@ struct object_type
 
 	byte number;		/* Number of items */
 
+	s16b bulk;			/* Bulkiness */
 	s32b wt;				/* Item weight. Corpses need large numbers. */
 
 	s16b name1;			/* Artifact type, if any */
@@ -531,16 +557,19 @@ struct monster_type
 {
 	s16b r_idx;			/* Monster race index */
 
-	byte fy;			/* Y location on map */
-	byte fx;			/* X location on map */
+	byte fy;				/* Y location on map */
+	byte fx;				/* X location on map */
 
-	s16b hp;			/* Current Hit points */
+	s16b hp;				/* Current Hit points */
 	s16b maxhp;			/* Max Hit points */
 
 	s16b csleep;		/* Inactive counter */
 
-	byte mspeed;		/* Monster "speed" */
-	byte energy;		/* Monster "energy" */
+	byte bspeed;		/* Monster "base speed" */
+	s16b energy;		/* Monster "energy" */
+
+	byte fast;			/* Monster is fast */
+	byte slow;			/* Monster is slow */
 
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
@@ -670,8 +699,9 @@ struct store_type
 	s16b table_size;		/* Table -- Total Size of Array */
 	s16b *table;			/* Table -- Legal item kinds */
 
+	s16b total_bulk;			/* Stock -- Space used */
 	s16b stock_num;			/* Stock -- Number of entries */
-	s16b stock_size;		/* Stock -- Total Size of Array */
+	s16b stock_size;			/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
 };
 
@@ -689,6 +719,26 @@ struct magic_type
 	byte smana;			/* Required mana (to cast) */
 	byte sfail;			/* Minimum chance of failure */
 	byte sexp;			/* Encoded experience bonus */
+};
+
+
+/*
+ * Information about spells
+ */
+struct spell_type
+{
+	cptr name;			/* What this spell is called */
+
+	/* Which books this spell occurs in */
+	u32b book1;			/* 1 - 32 */
+	u32b book2;			/* 33 - 64 */
+
+	u16b caste;			/* Classes which may cast this spell */
+
+	byte level;			/* Level required to learn */
+	byte mana;			/* Mana required to cast */
+	byte diff;			/* Difficulty to cast */
+	byte exp;			/* Experience bonus */
 };
 
 
@@ -761,6 +811,12 @@ struct player_race
 	byte infra;			/* Infra-vision	range */
 
 	byte choice;		/* Legal class choices */
+
+#if 0
+	s16b r_mag;			/* racial magic ability */
+	u16b rs_pro;		/* racial spell proficiencies */
+	u16b rs_def;		/* racial spell deficiencies */
+#endif
 };
 
 
@@ -793,6 +849,12 @@ struct player_class
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
+
+#if 0
+	s16b c_mag;			/* class magic ability */
+	u16b cs_pro;		/* class spell proficiencies */
+	u16b cs_def;		/* class spell deficiencies */
+#endif
 };
 
 
@@ -804,19 +866,23 @@ struct player_class
  */
 struct player_other
 {
-	char full_name[32];		/* Full name */
-	char base_name[32];		/* Base name */
+	char full_name[32];							/* Full name */
+	char base_name[32];							/* Base name */
 
-	bool opt[OPT_MAX];		/* Options */
+	bool opt[OPT_PAGE_MAX][OPT_PAGE_LEN];	/* Options */
 
-	u32b window_flag[8];		/* Window flags */
+	u16b term_flag[8];							/* Window flags */
 
-	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
+	byte hitpoint_warn;							/* Hitpoint warning (0 to 9) */
 
-	byte delay_factor;		/* Delay factor (0 to 9) */
+	byte delay_factor;							/* Delay factor (0 to 9) */
 
-	u32b destroy_good;		/* Destruction threshold */
-	u32b destroy_junk;		/* Destruction threshold */
+	u32b destroy_good;							/* Destruction threshold */
+	u32b destroy_junk;							/* Destruction threshold */
+
+	u16b autosave_freq;							/* Number of turns between autosaves */
+
+	u16b name_cnt;									/* Number of games with this name */
 };
 
 
@@ -835,6 +901,9 @@ struct player_type
 {
 	s16b py;			/* Player location */
 	s16b px;			/* Player location */
+
+	s16b ay;			/* Player wilderness location */
+	s16b ax;			/* Player wilderness location */
 
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
@@ -917,6 +986,10 @@ struct player_type
 	u32b spell_forgotten1;	/* Spell flags */
 	u32b spell_forgotten2;	/* Spell flags */
 
+	s16b quest_cur;		/* Number of quest monsters killed so far */
+	s16b quest_max;		/* Total number of quest monsters to kill */
+	s16b quest_idx;		/* Type of monster to kill on this level */
+
 	byte spell_order[64];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
@@ -947,6 +1020,7 @@ struct player_type
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
 
+	s16b total_bulk;	/* Size of items being carried */
 	s32b total_wt;		/* Total weight being carried */
 
 	s16b inven_cnt;			/* Number of items in inventory */
@@ -1006,6 +1080,8 @@ struct player_type
 	bool icky_wield;	/* Icky weapon */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
+	byte sur_floor;	/* Number of surrounding floor grids */
+	byte sur_full;		/* Number of surrounding occupied grids */
 
 	u32b notice;		/* Special Updates (bit flags) */
 	u32b update;		/* Pending Updates (bit flags) */
@@ -1052,6 +1128,7 @@ struct player_type
 
 	bool slow_digest;	/* Slower digestion */
 	bool ffall;			/* Feather falling */
+	bool hfall;			/* Heavy falling */
 	bool lite;			/* Permanent light */
 	bool regenerate;	/* Regeneration */
 	bool telepathy;		/* Telepathy */

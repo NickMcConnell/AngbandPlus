@@ -1,0 +1,16 @@
+=== Using the Rangband inventory system ===
+
+The inventory system in Rangband is very similar to the help file system.
+
+You can press Space to advance one page, or '>' to advance one line.
+If you reach the end of the help file, you will wrap around to the start.
+
+You can press '.' to back up one page, or '<' to back up one line.
+If you reach the beginning of the help file, you will wrap to the last page.
+
+You can press '#' to go to a specific line (defaults to line zero).
+
+You can press the symbol used to represent a type of item, and only items
+of that type will be displayed.  Press '*' to show all items.
+
+Normal commands may be used as well.

@@ -209,6 +209,9 @@ void compact_monsters(int size)
 			/* All monsters get a saving throw */
 			if (rand_int(100) < chance) continue;
 
+			/* Check for quest completion */
+			if (r_ptr->flags1 & (RF1_QUESTOR)) check_quest(r_ptr, m_ptr, FALSE);
+
 			/* Delete the monster */
 			delete_monster_idx(i);
 
@@ -578,14 +581,19 @@ s16b get_mon_num(int level)
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
-		    (r_ptr->cur_num >= r_ptr->max_num))
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 		{
 			continue;
 		}
 
 		/* Depth Monsters never appear out of depth */
 		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
+		{
+			continue;
+		}
+
+		/* The number of quest monsters is fixed */
+		if ((r_ptr->flags1 & RF1_QUESTOR) && (p_ptr->quest_cur < p_ptr->quest_max))
 		{
 			continue;
 		}
@@ -814,7 +822,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	else
 	{
 		/* It could be a Unique */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		if (!(r_ptr->flags1 & RF1_LIMIT) && (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
 			/* Start with the name (thus nominative and objective) */
 			strcpy(desc, name);
@@ -1615,15 +1623,11 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Extract the monster base speed */
-	n_ptr->mspeed = r_ptr->speed;
+	n_ptr->bspeed = r_ptr->speed;
 
-	/* Hack -- small racial variety */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-	{
-		/* Allow some small variation per monster */
-		i = extract_energy[r_ptr->speed] / 10;
-		if (i) n_ptr->mspeed += rand_spread(0, i);
-	}
+	/* Allow some small variation per monster */
+	i = extract_energy[r_ptr->speed] / 10;
+	if (i) n_ptr->bspeed = randnor(n_ptr->bspeed, i / 4);
 
 	/* Give a random starting energy */
 	n_ptr->energy = rand_int(100);
@@ -1818,8 +1822,9 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 		/* Check each direction, up to total */
 		for (i = 0; (i < 8) && (hack_n < total); i++)
 		{
-			int mx = hx + ddx_ddd[i];
-			int my = hy + ddy_ddd[i];
+			int mx, my;
+
+			scatter(&my, &mx, hy, hx, 4, 0);
 
 			/* Walls and Monsters block flow */
 			if (!cave_empty_bold(my, mx)) continue;
@@ -2074,8 +2079,8 @@ bool alloc_monster(int dis, int slp)
 	while (1)
 	{
 		/* Pick a location */
-		y = rand_int(DUNGEON_HGT);
-		x = rand_int(DUNGEON_WID);
+		y = rand_range(1, DUNGEON_HGT - 2);
+		x = rand_range(1, DUNGEON_WID - 2);
 
 		/* Require "naked" floor grid */
 		if (!cave_naked_bold(y, x)) continue;
@@ -2319,6 +2324,9 @@ bool multiply_monster(int m_idx)
 
 	bool result = FALSE;
 
+	/* Require some health */
+	if (m_ptr->hp == 1) return FALSE;
+
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)
 	{
@@ -2335,6 +2343,16 @@ bool multiply_monster(int m_idx)
 
 		/* Done */
 		break;
+	}
+
+	/* Health is divided */
+	if (result)
+	{
+		m_ptr->hp = m_ptr->hp / 2;
+
+		m_ptr = &m_list[cave_m_idx[y][x]];
+
+		m_ptr->hp = m_ptr->hp / 2;
 	}
 
 	/* Result */
@@ -2378,8 +2396,8 @@ void message_pain(int m_idx, int dam)
 	percentage = (int)(tmp);
 
 
-	/* Jelly's, Mold's, Vortex's, Quthl's, Eyes, Snakes */
-	if (strchr("jmvQeJ", r_ptr->d_char))
+	/* Jellies, Molds, Vortices, Quylthulgs, Eyes */
+	if (strchr("ejmvQ", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s barely notices.", m_name);
@@ -2395,6 +2413,86 @@ void message_pain(int m_idx, int dam)
 			msg_format("%^s writhes in agony.", m_name);
 		else
 			msg_format("%^s jerks limply.", m_name);
+	}
+
+
+	/* Snakes, Hydrae, Reptiles, Mimics */
+	else if (strchr("JMR?!$|", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s barely notices.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s hisses.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s rears up in anger.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s hisses furiously.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s writhes about.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s writhes in agony.", m_name);
+		else
+			msg_format("%^s jerks limply.", m_name);
+	}
+
+
+	/* Ants, Centipedes, Flies, Insects, Beetles, Spiders */
+	else if (strchr("acFIKS", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s chitters.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s scuttles about.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s twitters.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s jerks in pain.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s jerks in agony.", m_name);
+		else
+			msg_format("%^s twitches.", m_name);
+	}
+
+
+	/* Birds */
+	else if (strchr("B", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s chirps.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s twitters.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s squawks.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s chatters.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s jeers.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s flutters about.", m_name);
+		else
+			msg_format("%^s squeaks.", m_name);
+	}
+
+
+	/* Dragons, Demons, High Undead */
+	else if (strchr("duDLUW", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s flinches.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s hisses in pain.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s snarls with pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s roars with pain.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s gasps.", m_name);
+		else
+			msg_format("%^s snarls feebly.", m_name);
 	}
 
 	/* Dogs and Hounds */
@@ -2417,7 +2515,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* One type of monsters (ignore,squeal,shriek) */
-	else if (strchr("FIKMRSXabcilqrst", r_ptr->d_char))
+	else if (strchr("Xbilqrst", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s ignores the attack.", m_name);

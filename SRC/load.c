@@ -30,6 +30,31 @@
  *
  */
 
+/*
+ * Compatibility for old inventory design
+ */
+#define OLD_INV_PACK			23
+
+/*
+ * Indexes used for various "equipment" slots.
+ */
+#define OLD_INV_WIELD		24
+#define OLD_INV_BOW			25
+#define OLD_INV_LEFT      	26
+#define OLD_INV_RIGHT     	27
+#define OLD_INV_NECK      	28
+#define OLD_INV_LITE      	29
+#define OLD_INV_BODY      	30
+#define OLD_INV_OUTER     	31
+#define OLD_INV_ARM       	32
+#define OLD_INV_HEAD      	33
+#define OLD_INV_HANDS     	34
+#define OLD_INV_FEET      	35
+
+/*
+ * Total number of inventory slots.
+ */
+#define OLD_INV_TOTAL		36
 
 
 
@@ -254,6 +279,8 @@ static void rd_artifact(artifact_type *a_ptr)
 	rd_byte (&a_ptr->dd);
 	rd_byte (&a_ptr->ds);
 
+	/* Version 1.05 introduces bulkiness */
+	if (!older_than(1, 0, 5)) rd_s16b (&a_ptr->bulk);
 	rd_s32b (&a_ptr->wt);
 
 	rd_s32b (&a_ptr->cost);
@@ -288,12 +315,7 @@ static void rd_item(object_type *o_ptr)
 	byte old_name1;
 	byte old_name2;
 
-	byte old_dd;
-	byte old_ds;
-
 	s16b tmp16s;
-
-	s32b old_cost;
 
 	u32b f1, f2, f3;
 
@@ -318,6 +340,9 @@ static void rd_item(object_type *o_ptr)
 
 	rd_byte(&o_ptr->discount);
 	rd_byte(&o_ptr->number);
+
+	/* Version 1.05 introduces bulkiness */
+	if (!older_than(1, 0, 5)) rd_s16b (&o_ptr->bulk);
 	rd_s32b(&o_ptr->wt);
 
 	/* The artifact and ego-item data changed in 1.03 */
@@ -352,8 +377,8 @@ static void rd_item(object_type *o_ptr)
 
 	rd_s16b(&o_ptr->ac);
 
-	rd_byte(&old_dd);
-	rd_byte(&old_ds);
+	rd_byte(&o_ptr->dd);
+	rd_byte(&o_ptr->ds);
 
 	rd_byte(&o_ptr->ident);
 
@@ -412,6 +437,9 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->dd = k_ptr->dd;
 		o_ptr->ds = k_ptr->ds;
 
+		/* Acquire correct bulk */
+		o_ptr->bulk = k_ptr->bulk;
+
 		/* Acquire correct weight */
 		o_ptr->wt = k_ptr->wt;
 
@@ -450,11 +478,8 @@ static void rd_item(object_type *o_ptr)
 		if (!e_ptr->name) o_ptr->name2 = 0;
 	}
 
-
-	/* Acquire standard fields */
-	o_ptr->ac = k_ptr->ac;
-	o_ptr->dd = k_ptr->dd;
-	o_ptr->ds = k_ptr->ds;
+	/* Acquire standard bulk */
+	o_ptr->bulk = k_ptr->bulk;
 
 	/* Acquire standard weight */
 	o_ptr->wt = k_ptr->wt;
@@ -479,6 +504,9 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->dd = a_ptr->dd;
 		o_ptr->ds = a_ptr->ds;
 
+		/* Acquire new artifact bulk */
+		o_ptr->bulk = a_ptr->bulk;
+
 		/* Acquire new artifact weight */
 		o_ptr->wt = a_ptr->wt;
 
@@ -493,13 +521,6 @@ static void rd_item(object_type *o_ptr)
 
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
-
-		/* Hack -- keep some old fields */
-		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
-		{
-			/* Keep old boosted damage dice */
-			o_ptr->dd = old_dd;
-		}
 
 		/* Hack -- extract the "broken" flag */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -532,8 +553,24 @@ static void rd_monster(monster_type *m_ptr)
 	rd_s16b(&m_ptr->hp);
 	rd_s16b(&m_ptr->maxhp);
 	rd_s16b(&m_ptr->csleep);
-	rd_byte(&m_ptr->mspeed);
-	rd_byte(&m_ptr->energy);
+	rd_byte(&m_ptr->bspeed);
+
+	if (!older_than(1,0,5))
+	{
+		/* RAngband 1.05 changed the size of 'm_ptr->energy' */
+		rd_s16b(&m_ptr->energy);
+
+		/* RAngband 1.05 added timed monster speed */
+		rd_byte(&m_ptr->fast);
+		rd_byte(&m_ptr->slow);
+	}
+	else
+	{
+		/* RAngband 1.05 changed the size of 'm_ptr->energy' */
+		rd_byte(&tmp8u);
+		m_ptr->energy = tmp8u;
+	}
+
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
@@ -592,7 +629,9 @@ static void rd_lore(int r_idx)
 
 
 	/* Read the "Racial" monster limit per level */
-	rd_byte(&r_ptr->max_num);
+	rd_byte(&tmp8u);
+	/* Hack -- disallow setting the monster limit if player is dead */
+	if (tmp8u != 255) r_ptr->max_num = tmp8u;
 
 	/* Later (?) */
 	rd_byte(&tmp8u);
@@ -653,6 +692,9 @@ static errr rd_store(int n)
 		{
 			int k = st_ptr->stock_num++;
 
+			/* Use some space */
+			st_ptr->total_bulk += store_bulk(i_ptr) * i_ptr->number;
+
 			/* Acquire the item */
 			object_copy(&st_ptr->stock[k], i_ptr);
 		}
@@ -705,16 +747,17 @@ static void rd_randomizer(void)
  */
 static void rd_options(void)
 {
-	int i, n;
+	int i, j, n;
 
 	byte b;
 
 	u16b c;
 
+	u16b tmp16u;
 	u32b tmp32u;
 
-	u32b flag[8];
-	u32b mask[8];
+	u16b flag[16];
+	u16b mask[16];
 
 
 	/*** Oops ***/
@@ -745,6 +788,13 @@ static void rd_options(void)
 		op_ptr->destroy_junk = tmp32u;
 	}
 
+	/* RAngband 1.05 introduces timed autosaves and name uses */
+	if (!older_than(1, 0, 5))
+	{
+		/* Autosave delay */
+		rd_u16b(&tmp16u);
+		op_ptr->autosave_freq = tmp16u;
+	}
 
 	/*** Cheating options ***/
 
@@ -761,35 +811,35 @@ static void rd_options(void)
 	/*** Normal Options ***/
 
 	/* Read the option flags */
-	for (n = 0; n < 8; n++) rd_u32b(&flag[n]);
+	for (n = 0; n < 16; n++) rd_u16b(&flag[n]);
 
 	/* Read the option masks */
-	for (n = 0; n < 8; n++) rd_u32b(&mask[n]);
+	for (n = 0; n < 16; n++) rd_u16b(&mask[n]);
 
 	/* Analyze the options */
-	for (i = 0; i < OPT_MAX; i++)
+	for (i = 0; i < OPT_PAGE_MAX; i++)
 	{
-		int os = i / 32;
-		int ob = i % 32;
-
-		/* Process real entries */
-		if (option_text[i])
+		for (j = 0; j < OPT_PAGE_LEN; j++)
 		{
-			/* Process saved entries */
-			if (mask[os] & (1L << ob))
+			/* Process real entries */
+			if (opt_text[i][j])
 			{
-				/* Set flag */
-				if (flag[os] & (1L << ob))
+				/* Process saved entries */
+				if (mask[i] & (1L << j))
 				{
-					/* Set */
-					op_ptr->opt[i] = TRUE;
-				}
+					/* Set flag */
+					if (flag[i] & (1L << j))
+					{
+						/* Set */
+						op_ptr->opt[i][j] = TRUE;
+					}
 
-				/* Clear flag */
-				else
-				{
-					/* Set */
-					op_ptr->opt[i] = FALSE;
+					/* Clear flag */
+					else
+					{
+						/* Set */
+						op_ptr->opt[i][j] = FALSE;
+					}
 				}
 			}
 		}
@@ -799,10 +849,10 @@ static void rd_options(void)
 	/*** Window Options ***/
 
 	/* Read the window flags */
-	for (n = 0; n < 8; n++) rd_u32b(&flag[n]);
+	for (n = 0; n < 16; n++) rd_u16b(&flag[n]);
 
 	/* Read the window masks */
-	for (n = 0; n < 8; n++) rd_u32b(&mask[n]);
+	for (n = 0; n < 16; n++) rd_u16b(&mask[n]);
 
 	/* Analyze the options */
 	for (n = 0; n < 8; n++)
@@ -811,7 +861,7 @@ static void rd_options(void)
 		for (i = 0; i < 32; i++)
 		{
 			/* Process valid flags */
-			if (window_flag_desc[i])
+			if (term_flag_desc[i])
 			{
 				/* Process valid flags */
 				if (mask[n] & (1L << i))
@@ -820,7 +870,7 @@ static void rd_options(void)
 					if (flag[n] & (1L << i))
 					{
 						/* Set */
-						op_ptr->window_flag[n] |= (1L << i);
+						op_ptr->term_flag[n] |= (1L << i);
 					}
 				}
 			}
@@ -867,6 +917,13 @@ static errr rd_extra(void)
 	for (i = 0; i < 4; i++)
 	{
 		rd_string(p_ptr->history[i], 60);
+	}
+
+	/* Rangband 1.05 adds the wilderness location */
+	if (!older_than(1, 0, 5))
+	{
+		rd_s16b(&p_ptr->ay);
+		rd_s16b(&p_ptr->ax);
 	}
 
 	/* Class/Race/Gender/Spells */
@@ -968,6 +1025,16 @@ static errr rd_extra(void)
 	/* Skip the flags */
 	strip_bytes(12);
 
+	/* RAngband 1.05 adds random quest levels */
+	if(!older_than(1,0,5))
+	{
+		rd_s16b(&p_ptr->quest_cur);
+		rd_s16b(&p_ptr->quest_max);
+		rd_s16b(&p_ptr->quest_idx);
+
+      /* Set the quest monster */
+      if (p_ptr->quest_idx) r_info[p_ptr->quest_idx].flags1 |= RF1_QUESTOR;
+	}
 
 	/* Hack -- the two "special seeds" */
 	rd_u32b(&seed_flavor);
@@ -1072,14 +1139,36 @@ static errr rd_inventory(void)
 		/* Hack -- verify item */
 		if (!i_ptr->k_idx) return (53);
 
+		/* Version 1.05 uses more inventory slots and object sizes */
+		if (older_than(1, 0, 5))
+		{
+			object_kind *k_ptr = &k_info[i_ptr->k_idx];
+
+			switch(n)
+			{
+				case OLD_INV_WIELD: n = INVEN_WIELD; break;
+				case OLD_INV_BOW: n = INVEN_BOW; break;
+				case OLD_INV_LEFT: n = INVEN_LEFT; break;
+				case OLD_INV_RIGHT: n = INVEN_RIGHT; break;
+				case OLD_INV_NECK: n = INVEN_NECK; break;
+				case OLD_INV_LITE: n = INVEN_LITE; break;
+				case OLD_INV_BODY: n = INVEN_BODY; break;
+				case OLD_INV_OUTER: n = INVEN_OUTER; break;
+				case OLD_INV_ARM: n = INVEN_ARM; break;
+				case OLD_INV_HEAD: n = INVEN_HEAD; break;
+				case OLD_INV_HANDS: n = INVEN_HANDS; break;
+				case OLD_INV_FEET: n = INVEN_FEET; break;
+			}
+
+			/* Set the size */
+			i_ptr->bulk = k_ptr->bulk;
+		}
+
 		/* Wield equipment */
 		if (n >= INVEN_WIELD)
 		{
 			/* Copy object */
 			object_copy(&inventory[n], i_ptr);
-
-			/* Add the weight */
-			p_ptr->total_wt += (i_ptr->number * i_ptr->wt);
 
 			/* One more item */
 			p_ptr->equip_cnt++;
@@ -1103,9 +1192,6 @@ static errr rd_inventory(void)
 
 			/* Copy object */
 			object_copy(&inventory[n], i_ptr);
-
-			/* Add the weight */
-			p_ptr->total_wt += (i_ptr->number * i_ptr->wt);
 
 			/* One more item */
 			p_ptr->inven_cnt++;
@@ -1522,6 +1608,13 @@ static errr rd_savefile_new_aux(void)
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
 	}
+
+	/* Hack -- The fixed potions are known */
+	for (i = 0; i < 4; i++)
+	{
+		k_info[lookup_kind(TV_POTION, i)].aware = TRUE;
+	}
+
 	if (arg_fiddle) note("Loaded Object Memory");
 
 
@@ -1702,7 +1795,7 @@ errr rd_savefile_new(void)
  */
 bool rd_bones_aux(void)
 {
-	int i, known;
+	int i;
 
 	byte tmp8u;
 	u16b tmp16u;

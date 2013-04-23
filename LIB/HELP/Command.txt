@@ -92,7 +92,7 @@ Walk (flip pickup) (-)
         you will when using this command.  This command may take a count,
         requires a direction, and takes some energy.
 
-Run (.) or Run (,)
+Run (.)
         This command will move in the given direction, following any bends
         in the corridor, until you either have to make a "choice" between
         two directions or you are disturbed.  You can configure what will
@@ -125,7 +125,7 @@ Go down staircase (>)
 
 --- Resting Commands ---
 
-Stay still (with pickup) (,) or Stay still (with pickup) (.)
+Stay still (with pickup) (,)
         Stays in the same square for one move.  If you normally pick up
         objects you encounter, you will pick up whatever you are standing
         on.  You may also use the "5" key (both keysets).  This command
@@ -559,7 +559,7 @@ Quit (commit suicide) (Q)
 Interact with options (=)
         Allow you to interact with options.  Note that using the "cheat"
         options may mark your savefile as unsuitable for the high score
-        list.  You may change normal options using the "X" and "Y" user
+        list.  You may change normal options using the "T" and "F" user
         pref commands.  The "window" options allow you to specify what
         should be drawn in any of the special sub-windows (not available
         on all platforms). See the help file "options.txt" for more info.

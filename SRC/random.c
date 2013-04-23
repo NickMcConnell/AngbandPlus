@@ -136,7 +136,7 @@ void gibber(char *buf, int mode)
 
 	gibber_type *c_ptr, *v_ptr, *r_ptr;
 
-	cptr t, u, symbol;
+	cptr t, symbol;
 
 	bool middle = FALSE;
 	bool end = FALSE;
@@ -1873,7 +1873,7 @@ static bool make_ghost_aux(monster_race *r_ptr, bool magical, byte mode)
 			rf3 |= (RF3_HAS_BODY | RF3_HAS_BONES | RF3_HAS_HEAD | RF3_HAS_SKULL);
 			rf5 |= RF5_SCARE;
 			rf5 |= RF5_HOLD;
-			rf6 |= RF6_DARKNESS;
+			rf5 |= RF5_DARKNESS;
 
 			r_ptr->speed = 110;
 			if (mode == UND_HI_VAMP) r_ptr->speed = 120;
@@ -2131,18 +2131,6 @@ static bool make_ghost_aux(monster_race *r_ptr, bool magical, byte mode)
 
 				break;
 			}
-			case RF2_MOVE_BODY:
-			{
-				tmp_score = 300;
-
-				break;
-			}
-			case RF2_KILL_BODY:
-			{
-				tmp_score = 800;
-
-				break;
-			}
 			case RF2_KILL_ITEM:
 			{
 				tmp_score = 1200;
@@ -2219,6 +2207,48 @@ static bool make_ghost_aux(monster_race *r_ptr, bool magical, byte mode)
 
 		switch (f4)
 		{
+			case RF4_DRAIN_MANA:
+			{
+				tmp_score = 500;
+
+				break;
+			}
+			case RF4_MIND_BLAST:
+			{
+				tmp_score = 4500;
+
+				break;
+			}
+			case RF4_BRAIN_SMASH:
+			{
+				tmp_score = 6000;
+
+				break;
+			}
+			case RF4_CAUSE_1:
+			{
+				tmp_score = 400;
+
+				break;
+			}
+			case RF4_CAUSE_2:
+			{
+				tmp_score = 500;
+
+				break;
+			}
+			case RF4_CAUSE_3:
+			{
+				tmp_score = 1400;
+
+				break;
+			}
+			case RF4_CAUSE_4:
+			{
+				tmp_score = 3200;
+
+				break;
+			}
 			case RF4_BR_POIS:
 			{
 				tmp_score = 4000;
@@ -2228,12 +2258,6 @@ static bool make_ghost_aux(monster_race *r_ptr, bool magical, byte mode)
 			case RF4_BR_NETH:
 			{
 				tmp_score = 4500;
-
-				break;
-			}
-			case RF4_BR_DARK:
-			{
-				tmp_score = 1100;
 
 				break;
 			}
@@ -2329,45 +2353,9 @@ static bool make_ghost_aux(monster_race *r_ptr, bool magical, byte mode)
 
 				break;
 			}
-			case RF5_DRAIN_MANA:
+			case RF5_DARKNESS:
 			{
-				tmp_score = 500;
-
-				break;
-			}
-			case RF5_MIND_BLAST:
-			{
-				tmp_score = 4500;
-
-				break;
-			}
-			case RF5_BRAIN_SMASH:
-			{
-				tmp_score = 6000;
-
-				break;
-			}
-			case RF5_CAUSE_1:
-			{
-				tmp_score = 400;
-
-				break;
-			}
-			case RF5_CAUSE_2:
-			{
-				tmp_score = 500;
-
-				break;
-			}
-			case RF5_CAUSE_3:
-			{
-				tmp_score = 1400;
-
-				break;
-			}
-			case RF5_CAUSE_4:
-			{
-				tmp_score = 3200;
+				tmp_score = 1300;
 
 				break;
 			}
@@ -2467,6 +2455,12 @@ static bool make_ghost_aux(monster_race *r_ptr, bool magical, byte mode)
 
 				break;
 			}
+			case RF5_FORGET:
+			{
+				tmp_score = 3000;
+
+				break;
+			}
 			default:
 			{
 				tmp_score = 0;
@@ -2526,21 +2520,9 @@ static bool make_ghost_aux(monster_race *r_ptr, bool magical, byte mode)
 
 				break;
 			}
-			case RF6_DARKNESS:
-			{
-				tmp_score = 1300;
-
-				break;
-			}
 			case RF6_TRAPS:
 			{
 				tmp_score = 1200;
-
-				break;
-			}
-			case RF6_FORGET:
-			{
-				tmp_score = 3000;
 
 				break;
 			}
@@ -2684,7 +2666,7 @@ bool make_ghost(int g_idx)
 	{
 		hs += rand_int(2);
 
-		if (hd * hs > power) break;
+		if (hd * hs > g_ptr->mhp) break;
 
 		hd += rand_int(2);
 	}

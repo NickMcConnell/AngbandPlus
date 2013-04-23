@@ -16,21 +16,94 @@
 A:w0
 C:X
 
+##### Default Options #####
 
-## # Option -- Default to original commands
-## X:rogue_like_commands
+### User Interface ###
+T:rogue_like_commands
+F:quick_messages
+F:use_old_target
+T:carry_query_flag
+F:always_pickup
+T:always_repeat
+F:depth_in_feet
+F:stack_force_notes
+F:stack_force_costs
+T:show_labels
+T:show_weights
+T:show_choices
+T:show_details
+F:ring_bell
+T:inventory_colors
+T:show_blood
 
-## # Option -- Default to roguelike commands
-## Y:rogue_like_commands
+### Disturbance ###
+F:run_ignore_stairs
+T:run_ignore_doors
+T:run_cut_corners
+T:run_use_corners
+F:disturb_move
+T:disturb_near
+F:disturb_panel
+T:disturb_state
+T:disturb_minor
+T:disturb_other
+T:alert_hitpoint
+T:alert_valuable
+T:alert_worthless
+F:alert_failure
+T:autosave_time
+T:autosave_level
 
+### Gameplay ###
+T:auto_haggle
+F:auto_scum
+T:expand_look
+T:expand_list
+T:view_perma_grids
+F:view_torch_grids
+F:dungeon_align
+T:dungeon_stair
+T:flow_by_sound
+T:flow_by_smell
+T:smart_learn
+F:smart_cheat
+#F:unused
+#F:unused
+#F:unused
+#F:unused
+
+### Efficiency ###
+F:view_reduce_lite
+F:view_reduce_view
+F:avoid_abort
+F:avoid_other
+T:flush_failure
+F:flush_disturb
+T:fresh_before
+F:fresh_after
+T:compress_savefile
+T:center_player
+F:avoid_center
+F:hilite_player
+T:view_yellow_lite
+T:view_bright_lite
+T:view_granite_lite
+T:view_special_lite
+
+##### Default Window Settings #####
+
+W:term-1:display inven/equip
+W:term-2:equip/inven
+W:term-3:monster recall
+W:term-3:object recall
 
 ##### System Specific Subfiles #####
 
 ?:[IOR [EQU $SYS x11] [EQU $SYS xaw]]
 %:pref-x11.prf
 
-## ?:[EQU $SYS gcu]
-## %:pref-gcu.prf
+?:[EQU $SYS gcu]
+%:pref-gcu.prf
 
 ?:[EQU $SYS ami]
 %:pref-ami.prf
@@ -40,6 +113,9 @@ C:X
 
 ?:[IOR [EQU $SYS win] [EQU $SYS ibm]]
 %:pref-win.prf
+
+?:[EQU $SYS dos]
+%:pref-dos.prf
 
 ?:[EQU $SYS emx]
 %:pref-emx.prf

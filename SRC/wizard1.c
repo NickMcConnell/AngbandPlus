@@ -1489,7 +1489,7 @@ static void spoil_mon_info(cptr fname)
 {
 	char buf[1024];
 	int msex, vn, i, j, k, n;
-	bool breath, magic, sin;
+	bool breath, magic;
 	cptr p, q;
 	cptr vp[64];
 	u32b flags1, flags2, flags3, flags4, flags5, flags6;
@@ -1659,21 +1659,6 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out(".  ");
 
-
-#if 0
-
-		if (!r_ptr->level || (flags1 & (RF1_FORCE_DEPTH)))
-		{
-			sprintf(buf, "%s is never found out of depth.  ", wd_che[msex]);
-		}
-
-		if (flags1 & (RF1_FORCE_SLEEP))
-		{
-			sprintf(buf, "%s is always created sluggish.  ", wd_che[msex]);
-		}
-
-#endif
-
 		if (flags1 & (RF1_ESCORT))
 		{
 			sprintf(buf, "%s usually appears with ", wd_che[msex]);
@@ -1691,14 +1676,20 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect inate attacks */
 		vn = 0;
-		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-		if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX4)) vp[vn++] = "do something";
-		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
-		if (flags4 & (RF4_ARROW_2)) vp[vn++] = "fire arrows";
-		if (flags4 & (RF4_ARROW_3)) vp[vn++] = "fire missiles";
-		if (flags4 & (RF4_ARROW_4)) vp[vn++] = "fire missiles";
+		if (flags4 & (RF4_SHRIEK)) 			vp[vn++] = "shriek for help";
+		if (flags4 & (RF4_DRAIN_MANA))      vp[vn++] = "drain mana";
+		if (flags4 & (RF4_MIND_BLAST))      vp[vn++] = "cause mind blasting";
+		if (flags4 & (RF4_BRAIN_SMASH))     vp[vn++] = "cause brain smashing";
+		if (flags4 & (RF4_CAUSE_1))         vp[vn++] = "cause light wounds";
+		if (flags4 & (RF4_CAUSE_2))         vp[vn++] = "cause serious wounds";
+		if (flags4 & (RF4_CAUSE_3))         vp[vn++] = "cause critical wounds";
+		if (flags4 & (RF4_CAUSE_4))         vp[vn++] = "cause mortal wounds";
+		if (flags4 & (RF4_ROCK_1)) 			vp[vn++] = "fire rocks";
+		if (flags4 & (RF4_ROCK_2)) 			vp[vn++] = "fire rocks";
+		if (flags4 & (RF4_ARROW_1)) 			vp[vn++] = "fire arrows";
+		if (flags4 & (RF4_ARROW_2)) 			vp[vn++] = "fire arrows";
+		if (flags4 & (RF4_BOLT_1)) 			vp[vn++] = "fire bolts";
+		if (flags4 & (RF4_BOLT_2)) 			vp[vn++] = "fire bolts";
 
 		if (vn)
 		{
@@ -1721,24 +1712,13 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BR_COLD)) vp[vn++] = "frost";
 		if (flags4 & (RF4_BR_POIS)) vp[vn++] = "poison";
 		if (flags4 & (RF4_BR_NETH)) vp[vn++] = "nether";
-		if (flags4 & (RF4_BR_LITE)) vp[vn++] = "light";
-		if (flags4 & (RF4_BR_DARK)) vp[vn++] = "darkness";
 		if (flags4 & (RF4_BR_CONF)) vp[vn++] = "confusion";
-		if (flags4 & (RF4_BR_SOUN)) vp[vn++] = "sound";
 		if (flags4 & (RF4_BR_CHAO)) vp[vn++] = "chaos";
 		if (flags4 & (RF4_BR_DISE)) vp[vn++] = "disenchantment";
 		if (flags4 & (RF4_BR_NEXU)) vp[vn++] = "nexus";
-		if (flags4 & (RF4_BR_TIME)) vp[vn++] = "time";
-		if (flags4 & (RF4_BR_INER)) vp[vn++] = "inertia";
-		if (flags4 & (RF4_BR_GRAV)) vp[vn++] = "gravity";
 		if (flags4 & (RF4_BR_SHAR)) vp[vn++] = "shards";
 		if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "plasma";
-		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
 		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
-		if (flags4 & (RF4_XXX5)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX6)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX7)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX8)) vp[vn++] = "something";
 
 		if (vn)
 		{
@@ -1756,70 +1736,64 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect spells */
 		vn = 0;
-		if (flags5 & (RF5_BA_ACID))           vp[vn++] = "produce acid balls";
-		if (flags5 & (RF5_BA_ELEC))           vp[vn++] = "produce lightning balls";
-		if (flags5 & (RF5_BA_FIRE))           vp[vn++] = "produce fire balls";
-		if (flags5 & (RF5_BA_COLD))           vp[vn++] = "produce frost balls";
-		if (flags5 & (RF5_BA_POIS))           vp[vn++] = "produce poison balls";
-		if (flags5 & (RF5_BA_NETH))           vp[vn++] = "produce nether balls";
-		if (flags5 & (RF5_BA_WATE))           vp[vn++] = "produce water balls";
-		if (flags5 & (RF5_BA_MANA))           vp[vn++] = "produce mana storms";
-		if (flags5 & (RF5_BA_DARK))           vp[vn++] = "produce darkness storms";
-		if (flags5 & (RF5_DRAIN_MANA))        vp[vn++] = "drain mana";
-		if (flags5 & (RF5_MIND_BLAST))        vp[vn++] = "cause mind blasting";
-		if (flags5 & (RF5_BRAIN_SMASH))       vp[vn++] = "cause brain smashing";
-		if (flags5 & (RF5_CAUSE_1))           vp[vn++] = "cause light wounds";
-		if (flags5 & (RF5_CAUSE_2))           vp[vn++] = "cause serious wounds";
-		if (flags5 & (RF5_CAUSE_3))           vp[vn++] = "cause critical wounds";
-		if (flags5 & (RF5_CAUSE_4))           vp[vn++] = "cause mortal wounds";
-		if (flags5 & (RF5_BO_ACID))           vp[vn++] = "produce acid bolts";
-		if (flags5 & (RF5_BO_ELEC))           vp[vn++] = "produce lightning bolts";
-		if (flags5 & (RF5_BO_FIRE))           vp[vn++] = "produce fire bolts";
-		if (flags5 & (RF5_BO_COLD))           vp[vn++] = "produce frost bolts";
-		if (flags5 & (RF5_BO_POIS))           vp[vn++] = "produce poison bolts";
-		if (flags5 & (RF5_BO_NETH))           vp[vn++] = "produce nether bolts";
-		if (flags5 & (RF5_BO_WATE))           vp[vn++] = "produce water bolts";
-		if (flags5 & (RF5_BO_MANA))           vp[vn++] = "produce mana bolts";
-		if (flags5 & (RF5_BO_PLAS))           vp[vn++] = "produce plasma bolts";
-		if (flags5 & (RF5_BO_ICEE))           vp[vn++] = "produce ice bolts";
-		if (flags5 & (RF5_MISSILE))           vp[vn++] = "produce magic missiles";
-		if (flags5 & (RF5_SCARE))             vp[vn++] = "terrify";
-		if (flags5 & (RF5_BLIND))             vp[vn++] = "blind";
-		if (flags5 & (RF5_CONF))              vp[vn++] = "confuse";
-		if (flags5 & (RF5_SLOW))              vp[vn++] = "slow";
-		if (flags5 & (RF5_HOLD))              vp[vn++] = "paralyze";
-		if (flags6 & (RF6_HASTE))             vp[vn++] = "haste-self";
-		if (flags6 & (RF6_XXX1))            vp[vn++] = "do something";
-		if (flags6 & (RF6_HEAL))              vp[vn++] = "heal-self";
-		if (flags6 & (RF6_XXX2))            vp[vn++] = "do something";
-		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
-		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
-		if (flags6 & (RF6_XXX3))            vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX4))            vp[vn++] = "do something";
-		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "teleport to";
-		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "teleport away";
-		if (flags6 & (RF6_TELE_LEVEL))        vp[vn++] = "teleport level";
-		if (flags6 & (RF6_XXX5))              vp[vn++] = "do something";
-		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
-		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
-		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))              vp[vn++] = "do something";
-		if (flags6 & (RF6_S_FRIEND))          vp[vn++] = "summon a friend";
-		if (flags6 & (RF6_S_FRIENDS))         vp[vn++] = "summon friends";
-		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
-		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
-		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
-		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
-		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
-		if (flags6 & (RF6_S_ORC))             vp[vn++] = "summon Orcs";
-		if (flags6 & (RF6_S_ANGBAND))         vp[vn++] = "summon Morgoth's minions";
-		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
-		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
-		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "summon a dragon";
-		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
-		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
-		if (flags6 & (RF6_S_WRAITH))          vp[vn++] = "summon ring wraiths";
-		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
+		if (flags5 & (RF5_BA_ACID))			vp[vn++] = "produce acid balls";
+		if (flags5 & (RF5_BA_ELEC))         vp[vn++] = "produce lightning balls";
+		if (flags5 & (RF5_BA_FIRE))         vp[vn++] = "produce fire balls";
+		if (flags5 & (RF5_BA_COLD))         vp[vn++] = "produce frost balls";
+		if (flags5 & (RF5_BA_POIS))         vp[vn++] = "produce poison balls";
+		if (flags5 & (RF5_BA_NETH))         vp[vn++] = "produce nether balls";
+		if (flags5 & (RF5_BA_WATE))         vp[vn++] = "produce water balls";
+		if (flags5 & (RF5_BA_MANA))         vp[vn++] = "produce mana storms";
+		if (flags5 & (RF5_BA_DARK))         vp[vn++] = "produce darkness storms";
+		if (flags5 & (RF5_LIGHT))				vp[vn++] = "create light";
+		if (flags5 & (RF5_DARKNESS))        vp[vn++] = "create darkness";
+		if (flags5 & (RF5_SOUND))				vp[vn++] = "create sound";
+		if (flags5 & (RF5_FORCE))				vp[vn++] = "create explosions";
+		if (flags5 & (RF5_GRAVITY))			vp[vn++] = "warp space";
+		if (flags5 & (RF5_TIME))				vp[vn++] = "warp time";
+		if (flags5 & (RF5_BO_ACID))         vp[vn++] = "produce acid bolts";
+		if (flags5 & (RF5_BO_ELEC))         vp[vn++] = "produce lightning bolts";
+		if (flags5 & (RF5_BO_FIRE))         vp[vn++] = "produce fire bolts";
+		if (flags5 & (RF5_BO_COLD))         vp[vn++] = "produce frost bolts";
+		if (flags5 & (RF5_BO_POIS))         vp[vn++] = "produce poison bolts";
+		if (flags5 & (RF5_BO_NETH))         vp[vn++] = "produce nether bolts";
+		if (flags5 & (RF5_BO_WATE))         vp[vn++] = "produce water bolts";
+		if (flags5 & (RF5_BO_MANA))         vp[vn++] = "produce mana bolts";
+		if (flags5 & (RF5_BO_PLAS))         vp[vn++] = "produce plasma bolts";
+		if (flags5 & (RF5_BO_ICEE))         vp[vn++] = "produce ice bolts";
+		if (flags5 & (RF5_MISSILE))         vp[vn++] = "produce magic missiles";
+		if (flags5 & (RF5_SCARE))           vp[vn++] = "terrify";
+		if (flags5 & (RF5_BLIND))           vp[vn++] = "blind";
+		if (flags5 & (RF5_CONF))            vp[vn++] = "confuse";
+		if (flags5 & (RF5_SLOW))            vp[vn++] = "slow";
+		if (flags5 & (RF5_HOLD))            vp[vn++] = "paralyze";
+		if (flags5 & (RF5_FORGET))          vp[vn++] = "cause amnesia";
+
+		if (flags6 & (RF6_HASTE))           vp[vn++] = "haste-self";
+		if (flags6 & (RF6_HEAL))            vp[vn++] = "heal-self";
+		if (flags6 & (RF6_BLINK))           vp[vn++] = "blink-self";
+		if (flags6 & (RF6_TPORT))           vp[vn++] = "teleport-self";
+		if (flags6 & (RF6_DOOR))				vp[vn++] = "create dimension doors";
+		if (flags6 & (RF6_TELE_TO))         vp[vn++] = "teleport to";
+		if (flags6 & (RF6_TELE_AWAY))       vp[vn++] = "teleport away";
+		if (flags6 & (RF6_TELE_LEVEL))      vp[vn++] = "teleport level";
+		if (flags6 & (RF6_TRAPS))           vp[vn++] = "create traps";
+		if (flags6 & (RF6_S_FRIEND))        vp[vn++] = "summon a friend";
+		if (flags6 & (RF6_S_FRIENDS))       vp[vn++] = "summon friends";
+		if (flags6 & (RF6_S_MONSTER))       vp[vn++] = "summon a monster";
+		if (flags6 & (RF6_S_MONSTERS))      vp[vn++] = "summon monsters";
+		if (flags6 & (RF6_S_SPIDER))        vp[vn++] = "summon spiders";
+		if (flags6 & (RF6_S_HOUND))         vp[vn++] = "summon hounds";
+		if (flags6 & (RF6_S_HYDRA))         vp[vn++] = "summon hydrae";
+		if (flags6 & (RF6_S_ORC))           vp[vn++] = "summon Orcs";
+		if (flags6 & (RF6_S_ANGBAND))       vp[vn++] = "summon Morgoth's minions";
+		if (flags6 & (RF6_S_DEMON))         vp[vn++] = "summon a demon";
+		if (flags6 & (RF6_S_UNDEAD))        vp[vn++] = "summon an undead";
+		if (flags6 & (RF6_S_DRAGON))        vp[vn++] = "summon a dragon";
+		if (flags6 & (RF6_S_HI_UNDEAD))     vp[vn++] = "summon greater undead";
+		if (flags6 & (RF6_S_HI_DRAGON))     vp[vn++] = "summon ancient dragons";
+		if (flags6 & (RF6_S_WRAITH))        vp[vn++] = "summon ring wraiths";
+		if (flags6 & (RF6_S_UNIQUE))        vp[vn++] = "summon unique monsters";
 
 		if (vn)
 		{
@@ -1847,7 +1821,7 @@ static void spoil_mon_info(cptr fname)
 		if (breath || magic)
 		{
 			sprintf(buf, "; 1 time in %d.  ",
-			        200 / (r_ptr->freq_inate + r_ptr->freq_spell));
+					  200 / (r_ptr->freq_inate + r_ptr->freq_spell));
 			spoil_out(buf);
 		}
 
@@ -1857,8 +1831,6 @@ static void spoil_mon_info(cptr fname)
 		if (flags2 & (RF2_BASH_DOOR)) vp[vn++] = "bash down doors";
 		if (flags2 & (RF2_PASS_WALL)) vp[vn++] = "pass through walls";
 		if (flags2 & (RF2_KILL_WALL)) vp[vn++] = "bore through walls";
-		if (flags2 & (RF2_MOVE_BODY)) vp[vn++] = "push past weaker monsters";
-		if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 		if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 		if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
 
@@ -1910,6 +1882,8 @@ static void spoil_mon_info(cptr fname)
 		vn = 0;
 		if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
 		if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
+		if (flags3 & (RF3_HURT_ACID)) vp[vn++] = "acid";
+		if (flags3 & (RF3_HURT_ELEC)) vp[vn++] = "electricity";
 		if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
 		if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
 
@@ -2045,7 +2019,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_BEG:	p = "beg"; break;
 				case RBM_INSULT:	p = "insult"; break;
 				case RBM_MOAN:	p = "moan"; break;
-				case RBM_XXX5:	break;
+				case RBM_NOTHING: p = "be present"; break;
 			}
 
 
@@ -2083,6 +2057,9 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EXP_20:	q = "lower experience (by 20d6+)"; break;
 				case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
 				case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
+				case RBE_REND:		q = "cause wounds"; break;
+				case RBE_BATTER:	q = "stun"; break;
+				case RBE_BLAST:	q = "crush your mind"; break;
 			}
 
 

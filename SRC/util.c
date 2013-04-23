@@ -1101,6 +1101,68 @@ void ascii_to_text(char *buf, cptr str)
 }
 
 
+/*
+ * Convert a "color letter" into an "actual" color
+ * The colors are: dwsorgbuDWvyRGBU, as shown below
+ */
+int color_char_to_attr(char c)
+{
+	switch (c)
+	{
+		case 'd': return (TERM_DARK);
+		case 'w': return (TERM_WHITE);
+		case 's': return (TERM_SLATE);
+		case 'o': return (TERM_ORANGE);
+		case 'r': return (TERM_RED);
+		case 'g': return (TERM_GREEN);
+		case 'b': return (TERM_BLUE);
+		case 'u': return (TERM_UMBER);
+
+		case 'D': return (TERM_L_DARK);
+		case 'W': return (TERM_L_WHITE);
+		case 'v': return (TERM_VIOLET);
+		case 'y': return (TERM_YELLOW);
+		case 'R': return (TERM_L_RED);
+		case 'G': return (TERM_L_GREEN);
+		case 'B': return (TERM_L_BLUE);
+		case 'U': return (TERM_L_UMBER);
+	}
+
+	return (-1);
+}
+
+
+/*
+ * Convert an "actual" color into a "color letter"
+ * The colors are: dwsorgbuDWvyRGBU, as shown below
+ */
+char attr_to_color_char(int a)
+{
+	switch (a)
+	{
+		case TERM_DARK: return ('d');
+		case TERM_WHITE: return ('w');
+		case TERM_SLATE: return ('s');
+		case TERM_ORANGE: return ('o');
+		case TERM_RED: return ('r');
+		case TERM_GREEN: return ('g');
+		case TERM_BLUE: return ('b');
+		case TERM_UMBER: return ('u');
+
+		case TERM_L_DARK: return ('D');
+		case TERM_L_WHITE: return ('W');
+		case TERM_VIOLET: return ('v');
+		case TERM_YELLOW: return ('y');
+		case TERM_L_RED: return ('R');
+		case TERM_L_GREEN: return ('G');
+		case TERM_L_BLUE: return ('B');
+		case TERM_L_UMBER: return ('U');
+	}
+
+	return ('\0');
+}
+
+
 
 /*
  * Variable used by the functions below
@@ -1197,11 +1259,8 @@ static char roguelike_commands(char command)
 		/* Zap a rod (Activate) */
 		case 'a': return ('z');
 
-		/* Run */
-		case ',': return ('.');
-
 		/* Stay still (fake direction) */
-		case '.': hack_dir = 5; return (',');
+		case ',': hack_dir = 5; return (',');
 
 		/* Stay still (fake direction) */
 		case '5': hack_dir = 5; return (',');
@@ -2149,8 +2208,9 @@ cptr message_str(s16b age)
  */
 void message_add(cptr str)
 {
-	int i, k, x, n;
+	int i, k, x, m, n;
 
+	char u[1024];
 
 	/*** Step 1 -- Analyze the message ***/
 
@@ -2167,10 +2227,69 @@ void message_add(cptr str)
 	/*** Step 2 -- Attempt to optimize ***/
 
 	/* Limit number of messages to check */
-	k = message_num() / 4;
+	m = message_num();
+
+	k = m / 4;
 
 	/* Limit number of messages to check */
 	if (k > MESSAGE_MAX / 32) k = MESSAGE_MAX / 32;
+
+	/* Check previous message */
+	for(i = message__next; m; m--)
+	{
+		int j = 1;
+
+		char buf[1024];
+		char *t;
+
+		cptr old;
+
+		/* Back up and wrap if needed */
+		if (i-- == 0) i = MESSAGE_MAX - 1;
+
+		/* Access the old string */
+		old = &message__buf[message__ptr[i]];
+
+		/* Skip small messages */
+		if (!old) continue;
+
+		strcpy(buf, old);
+
+		/* Find multiple */
+		for (t = buf; *t && (*t != '<'); t++);
+
+		if (*t)
+		{
+			/* Message is too small */
+			if (strlen(buf) < 6) break;
+
+			/* Drop the space */
+			*(t - 1) = '\0';
+
+			/* Get multiplier */
+			j = atoi(++t);
+		}
+
+		/* Limit the multiplier to 1000 */
+		if (buf && streq(buf, str) && (j < 1000))
+		{
+			j++;
+
+			/* Overwrite */
+			message__next = i;
+
+			str = u;
+
+			/* Write it out */
+			sprintf(u, "%s <%dx>", buf, j);
+
+			/* Message length */
+			n = strlen(str);
+		}
+
+		/* Done */
+		break;
+	}
 
 	/* Check the last few messages (if any to count) */
 	for (i = message__next; k; k--)
@@ -2386,7 +2505,19 @@ void msg_print(cptr msg)
 	if (p && (!msg || ((p + n) > 72)))
 	{
 		/* Flush */
-		msg_flush(p);
+		if (!p_ptr->paralyzed && (p_ptr->stun < 100))
+		{
+			msg_flush(p);
+		}
+		/* Clear the line */
+		else
+		{
+			/* Time passes */
+			Term_xtra(TERM_XTRA_DELAY, 10);
+
+			/* Clear the previous message */
+			Term_erase(0, 0, 255);
+		}
 
 		/* Forget it */
 		msg_flag = FALSE;
@@ -2470,9 +2601,6 @@ void msg_print(cptr msg)
 
 	/* Remember the position */
 	p += n + 1;
-
-	/* Optional refresh */
-	if (fresh_message) Term_fresh();
 }
 
 
@@ -2909,8 +3037,6 @@ void pause_line(int row)
  */
 u32b get_number(u32b def, u32b max, int y, int x, char *cmd)
 {
-	int i;
-
 	u32b res = def;
 
 	/* Player has not typed anything yet */
@@ -3005,9 +3131,6 @@ void get_count(int number, int max)
 	/* Use the default */
 	p_ptr->command_arg = number;
 
-	/* Hack -- Optional flush */
-	if (flush_command) flush();
-
 	/* Clear top line */
 	prt("", 0, 0);
 
@@ -3048,11 +3171,6 @@ void request_command(bool shopping)
 
 	/* No "direction" yet */
 	p_ptr->command_dir = 0;
-
-
-	/* Hack -- Optional flush */
-	if (flush_command) flush();
-
 
 	/* Hack -- auto-commands */
 	if (p_ptr->command_new)

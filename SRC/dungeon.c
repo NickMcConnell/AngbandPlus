@@ -116,6 +116,9 @@ static void sense_inventory(void)
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
+	/* No sensing when berserk */
+	if (p_ptr->shero) return;
+
 	/* Analyze the class */
 	switch (p_ptr->pclass)
 	{
@@ -471,6 +474,11 @@ static void process_world(void)
 		}
 	}
 
+	/*** Attempt timed autosave ***/
+	if (autosave_time && op_ptr->autosave_freq)
+	{
+		if (!(turn % (10L * op_ptr->autosave_freq))) do_cmd_save_game();
+	}
 
 	/*** Handle the "town" (stores and sunshine) ***/
 
@@ -547,38 +555,39 @@ static void process_world(void)
 	/* While in the dungeon */
 	else
 	{
-		/*** Update the Stores ***/
-
-		/* Update the stores once a day (while in dungeon) */
-		if (!(turn % (10L * STORE_TURNS)))
-		{
-			int n;
-
-			/* Message */
-			if (cheat_xtra) msg_print("Updating Shops...");
-
-			/* Maintain each shop (except home) */
-			for (n = 0; n < MAX_STORES - 1; n++)
-			{
-				/* Maintain */
-				store_maint(n);
-			}
-
-			/* Sometimes, shuffle the shop-keepers */
-			if (rand_int(STORE_SHUFFLE) == 0)
-			{
-				/* Message */
-				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
-
-				/* Shuffle a random shop (except home) */
-				store_shuffle(rand_int(MAX_STORES - 1));
-			}
-
-			/* Message */
-			if (cheat_xtra) msg_print("Done.");
-		}
+		/* Nothing */
 	}
 
+	/*** Update the Stores ***/
+
+	/* Update the stores (rarely) */
+	if (!rand_int(STORE_TURNS))
+	{
+		int n;
+
+		/* Message */
+		if (cheat_xtra) msg_print("Updating Shops...");
+
+		/* Maintain each shop (except home) */
+		for (n = 0; n < MAX_STORES - 1; n++)
+		{
+			/* Maintain */
+			store_maint(n);
+		}
+
+		/* Sometimes, shuffle the shop-keepers */
+		if (rand_int(STORE_SHUFFLE) == 0)
+		{
+			/* Message */
+			if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
+
+			/* Shuffle a random shop (except home) */
+			store_shuffle(rand_int(MAX_STORES - 1));
+		}
+
+		/* Message */
+		if (cheat_xtra) msg_print("Done.");
+	}
 
 	/*** Process the monsters ***/
 
@@ -1129,17 +1138,23 @@ static void process_world(void)
 			/* Determine the level */
 			if (p_ptr->depth)
 			{
-				msg_print("You feel yourself yanked upwards!");
+				msg_print("You are yanked upwards!");
 
 				/* New depth */
 				p_ptr->depth = 0;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
+
+				/* Random quests are over */
+				p_ptr->quest_max = 0;
+
+				/* Repair the quest monster */
+				r_info[p_ptr->quest_idx].flags1 &= ~(RF1_QUESTOR);
 			}
 			else
 			{
-				msg_print("You feel yourself yanked downwards!");
+				msg_print("You are yanked downwards!");
 
 				/* New depth */
 				p_ptr->depth = p_ptr->max_depth;
@@ -2410,7 +2425,7 @@ static void dungeon(void)
 	}
 
 	/* No stairs from town or if not allowed */
-	if (!p_ptr->depth || !dungeon_stair)
+	if (!p_ptr->depth || !dungeon_stair || p_ptr->quest_max)
 	{
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
@@ -2439,6 +2454,11 @@ static void dungeon(void)
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
 
+	/* Autosave if requested */
+	if (character_icky && autosave_level) do_cmd_save_game();
+
+	/* No longer "icky" */
+	character_icky = FALSE;
 
 	/* Choose panel */
 	verify_panel();
@@ -2786,7 +2806,6 @@ void play_game(bool new_game)
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
-
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
 
@@ -2828,7 +2847,6 @@ void play_game(bool new_game)
 
 			/* Handle "quit and save" */
 			if (!p_ptr->playing && !p_ptr->is_dead) break;
-
 
 			/* Cancel the target */
 			p_ptr->target_who = 0;
@@ -2919,6 +2937,9 @@ void play_game(bool new_game)
 
 			/* Make a new level */
 			generate_cave();
+
+			/* Ick... no stairs */
+			character_icky = TRUE;
 		}
 
 		/* Close stuff; keep playing if something goes wrong */

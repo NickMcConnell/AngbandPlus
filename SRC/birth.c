@@ -105,9 +105,9 @@ static hist_type bg[] =
 	{"You are one of several children ", 60, 7, 8, 50},
 	{"You are the only child ", 100, 7, 8, 55},
 
-	{"of a Teleri ", 75, 8, 9, 50},
-	{"of a Noldor ", 95, 8, 9, 55},
-	{"of a Vanyar ", 100, 8, 9, 60},
+	{"of a Telerin ", 75, 8, 9, 50},
+	{"of a Noldo ", 95, 8, 9, 55},
+	{"of a Vanya ", 100, 8, 9, 60},
 
 	{"Ranger.  ", 40, 9, 54, 80},
 	{"Archer.  ", 70, 9, 54, 90},
@@ -408,7 +408,7 @@ static int adjust_stat(int value, s16b amount, int auto_roll)
 			{
 				value = 18;
 			}
-			else if (value > 3)
+			else if (value > 1)
 			{
 				value--;
 			}
@@ -462,6 +462,8 @@ static void get_stats(void)
 
 	int bonus;
 
+	int stat_adj[6];
+
 	int dice[18];
 
 
@@ -488,6 +490,8 @@ static void get_stats(void)
 		/* Extract 5 + 1d3 + 1d4 + 1d5 */
 		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
 
+		stat_adj[i] = 0;
+
 		/* Save that value */
 		p_ptr->stat_max[i] = j;
 
@@ -513,6 +517,28 @@ static void get_stats(void)
 			/* Save the resulting stat maximum */
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
 		}
+	}
+
+	/* Apply side effects of poor stats */
+	if (p_ptr->stat_use[A_STR] < 5) stat_adj[A_DEX] -= rand_int(6 - p_ptr->stat_use[A_STR]);
+	if (p_ptr->stat_use[A_STR] < 3) stat_adj[A_CON] -= rand_int(4 - p_ptr->stat_use[A_STR]);
+
+	if (p_ptr->stat_use[A_INT] < 5) stat_adj[A_WIS] -= rand_int(6 - p_ptr->stat_use[A_INT]);
+	if (p_ptr->stat_use[A_INT] < 3) stat_adj[A_CON] -= rand_int(4 - p_ptr->stat_use[A_INT]);
+	if (p_ptr->stat_use[A_INT] < 3) stat_adj[A_CHR] -= rand_int(4 - p_ptr->stat_use[A_INT]);
+
+	if (p_ptr->stat_use[A_CON] < 3) stat_adj[A_DEX] -= rand_int(5 - p_ptr->stat_use[A_CON]);
+	if (p_ptr->stat_use[A_CON] < 3) stat_adj[A_STR] -= rand_int(4 - p_ptr->stat_use[A_CON]);
+
+	/* Update stats */
+	for (i = 0; i < 6; i++)
+	{
+		p_ptr->stat_use[i] += stat_adj[i];
+
+		if (p_ptr->maximize) p_ptr->stat_max[i] += stat_adj[i];
+		else p_ptr->stat_max[i] = stat_use[i];
+
+		p_ptr->stat_cur[i] = p_ptr->stat_max[i];
 	}
 }
 
@@ -895,18 +921,12 @@ static void player_wipe(void)
 		/* Hack -- Reset the counter */
 		r_ptr->cur_num = 0;
 
-		/* Hack -- Reset the max counter */
-		r_ptr->max_num = 100;
-
-		/* Hack -- Reset the max counter */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
-
 		/* Clear player kills */
 		l_ptr->pkills = 0;
 	}
 
 
-   /* Reinstating ghosts */
+	/* Reinstating ghosts */
 	r_info[MAX_R_IDX-1].max_num = 1;
 
 
@@ -917,14 +937,23 @@ static void player_wipe(void)
 	/* None of the spells have been learned yet */
 	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
 
-	/* Default hitpoint warning */
-	op_ptr->hitpoint_warn = 5;
+	if (!op_ptr->autosave_freq)
+	{
+		/* Default autosave delay */
+		op_ptr->autosave_freq = 1000;
 
-	/* Default destruction value */
-	op_ptr->destroy_good = 100;
+		/* Default hitpoint warning */
+		op_ptr->hitpoint_warn = 5;
 
-	/* Default destruction value */
-	op_ptr->destroy_junk = 0;
+		/* Default destruction value */
+		op_ptr->destroy_good = 100;
+
+		/* Default destruction value */
+		op_ptr->destroy_junk = 0;
+	}
+
+	p_ptr->ay = rand_int(DUNGEON_HGT);
+	p_ptr->ax = rand_int(DUNGEON_WID);
 }
 
 
@@ -994,6 +1023,11 @@ static void player_outfit(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	/* Hack -- The fixed potions are known */
+	for (i = 0; i < 4; i++)
+	{
+		k_info[lookup_kind(TV_POTION, i)].aware = TRUE;
+	}
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -1043,14 +1077,15 @@ static void player_outfit(void)
  * from continuously rolling up characters, which can be VERY
  * expensive CPU wise.  And it cuts down on player stupidity.
  */
-static bool player_birth_aux()
+static bool player_birth_aux(void)
 {
 	int i, j, k, m, n, v;
 
 	int mode = 0;
 
-	bool flag = FALSE;
+	bool flag = TRUE;
 	bool prev = FALSE;
+	bool rand = FALSE;
 
 	cptr str;
 
@@ -1086,14 +1121,16 @@ static bool player_birth_aux()
 	/*** Instructions ***/
 
 	/* Display some helpful information */
-	Term_putstr(5, 10, -1, TERM_WHITE,
+	Term_putstr(5, 9, -1, TERM_WHITE,
 		"Please answer the following questions.  Most of the questions");
-	Term_putstr(5, 11, -1, TERM_WHITE,
+	Term_putstr(5, 10, -1, TERM_WHITE,
 		"display a set of standard answers, and many will also accept");
-	Term_putstr(5, 12, -1, TERM_WHITE,
+	Term_putstr(5, 11, -1, TERM_WHITE,
 		"some special responses, including 'Q' to quit, 'S' to restart,");
+	Term_putstr(5, 12, -1, TERM_WHITE,
+		", '*' for a random selection, and '?' for help.  Note that 'Q'");
 	Term_putstr(5, 13, -1, TERM_WHITE,
-		"and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
+		 "and 'S' must be capitalized.");
 
 
 	/*** Player sex ***/
@@ -1116,18 +1153,32 @@ static bool player_birth_aux()
 	}
 
 	/* Choose */
-	while (1)
+	while (flag)
 	{
 		sprintf(buf, "Choose a sex (%c-%c): ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
+		if (rand)
+		{
+			k = rand_int(n);
+			break;
+		}
 		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help();
-		else bell();
+		switch(c)
+		{
+			case 'Q': quit(NULL);
+			case 'S': return (FALSE);
+			case '*': rand = TRUE; break;
+			case '?': do_cmd_help(); break;
+			default:
+			{
+				k = (islower(c) ? A2I(c) : -1);
+				if ((k >= 0) && (k < n)) flag = FALSE;
+				else bell();
+			}
+		}
 	}
+
+	flag = TRUE;
 
 	/* Set sex */
 	p_ptr->psex = k;
@@ -1161,18 +1212,32 @@ static bool player_birth_aux()
 	}
 
 	/* Choose */
-	while (1)
+	while (flag)
 	{
 		sprintf(buf, "Choose a race (%c-%c): ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
+		if (rand)
+		{
+			k = rand_int(n);
+			break;
+		}
 		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help();
-		else bell();
+		switch(c)
+		{
+			case 'Q': quit(NULL);
+			case 'S': return (FALSE);
+			case '*': rand = TRUE; break;
+			case '?': do_cmd_help(); break;
+			default:
+			{
+				k = (islower(c) ? A2I(c) : -1);
+				if ((k >= 0) && (k < n)) flag = FALSE;
+				else bell();
+			}
+		}
 	}
+
+	flag = TRUE;
 
 	/* Set race */
 	p_ptr->prace = k;
@@ -1214,17 +1279,29 @@ static bool player_birth_aux()
 	}
 
 	/* Get a class */
-	while (1)
+	while (flag)
 	{
 		sprintf(buf, "Choose a class (%c-%c): ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
+		if (rand)
+		{
+			k = rand_int(n);
+			break;
+		}
 		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help();
-		else bell();
+		switch(c)
+		{
+			case 'Q': quit(NULL);
+			case 'S': return (FALSE);
+			case '*': rand = TRUE; break;
+			case '?': do_cmd_help(); break;
+			default:
+			{
+				k = (islower(c) ? A2I(c) : -1);
+				if ((k >= 0) && (k < n)) flag = FALSE;
+				else bell();
+			}
+		}
 	}
 
 	/* Set class */
@@ -1415,7 +1492,7 @@ static bool player_birth_aux()
 			}
 
 			/* Save the minimum stat */
-			stat_limit[i] = (v > 0) ? v : 0;
+			stat_limit[i] = (v > 0) ? v : 1;
 		}
 	}
 
@@ -1479,10 +1556,7 @@ static bool player_birth_aux()
 			get_stats();
 
 			/* Advance the round */
-			auto_round++;
-
-			/* Hack -- Prevent overflow */
-			if (auto_round >= 1000000L) auto_round = 1000000L;
+			if (auto_round < 1000000L) auto_round++;
 
 			/* Check and count acceptable stats */
 			for (i = 0; i < 6; i++)
@@ -1526,11 +1600,11 @@ static bool player_birth_aux()
 
 				/* Check for a keypress */
 				if (inkey())
-            {
+				{
                /* No ESC to avoid delay */
                auto_round=30000;
             	break;
-            }
+				}
 			}
 		}
 

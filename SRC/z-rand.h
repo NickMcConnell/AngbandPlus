@@ -69,7 +69,12 @@
 #define magik(P) \
 	(rand_int(100) < (P))
 
-
+/*
+ * Generate a random long integer X where 0<=X<=2M,
+ * conforming to a normal distribution.
+ */
+#define rand_nor(M) \
+	(randnor(M, M / 4))
 
 
 /**** Available Variables ****/

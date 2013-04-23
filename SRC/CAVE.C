@@ -96,6 +96,8 @@ bool los(int y1, int x1, int y2, int x2)
 	/* Slope, or 1/Slope, of LOS */
 	int m;
 
+	/* Range check */
+	if (!in_bounds(y2, x2) || !in_bounds(y1, x1)) return (FALSE);
 
 	/* Extract the offset */
 	dy = y2 - y1;
@@ -292,10 +294,6 @@ bool los(int y1, int x1, int y2, int x2)
 }
 
 
-
-
-
-
 /*
  * Can the player "see" the given grid?
  *
@@ -348,6 +346,8 @@ bool player_can_see_bold(int y, int x)
 	/* Blind players see nothing */
 	if (p_ptr->blind) return (FALSE);
 
+
+
 	/* Note that "torch-lite" yields "illumination" */
 	if (cave_info[y][x] & (CAVE_LITE)) return (TRUE);
 
@@ -373,8 +373,8 @@ bool player_can_see_bold(int y, int x)
 #if 0
 		/* Alternative method */
 		if ((cave_floor_bold(yy, xx) && (cave_info[yy][xx] & (CAVE_GLOW))) ||
-		    (cave_floor_bold(y, xx) && (cave_info[y][xx] & (CAVE_GLOW))) ||
-		    (cave_floor_bold(yy, x) && (cave_info[yy][x] & (CAVE_GLOW))))
+			 (cave_floor_bold(y, xx) && (cave_info[y][xx] & (CAVE_GLOW))) ||
+			 (cave_floor_bold(yy, x) && (cave_info[yy][x] & (CAVE_GLOW))))
 		{
 			/* Assume the wall is really illuminated */
 			return (TRUE);
@@ -439,6 +439,44 @@ bool cave_valid_bold(int y, int x)
 
 	/* Accept */
 	return (TRUE);
+}
+
+
+/*
+ * Hack -- Legal monster codes
+ */
+static const char image_monster_hack[] = \
+"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+/*
+ * Hack -- Hallucinatory monster
+ */
+static void image_monster(byte *a, char *c)
+{
+	/* Random symbol from set above (not including final nul) */
+	*c = image_monster_hack[rand_int(sizeof(image_monster_hack) - 1)];
+
+	/* Random color */
+	*a = randint(15);
+}
+
+
+/*
+ * Hack -- Legal object codes
+ */
+static const char image_object_hack[] = \
+"?/|\\\"!$()_-=[]{},~"; /* " */
+
+/*
+ * Hack -- Hallucinatory object
+ */
+static void image_object(byte *a, char *c)
+{
+	/* Random symbol from set above (not including final nul) */
+	*c = image_object_hack[rand_int(sizeof(image_object_hack) - 1)];
+
+	/* Random color */
+	*a = randint(15);
 }
 
 
@@ -646,7 +684,7 @@ bool is_shop(int feat)
 {
 	if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) return TRUE;
 
-	/* Not a visible trap */
+	/* Not a store */
 	return FALSE;
 }
 
@@ -668,6 +706,24 @@ bool is_door(int feat)
 	return FALSE;
 }
 
+/* Locked door */
+bool is_locked(int feat)
+{
+	if ((feat > FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_HEAD + 0x07)) return TRUE;
+
+	/* Not a locked door */
+	return FALSE;
+}
+
+/* Jammed door */
+bool is_jammed(int feat)
+{
+	if ((feat >= FEAT_DOOR_HEAD + 0x08) && (feat <= FEAT_DOOR_TAIL)) return TRUE;
+
+	/* Not a jammed door */
+	return FALSE;
+}
+
 
 /*
  * To allow extensibility -- new definitions for
@@ -683,67 +739,6 @@ bool cave_naked_bold(int y, int x)
 	return (is_floor(cave_feat[y][x]) && (cave_o_idx[y][x] == 0) &&
 			  (cave_m_idx[y][x] == 0));
 }
-
-/*
- * Hack -- Legal monster codes
- */
-static cptr image_monster_hack = \
-"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-/*
- * Mega-Hack -- Hallucinatory monster
- */
-static void image_monster(byte *ap, char *cp)
-{
-	int n = strlen(image_monster_hack);
-
-	/* Random symbol from set above */
-	(*cp) = (image_monster_hack[rand_int(n)]);
-
-	/* Random color */
-	(*ap) = randint(15);
-}
-
-
-/*
- * Hack -- Legal object codes
- */
-static cptr image_object_hack = \
-"?/|\\\"!$()_-=[]{},~";
-
-/*
- * Mega-Hack -- Hallucinatory object
- */
-static void image_object(byte *ap, char *cp)
-{
-	int n = strlen(image_object_hack);
-
-	/* Random symbol from set above */
-	(*cp) = (image_object_hack[rand_int(n)]);
-
-	/* Random color */
-	(*ap) = randint(15);
-}
-
-
-/*
- * Hack -- Random hallucination
- */
-static void image_random(byte *ap, char *cp)
-{
-	/* Normally, assume monsters */
-	if (rand_int(100) < 75)
-	{
-		image_monster(ap, cp);
-	}
-
-	/* Otherwise, assume objects */
-	else
-	{
-		image_object(ap, cp);
-	}
-}
-
 
 
 /*
@@ -859,7 +854,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	byte a;
 	char c;
-
 
 	/* Handle "player" */
 	if (cave_m_idx[y][x] < 0)
@@ -1066,6 +1060,14 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
+		/* Lots of objects */
+		if (next_o_idx)
+		{
+			*cp = '*';
+			*ap = TERM_SLATE;
+			break;
+		}
+
 		/* Memorized objects */
 		if (o_ptr->marked)
 		{
@@ -1183,14 +1185,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 				image_monster(ap, cp);
 			}
 		}
-	}
-
-
-	/* Hack -- rare random hallucination, except on outer dungeon walls */
-	if (p_ptr->image && (!rand_int(256)) && (!is_hard_wall(cave_feat[y][x])))
-	{
-		/* Hallucinate */
-		image_random(ap, cp);
 	}
 }
 
@@ -1653,6 +1647,22 @@ void display_map(int *cy, int *cx)
 
 			/* Extract the priority of that attr/char */
 			tp = priority(ta, tc);
+
+			/* Examine boring grids */
+			if ((tp == 20) && (cave_m_idx[j][i] > 0))
+			{
+				monster_type *m_ptr = &m_list[cave_m_idx[j][i]];
+				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+				/* Notice dangerous monsters */
+				tp = MAX(20, (int)r_ptr->level - p_ptr->lev + 20);
+
+				/* Notice quest monsters */
+				if (r_ptr->flags1 & RF1_QUESTOR) tp = 255;
+
+				/* Ignore invisible monsters */
+				if (!m_ptr->ml) tp = 20;
+			}
 
 			/* Save "best" */
 			if (mp[y][x] < tp)
@@ -2526,11 +2536,41 @@ void update_view(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int n, m, d, k, y, x, z;
+	int i, n, m, d, k, y, x, z;
 
 	int se, sw, ne, nw, es, en, ws, wn;
 
 	int full, over;
+
+	byte *s_ptr = &p_ptr->sur_floor;
+	byte *t_ptr = &p_ptr->sur_full;
+
+	/* Get surrounding floor info for the AI */
+	*s_ptr = 0;
+	*t_ptr = 0;
+
+	for (i = 0; i < 8; i++)
+	{
+		y = py + ddy_ddd[i];
+		x = px + ddx_ddd[i];
+
+		/* Ignore invalid grids */
+		if (!in_bounds(y, x)) continue;
+
+		/* Adjacent grid is part of a room or clear */
+		if ((cave_info[y][x] & CAVE_ROOM) || cave_floor_bold(y, x))
+		{
+			/* Take note */
+			(*s_ptr)++;
+		}
+
+		/* Adjacent grid is occupied */
+		if (!cave_empty_bold(y, x))
+		{
+			/* Take note */
+			(*t_ptr)++;
+		}
+	}
 
 
 	/*** Initialize ***/
@@ -2940,7 +2980,7 @@ void update_view(void)
 
 		/* Update/Redraw all perma-lit wall grids */
 		else if ((cave_info[y][x] & (CAVE_GLOW)) &&
-		         !cave_floor_bold(y, x))
+					!cave_floor_bold(y, x))
 		{
 			/* Note */
 			note_spot(y, x);
@@ -2970,7 +3010,6 @@ void update_view(void)
 	/* None left */
 	temp_n = 0;
 }
-
 
 
 /*
@@ -3231,7 +3270,7 @@ void map_area(void)
 
 
 /*
- * Light up the dungeon using "claravoyance"
+ * Light up the dungeon using "clarevoyance"
  *
  * This function "illuminates" every grid in the dungeon, memorizes all
  * "objects", memorizes all grids as with magic mapping, and, under the
@@ -3412,33 +3451,9 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 	/* Paranoia -- Hack -- no motion */
 	if (!dy && !dx) return;
 
-
 	/* Move mostly vertically */
 	if (dy > dx)
 	{
-
-#if 0
-
-		int k;
-
-		/* Starting shift factor */
-		shift = dy >> 1;
-
-		/* Extract a shift factor */
-		for (k = 0; k < dist; k++)
-		{
-			if (shift <= 0) shift += dy;
-			shift -= dx;
-		}
-
-		/* Sometimes move along minor axis */
-		if (shift <= 0) (*x) = (x2 < x1) ? (*x - 1) : (*x + 1);
-
-		/* Always move along major axis */
-		(*y) = (y2 < y1) ? (*y - 1) : (*y + 1);
-
-#endif
-
 		/* Extract a shift factor */
 		shift = (dist * dx + (dy-1) / 2) / dy;
 
@@ -3452,29 +3467,6 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 	/* Move mostly horizontally */
 	else
 	{
-
-#if 0
-
-		int k;
-
-		/* Starting shift factor */
-		shift = dx >> 1;
-
-		/* Extract a shift factor */
-		for (k = 0; k < dist; k++)
-		{
-			if (shift <= 0) shift += dx;
-			shift -= dy;
-		}
-
-		/* Sometimes move along minor axis */
-		if (shift <= 0) (*y) = (y2 < y1) ? (*y - 1) : (*y + 1);
-
-		/* Always move along major axis */
-		(*x) = (x2 < x1) ? (*x - 1) : (*x + 1);
-
-#endif
-
 		/* Extract a shift factor */
 		shift = (dist * dy + (dx-1) / 2) / dx;
 
@@ -3533,13 +3525,13 @@ bool projectable(int y1, int x1, int y2, int x2)
  */
 void scatter(int *yp, int *xp, int y, int x, int d, int m)
 {
-	int nx, ny;
+	int nx, ny, c = 0;
 
 	/* Unused */
 	m = m;
 
 	/* Pick a location */
-	while (TRUE)
+	while (c++ < 1000)
 	{
 		/* Pick a new location */
 		ny = rand_spread(y, d);
@@ -3553,6 +3545,13 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 
 		/* Require "line of sight" */
 		if (los(y, x, ny, nx)) break;
+	}
+
+	/* Paranoia */
+	if (c > 1000)
+	{
+		ny = y;
+		nx = x;
 	}
 
 	/* Save the location */
@@ -3647,6 +3646,9 @@ void disturb(int stop_search, int unused_flag)
 	{
 		/* Cancel */
 		p_ptr->running = 0;
+
+		/* Check for new panel if appropriate */
+		if (center_player && avoid_center) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

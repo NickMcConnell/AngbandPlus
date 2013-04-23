@@ -123,7 +123,8 @@ bool make_attack_normal(int m_idx)
 	int ap_cnt;
 
 	int i, j, k, tmp, ac, rlev;
-	int do_cut, do_stun;
+	bool do_cut;
+	bool do_stun;
 
 	s32b gold;
 
@@ -134,8 +135,6 @@ bool make_attack_normal(int m_idx)
 	char m_name[80];
 
 	char ddesc[80];
-
-	bool blinked;
 
 
 	/* Not allowed to attack */
@@ -155,9 +154,6 @@ bool make_attack_normal(int m_idx)
 	/* Get the "died from" information (i.e. "a kobold") */
 	monster_desc(ddesc, m_ptr, 0x88);
 
-
-	/* Assume no blink */
-	blinked = FALSE;
 
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -221,8 +217,14 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_20:	power =  5; break;
 			case RBE_EXP_40:	power =  5; break;
 			case RBE_EXP_80:	power =  5; break;
+			case RBE_REND:		power = 10; break;
+			case RBE_BATTER:	power = 15; break;
+			case RBE_BLAST:	power = 30; break;
 		}
 
+		/* Adjust power according to stun */
+		if (m_ptr->stunned > 50) power = power * 4 / (randint(10) + 10);
+		else if (m_ptr->stunned) power = power * 10 / (randint(10) + 10);
 
 		/* Monster hits player */
 		if (!effect || check_hit(power, rlev))
@@ -233,9 +235,9 @@ bool make_attack_normal(int m_idx)
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&
-			    (r_ptr->flags3 & (RF3_EVIL)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
+				 (r_ptr->flags3 & (RF3_EVIL)) &&
+				 (p_ptr->lev >= rlev) &&
+				 ((rand_int(100) + p_ptr->lev) > 50))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
@@ -252,7 +254,7 @@ bool make_attack_normal(int m_idx)
 
 
 			/* Assume no cut or stun */
-			do_cut = do_stun = 0;
+			do_cut = do_stun = FALSE;
 
 			/* Describe the attack method */
 			switch (method)
@@ -260,7 +262,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_HIT:
 				{
 					act = "hits you.";
-					do_cut = do_stun = 1;
+					do_cut = do_stun = TRUE;
 					break;
 				}
 
@@ -273,28 +275,28 @@ bool make_attack_normal(int m_idx)
 				case RBM_PUNCH:
 				{
 					act = "punches you.";
-					do_stun = 1;
+					do_stun = TRUE;
 					break;
 				}
 
 				case RBM_KICK:
 				{
 					act = "kicks you.";
-					do_stun = 1;
+					do_stun = TRUE;
 					break;
 				}
 
 				case RBM_CLAW:
 				{
 					act = "claws you.";
-					do_cut = 1;
+					do_cut = TRUE;
 					break;
 				}
 
 				case RBM_BITE:
 				{
 					act = "bites you.";
-					do_cut = 1;
+					do_cut = TRUE;
 					break;
 				}
 
@@ -313,14 +315,14 @@ bool make_attack_normal(int m_idx)
 				case RBM_BUTT:
 				{
 					act = "butts you.";
-					do_stun = 1;
+					do_stun = TRUE;
 					break;
 				}
 
 				case RBM_CRUSH:
 				{
 					act = "crushes you.";
-					do_stun = 1;
+					do_stun = TRUE;
 					break;
 				}
 
@@ -363,6 +365,8 @@ bool make_attack_normal(int m_idx)
 				case RBM_GAZE:
 				{
 					act = "gazes at you.";
+					if (p_ptr->blind || p_ptr->image) continue;
+					
 					break;
 				}
 
@@ -402,9 +406,9 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX5:
+				case RBM_NOTHING:
 				{
-					act = "XXX5's you.";
+					do_stun = TRUE;
 					break;
 				}
 			}
@@ -549,7 +553,7 @@ bool make_attack_normal(int m_idx)
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
 					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+												 p_ptr->lev)))
 					{
 						/* Saving throw message */
 						msg_print("You quickly protect your money pouch!");
@@ -560,14 +564,8 @@ bool make_attack_normal(int m_idx)
 							/* Run away */
 							msg_print("The thief runs away!");
 
-							/* Speed up */
-							if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
-
-							/* Increase fear */
-							tmp = m_ptr->monfear + damroll(3, 10) + 10;
-
 							/* Set fear */
-							m_ptr->monfear = (tmp < 200) ? tmp : 200;
+							m_ptr->monfear = 200;
 						}
 					}
 
@@ -597,11 +595,8 @@ bool make_attack_normal(int m_idx)
 							msg_print("All of your coins were stolen!");
 						}
 
-						/* Increase fear */
-						tmp = m_ptr->monfear + damroll(3, (gold / 50)) + 10;
-
 						/* Set fear */
-						m_ptr->monfear = (tmp < 200) ? tmp : 200;
+						m_ptr->monfear = 200;
 
 						/* Get local object */
 						i_ptr = &object_type_body;
@@ -621,9 +616,6 @@ bool make_attack_normal(int m_idx)
 						/* Window stuff */
 						p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
-						/* Speed up */
-						if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
-
 						/* Run away */
 						msg_print("The thief runs away!");
 					}
@@ -639,22 +631,16 @@ bool make_attack_normal(int m_idx)
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
 						 (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+												 p_ptr->lev)))
 					{
 						/* Saving throw message */
 						msg_print("You grab hold of your backpack!");
 
 						/* Run away */
-                  msg_print("The thief runs away!");
-
-						/* Speed up */
-						if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
-
-						/* Increase fear */
-						tmp = m_ptr->monfear + damroll(3, 10) + 10;
+						msg_print("The thief runs away!");
 
 						/* Set fear */
-						m_ptr->monfear = (tmp < 200) ? tmp : 200;
+						m_ptr->monfear = 200;
 
 						/* Obvious */
 						obvious = TRUE;
@@ -714,14 +700,8 @@ bool make_attack_normal(int m_idx)
 						/* Run away */
 						msg_print("The thief runs away!");
 
-						/* Speed up */
-						if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
-
-						/* Increase fear */
-						tmp = m_ptr->monfear + damroll(3, (k_ptr->cost / 10)) + 10;
-
 						/* Set fear */
-						m_ptr->monfear = (tmp < 200) ? tmp : 200;
+						m_ptr->monfear = 200;
 
 						/* Done */
 						break;
@@ -874,13 +854,20 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Increase "blind" */
-					if (!p_ptr->resist_blind)
+					/* Increase "confusion" */
+					if (p_ptr->resist_blind)
 					{
-						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
-						{
-							obvious = TRUE;
-						}
+						msg_print("You resist the effects!");
+						obvious = TRUE;
+					}
+					else if (rand_int(100) < p_ptr->skill_sav)
+					{
+						msg_print("You resist the effects!");
+						obvious = TRUE;
+					}
+					else if (set_blind(p_ptr->blind + 10 + randint(rlev)))
+					{
+						obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -894,13 +881,20 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Increase "confused" */
-					if (!p_ptr->resist_confu)
+					/* Increase "confusion" */
+					if (p_ptr->resist_confu)
 					{
-						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
-						{
-							obvious = TRUE;
-						}
+						msg_print("You resist the effects!");
+						obvious = TRUE;
+					}
+					else if (rand_int(100) < p_ptr->skill_sav)
+					{
+						msg_print("You resist the effects!");
+						obvious = TRUE;
+					}
+					else if (set_confused(p_ptr->confused + 3 + randint(rlev)))
+					{
+						obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -941,9 +935,6 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_PARALYZE:
 				{
-					/* Hack -- Prevent perma-paralysis via damage */
-					if (p_ptr->paralyzed && (damage < 1)) damage = 1;
-
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -978,7 +969,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
+					if (do_dec_stat(A_STR, 10, FALSE)) obvious = TRUE;
 
 					break;
 				}
@@ -989,7 +980,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_INT)) obvious = TRUE;
+					if (do_dec_stat(A_INT, 10, FALSE)) obvious = TRUE;
 
 					break;
 				}
@@ -1000,7 +991,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, 10, FALSE)) obvious = TRUE;
 
 					break;
 				}
@@ -1011,7 +1002,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, 10, FALSE)) obvious = TRUE;
 
 					break;
 				}
@@ -1022,7 +1013,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CON)) obvious = TRUE;
+					if (do_dec_stat(A_CON, 10, FALSE)) obvious = TRUE;
 
 					break;
 				}
@@ -1033,7 +1024,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CHR)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, 10, FALSE)) obvious = TRUE;
 
 					break;
 				}
@@ -1044,12 +1035,12 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stats) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
-					if (do_dec_stat(A_CON)) obvious = TRUE;
-					if (do_dec_stat(A_INT)) obvious = TRUE;
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
-					if (do_dec_stat(A_CHR)) obvious = TRUE;
+					if (do_dec_stat(A_STR, 10, FALSE)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, 10, FALSE)) obvious = TRUE;
+					if (do_dec_stat(A_CON, 10, FALSE)) obvious = TRUE;
+					if (do_dec_stat(A_INT, 10, FALSE)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, 10, FALSE)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, 10, FALSE)) obvious = TRUE;
 
 					break;
 				}
@@ -1186,24 +1177,83 @@ bool make_attack_normal(int m_idx)
 					}
 					break;
 				}
-			}
 
-
-			/* Hack -- only one of cut or stun */
-			if (do_cut && do_stun)
-			{
-				/* Cancel cut */
-				if (rand_int(100) < 50)
+				case RBE_REND:
 				{
-					do_cut = 0;
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Cut */
+					(void)set_cut(p_ptr->cut + rand_int(10) + 10);
+
+					/* Allow further cuts */
+					do_cut = TRUE;
+
+					break;
 				}
 
-				/* Cancel stun */
-				else
+				case RBE_BATTER:
 				{
-					do_stun = 0;
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Stun */
+					(void)set_stun(p_ptr->stun + rand_int(10) + 10);
+
+					/* Allow further stunning */
+					do_stun = TRUE;
+
+					break;
+				}
+
+				case RBE_BLAST:
+				{
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					if (rand_int(100) < p_ptr->skill_sav)
+					{
+						msg_print("You resist the effects!");
+					}
+					else
+					{
+						msg_print("Your mind is blasted by psionic energy.");
+
+						if (!p_ptr->resist_blind)
+						{
+							(void)set_blind(p_ptr->blind + 16 + rand_int(16));
+						}
+						if (!p_ptr->resist_confu)
+						{
+							(void)set_confused(p_ptr->confused + rand_int(8) + 8);
+						}
+						if (!p_ptr->free_act)
+						{
+							(void)set_paralyzed(p_ptr->paralyzed + rand_int(8) + 8);
+						}
+						if (lose_all_info())
+						{
+							msg_print("Your memories fade away.");
+						}
+						(void)set_stun(p_ptr->stun + rand_int(12) + 12);
+						(void)set_slow(p_ptr->slow + rand_int(8) + 8);
+
+						do_stun = TRUE;
+					}
+
+					break;
 				}
 			}
+
 
 			/* Handle cut */
 			if (do_cut)
@@ -1303,14 +1353,6 @@ bool make_attack_normal(int m_idx)
 				}
 			}
 		}
-	}
-
-
-	/* Blink away */
-	if (blinked)
-	{
-		msg_print("There is a puff of smoke!");
-		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 	}
 
 

@@ -122,7 +122,10 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 			   case RBE_EAT_LITE:
 			   case RBE_ELEC:
 			   case RBE_COLD:
-			   case RBE_SHATTER:
+				case RBE_SHATTER:
+				case RBE_REND:
+				case RBE_BATTER:
+				case RBE_BLAST:
             {
 			   	break;
             }
@@ -180,7 +183,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 					   set_blind(p_ptr->blind + dam * 2 + idam * 2 + 20);
    				}
                break;
-            }
+				}
 				case RBE_CONFUSE:
 				{
 	   			if (!p_ptr->resist_confu)
@@ -209,44 +212,44 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
                }
             }
 				case RBE_LOSE_STR:
-            {
-					do_dec_stat(A_STR);
+				{
+					do_dec_stat(A_STR, 10, FALSE);
                break;
             }
 	   		case RBE_LOSE_INT:
             {
-            	do_dec_stat(A_INT);
+					do_dec_stat(A_INT, 10, FALSE);
                break;
             }
 				case RBE_LOSE_WIS:
             {
-            	do_dec_stat(A_WIS);
+					do_dec_stat(A_WIS, 10, FALSE);
                break;
             }
 				case RBE_LOSE_DEX:
             {
-            	do_dec_stat(A_DEX);
+					do_dec_stat(A_DEX, 10, FALSE);
                break;
             }
 	   		case RBE_LOSE_CON:
             {
-            	do_dec_stat(A_CON);
+					do_dec_stat(A_CON, 10, FALSE);
                break;
    			}
 	   		case RBE_LOSE_CHR:
             {
-            	do_dec_stat(A_CHR);
+					do_dec_stat(A_CHR, 10, FALSE);
 					break;
             }
-            /* Don't eat Morgoth's corpse :) */
+				/* Don't eat Morgoth's corpse :) */
 		   	case RBE_LOSE_ALL:
             {
-         	   do_dec_stat(A_STR);
-            	do_dec_stat(A_INT);
-            	do_dec_stat(A_WIS);
-					do_dec_stat(A_DEX);
-            	do_dec_stat(A_CON);
-					do_dec_stat(A_CHR);
+					do_dec_stat(A_STR, 10, FALSE);
+					do_dec_stat(A_INT, 10, FALSE);
+					do_dec_stat(A_WIS, 10, FALSE);
+					do_dec_stat(A_DEX, 10, FALSE);
+					do_dec_stat(A_CON, 10, FALSE);
+					do_dec_stat(A_CHR, 10, FALSE);
                o_ptr->pval = 0;
                break;
             }
@@ -267,7 +270,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
                   	msg_print("You feel your life slipping away!");
                      lose_exp(d/10);
                   }
-                  else
+						else
                   {
                   	msg_print("You feel your life draining away!");
 				   		lose_exp(d);
@@ -296,7 +299,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
                   {
                   	msg_print("You feel your life draining away!");
 							lose_exp(d);
-                  }
+						}
                }
                o_ptr->pval = 0;
                break;
@@ -325,7 +328,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
                }
                o_ptr->pval = 0;
                break;
-            }
+				}
 				case RBE_EXP_80:
             {
                msg_print("A black aura surrounds the corpse!");
@@ -394,6 +397,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 			harmful = TRUE;
 		}
 		o_ptr->wt = o_ptr->wt - brpow;
+		o_ptr->bulk = o_ptr->wt;
 		o_ptr->pval = o_ptr->wt;
 	}
 	else if (r_ptr->flags4 & RF4_BR_ELEC)
@@ -432,7 +436,8 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 			cold_dam(brdam, "a chilling blast");
          harmful = TRUE;
       }
-      o_ptr->wt = o_ptr->wt - brpow;
+		o_ptr->wt = o_ptr->wt - brpow;
+		o_ptr->bulk = o_ptr->wt;
       o_ptr->pval = o_ptr->wt;
 	}
    else if (r_ptr->flags4 & RF4_BR_COLD)
@@ -456,7 +461,8 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 
       /* Take damage */
       take_hit(brdam, "toxic gases");
-      o_ptr->wt = o_ptr->wt - brpow;
+		o_ptr->wt = o_ptr->wt - brpow;
+		o_ptr->bulk = o_ptr->wt;
       o_ptr->pval = o_ptr->wt;
       harmful = TRUE;
    }
@@ -491,7 +497,8 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 		/* Take damage */
 		take_hit(brdam, "an unholy blast");
       harmful = TRUE;
-      o_ptr->wt = o_ptr->wt - brpow;
+		o_ptr->wt = o_ptr->wt - brpow;
+		o_ptr->bulk = o_ptr->wt;
       o_ptr->pval = o_ptr->wt;
    }
    if (r_ptr->flags4 & RF4_BR_CONF && brpow > 0)
@@ -499,7 +506,8 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 		msg_print("A strange liquid splashes on you!");
 		if (!p_ptr->resist_confu)
 				set_confused(p_ptr->confused + brdam + idam + 10);
-      o_ptr->wt = o_ptr->wt - brpow;
+		o_ptr->wt = o_ptr->wt - brpow;
+		o_ptr->bulk = o_ptr->wt;
       o_ptr->pval = o_ptr->wt;
 	}
    if (r_ptr->flags4 & RF4_BR_CHAO && brpow > 0)
@@ -691,18 +699,19 @@ void do_cmd_eat_food(void)
       	case SV_CORPSE:
       	{
          	/* Not all is edible. Apologies if messy. */
-      		if (((r_ptr->flags3 & RF3_HAS_BONES) && (o_ptr->wt <= (r_ptr->wt * 3) / 5)) ||
+				if (((r_ptr->flags3 & RF3_HAS_BONES) && (o_ptr->wt <= (r_ptr->wt * 3) / 5)) ||
 					(!(r_ptr->flags3 & RF3_HAS_BONES) && (o_ptr->wt <= (r_ptr->wt * 7) / 20)))
-         	{
-         		msg_print("There is not enough meat.");
-            	return;
-         	}
+				{
+					msg_print("There is not enough meat.");
+					return;
+				}
 				if (!o_ptr->timeout) msg_print("Ugh! Raw meat!");
 				else msg_print("That tastes good.");
 
 				/* A pound of raw meat */
 				o_ptr->pval -= 10;
 				o_ptr->wt -= 10;
+				o_ptr->bulk = o_ptr->wt;
 
 				/* Corpses still have meat on them */
 				destroy = FALSE;
@@ -724,6 +733,7 @@ void do_cmd_eat_food(void)
 				/* A pound of raw meat */
 				o_ptr->pval -= 10;
 				o_ptr->wt -= 10;
+				o_ptr->bulk = o_ptr->wt;
 
 				/* Corpses still have meat on them */
 				destroy = FALSE;
@@ -850,7 +860,7 @@ void do_cmd_eat_food(void)
 	   	case SV_FOOD_WEAKNESS:
 			{
 			   take_hit(damroll(6, 6), "poisonous food.");
-   			(void)do_dec_stat(A_STR);
+				(void)do_dec_stat(A_STR, 10, FALSE);
 				ident = TRUE;
 		   	break;
    		}
@@ -858,7 +868,7 @@ void do_cmd_eat_food(void)
 	   	case SV_FOOD_SICKNESS:
 		   {
 			   take_hit(damroll(6, 6), "poisonous food.");
-   			(void)do_dec_stat(A_CON);
+				(void)do_dec_stat(A_CON, 10, FALSE);
 	   		ident = TRUE;
 		   	break;
 			}
@@ -866,15 +876,15 @@ void do_cmd_eat_food(void)
 	   	case SV_FOOD_STUPIDITY:
 			{
 			   take_hit(damroll(8, 8), "poisonous food.");
-				(void)do_dec_stat(A_INT);
-	   		ident = TRUE;
+				(void)do_dec_stat(A_INT, 10, FALSE);
+				ident = TRUE;
 		   	break;
    		}
 
 	   	case SV_FOOD_NAIVETY:
 		   {
-			   take_hit(damroll(8, 8), "poisonous food.");
-   			(void)do_dec_stat(A_WIS);
+				take_hit(damroll(8, 8), "poisonous food.");
+				(void)do_dec_stat(A_WIS, 10, FALSE);
 				ident = TRUE;
 		   	break;
    		}
@@ -882,15 +892,15 @@ void do_cmd_eat_food(void)
 	   	case SV_FOOD_UNHEALTH:
 		   {
 			   take_hit(damroll(10, 10), "poisonous food.");
-				(void)do_dec_stat(A_CON);
-	   		ident = TRUE;
+				(void)do_dec_stat(A_CON, 10, FALSE);
+				ident = TRUE;
 				break;
    		}
 
 			case SV_FOOD_DISEASE:
 		   {
 			   take_hit(damroll(10, 10), "poisonous food.");
-   			(void)do_dec_stat(A_STR);
+				(void)do_dec_stat(A_STR, 10, FALSE);
 	   		ident = TRUE;
 		   	break;
    		}
@@ -903,7 +913,7 @@ void do_cmd_eat_food(void)
 
 		   case SV_FOOD_CURE_BLINDNESS:
 			{
-	   		if (set_blind(0)) ident = TRUE;
+				if (set_blind(0)) ident = TRUE;
 		   	break;
    		}
 
@@ -1124,6 +1134,7 @@ void do_cmd_cut_corpse(void)
 
    o_ptr->pval -= meat;
 	o_ptr->wt -= meat;
+	o_ptr->bulk = o_ptr->wt;
 
 	msg_print("You hack some meat off the corpse.");
 
@@ -1437,7 +1448,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (!p_ptr->free_act)
 			{
-				if (set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4))
+				if (set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10))
 				{
 					ident = TRUE;
 				}
@@ -1460,49 +1471,49 @@ void do_cmd_quaff_potion(void)
 		{
 			msg_print("Your nerves and muscles feel weak and lifeless!");
 			take_hit(damroll(10, 10), "a potion of Ruination");
-			(void)dec_stat(A_DEX, 25, TRUE);
-			(void)dec_stat(A_WIS, 25, TRUE);
-			(void)dec_stat(A_CON, 25, TRUE);
-			(void)dec_stat(A_STR, 25, TRUE);
-			(void)dec_stat(A_CHR, 25, TRUE);
-			(void)dec_stat(A_INT, 25, TRUE);
+			(void)do_dec_stat(A_DEX, 25, TRUE);
+			(void)do_dec_stat(A_WIS, 25, TRUE);
+			(void)do_dec_stat(A_CON, 25, TRUE);
+			(void)do_dec_stat(A_STR, 25, TRUE);
+			(void)do_dec_stat(A_CHR, 25, TRUE);
+			(void)do_dec_stat(A_INT, 25, TRUE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_STR:
 		{
-			if (do_dec_stat(A_STR)) ident = TRUE;
+			if (do_dec_stat(A_STR, 10, FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_INT:
 		{
-			if (do_dec_stat(A_INT)) ident = TRUE;
+			if (do_dec_stat(A_INT, 10, FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_WIS:
 		{
-			if (do_dec_stat(A_WIS)) ident = TRUE;
+			if (do_dec_stat(A_WIS, 10, FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_DEX:
 		{
-			if (do_dec_stat(A_DEX)) ident = TRUE;
+			if (do_dec_stat(A_DEX, 10, FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CON:
 		{
-			if (do_dec_stat(A_CON)) ident = TRUE;
+			if (do_dec_stat(A_CON, 10, FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CHR:
 		{
-			if (do_dec_stat(A_CHR)) ident = TRUE;
+			if (do_dec_stat(A_CHR, 10, FALSE)) ident = TRUE;
 			break;
 		}
 
@@ -2361,9 +2372,15 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_WORD_OF_RECALL:
 		{
-			if (p_ptr->word_recall == 0)
+			/* Quest levels resist */
+			if (!p_ptr->word_recall && p_ptr->quest_max && (rand_int(100) < 50))
+			{
+				msg_print("The scroll crumbles into dust.");
+			}
+			else if (p_ptr->word_recall == 0)
 			{
 				p_ptr->word_recall = randint(20) + 15;
+				if (p_ptr->quest_max) p_ptr->word_recall += randint(30) + 20;
 				msg_print("The air about you becomes charged...");
 			}
 			else
@@ -2723,6 +2740,10 @@ void do_cmd_use_staff(void)
 	{
 		if (flush_failure) flush();
 		msg_print("The staff has no charges left.");
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		
 		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
@@ -3024,6 +3045,7 @@ void do_cmd_use_staff(void)
 
 		/* Unstack the used item */
 		o_ptr->number--;
+		p_ptr->total_bulk -= i_ptr->bulk;
 		p_ptr->total_wt -= i_ptr->wt;
 		item = inven_carry(i_ptr);
 
@@ -3144,6 +3166,10 @@ void do_cmd_aim_wand(void)
 	{
 		if (flush_failure) flush();
 		msg_print("The wand has no charges left.");
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		
 		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
@@ -3425,6 +3451,7 @@ void do_cmd_aim_wand(void)
 
 		/* Unstack the used item */
 		o_ptr->number--;
+		p_ptr->total_bulk -= i_ptr->bulk;
 		p_ptr->total_wt -= i_ptr->wt;
 		item = inven_carry(i_ptr);
 
@@ -3579,10 +3606,16 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_RECALL:
 		{
-			if (p_ptr->word_recall == 0)
+			/* Quest levels resist */
+			if (!p_ptr->word_recall && p_ptr->quest_max && (rand_int(100) < 50))
 			{
+				/* Nothing */
+			}
+			else if (p_ptr->word_recall == 0)
+			{
+				p_ptr->word_recall = randint(20) + 15;
+				if (p_ptr->quest_max) p_ptr->word_recall += randint(30) + 20;
 				msg_print("The air about you becomes charged...");
-				p_ptr->word_recall = 15 + randint(20);
 			}
 			else
 			{
@@ -3591,6 +3624,7 @@ void do_cmd_zap_rod(void)
 			}
 			ident = TRUE;
 			o_ptr->pval = 60;
+			if (p_ptr->quest_max) o_ptr->pval += randint(40) + 15;
 			break;
 		}
 
@@ -3833,6 +3867,7 @@ void do_cmd_zap_rod(void)
 
 		/* Unstack the used item */
 		o_ptr->number--;
+		p_ptr->total_bulk -= i_ptr->bulk;
 		p_ptr->total_wt -= i_ptr->wt;
 		item = inven_carry(i_ptr);
 
@@ -3871,8 +3906,10 @@ static bool item_tester_hook_activate(object_type *o_ptr)
  */
 static void ring_of_power(int dir)
 {
+	int k, count;
+
 	/* Pick a random effect */
-	switch (randint(10))
+	switch (randint(15))
 	{
 		case 1:
 		case 2:
@@ -3881,12 +3918,12 @@ static void ring_of_power(int dir)
 			msg_print("You are surrounded by a malignant aura.");
 
 			/* Decrease all stats (permanently) */
-			(void)dec_stat(A_STR, 50, TRUE);
-			(void)dec_stat(A_INT, 50, TRUE);
-			(void)dec_stat(A_WIS, 50, TRUE);
-			(void)dec_stat(A_DEX, 50, TRUE);
-			(void)dec_stat(A_CON, 50, TRUE);
-			(void)dec_stat(A_CHR, 50, TRUE);
+			(void)do_dec_stat(A_STR, 50, TRUE);
+			(void)do_dec_stat(A_INT, 50, TRUE);
+			(void)do_dec_stat(A_WIS, 50, TRUE);
+			(void)do_dec_stat(A_DEX, 50, TRUE);
+			(void)do_dec_stat(A_CON, 50, TRUE);
+			(void)do_dec_stat(A_CHR, 50, TRUE);
 
 			/* Lose some experience (permanently) */
 			p_ptr->exp -= (p_ptr->exp / 4);
@@ -3925,6 +3962,39 @@ static void ring_of_power(int dir)
 			/* Mana Bolt */
 			fire_bolt(GF_MANA, dir, 250);
 
+			break;
+		}
+
+		case 11:
+		case 12:
+		case 13:
+		{
+			/* Summon orcs */
+			for (k = 0; k < 8; k++)
+			{
+				count += summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_ORC);
+			}
+			if (count)
+			{
+				if (p_ptr->blind) msg_print("You hear many things appear nearby.");
+				else msg_print("You summon orcs.");
+			}
+			break;
+		}
+
+		case 14:
+		case 15:
+		{
+			/* Summon Morgoth's minions */
+			for (k = 0; k < 8; k++)
+			{
+				count += summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_ANGBAND);
+			}
+			if (count)
+			{
+				if (p_ptr->blind) msg_print("You hear many things appear nearby.");
+				else msg_print("You summon the minions of Morgoth.");
+			}
 			break;
 		}
 	}
@@ -4506,9 +4576,15 @@ void do_cmd_activate(void)
 			case ART_AVAVIR:
 			{
 				msg_print("Your scythe glows soft white...");
-				if (p_ptr->word_recall == 0)
+				/* Quest levels resist */
+				if (!p_ptr->word_recall && p_ptr->quest_max && (rand_int(100) < 30))
+				{
+					/* Nothing */
+				}
+				else if (p_ptr->word_recall == 0)
 				{
 					p_ptr->word_recall = randint(20) + 15;
+					if (p_ptr->quest_max) p_ptr->word_recall += randint(20) + 15;
 					msg_print("The air about you becomes charged...");
 				}
 				else
@@ -4517,6 +4593,7 @@ void do_cmd_activate(void)
 					msg_print("A tension leaves the air around you...");
 				}
 				o_ptr->timeout = 200;
+				if (p_ptr->quest_max) o_ptr->timeout += randint(25) + 50;
 				break;
 			}
 

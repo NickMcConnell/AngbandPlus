@@ -17,52 +17,52 @@
 
 # Floors (white / centered dot)
 
-F:1:1/31
+G:1:1/31
 
 # Invis traps (white / centered dot)
 
-F:2:1/31
+G:2:1/31
 
 
 # Magma (slate / solid block)
 
-F:50:2/127
-F:52:2/127
+G:50:2/127
+G:52:2/127
 
 
 # Quartz (light slate / solid block)
 
-F:51:9/127
-F:53:9/127
+G:51:9/127
+G:53:9/127
 
 
 # Secret door (white / solid block)
 
-F:48:1/127
+G:48:1/127
 
 # Granite walls & permanent rock (white / solid block)
 
-F:56:1/127
-F:57:1/127
-F:58:1/127
-F:59:1/127
-F:60:1/127
-F:61:1/127
-F:62:1/127
-F:63:1/127
+G:56:1/127
+G:57:1/127
+G:58:1/127
+G:59:1/127
+G:60:1/127
+G:61:1/127
+G:62:1/127
+G:63:1/127
 
 # Extra floors (centered dot)
 
-F:64:4/31
-F:65:5/31
-F:66:8/31
-F:67:7/31
+G:64:4/31
+G:65:5/31
+G:66:8/31
+G:67:7/31
 
 # Extra walls (solid block)
 
-F:96:4/127
-F:97:5/127
-F:98:8/127
-F:99:7/127
+G:96:4/127
+G:97:5/127
+G:98:8/127
+G:99:7/127
 
 

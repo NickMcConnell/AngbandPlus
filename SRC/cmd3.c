@@ -22,6 +22,10 @@ void do_cmd_inven(void)
 {
 	char out_val[160];
 
+	int line = 0;
+
+	int max_wt;
+
 
 	/* Note that we are in "inventory" mode */
 	p_ptr->command_wrk = FALSE;
@@ -33,21 +37,18 @@ void do_cmd_inven(void)
 	/* Hack -- show empty slots */
 	item_tester_full = TRUE;
 
-	/* Display the inventory */
-	show_inven();
-
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
+	max_wt = adj_str_hold[p_ptr->stat_ind[A_STR]] * 100;
+
 	/* Build a prompt */
-	sprintf(out_val, "Inventory (carrying %d.%d pounds). Command: ",
-	        p_ptr->total_wt / 10, p_ptr->total_wt % 10);
+	sprintf(out_val, "Inventory (%d.%d/%d.%d lb, %d%% full). Command: ",
+			  p_ptr->total_wt / 10, p_ptr->total_wt % 10,
+			  max_wt / 10, max_wt % 10, (p_ptr->total_bulk * 100) / PACK_SIZE);
 
-	/* Get a command */
-	prt(out_val, 0, 0);
-
-	/* Get a new command */
-	p_ptr->command_new = inkey();
+	/* Display the inventory and get a command */
+	p_ptr->command_new = show_inven(out_val, &line);
 
 	/* Restore the screen */
 	Term_load();
@@ -76,6 +77,10 @@ void do_cmd_equip(void)
 {
 	char out_val[160];
 
+	int line = 0;
+
+	int max_wt;
+
 
 	/* Note that we are in "equipment" mode */
 	p_ptr->command_wrk = TRUE;
@@ -87,21 +92,18 @@ void do_cmd_equip(void)
 	/* Hack -- show empty slots */
 	item_tester_full = TRUE;
 
-	/* Display the equipment */
-	show_equip();
-
 	/* Hack -- undo the hack above */
 	item_tester_full = FALSE;
 
+	max_wt = adj_str_hold[p_ptr->stat_ind[A_STR]] * 100;
+
 	/* Build a prompt */
-	sprintf(out_val, "Equipment (carrying %d.%d pounds). Command: ",
-	        p_ptr->total_wt / 10, p_ptr->total_wt % 10);
+	sprintf(out_val, "Equipment (%d.%d/%d.%d lb, %d%% full). Command: ",
+			  p_ptr->total_wt / 10, p_ptr->total_wt % 10,
+			  max_wt / 10, max_wt % 10, (p_ptr->total_bulk * 100) / PACK_SIZE);
 
-	/* Get a command */
-	prt(out_val, 0, 0);
-
-	/* Get a new command */
-	p_ptr->command_new = inkey();
+	/* Display the equipment and get a command */
+	p_ptr->command_new = show_equip(out_val, &line);
 
 	/* Restore the screen */
 	Term_load();
@@ -233,9 +235,6 @@ void do_cmd_wield(void)
 	/* Wear the new stuff */
 	object_copy(o_ptr, i_ptr);
 
-	/* Increase the weight */
-	p_ptr->total_wt += i_ptr->wt;
-
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
 
@@ -293,9 +292,11 @@ void do_cmd_wield(void)
  */
 void do_cmd_takeoff(void)
 {
-	int item;
+	int item, slot;
 
 	object_type *o_ptr;
+
+	char o_name[80];
 
 	cptr q, s;
 
@@ -306,17 +307,7 @@ void do_cmd_takeoff(void)
 	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	o_ptr = &inventory[item];
 
 	/* Item is cursed */
 	if (cursed_p(o_ptr))
@@ -333,7 +324,46 @@ void do_cmd_takeoff(void)
 	p_ptr->energy_use = 50;
 
 	/* Take off the item */
-	(void)inven_takeoff(item, 255);
+	slot = inven_takeoff(item, 255);
+
+	/* It doesn't fit... */
+	if (p_ptr->total_bulk > PACK_SIZE)
+	{
+		/* Access the slot to be dropped */
+		o_ptr = &inventory[slot];
+
+		/* Disturbing */
+		disturb(0, 0);
+
+		/* Warning */
+		msg_print("Your pack overflows!");
+
+		/* Describe */
+		object_desc(o_name, o_ptr, TRUE, 3);
+
+		/* Message */
+		msg_format("You drop %s.", o_name);
+
+		/* Drop it (carefully) near the player */
+		drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
+
+		/* Modify, Describe, Optimize */
+		inven_item_increase(slot, -255);
+		inven_item_describe(slot);
+		inven_item_optimize(slot);
+
+		/* Notice stuff (if needed) */
+		if (p_ptr->notice) notice_stuff();
+
+		/* Update stuff (if needed) */
+		if (p_ptr->update) update_stuff();
+
+		/* Redraw stuff (if needed) */
+		if (p_ptr->redraw) redraw_stuff();
+
+		/* Window stuff (if needed) */
+		if (p_ptr->window) window_stuff();
+	}
 }
 
 
@@ -1019,8 +1049,8 @@ void do_cmd_locate(void)
 
 		/* Prepare to ask which way to look */
 		sprintf(out_val,
-		        "Map sector [%d,%d], which is%s your sector.  Direction?",
-		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
+				  "Map sector [%d(%02d), %d(%02d)], which is%s your sector.  Direction?",
+				  (y2 / PANEL_HGT), (y2 % PANEL_HGT), (x2 / PANEL_WID), (x2 % PANEL_WID), tmp_val);
 
 		/* Assume no direction */
 		dir = 0;
@@ -1043,34 +1073,7 @@ void do_cmd_locate(void)
 		/* No direction */
 		if (!dir) break;
 
-		/* Apply the motion */
-		y2 += (ddy[dir] * PANEL_HGT);
-		x2 += (ddx[dir] * PANEL_WID);
-
-		/* Verify the row */
-		if (y2 < 0) y2 = 0;
-		if (y2 > DUNGEON_HGT - SCREEN_HGT) y2 = DUNGEON_HGT - SCREEN_HGT;
-
-		/* Verify the col */
-		if (x2 < 0) x2 = 0;
-		if (x2 > DUNGEON_WID - SCREEN_WID) x2 = DUNGEON_WID - SCREEN_WID;
-
-		/* Handle "changes" */
-		if ((p_ptr->wy != y2) || (p_ptr->wx != x2))
-		{
-			/* Update panel */
-			p_ptr->wy = y2;
-			p_ptr->wx = x2;
-
-			/* Update stuff */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Handle stuff */
-			handle_stuff();
-		}
+		(void)change_panel(dir);
 	}
 
 	/* Recenter the map around the player */
@@ -1088,116 +1091,6 @@ void do_cmd_locate(void)
 	/* Handle stuff */
 	handle_stuff();
 }
-
-
-
-
-
-
-/*
- * The table of "symbol info" -- each entry is a string of the form
- * "X:desc" where "X" is the trigger, and "desc" is the "info".
- */
-static cptr ident_info[] =
-{
-	" :A dark grid",
-	"!:A potion (or oil)",
-	"\":An amulet (or necklace)",
-	"#:A wall (or secret door)",
-	"$:Treasure (gold or gems)",
-	"%:A vein (magma or quartz)",
-	/* "&:unused", */
-	"':An open door",
-	"(:Soft armor",
-	"):A shield",
-	"*:A vein with treasure",
-	"+:A closed door",
-	",:Food (or mushroom patch)",
-	"-:A wand (or rod)",
-	".:Floor",
-	"/:A polearm (Axe/Pike/etc)",
-	/* "0:unused", */
-	"1:Entrance to General Store",
-	"2:Entrance to Armory",
-	"3:Entrance to Weaponsmith",
-	"4:Entrance to Temple",
-	"5:Entrance to Alchemy shop",
-	"6:Entrance to Magic store",
-	"7:Entrance to Black Market",
-	"8:Entrance to your home",
-	/* "9:unused", */
-	"::Rubble",
-	";:A glyph of warding",
-	"<:An up staircase",
-	"=:A ring",
-	">:A down staircase",
-	"?:A scroll",
-	"@:You",
-	"A:Angel",
-	"B:Bird",
-	"C:Canine",
-	"D:Ancient Dragon/Wyrm",
-	"E:Elemental",
-	"F:Dragon Fly",
-	"G:Ghost",
-	"H:Hybrid",
-	"I:Insect",
-	"J:Snake",
-	"K:Killer Beetle",
-	"L:Lich",
-	"M:Multi-Headed Reptile",
-	/* "N:unused", */
-	"O:Ogre",
-	"P:Giant Humanoid",
-	"Q:Quylthulg (Pulsing Flesh Mound)",
-	"R:Reptile/Amphibian",
-	"S:Spider/Scorpion/Tick",
-	"T:Troll",
-	"U:Major Demon",
-	"V:Vampire",
-	"W:Wight/Wraith/etc",
-	"X:Xorn/Xaren/etc",
-	"Y:Yeti",
-	"Z:Zephyr Hound",
-	"[:Hard armor",
-	"\\:A hafted weapon (mace/whip/etc)",
-	"]:Misc. armor",
-	"^:A trap",
-	"_:A staff",
-	/* "`:unused", */
-	"a:Ant",
-	"b:Bat",
-	"c:Centipede",
-	"d:Dragon",
-	"e:Floating Eye",
-	"f:Feline",
-	"g:Golem",
-	"h:Hobbit/Elf/Dwarf",
-	"i:Icky Thing",
-	"j:Jelly",
-	"k:Kobold",
-	"l:Louse",
-	"m:Mold",
-	"n:Naga",
-	"o:Orc",
-	"p:Person/Human",
-	"q:Quadruped",
-	"r:Rodent",
-	"s:Skeleton",
-	"t:Townsperson",
-	"u:Minor Demon",
-	"v:Vortex",
-	"w:Worm/Worm-Mass",
-	/* "x:unused", */
-	"y:Yeek",
-	"z:Zombie/Mummy",
-	"{:A missile (arrow/bolt/shot)",
-	"|:An edged weapon (sword/dagger/etc)",
-	"}:A launcher (bow/crossbow/sling)",
-	"~:A tool (or miscellaneous item)",
-	NULL
-};
-
 
 
 /*

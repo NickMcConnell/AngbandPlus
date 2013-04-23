@@ -21,6 +21,8 @@
 #include <ctype.h>
 #include <errno.h>
 
+#include <sys/stat.h>
+
 #if defined(NeXT)
 # include <libc.h>
 #else
@@ -33,7 +35,7 @@
 # include <sys/types.h>
 
 # if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
-     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
+	  defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
      defined(__osf__) || defined(ISC) || defined(SGI) || \
      defined(linux)
 #  include <sys/time.h>
@@ -56,10 +58,11 @@
 
 #if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
 # include <io.h>
+# include <dir.h>
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
+	 !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else
@@ -87,8 +90,6 @@
 # include <pwd.h>
 
 # include <unistd.h>
-
-# include <sys/stat.h>
 
 # if defined(SOLARIS)
 #  include <netdb.h>

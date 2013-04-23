@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "cmd4.h"
-
 
 /*
  * Hack -- redraw the screen
@@ -394,7 +392,7 @@ void do_cmd_messages(void)
 	character_icky = FALSE;
 }
 
-
+#ifdef ALLOW_CHEATER
 /*
  * Cheating options -- textual names
  */
@@ -536,7 +534,7 @@ static void do_cmd_options_cheat(cptr info)
 		}
 	}
 }
-
+#endif
 
 /*
  * Interact with some options
@@ -545,23 +543,9 @@ static void do_cmd_options_aux(int page, cptr info)
 {
 	char ch;
 
-	int i, k = 0, n = 0;
-
-	int opt[17];
+	int i, k = 0;
 
 	char buf[80];
-
-
-	/* Scan the options */
-	for (i = 0; i < 16; i++)
-	{
-		/* Collect options on this "page" */
-		if (option_page[page][i] != 255)
-		{
-			opt[n++] = option_page[page][i];
-		}
-	}
-
 
 	/* Clear screen */
 	Term_clear();
@@ -574,18 +558,21 @@ static void do_cmd_options_aux(int page, cptr info)
 		prt(buf, 0, 0);
 
 		/* Display the options */
-		for (i = 0; i < n; i++)
+		for (i = 0; i < OPT_PAGE_LEN; i++)
 		{
 			byte a = TERM_WHITE;
+
+			/* Ignore unused options */
+			if (!opt_text[page][i]) continue;
 
 			/* Color current option */
 			if (i == k) a = TERM_L_BLUE;
 
 			/* Display the option text */
 			sprintf(buf, "%-48s: %s  (%s)",
-			option_desc[opt[i]],
-			op_ptr->opt[opt[i]] ? "yes" : "no ",
-			option_text[opt[i]]);
+					  opt_desc[page][i],
+					  op_ptr->opt[page][i] ? "yes" : "no ",
+					  opt_text[page][i]);
 			c_prt(a, buf, i + 2, 0);
 		}
 
@@ -606,7 +593,11 @@ static void do_cmd_options_aux(int page, cptr info)
 			case '-':
 			case '8':
 			{
-				k = (n + k - 1) % n;
+				do
+				{
+					k = (OPT_PAGE_LEN + k - 1) % OPT_PAGE_LEN;
+				} while (!opt_text[page][k]);
+
 				break;
 			}
 
@@ -615,30 +606,42 @@ static void do_cmd_options_aux(int page, cptr info)
 			case '\r':
 			case '2':
 			{
-				k = (k + 1) % n;
+				do
+				{
+					k = (k + 1) % OPT_PAGE_LEN;
+				} while (!opt_text[page][k]);
+
 				break;
 			}
 
 			case 't':
 			case '5':
 			{
-				op_ptr->opt[opt[k]] = !op_ptr->opt[opt[k]];
+				op_ptr->opt[page][k] = !op_ptr->opt[page][k];
 				break;
 			}
 
 			case 'y':
 			case '6':
 			{
-				op_ptr->opt[opt[k]] = TRUE;
-				k = (k + 1) % n;
+				do
+				{
+					op_ptr->opt[page][k] = TRUE;
+					k = (k + 1) % OPT_PAGE_LEN;
+				} while (!opt_text[page][k]);
+
 				break;
 			}
 
 			case 'n':
 			case '4':
 			{
-				op_ptr->opt[opt[k]] = FALSE;
-				k = (k + 1) % n;
+				do
+				{
+					op_ptr->opt[page][k] = FALSE;
+					k = (k + 1) % OPT_PAGE_LEN;
+				} while (!opt_text[page][k]);
+
 				break;
 			}
 
@@ -673,7 +676,7 @@ static void do_cmd_options_win(void)
 	for (j = 0; j < 8; j++)
 	{
 		/* Acquire current flags */
-		old_flag[j] = op_ptr->window_flag[j];
+		old_flag[j] = op_ptr->term_flag[j];
 	}
 
 
@@ -701,11 +704,11 @@ static void do_cmd_options_win(void)
 		}
 
 		/* Display the options */
-		for (i = 0; i < 16; i++)
+		for (i = 0; i < MAX_TERM_FLAGS; i++)
 		{
 			byte a = TERM_WHITE;
 
-			cptr str = window_flag_desc[i];
+			cptr str = term_flag_desc[i];
 
 			/* Use color */
 			if (i == y) a = TERM_L_BLUE;
@@ -727,7 +730,7 @@ static void do_cmd_options_win(void)
 				if ((i == y) && (j == x)) a = TERM_L_BLUE;
 
 				/* Active flag */
-				if (op_ptr->window_flag[j] & (1L << i)) c = 'X';
+				if (op_ptr->term_flag[j] & (1L << i)) c = 'X';
 
 				/* Flag value */
 				Term_putch(35 + j * 5, i + 5, a, c);
@@ -763,13 +766,13 @@ static void do_cmd_options_win(void)
 				}
 
 				/* Toggle flag */
-				if (op_ptr->window_flag[x] & (1L << y))
+				if (op_ptr->term_flag[x] & (1L << y))
 				{
-					op_ptr->window_flag[x] &= ~(1L << y);
+					op_ptr->term_flag[x] &= ~(1L << y);
 				}
 				else
 				{
-					op_ptr->window_flag[x] |= (1L << y);
+					op_ptr->term_flag[x] |= (1L << y);
 				}
 
 				break;
@@ -798,7 +801,7 @@ static void do_cmd_options_win(void)
 		if (!angband_term[j]) continue;
 
 		/* Ignore non-changes */
-		if (op_ptr->window_flag[j] == old_flag[j]) continue;
+		if (op_ptr->term_flag[j] == old_flag[j]) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -842,7 +845,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("RAngband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -850,16 +853,19 @@ void do_cmd_options(void)
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
 
+#ifdef ALLOW_CHEATER
 		/* Cheating */
 		prt("(C) Cheating Options", 9, 5);
+#endif
 
 		/* Window flags */
 		prt("(W) Window flags", 11, 5);
 
 		/* Special choices */
-		prt("(D) Base Delay Factor", 13, 5);
-		prt("(H) Hitpoint Warning", 14, 5);
-		prt("(K) Destruction Thresholds", 15, 5);
+		prt("(A) Autosave Delay", 13, 5);
+		prt("(D) Base Delay Factor", 14, 5);
+		prt("(H) Hitpoint Warning", 15, 5);
+		prt("(K) Destruction Thresholds", 16, 5);
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -905,6 +911,7 @@ void do_cmd_options(void)
 				break;
 			}
 
+#ifdef ALLOW_CHEATER
 			/* Cheating Options */
 			case 'C':
 			{
@@ -912,6 +919,7 @@ void do_cmd_options(void)
 				do_cmd_options_cheat("Cheaters never win (seriously!)");
 				break;
 			}
+#endif
 
 			/* Window flags */
 			case 'W':
@@ -919,6 +927,40 @@ void do_cmd_options(void)
 			{
 				/* Spawn */
 				do_cmd_options_win();
+				break;
+			}
+
+			/* Hack -- Autosave Delay */
+			case 'A':
+			case 'a':
+			{
+				char cmd;
+
+            u16b t;
+
+				/* Prompt */
+				prt("Command: Autosave Delay", 18, 0);
+
+				/* Get a new value */
+				while (1)
+				{
+					prt(format("Current autosave delay: %d turns",
+								  op_ptr->autosave_freq), 22, 0);
+					prt("Autosave Delay (ESC to accept): ", 20, 0);
+
+					/* Get a number */
+					t = get_number(op_ptr->autosave_freq, -1, 20, 32, &cmd);
+
+					/* Abort */
+					if (cmd == ESCAPE) break;
+
+					/* Protection */
+					if (t < 10) continue;
+
+					/* Set the new value */
+					op_ptr->autosave_freq = t;
+				}
+
 				break;
 			}
 
@@ -2175,7 +2217,7 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Angband %d.%d.%d.  Type '?' for more info.",
+	msg_format("You are playing RAngband %d.%d.%d.  Type '?' for more info.",
 				  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 }
 
@@ -2188,14 +2230,14 @@ static cptr do_cmd_feeling_text[12] =
 {
 	"A chill runs down your spine...",
 	"You feel there is something special about this level.",
-	"You have a superb feeling about this level.",
-	"You have an excellent feeling...",
-	"You have a very good feeling...",
-	"You have a good feeling...",
-	"You feel strangely lucky...",
-	"You feel your luck is turning...",
-	"You like the look of this place...",
-	"This level can't be all bad...",
+	"Terrible visions of your death swim before you...",
+	"You are gripped by a mounting fear...",
+	"The air is thick with tension...",
+	"You have a bad feeling about this...",
+	"Something feels wrong...",
+	"You feel nervous...",
+	"You feel uneasy...",
+	"This level looks reasonably safe...",
 	"What a boring place..."
 };
 
@@ -2336,124 +2378,107 @@ void do_cmd_load_screen(void)
 
 
 /*
- * Redefinable "save_screen" action
- */
-void (*screendump_aux)(void) = NULL;
-
-
-/*
  * Hack -- save a screen dump to a file
  */
 void do_cmd_save_screen(void)
 {
-	/* Do we use a special screendump function ? */
-	if (screendump_aux)
+	int y, x;
+
+	byte a = 0;
+	char c = ' ';
+
+	FILE *fff;
+
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Hack -- drop permissions */
+	safe_setuid_drop();
+
+	/* Append to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Hack -- grab permissions */
+	safe_setuid_grab();
+
+	/* Oops */
+	if (!fff) return;
+
+
+	/* Enter "icky" mode */
+	character_icky = TRUE;
+
+	/* Save the screen */
+	Term_save();
+
+
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
 	{
-		/* Dump the screen to a graphics file */
-		(*screendump_aux)();
-	}
-	else
-	{
-		/* Dump the screen as text */
-		int y, x;
-
-		byte a = 0;
-		char c = ' ';
-
-		FILE *fff;
-
-		char buf[1024];
-
-
-		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
-
-		/* File type is "TEXT" */
-		FILE_TYPE(FILE_TYPE_TEXT);
-
-		/* Hack -- drop permissions */
-		safe_setuid_drop();
-
-		/* Append to the file */
-		fff = my_fopen(buf, "w");
-
-		/* Hack -- grab permissions */
-		safe_setuid_grab();
-
-		/* Oops */
-		if (!fff) return;
-
-
-		/* Enter "icky" mode */
-		character_icky = TRUE;
-
-		/* Save the screen */
-		Term_save();
-
-
-		/* Dump the screen */
-		for (y = 0; y < 24; y++)
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
 		{
-			/* Dump each row */
-			for (x = 0; x < 79; x++)
-			{
-				/* Get the attr/char */
-				(void)(Term_what(x, y, &a, &c));
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
 
-				/* Dump it */
-				buf[x] = c;
-			}
-
-			/* Terminate */
-			buf[x] = '\0';
-
-			/* End the row */
-			fprintf(fff, "%s\n", buf);
+			/* Dump it */
+			buf[x] = c;
 		}
 
-		/* Skip a line */
-		fprintf(fff, "\n");
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
 
 
-		/* Dump the screen */
-		for (y = 0; y < 24; y++)
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
 		{
-			/* Dump each row */
-			for (x = 0; x < 79; x++)
-			{
-				/* Get the attr/char */
-				(void)(Term_what(x, y, &a, &c));
-			
-				/* Dump it */
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
 			buf[x] = hack[a&0x0F];
-			}
-
-			/* Terminate */
-			buf[x] = '\0';
-
-			/* End the row */
-			fprintf(fff, "%s\n", buf);
 		}
 
-		/* Skip a line */
-		fprintf(fff, "\n");
+		/* Terminate */
+		buf[x] = '\0';
 
-
-		/* Close it */
-		my_fclose(fff);
-
-
-		/* Message */
-		msg_print("Screen dump saved.");
-		msg_print(NULL);
-		
-
-		/* Restore the screen */
-		Term_load();
-
-		/* Leave "icky" mode */
-		character_icky = FALSE;
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
 	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+
+	/* Close it */
+	my_fclose(fff);
+
+
+	/* Message */
+	msg_print("Screen dump saved.");
+	msg_print(NULL);
+
+
+	/* Restore the screen */
+	Term_load();
+
+	/* Leave "icky" mode */
+	character_icky = FALSE;
 }
 
 
@@ -2803,23 +2828,12 @@ static void do_cmd_knowledge_kill_count(void)
 		monster_race *r_ptr = &r_info[k];
 		monster_lore *l_ptr = &l_info[k];
 
-		if (r_ptr->flags1 & (RF1_UNIQUE))
-		{
-			/* Unique is dead */
-			if (r_ptr->max_num == 0)
-			{
-				total++;
-			}
-		}
-		else
-		{
-			/* Count the number killed */
-			t = l_ptr->pkills;
+		/* Count the number killed */
+		t = l_ptr->pkills;
 
-			if (t > 0)
-			{
-				total += t;
-			}
+		if (t > 0)
+		{
+			total += t;
 		}
 	}
 
@@ -2842,7 +2856,7 @@ static void do_cmd_knowledge_kill_count(void)
 		monster_race *r_ptr = &r_info[k];
 		monster_lore *l_ptr = &l_info[k];
 
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		if (!(r_ptr->flags1 & RF1_LIMIT) && (r_ptr->flags1 & RF1_UNIQUE))
 		{
 			/* Unique is dead */
 			if (r_ptr->max_num == 0)

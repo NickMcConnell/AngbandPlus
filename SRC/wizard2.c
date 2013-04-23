@@ -93,7 +93,7 @@ static void do_cmd_wiz_change_aux(void)
 		if (cmd == ESCAPE) return;
 
 		/* Verify */
-		if (tmp_int < 3) tmp_int = 3;
+		if (tmp_int < 1) tmp_int = 1;
 
 		/* Save it */
 		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = tmp_int;
@@ -248,11 +248,11 @@ static void wiz_display_item(object_type *o_ptr)
 	prt("....ts.h.....tadiiii...aiehs..hp", 11, j+32);
 	prt(" f  eefo     egrgggg  bcnaih  vr", 12, j+32);
 	prt("de  lerl    ilrannnn  ltssdo cym", 13, j+32);
-	prt("ia reiedd   meairrrr  eityew ucc", 14, j+32);
-	prt("gtlepnele   ppvnaefc  svaktm ruu", 15, j+32);
-	prt("ehigavaic   aoaeclio  saanyo srr", 16, j+32);
-	prt("seteticfa   crtxierl  etropd ess", 17, j+32);
-	prt("trenhstey...ttepdced..detwes.dee", 18, j+32);
+	prt("ia reieddh  meairrrr  eityew ucc", 14, j+32);
+	prt("gtlepnelee  ppvnaefc  svaktm ruu", 15, j+32);
+	prt("ehigavaica  aoaeclio  saanyo srr", 16, j+32);
+	prt("seteticfav  crtxierl  etropd ess", 17, j+32);
+	prt("trenhsteyy..ttepdced..detwes.dee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
 
@@ -333,16 +333,6 @@ static void strip_name(char *buf, int k_idx)
 	*t = '\0';
 }
 
-
-/*
- * Hack -- title for each column
- *
- * XXX XXX XXX This will not work with "EBCDIC", I would think.
- */
-static char head[3] =
-{ 'a', 'A', '0' };
-
-
 /*
  * Acquire an object kind for creation (or zero)
  *
@@ -370,7 +360,7 @@ static int wiz_create_itemtype(void)
 	{
 		row = 2 + (num % 20);
 		col = 30 * (num / 20);
-		ch = head[num/20] + (num%20);
+		ch = listsym[num];
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
@@ -381,10 +371,7 @@ static int wiz_create_itemtype(void)
 	if (!get_com("Get what type of object? ", &ch)) return (0);
 
 	/* Analyze choice */
-	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	num = list_choice(ch);
 
 	/* Bail out if choice is illegal */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -407,13 +394,10 @@ static int wiz_create_itemtype(void)
 		/* Analyze matching items */
 		if (k_ptr->tval == tval)
 		{
-			/* Hack -- Skip instant artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
-
 			/* Prepare it */
 			row = 2 + (num % 20);
 			col = 30 * (num / 20);
-			ch = head[num/20] + (num%20);
+			ch = listsym[num];
 
 			/* Acquire the "name" of object "i" */
 			strip_name(buf, i);
@@ -426,17 +410,14 @@ static int wiz_create_itemtype(void)
 		}
 	}
 
-	/* We need to know the maximal possible remembered object_index */
+	/* Me need to know the maximal possible remembered object_index */
 	max_num = num;
 
 	/* Choose! */
 	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
 
 	/* Analyze choice */
-	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	num = list_choice(ch);
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -451,7 +432,6 @@ static int wiz_create_itemtype(void)
  */
 static void wiz_tweak_item(object_type *o_ptr)
 {
-	cptr p;
 	char cmd;
 
 	/* Hack -- leave artifacts alone */
@@ -465,21 +445,21 @@ static void wiz_tweak_item(object_type *o_ptr)
 	wiz_display_item(o_ptr);
 
 	prt("Enter new 'to_a' setting:", 0, 0);
-	o_ptr->to_a = get_number(o_ptr->pval, 99999, 0, 26, &cmd);
+	o_ptr->to_a = get_number(o_ptr->to_a, 99999, 0, 26, &cmd);
 
 	if (cmd == ESCAPE) return;
 
 	wiz_display_item(o_ptr);
 
 	prt("Enter new 'to_h' setting:", 0, 0);
-	o_ptr->to_h = get_number(o_ptr->pval, 99999, 0, 26, &cmd);
+	o_ptr->to_h = get_number(o_ptr->to_h, 99999, 0, 26, &cmd);
 
 	if (cmd == ESCAPE) return;
 
 	wiz_display_item(o_ptr);
 
 	prt("Enter new 'to_d' setting:", 0, 0);
-	o_ptr->to_d = get_number(o_ptr->pval, 99999, 0, 26, &cmd);
+	o_ptr->to_d = get_number(o_ptr->to_d, 99999, 0, 26, &cmd);
 
 	if (cmd == ESCAPE) return;
 
@@ -509,7 +489,6 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 	/* Copy the object */
 	object_copy(i_ptr, o_ptr);
-
 
 	/* Main loop. Ask for magification and artifactification */
 	while (TRUE)
@@ -964,27 +943,27 @@ static void wiz_create_item(void)
 	/* Create the item */
 	object_prep(i_ptr, k_idx);
 
-   /* Skeletons are a little special */
-   if(i_ptr->tval == TV_SKELETON)
-   {
+	/* Skeletons are a little special */
+	if (i_ptr->tval == TV_SKELETON)
+	{
 		bool normal = FALSE;
 
 		switch(i_ptr->sval)
-      {
-      	case SV_SKULL:
-         {
-         	i_ptr->wt = p_ptr->wt / 6;
+		{
+			case SV_SKULL:
+			{
+				i_ptr->wt = p_ptr->wt / 6;
 				break;
 			}
-      	case SV_HEAD:
-         {
-         	i_ptr->wt = p_ptr->wt / 3;
-            i_ptr->pval = i_ptr->wt + rand_int(i_ptr->wt);
-         	break;
-         }
-      	case SV_SKELETON:
-         {
-         	i_ptr->wt = p_ptr->wt * 10 / 4;
+			case SV_HEAD:
+			{
+				i_ptr->wt = p_ptr->wt / 3;
+				i_ptr->pval = i_ptr->wt + rand_int(i_ptr->wt);
+				break;
+			}
+			case SV_SKELETON:
+			{
+				i_ptr->wt = p_ptr->wt * 10 / 4;
          	break;
          }
       	case SV_CORPSE:
@@ -996,7 +975,7 @@ static void wiz_create_item(void)
          case SV_RAW_MEAT:
          {
             i_ptr->pval = 100 + rand_int(100);
-            break;
+				break;
 			}
 			default:
 			{
@@ -1013,8 +992,24 @@ static void wiz_create_item(void)
 		}
 	}
 
-	/* Apply magic (no messages, no artifacts) */
-	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+	if (k_info[k_idx].flags3 & TR3_INSTA_ART)
+	{
+		int i;
+
+		/* Artifactify */
+		for (i = 1; i < ART_MIN_NORMAL; i++)
+		{
+			if (a_info[i].sval == i_ptr->sval) i_ptr->name1 = i;
+		}
+
+		/* Apply magic */
+		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+	}
+	else
+	{
+		/* Apply magic */
+		apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+	}
 
 	/* Drop the object from heaven */
 	drop_near(i_ptr, -1, py, px);
@@ -1023,15 +1018,11 @@ static void wiz_create_item(void)
 	msg_print("Allocated.");
 }
 
-
 /*
  * Cure everything instantly
  */
 static void do_cmd_wiz_cure_all(void)
 {
-	/* Remove curses */
-	(void)remove_all_curse();
-
 	/* Restore stats */
 	(void)res_stat(A_STR);
 	(void)res_stat(A_INT);
@@ -1111,6 +1102,12 @@ static void do_cmd_wiz_jump(void)
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
+
+	/* Random quests are over */
+	p_ptr->quest_max = 0;
+
+	/* Repair the quest monster */
+	r_info[p_ptr->quest_idx].flags1 &= ~(RF1_QUESTOR);
 }
 
 
@@ -1255,12 +1252,16 @@ static void do_cmd_wiz_zap(int d)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > d) continue;
+
+		/* Check for quest completion */
+		if (r_ptr->flags1 & (RF1_QUESTOR)) check_quest(r_ptr, m_ptr, FALSE);
 
 		/* Delete the monster */
 		delete_monster_idx(i);
@@ -1472,6 +1473,13 @@ void do_cmd_debug(void)
 		case 'p':
 		{
 			teleport_player(10);
+			break;
+		}
+
+		/* Remove curses */
+		case 'r':
+		{
+			(void)remove_all_curse();
 			break;
 		}
 

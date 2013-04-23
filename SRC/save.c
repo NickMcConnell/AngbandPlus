@@ -700,6 +700,7 @@ static void wr_artifact(artifact_type *a_ptr)
 	wr_byte (a_ptr->dd);
 	wr_byte (a_ptr->ds);
 
+	wr_s16b (a_ptr->bulk);
 	wr_s32b (a_ptr->wt);
 
 	wr_s32b (a_ptr->cost);
@@ -728,6 +729,8 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->discount);
 	wr_byte(o_ptr->number);
+
+	wr_s16b(o_ptr->bulk);
 	wr_s32b(o_ptr->wt);
 
 	wr_s16b(o_ptr->name1);
@@ -783,8 +786,10 @@ static void wr_monster(monster_type *m_ptr)
 	wr_s16b(m_ptr->hp);
 	wr_s16b(m_ptr->maxhp);
 	wr_s16b(m_ptr->csleep);
-	wr_byte(m_ptr->mspeed);
-	wr_byte(m_ptr->energy);
+	wr_byte(m_ptr->bspeed);
+	wr_s16b(m_ptr->energy);
+	wr_byte(m_ptr->fast);
+	wr_byte(m_ptr->slow);
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
@@ -837,8 +842,10 @@ static void wr_lore(int r_idx)
 	wr_u32b(l_ptr->flags6);
 
 
+	/* Hack -- disallow setting the monster limit if player is dead */
+	if (p_ptr->is_dead) wr_byte(255);
 	/* Monster limit per level */
-	wr_byte(r_ptr->max_num);
+	else wr_byte(r_ptr->max_num);
 
 	/* Later (?) */
 	wr_byte(0);
@@ -924,12 +931,12 @@ static errr wr_randomizer(void)
  */
 static void wr_options(void)
 {
-	int i, k;
+	int i, j, k;
 
 	u16b c;
 
-	u32b flag[8];
-	u32b mask[8];
+	u16b flag[16];
+	u16b mask[16];
 
 
 	/*** Oops ***/
@@ -951,6 +958,9 @@ static void wr_options(void)
 
 	/* Write "destroy_junk" */
 	wr_u32b(op_ptr->destroy_junk);
+
+	/* Write "autosave_freq" */
+	wr_u16b(op_ptr->autosave_freq);
 
 
 	/*** Cheating options ***/
@@ -978,31 +988,31 @@ static void wr_options(void)
 	}
 
 	/* Analyze the options */
-	for (i = 0; i < OPT_MAX; i++)
+	for (i = 0; i < OPT_PAGE_MAX; i++)
 	{
-		int os = i / 32;
-		int ob = i % 32;
-
-		/* Process real entries */
-		if (option_text[i])
+		for (j = 0; j < OPT_PAGE_LEN; j++)
 		{
-			/* Set flag */
-			if (op_ptr->opt[i])
+			/* Process real entries */
+			if (opt_text[i][j])
 			{
-				/* Set */
-				flag[os] |= (1L << ob);
-			}
+				/* Set flag */
+				if (op_ptr->opt[i][j])
+				{
+					/* Set */
+					flag[i] |= (1L << j);
+				}
 
-			/* Set mask */
-			mask[os] |= (1L << ob);
+				/* Set mask */
+				mask[i] |= (1L << j);
+			}
 		}
 	}
 
 	/* Dump the flags */
-	for (i = 0; i < 8; i++) wr_u32b(flag[i]);
+	for (i = 0; i < 16; i++) wr_u16b(flag[i]);
 
 	/* Dump the masks */
-	for (i = 0; i < 8; i++) wr_u32b(mask[i]);
+	for (i = 0; i < 16; i++) wr_u16b(mask[i]);
 
 
 	/*** Window options ***/
@@ -1011,7 +1021,7 @@ static void wr_options(void)
 	for (i = 0; i < 8; i++)
 	{
 		/* Flags */
-		flag[i] = op_ptr->window_flag[i];
+		flag[i] = op_ptr->term_flag[i];
 
 		/* Mask */
 		mask[i] = 0L;
@@ -1020,33 +1030,27 @@ static void wr_options(void)
 		for (k = 0; k < 32; k++)
 		{
 			/* Set mask */
-			if (window_flag_desc[k])
+			if (term_flag_desc[k])
 			{
 				mask[i] |= (1L << k);
 			}
 		}
 	}
 
+	for (i = 8; i < 16; i++)
+	{
+		/* Flags */
+		flag[i] = 0L;
+
+		/* Mask */
+		mask[i] = 0L;
+	}
+
 	/* Dump the flags */
-	for (i = 0; i < 8; i++) wr_u32b(flag[i]);
+	for (i = 0; i < 16; i++) wr_u16b(flag[i]);
 
 	/* Dump the masks */
-	for (i = 0; i < 8; i++) wr_u32b(mask[i]);
-}
-
-
-/*
- * Hack -- Write the "ghost" info
- */
-static void wr_ghost(void)
-{
-	int i;
-
-	/* Name */
-	wr_string("Broken Ghost");
-
-	/* Hack -- stupid data */
-	for (i = 0; i < 60; i++) wr_byte(0);
+	for (i = 0; i < 16; i++) wr_u16b(mask[i]);
 }
 
 
@@ -1065,6 +1069,10 @@ static void wr_extra(void)
 	{
 		wr_string(p_ptr->history[i]);
 	}
+
+	/* Wilderness location */
+	wr_s16b(p_ptr->ay);
+	wr_s16b(p_ptr->ax);
 
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
@@ -1161,6 +1169,10 @@ static void wr_extra(void)
 	wr_u32b(0L);	/* oops */
 	wr_u32b(0L);	/* oops */
 
+	/* Write the quest information */
+	wr_s16b(p_ptr->quest_cur);
+	wr_s16b(p_ptr->quest_max);
+	wr_s16b(p_ptr->quest_idx);
 
 	/* Write the "object seeds" */
 	wr_u32b(seed_flavor);
@@ -1875,7 +1887,7 @@ bool load_player(void)
 
 	/* Paranoia */
 	p_ptr->is_dead = FALSE;
-
+	op_ptr->autosave_freq = 0;
 
 	/* Allow empty savefile name */
 	if (!savefile[0]) return (TRUE);
@@ -2127,8 +2139,6 @@ bool load_player(void)
  */
 static bool wr_bones(int g_idx)
 {
-	u32b now;
-
 	byte tmp8u;
 	u16b tmp16u;
 
@@ -2249,6 +2259,36 @@ static bool wr_bones(int g_idx)
 
 		/* A defined ghost is being saved, use its inventory */
 		else o_ptr = &g_info[g_idx].inv[i];
+
+		/* Remove "default inscriptions" */
+		if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
+		{
+			/* Access the inscription */
+			cptr q = quark_str(o_ptr->note);
+
+			/* Hack -- Remove auto-inscriptions */
+			if ((streq(q, "cursed")) ||
+				 (streq(q, "broken")) ||
+				 (streq(q, "good")) ||
+				 (streq(q, "average")) ||
+				 (streq(q, "excellent")) ||
+				 (streq(q, "worthless")) ||
+				 (streq(q, "special")) ||
+				 (streq(q, "terrible")))
+			{
+				/* Forget the inscription */
+				o_ptr->note = 0;
+			}
+		}
+
+		/* Hack -- Clear the "empty" flag */
+		o_ptr->ident &= ~(IDENT_EMPTY);
+
+		/* Hack -- Clear the "known" flag */
+		o_ptr->ident &= ~(IDENT_KNOWN);
+
+		/* Hack -- Clear the "felt" flag */
+		o_ptr->ident &= ~(IDENT_SENSE);
 
 		/* Skip artifacts */
 		if (o_ptr->name1) o_ptr->k_idx = 0;

@@ -124,20 +124,30 @@ static cptr desc_stat_neg[] =
 
 /*
  * Lose a "point"
+ * This is the only function that may call dec_stat.
  */
-bool do_dec_stat(int stat)
+bool do_dec_stat(int stat, int amount, bool perm)
 {
 	bool sust = FALSE;
+
+	bool do_str = FALSE;
+	bool do_int = FALSE;
+	bool do_wis = FALSE;
+	bool do_dex = FALSE;
+	bool do_con = FALSE;
+	bool do_chr = FALSE;
+
+	if (p_ptr->is_dead) return (FALSE);
 
 	/* Access the "sustain" */
 	switch (stat)
 	{
-		case A_STR: if (p_ptr->sustain_str) sust = TRUE; break;
-		case A_INT: if (p_ptr->sustain_int) sust = TRUE; break;
-		case A_WIS: if (p_ptr->sustain_wis) sust = TRUE; break;
-		case A_DEX: if (p_ptr->sustain_dex) sust = TRUE; break;
-		case A_CON: if (p_ptr->sustain_con) sust = TRUE; break;
-		case A_CHR: if (p_ptr->sustain_chr) sust = TRUE; break;
+		case A_STR: do_str = TRUE; if (p_ptr->sustain_str) sust = TRUE; break;
+		case A_INT: do_int = TRUE; if (p_ptr->sustain_int) sust = TRUE; break;
+		case A_WIS: do_wis = TRUE; if (p_ptr->sustain_wis) sust = TRUE; break;
+		case A_DEX: do_dex = TRUE; if (p_ptr->sustain_dex) sust = TRUE; break;
+		case A_CON: do_con = TRUE; if (p_ptr->sustain_con) sust = TRUE; break;
+		case A_CHR: do_chr = TRUE; if (p_ptr->sustain_chr) sust = TRUE; break;
 	}
 
 	/* Sustain */
@@ -145,17 +155,200 @@ bool do_dec_stat(int stat)
 	{
 		/* Message */
 		msg_format("You feel %s for a moment, but the feeling passes.",
-		           desc_stat_neg[stat]);
+					  desc_stat_neg[stat]);
 
 		/* Notice effect */
 		return (TRUE);
 	}
 
 	/* Attempt to reduce the stat */
-	if (dec_stat(stat, 10, FALSE))
+	if (dec_stat(stat, amount, perm))
 	{
+		cptr msg;
+
 		/* Message */
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
+
+		/*
+		 * Check for very low stats
+		 * Note that having poor strength AND poor constitution is especially bad.
+		 * As the side effects are internal, there is no resisting. 
+		 */
+		while (do_str || do_int || do_wis || do_dex || do_con || do_chr)
+		{
+			if (do_str)
+			{
+				do_str = FALSE;
+
+				/* No muscles */
+				if (p_ptr->stat_use[A_STR] == 1)
+				{
+					/* Message */
+					msg_print("You collapse, unable to move at all.");
+
+					msg = "weakness";
+
+					/* Die */
+					p_ptr->is_dead = TRUE;
+					break;
+				}
+				/* Dexterity requires some strength */
+				if ((p_ptr->stat_use[A_STR] < 5) && (rand_int(6 - p_ptr->stat_use[A_STR])))
+				{
+					dec_stat(A_DEX, 10, FALSE);
+
+					/* Message */
+					msg_format("You feel very %s.", desc_stat_neg[A_DEX]);
+
+					do_dex = TRUE;
+				}
+				/* Less healthy */
+				if ((p_ptr->stat_use[A_STR] < 3) && (rand_int(4 - p_ptr->stat_use[A_STR])))
+				{
+					dec_stat(A_CON, 10, FALSE);
+
+					/* Message */
+					msg_format("You feel very %s.", desc_stat_neg[A_CON]);
+
+					do_con = TRUE;
+				}
+			}
+
+			if (do_int)
+			{
+				do_int = FALSE;
+
+				/* No brain */
+				if (p_ptr->stat_use[A_INT] == 1)
+				{
+					/* Message */
+					msg_print("You collapse, a mindless husk.");
+
+					msg = "brainlessness";
+
+					/* Die */
+					p_ptr->is_dead = TRUE;
+					break;
+				}
+				/* Wisdom requires some intelligence */
+				if ((p_ptr->stat_use[A_INT] < 5) && (rand_int(6 - p_ptr->stat_use[A_INT])))
+				{
+					dec_stat(A_WIS, 10, FALSE);
+
+					/* Message */
+					msg_format("You feel very %s.", desc_stat_neg[A_WIS]);
+
+					do_wis = TRUE;
+				}
+				/* Dexterity requires some intelligence */
+				if ((p_ptr->stat_use[A_INT] < 3) && (rand_int(4 - p_ptr->stat_use[A_INT])))
+				{
+					dec_stat(A_DEX, 10, FALSE);
+
+					/* Message */
+					msg_format("You feel very %s.", desc_stat_neg[A_DEX]);
+				}
+				/* Intelligence affects charisma */
+				if ((p_ptr->stat_use[A_INT] < 3) && (rand_int(4 - p_ptr->stat_use[A_INT])))
+				{
+					dec_stat(A_CHR, 10, FALSE);
+
+					/* Message */
+					msg_format("You feel very %s.", desc_stat_neg[A_CHR]);
+
+					do_chr = TRUE;
+				}
+			}
+
+			if (do_con)
+			{
+				do_con = FALSE;
+
+				/* Sickly */
+				if (p_ptr->stat_use[A_CON] == 1)
+				{
+					msg = "sickliness";
+
+					/* Die */
+					p_ptr->is_dead = TRUE;
+					break;
+				}
+				/* Dexterity requires some durability */
+				if ((p_ptr->stat_use[A_CON] < 3) && (rand_int(4 - p_ptr->stat_use[A_CON])))
+				{
+					dec_stat(A_DEX, 10, FALSE);
+
+					/* Message */
+					msg_format("You feel very %s.", desc_stat_neg[A_DEX]);
+
+					do_dex = TRUE;
+				}
+				/* Strength requires some durability */
+				if ((p_ptr->stat_use[A_CON] < 3) && (rand_int(4 - p_ptr->stat_use[A_CON])))
+				{
+					dec_stat(A_STR, 10, FALSE);
+
+					/* Message */
+					msg_format("You feel very %s.", desc_stat_neg[A_STR]);
+
+					do_str = TRUE;
+				}
+				/* Poor health affects charisma */
+				if ((p_ptr->stat_use[A_CON] < 5) && (rand_int(6 - p_ptr->stat_use[A_CON])))
+				{
+					dec_stat(A_CHR, 10, FALSE);
+
+					/* Message */
+					msg_format("You feel very %s.", desc_stat_neg[A_CHR]);
+
+					do_chr = TRUE;
+				}
+			}
+
+			if (do_dex)
+			{
+				do_dex = FALSE;
+
+				/* No coordination */
+				if (p_ptr->stat_use[A_DEX] == 1)
+				{
+					/* Message */
+					msg_print("You lose control and flop about helplessly.");
+
+					msg = "uncoordination";
+
+					/* Die */
+					p_ptr->is_dead = TRUE;
+					break;
+				}
+			}
+
+			if (do_wis) do_wis = FALSE;
+			if (do_chr) do_chr = FALSE;
+		}
+
+		/* Dead player */
+		if (p_ptr->is_dead)
+		{
+			/* Clear paralysis so we can note the message */
+			p_ptr->paralyzed = FALSE;
+
+			/* No longer a winner */
+			p_ptr->total_winner = FALSE;
+
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+
+				/* Sound */
+			sound(SOUND_DEATH);
+
+			/* Hack -- Note death */
+			msg_print("You die.");
+			msg_print(NULL);
+
+			/* Note cause of death */
+			strcpy(p_ptr->died_from, msg);
+		}
 
 		/* Notice effect */
 		return (TRUE);
@@ -506,6 +699,10 @@ void self_knowledge(void)
 	{
 		info[i++] = "You land gently.";
 	}
+	if (p_ptr->hfall)
+	{
+		info[i++] = "You land heavily.";
+	}
 	if (p_ptr->lite)
 	{
 		info[i++] = "You are glowing with light.";
@@ -820,6 +1017,9 @@ void self_knowledge(void)
 		if ((k == 22) && (j+1 < i))
 		{
 			prt("-- more --", k, 0);
+
+         k = 2;
+
 			inkey();
 
 			/* Clear the screen */
@@ -890,6 +1090,58 @@ bool lose_all_info(void)
 
 		/* Hack -- Clear the "felt" flag */
 		o_ptr->ident &= ~(IDENT_SENSE);
+	}
+
+	/* Forget info about objects */
+	for (i = 0; i < MAX_O_IDX; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Allow "protection" by the MENTAL flag */
+		if (o_ptr->ident & (IDENT_MENTAL)) continue;
+
+		/* Remove "default inscriptions" */
+		if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
+		{
+			/* Access the inscription */
+			cptr q = quark_str(o_ptr->note);
+
+			/* Hack -- Remove auto-inscriptions */
+			if ((streq(q, "cursed")) ||
+				 (streq(q, "broken")) ||
+				 (streq(q, "good")) ||
+				 (streq(q, "average")) ||
+				 (streq(q, "excellent")) ||
+				 (streq(q, "worthless")) ||
+				 (streq(q, "special")) ||
+				 (streq(q, "terrible")))
+			{
+				/* Forget the inscription */
+				o_ptr->note = 0;
+			}
+		}
+
+		/* Hack -- Clear the "empty" flag */
+		o_ptr->ident &= ~(IDENT_EMPTY);
+
+		/* Hack -- Clear the "known" flag */
+		o_ptr->ident &= ~(IDENT_KNOWN);
+
+		/* Hack -- Clear the "felt" flag */
+		o_ptr->ident &= ~(IDENT_SENSE);
+	}
+
+	/* Forget info about objects */
+	for (i = 0; i < MAX_K_IDX; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		/* Forget about usage */
+		k_ptr->tried = FALSE;
+		if (k_ptr->has_flavor) k_ptr->aware = FALSE;
 	}
 
 	/* Recalculate bonuses */
@@ -1511,6 +1763,10 @@ void stair_creation(void)
 	if (!p_ptr->depth)
 	{
 		cave_set_feat(py, px, FEAT_MORE);
+	}
+	else if (p_ptr->quest_max)
+	{
+		msg_print("The rock trembles.  Nothing else happens.");
 	}
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
@@ -2294,18 +2550,26 @@ void aggravate_monsters(int who)
 		/* Speed up monsters in line of sight */
 		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
 		{
-			/* Speed up (instantly) to racial base + 10 */
-			if (m_ptr->mspeed < r_ptr->speed + 10)
+			int tmp = m_ptr->fast;
+
+			if (!m_ptr->fast)
 			{
-				/* Speed up */
-				m_ptr->mspeed = r_ptr->speed + 10;
+				tmp += randint(25) + 15;
 				speed = TRUE;
 			}
+			else
+			{
+				tmp += 5;
+				if (m_ptr->fast > 95) speed = TRUE;
+			}
+
+			/* Apply speed */
+			m_ptr->fast = (tmp < 200) ? tmp : 200;
 		}
 	}
 
 	/* Messages */
-	if (speed) msg_print("You feel a sudden stirring nearby!");
+	if (speed) msg_print("There is a sudden stirring nearby!");
 	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
 }
 
@@ -2335,8 +2599,8 @@ bool genocide(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		/* Hack -- Skip Uniques and quest monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) continue;
 
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
@@ -2374,8 +2638,8 @@ bool mass_genocide(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		/* Hack -- Skip Uniques and quest monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
@@ -2662,8 +2926,8 @@ void earthquake(int cy, int cx, int r)
 		for (i = 0; i < 8; i++)
 		{
 			/* Access the location */
-			y = py + ddy[i];
-			x = px + ddx[i];
+			y = py + ddy_ddd[i];
+			x = px + ddx_ddd[i];
 
 			/* Skip non-empty grids */
 			if (!cave_empty_bold(y, x)) continue;
@@ -2707,6 +2971,7 @@ void earthquake(int cy, int cx, int r)
 			/* Message and damage */
 			msg_print("You are severely crushed!");
 			damage = 300;
+			(void)set_stun(p_ptr->stun + randint(50) + 30);
 		}
 
 		/* Destroy the grid, and push the player to safety */
@@ -2755,6 +3020,12 @@ void earthquake(int cy, int cx, int r)
 			yy = cy + dy;
 			xx = cx + dx;
 
+			/* Skip illegal grids */
+			if (!in_bounds_fully(yy, xx)) continue;
+
+			/* Wake up */
+			if (cave_m_idx[yy][xx] > 0) m_list[cave_m_idx[yy][xx]].csleep = 0;
+
 			/* Skip unaffected grids */
 			if (!map[16+yy-cy][16+xx-cx]) continue;
 
@@ -2780,8 +3051,8 @@ void earthquake(int cy, int cx, int r)
 						for (i = 0; i < 8; i++)
 						{
 							/* Access the grid */
-							y = yy + ddy[i];
-							x = xx + ddx[i];
+							y = yy + ddy_ddd[i];
+							x = xx + ddx_ddd[i];
 
 							/* Skip non-empty grids */
 							if (!cave_empty_bold(y, x)) continue;
@@ -2824,6 +3095,12 @@ void earthquake(int cy, int cx, int r)
 					{
 						/* Message */
 						msg_format("%^s is embedded in the rock!", m_name);
+
+						/* Only one of each unique */
+						if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num--;
+
+						/* Check for quest completion */
+						if (r_ptr->flags1 & (RF1_QUESTOR)) check_quest(r_ptr, m_ptr, FALSE);
 
 						/* Delete the monster */
 						delete_monster(yy, xx);

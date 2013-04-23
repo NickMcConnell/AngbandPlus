@@ -479,9 +479,8 @@ void do_cmd_cast(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int item, sval, spell, dir, i, n;
-	int dist, x, y, tx, ty;
-	int chance, beam, flg;
+	int item, sval, spell, dir;
+	int chance, beam;
 
 	int plev = p_ptr->lev;
 
@@ -701,7 +700,7 @@ void do_cmd_cast(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_COLD, dir,
-				                  damroll(5+((plev-5)/4), 8));
+										damroll(5+((plev-5)/4), 8));
 				break;
 			}
 
@@ -850,9 +849,15 @@ void do_cmd_cast(void)
 
 			case 38:
 			{
-				if (!p_ptr->word_recall)
+				/* Quest levels resist */
+				if (!p_ptr->word_recall && p_ptr->quest_max && (rand_int(100) < 60))
 				{
-					p_ptr->word_recall = rand_int(20) + 15;
+					/* Nothing */
+				}
+				else if (p_ptr->word_recall == 0)
+				{
+					p_ptr->word_recall = randint(20) + 15;
+					if (p_ptr->quest_max) p_ptr->word_recall += randint(30) + 20;
 					msg_print("The air about you becomes charged...");
 				}
 				else
@@ -1069,7 +1074,7 @@ void do_cmd_cast(void)
 			msg_print("You have damaged your health!");
 
 			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint(10), perm);
+			(void)do_dec_stat(A_CON, 15 + randint(10), perm);
 		}
 	}
 
@@ -1609,9 +1614,15 @@ void do_cmd_pray(void)
 
 			case 56:
 			{
-				if (p_ptr->word_recall == 0)
+				/* Quest levels resist */
+				if (!p_ptr->word_recall && p_ptr->quest_max && (rand_int(100) < 60))
 				{
-					p_ptr->word_recall = rand_int(20) + 15;
+					/* Nothing */
+				}
+				else if (p_ptr->word_recall == 0)
+				{
+					p_ptr->word_recall = randint(20) + 15;
+					if (p_ptr->quest_max) p_ptr->word_recall += randint(30) + 20;
 					msg_print("The air about you becomes charged...");
 				}
 				else
@@ -1624,10 +1635,43 @@ void do_cmd_pray(void)
 
 			case 57:
 			{
-				msg_print("The world changes!");
+				if (!p_ptr->quest_max)
+				{
+					msg_print("The world changes!");
 
-				/* Leaving */
-				p_ptr->leaving = TRUE;
+					/* Leaving */
+					p_ptr->leaving = TRUE;
+				}
+				else
+				{
+					int i, x, y, n = damroll(2, 3);
+
+					msg_print("A massive shock ripples through the dungeon.");
+
+					for (i = 0; i < n; i++)
+					{
+						while(TRUE)
+						{
+							x = rand_spread(px, 20);
+							y = rand_spread(py, 20);
+
+							/* Reject illegal grids */
+							if (!in_bounds_fully(y, x)) continue;
+
+							/* Stay inside a circle */
+							if (distance(py, px, y, x) <= 20) break;
+						}
+
+						/* Lots of damage */
+						earthquake(y, x, 12);
+
+						/* Stunning */
+						(void)set_stun(p_ptr->stun + randint(50) + 10);
+
+						/* Dangerous */
+						take_hit(60, "feedback");
+					}
+				}
 
 				break;
 			}
@@ -1689,7 +1733,7 @@ void do_cmd_pray(void)
 			msg_print("You have damaged your health!");
 
 			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint(10), perm);
+			(void)do_dec_stat(A_CON, 15 + randint(10), perm);
 		}
 	}
 

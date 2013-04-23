@@ -183,6 +183,11 @@
  */
 #define ALLOW_SPOILERS
 
+/*
+ * OPTION: Hack -- Compile in support for "Cheating"
+ */
+#define ALLOW_CHEATER
+
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time
@@ -446,7 +451,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"ebock@micron.net"
+#define MAINTAINER	"kobe@micron.net"
 
 
 /*

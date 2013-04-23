@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "files.h"
-
 
 
 /*
@@ -209,7 +207,7 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  *   K:<num>:<a>:<c>
  *
  * Specify the attr/char values for "features" by feature index
- *   F:<num>:<a>:<c>
+ *   G:<num>:<a>:<c>
  *
  * Specify the attr/char values for unaware "objects" by kind tval
  *   U:<tv>:<a>:<c>
@@ -230,10 +228,13 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  *   S:<key>:<key>:<dir>
  *
  * Turn an option off, given its name
- *   X:<str>
+ *   F:<str>
  *
  * Turn an option on, given its name
- *   Y:<str>
+ *   T:<str>
+ *
+ * Assign a window flag to a window
+ *   W:<term>:<str>
  *
  * Specify visual information, given an index, and some data
  *   V:<num>:<kv>:<rv>:<gv>:<bv>
@@ -295,8 +296,8 @@ errr process_pref_file_aux(char *buf)
 	}
 
 
-	/* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
-	else if (buf[0] == 'F')
+	/* Process "G:<num>:<a>/<c>" -- attr/char for terrain features */
+	else if (buf[0] == 'G')
 	{
 		if (tokenize(buf+2, 3, zz) == 3)
 		{
@@ -405,28 +406,57 @@ errr process_pref_file_aux(char *buf)
 	}
 
 
-	/* Process "X:<str>" -- turn option off */
-	else if (buf[0] == 'X')
+	/* Process "F:<str>" -- turn option off */
+	else if ((buf[0] == 'F') || (buf[0] == 'X'))
 	{
-		for (i = 0; i < OPT_MAX; i++)
+		for (i = 0; i < OPT_PAGE_MAX; i++)
 		{
-			if (option_text[i] && streq(option_text[i], buf + 2))
+			for (j = 0; j < OPT_PAGE_LEN; j++)
 			{
-				op_ptr->opt[i] = FALSE;
-				return (0);
+				if (opt_text[i][j] && strieq(opt_text[i][j], buf + 2))
+				{
+					op_ptr->opt[i][j] = FALSE;
+					return (0);
+				}
 			}
 		}
 	}
 
-	/* Process "Y:<str>" -- turn option on */
-	else if (buf[0] == 'Y')
+	/* Process "T:<str>" -- turn option on */
+	else if ((buf[0] == 'T') || (buf[0] == 'Y'))
 	{
-		for (i = 0; i < OPT_MAX; i++)
+		for (i = 0; i < OPT_PAGE_MAX; i++)
 		{
-			if (option_text[i] && streq(option_text[i], buf + 2))
+			for (j = 0; j < OPT_PAGE_LEN; j++)
 			{
-				op_ptr->opt[i] = TRUE;
-				return (0);
+				if (opt_text[i][j] && strieq(opt_text[i][j], buf + 2))
+				{
+					op_ptr->opt[i][j] = TRUE;
+					return (0);
+				}
+			}
+		}
+	}
+
+	/* Process "W:<term>:<str>" -- turn window option on */
+	else if (buf[0] == 'W')
+	{
+		if (tokenize(buf+2, 2, zz) == 2)
+		{
+			for (i = 0; i < MAX_TERM; i++)
+			{
+				if (angband_term_name[i] && strieq(angband_term_name[i], zz[0]))
+				{
+					for (j = 0; j < MAX_TERM_FLAGS; j++)
+					{
+						if (term_flag_desc[j] && (strieq(term_flag_desc[j] + 8, zz[1]) ||
+							 strieq(term_flag_desc[j], zz[1])))
+						{
+							op_ptr->term_flag[i] |= 1L << j;
+							return (0);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -2013,6 +2043,32 @@ errr file_character(cptr name, bool full)
 }
 
 
+/*
+ * Given a character, return an index corresponding to its position
+ * in the global alphanumeric array.
+ */
+int list_choice(char a)
+{
+	int i;
+
+	if (isdigit(a))
+	{
+		return D2I(a);
+	}
+	else
+	{
+		/*
+		 * Find the symbol's position
+		 * Not nice, but it's compatible with odd character sets
+		 */
+		for (i = 10; i < 62; i++)
+		{
+			if (a == listsym[i]) break;
+		}
+	}
+
+	return i;
+}
 
 /*
  * Recursive file perusal.
@@ -2064,7 +2120,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	char buf[1024];
 
 	/* Sub-menu information */
-	char hook[10][32];
+	char hook[62][32];
 
 
 	/* Wipe finder */
@@ -2077,7 +2133,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	strcpy(caption, "");
 
 	/* Wipe the hooks */
-	for (i = 0; i < 10; i++) hook[i][0] = '\0';
+	for (i = 0; i < 62; i++) hook[i][0] = '\0';
 
 
 	/* Hack XXX XXX XXX */
@@ -2143,14 +2199,14 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			char b1 = '[', b2 = ']';
 
 			/* Notice "menu" requests */
-			if ((buf[6] == b1) && isdigit(buf[7]) &&
-			    (buf[8] == b2) && (buf[9] == ' '))
+			if ((buf[6] == b1) && isalnum(buf[7]) &&
+				 (buf[8] == b2) && (buf[9] == ' '))
 			{
 				/* This is a menu file */
 				menu = TRUE;
 
 				/* Extract the menu item */
-				k = buf[7] - '0';
+				k = list_choice(buf[7]);
 
 				/* Extract the menu item */
 				strcpy(hook[k], buf + 10);
@@ -2261,8 +2317,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[RAngband %d.%d.%d, %s, Line %d/%d]",
-		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
+		prt(format("[Rangband %d.%d.%d, %s, Line %d/%d]",
+					  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 					  caption, line, size), 0, 0);
 
 
@@ -2284,7 +2340,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		else
 		{
 			/* Wait for it */
-			prt("[Press Space, -, ',', '.', ?, =, /, or ESC to exit.]", 23, 0);
+			prt("[Press ., <, >, Space, ?, =, /, or ESC to exit.]", 23, 0);
 		}
 
 		/* Get a keypress */
@@ -2343,7 +2399,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Hack -- Allow backing up */
-		if (k == '-')
+		if (k == '.')
 		{
 			/* Allow wrapping */
 			if (line == 0) line = size;
@@ -2353,7 +2409,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Hack -- Back up a single line */
-		if (k == ',')
+		if (k == '<')
 		{
 			/* Allow wrapping */
 			if (line == 0) line = size - 19;
@@ -2363,7 +2419,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Hack -- Advance a single line */
-		if (k == '.')
+		if (k == '>')
 		{
 			line = line + 1;
 		}
@@ -2374,11 +2430,16 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			line = line + 20;
 		}
 
-		/* Recurse on numbers */
-		if (menu && isdigit(k) && hook[k-'0'][0])
+		/* Recurse on alphanumerics */
+		if (menu && isalnum(k))
 		{
-			/* Recurse on that file */
-			if (!show_file(hook[k-'0'], NULL, 0, mode)) k = ESCAPE;
+			int m;
+
+			/* Extract the menu item */
+			m = list_choice(k);
+
+			/* Recurse on that file if it exists */
+			if (hook[m][0] && !show_file(hook[m], NULL, 0, mode)) k = ESCAPE;
 		}
 
 		/* Exit on escape */
@@ -2709,114 +2770,97 @@ static void center_string(char *buf, cptr str)
 
 
 /*
- * Redefinable "print_tombstone" action
- */
-bool (*tombstone_aux)(void) = NULL;
-
-/*
  * Display a "tomb-stone"
  */
 static void print_tomb(void)
 {
 	bool done = FALSE;
 
-	/* Do we use a special tombstone ? */
-	if (tombstone_aux)
+	cptr p;
+
+	char tmp[160];
+
+	char buf[1024];
+
+	FILE *fp;
+
+	time_t ct = time((time_t)0);
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_FILE, "dead.txt");
+
+	/* Open the News file */
+	fp = my_fopen(buf, "r");
+
+	/* Dump */
+	if (fp)
 	{
-		/* Use tombstone hook */
-		done = (*tombstone_aux)();
+		int i = 0;
+
+		/* Dump the file to the screen */
+		while (0 == my_fgets(fp, buf, 1024))
+		{
+			/* Display and advance */
+			put_str(buf, i++, 0);
+		}
+
+		/* Close */
+		my_fclose(fp);
 	}
 
-	/* Print the text-tombstone */
-	if (!done)
+
+	/* King or Queen */
+	if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
 	{
-		cptr p;
-
-		char tmp[160];
-		
-		char buf[1024];
-		
-		FILE *fp;
-
-		time_t ct = time((time_t)0);
-
-
-		/* Clear screen */
-		Term_clear();
-
-		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "dead.txt");
-
-		/* Open the News file */
-		fp = my_fopen(buf, "r");
-
-		/* Dump */
-		if (fp)
-		{
-			int i = 0;
-
-			/* Dump the file to the screen */
-			while (0 == my_fgets(fp, buf, 1024))
-			{
-				/* Display and advance */
-				put_str(buf, i++, 0);
-			}
-
-			/* Close */
-			my_fclose(fp);
-		}
-
-
-		/* King or Queen */
-		if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
-		{
-			p = "Magnificent";
-		}
-
-		/* Normal */
-		else
-		{
-			p =  player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
-		}
-
-		center_string(buf, op_ptr->full_name);
-		put_str(buf, 6, 11);
-
-		center_string(buf, "the");
-		put_str(buf, 7, 11);
-
-		center_string(buf, p);
-		put_str(buf, 8, 11);
-
-
-		center_string(buf, cp_ptr->title);
-		put_str(buf, 10, 11);
-
-		sprintf(tmp, "Level: %d", (int)p_ptr->lev);
-		center_string(buf, tmp);
-		put_str(buf, 11, 11);
-
-		sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
-		center_string(buf, tmp);
-		put_str(buf, 12, 11);
-
-		sprintf(tmp, "AU: %ld", (long)p_ptr->au);
-		center_string(buf, tmp);
-		put_str(buf, 13, 11);
-
-		sprintf(tmp, "Killed on Level %d", p_ptr->depth);
-		center_string(buf, tmp);
-		put_str(buf, 14, 11);
-
-		sprintf(tmp, "by %s.", p_ptr->died_from);
-		center_string(buf, tmp);
-		put_str(buf, 15, 11);
-
-
-		sprintf(tmp, "%-.24s", ctime(&ct));
-		center_string(buf, tmp);
-		put_str(buf, 17, 11);
+		p = "Magnificent";
 	}
+
+	/* Normal */
+	else
+	{
+		p =  player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+	}
+
+	center_string(buf, op_ptr->full_name);
+	put_str(buf, 6, 11);
+
+	center_string(buf, "the");
+	put_str(buf, 7, 11);
+
+	center_string(buf, p);
+	put_str(buf, 8, 11);
+
+
+	center_string(buf, cp_ptr->title);
+	put_str(buf, 10, 11);
+
+	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
+	center_string(buf, tmp);
+	put_str(buf, 11, 11);
+
+	sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
+	center_string(buf, tmp);
+	put_str(buf, 12, 11);
+
+	sprintf(tmp, "AU: %ld", (long)p_ptr->au);
+	center_string(buf, tmp);
+	put_str(buf, 13, 11);
+
+	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
+	center_string(buf, tmp);
+	put_str(buf, 14, 11);
+
+	sprintf(tmp, "by %s.", p_ptr->died_from);
+	center_string(buf, tmp);
+	put_str(buf, 15, 11);
+
+
+	sprintf(tmp, "%-.24s", ctime(&ct));
+	center_string(buf, tmp);
+	put_str(buf, 17, 11);
 }
 
 
@@ -2826,6 +2870,8 @@ static void print_tomb(void)
 static void show_info(void)
 {
 	int i, j, k;
+
+	int line;
 
 	object_type *o_ptr;
 
@@ -2918,21 +2964,19 @@ static void show_info(void)
 	/* Equipment -- if any */
 	if (p_ptr->equip_cnt)
 	{
+		line = 0;
 		Term_clear();
 		item_tester_full = TRUE;
-		show_equip();
-		prt("You are using: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
+		if (show_equip("You are using: -more-", &line) == ESCAPE) return;
 	}
 
 	/* Inventory -- if any */
 	if (p_ptr->inven_cnt)
 	{
+		line = 0;
 		Term_clear();
 		item_tester_full = TRUE;
-		show_inven();
-		prt("You are carrying: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
+		if (show_inven("You are carrying: -more-", &line) == ESCAPE) return;
 	}
 
 
@@ -3779,8 +3823,6 @@ static void move_race(int i1, int i2)
  */
 static void move_ghost(int i1, int i2)
 {
-	int i;
-
 	s16b name;
 
 	ghost_type *a_ptr = &g_info[i1];

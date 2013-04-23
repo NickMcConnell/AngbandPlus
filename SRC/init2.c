@@ -247,7 +247,7 @@ static cptr err_str[8] =
 
 
 /*** Initialize from binary image files ***/
-
+/*** Use ( somebody else's [???] :[ ) code to automatically process *_info files ***/
 
 /*
  * Initialize the "f_info" array, by parsing a binary "image" file
@@ -256,15 +256,45 @@ static errr init_f_info_raw(int fd)
 {
 	header test;
 
+#ifdef ALLOW_TEMPLATES
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "f_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* No text file - continue */
+	}
+
+	/* Access stats on raw file */
+	else if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != f_head->v_major) ||
-	    (test.v_minor != f_head->v_minor) ||
-	    (test.v_patch != f_head->v_patch) ||
-	    (test.v_extra != f_head->v_extra) ||
-	    (test.info_num != f_head->info_num) ||
-	    (test.info_len != f_head->info_len) ||
+		 (test.v_major != f_head->v_major) ||
+		 (test.v_minor != f_head->v_minor) ||
+		 (test.v_patch != f_head->v_patch) ||
+		 (test.v_extra != f_head->v_extra) ||
+		 (test.info_num != f_head->info_num) ||
+		 (test.info_len != f_head->info_len) ||
 	    (test.head_size != f_head->head_size) ||
 	    (test.info_size != f_head->info_size))
 	{
@@ -371,7 +401,7 @@ static errr init_f_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'f_info.raw' file.");
+		msg_print("No error: Rebuilding obsolete/defective 'f_info.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -509,14 +539,45 @@ static errr init_k_info_raw(int fd)
 {
 	header test;
 
+#ifdef ALLOW_TEMPLATES
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "k_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* No text file - continue */
+	}
+
+	/* Access stats on raw file */
+	else if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != k_head->v_major) ||
-	    (test.v_minor != k_head->v_minor) ||
-	    (test.v_patch != k_head->v_patch) ||
-	    (test.v_extra != k_head->v_extra) ||
-	    (test.info_num != k_head->info_num) ||
+		 (test.v_major != k_head->v_major) ||
+		 (test.v_minor != k_head->v_minor) ||
+		 (test.v_patch != k_head->v_patch) ||
+		 (test.v_extra != k_head->v_extra) ||
+		 (test.info_num != k_head->info_num) ||
 	    (test.info_len != k_head->info_len) ||
 	    (test.head_size != k_head->head_size) ||
 	    (test.info_size != k_head->info_size))
@@ -624,7 +685,7 @@ static errr init_k_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'k_info.raw' file.");
+		msg_print("No error: Rebuilding obsolete/defective 'k_info.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -762,17 +823,48 @@ static errr init_a_info_raw(int fd)
 {
 	header test;
 
+#ifdef ALLOW_TEMPLATES
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "a_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* No text file - continue */
+	}
+
+	/* Access stats on raw file */
+	else if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != a_head->v_major) ||
-	    (test.v_minor != a_head->v_minor) ||
-	    (test.v_patch != a_head->v_patch) ||
+		 (test.v_major != a_head->v_major) ||
+		 (test.v_minor != a_head->v_minor) ||
+		 (test.v_patch != a_head->v_patch) ||
 		 (test.v_extra != a_head->v_extra) ||
-	    (test.info_num != a_head->info_num) ||
-	    (test.info_len != a_head->info_len) ||
-	    (test.head_size != a_head->head_size) ||
-	    (test.info_size != a_head->info_size))
+		 (test.info_num != a_head->info_num) ||
+		 (test.info_len != a_head->info_len) ||
+		 (test.head_size != a_head->head_size) ||
+		 (test.info_size != a_head->info_size))
 	{
 		/* Error */
 		return (-1);
@@ -877,7 +969,7 @@ static errr init_a_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'a_info.raw' file.");
+		msg_print("No error: Rebuilding obsolete/defective 'a_info.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -1015,14 +1107,45 @@ static errr init_e_info_raw(int fd)
 {
 	header test;
 
+#ifdef ALLOW_TEMPLATES
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "e_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* No text file - continue */
+	}
+
+	/* Access stats on raw file */
+	else if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != e_head->v_major) ||
+		 (test.v_major != e_head->v_major) ||
 		 (test.v_minor != e_head->v_minor) ||
-	    (test.v_patch != e_head->v_patch) ||
-	    (test.v_extra != e_head->v_extra) ||
-	    (test.info_num != e_head->info_num) ||
+		 (test.v_patch != e_head->v_patch) ||
+		 (test.v_extra != e_head->v_extra) ||
+		 (test.info_num != e_head->info_num) ||
 		 (test.info_len != e_head->info_len) ||
 	    (test.head_size != e_head->head_size) ||
 	    (test.info_size != e_head->info_size))
@@ -1130,7 +1253,7 @@ static errr init_e_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'e_info.raw' file.");
+		msg_print("No error: Rebuilding obsolete/defective 'e_info.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -1268,6 +1391,37 @@ static errr init_r_info_raw(int fd)
 {
 	header test;
 
+#ifdef ALLOW_TEMPLATES
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "r_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* No text file - continue */
+	}
+
+	/* Access stats on raw file */
+	else if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 		 (test.v_major != r_head->v_major) ||
@@ -1364,6 +1518,10 @@ static errr init_r_info(void)
 	/* General buffer */
 	char buf[1024];
 
+	int i;
+
+	monster_race *r_ptr;
+
 
 	/*** Make the header ***/
 
@@ -1426,7 +1584,7 @@ static errr init_r_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'r_info.raw' file.");
+		msg_print("No error: Rebuilding obsolete/defective 'r_info.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -1572,6 +1730,37 @@ static errr init_v_info_raw(int fd)
 {
 	header test;
 
+#ifdef ALLOW_TEMPLATES
+
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "v_info.txt");
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* No text file - continue */
+	}
+
+	/* Access stats on raw file */
+	else if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+#endif
+
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -1686,7 +1875,7 @@ static errr init_v_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
+		msg_print("No error: Rebuilding obsolete/defective 'v_info.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -1824,7 +2013,7 @@ static errr init_v_info(void)
  */
 static errr init_g_info(void)
 {
-	int fd, i;
+	int i;
 
 
 	/*** Make the header ***/
@@ -1912,32 +2101,32 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_BISCUIT },
 		{ TV_FOOD, SV_FOOD_JERKY },
 		{ TV_FOOD, SV_FOOD_JERKY },
-
 		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
+
 		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
+		{ TV_POTION, SV_POTION_WATER },
 		{ TV_POTION, SV_POTION_BOOZE },
 		{ TV_POTION, SV_POTION_SALT_WATER },
 		{ TV_POTION, SV_POTION_SALT_WATER },
+		{ TV_POTION, SV_POTION_APPLE_JUICE },
+		{ TV_POTION, SV_POTION_SLIME_MOLD },
 		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
+
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_LANTERN },
 		{ TV_LITE, SV_LITE_LANTERN },
+		{ TV_FLASK, 0 },
+		{ TV_FLASK, 0 },
+		{ TV_FLASK, 0 },
+		{ TV_FLASK, 0 },
 
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
 		{ TV_SPIKE, 0 },
-		{ TV_SPIKE, 0 },
-
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_DIGGING, SV_SHOVEL },
 		{ TV_DIGGING, SV_PICK },
-		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_CLOAK }
 	},
@@ -2151,7 +2340,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
  */
 static errr init_other(void)
 {
-	int i, k, n;
+	int i, j, k, n;
 
 
 	/*** Prepare the various "bizarre" arrays ***/
@@ -2256,17 +2445,20 @@ static errr init_other(void)
 	/*** Prepare the options ***/
 
 	/* Initialize the options */
-	for (i = 0; i < OPT_MAX; i++)
+	for (i = 0; i < OPT_PAGE_MAX; i++)
 	{
-		/* Default value */
-		op_ptr->opt[i] = option_norm[i];
+		for (j = 0; j < OPT_PAGE_LEN; j++)
+		{
+			/* Default value */
+			op_ptr->opt[i][j] = opt_norm[i][j];
+		}
 	}
 
 	/* Initialize the window flags */
 	for (n = 0; n < 8; n++)
 	{
 		/* Assume no flags */
-		op_ptr->window_flag[n] = 0L;
+		op_ptr->term_flag[n] = 0L;
 	}
 
 

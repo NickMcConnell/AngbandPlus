@@ -90,7 +90,7 @@ static cptr r_info_blow_method[] =
 	"BEG",
 	"INSULT",
 	"MOAN",
-	"XXX5",
+	"NOTHING",
 	NULL
 };
 
@@ -129,6 +129,9 @@ static cptr r_info_blow_effect[] =
 	"EXP_20",
 	"EXP_40",
 	"EXP_80",
+	"REND",
+	"BATTER",
+	"BLAST",
 	NULL
 };
 
@@ -253,28 +256,28 @@ static cptr r_info_flags2[] =
 	"WEIRD_MIND",
 	"MULTIPLY",
 	"REGENERATE",
-	"XXX3X2",
+	"HI_REGEN",
 	"XXX4X2",
 	"POWERFUL",
-	"XXX5X2",
-	"XXX7X2",
+	"TELEPATH",
 	"XXX6X2",
+	"XXX7X2",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
 	"KILL_WALL",
-	"MOVE_BODY",
+	"XXX8",
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"BRAIN_1",
-	"BRAIN_2",
-	"BRAIN_3",
-	"BRAIN_4",
-	"BRAIN_5",
-	"BRAIN_6",
-	"BRAIN_7",
-	"BRAIN_8"
+	"XXX9X2",
+	"XXX10X2",
+	"XXX11X2",
+	"XXX12X2",
+	"XXX13X2",
+	"XXX14X2",
+	"XXX15X2",
+	"XXX16X2"
 };
 
 /*
@@ -296,6 +299,8 @@ static cptr r_info_flags3[] =
 	"HAS_SKULL",
 	"HURT_LITE",
 	"HURT_ROCK",
+	"HURT_ACID",
+	"HURT_ELEC",
 	"HURT_FIRE",
 	"HURT_COLD",
 	"IM_ACID",
@@ -303,13 +308,11 @@ static cptr r_info_flags3[] =
 	"IM_FIRE",
 	"IM_COLD",
 	"IM_POIS",
-	"XXX5X3",
 	"RES_NETH",
 	"RES_WATE",
 	"RES_PLAS",
 	"RES_NEXU",
 	"RES_DISE",
-	"XXX6X3",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -322,37 +325,37 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
+	"DRAIN_MANA",
+	"MIND_BLAST",
+	"BRAIN_SMASH",
+	"CAUSE_1",
+	"CAUSE_2",
+	"CAUSE_3",
+	"CAUSE_4",
+	"XXX1X4",
 	"XXX2X4",
 	"XXX3X4",
 	"XXX4X4",
+	"XXX5X4",
+	"ROCK_1",
+	"ROCK_2",
 	"ARROW_1",
 	"ARROW_2",
-	"ARROW_3",
-	"ARROW_4",
+	"BOLT_1",
+	"BOLT_2",
 	"BR_ACID",
 	"BR_ELEC",
 	"BR_FIRE",
 	"BR_COLD",
 	"BR_POIS",
 	"BR_NETH",
-	"BR_LITE",
-	"BR_DARK",
 	"BR_CONF",
-	"BR_SOUN",
 	"BR_CHAO",
 	"BR_DISE",
 	"BR_NEXU",
-	"BR_TIME",
-	"BR_INER",
-	"BR_GRAV",
 	"BR_SHAR",
 	"BR_PLAS",
-	"BR_WALL",
 	"BR_MANA",
-	"XXX5X4",
-	"XXX6X4",
-	"XXX7X4",
-	"XXX8X4"
 };
 
 /*
@@ -369,13 +372,12 @@ static cptr r_info_flags5[] =
 	"BA_WATE",
 	"BA_MANA",
 	"BA_DARK",
-	"DRAIN_MANA",
-	"MIND_BLAST",
-	"BRAIN_SMASH",
-	"CAUSE_1",
-	"CAUSE_2",
-	"CAUSE_3",
-	"CAUSE_4",
+	"LIGHT",
+	"DARKNESS",
+	"SOUND",
+	"FORCE",
+	"GRAVITY",
+	"TIME",
 	"BO_ACID",
 	"BO_ELEC",
 	"BO_FIRE",
@@ -391,7 +393,8 @@ static cptr r_info_flags5[] =
 	"BLIND",
 	"CONF",
 	"SLOW",
-	"HOLD"
+	"HOLD",
+	"FORGET"
 };
 
 /*
@@ -400,21 +403,21 @@ static cptr r_info_flags5[] =
 static cptr r_info_flags6[] =
 {
 	"HASTE",
-	"XXX1X6",
 	"HEAL",
-	"XXX2X6",
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
+	"DOOR",
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
-	"DARKNESS",
-	"TRAPS",
-	"FORGET",
+	"XXX1X6",
+	"XXX2X6",
+	"XXX3X6",
+	"XXX4X6",
+	"XXX5X6",
 	"XXX6X6",
+	"XXX7X6",
+	"TRAPS",
 	"S_FRIEND",
 	"S_FRIENDS",
 	"S_MONSTER",
@@ -526,7 +529,7 @@ static cptr k_info_flags3[] =
 	"FREE_ACT",
 	"HOLD_LIFE",
 	"DECAY",
-	"XXX2",
+	"HEAVY",
 	"XXX3",
 	"XXX4",
 	"IMPACT",
@@ -550,38 +553,6 @@ static cptr k_info_flags3[] =
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
 };
-
-
-/*
- * Convert a "color letter" into an "actual" color
- * The colors are: dwsorgbuDWvyRGBU, as shown below
- */
-static int color_char_to_attr(char c)
-{
-	switch (c)
-	{
-		case 'd': return (TERM_DARK);
-		case 'w': return (TERM_WHITE);
-		case 's': return (TERM_SLATE);
-		case 'o': return (TERM_ORANGE);
-		case 'r': return (TERM_RED);
-		case 'g': return (TERM_GREEN);
-		case 'b': return (TERM_BLUE);
-		case 'u': return (TERM_UMBER);
-
-		case 'D': return (TERM_L_DARK);
-		case 'W': return (TERM_L_WHITE);
-		case 'v': return (TERM_VIOLET);
-		case 'y': return (TERM_YELLOW);
-		case 'R': return (TERM_L_RED);
-		case 'G': return (TERM_L_GREEN);
-		case 'B': return (TERM_L_BLUE);
-		case 'U': return (TERM_L_UMBER);
-	}
-
-	return (-1);
-}
-
 
 
 /*** Initialize from ascii template files ***/
@@ -705,20 +676,47 @@ errr init_v_info_txt(FILE *fp, char *buf)
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
+			char xtra[1024];
+			char sym, *t, *u = xtra;
+
+			int c;
+
 			/* Acquire the text */
 			s = buf+2;
 
+			/* Apply run-length encoding */
+			for (t = s; *t;)
+			{
+				/* Count occurences of current symbol; limit runs to 127 characters */
+				for (sym = *t, c = 0; (*t == sym) && (c < 127); t++, c++);
+
+				/* Efficiently handle single characters */
+				if (c == 1)
+				{
+					*(u++) = sym;
+				}
+				else
+				{
+					/* Hack -- high bit indicates a run */
+					*(u++) = c | 0x80;
+					*(u++) = sym;
+				}
+			}
+
+			/* Terminate */
+			*u = '\0';
+
 			/* Hack -- Verify space */
-			if (v_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+			if (v_head->text_size + strlen(xtra) + 8 > fake_text_size) return (7);
 
 			/* Advance and Save the text index */
 			if (!v_ptr->text) v_ptr->text = ++v_head->text_size;
 
 			/* Append chars to the name */
-			strcpy(v_text + v_head->text_size, s);
+			strcpy(v_text + v_head->text_size, xtra);
 
 			/* Advance the index */
-			v_head->text_size += strlen(s);
+			v_head->text_size += strlen(xtra);
 
 			/* Next... */
 			continue;
@@ -1206,17 +1204,17 @@ errr init_k_info_txt(FILE *fp, char *buf)
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
 		{
-			int level, extra;
+			int level, bulk;
          s32b wt;
 			long cost;
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &extra, &wt, &cost)) return (1);
+								 &level, &bulk, &wt, &cost)) return (1);
 
 			/* Save the values */
 			k_ptr->level = level;
-			k_ptr->extra = extra;
+			k_ptr->bulk = bulk;
 			k_ptr->wt = wt;
 			k_ptr->cost = cost;
 
@@ -2105,6 +2103,12 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr = &r_info[i];
 			x_ptr = &x_info[i];
 
+			/* Allow creation */
+			r_ptr->max_num = 1;
+
+			/* Hack -- The Dark Lord can't appear yet */
+			if (strstr(s, "Dark Lord")) r_ptr->max_num = 0;
+
 			/* Hack -- Verify space */
 			if (r_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
 
@@ -2357,8 +2361,27 @@ errr init_r_info_txt(FILE *fp, char *buf)
 					while (*t == ' ' || *t == '|') t++;
 				}
 
+				/* Hack -- Read monster limit */
+				if (1 == sscanf(s, "LIMIT_%d", &i))
+				{
+					/* Extract the limit */
+					r_ptr->max_num = i;
+
+					/* Note the limit */
+					r_ptr->flags1 |= RF1_LIMIT;
+
+					/* Start at next entry */
+					s = t;
+
+					/* Continue */
+					continue;
+				}
+
 				/* Parse this entry */
 				if (0 != grab_one_basic_flag(r_ptr, s)) return (5);
+
+				/* Hack -- Uniques must be unique */
+				if (!(r_ptr->flags1 & RF1_LIMIT) && (r_ptr->flags1 & RF1_UNIQUE)) r_ptr->max_num = 1;
 
 				/* Start the next entry */
 				s = t;
@@ -2426,11 +2449,11 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 			/* Save some space for the random monster info */
 			r_head->name_size += 32;
-			r_head->text_size += 32;
+			r_head->text_size += 29;
 
 			/* Hack -- Default name/text for the monster */
 			strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
-			strcpy(r_text + r_ptr->text, "It looks strangely familiar.");
+			strcpy(r_text + r_ptr->text, "It seems strangely familiar.");
 
 			/* Hack -- set the char/attr info */
 			r_ptr->d_attr = r_ptr->x_attr = TERM_VIOLET;

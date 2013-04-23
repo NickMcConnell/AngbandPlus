@@ -1,7 +1,7 @@
 
 
                         ***********************
-                        **   RAngband 1.04   **
+                        **  Rangband  1.05a  **
                         ***********************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -15,8 +15,8 @@
 
           Windows Module: Ben Harrison, Skirmantas Kligys, and others
 
-          RAngband 1.04: Eric Bock (ebock@micron.net)
+          Rangband 1.05a: Eric Bock (kobe@micron.net)
 
  Read the online help files, especially "general.txt" and "version.txt".
  Visit the Angband Home Page at "http://www.phial.com/angband/".
- Send comments, bug reports, etc. to "ebock@micron.net".
+ Send comments, bug reports, etc. to "kobe@micron.net".

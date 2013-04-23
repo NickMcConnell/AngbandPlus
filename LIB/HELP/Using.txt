@@ -4,11 +4,14 @@ You can press Escape at any time to leave the online help.
 
 You can press '?' to return to the previous help file.
 
-You can press Space to advance one page, or Return to advance one line.
+You can press Space to advance one page, or '>' to advance one line.
 If you reach the end of the help file, you will wrap around to the start.
 
-You can press '-' to back up one half page at a time towards the start of
-the help file (this is very inefficient).
+You can press '.' to back up one page, or '<' to back up one line.
+If you reach the beginning of the help file, you will wrap to the last page.
+
+The Rangband controls have been changed to maintain consistency with the
+inventory system.
 
 You can press '#' to go to a specific line (defaults to line zero).
 

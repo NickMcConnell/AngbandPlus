@@ -22,7 +22,7 @@ void do_cmd_go_up(void)
 	/* Verify stairs */
 	if (cave_feat[py][px] != FEAT_LESS)
 	{
-		msg_print("I see no up staircase here.");
+		msg_print("There is no up staircase here.");
 		return;
 	}
 
@@ -54,7 +54,7 @@ void do_cmd_go_down(void)
 	/* Verify stairs */
 	if (cave_feat[py][px] != FEAT_MORE)
 	{
-		msg_print("I see no down staircase here.");
+		msg_print("There is no down staircase here.");
 		return;
 	}
 
@@ -273,7 +273,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		msg_print("A small needle has pricked you!");
 		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_STR);
+		(void)do_dec_stat(A_STR, 10, FALSE);
 	}
 
 	/* Lose constitution */
@@ -281,7 +281,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		msg_print("A small needle has pricked you!");
 		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_CON);
+		(void)do_dec_stat(A_CON, 10, FALSE);
 	}
 
 	/* Poison */
@@ -428,7 +428,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	/* Must find the trap first. */
 	if (!object_known_p(o_ptr))
 	{
-		msg_print("I don't see any traps.");
+		msg_print("You see no traps.");
 	}
 
 	/* Already disarmed/unlocked */
@@ -664,6 +664,9 @@ void do_cmd_open(void)
 		/* Message */
 		msg_print("There is a monster in the way!");
 
+		/* Use some energy */
+		p_ptr->energy_use = 100 / p_ptr->num_blow;
+
 		/* Attack */
 		py_attack(y, x);
 	}
@@ -814,6 +817,9 @@ void do_cmd_close(void)
 	{
 		/* Message */
 		msg_print("There is a monster in the way!");
+
+		/* Use some energy */
+		p_ptr->energy_use = 100 / p_ptr->num_blow;
 
 		/* Attack */
 		py_attack(y, x);
@@ -1141,6 +1147,9 @@ void do_cmd_tunnel(void)
 		/* Message */
 		msg_print("There is a monster in the way!");
 
+		/* Use some energy */
+		p_ptr->energy_use = 100 / p_ptr->num_blow;
+
 		/* Attack */
 		py_attack(y, x);
 	}
@@ -1335,6 +1344,9 @@ void do_cmd_disarm(void)
 	{
 		/* Message */
 		msg_print("There is a monster in the way!");
+
+		/* Use some energy */
+		p_ptr->energy_use = 100 / p_ptr->num_blow;
 
 		/* Attack */
 		py_attack(y, x);
@@ -1542,6 +1554,9 @@ void do_cmd_bash(void)
 		/* Message */
 		msg_print("There is a monster in the way!");
 
+		/* Use some energy */
+		p_ptr->energy_use = 100 / p_ptr->num_blow;
+
 		/* Attack */
 		py_attack(y, x);
 
@@ -1628,6 +1643,9 @@ void do_cmd_alter(void)
 	/* Attack monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
+		/* Use some energy */
+		p_ptr->energy_use = 100 / p_ptr->num_blow;
+
 		/* Attack */
 		py_attack(y, x);
 	}
@@ -1789,6 +1807,9 @@ void do_cmd_spike(void)
 		/* Message */
 		msg_print("There is a monster in the way!");
 
+		/* Use some energy */
+		p_ptr->energy_use = 100 / p_ptr->num_blow;
+
 		/* Attack */
 		py_attack(y, x);
 	}
@@ -1881,9 +1902,6 @@ static void do_cmd_walk_or_jump(int pickup)
 	if (!do_cmd_walk_test(y, x)) return;
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
 	/* Confuse direction */
 	if (confuse_dir(&dir))
 	{
@@ -1892,6 +1910,9 @@ static void do_cmd_walk_or_jump(int pickup)
 		x = px + ddx[dir];
 	}
 
+	/* Take a turn */
+	if (ddx[dir] && ddy[dir]) p_ptr->energy_use = 141;
+	else p_ptr->energy_use = 100;
 
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
@@ -2028,21 +2049,21 @@ static void do_cmd_hold_or_stay(int pickup)
 
 
 /*
- * Hold still (usually pickup)
+ * Hold still (normal pickup)
  */
 void do_cmd_hold(void)
 {
-	/* Hold still (usually pickup) */
+	/* Hold still */
 	do_cmd_hold_or_stay(always_pickup);
 }
 
 
 /*
- * Stay still (usually do not pickup)
+ * Stay still (flip pickup)
  */
 void do_cmd_stay(void)
 {
-	/* Stay still (usually do not pickup) */
+	/* Stay still */
 	do_cmd_hold_or_stay(!always_pickup);
 }
 
@@ -2496,8 +2517,8 @@ void do_cmd_fire(void)
 		}
 	}
 
-	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(i_ptr) : 0);
+	/* Chance of breakage */
+	j = breakage_chance(i_ptr);
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
@@ -2784,8 +2805,8 @@ void do_cmd_throw(void)
 		}
 	}
 
-	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(i_ptr) : 0);
+	/* Chance of breakage */
+	j = breakage_chance(i_ptr);
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);

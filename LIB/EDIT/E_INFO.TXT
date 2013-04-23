@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:1.0.4
+V:1.0.5
 
 
 ### Body Armor ###
@@ -332,7 +332,10 @@ W:0:0:0:200000
 C:0:0:0:10
 F:SPEED | HIDE_TYPE
 
-# 60 (unused)
+N:60:of Rapid Descent
+X:35:0
+W:0:0:0:0
+F:HEAVY | LIGHT_CURSE
 
 N:61:of Noise
 X:35:0

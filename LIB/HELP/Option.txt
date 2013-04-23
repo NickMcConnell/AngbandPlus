@@ -8,7 +8,7 @@ which is shown on the "options" screen, plus the internal name of the
 option in brackets, followed by a textual description of the option.
 
 Note that the internal name of the option can be used in user pref files
-to force the option to a given setting, see "command.txt" for more info.
+to force the option to a given setting via the pref file commands "T" and "F".
 
 Various concepts are mentioned in the descriptions below, including "disturb",
 (cancel any running, resting, or repeated commands, which are in progress),
@@ -26,10 +26,6 @@ Activate quick messages    [quick_messages]
     Allows the use of any keypress as a response to the "-more-" prompt
     (useful for monster farming).  Allows most keys to mean "no" to any
     "[y/n]" prompt.
-
-Prompt for floor item selection    [other_query_flag]
-    Allows the user to select objects from the center of stacks.  Without
-    this option, the uppermost appropriate object will always be selected.
 
 Prompt before picking things up    [carry_query_flag]
     Forces the game to ask your permission before allowing you to pick up
@@ -144,9 +140,22 @@ Alert user to critical hitpoints    [alert_hitpoint]
     Produce a "bell" noise, and flush all pending input, when your hitpoints
     reach the "critical point" chosen elsewhere, preventing stupid deaths.
 
+Alert user to destruction of valuables    [alert_destroy]
+    Asks for confirmation when attempting to destroy items the player
+    considers valuable.
+
+Alert user to destruction of junk    [alert_worthless]
+    Asks for confirmation when attempting to destroy anything.
+
 Alert user to various failures    [alert_failure]
     Produce a "bell" noise, and flush all pending input, when various
     "failures" occur, as described above.
+
+Autosave periodically    [autosave_time]
+    Automatically save the game after a critical number of turns.
+
+Autosave when entering levels    [autosave_level]
+    Automatically save the game upon entering a new level by any means.
 
 
 === Option Set 3 -- Game-play ===
@@ -386,6 +395,11 @@ reflect the current state of the world.  The "window options" can be used to
 specify what should be displayed in each window.  The possible choices should
 be pretty obvious.
 
+Note that the name of the option can be used in user pref files to assign the 
+option to a given window via the pref file command "W".  For example,
+"W:term-1:display inven/equip" and "W:term-1:inven/equip" cause the term-1
+window to display the player inventory.
+
 Display inven/equip
     Display the player inventory (and sometimes the equipment).
 
@@ -416,7 +430,7 @@ Display object recall
     this only affects spellbooks and prayerbooks.  This window flag may be
     usefully combined with others, such as "monster recall".
 
-Display snap-shot
+Display snapshot
     This window flag is currently unused.
 
 Display borg messages

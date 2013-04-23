@@ -1,6 +1,6 @@
 === Version Information ===
 
-This file was last updated for RAngband 1.02.
+This file was last updated for RAngband 1.05.
 
 Make sure to read the newsgroup "rec.games.roguelike.angband", and to
 visit the website "http://www.voicenet.com/~benh/Angband/" for the most
@@ -165,7 +165,7 @@ changes (and bug fixes) can be found at the Official Angband Home Page.
     a special table of options
     inventory tagging
     inventory restrictions
-    using objects off the floor
+	 using objects off the floor
     various new runtime options
     the new "destroy" command
     the new "examine" command
@@ -194,7 +194,7 @@ changes (and bug fixes) can be found at the Official Angband Home Page.
     intelligent monsters
     new monster flags
     text formatting code
-    much cleaner store code
+	 much cleaner store code
     generic spell projections
     scrolls of *identify*
     maximize mode
@@ -223,7 +223,7 @@ changes (and bug fixes) can be found at the Official Angband Home Page.
     new player ghost creation
     no more sliding objects
     no more sliding monsters
-    new object flags
+	 new object flags
     new chest trap code
     regularized the artifact code
     regularized the ego-item code
@@ -236,9 +236,9 @@ changes (and bug fixes) can be found at the Official Angband Home Page.
     better group monster code
     table access through pointers
     more redefinable constants
-    slightly new screen layout
-    extreme code cleaning
-    extreme optimizations
+	 slightly new screen layout
+	 extreme code cleaning
+	 extreme optimizations
 
 
 === Rangband ===
@@ -248,31 +248,60 @@ thought creatures ought to leave at least some trace of their existence upon
 death, and of course couldn't stop with just the creature corpses.  Thus
 began Rangband.
 
+Since the beginning, I've tried to justify as much of the game as seemed
+appropriate and make steps towards the Tolkien base.  Rangband is still far
+from being finished, but with version 1.05 all the goals (except one) I had
+at the beginning are finally complete and clean.
+
 Changes to Rangband 1.0 from Angband 2.8.2:
-    creature corpses
-    edible corpses
-    corpse effects
-    weight limits
-    correction of silly monster breaths
+	creature corpses
+	edible corpses
+	corpse effects
+	weight limits
+	correction of silly monster breaths
 
 Changes to Rangband 1.01:
-    Keldon Jones' monster AI
-    single-monster nests
-    summon Orcs
-    summon Morgoth's minions
-    summon similar monster
-    less splattering of inventory drops
-    monster inventories
-    more confusing hallucination
-    hacking meat off corpses
-    weaponry balancing
+	Keldon Jones' monster AI
+	single-monster nests
+	summon Orcs
+	summon Morgoth's minions
+	summon similar monster
+	monster inventories
+	more confusing hallucination
+	hacking meat off corpses
+	weaponry balancing
 
 Changes to Rangband 1.02:
-    more colorful spells
-    explosive objects
-    cave-damaging spells
-    "sanctuary" to replace Globe of Invulnerability
-    mages may cast all spells in their books
+	more colorful spells
+	explosive objects
+	cave-damaging spells
+	"sanctuary" to replace Globe of Invulnerability
+	mages may cast all spells in their books
+
+Changes to Rangband 1.03:
+	circular rooms
+	off-center 'streamers'
+	player ghosts
+	random artifacts
+
+Changes to Rangband 1.04:
+	more meaningful blindness
+	cured meat
+	generalized numerical input
+	destruction warnings
+	better savefile protection
+	kill counts
+	windable crossbows
+	conical breath attacks
+	'recycling'
+	'flavor' terrains
+
+Changes to Rangband 1.05:
+	more inventory space
+	bulky objects
+	cleaner monster drops
+	generalized item selection
+	broken-potion effects
 
 
 === A Posting from the Original Author ===

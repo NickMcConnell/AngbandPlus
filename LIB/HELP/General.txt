@@ -100,7 +100,7 @@ Remember to tell all your friends about how much you like Angband...
 
 === And a note from the modifier, Eric Bock ===
 
-RAngband is my attempt to add some more realism and continuity to Angband.
+Rangband is my attempt to add some more realism and continuity to Angband.
 There are various aspects of Angband I would like to see extended (without
 completely changing the game).  What happens to a monster when you kill it?
 Are all inhabitants of the dungeon naked, with only a few possessions?
@@ -117,12 +117,12 @@ Suggestions are welcomed; "realism" is somewhat subjective, so I don't want to
 be the only person deciding how the game turns out.  Good ideas will probably 
 make their way into the game quickly if I feel they contribute well to the
 "flavor" of the game and don't detract from the playing.  Complex ideas will
-probably take a good deal more time; but those I have seen so far (a better
-town in particular) look like they would fit the game very well.
+probably take a good deal more time; but those I have seen so far look like
+they would fit the game very well.
 
 And finally... have fun! :)
 
-Please send comments and bug reports to "ebock@micron.net"
+Please send comments and bug reports to "ejbok@micron.net"
 
 === A quick demonstration ===
 

@@ -86,47 +86,37 @@ typedef int errr;
 #undef bool
 #define bool bool_hack
 
-
-/* Note that "signed char" is not always "defined" */
-/* So always use "s16b" to hold small signed values */
-/* A signed byte of memory */
-/* typedef signed char syte; */
-
-/* Note that unsigned values can cause math problems */
-/* An unsigned byte of memory */
-typedef unsigned char byte;
-
-/* Note that a bool is smaller than a full "int" */
 /* Simple True/False type */
 typedef char bool;
 
-
-/* A signed, standard integer (at least 2 bytes) */
-typedef int sint;
-
-/* An unsigned, "standard" integer (often pre-defined) */
+/* 'standard' integer types - at least 2 bytes */
 typedef unsigned int uint;
+typedef   signed int sint;
 
-
-/* The largest possible signed integer (pre-defined) */
-/* typedef long long; */
-
-/* The largest possible unsigned integer */
+/* The largest possible integer types */
 typedef unsigned long huge;
+/* Usually defined */
+/* typedef   signed long long; */
 
+/* 8-bit types */
+typedef unsigned char byte;
+/* 'signed char' may be illegal */
+/* typedef   signed char syte; */
 
-/* Signed/Unsigned 16 bit value */
-typedef signed short s16b;
+/* 16-bit types */
 typedef unsigned short u16b;
+typedef   signed short s16b;
 
-/* Signed/Unsigned 32 bit value */
-#ifdef L64	/* 64 bit longs */
-typedef signed int s32b;
-typedef unsigned int u32b;
-#else
-typedef signed long s32b;
-typedef unsigned long u32b;
-#endif
+/* 32-bit types */
+//#if (sizeof(int) == 4)
+//# pragma message ("'int' is 32 bits")
+	typedef unsigned int 	u32b;
+	typedef   signed int		s32b;
+/*#else
+# pragma message ("'int' is 16 bits")
+	typedef unsigned long 	u32b;
+	typedef   signed long	s32b;
+#endif*/
 
 
 

@@ -73,6 +73,7 @@ extern bool func_false(void);
 
 /* Test equality, prefix, suffix */
 extern bool streq(cptr s, cptr t);
+extern bool strieq(cptr s, cptr t);
 extern bool prefix(cptr s, cptr t);
 extern bool suffix(cptr s, cptr t);
 

@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:1.0.4
+V:1.0.5
 
 
 # 0x00 --> nothing
@@ -50,7 +50,7 @@ G:':U
 # 0x05 --> broken door
 
 N:5:broken door
-G:':U
+G:':u
 
 # 0x06 --> up stairs (perm)
 
@@ -74,7 +74,7 @@ G:2:s
 
 # 0x0A --> shop -- weapon shop (perm)
 
-N:10:Weapon Smiths
+N:10:Blacksmith
 G:3:w
 
 # 0x0B --> shop -- temple (perm)
@@ -124,8 +124,8 @@ G:^:s
 
 # 0x14 --> visible trap -- rune -- summon
 
-N:20:strange rune
-G:^:o
+N:20:evil rune
+G:^:G
 
 # 0x15 --> visible trap -- rune -- teleport
 
@@ -396,6 +396,11 @@ G:~:B
 
 N:69:lava
 G:#:o
+
+# 0x46 --> zymurgist
+
+N:70:Zymurgist
+G:#:g
 
 # 0x60 --> wall with blood
 

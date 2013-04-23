@@ -248,9 +248,9 @@ term *angband_term[8];
 /*
  * Standard window names
  */
-char angband_term_name[8][16] =
+char angband_term_name[MAX_TERM][16] =
 {
-	"Angband",
+	"Rangband",
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -427,10 +427,11 @@ char misc_to_char[128];
 
 
 /*
- * Specify color for inventory item text display (by tval)
+ * Specify attr/char pairs for item display (by tval)
  * Be sure to use "index & 0x7F" to avoid illegal access
  */
 byte tval_to_attr[128];
+char tval_to_char[128];
 
 /*
  * Simple keymap method, see "init.c" and "cmd6.c".
@@ -627,10 +628,11 @@ bool item_tester_full;
 
 
 /*
- * Here is a "pseudo-hook" used during calls to "get_item()" and
+ * Here are "pseudo-hooks" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
 byte item_tester_tval;
+char item_tester_char;
 
 /*
  * Here is a "hook" used during calls to "get_item()" and

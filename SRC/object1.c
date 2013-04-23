@@ -26,12 +26,12 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      42       /* Used with rings (min 38) */
-#define MAX_AMULETS    16       /* Used with amulets (min 13) */
-#define MAX_WOODS      32       /* Used with staffs (min 30) */
-#define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     60       /* Used with potions (min 60) */
-#define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
+#define MAX_ROCKS      44       /* Used with rings (min 38) */
+#define MAX_AMULETS    18       /* Used with amulets (min 13) */
+#define MAX_WOODS      36       /* Used with staffs (min 30) */
+#define MAX_METALS     35       /* Used with wands/rods (min 29/28) */
+#define MAX_COLORS     61       /* Used with potions (min 60) */
+#define MAX_SHROOM     24       /* Used with mushrooms (min 20) */
 #define MAX_TITLES     50       /* Used with scrolls (min 48) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
 
@@ -50,7 +50,7 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite"
+	"Engagement", "Adamantite", "Slate", "Shale"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -63,7 +63,7 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_L_GREEN
+	TERM_YELLOW, TERM_L_GREEN, TERM_SLATE, TERM_L_DARK
 };
 
 
@@ -76,7 +76,7 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper"
+	"Copper", "Dazzling", "Grisly"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -84,7 +84,7 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER
+	TERM_L_UMBER, TERM_L_GREEN, TERM_RED
 };
 
 
@@ -100,7 +100,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
 	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
 	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
+	"Golden", "Ashen", "Gnarled", "Ivory", "Willow", "Coal"
 };
 
 static byte staff_col[MAX_WOODS] =
@@ -111,7 +111,7 @@ static byte staff_col[MAX_WOODS] =
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
 	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
 	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, /*???,???,???*/
+	TERM_YELLOW, TERM_SLATE, TERM_UMBER, TERM_WHITE, TERM_SLATE, TERM_L_DARK
 };
 
 
@@ -127,7 +127,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-	"Platinum", "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
+	"Platinum", "Lead", "Lead-Plated", "Ivory", "Pewter"
 };
 
 static byte wand_col[MAX_METALS] =
@@ -138,7 +138,7 @@ static byte wand_col[MAX_METALS] =
 	TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
 	TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_WHITE, TERM_SLATE, /*TERM_SLATE,TERM_WHITE,TERM_SLATE*/
+	TERM_WHITE, TERM_SLATE, TERM_SLATE, TERM_WHITE, TERM_SLATE
 };
 
 
@@ -162,6 +162,7 @@ static cptr food_adj[MAX_SHROOM] =
 	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
 	"Grey", "Light Blue", "Light Green", "Violet", "Red",
 	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
+	"Ugly", "Putrid", "Lacy", "Bumpy"
 };
 
 static byte food_col[MAX_SHROOM] =
@@ -169,23 +170,24 @@ static byte food_col[MAX_SHROOM] =
 	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
 	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
 	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
+	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
+	TERM_L_DARK, TERM_YELLOW, TERM_L_WHITE, TERM_RED
 };
 
 
 /*
  * Color adjectives and colors, for potions.
  * Hack -- The first four entries are hard-coded.
- * (water, apple juice, slime mold juice, something)
+ * (water, apple juice, slime mold juice, booze)
  */
 
 static cptr potion_adj[MAX_COLORS] =
 {
-	"Clear", "Light Brown", "Icky Green", "xxx",
+	"Clear", "Light Brown", "Icky Green", "Amber",
 	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
 	"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
 	"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
-	"Green Speckled", "Grey", "Grey Speckled", "Hazy", "Indigo",
+	"Green Speckled", "Grey", "Grey Speckled", "Frothy", "Hazy", "Indigo",
 	"Light Blue", "Light Green", "Magenta", "Metallic Blue", "Metallic Red",
 	"Metallic Green", "Metallic Purple", "Misty", "Orange", "Orange Speckled",
 	"Pink", "Pink Speckled", "Puce", "Purple", "Purple Speckled",
@@ -197,11 +199,11 @@ static cptr potion_adj[MAX_COLORS] =
 
 static byte potion_col[MAX_COLORS] =
 {
-	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
+	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, TERM_L_UMBER,
 	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
 	TERM_L_WHITE, TERM_L_GREEN, TERM_WHITE, TERM_L_UMBER, TERM_RED, TERM_L_BLUE,
 	TERM_BLUE, TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_GREEN, TERM_SLATE, TERM_SLATE, TERM_L_WHITE, TERM_VIOLET,
+	TERM_GREEN, TERM_SLATE, TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_VIOLET,
 	TERM_L_BLUE, TERM_L_GREEN, TERM_RED, TERM_BLUE, TERM_RED,
 	TERM_GREEN, TERM_VIOLET, TERM_L_WHITE, TERM_ORANGE, TERM_ORANGE,
 	TERM_L_RED, TERM_L_RED, TERM_VIOLET, TERM_VIOLET, TERM_VIOLET,
@@ -474,6 +476,123 @@ static byte default_tval_to_attr(int tval)
 
 
 /*
+ * Hack -- prepare the default object attr codes by tval
+ *
+ * XXX XXX XXX Off-load to "pref.prf" file
+ */
+static byte default_tval_to_char(int tval)
+{
+	switch (tval)
+	{
+		case TV_SKELETON:
+		case TV_JUNK:
+		case TV_CHEST:
+		case TV_LITE:
+		case TV_SPIKE:
+		{
+			return ('~');
+		}
+
+		case TV_SHOT:
+		case TV_BOLT:
+		case TV_ARROW:
+		{
+			return ('{');
+		}
+
+		case TV_BOW:
+		{
+			return ('}');
+		}
+
+
+		case TV_HAFTED:
+		{
+			return ('\\');
+		}
+
+		case TV_POLEARM:
+		{
+			return ('/');
+		}
+
+		case TV_DIGGING:
+		case TV_SWORD:
+		{
+			return ('|');
+		}
+
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_CROWN:
+		case TV_HELM:
+		{
+			return (']');
+		}
+
+		case TV_SHIELD:
+		{
+			return (')');
+		}
+
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		{
+			return ('(');
+		}
+
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		{
+			return ('[');
+		}
+
+		case TV_AMULET:
+		{
+			return ('"');
+		}
+
+		case TV_RING:
+		{
+			return ('=');
+		}
+
+		case TV_STAFF:
+		{
+			return ('_');
+		}
+
+		case TV_WAND:
+		case TV_ROD:
+		{
+			return ('-');
+		}
+
+		case TV_BOTTLE:
+		case TV_FLASK:
+		case TV_POTION:
+		{
+			return ('!');
+		}
+
+		case TV_FOOD:
+		{
+			return (',');
+		}
+
+		case TV_SCROLL:
+		case TV_MAGIC_BOOK:
+		case TV_PRAYER_BOOK:
+		{
+			return ('?');
+		}
+	}
+
+	return (TERM_WHITE);
+}
+
+
+/*
  * Prepare the "variable" part of the "k_info" array.
  *
  * The "color"/"metal"/"type" of an item is its "flavor".
@@ -483,7 +602,7 @@ static byte default_tval_to_attr(int tval)
  * Rings, Amulets, Staffs, Wands, Rods, Food, Potions, Scrolls.
  *
  * The first 4 entries for potions are fixed (Water, Apple Juice,
- * Slime Mold Juice, Unused Potion).
+ * Slime Mold Juice, Booze).
  *
  * Scroll titles are always between 6 and 14 letters long.  This is
  * ensured because every title is composed of whole words, where every
@@ -819,6 +938,7 @@ void reset_visuals(bool prefs)
 	{
 		/* Extract a default attr */
 		tval_to_attr[i] = default_tval_to_attr(i);
+		tval_to_char[i] = default_tval_to_char(i);
 	}
 
 
@@ -2708,6 +2828,11 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = "It provides resistance to life draining.";
 	}
 
+	if (f3 & (TR3_HEAVY))
+	{
+		info[i++] = "It induces rapid falling.";
+	}
+
 	if (f3 & (TR3_IMPACT))
 	{
 		info[i++] = "It induces earthquakes.";
@@ -2819,66 +2944,175 @@ bool identify_fully_aux(object_type *o_ptr)
 
 
 /*
- * Does a given object hate to be destroyed?
- * If it does, how does it react?
+ * How does a given object react to being destroyed?
  */
-s16b hates_dam(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_FLASK:
-		{
-			return GF_FIRE;
-		}
-		case TV_POTION:
-		case TV_BOTTLE:
-		{
-			return GF_SHARD;
-		}
-		case TV_STAFF:
-		case TV_WAND:
-		{
-			return GF_MANA;
-		}
-	}
-
-	return 0;
-}
-
-
-/*
- * How much damage does a single exploding object do?
- */
-s16b object_force(object_type *o_ptr)
+bool hates_dam(object_type *o_ptr, int *typ, int *dam, int *rad)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	
+
+	*typ = GF_SHARD;
+	*dam = 0;
+	*rad = 1;
+
 	switch (o_ptr->tval)
 	{
 		case TV_FLASK:
 		{
-			return damroll(5, 5);
-		}
-		case TV_POTION:
-		{
-			/* BOOM! */
-			if (o_ptr->sval == SV_POTION_DETONATIONS) return damroll(25, 25);
+			*typ = GF_FIRE;
+			*dam = damroll(5, 5);
+
+			break;
 		}
 		case TV_BOTTLE:
 		{
-			return damroll(2, 4);
+			*typ = GF_SHARD;
+			*dam = 1;
+
+			break;
+		}
+		case TV_POTION:
+		{
+			*typ = GF_SHARD;
+
+			/* High level potions are dangerous */
+			*rad = k_ptr->level / 20;
+			*dam = damroll(k_ptr->level / 5, k_ptr->level / 5);
+
+			switch(o_ptr->sval)
+			{
+				case SV_POTION_SLOWNESS:
+				{
+					*typ = GF_OLD_SLOW;
+					*dam = 20;
+
+					break;
+				}
+				case SV_POTION_POISON:
+				{
+					*typ = GF_POIS;
+					*dam = damroll(3, 5);
+
+					break;
+				}
+				case SV_POTION_BOOZE:
+				{
+					*typ = GF_OLD_CONF;
+					*dam = 5;
+
+					break;
+				}
+				case SV_POTION_SLEEP:
+				{
+					*typ = GF_OLD_SLEEP;
+					*dam = 20;
+
+					break;
+				}
+				case SV_POTION_DETONATIONS:
+				{
+					*typ = GF_FIRE;
+					*dam = damroll(25, 25);
+					*rad = 2;
+
+					break;
+				}
+				case SV_POTION_DEATH:
+				{
+					*typ = GF_NETHER;
+					*dam = 5000;
+					*rad = 3;
+
+					break;
+				}
+				case SV_POTION_SPEED:
+				{
+					*typ = GF_OLD_SPEED;
+
+					break;
+				}
+				case SV_POTION_HEROISM:
+				{
+					*typ = GF_OLD_HEAL;
+					*dam = 10;
+
+					break;
+				}
+				case SV_POTION_BESERK_STRENGTH:
+				{
+					*typ = GF_OLD_HEAL;
+					*dam = 30;
+
+					break;
+				}
+				case SV_POTION_CURE_LIGHT:
+				{
+					*typ = GF_OLD_HEAL;
+					*dam = damroll(2, 8);
+
+					break;
+				}
+				case SV_POTION_CURE_SERIOUS:
+				{
+					*typ = GF_OLD_HEAL;
+					*dam = damroll(4, 8);
+
+					break;
+				}
+				case SV_POTION_CURE_CRITICAL:
+				{
+					*typ = GF_OLD_HEAL;
+					*dam = damroll(6, 8);
+
+					break;
+				}
+				case SV_POTION_HEALING:
+				{
+					*typ = GF_OLD_HEAL;
+					*dam = 300;
+
+					break;
+				}
+				case SV_POTION_STAR_HEALING:
+				{
+					*typ = GF_OLD_HEAL;
+					*dam = 1200;
+					*rad = 2;
+
+					break;
+				}
+				case SV_POTION_LIFE:
+				{
+					*typ = GF_OLD_HEAL;
+					*dam = 5000;
+					*rad = 3;
+
+					break;
+				}
+			}
+
+			break;
 		}
 		case TV_STAFF:
 		{
-			return o_ptr->pval * 7 + k_ptr->level * 3;
+			*typ = GF_MANA;
+			*dam = o_ptr->pval * 7 + k_ptr->level * 3;
+
+			break;
 		}
 		case TV_WAND:
 		{
-			return o_ptr->pval * 3 + k_ptr->level;
+			*typ = GF_MANA;
+			*dam = o_ptr->pval * 3 + k_ptr->level;
+
+			break;
+		}
+		default:
+		{
+			return FALSE;
 		}
 	}
 
-	return 0;
+	return TRUE;
 }
 
 
@@ -2943,7 +3177,7 @@ s16b label_to_equip(int c)
 	int i;
 
 	/* Convert */
-	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
+	i = (islower(c) ? A2I(c) + INVEN_WIELD : -1);
 
 	/* Verify the index */
 	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
@@ -3180,7 +3414,13 @@ bool item_tester_okay(object_type *o_ptr)
 	/* Check the tval */
 	if (item_tester_tval)
 	{
-		if (!(item_tester_tval == o_ptr->tval)) return (FALSE);
+		if (item_tester_tval != o_ptr->tval) return (FALSE);
+	}
+
+	/* Check the char */
+	if (item_tester_char)
+	{
+		if (item_tester_char != tval_to_char[o_ptr->tval & 0x7F]) return (FALSE);
 	}
 
 	/* Check the hook */
@@ -3213,7 +3453,7 @@ void display_inven(void)
 
 
 	/* Find the "final" slot */
-	for (i = 0; i < INVEN_PACK; i++)
+	for (i = 0; i < INVEN_SCREEN; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -3365,7 +3605,7 @@ void display_equip(void)
 
 
 
-
+#if 0
 
 /*
  * Display the inventory.
@@ -3485,7 +3725,6 @@ void show_inven(void)
 	/* Make a "shadow" below the list (only if needed) */
 	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
 }
-
 
 
 /*
@@ -3613,7 +3852,7 @@ void show_equip(void)
 	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
 }
 
-
+#endif
 
 
 /*
@@ -3630,22 +3869,22 @@ void toggle_inven_equip(void)
 		if (!angband_term[j]) continue;
 
 		/* Flip inven to equip */
-		if (op_ptr->window_flag[j] & (PW_INVEN))
+		if (op_ptr->term_flag[j] & (PW_INVEN))
 		{
 			/* Flip flags */
-			op_ptr->window_flag[j] &= ~(PW_INVEN);
-			op_ptr->window_flag[j] |= (PW_EQUIP);
+			op_ptr->term_flag[j] &= ~(PW_INVEN);
+			op_ptr->term_flag[j] |= (PW_EQUIP);
 
 			/* Window stuff */
 			p_ptr->window |= (PW_EQUIP);
 		}
 
 		/* Flip inven to equip */
-		else if (op_ptr->window_flag[j] & (PW_EQUIP))
+		else if (op_ptr->term_flag[j] & (PW_EQUIP))
 		{
 			/* Flip flags */
-			op_ptr->window_flag[j] &= ~(PW_EQUIP);
-			op_ptr->window_flag[j] |= (PW_INVEN);
+			op_ptr->term_flag[j] &= ~(PW_EQUIP);
+			op_ptr->term_flag[j] |= (PW_INVEN);
 
 			/* Window stuff */
 			p_ptr->window |= (PW_INVEN);
@@ -3861,11 +4100,8 @@ static int get_tag(int *cp, char tag)
  * to allow the user to enter a command while viewing those screens, and
  * also to induce "auto-enter" of stores, and other such stuff.
  *
- * Global "p_ptr->command_see" may be set before calling this function to start
- * out in "browse" mode.  It is cleared before this function returns.
- *
  * Global "p_ptr->command_wrk" is used to choose between equip/inven listings.
- * If it is TRUE then we are viewing inventory, else equipment.
+ * If it is FALSE then we are viewing inventory, else equipment.
  *
  * We always erase the prompt when we are done, leaving a blank line,
  * or a warning message, if appropriate, if no items are available.
@@ -3877,9 +4113,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	int line = 0;
+
 	s16b this_o_idx, next_o_idx = 0;
 
-	char n1, n2, which = ' ';
+	char which = ' ';
 
 	int j, k, i1, i2, e1, e2;
 
@@ -3890,6 +4128,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool equip = FALSE;
 	bool inven = FALSE;
 	bool floor = FALSE;
+
+	bool use_floor = FALSE;
 
 	bool allow_floor = FALSE;
 
@@ -3904,6 +4144,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	if (mode & (USE_INVEN)) inven = TRUE;
 	if (mode & (USE_FLOOR)) floor = TRUE;
 
+	/* Only the floor */
+	if (!(equip || inven)) use_floor = TRUE; 	
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
@@ -3963,9 +4205,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Require at least one legal choice */
 	if (!allow_floor && (i1 > i2) && (e1 > e2))
 	{
-		/* Cancel p_ptr->command_see */
-		p_ptr->command_see = FALSE;
-
 		/* Oops */
 		oops = TRUE;
 
@@ -3977,7 +4216,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	else
 	{
 		/* Hack -- Start on equipment if requested */
-		if (p_ptr->command_see && p_ptr->command_wrk && equip)
+		if (p_ptr->command_wrk && equip)
 		{
 			p_ptr->command_wrk = TRUE;
 		}
@@ -4003,7 +4242,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Hack -- start out in "display" mode */
-	if (p_ptr->command_see) Term_save();
+	Term_save();
 
 
 	/* Repeat until done */
@@ -4022,15 +4261,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				if (!angband_term[j]) continue;
 
 				/* Count windows displaying inven */
-				if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
+				if (op_ptr->term_flag[j] & (PW_INVEN)) ni++;
 
 				/* Count windows displaying equip */
-				if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
+				if (op_ptr->term_flag[j] & (PW_EQUIP)) ne++;
 			}
 
 			/* Toggle if needed */
 			if ((p_ptr->command_wrk && ni && !ne) ||
-			    (!p_ptr->command_wrk && !ni && ne))
+				 (!p_ptr->command_wrk && !ni && ne))
 			{
 				/* Toggle */
 				toggle_inven_equip();
@@ -4046,78 +4285,57 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			window_stuff();
 		}
 
-		/* Inventory screen */
-		if (!p_ptr->command_wrk)
+		/* Find the character info, and describe it */
+		if (item_tester_char)
 		{
-			/* Extract the legal requests */
-			n1 = I2A(i1);
-			n2 = I2A(i2);
+			for (j = 0; ident_info[j]; ++j)
+			{
+				if (item_tester_char == ident_info[j][0]) break;
+			}
 
-			/* Redraw if needed */
-			if (p_ptr->command_see) show_inven();
+			/* Describe */
+			sprintf(out_val, "[%s] ", ident_info[j] + 2);
 		}
-
-		/* Equipment screen */
 		else
 		{
-			/* Extract the legal requests */
-			n1 = I2A(e1 - INVEN_WIELD);
-			n2 = I2A(e2 - INVEN_WIELD);
+			sprintf(out_val, "[All items] ");
+		}
 
-			/* Redraw if needed */
-			if (p_ptr->command_see) show_equip();
+		if (use_floor)
+		{
+			/* Begin the prompt */
+			strcat(out_val, "Floor:");
+
+			/* Append */
+			if (equip && p_ptr->command_wrk) strcat(out_val, " ' for Equip,");
+			else if (inven && !p_ptr->command_wrk) strcat(out_val, " ' for Inven,");
 		}
 
 		/* Viewing inventory */
-		if (!p_ptr->command_wrk)
+		else if (!p_ptr->command_wrk)
 		{
 			/* Begin the prompt */
-			sprintf(out_val, "Inven:");
-
-			/* Some legal items */
-			if (i1 <= i2)
-			{
-				/* Build the prompt */
-				sprintf(tmp_val, " %c-%c,",
-				        index_to_label(i1), index_to_label(i2));
-
-				/* Append */
-				strcat(out_val, tmp_val);
-			}
-
-			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
+			strcat(out_val, "Inven:");
 
 			/* Append */
-			if (equip) strcat(out_val, " / for Equip,");
+			if (equip) strcat(out_val, " ' for Equip,");
+
+			/* Indicate legality of the "floor" item */
+			if (allow_floor) strcat(out_val, " ; for floor,");
 		}
 
 		/* Viewing equipment */
 		else
 		{
 			/* Begin the prompt */
-			sprintf(out_val, "Equip:");
-
-			/* Some legal items */
-			if (e1 <= e2)
-			{
-				/* Build the prompt */
-				sprintf(tmp_val, " %c-%c,",
-				        index_to_label(e1), index_to_label(e2));
-
-				/* Append */
-				strcat(out_val, tmp_val);
-			}
-
-			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
+			strcat(out_val, "Equip:");
 
 			/* Append */
-			if (inven) strcat(out_val, " / for Inven,");
-		}
+			if (inven) strcat(out_val, " ' for Inven,");
 
-		/* Indicate legality of the "floor" item */
-		if (allow_floor) strcat(out_val, " - for floor,");
+			/* Indicate legality of the "floor" item */
+			if (allow_floor) strcat(out_val, " ; for floor,");
+		}
 
 		/* Finish the prompt */
 		strcat(out_val, " ESC");
@@ -4125,12 +4343,23 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Build the prompt */
 		sprintf(tmp_val, "(%s) %s", out_val, pmt);
 
-		/* Show the prompt */
-		prt(tmp_val, 0, 0);
+		/* Floor screen */
+		if (use_floor)
+		{
+			which = show_floor(tmp_val, &line);
+		}
 
+		/* Inventory screen */
+		else if (!p_ptr->command_wrk)
+		{
+			which = show_inven(tmp_val, &line);
+		}
 
-		/* Get a key */
-		which = inkey();
+		/* Equipment screen */
+		else
+		{
+			which = show_equip(tmp_val, &line);
+		}
 
 		/* Parse it */
 		switch (which)
@@ -4141,25 +4370,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				break;
 			}
 
-			case '*':
-			case '?':
-			case ' ':
-			{
-				/* Show/hide the list */
-				if (!p_ptr->command_see)
-				{
-					Term_save();
-					p_ptr->command_see = TRUE;
-				}
-				else
-				{
-					Term_load();
-					p_ptr->command_see = FALSE;
-				}
-				break;
-			}
-
-			case '/':
+			case '\'':
 			{
 				/* Verify legality */
 				if (!inven || !equip)
@@ -4168,61 +4379,54 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
-				/* Fix screen */
-				if (p_ptr->command_see)
-				{
-					Term_load();
-					Term_save();
-				}
-
 				/* Switch inven/equip */
 				p_ptr->command_wrk = !p_ptr->command_wrk;
+
+				line = 0;
 
 				/* Need to redraw */
 				break;
 			}
 
-			case '-':
+			case ';':
 			{
-				/* Use floor item */
-				if (allow_floor)
+				/* Verify legality */
+				if (!allow_floor || !(inven || equip))
 				{
-					/* Scan all objects in the grid */
-					for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
-					{
-						object_type *o_ptr;
-
-						/* Acquire object */
-						o_ptr = &o_list[this_o_idx];
-
-						/* Acquire next object */
-						next_o_idx = o_ptr->next_o_idx;
-
-						/* Validate the item */
-						if (!item_tester_okay(o_ptr)) continue;
-
-						/* Special index */
-						k = 0 - this_o_idx;
-
-						/* Verify the item (if required) */
-						if (other_query_flag && !verify("Try", k)) continue;
-
-						/* Allow player to "refuse" certain actions */
-						if (!get_item_allow(k)) continue;
-
-						/* Accept that choice */
-						(*cp) = k;
-						item = TRUE;
-						done = TRUE;
-						break;
-					}
-
-					/* Outer break */
-					if (done) break;
+					bell();
+					break;
 				}
 
-				/* Oops */
-				bell();
+				/* Switch inven/floor */
+				use_floor = !use_floor;
+
+				line = 0;
+
+				/* Need to redraw */
+				break;
+			}
+
+			/* Match a character */
+			case '!': case '"': case '(': case ')': case	',': case '-':
+			case '/': case '=': case '?': case '[': case '\\': case ']':
+			case '_': case '{': case '|': case '}': case '~':
+			{
+				item_tester_char = which;
+
+				line = 0;
+
+				/* Need to redraw */
+				break;
+			}
+
+			/* Clear the character match */
+			case '*':
+			{
+				item_tester_char = '\0';
+
+				line = 0;
+
+				/* Need to redraw */
 				break;
 			}
 
@@ -4308,20 +4512,63 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				ver = isupper(which);
 				if (ver) which = tolower(which);
 
-				/* Convert letter to inventory index */
-				if (!p_ptr->command_wrk)
+				/* Convert letter to floor index */
+				if (use_floor)
 				{
-					k = label_to_inven(which);
+					/* Scan all objects in the grid */
+					for (j = -1, this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+					{
+						object_type *o_ptr;
+
+						/* Acquire object */
+						o_ptr = &o_list[this_o_idx];
+
+						/* Acquire next object */
+						next_o_idx = o_ptr->next_o_idx;
+
+						/* Special index */
+						k = 0 - this_o_idx;
+
+						if (item_tester_okay(o_ptr))
+						{
+							j++;
+
+							if (j == A2I(which) + line) break;
+						}
+					}
+				}
+
+				/* Convert letter to inventory index */
+				else if (!p_ptr->command_wrk)
+				{
+					/* Find the selected item */
+					for (j = -1, k = i1; k <= i2; k++)
+					{
+						if (get_item_okay(k))
+						{
+							j++;
+
+							if (j == A2I(which) + line) break;
+						}
+					}
 				}
 
 				/* Convert letter to equipment index */
 				else
 				{
-					k = label_to_equip(which);
+					/* Find the selected item */
+					for (j = -1, k = e1; k <= e2; k++)
+					{
+						if (get_item_okay(k))
+						{
+							j++;
+						}
+
+						if (j == A2I(which) + line) break;
+					}
 				}
 
-				/* Validate the item */
-				if (!get_item_okay(k))
+				if (j != A2I(which) + line)
 				{
 					bell();
 					break;
@@ -4352,14 +4599,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Fix the screen if necessary */
-	if (p_ptr->command_see) Term_load();
-
-	/* Hack -- Cancel "display" */
-	p_ptr->command_see = FALSE;
-
+	Term_load();
 
 	/* Forget the item_tester_tval restriction */
 	item_tester_tval = 0;
+
+	/* Forget the item_tester_char restriction */
+	item_tester_char = '\0';
 
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
@@ -4384,6 +4630,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
+
+	p_ptr->command_wrk = FALSE;
 
 	/* Result */
 	return (item);

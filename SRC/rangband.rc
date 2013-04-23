@@ -1,0 +1,172 @@
+/* File: angband.rc */
+
+ANGBAND MENU 
+{
+ POPUP "&File"
+ {
+  MENUITEM "&New", 100
+  MENUITEM "&Open...", 101
+  MENUITEM SEPARATOR
+  MENUITEM "&Save", 110
+  MENUITEM SEPARATOR
+  MENUITEM "&Abort", 120
+  MENUITEM "E&xit", 121
+ }
+
+ POPUP "&Window"
+ {
+  POPUP "&Visibility"
+  {
+   MENUITEM "Term-0 window", 200
+   MENUITEM "Term-1 window", 201
+   MENUITEM "Term-2 window", 202
+   MENUITEM "Term-3 window", 203
+   MENUITEM "Term-4 window", 204
+   MENUITEM "Term-5 window", 205
+   MENUITEM "Term-6 window", 206
+   MENUITEM "Term-7 window", 207
+  }
+
+  POPUP "&Font"
+  {
+   MENUITEM "Term-0 window", 210
+   MENUITEM "Term-1 window", 211
+   MENUITEM "Term-2 window", 212
+   MENUITEM "Term-3 window", 213
+   MENUITEM "Term-4 window", 214
+   MENUITEM "Term-5 window", 215
+   MENUITEM "Term-6 window", 216
+   MENUITEM "Term-7 window", 217
+  }
+
+  MENUITEM SEPARATOR
+  POPUP "Bizarre Display"
+  {
+   MENUITEM "Term-0 window", 230
+   MENUITEM "Term-1 window", 231
+   MENUITEM "Term-2 window", 232
+   MENUITEM "Term-3 window", 233
+   MENUITEM "Term-4 window", 234
+   MENUITEM "Term-5 window", 235
+   MENUITEM "Term-6 window", 236
+   MENUITEM "Term-7 window", 237
+  }
+
+  POPUP "Increase Tile Width"
+  {
+   MENUITEM "Term-0 window", 240
+   MENUITEM "Term-1 window", 241
+   MENUITEM "Term-2 window", 242
+   MENUITEM "Term-3 window", 243
+   MENUITEM "Term-4 window", 244
+   MENUITEM "Term-5 window", 245
+   MENUITEM "Term-6 window", 246
+   MENUITEM "Term-7 window", 247
+  }
+
+  POPUP "Decrease Tile Width"
+  {
+   MENUITEM "Term-0 window", 250
+   MENUITEM "Term-1 window", 251
+   MENUITEM "Term-2 window", 252
+   MENUITEM "Term-3 window", 253
+   MENUITEM "Term-4 window", 254
+   MENUITEM "Term-5 window", 255
+   MENUITEM "Term-6 window", 256
+   MENUITEM "Term-7 window", 257
+  }
+
+  POPUP "Increase Tile Height"
+  {
+   MENUITEM "Term-0 window", 260
+   MENUITEM "Term-1 window", 261
+   MENUITEM "Term-2 window", 262
+   MENUITEM "Term-3 window", 263
+   MENUITEM "Term-4 window", 264
+   MENUITEM "Term-5 window", 265
+   MENUITEM "Term-6 window", 266
+   MENUITEM "Term-7 window", 267
+  }
+
+  POPUP "Decrease Tile Height"
+  {
+   MENUITEM "Term-0 window", 270
+   MENUITEM "Term-1 window", 271
+   MENUITEM "Term-2 window", 272
+   MENUITEM "Term-3 window", 273
+   MENUITEM "Term-4 window", 274
+   MENUITEM "Term-5 window", 275
+   MENUITEM "Term-6 window", 276
+   MENUITEM "Term-7 window", 277
+  }
+
+ }
+
+ POPUP "&Options"
+ {
+  MENUITEM "&Graphics", 400
+  MENUITEM "&Sound", 401
+  MENUITEM SEPARATOR
+  MENUITEM "Activate Screensaver", 411
+ }
+
+ POPUP "&Help"
+ {
+  MENUITEM "&General", 901
+  MENUITEM "&Spoilers", 902
+ }
+
+}
+
+ANGBAND ICON 
+{
+'00 00 01 00 01 00 20 20 10 00 00 00 00 00 E8 02'
+'00 00 16 00 00 00 28 00 00 00 20 00 00 00 40 00'
+'00 00 01 00 04 00 00 00 00 00 80 02 00 00 00 00'
+'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+'00 00 00 00 80 00 00 80 00 00 00 80 80 00 80 00'
+'00 00 80 00 80 00 80 80 00 00 80 80 80 00 C0 C0'
+'C0 00 00 00 FF 00 00 FF 00 00 00 FF FF 00 FF 00'
+'00 00 FF 00 FF 00 FF FF 00 00 FF FF FF 00 00 00'
+'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+'BF 1F BF 00 00 00 00 00 00 00 00 BF B0 00 00 0B'
+'FB 1F FB F0 00 00 00 00 00 FB FB FB F0 00 00 BF'
+'BF 11 BF BF BF 00 0F BF BF BF CC CF B0 00 00 FB'
+'FB F1 11 FB FB 00 0B FC FC CC CC FB 00 00 00 BF'
+'B0 BF B1 BF BF 00 BF CC CC CC CF 00 00 00 00 0B'
+'F0 FB F1 FB FB F0 FB CC CC CC F0 0F 00 00 00 0F'
+'00 0F B1 1F BF BF BC CC CF BF B0 B0 00 00 00 0B'
+'F0 FB FB 11 FB FB FC FB FB FB FB F0 00 00 00 00'
+'BF BF BF B1 1F BF BF BF BF BF BF 00 00 00 00 00'
+'FB FB FB F1 11 FB FB FB 2B FB FB 00 00 00 00 00'
+'BF BF 0F BF 1F BF B2 22 2F 2F BF 00 00 00 00 00'
+'00 0B F0 F0 00 0B F2 22 22 FB FB F0 00 00 00 00'
+'BF 00 1F 10 FF 0F 12 22 22 1F 00 00 00 00 00 00'
+'FB F1 F1 F0 FF 01 22 22 21 F0 00 01 F0 00 00 00'
+'B0 0F 1F 10 FF 0F 22 12 1F 10 1F 1F 10 00 00 00'
+'FB 00 F1 F1 00 F1 21 21 F1 00 F1 F1 F1 00 00 00'
+'BF B0 0F 1F 1F 1F 1F 1F 10 1F 1F 1F 1F 00 00 00'
+'FB FB 00 F1 F1 F1 F1 F1 00 F1 F1 F1 F1 00 00 00'
+'BF BF BF 00 1F 1F 1F 10 0F 1F 1F 1F 00 00 00 00'
+'FB FB FB F0 01 F1 F1 0B 01 F1 F1 F0 00 00 00 0F'
+'BF BF BF BF 0F 1F 10 BF 00 1F 10 0F 10 00 00 0B'
+'FB FB FB 0B 00 F1 0B FB F0 F1 F0 F1 F0 00 00 BF'
+'BF BF BF 0F B0 0F 0F BF B0 0F 0F 00 00 00 00 FB'
+'FB FB FB 0B FB 00 0B FB FB 00 FB FB F0 00 00 BF'
+'BF BF B0 BF BF BF BF BF BF B0 BF BF B0 00 0B FB'
+'FB FB FB 00 00 00 0B FB FB FB FB FB 00 00 00 BF'
+'BF BF 00 00 00 00 00 00 0F BF BF 00 00 00 00 00'
+'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+'00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+'00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF'
+'FF FF E0 3F FF C3 C0 0F FC 03 80 01 00 03 80 01'
+'00 03 80 00 00 07 80 00 00 07 C0 00 00 07 C0 00'
+'00 0F C0 00 00 0F E0 00 00 0F E0 00 00 1F E0 00'
+'00 0F E0 00 00 07 E0 00 00 03 E0 00 00 03 E0 00'
+'00 01 E0 00 00 01 E0 00 00 01 E0 00 00 01 E0 00'
+'00 01 C0 00 00 01 C0 00 00 03 C0 00 00 03 80 00'
+'00 03 80 00 00 03 00 00 00 03 00 00 00 03 00 1F'
+'00 07 80 FF F8 1F FF FF FF FF FF FF FF FF'
+}
+
