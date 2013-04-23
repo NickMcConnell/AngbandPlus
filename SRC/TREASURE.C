@@ -778,7 +778,7 @@ treasure_type object_list[MAX_OBJECTS] = {
 #endif
 },
 {"Adamantite Plate Mail"	,0x00100000L,	TV_HARD_ARMOR, '[',/*118*/
-    0,	20000,	13,   1, 420,  -4,   0,	40,   0, {2,4}	, 75, 7, 0L
+    0,	20000,	13,   1, 420,  -4,   0,	40,   0, {2,4}	, 75, 7, 0x400000L
 #ifdef TC_COLOR
   ,LIGHTMAGENTA
 #endif
@@ -1475,7 +1475,7 @@ treasure_type object_list[MAX_OBJECTS] = {
 #endif
 },
 {"Charisma"			,0x00000200L,	TV_POTION1, '!',/*234*/
-    0,	 1000,	76,   1,   4,	0,   0,	 0,   0, {1,1}	, 20, 0, 0L
+    0,	 4000,	76,   1,   4,	0,   0,	 0,   0, {1,1}	, 20, 0, 0L
 #ifdef TC_COLOR
   ,0
 #endif
@@ -2134,16 +2134,16 @@ treasure_type object_list[MAX_OBJECTS] = {
   ,WHITE
 #endif
 },
-{"& Rat Skeleton"		,0x00000000L,	 TV_MISC, 's',	/*344*/
-    0,	   0,	1,   1,  10,	0,   0,	 0,   0, {1,1}	,  1, 0, 0L
+{"Invulnerability"		,0x01000000L,	TV_POTION2, '!',/*344*/
+    0,	 75000L,	116,   1,   4,	0,   0,	 0,   0, {1,1}	, 50, 5, 0L
 #ifdef TC_COLOR
-  ,WHITE
+  ,0
 #endif
 },
-{"& Giant Centipede Skeleton"	,0x00000000L,	 TV_MISC, 's',	/*345*/
-    0,	   0,	2,   1,  25,	0,   0,	 0,   0, {1,1}	,  1, 0, 0L
+{"Wall Building"	,RD_MK_WALL,	 TV_ROD, '-',	/*345*/
+    0,   20000,	26,   1,  15,	0,   0,	 0,   0, {1,1}	,  70, 12, 0x800L
 #ifdef TC_COLOR
-  ,WHITE
+  ,0
 #endif
 },
 {"some filthy rags"		,0x00000000L,	TV_SOFT_ARMOR, '~',/*346*/

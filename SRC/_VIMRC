@@ -1,0 +1,33 @@
+map » :!help
+imap Îv G
+imap ÎQ 
+imap Î„ 1G
+imap ÎI 
+imap Îu L
+imap ÎO $
+imap Îw H
+imap ÎG 0
+map! ÎS 
+imap ÎR 
+imap ¸ :help
+map Îv G
+map ÎQ 
+map Î„ 1G
+map ÎI 
+map Îu L
+map ÎO $
+map Îw H
+map ÎG 0
+map ÎS 
+map ÎR i
+map ¸ :help
+set autoindent
+set backspace=2
+set nobackup
+set nojoinspaces
+set ruler
+set shiftwidth=2
+set showcmd
+set smartindent
+set tabstop=8
+set term=pcterm

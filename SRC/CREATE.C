@@ -909,9 +909,12 @@ void create_character()
   put_misc3();
   get_name();
 
+  using_quiver = FALSE; /* Make sure this is reset! -JLS*/
+
   /* This delay may be reduced, but is recommended to keep players	*/
   /* from continuously rolling up characters, which can be VERY	*/
   /* expensive CPU wise.						*/
   pause_exit(23, PLAYER_EXIT_PAUSE);
 }
 
+

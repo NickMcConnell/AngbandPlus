@@ -59,6 +59,8 @@ void read_scroll()
 	    {
 	    case 1:
 	      i_ptr = &inventory[INVEN_WIELD];
+	      if (i_ptr->tval == TV_NOTHING)
+	        i_ptr = &inventory[INVEN_QUIVER];
 	      if (i_ptr->tval != TV_NOTHING)
 		{
 		  objdes(tmp_str, i_ptr, FALSE);
@@ -71,6 +73,8 @@ void read_scroll()
 	      break;
 	    case 2:
 	      i_ptr = &inventory[INVEN_WIELD];
+	      if (i_ptr->tval == TV_NOTHING)
+	        i_ptr = &inventory[INVEN_QUIVER];
 	      if (i_ptr->tval != TV_NOTHING)
 		{
 		  objdes(tmp_str, i_ptr, FALSE);
@@ -249,6 +253,8 @@ void read_scroll()
 	      break;
 	    case 33:
 	      i_ptr = &inventory[INVEN_WIELD];
+	      if (i_ptr->tval == TV_NOTHING)
+	        i_ptr = &inventory[INVEN_QUIVER];
 	      if (i_ptr->tval != TV_NOTHING)
 		{
 		  objdes(tmp_str, i_ptr, FALSE);

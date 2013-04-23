@@ -1,0 +1,164 @@
+Additions in QAngband (Quiver Angband) to standard Angband (PC) 1.4
+::::: Beginning with version 1.4.1 :::::::::::
+ 0) For systems with no or insufficient EMS memory for swapping purposes,
+    XMS memory, if available, will be used instead.  Since some programs
+    appropriate XMS memory in a way other programs cannot detect, adding
+    "-x" immediately after the program on the commandline will disable the
+    otherwise automatic usage to prevent conflicts.  On startup, the very
+    first message displayed will be, "Angband is using XMS memory" when XMS
+    will be used.  If this message scrolls off the screen to quickly to be
+    seen simply call up the usage summary screen with a command line option
+    like "-h" to see if XMS usage is on.  (Angband displays a summary of all
+    available command line options if it is started with an improper command
+    line.)
+
+ 1) A quiver, like that in FAngband but without the bugs, has been included.
+    Simply (w)ear/wield missle ammo and it will be placed in the quiver slot
+    for convenient (f)iring at monsters.  If you wish to change ammo simply
+    (w)ear/wield different ammo.  If you want to unload the quiver (T/t)ake
+    off the ammo.  Missle ammo can still be improved with Enchant Scrolls by
+    placing the desired ammo in the Quiver slot and _unwielding_ the weapon
+    in the Weapon slot; Enchant scrolls will enchant the contents of the 
+    Weapon slot, or the Quiver slot if no weapon is wielded, or be wasted
+    if both are empty.  Some traditional UMoria/Angband commands were moved
+    to new keystrokes to allow the quiver a mneumonic (f)ire ammo command.
+      [FAngband note: Due to wide spread complaints, FAngband 1.0's 
+       simpler reassignment scheme of using s for (s)hoot from quiver 
+       and moving the older (s)earch n turns to (I)nvestigate n turns
+       was not adopted.]
+    A summary of reassignments of command keystokes follows:
+        NEW KEYSTROKE SUMMARY        ORIGINAL MODE     ROGUE MODE
+    Search nearby for n turns:         s --> s (not I)   s --> s (not I)
+    Fire ammo from the quiver:         ----> f           ----> f
+    Throw an item normally:            f --> F           t --> t
+    Bash a door or monster:            B --> B           f --> F
+    Put more oil in a lamp:            F --> O           F --> O
+
+ 2) Charisma has been given a new effect in game play; A charisma bonus
+    of randomly varying size is given to the duration of those magical
+    effects from spells/prayers/potions/scrolls/wands/staves/artifacts
+    which last a set length of time.  The following are affected:
+        MAGICAL EFFECT                     BONUS POTENCY
+    Temporary elemental resistances          Full
+    Timed Detect Invisible                   Full
+    Heroism and Superheroism/Berserker       Full
+    Blessing type fighting effects           Full
+    Protection from Evil                     Full
+    Shield (advanced mage spell)             Full
+    Temporary speed increase                 Reduced
+    Globe of Invulnerability                 Small
+    Glyph of Warding/Rune of Protection      Powerful
+
+    The size of this bonus depends upon a player's charisma and level as 
+    well as the luck of the draw at a particular moment.  A player must 
+    have a charisma of at least 15 to have a chance at any bonus.  The 
+    maximum possible effect grows with increases in charisma and level.  
+    Really noticable effects do not occur until charisma is well above 18 
+    and strong effects require a charisma above 18/100.  As the chart 
+    above indicates some spells are more strongly influenced than others.
+    The GoW/RoP is a special case in that the charisma bonus helps the 
+    Glyph/Rune resist being broken by a monster rather than giving a preset 
+    increase to duration; The GoW/RoP is actually useful again!!  I have
+    raised the price of Potions of Charisma to half that of the other Gain
+    Potions because Charisma is no longer practically useless but is useful
+    as a side effect more than for its base use.  For more detailed 
+    information consult the spoiler file, chrbonus.spo.
+
+    The rationale in making this depend on charisma is that this stat is 
+    currently much less important than the others to all character classes.  
+    Philosophically I propose an extension of the current interpretation
+    of charisma, ie. (physical) popularity, to include something like 
+    divine favor.  This is not too say that Iluvatar (GOD) is influenced 
+    by popularity, but that the charismatic ability to inspire others is 
+    consciously if subtly bestowed by Iluvatar as a blessing for innate 
+    goodness.
+
+ 3) Every character type now can have access to the Globe of Invulnerabity,
+    ie. GoI.  The UMoria-style Potion of Invulnerability has been restored 
+    as a very rare and costly potion that begins showing up at level 50.  
+    Also, the Power Dragon Scale Mail artifact, Bladeturner, now grants 
+    GoI sometimes in _addition to_ its usual effects; This should settle
+    the question of whether Bladeturner is better than a generic PDSM.
+    However, in an attempt to balance the awesome power of GoI, a casting/
+    quaffing/activation of GoI will now have a small chance of misfiring 
+    for a Word of Destruction effect instead.  As is usual for WoD, any 
+    artifacts in the blast zone will be safe, but all monsters and other
+    treasures (except perhaps under you??) will be destroyed.  This has
+    the effect of keeping the character safe, as GoI is intended to do,
+    but makes it harder to depend on GoI to slay monsters that otherwise
+    are too high in level.  Since the GoI is affected by the new bonus 
+    for charisma and level, more detailed information can be found in 
+    spoiler file, chrbonus.spo.
+
+    Also, the "skin turns to steel" and "skin returns to normal" messages 
+    and the on-screen display of current hit points while a character is 
+    invulnerable will be printed in white.  The screen wrapping feature
+    introduced in Angband 1.4 makes it very easy to miss the important
+    message "your skin returns to normal" in the heat of battle.
+
+ 5) Along the example of UNIX Angband 2.x.y some artifact armors have new
+    exotic/higher resistances and Sting has been improved.  Consult the
+    enclosed artifact.spo spoiler file for more details; Search for my
+    annotations in {}.  Note only newly created artifacts are effected by
+    these changes.
+
+ 6) Elvenkind armors get 1 and Robes of the Magi (RoM) get 1 to 2 higher
+    resistances added to them at random (much in the way a Holy Avenger
+    will sustain one stat at random).  This change is intended to help
+    these rare armors compete with the somewhat less rare Dragon Scale
+    Mails (DSMs).  The additional resistance(s) will come from the set: 
+        Resist Poison, Resist Confusion, Resist Sound, 
+        Resist Light, Resist Dark, Resist Chaos, Resist Disenchantment, 
+        Resist Shards, Resist Nexus, Resist Nether
+
+ 7) Adamantite armor now has intrinsic Resist Nexus.  Anyone who willingly
+    wears heavy, -4 to hit armor should get some reward.  Since Nexus has
+    very annoying side effects (and Adamantite armor and Nexus blasts are
+    both purple!) this seemed a reasonable choice.
+
+ 8) A Rod of Wall Building similar to the wand of the same name in UMoria
+    has been added.  A quite long recharge time should limit the use of
+    this as a weapon ala UMoria; This is especially long to prevent mages
+    from conveniently recharging them with Recharge spells.  It takes 3
+    successful recharge spells/scrolls to fully recharge one, though at
+    the expense of making the timeout length mildly ridiculous.  However, 
+    these rods are only intended to provide a respite from very persistent 
+    monsters who cannot be stopped by spiked doors not as an entombing 
+    attack.
+
+ 9) Cubragol is now an x4 light crossbow so it compares more favorably to
+    heavy crossbows of might x5 in fire power (after all it is an artifact).
+    For those who already possess Cubragol, activating it in QAngband will
+    patch the damage from x3 to x4.  Also, Cubragol's activation has been 
+    tweaked so the first normal bolts found in the pack or quiver will be 
+    enchanted; Standard PC Angband can only enchant the topmost bolts in 
+    the pack (as determined by alphabetic sequence).
+::::: Beginning with version 1.4.2 :::::::::::
+ 1) Bug Fix: Not surprisingly, despite extensive playing of QAngband and 
+    its ancestors with the quiver code, a _minor_ bug turned up soon 
+    after its first release.  The problem, a loading irregularity, is the 
+    only quiver-related bug I have run across in some time.
+    
+    Bug Description: If an item known to be {cursed} was in slot 'v' of 
+    the inventory, the message "The <blank> you are storing appears to be 
+    cursed." was displayed whenever one tried to load the quiver.  This
+    happened because of absolute slot, inventory[INVEN_QUIVER]'s dual use
+    as quiver and slot 'v'; the code checked whether something {cursed}
+    was in this slot even if it were currently in use as slot 'v'.
+
+ 2) While fixing the above glitch, I have taken the time to see to some
+    minor coding I was putting off.  I have decided to continue to allow 
+    {cursed} ammo to be fired from the quiver, but in line with its cursed
+    nature, any ammo that is {cursed} will "stick" sometimes.  When this 
+    happens the message, "The <blank> you are storing in your quiver must 
+    be cursed.", will be displayed, nothing will be fired, and the turn 
+    will be wasted.  Also, I noticed that because the quiver holds multiple 
+    objects some of the equiptment messages used bad grammar, such as "The
+    bolts seems to be cursed", for instance.  I have cleaned up a number of
+    these.
+
+ 3) I have improved command line argument processing for the included 4dos
+    batch file front end to Angband.  The options can now be in any order
+    and can be grouped, ie. -qn for -q -n.  The usage is now:
+        qangrun <options> <name> <options> <password> <options>
+    where the only requirement is that <name> come before <password>.

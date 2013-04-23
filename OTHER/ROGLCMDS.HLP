@@ -3,21 +3,21 @@ Command summary: (@ is optional count, ~ is direction, ^R redraws, ESC aborts)
   c ~     Close a door.             |   C       Character player description.
   d       Drop an item.             | @ D ~     Disarm a trap/chest.
   e       Equipment list.           |   E       Eat some food.
-@ f ~     Force (bash) item or mons.|   F       Fill lamp with oil.
+  f       Fire a missle from quiver |   F ~     Force (bash) item or monster.
   g       get an item (OPTIONAL)    |   G       Gain new magic spells.
   i       Inventory list.           |   M       Map, show reduced size.
-  m       magic spell casting.      |   P       Peruse a book.
-@ o ~     Open a door/chest.        |   Q       Quit the game.
-  p       Pray.                     | @ R       Rest for a period.
-  q       Quaff a potion.           | @ S ~     Spike a door.
-  r       Read a scroll.            |   T       Take off an item.
-@ s       Search for traps or doors.|   W       Where: locate self.
-  t       Throw an item.            |   X       Exchange weapon.
-  v       Version info              |   Z       Zap a staff.
-  w       Wear/Wield an item.       |   #       Search Mode.
-  x ~     Examine surroundings      |   *       Target Monster/Location
-  z       Zap a wand.               |   <       Go up an up-staircase.
-  =       Set options.              |   >       Go down a down-staircase.
+  m       magic spell casting.      |   O       Oil refill for lamp
+@ o ~     Open a door/chest.        |   P       Peruse a book.
+  p       Pray.                     |   Q       Quit the game.
+  q       Quaff a potion.           | @ R       Rest for a period.
+  r       Read a scroll.            | @ S ~     Spike a door.
+@ s       Search for traps or doors.|   T       Take off an item.
+  t       Throw an item.            |   W       Where: locate self.
+  v       Version info              |   X       Exchange weapon.
+  w       Wear/Wield an item.       |   Z       Zap a staff.
+  x ~     Examine surroundings      |   #       Search Mode.
+  z       Zap a wand.               |   *       Target Monster/Location
+  =       Set options.              |   < or >  Go up or down matching stairs
   /       Identify a character.     |   {       Inscribe an object.
 @ CTRL-P  Previous message review   |   ?       Type this page.
 @ -  ~    Move without pickup.      |   CTRL-X  Save character and exit.
@@ -51,3 +51,4 @@ just typed in.  To avoid this, you can either enter ^H as two characters
 (^ and then H), or you can type ' ' (i.e. the space character) after the
 number at which point you will get a command prompt and backspace will
 work correctly.
+

@@ -190,9 +190,9 @@ void cast()
 		case 30:
 		  f_ptr = &py.flags;
 		  if (f_ptr->fast <= 0)
-		    f_ptr->fast += randint(20) + py.misc.lev;
+		    f_ptr->fast += randint(20) + py.misc.lev + chr_bonus()/2;
 		  else
-		    f_ptr->fast += randint(5);
+		    f_ptr->fast += randint(5) + chr_bonus()/20;
 		  break;
 		case 31:
 		  if (get_dir(NULL, &dir))
@@ -283,45 +283,48 @@ void cast()
                   (void) mass_genocide(TRUE);
                   break;
                 case 50:
-	          py.flags.resist_heat += randint(20) + 20;
+	          py.flags.resist_heat += randint(20) + 20 + chr_bonus();
                   break;
                 case 51:
-	          py.flags.resist_cold += randint(20) + 20;
+	          py.flags.resist_cold += randint(20) + 20 + chr_bonus();
                   break;
                 case 52:
-	          py.flags.resist_acid += randint(20) + 20;
+	          py.flags.resist_acid += randint(20) + 20 + chr_bonus();
                   break;
                 case 53:
-	          py.flags.resist_poison += randint(20) + 20;
+	          py.flags.resist_poison += randint(20) + 20 + chr_bonus();
                  break;
                 case 54:
-	          py.flags.resist_heat += randint(20) + 20;
-	          py.flags.resist_cold += randint(20) + 20;
-	          py.flags.resist_light += randint(20) + 20;
-	          py.flags.resist_poison += randint(20) + 20;
-	          py.flags.resist_acid += randint(20) + 20;
+	          py.flags.resist_heat += randint(20) + 20 + chr_bonus();
+	          py.flags.resist_cold += randint(20) + 20 + chr_bonus();
+	          py.flags.resist_light += randint(20) + 20 + chr_bonus();
+	          py.flags.resist_poison += randint(20) + 20 + chr_bonus();
+	          py.flags.resist_acid += randint(20) + 20 + chr_bonus();
                   break;
                 case 55:
-                  py.flags.hero += randint(25)+25;
+                  py.flags.hero += randint(25)+25+chr_bonus();
                   break;
                 case 56:
-                  py.flags.shield += randint(20)+30;
+                  py.flags.shield += randint(20)+30+chr_bonus();
 		  calc_bonuses();
 		  prt_pac(); 
                   msg_print("A mystic shield forms around your body!");
                   break;
                 case 57:
-                  py.flags.shero += randint(25)+25;
+                  py.flags.shero += randint(25)+25+chr_bonus();
                   break;
                 case 58:
 		  if (py.flags.fast <= 0)
-		    py.flags.fast += randint(30)+30+py.misc.lev;
+		    py.flags.fast += randint(30)+30+py.misc.lev+chr_bonus()/2;
 		  else
-		    py.flags.fast += randint(5);
+		    py.flags.fast += randint(5)+chr_bonus()/20;
 		  break;
                 case 59:
-                  py.flags.invuln += randint(8)+8;
-                  break;
+		  if (randint(9)==1)
+		    destroy_area(char_row, char_col);
+		  else
+		    py.flags.invuln += randint(8)+8+chr_bonus()/5;
+		  break;
 		default:
 		  break;
 		}

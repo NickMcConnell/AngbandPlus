@@ -916,7 +916,10 @@ void dungeon()
 	      disturb (0, 0);
 	      py.misc.ptoac += 100; /* changed to ptoac -CFT */
 	      py.misc.dis_tac += 100;
+	      textcolor(WHITE);
 	      msg_print("Your skin turns into steel!");
+	      textcolor(LIGHTGRAY);
+	      prt_chp(); /* Display current hp in white -JLS */
 	      f_ptr->status |= PY_ARMOR; /* have to update ac display */
 	    }
 	  f_ptr->invuln--;
@@ -926,7 +929,10 @@ void dungeon()
 	      disturb (0, 0);
 	      py.misc.ptoac -= 100; /* changed to ptoac -CFT */
 	      py.misc.dis_tac -= 100;
+	      textcolor(WHITE);
 	      msg_print("Your skin returns to normal.");
+	      textcolor(LIGHTGRAY);
+	      prt_chp(); /* Restore current hp to normal color -JLS */
 	      f_ptr->status |= PY_ARMOR; /* have to update ac display */
 	    }
 	}
@@ -1119,7 +1125,7 @@ void dungeon()
 	        f_ptr->see_inv = TRUE;
 	      else {
 	      	f_ptr->see_inv = FALSE; /* unless item grants it */
-		for (i = INVEN_WIELD; i <= INVEN_LIGHT; i++)
+		for (i = equip_top; i <= INVEN_LIGHT; i++)
 		  if (TR_SEE_INVIS & inventory[i].flags)
 		    f_ptr->see_inv = TRUE;
 	      }
@@ -1339,7 +1345,7 @@ void dungeon()
 		(void) sprintf(tmp_str,
 			       "You feel the %s (%c) you are %s %s %s...",
 			       out_val,
-			       ((i<INVEN_WIELD)?i+'a':(i+'a'-INVEN_WIELD)),
+			       ((i<equip_top)?i+'a':(i+'a'-equip_top)),
 			       describe_use(i),
 			       ((i_ptr->tval==TV_BOLT) ||
 				(i_ptr->tval==TV_ARROW) ||
@@ -1622,12 +1628,15 @@ char com_val;
       com_val = 'u';
       break;
     case 'B':
-      com_val = 'f';
+      com_val = 'F';
       break;
     case 'C':
     case 'D':
     case 'E':
+      break;
     case 'F':
+      com_val = 't';
+      break;
     case 'G':
     case 'g':
       break;
@@ -1635,7 +1644,7 @@ char com_val;
       com_val = 'W';
       break;
     case 'M':
-      break;
+    case 'O':
     case 'R':
       break;
     case 'S':
@@ -1674,9 +1683,7 @@ char com_val;
     case 'c':
     case 'd':
     case 'e':
-      break;
     case 'f':
-      com_val = 't';
       break;
     case 'h':
       com_val = '?';
@@ -2079,7 +2086,7 @@ char com_val;
 	helpfile(ANGBAND_ORIG_HELP);
       free_turn_flag = TRUE;
       break;
-    case 'f':		/* (f)orce		(B)ash */
+    case 'F':		/* (F)orce		(B)ash */
       feel_chance = 100;
       bash();
       break;
@@ -2101,7 +2108,7 @@ char com_val;
       feel_chance = 50;
       eat();
       break;
-    case 'F':		/* (F)ill lamp */
+    case 'O':		/* (O)il refill for lamp */
       feel_chance = 50;
       refill_lamp();
       break;
@@ -2252,9 +2259,21 @@ char com_val;
       feel_chance = 100;
       inven_command('e');
       break;
+    case 'f':           /* (f)ire ammo from quiver if nonempty */
+      if (using_quiver) 
+      {
+        feel_chance = 30;
+        throw_object(1);
+      }
+      else
+      {
+        msg_print("But your quiver is empty!");
+        free_turn_flag = TRUE;
+      }
+      break;
     case 't':		/* (t)hrow something	(f)ire something */
       feel_chance = 30;
-      throw_object();
+      throw_object(0);
       break;
     case 'i':		/* (i)nventory list */
       feel_chance = 100;
@@ -2499,14 +2518,15 @@ char c;
     case 'A':
     case 'C':
     case 'E':
-    case 'F':
     case 'G':
     case '#':
     case 'z':
+    case 'O':
     case 'P':
     case 'c':
     case 'd':
     case 'e':
+    case 'f':
     case 't':
     case 'i':
     case 'x':
@@ -2538,7 +2558,6 @@ char c;
     case ' ':
     case '-':
     case 'b':
-    case 'f':
     case 'j':
     case 'n':
     case 'h':
@@ -2548,6 +2567,7 @@ char c;
     case 'u':
     case '.':
     case 'B':
+    case 'F':
     case 'J':
     case 'N':
     case 'H':
@@ -3000,22 +3020,29 @@ static void activate() {
 	break;
       case (75):
 	if (inventory[i].name2 == SN_CUBRAGOL) {
-	  for (a=0; a<INVEN_WIELD; a++)
-	    if ((inventory[a].tval == TV_BOLT) &&
-		!(inventory[a].flags & TR_CURSED)) /* the "taint" of a cursed
+	  inventory[i].subval = 11; /* Upgrade from x3 to x4 :) -JLS */
+	  for (a=0; ; a++) { /* Enchant any unenchanted set of bolts not
+	                      * just the first set -JLS */
+	    if (a >= INVEN_WIELD) {
+	      msg_print("The fiery enchantment fails.");
+	      break;
+	    }
+	    if ((inventory[a].tval != TV_BOLT) ||
+		inventory[a].flags & TR_CURSED) /* the "taint" of a cursed
 						item inteferes with the
 						branding -CFT */
+	      continue;
+	    if (a<INVEN_WIELD && (inventory[a].name2 == SN_NULL)) {
+	      int i,j;
+	      i_ptr = &inventory[a];
+	      msg_print("Your bolts are covered in a fiery shield!");
+	      i_ptr->name2 = SN_FIRE;
+	      i_ptr->flags |= (TR_FLAME_TONGUE|TR_RES_FIRE);
+	      i_ptr->cost+=25;
+	      enchant(i_ptr, 3+randint(3), ENCH_TOHIT|ENCH_TODAM);
 	      break;
-	  if (a<INVEN_WIELD && (inventory[a].name2 == SN_NULL)) {
-	    int i,j;
-	    i_ptr = &inventory[a];
-	    msg_print("Your bolts are covered in a fiery shield!");
-	    i_ptr->name2 = SN_FIRE;
-	    i_ptr->flags |= (TR_FLAME_TONGUE|TR_RES_FIRE);
-	    i_ptr->cost+=25;
-	    enchant(i_ptr, 3+randint(3), ENCH_TOHIT|ENCH_TODAM);
-	  } else 
-	    msg_print("The fiery enchantment fails.");
+	    }
+	  } 
 	  inventory[i].timeout=999;
 	}
 	break;
@@ -3100,11 +3127,11 @@ static void activate() {
 	if (inventory[i].name2 == SN_COLLUIN) {
 	  msg_print("Your cloak glows many colours...");
 	  msg_print("You feel you can resist anything.");
-	  py.flags.resist_heat += randint(20) + 20;
-	  py.flags.resist_cold += randint(20) + 20;
-	  py.flags.resist_light += randint(20) + 20;
-	  py.flags.resist_poison += randint(20) + 20;
-	  py.flags.resist_acid += randint(20) + 20;
+	  py.flags.resist_heat += randint(20) + 20 + chr_bonus();
+	  py.flags.resist_cold += randint(20) + 20 + chr_bonus();
+	  py.flags.resist_light += randint(20) + 20 + chr_bonus();
+	  py.flags.resist_poison += randint(20) + 20 + chr_bonus();
+	  py.flags.resist_acid += randint(20) + 20 + chr_bonus();
 	  inventory[i].timeout=111;
 	} else if (inventory[i].name2 == SN_HOLCOLLETH) {
 	  msg_print("You momentarily disappear...");
@@ -3494,13 +3521,18 @@ static void activate() {
 	if (inventory[i].name2 == SN_BLADETURNER) {
 	  msg_print("Your armour glows many colours...");
 	  msg_print("You enter a berserk rage...");
-	  py.flags.hero += randint(50)+50;
-	  py.flags.shero += randint(50)+50;
+	  py.flags.hero += randint(50)+50 + chr_bonus();
+	  py.flags.shero += randint(50)+50 + chr_bonus();
 	  bless(randint(50)+50);
-	  py.flags.resist_heat += randint(50)+50;
-	  py.flags.resist_cold += randint(50)+50;
-	  py.flags.resist_light += randint(50)+50;
-	  py.flags.resist_acid += randint(50)+50;
+	  py.flags.resist_heat += randint(50)+50 + chr_bonus();
+	  py.flags.resist_cold += randint(50)+50 + chr_bonus();
+	  py.flags.resist_light += randint(50)+50 + chr_bonus();
+	  py.flags.resist_acid += randint(50)+50 + chr_bonus();
+	  if (randint(3)==1)
+	    if (randint(9)==1)
+	      destroy_area(char_row, char_col);
+	    else
+	      py.flags.invuln += randint(8)+8+chr_bonus()/5;
 	  inventory[i].timeout=400;
         }
         else {

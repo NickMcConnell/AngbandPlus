@@ -397,6 +397,8 @@ int pickup;
 	        if (pickup) {
 		  locn = inven_carry(i_ptr);
 		  objdes(tmp_str, &inventory[locn], TRUE);
+		  if (locn == INVEN_QUIVER && using_quiver)
+		    locn = 0; /* Force (a) to be printed for quiver ammo */
 		  (void) sprintf(out_val, "You have %s (%c)",tmp_str,locn+'a');
 		  msg_print(out_val);
 		  (void) delete_object(y, x);
@@ -2161,7 +2163,12 @@ inven_type *t_ptr;
       py.flags.status |= PY_STR_WGT;
     }
   else
-    inven_destroy(item_val);
+    {
+      if (item_val == INVEN_QUIVER && using_quiver)
+        takeoff(item_val, -2);
+      else
+        inven_destroy(item_val);
+    }
 }
 
 
@@ -2376,7 +2383,10 @@ static int stays_when_throw(inven_type *i_ptr){
 /* Note: Flasks of oil do fire damage				 */
 /* Note: Extra damage and chance of hitting when missiles are used*/
 /*	 with correct weapon.  I.E.  wield bow and throw arrow.	 */
-void throw_object()
+void throw_object(mode)
+int8u mode; /* mode is new.  mode will be 1 if firing from quiver -JLS-
+             * or 0 to fire something from the inventory as in past.
+             */
 {
   int item_val, tbth, tpth, tdam, tdis;
   int y, x, oldy, oldx, cur_dis, dir;
@@ -2390,18 +2400,34 @@ void throw_object()
   register int i;
   char tchar;
 
-  if (inven_ctr == 0)
+  if (using_quiver)
+    item_val = INVEN_QUIVER;
+  else
+    mode = 0; /* This should be checked in dungeon.c, but, just -JLS-
+               * in case, throw from inventory if quiver empty
+               */
+
+  if (inven_ctr == 0 && !mode) /* Empty pack is OK if using quiver! -JLS */
     {
       msg_print("But you are not carrying anything.");
       free_turn_flag = TRUE;
     }
-  else if (get_item(&item_val, "Fire/Throw which one?", 0, inven_ctr-1, 0))
+  else if (mode ||
+           get_item(&item_val, "Fire/Throw which one?", 0, inven_ctr-1, 0))
     {
       inven_type *t = &inventory[item_val];
 
-      if ((t->tval == TV_FLASK) || (t->tval == TV_SLING_AMMO) ||
-          (t->tval == TV_ARROW) || (t->tval == TV_BOLT) ||
-          (t->tval == TV_SPIKE) || (t->tval == TV_MISC))
+      if (mode && (TR_CURSED & t->flags) && randint(3)>1)
+	{ /* use ok_throw code to handle {cursed} ammo in quiver -JLS */
+	  ok_throw = FALSE;
+	  objdes(tmp_str, t, FALSE);
+	  (void) sprintf(out_val,
+	    "The %s you are storing in your quiver must be cursed.", tmp_str);
+	  msg_print(out_val);
+	}
+      else if ((t->tval == TV_FLASK) || (t->tval == TV_SLING_AMMO) ||
+	       (t->tval == TV_ARROW) || (t->tval == TV_BOLT) ||
+	       (t->tval == TV_SPIKE) || (t->tval == TV_MISC))
         ok_throw = TRUE;
       else if (((t->tval == TV_FOOD) || (t->tval == TV_POTION1) ||
                 (t->tval == TV_POTION2)) && known1_p(t) && 
@@ -2609,6 +2635,8 @@ void throw_object()
 	    }
 	  while (!flag);
 	}
+    /* Make sure equip_top is updated if the quiver empties! -JLS */
+    equip_top = using_quiver ? INVEN_QUIVER : INVEN_WIELD;
     }
 }
 

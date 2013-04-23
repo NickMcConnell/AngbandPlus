@@ -170,4 +170,17 @@ Mar 7 1994	Fifth Update (PC Angband version 1.40)
 	use EMS memory, if it is available.
 
 
+August 1994  Divergence of PC Angband 1.40 into Quiver Angband (QAngband)
+      This variant includes the compatible quiver code for very convenient
+   firing of missle ammo at monsters; This is very nearly the same code I
+   provided to Dave Kahane the author of FAngband, but I have exterminated
+   the bugs that hid therein.  Other significant additions include a bonus
+   to the duration of temporary spells derived from player charisma and 
+   level and the reappearance of the UMoria-style Potion of Invulnerability!
+   See files, 'readme.1st' and 'new2qang.doc' for details.  QAngband is
+   stored in .ZIP archives, 'qang14sr.zip' and 'qang14ex.zip' respectively.
 
+September 1994  First Update (QAngband 1.4.2)
+      When a {cursed} item was in slot 'v' the quiver could not be loaded
+   because the code thought something {cursed} was in the (actually empty)
+   quiver.

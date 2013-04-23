@@ -1,0 +1,74 @@
+QAngband is a compatible variant of PC Angband 1.4 as maintained by Charles
+Teagues.  It contains features not presently in PC Angband which may or may 
+not be in subsequent releases of the standard.  QAngband is intended as a
+testing ground for new ideas for the standard which could tweak the game
+balance currently set in (PC) Angband.  The emphasis has been on giving new
+options for game play which, where possible, help a player customize his
+game strategy to the class and plateau of development of a given character.
+In general this means trying to make final victory less a matter of following
+a generic, cover all formula for success (in particular, the Great Artifact 
+Scavenger Hunt) and more a matter of adapting to a character's particular
+needs and circumstances.
+
+Being compatible, it should be possible to move a game back and forth between
+the standard Angband and QAngband repeatedly and at will.  There are only two
+provisos to this.  Ammo still in the Quiver slot in QAngband will move back
+to the pack at the very bottom in standard Angband.  While this would be
+reasonable behavior in most cases, it may cause the ammo to be out of sorted
+order depending on what else is near the bottom of the pack (spikes for
+instance).  If this is true simply drop the ammo and repick it up to put it
+back in proper order.  The other proviso is that two items, the rod of Wall
+Building and potion of Invulnerability, do not exist in standard Angband
+and will turn into skeletons.
+
+I should mention that QAngband is compiled with the, now standard, 128K
+overlay buffer size.  QAngband, however, will attempt to use XMS or 
+extended memory if the more reliable EMS or expanded memory is unavailable.
+    Note that XMS is not inherently less reliable to use; Where EMS 
+    is extra memory originally added with special, add-on memory 
+    hardware and controlled with the LIM standards, XMS is regular 
+    system memory the original DOS CPUs (8086) would not have been 
+    able to use.  DOS was written for the Intel 8086/8088 chips so 
+    memory they cannot use DOS (until recently) couldn't.  Standards 
+    have now been developed for allowing DOS programs to allocate 
+    and use this formerly inaccessible "extra" memory, but older 
+    programs may ignore these standards and use memory not allocated 
+    to them -- these programs will crash the computer (or worse) if
+    newer, well-behaved programs "innocently" allocate memory for
+    themselves that has already been "stolen" by a rogue program.
+If a system without enough EMS has conflicts running while using XMS memory
+the XMS usage can be disabled by using the new, "-x" command line switch.
+QAngband will display the message "Angband is using XMS memory" when loading 
+if XMS memory will be used for swapping purposes.  If this scrolls past too 
+quickly use a bogus command line switch to call up the usage screen -- the 
+message will stay on the screen in this case.
+
+I am including a set of 4dos (replacement DOS command processor) batch files
+which can be used as a front end to QAngband (or Angband) to create a simple
+menu system for automated game play with multiple characters.  It will backup
+save files automatically to .ZIP archives and provide handy services like
+convenient displaying of help files, labeling (via 4dos descriptions) of each
+character, etc.  A novice mode is provided in which a player may control the
+process of saving and restoring so a character can be painlessly resurrected
+to his/her last save point on dying.  The expert mode updates the character's
+.ZIP archive immediately upon regular exit (CTRL-X) from Angband precluding
+use of the .ZIP copy of the savefile.  I leave it to the player to decide if
+a victory as a novice counts for much.  The expert mode will allow a player
+to continue playing a "dead" character using wizard mode's resurrection
+feature (though the player is then banned from the high score list) so I 
+recommend this for all but real novices.  In either case, saving the savefile
+in a .ZIP not only conserves disk space but allows guaranteed recovery of a
+character if the game hangs, the power goes out, whatever (assuming the .ZIP
+archive and disk it is on are intact, of course).  By editing QANGRUN.BTM
+novice mode can be made the current default or XMS usage can be disabled.
+QANGRUN.BTM supports the following command line options:
+    -n  use Novice mode
+	-x  use eXpert mode
+	-q  run Quietly  (aliases beep to rem)
+	-m  free Memory in environment (keeps PATH and COMSPEC while running)
+	-h  display QANGRUN.BTM's usage screen  (must be first argument)
+Command line options (except -h) may follow the character name and password
+but should be place immediately after QANGRUN, in case the password is left
+off by mistake.
+
+Comments go to jls11@po.CWRU.Edu (John "Johann" Spetz)

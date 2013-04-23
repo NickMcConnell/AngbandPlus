@@ -954,7 +954,7 @@ int monptr;
 		int8u chance = 1;
 	        take_hit(damage, ddesc);
 	        flag = FALSE;
-	        switch(randint(7))
+	        switch(randint( (equip_top==INVEN_QUIVER) ? 8 : 7) )
 		  {
 		  case 1: i = INVEN_WIELD; break;
 		  case 2: i = INVEN_BODY;  break;
@@ -963,6 +963,7 @@ int monptr;
 		  case 5: i = INVEN_HANDS; break;
 		  case 6: i = INVEN_HEAD;  break;
 		  case 7: i = INVEN_FEET;  break;
+		  case 8: i = INVEN_QUIVER;  break;
 		  }
 	        i_ptr = &inventory[i];
 		if (i_ptr->tval != TV_NOTHING) {
@@ -994,11 +995,11 @@ int monptr;
 		    objdes(t1, &inventory[i], FALSE);
 		    if (chance <3)
 		      sprintf(t2, "Your %s (%c) %s disenchanted!", t1,
-			i+'a'-INVEN_WIELD,
+			i+'a'-equip_top,
 			(inventory[i].number != 1) ? "were":"was");
 		    else
 		      sprintf(t2, "Your %s (%c) %s disenchantment!", t1,
-		        i+'a'-INVEN_WIELD,
+		        i+'a'-equip_top,
 			(inventory[i].number != 1) ? "resist":"resists");
 		    msg_print (t2);
 		    calc_bonuses ();
@@ -1316,7 +1317,8 @@ int32u *rcmove;
 	      (t_list[c_ptr->tptr].tval == TV_VIS_TRAP) &&
 	      (t_list[c_ptr->tptr].subval == 99))
 	    {
-	      if (randint(OBJ_RUNE_PROT) < c_list[m_ptr->mptr].level)
+	      if (randint(OBJ_RUNE_PROT) + chr_bonus()*7 < 
+	          c_list[m_ptr->mptr].level)
 		{
 		  if ((newy==char_row) && (newx==char_col))
 		    msg_print("The rune of protection is broken!");

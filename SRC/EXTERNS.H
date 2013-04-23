@@ -103,6 +103,16 @@ extern int8u highlight_seams;		/* Highlight magma and quartz */
 extern int8u find_ignore_doors;		/* Run through open doors */
 extern int8u sound_beep_flag;	/* shut up bell() ! -CFT */
 extern int8u no_haggle_flag; /* for those who find it tedious -CFT */
+extern int8u using_quiver; /* Boolean status of quiver variable.  -JLS-
+                            * should be set to TRUE if quiver is in use,
+                            * or FALSE if not in use.
+                            */
+extern int8u equip_top; /* should always be equivilent to -JLS-
+                         * using_quiver ? INVEN_QUIVER : INVEN_WIELD;
+                         * needed because sometimes the slot no. INVEN_QUIVER
+                         * is a quiver so becomes top of equiptment rest of
+                         * time it is a slot at the bottom of the inventory.
+                         */
 #ifdef TC_COLOR
 extern int8u no_color_flag; /* for monochrome monitors -CFT */
 extern int8u inven_bw_flag; /* should inventories be B&W or colorized? -CFT */
@@ -117,6 +127,16 @@ extern int getkey_flag;		/* Prompt to pick something up */
 extern int show_weight_flag;		/* Display weights in inventory */
 extern int highlight_seams;		/* Highlight magma and quartz */
 extern int find_ignore_doors;		/* Run through open doors */
+extern int using_quiver; /* Boolean status of quiver variable.  -JLS-
+                          * should be set to TRUE if quiver is in use,
+                          * or FALSE if not in use.
+                          */
+extern int equip_top; /* should always be equivilent to -JLS-
+                       * using_quiver ? INVEN_QUIVER : INVEN_WIELD;
+                       * needed because sometimes the slot no. INVEN_QUIVER
+                       * is a quiver so becomes top of equiptment rest of
+                       * time it is a slot at the bottom of the inventory.
+                       */
 #endif
 
 /* Unique artifact weapon flags */
@@ -560,6 +580,7 @@ void cnv_stat(int16u, char *);
 void prt_stat(int);
 void prt_field(char *, int, int);
 int stat_adj(int);
+int chr_bonus(void);
 int chr_adj(void);
 int con_adj(void);
 char *title_string(void);
@@ -635,6 +656,7 @@ void check_view(void);
 void change_speed(int);
 void py_bonuses(struct inven_type *, int);
 void calc_bonuses(void);
+void use_quiver(int);
 int show_inven(int, int, int, int);
 char *describe_use(int);
 int show_equip(int, int);
@@ -685,7 +707,7 @@ int twall(int, int, int, int);
 void tunnel(int);
 void disarm_trap(void);
 void look(void);
-void throw_object(void);
+void throw_object(int8u);
 void bash(void);
 void target(void); /* target fns stolen from Morgul -CFT */
 int at_target(int, int); /* target fns stolen from Morgul -CFT */
@@ -1077,6 +1099,7 @@ void cnv_stat(ARG_INT16U ARG_COMMA ARG_CHAR_PTR);
 void prt_stat(ARG_INT);
 void prt_field(ARG_CHAR_PTR ARG_COMMA ARG_INT ARG_COMMA ARG_INT);
 int stat_adj(ARG_INT);
+int chr_bonus(ARG_VOID);
 int chr_adj(ARG_VOID);
 int con_adj(ARG_VOID);
 char *title_string(ARG_VOID);
@@ -1167,6 +1190,7 @@ void special_random_object(ARG_INT ARG_COMMA ARG_INT ARG_COMMA ARG_INT);
 void change_speed(ARG_INT);
 void py_bonuses(ARG_INV_PTR ARG_COMMA ARG_INT);
 void calc_bonuses(ARG_VOID);
+void use_quiver(ARG_INT);
 int show_inven(ARG_INT ARG_COMMA ARG_INT ARG_COMMA ARG_INT ARG_COMMA
 		ARG_INT ARG_COMMA ARG_INT_FN);
 char *describe_use(ARG_INT);
@@ -1227,7 +1251,7 @@ int twall(ARG_INT ARG_COMMA ARG_INT ARG_COMMA ARG_INT ARG_COMMA ARG_INT);
 void tunnel(ARG_INT);
 void disarm_trap(ARG_VOID);
 void look(ARG_VOID);
-void throw_object(ARG_VOID);
+void throw_object(ARG_INT8U);
 void bash(ARG_VOID);
 void delete_unique(ARG_VOID);
 void carry(ARG_INT ARG_COMMA ARG_INT ARG_COMMA ARG_INT);

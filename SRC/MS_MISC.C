@@ -229,6 +229,12 @@ msdos_init()
 
 				/* Adjust lists that depend on '#' and '.' */
 				object_list[OBJ_SECRET_DOOR].tchar = wallsym;
+				for (cnt = 0; cnt < MAX_CREATURES; cnt++) {
+					if (c_list[cnt].cchar == '#')
+						c_list[cnt].cchar = wallsym;
+					if (c_list[cnt].cchar == '.')
+						c_list[cnt].cchar = floorsym;
+				} /* Hide those sneaky monsters! -JLS- */
 			}
 		}
 		else if (strcmpi(opt, "SAVE") == 0) {
@@ -520,3 +526,4 @@ bios_clear()
 #endif
 
 #endif
+

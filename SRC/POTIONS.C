@@ -252,10 +252,10 @@ void quaff()
 		ident = TRUE;
 	      if (py.flags.fast <= 0)
 		  {
-		    py.flags.fast += randint(25) + 15;
+		    py.flags.fast += randint(25) + 15 + chr_bonus()/2;
 		  }
 	      else
-		py.flags.fast += randint(5);
+		py.flags.fast += randint(5) + chr_bonus()/20;
 	      break;
 	    case 24:
 	      if (py.flags.slow == 0)
@@ -319,12 +319,12 @@ void quaff()
 	    case 37:
 	      if (py.flags.hero == 0)
 		ident = TRUE;
-	      py.flags.hero += randint(25) + 25;
+	      py.flags.hero += randint(25) + 25 + chr_bonus();
 	      break;
 	    case 38:
 	      if (py.flags.shero == 0)
 		ident = TRUE;
-	      py.flags.shero += randint(25) + 25;
+	      py.flags.shero += randint(25) + 25 + chr_bonus();
 	      break;
 	    case 39:
 	      if (remove_fear()) ident = TRUE;
@@ -336,18 +336,18 @@ void quaff()
 	      f_ptr = &py.flags;
 	      if (f_ptr->resist_heat == 0)
 		ident = TRUE;
-	      f_ptr->resist_heat += randint(10) + 10;
+	      f_ptr->resist_heat += randint(10) + 10 + chr_bonus();
 	      break;
 	    case 42:
 	      f_ptr = &py.flags;
 	      if (f_ptr->resist_cold == 0)
 		ident = TRUE;
-	      f_ptr->resist_cold += randint(10) + 10;
+	      f_ptr->resist_cold += randint(10) + 10 + chr_bonus();
 	      break;
 	    case 43:
 	      if (py.flags.detect_inv == 0)
 		ident = TRUE;
-	      detect_inv2(randint(12)+12);
+	      detect_inv2(randint(12)+12 + chr_bonus());
 	      break;
 	    case 44:
 	      if (slow_poison()) ident = TRUE;
@@ -468,6 +468,12 @@ void quaff()
 	      if (cure_blindness()) ident = TRUE;
 	      if (cure_confusion()) ident = TRUE;
 	      if (cure_poison()) ident = TRUE;
+	      break;
+	    case 57: /* Invulnerability */
+	      if (randint(9)==1)
+		destroy_area(char_row, char_col);
+	      else
+		py.flags.invuln += randint(8)+8+chr_bonus()/5;
 	      break;
 	    default:
 	      if (1) {

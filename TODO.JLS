@@ -1,0 +1,65 @@
+QAngband is more or less stable in its current form (barring a new
+release of the standard by Charles Teagues) but there are a few
+future developments I am considering
+
+ 1) More imports from UNIX Angband (many of which ultimately derived from 
+    FAngband and SAngband of course).  I have not implemented the extra
+    attacks or blessed blade attributes in QAngband mostly because I am
+    waiting for the maintainer of PC Angband proper to make some decision.
+    I hesitate to add new bit flags to constant.h because I want to keep
+    compatibility with the PC standard.
+
+ 2) The Confusion Blast Totila activates for in UNIX Angband ie. does 
+    something called confusion damage looks interesting.  Is this like 
+    confusion breath???
+
+ 3) I need to settle the question of whether the non-fighting attributes
+    of missle ammo in the quiver, ie flags and flags2 effects, should
+    be given to the player.  This technically means that Ammo of Fire
+    for instance does not quite work as advertized in that it _will_
+    give permanent Resist Fire as long as it is being wielded (just as
+    presumable wielding it as a weapon would do in non-quiver versions).
+    Currently, the pluses to hit and to dam from quivered ammo are not
+    given for fighting purposes, but the others are, so cursed ammo could
+    theoretically aggravate monster or the like.  In detail it comes down
+    to whether certain loops in moria1.c should run from INVEN_WIELD or
+    equip_top, the new variable top of equiptment list index.  A related
+    question is whether cursed ammo should "stick" in the quiver -- for
+    now it does not.
+
+ 4) I still like the idea of changing the Power Dragon Scale Mail (PDSM)
+    so the single gap in its list of resistances is not always Resist
+    Sound.  If this could cycle through the many exotic resistances PDSM 
+    can have (except perhaps Resist Disenchantment), PDSMs would be much
+    less unbalancing.  Perhaps two gaps should be possible 1 time in N.
+    This would be like the reverse of the "extra" exotic resistance the
+    Robes of the Magi and Elvenkind armors can have.  The catch of course
+    is that PDSM are not made by unique_armor() but are a base item in
+    treasures.c so some patching of the treasure allocation codes would
+    be needed.
+
+ 5) Perhaps the Mithril armors should get a new intrinsic resistance the
+    way Adamantite armors have been give Resist Nexus.  I considered adding
+    Resist Shards on the logic that Frodo's Mithril coat in LOTR deflected
+    the otherwise mortal blow of the orc dart, but this seemed too much.
+    Adamantites are so expensive for really only a good Resist Acid armor
+    that I thought the improvement made plenty of sense.  I suspect Mithril
+    should get something a bit less powerful though.  I can't think of what
+    Mithril as described in LOTR would imply however.  I thought of the
+    Resist Nexus of Adamantite as a sign of the immutability of this 
+    hardest of metals.
+
+ 6) I agree with David Kahane, the author of FAngband, that the mage spell
+    Detect Enchantment is weak for its level and could stand enhancement.
+    As it stands Detect Enchantment is nothing more than the rogue spell
+    Detect Object tweaked to skip objects of less than {Good} quality.  To
+    a powerful magic realm character, though, a sling (+0, +1) for instance  
+    is not anymore worth identifying than an {average} or worse sling.
+    Moreover, spell effects like Detect Object, Detection, *Enlightenment,
+    etc. which light all objects in an area make Detect Enchantment useless.
+    However, I think swapping the Priestly Detection prayer for the Detect 
+    Enchantment spell is too simple a change.  I much prefer the idea of 
+    enhancing Detect Enchantment to only light objects of {excellant} or 
+    better.  To make these objects stand out when many objects are already 
+    lit I suggest bringing back the old {magic} inscription from UMoria and 
+    inscribing it on them.

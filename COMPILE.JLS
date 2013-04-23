@@ -1,0 +1,14 @@
+I have added the tcc compiler flag -Qx to use extended memory
+to compile the source.  This is principally useful for compiling
+misc1.c which otherwise does much swapping to disk and takes quite
+awhile to compile.  Note, though, that misc1.c needs quite a bit 
+of memory to compile so it will give an out of memory error if not
+enough is free (possible on my 1 Meg RAM system if conventional 
+memory is not free).
+
+I have added a #define in main.c, USE_XMS, which will include
+the commandline controllable XMS memory usage when EMS is full
+or nonexistent.  Since the command line limit would be exceeded
+if this was -D defined in makefile.tc, this was the only way to
+do this.  If you are compiling with a larger overlay buffer size,
+0x3000 for example, it might make sense to remove this.

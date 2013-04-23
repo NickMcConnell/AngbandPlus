@@ -2993,7 +2993,8 @@ inven_type *t_ptr;
     t_ptr->name2 = SN_STING;
     t_ptr->tohit = 7;
     t_ptr->todam = 8;
-    t_ptr->flags = (TR_SEE_INVIS|TR_DEX);
+    t_ptr->flags = (TR_SLAY_EVIL|TR_SLAY_UNDEAD|TR_SEE_INVIS);
+    t_ptr->flags |= (TR_STR|TR_DEX|TR_CON);
     t_ptr->flags2 |= (TR_ARTIFACT|TR_SLAY_ORC|TR_LIGHT|TR_RES_LT);
     t_ptr->p1    = 2;
     t_ptr->cost  = 12000L;
@@ -3302,7 +3303,7 @@ inven_type *t_ptr;
     if (wizard || peek) msg_print("Dal-i-thalion");
     else good_item_flag = TRUE;
     t_ptr->flags |= (TR_FREE_ACT|TR_DEX|TR_SUST_STAT|TR_RES_ACID);
-    t_ptr->flags2 |= (TR_ACTIVATE|TR_ARTIFACT);
+    t_ptr->flags2 |= (TR_RES_CHAOS|TR_RES_NETHER|TR_ACTIVATE|TR_ARTIFACT);
     t_ptr->name2 = SN_DAL;
     t_ptr->p1 = 5;
     t_ptr->ident |= ID_SHOW_P1;
@@ -3332,7 +3333,7 @@ inven_type *t_ptr;
     if (wizard || peek) msg_print("Isildur");
     else good_item_flag = TRUE;
     t_ptr->flags |= (TR_RES_ACID|TR_RES_FIRE|TR_RES_COLD|TR_RES_LIGHT);
-    t_ptr->flags2 |= (TR_RES_SOUND|TR_ARTIFACT);
+    t_ptr->flags2 |= (TR_RES_SOUND|TR_RES_NEXUS|TR_ARTIFACT);
     t_ptr->name2 = SN_ISILDUR;
     t_ptr->tohit = 0;
     t_ptr->toac += 25;
@@ -3529,7 +3530,7 @@ inven_type *t_ptr;
     else good_item_flag = TRUE;
     t_ptr->flags |= (TR_RES_ACID|TR_RES_FIRE|TR_RES_COLD|TR_RES_LIGHT|
 		     TR_STEALTH);
-    t_ptr->flags2 |= (TR_ARTIFACT);
+    t_ptr->flags2 |= (TR_RES_DARK|TR_ARTIFACT);
     t_ptr->name2 = SN_HITHLOMIR;
     t_ptr->p1 = 4;
     t_ptr->toac += 20;
@@ -3543,7 +3544,7 @@ inven_type *t_ptr;
     if (wizard || peek) msg_print("Thalkettoth");
     else good_item_flag = TRUE;
     t_ptr->flags |= (TR_RES_ACID|TR_DEX);
-    t_ptr->flags2 |= (TR_ARTIFACT);
+    t_ptr->flags2 |= (TR_RES_SHARDS|TR_ARTIFACT);
     t_ptr->name2 = SN_THALKETTOTH;
     t_ptr->toac += 25;
     t_ptr->p1 = 3;
@@ -3557,7 +3558,7 @@ inven_type *t_ptr;
     else good_item_flag = TRUE;
     t_ptr->flags |= (TR_RES_ACID|TR_RES_FIRE|TR_RES_COLD|TR_RES_LIGHT|
 		     TR_STR|TR_CHR);
-    t_ptr->flags2 |= (TR_ARTIFACT);
+    t_ptr->flags2 |= (TR_RES_SHARDS|TR_ARTIFACT);
     t_ptr->name2 = SN_ARVEDUI;
     t_ptr->p1 = 2;
     t_ptr->toac += 15;
@@ -3707,7 +3708,50 @@ inven_type *t_ptr;
   return 0;
 }
 
+/* Randomly add one of the "new" resistances to item t       */
+/* used of Robes of Magi, Elvenkind in magic_treasure() -JLS */
+void give_hi_resist(t)   
+register inven_type *t;
+{
+  switch (randint(10))
+   {
+    case 1:  t->flags  |= TR_POISON;         break;
+    case 2:  t->flags2 |= TR_RES_CONF;       break;
+    case 3:  t->flags2 |= TR_RES_SOUND;      break;
+    case 4:  t->flags2 |= TR_RES_LT;         break;
+    case 5:  t->flags2 |= TR_RES_DARK;       break;
+    case 6:  t->flags2 |= TR_RES_CHAOS;      break;
+    case 7:  t->flags2 |= TR_RES_DISENCHANT; break;
+    case 8:  t->flags2 |= TR_RES_SHARDS;     break;
+    case 9:  t->flags2 |= TR_RES_NEXUS;      break;
+    case 10: t->flags2 |= TR_RES_NETHER;     break;
+   }
+}
  
+/* Randomly remove 1 or 2 of the "new" resistances from item t */
+/* used of Power Dragon Scale Mails in magic_treasure() -JLS   */
+/* ASSERT: t points to a PDSM so no check here!                */
+void patch_pdsm(t)   
+register inven_type *t;
+{
+  int i;
+  t->flags2 |= TR_RES_SOUND; /* Give PDSM this one for now */
+  for (i=(randint(5)==1) ?2 :1; i > 0; i--)
+    switch (randint(9))
+     { /* Take away one of the new, higher resistances */
+      case 1:  t->flags  &= ~TR_POISON;         break;
+      case 2:  t->flags2 &= ~TR_RES_CONF;       break;
+      case 3:  t->flags2 &= ~TR_RES_SOUND;      break;
+      case 4:  t->flags2 &= ~TR_RES_LT;         break;
+      case 5:  t->flags2 &= ~TR_RES_DARK;       break;
+      case 6:  t->flags2 &= ~TR_RES_CHAOS;      break;
+   /* case :  t->flags2 &= ~TR_RES_DISENCHANT; break;  Skip this one */
+      case 7:  t->flags2 &= ~TR_RES_SHARDS;     break;
+      case 8:  t->flags2 &= ~TR_RES_NEXUS;      break;
+      case 9: t->flags2 &= ~TR_RES_NETHER;     break;
+     }
+}
+
 /* Chance of treasure having magic abilities		-RAK-	*/
 /* Chance increases with each dungeon level			 */
 void magic_treasure(x, level, good, not_unique)
@@ -3754,6 +3798,9 @@ int x, level, good, not_unique;
 	    artifact = TRUE;
 	  }
 	if (!artifact) { /* assume cost&mesg done if it was an artifact */
+	  if (!strncmp("Power Drag", object_list[t_ptr->index].name, 10)) {
+	    patch_pdsm(t_ptr); /* Make missing hi resist random -JLS */
+	  }
 	  if (wizard || peek) msg_print("Dragon Scale Mail");
 	  t_ptr->cost += ((int32)t_ptr->toac * 500L);
 	  }
@@ -3770,6 +3817,9 @@ int x, level, good, not_unique;
 	    if (wizard || peek) msg_print("Robe of the Magi");
 	    rating += 30;
 	    t_ptr->flags2 |= TR_HOLD_LIFE;
+	    give_hi_resist(t_ptr);
+	    if (randint(3)==1)
+	      give_hi_resist(t_ptr);
 	    t_ptr->p1 = 10;
 	    t_ptr->toac += 10+randint(5);
 	    t_ptr->name2 = SN_MAGI;
@@ -3787,6 +3837,7 @@ int x, level, good, not_unique;
 		  if (peek) msg_print("Elvenkind");
 		  rating += 25;
 		  t_ptr->flags |= TR_STEALTH;
+		  give_hi_resist(t_ptr);
 		  t_ptr->ident |= ID_SHOW_P1;
 		  t_ptr->p1 = randint(3);
 		  t_ptr->name2 = SN_ELVENKIND;
@@ -4068,7 +4119,7 @@ int x, level, good, not_unique;
 		      t_ptr->todam += 22;
 		      t_ptr->p1 = 3;
 		      t_ptr->flags |= (TR_STEALTH|TR_DEX);
-		      t_ptr->flags2 |= (TR_ARTIFACT);
+		      t_ptr->flags2 |= (TR_ARTIFACT|TR_RES_DISENCHANT);
 		      t_ptr->ident |= ID_SHOW_P1;
 		      t_ptr->cost = 25000L;
 		      BELEG = 1;
@@ -4098,7 +4149,7 @@ int x, level, good, not_unique;
 		  if (wizard || peek) msg_print("Cubragol");
 		  else good_item_flag = TRUE;
 		  t_ptr->name2 = SN_CUBRAGOL;
-		  t_ptr->subval = 10;
+		  t_ptr->subval = 11;
 		  t_ptr->tohit += 10;
 		  t_ptr->todam += 14;
 		  t_ptr->p1 = 1;
@@ -4758,7 +4809,7 @@ int x, level, good, not_unique;
 			  else good_item_flag = TRUE;
 			  t_ptr->name2 = SN_COLLUIN;
 			  t_ptr->toac += 15;
-			  t_ptr->flags |= (TR_RES_FIRE|TR_RES_COLD|
+			  t_ptr->flags |= (TR_RES_FIRE|TR_RES_COLD|TR_POISON|
 					   TR_RES_LIGHT|TR_RES_ACID);
 			  t_ptr->flags2 |= (TR_ACTIVATE|TR_ARTIFACT);
 			  t_ptr->cost = 10000L;

@@ -180,6 +180,16 @@ static int sv_write()
   if (inven_bw_flag)
     l |= 0x2000L;
 #endif
+  if (using_quiver)
+    l |= 0x20000L;	/* This is the same bit used to store -JLS
+                         * using_quiver in FAngband 1.0 (why not?).  
+			 *
+			 * This bit _MUST_ be reset on generating a new
+			 * character with an existing savefile or the
+			 * inventory/equiptment will become corrupted!
+			 * Set using_quiver = FALSE in generate.c when
+			 * new character is made.
+			 */
   if (death)
     l |= 0x80000000L;	/* Sign bit */
 
@@ -458,6 +468,20 @@ static int sv_write()
 
   wr_short((int16u)missile_ctr);
   wr_long((int32u)turn);
+  if (using_quiver) /* Quiver items are part of inventory for -JLS-
+                       * non-quiver versions so inven_ctr and equip_ctr
+                       * must be patched on save and restore!
+                       */
+  {
+    if (inven_ctr < INVEN_QUIVER) /* Need to move enquivered item to -JLS
+                                   * the bottom of the pack if 'a' to 'v'
+                                   * are not all in use!
+                                   */
+    {
+      inventory[inven_ctr] = inventory[INVEN_QUIVER];
+    }
+    inven_ctr++; equip_ctr--; /* Make quiver seem to be in pack! -JLS */
+  }
   wr_short((int16u)inven_ctr);
   for (i = 0; i < inven_ctr; i++)
     wr_item(&inventory[i]);
@@ -1104,6 +1128,10 @@ int *generate;
       else
         inven_bw_flag = FALSE;
 #endif
+      if (l & 0x20000L)
+      	using_quiver = TRUE;
+      else
+        using_quiver = FALSE;
       if (to_be_wizard && (l & 0x80000000L)
 	  && get_check("Resurrect a dead character?"))
 	l &= ~0x80000000L;
@@ -1240,6 +1268,37 @@ int *generate;
 	    rd_item(&inventory[i]);
 	  rd_short((int16u *)&inven_weight);
 	  rd_short((int16u *)&equip_ctr);
+	  if (using_quiver &&
+	      inventory[inven_ctr-1].tval != TV_SLING_AMMO &&
+              inventory[inven_ctr-1].tval != TV_BOLT &&
+              inventory[inven_ctr-1].tval != TV_ARROW)
+	  /* Reality check here, if inventory[inven_ctr-1] doesn't -JLS-
+	   * contain ammo the using_quiver status is wrong.
+	   */
+	      using_quiver = FALSE;
+	  else
+	      equip_top = using_quiver ? INVEN_QUIVER : INVEN_WIELD;
+	  if (using_quiver)
+          { /* Patch inven_ctr and equip_ctr to cancel -JLS-
+             * compatibility adjustment (ie. in non-quiver versions
+             * the enquivered missle ammo appears in the pack).
+             * The enquivered ammo should be at the bottom of the
+             * pack in the savefile if the quiver is in use.
+             */
+            using_quiver = TRUE;
+            inven_ctr--; equip_ctr++; /* Patch ctrs so quiver is in equip */
+            if (inven_ctr < INVEN_QUIVER) /* If not counting the -JLS-
+                                           * enquivered item (ie patched 
+                                           * inven_ctr) there are less than
+                                           * INVEN_QUIVER items then the
+                                           * enquivered item is not in the
+                                           * proper slot!  We must fix this.
+                                           */
+            {
+              inventory[INVEN_QUIVER] = inventory[inven_ctr];
+              invcopy(&inventory[inven_ctr], OBJ_NOTHING);
+            }
+          }
 	  rd_long(&spell_learned);
 	  rd_long(&spell_worked);
 	  rd_long(&spell_forgotten);

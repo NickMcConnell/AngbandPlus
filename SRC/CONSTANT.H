@@ -217,7 +217,21 @@
 #define BTH_PLUS_ADJ	 3    /* Adjust BTH per plus-to-hit	*/
 
 /* magic numbers for players inventory array */
-#define INVEN_WIELD 22	/* must be first item in equipment list */
+#define INVEN_QUIVER 21 /* The quiver is only a phantom member of the -JLS-
+                         * equiptment list.  Actually it is the last slot
+                         * of the inventory list sometimes pretending to
+                         * be part of the equiptment list.
+                         */
+#define INVEN_WIELD 22	/* OLD: must be first item in equipment list 
+                         * This was because INVEN_WIELD was often used -JLS-
+                         * to refer not just to the weapon slot, but to the
+                         * beginning of the equiptment list.  I have added
+                         * a new global variable, equip_top, so the top of
+                         * the equiptment list can be INVEN_WIELD __or__
+                         * INVEN_QUIVER as needed.  Some loops may still
+                         * run from INVEN_WIELD to eg. INVEN_LIGHT if not
+                         * all slots need to/should be tested.
+                         */
 #define INVEN_HEAD  23
 #define INVEN_NECK  24
 #define INVEN_BODY  25
@@ -855,6 +869,7 @@
 #define RD_PROBE        30L
 #define RD_RECALL	31L
 #define RD_TRAP_LOC	32L
+#define RD_MK_WALL	33L
 
 #define ST_LIGHT 	1L
 #define ST_DR_LC        2L
@@ -914,3 +929,4 @@
 #define ENCH_TOHIT   1
 #define ENCH_TODAM   2
 #define ENCH_TOAC    4
+

@@ -195,7 +195,10 @@ void calc_bonuses()
   m_ptr->dis_td	 = m_ptr->ptodam;  /* Display To Dam	    */
   m_ptr->dis_ac	 = 0;		/* Display AC		 */
   m_ptr->dis_tac = m_ptr->ptoac;   /* Display To AC	    */
-  for (i = INVEN_WIELD; i <= INVEN_LIGHT; i++) {
+  for (i = INVEN_WIELD; i <= INVEN_LIGHT; i++) { 
+    /* Should be INVEN_WIELD not equip_top.  Ammo in the quiver -JLS-
+     * should not improve fighting or armor stats! 
+     */
     i_ptr = &inventory[i];
     if (i_ptr->tval != TV_NOTHING) {
       m_ptr->pac += i_ptr->ac;
@@ -282,15 +285,15 @@ void calc_bonuses()
   				sure ac is shown properly... -CFT */
 
   item_flags = 0L;
-  i_ptr = &inventory[INVEN_WIELD];
-  for (i = INVEN_WIELD; i <= INVEN_LIGHT; i++)
+  i_ptr = &inventory[equip_top];
+  for (i = equip_top; i <= INVEN_LIGHT; i++)
     {
       item_flags |= i_ptr->flags;
       i_ptr++;
     }
   item_flags2 = 0L;
-  i_ptr = &inventory[INVEN_WIELD];
-  for (i = INVEN_WIELD; i <= INVEN_LIGHT; i++)
+  i_ptr = &inventory[equip_top];
+  for (i = equip_top; i <= INVEN_LIGHT; i++)
     {
       item_flags2 |= i_ptr->flags2;
       i_ptr++;
@@ -357,8 +360,8 @@ void calc_bonuses()
   if (TR_RES_NETHER & item_flags2)
     p_ptr->nether_resist = TRUE;
 
-  i_ptr = &inventory[INVEN_WIELD];
-  for (i = INVEN_WIELD; i < INVEN_LIGHT; i++)
+  i_ptr = &inventory[equip_top];
+  for (i = equip_top; i < INVEN_LIGHT; i++)
     {
       if (TR_SUST_STAT & i_ptr->flags)
 	switch(i_ptr->p1)
@@ -393,6 +396,40 @@ void calc_bonuses()
   else if (class[py.misc.pclass].spell == PRIEST) {
       calc_mana(A_WIS);
     }
+}
+
+#ifndef INVEN_QUIVER
+ You must define INVEN_QUIVER to be equal to INVEN_WIELD -1 for this quiver
+ code to work correctly!!!!!
+#endif
+
+/* Usage notes: -JLS-
+ * INVEN_QUIVER is equal to the bottom slot in the inventory right above
+ * the equiptment (ie. INVEN_QUIVER = INVEN_WIELD - 1).  The plan is to
+ * steal this slot (ie. 'v') from the inventory as a quasi-member of the 
+ * equiptment to implement a quiver w/o breaking the existing savefile.
+ * Therefore, if the item in slot 'v' (or whichever is the bottom slot)
+ * is suitable for use w/ a missle weapon and has bit TR_IN_QUIVER
+ * (located in flags2) set, then on restoration from savefile, the 
+ * global variable, using_quiver, will be set to TRUE.  If the user
+ * wears, takes off, or drops ammo in the quiver, the TR_IN_QUIVER bit
+ * and the global variables: using_quiver and equip_top will be updated
+ * accordingly.
+ */
+
+void use_quiver(using)
+int using; /* Boolean controlling whether quiver to be filled or emptied */
+{
+  if (using) /* Make slot 21 the quiver */
+  {
+    using_quiver = TRUE;
+    equip_top = INVEN_QUIVER;
+  }
+  else if (using_quiver) /* Make slot 21 slot 'v' of the inventory list */
+  {
+    using_quiver = FALSE;
+    equip_top = INVEN_WIELD;
+  }
 }
 
 
@@ -487,6 +524,8 @@ register int i;
 
   switch(i)
     {
+    case INVEN_QUIVER:
+      p = "storing in your quiver"; break;
     case INVEN_WIELD:
       p = "wielding"; break;
     case INVEN_HEAD:
@@ -527,7 +566,7 @@ int show_equip(weight, col)
   int total_weight, l, len, lim;
   register char *prt1;
   bigvtype prt2;
-  vtype out_val[INVEN_ARRAY_SIZE-INVEN_WIELD];
+  vtype out_val[INVEN_ARRAY_SIZE-INVEN_QUIVER];
   register inven_type *i_ptr;
 
   line = 0;
@@ -536,10 +575,12 @@ int show_equip(weight, col)
     lim = 52;
   else
     lim = 60;
-  for (i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {
+  for (i = equip_top; i < INVEN_ARRAY_SIZE; i++) {
     i_ptr = &inventory[i];
     if (i_ptr->tval != TV_NOTHING) {
       switch(i) {
+      case INVEN_QUIVER:
+	prt1 = "In quiver"; break;
       case INVEN_WIELD:
 	if (py.stats.use_stat[A_STR]*15 < i_ptr->weight)
 	  prt1 = "Just lifting";
@@ -588,7 +629,7 @@ int show_equip(weight, col)
     col = 0;
 
   line = 0;
-  for (i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++) {
+  for (i = equip_top; i < INVEN_ARRAY_SIZE; i++) {
     i_ptr = &inventory[i];
     if (i_ptr->tval != TV_NOTHING) {
 #ifdef TC_COLOR
@@ -630,6 +671,8 @@ void takeoff(item_val, posn)
 
   if (item_val == INVEN_WIELD || item_val == INVEN_AUX)
     p = "Was wielding ";
+  else if (item_val == INVEN_QUIVER)
+    p = "Was storing ";
   else if (item_val == INVEN_LIGHT)
     p = "Light source was ";
   else
@@ -638,12 +681,22 @@ void takeoff(item_val, posn)
   objdes(prt2, t_ptr, TRUE);
   if (posn >= 0)
     (void) sprintf(out_val, "%s%s (%c)", p, prt2, 'a'+posn);
-  else
+  else if (posn == -1)
     (void) sprintf(out_val, "%s%s", p, prt2);
-  msg_print(out_val);
+  if (posn >= -1) msg_print(out_val);
   if (item_val != INVEN_AUX)	  /* For secondary weapon  */
     py_bonuses(t_ptr, -1);
-  invcopy(t_ptr, OBJ_NOTHING);
+  if (using_quiver && item_val == INVEN_QUIVER)
+  {
+    use_quiver(FALSE);
+    invcopy(t_ptr, OBJ_NOTHING);
+  }
+  else if (item_val >= inven_ctr)
+    /*
+     * If the quiver was already off, INVEN_QUIVER may be -JLS-
+     * a part of the pack, if so, do _not_ destroy the item it holds.
+     */
+    invcopy(t_ptr, OBJ_NOTHING);
 }
 
 
@@ -762,7 +815,7 @@ char command;
   char which, query;
   bigvtype prt1, prt2;
   register inven_type *i_ptr;
-  inven_type tmp_obj;
+  inven_type tmp_obj,tmp_obj2;
 
   free_turn_flag = TRUE;
   save_screen();
@@ -819,7 +872,9 @@ char command;
 	    msg_print("You are not using any equipment.");
 	  /* don't print message restarting inven command after taking off
 	     something, it is confusing */
-	  else if (inven_ctr >= INVEN_WIELD && !doing_inven)
+	  else if (inven_ctr >= equip_top && 
+	  	   !using_quiver &&
+	  	   !doing_inven)
 	    msg_print("You will have to drop something first.");
 	  else
 	    {
@@ -1003,7 +1058,9 @@ char command;
 		    {
 		      /* Get its place in the equipment list. */
 		      tmp = item;
-		      item = 21;
+		      item = equip_top - 1; /* This was a straight -JLS-
+		                             * assignment: item = 21 
+		                             */
 		      do
 			{
 			  item++;
@@ -1015,10 +1072,17 @@ char command;
 			item = -1;
 		      else if (TR_CURSED & inventory[item].flags)
 			{
-			  msg_print("Hmmm, it seems to be cursed.");
+			  if (inventory[item].number > 1)
+			    msg_print("Hmmm, these seem to be cursed.");
+			  else
+			    msg_print("Hmmm, it seems to be cursed.");
 			  item = -1;
 			}
 		      else if (command == 't' &&
+			       !(using_quiver && item == INVEN_QUIVER) && 
+			         /* Can always take off ammo in -JLS-
+			          * quiver since quiver is part of pack!
+			          */
 			       !inven_check_num(&inventory[item]))
 			{
 			  if (cave[char_row][char_col].tptr != 0)
@@ -1043,8 +1107,28 @@ char command;
 			    }
 			  else
 			    {
-			      slot = inven_carry(&inventory[item]);
-			      takeoff(item, slot);
+			      if ((item == INVEN_QUIVER && using_quiver) ||
+			          !inven_check_num(&inventory[item]))
+			        { /* takeoff() must be called before -JLS-
+			           * inven_carry() when taking off ammo in 
+			           * the quiver or, since the ammo is in the 
+			           * inventory, inven_carry() will stack the 
+			           * ammo with itself!
+			           */
+			          tmp_obj = inventory[item];
+			          use_quiver(FALSE);
+			          takeoff(item, -2);
+			          slot = inven_carry(&tmp_obj);
+			          objdes(prt1, &tmp_obj, TRUE);
+			          (void) sprintf(prt2, "Was storing %s (%c)",
+			           prt1, 'a'+slot);
+			          msg_print(prt2);
+                    		}
+			      else
+                    		{
+				  slot = inven_carry(&inventory[item]);
+				  takeoff(item, slot);
+                    		}
 			    }
 			  check_strength();
 			  free_turn_flag = FALSE;
@@ -1061,6 +1145,7 @@ char command;
 		      else switch(inventory[item].tval)
 			{ /* Slot for equipment	   */
 			case TV_SLING_AMMO: case TV_BOLT: case TV_ARROW:
+			  slot = INVEN_QUIVER; break;
 			case TV_BOW: case TV_HAFTED: case TV_POLEARM:
 			case TV_SWORD: case TV_DIGGING:
 			  slot = INVEN_WIELD; break;
@@ -1116,15 +1201,18 @@ char command;
 			}
 		      if (item >= 0 && inventory[slot].tval != TV_NOTHING)
 			{
-			  if (TR_CURSED & inventory[slot].flags)
+			  if (TR_CURSED & inventory[slot].flags &&
+                              !(slot == INVEN_QUIVER && !using_quiver))
 			    {
 			      objdes(prt1, &inventory[slot], FALSE);
 			      (void) sprintf(prt2, "The %s you are ", prt1);
 			      if (slot == INVEN_WIELD) /* changed from INVEN_HEAD -CFT */
 				(void) strcat(prt2, "wielding ");
+			      else if (slot == INVEN_QUIVER)
+				(void) strcat(prt2, "storing in your quiver ");
 			      else
 				(void) strcat(prt2, "wearing ");
-			      msg_print(strcat(prt2, "appears to be cursed."));
+			      msg_print(strcat(prt2, "must be cursed."));
 			      item = -1;
 			    }
 			  else if (inventory[item].subval == ITEM_GROUP_MIN &&
@@ -1163,27 +1251,54 @@ char command;
 			  if (i_ptr->tval != TV_NOTHING)
 			    {
 			      tmp2 = inven_ctr;
-			      tmp = inven_carry(i_ptr);
-			      /* if item removed did not stack with anything in
-				 inventory, then increment wear_high */
-			      if (inven_ctr != tmp2)
-				wear_high++;
-			      takeoff(slot, tmp);
+			      if ((slot == INVEN_QUIVER && using_quiver) ||
+			          !inven_check_num(&inventory[item]))
+			        { /* takeoff() must be called before -JLS-
+			           * inven_carry() when taking off ammo in 
+			           * the quiver or, since the ammo is in the 
+			           * inventory, inven_carry() will stack the 
+			           * ammo with itself!
+			           */
+			          tmp_obj2 = inventory[slot];
+			          use_quiver(FALSE);
+				  wear_high++; /* quiver ammo never stacks */
+			          takeoff(slot, -2);
+			          tmp = inven_carry(&tmp_obj2);
+			          objdes(prt1, &tmp_obj2, TRUE);
+			          (void) sprintf(prt2, "Was storing %s (%c)",
+			           prt1, 'a'+tmp);
+			          msg_print(prt2);
+                    		}
+			      else
+			        {
+			          tmp = inven_carry(i_ptr);
+			          /* if item removed did not stack with 
+				   * anything in inventory, then increment 
+				   * wear_high 
+				   */
+			          if (inven_ctr != tmp2)
+				    wear_high++;
+			          takeoff(slot, tmp);
+			        }
 			    }
 
 			  /* third, wear new item */
 			  *i_ptr = tmp_obj;
+			  if (slot == INVEN_QUIVER)
+			    use_quiver(TRUE);
 			  equip_ctr++;
 			  py_bonuses(i_ptr, 1);
 			  if (slot == INVEN_WIELD)
 			    string = "You are wielding";
+			  else if (slot == INVEN_QUIVER)
+			    string = "You put in quiver";
 			  else if (slot == INVEN_LIGHT)
 			    string = "Your light source is";
 			  else
 			    string = "You are wearing";
 			  objdes(prt2, i_ptr, TRUE);
 			  /* Get the right equipment letter. */
-			  tmp = INVEN_WIELD;
+			  tmp = equip_top;
 			  item = 0;
 			  while (tmp != slot)
 			    if (inventory[tmp++].tval != TV_NOTHING)
@@ -1198,7 +1313,10 @@ char command;
 			  check_strength();
 			  if (i_ptr->flags & TR_CURSED)
 			    {
-			      msg_print("Oops! It feels deathly cold!");
+			      if (i_ptr->number > 1)
+				msg_print("Oops! These feel deathly cold!");
+			      else
+				msg_print("Oops! It feels deathly cold!");
 			      add_inscribe(i_ptr, ID_DAMD);
 			      /* To force a cost of 0, even if unidentified. */
 			      /* i_ptr->cost = -1;  Not! -DGK */
@@ -1230,6 +1348,12 @@ char command;
 		      if (item >= 0)
 			{
 			  free_turn_flag = FALSE;    /* Player turn   */
+			  if (query == 'y' &&
+			      item == INVEN_QUIVER && using_quiver)
+			    { /* Unload quiver if dropping quiver ammo. */
+			      use_quiver(FALSE);
+			      inven_ctr++; equip_ctr--;
+			    }
 			  inven_drop(item, query == 'y');
 			  check_strength();
 			}
@@ -1321,7 +1445,7 @@ int (*test)();
   redraw = FALSE;
   *com_val = 0;
   i_scr = 1;
-  if (j > INVEN_WIELD)
+  if (j > equip_top)
     {
       full = TRUE;
       if (inven_ctr == 0)
@@ -1437,7 +1561,9 @@ int (*test)();
 		    {
 		      if (i_scr == 0)
 			{
-			  i = 21;
+			  i = equip_top - 1; /* This was a straight -JLS-
+		                              * assignment: i = 21 
+		                              */
 			  j = *com_val;
 			  do
 			    {
@@ -2815,4 +2941,4 @@ int inven_color(int tval){
     }
   return( LIGHTGRAY );
 }
-
+

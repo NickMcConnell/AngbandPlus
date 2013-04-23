@@ -4,24 +4,24 @@ Command summary: (@ is optional count, ~ is direction, ^R redraws, ESC aborts)
   c ~      Close a door                |   C        Character description
   d        Drop an item                | @ D ~      Disarm a trap/chest
   e        Equipment list              |   E        Eat some food
-  f        Fire/Throw an item          |   F        Fill lamp with oil
+  f        Fire a missle from quiver   |   F ~      Fire/Throw an item
   g        get an item (OPTIONAL)      |   G        Gain new magic spells
   i        Inventory list              |   L        Locate with map
 @ j ~      Jam a door with spike       |   M        Map shown reduced size
-  l ~      Look given direction        | @ R        Rest for a period
-  m        Magic spell casting         |   S        Search Mode
-@ o ~      Open a door/chest           | @ T ~      Tunnel in a direction
-  p        Pray                        |   =        Set options
-  q        Quaff a potion              |   ?        Type this page
-  r        Read a scroll               |   {        Inscribe an object
-@ s        Search for traps or doors   | @ -        Move without pickup
-  t        Take off an item            |   . ~      Run in direction
-  u        Use a staff                 |   /        Identify a character
-  v        Version info and credits    |   CTRL-K   Quit the game
-  w        Wear/Wield an item          | @ CTRL-P   Repeat the last message
-  x        Exchange weapon             |   CTRL-X   Save character and quit
-  z        Zap a Rod                   |   *        Target a monster/location
-  <        Go up an up-staircase       |   >        Go down a down-staircase
+  l ~      Look given direction        |   O        Oil refill for lamp
+  m        Magic spell casting         | @ R        Rest for a period
+@ o ~      Open a door/chest           |   S        Search Mode
+  p        Pray                        | @ T ~      Tunnel in a direction
+  q        Quaff a potion              |   =        Set options
+  r        Read a scroll               |   ?        Type this page
+@ s        Search for traps or doors   |   {        Inscribe an object
+  t        Take off an item            | @ -        Move without pickup
+  u        Use a staff                 |   . ~      Run in direction
+  v        Version info and credits    |   /        Identify a character
+  w        Wear/Wield an item          |   CTRL-K   Quit the game
+  x        Exchange weapon             | @ CTRL-P   Repeat the last message
+  z        Zap a Rod                   |   CTRL-X   Save character and quit
+  < or >  Go up or down matching stairs|   *        Target a monster/location
   @ ~        for movement
 Directions:     7  8  9
                 4  5  6  [5 is stay]

@@ -456,13 +456,14 @@ char *filename1;
       if (equip_ctr == 0)
 	(void) fprintf(file1, "  Character has no equipment in use.\n");
       else
-	for (i = INVEN_WIELD; i < INVEN_ARRAY_SIZE; i++)
+	for (i = equip_top; i < INVEN_ARRAY_SIZE; i++)
 	  {
 	    i_ptr = &inventory[i];
 	    if (i_ptr->tval != TV_NOTHING)
 	      {
 		switch (i)
 		  {
+		  case INVEN_QUIVER:	p = "You are storing";	break;
 		  case INVEN_WIELD:	p = "You are wielding";	break;
 		  case INVEN_HEAD:	p = "Worn on head";	break;
 		  case INVEN_NECK:	p = "Worn around neck";	break;

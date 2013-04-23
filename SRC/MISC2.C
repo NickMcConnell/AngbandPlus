@@ -708,6 +708,21 @@ int stat;
     return(0);
 }
 
+/* Add to length of duration spells based on charisma   -JLS-
+ * and level to make resist element/force and other protective
+ * spells more powerful.  Effects of this function are limited
+ * until charisma and/or level become very high.  At level 50
+ * and 18/210+ charisma the effect would be upto 70 extra turns.
+ * If this is too much or too little simply multiply or divide
+ * chr_bonus() by some constant. 
+ */
+int chr_bonus()
+{
+  int tmp;
+
+  tmp = (2+py.misc.lev/10)*stat_adj(A_CHR)/2;
+  return (tmp==0) ? 0 : randint(tmp);
+}
 
 /* Adjustment for charisma				-RAK-	*/
 /* Percent decrease or increase in price of goods		 */
@@ -848,7 +863,9 @@ void prt_chp()
   if (!no_color_flag) {
     int32 t = 100L * (long)py.misc.chp;
     t = t/(long)py.misc.mhp; /* calc % */
-    if (t < 12)
+    if ((PY_INVULN & py.flags.status) != 0)
+      textcolor(WHITE);
+    else if (t < 12)
       textcolor(LIGHTRED);
     else if (t < 35)
       textcolor(YELLOW);
@@ -1888,7 +1905,7 @@ register int item_val, drop_all;
   t_list[i] = *i_ptr;
   cave[char_row][char_col].tptr = i;
 
-  if (item_val >= INVEN_WIELD)
+  if (item_val >= equip_top)
     takeoff (item_val, -1);
   else
     {
@@ -1967,21 +1984,25 @@ int weight_limit()
 int inven_check_num (t_ptr)
 register inven_type *t_ptr;
 {
-  register int i;
+  register int i, j;
 
-  if (inven_ctr < INVEN_WIELD)
+  if (inven_ctr < equip_top)
     return TRUE;
   else if (t_ptr->subval >= ITEM_SINGLE_STACK_MIN)
-    for (i = 0; i < inven_ctr; i++)
-      if (inventory[i].tval == t_ptr->tval &&
-	  inventory[i].subval == t_ptr->subval &&
+   for (i = -1; i < inven_ctr; i++)
+    if (using_quiver || i >= 0)
+     {
+      j = (i == -1 ? INVEN_QUIVER : i );
+      if (inventory[j].tval == t_ptr->tval &&
+	  inventory[j].subval == t_ptr->subval &&
 	  /* make sure the number field doesn't overflow */
-	  ((int)inventory[i].number + (int)t_ptr->number < 256) &&
+	  ((int)inventory[j].number + (int)t_ptr->number < 256) &&
 	  /* they always stack (subval < 192), or else they have same p1 */
-	  ((t_ptr->subval < ITEM_GROUP_MIN) || (inventory[i].p1 == t_ptr->p1))
+	  ((t_ptr->subval < ITEM_GROUP_MIN) || (inventory[j].p1 == t_ptr->p1))
 	  /* only stack if both or neither are identified */
-	  && (known1_p(&inventory[i]) == known1_p(t_ptr)))
+	  && (known1_p(&inventory[j]) == known1_p(t_ptr)))
 	return TRUE;
+     }
   return FALSE;
 }
 
@@ -2054,13 +2075,13 @@ void check_strength()
 }
 
 
-/* Add an item to players inventory.  Return the	*/
+/* Add an item to players inventory.  Return the    */
 /* item position for a description if needed.	       -RAK-   */
 /* this code must be identical to the inven_check_num() code above */
 int inven_carry(i_ptr)
 register inven_type *i_ptr;
 {
-  register int locn, i;
+  register int locn, i, j;
   register int typ, subt;
   register inven_type *t_ptr;
   int known1p, always_known1p;
@@ -2075,8 +2096,10 @@ register inven_type *i_ptr;
   /* to prevent nasty losses of objects, we first look through entire inven
      for a place to stack, w/o assuming the inventory is sorted. -CFT */
   if (subt >= ITEM_SINGLE_STACK_MIN) {
-    for (locn = 0; locn < inven_ctr; locn++) {
-      t_ptr = &inventory[locn];	
+    for (j = -1; j < inven_ctr; j++)
+     if (using_quiver || j>=0) {
+      locn = (j == -1 ? INVEN_QUIVER : j);
+      t_ptr = &inventory[locn];
       if (t_ptr->tval == typ &&
 	  t_ptr->subval == subt &&
 	  /* make sure the number field doesn't overflow */
@@ -2087,6 +2110,8 @@ register inven_type *i_ptr;
 	  && (known1_p(&inventory[locn]) == known1p)) {
 	stacked = TRUE; /* note that we did process the item -CFT */
 	t_ptr->number += i_ptr->number;
+	if (using_quiver && locn == INVEN_QUIVER) 
+	  msg_print ("Adding to quiver!");
 	if (i_ptr->cost < t_ptr->cost)  /* if player bought at bargin price,
 	  				     then make sure he can't sell back
 	  				     for normal value.  This is
@@ -2098,7 +2123,7 @@ register inven_type *i_ptr;
 	break;
 	} /* if it stacks here */
       } /* for loop */
-    } /* if it stacks, try to stack it... */	
+    } /* if it stacks, try to stack it... */
   if (!stacked) { /* either it doesn't stack anyway, or it didn't match
   			anything in the inventory.  Now try to insert. -CFT */
     for (locn = 0; ; locn++) {

@@ -618,7 +618,7 @@ int ident_spell()
       i_ptr = &inventory[item_val];
       known2(i_ptr);
       objdes(tmp_str, i_ptr, TRUE);
-      if (item_val >= INVEN_WIELD)
+      if (item_val >= equip_top)
 	{
 	  calc_bonuses();
 	  (void) sprintf (out_val, "%s: %s", describe_use(item_val), tmp_str);
@@ -1275,11 +1275,11 @@ void bolt(typ, y, x, dam_hp, ddesc, ptr, monptr)
 		    objdes(t1, &inventory[t], FALSE);
 		    if (chance < 3)
 		      sprintf(t2, "Your %s (%c) %s disenchanted!", t1,
-			t+'a'-INVEN_WIELD,
+			t+'a'-equip_top,
 			(inventory[t].number != 1) ? "were":"was");
 		    else
 		      sprintf(t2, "Your %s (%c) %s disenchantment!", t1,
-			t+'a'-INVEN_WIELD,
+			t+'a'-equip_top,
 			(inventory[t].number != 1) ? "resist":"resists");
 		    msg_print (t2);
 	        calc_bonuses ();
@@ -1909,11 +1909,11 @@ int monptr;
 		    objdes(t1, &inventory[t], FALSE);
 		    if (chance < 3)
 		      sprintf(t2, "Your %s (%c) %s disenchanted!", t1,
-			t+'a'-INVEN_WIELD,
+			t+'a'-equip_top,
 			(inventory[t].number != 1) ? "were":"was");
 		    else
 		      sprintf(t2, "Your %s (%c) %s disenchantment!", t1,
-			t+'a'-INVEN_WIELD,
+			t+'a'-equip_top,
 			(inventory[t].number != 1) ? "resist":"resists");
 		    msg_print (t2);
 		      calc_bonuses ();
@@ -3307,7 +3307,7 @@ int protect_evil()
     res = TRUE;
   else
     res = FALSE;
-  f_ptr->protevil += randint(25) + 3*py.misc.lev;
+  f_ptr->protevil += randint(25) + 3*py.misc.lev + chr_bonus();
   return(res);
 }
 
@@ -3647,7 +3647,7 @@ int slow_poison()
 void bless(amount)
 int amount;
 {
-  py.flags.blessed += amount;
+  py.flags.blessed += amount + chr_bonus();
 }
 
 
@@ -3655,7 +3655,7 @@ int amount;
 void detect_inv2(amount)
 int amount;
 {
-  py.flags.detect_inv += amount;
+  py.flags.detect_inv += amount + chr_bonus();
 }
 
 
@@ -3720,6 +3720,11 @@ register int y, x;
   msg_print("There is a searing blast of light!");
   if (!py.flags.blindness_resist)
     py.flags.blind += 10 + randint(10);
+  else { /* Need to redraw the dungeon for the unblindable -JLS */
+    draw_cave(); /* thanks to David Kahane (dgk4@po.cwru.edu) for
+		    pointing out this better way to do this -CFT */
+    creatures(FALSE);  /* draw monsters */
+  }
 }
 
 
@@ -3880,7 +3885,7 @@ int remove_curse()
   register inven_type *i_ptr;
 
   result = FALSE;
-  for (i = INVEN_WIELD; i <= INVEN_OUTER; i++)
+  for (i = equip_top; i <= INVEN_OUTER; i++)
     {
       i_ptr = &inventory[i];
       if ((TR_CURSED & i_ptr->flags) &&
@@ -3906,7 +3911,7 @@ int remove_all_curse()
   register inven_type *i_ptr;
 
   result = FALSE;
-  for (i = INVEN_WIELD; i <= INVEN_OUTER; i++)
+  for (i = equip_top; i <= INVEN_OUTER; i++)
     {
       i_ptr = &inventory[i];
       if (TR_CURSED & i_ptr->flags)
@@ -3972,7 +3977,10 @@ void self_knowledge(void){
   int i,j;
   int32u f = 0L, f2 = 0L;
 
-  for(i=INVEN_WIELD;i <= INVEN_LIGHT; i++){ /* get flags from items */
+  /* Note: If calc_bonuses() does not include quiver ammo in bonus -JLS-
+   * calculations then this loop should run from INVEN_WIELD down.
+   */
+  for(i=equip_top;i <= INVEN_LIGHT; i++){ /* get flags from items */
     if (inventory[i].tval != TV_NOTHING){
       f |= inventory[i].flags; 
       f2 |= inventory[i].flags2;

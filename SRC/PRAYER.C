@@ -116,8 +116,8 @@ void pray()
 		  break;
 		case 16:
 		  f_ptr = &py.flags;
-		  f_ptr->resist_heat += randint(10) + 10;
-		  f_ptr->resist_cold += randint(10) + 10;
+		  f_ptr->resist_heat += randint(10) + 10 + chr_bonus();
+		  f_ptr->resist_cold += randint(10) + 10 + chr_bonus();
 		  break;
 		case 17:
 		  (void) cure_poison();
@@ -137,7 +137,7 @@ void pray()
 		  }
 		  break;
 		case 20:
-		  detect_inv2(randint(24)+24);
+		  detect_inv2(randint(24)+24+chr_bonus());
 		  break;
 		case 21:
 		  (void) protect_evil();
@@ -301,6 +301,8 @@ void pray()
 		  break;
 		case 50: /* enchant weapon */
 		  i_ptr = &inventory[INVEN_WIELD];
+		  if (i_ptr->tval == TV_NOTHING)
+		    i_ptr = &inventory[INVEN_QUIVER];
 		  if (i_ptr->tval != TV_NOTHING)
 		    {
 		      int flag, k;
@@ -362,6 +364,8 @@ void pray()
 		  break;
 		case 52: /* Elemental brand */
 		  i_ptr = &inventory[INVEN_WIELD];
+		  if (i_ptr->tval == TV_NOTHING)
+		    i_ptr = &inventory[INVEN_QUIVER];
 		  if (i_ptr->tval != TV_NOTHING &&
 		      i_ptr->name2 == SN_NULL &&
 		      !(i_ptr->flags & TR_CURSED)) /* you can't create an

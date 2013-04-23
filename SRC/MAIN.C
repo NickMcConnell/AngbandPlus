@@ -189,8 +189,21 @@ char *argv[];
 
 #ifdef TC_OVERLAY
   { extern int far _OvrInitEms(unsigned, unsigned, unsigned);
+#define USE_XMS
+#ifdef USE_XMS
+    extern int far _OvrInitExt(unsigned long, unsigned long);
+  /* If EMS memory unavailable try to use XMS memory.  Since XMS usage
+   * is not strictly standardized, ie. some programs take XMS without
+   * allocating it thereby making their use undetectable, this may _not_
+   * work right with some other XMS software.  Cross your fingers.  -JLS */
+  if (_OvrInitEms(0,0,0) != 0 && /* If no EMS */
+      stricmp(argv[1],"-x")   && /* and XMS not disabled */
+      _OvrInitExt(0,0) == 0)     /* Try XMS */
+       puts("Angband is using XMS memory\n"); /* OK, use XMS */
+#else
   _OvrInitEms(0,0,0);  /* This is supposed to detect expanded (EMS) memory
   			  and allocate it for use in overlay swapping -CFT */
+#endif
   }
 #endif
 
@@ -351,11 +364,20 @@ char *argv[];
 	goto usage;
       }
       break;
+#ifdef USE_XMS
+    case 'x':
+    case 'X': /* Disable use of XMS when no EMS available -JLS */
+      break;  /* Already handled above */
+#endif
     default:
     usage:
       if (is_wizard(player_uid)) {
 #ifdef MSDOS
+#ifdef USE_XMS
+	puts("Usage: angband [-x] [-afnorw] [-s<num>] [-d<num>] <file>");
+#else
 	puts("Usage: angband [-afnorw] [-s<num>] [-d<num>] <file>");
+#endif
 #else
 	puts("Usage: angband [-afnor] [-s<num>] [-u<name>] [-w<uid>] [-d<num>]");
 #endif
@@ -368,6 +390,9 @@ char *argv[];
 	puts("  s<num>  Show high scores.  Show <num> scores, or all");
 #ifdef MSDOS
 	puts("  w       Start in wizard mode");
+#ifdef USE_XMS
+	puts("  x       Disable use of XMS if no EMS (must be 1st option)");
+#endif
 	puts(" <file>   Play with savefile named <file>");
 #else
 	puts("  w<num>  Start in wizard mode, as uid number <num>");
@@ -792,21 +817,3 @@ static d_check(a)
       exit_game();
     } else a++;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

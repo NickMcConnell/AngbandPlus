@@ -266,6 +266,11 @@ void activate_rod()
 	if (detect_trap()) ident = TRUE;
         i_ptr->timeout=99; /* fairly long timeout because rod so low lv -CFT */
 	break;
+      case RD_MK_WALL:
+	if (!direction(&dir)) goto no_charge;
+	ident = build_wall(dir, k, l);
+        i_ptr->timeout=999; /* This should be high to limit recharging. -JLS */
+	break;
       default:
 	msg_print("Internal error in rods() ");
 	break;

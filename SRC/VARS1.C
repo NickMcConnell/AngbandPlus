@@ -163,6 +163,32 @@ int16u target_col;
 int16u target_row;
 int16u target_mon;
 
+/* Global variable to replace use of INVEN_WIELD as an index into -JLS-
+ * the struct, inventory, indicating where the equiptment list begins.
+ * If the quiver exists then the last slot of the pack inventory (which
+ * will always be 'v' if the savefile format is not changed) is "stolen"
+ * for use as a quiver.
+ * Note that equip_top == using_quiver ? INVEN_QUIVER : INVEN_WIELD
+ * should always be true.
+ */
+#ifdef MSDOS
+int8u equip_top = INVEN_WIELD;
+#else
+int equip_top = INVEN_WIELD;
+#endif
+
+/* using_quiver stores the quiver status of slot, INVEN_QUIVER, -JLS-
+ * during game play.  It is stored as bit 0x20000 of the long variable,
+ * l, in save.c which also stores the '=' command and death settings.
+ * Care should be taken that using_quiver is not left TRUE when a character
+ * dies and a new character is generated with this savefile.
+ */
+#ifdef MSDOS
+int8u using_quiver = FALSE;
+#else
+int using_quiver = FALSE;
+#endif 
+
 #ifdef MAC
 recall_type *c_recall;
 #else
