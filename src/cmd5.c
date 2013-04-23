@@ -545,6 +545,38 @@ static int print_spell_list(book_type *b_ptr, int y, int x,
 	return y;
 }
 
+int desc_spell_list(cptr *info, object_ctype *o_ptr)
+{
+	int i, t;
+	char buf[80];
+	cptr str;
+
+	/* Access the item's spell list. */
+	book_type *b_ptr = k_idx_to_book(o_ptr->k_idx);
+
+	/* Nothing to print. */
+	if (!b_ptr) return 0;
+
+	if (o_ptr->number == 1)
+		info[0] = "It contains the following spells:";
+	else
+		info[0] = "They contain the following spells:";
+
+	for (i = 0, t = 1; i < b_ptr->max; i++)
+	{
+		const magic_type *s_ptr = &(b_ptr->info[i]);
+
+		get_magic_info(ARRAY(buf), s_ptr);
+
+		/* Get the spell description. */
+		str = spell_string(i, s_ptr, buf);
+
+		/* Print if allowed. */
+		if (str) info[t++] = safe_string_make(format("$W%s", str+4));
+	}
+	return t;
+}
+
 /*
  * Determine if a spell is "okay" for the player to cast or study
  * The spell must be legible, not forgotten, and also, to cast,

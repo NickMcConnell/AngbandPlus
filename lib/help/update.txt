@@ -5,6 +5,39 @@ Based on Cthangband 4.1.0b and Zangband 2.1.0e
 Changes are added to the top of this file, so for a chronological order
 read from the bottom up.
 
+sCthangband 1.0.17
+* Create the player on a random staircase on entering a level.
+* Change existing stairs around when a quest is finished.
+* Give each dungeon square a remembered feature, and use it to avoid displaying
+  anything when a monster bores through a wall.
+* Add the ability to record a keymap with the game giving feedback.
+* Display messages from previous turns in a darker colour.
+* Delete the character under the cursor when delete is pressed in text prompts.
+* Only update the "object recall" when manipulating spellbooks.
+* Describe what effects skill restoration will have on the I screen.
+* Remove the unused second spellcasting frequency from monsters.
+* Fix the following bugs:
+  * player_has_flag() may have given unreliable results.
+  * The redraw prefs help command displayed the wrong text.
+  * Restoring wisdom did not recalculate the chi total.
+  * The track_mouse option could reveal the identities of unidentified things.
+  * Aborting at the "choose stat set" screen could crash the game.
+  * The shop restoration help identified mushrooms of restoration.
+  * The game could identify some aspects of random artefacts without cause.
+  * The game identified object activations without cause.
+  * Proportional fonts were laid out incorrectly with -mx11.
+  * Z lines in the pref file gave a false error message on successful parsing.
+  * Referring to the macro for $ in the macro prefs could have bad effects.
+  * The game could give special feelings for more boring levels.
+  * The probabilities on the extra character info screen could be above 100%.
+  * The wild map didn't all fit on the screen.
+  * The player and monsters could be hit twice by a spell effect.
+  * Allies were duplicated on the surface.
+  * Monsters created during the player's turn could act immediately.
+  * Dimension door failed under inappropriate circumstances.
+  * rand_int() never returned a value above 65535 on some systems.
+  * rand_int() could hang if u32b was not a 32 bit type.
+
 sCthangband 1.0.16
 * Fix the following bugs:
   * The game hung if it was started without an existing save file.

@@ -422,9 +422,6 @@ struct monster_race
 
 	s32b mexp; /* Exp value for kill */
 
-	byte freq_inate; /* Inate spell frequency */
-	byte freq_spell; /* Other spell frequency */
-
 	u32b flags1; /* Flags 1 (general) */
 	u32b flags2; /* Flags 2 (abilities) */
 	u32b flags3; /* Flags 3 (race/resist) */
@@ -434,14 +431,13 @@ struct monster_race
 
 	monster_blow blow[4]; /* Up to four blows per round */
 
-
+	byte freq_spell; /* Spell frequency */
 	byte level; /* Level of creature */
 	byte rarity; /* Rarity of creature */
 
 	gfx_type gfx; /* On-screen representation. */
 
 	byte max_num; /* Maximum population allowed per level */
-
 	byte cur_num; /* Monster population on current level */
 
 
@@ -457,8 +453,7 @@ struct monster_race
 	byte r_drop_gold; /* Max number of gold dropped at once */
 	byte r_drop_item; /* Max number of item dropped at once */
 
-	byte r_cast_inate; /* Max number of inate spells seen */
-	byte r_cast_spell; /* Max number of other spells seen */
+	byte r_cast_spell; /* Max number of spells seen */
 
 	byte num_blows;        /* Attack speed (equates to p_ptr->num_blows) */
 	byte r_blows[4]; /* Number of times each blow type was seen */
@@ -529,6 +524,7 @@ struct cave_type
 	u16b info; /* Hack -- cave flags */
 
 	byte feat; /* Hack -- feature type */
+	byte r_feat; /* Observed feature type */
 
 	s16b o_idx; /* Object in this grid */
 

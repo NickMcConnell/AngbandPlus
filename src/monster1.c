@@ -409,7 +409,6 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags1 & (RF1_ONLY_ITEM)) r_ptr->r_drop_gold = 0;
 
 		/* Hack -- observe many spells */
-		r_ptr->r_cast_inate = MAX_UCHAR;
 		r_ptr->r_cast_spell = MAX_UCHAR;
 
 		/* Hack -- know all the flags */
@@ -953,10 +952,10 @@ static void roff_aux(int r_idx)
 	if (breath || magic)
 	{
 		/* Total casting */
-		m = r_ptr->r_cast_inate + r_ptr->r_cast_spell;
+		m = r_ptr->r_cast_spell;
 
 		/* Average frequency */
-		n = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
+		n = r_ptr->freq_spell;
 
 		/* Describe the spell frequency */
 		if (m > 100)

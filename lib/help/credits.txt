@@ -8,8 +8,8 @@ various operating systems.
 James Gordon, Doug G., Leon Marrick, Rob Rowe, Dario Saccavino, Andrew Sidwell,
 Stig E Sandø and Wesley Weimer for various bug reports and fixes.
 
-Various people (including DarkGod, Steven Fuerst, Leon Marrick, Iain McFall and
-Robert Ruehlmann) for code of theirs which I have used.
+Various people (including DarkGod, Steven Fuerst, Mr. Hoge, Leon Marrick,
+Iain McFall and Robert Ruehlmann) for code of theirs which I have used.
 
 Dean Anderson, Ben Harrison, Robert Alan Koeneke, David Thornley, Topi Ylinen,
 and all the other people who helped to create the game on which this variant is

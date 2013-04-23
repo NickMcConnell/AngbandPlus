@@ -661,7 +661,7 @@ static bc_type birth_choice(int row, s16b max, cptr prompt, int *option,
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		else if (c == 'S') return BC_RESTART;
-		else if (c == '?') do_cmd_help(NULL);
+		else if (c == '?') do_cmd_help(syshelpfile);
 		else if (c == ESCAPE && allow_abort) return BC_ABORT;
 		else if (c == '=')
 		{
@@ -1132,7 +1132,7 @@ static bool point_mod_player(void)
 		}
 		if (i == IDX_HELP)
 		{
-			do_cmd_help(NULL);
+			do_cmd_help(syshelpfile);
 		}
 		/* Toggle details if required. */
 		if (i == IDX_DETAILS)
@@ -1338,22 +1338,55 @@ static bool point_mod_player(void)
 /* Hack - special race for default stat set. */
 #define RACE_NONE 255
 
+/* Clean up and return. */
+#define RETURN(X) \
+{ \
+	TFREE(temp_stat_default); \
+	return X; \
+}
+
+/* 
+ * Actually copy the contents of a stat_default_type to the player.
+ */
+static void load_stat_set_aux(stat_default_type *sd_ptr)
+{
+	int i;
+	if (p_ptr->prace == RACE_NONE)
+	{
+		p_ptr->psex = sd_ptr->sex;
+		sp_ptr = &sex_info[sd_ptr->sex];
+
+		p_ptr->prace = sd_ptr->race;
+		rp_ptr = &race_info[sd_ptr->race];
+
+		p_ptr->ptemplate = sd_ptr->template;
+		cp_ptr = &template_info[sd_ptr->template];
+
+		strncpy(player_name, quark_str(sd_ptr->name), 31);
+	}
+	for (i = 0; i < A_MAX; i++)
+	{
+		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = sd_ptr->stat[i];
+	}
+}
+
 /*
  * Load a set of stats.
  *
  * If menu is true, the player wants a choice.
  */
-static bc_type load_stat_set_aux(bool menu, s16b *temp_stat_default)
+static bc_type load_stat_set(bool menu)
 {
+	C_TNEW(temp_stat_default, stat_default_total+1, stat_default_type *);
 	bc_type rc;
 	int x;
 	s16b y;
 
 	/* Not allowed to do this. */
-	if (!allow_pickstats) return BC_ABORT;
+	if (!allow_pickstats) RETURN(BC_ABORT);
 
 	/* Paranoia - there should be a default entry */
-	if (!stat_default_total) return BC_ABORT;
+	if (!stat_default_total) RETURN(BC_ABORT);
 
 	/* Find a set of stats which match the current race and template
 	 * Templates with maximise set to DEFAULT_STATS are acceptable for
@@ -1384,12 +1417,12 @@ static bc_type load_stat_set_aux(bool menu, s16b *temp_stat_default)
 			(sd_ptr->race == p_ptr->prace &&
 			sd_ptr->template == p_ptr->ptemplate))
 		{
-			temp_stat_default[y++] = x;
+			temp_stat_default[y++] = sd_ptr;
 		}
 	}
 
 	/* Don't do anything without a choice. */
-	if (!y) return BC_ABORT;
+	if (!y) RETURN(BC_ABORT);
 
 	/* Give the player the choices. */
 	if (menu)
@@ -1411,7 +1444,7 @@ static bc_type load_stat_set_aux(bool menu, s16b *temp_stat_default)
 		clear_from(start);
 		for (x = 0; x < y; x++)
 		{
-			stat_default_type *sd_ptr = &stat_default[temp_stat_default[x]];
+			stat_default_type *sd_ptr = temp_stat_default[x];
 			char buf[120]="";
 			int z;
 			sprintf(buf, "%c) %s (", rtoa(x), quark_str(sd_ptr->name));
@@ -1457,54 +1490,24 @@ static bc_type load_stat_set_aux(bool menu, s16b *temp_stat_default)
 
 		/* Finally clean up. */
 		clear_from(start);
+
+		/* Load the stats, if acceptable. */
+		if (rc == BC_OKAY) load_stat_set_aux(temp_stat_default[x]);
 	}
 	/* We're starting for the first time, so give the player the last set saved. */
 	else if (!p_ptr->stat_cur[0])
 	{
-		x = y-1;
+		load_stat_set_aux(temp_stat_default[y-1]);
 		rc = BC_OKAY;
 	}
 	/* The player has already chosen stats, and hasn't asked to load new ones,
 	 * so do nothing. */
 	else
 	{
-		return BC_ABORT;
+		rc = BC_ABORT;
 	}
-	/* Something has been chosen, so copy everything across. */
-	if (x != -1)
-	{
-		stat_default_type *sd_ptr = &stat_default[temp_stat_default[x]];
-		if (p_ptr->prace == RACE_NONE)
-		{
-			p_ptr->psex = sd_ptr->sex;
-			sp_ptr = &sex_info[sd_ptr->sex];
 
-			p_ptr->prace = sd_ptr->race;
-			rp_ptr = &race_info[sd_ptr->race];
-
-			p_ptr->ptemplate = sd_ptr->template;
-			cp_ptr = &template_info[sd_ptr->template];
-
-			strncpy(player_name, quark_str(sd_ptr->name), 31);
-		}
-		for (y = 0; y < A_MAX; y++)
-		{
-			s16b tmp = sd_ptr->stat[y];
-			p_ptr->stat_cur[y] = p_ptr->stat_max[y] = tmp;
-		}
-	}
-	return rc;
-}
-
-/*
- * A wrapper around the above to handle dynamic allocation.
- */
-static bc_type load_stat_set(bool menu)
-{
-	C_TNEW(temp_stat_default, stat_default_total+1, s16b);
-	bc_type returncode = load_stat_set_aux(menu, temp_stat_default);
-	TFREE(temp_stat_default);
-	return returncode;
+	RETURN(rc);
 }
 
 /*
@@ -2802,7 +2805,7 @@ static bool quick_start_character(void)
 			/* Help */
 			if (c == '?')
 			{
-				do_cmd_help(NULL);
+				do_cmd_help(syshelpfile);
 				continue;
 			}
 
@@ -2869,7 +2872,7 @@ static bc_type ask_quick_start(void)
 			case 'S': return BC_RESTART;
 			case 'y': case 'Y': return BC_OKAY;
 			case 'n': case 'N': return BC_ABORT;
-			case '?': do_cmd_help(NULL); break;
+			case '?': do_cmd_help(syshelpfile); break;
 			case '=':
 				Term_save();
 				do_cmd_options_aux(7, "Startup Options", NULL);

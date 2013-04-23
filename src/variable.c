@@ -110,6 +110,7 @@ bool inkey_flag; /* See the "inkey()" function */
 bool shimmer_monsters; /* Hack -- optimize multi-hued monsters */
 
 bool repair_monsters; /* Hack -- optimize detect monsters */
+bool repair_mflag_nice; /* Hack -- optimise resetting MFLAG_NICE. */
 
 s16b total_weight; /* Total weight being carried */
 
@@ -446,6 +447,18 @@ cptr *macro__act;
 char *macro__buf;
 
 
+#ifdef ALLOW_MACROS
+/*
+ * Pointer in macro__buf for recording a keymap action.
+ */
+char *keymap_buf_ptr;
+
+/*
+ * Pointer in macro__buf to show where the current command invocation began.
+ */
+char *keymap_cmd_ptr;
+#endif /* ALLOW_MACROS */
+
 /*
  * The pointers to the quarks [QUARK_MAX]
  */
@@ -462,6 +475,10 @@ u16b *message__ptr;
  */
 char *message__buf;
 
+/*
+ * Boolean - the next message belongs to a new turn.
+ */
+bool new_message_turn; /* Allow message__turn to be reset. */
 
 /*
  * Global table of color definitions
@@ -840,7 +857,7 @@ init_macro_type *macro_info = NULL;
 char *macro_name;
 char *macro_text;
 
-u16b rebuild_raw = 0;
+u32b rebuild_raw = 0;
 
 #endif /* ALLOW_TEMPLATES */
 

@@ -29,6 +29,7 @@ extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
 extern void move_cursor_relative(int row, int col);
 extern void print_rel(char c, byte a, int y, int x);
 extern void highlight_square(int win, int y, int x);
+extern void mark_spot(int y, int x);
 extern void note_spot(int y, int x);
 extern void lite_spot(int y, int x);
 extern void prt_map(bool reset);
@@ -47,6 +48,7 @@ extern void cave_set_feat(int y, int x, int feat);
 extern void mmove2(int *y, int *x, int y1, int x1, int y2, int x2);
 extern bool move_in_direction(int *xx, int *yy, int x1, int y1, int x2, int y2, int (*okay)(int, int, int));
 extern bool projectable(int y1, int x1, int y2, int x2);
+extern bool rand_location(int *yp, int *xp, bool (*accept)(int, int, vptr), vptr v);
 extern bool scatter(int *yp, int *xp, int y, int x, int d, bool (*accept)(int, int));
 extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
@@ -54,7 +56,7 @@ extern void object_kind_track(int k_idx);
 extern void object_track(object_type *o_ptr);
 extern void cave_track(const int y, const int x);
 extern void disturb(int stop_stealth);
-extern bool is_quest(int level);
+extern bool is_quest(void);
 #endif
 
 /* cmd1.c */
@@ -157,6 +159,7 @@ extern magic_type *num_to_spell(int i);
 extern int spell_skill(const magic_type *s_ptr);
 extern void evaluate_text_f3(char *buf, uint max, cptr UNUSED fmt, va_list *vp);
 extern u16b spell_energy(u16b skill,u16b min);
+extern int desc_spell_list(cptr *info, object_ctype *o_ptr);
 extern int get_spirit(int *sn, cptr prompt, bool call);
 extern bool PURE item_tester_spells(object_ctype *o_ptr);
 extern void display_spells(int y, int x, object_ctype *o_ptr);
@@ -234,7 +237,6 @@ extern int color_char_to_attr(char c);
 extern cptr cur_help_str(void);
 extern void help_track(cptr str);
 extern void show_file(cptr name, cptr what);
-extern void show_link(cptr link);
 extern void init_help_files(void);
 extern void display_help_page(cptr str);
 extern void process_player_name(void);
@@ -337,13 +339,14 @@ extern bool has_flag(int flag);
 
 /* maid-x11.c */
 
-#if ((defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ) || defined(USE_GTK))) && (defined(MAID_X11_C) || defined(MAIN_X11_C) || defined(MAIN_XAW_C) || defined(MAIN_XPJ_C))
-extern u32b create_pixel(Display *dpy, byte red, byte green, byte blue);
-#endif
 #if ((defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ) || defined(USE_GTK))) && (defined(MAID_X11_C) || defined(MAIN_GTK_C) || defined(MAIN_X11_C) || defined(MAIN_XAW_C) || defined(MAIN_XPJ_C))
 extern cptr get_default_font(int term_num);
 #endif
-#if (((defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ) || defined(USE_GTK))) && defined(USE_GRAPHICS)) && (defined(MAID_X11_C) || defined(MAIN_X11_C) || defined(MAIN_XAW_C) || defined(MAIN_XPJ_C))
+#if ((defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ))) && (defined(MAID_X11_C) || defined(MAIN_X11_C) || defined(MAIN_XAW_C) || defined(MAIN_XPJ_C))
+extern void react_keypress(XKeyEvent *ev);
+extern u32b create_pixel(Display *dpy, byte red, byte green, byte blue);
+#endif
+#if (((defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ))) && defined(USE_GRAPHICS)) && (defined(MAID_X11_C) || defined(MAIN_X11_C) || defined(MAIN_XAW_C) || defined(MAIN_XPJ_C))
 extern XImage *ReadBMP(Display *dpy, char *Name);
 extern bool smoothRescaling;
 extern XImage *ResizeImage(Display *dpy, XImage *Im, int ix, int iy, int ox, int oy);
@@ -765,7 +768,7 @@ extern bool PURE is_inventory_p(object_ctype *o_ptr);
 extern int PURE get_bow_mult(object_ctype *o_ptr);
 extern s16b PURE launcher_type(object_ctype *o_ptr);
 extern byte PURE ammunition_type(object_ctype *o_ptr);
-extern bool identify_fully_aux(object_ctype *o_ptr, byte flags);
+extern bool identify_fully_aux(object_ctype *o_ptr, bool dump);
 extern void identify_fully_file(object_ctype *o_ptr, FILE *fff, bool spoil);
 extern s16b PURE index_to_label(object_ctype *o_ptr);
 extern s16b PURE wield_slot(object_ctype *o_ptr);
@@ -837,9 +840,10 @@ extern object_type *inven_takeoff(object_type *o_ptr, int amt);
 extern void inven_drop(object_type *o_ptr, int amt);
 extern void combine_pack(void);
 extern void reorder_pack(void);
-extern void display_koff(int k_idx);
 extern void object_hide(object_type *o_ptr);
-extern void init_easy_know(void);
+#endif
+#if (defined(ALLOW_TEMPLATES)) && (defined(ANGBAND_H))
+extern void init_easy_know_txt(bool *random);
 #endif
 
 /* powers.c */
@@ -1114,14 +1118,7 @@ extern errr my_fclose(FILE *fff);
 #if (defined(ANGBAND_H))
 extern void path_build_f2(char *buf, uint max, cptr UNUSED fmt, va_list *vp);
 extern FILE *my_fopen_path(cptr path, cptr file, cptr mode);
-#endif
-#if (defined(HAVE_MKSTEMP)) && (defined(ANGBAND_H))
-extern FILE *my_fopen_temp(char *buf, uint max);
-#endif
-#if (!(defined(HAVE_MKSTEMP))) && (defined(ANGBAND_H))
 extern FILE *my_fopen_temp(char *buf, int max);
-#endif
-#if (defined(ANGBAND_H))
 extern errr my_fgets(FILE *fff, char *buf, size_t n);
 extern errr my_fgets_long(char *buf, size_t n, FILE *fff);
 extern int my_fprintf(FILE *fff, cptr fmt, ...);
@@ -1149,8 +1146,8 @@ extern void init_ascii_text_conv(void);
 extern void text_to_ascii_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp);
 extern void ascii_to_text_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp);
 extern void s16b_to_string_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp);
-extern sint macro_find_exact(cptr pat);
-extern errr macro_add(cptr pat, cptr act);
+extern cptr find_macro(cptr pat);
+extern void macro_add(cptr pat, cptr act);
 extern void flush(void);
 extern void bell(cptr fmt, ...);
 extern void sound(int val);
@@ -1162,7 +1159,7 @@ extern char inkey(void);
 extern u16b quark_add(cptr str);
 extern cptr quark_str(u16b i);
 extern s16b message_num(void);
-extern cptr message_str(s16b age);
+extern void message_str_f1(char *buf, uint max, cptr fmt, va_list *vp);
 extern void message_add(cptr str);
 extern bool no_msg_print;
 extern void msg_print(cptr msg);
@@ -1267,6 +1264,7 @@ extern bool inkey_scan;
 extern bool inkey_flag;
 extern bool shimmer_monsters;
 extern bool repair_monsters;
+extern bool repair_mflag_nice;
 extern s16b total_weight;
 extern bool hack_mind;
 extern bool hack_chaos_feature;
@@ -1449,9 +1447,16 @@ extern s16b macro__num;
 extern cptr *macro__pat;
 extern cptr *macro__act;
 extern char *macro__buf;
+#endif
+#if (defined(ALLOW_MACROS)) && (defined(ANGBAND_H))
+extern char *keymap_buf_ptr;
+extern char *keymap_cmd_ptr;
+#endif
+#if (defined(ANGBAND_H))
 extern cptr *quark__str;
 extern u16b *message__ptr;
 extern char *message__buf;
+extern bool new_message_turn;
 extern byte angband_color_table[256][4];
 extern char angband_sound_name[SOUND_MAX][16];
 extern cave_type *cave[MAX_HGT];
@@ -1535,7 +1540,7 @@ extern s16b stat_default_total;
 extern init_macro_type *macro_info;
 extern char *macro_name;
 extern char *macro_text;
-extern u16b rebuild_raw;
+extern u32b rebuild_raw;
 #endif
 #if (defined(ANGBAND_H))
 extern byte object_skill_count;
@@ -1661,18 +1666,17 @@ extern void core_fmt(cptr fmt, ...);
 /* z-rand.c */
 
 #if (defined(ANGBAND_H) || defined(Z_RAND_C))
-extern bool rand_unbiased;
 extern bool Rand_quick;
 extern u32b Rand_value;
 extern u16b Rand_place;
 extern u32b Rand_state[RAND_DEG];
 extern void Rand_state_init(u32b seed);
-extern s16b randnor(int mean, int stand);
 #endif
 #if (defined(ANGBAND_H) || defined(Z_RAND_H) || defined(Z_RAND_C))
-extern s32b rand_int(u32b m);
+extern s32b rand_int(s32b m0);
 #endif
 #if (defined(ANGBAND_H) || defined(Z_RAND_C))
+extern s16b randnor(int mean, int stand);
 extern bool percent(int m);
 extern s16b damroll(int num, int sides);
 extern s16b maxroll(int num, int sides);

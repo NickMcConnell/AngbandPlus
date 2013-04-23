@@ -2968,10 +2968,14 @@ static void service_help(byte type)
 			break;
 		case STORE_TEMPLE: /* Restoration */
 		{
-			object_type forge;
-			object_prep(&forge, OBJ_FOOD_RESTORING);
+			object_type q_ptr[1];
+
+			/* This doesn't really describe what the service does. */
+			object_prep(q_ptr, OBJ_FAKE_RESTORING);
+			q_ptr->ident |= IDENT_STORE;
+
 			/* This gives an unwelcome "Item attributes" description. */
-			if (!identify_fully_aux(&forge, TRUE))
+			if (!identify_fully_aux(q_ptr, FALSE))
 				msg_print("This won't help you at present.");
 			break;
 		}
@@ -3847,20 +3851,12 @@ static void store_examine(void)
 	
 	if (!o_ptr) return;
 
-	/* If it is a spell book then browse it */
-	if (item_tester_spells(o_ptr))
-	{
-		do_cmd_browse(o_ptr);
-	}
-	else
-	{
-		/* Description */
-		msg_format("Examining %v...", object_desc_f3, o_ptr, TRUE, 3);
+	/* Description */
+	msg_format("Examining %v...", object_desc_f3, o_ptr, TRUE, 3);
 
-		/* Make it look as though we are aware of the item if necessary. */
-		if (!identify_fully_aux(o_ptr, 0))
-			msg_print("You see nothing special.");
-	}
+	/* Make it look as though we are aware of the item if necessary. */
+	if (!identify_fully_aux(o_ptr, 0))
+		msg_print("You see nothing special.");
 }
 
 

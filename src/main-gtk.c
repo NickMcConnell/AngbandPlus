@@ -1629,7 +1629,7 @@ static gboolean keypress_event_handler(GtkWidget UNUSED *widget, GdkEventKey *ev
 		for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
 	
 		/* Hack -- auto-define macros as needed */
-		if (event->length && (macro_find_exact(msg) < 0))
+		if (event->length && !find_macro(msg))
 		{
 			/* Create a macro */
 			macro_add(msg, event->string);
@@ -1732,7 +1732,7 @@ static gboolean keypress_event_handler(GtkWidget UNUSED *widget, GdkEventKey *ev
 	for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
 	
 	/* Hack -- auto-define macros as needed */
-	if (event->length && (macro_find_exact(msg) < 0))
+	if (event->length && !find_macro(msg))
 	{
 		/* Create a macro */
 		macro_add(msg, event->string);

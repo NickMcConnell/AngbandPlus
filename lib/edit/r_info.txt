@@ -97,7 +97,7 @@
 
 # Version stamp (required)
 
-V:1.0.16
+V:1.0.17
 
 
 ##### The Player #####
@@ -2299,12 +2299,12 @@ N:205:& Moon beast~
 G:q:W
 I:+10:3:9d10:30:30:20
 W:12:1:57
-B:CLAW:HURT:1d3
-B:BUTT:HURT:1d6
+B:HIT:HURT:1d3
+B:HIT:HURT:1d6
 F:DROP_1D2 | ONLY_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | IM_FIRE | ANIMAL
 S:1_IN_6
-S:HEAL | BLIND | DARKNESS | CONF | CAUSE_2
+S:HEAL | BLIND | DARKNESS | CONF | ARROW_4
 D:"Great greyish-white slippery things which could expand and 
 D:contract at will, and whose principle shape... was that of a 
 D:sort of toad without any eyes, but with a curious vibrating mass 

@@ -123,10 +123,9 @@ static int coords_to_dir(int y, int x)
  * deeper stores whether we are moving to a deeper or a shallower level.
  * stairs stores whether we want stairs at the player's feet or not.
  */
-static void use_stairs(cptr dir, bool deeper, bool trapdoor)
+static void use_stairs(cptr dir, bool deeper, int start)
 {
-	int i, j = (multi_stair) ? randint(5) : 1;
-	int start = (trapdoor) ? START_RANDOM : START_STAIRS;
+	int i, levels = (multi_stair) ? randint(5) : 1;
 
 	if (dun_level && confirm_stairs)
 	{
@@ -136,7 +135,8 @@ static void use_stairs(cptr dir, bool deeper, bool trapdoor)
 	/* Take some time... */
 	energy_use = extract_energy[p_ptr->pspeed];
 
-	if (trapdoor)
+	/* Hack - assume that only trap doors yield random movement. */
+	if (start == START_RANDOM)
 	{
 		msg_print("You deliberately jump through the trap door.");
 	}
@@ -151,26 +151,37 @@ static void use_stairs(cptr dir, bool deeper, bool trapdoor)
 		msg_format("You enter a maze of %s staircases.", dir);
 	}
 
-	if (j > dun_level) j = 1;
+	/* Never go very far at shallow levels. */
+	if (levels > dun_level) levels = 1;
 
-	/* Don't allow the player to pass a quest level.
-	 * This is very inefficient, but it's a very simple process.
-	 */
+	/* The above already forces the action to be legal. */
 	if (!deeper)
 	{
-		j *= -1;
+		/* So just make it go shallower. */
+		levels *= -1;
 	}
 	else
 	{
-		for (i = 1; i < j; i++)
+		/* Prevent the player from passing the end of the dungeon. */
+		int k = dun_defs[cur_dungeon].max_level - dun_level;
+		if (k > 0 && k < levels) levels = k;
+
+		/* Prevent the player from passing a quest. */
+		for (i = 0; i < MAX_Q_IDX; i++)
 		{
-			if (is_quest(dun_level+i)) break;
-			if (dun_level+i == dun_defs[cur_dungeon].max_level) break;
+			if (q_list[i].dungeon == cur_dungeon)
+			{
+				int k = q_list[i].level - dun_level;
+
+				if (k > 0 && k < levels) levels = k;
+			}
 		}
-		j = i;
 	}
 
-	change_level(dun_level+j, start);
+	/* Prevent connected stairs in the dungeon, if requested. */
+	if (dun_level+levels && !dungeon_stair) start = START_RANDOM;
+
+	change_level(dun_level+levels, start);
 
 	/* Check for leaving dungeon */
 	if(!dun_level)
@@ -194,11 +205,12 @@ void do_cmd_go_up(void)
 	if (c_ptr->feat != FEAT_LESS)
 	{
 		msg_print("I see no up staircase here.");
-		return;
 	}
-
-	deeper = (!dun_level || dun_defs[cur_dungeon].flags & DF_TOWER);
-	use_stairs("up", deeper, FALSE);
+	else
+	{
+		deeper = (!dun_level || dun_defs[cur_dungeon].flags & DF_TOWER);
+		use_stairs("up", deeper, START_DOWN_STAIRS);
+	}
 }
 
 
@@ -209,18 +221,27 @@ void do_cmd_go_down(void)
 {
 	/* Player grid */
 	cave_type *c_ptr = &cave[py][px];
-	bool deeper, trapdoor;
+	bool deeper;
+	int start;
 
 	/* Verify stairs */
-	if ((c_ptr->feat != FEAT_MORE) && (c_ptr->feat != FEAT_TRAP_DOOR))
+	if (c_ptr->feat == FEAT_MORE)
+	{
+		start = START_UP_STAIRS;
+	}
+	else if (c_ptr->feat == FEAT_TRAP_DOOR)
+	{
+		start = START_RANDOM;
+	}
+	else
 	{
 		msg_print("I see no down staircase here.");
 		return;
 	}
 
 	deeper = (!dun_level || ~dun_defs[cur_dungeon].flags & DF_TOWER);
-	trapdoor = (c_ptr->feat == FEAT_TRAP_DOOR);
-	use_stairs("down", deeper, trapdoor);
+
+	use_stairs("down", deeper, start);
 }
 
 
@@ -950,10 +971,8 @@ void do_cmd_close(void)
  */
 static void twall(int y, int x)
 {
-	cave_type *c_ptr = &cave[y][x];
-
 	/* Forget the wall */
-	c_ptr->info &= ~(CAVE_MARK);
+	cave[y][x].info &= ~(CAVE_MARK);
 
 	/* Remove the feature */
 	cave_set_feat(y, x, FEAT_FLOOR);
@@ -2877,7 +2896,7 @@ static void move_player(int y, int x, int do_pickup)
 			if (c_ptr->feat == FEAT_RUBBLE)
 			{
 				msg_print("You feel some rubble blocking your way.");
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 				lite_spot(y, x);
 			}
 
@@ -2885,14 +2904,14 @@ static void move_player(int y, int x, int do_pickup)
 			else if (c_ptr->feat == FEAT_TREE)
 			{
 				msg_print("You feel a tree blocking your way.");
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 				lite_spot(y,x);
 			}
 			/* Water */
 			else if (c_ptr->feat == FEAT_WATER)
 			{
 				msg_print("Your way seems to be blocked by water.");
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 				lite_spot(y,x);
 			}
 
@@ -2938,7 +2957,7 @@ static void move_player(int y, int x, int do_pickup)
 			else if (c_ptr->feat < FEAT_SECRET)
 			{
 				msg_print("You feel a closed door blocking your way.");
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 				lite_spot(y, x);
 			}
 
@@ -2946,7 +2965,7 @@ static void move_player(int y, int x, int do_pickup)
 			else
 			{
 				msg_print("You feel a wall blocking your way.");
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 				lite_spot(y, x);
 			}
 		}
@@ -2970,7 +2989,7 @@ static void move_player(int y, int x, int do_pickup)
 			else if (c_ptr->feat == FEAT_TREE)
 			{
 				msg_print("There is a tree blocking your way.");
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 				lite_spot(y,x);
 			/* Assume that the player didn't really want to do that. */
 						if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
@@ -2981,7 +3000,7 @@ static void move_player(int y, int x, int do_pickup)
 			else if (c_ptr->feat == FEAT_WATER)
 			{
 				msg_print("You cannot swim.");
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 				lite_spot(y,x);
 			/* Assume that the player didn't really want to do that. */
 						if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))

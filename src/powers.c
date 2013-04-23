@@ -5358,7 +5358,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		case MUT_EARTHQUAKE+PO_MUTA:
 		{
 			/* Prevent destruction of quest levels and town */
-			if (!is_quest(dun_level) && dun_level)
+			if (!is_quest() && dun_level)
 				earthquake(py, px, 10);
 			return SUCCESS;
 		}

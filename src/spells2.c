@@ -27,49 +27,48 @@ several times... */
 static bool detect_monsters_string(cptr Match);
 
 /*
- * Return TRUE if the player can teleport to (x,y) with dimension door.
+ * Return MVD_CONTINUE if the player can teleport to (x,y) with dimension door.
  */
-static int mvd_dimension_door_success(int y, int x, int plev)
+static bool PURE dimension_door_success(int y, int x, int max)
 {
 	cave_type *c_ptr = &cave[y][x];
 
 	/* Monster or LOS-blocking feature present. */
-	if (!cave_empty_grid(c_ptr)) return MVD_STOP_BEFORE_HERE;
+	if (!cave_empty_grid(c_ptr)) return FALSE;
 
 	/* No teleporting into vaults. */
-	if (c_ptr->info & CAVE_ICKY) return MVD_STOP_BEFORE_HERE;
+	if (c_ptr->info & CAVE_ICKY) return FALSE;
 
 	/* Too far. */
-	if (distance(py, px, y, x) > plev+2) return MVD_STOP_BEFORE_HERE;
+	if (distance(py, px, y, x) > max) return FALSE;
 
 	/* Success. */
-	return MVD_CONTINUE;
+	return TRUE;
 }
 
 /*
  * Teleport the player to a nearby square of the player's choice.
+ * Teleport randomly fail_dis squares away if an illegal grid is selected or
+ * the player is unlucky.
  * Returns FALSE if aborted, TRUE otherwise.
  */
 bool dimension_door(int plev, int fail_dis)
 {
-	int dir, x, y;
+	int x, y;
 
 	msg_print("You open a dimensional gate. Choose a destination.");
 	msg_print(NULL);
 
-	/* Hack - start with the "pick a location" display, but allow directions. */
-	set_gnext("*op");
-
-	/* Find the location. */
-	if (!get_aim_dir(&dir)) return FALSE;
+	/* Find a location, or abort. */
+	if (!target_set(TARGET_NONE)) return FALSE;
 
 	/* Extract the location. */
-	get_dir_target(&x, &y, dir, mvd_dimension_door_success);
+	get_dir_target(&x, &y, 5, NULL);
 
 	energy_use += 6*TURN_ENERGY/10 - plev*TURN_ENERGY/100;
 
 	/* Bad target or bad luck. */
-	if (one_in(plev*plev/2) || !mvd_dimension_door_success(y, x, plev))
+	if (!dimension_door_success(y, x, plev+2) || one_in(plev*plev/2))
 	{
 		msg_print("You fail to exit the astral plane correctly!");
 		energy_use += TURN_ENERGY;
@@ -1214,7 +1213,7 @@ bool detect_traps(void)
 				(c_ptr->feat <= FEAT_TRAP_TAIL))
 			{
 				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -1276,7 +1275,7 @@ bool detect_doors(void)
 				(c_ptr->feat == FEAT_BROKEN)))
 			{
 				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -1322,7 +1321,7 @@ bool detect_stairs(void)
 				(c_ptr->feat == FEAT_MORE))
 			{
 				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -1376,7 +1375,7 @@ bool detect_treasure(void)
 				(c_ptr->feat == FEAT_QUARTZ_K))
 			{
 				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
+				mark_spot(y, x);
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -1905,8 +1904,7 @@ void stair_creation(void)
 	{
 		return;
 	}
-	else if (is_quest(dun_level) ||
-		(dun_level >= dun_defs[cur_dungeon].max_level))
+	else if (is_quest() || (dun_level >= dun_defs[cur_dungeon].max_level))
 	{
 		if(dun_defs[cur_dungeon].flags & DF_TOWER)
 		{

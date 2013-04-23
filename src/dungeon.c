@@ -384,9 +384,6 @@ static void sense_inventory(void)
 	}
 }
 
-static bool create_up_stair; /* Auto-create "up stairs" */
-static bool create_down_stair; /* Auto-create "down stairs" */
-
 /*
  * Change level, setting various relevant things.
  */
@@ -399,15 +396,6 @@ void change_level(s16b new_level, byte come_from)
 	if (autosave_l)
 	{
 		do_cmd_save_game(TRUE);
-	}
-
-	/* Try to recognise when the player wants stairs next to him. */
-	if (come_from == START_STAIRS && new_level && new_level != dun_level)
-	{
-		if ((new_level > dun_level) ^ !!(dun_defs[cur_dungeon].flags & DF_TOWER))
-			create_up_stair = TRUE;
-		else
-			create_down_stair = TRUE;
 	}
 
 	/* Set the means of entry. */
@@ -988,7 +976,7 @@ static void process_sun(void)
 				c_ptr->info |= (CAVE_GLOW);
 
 				/* Hack -- Memorize lit grids if allowed */
-				if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
+				if (view_perma_grids) mark_spot(y, x);
 
 			}
 			else
@@ -2211,14 +2199,6 @@ extern void do_cmd_borg(void);
 
 
 /*
- * A temporary script to run on the game.
- */
-static void do_cmd_script(void)
-{
-	msg_print("You are NOT allowed to do THAT!");
-}
-
-/*
  * Parse and execute the current command
  * Give "Warning" on illegal commands.
  *
@@ -2234,6 +2214,9 @@ void process_command(void)
 	repeat_check();
 
 #endif /* ALLOW_REPEAT -- TNB */
+
+	/* A new command has been requested. */
+	new_message_turn = TRUE;
 
 	/* Look up various object commands from a table. */
 	if (do_cmd_use_object(command_cmd)) return;
@@ -2533,7 +2516,7 @@ void process_command(void)
 			/* Help */
 		case '?':
 		{
-			do_cmd_help(NULL);
+			do_cmd_help(syshelpfile);
 			break;
 		}
 
@@ -2575,6 +2558,38 @@ void process_command(void)
 			break;
 		}
 
+#ifdef ALLOW_MACROS
+		/* Start/stop recording a keymap. */
+		case '$':
+		{
+			if (keymap_buf_ptr)
+			{
+				/* Remove the request to stop from the buffer. */
+				*keymap_cmd_ptr = '\0';
+
+				/* Stop recording the keymap. */
+				keymap_buf_ptr = NULL;
+
+				/* Go to the macro options to assign it somewhere. */
+				set_gnext("=M");
+			}
+			else
+			{
+				/* Set the keymap buffer to the start. */
+				keymap_buf_ptr = macro__buf;
+
+				/* Remove the existing keymap. */
+				strcpy(keymap_buf_ptr, "");
+
+				/* Window stuff. */
+				p_ptr->window |= PW_KEYMAP;
+
+				/* Instructions. */
+				mc_put_fmt(0, 0, "Type in commands as normal. Press $$ to finish recording.");
+			}
+			break;
+		}
+#endif /* ALLOW_MACROS */
 
 			/*** Misc Commands ***/
 
@@ -2674,13 +2689,6 @@ void process_command(void)
 			break;
 		}
 
-		/* Hack - process a temporary function. */
-		case '$':
-		{
-			do_cmd_script();
-			break;
-		}
-
 		/*** Wizard Commands ***/
 
 #ifdef ALLOW_WIZARD
@@ -2696,7 +2704,7 @@ void process_command(void)
 		/* Debug help. */
 		case CMD_DEBUG+'?':
 		{
-			show_link("brief debug");
+			do_cmd_help("brief debug");
 			break;
 		}
 
@@ -3107,6 +3115,19 @@ static void process_player(void)
 		/* Hack -- cancel "lurking browse mode" */
 		if (!command_new) command_see = FALSE;
 
+		/* Handle MFLAG_NICE. */
+		if (repair_mflag_nice)
+		{
+			/* Reset the flag */
+			repair_mflag_nice = FALSE;
+
+			/* Existing monsters can hurt the player now. */
+			for (i = 1; i < m_max; i++)
+			{
+				m_list[i].mflag &= ~MFLAG_NICE;
+			}
+		}
+
 
 		/* Assume free turn */
 		energy_use = 0;
@@ -3224,13 +3245,6 @@ static void process_player(void)
 					/* Skip dead monsters */
 					if (!m_ptr->r_idx) continue;
 
-					/* Nice monsters get mean */
-					if (m_ptr->mflag & (MFLAG_NICE))
-					{
-						/* Nice monsters get mean */
-						m_ptr->mflag &= ~(MFLAG_NICE);
-					}
-
 					/* Handle memorized monsters */
 					if (m_ptr->mflag & (MFLAG_MARK))
 					{
@@ -3320,49 +3334,6 @@ static void dungeon(void)
 	}
 
 
-	/* Paranoia -- No stairs down from Quest */
-	if (is_quest(dun_level))
-	{
-		if (dun_defs[cur_dungeon].flags & DF_TOWER)
-		{
-			create_up_stair = FALSE;
-		}
-		else
-		{
-			create_down_stair = FALSE;
-		}
-	}
-
-	/* Paranoia -- no stairs from town */
-	if (dun_level <= 0) create_down_stair = create_up_stair = FALSE;
-
-	/* Option -- no connected stairs */
-	if (!dungeon_stair) create_down_stair = create_up_stair = FALSE;
-
-	/* Make a stairway. */
-	if (create_up_stair || create_down_stair)
-	{
-		/* Place a stairway */
-		if (cave_valid_bold(py, px))
-		{
-			/* XXX XXX XXX */
-			delete_object(py, px);
-
-			/* Make stairs */
-			if (create_down_stair)
-			{
-				cave_set_feat(py, px, FEAT_MORE);
-			}
-			else
-			{
-				cave_set_feat(py, px, FEAT_LESS);
-			}
-		}
-
-		/* Cancel the stair request */
-		create_down_stair = create_up_stair = FALSE;
-	}
-
 	/* Verify the panel */
 	verify_panel(FALSE);
 
@@ -3439,7 +3410,7 @@ static void dungeon(void)
 	if (!alive || death || new_level_flag) return;
 
 	/* Notice a Quest Level */
-	if (is_quest(dun_level)) quest_discovery(old_new_level_flag);
+	if (is_quest()) quest_discovery(old_new_level_flag);
 
 	/* Notice the final level of a dungeon/tower */
 	else if (dun_level && dun_level == dun_defs[cur_dungeon].max_level)

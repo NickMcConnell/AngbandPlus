@@ -169,8 +169,10 @@
 #define UNUSED
 #endif
 
+#define GNUC_VERSION (__GNUC__*100 + __GNUC_MINOR__*10 + __GNUC_PATCHLEVEL__)
+
 /* Indicate functions which have no side-effects if possible. */
-#ifdef __GNUC__
+#if defined(__GNUC__) && (296 <= GNUC_VERSION)
 #define PURE __attribute__((__pure__))
 #else
 #define PURE

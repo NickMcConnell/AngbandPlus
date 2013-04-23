@@ -3919,7 +3919,7 @@ void pick_trap(int y, int x)
 		feat = FEAT_TRAP_HEAD + rand_int(16);
 
 		/* Hack -- no trap doors on quest levels */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && is_quest(dun_level)) continue;
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && is_quest()) continue;
 
 		/* Hack -- no trap doors on the deepest level */
 		if ((feat == FEAT_TRAP_HEAD + 0x00) && (dun_level >= dun_defs[cur_dungeon].max_level)) continue;
@@ -4519,51 +4519,6 @@ void reorder_pack(void)
 }
 
 /*
- * Hack -- display an object kind in the current window
- *
- * Include list of usable spells for books
- */
-void display_koff(int k_idx)
-{
-	int y;
-
-	object_type forge;
-	object_type *q_ptr;
-
-
-	/* Erase the window */
-	for (y = 0; y < Term->hgt; y++)
-	{
-		/* Erase the line */
-		Term_erase(0, y, 255);
-	}
-
-	/* No info */
-	if (!k_idx)
-	{
-		return;
-	}
-
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Prepare the object */
-	object_wipe(q_ptr);
-
-	/* Prepare the object */
-	object_prep(q_ptr, k_idx);
-
-
-	/* Mention the object name */
-	mc_put_fmt(0, 0, "%v", object_desc_f3, q_ptr, OD_SHOP, 0);
-
-
-	/* Display spells in books */
-	display_spells(2, 0, q_ptr);
-}
-
-/*
  * Hide an object.
  */
 void object_hide(object_type *o_ptr)
@@ -4578,8 +4533,10 @@ void object_hide(object_type *o_ptr)
 	update_object(o_ptr);
 }
 
+#ifdef ALLOW_TEMPLATES
+
 /*
- * Set TR3_EASY_KNOW for various object_kinds which are always the same.
+ * Set random[i] if k_info[i] is always the same on generation.
  * This makes various assumptions about how apply_magic() works.
  * In particular, it assumes that any RNG call after the choose_magic_power()
  * call has some effect on the object created.
@@ -4588,14 +4545,10 @@ void object_hide(object_type *o_ptr)
  * (albeit one without several unnecessary sections) is embedded in this
  * function.
  */
-void init_easy_know(void)
+void init_easy_know_txt(bool *random)
 {
 	int i, k;
 	object_type o_ptr[1];
-
-	/* Use a local array to track which object_kinds have random properties. */
-	C_TNEW(random, z_info->k_max, bool);
-	WIPE(random, random);
 
 	/*
 	 * Hack - don't create EASY_KNOW artefacts.
@@ -4624,11 +4577,14 @@ void init_easy_know(void)
 
 	for (k = 0; k < z_info->k_max; k++)
 	{
-		/* Not a real object_kind. */
-		if (!k_info[k].name) continue;
-
 		/* One which is already known to be random. */
 		if (random[k]) continue;
+
+		/* Assume random. */
+		random[k] = TRUE;
+
+		/* Not a real object_kind. */
+		if (!k_info[k].name) continue;
 
 		/* If apply_magic() can curse an object, it shouldn't be EASY_KNOW. */
 		if (magic_can_curse(k)) continue;
@@ -4648,14 +4604,12 @@ void init_easy_know(void)
 			apply_magic_2(o_ptr, 50);
 		}
 
-		/* Something has used the RNG in producing this item. */
-		if (Rand_value) continue;
-
-		/* Set EASY_KNOW for all non-"random" object_kinds. */
-		k_info[k].flags3 |= TR3_EASY_KNOW;
+		/* The RNG was never used, so this item has no random properties. */
+		if (!Rand_value) random[k] = FALSE;
 	}
 
 	/* Clean up. */
 	Rand_quick = FALSE;
-	TFREE(random);
 }
+
+#endif /* ALLOW_TEMPLATES */

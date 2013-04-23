@@ -262,7 +262,6 @@ static void set_ghost_aux(cptr gb_name, int ghost_race, int lev)
 	r_ptr->sleep = rt_ptr->sleep;
 	r_ptr->aaf = rt_ptr->aaf;
 	r_ptr->speed = rt_ptr->speed;
-	r_ptr->freq_inate = rt_ptr->freq_inate;
 	r_ptr->freq_spell = rt_ptr->freq_spell;
 	r_ptr->flags1 = rt_ptr->flags1;
 	r_ptr->flags2 = rt_ptr->flags2;
@@ -1825,7 +1824,7 @@ void update_mon(int m_idx, bool full)
 			p_ptr->window |= (PW_VISIBLE);
 
 			/* Hack -- Count "fresh" sightings */
-			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
+			if (r_ptr->r_sights < MAX_UCHAR) r_ptr->r_sights++;
 
 			/* Disturb on appearance */
 			if (disturb_move)
@@ -2198,7 +2197,7 @@ monster_type *place_monster_one(int y, int x, int r_idx, bool slp, bool charm, b
 		m_ptr->mflag |= (MFLAG_NICE);
 
 		/* Must repair monsters */
-		repair_monsters = TRUE;
+		repair_mflag_nice = TRUE;
 	}
 
 	/* Prevent the monster from moving on the game turn of creation. */

@@ -483,7 +483,7 @@ static void object_knowledge(obj_know_type *ok_ptr, object_ctype *o_ptr)
 			j_ptr->flags3 |= ptr->flags3;
 		}
 		/* Hack - flags known for random artefacts. */
-		if (o_ptr->art_name && spoil_art)
+		if (o_ptr->art_name && spoil_art && known)
 		{
 			/* All that is known about randarts is that they ignore elements. */
 			j_ptr->flags3 |= TR3_IGNORE_ALL;
@@ -549,7 +549,7 @@ static void object_knowledge(obj_know_type *ok_ptr, object_ctype *o_ptr)
 		}
 
 		/* If an activation is known to exist, magically know what it is. */
-		j_ptr->activation = !!(f3 & TR3_ACTIVATE);
+		j_ptr->activation = !!(j_ptr->flags3 & f3 & TR3_ACTIVATE);
 
 		/* Special "always show these" flags. */
 		if (j_ptr->flags3 & f3 & TR3_SHOW_ARMOUR) j_ptr->ac = 1;
@@ -2062,6 +2062,7 @@ static void get_stat_flags(object_type *o_ptr, byte *stat, byte *act, s16b *pval
 		{OBJ_FOOD_RES_STR, A_RESTORE, 1<<A_STR},
 		{OBJ_FOOD_RES_CON, A_RESTORE, 1<<A_CON},
 		{OBJ_FOOD_RESTORING, A_RESTORE, A_ALL},
+		{OBJ_FAKE_RESTORING, A_RESTORE, A_ALL},
 		/* Other restore stat items */
 		{OBJ_STAFF_THE_MAGI, A_RESTORE, 1<<A_INT},
 		{OBJ_ROD_RESTORATION, A_RESTORE, A_ALL},
@@ -2434,6 +2435,39 @@ int PURE get_bow_mult(object_ctype *o_ptr)
 }
 
 /*
+ * Describe the actual effect of a stat restoration item.
+ * If it will have no effects at the moment, or isn't a stat restoration item,
+ * do nothing.
+ */
+static void desc_res_skill(cptr *info, int *i, int k_idx)
+{
+	/* Hack - notice which objects restore levels. */
+	s16b *r, res_objs[] = {OBJ_POTION_LIFE, OBJ_POTION_RES_LIFE_LEVELS,
+		OBJ_ROD_RESTORATION, OBJ_FAKE_RESTORING};
+
+	FOR_ALL_IN(res_objs, r)
+	{
+		if (k_idx == *r)
+		{
+			player_skill *sk_ptr;
+			int t = 0, i2 = *i;
+
+			FOR_ALL_IN(skill_set, sk_ptr)
+			{
+				if (sk_ptr->value >= sk_ptr->max_value) continue;
+				alloc_ifa(info+(++*i), "$W  It restores your %s skill (%d-%d).",
+					sk_ptr->name, sk_ptr->value, sk_ptr->max_value);
+				t++;
+			}
+			if (!t) return;
+			alloc_ifa(info+i2, "It restores %d of your skills.", t);
+			(*i)++;
+			return;
+		}
+	}
+}
+
+/*
  * Find the k_idx of a launcher which can fire a given missile.
  * Always returns the first such launcher in k_info.
  */
@@ -2665,6 +2699,8 @@ static void identify_fully_get(object_ctype *o1_ptr, cptr *info, byte flags)
 	if (hidden_p(o_ptr)) alloc_ifa(info+i++, "It is really %v.", object_desc_f3,
 		o1_ptr, OD_ART | OD_NOHIDE, 0);
 
+	i += desc_spell_list(info+i, o_ptr);
+
 	/* Mega-Hack -- describe activation */
 	if (o_ptr->flags3 & (TR3_ACTIVATE))
 	{
@@ -2727,6 +2763,7 @@ static void identify_fully_get(object_ctype *o1_ptr, cptr *info, byte flags)
 	if (!brief && player && spoil_stat)
 	{
 		res_stat_details(o_ptr, o1_ptr->k_idx, &i, info);
+		desc_res_skill(info, &i, o_ptr->k_idx);
 	}
 	/* If brevity is required or spoilers are not, put stats with the other
 	 * pval effects. */
@@ -3215,34 +3252,21 @@ nextbit:
  * Describe a "fully identified" item
  * If full is set, the game describes the item as if it was fully identified.
  */
-bool identify_fully_aux(object_ctype *o_ptr, byte flags)
+bool identify_fully_aux(object_ctype *o_ptr, bool dump)
 {
-	bool full = (flags & 0x01) != 0;
-	bool paged = (flags & 0x02) == 0;
-
 	cptr info[MAX_IFA];
 
 	WIPE(info, info);
 
-	if (full)
-	{
-		object_type q_ptr[1];
-
-		object_copy(q_ptr, o_ptr);
-		object_known(q_ptr);
-		object_aware(q_ptr);
-
-		identify_fully_get(o_ptr, info, 0);
-	}
-	else
-	{
-		identify_fully_get(o_ptr, info, 0);
-	}
+	identify_fully_get(o_ptr, info, 0);
 
 	/* Nothing was revealed, so show nothing. */
-	if (!*info) return FALSE;
-
-	if (paged)
+	if (!*info)
+	{
+		/* As nothing was written to info, there are no strings to free. */
+		return FALSE;
+	}
+	else if (!dump)
 	{
 		identify_fully_show(info);
 	}

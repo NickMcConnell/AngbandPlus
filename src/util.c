@@ -400,24 +400,14 @@ FILE *my_fopen_path(cptr path, cptr file, cptr mode)
 	return my_fopen(buf, mode);
 }
 
-/*
- * Create a temporary file, store its name in buf, open it, and return a
- * pointer to it. Return NULL on failure.
- */
 
 #ifdef HAVE_MKSTEMP
 
-FILE *my_fopen_temp(char *buf, uint max)
+static FILE *my_fopen_temp_aux(char *buf, uint max)
 {
 	int fd;
 
-	/* Paranoia */
-	if (strlen("/tmp/anXXXXXX") >= max)
-	{
-		if (alert_failure)
-			msg_print("Buffer too short for temporary file name!");
-		return (NULL);
-	}
+	assert(max > strlen("/tmp/anXXXXXX")); /* Caller */
 
 	/* Prepare the buffer for mkstemp */
 	strcpy(buf, "/tmp/anXXXXXX");
@@ -434,7 +424,7 @@ FILE *my_fopen_temp(char *buf, uint max)
 
 #else /* HAVE_MKSTEMP */
 
-FILE *my_fopen_temp(char *buf, int max)
+static FILE *my_fopen_temp_aux(char *buf, int max)
 {
 	/* Generate a temporary filename */
 	if (path_temp(buf, max)) return (NULL);
@@ -445,6 +435,20 @@ FILE *my_fopen_temp(char *buf, int max)
 
 #endif /* HAVE_MKSTEMP */
 
+/*
+ * Create a temporary file, store its name in buf, open it, and return a
+ * pointer to it. Beep and return NULL on failure.
+ */
+FILE *my_fopen_temp(char *buf, int max)
+{
+	/* Run the system-specific file opening function. */
+	FILE *fff = my_fopen_temp_aux(buf, max);
+
+	/* Give a warning in the event of errors. */
+	if (!fff) bell("Failed to open temporary file.");
+
+	return fff;
+}
 
 
 /*
@@ -1190,7 +1194,7 @@ static bool macro__use[256];
 /*
  * Find the macro (if any) which exactly matches the given pattern
  */
-sint macro_find_exact(cptr pat)
+static int macro_find_exact(cptr pat)
 {
 	int i;
 
@@ -1214,6 +1218,20 @@ sint macro_find_exact(cptr pat)
 	return (-1);
 }
 
+/*
+ * Return the action associated with a macro trigger, NULL if none.
+ */
+cptr find_macro(cptr pat)
+{
+	/* Find the index of the macro. */
+	int i = macro_find_exact(pat);
+
+	/* No such trigger. */
+	if (i < 0) return NULL;
+
+	/* Return the action. */
+	return macro__act[i];
+}
 
 /*
  * Find the first macro (if any) which contains the given pattern
@@ -1323,13 +1341,13 @@ static sint macro_find_ready(cptr pat)
  * with some kind of "powerful keymap" ability, but this might make it hard
  * to change the "roguelike" option from inside the game.  XXX XXX XXX
  */
-errr macro_add(cptr pat, cptr act)
+void macro_add(cptr pat, cptr act)
 {
 	int n;
 
 
 	/* Paranoia -- require data */
-	if (!pat || !act) return (-1);
+	if (!pat || !act) return;
 
 
 	/* Look for any existing macro */
@@ -1357,9 +1375,6 @@ errr macro_add(cptr pat, cptr act)
 
 	/* Efficiency */
 	macro__use[(byte)(pat[0])] = TRUE;
-
-	/* Success */
-	return (0);
 }
 
 
@@ -1433,6 +1448,32 @@ void sound(int val)
 
 	/* Make a sound (if allowed) */
 	Term_xtra(TERM_XTRA_SOUND, val);
+}
+
+/*
+ * Add a keypress to macro__buf, if required.
+ */
+static void record_keymap(char ch)
+{
+#ifdef ALLOW_MACROS
+	if (!ch) return;
+
+	/* Do nothing unless asked. */
+	if (!keymap_buf_ptr) return;
+
+	sprintf(keymap_buf_ptr, "%c", ch);
+
+	/* Window stuff. */
+	p_ptr->window |= PW_KEYMAP;
+
+	/* Too long. */
+	if (++keymap_buf_ptr == macro__buf + 1023)
+	{
+		keymap_buf_ptr = NULL;
+
+		bell("\"Record action\" aborted: Keymap too long.");
+	}
+#endif /* ALLOW_MACROS */
 }
 
 /*
@@ -1753,7 +1794,7 @@ char inkey(void)
 	term *old = Term;
 
 
-	/* *Hack* - use the "inkey_gnext" pointer. */
+	/* *Hack* - use the "inkey_gnext" (game keymap) pointer. */
 	if (inkey_gnext && *inkey_gnext && !inkey_xtra)
 	{
 		/* Get next character, and advance */
@@ -1769,7 +1810,7 @@ char inkey(void)
 	/* Forget pointer */
 	inkey_gnext = NULL;
 
-	/* Hack -- Use the "inkey_next" pointer */
+	/* Hack -- Use the "inkey_next" (user keymap) pointer */
 	if (inkey_next && *inkey_next && !inkey_xtra)
 	{
 		/* Get next character, and advance */
@@ -1777,6 +1818,9 @@ char inkey(void)
 
 		/* Cancel the various "global parameters" */
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+
+		/* Add this key to a new keymap, if required. */
+		record_keymap(ch);
 
 		/* Accept result */
 		return (ch);
@@ -1787,11 +1831,14 @@ char inkey(void)
 
 #ifdef ALLOW_BORG
 
-	/* Mega-Hack -- Use the special hook */
+	/* Mega-Hack -- Use the special (borg) hook */
 	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
 	{
 		/* Cancel the various "global parameters" */
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+
+		/* Add this key to a new keymap, if required. */
+		record_keymap(ch);
 
 		/* Accept result */
 		return (ch);
@@ -1977,6 +2024,9 @@ char inkey(void)
 	/* Cancel the various "global parameters" */
 	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
+	/* Add this key to a new keymap, if required. */
+	record_keymap(ch);
+
 
 	/* Return the keypress */
 	return (ch);
@@ -2080,6 +2130,7 @@ static u16b message__next; /* The next "free" index to use */
 static u16b message__last; /* The index of the oldest message. */
 static u16b message__head; /* The next "free" offset */
 static u16b message__tail = MESSAGE_BUF; /* The oldest used char offset */
+static u16b message__turn; /* The index at the start of the last turn. */
 
 
 /*
@@ -2103,22 +2154,39 @@ s16b message_num(void)
 	return (n);
 }
 
-
-
 /*
- * Recall the "text" of a saved message
+ * Copy the "text" of a saved message to buf.
+ * If there is a $ in the format string, also provide an initial colour string.
  */
-cptr message_str(s16b age)
+void message_str_f1(char *buf, uint max, cptr fmt, va_list *vp)
 {
-	s16b x;
-	s16b o;
+	u16b x, o;
 	cptr s;
+	cptr p;
+	int age = va_arg(*vp, int);
 
 	/* Forgotten messages have no text */
-	if ((age < 0) || (age >= message_num())) return ("");
+	if ((age < 0) || (age >= message_num())) return;
 
 	/* Acquire the "logical" index */
 	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
+
+	/* Neither add nor remove colour codes. */
+	if (!strchr(fmt, '$'))
+	{
+		p = "";
+	}
+	/* Deduce the colour. */
+	else if ((u16b)(message__next - x) < (u16b)(message__turn - x))
+	{
+		/* Recent messages are white. */
+		p = "$w$<";
+	}
+	else
+	{
+		/* Older messages are grey. */
+		p = "$W$<";
+	}
 
 	/* Get the "offset" for the message */
 	o = message__ptr[x];
@@ -2126,8 +2194,8 @@ cptr message_str(s16b age)
 	/* Access the message text */
 	s = &message__buf[o];
 
-	/* Return the message text */
-	return (s);
+	/* Copy the message and the colour to buf. */
+	strnfmt(buf, max, "%s%s", p, s);
 }
 
 
@@ -2222,6 +2290,10 @@ void message_add(cptr str)
 			n = strlen(str);
 		}
 
+		/* Put the colour break before this message. */
+		if (new_message_turn) message__turn = message__next-1;
+		new_message_turn = FALSE;
+
 		/* Done */
 		break;
 	}
@@ -2253,6 +2325,10 @@ void message_add(cptr str)
 
 		/* Get the next message index, advance */
 		x = message__next++;
+
+		/* Put the colour break before this message. */
+		if (new_message_turn) message__turn = message__next-1;
+		new_message_turn = FALSE;
 
 		/* Handle wrap */
 		if (message__next == MESSAGE_MAX) message__next = 0;
@@ -2678,6 +2754,7 @@ static bool wrap_text(int nx)
 static cptr mc_add(cptr s, int mx, int *dattr, int *attr, bool *ignore)
 {
 	int nattr;
+	bool spec;
 
 	/* With no specified width, use however much space is left on the line. */
 	if (mx == DEFAULT)
@@ -2690,20 +2767,23 @@ static cptr mc_add(cptr s, int mx, int *dattr, int *attr, bool *ignore)
 	}
 
 	/* Print until either the space or the string is exhausted. */
-	for (; *s && *s != '\n' && mx; s++)
+	for (spec = FALSE; *s && *s != '\n' && mx; s++)
 	{
-		if (*ignore || *s != '$')
+		/* Ignoring special chars, or not finding them. $$ is simply a $. */
+		if (*ignore || (spec == (*s == '$')))
 		{
 			/* Add the character, finish if the cursor has gone too far. */
 			Term_addch(*attr, *s);
 			mx--;
 		}
-		/* $$ prints $. */
-		else if (*(++s) == '$')
+		else if (*s == '$')
 		{
-			Term_addch(*attr, '$');
-			mx--;
+			spec = TRUE;
+			continue;
 		}
+
+		/* From here on, we're looking for special character codes. */
+
 		/* $< saves the current colour as a default. */
 		else if (*s == '<')
 		{
@@ -2728,9 +2808,20 @@ static cptr mc_add(cptr s, int mx, int *dattr, int *attr, bool *ignore)
 		else
 		{
 			Term_addch(TERM_RED, '$');
+			if (--mx) Term_addch(TERM_RED, *s);
 			mx--;
 		}
+
+		/* Almost everything cancels a special code. */
+		spec = FALSE;
 	}
+
+	/* The string terminated prematurely. */
+	if (spec && mx)
+	{
+		Term_addch(TERM_RED, '$');
+	}
+
 	return s;
 }
 
@@ -2956,6 +3047,16 @@ bool askfor_aux(char *buf, int len)
 			break;
 
 			case 0x7F:
+			{
+				if (l < k)
+				{
+					k--;
+					for (j = l; j < k; j++)
+						buf[j] = buf[j+1];
+				}
+				break;
+			}
+
 			case '\010':
 			if (l > 0)
 			{
@@ -3367,7 +3468,10 @@ void request_command(bool shopping)
 
 	cptr act;
 
-
+#ifdef ALLOW_MACROS
+	/* Track keymap_buf_ptr to exclude the request to stop from the keymap. */
+	keymap_cmd_ptr = keymap_buf_ptr;
+#endif /* ALLOW_MACROS */
 
 	/* No "argument" yet (exclude special modes). */
 	if (!(command_new & 0xFF00)) command_arg = 0;
@@ -3530,6 +3634,11 @@ void request_command(bool shopping)
 
 				/* Start using the buffer */
 				inkey_next = request_command_buffer;
+
+#ifdef ALLOW_MACROS
+				/* Forget the trigger. */
+				keymap_buf_ptr--;
+#endif /* ALLOW_MACROS */
 
 				continue;
 			}

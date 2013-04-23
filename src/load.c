@@ -162,6 +162,19 @@ static byte sf_get(void)
 	return (v);
 }
 
+static void rd_number(u32b *ip, int size)
+{
+	int i;
+
+	/* Caller */
+	assert(size > 0 && size <= 4);
+
+	for (*ip = i = 0; i < size; i++)
+	{
+		(*ip) |= ((u32b)(sf_get()) << (i*8));
+	}
+}
+
 static void rd_byte(byte *ip)
 {
 	*ip = sf_get();
@@ -614,8 +627,12 @@ static void rd_lore(monster_race *r_ptr)
 		rd_byte(&r_ptr->r_drop_item);
 
 		/* Count spells */
-		rd_byte(&r_ptr->r_cast_inate);
+		if (!has_flag(SF_NO_INATE)) rd_byte(&tmp8u);
 		rd_byte(&r_ptr->r_cast_spell);
+		if (!has_flag(SF_NO_INATE))
+		{
+			r_ptr->r_cast_spell = ((int)r_ptr->r_cast_spell + tmp8u) / 2;
+		}
 
 		/* Count blows of each type */
 		rd_byte(&r_ptr->r_blows[0]);
@@ -1001,7 +1018,10 @@ static void rd_ghost(void)
 	strip_bytes(2);
 
 	/* Frequency */
-	rd_byte(&r_ptr->freq_inate);
+
+	/* No compatible save file uses freq_inate in an interesting way. */
+	if (!has_flag(SF_NO_INATE)) strip_bytes(1);
+
 	rd_byte(&r_ptr->freq_spell);
 	rd_byte(&r_ptr->num_blows);
 
@@ -1394,6 +1414,50 @@ static void rd_messages(void)
 
 
 /*
+ * Simple "run length decoding" of a field in cave.
+ */
+static void rd_rle_cave(int size, void (*set)(cave_type *, u32b))
+{
+	int x, y;
+	byte c;
+	u32b UNREAD(n);
+
+	for (c = y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++, c--)
+		{
+			while (!c)
+			{
+				rd_byte(&c);
+				rd_number(&n, size);
+			}
+			(*set)(&cave[y][x], n);
+		}
+	}
+}
+
+static void set_cave_info(cave_type *c_ptr, u32b v)
+{
+	/* Avoid loading flags we can calculate from scratch anyway. */
+	c_ptr->info = ((u16b)v) & (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_TRAP);
+}
+
+static void set_cave_feat(cave_type *c_ptr, u32b v)
+{
+	c_ptr->feat = (byte)v;
+}
+
+static void set_cave_r_feat(cave_type *c_ptr, u32b v)
+{
+	if (v == 255)
+		c_ptr->r_feat = c_ptr->feat;
+	else if (v == c_ptr->feat)
+		c_ptr->r_feat = 255;
+	else
+		c_ptr->r_feat = (byte)v;
+}
+
+/*
  * Read the dungeon
  *
  * The monsters/objects must be loaded in the same order
@@ -1401,16 +1465,8 @@ static void rd_messages(void)
  */
 static errr rd_dungeon(void)
 {
-	int i, y, x;
-
-	int ymax, xmax;
-
-	byte count;
-	byte tmp8u;
-	u16b tmp16u;
-
+	int i, x, y;
 	u16b limit;
-
 	cave_type *c_ptr;
 
 
@@ -1435,78 +1491,25 @@ static errr rd_dungeon(void)
 	rd_s16b(&max_panel_cols);
 
 
-	/* Maximal size */
-	ymax = cur_hgt;
-	xmax = cur_wid;
-
-
 	/*** Run length decoding ***/
 
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
+	/* Encode cave_type.info. */
+	if (has_flag(SF_16_CAVE_FLAG))
+		rd_rle_cave(2, set_cave_info);
+	else
+		rd_rle_cave(1, set_cave_info);
+
+	/* Encode cave_type.feat. */
+	rd_rle_cave(1, set_cave_feat);
+
+	/* Encode cave_type.r_feat. */
+	if (has_flag(SF_OBSERVED_FEAT))
+		rd_rle_cave(1, set_cave_r_feat);
+	else
 	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		if (has_flag(SF_16_CAVE_FLAG))
-		{
-			rd_u16b(&tmp16u);
-		}
-		else
-		{
-			rd_byte(&tmp8u);
-			tmp16u = tmp8u;
-		}
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "info" */
-			c_ptr->info = tmp16u;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "feat" */
-			c_ptr->feat = tmp8u;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
+		for (y = 0; y < cur_hgt; y++)
+			for (x = 0; x < cur_wid; x++)
+				cave[y][x].r_feat = cave[y][x].feat;
 	}
 
 

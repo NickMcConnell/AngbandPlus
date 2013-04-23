@@ -12,16 +12,13 @@
 
 
 /*
- * This file defines some "XImage" manipulation functions for X11.
+ * This file contains some auxiliary functions for X11-based display modules.
  *
  * Original code by Desvignes Sebastien (desvigne@solar12.eerie.fr).
  *
  * BMP format support by Denis Eropkin (denis@dream.homepage.ru).
  *
  * Major fixes and cleanup by Ben Harrison (benh@phial.com).
- *
- * This file is designed to be "included" by "main-x11.c" or "main-xaw.c",
- * which will have already "included" several relevant header files.
  */
 
 #include "angband.h"
@@ -38,6 +35,157 @@ static bool gamma_table_ready = FALSE;
 static int gamma_val = 0;
 #endif /* SUPPORT_GAMMA */
 
+
+/* Constant system-wide default fonts, which are specified in config.h. */
+static cptr const default_fonts[ANGBAND_TERM_MAX] =
+{
+	DEFAULT_X11_FONT_0,
+	DEFAULT_X11_FONT_1,
+	DEFAULT_X11_FONT_2,
+	DEFAULT_X11_FONT_3,
+	DEFAULT_X11_FONT_4,
+	DEFAULT_X11_FONT_5,
+	DEFAULT_X11_FONT_6,
+	DEFAULT_X11_FONT_7,
+};
+
+/*
+ * Get the name of the default font to use for the term.
+ */
+cptr get_default_font(int term_num)
+{
+	cptr font;
+
+	char buf[80];
+
+	/* No port should try to support more than ANGBAND_TERM_MAX windows. */
+	assert(term_num >= 0 && term_num < ANGBAND_TERM_MAX);
+
+	/* Window specific font name */
+	sprintf(buf, "ANGBAND_X11_FONT_%d", term_num);
+
+	/* Check environment for that font */
+	font = getenv(buf);
+	if (font) return font;
+
+	/* Check environment for "base" font */
+	font = getenv("ANGBAND_X11_FONT");
+	if (font) return font;
+
+	/* No environment variables, use default font */
+	return default_fonts[term_num];
+}
+
+#endif /* USE_X11 || USE_XAW || USE_XPJ || USE_GTK */
+
+#if defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ)
+
+/*
+ * Process a keypress event.
+ */
+void react_keypress(XKeyEvent *ev)
+{
+	int i, n, mc, ms, mo, mx;
+
+	uint ks1;
+
+	KeySym ks;
+
+	char buf[128];
+	char msg[128];
+
+
+	/* Check for "normal" keypresses */
+	n = XLookupString(ev, buf, 125, &ks, NULL);
+
+	/* Terminate */
+	buf[n] = '\0';
+
+
+	/* Hack -- Ignore "modifier keys" */
+	if (IsModifierKey(ks)) return;
+
+
+	/* Hack -- convert into an unsigned int */
+	ks1 = (uint)(ks);
+
+	/* Extract four "modifier flags" */
+	mc = (ev->state & ControlMask) ? TRUE : FALSE;
+	ms = (ev->state & ShiftMask) ? TRUE : FALSE;
+	mo = (ev->state & Mod1Mask) ? TRUE : FALSE;
+	mx = (ev->state & Mod2Mask) ? TRUE : FALSE;
+
+
+	/* Normal keys with no modifiers */
+	if (n && !mo && !mx && !IsSpecialKey(ks))
+	{
+		/* Enqueue the normal key(s) */
+		for (i = 0; buf[i]; i++) Term_keypress(buf[i]);
+
+		/* All done */
+		return;
+	}
+
+
+	/* Handle a few standard keys (bypass modifiers) XXX XXX XXX */
+	switch (ks1)
+	{
+		case XK_Escape:
+		{
+			Term_keypress(ESCAPE);
+			return;
+		}
+
+		case XK_Return:
+		{
+			Term_keypress('\r');
+			return;
+		}
+
+		case XK_Tab:
+		{
+			Term_keypress('\t');
+			return;
+		}
+
+		case XK_Delete:
+		case XK_BackSpace:
+		{
+			Term_keypress('\010');
+			return;
+		}
+	}
+
+
+	/* Hack -- Use the KeySym */
+	if (ks)
+	{
+		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
+		        mc ? "N" : "", ms ? "S" : "",
+		        mo ? "O" : "", mx ? "M" : "",
+		        (unsigned long)(ks), 13);
+	}
+
+	/* Hack -- Use the Keycode */
+	else
+	{
+		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
+		        mc ? "N" : "", ms ? "S" : "",
+		        mo ? "O" : "", mx ? "M" : "",
+		        ev->keycode, 13);
+	}
+
+	/* Enqueue the "macro trigger" string */
+	for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
+
+
+	/* Hack -- auto-define macros as needed */
+	if (n && !find_macro(msg))
+	{
+		/* Create a macro */
+		macro_add(msg, buf);
+	}
+}
 
 /*
  * Hack -- Convert an RGB value to an X11 Pixel, or die.
@@ -88,79 +236,6 @@ u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 	return (xcolour.pixel);
 }
 
-
-/*
- * Get the name of the default font to use for the term.
- */
-cptr get_default_font(int term_num)
-{
-	cptr font;
-
-	char buf[80];
-
-	/* Window specific font name */
-	sprintf(buf, "ANGBAND_X11_FONT_%d", term_num);
-
-	/* Check environment for that font */
-	font = getenv(buf);
-
-	/* Check environment for "base" font */
-	if (!font) font = getenv("ANGBAND_X11_FONT");
-
-	/* No environment variables, use default font */
-	if (!font)
-	{
-		switch (term_num)
-		{
-			case 0:
-			{
-				font = DEFAULT_X11_FONT_0;
-			}
-			break;
-			case 1:
-			{
-				font = DEFAULT_X11_FONT_1;
-			}
-			break;
-			case 2:
-			{
-				font = DEFAULT_X11_FONT_2;
-			}
-			break;
-			case 3:
-			{
-				font = DEFAULT_X11_FONT_3;
-			}
-			break;
-			case 4:
-			{
-				font = DEFAULT_X11_FONT_4;
-			}
-			break;
-			case 5:
-			{
-				font = DEFAULT_X11_FONT_5;
-			}
-			break;
-			case 6:
-			{
-				font = DEFAULT_X11_FONT_6;
-			}
-			break;
-			case 7:
-			{
-				font = DEFAULT_X11_FONT_7;
-			}
-			break;
-			default:
-			{
-				font = DEFAULT_X11_FONT;
-			}
-		}
-	}
-
-	return (font);
-}
 
 
 #ifdef USE_GRAPHICS
@@ -923,5 +998,5 @@ XImage *ResizeImage(Display *dpy, XImage *Im,
 
 #endif /* USE_GRAPHICS */
 
-#endif /* USE_X11 || USE_XAW || USE_XPJ || USE_GTK */
+#endif /* USE_X11 || USE_XAW || USE_XPJ */
 

@@ -373,6 +373,12 @@ This command allows you to modify your Angband experience in many ways, which ar
 $GEnter a user pref command (")
 Angband stores your preferences in files called "user pref files", which contain comments and "user pref commands", which are simple strings describing one aspect of the system about which the user has a preference. You may enter single user pref commands directly, using the special "Enter a user pref command" command, activated by "double quote". You may have to use the "redraw" command (^R) after changing certain of the aspects of the game, to allow Angband to adapt to your changes.
 
+%%%% <cmd=$>
+$GStart/stop keymap recorder ($)
+This command allows you to set keymaps. Typically, you press $$ to start recording, carry out the action you want to assign to a keymap, press $$ again to stop it. This takes you to the ****option=M*[macro options] screen where you can set it to a keymap or macro.
+
+If you don't want your macro to start and end at the dungeon screen, you can use the *****string_prompt*[string editing commands] to remove the unwanted keypresses as you add it.
+
 %%%%%
 --- Help ---
 

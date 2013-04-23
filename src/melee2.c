@@ -1125,8 +1125,7 @@ static bool monst_spell_monst(int m_idx)
 	if (m_ptr->confused) return (FALSE);
 
 	/* Hack -- Extract the spell probability */
-	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
-	chance = chance / r_ptr->num_blows;
+	chance = r_ptr->freq_spell / r_ptr->num_blows;
 
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
@@ -2591,7 +2590,7 @@ static bool monst_spell_monst(int m_idx)
 			if (thrown_spell < 32*4)
 			{
 				r_ptr->r_flags4 |= (1L << (thrown_spell - 32*3));
-				if (r_ptr->r_cast_inate < MAX_UCHAR) r_ptr->r_cast_inate++;
+				if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
 			}
 
 			/* Bolt or Ball */
@@ -4165,7 +4164,7 @@ static bool make_attack_spell(int m_idx)
 
 
 	/* Hack -- Extract the spell probability */
-	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
+	chance = r_ptr->freq_spell;
 
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
@@ -4345,7 +4344,7 @@ static bool make_attack_spell(int m_idx)
 		if (thrown_spell < 32*4)
 		{
 			r_ptr->r_flags4 |= (1L << (thrown_spell - 32*3));
-			if (r_ptr->r_cast_inate < MAX_UCHAR) r_ptr->r_cast_inate++;
+			if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
 		}
 
 		/* Bolt or Ball */
@@ -6035,9 +6034,6 @@ static void process_monster(int m_idx)
 				msg_print("There is a grinding sound.");
 			}
 
-			/* Forget the wall */
-			c_ptr->info &= ~(CAVE_MARK);
-
 			/* Notice */
 			cave_set_feat(ny, nx, FEAT_FLOOR);
 
@@ -6151,9 +6147,6 @@ static void process_monster(int m_idx)
 					msg_print("The rune of protection is broken!");
 				}
 
-				/* Forget the rune */
-				c_ptr->info &= ~(CAVE_MARK);
-
 				/* Break the rune */
 				cave_set_feat(ny, nx, FEAT_FLOOR);
 
@@ -6183,9 +6176,6 @@ static void process_monster(int m_idx)
 					else
 						msg_print("An explosive rune was disarmed.");
 				}
-
-				/* Forget the rune */
-				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Break the rune */
 				cave_set_feat(ny, nx, FEAT_FLOOR);
@@ -6618,7 +6608,6 @@ void process_monsters(void)
 	byte    old_r_blows2 = 0;
 	byte    old_r_blows3 = 0;
 
-	byte    old_r_cast_inate = 0;
 	byte    old_r_cast_spell = 0;
 
 
@@ -6646,7 +6635,6 @@ void process_monsters(void)
 		old_r_blows3 = r_ptr->r_blows[3];
 
 		/* Memorize castings */
-		old_r_cast_inate = r_ptr->r_cast_inate;
 		old_r_cast_spell = r_ptr->r_cast_spell;
 	}
 
@@ -6765,7 +6753,6 @@ void process_monsters(void)
 			(old_r_blows1 != r_ptr->r_blows[1]) ||
 			(old_r_blows2 != r_ptr->r_blows[2]) ||
 			(old_r_blows3 != r_ptr->r_blows[3]) ||
-			(old_r_cast_inate != r_ptr->r_cast_inate) ||
 			(old_r_cast_spell != r_ptr->r_cast_spell))
 		{
 			/* Window stuff */

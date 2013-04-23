@@ -41,6 +41,31 @@
 /* A macro for how large the current info array can grow before it overflows. */
 #define MAX_I (int)(z_info->fake_info_size/head->info_len)
 
+/*
+ * Read a variable from a text file with bounds checking.
+ * Set the variable if appropriate, return an error otherwise.
+ */
+#define SSET(MIN, MAX, T, F) \
+	((F <= MAX && F >= MIN) ? (T = F, SUCCESS) : PARSE_ERROR_OUT_OF_BOUNDS)
+
+/* Use some special constants to simplify "set if T can hold the value of F". */
+#define SET(TYPE, T, F) SSET(MIN_ ## TYPE, MAX_ ## TYPE, T, F)
+
+/*
+ * The bounds for various types. There are no bounds given for CHAR as these
+ * should always be entered with %c, giving a char directly.
+ * There are no bounds for U32B as sscanf only sets signed values correctly
+ * and there may not be a larger signed type to read this with.
+ */
+#define MAX_BYTE MAX_UCHAR
+#define MIN_BYTE 0
+#define MAX_S16B MAX_SHORT
+#define MIN_S16B -MAX_S16B
+#define MAX_U16B 65535
+#define MIN_U16B 0
+/* #define MAX_S32B */ /* defines.h */
+#define MIN_S32B -MAX_S32B
+
 
 /*** Helper arrays for parsing ascii template files ***/
 
@@ -1398,8 +1423,6 @@ errr parse_f_info(char *buf, header *head, vptr *extra)
 			if (1 != sscanf(buf+2, "%d%c", &mimic, end))
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			if (mimic < 0 || mimic > 255) return PARSE_ERROR_OUT_OF_BOUNDS;
-
 			/* Don't allow, don't explain. */
 			if (mimic == error_idx) return PARSE_ERROR_GENERIC;
 
@@ -1407,15 +1430,15 @@ errr parse_f_info(char *buf, header *head, vptr *extra)
 			if (f_ptr->priority || f_ptr->gfx.dc || f_ptr->gfx.da)
 				return PARSE_ERROR_GENERIC;
 
-			/* Save the values */
-			f_ptr->mimic = mimic;
+			/* Bounds test and save the values */
+			try(SET(BYTE, f_ptr->mimic, mimic));
 
 			return SUCCESS;
 		}
 		/* Process 'G' for "Graphics" (one line only) */
 		case 'G':
 		{
-			int pri;
+			int pri, da;
 			char sym, col;
 
 			/* Scan for the values */
@@ -1427,16 +1450,16 @@ errr parse_f_info(char *buf, header *head, vptr *extra)
 			/* Mimic fields override graphics ones entirely. */
 			if (f_ptr->mimic != error_idx) return PARSE_ERROR_GENERIC;
 
-			/* Extract and check the color */
-			if (color_char_to_attr(col) < 0) return PARSE_ERROR_OUT_OF_BOUNDS;
+			/* Extract the colour. */
+			da = color_char_to_attr(col);
 
-			/* Check the priority. */
-			if (pri < 0 || pri > 255) return PARSE_ERROR_OUT_OF_BOUNDS;
+			/* Catch errors. */
+			if (da < 0) return PARSE_ERROR_OUT_OF_BOUNDS;
 
-			/* Save the values */
-			f_ptr->priority = pri;
+			/* Check and save the values */
+			try(SET(BYTE, f_ptr->priority, pri));
 			f_ptr->gfx.dc = sym;
-			f_ptr->gfx.da = color_char_to_attr(col);
+			f_ptr->gfx.da = da;
 
 			return SUCCESS;
 		}
@@ -1529,8 +1552,8 @@ errr parse_v_info(char *buf, header *head, vptr *extra)
 					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
-			v_ptr->typ = typ;
-			v_ptr->rat = rat;
+			try(SET(BYTE, v_ptr->typ, typ));
+			try(SET(BYTE, v_ptr->rat, rat));
 
 			/* Next... */
 			return SUCCESS;
@@ -1641,7 +1664,7 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 		case 'G':
 		{
 			char sym, col;
-			int tmp, p_id;
+			int da, p_id;
 
 			/* Scan for the values */
 			if (3 != sscanf(buf+2, "%c:%c:%d%c", &sym, &col, &p_id, end))
@@ -1650,18 +1673,17 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 			}
 
 			/* Extract the attr */
-			tmp = color_char_to_attr(col);
+			da = color_char_to_attr(col);
 
 			/* Paranoia */
-			if (tmp < 0) return PARSE_ERROR_GENERIC;
-			if (p_id < 0 || p_id > 255) return PARSE_ERROR_GENERIC;
+			if (da < 0) return PARSE_ERROR_OUT_OF_BOUNDS;
 
 			/* Save the values */
 			k_ptr->gfx.dc = sym;
-			k_ptr->gfx.da = tmp;
+			k_ptr->gfx.da = da;
 
 			/* Hack - store p_id in k_ptr->u_idx until flavor_init() */
-			k_ptr->u_idx = p_id;
+			try(SET(BYTE, k_ptr->u_idx, p_id));
 
 			/* Next... */
 			return SUCCESS;
@@ -1675,9 +1697,7 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 			if (3 != sscanf(buf+2, "%d:%d:%d%c", &tval, &pval, &kextra, end))
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			if (tval < 0 || tval > 255 || kextra < 0 || kextra > 255)
-				return PARSE_ERROR_OUT_OF_BOUNDS;
-
+			/* Some tvals impose extra restrictions on extra. */
 			switch(tval)
 			{
 				case TV_BOOK: case TV_CHARM:
@@ -1687,10 +1707,10 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 				}
 			}
 
-			/* Save the values */
-			k_ptr->tval = tval;
-			k_ptr->pval = pval;
-			k_ptr->extra = kextra;
+			/* Check and save the values */
+			try(SET(BYTE, k_ptr->tval, tval));
+			try(SET(S16B, k_ptr->pval, pval));
+			try(SET(BYTE, k_ptr->extra, kextra));
 
 			/* Next... */
 			return SUCCESS;
@@ -1707,9 +1727,9 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
-			k_ptr->rating = krating;
-			k_ptr->weight = wgt;
-			k_ptr->cost = cost;
+			try(SET(BYTE, k_ptr->rating, krating));
+			try(SET(S16B, k_ptr->weight, wgt));
+			try(SET(S32B, k_ptr->cost, cost));
 
 			/* Next... */
 			return SUCCESS;
@@ -1755,12 +1775,13 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 				&hd1, &hd2, &th, &td, &ac, &ta, end))
 					return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			k_ptr->ac = ac;
-			k_ptr->dd = hd1;
-			k_ptr->ds = hd2;
-			k_ptr->to_h = th;
-			k_ptr->to_d = td;
-			k_ptr->to_a =  ta;
+			/* Check and save them. */
+			try(SET(S16B, k_ptr->ac, ac));
+			try(SET(BYTE, k_ptr->dd, hd1));
+			try(SET(BYTE, k_ptr->ds, hd2));
+			try(SET(S16B, k_ptr->to_h, th));
+			try(SET(S16B, k_ptr->to_d, td));
+			try(SET(S16B, k_ptr->to_a,  ta));
 
 			/* Next... */
 			return SUCCESS;
@@ -1914,7 +1935,7 @@ errr parse_o_base(char *buf, header *head, vptr *extra)
 			if (!ob_ptr) return PARSE_ERROR_MISSING_RECORD_HEADER;
 
 			/* Work out the lowest cost this item might have. */
-			if (!strncmp(buf+2, "default", strlen("default")))
+			if (prefix(buf+2, "default"))
 			{
 				int i;
 				for (i = 0; i < z_info->k_max; i++)
@@ -1939,7 +1960,7 @@ errr parse_o_base(char *buf, header *head, vptr *extra)
 			}
 
 			/* Save the value */
-			ob_ptr->cost = cost;
+			try(SET(S32B, ob_ptr->cost, cost));
 
 			return SUCCESS;
 		}
@@ -2039,7 +2060,7 @@ errr parse_u_info(char *buf, header *head, vptr *extra)
 		case 'G': /* Graphics */
 		{
 			char sym, col;
-			int p_id, s_id;
+			int p_id, s_id, da;
 			s16b i;
 
 			/* Scan for the values */
@@ -2047,32 +2068,18 @@ errr parse_u_info(char *buf, header *head, vptr *extra)
 				&sym, &col, &p_id, &s_id, end))
 					return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			/* Paranoia */
-			if (color_char_to_attr(col) < 0)
-			{
-				msg_print("Illegal colour.");
-				return PARSE_ERROR_GENERIC;
-			}
-			if (!ISGRAPH(sym))
-			{
-				msg_print("Illegal symbol.");
-				return PARSE_ERROR_GENERIC;
-			}
 			/* Extract the char */
 			u_ptr->gfx.dc = sym;
 
 			/* Extract the attr */
-			u_ptr->gfx.da = color_char_to_attr(col);
-
-			/* Verify indices' legality */
-			try(byte_ok(p_id));
-			try(byte_ok(s_id));
+			da = color_char_to_attr(col);
+			try(SET(BYTE, u_ptr->gfx.da, da));
 
 			/* Change the primary index to an o_base one. */
-			u_ptr->p_id = p_id;
+			try(SET(BYTE, u_ptr->p_id, p_id));
 
 			/* Extract the secondary index */
-			u_ptr->s_id = s_id;
+			try(SET(BYTE, u_ptr->s_id, s_id));
 
 			/* Verify uniqueness */
 			for (i = 0; i < error_idx; i++)
@@ -2168,18 +2175,11 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 			if (2 != sscanf(buf+2, "%d:%d%c", &k_idx, &pval, end))
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			/* Test the values */
-			if (k_idx < 0 || k_idx >= MAX_K_IDX || !k_info[k_idx].name ||
-				(pval < -32768 || pval > 32767))
-			{
-				return PARSE_ERROR_OUT_OF_BOUNDS;
-			}
+			/* Test and save the values. */
+			try(SSET(0, z_info->k_max, a_ptr->k_idx, k_idx));
+			try(SET(S16B, a_ptr->pval, pval));
+			if (!k_info[k_idx].name) return PARSE_ERROR_OUT_OF_BOUNDS;
 
-			/* Save the values */
-			a_ptr->k_idx = k_idx;
-			a_ptr->pval = pval;
-
-			/* Next... */
 			return SUCCESS;
 		}
 		case 'W':
@@ -2192,14 +2192,13 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 				&level, &level2, &rarity, &wgt, &cost, end))
 					return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			/* Save the values */
-			a_ptr->level = level;
-			a_ptr->level2 = level2;
-			a_ptr->rarity = rarity;
-			a_ptr->weight = wgt;
-			a_ptr->cost = cost;
+			/* Test and save the values. */
+			try(SET(BYTE, a_ptr->level, level));
+			try(SET(BYTE, a_ptr->level2, level2))
+			try(SET(BYTE, a_ptr->rarity, rarity))
+			try(SET(S16B, a_ptr->weight, wgt))
+			try(SET(S32B, a_ptr->cost, cost))
 
-			/* Next... */
 			return SUCCESS;
 		}
 		case 'P':
@@ -2211,14 +2210,14 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 				&hd1, &hd2, &th, &td, &ac, &ta, end))
 					return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			a_ptr->ac = ac;
-			a_ptr->dd = hd1;
-			a_ptr->ds = hd2;
-			a_ptr->to_h = th;
-			a_ptr->to_d = td;
-			a_ptr->to_a =  ta;
+			/* Test and save the values. */
+			try(SET(S16B, a_ptr->ac, ac));
+			try(SET(BYTE, a_ptr->dd, hd1));
+			try(SET(BYTE, a_ptr->ds, hd2));
+			try(SET(S16B, a_ptr->to_h, th));
+			try(SET(S16B, a_ptr->to_d, td));
+			try(SET(S16B, a_ptr->to_a, ta));
 
-			/* Next... */
 			return SUCCESS;
 		}
 		case 'F':
@@ -2331,8 +2330,8 @@ errr parse_e_info(char *buf, header *head, vptr *extra)
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
-			e_ptr->rating = r;
-			e_ptr->special = s;
+			try(SET(BYTE, e_ptr->rating, r));
+			try(SET(BYTE, e_ptr->special, s));
 
 			return SUCCESS;
 		}
@@ -2348,8 +2347,8 @@ errr parse_e_info(char *buf, header *head, vptr *extra)
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
-			e_ptr->chance = chance;
-			e_ptr->cost = cost;
+			try(SET(BYTE, e_ptr->chance, chance));
+			try(SET(S32B, e_ptr->cost, cost));
 
 			return SUCCESS;
 		}
@@ -2363,10 +2362,10 @@ errr parse_e_info(char *buf, header *head, vptr *extra)
 			if (4 != sscanf(buf+2, "%d:%d:%d:%d%c", &th, &td, &ta, &pv, end))
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			e_ptr->max_to_h = th;
-			e_ptr->max_to_d = td;
-			e_ptr->max_to_a = ta;
-			e_ptr->max_pval = pv;
+			try(SET(BYTE, e_ptr->max_to_h, th));
+			try(SET(BYTE, e_ptr->max_to_d, td));
+			try(SET(BYTE, e_ptr->max_to_a, ta));
+			try(SET(BYTE, e_ptr->max_pval, pv));
 
 			return SUCCESS;
 		}
@@ -2385,7 +2384,7 @@ errr parse_e_info(char *buf, header *head, vptr *extra)
 				case 2:
 				{
 					/* Check for sanity. */
-					if (!min || max >= z_info->k_max || max < min)
+					if (min <= 0 || max >= z_info->k_max || max < min)
 						return PARSE_ERROR_OUT_OF_BOUNDS;
 
 					/* Set stuff. */
@@ -2548,13 +2547,13 @@ errr parse_r_info(char *buf, header *head, vptr *extra)
 					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
-			r_ptr->speed = spd+110;
-			r_ptr->num_blows = atspd;
-			r_ptr->hdice = hp1;
-			r_ptr->hside = hp2;
-			r_ptr->aaf = aaf;
-			r_ptr->ac = ac;
-			r_ptr->sleep = slp;
+			try(SET(BYTE, r_ptr->speed, spd+110));
+			try(SET(BYTE, r_ptr->num_blows, atspd));
+			try(SET(BYTE, r_ptr->hdice, hp1));
+			try(SET(BYTE, r_ptr->hside, hp2));
+			try(SET(BYTE, r_ptr->aaf, aaf));
+			try(SET(S16B, r_ptr->ac, ac));
+			try(SET(S16B, r_ptr->sleep, slp));
 
 			return SUCCESS;
 		}
@@ -2571,10 +2570,10 @@ errr parse_r_info(char *buf, header *head, vptr *extra)
 					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
-			r_ptr->level = lev;
-			r_ptr->rarity = rar;
+			try(SET(BYTE, r_ptr->level, lev));
+			try(SET(BYTE, r_ptr->rarity, rar));
 /* r_ptr->extra = pad;*/
-			r_ptr->mexp = exp;
+			try(SET(S32B, r_ptr->mexp, exp));
 
 			return SUCCESS;
 		}
@@ -2693,7 +2692,7 @@ errr parse_r_info(char *buf, header *head, vptr *extra)
 						return PARSE_ERROR_INVALID_SPELL_FREQ;
 
 					/* Extract a "frequency" */
-					r_ptr->freq_spell = r_ptr->freq_inate = 100 / i;
+					r_ptr->freq_spell = 100 / i;
 
 					/* Start at next entry */
 					s = t;
@@ -3115,22 +3114,12 @@ errr parse_s_info(char *buf, header *head, vptr *extra)
 				&haggle, &insult, end) != 5)
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			/* Check the numbers are reasonable. */
-			if (cost < 0 || cost > 32767 ||
-				linf < 0 || linf > 255 ||
-				uinf < 0 || uinf > 255 ||
-				haggle < 0 || haggle > 255 ||
-				insult < 0 || insult > 255)
-			{
-				return PARSE_ERROR_OUT_OF_BOUNDS;
-			}
-
-			/* Copy the numbers across. */
-			ptr->max_cost = cost;
-			ptr->max_inflate = uinf;
-			ptr->min_inflate = linf;
-			ptr->haggle_per = haggle;
-			ptr->insult_max = insult;
+			/* Test and copy the numbers across. */
+			try(SET(U16B, ptr->max_cost, cost));
+			try(SET(BYTE, ptr->max_inflate, uinf));
+			try(SET(BYTE, ptr->min_inflate, linf));
+			try(SET(BYTE, ptr->haggle_per, haggle));
+			try(SET(BYTE, ptr->insult_max, insult));
 
 			return SUCCESS;
 		}
@@ -3185,23 +3174,23 @@ errr parse_s_info(char *buf, header *head, vptr *extra)
  */
 static errr parse_template_skill(player_template *tp_ptr, cptr name, long v)
 {
-	player_skill *sk_ptr;
-	int skill = -1;
+	uint i, matches;
 
 	/* Find the one skill with a name containing "name", or fail. */
-	FOR_ALL_IN(skill_set, sk_ptr)
+	for (i = matches = 0; i < N_ELEMENTS(skill_set); i++)
 	{
-		if (!strstr(sk_ptr->name, name)) continue;
-		if (skill >= 0) return PARSE_ERROR_INVALID_FLAG;
-		skill = sk_ptr - skill_set;
+		/* Not a match. */
+		if (!strstr(skill_set[i].name, name)) continue;
+
+		/* Count the match. */
+		matches++;
+
+		/* Check v, and copy to the indicated skill. */
+		try(SET(S16B, tp_ptr->skill[i], v));
 	}
-	if (skill < 0) return PARSE_ERROR_INVALID_FLAG;
 
-	/* Bounds check (should this become a signed char?). */
-	if (ABS(v) > MAX_SHORT) return PARSE_ERROR_OUT_OF_BOUNDS;
-
-	/* Copy to tp_ptr. */
-	tp_ptr->skill[skill] = v;
+	/* There must be exactly one matching skill. */
+	if (matches != 1) return PARSE_ERROR_INVALID_FLAG;
 
 	return SUCCESS;
 }
@@ -3261,11 +3250,8 @@ errr parse_template(char *buf, header *head, vptr *extra)
 			if (sscanf(buf+2, "%ld%c", p, end) != 1)
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			/* Bounds check. */
-			if (*p < 0 || *p > 255) return PARSE_ERROR_OUT_OF_BOUNDS;
-
-			/* Copy. */
-			ptr->choices = *p;
+			/* Test and copy. */
+			try(SET(BYTE, ptr->choices, *p));
 
 			return SUCCESS;
 		}
@@ -3281,11 +3267,8 @@ errr parse_template(char *buf, header *head, vptr *extra)
 
 			for (i = 0; i < A_MAX; i++)
 			{
-				/* Bounds check. */
-				if (ABS(p[i]) > MAX_SHORT) return PARSE_ERROR_OUT_OF_BOUNDS;
-
-				/* Copy. */
-				ptr->c_adj[i] = p[i];
+				/* Test and copy. */
+				try(SET(S16B, ptr->c_adj[i], p[i]));
 			}
 
 			return SUCCESS;
@@ -3297,15 +3280,10 @@ errr parse_template(char *buf, header *head, vptr *extra)
 			if (sscanf(buf+2, "%ld:%ld:%ld%c", p, p+1, p+2, end) != 3)
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
-			/* Bounds check. */
-			if (p[0] < 0 || p[0] > 255) return PARSE_ERROR_OUT_OF_BOUNDS;
-			if (p[1] < 0 || p[1] > 255) return PARSE_ERROR_OUT_OF_BOUNDS;
-			if (p[2] < 0 || p[2] > 255) return PARSE_ERROR_OUT_OF_BOUNDS;
-
-			/* Copy. */
-			ptr->art1_bias = p[0];
-			ptr->art2_bias = p[1];
-			ptr->art2_chance = p[2];
+			/* Test and copy. */
+			try(SET(BYTE, ptr->art1_bias, p[0]));
+			try(SET(BYTE, ptr->art2_bias, p[1]));
+			try(SET(BYTE, ptr->art2_chance, p[2]));
 
 			return SUCCESS;
 		}
@@ -3465,8 +3443,7 @@ errr parse_macro_info(char *buf, header *head, vptr *extra)
 			else if (ISDIGIT(*s))
 			{
 				int file = atoi(s);
-				if (file < 0 || file > 256) return PARSE_ERROR_OUT_OF_BOUNDS;
-				ptr->file = file;
+				try(SET(BYTE, ptr->file, file));
 			}
 			else
 			{
@@ -3708,10 +3685,16 @@ static errr init_info_txt_final(header *head)
 			try(parse_unid_flavourless(head));
 			break;
 		}
+		case E_HEAD: case A_HEAD:
+		{
+			/* Several files can render an object unsuitable for easy_know. */
+			rebuild_raw |= 1<<EASY_HEAD;
+			break;
+		}
 		case K_HEAD:
 		{
 			/* o_base bases its defaults on k_info. */
-			rebuild_raw |= 1<<OB_HEAD;
+			rebuild_raw |= 1<<OB_HEAD | 1L<<EASY_HEAD;
 			break;
 		}
 		case MACRO_HEAD:

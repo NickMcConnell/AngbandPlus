@@ -71,7 +71,7 @@
 
 # Version stamp (required)
 
-V:1.0.16
+V:1.0.17
 
 ### Body Armor ###
 

@@ -552,6 +552,8 @@ static uint vstrnfmt_do(char *buf, uint max, cptr fmt, va_list *vp)
 				/* Extract the requested precision now. */
 				long max = get_precision(aux);
 
+				uint i, j;
+
 				/* Catch "unspecified" max and enforce a maximum. */
 				if (max < 0 || max > 1000) max = 1000;
 
@@ -561,10 +563,18 @@ static uint vstrnfmt_do(char *buf, uint max, cptr fmt, va_list *vp)
 				/* Format the "user data" */
 				tmp_func(tmp2, max+1, aux, vp);
 
-				/* tmp_func always gives a string, so allow the normal string
-				 * modifiers.
-				 */
-				aux[q-1] = 's';
+				/* Strip all modifiers other than the normal string ones. */
+				for (i = j = 0; i < q-1; i++)
+				{
+					if (!strchr("0123456789-.%", aux[i])) continue;
+					if (j < i)
+					{
+						aux[j] = aux[i];
+					}
+					j++;
+				}
+				strcpy(&aux[j], "s");
+
 				sprintf(tmp, aux, tmp2);
 
 				/* Done */

@@ -43,7 +43,7 @@
  * GAME_NAME is less strict.
  */
 #define GAME_NAME "sCthangband"
-#define GAME_VERSION "1.0.16"
+#define GAME_VERSION "1.0.17"
 
 /* Maximum length of GAME_VERSION above, needed for high_score.what, etc.. */
 #define MAX_VERSION_LEN 8
@@ -1995,6 +1995,9 @@ logaux(x, 1) logaux(x, 0) 255)
 /* Hack - the "stack" attr/char share a character. */
 #define OBJ_STACK OBJ_NO_TEA
 
+/* Hack - use the stack "object" to give the store restoration help. */
+#define OBJ_FAKE_RESTORING OBJ_NO_TEA
+
 /* extra info for chests (decimal) */
 #define XT_CHEST_SMALL 10
 /* #define XT_CHEST_LARGE 20 */
@@ -2031,11 +2034,15 @@ logaux(x, 1) logaux(x, 0) 255)
 
 /*
  * Start Points for surface levels
+ * These need to fit in a byte, and real features are treated in a special
+ * way, so an obviously invalid positive number is used for those which are
+ * not features.
  */
 
-#define START_STAIRS 0 /* Player came up stairs */
-#define START_WALK 1 /* Player walked here */
-#define START_RANDOM 2 /* Player WoR'ed here */
+#define START_WALK (LAST_FEAT+1) /* Player walked here */
+#define START_RANDOM (LAST_FEAT+2) /* Player WoR'ed or fell here */
+#define START_UP_STAIRS FEAT_LESS /* Player came down stairs */
+#define START_DOWN_STAIRS FEAT_MORE /* Player came up stairs */
 
 /*
  * Bit flags for the "project()" function
@@ -2070,9 +2077,11 @@ logaux(x, 1) logaux(x, 0) 255)
  *
  *      KILL: Target monsters
  *      LOOK: Describe grid fully
+ *      NONE: Don't build an "interesting" target list.
  */
 #define TARGET_KILL             0x01
 #define TARGET_LOOK             0x02
+#define TARGET_NONE 0x04
 
 
 /*
@@ -2200,6 +2209,7 @@ logaux(x, 1) logaux(x, 0) 255)
 #define PW_FLOOR (1L<<11) /* Display a list of objects on the floor. */
 #define PW_SHOPS (1L<<12) /* Display shop information */
 #define PW_HELP (1L<<13) /* Display context-sensitive help */
+#define PW_KEYMAP (1L<<14) /* Display the current keymap */
 /* xxx */
 /* xxx */
 #define PW_ROTATE (1L<<29) /* A "rotate windows" request. */
@@ -2208,14 +2218,14 @@ logaux(x, 1) logaux(x, 0) 255)
 
 /* Count how many of the above displays there are (excluding PW_ROTATE,
  * PW_RETURN and PW_NONE). */
-#define NUM_DISPLAY_FUNCS 14
+#define NUM_DISPLAY_FUNCS 15
 #define DISPLAY_NONE NUM_DISPLAY_FUNCS /* "Hidden" index for PW_NONE. */
 
 /* The set of windows affected by window_stuff(). */
 #define WINDOW_STUFF_MASK (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | \
 	PW_VISIBLE | PW_PLAYER_SKILLS | PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | \
 	PW_OBJECT | PW_OBJECT_DETAILS | PW_SHOPS | PW_HELP | PW_FLOOR | \
-	PW_ROTATE | PW_RETURN)
+	PW_KEYMAP | PW_ROTATE | PW_RETURN)
 
 /*
  * Bit flags for the update_object() function.
@@ -3552,6 +3562,7 @@ extern int PlayerUID;
 #define Q_HEAD 14
 #define S_HEAD 15
 #define TPL_HEAD 16
+#define EASY_HEAD 17
 
 
 /*

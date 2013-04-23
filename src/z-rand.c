@@ -25,9 +25,6 @@
  * less fast (and potentially non-terminating) but which is not biased
  * and is much less subject to low-bit-non-randomness problems.
  *
- * You can select your favorite flavor by proper definition of the
- * "rand_int()" macro in the "defines.h" file.
- *
  * Note that, in Angband 2.8.0, the "state" table will be saved in the
  * savefile, so a special "initialization" phase will be necessary.
  *
@@ -43,11 +40,6 @@
  * Random Number Generator -- Linear Congruent RNG
  */
 #define LCRNG(X)        ((X) * 1103515245 + 12345)
-
-/*
- * Select the RNG method
- */
-bool rand_unbiased;
 
 
 /*
@@ -73,10 +65,6 @@ u16b Rand_place = RAND_DEG;
  */
 u32b Rand_state[RAND_DEG];
 
-
-static s32b Rand_div(s32b m);
-
-/* Random number generator selector */
 
 
 /*
@@ -109,52 +97,6 @@ void Rand_state_init(u32b seed)
 
 
 /*
- * Extract a "random" number from 0 to m-1, via "modulus"
- *
- * Note that "m" should probably be less than 500000, or the
- * results may be rather biased towards low values.
- */
-static s32b Rand_mod(s32b m)
-{
-	int j;
-	u32b r;
-
-	/* Hack -- simple case */
-	if (m <= 1) return (0);
-
-	/* Use the "simple" RNG */
-	if (Rand_quick)
-	{
-		/* Cycle the generator */
-		r = (Rand_value = LCRNG(Rand_value));
-
-		/* Mutate a 28-bit "random" number */
-		r = ((r >> 4) % m);
-	}
-
-	/* Use the "complex" RNG */
-	else
-	{
-		/* Acquire the next index */
-		j = Rand_place + 1;
-		if (j == RAND_DEG) j = 0;
-
-		/* Update the table, extract an entry */
-		r = (Rand_state[j] += Rand_state[Rand_place]);
-
-		/* Advance the index */
-		Rand_place = j;
-
-		/* Extract a "random" number */
-		r = ((r >> 4) % m);
-	}
-
-	/* Use the value */
-	return (r);
-}
-
-
-/*
  * Extract a "random" number from 0 to m-1, via "division"
  *
  * This method selects "random" 28-bit numbers, and then uses
@@ -162,61 +104,55 @@ static s32b Rand_mod(s32b m)
  * plus a small non-partition to reduce bias, taking as the final
  * value the first "good" partition that a number falls into.
  *
- * This method has no bias, and is much less affected by patterns
- * in the "low" bits of the underlying RNG's.
+ * This method has no bias, and is affected little by patterns
+ * in the "low" bits of the underlying RNGs.
+ *
+ * The 0xFFFFFFFF mask is needed to ensure that r is in the appropriate range.
+ * If u32b is a 32-bit type, it should be optimised away to nothing. If not,
+ * 
  */
-static s32b Rand_div(s32b m)
+s32b rand_int(s32b m0)
 {
 	u32b r, n;
+	const u32b m = m0;
 
 	/* Hack -- simple case */
-	if (m <= 1) return (0);
+	if (m0 <= 1) return (0);
 
 	/* Partition size */
 	n = (0x10000000 / m);
 
-	/* Use a simple RNG */
-	if (Rand_quick)
+	/* Caller */
+	assert(n && "rand_int() called with parameter over 268435456.");
+
+	/* Wait for it */
+	do
 	{
-		/* Wait for it */
-		while (1)
+		/* Use a simple RNG */
+		if (Rand_quick)
 		{
+
 			/* Cycle the generator */
 			r = (Rand_value = LCRNG(Rand_value));
-
-			/* Mutate a 28-bit "random" number */
-			r = (r >> 4) / n;
-
-			/* Done */
-			if (r < (unsigned int)m) break;
 		}
-	}
-
-	/* Use a complex RNG */
-	else
-	{
-		/* Wait for it */
-		while (1)
+		/* Use a complex RNG */
+		else
 		{
-			int j;
-
 			/* Acquire the next index */
-			j = Rand_place + 1;
+			int j = Rand_place + 1;
 			if (j == RAND_DEG) j = 0;
 
 			/* Update the table, extract an entry */
 			r = (Rand_state[j] += Rand_state[Rand_place]);
 
-			/* Hack -- extract a 28-bit "random" number */
-			r = (r >> 4) / n;
-
 			/* Advance the index */
 			Rand_place = j;
-
-			/* Done */
-			if (r < (unsigned int)m) break;
 		}
+
+		/* Mutate a 28-bit "random" number */
+		r = ((r & 0xFFFFFFFF) >> 4) / n;
 	}
+	while (r >= m);
 
 	/* Use the value */
 	return (r);
@@ -339,23 +275,6 @@ s16b randnor(int mean, int stand)
 }
 
 
-
-/*
- * Generates a random long integer X where O<=X<M.
- * The integer X falls along a uniform distribution.
- * For example, if M is 100, you get "percentile dice"
- */
-s32b rand_int(u32b m)
-{
-	if (rand_unbiased && !Rand_quick)
-	{
-		return Rand_mod((s32b)(m));
-	}
-	else
-	{
-		return (s32b)Rand_div(m);
-	}
-}
 
 /*
  * Evaluate to TRUE m percent of the time.

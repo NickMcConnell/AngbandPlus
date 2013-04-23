@@ -38,6 +38,7 @@ C:0:^L
 W:Mirror:monster recall:d:.
 W:Mirror:object details:d:.
 W:Mirror:floor information:e:.
+W:Mirror:keymap action:e:e
 
 #Window 'Recall'
 W:Recall:help:a:a

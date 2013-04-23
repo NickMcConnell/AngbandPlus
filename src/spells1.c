@@ -445,7 +445,7 @@ void teleport_player_level(void)
 	/* Always go into the dungeon if outside. */
 	if (dun_level <= 0) into = TRUE;
 	/* Don't go any further if you can't. */
-	else if (is_quest(dun_level) || (dun_level >= dun_defs[cur_dungeon].max_level)) into = FALSE;
+	else if (is_quest() || (dun_level >= dun_defs[cur_dungeon].max_level)) into = FALSE;
 	/* Else choose randomly. */
 	else into = (percent(50));
 
@@ -1396,8 +1396,6 @@ static void apply_nexus(monster_type *m_ptr)
  * Mega-Hack -- track "affected" monsters (see "project()" comments)
  */
 static int project_m_n;
-static int project_m_x;
-static int project_m_y;
 
 
 
@@ -1469,9 +1467,6 @@ static bool project_f(int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the trap */
-				c_ptr->info &= ~(CAVE_MARK);
-
 				/* Destroy the trap */
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
@@ -1523,9 +1518,6 @@ static bool project_f(int r, int y, int x, int dam, int typ)
 					}
 				}
 
-				/* Forget the door */
-				c_ptr->info &= ~(CAVE_MARK);
-
 				/* Destroy the feature */
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
@@ -1575,9 +1567,6 @@ static bool project_f(int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the wall */
-				c_ptr->info &= ~(CAVE_MARK);
-
 				/* Destroy the wall */
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
@@ -1594,9 +1583,6 @@ static bool project_f(int r, int y, int x, int dam, int typ)
 					msg_print("You have found something!");
 					obvious = TRUE;
 				}
-
-				/* Forget the wall */
-				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the wall */
 				cave_set_feat(y, x, FEAT_FLOOR);
@@ -1615,9 +1601,6 @@ static bool project_f(int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the wall */
-				c_ptr->info &= ~(CAVE_MARK);
-
 				/* Destroy the wall */
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
@@ -1633,9 +1616,6 @@ static bool project_f(int r, int y, int x, int dam, int typ)
 					msg_print("The rubble turns into mud!");
 					obvious = TRUE;
 				}
-
-				/* Forget the wall */
-				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the rubble */
 				cave_set_feat(y, x, FEAT_FLOOR);
@@ -1664,9 +1644,6 @@ static bool project_f(int r, int y, int x, int dam, int typ)
 					msg_print("The door turns into mud!");
 					obvious = TRUE;
 				}
-
-				/* Forget the wall */
-				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the feature */
 				cave_set_feat(y, x, FEAT_FLOOR);
@@ -2148,7 +2125,8 @@ static void anger_monster(monster_type *m_ptr)
  *
  * We attempt to return "TRUE" if the player saw anything "useful" happen.
  */
-static bool project_m(monster_type *mw_ptr, int r, int y, int x, int dam, int typ)
+static bool project_m(monster_type *mw_ptr, int r, int y, int x, int dam,
+	int typ, bool *m_hurt)
 {
 	int tmp;
 
@@ -2202,13 +2180,18 @@ static bool project_m(monster_type *mw_ptr, int r, int y, int x, int dam, int ty
 	if (!c_ptr->m_idx ||
 
 	/* Never affect projector */
-		(mw_ptr == m_ptr))
+		(mw_ptr == m_ptr) ||
+
+		/* Never hit a monster twice. */
+		(m_hurt[c_ptr->m_idx]))
 	{
 		TFREE(killer);
 		TFREE(m_name);
 		return (FALSE);
 	}
 
+	/* Notice that the monster has been hit. */
+	m_hurt[c_ptr->m_idx] = TRUE;
 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
@@ -4142,9 +4125,10 @@ static bool project_m(monster_type *mw_ptr, int r, int y, int x, int dam, int ty
 
 
 	/* Track it */
-	project_m_n++;
-	project_m_x = x;
-	project_m_y = y;
+	if (!project_m_n)
+		project_m_n = c_ptr->m_idx;
+	else
+		project_m_n = -1;
 
 	TFREE(killer);
 	TFREE(m_name);
@@ -4764,17 +4748,23 @@ static void project_p_aux(monster_type *m_ptr, int dam, int typ)
  * We return "TRUE" if any "obvious" effects were observed.  XXX XXX Actually,
  * we just assume that the effects were obvious, for historical reasons.
  */
-static bool project_p(monster_type *m_ptr, int r, int y, int x, int dam, int typ, int a_rad)
+static bool project_p(monster_type *m_ptr, int r, int y, int x, int dam,
+	int typ, bool *m_hurt, int a_rad)
 {
 	/* Player is not here */
 	if ((x != px) || (y != py) ||
 
 	/* Player cannot hurt himself */
-		!m_ptr)
+		!m_ptr ||
+
+		/* Never hit the player twice. */
+		(*m_hurt))
 	{
 		return (FALSE);
 	}
 
+	/* Remember that the player has been hit. */
+	*m_hurt = TRUE;
 
 	if (p_ptr->reflect && !a_rad && !one_in(10))
 	{
@@ -5491,69 +5481,70 @@ done_reflect: /* Success */
 		}
 	}
 
-	/* No monsters have been hit yet. */
-	project_m_n = 0;
-
-	/* Start at a distance of nought. */
-	dist = 0;
-
-	/* Scan grids for stuff. */
-	for (i = 0; i < grids; i++)
 	{
-		/* Breaths recalculate for each grid. */
-		if (breath) dist = dist_to_line(x, y, x1, y1, x2, y2);
+		/* Ensure that no monster is hit twice by this project() effect.
+		 * This isn't stored statically, as potion_smash_effect(), etc.,
+		 * can hurt a monster again. */
+		C_TNEW(m_hurt, m_max, bool);
+		WIPE(m_hurt, m_hurt);
 
-		/* Hack -- Notice new "dist" values */
-		else if (gm[dist+1] == i) dist++;
+		/* No monsters have been hit yet. */
+		project_m_n = 0;
 
-		/* Get the grid location */
-		y = gy[i];
-		x = gx[i];
+		/* Start at a distance of nought. */
+		dist = 0;
 
-		/* Check features */
-		if (flg & (PROJECT_GRID))
+		/* Scan grids for stuff. */
+		for (i = 0; i < grids; i++)
 		{
-			/* Affect the feature in that grid */
-			if (project_f(dist, y, x, dam, typ)) notice = TRUE;
-		}
-		/* Check objects. */
-		if (flg & (PROJECT_ITEM))
-		{
-			/* Affect the object in the grid */
-			if (project_o(mw_ptr, dist, y, x, dam, typ)) notice = TRUE;
-		}
-		/* Check monsters */
-		if (flg & (PROJECT_KILL))
-		{
-			/* Affect the monster in the grid */
-			if (project_m(mw_ptr, dist, y, x, dam, typ)) notice = TRUE;
+			/* Breaths recalculate for each grid. */
+			if (breath) dist = dist_to_line(x, y, x1, y1, x2, y2);
 
-			/* Affect the player in the grid */
-			if (project_p(mw_ptr, dist, y, x, dam, typ, rad)) notice = TRUE;
+			/* Hack -- Notice new "dist" values */
+			else if (gm[dist+1] == i) dist++;
+
+			/* Get the grid location */
+			y = gy[i];
+			x = gx[i];
+
+			/* Check features */
+			if (flg & (PROJECT_GRID))
+			{
+				/* Affect the feature in that grid */
+				if (project_f(dist, y, x, dam, typ)) notice = TRUE;
+			}
+			/* Check objects. */
+			if (flg & (PROJECT_ITEM))
+			{
+				/* Affect the object in the grid */
+				if (project_o(mw_ptr, dist, y, x, dam, typ)) notice = TRUE;
+			}
+			/* Check monsters */
+			if (flg & (PROJECT_KILL))
+			{
+				/* Affect the monster in the grid */
+				if (project_m(mw_ptr, dist, y, x, dam, typ, m_hurt))
+					notice = TRUE;
+
+				/* Affect the player in the grid */
+				if (project_p(mw_ptr, dist, y, x, dam, typ, m_hurt, rad))
+					notice = TRUE;
+			}
 		}
+
+		TFREE(m_hurt);
 	}
 
 	/* Player affected one monster (without "jumping") */
-	if (!mw_ptr && (project_m_n == 1) && !(flg & (PROJECT_JUMP)))
+	if (!mw_ptr && project_m_n > 0 && !(flg & (PROJECT_JUMP)))
 	{
-		/* Location */
-		x = project_m_x;
-		y = project_m_y;
+		monster_type *m_ptr = &m_list[project_m_n];
 
-		/* Access */
-		c_ptr = &cave[y][x];
+		/* Hack -- auto-recall */
+		if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
-		/* Track if possible */
-		if (c_ptr->m_idx)
-		{
-			monster_type *m_ptr = &m_list[c_ptr->m_idx];
-
-			/* Hack -- auto-recall */
-			if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-			/* Hack - auto-track */
-			if (m_ptr->ml) health_track(c_ptr->m_idx);
-		}
+		/* Hack - auto-track */
+		if (m_ptr->ml) health_track(c_ptr->m_idx);
 	}
 
 	/* Return "something was noticed" */

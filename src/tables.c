@@ -3181,9 +3181,6 @@ option_type option_info[] =
 	{ &multi_stair, TRUE, OPTS_MISC, 2, 11,
 		"multi_stair", "Stairs can be longer than one level" },
 
-	{ &rand_unbiased, FALSE, OPTS_PERF,2,12,
-	"rand_unbiased","Random numbers have bias removed (slow)"},
-
 	{ &unify_commands, FALSE, OPTS_OBJ,2,13,
 	"unify_commands","Use a single 'u'se command for all objects"},
 
@@ -3226,18 +3223,18 @@ option_type option_info[] =
 	{ &score_quitters_w, FALSE, OPTS_BIRTH, 0, 26,
 	"score_quitter", "Remember scores of those who quit the game" },
 
-	{ &score_quitters, 0, OPTS_BIRTHR, 3, 14, 0, ""},
+	{ &score_quitters, 0, OPTS_BIRTHR, 3, 14, "", ""},
 #endif /* SCORE_QUITTERS */
 
 	{ &maximise_mode_w, TRUE, OPTS_BIRTH, 2, 18,
 	"maximise_mode", "Include race/template bonuses in stat calcs" },
 
-	{ &maximise_mode, 0, OPTS_BIRTHR, 3, 15, 0, ""},
+	{ &maximise_mode, 0, OPTS_BIRTHR, 3, 15, "", ""},
 
 	{ &preserve_mode_w, TRUE, OPTS_BIRTH, 2, 19,
 	"preserve_mode", "Artifacts are not lost if you never saw them" },
 
-	{ &preserve_mode, 0, OPTS_BIRTHR, 3, 16, 0, ""},
+	{ &preserve_mode, 0, OPTS_BIRTHR, 3, 16, "", ""},
 
 	{ &allow_quickstart, TRUE, OPTS_BIRTH, 3, 4,
 	"allow_quickstart", "Allow the player to start by using Quick-Start"},
@@ -3259,22 +3256,22 @@ option_type option_info[] =
 	{ &speak_unique_w, FALSE, OPTS_BIRTH, 0, 29,
 		"speak_unique", "Allow shopkeepers and uniques to speak" },
 
-	{ &speak_unique, 0, OPTS_BIRTHR, 3, 20, 0, ""},
+	{ &speak_unique, 0, OPTS_BIRTHR, 3, 20, "", ""},
 
 	{ &ironman_shop_w, FALSE, OPTS_BIRTH, 2, 22,
 	"ironman_shop", "Shops (except for libraries) are locked" },
 
-	{ &ironman_shop, 0, OPTS_BIRTHR, 3, 17, 0, ""},
+	{ &ironman_shop, 0, OPTS_BIRTHR, 3, 17, "", ""},
 
 	{ &ironman_feeling_w, FALSE, OPTS_BIRTH, 3, 3,
 	"ironman_feeling", "Level feelings are only given after 2500 turns" },
 
-	{ &ironman_feeling, 0, OPTS_BIRTHR, 3, 18, 0, ""},
+	{ &ironman_feeling, 0, OPTS_BIRTHR, 3, 18, "", ""},
 
 	{ &chaos_patrons_w, TRUE, OPTS_BIRTH, 3, 23,
 	"chaos_patrons", "Chaos patrons give your character gifts"},
 
-	{ &chaos_patrons, TRUE, OPTS_BIRTHR, 2, 24, 0, ""},
+	{ &chaos_patrons, TRUE, OPTS_BIRTHR, 2, 24, "", ""},
 
 	{ &spoil_base, FALSE, OPTS_SPOIL, 2, 31,
 	"spoil_base", "Gain knowledge of normal items" },

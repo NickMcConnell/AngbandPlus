@@ -1504,6 +1504,7 @@ static void get_bonus_flags(s16b (*flags)[32])
 bool PURE player_has_flag(int set, u32b flag)
 {
 	s16b flags[4][32];
+	WIPE(flags, flags);
 
 	get_bonus_flags(flags);
 
@@ -1938,6 +1939,12 @@ static void calc_bonuses(void)
 			else if (i == A_INT)
 			{
 				p_ptr->update |= (PU_MANA | PU_SPELLS);
+			}
+
+			/* Change in WIS may affect Chi */
+			else if (i == A_WIS)
+			{
+				p_ptr->update |= (PU_MANA);
 			}
 
 			/* Window stuff */
@@ -2871,7 +2878,7 @@ static void win_message_display(void)
 	for (i = 0; i < h; i++)
 	{
 		/* Dump the message on the appropriate line */
-		mc_put_str((h-1)-i, 0, message_str(i));
+		mc_put_fmt((h-1)-i, 0, "%$v", message_str_f1, i);
 	}
 }
 
@@ -2958,7 +2965,7 @@ static void win_monster_display(void)
  */
 static bool win_object_good(void)
 {
-	/* Boring with a remembered object */
+	/* Boring without a remembered object */
 	return (object_kind_idx != 0);
 }
 
@@ -2967,8 +2974,19 @@ static bool win_object_good(void)
  */
 static void win_object_display(void)
 {
-	/* Display object kind info */
-	if (object_kind_idx) display_koff(object_kind_idx);
+	object_type q_ptr[1];
+
+	/* Boring... */
+	if (!win_object_good()) return;
+
+	/* Prepare the object */
+	object_prep(q_ptr, object_kind_idx);
+
+	/* Mention the object name */
+	mc_put_fmt(0, 0, "%v", object_desc_f3, q_ptr, 0, 0);
+
+	/* Display spells in books */
+	display_spells(2, 0, q_ptr);
 }
 
 
@@ -3007,7 +3025,7 @@ static void win_object_details_display(void)
 	}
 
 	/* Describe fully. */
-	identify_fully_aux(o_ptr, 2);
+	identify_fully_aux(o_ptr, TRUE);
 
 	/* Put the name at the top. */
 	mc_put_fmt(0, 0, "%v %v", get_symbol_f2, object_attr(o_ptr),
@@ -3065,129 +3083,13 @@ static bool win_visible_good(void)
 	return FALSE;
 }
 
-typedef struct monster_list_entry monster_list_entry;
-
-struct monster_list_entry
-{
-	s16b r_idx; /* Monster race index */
-	byte amount;
-};
-
-
-/*
- * Sorting hook -- Comp function -- see below
- *
- * We use "u" to point to array of monster indexes,
- * and "v" to select the type of sorting to perform on "u".
- */
-static bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
-{
-	monster_list_entry *who = (monster_list_entry*)(u);
-
-	u16b *why = (u16b*)(v);
-
-	int r1 = who[a].r_idx;
-	int r2 = who[b].r_idx;
-
-	int z1, z2;
-
-	/* Sort by player kills */
-	if (*why >= 4)
-	{
-		/* Extract player kills */
-		z1 = r_info[r1].r_pkills;
-		z2 = r_info[r2].r_pkills;
-
-		/* Compare player kills */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-	/* Sort by total kills */
-	if (*why >= 3)
-	{
-		/* Extract total kills */
-		z1 = r_info[r1].r_tkills;
-		z2 = r_info[r2].r_tkills;
-
-		/* Compare total kills */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-	/* Sort by monster level */
-	if (*why >= 2)
-	{
-		/* Extract levels */
-		z1 = r_info[r1].level;
-		z2 = r_info[r2].level;
-
-		/* Compare levels */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-	/* Sort by monster experience */
-	if (*why >= 1)
-	{
-		/* Extract experience */
-		z1 = r_info[r1].mexp;
-		z2 = r_info[r2].mexp;
-
-		/* Compare experience */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-	/* Compare indexes */
-	return (r1 <= r2);
-}
-
-/*
- * Sorting hook -- Swap function -- see below
- *
- * We use "u" to point to array of monster indexes,
- * and "v" to select the type of sorting to perform.
- */
-static void ang_mon_sort_swap_hook(vptr u, vptr UNUSED v, int a, int b)
-{
-	monster_list_entry *who = (monster_list_entry*)(u);
-
-	monster_list_entry holder;
-
-	/* Swap */
-	holder = who[a];
-	who[a] = who[b];
-	who[b] = holder;
-}
-
-/*
- * Dump a monster description to the screen.
- */
-static void dump_race(int w, int h, int num, char attr, monster_list_entry *ptr)
-{
-	int x = num/(h-1)*w, y = num%(h-1)+1;
-
-	monster_race *r_ptr = r_info+ptr->r_idx;
-	int total = ptr->amount;
-	byte flags = (total == 1) ? 0 : MDF_NUMBER;
-
-	/* Dump the monster name. */
-	mc_put_fmt(y, x, "%v $%c%.*v", get_symbol_f2, r_ptr->gfx.xa,
-		r_ptr->gfx.xc, attr, w-3, monster_desc_aux_f3, r_ptr, total, flags);
-}
-
-
 /*
  * Display the visible monster list in a window.
  */
 static void win_visible_display(void)
 {
-	int i, j;
-	int c = 0;
-	int items = 0;
-
-	monster_list_entry *who;
+	int i, races, total, n, w, h;
+	s16b *who;
 
 	/* XXX Hallucination - no monster list */
 	if (p_ptr->image)
@@ -3198,14 +3100,12 @@ static void win_visible_display(void)
 	}
 
 	/* Allocate the "who" array */
-	C_MAKE(who, m_max, monster_list_entry);
+	C_MAKE(who, z_info->r_max, s16b);
 
 	/* Count up the number visible in each race */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-
-		bool found = FALSE;
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -3213,85 +3113,76 @@ static void win_visible_display(void)
 		/* Skip unseen monsters */
 		if (!m_ptr->ml) continue;
 
-		/* Increase for this race */
-		if (items)
-		{
-			for (j = 0; j < items; j++)
-			{
-				if (who[j].r_idx == m_ptr->r_idx)
-				{
-					who[j].amount++;
+		/* Count the monster. */
+		who[m_ptr->r_idx]++;
+	}
 
-					found = TRUE;
+	/* Count the totals. */
+	for (i = races = total = 0; i < z_info->r_max; i++)
+	{
+		/* Number of races of monster visible. */
+		if (who[i]) races++;
 
-					break;
-				}
-			}
-		}
-
-		if (!found)
-		{
-			who[items].r_idx = m_ptr->r_idx;
-			who[items].amount = 1;
-
-			items++;
-		}
-
-		/* Increase total Count */
-		c++;
+		/* Number of monsters visible. */
+		total += who[i];
 	}
 
 	/* Are monsters visible? */
-	if (items)
+	if (total)
 	{
-		int w, h, num;
-		u16b why = 1;
-
-		/* First, sort the monsters by expereince*/
-		ang_sort(who, &why, items, ang_mon_sort_comp_hook,
-			ang_mon_sort_swap_hook);
-
 		/* Then, display them */
 		(void)Term_get_size(&w, &h);
 
 		/* Find the optimal width of one entry. */
-		w = MAX(26, w/((items+h-2)/(h-1)));
+		w = MAX(26, w/((races+h-2)/(h-1)));
 
-		mc_put_fmt(0, 0, "You can see %d monster%s.", c, (c > 1 ? "s:" : ":"));
+		mc_put_fmt(0, 0, "You can see %d monster%s.", total,
+			(total > 1 ? "s" : ""));
 
 		/* Print the monsters in reverse order */
-		for (i = items - 1, num = 0; i >= 0; i--, num++)
+		for (i = z_info->r_max-1, n = 0; i > 0; i--)
 		{
-			monster_race *r_ptr = r_info+who[i].r_idx;
+			monster_race *r_ptr = &r_info[i];
 
-			/* Default Colour */
-			char attr = 'w';
+			int x = n/(h-1)*w;
+			int y = n%(h-1)+1;
+			char attr;
 
-			/* Uniques */
-			if (r_ptr->flags1 & RF1_UNIQUE)
+			bool unique = !!(r_ptr->flags1 & RF1_UNIQUE);
+			bool kills = !!(r_ptr->r_tkills);
+			bool deep = (r_ptr->level > dun_depth);
+
+			/* Do nothing with absent monsters. */
+			if (!who[i]) continue;
+
+			if (unique && kills && deep)
+			{
+				attr = 'r';
+			}
+			else if (unique)
 			{
 				attr = 'R';
 			}
-
-			/* Have we ever killed one? */
-			if (r_ptr->r_tkills)
+			else if (!kills)
 			{
-				if (r_ptr->level > dun_depth)
-				{
-					attr = 'v';
-
-					if (r_ptr->flags1 & RF1_UNIQUE)
-					{
-						attr = 'r';
-					}
-				}
+				attr = 's';
+			}
+			else if (deep)
+			{
+				attr = 'v';
 			}
 			else
 			{
-				if (!r_ptr->flags1 & RF1_UNIQUE) attr = 's';
+				attr = 'w';
 			}
 
-			dump_race(w, h, num, attr, who+i);
+			/* Dump the monster name. */
+			mc_put_fmt(y, x, "%v $%c%.*v", get_symbol_f2, r_ptr->gfx.xa,
+				r_ptr->gfx.xc, attr, w-3, monster_desc_aux_f3, r_ptr, who[i],
+				(who[i] == 1) ? 0 : MDF_NUMBER);
+
+			/* Another race has been displayed. */
+			n++;
 		}
 	}
 	else
@@ -3371,6 +3262,44 @@ static void win_floor_display(void)
 	}
 }
 
+/*
+ * Check whether the "keymap action" display is interesting.
+ * As the current macro is displayed whenever the macro menu is in use,
+ * this is only necessary when a keymap action is being recorded.
+ */
+static bool win_keymap_good(void)
+{
+#ifdef ALLOW_MACROS
+	return !!keymap_buf_ptr;
+#else /* ALLOW_MACROS */
+	return FALSE;
+#endif /* ALLOW_MACROS */
+}
+
+/*
+ * Display the current keymap action in a window.
+ */
+static void win_keymap_display(void)
+{
+#ifdef ALLOW_MACROS
+	/* Introduce the action. */
+	mc_put_str(0, 0, "Current keymap action:");
+
+	if (*macro__buf)
+	{
+		/* Display the action. */
+		mc_roff_xy(0, 1, format("$y$!%v\n\n", ascii_to_text_f1, macro__buf));
+	}
+	else
+	{
+		/* No action has been given yet. */
+		mc_roff_xy(0, 1, "$RNONE\n\n");
+	}
+
+	/* Display some help for the action. */
+	mc_add_fmt("Press '$$' at the command prompt to finish recording and go to the macro option menu.");
+#endif /* ALLOW_MACROS */
+}
 
 /*
  * The list of display functions.
@@ -3394,6 +3323,7 @@ display_func_type display_func[NUM_DISPLAY_FUNCS+1] =
 		win_object_details_display},
 	{PW_FLOOR, "floor information", win_floor_good, win_floor_display},
 	{PW_HELP, "help", win_help_good, win_help_display},
+	{PW_KEYMAP, "keymap action", win_keymap_good, win_keymap_display},
 	{PW_NONE, "", func_false, func_nothing},
 };
 

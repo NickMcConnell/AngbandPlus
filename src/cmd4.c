@@ -164,7 +164,7 @@ void do_cmd_change_name(void)
 		else if (c == '?' && *help)
 		{
 			sprintf(tmp, "cmd=C%d", mode);
-			show_link(tmp);
+			do_cmd_help(tmp);
 		}
 
 		/* Oops */
@@ -191,15 +191,15 @@ void do_cmd_change_name(void)
 void do_cmd_message_one(void)
 {
 	/* Recall one message XXX XXX XXX */
-	mc_put_fmt(0, 0, "> %s", message_str(0));
+	mc_put_fmt(0, 0, "> %v", message_str_f1, 0);
 }
 
 
 /*
- * Show previous messages to the user -BEN-
+ * Show previous messages to the user
  *
- * The screen format uses line 0 and 23 for headers and prompts,
- * skips line 1 and 22, and uses line 2 thru 21 for old messages.
+ * Uses show_file() to display the messages. The user can put arbitrary strings
+ * into this, but the interpreter should cope with anything we throw at it.
  *
  * This command shows you which commands you are viewing, and allows
  * you to "search" for strings in the recall.
@@ -211,205 +211,39 @@ void do_cmd_message_one(void)
  * Attempt to only hilite the matching portions of the string.
  */
 void do_cmd_messages(void)
-	{
-	int i, j, k, n, q;
+{
+	char file_name[1024];
+	FILE *fff;
+	int n, t;
 
-	char shower[80];
-	char finder[80];
-
-
-	/* Wipe finder */
-	strcpy(finder, "");
-
-	/* Wipe shower */
-	strcpy(shower, "");
-
+	if (!((fff = my_fopen_temp(ARRAY(file_name))))) return;
 
 	/* Total messages */
-	n = message_num();
+	for (n = message_num(); n; n--)
+	{
+		my_fprintf(fff, "%$v\n", message_str_f1, n-1);
+	}
 
-	/* Start on first message */
-	i = 0;
+	/* Close the file */
+	my_fclose(fff);
 
-	/* Start at leftmost edge */
-	q = 0;
-
-
-	/* Enter "icky" mode */
-	character_icky = TRUE;
+	/* Hack - start at the bottom, with the most recent messages. */
+	set_gnext("1");
 
 	/* Save the screen */
-	Term_save();
+	t = Term_save_aux();
 
-	/* Process requests until done */
-	while (1)
-	{
-		const int max = Term->hgt-4, prompty = max+3;
-
-		/* Clear screen */
-		Term_clear();
-
-		/* Dump up to 20 lines of messages */
-		for (j = 0; (j < max) && (i + j < n); j++)
-		{
-			cptr msg = message_str((short)(i+j));
-
-			/* Apply horizontal scroll */
-			msg = (strlen(msg) >= (size_t)q) ? (msg + q) : "";
-
-			/* Dump the messages, bottom to top */
-			mc_put_str(max+1-j, 0, msg);
-
-			/* Hilite "shower" */
-			if (shower[0])
-			{
-				cptr str = msg;
-
-				/* Display matches */
-				while ((str = strstr(str, shower)) != NULL)
-				{
-					int len = strlen(shower);
-
-					/* Display the match */
-					mc_put_fmt(max+1-j, str-msg, "$y%.*s", len, shower);
-
-					/* Advance */
-					str += len;
-				}
-			}
-		}
-
-		/* Display header XXX XXX XXX */
-		prt(format("Message Recall (%d-%d of %d), Offset %d",
-			i, i+j-1, n, q), 0, 0);
-
-		/* Display prompt (not very informative) */
-		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", prompty, 0);
-
-		/* Get a command */
-		k = inkey();
-
-		/* Exit on Escape */
-		if (k == ESCAPE) break;
-
-		/* Hack -- Save the old index */
-		j = i;
-
-		/* Horizontal scroll */
-		if (k == '4')
-		{
-			/* Scroll left */
-			q = (q >= 40) ? (q - 40) : 0;
-
-			/* Success */
-			continue;
-		}
-
-		/* Horizontal scroll */
-		if (k == '6')
-		{
-			/* Scroll right */
-			q = q + 40;
-
-			/* Success */
-			continue;
-	}
-
-		/* Hack -- handle show */
-		if (k == '=')
-		{
-			/* Prompt */
-			prt("Show: ", prompty, 0);
-
-			/* Get a "shower" string, or continue */
-			if (!askfor_aux(shower, 80)) continue;
-
-			/* Okay */
-			continue;
-}
-
-		/* Hack -- handle find */
-		if (k == '/')
-		{
-			int z;
-
-			/* Prompt */
-			prt("Find: ", prompty, 0);
-
-			/* Get a "finder" string, or continue */
-			if (!askfor_aux(finder, 80)) continue;
-
-			/* Show it */
-			strcpy(shower, finder);
-
-			/* Scan messages */
-			for (z = i + 1; z < n; z++)
-			{
-				cptr msg = message_str((short)z);
-
-				/* Search for it */
-				if (strstr(msg, finder))
-				{
-					/* New location */
-					i = z;
-
-					/* Done */
-					break;
-				}
-			}
-		}
-
-		/* Recall 1 older message */
-		if ((k == '8') || (k == '\n') || (k == '\r'))
-		{
-			/* Go newer if legal */
-			if (i + 1 < n) i += 1;
-		}
-
-		/* Recall 10 older messages */
-		if (k == '+')
-	{
-			/* Go older if legal */
-			if (i + max/2 < n) i += max/2;
-		}
-
-		/* Recall 20 older messages */
-		if ((k == 'p') || (k == KTRL('P')) || (k == ' '))
-		{
-			/* Go older if legal */
-			if (i + max < n) i += max;
-		}
-
-		/* Recall 20 newer messages */
-		if ((k == 'n') || (k == KTRL('N')))
-			{
-			/* Go newer (if able) */
-			i = (i >= max) ? (i - max) : 0;
-			}
-
-		/* Recall 10 newer messages */
-		if (k == '-')
-		{
-			/* Go newer (if able) */
-			i = (i >= max/2) ? (i - max/2) : 0;
-		}
-
-		/* Recall 1 newer messages */
-		if (k == '2')
-		{
-			/* Go newer (if able) */
-			i = (i >= 1) ? (i - 1) : 0;
-	}
-
-		/* Hack -- Error of some kind */
-		if (i == j) bell(0);
-	}
+	/* Display the file contents */
+	show_file(file_name, "Message Recall");
 
 	/* Restore the screen */
-	Term_load();
+	Term_load_aux(t);
 
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	/* Forget the restored screen. */
+	Term_release(t);
+
+	/* Remove the file */
+	fd_kill(file_name);
 }
 
 #define DCO_ERROR_ABORT 1
@@ -632,7 +466,7 @@ static void do_cmd_options_autosave(cptr info)
 			case '?':
 			{
 				/* Hack - show help on the main term. */
-				show_link(this->text);
+				do_cmd_help(this->text);
 				break;
 			}
 			default:
@@ -882,7 +716,7 @@ void do_cmd_options_aux(int page, cptr info, cptr file)
 			case '?':
 			{
 				/* Hack - show help on the main term. */
-				show_link(option_info[opt[k]].o_text);
+				do_cmd_help(option_info[opt[k]].o_text);
 				break;
 			}
 			default:
@@ -1136,7 +970,7 @@ static void do_cmd_options_redraw(void)
 			case '?':
 			{
 				/* Hack - show help on the main term. */
-				show_link(NULL);
+				do_cmd_help(NULL);
 				break;
 			}
 			default:
@@ -1955,13 +1789,16 @@ static void dump_normal_options(FILE *fff)
 	fprintf(fff, "\n\n# Automatic option dump\n\n");
 
 	/* Dump each of the normal options in turn. */
-	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++, old_cheat = cheat)
+	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
 	{
 		/* Paranoia - require a real option */
 		if (!op_ptr->o_text) continue;
 
 		/* Treat cheat options in a special way. */
 		cheat = (op_ptr->o_page == OPTS_CHEAT);
+
+		/* Only cheaters need to set cheat options. */
+		if (cheat && !noscore) continue;
 
 		if (cheat && !old_cheat)
 		{
@@ -1971,6 +1808,9 @@ static void dump_normal_options(FILE *fff)
 		{
 			fprintf(fff, "?:1\n\n");
 		}
+
+		/* Remember to reset the cheat flag later. */
+		old_cheat = cheat;
 
 		/* Comment */
 		fprintf(fff, "# Option '%s'\n", op_ptr->o_desc);
@@ -2422,7 +2262,7 @@ static void do_cmd_macro_aux(char *buf, int len)
 
 
 	/* Hack -- display the trigger */
-	mc_add_fmt("%v", ascii_to_text_f1, buf);
+	mc_add_fmt("$!%v", ascii_to_text_f1, buf);
 }
 
 
@@ -2444,13 +2284,13 @@ static void do_cmd_macro_aux_keymap(char *buf)
 
 	/* Hack -- display the trigger */
 	strnfmt(tmp, sizeof(tmp), "%v", ascii_to_text_f1, buf);
-	mc_add_fmt("%s", tmp);
+	mc_add_fmt("$!%s", tmp);
 
 	/* Notice if the key isn't its own text representation. */
 	if (strcmp(tmp, buf))
 	{
 		/* buf[0] could be anything, so output the character alone. */
-		mc_add_fmt(" (%c)", buf[0]);
+		mc_add_fmt("$! (%c)", buf[0]);
 	}
 
 	/* Flush */
@@ -2496,7 +2336,6 @@ static void keymap_dump(FILE *fff)
 #endif /* ALLOW_MACROS */
 
 
-
 /*
  * Interact with "macros"
  *
@@ -2512,12 +2351,23 @@ static void do_cmd_macros(void)
 
 	char buf[1024];
 
+#ifdef ALLOW_MACROS
 	int mode = keymap_mode();
+#endif /* ALLOW_MACROS */
 
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
+
+#ifdef ALLOW_MACROS
+	/* Don't record the keymap action here, as we're about to use it. */
+	if (keymap_buf_ptr)
+	{
+		keymap_buf_ptr = NULL;
+		bell("\"Record action\" aborted: Macro menu entered.");
+	}
+#endif /* ALLOW_MACROS */
 
 	/* Process requests until done */
 	while (1)
@@ -2551,6 +2401,7 @@ static void do_cmd_macros(void)
 		prt("(8) Create a keymap", 11, 5);
 		prt("(9) Remove a keymap", 12, 5);
 		prt("(0) Enter a new action", 13, 5);
+		prt("(r) Record a new action", 14, 5);
 #endif /* ALLOW_MACROS */
 
 		/* Prompt */
@@ -2623,7 +2474,7 @@ static void do_cmd_macros(void)
 		/* Query a macro */
 		else if (i == '3')
 		{
-			int k;
+			cptr s;
 
 			/* Prompt */
 			prt("Command: Query a macro", 16, 0);
@@ -2635,11 +2486,11 @@ static void do_cmd_macros(void)
 			do_cmd_macro_aux(buf, sizeof(buf));
 
 			/* Acquire action */
-			k = macro_find_exact(buf);
+			s = find_macro(buf);
 
 			/* Nothing found */
-			if (k < 0)
-		{
+			if (!s)
+			{
 				/* Prompt */
 				msg_print("Found no macro.");
 			}
@@ -2648,7 +2499,7 @@ static void do_cmd_macros(void)
 			else
 			{
 				/* Obtain the action */
-				strcpy(macro__buf, macro__act[k]);
+				strcpy(macro__buf, s);
 
 				/* Analyze the current action */
 				strnfmt(buf, sizeof(buf), "%v", ascii_to_text_f1, macro__buf);
@@ -2659,7 +2510,7 @@ static void do_cmd_macros(void)
 				/* Prompt */
 				msg_print("Found a macro.");
 			}
-			}
+		}
 
 		/* Create a macro */
 		else if (i == '4')
@@ -2858,6 +2709,13 @@ static void do_cmd_macros(void)
 
 			/* Extract an action */
 			strnfmt(macro__buf, 1024, "%v", text_to_ascii_f1, buf);
+		}
+
+		/* Record a new action */
+		else if (i == 'r')
+		{
+			/* Leave the macro option menu immediately. */
+			set_gnext("\e\e$");
 		}
 
 #endif /* ALLOW_MACROS */
@@ -3832,7 +3690,7 @@ void do_cmd_feeling(bool FeelingOnly)
 		msg_format("You are in %s.",dun_name+dun_defs[cur_dungeon].name);
 
 		/* Show quest status */
-		if (is_quest(dun_level))
+		if (is_quest())
 		{
 			print_quest_message();
 		}
@@ -4755,11 +4613,10 @@ static void do_cmd_knowledge_player_theft(FILE *fff)
 	int safe = adj_dex_safe[p_ptr->stat_ind[A_DEX]];
 	int tough = skill_set[SKILL_TOUGH].value/2;
 	int save = skill_set[SKILL_SAVE].value/2;
-	fprintf(fff, "You have a %d%% chance of avoiding theft attacks.\n",
-		safe + save);
-	fprintf(fff,
-		"You have a %d%% chance of bashing doors without being paralysed.\n",
-		safe+tough);
+	fprintf(fff, "Monsters have a %d%% chance of stealing from you"
+		" when their theft attacks hit.\n", 100-MAX(0, MIN(100, safe+save)));
+	fprintf(fff, "Failing to bash a door down has a %d%% chance of paralysing"
+		" you.\n", 100-MAX(0, MIN(100, safe+tough)));
 }
 
 /*

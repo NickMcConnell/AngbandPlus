@@ -713,7 +713,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 
 	/* Feature code */
-	feat = c_ptr->feat;
+	feat = c_ptr->r_feat;
 
 	/* Floors (etc) */
 	if ((feat <= FEAT_INVIS) || (feat == FEAT_PATH))
@@ -979,7 +979,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	}
 
 	/* Hack -- rare random hallucination, except on outer dungeon walls */
-	if (p_ptr->image && (!rand_int(256)) && (c_ptr->feat < FEAT_PERM_SOLID))
+	if (p_ptr->image && (!rand_int(256)) && (c_ptr->r_feat < FEAT_PERM_SOLID))
 	{
 		/* Hallucinate */
 		image_random(ap, cp);
@@ -1269,7 +1269,6 @@ static void highlight_map_square(const int y, const int x)
 	if (c_ptr->o_idx && o_ptr->marked)
 	{
 		object_track(o_ptr);
-		object_kind_track(o_ptr->k_idx);
 	}
 
 	/* Track the square. */
@@ -1306,6 +1305,19 @@ void highlight_square(int win, int y, int x)
 }
 
 
+
+
+/*
+ * Permanently learn the identity of the feature in a square.
+ */
+void mark_spot(int y, int x)
+{
+	/* Remember the feature in this square. */
+	cave[y][x].r_feat = cave[y][x].feat;
+
+	/* Remember that the feature should be displayed. */
+	cave[y][x].info |= CAVE_MARK;
+}
 
 
 /*
@@ -1380,6 +1392,9 @@ void note_spot(int y, int x)
 		if (!hidden_p(o_ptr)) o_ptr->marked = TRUE;
 	}
 
+
+	/* Hack -- memorise features */
+	c_ptr->r_feat = c_ptr->feat;
 
 	/* Hack -- memorize grids */
 	if (!(c_ptr->info & (CAVE_MARK)))
@@ -1816,10 +1831,10 @@ void display_wild_map(uint xmin)
 
 	c_put_str(TERM_UMBER,"* = dungeon entrance",num_towns+2,xmin+19);
 	tmp = "(Places that still have guardians are marked in red)";
-	if (xmin+strlen(tmp) > Term->wid)
+	if (xmin+strlen(tmp)+18 > Term->wid)
 		tmp = "(red = has guardian)";
-	c_put_str(TERM_RED,tmp,MAX_TOWNS+4,xmin+18);
-	c_put_str(TERM_YELLOW,"@ = you",MAX_TOWNS+6,xmin+18);
+	c_put_str(TERM_RED,tmp,num_towns+4,xmin+18);
+	c_put_str(TERM_YELLOW,"@ = you",num_towns+6,xmin+18);
 
 	TFREE(dungeon_has_guardians);
 }
@@ -3442,6 +3457,7 @@ void wiz_dark(void)
 
 			/* Process the grid */
 			c_ptr->info &= ~(CAVE_MARK | CAVE_TRAP);
+			c_ptr->r_feat = FEAT_NONE;
 		}
 	}
 
@@ -3622,6 +3638,48 @@ bool projectable(int y1, int x1, int y2, int x2)
 {
 	/* See "project()" */
 	return move_in_direction(NULL, NULL, x1, y1, x2, y2, mvd_projectable);
+}
+
+/*
+ * A general "find a location" function.
+ * Obtains a location on the map which matches "accept" with v as its parameter.
+ *
+ * This isn`t very efficient as it calls accept at least once on every grid,
+ * but it doesn't need to use large arrays to do this.
+ */
+bool rand_location(int *yp, int *xp, bool (*accept)(int, int, vptr), vptr v)
+{
+	int x, y, t;
+
+	for (t = y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			if ((*accept)(y, x, v)) t++;
+		}
+	}
+
+	/* No matching squares exist. */
+	if (!t) return FALSE;
+
+	t = rand_int(t);
+
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			if ((*accept)(y, x, v) && !t--)
+			{
+				*yp = y;
+				*xp = x;
+				return TRUE;
+			}
+		}
+	}
+
+	/* Paranoia. */
+	assert(!"the acceptable grid list isn't constant!");
+	return FALSE;
 }
 
 /*
@@ -3832,18 +3890,19 @@ void disturb(int stop_stealth)
 /*
  * Hack -- Check if a level is a "quest" level
  */
-bool is_quest(int level)
+bool is_quest(void)
 {
 	int i;
 
 	/* Town is never a quest */
-	if (!level) return (FALSE);
+	if (!dun_level) return (FALSE);
 
 	/* Check quests */
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
 		/* Check for quest */
-		if ((q_list[i].level == level) && (q_list[i].dungeon == cur_dungeon)) return (TRUE);
+		if ((q_list[i].level == dun_level) &&
+			(q_list[i].dungeon == cur_dungeon)) return (TRUE);
 	}
 
 	/* Nope */

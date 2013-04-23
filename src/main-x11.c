@@ -1214,16 +1214,16 @@ static errr Infofnt_prepare(XFontStruct *info)
 	cs = &(info->max_bounds);
 
 	/* Extract default sizing info */
-	ifnt->asc = info->ascent;
-	ifnt->hgt = info->ascent + info->descent;
-	ifnt->wid = cs->width;
-
 #ifdef OBSOLETE_SIZING_METHOD
-	/* Extract default sizing info */
 	ifnt->asc = cs->ascent;
 	ifnt->hgt = (cs->ascent + cs->descent);
-	ifnt->wid = cs->width;
+#else
+	ifnt->asc = info->ascent;
+	ifnt->hgt = info->ascent + info->descent;
 #endif
+	ifnt->wid = cs->width;
+
+	ifnt->mono = (info->min_bounds.width != info->max_bounds.width);
 
 	/* Success */
 	return (0);
@@ -1339,6 +1339,10 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 	/* Monotize the font */
 	if (Infofnt->mono)
 	{
+		/* Clear some space. */
+		XClearArea(Metadpy->dpy, Infowin->win, x, y - Infofnt->asc,
+			len * Infofnt->wid, Infofnt->hgt, FALSE);
+
 		/* Do each character */
 		for (i = 0; i < len; ++i)
 		{
@@ -1487,117 +1491,6 @@ struct x11_selection_type
 };
 
 static x11_selection_type s_ptr[1];
-
-
-
-/*
- * Process a keypress event
- *
- * Also appears in "main-xaw.c".
- */
-static void react_keypress(XKeyEvent *ev)
-{
-	int i, n, mc, ms, mo, mx;
-
-	uint ks1;
-
-	KeySym ks;
-
-	char buf[128];
-	char msg[128];
-
-
-	/* Check for "normal" keypresses */
-	n = XLookupString(ev, buf, 125, &ks, NULL);
-
-	/* Terminate */
-	buf[n] = '\0';
-
-
-	/* Hack -- Ignore "modifier keys" */
-	if (IsModifierKey(ks)) return;
-
-
-	/* Hack -- convert into an unsigned int */
-	ks1 = (uint)(ks);
-
-	/* Extract four "modifier flags" */
-	mc = (ev->state & ControlMask) ? TRUE : FALSE;
-	ms = (ev->state & ShiftMask) ? TRUE : FALSE;
-	mo = (ev->state & Mod1Mask) ? TRUE : FALSE;
-	mx = (ev->state & Mod2Mask) ? TRUE : FALSE;
-
-
-	/* Normal keys with no modifiers */
-	if (n && !mo && !mx && !IsSpecialKey(ks))
-	{
-		/* Enqueue the normal key(s) */
-		for (i = 0; buf[i]; i++) Term_keypress(buf[i]);
-
-		/* All done */
-		return;
-	}
-
-
-	/* Handle a few standard keys (bypass modifiers) XXX XXX XXX */
-	switch (ks1)
-	{
-		case XK_Escape:
-		{
-			Term_keypress(ESCAPE);
-			return;
-		}
-
-		case XK_Return:
-		{
-			Term_keypress('\r');
-			return;
-		}
-
-		case XK_Tab:
-		{
-			Term_keypress('\t');
-			return;
-		}
-
-		case XK_Delete:
-		case XK_BackSpace:
-		{
-			Term_keypress('\010');
-			return;
-		}
-	}
-
-
-	/* Hack -- Use the KeySym */
-	if (ks)
-	{
-		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        (unsigned long)(ks), 13);
-	}
-
-	/* Hack -- Use the Keycode */
-	else
-	{
-		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        ev->keycode, 13);
-	}
-
-	/* Enqueue the "macro trigger" string */
-	for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
-
-
-	/* Hack -- auto-define macros as needed */
-	if (n && (macro_find_exact(msg) < 0))
-	{
-		/* Create a macro */
-		macro_add(msg, buf);
-	}
-}
 
 
 
