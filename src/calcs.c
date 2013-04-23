@@ -39,7 +39,7 @@ static void calc_spells(void)
 
 	s16b old_spells;
 
-	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell" );
+	cptr p = (cp_ptr->spell_book == TV_BARBARIAN_BOOK) ? "power" : ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell" );
 
 	/* Hack -- must be literate */
 	if (!cp_ptr->spell_book) return;

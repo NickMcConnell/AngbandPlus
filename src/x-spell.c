@@ -2628,7 +2628,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			dice = (BLAST_BONUS) * 10;
 			sides = 5;
-			dam = (BLAST_BONUS) * (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 1 : 2));
+			dam = (BLAST_BONUS) * (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 1 : 2)); /* CF_BLESS_WEAPON tests for priests or sages, as opposed to paladins */
 			rad = 2;
 
 			if (name) return ("Orb of Draining");

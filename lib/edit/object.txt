@@ -3012,7 +3012,7 @@ W:20:0:5:10000
 P:0:0d0:0:0:0
 A:20/8
 F:EASY_KNOW
-D:It creates one good object on the floor near you. 
+D:It creates one object (which may be great or trash) on the floor near you. 
 
 
 # XXX Record312 is unused XXX #

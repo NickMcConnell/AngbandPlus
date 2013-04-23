@@ -740,10 +740,10 @@ T:Scholar
 T:Pundit
 T:Savant
 T:Polymath
-T:Master of Learning
-T:Master of Learning
-T:Master of Learning
-T:Master of Learning
+T:Loremaster
+T:Loremaster
+T:Loremaster
+T:Loremaster
 B:0:1:1:22:4
 B:1:1:1:23:4
 B:2:1:2:24:4

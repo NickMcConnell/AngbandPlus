@@ -79,7 +79,7 @@ Devices fail more often
 Picks are better than shovels
 Several monsters are more alert
 
-** 2.0.4
+** v2.0.4
 
 New monster spells: summon besiegers, create trap (out of your sight)
 New armor type: thorns
@@ -100,6 +100,15 @@ Half-troll casters can wear heavier equipment without losing SP
   Smart monsters with full mana will usually summon if they can
   You can start the game with 'n' or 'o' in Windows
 )
+
+** Since
+
+Corrected documentation - gnomes only auto-ID wands, not staffs
+Base delay factor now defaults to 3
+Many weak monsters can no longer bash doors
+You can browse spells that you can't cast yet
+Sleep attacks are now much more effective (except against very wakeful monsters)
+High-Con characters have more hp, but low-Con have less
 
 
 

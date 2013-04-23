@@ -2480,6 +2480,8 @@ static void dungeon(void)
 	/* Reset the object generation level */
 	object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 
+	do_cmd_redraw();
+
 	/* Main loop */
 	while (TRUE)
 	{
@@ -2743,7 +2745,7 @@ void play_game(void)
 	event_signal(EVENT_ENTER_GAME);
 
 	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_MONSTER | PR_MESSAGE);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_MONSTER | PR_MESSAGE | PR_MONLIST | PR_ITEMLIST);
 
 	/* Window stuff */
 	handle_stuff();

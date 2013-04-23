@@ -151,7 +151,7 @@ void print_spells(const byte *spells, int num, int row, int col)
 
 	const magic_type *s_ptr;
 
-	cptr comment;
+	cptr comment, comment2;
 
 	char out_val[500];
 
@@ -238,38 +238,42 @@ void print_spells(const byte *spells, int num, int row, int col)
 		/* Analyze the spell */
 		if (p_ptr->spell_flags[spell] & PY_SPELL_IRONMAN)
 		{
-			comment = "Ironman Spell";
+			comment2 = "Ironman Spell - ";
 			line_attr = TERM_L_RED;
 		}
 		/* Analyze the spell */
 		else if (p_ptr->spell_flags[spell] & PY_SPELL_FORGOTTEN)
 		{
-			comment = "forgotten";
+			comment2 = "Forgotten - ";
 			line_attr = TERM_YELLOW;
 		}
 		else if (!(p_ptr->spell_flags[spell] & PY_SPELL_LEARNED))
 		{
 			if (s_ptr->slevel <= p_ptr->lev)
 			{
-				comment = "unknown";
+				comment2 = "Unknown - ";
 				line_attr = TERM_L_BLUE;
 			}
 			else
 			{
-				comment = "difficult";
+				comment2 = "Difficult - ";
 				line_attr = TERM_RED;
 			}
 		}
 		else if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
 		{
-			comment = "untried";
+			comment2 = "Untried - ";
 			line_attr = TERM_L_GREEN;
+		}
+		else
+		{
+			comment2 = "";
 		}
 
 		/* Dump the spell --(-- */
-		strnfmt(out_val, sizeof(out_val), "  %c) %-30s%2d %4d %3d%% %s",
+		strnfmt(out_val, sizeof(out_val), "  %c) %-30s%2d %4d %3d%% %s%s",
 		        I2A(i), (cast_spell(MODE_SPELL_NAME, book, spell, 0)),
-		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
+		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment2, comment);
 
 		length = strlen(out_val);
 

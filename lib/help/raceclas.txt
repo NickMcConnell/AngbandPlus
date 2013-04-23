@@ -53,7 +53,7 @@ outbargain and outwit just about anyone.  They are among the frailer races, and
 not powerful in combat, but have solid basic abilities, are highly intelligent
 and dexterous, have innate infravision, and -- most importantly -- are immune to
 paralyzation.
-(Once an Gnome zaps a wand or staff, they fully identify it.)
+(Once an Gnome zaps a wand, they fully identify it.)
 
 ***** <Dwarf>
 Dwarf:

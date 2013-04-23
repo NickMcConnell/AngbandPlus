@@ -188,7 +188,7 @@ have intrinsic abilities.
                fair infra-vision, so they can detect warm-blooded creatures
                at a distance.  Gnomes are intrinsically protected
                against paralysis and some slowing effects.
-               (Once an Gnome zaps a wand or staff, they fully identify it.)
+               (Once an Gnome zaps a wand, they fully identify it.)
  
           Dwarf
                Dwarves are the headstrong miners and fighters of legend.

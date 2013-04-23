@@ -892,6 +892,8 @@ static errr init_other(void)
 		op_ptr->opt[i] = options[i].normal;
 	}
 
+	op_ptr->delay_factor = 3;
+
 	/* Initialize the window flags */
 	for (i = 0; i < ANGBAND_TERM_MAX; i++)
 	{

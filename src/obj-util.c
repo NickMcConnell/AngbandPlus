@@ -3510,14 +3510,8 @@ int sort_quiver(int slot)
 		}
 
 		/* Clear unused slots */
-		for (i = QUIVER_START; i < QUIVER_END; i++)
+		for (i = QUIVER_START + quiver_size; i < QUIVER_END; i++)
 		{
-			/* Get the object */
-			i_ptr = &inventory[i];
-
-			/* Ignore full slots */
-			if (i_ptr->k_idx) continue;
-
 			object_wipe(&inventory[i]);
 		}
 
