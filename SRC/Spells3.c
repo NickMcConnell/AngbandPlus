@@ -235,6 +235,14 @@ void teleport_to_player(int m_idx)
  *
  * If no such spaces are readily available, the distance may increase.
  * Try very hard to move the player at least a quarter that distance.
+ *
+ * When long-range teleport effects are considered, there is a nasty
+ * tendency to "bounce" the player between two or three different spots
+ * because these are the only spots that are "far enough" way to satisfy
+ * the algorithm.  Therefore, if the teleport distance is more than 50,
+ * we decrease the minimum acceptable distance to try to increase randomness.
+ * -GJW
+ *
  */
 void teleport_player(int dis)
 {
@@ -254,7 +262,7 @@ void teleport_player(int dis)
 	if (dis > 200) dis = 200; /* To be on the safe side... */
 
 	/* Minimum distance */
-	min = dis / 2;
+	min = dis / (dis > 50 ? 3 : 2);
 
 	/* Look until done */
 	while (look)
@@ -2183,6 +2191,8 @@ bool potion_smash_effect(int who, int y, int x, int o_sval)
 		case SV_POTION_BOLDNESS:
 		case SV_POTION_RESIST_HEAT:
 		case SV_POTION_RESIST_COLD:
+		case SV_POTION_RESIST_ACID:
+		case SV_POTION_RESIST_ELECTRICITY:
 		case SV_POTION_HEROISM:
 		case SV_POTION_BESERK_STRENGTH:
 		case SV_POTION_RESTORE_EXP:

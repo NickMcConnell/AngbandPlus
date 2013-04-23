@@ -426,6 +426,11 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friend)
 				return (FALSE);
 			}
 		}
+		/* Pets may not shoot through the character - TNB */
+		if ((y == py) && (x == px))
+		{
+			if (friend) return (FALSE);
+		}
 	}
 
 	return (TRUE);
@@ -2447,17 +2452,17 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 		
-		/* RF6_S_AMBERITES */
+		/* RF6_S_SPECIAL */
 		case 160+30:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons Lords of Amber!", m_name);
+			else msg_format("%^s magically summons someone!", m_name);
 			
 			
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+				count += summon_specific(y, x, rlev, SUMMON_SPECIAL, TRUE, FALSE, FALSE);
 			}
 			if (blind && count)
 			{

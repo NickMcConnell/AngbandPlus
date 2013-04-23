@@ -1170,60 +1170,114 @@ static cptr likert(int x, int y)
 	switch ((x / y))
 	{
 		case 0:
+		{
+			likert_color = TERM_RED;
+	  		return ("Useless");
+		}
 		case 1:
 		{
 			likert_color = TERM_RED;
-			return ("Bad");
+			return ("Lacking");
 		}
 		case 2:
 		{
 			likert_color = TERM_L_RED;
-			return ("Poor");
+			return ("Wretched");
 		}
 		case 3:
-		case 4:
 		{
 			likert_color = TERM_ORANGE;
-			return ("Fair");
+	  		return ("Feeble");
+		}
+		case 4:
+		{
+			likert_color = TERM_YELLOW;
+			return ("Inept");
 		}
 		case 5:
 		{
 			likert_color = TERM_YELLOW;
-			return ("Good");
+			return ("Weak");
 		}
 		case 6:
 		{
-			likert_color = TERM_YELLOW;
-			return ("Very Good");
+			likert_color = TERM_L_GREEN;
+			return ("Limited");
 		}
 		case 7:
+		{
+			likert_color = TERM_L_GREEN;
+	  		return ("Modest");
+		}
 		case 8:
 		{
 			likert_color = TERM_L_GREEN;
-			return ("Excellent");
+			return ("Fair");
 		}
 		case 9:
-		case 10:
-		case 11:
-		case 12:
-		case 13:
 		{
 			likert_color = TERM_GREEN;
-			return ("Superb");
+	  		return ("Moderate");
+		}
+		case 10:
+		{
+			likert_color = TERM_GREEN;
+	  		return ("Passable");
+		}
+		case 11:
+		{
+			likert_color = TERM_GREEN;
+	  		return ("Adequate");
+		}
+		case 12:
+		{
+			likert_color = TERM_L_BLUE;
+			return ("Good");
+		}
+		case 13:
+		{
+			likert_color = TERM_L_BLUE;
+			return ("Great");
 		}
 		case 14:
-		case 15:
-		case 16:
-		case 17:
 		{
 			likert_color = TERM_BLUE;
-			return ("Chaos Rank");
+	  		return ("Excellent");
+		}
+		case 15:
+		{
+			likert_color = TERM_BLUE;
+	  		return ("Exemplary");
+		}
+		case 16:
+		{
+			likert_color = TERM_VIOLET;
+	  		return ("Superior");
+		}
+		case 17:
+		{
+			likert_color = TERM_VIOLET;
+			return ("Expert");
+		}
+		case 18:
+		{
+			likert_color = TERM_VIOLET;
+	  		return ("Wonderful");
+		}
+		case 19:
+		{
+			likert_color = TERM_VIOLET;
+	  		return ("Awesome");
+		}
+		case 20:
+		{
+			likert_color = TERM_VIOLET;
+	  		return ("Matchless");
 		}
 		default:
 		{
 			likert_color = TERM_VIOLET;
-			sprintf(dummy,"Amber [%d]", (int) ((((x/y)-17)*5)/2));
-			return dummy;
+			return ("Sublime");
 		}
 	}
 }
@@ -1243,6 +1297,8 @@ static void display_player_various(void)
 	int         muta_att = 0;
 
 	object_type		*o_ptr;
+
+      char        out_val[32];
 
 	if (p_ptr->muta2 & MUT2_HORNS)     muta_att++;
 	if (p_ptr->muta2 & MUT2_SCOR_TAIL) muta_att++;
@@ -1282,36 +1338,43 @@ static void display_player_various(void)
 
 	put_str("Fighting    :", 16, 1);
 	desc = likert(xthn, 12);
-	c_put_str(likert_color, desc, 16, 15);
+	sprintf(out_val,"%2d/%s",xthn/12,desc);
+	c_put_str(likert_color, out_val, 16, 15);
 
 	put_str("Bows/Throw  :", 17, 1);
 	desc = likert(xthb, 12);
-	c_put_str(likert_color, desc, 17, 15);
+	sprintf(out_val,"%2d/%s",xthb/12,desc);
+	c_put_str(likert_color, out_val, 17, 15);
 
 	put_str("Saving Throw:", 18, 1);
 	desc = likert(xsav, 6);
-	c_put_str(likert_color, desc, 18, 15);
+	sprintf(out_val,"%2d/%s",xsav/6,desc);
+	c_put_str(likert_color, out_val, 18, 15);
 
 	put_str("Stealth     :", 19, 1);
 	desc = likert(xstl, 1);
-	c_put_str(likert_color, desc, 19, 15);
-
+	sprintf(out_val,"%2d/%s",xstl,desc);
+	c_put_str(likert_color, out_val, 19, 15);
 
 	put_str("Perception  :", 16, 28);
 	desc = likert(xfos, 6);
-	c_put_str(likert_color, desc, 16, 42);
+	sprintf(out_val,"%2d/%s",xfos/6,desc);
+	c_put_str(likert_color, out_val, 16, 42);
 
 	put_str("Searching   :", 17, 28);
 	desc = likert(xsrh, 6);
-	c_put_str(likert_color, desc, 17, 42);
+	sprintf(out_val,"%2d/%s",xsrh/6,desc);
+	c_put_str(likert_color, out_val, 17, 42);
 
 	put_str("Disarming   :", 18, 28);
 	desc = likert(xdis, 8);
-	c_put_str(likert_color, desc, 18, 42);
+	sprintf(out_val,"%2d/%s",xdis/8,desc);
+	c_put_str(likert_color, out_val, 18, 42);
 
 	put_str("Magic Device:", 19, 28);
 	desc = likert(xdev, 6);
-	c_put_str(likert_color, desc, 19, 42);
+	sprintf(out_val,"%2d/%s",xdev/6,desc);
+	c_put_str(likert_color, out_val, 19, 42);
 
 
 	put_str("Blows/Round:", 16, 55);
@@ -1430,15 +1493,15 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			}
 		}
 		break;
-	case RACE_AMBERITE:
+	case RACE_DUNADAN:
 		(*f2) |= (TR2_SUST_CON);
-		(*f3) |= (TR3_REGEN); /* Amberites heal fast */
+		(*f3) |= (TR3_REGEN); /* Dunedain heal fast */
 		break;
 	case RACE_HIGH_ELF:
 		(*f2) |= (TR2_RES_LITE);
 		(*f3) |= (TR3_SEE_INVIS);
 		break;
-	case RACE_BARBARIAN:
+	case RACE_ATAN:
 		(*f2) |= (TR2_RES_FEAR);
 		break;
 	case RACE_HALF_OGRE:
@@ -1520,14 +1583,13 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		if (p_ptr->lev > 9)
 			(*f2) |= (TR2_RES_COLD);
 		break;
-	case RACE_ZOMBIE:
+	case RACE_DELPHAE:
 		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 4)
-			(*f2) |= (TR2_RES_COLD);
+		(*f2) |= (TR2_RES_LITE);
+		(*f2) |= (TR2_RES_DARK);
+		(*f3) |= (TR3_LITE);
+		if (p_ptr->lev > 29)
+			(*f3) |= (TR3_TELEPATHY);
 		break;
 	case RACE_VAMPIRE:
 		(*f2) |= (TR2_HOLD_LIFE);
@@ -1537,15 +1599,9 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		(*f2) |= (TR2_RES_POIS);
 		(*f2) |= (TR2_RES_COLD);
 		break;
-	case RACE_SPECTRE:
-		(*f2) |= (TR2_RES_COLD);
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 34)
-			(*f3) |= TR3_TELEPATHY;
+	case RACE_ULGO:
+		(*f2) |= (TR2_RES_DARK);
+		(*f2) |= (TR2_RES_SOUND);
 		break;
 	case RACE_SPRITE:
 		(*f2) |= (TR2_RES_LITE);
@@ -2553,7 +2609,7 @@ void display_player(int mode)
  */
 errr file_character(cptr name, bool full)
 {
-	int			i, x, y;
+	int			i, j, x, y;
 	byte		a;
 	char		c;
 	cptr		paren = ")";
@@ -2615,7 +2671,7 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-	fprintf(fff, "  [Zangband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [SBFband %d.%d.%d Character Dump]\n\n",
 	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -2636,8 +2692,8 @@ errr file_character(cptr name, bool full)
 			buf[x] = c;
 		}
 
-		/* Terminate */
-		buf[x] = '\0';
+		/* Kill trailing spaces */
+		while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
 
 		/* End the row */
 		fprintf(fff, "%s\n", buf);
@@ -2659,8 +2715,8 @@ errr file_character(cptr name, bool full)
 			buf[x] = c;
 		}
 
-		/* Terminate */
-		buf[x] = '\0';
+		/* Kill trailing spaces */
+		while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
 
 		/* End the row */
 		fprintf(fff, "%s\n", buf);
@@ -2725,8 +2781,8 @@ errr file_character(cptr name, bool full)
 	/* Show (known) flags grid */
 	if (full)
 	{
-		fprintf (fff, "\n\n");
-		display_player (2);
+		fprintf(fff, "\n\n");
+		display_player(2);
 
 		/* Dump first column */
 		for (y = 12; y < 23; y++)
@@ -2738,7 +2794,7 @@ errr file_character(cptr name, bool full)
 			}
 
 			buf[x] = '\0';
-			fprintf (fff, "        %s\n", buf);
+			fprintf(fff, "        %s\n", buf);
 		}
 
 		/* Dump second column */
@@ -2751,7 +2807,7 @@ errr file_character(cptr name, bool full)
 			}
 
 			buf[x] = '\0';
-			fprintf (fff, "       %s\n", buf);
+			fprintf(fff, "       %s\n", buf);
 		}
 
 		/* Dump third column */
@@ -2764,7 +2820,7 @@ errr file_character(cptr name, bool full)
 			}
 
 			buf[x] = '\0';
-			fprintf (fff, "%s\n", buf);
+			fprintf(fff, "%s\n", buf);
 		}
 	}
 
@@ -2832,35 +2888,38 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "  [Character Inventory]\n\n");
 	for (i = 0; i < INVEN_PACK; i++)
 	{
+		/* Don't dump the empty slots */
+		if (!inventory[i].k_idx) break;
+
+		/* Dump the inventory slots */
 		object_desc(o_name, &inventory[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n",
-		        index_to_label(i), paren, o_name);
+		fprintf(fff, "%c%s %s\n", index_to_label(i), paren, o_name);
 	}
 	fprintf(fff, "\n\n");
 
-	if (p_ptr->town_num)
+	/* Print all homes in the different towns */
+	for (j = 1; j < max_towns; j++)
 	{
-		st_ptr = &town[p_ptr->town_num].store[7];
+		st_ptr = &town[j].store[STORE_HOME];
 
-		/* Dump the Home (page 1) */
-		fprintf(fff, "  [Home Inventory (page 1)]\n\n");
-		for (i = 0; i < 12; i++)
+		/* Home -- if anything there */
+		if (st_ptr->stock_num)
 		{
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-		}
-		fprintf(fff, "\n\n");
+			/* Header with name of the town */
+			fprintf(fff, "  [Home Inventory - %s]\n\n", town[j].name);
 
-		/* Dump the Home (page 2) */
-		fprintf(fff, "  [Home Inventory (page 2)]\n\n");
-		for (i = 12; i < 24; i++)
-		{
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
+			/* Dump all available items */
+			for (i = 0; i < st_ptr->stock_num; i++)
+			{
+				object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+				fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
+			}
+
+			/* Add an empty line */
+			fprintf(fff, "\n\n");
 		}
-		fprintf(fff, "\n\n");
 	}
-
+	
 	/* Close it */
 	my_fclose(fff);
 
@@ -3121,7 +3180,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[ZAngband %d.%d.%d, %s, Line %d/%d]",
+		prt(format("[SBFband %d.%d.%d, %s, Line %d/%d]",
 		           FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH,
 		           caption, line, size), 0, 0);
 
@@ -4052,12 +4111,107 @@ errr get_rnd_line(char * file_name, char * output)
 
 
 	/* Parse the file */
-	if (0 == my_fgets(fp, buf, 80))
+	if (0 == my_fgets(fp, buf, 1024))
 		lines = atoi(buf);
 	else return (1);
 
 	line = randint(lines);
 
+	for (counter = 0; counter <= line; counter++)
+	{
+		if (!(0 == my_fgets(fp, buf, 1024)))
+			return (1);
+		else if (counter == line)
+			break;
+	}
+
+	strcpy(output, buf);
+
+	/* Close the file */
+	my_fclose(fp);
+
+	return (0);
+}
+
+/* MG's PATCH */
+errr get_xtra_line(char * file_name, monster_type *m_ptr, char * output)
+{
+	FILE        *fp;
+	char	buf[1024];
+	int line,counter,mnum=m_ptr->r_idx,test,numentries=0,flag=0;
+
+	/* test and DEBUG hack */
+	if (wizard && cheat_xtra)
+	{
+		 msg_print(file_name);
+	}
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_FILE, file_name);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Failed */
+	if (!fp) return (-1);
+while(flag==0)
+{
+        if(my_fgets(fp,buf,90)!=0)
+	{
+		flag=-1;
+		break;
+	}
+        else if(buf[0]!='N')
+		continue;
+        else
+	{
+		buf[0]=buf[1]=' ';
+		sscanf(buf,"%d",&test);
+		if(test==mnum)
+			flag=1;
+		else
+			continue;
+	}
+}
+while(flag==1)
+{
+	my_fgets(fp,buf,90);
+	if(buf[0]!='N')
+	{
+		numentries=atoi(buf);
+		break;
+	}
+}
+/*
+ * This weaseling about numentries==0 is to allow things like having
+ * monsters say unique lines for "bravado" and generic lines for "fear"
+ * or vice versa.  It should work... see monspeak.txt for details on
+ * how to set up the files should you want this.
+ */
+if(flag==-1 || (numentries==0 && !(m_ptr->monfear)))
+{
+	my_fclose(fp);
+	return -1;
+}
+if(m_ptr->monfear)
+{
+	for(line=0;line<numentries+1;line++)
+		my_fgets(fp,buf,90);
+	numentries=atoi(buf);
+	if(numentries==0)
+		return -1;
+}
+
+
+	/* grab an appropriate line number... */
+	line = randint(numentries)-1;
+
+	/* test and DEBUG hack */
+	if (wizard && cheat_xtra)
+	{
+       		 sprintf(buf,"Line number %d",line);
+		 msg_print(buf);
+	}
 	for (counter = 0; counter <= line; counter++)
 	{
 		if (!(0 == my_fgets(fp, buf, 90)))

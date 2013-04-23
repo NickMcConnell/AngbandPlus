@@ -381,7 +381,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		object_wipe(q_ptr);
 
 		/* Small chests often drop gold */
-		if (small && (rand_int(100) < 75))
+		if (small && (rand_int(100) < 25))
 		{
 			/* Make some gold */
 			if (!make_gold(q_ptr)) continue;
@@ -390,8 +390,8 @@ static void chest_death(int y, int x, s16b o_idx)
 		/* Otherwise drop an item */
 		else
 		{
-			/* Make an object */
-			if (!make_object(q_ptr, FALSE, FALSE)) continue;
+			/* Make a good object */
+			if (!make_object(q_ptr, TRUE, FALSE)) continue;
 		}
 
 		/* Drop it in the dungeon */
@@ -1631,8 +1631,8 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 
 	/* XXX XXX XXX Variable power? */
 
-	/* Extract trap "power" */
-	power = 5;
+	/* Extract trap "power" (based on dun_level by GSN) */
+	power = 5 + dun_level / 4;
 
 	/* Extract the difficulty */
 	j = i - power;

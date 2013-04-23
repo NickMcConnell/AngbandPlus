@@ -1322,14 +1322,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 							else
 								c = 181;
 							break;
-						case RACE_ZOMBIE:
-							c = 221;
-							break;
 						case RACE_VAMPIRE:
 							c = 217;
-							break;
-						case RACE_SPECTRE:
-							c = 241;
 							break;
 						case RACE_SPRITE:
 							c = 244;

@@ -345,31 +345,31 @@ M:60
 N:64:explosive rune
 G:*:R
 
-N:65:Pattern startpoint
+N:65:Straight Road startpoint
 G:*:w
 
-N:66:section of the Pattern
+N:66:section of the Straight Road
 G:*:B
 
-N:67:section of the Pattern
+N:67:section of the Straight Road
 G:*:b
 
-N:68:section of the Pattern
+N:68:section of the Straight Road
 G:*:B
 
-N:69:section of the Pattern
+N:69:section of the Straight Road
 G:*:b
 
-N:70:section of the Pattern
+N:70:section of the Straight Road
 G:*:W
 
-N:71:section of the Pattern (discharged)
+N:71:section of the Straight Road (discharged)
 G:*:W
 
-N:72:Pattern exit
+N:72:Straight Road exit
 G:*:w
 
-N:73:corrupted section of the Pattern
+N:73:corrupted section of the Straight Road
 G:*:D
 
 # 0x4A --> shop -- general store (perm)

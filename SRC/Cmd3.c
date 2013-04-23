@@ -227,6 +227,12 @@ void do_cmd_wield(void)
 		return;
 	}
 
+	if (!(object_known_p(o_ptr) || (o_ptr->ident & IDENT_SENSE)) && wear_unknown)
+	{
+		if (!get_check("Do you really want to use this unidentified item? "))
+			return;
+	}
+			 
 	if (cursed_p(o_ptr) && wear_confirm &&
 	    (object_known_p(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
 	{
@@ -1654,9 +1660,6 @@ bool research_mon()
 	byte oldwake;
 	bool oldcheat;
 
-	bool all = FALSE;
-	bool uniq = FALSE;
-	bool norm = FALSE;
 	bool notpicked;
 
 	bool recall = FALSE;
@@ -1671,7 +1674,7 @@ bool research_mon()
 
 
 	/* Get a character, or abort */
-	if (!get_com("Enter character of monster: ", &sym)) return (TRUE);
+	if (!get_com("Enter character of monster: ", &sym)) return (FALSE);
 
 	/* Allocate the "who" array */
 	C_MAKE(who, max_r_idx, u16b);
@@ -1701,17 +1704,9 @@ bool research_mon()
 		monster_race *r_ptr = &r_info[i];
 
 		cheat_know = TRUE;
-		/* Nothing to recall */
-		if (!cheat_know && !r_ptr->r_sights) continue;
-
-		/* Require non-unique monsters if needed */
-		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
-
-		/* Require unique monsters if needed */
-		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
-
+		
 		/* Collect "appropriate" monsters */
-		if (all || (r_ptr->d_char == sym)) who[n++] = i;
+		if (r_ptr->d_char == sym) who[n++] = i;
 	}
 
 	/* Nothing to recall */
@@ -1722,7 +1717,7 @@ bool research_mon()
 		/* Free the "who" array */
 		C_KILL(who, max_r_idx, u16b);
 
-		return TRUE;
+		return (FALSE);
 	}
 
 	/* Sort by level */
@@ -1752,9 +1747,9 @@ bool research_mon()
 		/* Extract a race */
 		r_idx = who[i];
 
-		/* Hack -- Auto-recall */
-		monster_race_track(r_idx);
-
+		/* Save this monster ID */
+		monster_race_idx = r_idx;
+		
 		/* Hack -- Handle stuff */
 		handle_stuff();
 
@@ -1781,7 +1776,6 @@ bool research_mon()
 				screen_roff(who[i], 1);
 				r2_ptr->r_tkills = oldkills;
 				r2_ptr->r_wake = oldwake;
-				r2_ptr->r_sights = 1;
 				cheat_know = oldcheat;
 				notpicked = FALSE;
 				break;
@@ -1837,6 +1831,6 @@ bool research_mon()
 	/* Free the "who" array */
 	C_KILL(who, max_r_idx, u16b);
 
-	return (notpicked);
+	return (!notpicked);
 }
 

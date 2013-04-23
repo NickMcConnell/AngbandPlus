@@ -970,7 +970,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("SBFband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -978,7 +978,7 @@ void do_cmd_options(void)
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
 
-		prt("(Z/5) Zangband Options", 9, 5);
+		prt("(5) SBFband Options", 9, 5);
 		/* Testing */
 		prt("(S) Stacking Options", 10, 5);
 		/* Special choices */
@@ -1037,10 +1037,10 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Zangband Options */
-			case 'Z': case 'z': case '5':
+			/* SBFband Options */
+			case '5':
 			{
-				do_cmd_options_aux(5, "Zangband Options");
+				do_cmd_options_aux(5, "SBFband Options");
 				break;
 			}
 
@@ -2537,7 +2537,7 @@ void do_cmd_version(void)
 	msg_format("You are playing Angband %d.%d.%d.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-	msg_format("You are playing Zangband %d.%d.%d.",
+	msg_format("You are playing SBFband %d.%d.%d.",
 	            FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -3046,13 +3046,21 @@ void plural_aux(char *Name)
 	{
 		strcpy(Name, "Disembodied hands that strangled people");
 	}
+	else if (strstr(Name, "Mud-man"))
+	{
+		strcpy(Name, "Mud-men");
+	}
 	else if (strstr(Name, "Colour out of space"))
 	{
 		strcpy(Name, "Colours out of space");
 	}
-	else if (strstr(Name, "Stairway to hell"))
+	else if (strstr(Name, "stairway to hell"))
 	{
-		strcpy(Name, "Stairways to hell");
+		strcpy(Name, "stairways to hell");
+	}
+	else if (strstr(Name, "Dweller on the threshold"))
+	{
+		strcpy(Name, "Dwellers on the threshold");
 	}
 	else if (strstr(Name, " of "))
 	{
@@ -3069,12 +3077,12 @@ void plural_aux(char *Name)
 
 		if (dummy[i-1] == 's')
 		{
-			strcpy (&(dummy[i]), "es");
+			strcpy(&(dummy[i]), "es");
 			i++;
 		}
 		else
 		{
-			strcpy (&(dummy[i]), "s");
+			strcpy(&(dummy[i]), "s");
 		}
 
 		strcpy(&(dummy[i+1]), aider);
@@ -3083,14 +3091,18 @@ void plural_aux(char *Name)
 	else if (strstr(Name, "coins"))
 	{
 		char dummy[80];
-		strcpy (dummy, "piles of ");
-		strcat (dummy, Name);
-		strcpy (Name, dummy);
+		strcpy(dummy, "piles of ");
+		strcat(dummy, Name);
+		strcpy(Name, dummy);
 		return;
 	}
 	else if (strstr(Name, "Manes"))
 	{
 		return;
+	}
+	else if (streq(&(Name[NameLen - 2]), "ey"))
+	{
+		strcpy(&(Name[NameLen - 2]), "eys");
 	}
 	else if (Name[NameLen - 1] == 'y')
 	{
@@ -3099,6 +3111,10 @@ void plural_aux(char *Name)
 	else if (streq(&(Name[NameLen - 4]), "ouse"))
 	{
 		strcpy (&(Name[NameLen - 4]), "ice");
+	}
+	else if (streq(&(Name[NameLen - 2]), "us"))
+	{
+		strcpy(&(Name[NameLen - 2]), "i");
 	}
 	else if (streq(&(Name[NameLen - 6]), "kelman"))
 	{
@@ -3112,16 +3128,31 @@ void plural_aux(char *Name)
 	{
 		strcpy(&(Name[NameLen - 7]), "oodsmen");
 	}
+	else if (streq(&(Name[NameLen - 7]), "eastman"))
+	{
+		strcpy(&(Name[NameLen - 7]), "eastmen");
+	}
+	else if (streq(&(Name[NameLen - 8]), "izardman"))
+	{
+		strcpy(&(Name[NameLen - 8]), "izardmen");
+	}
+	else if (streq(&(Name[NameLen - 5]), "geist"))
+	{
+		strcpy(&(Name[NameLen - 5]), "geister");
+	}
 	else if (streq(&(Name[NameLen - 2]), "ex"))
 	{
 		strcpy (&(Name[NameLen - 2]), "ices");
 	}
-	else if (streq(&(Name[NameLen - 3]), "olf"))
+	else if (streq(&(Name[NameLen - 2]), "lf"))
 	{
-		strcpy (&(Name[NameLen - 3]), "olves");
+		strcpy (&(Name[NameLen - 2]), "lves");
 	}
-	else if ((streq(&(Name[NameLen - 2]), "ch")) ||
-	                 (Name[NameLen - 1] == 's'))
+	else if (suffix(Name, "ch") ||
+	         suffix(Name, "sh") ||
+			 suffix(Name, "nx") ||
+			 suffix(Name, "s") ||
+			 suffix(Name, "o"))
 	{
 		strcpy (&(Name[NameLen]), "es");
 	}
@@ -3488,6 +3519,87 @@ static void do_cmd_knowledge_quests(void)
 	fd_kill(file_name);
 }
 
+static void do_cmd_quests_completed(void)
+{
+	FILE *fff;
+	char file_name[1024];
+	char tmp_str[80];
+	char rand_tmp_str[80] = "\0";
+	char my_tmp_str[80] = "\0";
+	char name[80];
+	monster_race *r_ptr;
+	int i;
+	
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+	for (i = 1; i < max_quests; i++)
+	{
+		/* No info from "silent" quests */
+		if (quest[i].flags & QUEST_FLAG_SILENT) continue;
+
+		if (quest[i].status == QUEST_STATUS_FINISHED)
+		{
+			int old_quest;
+			int j;
+
+			/* Clear the text */
+			for (j = 0; j < 10; j++)
+			{
+				quest_text[j][0] = '\0';
+			}
+
+			quest_text_line = 0;
+
+			/* Set the quest number temporary */
+			old_quest = p_ptr->inside_quest;
+			p_ptr->inside_quest = i;
+
+			/* Get the quest text */
+			init_flags = INIT_SHOW_TEXT;
+			process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+			/* Reset the old quest number */
+			p_ptr->inside_quest = old_quest;
+
+			if (quest[i].type != QUEST_TYPE_RANDOM) 
+			{
+				/* Print the quest info */
+				if((strcmp(quest[i].name, "")))
+				{
+				sprintf(tmp_str, "%s (Danger level: %d)\n", quest[i].name, quest[i].level);
+				fprintf(fff, my_tmp_str);
+				fprintf(fff, tmp_str);
+				}
+				/*
+				if(!strcmp(quest[i].name, ""))
+				{
+					r_ptr = &r_info[quest[i].r_idx];
+					strcpy(name, r_name + r_ptr->name);
+					plural_aux(name);
+					sprintf(my_tmp_str, "Name: %s\n", name);
+					sprintf(rand_tmp_str,"%s (Dungeon level: %d)\n  Killed %d %s.\n",
+						quest[i].name, quest[i].level, quest[i].max_num, name);
+				fprintf(fff, my_tmp_str);
+				fprintf(fff, rand_tmp_str);
+				} */
+			}
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Completed Quests", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
 
 
 /*
@@ -3523,9 +3635,10 @@ void do_cmd_knowledge(void)
 		prt("(5) Display mutations", 8, 5);
 		prt("(6) Display current pets", 9, 5);
 		prt("(7) Display current quests", 10, 5);
+		prt("(8) Display finished quests", 11, 5);
 
 		/* Prompt */
-		prt("Command: ", 12, 0);
+		prt("Command: ", 13, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -3555,6 +3668,9 @@ void do_cmd_knowledge(void)
 			break;
 		case '7': /* Quests */
 			do_cmd_knowledge_quests();
+			break;
+		case '8': /* Completed quests */
+			do_cmd_quests_completed();
 			break;
 		default: /* Unknown option */
 			bell();

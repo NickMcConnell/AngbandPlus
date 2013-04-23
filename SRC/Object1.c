@@ -780,7 +780,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "cure wounds (4d7) every 3+d3 turns";
 		}
-		case ART_BRAND:
+		case ART_CUBRAGOL:
 		{
 			return "fire branding of bolts every 999 turns";
 		}
@@ -844,10 +844,6 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "fire bolt (9d8) every 8+d8 turns";
 		}
-		case ART_CORWIN:
-		{
-			return "frost bolt (6d8) every 7+d7 turns";
-		}
 		case ART_PAURAEGEN:
 		{
 			return "lightning bolt (4d8) every 6+d6 turns";
@@ -886,11 +882,15 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_THRAIN:
 		{
-			return "clairvoyance and recall, draining you";
+			return "clairvoyance and recall";
 		}
 		case ART_INGWE:
 		{
 			return "dispel evil (x5) every 300+d300 turns";
+		}
+		case ART_BELDARAN:
+		{
+			return "detect speaking monsters every 10+d10 turns";
 		}
 		case ART_CARLAMMAS:
 		{
@@ -995,7 +995,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case SV_DRAGON_BALANCE:
 		{
-			return "You breathe balance (250) every 300+d300 turns";
+			return "breathe balance (250) every 300+d300 turns";
 		}
 		case SV_DRAGON_SHINING:
 		{
@@ -1027,6 +1027,232 @@ bool identify_fully_aux(object_type *o_ptr)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
+	if(o_ptr->tval == TV_WAND)
+	{
+		switch(o_ptr->sval)
+		{
+			case SV_WAND_DRAIN_LIFE:
+			info[i++] = "It does 75 points of damage.";
+			break;
+		
+			case SV_WAND_STINKING_CLOUD:
+			info[i++] = "It does 12 points of poison damage.";
+			break;
+		
+			case SV_WAND_MAGIC_MISSILE:
+			info[i++] = "It does 2d6 points of magical damage.";
+			break;
+		
+			case SV_WAND_ACID_BOLT:
+			info[i++] = "It does 6d8 points of acid damage.";
+			break;
+		
+			case SV_WAND_FIRE_BOLT:
+			info[i++] = "It does 8d8 points of fire damage.";
+			break;
+		
+			case SV_WAND_COLD_BOLT:
+			info[i++] = "It does 8d8 points of cold damage.";
+			break;
+		
+			case SV_WAND_ACID_BALL:
+			info[i++] = "It does 60 points of acid damage.";
+			break;
+		
+			case SV_WAND_ELEC_BALL:
+			info[i++] = "It does 70 points of electrical damage.";
+			break;
+		
+			case SV_WAND_FIRE_BALL:
+			info[i++] = "It does 72 points of fire damage.";
+			break;
+		
+			case SV_WAND_COLD_BALL:
+			info[i++] = "It does 60 points of cold damage.";
+			break;
+		
+			case SV_WAND_DRAGON_FIRE:
+			info[i++] = "It does 100 points of fire damage.";
+			break;
+		
+			case SV_WAND_DRAGON_COLD:
+			info[i++] = "It does 80 points of cold damage.";
+			break;
+		
+			case SV_WAND_DRAGON_BREATH:
+			{
+			info[i++] = "It can do 100 points of acid damage.";
+			info[i++] = "It can do 80 points of electrical damage.";
+			info[i++] = "It can do 100 points of fire damage.";
+			info[i++] = "It can do 80 points of cold damage.";
+			info[i++] = "It can do 60 points of poison damage.";
+			break;
+			}
+			
+			case SV_WAND_ANNIHILATION:
+			info[i++] = "It does 125 points of damage.";
+			break;
+		
+			case SV_WAND_ROCKETS:
+			info[i++] = "It does 1d50 + 75 points of rocket damage.";
+			break;
+		}
+	}
+	
+	if(o_ptr->tval == TV_ROD)
+	{
+		switch(o_ptr->sval)
+		{
+			case SV_ROD_DETECT_TRAP:
+			info[i++] = "It takes 10 + 1d10 turns to recharge.";
+			break;
+
+			case SV_ROD_ILLUMINATION:
+			{
+			info[i++] = "It takes 10 + 1d11 turns to recharge.";
+			info[i++] = "It does 2d8 damage.";
+			break;
+			}
+
+			case SV_ROD_DISARMING:
+			info[i++] = "It takes 15 + 1d15 turns to recharge.";
+			break;
+
+			case SV_ROD_DETECT_DOOR:
+			info[i++] = "It takes 70 turns to recharge.";
+			break;
+
+			case SV_ROD_IDENTIFY:
+			info[i++] = "It takes 10 turns to recharge.";
+			break;
+		
+			case SV_ROD_RECALL:
+			info[i++] = "It takes 60 turns to recharge.";
+			break;
+		
+			case SV_ROD_MAPPING:
+			info[i++] = "It takes 99 turns to recharge.";
+			break;
+		
+			case SV_ROD_DETECTION:
+			info[i++] = "It takes 99 turns to recharge.";
+			break;
+		
+			case SV_ROD_PROBING:
+			info[i++] = "It takes 50 turns to recharge.";
+			break;
+		
+			case SV_ROD_CURING:
+			info[i++] = "It takes 999 turns to recharge.";
+			break;
+		
+			case SV_ROD_HEALING:
+			info[i++] = "It takes 999 turns to recharge.";
+			break;
+		
+			case SV_ROD_RESTORATION:
+			info[i++] = "It takes 999 turns to recharge.";
+			break;
+		
+			case SV_ROD_SPEED:
+			info[i++] = "It takes 99 turns to recharge.";
+			break;
+		
+			case SV_ROD_PESTICIDE:
+			{
+			info[i++] = "It takes 3 turns to recharge.";	
+			info[i++] = "It does 8 points of poison damage.";
+			break;
+			}
+
+			case SV_ROD_TELEPORT_AWAY:
+			info[i++] = "It takes 3 turns to recharge.";
+			break;
+		
+			case SV_ROD_LITE:
+			info[i++] = "It takes 9 turns to recharge.";
+			break;
+		
+			case SV_ROD_SLEEP_MONSTER:
+			info[i++] = "It takes 18 turns to recharge.";
+			break;
+		
+			case SV_ROD_SLOW_MONSTER:
+			info[i++] = "It takes 20 turns to recharge.";
+			break;
+		
+			case SV_ROD_DRAIN_LIFE:
+			{
+			info[i++] = "It takes 23 turns to recharge.";
+			info[i++] = "It does 50 points of damage.";
+			break;
+			}
+
+			case SV_ROD_POLYMORPH:
+			info[i++] = "It takes 25 turns to recharge.";
+			break;
+		
+			case SV_ROD_ACID_BOLT:
+			{
+			info[i++] = "It takes 12 turns to recharge.";
+			info[i++] = "It does 3d8 points of acid damage.";
+			break;
+			}
+
+			case SV_ROD_ELEC_BOLT:
+			{
+			info[i++] = "It takes 11 turns to recharge.";
+			info[i++] = "It does 3d8 points of electrical damage.";
+			break;
+			}
+
+			case SV_ROD_FIRE_BOLT:
+			{
+			info[i++] = "It takes 15 turns to recharge.";
+			info[i++] = "It does 6d8 points of fire damage.";
+			break;
+			}
+
+			case SV_ROD_COLD_BOLT:
+			{
+			info[i++] = "It takes 13 turns to recharge.";
+			info[i++] = "It does 6d8 points of cold damage.";
+			break;
+			}
+
+			case SV_ROD_ACID_BALL:
+			{
+			info[i++] = "It takes 27 turns to recharge.";
+			info[i++] = "It does 50 points of acid damage.";
+			break;
+			}
+
+			case SV_ROD_ELEC_BALL:
+			{
+			info[i++] = "It takes 23 turns to recharge.";
+			info[i++] = "It does 46 points of electrical damage.";
+			break;
+			}
+
+			case SV_ROD_FIRE_BALL:
+			{
+			info[i++] = "It takes 30 turns to recharge.";
+			info[i++] = "It does 62 points of fire damage.";
+			break;
+			}
+
+			case SV_ROD_COLD_BALL:
+			{
+			info[i++] = "It takes 25 turns to recharge.";
+			info[i++] = "It does 40 points of cold damage.";
+			break;
+			}
+
+			case SV_ROD_HAVOC:
+			info[i++] = "It takes 250 turns to recharge.";
+			break;
+		}
+	}
 
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
@@ -1311,6 +1537,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f3 & (TR3_FEATHER))
 	{
 		info[i++] = "It allows you to levitate.";
+	}
+	if (f3 & (TR3_SENSING))
+	{
+		info[i++] = "It gives you strong pseudo-id.";
 	}
 	if (f3 & (TR3_LITE))
 	{

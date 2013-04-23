@@ -928,9 +928,10 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 
 		if (!(r_ptr->flags1 & RF1_UNIQUE))
 		{
-			if (r_ptr->flags1 & RF1_FRIENDS)
+			if ((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags1 & RF1_FRIEND))
 			power /= 2;
 		}
+
 		else power *= 2;
 
 		if (!hack_mind)
@@ -976,8 +977,7 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 		if (p_ptr->prace == RACE_IMP) return;
 
 		/* Undead characters are 50% likely to be unaffected */
-		if ((p_ptr->prace == RACE_SKELETON) || (p_ptr->prace == RACE_ZOMBIE)
-			|| (p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE))
+		if ((p_ptr->prace == RACE_SKELETON) || (p_ptr->prace == RACE_VAMPIRE))
 		{
 			if (randint(100) < (25 + p_ptr->lev)) return;
 		}
@@ -1547,7 +1547,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	m_ptr->fy = y;
 	m_ptr->fx = x;
 
-
 	/* No "damage" yet */
 	m_ptr->stunned = 0;
 	m_ptr->confused = 0;
@@ -1702,7 +1701,15 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool friendly
 	/* Maximum size */
 	if (total > GROUP_MAX) total = GROUP_MAX;
 
-
+	if (r_ptr->flags1 & (RF1_FRIEND))
+	{
+		total = total / 2;
+		if(total < 1)
+		{
+			total = 1;
+		}
+	}
+	
 	/* Save the rating */
 	old = rating;
 
@@ -1814,7 +1821,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendl
 
 
 	/* Friends for certain monsters */
-	if (r_ptr->flags1 & (RF1_FRIENDS))
+	if ((r_ptr->flags1 & (RF1_FRIENDS)) || (r_ptr->flags1 & (RF1_FRIEND)))
 	{
 		/* Attempt to place a group */
 		(void)place_monster_group(y, x, r_idx, slp, friendly, pet);
@@ -1851,7 +1858,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendl
 			(void)place_monster_one(ny, nx, z, slp, friendly, pet);
 
 			/* Place a "group" of escorts if needed */
-			if ((r_info[z].flags1 & RF1_FRIENDS) ||
+			if ((r_info[z].flags1 & RF1_FRIENDS) || (r_info[z].flags1 & RF1_FRIEND) ||
 			    (r_ptr->flags1 & RF1_ESCORTS))
 			{
 				/* Place a group of monsters */
@@ -1863,7 +1870,6 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendl
 	/* Success */
 	return (TRUE);
 }
-
 
 /*
  * Hack -- attempt to place a monster at the given location
@@ -2160,9 +2166,9 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_AMBERITES:
+		case SUMMON_SPECIAL:
 		{
-			okay = (r_ptr->flags3 & (RF3_AMBERITE)) ? TRUE : FALSE;
+			okay = (r_ptr->flags3 & (RF3_SPECIAL)) ? TRUE : FALSE;
 			break;
 		}
 
@@ -2314,7 +2320,7 @@ static bool summon_specific_okay(int r_idx)
  *
  * We will attempt to place the monster up to 10 times before giving up.
  *
- * Note: SUMMON_UNIQUE and SUMMON_AMBERITES will summon Unique's
+ * Note: SUMMON_UNIQUE and SUMMON_SPECIAL will summon Unique's
  * Note: SUMMON_HI_UNDEAD and SUMMON_HI_DRAGON may summon Unique's
  * Note: None of the other summon codes will ever summon Unique's.
  *

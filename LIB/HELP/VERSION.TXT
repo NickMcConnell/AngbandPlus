@@ -1,3 +1,37 @@
+=== SBFband History and Information ===
+
+I first started playing Angband many years ago before there were
+Angband variants.  I stopped playing because of a combination of boredom
+and school.  Back in December 1998 I decided to see how the Angband scene
+was doing and found that a lot of people had created Angband variants.  I
+tried some of these out and liked what I saw.
+
+I decided to make SBFband after rereading the Belgariad, Malloreon, Elenium,
+and Tamuli series that David Eddings has written.  I thought it would be
+neat to incorporate the races, characters, and monsters presented in his
+books and then add the features that I liked from other variants and remove
+the features I didn't care for.  I chose to start off with the code from
+Zangband because it has a lot of the features I like and is stable.
+
+Even though I majored in Computer Science in college and have seen lots of
+scary code, starting to go through the code and files in /lib/edit is a 
+very overwhelming task.  There's a lot of code in there, and it isn't
+always obvious where a particular feature is in the code.  I e-mailed
+Dark God, the variant maintainer of PernAngband, asking him if he could
+help me with the bits of code I didn't understand, where various features
+are, and for general tips on making a variant.  
+
+I'd like to thank the following people:
+
+Ben Harrison - he's done a great job with Angband.
+
+Topi Ylinen and Robert Ruehlmann - for making Zangband what it is today.
+
+Dark God - for putting up with all of my questions!
+
+And of course, all the people that helped with the development of Angband
+and Zangband.
+
 === Zangband History and Information ===
 
 The seeds of Zangband lie in an obsolete and long ago vanished PC variant

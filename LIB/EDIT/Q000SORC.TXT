@@ -34,7 +34,7 @@ F:c:1:8:385
 F:d:84:8:526
 
 # Deep water with Sky drake
-F:e:83:8:793
+F:e:83:8:773
 
 # Normal wall
 F:#:56

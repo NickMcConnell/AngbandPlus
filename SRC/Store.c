@@ -131,7 +131,7 @@ static cptr comment_6[MAX_COMMENT_6] =
  */
 static void say_comment_1(void)
 {
-	char rumour[90];
+	char rumour[1024];
 
 	msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
 
@@ -221,7 +221,7 @@ static void say_comment_5(void)
  */
 static void say_comment_6(void)
 {
-	msg_print(comment_6[rand_int(5)]);
+	msg_print(comment_6[rand_int(MAX_COMMENT_6)]);
 }
 
 
@@ -354,9 +354,9 @@ static owner_type *ot_ptr = NULL;
  */
 static byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
-	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
+	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Atan,
 	 HfOg, HGn, HTn, Cyc, Yek, Klc, Kbd, Nbl, DkE, Drc, Mind Flayer,
-	 Imp,  Glm, Skl, Zombie, Vampire, Spectre */
+	 Imp,  Glm, Skl, Delphae, Vampire, Ulgo */
 
 	/* Human */
 	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
@@ -398,7 +398,7 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
 	  110, 115, 112, 112, 115, 112, 120, 110 },
 
-	/* Amberite (Dunedain)	*/
+	/* Dunedain	*/
 	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
 	  120, 120, 105, 120, 115, 105, 115, 120, 110, 105, 105,
 	  120, 105, 120, 120, 125, 120, 105, 135 },
@@ -408,7 +408,7 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
 	  125, 115, 120, 120, 125, 120, 100, 125 },
 
-	/* Human / Barbarian (copied from human) */
+	/* Human / Atan (copied from human) */
 	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
 	  124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
 	  115, 105, 125, 125, 130, 125, 115, 120 },
@@ -483,7 +483,7 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
 	  115, 125, 120, 120, 120, 120, 130, 130   },
 
-	/* Zombie: Theoretical, copied from half-orc */
+	/* Delphae: Theoretical, copied from half-orc */
 	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
 	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
 	  115, 125, 120, 120, 120, 120, 130, 130   },
@@ -493,10 +493,10 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
 	  115, 125, 120, 120, 120, 120, 130, 130   },
 
-	/* Spectre: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130   },
+	/* Ulgo: Theoretical, copied from human */
+	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
+	  124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
+	  115, 105, 125, 125, 125, 125, 105, 120 },
 
 	/* Sprite: Theoretical, copied from half-orc */
 	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
@@ -3355,6 +3355,13 @@ void do_cmd_store(void)
 		msg_print("The doors are locked.");
 		return;
 	}
+
+	/* Check if house is owned */
+	if ((which == STORE_HOME) && (p_ptr->houses[p_ptr->town_num]!=1)) /* House is not owned */
+		{
+			msg_print("The door is locked.  A sign mentions that this house is for sale.");
+			return;
+		}
 
 	/* Calculate the number of store maintainances since the last visit */
 	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (10L * STORE_TURNS);

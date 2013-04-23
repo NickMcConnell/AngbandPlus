@@ -664,6 +664,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_s16b(m_ptr->r_idx);
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
+	wr_byte(m_ptr->generation);
 	wr_s16b(m_ptr->hp);
 	wr_s16b(m_ptr->maxhp);
 	wr_s16b(m_ptr->csleep);
@@ -970,10 +971,11 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oldpy);
 
 	/* Save builing rewards */
+	
 	wr_s16b(MAX_BACT);
 
 	for (i = 0; i < MAX_BACT; i++) wr_s16b(p_ptr->rewards[i]);
-
+	
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
 	wr_u16b(p_ptr->chp_frac);
@@ -1422,6 +1424,9 @@ static bool wr_savefile_new(void)
 	/* Dump the towns */
 	tmp16u = max_towns;
 	wr_u16b(tmp16u);
+
+	/* Save owned houses info - SBF */
+	for (i = 0; i < max_towns; i++) wr_s16b(p_ptr->houses[i]);
 
 	/* Dump the quests */
 	tmp16u = max_quests;

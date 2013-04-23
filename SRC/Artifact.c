@@ -376,7 +376,7 @@ void random_resistance(object_type * o_ptr, bool is_scroll, int specific)
 				o_ptr->art_flags2 |= TR2_RES_CHAOS;
 				if (randint(2)==1) return;
 			}
-			if (!(o_ptr->art_flags2 & TR2_RES_CONF))
+			if ((!(o_ptr->art_flags2 & TR2_RES_CONF)) && (!(o_ptr->art_flags2 & TR2_RES_CHAOS)))
 			{
 				o_ptr->art_flags2 |= TR2_RES_CONF;
 				if (randint(2)==1) return;
@@ -500,8 +500,11 @@ void random_resistance(object_type * o_ptr, bool is_scroll, int specific)
 			break;
 		case 25:
 		case 26:
-			o_ptr->art_flags2 |= TR2_RES_CONF;
+			if ((!(o_ptr->art_flags2 & TR2_RES_CONF)) && (!(o_ptr->art_flags2 & TR2_RES_CHAOS)))
+			{
+				o_ptr->art_flags2 |= TR2_RES_CONF;
 			/*  if (is_scroll) msg_print("It makes you feel very determined.");*/
+			}
 			if (!(artifact_bias) && randint(6)==1)
 				artifact_bias = BIAS_CHAOS;
 			break;
@@ -627,7 +630,7 @@ static void random_misc(object_type * o_ptr, bool is_scroll)
 	}
 	else if (artifact_bias == BIAS_CHAOS)
 	{
-		if (!(o_ptr->art_flags3 & TR3_TELEPORT))
+		if ((!(o_ptr->art_flags3 & TR3_TELEPORT)) && (!(o_ptr->art_flags3 & TR3_NO_TELE)))
 		{
 			o_ptr->art_flags3 |= TR3_TELEPORT;
 			if (randint(2)==1) return;
@@ -725,9 +728,13 @@ static void random_misc(object_type * o_ptr, bool is_scroll)
 			o_ptr->art_flags3 |= TR3_REGEN;
 			/*  if (is_scroll) msg_print("It looks as good as new.");*/
 			break;
+		/* An artifact that teleports and prevents teleports should not happen. */ 
 		case 23:
+			if ((!(o_ptr->art_flags3 & TR3_TELEPORT)) && (!(o_ptr->art_flags3 & TR3_NO_TELE)))
+			{
 			o_ptr->art_flags3 |= TR3_TELEPORT;
 			/*  if (is_scroll) msg_print("Its position feels uncertain!");*/
+			}
 			break;
 		case 24:
 		case 25:
@@ -750,8 +757,12 @@ static void random_misc(object_type * o_ptr, bool is_scroll)
 		case 30:
 			o_ptr->art_flags3 |= TR3_NO_MAGIC;
 			break;
+		/* Teleport and prevent teleport do not go together. */
 		case 31:
-			o_ptr->art_flags3 |= TR3_NO_TELE;
+			if ((!(o_ptr->art_flags3 & TR3_TELEPORT)) && (!(o_ptr->art_flags3 & TR3_NO_TELE)))
+			{
+				o_ptr->art_flags3 |= TR3_NO_TELE;
+			}
 			break;
 	}
 }

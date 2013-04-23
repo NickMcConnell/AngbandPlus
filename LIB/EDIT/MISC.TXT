@@ -16,16 +16,16 @@ M:WY:10
 M:R:870
 
 # Maximum number of items in k_info.txt
-M:K:576
+M:K:583
 
 # Maximum number of vaults in v_info.txt
-M:V:80
+M:V:158
 
 # Maximum number of terrain features in f_info.txt
 M:F:160
 
 # Maximum number of artifacts in a_info.txt
-M:A:128
+M:A:135
 
 # Maximum number of ego-items in e_info.txt
 M:E:128

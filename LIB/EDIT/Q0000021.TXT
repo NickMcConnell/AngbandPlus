@@ -49,10 +49,10 @@ F:f:1:8:609
 F:g:1:8:666
 
 # Floor with Maulotaur
-F:h:1:8:723
+F:h:1:8:717
 
 # Floor with Hell Knight
-F:i:1:8:731
+F:i:1:8:725
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

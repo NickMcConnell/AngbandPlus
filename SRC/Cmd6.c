@@ -358,9 +358,7 @@ void do_cmd_eat_food(void)
 			msg_print("The food falls through your jaws and vanishes!");
 		}
 	}
-	else if ((p_ptr->prace == RACE_GOLEM) ||
-	         (p_ptr->prace == RACE_ZOMBIE) ||
-	         (p_ptr->prace == RACE_SPECTRE))
+	else if (p_ptr->prace == RACE_GOLEM)
 	{
 		msg_print("The food of mortals is poor sustenance for you.");
 		set_food(p_ptr->food + ((o_ptr->pval) / 20));
@@ -700,6 +698,24 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
+		case SV_POTION_RESIST_ACID:
+		{
+			if (set_oppose_acid(p_ptr->oppose_acid + randint(10) + 10))
+			{
+				ident = TRUE;
+			}
+			break;
+		}
+
+		case SV_POTION_RESIST_ELECTRICITY:
+		{
+			if (set_oppose_elec(p_ptr->oppose_elec + randint(10) + 10))
+			{
+				ident = TRUE;
+			}
+			break;
+		}
+
 		case SV_POTION_HEROISM:
 		{
 			if (set_afraid(0)) ident = TRUE;
@@ -1017,8 +1033,6 @@ void do_cmd_quaff_potion(void)
 			/* Do nothing */
 			break;
 		case RACE_GOLEM:
-		case RACE_ZOMBIE:
-		case RACE_SPECTRE:
 			set_food(p_ptr->food + ((o_ptr->pval) / 20));
 			break;
 		default:
@@ -1040,7 +1054,7 @@ void do_cmd_read_scroll(void)
 
 	object_type		*o_ptr;
 
-	char  Rumor[90] ;
+	char  Rumor[1024] ;
 
 	cptr q, s;
 
@@ -2139,7 +2153,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(6, 8));
 			ident = TRUE;
 			break;
 		}
@@ -2153,14 +2167,14 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(8, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(8, 8));
 			ident = TRUE;
 			break;
 		}
@@ -2174,7 +2188,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 70, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2188,7 +2202,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 60, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2593,7 +2607,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 50)) ident = TRUE;
 			o_ptr->pval = 23;
 			break;
 		}
@@ -2607,7 +2621,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, damroll(3, 8));
 			ident = TRUE;
 			o_ptr->pval = 12;
 			break;
@@ -2623,7 +2637,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(6, 8));
 			ident = TRUE;
 			o_ptr->pval = 15;
 			break;
@@ -2631,7 +2645,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, damroll(6, 8));
 			ident = TRUE;
 			o_ptr->pval = 13;
 			break;
@@ -2639,7 +2653,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 50, 2);
 			ident = TRUE;
 			o_ptr->pval = 27;
 			break;
@@ -2647,7 +2661,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 46, 2);
 			ident = TRUE;
 			o_ptr->pval = 23;
 			break;
@@ -2655,7 +2669,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 62, 2);
 			ident = TRUE;
 			o_ptr->pval = 30;
 			break;
@@ -2663,7 +2677,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 40, 2);
 			ident = TRUE;
 			o_ptr->pval = 25;
 			break;
@@ -2831,7 +2845,8 @@ void ring_of_power(int dir)
  */
 void do_cmd_activate(void)
 {
-	int             item, i, k, dir, lev, chance;
+	int             item, i, k, y, x, dir, lev, chance;
+	bool		    flag = FALSE;
 	object_type     *o_ptr;
 	cptr            q, s;
 
@@ -2941,10 +2956,8 @@ void do_cmd_activate(void)
 
 			case ART_THRAIN:
 			{
-				msg_print("The Jewel flashes bright red!");
+				msg_print("The Arkenstone flashes bright red!");
 				wiz_lite();
-				msg_print("The Jewel drains your vitality...");
-				take_hit(damroll(3,8), "the Jewel of Judgement");
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
@@ -2975,9 +2988,59 @@ void do_cmd_activate(void)
 				break;
 			}
 
+			case ART_BELDARAN:
+			{
+				msg_print("The amulet glows with a pale, blue light...");
+	
+				/* Scan for monsters that speak*/
+				for (i = 1; i < m_max; i++)
+				{
+					monster_type *m_ptr = &m_list[i];
+					monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+					/* Skip dead monsters */
+					if (!m_ptr->r_idx) continue;
+
+					/* Location */
+					y = m_ptr->fy;
+					x = m_ptr->fx;
+
+					/* Only detect nearby monsters */
+					if (!panel_contains(y, x)) continue;
+
+					/* Detect all speaking monsters */
+					if ((r_ptr->flags2 & RF2_CAN_SPEAK))
+					{
+						/* Repair visibility later */
+						repair_monsters = TRUE;
+
+						/* Hack -- Detect monster */
+						m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+						/* Hack -- See monster */
+						m_ptr->ml = TRUE;
+
+						/* Redraw */
+						lite_spot(y, x);
+
+						/* Detect */
+						flag = TRUE;
+					}
+				}
+
+				/* Describe */
+				if (flag)
+				{
+					/* Describe result */
+					msg_print("You hear a soft murmur of voices in your head!");
+				}
+				o_ptr->timeout = rand_int(10) + 10;
+				break;
+			}
+
 			case ART_BARAHIR:
 			{
-				msg_print("You order Frakir to strangle your opponent.");
+				msg_print("You order Barahir to strangle your opponent.");
 				if (!get_aim_dir(&dir)) return;
 				if (drain_life(dir, 100))
 				o_ptr->timeout = rand_int(100) + 100;
@@ -3193,15 +3256,6 @@ void do_cmd_activate(void)
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_FIRE, dir, damroll(9, 8));
 				o_ptr->timeout = rand_int(8) + 8;
-				break;
-			}
-
-			case ART_CORWIN:
-			{
-				msg_print("Your gauntlets are covered in frost...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_COLD, dir, damroll(6, 8));
-				o_ptr->timeout = rand_int(7) + 7;
 				break;
 			}
 
@@ -3488,8 +3542,8 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 70;
 				break;
 			}
-
-			case ART_BRAND:
+			
+			case ART_CUBRAGOL:
 			{
 				msg_print("Your crossbow glows deep red...");
 				(void)brand_bolts();

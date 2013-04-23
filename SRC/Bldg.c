@@ -681,7 +681,7 @@ static bool inn_comm(int cmd)
 			break;
 		case BACT_RUMORS: /* Listen for rumors */
 			{
-				char Rumor[90];
+				char Rumor[1024];
 
 				get_rnd_line("rumors.txt", Rumor);
 				msg_format("%s", Rumor);
@@ -1068,11 +1068,11 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows,
 
 	/* Calculate the min and max damage figures */
 	sprintf(tmp_str, "Attack: %d-%d damage",
-	    mult * (numblows * (o_ptr->dd + o_ptr->to_d + p_ptr->to_d)),
-	    mult * (numblows * (o_ptr->ds * o_ptr->dd + o_ptr->to_d + p_ptr->to_d)));
+	    (numblows * (mult * o_ptr->dd + o_ptr->to_d + p_ptr->to_d)),
+	    (numblows * (mult * o_ptr->ds * o_ptr->dd + o_ptr->to_d + p_ptr->to_d)));
 
 	/* Print the damage */
-	put_str(tmp_str, r, c+8);
+	put_str(tmp_str, r, c + 8);
 }
 
 
@@ -1661,6 +1661,18 @@ static void building_recharge(void)
 	return;
 }
 
+static bool buy_a_house(void)
+{
+	if(p_ptr->houses[p_ptr->town_num]==1)
+	{
+	 	msg_print("You have already bought a house here!");
+	 	return(FALSE);
+	} 
+	msg_print("Enjoy your new house.");
+	msg_print(NULL);
+	p_ptr->houses[p_ptr->town_num]=1;
+	return(TRUE);
+}
 
 /*
  * Execute a building command
@@ -1714,8 +1726,8 @@ static void bldg_process_command(building_type *bldg, int i)
 		switch (bact)
 		{
 			case BACT_NOTHING:
-				/* Do nothing */
-				break;
+				break; 
+			
 			case BACT_RESEARCH_ITEM:
 				paid = identify_fully();
 				break;
@@ -1866,6 +1878,9 @@ static void bldg_process_command(building_type *bldg, int i)
 					msg_print("You feel oddly normal.");
 
 				break;
+			case BACT_BUY_HOUSE:
+				paid = buy_a_house();
+				break;				
 		}
 	}
 
@@ -1923,6 +1938,9 @@ void do_cmd_bldg(void)
 	building_loc = which;
 
 	bldg = &building[which];
+
+      /* Don't re-init the wilderness */
+	reinit_wilderness = FALSE;
 	
 	if ((which == 2) && p_ptr->inside_arena && !p_ptr->exit_bldg)
 	{

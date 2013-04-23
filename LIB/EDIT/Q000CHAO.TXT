@@ -25,7 +25,7 @@ Q:10:T:You have done well. A powerful spellbook awaits you outside.
 F:a:1:10:574
 
 # Floor with Hell hound
-F:b:1:10:829
+F:b:1:10:823
 
 # Shallow lava with Fire elemental
 F:c:86:10:510
@@ -34,7 +34,7 @@ F:c:86:10:510
 F:d:86:10:584
 
 # Deep lava with Great hell wyrm
-F:e:85:10:756
+F:e:85:10:743
 
 # Deep lava
 F:l:85:2

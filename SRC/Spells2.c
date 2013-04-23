@@ -92,13 +92,13 @@ void self_knowledge(void)
 			if (plev > 9)
 				info[i++] = "You enter berserk fury (cost 12).";
 			break;
-		case RACE_AMBERITE:
+		case RACE_DUNADAN:
 			if (plev > 29)
 				info[i++] = "You can Shift Shadows (cost 50).";
 			if (plev > 39)
-				info[i++] = "You can mentally Walk the Pattern (cost 75).";
+				info[i++] = "You can mentally Walk the Straight Road (cost 75).";
 			break;
-		case RACE_BARBARIAN:
+		case RACE_ATAN:
 			if (plev > 7)
 				info[i++] = "You can enter berserk fury (cost 10).";
 			break;
@@ -174,7 +174,6 @@ void self_knowledge(void)
 			if (plev > 19)
 				info[i++] = "You can turn your skin to stone, dur d20+30 (cost 15).";
 			break;
-		case RACE_ZOMBIE:
 		case RACE_SKELETON:
 			if (plev > 29)
 				info[i++] = "You can restore lost life forces (cost 30).";
@@ -187,10 +186,15 @@ void self_knowledge(void)
 				info[i++] = Dummy;
 			}
 			break;
-		case RACE_SPECTRE:
-			if (plev > 3)
+		case RACE_ULGO:
+			if (plev > 9)
 			{
-				info[i++] = "You can wail to terrify your enemies (cost 3).";
+				info[i++] = "You can encase monsters in solid rock (cost 10).";
+			}
+
+			if (plev > 24)
+			{
+				info[i++] = "You can surround yourself with a wall of stone (cost 20).";
 			}
 			break;
 		case RACE_SPRITE:
@@ -1296,7 +1300,7 @@ bool detect_traps(void)
  */
 bool detect_doors(void)
 {
-	int y, x;
+	int y, x, tmp;
 
 	bool detect = FALSE;
 
@@ -1313,13 +1317,25 @@ bool detect_doors(void)
 			/* Detect secret doors */
 			if (c_ptr->feat == FEAT_SECRET)
 			{
-				/* Pick a door XXX XXX XXX */
-				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+				/* Randomly make a found secret door normal or locked - SBF */
+				tmp = rand_int(100);
+					
+				if(tmp <= 49) /* normal door */
+				{
+					/* Pick a door XXX XXX XXX */
+					cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+				}
+		
+				if(tmp > 49) /* locked door */
+				{
+					cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
+				}
 			}
 
 			/* Detect doors */
+			/* changed to <= FEAT_DOOR_TAIL, as locked doors did not show up -SBF */
 			if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-			     (c_ptr->feat <= FEAT_DOOR_HEAD)) ||
+			     (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
 			    ((c_ptr->feat == FEAT_OPEN) ||
 			     (c_ptr->feat == FEAT_BROKEN)))
 			{
@@ -2007,6 +2023,8 @@ bool detect_all(void)
  * Apply a "project()" directly to all viewable monsters
  *
  * Note that affected monsters are NOT auto-tracked by this usage.
+ * To avoid misbehavior when monster deaths have side-effects,
+ * this is done in two passes. -- JDL
  */
 bool project_hack(int typ, int dam)
 {
@@ -2014,8 +2032,7 @@ bool project_hack(int typ, int dam)
 	int     flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
 	bool    obvious = FALSE;
 
-
-	/* Affect all (nearby) monsters */
+	/* Mark all (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
@@ -2029,6 +2046,25 @@ bool project_hack(int typ, int dam)
 
 		/* Require line of sight */
 		if (!player_has_los_bold(y, x)) continue;
+
+		/* Mark the monster */
+		m_ptr->mflag |= (MFLAG_TEMP);
+	}
+
+	/* Affect all marked monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Skip unmarked monsters */
+		if (!(m_ptr->mflag & (MFLAG_TEMP))) continue;
+
+		/* Remove mark */
+		m_ptr->mflag &= ~(MFLAG_TEMP);
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
 
 		/* Jump directly to the target monster */
 		if (project(0, 0, y, x, dam, typ, flg)) obvious = TRUE;
@@ -3767,7 +3803,7 @@ void activate_hi_summon(void)
 				(void)summon_specific(py, px, dun_level, SUMMON_DEMON, TRUE, FALSE, FALSE);
 				break;
 			case 17:
-				(void)summon_specific(py, px, dun_level, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+				(void)summon_specific(py, px, dun_level, SUMMON_SPECIAL, TRUE, FALSE, FALSE);
 				break;
 			case 18: case 19:
 				(void)summon_specific(py, px, dun_level, SUMMON_UNIQUE, TRUE, FALSE, FALSE);

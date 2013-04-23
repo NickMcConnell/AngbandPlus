@@ -14,6 +14,8 @@
 #define SAFE_MAX_ATTEMPTS 5000
 
 int template_race;
+bool not_icky;
+bool has_light;
 
 /*
  * Note that Level generation is *not* an important bottleneck,
@@ -109,6 +111,7 @@ int template_race;
  */
 #define DUN_ROOMS	50	/* Number of rooms to attempt */
 #define DUN_UNUSUAL 194 /* Level/chance of unusual room (was 200) */
+#define DUN_INTERESTING 67 /* 1/chance of interesting room (type 10) -Leon Marrick- */
 #define DUN_DEST    18  /* 1/chance of having a destroyed level */
 #define SMALL_LEVEL 3   /* 1/chance of smaller size (3)*/
 #define EMPTY_LEVEL 15  /* 1/chance of being 'empty' (15)*/
@@ -256,6 +259,7 @@ static dun_data *dun;
 /*
  * Array of room types (assumes 11x11 blocks)
  */
+/* Add ROOM_MAX? */
 static room_data room[] =
 {
 	{  0, 0,  0, 0,  0 },		/*  0 = Nothing */
@@ -268,6 +272,7 @@ static room_data room[] =
 	{  0, 1, -1, 1,  5 },		/*  7 = Lesser vault (33x22) */
 	{ -1, 2, -2, 3, 10 },		/*  8 = Greater vault (66x44) */
 	{  0, 1,  0, 1,  1 },		/*  9 = Circular (22x22) (Dag Arneson) */
+	{  0, 0, -1, 1,  1 },		/* 10 = Interesting (33x22) */ 
 };
 
 
@@ -1122,6 +1127,7 @@ static void vault_monsters(int y1, int x1, int num)
  *   7 -- simple vaults
  *   8 -- greater vaults
  *   9 -- circular rooms
+ *  10 -- interesting rooms
  */
 
 
@@ -2884,8 +2890,16 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 			c_ptr->feat = FEAT_FLOOR;
 			
 			/* Part of a vault */
-			c_ptr->info |= (CAVE_ROOM | CAVE_ICKY);
+			if(!(not_icky))
+			{
+				c_ptr->info |= (CAVE_ROOM | CAVE_ICKY);
+			}
 			
+			if(has_light)
+			{
+				cave[y][x].info |= (CAVE_GLOW);
+			}
+
 			/* Analyze the grid */
 			switch (*t)
 			{
@@ -2925,6 +2939,34 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 			case '^':
 				place_trap(y, x);
 				break;
+			
+			/* Lava. -Leon Marrick- */
+			case 'L':
+				{
+					cave_set_feat(y, x, FEAT_SHAL_LAVA);
+					break;
+				}
+
+			/* Water. -Leon Marrick- */
+			case 'x':
+				{
+					cave_set_feat(y, x, FEAT_SHAL_WATER);
+					break;
+				}
+			
+			/* Tree. -Leon Marrick- */
+			case ';':
+				{
+					cave_set_feat(y, x, FEAT_TREES);
+					break;
+				}
+			
+			/* Rubble. -Leon Marrick- */
+			case ':':
+				{
+					cave_set_feat(y, x, FEAT_RUBBLE);
+					break;
+				}
 			}
 		}
 	}
@@ -2945,6 +2987,56 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 			/* Analyze the symbol */
 			switch (*t)
 			{
+			/* An ordinary monster, object (sometimes good), or trap. -Leon Marrick- */
+				case '1':  
+				{
+					if (rand_int(3) == 0)
+					{
+						place_monster(y, x, TRUE, TRUE);
+					}
+					/* I had not intended this function to create 
+					 * guaranteed "good" quality objects, but perhaps 
+					 * it's better that it does at least sometimes.
+					 */
+					else if (rand_int(2) == 0)
+					{
+						if (rand_int(5) == 0) place_object(y, x, TRUE, FALSE);
+						else place_object(y, x, FALSE, FALSE);
+
+					}
+					else
+					{
+						place_trap(y, x);
+					}
+					break;
+				}
+
+	/* Slightly out of depth monster. -Leon Marrick- */
+				case '2':  
+				{
+					monster_level = base_level + 3;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = base_level;
+					break;
+				}
+	/* Monster and/or object */
+				case '4':
+				{
+					if (rand_int(100) < 50)
+					{
+						monster_level = base_level + 4;
+						place_monster(y, x, TRUE, TRUE);
+						monster_level = base_level;
+					}
+					if (rand_int(100) < 50)
+					{
+						object_level = base_level + 4;
+						place_object(y, x, FALSE, FALSE);
+						object_level = base_level;
+					}
+					break;
+				}
+	
 				/* Monster */
 				case '&':
 				{
@@ -3054,6 +3146,9 @@ static void build_type7(int yval, int xval)
 	vault_type	*v_ptr;
 	int dummy = 0;
 
+	not_icky = FALSE;
+	has_light = FALSE;
+
 	/* Pick a lesser vault */
 	while (dummy < SAFE_MAX_ATTEMPTS)
 	{
@@ -3106,6 +3201,9 @@ static void build_type8(int yval, int xval)
 {
 	vault_type	*v_ptr;
 	int dummy = 0;
+
+	not_icky = FALSE;
+	has_light = FALSE;
 
 	/* Pick a lesser vault */
 	while (dummy < SAFE_MAX_ATTEMPTS)
@@ -3194,6 +3292,40 @@ static void build_type9(int y0, int x0)
 	}
 }
 
+
+/*
+ * Type 10 -- interesting rooms from Oangband &  -Leon Marrick- (see "v_info.txt")
+ */
+static void build_type10(int y0, int x0)
+{
+	vault_type *v_ptr;
+	int dummy = 0;
+
+	not_icky = TRUE;
+	has_light = FALSE;
+
+	if(randint(dun_level) <= 37)
+	{
+		has_light = TRUE;
+	}
+	/* Pick an interesting room */
+	while (dummy < SAFE_MAX_ATTEMPTS)
+	{
+		dummy++;
+
+		/* Access a random vault record */
+		v_ptr = &v_info[rand_int(max_v_idx)];
+
+		/* Accept the first lesser vault */
+		if (v_ptr->typ == 10) break;
+	}
+
+	/* Boost the rating */
+	rating += v_ptr->rat;
+
+	/* Hack -- Build the interesting room (sometimes lit). */
+	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+}
 
 /*
  * Constructs a tunnel between two points
@@ -3603,6 +3735,7 @@ static bool room_build(int y0, int x0, int typ)
 	switch (typ)
 	{
 		/* Build an appropriate room */
+		case 10: build_type10 (y, x); break;
 		case  9: build_type9 (y, x); break;
 		case  8: build_type8 (y, x); break;
 		case  7: build_type7 (y, x); break;
@@ -4566,6 +4699,12 @@ static bool cave_gen(void)
 			if ((k < 100) && room_build(y, x, 9)) continue;
 		}
 
+		/* Attempt an interesting room. -Leon Marrick- */
+		if (randint(DUN_INTERESTING) == 1)
+		{
+			if (room_build(y, x, 10)) continue;
+		}
+
 		/* Attempt a trivial room */
 		if (room_build(y, x, 1)) continue;
 	}
@@ -4759,7 +4898,7 @@ static bool cave_gen(void)
 							else break;
 						}
 
-						if (r_ptr->flags1 & RF1_FRIENDS)
+						if ((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags1 & RF1_FRIEND))
 							group = FALSE;
 						else
 							group = TRUE;

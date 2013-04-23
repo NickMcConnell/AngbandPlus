@@ -13,7 +13,7 @@
 ?:[EQU $QUEST_NUMBER 2]
 %:q0000002.txt
 
-# Druid Shop
+# Necromancer Shop
 ?:[EQU $QUEST_NUMBER 3]
 %:q0000003.txt
 
@@ -33,13 +33,13 @@
 ?:[EQU $QUEST_NUMBER 7]
 %:q0000007.txt
 
-# Oberon
+# Sauron
 ?:[EQU $QUEST_NUMBER 8]
-%:q_oberon.txt
+%:q_sauron.txt
 
-# Serpent of Chaos
+# Morgoth
 ?:[EQU $QUEST_NUMBER 9]
-%:q_serpen.txt
+%:q_morgot.txt
 
 # Node of Sorcery
 ?:[EQU $QUEST_NUMBER 10]
@@ -60,16 +60,16 @@
 %:q_warg.txt
 
 # Eric's Stronghold
-?:[EQU $QUEST_NUMBER 15]
-%:q000eric.txt
+#?:[EQU $QUEST_NUMBER 15]
+#%:q000eric.txt
 
 # Assault on Montsalvat
 ?:[EQU $QUEST_NUMBER 16]
 %:q000dekn.txt
 
 # The City beneath the Sea
-?:[EQU $QUEST_NUMBER 17]
-%:q000lyeh.txt
+# ?:[EQU $QUEST_NUMBER 17]
+# %:q000lyeh.txt
 
 # Water Cave
 ?:[EQU $QUEST_NUMBER 18]

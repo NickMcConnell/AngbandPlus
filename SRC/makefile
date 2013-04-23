@@ -53,14 +53,14 @@ LIBS = -lpc -lalleg
 # Targets
 #
 
-default: zangband.exe
-	copy zangband.exe ..
-	del zangband.exe
+default: sbfband.exe
+	copy sbfband.exe ..
+	del sbfband.exe
 
-install: zangband.exe
-	copy zangband.exe ..
+install: sbfband.exe
+	copy sbfband.exe ..
 
-all: zangband.exe
+all: sbfband.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -68,7 +68,7 @@ all: zangband.exe
 # Link executables
 #
 
-zangband.exe: $(OBJS)
+sbfband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 
@@ -89,6 +89,20 @@ clean:
 
 cleanall: clean
 	del *.exe
+
+
+#
+# Hack -- some file dependencies
+#
+
+HDRS = \
+  h-basic.h \
+  h-define.h h-type.h h-system.h h-config.h
+
+INCS = \
+  angband.h \
+  config.h defines.h types.h externs.h \
+  z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
 
 birth.o: birth.c $(INCS)

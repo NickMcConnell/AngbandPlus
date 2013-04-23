@@ -1,5 +1,6 @@
+=== Introduction to the SBFband (0.1.0) Magic System ===
 
-=== Introduction to the Zangband (2.1.0) Magic System ===
+This magic system debuted in Zangband.
 
 In the official releases of Angband there are only two types magic
 spells:  Magic spells and priestly prayers.  If the character is a
@@ -7,16 +8,16 @@ mage, ranger or a rogue  (s)he can learn magic spells; if (s)he is
 a priest  or  a paladin,  (s)he  can learn prayers.  All mages can 
 learn the same spells and all priests can learn the same spells.
 
-Zangband uses  a more complex "realms of magic" system inspired by
+SBFband uses a more complex "realms of magic" system inspired by
 the commercial fantasy strategy game Master of Magic (Microprose),
+(a real fun game.  Now if they'd only make Master of Magic 2 -SBF)
 which in turn  has supposedly borrowed it from the card game Magic
 the Gathering  (by  Wizards of the Coast).  The  magic system,  as 
-implemented in Zangband,  consists of seven realms:  Life, Sorcery,
-Nature,  Chaos  and Death.  In Zangband 2.1.0, two new realms have
-been added: Arcane and Trump magic. (See later for details.)
+implemented in SBFband,  consists of seven realms:  Life, Sorcery,
+Nature,  Chaos, Death, Arcane, and Trump magic. 
 
-In standard Angband,  the type of a character's spell ability was
-determined  solely by  the  character  class.  In Zangband,   all
+In standard Angband, the type of a character's spell ability was
+determined  solely by  the  character  class.  In SBFband, all
 classes can select one  (or even two)  types  from  the realms of
 magic available. (See  later  for available realms / class.)
 
@@ -33,7 +34,7 @@ let you  directly hurt your enemy,  while others offer spells for
 protection, healing and gathering information.
 
 In standard Angband, there were  9  spellbooks for all spell-
-casters. In Zangband, there are  4  spellbooks per realm. Two
+casters. In SBFband, there are  4  spellbooks per realm. Two
 of them can be bought in a store (Life spellbooks in the town
 temple,  the rest  in  the  magic shop;  of  course the Black 
 market  may  stock   _any_  spellbook).  The new Arcane realm
@@ -41,12 +42,12 @@ is an exception to this rule:  Arcane magic has no high level
 spellbooks;  all Arcane spellbooks can be bought in the magic
 shop. Just as one might expect, Arcane magic lacks the really
 powerful high level spells.
+
 A character  with two realms of magic will thus need to carry
 a maximum of 8 spellbooks  while  a  character with only  one
 realm  of magic (paladins and rogues) will only need to carry
 a maximum of 4 spellbooks.   All realms have  32  spells, and
 each book has 8 spells.
-
 
 
 === Character Classes and Spell Ability  ===
@@ -65,11 +66,10 @@ class can do)  allows  the  best  support  for  experimenting  and
 combining  different  realms,  and, thus,  for  different  playing
 strategies as well.
 
-PRIESTS: There are two types of priests in Zangband:   the  
+PRIESTS: There are two types of priests in SBFband:   the  
 'ordinary' priests who, select Life magic as their primary
 realm,  and the  'dark' priests,  who  select  Death magic 
-instead  of  Life magic.  No  priest  can have both realms
-(unless (s)he was created  in  Zangband 2.0.0  or  2.0.1). 
+instead  of  Life magic.  No  priest  can have both realms. 
 Priests can also select a secondary realm from  the  other 
 five  realms, and should be able to learn all spells in it
 as well,  even if not  as  efficiently as mages.  However, 
@@ -98,7 +98,7 @@ learn, and they are not too fast to learn new spells.
 RANGERS: All rangers are trained in Nature magic, and  all
 Nature spells are available to them. They even learn these
 spells  almost as  fast as  mages.  They can also select a 
-secondary  realm  (from Sorcery,  Arcane,  Trump,  Nature,
+secondary  realm  (from Sorcery,  Arcane,  Trump,  Life,
 Chaos and Death), but they are slow learners  in them, and
 may  find  themselves unable  to learn some of the highest
 level spells.
@@ -230,11 +230,10 @@ an unsurpassable arsenal of attack spells.  The caster can
 also  call  on  the  primal  forces  of  Chaos  to  induce 
 mutations in his / her opponents and even him/herself, but 
 otherwise, Chaos has no protective spells. Beware, though, 
-Chaos spells  are  known  to backfire easily  and  product 
-undesired effects. This is especially true in the  version
-2.1.0 of Zangband and later, where the forces of Chaos can
-easily  twist  the  hapless individual  foolish enough  to
-invoke them, turning them horrendous spawns of Chaos.
+Chaos spells  are  known  to backfire easily  and  produce 
+undesired effects.  The forces of Chaos can easily twist 
+the hapless individual foolish enough to invoke them, 
+turning them horrendous spawns of Chaos.
 
 DEATH: There is no fouler nor more evil category of spells
 than  the necromantic spells of Death Magic.  These spells 
@@ -265,21 +264,20 @@ Secondly,  friendly monsters  are often so eager  to destroy
 your opponents  they may  forget all about you,  and you get
 trampled under their feet as they charge at  your foe.  They
 are not  as smart as  the regular monsters,  since they have
-given  up their free will to serve you.  So don't stand next
-to that Snaga when your pet Cyberdemon brandishes its rocket
-launcher!  Pets are also  rather easily irritable.  Once you
-do something  which causes the slightest discomfort to them,
-they will revert  to their normal behaviour and consider you
-their main target.  This is something to think about  before
-lighting up a room  if you have  pet orcs.  Needless to say,
-nobody wants to be your friend if you are aggravating them.
-Finally,  it takes  a lot of  mental energy  to maintain the
-control over the charmed monsters.  The first monster or the
-first few are 'free', but after that maintaining the control
-will start taxing your mana regain rate.  The higher the sum
-of the levels of your pets the less mana you will be able to
-regain. Keep this in mind if you have a pet which can summon
-or otherwise produce more pets...
+given up their free will to serve you.  Pets are also rather 
+easily irritable.  Once you do something which causes the 
+slightest discomfort to them, they will revert to their 
+normal behaviour and consider you their main target.  This 
+is something to think about before lighting up a room if you 
+have pet orcs.  Needless to say, nobody wants to be your 
+friend if you are aggravating them.  Finally, it takes a lot 
+of mental energy to maintain the control over the charmed 
+monsters.  The first monster or the first few are 'free', 
+but after that maintaining the control will start taxing your 
+mana regain rate.  The higher the sum of the levels of your 
+pets the less mana you will be able to regain. Keep this in 
+mind if you have a pet which can summon or otherwise produce 
+more pets...
 
 
 === Hints and Tips ===

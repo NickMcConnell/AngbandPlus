@@ -1,0 +1,16 @@
+# q_morgot.txt
+
+# Name
+Q:9:N:Morgoth, Lord of Darkness
+
+# Definition
+Q:9:Q:1:0:0:1:100:812:0
+
+# Description for quest
+?:[LEQ $QUEST9 2]
+Q:9:T:Your final quest is the ultimate quest that has always been
+Q:9:T:required of you. You must enter the realm of Morgoth,
+Q:9:T:travel deep, and defeat him.  Be prepared, be patient,
+Q:9:T:and good luck. May the light shine on you.
+?:1
+

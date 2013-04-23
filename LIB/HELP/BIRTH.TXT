@@ -1,7 +1,7 @@
 === Creating a Character ===
 
-Angband is a roleplaying game, in which you, the player, control a character
-in the world of Angband.  Perhaps the most important thing you control is the
+SBFband is a roleplaying game, in which you, the player, control a character
+in the world of SBFband.  Perhaps the most important thing you control is the
 birth of your character, in which you choose or allow to be chosen various
 attributes that will affect the future life of your character.
 
@@ -32,12 +32,12 @@ Each character has three primary attributes, sex, race, and class, that
 are chosen before the character is generated, and which will stay fixed
 for the entire life of that character.  These attributes have many effects,
 which will be mentioned as they come up.  Keep in mind that in the current
-version of Angband, your choice of race may restrict your choice of class.
+version of SBFband, your choice of race may restrict your choice of class.
 
 Each character has a few secondary attributes, height, weight, social class,
 and background history, which are randomly determined, but which are affected
 by the sex and race of the character.  In general, these attributes are only
-used to provide "flavor" to the character, to assist in the roll playing, but
+used to provide "flavor" to the character, to assist in the role playing, but
 they do have a few minor effects on the game.  For example, background history
 affects social class, which affects the amount of money the character will
 start with.  And weight affects carrying capacity and bashing ability.
@@ -76,10 +76,10 @@ class.  As the experience rises, so does the level, and as the level rises,
 certain other abilities and characteristics rise as well.  Deep down inside,
 the real objective of the game is to increase your experience, and certain
 other characteristics, and also to collect useful items, to give you a decent
-chance against the great Serpent of Chaos.  Certain monsters can "drain" your
-experience, and thus your level, which will cause you to lose all of the
-effects of the higher level.  Luckily, you can restore drained experience
-through magical means, or by simply regaining the experience all over again.
+chance against Morgoth.  Certain monsters can "drain" your experience, and 
+thus your level, which will cause you to lose all of the effects of the higher 
+level.  Luckily, you can restore drained experience through magical means, or 
+by simply regaining the experience all over again.
 
 Each character has some gold, which can be used to buy items from the shops
 in the town, and which can be obtained not only from selling items to the
@@ -104,10 +104,25 @@ Each character has spell points, or mana, which represents how many spells
 from your class, level, and intelligence (for spells) or wisdom (for prayers).
 Spell points may be regained by resting, or by a few magical means.
 
+Maximize mode: This allows your stats to go above 18/100, which helps make
+the game easier as the game progresses, but starts out being more difficult.
+
+Preserve mode: This prevents the loss of unidentified artifacts.  This generally
+happens if you leave a dungeon without discovering the artifact.  If the artifact
+has been identified, it is lost forever.  Artifacts in stores count as identified
+artifacts.
+
+Additional quests: Entering a number above 0 creates N (where N is the number
+you entered) random quests at various levels in the dungeon.  A random quest
+consists of killing a number of similar monsters (Ex: Kill 4 hill orcs).  After
+finishing the quest, you will get a good item and be able to go down to the
+next level.  If you choose the Hard Quests option, leaving a dungeon level 
+before completing a quest will make you start the quest over when you return
+to that dungeon level.
 
 === Races ===
 
-There are ten different races that you can choose from in Angband.  Some
+There are thirty different races that you can choose from in SBFband.  Some
 races are restricted as to what profession they may be, and each race has
 its own adjustments to a character's stats and abilities. Most races also
 have intrinsic abilities.
@@ -197,16 +212,14 @@ have intrinsic abilities.
                their strength sustained.  At higher levels, Half-Trolls learn
                to enter a berserk fury, and regenerate wounds automatically.
 
-          Amberites
-               The Amberites are a reputedly immortal race, who are endowed
-               with numerous advantages, not only their longevity.  They are
-               very tough and endurant; their constitution cannot be reduced,
-               and their ability to heal wounds far surpasses that of any
-               other race.  Having seen virtually everything, very little
-               is new to them, and they gain levels much slower than the
-               other races.  But should they advance high enough, they will
-               learn the innate Amberite powers of Pattern Mindwalking and
-               Shadow Shifting.
+          Dunadan
+               Dunedain are a race of hardy men from the West.  This elder
+               race surpasses human abilities in every field, especially
+               constitution.  However, being men of the world, very little is
+               new to them, and levels are very hard to gain...  They can
+               play all classes.  Their constitution cannot be reduced.
+               At higher levels, Dunedain will learn the innate powers of 
+               Straight Road Mindwalking and Shadow Shifting.
 
           High-Elf
                High-elves are a race of immortal beings dating from the
@@ -218,16 +231,18 @@ have intrinsic abilities.
                However, there are few things that they have not seen
                already, and experience is very hard for them to gain.
 
-        Barbarian
-                Barbarians are hardy men of the north. They are fierce in
-                combat, and their wrath is feared throughout the world.
-                Combat is their life: they feel no fear, and they learn
-                to enter battle frenzy at will even sooner than half-trolls.
-                Barbarians are, however, suspicious of magic, which makes
-                magic devices fairly hard for them to use, and also makes
-                it impossible for them to play Mages. They cannot play
-                Paladins, either, because their wild bloodlust is totally
-                incompatible with the strict discipline of knighthood.
+        Atan
+               The Atans are hardy men and women of the east. They are 
+               fierce and their combat skills are feared throughout the world.
+               Combat is their life: they begin their training as soon as they
+               learn to walk, and as a result of this, they feel no fear and 
+               they learn to enter battle frenzy at will even sooner than 
+               half-trolls.  Their combat lust is so strong that the Atans put 
+               themselves in slavery to the Tamuli Empire to prevent wiping 
+               themselves out.  Because Atans are a warrior-like race,  
+               they are not good enough at magic to be a Mage type class. They 
+               cannot play Paladins either because their lust for combat is 
+               totally incompatible with the strict discipline of knighthood.
 
         Half-Ogre
                 Half-Ogres are like Half-Orcs, but only more so. They
@@ -370,17 +385,17 @@ have intrinsic abilities.
                 existent) belly, the potion / food itself will fall through
                 the skeleton's jaws, giving no nutritional benefit.
 
-        Zombie
-                Much like Skeletons, Zombies too are undead horrors: they
-                are resistant to life-draining attacks, and can learn to
-                restore their life-force. Like skeletons, they become
-                resistant to cold-based attacks (actually earlier than
-                skeletons), resist poison and can see invisible. While
-                still vulnerable to cuts (unlike skeletons), Zombies are
-                resistant to Nether. Like golems, they gain very little
-                nutrition from the food of mortals. However, Zombies are,
-                as the name implies, practically mindless: in this company,
-                Groo would seem a genius.
+        Delphae
+                The Delphae's god Edaemus gave the Delphae bodies that
+                could shine with bright light when the other peoples
+                of the world wanted to destroy them.  Edaemus then
+                sealed the valley where the Delphae live to prevent
+                intruders from getting in.  The bright light coming from the
+                Delphae have made them resistant to light and darkness as
+                well.  The Delphae's great ability with magic and prayer
+                make them great mages and priests, but their lack of
+                experience with weapons make them horrible fighters.  At
+                higher levels, Delphae gain the power of Telepathy.
 
         Vampire
                 One of the mightier undead creatures, the Vampire is an
@@ -402,21 +417,30 @@ have intrinsic abilities.
                 Light resistance will, in any case, protect the vampire
                 from the adverse effects of sunlight.
 
-        Spectre
-                Another powerful undead creature: the spectre is a ghastly
-                apparition, surrounded by an unearthly green glow. They exist
-                only partially on our plane of existence: half-corporeal,
-                they can pass through walls, although the density of the
-                wall will hurt them in the process of doing this. The spectre
-                can scream an eldritch howl, which is enough to scare lesser
-                monsters witless. As undead, they have a firm hold on their
-                life force, see invisible, and resist poison and cold. They
-                also resist nether; in fact, their half-corporeal form
-                actually grows stronger from the effects of nether. At
-                higher levels they develop telepathic abilities. Spectres
-                make superb spellcasters, but their physical form is very
-                weak. Like Golems and Zombies, Spectres gain almost no
-                nutrition from ordinary food.
+        Ulgo
+                While most humans of the world had been chosen by a god or
+                goddess, there were groups of humans without a deity.  The
+                deities told these humans to seek the god UL, as he would
+                be their god.  One man, known as Gorim, found UL and asked
+                him for many years to be the god of his people.  One day, UL
+                finally relented and told Gorim to bring his people to him.
+                Only a small group of his people followed Gorim back to UL,
+                where they were given the name Ulgos and land to live on.
+                Gorim was named their leader and since then has become a
+                name and title bestowed upon a baby by UL at the time of birth.
+                When Torak cracked the world with the Orb of Aldur hundreds
+                of years ago, the creatures around the land of the Ulgos went
+                mad, and to protect them, UL showed them the caves beneath the
+                land, where they have lived to this day.  Since then, the Ulgos
+                have learned to see in the dark and have become accustomed to it,
+                as well as the sounds that continuously echo throughout their
+                caves.  UL also granted his people the ability to pass through
+                walls and a higher constitution than other humans.  Because of 
+                their closeness to UL, Ulgos have a wisdom higher than other
+                humans.  Their lack of contact with the outside world, however,
+                has effected their personality with other races.  At higher 
+                levels, Ulgos can create stone walls around themselves and can
+                encase non-unique monsters in stone.
 
         Sprite
                 One of the several fairy races, sprites are very small.
@@ -558,7 +582,9 @@ have intrinsic abilities.
                recommended  for  the  players   who want to cast spells but
                whose mages tend to  die too quickly.   However,  the  power
                does not  come  without  a  price:   Warrior-Mages   require
-               more experience  to  advance levels than any other class.
+               more experience  to  advance levels than any other class.  A
+               good Strength, Intelligence, Dexterity, and Constitution can
+               be very helpful to this class. 
 
           Chaos Warrior
                Chaos Warriors are the feared servants of the terrible Demon
@@ -573,9 +599,11 @@ have intrinsic abilities.
                equipment. Or they might simply ignore him. The Demon  Lords
                of Chaos  are  chaotic and  unpredictable indeed.  The exact
                type of reward depends on  the Patron Demon Lord  (different
-               Demons give different rewards) and chance.
-               Chaos Warriors  are  very good fighters,  but they are  also
-               trained in Chaos magic, and can learn every Chaos spell.
+               Demons give different rewards) and chance.  A good Strength,
+               Intelligence, Dexterity, and Constitution can help out  this
+               class a lot.  Chaos Warriors  are  very good fighters,  but
+               they are  also trained in Chaos magic, and can learn every
+               Chaos spell.
 
           Monk
                The Monk  character class is  very different from all  other
@@ -592,7 +620,8 @@ have intrinsic abilities.
                monastic training even  makes  monks faster than  any  other
                character class!  Fortunately,  also the amount of armour  a
                monk  can  wear,  while  still  fighting  efficiently,  also
-               increases with experience.
+               increases with experience.  The stats of  Strength,  Wisdom,
+               Dexterity, and Constitution can help this  class  out a lot.
                There are three kinds of monasteries: those devoted to Life,
                those devoted to Nature,  and those devoted to Death.  These
                are the three possible realms of magic avaiilable to a monk,
@@ -614,10 +643,12 @@ have intrinsic abilities.
         High Mage
                High  Mages  are  specialist Mages  of the highest order. In
                most respects they are exactly like ordinary Mages, although
-               their  spell stat is slightly higher.   Instead of selecting
-               two realms of magic,  a High Mage selects  only one realm of
-               magic  and  studies it extremely well,   gaining substantial
-               benefits in mana costs, minimum levels and failure rates.
+               their  spell stat is slightly higher.   Because of this,  it
+               would be a good idea to get a  high  Intelligence  for  this
+               class. Instead of selecting two realms of magic, a High Mage 
+               selects  only  one  realm  of magic and studies it extremely
+               well,  gaining  substantial  benefits in mana costs, minimum 
+               levels and failure rates.
  
 
 === Stats ===
@@ -672,7 +703,7 @@ have intrinsic abilities.
                also mean more starting money for the character.
  
 
-=== Abilities (outdated) ===
+=== Abilities ===
 
           Characters possess some different abilities which can  help  them
           to survive.  The starting abilities of a character are based upon
@@ -712,7 +743,8 @@ have intrinsic abilities.
                gaining the first blow.  Also, creatures may fail to  notice
                a  stealthy  character  entirely, allowing a player to avoid
                certain fights.  This skill is based entirely upon race  and
-               class, and will never improve unless magically enhanced.
+               class, and will never go up unless the character is  a  monk,
+               rogue, or ranger.  This skill can also be magically enhanced.
  
           Disarming
                Disarming is the  ability  to  remove  traps  (safely),  and
@@ -748,7 +780,7 @@ have intrinsic abilities.
 
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
-either rather poor (like a zombie mage) or as a concept so silly that they
+either rather poor (like a hobbit ranger) or as a concept so silly that they
 are not recommended. If you pick a combination that is not on the chart,
 don't complain if things don't turn out as you expected them to.
  
@@ -765,7 +797,7 @@ Half-Orc      Yes     No      Yes     Yes     No      No      No      Yes
 Half-Troll    Yes     No      Yes     No      No      No      No      No
 Dunadan       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 High-Elf      Yes     Yes     Yes     Yes     Yes     No      Yes     No
-Barbarian     Yes     No      Yes     Yes     Yes     No      No      Yes
+Atan          Yes     No      No      Yes     Yes     No      No      No
 Half-Ogre     Yes     Yes     Yes     No      No      No      No      No
 Half-Giant    Yes     No      No      No      Yes     No      No      No
 Half-Titan    Yes     Yes     Yes     No      No      Yes     No      No
@@ -780,9 +812,9 @@ Mind Flayer   No      Yes     Yes     No      No      No      Yes     No
 Imp           Yes     Yes     No      Yes     No      No      Yes     Yes
 Golem         Yes     No      No      No      No      No      No      No
 Skeleton      Yes     Yes     Yes     Yes     No      No      No      No
-Zombie        Yes     No      No      No      No      No      No      No
+Delphae       No      Yes     Yes     No      No      No      Yes     No
 Vampire       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
-Spectre       No      Yes     Yes     Yes     No      No      Yes     No
+Ulgo          Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 Sprite        No      Yes     Yes     Yes     Yes     No      Yes     No
 Beastman      Yes     Yes     Yes     Yes     No      No      Yes     Yes
 
@@ -800,7 +832,7 @@ Half-Orc      Yes     No      No
 Half-Troll    No      No      No
 Dunadan       Yes     Yes     Yes
 High-Elf      Yes     Yes     Yes
-Barbarian     No      No      No
+Atan          Yes     No      No
 Half-Ogre     No      No      Yes
 Half-Giant    No      No      No
 Half-Titan    Yes     Yes     Yes
@@ -815,12 +847,11 @@ Mind Flayer   Yes     Yes     Yes
 Imp           Yes     Yes     Yes
 Golem         No      No      No
 Skeleton      Yes     Yes     Yes
-Zombie        No      No      No
+Delphae       Yes     Yes     Yes
 Vampire       Yes     Yes     Yes
-Spectre       Yes     Yes     Yes
+Ulgo          Yes     Yes     Yes
 Sprite        No      Yes     Yes
 Beastman      Yes     Yes     Yes
-
 
 
 
@@ -833,14 +864,14 @@ Beastman      Yes     Yes     Yes
                the player to see walls and objects.  Infra-vision will allow
                a  character  to see any warm-blooded creatures up to a cer-
                tain distance.  This ability works equally well with or with
-               out  a  light source.  The majority of Angband's creatures are
+               out  a  light source.  The majority of SBFband's creatures are
                cold-blooded, and will not be detected unless lit  up  by  a
-               light  source.  Most non human races have innate  infra-vision
-               ability.  Human can gain infra-vision only if it is magically
+               light  source.  Most non-human races have innate  infra-vision
+               ability.  Humans can gain infra-vision only if it is magically
                enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for 2.0.6) ===
+=== Stat Bonus Tables ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
@@ -856,30 +887,29 @@ are listed in the following table.
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +37%
            Amberite    +1   +2   +2   +2   +3   +2      10         +125%
            High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
-           Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
+           Atan        +3   -2   -2   +3   +3    0      11         +60% (*)
            Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
-           Half-Giant  +4   -2   -2   -2   +3   -3      13         +50% (*)
-           Half-Titan  +5   +1   +1   -2   +3   +1      14         +155% (*)
+           Half-Giant  +4   -2   -2   -2   +3   -3      13         +50% 
+           Half-Titan  +5   +1   +1   -2   +3   +1      14         +155%
            Cyclops     +4   -3   -3   -3   +4   -6      13         +30%
            Yeek        -2   +1   +1   +1   -2   -7       7          +0%
-           Klackon     +2   -1   -1   +1   +2   -2      12         +35% (**)
+           Klackon     +2   -1   -1   +1   +2   -2      12         +35% 
            Kobold      +1   -1    0   +1    0   -4       9         +25%
            Nibelung    +1   -1   +2    0   +2   -4      11         +35%
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
            Draconian   +2   +1   +1   +1   +2   -3      11         +150%
            Mind Flayer -3   +4   +4    0   -2   -5       9         +40%
            Imp         -1   -1   -1   +1   +2   -3      10         +10%
-           Golem       +4   -5   -5    0   +4   -4      12         +100% (**)
-           Skeleton     0   -2   -2    0   +1   -4      10         +45% (*)
-           Zombie      +2   -6   -6   +1   +4   -5      13         +35% (*)
-           Vampire     +3   +3   -1   -1   +1   +2      11         +100% (**)
-           Spectre     -5   +4   +4   +2   -3   -6       7         +80% (**)
-           Sprite      -4   +3   +3   +3   -2   +2       7         +75% (**)
-           Beastman    +2   -2   -1   -1   +2   -4      11         +40% (**)
+           Golem       +4   -5   -5   -2   +4   -4      12         +100%
+           Skeleton     0   -2   -2    0   +1   -4      10         +45% 
+           Delphae      0   +3   +3   +1    0   -2      10         +100% (*) 
+           Vampire     +3   +3   -1   -1   +1   +2      11         +100%
+           Ulgo         0    0   +2    0   +2   -2      11         +40% (*)
+           Sprite      -4   +3   +3   +3   -2   +2       7         +75% 
+           Beastman    +2   -2   -1   -1   +2   -4      11         +40% 
 
-                (*) = Changed in 2.0.6.
-                (**) = Changed or new in 2.1.0.
-
+                (*) = New in 0.1.0.
+                
 
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
@@ -895,7 +925,7 @@ are listed in the following table.
            High Mage     -5      +4       0       0      -2      +1
  
  
-=== Ability Tables (updated for 2.0.6) ===
+=== Ability Tables ===
 
  
 
@@ -910,7 +940,7 @@ are listed in the following table.
            Half-Troll   -5   -8   -8   -2   -1   +5   +20  -10    30 feet
            Amberite     +4   +5   +5   +2   +3   +13  +15  +10    None
            High-Elf     +4   +20  +20  +4   +3   +14  +10  +25    40 feet
-           Barbarian    -2   -10  +2   -1   +1   +7   +12  +10    None
+           Atan         +2   -10  +2   +0   +1   +7   +12  +10    None
            Half-Ogre    -3   -5   -5   -2   -1   +5   +20  +0     30 feet
            Half-Giant   -6   -8   -6   -2   -1   +5   +25  +5     30 feet
            Half-Titan   -5   +5   +2   -2   +1   +8   +25  +0     None
@@ -925,9 +955,9 @@ are listed in the following table.
            Imp          -3   +2   -1   +1   -1   +10  +5   -5     30 feet
            Golem        -5   -5   +10  -1   -1   +8   +20  +0     40 feet
            Skeleton     -5   -5   +5   -1   -1   +8   +10  +0     20 feet
-           Zombie       -5   -5   +8   -1   -1   +5   +15  +0     20 feet
+           Delphae      +0   +10  +10  -5   +0   +10  -5   +0     None
            Vampire      +4   +10  +10  +4   +1   +8   +5   +0     50 feet
-           Spectre      +10  +25  +20  +5   +5   +14  -15  -5     50 feet
+           Ulgo         +0   +0   +0   +0   +0   +10  +0   +0     20 feet
            Sprite       +10  +10  +10  +4   +10  +10  -12  +0     40 feet
            Beastman     -5   -2   -1   -1   -1   +5   +12  +5     None
  
@@ -937,35 +967,12 @@ Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45   +0%
 Mage            30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
 Priest          25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
 Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30   +25%
-Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45   +30%
+Ranger          30+8    32+10   28+10   5       24/16   56+30   72+45   +30%
 Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
 Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
 Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
 Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
-Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
+Mindcrafter     30+10   30+10   30+10   2       22/16   50+20   40+30   +25%
 High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
 
   
-
-=== Monks: Attack Types (2.0.6b)
-
-
-Attack Name     Min.lvl Damage  Stun    Notes
------------------------------------------------------------------------------
-Punch           1       1d4     -
-Kick            2       1d6     -
-Strike          3       1d7     -
-Knee            5       2d3     *       Painful to males; likely to stun them
-Elbow           7       1d8     -
-Butt            9       2d5     -
-Ankle Kick      11      3d4     -       May slow down the opponent
-Uppercut        13      4d4     6
-Double-kick     16      5d4     8
-Cat's Claw      20      5d5     -
-Jump Kick       25      5d6     10
-Eagle's Claw    29      6d6     -
-Circle Kick     33      6d8     10
-Iron Fist       37      8d8     10
-Flying Kick     41      8d10    12
-Dragon Fist     45      10d10   16
-Crushing Blow   48      10d12   18

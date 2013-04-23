@@ -1116,12 +1116,12 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		/* Armoury */
 		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
 		{ "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
-		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
+		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_DUNADAN},
 		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
 	},
 	{
 		/* Weapon Smith */
-		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
+		{ "Androl the Fierce",           5000,   210, 115,  6,  6, RACE_ATAN},
 		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
 		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
 		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
@@ -1161,7 +1161,6 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
 		{ "Your home",                          0,      100, 100,  0, 99, 99}
 	},
-
 	{
 		/* Bookstore */
 		{ "Dolaf the Greedy", 10000, 175, 108, 4, 12, RACE_HUMAN},
@@ -1309,8 +1308,8 @@ player_sex sex_info[MAX_SEXES] =
  *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
  *      hitdie, exp base,
  *      Age (Base, Mod),
- *      Male (Hgt, Wgt),
- *      Female (Hgt, Wgt)
+ *      Male (Hgt, Mod, Wgt, Mod),
+ *      Female (Hgt, Mod, Wgt, Mod)
  *      infra,
  *      class-choices
  */
@@ -1406,7 +1405,7 @@ player_race race_info[MAX_RACES] =
                 0x005,
 	},
 	{
-		"Amberite",
+		"Dunadan",
 		{  1,  2,  2,  2,  3,  2 },
 		4,  5,  5,  2, 3, 13, 15, 10,
 		10,  225,
@@ -1428,15 +1427,15 @@ player_race race_info[MAX_RACES] =
 		0x75F,
 	},
 	{
-		"Barbarian",
-		{ 3, -2,  -1,  1,  2, -2 },
-		-2, -10, 2,  -1,  1, 7, 12, 10,
-		11, 120,
+		"Atan",
+		{ 3, -2,  -2,  3,  3, 0 },
+		2, -10, 2, 0, 1, 7, 12, 10,
+		11, 160,
 		14, 8,
 		82, 5, 200, 20,
 		78,  6, 190, 15,
 		0,
-		0x09D,
+		0x119,
 	},
 	{
 		"Half-Ogre",
@@ -1572,7 +1571,7 @@ player_race race_info[MAX_RACES] =
 	},
 	{
 		"Golem",
-		{ 4, -5, -5, 0, 4, -4 },
+		{ 4, -5, -5, -2, 4, -4 },
 		-5, -5, 10, -1, -1, 8, 20, 0,
 		12, 200,
 		1, 100,
@@ -1593,15 +1592,15 @@ player_race race_info[MAX_RACES] =
 		0x70F,
 	},
 	{
-		"Zombie",
-		{ 2, -6, -6, 1, 4, -5 },
-		-5, -5, 8, -1, -1, 5, 15, 0,
-		13, 135,
-		100, 30,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
-		2,
-		0x001,
+		"Delphae",
+		{ 0, 3, 3, 1, 0, -2 },
+		0, 10, 10, -5, 0, 10, -5, 0,
+		10, 200,
+		50, 50,
+		72,  6, 180, 25,
+		66,  4, 150, 20,
+		0,
+		0x746,
 	},
 	{
 		"Vampire",
@@ -1615,15 +1614,15 @@ player_race race_info[MAX_RACES] =
 		0x7FF,
 	},
 	{
-		"Spectre",
-		{ -5, 4, 4, 2, -3, -6 },
-		10, 25, 20, 5, 5, 14, -15, -5,
-		7, 180,
-		100, 30,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
-		5,
-		0x74E,    /* Mage, Priest, Rogue, Warrior-Mage, Monk */
+		"Ulgo",
+		{ 0, 0, 2, 0, 2, -2 },
+		0, 0, 0, 0, 0, 10, 0, 0,
+		11, 140,
+		14, 6,
+		72,  6, 180, 25,
+		66,  4, 150, 20,	
+		2,
+		0x7FF,
 	},
 	{
 		"Sprite",
@@ -1689,15 +1688,15 @@ player_class class_info[MAX_CLASS] =
 		"Rogue",
 		{ 2, 1, -2, 3, 1, -1},
 		45, 32, 28, 5, 32, 24, 60, 66,
-		15, 10, 10, 0,  0,  0, 40, 30,
+		15, 10, 10, 10,  0,  0, 40, 30,
 		6, 25, 20
 	},
 
 	{
 		"Ranger",
 		{ 2, 2, 0, 1, 1, 1},
-		30, 32, 28, 3,  24, 16, 56, 72,
-		8,  10, 10, 0,  0,  0,  30, 45,
+		30, 32, 28, 5,  24, 16, 56, 72,
+		8,  10, 10, 5,  0,  0,  30, 45,
 		4, 30, 20
 	},
 
@@ -1729,14 +1728,14 @@ player_class class_info[MAX_CLASS] =
 		"Monk",
 		{ 2, -1, 1, 3, 2, 1},
 		45, 32, 28, 5, 32, 24, 64, 60,
-		15, 11, 10, 0,  0,  0, 40, 30,
+		15, 11, 10, 5,  0,  0, 40, 30,
 		6, 40, 20
 	},
 
 	{
 		"Mindcrafter",
 		{-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
-		30, 30, 30, 3,  22, 16, 50, 40,
+		30, 30, 30, 2,  22, 16, 50, 40,
 		10, 10, 10, 0,   0,  0, 20, 30,
 		2, 25, 20
 	},
@@ -5811,7 +5810,7 @@ option_type option_info[] =
 	"view_special_lite",            "Use special colors for floor grids (slow)" },
 
 
-	/*** ZAngband options ***/
+	/*** SBFband options ***/
 
 	{ &disturb_other,               TRUE,   5,      0, 25,
 	"disturb_other",                "Disturb whenever random things happen" },
@@ -5849,7 +5848,7 @@ option_type option_info[] =
 	{ &auto_destroy,                FALSE, 5, 5, 3,
 	"auto_destroy",                 "No query to destroy known worthless items" },
 
-	{ &wear_confirm,                FALSE, 5,5, 4,
+	{ &wear_confirm,                FALSE, 5, 5, 4,
 	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
 
 	{ &confirm_stairs,              FALSE, 5, 5, 5,
@@ -5872,6 +5871,9 @@ option_type option_info[] =
 	{ &easy_floor,                 FALSE,  5, 5, 9,
 	"easy_floor",                  "Display floor stacks in a list" },
 #endif /* ALLOW_EASY_FLOOR -- TNB */
+
+	{ &wear_unknown,			 FALSE,  5, 5, 10,
+	"wear_unknown",			 "Confirm to wear/wield unidentified items" },
 
 	{ &vanilla_town,                FALSE, 6,6,0,
 	"vanilla_town",                 "Use 'vanilla' town without quests and wilderness" },

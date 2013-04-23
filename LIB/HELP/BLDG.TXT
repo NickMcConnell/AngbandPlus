@@ -1,28 +1,32 @@
-=== Historical Town View ===
-The town is composed of both stores and buildings. Stores:
+=== Functional Town Overview ===
+The town is composed of both stores and buildings. 
 
-Magic Shop: get your wands and spellbooks here.
+Classical stores:
+Magic Shop: buy your wands, staffs, rings and amulets here.
 Alchemist: for all sorts of bubbling potions and scrolls.
-Weaponsmith: they carry anything sharp and to the point.
-Armorer: to protect from the ravages of the dungeon.
-General Store: food, torches, the necessities.
-Temple Shop: prayerbooks and those items holy.
-Black Market: the prices are high, but item unique.
-Home: To store your precious treasures.
-Make sure you go into the correct door on some buildings.
+Weaponsmith: they deal in anything sharp and to the point.
+Armorer: to offer protection from the ravages of the dungeon.
+General Store: food, torches, ammo, some necessities.
+Temple Trade: those items permitted to the pious in life.
+Black Market: the prices are usurious, but some depths items!
+Home: to store some of your precious treasures.
 
-The Fighter's Hall, Order of Paladins, Ranger's Tavern, House of Thieves, and
-Tower of Illusion are restricted to those involved. The Tower of Sorcery is open
-for rogues and rangers to learn spells. The Temple is open for paladins.
+SBFband additional (if you not prefer Ironman/Vanilla):
+The Fighter's Halls, Order of Paladins, Ranger's Taverns, 
+Gilds of Thieves, and the diverse Towers of magic realms 
+are no longer restricted to the professionels involved. 
+Nevertheless some of the services are exclusive for members. 
+Look out for ambitious quests!
 
-Unique buildings that anyone can enter, if they dare:
-Gambling House: Read the rules before paying. And, the games are not rigged,
-just naturally difficult.
-Library: For information of all kinds.
-Inn: Resting will refresh, and those ghosts prowl at night...
-Rumors can be helpful or just plain silly.
+Buildings that anyone can visit if in need of some diversion:
+Gambling Houses: Read the rules before paying.  The games 
+are not rigged, they are just naturally difficult.
+Authorities: Ask for quests to gain reputation and rewards.
+Libraries: For information indexes of all kinds.
+Inns: Resting will refresh, and those ghosts prowl at night...
+      Rumors will be helpful or just a bit ironic.
+Realty Offices: Buy your home here.  Homes can be expensive!
+
 All buildings are made of stone and unlikely to move around.
 
-This file is no longer 100% acurate for ZAngband 2.2.0.
-
-
+This file is accurate for SBFband 0.1.0.

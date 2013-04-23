@@ -569,6 +569,7 @@ struct monster_type
 	byte fy;			/* Y location on map */
 	byte fx;			/* X location on map */
 
+	byte generation;        /* Remove in version 1 */
 	s16b hp;			/* Current Hit points */
 	s16b maxhp;			/* Max Hit points */
 
@@ -927,8 +928,8 @@ struct player_type
 
 	byte hitdie;		/* Hit dice (sides) */
 	u16b expfact;       /* Experience factor
-						 * Note: was byte, causing overflow for Amberite
-						 * characters (such as Amberite Paladins)
+						 * Note: was byte, causing overflow for Dunedain
+						 * characters (such as Dunedain Paladins)
 						 */
 
 	byte maximize;		/* Maximize stats */
@@ -954,6 +955,7 @@ struct player_type
 	s16b inside_quest;		/* Inside quest level */
 
 	s16b rewards[MAX_BACT];	/* Status of rewards in town */
+	s16b houses[MAX_TOWN]; /* Keeps track if house is owned */
 
 	s32b wilderness_x;	/* Coordinates in the wilderness */
 	s32b wilderness_y;
@@ -1115,6 +1117,7 @@ struct player_type
 	bool bless_blade;	/* Blessed blade */
 	bool xtra_might;	/* Extra might bow */
 	bool impact;		/* Earthquake blows */
+	bool sense;		/* Good pseudo*/
 
 	s16b dis_to_h;		/* Known bonus to hit */
 	s16b dis_to_d;		/* Known bonus to dam */

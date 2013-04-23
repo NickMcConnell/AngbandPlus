@@ -245,7 +245,7 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->flags3 & RF3_EVIL)     flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & RF3_GOOD)     flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & RF3_ANIMAL)   flags3 |= (RF3_ANIMAL);
-		if (r_ptr->flags3 & RF3_AMBERITE) flags3 |= (RF3_AMBERITE);
+		if (r_ptr->flags3 & RF3_SPECIAL)  flags3 |= (RF3_SPECIAL);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & RF1_FORCE_DEPTH) flags1 |= (RF1_FORCE_DEPTH);
@@ -558,7 +558,7 @@ static void roff_aux(int r_idx, int remem)
 		else if (flags3 & RF3_GIANT)    roff(" giant");
 		else if (flags3 & RF3_TROLL)    roff(" troll");
 		else if (flags3 & RF3_ORC)      roff(" orc");
-		else if (flags3 & RF3_AMBERITE) roff(" Amberite");
+		else if (flags3 & RF3_SPECIAL)  roff(" Dunadan");
 		else                            roff(" creature");
 
 		/* Group some variables */
@@ -786,7 +786,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags6 & (RF6_S_HI_UNDEAD))     vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON))     vp[vn++] = "summon Ancient Dragons";
 	if (flags6 & (RF6_S_CYBER))         vp[vn++] = "summon Cyberdemons";
-	if (flags6 & (RF6_S_AMBERITES))     vp[vn++] = "summon Lords of Amber";
+	if (flags6 & (RF6_S_SPECIAL))       vp[vn++] = "summon Dunedain and Deities";
 	if (flags6 & (RF6_S_UNIQUE))        vp[vn++] = "summon Unique Monsters";
 
 	/* Describe spells */
@@ -1370,8 +1370,8 @@ static void roff_aux(int r_idx, int remem)
 	}
 
 
-	/* Notice "Quest" monsters */
-	if (flags1 & RF1_QUESTOR)
+	/* Notice "Quest" monsters but only if you have encountered it. */
+	if ((flags1 & RF1_QUESTOR) && (r_ptr->r_sights))
 	{
 		roff("You feel an intense desire to kill this monster...  ");
 	}

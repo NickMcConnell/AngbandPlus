@@ -532,7 +532,7 @@
 # define VERIFY_TIMESTAMPS
 #endif
 
-/* Zangband options: */
+/* SBFband options: */
 
 /* (see above) */
 #ifndef DRS_SMART_OPTIONS

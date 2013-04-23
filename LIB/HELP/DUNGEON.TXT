@@ -1,7 +1,6 @@
 === The Dungeon ===
 
-
-After you have created your character, you will begin your Angband adventure.
+After you have created your character, you will begin your SBFband adventure.
 Symbols appearing on your screen will represent the dungeon's walls, floor,
 objects, features, and creatures lurking about.  In order to direct your
 character through his adventure, you will enter single character commands
@@ -73,10 +72,10 @@ something you are more comfortable with.
             f   Feline              F   Dragon Fly
             g   Golem               G   Ghost
             h   Humanoids           H   Hybrid
-            i   Icky-Thing          I   Insect
+            i   Icky-Thing          I   Insect/Giant Louse
             j   Jelly               J   Snake
             k   Kobold              K   Killer Beetle
-            l   Giant Louse         L   Lich
+            l   (unused)            L   Lich
             m   Mold                M   Multi-Headed Hydra
             n   Naga                N   (unused)
             o   Orc                 O   Ogre
@@ -99,8 +98,9 @@ something you are more comfortable with.
 
 The town level is where you will begin your adventure.  The town consists of
 eight buildings (each with an entrance), some townspeople, and a wall which
-surrounds the town.  The first time you are in town it will be daytime, but
-note that the sun rises and falls (rather instantly) as time passes.
+surrounds the town.  There may also be some miscellaneous buildings in the
+town.  The first time you are in town it will be daytime, but note that the 
+sun rises and falls (rather instantly) as time passes.
 
 
 === Townspeople ===
@@ -429,38 +429,34 @@ Creatures in the dungeon will generally know and use these secret doors, and
 can often be counted on to leave them open behind them when they pass
 through.
 
-For historical reasons, secret doors are never locked.
-
 
 === Winning The Game ===
 
-Once your character has killed Oberon, who lives on level 99 (4950') in the
+Once your character has killed Sauron, who lives on level 99 (4950') in the
 dungeon, a magical staircase will appear that will finally allow you to reach
-level 100.  The Serpent of Chaos lurks on this level of his dungeon, and you
-will not be able to go below his level until you have killed him.  Try to avoid
-wandering around on level 100 unless you are ready for him, since it has a
+level 100.  Morgoth lurks on this level of his dungeon, and you will not be 
+able to go below his level until you have killed him.  Try to avoid
+wandering around on level 100 unless you are ready for him, since he has a
 habit of coming at you across the dungeon, to slay you for your impudence.
 
-The Serpent of Chaos cannot be killed by some of the easier methods used on
-normal creatures.  The Serpent of Chaos, like all other "Unique" monsters,
-will simply teleport away to another region of the level if you attempt to
-use a spell such as destruction is upon it.   The Serpent of Chaos, like some
-other monsters, cannot be polymorphed, slept, charmed, or genocided.
-Magical spells like Mana Storm and Orb of Draining are effective against it,
-as are some of the more powerful weapons, but it is difficult to kill and if
-allowed to escape for a time it will heal itself rapidly.
+Morgoth cannot be killed by some of the easier methods used on normal creatures.  
+Morgoth, like all other "Unique" monsters, will simply teleport away to another 
+region of the level (and laugh at you ;)) if you attempt to use a spell such as 
+destruction is upon it.  Morgoth, like some other monsters, cannot be polymorphed, 
+slept, charmed, or genocided.  Magical spells like Mana Storm and Orb of Draining 
+are effective against it, as are some of the more powerful weapons, but it is 
+difficult to kill and if allowed to escape for a time it will heal itself rapidly.
 
-If you should actually survive the attempt of killing the Serpent of Chaos,
-you will receive the status of WINNER.  You may continue to explore, and may
-even save the game and play more later, but since you have defeated the
-toughest creature alive, there is really not much point.  Unless you wish to
-listen to the rumors of a powerful ring buried somewhere in the dungeon...
+If you should actually survive the attempt of killing Morgoth, you will receive 
+the status of WINNER.  You may continue to explore, brag on 
+rec.games.roguelike.angband, and may even save the game and play more later, but 
+since you have defeated the toughest creature alive, there is really not much 
+point.  Unless you wish to listen to the rumors of a powerful ring buried somewhere 
+in the dungeon...
 
 When you are ready to retire, simply "commit suicide" ("^K") to have your
 character entered into the high score list as a winner.  Note that until you
-retire, you can still be killed, so you may want to retire before wandering
-into a hoard of Cyberdemons...
-
+retire, you can still be killed.
 
 === Upon Death and Dying ===
  
@@ -475,11 +471,19 @@ case the new character is generated exactly as if the file was not there,
 but the new player will find his monster memory containing all the experience
 of past incarnations.
 
+Savefile scumming consists of making a backup of your save file and using it
+in case of death, bad mutations, etc. is considered cheating.  It is not 
+considered cheating if it is used after a power outage or other non-game
+related incidents do something nasty to your save file.  If savefile
+scumming makes the game more fun for you, go ahead and do it, but if you win
+and post about it on rec.games.roguelike.angband, be sure to note that you
+used savefile scumming.  It is fun to play without savefile scumming, as it
+can get your adrenaline going more than playing with savefile scumming.
 
 === Help ===
 
 The newsgroup "rec.games.roguelike.angband" is a good place to ask various
 questions about both game play and game design, and you can email bug
 reports and such to (benh@phial.com).  Be sure to include the version
-number you are playing in any bug reports.  Zangband specific bug reports
-should be sent to (rr9@angband.org).
+number you are playing in any bug reports.  SBFband specific bug reports
+should be sent to (Sperlock74@yahoo.com).

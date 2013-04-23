@@ -1,4 +1,4 @@
-61
+62
 *********** BUFFER LINE ********************** DO NOT REMOVE *****************
 says: 'I am too young to die.'
 says: 'Ok, ok! I get: no more pals.'
@@ -61,3 +61,4 @@ says: 'Cannot stand this hell I feel!'
 cries: 'Someone help me, oh please God help me!'
 cries: 'Please! I have a mate and six siblings!'
 cries: 'Mama, they try and break me!'
+says: 'I shall return!'

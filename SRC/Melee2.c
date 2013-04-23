@@ -18,6 +18,7 @@
 #include "angband.h"
 
 #define SPEAK_CHANCE 8
+#define MULT_CHANCE 4 /* 1/n chance for monster to multiply */
 #define GRINDNOISE 20
 #define CYBERNOISE 20
 
@@ -723,7 +724,7 @@ static bool get_moves(int m_idx, int *mm)
 	 * Animal packs try to get the player out of corridors
 	 * (...unless they can move through walls -- TY)
 	 */
-		if ((r_ptr->flags1 & RF1_FRIENDS) &&
+		if (((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags1 & RF1_FRIEND)) &&
 			(r_ptr->flags3 & RF3_ANIMAL) &&
 			!((r_ptr->flags2 & RF2_PASS_WALL) ||
 			  (r_ptr->flags2 & RF2_KILL_WALL)))
@@ -754,7 +755,7 @@ static bool get_moves(int m_idx, int *mm)
 		}
 		
 		/* Monster groups try to surround the player */
-		if (!done && (r_ptr->flags1 & RF1_FRIENDS))
+		if (!done && ((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags1 & RF1_FRIEND)))
 		{
 			int i;
 			
@@ -1037,6 +1038,9 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & RF1_NEVER_BLOW) return FALSE;
+
+	/* Wake it up */
+	t_ptr->csleep = 0;
 
 	/* Total armor */
 	ac = tr_ptr->ac;
@@ -1871,7 +1875,7 @@ static void process_monster(int m_idx)
 	
 	/* Attempt to "multiply" if able and allowed */
 	if ((r_ptr->flags2 & RF2_MULTIPLY) && (num_repro < MAX_REPRO))
-	{
+ 	{
 		int k, y, x;
 		
 		/* Count the adjacent monsters */
@@ -1887,16 +1891,19 @@ static void process_monster(int m_idx)
 		if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
 		{
 			/* Try to multiply */
-			if (multiply_monster(m_idx, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
+			if(rand_int(MULT_CHANCE) == 1)
 			{
-				/* Take note if visible */
-				if (m_ptr->ml)
+				if (multiply_monster(m_idx, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
 				{
-					r_ptr->r_flags2 |= (RF2_MULTIPLY);
-				}
+					/* Take note if visible */
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags2 |= (RF2_MULTIPLY);
+					}
 
-				/* Multiplying takes energy */
-				return;
+					/* Multiplying takes energy */
+					return;
+				}
 			}
 		}
 	}
@@ -1920,41 +1927,28 @@ static void process_monster(int m_idx)
 	{
 		char m_name[80];
 		char bravado[80];
-		
-		bool is_groo = !!(strstr(r_name + r_ptr->name, "Groo"));
-		bool is_smeagol = !!(strstr(r_name + r_ptr->name, "Smeagol"));
-		
-		/* Acquire the monster name/poss */
+
+			/* Acquire the monster name/poss */
 		if (m_ptr->ml)
 			monster_desc(m_name, m_ptr, 0);
 		else
 			strcpy(m_name, "It");
-		
-		/* Dump a message */
-		if (is_groo)
-		{
-			if (!m_ptr->monfear)
-				msg_format("%^s says: 'A fray! A fray!'", m_name);
-			
-				/* Why not just msg_print "Groo says fray" ?
-				Well, we could be hallucinating... */
-		}
-		else if (is_smeagol)
-		{
-			if (m_ptr->monfear)
-				get_rnd_line("smeagolr.txt", bravado);
-			else
-				get_rnd_line("smeagol.txt", bravado);
-			msg_format("%^s %s", m_name, bravado);
-		}
-		else
-		{
+
+		/* xtra_line function by Matt Graham--allow uniques to */
+		/* say "unique" things based on their monster index.   */
+		/* Try for the unique's lines in "monspeak.txt" first. */
+		/* 0 is SUCCESS, of course....                         */
+
+		if(get_xtra_line("monspeak.txt",m_ptr,bravado)!=0)
+			{
+			/* Get a message from old defaults if new don't work */
+
 			if (m_ptr->monfear)
 				get_rnd_line("monfear.txt", bravado);
 			else
 				get_rnd_line("bravado.txt", bravado);
-			msg_format("%^s %s", m_name, bravado);
-		}
+			}
+		msg_format("%^s %s", m_name, bravado);
 	}
 
 	/* Attempt to cast a spell */

@@ -1,6 +1,6 @@
 === Attacking and Being Attacked ===
  
-Attacking is simple in Angband.  If you move into a creature, you attack him.
+Attacking is simple in SBFband.  If you move into a creature, you attack him.
 You can attack from a distance by firing a missile or by magical means such
 as aiming a wand.  Creatures attack in the same way.  If they move into you,
 they attack you.  Some creatures can also cast spells from a distance, and
@@ -36,16 +36,16 @@ actually occurs.
 
 === Monster Memories ===
 
-There are hundreds of different creatures in the pits of Angband, many of
-which have the same letter symbol and color on the screen.  The exact species
-of a creature can be discovered by looking at it.  It is also very difficult
-to keep track of the capabilities of various creatures.  Luckily, Angband
-automatically keeps track of your experiences with a particular creature.
-This feature is called the monster memory.  You monster memory recalls the
-particular attacks of each creature (whether or not technically a monster)
-which you have suffered, as well as recalling if you have observed them to
-multiply or move erratically, or drop treasure, etc.  Otherwise you would
-simply have to take notes, which is an unnecessary bother.
+There are hundreds of different creatures in SBFband, many of which have the 
+same letter symbol and color on the screen.  The exact species of a creature 
+can be discovered by looking at it.  It is also very difficult to keep track 
+of the capabilities of various creatures.  Luckily, Angband automatically 
+keeps track of your experiences with a particular creature.  This feature is 
+called the monster memory.  You monster memory recalls the particular attacks 
+of each creature (whether or not technically a monster) which you have suffered, 
+as well as recalling if you have observed them to multiply or move erratically, 
+or drop treasure, etc.  Otherwise you would simply have to take notes, which is 
+an unnecessary bother.
 
 If you have killed enough of a particular creature, or suffered enough
 attacks, recalling the monster memory may also provide you with information
@@ -63,13 +63,13 @@ it in the backpack, and switching it with the primary weapon when needed.
 
 Weapons have two main magical characteristics, their enchanted ability to hit
 and their enchanted ability to do damage, expressed as `(+#,+#)'.  A normal
-weapon would be `(+0,+0)'.  Many weapons in Angband have bonuses to hit
+weapon would be `(+0,+0)'.  Many weapons in SBFband have bonuses to hit
 and/or do damage.  Some weapons are cursed, and have penalties that hurt the
 player.  Cursed weapons cannot be unwielded until the curse is lifted.
 Identifying a weapon will inform you of the magical bonuses and penalties
 and whether or not it is cursed.
 
-Angband assumes that your youth in the rough environment near the dungeons
+SBFband assumes that your youth in the rough environment near the dungeons
 has taught you the relative merits of different weapons, and displays as
 part of their description the damage dice which define their capabilities.
 Any damage enchantment is added to the dice roll for that weapon.  The dice
@@ -89,16 +89,17 @@ are enchanted.
 Although you receive any magical bonuses an unidentified weapon may possess
 when you wield it, those bonuses will not be added in to the displayed
 values of to-hit and to-dam on your character sheet.  You must identify the
-weapon before the displayed values reflect the real values used.
+weapon before the displayed values reflect the real values used.  To-hit
+bonuses increases your chance to hit a monster; to-dam increases the damage
+your weapon does to a monster by adding the bonus after the damage has been
+rolled up.
 
 Finally, some rare weapons have special abilities.  These are called ego
 weapons, and are feared by great and meek.  An ego weapon must be wielded
 to receive the benefit of its abilities.
 
-Ego weapons are denoted by the following "names": (note - these descriptions
-are more or less out of date)
+Ego weapons are denoted by the following "names": 
  
-
 (Defender)
      A magical weapon that actually helps the wielder defend himself, thus
      increasing his/her armour class, and protecting him/her against damage
@@ -109,13 +110,19 @@ are more or less out of date)
      will use up food somewhat faster than normal while wielding such a
      weapon.
 
+(*Defender*)
+     A *Defender* is a more powerful version of a Defender weapon.  Along with
+     the benefits provided by a Defender weapon, the *Defender* weapon provides
+     resistance to poison and a higher dexterity.  It will also protect your 
+     life force. 
+
 (Holy Avenger)
      A Holy Avenger is one of the more powerful of weapons.  A Holy Avenger
      will increase your wisdom and your armour class.  This weapon will do
      extra damage when used against evil, demonic and undead creatures, and
-     will also give you the ability to see invisible creatures.  These
-     weapons are basically extremely powerful versions of Blessed Blades
-     and can be wielded by priests with no penalty.
+     will also give you the ability to see invisible creatures and resistance
+     to fear.  These weapons are basically extremely powerful versions of 
+     Blessed Blades and can be wielded by priests with no penalty.
 
 (Blessed Blade)
      A blessed blade will increase your wisdom.  If you are a priest,
@@ -124,7 +131,8 @@ are more or less out of date)
      will accept your prayers.
 
 Blade of Sharpness
-     These weapons are known to score very deadly hits.
+     These weapons are known to score very deadly hits and can help you
+     tunnel through walls.
 
 (Trump Weapon)
      A trump weapon is a curious object. Its full powers are not known,
@@ -132,10 +140,9 @@ Blade of Sharpness
      wielder gives it the permission for a teleport).
 
 (Chaotic)
-     These bizarre, feared weapons have been manufactured in the Courts
-     of Chaos, and they are powered by the Logrus itself. They are very
-     unpredictable in combat: the Logrus can provide a number of various
-     effects when it touches your opponent.
+     These bizarre, feared weapons have been manufactured by the forces
+     of Chaos. They are very unpredictable in combat: the Chaotic weapon 
+     can provide a number of various effects when it touches your opponent.
 
 (Vampiric)
      These foul weapons have been created by Death magic. They lust for
@@ -166,11 +173,11 @@ Weapon of Westernesse
      also lets you see invisible creatures and protects from paralyzation and
      some slowing attacks.  These blades were made by the Dunedain.
 
-(Pattern Weapon)
-     A Pattern Weapon has been embedded with a fragment of the Pattern. As
-     a result, it is very deadly against the minions of Chaos. A rumour has
-     it that they are at least as powerful as Weapons of Westernesse, or
-     even the weaker artifacts...
+(Order Weapon)
+     An Order Weapon has been embedded with the essence of Order. As a result, 
+     it is very deadly against the minions of Chaos. Rumour has it that they 
+     are at least as powerful as Weapons of Westernesse, or even the weaker 
+     artifacts...
 
 Weapon of Slay Dragon
      A Slay Dragon weapon is a special purpose weapon whose sole intent is
@@ -228,9 +235,19 @@ Apart from these there are some very rare and well made blades in the
 dungeon with not necessarily any special abilities. These include Blades
 of Chaos, Maces of Disruption, and Scythes of Slicing.  They can also be
 ego weapons like the ones above.  For example, a Blade of Chaos (Holy
-Avenger) is much more powerful than many artifact weapons!
+Avenger) is much more powerful than many artifact weapons!  The above
+weapons may have other hidden abilities.  Reading a Scroll of *Identify*
+or visiting a library may provide you with more information on these
+weapons.
 
-For artifact weapons, see "rumors.hlp".
+Note: There may be ego weapons yet to be discovered!
+
+Artifact weapons are even more powerful than ego weapons and are never
+found in stores unless it is a randomly created artifact.  Reading a
+Scroll of *Identify* or visiting a library will provide you with 
+information about the artifact.  If the artifact is for sale in a store,
+you may examine it by pressing the 'x' key, followed by the letter that
+corresponds to the artifact.
 
 
 === Body and Shield Bashes ===
@@ -357,6 +374,44 @@ Apart from these there are some very rare, and well made armours in the
 dungeon with not necessarily any special abilities. These include Shields of
 Deflection, Adamantite Plate Mail, Mithril Plate Mail, Mithril Chain Mail,
 and Shadow Cloaks.  The first four cannot be damaged by acid because of the
-quality metals they contain.
+quality metals they contain.  There many more ego armours to be found!
+
+Artifact armours are even more powerful than ego armours and are never
+found in stores unless it is a randomly created artifact.  Reading a
+Scroll of *Identify* or visiting a library will provide you with 
+information about the artifact.  If the artifact is for sale in a store,
+you may examine it by pressing the 'x' key, followed by the letter that
+corresponds to the artifact.
 
 
+=== Wands and Rods ===
+
+While exploring in SBFband, you may come across wands and rods that can do
+anything from help a monster to hurting it!  Wands come with a limited
+number of charges and generally do more damage than their rod equivalent.
+Rods have no limit to how many times they can be used but must recharge
+after one usage.  Because of the magic used to make the rod have unlimited
+uses, the damage done by rods is generally less than their wand equivalent.
+
+
+=== Monks: Attack Types (0.1.0) ===
+
+Attack Name     Min.lvl Damage  Stun    Notes
+-----------------------------------------------------------------------------
+Punch           1       1d4     -
+Kick            2       1d6     -
+Strike          3       1d7     -
+Knee            5       2d3     *       Painful to males; likely to stun them
+Elbow           7       1d8     -
+Butt            9       2d5     -
+Ankle Kick      11      3d4     -       May slow down the opponent
+Uppercut        13      4d4     6
+Double-kick     16      5d4     8
+Cat's Claw      20      5d5     -
+Jump Kick       25      5d6     10
+Eagle's Claw    29      6d6     -
+Circle Kick     33      6d8     10
+Iron Fist       37      8d8     10
+Flying Kick     41      8d10    12
+Dragon Fist     45      10d10   16
+Crushing Blow   48      10d12   18

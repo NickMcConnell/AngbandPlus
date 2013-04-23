@@ -150,6 +150,16 @@ static void sense_inventory(void)
 			{
 				/* Very bad (light) sensing */
 				if (0 != rand_int(240000L / (plev + 5))) return;
+				
+				if(p_ptr->sense == TRUE) /* has ring of sensing */
+				{
+					heavy = TRUE;
+				}
+
+				if(p_ptr->sense == FALSE)
+				{
+					heavy = FALSE;
+				}
 
 				/* Done */
 				break;
@@ -159,6 +169,16 @@ static void sense_inventory(void)
 			{
 				/* Good (light) sensing */
 				if (0 != rand_int(10000L / (plev * plev + 40))) return;
+
+				if(p_ptr->sense == TRUE) /* has ring of sensing */
+				{
+					heavy = TRUE;
+				}
+
+				if(p_ptr->sense == FALSE)
+				{
+					heavy = FALSE;
+				}
 
 				/* Done */
 				break;
@@ -205,6 +225,16 @@ static void sense_inventory(void)
 				/* Bad sensing */
 				if (0 != rand_int(75000L / (plev * plev + 40))) return;
 
+				if(p_ptr->sense == TRUE) /* has ring of sensing */
+				{
+					heavy = TRUE;
+				}
+
+				if(p_ptr->sense == FALSE)
+				{
+					heavy = FALSE;
+				}
+
 				/* Done */
 				break;
 			}
@@ -213,6 +243,16 @@ static void sense_inventory(void)
 			{
 				/* Bad sensing */
 				if (0 != rand_int(55000L / (plev * plev + 40))) return;
+
+				if(p_ptr->sense == TRUE) /* has ring of sensing */
+				{
+					heavy = TRUE;
+				}
+
+				if(p_ptr->sense == FALSE)
+				{
+					heavy = FALSE;
+				}
 
 				/* Done */
 				break;
@@ -234,6 +274,16 @@ static void sense_inventory(void)
 			{
 				/* Okay sensing */
 				if (0 != rand_int(20000L / (plev * plev + 40))) return;
+
+				if(p_ptr->sense == TRUE) /* has ring of sensing */
+				{
+					heavy = TRUE;
+				}
+
+				if(p_ptr->sense == FALSE)
+				{
+					heavy = FALSE;
+				}
 
 				/* Done */
 				break;
@@ -398,11 +448,11 @@ static void wreck_the_pattern(void)
 		return;
 	}
 
-	msg_print("You bleed on the Pattern!");
+	msg_print("You bleed on the Straight Road!");
 	msg_print("Something terrible happens!");
 
 	if (!p_ptr->invuln)
-		take_hit(damroll(10, 8), "corrupting the Pattern");
+		take_hit(damroll(10, 8), "corrupting the Straight Road");
 
 	to_ruin = randint(45) + 35;
 
@@ -427,7 +477,7 @@ static bool pattern_effect(void)
 	    (cave[py][px].feat > FEAT_PATTERN_XTRA2))
 		return FALSE;
 
-	if ((p_ptr->prace == RACE_AMBERITE) &&
+	if ((p_ptr->prace == RACE_DUNADAN) &&
 	    (p_ptr->cut > 0) && (randint(10) == 1))
 	{
 		wreck_the_pattern();
@@ -450,7 +500,7 @@ static bool pattern_effect(void)
 		(void)restore_level();
 		(void)hp_player(1000);
 		cave_set_feat(py, px, FEAT_PATTERN_OLD);
-		msg_print("This section of the Pattern looks less powerful.");
+		msg_print("This section of the Straight Road looks less powerful.");
 	}
 
 
@@ -472,14 +522,14 @@ static bool pattern_effect(void)
 	else if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
 	{
 		if (!p_ptr->invuln)
-		take_hit(200, "walking the corrupted Pattern");
+		take_hit(200, "walking the corrupted Straight Road");
 	}
 	else
 	{
-		if ((p_ptr->prace == RACE_AMBERITE) && (randint(2) != 1))
+		if ((p_ptr->prace == RACE_DUNADAN) && (randint(2) != 1))
 			return TRUE;
 		else if (!p_ptr->invuln)
-			take_hit(damroll(1,3), "walking the Pattern");
+			take_hit(damroll(1,3), "walking the Straight Road");
 	}
 
 	return TRUE;
@@ -1046,10 +1096,10 @@ static void process_world(void)
 		}
 	}
 
-	/* Spectres -- take damage when moving through walls */
+	/* Ulgos -- take damage when moving through walls */
 	/*
 	 * Added: ANYBODY takes damage if inside through walls
-	 * without wraith form -- NOTE: Spectres will never be
+	 * without wraith form -- NOTE: Ulgos will never be
 	 * reduced below 0 hp by being inside a stone wall; others
 	 * WILL BE!
 	 */
@@ -1061,13 +1111,13 @@ static void process_world(void)
 			/* Do nothing */
 		}
 		else if (!p_ptr->invuln && !p_ptr->wraith_form &&
-		    ((p_ptr->chp > (p_ptr->lev / 5)) || (p_ptr->prace != RACE_SPECTRE)))
+		    ((p_ptr->chp > (p_ptr->lev / 5)) || (p_ptr->prace != RACE_ULGO)))
 		{
 			cptr dam_desc;
 
 			cave_no_regen = TRUE;
 
-			if (p_ptr->prace == RACE_SPECTRE)
+			if (p_ptr->prace == RACE_ULGO)
 			{
 				msg_print("Your molecules feel disrupted!");
 				dam_desc = "density";
@@ -1893,18 +1943,6 @@ static void process_world(void)
 		}
 	}
 
-	/* Rarely, take damage from the Jewel of Judgement */
-	if ((randint(999) == 1) && !p_ptr->anti_magic)
-	{
-		if ((inventory[INVEN_LITE].tval) && !p_ptr->invuln &&
-		    (inventory[INVEN_LITE].sval == SV_LITE_THRAIN))
-		{
-			msg_print("The Jewel of Judgement drains life from you!");
-			take_hit(MIN(p_ptr->lev, 50), "the Jewel of Judgement");
-		}
-	}
-
-
 	/* Process equipment */
 	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -2054,7 +2092,7 @@ static void process_world(void)
 			/* Determine the level */
 			if (dun_level || p_ptr->inside_quest)
 			{
-				msg_print("You feel yourself yanked upwards!");
+				msg_print("You are suddenly yanked upwards!");
 
 				dun_level = 0;
 
@@ -2064,7 +2102,7 @@ static void process_world(void)
 			}
 			else
 			{
-				msg_print("You feel yourself yanked downwards!");
+				msg_print("You are suddenly yanked downwards!");
 
 				/* New depth */
 				dun_level = p_ptr->max_dlv;
@@ -3846,9 +3884,7 @@ void play_game(bool new_game)
 
 		/* Hack -- enter the world */
 		if ((p_ptr->prace == RACE_VAMPIRE) ||
-		    (p_ptr->prace == RACE_SKELETON) ||
-		    (p_ptr->prace == RACE_ZOMBIE) ||
-		    (p_ptr->prace == RACE_SPECTRE))
+		    (p_ptr->prace == RACE_SKELETON))
 		{
 			/* Undead start at midnight */
 			turn = (30L * TOWN_DAWN) / 4;

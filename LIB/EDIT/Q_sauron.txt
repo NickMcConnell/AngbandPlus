@@ -1,0 +1,15 @@
+# q_sauron.txt
+
+# Name
+Q:8:N:Sauron
+
+# Definition
+Q:8:Q:1:0:0:1:99:811:0
+
+# Description for quest
+?:[LEQ $QUEST8 2]
+Q:8:T:It is time to take the battle to Morgoth. But, before you can
+Q:8:T:reach him, you must find and kill Sauron.  Only after defeating
+Q:8:T:the powerful sorcerer, will the stairs leading to Morgoth's
+Q:8:T:lair be opened.
+?:1

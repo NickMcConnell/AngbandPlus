@@ -147,8 +147,7 @@ static void cmd_racial_power_aux(s32b command)
 {
 	s16b        plev = p_ptr->lev;
 	int         dir = 0;
-
-
+	
 	switch (p_ptr->prace)
 	{
 		case RACE_DWARF:
@@ -208,12 +207,12 @@ static void cmd_racial_power_aux(s32b command)
 			}
 			break;
 
-		case RACE_AMBERITE:
+		case RACE_DUNADAN:
 			if (command == -2)
 			{
 				if (racial_aux(40, 75, A_WIS, 50))
 				{
-					msg_print("You picture the Pattern in your mind and walk it...");
+					msg_print("You picture the Straight Road in your mind and walk it...");
 					(void)set_poisoned(0);
 					(void)set_image(0);
 					(void)set_stun(0);
@@ -233,19 +232,28 @@ static void cmd_racial_power_aux(s32b command)
 			else if (command == -1)
 			{
 				if (racial_aux(30, 50, A_INT, 50))
-				{
-					msg_print("You start walking around. Your surroundings change.");
+				{	
+					/* No effect in arena or quest */
+					if (p_ptr->inside_arena || p_ptr->inside_quest)
+					{
+						msg_print("There is no effect.");
+					}
+					else
+					{
+						msg_print("You start walking around. Your surroundings change.");
 
-					if (autosave_l) do_cmd_save_game(TRUE);
+						if (autosave_l) do_cmd_save_game(TRUE);
 
-					/* Leaving */
-					p_ptr->leaving = TRUE;
+						/* Leaving */
+						p_ptr->leaving = TRUE;
+					}
 				}
 			}
 			break;
 
-		case RACE_BARBARIAN:
-			if (racial_aux(8, 10, A_WIS, (p_ptr->pclass == CLASS_WARRIOR ? 6 : 12)))
+		/* Hack: Since the Atans don't have as much wis, it has been switched to int. */
+		case RACE_ATAN:
+			if (racial_aux(8, 10, A_INT, (p_ptr->pclass == CLASS_WARRIOR ? 6 : 12)))
 			{
 				msg_print("Raaagh!");
 				(void)set_afraid(0);
@@ -484,7 +492,6 @@ static void cmd_racial_power_aux(s32b command)
 			break;
 
 		case RACE_SKELETON:
-		case RACE_ZOMBIE:
 			if (racial_aux(30, 30, A_WIS, 18))
 			{
 				msg_print("You attempt to restore your lost energies.");
@@ -532,12 +539,89 @@ static void cmd_racial_power_aux(s32b command)
 			}
 			break;
 
-		case RACE_SPECTRE:
-			if (racial_aux(4, 6, A_INT, 3))
+		case RACE_ULGO:
+			if(command == -2)
 			{
-				msg_print("You emit an eldritch howl!");
-				if (!get_aim_dir(&dir)) break;
-				(void)fear_monster(dir, plev);
+				if (racial_aux(25, 20, A_WIS, 12))
+				{
+					msg_print("You surround yourself with walls!");
+					wall_stone();
+				}
+			}
+	
+			else if(command == -1)
+			{
+				if(racial_aux(10, 10, A_STR, 15))
+				{
+					bool find_wall = FALSE;
+					cave_type *c_ptr;
+					monster_type *m_ptr = &m_list[c_ptr->m_idx];
+					monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+					int y, x, oldx, oldy, chance = 0;
+
+					/* Code by Dark God with some additions by SBF */
+					/* Only works on adjacent monsters */
+					if (!get_rep_dir(&dir)) break;
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+					c_ptr = &cave[y][x];
+
+					/* check for monster; can't do this on uniques */
+					if ((!(c_ptr->m_idx)) || (r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags3 & RF3_UNIQUE_7))
+					{
+				        	msg_print("You can only use this on a non-unique monster!");
+				        	break;
+					}
+					
+					oldx = x;
+					oldy = y;
+
+					for(y = -1; y <= 1; y++)
+                			{
+                        		for(x = -1; x <= 1; x++)
+                        		{
+                                		c_ptr = &cave[y + py][x + px];
+
+                                		/* This can only be done with stone features */ 							if((c_ptr->feat == FEAT_MOUNTAIN) || (c_ptr->feat == FEAT_PERM_EXTRA) || (c_ptr->feat == FEAT_MAGMA) || (c_ptr->feat == FEAT_QUARTZ) || (c_ptr->feat == FEAT_MAGMA_H) || (c_ptr->feat == FEAT_QUARTZ_H) || (c_ptr->feat == FEAT_MAGMA_K) || (c_ptr->feat == FEAT_QUARTZ_K) || (c_ptr->feat == FEAT_WALL_EXTRA) || (c_ptr->feat == FEAT_WALL_INNER) || (c_ptr->feat == FEAT_WALL_OUTER) || (c_ptr->feat == FEAT_WALL_SOLID) || (c_ptr->feat == FEAT_PERM_EXTRA) || (c_ptr->feat == FEAT_PERM_INNER) || (c_ptr->feat == FEAT_PERM_OUTER) || (c_ptr->feat == FEAT_PERM_SOLID)) 
+							{
+								/* Put all the other types */
+                                        		find_wall = TRUE;
+                                        		break;
+                                		}
+                        		}
+		                	}
+
+					if(find_wall)
+                			{
+						if(r_ptr->flags2 & RF2_PASS_WALL)
+						{
+							msg_print("The monster laughs at your futile attempt to encase it in stone.");
+							break;
+						}
+						
+						/* The deeper the monster, the tougher it is to encase */
+						/* them.  Town level monsters are always encased. */
+						chance=randint(100);
+						if(chance > (r_ptr->level))
+						{
+                        			msg_print("You encase the monster in stone!");
+                        			delete_monster(oldy, oldx);
+						}
+						
+						else
+						{
+							msg_print("The monster escapes your grasp!");
+							break;
+						}
+						
+                			}
+                			else
+                			{
+                        		msg_print("You see no stone to encase the monster in!");
+						break;
+                			}
+				}
 			}
 			break;
 
@@ -651,19 +735,19 @@ void do_cmd_racial_power(void)
 			power_desc[0].fail = 100 - racial_chance(10, A_WIS, (warrior ? 6 : 12));
 			has_racial = TRUE;
 			break;
-		case RACE_BARBARIAN:
+		case RACE_ATAN:
 			strcpy(power_desc[0].name, "berserk");
 			power_desc[0].level = 8;
 			power_desc[0].cost = 10;
-			power_desc[0].fail = 100 - racial_chance(8, A_WIS, (warrior ? 6 : 12));
+			power_desc[0].fail = 100 - racial_chance(8, A_INT, (warrior ? 6 : 12));
 			has_racial = TRUE;
 			break;
-		case RACE_AMBERITE:
+		case RACE_DUNADAN:
 			strcpy(power_desc[0].name, "Shadow Shifting");
 			power_desc[0].level = 30;
 			power_desc[0].cost = 50;
 			power_desc[0].fail = 100 - racial_chance(30, A_INT, 50);
-			strcpy(power_desc[1].name, "Pattern Mindwalking");
+			strcpy(power_desc[1].name, "Straight Road Mindwalking");
 			power_desc[1].level = 40;
 			power_desc[1].cost = 75;
 			power_desc[1].fail = 100 - racial_chance(40, A_WIS, 50);
@@ -706,11 +790,17 @@ void do_cmd_racial_power(void)
 			power_desc[0].fail = 100 - racial_chance(15, A_WIS, 10);
 			has_racial = TRUE;
 			break;
-		case RACE_SPECTRE:
-			strcpy(power_desc[0].name, "scare monster");
-			power_desc[0].level = 4;
-			power_desc[0].cost = 6;
-			power_desc[0].fail = 100 - racial_chance(4, A_INT, 3);
+		case RACE_ULGO:
+			strcpy(power_desc[0].name, "encase monster");
+			power_desc[0].level = 10;
+			power_desc[0].cost = 10;
+			power_desc[0].fail = 100 - racial_chance(10, A_STR, 15); 
+			strcpy(power_desc[1].name, "wall of stone");
+			power_desc[1].level = 25;
+			power_desc[1].cost = 20;
+			power_desc[1].fail = 100 - racial_chance(25, A_WIS, 12);
+			power_desc[1].number = -2;
+			num++;
 			has_racial = TRUE;
 			break;
 		case RACE_KLACKON:
@@ -763,7 +853,6 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 		case RACE_SKELETON:
-		case RACE_ZOMBIE:
 			strcpy(power_desc[0].name, "restore life");
 			power_desc[0].level = 30;
 			power_desc[0].cost = 30;

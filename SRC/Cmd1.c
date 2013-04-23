@@ -411,7 +411,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
  */
 void search(void)
 {
-	int y, x, chance;
+	int y, x, chance, tmp;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -464,9 +464,21 @@ void search(void)
 				{
 					/* Message */
 					msg_print("You have found a secret door.");
-
-					/* Pick a door XXX XXX XXX */
-					cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+					gain_exp(1);
+					
+					/* Randomly make a found secret door normal or locked - SBF */
+					tmp = rand_int(100);
+					
+					if(tmp <= 49) /* normal door */
+					{
+						/* Pick a door XXX XXX XXX */
+						cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+					}
+		
+					if(tmp > 49) /* locked door */
+					{
+						cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
+					}
 
 					/* Disturb */
 					disturb(0, 0);
@@ -1725,7 +1737,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 		if (!pattern_tile(c_y, c_x) &&
 		    !p_ptr->confused && !p_ptr->stun && !p_ptr->image)
 		{
-			if (get_check("If you start walking the Pattern, you must walk the whole way. Ok? "))
+			if (get_check("If you start walking the Straight Road, you must walk the whole way. Ok? "))
 				return TRUE;
 			else
 				return FALSE;
@@ -1743,7 +1755,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 		}
 		else
 		{
-			msg_print("You must start walking the Pattern from the startpoint.");
+			msg_print("You must start walking the Straight Road from the startpoint.");
 			return FALSE;
 		}
 	}
@@ -1758,7 +1770,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 			return TRUE;
 		else
 		{
-			msg_print("You must walk the Pattern in correct order.");
+			msg_print("You must walk the Straight Road in correct order.");
 			return FALSE;
 		}
 	}
@@ -1768,7 +1780,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 	{
 		if (!pattern_tile(n_y, n_x))
 		{
-			msg_print("You may not step off from the Pattern.");
+			msg_print("You may not step off from the Straight Road.");
 			return FALSE;
 		}
 		else
@@ -1780,7 +1792,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 	{
 		if (!pattern_tile(c_y, c_x))
 		{
-			msg_print("You must start walking the Pattern from the startpoint.");
+			msg_print("You must start walking the Straight Road from the startpoint.");
 			return FALSE;
 		}
 		else
@@ -1802,7 +1814,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 					break;
 				default:
 					if (wizard)
-						msg_format("Funny Pattern walking, %d.", cave[c_y][c_x]);
+						msg_format("Funny Straight Road walking, %d.", cave[c_y][c_x]);
 					return TRUE; /* Goof-up */
 			}
 
@@ -1812,9 +1824,9 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 			else
 			{
 				if (!pattern_tile(n_y, n_x))
-					msg_print("You may not step off from the Pattern.");
+					msg_print("You may not step off from the Straight Road.");
 				else
-					msg_print("You must walk the Pattern in correct order.");
+					msg_print("You must walk the Straight Road in correct order.");
 
 				return FALSE;
 			}
@@ -1829,7 +1841,7 @@ bool player_can_enter(byte feature)
 	bool pass_wall;
 
 	/* Player can not walk through "walls" unless in Shadow Form */
-	if (p_ptr->wraith_form || (p_ptr->prace == RACE_SPECTRE))
+	if (p_ptr->wraith_form || (p_ptr->prace == RACE_ULGO))
 		pass_wall = TRUE;
 	else
 		pass_wall = FALSE;
@@ -2004,7 +2016,7 @@ void move_player(int dir, int do_pickup)
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
-	if (p_ptr->wraith_form || (p_ptr->prace == RACE_SPECTRE))
+	if (p_ptr->wraith_form || (p_ptr->prace == RACE_ULGO))
 		p_can_pass_walls = TRUE;
 	if ((cave[y][x].feat >= FEAT_PERM_EXTRA) &&
 	    (cave[y][x].feat <= FEAT_PERM_SOLID))

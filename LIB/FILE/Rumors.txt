@@ -1,4 +1,4 @@
-297
+323
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 They say that you can't trust rumors.
 You have no more Black Potions of Death.
@@ -8,8 +8,8 @@ They say that handsome guys hang around at 1200'.
 They say that a visit to 3250' can be quite an experience.
 They say that a visit to 3250' will only get you killed.
 Throw a Potion of Blindness at a monster and it cannot cast any spells!
-Oberon is afraid that you will upset the balance even more!
-Oberon won't let you near the Serpent of Chaos.
+This space has been intentionally left blank.
+If you can read this, you're too darn close.
 MAKE MONEY FAST! Find a Treasure Pit!
 Not satisfied with the artifacts you find? Then create your own!
 Beware of Lobo, the mad killer!
@@ -23,7 +23,7 @@ There are Black Market stores hidden deep in the dungeon, with COOL stuff!
 Have you ever seen a Rod of Havoc inscribed {BFG9000}?
 What a pity, you cannot read it!
 You will encounter a dark, tall stranger...
-Brand has caused the disaster: kill him and it will go away.
+Torak has caused the disaster: kill him and it will go away.
 A Mithril mail will not rust.
 An Adamantite mail will not rust.
 A Rusty Chain Mail cannot rust any further.
@@ -65,13 +65,13 @@ Wanted: Smurfs. Good reward. Contact: Gargamel, 400'.
 Beware the Jabberwock, my son! The jaws that bite, the claws that catch...
 There's something bad about what you are carrying in your backpack...
 Thieves are more likely to appear if you are carrying a lot of money.
-Brand's sword, Werewindle, probably knows more than just one trick.
+Connection closed by foreign host.
 They say that Scrolls of *Curse Weapon* can create powerful cursed artifacts.
 They say that Mjollnir will return to your hand if you throw it.
 They say that the Chainsword makes monsters mad with its awful noise!
 They say that Ringil shines so brightly that it makes monsters angry.
-They say that you cannot defeat the Serpent of Chaos without its missing eye.
-They say that all Pattern weapons are deadly against Demons of Chaos.
+They say that you cannot defeat Torak without a special sword.
+They say that all Order weapons are deadly against Demons of Chaos.
 Klingsor's Castle was destroyed by the the holy might of the Spear of Destiny.
 Orcs are mortally afraid of weapons that can slay them.
 There is a way to turn a Ring of Speed (-20) into a Ring of Speed (+20).
@@ -131,7 +131,7 @@ A weapon of Dragon Slaying may give you resistance to a dragon's breath attack.
 They say that only a Warrior will want to wear the Terror Mask.
 All that is shall come to an end - a dark day dawns for the gods.
 The One Ring is powerful, but will eventually destroy its owner.
-The Jewel of Judgement is actually the other eye of the Serpent of Chaos.
+Chests may contain very useful things.
 Having troubles with summoners? Door Creation is your friend!
 Stairway Creation may be slower than Teleport Level, but safer...
 I hid the Jewel in a vault at 4700'. To find it, you need to:
@@ -141,7 +141,7 @@ If it can't see you, it can't hurt you!
 If it can't see you, you might still be able to hurt it...
 The Jedi Holocron is the best artifact light source there is.
 I love you, you love me, we are a happy family!
-Even *you* can become a Living Trump with the right treatment.
+Must...reach...utility belt!
 No animal is interested in sex if it is mortally scared.
 Use the Force!
 The butler did it.
@@ -161,10 +161,10 @@ Wotan (Odin) carved his Runespear from a branch of the World-Tree Ash.
 Groo may be as dumb as an amoeba, but he knows a good sword when he sees one.
 Hagen slew Siegfried with his spear, stealthily sneaking behind him.
 Powerful spells are bound in the Runes of Wotan's Spear.
-Flora's sexy boots will make you more attractive.
-Flora's sexy boots will cause the monsters to drool on you.
-They say that Caine is an expert assassin - and so is Fiona.
-They say that Corwin is extraordinarily tough.
+Sexy boots will make you more attractive.
+Sexy boots will cause the monsters to drool on you.
+They say that Kordoch is an expert assassin.
+They say that Azash is extraordinarily tough.
 The wearer of Lohengrin's Chainmail is protected by the Holy Grail.
 Gurnemanz' Helmet will let you see holy mysteries hidden from men's eyes.
 Weapons of Flame will light your way.
@@ -188,7 +188,7 @@ Bashing a creature may sometimes stun it.
 And now, Groo does what Groo does best!
 One Ring to rule them all, One Ring to find them.
 One Ring to bring them all and in the darkness bind them.
-A person attuned to the Jewel could use it to erase the Pattern.
+NO CARRIER.
 Three Rings for the Elven-kings under the sky...
 Never carry a Potion of Detonations if there is a fire trap nearby!
 Laugh to scorn the power of man, for none of woman born shall harm thee!
@@ -261,7 +261,7 @@ Autorollers aren't wary bright things.
 The Wargs give ah very sharpee Choir tonightee!
 The depths are about as unreliable as a dish of over-ripe figs.
 May all the Crows of the Volcano pick your bones clean!
-Ever made your dance around enthousiastic lice without a certain staff?
+Ever made your dance around enthusiastic lice without a certain staff?
 A staff is just like a colleague. But a reliable one!
 You are prepared to thrill us with a traditional heroic display?
 Some underworld lads would *LOVE* to blacken your name!
@@ -297,4 +297,30 @@ Sing:"You're not asking for the world, I'm not asking for perfection."
 Be (n)ever hopeful the poison will wear off eventually.
 A new arrival such as yours should perhaps be cautioned. Kiss off!
 Drifting bits of memory are drawn together, assemble them into an entire fabric.
+Brand ruled Riva when the Rivan line was believed to be dead.
+Brand assists the Rivan king in running the kingdom.
+Brand is both a name and title that has been passed down in Riva for many centuries.
+Brand killed Torak when he invaded the west.
+Brand didn't kill Torak, he only mortally wounded him.
+!drol nagaP eht ma I
+Greetings Avatar, I am making many new friends in Britannia.
+THAT is precisely the thing to do, Avatar!
+You have been a thorn in my side for far too long, Avatar...
+Do not go!  You will surely die!
+Well done my friend!  You are TRULY an Avatar.
+Thank you for the information, Avatar, it was most useful...
+No, no, no!  Think again!
+You had best not do that, Avatar.
+Do you really know where you're going, Avatar?
+Go away!
+No!  You cannot do that!  You must not!
+You are travelling in the wrong direction, my friend!
+Do not go in.  It is a trap!  Do you not see?  It is a trap!
+Yes, that is the proper direction to travel, Avatar.
+The Child of Light and Child of Dark shall meet once again!
+Number nine...number nine...number nine...
+Cranberry sauce!
+I'll have another scotch and cola please, mother!
+Red is grey and yellow white but we decide which is right, and which is an illusion...
+Thunder only happens when it's raining.
 OOOOOOOOOOOOOOOOOO

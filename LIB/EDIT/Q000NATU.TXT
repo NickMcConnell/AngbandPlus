@@ -37,7 +37,7 @@ F:c:89:8:175
 F:d:89:8:525
 
 # Floor with Great storm wyrm
-F:e:89:8:728
+F:e:89:8:722
 
 # Floor with Colossus
 F:g:89:8:558

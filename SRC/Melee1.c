@@ -122,7 +122,7 @@ bool make_attack_normal(int m_idx)
 
 	int ap_cnt;
 
-	int i, j, k, tmp, ac, rlev;
+	int i, j, k, tmp, ac, rlev, heal;
 	int do_cut, do_stun;
 
 	s32b gold;
@@ -553,11 +553,15 @@ bool make_attack_normal(int m_idx)
 
 							/* Obvious */
 							obvious = TRUE;
+		
+							/* Calculate healed hitpoints */
+							heal = rlev * o_ptr->pval * o_ptr->number;
 
-							/* Heal */
-							j = rlev;
-							m_ptr->hp += j * o_ptr->pval * o_ptr->number;
-							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+							/* Don't heal more than max hp */
+							heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
+							
+							/* Heal the monster */
+							m_ptr->hp += heal;
 
 							/* Redraw (later) if needed */
 							if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -583,6 +587,9 @@ bool make_attack_normal(int m_idx)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+
+					/* Confused monsters cannot steal successfully. -LM-*/
+					if (m_ptr->confused) break;
 
 					/* Obvious */
 					obvious = TRUE;
@@ -639,6 +646,9 @@ bool make_attack_normal(int m_idx)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+
+					/* Confused monsters cannot steal successfully. -LM-*/
+					if (m_ptr->confused) break;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&

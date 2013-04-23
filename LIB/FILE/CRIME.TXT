@@ -1,4 +1,4 @@
-38
+152
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 murder.
 arson.
@@ -38,3 +38,117 @@ lese-majesty.
 obstructing justice.
 conspiring to obstruct justice.
 assault with a deadly weapon.
+excessive erudition.
+alliterating a-lot.
+cross-dressing.
+witchcraft.
+consorting with evil.
+barritry.
+regicide.
+possession of firearms.
+possession of mushrooms of hallucination.
+drinking a potion of booze in public.
+sodomy.
+adultery.
+indecent exposure.
+genocide.
+mass genocide.
+*destruction*.
+possession of a vampiric weapon.
+bamboozlery.
+heresy.
+casting spells in public places.
+jaywalking.
+making pacts with the devil.
+selling his soul.
+racial intolerance.
+spamming.
+trolling.
+running amok.
+dyslexia.
+programming in BASIC.
+taking advantage of software bugs.
+manslaughter.
+womanslaughter.
+an irritating laugh.
+promiscuity.
+fornication.
+philandering.
+eco-terrorism.
+spree killing.
+serial murde.
+questioning.
+non-conformity.
+failing to establish plausible deniability.
+abduction.
+induction.
+deduction.
+lunacy.
+splitting atoms.
+spontaneous combustion.
+believing the world is round.
+bouncing checks.
+forgery.
+cursing.
+ty_cursing.
+breaching the space-time continuum.
+snicker-snacking.
+sniggering.
+endangering a species.
+savefile scumming.
+nihilism.
+hypocrisy.
+involuntary organ transplantation.
+organ harvesting.
+defenestration.
+plagarism.
+vampirism.
+cannibalism.
+bad taste.
+cultural relativity.
+lycanthropy.
+racketeering.
+passive resistance.
+wholesale nuclear annihilation.
+telepathic evangelism.
+violating the laws of magic.
+adhering to the laws of physics.
+debugging.
+arson.
+distributing mushrooms of hallucination to minors.
+insurance fraud.
+reupholstering.
+pyramid schemes.
+high treason.
+singing off-key.
+associating with Elder Gods.
+espionage.
+voyeurism.
+having his cake and eating it, too.
+insinuation.
+infiltration.
+corruption of innocence.
+thespianism.
+artificial insemination.
+illiteracy.
+being a menace to society.
+attempted suicide.
+off-topic remarks.
+raising the dead.
+pesticide.
+free speech.
+necrophilia.
+black marketeering.
+not having a sense of humor.
+practicing the black arts.
+coming back from the dead.
+inciting to riot.
+demagoguery.
+possession of peyotl.
+using the Force.
+marrying his sister.
+peddling Prozac.
+bigamy.
+piracy.
+using bad puns.
+moonlighting as a mime.

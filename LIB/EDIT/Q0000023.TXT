@@ -25,7 +25,7 @@ Q:23:T:Please prepare well, and strike hard in our names.
 ?:[EQU $QUEST23 3]
 Q:23:T:Your valor shall go down in our legends; your name shall be
 Q:23:T:sung by elvenkind for ages to come.  Hail the conquering hero!
-Q:23:T:May your battles with the Serpent be as successful.
+Q:23:T:May your battles with Morgoth be as successful.
 Q:23:T:
 Q:23:T:Use our gift wisely, and may the light shine on you.
 ?:1
@@ -37,13 +37,13 @@ F:a:1:8:342
 F:b:1:8:633
 
 # Floor with Demonic quylthulg
-F:c:1:8:727
+F:c:1:8:721
 
 # Floor with Draconic quylthulg
-F:d:1:8:759
+F:d:1:8:744
 
 # Floor with Master quylthulg 
-F:e:1:8:800
+F:e:1:8:778
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

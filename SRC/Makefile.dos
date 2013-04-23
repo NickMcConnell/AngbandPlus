@@ -53,14 +53,14 @@ LIBS = -lpc -lalleg
 # Targets
 #
 
-default: zangband.exe
-	copy zangband.exe ..
-	del zangband.exe
+default: sbfband.exe
+	copy sbfband.exe ..
+	del sbfband.exe
 
-install: zangband.exe
-	copy zangband.exe ..
+install: sbfband.exe
+	copy sbfband.exe ..
 
-all: zangband.exe
+all: sbfband.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -68,7 +68,7 @@ all: zangband.exe
 # Link executables
 #
 
-zangband.exe: $(OBJS)
+sbfband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

@@ -917,13 +917,14 @@ static void rd_item(object_type *o_ptr)
 static void rd_monster(monster_type *m_ptr)
 {
 	byte tmp8u;
-
+	/* Remove generation with version 1 */
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
 
 	/* Read the other information */
 	rd_byte(&m_ptr->fy);
 	rd_byte(&m_ptr->fx);
+	rd_byte(&m_ptr->generation);
 	rd_s16b(&m_ptr->hp);
 	rd_s16b(&m_ptr->maxhp);
 	rd_s16b(&m_ptr->csleep);
@@ -960,8 +961,8 @@ static void rd_lore(int r_idx)
 		strip_bytes(38);
 	}
 
-	/* Pre-2.2.0 (old r_info.txt) */
-	else if (z_older_than(2, 2, 0))
+	/* Pre-2.2.0 (old r_info.txt) was 2.2.0 */
+	else if (z_older_than(0, 1, 0))
 	{
 		/* Throw away old info */
 		strip_bytes(48);
@@ -1047,7 +1048,8 @@ static errr rd_store(int town_number, int store_number)
 	rd_s16b(&st_ptr->good_buy);
 	rd_s16b(&st_ptr->bad_buy);
 
-	if (!z_older_than(2, 1, 3))
+	/* was 2.1.3 */
+	if (!z_older_than(0, 1, 0))
 	{
 		/* Read last visit */
 		rd_s32b(&st_ptr->last_visit);
@@ -1178,8 +1180,8 @@ static void rd_options(void)
 
 	/* Pre-2.8.0 savefiles are done */
 	if (older_than(2, 8, 0)) return;
-
-	if (z_older_than(2,1,0))
+	/* was 2.1.0 */
+	if (z_older_than(0,1,0))
 	{
 		autosave_t = autosave_l = 0;
 		autosave_freq = 0;
@@ -1354,8 +1356,8 @@ static void rd_extra(void)
 
 	rd_s16b(&p_ptr->lev);
 
-	/* Current version */
-	if (!z_older_than(2,1,3))
+	/* Current version was 2.1.3 */
+	if (!z_older_than(0,1,0))
 	{
 		rd_s16b(&p_ptr->town_num);
 
@@ -2400,8 +2402,8 @@ static errr rd_dungeon(void)
 	/* Set the base level for old versions */
 	base_level = dun_level;
 
-	/* Read the base level */
-	if (!z_older_than(2, 2, 2))
+	/* Read the base level was 2.2.2 */
+	if (!z_older_than(0, 1, 0))
 	{
 		rd_s16b(&base_level);
 	}
@@ -2497,8 +2499,8 @@ static errr rd_dungeon(void)
 		}
 	}
 
-
-	if (!z_older_than(2,1,3))
+	/* was 2.1.3 */
+	if (!z_older_than(0,1,0))
 	{
 		/*** Run length decoding ***/
 
@@ -2687,8 +2689,8 @@ static errr rd_dungeon(void)
 
 	/*** Success ***/
 
-	/* The dungeon is ready */
-	if (z_older_than(2, 1, 3))
+	/* The dungeon is ready was 2.1.3 */
+	if (z_older_than(0, 1, 0))
 		character_dungeon = FALSE;
 	else
 		character_dungeon = TRUE;
@@ -2825,8 +2827,8 @@ static errr rd_savefile_new_aux(void)
 		}
 	}
 
-	/* Pre 2.2.0 version (old r_info.txt) */
-	if (z_older_than(2, 2, 0))
+	/* Pre 2.2.0 version (old r_info.txt) was 2.2.0 */
+	if (z_older_than(0, 1, 0))
 	{
 		monster_race *r_ptr;
 
@@ -2896,8 +2898,8 @@ static errr rd_savefile_new_aux(void)
 		}
 	}
 
-	/* 2.1.3 or newer version */
-	if (!z_older_than(2, 1, 3))
+	/* 2.1.3 or newer version was 2.1.3 */
+	if (!z_older_than(0, 1, 0))
 	{
 		u16b max_towns_load;
 		u16b max_quests_load;
@@ -2906,7 +2908,7 @@ static errr rd_savefile_new_aux(void)
 		rd_u16b(&max_towns_load);
 
 		/* 2.2.2 or older version */
-		if (z_older_than(2, 2, 3))
+		if (z_older_than(0, 1, 0))
 		{
 			/* Ignore higher numbers of towns */
 			if (max_towns_load > max_towns)
@@ -2920,11 +2922,14 @@ static errr rd_savefile_new_aux(void)
 			return (23);
 		}
 
+		/* Load owned houses info */
+		for (i = 0; i < max_towns_load; i++) rd_s16b(&p_ptr->houses[i]);
+
 		/* Number of quests */
 		rd_u16b(&max_quests_load);
 
 		/* 2.2.3 or newer version */
-		if (!z_older_than(2, 2, 3))
+		if (!z_older_than(0, 1, 0))
 		{
 			/* Incompatible save files */
 			if (max_quests_load > max_quests)
@@ -2940,7 +2945,7 @@ static errr rd_savefile_new_aux(void)
 			{
 				rd_s16b(&quest[i].status);
 
-				if (!z_older_than(2, 2, 0))
+				if (!z_older_than(0, 1, 0))
 				{
 					rd_s16b(&quest[i].level);
 				}
@@ -2951,8 +2956,8 @@ static errr rd_savefile_new_aux(void)
 					rd_s16b(&quest[i].cur_num);
 					rd_s16b(&quest[i].max_num);
 					rd_s16b(&quest[i].type);
-
-					if (z_older_than(2, 2, 0))
+					/* was 2.2.0 */
+					if (z_older_than(0, 1, 0))
 					{
 						strip_bytes(2);
 					}
@@ -2960,8 +2965,8 @@ static errr rd_savefile_new_aux(void)
 					/* Load quest monster index */
 					rd_s16b(&quest[i].r_idx);
 
-					/* Load quest item index */
-					if (!z_older_than(2, 2, 1))
+					/* Load quest item index was 2.2.1 */
+					if (!z_older_than(0, 1, 0))
 					{
 						rd_s16b(&quest[i].k_idx);
 
@@ -2969,13 +2974,13 @@ static errr rd_savefile_new_aux(void)
 							a_info[quest[i].k_idx].flags3 |= TR3_QUESTITEM;
 					}
 
-					/* Load quest flags */
-					if (!z_older_than(2, 2, 3))
+					/* Load quest flags was 2.2.3 */
+					if (!z_older_than(0, 1, 0))
 					{
 						rd_byte(&quest[i].flags);
 					}
 
-					if (z_older_than(2, 2, 0))
+					if (z_older_than(0, 1, 0))
 					{
 						strip_bytes(40);
 					}
@@ -2991,8 +2996,8 @@ static errr rd_savefile_new_aux(void)
 				/* Ignore quest status */
 				strip_bytes(2);
 
-				/* Ignore quest level */
-				if (!z_older_than(2, 2, 0))
+				/* Ignore quest level was 2.2.0*/
+				if (!z_older_than(0, 1, 0))
 				{
 					strip_bytes(2);
 				}
@@ -3053,8 +3058,8 @@ static errr rd_savefile_new_aux(void)
 			}
 		}
 	}
-	/* rr9: Load old savegame without the quest infos */
-	else if (z_older_than(2, 1, 1))
+	/* rr9: Load old savegame without the quest infos was 2.1.1 */
+	else if (z_older_than(0, 0, 8))
 	{
 		/* Load the number of quests */
 		rd_u16b(&tmp16u);
@@ -3065,8 +3070,8 @@ static errr rd_savefile_new_aux(void)
 			strip_bytes(4);
 		}
 	}
-	/* rr9: Load 2.1.1 savegame quest infos */
-	else if (z_older_than(2, 1, 2))
+	/* rr9: Load 2.1.1 savegame quest infos was 2.1.2 */
+	else if (z_older_than(0, 0, 9))
 	{
 		/* Load the number of quests */
 		rd_u16b(&tmp16u);
@@ -3079,8 +3084,8 @@ static errr rd_savefile_new_aux(void)
 			strip_bytes(5);
 		}
 	}
-	/* 2.1.2 beta version */
-	else if (z_older_than(2, 1, 3))
+	/* 2.1.2 beta version was 2.1.3*/
+	else if (z_older_than(0, 1, 0))
 	{
 		/* Load the number of quests */
 		rd_u16b(&tmp16u);
@@ -3102,9 +3107,9 @@ static errr rd_savefile_new_aux(void)
 
 	/*
 	 * Select the number of random quests
-	 * when importing old savefiles.
+	 * when importing old savefiles. was 2.2.0
 	 */
-	if (z_older_than(2, 2, 0))
+	if (z_older_than(0, 1, 0))
 	{
 		char inp[80];
 		int i, v;
@@ -3131,7 +3136,7 @@ static errr rd_savefile_new_aux(void)
 		Term_putstr(5, 15, -1, TERM_WHITE,
 			"You can input yourself the number of quest you'd like to");
 		Term_putstr(5, 16, -1, TERM_WHITE,
-			"perform next to two obligatory ones ( Oberon and the Serpent of Chaos )");
+			"perform next to two obligatory ones ( Sauron and Morgoth )");
 		Term_putstr(5, 17, -1, TERM_WHITE,
 			"In case you do not want any additional quest, just enter 0");
 
@@ -3205,23 +3210,23 @@ static errr rd_savefile_new_aux(void)
 			}
 		}
 
-		/* Init the two main quests (Oberon + Serpent) */
+		/* Init the two main quests (Sauron + Morgoth) */
 		init_flags = INIT_ASSIGN;
-		p_ptr->inside_quest = QUEST_OBERON;
+		p_ptr->inside_quest = QUEST_SAURON;
 		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-		quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+		quest[QUEST_SAURON].status = QUEST_STATUS_TAKEN;
 
-		p_ptr->inside_quest = QUEST_SERPENT;
+		p_ptr->inside_quest = QUEST_MORGOTH;
 		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-		quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
+		quest[QUEST_MORGOTH].status = QUEST_STATUS_TAKEN;
 		p_ptr->inside_quest = 0;
 	}
 
 	/*
 	 * Select 'hard random quests mode'
-	 * when importing old savefiles.
+	 * when importing old savefiles. was 2.2.1
 	 */
-	if (z_older_than(2, 2, 1))
+	if (z_older_than(0, 1, 0))
 	{
 		char c;
 		
@@ -3271,8 +3276,8 @@ static errr rd_savefile_new_aux(void)
 
 	if (arg_fiddle) note("Loaded Quests");
 
-	/* A version without the wilderness */
-	if (z_older_than(2, 1, 2))
+	/* A version without the wilderness was 2.1.2 */
+	if (z_older_than(0, 1, 0))
 	{
 		char c;
 
@@ -3401,8 +3406,8 @@ static errr rd_savefile_new_aux(void)
 		return (21);
 	}
 
-	/* Read number of towns */
-	if (!z_older_than(2, 1, 3))
+	/* Read number of towns was 2.1.3 */
+	if (!z_older_than(0, 1, 0))
 	{
 		rd_u16b(&tmp16u);
 		town_count = tmp16u;
@@ -3417,8 +3422,8 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 	for (i = 1; i < town_count; i++)
 	{
-		/* HACK - ignore the empty towns */
-		if (z_older_than(2, 2, 3) && (i >= 6))
+		/* HACK - ignore the empty towns was 2.2.3 */
+		if (z_older_than(0, 1, 0) && (i >= 6))
 		{
 			for (j = 0; j < tmp16u; j++)
 			{
@@ -3434,17 +3439,17 @@ static errr rd_savefile_new_aux(void)
 			}
 		}
 	}
-
+	/* was 2.1.0 */
 #if 0
-	if (z_older_than(2, 1, 0))
+	if (z_older_than(0, 1, 0))
 	{
 		msg_print("Reallocating flavours...");
 		flavor_init();
 	}
 #endif
 
-	/* Read the pet command settings */
-	if (!z_older_than(2, 2, 3))
+	/* Read the pet command settings was 2.2.3 */
+	if (!z_older_than(0, 1, 0))
 	{
 		rd_byte(&p_ptr->pet_follow_distance);
 		rd_byte(&p_ptr->pet_open_doors);

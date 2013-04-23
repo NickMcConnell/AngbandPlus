@@ -41,9 +41,9 @@
 
 /* Added for ZAngband */
 #define FAKE_VERSION   0
-#define FAKE_VER_MAJOR 2
+#define FAKE_VER_MAJOR 0
 #define FAKE_VER_MINOR 2
-#define FAKE_VER_PATCH 3
+#define FAKE_VER_PATCH 1
 
 #define ANGBAND_2_8_1
 
@@ -114,8 +114,12 @@
 #define MIN_RANDOM_QUEST    40
 #define MAX_RANDOM_QUEST    88
 
-#define QUEST_OBERON         8
-#define QUEST_SERPENT        9
+#define QUEST_SAURON         8
+#define QUEST_MORGOTH        9
+
+
+/* Town constant */
+#define MAX_TOWN			6
 
 /*
  * Arena constants
@@ -669,9 +673,9 @@
 #define RACE_DWARF               5
 #define RACE_HALF_ORC            6
 #define RACE_HALF_TROLL          7
-#define RACE_AMBERITE            8
+#define RACE_DUNADAN              8
 #define RACE_HIGH_ELF            9
-#define RACE_BARBARIAN          10
+#define RACE_ATAN               10
 #define RACE_HALF_OGRE          11
 #define RACE_HALF_GIANT         12
 #define RACE_HALF_TITAN         13
@@ -686,9 +690,9 @@
 #define RACE_IMP                22
 #define RACE_GOLEM              23
 #define RACE_SKELETON           24
-#define RACE_ZOMBIE             25
+#define RACE_DELPHAE            25
 #define RACE_VAMPIRE            26
-#define RACE_SPECTRE            27
+#define RACE_ULGO               27
 #define RACE_SPRITE             28
 #define RACE_BEASTMAN           29
 
@@ -938,6 +942,7 @@
 #define ART_CARLAMMAS            4
 #define ART_INGWE                5
 #define ART_DWARVES              6
+#define ART_BELDARAN		   7
 
 /* Rings */
 #define ART_BARAHIR              8
@@ -961,15 +966,18 @@
 #define ART_CASPANION           25
 
 /* Soft Armour */
+#define ART_SILK			  26
 #define ART_HITHLOMIR           27
 #define ART_THALKETTOTH         28
 
 /* Shields */
+#define ART_BRAND			  29
 #define ART_THORIN              30
 #define ART_CELEGORM            31
 #define ART_ANARION             32
 
 /* Helms and Crowns */
+#define ART_ULATH			  33
 #define ART_MORGOTH             34
 #define ART_BERUTHIEL           35
 #define ART_THRANDUIL           36
@@ -993,7 +1001,7 @@
 #define ART_CAMBELEG            52
 #define ART_CAMMITHRIM          53
 #define ART_PAURHACH            54
-#define ART_CORWIN              55
+#define ART_PAURNIMMEN          55
 #define ART_PAURAEGEN           56
 #define ART_PAURNEN             57
 #define ART_CAMLOST             58
@@ -1013,13 +1021,13 @@
 #define ART_RILIA               69
 #define ART_BELANGIL            70
 #define ART_CALRIS              71
-#define ART_GRAYSWANDIR         72
+#define ART_ARUNRUTH            72
 #define ART_GLAMDRING           73
 #define ART_AEGLIN              74
 #define ART_ORCRIST             75
 #define ART_GURTHANG            76
 #define ART_ZARCUTHRA           77
-#define ART_MORMEGIL            78
+#define ART_BEVIER              78
 #define ART_GONDRICAM           79
 #define ART_CRISDURIAN          80
 #define ART_GROO                81
@@ -1053,6 +1061,7 @@
 #define ART_WRATH               107
 #define ART_ULMO                108
 #define ART_AVAVIR              109
+#define ART_PISEAR		  123
 
 /* The sword of the Dawn */
 #define ART_DAWN                110
@@ -1074,8 +1083,8 @@
 /* Bows */
 #define ART_BELTHRONDING        124
 #define ART_BARD                125
-#define ART_BRAND               126
-
+#define ART_CUBRAGOL            126
+#define ART_LELLDORIN           127
 
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
@@ -1143,7 +1152,7 @@
 #define EGO_SLAYING             49
 #define EGO_AGILITY             50
 #define EGO_POWER               51
-/* xxx */
+#define EGO_THIEVERY		  52
 /* xxx */
 #define EGO_WEAKNESS            54
 #define EGO_CLUMSINESS          55
@@ -1192,7 +1201,7 @@
 #define EGO_KILL_GIANT          86
 #define EGO_KILL_DRAGON         95
 #define EGO_VAMPIRIC            96
-/* xxx */
+#define EGO_STAR_DEFENDER       97
 /* xxx */
 #define EGO_TRUMP               98
 #define EGO_PATTERN             99
@@ -1468,6 +1477,13 @@
 #define SV_EXECUTIONERS_SWORD           28  /* 4d5 */
 #define SV_ZWEIHANDER                   29  /* 4d6 */
 #define SV_BLADE_OF_CHAOS               30  /* 6d5 */
+#define SV_ANTENNA_SWORD		    31  /* 2d5 */
+#define SV_EPEE				    32  /* 1d6 */
+#define SV_GLAVELOT			    33  /* 2d6 */
+#define SV_MACHAIRA			    34  /* 2d6 */
+#define SV_SADDLE_SWORD			    35  /* 3d5 */
+#define SV_TACHI				    36  /* 3d4 */
+#define SV_TAI_CHI_SWORD		    37  /* 2d5 */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD          2
@@ -1582,12 +1598,13 @@
 #define SV_AMULET_NO_MAGIC              13
 #define SV_AMULET_NO_TELE               14
 #define SV_AMULET_RESISTANCE            15
+#define SV_AMULET_BELDARAN		    16
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
 #define SV_RING_AGGRAVATION              1
-#define SV_RING_WEAKNESS                 2
-#define SV_RING_STUPIDITY                3
+#define SV_RING_STEALTH                  2
+#define SV_RING_SENSING                  3
 #define SV_RING_TELEPORTATION            4
 #define SV_RING_SLOW_DIGESTION           6
 #define SV_RING_FEATHER_FALL             7
@@ -1633,6 +1650,8 @@
 #define SV_RING_RES_BLINDNESS           47
 #define SV_RING_LORDLY                  48
 #define SV_RING_ATTACKS                 49
+#define SV_RING_WEAKNESS		    50
+#define SV_RING_STUPIDITY		    51	
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS                0
@@ -1796,9 +1815,9 @@
 #define SV_POTION_SALT_WATER             5
 #define SV_POTION_POISON                 6
 #define SV_POTION_BLINDNESS              7
-/* xxx */
+#define SV_POTION_RESIST_ACID		     8	
 #define SV_POTION_CONFUSION              9
-/* xxx */
+#define SV_POTION_RESIST_ELECTRICITY    10	
 #define SV_POTION_SLEEP                 11
 /* xxx */
 #define SV_POTION_LOSE_MEMORIES         13
@@ -2120,7 +2139,7 @@
 #define SUMMON_DRAGON               18
 #define SUMMON_HI_UNDEAD            21
 #define SUMMON_HI_DRAGON            22
-#define SUMMON_AMBERITES            31
+#define SUMMON_SPECIAL              31
 #define SUMMON_UNIQUE               32
 #define SUMMON_BIZARRE1             33
 #define SUMMON_BIZARRE2             34
@@ -2299,7 +2318,7 @@
  * Special Monster Flags (all temporary)
  */
 #define MFLAG_VIEW      0x01    /* Monster is in line of sight */
-#define MFLAG_XXX1      0x02    /* (unused) */
+#define MFLAG_TEMP      0x02    /* Monster is marked for project hack */
 #define MFLAG_XXX2      0x04    /* (unused) */
 #define MFLAG_XXX3      0x08    /* (unused) */
 #define MFLAG_BORN      0x10    /* Monster is still being born */
@@ -2401,7 +2420,7 @@
 #define TR3_SH_FIRE             0x00000001L     /* Immolation (Fire) */
 #define TR3_SH_ELEC             0x00000002L     /* Electric Sheath */
 #define TR3_QUESTITEM           0x00000004L     /* quest level item -KMW- */
-#define TR3_XXX4                0x00000008L     /* Later */
+#define TR3_SENSING             0x00000008L     /* Gives good pseudo-id */
 #define TR3_NO_TELE             0x00000010L     /* Anti-teleportation */
 #define TR3_NO_MAGIC            0x00000020L     /* Anti-magic */
 #define TR3_WRAITH              0x00000040L     /* Wraithform */
@@ -2597,7 +2616,7 @@
 #define RF3_UNDEAD          0x00000020  /* Undead */
 #define RF3_EVIL            0x00000040  /* Evil */
 #define RF3_ANIMAL          0x00000080  /* Animal */
-#define RF3_AMBERITE        0x00000100  /* TY: Amberite */
+#define RF3_SPECIAL         0x00000100  /* SF: Dunadan & Deities */
 #define RF3_GOOD            0x00000200  /* Good */
 #define RF3_AURA_COLD       0x00000400  /* Freezes in melee */
 #define RF3_NONLIVING       0x00000800  /* TY: Non-Living (?) */
@@ -2727,7 +2746,7 @@
 #define RF6_S_DRAGON        0x08000000  /* Summon Dragon */
 #define RF6_S_HI_UNDEAD     0x10000000  /* Summon Greater Undead */
 #define RF6_S_HI_DRAGON     0x20000000  /* Summon Ancient Dragon */
-#define RF6_S_AMBERITES     0x40000000  /* Summon Amberites */
+#define RF6_S_SPECIAL       0x40000000  /* Summon Dunadan & Deities */
 #define RF6_S_UNIQUE        0x80000000  /* Summon Unique Monster */
 
 /*
@@ -2772,7 +2791,7 @@
     RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
-    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_AMBERITES | RF6_S_UNIQUE)
+    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_SPECIAL | RF6_S_UNIQUE)
 
  
 /*
@@ -2802,7 +2821,7 @@
     (RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
      RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
      RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
-     RF6_S_AMBERITES | RF6_S_UNIQUE)
+     RF6_S_SPECIAL | RF6_S_UNIQUE)
 
 
 /*** Macro Definitions ***/
@@ -3245,7 +3264,7 @@ extern int PlayerUID;
 /*
  * Buildings actions
  */
-#define BACT_NOTHING                 0
+#define BACT_NOTHING                 0 
 #define BACT_RESEARCH_ITEM		     1
 #define BACT_TOWN_HISTORY            2
 #define BACT_RACE_LEGENDS            3
@@ -3281,7 +3300,8 @@ extern int PlayerUID;
 #define BACT_RECALL                 33
 #define BACT_TELEPORT_LEVEL         34
 #define BACT_LOSE_MUTATION          35
-#define MAX_BACT                    36
+#define BACT_BUY_HOUSE			36 
+#define MAX_BACT                    37
 
 /*
  * Quest status

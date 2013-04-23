@@ -205,7 +205,7 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"AMBERITE",
+	"SPECIAL",
 	"GOOD",
 	"AURA_COLD",
 	"NONLIVING",
@@ -344,7 +344,7 @@ static cptr r_info_flags6[] =
 	"S_DRAGON",
 	"S_HI_UNDEAD",
 	"S_HI_DRAGON",
-	"S_AMBERITES",
+	"S_SPECIAL",
 	"S_UNIQUE"
 };
 
@@ -554,7 +554,7 @@ static cptr k_info_flags3[] =
 	"SH_FIRE",
 	"SH_ELEC",
 	"QUESTITEM",
-	"XXX4",
+	"SENSING",
 	"NO_TELE",
 	"NO_MAGIC",
 	"WRAITH",

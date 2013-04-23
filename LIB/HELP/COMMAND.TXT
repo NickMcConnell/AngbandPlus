@@ -1,10 +1,11 @@
 === List of Commands ===
 
 
-    Angband commands are entered as an "underlying command" (a single key)
+    SBFband commands are entered as an "underlying command" (a single key)
 plus a variety of optional or required arguments.  You may choose how the
 "keyboard keys" are mapped to the "underlying commands" by choosing one of
-two standard "keysets", the "original" keyset or the "roguelike" keyset.
+two standard "keysets", the "original" keyset or the "roguelike" keyset.  Most
+commands can be canceled by pressing the Escape key (Esc).
 
     The original keyset is very similar to the "underlying" command set,
 with a few additions (such as the ability to use the numeric "directions" to
@@ -44,7 +45,7 @@ a numeric digit '#' selects the first item (if any) whose inscription contains
 specify items which are "legal" for the command.  Whenever an item inscription
 contains "!*" or "!x" (with "x" as above) you must verify its selection.
 
-    In Zangband, there are items which occasionally teleport you away, asking
+    In SBFband, there are items which occasionally teleport you away, asking
 for permission first. The recurring "Teleport (y/n)?" can be annoying, and
 this behavior can be eliminated by inscribing the object which causes the
 teleportation with "." (or any inscription containing the character ".").
@@ -209,7 +210,7 @@ the host machine, causing unexpected results.  In general, these special keys
 are control keys, and often, you can disable their special effects.
 
         If you are playing on a UNIX or similar system, then Ctrl-C will
-interrupt Angband.  The second and third interrupt will induce a warning
+interrupt SBFband.  The second and third interrupt will induce a warning
 bell, and the fourth will induce both a warning bell and a special message,
 since the fifth will quit the game, after killing your character.  Also,
 Ctrl-Z will suspend the game, and return you to the original command shell,
@@ -242,7 +243,7 @@ the displayed message) by pressing ESCAPE, SPACE, RETURN, LINEFEED, or by
 any keypress, if the "quick_messages" option is turned on.
  
 
-===  Command Counts ===
+=== Command Counts ===
  
         Some commands can be executed a fixed number of times by preceding
 them with a count.  Counted commands will execute until the count expires,
@@ -263,12 +264,12 @@ character.  This character is ignored, but it is safest to use a SPACE or
 ESCAPE which are always ignored as commands in case you type the command
 just after the count expires.
 
-        You can tell Angband to automatically use a repeat count of 99
+        You can tell SBFband to automatically use a repeat count of 99
 with commands you normally want to repeat (open, disarm, tunnel, bash,
 alter, etc) by setting the "always_repeat" option.
  
  
-===  Selection of Objects ===
+=== Selection of Objects ===
  
         Many commands will also prompt for a particular object to be used.
 For example, the command to read a scroll will ask you which of the
@@ -320,15 +321,15 @@ about the object.  Note that "selling" and "dropping" both use the "d" command.
 
 === User Pref Files ===
 
-        Angband allows you to change various aspects of the game to suit
-your tastes.  You may define keymaps (changing the way Angband maps your
+        SBFband allows you to change various aspects of the game to suit
+your tastes.  You may define keymaps (changing the way SBFband maps your
 keypresses to underlying commands), create macros (allowing you to map a
 single keypress to a series of keypresses), modify the visuals (allowing
 you to change the appearance of monsters, objects, or terrain features),
 change the colors (allowing you to make a given color brighter, darker,
 or even completely different), or set options (turning them off or on).
 
-        Angband stores your preferences in files called "user pref files",
+        SBFband stores your preferences in files called "user pref files",
 which contain comments and "user pref commands", which are simple strings
 describing one aspect of the system about which the user has a preference.
 There are many ways to load a user pref file, and in fact, some of these
@@ -457,7 +458,7 @@ on or off.  You may turn options off or on using the user pref commands
 of the form "X:<option>" or "Y:<option>" respectively.
 
  
-===  Command Descriptions ===
+=== Command Descriptions ===
 
         The following command descriptions are listed as the command name
 plus the "underlying command" key.  This is followed by the command name
@@ -1090,6 +1091,6 @@ Original: Alexander Cutler and Andy Astrand
 Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
 Updated (2.7.9): Ben Harrison (benh@phial.com)
 Updated for Zangband 2.2.* by Robert Ruehlmann
-
-Last update: January 11th, 1999
+Updated (a little bit) for SBFband 0.1.0 by Steve Fisher.
+Last update: May 24th, 1999
 

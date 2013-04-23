@@ -1629,16 +1629,16 @@ bool monst_spell_monst(int m_idx)
 				break;
 			}
 			
-			/* RF6_S_AMBERITES */
+			/* RF6_S_SPECIAL */
 			case 160+30:
 			{
 				disturb(1, 0);
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s magically summons Lords of Amber!", m_name);
+				else msg_format("%^s magically summons someone!", m_name);
 				
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+					count += summon_specific(y, x, rlev, SUMMON_SPECIAL, TRUE, FALSE, FALSE);
 				}
 				if (blind && count)
 				{

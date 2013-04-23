@@ -1,0 +1,145 @@
+This document lists the changes made in SBFband (in comparison to Zangband 2.2.3d).
+See the code for more details.  This list is in reverse chronological order.
+
+Description: SBFband replaces the Zelazny-themed material of Zangband
+with material drawn from the works of David Eddings (the Belgariad,
+the Malloreon, etc.) and the anime Record of Lodoss War.  It also has 
+some classes improve in stealth with experience, makes the character 
+buy their house(s), and adds new races, artifacts, and ego-items.
+
+NOTE: I am currently looking for quests, towns, vaults, and interesting rooms to add to the next version of SBFband.  Send them to Sperlock74@yahoo.com.  I'll look at them and will choose some (maybe all!) of them to put into the next version (after minor balancing and other tweaks, if necessary).  Credit will be given!
+
+Reported but unfixed bugs:
+An '&' object has appeared as '(nothing)' (from flavor.c, object_desc function) and is probably related to 'The Unknown Artifact' (from cmd4.c, do_cmd_knowledge_artifacts function) bug that has been reported.  This relates to the artifact 'the Amulet of Beldaran.'
+
+SBFband 0.2.1 (September 19, 1999)
+* Activation for Cubragol fixed.
+* Fixed bug that looks for a nonexistant quest after the spawning pits.
+* Fixed bug that didn't make Morgoth drop the crown and Grond.
+* Added activation to the Amulet of Beldaran.
+* Added additional lines to bravado.txt.
+* Interesting rooms can't be icky and can be lit.
+* Fixed a bug in detect_doors that didn't show locked doors.
+* Multiplying monsters don't multiply as often.
+* Rogues and characters with passable disarming gain more info about what traps do.
+* Experience gained by disarming traps depends on the dungeon level. (from GSNband)
+* Appropriate rods and wands, when *identified*, shows the amount of damage done by them.  *Identifying* rods also shows how long it takes to recharge.
+* Damage done by wands and rods has been tweaked; in general, wands do more damage than their rod equivalent.
+* Made additions to the documentation.
+* Changed the message that shows when word of recall takes effect.
+* Option to view completed quests (non-random for now) in the current knowledge menu.  I was unable to get this working for random quests; any patches for this would be appreciated!
+* Put back the dimension door power for Mindcrafters.
+* From Zangband 2.2.5 (and 2.2.5b):
+     Long rumors (more than 80 characters) will no longer cause error messages.
+     Bug in the price calculation of wands fixed.
+     Changed the windows resizing in the Windows version a bit.
+     Character dumps will now include the inventories of all homes.
+     Empty slots in homes and the player inventory are no longer displayed
+     in the character dumps and spaces are stripped from the line endings.
+     The Shadow Cloak of Luthien now provides light- and dark-resistance.
+     Pets will not try to shoot spells through the player.
+     Fixed a bug that displayed the quest-completed message again
+     when killing summoned monsters in an already completed fixed quest.
+     The description for the balance dragon scale mail is now correctly displayed.
+     Fixed a bug that caused the wilderness to be reinitialized when leaving
+     a building even if not necessary.
+     Fixed several bugs in the research monster building command.
+     Monster recall no longer shows the "You feel an intense desire to
+     kill this monster." message if you have not met the creature yet.
+     Added Keldon Jones' new main-gcu files with support for multiple windows,
+     color redefinition and special character support.
+     The following changes are taken from Leon Marick's OAngband:
+     Added the enhanced wand and rod stacking.
+     Confused monsters cannot steal items.
+* Added unique speeches for Eddings uniques.
+* Added more monsters from Eddings.
+* Added The Bastard Sword 'Cthrek-Goru'
+* Fixed Mirrored Quartet and Twisted Cube vaults.
+* Added uniques and artifacts from the Record of Lodoss War anime.
+
+SBFband 0.2.0 (June 6, 1999)
+* Fixed Bill Ferny's speaking bug and adjusted his r_info entry.
+* Oops.  I had replaced the main-win.c from 2.2.4 back to 2.2.3d due to compilation problems.  
+* Put Rings of Weakness and Stupidity back in.
+* Fixed bug that didn't give rogues, rangers, and monks stealth advances.
+* Made balancing tweaks to various monsters.
+* Added missing description to Nachak.
+* Removed SLAY_ANIMAL from the artifact Barak.  What was I on? 
+* Removed misplaced comments that prevented the creation of interesting rooms.
+* Added friendly uniques Beldin and Relg.
+* Added monster uniques Zandramas and Taur Urgas.
+* Removed Jewel of Judgement drain which was affecting the Arkenstone.
+* Increased the initial stealth for the ranger.
+* Added FORCE_SLEEP flag to Clear Hound.
+* Reordered quests in Telmora.
+* Fixed English in the Warg quest.
+* The FRIEND flag now creates a group of monsters and is accounted for in monster AI (it was not doing so in Zangband 2.2.3d)
+* Added the Amulet of Beldaran.
+* Added "Encase monster in stone" racial power for the Ulgos (code by DarkGod).
+* Added Matt Graham's Speaking Uniques patch.  If you have character lines from Tolkien or Eddings that would work with bravado and fear messages for their matching uniques, please send them to me!
+Ideas from weisiger <jmartin@inreach.com>
+* Wereworms are immune to cold and hurt by light.
+* Lizardman and Lizard King left h and became R.  Lizard King now has escorts. 
+* Increased the value of the staff of Earthquakes.
+* Decreased the initial stealth for the mindcrafter.
+* Elementals (and fire spirits, air spirits, etc.) now have the NONLIVING flag.
+* Random artifacts can't have teleport and no teleport.  Resist confusion will not be added if resist chaos already exists (but if resist confusion exists before resist chaos, it will still be there).
+* Added potion of resist acid and potion of resist electricity.
+* Added option to confirm wearing/wielding unidentified items.
+* Added "I wondered what that "low hitpoint warning" thing meant..." monster death message.
+
+SBFband 0.1.0 (May 25, 1999) (Not released to the public)
+* Removed most Zelazny and Lovecraftian monsters.
+* Added Eddings monsters and uniques.
+* Added misc. monsters.
+(Note: Because of changes in monsters and weapons, some of the tile graphics for these may be broken (I don't use tile graphics).  If anyone sends in fixes for this, I will include it in the next release. -SBF)
+* Expanded unique's list of crimes with suggestions by malagigi@aol.com and my own.
+* Added some entries to the unique's bravado list.
+* Added some entries to the final words list (player and monster).
+* Added some entries to the unique's fear list.
+* Removed Zelazny references from the rumor list and added some new rumors.
+* Added some artifacts, removed Zelazny flavored artifacts.
+* Added 7 bladed weapons.
+* Added ego item Gloves of Thievery.
+* Removed damage that may be done by bad mushrooms.
+* Removed Ring of Weakness (cursed ring of strength) and replaced it with Ring of Stealth.
+* Removed Ring of Stupidity (curesed ring of intelligence) and replacedit with Ring of Sensing.
+* Character screen skill descriptions idea from JAngband/64 code from GSNband.
+* Rogues go up in stealth every 5 levels; rangers and monks every 10 levels.
+* Houses must be bought (idea from Cthangband)
+* Secret doors have a random chance to be locked as well. 
+* Added a whole bunch of scary looking vaults by Chris Weisiger.
+* Most of the interesting rooms from Oangband.
+* Added these features from Zangband 2.2.4: 
+	Chests produce less gold and more items, all chest items are at least   "good" (like in 	GWAngband).  
+	Increased the randomness of long-range teleport effects to decrease the
+ 	frequency of consecutive teleports "bouncing" the player between two or
+ 	three different spots (also from GWAngband).
+	Golems have now a penality to dexterity (-2).
+	Mindcrafters no longer get the 'dimension door' power.
+	Added a note about the startup-options to the prompts at birth.
+	Corrected the damage calculation for slays and brands in the weaponsmaster.
+	Fixed a bug in the Amberites 'shadow shifting' ability while in quests.
+	Fixed a bug that could turn monster hitpoints negative when draining
+ 	charges from magical items.
+	Fixed a bug that could crash the game when making strange offers while
+	haggling.
+	Monsters attacked by other monsters will now always wake up.
+	Added a patch by Julian Lighton, that changes the way effects like
+	Mind Wave interact with special critters like Pink Horrors and
+ 	Warriors of the Dawn.
+	Changed the Windows port to support easier resizing of the windows
+ 	and display of scores.  Also removed the Abort menu item.
+	Added a modified 'main-x11.c' file by Denis Eropkin.
+	Wall of Stone no longer creates a wall directly on the player.
+	Corrected the pluralization of some monsters.
+	Updated the building documentation file (along with some info for SBFband).
+* Fixed bug in birth.c that had a vampire description given the numbers for a cyclops         description.
+* Replaced Spectre race with the Ulgo race.
+* Renamed Pattern to Straight Road, from GSNband.
+* Unique monsters never appear as random quest monsters (This should remove the problem of
+  having a quest to kill a unique you already killed elsewhere)
+* Removed specific monster drops, except for Morgoth's. 
+* Changed Barbarian race to the Atan race with some minor changes.
+* Replaced Zombie race with Delphae race.
+* Updated documentation for new features in SBFband and tried to improve the documentation.

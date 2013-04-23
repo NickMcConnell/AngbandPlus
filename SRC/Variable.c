@@ -234,6 +234,7 @@ bool stupid_monsters;		/* Monsters use old AI */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
+bool wear_unknown;		/* Confirm before putting on unidentified items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
 
 

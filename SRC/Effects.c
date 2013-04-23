@@ -1388,10 +1388,8 @@ bool set_cut(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->prace == RACE_GOLEM ||
-	    p_ptr->prace == RACE_SKELETON ||
-	    p_ptr->prace == RACE_SPECTRE ||
-		(p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11))
-		v = 0;
+	    p_ptr->prace == RACE_SKELETON)
+	    	v = 0;
 
 	/* Mortal wound */
 	if (p_ptr->cut > 1000)
@@ -2385,7 +2383,7 @@ void do_poly_self(void)
 		if (effect_msg[0])
 		{
 			msg_format("You turn into a%s %s!",
-				((new_race == RACE_AMBERITE || new_race == RACE_ELF
+				((new_race == RACE_DUNADAN || new_race == RACE_ELF
 				|| new_race == RACE_IMP) ? "n" : ""),
 				race_info[new_race].title);
 		}

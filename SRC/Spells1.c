@@ -772,7 +772,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_MAKE_TRAP:
 		{
 			/* Require a "naked" floor grid */
-			if (!(cave[y][x].feat == FEAT_FLOOR) &&
+			if ((cave[y][x].feat != FEAT_FLOOR) &&
 			     (cave[y][x].o_idx == 0) &&
 			     (cave[y][x].m_idx == 0))
 				 break;
@@ -801,8 +801,14 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Require a "naked" floor grid */
 			if (!cave_naked_bold(y, x)) break;
 
+			/* Not on the player */
+			if ((y == py) && (x == px)) break;
+
 			/* Place a trap */
 			cave_set_feat(y, x, FEAT_WALL_EXTRA);
+
+			/* Update some things */
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
 
 			break;
 		}
@@ -3532,8 +3538,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by nether forces!");
 			if (p_ptr->resist_neth)
 			{
-				if (!(p_ptr->prace == RACE_SPECTRE))
-					dam *= 6; dam /= (randint(6) + 6);
+				dam *= 6; dam /= (randint(6) + 6);
 			}
 			else
 			{
@@ -3544,25 +3549,16 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 				else if (p_ptr->hold_life)
 				{
 					msg_print("You feel your life slipping away!");
-					lose_exp(200 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
+					lose_exp(200 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
 				}
 				else
 				{
 					msg_print("You feel your life draining away!");
-					lose_exp(200 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
+					lose_exp(200 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
 				}
 			}
 
-			if (p_ptr->prace == RACE_SPECTRE)
-			{
-				msg_print("You feel invigorated!");
-				hp_player(dam / 4);
-			}
-			else
-			{
-				take_hit(dam, killer);
-			}
-
+			take_hit(dam, killer);
 			break;
 		}
 

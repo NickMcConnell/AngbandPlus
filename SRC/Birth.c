@@ -103,8 +103,8 @@ static hist_type bg[] =
 	{"of a Townsman.  ",                                     80, 2, 3, 90},
 	{"of a Guildsman.  ",                                    90, 2, 3, 105},
 	{"of a Landed Knight.  ",                                96, 2, 3, 120},
-	{"of a Noble Family in the Courts of Chaos.  ",          99, 2, 3, 130},
-	{"of the Royal Blood Line of Amber.  ",                 100, 2, 3, 140},
+	{"of a Noble Family.  ",                                 99, 2, 3, 130},
+	{"of the Royal Line of Numenor.  ",                     100, 2, 3, 140},
 
 	{"You are the black sheep of the family.  ",             20, 3, 50, 20},
 	{"You are a credit to the family.  ",                    80, 3, 50, 55},
@@ -183,6 +183,25 @@ static hist_type bg[] =
 	{"Shaman.  ",						 99, 23, 62, 65},
 	{"Clan Chief.  ",						100, 23, 62, 80},
 
+	{"You are the black sheep of the family.  ",             20, 24, 25, 20},
+	{"You are a credit to the family.  ",                    80, 24, 25, 55},
+	{"You are a well liked child.  ",                       100, 24, 25, 60},
+
+	{"You have black eyes, ",				 75, 25, 26, 50},
+	{"You have dark brown eyes, ",			 95, 25, 26, 50},
+	{"You have blue eyes, ",				100, 25, 26, 50},
+	
+	{"straight ",						 70, 26, 27, 50},
+	{"wavy ",							 90, 26, 27, 50},
+	{"curly ",							100, 26, 27, 50},
+
+	{"pale hair, ",						 90, 27, 28, 50},
+	{"silver hair, ",						100, 27, 28, 50},
+	
+	{"and a very fair complexion.",				 80, 28, 0, 50},
+	{"and a fair complexion.",					 90, 28, 0, 50},
+	{"and an average complexion.",				100, 28, 0, 50},
+
 	{"You have dark brown eyes, ",				 20, 50, 51, 50},
 	{"You have brown eyes, ",					 60, 50, 51, 50},
 	{"You have hazel eyes, ",					 70, 50, 51, 50},
@@ -260,28 +279,13 @@ static hist_type bg[] =
 	{"You are a rebel child of ",         80, 67, 68, 65},
 	{"You are a long lost child of ",     100, 67, 68, 55},
 
-	{"an unknown Amberite.  ",               50, 68, 50, 80 },
-	{"an unknown third generation Amberite.  ", 65, 68, 50, 90 },
-	{"an unknown second generation Amberite.  ", 79, 68, 50, 100 },
-	{"Oberon.  ",       80, 68, 50, 130 },
-	{"Osric.  ",        83, 68, 50, 105 },
-	{"Finndo.  ",       84, 68, 50, 105 },
-	{"Brand.  ",        85, 68, 50, 90 },
-	{"Flora.  ",        87, 68, 50, 100 },
-	{"Gerard.  ",       88, 68, 50, 125 },
-	{"Deirdre.  ",      89, 68, 50, 120 },
-	{"Random.  ",       90, 68, 50, 140 },
-	{"Benedict.  ",     91, 68, 50, 115 },
-	{"Corwin.  ",       92, 68, 50, 110 },
-	{"Julian.  ",       93, 68, 50, 105 },
-	{"Caine.  ",        94, 68, 50, 95 },
-	{"Bleys.  ",        95, 68, 50, 115 },
-	{"Fiona.  ",        96, 68, 50, 110 },
-	{"Eric.  ",         97, 68, 50, 135 },
-	{"Rinaldo.  ",      98, 68, 50, 90 },
-	{"Merlin.  ",       99, 68, 50, 105 },
-	{"Martin.  ",       100, 68, 50, 80 },
-
+	{"of Gondorian commoners.  ",               50, 68, 50, 80 },
+	{"of Gondorian nobles.  ",                  65, 68, 50, 90 },
+	{"from the Ruling Stewards line.  ",        75, 68, 50, 100 },
+	{"from the line of Isildur.  ",             80, 68, 50, 130 },
+	{"from the line of Anarion.  ",             90, 68, 50, 135 },
+	{"of a Black Numenorean.  ",                100, 68, 50, 55 },
+	
 
 	{"You are one of several children of a Dark Elven ",      85, 69, 70, 45},
 	{"You are the only child of a Dark Elven ",          100, 69, 70, 55},
@@ -436,15 +440,18 @@ static hist_type bg[] =
 	{"and eyes which burn with hellfire.", 50, 106, 0, 50 },
 	{"and empty eyesockets.", 100, 106, 0, 50 },
 
-	{"You were created by ", 100, 107, 108, 50 },
-
-	{"a Necromancer.  ", 30, 108, 62, 50 },
-	{"a Wizard.  ", 50, 108, 62, 50 },
-	{"a restless spirit.  ",60, 108, 62, 50 },
-	{"an Evil Priest.  ", 70, 108, 62, 50 },
-	{"a pact with the demons.  ", 80, 108, 62, 50 },
-	{"a curse.  ", 95, 108, 62, 30 },
-	{"an oath.  ", 100, 108, 62, 50 },
+	{"You are the illegitimate and unacknowledged child ",   10, 107, 108, 25},
+	{"You are the illegitimate but acknowledged child ",     20, 107, 108, 35},
+	{"You are one of several children ",                     95, 107, 108, 45},
+	{"You are the first child ",                            100, 107, 108, 50},
+	
+	{"of a Serf.  ",                                         40, 108, 3, 65},
+	{"of a Yeoman.  ",                                       65, 108, 3, 80},
+	{"of a Townsman.  ",                                     80, 108, 3, 90},
+	{"of a Guildsman.  ",                                    90, 108, 3, 105},
+	{"of a Mage.  ",                                         96, 108, 3, 120},
+	{"of a Priest.  ",                                       99, 108, 3, 130},
+	{"of the Anari.  ",                                     100, 108, 3, 140},
 
 	{"You have a dark brown eye, ",               20, 109, 110, 50},
 	{"You have a brown eye, ",                    60, 109, 110, 50},
@@ -470,7 +477,7 @@ static hist_type bg[] =
 	{"and a very fair complexion.",             100, 112, 0, 50},
 
 	{"You arose from an unmarked grave.  ", 20, 113, 114, 50 },
-	{"In life you were a simple peasant, the victim of a powerful Vampire Lord.  ", 40, 109, 110, 50 },
+	{"In life you were a simple peasant, the victim of a powerful Vampire Lord.  ", 40, 113, 114, 50 },
 	{"In life you were a Vampire Hunter, but they got you.  ", 60, 113, 114, 50 },
 	{"In life you were a Necromancer.  ", 80, 113, 114, 50 },
 	{"In life you were a powerful noble.  ", 95, 113, 114, 50 },
@@ -490,16 +497,17 @@ static hist_type bg[] =
 
 	{"and a deathly pale complexion.", 100, 117, 0, 50 },
 
-	{"You were created by ", 100, 118, 119, 50 },
-
-	{"a Necromancer.  ", 30, 119, 134, 50 },
-	{"a magical experiment.  ", 50, 119, 134, 50 },
-	{"an Evil Priest.  ", 70, 119, 134, 50 },
-	{"a pact with the demons.  ", 75, 119, 134, 50 },
-	{"a restless spirit.  ", 85, 119, 134, 50 },
-	{"a curse.  ", 95, 119, 134, 30 },
-	{"an oath.  ", 100, 119, 134, 50 },
-
+      {"You are the illegitimate and unacknowledged child ",  10, 118, 119, 25},
+	{"You are the illegitimate but acknowledged child ",    20, 118, 119, 35},
+	{"You are one of several children ",                    90, 118, 119, 45},
+	{"You are the first child ",					  99, 118, 119, 50}, 
+	{"You are the next Gorim, born ",                     100, 118, 119, 100},
+	
+	{"of a gatherer.  ", 10, 119, 24, 50 },
+	{"of a shepherd.  ", 20, 119, 24, 50 },
+	{"of a hunter.  ", 95, 119, 24, 50 },
+	{"of a priest.  ", 100, 119, 24, 50 },
+	
 	{"jet-black hair, ", 25, 120, 121, 50 },
 	{"matted brown hair, ", 50, 120, 121, 50 },
 	{"white hair, ", 75, 120, 121, 50 },
@@ -648,7 +656,7 @@ static byte choose_realm(byte choices)
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"The realm of magic will determine which spells you can learn.");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"Life and Sorcery are protective, Chaos and Death are destructive.");
+		"Trump, Life and Sorcery are protective, Chaos and Death are destructive.");
 	Term_putstr(5, 17, -1, TERM_WHITE,
 		"Nature has both defensive and offensive spells.");
 
@@ -1045,6 +1053,12 @@ static void get_extra(void)
 		p_ptr->rewards[i] = 0;
 	}
 
+	/* Reset owned houses (none) */
+	for (i = 0; i < max_towns; i++)
+	{
+		p_ptr->houses[i] = 0;
+	}
+
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
 
@@ -1119,13 +1133,13 @@ static void get_history(void)
 	/* Starting place */
 	switch (p_ptr->prace)
 	{
-		case RACE_AMBERITE:
+		case RACE_DUNADAN:
 		{
 			chart = 67;
 			break;
 		}
 		case RACE_HUMAN:
-		case RACE_BARBARIAN:
+		case RACE_ATAN:
 		{
 			chart = 1;
 			break;
@@ -1236,7 +1250,7 @@ static void get_history(void)
 			chart = 102;
 			break;
 		}
-		case RACE_ZOMBIE:
+		case RACE_DELPHAE:
 		{
 			chart = 107;
 			break;
@@ -1246,7 +1260,7 @@ static void get_history(void)
 			chart = 113;
 			break;
 		}
-		case RACE_SPECTRE:
+		case RACE_ULGO:
 		{
 			chart = 118;
 			break;
@@ -1668,9 +1682,7 @@ static void player_outfit(void)
 	{
 		case RACE_GOLEM:
 		case RACE_SKELETON:
-		case RACE_ZOMBIE:
 		case RACE_VAMPIRE:
-		case RACE_SPECTRE:
 		{
 			/* Scrolls of satisfy hunger */
 			object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
@@ -1716,6 +1728,9 @@ static void player_outfit(void)
 	}
 	else
 	{
+		/* Delphae: Torches?!?  Torches?!?  We don't need no stinkin' torches! */
+		if (p_ptr->prace != RACE_DELPHAE)
+		{
 		/* Hack -- Give the player some torches */
 		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 		q_ptr->number = (byte)rand_range(3, 7);
@@ -1723,6 +1738,7 @@ static void player_outfit(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr);
+		}
 	}
 
 	/* Get local object */
@@ -1778,8 +1794,8 @@ static void player_outfit(void)
 		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
 
 		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
-		    p_ptr->prace == RACE_BARBARIAN)
-			/* Barbarians do not need a ring of resist fear */
+		    p_ptr->prace == RACE_ATAN)
+			/* Atans do not need a ring of resist fear */
 			sv = SV_RING_SUSTAIN_STR;
 
 		/* Get local object */
@@ -1986,7 +2002,7 @@ static bool player_birth_aux(void)
 	/* Choose */
 	while (1)
 	{
-		sprintf(buf, "Choose a sex (%c-%c), or * for random: ", I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a sex (%c-%c), * for random, or = for options: ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		c = inkey();
 		if (c == 'Q')
@@ -2044,7 +2060,7 @@ static bool player_birth_aux(void)
 		if (n < RACE_VAMPIRE)
 			sprintf(buf, "%c%c %s", I2A(n), p2, str);
 		else
-			sprintf(buf, "%d%c %s", (n - RACE_ZOMBIE), p2, str); /* HACK */
+			sprintf(buf, "%d%c %s", (n - RACE_DELPHAE), p2, str); /* HACK */
 		put_str(buf, 18 + (n/5), 2 + 15 * (n%5));
 	}
 
@@ -2072,7 +2088,7 @@ static bool player_birth_aux(void)
 		}
 		else if (c == '2')
 		{
-			k = RACE_SPECTRE;
+			k = RACE_ULGO;
 			break;
 		}
 		else if (c == '3')
@@ -2135,9 +2151,9 @@ static bool player_birth_aux(void)
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Using 'maximize' mode makes the game harder at the start,");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-	    "but often makes it easier to win. In Zangband, 'maximize'");
+	    "but often makes it easier to win. In SBFband, 'maximize'");
 	Term_putstr(5, 17, -1, TERM_WHITE,
-	    "mode is recommended for spellcasters.");
+	    "mode is recommended for spellcasters.  See birth.txt for more info.");
 
 	/* Ask about "maximize" mode */
 	while (1)
@@ -2183,6 +2199,8 @@ static bool player_birth_aux(void)
 		"Using 'preserve' mode makes it difficult to 'lose' artifacts,");
 	Term_putstr(5, 16, -1, TERM_WHITE,
 		"but eliminates the 'special' feelings about some levels.");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"See birth.txt for more info.");
 
 	/* Ask about "preserve" mode */
 	while (1)
@@ -2362,11 +2380,13 @@ static bool player_birth_aux(void)
 
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-		"You can input yourself the number of quest you'd like to");
+		"You can input yourself the number of quests you'd like to");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"perform next to two obligatory ones ( Oberon and the Serpent of Chaos )");
+		"perform next to two obligatory ones ( Sauron and the Morgoth )");
 	Term_putstr(5, 17, -1, TERM_WHITE,
-		"In case you do not want any additional quest, just enter 0");
+		"In case you do not want any additional quests, just enter 0");
+	Term_putstr(5, 18, -1, TERM_WHITE,
+		"See birth.txt for more info.");
 
 	/* Ask the number of additional quests */
 	while (TRUE)
@@ -2419,7 +2439,10 @@ static bool player_birth_aux(void)
 			/* Random monster 5 - 10 levels out of depth */
 			r_idx = get_mon_num(q_ptr->level + 4 + randint(6));
 			r_ptr = &r_info[r_idx];
-
+			
+			/* Uniques as random quest monsters can cause problems. -SBF */
+			if (!(r_ptr->flags1 & RF1_UNIQUE))
+			{
 			/* Save the index if the monster is deeper than out current monster */
 			if (!q_ptr->r_idx || (r_info[r_idx].level > r_info[q_ptr->r_idx].level))
 			{
@@ -2431,6 +2454,7 @@ static bool player_birth_aux(void)
 			 * out of depth depending on the quest level
 			 */
 			if (r_ptr->level > (q_ptr->level + (q_ptr->level / 20) + 1)) break;
+			}
 		}
 
 		quest_r_ptr = &r_info[q_ptr->r_idx];
@@ -2438,6 +2462,7 @@ static bool player_birth_aux(void)
 		/* Get the number of monsters */
 		if (quest_r_ptr->flags1 & RF1_UNIQUE)
 		{
+			/* This should never be visited */
 			/* Mark uniques */
 			quest_r_ptr->flags1 |= RF1_QUESTOR;
 
@@ -2449,15 +2474,15 @@ static bool player_birth_aux(void)
 		}
 	}
 
-	/* Init the two main quests (Oberon + Serpent) */
+	/* Init the two main quests (Sauron + Morgoth) */
 	init_flags = INIT_ASSIGN;
-	p_ptr->inside_quest = QUEST_OBERON;
+	p_ptr->inside_quest = QUEST_SAURON;
 	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-	quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+	quest[QUEST_SAURON].status = QUEST_STATUS_TAKEN;
 
-	p_ptr->inside_quest = QUEST_SERPENT;
+	p_ptr->inside_quest = QUEST_MORGOTH;
 	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-	quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
+	quest[QUEST_MORGOTH].status = QUEST_STATUS_TAKEN;
 	p_ptr->inside_quest = 0;
 
 	/* Clear */

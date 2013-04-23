@@ -252,7 +252,7 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (ZAngband %d.%d.%d)\n\n\n",
+	fprintf(fff, "Spoiler File -- Basic Items (SBFband %d.%d.%d)\n\n\n",
 		FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
 	/* More Header */
@@ -983,7 +983,7 @@ static void print_header(void)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 #else /* FAKE_VERSION */
-	sprintf(buf, "Artifact Spoilers for Zangband Version %d.%d.%d",
+	sprintf(buf, "Artifact Spoilers for SBFband Version %d.%d.%d",
 	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 #endif /* FAKE_VERSION */
@@ -1336,7 +1336,7 @@ static void spoil_mon_desc(cptr fname)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #else
-	fprintf(fff, "Monster Spoilers for Zangband Version %d.%d.%d\n",
+	fprintf(fff, "Monster Spoilers for SBFband Version %d.%d.%d\n",
 	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #endif
@@ -1558,7 +1558,7 @@ static void spoil_mon_info(cptr fname)
 	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-	sprintf(buf, "Monster Spoilers for Zangband Version %d.%d.%d\n",
+	sprintf(buf, "Monster Spoilers for SBFband Version %d.%d.%d\n",
 	     FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -1679,7 +1679,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else if (flags3 & (RF3_AMBERITE)) spoil_out (" Amberite");
+		else if (flags3 & (RF3_SPECIAL)) spoil_out (" Dunadan");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1886,7 +1886,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
 		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
 		if (flags6 & (RF6_S_CYBER))           vp[vn++] = "summon Cyberdemons";
-		if (flags6 & (RF6_S_AMBERITES))       vp[vn++] = "summon Lords of Amber";
+		if (flags6 & (RF6_S_SPECIAL))         vp[vn++] = "summon Dunedain and Deities";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
 
 		if (vn)

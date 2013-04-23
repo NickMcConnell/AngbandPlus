@@ -1737,6 +1737,12 @@ static void calc_torch(void)
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
 
+	/* Check if the race is Delphae.  If so, cur_lite of 2. */
+	if (p_ptr->prace == RACE_DELPHAE)
+	{
+		p_ptr->cur_lite = 2;
+	}
+
 	/* Loop through all wielded items */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -1748,6 +1754,8 @@ static void calc_torch(void)
 			/* Torches (with fuel) provide some lite */
 			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
 			{
+				/* Torches don't help the Delphae */
+				if (p_ptr->prace != RACE_DELPHAE)
 				p_ptr->cur_lite += 1;
 				continue;
 			}
@@ -1755,6 +1763,8 @@ static void calc_torch(void)
 			/* Lanterns (with fuel) provide more lite */
 			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
 			{
+				/* Lanterns don't help the Delphae */
+				if (p_ptr->prace != RACE_DELPHAE)
 				p_ptr->cur_lite += 2;
 				continue;
 			}
@@ -1948,6 +1958,7 @@ void calc_bonuses(void)
 	p_ptr->sh_elec = FALSE;
 	p_ptr->anti_magic = FALSE;
 	p_ptr->anti_tele = FALSE;
+	p_ptr->sense = FALSE;
 
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
@@ -2068,15 +2079,15 @@ void calc_bonuses(void)
 				}
 			}
 			break;
-		case RACE_AMBERITE:
+		case RACE_DUNADAN:
 			p_ptr->sustain_con = TRUE;
-			p_ptr->regenerate = TRUE;  /* Amberites heal fast... */
+			p_ptr->regenerate = TRUE;  /* Dunedain heal fast... */
 			break;
 		case RACE_HIGH_ELF:
 			p_ptr->resist_lite = TRUE;
 			p_ptr->see_inv = TRUE;
 			break;
-		case RACE_BARBARIAN:
+		case RACE_ATAN:
 			p_ptr->resist_fear = TRUE;
 			break;
 		case RACE_HALF_OGRE:
@@ -2147,13 +2158,15 @@ void calc_bonuses(void)
 			p_ptr->resist_pois = TRUE;
 			if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
 			break;
-		case RACE_ZOMBIE:
-			p_ptr->resist_neth = TRUE;
-			p_ptr->hold_life = TRUE;
+		case RACE_DELPHAE:
+			p_ptr->resist_lite = TRUE;
+			p_ptr->resist_dark = TRUE;
 			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			if (p_ptr->lev > 4) p_ptr->resist_cold = TRUE;
+			/* Perm. light.  Does this make a difference? */
+			p_ptr->lite = TRUE;
+			/* The Delphae glow */
+			p_ptr->cur_lite = 2;
+			if (p_ptr->lev > 29) p_ptr->telepathy = TRUE;
 			break;
 		case RACE_VAMPIRE:
 			p_ptr->resist_dark = TRUE;
@@ -2163,14 +2176,9 @@ void calc_bonuses(void)
 			p_ptr->resist_pois = TRUE;
 			p_ptr->lite = TRUE;
 			break;
-		case RACE_SPECTRE:
-			p_ptr->resist_neth = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			p_ptr->resist_cold = TRUE;
-			if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;
+		case RACE_ULGO:
+			p_ptr->resist_dark = TRUE;
+			p_ptr->resist_sound = TRUE;
 			break;
 		case RACE_SPRITE:
 			p_ptr->ffall = TRUE;
@@ -2441,6 +2449,7 @@ void calc_bonuses(void)
 		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 		if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = MAX(p_ptr->wraith_form, 20);
+		if (f3 & (TR3_SENSING)) p_ptr->sense = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -3083,7 +3092,25 @@ void calc_bonuses(void)
 	p_ptr->skill_sav += (cp_ptr->x_sav * p_ptr->lev / 10);
 
 	/* Affect Skill -- stealth (Level, by Class) */
-	p_ptr->skill_stl += (cp_ptr->x_stl * p_ptr->lev / 10);
+	if(cp_ptr->x_stl == 0) /* If this is not a rogue, ranger, or monk */
+	{
+		p_ptr->skill_stl += (cp_ptr->x_stl * p_ptr->lev / 10);  /* no bonus */
+	}
+	
+	/* Hack by SBF: Rogues get a stealth bonus every 5 levels */
+	/* while Rangers and Monks get one every 10 levels. */
+	if(cp_ptr->x_stl != 0) 
+	{
+		if(cp_ptr->x_stl == 10)   /* If this is a rogue */
+		{
+			p_ptr->skill_stl += (p_ptr->lev/5);   /* give a stealth bonus */
+		}
+
+		if(cp_ptr->x_stl == 5)  /* If this is a monk or ranger */
+		{
+			p_ptr->skill_stl += (p_ptr->lev/10); /* give a stealth bonus */
+		}
+	}
 
 	/* Affect Skill -- search ability (Level, by Class) */
 	p_ptr->skill_srh += (cp_ptr->x_srh * p_ptr->lev / 10);

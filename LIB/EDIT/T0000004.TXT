@@ -78,18 +78,20 @@ F:b:129:3:0:0:0:0:0:23
 ?:[EQU $QUEST23 2]
 F:b:129:3:0:0:0:0:0:23
 
-# Quest 23 rewarding, reward is Balance DSM, continue with quest 17
+# Quest 23 rewarding, reward is Balance DSM, DO NOT continue with quest 17
 ?:[EQU $QUEST23 3]
-F:b:129:3:0:0:0:0:0:17
+#F:b:129:3:0:0:0:0:0:17
+F:b:129:3
 F:!:1:3:0:411
 
-# Quest 23 finished, continue with quest 17
+# Quest 23 finished, DO NOT continue with quest 17
 ?:[EQU $QUEST23 4]
-F:b:129:3:0:0:0:0:0:17
-
+#F:b:129:3:0:0:0:0:0:17
+F:b:129:3
 
 ?:1
 
+# Quest removed.  Will be replaced later. -SBF
 #################### Quest 17 - The City beneath the Sea ####################
 
 # Quest 17 not started
@@ -97,10 +99,10 @@ F:b:129:3:0:0:0:0:0:17
 #F:b:129:3:0:0:0:0:0:17
 
 # Quest 17 assigned
-?:[EQU $QUEST17 1]
-F:b:129:3:0:0:0:0:0:17
+# ?:[EQU $QUEST17 1]
+# F:b:129:3:0:0:0:0:0:17
 
-?:1
+# ?:1
 
 
 ############### Buildings ###############
@@ -113,6 +115,9 @@ B:0:A:1:Town history:0:0:h:2:0
 B:1:N:Manor:Colmanwen:High-Elf
 #B:1:A:0:Look at busts of Mayors:0:0:l:5:0
 B:1:A:0:Request quest:0:0:q:6:0
+
+B:2:N:Angwil Realty:Elareth:Elf
+B:2:A:0:Buy a house:30000:30000:b:36:0
 
 B:3:N:Casino:Hentto:Hobbit
 B:3:A:0:In-Between:0:0:b:12:0
@@ -205,7 +210,7 @@ D:#-TTTTT--T---TT-T--TTTTT-TTT---TT-T-TT--TTTT--TTTT---TT,-TTT---TTT####-T,,,,,,
 D:#T-TTTT---TTT-TTTT-T-TTT-T--TT-T-TTTTTTTTTT--TTT-T-TT,-TTT-T-TT---####-TTT,T-TTT,T#####-TTTT--TTTT,,,TTT-TTT--T-TT,,,TT##-TT##TTTTTTTTT###h##TTTTTT-TTTTT--TTT-TT-TTT-TTTT-T-TTTT-TT--,TT-TT--TTTTTTT#
 D:#T-TTT-TTTTTT-TTT--TTT,--TTT-T-TT--T-TTTT--TTTTTTT-TTTTT--TT-T-TTTTTTTT###4###-T,T#####TT,T--TTT,,,!,,,TTT--TT-T-T,TTT,-TTT--TTT--T-T-T-TT,TT--TTT-,TT-T-TT---TTTTT-TT,-T,TTT-TTTT--TTT-TT-TTTTTTTT-T#
 D:#TT--T-TTT-TT----TTT--,TT-TTT-TT-TTTTT-TT----TT--TTTT--TTT--TTTTTT-TTT-#######TT,TTT,T-T-TT-T-T,,##b##,,TTTTT-T-T-,TT-TTT-TTTT-T-TTTTTTTT-,TTT#####TTTTTTTT-TTT-T-TTTTTTTTT-TTT-TT-TTTTT-TT-T-TT-TTTT#
-D:#-,-TT-T-TTTT-TTTTTTTTT---TTT-TT-,-TTTTT-T-T-T,TTTT--TTTTT-TTT-TTTT----#######TT,T-TT--TT----TT,#######,TT-T--T-TT,TTTTT-TTTTTT-TT,TTT-TT,,,,,m####TTTTT--TTT--TT-,TTTTTT--TT---T-TTT-TTTT--T-T-TTT-T#
+D:#-,-TT-T-TTTT-TTTTTTTTT---TTT-TT-,-TTTTT-T-T-T,TTTT--TTTTT-TTT-TTTT----c######TT,T-TT--TT----TT,#######,TT-T--T-TT,TTTTT-TTTTTT-TT,TTT-TT,,,,,m####TTTTT--TTT--TT-,TTTTTT--TT---T-TTT-TTTT--T-T-TTT-T#
 D:#TTTTTTTT-TTTTTT---T-T-TTTT-TTTT-TTTTTTTTTT--TTTTT-TT--TT-T--T-TT--T-T-###j###-T,TTTTTTTTTTTTT,,#######,,TTTTTTT-T,TTTTT-TTTTTTTTTT-TTTT,,TTTT#####TTT-TTTTTTTTTT,TTTT-TTTTT--TTT-TTT-T--TT-TT-TTTTTT#
 D:#T-TTT-TTT-TT--TTT-TTTT-TT-TTTTTTT-T,T-TTT-TTT-,TT-T,TTT---T-TTT-TTTT-TTTT,,,,,,,,,,,,,,,,,,,,,,#######,,,,,,,,TTT,TTTTTTTTTTTT-TT-T-TT,,TTTTTT####TT-T-TTT--TTTT-TTTTTT-TTTTT,TTTT-TTTTT-T-TT-T-TTTT#
 D:#-TTTT-TTT-T-TTT-T,TTT-T-TT---TT----TT--TTTT---TTTTTTTTT-T,TTTTTTTTTT,,,,,,TTT,T,,TTTTTTTTTTTT,,#######,,T-TTT,,,,,,,,,,,,,,,,,,,,,,,,,,T-T-TTT####TT--TTTTTTTTTTTTTTT--TTT-TTTTT,--TT--TTTT---TTT-,T#

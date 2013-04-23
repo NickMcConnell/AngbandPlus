@@ -50,10 +50,10 @@ F:g:83:8:406
 F:h:83:8:482
 
 # Deep water with Lesser kraken
-F:i:83:8:740
+F:i:83:8:730
 
 # Deep water with Greater kraken
-F:j:83:8:775
+F:j:83:8:758
 
 # Steel Helm
 F:A:84:8:0:97

@@ -202,6 +202,7 @@ extern bool plain_descriptions;
 extern bool stupid_monsters;
 extern bool auto_destroy;
 extern bool wear_confirm;
+extern bool wear_unknown;
 extern bool confirm_stairs;
 extern bool disturb_pets;
 extern bool view_perma_grids;
@@ -236,7 +237,7 @@ extern bool cheat_room;
 extern bool cheat_xtra;
 extern bool cheat_know;
 extern bool cheat_live;
-extern bool last_words;              /* Zangband options */
+extern bool last_words;              /* SBFband options */
 extern bool speak_unique;
 extern bool small_levels;
 extern bool always_small_levels;
@@ -568,6 +569,7 @@ extern void signals_ignore_tstp(void);
 extern void signals_handle_tstp(void);
 extern void signals_init(void);
 extern errr get_rnd_line(char * file_name, char * output);
+extern errr get_xtra_line(char *filename, monster_type *m_ptr, char *output);
 
 /* generate.c */
 extern void generate_cave(void);

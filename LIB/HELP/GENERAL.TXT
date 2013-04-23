@@ -22,11 +22,11 @@ a search.  Use Pound + Zero + Return + Slash + Return to restart a search.
 
 === General Information ===
 
-The game of Zangband is a single player dungeon simulation.  A player
+The game of SBFband is a single player dungeon simulation.  A player
 may choose from a number of races and classes when creating a character,
 and then "run" that character over a period of days, weeks, even months,
-attempting to win the game by defeating the Great Serpent of Chaos, who
-lurks somewhere in the depths of the dungeon.
+attempting to win the game by defeating Morgoth, who lurks somewhere in 
+the depths of the dungeon.
 
 The player will begin his adventure on the town level where he may acquire
 supplies, weapons, armor, and magical devices by bartering with various shop
@@ -35,8 +35,6 @@ the Pits of Angband where fantastic adventures await his coming!
  
 You will probably want to browse through the "help files", especially the
 one on available commands, before beginning any serious adventuring...
-
-
 
 === A Note from the Maintainer (of standard Angband) ===
 
@@ -103,6 +101,8 @@ to enter the appropriate sub-directory, such as "Source" or "Macintosh".
 You should visit "http://www.voicenet.com/~benh/Angband/" (the Official
 Angband Home Page) and "http://www.paranoia.com/~jth/angband.html" (the
 Unofficial Angband Home Page), for more up to date information.
+
+(Note: The Official Angband Home Page is now "http://www.phial.com/Angband" -SBF)
 
 You may freely distribute the game, and its source, though you are bound
 not only by the existing copyright notice from 1984, but also whatever

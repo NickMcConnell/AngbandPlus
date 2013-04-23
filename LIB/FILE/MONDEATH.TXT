@@ -1,4 +1,4 @@
-332
+335
 ****** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Live and let live, right..?'
 'AAAAAAAAARRRRRRRRRRRRRRRRGGGGGGGGGGGGGGGGHHHHHHHHHHHHHHHH!!!!!!!!!!!'
@@ -332,3 +332,6 @@
 'I really screwed up this time.'
 'Wow, what a trip!'
 'I believe my kingdom will come'
+'I meant to do that.'
+'Alright, we'll call it a draw.'
+'I wondered what that low hitpoint warning thing meant...'

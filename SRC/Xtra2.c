@@ -318,7 +318,7 @@ void monster_death(int m_idx)
 	}
 
 	/* Handle the current quest */
-	if (quest_num)
+	if (quest_num && (quest[quest_num].status == QUEST_STATUS_TAKEN))
 	{
 		/* Current quest */
 		i = quest_num;
@@ -394,7 +394,7 @@ void monster_death(int m_idx)
 					}
 
 					/* Finish the two main quests without rewarding */
-					if ((i == QUEST_OBERON) || (i == QUEST_SERPENT))
+					if ((i == QUEST_SAURON) || (i == QUEST_MORGOTH))
 					{
 						quest[i].status = QUEST_STATUS_FINISHED;
 					}
@@ -458,52 +458,11 @@ void monster_death(int m_idx)
 	/* Drop objects being carried */
 	monster_drop_carried_objects(m_ptr);
 
-	/* Mega^2-hack -- destroying the Stormbringer gives it us! */
-	if (strstr((r_name + r_ptr->name), "Stormbringer"))
-	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Prepare to make the Stormbringer */
-		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
-
-		/* Mega-Hack -- Name the sword  */
-
-		q_ptr->art_name = quark_add("'Stormbringer'");
-		q_ptr->to_h = 16;
-		q_ptr->to_d = 16;
-		q_ptr->ds = 6;
-		q_ptr->dd = 6;
-		q_ptr->pval = 2;
-
-		q_ptr->art_flags1 |= ( TR1_VAMPIRIC | TR1_STR | TR1_CON | TR1_BLOWS );
-		q_ptr->art_flags2 |= ( TR2_FREE_ACT | TR2_HOLD_LIFE |
-		                       TR2_RES_NEXUS | TR2_RES_CHAOS | TR2_RES_NETHER |
-		                       TR2_RES_CONF ); /* No longer resist_disen */
-		q_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-		                       TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
-		/* Just to be sure */
-
-		q_ptr->art_flags3 |= TR3_NO_TELE; /* How's that for a downside? */
-
-		/* For game balance... */
-		q_ptr->art_flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
-		q_ptr->ident |= IDENT_CURSED;
-
-		if (randint(2) == 1)
-			q_ptr->art_flags3 |= (TR3_DRAIN_EXP);
-		else
-			q_ptr->art_flags3 |= (TR3_AGGRAVATE);
-
-		/* Drop it in the dungeon */
-		drop_near(q_ptr, -1, y, x);
-	}
-
 	/*
 	 * Mega^3-hack: killing a 'Warrior of the Dawn' is likely to
 	 * spawn another in the fallen one's place!
 	 */
-	else if (strstr((r_name + r_ptr->name), "the Dawn"))
+	if (strstr((r_name + r_ptr->name), "the Dawn"))
 	{
 		if (!(randint(20) == 13))
 		{
@@ -552,6 +511,8 @@ void monster_death(int m_idx)
 		}
 	}
 
+	/* Unmakers don't exist, but this is being kept in case I want to create a */
+	/* similar monster. -SBF */
 	/* One more ultra-hack: An Unmaker goes out with a big bang! */
 	else if (strstr((r_name + r_ptr->name), "Unmaker"))
 	{
@@ -559,6 +520,7 @@ void monster_death(int m_idx)
 		(void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
 	}
 
+	/* Bloodletters don't exist here.  Kept for possible future use. -SBF*/
 	/* Bloodletters of Khorne drop a blade of chaos */
 	else if (strstr((r_name + r_ptr->name), "Bloodletter"))
 	{
@@ -577,7 +539,7 @@ void monster_death(int m_idx)
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (r_ptr->flags1 & RF1_DROP_CHOSEN)
 	{
-		if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
+		if (strstr((r_name + r_ptr->name), "Morgoth, Lord of Darkness"))
 		{
 			/* Get local object */
 			q_ptr = &forge;
@@ -613,91 +575,6 @@ void monster_death(int m_idx)
 		{
 			byte a_idx = 0;
 			int chance = 0;
-
-			if (strstr((r_name + r_ptr->name), "Oberon,"))
-			{
-				if (randint(3) == 1)
-				{
-					a_idx = ART_THRAIN;
-					chance = 33;
-				}
-				else
-				{
-					a_idx = ART_GONDOR;
-					chance = 50;
-				}
-			}
-			else if (strstr((r_name + r_ptr->name), "Barimen"))
-			{
-				a_idx = ART_THRAIN;
-				chance = 20;
-			}
-			else if (strstr((r_name + r_ptr->name), "Sauron,"))
-			{
-				a_idx = ART_POWER;
-				chance = 25;
-			}
-			else if (strstr((r_name + r_ptr->name), "Brand, "))
-			{
-				if (randint(3) != 1)
-				{
-					a_idx = ART_BRAND;
-					chance = 25;
-				}
-				else
-				{
-					a_idx = ART_ANGUIREL;
-					chance = 33;
-				}
-			}
-			else if (strstr((r_name + r_ptr->name), "Corwin,"))
-			{
-				if (randint(3) != 1)
-				{
-					a_idx = ART_GRAYSWANDIR;
-					chance = 33;
-				}
-				else
-				{
-					a_idx = ART_CORWIN;
-					chance = 33;
-				}
-			}
-			else if (strstr((r_name + r_ptr->name), "Saruman of"))
-			{
-				a_idx = ART_ELENDIL;
-				chance = 20;
-			}
-			else if (strstr((r_name + r_ptr->name), "Fiona the"))
-			{
-				a_idx = ART_BELANGIL;
-				chance = 50;
-			}
-			else if (strstr((r_name + r_ptr->name), "Julian, "))
-			{
-				a_idx = ART_CELEBORN;
-				chance = 45;
-			}
-			else if (strstr((r_name + r_ptr->name), "Klings"))
-			{
-				a_idx = ART_OROME;
-				chance = 40;
-			}
-			else if (strstr((r_name + r_ptr->name), "Groo"))
-			{
-				a_idx = ART_GROO;
-				chance = 75;
-			}
-			else if (strstr((r_name + r_ptr->name), "Hagen,"))
-			{
-				a_idx = ART_NIMLOTH;
-				chance = 66;
-			}
-			else if (strstr((r_name + r_ptr->name), "Caine,"))
-			{
-				a_idx = ART_ANGRIST;
-				chance = 50;
-			}
 
 			if ((a_idx > 0) && ((randint(99) < chance) || (wizard)))
 			{
@@ -801,7 +678,7 @@ void monster_death(int m_idx)
 	if (!(r_ptr->flags1 & RF1_QUESTOR)) return;
 
 	/* Winner? */
-	if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
+	if (strstr((r_name + r_ptr->name), "Morgoth, Lord of Darkness"))
 	{
 		/* Total winner */
 		total_winner = TRUE;
@@ -873,7 +750,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
-		if ((r_ptr->flags3 & RF3_AMBERITE) && (randint(2) == 1))
+		if ((r_ptr->flags3 & RF3_SPECIAL) && (randint(2) == 1))
 		{
 			int curses = 1 + randint(3);
 
@@ -1955,6 +1832,9 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		if (boring || (feat > FEAT_INVIS))
 		{
 			cptr name;
+			char *t_type; 
+			
+			t_type = "yahoo";
 
 			/* Hack -- special handling for building doors */
 			if ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL))
@@ -1966,6 +1846,76 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				name = f_name + f_info[feat].name;
 			}
 
+			/* Rogues and characters with passable disarming skill gain more info */
+			/* about the trap. -SBF */
+			if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))
+			{
+				if((p_ptr->pclass == CLASS_ROGUE) || (((p_ptr->skill_dis) / 8) >= 10))
+				{
+					switch(feat)
+					{
+							case FEAT_TRAP_SPIKED_PIT:
+							t_type = " (spiked)";
+							break;
+
+							case FEAT_TRAP_POISON_PIT:
+							t_type = " (poisoned)";
+							break;
+
+							case FEAT_TRAP_SUMMON:
+							t_type = " (summoning)";
+							break;
+
+							case FEAT_TRAP_TELEPORT:
+							t_type = " (teleport)";
+							break;
+
+							case FEAT_TRAP_FIRE:
+							t_type = " (fire)";
+							break;
+
+							case FEAT_TRAP_ACID:
+							t_type = " (acid)";
+							break;
+
+							case FEAT_TRAP_SLOW:
+							t_type = " (slowness)";
+							break;
+
+							case FEAT_TRAP_LOSE_STR:
+							t_type = " (lose STR)";
+							break;
+
+							case FEAT_TRAP_LOSE_DEX:
+							t_type = " (lose DEX)";
+							break;
+
+							case FEAT_TRAP_LOSE_CON:
+							t_type = " (lose CON)";
+							break;
+
+							case FEAT_TRAP_BLIND:
+							t_type = " (blind)";
+							break;
+
+							case FEAT_TRAP_CONFUSE:
+							t_type = " (confuse)";
+							break;
+
+							case FEAT_TRAP_POISON:
+							t_type = " (poison)";
+							break;
+
+							case FEAT_TRAP_SLEEP:
+							t_type = " (sleep)";
+							break;
+
+							default:
+							break;
+						}
+					}
+				} 
+	
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
 
@@ -1998,7 +1948,15 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			}
 
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if(!strcmp(t_type, "yahoo"))
+			{
+				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			}
+			if(strcmp(t_type, "yahoo"))
+			{
+				sprintf(out_val, "%s%s%s%s%s [%s]", s1, s2, s3, name, t_type, info);
+			}
+
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();

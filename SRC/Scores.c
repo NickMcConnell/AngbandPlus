@@ -164,8 +164,9 @@ static int highscore_add(high_score *score)
  * Only five entries per line, too much info.
  *
  * Mega-Hack -- allow "fake" entry at the given position.
+ * Removed static to allow main-win.c access.
  */
-static void display_scores_aux(int from, int to, int note, high_score *score)
+void display_scores_aux(int from, int to, int note, high_score *score)
 {
 	int		i, j, k, n, place;
 	byte attr;
@@ -209,7 +210,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Zangband Hall of Fame", 0, 0);
+		put_str("                SBFband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)

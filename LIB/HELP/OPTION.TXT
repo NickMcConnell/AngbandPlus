@@ -1,4 +1,4 @@
-=== Options and Effects (Zangband 2.2.*) ===
+=== Options and Effects (SBFband 0.1.0+) ===
 
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.
@@ -71,9 +71,9 @@ Show labels in object lists    [show_labels]
     indicate what the player is "using" the object for, such as "wielding"
     or "wearing" (in a given location).  After you have played for a while,
     this information is no longer useful, and can be annoying.
-    Note that in Zangband 2.1.0 and later this option no longer controls
+    Note that in SBFband 0.1.0 and later this option no longer controls
     the "plain flavoured object descriptions": a separate option for them
-    has been added under "Zangband Options".
+    has been added under "SBFband Options".
 
 Show weights in object lists    [show_weights]
     Display the weights of objects in the "inventory" and "equipment" lists,
@@ -369,14 +369,14 @@ Use special colors for floor grids (slow)    [view_special_lite]
     the speed of the game.
 
 
-=== Zangband Options ===
+=== SBFband Options ===
 
-All features which are typical to Zangband (i.e. which are not in
+All features which are typical to SBFband (i.e. which are not in
 vanilla Angband) are collected in this menu (except for the Autosave
 options).
 
 Disturb whenever random things happen    [disturb_other]
-    In Zangband, uncursed teleporting items may teleport you around
+    In SBFband, uncursed teleporting items may teleport you around
     sometimes, asking for your confirmation (and possibly disturbing
     your rest). If you unset this option, they will stop asking you
     and teleporting you randomly. Cursed items will neither ask for
@@ -434,22 +434,22 @@ Skip mutations in 'C'haracer Display    [skip_mutations]
     Description: they should set this option.
 
 Plain object descriptions    [plain_descriptions]
-    In Zangband, this option disables "full" names for identified
+    In sbfband, this option disables "full" names for identified
     'flavored' objects, in other words, if this option is not in use, an
     identified Potion of Speed could be listed (for example) as a
     Blue Potion of Speed. If you prefer simpler, less verbose
     descriptions, set this option.
 
 Monsters behave stupidly    [stupid_monsters]
-    Zangband 2.1.0 incorporates Keldon Jones' improved monster Artificial
+    SBFband incorporates Keldon Jones' improved monster Artificial
     Intelligence patch. While this patch most certainly makes monsters
     behave more realistically, they will also be more deadly with the
     improved AI. If you are a sissy, set this option to get the old,
     really stupid monster AI.
     Note that the new AI is a bit processing power expensive. If you have
-    an old computer (386sx) and Zangband is running too slowly, you could
-    try turning stupid_monsters on. Or buying that Pentium II so you can
-    run Zangband. :-)
+    an old computer (386sx) and SBFband is running too slowly, you could
+    try turning stupid_monsters on or buy that new computer so you can
+    run SBFband. ;)
 
 No query to destroy known worthless items    [auto_destroy]
     It can sometimes be annoying that the Destroy command asks for confirmation
@@ -491,6 +491,13 @@ Display floor stacks in lists   [easy_floor]
     Lets you select an item from a stack on the floor by browsing a list,
     Also floor stack are described as "You see a stack of n items.", when
     there is more than one item on a floor grid.
+
+Confirm to wear/wield unidentified items   [wear_unknown]
+    Some players may occasionally, due to a typing mistake, find themselves
+    wearing an item they haven't identified that turns out to be cursed.
+    If this option is set, you should be safe from such typing mistakes:
+    you will be prompted if you attempt to wear or wield an unidentified
+    item.
 
 
 === Stacking Options ===
@@ -576,7 +583,7 @@ Allow player to avoid death    [cheat_live]
 === Startup Options ===
 
 While cheating makes the game easier, the following options can make
-ZAngband harder.  So if you think the game is too easy, or if you want
+SBFband harder.  So if you think the game is too easy, or if you want
 to impress your friends, then switch on the following options.  The startup-
 options can only be accessed while creating a new character (press '='
 while creating the character).  There is no way to turn them off after the
@@ -584,12 +591,13 @@ creation is finished!
 
 Use 'vanilla' town without quests and wilderness   [vanilla_town]
     Uses the basic town known from the standard Angband and older versions
-    of ZAngband.  This town is only one screen in size and contains only
-    the 8 ZAngband stores, your home, and the stairs to the dungeon.
-    If you use the 'vanilla' town, then there is no wilderness, no special
-    buildings and no set quests (but you can still use the random quests).
-    This also speeds up the game on slower machines, since the wilderness
-    doesn't need to be created.
+    of SBFband.  This town is only one screen in size and contains only
+    the 8 Angband stores, your home, the store to buy your home, and the 
+    stairs to the dungeon.  If you use the 'vanilla' town, then there is 
+    no wilderness, no special buildings (except the store to buy your home)
+    and no set quests (but you can still use the random quests).  This also 
+    speeds up the game on slower machines, since the wilderness doesn't need 
+    to be created.
 
 Use 'lite' town without a wilderness   [lite_town]
     Uses a special town with all stores, your home, all buildings,
@@ -618,7 +626,7 @@ Permanently enable the autoscummer   [ironman_autoscum]
     This option switches the "autoscummer" permanently on, so that only
     "good" levels are created.  This can mean, that there are good items
     on this level, or that the level is protected by especially powerful
-    monsters.  In ZAngband it often is the later, so use this option with
+    monsters.  In SBFband it often is the later, so use this option with
     care.
 
 Quest monsters get reinforcements   [ironman_hard_quests]
@@ -644,5 +652,6 @@ since the stats are no longer limited to a "natural" value of "18/100".
 created by Ben Harrison
 updated for ZAngband 2.1.* by Topi Ylinen
 updated for Zangband 2.2.* by Robert Ruehlmann
+updated for SBFband 0.1.0+ by Steve Fisher
 
-Last update: January 8th, 1999
+Last update: June 2nd, 1999

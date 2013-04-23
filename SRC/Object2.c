@@ -923,7 +923,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_SH_FIRE) total += 5000;
 	if (f3 & TR3_SH_ELEC) total += 5000;
 	if (f3 & TR3_QUESTITEM) total += 0;
-	if (f3 & TR3_XXX4) total += 0;
+	if (f3 & TR3_SENSING) total += 5000;
 	if (f3 & TR3_NO_TELE) total += 2500;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
 	if (f3 & TR3_WRAITH) total += 250000;
@@ -1175,10 +1175,22 @@ s32b object_value_real(object_type *o_ptr)
 	{
 		/* Wands/Staffs */
 		case TV_WAND:
+		{
+			/* Pay extra for charges, depending on standard number of 
+			 * charges.  Handle new-style wands correctly. -LM-
+			 */
+			value += (value * o_ptr->pval / o_ptr->number / (k_ptr->pval * 2));
+
+			/* Done */
+			break;
+		}
+
 		case TV_STAFF:
 		{
-			/* Pay extra for charges */
-			value += ((value / 20) * o_ptr->pval);
+			/* Pay extra for charges, depending on standard number of 
+			 * charges.  -LM-
+			 */
+			value += (value * o_ptr->pval / (k_ptr->pval * 2));
 
 			/* Done */
 			break;
@@ -1332,9 +1344,11 @@ s32b object_value(object_type *o_ptr)
  *
  * See "object_absorb()" for the actual "absorption" code.
  *
- * If permitted, we allow wands/staffs (if they are known to have equal
- * charges) and rods (if fully charged) to combine.  They will unstack
- * (if necessary) when they are used.
+ * If permitted, we allow staffs (if they are known to have equal charges 
+ * and both are either known or confirmed empty) and wands (if both are 
+ * either known or confirmed empty) and rods (in all cases) to combine. 
+ * Staffs will unstack (if necessary) when they are used, but wands and 
+ * rods will only unstack if one is dropped. -LM-
  *
  * If permitted, we allow weapons/armor to stack, if fully "known".
  *
@@ -1375,24 +1389,38 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 		/* Staffs and Wands */
 		case TV_STAFF:
+		{
+	      	/* Require either knowledge or known empty for both staffs. */
+				if ((!(o_ptr->ident & (IDENT_EMPTY)) && 
+					!object_known_p(o_ptr)) || 
+					(!(j_ptr->ident & (IDENT_EMPTY)) && 
+					!object_known_p(j_ptr))) return(0);
+
+				/* Require identical charges, since staffs are bulky. */
+				if (o_ptr->pval != j_ptr->pval) return (0);
+
+				/* Assume okay */
+				break;
+		}
+
 		case TV_WAND:
 		{
-			/* Require knowledge */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
+			/* Require either knowledge or known empty for both wands. */
+			if ((!(o_ptr->ident & (IDENT_EMPTY)) && 
+				!object_known_p(o_ptr)) || 
+				(!(j_ptr->ident & (IDENT_EMPTY)) && 
+				!object_known_p(j_ptr))) return(0);
 
-			/* Fall through */
+			/* Wand charges combine in O&ZAngband&SBFband.  */
+
+			/* Assume okay */
+			break;
 		}
 
 		/* Staffs and Wands and Rods */
 		case TV_ROD:
 		{
-			/* Require permission */
-			if (!stack_allow_wands) return (0);
-
-			/* Require identical charges */
-			if (o_ptr->pval != j_ptr->pval) return (0);
-
-			/* Probably okay */
+			/* assume okay */
 			break;
 		}
 
@@ -2677,9 +2705,15 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					/* Roll for ego-item */
 					switch (randint(10))
 					{
-						case 1: case 2: case 3: case 4:
+						case 1: case 2: case 3:
 						{
 							o_ptr->name2 = EGO_FREE_ACTION;
+							break;
+						}
+
+						case 4:
+						{
+							o_ptr->name2 = EGO_THIEVERY;
 							break;
 						}
 
@@ -3078,7 +3112,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Strength, Constitution, Dexterity, Intelligence */
+				/* Strength, Constitution, Dexterity, Intelligence, Stealth */
 				case SV_RING_ATTACKS:
 				{
 					/* Stat bonus */
@@ -3101,6 +3135,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
+				case SV_RING_STEALTH:
 				case SV_RING_STR:
 				case SV_RING_CON:
 				case SV_RING_DEX:
@@ -3203,7 +3238,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
 					break;
 				}
-
+				
 				/* Weakness, Stupidity */
 				case SV_RING_WEAKNESS:
 				case SV_RING_STUPIDITY:

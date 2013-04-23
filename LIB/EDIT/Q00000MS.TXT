@@ -4,7 +4,7 @@
 Q:24:N:The Rise and Fall of Micro$oft
 
 # type:num_mon:cur_num:max_num:level:r_idx:k_idx
-Q:24:Q:1:0:0:1:50:732:0:2
+Q:24:Q:1:0:0:1:50:726:0:2
 
 
 # Description for quest
@@ -57,7 +57,7 @@ F:e:1:8:376
 F:f:1:8:516 
 
 # Gates himself
-F:g:1:12:732
+F:g:1:12:726
 
 # Money
 F:$:1:8:0:488

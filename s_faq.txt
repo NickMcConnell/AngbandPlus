@@ -1,11 +1,28 @@
 
-                    ZAngband Official FAQ
+                     SBFband Official FAQ
 
-                     by Robert Ruehlmann
-                       rr9@angband.org
+                        by Steve Fisher
+                     Sperlock74@yahoo.com
+       (based off the Zangband Official FAQ by Robert Ruehlmann)
+	 	(with some stuff borrowed from the GSNband FAQ)				
+                         September 19, 1999
+                         Version 0.2.1
 
-                      December 29, 1998
-                         Version 0.1.1
+Note: If your wrists start to hurt during typing, (which could be 
+Repetitive Stress Inury, which can lead to Carpal Tunnel Syndrome)
+here is an exercise posted by Jason Maskell in 
+rec.games.roguelike.angband which could help:
+
+Hold your arms out horizontally, make a fist, and then point
+the fist towards the floor, as much as you can. This will
+stretch one sides tendons. Hold for 5 seconds. Then make a
+flat hand and hold it level with your arm, hold for 5 seconds.
+Now splay your fingers and attempt to make your hand point
+toward the ceiling (this one is hard, so don't push it too
+much). You should feel your tendons stretching. Repeat this a
+few times. Take frequent breaks and do this if it starts to hurt
+a little bit. I was sliding very fast towards CTS and this
+corrected it.
 
 
 =====================================================================
@@ -16,7 +33,7 @@
 1.1 Introduction
 ---------------------------------------------------------------------
 
-ZAngband is a freeware roguelike computer roleplaying game,
+SBFband is a freeware roguelike computer roleplaying game,
 based on Angband. This document lists frequently asked
 questions and answers.
 
@@ -30,9 +47,12 @@ questions and answers.
   1.3 Where can I get this FAQ?
 
 2. General questions
-  2.1 What is ZAngband?
+  2.1 What is SBFband?
   2.2 On what computers can I play it?
   2.3 Where can I download it?
+  2.4 What is the legal status of SBFband?
+  2.5 Can I modify SBFband?
+  2.6 Shouldn't SBFband take place in <insert Eddings world here>?
 
 3. System-specific questions
   3.1 DOS
@@ -40,8 +60,9 @@ questions and answers.
     3.1.2 Can I use multiple savefiles?
     3.1.3 Why uses the DOS version only 2/3 of the screen?
   3.2 Windows 95/98/NT
-    3.2.1 How do I run in the Windows version?
-    3.2.2 Why do I get an error message when I try to switch on
+    3.2.1 I can't get SBFband to run!  How can I fix it?
+    3.2.2 How do I run with the numeric keypad in the Windows version?
+    3.2.3 Why do I get an error message when I try to switch on
           graphics?
 
 4. Game-play questions
@@ -51,17 +72,15 @@ questions and answers.
           known artifacts. Is that a bug?
     4.1.3 I've found an artifact in a store, but I thought artifacts can
           never appear there if not sold to the store. Is that a bug?
-  4.2 Monsters
-    4.2.1 I've found a 'Greater Hell Beast' that never does any damage to
-          me, and that seems to be immune to my attacks.  What is it?
+  
 
 
 ---------------------------------------------------------------------
 1.3 Where can I get this FAQ?
 ---------------------------------------------------------------------
 
-This FAQ is available from:
-http://thangorodrim.angband.org/zangband-faq.txt
+This FAQ is available with the program.  If you need a copy of the FAQ,
+send e-mail to me at Sperlock74@yahoo.com and let me know you want one.
 
 
 =====================================================================
@@ -69,25 +88,31 @@ http://thangorodrim.angband.org/zangband-faq.txt
 =====================================================================
 
 ---------------------------------------------------------------------
-2.1 What is ZAngband?
+2.1 What is SBFband?
 ---------------------------------------------------------------------
 
-ZAngband is one of the many variants of the freeware roguelike
-computer roleplaying game Angband.
+SBFband is one of the many variants of the freeware roguelike
+computer roleplaying game Angband.  The code is based off of the
+variant known as Zangband.
 
 ---------------------------------------------------------------------
 2.2 On what computers can I play it?
 ---------------------------------------------------------------------
 
-ZAngband is available for many different systems, including
-MS-DOS, Windows 95/98/NT, Macintosh, Amiga, OS/2, Acorn RISC OS,
-and the many different Unix-derivates including Linux.
+SBFband is currently only available for MS-DOS and Windows 95/98/NT.
+I hope to compile a Linux version once I get Linux working completely.  
+For other systems, hopefully some kind soul will port it!
 
 ---------------------------------------------------------------------
 2.3 Where can I download it?
 ---------------------------------------------------------------------
 
-The newest version of ZAngband is always available from
+You can download SBFband at the following places:
+
+The SBFband homepage at:
+
+http://www.cs.unr.edu/~fisher_s/
+
 "Thangorodrim - The Angband Page" at:
 
 http://thangorodrim.angband.org/
@@ -96,11 +121,44 @@ and the Angband FTP-Server at:
 
 ftp://export.andrew.cmu.edu/angband/
 
+---------------------------------------------------------------------
+2.4 What is the legal status of SBFband?
+---------------------------------------------------------------------
+
+SBFband is free software; it can be distributed according to the rules
+laid long ago by Robert A. Koeneke for his (U)Moria game. See version.txt
+in the /lib/help directory for details (free distribution for non-
+commercial purposes providing the copyright notices are retained
+throughout the game). Source code must be made available together
+with any compiled binaries.
+   
+If you plan to write a review of SBFband and put it in printed press or on
+a Web page, I'd like to know about it!  
+
+---------------------------------------------------------------------
+2.5 Can I modify SBFband?
+---------------------------------------------------------------------
+
+Yes, but if you make any significant changes, please distribute this
+as your own variant (with the provisions regarding copyright applying
+as above). You MAY distribute changed info files, quest definitions,
+and anything that is easily editable without need for the source code;
+please note, however, where the files come from.
+
+---------------------------------------------------------------------
+2.6 Shouldn't SBFband take place in <insert Eddings world here>?
+---------------------------------------------------------------------
+
+Nope.  For one thing, the worlds Eddings created are too big to fit
+in SBFband.  Trying to do so would increase memory consumption.  This
+would result in less people playing the game.  Besides, I have some
+stuff from the anime "Record of Lodoss War" and plan to include ideas 
+I get from the books of other authors sometime in the future.  
+Currently, SBFband's world is fictional and has no name.
 
 =====================================================================
 3. System-specific questions
 =====================================================================
-
 
 ---------------------------------------------------------------------
 3.1 DOS
@@ -111,17 +169,17 @@ ftp://export.andrew.cmu.edu/angband/
 ---------------------------------------------------------------------
 
 Yes, you can. The old IBM-mode is included in the DOS version and can
-be activated with the '-mibm' option. Just run ZAngband with
-'ZAngband.exe -mibm' to switch it on.
+be activated with the '-mibm' option. Just run SBFband with
+'SBFband.exe -mibm' to switch it on.
 
 ---------------------------------------------------------------------
 3.1.2 Can I use multiple savefiles?
 ---------------------------------------------------------------------
 
-Yes, you can. Run ZAngband with the -u<name> option. For example:
-'ZAngband.exe -uFred' loads the character called Fred. If no
+Yes, you can. Run SBFband with the -u<name> option. For example:
+'SBFband.exe -uFred' loads the character called Fred. If no
 savefile called 'Fred' is found then a new one is created. To use
-another character just run ZAngband with a different name.
+another character just run SBFband with a different name.
 
 ---------------------------------------------------------------------
 3.1.3 Why uses the DOS version only 2/3 of the screen?
@@ -129,7 +187,7 @@ another character just run ZAngband with a different name.
 
 The lower part of the screen is used for displaying two extra windows
 with additional information. To activate this feature, press '=' to
-access the ZAngband options, then press 'W' to enter the 'Window
+access the SBFband options, then press 'W' to enter the 'Window
 Flags' section. Now you can assign various informations to the two
 special windows lower part of the screen. Move the cursor to the
 'Mirror' column and switch on one of the options with the 'y' key.
@@ -144,14 +202,24 @@ options menu and press Ctrl-R to redraw the screen.
 ---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
-3.2.1 How do I run with the numeric keypad in the Windows version?
+3.2.1 I can't get SBFband to run!  How can I fix it?
+---------------------------------------------------------------------
+
+Try checking out the file SBFband.ini and see if LibPath matches the
+directory SBFband\lib is in.  If not, change it to reflect where you
+have SBFband located (be sure to include the /lib).  If this doesn't
+fix things, or if LibPath matches the directory you are using, please
+e-mail me at Sperlock74@yahoo.com
+
+---------------------------------------------------------------------
+3.2.2 How do I run with the numeric keypad in the Windows version?
 ---------------------------------------------------------------------
 
 Press the Num-Lock key to switch off Num-Lock mode. Now you should be
 able to run when pressing Shift and a key of the numeric keypad.
 
 ---------------------------------------------------------------------
-3.2.2 Why do I get an error message when I try to switch on graphics?
+3.2.3 Why do I get an error message when I try to switch on graphics?
 ---------------------------------------------------------------------
 
 The 'Unusable bitmap palette (255 entries) - Could not initialize
@@ -173,15 +241,17 @@ this problem.
 4.1.1 What does the artifact xyz do?
 ---------------------------------------------------------------------
 
-Most of the artifacts in ZAngband have some random features, and some
+Most of the artifacts in SBFband have some random features, and some
 are even completely random, so you have to find out what an artifact
 does by yourself. Try reading a scroll of *Identify* (the stars are
 important), of use 'Research item' service offered by some buildings
 in the towns. Many spellcasting classes get the *Identify* spell at
-higher levels. You can also sell artifacts to a store and buy it back
-immediatly, but this will cost you a lot of money.
-The powers of items that have been *Identified* or bought from stores
-can be displayed at any time with the 'I' command.
+higher levels. You can also sell artifacts to a store and buy it back, 
+but this will cost you a lot of money.  The powers of items that have 
+been *Identified* or bought from stores can be displayed at any time 
+with the 'I' command.  If you have not bought the artifact back from
+the store, you may also use the 'x' command, followed by the letter
+corresponding to the artifact.
 
 ---------------------------------------------------------------------
 4.1.2 I've found an artifact, but it doesn't show up in the list of
@@ -199,21 +269,4 @@ never appear there if not sold to the store. Is that a bug?
 ---------------------------------------------------------------------
 
 No. The store is selling a 'random artifact'.  See question 4.1.2.
-
-
----------------------------------------------------------------------
-4.2 Monsters
----------------------------------------------------------------------
-
----------------------------------------------------------------------
-4.2.1 I've found a 'Greater Hell Beast' that never does any damage to
-      me, and that seems to be immune to my attacks.  What is it?
----------------------------------------------------------------------
-
-The 'Greater Hell Beast' is a joke to scare all the veterans who know
-that an "U" is normally a very dangerous greater demon.  It appears
-very early and can't hurt you directly, but it's very annoying.
-The huge amount of hitpoints and the big armor-class make it nearly
-invincible and even if you manage to kill it, it's not worth the
-efforts.
 
