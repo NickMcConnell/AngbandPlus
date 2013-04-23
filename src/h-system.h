@@ -96,6 +96,9 @@
 
 #endif
 
+#ifdef __DJGPP__
+#include <unistd.h>
+#endif /* __DJGPP__ */
 
 #ifdef SET_UID
 

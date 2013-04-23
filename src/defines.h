@@ -55,6 +55,9 @@
  */
 #define VERSION_EXTRA	0
 
+#ifdef GJW_RANDART
+#define RANDART_VERSION "0.6.2"
+#endif
 
 /*
  * Number of grids in each block (vertically)
@@ -2226,6 +2229,20 @@
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
 
 
+/*
+ * Hack -- "bolt" spells that may hurt fellow monsters
+ */
+#define RF4_BOLT_MASK \
+   (RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+
+#define RF5_BOLT_MASK \
+   (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+    RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+    RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_BOLT_MASK \
+   0L
+
 
 /*** Cheating option Definitions ***/
 
@@ -2289,7 +2306,11 @@
 #define OPT_verify_destroy			28
 #define OPT_verify_special			29
 #define OPT_allow_quantity			30
+#ifdef ALLOW_EASY_OPEN /* TNB */
+#define OPT_easy_open 31
+#else
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
 #define OPT_testing_stack			34
@@ -2298,12 +2319,16 @@
 #define OPT_expand_list				37
 #define OPT_view_perma_grids		38
 #define OPT_view_torch_grids		39
-#define OPT_dungeon_align			40
-#define OPT_dungeon_stair			41
-#define OPT_flow_by_sound			42
-#define OPT_flow_by_smell			43
+#define OPT_dungeon_align		40
+#define OPT_dungeon_stair		41
+#define OPT_flow_by_sound		42
+#define OPT_flow_by_smell		43
+#ifdef ALLOW_EASY_DISARM /* TNB */
+#define OPT_easy_disarm			44
 /* xxx */
-/* xxx */
+#endif /* ALLOW_EASY_DISARM */
+/* rr9 */
+#define OPT_monster_ai			45
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
 #define OPT_view_reduce_lite		48
@@ -2359,7 +2384,11 @@
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define allow_quantity			op_ptr->opt[OPT_allow_quantity]
+#ifdef ALLOW_EASY_OPEN /* TNB */
+#define easy_open			op_ptr->opt[OPT_easy_open]
+#else
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
 #define testing_stack			op_ptr->opt[OPT_testing_stack]
@@ -2372,8 +2401,12 @@
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
 #define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
+#ifdef ALLOW_EASY_DISARM /* TNB */
+#define easy_disarm			op_ptr->opt[OPT_easy_disarm]
 /* xxx */
-/* xxx */
+#endif /* ALLOW_EASY_DISARM */
+/* rr9 */
+#define monster_ai			op_ptr->opt[OPT_monster_ai]
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
@@ -2655,13 +2688,13 @@ extern int PlayerUID;
 #define TERM_BLUE		6	/* 'b' */	/* 0,0,4 */
 #define TERM_UMBER		7	/* 'u' */	/* 2,1,0 */
 #define TERM_L_DARK		8	/* 'D' */	/* 1,1,1 */
-#define TERM_L_WHITE	9	/* 'W' */	/* 3,3,3 */
+#define TERM_L_WHITE		9	/* 'W' */	/* 3,3,3 */
 #define TERM_VIOLET		10	/* 'v' */	/* 4,0,4 */
 #define TERM_YELLOW		11	/* 'y' */	/* 4,4,0 */
 #define TERM_L_RED		12	/* 'R' */	/* 4,0,0 */
-#define TERM_L_GREEN	13	/* 'G' */	/* 0,4,0 */
+#define TERM_L_GREEN		13	/* 'G' */	/* 0,4,0 */
 #define TERM_L_BLUE		14	/* 'B' */	/* 0,4,4 */
-#define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
+#define TERM_L_UMBER		15	/* 'U' */	/* 3,2,1 */
 
 
 /*** Sound constants ***/
@@ -2689,18 +2722,19 @@ extern int PlayerUID;
 #define SOUND_HITWALL   15
 #define SOUND_EAT       16
 #define SOUND_STORE1    17
-#define SOUND_STORE2    18
-#define SOUND_STORE3    19
-#define SOUND_STORE4    20
-#define SOUND_DIG       21
-#define SOUND_OPENDOOR  22
-#define SOUND_SHUTDOOR  23
-#define SOUND_TPLEVEL   24
+#define SOUND_STORE2	18
+#define SOUND_STORE3	19
+#define SOUND_STORE4	20
+#define SOUND_DIG	21
+#define SOUND_OPENDOOR	22
+#define SOUND_SHUTDOOR	23
+#define SOUND_TPLEVEL	24
+#define SOUND_SCROLL	25
 
 /*
  * Mega-Hack -- maximum known sounds
  */
-#define SOUND_MAX 25
+#define SOUND_MAX 26
 
 
 /*** Hack ***/

@@ -171,17 +171,17 @@
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
  */
-/* #define ALLOW_BORG */
+#define ALLOW_BORG
 
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-/* #define ALLOW_DEBUG */
+#define ALLOW_DEBUG
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
-/* #define ALLOW_SPOILERS */
+#define ALLOW_SPOILERS
 
 
 /*
@@ -337,6 +337,10 @@
 #define DRS_SMART_OPTIONS
 
 
+/*
+ * OPTION: Allow the use of random artifacts.
+ */
+#define GJW_RANDART
 
 /*
  * OPTION: Enable the "track_follow" and "track_target" options.
@@ -359,6 +363,11 @@
  */
 #define USE_GRAPHICS
 
+#ifdef USE_GRAPHICS
+# if defined(WINDOWS) || defined(USE_DOS)
+#  define USE_AB_TILES
+# endif /* defined(WINDOWS) || defined(USE_DOS) */
+#endif /* USE_GRAPHICS */
 
 /*
  * OPTION: Hack -- Macintosh stuff
@@ -516,4 +525,18 @@
 # define VERIFY_TIMESTAMP
 #endif
 
+/*
+ * OPTION: Repeat last command -- TNB
+ */
+#define ALLOW_REPEAT
+
+/*
+ * OPTION: Make opening and closing things easy -- TNB
+ */
+#define ALLOW_EASY_OPEN
+
+/*
+ * OPTION: Make disarming traps easy -- TNB
+ */
+#define ALLOW_EASY_DISARM
 

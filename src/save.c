@@ -1112,10 +1112,20 @@ static void wr_extra(void)
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);
 	wr_byte(p_ptr->preserve);
+#ifdef GJW_RANDART
+	wr_byte(p_ptr->random_artifacts);
+#else
 	wr_byte(0);
+#endif
 
+#ifdef GJW_RANDART
+	/* Future use */
+	for (i = 0; i < 11; i++) wr_u32b(0L);
+	wr_u32b(seed_randart);
+#else
 	/* Future use */
 	for (i = 0; i < 12; i++) wr_u32b(0L);
+#endif
 
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */

@@ -674,6 +674,14 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 				v = ANGBAND_SYS;
 			}
 
+#ifdef USE_AB_TILES
+			/* Graphics */
+			if (streq(b+1, "GRAF"))
+			{
+				v = ANGBAND_GRAF;
+			}
+#endif /* USE_AB_TILES */
+
 			/* Race */
 			else if (streq(b+1, "RACE"))
 			{
@@ -1177,6 +1185,23 @@ static void display_player_xtra_info(void)
 	/* Upper middle */
 	col = 26;
 
+
+#ifdef GJW_RANDART
+	/* Version, etc. */
+	if (p_ptr->random_artifacts)
+	{
+		Term_putstr(1, 0, -1, TERM_WHITE,
+			format ("[Angband %d.%d.%d with randart "
+				RANDART_VERSION ", seed %lu]",
+				VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
+				(unsigned int) seed_randart));
+	} else {
+		Term_putstr(1, 0, -1, TERM_WHITE,
+			format ("[Angband %d.%d.%d with randart "
+				RANDART_VERSION "]",
+				VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
+	}
+#endif
 
 	/* Age */
 	Term_putstr(col, 3, -1, TERM_WHITE, "Age");
@@ -2044,9 +2069,18 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
+#ifdef GJW_RANDART
+	if (p_ptr->random_artifacts)
+	{
+		fprintf(fff, "  [Random artifacts version " RANDART_VERSION
+			", seed %lu]\n", (unsigned long) seed_randart);
+	}
+#endif
+
+	fprintf (fff, "\n");
 
 	/* Display player */
 	display_player(0);

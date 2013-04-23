@@ -88,6 +88,9 @@ extern bool arg_sound;
 extern bool arg_graphics;
 extern bool arg_force_original;
 extern bool arg_force_roguelike;
+#ifdef GJW_RANDART
+extern u32b seed_randart;
+#endif
 extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
@@ -201,6 +204,9 @@ extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
 extern cptr ANGBAND_SYS;
+#ifdef USE_AB_TILES
+extern cptr ANGBAND_GRAF;
+#endif /* USE_AB_TILES */
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;
 extern cptr ANGBAND_DIR_BONE;
@@ -233,7 +239,11 @@ extern sint distance(int y1, int x1, int y2, int x2);
 extern bool los(int y1, int x1, int y2, int x2);
 extern bool no_lite(void);
 extern bool cave_valid_bold(int y, int x);
+# ifdef USE_TRANSPARENCY
+extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
+# else /* USE_TRANSPARENCY */
 extern void map_info(int y, int x, byte *ap, char *cp);
+# endif /* USE_TRANSPARENCY */
 extern void move_cursor_relative(int y, int x);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
@@ -382,6 +392,10 @@ extern errr init_k_info_txt(FILE *fp, char *buf);
 extern errr init_a_info_txt(FILE *fp, char *buf);
 extern errr init_e_info_txt(FILE *fp, char *buf);
 extern errr init_r_info_txt(FILE *fp, char *buf);
+#ifdef GJW_RANDART
+extern errr init_a_info(void);
+extern errr init_k_info(void);
+#endif
 
 /* init2.c */
 extern void init_file_paths(char *path);
@@ -710,6 +724,11 @@ extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
 
+#ifdef GJW_RANDART
+/* randart.c */
+extern int do_randart (u32b randart_seed);
+#endif
+
 
 /*
  * Hack -- conditional (or "bizarre") externs
@@ -746,4 +765,13 @@ extern void user_name(char *buf, int id);
 /* main.c */
 /* extern int main(int argc, char *argv[]); */
 
+#ifdef ALLOW_EASY_OPEN
+bool easy_open_door(int y, int x);
+#endif /* ALLOW_EASY_OPEN */
+
+#ifdef ALLOW_REPEAT
+void repeat_push(int what);
+bool repeat_pull(int *what);
+void repeat_check(void);
+#endif /* ALLOW_REPEAT */
 

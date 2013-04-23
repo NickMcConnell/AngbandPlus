@@ -1,0 +1,53 @@
+Angband 2.8.3 release "h" ( 8th April 1999 )
+
+edited and compiled by
+Robert Ruehlmann < rr9@angband.org >
+visit "Thangorodrim - The Angband Page" at: http://thangorodrim.angband.org/
+
+Changes to the original Angband 2.8.3 source-code :
+
+- Added player icon remapping, correct potion, ring, and spell colors.
+- Greg Wooledge's random artifact generation code version 0.6.2.
+- Easy Patch 1.1 by Tim Baker.
+- Added the improved Monster AI by Keldon Jones.
+- Added Keldon Jones' improved version of the Ben-Borg (an automatic Angband
+  player) and modified it to coexist nicely with the other patches.
+  The Borg will switch off graphics mode automatically.
+  Press Ctrl-Z to enter the Borg Mode.  Press "z" again on the Borg Command-
+  prompt to run the Borg.  For more information about the Borg, look at the
+  Angband Borg Home Page - http://www.phial.com/angborg/
+- Can use Adam Bolt's new Angband graphics as well as the old tiles.
+  I've also implemented transparency and lighting effects
+  (supported by DOS and Windows version).
+
+All changes are optional and can be switched off.
+
+DOS-specific changes:
+- Graphics, sounds, and music options !!!
+  You can switch the graphics/music/sound options from the user menu
+  (press ! to get there).  The volume of the sound and the music can be
+  adjusted from 0 (min) to 255 (max).  All changes to the screen-resolution
+  and the selection between the old and the new graphical tiles will be
+  active after you restart Angband.
+- Terminal windows
+  The windows can be activated from the "Angband options screen"
+  (press the '=' key to get there) in the "Window flags" menu.
+  Just toggle the display you want for "Term-1" and "Term-2".
+- Added a stone-background to the terminals.
+- Midi jukebox
+  DOS-Angband automatically plays midi-files from the "lib/xtra/music"
+  folder in your Angband-directory.
+- Sound Events
+  DOS-Angband will play samples from the "lib/xtra/sound" folder to the
+  corresponding Angband-event. You can configure the available samples in
+  the "lib/xtra/sound/sound.cfg" file.
+- "Classic mode": If you want the old display, just start Angband with the
+  '-mibm' option ('Angband.exe -mibm'). 
+
+Windows-specific changes:
+- Support for Adam Bolt's new tiles, with transparency and lighting effects.
+- You can select between the "old" tiles, the new tiles, or ASCII mode
+  (disable both graphic modes for ASCII).
+- The Windows version no longer requires changes to angband.ini when
+  installing.
+

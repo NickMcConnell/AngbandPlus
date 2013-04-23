@@ -72,6 +72,9 @@ s16b character_xtra;		/* Depth of the game in startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
+#ifdef GJW_RANDART
+u32b seed_randart;		/* Hack -- consistent random artifacts */
+#endif
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
@@ -272,6 +275,7 @@ char angband_sound_name[SOUND_MAX][16] =
 	"opendoor",
 	"shutdoor",
 	"tplevel"
+	"scroll"
 };
 
 
@@ -506,6 +510,14 @@ char *r_text;
  * This variable is used to choose an appropriate "pref-xxx" file
  */
 cptr ANGBAND_SYS = "xxx";
+
+#ifdef USE_AB_TILES
+/*
+ * Hack -- The special Angband "Graphics Suffix"
+ * This variable is used to choose an appropriate "graf-xxx" file
+ */
+cptr ANGBAND_GRAF = "old";
+#endif /* USE_AB_TILES */
 
 /*
  * Path name: The main "lib" directory

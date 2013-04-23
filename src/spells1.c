@@ -331,41 +331,94 @@ void teleport_player_level(void)
  */
 static byte spell_color(int type)
 {
-	/* Analyze */
-	switch (type)
-	{
-		case GF_MISSILE:	return (TERM_VIOLET);
-		case GF_ACID:		return (TERM_SLATE);
-		case GF_ELEC:		return (TERM_BLUE);
-		case GF_FIRE:		return (TERM_RED);
-		case GF_COLD:		return (TERM_WHITE);
-		case GF_POIS:		return (TERM_GREEN);
-		case GF_HOLY_ORB:	return (TERM_L_DARK);
-		case GF_MANA:		return (TERM_L_DARK);
-		case GF_ARROW:		return (TERM_WHITE);
-		case GF_WATER:		return (TERM_SLATE);
-		case GF_NETHER:		return (TERM_L_GREEN);
-		case GF_CHAOS:		return (TERM_VIOLET);
-		case GF_DISENCHANT:	return (TERM_VIOLET);
-		case GF_NEXUS:		return (TERM_L_RED);
-		case GF_CONFUSION:	return (TERM_L_UMBER);
-		case GF_SOUND:		return (TERM_YELLOW);
-		case GF_SHARD:		return (TERM_UMBER);
-		case GF_FORCE:		return (TERM_UMBER);
-		case GF_INERTIA:	return (TERM_L_WHITE);
-		case GF_GRAVITY:	return (TERM_L_WHITE);
-		case GF_TIME:		return (TERM_L_BLUE);
-		case GF_LITE_WEAK:	return (TERM_ORANGE);
-		case GF_LITE:		return (TERM_ORANGE);
-		case GF_DARK_WEAK:	return (TERM_L_DARK);
-		case GF_DARK:		return (TERM_L_DARK);
-		case GF_PLASMA:		return (TERM_RED);
-		case GF_METEOR:		return (TERM_RED);
-		case GF_ICE:		return (TERM_WHITE);
-	}
+#ifdef USE_AB_TILES
 
-	/* Standard "color" */
-	return (TERM_WHITE);
+	/* Check if A.B.'s new graphics should be used (rr9) */
+	if (strcmp(ANGBAND_GRAF, "new") == 0)
+	{
+		/* Analyze */
+		switch (type)
+		{
+			case GF_MISSILE:	return (0x0F);
+			case GF_ACID:		return (0x04);
+			case GF_ELEC:		return (0x02);
+			case GF_FIRE:		return (0x00);
+			case GF_COLD:		return (0x01);
+			case GF_POIS:		return (0x03);
+			case GF_HOLY_ORB:	return (0x0F);
+			case GF_MANA:		return (0x0E);
+			case GF_ARROW:		return (0x0F);
+			case GF_WATER:		return (0x04);
+			case GF_NETHER:		return (0x07);
+			case GF_CHAOS:		return (0x0A);
+			case GF_DISENCHANT:	return (0x05);
+			case GF_NEXUS:		return (0x0C);
+			case GF_CONFUSION:	return (0x0D);
+			case GF_SOUND:		return (0x09);
+			case GF_SHARD:		return (0x08);
+			case GF_FORCE:		return (0x09);
+			case GF_INERTIA:	return (0x09);
+			case GF_GRAVITY:	return (0x09);
+			case GF_TIME:		return (0x09);
+			case GF_LITE_WEAK:	return (0x06);
+			case GF_LITE:		return (0x06);
+			case GF_DARK_WEAK:	return (0x07);
+			case GF_DARK:		return (0x07);
+			case GF_PLASMA:		return (0x0B);
+			case GF_METEOR:		return (0x00);
+			case GF_ICE:		return (0x01);
+		}
+
+		/* Standard "color" */
+		return (0x0F);
+
+	}
+	else
+	{
+
+#endif /* USE_AB_TILES */
+
+		/* Use old graphics/colors */		
+
+		/* Analyze */
+		switch (type)
+		{
+			case GF_MISSILE:	        return (TERM_VIOLET);
+			case GF_ACID:		return (TERM_SLATE);
+			case GF_ELEC:		return (TERM_BLUE);
+			case GF_FIRE:		return (TERM_RED);
+			case GF_COLD:		return (TERM_WHITE);
+			case GF_POIS:		return (TERM_GREEN);
+			case GF_HOLY_ORB:	        return (TERM_L_DARK);
+			case GF_MANA:		return (TERM_L_DARK);
+			case GF_ARROW:		return (TERM_WHITE);
+			case GF_WATER:		return (TERM_SLATE);
+			case GF_NETHER:		return (TERM_L_GREEN);
+			case GF_CHAOS:		return (TERM_VIOLET);
+			case GF_DISENCHANT:	        return (TERM_VIOLET);
+			case GF_NEXUS:		return (TERM_L_RED);
+			case GF_CONFUSION:	        return (TERM_L_UMBER);
+			case GF_SOUND:		return (TERM_YELLOW);
+			case GF_SHARD:		return (TERM_UMBER);
+			case GF_FORCE:		return (TERM_UMBER);
+			case GF_INERTIA:	        return (TERM_L_WHITE);
+			case GF_GRAVITY:	        return (TERM_L_WHITE);
+			case GF_TIME:		return (TERM_L_BLUE);
+			case GF_LITE_WEAK:	        return (TERM_ORANGE);
+			case GF_LITE:		return (TERM_ORANGE);
+			case GF_DARK_WEAK:	        return (TERM_L_DARK);
+			case GF_DARK:		return (TERM_L_DARK);
+			case GF_PLASMA:		return (TERM_RED);
+			case GF_METEOR:		return (TERM_RED);
+			case GF_ICE:		return (TERM_WHITE);
+		}
+
+		/* Standard "color" */
+		return (TERM_WHITE);
+
+#ifdef USE_AB_TILES
+	}
+#endif /* USE_AB_TILES */
 }
 
 

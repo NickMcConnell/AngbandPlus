@@ -234,6 +234,9 @@ C:1:X
 ?:[EQU $SYS acn]
 %:pref-acn.prf
 
+?:[EQU $SYS dll]
+%:pref-dll.prf
+
 ?:1
 
 

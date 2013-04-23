@@ -10,6 +10,10 @@
 
 #include "angband.h"
 
+/*
+ * This file has several additions to it by Keldon Jones (keldon@umr.edu)
+ * to improve the general quality of the AI (version 0.1.1).
+ */
 
 
 #ifdef DRS_SMART_OPTIONS
@@ -325,6 +329,39 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
 
 /*
+ * Determine if a bolt spell will hit the player.
+ *
+ * This is exactly like "projectable", but it will return FALSE if a monster
+ * is in the way.
+ */
+static bool clean_shot(int y1, int x1, int y2, int x2)
+{
+	int y, x;
+
+	int grid_n = 0;
+	u16b grid_g[512];
+
+	/* Check the projection path */
+	grid_n = project_path(grid_g, MAX_RANGE, y1, x1, y2, x2, PROJECT_STOP);
+
+	/* Source and target the same */
+	if (!grid_n) return (FALSE);
+
+	/* Final grid */
+	y = GRID_Y(grid_g[grid_n-1]);
+	x = GRID_X(grid_g[grid_n-1]);
+
+	/* May not end in a wall grid */
+	if (!cave_floor_bold(y, x)) return (FALSE);
+
+	/* May not end in an unrequested grid */
+	if ((y != y2) || (x != x2)) return (FALSE);
+
+	/* Assume okay */
+	return (TRUE);
+}
+
+/*
  * Cast a bolt at the player
  * Stop if we hit a monster
  * Affect monsters and the player
@@ -366,6 +403,242 @@ static void breath(int m_idx, int typ, int dam_hp)
 }
 
 
+/*
+ * Return TRUE if a spell is good for hurting the player (directly).
+ */
+static bool spell_attack(byte spell)
+{
+	/* All RF4 spells hurt (except for shriek) */
+	if (spell < 128 && spell > 96) return (TRUE);
+
+	/* Various "ball" spells */
+	if (spell >= 128 && spell <= 128 + 8) return (TRUE);
+
+	/* "Cause wounds" and "bolt" spells */
+	if (spell >= 128 + 12 && spell <= 128 + 27) return (TRUE);
+
+	/* Doesn't hurt */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell is good for escaping.
+ */
+static bool spell_escape(byte spell)
+{
+	/* Blink or Teleport */
+	if (spell == 160 + 4 || spell == 160 + 5) return (TRUE);
+
+	/* Teleport the player away */
+	if (spell == 160 + 9 || spell == 160 + 10) return (TRUE);
+
+	/* Isn't good for escaping */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell is good for annoying the player.
+*/
+static bool spell_annoy(byte spell)
+{
+	/* Shriek */
+	if (spell == 96 + 0) return (TRUE);
+
+	/* Brain smash, et al */
+	if (spell >= 128 + 9 && spell <= 128 + 11) return (TRUE);
+
+	/* Scare, confuse, blind, slow, paralyze */
+	if (spell >= 128 + 27 && spell <= 128 + 31) return (TRUE);
+
+	/* Teleport to */
+	if (spell == 160 + 8) return (TRUE);
+
+	/* Darkness, make traps, cause amnesia */
+	if (spell >= 160 + 12 && spell <= 160 + 14) return (TRUE);
+
+	/* Doesn't annoy */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell summons help.
+ */
+static bool spell_summon(byte spell)
+{
+	/* All summon spells */
+	if (spell >= 160 + 18) return (TRUE);
+
+	/* Doesn't summon */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell is good in a tactical situation.
+ */
+static bool spell_tactic(byte spell)
+{
+	/* Blink */
+	if (spell == 160 + 4) return (TRUE);
+
+	/* Not good */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell hastes.
+ */
+static bool spell_haste(byte spell)
+{
+	/* Haste self */
+	if (spell == 160 + 0) return (TRUE);
+
+	/* Not a haste spell */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell is good for healing.
+ */
+static bool spell_heal(byte spell)
+{
+	/* Heal */
+	if (spell == 160 + 2) return (TRUE);
+
+	/* No healing */
+	return (FALSE);
+}
+
+/*
+ * Have a monster choose a spell from a list of "useful" spells.
+ *
+ * Note that this list does NOT include spells that will just hit
+ * other monsters, and the list is restricted when the monster is
+ * "desperate".  Should that be the job of this function instead?
+ *
+ * Stupid monsters will just pick a spell randomly.  Smart monsters
+ * will choose more "intelligently".
+ *
+ * Use the helper functions above to put spells into categories.
+ *
+ * This function may well be an efficiency bottleneck.
+ */
+static int choose_attack_spell(int m_idx, byte spells[], byte num)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	byte escape[96], escape_num = 0;
+	byte attack[96], attack_num = 0;
+	byte summon[96], summon_num = 0;
+	byte tactic[96], tactic_num = 0;
+	byte annoy[96], annoy_num = 0;
+	byte haste[96], haste_num = 0;
+	byte heal[96], heal_num = 0;
+
+	int i, py = p_ptr->py, px = p_ptr->px;
+
+	/* Stupid monsters choose randomly */
+	if (r_ptr->flags2 & (RF2_STUPID))
+	{
+		/* Pick at random */
+		return (spells[rand_int(num)]);
+	}
+
+	/* Categorize spells */
+	for (i = 0; i < num; i++)
+	{
+		/* Escape spell? */
+		if (spell_escape(spells[i])) escape[escape_num++] = spells[i];
+
+		/* Attack spell? */
+		if (spell_attack(spells[i])) attack[attack_num++] = spells[i];
+
+		/* Summon spell? */
+		if (spell_summon(spells[i])) summon[summon_num++] = spells[i];
+
+		/* Tactical spell? */
+		if (spell_tactic(spells[i])) tactic[tactic_num++] = spells[i];
+
+		/* Annoyance spell? */
+		if (spell_annoy(spells[i])) annoy[annoy_num++] = spells[i];
+
+		/* Haste spell? */
+		if (spell_haste(spells[i])) haste[haste_num++] = spells[i];
+
+		/* Heal spell? */
+		if (spell_heal(spells[i])) heal[heal_num++] = spells[i];
+	}
+
+	/*** Try to pick an appropriate spell type ***/
+
+	/* Hurt badly or afraid, attempt to flee */
+	if ((m_ptr->hp < m_ptr->maxhp / 3) || m_ptr->monfear)
+	{
+		/* Choose escape spell if possible */
+		if (escape_num) return (escape[rand_int(escape_num)]);
+	}
+
+	/* Still hurt badly, couldn't flee, attempt to heal */
+	if (m_ptr->hp < m_ptr->maxhp / 3)
+	{
+		/* Choose heal spell if possible */
+		if (heal_num) return (heal[rand_int(heal_num)]);
+	}
+
+	/* Player is close and we have attack spells, blink away */
+	if ((distance(py, px, m_ptr->fy, m_ptr->fx) < 4) && attack_num &&
+	    (rand_int(100) < 75))
+	{
+		/* Choose tactical spell */
+		if (tactic_num) return (tactic[rand_int(tactic_num)]);
+	}
+
+	/* We're hurt (not badly), try to heal */
+	if ((m_ptr->hp < m_ptr->maxhp * 3 / 4) && (rand_int(100) < 75))
+	{
+		/* Choose heal spell if possible */
+		if (heal_num) return (heal[rand_int(heal_num)]);
+	}
+
+	/* Summon if possible (sometimes) */
+	if (summon_num && (rand_int(100) < 50))
+	{
+		/* Choose summon spell */
+		return (summon[rand_int(summon_num)]);
+	}
+
+	/* Attack spell (most of the time) */
+	if (attack_num && (rand_int(100) < 85))
+	{
+		/* Choose attack spell */
+		return (attack[rand_int(attack_num)]);
+	}
+
+	/* Try another tactical spell (sometimes) */
+	if (tactic_num && (rand_int(100) < 50))
+	{
+		/* Choose tactic spell */
+		return (tactic[rand_int(tactic_num)]);
+	}
+
+	/* Haste self if we aren't already somewhat hasted (rarely) */
+	if (haste_num && (rand_int(100) < (20 + r_ptr->speed - m_ptr->mspeed)))
+	{
+		/* Choose haste spell */
+		return (haste[rand_int(haste_num)]);
+	}
+
+	/* Annoy player (most of the time) */
+	if (annoy_num && (rand_int(100) < 85))
+	{
+		/* Choose annoyance spell */
+		return (annoy[rand_int(annoy_num)]);
+	}
+
+	/* Choose no spell */
+	return (0);
+}
+	
 
 /*
  * Creatures can cast spells, shoot missiles, and breathe.
@@ -417,7 +690,7 @@ bool make_attack_spell(int m_idx)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int k, chance, thrown_spell, rlev;
+	int k, chance, thrown_spell, rlev, failrate;
 
 	byte spell[96], num = 0;
 
@@ -431,6 +704,7 @@ bool make_attack_spell(int m_idx)
 
 	char ddesc[80];
 
+	bool no_inate = FALSE;
 
 	/* Target player */
 	int x = px;
@@ -468,8 +742,17 @@ bool make_attack_spell(int m_idx)
 	if (!chance) return (FALSE);
 
 	/* Only do spells occasionally */
-	if (rand_int(100) >= chance) return (FALSE);
+	if (monster_ai) /* rr9 */
+	{
+		if (rand_int(100) >= 2 * chance) return (FALSE);
 
+		/* Sometimes forbid inate attacks (breaths) */
+		if (rand_int(100) >= chance) no_inate = TRUE;
+	}
+	else
+	{
+		if (rand_int(100) >= chance) return (FALSE);
+	}
 
 	/* Hack -- require projectable player */
 	if (normal)
@@ -491,6 +774,11 @@ bool make_attack_spell(int m_idx)
 	f5 = r_ptr->flags5;
 	f6 = r_ptr->flags6;
 
+	if (monster_ai) /* rr9 */
+	{
+		/* Forbid inate attacks sometimes */
+		if (no_inate) f4 = 0L;
+	}
 
 	/* Hack -- allow "desperate" spells */
 	if ((r_ptr->flags2 & (RF2_SMART)) &&
@@ -517,6 +805,21 @@ bool make_attack_spell(int m_idx)
 
 #endif
 
+	if (monster_ai) /* rr9 */
+	{
+		/* Check for a clean bolt shot */
+		if (!(r_ptr->flags2 & (RF2_STUPID)) && 
+			!clean_shot(m_ptr->fy, m_ptr->fx, py, px))
+		{
+			/* Remove spells that will only hurt friends */
+			f4 &= ~(RF4_BOLT_MASK);
+			f5 &= ~(RF5_BOLT_MASK);
+			f6 &= ~(RF6_BOLT_MASK);
+
+			/* No spells left */
+			if (!f4 && !f5 && !f6) return (FALSE);
+		}
+	}
 
 	/* Extract the "inate" spells */
 	for (k = 0; k < 32; k++)
@@ -553,10 +856,33 @@ bool make_attack_spell(int m_idx)
 	/* Hack -- Get the "died from" name */
 	monster_desc(ddesc, m_ptr, 0x88);
 
+	if (monster_ai) /* rr9 */
+	{
+		/* Choose a spell to cast */
+		thrown_spell = choose_attack_spell(m_idx, spell, num);
 
-	/* Choose a spell to cast */
-	thrown_spell = spell[rand_int(num)];
+		/* Abort if no spell was chosen */
+		if (!thrown_spell) return (FALSE);
 
+		/* Calculate spell failure rate */
+		failrate = 25 - (rlev + 3) / 4;
+
+		/* Hack -- Stupid monsters will never fail (for jellies and such) */
+		if (r_ptr->flags2 & (RF2_STUPID)) failrate = 0;
+
+		/* Check for spell failure (inate attacks never fail) */
+		if ((thrown_spell >= 128) && (rand_int(100) < failrate))
+		{
+			/* Message */
+			msg_format("%^s tries to cast a spell, but fails.", m_name);
+
+			return (TRUE);
+		}
+	}
+	else
+	{
+		thrown_spell = spell[rand_int(num)];
+	}
 
 	/* Cast the spell. */
 	switch (thrown_spell)
@@ -2101,7 +2427,258 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	return (TRUE);
 }
 
+/*
+ * Provide a location to flee to, but give the player a wide berth.
+ *
+ * A monster may wish to flee to a location that is behind the player,
+ * but instead of heading directly for it, the monster should "swerve"
+ * around the player so that he has a smaller chance of getting hit.
+ */
+static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
+{
+	int y, x, y1, x1, fy, fx, py, px, gy = 0, gx = 0;
+	int when = 0, score = -1;
+	int i;
+
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Monster flowing disabled */
+	if (!flow_by_sound) return (FALSE);
+
+	/* Player location */
+	py = p_ptr->py;
+	px = p_ptr->px;
+
+	/* Monster location */
+	fy = m_ptr->fy;
+	fx = m_ptr->fx;
+
+	/* Desired destination */
+	y1 = fy - (*yp);
+	x1 = fx - (*xp);
+
+	/* The player is not currently near the monster grid */
+	if (cave_when[fy][fx] < cave_when[py][px])
+	{
+		/* No reason to attempt flowing */
+		return (FALSE);
+	}
+
+	/* Monster is too far away to use flow information */
+	if (cave_cost[fy][fx] > MONSTER_FLOW_DEPTH) return (FALSE);
+	if (cave_cost[fy][fx] > r_ptr->aaf) return (FALSE);
+
+	/* Check nearby grids, diagonals first */
+	for (i = 7; i >= 0; i--)
+	{
+		int dis, s;
+
+		/* Get the location */
+		y = fy + ddy_ddd[i];
+		x = fx + ddx_ddd[i];
+
+		/* Ignore illegal locations */
+		if (cave_when[y][x] == 0) continue;
+
+		/* Ignore ancient locations */
+		if (cave_when[y][x] < when) continue;
+
+		/* Calculate distance of this grid from our destination */
+		dis = distance(y, x, y1, x1);
+
+		/* Score this grid */
+		s = 5000 / (dis + 3) - 500 / (cave_cost[y][x] + 1);
+
+		/* No negative scores */
+		if (s < 0) s = 0;
+
+		/* Ignore lower scores */
+		if (s < score) continue;
+
+		/* Save the score and time */
+		when = cave_when[y][x];
+		score = s;
+
+		/* Save the location */
+		gy = y;
+		gx = x;
+	}
+
+	/* No legal move (?) */
+	if (!when) return (FALSE);
+
+	/* Find deltas */
+	(*yp) = fy - gy;
+	(*xp) = fx - gx;
+
+	/* Success */
+	return (TRUE);
+}
+
 #endif
+
+
+/*
+ * Choose a "safe" location near a monster for it to run toward.
+ *
+ * A location is "safe" if it can be reached quickly and the player
+ * is not able to fire into it (it isn't a "clean shot").  So, this will
+ * cause monsters to "duck" behind walls.  Hopefully, monsters will also
+ * try to run towards corridor openings if they are in a room.
+ *
+ * This function may take lots of CPU time if lots of monsters are
+ * fleeing.
+ *
+ * Return TRUE if a safe location is available.
+ */
+static bool find_safety(int m_idx, int *yp, int *xp)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+
+	int fy = m_ptr->fy;
+	int fx = m_ptr->fx;
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int y, x, d, dis;
+	int gy = 0, gx = 0, gdis = 0;
+
+	/* Start with adjacent locations, spread further */
+	for (d = 1; d < 10; d++)
+	{
+		/* Check nearby locations */
+		for (y = fy - d; y <= fy + d; y++)
+		{
+			for (x = fx - d; x <= fx + d; x++)
+			{
+				/* Skip illegal locations */
+				if (!in_bounds_fully(y, x)) continue;
+
+				/* Skip locations in a wall */
+				if (!cave_floor_bold(y, x)) continue;
+
+				/* Check distance */
+				if (distance(y, x, fy, fx) != d) continue;
+
+				/* Check for "availability" (if monsters can flow) */
+				if (flow_by_sound)
+				{
+					/* Ignore grids very far from the player */
+					if (cave_when[y][x] < cave_when[py][px]) continue;
+
+					/* Ignore too-distant grids */
+					if (cave_cost[y][x] > cave_cost[fy][fx] + 2 * d) continue;
+				}
+
+				/* Check for absence of shot */
+				if (!projectable(y, x, py, px))
+				{
+					/* Calculate distance from player */
+					dis = distance(y, x, py, px);
+
+					/* Remember if further than previous */
+					if (dis > gdis)
+					{
+						gy = y;
+						gx = x;
+						gdis = dis;
+					}
+				}
+			}
+		}
+
+		/* Check for success */
+		if (gdis > 0)
+		{
+			/* Good location */
+			(*yp) = fy - gy;
+			(*xp) = fx - gx;
+
+			/* Found safe place */
+			return (TRUE);
+		}
+	}
+
+	/* No safe place */
+	return (FALSE);
+}
+
+
+/*
+ * Choose a good hiding place near a monster for it to run toward.
+ *
+ * Pack monsters will use this to "ambush" the player and lure him out
+ * of corridors into open space so they can swarm him.
+ *
+ * Return TRUE if a good location is available.
+ */
+static bool find_hiding(int m_idx, int *yp, int *xp)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+
+	int fy = m_ptr->fy;
+	int fx = m_ptr->fx;
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int y, x, d, dis;
+	int gy = 0, gx = 0, gdis = 999, min;
+
+	/* Closest distance to get */
+	min = distance(py, px, fy, fx) * 3 / 4 + 2;
+
+	/* Start with adjacent locations, spread further */
+	for (d = 1; d < 10; d++)
+	{
+		/* Check nearby locations */
+		for (y = fy - d; y <= fy + d; y++)
+		{
+			for (x = fx - d; x <= fx + d; x++)
+			{
+				/* Skip illegal locations */
+				if (!in_bounds_fully(y, x)) continue;
+
+				/* Skip locations in a wall */
+				if (!cave_floor_bold(y, x)) continue;
+
+				/* Check distance */
+				if (distance(y, x, fy, fx) != d) continue;
+
+				/* Check for hidden, available grid */
+				if (!player_can_see_bold(y, x) && clean_shot(fy, fx, y, x))
+				{
+					/* Calculate distance from player */
+					dis = distance(y, x, py, px);
+
+					/* Remember if closer than previous */
+					if (dis < gdis && dis >= min)
+					{
+						gy = y;
+						gx = x;
+						gdis = dis;
+					}
+				}
+			}
+		}
+
+		/* Check for success */
+		if (gdis < 999)
+		{
+			/* Good location */
+			(*yp) = fy - gy;
+			(*xp) = fx - gx;
+
+			/* Found good place */
+			return (TRUE);
+		}
+	}
+
+	/* No good place */
+	return (FALSE);
+}
 
 
 /*
@@ -2109,12 +2686,13 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
  *
  * We store the directions in a special "mm" array
  */
-static void get_moves(int m_idx, int mm[5])
+static bool get_moves(int m_idx, int mm[5])
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	int y, ay, x, ax;
 
@@ -2123,6 +2701,7 @@ static void get_moves(int m_idx, int mm[5])
 	int y2 = py;
 	int x2 = px;
 
+	bool done = FALSE;
 
 #ifdef MONSTER_FLOW
 	/* Flow towards the player */
@@ -2137,15 +2716,120 @@ static void get_moves(int m_idx, int mm[5])
 	y = m_ptr->fy - y2;
 	x = m_ptr->fx - x2;
 
-
-	/* Apply fear */
-	if (mon_will_run(m_idx))
+	if (monster_ai) /* rr9 */
 	{
-		/* This is not a very "smart" method XXX XXX */
-		y = (-y);
-		x = (-x);
-	}
+		/* Animal packs try to get the player out of corridors */
+		if ((r_ptr->flags1 & RF1_FRIENDS) && (r_ptr->flags3 & RF3_ANIMAL))
+		{
+			int i, room = 0;
 
+			/* Count room grids next to player */
+			for (i = 0; i < 8; i++)
+			{
+				/* Check grid */
+				if (cave_info[py + ddy_ddd[i]][px + ddx_ddd[i]] & (CAVE_ROOM))
+				{
+					/* One more room grid */
+					room++;
+				}
+			}
+
+			/* Not in a room and strong player */
+			if ((room < 8) && (p_ptr->chp > p_ptr->mhp / 2))
+			{
+				/* Find hiding place */
+				if (find_hiding(m_idx, &y, &x)) done = TRUE;
+			}
+		}
+
+		/* Monster groups try to surround the player */
+		if (!done && (r_ptr->flags1 & RF1_FRIENDS))
+		{
+			int i;
+
+			/* Find an empty square near the player to fill */
+			for (i = 0; i < 8; i++)
+			{
+				/* Pick squares near player (semi-randomly) */
+				y2 = py + ddy_ddd[(m_idx + i) & 7];
+				x2 = px + ddx_ddd[(m_idx + i) & 7];
+
+				/* Already there? */
+				if ((m_ptr->fy == y2) && (m_ptr->fx == x2))
+				{
+					/* Attack the player */
+					y2 = py;
+					x2 = px;
+
+					break;
+				}
+
+				/* Ignore filled grids */
+				if (!cave_empty_bold(y2, x2))
+					continue;
+
+				/* Try to fill this hole */
+				break;
+			}
+
+			/* Extract the new "pseudo-direction" */
+			y = m_ptr->fy - y2;
+			x = m_ptr->fx - x2;
+
+			/* Done */
+			done = TRUE;
+		}
+
+		/* Apply fear */
+		if (!done && mon_will_run(m_idx))
+		{
+			/* Try to find safe place */
+			if (!find_safety(m_idx, &y, &x))
+			{
+				/* This is not a very "smart" method XXX XXX */
+				y = (-y);
+				x = (-x);
+			}
+			else
+			{
+				/* Attempt to avoid the player */
+				if (flow_by_sound)
+				{
+					/* Adjust movement */
+					(void)get_fear_moves_aux(m_idx, &y, &x);
+				}
+			}
+		}
+
+		/* Check for no move */
+		if (!x && !y) return (FALSE);
+	}
+	else
+	{
+		/* Apply fear */
+		if (!done && mon_will_run(m_idx))
+		{
+			/* Try to find safe place */
+			if (!find_safety(m_idx, &y, &x))
+			{
+				/* This is not a very "smart" method XXX XXX */
+				y = (-y);
+				x = (-x);
+			}
+			else
+			{
+				/* Attempt to avoid the player */
+				if (flow_by_sound)
+				{
+					/* Adjust movement */
+					(void)get_fear_moves_aux(m_idx, &y, &x);
+				}
+			}
+		}
+
+		/* Check for no move */
+		if (!x && !y) return (FALSE);
+	}
 
 	/* Extract the "absolute distances" */
 	ax = ABS(x);
@@ -2333,6 +3017,9 @@ static void get_moves(int m_idx, int mm[5])
 			break;
 		}
 	}
+
+	/* Want to move */
+	return (TRUE);
 }
 
 
@@ -2714,8 +3401,16 @@ static void process_monster(int m_idx)
 	/* Normal movement */
 	if (!stagger)
 	{
-		/* Logical moves */
-		get_moves(m_idx, mm);
+		if (monster_ai) /* rr9 */
+		{
+			/* Logical moves, may do nothing */
+			if (!get_moves(m_idx, mm)) return;
+		}
+		else
+		{
+			/* Logical moves */
+			get_moves(m_idx, mm);
+		}
 	}
 
 
@@ -3142,6 +3837,15 @@ static void process_monster(int m_idx)
 		if (do_turn) break;
 	}
 
+	if (monster_ai) /* rr9 */
+	{
+		/* If we haven't done anything, try casting a spell again */
+		if (!do_turn && !do_move && !m_ptr->monfear)
+		{
+			/* Cast spell */
+			if (make_attack_spell(m_idx)) return;
+		}
+	}
 
 	/* Notice changes in view */
 	if (do_view)

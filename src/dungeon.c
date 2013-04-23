@@ -1168,6 +1168,13 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Handle repeating the last command */
+    repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -2630,8 +2637,19 @@ void play_game(bool new_game)
 		/* Hack -- seed for town layout */
 		seed_town = rand_int(0x10000000);
 
+#ifdef GJW_RANDART
+		/* Hack -- seed for random artifacts */
+		seed_randart = rand_int (0x10000000);
+#endif
+
 		/* Roll up a new character */
 		player_birth();
+
+#ifdef GJW_RANDART
+		/* Randomize the artifacts. */
+		if (p_ptr->random_artifacts)
+			do_randart (seed_randart);
+#endif
 
 		/* Hack -- enter the world */
 		turn = 1;

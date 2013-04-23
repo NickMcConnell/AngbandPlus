@@ -1,0 +1,1161 @@
+diff -c2 -w -r angband-283/src/Makefile.ibm angband-283.randart/src/Makefile.ibm
+*** angband-283/src/Makefile.ibm	Fri Feb  6 04:08:39 1998
+--- angband-283.randart/src/Makefile.ibm	Sun Feb 15 10:39:50 1998
+***************
+*** 13,18 ****
+  
+  # Objects
+  OBJS = \
+-   main.o main-ibm.o \
+    generate.o dungeon.o init1.o init2.o \
+    store.o birth.o wizard1.o wizard2.o \
+--- 13,20 ----
+  
+  # Objects
++ MAIN_OBJS = \
++   main.o main-ibm.o
++ 
+  OBJS = \
+    generate.o dungeon.o init1.o init2.o \
+    store.o birth.o wizard1.o wizard2.o \
+***************
+*** 22,26 ****
+    object1.o object2.o monster1.o monster2.o \
+    variable.o tables.o util.o cave.o \
+!   z-term.o z-rand.o z-form.o z-virt.o z-util.o
+  
+  # Compiler
+--- 24,29 ----
+    object1.o object2.o monster1.o monster2.o \
+    variable.o tables.o util.o cave.o \
+!   z-term.o z-rand.o z-form.o z-virt.o z-util.o \
+!   randart.o
+  
+  # Compiler
+***************
+*** 38,44 ****
+  #
+  
+! default: angband.exe
+  	copy angband.exe ..
+  	del angband.exe
+  
+  install: angband.exe makepref.exe gredit.exe
+--- 41,49 ----
+  #
+  
+! default: angband.exe randart.exe
+  	copy angband.exe ..
++ 	copy randart.exe ..
+  	del angband.exe
++ 	del randart.exe
+  
+  install: angband.exe makepref.exe gredit.exe
+***************
+*** 47,52 ****
+  	copy gredit.exe ..
+  
+! all: angband.exe makepref.exe gredit.exe
+! 	@echo All done.  Use 'make install' to install.
+  
+  
+--- 52,69 ----
+  	copy gredit.exe ..
+  
+! all: angband.exe makepref.exe gredit.exe randart.exe
+! 
+! _randart.o: randart.c
+! 	copy randart.c _randart.c
+! 	$(CC) $(CFLAGS) -DSTANDALONE_RANDART -c _randart.c
+! 	del _randart.c
+! 
+! #
+! # Build the Angband function library
+! #
+! 
+! libangb.a: $(OBJS)
+! 	ar rcv $@ $(OBJS)
+! 	ranlib $@
+  
+  
+***************
+*** 55,60 ****
+  #
+  
+! angband.exe: $(OBJS)
+! 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+  
+  makepref.exe: makepref.o
+--- 72,80 ----
+  #
+  
+! angband.exe: $(MAIN_OBJS) libangb.a
+! 	$(CC) $(CFLAGS) -o $@ $(MAIN_OBJS) libangb.a $(LIBS)
+! 
+! randart.exe: _randart.o randmain.o libangb.a
+! 	$(CC) $(CFLAGS) -o $@ _randart.o randmain.o libangb.a
+  
+  makepref.exe: makepref.o
+***************
+*** 80,83 ****
+--- 100,105 ----
+  	del *.o
+  	del *.bin
++ 	del libangb.a
++ 	del _randart.c
+  
+  cleanall: clean
+diff -c2 -w -r angband-283/src/Makefile.std angband-283.randart/src/Makefile.std
+*** angband-283/src/Makefile.std	Sun Feb 15 12:38:54 1998
+--- angband-283.randart/src/Makefile.std	Sun Feb 15 12:30:23 1998
+***************
+*** 54,58 ****
+    wizard1.c wizard2.c \
+    generate.c dungeon.c init1.c init2.c \
+!   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
+  
+  OBJS = \
+--- 54,59 ----
+    wizard1.c wizard2.c \
+    generate.c dungeon.c init1.c init2.c \
+!   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c \
+!   randart.c randmain.c
+  
+  OBJS = \
+***************
+*** 66,71 ****
+    wizard1.o wizard2.o \
+    generate.o dungeon.o init1.o init2.o \
+!   main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
+  
+  
+  
+--- 67,74 ----
+    wizard1.o wizard2.o \
+    generate.o dungeon.o init1.o init2.o \
+!   randart.o
+  
++ MAIN_OBJS = \
++   main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
+  
+  
+***************
+*** 116,121 ****
+  # attempt to "guess" at many of these flags based on your system.
+  #
+! CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
+! LIBS = -lX11 -lcurses -ltermcap
+  
+  
+--- 119,124 ----
+  # attempt to "guess" at many of these flags based on your system.
+  #
+! #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
+! #LIBS = -lX11 -lcurses -ltermcap
+  
+  
+***************
+*** 137,142 ****
+  ## Variation -- Use "main-xaw.c" instead of "main-x11.c"
+  ##
+! #CFLAGS = -Wall -O1 -pipe -g -D"USE_XAW" -D"USE_GCU"
+! #LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap
+  
+  
+--- 140,147 ----
+  ## Variation -- Use "main-xaw.c" instead of "main-x11.c"
+  ##
+! ## (This is for Greg's Debian GNU/Linux 1.3.1 setup....)
+! ##
+! CFLAGS = -Wall -O -m486 -g -D"USE_XAW" -D"USE_GCU"
+! LIBS = -L/usr/X11R6/lib -lXaw -lXmu -lXt -lX11 -lcurses
+  
+  
+***************
+*** 211,221 ****
+  
+  
+  
+  #
+! # Hack -- "install" as the base target
+  #
+  
+! install: angband
+! 	cp angband ..
+  
+  
+--- 216,231 ----
+  
+  
++ #
++ # By default, build both randart and angband
++ #
++ all: randart angband
++ 	@echo "All done.  Use 'make install' to copy them up one directory."
+  
+  #
+! # "install" not the base target any more
+  #
+  
+! install: angband randart
+! 	cp angband randart ..
+  
+  
+***************
+*** 224,230 ****
+  #
+  
+! angband: $(OBJS)
+! 	$(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
+  
+  
+  #
+--- 234,259 ----
+  #
+  
+! angband: $(MAIN_OBJS) libangband.a
+! 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(MAIN_OBJS) libangband.a $(LIBS)
+! 
+! #
+! # Build the standalone randart program.  This typically doesn't need any
+! # of the libraries that Angband does (curses, termcap, X11, etc.).  Note,
+! # however, that it *does* need a slightly altered randart.o (which doesn't
+! # try to use the Angband error message display).
+! #
+! 
+! randart: _randart.o randmain.o libangband.a
+! 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ _randart.o randmain.o libangband.a
+! 
+! _randart.o : randart.c
+! 	cp randart.c _randart.c
+! 	$(CC) $(CFLAGS) -DSTANDALONE_RANDART -c _randart.c
+! 	rm _randart.c
+  
++ libangband.a: $(OBJS)
++ 	ar rcv $@ $(OBJS)
++ 	@echo "If ranlib doesn't exist on your system, you can ignore the error."
++ 	-ranlib $@
+  
+  #
+***************
+*** 233,237 ****
+  
+  clean:
+! 	\rm *.bak *.o
+  
+  
+--- 262,267 ----
+  
+  clean:
+! 	rm -f *.bak *.o
+! 	rm -f angband randart libangband.a _randart.c
+  
+  
+diff -c2 -w -r angband-283/src/birth.c angband-283.randart/src/birth.c
+*** angband-283/src/birth.c	Mon Feb  9 07:29:31 1998
+--- angband-283.randart/src/birth.c	Sun Feb 15 11:19:41 1998
+***************
+*** 1267,1270 ****
+--- 1267,1297 ----
+  
+  
++ #ifdef GJW_RANDART
++ 	/* Extra info */
++ 	Term_putstr(5, 15, -1, TERM_WHITE,
++ 		"Using random artifacts means that your character will enter a");
++ 	Term_putstr(5, 16, -1, TERM_WHITE,
++ 		"world with a uniquely generated set of special items.   ");
++ 
++ 	/* Ask about random artifacts */
++ 	while (1)
++ 	{
++ 		put_str("Use random artifacts? (y/n) ", 20, 2);
++ 		c = inkey();
++ 		if (c == 'Q') quit(NULL);
++ 		if (c == 'S') return (FALSE);
++ 		if (c == ESCAPE) break;
++ 		if ((c == 'y') || (c == 'n')) break;
++ 		if (c == '?') do_cmd_help();
++ 		else bell("Illegal response!");
++ 	}
++ 
++ 	/* Set random artifacts */
++ 	p_ptr->random_artifacts = (c == 'y');
++ 
++ 	/* Clear */
++ 	clear_from(20);
++ #endif
++ 
+  #ifdef ALLOW_AUTOROLLER
+  
+diff -c2 -w -r angband-283/src/cmd6.c angband-283.randart/src/cmd6.c
+*** angband-283/src/cmd6.c	Sun Feb 15 12:38:56 1998
+--- angband-283.randart/src/cmd6.c	Sun Feb 15 10:33:03 1998
+***************
+*** 2994,2998 ****
+  			case ART_RAZORBACK:
+  			{
+! 				msg_print("Your armor is surrounded by lightning...");
+  				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3);
+  				o_ptr->timeout = 1000;
+--- 2994,2998 ----
+  			case ART_RAZORBACK:
+  			{
+! 				msg_print("You call forth ball lightning!");
+  				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3);
+  				o_ptr->timeout = 1000;
+***************
+*** 3002,3006 ****
+  			case ART_BLADETURNER:
+  			{
+! 				msg_print("Your armor glows many colours...");
+  				(void)hp_player(30);
+  				(void)set_afraid(0);
+--- 3002,3006 ----
+  			case ART_BLADETURNER:
+  			{
+! 				msg_print("You are surrounded by many colours...");
+  				(void)hp_player(30);
+  				(void)set_afraid(0);
+***************
+*** 3019,3023 ****
+  			case ART_SOULKEEPER:
+  			{
+! 				msg_print("Your armor glows a bright white...");
+  				msg_print("You feel much better...");
+  				(void)hp_player(1000);
+--- 3019,3023 ----
+  			case ART_SOULKEEPER:
+  			{
+! 				msg_print("You see a bright white glow...");
+  				msg_print("You feel much better...");
+  				(void)hp_player(1000);
+***************
+*** 3029,3033 ****
+  			case ART_BELEGENNON:
+  			{
+! 				msg_print("Your armor twists space around you...");
+  				teleport_player(10);
+  				o_ptr->timeout = 2;
+--- 3029,3033 ----
+  			case ART_BELEGENNON:
+  			{
+! 				msg_print("Space is twisted around you...");
+  				teleport_player(10);
+  				o_ptr->timeout = 2;
+***************
+*** 3037,3041 ****
+  			case ART_CELEBORN:
+  			{
+! 				msg_print("Your armor glows deep blue...");
+  				(void)genocide();
+  				o_ptr->timeout = 500;
+--- 3037,3041 ----
+  			case ART_CELEBORN:
+  			{
+! 				msg_print("You see a deep blue glow...");
+  				(void)genocide();
+  				o_ptr->timeout = 500;
+***************
+*** 3045,3049 ****
+  			case ART_CASPANION:
+  			{
+! 				msg_print("Your armor glows bright red...");
+  				destroy_doors_touch();
+  				o_ptr->timeout = 10;
+--- 3045,3049 ----
+  			case ART_CASPANION:
+  			{
+! 				msg_print("You see a bright red glow...");
+  				destroy_doors_touch();
+  				o_ptr->timeout = 10;
+***************
+*** 3054,3058 ****
+  			case ART_HOLHENNETH:
+  			{
+! 				msg_print("Your helm glows bright white...");
+  				msg_print("An image forms in your mind...");
+  				detect_all();
+--- 3054,3058 ----
+  			case ART_HOLHENNETH:
+  			{
+! 				msg_print("You see a bright white glow...");
+  				msg_print("An image forms in your mind...");
+  				detect_all();
+***************
+*** 3063,3067 ****
+  			case ART_GONDOR:
+  			{
+! 				msg_print("Your crown glows deep blue...");
+  				msg_print("You feel a warm tingling inside...");
+  				(void)hp_player(500);
+--- 3063,3067 ----
+  			case ART_GONDOR:
+  			{
+! 				msg_print("You see a deep blue glow...");
+  				msg_print("You feel a warm tingling inside...");
+  				(void)hp_player(500);
+***************
+*** 3074,3078 ****
+  			case ART_COLLUIN:
+  			{
+! 				msg_print("Your cloak glows many colours...");
+  				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+  				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+--- 3074,3078 ----
+  			case ART_COLLUIN:
+  			{
+! 				msg_print("You are surrounded by many colours...");
+  				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+  				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+***************
+*** 3086,3090 ****
+  			case ART_HOLCOLLETH:
+  			{
+! 				msg_print("Your cloak glows deep blue...");
+  				sleep_monsters_touch();
+  				o_ptr->timeout = 55;
+--- 3086,3090 ----
+  			case ART_HOLCOLLETH:
+  			{
+! 				msg_print("You see a deep blue glow...");
+  				sleep_monsters_touch();
+  				o_ptr->timeout = 55;
+***************
+*** 3094,3098 ****
+  			case ART_THINGOL:
+  			{
+! 				msg_print("Your cloak glows bright yellow...");
+  				recharge(60);
+  				o_ptr->timeout = 70;
+--- 3094,3098 ----
+  			case ART_THINGOL:
+  			{
+! 				msg_print("You see a bright yellow glow...");
+  				recharge(60);
+  				o_ptr->timeout = 70;
+***************
+*** 3102,3106 ****
+  			case ART_COLANNON:
+  			{
+! 				msg_print("Your cloak twists space around you...");
+  				teleport_player(100);
+  				o_ptr->timeout = 45;
+--- 3102,3106 ----
+  			case ART_COLANNON:
+  			{
+! 				msg_print("Space is twisted around you...");
+  				teleport_player(100);
+  				o_ptr->timeout = 45;
+***************
+*** 3110,3114 ****
+  			case ART_LUTHIEN:
+  			{
+! 				msg_print("Your cloak glows a deep red...");
+  				restore_level();
+  				o_ptr->timeout = 450;
+--- 3110,3114 ----
+  			case ART_LUTHIEN:
+  			{
+! 				msg_print("You see a deep red glow...");
+  				restore_level();
+  				o_ptr->timeout = 450;
+***************
+*** 3119,3123 ****
+  			case ART_CAMMITHRIM:
+  			{
+! 				msg_print("Your gloves glow extremely brightly...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
+--- 3119,3123 ----
+  			case ART_CAMMITHRIM:
+  			{
+! 				msg_print("You see an extremely bright glow...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
+***************
+*** 3128,3132 ****
+  			case ART_PAURHACH:
+  			{
+! 				msg_print("Your gauntlets are covered in fire...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_FIRE, dir, damroll(9, 8));
+--- 3128,3132 ----
+  			case ART_PAURHACH:
+  			{
+! 				msg_print("You call forth a bolt of fire!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_FIRE, dir, damroll(9, 8));
+***************
+*** 3137,3141 ****
+  			case ART_PAURNIMMEN:
+  			{
+! 				msg_print("Your gauntlets are covered in frost...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_COLD, dir, damroll(6, 8));
+--- 3137,3141 ----
+  			case ART_PAURNIMMEN:
+  			{
+! 				msg_print("You call forth an icy blast!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_COLD, dir, damroll(6, 8));
+***************
+*** 3146,3150 ****
+  			case ART_PAURAEGEN:
+  			{
+! 				msg_print("Your gauntlets are covered in sparks...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+--- 3146,3150 ----
+  			case ART_PAURAEGEN:
+  			{
+! 				msg_print("You call forth a lightning bolt!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+***************
+*** 3155,3159 ****
+  			case ART_PAURNEN:
+  			{
+! 				msg_print("Your gauntlets are covered in acid...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_ACID, dir, damroll(5, 8));
+--- 3155,3159 ----
+  			case ART_PAURNEN:
+  			{
+! 				msg_print("A stream of acid spews forth!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_ACID, dir, damroll(5, 8));
+***************
+*** 3164,3168 ****
+  			case ART_FINGOLFIN:
+  			{
+! 				msg_print("Your cesti grows magical spikes...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_ARROW, dir, 150);
+--- 3164,3168 ----
+  			case ART_FINGOLFIN:
+  			{
+! 				msg_print("Huge magical spikes shoot out!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_ARROW, dir, 150);
+***************
+*** 3174,3178 ****
+  			case ART_FEANOR:
+  			{
+! 				msg_print("Your boots glow bright green...");
+  				if (!p_ptr->fast)
+  				{
+--- 3174,3178 ----
+  			case ART_FEANOR:
+  			{
+! 				msg_print("You see a bright green glow...");
+  				if (!p_ptr->fast)
+  				{
+***************
+*** 3189,3193 ****
+  			case ART_DAL:
+  			{
+! 				msg_print("Your boots glow deep blue...");
+  				(void)set_afraid(0);
+  				(void)set_poisoned(0);
+--- 3189,3193 ----
+  			case ART_DAL:
+  			{
+! 				msg_print("You see a deep blue glow...");
+  				(void)set_afraid(0);
+  				(void)set_poisoned(0);
+***************
+*** 3199,3203 ****
+  			case ART_NARTHANC:
+  			{
+! 				msg_print("Your dagger is covered in fire...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_FIRE, dir, damroll(9, 8));
+--- 3199,3203 ----
+  			case ART_NARTHANC:
+  			{
+! 				msg_print("You call forth a fire bolt!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_FIRE, dir, damroll(9, 8));
+***************
+*** 3208,3212 ****
+  			case ART_NIMTHANC:
+  			{
+! 				msg_print("Your dagger is covered in frost...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_COLD, dir, damroll(6, 8));
+--- 3208,3212 ----
+  			case ART_NIMTHANC:
+  			{
+! 				msg_print("You call forth an icy blast!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_COLD, dir, damroll(6, 8));
+***************
+*** 3217,3221 ****
+  			case ART_DETHANC:
+  			{
+! 				msg_print("Your dagger is covered in sparks...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+--- 3217,3221 ----
+  			case ART_DETHANC:
+  			{
+! 				msg_print("You call forth a lightning bolt!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+***************
+*** 3226,3230 ****
+  			case ART_RILIA:
+  			{
+! 				msg_print("Your dagger throbs deep green...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_POIS, dir, 12, 3);
+--- 3226,3230 ----
+  			case ART_RILIA:
+  			{
+! 				msg_print("You see a throbbing green light...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_POIS, dir, 12, 3);
+***************
+*** 3235,3239 ****
+  			case ART_BELANGIL:
+  			{
+! 				msg_print("Your dagger is covered in frost...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_COLD, dir, 48, 2);
+--- 3235,3239 ----
+  			case ART_BELANGIL:
+  			{
+! 				msg_print("You hear the howl of a fearsome winter storm!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_COLD, dir, 48, 2);
+***************
+*** 3244,3248 ****
+  			case ART_ARUNRUTH:
+  			{
+! 				msg_print("Your sword glows a pale blue...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_COLD, dir, damroll(12, 8));
+--- 3244,3248 ----
+  			case ART_ARUNRUTH:
+  			{
+! 				msg_print("You see a pale blue glow...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_bolt(GF_COLD, dir, damroll(12, 8));
+***************
+*** 3253,3257 ****
+  			case ART_RINGIL:
+  			{
+! 				msg_print("Your sword glows an intense blue...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_COLD, dir, 100, 2);
+--- 3253,3257 ----
+  			case ART_RINGIL:
+  			{
+! 				msg_print("You see an intense blue glow...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_COLD, dir, 100, 2);
+***************
+*** 3262,3266 ****
+  			case ART_ANDURIL:
+  			{
+! 				msg_print("Your sword glows an intense red...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_FIRE, dir, 72, 2);
+--- 3262,3266 ----
+  			case ART_ANDURIL:
+  			{
+! 				msg_print("You see an intense red glow...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_FIRE, dir, 72, 2);
+***************
+*** 3272,3276 ****
+  			case ART_THEODEN:
+  			{
+! 				msg_print("Your axe blade glows black...");
+  				if (!get_aim_dir(&dir)) return;
+  				drain_life(dir, 120);
+--- 3272,3276 ----
+  			case ART_THEODEN:
+  			{
+! 				msg_print("You see a black aura...");
+  				if (!get_aim_dir(&dir)) return;
+  				drain_life(dir, 120);
+***************
+*** 3281,3285 ****
+  			case ART_AEGLOS:
+  			{
+! 				msg_print("Your spear glows a bright white...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_COLD, dir, 100, 2);
+--- 3281,3285 ----
+  			case ART_AEGLOS:
+  			{
+! 				msg_print("You see a bright white glow...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_COLD, dir, 100, 2);
+***************
+*** 3290,3294 ****
+  			case ART_OROME:
+  			{
+! 				msg_print("Your spear pulsates...");
+  				if (!get_aim_dir(&dir)) return;
+  				wall_to_mud(dir);
+--- 3290,3294 ----
+  			case ART_OROME:
+  			{
+! 				msg_print("You hear distant pounding...");
+  				if (!get_aim_dir(&dir)) return;
+  				wall_to_mud(dir);
+***************
+*** 3299,3303 ****
+  			case ART_EONWE:
+  			{
+! 				msg_print("Your axe lets out a long, shrill note...");
+  				(void)mass_genocide();
+  				o_ptr->timeout = 1000;
+--- 3299,3303 ----
+  			case ART_EONWE:
+  			{
+! 				msg_print("You hear a long, shrill note...");
+  				(void)mass_genocide();
+  				o_ptr->timeout = 1000;
+***************
+*** 3307,3311 ****
+  			case ART_LOTHARANG:
+  			{
+! 				msg_print("Your battle axe radiates deep purple...");
+  				hp_player(damroll(4, 8));
+  				(void)set_cut((p_ptr->cut / 2) - 50);
+--- 3307,3311 ----
+  			case ART_LOTHARANG:
+  			{
+! 				msg_print("You see a deep purple glow...");
+  				hp_player(damroll(4, 8));
+  				(void)set_cut((p_ptr->cut / 2) - 50);
+***************
+*** 3316,3320 ****
+  			case ART_ULMO:
+  			{
+! 				msg_print("Your trident glows deep red...");
+  				if (!get_aim_dir(&dir)) return;
+  				teleport_monster(dir);
+--- 3316,3320 ----
+  			case ART_ULMO:
+  			{
+! 				msg_print("You see a deep red glow...");
+  				if (!get_aim_dir(&dir)) return;
+  				teleport_monster(dir);
+***************
+*** 3325,3329 ****
+  			case ART_AVAVIR:
+  			{
+! 				msg_print("Your scythe glows soft white...");
+  				if (p_ptr->word_recall == 0)
+  				{
+--- 3325,3329 ----
+  			case ART_AVAVIR:
+  			{
+! 				msg_print("You see a soft white glow...");
+  				if (p_ptr->word_recall == 0)
+  				{
+***************
+*** 3343,3347 ****
+  			case ART_TOTILA:
+  			{
+! 				msg_print("Your flail glows in scintillating colours...");
+  				if (!get_aim_dir(&dir)) return;
+  				confuse_monster(dir, 20);
+--- 3343,3347 ----
+  			case ART_TOTILA:
+  			{
+! 				msg_print("You see scintillating colours...");
+  				if (!get_aim_dir(&dir)) return;
+  				confuse_monster(dir, 20);
+***************
+*** 3352,3356 ****
+  			case ART_FIRESTAR:
+  			{
+! 				msg_print("Your morning star rages in fire...");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_FIRE, dir, 72, 3);
+--- 3352,3356 ----
+  			case ART_FIRESTAR:
+  			{
+! 				msg_print("You feel the heat of a raging fire!");
+  				if (!get_aim_dir(&dir)) return;
+  				fire_ball(GF_FIRE, dir, 72, 3);
+***************
+*** 3361,3365 ****
+  			case ART_TARATOL:
+  			{
+! 				msg_print("Your mace glows bright green...");
+  				if (!p_ptr->fast)
+  				{
+--- 3361,3365 ----
+  			case ART_TARATOL:
+  			{
+! 				msg_print("You see a bright green glow...");
+  				if (!p_ptr->fast)
+  				{
+***************
+*** 3376,3380 ****
+  			case ART_ERIRIL:
+  			{
+! 				msg_print("Your quarterstaff glows yellow...");
+  				if (!ident_spell()) return;
+  				o_ptr->timeout = 10;
+--- 3376,3380 ----
+  			case ART_ERIRIL:
+  			{
+! 				msg_print("You see a yellow glow...");
+  				if (!ident_spell()) return;
+  				o_ptr->timeout = 10;
+***************
+*** 3384,3388 ****
+  			case ART_OLORIN:
+  			{
+! 				msg_print("Your quarterstaff glows brightly...");
+  				probing();
+  				o_ptr->timeout = 20;
+--- 3384,3388 ----
+  			case ART_OLORIN:
+  			{
+! 				msg_print("You see a bright glow...");
+  				probing();
+  				o_ptr->timeout = 20;
+***************
+*** 3392,3396 ****
+  			case ART_TURMIL:
+  			{
+! 				msg_print("Your hammer glows white...");
+  				if (!get_aim_dir(&dir)) return;
+  				drain_life(dir, 90);
+--- 3392,3396 ----
+  			case ART_TURMIL:
+  			{
+! 				msg_print("You see a white glow...");
+  				if (!get_aim_dir(&dir)) return;
+  				drain_life(dir, 90);
+***************
+*** 3402,3406 ****
+  			case ART_CUBRAGOL:
+  			{
+! 				msg_print("Your crossbow glows deep red...");
+  				(void)brand_bolts();
+  				o_ptr->timeout = 999;
+--- 3402,3406 ----
+  			case ART_CUBRAGOL:
+  			{
+! 				msg_print("You see a fiery red glow...");
+  				(void)brand_bolts();
+  				o_ptr->timeout = 999;
+diff -c2 -w -r angband-283/src/config.h angband-283.randart/src/config.h
+*** angband-283/src/config.h	Sun Feb 15 12:38:56 1998
+--- angband-283.randart/src/config.h	Sun Feb 15 10:34:01 1998
+***************
+*** 177,181 ****
+   * OPTION: Hack -- Compile in support for "Debug Commands"
+   */
+! /* #define ALLOW_DEBUG */
+  
+  /*
+--- 177,181 ----
+   * OPTION: Hack -- Compile in support for "Debug Commands"
+   */
+! #define ALLOW_DEBUG
+  
+  /*
+***************
+*** 338,341 ****
+--- 338,345 ----
+  
+  
++ /*
++  * OPTION: Allow the use of random artifacts.
++  */
++ #define GJW_RANDART
+  
+  /*
+diff -c2 -w -r angband-283/src/defines.h angband-283.randart/src/defines.h
+*** angband-283/src/defines.h	Sun Feb 15 12:38:56 1998
+--- angband-283.randart/src/defines.h	Sun Feb 15 10:45:21 1998
+***************
+*** 56,59 ****
+--- 56,62 ----
+  #define VERSION_EXTRA	0
+  
++ #ifdef GJW_RANDART
++ #define RANDART_VERSION "0.6.2"
++ #endif
+  
+  /*
+diff -c2 -w -r angband-283/src/dungeon.c angband-283.randart/src/dungeon.c
+*** angband-283/src/dungeon.c	Sun Feb 15 12:38:57 1998
+--- angband-283.randart/src/dungeon.c	Sun Feb 15 10:33:03 1998
+***************
+*** 2631,2636 ****
+--- 2631,2647 ----
+  		seed_town = rand_int(0x10000000);
+  
++ #ifdef GJW_RANDART
++ 		/* Hack -- seed for random artifacts */
++ 		seed_randart = rand_int (0x10000000);
++ #endif
++ 
+  		/* Roll up a new character */
+  		player_birth();
++ 
++ #ifdef GJW_RANDART
++ 		/* Randomize the artifacts. */
++ 		if (p_ptr->random_artifacts)
++ 			do_randart (seed_randart);
++ #endif
+  
+  		/* Hack -- enter the world */
+diff -c2 -w -r angband-283/src/externs.h angband-283.randart/src/externs.h
+*** angband-283/src/externs.h	Mon Feb  9 01:49:44 1998
+--- angband-283.randart/src/externs.h	Sun Feb 15 10:33:04 1998
+***************
+*** 89,92 ****
+--- 89,95 ----
+  extern bool arg_force_original;
+  extern bool arg_force_roguelike;
++ #ifdef GJW_RANDART
++ extern u32b seed_randart;
++ #endif
+  extern bool character_generated;
+  extern bool character_dungeon;
+***************
+*** 387,390 ****
+--- 390,397 ----
+  extern void init_file_paths(char *path);
+  extern void init_angband(void);
++ #ifdef GJW_RANDART
++ extern errr init_a_info(void);
++ extern errr init_k_info(void);
++ #endif
+  
+  /* load1.c */
+***************
+*** 711,714 ****
+--- 718,725 ----
+  extern bool confuse_dir(int *dp);
+  
++ #ifdef GJW_RANDART
++ /* randart.c */
++ extern int do_randart (u32b randart_seed);
++ #endif
+  
+  /*
+diff -c2 -w -r angband-283/src/files.c angband-283.randart/src/files.c
+*** angband-283/src/files.c	Sun Feb 15 12:38:57 1998
+--- angband-283.randart/src/files.c	Sun Feb 15 12:23:26 1998
+***************
+*** 1179,1182 ****
+--- 1179,1199 ----
+  
+  
++ #ifdef GJW_RANDART
++ 	/* Version, etc. */
++ 	if (p_ptr->random_artifacts)
++ 	{
++ 		Term_putstr(1, 0, -1, TERM_WHITE,
++ 			format ("[Angband %d.%d.%d with randart "
++ 				RANDART_VERSION ", seed %lu]",
++ 				VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
++ 				(unsigned int) seed_randart));
++ 	} else {
++ 		Term_putstr(1, 0, -1, TERM_WHITE,
++ 			format ("[Angband %d.%d.%d with randart "
++ 				RANDART_VERSION "]",
++ 				VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
++ 	}
++ #endif
++ 
+  	/* Age */
+  	Term_putstr(col, 3, -1, TERM_WHITE, "Age");
+***************
+*** 2045,2051 ****
+  
+  	/* Begin dump */
+! 	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+  	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+  
+  
+  	/* Display player */
+--- 2062,2077 ----
+  
+  	/* Begin dump */
+! 	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n",
+  	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+  
++ #ifdef GJW_RANDART
++ 	if (p_ptr->random_artifacts)
++ 	{
++ 		fprintf(fff, "  [Random artifacts version " RANDART_VERSION
++ 			", seed %lu]\n", (unsigned long) seed_randart);
++ 	}
++ #endif
++ 
++ 	fprintf (fff, "\n");
+  
+  	/* Display player */
+diff -c2 -w -r angband-283/src/init1.c angband-283.randart/src/init1.c
+*** angband-283/src/init1.c	Mon Feb  9 01:12:39 1998
+--- angband-283.randart/src/init1.c	Sun Feb 15 10:33:04 1998
+***************
+*** 372,376 ****
+   * Object flags
+   */
+! static cptr k_info_flags1[] =
+  {
+  	"STR",
+--- 372,376 ----
+   * Object flags
+   */
+! cptr k_info_flags1[] =
+  {
+  	"STR",
+***************
+*** 411,415 ****
+   * Object flags
+   */
+! static cptr k_info_flags2[] =
+  {
+  	"SUST_STR",
+--- 411,415 ----
+   * Object flags
+   */
+! cptr k_info_flags2[] =
+  {
+  	"SUST_STR",
+***************
+*** 450,454 ****
+   * Object flags
+   */
+! static cptr k_info_flags3[] =
+  {
+  	"SLOW_DIGEST",
+--- 450,454 ----
+   * Object flags
+   */
+! cptr k_info_flags3[] =
+  {
+  	"SLOW_DIGEST",
+diff -c2 -w -r angband-283/src/init2.c angband-283.randart/src/init2.c
+*** angband-283/src/init2.c	Fri Feb  6 04:10:31 1998
+--- angband-283.randart/src/init2.c	Sun Feb 15 10:33:04 1998
+***************
+*** 568,572 ****
+   * even if the string happens to be empty (everyone has a unique '\0').
+   */
+! static errr init_k_info(void)
+  {
+  	int fd;
+--- 568,572 ----
+   * even if the string happens to be empty (everyone has a unique '\0').
+   */
+! errr init_k_info(void)
+  {
+  	int fd;
+***************
+*** 821,825 ****
+   * even if the string happens to be empty (everyone has a unique '\0').
+   */
+! static errr init_a_info(void)
+  {
+  	int fd;
+--- 821,825 ----
+   * even if the string happens to be empty (everyone has a unique '\0').
+   */
+! errr init_a_info(void)
+  {
+  	int fd;
+diff -c2 -w -r angband-283/src/load2.c angband-283.randart/src/load2.c
+*** angband-283/src/load2.c	Fri Feb  6 04:10:31 1998
+--- angband-283.randart/src/load2.c	Sun Feb 15 10:33:04 1998
+***************
+*** 1357,1364 ****
+--- 1357,1374 ----
+  	rd_byte(&p_ptr->maximize);
+  	rd_byte(&p_ptr->preserve);
++ #ifdef GJW_RANDART
++ 	rd_byte(&p_ptr->random_artifacts);
++ #else
+  	rd_byte(&tmp8u);
++ #endif
+  
++ #ifdef GJW_RANDART
++ 	/* Future use */
++ 	for (i = 0; i < 44; i++) rd_byte(&tmp8u);
++ 	rd_u32b(&seed_randart);
++ #else
+  	/* Future use */
+  	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
++ #endif
+  
+  	/* Skip the flags */
+***************
+*** 1380,1383 ****
+--- 1390,1399 ----
+  	rd_byte(&tmp8u);
+  	p_ptr->is_dead = tmp8u;
++ 
++ #ifdef GJW_RANDART
++ 	/* Randomize the artifacts */
++ 	if (!(p_ptr->is_dead))
++ 		if (p_ptr->random_artifacts) do_randart (seed_randart);
++ #endif
+  
+  	/* Read "feeling" */
+diff -c2 -w -r angband-283/src/save.c angband-283.randart/src/save.c
+*** angband-283/src/save.c	Fri Feb  6 04:10:31 1998
+--- angband-283.randart/src/save.c	Sun Feb 15 10:33:05 1998
+***************
+*** 1113,1120 ****
+--- 1113,1130 ----
+  	wr_byte(p_ptr->maximize);
+  	wr_byte(p_ptr->preserve);
++ #ifdef GJW_RANDART
++ 	wr_byte(p_ptr->random_artifacts);
++ #else
+  	wr_byte(0);
++ #endif
+  
++ #ifdef GJW_RANDART
++ 	/* Future use */
++ 	for (i = 0; i < 11; i++) wr_u32b(0L);
++ 	wr_u32b(seed_randart);
++ #else
+  	/* Future use */
+  	for (i = 0; i < 12; i++) wr_u32b(0L);
++ #endif
+  
+  	/* Ignore some flags */
+diff -c2 -w -r angband-283/src/types.h angband-283.randart/src/types.h
+*** angband-283/src/types.h	Mon Feb  9 01:11:57 1998
+--- angband-283.randart/src/types.h	Sun Feb 15 10:33:05 1998
+***************
+*** 830,833 ****
+--- 830,836 ----
+  	byte maximize;		/* Maximize stats */
+  	byte preserve;		/* Preserve artifacts */
++ #ifdef GJW_RANDART
++ 	byte random_artifacts;	/* Random artifacts */
++ #endif
+  
+  	s16b age;			/* Characters age */
+diff -c2 -w -r angband-283/src/variable.c angband-283.randart/src/variable.c
+*** angband-283/src/variable.c	Mon Feb  9 01:49:54 1998
+--- angband-283.randart/src/variable.c	Sun Feb 15 10:33:05 1998
+***************
+*** 73,76 ****
+--- 73,79 ----
+  u32b seed_flavor;		/* Hack -- consistent object colors */
+  u32b seed_town;			/* Hack -- consistent town layout */
++ #ifdef GJW_RANDART
++ u32b seed_randart;		/* Hack -- consistent random artifacts */
++ #endif
+  
+  s16b num_repro;			/* Current reproducer count */

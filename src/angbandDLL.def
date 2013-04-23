@@ -1,0 +1,61 @@
+; AngbandDll.def : Declares the module parameters for the DLL
+
+LIBRARY			"AngbandDll"
+DESCRIPTION		'AngbandDLL Windows Dynamic Link Library'
+
+EXPORTS
+
+; DLL infos
+	get_DLL_version
+	get_Angband_version
+	get_Variant_name
+	get_Variant_dir_name
+	get_compiled_by
+
+; various options
+	get_use_sound
+	set_use_sound
+	get_use_graphics
+	set_use_graphics
+	set_ANGBAND_SYS
+	set_ANGBAND_GRAF
+
+; Term related functions
+	set_angband_term
+	get_angband_term
+	set_term_data
+	get_term_data
+	get_current_term
+	get_angband_term_name
+
+	term_init
+	Term_activate
+	Term_redraw
+	Term_resize
+	Term_keypress
+
+; Function hooks
+	set_term_init_hook
+	set_term_nuke_hook
+	set_term_user_hook
+	set_term_xtra_hook
+	set_term_curs_hook
+	set_term_wipe_hook
+	set_term_text_hook
+	set_term_pict_hook
+
+	set_plog_hook
+	set_quit_hook
+	set_core_hook
+
+; Misc. game functions
+	init_angband
+	init_file_paths
+	play_game
+	reset_visuals
+	quit
+
+	get_angband_color
+
+	set_savefile_name
+	do_cmd_save_game

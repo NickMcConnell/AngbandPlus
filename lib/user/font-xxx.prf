@@ -406,4 +406,29 @@ E:90:0x0C
 E:91:0x0D
 
 
+### Graphics codes for "unknown objects"
+
+# Unknown Amulet
+U:40:0x08/0x22
+
+# Unknown Ring
+U:45:0x08/0x3D
+
+# Unknown Staff
+U:55:0x08/0x5F
+
+# Unknown Wand
+U:65:0x08/0x2D
+
+# Unknown Rod
+U:66:0x08/0x2D
+
+# Unknown Scroll
+U:70:0x08/0x3F
+
+# Unknown Potion
+U:75:0x08/0x21
+
+# Unknown Food
+U:80:0x08/0x2C
 

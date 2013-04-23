@@ -1266,6 +1266,33 @@ static bool player_birth_aux()
 	clear_from(20);
 
 
+#ifdef GJW_RANDART
+	/* Extra info */
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"Using random artifacts means that your character will enter a");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"world with a uniquely generated set of special items.   ");
+
+	/* Ask about random artifacts */
+	while (1)
+	{
+		put_str("Use random artifacts? (y/n) ", 20, 2);
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) break;
+		if ((c == 'y') || (c == 'n')) break;
+		if (c == '?') do_cmd_help();
+		else bell("Illegal response!");
+	}
+
+	/* Set random artifacts */
+	p_ptr->random_artifacts = (c == 'y');
+
+	/* Clear */
+	clear_from(20);
+#endif
+
 #ifdef ALLOW_AUTOROLLER
 
 	/*** Autoroll ***/
