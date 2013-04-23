@@ -125,7 +125,9 @@ Ban Sidhe is not found
 Mage gets Detect Objects later, and never CLW
 Druid gets Fire and Frost beams later
 
+** v2.0.6
 
+Now supports UT32 tileset - many thanks to Buzzkill!
 
 
 
