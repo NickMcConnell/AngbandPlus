@@ -26,10 +26,10 @@ V:2.8.3
 # The Phial of Galadriel
 
 N:1:of Galadriel
-I:39:4:0
+I:39:4:1
 W:1:1:10:10000
 P:0:1d1:0:0:0
-F:ACTIVATE | 
+F:ACTIVATE | SEARCH
 F:INSTA_ART
 
 
@@ -85,8 +85,16 @@ F:SEE_INVIS | FREE_ACT | REGEN | LITE |
 F:INSTA_ART
 
 
-# Artifact 7 is unused
+# the Broken Dagger 'Immuno' (!) by Tarael200
 
+N:7:'Immuno'
+I:23:1:-5
+W:25:175:10:175000
+P:0:1d1:-75:-100:-75
+F:STR | INT | WIS | DEX | CON | CHR |
+F:SEARCH | SPEED | INFRA |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC |
+F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE |
 
 # The Ring of Barahir
 
@@ -159,11 +167,24 @@ F:SUST_STR | SUST_DEX | SUST_CON |
 F:SUST_INT | SUST_WIS | SUST_CHR | 
 F:INSTA_ART
 
+# The Whip of the Balrog ! By Tarael200
 
-# Artifact 14 is unused
+N:14:of the Balrog
+I:21:2:0
+W:65:20:40:200000
+F:BRAND_FIRE | RES_FIRE | RES_LITE |
+F:LITE | ACTIVATE |
 
+# The Executioner's Sword 'Slayer'! (taken from zangband)
 
-# Artifact 15 is unused
+N:15:'Slayer'
+I:23:28:3
+W:40:40:26:490000
+F:SPEED | STEALTH | INFRA | BLOWS | 
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON |
+F:RES_FIRE | RES_COLD | RES_POIS | RES_FEAR | RES_DARK |
+F:RES_BLIND | RES_CONFU | RES_NETHR | REGEN |
+F:SEE_INVIS | FREE_ACT | HOLD_LIFE | 
 
 
 # The Multi-Hued Dragon Scale Mail 'Razorback'

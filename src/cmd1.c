@@ -367,17 +367,13 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (mult < 3) mult = 3;
 				}
-			}
-
-			break;
-		}
-	}
-
 
 	/* Return the total damage */
 	return (tdam * mult);
 }
-
+}
+}
+}
 
 /*
  * Search for hidden things
@@ -485,6 +481,15 @@ void py_pickup(int pickup)
 
 	char o_name[80];
 
+#ifdef ALLOW_EASY_FLOOR
+
+	if (easy_floor)
+	{
+		py_pickup_floor(pickup);
+		return;
+	}
+	
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -875,7 +880,6 @@ void hit_trap(int y, int x)
 }
 
 
-
 /*
  * Attack the monster at the given location
  *
@@ -960,6 +964,7 @@ void py_attack(int y, int x)
 			{
 				k = damroll(o_ptr->dd, o_ptr->ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr);
+				
 				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
 				k += o_ptr->to_d;
@@ -1076,6 +1081,18 @@ void move_player(int dir, int do_pickup)
 		py_attack(y, x);
 	}
 
+#ifdef ALLOW_EASY_DISARM
+
+	/* Disarm a visible trap */
+	else if ((do_pickup != easy_disarm) &&
+		(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		(cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	{
+		(void) do_cmd_disarm_aux(y, x);
+	}
+	
+#endif /* ALLOW_EASY_DISARM */
+
 	/* Player can not walk through "walls" */
 	else if (!cave_floor_bold(y, x))
 	{
@@ -1122,6 +1139,12 @@ void move_player(int dir, int do_pickup)
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
+#ifdef ALLOW_EASY_OPEN
+
+				if (easy_open && easy_open_door(y, x)) return;
+
+#endif /* ALLOW_EASY_OPEN */
+
 				msg_print("There is a door blocking your way.");
 			}
 
@@ -1164,7 +1187,15 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
+#ifdef ALLOW_EASY_DISARM
+
+		py_pickup(do_pickup != always_pickup);
+		
+#else  /* ALLOW_EASY_DISARM */
+
 		py_pickup(do_pickup);
+		
+#endif /* ALLOW_EASY_DISARM */
 
 		/* Handle "store doors" */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
@@ -1935,6 +1966,14 @@ void run_step(int dir)
 	p_ptr->energy_use = 100;
 
 	/* Move the player, using the "pickup" flag */
+#ifdef ALLOW_EASY_DISARM
+
+	move_player(p_ptr->run_cur_dir, FALSE);
+	
+#else /* ALLOW_EASY_DISARM */
+
 	move_player(p_ptr->run_cur_dir, always_pickup);
+	
+#endif /* ALLOW_EASY_DISARM */
 }
 

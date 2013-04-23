@@ -34,7 +34,6 @@
 #include "externs.h"
 
 
-
 /***** Some older copyright messages follow below *****/
 
 

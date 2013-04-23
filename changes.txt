@@ -1,0 +1,201 @@
+\Changes for SillyBand v0.1.0 from Angband v2.8.3
+------------------------------------------------
+* 'fake' version numbers setup.. now everything
+         shows up as SillyBand v0.1.0
+* Changed following things:
+	* Poison resistance rings now appear at lvl 40 instead of 60,
+	  since this is really when you need them (as drolems soon
+	  appear).. But, to balance this out a bit, they are no longer
+	  worth 16,000au... Now, only 7,000... sawwwy =)
+	* Rings of speed no longer appear at lvl 80, but at lvl 65..
+	  And are only worth 55,000au, not 100,000.. This value may
+	  change later. 
+* Rangers now start with a short sword instead of a broad sword.
+* mages now start with a scroll of teleport instead of a dagger
+* a new level feeling:
+"you have a not so fresh feeling about this level"
+* HUGE radical changes to stat gain:
+	* int & wis potions start appearing at lvl 20, get very common at
+lvl 25.
+	* str & dex potions may appear at lvl 25, and get very common at
+lvl 30.
+	* chr potions appear at same d
+	* CON potions start appearing at lvl 43.. but con rings appear at
+	lvl 33 and deeper, with a possible pval of +to-con 3d3.
+* amulets of intelligence -> amulets of brilliance: affect both INT and
+WIS
+* amulets of wisdom -> amulets of resistance.. give 4 elemental
+  resistances.
+* gnomes get an extra +1 to INT.. this balances them with high-elves,
+	and gives players a choice of starting with free action or
+	see invis.
+* flasks of oil are now fire-branded =)
+* Phial of Galadriel can now be activated every 5 turns, and
+  has Zangband's +1-to-searching change.
+* Upped wand damage greatly. Now hopefully they'll be found to be 
+	a bit more useful :)
+* Made Draebor the Imp DROP_GREAT =)
+* Made Cantoras the Skeleton Lord's color be Light Blue instead of
+ White. People on R.G.R.A had complained about it recently, and its
+ true. Colors for monsters need to be picked more carefully.. There
+ are, after all, 16 colors to pick from yet people decide to pick
+ WHITE for a tough skeleton unique, as opposed to white being the
+ same color for skeleton kobolds.
+* added two new types of breath attacks: water, and crap.
+	* the water type of attack was already defined in some places,
+	I believe for water bolt spells and such that monsters use,
+	but anyway it made debugging a bit annoying at certain places;
+	presumably since I have been coding now for 5 1/2 hours in a row..
+	and my brain feels funnnnyy.
+* finished adding crap hounds :-) unlike any *OTHER* breathers in the
+game, they don't breathe for 1/6 of their hp. They breathe for TWICE
+their HP. Awwww. And crap also reduces Charisma.
+* added two new artifacts! The Dagger 'Immuno' and the Whip of the
+	Balrog...
+* Added the Executioner's Sword 'Slayer' from Zangband.
+	NOTE: Only thing it doesn't have is the Vampiric flag.
+* Frost Bolt renamed to Frost Shard under mage spell listings. 
+* clay oil lamps! hold 1/2 the oil of brass, radius of a torch,
+  but cheaper than a brass lantern at its current price. does 3d4
+  damage when thrown. brass lanterns now cost 200 gp.. I was very
+  proud of myself after I hacked in that incredibly complex code
+  I wrote in to the lamp refueling procedure.. to not only refuel
+  brass lanterns but clay lamps... Be warned. If *ANYONE* takes
+  a look at this procedure and goes to modify it, for whatever
+  reason; be careful. cmd3.c alone gets about 4 warnings now
+  from my modifications..
+* rods of augmentation (thangorodrim) and rods of pesticide [Z]
+* changed mage's Sleep II spell to See Invisible. renamed Sleep III
+	to Sleep II.
+* Patched Tom Morton's 'fake artifact' patch in. Inscribe an item
+with #of some name! and it will become, say, a Dagger of some name! (1d4)
+(+0,+0) {}
+	* Future plans: Hack -TM-'s fake artifact patch so you can either
+		inscribe a name at the beginning of an item, or after.
+		So for example, if you want to inscribe it at the
+beginning of an item;
+
+		a dagger of burning inscribed with of death
+
+		becomes a dagger of death of burning instead of a dagger
+		of burning of death..
+
+		i can't think of a purpose to do this, but i don't feel
+		like adding in monsters right now. so i think i want to
+		add this.... i'd like to change it, so i could have say
+		instead of a dagger, a small mage's dagger or something
+		like that.
+* added Tim Baker's easy patch.
+* combined rings of resist fire and cold into rings of resist fire
+and cold.. put rings of sustain stat together to make:
+	rings of sustain str & dex
+	sustain int & wis
+	sustain con & chr
+
+	this freed up some ring slots, one of which was used to make:
+	a ring of acid and elec resistance
+	....
+* added scrolls of taxes.. very late at night. i playtested them,
+  as i usually do with *EVERY* new feature after i code it... and
+  discovered it was buggy. oh well, i'll either fix it in the morning,
+  or release it with the bug in it. but scrolls of taxes don't disappear
+  either... weird.
+* Fixed the bug in scrolls of taxes (turned out to be in all scrolls).
+  now scrolls get destroyed when read! (yay!)
+* Updated startup screen.
+* Changed "breeds explosively" to "breeds explosively holding a porno
+and a napkin", in monster1.c and wizard1.c
+* Changed Acid Bolt in Raal's to a Mana Bolt.. Unresistable damage :-)
+* Added a small feature where if you hit the '[' key it toggles how
+to display your depth, and redraws the screen. IE: Say your on level 1
+of the dungeon and it says 50 ft, and you want it to say Lev 1; well
+just hit [ and it will automatically change it for you! Neato eh?
+* Went thru the whole r_info.txt, and made many monsters have fewer
+immunities and only a few monsters have ALL immunities... (note:
+sauron doesn't even has all immunities)
+* Added a cool damage formula for Mana Bolt! >:-)
+* Finished adding new ego-item: Weapons of Quickness!
+* Merged 'p' and 'm' commands into one command!
+	* Now you use m for all magic-casting and prayer-praying..
+	  The code even worked on the first try! :-)
+	* Note, I did not MERGE do_cmd_cast and do_cmd_pray... I did
+	  this so I could use the 'p' key for any command I might
+	  wish to add in the future. 
+* Forgot something when implementing clay lamps... Forgot to have
+  them show up in the General Store! This took a moment to fix 
+  in init2.c
+
+
+
+
+
+changes to make:
+* make right damage appear for mana bolt.
+
+* Huge documentation update, after much more changes have been made.
+* Changed some of the spell names, and spell tables, and spell
+  listings for mage... Mage damages must be upped as well.
+
+* real wands of wonder:
+	* money creation, monster summoning, various mage/priest spells
+	* various attack spells, etc.
+* change wands of wonder to STAVES of wonder....
+
+* new demon! The Nasty Pop Tart, and new demon unique: The Strawberry
+Purple Pop Tart.
+* new person unique: Toaster Strudel, Opposer of Pop Tarts
+
+* new mage spell:
+	Word of Stability: lvl 25, resist nexus for 20+1d50 turns
+
+* high elves need to require less xp to go up levels, as they only
+	start with see invis!
+
+----------------
+
+a system where you pick the special race, and then pick their
+abilities, thus deciding their +to-xp%.
+
+ability 	xp modifier
+
+res fire	+8%
+res cold	+8%
+res acid	+8%
+res elec	+8%
+res chaos	+15%
+res sound	+4%
+res fear	+5%
+see invis	+10%
+free action	+10%
+res pois	+20%
+res conf	+10%
+res blind	+10%
+
+can only pick a maximum of 4 abilites.
+
+[- stat system for the race -]
+
+for every +1 to each stat, +2% to xp is given.
+max of +5 to each stat
+
+every -1 to a stat = -1% to xp
+max = -5 to any one stat
+
+-----> fire-branded melee weapons modified!! <-----
+
+any melee weapon that has flame tongue can rain fire on opponents
+25% of the time, doing an extra lvl*5 damage on your opponent...
+if cursed, it will do lvl*5 damage to YOU! :-)
+
+--------------------------------------------------------------------------
+
+* make morgoth the 2nd-to-final unique (making sauron just a regular
+unique)
+
+* new race:
+	munchkin!
+	** start with maxxed stats, great skills in everything
+
+* entangle or snare spell
+* mr. rodgers for a final unique!
+* power puff girls!

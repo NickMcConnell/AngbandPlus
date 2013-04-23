@@ -859,15 +859,24 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4_XXX5X4 */
+		/* RF4_BR_CRAP */
 		case 96+28:
 		{
-			break;
+			disturb(1, 0);
+			if (blind) msg_format("%^s breathes.", m_name);
+			else msg_format("%^s breathes crap.", m_name);
+			breath(m_idx, GF_CRAP, m_ptr->hp * 2);
+		break;
 		}
 
-		/* RF4_XXX6X4 */
+		/* RF4_BR_WATR */
 		case 96+29:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s breathes.", m_name);
+			else msg_format("%^s breathes water.", m_name);
+			breath(m_idx, GF_WATER,
+			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)));
 			break;
 		}
 

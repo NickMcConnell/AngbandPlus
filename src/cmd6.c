@@ -1039,7 +1039,9 @@ void do_cmd_read_scroll(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int item, k, used_up, ident, lev;
+	s32b gold;
+
+	int item, k, amt, ident, lev;
 
 	object_type *o_ptr;
 
@@ -1095,7 +1097,6 @@ void do_cmd_read_scroll(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Assume the scroll will get used up */
-	used_up = TRUE;
 
 	/* Analyze the scroll */
 	switch (o_ptr->sval)
@@ -1200,14 +1201,14 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_IDENTIFY:
 		{
 			ident = TRUE;
-			if (!ident_spell()) used_up = FALSE;
+			ident_spell();
 			break;
 		}
 
 		case SV_SCROLL_STAR_IDENTIFY:
 		{
 			ident = TRUE;
-			if (!identify_fully()) used_up = FALSE;
+			identify_fully();
 			break;
 		}
 
@@ -1231,41 +1232,41 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_ENCHANT_ARMOR:
 		{
 			ident = TRUE;
-			if (!enchant_spell(0, 0, 1)) used_up = FALSE;
+			enchant_spell(0, 0, 1);
 			break;
 		}
 
 		case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
 		{
-			if (!enchant_spell(1, 0, 0)) used_up = FALSE;
+			enchant_spell(1, 0, 0);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_ENCHANT_WEAPON_TO_DAM:
 		{
-			if (!enchant_spell(0, 1, 0)) used_up = FALSE;
+			enchant_spell(0, 1, 0);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ENCHANT_ARMOR:
 		{
-			if (!enchant_spell(0, 0, randint(3) + 2)) used_up = FALSE;
+			enchant_spell(0, 0, randint(3) + 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ENCHANT_WEAPON:
 		{
-			if (!enchant_spell(randint(3), randint(3), 0)) used_up = FALSE;
+			enchant_spell(randint(3), randint(3), 0);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_RECHARGING:
 		{
-			if (!recharge(60)) used_up = FALSE;
+			recharge(60);
 			ident = TRUE;
 			break;
 		}
@@ -1410,7 +1411,25 @@ void do_cmd_read_scroll(void)
 			ident = TRUE;
 			break;
 		}
-	}
+
+		case SV_SCROLL_TAXES:
+		{
+		msg_print("A mysterious force robs you blind with taxes!");
+
+			/* eat your gold!!! */
+			gold = p_ptr->au;
+			gold = gold / 2;
+			if (gold < 0 ) gold = 1;
+			p_ptr->au = gold;
+
+			/* redraw the screen */
+			(void)do_cmd_redraw();
+
+			/* end of code */
+			ident = TRUE;
+			break;
+		}
+}
 
 
 	/* Combine / Reorder the pack (later) */
@@ -1429,15 +1448,13 @@ void do_cmd_read_scroll(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
-	/* Hack -- allow certain scrolls to be "preserved" */
-	if (!used_up) return;
+	amt = get_quantity(NULL, o_ptr->number);
 
 
 	/* Destroy a scroll in the pack */
 	if (item >= 0)
 	{
-		inven_item_increase(item, -1);
+		inven_item_increase(item, -amt);
 		inven_item_describe(item);
 		inven_item_optimize(item);
 	}
@@ -1450,7 +1467,6 @@ void do_cmd_read_scroll(void)
 		floor_item_optimize(0 - item);
 	}
 }
-
 
 
 
@@ -2057,7 +2073,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 175)) ident = TRUE;
 			break;
 		}
 
@@ -2069,70 +2085,70 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 12, 2);
+			fire_ball(GF_POIS, dir, 24, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, p_ptr->lev * 5);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(p_ptr->lev, 4));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(p_ptr->lev, 4));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(p_ptr->lev, 4));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(p_ptr->lev, 4));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, p_ptr->lev * 3, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, p_ptr->lev * 3, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, p_ptr->lev * 3, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, p_ptr->lev * 3, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2145,14 +2161,14 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 100, 3);
+			fire_ball(GF_FIRE, dir, p_ptr->lev * 4, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 80, 3);
+			fire_ball(GF_COLD, dir, p_ptr->lev * 4, 3);
 			ident = TRUE;
 			break;
 		}
@@ -2163,31 +2179,31 @@ void do_cmd_aim_wand(void)
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 100, 3);
+					fire_ball(GF_ACID, dir, p_ptr->lev * 4, 3);
 					break;
 				}
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 80, 3);
+					fire_ball(GF_ELEC, dir, p_ptr->lev * 4, 3);
 					break;
 				}
 
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 100, 3);
+					fire_ball(GF_FIRE, dir, p_ptr->lev * 4, 3);
 					break;
 				}
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 80, 3);
+					fire_ball(GF_COLD, dir, p_ptr->lev * 4, 3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 60, 3);
+					fire_ball(GF_POIS, dir, p_ptr->lev * 4, 3);
 					break;
 				}
 			}
@@ -2198,7 +2214,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 125)) ident = TRUE;
+			if (drain_life(dir, 325)) ident = TRUE;
 			break;
 		}
 	}
@@ -2605,7 +2621,30 @@ void do_cmd_zap_rod(void)
 			o_ptr->pval = 25;
 			break;
 		}
-	}
+		/* Stole augmentation potion code here -TAR- */
+		case SV_ROD_AUGMENT:		/* Augmentation */
+		{
+			if (do_inc_stat(A_STR)) ident = TRUE;
+			if (do_inc_stat(A_INT)) ident = TRUE;
+			if (do_inc_stat(A_WIS)) ident = TRUE;
+			if (do_inc_stat(A_DEX)) ident = TRUE;
+			if (do_inc_stat(A_CON)) ident = TRUE;
+			if (do_inc_stat(A_CHR)) ident = TRUE;
+			ident = TRUE;
+			o_ptr->pval = 15;
+			break;
+		}
+
+		case SV_ROD_PESTICIDE:		/* Pesticide! */
+		{
+			fire_ball(GF_POIS, dir, 12, 2);
+			ident = TRUE;
+			o_ptr->pval = 2;
+			break;
+		}
+
+	
+}
 
 
 	/* Combine / Reorder the pack (later) */
@@ -2731,7 +2770,7 @@ static void ring_of_power(int dir)
 		case 6:
 		{
 			/* Mana Ball */
-			fire_ball(GF_MANA, dir, 300, 3);
+			fire_ball(GF_MANA, dir, 400, 3);
 
 			break;
 		}
@@ -2742,7 +2781,7 @@ static void ring_of_power(int dir)
 		case 10:
 		{
 			/* Mana Bolt */
-			fire_bolt(GF_MANA, dir, 250);
+			fire_bolt(GF_MANA, dir, 350);
 
 			break;
 		}
@@ -2897,7 +2936,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("The phial wells with clear light...");
 				lite_area(damroll(2, 15), 3);
-				o_ptr->timeout = rand_int(10) + 10;
+				o_ptr->timeout = 5;
 				break;
 			}
 

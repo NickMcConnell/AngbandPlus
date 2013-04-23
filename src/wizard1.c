@@ -953,8 +953,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Angband Version %d.%d.%d",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for Sillyband Version %d.%d.%d",
+	        FAKE_VERSION_MAJOR, FAKE_VERSION_MINOR, FAKE_VERSION_PATCH);
 	spoiler_underline(buf);
 }
 
@@ -1296,8 +1296,8 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "Monster Spoilers for Sillyband Version %d.%d.%d\n",
+	        FAKE_VERSION_MAJOR, FAKE_VERSION_MINOR, FAKE_VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1513,8 +1513,8 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Monster Spoilers for Sillyband Version %d.%d.%d\n",
+	        FAKE_VERSION_MAJOR, FAKE_VERSION_MINOR, FAKE_VERSION_PATCH);
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
@@ -1734,8 +1734,8 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "plasma";
 		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
 		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
-		if (flags4 & (RF4_XXX5)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX6)) vp[vn++] = "something";
+		if (flags4 & (RF4_BR_CRAP)) vp[vn++] = "crap";
+		if (flags4 & (RF4_BR_WATR)) vp[vn++] = "water";
 		if (flags4 & (RF4_XXX7)) vp[vn++] = "something";
 		if (flags4 & (RF4_XXX8)) vp[vn++] = "something";
 
@@ -1897,7 +1897,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags2 & (RF2_MULTIPLY))
 		{
 			spoil_out(wd_che[msex]);
-			spoil_out(" breeds explosively.  ");
+			spoil_out(" breeds explosively holding a porno and a napkin. ");
 		}
 		if (flags2 & (RF2_REGENERATE))
 		{

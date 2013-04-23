@@ -10,7 +10,6 @@
 
 #include "angband.h"
 
-
 /*
  * Hack -- Link a copyright message into the executable
  */

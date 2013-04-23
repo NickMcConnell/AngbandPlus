@@ -43,18 +43,24 @@
  */
 #define VERSION_STRING	"2.8.3"
 
+#define FAKE_VERSION_STRING "0.1.0"
+
 /*
  * Current version numbers
  */
+
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	8
 #define VERSION_PATCH	3
+
+#define FAKE_VERSION_MAJOR	0
+#define FAKE_VERSION_MINOR	1
+#define FAKE_VERSION_PATCH	0
 
 /*
  * This value is not currently used
  */
 #define VERSION_EXTRA	0
-
 
 /*
  * Number of grids in each block (vertically)
@@ -273,6 +279,7 @@
  * Refueling constants
  */
 #define FUEL_TORCH	5000	/* Maximum amount of fuel in a torch */
+#define FUEL_CLAYLAMP	7500	/* Maximum amount of fuel in a clay lamp */
 #define FUEL_LAMP	15000   /* Maximum amount of fuel in a lantern */
 
 
@@ -568,8 +575,9 @@
 #define GF_MAKE_WALL	36
 #define GF_MAKE_DOOR	37
 #define GF_MAKE_TRAP	38
-#define GF_XXX5			39
-#define GF_XXX6			40
+/* Breathe Crap by T200 */
+#define GF_CRAP			39
+
 #define GF_AWAY_UNDEAD	41
 #define GF_AWAY_EVIL	42
 #define GF_AWAY_ALL		43
@@ -1189,6 +1197,7 @@
 /* The sval codes for TV_LITE */
 #define SV_LITE_TORCH		0
 #define SV_LITE_LANTERN		1
+#define SV_LITE_CLAYLAMP	2
 #define SV_LITE_GALADRIEL	4
 #define SV_LITE_ELENDIL		5
 #define SV_LITE_THRAIN		6
@@ -1342,7 +1351,8 @@
 #define SV_ROD_ELEC_BALL		25
 #define SV_ROD_FIRE_BALL		26
 #define SV_ROD_COLD_BALL		27
-
+#define SV_ROD_AUGMENT			28 /* Rod of augmentation */
+#define SV_ROD_PESTICIDE		29 /* Rod of pesticide */
 
 /* The "sval" codes for TV_SCROLL */
 
@@ -1377,7 +1387,7 @@
 #define SV_SCROLL_DETECT_TRAP			28
 #define SV_SCROLL_DETECT_DOOR			29
 #define SV_SCROLL_DETECT_INVIS			30
-/* xxx (detect evil?) */
+
 #define SV_SCROLL_SATISFY_HUNGER		32
 #define SV_SCROLL_BLESSING				33
 #define SV_SCROLL_HOLY_CHANT			34
@@ -1394,12 +1404,13 @@
 #define SV_SCROLL_MASS_GENOCIDE			45
 #define SV_SCROLL_ACQUIREMENT			46
 #define SV_SCROLL_STAR_ACQUIREMENT		47
+#define SV_SCROLL_TAXES				48
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER				0
 #define SV_POTION_APPLE_JUICE		1
 #define SV_POTION_SLIME_MOLD		2
-/* xxx (fixed color) */
+/* xxx */
 #define SV_POTION_SLOWNESS			4
 #define SV_POTION_SALT_WATER		5
 #define SV_POTION_POISON			6
@@ -2128,8 +2139,8 @@
 #define RF4_BR_PLAS			0x02000000	/* Breathe Plasma */
 #define RF4_BR_WALL			0x04000000	/* Breathe Force */
 #define RF4_BR_MANA			0x08000000	/* Breathe Mana */
-#define RF4_XXX5			0x10000000
-#define RF4_XXX6			0x20000000
+#define RF4_BR_CRAP			0x10000000	/* Breathe Crap */
+#define RF4_BR_WATR			0x20000000	/* Breathe Water */
 #define RF4_XXX7			0x40000000
 #define RF4_XXX8			0x80000000
 
@@ -2289,7 +2300,11 @@
 #define OPT_verify_destroy			28
 #define OPT_verify_special			29
 #define OPT_allow_quantity			30
+#ifdef ALLOW_EASY_OPEN
+#define OPT_easy_open 31
+#else /* ALLOW_EASY_OPEN */
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
 #define OPT_testing_stack			34
@@ -2302,8 +2317,16 @@
 #define OPT_dungeon_stair			41
 #define OPT_flow_by_sound			42
 #define OPT_flow_by_smell			43
+#ifdef ALLOW_EASY_DISARM
+#define OPT_easy_disarm 44
+#else  /* ALLOW_EASY_DISARM */
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+#define OPT_easy_floor 45
+#else  /* ALLOW_EASY_FLOOR */
 /* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
 #define OPT_view_reduce_lite		48
@@ -2324,6 +2347,8 @@
 #define OPT_view_special_lite		63
 #define OPT_MAX						64
 
+#define OPT_PAGE_MAX 4 /* Number of pages of options -- TNB */
+#define OPT_PER_PAGE 22 /* Max. number of options in a page -- TNB */
 
 /*
  * Hack -- Option symbols
@@ -2359,7 +2384,11 @@
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define allow_quantity			op_ptr->opt[OPT_allow_quantity]
+#ifdef ALLOW_EASY_OPEN
+#define easy_open			op_ptr->opt[OPT_easy_open]
+#else /* ALLOW_EASY_OPEN */
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
 #define testing_stack			op_ptr->opt[OPT_testing_stack]
@@ -2372,8 +2401,16 @@
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
 #define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
+#ifdef ALLOW_EASY_DISARM
+#define easy_disarm			op_ptr->opt[OPT_easy_disarm]
+#else /* ALLOW_EASY_DISARM */
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+#define easy_floor			op_ptr->opt[OPT_easy_floor]
+#else /* ALLOW_EASY_FLOOR */
 /* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]

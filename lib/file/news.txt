@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   Angband 2.8.3   **   The Pits of Angband   **
+              **   Sillyband 0.1.0 **  The Pits of Silliness  **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -12,13 +12,9 @@
                  Geoff Hill, Charles Teague, Charles Swiger
 
                Angband 2.8.3:  Copyright (c) 1997 Ben Harrison
+             Sillyband 0.1.0:  Copyright (c) 1999 Ryan Bastic
 
-         Send comments, bug reports, and patches, to "benh@phial.com"
-        Visit the Angband Home Page at "http://www.phial.com/angband/"
+         Send comments, bug reports, and patches, to "tarael200@aol.com"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
-   Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
-
-
-
 

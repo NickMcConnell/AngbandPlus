@@ -42,6 +42,20 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
+#ifdef ALLOW_REPEAT
+
+	/* Get the spell, if available */
+	if (repeat_pull(sn))
+	{
+		/* Verify the spell */
+		if (spell_okay(*sn, known))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Extract spells */
 	for (spell = 0; spell < 64; spell++)
@@ -200,6 +214,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	/* Save the choice */
 	(*sn) = spell;
+
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*sn);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -509,8 +529,8 @@ void do_cmd_cast(void)
 	int item, sval, spell, dir;
 	int chance, beam;
 
-	int plev = p_ptr->lev;
-
+	int plev = p_ptr->lev, n;	/* n is used for mana bolt's damage
+					 * calculations... */
 	object_type *o_ptr;
 
 	magic_type *s_ptr;
@@ -696,11 +716,10 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 12:
+			case 12: 	/* See Invisible */
 			{
-				if (!get_aim_dir(&dir)) return;
-				(void)sleep_monster(dir);
-				break;
+		(void)set_tim_invis(p_ptr->tim_invis + randint(40) + 20);
+		break;
 			}
 
 			case 13:
@@ -886,9 +905,20 @@ void do_cmd_cast(void)
 			case 38:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam, GF_ACID, dir,
-				                  damroll(6+((plev-5)/4), 8));
+		
+				/* calculate the damage! */
+				n = plev * 6;
+				n = n / 4;
+		
+			fire_bolt_or_beam(beam, GF_MANA, dir, damroll(n, 4));
+			
+			if (plev > 39) 
+				{
+				take_hit(damroll(5,5), "casting Mana Bolt.");
+				}
+			  else {
 				break;
+			       }
 			}
 
 			case 39:

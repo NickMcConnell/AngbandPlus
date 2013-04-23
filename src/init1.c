@@ -283,8 +283,8 @@ static cptr r_info_flags4[] =
 	"BR_PLAS",
 	"BR_WALL",
 	"BR_MANA",
-	"XXX5X4",
-	"XXX6X4",
+	"BR_CRAP",
+	"BR_WATR",
 	"XXX7X4",
 	"XXX8X4"
 };

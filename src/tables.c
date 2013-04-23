@@ -1399,7 +1399,7 @@ player_race race_info[MAX_RACES] =
 
 	{
 		"Gnome",
-		{ -1,  2,  0,  2,  1, -2 },
+		{ -1,  3,  0,  2,  1, -2 },
 		10, 12, 12,  3, 6,  13, -8, 12,
 		8,  125,
 		50, 40,
@@ -1462,7 +1462,7 @@ player_race race_info[MAX_RACES] =
 		{  1,  3, -1,  3,  1,  5 },
 		4,  20, 20,  3,  3, 14, 10, 25,
 		10,  200,
-		100, 30,
+		70, 30,
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
@@ -2147,16 +2147,16 @@ cptr spell_names[2][64] =
 		"Cure Poison",
 		"Teleport Self",
 		"Spear of Light",
-		"Frost Bolt",
+		"Frost Shards",
 		"Turn Stone to Mud",
 
 		/* Incantations and Illusions (sval 2) */
 		"Satisfy Hunger",
 		"Recharge Item I",
-		"Sleep II",
+		"See Invisible",
 		"Polymorph Other",
 		"Identify",
-		"Sleep III",
+		"Sleep II",
 		"Fire Bolt",
 		"Slow Monster",
 
@@ -2177,7 +2177,7 @@ cptr spell_names[2][64] =
 		"Word of Recall",
 
 		/* Raal's Tome of Destruction (sval 8) */
-		"Acid Bolt",
+		"Mana Bolt",
 		"Cloud Kill",
 		"Acid Ball",
 		"Ice Storm",
@@ -2601,7 +2601,11 @@ cptr option_text[OPT_MAX] =
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN
+	"easy_open",   /* OPT_easy_open */
+#else /* ALLOW_EASY_OPEN */
 	NULL,						/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	"testing_stack",			/* OPT_testing_stack */
@@ -2614,8 +2618,16 @@ cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM
+	"easy_disarm",   /* OPT_easy_disarm */
+#else  /* ALLOW_EASY_DISARM */
 	NULL,						/* xxx track_follow */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+	"easy_floor",   /* OPT_easy_floor */
+#else  /* ALLOW_EASY_FLOOR */
 	NULL,						/* xxx track_target */
+#endif /* ALLOW_EASY_FLOOR */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
@@ -2673,7 +2685,11 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN
+	"Open and close automatically",   /* OPT_easy_open */
+#else /* ALLOW_EASY_OPEN */
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	"Allow objects to stack on floor",			/* OPT_testing_stack */
@@ -2686,8 +2702,16 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM
+	"Disarm traps automatically",   /* OPT_easy_disarm */
+#else /* ALLOW_EASY_DISARM */
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+	"Display floor stacks in a list",   /* OPT_easy_floor */
+#else /* ALLOW_EASY_FLOOR */
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
@@ -2745,7 +2769,11 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN
+	TRUE,   /* OPT_easy_open */
+#else /* ALLOW_EASY_OPEN */
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
 	FALSE,		/* OPT_testing_stack */
@@ -2758,8 +2786,16 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM
+	TRUE,   /* OPT_easy_disarm */
+#else /* ALLOW_EASY_DISARM */
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+	TRUE,   /* OPT_easy_floor */
+#else /* ALLOW_EASY_FLOOR */
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -2784,7 +2820,7 @@ bool option_norm[OPT_MAX] =
 /*
  * Option screen interface
  */
-byte option_page[4][16] =
+byte option_page[OPT_PAGE_MAX][OPT_PER_PAGE] =
 {
 	/*** User-Interface ***/
 
@@ -2804,7 +2840,13 @@ byte option_page[4][16] =
 		OPT_show_choices,
 		OPT_show_details,
 		OPT_show_flavors,
-		OPT_ring_bell
+		OPT_ring_bell,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Disturbance ***/
@@ -2825,6 +2867,12 @@ byte option_page[4][16] =
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255
 	},
 
@@ -2845,6 +2893,24 @@ byte option_page[4][16] =
 		OPT_flow_by_smell,
 		OPT_smart_learn,
 		OPT_smart_cheat,
+#ifdef ALLOW_EASY_OPEN
+		OPT_easy_open,
+#else /* ALLOW_EASY_OPEN */
+		255,
+#endif /* ALLOW_EASY_OPEN */
+#ifdef ALLOW_EASY_DISARM
+		OPT_easy_disarm,
+#else /* ALLOW_EASY_DISARM */
+		255,
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+		OPT_easy_floor,
+#else /* ALLOW_EASY_FLOOR */
+		255,
+#endif /* ALLOW_EASY_FLOOR */
+		255,
+		255,
+		255,
 		255,
 		255
 	},
@@ -2866,6 +2932,12 @@ byte option_page[4][16] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255
 	}

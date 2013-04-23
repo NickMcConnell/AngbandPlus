@@ -1795,7 +1795,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_LANTERN },
-		{ TV_LITE, SV_LITE_LANTERN },
+		{ TV_LITE, SV_LITE_CLAYLAMP },
 
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },

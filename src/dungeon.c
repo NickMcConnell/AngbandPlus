@@ -1168,6 +1168,13 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -1231,7 +1238,13 @@ static void process_command(void)
 
 #endif
 
-
+		/*** new command by tarael200 ***/
+		case '[':
+		{
+			depth_in_feet = TRUE;
+			do_cmd_redraw();
+			break;
+		}
 
 		/*** Inventory Commands ***/
 
@@ -1446,20 +1459,47 @@ static void process_command(void)
 			break;
 		}
 
-		/* Cast a spell */
+		/* Cast a spell/prayer */
 		case 'm':
 		{
-			do_cmd_cast();
+			switch(p_ptr->pclass)
+			{
+			/* Hack: We allow the warriors to call    *
+			 * do_cmd_cast anyway, since that         *
+			 * already has code to check if you can   *
+			 * cast spells. Sure, I could remove that *
+			 * code from do_cmd_cast(), and put it    *
+			 * here, but this is easier :-) [T200]    */
+				case CLASS_WARRIOR:
+				{
+					do_cmd_cast();
+					break;
+				}
+				case CLASS_MAGE:
+				case CLASS_RANGER:
+				case CLASS_ROGUE:
+				{
+					do_cmd_cast();
+					break;
+				}
+				case CLASS_PRIEST:
+				case CLASS_PALADIN:
+				{
+					do_cmd_pray();
+					break;
+				}
+			}
 			break;
 		}
 
 		/* Pray a prayer */
+		/*
 		case 'p':
 		{
 			do_cmd_pray();
 			break;
 		}
-
+		*/
 
 		/*** Use various objects ***/
 

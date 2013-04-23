@@ -400,7 +400,11 @@ W:0:0:0:10000
 C:0:0:0:2
 F:BLOWS
 
-# 70 (unused)
+N:70:of Quickness
+X:24:30
+W:0:0:0:45000
+C:0:0:0:10
+F:SPEED
 
 # 71 (unused)
 

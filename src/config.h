@@ -176,13 +176,12 @@
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-/* #define ALLOW_DEBUG */
+#define ALLOW_DEBUG
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
-/* #define ALLOW_SPOILERS */
-
+#define ALLOW_SPOILERS
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time
@@ -446,7 +445,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@phial.com"
+#define MAINTAINER	"tarael200@aol.com"
 
 
 /*
@@ -516,4 +515,24 @@
 # define VERIFY_TIMESTAMP
 #endif
 
+
+/*
+ * OPTION: Repeat last command
+ */
+#define ALLOW_REPEAT
+
+/*
+ * OPTION: Make opening and closing things easy
+ */
+#define ALLOW_EASY_OPEN
+
+/*
+ * OPTION: Make disarming traps easy
+ */
+#define ALLOW_EASY_DISARM
+
+/*
+ * OPTION: Make floor stacks easy
+ */
+#define ALLOW_EASY_FLOOR
 

@@ -1113,7 +1113,6 @@ static void wr_extra(void)
 	wr_byte(p_ptr->maximize);
 	wr_byte(p_ptr->preserve);
 	wr_byte(0);
-
 	/* Future use */
 	for (i = 0; i < 12; i++) wr_u32b(0L);
 

@@ -23,6 +23,12 @@ void do_cmd_inven(void)
 	/* Note that we are in "inventory" mode */
 	p_ptr->command_wrk = FALSE;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Note that we are in "inventory" mode */
+	if (easy_floor) p_ptr->command_wrk = (USE_INVEN);
+	
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save screen */
 	screen_save();
@@ -70,6 +76,12 @@ void do_cmd_equip(void)
 	/* Note that we are in "equipment" mode */
 	p_ptr->command_wrk = TRUE;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Note that we are in "equipment" mode */
+	if (easy_floor) p_ptr->command_wrk = (USE_EQUIP);
+	
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save screen */
 	screen_save();
@@ -713,14 +725,31 @@ static void do_cmd_refill_lamp(void)
 	/* Message */
 	msg_print("You fuel your lamp.");
 
-	/* Comment */
-	if (j_ptr->pval >= FUEL_LAMP)
-	{
-		j_ptr->pval = FUEL_LAMP;
-		msg_print("Your lamp is full.");
+	/* -NOTE- Code below was hacked to pieces by -TAR- */
+	/* DON'T TOUCH IT! =P */
+
+
+if (j_ptr->sval == SV_LITE_LANTERN) {
+	j_ptr->pval = FUEL_LAMP;
 	}
 
+if (j_ptr->sval == SV_LITE_CLAYLAMP) {
+	j_ptr->pval = FUEL_CLAYLAMP;
+	}
+
+
+/*
+if (j_ptr->pval >= FUEL_LAMP)
+{
+	j_ptr->pval = FUEL_LAMP;
+}
+break;
+*/
+
+	msg_print("Your lamp is full.");
+
 	/* Decrease the item (from the pack) */
+
 	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
@@ -735,7 +764,6 @@ static void do_cmd_refill_lamp(void)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
-
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
 }
@@ -751,8 +779,6 @@ static bool item_tester_refill_torch(object_type *o_ptr)
 	if ((o_ptr->tval == TV_LITE) &&
 	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
 
-	/* Assume not okay */
-	return (FALSE);
 }
 
 
@@ -864,6 +890,12 @@ void do_cmd_refill(void)
 	else if (o_ptr->sval == SV_LITE_TORCH)
 	{
 		do_cmd_refill_torch();
+	}
+
+	/* Its a CLAY lamp! */
+	else if (o_ptr->sval == SV_LITE_CLAYLAMP)
+	{
+		do_cmd_refill_lamp();
 	}
 
 	/* No torch to refill */

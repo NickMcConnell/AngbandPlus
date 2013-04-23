@@ -938,7 +938,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	{
 		/* Mage */
 		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
+		{ TV_SCROLL, SV_SCROLL_TELEPORT },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
 	},
 
@@ -959,7 +959,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	{
 		/* Ranger */
 		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_BOW, SV_LONG_BOW }
 	},
 

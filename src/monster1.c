@@ -663,8 +663,8 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_BR_PLAS))		vp[vn++] = "plasma";
 	if (flags4 & (RF4_BR_WALL))		vp[vn++] = "force";
 	if (flags4 & (RF4_BR_MANA))		vp[vn++] = "mana";
-	if (flags4 & (RF4_XXX5))		vp[vn++] = "something";
-	if (flags4 & (RF4_XXX6))		vp[vn++] = "something";
+	if (flags4 & (RF4_BR_CRAP))		vp[vn++] = "crap";
+	if (flags4 & (RF4_BR_WATR))		vp[vn++] = "water";
 	if (flags4 & (RF4_XXX7))		vp[vn++] = "something";
 	if (flags4 & (RF4_XXX8))		vp[vn++] = "something";
 
@@ -898,7 +898,7 @@ static void roff_aux(int r_idx)
 	}
 	if (flags2 & (RF2_MULTIPLY))
 	{
-		roff(format("%^s breeds explosively.  ", wd_he[msex]));
+		roff(format("%^s breeds explosively holding porno and a napkin. ", wd_he[msex]));
 	}
 	if (flags2 & (RF2_REGENERATE))
 	{

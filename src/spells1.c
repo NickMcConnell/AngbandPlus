@@ -362,7 +362,8 @@ static byte spell_color(int type)
 		case GF_PLASMA:		return (TERM_RED);
 		case GF_METEOR:		return (TERM_RED);
 		case GF_ICE:		return (TERM_WHITE);
-	}
+		case GF_CRAP:		return (TERM_SLATE);
+}
 
 	/* Standard "color" */
 	return (TERM_WHITE);
@@ -2305,6 +2306,21 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 			break;
 		}
+		
+		/* Crap! -- Breathers resist - T200 */
+		
+		/* ---- plans for this: it will damage armor and reduce
+			CHR... */
+		case GF_CRAP:
+		{
+			if (seen) obvious = TRUE;
+			if (r_ptr->flags4 & (RF4_BR_CRAP))
+			{
+				note = " resists.";
+				dam *= 3; dam /= (randint(6)+6);
+			}
+			break;
+		}
 
 		/* Gravity -- breathers resist */
 		case GF_GRAVITY:
@@ -3351,6 +3367,18 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+                /* Crap -- reduce CHR */
+		case GF_CRAP:
+		{
+		  /* -- This doesn't yet reduce CHR, but soon will. -- */
+			p_ptr->stat_cur[A_CHR] = (p_ptr->stat_cur[A_CHR] *3) / 4;
+			if (p_ptr->stat_cur[A_CHR] < 3) p_ptr->stat_cur[A_CHR] = 3;
+			p_ptr->update |= (PU_BONUS);
+
+			take_hit(dam, killer);
+			break;
+		}
+	
 		/* Chaos -- many effects */
 		case GF_CHAOS:
 		{
@@ -3550,10 +3578,10 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 					msg_format("You're not as %s as you used to be...", act);
 
-					p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
-					if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
-					p_ptr->update |= (PU_BONUS);
-					break;
+		       p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
+		       if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+		       p_ptr->update |= (PU_BONUS);
+		       break;
 				}
 
 				case 10:
