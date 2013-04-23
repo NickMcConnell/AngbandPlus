@@ -3559,7 +3559,7 @@ cptr do_barbarian_spell(int mode, int spell, int dir)
 					ty = p_ptr->py + ddy[dir] * range;
 					tx = p_ptr->px + ddx[dir] * range;
 					path_n = project_path(path_g, path_gx, 99, p_ptr->py, p_ptr->px, &ty, &tx, 0);
-					if (range==path_n && !(cave_m_idx[ty][tx]))
+					if (range==path_n && !(cave_m_idx[ty][tx]) && cave_passable_bold(ty,tx))
 					{
 						break;
 					} else {

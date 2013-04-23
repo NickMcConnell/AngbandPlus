@@ -19,9 +19,9 @@ CC = gcc
 OPT ?= -O2
 
 # Name of the game
-NAME =NPPAngband
+NAME =Quickband
 APPNAME =$(NAME).app
-EXE =NPPangband
+EXE =Quickband
 
 # Some Developer CD tools we need - the standard installation location
 TOOLDIR = /Developer/Tools
