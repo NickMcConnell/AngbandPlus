@@ -52,6 +52,7 @@ other holy items.
      Offers a service to remove light curses from all weapons and armor.
      Offers a service to remove heavy curses from all weapons and armor.
      Offers a service to create a potion of healing.
+     Offers a service to recall you back to the dungeon.
  
 The Alchemy Shop ("5"):
      Buys and sells potions and scrolls.

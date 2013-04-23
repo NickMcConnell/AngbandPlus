@@ -45,13 +45,16 @@ s16b spell_chance(int spell)
 	if (cp_ptr->spell_book == TV_BARBARIAN_BOOK)
 	{
 		chance -= 5;
+	} else if (cp_ptr->flags & CF_ALL_KNOWING){
+		chance -= adj_mag_stat[p_ptr->state.stat_ind[A_INT]];
 	} else {
 		chance -= adj_mag_stat[SPELL_STAT_SLOT];
 	}
 
 	// BB added - make spellcasting easier
 	if (chance > 10){
-	  chance = 10 + (chance-10)/2;}
+	  chance = 10 + (chance-10)/2;
+	}
 
 	/* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
@@ -63,6 +66,8 @@ s16b spell_chance(int spell)
 	if (cp_ptr->spell_book == TV_BARBARIAN_BOOK)
 	{
 		minfail = 0;
+	} else if (cp_ptr->flags & CF_ALL_KNOWING){
+		minfail = adj_mag_fail[p_ptr->state.stat_ind[A_INT]];
 	} else {
 		minfail = adj_mag_fail[SPELL_STAT_SLOT];
 	}
@@ -152,7 +157,7 @@ void print_spells(const byte *spells, int num, int row, int col)
 
 	byte line_attr;
 
-	int length;
+	int length, book;
 
 	int wrap = Term->wid - col;
 
@@ -181,7 +186,7 @@ void print_spells(const byte *spells, int num, int row, int col)
 		s_ptr = &mp_ptr->info[spell];
 
 		/* Skip illegible spells */
-		if (s_ptr->slevel >= 99)
+		if (s_ptr->slevel == 99)
 		{
 			strnfmt(out_val, sizeof(out_val), "  %c) %-30s", I2A(i), "(illegible)");
 			c_prt(TERM_L_DARK, out_val, row + i + 1, col);
@@ -189,7 +194,19 @@ void print_spells(const byte *spells, int num, int row, int col)
 		}
 
 		/* Get extra info */
-		switch (cp_ptr->spell_book)
+		if (cp_ptr->flags & CF_ALL_KNOWING){
+			/* horrible */
+			if (spell<100){
+				book = TV_MAGIC_BOOK;
+			} else if (spell<200){
+				book = TV_PRAYER_BOOK;
+			} else {
+				book = TV_DRUID_BOOK;
+			}
+		} else {
+			book = cp_ptr->spell_book;
+		}
+		switch (book)
 		{
 			case TV_MAGIC_BOOK:
 			{
@@ -251,7 +268,7 @@ void print_spells(const byte *spells, int num, int row, int col)
 
 		/* Dump the spell --(-- */
 		strnfmt(out_val, sizeof(out_val), "  %c) %-30s%2d %4d %3d%% %s",
-		        I2A(i), (cast_spell(MODE_SPELL_NAME, cp_ptr->spell_book, spell, 0)),
+		        I2A(i), (cast_spell(MODE_SPELL_NAME, book, spell, 0)),
 		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
 
 		length = strlen(out_val);
@@ -391,7 +408,7 @@ void display_koff(int k_idx)
 	if (!cp_ptr->spell_book) return;
 
 	/* Display spells in readible books */
-	if (i_ptr->tval == cp_ptr->spell_book)
+	if ((i_ptr->tval == cp_ptr->spell_book) || (cp_ptr->flags & CF_ALL_KNOWING))
 	{
 		int i;
 		int spell;
@@ -562,7 +579,7 @@ int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 
 			/* Prompt */
 			strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-			        prompt, get_spell_name(cp_ptr->spell_book, spell),
+			        prompt, get_spell_name(o_ptr->tval, spell),
 			        s_ptr->smana, spell_chance(spell));
 
 			/* Belay that order */
@@ -605,7 +622,8 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	if (cp_ptr->spell_book == TV_PRAYER_BOOK) spell_type = "prayer";
+	if (cp_ptr->flags & CF_ALL_KNOWING) spell_type="spell";
+	else if (cp_ptr->spell_book == TV_PRAYER_BOOK) spell_type = "prayer";
 	else spell_type = "spell";
 
 	/* Extract spells */
@@ -675,7 +693,7 @@ bool player_can_study(void)
 
 	if (!p_ptr->new_spells)
 	{
-		cptr p = ((cp_ptr->spell_book == TV_BARBARIAN_BOOK) ? "power" : ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer"));
+		cptr p = ((cp_ptr->flags & CF_ALL_KNOWING) ? "spell" : ((cp_ptr->spell_book == TV_BARBARIAN_BOOK) ? "power" : ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer")));
 		msg_format("You cannot learn any new %ss!", p);
 		return FALSE;
 	}
@@ -804,6 +822,8 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 
 	const magic_type *s_ptr;
 
+	int book;
+
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
@@ -833,6 +853,16 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 
+	if (cp_ptr->flags & CF_ALL_KNOWING)
+	{
+		if (spell<100) book=TV_MAGIC_BOOK;
+		else if (spell<200) book=TV_PRAYER_BOOK;
+		else book=TV_DRUID_BOOK;
+		/* mega hack */
+	} else {
+		book = cp_ptr->spell_book;
+	}
+
 	/* Failed spell */
 	if (rand_int(100) < chance)
 	{
@@ -845,7 +875,7 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 	{
 		/* Cast the spell */
 		sound(MSG_SPELL);
-		if (cast_spell(MODE_SPELL_CAST, cp_ptr->spell_book, spell, dir) == NULL) return;
+		if (cast_spell(MODE_SPELL_CAST, book, spell, dir) == NULL) return;
 
 		/* A spell was cast */
 		if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
@@ -926,7 +956,7 @@ void spell_learn(int spell)
 	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		/* Stop at the first empty space */
-		if (p_ptr->spell_order[i] == 99) break;
+		if (p_ptr->spell_order[i] == 300) break;
 	}
 
 	/* Add the spell to the known list */

@@ -4639,7 +4639,7 @@ int get_use_device_chance(const object_type *o_ptr)
 	/* Chance of failure */
 	skill = p_ptr->state.skills[SKILL_DEVICE];
 
-	fail = 100 * ((skill - lev) - (skill_max - diff_min))
+	fail = 150 * ((skill - lev) - (skill_max - diff_min))
 		/ ((lev - skill) - (diff_max - skill_min));
 
 	/* Confusion makes things twice as hard */
@@ -5312,6 +5312,8 @@ bool obj_has_charges(const object_type *o_ptr)
 
 bool obj_can_browse(const object_type *o_ptr)
 {
+	if ((cp_ptr->flags & CF_ALL_KNOWING) && !(o_ptr->tval==TV_PRAYER_BOOK || o_ptr->tval==TV_MAGIC_BOOK || o_ptr->tval==TV_DRUID_BOOK)) return FALSE;
+	if (cp_ptr->flags & CF_ALL_KNOWING) return TRUE;
 	if (o_ptr->tval != cp_ptr->spell_book) return FALSE;
 	return TRUE;
 }

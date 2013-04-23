@@ -1594,6 +1594,11 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	/* Get no rolls if not allowed */
 	if (!okay || o_ptr->art_num) rolls = 0;
 
+	if (fated())
+	{
+		rolls = (rolls * 3) / 2;
+	}
+
 	/* Roll for artifacts if allowed */
 	for (i = 0; i < rolls; i++)
 	{

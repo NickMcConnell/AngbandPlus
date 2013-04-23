@@ -38,6 +38,10 @@ bool allow_player_confusion(void)
  */
 void check_experience(void)
 {
+	u32b f1, f2, f3, fn;
+
+	int gain_stat, which, value, gain;
+
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
 
@@ -90,6 +94,12 @@ void check_experience(void)
 
 		if (challenge() < 10){
 				msg_print("This level doesn't feel like a challenge... try adventuring deeper.");
+				p_ptr->redraw |= (PR_FEELING);
+		}
+
+		if ((p_ptr->max_lev < p_ptr->lev) && (f2 & TR2_DOOMED) && (p_ptr->lev > 26) && (p_ptr->depth>0) && !(p_ptr->total_winner))
+		{
+			doom();
 		}
 
 		/* Save the highest level*/
@@ -97,6 +107,98 @@ void check_experience(void)
 		{
 	     	/* update the highest level*/
 			p_ptr->max_lev = p_ptr->lev;
+
+			player_flags(&f1, &f2, &f3, &fn);
+
+			if (f2 & TR2_KINGLY)
+			{
+				if (p_ptr->max_lev==10)
+				{
+					msg_print("You have an air of authority about you.");
+					msg_print("The shopkeepers will now admit you.");
+				}
+				gain_stat = 1;
+				if (p_ptr->max_lev == 12 || p_ptr->max_lev == 15 || p_ptr->max_lev == 18){
+					msg_print("You are reluctantly beginning to accept your destiny.");
+				} else if (p_ptr->max_lev == 21 || p_ptr->max_lev == 24 || p_ptr->max_lev == 27){
+					msg_print("The blood of Numenor runs in your veins.");
+				} else if (p_ptr->max_lev == 30 || p_ptr->max_lev == 33 || p_ptr->max_lev == 35){
+					msg_print("You have a kingly manner.");
+				} else {
+					gain_stat = 0;
+				}
+				if (gain_stat)
+				{
+					which = rand_range(0, A_MAX - 1);
+
+					/* Then augment the current/max stat */
+					value = p_ptr->stat_cur[which];
+
+					/* Cannot go above 18/100 */
+					if (value < 18+100)
+					{
+						/* Gain one point */
+						if (value < 18)
+						{
+							value += 1;
+						}
+
+						else if (value < 18+90)
+						{
+							value += 10;
+						}
+
+						else
+						{
+							value = 18 + 99;
+						}
+						/* Again */
+						if (value < 18)
+						{
+							value += 1;
+						}
+
+						else if (value < 18+90)
+						{
+							value += 10;
+						}
+
+						else
+						{
+							value = 18 + 99;
+						}
+						if (which==A_STR)
+						{
+							msg_print("You feel stronger...");
+						} else if (which==A_INT){
+							msg_print("You feel smarter...");
+						} else if (which==A_WIS){
+							msg_print("You feel wiser...");
+						} else if (which==A_DEX){
+							msg_print("You feel more dextrous...");
+						} else if (which==A_CON){
+							msg_print("You feel tougher...");
+						} else if (which==A_CHR){
+							msg_print("You feel more charismatic...");
+						}
+
+						/* Save the new value */
+						p_ptr->stat_cur[which] = value;
+
+						/* Bring up the maximum too */
+						if (value > p_ptr->stat_max[which])
+						{
+							p_ptr->stat_max[which] = value;
+						}
+
+						/* Recalculate bonuses */
+						p_ptr->update |= (PU_BONUS);
+
+						/* Redisplay the stats later */
+						p_ptr->redraw |= (PR_STATS);
+					}
+				}
+			}
 
 			/* If auto-note taking enabled, write a note to the file every 5th level. */
             if ((adult_take_notes) && ((p_ptr->lev % 5) == 0))
@@ -734,10 +836,21 @@ void monster_death(int m_idx, int who)
 /*Helper function to calculate the monster experience*/
 static s32b calc_mon_exp(const monster_race *r_ptr)
 {
+	s16b new_level;
 	/*calculate the monster experience*/
 	s32b new_exp = ((long)r_ptr->mexp * r_ptr->level) / p_ptr->lev;
 
-	s16b new_level = p_ptr->max_lev;
+	if (cp_ptr->flags & CF_ETHICAL)
+	{
+		if (r_ptr->flags3 & (RF3_EVIL))
+		{
+			new_exp = (new_exp * 115) / 100;
+		} else {
+			new_exp = new_exp / 2;
+		}
+	}
+
+	new_level = p_ptr->max_lev;
 
 	/*not a full point of experience to gain*/
 	if (new_exp < 1) return (0);

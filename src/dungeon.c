@@ -111,7 +111,7 @@ static void remove_ironman_items(void)
 				byte realm, j;
 
 				/*Get the player spell realm*/
-				realm =  get_player_spell_realm();
+				realm =  get_player_spell_realm(k_ptr->tval);
 
 				/* Extract spells */
 				for (j = 0; j < SPELLS_PER_BOOK; j++)
@@ -733,6 +733,102 @@ static void decrease_timeouts(void)
 	return;
 }
 
+void doom()
+{
+	int in_sight, rand_event, n_summoned, slot, i;
+
+	object_type *o_ptr;
+	monster_type *m_ptr;
+
+	rand_event = randint(5);
+	if (randint(200) <= ((p_ptr->lev - 26)*(p_ptr->lev - 26)))
+	{
+		/* something bad happens */
+		if (rand_event == 1){
+			msg_print("Memories of the Kinslaying overwhelm you!");
+			inc_timed(TMD_PARALYZED, 1 + randint(3), TRUE);
+		} else if (rand_event == 2){
+			msg_print("Your weapon betrays you in your hour of need!");
+			o_ptr = &inventory[INVEN_WIELD];
+			if (o_ptr!=NULL)
+			{
+				curse_weapon();
+				if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+			}
+		} else if (rand_event == 3){
+			msg_print("The hosts of Angband beset you sorely!");
+			n_summoned = 5 + (randint(5));
+			for (i = 0; i < n_summoned; i++)
+			{
+				(void)summon_specific(p_ptr->py, p_ptr->px, (effective_depth(p_ptr->depth)*6)/5, 0);
+			}
+		} else if (rand_event == 4){
+			msg_print("Your powers are weakening! You must soon depart and go into the West...");
+			dec_stat(A_STR, 10, FALSE);
+			dec_stat(A_INT, 10, FALSE);
+			dec_stat(A_WIS, 10, FALSE);
+			dec_stat(A_DEX, 10, FALSE);
+			dec_stat(A_CON, 10, FALSE);
+			dec_stat(A_CHR, 10, FALSE);
+		} else if (rand_event == 5){
+			msg_print("You draw out your horn and blow a great blast! You hear many monsters waking up...");
+			/* Wake up everyone */
+			for (i = 1; i < mon_max; i++)
+			{
+				m_ptr = &mon_list[i];
+				/* Paranoia -- Skip dead monsters */
+				if (!m_ptr->r_idx) continue;
+
+				/* Wake up all monsters */
+				m_ptr->m_timed[MON_TMD_SLEEP] = 0;
+			}
+			p_ptr->redraw |= PR_MONLIST;
+		}
+	} else {
+		/* something annoying happens */
+		if (rand_event == 1){
+			msg_print("You feel greedy! You will not willingly abandon the last of your possessions...");
+			for (slot=INVEN_WIELD; slot<INVEN_TOTAL; slot++)
+			{
+				o_ptr = &inventory[slot];
+				if (o_ptr!=NULL)
+				{
+					o_ptr->ident |= (IDENT_CURSED);
+					if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+				}
+			}
+		} else if (rand_event == 2){
+			msg_print("You feel less powerful! The time of the Eldar is drawing to a close...");
+			dec_stat(randint(6)-1, 10, FALSE);
+		} else if (rand_event == 3){
+			msg_print("You seem to hear a far seagull's cry, calling you to the Sea.");
+			inc_timed(TMD_CONFUSED, 10 + randint(10), TRUE);
+		} else if (rand_event == 4){
+			msg_print("Minions of Angband assail you!");
+			n_summoned = 3 + (randint(3));
+			for (i = 0; i < n_summoned; i++)
+			{
+				(void)summon_specific(p_ptr->py, p_ptr->px, (effective_depth(p_ptr->depth)*5)/6, 0);
+			}
+		} else if (rand_event == 5){
+			msg_print("You call out your battle cry! You hear monsters waking up...");
+			/* Wake up nearby monsters */
+			for (i = 1; i < mon_max; i++)
+			{
+				m_ptr = &mon_list[i];
+				/* Paranoia -- Skip dead monsters */
+				if (!m_ptr->r_idx) continue;
+
+				if (distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx) > 25) continue;
+
+				/* Wake up */
+				m_ptr->m_timed[MON_TMD_SLEEP] = 0;
+			}
+			p_ptr->redraw |= PR_MONLIST;
+		}
+	}
+	disturb(0,0);
+}
 /*
  * Handle certain things once every 10 game turns
  */
@@ -744,7 +840,10 @@ static void process_world(void)
 
 	int feat;
 
+	int in_sight;
+
 	object_type *o_ptr;
+	monster_type *m_ptr;
 
 	bool was_ghost = FALSE;
 
@@ -1159,7 +1258,7 @@ static void process_world(void)
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
-		regenmana(regen_amount * ((cp_ptr->flags & CF_ZERO_FAIL) ? 2 : 1)); /* Faster mana regen for full casters */
+		regenmana(regen_amount * ((cp_ptr->flags & CF_ZERO_FAIL) | (cp_ptr->flags & CF_ALL_KNOWING) ? 2 : 1)); /* Faster mana regen for full casters and sages */
 	}
 
 	/* Various things interfere with healing */
@@ -1477,17 +1576,62 @@ static void process_world(void)
 			}
 			if (num_artifacts_already > 30)
 			{
-				msg_print("Saruman senses your growing power from afar and sends monsters against you!");
-				sound(MSG_SUM_MONSTER);
-				n_summoned = 4 + (randint(4));
-				for (i = 0; i < n_summoned; i++)
+				u32b f1, f2, f3, fn;
+				player_flags(&f1, &f2, &f3, &fn);
+				if (f2 & TR2_DOOMED)
 				{
-					(void)summon_specific(p_ptr->py, p_ptr->px, effective_depth(p_ptr->depth), 0);
+					/* got enough trouble without this */
+				} else {
+					msg_print("Saruman senses your growing power from afar and sends monsters against you!");
+					sound(MSG_SUM_MONSTER);
+					n_summoned = 4 + (randint(4));
+					for (i = 0; i < n_summoned; i++)
+					{
+						(void)summon_specific(p_ptr->py, p_ptr->px, effective_depth(p_ptr->depth), 0);
+					}
 				}
 			}
 		}
 	}
+	if (one_in_(40))
+	{
+		u32b f1, f2, f3, fn;
+		player_flags(&f1, &f2, &f3, &fn);
+		if ((f2 & TR2_DOOMED) && (p_ptr->lev > 26))
+		{
+			if (randint(150) <= ((p_ptr->lev - 26)*(p_ptr->lev - 26)))
+			{
+				if ((p_ptr->depth>0) && !(p_ptr->total_winner))
+				{
+					/* is there a monster in sight? */
+					in_sight = 0;
+					for (i = 1; i < (size_t)mon_max; i++)
+					{
+							m_ptr = &mon_list[i];
 
+							/* Ignore dead monsters */
+							if (!m_ptr->r_idx) continue;
+
+							/* Only consider visible monsters */
+							if (!m_ptr->ml) continue;
+
+							/* Hidden mimics don't count */
+							if (m_ptr->mimic_k_idx) continue;
+
+							/* Check for LOS */
+							if (m_ptr->project){
+								in_sight = 1;
+								break;
+							}
+					}
+					if (in_sight)
+					{
+						doom();
+					}
+				}
+			}
+		}
+	}
 }
 
 /*
@@ -2445,8 +2589,11 @@ static void process_some_user_pref_files(void)
  */
 void play_game(void)
 {
+
 	/* Initialize */
 	bool new_game = init_angband();
+
+	u32b f1, f2, f3, fn;
 
 	/* Hack -- Increase "icky" depth */
 	character_icky++;
@@ -2626,6 +2773,36 @@ void play_game(void)
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
 
+	if (p_ptr->lev==1)
+	{
+		player_flags(&f1, &f2, &f3, &fn);
+		if (f2 & TR2_IRONMAN)
+		{
+			msg_print("You have only limited time in Middle-Earth.");
+			msg_print("You can only travel downwards, never back up.");
+		}
+		if (f2 & TR2_KINGLY)
+		{
+			msg_print("You are a homeless wanderer. Shopkeepers will not let you in.");
+			msg_print("When you reach level 10, you will be able to shop and your stats will start improving.");
+		}
+		if (f2 & TR2_FATED)
+		{
+			msg_print("You have a great destiny. Expect to find lots of vaults, special levels, and artifacts.");
+			msg_print("But be warned, you will also meet out-of-depth monsters that will probably kill you.");
+		}
+		if (f2 & TR2_DOOMED)
+		{
+			msg_print("You are subject to the Doom of Mandos.");
+			msg_print("When you reach level 27, bad things will start happening at random times.");
+			msg_print("If you do not complete the game quickly you will surely die.");
+		}
+		if (cp_ptr->flags & CF_ETHICAL)
+		{
+			msg_print("You get 15% extra XP for killing evil monsters, but only 50% XP for killing non-evil monsters.");
+		}
+	}
+
 	/* Process */
 	while (TRUE)
 	{
@@ -2730,7 +2907,10 @@ void play_game(void)
 				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
 
 				/* Increase age */
-				p_ptr->age++;
+				if (p_ptr->age < 255)
+				{
+					p_ptr->age++;
+				}
 
 				/* Mark savefile */
 				p_ptr->noscore |= 0x0001;

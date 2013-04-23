@@ -1886,10 +1886,10 @@ option_entry options[OPT_MAX] =
 	{"xchars_to_file",		"Allow accents in output files",		FALSE},	/* OPT_xchars_to_file */
 	{"auto_more",			"Automatically clear '-more-' prompts",	FALSE},	/* OPT_auto_more */
 	{NULL,				NULL,								FALSE},/* xxx */
-	{"auto_display_lists",	"Automatically display drop-down lists",FALSE},	/* OPT_auto_display_lists */
-	{"hp_changes_color",	"Player color indicates low hit points",FALSE},	/* OPT_hp_changes_color*/
+	{"auto_display_lists",	"Automatically display drop-down lists",TRUE},	/* OPT_auto_display_lists */
+	{"hp_changes_color",	"Player color indicates low hit points",TRUE},	/* OPT_hp_changes_color*/
 	{NULL,				NULL,								FALSE},/* OPT_verify_leave_quests*/
-	{"mark_squelch_items",	"Items marked for squelch appear as dot",FALSE},/* OPT_mark_squelch_items */
+	{"mark_squelch_items",	"Items marked for squelch appear as dot",TRUE},/* OPT_mark_squelch_items */
 	{"mouse_movement",      "Allow mouse clicks to move the player",       TRUE }, /*OPT_mouse_movement*/
 	{"mouse_buttons",       "Show mouse status line buttons",              FALSE }, /*OPT_mouse_buttons*/
 	{"notify_recharge",		"Notify on object recharge", 	FALSE},/* OPT_notify_recharge */

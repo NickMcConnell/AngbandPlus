@@ -2674,6 +2674,7 @@ void do_cmd_feeling(void)
 
     if (challenge() < 10){
 		msg_print("This level doesn't feel like a challenge... try adventuring deeper.");
+		p_ptr->redraw |= (PR_FEELING);
 		return;
 	}
 

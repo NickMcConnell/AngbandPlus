@@ -63,6 +63,8 @@ static void calc_spells(void)
 	if (cp_ptr->spell_book == TV_BARBARIAN_BOOK)
 	{
 		percent_spells = 100;
+	} else if (cp_ptr->flags & CF_ALL_KNOWING){
+		percent_spells = adj_mag_study[p_ptr->state.stat_ind[A_INT]];
 	} else {
 		percent_spells = adj_mag_study[SPELL_STAT_SLOT];
 	}
@@ -93,7 +95,7 @@ static void calc_spells(void)
 		j = p_ptr->spell_order[i];
 
 		/* Skip non-spells */
-		if (j >= 99) continue;
+		if (j >= 300) continue;
 
 		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
@@ -129,7 +131,7 @@ static void calc_spells(void)
 		j = p_ptr->spell_order[i];
 
 		/* Skip unknown spells */
-		if (j >= 99) continue;
+		if (j >= 300) continue;
 
 		/* Forget it (if learned) */
 		if (p_ptr->spell_flags[j] & PY_SPELL_LEARNED)
@@ -159,7 +161,7 @@ static void calc_spells(void)
 		j = p_ptr->spell_order[i];
 
 		/* Skip unknown spells */
-		if (j >= 99) break;
+		if (j >= 300) break;
 
 		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
@@ -258,11 +260,12 @@ static void calc_mana(void)
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
-	if (cp_ptr->spell_book == TV_MAGIC_BOOK){
-	 		msp = (long)adj_mag_mana[SPELL_STAT_SLOT] * levels / 100;
+    if ((cp_ptr->flags & CF_ZERO_FAIL) || (cp_ptr->flags & CF_ALL_KNOWING))
+    {
+		msp = (long)adj_mag_mana[SPELL_STAT_SLOT] * levels / 80;
 	} else {
-	 		msp = (long)adj_mag_mana[SPELL_STAT_SLOT] * levels / 70;
- 	}
+		msp = (long)adj_mag_mana[SPELL_STAT_SLOT] * levels / 110;
+	}
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
@@ -1482,8 +1485,8 @@ static void calc_bonuses(void)
 
  		if (mult < 750) p_ptr->state.num_blow=1;
  		else if (mult < 1000) p_ptr->state.num_blow=2;
- 		else if (mult < 1500) p_ptr->state.num_blow=3;
- 		else if (mult < 2000) p_ptr->state.num_blow=4;
+ 		else if (mult < 1450) p_ptr->state.num_blow=3;
+ 		else if (mult < 1900) p_ptr->state.num_blow=4;
  		else p_ptr->state.num_blow = 5;
 
  		if ((o_ptr->weight/2 + 70) > (str*10)) p_ptr->state.num_blow -= 1;
@@ -1560,7 +1563,8 @@ static void calc_bonuses(void)
 			{
 
 				if ((cp_ptr->spell_book == TV_MAGIC_BOOK) ||
-					(cp_ptr->spell_book == TV_DRUID_BOOK))
+					(cp_ptr->spell_book == TV_DRUID_BOOK) ||
+					(cp_ptr->flags & CF_ALL_KNOWING))
 				{
 					p_ptr->update |= (PU_MANA | PU_SPELLS);
 				}
@@ -1570,7 +1574,8 @@ static void calc_bonuses(void)
 			else if (i == A_WIS)
 			{
 				if ((cp_ptr->spell_book == TV_PRAYER_BOOK) ||
-					(cp_ptr->spell_book == TV_DRUID_BOOK))
+					(cp_ptr->spell_book == TV_DRUID_BOOK) ||
+					(cp_ptr->flags & CF_ALL_KNOWING))
 				{
 					p_ptr->update |= (PU_MANA | PU_SPELLS);
 				}

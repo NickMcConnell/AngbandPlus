@@ -1,6 +1,6 @@
 === Version Information ===
 
-This file was last updated for Angband 3.1.2, NPPAngband 0.5.1, and Quickband 2.0.0.
+This file was last updated for Angband 3.1.2, NPPAngband 0.5.1, and Quickband 2.0.3.
 
 The Quickband home page is "http://angband.oook.cz/quickband/".
 The Quickband maintainer is Antoine (antoine.from.rgrd@gmail.com).

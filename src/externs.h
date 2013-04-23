@@ -423,6 +423,7 @@ extern void disturb(int stop_search, int unused_flag);
 extern int effective_depth(int depth);
 extern int inverse_effective_depth(int depth);
 extern int challenge();
+extern int fated();
 
 /* cmd0.c */
 extern void cmd_init(void);
@@ -588,7 +589,7 @@ extern void dungeon_change_level(int dlev);
 extern void process_player_terrain_damage(void);
 extern void process_player(void);
 extern void play_game(void);
-
+extern void doom(void);
 
 
 /* effect.c */
@@ -1327,13 +1328,13 @@ extern char xchar_trans(byte c);
 
 /* x-spell.c */
 extern int get_spell_index(const object_type *o_ptr, int index);
-extern bool spell_needs_aim(int tval, int spell);
+extern bool spell_needs_aim(int spell);
 extern cptr do_mage_spell(int mode, int spell, int dir);
 extern cptr do_druid_spell(int mode, int spell, int dir);
 extern cptr do_priest_prayer(int mode, int spell, int dir);
 extern cptr do_barbarian_spell(int mode, int spell, int dir);
 cptr cast_spell(int mode, int tval, int index, int dir);
-extern int get_player_spell_realm(void);
+extern int get_player_spell_realm(int tval);
 extern cptr get_spell_name(int tval, int spell);
 
 /* xtra1.c */

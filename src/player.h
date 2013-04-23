@@ -55,7 +55,7 @@
 /*
  * Maximum number of players spells
  */
-#define PY_MAX_SPELLS 66
+#define PY_MAX_SPELLS 266
 
 /*
  * Number of spells per book
@@ -162,160 +162,160 @@
 
 
 /* Beginners Handbook */
-#define PRAYER_DETECT_EVIL              0
-#define PRAYER_CURE_LIGHT_WOUNDS        1
-#define PRAYER_BLESS                    2
-#define PRAYER_REMOVE_FEAR              3
-#define PRAYER_CALL_LIGHT               4
-#define PRAYER_FIND_TRAPS_DOORS_STAIRS  5
-#define PRAYER_SHOCK_BOLT	        6
-#define PRAYER_SLOW_POISON              7
+#define PRAYER_DETECT_EVIL            100
+#define PRAYER_CURE_LIGHT_WOUNDS      101
+#define PRAYER_BLESS                  102
+#define PRAYER_REMOVE_FEAR            103
+#define PRAYER_CALL_LIGHT             104
+#define PRAYER_FIND_TRAPS_DOORS_STAIRS  105
+#define PRAYER_SHOCK_BOLT	          106
+#define PRAYER_SLOW_POISON            107
 
 /* Words of Wisdom */
-#define PRAYER_SCARE_MONSTER            8
-#define PRAYER_PORTAL                   9
-#define PRAYER_CURE_SERIOUS_WOUNDS     10
-#define PRAYER_CHANT                   11
-#define PRAYER_SANCTUARY               12
-#define PRAYER_SATISFY_HUNGER          13
-#define PRAYER_REMOVE_CURSE            14
-#define PRAYER_RESIST_HEAT_COLD        15
+#define PRAYER_SCARE_MONSTER          108
+#define PRAYER_PORTAL                 109
+#define PRAYER_CURE_SERIOUS_WOUNDS    110
+#define PRAYER_CHANT                  111
+#define PRAYER_SANCTUARY              112
+#define PRAYER_SATISFY_HUNGER         113
+#define PRAYER_REMOVE_CURSE           114
+#define PRAYER_RESIST_HEAT_COLD       115
 
 /* Chants and Blessings */
-#define PRAYER_NEUTRALIZE_POISON       16
-#define PRAYER_ORB_OF_DRAINING         17
-#define PRAYER_CURE_CRITICAL_WOUNDS    18
-#define PRAYER_SENSE_INVISIBLE         19
-#define PRAYER_PROTECTION_FROM_EVIL    20
-#define PRAYER_EARTHQUAKE              21
-#define PRAYER_SENSE_SURROUNDINGS      22
-#define PRAYER_CURE_MORTAL_WOUNDS      23
-#define PRAYER_TURN_UNDEAD             24
+#define PRAYER_NEUTRALIZE_POISON      116
+#define PRAYER_ORB_OF_DRAINING        117
+#define PRAYER_CURE_CRITICAL_WOUNDS   118
+#define PRAYER_SENSE_INVISIBLE        119
+#define PRAYER_PROTECTION_FROM_EVIL   120
+#define PRAYER_EARTHQUAKE             121
+#define PRAYER_SENSE_SURROUNDINGS     122
+#define PRAYER_CURE_MORTAL_WOUNDS     123
+#define PRAYER_TURN_UNDEAD            124
 
 /* Exorcism and Dispelling */
-#define PRAYER_PRAYER                  25
-#define PRAYER_SUN_BEAM                26
-#define PRAYER_HEAL                    27
-#define PRAYER_DISPEL_EVIL             28
-#define PRAYER_GLYPH_OF_WARDING        29
-#define PRAYER_HOLY_WORD               30
+#define PRAYER_PRAYER                 125
+#define PRAYER_SUN_BEAM               126
+#define PRAYER_HEAL                   127
+#define PRAYER_DISPEL_EVIL            128
+#define PRAYER_GLYPH_OF_WARDING       129
+#define PRAYER_HOLY_WORD              130
 
 /* Godly Insights */
-#define PRAYER_DETECT_MONSTERS         31
-#define PRAYER_DETECTION               32
-#define PRAYER_PERCEPTION              33
-#define PRAYER_PROBING                 34
-#define PRAYER_CLAIRVOYANCE            35
-#define PRAYER_MASS_IDENTIFY		   58
+#define PRAYER_DETECT_MONSTERS        131
+#define PRAYER_DETECTION              132
+#define PRAYER_PERCEPTION             133
+#define PRAYER_PROBING                134
+#define PRAYER_CLAIRVOYANCE           135
+#define PRAYER_MASS_IDENTIFY		  158
 
 /* Purifications and Healing */
-#define PRAYER_CURE_SERIOUS_WOUNDS2    36
-#define PRAYER_CURE_MORTAL_WOUNDS2     37
-#define PRAYER_HEALING                 38
-#define PRAYER_RESTORATION             39
-#define PRAYER_REMEMBRANCE             40
+#define PRAYER_CURE_SERIOUS_WOUNDS2   136
+#define PRAYER_CURE_MORTAL_WOUNDS2    137
+#define PRAYER_HEALING                138
+#define PRAYER_RESTORATION            139
+#define PRAYER_REMEMBRANCE            140
 
 /* Wrath of God */
-#define PRAYER_SUN_BURST               41
-#define PRAYER_DISPEL_EVIL2            42
-#define PRAYER_BANISH_EVIL             43
-#define PRAYER_WORD_OF_DESTRUCTION     44
-#define PRAYER_JUDGEMENT_OF_MANDOS      45
+#define PRAYER_SUN_BURST              141
+#define PRAYER_DISPEL_EVIL2           142
+#define PRAYER_BANISH_EVIL            143
+#define PRAYER_WORD_OF_DESTRUCTION    144
+#define PRAYER_JUDGEMENT_OF_MANDOS     145
 
 /* Holy Infusions */
-#define PRAYER_UNBARRING_WAYS          46
-#define PRAYER_RECHARGING              47
-#define PRAYER_DISPEL_CURSE            48
-#define PRAYER_ENCHANT_WEAPON          49
-#define PRAYER_ENCHANT_ARMOUR          50
-#define PRAYER_ELEMENTAL_BRAND         51
+#define PRAYER_UNBARRING_WAYS         146
+#define PRAYER_RECHARGING             147
+#define PRAYER_DISPEL_CURSE           148
+#define PRAYER_ENCHANT_WEAPON         149
+#define PRAYER_ENCHANT_ARMOUR         150
+#define PRAYER_ELEMENTAL_BRAND        151
 
 /* Ethereal openings */
-#define PRAYER_BLINK                   52
-#define PRAYER_TELEPORT_SELF           53
-#define PRAYER_TELEPORT_OTHER          54
-#define PRAYER_TELEPORT_LEVEL          55
-#define PRAYER_WORD_OF_RECALL          56
-#define PRAYER_ALTER_REALITY           57
+#define PRAYER_BLINK                  152
+#define PRAYER_TELEPORT_SELF          153
+#define PRAYER_TELEPORT_OTHER         154
+#define PRAYER_TELEPORT_LEVEL         155
+#define PRAYER_WORD_OF_RECALL         156
+#define PRAYER_ALTER_REALITY          157
 
 
 /* Call of the Wild */
-#define DRUID_ACID_BOLT                  0
-#define DRUID_CURE_LIGHT_WOUNDS          1
-#define DRUID_DETECT_LIFE              	 2
-#define DRUID_CALL_LIGHT               	 3
-#define DRUID_FIND_TRAPS_DOORS         	 4
-#define DRUID_SLOW_POISON                5
-#define DRUID_POISON_CLOUD             	 6
-#define DRUID_NATURAL_ESCAPE           	 7
-#define DRUID_BARKSKIN		             8
+#define DRUID_ACID_BOLT                200
+#define DRUID_CURE_LIGHT_WOUNDS        201
+#define DRUID_DETECT_LIFE              202
+#define DRUID_CALL_LIGHT               203
+#define DRUID_FIND_TRAPS_DOORS         204
+#define DRUID_SLOW_POISON              205
+#define DRUID_POISON_CLOUD             206
+#define DRUID_NATURAL_ESCAPE           207
+#define DRUID_BARKSKIN		           208
 
 /* Environmental Adjurations */
-#define DRUID_NOURISHMENT	             9
-#define DRUID_TURN_STONE_TO_MUD        	10
-#define DRUID_FROST_BEAM               	11
-#define DRUID_CURE_POISON              	12
-#define DRUID_TRAP_DOOR_DESTRUCTION    	13
-#define DRUID_RESIST_HEAT_COLD         	14
-#define DRUID_SPEAR_OF_LIGHT           	15
-#define DRUID_FIRE_BEAM               	16
-#define DRUID_STERILIZE					17
+#define DRUID_NOURISHMENT	           209
+#define DRUID_TURN_STONE_TO_MUD        210
+#define DRUID_FROST_BEAM               211
+#define DRUID_CURE_POISON              212
+#define DRUID_TRAP_DOOR_DESTRUCTION    213
+#define DRUID_RESIST_HEAT_COLD         214
+#define DRUID_SPEAR_OF_LIGHT           215
+#define DRUID_FIRE_BEAM                216
+#define DRUID_STERILIZE				   217
 
 /* Commanding Nature */
-#define DRUID_EXTINGUISH		       	18
-#define DRUID_CLEAR_AREA		       	19
-#define DRUID_CURE_CRITICAL_WOUNDS    	20
-#define DRUID_IDENTIFY             		21
-#define DRUID_CLEAR_AIR              	22
-#define DRUID_DETECT_TERRAIN	      	23
-#define DRUID_EARTHQUAKE 	     		24
-#define DRUID_LIFE_DRAIN_BURST		 	26
+#define DRUID_EXTINGUISH		       218
+#define DRUID_CLEAR_AREA		       219
+#define DRUID_CURE_CRITICAL_WOUNDS     220
+#define DRUID_IDENTIFY             	   221
+#define DRUID_CLEAR_AIR                222
+#define DRUID_DETECT_TERRAIN	       223
+#define DRUID_EARTHQUAKE 	     	   224
+#define DRUID_LIFE_DRAIN_BURST		   226
 
 /* Lore of Engagement */
-#define DRUID_ELEMENTAL_BRAND          	28
-#define DRUID_FROST_BALL              	29
-#define DRUID_HEAL                    	30
-#define DRUID_DISPEL_LIFE				31
-#define DRUID_FIRE_BALL               	32
-#define DRUID_DRAIN_LIFE_ARC			33
-#define DRUID_MASS_IDENTIFY				34
+#define DRUID_ELEMENTAL_BRAND          228
+#define DRUID_FROST_BALL               229
+#define DRUID_HEAL                     230
+#define DRUID_DISPEL_LIFE			   231
+#define DRUID_FIRE_BALL                232
+#define DRUID_DRAIN_LIFE_ARC		   233
+#define DRUID_MASS_IDENTIFY			   234
 
 /* Radagast's Protections */
-#define DRUID_RESIST_ELEC               35
-#define DRUID_RESIST_ACID               36
-#define DRUID_RESIST_POISON             37
-#define DRUID_RESISTANCE                38
-#define DRUID_HASTE_SELF          		39
-#define DRUID_GLACIER			        40
+#define DRUID_RESIST_ELEC               235
+#define DRUID_RESIST_ACID               236
+#define DRUID_RESIST_POISON             237
+#define DRUID_RESISTANCE                238
+#define DRUID_HASTE_SELF          		239
+#define DRUID_GLACIER			        240
 
 /* Melian's Reformations */
-#define DRUID_FLICKER			    	41
-#define DRUID_WORD_OF_RECALL	     	42
-#define DRUID_HEALING                 	43
-#define DRUID_RESTORATION             	44
-#define DRUID_REMEMBRANCE             	45
-#define DRUID_SANDSTORM	         	25
+#define DRUID_FLICKER			    	241
+#define DRUID_WORD_OF_RECALL	     	242
+#define DRUID_HEALING                 	243
+#define DRUID_RESTORATION             	244
+#define DRUID_REMEMBRANCE             	245
+#define DRUID_SANDSTORM	         	225
 
 /* Arda's Habitats */
-#define DRUID_NATIVE_SAND				46
-#define DRUID_NATIVE_MUD				47
-#define DRUID_NATIVE_WATER				48
-#define DRUID_NATIVE_OIL				49
-#define DRUID_NATIVE_LAVA				50
-#define DRUID_CHANNEL_LIGHTNING			64
+#define DRUID_NATIVE_SAND				246
+#define DRUID_NATIVE_MUD				247
+#define DRUID_NATIVE_WATER				248
+#define DRUID_NATIVE_OIL				249
+#define DRUID_NATIVE_LAVA				250
+#define DRUID_CHANNEL_LIGHTNING			264
 
 /* Natural Infusions */
-#define DRUID_DISPEL_CURSE              52
-#define DRUID_RECHARGE_ITEM             53
-#define DRUID_BRAND_AMMUNITION          54
-#define DRUID_ENCHANT_ARMOUR            55
-#define DRUID_BRAND_WEAPON              56
+#define DRUID_DISPEL_CURSE              252
+#define DRUID_RECHARGE_ITEM             253
+#define DRUID_BRAND_AMMUNITION          254
+#define DRUID_ENCHANT_ARMOUR            255
+#define DRUID_BRAND_WEAPON              256
 
 /* Nature's Fury */
-#define DRUID_WATER_CHAIN				58
-#define DRUID_CALL_HUORNS				60
-#define DRUID_MASTER_ELEMENTS			62
-#define DRUID_STEAL_POWERS				63
+#define DRUID_WATER_CHAIN				258
+#define DRUID_CALL_HUORNS				260
+#define DRUID_MASTER_ELEMENTS			262
+#define DRUID_STEAL_POWERS				263
 
 /* Fetish */
 #define BARB_HEAL_BUFF_1                0
@@ -709,8 +709,8 @@ enum
 #define CF_BRAVERY_1		0x00004000L	/* Gains resist fear at plev 1 */
 #define CF_RAGE			0x00008000L /* Barbarian or berserker */
 #define CF_LOTS_OF_RAGE			0x00010000L /* The berserker, in this case */
-#define CF_CFXXX18			0x00020000L
-#define CF_CFXXX19			0x00040000L
+#define CF_ALL_KNOWING			0x00020000L /* the Sage */
+#define CF_ETHICAL			0x00040000L /* the Paladin's XP adjustment */
 #define CF_CFXXX20			0x00080000L
 #define CF_CFXXX21			0x00100000L
 #define CF_CFXXX22			0x00200000L
@@ -727,7 +727,7 @@ enum
 
 
 /* BB added */
-#define BLAST_BONUS ((cp_ptr->flags & CF_ZERO_FAIL) ? 1.5 : 1)
+#define BLAST_BONUS (((cp_ptr->flags & CF_ZERO_FAIL) || (cp_ptr->flags & CF_ALL_KNOWING)) ? 1.5 : 1)
 
 /* flags for q_flags */
 #define QFLAG_STARTED   	0x01

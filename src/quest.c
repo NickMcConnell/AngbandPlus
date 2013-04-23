@@ -1069,7 +1069,7 @@ static void grant_reward_object(byte depth, byte type)
 					/* Hack - Mark as tried */
 					k_info[i_ptr->k_idx].tried = TRUE;
 
-					realm = get_player_spell_realm();
+					realm = get_player_spell_realm(k_ptr->tval);
 
 					/* Extract spells */
 					for (j = 0; j < SPELLS_PER_BOOK; j++)

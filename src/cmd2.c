@@ -104,6 +104,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 
 	char out_val[160];
 	byte quest;
+	u32b f1, f2, f3, fn;
 
 	int decrease = 0;
 
@@ -121,7 +122,8 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 	quest = quest_check(p_ptr->depth);
 
 	/* Ironman */
-	if (adult_ironman)
+	player_flags(&f1, &f2, &f3, &fn);
+	if (adult_ironman || (f2 & TR2_IRONMAN))
 	{
 		msg_print("Nothing happens!");
 		return;

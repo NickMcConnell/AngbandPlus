@@ -1083,7 +1083,7 @@ struct player_type
 
 	byte spell_flags[PY_MAX_SPELLS]; /* Spell flags */
 
-	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
+	int spell_order[PY_MAX_SPELLS];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 

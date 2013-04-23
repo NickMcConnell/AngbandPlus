@@ -1259,7 +1259,7 @@ static bool wr_savefile_new(void)
 	/* Dump the ordered spells */
 	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
-		wr_byte(p_ptr->spell_order[i]);
+		wr_u16b(p_ptr->spell_order[i]);
 	}
 
 	/*Write the randarts*/

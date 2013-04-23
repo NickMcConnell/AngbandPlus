@@ -135,7 +135,7 @@
 
 # Version stamp (required)
 
-V:2.0.2
+V:2.0.3
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -1817,7 +1817,7 @@ D: no other demon matches its teleporting mastery.
 
 N:155:Dark elven mage
 G:h:R1
-I:120:7d10:20:16:20
+I:120:7d10:20:16:10
 W:10:1:28:50
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
@@ -1832,7 +1832,7 @@ D:A dark elven figure, dressed all in black, hurling spells at you.
 
 N:156:Dark elven warrior
 G:h:u
-I:110:10d11:20:16:20
+I:110:10d11:20:16:10
 W:10:1:0:50
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
@@ -2116,7 +2116,7 @@ D:A ghostly apparition that shrieks horribly.
 
 N:178:Dark elven priest
 G:h:g
-I:120:7d10:20:30:30
+I:120:7d10:20:30:20
 W:12:1:50:50
 B:HIT:WOUND:1d9
 B:HIT:WOUND:1d10
@@ -2405,7 +2405,7 @@ D: it seeks to taste your juicy insides.
 
 N:202:Homunculus
 G:u:y
-I:110:8d8:20:32:30
+I:110:8d8:20:32:20
 W:15:3:0:40
 B:HIT:PARALYZE:1d2
 B:HIT:HURT:1d10
@@ -3159,7 +3159,7 @@ D: all three beasts.
 
 N:259:Dark elven lord
 G:h:s
-I:120:18d15:20:40:30
+I:120:18d15:20:40:20
 W:20:2:51:500
 B:HIT:HURT:3d8
 B:HIT:HURT:3d5
@@ -3465,7 +3465,7 @@ D:It is looking for prey.
 
 N:283:Master rogue
 G:p:b
-I:115:15d9:20:30:40
+I:115:15d9:20:30:20
 W:23:2:56:110
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
@@ -4311,7 +4311,7 @@ D: looks likes the creation of some deranged alchemist.
 
 N:344:Young blue dragon
 G:d:b
-I:110:36d10:20:50:70
+I:110:36d10:20:50:50
 W:29:1:17:500
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
@@ -4326,7 +4326,7 @@ D: deep blue in hue.  Sparks crackle along its length.
 
 N:345:Young white dragon
 G:d:w
-I:110:36d10:20:50:70
+I:110:36d10:20:50:50
 W:29:1:17:500
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
@@ -4343,7 +4343,7 @@ D: breathes.
 
 N:346:Young green dragon
 G:d:g
-I:110:36d10:20:50:70
+I:110:36d10:20:50:50
 W:29:1:17:500
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
@@ -4358,7 +4358,7 @@ D: deep green in hue.  Foul gas seeps through its scales.
 
 N:347:Young bronze dragon
 G:d:U
-I:110:36d10:20:50:70
+I:110:36d10:20:50:50
 W:29:1:17:500
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
@@ -4549,7 +4549,7 @@ D:It is a massive statue of purest mithril.  It looks expensive!
 
 N:361:Young red dragon
 G:d:r
-I:110:40d10:20:60:70
+I:110:40d10:20:60:50
 W:31:1:21:600
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
@@ -4565,7 +4565,7 @@ D: deepest red hue.  Heat radiates from its form.
 
 N:362:Young black dragon
 G:d:s
-I:110:40d10:20:60:70
+I:110:40d10:20:60:50
 W:31:1:21:700
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
@@ -4580,7 +4580,7 @@ D: darkest black hue.  Acid drips from its body.
 
 N:363:Young gold dragon
 G:d:y2
-I:110:40d10:20:60:70
+I:110:40d10:20:60:50
 W:31:1:21:700
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
@@ -4633,7 +4633,7 @@ D:A humanoid clothed in black who moves with blinding speed.
 
 N:368:Young chromatic dragon
 G:d:v
-I:110:42d10:20:60:70
+I:110:42d10:20:60:50
 W:32:1:21:900
 B:CLAW:FIRE:3d6
 B:CLAW:COLD:3d6
@@ -4786,7 +4786,7 @@ D: any pain.
 
 N:378:Shadow drake
 G:d:G
-I:110:30d10:20:70:70
+I:110:30d10:20:70:50
 W:33:3:35:1100
 B:CLAW:WOUND:2d4
 B:CLAW:WOUND:2d4
@@ -4803,7 +4803,7 @@ D: that chills the soul rather than the body.
 
 N:379:Ethereal drake
 G:d:o1
-I:110:40d10:20:70:70
+I:110:40d10:20:70:50
 W:33:3:43:1200
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
@@ -4819,7 +4819,7 @@ D: ethereal drake's eyes glare with white hatred from the shadows.
 
 N:380:Crystal drake
 G:d:u
-I:110:45d10:20:70:70
+I:110:45d10:20:70:50
 W:33:3:50:1350
 B:CLAW:WOUND:2d4
 B:CLAW:WOUND:2d4
@@ -4835,7 +4835,7 @@ D: dazzling your eyes with spectrums of colour.
 
 N:381:Chaos drake
 G:d:v
-I:110:50d10:20:70:70
+I:110:50d10:20:70:50
 W:33:3:43:1400
 B:CLAW:WOUND:2d4
 B:CLAW:WOUND:2d4
@@ -4851,7 +4851,7 @@ D: fair, as its form shimmers and changes in front of your eyes.
 
 N:382:Law drake
 G:d:B
-I:110:50d10:20:70:70
+I:110:50d10:20:70:50
 W:33:3:43:1400
 B:CLAW:WOUND:2d4
 B:CLAW:WOUND:2d4
@@ -4866,7 +4866,7 @@ D: disturb it.
 
 N:383:Balance drake
 G:d:v
-I:110:60d10:20:70:70
+I:110:60d10:20:70:50
 W:33:3:43:1600
 B:CLAW:WOUND:2d4
 B:CLAW:WOUND:2d4
@@ -5017,7 +5017,7 @@ D: powerful now.
 
 N:394:Mature white dragon
 G:d:w1
-I:115:50d10:20:70:70
+I:115:50d10:20:70:40
 W:34:1:21:1200
 B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
@@ -5032,7 +5032,7 @@ D:A large dragon, scales gleaming bright white.
 
 N:395:Mature blue dragon
 G:d:b1
-I:115:50d10:20:70:70
+I:115:50d10:20:70:40
 W:34:1:21:1200
 B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
@@ -5046,7 +5046,7 @@ D:A large dragon, scales tinted deep blue.
 
 N:396:Mature green dragon
 G:d:G1
-I:115:50d10:20:70:70
+I:115:50d10:20:70:40
 W:34:1:21:1200
 B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
@@ -5060,7 +5060,7 @@ D:A large dragon, scales tinted deep green.
 
 N:397:Mature bronze dragon
 G:d:U1
-I:115:50d10:20:70:70
+I:115:50d10:20:70:40
 W:34:1:21:1200
 B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
@@ -5522,7 +5522,7 @@ D: chilling frame.
 
 N:428:Bodak
 G:u:r
-I:110:35d10:10:68:90
+I:110:35d10:10:68:40
 W:36:2:50:750
 B:HIT:FIRE:4d6
 B:HIT:FIRE:4d6
@@ -5591,7 +5591,7 @@ D: control.
 
 N:432:Mature red dragon
 G:d:r1
-I:115:60d10:20:80:70
+I:115:60d10:20:80:40
 W:36:1:35:1400
 B:CLAW:HURT:2d10
 B:CLAW:HURT:2d10
@@ -5606,7 +5606,7 @@ D:A large dragon, scales tinted deep red.
 
 N:433:Mature black dragon
 G:d:s1
-I:115:60d10:20:80:70
+I:115:60d10:20:80:40
 W:36:1:35:1500
 B:CLAW:HURT:2d10
 B:CLAW:HURT:2d10
@@ -5779,7 +5779,7 @@ D: he is named after.
 
 N:444:Mature gold dragon
 G:d:y2
-I:115:60d10:20:80:70
+I:115:60d10:20:80:40
 W:37:1:35:1500
 B:CLAW:HURT:2d10
 B:CLAW:HURT:2d10
@@ -5977,7 +5977,7 @@ D: like lances of fire.
 
 N:456:Castamir the Usurper
 G:p:v1
-I:120:88d10:20:90:40
+I:120:88d10:20:90:20
 W:38:5:78:1600
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
@@ -6031,7 +6031,7 @@ D: in shadow.  It reaches out at you.
 
 N:459:Mature chromatic dragon
 G:d:v
-I:115:70d10:20:80:70
+I:115:70d10:20:80:40
 W:38:1:39:1800
 B:CLAW:WOUND:3d12
 B:CLAW:WOUND:3d12
@@ -6049,7 +6049,7 @@ D:A large dragon, scales shimmering many colours.
 
 N:460:Thunder drake
 G:d:y
-I:110:40d10:30:100:70
+I:110:40d10:30:100:40
 W:39:1:39:1500
 B:CLAW:HURT:3d5
 B:CLAW:HURT:3d5
@@ -6257,7 +6257,7 @@ D: your pitiful frame.
 
 N:473:Ancient blue dragon
 G:D:b
-I:120:82d10:20:90:80
+I:120:82d10:20:90:40
 W:40:1:39:2000
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
@@ -6274,7 +6274,7 @@ D:A huge draconic form.  Lightning crackles along its length.
 
 N:474:Ancient bronze dragon
 G:D:U
-I:120:82d10:20:90:80
+I:120:82d10:20:90:40
 W:40:1:39:2000
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
@@ -6290,7 +6290,7 @@ D:A huge draconic form enveloped in a cascade of colour.
 
 N:475:Ancient white dragon
 G:D:w
-I:120:82d10:20:90:80
+I:120:82d10:20:90:40
 W:40:1:39:2000
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
@@ -6307,7 +6307,7 @@ D:A huge draconic form.  Frost covers it from head to tail.
 
 N:476:Ancient green dragon
 G:D:g
-I:120:82d10:20:90:80
+I:120:82d10:20:90:40
 W:40:1:39:2000
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
@@ -6323,7 +6323,7 @@ D:A huge draconic form enveloped in clouds of poisonous vapour.
 
 N:477:Vrock
 G:U:s
-I:110:40d10:20:50:80
+I:110:40d10:20:50:50
 W:40:2:43:2000
 B:HIT:WOUND:3d4
 B:CRUSH:HURT:8d12
@@ -6473,7 +6473,7 @@ D: camouflage, so you will need magically enhanced seeing to spot him.
 
 N:486:Ancient black dragon
 G:D:s
-I:120:11d100:20:90:80
+I:120:11d100:20:90:40
 W:41:1:35:2500
 B:CLAW:HURT:4d9
 B:CLAW:HURT:4d9
@@ -6490,7 +6490,7 @@ D:A huge draconic form.  Pools of acid melt the floor around it.
 
 N:487:Ancient red dragon
 G:D:r
-I:120:11d100:20:90:80
+I:120:11d100:20:90:40
 W:41:1:39:2500
 B:CLAW:HURT:4d9
 B:CLAW:HURT:4d9
@@ -6508,7 +6508,7 @@ D: extreme heat surrounding it makes you gasp for breath.
 
 N:488:Ancient gold dragon
 G:D:y2
-I:120:11d100:20:90:80
+I:120:11d100:20:90:40
 W:41:1:39:2500
 B:CLAW:HURT:4d9
 B:CLAW:HURT:4d9
@@ -6596,7 +6596,7 @@ D: stalks, and a huge mouth filled with sharp teeth.
 
 N:493:Gorlim, Betrayer of Barahir
 G:p:s1
-I:120:16d100:20:120:40
+I:120:16d100:20:120:30
 W:41:3:78:7000
 B:HIT:HURT:8d6
 B:HIT:HURT:8d6
@@ -6617,7 +6617,7 @@ D: side of his "bargain" was not kept.
 
 N:494:Master lich
 G:L:r
-I:120:18d100:20:80:50
+I:120:18d100:20:80:40
 W:41:2:91:10000
 B:TOUCH:EXP_80:2d2
 B:TOUCH:UN_POWER:2d2
@@ -6673,7 +6673,7 @@ D:A foul wind chills your bones as this ghastly figure approaches.
 
 N:497:Power drake
 G:d:v
-I:120:65d10:30:100:70
+I:120:65d10:30:100:50
 W:42:1:56:2500
 B:CLAW:ACID:4d5
 B:CLAW:ELEC:4d5
@@ -6771,7 +6771,7 @@ D: Cloack of Aman he wore.
 
 N:502:Glabrezu
 G:U:U
-I:110:70d10:20:40:80
+I:110:70d10:20:40:50
 W:43:2:56:3000
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
@@ -6880,7 +6880,7 @@ D: the power of the rings.
 
 N:508:Ancient chromatic dragon
 G:D:v
-I:120:23d100:25:100:80
+I:120:23d100:25:100:40
 W:43:1:50:13000
 B:CLAW:COLD:4d10
 B:CLAW:ELEC:4d10
@@ -7077,7 +7077,7 @@ D: as it drains your vitality for its evil enchantments.
 
 N:519:Great crystal drake
 G:D:u
-I:120:21d100:25:100:80
+I:120:21d100:25:100:50
 W:45:2:43:10000
 B:CLAW:WOUND:4d10
 B:CLAW:WOUND:4d10
@@ -7095,7 +7095,7 @@ D: in the light.
 
 N:520:Ethereal dragon
 G:D:o
-I:120:21d100:25:100:80
+I:120:21d100:25:100:50
 W:45:2:56:10000
 B:CLAW:HURT:4d10
 B:CLAW:HURT:4d10
@@ -7225,7 +7225,7 @@ D: nimbus of pure evil surrounds it.  Luckily for you, it can't move.
 
 N:527:Marilith
 G:U:y
-I:120:20d70:20:75:80
+I:120:20d70:20:75:50
 W:47:2:155:6000
 B:HIT:WOUND:4d6
 B:HIT:WOUND:4d6
@@ -10477,7 +10477,6 @@ G:G:G1
 I:115:5d10:100:100:0
 W:24:4:100:100
 B:TOUCH:CONFUSE
-B:TOUCH:EXP_20
 F:FEMALE | RAND_25 | INVISIBLE | COLD_BLOOD
 F:PASS_WALL | UNDEAD | EVIL | FLYING
 F:HURT_FIRE | IM_COLD | IM_POIS | NO_FEAR | NO_SLEEP
@@ -10490,21 +10489,21 @@ D: escape its scrutiny!
 
 N:695:Mercury golem
 G:g:s2
-I:110:80d15:12:100:10
-W:33:4:300:800
+I:110:140d15:12:100:10
+W:33:4:1000:800
 B:HIT:HURT:5d8
 B:HIT:HURT:5d8
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR | HURT_COLD
 F:IM_ELEC | IM_FIRE | IM_POIS | NO_SLOW
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
-S:SPELL_PCT_33 | POW_30
+S:SPELL_PCT_33 | POW_40
 S:HEAL
 D:As quickly as you damage this quicksilver figure, it seems to flow back
 D: into its original shape. Oh, for a truckful of liquid nitrogen!
 
 N:696:Zombie Master
 G:p:D
-I:110:10d10:20:30:10
+I:110:18d10:20:30:5
 W:18:4:40:60
 B:HIT:HURT:2d4
 B:HIT:HURT:2d4
@@ -10517,7 +10516,7 @@ D:A leering, decrepit figure who stinks of the grave.
 
 N:697:Occultist
 G:p:o1
-I:110:10d10:20:30:10
+I:110:18d10:20:30:5
 W:18:4:40:60
 B:HIT:HURT:2d4
 B:HIT:HURT:2d4
@@ -10531,7 +10530,7 @@ D: in the end.
 
 N:698:Dragon trainer
 G:p:y1
-I:110:10d10:20:30:10
+I:110:18d10:20:30:5
 W:18:4:40:60
 B:HIT:HURT:2d4
 B:HIT:HURT:2d4
@@ -10556,7 +10555,7 @@ F:EVIL
 F:NO_CONF | NO_SLEEP | NO_SLOW | NO_FEAR
 F:IM_ACID | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | RES_CHAOS
 F:RES_NETHR | RES_WATER | RES_PLAS | RES_NEXUS | RES_DISEN
-S:SPELL_PCT_20 | POW_40
+S:SPELL_PCT_30 | POW_40
 S:ADD_MANA | HEAL | S_HOUND | SHRIEK
 D:A bizarre hunter from another dimension. To him and his hounds, you
 D: are just anough trophy.
@@ -10564,7 +10563,7 @@ D: are just anough trophy.
 
 N:700:Quickling
 G:h:B
-I:130:30d10:20:30:10
+I:130:40d10:20:30:0
 W:30:4:50:300
 B:HIT:WOUND:1d10
 B:HIT:WOUND:1d10
@@ -10577,7 +10576,7 @@ D:A strange little creature, moving ridiculously fast.
 
 N:701:Warlock
 G:p:o
-I:120:50d10:20:30:10
+I:120:50d10:20:30:5
 W:35:4:80:800
 B:HIT:HURT:2d6
 B:HIT:HURT:2d6
@@ -10595,7 +10594,7 @@ D: he will find it.
 
 N:702:Chaos adept
 G:p:v
-I:120:50d10:20:30:10
+I:120:50d10:20:30:5
 W:35:4:80:800
 B:HIT:HURT:2d6
 B:HIT:HURT:2d6
@@ -10606,7 +10605,6 @@ S:SPELL_PCT_50 | POW_33
 S:BALL_CHAOS | HEAL | BLINK | S_DEMON
 D:An adept of chaos, his body is already beginning to warp
 D: and twist from exposure to poorly controlled Chaotic forces.
-
 
 N:703:Incompetent summoner
 G:p:s2
@@ -10622,3 +10620,21 @@ S:SPELL_PCT_33 | POW_33
 S:ADD_MANA | BOLT_FIRE | BLINK | S_LO_UNIQUE
 D:He keeps trying for "mighty ancient dragons", but can't quite
 D: get it off.
+
+N:704:Warper
+G:p:B
+I:120:50d10:20:30:5
+W:35:4:80:800
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+F:MALE | FORCE_SLEEP | ONLY_ITEM | DROP_1D2
+F:HAS_LIGHT | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | SMART
+F:EVIL | NO_CONF | NO_SLEEP | RES_NEXUS
+S:SPELL_PCT_50 | POW_33
+S:BOLT_MANA | HEAL | ADD_MANA | BLINK | TPORT | TELE_AWAY
+D:An adept of the nexus, he has the power of teleportation
+D: and will use it to fling you across the dungeon or to
+D: escape himself. Then he will summon a comfortable chair
+D: and a cold beer and sit down to enjoy a well earned 
+D: break.
+

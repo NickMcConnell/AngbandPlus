@@ -1277,6 +1277,8 @@ static bool init_graphics(void)
 
 		if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 		{
+				plog_fmt("Sorry, these tiles are not currently supported. Use the 'old' tiles.", buf);
+				return (FALSE);
 			wid = 32;
 			hgt = 32;
 
@@ -1289,6 +1291,8 @@ static bool init_graphics(void)
 		}
 		else if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
+				plog_fmt("Sorry, these tiles are not currently supported. Use the 'old' tiles.", buf);
+				return (FALSE);
 			wid = 16;
 			hgt = 16;
 

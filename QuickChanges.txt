@@ -62,7 +62,22 @@ Slightly harder to get 4 or 5 attacks
 Measures against stair scumming
 Word of Recall is a temple service
 
+** v2.03
 
+Added Sage class 
+Added Maiar race, revamped Dunedain, High-Elf and Half-Elf
+Tweaked racial stat adjustments
+Improved default stat allocation a little
+Fighting classes get less HP relative to caster classes
+Paladin now gets more XP for evil monsters, less for non-evil
+Paladin loses Portal spell
+Bugfix to SP calculation
+Bugfix to level feelings
+Bugfix to sleep effects
+Set some display options TRUE by default (auto_display_lists, hp_changes_color, mark_squelch_items)
+Devices fail more often
+Picks are better than shovels
+Several monsters are more alert
 
 
 

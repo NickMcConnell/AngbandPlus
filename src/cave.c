@@ -6305,3 +6305,9 @@ int challenge(){
 	else if (p_ptr->lev >= 36 && p_ptr->depth<11) return 7;
 	else return 10;
 }
+
+int fated(){
+	u32b f1, f2, f3, fn;
+	player_flags(&f1, &f2, &f3, &fn);
+	return (f2 & TR2_FATED);
+}

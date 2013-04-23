@@ -14,7 +14,7 @@
 
 # Version stamp (required)
 
-V:2.0.2
+V:2.0.3
 
 
 ##### Rings #####
@@ -1321,11 +1321,11 @@ D:Rose Gold
 
 N:320:40
 G:":G1
-D:Piridot
+D:Peridot
 
 N:321:40
 G:":o1
-D:Cirtine
+D:Citrine
 
 N:322:40
 G:":s

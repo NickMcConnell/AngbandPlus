@@ -29,7 +29,7 @@
 
 # Version stamp (required)
 
-V:2.0.2
+V:2.0.3
 
 
 N:1:2:10:25
@@ -405,4 +405,70 @@ N:69:0:90:50
 D:and small, sharp teeth.
 N:69:0:100:50
 D:and large, sharp teeth.
+
+N:70:71:100:50
+D:You are of the Maiar of
+
+N:71:72:20:50
+D:Aule,
+N:71:72:40:50
+D:Yavanna,
+N:71:72:60:50
+D:Manwe,
+N:71:72:80:50
+D:Mandos,
+N:71:72:100:50
+D:Tulkas,
+
+N:72:73:100:50
+D:created by Iluvatar at the beginning of time.
+
+N:73:0:100:50
+D:The Valar sent you to bring Saruman to justice.
+
+N:74:75:100:50
+D:You are of the Noldor race. You are
+
+N:75:76:20:50
+D:carefree
+N:75:76:40:50
+D:mighty
+N:75:76:60:50
+D:glorious
+N:75:76:80:50
+D:beautiful
+N:75:76:100:50
+D:well-loved
+
+N:76:54:100:50
+D:among the Firstborn. You are subject to the Doom of Mandos, which will surely be your undoing in the end.
+
+N:77:78:100:50
+D:You are descended from both Elves and Men. You bear a
+
+N:78:79:20:50
+D:heavy
+N:78:79:40:50
+D:glorious
+N:78:79:60:50
+D:tragic
+N:78:79:80:50
+D:fateful
+N:78:79:100:50
+D:dark
+
+N:79:80:100:50
+D:destiny. You have
+
+N:80:54:20:50
+D:a light shining on your brow.
+N:80:54:40:50
+D:an air of foreboding about you.
+N:80:54:60:50
+D:a silver circlet about your locks.
+N:80:54:80:50
+D:eyes full of wisdom.
+N:80:54:100:50
+D:a strange presence about you.
+
 

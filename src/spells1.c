@@ -482,6 +482,7 @@ void teleport_player_level(int who)
 	byte kind_of_quest = quest_check(p_ptr->depth);
 
 	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+	u32b f1, f2, f3, fn;
 
 	bool go_up = FALSE;
 	bool go_down = FALSE;
@@ -492,7 +493,8 @@ void teleport_player_level(int who)
 	/* Dead player? */
 	if (p_ptr->is_dead) return;
 
-	if (adult_ironman)
+	player_flags(&f1, &f2, &f3, &fn);
+	if (adult_ironman || (f2 & TR2_IRONMAN))
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -4693,7 +4695,7 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 			 * No "real" damage, but damage is
 			 * used to determine the length of the sleep.
 			 */
-			do_sleep = TRUE;
+			do_sleep = damage;
 			damage = 0;
 			break;
 		}

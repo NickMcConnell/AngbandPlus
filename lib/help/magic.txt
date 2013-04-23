@@ -16,13 +16,13 @@ true usefulness of some spells only becomes apparent with much experimentation.
 Gaining new spells:
      You learn new spells by pressing 'G', choosing a spellbook with unlearnt
 spells that are not too high level for you, and either choosing a spell (mages,
-rogues, druids, rangers, barbarians, berserkers) or having one granted to you 
+rogues, druids, rangers, barbarians, berserkers, sages) or having one granted to you 
 (priests, paladins).
 
 Casting spells:
      You may cast any previously learnt spell of your level or less.  You cast
 spells by typing 'm' or 'p', choosing a spellbook, and then a spell.  Casting a
-spell takes a full turn.  The first time you suceesfully cast a spell, you gain
+spell takes a full turn.  The first time you successfully cast a spell, you gain
 experience.
      If you don't have enough mana to cast that spell, you are more likely to
 fail; if you do succeed, you will faint from the exertion and sometimes lose a
@@ -31,7 +31,7 @@ point of constitution.
 Mana:
      Your mana depends on your level and your spell stat.  All spellcasters lose
 a point of mana for each pound of worn armour above a certain weight; mages are
-most affected.  In addition, mages and rogues lose a chunk of mana if they wear 
+most affected.  In addition, mages, sages and rogues lose a chunk of mana if they wear 
 gloves that do not provide free action or improve dexterity.  Messages
 will warn you whenever this happens.
      You'll notice you have more mana in Quickband than in NPP.
@@ -47,7 +47,7 @@ inherently hard to cast), the minimum level required to cast the spell compared
 to your current level, and your spell stat.  When stunned, all spells are harder
 to cast.  Only mages, druids, and priests can ever have spell failure rates 
 below 5%.
-     Priests suffer a substantial increase to prayer failure chance if they
+     Priests and sages suffer a substantial increase to prayer failure chance if they
 wield an unblessed edged weapon (a sword or polearm).
      You'll notice your spell failure rates are better in Quickband than in NPP.
 

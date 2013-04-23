@@ -664,24 +664,48 @@ s16b get_mon_num(int level, int y, int x)
 	/* Boost the level, but not for quest levels.  That has already been done */
 	if ((level > 0) && (!quest_level))
 	{
-		/* Occasional "nasty" monste */
-		if (one_in_(NASTY_MON))
+		if (fated())
 		{
-			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			/* Frequent "nasty" monster */
+			if (one_in_(20))
+			{
+				/* Pick a level bonus */
+				int d = level / 5 + 2;
 
-			/* Boost the level */
-			level += ((d < 5) ? d : 5);
+				/* Boost the level */
+				level += ((d>(level*2)) ? level*2 : d);
+			}
+			/* Occasional "nightmare" monster */
+			if (one_in_(100))
+			{
+				/* Pick a level bonus */
+				int d = level / 4 + 10;
+
+				/* Boost the level */
+				level += ((d>(level*3)) ? level*3 : d);
+			}
 		}
-
-		/* Occasional "nasty" monster */
-		if (one_in_(NASTY_MON))
+		else
 		{
-			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			/* Occasional "nasty" monste */
+			if (one_in_(NASTY_MON))
+			{
+				/* Pick a level bonus */
+				int d = level / 4 + 2;
 
-			/* Boost the level */
-			level += ((d < 5) ? d : 5);
+				/* Boost the level */
+				level += ((d < 5) ? d : 5);
+			}
+
+			/* Occasional "nasty" monster */
+			if (one_in_(NASTY_MON))
+			{
+				/* Pick a level bonus */
+				int d = level / 4 + 2;
+
+				/* Boost the level */
+				level += ((d < 5) ? d : 5);
+			}
 		}
 	}
 

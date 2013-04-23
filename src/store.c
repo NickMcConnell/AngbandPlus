@@ -1313,6 +1313,12 @@ static bool store_service_aux(int store_num, s16b choice)
 		  	/*Too expensive*/
 		  	if (!check_gold(price)) return (FALSE);
 
+		  	if (cp_ptr->flags & CF_ALL_KNOWING)
+		  	{
+				msg_format("You should take better care of your books! I will not fireproof it.");
+				return (FALSE);
+			}
+
 			/* Restrict choices to spell books */
 			item_tester_tval = cp_ptr->spell_book;
 
@@ -4197,7 +4203,7 @@ static void store_examine(int oid)
 	screen_load();
 
 	/* Hack -- Browse book, then prompt for a command */
-	if (o_ptr->tval == cp_ptr->spell_book)
+	if ((o_ptr->tval == cp_ptr->spell_book) || ((cp_ptr->flags & CF_ALL_KNOWING) && (o_ptr->tval == TV_MAGIC_BOOK || o_ptr->tval == TV_PRAYER_BOOK || o_ptr->tval == TV_DRUID_BOOK)))
 	{
 		/* Call the aux function */
 		do_cmd_browse_aux(o_ptr);
@@ -4543,6 +4549,8 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 {
 	bool leave = FALSE;
 
+	u32b f1, f2, f3, fn;
+
 	/* Take note of the store number from the terrain feature */
 	int this_store = current_store();
 
@@ -4557,6 +4565,12 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 	if (adult_no_stores || this_store==STORE_GUILD)
 	{
 		msg_print("The doors are locked.");
+		return;
+	}
+	player_flags(&f1, &f2, &f3, &fn);
+	if ((f2 & TR2_KINGLY) && (p_ptr->max_lev<10))
+	{
+		msg_print("The shopkeeper calls you a ruffian and tells you to get out.");
 		return;
 	}
 

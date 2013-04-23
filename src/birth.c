@@ -522,7 +522,7 @@ static void player_wipe(void)
 	altered_inventory_counter = 0;
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
+	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 300;
 
 
 }
@@ -841,7 +841,7 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
 	{
 		switch (step)
 		{
-			/* Buy base STR 17 */
+			/* Buy base STR 15 */
 			case 0:
 			{
 				if (!maxed[A_STR] && stats[A_STR] < 17)
@@ -857,10 +857,10 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
 				break;
 			}
 
-			/* Try and buy adj DEX of 18/10 */
+			/* Buy base DEX 15 */
 			case 1:
 			{
-				if (!maxed[A_DEX] && p_ptr->state.stat_top[A_DEX] < 18+10)
+				if (!maxed[A_DEX] && stats[A_DEX] < 17)
 				{
 					if (!buy_stat(A_DEX, stats, points_spent, points_left))
 						maxed[A_DEX] = TRUE;
@@ -873,17 +873,9 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
 				break;
 			}
 
-			/* If we can't get 18/10 dex, sell it back. */
+			/* Removed this step. */
 			case 2:
 			{
-				if (p_ptr->state.stat_top[A_DEX] < 18+10)
-				{
-					while (stats[A_DEX] > 10)
-						sell_stat(A_DEX, stats, points_spent, points_left);
-
-					maxed[A_DEX] = FALSE;
-				}
-
 				step++;
 			}
 
@@ -898,31 +890,65 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
 
 				if (cp_ptr->spell_book && (cp_ptr->spell_book != TV_BARBARIAN_BOOK))
 				{
-					int spell_stat;
+					int spell_stat = 0;
 
 					if (cp_ptr->spell_book == TV_MAGIC_BOOK) spell_stat = A_INT;
 					else if (cp_ptr->spell_book == TV_PRAYER_BOOK) spell_stat = A_WIS;
-					/*ugly hack for the druid and ranger class, which have 2 spell stats*/
-					else if (stats[A_INT] > stats[A_WIS]) spell_stat = A_WIS;
-					else /*(stats[A_WIS] >= stats[A_INT])*/ spell_stat = A_INT;
 
+					if (spell_stat>0){
 
-
-					while (!maxed[spell_stat] &&
-						   (pure || stats[spell_stat] < 16) &&
-						   points_spent[spell_stat] < points_trigger)
-					{
-						if (!buy_stat(spell_stat, stats, points_spent,
-									  points_left))
+						while (!maxed[spell_stat] &&
+							   (pure || stats[spell_stat] < 16) &&
+							   points_spent[spell_stat] < points_trigger)
 						{
-							maxed[spell_stat] = TRUE;
+							if (!buy_stat(spell_stat, stats, points_spent,
+										  points_left))
+							{
+								maxed[spell_stat] = TRUE;
+							}
+
+							if (points_spent[spell_stat] > points_trigger)
+							{
+								sell_stat(spell_stat, stats, points_spent,
+										  points_left);
+								maxed[spell_stat] = TRUE;
+							}
 						}
-
-						if (points_spent[spell_stat] > points_trigger)
+					} else {
+						points_trigger = points_trigger / 2;
+						while (!maxed[A_WIS] &&
+							   (pure || stats[A_WIS] < 16) &&
+							   points_spent[A_WIS] < points_trigger)
 						{
-							sell_stat(spell_stat, stats, points_spent,
-									  points_left);
-							maxed[spell_stat] = TRUE;
+							if (!buy_stat(A_WIS, stats, points_spent,
+										  points_left))
+							{
+								maxed[A_WIS] = TRUE;
+							}
+
+							if (points_spent[A_WIS] > points_trigger)
+							{
+								sell_stat(A_WIS, stats, points_spent,
+										  points_left);
+								maxed[A_WIS] = TRUE;
+							}
+						}
+						while (!maxed[A_INT] &&
+							   (pure || stats[A_INT] < 16) &&
+							   points_spent[A_INT] < points_trigger)
+						{
+							if (!buy_stat(A_INT, stats, points_spent,
+										  points_left))
+							{
+								maxed[A_INT] = TRUE;
+							}
+
+							if (points_spent[A_INT] > points_trigger)
+							{
+								sell_stat(A_INT, stats, points_spent,
+										  points_left);
+								maxed[A_INT] = TRUE;
+							}
 						}
 					}
 				}

@@ -109,7 +109,7 @@
 
 # Version stamp (required)
 
-V:2.0.2
+V:2.0.3
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -972,7 +972,7 @@ F:TUNNEL | SHOW_MODS
 
 N:97:& Pick~
 G:\:s1
-I:20:4:1
+I:20:4:2
 W:5:0:150:50
 P:0:1d3:0:0:0
 A:10/2
@@ -1532,7 +1532,7 @@ I:45:10:0
 W:20:0:2:500
 P:0:0d0:0:0:0
 A:15/1
-F:SUST_STR | SUST_CON | SUST_DEX
+F:SUST_STR | SUST_CON | SUST_DEX | EASY_KNOW
 D:It sustains your strength, dexterity and constitution.
 
 
@@ -1542,7 +1542,7 @@ I:45:11:0
 W:20:0:2:500
 P:0:0d0:0:0:0
 A:15/1
-F:SUST_INT | SUST_WIS 
+F:SUST_INT | SUST_WIS | EASY_KNOW 
 D:It sustains your intelligence and wisdom.
 
 
@@ -1746,7 +1746,7 @@ G:_:d
 I:55:4:0
 W:20:0:50:2000
 P:0:1d2:0:0:0
-A:20/1
+A:30/1
 D:It teleports you randomly with a maximum range of 100 squares. 
 
 
@@ -1832,7 +1832,7 @@ G:_:d
 I:55:14:0
 W:5:0:50:200
 P:0:1d2:0:0:0
-A:5/1
+A:10/1
 D:It detects all invisible monsters in the immediate area. 
 
 
@@ -2296,7 +2296,7 @@ D:It detects all secret doors and stairs in the immediate area.
 N:241:Perception
 G:-:d
 I:66:2:10
-W:50:0:15:13000
+W:50:0:15:5000
 P:0:1d1:0:0:0
 A:30/2
 F:IGNORE_ELEC | EASY_KNOW
@@ -2329,7 +2329,7 @@ D: any light-sensitive creatures within the radius of the spell.
 N:244:Magic Mapping
 G:-:d
 I:66:5:99
-W:65:0:15:10000
+W:65:0:15:3000
 P:0:1d1:0:0:0
 A:35/4
 F:EASY_KNOW
@@ -2362,7 +2362,7 @@ D: characteristics and abilities, or any probe any feature on the map.
 N:247:Curing
 G:-:d
 I:66:8:999
-W:65:0:15:15000
+W:65:0:15:4000
 P:0:1d1:0:0:0
 A:35/8
 F:IGNORE_ELEC | EASY_KNOW
@@ -2732,7 +2732,8 @@ W:15:0:5:125
 P:0:0d0:0:0:0
 A:15/1
 F:EASY_KNOW
-D:It attempts to enchant a piece of armor once. 
+D:It attempts to enchant a piece of armor once. Cannot enchant above
+D: +15, and unlikely to enchant over +9.
 
 
 N:284:Enchant Weapon To-Hit
@@ -2743,6 +2744,7 @@ P:0:0d0:0:0:0
 A:15/1
 F:EASY_KNOW
 D:It attempts to magically enhance a weapon's to-hit bonus once. 
+D: Cannot enchant above +15, and unlikely to enchant over +9.
 
 
 N:285:Enchant Weapon To-Dam
@@ -2753,6 +2755,7 @@ P:0:0d0:0:0:0
 A:15/1
 F:EASY_KNOW
 D:It attempts to magically enhance a weapon's to-dam bonus once. 
+D: Cannot enchant above +15, and unlikely to enchant over +9.
 
 
 N:286:*Enchant Armor*
@@ -2762,7 +2765,8 @@ W:50:0:5:500
 P:0:0d0:0:0:0
 A:50/1:50/1
 F:EASY_KNOW
-D:It attempts to enchant a piece of armor 2+1d3 times. 
+D:It attempts to enchant a piece of armor 2+1d3 times. Cannot 
+D: enchant above +15, and unlikely to enchant over +9.
 
 
 N:287:*Enchant Weapon*
@@ -2772,8 +2776,9 @@ W:50:0:5:500
 P:0:0d0:0:0:0
 A:50/1
 F:EASY_KNOW
-D:It attempts to magically enhance a weapon's to-dam and to-hit bonuses
-D: 1d3 times each. 
+D:It attempts to magically enhance a weapon's to-dam and to-hit 
+D: bonuses 1d3 times each. Cannot enchant above +15, and 
+D: unlikely to enchant over +9.
 
 
 N:288:Recharging

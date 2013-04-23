@@ -9868,10 +9868,10 @@ static bool cave_gen(void)
 	set_dungeon_type(DUNGEON_TYPE_DEFAULT);
 
 	/* Possible "destroyed" level */
-	if ((effective_depth(p_ptr->depth) > 10) && (one_in_(DUN_DEST))) destroyed = TRUE;
+	if ((effective_depth(p_ptr->depth) > 10) && (one_in_(DUN_DEST / (fated() ? 2 : 1)))) destroyed = TRUE;
 
 	/* Possible "fractal" level */
-	if (!destroyed && (effective_depth(p_ptr->depth) >= 15) && one_in_(DUN_FRACTAL)) fractal_level = TRUE;
+	if (!destroyed && (effective_depth(p_ptr->depth) >= 15) && one_in_(DUN_FRACTAL / (fated() ? 2 : 1))) fractal_level = TRUE;
 
 	/*Clear the level flag*/
 	level_flag = 0;
@@ -9908,7 +9908,7 @@ static bool cave_gen(void)
 		}
 	}
 
-	if ((adult_force_small_lev) || (one_in_(SMALL_LEVEL)) ||
+	if ((adult_force_small_lev) || (one_in_(SMALL_LEVEL / (fated() ? 2 : 1))) ||
 		(quest_on_level == QUEST_VAULT))
 	{
 		int l, m;
@@ -10042,7 +10042,7 @@ static bool cave_gen(void)
 			k = rand_int(100);
 
 			/* Attempt a very unusual room */
-			if (rand_int(DUN_UNUSUAL) < MIN(effective_depth(p_ptr->depth)+20,2*effective_depth(p_ptr->depth)))
+			if (rand_int(DUN_UNUSUAL / (fated() ? 2 : 1)) < MIN(effective_depth(p_ptr->depth)+20,2*effective_depth(p_ptr->depth)))
 			{
 				/* Type 8 -- Greater vault (10%) */
 				if ((k < 10) && !greater_vault && room_build(by, bx, 8))
@@ -10449,13 +10449,13 @@ int pick_dungeon_type(void)
 
 	/* Random themed level */
 	if (allow_themed_levels && (effective_depth(p_ptr->depth) >= 10) &&
-		!quest_check(p_ptr->depth) && one_in_(THEMED_LEVEL_CHANCE))
+		!quest_check(p_ptr->depth) && one_in_(THEMED_LEVEL_CHANCE / (fated() ? 2 : 1)))
 	{
 		return DUNGEON_TYPE_THEMED_LEVEL;
 	}
 
 	/* Random wilderness level */
-	if ((effective_depth(p_ptr->depth) > 10) && !quest_check(p_ptr->depth) && one_in_(WILDERNESS_LEVEL_CHANCE))
+	if ((effective_depth(p_ptr->depth) > 10) && !quest_check(p_ptr->depth) && one_in_(WILDERNESS_LEVEL_CHANCE / (fated() ? 2 : 1)))
 	{
 		return DUNGEON_TYPE_WILDERNESS;
 	}
@@ -10667,7 +10667,7 @@ void generate_cave(void)
 			}
 
 			/* Mega-Hack -- "auto-scum" */
-			if (auto_scum && (num < 100))
+			if ((auto_scum ||  fated()) && (num < 100))
 			{
 				/*count this level*/
 				num++;

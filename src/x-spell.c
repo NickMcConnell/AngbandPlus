@@ -164,7 +164,7 @@ int get_spell_index(const object_type *o_ptr, int index)
 	if ((sval < 0) || (sval >= BOOKS_PER_REALM)) return (-1);
 
 	/*Get the right spell realm*/
-	realm = get_player_spell_realm();
+	realm = get_player_spell_realm(o_ptr->tval);
 
 	return spell_list[realm][sval][index];
 }
@@ -182,10 +182,8 @@ static int beam_chance(void)
 
 
 /* Report if a spell needs a target*/
-bool spell_needs_aim(int tval, int spell)
+bool spell_needs_aim(int spell)
 {
-	if (tval == TV_MAGIC_BOOK)
-	{
 		switch (spell)
 		{
 			case SPELL_MAGIC_MISSILE:
@@ -217,18 +215,6 @@ bool spell_needs_aim(int tval, int spell)
 			case SPELL_METEOR_STORM:
 			case SPELL_MANA_BOLT:
 			case SPELL_WAIL_OF_THE_BANSHEE:
-			{
-				return TRUE;
-			}
-
-			default: return FALSE;
-		}
-	}
-
-	else if (tval == TV_DRUID_BOOK)
-	{
-		switch (spell)
-		{
 			case DRUID_ACID_BOLT:
 			case DRUID_POISON_CLOUD:
 			case DRUID_TURN_STONE_TO_MUD:
@@ -245,18 +231,6 @@ bool spell_needs_aim(int tval, int spell)
 			case DRUID_CHANNEL_LIGHTNING:
 			case DRUID_MASTER_ELEMENTS:
 			case DRUID_STEAL_POWERS:
-			{
-				return TRUE;
-			}
-			default: return FALSE;
-		}
-
-
-	}
-	else if (tval == TV_PRAYER_BOOK)
-	{
-		switch (spell)
-		{
 			case PRAYER_SHOCK_BOLT:
 			case PRAYER_SCARE_MONSTER:
 			case PRAYER_SUN_BEAM:
@@ -270,11 +244,8 @@ bool spell_needs_aim(int tval, int spell)
 
 			default: return FALSE;
 		}
-	}
 
-	/*OOPS*/
-	else return (FALSE);
-}
+};
 
 
 /*
@@ -1835,7 +1806,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		case DRUID_HEAL:
 		{
 			/*Not as powerful for Rangers*/
-			if (cp_ptr->flags & (CF_ZERO_FAIL)) dam = 300;
+			if ((cp_ptr->flags & CF_ZERO_FAIL) || (cp_ptr->flags & CF_ALL_KNOWING)) dam = 300;
 			else dam = 175;
 
 			if (name) return ("Heal");
@@ -2228,7 +2199,12 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			if (desc) return ("Removes standard and heavy curses.");
 			if (cast)
 			{
-				remove_curse(FALSE);
+				if (remove_curse(FALSE))
+				{
+					msg_print("You feel as if something is watching over you.");
+				} else {
+					msg_print("Nothing happens.");
+				}
 			}
 
 			break;
@@ -2382,6 +2358,8 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 	int dur, dur1;
 	int dice, sides;
 	int rad;
+
+	u32b f1, f2, f3, fn;
 
 	cptr extra = "";
 
@@ -2605,7 +2583,12 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc) return ("Removes standard curses.");
 			if (cast)
 			{
-				remove_curse(FALSE);
+				if (remove_curse(FALSE))
+				{
+					msg_print("You feel as if someone is watching over you.");
+				} else {
+					msg_print("Nothing happens.");
+				}
 			}
 
 			break;
@@ -3117,7 +3100,12 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc) return ("Removes standard and heavy curses.");
 			if (cast)
 			{
-				remove_curse(TRUE);
+				if (remove_curse(FALSE))
+				{
+					msg_print("You feel as if someone is watching over you.");
+				} else {
+					msg_print("Nothing happens.");
+				}
 			}
 
 			break;
@@ -3233,7 +3221,8 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (cast)
 			{
 				/* Ironman */
-				if (adult_ironman && !p_ptr->total_winner)
+				player_flags(&f1, &f2, &f3, &fn);
+				if ((adult_ironman || (f2 & TR2_IRONMAN)) && !p_ptr->total_winner)
 				{
 					msg_print("Nothing happens.");
 				}
@@ -3285,6 +3274,8 @@ cptr do_barbarian_spell(int mode, int spell, int dir)
 	int dice, sides;
 	int rad;
 	int i;
+
+	u32b f1, f2, f3, fn;
 
 	cptr extra = "";
 
@@ -3397,9 +3388,14 @@ cptr do_barbarian_spell(int mode, int spell, int dir)
 			if (desc) return ("Returns you immediately to town. You must be standing on a stairway up.");
 			if (cast)
 			{
+				player_flags(&f1, &f2, &f3, &fn);
 				if (!cave_up_stairs(p_ptr->py, p_ptr->px))
 				{
 					msg_print("You can only use this power if you are standing on a stairway up.");
+				}
+				else if (adult_ironman || (f2 & TR2_IRONMAN))
+				{
+					msg_print("In Ironman games you cannot climb!");
 				} else {
 					msg_print("You clamber up the shaft, sweating and grunting.");
 					message_flush();
@@ -3465,7 +3461,7 @@ cptr do_barbarian_spell(int mode, int spell, int dir)
 
 		case BARB_COLD_FURY:
 		{
-			if (name) return ("Cold Fury");
+			if (name) return ("Slow Revenge");
 			if (desc) return ("For the next 100 turns, your rage drains away more slowly.");
 			if (cast)
 			{
@@ -3655,19 +3651,24 @@ cptr cast_spell(int mode, int tval, int index, int dir)
  * We don't return any error because this value is going to be looked up in a table,
  * & would cause the game to crash
  */
-int get_player_spell_realm(void)
+int get_player_spell_realm(int tval)
 {
 	/* Mage or priest spells? */
-	if (cp_ptr->spell_book == TV_MAGIC_BOOK) 	return (MAGE_REALM);
-	if (cp_ptr->spell_book == TV_BARBARIAN_BOOK) 	return (BARBARIAN_REALM);
-	if (cp_ptr->spell_book == TV_PRAYER_BOOK)	return (PRIEST_REALM);
+	if (tval == TV_MAGIC_BOOK) 	return (MAGE_REALM);
+	if (tval == TV_BARBARIAN_BOOK) 	return (BARBARIAN_REALM);
+	if (tval == TV_PRAYER_BOOK)	return (PRIEST_REALM);
 	/*Druid Book*/								return (DRUID_REALM);
 }
 
 
 cptr get_spell_name(int tval, int spell)
 {
-	if (tval == TV_MAGIC_BOOK)
+	if (cp_ptr->flags & CF_ALL_KNOWING)
+		/* The name mega-hack does not do justice to this travesty */
+		if (spell<100) return do_mage_spell(MODE_SPELL_NAME, spell,0);
+		else if (spell<200) return do_priest_prayer(MODE_SPELL_NAME, spell,0);
+		else return do_druid_spell(MODE_SPELL_NAME, spell,0);
+	else if (tval == TV_MAGIC_BOOK)
 		return do_mage_spell(MODE_SPELL_NAME, spell,0);
 	else if (tval == TV_PRAYER_BOOK)
 		return do_priest_prayer(MODE_SPELL_NAME, spell, 0);

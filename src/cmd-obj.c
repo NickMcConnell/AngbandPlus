@@ -525,18 +525,18 @@ static void obj_cast(object_type *o_ptr, int item)
 	/* Track the object kind */
 	track_object(item);
 
-	if (cp_ptr->spell_book == TV_MAGIC_BOOK)
+	if (o_ptr->tval == TV_MAGIC_BOOK)
 	{
 		verb = "cast";
 		noun = "spell";
 
 	}
-	else if (cp_ptr->spell_book == TV_DRUID_BOOK)
+	else if (o_ptr->tval == TV_DRUID_BOOK)
 	{
 		verb = "recite";
 		noun = "spell";
 	}
-	else if (cp_ptr->spell_book == TV_BARBARIAN_BOOK)
+	else if (o_ptr->tval == TV_BARBARIAN_BOOK)
 	{
 		verb = "use";
 		noun = "power";
@@ -556,9 +556,9 @@ static void obj_cast(object_type *o_ptr, int item)
 		return;
 	}
 
-	trap_spell = is_trap_spell(cp_ptr->spell_book, spell);
+	trap_spell = is_trap_spell(o_ptr->tval, spell);
 
-	if (spell_needs_aim(cp_ptr->spell_book, spell) && !get_aim_dir(&dir, trap_spell))
+	if (spell_needs_aim(spell) && !get_aim_dir(&dir, trap_spell))
 		return;
 
 	cmd_insert(CMD_CAST, spell, dir);

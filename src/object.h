@@ -7,7 +7,7 @@
 /*
  * Maximum amount of starting equipment
  */
-#define MAX_START_ITEMS	4
+#define MAX_START_ITEMS	6
 
 
 /*
@@ -849,10 +849,10 @@
 #define TR2_SUST_DEX        0x00000008L /* Sustain DEX */
 #define TR2_SUST_CON        0x00000010L /* Sustain CON */
 #define TR2_SUST_CHR        0x00000020L /* Sustain CHR */
-#define TR2_TR2XXX1         0x00000040L /* (reserved) */
-#define TR2_TR2XXX2         0x00000080L /* (reserved) */
-#define TR2_TR2XXX3         0x00000100L /* (reserved) */
-#define TR2_TR2XXX4         0x00000200L /* (reserved) */
+#define TR2_KINGLY          0x00000040L /* (reserved) */
+#define TR2_IRONMAN         0x00000080L /* (reserved) */
+#define TR2_FATED           0x00000100L /* (reserved) */
+#define TR2_DOOMED          0x00000200L /* (reserved) */
 #define TR2_TR2XXX5         0x00000400L /* (reserved) */
 #define TR2_IM_ACID         0x00000800L /* Immunity to acid */
 #define TR2_IM_ELEC         0x00001000L /* Immunity to elec */
@@ -941,7 +941,7 @@
  */
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
-	 TR1_CON | TR1_CHR | TR1_TR1XXX1 | TR1_TR1XXX2 | \
+	 TR1_CON | TR1_CHR | TR1_TR1XXX2 | \
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
 

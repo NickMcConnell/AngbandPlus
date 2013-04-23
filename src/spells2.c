@@ -1127,7 +1127,9 @@ void self_knowledge(void)
 void set_recall(void)
 {
 	/* Ironman */
-	if (adult_ironman && !p_ptr->total_winner)
+	u32b f1, f2, f3, fn;
+	player_flags(&f1, &f2, &f3, &fn);
+	if ((adult_ironman || (f2 & TR2_IRONMAN)) && !p_ptr->total_winner)
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -1681,7 +1683,7 @@ static bool detect_monsters_evil(int y, int x)
 	}
 
 	/* Result */
-	return (TRUE);
+	return (FALSE);
 }
 
 /*
@@ -1725,7 +1727,7 @@ static bool detect_monsters_animals(int y, int x)
 	}
 
 	/* Result */
-	return (TRUE);
+	return (FALSE);
 }
 
 

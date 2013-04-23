@@ -388,8 +388,8 @@ int get_num_blows(const object_type *o_ptr, u32b f1, int str_add, int dex_add)
 
 	if (mult < 750) blows=1;
 	else if (mult < 1000) blows=2;
-	else if (mult < 1350) blows=3;
-	else if (mult < 1800) blows=4;
+	else if (mult < 1450) blows=3;
+	else if (mult < 1900) blows=4;
 	else blows = 5;
 
 	if ((o_ptr->weight/2 + 70) > (str*10)) blows -= 1;
@@ -1046,7 +1046,7 @@ bool object_info_out(const object_type *o_ptr,  bool extra_info)
 	bool something = FALSE;
 
 	/* Grab the object flags */
-	object_info_out_flags(o_ptr, &f1, &f2, &f3, &fn);
+	object_flags_known(o_ptr, &f1, &f2, &f3, &fn);
 
 	/* Describe the object */
 	if (describe_stats(o_ptr, f1)) something = TRUE;
@@ -1143,7 +1143,15 @@ bool screen_out_head(const object_type *o_ptr)
  */
 void object_info_screen(const object_type *o_ptr)
 {
-	bool has_description, has_info;
+	bool has_description, has_info, is_my_book;
+
+	if ((cp_ptr->flags & CF_ALL_KNOWING) && (o_ptr->tval==TV_PRAYER_BOOK || o_ptr->tval==TV_MAGIC_BOOK || o_ptr->tval==TV_DRUID_BOOK)){
+		is_my_book = TRUE;
+	} else if (o_ptr->tval != cp_ptr->spell_book){
+		is_my_book = FALSE;
+	} else {
+		is_my_book = TRUE;
+	}
 
 	/* Redirect output to the screen */
 	text_out_hook = text_out_to_screen;
@@ -1164,12 +1172,12 @@ void object_info_screen(const object_type *o_ptr)
 	{
 		text_out("\n\n   This item has not been identified.");
 	}
-	else if ((!has_description) && (!has_info) && (o_ptr->tval != cp_ptr->spell_book))
+	else if ((!has_description) && (!has_info) && !is_my_book)
 	{
 		text_out("\n\n   This item does not seem to possess any special abilities.");
 	}
 
-	if (o_ptr->tval != cp_ptr->spell_book)
+	if (!is_my_book)
 	{
 		char buf[200];
 		int price;
@@ -1211,7 +1219,7 @@ void object_info_screen(const object_type *o_ptr)
 	screen_load();
 
 	/* Hack -- Browse book, then prompt for a command */
-	if (o_ptr->tval == cp_ptr->spell_book)
+	if (is_my_book)
 	{
 		/* Call the aux function */
 		do_cmd_browse_aux(o_ptr);

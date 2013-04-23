@@ -1094,7 +1094,7 @@ static errr rd_player_spells(void)
 	/* Read the spell order */
 	for (i = 0; i < tmp16u; i++)
 	{
-		rd_byte(&p_ptr->spell_order[i]);
+		rd_u16b(&p_ptr->spell_order[i]);
 	}
 
 	/* Success */

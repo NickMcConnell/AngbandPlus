@@ -18,18 +18,21 @@ makes them flexible but not powerful adventurers.  Humans may choose any class.
 
 ***** <Half-Elf>
 Half-Elf:
-     The descendants of Elves and Humans, Half-elves are more intelligent and
-dexterous than humans, and are slightly better at many abilities, but are not so
-strong, tough, or good at melee.  Half-elves sustain dexterity inherently, and
-have some infravision.
+     A Half-Elf is a descendant of both kindreds; Elves and Men. They are rare
+and very special individuals, and their steps are guided by destiny.
+Half-elves have all-round good stats; their skills are better than Men (but not
+as good as Elves). Their dexterity is sustained and they are native to forest.
+(A half-elf will find more artifacts, vaults, excellent items and special levels,
+but will also find dangerous out-of-depth monsters, which will probably kill
+them eventually. You have been warned.)
 
 ***** <Elf>
 Elf:
      Known as the Elder Race, and as the First-Born, Elves are famed for their
-knowledge and craftsmanship.  They are somewhat weaker, less wise, and less
-robust than humans, but have superior intelligence and strong magical abilities.
+knowledge and craftsmanship.  They are somewhat weaker and less robust than 
+humans, but have superior wisdom and intelligence and strong magical abilities.
 They are fond of bows, somewhat weak in melee, and have some infravision.  They
-sustain dexterity and resist light inherently.  
+sustain dexterity and resist light inherently. They are native to forest.
 
 ***** <Hobbit>
 Hobbit:
@@ -80,22 +83,32 @@ have innate infravision and always have their strength sustained.
 
 ***** <Dunadan>
 Dunadan:
-     Dunedain are a race of hardy men from the West.  This elder race surpasses
-the abilities of other humans in every field and has superior vital statistics.
-However, being men of the world, very little is new to them, and levels are very
-hard to gain.  Their constitution cannot be reduced.
+	Dunedain are the descendants of the people of Numenor, who have
+long lived among the shorter lived peoples of Middle Earth.
+At first they may appear ordinary, and they are disliked by many
+because of their nomadic existence. However, they have the blood
+of Elros Half-Elven in them, and as the game goes on they will
+slowly awaken to their destiny as one of the Kings of Men.
+(A Dunedain has mediocre stats at CL 1, cannot enter shops, and 
+needs many XP to gain levels, but at CL 10 they can shop and 
+their stats begin to increase - a randomly chosen stat increases
+by 2 points at levels 12, 15, 18, 21, 24, 27, 30, 33 and 35.)
 
 ***** <High-Elf>
 High-Elf:
-      High-Elves are descended from those among the Elves who heard and answered
-the call from the Valar at the very beginning of time, before the sun and moon
-were made, and lived in the Blessed Realm for long ages before returning to
-mortal lands.  They are masters of all abilities, and are agile and intelligent,
-although their wisdom is a little suspect.  No other race is quite as good at
-magic, and none is so skilled with missile weapons.  High-elves are able to see
-the unseen, have good infravision, and have innate resistance to light.
-However, having lived so long and learnt so much, it is very hard for them to
-advance further.  
+The Noldor travelled from Middle-Earth to Valinor to dwell among the 
+Valar in bliss. They returned to Middle-Earth to seek the Silmarils, 
+but in doing so they had to slay their own kin, the Teleri. Though 
+they are mighty and beautiful, the curse of Mandos is on them, and 
+nothing they do will come to a good end. They are doomed by their 
+own greed and pride. 
+High-elves can see invisible (the Unseen Realm), are resistant to 
+light and native to forest.
+(As one of the Noldor, you will find the early game easy. However,
+once you reach CL 27, you will begin to be affected by the Doom of
+Mandos. This can have several nasty effects at random intervals. 
+Try to finish the game quickly or you will probably die an unfair
+death. You have been warned!) 
 
 ***** <Kobold>
 Kobold:
@@ -104,6 +117,18 @@ They are dexterous and tough, but ugly, and have relatively few hitpoints.
 Kobolds can see in the dark better than almost any other race, are very
 stealthy, and -- their most important advantage -- are intrinsically resistant
 to poisons of all kinds.
+
+***** <Maia>
+Maia:
+     The Maiar were created by Iluvatar in the beginning of time. Among their
+number are Gandalf, Saruman, Sauron, Melian, and the Balrog of Moria. 
+They are powerful and skilled at all arts. Sometimes they are dispatched by the 
+Valar to do some important mission in Middle-Earth, but only a limited time 
+is given to them. In your case, you have only a little time to complete your
+mission. You must proceed directly to the bottom of the dungeon to bring 
+Saruman to justice.
+(As one of the Maiar, you have great stats and skills, and you can see invisible,
+but you must play ironman - you can never go up, only down.)
 
 
 ====== Classes ======
@@ -180,6 +205,8 @@ Most of his other skills are average:  while his saving throw benefits from his
 divine alliance, and his missile skill from his prayers, he is poor at magical
 devices, stealth, and searching.  A paladin has slowish but detailed pseudo-ID.
 Wisdom is his prayer stat.
+(The Paladin gets 15% extra XP for killing evil monsters, but only 50% XP for
+killing non-evil monsters.)
 
 ***** <Brigand>
 Brigand:
@@ -225,6 +252,15 @@ and he does not know how to use wands _or_ staffs. He also aggravates
 monsters, who will come from a long way off to fight him.
 He is native to ice.
 
+***** <Sage>
+Sage:
+      A Sage is the most learned of the classes. He can cast mage, priest 
+or druid spells. His intelligence decides how many spells he has and what 
+his failure rates are, but his wisdom decides how many SP he has.
+His failure rates cannot drop below 5%; also, he cannot use edged weapons 
+(like a priest) or gauntlets (like a mage). 
+He is even weaker in combat than a druid.
+
 
 ====== Modifier Tables ======
 
@@ -232,28 +268,35 @@ Vital statistics:
 
                   STR   INT   WIS   DEX   CON   CHR  HD (base)  XP/level  Infra
      Human         0     0     0     0     0     0      10        +0%     None
-     Half-Elf      0    +1    -1    +1    -1    +1      10       +10%    20 feet
-     Elf          -1    +2    -1    +1    -2    +1       9       +20%    30 feet
-     Hobbit       -2    +2    +1    +3    +2    +1       7       +10%    40 feet
+     Half-Elf     +2    +2    +2    +2    +2    +2      10       +80%    20 feet
+     Elf          -1    +2    +1    +1    -2    +1       9       +20%    30 feet
+     Hobbit       -2    +1    +1    +3    +2    +1       7       +10%    40 feet
      Gnome        -1    +2     0    +2    +1    -2       8       +25%    40 feet
      Dwarf        +2    -3    +2    -2    +2    -3      11       +20%    50 feet
      Half-Orc     +2    -1     0     0    +1    -4      10       +10%    30 feet
      Half-Troll   +4    -4    -2    -4    +3    -6      12       +20%    30 feet
-     Dunadan      +1    +2    +2    +2    +3    +2      10      +100%     None
-     High-Elf     +1    +3    -1    +3    +0    +3      10      +150%    40 feet
+     Dunadan (*)   0     0     0     0     0     0      10       +50%     None
+     High-Elf     +1    +3    +1    +3    +1    +3       9       +60%    40 feet
      Kobold       -1    -1     0    +2    +2    -2       8       +15%    50 feet
+     Maia         +3    +3    +3    +3    +3    +3      11      +100%    30 feet
+
+(*) The Dunadan gains random stat boosts at higher levels.
 
                   STR   INT   WIS   DEX   CON   CHR  HD (bonus) XP/level
-     Warrior      +5    -2    -2    +2    +2    -1       9        +0%
+     Warrior      +5    -2    -2    +2    +2    -1       6        +0%
      Mage         -5    +3     0    +1    -2    +1       0       +30%
      Priest       -1    -3    +3    -1     0    +2       2       +20%
-     Rogue        +2    +1    -2    +3    +1    -1       6       +25%
-     Ranger       +2    +2     0    +1    +1    +1       4       +30%
-     Paladin      +3    -3    +1     0    +2    +2       6       +35%
-     Brigand      +3    -2    -2    +3    +2    -3       7       +15%
+     Rogue        +2    +1    -2    +3    +1    -1       4       +25%
+     Ranger       +2    +2     0    +1    +1    +1       3       +30%
+     Paladin      +3    -3    +1     0    +2    +2       4   (+) +35%
+     Brigand      +3    -2    -2    +3    +2    -3       5       +15%
      Druid        -2    +3    +3    -2    -1    +1       1       +30%
-     Barbarian    +3    -3    -1    +2    +2    -3       7       +15%
-     Berserker    +5    -5    -5    +1    +3    -5      10       +25%
+     Barbarian    +3    -3    -1    +2    +2    -3       5       +15%
+     Berserker    +5    -5    -5    +1    +3    -5       7       +25%
+     Sage         -5    +3    +3    -2    -2     0       1       +40%
+
+(+) The Paladin gets extra XP for killing evil monsters, but less XP for killing
+non-evil monsters.
 
      To get the total hit dice and experience modifier, add the race and class
 numbers together.  For example:  A Dwarven Priest has a hit die of 11 + 2 = 13,
@@ -266,16 +309,17 @@ Abilities:
 
                 disarm  device   save   stealth  search  percep  melee  missile
      Human         5       5       5       0       5       5       5       5
-     Half-Elf      6       6       6      +1       7       6       4       6
+     Half-Elf      6       8       8      +2       7       6       6       8
      Elf           7       7       7      +1       8       7       3       8
      Hobbit       10      10      10      +4      10      10       1       9
      Gnome         8       9       9      +3       7       8       2       8
      Dwarf         6       8       8      -1       8       5       9       5
      Half-Orc      4       4       3      -1       5       4       8       4
      Half-Troll    3       2       1      -2       4       3      10       3
-     Dunadan       7       7       0      +2       6       8       9       7
+     Dunadan       7       7       0      +2       6       8       7       7
      High-Elf      7      10      10      +3       6       9       7      10
      Kobold        8       7       5      +4       7      10       3       7
+     Maia          8      10      10      +3       7      10       9       9
 
      Abilities are ranked on a comparative scale ranging from 1 to 10, except
 for stealth, which is an exact value.
@@ -291,6 +335,7 @@ for stealth, which is an exact value.
      Druid       4 - 4   7 - 8   8 - 7    +2       6       5     1 - 1   1 - 1
      Barbarian   3 - 3   2 - 2   3 - 5    +3       5       3     6 - 9   6 - 8
      Berserker   2 - 2   1 - 1   2 - 2    +0       5       3     9 -10+  1 - 3
+     Druid       4 - 4   7 - 8   8 - 7    +2       6       5     0 - 0   1 - 1
 
 
      Value for classes are starting ability - final ability.  Note that prayers

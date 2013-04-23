@@ -205,7 +205,12 @@ void display_player_xtra_info(void)
 	/* Age */
 	row = 2;
 	Term_putstr(col, row, -1, TERM_WHITE, "Age");
-	Term_putstr(col2, row, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age));
+	if (p_ptr->age < 255)
+	{
+		Term_putstr(col2, row, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age));
+	} else {
+		Term_putstr(col2, row, -1, TERM_L_BLUE, format("****"));
+	}
 
 	/* Height */
 	++row;

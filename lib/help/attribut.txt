@@ -33,9 +33,9 @@ considerable).
 Spellpoints:
      If you use magic, you will also have spellpoints, or mana.  Your maximum
 mana depends on your level and your intelligence (if you are a mage, druid, 
-rogue, or ranger) and/or wisdom (if you are a druid, ranger, priest or paladin).  
+rogue, or ranger) and/or wisdom (if you are a druid, ranger, priest, paladin or sage).  
 Ways to recover mana faster than by resting are rare and greatly desired.
-     Mana goes down if you wear heavy armour.  Mages and rogues also
+     Mana goes down if you wear heavy armour.  Mages, rogues and sages also
 lose a chunk of mana if they wear most (but not all) kinds of gloves.
 
 Rage:
@@ -104,11 +104,13 @@ without being slowed down, and to wield heavier weapons effectively.
 Intelligence:
      Intelligent characters use magic devices, pick locks, and disarm traps more
 effectively.
-     If you are using spells, intelligence is your primary stat.  It controls
+     If you are a mage or rogue, intelligence is your primary stat.  It controls
 how many spells you may learn, the amount of mana you have, and your spell
-failure rate.  If you are using prayers, wisdom controls all of these things.
-For druids, it is a combination of intelligence and wisdom.
+failure rate.  If you are a priest or paladin, wisdom controls all of these things.
+For druids and rangers, it is a combination of intelligence and wisdom.
      If you are a berserker or barbarian, your stats do not affect your rage.
+     A sage's mana depends on their wisdom, but their spells and failure rates depend
+on their intelligence.
 
 Wisdom:
      Wise characters have a better chance of resisting magical spells cast upon
