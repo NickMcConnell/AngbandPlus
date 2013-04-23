@@ -48,3 +48,8 @@
  * replacement) of skills.
  */
 #define SF_SAVE_MAX_SKILLS 0x0200
+
+/*
+ * Reorganise k_info.txt a bit
+ */
+#define SF_K_INFO_1 0x0400

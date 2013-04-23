@@ -2791,7 +2791,7 @@ static bool vault_aux_chapel(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Require "shaman"*/
-	if (!strstr((r_name + r_ptr->name),"haman"))
+	if (!strstr(monster_desc_aux(0, r_ptr, 1, 0),"haman"))
 	{
 		return (FALSE);
 	}
@@ -2811,7 +2811,7 @@ static bool vault_aux_cult(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Require "shaman"*/
-	if (!strstr((r_name + r_ptr->name),"Cult"))
+	if (!strstr(monster_desc_aux(0, r_ptr, 1, 0),"Cult"))
 	{
 		return (FALSE);
 	}
@@ -3584,7 +3584,7 @@ static void build_type6(int yval, int xval)
             for (i = 0; i < 8; i++)
             {
                 /* Message */
-                msg_print(r_name + r_info[what[i]].name);
+				msg_print(monster_desc_aux(0, r_info+what[i], 1, 0));
             }
         }
 	}

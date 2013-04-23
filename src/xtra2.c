@@ -4719,59 +4719,58 @@ void gain_level_reward(int chosen_reward)
             msg_print("'Thy deed hath earned thee a worthy blade.'");
                 /* Get local object */
                 q_ptr = &forge;
-                        dummy = TV_SWORD;
                         switch(randint(skill_used))
                         {
                             case 1: case 2: case 0:
-                            dummy2 = SV_DAGGER;
+                            dummy2 = OBJ_DAGGER;
                             break;
                             case 3: case 4:
-                            dummy2 = SV_MAIN_GAUCHE;
+                            dummy2 = OBJ_MAIN_GAUCHE;
                             break;
                             case 5: case 6:
-                            dummy2 = SV_RAPIER;
+                            dummy2 = OBJ_RAPIER;
                             break;
                             case 7: case 8:
-                            dummy2 = SV_SMALL_SWORD;
+                            dummy2 = OBJ_SMALL_SWORD;
                             break;
                             case 9: case 10:
-                            dummy2 = SV_SHORT_SWORD;
+                            dummy2 = OBJ_SHORT_SWORD;
                             break;
                             case 11: case 12: case 13:
-                            dummy2 = SV_SABRE;
+                            dummy2 = OBJ_SABRE;
                             break;
                             case 14: case 15: case 16:
-                            dummy2 = SV_CUTLASS;
+                            dummy2 = OBJ_CUTLASS;
                             break;
                             case 17:
-                            dummy2 = SV_TULWAR;
+                            dummy2 = OBJ_TULWAR;
                             break;
                             case 18: case 19: case 20:
-                            dummy2 = SV_BROAD_SWORD;
+                            dummy2 = OBJ_BROAD_SWORD;
                             break;
                             case 21: case 22: case 23:
-                            dummy2 = SV_LONG_SWORD;
+                            dummy2 = OBJ_LONG_SWORD;
                             break;
                             case 24: case 25: case 26:
-                            dummy2 = SV_SCIMITAR;
+                            dummy2 = OBJ_SCIMITAR;
                             break;
                             case 27:
-                            dummy2 = SV_KATANA;
+                            dummy2 = OBJ_KATANA;
                             break;
                             case 28: case 29:
-                            dummy2 = SV_BASTARD_SWORD;
+                            dummy2 = OBJ_BASTARD_SWORD;
                             break;
                             case 30: case 31:
-                            dummy2 = SV_TWO_HANDED_SWORD;
+                            dummy2 = OBJ_TWO_HANDED_SWORD;
                             break;
                             case 32:
-                            dummy2 = SV_EXECUTIONERS_SWORD;
+                            dummy2 = OBJ_EXECUTIONERS_SWORD;
                             break;
                             default:
-                            dummy2 = SV_BLADE_OF_CHAOS;
+                            dummy2 = OBJ_BLADE_OF_CHAOS;
                         }
 
-                object_prep(q_ptr, lookup_kind(dummy, dummy2));
+                object_prep(q_ptr, dummy2);
                 q_ptr->to_h = 3 + (randint((dun_depth)))%10;
                 q_ptr->to_d = 3 + (randint((dun_depth)))%10;
                 random_resistance(q_ptr, FALSE, ((randint(34))+4));

@@ -647,10 +647,11 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
  * Do a vstrnfmt (see above) into a (growable) static buffer.
  * This buffer is usable for very short term formatting of results.
  */
-static char *vformat(cptr fmt, va_list vp)
+char *vformat(cptr fmt, va_list vp)
 {
 	static char *format_buf = NULL;
 	static huge format_len = 0;
+	uint buf_len;
 
 	/* Initial allocation */
 	if (!format_buf)
@@ -661,6 +662,9 @@ static char *vformat(cptr fmt, va_list vp)
 
 	/* Null format yields last result */
 	if (!fmt) return (format_buf);
+
+	/* Note the end of the string. */
+	buf_len = strlen(format_buf);
 
 	/* Keep going until successful */
 	while (1)
@@ -673,10 +677,18 @@ static char *vformat(cptr fmt, va_list vp)
 		/* Success */
 		if (len < format_len-1) break;
 
-		/* Grow the buffer */
-		KILL(format_buf);
-		format_len = format_len * 2;
-		C_MAKE(format_buf, format_len, char);
+		else
+		{
+			/* 
+			 * Grow the buffer, keeping the older string so that
+			 * format("%s...", format(0), ...) gives the expected results.
+			 */
+			char *old_buf = format_buf;
+			format_len = format_len * 2;
+			C_MAKE(format_buf, format_len, char);
+			strncpy(format_buf, old_buf, buf_len);
+			KILL(old_buf);
+		}
 	}
 
 	/* Return the new buffer */

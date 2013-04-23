@@ -305,7 +305,7 @@
  */
 #ifdef SET_UID
 # if !defined(HPUX) && !defined(ULTRIX) && !defined(SOLARIS) && \
-     !defined(SGI) && !defined(ISC) && !defined(__STRICT_ANSI__)
+     !defined(SGI) && !defined(ISC)
 #  define HAS_USLEEP
 # endif
 #endif

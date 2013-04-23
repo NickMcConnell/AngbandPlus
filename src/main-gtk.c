@@ -26,6 +26,11 @@
 
 #ifdef USE_GTK
 
+#include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+
+#include "externs.h"
+
 const char help_gtk[] =
 {
 	"To use GTK toolkit\n"
@@ -34,11 +39,6 @@ const char help_gtk[] =
 #endif /* USE_GRAPHICS */
 	"-n#   Number of terms to use\n"
 };
-
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-
-#include "externs.h"
 
 /*
  * Number of pixels inserted between the menu bar and the main screen

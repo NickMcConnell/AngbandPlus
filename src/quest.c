@@ -76,16 +76,11 @@ void print_quest_message(void)
 {
 	int q_idx = get_quest_number();
 	monster_race	*r_ptr = &r_info[q_list[q_idx].r_idx];
-	cptr name = (r_name + r_ptr->name);
 	int q_num = q_list[q_idx].max_num - q_list[q_idx].cur_num_known;
+	byte flag = (q_list[q_idx].max_num == 1) ? MDF_DEF : MDF_NUMBER;
+	cptr name = monster_desc_aux(0, r_ptr, q_num, flag);
 
-	if (q_list[q_idx].max_num == 1)
-		msg_format("You still have to kill %s.", name);
-	else
-		if (q_num > 1)
-			msg_format("You still have to kill %d %ss.", q_num, name);
-		else
-			msg_format("You still have to kill 1 %s.", name);
+	msg_format("You still have to kill %s.", name);
 }
 
 /* Array of places to find an inscription */
@@ -106,20 +101,24 @@ void quest_discovery(void)
 	int 	q_idx = get_quest_number();
 	monster_race	*r_ptr = &r_info[q_list[q_idx].r_idx];
 	int q_num = q_list[q_idx].max_num;
-	char name[80];
+	C_TNEW(name, MNAME_MAX, char);
 
 	/* Get a properly formatted name. Note that no monster will actually
 	be given an article as only uniques are currently allowed to be
 	solitary quest monsters. */
-	strcpy(name, r_name + r_ptr->name);
-	full_name(name, q_num > 1, !(r_ptr->flags1 & RF1_UNIQUE) && (q_num == 1), (r_ptr->flags4 & RF4_ODD_ART) != 0);
-
-        msg_print (find_quest[rand_range(0,4)]);
-	msg_print (NULL);
-	if (q_num == 1)
-		msg_format("Beware, this level is protected by %s!", name);
+	byte flags = 0;
+	if (q_num > 1)
+		flags = MDF_NUMBER;
+	else if (~r_ptr->flags1 & RF1_UNIQUE)
+		flags = MDF_DEF;
 	else
-		msg_format("Be warned, this level is guarded by %d %s!", q_num, name);
+		flags = MDF_INDEF;
+	monster_desc_aux(name, r_ptr, q_num, flags);
+
+	msg_print (find_quest[rand_range(0,4)]);
+	msg_print (NULL);
+	msg_format("Beware, this level is protected by %s!", name);
+	TFREE(name);
 }
 
 /*

@@ -294,6 +294,21 @@ errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b 
 }
 
 /*
+ * A macro to cause this particular set of maps to be reset to default
+ * if required.
+ */
+#define reset_check(x_info, max) \
+	if (!strcmp(buf+2, "---reset---")) \
+	{ \
+		for (i = 0; i < max; i++) \
+		{ \
+			x_info[i].x_attr = x_info[i].d_attr; \
+			x_info[i].x_char = x_info[i].d_char; \
+		} \
+		return 0; \
+	} \
+
+/*
  * Parse a sub-file of the "extra info" (format shown below)
  *
  * Each "action" line has an "action symbol" in the first column,
@@ -316,6 +331,10 @@ errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b 
  *
  * Parse another file recursively, see below for details
  *   %:<filename>
+ *
+ * Specify the save file version against which the pref file was created.
+ *   O:<num>
+ * (This is only currently used for object attr/chars.)
  *
  * Specify the attr/char values for "monsters" by race index
  *   R:<num>:<a>:<c>
@@ -356,12 +375,11 @@ errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b 
  * Specify a default set of initial statistics for spend_points
  *   D:<sex>:<race>:<class>:<maximise_mode>:<Str>:<Int>:<Wis>:<Dex>:<Con>:<Chr>:<Name>
  */
-errr process_pref_file_aux(char *buf)
+errr process_pref_file_aux(char *buf, u16b *sf_flags)
 {
 	int i, j, n1, n2;
 
 	char *zz[16];
-
 
 	/* Skip "empty" lines */
 	if (!buf[0]) return (0);
@@ -377,290 +395,284 @@ errr process_pref_file_aux(char *buf)
 
 
 	/* Process "%:<fname>" */
-	if (buf[0] == '%')
+	switch (buf[0])
 	{
-		/* Attempt to Process the given file */
-		return (process_pref_file(buf + 2));
-	}
-
-
-/*
- * A macro to cause this particular set of maps to be reset to default
- * if required.
- */
-#define reset_check(x_info, max) \
-	if (!strcmp(buf+2, "---reset---")) \
-	{ \
-		for (i = 0; i < max; i++) \
-		{ \
-			x_info[i].x_attr = x_info[i].d_attr; \
-			x_info[i].x_char = x_info[i].d_char; \
-		} \
-		return 0; \
-	} \
-
-	/* Process "R:<num>:<a>/<c>" -- attr/char for monster races */
-	if (buf[0] == 'R')
-	{
-		reset_check(r_info, MAX_R_IDX)
-		if (tokenize(buf+2, 3, zz) == 3)
+		/* Process %:<filename> -- process a given file. */
+		case '%': 
 		{
-			monster_race *r_ptr;
-			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			if (i >= MAX_R_IDX) return (1);
-			r_ptr = &r_info[i];
-			if (n1) r_ptr->x_attr = n1;
-			if (n2) r_ptr->x_char = n2;
-			return (0);
+			/* Attempt to Process the given file */
+			return (process_pref_file(buf + 2));
 		}
-	}
-
-
-	/* Process "K:<num>:<a>/<c>"  -- attr/char for object kinds */
-	else if (buf[0] == 'K')
-	{
-		reset_check(k_info, MAX_K_IDX)
-		if (tokenize(buf+2, 3, zz) == 3)
+		/* Process O:<version> -- save file version for this file. */
+		case 'O': 
 		{
-			object_kind *k_ptr;
-			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			if (i >= MAX_K_IDX) return (1);
-			k_ptr = &k_info[i];
-			if (n1) k_ptr->x_attr = n1;
-			if (n2) k_ptr->x_char = n2;
-			return (0);
+			*sf_flags = strtol(buf+2, NULL, 0);
+			return 0;
 		}
-	}
-
-	/* Process "U:<p_id>:<s_id>:<a>/<c>"  -- attr/char for unidentified objects */
-	else if (buf[0] == 'U')
-	{
-		reset_check(u_info, MAX_U_IDX)
-		if (tokenize(buf+2, 4, zz) == 4)
+		/* Process "R:<num>:<a>/<c>" -- attr/char for monster races */
+		case 'R':
 		{
-			unident_type *u_ptr;
-			i = (huge)strtol(zz[0], NULL, 0);
-			j = (huge)strtol(zz[1], NULL, 0);
-			n1 = strtol(zz[2], NULL, 0);
-			n2 = strtol(zz[3], NULL, 0);
-			if (i < 0 || i > 255 || j < 0 || j > 255) return (1);
-
-			i = lookup_unident(i,j);
-			if (i >= MAX_U_IDX) return (1);
-			if (i < 0) return (1);
-			u_ptr = &u_info[i];
-			if (n1) u_ptr->x_attr = n1;
-			if (n2) u_ptr->x_char = n2;
-			return (0);
-		}
-	}
-
-	/* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
-	else if (buf[0] == 'F')
-	{
-		reset_check(f_info, MAX_F_IDX)
-		if (tokenize(buf+2, 3, zz) == 3)
-		{
-			feature_type *f_ptr;
-			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			if (i >= MAX_F_IDX) return (1);
-			f_ptr = &f_info[i];
-			if (n1) f_ptr->x_attr = n1;
-			if (n2) f_ptr->x_char = n2;
-			return (0);
-		}
-	}
-
-
-	/* Process "E:<tv>:<a>/<c>" -- attr/char for equippy chars */
-	else if (buf[0] == 'E')
-	{
-		if (tokenize(buf+2, 3, zz) == 3)
-		{
-			j = (byte)strtol(zz[0], NULL, 0) % 128;
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			if (n1) tval_to_attr[j] = n1;
-			if (n2) tval_to_char[j] = n2;
-			return (0);
-		}
-	}
-
-
-	/* Process "A:<str>" -- save an "action" for later */
-	else if (buf[0] == 'A')
-	{
-		text_to_ascii(macro__buf, buf+2);
-		return (0);
-	}
-
-	/* Process "P:<str>" -- normal macro */
-	else if (buf[0] == 'P')
-	{
-		char tmp[1024];
-		text_to_ascii(tmp, buf+2);
-		macro_add(tmp, macro__buf);
-		return (0);
-	}
-
-
-	/* Process "C:<str>" -- create keymap */
-	else if (buf[0] == 'C')
-	{
-		int mode;
-
-		char tmp[1024];
-
-		/* Hack - handle ---reset--- as a special case */
-		if (!strcmp(buf+2, "---reset---"))
-		{
-			for (i = 0; i < MAX_UCHAR; i++)
+			reset_check(r_info, MAX_R_IDX)
+			if (tokenize(buf+2, 3, zz) == 3)
 			{
-				for (mode = 0; mode < KEYMAP_MODES; mode++)
+				monster_race *r_ptr;
+				i = (huge)strtol(zz[0], NULL, 0);
+				n1 = strtol(zz[1], NULL, 0);
+				n2 = strtol(zz[2], NULL, 0);
+				if (i >= MAX_R_IDX) return (1);
+				r_ptr = &r_info[i];
+				if (n1) r_ptr->x_attr = n1;
+				if (n2) r_ptr->x_char = n2;
+				return (0);
+			}
+			else return (1);
+		}
+		/* Process "K:<num>:<a>/<c>"  -- attr/char for object kinds */
+		case 'K':
+		{
+			reset_check(k_info, MAX_K_IDX)
+			if (tokenize(buf+2, 3, zz) == 3)
+			{
+				object_kind *k_ptr;
+				i = (huge)strtol(zz[0], NULL, 0);
+				if (i < 0 || i > MAX_SHORT) return (1);
+				i = convert_k_idx(i, sf_flags[0], sf_flags_now);
+				n1 = strtol(zz[1], NULL, 0);
+				n2 = strtol(zz[2], NULL, 0);
+				if (i >= MAX_K_IDX) return (1);
+				k_ptr = &k_info[i];
+				if (n1) k_ptr->x_attr = n1;
+				if (n2) k_ptr->x_char = n2;
+				return (0);
+			}
+			else return (1);
+		}
+		/* Process "U:<p_id>:<s_id>:<a>/<c>"  -- attr/char for unidentified objects */
+		case 'U':
+		{
+			reset_check(u_info, MAX_U_IDX)
+			if (tokenize(buf+2, 4, zz) == 4)
+			{
+				unident_type *u_ptr;
+				i = (huge)strtol(zz[0], NULL, 0);
+				j = (huge)strtol(zz[1], NULL, 0);
+				n1 = strtol(zz[2], NULL, 0);
+				n2 = strtol(zz[3], NULL, 0);
+				if (i < 0 || i > 255 || j < 0 || j > 255) return (1);
+
+				i = lookup_unident(i,j);
+				if (i >= MAX_U_IDX) return (1);
+				if (i < 0) return (1);
+				u_ptr = &u_info[i];
+				if (n1) u_ptr->x_attr = n1;
+				if (n2) u_ptr->x_char = n2;
+				return (0);
+			}
+	}
+
+		/* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
+		case 'F':
+		{
+			reset_check(f_info, MAX_F_IDX)
+			if (tokenize(buf+2, 3, zz) == 3)
+			{
+				feature_type *f_ptr;
+				i = (huge)strtol(zz[0], NULL, 0);
+				n1 = strtol(zz[1], NULL, 0);
+				n2 = strtol(zz[2], NULL, 0);
+				if (i >= MAX_F_IDX) return (1);
+				f_ptr = &f_info[i];
+				if (n1) f_ptr->x_attr = n1;
+				if (n2) f_ptr->x_char = n2;
+				return (0);
+			}
+		}
+
+
+		/* Process "E:<tv>:<a>/<c>" -- attr/char for equippy chars */
+		case 'E':
+		{
+			if (tokenize(buf+2, 3, zz) == 3)
+			{
+				j = (byte)strtol(zz[0], NULL, 0) % 128;
+				n1 = strtol(zz[1], NULL, 0);
+				n2 = strtol(zz[2], NULL, 0);
+				if (n1) tval_to_attr[j] = n1;
+				if (n2) tval_to_char[j] = n2;
+				return (0);
+			}
+		}
+
+
+		/* Process "A:<str>" -- save an "action" for later */
+		case 'A':
+		{
+			text_to_ascii(macro__buf, buf+2);
+			return (0);
+		}
+
+		/* Process "P:<str>" -- normal macro */
+		case 'P':
+		{
+			char tmp[1024];
+			text_to_ascii(tmp, buf+2);
+			macro_add(tmp, macro__buf);
+			return (0);
+		}
+
+
+		/* Process "C:<str>" -- create keymap */
+		case 'C':
+		{
+			int mode;
+	
+			char tmp[1024];
+	
+			/* Hack - handle ---reset--- as a special case */
+			if (!strcmp(buf+2, "---reset---"))
+			{
+				for (i = 0; i < MAX_UCHAR; i++)
 				{
-					string_free(keymap_act[mode][i]);
+					for (mode = 0; mode < KEYMAP_MODES; mode++)
+					{
+						string_free(keymap_act[mode][i]);
+					}
+				}
+				C_WIPE(keymap_act, (MAX_UCHAR+1)*KEYMAP_MODES, cptr);
+				return SUCCESS;
+			}
+	
+			if (tokenize(buf+2, 2, zz) != 2) return (1);
+	
+			mode = strtol(zz[0], NULL, 0);
+			if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
+	
+			text_to_ascii(tmp, zz[1]);
+			if (!tmp[0] || tmp[1]) return (1);
+			i = (byte)(tmp[0]);
+	
+			string_free(keymap_act[mode][i]);
+	
+			keymap_act[mode][i] = string_make(macro__buf);
+	
+			/* XXX Hack -- See main-win.c */
+			angband_keymap_flag = TRUE;
+	
+			return (0);
+		}
+	
+	
+		/* Process "V:<num>:<kv>:<rv>:<gv>:<bv>" -- visual info */
+		case 'V':
+		{
+			if (tokenize(buf+2, 5, zz) == 5)
+			{
+				i = (byte)strtol(zz[0], NULL, 0);
+				angband_color_table[i][0] = (byte)strtol(zz[1], NULL, 0);
+				angband_color_table[i][1] = (byte)strtol(zz[2], NULL, 0);
+				angband_color_table[i][2] = (byte)strtol(zz[3], NULL, 0);
+				angband_color_table[i][3] = (byte)strtol(zz[4], NULL, 0);
+				return (0);
+			}
+		}
+	
+	
+		/* Process "X:<str>" -- turn option off */
+		case 'X':
+		{
+			for (i = 0; option_info[i].o_desc; i++)
+			{
+				if (option_info[i].o_var &&
+				    option_info[i].o_text &&
+				    streq(option_info[i].o_text, buf + 2))
+				{
+					(*option_info[i].o_var) = FALSE;
+					return (0);
 				}
 			}
-			C_WIPE(keymap_act, (MAX_UCHAR+1)*KEYMAP_MODES, cptr);
-			return SUCCESS;
 		}
-
-		if (tokenize(buf+2, 2, zz) != 2) return (1);
-
-		mode = strtol(zz[0], NULL, 0);
-		if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
-
-		text_to_ascii(tmp, zz[1]);
-		if (!tmp[0] || tmp[1]) return (1);
-		i = (byte)(tmp[0]);
-
-		string_free(keymap_act[mode][i]);
-
-		keymap_act[mode][i] = string_make(macro__buf);
-
-		/* XXX Hack -- See main-win.c */
-		angband_keymap_flag = TRUE;
-
-		return (0);
-	}
-
-
-	/* Process "V:<num>:<kv>:<rv>:<gv>:<bv>" -- visual info */
-	else if (buf[0] == 'V')
-	{
-		if (tokenize(buf+2, 5, zz) == 5)
-		{
-			i = (byte)strtol(zz[0], NULL, 0);
-			angband_color_table[i][0] = (byte)strtol(zz[1], NULL, 0);
-			angband_color_table[i][1] = (byte)strtol(zz[2], NULL, 0);
-			angband_color_table[i][2] = (byte)strtol(zz[3], NULL, 0);
-			angband_color_table[i][3] = (byte)strtol(zz[4], NULL, 0);
-			return (0);
-		}
-	}
-
-
-	/* Process "X:<str>" -- turn option off */
-	else if (buf[0] == 'X')
-	{
-		for (i = 0; option_info[i].o_desc; i++)
-		{
-			if (option_info[i].o_var &&
-			    option_info[i].o_text &&
-			    streq(option_info[i].o_text, buf + 2))
-			{
-				(*option_info[i].o_var) = FALSE;
-				return (0);
-			}
-		}
-	}
-
-	/* Process M:<attr>:<attr>... -- set monster memory colours */
-	else if (buf[0] == 'M')
-	{
-		cptr atchar="dwsorgbuDWvyRGBU";
-
-		/* Expect M:xx:xx:xx:xx (MAX_MONCOL times) format. */
-		if (strlen(buf) < MAX_MONCOL*3+1) return 1;
-		for (i = 0; i < MAX_MONCOL; i++)
-		{
-			moncol_type *mc_ptr = &moncol[i];
-			char c1 = buf[2+i*3];
-			char c2 = buf[3+i*3];
-			/* Read the second character first. */
-			if (strchr(atchar, c2))
-				mc_ptr->attr = strchr(atchar, c2)-atchar;
-			else
-				return 1;
-			/* Then read the first character, if present. */
-			if (strchr(atchar, c1))
-				mc_ptr->attr += 16*(strchr(atchar, c1)-atchar);
-			else if (c1 != ' ')
-				return 1;
-		}
-		return 0;
-	}
 	
-	/* Process "Y:<str>" -- turn option on */
-	else if (buf[0] == 'Y')
-	{
-		for (i = 0; option_info[i].o_desc; i++)
+		/* Process M:<attr>:<attr>... -- set monster memory colours */
+		case 'M':
 		{
-			if (option_info[i].o_var &&
-			    option_info[i].o_text &&
-			    streq(option_info[i].o_text, buf + 2))
+			/* Expect M:xx:xx:xx:xx (MAX_MONCOL times) format. */
+			if (strlen(buf) < MAX_MONCOL*3+1) return 1;
+			for (i = 0; i < MAX_MONCOL; i++)
 			{
-				(*option_info[i].o_var) = TRUE;
-				return (0);
+				moncol_type *mc_ptr = &moncol[i];
+				char c1 = buf[2+i*3];
+				char c2 = buf[3+i*3];
+				/* Read the second character first. */
+				if (strchr(atchar, c2))
+					mc_ptr->attr = strchr(atchar, c2)-atchar;
+				else
+					return 1;
+				/* Then read the first character, if present. */
+				if (strchr(atchar, c1))
+					mc_ptr->attr += 16*(strchr(atchar, c1)-atchar);
+				else if (c1 != ' ')
+					return 1;
+			}
+			return 0;
+		}
+		
+		/* Process "Y:<str>" -- turn option on */
+		case 'Y':
+		{
+			for (i = 0; option_info[i].o_desc; i++)
+			{
+				if (option_info[i].o_var &&
+				    option_info[i].o_text &&
+				    streq(option_info[i].o_text, buf + 2))
+				{
+					(*option_info[i].o_var) = TRUE;
+					return (0);
+				}
 			}
 		}
-	}
-
-	/*
-	 * Process D:<sex>:<race>:<class>:<maximise_mode>:<Str>:<Int>:<Wis>:<Dex>:<Con>:<Chr>:<Name> for initial stats 
-	 */
-	else if (buf[0] == 'D')
-	{
-		byte total = tokenize(buf+2, 11, zz);
-		errr err;
-		/* We can accept D with or without a name, but everything else must be there. */
-		switch (total)
-			{
-			/* No name given, so make one up. */
-			case 10:
-					{
-				char name[32];
-				create_random_name(ator(*zz[1]), name);
-				err = add_stats(ator(*zz[0]), ator(*zz[1]),
-				 ator(*zz[2]), strtol(zz[3], NULL, 0),
-				 strtol(zz[4], NULL, 0), strtol(zz[5], NULL, 0),
-				 strtol(zz[6], NULL, 0), strtol(zz[7], NULL, 0),
-				 strtol(zz[8], NULL, 0), strtol(zz[9], NULL, 0), name);
-				break;
-					}
-			case 11:
-					{
-				err = add_stats(ator(*zz[0]), ator(*zz[1]),
-				 ator(*zz[2]), strtol(zz[3], NULL, 0),
-				 strtol(zz[4], NULL, 0), strtol(zz[5], NULL, 0),
-				 strtol(zz[6], NULL, 0), strtol(zz[7], NULL, 0),
-				 strtol(zz[8], NULL, 0), strtol(zz[9], NULL, 0), zz[10]);
-				break;
+	
+		/*
+		 * Process D:<sex>:<race>:<class>:<maximise_mode>:<Str>:<Int>:<Wis>:<Dex>:<Con>:<Chr>:<Name> for initial stats 
+		 */
+		case 'D':
+		{
+			byte total = tokenize(buf+2, 11, zz);
+			errr err;
+			/* We can accept D with or without a name, but everything else must be there. */
+			switch (total)
+				{
+				/* No name given, so make one up. */
+				case 10:
+						{
+					char name[32];
+					create_random_name(ator(*zz[1]), name);
+					err = add_stats(ator(*zz[0]), ator(*zz[1]),
+					 ator(*zz[2]), strtol(zz[3], NULL, 0),
+					 strtol(zz[4], NULL, 0), strtol(zz[5], NULL, 0),
+					 strtol(zz[6], NULL, 0), strtol(zz[7], NULL, 0),
+					 strtol(zz[8], NULL, 0), strtol(zz[9], NULL, 0), name);
+					break;
+						}
+				case 11:
+						{
+					err = add_stats(ator(*zz[0]), ator(*zz[1]),
+					 ator(*zz[2]), strtol(zz[3], NULL, 0),
+					 strtol(zz[4], NULL, 0), strtol(zz[5], NULL, 0),
+					 strtol(zz[6], NULL, 0), strtol(zz[7], NULL, 0),
+					 strtol(zz[8], NULL, 0), strtol(zz[9], NULL, 0), zz[10]);
+					break;
+				}
+				default:
+				return ERR_PARSE;
 			}
-			default:
-			return ERR_PARSE;
+			return err;
 		}
-		return err;
+		default:
+		{
+			/* Failure */
+			return (1);
+		}
 	}
-
-	/* Failure */
-	return (1);
 }
 
 
@@ -892,6 +904,7 @@ errr process_pref_file(cptr name)
 
 	bool bypass = FALSE;
 
+	u16b sf_flags = 0;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, name);
@@ -952,7 +965,7 @@ errr process_pref_file(cptr name)
 
 
 		/* Process the line */
-		err = process_pref_file_aux(buf);
+		err = process_pref_file_aux(buf, &sf_flags);
 
 		/* Oops */
 		if (err) break;
@@ -1311,7 +1324,7 @@ static void choose_ammunition(object_type *wp_ptr, object_type **am_ptr)
 static void choose_bow(object_type *am_ptr, object_type **wp_ptr)
 {
 	object_type *o_ptr;
-	byte sval;
+	s16b k_idx;
 
 	/* Use a launcher from inventory if appropriate and marked. */
 	for (o_ptr = inventory; o_ptr <= inventory+INVEN_PACK; o_ptr++)
@@ -1330,17 +1343,17 @@ static void choose_bow(object_type *am_ptr, object_type **wp_ptr)
 	}
 
 	/* Find an appropriate bow. */
-	sval = launcher_type(am_ptr);
+	k_idx = launcher_type(am_ptr);
 
 	/* No launcher. */
-	if (sval == SV_UNKNOWN)
+	if (k_idx == OBJ_NOTHING)
 	{
 		object_wipe(*wp_ptr);
 		return;
 	}
 	else
 	{
-		object_prep(*wp_ptr, lookup_kind(TV_BOW, sval));
+		object_prep(*wp_ptr, k_idx);
 		return;
 	}
 }
@@ -1430,8 +1443,8 @@ static void weapon_stats_calc(object_type *wp_ptr, object_type *am_ptr,
 	{
 		u32b junk, f3;
 
-		/* Mega-Hack -- Extract the "base power" */
-		if (wp_ptr->k_idx) power = (wp_ptr->sval % 10);
+		/* Hack -- Extract the "base power" */
+		if (wp_ptr->k_idx) power = get_bow_mult(wp_ptr);
 		/* Without a launcher everything has a power equal to throw_mult in cmd2.c */
 		else power = 1;
 	
@@ -2229,6 +2242,10 @@ static void display_player_flag_aux(int row, int col,
 	if (n == 2 && flag & TR2_RES_FIRE) i |= OPPOSE_COL(p_ptr->oppose_fire)*2;
 	if (n == 2 && flag & TR2_RES_COLD) i |= OPPOSE_COL(p_ptr->oppose_cold)*2;
 	if (n == 2 && flag & TR2_RES_POIS) i |= OPPOSE_COL(p_ptr->oppose_pois)*2;
+	if (n == 2 && flag & TR2_RES_FEAR && !(f[1] & TR2_RES_FEAR))
+		i |= OPPOSE_COL(MAX(p_ptr->hero, p_ptr->shero))*2;
+	if (n == 3 && flag & TR3_TELEPATHY && !(f[2] & TR3_TELEPATHY))
+		i |= OPPOSE_COL(p_ptr->tim_esp)*2;
 
 	if (i == 1)
 		n = TERM_WHITE;
@@ -3209,8 +3226,8 @@ void display_player(int mode)
 			/* Name, sex, race, template and stats (compressed) */
 			display_player_stat_info_birth();
 
-			/* Extra info (melee) */
-			display_player_sides(FALSE);
+			/* Extra info (missile) */
+			display_player_sides(TRUE);
 
 			/* Experience */
 			display_player_xp();
@@ -3651,461 +3668,6 @@ errr file_character(cptr name, bool UNUSED full)
 
 
 /*
- * Recursive "help file" perusal.  Return FALSE on "ESCAPE".
- *
- * XXX XXX XXX Consider using a temporary file.
- */
-static bool do_cmd_help_aux(cptr name, cptr what, int line)
-{
-	int		i, k;
-
-	/* Number of "real" lines passed by */
-	int		next = 0;
-
-	/* Number of "real" lines in the file */
-	int		size = 0;
-
-	/* loop counter */
-	int cnt;
-
-	/* Backup value for "line" */
-	int		back = 0;
-
-	/* This screen has sub-screens */
-	bool	menu = FALSE;
-
-	/* Current help file */
-	FILE	*fff = NULL;
-
-	/* Find this string (if any) */
-	cptr	find = NULL;
-
-	/* Hold a string to find */
-	char	finder[128];
-
-	/* Hold a string to show */
-	char	shower[128];
-
-	/* Describe this thing */
-	char	caption[128];
-
-	/* Path buffer */
-	char	path[1024];
-
-	/* General buffer */
-	char	buf[1024];
-
-	/* Pointer for making uc_buf uppercase */
-	cptr uc_buf_ptr;
-
-	/* Sub-menu information */
-	char	hook[26][32];
-
-	/* Upper-cased versions to make searching insensitive */
-	char uc_finder[128];
-	char uc_shower[128];
-	char uc_buf[1024];
-
-	/* Wipe finder */
-	strcpy(finder, "");
-	strcpy(uc_finder,"");
-
-	/* Wipe shower */
-	strcpy(shower, "");
-	strcpy(uc_shower,"");
-
-	/* Wipe caption */
-	strcpy(caption, "");
-
-	/* Wipe the hooks */
-	for (i = 0; i < 10; i++) hook[i][0] = '\0';
-
-
-	/* Hack XXX XXX XXX */
-	if (what)
-	{
-		/* Caption */
-		strcpy(caption, what);
-
-		/* Access the "file" */
-		strcpy(path, name);
-
-		/* Open */
-		fff = my_fopen(path, "r");
-	}
-
-	/* Look in "help" */
-	if (!fff)
-	{
-		/* Caption */
-		sprintf(caption, "Help file '%s'", name);
-
-		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_HELP, name);
-
-		/* Open the file */
-		fff = my_fopen(path, "r");
-	}
-
-	/* Look in "info" */
-	if (!fff)
-	{
-		/* Caption */
-		sprintf(caption, "Info file '%s'", name);
-
-		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_INFO, name);
-
-		/* Open the file */
-		fff = my_fopen(path, "r");
-	}
-
-	/* Oops */
-	if (!fff)
-	{
-		/* Message */
-		msg_format("Cannot open '%s'.", name);
-		msg_print(NULL);
-
-		/* Oops */
-		return (TRUE);
-	}
-
-
-	/* Pre-Parse the file */
-	while (TRUE)
-	{
-		/* Read a line or stop */
-		if (my_fgets(fff, buf, 1024)) break;
-
-		/* XXX Parse "menu" items */
-		if (prefix(buf, "***** "))
-		{
-			char b1 = '[', b2 = ']';
-
-			/* Notice "menu" requests */
-			if ((buf[6] == b1) && islower(buf[7]) &&
-			    (buf[8] == b2) && (buf[9] == ' '))
-			{
-				/* This is a menu file */
-				menu = TRUE;
-
-				/* Extract the menu item */
-				k = buf[7] - 'a';
-
-				/* Extract the menu item */
-				strcpy(hook[k], buf + 10);
-			}
-
-			/* Skip this */
-			continue;
-		}
-
-		/* Count the "real" lines */
-		next++;
-	}
-
-	/* Save the number of "real" lines */
-	size = next;
-
-
-
-	/* Display the file */
-	while (TRUE)
-	{
-		/* Clear screen */
-		Term_clear();
-
-
-		/* Restart when necessary */
-		if (line >= size) line = 0;
-
-
-		/* Re-open the file if needed */
-		if (next > line)
-		{
-			/* Close it */
-			my_fclose(fff);
-
-			/* Hack -- Re-Open the file */
-			fff = my_fopen(path, "r");
-
-			/* Oops */
-			if (!fff) return (FALSE);
-
-			/* File has been restarted */
-			next = 0;
-		}
-
-		/* Skip lines if needed */
-		for (; next < line; next++)
-		{
-			/* Skip a line */
-			if (my_fgets(fff, buf, 1024)) break;
-		}
-
-
-		/* Dump the next 20 lines of the file */
-		for (i = 0; i < 20; )
-		{
-			/* Hack -- track the "first" line */
-			if (!i) line = next;
-
-			/* Get a line of the file or stop */
-			if (my_fgets(fff, buf, 1024)) break;
-
-			/* Hack -- skip "special" lines */
-			if (prefix(buf, "***** ")) continue;
-
-			/* Count the "real" lines */
-			next++;
-
-			/* Make an upper case version of buf for searching */
-			strcpy(uc_buf, buf);
-			for (uc_buf_ptr = uc_buf; *uc_buf_ptr != 0; uc_buf_ptr++)
-			{
-				uc_buf[uc_buf_ptr-uc_buf] = toupper(*uc_buf_ptr);
-			}		   
-
-			/* Hack -- keep searching */
-			if (find && !i && !strstr(uc_buf, find)) continue;
-
-			/* Hack -- stop searching */
-			find = NULL;
-
-			/* Dump the line */
-			Term_putstr(0, i+2, -1, TERM_WHITE, buf);
-
-			/* Hilite "shower" */
-			if (uc_shower[0])
-			{
-				cptr str = uc_buf;
-
-				/* Display matches */
-				while ((str = strstr(str, uc_shower)) != NULL)
-				{
-					int len = strlen(uc_shower);
-
-					/* Display the match */
-					Term_putstr(str-uc_buf, i+2, len, TERM_YELLOW, uc_shower);
-
-					/* Advance */
-					str += len;
-				}
-			}
-
-			/* Count the printed lines */
-			i++;
-		}
-
-		/* Hack -- failed search */
-		if (find)
-		{
-			bell();
-			line = back;
-			find = NULL;
-			continue;
-		}
-
-		/* Show a general "title" */
-		prt(format("[%s %s, %s, Line %d/%d]", GAME_NAME, GAME_VERSION,
-		           caption, line, size), 0, 0);
-
-		/* Prompt -- menu screen */
-		if (menu)
-		{
-			/* Wait for it */
-			prt("[Press a letter, or ESC to exit.]", 23, 0);
-		}
-
-		/* Prompt -- small files */
-		else if (size <= 20)
-		{
-			/* Wait for it */
-			prt("[Press ESC to exit.]", 23, 0);
-		}
-
-		/* Prompt -- large files */
-		else
-		{
-			/* Wait for it */
-            prt("[Press Return, Space, -, =, /, f, or ESC to exit.]", 23, 0);
-		}
-
-		/* Get a keypress */
-		k = inkey();
-
-		/* Hack -- return to last screen */
-		if (k == '?') break;
-
-		/* Hack -- try showing */
-		if (k == '=')
-		{
-			/* Get "shower" */
-			prt("Show: ", 23, 0);
-			(void)askfor_aux(shower, 80);
-
-			/* Make finder uppercase */
-			strcpy(uc_shower,shower);
-			for (cnt = 0; uc_shower[cnt] != 0; cnt++) 
-			{
-				uc_shower[cnt] = toupper(uc_shower[cnt]);
-			}
-		}
-
-		/* Hack -- try finding */
-		if (k == '/')
-		{
-			/* Get "finder" */
-			prt("Find: ", 23, 0);
-			if (askfor_aux(finder, 80))
-			{
-
-				/* Make finder uppercase */
-				strcpy(uc_finder,finder);
-				for (cnt = 0; uc_finder[cnt] != 0; cnt++) 
-				{
-					uc_finder[cnt] = toupper(uc_finder[cnt]);
-				}
-				
-				/* Find it */
-				find = uc_finder;
-				back = line;
-				line = line + 1;
-
-				/* Show it */
-				strcpy(shower,finder);
-				strcpy(uc_shower, uc_finder);
-			}
-		}
-
-		/* Hack -- go to a specific line */
-		if (k == '#')
-		{
-			char tmp[80];
-			prt("Goto Line: ", 23, 0);
-			strcpy(tmp, "0");
-			if (askfor_aux(tmp, 80))
-			{
-				line = atoi(tmp);
-			}
-		}
-
-		/* Hack -- go to a specific file */
-		if (k == '%')
-		{
-			char tmp[80];
-			prt("Goto File: ", 23, 0);
-			strcpy(tmp, syshelpfile);
-			if (askfor_aux(tmp, 80))
-			{
-				if (!do_cmd_help_aux(tmp, NULL, 0)) k = ESCAPE;
-			}
-		}
-
-		/* Hack -- Allow backing up */
-		if (k == '-')
-		{
-			line = line - 10;
-			if (line < 0) line = 0;
-		}
-
-		/* Hack -- Advance a single line */
-		if ((k == '\n') || (k == '\r'))
-		{
-			line = line + 1;
-		}
-
-		/* Advance one page */
-		if (k == ' ')
-		{
-			line = line + 20;
-		}
-
-		/* Recurse on numbers */
-		if (menu && islower(k) && hook[k-'a'][0])
-		{
-			/* Recurse on that file */
-			if (!do_cmd_help_aux(hook[k-'a'], NULL, 0)) k = ESCAPE;
-		}
-
-        /* Hack, dump to file */
-        if (k == 'F')
-        {
-
-            FILE        *ffp;
-
-            char    buff[1024];
-
-            char xtmp[82];
-
-            strcpy (xtmp, "");
-
-            if (get_string("File name: ", xtmp, 80))
-			{
-                if (xtmp[0] && (xtmp[0] != ' '))
-				{
-
-				}
-			}
-            else
-            {
-                continue;
-            }
-
-            /* Build the filename */
-            path_build(buff, 1024, ANGBAND_DIR_USER, xtmp);
-
-            /* Close it */
-			my_fclose(fff);
-
-			/* Hack -- Re-Open the file */
-			fff = my_fopen(path, "r");
-
-            ffp = my_fopen(buff, "w");
-
-			/* Oops */
-            if (!(fff && ffp))
-                { msg_print("Failed to open file.");
-                  k = ESCAPE;
-                  break;
-                }
-
-            sprintf(xtmp, "%s: %s", player_name, what);
-            my_fputs(ffp, xtmp, 80);
-            my_fputs(ffp, "\n", 80);
-            while (!my_fgets(fff, buff, 80)) my_fputs(ffp, buff, 80);
-
-            /* Close it */
-			my_fclose(fff);
-            my_fclose(ffp);
-
-			/* Hack -- Re-Open the file */
-			fff = my_fopen(path, "r");
-            
-        }
-
-        if ((k == 'h') && (!menu))  /* Hack, added for character display */
-        {
-            k = ESCAPE;
-        }
-
-		/* Exit on escape */
-		if (k == ESCAPE) break;
-	}
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Escape */
-	if (k == ESCAPE) return (FALSE);
-
-	/* Normal return */
-	return (TRUE);
-}
-
-
-/*
  * Peruse the On-Line-Help, starting at the given file.
  */
 void do_cmd_help(cptr name)
@@ -4120,7 +3682,7 @@ void do_cmd_help(cptr name)
 	Term_save();
 
 	/* Peruse the main help file */
-	(void)do_cmd_help_aux(name, NULL, 0);
+	(void)show_file(name, NULL);
 
 	/* Restore the screen */
 	Term_load();
@@ -4149,31 +3711,15 @@ void do_cmd_help(cptr name)
 
 /*
  * Convert a "color letter" into an "actual" color
- * The colors are: dwsorgbuDWvyRGBU, as shown below
+ * The colors are taken from the atchar table.
  */
 int color_char_to_attr(char c)
 {
-	switch (c)
+	uint i;
+	for (i = 0; atchar[i]; i++)
 	{
-		case 'd': return (TERM_DARK);
-		case 'w': return (TERM_WHITE);
-		case 's': return (TERM_SLATE);
-		case 'o': return (TERM_ORANGE);
-		case 'r': return (TERM_RED);
-		case 'g': return (TERM_GREEN);
-		case 'b': return (TERM_BLUE);
-		case 'u': return (TERM_UMBER);
-
-		case 'D': return (TERM_L_DARK);
-		case 'W': return (TERM_L_WHITE);
-		case 'v': return (TERM_VIOLET);
-		case 'y': return (TERM_YELLOW);
-		case 'R': return (TERM_L_RED);
-		case 'G': return (TERM_L_GREEN);
-		case 'B': return (TERM_L_BLUE);
-		case 'U': return (TERM_L_UMBER);
+		if (c == atchar[i]) return i;
 	}
-
 	return (-1);
 }
 
@@ -4242,8 +3788,14 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 	/* Pointer to general buffer in the above */
 	char *buf;
 
+	/* Output buffer (the code below never converts strings to longer ones,
+	 * so 1024 is always enough). */
+	char out_buf[1024], *out_ptr;
+
 	int  cur_link = 0, max_link = 0;
 
+	/* Read size of screen for big-screen stuff -pav- */
+	int wid, hgt;
 
 	/* Allocate hyperlink data */
 	MAKE(h_ptr, hyperlink_type);
@@ -4266,9 +3818,13 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		/* Access the "file" */
 		strcpy(h_ptr->path, name);
 
-		/* Open */
+		/* Grab permission */
 		safe_setuid_grab();
+
+		/* Open */
 		fff = my_fopen(h_ptr->path, "r");
+
+		/* Drop permission */
 		safe_setuid_drop();
 	}
 
@@ -4281,9 +3837,13 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		/* Build the filename */
 		path_build(h_ptr->path, 1024, ANGBAND_DIR_HELP, name);
 
-		/* Open the file */
+		/* Grab permission */
 		safe_setuid_grab();
+
+		/* Open the file */
 		fff = my_fopen(h_ptr->path, "r");
+
+		/* Drop permission */
 		safe_setuid_drop();
 	}
 
@@ -4296,9 +3856,13 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		/* Build the filename */
 		path_build(h_ptr->path, 1024, ANGBAND_DIR_INFO, name);
 
-		/* Open the file */
+		/* Grab permission */
 		safe_setuid_grab();
+
+		/* Open the file */
 		fff = my_fopen(h_ptr->path, "r");
+
+		/* Drop permission */
 		safe_setuid_drop();
 	}
 
@@ -4311,9 +3875,13 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		/* Build the filename */
 		path_build(h_ptr->path, 1024, ANGBAND_DIR_FILE, name);
 
-		/* Open the file */
+		/* Grab permission */
 		safe_setuid_grab();
+
+		/* Open the file */
 		fff = my_fopen(h_ptr->path, "r");
+
+		/* Drop permission */
 		safe_setuid_drop();
 	}
 
@@ -4352,7 +3920,8 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 			link_color_sel = color_char_to_attr(buf[6]);
 		}
 
-		/* Tag ? */                if (prefix(buf, "~~~~~"))
+                /* Tag ? */
+                if (prefix(buf, "~~~~~"))
 		{
 			if (line < 0)
 			{
@@ -4419,13 +3988,19 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 	size = next;
 
 
+	/* Hack - k is compared to check whether this is going backwards over an
+	 * unprinted line. */
+	k = 0;
 
 	/* Display the file */
 	while (TRUE)
 	{
-		/* Clear screen */
-		Term_clear();
+start_of_while:
 
+		/* Clear screen */
+		clear_from(0);
+
+		Term_get_size(&wid, &hgt);
 
 		/* Restart when necessary */
 		if (line >= size) line = 0;
@@ -4437,9 +4012,13 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 			/* Close it */
 			my_fclose(fff);
 
-			/* Hack -- Re-Open the file */
+			/* Grab permission */
 			safe_setuid_grab();
+
+			/* Hack -- Re-Open the file */
 			fff = my_fopen(h_ptr->path, "r");
+
+			/* Drop permission */
 			safe_setuid_drop();
 
 
@@ -4464,10 +4043,13 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		}
 
 
-		/* Dump the next 20 lines of the file */
-		for (i = 0; i < 20; )
+		Term_gotoxy(0,1);
+
+		/* Dump the next 20 (or more in bigscreen) lines of the file */
+		for (i = 0; i < (hgt - 4); )
 		{
 			int print_x;
+			out_ptr = out_buf;
 
 			/* Hack -- track the "first" line */
 			if (!i) line = next;
@@ -4478,8 +4060,9 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 			/* Get a color */
 			if (prefix(h_ptr->rbuf, "#####"))
 			{
-				color = color_char_to_attr(h_ptr->rbuf[5]);
 				buf = &h_ptr->rbuf[6];
+				sprintf(out_ptr, "%s%c", CC_PREFIX, buf[-1]);
+				out_ptr += strlen(CC_PREFIX " ");
 			}
 			else buf = h_ptr->rbuf;
 
@@ -4487,7 +4070,26 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 			next++;
 
 			/* Skip link colors */
-			if (prefix(buf, "|||||")) continue;
+			if (prefix(buf, "|||||") ||
+
+			/* Skip game links. */
+				prefix(buf, CC_LINK_PREFIX))
+			{
+				/*
+				 * If the first displayed line is a non-initial unprinted line
+				 * and it was reached going backwards, display the previous
+				 * line first rather than the next one.
+				 */
+				if (!i && line && k == '8')
+				{
+					line--;
+					goto start_of_while;
+				}
+				else
+				{
+					continue;
+				}
+			}
 
 			/* Skip tags */
 			if (prefix(buf, "~~~~~"))
@@ -4503,9 +4105,9 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 			find = NULL;
 
 			/* Be sure to get a correct cur_link */
-			if (h_ptr->link_y[cur_link] >= line + 20)
+			if (h_ptr->link_y[cur_link] >= line + (hgt - 4))
 			{
-				while ((cur_link > 0) && (h_ptr->link_y[cur_link] >= line + 20))
+				while ((cur_link > 0) && (h_ptr->link_y[cur_link] >= line + (hgt - 4)))
 				{
 					cur_link--;
 				}
@@ -4534,29 +4136,40 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 						xx++;
 					}
 					xx++;
+					strcpy(out_ptr, CC_PREFIX);
+					out_ptr += strlen(CC_PREFIX);
+					if ((h_ptr->link_x[cur_link] == x) && (h_ptr->link_y[cur_link] == line + i))
+						*out_ptr++ = atchar[link_color_sel];
+					else
+						*out_ptr++ = atchar[link_color];
+
 					/* Ok print the link name */
-					while (buf[xx] != ']')
+					while (buf[xx] && buf[xx] != ']')
 					{
-						if ((h_ptr->link_x[cur_link] == x) && (h_ptr->link_y[cur_link] == line + i))
-							Term_putch(print_x, i + 2, link_color_sel, buf[xx]);
-						else
-							Term_putch(print_x, i + 2, link_color, buf[xx]);
-						xx++;
-						print_x++;
+						if (prefix(buf+xx, CC_PREFIX))
+						{
+							xx += strlen(CC_PREFIX);
+						}
+						*out_ptr++ = buf[xx++];
 					}
 					x = xx;
 				}
-				/* Color ? */
+				/* Color (ToME style) ? */
 				else if (prefix(buf + x, "[[[[["))
 				{
-					int xx = x + 6;
+					int xx = x + strlen("[[[[[");
 
-					/* Ok print the link name */
+					strcpy(out_ptr, CC_PREFIX);
+					out_ptr += strlen(CC_PREFIX);
+
+					/* Ok print the coloured string */
 					while (buf[xx] != ']')
 					{
-						Term_putch(print_x, i + 2, color_char_to_attr(buf[x + 5]), buf[xx]);
-						xx++;
-						print_x++;
+						if (prefix(buf+xx, CC_PREFIX))
+						{
+							xx += strlen(CC_PREFIX);
+						}
+						*out_ptr++ = buf[xx++];
 					}
 					x = xx;
 				}
@@ -4574,12 +4187,16 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 				}
 				else
 				{
-					Term_putch(print_x, i + 2, color, buf[x]);
-					print_x++;
+					*out_ptr++ = buf[x];
 				}
 
 				x++;
 			}
+
+			/* Print the line. */
+			strcpy(out_ptr, "\n");
+			mc_roff(out_buf);
+
 			color = TERM_WHITE;
 
 			/* Hilite "h_ptr->shower" */
@@ -4593,7 +4210,9 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 					int len = strlen(h_ptr->shower);
 
 					/* Display the match */
+#if 0 /* Broken */
 					Term_putstr(str-buf, i+2, len, TERM_YELLOW, h_ptr->shower);
+#endif
 
 					/* Advance */
 					str += len;
@@ -4622,21 +4241,21 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		if (menu)
 		{
 			/* Wait for it */
-			prt("[Press a Number, or ESC to exit.]", 23, 0);
+			prt("[Press a Number, or ESC to exit.]", hgt - 1, 0);
 		}
 
 		/* Prompt -- small files */
-		else if (size <= 20)
+		else if (size <= (hgt - 4))
 		{
 			/* Wait for it */
-			prt("[Press ESC to exit.]", 23, 0);
+			prt("[Press ESC to exit.]", hgt - 1, 0);
 		}
 
 		/* Prompt -- large files */
 		else
 		{
 			/* Wait for it */
-			prt("[Press 2, 8, 4, 6, /, =, backspace, or ESC to exit.]", 23, 0);
+			prt("[Press 2, 8, 4, 6, /, =, #, %, backspace, or ESC to exit.]", hgt - 1, 0);
 		}
 
 		/* Get a keypress */
@@ -4649,15 +4268,15 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		if (k == '=')
 		{
 			/* Get "h_ptr->shower" */
-			prt("Show: ", 23, 0);
+			prt("Show: ", hgt - 1, 0);
 			(void)askfor_aux(h_ptr->shower, 80);
-}
+		}
 
 		/* Hack -- try finding */
 		if (k == '/')
 		{
 			/* Get "h_ptr->finder" */
-			prt("Find: ", 23, 0);
+			prt("Find: ", hgt - 1, 0);
 			if (askfor_aux(h_ptr->finder, 80))
 			{
 				/* Find it */
@@ -4674,7 +4293,7 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		if (k == '#')
 		{
 			char tmp[81];
-			prt("Goto Line: ", 23, 0);
+			prt("Goto Line: ", hgt - 1, 0);
 			strcpy(tmp, "0");
 			if (askfor_aux(tmp, 80))
 			{
@@ -4686,7 +4305,7 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		if (k == '%')
 		{
 			char tmp[81];
-			prt("Goto File: ", 23, 0);
+			prt("Goto File: ", hgt - 1, 0);
 			strcpy(tmp, "help.hlp");
 			if (askfor_aux(tmp, 80))
 			{
@@ -4697,7 +4316,7 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		/* Hack -- Allow backing up */
 		if (k == '-')
 		{
-			line = line - 20;
+			line = line - (hgt - 4);
 			if (line < 0) line = 0;
 		}
 
@@ -4716,7 +4335,7 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		/* Advance one page */
 		if (k == ' ')
 		{
-			line = line + 20;
+			line = line + (hgt - 4);
 		}
 
 		/* Advance one link */
@@ -4726,7 +4345,7 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 			if (cur_link >= max_link) cur_link = max_link - 1;
 
 			if (h_ptr->link_y[cur_link] < line) line = h_ptr->link_y[cur_link];
-			if (h_ptr->link_y[cur_link] >= line + 20) line = h_ptr->link_y[cur_link] - 20;
+			if (h_ptr->link_y[cur_link] >= line + (hgt - 4)) line = h_ptr->link_y[cur_link] - (hgt - 4);
 		}
 		/* Return one link */
 		if (k == '4')
@@ -4735,7 +4354,7 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 			if (cur_link < 0) cur_link = 0;
 
 			if (h_ptr->link_y[cur_link] < line) line = h_ptr->link_y[cur_link];
-			if (h_ptr->link_y[cur_link] >= line + 20) line = h_ptr->link_y[cur_link] - 20;
+			if (h_ptr->link_y[cur_link] >= line + (hgt - 4)) line = h_ptr->link_y[cur_link] - (hgt - 4);
 		}
 
 		/* Recurse on numbers */

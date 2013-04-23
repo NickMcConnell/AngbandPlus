@@ -1,36 +1,21 @@
  Please choose one of the following online help files:
 
-    (a) How to use the help system
-    (b) Creating a character
-    (c) Moving around and general commands
-    (d) In-game prompts
-    (e) Mindcrafting
-    (f) Hedge Magic
-    (g) Hermetic Magic
-    (h) Shamanism
-    (i) The great outdoors
-    (j) Customising Cthangband
-    (k) Customising Cthangband windows
-    (l) History of Moria, Angband, Zangband & Cthangband
+    *****/ahlponhlp.txt*0[[a$]]$w How to use the help system
+    *****/bchargen.txt*0[[b$]]$w Creating a character
+    *****/cgeneral.txt*0[[c$]]$w Moving around and general commands
+    *****/dprompts.txt*0[[d$]]$w In-game prompts
+    *****/emindcrft.txt*0[[e$]]$w Mindcrafting
+    *****/fhedge.txt*0[[f$]]$w Hedge Magic
+    *****/ghermetic.txt*0[[g$]]$w Hermetic Magic
+    *****/hshaman.txt*0[[h$]]$w Shamanism
+    *****/ioutdoors.txt*0[[i$]]$w The great outdoors
+    *****/jcustom.txt*0[[j$]]$w Customising sCthangband
+    *****/kwindowpri.txt*0[[k$]]$w Customising sCthangband windows
+    *****/lhistory.txt*0[[l$]]$w History of Moria, Angband, Zangband & Cthangband
 
  (The following files are for people already familiar with Angband)
 
-    (m) Summary of updates
-    (n) The skill system
-    (o) The speed system
-***** [a] hlponhlp.txt
-***** [b] chargen.txt
-***** [c] general.txt
-***** [d] prompts.txt
-***** [e] mindcrft.txt
-***** [f] hedge.txt
-***** [g] hermetic.txt
-***** [h] shaman.txt
-***** [i] outdoors.txt
-***** [j] custom.txt
-***** [k] windowpri.txt
-***** [l] history.txt
-***** [m] update.txt
-***** [n] skills.txt
-***** [o] speed.txt
-***** [p] debug.txt
+    *****/mupdate.txt*0[[m]]$w Summary of updates
+    *****/nskills.txt*0[[n]]$w The skill system
+    *****/ospeed.txt*0[[o]]$w The speed system
+    *****/pdebug.txt*0[[p]]$w Debug mode commands (if available)

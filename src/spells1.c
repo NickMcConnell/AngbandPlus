@@ -960,7 +960,7 @@ static int inven_damage(inven_func typ, int perc)
 
                    /* Potions smash open */
                    if (k_info[o_ptr->k_idx].tval == TV_POTION) {
-                   (void)potion_smash_effect(0, py, px, o_ptr->sval);
+                   (void)potion_smash_effect(0, py, px, o_ptr->k_idx);
                    }
                 
 
@@ -2005,7 +2005,6 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	C_TNEW(o_name, ONAME_MAX, char);
 
-    int o_sval = 0;
     bool is_potion = FALSE;
 
 
@@ -2241,14 +2240,15 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Kill it */
 			else
 			{
+				int o_kidx = o_ptr->k_idx;
+
 				/* Describe if needed */
 				if (o_ptr->marked && note_kill)
 				{
 					msg_format("The %s%s", o_name, note_kill);
 				}
 
-                o_sval = o_ptr->sval;
-                is_potion = (k_info[o_ptr->k_idx].tval == TV_POTION);
+                is_potion = (k_info[o_kidx].tval == TV_POTION);
 
 
 				/* Delete the object */
@@ -2256,7 +2256,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
                    /* Potions produce effects when 'shattered' */
                    if (is_potion) {
-                   (void)potion_smash_effect(who, y, x, o_sval);
+                   (void)potion_smash_effect(who, y, x, o_kidx);
                    }
                 
 
@@ -2338,8 +2338,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
     C_TNEW(m_name, MNAME_MAX, char);
-
-	cptr name = (r_name + r_ptr->name);
 
 	/* Is the monster "seen"? */
 	bool seen = m_ptr->ml;
@@ -2672,10 +2670,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Water (acid) damage -- Water spirits/elementals are immune */
 		case GF_WATER:
 		{
+			cptr name = monster_desc_aux(0, r_ptr, 1, 0);
 			if (seen) obvious = TRUE;
-            if ((r_ptr->d_char == 'E')
-                && (prefix(name, "W")
-                ||(strstr((r_name + r_ptr->name),"Unmaker"))))
+            if (((r_ptr->d_char == 'E')
+                && (prefix(name, "w"))) || (strstr(name, "unmaker")))
 			{
 				note = " is immune.";
 				dam = 0;
@@ -5879,149 +5877,150 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
   *          the potion was in her inventory);
   *    o_ptr --- pointer to the potion object.
   */
-bool potion_smash_effect(int who, int y, int x, int o_sval)
- {
-     int       radius = 2;
-     int       dt = 0;
-     int       dam = 0;
-     bool  ident = FALSE;
-     bool angry = FALSE;
+bool potion_smash_effect(int who, int y, int x, int o_kidx)
+{
+	int       radius = 2;
+	int       dt = 0;
+	int       dam = 0;
+	bool  ident = FALSE;
+	bool angry = FALSE;
 
-     switch(o_sval) {
+	switch(o_kidx)
+	{
 
-      case SV_POTION_SALT_WATER:
-      case SV_POTION_SLIME_MOLD:
-      case SV_POTION_LOSE_MEMORIES:
-      case SV_POTION_DEC_STR:
-      case SV_POTION_DEC_INT:
-      case SV_POTION_DEC_WIS:
-      case SV_POTION_DEC_DEX:
-      case SV_POTION_DEC_CON:
-      case SV_POTION_DEC_CHR:
-      case SV_POTION_WATER:   /* perhaps a 'water' attack? */
-      case SV_POTION_APPLE_JUICE:
+		case OBJ_POTION_SALT_WATER:
+		case OBJ_POTION_SLIME_MOLD_JUICE:
+		case OBJ_POTION_LOSE_MEMORIES:
+		case OBJ_POTION_DEC_STR:
+		case OBJ_POTION_DEC_INT:
+		case OBJ_POTION_DEC_WIS:
+		case OBJ_POTION_DEC_DEX:
+		case OBJ_POTION_DEC_CON:
+		case OBJ_POTION_DEC_CHR:
+		case OBJ_POTION_WATER:   /* perhaps a 'water' attack? */
+		case OBJ_POTION_APPLE_JUICE:
 
-            return TRUE;
+			return TRUE;
 
-      case SV_POTION_INFRAVISION:
-      case SV_POTION_DETECT_INVIS:
-      case SV_POTION_SLOW_POISON:
-      case SV_POTION_CURE_POISON:
-      case SV_POTION_BOLDNESS:
-      case SV_POTION_RESIST_HEAT:
-      case SV_POTION_RESIST_COLD:
-      case SV_POTION_HEROISM:
-      case SV_POTION_BESERK_STRENGTH:
-      case SV_POTION_RESTORE_EXP:
-      case SV_POTION_RES_STR:
-      case SV_POTION_RES_INT:
-      case SV_POTION_RES_WIS:
-      case SV_POTION_RES_DEX:
-      case SV_POTION_RES_CON:
-      case SV_POTION_RES_CHR:
-      case SV_POTION_INC_STR:
-      case SV_POTION_INC_INT:
-      case SV_POTION_INC_WIS:
-      case SV_POTION_INC_DEX:
-      case SV_POTION_INC_CON:
-      case SV_POTION_INC_CHR:
-      case SV_POTION_AUGMENTATION:
-      case SV_POTION_ENLIGHTENMENT:
-      case SV_POTION_STAR_ENLIGHTENMENT:
-      case SV_POTION_SELF_KNOWLEDGE:
-      case SV_POTION_EXPERIENCE:
-      case SV_POTION_RESISTANCE:
-      case SV_POTION_INVULNERABILITY:
-      case SV_POTION_NEW_LIFE:
+		case OBJ_POTION_INFRA_VISION:
+		case OBJ_POTION_DETECT_INVIS:
+		case OBJ_POTION_SLOW_POISON:
+		case OBJ_POTION_NEUTRALIZE_POISON:
+		case OBJ_POTION_BOLDNESS:
+		case OBJ_POTION_RES_HEAT:
+		case OBJ_POTION_RES_COLD:
+		case OBJ_POTION_HEROISM:
+		case OBJ_POTION_BERSERK_STR:
+		case OBJ_POTION_RES_LIFE_LEVELS:
+		case OBJ_POTION_RES_STR:
+		case OBJ_POTION_RES_INT:
+		case OBJ_POTION_RES_WIS:
+		case OBJ_POTION_RES_DEX:
+		case OBJ_POTION_RES_CON:
+		case OBJ_POTION_RES_CHR:
+		case OBJ_POTION_INC_STR:
+		case OBJ_POTION_INC_INT:
+		case OBJ_POTION_INC_WIS:
+		case OBJ_POTION_INC_DEX:
+		case OBJ_POTION_INC_CON:
+		case OBJ_POTION_INC_CHR:
+		case OBJ_POTION_AUGMENTATION:
+		case OBJ_POTION_ENLIGHTENMENT:
+		case OBJ_POTION_STAR_ENLIGHTENMENT:
+		case OBJ_POTION_SELF_KNOWLEDGE:
+		case OBJ_POTION_EXPERIENCE:
+		case OBJ_POTION_RESISTANCE:
+		case OBJ_POTION_INVULNERABILITY:
+		case OBJ_POTION_NEW_LIFE:
 
-   /* All of the above potions have no effect when shattered */
-   return FALSE;
-      case SV_POTION_SLOWNESS:
-   dt = GF_OLD_SLOW;
-   dam = 5;
-   ident = TRUE;
-   angry = TRUE;
-   break;
-      case SV_POTION_POISON:
-   dt = GF_POIS;
-   dam = 3;
-   ident = TRUE;
-   angry = TRUE;
-   break;
-      case SV_POTION_BLINDNESS:
-   dt = GF_DARK;
-   ident = TRUE;
-   angry = TRUE;
-   break;
-      case SV_POTION_CONFUSION: /* Booze */
-   dt = GF_OLD_CONF;
-   ident = TRUE;
-   angry = TRUE;
-   break;
-      case SV_POTION_SLEEP:
-   dt = GF_OLD_SLEEP;
-   angry = TRUE;
-   ident = TRUE;
-   break;
-      case SV_POTION_RUINATION:
-      case SV_POTION_DETONATIONS:
-   dt = GF_SHARDS;
-   dam = damroll(25, 25);
-   angry = TRUE;
-   ident = TRUE;
-   break;
-      case SV_POTION_DEATH:
-   dt = GF_DEATH_RAY;    /* !! */
-   angry = TRUE;
-   radius = 1;
-   ident = TRUE;
-   break;
-      case SV_POTION_SPEED:
-   dt = GF_OLD_SPEED;
-   ident = TRUE;
-   break;
-      case SV_POTION_CURE_LIGHT:
-   dt = GF_OLD_HEAL;
-   dam = damroll(2,3);
-   ident = TRUE;
-   break;
-      case SV_POTION_CURE_SERIOUS:
-   dt = GF_OLD_HEAL;
-   dam = damroll(4,3);
-   ident = TRUE;
-   break;
-      case SV_POTION_CURE_CRITICAL:
-      case SV_POTION_CURING:
-   dt = GF_OLD_HEAL;
-   dam = damroll(6,3);
-   ident = TRUE;
-   break;
-      case SV_POTION_HEALING:
-   dt = GF_OLD_HEAL;
-   dam = damroll(10,10);
-   ident = TRUE;
-   break;
-      case SV_POTION_STAR_HEALING:
-      case SV_POTION_LIFE:
-   dt = GF_OLD_HEAL;
-   dam = damroll(50,50);
-   radius = 1;
-   ident = TRUE;
-   break;
-      case SV_POTION_RESTORE_MANA:   /* MANA */
-   dt = GF_MANA;
-   dam = damroll(10,10);
-   radius = 1;
-   ident = TRUE;
-   break;
-      default:
-      /* Do nothing */  ;
-     }
+		/* All of the above potions have no effect when shattered */
+		return FALSE;
+		case OBJ_POTION_SLOWNESS:
+			dt = GF_OLD_SLOW;
+			dam = 5;
+			ident = TRUE;
+			angry = TRUE;
+			break;
+		case OBJ_POTION_POISON:
+			dt = GF_POIS;
+			dam = 3;
+			ident = TRUE;
+			angry = TRUE;
+			break;
+		case OBJ_POTION_BLINDNESS:
+			dt = GF_DARK;
+			ident = TRUE;
+			angry = TRUE;
+			break;
+		case OBJ_POTION_BOOZE: /* Booze */
+			dt = GF_OLD_CONF;
+			ident = TRUE;
+			angry = TRUE;
+			break;
+		case OBJ_POTION_SLEEP:
+			dt = GF_OLD_SLEEP;
+			angry = TRUE;
+			ident = TRUE;
+			break;
+		case OBJ_POTION_RUINATION:
+		case OBJ_POTION_DETONATIONS:
+			dt = GF_SHARDS;
+			dam = damroll(25, 25);
+			angry = TRUE;
+			ident = TRUE;
+			break;
+		case OBJ_POTION_IOCAINE:
+			dt = GF_DEATH_RAY;    /* !! */
+			angry = TRUE;
+			radius = 1;
+			ident = TRUE;
+			break;
+		case OBJ_POTION_SPEED:
+			dt = GF_OLD_SPEED;
+			ident = TRUE;
+			break;
+		case OBJ_POTION_CURE_LIGHT:
+			dt = GF_OLD_HEAL;
+			dam = damroll(2,3);
+			ident = TRUE;
+			break;
+		case OBJ_POTION_CURE_SERIOUS:
+			dt = GF_OLD_HEAL;
+			dam = damroll(4,3);
+			ident = TRUE;
+			break;
+		case OBJ_POTION_CURE_CRITICAL:
+		case OBJ_POTION_CURING:
+			dt = GF_OLD_HEAL;
+			dam = damroll(6,3);
+			ident = TRUE;
+			break;
+		case OBJ_POTION_HEALING:
+			dt = GF_OLD_HEAL;
+			dam = damroll(10,10);
+			ident = TRUE;
+			break;
+		case OBJ_POTION_STAR_HEALING:
+		case OBJ_POTION_LIFE:
+			dt = GF_OLD_HEAL;
+			dam = damroll(50,50);
+			radius = 1;
+			ident = TRUE;
+			break;
+      case OBJ_POTION_RES_MANA:   /* MANA */
+			dt = GF_MANA;
+			dam = damroll(10,10);
+			radius = 1;
+			ident = TRUE;
+			break;
+		default:
+			/* Do nothing */  ;
+	}
 
-    (void) project(who, radius, y, x, dam, dt,
-          (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
-     /* XXX  those potions that explode need to become "known" */
-    return angry;
- }
+	(void) project(who, radius, y, x, dam, dt,
+		(PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
+	/* XXX  those potions that explode need to become "known" */
+	return angry;
+}
 
 

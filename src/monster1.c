@@ -190,15 +190,14 @@ void describe_death_events(int r_idx, cptr he, void (*out)(cptr), bool omniscien
 				object_type o, *o_ptr = &o;
 				C_TNEW(o_name, ONAME_MAX, char);
 				object_prep(o_ptr, i_ptr->k_idx);
+				if (i_ptr->max > 1) o_ptr->number = UNKNOWN_OBJECT_NUMBER;
 				if (i_ptr->flags & EI_ART)
 					o_ptr->name1 = i_ptr->x_idx;
 #ifdef ALLOW_EGO_DROP
 				if (i_ptr->flags & EI_EGO)
 				o_ptr->name2 = EP_EGO;
 #endif
-				object_desc_store(o_name, o_ptr, FALSE, 0);
-				/* Note that no "unusual article" flag exists for objects. */
-				full_name(o_name, i_ptr->max > 1, TRUE, FALSE);
+				object_desc_store(o_name, o_ptr, TRUE, 0);
 				(*out)(format("%s %s drop %s", he, DDE_MAY, o_name));
 				TFREE(o_name);
 				break;
@@ -208,9 +207,8 @@ void describe_death_events(int r_idx, cptr he, void (*out)(cptr), bool omniscien
 				make_monster_type *i_ptr = &d_ptr->par.monster;
 				monster_race *r_ptr = &r_info[i_ptr->num];
 				C_TNEW(m_name, MNAME_MAX, char);
-				strcpy(m_name, r_name+r_ptr->name);
-				full_name(m_name, (i_ptr->max == 1), TRUE, ((r_ptr->flags4 & RF4_ODD_ART) != 0));
-				(*out)(format("%s%s %s be created", (i_ptr->max > 1) ? "some " : "", m_name, DDE_MAY));
+				monster_desc_aux(m_name, r_ptr, i_ptr->max, MDF_INDEF);
+				(*out)(format("%s %s be created", m_name, DDE_MAY));
 				TFREE(m_name);
 				break;
 			}
@@ -1660,12 +1658,13 @@ static void roff_aux(int r_idx)
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
-static void roff_top(int r_idx)
+void roff_top(int r_idx)
 {
 	monster_race	*r_ptr = &r_info[r_idx];
 
 	byte		a1, a2;
 	char		c1, c2;
+	cptr		s1, s2;
 
 
 	/* Access the chars */
@@ -1676,10 +1675,17 @@ static void roff_top(int r_idx)
 	a1 = r_ptr->d_attr;
 	a2 = r_ptr->x_attr;
 
-	/* Hack -- fake monochrome */
+	/* Format the above into a string mc_roff() understands. */
+ 	s1 = string_make(get_symbol_aux(a1, c1));
+	s2 = string_make(get_symbol_aux(a2, c2));
+
+ 	/* Hack -- fake monochrome */
 	if (!use_color) a1 = TERM_WHITE;
 	if (!use_color) a2 = TERM_WHITE;
 
+	/* Convert to characters. */
+	a1 = atchar[a1];
+	a2 = atchar[a2];
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -1687,24 +1693,12 @@ static void roff_top(int r_idx)
 	/* Reset the cursor */
 	Term_gotoxy(0, 0);
 
-	/* A title (use "The" for non-uniques) */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-	{
-		Term_addstr(-1, TERM_WHITE, "The ");
-	}
-
 	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	mc_roff(format("%^s (%s)/(%s):", monster_desc_aux(0, r_ptr, 1, MDF_DEF ),
+		s1, s2));
 
-	/* Append the "standard" attr/char info */
-	Term_addstr(-1, TERM_WHITE, " ('");
-	Term_addch(a1, c1);
-	Term_addstr(-1, TERM_WHITE, "')");
-
-	/* Append the "optional" attr/char info */
-	Term_addstr(-1, TERM_WHITE, "/('");
-	Term_addch(a2, c2);
-	Term_addstr(-1, TERM_WHITE, "'):");
+	FREE(s1);
+	FREE(s2);
 }
 
 

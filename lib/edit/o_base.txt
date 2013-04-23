@@ -32,7 +32,7 @@
 
 # Version stamp (required)
 
-V:1.0.4
+V:1.0.5
 
 
 N:0:%+K%k%=K%+E %e%=E%+A %a%=A
@@ -74,14 +74,14 @@ C:default
 N:200:& Scroll~%+F titled "%f"%=F !
 C:20
 
-N:201:& Sorcery Book~ !
+N:201:& Sorcery Book~ ^
 C:default
 
-N:202:& Thaumaturgy Book~ !
+N:202:& Thaumaturgy Book~ ^
 C:default
 
-N:203:& Conjuration Book~ !
+N:203:& Conjuration Book~ ^
 C:default
 
-N:204:& Necromancy Book~ !
+N:204:& Necromancy Book~ ^
 C:default

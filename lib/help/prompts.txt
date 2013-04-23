@@ -4,11 +4,11 @@ There are a number of styles of prompt in the game. This is an attempt to list
 some of them, give a means of finding an example from within the game and
 explain the input acceptable at each.
 
-***** <command_prompt>
+%%%%% <command_prompt>
 === Command prompt ===
 There are many single key commands available here. See general.txt for a list.
 
-***** <option_prompt>
+%%%%% <option_prompt>
 === Option prompt (type "=1" from the command prompt) ===
 
 This allows you to change some of the options within the game. The following
@@ -27,7 +27,7 @@ In the autosave option menu, there is also the following:
 
        f       - Select the frequency of autosave (see custom.txt for details).
 
-***** <string_prompt>
+%%%%% <string_prompt>
 === String prompt (type "Cc" from the command prompt) ===
 
 This allows you to modify a string (your character's name in the above case).
@@ -39,7 +39,7 @@ In addition, the string is shown in yellow.
 Pressing Tab moves the cursor to the end of the string, not modifying it. Any
 keypress unsets overtype mode, turning the string white.
 
-***** <string_prompt_det>
+%%%%% <string_prompt_det>
 The following commands are available as a string prompt:
 
     Escape     - Abort, do not modify the string.
@@ -60,7 +60,7 @@ command mode on), the following keys are handled in a special way.
 In all other cases, pressing a key inserts the character associated with it
 into the string at the position of the cursor.
 
-***** <yn_prompt>
+%%%%% <yn_prompt>
 === [y/n] prompt ===
 This is a straightforward [y/n] prompt. It accepts the following responses:
 
@@ -70,7 +70,7 @@ n,N,Escape - Answer "no" to the question asked.
 If quick_prompt is set (see custom.txt), any response not mentioned above is
 interpreted as "no".
 
-***** <yn?_prompt>
+%%%%% <yn?_prompt>
 === [y/n/?] prompt ===
 This is almost a straightforward [y/n] prompt. It accepts the following
 responses:
@@ -82,7 +82,7 @@ n,N,Escape - Answer "no" to the question asked.
 If quick_prompt is set (see custom.txt), any response not mentioned above is
 interpreted as "no".
 
-***** <ynq_prompt>
+%%%%% <ynq_prompt>
 === [y/n/q] prompt ===
 This is almost a straightforward [y/n] prompt. It accepts the following
 responses:

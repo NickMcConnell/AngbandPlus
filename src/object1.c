@@ -482,13 +482,15 @@ void reset_visuals(void)
 {
 	int i;
 
+	u16b sf_flags = sf_flags_now;
+
 	char buf[1024];
 
 	/* Reset various attr/char maps. */
-	process_pref_file_aux((char*)"F:---reset---");
-	process_pref_file_aux((char*)"K:---reset---");
-	process_pref_file_aux((char*)"U:---reset---");
-	process_pref_file_aux((char*)"R:---reset---");
+	process_pref_file_aux((char*)"F:---reset---", &sf_flags);
+	process_pref_file_aux((char*)"K:---reset---", &sf_flags);
+	process_pref_file_aux((char*)"U:---reset---", &sf_flags);
+	process_pref_file_aux((char*)"R:---reset---", &sf_flags);
 
 	/* Extract some info about monster memory colours. */
 	for (i = 0; i < MAX_MONCOL; i++)
@@ -662,15 +664,6 @@ void object_info_known(object_type *j_ptr, object_type *o_ptr, object_extra *x_p
 		x_ptr->u_idx = k_ptr->u_idx;
 	}
 
-	/* Some flags are always assumed to be known. */
-	j_ptr->discount = o_ptr->discount;
-	j_ptr->number = o_ptr->number;
-	j_ptr->weight = o_ptr->weight;
-	j_ptr->ident = o_ptr->ident;
-	/* j_ptr->handed = o_ptr->handed; */ /* Unused */
-	j_ptr->note = o_ptr->note;
-	
-
 	if (cheat_item && (
 #ifdef SPOIL_ARTIFACTS
 	/* Full knowledge for some artifacts */
@@ -682,8 +675,19 @@ void object_info_known(object_type *j_ptr, object_type *o_ptr, object_extra *x_p
 #endif
 	(!allart_p(o_ptr) && !ego_item_p(o_ptr))))
 	{
-		j_ptr->ident |= IDENT_MENTAL | IDENT_KNOWN;
+		/* Given full knowledge, everything is easy. */
+		object_copy(j_ptr, o_ptr);
+		object_flags(o_ptr, &j_ptr->flags1, &j_ptr->flags2, &j_ptr->flags3);
+		return;
 	}
+
+	/* Some flags are always assumed to be known. */
+	j_ptr->discount = o_ptr->discount;
+	j_ptr->number = o_ptr->number;
+	j_ptr->weight = o_ptr->weight;
+	j_ptr->ident = o_ptr->ident;
+	j_ptr->note = o_ptr->note;
+	
 
 	/* Hack - set k_idx correctly now so that macros for it work. It will
 	 * be unset later if appropriate. */
@@ -693,15 +697,10 @@ void object_info_known(object_type *j_ptr, object_type *o_ptr, object_extra *x_p
 	if (object_aware_p(o_ptr))
 	{
 		j_ptr->tval = o_ptr->tval;
-		j_ptr->sval = o_ptr->sval;
 	}
-	/* As values of 0 are often special, use a blank object, the tval from the
-	 * base type and and a special sval for unaware objects.
-	 */
 	else
 	{
 		j_ptr->tval = o_base[u_info[k_ptr->u_idx].p_id].tval;
-		j_ptr->sval = SV_UNKNOWN;
 	}
 
 	/* Some flags are known for identified objects. */
@@ -857,8 +856,20 @@ void object_info_known(object_type *j_ptr, object_type *o_ptr, object_extra *x_p
 		/* Hack - the random powers of *IDENTIFIED* items are known. */
 		j_ptr->flags2 &= ~(TR2_RAND_RESIST | TR2_RAND_POWER | TR2_RAND_EXTRA);
     }
+	/* *Hack* - randarts are always immune to the elements. */
+	else if (j_ptr->art_name && spoil_art)
+	{
+		j_ptr->flags3 |= TR3_IGNORE_ALL & o_ptr->flags3;
+	}
 
-    if (j_ptr->ident & IDENT_MENTAL && !(o_ptr->art_name))
+
+    if (~j_ptr->ident & IDENT_MENTAL);
+	else if (o_ptr->art_name)
+	{
+		j_ptr->xtra1 = o_ptr->xtra1;
+		j_ptr->xtra2 = o_ptr->xtra2;
+	}
+	else
     {
         /* Extra powers */
         switch (o_ptr->xtra1)
@@ -939,7 +950,7 @@ void object_info_known(object_type *j_ptr, object_type *o_ptr, object_extra *x_p
 	if (j_ptr->flags2 & TR2_RES_CHAOS) j_ptr->flags2 |= TR2_RES_CONF;
 
 	/* Hack - unset j_ptr->k_idx if it isn't known. */
-	if (!object_aware_p(j_ptr)) j_ptr->k_idx = lookup_kind(0,0); /* != 0 */
+	if (!object_aware_p(j_ptr)) j_ptr->k_idx = OBJ_UNKNOWN;
 }
 
 
@@ -967,7 +978,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  * criteria or the end of the string is reached.
  * Return the first "safe" character.
  */
-static cptr find_next_good_flag(cptr s, byte reject, byte require)
+cptr find_next_good_flag(cptr s, byte reject, byte require)
 {
 	int bad;
 
@@ -1336,6 +1347,11 @@ void object_desc(char *buf, object_type *o1_ptr, int pref, int mode)
 		t = object_desc_str(t, "no more ");
 	}
 
+	else if (o_ptr->number == UNKNOWN_OBJECT_NUMBER)
+	{
+		t = object_desc_str(t, "some ");
+	}
+
 	/* Extract the number */
 	else if (o_ptr->number > 1)
 	{
@@ -1398,24 +1414,6 @@ void object_desc(char *buf, object_type *o1_ptr, int pref, int mode)
 		{
 			r[this_level] = find_next_good_flag(r[this_level], reject | current, ~(reject | current));
 	  	}
-		/* Pluralizer (internal) */
-		else if (*r[this_level] == CM_ACT+CI_PLURAL)
-		{
-			/* Add a plural if possible */
-			if (t != tmp_val)
-			{
-				char k = t[-1];
-
-				/* XXX XXX XXX Mega-Hack */
-
-				/* Hack -- "Cutlass-es" and "Torch-es" */
-				if ((k == 's') || (k == 'h')) *t++ = 'e';
-
-				/* Add an 's' */
-				*t++ = 's';
-			}
-			r[this_level]++;
-		}
 		/* Paranoia - too many levels.
 		 * As "current" prevents the same string from being
 		 * started recursively, this can't happen. */
@@ -1575,7 +1573,7 @@ void object_desc(char *buf, object_type *o1_ptr, int pref, int mode)
 		case TV_BOW:
 
 		/* Mega-Hack -- Extract the "base power" */
-		power = (o1_ptr->sval % 10);
+		power = get_bow_mult(o_ptr);
 
 		/* Apply the "Extra Might" flag */
 		if (f3 & (TR3_XTRA_MIGHT)) power++;
@@ -1955,301 +1953,153 @@ cptr item_activation(object_type *o_ptr)
         switch (o_ptr->xtra2)
         {
             case ACT_SUNLIGHT:
-            {
                 return "beam of sunlight every 10 turns";
-            }
             case ACT_BO_MISS_1:
-            {
                 return "magic missile (2d6) every 2 turns";
-            }
             case ACT_BA_POIS_1:
-            {
                 return "stinking cloud (12), rad. 3, every 4+d4 turns";
-            }
             case ACT_BO_ELEC_1:
-            {
                 return "lightning bolt (4d8) every 6+d6 turns";
-            }
             case ACT_BO_ACID_1:
-            {
                 return "acid bolt (5d8) every 5+d5 turns";
-            }
             case ACT_BO_COLD_1:
-            {
                 return "frost bolt (6d8) every 7+d7 turns";
-            }
             case ACT_BO_FIRE_1:
-            {
                 return "fire bolt (9d8) every 8+d8 turns";
-            }
             case ACT_BA_COLD_1:
-            {
                 return "ball of cold (48) every 400 turns";
-            }
             case ACT_BA_FIRE_1:
-            {
                 return "ball of fire (72) every 400 turns";
-            }
             case ACT_DRAIN_1:
-            {
                 return "drain life (100) every 100+d100 turns";
-            }
             case ACT_BA_COLD_2:
-            {
                 return "ball of cold (100) every 300 turns";
-            }
             case ACT_BA_ELEC_2:
-            {
                 return "ball of lightning (100) every 500 turns";
-            }
             case ACT_DRAIN_2:
-            {
                 return "drain life (120) every 400 turns";
-            }
             case ACT_VAMPIRE_1:
-            {
                 return "vampiric drain (3*50) every 400 turns";
-            }
             case ACT_BO_MISS_2:
-            {
                 return "arrows (150) every 90+d90 turns";
-            }
             case ACT_BA_FIRE_2:
-            {
                 return "fire ball (120) every 225+d225 turns";
-            }
             case ACT_BA_COLD_3:
-            {
                 return "ball of cold (200) every 325+d325 turns";
-            }
             case ACT_WHIRLWIND:
-            {
                 return "whirlwind attack every 250 turns";
-            }
             case ACT_VAMPIRE_2:
-            {
                 return "vampiric drain (3*100) every 400 turns";
-            }
             case ACT_CALL_CHAOS:
-            {
                 return "call chaos every 350 turns";
-            }
             case ACT_SHARD:
-            {
                 return "shard ball (120+level) every 400 turns";
-            }
             case ACT_DISP_EVIL:
-            {
                 return "dispel evil (level*5) every 300+d300 turns";
-            }
             case ACT_DISP_GOOD:
-            {
                 return "dispel good (level*5) every 300+d300 turns";
-            }
             case ACT_BA_MISS_3:
-            {
                 return "elemental breath (300) every 500 turns";
-            }
             case ACT_CONFUSE:
-            {
                 return "confuse monster every 15 turns";
-            }
             case ACT_SLEEP:
-            {
                 return "sleep nearby monsters every 55 turns";
-            }
             case ACT_QUAKE:
-            {
                 return "earthquake (rad 10) every 50 turns";
-            }
             case ACT_TERROR:
-            {
                 return "terror every 3 * (level+10) turns";
-            }
             case ACT_TELE_AWAY:
-            {
                 return "teleport away every 200 turns";
-            }
             case ACT_BANISH_EVIL:
-            {
                 return "banish evil every 250+d250 turns";
-            }
             case ACT_GENOCIDE:
-            {
                 return "genocide every 500 turns";
-            }
             case ACT_MASS_GENO:
-            {
                 return "mass genocide every 1000 turns";
-            }
             case ACT_CHARM_ANIMAL:
-            {
                 return "charm animal every 300 turns";
-            }
             case ACT_CHARM_UNDEAD:
-            {
                 return "enslave undead every 333 turns";
-            }
             case ACT_CHARM_OTHER:
-            {
                 return "charm monster every 400 turns";
-            }
             case ACT_CHARM_ANIMALS:
-            {
                 return "animal friendship every 500 turns";
-            }
             case ACT_CHARM_OTHERS:
-            {
                 return "mass charm every 750 turns";
-            }
             case ACT_SUMMON_ANIMAL:
-            {
                 return "summon animal every 200+d300 turns";
-            }
             case ACT_SUMMON_PHANTOM:
-            {
                 return "summon phantasmal servant every 200+d200 turns";
-            }
             case ACT_SUMMON_ELEMENTAL:
-            {
                 return "summon elemental every 750 turns";
-            }
             case ACT_SUMMON_DEMON:
-            {
                 return "summon demon every 666+d333 turns";
-            }
             case ACT_SUMMON_UNDEAD:
-            {
                 return "summon undead every 666+d333 turns";
-            }
             case ACT_CURE_LW:
-            {
                 return "remove fear & heal 30 hp every 10 turns";
-            }
             case ACT_CURE_MW:
-            {
                 return "heal 4d8 & wounds every 3+d3 turns";
-            }
             case ACT_CURE_POISON:
-            {
                 return "remove fear and cure poison every 5 turns";
-            }
             case ACT_REST_LIFE:
-            {
                 return "restore life levels every 450 turns";
-            }
             case ACT_REST_ALL:
-            {
                 return "restore stats and life levels every 750 turns";
-            }
             case ACT_CURE_700:
-            {
                 return "heal 700 hit points every 250 turns";
-            }
             case ACT_CURE_1000:
-            {
                 return "heal 1000 hit points every 888 turns";
-            }
             case ACT_ESP:
-            {
                 return "temporary ESP (dur 25+d30) every 200 turns";
-            }
             case ACT_BERSERK:
-            {
                 return "heroism and berserk (dur 50+d50) every 100+d100 turns";
-            }
             case ACT_PROT_EVIL:
-            {
                 return "protect evil (dur level*3 + d25) every 225+d225 turns";
-            }
             case ACT_RESIST_ALL:
-            {
                 return "resist elements (dur 40+d40) every 200 turns";
-            }
             case ACT_SPEED:
-            {
                 return "speed (dur 20+d20) every 250 turns";
-            }
             case ACT_XTRA_SPEED:
-            {
                 return "speed (dur 75+d75) every 200+d200 turns";
-            }
             case ACT_WRAITH:
-            {
                 return "wraith form (level/2 + d(level/2)) every 1000 turns";
-            }
             case ACT_INVULN:
-            {
                 return "invulnerability (dur 8+d8) every 1000 turns";
-            }
             case ACT_LIGHT:
-            {
                 return "light area (dam 2d15) every 10+d10 turns";
-            }
             case ACT_MAP_LIGHT:
-            {
                 return "light (dam 2d15) & map area every 50+d50 turns";
-            }
             case ACT_DETECT_ALL:
-            {
                 return "detection every 55+d55 turns";
-            }
             case ACT_DETECT_XTRA:
-            {
                 return "detection, probing and identify true every 1000 turns";
-            }
             case ACT_ID_FULL:
-            {
                 return "identify true every 750 turns";
-            }
             case ACT_ID_PLAIN:
-            {
                 return "identify spell every 10 turns";
-            }
             case ACT_RUNE_EXPLO:
-            {
                 return "explosive rune every 200 turns";
-            }
             case ACT_RUNE_PROT:
-            {
                 return "rune of protection every 400 turns";
-            }
             case ACT_SATIATE:
-            {
                 return "satisfy hunger every 200 turns";
-            }
             case ACT_DEST_DOOR:
-            {
                 return "destroy doors every 10 turns";
-            }
             case ACT_STONE_MUD:
-            {
                 return "stone to mud every 5 turns";
-            }
             case ACT_RECHARGE:
-            {
                 return "recharging every 70 turns";
-            }
             case ACT_ALCHEMY:
-            {
                 return "alchemy every 500 turns";
-            }
             case ACT_DIM_DOOR:
-            {
                 return "dimension door every 100 turns";
-            }
             case ACT_TELEPORT:
-            {
                 return "teleport (range 100) every 45 turns";
-            }
             case ACT_RECALL:
-            {
                 return "word of recall every 200 turns";
-            }
             default:
-            {
-                return "something undefined";
-            }
+                return "a bad randart activation";
         }
     }
 
@@ -2257,229 +2107,117 @@ cptr item_activation(object_type *o_ptr)
 	switch (o_ptr->name1)
 	{
 		case ART_FAITH:
-		{
 			return "fire bolt (9d8) every 8+d8 turns";
-		}
 		case ART_HOPE:
-		{
 			return "frost bolt (6d8) every 7+d7 turns";
-		}
 		case ART_CHARITY:
-		{
 			return "lightning bolt (4d8) every 6+d6 turns";
-		}
 		case ART_THOTH:
-		{
 			return "stinking cloud (12) every 4+d4 turns";
-		}
 		case ART_ICICLE:
-		{
 			return "frost ball (48) every 5+d5 turns";
-		}
 		case ART_DANCING:
-		{
 			return "remove fear and cure poison every 5 turns";
-		}
 		case ART_STARLIGHT:
-		{
 			return "frost ball (100) every 300 turns";
-		}
         case ART_DAWN:
-        {
             return "summon a Black Reaver every 500+d500 turns";
-        }
 		case ART_EVERFLAME:
-		{
 			return "fire ball (72) every 400 turns";
-		}
 		case ART_FIRESTAR:
-		{
 			return "large fire ball (72) every 100 turns";
-		}
 		case ART_ITHAQUA:
-		{
 			return "haste self (20+d20 turns) every 200 turns";
-		}
 		case ART_THEODEN:
-		{
 			return "drain life (120) every 400 turns";
-		}
 		case ART_JUSTICE:
-		{
 			return "drain life (90) every 70 turns";
-		}
 		case ART_OGRELORDS:
-		{
 			return "door and trap destruction every 10 turns";
-		}
 		case ART_GHARNE:
-		{
 			return "word of recall every 200 turns";
-		}
 		case ART_THUNDER:
-		{
 			return "haste self (20+d20 turns) every 100+d100 turns";
-		}
 		case ART_ERIRIL:
-		{
 			return "identify every 10 turns";
-		}
 		case ART_ATAL:
-		{
             return "probing, detection and full id  every 1000 turns";
-		}
 		case ART_TROLLS:
-		{
 			return "mass genocide every 1000 turns";
-		}
 		case ART_SPLEENSLICER:
-		{
 			return "cure wounds (4d7) every 3+d3 turns";
-		}
 		case ART_DEATH:
-		{
 			return "fire branding of bolts every 999 turns";
-		}
         case ART_KARAKAL:
-		{
             return "a getaway every 35 turns";
-		}
 		case ART_ODIN:
-		{
             return "lightning ball (100) every 500 turns";
-		}
 		case ART_DESTINY:
-		{
 			return "stone to mud every 5 turns";
-		}
 		case ART_SOULKEEPER:
-		{
 			return "heal (1000) every 888 turns";
-		}
 		case ART_VAMPLORD:
-		{
             return ("heal (777), curing and heroism every 300 turns");
-		}
 		case ART_ORCS:
-		{
 			return "genocide every 500 turns";
-		}
 		case ART_NYOGTHA:
-		{
 			return "restore life levels every 450 turns";
-		}
 		case ART_GNORRI:
-		{
 			return "teleport away every 150 turns";
-		}
 		case ART_BARZAI:
-		{
 			return "resistance (20+d20 turns) every 111 turns";
-		}
 		case ART_DARKNESS:
-		{
 			return "Sleep II every 55 turns";
-		}
 		case ART_SWASHBUCKLER:
-		{
 			return "recharge item I every 70 turns";
-		}
 		case ART_SHIFTER:
-		{
 			return "teleport every 45 turns";
-		}
 		case ART_TOTILA:
-		{
 			return "confuse monster every 15 turns";
-		}
 		case ART_LIGHT:
-		{
 			return "magic missile (2d6) every 2 turns";
-		}
 		case ART_IRONFIST:
-		{
 			return "fire bolt (9d8) every 8+d8 turns";
-		}
 		case ART_GHOULS:
-		{
 			return "frost bolt (6d8) every 7+d7 turns";
-		}
 		case ART_WHITESPARK:
-		{
 			return "lightning bolt (4d8) every 6+d6 turns";
-		}
 		case ART_DEAD:
-		{
 			return "acid bolt (5d8) every 5+d5 turns";
-		}
 		case ART_COMBAT:
-		{
 			return "a magical arrow (150) every 90+d90 turns";
-		}
 		case ART_SKULLKEEPER:
-		{
 			return "detection every 55+d55 turns";
-		}
 		case ART_SUN:
-		{
             return "heal (700) every 250 turns";
-		}
 		case ART_RAZORBACK:
-		{
 			return "star ball (150) every 1000 turns";
-		}
 		case ART_BLADETURNER:
-		{
             return "breathe elements (300), berserk rage, bless, and resistance";
-		}
 		case ART_POLARIS:
-		{
 			return "illumination every 10+d10 turns";
-		}
 		case ART_XOTH:
-		{
             return "magic mapping and light every 50+d50 turns";
-		}
 		case ART_TRAPEZOHEDRON:
-		{
             return "clairvoyance and recall, draining you";
-		}
 		case ART_ALHAZRED:
-		{
 			return "dispel evil (x5) every 300+d300 turns";
-		}
 		case ART_LOBON:
-		{
 			return "protection from evil every 225+d225 turns";
-		}
         case ART_MAGIC:
-        {
             return "a strangling attack (100) every 100+d100 turns";
-        }
 		case ART_BAST:
-		{
 			return "haste self (75+d75 turns) every 150+d150 turns";
-		}
 		case ART_ELEMFIRE:
-		{
 			return "large fire ball (120) every 225+d225 turns";
-		}
 		case ART_ELEMICE:
-		{
 			return "large frost ball (200) every 325+d325 turns";
-		}
 		case ART_ELEMSTORM:
-		{
 			return "large lightning ball (250) every 425+d425 turns";
-		}
 		case ART_NYARLATHOTEP:
-		{
 			return "bizarre things every 450+d450 turns";
-		}
         case ART_POWER: case ART_MASK:
-        {
             return "rays of fear in every direction";
-        }
 	}
 
 
@@ -2488,121 +2226,87 @@ cptr item_activation(object_type *o_ptr)
        return "teleport every 50+d50 turns";
     }
 
-    if (o_ptr->tval == TV_RING)
-    {
-        switch(o_ptr->sval)
-        {
-            case SV_RING_FLAMES:
-                return "ball of fire and resist fire";
-            case SV_RING_ICE:
-                return "ball of cold and resist cold";
-            case SV_RING_ACID:
-                return "ball of acid and resist acid";
-            default:
-                return "a bad ring activation";
-        }
-    }
-
-	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return "a bad miscellaneous activation";
-
-	/* Branch on the sub-type */
-	switch (o_ptr->sval)
+	/* Rings and DSM. */
+	switch (o_ptr->k_idx)
 	{
-		case SV_DRAGON_BLUE:
-		{
+		case OBJ_RING_FIRE:
+			return "ball of fire and resist fire";
+		case OBJ_RING_ICE:
+			return "ball of cold and resist cold";
+		case OBJ_RING_ACID:
+			return "ball of acid and resist acid";
+		case OBJ_DSM_BLUE:
 			return "breathe lightning (100) every 450+d450 turns";
-		}
-		case SV_DRAGON_WHITE:
-		{
+		case OBJ_DSM_WHITE:
 			return "breathe frost (110) every 450+d450 turns";
-		}
-		case SV_DRAGON_BLACK:
-		{
+		case OBJ_DSM_BLACK:
 			return "breathe acid (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_GREEN:
-		{
+		case OBJ_DSM_GREEN:
 			return "breathe poison gas (150) every 450+d450 turns";
-		}
-		case SV_DRAGON_RED:
-		{
+		case OBJ_DSM_RED:
 			return "breathe fire (200) every 450+d450 turns";
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
+		case OBJ_DSM_MULTI_HUED:
 			return "breathe multi-hued (250) every 225+d225 turns";
-		}
-		case SV_DRAGON_BRONZE:
-		{
+		case OBJ_DSM_BRONZE:
 			return "breathe confusion (120) every 450+d450 turns";
-		}
-		case SV_DRAGON_GOLD:
-		{
+		case OBJ_DSM_GOLD:
 			return "breathe sound (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_CHAOS:
-		{
+		case OBJ_DSM_CHAOS:
 			return "breathe chaos/disenchant (220) every 300+d300 turns";
-		}
-		case SV_DRAGON_LAW:
-		{
+		case OBJ_DSM_LAW:
 			return "breathe sound/shards (230) every 300+d300 turns";
-		}
-		case SV_DRAGON_BALANCE:
-		{
+		case OBJ_DSM_BALANCE:
 			return "You breathe balance (250) every 300+d300 turns";
-		}
-		case SV_DRAGON_SHINING:
-		{
+		case OBJ_DSM_PSEUDO:
 			return "breathe light/darkness (200) every 300+d300 turns";
-		}
-		case SV_DRAGON_POWER:
-		{
+		case OBJ_DSM_POWER:
 			return "breathe the elements (300) every 300+d300 turns";
-		}
 	}
 
-
-	/* Oops */
-	return "a bad dragon scale mail activation";
+	/* Error types */
+	switch (o_ptr->tval)
+	{
+		case TV_RING:
+			return "a bad ring activation";
+		case TV_DRAG_ARMOR:
+			return "a bad dragon scale mail activation";
+		default:
+			return "a bad miscellaneous activation";
+	}
 }
 
 
 /*
  * Allocate and return a string listing a set of flags in a specified format.
- * This should never be called with parameters longer than 1024 characters.
+ * This may give incorrect output on strings >1024 characters long.
  */
 static cptr list_flags(cptr init, cptr conj, cptr *flags, int total)
 {
-	int i;
-	char *s, *t;
+	char *s;
 
 	/* Paranoia. */
 	if (!init || !conj) return "";
 
 	s = format("%s ", init);
-	t = strchr(s, '\0');
 	if (total > 2)
 	{
+		int i;
 		for (i = 0; i < total-2; i++)
 		{
-			sprintf(t, "%s, ", flags[i]);
-			t += strlen(t);
+			s = format("%s%s, ", s, flags[i]);
 		}
 	}
 	if (total > 1)
 	{
-		sprintf(t, "%s %s ", flags[total-2], conj);
-		t += strlen(t);
+		s = format("%s%s %s ", s, flags[total-2], conj);
 	}
 	if (total)
 	{
-		sprintf(t, "%s.", flags[total-1]);
+		s = format("%s%s.", s, flags[total-1]);
 	}
 	else
 	{
-		strcpy(t, "nothing.");
+		s = format("%snothing.", s);
 	}
 	return s;
 }
@@ -2625,10 +2329,35 @@ struct ifa_type
 /*
  * Set i_ptr->txt as an allocated string, remember the fact.
  */
-static void alloc_ifa(ifa_type *i_ptr, cptr str)
+static void alloc_ifa(ifa_type *i_ptr, cptr str, ...)
 {
+	va_list vp;
+
+	/*
+	 * Hack - Convert an initial $x to a colour code. 
+	 * I'll change it once I've checked what happens to the string.
+	 */
+	if (str[0] == '$' && strchr(atchar, str[1]))
+	{
+		i_ptr->attr = color_char_to_attr(str[1]);
+		str += 2;
+	}
+	else
+	{
+		i_ptr->attr = TERM_WHITE;
+	}
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, str);
+
+	/* Format and allocate the input string. */
+	i_ptr->txt = string_make(vformat(str, vp));
+
+	/* Remember that it has been allocated. */
 	i_ptr->alloc = TRUE;
-	i_ptr->txt = string_make(str);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
 }
 
 /* Shorthand notation for res_stat_details() */
@@ -2641,12 +2370,6 @@ static void alloc_ifa(ifa_type *i_ptr, cptr str)
 
 /* The special test required to calculate blows. */
 #define blows(x) (blows_table[MIN(adj_str_blow[x[A_STR]]*mul/div,11)][MIN(adj_dex_blow[x[A_DEX]], 11)])
-
-/* Save the string to the info array, and note that it needs to be freed. */
-#define descr(str) {info[*i].attr = attr; alloc_ifa(info+((*i)++), str);}
-
-/* A format which does a basic test, and saves the output in a string as above. */
-#define dotest(x,y,str) if ((dif = test(x,y))) descr(str)
 
 #define DIF ABS(dif)
 #define DIF_INC ((dif > 0) ? "increases" : "decreases")
@@ -2661,6 +2384,7 @@ static void alloc_ifa(ifa_type *i_ptr, cptr str)
 #define A_INCRES	(A_INCREASE | A_RESTORE)
 #define A_DEC10	0x04	/* A small temporary decrease, as do_dec_stat(). */
 #define A_DEC25	0x08	/* A large permanent decrease, as a potion of ruination. */
+#define A_WIELD	0x10	/* Hack - indicates a melee weapon. */
 
 /* Just in case birthrand.diff isn't applied. */
 #ifndef A_MAX
@@ -2693,23 +2417,23 @@ static void res_stat_details_comp(player_type *pn_ptr, player_type *po_ptr, int 
 
 		if (CMPJ(stat_max) > 0)
 		{
-			descr(format("It adds %s%d to your %s.", CERT, dif, stats[j]));
+			alloc_ifa(info+(*i)++, "It adds %s%d to your %s.", CERT, dif, stats[j]);
 		}
 		else if (dif)
 		{
-			descr(format("It removes %s%d from your %s.", CERT, -dif, stats[j]));
+			alloc_ifa(info+(*i)++, "It removes %s%d from your %s.", CERT, -dif, stats[j]);
 		}
 		else if (CMPJ(stat_cur))
 		{
-			descr(format("It restores your %s.", stats[j]));
+			alloc_ifa(info+(*i)++, "It restores your %s.", stats[j]);
 		}
 		else if (CMPJ(stat_add) > 0)
 		{
-			descr(format("It adds %d to your %s.", dif, stats[j]));
+			alloc_ifa(info+(*i)++, "It adds %d to your %s.", dif, stats[j]);
 		}
 		else if (dif)
 		{
-			descr(format("It removes %d from your %s.", -dif, stats[j]));
+			alloc_ifa(info+(*i)++, "It removes %d from your %s.", -dif, stats[j]);
 		}
 
 		/* No effect, so boring. */
@@ -2721,45 +2445,50 @@ static void res_stat_details_comp(player_type *pn_ptr, player_type *po_ptr, int 
 		switch (j)
 		{
 			case A_CHR:
-			if (CMPS(adj_mag_study)) descr(format("  It causes you to annoy spirits %s.", DIF_LES));
-			if (CMPS(adj_mag_fail)) descr(format("  It %s your maximum spiritual success rate by %d%%.", DIF_DEC, DIF));
-			if (CMPS(adj_mag_stat)) descr(format("  It %s your spiritual success rates.", DIF_INC));
-			if (CMPS(adj_chr_gold)) descr(format("  It %s your bargaining power.", DIF_DEC));
+			if (CMPS(adj_mag_study)) alloc_ifa(info+(*i)++, "$W  It causes you to annoy spirits %s.", DIF_LES);
+			if (CMPS(adj_mag_fail)) alloc_ifa(info+(*i)++, "$W  It %s your maximum spiritual success rate by %d%%.", DIF_DEC, DIF);
+			if (CMPS(adj_mag_stat)) alloc_ifa(info+(*i)++, "$W  It %s your spiritual success rates.", DIF_INC);
+			if (CMPS(adj_chr_gold)) alloc_ifa(info+(*i)++, "$W  It %s your bargaining power.", DIF_DEC);
 			break;
 			case A_WIS:
-			if (CMPS(adj_mag_mana)) descr(format("  It gives you %d %s chi at 100%% skill (%d now).", DIF*25, DIF_MOR, CMPUU(mchi)));
-			if (CMPS(adj_mag_fail)) descr(format("  It %s your maximum mindcraft success rate by %d%%.", DIF_DEC, DIF));
-			if (CMPS(adj_mag_stat)) descr(format("  It %s your mindcraft success rates.", DIF_INC));
-			if (CMPS(adj_wis_sav)) descr(format("  It %s your saving throw by %d%%.", DIF_INC, DIF));
+			if (CMPS(adj_mag_mana)) alloc_ifa(info+(*i)++, "$W  It gives you %d %s chi at 100%% skill (%d now).", DIF*25, DIF_MOR, CMPUU(mchi));
+			if (CMPS(adj_mag_fail)) alloc_ifa(info+(*i)++, "$W  It %s your maximum mindcraft success rate by %d%%.", DIF_DEC, DIF);
+			if (CMPS(adj_mag_stat)) alloc_ifa(info+(*i)++, "$W  It %s your mindcraft success rates.", DIF_INC);
+			if (CMPS(adj_wis_sav)) alloc_ifa(info+(*i)++, "$W  It %s your saving throw by %d%%.", DIF_INC, DIF);
 			break;
 			case A_INT: /* Rubbish in the case of icky gloves or heavy armour. */
-			if (CMPS(adj_mag_study)) descr(format("  It allows you to learn %d %s spells at 100%% skill.", DIF*25, DIF_MOR));
-			if (CMPS(adj_mag_mana)) descr(format("  It gives you %d %s mana at 100%% skill (%d now).", DIF*25, DIF_MOR, CMPUU(msp)));
-			if (CMPS(adj_mag_fail)) descr(format("  It %s your maximum spellcasting success rate by %d%%.", DIF_DEC, DIF));
-			if (CMPS(adj_mag_stat)) descr(format("  It %s your spellcasting success rates.", DIF_INC));
-			if (CMP(skill_dev)) descr(format("  It %s your success rate with magical devices.", DIF_INC));
+			if (CMPS(adj_mag_study)) alloc_ifa(info+(*i)++, "$W  It allows you to learn %d %s spells at 100%% skill.", DIF*25, DIF_MOR);
+			if (CMPS(adj_mag_mana)) alloc_ifa(info+(*i)++, "$W  It gives you %d %s mana at 100%% skill (%d now).", DIF*25, DIF_MOR, CMPUU(msp));
+			if (CMPS(adj_mag_fail)) alloc_ifa(info+(*i)++, "$W  It %s your maximum spellcasting success rate by %d%%.", DIF_DEC, DIF);
+			if (CMPS(adj_mag_stat)) alloc_ifa(info+(*i)++, "$W  It %s your spellcasting success rates.", DIF_INC);
+			if (CMP(skill_dev)) alloc_ifa(info+(*i)++, "$W  It %s your success rate with magical devices.", DIF_INC);
 			break;
 			case A_CON:
-			if (CMPS(adj_con_fix)) descr(format("  It %s your regeneration rate.", DIF_INC));
-			if (CMPS(adj_con_mhp)) descr(format("  It gives you %d %s hit points at 100%% skill (%d now).", DIF*25, DIF_MOR, CMPUU(mhp)));
+			if (CMPS(adj_con_fix)) alloc_ifa(info+(*i)++, "$W  It %s your regeneration rate.", DIF_INC);
+			if (CMPS(adj_con_mhp)) alloc_ifa(info+(*i)++, "$W  It gives you %d %s hit points at 100%% skill (%d now).", DIF*25, DIF_MOR, CMPUU(mhp));
 			break;
 			case A_DEX:
-			if (CMP(dis_to_a)) descr(format("  It %s your AC by %d.", DIF_INC, DIF));
-			if (CMP(dis_to_h)) descr(format("  It %s your chance to hit opponents by %d.", DIF_INC, DIF));
+			if (CMP(dis_to_a)) alloc_ifa(info+(*i)++, "$W  It %s your AC by %d.", DIF_INC, DIF);
+			if (CMP(dis_to_h)) alloc_ifa(info+(*i)++, "$W  It %s your chance to hit opponents by %d.", DIF_INC, DIF);
 			/* Fix me - this also covers stunning, but is affected by saving throw. */
-			if (CMPS(adj_dex_safe)) descr(format("  It makes you %d%% %s resistant to theft.", DIF, DIF_MOR));
+			if (CMPS(adj_dex_safe)) alloc_ifa(info+(*i)++, "$W  It makes you %d%% %s resistant to theft.", DIF, DIF_MOR);
 			break;
 			case A_STR:
-			if (CMP(dis_to_d)) descr(format("  It %s your ability to damage opponents by %d.", DIF_INC, DIF));
-			if (CMPS(adj_str_wgt)) descr(format("  It %s your maximum carrying capacity by %d.", DIF_INC, DIF));
-			if (CMPS(adj_str_hold)) descr(format("  It makes you %s able to use heavy weapons.", DIF_MOR));
-			if (CMP(skill_dig)) descr(format("  It allows you to dig %s effectively.", DIF_MOR));
+			if (CMP(dis_to_d)) alloc_ifa(info+(*i)++, "$W  It %s your ability to damage opponents by %d.", DIF_INC, DIF);
+			if (CMPS(adj_str_wgt)) alloc_ifa(info+(*i)++, "$W  It %s your maximum carrying capacity by %d.", DIF_INC, DIF);
+			if (CMPS(adj_str_hold)) alloc_ifa(info+(*i)++, "$W  It makes you %s able to use heavy weapons.", DIF_MOR);
+			if (CMP(skill_dig)) alloc_ifa(info+(*i)++, "$W  It allows you to dig %s effectively.", DIF_MOR);
 		}
 
 		/* A couple of things which depend on two stats. */
 		if (j == A_DEX || (j == A_STR && !CMPU(stat_ind[A_DEX])))
 		{
-			if (CMP(num_blow)) descr(format("  It %s your number of blows by %d,%d", DIF_INC, DIF/60, DIF%60));
+			if ((~act & A_WIELD) && CMP(num_blow))
+			{
+				alloc_ifa(info+(*i)++,
+					"$W  It %s your number of blows by %d,%d",
+					DIF_INC, DIF/60, DIF%60);
+			}
 		}
 		if (j == A_DEX || (j == A_INT && !CMPU(stat_ind[A_DEX])))
 		{
@@ -2767,7 +2496,7 @@ static void res_stat_details_comp(player_type *pn_ptr, player_type *po_ptr, int 
 			if ((dif2 = CMPS(adj_dex_dis)+CMPT(adj_int_dis, A_INT)))
 			{
 				dif = dif2;
-				descr(format("  It %s your disarming skill.", DIF_INC));
+				alloc_ifa(info+(*i)++, "$W  It %s your disarming skill.", DIF_INC);
 			}
 		}
 	}
@@ -2842,51 +2571,50 @@ static void get_stat_flags(object_type *o_ptr, byte *stat, byte *act, s16b *pval
 {
 	int j;
 	struct convtype {
-	byte tval;
-	byte sval;
+	s16b k_idx;
 	byte act;
 	byte stat;
 	} conv[] = {
 		/* Increase stat potions */
-		{TV_POTION, SV_POTION_INC_STR, A_INCRES, 1<<A_STR},
-		{TV_POTION, SV_POTION_INC_INT, A_INCRES, 1<<A_INT},
-		{TV_POTION, SV_POTION_INC_WIS, A_INCRES, 1<<A_WIS},
-		{TV_POTION, SV_POTION_INC_DEX, A_INCRES, 1<<A_DEX},
-		{TV_POTION, SV_POTION_INC_CON, A_INCRES, 1<<A_CON},
-		{TV_POTION, SV_POTION_INC_CHR, A_INCRES, 1<<A_CHR},
-		{TV_POTION, SV_POTION_STAR_ENLIGHTENMENT, A_INCRES, (1<<A_INT | 1<<A_WIS)},
-		{TV_POTION, SV_POTION_AUGMENTATION, A_INCRES, A_ALL},
+		{OBJ_POTION_INC_STR, A_INCRES, 1<<A_STR},
+		{OBJ_POTION_INC_INT, A_INCRES, 1<<A_INT},
+		{OBJ_POTION_INC_WIS, A_INCRES, 1<<A_WIS},
+		{OBJ_POTION_INC_DEX, A_INCRES, 1<<A_DEX},
+		{OBJ_POTION_INC_CON, A_INCRES, 1<<A_CON},
+		{OBJ_POTION_INC_CHR, A_INCRES, 1<<A_CHR},
+		{OBJ_POTION_STAR_ENLIGHTENMENT, A_INCRES, (1<<A_INT | 1<<A_WIS)},
+		{OBJ_POTION_AUGMENTATION, A_INCRES, A_ALL},
 		/* Restore stat potions */
-		{TV_POTION, SV_POTION_RES_STR, A_RESTORE, 1<<A_STR},
-		{TV_POTION, SV_POTION_RES_INT, A_RESTORE, 1<<A_INT},
-		{TV_POTION, SV_POTION_RES_WIS, A_RESTORE, 1<<A_WIS},
-		{TV_POTION, SV_POTION_RES_DEX, A_RESTORE, 1<<A_DEX},
-		{TV_POTION, SV_POTION_RES_CON, A_RESTORE, 1<<A_CON},
-		{TV_POTION, SV_POTION_RES_CHR, A_RESTORE, 1<<A_CHR},
-		{TV_POTION, SV_POTION_LIFE, A_RESTORE, A_ALL},
+		{OBJ_POTION_RES_STR, A_RESTORE, 1<<A_STR},
+		{OBJ_POTION_RES_INT, A_RESTORE, 1<<A_INT},
+		{OBJ_POTION_RES_WIS, A_RESTORE, 1<<A_WIS},
+		{OBJ_POTION_RES_DEX, A_RESTORE, 1<<A_DEX},
+		{OBJ_POTION_RES_CON, A_RESTORE, 1<<A_CON},
+		{OBJ_POTION_RES_CHR, A_RESTORE, 1<<A_CHR},
+		{OBJ_POTION_LIFE, A_RESTORE, A_ALL},
 		/* Restore stat mushrooms */
-		{TV_FOOD, SV_FOOD_RESTORE_STR, A_RESTORE, 1<<A_STR},
-		{TV_FOOD, SV_FOOD_RESTORE_CON, A_RESTORE, 1<<A_CON},
-		{TV_FOOD, SV_FOOD_RESTORING, A_RESTORE, A_ALL},
+		{OBJ_FOOD_RES_STR, A_RESTORE, 1<<A_STR},
+		{OBJ_FOOD_RES_CON, A_RESTORE, 1<<A_CON},
+		{OBJ_FOOD_RESTORING, A_RESTORE, A_ALL},
 		/* Other restore stat items */
-		{TV_STAFF, SV_STAFF_THE_MAGI, A_RESTORE, 1<<A_INT},
-		{TV_ROD, SV_ROD_RESTORATION, A_RESTORE, A_ALL},
+		{OBJ_STAFF_THE_MAGI, A_RESTORE, 1<<A_INT},
+		{OBJ_ROD_RESTORATION, A_RESTORE, A_ALL},
 		/* Decrease stat potions */
-		{TV_POTION, SV_POTION_DEC_STR, A_DEC10, 1<<A_STR},
-		{TV_POTION, SV_POTION_DEC_INT, A_DEC10, 1<<A_INT},
-		{TV_POTION, SV_POTION_DEC_WIS, A_DEC10, 1<<A_WIS},
-		{TV_POTION, SV_POTION_DEC_DEX, A_DEC10, 1<<A_DEX},
-		{TV_POTION, SV_POTION_DEC_CON, A_DEC10, 1<<A_CON},
-		{TV_POTION, SV_POTION_DEC_CHR, A_DEC10, 1<<A_CHR},
-		{TV_POTION, SV_POTION_RUINATION, A_DEC25, A_ALL},
+		{OBJ_POTION_DEC_STR, A_DEC10, 1<<A_STR},
+		{OBJ_POTION_DEC_INT, A_DEC10, 1<<A_INT},
+		{OBJ_POTION_DEC_WIS, A_DEC10, 1<<A_WIS},
+		{OBJ_POTION_DEC_DEX, A_DEC10, 1<<A_DEX},
+		{OBJ_POTION_DEC_CON, A_DEC10, 1<<A_CON},
+		{OBJ_POTION_DEC_CHR, A_DEC10, 1<<A_CHR},
+		{OBJ_POTION_RUINATION, A_DEC25, A_ALL},
 		/* Decrease stat food */
-		{TV_FOOD, SV_FOOD_WEAKNESS, A_DEC10, A_STR},
-		{TV_FOOD, SV_FOOD_SICKNESS, A_DEC10, A_CON},
-		{TV_FOOD, SV_FOOD_STUPIDITY, A_DEC10, A_INT},
-		{TV_FOOD, SV_FOOD_NAIVETY, A_DEC10, A_WIS},
-		{TV_FOOD, SV_FOOD_UNHEALTH, A_DEC10, A_CON},
-		{TV_FOOD, SV_FOOD_DISEASE, A_DEC10, A_STR},
-		{0,0,0,0},
+		{OBJ_FOOD_DEC_STR, A_DEC10, A_STR},
+		{OBJ_FOOD_SICKNESS, A_DEC10, A_CON},
+		{OBJ_FOOD_DEC_INT, A_DEC10, A_INT},
+		{OBJ_FOOD_DEC_WIS, A_DEC10, A_WIS},
+		{OBJ_FOOD_UNHEALTH, A_DEC10, A_CON},
+		{OBJ_FOOD_DISEASE, A_DEC10, A_STR},
+		{0,0,0},
 	};
 
 	*stat = 0;
@@ -2904,13 +2632,37 @@ static void get_stat_flags(object_type *o_ptr, byte *stat, byte *act, s16b *pval
 	else *pval = 0;
 
 	/* Look for stat-affecting potions, food, etc..*/
-	for (j = 0, *act = 0; conv[j].tval; j++)
+	for (j = 0, *act = 0; conv[j].k_idx; j++)
 	{
-		if (conv[j].tval == o_ptr->tval && conv[j].sval == o_ptr->sval)
+		if (conv[j].k_idx == o_ptr->k_idx)
 		{
 			*stat |= conv[j].stat;
 			*act |= conv[j].act;
 		}
+	}
+	/* Hack - res_stat_details_comp() needs to recognise melee weapons, so
+	 * set it up here. */
+	if (wield_slot(o_ptr) == INVEN_WIELD) *act |= A_WIELD;
+}
+
+/*
+ * Inform the player if an object is currently being worn.
+ */
+static bool is_worn_p(object_type *o_ptr)
+{
+	/* Real inventory object. */
+	if (o_ptr >= inventory+INVEN_WIELD && o_ptr < inventory+INVEN_TOTAL)
+	{
+		return TRUE;
+	}
+	/* Fake "is worn" code from object_info_known(). */
+	else if (!o_ptr->iy && o_ptr->ix > INVEN_WIELD && o_ptr->ix <= INVEN_TOTAL)
+	{
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
 	}
 }
 
@@ -2953,7 +2705,7 @@ static void res_stat_details(object_type *o_ptr, object_extra *x_ptr, int *i, if
 		res_stat_details_comp(p2_ptr, &p_body, i, info, act);
 	}
 	/* A worn item. */
-	else if (!o_ptr->iy && o_ptr->ix > INVEN_WIELD && o_ptr->ix <= INVEN_TOTAL)
+	else if (is_worn_p(o_ptr))
 	{
 		/* Hack - use the original o_ptr. */
 		o_ptr = inventory+o_ptr->ix-1;
@@ -3200,21 +2952,76 @@ static void identify_fully_clear(ifa_type *i_ptr)
 /* Set brief to suppress various strings in identify_fully_get(). */
 static bool brief = FALSE;
 
-/*
- * Find the sval of a launcher which can fire a given missile.
- */
-byte launcher_type(object_type *o_ptr)
-{
-	tval_ammo_type *tv_ptr;
 
-	for (tv_ptr = tval_ammo; tv_ptr->bow_sval; tv_ptr++)
+/*
+ * Hack - Determine the multiplier for a bow.
+ * This is stored in a non-traditional field, and relies upon the bow doing
+ * no damage when thrown.
+ */
+int get_bow_mult(object_type *o_ptr)
+{
+	if (o_ptr->ds && !o_ptr->dd)
 	{
-		/* Found something */
-		if (tv_ptr->ammo_tval == o_ptr->tval) return tv_ptr->bow_sval;
+		return o_ptr->ds;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+/*
+ * Find the k_idx of a launcher which can fire a given missile.
+ * Always returns the first such launcher in k_info.
+ */
+s16b launcher_type(object_type *o_ptr)
+{
+	s16b k_idx;
+	for (k_idx = 0; k_idx < MAX_K_IDX; k_idx++)
+	{
+		/* Not a launcher. */
+		if (k_info[k_idx].tval != TV_BOW) continue;
+
+		/* Not the right sort of launcher. */
+		if (k_info[k_idx].extra != o_ptr->tval) continue;
+		
+		/* Success. */
+		return k_idx;
 	}
 
 	/* Nothing */
-	return SV_UNKNOWN;
+	return OBJ_NOTHING;
+}
+
+
+/*
+ * Return the chance of using a device successfully.
+ * Returns 0 if it has no associated skill-based uses.
+ * NB: This assumes that the object contains its flags.
+ */
+static int get_device_chance_dec(object_type *o_ptr)
+{
+	int num,denom;
+	if (!is_wand_p(k_info+o_ptr->k_idx) && (~o_ptr->flags3 & TR3_ACTIVATE))
+	{
+		/* Not a wand, rod, staff or activatable object. */
+		return 0;
+	}
+	else
+	{
+		/* Work it out. */
+		get_device_chance(o_ptr, &num, &denom);
+		return 1000*num/denom;
+	}
+}
+
+/*
+ * Find the ammunition tval used by a given launcher.
+ * Do not check that this is a missile launcher.
+ */
+byte ammunition_type(object_type *o_ptr)
+{
+	return k_info[o_ptr->k_idx].extra;
 }
 
 /* A wrapper around list_flags() for identify_fully_get(), provided for
@@ -3255,27 +3062,32 @@ static void identify_fully_get(object_type *o1_ptr, ifa_type *info)
 	if (spoil_base && k_info[o_ptr->k_idx].text)
 	{
 		info[i++].txt = k_text+k_info[o_ptr->k_idx].text;
+
+		/* Give the likelihood if appropriate. */
+		switch (o_ptr->tval)
+		{
+			case TV_ROD: case TV_WAND: case TV_STAFF:
+			j = get_device_chance_dec(o_ptr);
+			
+		}
 	}
 
+	j = get_device_chance_dec(o_ptr);
+	if (j) alloc_ifa(info+i++,
+		"You have a %d.%d%% chance of successfully using it %s.",
+		j/10, j%10, ((o_ptr->flags3 & TR3_ACTIVATE) && !is_worn_p(o_ptr))
+		? "if you wear it" : "at present");
+
 	/* Hack -- describe lite's */
-	if (o_ptr->tval == TV_LITE)
+	if (o_ptr->tval == TV_LITE && k_info[o_ptr->k_idx].extra)
 	{
-		if (allart_p(o_ptr))
-		{
-			info[i++].txt = "It provides light (radius 3) forever.";
-		}
-		else if (o_ptr->sval == SV_LITE_LANTERN)
-		{
-			info[i++].txt = "It provides light (radius 2) when fueled.";
-		}
-		else
-		{
-			info[i++].txt = "It provides light (radius 1) when fueled.";
-		}
+		alloc_ifa(info+i++, "It provides light (radius %d) %s.",
+			k_info[o_ptr->k_idx].extra,
+			((allart_p(o_ptr))) ? "forever" : "when fueled.");
 	}
 
 	/* Hack - describe the wield skill of weaponry. */
-	switch (wield_skill(o_ptr->tval, o_ptr->sval))
+	switch (wield_skill(o_ptr))
 	{
  	case SKILL_CLOSE:
  		info[i++].txt="It trains your close combat skill.";
@@ -3435,7 +3247,7 @@ static void identify_fully_get(object_type *o1_ptr, ifa_type *info)
 
 		/* Give the damage a weapon does, excluding throwing weapons in brief mode. */
 		if (!brief || (wield_slot(o_ptr) == INVEN_WIELD) ||
-			(wield_slot(o_ptr) == INVEN_BOW) || (launcher_type(o_ptr) != SV_UNKNOWN))
+			(wield_slot(o_ptr) == INVEN_BOW) || (launcher_type(o_ptr) != OBJ_NOTHING))
 		{
 			weapon_stats(o_ptr, 1, &tohit, &todam, &weap_blow, &mut_blow, &dam);
 			j = 0;
@@ -3457,8 +3269,8 @@ static void identify_fully_get(object_type *o1_ptr, ifa_type *info)
 		}
 		if (*board)
 		{
-			alloc_ifa(info+i++, format("It gives you %d,%d %s per turn",
-				weap_blow/60, weap_blow%60, *board));
+			alloc_ifa(info+i++, "It gives you %d,%d %s per turn",
+				weap_blow/60, weap_blow%60, *board);
 		}
 	}
 	/* Without spoil_dam, simply list the slays. */

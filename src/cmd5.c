@@ -1289,7 +1289,7 @@ void do_cmd_browse(int item)
 	item_tester_tval = 0;
 
 	/* Access the item's sval */
-	sval = o_ptr->sval;
+	sval = k_info[o_ptr->k_idx].extra;
 
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);
@@ -1391,7 +1391,7 @@ void do_cmd_study(void)
 	}
 
 	/* Access the item's sval */
-	sval = o_ptr->sval;
+	sval = k_info[o_ptr->k_idx].extra;
 
 	spell_school=o_ptr->tval - 90;
 
@@ -1581,13 +1581,13 @@ static void phlogiston (void)
     object_type * o_ptr = &inventory[INVEN_LITE];
 
 	/* It's a lamp */
-    if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
+    if (o_ptr->k_idx == OBJ_BRASS_LANTERN)
 	{
         max_flog = FUEL_LAMP;
 	}
 
 	/* It's a torch */
-    else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
+    else if (o_ptr->k_idx == OBJ_WOODEN_TORCH)
 	{
         max_flog = FUEL_TORCH;
 	}
@@ -1932,7 +1932,7 @@ void do_cmd_cast(void)
 	}
 
 	/* Access the item's sval */
-	sval = o_ptr->sval;
+	sval = k_info[o_ptr->k_idx].extra;
 
 	spell_school = o_ptr->tval - 90;
 
@@ -3389,7 +3389,7 @@ void do_cmd_cantrip(void)
 	}
 
 	/* Access the item's sval */
-	sval = o_ptr->sval;
+	sval = k_info[o_ptr->k_idx].extra;
 
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);
@@ -4533,7 +4533,6 @@ void do_cmd_mindcraft(void)
 			{
 				b = detect_all();
 			}
-			if ((psi > 24) && (psi < 40)) set_tim_esp(p_ptr->tim_esp + psi);
 			if (!b)  msg_print("You feel safe.");
 			break;
 		case 1:   /* Mindblast */

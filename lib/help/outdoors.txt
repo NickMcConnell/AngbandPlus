@@ -50,12 +50,12 @@ Home (8):  A house a player may buy to rest at, and store things in.
 Bookstore (9):  Buys and sells all sorts of magical books.  All bookstores
 have quiet study rooms to learn hermetic spells in.
 
-Inn (white '+'):  Has food available, and rooms to rent for the night
+Inn (white 'I'):  Has food available, and rooms to rent for the night
 (or for the day, for nocturnal folk).
 
-Pawnbrokers (green '+'): Will purchase items.
+Pawnbrokers (green 'P'): Will purchase items.
 
-Town Hall (yellow '+'):  Will show records of other players, and will sell
+Town Hall (yellow 'H'):  Will show records of other players, and will sell
 you a house if one is available in town.
 
 

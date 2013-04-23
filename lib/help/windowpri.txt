@@ -15,70 +15,70 @@ For now, I'll detail the options available:
 
 === Option list ===
 
-***** <Display inventory>
+%%%%% <Display inventory>
 Display inventory (boring if you have no unequipped inventory)
     Displays your inventory list (as the 'i' command).
 
-***** <Display equipment>
+%%%%% <Display equipment>
 Display equipment (boring if you have nothing equipped)
     Displays your equipment list (as in the 'e' command).
 
-***** <Display spell list>
+%%%%% <Display spell list>
 Display spell list (never boring)
     Displays the mindcrafting powers at your disposal.
 
-***** <Display character>
+%%%%% <Display character>
 Display character (never boring)
     Displays the character screen (as the 'C' command).
 
-***** <Display nearby monsters>
+%%%%% <Display nearby monsters>
 Display nearby monsters (boring if none are nearby)
     Displays a list of the monsters nearby with the default symbol for each
     type of monster, coloured based on whether the monster is unique, whether
     it is normally found at deeper levels than the current one, and whether the
     save file contains any record of kills of a similar monster.
 
-***** <Display skills>
+%%%%% <Display skills>
 Display skills (never boring)
     Displays the skill page of the character screen (as 'Chh').
 
-***** <Display messages>
+%%%%% <Display messages>
 Display messages (never boring)
     Displays the last page of messages (as the 'Ctrl+P' command).
     
-***** <Display overhead view>
+%%%%% <Display overhead view>
 Display overhead view (boring on 1x1 levels)
     Displays a representation of the whole level which removes some (hopefully
     unnecessary) information to be able to fit.
 
-***** <Display monster recall>
+%%%%% <Display monster recall>
 Display monster recall
     Displays a description of the most recent monster to be attacked, targetted
     or examined in some way. It is boring if this has never happened to a
     monster since the program was started.
 
-***** <Display object recall>
+%%%%% <Display object recall>
 Display object recall
     Display the contents of the most recent spellbook to be selected. It is
     boring if none have been.
 
-***** <Display object details>
+%%%%% <Display object details>
 Display object details
     Display information (as obtained with 'I') about the last object to be
     selected. It is boring if none have been, or if the last object to be
     selected has been destroyed.
 
-***** <Display shop names>
+%%%%% <Display shop names>
 Display shop names (boring except in towns with shops)
     Display information (as obtained with '~8') about the shops in the
     current town.
 
-***** <Display help>
+%%%%% <Display help>
 Display help (boring if none available)
     Display a short piece of potentially helpful text which is relevant to
     whatever you are doing at the time.
 
-*****
+#####
 === 
 
 As mentioned above, the game prefers non-"boring" displays, and prefers

@@ -1253,8 +1253,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
 
    switch (thrown_spell) {
 
-       /* RF4_SHRIEK */
-       case 96+0:
+       case (96+iilog(RF4_SHRIEK)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -1265,14 +1264,12 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_XXX3X4 */
-       case 96+2:
+       case (96+iilog(RF4_XXX3)):
        {
            break;
        }
 
-       /* RF4_SHARD */
-       case 96+3:
+       case (96+iilog(RF4_SHARD)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble.");
@@ -1283,8 +1280,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_ARROW_1 */
-       case 96+4:
+       case (96+iilog(RF4_ARROW_1)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear a strange noise.");
@@ -1294,8 +1290,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_ARROW_2 */
-       case 96+5:
+       case (96+iilog(RF4_ARROW_2)):
        {
            disturb(0, 0);
                       if (!see_either) msg_print("You hear a strange noise.");
@@ -1305,8 +1300,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_ARROW_3 */
-       case 96+6:
+       case (96+iilog(RF4_ARROW_3)):
        {
            disturb(0, 0);
 
@@ -1317,8 +1311,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
              break;
        }
 
-       /* RF4_ARROW_4 */
-       case 96+7:
+       case (96+iilog(RF4_ARROW_4)):
        {
           if (!see_either) msg_print("You hear a strange noise.");
            else disturb(0, 0);
@@ -1328,8 +1321,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
              break;
        }
 
-       /* RF4_BR_ACID */
-       case 96+8:
+       case (96+iilog(RF4_BR_ACID)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1340,8 +1332,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_ELEC */
-       case 96+9:
+       case (96+iilog(RF4_BR_ELEC)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1352,8 +1343,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_FIRE */
-       case 96+10:
+       case (96+iilog(RF4_BR_FIRE)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1364,8 +1354,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_COLD */
-       case 96+11:
+       case (96+iilog(RF4_BR_COLD)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1376,8 +1365,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_POIS */
-       case 96+12:
+       case (96+iilog(RF4_BR_POIS)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1388,8 +1376,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_NETH */
-       case 96+13:
+       case (96+iilog(RF4_BR_NETH)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1400,8 +1387,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_LITE */
-       case 96+14:
+       case (96+iilog(RF4_BR_LITE)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1412,8 +1398,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_DARK */
-       case 96+15:
+       case (96+iilog(RF4_BR_DARK)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1424,8 +1409,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_CONF */
-       case 96+16:
+       case (96+iilog(RF4_BR_CONF)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1436,8 +1420,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_SOUN */
-       case 96+17:
+       case (96+iilog(RF4_BR_SOUN)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1448,8 +1431,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_CHAO */
-       case 96+18:
+       case (96+iilog(RF4_BR_CHAO)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1460,8 +1442,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_DISE */
-       case 96+19:
+       case (96+iilog(RF4_BR_DISE)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1472,8 +1453,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_NEXU */
-       case 96+20:
+       case (96+iilog(RF4_BR_NEXU)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1484,8 +1464,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_TIME */
-       case 96+21:
+       case (96+iilog(RF4_BR_TIME)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1496,8 +1475,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_INER */
-       case 96+22:
+       case (96+iilog(RF4_BR_INER)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1508,8 +1486,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_GRAV */
-       case 96+23:
+       case (96+iilog(RF4_BR_GRAV)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1520,8 +1497,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_SHAR */
-       case 96+24:
+       case (96+iilog(RF4_BR_SHAR)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1532,8 +1508,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_PLAS */
-       case 96+25:
+       case (96+iilog(RF4_BR_PLAS)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1544,8 +1519,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_WALL */
-       case 96+26:
+       case (96+iilog(RF4_BR_WALL)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1556,8 +1530,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_BR_MANA */
-       case 96+27:
+       case (96+iilog(RF4_BR_MANA)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1568,8 +1541,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_XXX5X4 */
-       case 96+28:
+       case (96+iilog(RF4_BA_NUKE)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear someone mumble.");
@@ -1580,8 +1552,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_XXX6X4 */
-       case 96+29:
+       case (96+iilog(RF4_BR_NUKE)):
    {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1592,8 +1563,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
    }
 
-       /* RF4_XXX7X4 */
-       case 96+30:
+       case (96+iilog(RF4_BA_CHAO)):
          {
            disturb(0, 0);
            if (!see_either) msg_print("You hear someone mumble frighteningly.");
@@ -1604,8 +1574,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF4_XXX8X4 -> Breathe Disintegration */
-       case 96+31:
+       case (96+iilog(RF4_BR_DISI)):
        {
            disturb(0, 0);
            if (!see_either) msg_print("You hear breathing noise.");
@@ -1618,8 +1587,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
 
 
 
-       /* RF5_BA_ACID */
-       case 128+0:
+       case (128+iilog(RF5_BA_ACID)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble.");
@@ -1630,8 +1598,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BA_ELEC */
-       case 128+1:
+       case (128+iilog(RF5_BA_ELEC)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble.");
@@ -1643,8 +1610,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BA_FIRE */
-       case 128+2:
+       case (128+iilog(RF5_BA_FIRE)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble.");
@@ -1656,8 +1622,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BA_COLD */
-       case 128+3:
+       case (128+iilog(RF5_BA_COLD)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble.");
@@ -1669,8 +1634,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BA_POIS */
-       case 128+4:
+       case (128+iilog(RF5_BA_POIS)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble.");
@@ -1682,8 +1646,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BA_NETH */
-       case 128+5:
+       case (128+iilog(RF5_BA_NETH)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble.");
@@ -1695,8 +1658,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BA_WATE */
-       case 128+6:
+       case (128+iilog(RF5_BA_WATE)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble.");
@@ -1709,8 +1671,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BA_MANA */
-       case 128+7:
+       case (128+iilog(RF5_BA_MANA)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble powerfully.");
@@ -1722,8 +1683,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BA_DARK */
-       case 128+8:
+       case (128+iilog(RF5_BA_DARK)):
        {
            disturb(0, 0);
            if (!see_either) msg_print ("You hear someone mumble powerfully.");
@@ -1735,8 +1695,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_DRAIN_MANA */
-       case 128+9:
+       case (128+iilog(RF5_DRAIN_MANA)):
        {
            /* Attack power */
            int r1 = (randint(rlev) / 2) + 1;
@@ -1773,8 +1732,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_MIND_BLAST */
-       case 128+10:
+       case (128+iilog(RF5_MIND_BLAST)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -1808,8 +1766,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BRAIN_SMASH */
-       case 128+11:
+       case (128+iilog(RF5_BRAIN_SMASH)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -1847,8 +1804,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_CAUSE_1 */
-       case 128+12:
+       case (128+iilog(RF5_CAUSE_1)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -1868,8 +1824,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_CAUSE_2 */
-       case 128+13:
+       case (128+iilog(RF5_CAUSE_2)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -1888,8 +1843,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_CAUSE_3 */
-       case 128+14:
+       case (128+iilog(RF5_CAUSE_3)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -1908,8 +1862,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            wake_up = TRUE;
        }
 
-       /* RF5_CAUSE_4 */
-       case 128+15:
+       case (128+iilog(RF5_CAUSE_4)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -1928,8 +1881,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BO_ACID */
-       case 128+16:
+       case (128+iilog(RF5_BO_ACID)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -1939,8 +1891,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BO_ELEC */
-       case 128+17:
+       case (128+iilog(RF5_BO_ELEC)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -1950,8 +1901,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BO_FIRE */
-       case 128+18:
+       case (128+iilog(RF5_BO_FIRE)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -1961,8 +1911,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BO_COLD */
-       case 128+19:
+       case (128+iilog(RF5_BO_COLD)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -1972,15 +1921,13 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BO_POIS */
-       case 128+20:
+       case (128+iilog(RF5_BO_POIS)):
        {
            /* XXX XXX XXX */
            break;
        }
 
-       /* RF5_BO_NETH */
-       case 128+21:
+       case (128+iilog(RF5_BO_NETH)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -1990,8 +1937,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BO_WATE */
-       case 128+22:
+       case (128+iilog(RF5_BO_WATE)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2001,8 +1947,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BO_MANA */
-       case 128+23:
+       case (128+iilog(RF5_BO_MANA)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2012,8 +1957,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BO_PLAS */
-       case 128+24:
+       case (128+iilog(RF5_BO_PLAS)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2023,8 +1967,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BO_ICE */
-       case 128+25:
+       case (128+iilog(RF5_BO_ICEE)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2034,8 +1977,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_MISSILE */
-       case 128+26:
+       case (128+iilog(RF5_MISSILE)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2045,8 +1987,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_SCARE */
-       case 128+27:
+       case (128+iilog(RF5_SCARE)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -2069,8 +2010,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_BLIND */
-       case 128+28:
+       case (128+iilog(RF5_BLIND)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -2095,8 +2035,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
 
        }
 
-       /* RF5_CONF */
-       case 128+29:
+       case (128+iilog(RF5_CONF)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -2119,8 +2058,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_SLOW */
-       case 128+30:
+       case (128+iilog(RF5_SLOW)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -2143,8 +2081,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF5_HOLD */
-       case 128+31:
+       case (128+iilog(RF5_HOLD)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -2168,8 +2105,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
        }
 
 
-       /* RF6_HASTE */
-       case 160+0:
+       case (160+iilog(RF6_HASTE)):
        {
            disturb(0, 0);
            if (blind || !see_m)
@@ -2198,8 +2134,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_DREAD_CURSE */
-       case 160+1:
+       case (160+iilog(RF6_DREAD_CURSE)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -2230,8 +2165,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_HEAL */
-       case 160+2:
+       case (160+iilog(RF6_HEAL)):
        {
            disturb(0, 0);
 
@@ -2295,14 +2229,12 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_XXX2X6 */
-       case 160+3:
+       case (160+iilog(RF6_XXX2)):
        {
            break;
        }
 
-       /* RF6_BLINK */
-       case 160+4:
+       case (160+iilog(RF6_BLINK)):
        {
            disturb(0, 0);
            if (see_m) msg_format("%^s blinks away.", m_name);
@@ -2310,8 +2242,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_TPORT */
-       case 160+5:
+       case (160+iilog(RF6_TPORT)):
        {
            disturb(1, 0);
            if (see_m) msg_format("%^s teleports away.", m_name);
@@ -2319,27 +2250,23 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_XXX3X6 */
-       case 160+6:
+       case (160+iilog(RF6_XXX3)):
        {
            break;
        }
 
-       /* RF6_XXX4X6 */
-       case 160+7:
+       case (160+iilog(RF6_XXX4)):
        {
            break;
        }
 
-       /* RF6_TELE_TO */
-       case 160+8:
+       case (160+iilog(RF6_TELE_TO)):
        {
            /* Not implemented */
            break;
        }
 
-       /* RF6_TELE_AWAY */
-       case 160+9:
+       case (160+iilog(RF6_TELE_AWAY)):
        {
 
            if (!direct) break;
@@ -2381,21 +2308,18 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_TELE_LEVEL */
-       case 160+10:
+       case (160+iilog(RF6_TELE_LEVEL)):
        {
            /* Not implemented */
            break;
        }
 
-       /* RF6_XXX5 */
-       case 160+11:
+       case (160+iilog(RF6_XXX5)):
        {
            break;
        }
 
-       /* RF6_DARKNESS */
-       case 160+12:
+       case (160+iilog(RF6_DARKNESS)):
        {
            if (!direct) break;
            disturb(0, 0);
@@ -2409,28 +2333,24 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_TRAPS */
-       case 160+13:
+       case (160+iilog(RF6_TRAPS)):
        {
            /* Not implemented */
            break;
        }
 
-       /* RF6_FORGET */
-       case 160+14:
+       case (160+iilog(RF6_FORGET)):
        {
            /* Not implemented */
            break;
        }
 
-       /* RF6_XXX6X6 */
-       case 160+15:
+       case (160+iilog(RF6_XXX6)):
        {
            break;
        }
 
-         /* RF6_SUMMON_KIN */
-       case 160+16:
+       case (160+iilog(RF6_S_KIN)):
        {
              disturb(0, 0);
              if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2452,8 +2372,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-         /* RF6_S_REAVER */
-       case 160+17:
+       case (160+iilog(RF6_S_REAVER)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2466,8 +2385,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_MONSTER */
-       case 160+18:
+       case (160+iilog(RF6_S_MONSTER)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2483,8 +2401,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_MONSTERS */
-       case 160+19:
+       case (160+iilog(RF6_S_MONSTERS)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2500,8 +2417,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_ANT */
-       case 160+20:
+       case (160+iilog(RF6_S_ANT)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2517,8 +2433,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_SPIDER */
-       case 160+21:
+       case (160+iilog(RF6_S_SPIDER)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2534,8 +2449,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_HOUND */
-       case 160+22:
+       case (160+iilog(RF6_S_HOUND)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2551,8 +2465,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_HYDRA */
-       case 160+23:
+       case (160+iilog(RF6_S_HYDRA)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2568,8 +2481,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_CTHULOID */
-       case 160+24:
+       case (160+iilog(RF6_S_CTHULOID)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2585,8 +2497,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_DEMON */
-       case 160+25:
+       case (160+iilog(RF6_S_DEMON)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2602,8 +2513,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_UNDEAD */
-       case 160+26:
+       case (160+iilog(RF6_S_UNDEAD)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2619,8 +2529,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_DRAGON */
-       case 160+27:
+       case (160+iilog(RF6_S_DRAGON)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2636,8 +2545,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_HI_UNDEAD */
-       case 160+28:
+       case (160+iilog(RF6_S_HI_UNDEAD)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2656,8 +2564,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_HI_DRAGON */
-       case 160+29:
+       case (160+iilog(RF6_S_HI_DRAGON)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2676,8 +2583,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_GOO */
-       case 160+30:
+       case (160+iilog(RF6_S_GOO)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2696,8 +2602,7 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            break;
        }
 
-       /* RF6_S_UNIQUE */
-       case 160+31:
+       case (160+iilog(RF6_S_UNIQUE)):
        {
            disturb(0, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
@@ -2847,8 +2752,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 	/* Cast the spell. */
 	switch (thrown_spell)
 	{
-		/* RF4_SHRIEK */
-		case 96+0:
+		case (96+iilog(RF4_SHRIEK)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -2857,14 +2761,12 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_XXX3X4 */
-		case 96+2:
+		case (96+iilog(RF4_XXX3)):
 		{
 			break;
 		}
 
-		/* RF4_SHARD */
-		case 96+3:
+		case (96+iilog(RF4_SHARD)):
 		{
 			disturb(1, 0);
 	    if (blind) msg_format("%^s mumbles something.", m_name);
@@ -2875,8 +2777,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_ARROW_1 */
-		case 96+4:
+		case (96+iilog(RF4_ARROW_1)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
@@ -2886,8 +2787,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_ARROW_2 */
-		case 96+5:
+		case (96+iilog(RF4_ARROW_2)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
@@ -2897,8 +2797,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_ARROW_3 */
-		case 96+6:
+		case (96+iilog(RF4_ARROW_3)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
@@ -2908,8 +2807,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
             break;
 		}
 
-		/* RF4_ARROW_4 */
-		case 96+7:
+		case (96+iilog(RF4_ARROW_4)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
@@ -2919,8 +2817,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
             break;
 		}
 
-		/* RF4_BR_ACID */
-		case 96+8:
+		case (96+iilog(RF4_BR_ACID)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -2931,8 +2828,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_ELEC */
-		case 96+9:
+		case (96+iilog(RF4_BR_ELEC)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -2943,8 +2839,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_FIRE */
-		case 96+10:
+		case (96+iilog(RF4_BR_FIRE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -2955,8 +2850,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_COLD */
-		case 96+11:
+		case (96+iilog(RF4_BR_COLD)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -2967,8 +2861,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_POIS */
-		case 96+12:
+		case (96+iilog(RF4_BR_POIS)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -2980,8 +2873,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 		}
 
 
-		/* RF4_BR_NETH */
-		case 96+13:
+		case (96+iilog(RF4_BR_NETH)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -2992,8 +2884,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_LITE */
-		case 96+14:
+		case (96+iilog(RF4_BR_LITE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3004,8 +2895,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_DARK */
-		case 96+15:
+		case (96+iilog(RF4_BR_DARK)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3016,8 +2906,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_CONF */
-		case 96+16:
+		case (96+iilog(RF4_BR_CONF)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3028,8 +2917,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_SOUN */
-		case 96+17:
+		case (96+iilog(RF4_BR_SOUN)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3040,8 +2928,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_CHAO */
-		case 96+18:
+		case (96+iilog(RF4_BR_CHAO)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3052,8 +2939,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_DISE */
-		case 96+19:
+		case (96+iilog(RF4_BR_DISE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3064,8 +2950,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_NEXU */
-		case 96+20:
+		case (96+iilog(RF4_BR_NEXU)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3076,8 +2961,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_TIME */
-		case 96+21:
+		case (96+iilog(RF4_BR_TIME)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3087,8 +2971,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_INER */
-		case 96+22:
+		case (96+iilog(RF4_BR_INER)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3098,8 +2981,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_GRAV */
-		case 96+23:
+		case (96+iilog(RF4_BR_GRAV)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3109,8 +2991,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_SHAR */
-		case 96+24:
+		case (96+iilog(RF4_BR_SHAR)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3121,8 +3002,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_PLAS */
-		case 96+25:
+		case (96+iilog(RF4_BR_PLAS)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3132,8 +3012,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_WALL */
-		case 96+26:
+		case (96+iilog(RF4_BR_WALL)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3143,8 +3022,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_BR_MANA */
-		case 96+27:
+		case (96+iilog(RF4_BR_MANA)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3154,8 +3032,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_XXX5X4 */
-		case 96+28:
+		case (96+iilog(RF4_BA_NUKE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3166,8 +3043,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF4_XXX6X4 */
-		case 96+29:
+		case (96+iilog(RF4_BR_NUKE)):
 	{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3178,8 +3054,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 	}
 
-		/* RF4_XXX7X4 */
-		case 96+30:
+		case (96+iilog(RF4_BA_CHAO)):
         {
 			disturb(1, 0);
             if (blind) msg_format("%^s mumbles frighteningly.", m_name);
@@ -3190,8 +3065,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-        /* RF4_XXX8X4 -> Disintegration breath! */
-		case 96+31:
+		case (96+iilog(RF4_BR_DISI)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -3203,8 +3077,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 
 
 
-		/* RF5_BA_ACID */
-		case 128+0:
+		case (128+iilog(RF5_BA_ACID)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3215,8 +3088,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BA_ELEC */
-		case 128+1:
+		case (128+iilog(RF5_BA_ELEC)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3227,8 +3099,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BA_FIRE */
-		case 128+2:
+		case (128+iilog(RF5_BA_FIRE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3239,8 +3110,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BA_COLD */
-		case 128+3:
+		case (128+iilog(RF5_BA_COLD)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3251,8 +3121,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BA_POIS */
-		case 128+4:
+		case (128+iilog(RF5_BA_POIS)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3263,8 +3132,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BA_NETH */
-		case 128+5:
+		case (128+iilog(RF5_BA_NETH)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3275,8 +3143,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BA_WATE */
-		case 128+6:
+		case (128+iilog(RF5_BA_WATE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3287,8 +3154,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BA_MANA */
-		case 128+7:
+		case (128+iilog(RF5_BA_MANA)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
@@ -3298,8 +3164,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BA_DARK */
-		case 128+8:
+		case (128+iilog(RF5_BA_DARK)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
@@ -3310,8 +3175,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_DRAIN_MANA */
-		case 128+9:
+		case (128+iilog(RF5_DRAIN_MANA)):
 		{
 			if (!direct) break;
 			if ((p_ptr->csp) || (p_ptr->cchi))
@@ -3395,8 +3259,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_MIND_BLAST */
-		case 128+10:
+		case (128+iilog(RF5_MIND_BLAST)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3431,8 +3294,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BRAIN_SMASH */
-		case 128+11:
+		case (128+iilog(RF5_BRAIN_SMASH)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3481,8 +3343,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_CAUSE_1 */
-		case 128+12:
+		case (128+iilog(RF5_CAUSE_1)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3502,8 +3363,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_CAUSE_2 */
-		case 128+13:
+		case (128+iilog(RF5_CAUSE_2)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3522,8 +3382,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_CAUSE_3 */
-		case 128+14:
+		case (128+iilog(RF5_CAUSE_3)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3542,8 +3401,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_CAUSE_4 */
-		case 128+15:
+		case (128+iilog(RF5_CAUSE_4)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3562,8 +3420,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BO_ACID */
-		case 128+16:
+		case (128+iilog(RF5_BO_ACID)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3575,8 +3432,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BO_ELEC */
-		case 128+17:
+		case (128+iilog(RF5_BO_ELEC)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3588,8 +3444,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BO_FIRE */
-		case 128+18:
+		case (128+iilog(RF5_BO_FIRE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3601,8 +3456,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BO_COLD */
-		case 128+19:
+		case (128+iilog(RF5_BO_COLD)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3614,15 +3468,13 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BO_POIS */
-		case 128+20:
+		case (128+iilog(RF5_BO_POIS)):
 		{
 			/* XXX XXX XXX */
 			break;
 		}
 
-		/* RF5_BO_NETH */
-		case 128+21:
+		case (128+iilog(RF5_BO_NETH)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3634,8 +3486,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BO_WATE */
-		case 128+22:
+		case (128+iilog(RF5_BO_WATE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3646,8 +3497,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BO_MANA */
-		case 128+23:
+		case (128+iilog(RF5_BO_MANA)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3658,8 +3508,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BO_PLAS */
-		case 128+24:
+		case (128+iilog(RF5_BO_PLAS)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3670,8 +3519,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BO_ICEE */
-		case 128+25:
+		case (128+iilog(RF5_BO_ICEE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3683,8 +3531,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_MISSILE */
-		case 128+26:
+		case (128+iilog(RF5_MISSILE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -3695,8 +3542,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_SCARE */
-		case 128+27:
+		case (128+iilog(RF5_SCARE)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3719,8 +3565,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_BLIND */
-		case 128+28:
+		case (128+iilog(RF5_BLIND)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3743,8 +3588,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_CONF */
-		case 128+29:
+		case (128+iilog(RF5_CONF)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3767,8 +3611,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_SLOW */
-		case 128+30:
+		case (128+iilog(RF5_SLOW)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3790,8 +3633,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF5_HOLD */
-		case 128+31:
+		case (128+iilog(RF5_HOLD)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3816,8 +3658,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 
 
 
-		/* RF6_HASTE */
-		case 160+0:
+		case (160+iilog(RF6_HASTE)):
 		{
 			disturb(1, 0);
 			if (blind)
@@ -3846,8 +3687,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-        /* RF6_DREAD_CURSE */
-		case 160+1:
+		case (160+iilog(RF6_DREAD_CURSE)):
 		{
 			disturb(1, 0);
             msg_format("%^s invokes the Dread Curse of Azathoth!", m_name);
@@ -3870,8 +3710,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_HEAL */
-		case 160+2:
+		case (160+iilog(RF6_HEAL)):
 		{
 			disturb(1, 0);
 
@@ -3935,14 +3774,12 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_XXX2X6 */
-		case 160+3:
+		case (160+iilog(RF6_XXX2)):
 		{
 			break;
 		}
 
-		/* RF6_BLINK */
-		case 160+4:
+		case (160+iilog(RF6_BLINK)):
 		{
 			disturb(1, 0);
 			msg_format("%^s blinks away.", m_name);
@@ -3950,8 +3787,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_TPORT */
-		case 160+5:
+		case (160+iilog(RF6_TPORT)):
 		{
 			disturb(1, 0);
 			msg_format("%^s teleports away.", m_name);
@@ -3959,20 +3795,17 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_XXX3X6 */
-		case 160+6:
+		case (160+iilog(RF6_XXX3)):
 		{
 			break;
 		}
 
-		/* RF6_XXX4X6 */
-		case 160+7:
+		case (160+iilog(RF6_XXX4)):
 		{
 			break;
 		}
 
-		/* RF6_TELE_TO */
-		case 160+8:
+		case (160+iilog(RF6_TELE_TO)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3981,8 +3814,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_TELE_AWAY */
-		case 160+9:
+		case (160+iilog(RF6_TELE_AWAY)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -3991,8 +3823,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_TELE_LEVEL */
-		case 160+10:
+		case (160+iilog(RF6_TELE_LEVEL)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -4015,14 +3846,12 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_XXX5 */
-		case 160+11:
+		case (160+iilog(RF6_XXX5)):
 		{
 			break;
 		}
 
-		/* RF6_DARKNESS */
-		case 160+12:
+		case (160+iilog(RF6_DARKNESS)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -4032,8 +3861,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_TRAPS */
-		case 160+13:
+		case (160+iilog(RF6_TRAPS)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -4043,8 +3871,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_FORGET */
-		case 160+14:
+		case (160+iilog(RF6_FORGET)):
 		{
 			if (!direct) break;
 			disturb(1, 0);
@@ -4062,14 +3889,12 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_XXX6X6 */
-		case 160+15:
+		case (160+iilog(RF6_XXX6)):
 		{
 			break;
 		}
 
-        /* RF6_SUMMON_KIN */
-		case 160+16:
+		case (160+iilog(RF6_S_KIN)):
 		{
             disturb(1, 0);
             if (blind) msg_format("%^s mumbles.", m_name);
@@ -4088,8 +3913,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-        /* RF6_S_REAVER */
-		case 160+17:
+		case (160+iilog(RF6_S_REAVER)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4099,8 +3923,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_MONSTER */
-		case 160+18:
+		case (160+iilog(RF6_S_MONSTER)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4113,8 +3936,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_MONSTERS */
-		case 160+19:
+		case (160+iilog(RF6_S_MONSTERS)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4127,8 +3949,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_ANT */
-		case 160+20:
+		case (160+iilog(RF6_S_ANT)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4141,8 +3962,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_SPIDER */
-		case 160+21:
+		case (160+iilog(RF6_S_SPIDER)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4155,8 +3975,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_HOUND */
-		case 160+22:
+		case (160+iilog(RF6_S_HOUND)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4169,8 +3988,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_HYDRA */
-		case 160+23:
+		case (160+iilog(RF6_S_HYDRA)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4183,8 +4001,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_CTHULOID */
-		case 160+24:
+		case (160+iilog(RF6_S_CTHULOID)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4197,8 +4014,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_DEMON */
-		case 160+25:
+		case (160+iilog(RF6_S_DEMON)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4211,8 +4027,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_UNDEAD */
-		case 160+26:
+		case (160+iilog(RF6_S_UNDEAD)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4225,8 +4040,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_DRAGON */
-		case 160+27:
+		case (160+iilog(RF6_S_DRAGON)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4239,8 +4053,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_HI_UNDEAD */
-		case 160+28:
+		case (160+iilog(RF6_S_HI_UNDEAD)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4256,8 +4069,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_HI_DRAGON */
-		case 160+29:
+		case (160+iilog(RF6_S_HI_DRAGON)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4273,8 +4085,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_GOO */
-		case 160+30:
+		case (160+iilog(RF6_S_GOO)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -4293,8 +4104,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 			break;
 		}
 
-		/* RF6_S_UNIQUE */
-		case 160+31:
+		case (160+iilog(RF6_S_UNIQUE)):
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -5088,7 +4898,7 @@ static bool get_moves(int m_idx, int *mm)
            for (i = 0; i < 8; i++)
            {
                /* Check grid */
-               if (cave[py + ddy_ddd[i]][px + ddx_ddd[i]].info & (CAVE_ROOM))
+               if (is_room_p(py + ddy_ddd[i], px + ddx_ddd[i]))
                {
                    /* One more room grid */
                    room++;
@@ -6240,7 +6050,7 @@ static void process_monster(int m_idx, bool is_friend)
 
 
     /* Hack! "Black Reaver" monster makes noise... */
-    if (strstr((r_name + r_ptr->name),"Black Reaver"))
+    if (strstr(monster_desc_aux(0, r_ptr, 1, 0),"Black Reaver"))
     {
 		if (!(m_ptr->ml))
 		{
@@ -6262,9 +6072,11 @@ static void process_monster(int m_idx, bool is_friend)
 				C_TNEW(m_name, MNAME_MAX, char);
                 char bravado[80];
 
-                bool is_groo = !!(strstr(r_name + r_ptr->name, "Groo"));
+                bool is_groo = !!(strstr(monster_desc_aux(0, r_ptr, 1, 0),
+					"Groo"));
 
-                bool is_smeagol = !!(strstr(r_name + r_ptr->name, "Smeagol"));
+                bool is_smeagol = !!(strstr(monster_desc_aux(0, r_ptr, 1, 0),
+					"Smeagol"));
  
 
 

@@ -4,6 +4,63 @@ Based on Cthangband 4.1.0b and Zangband 2.1.0e
 Changes are added to the top of this file, so for a chronological order
 read from the bottom up.
 
+sCthangband 1.0.5
+* Determine whether somewhere is a room for post-creation lighting and AI
+  purposes based on how open the space around it is.
+* Give the Boots of the Black Reaver a higher price than similar speed boots.
+* Make the Lucerne Hammer a polearm which uses the stabbing skill to match the
+  real weapon.
+* Remove telepathy from precognition and being a mindcrafter.
+* Give the Long Bow of Serpents a x5 multiplier.
+* Remove lucerne hammers from the temple stock and add them to the weapon shop.
+* Prevent permanently cursed randarts from being created.
+* Include the approximate chance of activating an object with a known activation
+  in the 'I' display.
+* Use formatted input for the function which adds arbitrary strings for the 'I'
+  display.
+* Indicate temporary fear resistance/telepathy in the 'Chhh' display with a
+  coloured *.
+* Change the "change colour here" string in help files to $.
+* Include pluralisation methods in lib/edit/r_info.txt.
+* Replace the sval, level and (the unused) extra field from object_kind with
+  an extra field which contains information which changes based on the tval
+  (but is usually 0) and a second level field in artifact_type which is the
+  second level field for insta-arts.
+* Replace tval/sval identities with k_idx ones in various places.
+* Remove INSTA_ART.
+* Allow the skill used by a weapon to be set in k_info.txt.
+* Allow non-magical food to be added without source changes.
+* Allow light radii to be changed in k_info.txt.
+* Allow bows' ammunition type to be changed arbitrarily, and their multipliers
+  set, in k_info.txt.
+* Add comments to those lib/edit files which lacked them.
+* Use commas in lib/edit/* to make it easier to work out the prices of objects
+  there.
+* Represent speeds as "+10", etc., and weights as "1.0lb", etc., in lib/edit/*.
+* Change "Armor" to "Armour" in various places for uniformity.
+* Save a version string in pref files so that they can be imported into newer
+  versions easily.
+* Make it so that the old rolling routine is really only used with quick_start.
+* Suppress the "It modifies your number of blows by X." for weapons.
+* Use store_table directly rather than giving each shop a copy of its section.
+* Replace the various SV_* macros with OBJ_* ones based on index.
+* Make the colour<=>character conversions use the same table.
+* Create the (currently unused) "some XXX" description in object_desc() rather
+  than the calling function. 
+* Use the correct symbols for the non-numerical shops in the help files.
+* Spread out the columns in the visible monster display to fill the space.
+* Fix some bugs which missed out the damage most starting players did at birth.
+* Fix a bug which prevented the generation of monster spoilers.
+* Fix a bug which prevented any but the first 12 items on the current page in
+  a shop's inventory from being accessible.
+* Ensure that format("%s ", format(0)) always gives the expected result.
+* Show the activation for *identified* randarts.
+* Show the IGNORE_* flag on a known randart if spoil_art is set.
+* Prevent names in the visible monster display from overflowing their columns.
+* Use macros for monster spells rather than the associated magic numbers.
+* Clean up some code.
+* Fix some bugs.
+
 sCthangband 1.0.4
 * Allow 'a' to be used to roll for stats in spend_points display, taking the
   current stats for minima if use_autoroller is set. Separate rolling out into

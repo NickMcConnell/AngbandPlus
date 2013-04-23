@@ -14,10 +14,31 @@
 
 # Note that terrain feature zero contains the "darkness" picture.
 
+# === Understanding f_info.txt ===
+
+# N:serial number:terrain name
+# G:symbol:color
+# F: flag | flag | etc
+
+# N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Dark Gray    w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Black        W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol
+
 
 # Version stamp (required)
 
-V:1.0.4
+V:1.0.5
 
 
 # 0x00 --> nothing

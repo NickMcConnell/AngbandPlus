@@ -11,6 +11,40 @@
 
 # Note that the "spacing" in the "description" lines is very important!
 
+# === Understanding v_info.txt ===
+
+# N:serial number:vault name
+# X:room type:rating:rows:columns
+# D:lines giving full layout of vault using symbols below
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new vault.
+
+# 'X' is for extra information - room type, rating, rows, and
+# columns. Lesser vaults are room type 7 and have a maximum x-y size
+# of 33x22; greater vaults are room type 8 and have a maximum size of 66x44.
+# Anything larger is a *greater* vault.
+
+# 'D' lines describe the layout of the vault. Lines must be padded
+# with spaces to fill the dimensions specified. Vaults are described
+# with the following symbols:
+
+#    % - outside of the vault, where corridors may be connected
+#    # - granite
+#    X - impenetrable rock
+#    * - treasure or trap
+#    + - secret door
+#    ^ - trap
+#    & - monster up to 5 levels out of depth (OOD)
+#    @ - monster up to 11 levels OOD
+#    9 - monster up to 9 levels OOD and treasure up to 7 levels OOD
+#    8 - monster up to 40 levels OOD and treasure up to 20 levels OOD
+#    , - monster up to 3 levels OOD and/or treasure up to 7 levels OOD
+
+# Use this to measure columns                                                                        1
+#          1         2         3         4         5         6         7         8         9         0
+# 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
 
 # New vault types added for Zangband -TY
 
@@ -18,7 +52,7 @@
 
 # Version stamp (required)
 
-V:1.0.4
+V:1.0.5
 
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###

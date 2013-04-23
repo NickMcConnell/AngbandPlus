@@ -843,683 +843,6 @@ static void prt_frame_extra(void)
 	prt_study();
 }
 
-
-/*
- * Return whether PW_INVEN is interesting
- */
-static bool win_inven_good(void)
-{
-	int i;
-
-	/* Boring without an inventory */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		/* There is some inventory */
-		if (inventory[i].k_idx) return TRUE;
-	}
-
-	/* There is no inventory */
-	return FALSE;
-}
-
-/*
- * Return whether PW_EQUIP is interesting
- */
-static bool win_equip_good(void)
-{
-	int i;
-
-	/* Boring without equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-		/* There is some equipment */
-		if (inventory[i].k_idx) return TRUE;
-	}
-		
-	/* There is no equipment */
-	return FALSE;
-}
-
-
-/*
- * Return whether PW_SPELL is interesting
- */
-static bool win_spell_good(void)
-	{
-	/* Boring without any powers */
-	return (mindcraft_powers[0].min_lev >
-		skill_set[SKILL_MINDCRAFTING].value/2);
-}
-
-
-
-
-/*
- * Display the first player screen in a window.
- */
-static void win_player_display(void)
-{
-		/* Display player */
-		display_player(0);
-}
-
-
-/*
- * Display the third player screen in a window.
- */
-static void win_player_skills_display(void)
-{
-		/* Display player */
-		display_player(2);
-}
-
-
-/*
- * Return whether PW_MESSAGE is interesting
- */
-static bool win_message_good(void)
-{
-	/* Boring without any messages */
-	return (message_num() != 0);
-}
-
-/*
- * Display old messages in a window.
- */
-static void win_message_display(void)
-	{
-	int i;
-	int w, h;
-	int x, y;
-
-		/* Get size */
-		Term_get_size(&w, &h);
-
-		/* Dump messages */
-		for (i = 0; i < h; i++)
-		{
-			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str((short)i));
-
-			/* Cursor */
-			Term_locate(&x, &y);
-
-			/* Clear to end of line */
-			Term_erase(x, y, 255);
-		}
-}
-
-
-
-/*
- * Return whether PW_OVERHEAD is interesting
- */
-static bool win_overhead_good(void)
-{
-	/* The map's always different on the surface. */
-	if (!dun_level) return TRUE;
-
-	/* The map doesn't fit on the main display. */
-	if (windows[0].term->wid < cur_wid) return TRUE;
-	if (windows[0].term->hgt < cur_hgt) return TRUE;
-	
-	/* This is shown on the main display. */
-	return FALSE;
-}
-
-/*
- * Display the overhead map in a window.
- */
-static void win_overhead_display(void)
-{
-	int cy, cx;
-
-	/* Redraw map */
-	display_map(&cy, &cx, TRUE);
-	
-	/* Hack - also give the world map if the player is in a town. */
-	if (!dun_level)
-	{
-		display_wild_map(cx+3);
-	}
-}
-
-
-/*
- * PW_SHOPS is interesting if the player is in a town with shops.
- */
-static bool win_shops_good(void)
-{
-	if (wild_grid[wildy][wildx].dungeon < MAX_TOWNS && !dun_level)
-		{
-		return shops_good(cur_town);
-	}
-	else
-	{
-	return FALSE;
-}
-}
-
-/*
- * Give a list of shops in the current town.
- */
-static void win_shops_display(void)
-	{
-	shops_display(cur_town);
-}
-
-
-/*
- * Return whether PW_MONSTER is interesting
- */
-static bool win_monster_good(void)
-{
-	/* Boring without a selected monster */
-	return (monster_race_idx != 0);
-}
-
-/*
- * Display monster recall in a window.
- */
-static void win_monster_display(void)
-	{
-		/* Display monster race info */
-		if (monster_race_idx) display_roff(monster_race_idx);
-}
-
-/*
- * Return whether PW_OBJECT is interesting
- */
-static bool win_object_good(void)
-{
-	/* Boring with a remembered object */
-	return (object_kind_idx != 0);
-}
-
-/*
- * Display object kind recall in a window.
- */
-static void win_object_display(void)
-	{
-	/* Display object kind info */
-		if (object_kind_idx) display_koff(object_kind_idx);
-}
-
-
-
-/*
- * Return whether PW_OBJECT_DETAILS is interesting.
- */
-static bool win_object_details_good(void)
-{
-	object_type *o_ptr = cnv_idx_to_obj(object_idx);
-
-	/* Non-objects are boring. */
-	if (!o_ptr || !(o_ptr->k_idx)) return FALSE;
-
-	/* Invisible floor objects are boring. */
-	if (object_idx < 0 && !los(py, px, o_ptr->iy, o_ptr->ix)) return FALSE;
-
-	/* Other objects are interesting. */
-	return TRUE;
-}	
-
-static void win_object_details_display(void)
-{
-	object_type *o_ptr = cnv_idx_to_obj(object_idx);
-	C_TNEW(o_name, ONAME_MAX, char);
-	
-	/* Never display non-objects. */
-	if (!o_ptr || !(o_ptr->k_idx)) return;
-	
-	/* Never display invisible floor objects */
-	if (object_idx < 0 && !los(py, px, o_ptr->iy, o_ptr->ix)) return;
-	
-	/* Describe fully. */
-	identify_fully_aux(o_ptr, 2);
-	
-	/* Put the name at the top. */
-	object_desc(o_name, o_ptr, TRUE, 3);
-	Term_putstr(2, 0, Term->wid-2, TERM_WHITE, o_name);
-
-	/* Put the character used at the top. */
-	Term_putch(0, 0, object_attr(o_ptr), object_char(o_ptr));
-
-	TFREE(o_name);
-}
-
-/* The option currently selected */
-#define MAX_HELP_STRS	5
-#define CUR_HELP_STR	help_str[help_strs]
-static cptr help_str[MAX_HELP_STRS];
-static int help_strs = 0;
-
-/*
- * Remember or forget a help request. Only the latest one is
- * currently processed.
- */
-void help_track(cptr str)
-{
-	/* Remove one. */
-	if (!str)
-	{
-		if (help_strs) help_strs--;
-	}
-	else
-	{
-		/* Too many strings memorised. */
-		if (help_strs++ == MAX_HELP_STRS-1)
-		{
-			int i;
-			for (i = 1; i < MAX_HELP_STRS; i++)
-			{
-				help_str[i-1] = help_str[i];
-			}
-		}
-	
-		/* Set the current string */
-		CUR_HELP_STR = str;
-	}
-
-	/* Window stuff */
-	if (!is_keymap_or_macro()) p_ptr->window |= PW_HELP;
-}
-
-/*
- * Return whether PW_HELP is interesting.
- */
-static bool win_help_good(void)
-{
-	/* There's a help hook present (should check for actual help). */
-	return (help_strs != 0);
-}
-
-static cptr *help_files = NULL;
-
-/*
- * Initialise the help_files[] array above.
- * Return false if the base help file was not found, true otherwise.
- */
-static bool init_help_files(char *buf)
-{
-	int i;
-	FILE *fff;
-
-	/* Open an index file. */
-	path_build(buf, 1024, ANGBAND_DIR_HELP, syshelpfile);
-
-	if (!((fff = my_fopen(buf, "r"))))
-	{
-		prt(format("Cannot open '%s'!", buf), Term->hgt/2, 0);
-		return FALSE;
-	}
-		
-
-	/* Count the file references. */
-	for (i = 1; !my_fgets(fff, buf, 1024);)
-	{
-		if (prefix(buf, "***** [")) i++;
-	}
-
-	/* Create the help_files array. */
-	help_files = C_NEW(i, cptr);
-
-	/* Hack - The last element must be NULL. */
-	help_files[--i] = NULL;
-
-	/* Return to the start of the file. */
-	fseek(fff, 0, SEEK_SET);
-
-	/* Fill the help_files array. */
-	while (!my_fgets(fff, buf, 1024))
-	{
-		/* Not a reference. */
-		if (!prefix(buf, "***** [")) continue;
-		
-		/* Fill in the help_files array (backwards). */
-		help_files[--i] = string_make(buf+strlen("***** [a] "));
-	}
-
-	my_fclose(fff);
-
-	return TRUE;
-}
-
-void win_help_display(void)
-{
-	char buf[1024];
-	FILE *fff;
-	cptr *str;
-
-	/* Nothing to show. */
-	if (!help_str) return;
-
-	/* Try to read the list of files at first. */
-	if (!help_files && !init_help_files(buf)) return;
-
-	/* Search every potentially relevant file (should use an index, but...) */
-	for (str = help_files; *str; str++)
-	{
-		path_build(buf, 1024, ANGBAND_DIR_HELP, *str);
-		
-		/* No such file? */
-		if (!((fff = my_fopen(buf, "r"))))
-		{
-			prt(format("Cannot open '%s'!", buf), Term->hgt/2, 0);
-			return;
-		}
-
-		Term_gotoxy(0,0);
-
-		while (!my_fgets(fff, buf, 1024))
-		{
-			/* Not an option heading. */
-			if (strncmp(buf, "*****", strlen("*****"))) continue;
-
-			/* Not this option heading. */
-			if (!strstr(buf, format("<%s>", CUR_HELP_STR))) continue;
-
-			while (!my_fgets(fff, buf, 1024) &&
-				strncmp(buf, "*****", strlen("*****")))
-			{
-				/* Print the line out in a possibly colourful way. */
-				mc_roff(buf);
-				
-				/* Go to the next line. */
-				roff("\n");
-			}
-			/* Only expect one match. */
-			break;
-		}
-		
-		my_fclose(fff);
-	}
-}
-
-/*
- * Return whether PW_VISIBLE is interesting
- */
-static bool win_visible_good(void)
-{
-	int i; 
-
-	/* Hallucinating players find anything interesting. */
-	if (p_ptr->image) return TRUE;
-
-	/* Boring without any visible monsters. */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Skip unseen monsters */
-		if (!m_ptr->ml) continue;
-
-		/* A visible monster. */
-		return TRUE;
-	}
-
-	/* No visible monsters. */
-	return FALSE;
-}
-
-/* The following code to display visible monsters is taken from Eyangband 0.3.3
- * and uses a few strategic #defines to minimise the number of  changes needed
- * to do this.
- *
- * In actual fact, the only changes to the functions themselves are in the
- * definition of who[x].u_idx and the removal of the Term_clear().
- */
-
-typedef struct monster_list_entry monster_list_entry;
-
-struct monster_list_entry
-{
-	s16b r_idx;			/* Monster race index */
-	s16b u_idx;			/* Unique index (for uniques) */
-
-	byte amount;
-};
-
-
-#define get_lore_idx(idx, unused) (&(r_info[idx]))
-#define get_monster_fake(idx, unused) (&(r_info[idx]))
-#define monster_name_idx(idx, unused) (r_name+r_info[idx].name)
-#define monster_lore monster_race
-
-/*
- * Sorting hook -- Comp function -- see below
- *
- * We use "u" to point to array of monster indexes,
- * and "v" to select the type of sorting to perform on "u".
- */
-static bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
-{
-	monster_list_entry *who = (monster_list_entry*)(u);
-
-	u16b *why = (u16b*)(v);
-
-	int r1 = who[a].r_idx;
-	int r2 = who[b].r_idx;
-
-	int z1, z2;
-
-	/* Sort by player kills */
-	if (*why >= 4)
-	{
-		/* Extract player kills */
-		z1 = get_lore_idx(r1,who[a].u_idx)->r_pkills;
-		z2 = get_lore_idx(r2,who[b].u_idx)->r_pkills;
-
-		/* Compare player kills */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-	/* Sort by total kills */
-	if (*why >= 3)
-	{
-		/* Extract total kills */
-		z1 = get_lore_idx(r1,who[a].u_idx)->r_tkills;
-		z2 = get_lore_idx(r2,who[b].u_idx)->r_tkills;
-
-		/* Compare total kills */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-	/* Sort by monster level */
-	if (*why >= 2)
-	{
-		/* Extract levels */
-		z1 = get_monster_fake(r1,who[a].u_idx)->level;
-		z2 = get_monster_fake(r2,who[b].u_idx)->level;
-
-		/* Compare levels */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-	/* Sort by monster experience */
-	if (*why >= 1)
-	{
-		/* Extract experience */
-		z1 = get_monster_fake(r1,who[a].u_idx)->mexp;
-		z2 = get_monster_fake(r2,who[b].u_idx)->mexp;
-
-		/* Compare experience */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-	/* Compare indexes */
-	return (r1 <= r2);
-}
-
-/*
- * Sorting hook -- Swap function -- see below
- *
- * We use "u" to point to array of monster indexes,
- * and "v" to select the type of sorting to perform.
- */
-static void ang_mon_sort_swap_hook(vptr u, vptr UNUSED v, int a, int b)
-{
-	monster_list_entry *who = (monster_list_entry*)(u);
-
-	monster_list_entry holder;
-
-	/* Swap */
-	holder = who[a];
-	who[a] = who[b];
-	who[b] = holder;
-}
-
-/*
- * Display the visible monster list in a window.
- */
-static void win_visible_display(void)
-{
-	int i, j;
-	int c = 0;
-	int items = 0;
-
-	monster_list_entry *who;
-
-	/* XXX Hallucination - no monster list */
-	if (p_ptr->image)
-	{		
-		c_prt(TERM_WHITE,"You see a lot of pretty colours.",0,0);
-
-		return;
-	}
-
-	/* Allocate the "who" array */
-	C_MAKE(who, m_max, monster_list_entry);
-
-	/* Count up the number visible in each race */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-
-		bool found = FALSE;
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Skip unseen monsters */
-		if (!m_ptr->ml) continue;
-
-		/* Increase for this race */
-		if (items)
-		{
-			for (j = 0; j < items; j++)
-			{
-				if (who[j].r_idx == m_ptr->r_idx)
-				{
-					who[j].amount++;
-					
-					found = TRUE;
-
-					break;
-				}
-			}
-		}
-		
-		if (!found)
-		{
-			who[items].r_idx = m_ptr->r_idx;
-			who[items].u_idx = !!(r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE);
-			who[items].amount = 1;
-
-			items++;
-		}
-
-		/* Increase total Count */
-		c++;
-	}
-
-	/* Are monsters visible? */
-	if (items)
-	{
-		int w, h, num = 0;
-		u16b why = 1;
-
-		/* First, sort the monsters by expereince*/
-		ang_sort_comp = ang_mon_sort_comp_hook;
-		ang_sort_swap = ang_mon_sort_swap_hook;
-
-		/* Sort the array */
-		ang_sort(who, &why, items);
-
-		/* Then, display them */
-		(void)Term_get_size(&w, &h);
-
-		c_prt(TERM_WHITE,format("You can see %d monster%s", c, (c > 1 ? "s:" : ":")), 0, 0);
-
-		/* Print the monsters in reverse order */
-		for (i = items - 1; i >= 0; i--)
-		{
-			monster_lore *l_ptr = get_lore_idx(who[i].r_idx, who[i].u_idx);
-			monster_race *r_ptr = get_monster_fake(who[i].r_idx, who[i].u_idx);
-
-			/* Default Colour */
-			byte attr = TERM_WHITE;
-
-			/* Uniques */
-			if (who[i].u_idx)
-			{
-				attr = TERM_L_RED;
-			}
-
-			/* Have we ever killed one? */
-			if (l_ptr->r_tkills)
-			{
-				if (r_ptr->level > dun_depth)
-				{
-					attr = TERM_VIOLET;
-
-					if (who[i].u_idx)
-					{
-						attr = TERM_RED;
-					}
-				}
-			}
-			else
-			{
-				if (!who[i].u_idx) attr = TERM_SLATE;
-			}			
-			
-			/* Dump the monster character (not tracking shapechangers) */
-			Term_putch((num / (h - 1)) * 26, (num % (h - 1)) + 1, r_ptr->x_attr, r_ptr->x_char);
-
-
-			/* Dump the monster name */
-			if (who[i].amount == 1)
-			{
-				c_prt(attr, monster_name_idx(who[i].r_idx, who[i].u_idx), (num % (h - 1)) + 1, 
-					(num / (h - 1) * 26)+2);
-			}
-			else
-			{
-				c_prt(attr, format("%s (x%d)", monster_name_idx(who[i].r_idx, who[i].u_idx),
-					who[i].amount), (num % (h - 1)) + 1, (num / (h - 1)) * 26+2);
-			}
-
-			num++;
-		}
-	}
-
-	else
-	{
-		c_prt(TERM_WHITE,"You see no monsters.",0,0);
-	}
-
-	/* XXX XXX Free the "who" array */
-	FREE(who);
-}
-
 /*
  * Calculate number of spells player should have, and forget,
  * or remember, spells until that number is properly reflected.
@@ -2157,44 +1480,21 @@ static void calc_torch(void)
 	{
 		o_ptr = &inventory[i];
 
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+
 		/* Examine actual lites */
-		if ((i == INVEN_LITE) && (o_ptr->k_idx) && (o_ptr->tval == TV_LITE))
+		if ((i == INVEN_LITE) && (o_ptr->k_idx) && (o_ptr->tval == TV_LITE)
+			&& (allart_p(o_ptr) || o_ptr->pval > 0))
 		{
-			/* Torches (with fuel) provide some lite */
-			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
-			{
-				p_ptr->cur_lite += 1;
-				continue;
-			}
-
-			/* Lanterns (with fuel) provide more lite */
-			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
-			{
-				p_ptr->cur_lite += 2;
-				continue;
-			}
-
-			/* Artifact Lites provide permanent, bright, lite */
-			if (allart_p(o_ptr))
-			{
-				p_ptr->cur_lite += 3;
-				continue;
-			}
-
-			/* notreached */
-		}
-		else
-		{
-			/* Skip empty slots */
-			if (!o_ptr->k_idx) continue;
-
-			/* Extract the flags */
-			object_flags(o_ptr, &f1, &f2, &f3);
-
-			/* does this item glow? */
-			if (f3 & TR3_LITE) p_ptr->cur_lite++;
+			p_ptr->cur_lite += k_info[o_ptr->k_idx].extra;
 		}
 
+		/* Extract the flags */
+		object_flags(o_ptr, &f1, &f2, &f3);
+
+		/* Check for extra light. */
+		if (f3 & TR3_LITE) p_ptr->cur_lite++;
 	}
 
 	/* max radius is 5 without rewriting other code -- */
@@ -2247,78 +1547,34 @@ static int weight_limit(void)
 
 /* Calculate the skill used by a certain weapon. */
 
-int wield_skill(byte tval, byte sval)
+int wield_skill(object_type *o_ptr)
 {
-	switch (tval)
+	switch (o_ptr->tval)
 	{
-	case TV_HAFTED:
-		if (sval == SV_WHIP)
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_SWORD:
+		{
+			return k_info[o_ptr->k_idx].extra;
+		}
+		case TV_SHOT:
+		case TV_ARROW:
+		case TV_BOLT:
+		case TV_BOW:
+		{
+			return SKILL_MISSILE;
+		}
+		/* An empty object will have a tval of 0. */
+		case 0:
 		{
 			return SKILL_CLOSE;
 		}
-		else
-		{
-			return SKILL_CRUSH;
-		}
-	case TV_POLEARM:
-		switch(sval)
-		{
-		case SV_SPEAR:
-		case SV_AWL_PIKE:
-		case SV_TRIDENT:
-			return SKILL_STAB;
-		case SV_BEAKED_AXE:
-		case SV_BROAD_AXE:
-		case SV_SCYTHE:
-		case SV_GREAT_AXE:
-		case SV_SCYTHE_OF_SLICING:
-			return SKILL_SLASH;
 		default:
-			return SKILL_CRUSH;
-		}
-	case TV_DIGGING:
-		return SKILL_CRUSH;
-	case TV_SWORD:
-		switch(sval)
 		{
-		case SV_BROKEN_DAGGER:
-		case SV_BROKEN_SWORD:
-		case SV_DAGGER:
-		case SV_MAIN_GAUCHE:
-			return SKILL_CLOSE;
-		case SV_RAPIER:
-		case SV_SHORT_SWORD:
-			return SKILL_STAB;
-		default:
-			return SKILL_SLASH;
+			return 0;
 		}
-	case TV_SHOT:
-	case TV_ARROW:
-	case TV_BOLT:
-	case TV_BOW:
-		return SKILL_MISSILE;
-	/* An empty object will have a tval of 0. */
-	case 0:
-		return SKILL_CLOSE;
 	}
-return FALSE;
-}
-
-/*
- * Find the ammunition tval used by a given launcher.
- */
-byte ammunition_type(object_type *o_ptr)
-{
-	tval_ammo_type *tv_ptr;
-
-	for (tv_ptr = tval_ammo; tv_ptr->bow_sval; tv_ptr++)
-	{
-		/* Found something */
-		if (tv_ptr->bow_sval == o_ptr->sval) return tv_ptr->ammo_tval;
-	}
-
-	/* Nothing */
-	return 0;
 }
 
 /*
@@ -2423,7 +1679,7 @@ static void calc_bonuses(bool quiet)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Can we assign a weapon skill? */
-	if (!(p_ptr->wield_skill=wield_skill(o_ptr->tval, o_ptr->sval)))
+	if (!(p_ptr->wield_skill=wield_skill(o_ptr)))
 			{
 			if (!quiet) msg_print("Unknown weapon tval wielded - defaulting to close combat skill.");
 			p_ptr->wield_skill = SKILL_CLOSE;
@@ -2721,9 +1977,6 @@ static void calc_bonuses(bool quiet)
         p_ptr->resist_conf  = TRUE;
         p_ptr->resist_sound = TRUE;
     }
-
-	/* High-level mindcrafters have ESP */
-	if (skill_set[SKILL_MINDCRAFTING].value >= 80) p_ptr->telepathy = TRUE;
 
 	/* Start with "normal" speed */
 	p_ptr->pspeed = 110;
@@ -3366,9 +2619,9 @@ static void calc_bonuses(bool quiet)
 		p_ptr->tval_ammo = ammunition_type(o_ptr);
 
 		/* Add additional shots for player skill, depending on weapon. */
-		switch (o_ptr->sval)
+		switch (o_ptr->k_idx)
 		{
-			case SV_SLING:
+			case OBJ_SLING:
 			{
 				if (skill_set[SKILL_MISSILE].value==100)
 					extra_shots += 120;
@@ -3377,8 +2630,8 @@ static void calc_bonuses(bool quiet)
 				break;
 			}
 
-			case SV_SHORT_BOW:
-			case SV_LONG_BOW:
+			case OBJ_SHORT_BOW:
+			case OBJ_LONG_BOW:
 			{
 				if (skill_set[SKILL_MISSILE].value==100)
 					extra_shots += 180;
@@ -3387,8 +2640,8 @@ static void calc_bonuses(bool quiet)
 				break;
 			}
 
-			case SV_LIGHT_XBOW:
-			case SV_HEAVY_XBOW:
+			case OBJ_LIGHT_CROSSBOW:
+			case OBJ_HEAVY_CROSSBOW:
 			{
 				/* At 100 skill, a crossbow gives 1 1/6 extra shots anyway. */
 				if (skill_set[SKILL_MISSILE].value>30)
@@ -3637,6 +2890,87 @@ void notice_stuff(void)
 
 
 /*
+ * Is cave[y][x] in a room?
+ *
+ * This actually looks for empty spaces connected to this square by right
+ * angles.
+ */
+static bool is_room_func_p(int y, int x)
+{
+	uint i,adj;
+
+	int xs[] = { 1, 1,-1,-1, 1,  1, 0,-1, 0, 1};
+	int ys[] = { 1,-1,-1, 1, 1,  0, 1, 0,-1, 0};
+
+	/* Hack - assume that ineligible non-floor squares are excluded elsewhere. */
+	if (!cave_floor_bold(y,x)) return TRUE;
+
+	for (i = adj = 0; i < N_ELEMENTS(xs); i++)
+	{
+		if (!cave_floor_bold(y+ys[i], x+xs[i]))
+		{
+			adj = 0;
+		}
+		/* (1,1) and (1,0) being floor squares does not make a room. */
+		else if (adj++ && i != 5)
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+/*
+ * Check that every room square is next to another room square, to prevent
+ * corners from making it easy to abuse the AI.
+ */
+static bool is_isolated_room_p(int y, int x)
+{
+	/* An array which rotates around 0,0 anticlockwise. */
+	int xs[] = { 1, 1, 0,-1,-1,-1, 0, 1};
+	int ys[] = { 0, 1, 1, 1, 0,-1,-1, 0};
+	uint i;
+
+	for (i = 0; i < N_ELEMENTS(xs); i++)
+	{
+		if (is_room_p(y+ys[i], x+xs[i])) return FALSE;
+	}
+	return TRUE;
+}
+
+/*
+ * Set CAVE_ROOM as appropriate using the above routines.
+ */
+static void calc_rooms(void)
+{
+	int y,x;
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			if (is_room_func_p(y,x))
+			{
+				cave[y][x].info |= (CAVE_ROOM);
+			}
+			else
+			{
+				cave[y][x].info &= ~(CAVE_ROOM);
+			}
+		}
+	}
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			if (is_isolated_room_p(y,x))
+			{
+				cave[y][x].info &= ~(CAVE_ROOM);
+			}
+		}
+	}
+}
+
+/*
  * Handle "p_ptr->update"
  */
 void update_stuff(void)
@@ -3735,6 +3069,11 @@ void update_stuff(void)
 		update_lite();
 	}
 
+	if (p_ptr->update & (PU_ROOM))
+	{
+		p_ptr->update &= ~(PU_ROOM);
+		calc_rooms();
+	}
 
 	if (p_ptr->update & (PU_FLOW))
 	{
@@ -3952,6 +3291,696 @@ void redraw_stuff(void)
 	}
 }
 
+
+
+/*
+ * Return whether PW_INVEN is interesting
+ */
+static bool win_inven_good(void)
+{
+	int i;
+
+	/* Boring without an inventory */
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		/* There is some inventory */
+		if (inventory[i].k_idx) return TRUE;
+	}
+
+	/* There is no inventory */
+	return FALSE;
+}
+
+/*
+ * Return whether PW_EQUIP is interesting
+ */
+static bool win_equip_good(void)
+{
+	int i;
+
+	/* Boring without equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		/* There is some equipment */
+		if (inventory[i].k_idx) return TRUE;
+	}
+		
+	/* There is no equipment */
+	return FALSE;
+}
+
+
+/*
+ * Return whether PW_SPELL is interesting
+ */
+static bool win_spell_good(void)
+{
+	/* Boring without any powers */
+	return (mindcraft_powers[0].min_lev >
+		skill_set[SKILL_MINDCRAFTING].value/2);
+}
+
+
+
+
+/*
+ * Display the first player screen in a window.
+ */
+static void win_player_display(void)
+{
+	/* Display player */
+	display_player(0);
+}
+
+
+/*
+ * Display the third player screen in a window.
+ */
+static void win_player_skills_display(void)
+{
+	/* Display player */
+	display_player(2);
+}
+
+
+/*
+ * Return whether PW_MESSAGE is interesting
+ */
+static bool win_message_good(void)
+{
+	/* Boring without any messages */
+	return (message_num() != 0);
+}
+
+/*
+ * Display old messages in a window.
+ */
+static void win_message_display(void)
+{
+	int i;
+	int w, h;
+	int x, y;
+
+	/* Get size */
+	Term_get_size(&w, &h);
+
+	/* Dump messages */
+	for (i = 0; i < h; i++)
+	{
+		/* Dump the message on the appropriate line */
+		Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str((short)i));
+
+		/* Cursor */
+		Term_locate(&x, &y);
+
+		/* Clear to end of line */
+		Term_erase(x, y, 255);
+	}
+}
+
+
+
+/*
+ * Return whether PW_OVERHEAD is interesting
+ */
+static bool win_overhead_good(void)
+{
+	/* The map's always different on the surface. */
+	if (!dun_level) return TRUE;
+
+	/* The map doesn't fit on the main display. */
+	if (windows[0].term->wid < cur_wid) return TRUE;
+	if (windows[0].term->hgt < cur_hgt) return TRUE;
+	
+	/* This is shown on the main display. */
+	return FALSE;
+}
+
+/*
+ * Display the overhead map in a window.
+ */
+static void win_overhead_display(void)
+{
+	int cy, cx;
+
+	/* Redraw map */
+	display_map(&cy, &cx, TRUE);
+	
+	/* Hack - also give the world map if the player is in a town. */
+	if (!dun_level)
+	{
+		display_wild_map(cx+3);
+	}
+}
+
+
+/*
+ * PW_SHOPS is interesting if the player is in a town with shops.
+ */
+static bool win_shops_good(void)
+{
+	if (wild_grid[wildy][wildx].dungeon < MAX_TOWNS && !dun_level)
+	{
+		return shops_good(cur_town);
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
+/*
+ * Give a list of shops in the current town.
+ */
+static void win_shops_display(void)
+{
+	shops_display(cur_town);
+}
+
+
+/*
+ * Return whether PW_MONSTER is interesting
+ */
+static bool win_monster_good(void)
+{
+	/* Boring without a selected monster */
+	return (monster_race_idx != 0);
+}
+
+/*
+ * Display monster recall in a window.
+ */
+static void win_monster_display(void)
+{
+	/* Display monster race info */
+	if (monster_race_idx) display_roff(monster_race_idx);
+}
+
+/*
+ * Return whether PW_OBJECT is interesting
+ */
+static bool win_object_good(void)
+{
+	/* Boring with a remembered object */
+	return (object_kind_idx != 0);
+}
+
+/*
+ * Display object kind recall in a window.
+ */
+static void win_object_display(void)
+{
+	/* Display object kind info */
+	if (object_kind_idx) display_koff(object_kind_idx);
+}
+
+
+
+/*
+ * Return whether PW_OBJECT_DETAILS is interesting.
+ */
+static bool win_object_details_good(void)
+{
+	object_type *o_ptr = cnv_idx_to_obj(object_idx);
+
+	/* Non-objects are boring. */
+	if (!o_ptr || !(o_ptr->k_idx)) return FALSE;
+
+	/* Invisible floor objects are boring. */
+	if (object_idx < 0 && !los(py, px, o_ptr->iy, o_ptr->ix)) return FALSE;
+
+	/* Other objects are interesting. */
+	return TRUE;
+}	
+
+static void win_object_details_display(void)
+{
+	object_type *o_ptr = cnv_idx_to_obj(object_idx);
+	C_TNEW(o_name, ONAME_MAX, char);
+	
+	/* Never display non-objects. */
+	if (!o_ptr || !(o_ptr->k_idx)) return;
+	
+	/* Never display invisible floor objects */
+	if (object_idx < 0 && !los(py, px, o_ptr->iy, o_ptr->ix)) return;
+	
+	/* Describe fully. */
+	identify_fully_aux(o_ptr, 2);
+	
+	/* Put the name at the top. */
+	object_desc(o_name, o_ptr, TRUE, 3);
+	Term_putstr(2, 0, Term->wid-2, TERM_WHITE, o_name);
+
+	/* Put the character used at the top. */
+	Term_putch(0, 0, object_attr(o_ptr), object_char(o_ptr));
+
+	TFREE(o_name);
+}
+
+/* The option currently selected */
+#define MAX_HELP_STRS	5
+#define CUR_HELP_STR	help_str[help_strs]
+static cptr help_str[MAX_HELP_STRS];
+static int help_strs = 0;
+
+/*
+ * Remember or forget a help request. Only the latest one is
+ * currently processed.
+ */
+void help_track(cptr str)
+{
+	/* Remove one. */
+	if (!str)
+	{
+		if (help_strs) help_strs--;
+	}
+	else
+	{
+		/* Too many strings memorised. */
+		if (help_strs++ == MAX_HELP_STRS-1)
+		{
+			int i;
+			for (i = 1; i < MAX_HELP_STRS; i++)
+			{
+				help_str[i-1] = help_str[i];
+			}
+		}
+	
+		/* Set the current string */
+		CUR_HELP_STR = str;
+	}
+
+	/* Window stuff */
+	if (!is_keymap_or_macro()) p_ptr->window |= PW_HELP;
+}
+
+/*
+ * Return whether PW_HELP is interesting.
+ */
+static bool win_help_good(void)
+{
+	/* There's a help hook present (should check for actual help). */
+	return (help_strs != 0);
+}
+
+static cptr *help_files = NULL;
+
+/*
+ * Initialise the help_files[] array above.
+ * Return false if the base help file was not found, true otherwise.
+ */
+static bool init_help_files(char *buf)
+{
+	int i;
+	FILE *fff;
+	cptr s,t;
+
+	/* Open an index file. */
+	path_build(buf, 1024, ANGBAND_DIR_HELP, syshelpfile);
+
+	if (!((fff = my_fopen(buf, "r"))))
+	{
+		prt(format("Cannot open '%s'!", buf), Term->hgt/2, 0);
+		return FALSE;
+	}
+		
+
+	/* Count the file references. */
+	for (i = 1; !my_fgets(fff, buf, 1024);)
+	{
+		for (s = buf; (s = strstr(s, "*****")); s += strlen("*****/a")) i++;
+	}
+
+	/* Create the help_files array. */
+	help_files = C_NEW(i, cptr);
+
+	/* Hack - The last element must be NULL. */
+	help_files[--i] = NULL;
+
+	/* Return to the start of the file. */
+	fseek(fff, 0, SEEK_SET);
+
+	/* Fill the help_files array. */
+	while (!my_fgets(fff, buf, 1024))
+	{
+		for (s = buf; (s = strstr(s, "*****")); )
+		{
+			s += strlen("*****/a");
+			t = strchr(s, '*');
+
+			/* Paranoia. */
+			if (!t) continue;
+
+			/* Fill in the help_files array (backwards). */
+			help_files[--i] = string_make(format("%.*s", t-s, s));
+		}
+	}
+
+	my_fclose(fff);
+
+	return TRUE;
+}
+
+void win_help_display(void)
+{
+	char buf[1024];
+	FILE *fff;
+	cptr *str;
+
+	/* Nothing to show. */
+	if (!help_str) return;
+
+	/* Try to read the list of files at first. */
+	if (!help_files && !init_help_files(buf)) return;
+
+	/* Search every potentially relevant file (should use an index, but...) */
+	for (str = help_files; *str; str++)
+	{
+		path_build(buf, 1024, ANGBAND_DIR_HELP, *str);
+		
+		/* No such file? */
+		if (!((fff = my_fopen(buf, "r"))))
+		{
+			prt(format("Cannot open '%s'!", buf), Term->hgt/2, 0);
+			return;
+		}
+
+		Term_gotoxy(0,0);
+
+		while (!my_fgets(fff, buf, 1024))
+		{
+			/* Not an option heading. */
+			if (strncmp(buf, CC_LINK_PREFIX, strlen(CC_LINK_PREFIX))) continue;
+
+			/* Not this option heading. */
+			if (!strstr(buf, format("<%s>", CUR_HELP_STR))) continue;
+
+			while (!my_fgets(fff, buf, 1024) &&
+				!prefix(buf, CC_LINK_PREFIX))
+			{
+				/* Print the line out in a possibly colourful way. */
+				mc_roff(buf);
+				
+				/* Go to the next line. */
+				roff("\n");
+			}
+			/* Only expect one match. */
+			break;
+		}
+		
+		my_fclose(fff);
+	}
+}
+
+/*
+ * Return whether PW_VISIBLE is interesting
+ */
+static bool win_visible_good(void)
+{
+	int i; 
+
+	/* Hallucinating players find anything interesting. */
+	if (p_ptr->image) return TRUE;
+
+	/* Boring without any visible monsters. */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Skip unseen monsters */
+		if (!m_ptr->ml) continue;
+
+		/* A visible monster. */
+		return TRUE;
+	}
+
+	/* No visible monsters. */
+	return FALSE;
+}
+
+/* The following code to display visible monsters is taken from Eyangband 0.3.3
+ * and uses a few strategic #defines to minimise the number of  changes needed
+ * to do this.
+ *
+ * In actual fact, the only changes to the functions themselves are in the
+ * definition of who[x].u_idx and the removal of the Term_clear().
+ */
+
+typedef struct monster_list_entry monster_list_entry;
+
+struct monster_list_entry
+{
+	s16b r_idx;			/* Monster race index */
+	s16b u_idx;			/* Unique index (for uniques) */
+
+	byte amount;
+};
+
+
+#define get_lore_idx(idx, unused) (&(r_info[idx]))
+#define get_monster_fake(idx, unused) (&(r_info[idx]))
+#define monster_lore monster_race
+
+/*
+ * Sorting hook -- Comp function -- see below
+ *
+ * We use "u" to point to array of monster indexes,
+ * and "v" to select the type of sorting to perform on "u".
+ */
+static bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
+{
+	monster_list_entry *who = (monster_list_entry*)(u);
+
+	u16b *why = (u16b*)(v);
+
+	int r1 = who[a].r_idx;
+	int r2 = who[b].r_idx;
+
+	int z1, z2;
+
+	/* Sort by player kills */
+	if (*why >= 4)
+	{
+		/* Extract player kills */
+		z1 = get_lore_idx(r1,who[a].u_idx)->r_pkills;
+		z2 = get_lore_idx(r2,who[b].u_idx)->r_pkills;
+
+		/* Compare player kills */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+	/* Sort by total kills */
+	if (*why >= 3)
+	{
+		/* Extract total kills */
+		z1 = get_lore_idx(r1,who[a].u_idx)->r_tkills;
+		z2 = get_lore_idx(r2,who[b].u_idx)->r_tkills;
+
+		/* Compare total kills */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+	/* Sort by monster level */
+	if (*why >= 2)
+	{
+		/* Extract levels */
+		z1 = get_monster_fake(r1,who[a].u_idx)->level;
+		z2 = get_monster_fake(r2,who[b].u_idx)->level;
+
+		/* Compare levels */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+	/* Sort by monster experience */
+	if (*why >= 1)
+	{
+		/* Extract experience */
+		z1 = get_monster_fake(r1,who[a].u_idx)->mexp;
+		z2 = get_monster_fake(r2,who[b].u_idx)->mexp;
+
+		/* Compare experience */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+	/* Compare indexes */
+	return (r1 <= r2);
+}
+
+/*
+ * Sorting hook -- Swap function -- see below
+ *
+ * We use "u" to point to array of monster indexes,
+ * and "v" to select the type of sorting to perform.
+ */
+static void ang_mon_sort_swap_hook(vptr u, vptr UNUSED v, int a, int b)
+{
+	monster_list_entry *who = (monster_list_entry*)(u);
+
+	monster_list_entry holder;
+
+	/* Swap */
+	holder = who[a];
+	who[a] = who[b];
+	who[b] = holder;
+}
+
+/*
+ * Display the visible monster list in a window.
+ */
+static void win_visible_display(void)
+{
+	int i, j;
+	int c = 0;
+	int items = 0;
+
+	monster_list_entry *who;
+
+	/* XXX Hallucination - no monster list */
+	if (p_ptr->image)
+	{		
+		c_prt(TERM_WHITE,"You see a lot of pretty colours.",0,0);
+
+		return;
+	}
+
+	/* Allocate the "who" array */
+	C_MAKE(who, m_max, monster_list_entry);
+
+	/* Count up the number visible in each race */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		bool found = FALSE;
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Skip unseen monsters */
+		if (!m_ptr->ml) continue;
+
+		/* Increase for this race */
+		if (items)
+		{
+			for (j = 0; j < items; j++)
+			{
+				if (who[j].r_idx == m_ptr->r_idx)
+				{
+					who[j].amount++;
+					
+					found = TRUE;
+
+					break;
+				}
+			}
+		}
+		
+		if (!found)
+		{
+			who[items].r_idx = m_ptr->r_idx;
+			who[items].u_idx = !!(r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE);
+			who[items].amount = 1;
+
+			items++;
+		}
+
+		/* Increase total Count */
+		c++;
+	}
+
+	/* Are monsters visible? */
+	if (items)
+	{
+		int w, h, num, len;
+		u16b why = 1;
+		cptr name;
+
+		/* First, sort the monsters by expereince*/
+		ang_sort_comp = ang_mon_sort_comp_hook;
+		ang_sort_swap = ang_mon_sort_swap_hook;
+
+		/* Sort the array */
+		ang_sort(who, &why, items);
+
+		/* Then, display them */
+		(void)Term_get_size(&w, &h);
+
+		/* Find the optimal width of one entry. */
+		w = MAX(26, w/((items+h-2)/(h-1)));
+
+		c_prt(TERM_WHITE,format("You can see %d monster%s", c, (c > 1 ? "s:" : ":")), 0, 0);
+
+		/* Print the monsters in reverse order */
+		for (i = items - 1, num = 0; i >= 0; i--, num++)
+		{
+			monster_lore *l_ptr = get_lore_idx(who[i].r_idx, who[i].u_idx);
+			monster_race *r_ptr = get_monster_fake(who[i].r_idx, who[i].u_idx);
+
+			/* Default Colour */
+			byte attr = TERM_WHITE;
+
+			/* Uniques */
+			if (who[i].u_idx)
+			{
+				attr = TERM_L_RED;
+			}
+
+			/* Have we ever killed one? */
+			if (l_ptr->r_tkills)
+			{
+				if (r_ptr->level > dun_depth)
+				{
+					attr = TERM_VIOLET;
+
+					if (who[i].u_idx)
+					{
+						attr = TERM_RED;
+					}
+				}
+			}
+			else
+			{
+				if (!who[i].u_idx) attr = TERM_SLATE;
+			}			
+			
+			/* Dump the monster character (not tracking shapechangers) */
+			Term_putch((num / (h - 1)) * w, (num % (h - 1)) + 1, r_ptr->x_attr, r_ptr->x_char);
+
+
+			/* Dump the monster name */
+			if (who[i].amount == 1)
+			{
+				len = w-3;
+			}
+			else
+			{
+				len = w-3-strlen(format(" (x%d)", who[i].amount));
+			}
+			name = format("%.*s", len,
+				monster_desc_aux(0, r_info+who[i].r_idx, who[i].amount, 0));
+
+			if (who[i].amount != 1)
+			{
+				name = format("%s (x%d)", name, who[i].amount);
+			}
+			c_prt(attr, name, (num % (h - 1)) + 1, (num / (h - 1)) * w +2);
+		}
+	}
+	else
+	{
+		c_prt(TERM_WHITE,"You see no monsters.",0,0);
+	}
+
+	/* XXX XXX Free the "who" array */
+	FREE(who);
+}
 
 /* Allow window_stuff to be forced to prefer different choices rather than
  * stay the same. */

@@ -465,19 +465,6 @@ void do_cmd_drop(void)
     p_ptr->redraw |= (PR_EQUIPPY);
 }
 
-#if 0
-static bool high_level_book(object_type * o_ptr)
-{
-    if ((o_ptr->tval == TV_SORCERY_BOOK) || (o_ptr->tval == TV_THAUMATURGY_BOOK) ||
-        (o_ptr->tval == TV_CONJURATION_BOOK))
-        {
-            if (o_ptr->sval>1) return TRUE;
-            else return FALSE;
-        }
-        return FALSE;
-}
-#endif
-
 /*
  * Destroy an item
  */
@@ -815,9 +802,8 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
 
-	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN)) return (TRUE);
+	/* Lanterns are okay */
+	if (o_ptr->k_idx == OBJ_BRASS_LANTERN) return (TRUE);
 
 	/* Assume not okay */
 	return (FALSE);
@@ -916,8 +902,7 @@ static void do_cmd_refill_lamp(int item)
 static bool item_tester_refill_torch(object_type *o_ptr)
 {
 	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
+	if (o_ptr->k_idx == OBJ_WOODEN_TORCH) return (TRUE);
 
 	/* Assume not okay */
 	return (FALSE);
@@ -1034,13 +1019,13 @@ void do_cmd_refill(int item)
 	}
 
 	/* It's a lamp */
-	else if (o_ptr->sval == SV_LITE_LANTERN)
+	else if (o_ptr->k_idx == OBJ_BRASS_LANTERN)
 	{
 		do_cmd_refill_lamp(item);
 	}
 
 	/* It's a torch */
-	else if (o_ptr->sval == SV_LITE_TORCH)
+	else if (o_ptr->k_idx == OBJ_WOODEN_TORCH)
 	{
 		do_cmd_refill_torch(item);
 	}
@@ -1408,57 +1393,6 @@ static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 
 
 /*
- * Hack -- Display the "name" and "attr/chars" of a monster race
- */
-static void roff_top(int r_idx)
-{
-	monster_race	*r_ptr = &r_info[r_idx];
-
-	byte		a1, a2;
-	char		c1, c2;
-
-
-	/* Access the chars */
-	c1 = r_ptr->d_char;
-	c2 = r_ptr->x_char;
-
-	/* Access the attrs */
-	a1 = r_ptr->d_attr;
-	a2 = r_ptr->x_attr;
-
-	/* Hack -- fake monochrome */
-	if (!use_color) a1 = TERM_WHITE;
-	if (!use_color) a2 = TERM_WHITE;
-
-
-	/* Clear the top line */
-	Term_erase(0, 0, 255);
-
-	/* Reset the cursor */
-	Term_gotoxy(0, 0);
-
-	/* A title (use "The" for non-uniques) */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-	{
-		Term_addstr(-1, TERM_WHITE, "The ");
-	}
-
-	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
-
-	/* Append the "standard" attr/char info */
-	Term_addstr(-1, TERM_WHITE, " ('");
-	Term_addch(a1, c1);
-	Term_addstr(-1, TERM_WHITE, "')");
-
-	/* Append the "optional" attr/char info */
-	Term_addstr(-1, TERM_WHITE, "/('");
-	Term_addch(a2, c2);
-	Term_addstr(-1, TERM_WHITE, "'):");
-}
-
-
-/*
  * Identify a character, allow recall of monsters
  *
  * Several "special" responses recall "mulitple" monsters:
@@ -1759,7 +1693,7 @@ void do_cmd_handle(void)
 		}
 	case TV_CHARM:
 	{
-		get_cantrip(&item, o_ptr->sval);
+		get_cantrip(&item, k_info[o_ptr->k_idx].extra);
 		break;
 	}
 	default:

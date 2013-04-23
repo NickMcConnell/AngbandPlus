@@ -401,16 +401,14 @@ static void chest_death(int y, int x, s16b o_idx)
 	object_type *q_ptr;
 
 	object_type *o_ptr = &o_list[o_idx];
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 
 	/* Small chests often hold "gold" */
-	small = (o_ptr->sval < SV_CHEST_MIN_LARGE);
+	small = (k_ptr->extra / 10) == XT_CHEST_SMALL;
 
 	/* Determine how much to drop (see above) */
-	number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2;
-
-	/* Zero pval means empty chest */
-	if (!o_ptr->pval) number = 0;
+	number = chest_number(k_ptr);
 
 	/* Opening a chest */
 	opening_chest = TRUE;
@@ -2451,47 +2449,8 @@ void do_cmd_fire(void)
 	bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
-	/* Assume a base multiplier */
-	tmul = 1;
-
-	/* Analyze the launcher */
-	switch (j_ptr->sval)
-	{
-		/* Sling and ammo */
-		case SV_SLING:
-		{
-			tmul = 2;
-			break;
-		}
-
-		/* Short Bow and Arrow */
-		case SV_SHORT_BOW:
-		{
-			tmul = 2;
-			break;
-		}
-
-		/* Long Bow and Arrow */
-		case SV_LONG_BOW:
-		{
-			tmul = 3;
-			break;
-		}
-
-		/* Light Crossbow and Bolt */
-		case SV_LIGHT_XBOW:
-		{
-			tmul = 3;
-			break;
-		}
-
-		/* Heavy Crossbow and Bolt */
-		case SV_HEAVY_XBOW:
-		{
-			tmul = 4;
-			break;
-		}
-	}
+	/* Find the base multiplier */
+	tmul = get_bow_mult(j_ptr);
 
 	/* Get extra "power" from "extra might" */
 	if (p_ptr->xtra_might) tmul++;
@@ -3035,7 +2994,7 @@ void do_cmd_throw(void)
        if ((hit_body) || (!cave_floor_bold(ny, nx)) || (cave[ny][nx].feat == FEAT_WATER) || (randint(100) < j)) {
        /* Message */
        msg_format("The %s shatters!", o_name);
-       if (potion_smash_effect(1, y, x, q_ptr->sval))
+       if (potion_smash_effect(1, y, x, q_ptr->k_idx))
        {
               if (cave[y][x].m_idx && (m_list[cave[y][x].m_idx].smart & SM_ALLY))
                     {
@@ -3222,7 +3181,7 @@ static void use_power(powertype *pw_ptr)
 				object_type q;
 
                    /* Create the item */
-				object_prep(&q, lookup_kind(80, 35));
+				object_prep(&q, OBJ_RATION_OF_FOOD);
 
                     /* Drop the object from heaven */
 				drop_near(&q, -1, py, px);
@@ -3600,7 +3559,7 @@ static void use_power(powertype *pw_ptr)
 					o_ptr = &o_list[0 - item];
 			}
 
-				lev = k_info[o_ptr->k_idx].level;
+				lev = wand_power(&k_info[o_ptr->k_idx]);
 
 				if (o_ptr->tval == TV_ROD)
         {

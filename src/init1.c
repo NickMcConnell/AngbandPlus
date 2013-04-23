@@ -441,7 +441,7 @@ static flag_name info_flags[] =
 	{"EASY_KNOW", 2, TR3_EASY_KNOW},
 	{"HIDE_TYPE", 2, TR3_HIDE_TYPE},
 	{"SHOW_MODS", 2, TR3_SHOW_MODS},
-	{"INSTA_ART", 2, TR3_INSTA_ART},
+	{"GOOD", 2, TR3_GOOD},
 	{"FEATHER", 2, TR3_FEATHER},
 	{"LITE", 2, TR3_LITE},
 	{"SEE_INVIS", 2, TR3_SEE_INVIS},
@@ -642,18 +642,35 @@ static s16b find_string(char *buf, cptr *array)
 /* A few macros for use in the 'E' case in init_r_event_txt() */
 
 /* If one copy of chr exists within buf, return the integer immediately after it. */
-#define readnum(chr) ((!strchr(buf, chr)) ? -1 : (strchr(strchr(buf, chr)+1, chr)) ? -2 : atoi(strchr(buf, chr)+1))
+#define readnum(chr) \
+((!strchr(buf, chr)) ? -1 : \
+	(strchr(strchr(buf, chr)+1, chr)) ? -2 : \
+	atoi(strchr(buf, chr)+1))
 
 /* A separate routine to remove used number strings */
-#define clearnum(chr) {char *s; for (s = strchr(buf, chr); *s == chr || (*s >= '0' && *s <= '9'); s++) *s=' ';}
+#define clearnum(chr) \
+{ \
+	char *s; \
+	for (s = strchr(buf, chr); *s == chr || (*s >= '0' && *s <= '9'); s++) \
+		*s=' '; \
+}
 
 /* A routine to set x to be the number after a given letter, and then clear it from the text string. 
  * If there are no such flags, it does nothing. If there are more than one, it returns an error.
  * THIS ASSUMES THAT ALL VALID VALUES ARE NON-NEGATIVE
  */
-#define readclearnum(x, chr) if (readnum(chr) == -2) \
-	{msg_format("Too many '%c's!", chr);msg_print(NULL);return ERR_PARSE;} \
-	else if (readnum(chr) > -1) {x=readnum(chr); clearnum(chr);}
+#define readclearnum(x, chr) \
+if (readnum(chr) == -2) \
+{ \
+	msg_format("Too many '%c's!", chr); \
+	msg_print(NULL); \
+	return ERR_PARSE; \
+} \
+else if (readnum(chr) > -1) \
+{ \
+	x=readnum(chr); \
+	clearnum(chr); \
+}
 
 /*
  * A wrapper around find_string for info files.
@@ -925,12 +942,9 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 					}
 #endif
 					find_string_info(k_name, k_info, MAX_K_IDX, i_ptr->k_idx);
-					if (lookup_kind(readnum('t'), readnum('s')))
+					if (readnum('k'))
 					{
-						byte t = 0,s = 0;
-						readclearnum(t, 't');
-						readclearnum(s, 's');
-						i_ptr->k_idx = lookup_kind(t,s);
+						readclearnum(i_ptr->k_idx, 'k');
 					}
 					if (i_ptr->flags & EI_ART)
 					{
@@ -974,11 +988,10 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 						/* Take an unstated k_idx to be that of the artefact. */
 						else if (!i_ptr->k_idx)
 						{
-							i_ptr->k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+							i_ptr->k_idx = a_ptr->k_idx;
 						}
 						/* Ensure that any stated k_idx is the right one. */
-						else if (k_info[i_ptr->k_idx].tval != a_ptr->tval ||
-							k_info[i_ptr->k_idx].sval != a_ptr->sval)
+						else if (i_ptr->k_idx != a_ptr->k_idx)
 						{
 							msg_print("Incompatible object and artefact.");
 							return ERR_PARSE;
@@ -1029,7 +1042,21 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 				{
 					make_monster_type *i_ptr = &d_ptr->par.monster;
 					i_ptr->strict = find_string_x(buf, "STRICT");
-					find_string_info(r_name, r_info, MAX_R_IDX, i_ptr->num);
+					{
+						C_TNEW(array, MAX_R_IDX, cptr);
+						for (i = 1; i < MAX_R_IDX; i++)
+						{
+							if (r_info[i].name)
+								array[i-1] = string_make(monster_desc_aux(0,
+									r_info+i, 1, 0));
+							else
+								array[i-1] = string_make("");
+						}
+						array[MAX_R_IDX-1] = 0;
+						i_ptr->num = find_string(buf, array);
+						for (i = 0; i < MAX_R_IDX; i++) string_free(array[i]);
+						TFREE(array);
+					}
 					readclearnum(i_ptr->num, 'n');
 					readclearnum(i_ptr->radius, 'r');
 					readclearnum(i_ptr->min, '(');
@@ -1260,6 +1287,7 @@ static u32b add_name(header *head, cptr buf)
 	switch (head->header_num)
 	{
 		case K_HEAD: case A_HEAD: case E_HEAD: case OB_HEAD: case U_HEAD:
+		case R_HEAD:
 		if (check_string(buf)) return 0;
 	}
 
@@ -1338,9 +1366,6 @@ errr parse_f_info(char *buf, header *head, vptr *extra)
 
 			/* Nuke the colon, advance to the name */
 			*s++ = '\0';
-
-			/* Paranoia -- require a name */
-			if (!*s) return (1);
 
 			/* Get the index */
 			i = atoi(buf+2);
@@ -1434,9 +1459,6 @@ errr parse_v_info(char *buf, header *head, vptr *extra)
 
 			/* Nuke the colon, advance to the name */
 			*s++ = '\0';
-
-			/* Paranoia -- require a name */
-			if (!*s) return (1);
 
 			/* Get the index */
 			i = atoi(buf+2);
@@ -1562,14 +1584,14 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 			/* Find the colon before the name */
 			s = strchr(buf+2, ':');
 
-			/* Verify that colon */
-			if (!s) return (1);
-
-			/* Paranoia -- require a name */
-			if (!*++s) return (1);
+			/* Verify that colon and advance */
+			if (!s++) return (1);
 
 			/* Get the index */
 			i = atoi(buf+2);
+
+			/* Hack - negative indices really refer to the user area. */
+			if (i < 0) i = OBJ_MAX_DISTRO-i;
 
 			/* Verify information */
 			if (i <= error_idx) return (4);
@@ -1623,16 +1645,16 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 
 		case 'I':
 		{
-			int tval, sval, pval;
+			int tval, pval, extra;
 
 			/* Scan for the values */
 			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &tval, &sval, &pval)) return (1);
+			                &tval, &pval, &extra)) return (1);
 
 			/* Save the values */
 			k_ptr->tval = tval;
-			k_ptr->sval = sval;
 			k_ptr->pval = pval;
+			k_ptr->extra = extra;
 
 			/* Next... */
 			return SUCCESS;
@@ -1641,16 +1663,13 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 		/* Process 'W' for "More Info" (one line only) */
 		case 'W':
 		{
-			int level, extra, wgt;
+			int wgt;
 			long cost;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &extra, &wgt, &cost)) return (1);
+			if (2 != sscanf(buf+2, "%d:%ld", &wgt, &cost)) return (1);
 
 			/* Save the values */
-			k_ptr->level = level;
-/*			k_ptr->extra = extra;*/
 			k_ptr->weight = wgt;
 			k_ptr->cost = cost;
 
@@ -1789,9 +1808,6 @@ errr parse_o_base(char *buf, header *head, vptr *extra)
 
 			/* Advance to the name */
 			s++;
-
-			/* Paranoia -- require a name */
-			if (!*s) return (PARSE_ERROR_GENERIC);
 
 			/* Verify index. */
 			try(byte_ok(i));
@@ -1950,9 +1966,6 @@ errr parse_u_info(char *buf, header *head, vptr *extra)
 			/* Advance to the name */
 			s = buf+2;
 
-			/* Paranoia -- require a name */
-			if (!*s) return (PARSE_ERROR_INCORRECT_SYNTAX);
-
 			/* Check that u_info is large enough. */
 			if (++error_idx >= MAX_I) return PARSE_ERROR_OUT_OF_MEMORY;
 
@@ -2065,9 +2078,6 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 			/* Nuke the colon, advance to the name */
 			*s++ = '\0';
 
-			/* Paranoia -- require a name */
-			if (!*s) return (1);
-
 			/* Get the index */
 			i = atoi(buf+2);
 
@@ -2095,15 +2105,20 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 		}
 		case 'I':
 		{
-			int tval, sval, pval;
+			int k_idx, pval;
 
 			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &tval, &sval, &pval)) return (1);
+			if (2 != sscanf(buf+2, "%d:%d", &k_idx, &pval)) return 1;
+
+			/* Test the values */
+			if (k_idx < 0 || k_idx >= MAX_K_IDX || !k_info[k_idx].name ||
+				(pval < -32768 || pval > 32767))
+			{
+				return PARSE_ERROR_OUT_OF_BOUNDS;
+			}
 
 			/* Save the values */
-			a_ptr->tval = tval;
-			a_ptr->sval = sval;
+			a_ptr->k_idx = k_idx;
 			a_ptr->pval = pval;
 
 			/* Next... */
@@ -2111,15 +2126,16 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 		}
 		case 'W':
 		{
-			int level, rarity, wgt;
+			int level, level2, rarity, wgt;
 			long cost;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &rarity, &wgt, &cost)) return (1);
+			if (5 != sscanf(buf+2, "%d:%d:%d:%d:%ld",
+			                &level, &level2, &rarity, &wgt, &cost)) return (1);
 
 			/* Save the values */
 			a_ptr->level = level;
+			a_ptr->level2 = level2;
 			a_ptr->rarity = rarity;
 			a_ptr->weight = wgt;
 			a_ptr->cost = cost;
@@ -2220,9 +2236,6 @@ errr parse_e_info(char *buf, header *head, vptr *extra)
 
 			/* Nuke the colon, advance to the name */
 			*s++ = '\0';
-
-			/* Paranoia -- require a name */
-			if (!*s) return (1);
 
 			/* Get the index */
 			i = atoi(buf+2);
@@ -2451,9 +2464,6 @@ errr parse_r_info(char *buf, header *head, vptr *extra)
 			/* Nuke the colon, advance to the name */
 			*s++ = '\0';
 
-			/* Paranoia -- require a name */
-			if (!*s) return (1);
-
 			/* Get the index */
 			i = atoi(buf+2);
 
@@ -2517,7 +2527,7 @@ errr parse_r_info(char *buf, header *head, vptr *extra)
 			                &spd, &atspd, &hp1, &hp2, &aaf, &ac, &slp)) return (1);
 
 			/* Save the values */
-			r_ptr->speed = spd;
+			r_ptr->speed = spd+110;
 			r_ptr->num_blows = atspd;
 			r_ptr->hdice = hp1;
 			r_ptr->hside = hp2;
@@ -2737,9 +2747,6 @@ errr parse_macro_info(char *buf, header *head, vptr *extra)
 	{
 		case 'X':
 		{
-			/* Paranoia -- require a name */
-			if (!*s) return (PARSE_ERROR_GENERIC);
-
 			/* Advance the index and check for overflow. */
 			if (++error_idx >= MAX_I) return PARSE_ERROR_OUT_OF_MEMORY;
 

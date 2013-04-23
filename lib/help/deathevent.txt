@@ -6,19 +6,14 @@ below, usually together with a number of symbols as described.
 
 The flags are as follows:
 
-Flag      ARTEFACT
-Keywords: n<num>*
-Effect:   Creates artefact number <num> (see a_info.txt for list).
-Default:  Does nothing.
-
 Flag      OBJECT
-Keywords: t<tval>* s<sval>* e<ego type>* (<min no.>-<max no.>)
+Keywords: k<k_idx>* e<ego type>* a<artefact num>* (<min no.>-<max no.>)
 Effect:   Creates between <min no.> and <max no.> objects (see k_info.txt for
           tval and sval numbers and e_info.txt for ego types).
           The game does not check that the given combination is reasonable.
-Default:  Creates 1 object which is not an ego item.
-          The <tval> and <sval> (or their textual replacement) must point to a
-          real object.
+Default:  Creates 1 object which is not an ego item or artefact.
+          The <k_idx> (or their textual replacement) must point to a real
+          object.
 
 Flag      NONSTER
 Keywords: n<number>* s<distance> (<min no.>-<max-no.>)

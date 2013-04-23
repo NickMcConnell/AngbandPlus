@@ -2848,8 +2848,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	}
 	else
 	{
-		object_desc(o_name, o_ptr, FALSE, 1);
-		full_name(o_name, (o_ptr->number > 1), TRUE, FALSE);
+		object_desc(o_name, o_ptr, TRUE, 1);
 	
 		/* Describe again */
 		msg_format("You now %s %s", (item >= 0) ? "have" : "see", o_name);
@@ -2861,22 +2860,27 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 }
 
 
+/*
+ * Make it bad, or if it's already bad, make it worse!
+ */
 static void curse_artifact (object_type * o_ptr)
 {
-	    if (o_ptr->pval) o_ptr->pval = 0 - ((o_ptr->pval) + randint(4));
-	    if (o_ptr->to_a) o_ptr->to_a = 0 - ((o_ptr->to_a) + randint(4));
-	    if (o_ptr->to_h) o_ptr->to_h = 0 - ((o_ptr->to_h) + randint(4));
-	    if (o_ptr->to_d) o_ptr->to_d = 0 - ((o_ptr->to_d) + randint(4));
-	    o_ptr->flags3 |= ( TR3_HEAVY_CURSE | TR3_CURSED );
-	    if (randint(4)==1) o_ptr-> flags3 |= TR3_PERMA_CURSE;
-	    if (randint(3)==1) o_ptr-> flags3 |= TR3_TY_CURSE;
-	    if (randint(2)==1) o_ptr-> flags3 |= TR3_AGGRAVATE;
-	    if (randint(3)==1) o_ptr-> flags3 |= TR3_DRAIN_EXP;
-	    if (randint(2)==1) o_ptr-> flags3 |= TR3_TELEPORT;
-        else if (randint(3)==1) o_ptr->flags3 |= TR3_NO_TELE;
-        if (randint(3)==1) o_ptr->flags3 |= TR3_NO_MAGIC;
-	    o_ptr->ident |= IDENT_CURSED;
+	if (o_ptr->pval) o_ptr->pval = 0 - ((o_ptr->pval) + randint(4));
+	if (o_ptr->to_a) o_ptr->to_a = 0 - ((o_ptr->to_a) + randint(4));
+	if (o_ptr->to_h) o_ptr->to_h = 0 - ((o_ptr->to_h) + randint(4));
+	if (o_ptr->to_d) o_ptr->to_d = 0 - ((o_ptr->to_d) + randint(4));
+	o_ptr->flags3 |= ( TR3_HEAVY_CURSE | TR3_CURSED );
 
+	/* Perma-cursed objects which cannot be instantly recognised are bad. */
+/*	if (randint(4)==1) o_ptr-> flags3 |= TR3_PERMA_CURSE; */
+
+	if (randint(3)==1) o_ptr-> flags3 |= TR3_TY_CURSE;
+	if (randint(2)==1) o_ptr-> flags3 |= TR3_AGGRAVATE;
+	if (randint(3)==1) o_ptr-> flags3 |= TR3_DRAIN_EXP;
+	if (randint(2)==1) o_ptr-> flags3 |= TR3_TELEPORT;
+    else if (randint(3)==1) o_ptr->flags3 |= TR3_NO_TELE;
+    if (randint(3)==1) o_ptr->flags3 |= TR3_NO_MAGIC;
+	o_ptr->ident |= IDENT_CURSED;
 }
 
 static void random_plus (object_type * o_ptr, bool is_scroll)
@@ -4575,7 +4579,7 @@ bool recharge(int num)
 
 
 	/* Extract the object "level" */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_info[o_ptr->k_idx].extra;
 
 	/* Recharge a rod */
 	if (o_ptr->tval == TV_ROD)
@@ -5104,7 +5108,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 			c_ptr = &cave[y][x];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
+			c_ptr->info &= ~(CAVE_ICKY);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW | CAVE_TRAP);
@@ -5185,7 +5189,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_ROOM);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);
@@ -5262,7 +5266,7 @@ void earthquake(int cy, int cx, int r)
 			c_ptr = &cave[yy][xx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
+			c_ptr->info &= ~(CAVE_ICKY);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK | CAVE_TRAP);
@@ -5566,7 +5570,7 @@ void earthquake(int cy, int cx, int r)
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_ROOM);
 
 	/* Monster may be able to be created in the floor squares created. */
 	full_grid = MAX(full_grid, 2*r);
@@ -5733,7 +5737,13 @@ static void cave_temp_room_unlite(void)
 
 
 /*
- * Aux function -- see below
+ * Mark area to be lit by lite_room() with CAVE_TEMP.
+ *
+ * This works by lighting the central 9 squares unconditionally, and then
+ * lighting others if:
+ * 1. Two adjacent non-wall squares are lit.
+ * 2. Three adjacent squares which touch one another are lit, the middle one
+ * of which is not a wall. This is provided solely to light walls.
  */
 static void cave_temp_room_aux(int y, int x)
 {
@@ -5742,11 +5752,11 @@ static void cave_temp_room_aux(int y, int x)
 	/* Avoid infinite recursion */
 	if (c_ptr->info & (CAVE_TEMP)) return;
 
-	/* Do not "leave" the current room */
-	if (!(c_ptr->info & (CAVE_ROOM))) return;
-
 	/* Paranoia -- verify space */
 	if (temp_n == TEMP_MAX) return;
+
+	/* Not a room or a wall. */
+	if (!is_room_p(y,x)) return;
 
 	/* Mark the grid as "seen" */
 	c_ptr->info |= (CAVE_TEMP);
@@ -5755,6 +5765,10 @@ static void cave_temp_room_aux(int y, int x)
 	temp_y[temp_n] = y;
 	temp_x[temp_n] = x;
 	temp_n++;
+#ifdef TESTING_cave_temp_room_aux
+	move_cursor_relative(y,x);
+	inkey();
+#endif
 }
 
 
@@ -5850,8 +5864,12 @@ bool lite_area(int dam, int rad)
 	/* Hook into the "project()" function */
 	(void)project(0, rad, py, px, dam, GF_LITE_WEAK, flg);
 
-	/* Lite up the room */
-	lite_room(py, px);
+	/* Hack - don't light up the town. */
+	if (dun_level || wild_grid[wildy][wildx].dungeon >= MAX_TOWNS)
+	{
+		/* Lite up the room */
+		lite_room(py, px);
+	}
 
 	/* Assume seen */
 	return (TRUE);
@@ -5875,8 +5893,12 @@ bool unlite_area(int dam, int rad)
 	/* Hook into the "project()" function */
     (void)project(0, rad, py, px, dam, GF_DARK_WEAK, flg);
 
-	/* Lite up the room */
-	unlite_room(py, px);
+	/* Hack - don't darken the town. */
+	if (dun_level || wild_grid[wildy][wildx].dungeon >= MAX_TOWNS)
+	{
+		/* Darken the room */
+		unlite_room(py, px);
+	}
 
 	/* Assume seen */
 	return (TRUE);

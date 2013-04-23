@@ -68,7 +68,7 @@
 
 # Version stamp (required)
 
-V:1.0.4
+V:1.0.5
 
 # There are several macros which apply to all files used by object_desc().
 # To simplify things, these macros create them with a single line.
@@ -144,18 +144,17 @@ M:27
 X:%=P
 M:4
 #:object_desc() names
+F:r_info:N:3
 
 X:%+P
 M:12
 #:object_desc() names
+F:r_info:N:3
 
 X:%-P
 M:20
 #:object_desc() names
-
-X:%p
-M:28
-#:object_desc() names
+F:r_info:N:3
 
 X:%=E
 M:5
@@ -197,6 +196,23 @@ X:%b
 M:24
 #:object_desc() names
 
+X:%=I
+M:5
+#:object_desc() names
+F:r_info:N:3
+
+X:%+I
+M:13
+F:r_info:N:3
+
+X:%-I
+M:21
+F:r_info:N:3
+
+X:%i
+M:29
+F:r_info:N:3
+
 # %Base flags are always at the beginning to make searching for them
 # more efficient.
 
@@ -224,21 +240,24 @@ X:#
 Y:%+F%f %=F
 #:object_desc() names
 
-# Foo
+# Give mushrooms, rings, amulets, potions, wands, staves, rods and scrolls
+# their names in the accustomed style.
 
 X: !
 Y:%+K of %k%=K%+E %e%=E%+A %a%=A
 #:object_desc() names
 
-# Boo
+# Give books their names in the accustomed style.
 
 X: ^
 Y:%+K %k%=K%+E %e%=E%+A %a%=A
 #:object_desc() names
 
-X:~
-Y:%+P%p%=P
-#:object_desc() names
+# Give insta-arts their normal representation.
+
+X: $
+Y:%Base %+A %a%=A
+F:k_info:N:3
 
 X:%Scroll 
 M:127
@@ -258,163 +277,208 @@ X:s
 B:N:%Scroll ---length 16---
 F:u_info:s
 
+# Make "& " have roughly the same effect for monsters as objects.
+
+X:& 
+Y:%+I%i %=I
+F:r_info:N:3
+
 # Ensure that tvals are expressed as numbers.
 
 X:Skeleton
 Y:1
 F:k_info:I:2
+F:k_info:I:4
 
 X:Bottle
 Y:2
 F:k_info:I:2
+F:k_info:I:4
 
 X:Junk
 Y:3
 F:k_info:I:2
+F:k_info:I:4
 
 X:Spike
 Y:5
 F:k_info:I:2
+F:k_info:I:4
 
 X:Chest
 Y:7
 F:k_info:I:2
+F:k_info:I:4
 
 X:Shot
 Y:16
 F:k_info:I:2
+F:k_info:I:4
 
 X:Arrow
 Y:17
 F:k_info:I:2
+F:k_info:I:4
 
 X:Bolt
 Y:18
 F:k_info:I:2
+F:k_info:I:4
 
 X:Bow
 Y:19
 F:k_info:I:2
+F:k_info:I:4
 
 X:Digging
 Y:20
 F:k_info:I:2
+F:k_info:I:4
 
 X:Hafted
 Y:21
 F:k_info:I:2
+F:k_info:I:4
 
 X:Polearm
 Y:22
 F:k_info:I:2
+F:k_info:I:4
 
 X:Sword
 Y:23
 F:k_info:I:2
+F:k_info:I:4
 
 X:Boots
 Y:30
 F:k_info:I:2
+F:k_info:I:4
 
 X:Gloves
 Y:31
 F:k_info:I:2
+F:k_info:I:4
 
 X:Helmet
 Y:32
 F:k_info:I:2
+F:k_info:I:4
 
 X:Crown
 Y:33
 F:k_info:I:2
+F:k_info:I:4
 
 X:Shield
 Y:34
 F:k_info:I:2
+F:k_info:I:4
 
 X:Cloak
 Y:35
 F:k_info:I:2
+F:k_info:I:4
 
 X:S-Armour
 Y:36
 F:k_info:I:2
+F:k_info:I:4
 
 X:H-Armour
 Y:37
 F:k_info:I:2
+F:k_info:I:4
 
 X:D-Armour
 Y:38
 F:k_info:I:2
+F:k_info:I:4
 
 X:Light
 Y:39
 F:k_info:I:2
+F:k_info:I:4
 
 X:Amulet
 Y:40
 F:k_info:I:2
+F:k_info:I:4
 
 X:Ring
 Y:45
 F:k_info:I:2
+F:k_info:I:4
 
 X:Staff
 Y:55
 F:k_info:I:2
+F:k_info:I:4
 
 X:Wand
 Y:65
 F:k_info:I:2
+F:k_info:I:4
 
 X:Rod
 Y:66
 F:k_info:I:2
+F:k_info:I:4
 
 X:Scroll
 Y:70
 F:k_info:I:2
+F:k_info:I:4
 
 X:Potion
 Y:75
 F:k_info:I:2
+F:k_info:I:4
 
 X:Flask
 Y:77
 F:k_info:I:2
+F:k_info:I:4
 
 X:Food
 Y:80
 F:k_info:I:2
+F:k_info:I:4
 
 X:Sorcery
 Y:90
 F:k_info:I:2
+F:k_info:I:4
 
 X:Thaumaturgy
 Y:91
 F:k_info:I:2
+F:k_info:I:4
 
 X:Conjuration
 Y:92
 F:k_info:I:2
+F:k_info:I:4
 
 X:Necromancy
 Y:93
 F:k_info:I:2
+F:k_info:I:4
 
 X:Charm
 Y:94
 F:k_info:I:2
+F:k_info:I:4
 
 X:Gold
 Y:100
 F:k_info:I:2
+F:k_info:I:4
 
 X:Unknown
 Y:255
 F:k_info:I:2
+F:k_info:I:4
 
 # Add IGNORE_* as appropriate, and SHOW_ARMOUR to armour
 
@@ -783,3 +847,671 @@ F:r_event:F:1
 X:S
 Y:#S
 F:r_event:S:1
+
+# object_kind.extra fields
+
+# Weapons
+
+X:CLOSE
+Y:8
+F:k_info:I:4
+
+X:STAB
+Y:22
+F:k_info:I:4
+
+X:SLASH
+Y:23
+F:k_info:I:4
+
+X:CRUSH
+Y:24
+F:k_info:I:4
+
+# Chests
+
+X:SMALL
+Y:1
+F:k_info:I:4
+
+X:LARGE
+Y:2
+F:k_info:I:4
+
+X: WOOD
+Y:1
+F:k_info:I:4
+
+X: IRON
+Y:2
+F:k_info:I:4
+
+X: STEEL
+Y:3
+F:k_info:I:4
+
+# Bows
+
+X:x
+Y:0d
+F:k_info:P:3
+F:a_info:P:3
+
+# init1.c interprets negative numbers as belonging to the user area, but
+# expects them to be in decreasing order. As this is unusual, changing it to
+# a u allows the numbers to appear to be in increasing order instead.
+
+X:u
+Y:-
+F:k_info:N:2
+
+# Macros to make it relatively easy to keep the k_idx field in a_info.txt up
+# to date, and also to make it clearer.
+
+X:BROKEN_DAGGER
+Y:30
+F:a_info:I:2
+
+X:BROKEN_SWORD
+Y:31
+F:a_info:I:2
+
+X:DAGGER
+Y:32
+F:a_info:I:2
+
+X:MAIN_GAUCHE
+Y:33
+F:a_info:I:2
+
+X:RAPIER
+Y:34
+F:a_info:I:2
+
+X:SMALL_SWORD
+Y:35
+F:a_info:I:2
+
+X:SABRE
+Y:36
+F:a_info:I:2
+
+X:CUTLASS
+Y:37
+F:a_info:I:2
+
+X:SHORT_SWORD
+Y:38
+F:a_info:I:2
+
+X:TULWAR
+Y:39
+F:a_info:I:2
+
+X:SCIMITAR
+Y:40
+F:a_info:I:2
+
+X:BROAD_SWORD
+Y:41
+F:a_info:I:2
+
+X:LONG_SWORD
+Y:42
+F:a_info:I:2
+
+X:BASTARD_SWORD
+Y:43
+F:a_info:I:2
+
+X:KATANA
+Y:44
+F:a_info:I:2
+
+X:TWO_HANDED_SWORD
+Y:45
+F:a_info:I:2
+
+X:EXECUTIONERS_SWORD
+Y:46
+F:a_info:I:2
+
+X:BLADE_OF_CHAOS
+Y:47
+F:a_info:I:2
+
+X:WHIP
+Y:48
+F:a_info:I:2
+
+X:MACE
+Y:49
+F:a_info:I:2
+
+X:QUARTERSTAFF
+Y:50
+F:a_info:I:2
+
+X:BALL_AND_CHAIN
+Y:51
+F:a_info:I:2
+
+X:WAR_HAMMER
+Y:52
+F:a_info:I:2
+
+X:FLAIL
+Y:53
+F:a_info:I:2
+
+X:LUCERNE_HAMMER
+Y:54
+F:a_info:I:2
+
+X:MORNING_STAR
+Y:55
+F:a_info:I:2
+
+X:LEAD_FILLED_MACE
+Y:56
+F:a_info:I:2
+
+X:TWO_HANDED_FLAIL
+Y:57
+F:a_info:I:2
+
+X:MACE_OF_DISRUPTION
+Y:58
+F:a_info:I:2
+
+X:SPEAR
+Y:59
+F:a_info:I:2
+
+X:TRIDENT
+Y:60
+F:a_info:I:2
+
+X:LANCE
+Y:61
+F:a_info:I:2
+
+X:BROAD_AXE
+Y:62
+F:a_info:I:2
+
+X:BATTLE_AXE
+Y:63
+F:a_info:I:2
+
+X:AWL_PIKE
+Y:64
+F:a_info:I:2
+
+X:PIKE
+Y:65
+F:a_info:I:2
+
+X:GLAIVE
+Y:66
+F:a_info:I:2
+
+X:BEAKED_AXE
+Y:67
+F:a_info:I:2
+
+X:HALBERD
+Y:68
+F:a_info:I:2
+
+X:GREAT_AXE
+Y:69
+F:a_info:I:2
+
+X:LOCHABER_AXE
+Y:70
+F:a_info:I:2
+
+X:SCYTHE
+Y:71
+F:a_info:I:2
+
+X:SCYTHE_OF_SLICING
+Y:72
+F:a_info:I:2
+
+X:SHOVEL
+Y:73
+F:a_info:I:2
+
+X:GNOMISH_SHOVEL
+Y:74
+F:a_info:I:2
+
+X:DWARVEN_SHOVEL
+Y:75
+F:a_info:I:2
+
+X:PICK
+Y:76
+F:a_info:I:2
+
+X:ORCISH_PICK
+Y:77
+F:a_info:I:2
+
+X:DWARVEN_PICK
+Y:78
+F:a_info:I:2
+
+X:SLING
+Y:79
+F:a_info:I:2
+
+X:SHORT_BOW
+Y:80
+F:a_info:I:2
+
+X:LONG_BOW
+Y:81
+F:a_info:I:2
+
+X:LIGHT_CROSSBOW
+Y:82
+F:a_info:I:2
+
+X:HEAVY_CROSSBOW
+Y:83
+F:a_info:I:2
+
+X:ARROW
+Y:84
+F:a_info:I:2
+
+X:SEEKER_ARROW
+Y:85
+F:a_info:I:2
+
+X:BOLT
+Y:86
+F:a_info:I:2
+
+X:SEEKER_BOLT
+Y:87
+F:a_info:I:2
+
+X:ROUNDED_PEBBLE
+Y:88
+F:a_info:I:2
+
+X:IRON_SHOT
+Y:89
+F:a_info:I:2
+
+X:FILTHY_RAG
+Y:90
+F:a_info:I:2
+
+X:ROBE
+Y:91
+F:a_info:I:2
+
+X:SOFT_LEATHER_ARMOUR
+Y:92
+F:a_info:I:2
+
+X:SOFT_STUDDED_LEATHER
+Y:93
+F:a_info:I:2
+
+X:HARD_LEATHER_ARMOUR
+Y:94
+F:a_info:I:2
+
+X:HARD_STUDDED_LEATHER
+Y:95
+F:a_info:I:2
+
+X:LEATHER_SCALE_MAIL
+Y:96
+F:a_info:I:2
+
+X:METAL_SCALE_MAIL
+Y:97
+F:a_info:I:2
+
+X:RUSTY_CHAIN_MAIL
+Y:98
+F:a_info:I:2
+
+X:CHAIN_MAIL
+Y:99
+F:a_info:I:2
+
+X:DOUBLE_CHAIN_MAIL
+Y:100
+F:a_info:I:2
+
+X:AUGMENTED_CHAIN_MAIL
+Y:101
+F:a_info:I:2
+
+X:BAR_CHAIN_MAIL
+Y:102
+F:a_info:I:2
+
+X:METAL_BRIGANDINE_ARMOUR
+Y:103
+F:a_info:I:2
+
+X:PARTIAL_PLATE_ARMOUR
+Y:104
+F:a_info:I:2
+
+X:METAL_LAMELLAR_ARMOUR
+Y:105
+F:a_info:I:2
+
+X:FULL_PLATE_ARMOUR
+Y:106
+F:a_info:I:2
+
+X:RIBBED_PLATE_ARMOUR
+Y:107
+F:a_info:I:2
+
+X:MITHRIL_CHAIN_MAIL
+Y:108
+F:a_info:I:2
+
+X:MITHRIL_PLATE_MAIL
+Y:109
+F:a_info:I:2
+
+X:ADAMANTITE_PLATE_MAIL
+Y:110
+F:a_info:I:2
+
+X:DSM_BRONZE
+Y:111
+F:a_info:I:2
+
+X:DSM_BLACK
+Y:112
+F:a_info:I:2
+
+X:DSM_BLUE
+Y:113
+F:a_info:I:2
+
+X:DSM_WHITE
+Y:114
+F:a_info:I:2
+
+X:DSM_GOLD
+Y:115
+F:a_info:I:2
+
+X:DSM_PSEUDO
+Y:116
+F:a_info:I:2
+
+X:DSM_CHAOS
+Y:117
+F:a_info:I:2
+
+X:DSM_GREEN
+Y:118
+F:a_info:I:2
+
+X:DSM_LAW
+Y:119
+F:a_info:I:2
+
+X:DSM_RED
+Y:120
+F:a_info:I:2
+
+X:DSM_BALANCE
+Y:121
+F:a_info:I:2
+
+X:DSM_MULTI_HUED
+Y:122
+F:a_info:I:2
+
+X:DSM_POWER
+Y:123
+F:a_info:I:2
+
+X:CLOAK
+Y:124
+F:a_info:I:2
+
+X:ELVEN_CLOAK
+Y:125
+F:a_info:I:2
+
+X:SHADOW_CLOAK
+Y:126
+F:a_info:I:2
+
+X:SMALL_LEATHER_SHIELD
+Y:127
+F:a_info:I:2
+
+X:SMALL_METAL_SHIELD
+Y:128
+F:a_info:I:2
+
+X:LARGE_LEATHER_SHIELD
+Y:129
+F:a_info:I:2
+
+X:LARGE_METAL_SHIELD
+Y:130
+F:a_info:I:2
+
+X:DRAGON_SHIELD
+Y:131
+F:a_info:I:2
+
+X:SHIELD_OF_DEFLECTION
+Y:132
+F:a_info:I:2
+
+X:HARD_LEATHER_CAP
+Y:133
+F:a_info:I:2
+
+X:METAL_CAP
+Y:134
+F:a_info:I:2
+
+X:IRON_HELM
+Y:135
+F:a_info:I:2
+
+X:STEEL_HELM
+Y:136
+F:a_info:I:2
+
+X:DRAGON_HELM
+Y:137
+F:a_info:I:2
+
+X:IRON_CROWN
+Y:138
+F:a_info:I:2
+
+X:GOLDEN_CROWN
+Y:139
+F:a_info:I:2
+
+X:JEWEL_ENCRUSTED_CROWN
+Y:140
+F:a_info:I:2
+
+X:LEATHER_GLOVES
+Y:141
+F:a_info:I:2
+
+X:GAUNTLETS
+Y:142
+F:a_info:I:2
+
+X:CESTI
+Y:143
+F:a_info:I:2
+
+X:SOFT_LEATHER_BOOTS
+Y:144
+F:a_info:I:2
+
+X:HARD_LEATHER_BOOTS
+Y:145
+F:a_info:I:2
+
+X:METAL_SHOD_BOOTS
+Y:146
+F:a_info:I:2
+
+X:STAR_ESSENCE_OF_POLARIS
+Y:459
+F:a_info:I:2
+
+X:STAR_ESSENCE_OF_XOTH
+Y:460
+F:a_info:I:2
+
+X:GEMSTONE_TRAPEZODEDRON
+Y:461
+F:a_info:I:2
+
+X:AMULET_LOBON
+Y:462
+F:a_info:I:2
+
+X:AMULET_ABD_ALHAZRED
+Y:463
+F:a_info:I:2
+
+X:NECKLACE_OF_THE_DWARVES
+Y:464
+F:a_info:I:2
+
+X:RING_MAGIC
+Y:465
+F:a_info:I:2
+
+X:RING_BAST
+Y:466
+F:a_info:I:2
+
+X:RING_ELEMENTAL_POWER_FIRE
+Y:467
+F:a_info:I:2
+
+X:RING_ELEMENTAL_POWER_ICE
+Y:468
+F:a_info:I:2
+
+X:RING_ELEMENTAL_POWER_STORM
+Y:469
+F:a_info:I:2
+
+X:RING_NYARLATHOTEP
+Y:470
+F:a_info:I:2
+
+X:RUNESWORD_STORMBRINGER
+Y:471
+F:a_info:I:2
+
+X:MIGHTY_HAMMER_OF_WORLDS
+Y:472
+F:a_info:I:2
+
+X:LEAD_CROWN_OF_THE_UNIVERSE
+Y:473
+F:a_info:I:2
+
+X:,
+Y:
+F:a_info:W:6
+F:e_info:W:5
+F:k_info:W:3
+
+X:lb
+Y:
+F:a_info:W:5
+F:k_info:W:2
+
+X:.
+Y:
+F:a_info:W:5
+F:k_info:W:2
+
+# Monster/object plural strings.
+# The section after %-P is only printed for singular names.
+# The section after %+p is only printed for plural names.
+# The initial section, and the section after %=P, are printed for all names.
+# Only the last matching pattern listed is used.
+
+X:~
+Y:%+Ps%=P
+F:r_info:N:3
+#:object_desc() names
+
+X:s~
+Y:s%+Pes%=P
+F:r_info:N:3
+#:object_desc() names
+
+X:ch~
+Y:ch%+Pes%=P
+F:r_info:N:3
+
+X:ich~
+Y:ich%+Ps%=P
+
+X:y~
+Y:%-Py%+Pies%=P
+F:r_info:N:3
+
+X:ouse~
+Y:%-Pous%+Pic%=Pe
+F:r_info:N:3
+
+X:ay~
+Y:ay%+Ps%=P
+F:r_info:N:3
+
+X:thief~
+Y:thie%-Pf%+Pves%=P
+F:r_info:N:3
+
+X:olf~
+Y:ol%-Pf%+Pves%=P
+F:r_info:N:3
+
+X:ex~
+Y:%-Pex%+Pices%=P
+F:r_info:N:3
+
+X: Man~
+Y: M%-Pa%+Pe%=Pn
+F:r_info:N:3
+
+X:kelman~
+Y:kelm%-Pa%+Pe%=Pn
+F:r_info:N:3
+
+X:child~
+Y:child%+Pren%=P
+F:r_info:N:3
+
+X:lous~
+Y:l%-Pous%+Pi%=P
+F:r_info:N:3
+

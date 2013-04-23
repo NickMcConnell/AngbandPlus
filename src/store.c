@@ -1308,9 +1308,9 @@ static int home_carry(object_type *o_ptr)
 		if (!object_aware_p(o_ptr)) continue;
 		if (!object_aware_p(j_ptr)) break;
 
-		/* Objects sort by increasing sval */
-		if (o_ptr->sval < j_ptr->sval) break;
-		if (o_ptr->sval > j_ptr->sval) continue;
+		/* Objects sort by increasing k_idx */
+		if (o_ptr->k_idx < j_ptr->k_idx) break;
+		if (o_ptr->k_idx > j_ptr->k_idx) continue;
 
 		/* Objects in the home can be unknown */
 		if (!object_known_p(o_ptr)) continue;
@@ -1409,9 +1409,9 @@ static int store_carry(object_type *o_ptr)
 		if (o_ptr->tval > j_ptr->tval) break;
 		if (o_ptr->tval < j_ptr->tval) continue;
 
-		/* Objects sort by increasing sval */
-		if (o_ptr->sval < j_ptr->sval) break;
-		if (o_ptr->sval > j_ptr->sval) continue;
+		/* Objects sort by increasing k_idx */
+		if (o_ptr->k_idx < j_ptr->k_idx) break;
+		if (o_ptr->k_idx > j_ptr->k_idx) continue;
 
 
        /* Hack:  otherwise identical rods sort by
@@ -1651,7 +1651,7 @@ static void store_create(void)
 		else
 		{
 			/* Hack -- Pick an item to sell */
-			i = st_ptr->table[rand_int(st_ptr->table_num)];
+			i = store_table[st_ptr->type][rand_int(STORE_CHOICES)];
 
 			/* Hack -- fake level for apply_magic() */
 			level = rand_range(1, STORE_OBJ_LEVEL);
@@ -1673,8 +1673,8 @@ static void store_create(void)
 		/* Hack -- Charge lite's */
 		if (q_ptr->tval == TV_LITE)
 		{
-			if (q_ptr->sval == SV_LITE_TORCH) q_ptr->pval = FUEL_TORCH / 2;
-			if (q_ptr->sval == SV_LITE_LANTERN) q_ptr->pval = FUEL_LAMP / 2;
+			if (q_ptr->k_idx == OBJ_WOODEN_TORCH) q_ptr->pval = FUEL_TORCH / 2;
+			if (q_ptr->k_idx == OBJ_BRASS_LANTERN) q_ptr->pval = FUEL_LAMP / 2;
 		}
 
 
@@ -2013,7 +2013,7 @@ static cptr store_title_aux(void)
 			tmp_str = string_make(format("%s (%s)", owner_name, race_name));
 
 		/* Hack - Create a 10000gp item for price_item() */
-		object_prep(&tmp, lookup_kind(TV_PRICE_COMPARE, SV_PRICE_COMPARE));
+		object_prep(&tmp, OBJ_NO_TEA);
 		object_aware(&tmp);
 
 			/* Hack - standardise the player's charisma. */
@@ -2116,7 +2116,7 @@ static void display_store(void)
 /*
  * Get the ID of a store item and return its value	-RAK-
  */
-static int get_stock(int *com_val, cptr pmt, int i, int j)
+static int get_stock_aux(int *com_val, cptr pmt, int i, int j)
 {
 	char	command;
 
@@ -2187,6 +2187,14 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 	return (TRUE);
 }
 
+/*
+ * A wrapper to provide the (known) limits for the prompt above.
+ */
+static int get_stock(int *com_val, cptr pmt)
+{
+	int i = MIN(st_ptr->stock_num - store_top, term_screen->hgt-12);
+	return get_stock_aux(com_val, pmt, 0, i-1);
+}
 
 /*
  * Increase the insult counter and get angry if too many -RAK-
@@ -2575,7 +2583,7 @@ static void service_help(byte type)
 		case STORE_TEMPLE: /* Restoration */
 		{
 			object_type forge;
-			object_prep(&forge, lookup_kind(TV_FOOD, SV_FOOD_RESTORING));
+			object_prep(&forge, OBJ_FOOD_RESTORING);
 			/* This gives an unwelcome "Item attributes" description. */
 			if (!identify_fully_aux(&forge, TRUE))
 				msg_print("This won't help you at present.");
@@ -3009,12 +3017,6 @@ static void store_purchase_aux(char *o_name)
 	}
 
 
-	/* Find the number of objects on this and following pages */
-	i = (st_ptr->stock_num - store_top);
-
-	/* And then restrict it to the current page */
-	if (i > 12) i = 12;
-
 	/* Prompt */
 	if (cur_store_type == STORE_HOME)
 	{
@@ -3026,7 +3028,7 @@ static void store_purchase_aux(char *o_name)
 	}
 
 	/* Get the item number to be bought */
-	if (!get_stock(&item, out_val, 0, i-1)) return;
+	if (!get_stock(&item, out_val)) return;
 
 	/* Get the actual index */
 	item = item + store_top;
@@ -3559,7 +3561,6 @@ static void store_sell(void)
   */
  static void store_examine(void)
  {
-   int i;
    int item;
 
    object_type *o_ptr;
@@ -3577,17 +3578,11 @@ static void store_sell(void)
    }
 
 
-   /* Find the number of objects on this and following pages */
-   i = (st_ptr->stock_num - store_top);
-
-   /* And then restrict it to the current page */
-   if (i > 12) i = 12;
-
    /* Prompt */
    sprintf(out_val, "Which item do you want to examine? ");
 
    /* Get the item number to be examined */
-   if (!get_stock(&item, out_val, 0, i-1)) return;
+   if (!get_stock(&item, out_val)) return;
 
    /* Get the actual index */
    item = item + store_top;
@@ -4982,7 +4977,7 @@ static void do_store_browse( object_type *o_ptr)
 
 
 	/* Access the item's sval */
-	sval = o_ptr->sval;
+	sval = k_info[o_ptr->k_idx].extra;
 
 	/* Extract spells */
 	for (spell = 0; spell < 32; spell++)

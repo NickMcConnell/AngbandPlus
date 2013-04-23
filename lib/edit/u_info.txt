@@ -66,7 +66,7 @@
 
 # Version stamp (required)
 
-V:1.0.4
+V:1.0.5
 
 ##### Mushrooms #####
 
@@ -160,9 +160,6 @@ G:,:y:1:29
 ##### Rings #####
 
 N:Adamantite
-G:=:G:2:1
-
-N:Adamantite
 G:=:v:2:2
 
 N:Alexandrite
@@ -205,9 +202,6 @@ N:Corundum
 G:=:s:2:15
 
 N:Diamond
-G:=:b:2:16
-
-N:Diamond
 G:=:w:2:17
 
 N:Dilithium
@@ -238,9 +232,6 @@ N:Gold
 G:=:y:2:26
 
 N:Granite
-G:=:D:2:27
-
-N:Granite
 G:=:W:2:28
 
 N:Grayish
@@ -248,9 +239,6 @@ G:=:G:2:29
 
 N:Greenish
 G:=:g:2:30
-
-N:Iron
-G:=:b:2:31
 
 N:Iron
 G:=:s:2:32
@@ -426,9 +414,6 @@ G:":U:3:9
 
 N:Coral
 G:":w:3:10
-
-N:Crystal
-G:":B:3:11
 
 N:Crystal
 G:":w:3:12

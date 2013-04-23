@@ -17,7 +17,7 @@ only take energy when they cause the world to change in some way.
 
 --- Inventory Commands ---
 
-***** <cmd=i>
+%%%%% <cmd=i>
 Inventory list (i)
         Displays a list of objects being carried but not equipped.  You
         can carry up to 23 different items, not counting those in your
@@ -28,7 +28,7 @@ Inventory list (i)
         stack.  Each object has a weight, and if you carry more objects
         than your strength permits, you will begin to slow down.
  
-***** <cmd=e>
+%%%%% <cmd=e>
 Equipment list (e)
         Use this command to display a list of the objects currently being
         used by your character.  Your character has 12 slots for equipment,
@@ -41,7 +41,7 @@ Equipment list (e)
         must be wielding/wearing certain objects to take advantage of
         their special powers.
 
-***** <cmd=d>
+%%%%% <cmd=d>
 Drop an item (d)
         This drops an item from your inventory or equipment onto the
         dungeon floor.  If the floor spot you are standing on already has
@@ -52,14 +52,14 @@ Drop an item (d)
         determining if the space is occupied.  This command may take
         a quantity, and takes some energy.
 
-***** <cmd=k>
+%%%%% <cmd=k>
 Destroy an item (k) or Destroy an item (Ctrl-D)
         This destroys an item in your inventory or on the dungeon floor.
         If the selected pile contains multiple objects, you may specify
         a quantity.  You must always (currently) verify this command.
         This command may take a quantity, and takes some energy.
 
-***** <cmd=w>
+%%%%% <cmd=w>
 Wear/Wield equipment (w)
         To wear or wield an object in your inventory, use this command.
         Since only one object can be in each slot at a time, if you wear
@@ -68,7 +68,7 @@ Wear/Wield equipment (w)
         there is no room for it in your inventory.  This command takes
         some energy.
 
-***** <cmd=t>
+%%%%% <cmd=t>
 Take off equipment (t) or Take off equipment (T)
         Use this command to take off a piece of equipment and return it
         to your inventory.  Occasionally, you will run into a cursed item
@@ -78,10 +78,10 @@ Take off equipment (t) or Take off equipment (T)
         and you will drop the item after taking it off.  This command takes
         some energy.
 
-*****
+#####
 --- Movement Commands ---
 
-***** <cmd=;>
+%%%%% <cmd=;>
 Walk (with pickup) (;)
         Moves one step in the given direction.  The square you are moving
         into must not be blocked by walls or doors.  You will pick up any
@@ -92,7 +92,7 @@ Walk (with pickup) (;)
         direction.  This command may take a count, requires a direction,
         and takes some energy.
 
-***** <cmd=->
+%%%%% <cmd=->
 Walk (flip pickup) (-)
         This is just like normal move, except that the "Pick things up"
         option is inverted.  In other words, if you normally pick up
@@ -101,7 +101,7 @@ Walk (flip pickup) (-)
         you will when using this command.  This command may take a count,
         requires a direction, and takes some energy.
 
-***** <cmd=.>
+%%%%% <cmd=.>
 Run (.) or Run (,)
         This command will move in the given direction, following any bends
         in the corridor, until you either have to make a "choice" between
@@ -112,7 +112,7 @@ Run (.) or Run (,)
         some machines) to run in a direction.  This command may take an
         argument, requires a direction, and takes some energy.
 
-***** <cmd=<>
+%%%%% <cmd=<>
 Go up staircase (<)
         Climbs up an up staircase you are standing on.  There is always at
         least one staircase going up on every level except for the town
@@ -126,7 +126,7 @@ Go up staircase (<)
         was set when your character was created, in which case the artifacts
         may show up again later.  This command takes some energy.
 
-***** <cmd=>>
+%%%%% <cmd=>>
 Go down staircase (>)
         Descends a down staircase you are standing on.  There are always
         at least two staircases going down on each level, except for the
@@ -136,24 +136,24 @@ Go down staircase (>)
         This command takes some energy.
 
 
-***** <cmd=^E>
+%%%%% <cmd=^E>
 Enter store (Ctrl-E)
         When standing on the door of a store, this command allows the character
         to enter the store. Walking into the door will do the same (in fact,
 		walking into the door explicitly calls this command, so a keymap for
 		^E will be triggered whenever you enter a store).
 
-*****
+#####
 --- Resting Commands ---
 
-***** <cmd=,>
+%%%%% <cmd=,>
 Stay still (with pickup) (,) or Stay still (with pickup) (.)
         Stays in the same square for one move.  If you normally pick up
         objects you encounter, you will pick up whatever you are standing
         on.  You may also use the "5" key (both keysets).  This command
         may take a count, and takes some energy.
 
-***** <cmd=g>
+%%%%% <cmd=g>
 Stay still (flip pickup) (g)
         Stays in the same square for one move.  If you normally pick up
         objects you encounter, you will not pick up whatever you are
@@ -162,7 +162,7 @@ Stay still (flip pickup) (g)
         used when the "always_pickup" option is false.  This command may
         take a count, and takes some energy.
 
-***** <cmd=R>
+%%%%% <cmd=R>
 Rest (R)
         Resting is better for you than repeatedly staying still, and can
         be told to automatically stop after a certain amount of time, or
@@ -174,10 +174,10 @@ Rest (R)
         may take an argument (used for the number of turns to rest), and
         takes some energy.
 
-*****
+#####
 --- Searching Commands ---
 
-***** <cmd=s>
+%%%%% <cmd=s>
 Search (s)
         This command can be used to locate hidden traps and secret doors
         in the spaces adjacent to the player.  More than a single turn of
@@ -188,7 +188,7 @@ Search (s)
         stops as soon as anything is found.  This command may take a count,
         and takes some energy.
 
-***** <cmd=S>
+%%%%% <cmd=S>
 Toggle search mode (S) or Toggle search mode (#)
         This command will take you into and out of search mode.  When
         first pressed, the message "Searching" will appear at the bottom
@@ -199,10 +199,10 @@ Toggle search mode (S) or Toggle search mode (#)
         are disturbed.  You may also turn off search mode by entering the
         Search Mode command again.
 
-*****
+#####
 --- Alter Commands ---
 
-***** <cmd=T>
+%%%%% <cmd=T>
 Tunnel (T) or Tunnel (Ctrl-T)
         Tunnelling or mining is a very useful art.  There are many kinds of
         rock, with varying hardness, including permanent rock (permanent),
@@ -216,7 +216,7 @@ Tunnel (T) or Tunnel (Ctrl-T)
         the "always_repeat" option, requires a direction, and takes some
         energy.
 
-***** <cmd=o>
+%%%%% <cmd=o>
 Open a door or chest (o)
         To open an object such as a door or chest, you must use this
         command.  If the object is locked, you will attempt to pick the
@@ -227,7 +227,7 @@ Open a door or chest (o)
         a count, is affected by the "always_repeat" option, requires a
         direction, and takes some energy.
 
-***** <cmd=c>
+%%%%% <cmd=c>
 Close a door (c)
         Non-intelligent and some other creatures cannot open doors, so
         shutting doors can be quite valuable.  Broken doors cannot be closed.
@@ -235,7 +235,7 @@ Close a door (c)
         is affected by the "always_repeat" option, requires a direction, and 
         takes some energy.
 
-***** <cmd=j>
+%%%%% <cmd=j>
 Jam a door (j) or Spike a door (S)
         Many monsters can simply open closed doors, and can eventually
         get through a locked door.  You may therefore occasionally want
@@ -245,7 +245,7 @@ Jam a door (j) or Spike a door (S)
         use this command, you must be carrying iron spikes.  This command
         requires a direction, and takes some energy.
 
-***** <cmd=B>
+%%%%% <cmd=B>
 Bash a door (B) or Force a door (f)
         This command allows you to bash down jammed doors.  Your bashing
         ability increases with strength.  Bashing open a door can (briefly)
@@ -256,7 +256,7 @@ Bash a door (B) or Force a door (f)
         command may take a count, is affected by the "always_repeat" option,
         requires a direction, and takes some energy.
 
-***** <cmd=D>
+%%%%% <cmd=D>
 Disarm a trap or chest (D)
         You can attempt to disarm traps on the floor or on chests.  If you
         fail, there is a chance that you will blunder and set it off.  You
@@ -264,13 +264,13 @@ Disarm a trap or chest (D)
         Search command).  This command may take a count, is affected by the
         "always_repeat" option, requires a direction, and takes some energy.
 
-***** <cmd=H>
+%%%%% <cmd=H>
 Hit a monster (H) (Ctrl-G)
 This  command attempts to hit a nearby monster with your melee weapon. This
 is generally subsumed by other commands (particularly "walk"), but is included
 separately to avoid ambiguity.
 
-***** <cmd=+>
+%%%%% <cmd=+>
 Alter (+)
         This special command allows the use of a single keypress to select
         any of the "obvious" commands above (attack, tunnel, bash, open,
@@ -282,17 +282,17 @@ Alter (+)
         command may take a count, is affected by the "always_repeat" option,
         requires a direction, and takes some energy.
 
-*****
+#####
 --- Spell Commands ---
 
-***** <cmd=b>
+%%%%% <cmd=b>
 Browse a book (b) or Peruse a book (P)
         When this command is used, all of the spells or prayers contained in
         the selected book are displayed, along with information such as their
         level, the amount of mana required to cast them, and whether or not
         you know the spell.
 
-***** <cmd=m>
+%%%%% <cmd=m>
 Cast a spell (m)
         To cast a spell, you must have previously learned the spell and
         must have in your inventory a book from which the spell can be
@@ -304,7 +304,7 @@ Cast a spell (m)
         confused while casting, and there must be some light present.  This
         command takes some energy.
 
-***** <cmd=p>
+%%%%% <cmd=p>
 Call on a spirit (p)
         To call on a spirit, you must have previously made a ritual pact with
         one in a temple. Each favour has a chance of failure which decreases
@@ -313,7 +313,7 @@ Call on a spirit (p)
         requires concentration, you must not be confused while doing so. See
         shaman.txt for more details. This command takes some energy.
 
-***** <cmd=P>
+%%%%% <cmd=P>
 Use a mindcrafting power (P)
         There are no special prerequisites for mindcraft. Each power has a
         chance of failure which decreases as you gain levels. If you don't have
@@ -322,7 +322,7 @@ Use a mindcrafting power (P)
         mindcraft requires concentration, you must not be confused while doing
         so. See mindcrft.txt for more details. This command takes some energy.
 
-***** <cmd=h>
+%%%%% <cmd=h>
 Cast a cantrip (h)
         A cantrip is a weak form of magic in which the power is derived
         primarily from an object rather than your own mental powers. To cast a
@@ -331,7 +331,7 @@ Cast a cantrip (h)
         gain levels. Cantrips cannot be cast if you are blind or confused. This
         command takes some energy.
 
-***** <cmd=U>
+%%%%% <cmd=U>
 Use bonus power (if any) (U) or (O)
         Some races and classes have special natural abilities. All of these
         possible abilities are listed in an index under the U (or O) command.
@@ -339,10 +339,10 @@ Use bonus power (if any) (U) or (O)
         gathering and the great ones' recovery from harm. This command takes
         some energy.
 
-*****
+#####
 --- Object Manipulation Commands ---
 
-***** <cmd=E>
+%%%%% <cmd=E>
 Eat some food (E)
         You must eat regularly to prevent starvation.  As you grow hungry,
         a message will appear at the bottom of the screen saying "Hungry".
@@ -352,7 +352,7 @@ Eat some food (E)
         you can sometimes find food in the dungeon, but it is not always
         wise to eat strange food.  This command takes some energy.
 
-***** <cmd=F>
+%%%%% <cmd=F>
 Fuel your lantern/torch (F)
         If you are using a torch and have more torches in your pack,
         or you are using a lantern and have flasks of oil in your pack,
@@ -361,13 +361,13 @@ Fuel your lantern/torch (F)
         fuel a lantern and two torches will fully fuel a torch.  This command
         takes some energy.
 
-***** <cmd=q>
+%%%%% <cmd=q>
 Quaff a potion (q)
         Use this command to drink a potion.  Potions affect the player in
         various ways, but the effects are not always immediately obvious. 
         This command takes some energy.
 
-***** <cmd=r>
+%%%%% <cmd=r>
 Read a scroll (r)
         Use this command to read a scroll.  Scroll spells usually have an
         area effect, except for a few cases where they act on other objects.
@@ -376,7 +376,7 @@ Read a scroll (r)
         aborted (by pressing escape), which will stop reading the scroll
         before it disintegrates.  This command takes some energy.
  
-***** <cmd={>
+%%%%% <cmd={>
 Inscribe an object ({) 
 Use this command to place an inscription on an object. This inscription (which
 appears in curly brackets together with some other information which the game
@@ -401,11 +401,11 @@ behaves. These include:
 In the above, x is any command in the game, z is any command which requires an
 object and n is a number in the range 0-9.
 
-***** <cmd=}>
+%%%%% <cmd=}>
 Uninscribe an object (})
         This command removes the inscription on an object.
 
-***** <cmd=^W>
+%%%%% <cmd=^W>
 Rotate object stack (Ctrl-W)
         This command causes the items in the stack under the player to be
         rotated, so that you can change which item is first easily. This is
@@ -413,17 +413,17 @@ Rotate object stack (Ctrl-W)
         sometimes get.
         
 
-*****
+#####
 --- Magical Object Commands ---
 
-***** <cmd=A>
+%%%%% <cmd=A>
 Activate a worn item (A)
         Some magical weaponry, armour and other items have special powers which
         can be used at the player's command. These powers can only be used if
         you are wearing or wielding the item, and can only be used infrequently.
         This command takes some energy.
 
-***** <cmd=a>
+%%%%% <cmd=a>
 Aim a wand (a) or Zap a wand (z)
         Wands must be aimed in a direction to be used.  Wands are magical
         devices, and therefore there is a chance you will not be able to
@@ -435,7 +435,7 @@ Aim a wand (a) or Zap a wand (z)
         farther.  This command requires a direction and can use a target.
         This command takes some energy.
 
-***** <cmd=u>
+%%%%% <cmd=u>
 Use a staff (u) or Zap a staff (Z)
         This command will use a staff.  A staff is normally very similar
         to a scroll, in that they normally either have an area effect or
@@ -443,7 +443,7 @@ Use a staff (u) or Zap a staff (Z)
         is a chance you will not be able to figure out how to use them.
         This command takes some energy.
  
-***** <cmd=z>
+%%%%% <cmd=z>
 Zap a rod (z) or Activate a rod (a)
         Rods are extremely powerful magical items, which cannot be burnt
         or shattered, and which can have either staff-like or wand-like
@@ -455,17 +455,17 @@ Zap a rod (z) or Activate a rod (a)
         rod, and whether you are aware of its type) and can use a target.
         This command takes some energy.
 
-***** <cmd=^U>
+%%%%% <cmd=^U>
 Use an object (Ctrl-U) (Ctrl-Z)
         This command uses one of many types of object in a way listed above.
         In particular, it allows you to use a staff, wand, rod, scroll, potion,
         flask of oil or item of food, to browse a spellbook or to activate a
         worn item.
 
-*****
+#####
 --- Throwing and Missile Weapons ---
 
-***** <cmd=f>
+%%%%% <cmd=f>
 Fire an item (f) or Fire an item (t)
         You may throw any object carried by your character.  Depending on
         the weight, it may travel across the room or drop down beside you.
@@ -488,7 +488,7 @@ Fire an item (f) or Fire an item (t)
         a direction.  Targeting mode (see the next command) can be invoked
         with "*" at the "Direction?" prompt.  This command takes some energy.
 
-***** <cmd=v>
+%%%%% <cmd=v>
 Throw an item (v)
         You may throw any object carried by your character.  The lighter
         the object, the farther you can throw it.  Only one object from a
@@ -501,7 +501,7 @@ Throw an item (v)
         command requires a direction, and can take a target.  This command
         takes some energy.
 
-***** <cmd=*>
+%%%%% <cmd=*>
 Targeting Mode (*)
         This will allow you to aim your spells and such at a specific
         monster or grid, so that you can point directly towards that
@@ -535,10 +535,10 @@ Targeting Mode (*)
         can often improve the effects of that attack, since ball attacks are
         not stopped by interposed monsters if the ball is launched at a target.
 
-*****
+#####
 --- Looking Commands ---
 
-***** <cmd=M>
+%%%%% <cmd=M>
 Full screen map (M)
         This command will show a map of the entire dungeon, reduced by a
         factor of nine, on the screen.  Only the major dungeon features
@@ -547,7 +547,7 @@ Full screen map (M)
         in locating where the stairs are relative to your current
         position, or for identifying unexplored areas of the dungeon.
 
-***** <cmd=L>
+%%%%% <cmd=L>
 Locate player on map (L) or Where is the player (W)
         This command lets you scroll your map around, looking at all sectors
         of the current dungeon level, until you press escape, at which point
@@ -556,7 +556,7 @@ Locate player on map (L) or Where is the player (W)
         line will display the sector location, and the offset from your
         current sector.
 
-***** <cmd=l>
+%%%%% <cmd=l>
 Look around (l) or Examine things (x)
         This command is used to look around at nearby monsters (to determine
         their type and health) and objects (to determine their type).  It is
@@ -570,38 +570,38 @@ Look around (l) or Examine things (x)
         monster race, or "q" or escape to stop looking around.  You always
         start out looking at "yourself".
 
-***** <cmd=I>
+%%%%% <cmd=I>
 Observe an item (I)
         This command lets you observe a previously *identified* item.
         This will tell you things about the special powers of the object.
         Currently, it only makes sense for artifacts and ego-items.
 
-*****
+#####
 --- Message Commands ---
 
-***** <cmd=^F>
+%%%%% <cmd=^F>
 Repeat level feeling (Ctrl-F)
         Repeats the feeling about the dungeon level that you got when you
         first entered the level.
 
-***** <cmd=^P>
+%%%%% <cmd=^P>
 View previous messages (Ctrl-P)
         This command shows you all the recent messages.  You can scroll
         through them, or exit with ESCAPE.
 
-***** <cmd=^O>
+%%%%% <cmd=^O>
 View last message (Ctrl-O)
         This command shows you the last message to be printed.
 
-***** <cmd=:>
+%%%%% <cmd=:>
 Take notes (:)
         This command allows you to take notes, which will then appear in
         your message list (prefixed with "Note:").
 
-*****
+#####
 --- Game Status Commands ---
 
-***** <cmd=C>
+%%%%% <cmd=C>
 Character Description (C)
         Brings up a full description of your character, including your
         skill levels, your current and potential stats, and various other
@@ -611,7 +611,7 @@ Character Description (C)
         including your background, your inventory, and the contents of
         your house.
 
-***** <cmd=~>
+%%%%% <cmd=~>
 Check knowledge (~) (|)
         This command allows you to ask about the knowledge possessed by
         your character.  Currently, this includes being able to list all
@@ -626,22 +626,22 @@ Check knowledge (~) (|)
         effect of each "flavor" once for each such type of object, and
         this command will allow you to display all "known" flavors.
 
-***** <cmd=!>
+%%%%% <cmd=!>
 Interact with the system (!)
         This allows some of the system-specific commands for altering the user
         interface.
  
-*****
+#####
 --- Saving and Exiting Commands ---
 
-***** <cmd=^X>
+%%%%% <cmd=^X>
 Save and Quit (Ctrl-X)
         To save your game so that you can return to it later, use this
         command.  Save files will also be generated (hopefully) if the
         game crashes due to a system error.  After you die, you can use
         your savefile to play again with the same options and such.
 
-***** <cmd=^S>
+%%%%% <cmd=^S>
 Save (Ctrl-S)
         This command saves the game but doesn't exit Angband.  Use this
         frequently if you are paranoid about having your computer crash
@@ -649,17 +649,17 @@ Save (Ctrl-S)
         the game to do this automatically using the autosave options (see
         custom.txt).
 
-***** <cmd=Q>
+%%%%% <cmd=Q>
 Quit (wake up) (Q)
         Ends your quest and exits Angband.  You will be prompted to
         make sure you really want to do this, and then asked to verify
         that choice.  Your character will forget all that he has learnt and you
         will have to start again from the very beginning.
 
-*****
+#####
 --- User pref file commands ---
 
-***** <cmd==>
+%%%%% <cmd==>
 Interact with options (=)
         Allow you to interact with options.  Note that using the "cheat"
         options may mark your savefile as unsuitable for the high score
@@ -668,7 +668,7 @@ Interact with options (=)
         should be drawn in any of the special sub-windows (not available
         on all platforms). See the help file "options.txt" for more info.
 
-***** <cmd=@>
+%%%%% <cmd=@>
 Interact with macros (@)
         Allow you to interact with macros.  You may load or save macros
         from user pref files, create macros of various types, or define
@@ -677,19 +677,19 @@ Interact with macros (@)
         commands, which use that "current action" as their action.  This
         is a horrible interface, and will be fixed eventually.
 
-***** <cmd=%>
+%%%%% <cmd=%>
 Interact with visuals (%)
         Allow you to interact with visuals.  You may load or save visuals
         from user pref files, or modify the attr/char mappings for the
         monsters, objects, and terrain features.  You must use the "redraw"
         command (Ctrl-R) to redraw the map after changing attr/char mappings.
 
-***** <cmd=&>
+%%%%% <cmd=&>
 Interact with colors (&)
         Allow the user to interact with colors.  This command only
         works on some systems.
  
-***** <cmd=">
+%%%%% <cmd=">
 Enter a user pref command (")
         Angband stores your preferences in files called "user pref files",
         which contain comments and "user pref commands", which are simple
@@ -699,16 +699,16 @@ Enter a user pref command (")
         You may have to use the "redraw" command (^R) after changing certain of
         the aspects of the game, to allow Angband to adapt to your changes.
 
-*****
+#####
 --- Help ---
 
-***** <cmd=?>
+%%%%% <cmd=?>
 Help (?)
         Brings up the Angband on-line help system.  Note that the help
         files are just text files in a particular format, and that other
         help files may be available on the Net.
 
-***** <cmd=/>
+%%%%% <cmd=/>
 Identify Symbol (/)
         Use this command to find out what a character stands for.  For
         instance, by pressing "/.", you can find out that the "." symbol
@@ -732,38 +732,38 @@ Identify Symbol (/)
         see the list sorted by dungeon level the monster is normally found
         on.  Pressing ESCAPE at any point will exit this command.
 
-***** <cmd=V>
+%%%%% <cmd=V>
 Game Version (V)
         This command will tell you what version of Angband you are using.
         For more information, see the "version.txt" help file.
 
 
-*****
+#####
 --- Extra Commands ---
 
-***** <cmd=^I>
+%%%%% <cmd=^I>
 Toggle Windows (Ctrl-I) 
         Toggles the display in any sub-windows (if available) which have
         more than one non-boring display available.
 
-***** <cmd=^R>
+%%%%% <cmd=^R>
 Redraw Screen (Ctrl-R)
         This command adapts to various changes in global options, and
         redraws all of the windows.  It is normally only necessary in
         abnormal situations, such as after changing the visual attr/char
         mappings, or enabling "graphics" mode.
 
-***** <cmd=(>
+%%%%% <cmd=(>
 Load screen dump (left-paren)
         This command loads a "snap-shot" of the current screen from the file
         "dump.txt", and displays it on the screen.
 
-***** <cmd=)>
+%%%%% <cmd=)>
 Save screen dump (right-paren)
         This command dumps a "snap-shot" of the current screen to the file
         "dump.txt", including encoded color information.
 
-***** <cmd=^A>
+%%%%% <cmd=^A>
 Debug commands (Ctrl-A)
         If the game is compiled with debug commands, and the cheat option
 		cheat_wzrd is set, this allows the player to carry out a number of

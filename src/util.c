@@ -2711,21 +2711,35 @@ void roff(cptr str)
 
 
 /*
- * Print a multi-coloured string where colour-changes are denoted by #####.
+ * Print a multi-coloured string where colour-changes are denoted by $x where
+ * x is a colour character (see atchar[]). $$ is converted to $, and any other
+ * combination is printed unchanged.
  * Unlike show_file_tome, this uses c_roff() to ensure that its lines are
  * wrapped, and so works best with files without unnecessary formatting.
  */
-#define CC_PREFIX	"#####"
 void mc_roff(cptr s)
 {
 	cptr t;
-	byte attr;
+	int attr, nattr;
 	
-	for (attr = TERM_WHITE; (t = strstr(s, CC_PREFIX));)
+	for (t = s, attr = TERM_WHITE; (t = strstr(t, CC_PREFIX)); t++)
 	{
 		if (!c_roff(attr, format("%.*s", t-s, s))) return;
 		s = t + strlen(CC_PREFIX)+1;
-		attr = color_char_to_attr(s[-1]);
+		if (prefix(s-1, CC_PREFIX))
+		{
+			s--;
+			t += strlen(CC_PREFIX);
+		}
+		else if (((nattr = color_char_to_attr(s[-1]))) != -1)
+		{
+			attr = nattr;
+		}
+		else
+		{
+			s = t;
+			t += strlen(CC_PREFIX);
+		}
 	}
 	c_roff(attr, s);
 }

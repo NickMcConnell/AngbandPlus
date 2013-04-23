@@ -3053,6 +3053,10 @@ cptr color_names[16] =
 	"Light Umber",
 };
 
+/*
+ * The character used to represent each colour.
+ */
+cptr atchar = "dwsorgbuDWvyRGBU";
 
 /*
  * Abbreviations of healthy stats
@@ -4011,15 +4015,4 @@ spirit_type spirits[MAX_SPIRITS] =
 
 	{"","a major life spirit",0,0,0xff000000,SPIRIT_LIFE,5},
 	{"","a major wild spirit",0,0,0xff000000,SPIRIT_NATURE,20},
-};
-
-/* Table to determine p_ptr->tval_ammo based on bow sval. */
-tval_ammo_type tval_ammo[] =
-{
-	{SV_SLING, TV_SHOT},
-	{SV_SHORT_BOW, TV_ARROW},
-	{SV_LONG_BOW, TV_ARROW},
-	{SV_LIGHT_XBOW, TV_BOLT},
-	{SV_HEAVY_XBOW, TV_BOLT},
-	{0,0}
 };
