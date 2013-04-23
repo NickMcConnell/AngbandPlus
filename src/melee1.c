@@ -3982,49 +3982,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		/* RF6_SCREAM */
 		case 160+14:
 		{
-			disturb(1, 0);
-
-			if (!seen)
-			{
-				msg_print("You hear a far-off shriek!", m_name);
-			}
-			else
-			{
-				msg_format("%^s shrieks at you!", m_name);
-			}
-
-			if (rand_int(100) < p_ptr->state.skills[SKILL_SAVE])
-			{
-				msg_print("You resist the effects!");
-			} else
-			{
-				msg_print("It hurts you!");
-
-			}
-			if (allow_player_confusion() && one_in_(3))
-			{
-				(void)inc_timed(TMD_CONFUSED, rand_int(2) + 2, TRUE);
-			} else if (!(p_ptr->state.resist_fear) && one_in_(3))
-			{
-				i = div_round(r_ptr->level, 10);
-				(void)inc_timed(TMD_AFRAID, i + rand_range(3, 6), TRUE);
-			}
-
-			take_hit(get_dam(m_ptr, attack), ddesc);
-
-			/* Everybody hurts */
-			for (i = 1; i < mon_max; i++)
-			{
-				monster_type *mon_ptr = &mon_list[i];
-				/* Paranoia -- Skip dead monsters */
-				if (!mon_ptr->r_idx) continue;
-
-				if (m_idx == i) continue;
-
-				project(SOURCE_OTHER, 0, mon_ptr->fy, mon_ptr->fx, mon_ptr->fy, mon_ptr->fx, get_dam(m_ptr, attack)/3, GF_SOUND, PROJECT_PASS | PROJECT_KILL, 0, 0);
-
-			}
-			p_ptr->redraw |= PR_MONLIST;
+			break;
 		}
 
 		/* RF6_DRAIN_MANA */

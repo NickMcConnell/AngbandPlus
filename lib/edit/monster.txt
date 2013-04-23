@@ -3476,20 +3476,20 @@ F:IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP
 D:A blood-sucking bat that flies at your neck hungrily.
 
 
-N:287:Ban Sidhe
-G:G:b
-I:120:8d10:90:24:0
-W:24:2:100:60
-B:WAIL:TERRIFY
-B:TOUCH:EXP_20
-F:FEMALE | RAND_50 | DROP_1D2 | INVISIBLE | COLD_BLOOD
-F:UNDEAD | EVIL | FLYING
-F:HURT_FIRE | IM_COLD | IM_POIS | NO_FEAR | NO_SLEEP
-S:SPELL_PCT_8 | POW_20
-S:TPORT | DRAIN_MANA | SCREAM
-D:It is a ghostly woman's form. Her horrible shriek 
-D: chills the listener and is painful to hear, even
-D: from far off.
+#N:287:Ban Sidhe
+#G:G:b
+#I:120:8d10:90:24:0
+#W:24:2:100:60
+#B:WAIL:TERRIFY
+#B:TOUCH:EXP_20
+#F:FEMALE | RAND_50 | DROP_1D2 | INVISIBLE | COLD_BLOOD
+#F:UNDEAD | EVIL | FLYING
+#F:HURT_FIRE | IM_COLD | IM_POIS | NO_FEAR | NO_SLEEP
+#S:SPELL_PCT_8 | POW_20
+#S:TPORT | DRAIN_MANA | SCREAM
+#D:It is a ghostly woman's form. Her horrible shriek 
+#D: chills the listener and is painful to hear, even
+#D: from far off.
 
 
 N:288:Mummified human

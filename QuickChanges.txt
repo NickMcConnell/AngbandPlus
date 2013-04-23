@@ -119,6 +119,11 @@ Useful new objects, including the notorious wand of wall building
   High-Con characters have more hp, but low-Con have less
 )
 
+** Bugfix release
+
+Ban Sidhe is not found
+Mage gets Detect Objects later, and never CLW
+Druid gets Fire and Frost beams later
 
 
 
