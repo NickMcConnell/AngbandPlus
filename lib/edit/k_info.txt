@@ -91,7 +91,7 @@
 
 # Version stamp (required)
 
-V:1.0.17
+V:1.0.18
 
 ##### Non-objects #####
 

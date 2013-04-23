@@ -5,6 +5,12 @@ Based on Cthangband 4.1.0b and Zangband 2.1.0e
 Changes are added to the top of this file, so for a chronological order
 read from the bottom up.
 
+sCthangband 1.0.18
+* Fix the following bugs:
+  * The game could crash if a keymap was used.
+  * Setting/resetting maximise mode before choosing a template could crash the
+    game.
+
 sCthangband 1.0.17
 * Create the player on a random staircase on entering a level.
 * Change existing stairs around when a quest is finished.

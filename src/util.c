@@ -1386,6 +1386,11 @@ static bool inkey_xtra = FALSE;
 
 
 /*
+ * Local variable - don't try to record a macro.
+ */
+static bool inkey_no_record = FALSE;
+
+/*
  * Local variable -- we are inside a "macro action"
  *
  * Do not match any macros until "ascii 30" is found.
@@ -1460,6 +1465,9 @@ static void record_keymap(char ch)
 
 	/* Do nothing unless asked. */
 	if (!keymap_buf_ptr) return;
+
+	/* Do nothing if forbidden. */
+	if (inkey_no_record) return;
 
 	sprintf(keymap_buf_ptr, "%c", ch);
 
@@ -1801,7 +1809,8 @@ char inkey(void)
 		ch = *inkey_gnext++;
 
 		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan =
+			inkey_no_record = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -1816,11 +1825,12 @@ char inkey(void)
 		/* Get next character, and advance */
 		ch = *inkey_next++;
 
-		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
 		/* Add this key to a new keymap, if required. */
 		record_keymap(ch);
+
+		/* Cancel the various "global parameters" */
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan =
+			inkey_no_record = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -1834,11 +1844,12 @@ char inkey(void)
 	/* Mega-Hack -- Use the special (borg) hook */
 	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
 	{
-		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
 		/* Add this key to a new keymap, if required. */
 		record_keymap(ch);
+
+		/* Cancel the various "global parameters" */
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan =
+			inkey_no_record = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -2020,12 +2031,12 @@ char inkey(void)
 	/* Restore the cursor */
 	Term_set_cursor(v);
 
-
-	/* Cancel the various "global parameters" */
-	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
 	/* Add this key to a new keymap, if required. */
 	record_keymap(ch);
+
+
+	/* Cancel the various "global parameters" */
+	inkey_base = inkey_xtra = inkey_flag = inkey_scan = inkey_no_record = FALSE;
 
 
 	/* Return the keypress */
@@ -3507,6 +3518,9 @@ void request_command(bool shopping)
 			/* Activate "command mode" */
 			inkey_flag = TRUE;
 
+			/* Don't record keymaps in inkey(), as it only sees the triggers. */
+			inkey_no_record = TRUE;
+
 			/* Get a command */
 			cmd = inkey();
 		}
@@ -3524,6 +3538,9 @@ void request_command(bool shopping)
 		{
 			/* Reset */
 			int arg = 0;
+
+			/* Remember the request. */
+			record_keymap(cmd);
 
 			/* Begin the input */
 			prt("Count: ", 0, 0);
@@ -3635,11 +3652,6 @@ void request_command(bool shopping)
 				/* Start using the buffer */
 				inkey_next = request_command_buffer;
 
-#ifdef ALLOW_MACROS
-				/* Forget the trigger. */
-				keymap_buf_ptr--;
-#endif /* ALLOW_MACROS */
-
 				continue;
 			}
 		}
@@ -3649,7 +3661,10 @@ void request_command(bool shopping)
 	}
 
 	/* Use the command */
-	command_cmd = cmd;
+	if (!(cmd & 0xFF00)) command_cmd = cmd;
+
+	/* Remember the command. */
+	record_keymap(cmd);
 
 	/* Hack -- Auto-repeat certain commands */
 	if (always_repeat && (command_arg <= 0))

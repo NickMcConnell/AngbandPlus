@@ -43,7 +43,7 @@
  * GAME_NAME is less strict.
  */
 #define GAME_NAME "sCthangband"
-#define GAME_VERSION "1.0.17"
+#define GAME_VERSION "1.0.18"
 
 /* Maximum length of GAME_VERSION above, needed for high_score.what, etc.. */
 #define MAX_VERSION_LEN 8

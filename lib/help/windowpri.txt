@@ -66,6 +66,10 @@ Display a description of the floor the player is standing on, as well as a
 $GDisplay help (boring if none available)
 Display a short piece of potentially helpful text which is relevant to whatever you are doing at the time.
 
+%%%%% <Display keymap action>
+$GDisplay keymap action (boring if the player is not recording a keymap)
+When the player is trying to record a keymap (see *****cmd=$*[general.txt] for further information about this), this displays the keys the player has pressed so far.
+
 %%%%%
 === 
 

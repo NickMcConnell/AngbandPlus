@@ -623,11 +623,12 @@ static bc_type birth_option(void)
 	if (allow_quickstart && !old_allow_quickstart) return BC_RESTART;
 	if (allow_pickstats && !old_allow_pickstats) return BC_RESTART;
 	/* We need not restart for maximise mode, but we should
-	 * try to keep the stats the same. We always abort because
-	 * we may have passed point_mod_player(). This will be ignored
-	 * if we haven't. This must be the last check.
+	 * try to keep the stats the same if any stats have been chosen.
+	 * We always abort because we may have passed point_mod_player().
+	 * This will be ignored if we haven't. This must come after the RESTART
+	 * checks.
 	 */
-	if (old_maximise_mode != maximise_mode)
+	if (old_maximise_mode != maximise_mode && p_ptr->stat_max[0])
 	{
 		byte x;
 		for (x = 0; x < A_MAX; x++)
@@ -1337,6 +1338,7 @@ static bool point_mod_player(void)
 
 /* Hack - special race for default stat set. */
 #define RACE_NONE 255
+#define TPL_NONE 255
 
 /* Clean up and return. */
 #define RETURN(X) \
@@ -2333,8 +2335,9 @@ static void player_wipe(void)
 		r_ptr->r_pkills = 0;
 	}
 
-	/* Reset the player's race. */
+	/* Reset the player's race and template. */
 	p_ptr->prace = RACE_NONE;
+	p_ptr->ptemplate = TPL_NONE;
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
