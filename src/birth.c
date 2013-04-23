@@ -1880,7 +1880,7 @@ void player_birth(void)
  	  	fprintf(notes_file, "%s the %s %s\n", op_ptr->full_name,
 								p_name + rp_ptr->name,
 								c_name + cp_ptr->name);
- 	  	fprintf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
+ 	  	fprintf(notes_file, "Began the quest on %s\n",long_day);
  	  	fprintf(notes_file, "============================================================\n");
 		fprintf(notes_file, "                   CHAR.  \n");
 		fprintf(notes_file, "|   TURN  | DEPTH |LEVEL| EVENT\n");

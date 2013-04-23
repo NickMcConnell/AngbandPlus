@@ -2242,7 +2242,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	 * From 0.5.1, other code makes it is formally impossible to have more
 	 * than one ghost at a time. -BR-
 	 */
-	if ((r_ptr->level < p_ptr->depth - 5) && (from_savefile == FALSE))
+	if ((r_ptr->level < effective_depth(p_ptr->depth) - 5) && (from_savefile == FALSE))
 	{
 		return (FALSE);
 	}

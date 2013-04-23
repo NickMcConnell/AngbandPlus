@@ -1,0 +1,255 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: Angband - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\BRIANB~1\LOCALS~1\Temp\RSP2B.tmp" with contents
+[
+/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /Fp"Release/Angband.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\roguelike\Quickband\src\birth.c"
+"C:\roguelike\Quickband\src\cave.c"
+"C:\roguelike\Quickband\src\cmd1.c"
+"C:\roguelike\Quickband\src\cmd2.c"
+"C:\roguelike\Quickband\src\cmd3.c"
+"C:\roguelike\Quickband\src\cmd4.c"
+"C:\roguelike\Quickband\src\cmd5.c"
+"C:\roguelike\Quickband\src\cmd6.c"
+"C:\roguelike\Quickband\src\dungeon.c"
+"C:\roguelike\Quickband\src\files.c"
+"C:\roguelike\Quickband\src\generate.c"
+"C:\roguelike\Quickband\src\init1.c"
+"C:\roguelike\Quickband\src\init2.c"
+"C:\roguelike\Quickband\src\load.c"
+"C:\roguelike\Quickband\src\main-win.c"
+"C:\roguelike\Quickband\src\melee1.c"
+"C:\roguelike\Quickband\src\melee2.c"
+"C:\roguelike\Quickband\src\monster1.c"
+"C:\roguelike\Quickband\src\monster2.c"
+"C:\roguelike\Quickband\src\obj-info.c"
+"C:\roguelike\Quickband\src\object1.c"
+"C:\roguelike\Quickband\src\object2.c"
+"C:\roguelike\Quickband\src\quest.c"
+"C:\roguelike\Quickband\src\randart.c"
+"C:\roguelike\Quickband\src\save.c"
+"C:\roguelike\Quickband\src\spells1.c"
+"C:\roguelike\Quickband\src\spells2.c"
+"C:\roguelike\Quickband\src\squelch.c"
+"C:\roguelike\Quickband\src\store.c"
+"C:\roguelike\Quickband\src\tables.c"
+"C:\roguelike\Quickband\src\use-obj.c"
+"C:\roguelike\Quickband\src\util.c"
+"C:\roguelike\Quickband\src\variable.c"
+"C:\roguelike\Quickband\src\wizard1.c"
+"C:\roguelike\Quickband\src\wizard2.c"
+"C:\roguelike\Quickband\src\xtra1.c"
+"C:\roguelike\Quickband\src\xtra2.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\BRIANB~1\LOCALS~1\Temp\RSP2B.tmp" 
+Creating temporary file "C:\DOCUME~1\BRIANB~1\LOCALS~1\Temp\RSP2C.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib winmm.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/Quickband.pdb" /machine:I386 /out:"Quickband.exe" 
+.\Release\birth.obj
+.\Release\cave.obj
+.\Release\cmd1.obj
+.\Release\cmd2.obj
+.\Release\cmd3.obj
+.\Release\cmd4.obj
+.\Release\cmd5.obj
+.\Release\cmd6.obj
+.\Release\dungeon.obj
+.\Release\files.obj
+.\Release\generate.obj
+.\Release\init1.obj
+.\Release\init2.obj
+.\Release\load.obj
+".\Release\main-win.obj"
+.\Release\melee1.obj
+.\Release\melee2.obj
+.\Release\monster1.obj
+.\Release\monster2.obj
+".\Release\obj-info.obj"
+.\Release\object1.obj
+.\Release\object2.obj
+.\Release\quest.obj
+.\Release\randart.obj
+.\Release\readdib.obj
+.\Release\save.obj
+.\Release\spells1.obj
+.\Release\spells2.obj
+.\Release\squelch.obj
+.\Release\store.obj
+.\Release\tables.obj
+".\Release\use-obj.obj"
+.\Release\util.obj
+.\Release\variable.obj
+.\Release\wizard1.obj
+.\Release\wizard2.obj
+.\Release\xtra1.obj
+.\Release\xtra2.obj
+".\Release\z-form.obj"
+".\Release\z-rand.obj"
+".\Release\z-term.obj"
+".\Release\z-util.obj"
+".\Release\z-virt.obj"
+.\Release\angband.res
+]
+Creating command line "link.exe @C:\DOCUME~1\BRIANB~1\LOCALS~1\Temp\RSP2C.tmp"
+<h3>Output Window</h3>
+Compiling...
+birth.c
+cave.c
+C:\roguelike\Quickband\src\cave.c(2725) : warning C4244: '=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(2735) : warning C4244: '=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(2738) : warning C4244: '=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3470) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3471) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3557) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3558) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3574) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3575) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3576) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3577) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3598) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\cave.c(3599) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+cmd1.c
+cmd2.c
+C:\roguelike\Quickband\src\cmd1.c(622) : warning C4761: integral size mismatch in argument; conversion supplied
+cmd3.c
+C:\roguelike\Quickband\src\cmd3.c(1881) : warning C4244: 'function' : conversion from 'long ' to 'short ', possible loss of data
+cmd4.c
+C:\roguelike\Quickband\src\cmd3.c(1881) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\cmd4.c(3916) : warning C4244: 'return' : conversion from 'unsigned long ' to 'char ', possible loss of data
+C:\roguelike\Quickband\src\cmd4.c(3937) : warning C4244: 'return' : conversion from 'unsigned long ' to 'char ', possible loss of data
+C:\roguelike\Quickband\src\cmd4.c(3967) : warning C4244: 'return' : conversion from 'unsigned long ' to 'char ', possible loss of data
+C:\roguelike\Quickband\src\cmd4.c(4687) : warning C4244: 'initializing' : conversion from 'unsigned long ' to 'char ', possible loss of data
+cmd5.c
+C:\roguelike\Quickband\src\cmd4.c(2815) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\cmd4.c(2875) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\cmd4.c(2890) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\cmd4.c(4317) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\cmd4.c(5599) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\cmd4.c(5603) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\cmd4.c(4357) : warning C4761: integral size mismatch in argument; conversion supplied
+cmd6.c
+dungeon.c
+C:\roguelike\Quickband\src\dungeon.c(233) : warning C4244: 'function' : conversion from 'double ' to 'unsigned long ', possible loss of data
+C:\roguelike\Quickband\src\dungeon.c(238) : warning C4244: 'function' : conversion from 'double ' to 'unsigned long ', possible loss of data
+files.c
+C:\roguelike\Quickband\src\dungeon.c(2806) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\dungeon.c(233) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\dungeon.c(238) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\dungeon.c(285) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\files.c(345) : warning C4244: 'function' : conversion from 'long ' to 'short ', possible loss of data
+C:\roguelike\Quickband\src\files.c(360) : warning C4244: '=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\files.c(371) : warning C4244: '=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\files.c(380) : warning C4244: '=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+generate.c
+C:\roguelike\Quickband\src\files.c(345) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\files.c(1320) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\files.c(1405) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\files.c(1409) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\generate.c(3876) : warning C4244: 'return' : conversion from 'short ' to 'char ', possible loss of data
+init1.c
+C:\roguelike\Quickband\src\generate.c(4639) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\generate.c(3486) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\generate.c(3494) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\generate.c(3500) : warning C4761: integral size mismatch in argument; conversion supplied
+init2.c
+load.c
+main-win.c
+melee1.c
+C:\roguelike\Quickband\src\melee1.c(1073) : warning C4244: '-=' : conversion from 'long ' to 'short ', possible loss of data
+C:\roguelike\Quickband\src\melee1.c(3393) : warning C4244: 'function' : conversion from 'long ' to 'short ', possible loss of data
+melee2.c
+C:\roguelike\Quickband\src\melee1.c(3393) : warning C4761: integral size mismatch in argument; conversion supplied
+monster1.c
+C:\roguelike\Quickband\src\melee2.c(415) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\monster1.c(2275) : warning C4244: '=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+monster2.c
+C:\roguelike\Quickband\src\monster2.c(2441) : warning C4244: '=' : conversion from 'long ' to 'short ', possible loss of data
+C:\roguelike\Quickband\src\monster2.c(2483) : warning C4244: '=' : conversion from 'long ' to 'short ', possible loss of data
+C:\roguelike\Quickband\src\monster2.c(2737) : warning C4244: 'function' : conversion from 'long ' to 'short ', possible loss of data
+C:\roguelike\Quickband\src\monster2.c(2744) : warning C4244: 'function' : conversion from 'long ' to 'short ', possible loss of data
+obj-info.c
+C:\roguelike\Quickband\src\monster2.c(2737) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\monster2.c(2744) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\obj-info.c(328) : warning C4101: 'temp' : unreferenced local variable
+C:\roguelike\Quickband\src\obj-info.c(321) : warning C4101: 'div_weight' : unreferenced local variable
+object1.c
+object2.c
+C:\roguelike\Quickband\src\object2.c(2779) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\object2.c(3180) : warning C4244: 'initializing' : conversion from 'short ' to 'unsigned char ', possible loss of data
+quest.c
+C:\roguelike\Quickband\src\quest.c(1415) : warning C4244: '=' : conversion from 'unsigned long ' to 'short ', possible loss of data
+randart.c
+C:\roguelike\Quickband\src\quest.c(2060) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\quest.c(1763) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\randart.c(604) : warning C4244: 'function' : conversion from 'unsigned long ' to 'short ', possible loss of data
+C:\roguelike\Quickband\src\randart.c(2216) : warning C4244: '+=' : conversion from 'long ' to 'short ', possible loss of data
+C:\roguelike\Quickband\src\randart.c(2275) : warning C4244: '+=' : conversion from 'long ' to 'short ', possible loss of data
+C:\roguelike\Quickband\src\randart.c(2673) : warning C4244: '=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\randart.c(3152) : warning C4244: '+=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\randart.c(3157) : warning C4244: '+=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\randart.c(3187) : warning C4244: '=' : conversion from 'long ' to 'short ', possible loss of data
+C:\roguelike\Quickband\src\randart.c(3832) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
+save.c
+C:\roguelike\Quickband\src\randart.c(605) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\randart.c(605) : warning C4761: integral size mismatch in argument; conversion supplied
+spells1.c
+C:\roguelike\Quickband\src\save.c(1186) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\save.c(1187) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\save.c(1188) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\save.c(1250) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\spells1.c(1584) : warning C4101: 'ii' : unreferenced local variable
+C:\roguelike\Quickband\src\spells1.c(1584) : warning C4101: 'cur1' : unreferenced local variable
+C:\roguelike\Quickband\src\spells1.c(1585) : warning C4101: 'tmp' : unreferenced local variable
+C:\roguelike\Quickband\src\spells1.c(1584) : warning C4101: 'cur2' : unreferenced local variable
+C:\roguelike\Quickband\src\spells1.c(1584) : warning C4101: 'max1' : unreferenced local variable
+C:\roguelike\Quickband\src\spells1.c(1584) : warning C4101: 'max2' : unreferenced local variable
+C:\roguelike\Quickband\src\spells1.c(1584) : warning C4101: 'jj' : unreferenced local variable
+C:\roguelike\Quickband\src\spells1.c(4425) : warning C4244: '=' : conversion from 'long ' to 'unsigned char ', possible loss of data
+spells2.c
+C:\roguelike\Quickband\src\spells1.c(3625) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\spells1.c(3636) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\spells2.c(3023) : warning C4244: 'function' : conversion from 'long ' to 'short ', possible loss of data
+squelch.c
+C:\roguelike\Quickband\src\spells2.c(2592) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\spells2.c(3023) : warning C4761: integral size mismatch in argument; conversion supplied
+store.c
+C:\roguelike\Quickband\src\squelch.c(543) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\squelch.c(595) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\squelch.c(717) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\squelch.c(1304) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\squelch.c(1190) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\squelch.c(1195) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\store.c(1416) : warning C4244: '=' : conversion from 'long ' to 'short ', possible loss of data
+tables.c
+C:\roguelike\Quickband\src\store.c(3116) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\store.c(3339) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\store.c(3344) : warning C4761: integral size mismatch in argument; conversion supplied
+use-obj.c
+util.c
+variable.c
+wizard1.c
+wizard2.c
+C:\roguelike\Quickband\src\wizard2.c(1602) : warning C4101: 'tmp' : unreferenced local variable
+xtra1.c
+C:\roguelike\Quickband\src\wizard2.c(76) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\wizard2.c(139) : warning C4761: integral size mismatch in argument; conversion supplied
+C:\roguelike\Quickband\src\xtra1.c(464) : warning C4244: 'function' : conversion from 'short ' to 'unsigned char ', possible loss of data
+C:\roguelike\Quickband\src\xtra1.c(1960) : warning C4101: 'temp' : unreferenced local variable
+C:\roguelike\Quickband\src\xtra1.c(1959) : warning C4101: 'out_val' : unreferenced local variable
+xtra2.c
+C:\roguelike\Quickband\src\xtra1.c(464) : warning C4761: integral size mismatch in argument; conversion supplied
+Linking...
+
+
+
+<h3>Results</h3>
+Quickband.exe - 0 error(s), 108 warning(s)
+</pre>
+</body>
+</html>

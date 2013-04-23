@@ -115,11 +115,12 @@
  * The appropriate slot from this table is "downloaded" into art_freq table
  * for use when creating each randart.
  */
+// BB changed - never extra blows
 static const byte table_type_freq[ART_TYPE_MAX][CAT_MAX] =
 {
    /*#0, #1,#2, #3, #4, #5, #6, #7, #8, #9,#10,#11,#12 #13#14 #15,#16*/
-	{20, 2, 60,  7, 30, 12,  5,  2, 2,  0,  8,  1,120, 10, 18, 10, 20}, /*  ART_TYPE_WEAPON   */
-	{16, 1,	20,  3, 20, 10, 80, 10, 1,  0,  8,  1, 40, 10, 10, 10, 10}, /*  ART_TYPE_SHOVEL   */
+	{20, 2, 60,  7, 30, 12,  5,  2, 0,  0,  8,  1,120, 10, 18, 10, 20}, /*  ART_TYPE_WEAPON   */
+	{16, 1,	20,  3, 20, 10, 80, 10, 0,  0,  8,  1, 40, 10, 10, 10, 10}, /*  ART_TYPE_SHOVEL   */
 	{20, 1,	 0,  0, 10, 10,  0,  0, 0, 40,  8,  1, 80,  0,  0,  6,  0}, /*  ART_TYPE_BOW   	*/
 	{30, 3,	 0,  0, 30, 30,  0,  0, 0,  0, 10,  2, 10, 10,  0,  0, 14}, /*  ART_TYPE_SPECIAL  */
 	{20, 1,	 0,  0, 40, 14,  0,  0, 0,  0, 10,  1,  0, 60, 10, 20,  4}, /*  ART_TYPE_ARMOR   	*/

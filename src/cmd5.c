@@ -35,6 +35,10 @@ s16b spell_chance(int spell)
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
+	// BB added - make spellcasting easier
+	if (chance > 10){
+	  chance = 10 + (chance-10)/2;}
+
 	/* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
 	{
@@ -50,8 +54,8 @@ s16b spell_chance(int spell)
 		if (minfail < 5) minfail = 5;
 	}
 
-	/* Priest prayer penalty for "edged" weapons (before minfail) */
-	if (p_ptr->icky_wield)
+	/* Priest prayer penalty for "edged" weapons and bows/crossbows (before minfail) */
+	if (p_ptr->icky_wield || p_ptr->icky_shoot)
 	{
 		chance += 25;
 	}

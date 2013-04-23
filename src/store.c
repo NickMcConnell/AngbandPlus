@@ -353,8 +353,8 @@ static byte service_store[STORE_SERVICE_MAX] =
 	STORE_ARMOR,		/*  SERVICE_ENCHANT_ARMOR   	*/
 	STORE_WEAPON,		/*  SERVICE_ENCHANT_TO_HIT   	*/
 	STORE_WEAPON,		/*  SERVICE_ENCHANT_TO_DAM   	*/
-	STORE_WEAPON,		/*  SERVICE_ELEM_BRAND_WEAP   	*/
-	STORE_WEAPON,		/*  SERVICE_ELEM_BRAND_AMMO   	*/
+	STORE_GUILD,		/*  SERVICE_ELEM_BRAND_WEAP   	*/
+	STORE_GUILD,		/*  SERVICE_ELEM_BRAND_AMMO   	*/
 	STORE_MAGIC, 		/*  SERVICE_RECHARGING   		*/
 	STORE_MAGIC, 		/*  SERVICE_IDENTIFY   			*/
 	STORE_MAGIC, 		/*  SERVICE_IDENTIFY_FULLY		*/
@@ -363,13 +363,13 @@ static byte service_store[STORE_SERVICE_MAX] =
 	STORE_TEMPLE, 		/*  SERVICE_REMOVE_CURSE   		*/
 	STORE_TEMPLE, 		/*  SERVICE_REMOVE_HEAVY_CURSE	*/
 	STORE_ALCHEMY, 		/*  SERVICE_RESTORE_STAT   		*/
-	STORE_ALCHEMY, 		/*  SERVICE_INCREASE_STAT   	*/
+	STORE_GUILD, 		/*  SERVICE_INCREASE_STAT   	*/
 	STORE_GUILD,		/*  SERVICE_CREATE_RANDART   	*/
-	STORE_TEMPLE,		/*	SERVICE_DUN_PRAYER_BOOK		*/
-	STORE_MAGIC,		/*	SERVICE_DUN_MAGIC_BOOK		*/
+	STORE_GUILD,		/*	SERVICE_DUN_PRAYER_BOOK		*/
+	STORE_GUILD,		/*	SERVICE_DUN_MAGIC_BOOK		*/
 	STORE_GUILD,		/*	SERVICE_PROBE_QUEST_MON		*/
-	STORE_TEMPLE,		/*	SERVICE_BUY_HEALING_POTION	*/
-	STORE_TEMPLE,		/*	SERVICE_BUY_LIFE_POTION		*/
+	STORE_GUILD,		/*	SERVICE_BUY_HEALING_POTION	*/
+	STORE_GUILD,		/*	SERVICE_BUY_LIFE_POTION		*/
 	STORE_GUILD,		/*	SERVICE_ABANDON_QUEST		*/
 	STORE_TEMPLE,		/*	SERVICE_FIREPROOF_PBOOK		*/
 	STORE_MAGIC			/*	SERVICE_FIREPROOF_MBOOK		*/
@@ -446,7 +446,7 @@ static cptr service_names[STORE_SERVICE_MAX] =
  *
  * Hack -- the black market always charges twice as much as it should.
  *
- * Charisma adjustment runs from 80 to 130
+ * Charisma adjustment runs from 80 to 130 (not any more! B)
  * Racial adjustment runs from 95 to 130
  *
  * Since greed/charisma/racial adjustments are centered at 100, we need
@@ -481,6 +481,9 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 		/* Never get "silly" */
 		if (adjust > 100) adjust = 100;
 
+		// BB added: Not too unreasonable
+		if (adjust < 20) adjust = 20;
+
 		/* Mega-Hack -- Black market sucks */
 		if (store_num == STORE_B_MARKET) price = price / 2;
 	}
@@ -499,7 +502,8 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 	}
 
 	/* Compute the final price (with rounding) */
-	price = (price * adjust + 50L) / 100L;
+	// BB changed - stuff generally costs less, but also sells for less
+	price = (price * adjust + 50L) / 120L;
 
 	/* Note -- Never become "free" */
 	if (price <= 0L) return (1L);
@@ -1288,10 +1292,19 @@ static bool keep_in_stock(const object_type *o_ptr, int which)
 		case TV_POTION:
 		{
 			/*only keep in the temple*/
-			if (which != STORE_TEMPLE) return (FALSE);
-			if (k_ptr->sval == SV_POTION_CURE_CRITICAL) return (TRUE);
-			if (k_ptr->sval == SV_POTION_RESTORE_EXP) return (TRUE);
-			if (k_ptr->sval == SV_POTION_HEROISM) return (TRUE);
+			if (which == STORE_TEMPLE){
+				if (k_ptr->sval == SV_POTION_CURE_CRITICAL) return (TRUE);
+				if (k_ptr->sval == SV_POTION_RESTORE_EXP) return (TRUE);
+				if (k_ptr->sval == SV_POTION_HEROISM) return (TRUE);
+			} else if (which == STORE_ALCHEMY){
+				// BB added
+				if (k_ptr->sval == SV_POTION_RES_STR) return (TRUE);
+				if (k_ptr->sval == SV_POTION_RES_DEX) return (TRUE);
+				if (k_ptr->sval == SV_POTION_RES_CON) return (TRUE);
+				if (k_ptr->sval == SV_POTION_RES_INT) return (TRUE);
+				if (k_ptr->sval == SV_POTION_RES_WIS) return (TRUE);
+				if (k_ptr->sval == SV_POTION_RES_CHR) return (TRUE);
+			}
 			return (FALSE);
 		}
 		case TV_SCROLL:
@@ -1399,7 +1412,8 @@ static void store_create(void)
 		s16b magic_level;
 
 		/* Pick a level for object/creation */
-		magic_level = 15 + (p_ptr->lev / 2) + rand_int(p_ptr->lev);
+		// BB changed this - less very high quality items available in black market
+		magic_level = 15 + (p_ptr->lev / 2) + rand_int(p_ptr->lev / 2);
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -1472,7 +1486,7 @@ static void store_create(void)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 
 }
 
@@ -4722,7 +4736,8 @@ void do_cmd_store(void)
 	which = (cave_feat[py][px] - FEAT_SHOP_HEAD);
 
 	/* Hack -- Check the "locked doors" */
-	if (adult_no_stores || store[which].store_open >= turn)
+	/* BB - The Guild is locked */
+	if (adult_no_stores || store[which].store_open >= turn || which==STORE_GUILD)
 	{
 		msg_print("The doors are locked.");
 		return;

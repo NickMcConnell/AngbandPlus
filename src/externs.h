@@ -44,6 +44,7 @@ extern const s16b adj_chr_charm[];
 extern const byte adj_int_dev[];
 extern const byte adj_wis_sav[];
 extern const byte adj_dex_dis[];
+extern const byte adj_dex_spd[];
 extern const byte adj_int_dis[];
 extern const byte adj_dex_ta[];
 extern const byte adj_str_td[];
@@ -324,6 +325,11 @@ extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int unused_flag);
+
+// BB added
+extern int effective_depth(int depth);
+extern int challenge();
+extern int effective_depth_for_pits(int effective_depth);
 
 /* cmd1.c */
 extern bool test_hit(int chance, int ac, int vis);
@@ -963,6 +969,7 @@ extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
 
+extern void do_cmd_rerate(void);
 
 /*
  * Hack -- conditional (or "bizarre") externs

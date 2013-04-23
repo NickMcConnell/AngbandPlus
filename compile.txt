@@ -1,3 +1,8 @@
+The compiling instructions for NPPAngband are shown below. None of these instructions should 
+ be affected by the changes made in Quickband.
+
+---------------------------
+
 Compiling Instructions 
  
 (note: in all cases below, the NPPAngband* directory indicates the directory to 

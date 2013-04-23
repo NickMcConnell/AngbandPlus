@@ -4877,4 +4877,22 @@ void disturb(int stop_search, int unused_flag)
 	if (flush_disturb) flush();
 }
 
+// BB added
+int effective_depth(int depth){
+    if (depth<=1) return depth;
+	else if (depth<=10) return depth * 4 - 3;
+	else return 37 + (depth-10)*2;
+}
 
+// BB added
+extern int challenge(){
+	// object quality will be affected by this number
+	// 10 is nominal: any less means worse 
+	if (p_ptr->lev > effective_depth(p_ptr->depth)) return 7;
+	else return 10;
+}
+
+extern int effective_depth_for_pits(int effective_depth){
+	if (effective_depth<=37) return MIN(effective_depth+20,2*effective_depth);
+	else return 10;
+}

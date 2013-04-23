@@ -2119,7 +2119,7 @@ void monster_death(int m_idx, int who)
 	coin_type = force_coin;
 
 	/* Average dungeon and monster levels */
-	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	object_level = (challenge() * (effective_depth(p_ptr->depth) + r_ptr->level) / 2) / 10;
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -2161,7 +2161,7 @@ void monster_death(int m_idx, int who)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 
 	/* Reset "coin" type */
 	coin_type = 0;
@@ -2409,7 +2409,8 @@ void monster_death(int m_idx, int who)
 		p_ptr->fame += 50;
 
 		/* Build magical stairs */
-		build_quest_stairs(y, x);
+		// BB removed
+		// build_quest_stairs(y, x);
 
  		/* Congratulations */
  		msg_print("*** CONGRATULATIONS ***");
@@ -2424,7 +2425,7 @@ void monster_death(int m_idx, int who)
  			char long_day[25];
 			fprintf(notes_file, "============================================================\n");
   		    (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
-			fprintf(notes_file, "%s slew Morgoth on %s.\n", op_ptr->full_name, long_day);
+			fprintf(notes_file, "%s slew Saruman on %s.\n", op_ptr->full_name, long_day);
  			fprintf(notes_file, "Long live %s!\n", op_ptr->full_name);
  		    fprintf(notes_file, "Long live %s!\n", op_ptr->full_name);
 			fprintf(notes_file, "============================================================\n");

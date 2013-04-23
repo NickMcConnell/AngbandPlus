@@ -102,7 +102,7 @@ D:The shining Star of the West, a treasured heirloom of Elendil's house.
 
 N:3:of Thrain
 I:39:6:0
-W:50:50:5:50000
+W:40:50:5:50000
 P:0:1d1:0:0:0
 F:RES_LITE | RES_DARK | SEE_INVIS | HOLD_LIFE | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE | INSTA_ART
@@ -116,7 +116,7 @@ D: thousand glowing shards.
 
 N:4:of Carlammas
 I:40:10:2
-W:50:10:3:60000
+W:40:10:3:60000
 P:0:0d0:0:0:0
 F:CON | RES_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | ACTIVATE | INSTA_ART | HIDE_TYPE
@@ -129,7 +129,7 @@ D: evil.
 
 N:5:of Ingwe
 I:40:11:3
-W:65:30:3:90000
+W:40:30:3:90000
 P:0:0d0:0:0:0
 F:INT | WIS | CHR | INFRA | RES_ACID
 F:RES_ELEC | RES_COLD | SEE_INVIS | FREE_ACT | IGNORE_ACID
@@ -144,7 +144,7 @@ D: nothing of evil could stand.
 
 N:6:of the Dwarves
 I:40:12:3
-W:70:50:3:75000
+W:35:50:3:75000
 P:0:0d0:0:0:0
 F:STR | CON | INFRA | RES_FEAR | LITE
 F:REGEN | SEE_INVIS | FREE_ACT | IGNORE_ACID | IGNORE_ELEC
@@ -174,7 +174,7 @@ D: far places - at a cost, for those espied upon are aware of it.
 
 N:8:of Barahir
 I:45:32:1
-W:50:25:2:65000
+W:40:25:2:65000
 P:0:0d0:0:0:0
 F:STR | INT | WIS | DEX | CON
 F:CHR | STEALTH | RES_POIS | RES_DARK | IGNORE_ACID
@@ -187,7 +187,7 @@ D: beneath a crown of flowers, an ancient treasure of Isildur's house.
 
 N:9:of Tulkas
 I:45:33:4
-W:70:50:2:150000
+W:45:50:2:150000
 P:0:0d0:0:0:0
 F:STR | DEX | CON | RES_FEAR | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE | INSTA_ART
@@ -200,7 +200,7 @@ D:The treasure of Tulkas, most fleet and wrathful of the Valar.
 
 N:10:'Elessar'
 I:40:16:2
-W:60:60:3:40000
+W:45:60:3:40000
 P:0:0d0:7:7:10
 F:STR | WIS | CHR | SPEED | RES_FIRE
 F:RES_POIS | RES_FEAR | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
@@ -215,7 +215,7 @@ D: battle.
 
 N:11:'Evenstar'
 I:40:17:0
-W:40:40:3:25000
+W:30:40:3:25000
 P:0:0d0:0:0:0
 F:SUST_INT | SUST_WIS | SUST_CON | RES_COLD | RES_DARK
 F:HOLD_LIFE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -229,7 +229,7 @@ D: return to the Shire.
 
 N:12:of Amon Sul
 I:39:8:2
-W:76:85:200:100000
+W:45:85:200:100000
 P:2:10d10:2:2:10
 F:INT | WIS | CHR | SEARCH | INFRA
 F:RES_BLIND | RES_CONFU | RES_SOUND | TELEPATHY | HOLD_LIFE
@@ -241,22 +241,23 @@ D: Kingdom and other views as well.  Uncorrupted by Morgoth it was
 D: thought lost at the end of the Second Age.
 
 
-# The Ring of Power 'Narya'
+# The Ring of the Dwarves 'Bunglost'
 
-N:13:of Power 'Narya'
+N:13:of the Dwarves 'Bunglost'
 I:45:34:1
-W:70:60:2:100000
-P:0:0d0:6:6:0
-F:STR | INT | WIS | DEX | CON
-F:CHR | SPEED | SUST_STR | SUST_WIS | SUST_CON
-F:SUST_CHR | IM_FIRE | RES_FIRE | RES_FEAR | RES_NETHR
+W:35:10:2:50000
+P:0:0d0:3:3:10
+F:STR | INT | DEX | CON | SUST_STR
+F:SUST_INT | SUST_DEX | SUST_CON | RES_DARK | RES_DISEN 
+F:DRAIN_EXP | IM_FIRE | RES_FIRE | IM_ACID | RES_ACID
 F:SLOW_DIGEST | REGEN | SEE_INVIS | FREE_ACT | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE | INSTA_ART
-F:HIDE_TYPE
-A:FIRE3:20:20
-D:The Ring of Fire, set with a ruby that glows like flame.  Narya is one
-D: of the three Rings of Power created by the Elves and hidden by them
-D: from Sauron.
+F:HIDE_TYPE | LIGHT_CURSE | HEAVY_CURSE
+A:DETECT:100:100
+D:Bunglost is one of the seven Dwarven Rings forged by Sauron at the
+D: forge of Celebrimbor. Long thought to be lost, it has now come to
+D: light. Its power is great, but it will lead you into dark thoughts
+D: of covetousness and doom you in the end.
 
 
 # The Ring of Power 'Nenya'
@@ -333,7 +334,7 @@ D: being who wears it.
 
 N:21:'Thalkettoth'
 I:36:11:3
-W:20:3:60:25000
+W:15:10:60:25000
 P:11:1d1:-1:0:25
 F:DEX | SPEED | RES_ACID | RES_SHARD | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE
@@ -341,26 +342,26 @@ D:An amazingly light tunic and skirt sewn with thick, overlapping scales
 D: of hardened leather whose wearer moves with agility and assurance.
 
 
-# The Robe of Zorander (for Anssi Ramela)
+# The Robe of Radagast
 
-N:22:of Zorander
-I:36:2:2
-W:40:50:20:20000
-P:5:1d1:0:0:15
-F:STR | INT | CON | STEALTH | INFRA
-F:SPEED | SUST_INT | RES_POIS | RES_BLIND | RES_CONFU
-F:RES_DISEN | SEE_INVIS | FREE_ACT | HOLD_LIFE | IGNORE_ACID
-F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE | HIDE_TYPE
-A:HEAL1:250:250
-D:The robe of a powerful mage whose daring and bravery is legendary in
-D: the NPPAngband world.
+N:22:of Radagast
+I:36:2:3
+W:15:10:20:30000
+P:3:1d1:0:0:18
+F:INT | WIS | SEARCH | INFRA | SUST_INT 
+F:SUST_WIS | SUST_STR | SUST_CON | RES_BLIND | RES_CONFU
+F:RES_DISEN | SEE_INVIS | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE 
+F:IGNORE_COLD | ACTIVATE | HIDE_TYPE
+A:IDENTIFY_FULLY:100:100
+D:Radagast the Wizard has wandered the land for long ages. This
+D: unprepossessing brown robe was his travelling garment.
 
 
 # The Soft Leather Armour 'Hithlomir'
 
 N:23:'Hithlomir'
 I:36:4:4
-W:20:3:80:45000
+W:15:3:80:45000
 P:4:0d0:0:0:20
 F:STEALTH | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:RES_DARK | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -373,7 +374,7 @@ D: is truly more than it appears.
 
 N:24:of Himring
 I:36:6:0
-W:50:20:100:35000
+W:30:10:100:35000
 P:6:0d0:0:0:15
 F:RES_POIS | RES_NETHR | RES_CHAOS | IGNORE_ACID | IGNORE_ELEC
 F:IGNORE_FIRE | IGNORE_COLD | ACTIVATE
@@ -390,7 +391,7 @@ D: of Morgoth.
 
 N:25:of Isildur
 I:37:15:1
-W:30:3:300:50000
+W:25:3:300:50000
 P:25:2d4:0:0:25
 F:CON | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:RES_CONFU | RES_SOUND | RES_NEXUS | IGNORE_ACID | IGNORE_ELEC
@@ -403,7 +404,7 @@ D: runes of warding and stability deeply engraved into its surface.
 
 N:26:'Belegennon'
 I:37:20:4
-W:40:3:150:105000
+W:30:3:150:105000
 P:28:1d4:-1:0:20
 F:STEALTH | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:RES_POIS | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -417,23 +418,23 @@ D: power of concealment rests within.
 # The Mithril Plate Mail of Celeborn
 
 N:27:of Celeborn
-I:37:25:4
-W:40:3:250:150000
+I:37:25:3
+W:40:3:250:100000
 P:35:2d4:-3:0:25
 F:STR | CHR | RES_ACID | RES_ELEC | RES_FIRE
 F:RES_COLD | RES_DARK | RES_DISEN | IGNORE_ACID | IGNORE_ELEC
 F:IGNORE_FIRE | IGNORE_COLD | ACTIVATE | HIDE_TYPE
-A:BANISHMENT:500:0
+A:DISP_EVIL:100:100
 D:A shimmering suit of true-silver, forged long ago by dwarven smiths of
 D: legend.  It gleams with purest white as you gaze upon it, and mighty
-D: are its powers to protect and banish.
+D: are its powers to protect and dispel.
 
 
 # The Adamantite Plate Mail 'Soulkeeper'
 
 N:28:'Soulkeeper'
 I:37:30:2
-W:75:9:420:300000
+W:85:9:420:300000
 P:40:2d4:-4:0:20
 F:CON | SUST_CON | RES_ACID | RES_COLD | RES_FEAR
 F:RES_DARK | RES_CONFU | RES_NEXUS | RES_NETHR | RES_CHAOS
@@ -496,7 +497,7 @@ D: Young, matchless in combat, around you as you put his armour on.
 
 N:32:of Gil-galad
 I:34:10:5
-W:70:4:80:65000
+W:45:4:80:65000
 P:10:1d3:0:0:20
 F:WIS | CHR | SUST_WIS | SUST_DEX | SUST_CHR
 F:RES_ACID | RES_ELEC | RES_DARK | RES_DISEN | LITE
@@ -511,7 +512,7 @@ D: gates of the Dark Tower, and with whom came light even to Gorgoroth.
 
 N:33:of Thorin
 I:34:3:4
-W:40:9:65:60000
+W:40:15:65:60000
 P:3:1d2:0:0:25
 F:STR | CON | IM_ACID | RES_FEAR | RES_SOUND
 F:RES_CHAOS | FREE_ACT | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
@@ -525,7 +526,7 @@ D: Earth.
 
 N:34:of the Haradrim
 I:34:4:2
-W:35:12:120:25000
+W:25:6:120:25000
 P:4:1d2:0:0:15
 F:STR | CON | SUST_STR | SUST_CON | RES_POIS
 F:RES_FEAR | RES_BLIND | AGGRAVATE | IGNORE_ACID | IGNORE_ELEC
@@ -621,7 +622,7 @@ N:40:'Gilettar'
 I:23:10:2
 W:20:8:80:15000
 P:0:1d7:3:7:0
-F:BLOWS | SLAY_ANIMAL | BRAND_POIS | SLOW_DIGEST | REGEN
+F:SLAY_ANIMAL | BRAND_POIS | SLOW_DIGEST | REGEN
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE
 F:SHOW_MODS
 D:A stubby blade worn by Beren, whose horn sounded of old in the glades
@@ -634,7 +635,7 @@ N:41:'Careth Asdriag'
 I:23:11:1
 W:15:8:50:25000
 P:0:1d7:6:8:0
-F:BLOWS | SLAY_ANIMAL | SLAY_ORC | SLAY_TROLL | SLAY_GIANT
+F:SLAY_ANIMAL | SLAY_ORC | SLAY_TROLL | SLAY_GIANT
 F:KILL_DRAGON | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:HIDE_TYPE | SHOW_MODS
 D:An heirloom of the dauntless Lords of Rhun far to the east, and a name
@@ -645,7 +646,7 @@ D: of dismay to creatures natural and unnatural.
 
 N:42:'Gondricam'
 I:23:12:3
-W:20:8:110:28000
+W:20:4:110:28000
 P:0:1d7:10:11:0
 F:DEX | STEALTH | RES_ACID | RES_ELEC | RES_FIRE
 F:RES_COLD | FEATHER | REGEN | SEE_INVIS | IGNORE_ACID
@@ -659,7 +660,7 @@ D: hate to the men of Umbar who met it in combat.
 
 N:43:'Arunruth'
 I:23:16:4
-W:20:45:150:50000
+W:20:20:150:50000
 P:0:3d5:20:12:0
 F:DEX | SLAY_ORC | KILL_DEMON | RES_COLD | SLOW_DIGEST
 F:FEATHER | FREE_ACT | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
@@ -674,7 +675,7 @@ D: supple and lightfooted as you clasp its hilt of gold and silver inlay.
 
 N:44:'Aeglin'
 I:23:16:1
-W:20:30:150:45000
+W:20:20:150:45000
 P:0:2d5:12:16:0
 F:SEARCH | SLAY_ORC | SLAY_TROLL | SLAY_GIANT | BRAND_ELEC
 F:RES_ELEC | RES_BLIND | SLOW_DIGEST | LITE | IGNORE_ACID
@@ -717,7 +718,7 @@ D: "Biter" by orcs who came to know its power all too well.
 
 N:47:'Ringil'
 I:23:17:10
-W:20:120:130:300000
+W:80:120:130:300000
 P:0:4d5:22:25:0
 F:SPEED | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | KILL_DEMON
 F:BRAND_COLD | RES_COLD | RES_FEAR | RES_LITE | SLOW_DIGEST
@@ -731,28 +732,25 @@ D: unwillingly to meet it of old; his lame foot will remind him of its
 D: might should he face it again.
 
 
-# The Long Sword 'Anduril'
+# The Long Sword 'Gwendohil'
 
-N:48:'Anduril'
-I:23:17:4
-W:20:40:130:80000
+N:48:'Gwendohil'
+I:23:17:3
+W:10:30:130:10000
 P:0:3d5:10:15:10
-F:STR | DEX | SLAY_EVIL | SLAY_ORC | SLAY_TROLL
-F:KILL_UNDEAD | BRAND_FIRE | SUST_STR | SUST_DEX | RES_FIRE
-F:RES_FEAR | RES_DISEN | SEE_INVIS | FREE_ACT | IGNORE_ACID
-F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | BLESSED | ACTIVATE
-F:HIDE_TYPE | SHOW_MODS
-A:FIRE2:40:0
-D:The famed "Flame of the West", the Sword that was Broken and is forged
-D: again.  It glows with the essence of fire, its wearer is mighty in
-D: combat, and no creature of Sauron can withstand it.
+F:CHR | LITE | KILL_UNDEAD | BLESSED | ACTIVATE
+F:RES_DARK | HOLD_LIFE | FREE_ACT | SUST_CON | RES_FEAR
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE | SHOW_MODS
+A:STARLIGHT:10:0
+D:A holy blade, its light drives back the creatures of darkness
+D: and it is anathema to the undead.
 
 
 # The Long Sword 'Anguirel'
 
 N:49:'Anguirel'
 I:23:17:2
-W:20:30:130:40000
+W:20:20:130:40000
 P:0:2d5:8:12:0
 F:STR | CON | SPEED | SLAY_EVIL | KILL_DEMON
 F:BRAND_POIS | RES_ELEC | RES_LITE | RES_DARK | LITE
@@ -778,10 +776,10 @@ D: hidden and secret places of the earth.
 # The Scimitar 'Haradekket'
 
 N:51:'Haradekket'
-I:23:18:2
-W:20:15:130:30000
+I:23:18:3
+W:20:45:130:30000
 P:0:2d5:9:11:0
-F:DEX | BLOWS | SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD
+F:DEX | SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD
 F:SEE_INVIS | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:HIDE_TYPE | SHOW_MODS
 D:A damascened scimitar that hefts with wondrous ease.  Famed in song as
@@ -792,7 +790,7 @@ D: the "Sickle of Harad", and a deadly foe to the undead.
 
 N:52:'Aglarang'
 I:23:20:5
-W:30:25:50:40000
+W:80:25:50:40000
 P:0:8d4:0:0:0
 F:DEX | SPEED | SUST_DEX | IGNORE_ACID | IGNORE_ELEC
 F:IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE | SHOW_MODS
@@ -805,7 +803,7 @@ D: lithe and nimble.  It is combat incarnate.
 
 N:53:of Eowyn
 I:23:21:4
-W:30:100:140:120000
+W:30:20:140:120000
 P:0:4d4:12:16:0
 F:STR | CHR | STEALTH | SPEED | SLAY_ANIMAL
 F:SLAY_EVIL | SLAY_GIANT | KILL_UNDEAD | RES_COLD | RES_FEAR
@@ -816,25 +814,23 @@ D: blow against the Morgul-lord whom no mortal Man could hinder, and
 D: also slew his foul steed.
 
 
-# The Bastard Sword 'Calris'
+# The Bastard Sword 'Fitzardis'
 
-N:54:'Calris'
-I:23:21:5
-W:30:15:140:100000
-P:0:5d4:-20:20:0
-F:CON | SLAY_EVIL | SLAY_DEMON | SLAY_TROLL | KILL_DRAGON
-F:RES_DISEN | AGGRAVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
-F:IGNORE_COLD | HIDE_TYPE | SHOW_MODS | LIGHT_CURSE | HEAVY_CURSE
-D:This sword has runes of power incused on its ornate hint, and a single
-D: blood channel that gleams coldly blue as you grasp this mighty weapon
-D: of peril.
+N:54:'Fitzardis'
+I:23:21:3
+W:30:8:140:20000
+P:0:4d4:12:14:0
+F:DEX | SLAY_EVIL | SLAY_ANIMAL | SLAY_TROLL | FREE_ACT
+F:RES_FEAR | RES_BLIND | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
+F:IGNORE_COLD | HIDE_TYPE | SHOW_MODS
+D:A fine blade, though who knows from whence it came?
 
 
 # The Two-Handed Sword 'Zarcuthra'
 
 N:55:'Zarcuthra'
 I:23:25:4
-W:30:180:250:200000
+W:30:40:250:200000
 P:0:4d6:19:21:0
 F:STR | CHR | INFRA | SLAY_ANIMAL | SLAY_EVIL
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_ORC | SLAY_TROLL | SLAY_GIANT
@@ -909,7 +905,7 @@ D: heal.
 
 N:60:'Angrist'
 I:23:4:4
-W:20:80:12:100000
+W:20:40:12:100000
 P:0:2d7:10:15:5
 F:DEX | SPEED | SLAY_EVIL | SLAY_ORC | SLAY_TROLL
 F:BRAND_ACID | SUST_DEX | RES_ACID | RES_DARK | FREE_ACT
@@ -925,7 +921,7 @@ D: "Iron Cleaver", suggests.
 
 N:61:'Belangil'
 I:23:4:2
-W:10:40:12:40000
+W:10:20:12:40000
 P:0:2d4:6:9:0
 F:DEX | BRAND_COLD | RES_COLD | SLOW_DIGEST | REGEN
 F:SEE_INVIS | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -939,7 +935,7 @@ D: and an edge to wound the wind.
 
 N:62:of Rilia
 I:23:4:0
-W:5:40:12:15000
+W:5:30:12:15000
 P:0:2d4:4:3:0
 F:SLAY_ORC | BRAND_POIS | RES_POIS | RES_DISEN | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | THROWING | PERFECT_BALANCE
@@ -953,7 +949,7 @@ D: the wearer seems oddly immune.
 
 N:63:'Dethanc'
 I:23:4:0
-W:4:5:12:13000
+W:4:10:12:13000
 P:0:2d4:4:6:0
 F:BRAND_ELEC | RES_ELEC | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | THROWING | PERFECT_BALANCE | ACTIVATE | SHOW_MODS
@@ -965,7 +961,7 @@ D:In this dagger is bound the very force of the lightning.
 
 N:64:'Narthanc'
 I:23:4:0
-W:4:5:12:12000
+W:4:10:12:12000
 P:0:2d4:4:6:0
 F:BRAND_FIRE | RES_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | THROWING | PERFECT_BALANCE | ACTIVATE | SHOW_MODS
@@ -978,7 +974,7 @@ D: hilt.
 
 N:65:'Nimthanc'
 I:23:4:0
-W:4:5:12:11000
+W:4:10:12:11000
 P:0:2d4:4:6:0
 F:BRAND_COLD | RES_COLD | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | THROWING | PERFECT_BALANCE | ACTIVATE | SHOW_MODS
@@ -990,7 +986,7 @@ D:From the hilt of this dagger springs not so much a blade as an icicle.
 
 N:66:of Azaghal
 I:23:5:0
-W:18:30:30:50000
+W:18:15:30:50000
 P:0:2d5:12:14:0
 F:KILL_DRAGON | IM_FIRE | RES_ACID | RES_FEAR | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | THROWING | PERFECT_BALANCE
@@ -1028,9 +1024,9 @@ D:A slender, tapered needle of ice that coldly grips its impaled prey.
 
 N:69:'Sting'
 I:23:8:2
-W:20:15:75:100000
+W:20:45:75:100000
 P:0:1d6:7:8:0
-F:STR | DEX | CON | SPEED | BLOWS
+F:STR | DEX | CON | SPEED
 F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | RES_FEAR
 F:RES_LITE | LITE | SEE_INVIS | FREE_ACT | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE | SHOW_MODS
@@ -1092,8 +1088,8 @@ D: evil creatures of earth.
 
 N:73:of Pain
 I:22:13:0
-W:30:25:300:50000
-P:0:9d6:0:30:0
+W:30:25:300:30000
+P:0:7d6:0:20:0
 F:RES_FEAR | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:SHOW_MODS
 D:The massive cleaver that crowns this glaive glows blood-red and black;
@@ -1134,7 +1130,7 @@ D: forth and returning.
 
 N:76:'Aeglos'
 I:22:2:4
-W:15:45:50:140000
+W:15:25:50:140000
 P:0:3d6:15:25:5
 F:WIS | DEX | SLAY_EVIL | SLAY_ORC | SLAY_TROLL
 F:KILL_UNDEAD | BRAND_COLD | RES_COLD | RES_FEAR | SLOW_DIGEST
@@ -1150,7 +1146,7 @@ D: vain.
 
 N:77:of Melkor
 I:22:2:-4
-W:65:45:200:100000
+W:85:45:200:100000
 P:0:4d6:-12:20:0
 F:WIS | STEALTH | BRAND_POIS | RES_LITE | RES_DARK
 F:RES_BLIND | RES_NETHR | AGGRAVATE | DRAIN_EXP | IGNORE_ACID
@@ -1220,21 +1216,18 @@ D:A superbly crafted double-bladed axe once borne by Ceruthain,
 D: commander of the Rangers of Arnor.
 
 
-# The Great Axe of Eonwe
+# The Great Axe of Norgrush
 
-N:82:of Eonwe
+N:82:of Norgrush
 I:22:25:2
-W:30:120:230:200000
-P:0:5d4:15:18:8
-F:STR | INT | WIS | DEX | CON
-F:CHR | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | KILL_DEMON
-F:BRAND_COLD | IM_COLD | RES_COLD | RES_FEAR | SEE_INVIS
-F:FREE_ACT | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:BLESSED | ACTIVATE | HIDE_TYPE | SHOW_MODS
-A:MASS_BANISHMENT:1000:0
-D:The axe of Eonwe, leader of the Hosts of the West before the gates of
-D: Thangorodrim, strikes with icy wrath at the undead, disperses hosts
-D: of evil at a word, and grants Maia-like powers of body and mind.
+W:20:20:230:20000
+P:0:5d4:3:15:0
+F:STR | SLAY_ANIMAL | SLAY_GIANT | BRAND_ACID | RES_FIRE
+F:SEE_INVIS | REGEN | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE 
+F:IGNORE_COLD | HIDE_TYPE | SHOW_MODS
+D:Norgrush the Half-troll gained great renown when this axe was named
+D: after him, for never had an artifact been named after a Half-troll
+D: before, and probably never shall one be again.
 
 
 # The Great Axe of Durin
@@ -1348,7 +1341,7 @@ D: that can yet rise up in wrath.
 
 N:90:'Bloodspike'
 I:21:12:4
-W:20:30:150:30000
+W:20:20:150:30000
 P:0:2d6:8:22:0
 F:STR | SLAY_ANIMAL | SLAY_ORC | SLAY_TROLL | BRAND_POIS
 F:RES_NEXUS | SEE_INVIS | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
@@ -1362,7 +1355,7 @@ D: foes.
 
 N:91:'Totila'
 I:21:13:2
-W:20:8:150:55000
+W:20:12:150:55000
 P:0:3d6:6:8:0
 F:STEALTH | SLAY_EVIL | BRAND_FIRE | RES_FIRE | RES_CONFU
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
@@ -1376,7 +1369,7 @@ D: and becomes a fiery comet as you bring it down.
 
 N:92:of Gothmog
 I:21:2:-3
-W:60:25:90:25000
+W:80:25:90:25000
 P:0:6d3:13:15:0
 F:INT | WIS | DEX | SLAY_ANIMAL | SLAY_TROLL
 F:SLAY_GIANT | KILL_DRAGON | BRAND_FIRE | IM_FIRE | RES_ELEC
@@ -1392,7 +1385,7 @@ D: Ungoliant to heel.
 
 N:93:'Deathwreaker'
 I:21:20:6
-W:80:38:400:400000
+W:50:80:400:400000
 P:0:7d8:18:18:0
 F:STR | TUNNEL | SLAY_ANIMAL | SLAY_EVIL | SLAY_DRAGON
 F:KILL_UNDEAD | BRAND_FIRE | IM_FIRE | RES_FIRE | RES_DARK
@@ -1409,7 +1402,7 @@ D: and the Despair of the Undead!
 
 N:94:of Olorin
 I:21:3:4
-W:30:105:150:130000
+W:30:10:150:130000
 P:0:2d9:10:13:0
 F:INT | WIS | CHR | SLAY_EVIL | SLAY_ORC
 F:SLAY_TROLL | KILL_DEMON | BRAND_FIRE | RES_FIRE | RES_NETHR
@@ -1426,7 +1419,7 @@ D: the blows it deals.
 
 N:95:'Nar-i-vagil'
 I:21:3:3
-W:20:18:150:70000
+W:20:14:150:70000
 P:0:1d9:10:20:0
 F:INT | SLAY_ANIMAL | BRAND_FIRE | RES_FIRE | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE | SHOW_MODS
@@ -1438,7 +1431,7 @@ D: virtues of protection and thought.
 
 N:96:'Eriril'
 I:21:3:4
-W:20:18:150:20000
+W:20:14:150:20000
 P:0:1d9:3:5:0
 F:INT | WIS | SLAY_EVIL | RES_LITE | LITE
 F:SEE_INVIS | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -1452,7 +1445,7 @@ D: companion grants keen sight and clear knowledge of many hidden things.
 
 N:97:'Taratol'
 I:21:5:0
-W:20:15:200:50000
+W:20:12:200:50000
 P:0:3d4:12:12:0
 F:KILL_DRAGON | BRAND_ELEC | IM_ELEC | RES_ELEC | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE | SHOW_MODS
@@ -1466,7 +1459,7 @@ D: around your fingers and eyebrows.
 
 N:98:of Fundin Bluecloak
 I:21:6:4
-W:65:100:130:60000
+W:45:40:130:60000
 P:0:4d4:13:17:10
 F:STR | WIS | SPEED | SLAY_EVIL | KILL_UNDEAD
 F:RES_ELEC | RES_FIRE | RES_NETHR | LITE | HOLD_LIFE
@@ -1477,21 +1470,21 @@ D:The weapon of a mighty dwarven priest, whose shade is rumoured to
 D: still haunt the halls of Angband itself.
 
 
-# The War Hammer of Aule
+# The War Hammer of Throt
 
-N:99:of Aule
-I:21:8:4
-W:40:75:120:250000
-P:0:9d3:19:21:5
-F:WIS | TUNNEL | SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON
-F:KILL_DRAGON | BRAND_ACID | RES_ACID | RES_ELEC | RES_FIRE
-F:RES_COLD | RES_FEAR | RES_NEXUS | SEE_INVIS | FREE_ACT
+N:99:of Throt
+I:21:8:3
+W:25:10:120:15000
+P:0:5d3:3:15:0
+F:STR | WIS | SUST_STR | SUST_WIS | SLAY_EVIL
+F:SLAY_UNDEAD | RES_FEAR | HOLD_LIFE | SEE_INVIS | FREE_ACT
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE
-F:SHOW_MODS
-D:The wondrous hammer of Aule, creator of the wise Dwarven lords of old.
-D:  It bears magics of demolishing that no serpent or demon can
-D: withstand, and invokes the strength of mountains to ward off the
-D: tumult of the elements.
+F:ACTIVATE | SHOW_MODS
+A:HEAL1:300:0
+D:Throt was a dwarven priest of great girth. No horse could carry him,
+D: but he rode a bull named Myrgjartan Blackbird the Third. It was
+D: said that his weight was so great that he could inflict trampling
+D: damage!
 
 
 
@@ -1501,7 +1494,7 @@ D: tumult of the elements.
 
 N:100:of Nain
 I:20:7:6
-W:60:8:250:30000
+W:30:8:250:30000
 P:0:2d8:12:18:0
 F:STR | SEARCH | INFRA | TUNNEL | SLAY_ORC
 F:SLAY_TROLL | SLAY_GIANT | SLAY_DRAGON | RES_DARK | RES_DISEN
@@ -1520,7 +1513,7 @@ D: them, although Nain himself fell before their lord Azog.
 
 N:101:of Thranduil
 I:32:2:2
-W:20:4:15:50000
+W:10:4:15:50000
 P:2:0d0:0:0:10
 F:INT | WIS | RES_BLIND | TELEPATHY | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE
@@ -1532,7 +1525,7 @@ D: of his forest domain.
 
 N:102:of Celebrimbor
 I:32:3:3
-W:55:12:20:45000
+W:35:12:20:45000
 P:3:1d1:0:0:18
 F:INT | DEX | CHR | SEARCH | RES_ACID
 F:RES_FIRE | RES_SHARD | RES_DISEN | IGNORE_ACID | IGNORE_ELEC
@@ -1559,7 +1552,7 @@ D: understanding.
 
 N:104:of Dor-Lomin
 I:32:5:4
-W:40:25:75:300000
+W:30:15:75:300000
 P:5:1d3:0:0:20
 F:STR | DEX | CON | RES_ACID | RES_ELEC
 F:RES_FIRE | RES_COLD | RES_FEAR | LITE | TELEPATHY
@@ -1573,7 +1566,7 @@ D: servants of Morgoth.
 
 N:105:'Holhenneth'
 I:32:5:2
-W:20:8:75:100000
+W:20:18:75:100000
 P:5:1d3:0:0:10
 F:INT | WIS | SEARCH | RES_BLIND | RES_CONFU
 F:SEE_INVIS | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -1616,7 +1609,7 @@ D: many. Although they knew of his coming, none could stand against him.
 
 N:108:of Beruthiel
 I:33:10:-5
-W:40:12:20:1
+W:30:12:20:1
 P:0:1d1:0:0:20
 F:STR | DEX | CON | TELEPATHY | SEE_INVIS
 F:FREE_ACT | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -1630,7 +1623,7 @@ D: terrible physical cost.
 
 N:109:of Gondor
 I:33:11:3
-W:40:40:30:100000
+W:30:50:30:100000
 P:0:1d1:0:0:15
 F:STR | WIS | CON | SPEED | RES_FIRE
 F:RES_COLD | RES_LITE | RES_BLIND | RES_CONFU | RES_SOUND
@@ -1645,7 +1638,7 @@ D: emblem of Gondor through an age of the world.
 
 N:110:of Numenor
 I:33:12:3
-W:50:20:40:50000
+W:40:20:40:50000
 P:0:1d1:0:0:18
 F:INT | DEX | CHR | SEARCH | SPEED
 F:RES_COLD | RES_LITE | RES_DARK | RES_BLIND | RES_SOUND
@@ -1662,7 +1655,7 @@ D: warding, worn by the kings of ancient Numenor.
 
 N:111:'Colluin'
 I:35:1:0
-W:5:45:10:50000
+W:5:30:10:50000
 P:1:0d0:0:0:15
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
@@ -1675,7 +1668,7 @@ D: of Elements.
 
 N:112:of Thingol
 I:35:1:3
-W:5:50:10:35000
+W:5:30:10:35000
 P:1:0d0:0:0:18
 F:DEX | CHR | RES_ACID | RES_FIRE | RES_COLD
 F:FREE_ACT | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -1729,7 +1722,7 @@ D: Aragorn, a keen-eyed captain of Gondor, valiant on both land and sea.
 
 N:116:of Luthien
 I:35:6:2
-W:40:40:5:45000
+W:40:30:5:45000
 P:6:0d0:0:0:20
 F:INT | WIS | CHR | STEALTH | SPEED
 F:RES_ACID | RES_FIRE | RES_COLD | IGNORE_ACID | IGNORE_ELEC
@@ -1745,7 +1738,7 @@ D: beautiful being who ever knew death.
 
 N:117:of Tuor
 I:35:6:4
-W:40:40:5:35000
+W:40:30:5:35000
 P:6:0d0:0:0:12
 F:DEX | STEALTH | IM_ACID | RES_ACID | SEE_INVIS
 F:FREE_ACT | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -1790,7 +1783,7 @@ D: Green-elves of Ossiriand.
 
 N:120:'Belthronding'
 I:19:13:1
-W:40:20:40:35000
+W:40:60:40:35000
 P:0:0d0:20:22:0
 F:DEX | STEALTH | SPEED | SHOTS | RES_DISEN
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE
@@ -1799,23 +1792,22 @@ D:The great bow of Beleg Cuthalion, made of black yew and strung with
 D: elven hair that faintly shimmers a pale clear gold.
 
 
-# The Long Bow of Bard
+# The Bow of Legolas
 
-N:121:of Bard
+N:121:of Legolas
 I:19:13:2
-W:30:20:40:20000
-P:0:0d0:17:19:0
-F:DEX | SPEED | MIGHT | FREE_ACT | IGNORE_ACID
+W:20:20:40:15000
+P:0:0d0:15:10:0
+F:DEX | FREE_ACT | FEATHER | RES_CONFU | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE | SHOW_MODS
-D:The great yew bow of grim-faced Bard, who shot the mightiest arrow
-D: that songs record.
+D:The bow of Legolas of the Fellowship, whose arrows kindled in flight.
 
 
 # The Sling of Brandinde
 
 N:122:of Brandinde
 I:19:2:1
-W:20:25:5:5000
+W:20:10:5:5000
 P:0:1d1:11:15:0
 F:INT | DEX | CON | STEALTH | SEARCH
 F:SPEED | MIGHT | SUST_INT | SUST_DEX | RES_FEAR
@@ -1829,7 +1821,7 @@ D: for those who are skilled in its use.
 
 N:123:of Umbar
 I:19:23:2
-W:60:20:200:35000
+W:40:20:200:35000
 P:0:4d1:18:18:0
 F:STR | CON | MIGHT | RES_ELEC | RES_LITE
 F:RES_DARK | RES_BLIND | AGGRAVATE | IGNORE_ACID | IGNORE_ELEC
@@ -1842,8 +1834,8 @@ D: with mighty power for those brave enough to risk betrayal.
 # The Heavy Crossbow 'Cubragol'
 
 N:124:'Cubragol'
-I:19:24:10
-W:50:25:110:50000
+I:19:24:5
+W:30:25:110:50000
 P:0:0d0:10:14:0
 F:SPEED | RES_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | ACTIVATE | HIDE_TYPE | SHOW_MODS
@@ -1869,40 +1861,36 @@ D:A pair of high-laced shoes, strong against the powers of corruption
 D: and withering, that grant the wearer extraordinary agility.
 
 
-# The Pair of Soft Leather Boots of Avarri
+# The Pair of Soft Leather Boots 'Seralim'
 
-N:126:of Avarri
-I:30:2:3
+N:126:'Seralim'
+I:30:2:5
 W:10:15:20:17000
-P:2:1d1:0:0:15
-F:INT | DEX | STEALTH | IGNORE_ACID | IGNORE_ELEC
-F:IGNORE_FIRE | IGNORE_COLD | ACTIVATE | HIDE_TYPE
-A:PHASE:20:0
-D:A pair of boots once pursued by a long lost adventurer  that can help
-D: an adventurer sneak around the dungeon.
+P:2:1d1:0:0:10
+F:SPEED | AGGRAVATE | TELEPORT | IGNORE_ACID | IGNORE_FIRE
+F:IGNORE_ELEC| IGNORE_COLD | ACTIVATE | HIDE_TYPE
+A:TELE_LVL:100:0
+D:These boots will get you out of trouble, but may also get you into it...
 
 
-# The Pair of Hard Leather Boots of Feanor
+# The Pair of Hard Leather Boots of Lurtz
 
-N:127:of Feanor
-I:30:3:15
-W:40:150:40:300000
-P:3:1d1:0:0:20
-F:SPEED | RES_NEXUS | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
-F:IGNORE_COLD | ACTIVATE | HIDE_TYPE
-A:HASTE1:200:0
-D:This wondrous pair of leather boots once sped Feanor, creator of the
-D: Silmarils and the mightiest of the Eldar, to fulfill his hero's
-D: challenge and do battle for a Middle-Earth held in thrall. 
-D: "Dear-bought those songs shall be accounted, and yet shall be
-D: well-bought.  For the price could be no other."
+N:127:of Lurtz
+I:30:3:2
+W:5:10:40:20000
+P:3:1d1:0:0:8
+F:STR | SLOW_DIGEST | AGGRAVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
+F:IGNORE_COLD | HIDE_TYPE
+D:Lurtz, captain of the Uruk-hai, wore these troll's-hide boots. Many were
+D: the behinds of the Uruk-hai who felt the unkind kiss of Lurtz's boot
+D: while slacking off! 
 
 
 # The Pair of Metal Shod Boots of Thror
 
 N:128:of Thror
-I:30:6:3
-W:30:25:80:12000
+I:30:6:2
+W:25:25:80:12000
 P:6:1d1:0:0:20
 F:STR | CON | SPEED | RES_FEAR | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE
@@ -1917,7 +1905,7 @@ D: Dwarven king-in-exile who wore them.
 
 N:129:'Cambeleg'
 I:31:1:2
-W:10:8:5:36000
+W:10:40:5:36000
 P:1:0d0:8:8:15
 F:STR | CON | FREE_ACT | IGNORE_ACID | IGNORE_ELEC
 F:IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE | SHOW_MODS
@@ -1941,7 +1929,7 @@ D: cast magical bolts with great frequency.
 
 N:131:of Eol
 I:31:2:3
-W:55:35:25:40000
+W:55:25:25:40000
 P:2:1d1:-5:-5:15
 F:INT | RES_ELEC | RES_POIS | RES_DARK | FEATHER
 F:FREE_ACT | AGGRAVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
@@ -1955,7 +1943,7 @@ D: magics that he could channel in battle.
 
 N:132:'Paurhach'
 I:31:2:0
-W:10:8:25:15000
+W:10:12:25:15000
 P:2:1d1:0:0:15
 F:RES_FIRE | REGEN | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | ACTIVATE
@@ -1967,7 +1955,7 @@ D:A set of gauntlets that smoulder with an unnatural heat.
 
 N:133:'Paurnimmen'
 I:31:2:0
-W:10:8:25:13000
+W:10:12:25:13000
 P:2:1d1:0:0:15
 F:RES_COLD | SLOW_DIGEST | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | ACTIVATE
@@ -1979,7 +1967,7 @@ D:A set of handgear, freezing with unnatural cold.
 
 N:134:'Paurnen'
 I:31:2:0
-W:10:8:25:12000
+W:10:12:25:12000
 P:2:1d1:0:0:15
 F:RES_ACID | FEATHER | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | ACTIVATE
@@ -1992,7 +1980,7 @@ D: untarnished.
 
 N:135:'Pauraegen'
 I:31:2:0
-W:10:8:25:11000
+W:10:12:25:11000
 P:2:1d1:0:0:15
 F:RES_ELEC | LITE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | ACTIVATE
@@ -2017,7 +2005,7 @@ D: hand of Beren that once clasped a Silmaril.
 
 N:137:of Fingolfin
 I:31:5:4
-W:40:20:40:110000
+W:30:20:40:110000
 P:5:1d1:10:10:20
 F:DEX | RES_ACID | FREE_ACT | IGNORE_ACID | IGNORE_ELEC
 F:IGNORE_FIRE | IGNORE_COLD | ACTIVATE | HIDE_TYPE | SHOW_MODS
@@ -2062,10 +2050,10 @@ D: in his hand.
 
 N:140:'Paurannon'
 I:31:2:0
-W:40:80:25:50000
+W:40:20:25:50000
 P:2:1d1:0:0:25
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
 A:RESIST:100:100
 D:A set of handgear with multiple elements across its knuckleguards.
 

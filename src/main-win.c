@@ -86,7 +86,7 @@
 # define HELP_GENERAL "angband.chm"
 # define HELP_SPOILERS "angband.chm"
 #else /* HTML_HELP */
-# define HELP_GENERAL "angband.hlp"
+# define HELP_GENERAL "general.hlp"
 # define HELP_SPOILERS "spoilers.hlp"
 #endif /* HTML_HELP */
 
@@ -3332,7 +3332,7 @@ static void display_help(cptr filename)
 	else
 	{
 		plog_fmt("Cannot find help file: %s", tmp);
-		plog("Use the online help files instead.");
+		plog("Instead, hit ? to get help within the game.");
 	}
 }
 
@@ -5083,7 +5083,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	check_for_save_file(lpCmdLine);
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	prt("[Choose 'New' or 'Open' from the 'File' menu]", 40, 17);
 	Term_fresh();
 
 	/* Process messages forever */

@@ -22,8 +22,9 @@ V:0.4.1
 N:0:Guild quest
 W:0:0:0:0
 
-N:1:Sauron
-W:99:643:0:1
+# This replaces the Sauron and Morgoth quests
+N:1:Lurtz
+W:11:338:0:1
 
-N:2:Morgoth
-W:100:644:0:1
+N:2:Saruman
+W:12:569:0:1

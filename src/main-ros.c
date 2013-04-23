@@ -54,13 +54,13 @@
  *  contain characters that are valid as part of a RISC OS path variable.
  *  [eg. "Yin-Yangband" is not okay, "EyAngband" is.]
  */
-#define RISCOS_VARIANT	"NPPAngband"
+#define RISCOS_VARIANT	"Quickband"
 
 /*
  * AUTHORS
  *  For the info box. [eg. "Ben Harrison"]
  */
-#define AUTHORS		"Jeff Greene"
+#define AUTHORS		"Antoine"
 
 /*
  * PORTERS
@@ -73,7 +73,7 @@
  *  Iconbar icon sprite name eg. "!angband".  Note that this must be a valid
  *  sprite name; it may need modifying for long variant names.
  */
-#define ICONNAME	"!NPPAngbnd"
+#define ICONNAME	"!Quickband"
 
 /*
  * PDEADCHK

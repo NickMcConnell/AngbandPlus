@@ -1619,7 +1619,12 @@ static void calc_mana(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	msp = (long)adj_mag_mana[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 100;
+	// BB changed - mage-types get more mana
+	if (cp_ptr->spell_book == TV_MAGIC_BOOK){
+		msp = (long)adj_mag_mana[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 70;
+	} else {
+		msp = (long)adj_mag_mana[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 100;
+	}
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
@@ -1945,11 +1950,14 @@ static void calc_bonuses(void)
 	bool old_heavy_shoot;
 	bool old_heavy_wield;
 	bool old_icky_wield;
+	bool old_icky_shoot;
 
 	object_type *o_ptr;
 
 	u32b f1, f2, f3;
 
+	char out_val[50];
+	char temp[50];
 
 	/*** Memorize ***/
 
@@ -1978,6 +1986,7 @@ static void calc_bonuses(void)
 	old_heavy_shoot = p_ptr->heavy_shoot;
 	old_heavy_wield = p_ptr->heavy_wield;
 	old_icky_wield = p_ptr->icky_wield;
+	old_icky_shoot = p_ptr->icky_shoot;
 
 
 	/*** Reset ***/
@@ -2010,7 +2019,7 @@ static void calc_bonuses(void)
 	/* Clear all the flags */
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
-	p_ptr->exp_drain = FALSE;
+	p_ptr->life_drain = FALSE;
 	p_ptr->bless_blade = FALSE;
 	p_ptr->impact = FALSE;
 	p_ptr->see_inv = FALSE;
@@ -2106,7 +2115,7 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
-	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+	if (f3 & (TR3_DRAIN_EXP)) p_ptr->life_drain = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2206,7 +2215,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
-		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+		if (f3 & (TR3_DRAIN_EXP)) p_ptr->life_drain = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2423,6 +2432,9 @@ static void calc_bonuses(void)
 	/* Searching slows the player down */
 	if (p_ptr->searching) p_ptr->pspeed -= 10;
 
+	// BB added: Dex modifies speed
+	p_ptr->pspeed += adj_dex_spd[p_ptr->stat_ind[A_DEX]];
+
 	/* Sanity check on extreme speeds */
 	if (p_ptr->pspeed < 0) p_ptr->pspeed = 0;
 	if (p_ptr->pspeed > 199) p_ptr->pspeed = 199;
@@ -2506,16 +2518,21 @@ static void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
 
-	/* It is hard to carholdry a heavy bow */
+	/* It is hard to carry a heavy bow */
 	if (hold < o_ptr->weight / 10)
 	{
-		/* Hard to wield a heavy bow */
+		/* Hard to hold a heavy bow */
 		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
 		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
 
 		/* Heavy Bow */
 		p_ptr->heavy_shoot = TRUE;
 	}
+
+	// BB added
+	/* Assume okay */
+	p_ptr->icky_shoot = FALSE;
+	/* Priest weapon penalty for bows and crossbows */
 
 	/* Analyze launcher */
 	if (o_ptr->k_idx)
@@ -2573,6 +2590,19 @@ static void calc_bonuses(void)
 			}
 		}
 
+
+
+		if ((cp_ptr->flags & CF_BLESS_WEAPON) && (o_ptr->tval == TV_BOW) &&
+		((o_ptr->sval == SV_SHORT_BOW) || (o_ptr->sval == SV_LONG_BOW) || (o_ptr->sval == SV_LIGHT_XBOW) || (o_ptr->sval == SV_HEAVY_XBOW)))
+		{
+
+			/* Reduce the skill */
+			p_ptr->skill_thb -= 6;
+
+			/* Icky weapon */
+			p_ptr->icky_shoot = TRUE;
+		}
+
 		/* Apply special flags */
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
@@ -2619,25 +2649,28 @@ static void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int divide_by;
+		// BB changed this section:
 
-		/* Enforce a minimum "weight" (tenth pounds) */
-		divide_by = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+		int str, dex;
+		int mult;
 
-		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / divide_by);
+		str = p_ptr->stat_ind[A_STR];
+		dex = p_ptr->stat_ind[A_DEX];
 
-		/* Maximal value */
-		if (str_index > 11) str_index = 11;
+		str_index = 13 + str + (p_ptr->lev * cp_ptr->att_multiply) / 12; /* 18 is crappy, 30 is ok for a low level fighter, 40 or 50 for a well developed fighter */
+		dex_index = 13 + dex; /* 18 is crappy, 25 is ok for a low level fighter, 30 is pretty good */
 
-		/* Index by dexterity */
-		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+		mult = str_index * dex_index;
 
-		/* Maximal value */
-		if (dex_index > 11) dex_index = 11;
+		if (mult < 750) p_ptr->num_blow=1;
+		else if (mult < 1000) p_ptr->num_blow=2;
+		else if (mult < 1350) p_ptr->num_blow=3;
+		else if (mult < 1800) p_ptr->num_blow=4;
+		else p_ptr->num_blow = 5;
 
-		/* Use the blows table */
-		p_ptr->num_blow = blows_table[str_index][dex_index];
+		if ((o_ptr->weight/2 + 70) > (str*10)) p_ptr->num_blow -= 1;
+
+		// return to original code
 
 		/* Maximal value */
 		if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
@@ -2664,12 +2697,12 @@ static void calc_bonuses(void)
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */
-		p_ptr->to_h -= 2;
-		p_ptr->to_d -= 2;
+		p_ptr->to_h -= 4;
+		p_ptr->to_d -= 4;
 
 		/* Reduce the mental bonuses */
-		p_ptr->dis_to_h -= 2;
-		p_ptr->dis_to_d -= 2;
+		p_ptr->dis_to_h -= 4;
+		p_ptr->dis_to_d -= 4;
 
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
@@ -2826,7 +2859,7 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->icky_wield)
 		{
-			msg_print("You do not feel comfortable with your weapon.");
+			msg_print("You do not feel comfortable with your weapon. Use a blunt or blessed weapon.");
 		}
 		else if (inventory[INVEN_WIELD].k_idx)
 		{
@@ -2835,6 +2868,25 @@ static void calc_bonuses(void)
 		else
 		{
 			msg_print("You feel more comfortable after removing your weapon.");
+		}
+	}
+
+	// BB added
+	/* Take note when "illegal weapon" changes */
+	if (old_icky_shoot != p_ptr->icky_shoot)
+	{
+		/* Message */
+		if (p_ptr->icky_shoot)
+		{
+			msg_print("You do not feel comfortable with your missile weapon. Use a sling instead.");
+		}
+		else if (inventory[INVEN_BOW].k_idx)
+		{
+			msg_print("You feel comfortable with your missile weapon.");
+		}
+		else
+		{
+			msg_print("You feel more comfortable after removing your missile weapon.");
 		}
 	}
 

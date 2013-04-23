@@ -159,8 +159,9 @@ static int value_check_aux2(const object_type *o_ptr)
 	/* Good weapon bonuses */
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD_WEAK);
 
-	/* No feeling */
-	return (0);
+	// BB changed the default - used to return 0
+	/* Default to "average" */
+	return (INSCRIP_AVERAGE);
 }
 /*
  * Returns TRUE if this object can be pseudo-ided.
@@ -229,12 +230,12 @@ static void sense_inventory(void)
 
 	if (cp_ptr->flags & CF_PSEUDO_ID_IMPROV)
 	{
-		if (0 != rand_int(cp_ptr->sense_base / (plev * plev + cp_ptr->sense_div)))
+		if (0 != rand_int(0.3 * cp_ptr->sense_base / (plev * plev + cp_ptr->sense_div)))
 			return;
 	}
 	else
 	{
-		if (0 != rand_int(cp_ptr->sense_base / (plev + cp_ptr->sense_div)))
+		if (0 != rand_int(0.3 * cp_ptr->sense_base / (plev + cp_ptr->sense_div)))
 			return;
 	}
 
@@ -738,8 +739,9 @@ static void process_world(void)
      * but only if you are within 10 levels of your max depth
 	 * and not resting in the town.
 	 */
+	// BB changed this to 3 levels
 	if ((recent_failed_thefts > 0) && (p_ptr->depth) && (!(turn % 5000))
-		&& ((p_ptr->depth + 10) >= (p_ptr->max_depth)))
+		&& ((p_ptr->depth + 3) >= (p_ptr->max_depth)))
 	{
 		recent_failed_thefts --;
 
@@ -883,6 +885,7 @@ static void process_world(void)
 	if ((p_ptr->poisoned) && (!(p_ptr->immune_pois))) regen_amount = 0;
 	if (p_ptr->stun) regen_amount = 0;
 	if (p_ptr->cut) regen_amount = 0;
+	if (p_ptr->life_drain) regen_amount = regen_amount / 10;
 
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
@@ -920,13 +923,15 @@ static void process_world(void)
 	/* Paralysis */
 	if (p_ptr->paralyzed)
 	{
-		(void)set_paralyzed(p_ptr->paralyzed - 1);
+		// BB changed
+		(void)set_paralyzed(MAX(0,p_ptr->paralyzed - 3));
 	}
 
 	/* Confusion */
 	if (p_ptr->confused)
 	{
-		(void)set_confused(p_ptr->confused - 1);
+		// BB changed
+		(void)set_confused(MAX(0,p_ptr->confused - 3));
 	}
 
 	/* Afraid */
@@ -1094,17 +1099,6 @@ static void process_world(void)
 	p_ptr->update |= (PU_TORCH);
 
 	/*** Process Inventory ***/
-
-	/* Handle experience draining */
-	if (p_ptr->exp_drain)
-	{
-		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
-		{
-			p_ptr->exp--;
-			p_ptr->max_exp--;
-			check_experience();
-		}
-	}
 
 	/* Process equipment */
 	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -1303,7 +1297,8 @@ static void process_world(void)
 	}
 
 	/* Delayed level feelings */
-	if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % 100)))
+	// BB made these turn up much more quickly
+	if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % 20)))
 	{
 
 		int chance;
@@ -2780,10 +2775,10 @@ static void dungeon(void)
 	/*** Process this dungeon level ***/
 
 	/* Reset the monster generation level */
-	monster_level = p_ptr->depth;
+	monster_level = effective_depth(p_ptr->depth);
 
 	/* Reset the object generation level */
-	object_level = p_ptr->depth;
+	object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 
 	/* Main loop */
 	while (TRUE)

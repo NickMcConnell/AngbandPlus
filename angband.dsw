@@ -3,22 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "Angband"=.\Angband.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name tolua
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "tolua"=.\tolua.dsp - Package Owner=<4>
+Project: "Angband"=".\Angband.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{

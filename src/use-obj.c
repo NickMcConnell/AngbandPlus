@@ -788,7 +788,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, effective_depth(p_ptr->depth), 0))
 				{
 					*ident = TRUE;
 				}
@@ -800,7 +800,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
+				if (summon_specific(py, px, effective_depth(p_ptr->depth), SUMMON_UNDEAD))
 				{
 					*ident = TRUE;
 				}
@@ -811,7 +811,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_SUMMON_UNIQUE:
 		{
 
-			if (summon_specific(py, px, p_ptr->depth, SUMMON_UNIQUE))
+			if (summon_specific(py, px, effective_depth(p_ptr->depth), SUMMON_UNIQUE))
 			{
 				*ident = TRUE;
 			}
@@ -1059,7 +1059,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			object_type object_type_body;
 
 			/*artifact power is based on depth*/
-			int randart_power = 10 + p_ptr->depth;
+			int randart_power = 10 + effective_depth(p_ptr->depth);
 
 			if ((adult_no_artifacts) || (adult_no_xtra_artifacts))
 			{
@@ -1156,7 +1156,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		{
 			for (k = 0; k < randint(4); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, effective_depth(p_ptr->depth), 0))
 				{
 					*ident = TRUE;
 				}
@@ -2174,6 +2174,13 @@ static bool activate_object(object_type *o_ptr)
 			{
 				msg_format("Your %s twists space around you...", o_name);
 				teleport_player(100);
+				break;
+			}
+
+			case ACT_TELE_LVL:
+			{
+				msg_format("Your %s pluck you away...", o_name);
+				teleport_player_level(-1);
 				break;
 			}
 

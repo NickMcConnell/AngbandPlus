@@ -135,7 +135,7 @@ void do_cmd_go_down(void)
 
 	/* Go down a shaft if allowed */
 	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_MORE_SHAFT) &&
-	    (!quest) && (p_ptr->depth < MAX_DEPTH - 1))
+	    (!quest) && (p_ptr->depth < MAX_REACHABLE_DEPTH - 1))
 	{
 		p_ptr->depth++;
 
@@ -360,7 +360,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 
 	/* No longer opening a chest */
 	object_generation_mode = OB_GEN_MODE_NORMAL;
@@ -438,7 +438,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("You are enveloped in a cloud of smoke!");
 		for (i = 0; i < num; i++)
 		{
-			(void)summon_specific(y, x, p_ptr->depth, 0);
+			(void)summon_specific(y, x, effective_depth(p_ptr->depth), 0);
 		}
 	}
 
@@ -1511,7 +1511,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* XXX XXX XXX Variable power? */
 
 	/* Extract trap "power" */
-	power = 5 + p_ptr->depth / 4;
+	power = 5 + effective_depth(p_ptr->depth) / 4;
 
 	/* Prevent the player's own traps granting exp. */
 	if (cave_mon_trap_bold(y,x))

@@ -3519,8 +3519,13 @@ void do_cmd_feeling(void)
 		return;
 	}
 
+	// BB added
+    if (challenge() < 10){
+		msg_print("This level doesn't feel like a challenge... try adventuring deeper.");
+	}
+
 	/* Verify the feeling */
-	if (feeling >= LEV_THEME_HEAD)
+	else if (feeling >= LEV_THEME_HEAD)
 	{
 
 		/*print out a message about a themed level*/

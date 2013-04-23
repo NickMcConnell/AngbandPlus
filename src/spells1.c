@@ -353,7 +353,7 @@ void teleport_player_level(int who)
 	 */
 	if ((kind_of_quest == QUEST_FIXED) ||
 	    (kind_of_quest == QUEST_FIXED_U) ||
-	    (p_ptr->depth >= MAX_DEPTH-1))
+	    (p_ptr->depth == MAX_REACHABLE_DEPTH))
 	{
 		go_up = TRUE;
 	}
@@ -391,7 +391,8 @@ void teleport_player_level(int who)
 	/*We don't have a direction yet, pick one at random*/
 	if ((!go_up) && (!go_down))
 	{
-		if (one_in_(2)) go_up = TRUE;
+		// BB changed - now more likely to teleport downwards
+		if (one_in_(3)) go_up = TRUE;
 		else go_down = TRUE;
 	}
 
@@ -1581,6 +1582,7 @@ bool apply_disenchant(int mode)
 static void apply_nexus(const monster_type *m_ptr, int who)
 {
 	int max1, cur1, max2, cur2, ii, jj;
+			char tmp[32];
 
 	switch (randint(7))
 	{
@@ -1619,21 +1621,24 @@ static void apply_nexus(const monster_type *m_ptr, int who)
 
 			msg_print("Your body starts to scramble...");
 
-			/* Pick a pair of stats */
-			ii = rand_int(A_MAX);
-			for (jj = ii; jj == ii; jj = rand_int(A_MAX)) /* loop */;
+			// BB changed
+			do_cmd_rerate();
 
-			max1 = p_ptr->stat_max[ii];
-			cur1 = p_ptr->stat_cur[ii];
-			max2 = p_ptr->stat_max[jj];
-			cur2 = p_ptr->stat_cur[jj];
+			///* Pick a pair of stats */
+			//ii = rand_int(A_MAX);
+			//for (jj = ii; jj == ii; jj = rand_int(A_MAX)) /* loop */;
 
-			p_ptr->stat_max[ii] = max2;
-			p_ptr->stat_cur[ii] = cur2;
-			p_ptr->stat_max[jj] = max1;
-			p_ptr->stat_cur[jj] = cur1;
+			//max1 = p_ptr->stat_max[ii];
+			//cur1 = p_ptr->stat_cur[ii];
+			//max2 = p_ptr->stat_max[jj];
+			//cur2 = p_ptr->stat_cur[jj];
 
-			p_ptr->update |= (PU_BONUS);
+			//p_ptr->stat_max[ii] = max2;
+			//p_ptr->stat_cur[ii] = cur2;
+			//p_ptr->stat_max[jj] = max1;
+			//p_ptr->stat_cur[jj] = cur1;
+
+			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW);
 
 			break;
 		}
@@ -2972,10 +2977,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			if (seen) obvious = TRUE;
 
 			/* Powerful monsters can resist */
-			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(2))) ||
-				(r_ptr->flags3 & (RF3_NO_SLOW)) ||
+			if ((r_ptr->flags3 & (RF3_NO_SLOW)) ||
 			    ((r_ptr->level + randint(MAX(4, r_ptr->level / 2))) >
-				 (randint(dam) + charisma_adjustment(y, x))))
+				 (3*(randint(dam) + charisma_adjustment(y, x))/2)))
 			{
 				note = " is unaffected!";
 				obvious = FALSE;
@@ -2986,7 +2990,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			/* Normal monsters slow down */
 			else
 			{
-				do_slow = dam;
+				do_slow = 2 * dam / 3;
 			}
 
 			/* No "real" damage */
@@ -3001,10 +3005,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			if (seen) obvious = TRUE;
 
 			/* Attempt a saving throw */
-			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(2))) ||
-			    (r_ptr->flags3 & (RF3_NO_SLEEP)) ||
+			if ((r_ptr->flags3 & (RF3_NO_SLEEP)) ||
 			    ((r_ptr->level + randint(MAX(4, r_ptr->level / 2))) >
-				 (randint(dam) + charisma_adjustment(y, x))))
+				 (3*(randint(dam) + charisma_adjustment(y, x))/2)))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_SLEEP))
@@ -3038,10 +3041,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			do_conf = damroll(3, (dam / 2)) + 1;
 
 			/* Attempt a saving throw */
-			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(2))) ||
-			    (r_ptr->flags3 & (RF3_NO_CONF)) ||
+			// BB changed
+			if ((r_ptr->flags3 & (RF3_NO_CONF)) ||
 			    ((r_ptr->level + randint(MAX(4, r_ptr->level / 2))) >
-				 (randint(dam) + charisma_adjustment(y, x))))
+				 (3*(randint(dam) + charisma_adjustment(y, x))/2)))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -4326,7 +4329,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Spores - poison, cause disease */
 		case GF_SPORE:
 		{
-			int power = (who > 0 ? r_ptr->level : p_ptr->depth);
+			int power = (who > 0 ? r_ptr->level : effective_depth(p_ptr->depth));
 
 			if (blind) msg_print("You feel spores all around you...");
 

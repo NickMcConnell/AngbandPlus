@@ -3664,6 +3664,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
  */
 void do_cmd_help(void)
 {
+	msg_print("Warning, these help files have not been updated from NPPBand.");
+	msg_print("Anything and everything may be out of date for Quickband.");
+
 	/* Save screen */
 	screen_save();
 
@@ -5835,7 +5838,7 @@ void html_screenshot(cptr name)
 
 	fprintf(htm, "<HTML>\n");
 	fprintf(htm, "<HEAD>\n");
-    fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"NPPAngband %s\">\n", VERSION_STRING);
+    fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"Quickband %s\">\n", VERSION_STRING);
 	fprintf(htm, "<TITLE>%s</TITLE>\n", name);
 	fprintf(htm, "</HEAD>\n");
 	fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");

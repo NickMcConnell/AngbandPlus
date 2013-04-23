@@ -1771,7 +1771,7 @@ static bool make_artifact_special(object_type *o_ptr)
 
 	int k_idx;
 
-	int depth_check = ((object_generation_mode) ?  object_level : p_ptr->depth);
+	int depth_check = ((object_generation_mode) ?  object_level : effective_depth(p_ptr->depth));
 
 	/*no artifacts while making items for stores*/
 	if ((object_generation_mode >= OB_GEN_MODE_GEN_ST) &&
@@ -1854,7 +1854,7 @@ static bool make_artifact(object_type *o_ptr)
 {
 	int i;
 
-	int depth_check = ((object_generation_mode) ?  object_level : p_ptr->depth);
+	int depth_check = ((object_generation_mode) ?  object_level : effective_depth(p_ptr->depth));
 
 	/*no artifacts while making items for stores, this is a double-precaution*/
 	if ((object_generation_mode >= OB_GEN_MODE_GEN_ST) &&
@@ -1923,7 +1923,7 @@ static bool make_artifact(object_type *o_ptr)
 		}
 
 		/* We must make the "rarity roll" */
-		if (!one_in_(a_ptr->rarity)) continue;
+		if (!one_in_(1+a_ptr->rarity)) continue;
 
 		/* Mark the item as an artifact */
 		o_ptr->name1 = i;
@@ -2327,11 +2327,11 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Ring of Speed! */
 				case SV_RING_SPEED:
 				{
-					/* Base speed (1 to 10) */
-					o_ptr->pval = randint(5) + m_bonus(5, level);
+					/* Base speed (1 to 8) */
+					o_ptr->pval = randint(4) + m_bonus(4, level);
 
 					/* Super-charge the ring */
-					while (one_in_(2)) o_ptr->pval++;
+					while (one_in_(3)) o_ptr->pval++;
 
 					/* Cursed Ring */
 					if (power < 0)
@@ -2540,7 +2540,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->pval = 1 + m_bonus(5 + (level / 35), level);
 
 					/*cut it off at 6*/
-					if (o_ptr->pval > 6) o_ptr->pval = 6;
+					if (o_ptr->pval > 4) o_ptr->pval = 4;
 
 					/* Cursed */
 					if (power < 0)
@@ -2834,13 +2834,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
 	/* Base chance of being "good" */
-	test_good = lev + 10;
+	// BB changed - was 10+
+	test_good = lev + 20;
 
 	/* Maximal chance of being "good" */
 	if (test_good > 75) test_good = 75;
 
 	/* Base chance of being "great" */
-	test_great = test_good / 2;
+	// BB changed - was /2
+	test_great = 2 * test_good / 3;
 
 	/* Maximal chance of being "great" */
 	if (test_great > 20) test_great = 20;
@@ -2859,7 +2861,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	}
 
 	/* Roll for "cursed if not opening a chest" */
-	else if ((rand_int(100) < test_good) &&
+	// BB changed
+	else if ((rand_int(100) < test_good/3) &&
 		     (object_generation_mode != OB_GEN_MODE_CHEST))
 	{
 		/* Assume "cursed" */
@@ -3533,8 +3536,11 @@ static bool kind_is_alchemy(int k_idx)
 			if (k_ptr->sval == SV_SCROLL_ENCHANT_WEAPON_TO_DAM) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_ENCHANT_ARMOR) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_IDENTIFY) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_LIGHT) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_PHASE_DOOR) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_TELEPORT) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_TELEPORT_LEVEL) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_MONSTER_CONFUSION) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_MAPPING) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_DETECT_TRAP) return (TRUE);
@@ -3553,12 +3559,14 @@ static bool kind_is_alchemy(int k_idx)
 			if (k_ptr->sval == SV_POTION_RESIST_COLD) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RESIST_ELECTRICITY) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RESIST_ACID) return (TRUE);
+			if (k_ptr->sval == SV_POTION_RESIST_POISON) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RES_STR) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RES_INT) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RES_WIS) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RES_DEX) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RES_CON) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RES_CHR) return (TRUE);
+			if (k_ptr->sval == SV_POTION_HEALING) return (TRUE);
 		}
 
 	}
@@ -3597,6 +3605,7 @@ static bool kind_is_magic_shop(int k_idx)
 		{
 			if (allow_altered_inventory) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_CHARISMA) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_WISDOM) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_SLOW_DIGEST) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_RESIST_ACID) return (TRUE);
 			return (FALSE);
@@ -4638,10 +4647,10 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype)
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
-	    (k_info[j_ptr->k_idx].level > p_ptr->depth))
+	    (k_info[j_ptr->k_idx].level > effective_depth(p_ptr->depth)))
 	{
 		/* Rating increase */
-		rating += (k_info[j_ptr->k_idx].level - p_ptr->depth);
+		rating += (k_info[j_ptr->k_idx].level - effective_depth(p_ptr->depth));
 
 		/* Cheat -- peek at items */
 		if (cheat_peek) object_mention(j_ptr);
@@ -5298,11 +5307,15 @@ void pick_trap(int y, int x)
 		/* Hack -- pick a trap */
 		feat = FEAT_TRAP_HEAD + rand_int(17);
 
+		// BB added
+		if (feat != FEAT_TRAP_HEAD + 0x01){ // Try again, we really wanted a trapdoor!
+			feat = FEAT_TRAP_HEAD + rand_int(17);}
+
 		/* HACK - no trap doors on quest levels  */
 		if ((feat == FEAT_TRAP_HEAD + 0x01) && (quest_check(p_ptr->depth))) continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
+		if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth == MAX_REACHABLE_DEPTH)) continue;
 
 		/*Hack - no summoing traps on themed levels*/
 		if ((feat == FEAT_TRAP_HEAD + 0x05) && (feeling >= LEV_THEME_HEAD)) continue;
@@ -6278,7 +6291,7 @@ void steal_object_from_monster(int y, int x)
 	object_type object_type_body;
 
 	/* Average dungeon and monster levels */
-	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	object_level = (challenge() * (effective_depth(p_ptr->depth) + r_ptr->level) / 2) / 10;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -6427,7 +6440,7 @@ void steal_object_from_monster(int y, int x)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)

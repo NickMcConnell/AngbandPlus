@@ -1034,7 +1034,7 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 
 	wr_byte(p_ptr->hitdie);
-	wr_byte(p_ptr->expfact);
+	wr_s16b(p_ptr->expfact);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);

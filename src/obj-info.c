@@ -324,6 +324,8 @@ int get_num_blows(const object_type *o_ptr, u32b f1)
 	int dex = 0;
 	int str_add = 0;
 	int dex_add = 0;
+	int mult;
+	char temp[50];
 
 	/* Scan the equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -387,25 +389,22 @@ int get_num_blows(const object_type *o_ptr, u32b f1)
 		else dex = ind;
 	}
 
-	/* Enforce a minimum "weight" (tenth pounds) */
-	div_weight = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+	// BB changed this section:
 
-	/* Get the strength vs weight */
-	str_index = (adj_str_blow[str] * cp_ptr->att_multiply / div_weight);
+	str_index = 13 + str + (p_ptr->lev * cp_ptr->att_multiply) / 12; /* 18 is crappy, 30 is ok for a low level fighter, 40 or 50 for a well developed fighter */
+	dex_index = 13 + dex; /* 18 is crappy, 25 is ok for a low level fighter, 30 is pretty good */
 
-	/* Maximal value */
-	if (str_index > 11) str_index = 11;
-	if (str_index < 0) str_index = 0;
+	mult = str_index * dex_index;
 
-	/* Index by dexterity */
-	dex_index = (adj_dex_blow[dex]);
+	if (mult < 750) blows=1;
+	else if (mult < 1000) blows=2;
+	else if (mult < 1350) blows=3;
+	else if (mult < 1800) blows=4;
+	else blows = 5;
 
-	/* Maximal value */
-	if (dex_index > 11) dex_index = 11;
-	if (dex_index < 0) dex_index = 0;
+	if ((o_ptr->weight/2 + 70) > (str*10)) blows -= 1;
 
-	/* Use the blows table */
-	blows = blows_table[str_index][dex_index];
+	// return to original code
 
 	/* Maximal value */
 	if (blows > cp_ptr->max_attacks) blows = cp_ptr->max_attacks;
@@ -440,12 +439,50 @@ static bool describe_attacks (const object_type *o_ptr, u32b f1)
 		if (n == 1) p_text_out("It gives you one attack per turn.  ");
 		else p_text_out(format("It gives you %d attacks per turn.  ", n));
 
+
 		return (TRUE);
 	}
 
 	return (FALSE);
 }
 
+// BB added
+/*
+ * Describe problems of a weapon
+ */
+static bool describe_problems (const object_type *o_ptr, u32b f3)
+{
+	int n = o_ptr->tval;
+	int m = o_ptr->sval;
+	int hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
+
+	if ((n == TV_DIGGING) || (n == TV_HAFTED) ||
+		(n == TV_POLEARM) || (n == TV_SWORD))
+	{
+		if (hold < o_ptr->weight / 10){
+			p_text_out("It is too heavy for you to wield effectively.  ");
+			return (TRUE);
+		}
+	}
+
+	if ((cp_ptr->flags & CF_BLESS_WEAPON) && !(f3 & (TR3_BLESSED))  &&
+	    ((n == TV_SWORD) || (n == TV_POLEARM)))
+	{
+		p_text_out("It would be against your faith for you to use it.  ");
+		return (TRUE);
+	}
+
+	if ((cp_ptr->flags & CF_BLESS_WEAPON) &&
+	    (n == TV_BOW) &&
+		((m == SV_SHORT_BOW) || (m == SV_LONG_BOW) || (m == SV_LIGHT_XBOW) || (m == SV_HEAVY_XBOW)))
+	{
+		p_text_out("It would be against your faith for you to use it.  ");
+		return (TRUE);
+	}
+
+
+	return (FALSE);
+}
 
 
 /*
@@ -548,7 +585,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 
 	/* Collect penalties */
 	if (f3 & (TR3_AGGRAVATE)) bad[bc++] = "aggravates creatures around you";
-	if (f3 & (TR3_DRAIN_EXP)) bad[bc++] = "drains experience";
+	if (f3 & (TR3_DRAIN_EXP)) bad[bc++] = "drains life";
 	if (f3 & (TR3_TELEPORT))  bad[bc++] = "induces random teleportation";
 
 	/* Deal with cursed stuff */
@@ -649,7 +686,8 @@ static cptr act_description[ACT_MAX] =
 	"resist electricity (20+d20 turns)",
 	"resist fire (20+d20 turns)",
 	"resist cold (20+d20 turns)",
-	"resist poison (20+d20 turns)"
+	"resist poison (20+d20 turns)",
+	"teleport level"
 };
 
 /*
@@ -913,6 +951,7 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
 	if (describe_attacks(o_ptr, f1)) something = TRUE;
+	if (describe_problems(o_ptr, f3)) something = TRUE;
 
 
 

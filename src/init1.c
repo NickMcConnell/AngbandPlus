@@ -672,7 +672,8 @@ static cptr a_info_act[ACT_MAX] =
 	"RES_ELEC",
 	"RES_FIRE",
 	"RES_COLD",
-	"RES_POIS"
+	"RES_POIS",
+	"TELE_LVL"
 };
 
 
@@ -2419,7 +2420,6 @@ errr parse_p_info(char *buf, header *head)
 
 	/* Current entry */
 	static player_race *pr_ptr = NULL;
-
 
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')

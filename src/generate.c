@@ -514,7 +514,7 @@ static int pick_up_stairs(void)
  */
 static int pick_down_stairs(void)
 {
-	if ((p_ptr->depth < MAX_DEPTH - 2) &&
+	if ((p_ptr->depth <= MAX_REACHABLE_DEPTH - 2) &&
 	    (!quest_check(p_ptr->depth + 1)))
 	{
 		if (one_in_(2)) return (FEAT_MORE_SHAFT);
@@ -537,14 +537,14 @@ void place_random_stairs(int y, int x)
 	{
 		cave_set_feat(y, x, FEAT_MORE);
 	}
-	else if ((quest_check(p_ptr->depth)) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if ((quest_check(p_ptr->depth)) || (p_ptr->depth == MAX_REACHABLE_DEPTH))
 	{
 		if (one_in_(2))	cave_set_feat(y, x, FEAT_LESS);
 		else cave_set_feat(y, x, FEAT_LESS_SHAFT);
 	}
 	else if (one_in_(2))
 	{
-		if ((quest_check(p_ptr->depth + 1)) || (p_ptr->depth <= 1))
+		if ((quest_check(p_ptr->depth + 1)) || (p_ptr->depth <= 1) || (p_ptr->depth == MAX_REACHABLE_DEPTH-1))
 			cave_set_feat(y, x, FEAT_MORE);
 		else if (one_in_(2)) cave_set_feat(y, x, FEAT_MORE);
 		else cave_set_feat(y, x, FEAT_MORE_SHAFT);
@@ -1073,7 +1073,8 @@ static void build_type1(int y0, int x0)
 	int light = FALSE;
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	// BB changed
+	if (effective_depth(p_ptr->depth) <= randint(35)) light = TRUE;
 
 	/* Pick a room size */
 	y1 = y0 - randint(4);
@@ -1134,7 +1135,8 @@ static void build_type2(int y0, int x0)
 
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	// BB changed
+	if (effective_depth(p_ptr->depth) <= randint(35)) light = TRUE;
 
 
 	/* Determine extents of room (a) */
@@ -1195,7 +1197,8 @@ static void build_type3(int y0, int x0)
 
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	// BB changed
+	if (effective_depth(p_ptr->depth) <= randint(35)) light = TRUE;
 
 
 	/* Pick inner dimension */
@@ -1343,7 +1346,8 @@ static void build_type4(int y0, int x0)
 
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	// BB changed
+	if (effective_depth(p_ptr->depth) <= randint(35)) light = TRUE;
 
 
 	/* Large room */
@@ -2043,6 +2047,7 @@ void get_mon_hook(byte theme)
 /*return a theme for a monster nest*/
 byte get_nest_theme(int nestlevel)
 {
+
 	int mindepth, whatnest;
 
 	/*enforce minimum depth, to keep weak nests out of deep levels*/
@@ -2112,7 +2117,7 @@ byte get_pit_theme(int pitlevel)
 		else if (one_in_(2))	return LEV_THEME_TROLL;
 		else			return LEV_THEME_OGRE;
 	}
-	else if ((whatpit <= 50) && (p_ptr->depth <= 60))
+	else if ((whatpit <= 50) && (effective_depth(p_ptr->depth) <= 60))
 	{
 		/* Hound, youngdragon, or hydra pit */
 		if (one_in_(3))			return LEV_THEME_HOUND;
@@ -2121,7 +2126,7 @@ byte get_pit_theme(int pitlevel)
 	}
 
 	/* Giant pit */
-	else if ((whatpit <= 60) && (p_ptr->depth <= 80))	return LEV_THEME_GIANT;
+	else if ((whatpit <= 60) && (effective_depth(p_ptr->depth) <= 80))	return LEV_THEME_GIANT;
 
 	/* Dragon pit */
 	else if (whatpit <= 80)
@@ -2225,7 +2230,7 @@ static void build_type_nest(int y0, int x0)
 
 	/*select the theme, or get the quest level theme*/
 	if (is_quest_level) room_theme = q_ptr->theme;
-	else room_theme = get_nest_theme(p_ptr->depth);
+	else room_theme = get_nest_theme(effective_depth(p_ptr->depth));
 
 	/*get the mon_hook*/
 	get_mon_hook(room_theme);
@@ -2237,7 +2242,7 @@ static void build_type_nest(int y0, int x0)
 	for (i = 0; i < 64; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth +
+		what[i] = get_mon_num(effective_depth(p_ptr->depth) +
 							  (is_quest_level ? PIT_NEST_QUEST_BOOST : NEST_LEVEL_BOOST));
 
 		/* Notice failure */
@@ -2267,8 +2272,8 @@ static void build_type_nest(int y0, int x0)
 	rating += 10;
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
-	if ((p_ptr->depth <= 40) &&
-	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
+	if ((effective_depth(p_ptr->depth) <= 40) &&
+	    (randint(effective_depth(p_ptr->depth) * effective_depth(p_ptr->depth) + 1) < 300))
 	{
 		good_item_flag = TRUE;
 	}
@@ -2300,7 +2305,7 @@ static void build_type_nest(int y0, int x0)
 	 * less than the level of the hardest
 	 * monster minus the current level
 	 */
-	harder_nest_check = r_info[what[63]].level - p_ptr->depth;
+	harder_nest_check = r_info[what[63]].level - effective_depth(p_ptr->depth);
 
 	/*Hack - make some pits harder if deeper*/
 	if (randint(100) < harder_nest_check)
@@ -2456,7 +2461,7 @@ static void build_type_pit(int y0, int x0)
 
 	/* Choose a pit type */
 	if(is_quest_level) pit_theme = q_ptr->theme;
-	else pit_theme = get_pit_theme(p_ptr->depth);
+	else pit_theme = get_pit_theme(effective_depth(p_ptr->depth));
 
 	/*get the monster hook*/
 	get_mon_hook(pit_theme);
@@ -2468,7 +2473,7 @@ static void build_type_pit(int y0, int x0)
 	for (i = 0; i < 16; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth +
+		what[i] = get_mon_num(effective_depth(p_ptr->depth) +
 							  (is_quest_level ? PIT_NEST_QUEST_BOOST : PIT_LEVEL_BOOST));
 
 		/* Notice failure */
@@ -2514,7 +2519,7 @@ static void build_type_pit(int y0, int x0)
 	 * less than the level of the hardest
 	 * monster minus the current level
 	 */
-	harder_pit_check = r_info[what[15]].level - p_ptr->depth;
+	harder_pit_check = r_info[what[15]].level - effective_depth(p_ptr->depth);
 
 	/*Hack - make some pits harder if deeper*/
 	if (randint(100) < harder_pit_check)
@@ -2551,8 +2556,8 @@ static void build_type_pit(int y0, int x0)
 	rating += 10;
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
-	if ((p_ptr->depth <= 40) &&
-	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
+	if ((effective_depth(p_ptr->depth) <= 40) &&
+	    (randint(effective_depth(p_ptr->depth) * effective_depth(p_ptr->depth) + 1) < 300))
 	{
 		good_item_flag = TRUE;
 	}
@@ -2780,63 +2785,63 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Monster */
 				case '&':
 				{
-					monster_level = p_ptr->depth + 4;
+					monster_level = effective_depth(p_ptr->depth) + 4;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
+					monster_level = effective_depth(p_ptr->depth);
 					break;
 				}
 
 				/* Meaner monster */
 				case '@':
 				{
-					monster_level = p_ptr->depth + 8;
+					monster_level = effective_depth(p_ptr->depth) + 8;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
+					monster_level = effective_depth(p_ptr->depth);
 					break;
 				}
 
 				/* Meaner monster, plus treasure */
 				case '9':
 				{
-					monster_level = p_ptr->depth + 7;
+					monster_level = effective_depth(p_ptr->depth) + 7;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 7;
+					monster_level = effective_depth(p_ptr->depth);
+					object_level = (challenge() * effective_depth(p_ptr->depth)) / 10 + 7;
 					place_object(y, x, TRUE, FALSE, DROP_TYPE_UNTHEMED);
-					object_level = p_ptr->depth;
+					object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 					break;
 				}
 
 				/* Nasty monster and treasure */
 				case '8':
 				{
-					monster_level = p_ptr->depth + 20;
+					monster_level = effective_depth(p_ptr->depth) + 20;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 15;
+					monster_level = effective_depth(p_ptr->depth);
+					object_level = (challenge() * effective_depth(p_ptr->depth)) / 10 + 15;
 					place_object(y, x, TRUE, TRUE, DROP_TYPE_UNTHEMED);
-					object_level = p_ptr->depth;
+					object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 					break;
 				}
 
 				/* Nasty monster and a chest */
 				case '~':
 				{
-					monster_level = p_ptr->depth + 20;
+					monster_level = effective_depth(p_ptr->depth) + 20;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 15;
+					monster_level = effective_depth(p_ptr->depth);
+					object_level = (challenge() * effective_depth(p_ptr->depth)) / 10 + 15;
 					place_object(y, x, FALSE, FALSE, DROP_TYPE_CHEST);
-					object_level = p_ptr->depth;
+					object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 					break;
 				}
 
 				/* Quest chest */
 				case 'Q':
 				{
-					monster_level = p_ptr->depth + 10;
+					monster_level = effective_depth(p_ptr->depth) + 10;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
+					monster_level = effective_depth(p_ptr->depth);
 
 					/*randomly pick from several quest artifacts spots to place the artifact*/
 					if ((quest_artifact_spots > 0) && (one_in_(quest_artifact_spots)))
@@ -2849,9 +2854,9 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					else
 					{
 						/*place a decent sized object*/
-						object_level = p_ptr->depth + 7;
+						object_level = (challenge() * effective_depth(p_ptr->depth)) / 10 + 7;
 						place_object(y, x, TRUE, FALSE, DROP_TYPE_UNTHEMED);
-						object_level = p_ptr->depth;
+						object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 
 						/*This quest artifact spot is no longer an option*/
 						quest_artifact_spots --;
@@ -2865,15 +2870,15 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				{
 					if (rand_int(100) < 50)
 					{
-						monster_level = p_ptr->depth + 3;
+						monster_level = effective_depth(p_ptr->depth) + 3;
 						place_monster(y, x, TRUE, TRUE);
-						monster_level = p_ptr->depth;
+						monster_level = effective_depth(p_ptr->depth);
 					}
 					if (rand_int(100) < 50)
 					{
-						object_level = p_ptr->depth + 5;
+						object_level = (challenge() * effective_depth(p_ptr->depth)) / 10 + 5;
 						place_object(y, x, FALSE, FALSE, DROP_TYPE_UNTHEMED);
-						object_level = p_ptr->depth;
+						object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 					}
 					break;
 				}
@@ -2929,8 +2934,8 @@ static void build_type7(int y0, int x0)
 	rating += v_ptr->rat;
 
 	/* (Sometimes) Cause a special feeling */
-	if ((p_ptr->depth <= 50) ||
-	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
+	if ((effective_depth(p_ptr->depth) <= 50) ||
+	    (randint((effective_depth(p_ptr->depth)-40) * (effective_depth(p_ptr->depth)-40) + 1) < 400))
 	{
 		good_item_flag = TRUE;
 	}
@@ -3100,8 +3105,8 @@ static void build_type8(int y0, int x0)
 	rating += v_ptr->rat;
 
 	/* (Sometimes) Cause a special feeling */
-	if ((p_ptr->depth <= 50) ||
-	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
+	if ((effective_depth(p_ptr->depth) <= 50) ||
+	    (randint((effective_depth(p_ptr->depth)-40) * (effective_depth(p_ptr->depth)-40) + 1) < 400))
 	{
 		good_item_flag = TRUE;
 	}
@@ -3473,7 +3478,8 @@ static void build_type_starburst(int y0, int x0, bool giant_room)
 	}
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	// BB changed
+	if (effective_depth(p_ptr->depth) <= randint(35)) light = TRUE;
 
 	if (one_in_(2))
     	generate_starburst_room (y0 - dy, x0 - dx, y0 + dy, x0 + dx,
@@ -3948,7 +3954,7 @@ static bool alloc_stairs(int feat, int num)
 		/* Quest -- must go up */
 		else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
 				 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
-				 (p_ptr->depth >= MAX_DEPTH-1))
+				 (p_ptr->depth == MAX_REACHABLE_DEPTH))
 		{
 			/* Clear previous contents, add up stairs */
 			if (x != 0) cave_set_feat(yy, xx, FEAT_LESS);
@@ -4154,7 +4160,7 @@ static bool place_traps_rubble_player(void)
 	int k;
 
 	/* Basic "amount" */
-	k = (p_ptr->depth / 3);
+	k = (effective_depth(p_ptr->depth) / 3);
 	if (k > 10) k = 10;
 	if (k < 2) k = 2;
 
@@ -4176,7 +4182,7 @@ static bool place_traps_rubble_player(void)
 	 * Hack - place up to 10 "marked squares" in the dungeon if
 	 * player is close to max_depth
 	 */
-	if ((p_ptr->depth + 3) > p_ptr->max_depth) place_marked_squares();
+	if ((effective_depth(p_ptr->depth) + 3) > p_ptr->max_depth) place_marked_squares();
 
 	return (TRUE);
 
@@ -4330,7 +4336,7 @@ static bool room_build(int by0, int bx0, int typ)
 	int by1, bx1, by2, bx2;
 
 	/* Restrict level */
-	if (p_ptr->depth < room[typ].level) return (FALSE);
+	if (effective_depth(p_ptr->depth) < room[typ].level) return (FALSE);
 
 	/* Restrict "crowded" rooms */
 	if (dun->crowded && ((typ == 5) || (typ == 6))) return (FALSE);
@@ -4504,9 +4510,9 @@ static byte max_themed_monsters(const monster_race *r_ptr, u32b max_power)
 	if (r_ptr->flags1 & RF1_UNIQUE) return (r_ptr->max_num);
 
 	/*don't allow 99 of the out of depth monsters*/
-	if (r_ptr->level > p_ptr->depth + 3)
+	if (r_ptr->level > effective_depth(p_ptr->depth) + 3)
 	{
-		int lev_ood = p_ptr->depth - r_ptr->level;
+		int lev_ood = effective_depth(p_ptr->depth) - r_ptr->level;
 
 		/*Too strong*/
 		if (r_ptr->mon_power > max_power) return (0);
@@ -4514,9 +4520,9 @@ static byte max_themed_monsters(const monster_race *r_ptr, u32b max_power)
 		else if (lev_ood > 5) return (MON_RARE_FREQ);
 		else return (MON_LESS_FREQ);
 	}
-	else if ((r_ptr->level < p_ptr->depth - 5) && (r_ptr->level < 75))
+	else if ((r_ptr->level < effective_depth(p_ptr->depth) - 5) && (r_ptr->level < 75))
 	{
-		int lev_ood = p_ptr->depth - r_ptr->level;
+		int lev_ood = effective_depth(p_ptr->depth) - r_ptr->level;
 
 		/*Too weak*/
 		if (r_ptr->mon_power < max_power / 20) return (0);
@@ -4630,7 +4636,7 @@ static bool build_themed_level(void)
 
 	/*select the monster theme, get the feeling*/
 	if (is_quest_level) level_theme = q_ptr->theme;
-	else level_theme = get_level_theme(p_ptr->depth);
+	else level_theme = get_level_theme(effective_depth(p_ptr->depth));
 
 	/*insert the feeling now*/
 	feeling = level_theme + LEV_THEME_HEAD;
@@ -4642,7 +4648,7 @@ static bool build_themed_level(void)
 	get_mon_num_prep();
 
 	/* Monsters can be up to 7 levels out of depth, 10 for a quest */
-	max_depth = p_ptr->depth +
+	max_depth = effective_depth(p_ptr->depth) +
 				(is_quest_level ? THEMED_LEVEL_QUEST_BOOST : THEMED_LEVEL_NO_QUEST_BOOST);
 
 	/*don't make it too easy if the player isn't diving very fast*/
@@ -4674,7 +4680,7 @@ static bool build_themed_level(void)
 	else monster_number = 250;
 
 	/* Reduce the number as monsters get more powerful*/
-	monster_number -= ((p_ptr->depth / 3) + randint(p_ptr->depth / 3));
+	monster_number -= ((effective_depth(p_ptr->depth) / 3) + randint(effective_depth(p_ptr->depth) / 3));
 
 	/*boundry control*/
 	if (monster_number > (z_info->m_max	- 25)) monster_number = z_info->m_max - 25;
@@ -4946,7 +4952,7 @@ static bool cave_gen(void)
 	obj_gen = Rand_normal(DUN_AMT_ROOM, 3);
 
 	/* Possible "destroyed" level */
-	if ((p_ptr->depth > 10) && (one_in_(DUN_DEST))) destroyed = TRUE;
+	if ((effective_depth(p_ptr->depth) > 10) && (one_in_(DUN_DEST))) destroyed = TRUE;
 
 	/*
 	 * If we have visited the quest level, and found the
@@ -5079,13 +5085,14 @@ static bool cave_gen(void)
 
 
 		/* Attempt an "unusual" room */
-		if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+		// BB changed
+		if (rand_int(DUN_UNUSUAL) < effective_depth_for_pits(effective_depth(p_ptr->depth)))
 		{
 			/* Roll for room type */
 			k = rand_int(100);
 
 			/* Attempt a very unusual room */
-			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+			if (rand_int(DUN_UNUSUAL) < effective_depth_for_pits(effective_depth(p_ptr->depth)))
 			{
 				/* Type 8 -- Greater vault (10%) */
 				if ((k < 10) && !greater_vault && room_build(by, bx, 8))
@@ -5591,10 +5598,10 @@ void generate_cave(void)
 		p_ptr->wx = MAX_DUNGEON_WID;
 
 		/* Reset the monster generation level */
-		monster_level = p_ptr->depth;
+		monster_level = effective_depth(p_ptr->depth);
 
 		/* Reset the object generation level */
-		object_level = p_ptr->depth;
+		object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 
 		/* Nothing special here yet */
 		good_item_flag = FALSE;
@@ -5617,7 +5624,7 @@ void generate_cave(void)
 	 	 * but make sure the player isn't scumming
 		 * or we are on a fixed quest level.
 	 	 */
-		else if(((p_ptr->depth >= 10) && (allow_altered_inventory) &&
+		else if(((effective_depth(p_ptr->depth) >= 10) && (allow_altered_inventory) &&
 	    		 (one_in_(THEMED_LEVEL_CHANCE)) && (allow_themed_levels) &&
 			 	 (!quest_check(p_ptr->depth))) ||
 				(quest_check(p_ptr->depth) == QUEST_THEMED_LEVEL))
@@ -5702,10 +5709,10 @@ void generate_cave(void)
 				/* Require "goodness", but always accept themed levels */
 				if ((feeling < LEV_THEME_HEAD) &&
 					((feeling > 9) ||
-				     ((p_ptr->depth >= 5) && (feeling > 8)) ||
-				     ((p_ptr->depth >= 10) && (feeling > 7)) ||
-				     ((p_ptr->depth >= 20) && (feeling > 6)) ||
-				     ((p_ptr->depth >= 40) && (feeling > 5))))
+				     ((effective_depth(p_ptr->depth >= 5)) && (feeling > 8)) ||
+				     ((effective_depth(p_ptr->depth >= 10)) && (feeling > 7)) ||
+				     ((effective_depth(p_ptr->depth >= 20)) && (feeling > 6)) ||
+				     ((effective_depth(p_ptr->depth >= 40)) && (feeling > 5))))
 				{
 					/* Give message to cheaters */
 					if (cheat_room || cheat_hear ||
@@ -5744,7 +5751,7 @@ void generate_cave(void)
 	/*All of Angband knows about a thief*/
 	if ((recent_failed_thefts > 30) && (p_ptr->depth))
 	{
-			msg_print("You hear hunting parties scouring the area for a notorious burgler.");
+			msg_print("You hear hunting parties scouring the area for a notorious burglar.");
 	}
 
 }

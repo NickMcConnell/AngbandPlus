@@ -1,4 +1,21 @@
+                           
+                           *****************
+                           *   QUICKBAND   *
+                           *****************
+                           
+     Quickband is a variant of NPPBand, which in turn is a variant of Angband. 
+           The mission is to descend to the 12th level of the dungeon
+                 and defeat the evil wizard Saruman of Many Colors.
+     
+                                        
+                    The author of Guild is Antoine.
+         He would welcome feedback at antoine.from.rgrd@gmail.com.
+                        
+                       
+           The NPPBand acknowledgement notice is given below.         
 
+
+ ---------------------------------------------------------------------------------
 
            **************************************************
            **  NPPAngband 0.4.1     A Variant of Angband   **

@@ -1834,7 +1834,7 @@ void py_steal(int y, int x)
 		theft_protection /= 2;
 	}
 
-	/*creatures who have guaranteed good or great times are very protective
+	/*creatures who have guaranteed good or great items are very protective
 	 *creatures who hold chests are INCREDIBLY protective -JG
 	 */
 	if (r_ptr->flags1 & (RF1_DROP_CHEST)) theft_protection *= 2;
@@ -1948,7 +1948,7 @@ void py_steal(int y, int x)
 			/*the town gets aggravated right away, and the shops close*/
 			mass_aggravate_monsters(0);
 
-			msg_print("The furious townspeople search for the notorius burgler!");
+			msg_print("The furious townspeople search for the notorious burglar!");
 
 			/*close the shops*/
 			for (x = 0; x < MAX_STORES; x++)

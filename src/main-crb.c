@@ -6532,7 +6532,7 @@ int main(void)
 	if (!game_in_progress)
 	{
 		/* Prompt the user - You may have to change this for some variants */
-		prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
+		prt("[Choose 'New' or 'Open' from the 'File' menu]", 40, 15);
 
 		/* Flush the prompt */
 		Term_fresh();

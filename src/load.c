@@ -983,7 +983,7 @@ static errr rd_extra(void)
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
-	rd_byte(&p_ptr->expfact);
+	rd_s16b(&p_ptr->expfact);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);

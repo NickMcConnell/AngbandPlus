@@ -749,21 +749,21 @@ static void wiz_reroll_item(object_type *o_ptr)
 		else if (ch == 'n' || ch == 'N')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+			apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, FALSE, FALSE);
 		}
 
 		/* Apply good magic, but first clear object */
 		else if (ch == 'g' || ch == 'g')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE);
+			apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, TRUE, FALSE);
 		}
 
 		/* Apply great magic, but first clear object */
 		else if (ch == 'e' || ch == 'e')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
+			apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, TRUE, TRUE);
 		}
 	}
 
@@ -867,7 +867,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 		/* Let us know what we are doing */
 		msg_format("Creating a lot of %s items. Base level = %d.",
-		           quality, p_ptr->depth);
+		           quality, effective_depth(p_ptr->depth));
 		message_flush();
 
 		/* Set counters to zero */
@@ -1170,7 +1170,7 @@ static void wiz_create_item(void)
 	object_prep(i_ptr, k_idx);
 
 	/* Apply magic (no messages, no artifacts) */
-	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+	apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
 	drop_near(i_ptr, -1, py, px);
@@ -1289,7 +1289,7 @@ static void do_cmd_wiz_jump(void)
 		char tmp_val[160];
 
 		/* Prompt */
-		sprintf(ppp, "Jump to level (0-%d): ", MAX_DEPTH-1);
+		sprintf(ppp, "Jump to level (0-%d): ", MAX_REACHABLE_DEPTH);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->depth);
@@ -1305,7 +1305,7 @@ static void do_cmd_wiz_jump(void)
 	if (p_ptr->command_arg < 0) p_ptr->command_arg = 0;
 
 	/* Paranoia */
-	if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
+	if (p_ptr->command_arg > MAX_REACHABLE_DEPTH) p_ptr->command_arg = MAX_REACHABLE_DEPTH;
 
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
@@ -1352,7 +1352,7 @@ static void do_cmd_wiz_learn(void)
 /*
  * Hack -- Rerate Hitpoints
  */
-static void do_cmd_rerate(void)
+extern void do_cmd_rerate(void)
 {
 	int min_value, max_value, i, percent;
 
@@ -1393,7 +1393,7 @@ static void do_cmd_rerate(void)
 	handle_stuff();
 
 	/* Message */
-	msg_format("Current Life Rating is %d/100.", percent);
+	// msg_format("Current Life Rating is %d/100.", percent);
 }
 
 
@@ -1409,7 +1409,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, p_ptr->depth, 0);
+		(void)summon_specific(py, px, effective_depth(p_ptr->depth), 0);
 	}
 }
 
@@ -1599,6 +1599,7 @@ void do_cmd_debug(void)
 	int px = p_ptr->px;
 
 	char cmd;
+	char tmp[32];
 
 
 	/* Get a "debug command" */
@@ -1797,6 +1798,7 @@ void do_cmd_debug(void)
 		case 'w':
 		{
 			wiz_lite();
+			
 			break;
 		}
 

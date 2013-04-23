@@ -1958,7 +1958,7 @@ void display_guild(void)
 		handle_stuff();
 
 		/* Reset object level */
-		object_level = p_ptr->depth;
+		object_level = (challenge() * effective_depth(p_ptr->depth)) / 10;
 
 		/* Wipe the quest */
 		guild_quest_wipe();

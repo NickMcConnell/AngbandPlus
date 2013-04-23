@@ -715,7 +715,7 @@ struct player_race
 	s16b r_thb;			/* combat (shooting) */
 
 	byte r_mhp;			/* Race hit-dice modifier */
-	byte r_exp;			/* Race experience factor */
+	s16b r_exp;			/* Race experience factor */
 
 	byte b_age;			/* base age */
 	byte m_age;			/* mod age */
@@ -863,7 +863,7 @@ struct player_type
 	byte oops;			/* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
-	byte expfact;		/* Experience factor */
+	s16b expfact;		/* Experience factor */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -1011,6 +1011,7 @@ struct player_type
 	bool heavy_wield;	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
 	bool icky_wield;	/* Icky weapon */
+	bool icky_shoot;	/* Icky shooter */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 
@@ -1070,7 +1071,7 @@ struct player_type
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */
-	bool exp_drain;		/* Experience draining */
+	bool life_drain;	/* Life draining */
 
 	bool bless_blade;	/* Blessed blade */
 

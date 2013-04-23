@@ -42,13 +42,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "NPPAngband"
+#define VERSION_NAME "Quickband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.4.1"
+#define VERSION_STRING	"1.0.5"
 
 
 /*
@@ -210,6 +210,9 @@
  */
 #define MAX_DEPTH	128
 
+
+// BB added: Deepest level the character can reach.
+#define MAX_REACHABLE_DEPTH 12
 
 /*
  * Maximum size of the "view" array (see "cave.c")
@@ -1316,9 +1319,9 @@
 #define SV_RING_FEATHER_FALL	7
 #define SV_RING_RESIST_FIRE		8
 #define SV_RING_RESIST_COLD		9
-#define SV_RING_SUSTAIN_STR		10
-#define SV_RING_SUSTAIN_INT		11
-#define SV_RING_SUSTAIN_WIS		12
+#define SV_RING_ROBUSTNESS		10
+#define SV_RING_ABLENESS		11
+#define SV_RING_SPRYNESS		12
 #define SV_RING_SUSTAIN_DEX		13
 #define SV_RING_SUSTAIN_CON		14
 #define SV_RING_SUSTAIN_CHR		15
@@ -4027,8 +4030,9 @@
 #define ACT_RES_FIRE			52
 #define ACT_RES_COLD			53
 #define ACT_RES_POIS			54
+#define ACT_TELE_LVL			55
 
-#define ACT_MAX                 55
+#define ACT_MAX                 56
 
 /*
  * HACK - define if the source contains the cleanup_angband() function.

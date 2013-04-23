@@ -2524,7 +2524,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	calc_monster_speed(y, x);
 
 	/* Powerful monster */
-	if (r_ptr->level > p_ptr->depth)
+	if (r_ptr->level > effective_depth(p_ptr->depth))
 	{
 		/* Unique monsters */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -2533,7 +2533,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 			if (cheat_hear) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
-			rating += (r_ptr->level - p_ptr->depth) * 2;
+			rating += (r_ptr->level - effective_depth(p_ptr->depth)) * 2;
 		}
 
 		/* Normal monsters */
@@ -2542,7 +2542,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 			/* Message for cheaters */
 			if (cheat_hear) msg_format("Deep Monster (%s).", name);
 			/* Boost rating by half delta-depth */
-			rating += (r_ptr->level - p_ptr->depth) / 2;
+			rating += (r_ptr->level - effective_depth(p_ptr->depth)) / 2;
 		}
 	}
 
@@ -2583,9 +2583,9 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, s16b group_si
  	byte hack_x[GROUP_MAX];
 
 	/* Hard monsters, smaller groups */
- 	if (r_ptr->level > p_ptr->depth)
+ 	if (r_ptr->level > effective_depth(p_ptr->depth))
  	{
-		reduce = (r_ptr->level - p_ptr->depth) / 2;
+		reduce = (r_ptr->level - effective_depth(p_ptr->depth)) / 2;
 		group_size -= randint(reduce);
  	}
 

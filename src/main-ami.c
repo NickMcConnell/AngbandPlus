@@ -18,7 +18,7 @@
 */
 
 /* Variant name and version */
-#define VARIANT "Angband 3.0.1"
+#define VARIANT "Quickband"
 
 /* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
 #define VERPATH "Angband:"

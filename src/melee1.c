@@ -1694,6 +1694,13 @@ static int get_dam(monster_type *m_ptr, int attack)
 	}
 
 	/* Return randomized damage */
+
+	// BB added - reduce very large damages
+	if (dam > 300){
+		dam = 300 + (dam-300)/2;
+	}
+
+
 	return (dam);
 }
 
@@ -1705,6 +1712,7 @@ static int get_dam(monster_type *m_ptr, int attack)
  */
 int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 {
+	// BB changed this
 	int dam, max_dam;
 
 	switch (gf_type)
@@ -1715,13 +1723,13 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 		case GF_COLD:
 		{
 			dam = hit_points / 3;
-			max_dam = 1600;
+			max_dam = 800;
 			break;
 		}
 		case GF_POIS:
 		{
 			dam = hit_points / 3;
-			max_dam = 800;
+			max_dam = 400;
 			break;
 		}
 		case GF_PLASMA:
@@ -1743,7 +1751,7 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 		case GF_CONFUSION:
 		{
 			dam = hit_points / 6;
-			max_dam = 400;
+			max_dam = 200;
 			break;
 		}
 		case GF_SOUND:
@@ -1751,7 +1759,7 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 			if (powerful)
 			{
 				dam = hit_points / 4;
-				max_dam = 500;
+				max_dam = 300;
 			}
 			else
 			{
@@ -1763,7 +1771,7 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 		case GF_SHARD:
 		{
 			dam = hit_points / 6;
-			max_dam = 500;
+			max_dam = 300;
 			break;
 		}
 		case GF_INERTIA:
@@ -1771,7 +1779,7 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 			if (powerful)
 			{
 				dam = hit_points / 4;
-				max_dam = 400;
+				max_dam = 300;
 			}
 			else
 			{
@@ -1799,7 +1807,7 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 			if (powerful)
 			{
 				dam = hit_points / 3;
-				max_dam = 400;
+				max_dam = 300;
 			}
 			else
 			{
@@ -1811,13 +1819,13 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 		case GF_NEXUS:
 		{
 			dam = hit_points / 6;
-			max_dam = 450;
+			max_dam = 300;
 			break;
 		}
 		case GF_NETHER:
 		{
 			dam = hit_points / 6;
-			max_dam = 550;
+			max_dam = 400;
 			break;
 		}
 		case GF_CHAOS:
@@ -1830,7 +1838,7 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 		case GF_TIME:
 		{
 			dam = hit_points / 3;
-			if (powerful) max_dam = 400;
+			if (powerful) max_dam = 300;
 			else max_dam = 150;
 			break;
 		}
