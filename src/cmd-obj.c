@@ -558,8 +558,10 @@ static void obj_cast(object_type *o_ptr, int item)
 
 	trap_spell = is_trap_spell(o_ptr->tval, spell);
 
-	if (spell_needs_aim(spell) && !get_aim_dir(&dir, trap_spell))
-		return;
+	if (o_ptr->tval != TV_BARBARIAN_BOOK){
+		if (spell_needs_aim(spell) && !get_aim_dir(&dir, trap_spell))
+			return;
+	}
 
 	cmd_insert(CMD_CAST, spell, dir);
 
@@ -3557,7 +3559,7 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 		/* Shift any objects to further away */
 		for (o_ptr = get_first_object(py, px); o_ptr; o_ptr = get_next_object(o_ptr))
 		{
-			drop_near(o_ptr, 0, py, px);
+			drop_near(o_ptr, 0, py, px, 0);
 		}
 
 		/* Delete the "moved" objects from their original position */

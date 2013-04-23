@@ -33,7 +33,8 @@ considerable).
 Spellpoints:
      If you use magic, you will also have spellpoints, or mana.  Your maximum
 mana depends on your level and your intelligence (if you are a mage, druid, 
-rogue, or ranger) and/or wisdom (if you are a druid, ranger, priest, paladin or sage).  
+rogue, or ranger) and/or wisdom (if you are a druid, ranger, priest, paladin 
+or sage).  
 Ways to recover mana faster than by resting are rare and greatly desired.
      Mana goes down if you wear heavy armour.  Mages, rogues and sages also
 lose a chunk of mana if they wear most (but not all) kinds of gloves.
@@ -106,15 +107,16 @@ Intelligence:
 effectively.
      If you are a mage or rogue, intelligence is your primary stat.  It controls
 how many spells you may learn, the amount of mana you have, and your spell
-failure rate.  If you are a priest or paladin, wisdom controls all of these things.
-For druids and rangers, it is a combination of intelligence and wisdom.
+failure rate.  If you are a priest or paladin, wisdom controls all of these 
+things. For druids and rangers, it is a combination of intelligence and wisdom.
      If you are a berserker or barbarian, your stats do not affect your rage.
-     A sage's mana depends on their wisdom, but their spells and failure rates depend
-on their intelligence.
+     A sage's mana depends on their wisdom, but their spells and failure rates 
+depend on their intelligence.
 
 Wisdom:
      Wise characters have a better chance of resisting magical spells cast upon
-them by monsters.  Wisdom is a priest or paladin's primary stat.
+them by monsters.  Wisdom is a priest or paladin's primary stat, and is also
+important for druids, rangers and sages.
 
 Dexterity:
      Dexterity is a combination of agility and quickness.  A high dexterity may
@@ -153,7 +155,9 @@ mental attacks.  Saving throw depends on race, class, wisdom, and level.
 Stealth:
      The ability to move silently about is very useful.  If your stealth is good
 enough, you can avoid fights, get in the first blow, and fight monsters one at a
-time.  Stealth depends on race, class, and equipped items.
+time.  Stealth depends on race, class, and equipped items, and in particular
+can be affected by the terrain you are walking through (if you are not native to 
+it).
 
 Fighting (Melee):
      The higher your melee ability, the more frequently you will hit in hand-to-
@@ -186,8 +190,9 @@ equipped objects.
 
 Searching:
      The better you are at searching, the more likely it is that you will see
-traps and secret doors by searching for them.  Searching depends on race, class,
-level, and equipped objects (same as perception).
+traps and secret doors by searching for them. Each search applies to the eight 
+squares adjacent to your character. Searching depends on race, class, level, 
+and equipped objects (same as perception).
 
 Infra-vision:
      The higher your infravision, the further away you can see warm-blooded

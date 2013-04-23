@@ -372,18 +372,20 @@ void process_command(cmd_context ctx, bool no_request)
 			{
 				bool get_target = FALSE;
 
-							if (spell_needs_aim(cmd.args[0].choice))
-				{
-					if (cmd.args[1].direction == DIR_UNKNOWN)
-						get_target = TRUE;
+				if (!(cp_ptr->flags & CF_RAGE)){
+					if (spell_needs_aim(cmd.args[0].choice))
+					{
+						if (cmd.args[1].direction == DIR_UNKNOWN)
+							get_target = TRUE;
 
-					if (cmd.args[1].direction == DIR_TARGET && !target_okay())
-						get_target = TRUE;
+						if (cmd.args[1].direction == DIR_TARGET && !target_okay())
+							get_target = TRUE;
 
+					}
+
+					if (get_target && !get_aim_dir(&cmd.args[1].direction, FALSE))
+							return;
 				}
-
-				if (get_target && !get_aim_dir(&cmd.args[1].direction, FALSE))
-						return;
 
 				break;
 			}

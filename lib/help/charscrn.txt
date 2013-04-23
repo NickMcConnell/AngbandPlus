@@ -56,7 +56,9 @@ Second row:
      - Infra : how far you can see warm-blooded creatures, even when invisible
        or in darkness
 
-     - Saving Throw : your resistance to magic
+     - Saving Throw : your resistance to some monster spells (though it provides 
+       no protection from some kinds of special melee attacks, like paralysis
+       and confusion)
      - Stealth : how naturally quiet you are
      - Fighting : your hand-to-hand combat skill (inherent skill, plus bonuses)
      - Shooting : your missile combat skill (inherent skill, plus bonuses)
@@ -83,7 +85,7 @@ Vital Statistics:
      The top-center of this display lists modifiers to stats.  They are light
 green if the object does not also sustain that stat and green if it does.  If
 the object sustains a stat without affecting it, a green 's' is displayed.  
-Because character dumps in not in color, the stat sustains are displayed
+Because character dumps are not in color, the stat sustains are displayed
 in a separated chart from the modifiers.
 
 Attributes:

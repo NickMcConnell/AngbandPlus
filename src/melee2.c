@@ -1977,6 +1977,9 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 		f7 &= ~(RF7_SUMMON_MASK);
 
 	}
+	if (m_ptr->mana == r_ptr->mana){
+		want_summon *= 5;
+	}
 
 	/* Check if no spells left */
 	if (!f4 && !f5 && !f6 && !f7) return (0);

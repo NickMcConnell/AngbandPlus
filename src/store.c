@@ -1239,7 +1239,7 @@ static bool store_service_aux(int store_num, s16b choice)
 				msg_format("You have no room in your backpack.");
 
 				/* Drop the object */
-				drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+				drop_near(i_ptr, -1, p_ptr->py, p_ptr->px, 0);
 
 				/* Inform the player */
 				msg_format("Your %s is waiting outside!", o_name);

@@ -93,7 +93,7 @@
 #define SUMMON_UNDEAD       17
 #define SUMMON_DRAGON       18
 #define SUMMON_TROOPS	    19
-/* xxx */
+#define SUMMON_BESIEGERS	20
 #define SUMMON_HI_DEMON     26
 #define SUMMON_HI_UNDEAD    27
 #define SUMMON_HI_DRAGON    28
@@ -515,7 +515,7 @@
 
 #define RF7_S_KIN          0x00000001  /* Summon Similar */
 #define RF7_S_TROOPS       0x00000002  /* What Lurtz does */
-#define RF7_RF7XXX2        0x00000004  /*  */
+#define RF7_S_BESIEGERS    0x00000004  /* Summon tunneling or passwall monsters */
 #define RF7_S_MONSTER      0x00000008  /* Summon Monster */
 #define RF7_S_MONSTERS     0x00000010  /* Summon Monsters */
 #define RF7_RF7XXX3        0x00000020  /*  */
@@ -705,7 +705,7 @@
 	(RF7_S_KIN |  RF7_S_MONSTER | RF7_S_MONSTERS | RF7_S_ANT | RF7_S_SPIDER | \
 	 RF7_S_HOUND | RF7_S_ANIMAL | RF7_S_HYDRA | RF7_S_THIEF | RF7_S_BERTBILLTOM | \
 	 RF7_S_AINU | RF7_S_DRAGON | RF7_S_HI_DRAGON | RF7_S_DEMON | RF7_S_HI_DEMON | \
-	 RF7_S_UNIQUE | RF7_S_HI_UNIQUE |  RF7_S_UNDEAD | RF7_S_HI_UNDEAD | RF7_S_WRAITH | RF7_S_TROOPS | RF7_S_LO_UNIQUE)
+	 RF7_S_UNIQUE | RF7_S_HI_UNIQUE |  RF7_S_UNDEAD | RF7_S_HI_UNDEAD | RF7_S_WRAITH | RF7_S_TROOPS | RF7_S_LO_UNIQUE | RF7_S_BESIEGERS)
 
 
 /*

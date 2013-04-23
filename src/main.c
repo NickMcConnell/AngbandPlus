@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
 			case 'g':
 			{
 				/* Default graphics tile */
-				arg_graphics = GRAPHICS_OLD;
+				arg_graphics = GRAPHICS_ORIGINAL;
 				break;
 			}
 

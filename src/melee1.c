@@ -201,7 +201,7 @@ bool make_attack_normal(monster_type *m_ptr)
 	int i, k, tmp, ac, rlev;
 	s16b heal;
 	int do_cut, do_stun;
-	int blows;
+	int blows, n_woken;
 
 	bool alive = TRUE;
 
@@ -1720,6 +1720,31 @@ bool make_attack_normal(monster_type *m_ptr)
 
 		/*hack - stop attacks if monster and player are no longer next to each other*/
 		if (do_break) break;
+
+		/* New - have a go at waking up every monster within a few spaces who has LOS to the @ */
+		n_woken = 0;
+		for (i = 1; i < mon_max; i++)
+		{
+			m_ptr = &mon_list[i];
+			/* Paranoia -- Skip dead monsters */
+			if (!m_ptr->r_idx) continue;
+
+			if (distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx) > rand_int(20)) continue;
+			if (!(one_in_(3))) continue;
+
+			if (!(player_can_fire_bold(m_ptr->fy, m_ptr->fx))) continue;
+
+			/* Wake up */
+			if (m_ptr->m_timed[MON_TMD_SLEEP]) n_woken++;
+			m_ptr->m_timed[MON_TMD_SLEEP] = 0;
+		}
+		p_ptr->redraw |= PR_MONLIST;
+		if (n_woken>1){
+			msg_format("Some monsters are woken up.");
+		} else if (n_woken==1){
+			msg_format("A monster is woken up.");
+		}
+
 
 	}
 
@@ -4338,7 +4363,24 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		case 192 + 2:  break;
+		/* RF7_S_BESIEGERS */
+		case 192 + 2:
+		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s summons besieging monsters.", m_name);
+			for (k = 0; k < 4; k++)
+			{
+				count += summon_specific(m_ptr->fy, m_ptr->fx,
+					summon_lev, SUMMON_BESIEGERS);
+			}
+
+			if (blind && count)
+			{
+				msg_print("You hear besieging monsters arriving.");
+			}
+			break;
+		}
 
 
 		/* RF7_S_MONSTER */

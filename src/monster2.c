@@ -3600,6 +3600,11 @@ static bool summon_specific_okay(int r_idx)
  			break;
  		}
 
+		case SUMMON_BESIEGERS:
+		{
+/*			DO THIS. AND TELL THE AI WHEN TO INVOKE THEM */
+ 		}
+
 		case SUMMON_SPIDER:
 		{
 			okay = ((r_ptr->d_char == 'S') &&

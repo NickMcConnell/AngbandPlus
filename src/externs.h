@@ -884,7 +884,7 @@ extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
 extern void object_copy_amt(object_type *dst, object_type *src, int amt);
 extern s16b floor_carry(int y, int x, object_type *j_ptr);
-extern void drop_near(object_type *j_ptr, int chance, int y, int x);
+extern void drop_near(object_type *j_ptr, int chance, int y, int x, int suppress);
 extern void acquirement(int y1, int x1, int num, bool great);
 extern void inven_item_charges(int item);
 extern void inven_item_describe(int item);

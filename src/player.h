@@ -339,6 +339,8 @@
 #define BARB_WARCRY_WAKE               	16
 #define BARB_WARCRY_FEAR				17
 
+#define BARB_SPELL_CAP                  18
+
 /*
  * Flags for player_type.spell_flags[]
  */

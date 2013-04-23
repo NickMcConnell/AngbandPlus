@@ -1330,7 +1330,7 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 	int dir, item;
 	int i, j, y, x, ty, tx;
 	int tdam, tdis, thits, tmul;
-	int bonus, chance;
+	int bonus, chance, suppress;
 
 	object_type *o_ptr;
 	object_type *j_ptr;
@@ -1653,9 +1653,48 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 
 	/* Chance of breakage (during attacks) */
 	j = (hit_body ? breakage_chance(i_ptr) : 0);
+    suppress = 0;
+
+	if (one_in_(2))
+	{
+
+		bool plural = FALSE;
+		u32b f1, f2, f3, fn;
+
+		/* Extract plural */
+		if (o_ptr->number != 1) plural = TRUE;
+
+		/* Describe object */
+		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_BASE);
+
+		object_flags(o_ptr, &f1, &f2, &f3, &fn);
+
+        if (f1 & (TR1_BRAND_ELEC))
+        {
+			msg_format("The %s fizzle%s out!",o_name, (plural ? "" : "s"));
+			j = 100; 
+			suppress = 1;
+		} else if (f1 & (TR1_BRAND_POIS)) {
+			msg_format("The %s warp%s!",o_name, (plural ? "" : "s"));
+			j = 100; 
+			suppress = 1;
+		} else if (f1 & (TR1_BRAND_FIRE)) {
+			msg_format("The %s burn%s up!",o_name, (plural ? "" : "s"));
+			j = 100; 
+			suppress = 1;
+		} else if (f1 & (TR1_BRAND_COLD)) {
+			msg_format("The %s shatter%s!",o_name, (plural ? "" : "s"));
+			j = 100; 
+			suppress = 1;
+		} else if (f1 & (TR1_BRAND_ACID)) {
+			msg_format("The %s dissolve%s!",o_name, (plural ? "" : "s"));
+			j = 100; 
+			suppress = 1;
+		}
+	}
 
 	/* Drop (or break) near that location */
-	drop_near(i_ptr, j, y, x);
+	drop_near(i_ptr, j, y, x, suppress);
 
 }
 
@@ -2609,7 +2648,7 @@ void do_cmd_throw(cmd_code code, cmd_arg args[])
 	if (f3 & (TR3_THROWING)) j /= 2;
 
 	/* Drop (or break) near that location */
-	drop_near(i_ptr, j, y, x);
+	drop_near(i_ptr, j, y, x, 0);
 
 }
 

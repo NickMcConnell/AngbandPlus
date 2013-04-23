@@ -480,7 +480,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		}
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, 0);
 	}
 
 	/* Reset the object level */

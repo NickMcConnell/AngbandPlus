@@ -4837,7 +4837,8 @@ bool fear_monster(int dir, int plev)
 
 bool teleport_monster(int dir)
 {
-	return (fire_beam(GF_AWAY_ALL, dir, MAX_SIGHT * 5, 0L));
+	u32b flg = PROJECT_STOP;
+	return (fire_bolt_beam_special(GF_AWAY_ALL, dir, MAX_SIGHT * 5, MAX_RANGE, flg));
 }
 
 

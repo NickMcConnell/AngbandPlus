@@ -194,7 +194,7 @@ Ranger:
 fast than most.  He can also hold his own in melee, and has some useful
 spells to aid him in need; rangers have many talents.  His dungeon survival
 skills are better than average.  A ranger has average-speed, weak pseudo-ID.
-Intelligence is his spell stat.  He gets an extra show with a bow at level
+Intelligence is his spell stat.  He gets an extra shot with a bow at level
 26.
 
 ***** <Paladin>

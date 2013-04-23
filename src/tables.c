@@ -2352,7 +2352,7 @@ byte spell_info_RF7[32][5]=
 {
 	{12,    0,     0,     0,     0},        /* RF7_S_KIN */ /* Summon - 6 */
 	{12,    0,     0,     0,     0},        /* RF7_S_TROOPS */
-	{0,     0,     0,     0,     0},        /* RF7_XXX2 */
+	{12,    0,     0,     0,     0},        /* RF7_S_BESIEGERS */
 	{10,    0,     0,     0,     0},        /* RF7_S_MONSTER */ /* Summon - 1 */
 	{15,    0,     0,     0,     0},        /* RF7_S_MONSTERS */ /* Summon - 8 */
 	{0,     0,     0,     0,     0},        /* RF7_XXX3 */
@@ -2523,7 +2523,7 @@ byte spell_desire_RF7[32][8] =
  /*	     d_summ	d_mana	  d_tact	   d_range		    */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_KIN	    */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_TROOPS	    */
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX2	    */
+	{ 0,   1,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_BESIEGERS	    */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTER */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTERS*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX3	    */

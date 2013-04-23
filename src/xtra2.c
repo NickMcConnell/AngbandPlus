@@ -444,7 +444,7 @@ void monster_death(int m_idx, int who)
 		delete_object_idx(this_o_idx);
 
 		/* Drop it */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, 0);
 	}
 
 	/* Forget objects */
@@ -521,7 +521,7 @@ void monster_death(int m_idx, int who)
 		}
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, 0);
 	}
 
 	/* Re-set the object level */
@@ -568,7 +568,7 @@ void monster_death(int m_idx, int who)
 		object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, 0);
 
 
 	}

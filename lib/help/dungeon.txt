@@ -40,8 +40,10 @@ doors always look like granite until found.
 also use magic and everyone can use the appropriate magical device.
 
 Traps:
-     Traps also await you in the dungeon.  They look like normal floor squares until found, too often by your being caught by one.
-     You find traps by using the 's'earch command.  Many classes can also use magic and everyone can use the appropriate magical device.
+     Traps also await you in the dungeon.  They look like normal floor squares until 
+found, too often by your being caught by one.
+     You find traps by using the 's'earch command.  Many classes can also use magic 
+and everyone can use the appropriate magical device.
 
 Monster Traps:
      Certain classes can set traps for the monsters by using the 'O" command. \
@@ -73,10 +75,9 @@ dangerous breathers and summoners manageable.
 
 --- Advanced Terrain Types ---
 
-     Many levels of his dungeon look like the outside world.  
-For instance, there are levels that have lakes, forests, desert,
-and many other types of terrain.  Entire dungeon levels can be themed after one
-of these terrain types.
+     Many levels of the dungeon look like the outside world. For instance, there 
+are levels that have lakes, forests, desert,and many other types of terrain.  
+Entire dungeon levels can be themed after one of these terrain types.
 
 In general, when a player or creature is native to a terrain, they can move through
 the terrain quicker.  Native creatures also have a combat advantage.  They tend to
@@ -96,12 +97,12 @@ common sense approach should be taken when entering these terrains.  For example
 all but the most powerful characters will die if they step in lava or any boiling
 water, unless they have equipment or magic that makes them native to lava terrains.
 
-In all instances below, creatures who are actively flying do not get the combat and
-movement bonuses.
+In all instances below, players and monsters who are actively flying do not get the 
+combat and movement bonuses.
 
 Forest:
      This terrain gives a combat and movement advantage to creatures native to forests.
-It can sometimes be burned by fire.  The player can duffer minor damage and cuts
+It can sometimes be burned by fire.  The player can suffer minor damage and cuts
 walking through thick underbrush.
 
 Sand:
@@ -169,6 +170,19 @@ and boiling water based attacks are more effective on fire based terrains.  Cold
 based spells and magic are less effective on fire based terrains.  Fires
 can sometimes be extinguished by water or poweful cold based spells.
 
+Elven walls:
+     These walls glow faintly, helping you to find your way about the dungeon.
+     
+Ethereal walls:
+     These walls can teleport you across the dungeon, or explode in a bust of light!
+     
+Silent watchers:
+     These dangerous statues can wake up nearby monsters. Avoid them, and don't
+touch them or they will hurt you.
+
+Putrid flowers:
+     These nasty plants can attack you from a distance. If you want to get rid of 
+them, go and stomp on them.
 
 The player retains all information they have observed about terrain.  To access this
 information, go to the knowledge screens (press'~') and go to the terrain knowledge
@@ -205,15 +219,15 @@ traps could only exist on empty floors.
 Glacier:
      A particular effect that allows line of sight, but not movement or spell effects.
 
+Inscriptions:
+     On dungeon walls you will find inscriptions that will give you hints as to
+the type of creatures that exist on the level. Often, you can read an inscription several 
+times for additional information. Some inscriptions are dangerous and may harm the player 
+under certain circumstances.
+
 The player retains all information they have observed about effects.  To access this
 information, go to the knowledge screens (press'~') and go to the terrain knowledge
 section.
-
-Inscriptions:
-     On dungeon walls you will find inscriptions that will give you hints as to
-the type of creatures that exist on the level.  Some inscriptions are dangerous
-and may harm the player under certain circumstances.
-
 
 --- Exploring ---
 

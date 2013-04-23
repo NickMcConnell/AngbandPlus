@@ -1718,7 +1718,7 @@ static void grant_reward_object(byte depth, byte type)
 		msg_print("Your reward is waiting outside!");
 
 		/* Drop the object */
-		drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+		drop_near(i_ptr, -1, p_ptr->py, p_ptr->px, 0);
 	}
 
 	/* Give it to the player */

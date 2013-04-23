@@ -78,6 +78,13 @@ Set some display options TRUE by default (auto_display_lists, hp_changes_color, 
 Devices fail more often
 Picks are better than shovels
 Several monsters are more alert
+... (bugfix release follows) ...
+Teleport Other is a bolt not a beam
+Branded ammo are more likely to be destroyed on fire
+When a monster melees you, nearby sleeping monsters who have LOS to you are likely to wake up
+If you are very poisoned, you lose multiple HP per turn 
+Smart monsters with full mana will usually summon if they can
+You can start the game with 'n' or 'o' in Windows
 
 
 

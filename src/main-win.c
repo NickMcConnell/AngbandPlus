@@ -3821,8 +3821,39 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_CHAR:
 		{
-			Term_keypress(wParam);
-			return 0;
+			if (initialized && !game_in_progress && !character_generated)
+			{
+				char c = wParam; /* testing */
+				if (c=='n' || c=='N') 
+				{
+					/* We'll return NEWGAME to the game. */
+					cmd.command = CMD_NEWGAME;
+				} else if (c=='o' || c=='O'){
+					OPENFILENAME ofn;
+					memset(&ofn, 0, sizeof(ofn));
+					ofn.lStructSize = sizeof(ofn);
+					ofn.hwndOwner = data[0].w;
+					ofn.lpstrFilter = "Save Files (*.)\0*\0";
+					ofn.nFilterIndex = 1;
+					ofn.lpstrFile = savefile;
+					ofn.nMaxFile = 1024;
+					ofn.lpstrInitialDir = ANGBAND_DIR_SAVE;
+					ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+					if (GetOpenFileName(&ofn))
+					{
+						/* Load 'savefile' */
+						validate_file(savefile);
+
+						/* We'll return LOADFILE to the game. */
+						cmd.command = CMD_LOADFILE;
+					}
+				}
+				return 0;
+			} else {
+				Term_keypress(wParam);
+				return 0;
+			}
 		}
 
 		case WM_MBUTTONDOWN:
@@ -4571,7 +4602,7 @@ static errr get_init_cmd(void)
 	MSG msg;
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	prt("[Choose 'New' or 'Open' from the 'File' menu, or hit 'n' or 'o']", 23, 6);
 	Term_fresh();
 
 	/* Process messages forever */

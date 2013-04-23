@@ -191,7 +191,7 @@ static void calc_spells(void)
 	k = 0;
 
 	/* Count spells that can be learned */
-	for (j = 0; j < PY_MAX_SPELLS; j++)
+	for (j = 0; j < ((cp_ptr->spell_book == TV_BARBARIAN_BOOK) ? BARB_SPELL_CAP : PY_MAX_SPELLS); j++)
 	{
 
 		/* Get the spell */

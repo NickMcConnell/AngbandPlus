@@ -2771,7 +2771,7 @@ static bool find_similar_object_or_empty_grid(object_type *j_ptr, int *oy, int *
  * the object can combine, stack, or be placed.  Artifacts will try very
  * hard to be placed, including "teleporting" to a useful grid if needed.
  */
-void drop_near(object_type *j_ptr, int chance, int y, int x)
+void drop_near(object_type *j_ptr, int chance, int y, int x, int suppress)
 {
 	int i, k, d, s;
 
@@ -2797,9 +2797,12 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Handle normal "breakage" */
 	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
 	{
+
+		if (!suppress){
 		/* Message */
 		msg_format("The %s disappear%s.",
 		           o_name, (plural ? "" : "s"));
+	    }
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (breakage).");
@@ -2912,9 +2915,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Handle lack of space */
 	if (!flag && !artifact_p(j_ptr))
 	{
-		/* Message */
-		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		if (!suppress){
+			/* Message */
+			msg_format("The %s disappear%s.",
+					   o_name, (plural ? "" : "s"));
+		}
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (no floor space).");
@@ -2958,9 +2963,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Give it to the floor */
 	if (!floor_carry(by, bx, j_ptr))
 	{
-		/* Message */
-		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		if (!suppress){
+			/* Message */
+			msg_format("The %s disappear%s.",
+					   o_name, (plural ? "" : "s"));
+		}
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (too many objects).");
@@ -3023,7 +3030,7 @@ void acquirement(int y1, int x1, int num, bool great)
 		object_history(i_ptr, ORIGIN_ACQUIRE, 0);
 
 		/* Drop the object */
-		drop_near(i_ptr, -1, y1, x1);
+		drop_near(i_ptr, -1, y1, x1, 0);
 	}
 }
 
@@ -4353,7 +4360,7 @@ void inven_drop(int item, int amt)
 	msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
 	/* Drop it near the player */
-	drop_near(i_ptr, 0, py, px);
+	drop_near(i_ptr, 0, py, px, 0);
 
 	/* Modify, Describe, Optimize */
 	inven_item_increase(item, -amt);
@@ -5600,7 +5607,7 @@ void pack_overflow(void)
 	msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
 	/* Drop it (carefully) near the player */
-	drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
+	drop_near(o_ptr, 0, p_ptr->py, p_ptr->px, 0);
 
 	/* Modify, Describe, Optimize */
 	inven_item_increase(item, -255);

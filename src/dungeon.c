@@ -695,6 +695,13 @@ static void put_out_fires(void)
 	update_level_flag();
 }
 
+
+static int poison_level(int poison_counter){
+	int level = 1;
+	while (level*level*5 <= poison_counter) level++;
+	return level;
+}
+
 /*
  * Helper for process_world -- decrement p_ptr->timed[] fields.
  */
@@ -726,6 +733,12 @@ static void decrease_timeouts(void)
 				break;
 			}
 		}
+
+		if (i==TMD_POISONED)
+		{
+			decr *= poison_level(p_ptr->timed[TMD_POISONED]); /* new super poison */
+		}
+
 		/* Decrement the effect */
 		dec_timed(i, decr, FALSE);
 	}
@@ -1137,7 +1150,7 @@ static void process_world(void)
 	if (p_ptr->timed[TMD_POISONED])
 	{
 		/* Take damage */
-		if(!(p_ptr->state.immune_pois))take_hit(1, "poison");
+		if(!(p_ptr->state.immune_pois))take_hit(poison_level(p_ptr->timed[TMD_POISONED]), "poison");
 	}
 
 	/* Take damage from cuts */

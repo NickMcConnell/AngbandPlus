@@ -52,7 +52,7 @@ other holy items.
      Offers a service to remove light curses from all weapons and armor.
      Offers a service to remove heavy curses from all weapons and armor.
      Offers a service to create a potion of healing.
-     Offers a service to recall you back to the dungeon.
+     Offers a service to teleport you back to the deepest dungeon level you have reached ("Word of Recall").
  
 The Alchemy Shop ("5"):
      Buys and sells potions and scrolls.
@@ -78,8 +78,8 @@ The Adventurer's Guild ("9"):
      Always shut in Quickband.
 
 The Bookshop ("0"):
-     Buys and sells all kinds of spell and prayerbooks.
-     Offers a service to make a spell and prayer books fireproof.
+     Buys and sells all kinds of books.
+     Offers a service to make a book fireproof.
 
 --- Buying and Selling ---
 

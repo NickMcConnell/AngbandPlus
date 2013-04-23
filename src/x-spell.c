@@ -3599,6 +3599,7 @@ cptr do_barbarian_spell(int mode, int spell, int dir)
 					/* Wake up all monsters */
 					m_ptr->m_timed[MON_TMD_SLEEP] = 0;
 				}
+				p_ptr->redraw |= PR_MONLIST;
 
 			}
 

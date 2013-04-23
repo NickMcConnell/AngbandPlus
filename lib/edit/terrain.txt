@@ -275,7 +275,7 @@ F:TRAP_PASSIVE
 D:A small dart shoots out at you!
 
 
-N:26:orange dart trap
+N:26:orange gas trap
 G:^:o
 X:2:1:13:0:1:0:0
 F:LOS | PROJECT | MOVE | PLACE | NOTICE

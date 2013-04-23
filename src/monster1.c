@@ -899,6 +899,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		if (l_ptr->r_l_flags7 & (RF7_S_HI_UNDEAD))	vp[vn++] = "Greater Undead";
 		if (l_ptr->r_l_flags7 & (RF7_S_WRAITH))		vp[vn++] = "the Ringwraiths";
 		if (l_ptr->r_l_flags7 & (RF7_S_TROOPS))		vp[vn++] = "the hosts of Isengard";
+		if (l_ptr->r_l_flags7 & (RF7_S_BESIEGERS))		vp[vn++] = "besieging monsters";
 
 	}
 
@@ -1873,14 +1874,14 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 
 		if (old) text_out(", and");
 
-		text_out(", is native to ");
+		text_out(" is native to ");
 
 		if (l_ptr->r_l_native & (RN1_N_LAVA)) vp[vn++] = "lava";
 		if (l_ptr->r_l_native & (RN1_N_ICE)) vp[vn++] = "ice";
 		if (l_ptr->r_l_native & (RN1_N_OIL)) vp[vn++] = "oil";
 		if (l_ptr->r_l_native & (RN1_N_FIRE)) vp[vn++] = "fire";
 		if (l_ptr->r_l_native & (RN1_N_SAND)) vp[vn++] = "sand";
-		if (l_ptr->r_l_native & (RN1_N_FOREST)) vp[vn++] = "forests";
+		if (l_ptr->r_l_native & (RN1_N_FOREST)) vp[vn++] = "forest";
 		if (l_ptr->r_l_native & (RN1_N_WATER)) vp[vn++] = "water";
 		if (l_ptr->r_l_native & (RN1_N_ACID)) vp[vn++] = "acid";
 		if (l_ptr->r_l_native & (RN1_N_MUD)) vp[vn++] = "mud";

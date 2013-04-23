@@ -2937,7 +2937,7 @@ static void describe_feature_dynamic(int f_idx, const feature_lore *f_l_ptr)
 	/* Silent watchers */
 	if (f_idx == FEAT_SILENT_WATCHER)
 	{
-		text_out("  The silent watcher can aggravate nearly monsters.");
+		text_out("  The silent watcher can aggravate nearby monsters.");
 
 		/* Done */
 		return;
