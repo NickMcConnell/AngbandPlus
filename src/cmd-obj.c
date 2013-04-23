@@ -531,11 +531,15 @@ static void obj_cast(object_type *o_ptr, int item)
 		noun = "spell";
 
 	}
-
 	else if (cp_ptr->spell_book == TV_DRUID_BOOK)
 	{
 		verb = "recite";
 		noun = "spell";
+	}
+	else if (cp_ptr->spell_book == TV_BARBARIAN_BOOK)
+	{
+		verb = "use";
+		noun = "power";
 	}
 	else /*Priest*/
 	{
@@ -1042,6 +1046,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (hp_player(30)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID, TRUE)) *ident = TRUE;
 			if (inc_timed(TMD_SHERO, randint(25) + 25, TRUE)) *ident = TRUE;
+			rage(30);
 			break;
 		}
 
@@ -1317,6 +1322,12 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 	int k;
 
 	bool used_up = TRUE;
+
+	if (cp_ptr->flags & CF_RAGE)
+	{
+		msg_format("You cannot read!");
+		return FALSE;
+	}
 
 	/* Analyze the scroll */
 	switch (o_ptr->sval)
@@ -1713,6 +1724,12 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 	bool use_charge = TRUE;
 
+	if (cp_ptr->flags & CF_LOTS_OF_RAGE)
+	{
+		msg_format("You cannot use the magic stick!");
+		return FALSE;
+	}
+
 	/* Analyze the staff */
 	switch (o_ptr->sval)
 	{
@@ -1959,9 +1976,14 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 {
 	int lev, sval;
 
-
 	/*Special allowance for disarming and traps*/
 	bool is_disarm = FALSE;
+
+	if (cp_ptr->flags & CF_RAGE)
+	{
+		msg_format("You cannot use the magic stick!");
+		return FALSE;
+	}
 
 	if ((object_aware_p(o_ptr)) && ((o_ptr->sval == SV_WAND_DISARMING) ||
 			(o_ptr->sval == SV_WAND_TRAP_DOOR_DEST))) is_disarm = TRUE;
@@ -2620,6 +2642,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				(void)inc_timed(TMD_OPP_FIRE, act_time, TRUE);
 				(void)inc_timed(TMD_OPP_COLD, act_time, TRUE);
 				(void)inc_timed(TMD_OPP_POIS, act_time, TRUE);
+				rage(30);
 				break;
 			}
 
@@ -2906,6 +2929,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 			{
 				msg_format("Your %s glows in anger...", o_name);
 				inc_timed(TMD_SHERO, randint(50) + 50, TRUE);
+				rage(30);
 				break;
 			}
 			case ACT_RES_ACID:

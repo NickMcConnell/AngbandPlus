@@ -15,16 +15,16 @@ Command Summary -- Original keyset
      d  Drop an item                         D  Disarm a trap
      e  Equipment list                       E  Eat some food
      f  Fire an item                         F  Fuel your lantern/torch
-     g  Get objects off the floor            G  Gain new spells/prayers
+     g  Get objects off the floor            G  Gain spells/prayers/abilities
      h  (unused)                             H  (unused)
      i  Inventory list                       I  Observe an item
      j  Jam a door                           J  (unused)
      k  Destroy an item                      K  (unused)
      l  Look around                          L  Locate player on map
-     m  Cast a spell or pray a prayer        M  Full dungeon map
+     m  Cast a spell, prayer or ability      M  Full dungeon map
      n  Repeat last command                  N  (unused)
      o  Open a door or chest                 O  Organize (set) a trap
-     p  Pray a prayer or cast a spell        P  Pilfer from monsters
+     p  Cast a spell, prayer or ability      P  Pilfer from monsters
      q  Quaff a potion                       Q  Quit (commit suicide)
      r  Read a scroll                        R  Rest for a period
      s  Search for traps/doors               S  Start/stop searching
@@ -85,16 +85,16 @@ Command Summary -- Roguelike keyset
      d  Drop an item                         D  Disarm a trap or chest
      e  Equipment list                       E  Eat some food
      f  Bash a door (force)                  F  Fuel your lantern/torch
-     g  Stay still (flip pickup)             G  Gain new spells/prayers
+     g  Stay still (flip pickup)             G  Gain spells/prayers/abilities
      h  (walk - west)                        H  (run - west)
      i  Inventory list                       I  Observe an item
      j  (walk - south)                       J  (run - south)
      k  (walk - north)                       K  (run - north)
      l  (walk - east)                        L  (run - east)
-     m  Cast a spell                         M  Full dungeon map
+     m  Cast a spell, prayer or ability      M  Full dungeon map
      n  (walk - south east)                  N  (run - south east)
      o  Open a door or chest                 O  Organize (set) a trap
-     p  Pray a prayer                        P  Browse a book
+     p  Cast a spell, prayer or ability      P  Browse a book
      q  Quaff a potion                       Q  Quit (commit suicide)
      r  Read a scroll                        R  Rest for a period
      s  Search for traps/doors               S  Jam a door (Spike)

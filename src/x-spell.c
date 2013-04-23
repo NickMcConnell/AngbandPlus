@@ -1203,7 +1203,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			dam = 30;
 
 			if (name) return ("Berserker");
-			if (desc) return (format("Heals player a little.  Removes fear.  Makes player berzerk for %d+1d%d turns.", dur, dur));
+			if (desc) return (format("Heals player a little.  Removes fear.  Makes player berserk for %d+1d%d turns.", dur, dur));
 			if (cast)
 			{
 				(void)hp_player(dam);
@@ -2317,7 +2317,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			dam1 = plev / 10;
 
 			if (name) return ("Call Huorns");
-			if (desc) return (format("Make nearby trees attack foes for %d player turns, or %d turns more if already casted.",
+			if (desc) return (format("Make nearby trees attack foes for %d player turns, or %d turns more if already cast.",
 				dam, dam1));
 			if (cast)
 			{
@@ -3263,7 +3263,366 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			}
 
 			break;
+
 		}
+	}
+
+	/* success  */
+	return ("Success!");
+}
+
+
+cptr do_barbarian_spell(int mode, int spell, int dir)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int plev = p_ptr->lev;
+
+	/* Spell-specific variables */
+	int dam, dam1;
+	int dur, dur1;
+	int dice, sides;
+	int rad;
+	int i;
+
+	cptr extra = "";
+
+	/* Function modes */
+	bool cast = (mode == MODE_SPELL_CAST);
+	bool name = (mode == MODE_SPELL_NAME);
+	bool desc = (mode == MODE_SPELL_DESC);
+
+	switch (spell)
+	{
+
+		case BARB_HEAL_BUFF_1:
+		{
+			dice = 2;
+			sides = 5;
+
+			if (name) return ("Aggression");
+			if (desc) return (format("Heals %dd%d hp. Gives heroism for 10 turns.", dice, sides));
+			if (cast)
+			{
+				(void)hp_player(damroll(dice, sides));
+				(void)inc_timed(TMD_HERO, 10, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_HUNTING:
+		{
+			if (name) return ("Hunting");
+			if (desc) return ("Detects nearby animals. Gives nutrition if your next kill is an animal.");
+			if (cast)
+			{
+				if (detect(DETECT_RADIUS, DETECT_ANIMALS))
+				{
+					p_ptr->hunting = TRUE;
+					msg_print("Now go find an animal for the pot!");
+				}
+			}
+
+			break;
+		}
+
+		case BARB_SWIMMING:
+		{
+			dur = 50 + p_ptr->lev;
+			dur1 = 10;
+
+			if (name) return ("Swimming");
+			if (desc) return (format("Makes you native to water for %d turns, or %d more turns if already temporarily native to water.",
+											dur, dur1));
+			if (cast)
+			{
+				if (p_ptr->timed[TMD_NAT_WATER]) dur = dur1;
+
+				(void)inc_timed(TMD_NAT_WATER, dur, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_HEAL_BUFF_2:
+		{
+			dice = 3;
+			sides = 6;
+			dur = 5;
+
+			if (name) return ("Ferocity");
+			if (desc) return (format("Heals %dd%d hp. Makes player berserk for %d+1d%d turns.", dice, sides, dur, dur));
+			if (cast)
+			{
+				(void)hp_player(damroll(dice, sides));
+				(void)inc_timed(TMD_SHERO, randint(dur) + dur, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_RES_COLD:
+		{
+			dur = 20;
+
+			if (name) return ("Resist Cold");
+			if (desc) return (format("Temporary resist to cold for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (cast)
+			{
+				(void)inc_timed(TMD_OPP_COLD, randint(dur) + dur, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_RES_FIRE:
+		{
+			dur = 20;
+
+			if (name) return ("Resist Fire");
+			if (desc) return (format("Temporary resist to fire for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (cast)
+			{
+				(void)inc_timed(TMD_OPP_FIRE, randint(dur) + dur, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_CLIMBING:
+		{
+			if (name) return ("Climbing");
+			if (desc) return ("Returns you immediately to town. You must be standing on a stairway up.");
+			if (cast)
+			{
+				if (!cave_up_stairs(p_ptr->py, p_ptr->px))
+				{
+					msg_print("You can only use this power if you are standing on a stairway up.");
+				} else {
+					msg_print("You clamber up the shaft, sweating and grunting.");
+					message_flush();
+
+					/* Hack -- take a turn */
+					p_ptr->p_energy_use = BASE_ENERGY_MOVE;
+
+					/* Create a way back */
+					p_ptr->create_stair = FEAT_MORE;
+
+					/* Change level */
+					dungeon_change_level(0);
+				}
+			}
+
+			break;
+		}
+
+		case BARB_SUPERSTITION:
+		{
+			if (name) return ("Superstition");
+			if (desc) return ("Detects evil monsters within 20 grids. Makes you afraid!");
+			if (cast)
+			{
+				if (detect(20, DETECT_EVIL))
+				{
+					(void)inc_timed(TMD_AFRAID, rand_range(10, 20), TRUE);
+				}
+			}
+
+			break;
+		}
+
+		case BARB_CUNNING:
+		{
+			if (name) return ("Shrewdness");
+			if (desc) return ("You can get better prices if you go into a shop in the next 50 turns.");
+			if (cast)
+			{
+				(void)inc_timed(TMD_SHREWD, 50, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_HEAL_BUFF_3:
+		{
+			dice = 5;
+			sides = 10;
+			dur = 20;
+
+			if (name) return ("Shrugging Off Attacks");
+			if (desc) return (format("Eliminates stunning and heals %dd%d hp. Gives heroism for %d+1d%d turns.", dice, sides, dur, dur));
+			if (cast)
+			{
+				(void)hp_player(damroll(dice, sides));
+				(void)inc_timed(TMD_HERO, randint(dur) + dur, TRUE);
+				(void)set_stun(0);
+			}
+
+			break;
+		}
+
+		case BARB_COLD_FURY:
+		{
+			if (name) return ("Cold Fury");
+			if (desc) return ("For the next 100 turns, your rage drains away more slowly.");
+			if (cast)
+			{
+				(void)inc_timed(TMD_COLD_FURY, 100, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_NOMAD:
+		{
+			dur = 50 + p_ptr->lev;
+			dur1 = 10;
+
+			if (name) return ("Desert Nomad");
+			if (desc) return (format("Makes you native to sand for %d turns, or %d more turns if already temporarily native to sand.",
+											dur, dur1));
+			if (cast)
+			{
+				if (p_ptr->timed[TMD_NAT_SAND]) dur = dur1;
+
+				(void)inc_timed(TMD_NAT_SAND, dur, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_HEAL_BUFF_4:
+		{
+			dice = 3;
+			sides = 8;
+			dur = 20;
+
+			if (name) return ("Brutality");
+			if (desc) return (format("Heals %dd%d hp. Gives berserk and whirlwind attacks for %d+1d%d turns.", dice, sides, dur, dur));
+			if (cast)
+			{
+				(void)hp_player(damroll(dice, sides));
+				dur1 = randint(dur) + dur;
+				(void)inc_timed(TMD_SHERO, dur1, TRUE);
+				(void)inc_timed(TMD_WWIND, dur1, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_RES_POISON:
+		{
+			dur = 20;
+
+			if (name) return ("Resist Poison");
+			if (desc) return (format("Temporary resist to poison for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (cast)
+			{
+				(void)inc_timed(TMD_OPP_POIS, randint(dur) + dur, TRUE);
+			}
+
+			break;
+		}
+
+		case BARB_INSTINCTS:
+		{
+			if (name) return ("Instincts");
+			if (desc) return ("Detects monsters that are not invisible within 20 grids.");
+			if (cast)
+			{
+				(void)detect(20, DETECT_MONSTERS);
+			}
+
+			break;
+		}
+
+		case BARB_LEAP:
+		{
+			if (name) return ("Leap");
+			if (desc) return ("Jump up to 10 spaces in a direction of your choice. You can leap over monsters but not through walls or doors.");
+			if (cast)
+			{
+				int dir, range, ty, tx;
+				int path_n;
+				u16b path_g[PATH_SIZE];
+				u16b path_gx[PATH_SIZE];
+
+				if (!(get_rep_dir(&dir)))
+				{
+					msg_print("You decide not to jump after all.");
+				}
+				range = rand_range(5,8);
+				while (range>1)
+				{
+					ty = p_ptr->py + ddy[dir] * range;
+					tx = p_ptr->px + ddx[dir] * range;
+					path_n = project_path(path_g, path_gx, 99, p_ptr->py, p_ptr->px, &ty, &tx, 0);
+					if (range==path_n && !(cave_m_idx[ty][tx]))
+					{
+						break;
+					} else {
+						range--;
+					}
+				}
+				if (range==1)
+				{
+					msg_print("The way is blocked!");
+				} else {
+					msg_print("You leap!");
+					sound(MSG_TELEPORT);
+					monster_swap(ty, tx, p_ptr->py, p_ptr->px);
+					handle_stuff();
+
+				}
+			}
+
+			break;
+		}
+
+		case BARB_WARCRY_WAKE:
+		{
+			if (name) return ("Roar of Challenge");
+			if (desc) return ("Wakes up all monsters on the level. Heroism and berserk for 50 turns. 1d8 damage to all monsters nearby.");
+			if (cast)
+			{
+				(void)inc_timed(TMD_HERO, 50, TRUE);
+				(void)inc_timed(TMD_SHERO, 50, TRUE);
+				(void)explosion(SOURCE_PLAYER, 20, p_ptr->py, p_ptr->px, damroll (1,8), GF_MISSILE, PROJECT_KILL | PROJECT_PLAY);
+
+				msg_print("You hear faraway monsters waking up!");
+
+				/* Wake up everyone */
+				for (i = 1; i < mon_max; i++)
+				{
+					monster_type *m_ptr = &mon_list[i];
+					/* Paranoia -- Skip dead monsters */
+					if (!m_ptr->r_idx) continue;
+
+					/* Wake up all monsters */
+					m_ptr->m_timed[MON_TMD_SLEEP] = 0;
+				}
+
+			}
+
+			break;
+		}
+
+		case BARB_WARCRY_FEAR:
+		{
+			if (name) return ("Terrifying Warcry");
+			if (desc) return ("Causes fear and 3d6 damage to all monsters nearby. Heals 60 hp.");
+			if (cast)
+			{
+				(void)hp_player(60);
+				(void)explosion(SOURCE_PLAYER, 20, p_ptr->py, p_ptr->px, damroll (3,6), GF_MISSILE, PROJECT_KILL | PROJECT_PLAY);
+				(void)fear_monsters((p_ptr->lev * 5) / 4);
+			}
+
+			break;
+		}
+
 	}
 
 	/* success  */
@@ -3277,7 +3636,10 @@ cptr cast_spell(int mode, int tval, int index, int dir)
 	{
 		return do_mage_spell(mode, index, dir);
 	}
-
+	else if (tval == TV_BARBARIAN_BOOK)
+	{
+		return do_barbarian_spell(mode, index, dir);
+	}
 	else if (tval == TV_DRUID_BOOK)
 	{
 		return do_druid_spell(mode, index, dir);
@@ -3297,6 +3659,7 @@ int get_player_spell_realm(void)
 {
 	/* Mage or priest spells? */
 	if (cp_ptr->spell_book == TV_MAGIC_BOOK) 	return (MAGE_REALM);
+	if (cp_ptr->spell_book == TV_BARBARIAN_BOOK) 	return (BARBARIAN_REALM);
 	if (cp_ptr->spell_book == TV_PRAYER_BOOK)	return (PRIEST_REALM);
 	/*Druid Book*/								return (DRUID_REALM);
 }
@@ -3308,6 +3671,8 @@ cptr get_spell_name(int tval, int spell)
 		return do_mage_spell(MODE_SPELL_NAME, spell,0);
 	else if (tval == TV_PRAYER_BOOK)
 		return do_priest_prayer(MODE_SPELL_NAME, spell, 0);
+	else if (tval == TV_BARBARIAN_BOOK)
+		return do_barbarian_spell(MODE_SPELL_NAME, spell, 0);
 	/*TV_DRUID_BOOK*/
 	else return do_druid_spell(MODE_SPELL_NAME, spell,0);
 }

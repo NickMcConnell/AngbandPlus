@@ -1714,6 +1714,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_DRUID_BOOK:
 		{
 		  	if ((power > 1) || (power < -1))
@@ -2462,6 +2463,7 @@ static bool kind_is_bookshop(int k_idx)
 	{
 
 		case TV_MAGIC_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_PRAYER_BOOK:
 		case TV_DRUID_BOOK:
 		{
@@ -3017,6 +3019,7 @@ static bool kind_is_scroll(int k_idx)
 		 * if within 5 levels of being out of depth */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_DRUID_BOOK:
 		{
 			if (((k_ptr->k_level - 5) < object_level ) &&
@@ -3263,6 +3266,7 @@ static bool kind_is_good(int k_idx)
 
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_DRUID_BOOK:
 		{
 			if (((k_ptr->k_level - 15) < object_level ) &&

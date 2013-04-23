@@ -73,7 +73,7 @@ extern const byte blows_table[12][12];
 extern const byte extract_energy[200];
 extern const s32b player_exp[PY_MAX_LEVEL];
 extern const player_sex sex_info[MAX_SEXES];
-extern const s16b spell_list[3][BOOKS_PER_REALM][SPELLS_PER_BOOK];
+extern const s16b spell_list[4][BOOKS_PER_REALM][SPELLS_PER_BOOK];
 extern cptr feeling_themed_level[LEV_THEME_TAIL];
 extern const byte chest_traps[64];
 extern cptr color_names[16];
@@ -343,7 +343,7 @@ extern bool allow_altered_inventory;
 /* attack.c */
 extern bool test_hit(int chance, int ac, int vis);
 extern bool check_hit(int power);
-extern void py_attack(int y, int x);
+extern void py_attack(int y, int x, int less_attacks);
 extern void do_cmd_fire(cmd_code code, cmd_arg args[]);
 extern void textui_cmd_fire(void);
 extern void textui_cmd_fire_at_nearest(void);
@@ -1096,6 +1096,7 @@ extern void spread_cave_temp(int y1, int x1, int range, bool room, bool pass_wal
 extern bool speed_monsters(void);
 extern bool slow_monsters(int power);
 extern bool sleep_monsters(int power);
+extern bool fear_monsters(int power);
 extern bool banish_evil(int dist);
 extern bool turn_undead(int power);
 extern bool dispel_undead(int dam);
@@ -1330,6 +1331,7 @@ extern bool spell_needs_aim(int tval, int spell);
 extern cptr do_mage_spell(int mode, int spell, int dir);
 extern cptr do_druid_spell(int mode, int spell, int dir);
 extern cptr do_priest_prayer(int mode, int spell, int dir);
+extern cptr do_barbarian_spell(int mode, int spell, int dir);
 cptr cast_spell(int mode, int tval, int index, int dir);
 extern int get_player_spell_realm(void);
 extern cptr get_spell_name(int tval, int spell);
@@ -1387,7 +1389,7 @@ extern errr textui_get_cmd(cmd_context context, bool wait);
 /* Set up game event handlers for the textui. */
 extern void init_display(void);
 
-
+extern void rage(int provocation);
 
 
 

@@ -113,9 +113,9 @@ static int mon_resist_effect(int m_idx, int idx, u16b flag)
 	else
 	{
 		resist_chance = r_ptr->level + 25 - p_ptr->lev / 5;
-		resist_chance -= charisma_adjustment(r_ptr);
-		if (charisma_adjustment(r_ptr)+30<=randint0(33)){
-			if (idx!=MON_TMD_FEAR){
+		if (idx!=MON_TMD_FEAR){
+			resist_chance -= charisma_adjustment(r_ptr);
+			if (charisma_adjustment(r_ptr)+30<=randint0(33)){
 				msg_format("A monster is unimpressed by you...");
 			}
 			resisted = HALF_RESIST;
@@ -894,9 +894,11 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		if (l_ptr->r_l_flags7 & (RF7_S_HI_DEMON))	vp[vn++] = "Greater Demons";
 		if (l_ptr->r_l_flags7 & (RF7_S_UNIQUE))		vp[vn++] = "Unique Monsters";
 		if (l_ptr->r_l_flags7 & (RF7_S_HI_UNIQUE))	vp[vn++] = "Greater Unique Monsters";
+		if (l_ptr->r_l_flags7 & (RF7_S_LO_UNIQUE))	vp[vn++] = "Lesser Unique Monsters";
 		if (l_ptr->r_l_flags7 & (RF7_S_UNDEAD))		vp[vn++] = "an undead";
 		if (l_ptr->r_l_flags7 & (RF7_S_HI_UNDEAD))	vp[vn++] = "Greater Undead";
 		if (l_ptr->r_l_flags7 & (RF7_S_WRAITH))		vp[vn++] = "the Ringwraiths";
+		if (l_ptr->r_l_flags7 & (RF7_S_TROOPS))		vp[vn++] = "the hosts of Isengard";
 
 	}
 
@@ -2562,6 +2564,12 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 	/* adjust for bravery flag*/
 	if ((c_info[ghost_class].flags & CF_BRAVERY_30) && (dun_level > 20))
+	{
+		r_ptr->flags3 |= (RF3_NO_FEAR);
+	}
+
+	/* adjust for bravery flag*/
+	if ((c_info[ghost_class].flags & CF_BRAVERY_1))
 	{
 		r_ptr->flags3 |= (RF3_NO_FEAR);
 	}

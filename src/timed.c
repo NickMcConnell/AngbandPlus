@@ -157,6 +157,18 @@ static timed_effect effects[] =
 	{ "Your weapon glows with many colors!", "Your weapon returns to normal.",
 			NULL, NULL,
 			PR_RESIST, 0, 0, 0 },
+	/* TMD_WWIND */
+	{ "You can cleave multiple opponents!", "You no longer fight like a whirlwind.",
+			NULL, NULL,
+			PR_STATE | PR_STATUS, PU_BONUS, 0, 0 },
+	/* TMD_SHREWD */
+	{ "You are a shrewd bargainer and can get good shop prices.", "You no longer feel shrewd.",
+			NULL, NULL,
+			PR_STATE | PR_STATUS, PU_BONUS, 0, 0 },
+	/* TMD_COLD_FURY */
+	{ "You are prepared to wait for your revenge!", "Your rage is no longer sustained.",
+			NULL, NULL,
+			PR_STATE | PR_STATUS, PU_BONUS, 0, 0 },
 	/* TMD_CALL_HOURNS */
 	{ "You try to awake the trees around you!", "The trees are asleep now.",
 			NULL, NULL,

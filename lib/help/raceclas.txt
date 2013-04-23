@@ -206,6 +206,25 @@ throw to resist effects of spells cast at him.  Intelligence and Wisdom
 are his primary stats.  He is the weakest fighter of all the classes, and 
 spells are his true realm.
 
+***** <Barbarian>
+Barbarian:
+      A Barbarian is a wild man of the mountains. He is crafty, and a good 
+warrior. When he fights in melee, he becomes enraged. The higher his rage, 
+the more his speed increases. He can also spend rage for various useful 
+abilities. The Barbarian's main disadvantage is that he is illiterate
+and cannot use any scrolls. He also does not know how to zap a wand.
+However, he can get by using town services and certain special abilities.
+He is native to forest.
+
+***** <Berserker>
+Berserker:
+      A Berserker is a feared warrior who becomes frenzied in battle. He 
+gains rage much faster than the Barbarian, and is stronger in melee combat. 
+He is immune to fear. On the other hand, he is illiterate like the Barbarian, 
+and he does not know how to use wands _or_ staffs. He also aggravates 
+monsters, who will come from a long way off to fight him.
+He is native to ice.
+
 
 ====== Modifier Tables ======
 
@@ -233,6 +252,8 @@ Vital statistics:
      Paladin      +3    -3    +1     0    +2    +2       6       +35%
      Brigand      +3    -2    -2    +3    +2    -3       7       +15%
      Druid        -2    +3    +3    -2    -1    +1       1       +30%
+     Barbarian    +3    -3    -1    +2    +2    -3       7       +15%
+     Berserker    +5    -5    -5    +1    +3    -5      10       +25%
 
      To get the total hit dice and experience modifier, add the race and class
 numbers together.  For example:  A Dwarven Priest has a hit die of 11 + 2 = 13,
@@ -268,6 +289,9 @@ for stealth, which is an exact value.
      Paladin     3 - 3   5 - 5   6 - 7    +1       4       1     8 - 9   5 - 6
      Brigand     9 - 9   5 - 5   7 - 6    +7       7       3     8 - 9   8 - 6
      Druid       4 - 4   7 - 8   8 - 7    +2       6       5     1 - 1   1 - 1
+     Barbarian   3 - 3   2 - 2   3 - 5    +3       5       3     6 - 9   6 - 8
+     Berserker   2 - 2   1 - 1   2 - 2    +0       5       3     9 -10+  1 - 3
+
 
      Value for classes are starting ability - final ability.  Note that prayers
 and spells can improve many of these skills dramatically.

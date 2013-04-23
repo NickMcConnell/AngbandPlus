@@ -51,6 +51,17 @@ Paladins no longer get OOD or Shock Bolt
 CL 36 is now a hard cap
 If players hang round at high level with many artifacts, they get 'prods' to hurry up
 
+** v2.02
+
+Removed some deep artifacts
+Changed Saruman and Lurtz's summons
+Beefed up Lurtz a bit more
+Reduced possible speed boost from boots
+Barbarian and berserker classes added 
+Slightly harder to get 4 or 5 attacks
+Measures against stair scumming
+Word of Recall is a temple service
+
 
 
 

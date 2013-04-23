@@ -70,7 +70,7 @@
 
 # Version stamp (required)
 
-V:2.0.1
+V:2.0.2
 
 
 # Here is the list of 'Special' artifacts - Amulets, Light Sources, Rings.
@@ -255,7 +255,7 @@ W:35:10:2:50000
 P:0:0d0:3:3:10
 F:STR | INT | DEX | CON | SUST_STR
 F:SUST_INT | SUST_DEX | SUST_CON | RES_DARK | RES_DISEN 
-F:DRAIN_EXP | IM_FIRE | RES_FIRE | IM_ACID | RES_ACID
+F:DRAIN_EXP | RES_FIRE | IM_ACID | RES_ACID
 F:SLOW_DIGEST | REGEN | SEE_INVIS | FREE_ACT | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE | INSTA_ART
 F:HIDE_TYPE | LIGHT_CURSE | HEAVY_CURSE
@@ -415,22 +415,6 @@ D: legend.  It gleams with purest white as you gaze upon it, and mighty
 D: are its powers to protect and dispel.
 
 
-# The Adamantite Plate Mail 'Soulkeeper'
-
-N:28:'Soulkeeper'
-I:37:30:2
-W:85:9:420:300000
-P:40:2d4:-4:0:20
-F:CON | SUST_CON | RES_ACID | RES_COLD | RES_FEAR
-F:RES_DARK | RES_CONFU | RES_NEXUS | RES_NETHR | RES_CHAOS
-F:HOLD_LIFE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:ACTIVATE
-A:HEAL2:444:0
-D:A suit of imperishable adamant, with unconquerable strength to endure
-D: evil and disruptive magics, that protects the life force of its
-D: wearer as nothing else can.
-
-
 # The Chain Mail of Arvedui
 
 N:29:of Arvedui
@@ -551,53 +535,6 @@ D: Sauron found himself powerless to wither or diminish.
 
 ##### Dragon Armor #####
 
-# The Ancient Dragon Scale Mail 'Razorback'
-
-N:37:'Razorback'
-I:38:3:0
-W:90:9:500:400000
-P:30:2d4:-4:0:25
-F:IM_ELEC | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
-F:RES_POIS | RES_LIGHT | RES_DARK | LIGHT | SEE_INVIS
-F:FREE_ACT | AGGRAVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
-F:IGNORE_COLD | ACTIVATE | NATIVE_FIRE | NATIVE_ICE | NATIVE_ACID
-A:STAR_BALL:50:0
-D:A massive suit of heavy dragon scales deeply saturated with many
-D: colors.  It throbs with angry energies, and you feel the raw
-D: elemental might of untamed Lightning as you put it on.
-
-
-# The Great Wyrm Scale Mail 'Bladeturner'
-
-N:38:'Bladeturner'
-I:38:4:0
-W:100:16:600:500000
-P:50:2d4:-8:0:45
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
-F:RES_FEAR | RES_LIGHT | RES_DARK | RES_BLIND | RES_CONFU
-F:RES_SOUND | RES_SHARD | RES_NEXUS | RES_NETHR | RES_CHAOS
-F:RES_DISEN | REGEN | HOLD_LIFE | IGNORE_ACID | IGNORE_ELEC
-F:IGNORE_FIRE | IGNORE_COLD | ACTIVATE | NATIVE_OIL | NATIVE_FIRE
-F:NATIVE_ICE | NATIVE_LAVA | NATIVE_MUD | NATIVE_ACID | NATIVE_WATER
-A:RAGE_BLESS_RESIST:400:0
-D:A suit of adamant, set with scales of every color, surrounded in a
-D: nimbus of perfectly untramelled yet inextricably intermingled and
-D: utterly mastered powers elemental and ethereal.
-
-
-# The Great Wyrm Shield 'Mediator'
-
-N:39:'Mediator'
-I:41:4:0
-W:95:12:500:400000
-P:25:2d4:0:0:25
-F:RES_CONFU | RES_SOUND | RES_SHARD | RES_NEXUS | RES_CHAOS
-F:RES_DISEN | SLOW_DIGEST | REGEN | FREE_ACT | AGGRAVATE
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
-A:STAR_BALL:50:0
-D:A great shield of dragon hide, set with scales of many hues. Even the
-D: mightiest wyrms of Law and Chaos fear the judgement of its wearer.
-
 
 
 ##### Edged Weapons #####
@@ -700,24 +637,6 @@ D:This coldly gleaming blade, mate to Glamdring, is called simply
 D: "Biter" by orcs who came to know its power all too well.
 
 
-# The Long Sword 'Ringil'
-
-N:47:'Ringil'
-I:23:17:10
-W:80:120:130:300000
-P:0:4d5:22:25:0
-F:SPEED | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | KILL_DEMON
-F:BRAND_COLD | RES_COLD | RES_FEAR | RES_LIGHT | SLOW_DIGEST
-F:LIGHT | REGEN | SEE_INVIS | FREE_ACT | IGNORE_ACID
-F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | BLESSED | ACTIVATE
-F:SHOW_MODS
-A:FROST3:40:0
-D:The weapon of Fingolfin, High King of the Noldor; it shines like a
-D: column of ice lit by light unquenchable.  Morgoth came but
-D: unwillingly to meet it of old; his lame foot will remind him of its
-D: might should he face it again.
-
-
 # The Long Sword 'Gwendohil'
 
 N:48:'Gwendohil'
@@ -770,19 +689,6 @@ F:SEE_INVIS | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:HIDE_TYPE | SHOW_MODS
 D:A damascened scimitar that hefts with wondrous ease.  Famed in song as
 D: the "Sickle of Harad", and a deadly foe to the undead.
-
-
-# The Katana 'Aglarang'
-
-N:52:'Aglarang'
-I:23:20:5
-W:80:25:50:40000
-P:0:8d4:0:0:0
-F:DEX | SPEED | SUST_DEX | IGNORE_ACID | IGNORE_ELEC
-F:IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE | SHOW_MODS
-D:An utterly perfect, cleanly chiseled sword, with a edge that
-D: effortlessly slices rock and bone and spells to render the wearer
-D: lithe and nimble.  It is combat incarnate.
 
 
 # The Bastard Sword of Eowyn
@@ -871,26 +777,10 @@ D: from a massive double-pronged hilt.  On its blade are written
 D: doomspells against both the living and undead.
 
 
-# The Blade of Chaos 'Doomcaller'
-
-N:59:'Doomcaller'
-I:23:30:0
-W:70:25:180:200000
-P:0:6d5:18:28:-50
-F:SLAY_ANIMAL | SLAY_EVIL | SLAY_DEMON | SLAY_TROLL | KILL_DRAGON
-F:BRAND_COLD | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
-F:RES_CHAOS | TELEPATHY | SEE_INVIS | FREE_ACT | AGGRAVATE
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | SHOW_MODS
-D:This weapon of wrath, wrought by a desperate berserker gang, dives
-D: hungrily into the yielding flesh of your enemies.  You yourself fall
-D: under the shadow of death even as you inflict wounds that will not
-D: heal.
-
-
 # The Dagger 'Angrist'
 
 N:60:'Angrist'
-I:23:4:4
+I:23:4:2
 W:20:40:12:100000
 P:0:2d4:10:15:5
 F:DEX | SPEED | SLAY_EVIL | SLAY_ORC | SLAY_TROLL
@@ -1131,20 +1021,6 @@ D: Elves, against which all the foul corruptions of Sauron dashed in
 D: vain.
 
 
-# The Spear of Melkor
-
-N:77:of Melkor
-I:22:2:-4
-W:80:45:200:100000
-P:0:4d6:-12:20:0
-F:WIS | STEALTH | BRAND_POIS | RES_LIGHT | RES_DARK
-F:RES_BLIND | RES_NETHR | AGGRAVATE | DRAIN_EXP | IGNORE_ACID
-F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | LIGHT_CURSE | HEAVY_CURSE
-D:A mighty, heavy black spear, once wielded by the Lord of Darkness
-D: himself as he came to Valinor in wrath. Its envenomed bite pierced
-D: the Two Trees with wounds that would not heal.
-
-
 # The Spear of Orome
 
 N:78:of Orom["e]
@@ -1224,9 +1100,9 @@ D: before, and probably never shall one be again.
 N:83:of Durin
 I:22:25:2
 W:30:90:230:150000
-P:0:4d4:10:20:15
+P:0:4d4:10:13:15
 F:STR | CON | TUNNEL | SLAY_DEMON | SLAY_ORC
-F:SLAY_TROLL | KILL_DRAGON | BRAND_ACID | BRAND_FIRE | RES_ACID
+F:SLAY_TROLL | SLAY_DRAGON | BRAND_ACID | BRAND_FIRE | RES_ACID
 F:RES_FIRE | RES_FEAR | RES_LIGHT | RES_DARK | RES_CONFU
 F:RES_CHAOS | FREE_ACT | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | HIDE_TYPE | SHOW_MODS
@@ -1353,22 +1229,6 @@ F:SHOW_MODS
 A:CONFUSE:15:0
 D:A flail whose head befuddles those who stare as you whirl it round,
 D: and becomes a fiery comet as you bring it down.
-
-
-# The Whip of Gothmog
-
-N:92:of Gothmog
-I:21:2:-3
-W:80:25:90:25000
-P:0:6d3:13:15:0
-F:INT | WIS | DEX | SLAY_ANIMAL | SLAY_TROLL
-F:SLAY_GIANT | KILL_DRAGON | BRAND_FIRE | IM_FIRE | RES_ELEC
-F:RES_DARK | LIGHT | AGGRAVATE | IGNORE_ACID | IGNORE_ELEC
-F:IGNORE_FIRE | IGNORE_COLD | ACTIVATE | HIDE_TYPE | SHOW_MODS
-F:LIGHT_CURSE | HEAVY_CURSE
-A:FIRE3:15:0
-D:A great crackling Balrog's whip of flame, this weapon could bring even
-D: Ungoliant to heel.
 
 
 # The Mace of Disruption 'Deathwreaker'
@@ -1612,7 +1472,7 @@ D: terrible physical cost.
 # The Golden Crown of Gondor
 
 N:109:of Gondor
-I:33:11:3
+I:33:11:2
 W:30:50:30:100000
 P:0:1d1:0:0:15
 F:STR | WIS | CON | RES_FIRE
@@ -1802,7 +1662,7 @@ F:INT | DEX | STEALTH | SEARCH
 F:SPEED | MIGHT | SUST_INT | SUST_DEX | RES_FEAR
 F:RES_NEXUS | SLOW_DIGEST | REGEN | IGNORE_ACID | IGNORE_ELEC
 F:IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE
-D:A legendary sling capable of dealing out an amazing amount of damage
+D:A legendary sling capable of dealing out a great deal of damage
 D: for those who are skilled in its use.
 
 

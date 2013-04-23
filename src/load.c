@@ -335,6 +335,7 @@ static errr rd_item(object_type *o_ptr)
 
 		if ((o_ptr->tval != TV_MAGIC_BOOK) &&
 		    (o_ptr->tval != TV_PRAYER_BOOK) &&
+		    (o_ptr->tval != TV_BARBARIAN_BOOK) &&
 		    (o_ptr->tval != TV_DRUID_BOOK))
 		{
 
@@ -1197,6 +1198,15 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
 
+	if (!(older_than(2,0,1)))
+	{
+		rd_s16b(&p_ptr->crp);
+		rd_s16b(&p_ptr->rage_fading);
+	} else {
+		p_ptr->crp = 0;
+		p_ptr->rage_fading = 0;
+	}
+
 	rd_s16b(&p_ptr->max_lev);
 	rd_s16b(&p_ptr->max_depth);
 
@@ -1259,6 +1269,15 @@ static errr rd_extra(void)
 
 
 	rd_byte(&p_ptr->confusing);
+	if (!(older_than(2,0,1)))
+	{
+		rd_byte(&p_ptr->safe_to_ascend);
+		rd_s16b(&p_ptr->safe_to_ascend_counter);
+		rd_byte(&p_ptr->hunting);
+		rd_s16b(&p_ptr->timed[TMD_WWIND]);
+		rd_s16b(&p_ptr->timed[TMD_COLD_FURY]);
+		rd_s16b(&p_ptr->timed[TMD_SHREWD]);
+	}
 	rd_s16b(&p_ptr->timed[TMD_SLAY_ELEM]);	/* oops */
 	rd_byte(&tmp8u);
 	p_ptr->timed[TMD_FLYING] = tmp8u;

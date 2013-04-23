@@ -592,6 +592,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->csp);
 	wr_u16b(p_ptr->csp_frac);
 
+	wr_s16b(p_ptr->crp);
+	wr_s16b(p_ptr->rage_fading);
+
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
 	wr_s16b(p_ptr->max_depth);
@@ -644,6 +647,12 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->timed[TMD_NAT_MUD]);
 
 	wr_byte(p_ptr->confusing);
+	wr_byte(p_ptr->safe_to_ascend);
+	wr_s16b(p_ptr->safe_to_ascend_counter);
+	wr_byte(p_ptr->hunting);
+	wr_s16b(p_ptr->timed[TMD_WWIND]);
+	wr_s16b(p_ptr->timed[TMD_COLD_FURY]);
+	wr_s16b(p_ptr->timed[TMD_SHREWD]);
 	wr_s16b(p_ptr->timed[TMD_SLAY_ELEM]);
 	wr_byte(p_ptr->timed[TMD_FLYING]);
 	wr_byte(p_ptr->searching);

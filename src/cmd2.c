@@ -169,6 +169,17 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 		p_ptr->create_stair = FEAT_MORE_SHAFT;
 	}
 
+	if (!(p_ptr->safe_to_ascend) && (p_ptr->depth > 2))
+	{
+		/* Haven't been on the level long enough */
+		if (one_in_(7))
+		{
+			p_ptr->create_stair = FALSE;
+			message_flush();
+			msg_print("The stairwell caves in behind you! You will not be able to get back down...");
+		}
+	}
+
 	/* Change level */
 	dungeon_change_level(p_ptr->depth - decrease);
 }
@@ -1072,7 +1083,7 @@ void do_cmd_open(cmd_code code, cmd_arg args[])
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, 0);
 	}
 
 	/* Chest */
@@ -1216,7 +1227,7 @@ void do_cmd_close(cmd_code code, cmd_arg args[])
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, 0);
 	}
 
 	/* Door */
@@ -1432,7 +1443,7 @@ void do_cmd_tunnel(cmd_code code, cmd_arg args[])
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, 0);
 	}
 
 	/* Walls */
@@ -1652,7 +1663,7 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, 0);
 	}
 
 	/* Chest */
@@ -1907,7 +1918,7 @@ void do_cmd_bash(cmd_code code, cmd_arg args[])
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, 0);
 	}
 
 	/* Door */
@@ -2138,7 +2149,7 @@ void do_cmd_alter_aux(int dir)
 	/*Is there a monster on the space?*/
 	if (cave_m_idx[y][x] > 0)
 	{
-		py_attack(y, x);
+		py_attack(y, x, 0);
 	}
 
 	/* Tunnel through walls */
@@ -2280,7 +2291,7 @@ void do_cmd_spike(cmd_code code, cmd_arg args[])
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, 0);
 	}
 
 	/* Go for it */

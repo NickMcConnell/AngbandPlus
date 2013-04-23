@@ -709,6 +709,7 @@ static long eval_max_dam(int r_idx)
 						/*Right now all flag7 are summon spells*/
 						/* All summons are assigned arbitrary values according to their levels*/
 						if 		(flag_counter == RF7_S_KIN) 	this_dam = rlev * 2;
+						else if (flag_counter == RF7_S_TROOPS)	this_dam = rlev * 3 / 2;
 						else if (flag_counter == RF7_S_MONSTER)	this_dam = rlev * 2 / 5;
 						else if (flag_counter == RF7_S_MONSTERS)this_dam = rlev * 4 / 5;
 						else if (flag_counter == RF7_S_ANT)		this_dam = rlev / 5;
@@ -726,6 +727,7 @@ static long eval_max_dam(int r_idx)
 						else if (flag_counter == RF7_S_UNDEAD)	this_dam = rlev * 3 / 2;
 						else if (flag_counter == RF7_S_HI_UNDEAD)this_dam = rlev * 4;
 						else if (flag_counter == RF7_S_WRAITH)	this_dam = rlev * 9 / 2;
+						else if (flag_counter == RF7_S_LO_UNIQUE)	this_dam = rlev * 2;
 						else if (flag_counter == RF7_S_UNIQUE)	this_dam = rlev * 3;
 						else if (flag_counter == RF7_S_HI_UNIQUE)	this_dam = rlev * 5;
 						break;

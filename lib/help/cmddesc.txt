@@ -232,18 +232,19 @@ slowly.  Search mode will automatically turn off if you are disturbed.
 --- Spell and Prayer Commands ---
 
 Browse a book (b) / (P) :
-     Open a readable book and read the spells or prayer in it, learning
+     Open a readable book and read the spells, prayers or barbarian abilities in it, learning
 information such as their level, cost to cast, etc.  This command takes no time.
 
-Gain new spells or prayers (G) :
-     When you are able to learn new spells or prayers, the word "Study" will
-appear on the status line at the bottom of the screen.  You then issue this
-command and choose a book with unlearnt magics.  Priests and Paladins get a
-prayer at random; other magic-using classes may choose.  This command takes a
-full turn.
+Gain new spells, prayers or barbarian abilities (G) :
+     When you are able to learn new spells, prayers or barbarian abilities, 
+the word "Study" will appear on the status line at the bottom of the screen.  
+You then issue this command and choose a book with unlearnt magics.  Priests 
+and Paladins get a prayer at random; other magic-using classes may choose.  
+This command takes a full turn.
 
-Cast a spell or Pray a prayer (m and p) :
-     Cast a known spell or prayer.  This command takes a full turn.
+Cast a spell or Pray a prayer or Perform a barbarian ability (m and p) :
+     Cast a known spell, prayer or use a barbarian ability.  This command 
+takes a full turn.
 
 
 --- Throwing and Missile Weapons ---

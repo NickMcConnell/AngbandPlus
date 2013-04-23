@@ -153,6 +153,7 @@
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
 #define TV_DRUID_BOOK	92
+#define TV_BARBARIAN_BOOK	93
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 

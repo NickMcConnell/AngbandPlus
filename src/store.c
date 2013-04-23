@@ -101,8 +101,9 @@ static int quests_max;
 #define SERVICE_ABANDON_QUEST	19
 #define SERVICE_FIREPROOF_BOOK  20
 #define SERVICE_QUEST_REWARD 	21
+#define SERVICE_WOR 	22
 
-#define STORE_SERVICE_MAX 		22
+#define STORE_SERVICE_MAX 		23
 
 /* Indicates which store offers the service*/
 static byte service_store[STORE_SERVICE_MAX] =
@@ -128,7 +129,8 @@ static byte service_store[STORE_SERVICE_MAX] =
 	STORE_GUILD,		/*	SERVICE_BUY_SCROLL_BANISHMENT	*/
 	STORE_GUILD,		/*	SERVICE_ABANDON_QUEST		*/
 	STORE_BOOKSHOP,		/*	SERVICE_FIREPROOF_BOOK		*/
-	STORE_GUILD			/*	SERVICE_QUEST_REWARD		*/
+	STORE_GUILD,		/*	SERVICE_QUEST_REWARD		*/
+	STORE_TEMPLE		/*	SERVICE_WOR		*/
 };
 
 /* Indicates the base price of the service*/
@@ -140,7 +142,7 @@ static u32b service_price[STORE_SERVICE_MAX] =
 	35000,				/*  SERVICE_ELEM_BRAND_WEAP   	*/
 	17500,				/*  SERVICE_ELEM_BRAND_AMMO   	*/
 	175, 				/*  SERVICE_RECHARGING   		*/
-	75, 				/*  SERVICE_IDENTIFY   			*/
+	100, 				/*  SERVICE_IDENTIFY   			*/
 	2000,		 		/*  SERVICE_IDENTIFY_FULLY		*/
 	75, 				/*  SERVICE_CURE_CRITICAL  		*/
 	1000, 				/*  SERVICE_RESTORE_LIFE_LEVELS	*/
@@ -156,6 +158,7 @@ static u32b service_price[STORE_SERVICE_MAX] =
 	0,					/*  SERVICE_ABANDON_QUEST 		*/
 	100000L,			/*  SERVICE_FIREPROOF_BOOK 		*/
 	0,					/*  SERVICE_QUEST_REWARD 		*/
+	400,					/*  SERVICE_WOR 		*/
 };
 
 /*
@@ -185,6 +188,7 @@ static cptr service_names[STORE_SERVICE_MAX] =
 	"Abandon Your Quest",						/* SERVICE_ABANDON_QUEST 		*/
 	"Make Spell Book Fireproof[price varies]",	/* SERVICE_FIREPROOF_BOOK */
 	"Receive Your Quest Reward!",				/* SERVICE_QUEST_REWARD */
+	"Word of Recall",							/* SERVICE_WOR */
 };
 
 
@@ -542,6 +546,10 @@ static u32b price_services(int store_num, int choice)
 	{
 		/* Extract the "minimum" price */
 		price = ((price * adj_chr_gold[p_ptr->state.stat_ind[A_CHR]]) / 100L);
+		if (p_ptr->timed[TMD_SHREWD])
+		{
+			price = (price * 9) / 10;
+		}
 	}
 
 	/*Guild price factoring*/
@@ -1286,6 +1294,17 @@ static bool store_service_aux(int store_num, s16b choice)
 
 			return (TRUE);
 		}
+		case SERVICE_WOR:
+		{
+			/*Too expensive*/
+			if (!check_gold(price)) return (FALSE);
+
+			set_recall();
+
+			p_ptr->au -= price;
+
+			return (TRUE);
+		}
 		case SERVICE_FIREPROOF_BOOK:
 		{
 
@@ -1441,7 +1460,6 @@ s32b price_item(const object_type *o_ptr, bool store_buying)
 	if (this_store == STORE_B_MARKET) adjust = 175;
 	else adjust = adj_chr_gold[p_ptr->state.stat_ind[A_CHR]];
 
-
 	/* Shop is buying */
 	if (store_buying)
 	{
@@ -1454,6 +1472,12 @@ s32b price_item(const object_type *o_ptr, bool store_buying)
 
 		/* Mega-Hack -- Black market sucks */
 		if (this_store == STORE_B_MARKET) price = price / 2;
+
+		if (p_ptr->timed[TMD_SHREWD])
+		{
+			price = (price * 11) / 10;
+		}
+
 	}
 
 	/* Shop is selling */
@@ -1466,6 +1490,12 @@ s32b price_item(const object_type *o_ptr, bool store_buying)
 
 		/* Mega-Hack -- Black market sucks */
 		if (this_store == STORE_B_MARKET) price = price * 2;
+
+		if (p_ptr->timed[TMD_SHREWD])
+		{
+			price = (price * 9) / 10;
+		}
+
 	}
 
 	/* Compute the final price (with rounding) */
@@ -1522,6 +1552,7 @@ static void mass_produce(object_type *o_ptr)
 
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_DRUID_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);
@@ -1906,6 +1937,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 			{
 				case TV_MAGIC_BOOK:
 				case TV_DRUID_BOOK:
+				case TV_BARBARIAN_BOOK:
 				case TV_PRAYER_BOOK:
 				break;
 				default:
@@ -2350,6 +2382,7 @@ static bool keep_in_stock(const object_type *o_ptr, int which)
 		}
 		case TV_PRAYER_BOOK:
 		case TV_MAGIC_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_DRUID_BOOK:
 		{
 			if (k_ptr->sval < SV_BOOK_MIN_GOOD) return (TRUE);
@@ -3644,7 +3677,7 @@ bool item_tester_hook_flammable_book(const object_type *o_ptr)
 	u32b f1, f2, f3, fn;
 
 	if 	((o_ptr->tval != TV_PRAYER_BOOK) && (o_ptr->tval != TV_DRUID_BOOK) &&
-	 	 (o_ptr->tval != TV_MAGIC_BOOK)) return (FALSE);
+	 	 (o_ptr->tval != TV_MAGIC_BOOK) && (o_ptr->tval != TV_BARBARIAN_BOOK)) return (FALSE);
 
 	/* Get the "known" flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &fn);

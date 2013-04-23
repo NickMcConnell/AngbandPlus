@@ -670,6 +670,7 @@ static bool critical_norm(int weight, int plus, int *dd, int *ds)
 		{
 			sound(MSG_HIT_GOOD);
 			msg_print("It was a good hit!");
+			rage(7);
 			*dd *= 2;
 			*ds += 2;
 		}
@@ -677,6 +678,7 @@ static bool critical_norm(int weight, int plus, int *dd, int *ds)
 		{
 			sound(MSG_HIT_GREAT);
 			msg_print("It was a great hit!");
+			rage(15);
 			*dd *= 2;
 			*ds += 4;
 		}
@@ -684,6 +686,7 @@ static bool critical_norm(int weight, int plus, int *dd, int *ds)
 		{
 			sound(MSG_HIT_SUPERB);
 			msg_print("It was a superb hit!");
+			rage(25);
 			*dd *= 3;
 			*ds += 6;
 		}
@@ -691,6 +694,7 @@ static bool critical_norm(int weight, int plus, int *dd, int *ds)
 		{
 			sound(MSG_HIT_HI_GREAT);
 			msg_print("It was a *GREAT* hit!");
+			rage(35);
 			*dd *= 3;
 			*ds += 8;
 		}
@@ -698,6 +702,7 @@ static bool critical_norm(int weight, int plus, int *dd, int *ds)
 		{
 			sound(MSG_HIT_HI_SUPERB);
 			msg_print("It was a *SUPERB* hit!");
+			rage(45);
 			*dd *= 7;
 			*ds += (*dd % 2);
 			*dd /= 2;
@@ -1024,10 +1029,11 @@ cptr tot_dam_aux_verb(const object_type *o_ptr, const monster_type *m_ptr, bool 
  * Note p_ptr->base_energy_use needs to be declared before this function is called,
  * so energy use can be reduced if the player doesn't use full energy.
  */
-void py_attack(int y, int x)
+void py_attack(int y, int x, int less_attacks)
 {
 	int num = 0, k, bonus, chance;
 	int hits = 0;
+	int blows;
 
 	int sleeping_bonus = 0;
 
@@ -1146,7 +1152,13 @@ void py_attack(int y, int x)
 	m_ptr->mflag |= (MFLAG_HIT_BY_MELEE);
 
 	/* Attack once for each legal blow */
-	while (num++ < p_ptr->state.num_blow)
+	if (less_attacks)
+	{
+		blows = (p_ptr->state.num_blow + 1) / 2;
+	} else {
+		blows = p_ptr->state.num_blow;
+	}
+	while (num++ < blows)
 	{
 		int mon_ac = r_ptr->ac;
 
@@ -1201,6 +1213,7 @@ void py_attack(int y, int x)
 				my_strcpy(verb,tot_dam_aux_verb(o_ptr,m_ptr,TRUE),20);
 				message_format(MSG_GENERIC, m_ptr->r_idx, "You %s %s.", verb, m_name);
 			}
+			rage((r_info[m_ptr->r_idx].level * 2) / 3);
 
 			/* If this was the first hit, make some noise */
 			hits++;
@@ -1250,6 +1263,7 @@ void py_attack(int y, int x)
 					p_ptr->p_energy_use -= (((p_ptr->state.num_blow - (num)) * BASE_ENERGY_MOVE ) /
 							p_ptr->state.num_blow);
 				}
+				rage(r_info[m_ptr->r_idx].level);
 				break;
 			}
 

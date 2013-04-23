@@ -928,6 +928,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 		/* Generate treasure */
 		monster_death(m_idx, who);
 
+		if (p_ptr->hunting)
+		{
+			p_ptr->hunting = 0;
+			if (r_ptr->flags3 & (RF3_ANIMAL))
+			{
+				msg_print("You devour the carcass!");
+				(void)set_food(p_ptr->food + MAX(500,MIN(5000,20*m_ptr->maxhp)));
+
+			} else {
+				msg_print("You cannot eat this!");
+			}
+		}
+
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{

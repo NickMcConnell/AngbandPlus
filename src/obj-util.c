@@ -2262,6 +2262,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_LIGHT:
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_DRUID_BOOK:
 		{
 			/* Require both items to be known */

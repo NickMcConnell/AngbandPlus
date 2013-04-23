@@ -66,6 +66,7 @@
 #define MAGE_REALM		0
 #define PRIEST_REALM	1
 #define DRUID_REALM		2
+#define BARBARIAN_REALM		3
 
 /*Define the spell slot for the various classes*/
 #define SPELL_STAT_SLOT \
@@ -316,7 +317,27 @@
 #define DRUID_MASTER_ELEMENTS			62
 #define DRUID_STEAL_POWERS				63
 
+/* Fetish */
+#define BARB_HEAL_BUFF_1                0
+#define BARB_HUNTING          			1
+#define BARB_SWIMMING              	 	2
+#define BARB_HEAL_BUFF_2              	3
+#define BARB_RES_COLD         	 		4
+#define BARB_RES_FIRE                	5
+#define BARB_CLIMBING             	 	6
+#define BARB_SUPERSTITION           	7
+#define BARB_CUNNING		            8
 
+/* Totem */
+#define BARB_HEAL_BUFF_3	            9
+#define BARB_COLD_FURY        			10
+#define BARB_NOMAD               		11
+#define BARB_HEAL_BUFF_4              	12
+#define BARB_RES_POISON    				13
+#define BARB_INSTINCTS         			14
+#define BARB_LEAP           			15
+#define BARB_WARCRY_WAKE               	16
+#define BARB_WARCRY_FEAR				17
 
 /*
  * Flags for player_type.spell_flags[]
@@ -369,7 +390,7 @@
 #define DETECT_TERRAIN		0x0400 	/* Detect Terrain */
 #define DETECT_TRAPS		0x0800 	/* Detect Traps */
 #define DETECT_MAP			0x1000 	/* Magic Mapping */
-#define DETECT_XXXX2		0x2000 	/* Unused */
+#define DETECT_ANIMALS		0x2000 	/* Detect Animals */
 #define DETECT_XXXX4		0x4000 	/* Unused */
 #define DETECT_XXXX8		0x8000 	/* Unused */
 
@@ -475,6 +496,9 @@ enum
 	TMD_NAT_WATER,
 	TMD_NAT_MUD,
 	TMD_SLAY_ELEM,
+	TMD_WWIND,
+	TMD_SHREWD,
+	TMD_COLD_FURY,
 	TMD_CALL_HOURNS,
 
 	TMD_MAX
@@ -682,9 +706,9 @@ enum
 #define CF_SET_TRAPS		0x00000800L /* Can set traps for monsters to fall into*/
 #define CF_EXTRA_ATTACK		0x00001000L /* extra attack at level 26*/
 #define CF_BRIGAND_COMBAT		0x00002000L /* Brigand combat */
-#define CF_CFXXX15			0x00004000L
-#define CF_CFXXX16			0x00008000L
-#define CF_CFXXX17			0x00010000L
+#define CF_BRAVERY_1		0x00004000L	/* Gains resist fear at plev 1 */
+#define CF_RAGE			0x00008000L /* Barbarian or berserker */
+#define CF_LOTS_OF_RAGE			0x00010000L /* The berserker, in this case */
 #define CF_CFXXX18			0x00020000L
 #define CF_CFXXX19			0x00040000L
 #define CF_CFXXX20			0x00080000L

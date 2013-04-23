@@ -590,6 +590,7 @@ static const tval_desc tvals[] =
 	{ TV_PRAYER_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
 	{ TV_DRUID_BOOK,        "Druid Book"           },
+	{ TV_BARBARIAN_BOOK,        "Barbarian Talisman"           },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },

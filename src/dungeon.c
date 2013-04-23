@@ -27,6 +27,13 @@ void dungeon_change_level(int dlev)
 	/* New depth */
 	p_ptr->depth = dlev;
 
+	/* Not safe yet */
+	if (dlev>0)
+	{
+		p_ptr->safe_to_ascend = FALSE;
+		p_ptr->safe_to_ascend_counter = 40 + rand_int(40);
+	}
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 
@@ -1167,6 +1174,31 @@ static void process_world(void)
 		regenhp(regen_amount);
 	}
 
+	/* Rage runs out */
+	if (!(turn % 100))
+	{
+		if (!(p_ptr->timed[TMD_COLD_FURY]) || (!(turn % 3)))
+		{
+			if ((p_ptr->crp>0) && (p_ptr->rage_fading>0))
+			{
+				p_ptr->crp -= 1;
+				p_ptr->rage_fading = 0;
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->update |= (PU_BONUS);
+				if (p_ptr->crp)
+				{
+					msg_format("Your rage is fading...");
+				} else
+				{
+					msg_format("You calm down.");
+				}
+			} else if ((p_ptr->crp>0) && (p_ptr->rage_fading==0)){
+				p_ptr->rage_fading = 1;
+				p_ptr->redraw |= (PR_MANA);
+			}
+		}
+	}
+
 	/*** Timeout Various Things ***/
 
 	decrease_timeouts();
@@ -1426,7 +1458,7 @@ static void process_world(void)
 	notice_stuff();
 
 	/* Summon monsters on the player, if they ought to be going to get Saruman */
-	if (one_in_(100))
+	if (one_in_(200))
 	{
 		if ((p_ptr->lev>=30) && (p_ptr->depth>0) && (p_ptr->depth<12) && !(p_ptr->total_winner) && !(p_ptr->depth == q_info[quest_num(p_ptr->cur_quest)].active_level))
 		{
@@ -2717,6 +2749,9 @@ void play_game(void)
 				/* Restore spell points */
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
+
+				p_ptr->crp = 0;
+				p_ptr->rage_fading = 1;
 
 				/* Hack -- Healing */
 				(void)(clear_timed(TMD_BLIND, TRUE));

@@ -84,6 +84,10 @@ static const char *obj_desc_get_modstr(const object_type *o_ptr)
 		case TV_PRAYER_BOOK:
 		case TV_DRUID_BOOK:
 			return (k_name + k_ptr->name);
+
+		case TV_BARBARIAN_BOOK:
+			return (k_name + k_ptr->name);
+
 	}
 
 	return "";
@@ -163,6 +167,9 @@ static const char *obj_desc_get_basename(const object_type *o_ptr, bool aware)
 
 		case TV_DRUID_BOOK:
 				return "& Book~ of Druid Spells #";
+
+		case TV_BARBARIAN_BOOK:
+				return "& Talisman~ #";
 
 		case TV_FOOD:
 			if (o_ptr->sval < SV_FOOD_MIN_FOOD)
@@ -1055,6 +1062,14 @@ void mimic_desc_object(char *buf, size_t max, s16b mimic_k_idx)
 		{
 			modstr = basenm;
 			basenm = "& Book~ of Mage Spells #";
+			break;
+		}
+
+		/* Barbarian Books */
+		case TV_BARBARIAN_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Talisman~ #";
 			break;
 		}
 

@@ -1159,6 +1159,7 @@ static bool hates_fire(const object_type *o_ptr)
 		/* Books */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_DRUID_BOOK:
 		{
 			return (TRUE);
@@ -1309,6 +1310,7 @@ static bool hates_lava(const object_type *o_ptr)
 		case TV_ROD:
 		case TV_LIGHT:
 		case TV_MAGIC_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_PRAYER_BOOK:
 		case TV_DRUID_BOOK:
 		case TV_CHEST:

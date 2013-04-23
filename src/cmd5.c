@@ -42,7 +42,12 @@ s16b spell_chance(int spell)
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= adj_mag_stat[SPELL_STAT_SLOT];
+	if (cp_ptr->spell_book == TV_BARBARIAN_BOOK)
+	{
+		chance -= 5;
+	} else {
+		chance -= adj_mag_stat[SPELL_STAT_SLOT];
+	}
 
 	// BB added - make spellcasting easier
 	if (chance > 10){
@@ -55,9 +60,14 @@ s16b spell_chance(int spell)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[SPELL_STAT_SLOT];
+	if (cp_ptr->spell_book == TV_BARBARIAN_BOOK)
+	{
+		minfail = 0;
+	} else {
+		minfail = adj_mag_fail[SPELL_STAT_SLOT];
+	}
 
-	/* Non mage/priest characters never get better than 5 percent */
+	/* Non mage/priest/barbarian/berserker characters never get better than 5 percent */
 	if (!(cp_ptr->flags & CF_ZERO_FAIL))
 	{
 		if (minfail < 5) minfail = 5;
@@ -72,9 +82,12 @@ s16b spell_chance(int spell)
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
 
-	/* Stunning makes spells harder (after minfail) */
-	if (p_ptr->timed[TMD_STUN] > 50) chance += 25;
-	else if (p_ptr->timed[TMD_STUN]) chance += 15;
+	if (!(cp_ptr->spell_book == TV_BARBARIAN_BOOK))
+	{
+		/* Stunning makes spells harder (after minfail) */
+		if (p_ptr->timed[TMD_STUN] > 50) chance += 25;
+		else if (p_ptr->timed[TMD_STUN]) chance += 15;
+	}
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -149,7 +162,12 @@ void print_spells(const byte *spells, int num, int row, int col)
 	/* Title the list */
 	prt("", row, col);
 	put_str("Name", row, col + 5);
-	put_str("Lv Mana Fail Info", row, col + 35);
+	if (cp_ptr->flags & CF_RAGE)
+	{
+		put_str("Lv Rage Fail Info", row, col + 35);
+	} else {
+		put_str("Lv Mana Fail Info", row, col + 35);
+	}
 
 	/* Dump the spells */
 	for (i = 0; i < num; i++)
@@ -186,6 +204,11 @@ void print_spells(const byte *spells, int num, int row, int col)
 			case TV_DRUID_BOOK:
 			{
 				comment = do_druid_spell(MODE_SPELL_DESC, spell, 0);
+				break;
+			}
+			case TV_BARBARIAN_BOOK:
+			{
+				comment = do_barbarian_spell(MODE_SPELL_DESC, spell, 0);
 				break;
 			}
 			/*Oops*/
@@ -652,7 +675,7 @@ bool player_can_study(void)
 
 	if (!p_ptr->new_spells)
 	{
-		cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+		cptr p = ((cp_ptr->spell_book == TV_BARBARIAN_BOOK) ? "power" : ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer"));
 		msg_format("You cannot learn any new %ss!", p);
 		return FALSE;
 	}
@@ -726,7 +749,7 @@ void do_cmd_study_book(cmd_code code, cmd_arg args[])
 	int spell = -1;
 	int i, k = 0;
 
-	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((cp_ptr->spell_book == TV_BARBARIAN_BOOK) ? "power" : ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer"));
 
 	/* Check the player can study at all atm */
 	if (!player_can_study())
@@ -777,24 +800,33 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 	int chance;
 
 	bool prayer = cp_ptr->spell_book == TV_PRAYER_BOOK ? TRUE : FALSE;
+	bool power = cp_ptr->spell_book == TV_BARBARIAN_BOOK ? TRUE : FALSE;
 
 	const magic_type *s_ptr;
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
-	/* Verify "dangerous" spells */
-	if (s_ptr->smana > p_ptr->csp)
-	{
-		/* Warning */
-		if (prayer) msg_print("You do not have enough mana to cast this prayer.");
-		else msg_print("You do not have enough mana to cast this spell.");
+	if (power){
+		if (s_ptr->smana > p_ptr->crp)
+		{
+			msg_print("You are not angry enough!");
+			return;
+		}
+	} else {
+		/* Verify "dangerous" spells */
+		if (s_ptr->smana > p_ptr->csp)
+		{
+			/* Warning */
+			if (prayer) msg_print("You do not have enough mana to cast this prayer.");
+			else msg_print("You do not have enough mana to cast this spell.");
 
-		/* Flush input */
-		flush();
+			/* Flush input */
+			flush();
 
-		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+			/* Verify */
+			if (!get_check("Attempt it anyway? ")) return;
+		}
 	}
 
 
@@ -834,38 +866,42 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
-	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
-	{
-		/* Use some mana */
-		p_ptr->csp -= s_ptr->smana;
-	}
-
-	/* Over-exert the player */
-	else
-	{
-		int oops = s_ptr->smana - p_ptr->csp;
-
-		/* No mana left */
-		p_ptr->csp = 0;
-		p_ptr->csp_frac = 0;
-
-		/* Message */
-		msg_print("You faint from the effort!");
-
-		/* Hack -- Bypass free action */
-		(void)inc_timed(TMD_PARALYZED, randint1(5 * oops + 1), TRUE);
-
-		/* Damage CON (possibly permanently) */
-		if (rand_int(100) < 50)
+	if (power){
+		p_ptr->crp -= s_ptr->smana;
+	} else {
+		/* Sufficient mana */
+		if (s_ptr->smana <= p_ptr->csp)
 		{
-			bool perm = (rand_int(100) < 25);
+			/* Use some mana */
+			p_ptr->csp -= s_ptr->smana;
+		}
+
+		/* Over-exert the player */
+		else
+		{
+			int oops = s_ptr->smana - p_ptr->csp;
+
+			/* No mana left */
+			p_ptr->csp = 0;
+			p_ptr->csp_frac = 0;
 
 			/* Message */
-			msg_print("You have damaged your health!");
+			msg_print("You faint from the effort!");
 
-			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint(10), perm);
+			/* Hack -- Bypass free action */
+			(void)inc_timed(TMD_PARALYZED, randint1(5 * oops + 1), TRUE);
+
+			/* Damage CON (possibly permanently) */
+			if (rand_int(100) < 50)
+			{
+				bool perm = (rand_int(100) < 25);
+
+				/* Message */
+				msg_print("You have damaged your health!");
+
+				/* Reduce constitution */
+				(void)dec_stat(A_CON, 15 + randint(10), perm);
+			}
 		}
 	}
 
@@ -881,7 +917,7 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 void spell_learn(int spell)
 {
 	int i;
-	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((cp_ptr->spell_book == TV_BARBARIAN_BOOK) ? "power" : ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer"));
 
 	/* Learn the spell */
 	p_ptr->spell_flags[spell] |= PY_SPELL_LEARNED;

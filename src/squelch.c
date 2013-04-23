@@ -786,6 +786,7 @@ static tval_desc raw_tvals[] =
 	{TV_FLASK, "Flaskes"},
 	{TV_FOOD, "Food"},
 	{TV_MAGIC_BOOK, "Magic Books"},
+	{TV_BARBARIAN_BOOK, "Barbarian Talismans"},
 	{TV_PRAYER_BOOK, "Prayer Books"},
 	{TV_DRUID_BOOK, "Druid Books"}
 };
@@ -1677,6 +1678,7 @@ static void init_tv_to_type(void)
 	tv_to_type[TV_MAGIC_BOOK]=TYPE_BOOK;
 	tv_to_type[TV_PRAYER_BOOK]=TYPE_BOOK;
 	tv_to_type[TV_DRUID_BOOK]=TYPE_BOOK;
+	tv_to_type[TV_BARBARIAN_BOOK]=TYPE_BOOK;
 
 	/* Note the types of objects that have been seen */
 	for (i = 1; i < z_info->k_max; i++)

@@ -61,10 +61,10 @@ typedef struct
 /* Magic use */
 static command_type cmd_magic[] =
 {
-	{ "Gain new spells or prayers", 'G', CMD_NULL, textui_cmd_study },
+	{ "Gain spells/prayers/powers", 'G', CMD_NULL, textui_cmd_study },
 	{ "Browse a book",              'b', CMD_NULL, do_cmd_browse },
 	{ "Cast a spell",               'm', CMD_NULL, textui_cmd_cast },
-	{ "Pray a prayer",              'p', CMD_NULL, textui_cmd_pray }
+	{ "Pray a prayer / use a power",'p', CMD_NULL, textui_cmd_pray }
 };
 
 /* General actions */

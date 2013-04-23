@@ -1057,6 +1057,9 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
+	s16b crp; /* Current rage */
+	s16b rage_fading; /* Is it? */
+
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
 
@@ -1070,6 +1073,11 @@ struct player_type
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
+
+	byte safe_to_ascend; /* if this is unset, taking a stair up can cause cavein */
+	s16b safe_to_ascend_counter;
+	byte hunting; /* if this is set, if your next kill is an animal, you get nutrition */
+
 
 	s16b base_wakeup_chance;	/* Base amount of character noise */
 

@@ -135,7 +135,7 @@
 
 # Version stamp (required)
 
-V:2.0.1
+V:2.0.2
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -9476,11 +9476,11 @@ D: Ungoliant's rage.
 
 N:643:Lurtz the Uruk-Hai Captain
 G:o:r
-I:120:30d100:20:100:20
+I:120:40d100:20:100:20
 W:42:4:80:2000
-B:HIT:WOUND:8d8
-B:HIT:WOUND:8d8
-B:HIT:HURT:8d8
+B:HIT:WOUND:8d12
+B:HIT:WOUND:8d12
+B:HIT:HURT:8d12
 F:EVIL | SMART
 F:UNIQUE | QUESTOR | MALE | FORCE_DEPTH | FORCE_MAXHP
 F:ESCORT | ESCORTS
@@ -9491,8 +9491,8 @@ F:ORC | EVIL
 F:IM_COLD | IM_FIRE | IM_POIS | NO_SLOW | NO_SLEEP | NO_CONF | NO_FEAR
 F:N_LAVA | N_ICE | N_OIL | N_FIRE | N_SAND
 F:N_FOREST | N_ACID | N_MUD
-S:SPELL_PCT_25 | POW_20
-S:BOLT | S_KIN
+S:SPELL_PCT_25 | POW_30
+S:BOLT | S_TROOPS
 D:This enormous and bestial orc was created in a vat by Saruman. Now his
 D: sole mission is to destroy you. Saruman's last words of command are 
 D: still ringing in his ears: "You do not know pain, you do not know fear.
@@ -9520,8 +9520,7 @@ S:SPELL_PCT_65 | POW_80
 S:BALL_ACID | BALL_FIRE | BALL_COLD | BALL_DARK
 S:BOLT_ICE | HEAL | CURE
 S:TPORT | TELE_AWAY | MIND_BLAST
-S:SCARE | BLIND | S_MONSTERS | S_ANIMAL
-S:S_DEMON | S_UNDEAD | S_UNIQUE
+S:SCARE | BLIND | S_KIN | S_DRAGON | S_UNIQUE
 D:Originally known as the White, first among the Istar, Saruman fell
 D: prey to Sauron's wiles. He seeks to emulate him and breeds orcs and
 D: trolls to fight for him. He searches forever for the One Ring, to
@@ -9755,7 +9754,7 @@ D: you.
 N:657:Descendant of Ungoliant
 G:S:D1
 I:120:15d100:30:120:80
-W:45:3:141:27000
+W:41:3:141:27000
 B:CLAW:POISON:4d6
 B:CLAW:POISON:4d6
 B:BITE:PARALYZE:2d10
@@ -10144,7 +10143,7 @@ S:SPELL_PCT_20 | POW_40
 S:BOLT | HASTE | ADD_MANA | HEAL | CURE
 S:BLINK | TPORT | TELE_TO | DRAIN_MANA
 D:A more powerful Maia that serves Tulkas, the Champion of the Valar.
-D: Like Tulkas himself, this Ainu delights in tests of strenght and
+D: Like Tulkas himself, this Ainu delights in tests of strength and
 D: laughs ever, even in the face of Morgoth's wrath.
 
 
@@ -10609,4 +10608,17 @@ D:An adept of chaos, his body is already beginning to warp
 D: and twist from exposure to poorly controlled Chaotic forces.
 
 
-
+N:703:Incompetent summoner
+G:p:s2
+I:120:40d10:20:30:10
+W:35:4:80:500
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+F:MALE | FORCE_SLEEP | ONLY_ITEM | DROP_1D2
+F:HAS_LIGHT | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | SMART
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC
+F:EVIL
+S:SPELL_PCT_33 | POW_33
+S:ADD_MANA | BOLT_FIRE | BLINK | S_LO_UNIQUE
+D:He keeps trying for "mighty ancient dragons", but can't quite
+D: get it off.

@@ -60,7 +60,12 @@ static void calc_spells(void)
 	if (levels < 0) levels = 0;
 
 	/* Number of 1/100 spells per level */
-	percent_spells = adj_mag_study[SPELL_STAT_SLOT];
+	if (cp_ptr->spell_book == TV_BARBARIAN_BOOK)
+	{
+		percent_spells = 100;
+	} else {
+		percent_spells = adj_mag_study[SPELL_STAT_SLOT];
+	}
 
 	/* Extract total allowed spells (rounded up) */
 	num_allowed = (((percent_spells * levels) + 50) / 100);
@@ -245,6 +250,7 @@ static void calc_mana(void)
 
 	/* Hack -- Must be literate */
 	if (!cp_ptr->spell_book) return;
+	if (cp_ptr->spell_book == TV_BARBARIAN_BOOK) return;
 
 	/* Extract "effective" player level */
 	levels = (p_ptr->lev - cp_ptr->spell_first) + 1;
@@ -876,6 +882,8 @@ static void calc_bonuses(void)
 
 	/*** Extract race/class info ***/
 
+	if (p_ptr->crp) p_ptr->state.p_speed += (1+p_ptr->crp)/2;
+
 	/* Base infravision plus current lite radius */
 	p_ptr->state.see_infra = rp_ptr->infra;
 
@@ -1467,15 +1475,15 @@ static void calc_bonuses(void)
  		str = p_ptr->state.stat_ind[A_STR];
  		dex = p_ptr->state.stat_ind[A_DEX];
 
- 		str_index = 13 + str + (p_ptr->lev * cp_ptr->att_multiply) / 12; /* 18 is crappy, 30 is ok for a low level fighter, 40 or 50 for a well developed fighter */
- 		dex_index = 13 + dex; /* 18 is crappy, 25 is ok for a low level fighter, 30 is pretty good */
+ 		str_index = 13 + str + (p_ptr->lev * cp_ptr->att_multiply) / 12; /* 18 is crappy, 35 is ok for a low level fighter, 45 or 55 for a well developed fighter */
+ 		dex_index = 13 + dex; /* 18 is crappy, 30 is ok for a low level fighter, 35 is pretty good */
 
  		mult = str_index * dex_index;
 
  		if (mult < 750) p_ptr->state.num_blow=1;
  		else if (mult < 1000) p_ptr->state.num_blow=2;
- 		else if (mult < 1350) p_ptr->state.num_blow=3;
- 		else if (mult < 1800) p_ptr->state.num_blow=4;
+ 		else if (mult < 1500) p_ptr->state.num_blow=3;
+ 		else if (mult < 2000) p_ptr->state.num_blow=4;
  		else p_ptr->state.num_blow = 5;
 
  		if ((o_ptr->weight/2 + 70) > (str*10)) p_ptr->state.num_blow -= 1;
@@ -1881,5 +1889,66 @@ void handle_stuff(void)
 
 }
 
-
+void rage(int provocation)
+{
+	int provocation_level;
+	if (!(cp_ptr->flags & CF_RAGE)) return;
+	if (cp_ptr->flags & CF_LOTS_OF_RAGE){
+		if (provocation>=60)
+			provocation_level = 9;
+		else if (provocation>=50)
+			provocation_level = 8;
+		else if (provocation>=40)
+			provocation_level = 7;
+		else if (provocation>=30)
+			provocation_level = 6;
+		else if (provocation>=20)
+			provocation_level = 5;
+		else if (provocation>=10)
+			provocation_level = 4;
+		else if (provocation>=5)
+			provocation_level = 3;
+		else if (provocation>=1)
+			provocation_level = 2;
+		else
+			provocation_level = 1;
+	} else {
+		if (provocation>=40)
+			provocation_level = 5;
+		else if (provocation>=30)
+			provocation_level = 4;
+		else if (provocation>=20)
+			provocation_level = 3;
+		else if (provocation>=10)
+			provocation_level = 2;
+		else if (provocation>=1)
+			provocation_level = 1;
+		else
+			provocation_level = 0;
+	}
+	if (provocation_level >= p_ptr->crp+4){
+		p_ptr->crp = p_ptr->crp+1;
+		p_ptr->rage_fading = 0;
+		msg_print("You rage!");
+	} else if (provocation_level >= p_ptr->crp+2){
+		if one_in_(2){
+			p_ptr->crp = p_ptr->crp+1;
+			p_ptr->rage_fading = 0;
+			msg_print("You rage!");
+		}
+	} else if (provocation_level > p_ptr->crp && p_ptr->rage_fading==0){
+		if one_in_(4){
+			p_ptr->crp = p_ptr->crp+1;
+			p_ptr->rage_fading = 1;
+			msg_print("You rage!");
+		}
+	} else if (provocation_level >= p_ptr->crp && p_ptr->rage_fading>0){
+		p_ptr->rage_fading = 0;
+		if one_in_(2){
+			p_ptr->rage_fading = 0;
+		}
+	}
+	p_ptr->redraw |= (PR_MANA);
+	p_ptr->update |= (PU_BONUS);
+}
 

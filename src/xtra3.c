@@ -341,6 +341,26 @@ void prt_sp(int row, int col)
 	char cur_sp[32], max_sp[32];
 	byte color = player_sp_attr();
 
+	if (cp_ptr->flags & CF_RAGE){
+		char cur_rp[32];
+		byte color;
+
+		if (p_ptr->crp==0)
+			color = TERM_L_GREEN;
+		else if (p_ptr->rage_fading)
+			color = TERM_ORANGE;
+		else
+			color = TERM_RED;
+
+		put_str("RAGE ", row, col);
+
+		strnfmt(cur_rp, sizeof(cur_rp), "%4d", p_ptr->crp);
+
+		/* Show rage */
+		c_put_str(color, cur_rp, row, col + 8);
+		return;
+	}
+
 	/* Do not show mana unless it matters */
 	if (!cp_ptr->spell_book) return;
 
@@ -880,7 +900,11 @@ static const struct state_info effects[] =
 	{ TMD_FAST,     S("Hasted"),    TERM_RED },
 	{ TMD_SLOW,     S("Slowed"),    TERM_YELLOW },
 	{ TMD_SLAY_ELEM,S("ElemWeap"),  TERM_BLUE },
+	{ TMD_WWIND,	S("WhirlWd"),  TERM_RED },
+	{ TMD_SHREWD,	S("Shrewd"),  TERM_GREEN },
+	{ TMD_COLD_FURY,S("ColdFy"),  TERM_BLUE },
 	{ TMD_CALL_HOURNS,S("CallHourns"),  TERM_GREEN },
+
 
 };
 

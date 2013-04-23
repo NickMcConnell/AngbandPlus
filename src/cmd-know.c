@@ -1215,6 +1215,7 @@ static const grouper object_text_order[] =
 	{TV_PRAYER_BOOK,	"Priest Books"	},
 	{TV_DRUID_BOOK,		"Druid Books"	},
 	{TV_MAGIC_BOOK,		"Mage Books"	},
+	{TV_BARBARIAN_BOOK,		"Barbarian Talismans"	},
 	{TV_LIGHT,			"Light"			},
 	{TV_FLASK,			"Flask"			},
 	{TV_SWORD,			"Sword"			},
@@ -1960,6 +1961,7 @@ static int o_cmp_tval(const void *a, const void *b)
 		case TV_LIGHT:
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_BARBARIAN_BOOK:
 		case TV_DRAG_ARMOR:
 			/* leave sorted by sval */
 			break;

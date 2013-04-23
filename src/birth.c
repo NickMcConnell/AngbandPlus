@@ -327,6 +327,9 @@ static void get_bonuses(void)
 
 	/* Fully rested */
 	p_ptr->csp = p_ptr->msp;
+
+	p_ptr->crp = 0;
+	p_ptr->rage_fading = 1;
 }
 
 
@@ -506,6 +509,10 @@ static void player_wipe(void)
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
+
+	/* Not rageing */
+	p_ptr->crp = 0;
+	p_ptr->rage_fading = 1;
 
 	/*re-set the thefts counter*/
 	recent_failed_thefts = 0;
@@ -889,7 +896,7 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
 			{
 				int points_trigger = *points_left / 2;
 
-				if (cp_ptr->spell_book)
+				if (cp_ptr->spell_book && (cp_ptr->spell_book != TV_BARBARIAN_BOOK))
 				{
 					int spell_stat;
 
@@ -1270,6 +1277,7 @@ void player_birth(bool quickstart_allowed)
 			case TV_MAGIC_BOOK:
 			case TV_PRAYER_BOOK:
 			case TV_DRUID_BOOK:
+			case TV_BARBARIAN_BOOK:
 			{
 				k_info[i].squelch = NO_SQUELCH_NEVER_PICKUP;
 				break;

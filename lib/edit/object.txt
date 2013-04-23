@@ -109,7 +109,7 @@
 
 # Version stamp (required)
 
-V:2.0.1
+V:2.0.2
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -4041,6 +4041,21 @@ F:IRONMAN_ONLY | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
 
-# XXX Record452 is unused XXX #
+N:452:[Barbarian Fetish]
+G:?:o
+I:93:0:0
+W:6:0:30:25
+P:0:1d1:0:0:0
+A:5/2
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+
+
+N:453:[Ancestral Totem]
+G:?:o
+I:93:1:0
+W:15:0:30:100
+P:0:1d1:0:0:0
+A:15/2
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 

@@ -3567,6 +3567,14 @@ static bool summon_specific_okay(int r_idx)
  			break;
  		}
 
+		case SUMMON_TROOPS:
+		{
+			okay = (((r_ptr->d_char == 'o') ||
+			        (r_ptr->d_char == 'O') ||
+			        (r_ptr->d_char == 'T')) &&
+				((r_ptr->level >= 25) || (r_ptr->flags1 & (RF1_UNIQUE))));
+ 			break;
+ 		}
 
 		case SUMMON_SPIDER:
 		{
@@ -3658,7 +3666,15 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_HI_UNIQUE:
 		{
 			if (((r_ptr->flags1 & (RF1_UNIQUE)) != 0) &&
-				(r_ptr->level > (MAX_DEPTH / 2))) okay = TRUE;
+				(r_ptr->level > 40)) okay = TRUE;
+			break;
+		}
+
+
+		case SUMMON_LO_UNIQUE:
+		{
+			if (((r_ptr->flags1 & (RF1_UNIQUE)) != 0) &&
+				(r_ptr->level < 20)) okay = TRUE;
 			break;
 		}
 

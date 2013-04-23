@@ -524,6 +524,7 @@ bool make_attack_normal(monster_type *m_ptr)
 		/* Monster hits player */
 		if (!effect || check_hit_player(power, rlev, m_idx))
 		{
+
 			/* Always disturbing */
 			disturb(1, 0);
 
@@ -567,6 +568,8 @@ bool make_attack_normal(monster_type *m_ptr)
 				/* Message -- sometimes incorrect  XXX XXX */
 				if (act) message_format(sound_msg, 0, "%s", msg);
 			}
+
+			rage((r_info[m_ptr->r_idx].level * 2) / 3);
 
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
@@ -4316,8 +4319,25 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF7_XXX */
-		case 192 + 1:  break;
+		/* RF7_S_TROOPS */
+		case 192 + 1:
+		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s summons the hosts of Isengard.", m_name);
+			for (k = 0; k < 6; k++)
+			{
+				count += summon_specific(m_ptr->fy, m_ptr->fx,
+					summon_lev, SUMMON_TROOPS);
+			}
+
+			if (blind && count)
+			{
+				msg_print("You hear the hosts of Isengard arriving.");
+			}
+			break;
+		}
+
 		case 192 + 2:  break;
 
 
@@ -4572,8 +4592,33 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF7_XXX */
-		case 192 + 26:	break;
+		/* RF7_S_LO_UNIQUE */
+		case 192 + 26:
+		{
+			disturb(1, 0);
+			sound(MSG_SUM_UNIQUE);
+			if (blind) msg_format("%^s mumbles.", m_name);
+
+			for (k = 0; k < 3
+			; k++)
+			{
+				count += summon_specific(m_ptr->fy, m_ptr->fx,
+					summon_lev, SUMMON_LO_UNIQUE);
+			}
+			if (count)
+			{
+				if (blind) msg_print("You've got a bad feeling about this...");
+				else       msg_format("%^s magically summons fair to middling opponents!", m_name);
+			}
+			else
+			{
+				if (!blind)
+					msg_format("%^s gestures imperiously ... and looks puzzled for a moment.",
+						m_name);
+			}
+			break;
+		}
+
 
 		/* Summon Uniques */
 		/* RF7_S_UNIQUE */

@@ -725,6 +725,32 @@ void py_pickup(bool pickup)
 }
 
 
+int clockwise(int dir)
+{
+	if (dir==1) return 4;
+	if (dir==2) return 1;
+	if (dir==3) return 2;
+	if (dir==4) return 7;
+	if (dir==6) return 3;
+	if (dir==7) return 8;
+	if (dir==8) return 9;
+	if (dir==9) return 6;
+	return dir;
+}
+
+int anticlockwise(int dir)
+{
+	if (dir==1) return 2;
+	if (dir==2) return 3;
+	if (dir==3) return 6;
+	if (dir==4) return 1;
+	if (dir==6) return 9;
+	if (dir==7) return 4;
+	if (dir==8) return 7;
+	if (dir==9) return 8;
+	return dir;
+}
+
 
 /*
  * Move player in the given direction, with the given "pickup" flag.
@@ -756,11 +782,33 @@ s16b move_player(int dir, int jumping)
 	/* Get the feature */
 	f_ptr = &f_info[cave_feat[y][x]];
 
+	/* Walk about enough and it becomes safe to ascend */
+	if (p_ptr->safe_to_ascend_counter>0)
+	{
+		p_ptr->safe_to_ascend_counter--;
+		if (p_ptr->safe_to_ascend_counter==0)
+		{
+			p_ptr->safe_to_ascend = 1;
+		}
+	}
+
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, 0);
+		if (p_ptr->timed[TMD_WWIND] > 0)
+		{
+			if (cave_m_idx[py + ddy[clockwise(dir)]][px + ddx[clockwise(dir)]] > 0)
+			{
+				py_attack(py + ddy[clockwise(dir)],px + ddx[clockwise(dir)],1);
+			}
+			if (cave_m_idx[py + ddy[anticlockwise(dir)]][px + ddx[anticlockwise(dir)]] > 0)
+			{
+				py_attack(py + ddy[anticlockwise(dir)],px + ddx[anticlockwise(dir)],1);
+			}
+		}
+
 	}
 
 	/* Optionally alter known traps/doors on (non-jumping) movement */

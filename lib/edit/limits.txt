@@ -13,7 +13,7 @@
 
 # Version stamp (required)
 
-V:2.0.1
+V:2.0.2
 
 
 
@@ -21,7 +21,7 @@ V:2.0.1
 M:F:206
 
 # Maximum number of object kinds
-M:K:453
+M:K:455
 
 # 
 # Maximum number of total artifacts (special + normal + pre-made random + in-game random)
@@ -53,7 +53,7 @@ M:V:61
 M:P:11
 
 # Maximum number of player classes
-M:C:8
+M:C:10
 
 # Maximum number of player history lines
 M:H:165

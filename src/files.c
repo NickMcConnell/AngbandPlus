@@ -483,8 +483,13 @@ void display_player_xtra_info(void)
 
 	++row;
 	put_str("Stealth", row, col);
-	desc = likert(xstl, 1, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), row, col+14);
+	if (p_ptr->state.aggravate)
+	{
+		desc = "Terrible";
+	} else {
+		desc = likert(xstl, 1, &likert_attr);
+	}
+	c_put_str(TERM_RED, format("%9s", desc), row, col+14);
 
 	++row;
 	put_str("Fighting", row, col);
@@ -557,6 +562,16 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *fn)
 	if (cp_ptr->flags & CF_BRAVERY_30)
 	{
 		if (p_ptr->lev >= LEV_BRAVERY) (*f2) |= (TR2_RES_FEAR);
+	}
+
+	if (cp_ptr->flags & CF_BRAVERY_1)
+	{
+		(*f2) |= (TR2_RES_FEAR);
+	}
+
+	if (cp_ptr->flags & CF_LOTS_OF_RAGE)
+	{
+		(*f3) |= (TR3_AGGRAVATE);
 	}
 
 	/* Brigand's poison resistance */
@@ -903,11 +918,17 @@ static void display_player_misc_info(int row, int col)
 	c_put_str(TERM_L_BLUE, buf, row, col2);
 
 
-	/* Spell Points */
+	/* Spell Points - or Rage */
 	++row;
-	put_str("SP", row, col);
-	strnfmt(buf, sizeof(buf), "%d/%d", p_ptr->csp, p_ptr->msp);
-	c_put_str(TERM_L_BLUE, buf, row, col2);
+	if (cp_ptr->flags & CF_RAGE){
+		put_str("RAGE", row, col);
+		strnfmt(buf, sizeof(buf), "%d", p_ptr->crp);
+		c_put_str(TERM_L_BLUE, buf, row, col2);
+	} else {
+		put_str("SP", row, col);
+		strnfmt(buf, sizeof(buf), "%d/%d", p_ptr->csp, p_ptr->msp);
+		c_put_str(TERM_L_BLUE, buf, row, col2);
+	}
 }
 
 
@@ -1591,6 +1612,46 @@ static void display_special_abilities(int row, int col)
                put_str(msg, row, col);
 
                c_put_str(TERM_VIOLET, "hasted", row++, col + strlen(msg));
+       }
+
+       /* Print hunting */
+       if (p_ptr->hunting > 0)
+       {
+               msg = "You can ";
+
+               put_str(msg, row, col);
+
+               c_put_str(TERM_YELLOW, "eat your next kill if it is an animal", row++, col + strlen(msg));
+       }
+
+       /* Print shrewdness */
+       if (p_ptr->timed[TMD_SHREWD] > 0)
+       {
+               msg = "You are ";
+
+               put_str(msg, row, col);
+
+               c_put_str(TERM_L_GREEN, "cunning", row++, col + strlen(msg));
+       }
+
+       /* Print cold fury */
+       if (p_ptr->timed[TMD_COLD_FURY] > 0)
+       {
+               msg = "Your rage drains ";
+
+               put_str(msg, row, col);
+
+               c_put_str(TERM_YELLOW, "slowly", row++, col + strlen(msg));
+       }
+
+       /* Print whirlwind */
+       if (p_ptr->timed[TMD_WWIND] > 0)
+       {
+               msg = "You fight like a ";
+
+               put_str(msg, row, col);
+
+               c_put_str(TERM_RED, "whirlwind", row++, col + strlen(msg));
        }
 
        /* Reset item counter */

@@ -38,6 +38,14 @@ Ways to recover mana faster than by resting are rare and greatly desired.
      Mana goes down if you wear heavy armour.  Mages and rogues also
 lose a chunk of mana if they wear most (but not all) kinds of gloves.
 
+Rage:
+     If you are a barbarian or berserker, you will have rage instead. You get
+rage by fighting enemies in melee or by killing your enemies. You lose rage 
+over time. 
+     As your rage increases, so does your speed. You can also spend rage to
+use barbarian abilities.
+     Your rage does not depend on your stats or equipment.
+
 Armour Class:
      Armour class (AC) makes you harder to hit in melee, and reduces the damage
 you take from many (but not all) monster blows.  You can raise it by equipping
@@ -100,6 +108,7 @@ effectively.
 how many spells you may learn, the amount of mana you have, and your spell
 failure rate.  If you are using prayers, wisdom controls all of these things.
 For druids, it is a combination of intelligence and wisdom.
+     If you are a berserker or barbarian, your stats do not affect your rage.
 
 Wisdom:
      Wise characters have a better chance of resisting magical spells cast upon

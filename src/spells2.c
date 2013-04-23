@@ -593,10 +593,21 @@ void self_knowledge(void)
 		else info[i++] = "After you gain more experience, you will be naturally resistant to fear.";
 	}
 
+	if (cp_ptr->flags & CF_BRAVERY_1)
+	{
+		info[i++] = "You are naturally resistant to fear.";
+	}
+
 	if (cp_ptr->flags & CF_BRIGAND_COMBAT)
 	{
 		if (p_ptr->lev >= LEV_RES_POIS) info[i++] = "You are naturally resistant to poison.";
 		else info[i++] = "After you gain more experience, you will be naturally resistant to poison.";
+	}
+
+	if (cp_ptr->flags & CF_RAGE)
+	{
+		if (cp_ptr->flags & CF_LOTS_OF_RAGE) info[i++] = "You rage furiously.";
+		else info[i++] = "You rage.";
 	}
 
 	if (p_ptr->timed[TMD_BLIND])
@@ -671,7 +682,7 @@ void self_knowledge(void)
 	}
 	if (p_ptr->new_spells)
 	{
-		info[i++] = "You can learn some spells/prayers.";
+		info[i++] = "You can learn some spells/prayers/powers.";
 	}
 	if (p_ptr->word_recall)
 	{
@@ -718,7 +729,22 @@ void self_knowledge(void)
 	{
 		info[i++] = "You have a firm hold on your life force.";
 	}
-
+	if (p_ptr->timed[TMD_WWIND])
+	{
+		info[i++] = "You can cleave multiple opponents!";
+	}
+	if (p_ptr->hunting)
+	{
+		info[i++] = "You can eat the next monster you kill, if it is an animal.";
+	}
+	if (p_ptr->timed[TMD_SHREWD])
+	{
+		info[i++] = "You are a shrewd bargainer and can get good shop prices.";
+	}
+	if (p_ptr->timed[TMD_COLD_FURY])
+	{
+		info[i++] = "You are prepared to wait for your revenge.";
+	}
 	if (p_ptr->state.immune_acid)
 	{
 		info[i++] = "You are completely immune to acid.";
@@ -1470,7 +1496,7 @@ static bool detect_objects_magic(int y, int x)
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) || (tv == TV_DRUID_BOOK) ||
+		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) || (tv == TV_BARBARIAN_BOOK) || (tv == TV_DRUID_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Hack -- memorize it */
@@ -1659,6 +1685,51 @@ static bool detect_monsters_evil(int y, int x)
 }
 
 /*
+ * Detect all "animal" monsters on current panel
+ */
+static bool detect_monsters_animals(int y, int x)
+{
+	/* No monster on this square */
+	if (cave_m_idx[y][x] > 0)
+	{
+
+		monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) return (FALSE);
+
+		/* XXX XXX - Mimics stay hidden */
+		if (m_ptr->mimic_k_idx) return (FALSE);
+
+		/* Detect animal monsters */
+		if (r_ptr->flags3 & (RF3_ANIMAL))
+		{
+			/* Take note that they are animals */
+			l_ptr->r_l_flags3 |= (RF3_ANIMAL);
+
+			/* Optimize -- Repair flags */
+			repair_mflag_mark = TRUE;
+			repair_mflag_show = TRUE;
+
+			/* Detect the monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(cave_m_idx[y][x], FALSE);
+
+			return (TRUE);
+
+		}
+	}
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
  * Detect Terrain
  */
 static bool detect_terrain(int y, int x)
@@ -1739,6 +1810,7 @@ static const struct detect_handler_t
 	{DETECT_TERRAIN, 	detect_terrain, 		"You sense the presence of unusual terrain!"},
 	{DETECT_TRAPS, 		detect_traps, 			"You sense the presence of traps!"},
 	{DETECT_MAP, 		detect_map, 			"You sense the dungeon around you!"},
+	{DETECT_ANIMALS, 	detect_monsters_animals, 	"You sense the presence of animals!"},
 
 };
 
@@ -3068,6 +3140,14 @@ bool slow_monsters(int power)
 bool sleep_monsters(int power)
 {
 	return (project_los(p_ptr->py, p_ptr->px, power, GF_OLD_SLEEP));
+}
+
+/*
+ * Fear monsters
+ */
+bool fear_monsters(int power)
+{
+	return (project_los(p_ptr->py, p_ptr->px, power, GF_TURN_ALL));
 }
 
 
