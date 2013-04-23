@@ -1,4 +1,3 @@
-#define H_CONFIG_H
 /* File: h-config.h */
 
 #ifndef INCLUDED_H_CONFIG_H
@@ -9,25 +8,21 @@
  * Also, choose various "system level" compilation options.
  * A lot of these definitions take effect in "h-system.h"
  *
- * Note that you may find it simpler to define some of these
- * options in the "Makefile", especially any options describing
- * what "system" is being used.
+ * Note that most of these "options" are defined by the compiler,
+ * the "Makefile", the "project file", or something similar, and
+ * should not be defined by the user.
  */
 
 
 /*
- * no system definitions are needed for 4.3BSD, SUN OS, DG/UX
- */
-
-/*
- * OPTION: Compile on a Macintosh (see "A-mac-h" or "A-mac-pch")
+ * OPTION: Compile on a Macintosh machine
  */
 #ifndef MACINTOSH
 /* #define MACINTOSH */
 #endif
 
 /*
- * OPTION: Compile on Windows (automatic)
+ * OPTION: Compile on a Windows machine
  */
 #ifndef WINDOWS
 /* #define WINDOWS */
@@ -36,7 +31,7 @@
 #ifdef USE_IBM
 
 /*
- * OPTION: Compile on an IBM (automatic)
+ * OPTION: Compile on an MSDOS machine
  */
 #ifndef MSDOS
 	#define MSDOS
@@ -59,7 +54,7 @@
 #endif
 
 /*
- * OPTION: Compile on a SYS V version of UNIX (not Solaris)
+ * OPTION: Compile on a SYS V version of UNIX
  */
 #ifndef SYS_V
 /* #define SYS_V */
@@ -168,6 +163,24 @@
 # endif
 #endif
 
+/*
+ * Remove the MSDOS flag when using WINDOWS
+ */
+#ifdef WINDOWS
+# ifdef MSDOS
+#  undef MSDOS
+# endif
+#endif
+
+/*
+ * Remove the WINDOWS flag when using MACINTOSH
+ */
+#ifdef MACINTOSH
+# ifdef WINDOWS
+#  undef WINDOWS
+# endif
+#endif
+
 
 
 /*
@@ -270,16 +283,15 @@
  * OPTION: Hack -- Make sure "strchr()" and "strrchr()" will work
  */
 #if defined(SYS_III) || defined(SYS_V) || defined(MSDOS)
-# if !defined(__TURBOC__) && !defined(__WATCOMC__)
-#  define strchr index
-#  define strrchr rindex
+# if !defined(__TURBOC__) && !defined(__WATCOMC__) && !defined(__DJGPP__)
+#  define strchr(S,C) index((S),(C))
+#  define strrchr(S,C) rindex((S),(C))
 # endif
 #endif
 
 
 /*
  * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
- * Note that "stricmp()" is not actually used by Angband.
  */
 /* #define HAS_STRICMP */
 
@@ -288,20 +300,18 @@
  */
 #if defined(linux)
 # define HAS_STRICMP
-# define stricmp strcasecmp
+# define stricmp(S,T) strcasecmp((S),(T))
 #endif
 
 
 /*
  * OPTION: Define "HAS_MEMSET" only if "memset()" exists.
- * Note that the "memset()" routines are used in "z-virt.h"
  */
 #define HAS_MEMSET
 
 
 /*
  * OPTION: Define "HAS_USLEEP" only if "usleep()" exists.
- * Note that this is only relevant for "SET_UID" machines
  */
 #ifdef SET_UID
 # if !defined(HPUX) && !defined(ULTRIX) && !defined(SOLARIS) && \
@@ -325,5 +335,4 @@
 #endif
 
 #endif
-
 

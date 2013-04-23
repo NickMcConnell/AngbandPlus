@@ -701,8 +701,8 @@ static bc_type get_init_spirit(bool choice)
 	/* Acquire a random spirit if only temporary. */
 	if (!choice)
 	{
-    	/* Name the spirit. */
-    	generate_spirit_names();
+	    	/* Name the spirit. */
+	    	generate_spirit_names();
 
 		spirits[rand_int(MAX_SPHERE)].pact = TRUE;
 		return BC_OKAY;
@@ -2283,18 +2283,9 @@ static void player_wipe(void)
 	option_type *op_ptr;
 
 
-	/* Hack -- zero the struct */
+	/* Wipe the player */
 	WIPE(p_ptr, player_type);
 
-	/* Wipe the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(history[i], "");
-	}
-
-
-	/* No weight */
-	total_weight = 0;
 
 	/* Clear the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -2342,6 +2333,9 @@ static void player_wipe(void)
 		r_ptr->r_pkills = 0;
 	}
 
+	/* Hack - place player randomly. */
+	p_ptr->came_from = START_RANDOM;
+
 	/* Reset the player's race and template. */
 	p_ptr->prace = RACE_NONE;
 	p_ptr->ptemplate = TPL_NONE;
@@ -2361,16 +2355,13 @@ static void player_wipe(void)
 		store[i].bought = FALSE;
 	}
 
-	/* Wipe the spells */
+	/* None of the spells have been learned yet */
 	for (i=0;i<MAX_SCHOOL*MAX_SPELLS_PER_BOOK;i++)
 	{
 		magic_type *s_ptr = num_to_spell(i);
 		if (s_ptr) s_ptr->flags = 0;
 	}
-	for (i = 0; i < 128; i++)
-	{
-		spell_order[i] = 255;
-	}
+	for (i = 0; i < 128; i++) p_ptr->spell_order[i] = 255;
 
 	/* Clear "cheat" options */
 	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
@@ -2382,7 +2373,7 @@ static void player_wipe(void)
 	}
 
 	/* Assume no winning game */
-	total_winner = FALSE;
+	p_ptr->total_winner = FALSE;
 
 	/* Assume no cheating */
 	noscore = 0;

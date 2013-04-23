@@ -114,6 +114,12 @@
 #define USE_MAIN_C
 #endif
 
+
+#ifdef _MSC_VER
+#pragma warning (disable:4761)
+#pragma warning (disable:4244)
+#endif
+
 #endif
 
 

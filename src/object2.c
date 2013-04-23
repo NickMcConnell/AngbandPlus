@@ -60,14 +60,13 @@ void excise_dun_object(object_type *j_ptr)
 				/* Real previous */
 				else
 				{
+					object_type *i_ptr;
 
-										object_type *k_ptr;
+					/* Previous object */
+					i_ptr = &o_list[prev_o_idx];
 
-										/* Previous object */
-										k_ptr = &o_list[prev_o_idx];
-
-										/* Remove from list */
-										k_ptr->next_o_idx = next_o_idx;
+					/* Remove from list */
+					i_ptr->next_o_idx = next_o_idx;
 
 				}
 
@@ -86,16 +85,11 @@ void excise_dun_object(object_type *j_ptr)
 	/* Dungeon */
 	else
 	{
-		cave_type *c_ptr;
-
 		int y = j_ptr->iy;
 		int x = j_ptr->ix;
 
-		/* Grid */
-		c_ptr = &cave[y][x];
-
 		/* Scan all objects in the grid */
-		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+		for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 		{
 			object_type *o_ptr;
 
@@ -112,23 +106,20 @@ void excise_dun_object(object_type *j_ptr)
 				if (prev_o_idx == 0)
 				{
 					/* Remove from list */
-					c_ptr->o_idx = next_o_idx;
+					cave_o_idx[y][x] = next_o_idx;
 				}
 
 				/* Real previous */
 				else
 				{
 
-										object_type *k_ptr;
+					object_type *i_ptr;
 
-										/* Previous object */
-										k_ptr = &o_list[prev_o_idx];
+					/* Previous object */
+					i_ptr = &o_list[prev_o_idx];
 
-										/* Remove from list */
-										k_ptr->next_o_idx = next_o_idx;
-
-
-
+					/* Remove from list */
+					i_ptr->next_o_idx = next_o_idx;
 				}
 
 				/* Forget next pointer */
@@ -152,6 +143,9 @@ void excise_dun_object(object_type *j_ptr)
  */
 void delete_dun_object(object_type *j_ptr)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	/* Excise */
 	excise_dun_object(j_ptr);
 
@@ -184,20 +178,15 @@ void delete_dun_object(object_type *j_ptr)
  */
 void delete_object(int y, int x)
 {
-	cave_type *c_ptr;
-
 	s16b this_o_idx, next_o_idx = 0;
 
 
-	/* Refuse "illegal" locations */
+	/* Paranoia */
 	if (!in_bounds(y, x)) return;
 
 
-	/* Grid */
-	c_ptr = &cave[y][x];
-
 	/* Scan all objects in the grid */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
 
@@ -215,7 +204,7 @@ void delete_object(int y, int x)
 	}
 
 	/* Objects are gone */
-	c_ptr->o_idx = 0;
+	cave_o_idx[y][x] = 0;
 
 	/* Visual update */
 	lite_spot(y, x);
@@ -228,12 +217,14 @@ void delete_object(int y, int x)
  */
 void do_cmd_rotate_stack(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i, o_idx;
 	int y = py, x = px;
-	cave_type *c_ptr = &cave[y][x];
 
 	/* Get the object being moved. */
-	o_idx = c_ptr->o_idx;
+	o_idx = cave_o_idx[y][x];
 
 	/* Only rotate a pile of two or more objects. */
 	if (o_idx && o_list[o_idx].next_o_idx)
@@ -242,7 +233,7 @@ void do_cmd_rotate_stack(void)
 		excise_dun_object(o_list+o_idx);
 
 		/* Find end of the list. */
-		for (i = c_ptr->o_idx; o_list[i].next_o_idx; i = o_list[i].next_o_idx);
+		for (i = cave_o_idx[y][x]; o_list[i].next_o_idx; i = o_list[i].next_o_idx);
 
 		/* Add after the last object. */
 		o_list[i].next_o_idx = o_idx;
@@ -252,7 +243,7 @@ void do_cmd_rotate_stack(void)
 	}
 
 	/* Remember the object beneath the player. */
-	object_track(&o_list[c_ptr->o_idx]);
+	object_track(&o_list[cave_o_idx[y][x]]);
 }
 
 
@@ -315,6 +306,9 @@ bool grow_o_list(void)
  */
 static void compact_objects_purge(int size)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i, y, x, num, cnt;
 
 	int cur_lev, cur_dis, chance;
@@ -402,8 +396,6 @@ static void compact_objects_aux(int i1, int i2)
 {
 	int i;
 
-	cave_type *c_ptr;
-
 	object_type *o_ptr;
 
 
@@ -458,14 +450,11 @@ static void compact_objects_aux(int i1, int i2)
 		y = o_ptr->iy;
 		x = o_ptr->ix;
 
-		/* Acquire grid */
-		c_ptr = &cave[y][x];
-
 		/* Repair grid */
-		if (c_ptr->o_idx == i1)
+		if (cave_o_idx[y][x] == i1)
 		{
 			/* Repair */
-			c_ptr->o_idx = i2;
+			cave_o_idx[y][x] = i2;
 		}
 	}
 
@@ -532,7 +521,7 @@ void compact_objects(int size)
  *
  * Note -- we do NOT visually reflect these (irrelevant) changes
  *
- * Hack -- we clear the "c_ptr->o_idx" field for every grid,
+ * Hack -- we clear the "cave_o_idx[y][x]" field for every grid,
  * and the "m_ptr->next_o_idx" field for every monster, since
  * we know we are clearing every object.  Technically, we only
  * clear those fields for grids/monsters containing objects,
@@ -580,17 +569,12 @@ void wipe_o_list(bool preserve)
 		/* Dungeon */
 		else
 		{
-			cave_type *c_ptr;
-
 			/* Access location */
 			int y = o_ptr->iy;
 			int x = o_ptr->ix;
 
-			/* Access grid */
-			c_ptr = &cave[y][x];
-
 			/* Hack -- see above */
-			c_ptr->o_idx = 0;
+			cave_o_idx[y][x] = 0;
 		}
 
 		/* Wipe the object */
@@ -658,7 +642,6 @@ object_type *o_pop(void)
 	/* Oops */
 	return (NULL);
 }
-
 
 
 /*
@@ -887,8 +870,8 @@ s32b PURE flag_cost(object_ctype *o_ptr, bool all)
 			total += (10000 + (2500 * plusses));
 	if ((f1 & TR1_BLOWS) && (plusses > 0))
 			total += (10000 + (2500 * plusses));
-	if (f1 & TR1_XXX1) total += 0;
-	if (f1 & TR1_XXX2) total += 0;
+	/* if (f1 & TR1_XXX1) total += 0; */
+	/* if (f1 & TR1_XXX2) total += 0; */
 	if (f1 & TR1_SLAY_ANIMAL) total += 3500;
 	if (f1 & TR1_SLAY_EVIL) total += 4500;
 	if (f1 & TR1_SLAY_UNDEAD) total += 3500;
@@ -934,7 +917,7 @@ s32b PURE flag_cost(object_ctype *o_ptr, bool all)
 	if (f2 & TR2_RES_LITE) total += 1750;
 	if (f2 & TR2_RES_DARK) total += 1750;
 	if (f2 & TR2_RES_BLIND) total += 2000;
-	if (f2 & TR2_RES_CONF) total += 2000;
+	if (f2 & TR2_RES_CONFU) total += 2000;
 	if (f2 & TR2_RES_SOUND) total += 2000;
 	if (f2 & TR2_RES_SHARDS) total += 2000;
 	if (f2 & TR2_RES_NETHER) total += 2000;
@@ -1917,7 +1900,7 @@ static void add_power(object_type *o_ptr)
 	switch (rand_int(11))
 	{
 		case 0: o_ptr->flags2 |= (TR2_RES_BLIND); return;
-		case 1: o_ptr->flags2 |= (TR2_RES_CONF); return;
+		case 1: o_ptr->flags2 |= (TR2_RES_CONFU); return;
 		case 2: o_ptr->flags2 |= (TR2_RES_SOUND); return;
 		case 3: o_ptr->flags2 |= (TR2_RES_SHARDS); return;
 		case 4: o_ptr->flags2 |= (TR2_RES_NETHER); return;
@@ -3138,7 +3121,7 @@ void set_object_found(object_type *o_ptr, int how, int idx)
 	if (how != FOUND_BIRTH)
 	{
 		ptr->level = dun_level;
-		ptr->dungeon = cur_dungeon;
+		ptr->dungeon = p_ptr->cur_dungeon;
 	}
 }
 
@@ -3376,14 +3359,12 @@ bool make_object(object_type *j_ptr, bool good, bool great, int how, int idx)
  */
 void place_object(int y, int x, bool good, bool great, int how, int idx)
 {
-	cave_type *c_ptr;
-
 	object_type forge;
 	object_type *q_ptr, *o_ptr;
 
 
 	/* Paranoia -- check bounds */
-	if (!in_bounds(y, x)) return;
+	if (!in_bounds_fully(y, x)) return;
 
 	/* Require clean floor space */
 	if (!cave_clean_bold(y, x)) return;
@@ -3412,14 +3393,11 @@ void place_object(int y, int x, bool good, bool great, int how, int idx)
 		o_ptr->iy = y;
 		o_ptr->ix = x;
 
-		/* Acquire grid */
-		c_ptr = &cave[y][x];
-
 		/* Build a stack */
-		o_ptr->next_o_idx = c_ptr->o_idx;
+		o_ptr->next_o_idx = cave_o_idx[y][x];
 
 		/* Place the object */
-		c_ptr->o_idx = o_ptr - o_list;
+		cave_o_idx[y][x] = o_ptr - o_list;
 
 		/* Notice */
 		note_spot(y, x);
@@ -3429,11 +3407,11 @@ void place_object(int y, int x, bool good, bool great, int how, int idx)
 	}
 	else
 	{
-			/* Hack -- Preserve artifacts */
-			if (q_ptr->name1)
-			{
-				a_info[q_ptr->name1].cur_num = 0;
-			}
+		/* Hack -- Preserve artifacts */
+		if (q_ptr->name1)
+		{
+			a_info[q_ptr->name1].cur_num = 0;
+		}
 	}
 
 }
@@ -3492,6 +3470,86 @@ bool make_gold(object_type *j_ptr, int how, int idx, int coin_type)
 }
 
 
+
+
+/*
+ * Let the floor carry an object
+ */
+s16b floor_carry(int y, int x, object_type *j_ptr)
+{
+	object_type *o_ptr;
+
+	int n = 0;
+
+	s16b o_idx;
+
+	s16b this_o_idx, next_o_idx = 0;
+
+
+	/* Scan objects in that grid for combination */
+	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Check for combination */
+		if (object_similar(o_ptr, j_ptr))
+		{
+			/* Combine the items */
+			object_absorb(o_ptr, j_ptr);
+
+			/* Result */
+			return (this_o_idx);
+		}
+
+		/* Count objects */
+		n++;
+	}
+
+
+	/* Option -- allow stacking */
+	if (n && !testing_stack) return (0);
+
+
+	/* Make an object */
+	o_ptr = o_pop();
+
+	/* Success */
+	if (o_ptr)
+	{
+		/* Acquire index */
+		o_idx = o_ptr - o_list;
+
+		/* Structure Copy */
+		object_copy(o_ptr, j_ptr);
+
+		/* Location */
+		o_ptr->iy = y;
+		o_ptr->ix = x;
+
+		/* Forget monster */
+		o_ptr->held_m_idx = 0;
+
+		/* Build a stack */
+		o_ptr->next_o_idx = cave_o_idx[y][x];
+
+		/* Place the object */
+		cave_o_idx[y][x] = o_idx;
+
+		/* Notice */
+		note_spot(y, x);
+
+		/* Redraw */
+		lite_spot(y, x);
+	}
+
+	/* Result */
+	return (o_idx);
+}
+
 /*
  * Places a treasure (Gold or Gems) at given location
  *
@@ -3499,14 +3557,12 @@ bool make_gold(object_type *j_ptr, int how, int idx, int coin_type)
  */
 void place_gold(int y, int x, int how, int idx)
 {
-	cave_type *c_ptr;
-
 	object_type forge;
 	object_type *q_ptr, *o_ptr;
 
 
 	/* Paranoia -- check bounds */
-	if (!in_bounds(y, x)) return;
+	if (!in_bounds_fully(y, x)) return;
 
 	/* Require clean floor space */
 	if (!cave_clean_bold(y, x)) return;
@@ -3535,14 +3591,11 @@ void place_gold(int y, int x, int how, int idx)
 		o_ptr->iy = y;
 		o_ptr->ix = x;
 
-		/* Acquire grid */
-		c_ptr = &cave[y][x];
-
 		/* Build a stack */
-		o_ptr->next_o_idx = c_ptr->o_idx;
+		o_ptr->next_o_idx = cave_o_idx[y][x];
 
 		/* Place the object */
-		c_ptr->o_idx = o_ptr - o_list;
+		cave_o_idx[y][x] = o_ptr - o_list;
 
 		/* Notice */
 		note_spot(y, x);
@@ -3557,6 +3610,9 @@ void place_gold(int y, int x, int how, int idx)
  */
 static void drop_near_finish(int chance, int by, int bx)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	/* Hack - distinguish inven_drop() with a special chance. */
 	bool dropped = (chance == 0);
 
@@ -3583,7 +3639,7 @@ static void drop_near_finish(int chance, int by, int bx)
 /*
  * Let an object fall to the ground at or near a location.
  *
- * The initial location is assumed to be "in_bounds()".
+ * The initial location is assumed to be "in_bounds_fully()".
  *
  * This function takes a parameter "chance".  This is the percentage
  * chance that the item will "disappear" instead of drop.  If the object
@@ -3608,8 +3664,6 @@ object_type *drop_near(object_type *j_ptr, int chance, int y, int x)
 	int ty, tx;
 
 	s16b this_o_idx, next_o_idx = 0;
-
-	cave_type *c_ptr;
 
 	bool flag = FALSE;
 
@@ -3673,22 +3727,19 @@ object_type *drop_near(object_type *j_ptr, int chance, int y, int x)
 			tx = x + dx;
 
 			/* Skip illegal grids */
-			if (!in_bounds(ty, tx)) continue;
+			if (!in_bounds_fully(ty, tx)) continue;
 
 			/* Require line of sight */
 			if (!los(y, x, ty, tx)) continue;
 
-			/* Obtain grid */
-			c_ptr = &cave[ty][tx];
-
 			/* Require floor space */
-			if (c_ptr->feat != FEAT_FLOOR) continue;
+			if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
 
 			/* No objects */
 			k = 0;
 
 			/* Scan objects in that grid */
-			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			for (this_o_idx = cave_o_idx[ty][tx]; this_o_idx; this_o_idx = next_o_idx)
 			{
 				object_type *o_ptr;
 
@@ -3770,11 +3821,8 @@ object_type *drop_near(object_type *j_ptr, int chance, int y, int x)
 			tx = rand_int(cur_wid);
 		}
 
-		/* Grid */
-		c_ptr = &cave[ty][tx];
-
 		/* Require floor space */
-		if (c_ptr->feat != FEAT_FLOOR) continue;
+		if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
 
 		/* Bounce to that location */
 		by = ty;
@@ -3788,11 +3836,8 @@ object_type *drop_near(object_type *j_ptr, int chance, int y, int x)
 	}
 
 
-	/* Grid */
-	c_ptr = &cave[by][bx];
-
 	/* Scan objects in that grid for combination */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	for (this_o_idx = cave_o_idx[by][bx]; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
 
@@ -3853,10 +3898,10 @@ object_type *drop_near(object_type *j_ptr, int chance, int y, int x)
 	j_ptr->held_m_idx = 0;
 
 	/* Build a stack */
-	j_ptr->next_o_idx = c_ptr->o_idx;
+	j_ptr->next_o_idx = cave_o_idx[by][bx];
 
 	/* Place the object */
-	c_ptr->o_idx = ou_ptr - o_list;
+	cave_o_idx[by][bx] = ou_ptr - o_list;
 
 	/* Clean up. */
 	drop_near_finish(chance, by, bx);
@@ -3873,23 +3918,23 @@ object_type *drop_near(object_type *j_ptr, int chance, int y, int x)
  */
 void acquirement(int y1, int x1, int num, bool great)
 {
-	object_type forge;
-	object_type *q_ptr;
+	object_type *i_ptr;
+	object_type object_type_body;
 
 	/* Acquirement */
 	while (num--)
 	{
 		/* Get local object */
-		q_ptr = &forge;
+		i_ptr = &object_type_body;
 
 		/* Wipe the object */
-		object_wipe(q_ptr);
+		object_wipe(i_ptr);
 
 		/* Make a good (or great) object (if possible) */
-		if (!make_object(q_ptr, TRUE, great, FOUND_SPELL, 0)) continue;
+		if (!make_object(i_ptr, TRUE, great, FOUND_SPELL, 0)) continue;
 
 		/* Drop the object */
-		drop_near(q_ptr, -1, y1, x1);
+		drop_near(i_ptr, -1, y1, x1);
 	}
 }
 
@@ -3907,10 +3952,8 @@ void pick_trap(int y, int x)
 {
 	int feat;
 
-	cave_type *c_ptr = &cave[y][x];
-
 	/* Paranoia */
-	if (c_ptr->feat != FEAT_INVIS) return;
+	if (cave_feat[y][x] != FEAT_INVIS) return;
 
 	/* Pick a trap */
 	while (1)
@@ -3922,7 +3965,7 @@ void pick_trap(int y, int x)
 		if ((feat == FEAT_TRAP_HEAD + 0x00) && is_quest()) continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (dun_level >= dun_defs[cur_dungeon].max_level)) continue;
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && (dun_level >= dun_defs[p_ptr->cur_dungeon].max_level)) continue;
 
 		/* Done */
 		break;
@@ -3945,8 +3988,8 @@ void pick_trap(int y, int x)
  */
 void place_trap(int y, int x)
 {
-	/* Paranoia -- verify location */
-	if (!in_bounds(y, x)) return;
+	/* Paranoia */
+ 	if (!in_bounds(y, x)) return;
 
 	/* Require empty, clean, floor grid */
 	if (!cave_naked_bold(y, x)) return;
@@ -4013,7 +4056,7 @@ void item_increase(object_type *o_ptr, int num)
 	if (find_object(o_ptr) & OUP_CARRIED_MASK)
 	{
 		/* Add the weight */
-		total_weight += (num * o_ptr->weight);
+		p_ptr->total_weight += (num * o_ptr->weight);
 
 		/* Recalculate/redraw stuff (later) */
 		update_object(o_ptr);
@@ -4047,7 +4090,7 @@ void item_describe(object_ctype *o_ptr)
 		}
 	}
 
-	msg_format("You %s %v.", verb, object_desc_f3, o_ptr, TRUE, 3);
+	msg_format("You %s %v", verb, object_desc_f3, o_ptr, TRUE, 3);
 }
 
 /*
@@ -4209,7 +4252,7 @@ object_type *inven_carry(object_type *o_ptr)
 	}
 
 	/* Increase the weight */
-	total_weight += (o_ptr->number * o_ptr->weight);
+	p_ptr->total_weight += (o_ptr->number * o_ptr->weight);
 
 	/* Recalculate/redraw various things. */
 	update_object(j_ptr);
@@ -4307,8 +4350,11 @@ object_type *inven_takeoff(object_type *o_ptr, int amt)
  */
 void inven_drop(object_type *o_ptr, int amt)
 {
-	object_type forge;
-	object_type *q_ptr;
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
+	object_type *i_ptr;
+	object_type object_type_body;
 
 	/* Error check */
 	if (amt <= 0) return;
@@ -4326,23 +4372,23 @@ void inven_drop(object_type *o_ptr, int amt)
 
 
 	/* Get local object */
-	q_ptr = &forge;
+	i_ptr = &object_type_body;
 
 	/* Obtain local object */
-	object_copy(q_ptr, o_ptr);
+	object_copy(i_ptr, o_ptr);
 
 	/* Modify quantity */
-	q_ptr->number = amt;
+	i_ptr->number = amt;
 
 	/* Message */
-	msg_format("You drop %v (%c).", object_desc_f3, q_ptr, TRUE, 3,
+	msg_format("You drop %v (%c).", object_desc_f3, i_ptr, TRUE, 3,
 		index_to_label(o_ptr));
 
 	/* Drop it near the player */
-	q_ptr = drop_near(q_ptr, 0, py, px);
+	i_ptr = drop_near(i_ptr, 0, py, px);
 
 	/* Remember the object */
-	object_track(q_ptr);
+	object_track(i_ptr);
 
 	/* Modify, Describe, Optimize */
 	item_increase(o_ptr, -amt);

@@ -1,14 +1,11 @@
 #define CMD4_C
-/* File: cmd4.c */
-
-/* Purpose: Interface commands */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -65,7 +62,7 @@ void do_cmd_redraw(void)
 	p_ptr->window |= (PW_MESSAGE | PW_MONSTER | PW_OBJECT | PW_OBJECT_DETAILS);
 
 	/* Hack - recalculate the panel. */
-	verify_panel(TRUE);
+	verify_panel();
 
 	/* Hack -- update */
 	handle_stuff();
@@ -838,8 +835,8 @@ static void do_cmd_options_win(void)
 			/* Increase both priority settings by 1. */
 			case '+':
 			{
-				PRI(x,y)++;
-				REP(x,y)++;
+				if (PRI(x,y)<10) PRI(x,y)++;
+				if (REP(x,y)<10) REP(x,y)++;
 				second = FALSE;
 				break;
 			}
@@ -847,8 +844,8 @@ static void do_cmd_options_win(void)
 			/* Decrease both priority settings by 1. */
 			case '-':
 			{
-				PRI(x,y)--;
-				REP(x,y)--;
+				if (PRI(x,y)>0) PRI(x,y)--;
+				if (REP(x,y)>0) REP(x,y)--;
 				second = FALSE;
 				break;
 			}
@@ -893,6 +890,7 @@ static void do_cmd_options_win(void)
 				{
 					x = (x + ddx[i] + ANGBAND_TERM_MAX) % ANGBAND_TERM_MAX;
 					y = (y + ddy[i] + NUM_DISPLAY_FUNCS) % NUM_DISPLAY_FUNCS;
+					second = FALSE;
 				}
 				/* Invalid choice. */
 				else
@@ -3285,7 +3283,7 @@ static void do_cmd_visuals(void)
 		else if (i == 'b'+2*VISUALS)
 		{
 			/* Reset */
-			reset_visuals();
+			reset_visuals(TRUE);
 
 			/* Message */
 			msg_print("Visual attr/char tables reset.");
@@ -3668,17 +3666,17 @@ void do_cmd_feeling(bool FeelingOnly)
 	/* If you are in a town */
 		if(!FeelingOnly)
 		{
-			if(is_town_p(wildy, wildx))
+			if(is_town_p(p_ptr->wildy, p_ptr->wildx))
 			{
-				msg_format("You are in %s.",town_name+town_defs[cur_town].name);
+				msg_format("You are in %s.",town_name+town_defs[p_ptr->cur_town].name);
 			}
-			else if(wild_grid[wildy][wildx].dungeon < MAX_CAVES)
+			else if(wild_grid[p_ptr->wildy][p_ptr->wildx].dungeon < MAX_CAVES)
 			{
-				msg_format("You are outside %s.",dun_name+dun_defs[wild_grid[wildy][wildx].dungeon].name);
+				msg_format("You are outside %s.",dun_name+dun_defs[wild_grid[p_ptr->wildy][p_ptr->wildx].dungeon].name);
 			}
 			else
 			{
-				msg_print("You are wandering around outside.");
+				msg_print("You are exploring the wilderness.");
 			}
 		}
 		return;
@@ -3687,7 +3685,7 @@ void do_cmd_feeling(bool FeelingOnly)
 	/* You are in a dungeon, so... */
 	if(!FeelingOnly)
 	{
-		msg_format("You are in %s.",dun_name+dun_defs[cur_dungeon].name);
+		msg_format("You are in %s.",dun_name+dun_defs[p_ptr->cur_dungeon].name);
 
 		/* Show quest status */
 		if (is_quest())
@@ -4008,12 +4006,10 @@ static void do_cmd_knowledge_artifacts(void)
 	{
 		for (x = 0; x < cur_wid; x++)
 		{
-			cave_type *c_ptr = &cave[y][x];
-
 			s16b this_o_idx, next_o_idx = 0;
 
 			/* Scan all objects in the grid */
-			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 			{
 				object_type *o_ptr;
 
@@ -4508,7 +4504,7 @@ static void do_cmd_knowledge_player_ac(FILE *fff)
 	/* Previously in the dungeon. */
 	else if (p_ptr->max_dlv)
 	{
-		lev = p_ptr->max_dlv + dun_defs[recall_dungeon].offset;
+		lev = p_ptr->max_dlv + dun_defs[p_ptr->recall_dungeon].offset;
 	}
 	/* Still on the surface. */
 	else
@@ -4594,11 +4590,11 @@ static bool do_cmd_knowledge_player_recall(FILE *fff)
 	if (!p_ptr->word_recall) return FALSE;
 	if (dun_level)
 	{
-		to = town_name+town_defs[cur_town].name;
+		to = town_name+town_defs[p_ptr->cur_town].name;
 	}
 	else
 	{
-		to = dun_name+dun_defs[recall_dungeon].name;
+		to = dun_name+dun_defs[p_ptr->recall_dungeon].name;
 	}
 	fprintf(fff, "You are waiting to recall to %s.\n", to);
 
@@ -4777,10 +4773,10 @@ void shops_display(int town)
 static void do_cmd_knowledge_shops(void)
 {
 	/* I hope this isn't too silly... */
-	int town = cur_town;
+	int town = p_ptr->cur_town;
 
 	/* Paranoia (?) - no town */
-	if (!is_town_p(wildy, wildx)) town = 0;
+	if (!is_town_p(p_ptr->wildy, p_ptr->wildx)) town = 0;
 	for (;;)
 	{
 		char c;

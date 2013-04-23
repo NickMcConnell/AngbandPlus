@@ -353,7 +353,7 @@ static void rd_item(object_type *o_ptr)
 				switch (xtra2 % 11)
 				{
 					case 0: o_ptr->flags2 |= (TR2_RES_BLIND); break;
-					case 1: o_ptr->flags2 |= (TR2_RES_CONF); break;
+					case 1: o_ptr->flags2 |= (TR2_RES_CONFU); break;
 					case 2: o_ptr->flags2 |= (TR2_RES_SOUND); break;
 					case 3: o_ptr->flags2 |= (TR2_RES_SHARDS); break;
 					case 4: o_ptr->flags2 |= (TR2_RES_NETHER); break;
@@ -1069,18 +1069,19 @@ static void skill_copy(int to, int from)
 /*
  * Read the "extra" information
  */
-static void rd_extra(void)
+static errr rd_extra(void)
 {
 	int i,j;
 
 	byte tmp8u;
+	u16b tmp16u;
 	u32b tmp32u;
 	rd_string(player_name, 32);
 
 	{
 		char buf[1024];
 		rd_string(buf, 1024);
-		died_from = safe_string_make(buf);
+		p_ptr->died_from = safe_string_make(buf);
 	}
 
 	for (i = 0; i < 4; i++)
@@ -1172,7 +1173,7 @@ static void rd_extra(void)
 		for (i = 0; i < 20; i++)
 		{
 			s16b tmp;
-			if (cur_dungeon == i) rd_s16b(&p_ptr->max_dlv);
+			if (p_ptr->cur_dungeon == i) rd_s16b(&p_ptr->max_dlv);
 			else rd_s16b(&tmp);
 		}
 	}
@@ -1277,13 +1278,13 @@ static void rd_extra(void)
 	strip_bytes(2);
 
 	/* Special stuff */
-	rd_u16b(&total_winner);
-	rd_u16b(&noscore);
+	rd_u16b(&p_ptr->total_winner);
+	rd_u16b(&p_ptr->noscore);
 
 
 	/* Read "death" */
 	rd_byte(&tmp8u);
-	death = tmp8u;
+	p_ptr->is_dead = tmp8u;
 
 	/* Read "feeling" */
 	rd_byte(&tmp8u);
@@ -1298,6 +1299,26 @@ static void rd_extra(void)
 	/* Turn on which auto-cursing will next occur */
 	if (has_flag(SF_CURSE))
 		rd_s32b(&curse_turn);
+
+	
+
+	/* Read the player_hp array */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > 100)
+	{
+		note(format("Too many (%u) hitpoint entries!", tmp16u));
+		return (25);
+	}
+
+	/* Read the player_hp array */
+	for (i = 0; i < tmp16u; i++)
+	{
+		rd_s16b(&p_ptr->player_hp[i]);
+	}
+
+	return (0);
 }
 
 
@@ -1320,9 +1341,6 @@ static errr rd_inventory(void)
 
 	object_type forge;
 	object_type *q_ptr;
-
-	/* No weight */
-	total_weight = 0;
 
 	/* Read until done */
 	while (1)
@@ -1354,7 +1372,7 @@ static errr rd_inventory(void)
 			object_copy(&inventory[n], q_ptr);
 
 			/* Add the weight */
-			total_weight += (q_ptr->number * q_ptr->weight);
+			p_ptr->total_weight += (q_ptr->number * q_ptr->weight);
 		}
 
 		/* Warning -- backpack is full */
@@ -1377,7 +1395,7 @@ static errr rd_inventory(void)
 			object_copy(&inventory[n], q_ptr);
 
 			/* Add the weight */
-			total_weight += (q_ptr->number * q_ptr->weight);
+			p_ptr->total_weight += (q_ptr->number * q_ptr->weight);
 		}
 	}
 
@@ -1413,49 +1431,6 @@ static void rd_messages(void)
 
 
 
-/*
- * Simple "run length decoding" of a field in cave.
- */
-static void rd_rle_cave(int size, void (*set)(cave_type *, u32b))
-{
-	int x, y;
-	byte c;
-	u32b UNREAD(n);
-
-	for (c = y = 0; y < cur_hgt; y++)
-	{
-		for (x = 0; x < cur_wid; x++, c--)
-		{
-			while (!c)
-			{
-				rd_byte(&c);
-				rd_number(&n, size);
-			}
-			(*set)(&cave[y][x], n);
-		}
-	}
-}
-
-static void set_cave_info(cave_type *c_ptr, u32b v)
-{
-	/* Avoid loading flags we can calculate from scratch anyway. */
-	c_ptr->info = ((u16b)v) & (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_TRAP);
-}
-
-static void set_cave_feat(cave_type *c_ptr, u32b v)
-{
-	c_ptr->feat = (byte)v;
-}
-
-static void set_cave_r_feat(cave_type *c_ptr, u32b v)
-{
-	if (v == 255)
-		c_ptr->r_feat = c_ptr->feat;
-	else if (v == c_ptr->feat)
-		c_ptr->r_feat = 255;
-	else
-		c_ptr->r_feat = (byte)v;
-}
 
 /*
  * Read the dungeon
@@ -1467,7 +1442,11 @@ static errr rd_dungeon(void)
 {
 	int i, x, y;
 	u16b limit;
-	cave_type *c_ptr;
+	byte count;
+	byte tmp8u;
+	u16b tmp16u;
+
+	s16b py, px;
 
 
 	/*** Basic info ***/
@@ -1476,40 +1455,114 @@ static errr rd_dungeon(void)
 	rd_s16b(&dun_level);
 	rd_s16b(&dun_offset);
 	rd_u16b(&dun_bias);
-	rd_byte (&cur_town);
-	rd_byte (&cur_dungeon);
-	rd_byte (&recall_dungeon);
-	rd_byte (&came_from);
-	rd_s16b(&num_repro);
+	rd_byte (&tmp8u);
+	rd_byte (&tmp8u);
+	rd_byte (&tmp8u);
+	rd_byte (&tmp8u);
+	rd_s16b(&tmp16u);
 	rd_s16b(&py);
 	rd_s16b(&px);
-	rd_s16b(&wildx);
-	rd_s16b(&wildy);
+	rd_s16b(&p_ptr->wildx);
+	rd_s16b(&p_ptr->wildy);
 	rd_s16b(&cur_hgt);
 	rd_s16b(&cur_wid);
-	rd_s16b(&max_panel_rows);
-	rd_s16b(&max_panel_cols);
+	rd_s16b(&tmp16u);
+	rd_s16b(&tmp16u);
 
 
 	/*** Run length decoding ***/
 
-	/* Encode cave_type.info. */
-	if (has_flag(SF_16_CAVE_FLAG))
-		rd_rle_cave(2, set_cave_info);
-	else
-		rd_rle_cave(1, set_cave_info);
-
-	/* Encode cave_type.feat. */
-	rd_rle_cave(1, set_cave_feat);
-
-	/* Encode cave_type.r_feat. */
-	if (has_flag(SF_OBSERVED_FEAT))
-		rd_rle_cave(1, set_cave_r_feat);
-	else
+	/* Load the dungeon data */
+	for (x = y = 0; y < DUNGEON_HGT; )
 	{
-		for (y = 0; y < cur_hgt; y++)
-			for (x = 0; x < cur_wid; x++)
-				cave[y][x].r_feat = cave[y][x].feat;
+		/* Grab RLE info */
+		rd_byte(&count);
+		rd_byte(&tmp8u);
+
+		/* Apply the RLE info */
+		for (i = count; i > 0; i--)
+		{
+			/* Extract "info" */
+			cave_info[y][x] = tmp8u;
+
+			/* Advance/Wrap */
+			if (++x >= DUNGEON_WID)
+			{
+				/* Wrap */
+				x = 0;
+
+				/* Advance/Wrap */
+				if (++y >= DUNGEON_HGT) break;
+			}
+		}
+	}
+
+
+	/*** Run length decoding ***/
+
+	/* Load the dungeon data */
+	for (x = y = 0; y < DUNGEON_HGT; )
+	{
+		/* Grab RLE info */
+		rd_byte(&count);
+		rd_byte(&tmp8u);
+
+		/* Apply the RLE info */
+		for (i = count; i > 0; i--)
+		{
+			/* Extract "feat" */
+			cave_feat[y][x] = tmp8u;
+
+			/* Advance/Wrap */
+			if (++x >= DUNGEON_WID)
+			{
+				/* Wrap */
+				x = 0;
+
+				/* Advance/Wrap */
+				if (++y >= DUNGEON_HGT) break;
+			}
+		}
+	}
+
+	
+	/*** Run length decoding ***/
+
+	/* Load the dungeon data */
+	for (x = y = 0; y < DUNGEON_HGT; )
+	{
+		/* Grab RLE info */
+		rd_byte(&count);
+		rd_byte(&tmp8u);
+
+		/* Apply the RLE info */
+		for (i = count; i > 0; i--)
+		{
+			/* Extract "feat" */
+			cave_rfeat[y][x] = tmp8u;
+
+			/* Advance/Wrap */
+			if (++x >= DUNGEON_WID)
+			{
+				/* Wrap */
+				x = 0;
+
+				/* Advance/Wrap */
+				if (++y >= DUNGEON_HGT) break;
+			}
+		}
+	}
+
+	/*** Player ***/
+
+	/* Save depth */
+	/* p_ptr->depth = depth; */
+
+	/* Place player in dungeon */
+	if (!player_place(py, px))
+	{
+		note(format("Cannot place player (%d,%d)!", py, px));
+		return (162);
 	}
 
 
@@ -1531,57 +1584,42 @@ static errr rd_dungeon(void)
 	for (i = 1; i < MIN(limit, MAX_O_IDX); i++)
 	{
 
-		int o_idx;
+		object_type *i_ptr;
+		object_type object_type_body;
 
-		object_type *o_ptr;
 
+		/* Acquire place */
+		i_ptr = &object_type_body;
 
-		/* Get a new record */
-		o_ptr = o_pop();
-
-		/* Note index. */
-		o_idx = o_ptr - o_list;
-
-		/* Oops */
-		if (i != o_idx)
-		{
-			note(format("Object allocation error (%d <> %d)", i, o_idx));
-			return (152);
-		}
-
+		/* Wipe the object */
+		object_wipe(i_ptr);
 
 		/* Read the item */
-		rd_item(o_ptr);
+		rd_item(i_ptr);
 
 
-		/* XXX XXX XXX XXX XXX */
 
 		/* Monster */
-		if (o_ptr->held_m_idx)
+		if (i_ptr->held_m_idx)
 		{
-			monster_type *m_ptr;
+			/* Give the object to the monster */
+			if (!monster_carry(i_ptr->held_m_idx, i_ptr))
+			{
+				note(format("Cannot place object %d!", o_max));
+				return (152);
+			}
 
-			/* Monster */
-			m_ptr = &m_list[o_ptr->held_m_idx];
-
-			/* Build a stack */
-			o_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-			/* Place the object */
-			m_ptr->hold_o_idx = o_idx;
 		}
 
 		/* Dungeon */
 		else
 		{
-			/* Access the item location */
-			c_ptr = &cave[o_ptr->iy][o_ptr->ix];
-
-			/* Build a stack */
-			o_ptr->next_o_idx = c_ptr->o_idx;
-
-			/* Place the object */
-			c_ptr->o_idx = o_idx;
+			/* Give the object to the floor */
+			if (!floor_carry(i_ptr->iy, i_ptr->ix, i_ptr))
+			{
+				note(format("Cannot place object %d!", o_max));
+				return (152);
+			}
 		}
 	}
 	/* Strip extra items from the end if necessary. */
@@ -1609,43 +1647,27 @@ static errr rd_dungeon(void)
 	/* Read the monsters */
 	for (i = 1; i < MIN(MAX_M_IDX, limit); i++)
 	{
-		int m_idx;
-
-		monster_type *m_ptr;
-
-		monster_race *r_ptr;
+		monster_type *n_ptr;
+		monster_type monster_type_body;
 
 
-		/* Get a new record */
-		m_idx = m_pop();
+		/* Get local monster */
+		n_ptr = &monster_type_body;
 
-		/* Oops */
-		if (i != m_idx)
+		/* Clear the monster */
+		WIPE(n_ptr, monster_type);
+
+		/* Read the monster */
+		rd_monster(n_ptr);
+
+
+		/* Place monster in dungeon */
+		if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))
 		{
-			note(format("Monster allocation error (%d <> %d)", i, m_idx));
+			note(format("Cannot place monster %d", i));
 			return (162);
 		}
 
-
-		/* Acquire monster */
-		m_ptr = &m_list[m_idx];
-
-		/* Read the monster */
-		if (!rd_monster(m_ptr)) continue;
-
-
-		/* Access grid */
-		c_ptr = &cave[m_ptr->fy][m_ptr->fx];
-
-		/* Mark the location */
-		c_ptr->m_idx = m_idx;
-
-
-		/* Access race */
-		r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Count XXX XXX XXX */
-		r_ptr->cur_num++;
 	}
 	/* Strip extra items from the end if necessary. */
 	while (limit-- > MAX_M_IDX)
@@ -1678,7 +1700,7 @@ static void rd_spell_flags(void)
 		rd_u32b(&forgot);
 
 		/* Dead characters know no spells. */
-		if (death) continue;
+		if (p_ptr->is_dead) continue;
 
 		for (j = 0; j < MAX_SPELLS_PER_BOOK; j++)
 		{
@@ -1694,6 +1716,7 @@ static void rd_spell_flags(void)
 		}
 	}
 
+	/*
 	if (death)
 	{
 		strip_bytes(128);
@@ -1705,6 +1728,7 @@ static void rd_spell_flags(void)
 			rd_byte(&spell_order[i]);
 		}
 	}
+	*/
 }
 
 
@@ -1990,25 +2014,8 @@ good:
 
 
 	/* Read the extra stuff */
-	rd_extra();
+	if (rd_extra()) return (25);
 	if (arg_fiddle) note("Loaded extra information");
-
-
-	/* Read the player_hp array */
-	rd_u16b(&tmp16u);
-
-	/* Incompatible save files */
-	if (tmp16u > 100)
-	{
-		note(format("Too many (%u) hitpoint entries!", tmp16u));
-		return (25);
-	}
-
-	/* Read the player_hp array */
-	for (i = 0; i < tmp16u; i++)
-	{
-		rd_s16b(&player_hp[i]);
-	}
 
 
 	/* Important -- Initialize the sex */
@@ -2035,7 +2042,7 @@ good:
 		 * changes so that dead characters' save files don't store
 		 * this useless information, but it does no real harm.
 		 */
-		if (death) continue;
+		if (p_ptr->is_dead) continue;
 
 		spirits[i].pact = tmp16u;
 		spirits[i].annoyance = tmp32u;
@@ -2066,7 +2073,7 @@ good:
 	}
 
 	/* I'm not dead yet... */
-	if (!death)
+	if (!p_ptr->is_dead)
 	{
 		/* Dead players have no dungeon */
 		note("Restoring Dungeon...");
@@ -2081,7 +2088,7 @@ good:
 	}
 
 	/* New characters use the base quest list. */
-	if (death || new_game)
+	if (p_ptr->is_dead || new_game)
 	{
 		FREE(q_list_new);
 	}
@@ -2201,7 +2208,7 @@ bool load_player(bool new_game)
 	turn = 0;
 
 	/* Paranoia */
-	death = FALSE;
+	p_ptr->is_dead= FALSE;
 
 
 	/* Allow empty savefile name */
@@ -2364,10 +2371,10 @@ bool load_player(bool new_game)
 		}
 
 		/* Player is dead */
-		if (death)
+		if (p_ptr->is_dead)
 		{
 			/* Player is no longer "dead" */
-			death = FALSE;
+			p_ptr->is_dead = FALSE;
 
 			/* Count lives */
 			sf_lives++;
@@ -2386,10 +2393,10 @@ bool load_player(bool new_game)
 		if (p_ptr->chp >= 0)
 		{
 			/* Forget the cause of death, if none. */
-			safe_free((vptr)died_from);
+			safe_free((vptr)p_ptr->died_from);
 
 			/* Reset cause of death */
-			died_from = "(alive and well)";
+			p_ptr->died_from = "(alive and well)";
 
 			/* Accept the quest list. */
 

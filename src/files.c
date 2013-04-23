@@ -1,14 +1,11 @@
-#define FILES_C
 /* File: files.c */
 
-/* Purpose: code dealing with files (and death) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -2419,7 +2416,7 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(row+6, col, "Dark :", 2, TR2_RES_DARK);
 	display_player_flag_aux(row+7, col, "Shard:", 2, TR2_RES_SHARDS);
 	display_player_flag_aux(row+8, col, "Blind:", 2, TR2_RES_BLIND);
-	display_player_flag_aux(row+9, col, "Conf :", 2, TR2_RES_CONF);
+	display_player_flag_aux(row+9, col, "Conf :", 2, TR2_RES_CONFU);
 
 	/*** Set 2 ***/
 
@@ -2518,8 +2515,7 @@ static void display_player_skills_aux(int skill)
 		}
 	}
 
-
-    if (spoil_skll)
+	if (spoil_skll)
 		sprintf(buf, "%-17s%d.%d%%", name, sk_ptr->value, MIN((sk_ptr->experience *10)/(sk_ptr->exp_to_raise * rp_ptr->r_exp),9));
 	else
 		sprintf(buf, "%-17s%d%%", name, sk_ptr->value); 
@@ -2567,24 +2563,24 @@ static void display_player_misc_info(void)
 	char buf[80];
 
 	/* Display basics */
-	put_str("Name      :", 2, 1);
-	put_str("Sex       :", 3, 1);
-	put_str("Race      :", 4, 1);
-	put_str("Template  :", 5, 1);
+	put_str("Name    :", 2, 1);
+	put_str("Sex     :", 3, 1);
+	put_str("Race    :", 4, 1);
+	put_str("Template:", 5, 1);
 
-	c_put_str(TERM_L_BLUE, player_name, 2, 13);
-	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 13);
-	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 13);
-	c_put_str(TERM_L_BLUE, tp_name+cp_ptr->name, 5, 13);
+	c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 11);
+	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 11);
+	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 11);
+	c_put_str(TERM_L_BLUE, tp_name+cp_ptr->name, 5, 11);
 
 	/* Display extras */
-	put_str("Hits(Max) :", 7, 1);
-	put_str("Mana(Max) :", 8, 1);
+	put_str("HP      :", 7, 1);
+	put_str("SP      :", 8, 1);
 
-	(void) sprintf(buf, "%d(%d)", (int) p_ptr->chp, (int) p_ptr->mhp);
-	c_put_str(TERM_L_BLUE, buf, 7, 13);
-	(void) sprintf(buf, "%d(%d)", (int) p_ptr->csp, (int) p_ptr->msp);
-	c_put_str(TERM_L_BLUE, buf, 8, 13);
+	sprintf(buf, "%d(%d)", (int) p_ptr->chp, (int) p_ptr->mhp);
+	c_put_str(TERM_L_BLUE, buf, 7, 11);
+	sprintf(buf, "%d(%d)", (int) p_ptr->csp, (int) p_ptr->msp);
+	c_put_str(TERM_L_BLUE, buf, 8, 11);
 }
 
 
@@ -2629,12 +2625,12 @@ int equip_mod(int i)
  */
 static void display_player_stat_info(void)
 {
-	int i, e_adj;
+	int i, row, col;
 	int stat_col, stat;
-	int row, col;
 
 	object_type *o_ptr;
 	u32b f1, f2, f3;
+	u32b ignore_f2, ignore_f3;
 	s16b k_idx;
 
 	byte a;
@@ -2659,26 +2655,25 @@ static void display_player_stat_info(void)
 	/* Display the stats */
 	for (i = 0; i < 6; i++)
 	{
-		/* Calculate equipment adjustment */
-		e_adj = equip_mod(i);
+		// /* Calculate equipment adjustment */
+		// e_adj = equip_mod(i);
 
 		/* Reduced name of stat */
 		c_put_str(TERM_WHITE, stat_names_reduced[i], row+i, stat_col);
 
-		/* Internal "natural" max value.  Maxes at 18/100 */
-		/* This is useful to see if you are maxed out     */
+		/* Internal "natural" maximum value */
 		strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_max[i]);
 		c_put_str(TERM_BLUE, buf, row+i, stat_col+5);
 
 		/* Race, template, and equipment modifiers */
-		(void) sprintf(buf, "%3d", (int) rp_ptr->r_adj[i]);
+		(void) sprintf(buf, "%3d", rp_ptr->r_adj[i]);
 		c_put_str(TERM_L_BLUE, buf, row+i, stat_col+12);
-		(void) sprintf(buf, "%3d", (int) cp_ptr->c_adj[i]);
+		(void) sprintf(buf, "%3d", cp_ptr->c_adj[i]);
 		c_put_str(TERM_L_BLUE, buf, row+i, stat_col+16);
-		(void) sprintf(buf, "%3d", (int) e_adj);
+		(void) sprintf(buf, "%3d", p_ptr->stat_add[i]);
 		c_put_str(TERM_L_BLUE, buf, row+i, stat_col+20);
 
-		/* Actual maximal modified value */
+		/* Resulting "modified" maximum value */
 		strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_top[i]);
 		c_put_str(TERM_L_GREEN, buf, row+i, stat_col+24);
 
@@ -2691,12 +2686,12 @@ static void display_player_stat_info(void)
 	}
 
 	/* Column */
-	col = stat_col + 39;
+	//col = stat_col + 39;
+	col = 60 + 6;
 
 	/* Header and Footer */
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
-	c_put_str(TERM_L_GREEN, "Modifications", row+6, col);
-
+	
 	/* Process equipment */
 	for (i=INVEN_WIELD; i<INVEN_POUCH_1; i++)
 	{
@@ -2708,6 +2703,9 @@ static void display_player_stat_info(void)
 
 		/* Acquire "known" flags */
 		object_flags_known(o_ptr, &f1, &f2, &f3);
+
+		/* Hack -- assume stat modifiers are known */
+		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3);
 
 		/* Initialize color based of sign of pval. */
 		for (stat=0; stat<6; stat++)
@@ -3478,10 +3476,10 @@ void file_character(cptr name)
 		char out_val[160];
 
 		/* Close the file */
-		(void)fd_close(fd);
+		fd_close(fd);
 
 		/* Build query */
-		(void)sprintf(out_val, "Replace existing file %s? ", buf);
+		sprintf(out_val, "Replace existing file %s? ", buf);
 
 		/* Ask */
 		if (get_check(out_val)) fd = -1;
@@ -3536,9 +3534,9 @@ void file_character(cptr name)
 	dump_pref(fff, "Long Stairs", multi_stair);
 	dump_pref(fff, "Stupid Monsters", stupid_monsters);
 
-	i = p_ptr->max_dlv+dun_defs[cur_dungeon].offset;
+	i = p_ptr->max_dlv+dun_defs[p_ptr->cur_dungeon].offset;
 	fprintf(fff, "\n Recall:             Level %d (%d') in %s\n",
-		i, 50*i, dun_name+dun_defs[cur_dungeon].name);
+		i, 50*i, dun_name+dun_defs[p_ptr->cur_dungeon].name);
 
 
 	if (noscore)
@@ -4007,7 +4005,7 @@ static int find_text(FILE *fff, hyperlink_type *h_ptr, int minline)
 static int find_text_reverse (FILE *fff, hyperlink_type *h_ptr, int maxline)
 {
 	int y,z;
-    int line;
+    /* int line; */
 
 	/* Nothing to do. */
 	if (!h_ptr->finder[0]) return maxline;
@@ -4471,29 +4469,29 @@ static char show_file_aux(cptr name, cptr what, cptr link)
 			prt("Find: ", hgt - 1, 0);
 			if (askfor_aux(h_ptr->finder, 80))
 			{
-                /* HACK: Reverse the search order for Message Recall. XXX XXX XXX XXX XXX XXX */
-                if (what && !strcmp(what, "Message Recall"))
-                {
-                    /* Give repeated searching the expected result. */
-				    //if (!strcmp(h_ptr->shower, h_ptr->finder)) line;
-
-				    /* Find it. */
-				    line = find_text_reverse(fff, h_ptr, line);
-
-				    /* Show it */
-				    strcpy(h_ptr->shower, h_ptr->finder);
-                }
-                else
-                {
-                    /* Give repeated searching the expected result. */
-				    if (!strcmp(h_ptr->shower, h_ptr->finder)) line++;
-
-				    /* Find it. */
-				    line = find_text(fff, h_ptr, line)-1;
-
-				    /* Show it */
-				    strcpy(h_ptr->shower, h_ptr->finder);
-                }
+	                	/* HACK: Reverse the search order for Message Recall.  */
+	                	if (what && !strcmp(what, "Message Recall"))
+	                	{
+	                    		/* Give repeated searching the expected result. */
+					//if (!strcmp(h_ptr->shower, h_ptr->finder)) line;
+	
+					/* Find it. */
+					line = find_text_reverse(fff, h_ptr, line);
+	
+					/* Show it */
+					strcpy(h_ptr->shower, h_ptr->finder);
+	                	}
+	                	else
+	                	{
+	                    		/* Give repeated searching the expected result. */
+					if (!strcmp(h_ptr->shower, h_ptr->finder)) line++;
+	
+					/* Find it. */
+					line = find_text(fff, h_ptr, line)-1;
+	
+					/* Show it */
+					strcpy(h_ptr->shower, h_ptr->finder);
+                		}
 			}
 		}
 
@@ -4754,7 +4752,7 @@ void init_help_files(void)
 	}
 
 	/* Create the help_files array. */
-	help_files = C_NEW(i, cptr);
+	help_files = C_RNEW(i, cptr);
 
 	/* Hack - The last element must be NULL. */
 	help_files[--i] = NULL;
@@ -4828,20 +4826,20 @@ void process_player_name(void)
 
 
 	/* Cannot be too long */
-	if (strlen(player_name) > 15)
+	if (strlen(op_ptr->full_name) > 15)
 	{
 		/* Name too long */
-		quit_fmt("The name '%s' is too long!", player_name);
+		quit_fmt("The name '%s' is too long!", op_ptr->full_name);
 	}
 
 	/* Cannot contain "icky" characters */
-	for (i = 0; player_name[i]; i++)
+	for (i = 0; op_ptr->full_name[i]; i++)
 	{
 		/* No control characters */
-		if (ISCNTRL(player_name[i]))
+		if (iscntrl(op_ptr->full_name[i]))
 		{
 			/* Illegal characters */
-			quit_fmt("The name '%s' contains control chars!", player_name);
+			quit_fmt("The name '%s' contains control chars!", op_ptr->full_name);
 		}
 	}
 
@@ -4849,29 +4847,29 @@ void process_player_name(void)
 #ifdef MACINTOSH
 
 	/* Extract "useful" letters */
-	for (i = 0; player_name[i]; i++)
+	for (i = 0; op_ptr->full_name[i]; i++)
 	{
-		char c = player_name[i];
+		char c = op_ptr->full_name[i];
 
-		/* Convert "dot" to "underscore" */
-		if (c == '.') c = '_';
+		/* Convert "colon" and "period" */
+		if ((c == ':') || (c == '.')) c = '_';
 
 		/* Accept all the letters */
-		player_base[k++] = c;
+		op_ptr->base_name[k++] = c;
 	}
 
 #else
 
 	/* Extract "useful" letters */
-	for (i = 0; player_name[i]; i++)
+	for (i = 0; op_ptr->full_name[i]; i++)
 	{
-		char c = player_name[i];
+		char c = op_ptr->full_name[i];
 
 		/* Accept some letters */
-		if (ISALPHA(c) || ISDIGIT(c)) player_base[k++] = c;
+		if (isalpha(c) || isdigit(c)) op_ptr->base_name[k++] = c;
 
 		/* Convert space, dot, and underscore to underscore */
-		else if (strchr(". _", c)) player_base[k++] = '_';
+		else if (strchr(". _", c)) op_ptr->base_name[k++] = '_';
 	}
 
 #endif
@@ -4883,10 +4881,10 @@ void process_player_name(void)
 #endif
 
 	/* Terminate */
-	player_base[k] = '\0';
+	op_ptr->base_name[k] = '\0';
 
 	/* Require a "base" name */
-	if (!player_base[0]) strcpy(player_base, "PLAYER");
+	if (!op_ptr->base_name[0]) strcpy(op_ptr->base_name, "PLAYER");
 
 
 	/* Change the savefile name */
@@ -4895,16 +4893,16 @@ void process_player_name(void)
 		char temp[128];
 
 #ifdef SAVEFILE_USE_UID
-		/* Rename the savefile, using the player_uid and player_base */
-		(void)sprintf(temp, "%d.%s", player_uid, player_base);
+		/* Rename the savefile, using the player_uid and base_name */
+		sprintf(temp, "%d.%s", player_uid, op_ptr->base_name);
 #else
-		/* Rename the savefile, using the player_base */
-		(void)sprintf(temp, "%s", player_base);
+		/* Rename the savefile, using the base name */
+		sprintf(temp, "%s", op_ptr->base_name);
 #endif
 
 #ifdef VM
 		/* Hack -- support "flat directory" usage on VM/ESA */
-		(void)sprintf(temp, "%s.sv", player_base);
+		sprintf(temp, "%s.sv", op_ptr->base_name);
 #endif /* VM */
 
 		/* Build the filename */
@@ -4945,12 +4943,12 @@ bool get_name(void)
 		move_cursor(2, 15);
 
 		/* Save the player name */
-		strcpy(tmp, player_name);
+		strcpy(tmp, op_ptr->full_name);
 
 		/* Get an input, ignore "Escape" */
 		if (askfor_aux(tmp, 15))
 		{
-			strcpy(player_name, tmp);
+			strcpy(op_ptr->full_name, tmp);
 			changed = TRUE;
 		}
 
@@ -4962,7 +4960,7 @@ bool get_name(void)
 	}
 
 	/* Pad the name (to clear junk) */
-	sprintf(tmp, "%-15.15s", player_name);
+	sprintf(tmp, "%-15.15s", op_ptr->full_name);
 
 	/* Re-Draw the name (in light blue) */
 	c_put_str(TERM_L_BLUE, tmp, 2, 15);
@@ -4988,7 +4986,7 @@ void do_cmd_suicide(void)
 	flush();
 
 	/* Verify Retirement */
-	if (total_winner)
+	if (p_ptr->total_winner)
 	{
 		/* Verify */
 		if (!get_check("Do you want to retire? ")) return;
@@ -5002,7 +5000,7 @@ void do_cmd_suicide(void)
 		if (!noscore)
 		{
 			/* Special Verification for suicide */
-			prt("Please verify QUIT by typing the '@' sign: ", 0, 0);
+			prt("Please verify QUITTING by typing the '@' sign: ", 0, 0);
 			flush();
 			i = inkey();
 			prt("", 0, 0);
@@ -5010,14 +5008,17 @@ void do_cmd_suicide(void)
 		}
 	}
 
-	/* Stop playing */
-	alive = FALSE;
+	/* Commit suicide */
+	p_ptr->is_dead = TRUE;
 
-	/* Kill the player */
-	death = TRUE;
+	/* Stop playing */
+	p_ptr->playing = FALSE;
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
 
 	/* Cause of death */
-	died_from = SUICIDE_STRING;
+	p_ptr->died_from = SUICIDE_STRING;
 
 	{
 		monster_race *r_ptr = r_info+MON_SUICIDE;
@@ -5064,7 +5065,7 @@ void do_cmd_save_game(bool is_autosave)
 	Term_fresh();
 
 	/* The player is not dead */
-	died_from = "(saved)";
+	p_ptr->died_from = "(saved)";
 
 	/* Forbid suspend */
 	signals_ignore_tstp();
@@ -5088,23 +5089,23 @@ void do_cmd_save_game(bool is_autosave)
 	Term_fresh();
 
 	/* Note that the player is not dead */
-	died_from = "nobody (yet!)";
+	p_ptr->died_from = "nobody (yet!)";
 }
 
 
 
 /*
- * Hack -- Calculates the total number of points earned -JWT-
+ * Hack -- Calculates the total number of points earned
  */
 static long total_points(void)
 {
-	return p_ptr->exp + 100*p_ptr->max_dlv+dun_defs[cur_dungeon].offset;
+	return p_ptr->exp + 100*p_ptr->max_dlv+dun_defs[p_ptr->cur_dungeon].offset;
 }
 
 
 
 /*
- * Centers a string within a 31 character string -JWT-
+ * Centers a string within a 31 character string
  */
 static void center_string(char *buf, cptr str)
 {
@@ -5117,7 +5118,7 @@ static void center_string(char *buf, cptr str)
 	j = 15 - i / 2;
 
 	/* Mega-Hack */
-	(void)sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
+	sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
 }
 
 
@@ -5139,7 +5140,7 @@ static void make_bones(void)
 	if (rp_ptr->grace == RACE_UNDEAD) return;
 
 	/* Ignore wizards and borgs */
-	if (noscore & NOSCORE_NO_BONES) return;
+	if (p_ptr->noscore & NOSCORE_NO_BONES) return;
 
 	/* Ignore people who die in town (and on impossible levels). */
 	if (dun_level <= 0 || dun_level >= 1000) return;
@@ -5166,7 +5167,7 @@ static void make_bones(void)
 	if (!fp) return;
 
 	/* Save the info */
-	fprintf(fp, "%s\n", player_name);
+	fprintf(fp, "%s\n", op_ptr->full_name);
 	fprintf(fp, "%d\n", p_ptr->mhp);
 	fprintf(fp, "%d\n", p_ptr->prace);
 	fprintf(fp, "%d\n", p_ptr->ptemplate);
@@ -5200,81 +5201,81 @@ static void print_tomb(void)
 	if (!done)
 	{
 
-	char tmp[160];
+		char tmp[160];
 
-	char buf[1024];
+		char buf[1024];
 
-	time_t ct = time((time_t)0);
-
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Display the death screen. */
-	showfile("dead.txt", 0);
-
-	center_string(buf, player_name);
-
-	put_str(buf, 6, 11);
-
-	/* King or Queen */
-	if (total_winner)
-	{
-		center_string(buf, "the");
-		put_str(buf, 7, 11);
-		center_string(buf,"Magnificent");
-		put_str(buf,8,11);
-	}
-	/* Normal */
-	else
-	{
-		center_string(buf, "the");
-		put_str(buf, 8, 11);
-	}
+		time_t ct = time((time_t)0);
 
 
-	center_string(buf, rp_ptr->title);
-	put_str(buf, 9, 11);
+		/* Clear screen */
+		Term_clear();
+
+		/* Display the death screen. */
+		showfile("dead.txt", 0);
+
+		center_string(buf, op_ptr->full_name);
+
+		put_str(buf, 6, 11);
+
+		/* King or Queen */
+		if (p_ptr->total_winner)
+		{
+			center_string(buf, "the");
+			put_str(buf, 7, 11);
+			center_string(buf,"Magnificent");
+			put_str(buf,8,11);
+		}
+		/* Normal */
+		else
+		{
+			center_string(buf, "the");
+			put_str(buf, 8, 11);
+		}
 
 
-	center_string(buf, tp_name+cp_ptr->name);
-	put_str(buf, 10, 11);
+		center_string(buf, rp_ptr->title);
+		put_str(buf, 9, 11);
 
-	(void)sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
-	center_string(buf, tmp);
-	put_str(buf, 12, 11);
 
-	(void)sprintf(tmp, "AU: %ld", (long)p_ptr->au);
-	center_string(buf, tmp);
-	put_str(buf, 13, 11);
+		center_string(buf, tp_name+cp_ptr->name);
+		put_str(buf, 10, 11);
 
-	if (dun_level)
-		(void)sprintf(tmp, "Killed on Level %d", dun_level);
-	else
-		(void)strcpy(tmp, "Killed on the Surface");
-	center_string(buf, tmp);
-	put_str(buf, 14, 11);
+		sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
+		center_string(buf, tmp);
+		put_str(buf, 12, 11);
 
-	if (dun_level > 0)
-		sprintf(tmp, "of %s", dun_name+dun_defs[cur_dungeon].name);
-	else if (is_town_p(wildy, wildx))
-		sprintf(tmp, "in %s", dun_name+dun_defs[wild_grid[wildy][wildx].dungeon].shortname);
-	else if (wild_grid[wildy][wildx].dungeon < MAX_CAVES)
-		sprintf(tmp, "near %s", dun_name+dun_defs[wild_grid[wildy][wildx].dungeon].name);
-	else
-		strcpy(tmp, "in the Wilderness");
-	center_string(buf, tmp);
-	put_str(buf, 15, 11);
+		sprintf(tmp, "AU: %ld", (long)p_ptr->au);
+		center_string(buf, tmp);
+		put_str(buf, 13, 11);
 
-	(void)sprintf(tmp, "by %.*s.", 24, died_from);
-	center_string(buf, tmp);
-	put_str(buf, 16, 11);
+		if (dun_level)
+			sprintf(tmp, "Killed on Level %d", dun_level);
+		else
+			strcpy(tmp, "Killed on the Surface");
+		center_string(buf, tmp);
+		put_str(buf, 14, 11);
 
-	(void)sprintf(tmp, "%-.24s", ctime(&ct));
-	center_string(buf, tmp);
-	put_str(buf, 18, 11);
+		if (dun_level > 0)
+			sprintf(tmp, "of %s", dun_name+dun_defs[p_ptr->cur_dungeon].name);
+		else if (is_town_p(p_ptr->wildy, p_ptr->wildx))
+			sprintf(tmp, "in %s", dun_name+dun_defs[wild_grid[p_ptr->wildy][p_ptr->wildx].dungeon].shortname);
+		else if (wild_grid[p_ptr->wildy][p_ptr->wildx].dungeon < MAX_CAVES)
+			sprintf(tmp, "near %s", dun_name+dun_defs[wild_grid[p_ptr->wildy][p_ptr->wildx].dungeon].name);
+		else
+			strcpy(tmp, "in the Wilderness");
+		center_string(buf, tmp);
+		put_str(buf, 15, 11);
 
-	msg_format("Goodbye, %s!", player_name);
+		sprintf(tmp, "by %.*s.", 24, p_ptr->died_from);
+		center_string(buf, tmp);
+		put_str(buf, 16, 11);
+
+		sprintf(tmp, "%-.24s", ctime(&ct));
+		center_string(buf, tmp);
+		put_str(buf, 18, 11);
+
+		msg_format("Goodbye, %s!", player_name);
 	}
 }
 
@@ -5340,7 +5341,7 @@ static void show_info(void)
 		Term_save();
 
 		/* Dump a character file */
-		(void)file_character(out_val);
+		file_character(out_val);
 
 		/* Load screen */
 		Term_load();
@@ -5677,7 +5678,7 @@ void display_scores(int from, int to)
 	display_scores_aux(from, to, -1, NULL);
 
 	/* Shut the high score file */
-	(void)fd_close(highscore_fd);
+	fd_close(highscore_fd);
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
@@ -5748,7 +5749,7 @@ void template_score(int ptemplate)
 		prt(out_val, (m + 8), 0);
 	}
 
-	(void)fd_close(highscore_fd);
+	fd_close(highscore_fd);
 	highscore_fd = -1;
 	msg_print("Hit any key to continue");
 	msg_print(NULL);
@@ -5823,7 +5824,7 @@ void race_score(int race_num)
 		prt(out_val, (m + 8), 0);
 	}
 
-	(void)fd_close(highscore_fd);
+	fd_close(highscore_fd);
 	highscore_fd = -1;
 	msg_print("Hit any key to continue");
 	msg_print(NULL);
@@ -5873,12 +5874,12 @@ static void get_details(high_score *the_score)
 	sprintf(the_score->cur_dun, "%3d", (dun_level) ? dun_depth : 0);
 
 	/* Find the deepest level in the current dungeon. */
-	best = p_ptr->max_dlv+dun_defs[cur_dungeon].offset;
+	best = p_ptr->max_dlv+dun_defs[p_ptr->cur_dungeon].offset;
 
 	sprintf(the_score->max_dun, "%3d", best);
 
 	/* Save the cause of death (31 chars) */
-	sprintf(the_score->how, "%-.31s", died_from);
+	sprintf(the_score->how, "%-.31s", p_ptr->died_from);
 }
 
 /*
@@ -5916,7 +5917,7 @@ static void make_record(high_score *score)
 		strftime(str, 1024, "%d %b %Y %H:%M:%S", localtime(&ct));
 	}
 
-	dun = wild_grid[wildy][wildx].dungeon;
+	dun = wild_grid[p_ptr->wildy][p_ptr->wildx].dungeon;
 	if (dun < MAX_CAVES)
 	{
 		dun_str = dun_name+dun_defs[dun].shortname;
@@ -5982,7 +5983,7 @@ static errr top_twenty(void)
 
 #ifndef SCORE_BORGS
 	/* Borg-mode pre-empts scoring */
-	if (noscore & NOSCORE_BORG)
+	if (p_ptr->noscore & NOSCORE_BORG)
 	{
 		msg_print("Score not registered for borgs.");
 		msg_print(NULL);
@@ -5993,7 +5994,7 @@ static errr top_twenty(void)
 
 #ifndef SCORE_CHEATERS
 	/* Cheaters are not scored */
-	if (noscore & (NOSCORE_CHEAT_ALL))
+	if (p_ptr->noscore & (NOSCORE_CHEAT_ALL))
 	{
 		msg_print("Score not registered for cheaters.");
 		msg_print(NULL);
@@ -6007,7 +6008,7 @@ static errr top_twenty(void)
 #ifdef SCORE_QUITTERS
 		!score_quitters &&
 #endif /* SCORE_QUITTERS */
-		!total_winner && streq(died_from, SUICIDE_STRING))
+		!p_ptr->total_winner && streq(p_ptr->died_from, SUICIDE_STRING))
 	{
 		msg_print("Score not registered due to quitting.");
 		msg_print(NULL);
@@ -6016,7 +6017,7 @@ static errr top_twenty(void)
 	}
 
 	/* Interupted */
-	if (!total_winner && streq(died_from, "Interrupting"))
+	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
 	{
 		msg_print("Score not registered due to interruption.");
 		msg_print(NULL);
@@ -6144,7 +6145,7 @@ static void showfile_kingly(cptr name, int y)
 }
 
 /*
- * Change the player into a King! -RAK-
+ * Change the player into a Winner
  */
 static void kingly(void)
 {
@@ -6152,7 +6153,7 @@ static void kingly(void)
 	dun_level = 0;
 
 	/* Fake death */
-	died_from = "Ripe Old Age";
+	p_ptr->died_from = "Ripe Old Age";
 
 	/* Hack -- Instant Gold */
 	p_ptr->au += 10000000L;
@@ -6175,6 +6176,11 @@ static void kingly(void)
  * Close up the current game (player may or may not be dead)
  *
  * This function is called only from "main.c" and "signals.c".
+ *
+ * Note that the savefile is not saved until the tombstone is
+ * actually displayed and the player has a chance to examine
+ * the inventory and such.  This allows cheating if the game
+ * is equipped with a "quit without save" method.  XXX XXX XXX
  */
 void close_game(void)
 {
@@ -6207,10 +6213,16 @@ void close_game(void)
 
 
 	/* Handle death */
-	if (death)
+	if (p_ptr->is_dead)
 	{
 		/* Handle retirement */
-		if (total_winner) kingly();
+		if (p_ptr->total_winner) kingly();
+
+		/* You are dead */
+		print_tomb();
+
+		/* Show more info */
+		show_info();
 
 		/* Save memories, if allowed. */
 		if (cheat_save) msg_print("Game not saved as cheat_save active.");
@@ -6218,12 +6230,6 @@ void close_game(void)
 
 		/* Dump bones file */
 		make_bones();
-
-		/* You are dead */
-		print_tomb();
-
-		/* Show more info */
-		show_info();
 
 		/* Handle score, show Top scores */
 		top_twenty();
@@ -6245,7 +6251,7 @@ void close_game(void)
 
 
 	/* Shut the high score file */
-	(void)fd_close(highscore_fd);
+	fd_close(highscore_fd);
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
@@ -6279,14 +6285,14 @@ void exit_game_panic(void)
 	/* Hack -- turn off some things */
 	disturb(1);
 
-	/* Mega-Hack -- Delay death */
-	if (p_ptr->chp < 0) death = FALSE;
+	/* Hack -- Delay death XXX XXX XXX */
+	if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
 
 	/* Forbid suspend */
 	signals_ignore_tstp();
 
 	/* Indicate panic save */
-	died_from = "(panic save)";
+	p_ptr->died_from = "(panic save)";
 
 	/* Panic save, or get worried */
 	if (!save_player(FALSE)) quit("panic save failed!");
@@ -6346,7 +6352,7 @@ static void init_rnd_line(cptr file_name)
 	if (l_ptr->max)
 	{
 		/* Provide space for the strings. */
-		s = l_ptr->list = C_NEW(l_ptr->max, cptr);
+		s = l_ptr->list = C_RNEW(l_ptr->max, cptr);
 
 		/* Start from the beginning. */
 		rewind(fp);
@@ -6521,10 +6527,10 @@ static void handle_signal_simple(int sig)
 
 
 	/* Terminate dead characters */
-	if (death)
+	if (p_ptr->is_dead)
 	{
 		/* Mark the savefile */
-		died_from = "Abortion";
+		p_ptr->died_from = "Abortion";
 
 		/* Close stuff */
 		close_game();
@@ -6537,13 +6543,16 @@ static void handle_signal_simple(int sig)
 	else if (signal_count >= 5)
 	{
 		/* Cause of "death" */
-		died_from = "Interrupting";
+		p_ptr->died_from = "Interrupting";
+
+		/* Commit suicide */
+		p_ptr->is_dead = TRUE;
 
 		/* Stop playing */
-		alive = FALSE;
+		p_ptr->playing = FALSE;
 
-		/* Suicide */
-		death = TRUE;
+		/* Leaving */
+		p_ptr->leaving = TRUE;
 
 		{
 			monster_race *r_ptr = r_info+MON_SUICIDE;
@@ -6611,7 +6620,7 @@ static void handle_signal_abort(int sig)
 	Term_fresh();
 
 	/* Panic save */
-	died_from = "(panic save)";
+	p_ptr->died_from = "(panic save)";
 
 	/* Forbid suspend */
 	signals_ignore_tstp();

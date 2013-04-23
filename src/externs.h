@@ -32,7 +32,7 @@ extern void highlight_square(int win, int y, int x);
 extern void mark_spot(int y, int x);
 extern void note_spot(int y, int x);
 extern void lite_spot(int y, int x);
-extern void prt_map(bool reset);
+extern void prt_map(void);
 extern void display_map(int *cy, int *cx, int *my, int *mx);
 extern void display_wild_map(uint xmin);
 extern void do_cmd_view_map(void);
@@ -86,11 +86,13 @@ extern void do_cmd_disarm(void);
 extern void do_cmd_bash(void);
 extern void do_cmd_alter(void);
 extern void do_cmd_spike(void);
-extern void do_cmd_walk(int pickup);
-extern void do_cmd_stay(int pickup);
+extern void do_cmd_walk(void);
+extern void do_cmd_jump(void);
+extern void do_cmd_run(void);
+extern void do_cmd_hold(void);
+extern void do_cmd_stay(void);
 extern void do_cmd_rest(void);
 extern void move_to(s16b y, s16b x);
-extern void do_cmd_run(void);
 #endif
 
 /* cmd3.c */
@@ -746,14 +748,18 @@ extern bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Gro
 extern bool multiply_monster(monster_type *m_ptr, bool charm, bool clone);
 extern void message_pain(monster_type *m_ptr, int dam);
 extern void update_smart_learn(monster_type *m_ptr, int what);
+extern s16b player_place(int y, int x);
+extern void monster_swap(int y1, int x1, int y2, int x2);
+extern object_type *monster_carry(int m_idx, object_type *j_ptr);
 #endif
+
 
 /* object1.c */
 
 #if (defined(ANGBAND_H))
 extern s16b lookup_unident(byte p_id, byte s_id);
 extern void flavor_init(void);
-extern void reset_visuals(void);
+extern void reset_visuals(bool prefs);
 extern void object_flags(object_ctype *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern void object_info_known(object_type *j_ptr, object_ctype *o_ptr);
 extern void object_flags_known(object_ctype *o_ptr, u32b *f1, u32b *f2, u32b *f3);
@@ -777,7 +783,8 @@ extern byte get_i_attr(object_type *o_ptr);
 extern void display_inven(bool equip);
 extern void show_inven(bool equip, bool all);
 extern void next_object(object_type **o_ptr);
-extern object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor);
+extern object_type *get_item(errr *err, cptr pmt, cptr str, int mode);
+//extern object_type *get_item(errr *err, cptr pmt, bool equip, bool inven, bool floor);
 extern bool PURE item_tester_hook_destroy(object_ctype *o_ptr);
 extern bool PURE item_tester_okay_cmd(void (*func)(object_type *), object_ctype *o_ptr);
 extern object_type *get_object_from_function(void (*func)(object_type *));
@@ -1221,28 +1228,22 @@ extern bool character_icky;
 extern bool character_xtra;
 extern u32b seed_flavor;
 extern u32b seed_wild;
-extern s16b command_cmd;
-extern s16b command_arg;
-extern s16b command_rep;
-extern s16b command_dir;
-extern s16b command_see;
-extern s16b command_wrk;
-extern s16b command_gap;
-extern s16b command_new;
-extern s16b energy_use;
-extern s16b old_energy_use;
+//extern s16b command_cmd;
+//extern s16b command_arg;
+//extern s16b command_rep;
+//extern s16b command_dir;
+//extern s16b command_see;
+//extern s16b command_wrk;
+//extern s16b command_gap;
+//extern s16b command_new;
 extern bool msg_flag;
-extern bool alive;
-extern bool death;
+//extern bool alive;
+//extern bool death;
 extern s16b cur_hgt;
 extern s16b cur_wid;
 extern s16b dun_level;
 extern s16b dun_offset;
 extern u16b dun_bias;
-extern byte cur_town;
-extern byte cur_dungeon;
-extern byte recall_dungeon;
-extern byte came_from;
 extern s16b num_repro;
 extern s16b object_level;
 extern s32b turn;
@@ -1255,7 +1256,6 @@ extern bool use_sound;
 extern bool use_graphics;
 #endif
 #if (defined(ANGBAND_H))
-extern u16b total_winner;
 extern u16b noscore;
 extern bool use_transparency;
 extern s16b signal_count;
@@ -1264,8 +1264,10 @@ extern bool inkey_scan;
 extern bool inkey_flag;
 extern bool shimmer_monsters;
 extern bool repair_monsters;
-extern bool repair_mflag_nice;
-extern s16b total_weight;
+extern bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
+extern bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
+extern bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
+extern bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
 extern bool hack_mind;
 extern bool hack_chaos_feature;
 extern s16b o_max;
@@ -1411,26 +1413,11 @@ extern s16b autosave_freq;
 extern bool allow_squelch;
 extern s16b feeling;
 extern s16b rating;
-extern bool new_level_flag;
+//extern bool new_level_flag;
 extern int full_grid;
-extern s16b max_panel_rows;
-extern s16b max_panel_cols;
-extern s16b panel_row;
-extern s16b panel_col;
-extern s16b panel_row_min;
-extern s16b panel_row_max;
-extern s16b panel_col_min;
-extern s16b panel_col_max;
-extern s16b panel_col_prt;
-extern s16b panel_row_prt;
-extern s16b py;
-extern s16b px;
-extern s16b wildx;
-extern s16b wildy;
-extern s16b target_who;
-extern s16b health_who;
-extern s16b monster_race_idx;
-extern s16b object_kind_idx;
+//extern s16b health_who;
+//extern s16b monster_race_idx;
+//extern s16b object_kind_idx;
 extern object_type *tracked_o_ptr;
 extern co_ord tracked_co_ord;
 extern int player_uid;
@@ -1438,7 +1425,6 @@ extern int player_euid;
 extern int player_egid;
 extern char player_name[NAME_LEN];
 extern char player_base[NAME_LEN];
-extern cptr died_from;
 extern char history[4][60];
 extern char savefile[1024];
 extern s16b temp_n;
@@ -1460,7 +1446,6 @@ extern char *message__buf;
 extern bool new_message_turn;
 extern byte angband_color_table[256][4];
 extern char angband_sound_name[SOUND_MAX][16];
-extern cave_type *cave[MAX_HGT];
 extern object_type *o_list;
 extern monster_type *m_list;
 extern store_type *store;
@@ -1471,12 +1456,11 @@ extern s16b alloc_race_size;
 extern alloc_entry *alloc_race_table;
 extern cptr keymap_act[KEYMAP_MODES][256];
 extern player_type p_body;
-extern player_type *p_ptr;
 extern player_sex *sp_ptr;
 extern player_race *rp_ptr;
 extern player_template *cp_ptr;
-extern byte spell_order[128];
-extern s16b player_hp[100];
+extern player_other *op_ptr;
+extern player_type *p_ptr;
 extern maxima *z_info;
 extern vault_type *v_info;
 extern cptr v_name;
@@ -1545,7 +1529,15 @@ extern u32b rebuild_raw;
 #endif
 #if (defined(ANGBAND_H))
 extern byte object_skill_count;
+extern byte cave_cost[DUNGEON_HGT][DUNGEON_WID];
+extern byte cave_when[DUNGEON_HGT][DUNGEON_WID];
+extern byte cave_info[DUNGEON_HGT][DUNGEON_WID];
+extern byte cave_feat[DUNGEON_HGT][DUNGEON_WID];
+extern byte cave_rfeat[DUNGEON_HGT][DUNGEON_WID];
+extern s16b cave_o_idx[DUNGEON_HGT][DUNGEON_WID];
+extern s16b cave_m_idx[DUNGEON_HGT][DUNGEON_WID];
 #endif
+
 
 /* wizard1.c */
 
@@ -1628,7 +1620,7 @@ extern void monster_death(int m_idx);
 extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
 extern void panel_bounds(void);
 extern void panel_bounds_center(void);
-extern void verify_panel(bool force);
+extern void verify_panel(void);
 extern void resize_map(void);
 extern void resize_inkey(void);
 extern void ang_sort(vptr u, vptr v, int n, bool (*comp)(vptr, vptr, int, int), void (*swap)(vptr, vptr, int, int));
@@ -1649,6 +1641,10 @@ extern bool gain_chaos_feature(int choose_mut);
 extern bool lose_chaos_feature(int choose_mut);
 extern int add_chaos_features(cptr *info, bool (*reject)(int));
 extern void dump_chaos_features(FILE * OutFile);
+extern bool confuse_dir(int *dp);
+extern bool confuse_target(int *x, int *y);
+
+
 #endif
 
 /* z-form.c */
@@ -1690,7 +1686,6 @@ extern u32b Rand_simple(u32b m);
 extern term *Term;
 extern void Term_user(void);
 extern void Term_xtra(int n, int v);
-extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
 extern void Term_fresh(void);
 extern void Term_set_cursor(bool v);
 extern errr Term_gotoxy(int x, int y);
@@ -1754,12 +1749,6 @@ extern void core(cptr str);
 /* z-virt.c */
 
 #if (defined(ANGBAND_H) || defined(Z_VIRT_C))
-extern vptr (*rnfree_aux)(vptr);
-#endif
-#if (defined(Z_VIRT_H) || defined(Z_VIRT_C))
-extern vptr rnfree(vptr p);
-#endif
-#if (defined(ANGBAND_H) || defined(Z_VIRT_C))
 extern vptr rpanic_none(huge UNUSED len);
 extern vptr (*rpanic_aux)(huge);
 extern vptr (*ralloc_aux)(huge);
@@ -1768,7 +1757,6 @@ extern vptr (*ralloc_aux)(huge);
 extern vptr ralloc(huge len);
 #endif
 #if (defined(ANGBAND_H) || defined(Z_VIRT_C))
-extern char *string_make(cptr str);
 extern void safe_free(vptr p);
 extern cptr safe_string_make(cptr str);
 #endif

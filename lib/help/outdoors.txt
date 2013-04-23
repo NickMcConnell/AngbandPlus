@@ -91,3 +91,28 @@ The Kobold Fort:  A tower that goes to 250', and counts as 50' more. It is guard
 
 The Tower of Koth:  A tower that goes to 1000', and counts as 2000' higher.  It is guarded by Father Dagon and by Tulzscha, and there are cthulhoid beings about it.
 
+
+
+(300)The Kobold Fort:  A tower that goes to 250', and counts as 50' more. It is guarded by Vort, the Kobold Queen, and there are plenty of kobolds in the vicinity.
+
+(500)The Yeek King's Lair:  Goes to 400', but counts as 100' deeper.  It is guarded by Orfax and Boldor.  The surrounding area will be populated with yeeks.
+
+(1000)The Orc Tower:  Goes to 850', but counts as 150' deeper.  It is guarded by Bolg and Azog.  The surrounding area will be populated by orcs.
+
+(1250)Khufu's Tomb:  Goes to 1050', and counts as 200' deeper.  It is guarded by the Disembodied Hand and by Khufu, and the area outside is populated by undead.
+
+(1500)Shelob's Tower:  A tower that goes to 850', and counts as 650' more. It is guarded by Shelob, and is surrounded by nests of spiders.
+
+(1750)The Demon Spire:  Goes to 1000', and counts as 750' higher.  It is guarded by the Emissary and Glaryssa, and the area outside is populated by demons.
+
+(2000)The Vault of the Sword:  Goes to 1500', and counts as 500' deeper.  It is guarded by Stormbringer.
+
+(2000)The Conflux of the Elements:  A tower that goes to 1000', and counts as 1000' higher.  It is guarded by Lasha and Grom, and the area outside has large numbers of elemental beings.
+
+(2500)The Collector's Cave:  Goes to 1000', and counts as 1500' deeper.  It is guarded by the Collector, and there is no particular sort of creature that will be found in its vicinity.
+
+(2500)The Dragons' Lair:  Goes to 1750', and counts as 750' deeper.  It is guarded by Glaurung and Ancalagon the Black, and the area outside swarms with dragons.
+
+(3000)The Tower of Koth:  A tower that goes to 1000', and counts as 2000' higher.  It is guarded by Father Dagon and by Tulzscha, and there are cthulhoid beings about it.
+
+(3500)The Necropolis:  A tower that goes to 2000', and counts as 1500' deeper. (This is sufficiently high to practice all skills to 100%).  It is guarded by the Fire Phantom and Vecna, and the area outside is populated by greater undead.

@@ -358,7 +358,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_POISON:
 				{
-					/* Take some damage */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Take "poison" effect */
@@ -371,14 +371,14 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_ptr, DRS_POIS);
+					update_smart_learn(m_ptr, DRS_RES_POIS);
 
 					break;
 				}
 
 				case RBE_UN_BONUS:
 				{
-					/* Take some damage */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Allow complete resist */
@@ -389,14 +389,14 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_ptr, DRS_DISEN);
+					update_smart_learn(m_ptr, DRS_RES_DISEN);
 
 					break;
 				}
 
 				case RBE_UN_POWER:
 				{
-					/* Take some damage */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Find an item */
@@ -432,7 +432,7 @@ bool make_attack_normal(int m_idx)
 							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
 							/* Redraw (later) if needed */
-							if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 							/* Uncharge */
 							o_ptr->pval = 0;
@@ -453,7 +453,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_GOLD:
 				{
-					/* Take some damage */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Obvious */
@@ -498,7 +498,7 @@ bool make_attack_normal(int m_idx)
 						p_ptr->redraw |= (PR_GOLD);
 
 						/* Window stuff */
-						p_ptr->window |= (PW_PLAYER);
+						p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 						/* Blink away */
 						blinked = TRUE;
@@ -509,7 +509,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_ITEM:
 				{
-					/* Take some damage */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Saving throw (unless paralyzed) based on dex and level */
@@ -533,6 +533,9 @@ bool make_attack_normal(int m_idx)
 					/* Find an item */
 					for (k = 0; k < 10; k++)
 					{
+						object_type *i_ptr;
+						object_type object_type_body;
+
 						/* Pick an item */
 						i = rand_int(INVEN_PACK);
 
@@ -551,36 +554,17 @@ bool make_attack_normal(int m_idx)
 									object_desc_f3, o_ptr, FALSE, 3,
 									index_to_label(o_ptr));
 
-						/* Option */
-						if (testing_carry)
-						{
-							object_type *j_ptr;
+						/* Get local object */
+						i_ptr = &object_type_body;
 
-							/* Make an object */
-							j_ptr = o_pop();
+						/* Obtain local object */
+						object_copy(i_ptr, o_ptr);
 
-							/* Success */
-							if (j_ptr)
-							{
-								/* Copy object */
-								object_copy(j_ptr, o_ptr);
+						/* Modify number */
+						i_ptr->number = 1;
 
-								/* Modify number */
-								j_ptr->number = 1;
-
-								/* Forget mark */
-								j_ptr->marked = FALSE;
-
-								/* Memorize monster */
-								j_ptr->held_m_idx = m_idx;
-
-								/* Build stack */
-								j_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-								/* Build stack */
-								m_ptr->hold_o_idx = j_ptr - o_list;
-							}
-						}
+						/* Carry the object */
+						(void)monster_carry(m_idx, i_ptr);
 
 						/* Steal the items */
 						item_increase(o_ptr, -1);
@@ -601,7 +585,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_FOOD:
 				{
-					/* Take some damage */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Steal some food */
@@ -641,7 +625,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_LITE:
 				{
-					/* Take some damage */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Access the lite */
@@ -683,7 +667,7 @@ bool make_attack_normal(int m_idx)
 					acid_dam(damage, ddesc, m_ptr->r_idx);
 
 					/* Learn about the player */
-					update_smart_learn(m_ptr, DRS_ACID);
+					update_smart_learn(m_ptr, DRS_RES_ACID);
 
 					break;
 				}
@@ -696,11 +680,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are struck by electricity!");
 
-					/* Special damage */
+					/* Take damage (special) */
 					elec_dam(damage, ddesc, m_ptr->r_idx);
 
 					/* Learn about the player */
-					update_smart_learn(m_ptr, DRS_ELEC);
+					update_smart_learn(m_ptr, DRS_RES_ELEC);
 
 					break;
 				}
@@ -713,11 +697,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are enveloped in flames!");
 
-					/* Special damage */
+					/* Take damage (special) */
 					fire_dam(damage, ddesc, m_ptr->r_idx);
 
 					/* Learn about the player */
-					update_smart_learn(m_ptr, DRS_FIRE);
+					update_smart_learn(m_ptr, DRS_RES_FIRE);
 
 					break;
 				}
@@ -730,11 +714,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are covered with frost!");
 
-					/* Special damage */
+					/* Take damage (special) */
 					cold_dam(damage, ddesc, m_ptr->r_idx);
 
 					/* Learn about the player */
-					update_smart_learn(m_ptr, DRS_COLD);
+					update_smart_learn(m_ptr, DRS_RES_COLD);
 
 					break;
 				}
@@ -754,7 +738,7 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_ptr, DRS_BLIND);
+					update_smart_learn(m_ptr, DRS_RES_BLIND);
 
 					break;
 				}
@@ -765,7 +749,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_conf)
+					if (!p_ptr->resist_confu)
 					{
 						if (add_flag(TIMED_CONFUSED, 3 + randint(rlev)))
 						{
@@ -774,7 +758,7 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_ptr, DRS_CONF);
+					update_smart_learn(m_ptr, DRS_RES_CONFU);
 
 					break;
 				}
@@ -805,7 +789,7 @@ bool make_attack_normal(int m_idx)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_ptr, DRS_FEAR);
+					update_smart_learn(m_ptr, DRS_RES_FEAR);
 
 					break;
 				}
@@ -814,11 +798,14 @@ bool make_attack_normal(int m_idx)
 				{
 					bool old_paralyzed = p_ptr->paralyzed != 0;
 
+					/* Hack -- Prevent perma-paralysis via damage */
+					if (p_ptr->paralyzed && (damage < 1)) damage = 1;
+
 					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Increase "paralyzed" */
-					if (old_paralyzed)
+					if (old_paralyzed && one_in(2))
 					{
 						/* Do nothing. */
 					}
@@ -846,7 +833,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_STR:
 				{
-					/* Damage (physical) */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Damage (stat) */
@@ -857,7 +844,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_INT:
 				{
-					/* Damage (physical) */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Damage (stat) */
@@ -868,7 +855,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_WIS:
 				{
-					/* Damage (physical) */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Damage (stat) */
@@ -879,7 +866,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_DEX:
 				{
-					/* Damage (physical) */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Damage (stat) */
@@ -890,7 +877,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_CON:
 				{
-					/* Damage (physical) */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Damage (stat) */
@@ -901,7 +888,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_CHR:
 				{
-					/* Damage (physical) */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Damage (stat) */
@@ -912,7 +899,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_ALL:
 				{
-					/* Damage (physical) */
+					/* Take damage */
 					take_hit(damage, ddesc, m_ptr->r_idx);
 
 					/* Damage (stats) */

@@ -206,7 +206,7 @@ static int spell_chance(const magic_type *s_ptr)
 	if (p_ptr->stun > 50) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
-	/* Always a 5 percent chance of working, but only if skilled enough. */
+	/* Always a 5 percent chance of working, but only if minimally skilled. */
 	if (chance > 95 && spell_skill(s_ptr)>=2 ) chance = 95;
 
 	/* Return the chance */
@@ -502,7 +502,7 @@ static cptr spell_string(int i, const magic_type *s_ptr, cptr comment)
 	}
 	else if (~s_ptr->flags & MAGIC_WORKED && s_ptr->skill1 != SKILL_HEDGE)
 	{
-                /* RM: Untried spells are no longer significant. */
+                /* RM: Untried flag on spells is no longer significant. */
 		/* comment = "untried"; */
 	}
 
@@ -1288,7 +1288,7 @@ void do_cmd_study(object_type *o_ptr)
 	s_ptr = b_ptr->info+spell;
 
 	/* Take a turn */
-	energy_use = extract_energy[p_ptr->pspeed];
+	p_ptr->energy_use = extract_energy[p_ptr->pspeed];
 
 
 	/* Learn the spell */
@@ -1298,13 +1298,13 @@ void do_cmd_study(object_type *o_ptr)
 	for (i = 0; i < 128; i++)
 	{
 		/* Stop at the first empty space */
-		if (spell_order[i] == 255) break;
+		if (p_ptr->spell_order[i] == 255) break;
 	}
 
 	assert(i < 128);
 
 	/* Add the spell to the known list */
-	spell_order[i++] = spell_to_num(s_ptr);
+	p_ptr->spell_order[i++] = spell_to_num(s_ptr);
 
 	/* Mention the result */
 	msg_format("You have learned the %s of %s.", p, s_ptr->name);
@@ -1400,7 +1400,7 @@ void do_cmd_cast(object_type *o_ptr)
 	}
 
 	/* Take some time - a spell of your level takes 100, lower level spells take less */
-	energy_use = spell_energy((u16b)plev,(u16b)(s_ptr->min));
+	p_ptr->energy_use = spell_energy((u16b)plev,(u16b)(s_ptr->min));
 
 	/* Sufficient mana */
 	if (s_ptr->mana <= p_ptr->csp)
@@ -1503,7 +1503,7 @@ void do_cmd_cantrip(object_type *o_ptr)
 	}
 
 	/* Take some time - a cantrip always takes 100, unless the charm is in a pouch */
-	energy_use = item_use_energy(o_ptr);
+	p_ptr->energy_use = item_use_energy(o_ptr);
 
 	/* If item is going to break, give it a chance of survival at low skill levels, on
 	 * the assumption that the user didn't manage to do anything to the charm.  This will
@@ -1564,13 +1564,13 @@ static s32b favour_annoyance(const magic_type *f_ptr)
  */
 static void annoy_spirit(spirit_type *s_ptr,u32b amount)
 {
-	u32b old_annoy;
+	/* u32b old_annoy; */
 	p_ptr->redraw |= (PR_SPIRIT);
-	old_annoy=s_ptr->annoyance;
+	/* old_annoy=s_ptr->annoyance; */
 	s_ptr->annoyance += amount;
 
-    /* RM: Supressing annoyance messages.  Redundant since it can be easily told
-       by the screen colour. */
+    /* RM: Supressing annoyance messages. Redundant since it can be easily told
+       by the screen colour and capitalization...  */
        /*
 	if ((s_ptr->annoyance > 15) && (old_annoy < 16))
 	{
@@ -1636,6 +1636,9 @@ static int spirit_punish(spirit_type *s_ptr, const magic_type *f_ptr)
 	/* Summoning, up to 43% chance for a level 45 favour. */
 	if (i < f_ptr->min * 1000)
 	{
+		int px = p_ptr->px;
+		int py = p_ptr->py;
+
 		bool any;
 		/* Choose an appropriate summon type most of the time. */
 		int j, type = (one_in(3) ? 0 : (s_ptr->sphere == SPIRIT_NATURE) ?
@@ -1713,7 +1716,7 @@ void do_cmd_invoke(void)
 	chance = spell_chance(f_ptr);
 
 	/* Normal energy use. */
-	energy_use = magic_energy(f_ptr);
+	p_ptr->energy_use = magic_energy(f_ptr);
 
 	/* Don't punish those silly enough to pray to an angry spirit too harshly. */
 	if (s_ptr->annoyance)
@@ -1721,7 +1724,7 @@ void do_cmd_invoke(void)
 		if (flush_failure) flush();
 		msg_format("You feel that %s isn't listening...", s_ptr->name);
 		/* And sit still for a little while to avoid this being a short wait command. */
-		energy_use = extract_energy[p_ptr->pspeed];
+		p_ptr->energy_use = extract_energy[p_ptr->pspeed];
 	}
 	/* Failed spell */
 	else if (rand_int(100) < chance)
@@ -1741,7 +1744,6 @@ void do_cmd_invoke(void)
 		/* The spirit gets pissed off (even with aborted spells). */
 		annoy_spirit(s_ptr,favour_annoyance(f_ptr));
 
-		/* Abort. */
 		if (use_spell(f_ptr))
 		{
 			/* Gain experience with spirit lore skill */
@@ -1815,6 +1817,9 @@ void do_cmd_mindcraft(void)
 			}
 			else
 			{   /* Mana storm (use a fake monster to let it hurt the player). */
+				int px = p_ptr->px;
+				int py = p_ptr->py;
+
 				m_list->r_idx = MON_CONCENTRATING_TOO_HARD;
 
 				msg_print("Your mind unleashes its power in an uncontrollable storm!");
@@ -1844,7 +1849,7 @@ void do_cmd_mindcraft(void)
 		}
 	}
 	/* Take a turn */
-	energy_use = magic_energy(s_ptr);
+	p_ptr->energy_use = magic_energy(s_ptr);
 
 	/* Sufficient mana */
 	if (s_ptr->mana <= p_ptr->cchi)

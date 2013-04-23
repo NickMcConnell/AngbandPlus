@@ -1,14 +1,11 @@
-#define MONSTER1_C
-/* File: mon-desc.c */
-
-/* Purpose: describe monsters (using monster memory) */
+/* File: monster1.c */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Christopher J. Stuart
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -373,13 +370,13 @@ static void roff_aux(int r_idx)
 	r_ptr = &r_info[r_idx];
 
 
-	/* Cheat -- Know everything */
+	/* Spoil -- know everything */
 	if (spoil_mon)
 	{
 		/* XXX XXX XXX */
 
-		/* Save the "old" memory */
-		save_mem = *r_ptr;
+		/* Hack -- save memory */
+		COPY(&save_mem, r_ptr, monster_type);
 
 		/* Hack -- Maximal info */
 		r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
@@ -687,7 +684,10 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Also give as energy. */
-		c_roff(MONCOL_DEPTH, format(" (%d energy/move, %d energy/attack)", extract_energy[r_ptr->speed], TURN_ENERGY/r_ptr->num_blows));
+		if (r_ptr->num_blows)
+		    c_roff(MONCOL_DEPTH, format(" (%d energy/move, %d energy/attack)", extract_energy[r_ptr->speed], TURN_ENERGY/r_ptr->num_blows)); 
+		else
+		    c_roff(MONCOL_DEPTH, format(" (%d energy/move, %d energy/attack)", extract_energy[r_ptr->speed], 0)); 
 	}
 
 	/* The code above includes "attack speed" */
@@ -1484,11 +1484,11 @@ static void roff_aux(int r_idx)
 	c_roff(TERM_WHITE, "\n");
 
 
-	/* Hack -- Restore monster memory */
+	/* Spoil -- know everything */
 	if (spoil_mon)
 	{
-		/* Restore memory */
-		*r_ptr = save_mem;
+		/* Hack -- restore memory */
+		COPY(r_ptr, &save_mem, monster_type);
 	}
 }
 

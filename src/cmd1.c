@@ -289,7 +289,7 @@ static void do_natural_attack(s16b m_idx, natural_attack *n_ptr)
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Slow down the attack */
-	energy_use += TURN_ENERGY/10;
+	p_ptr->energy_use += TURN_ENERGY/10;
 
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h;
@@ -380,7 +380,7 @@ static martial_arts *choose_ma_attack(int skill)
 
 	for (i = MAX(1, skill/14), ma_ptr = ma_blows+MAX_MA; i; i--)
 	{
-         /* RM: Increasing Skill gradiation. */
+ 	        /* RM: Increasing Skill gradiation. */
 		do
 		{
 			new_ptr = &ma_blows[(rand_int(max))];
@@ -483,8 +483,8 @@ static int do_ma_attack(monster_type *m_ptr)
 
 	if (stun_effect && survives)
 	{
-        if ((skill/2) >
-            randint(r_ptr->level + resist_stun + 10))
+        	if ((skill/2) >
+            		randint(r_ptr->level + resist_stun + 10))
 		{
 			if (m_ptr->stunned)
 			{
@@ -501,7 +501,7 @@ static int do_ma_attack(monster_type *m_ptr)
 }
 
 /*
- * Player attacks a (poor, defenseless) creature        -RAK-
+ * Attack the monster at the given location
  *
  * If no "weapon" is available, then "punch" the monster one time.
  */
@@ -509,17 +509,15 @@ void py_attack(int y, int x)
 {
 	int                     k, bonus, chance;
 
-	cave_type               *c_ptr = &cave[y][x];
-
-	monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+	monster_type *m_ptr;
+	monster_race *r_ptr;
 
 	object_type             *o_ptr;
 
 	C_TNEW(m_name, MNAME_MAX, char);
 
 
-	bool fear = FALSE, old_fear = (m_ptr->monfear != 0);
+	bool fear = FALSE, old_fear;
 
 	bool        backstab = FALSE, vorpal_cut = FALSE, chaos_effect = FALSE;
 	bool        stab_fleeing = FALSE;
@@ -527,6 +525,13 @@ void py_attack(int y, int x)
 	bool drain_life = FALSE;
 	u32b        f1, f2, f3; /* A massive hack -- life-draining weapons */
 	bool        no_extra = FALSE;
+
+
+	/* Access the monster */
+	m_ptr = &m_list[cave_m_idx[y][x]];
+	r_ptr = &r_info[m_ptr->r_idx];
+
+	old_fear = (m_ptr->monfear != 0);
 
 
 
@@ -555,7 +560,7 @@ void py_attack(int y, int x)
 	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
 	/* Track a new monster */
-	if (m_ptr->ml) health_track(c_ptr->m_idx);
+	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 
 
 
@@ -568,7 +573,6 @@ void py_attack(int y, int x)
 		if (inventory[INVEN_WIELD].name1 != ART_STORMBRINGER)
 	        {
 		        msg_format("You stop to avoid hitting %s.", m_name);
-
 		        TFREE(m_name);
 		        return;
 	        }
@@ -582,7 +586,8 @@ void py_attack(int y, int x)
 
 	/* Handle player fear */
 	if (p_ptr->afraid)
-	{       /* Message */
+	{
+		/* Message */
 		if (m_ptr->ml)
 		msg_format("You are too afraid to attack %s!", m_name);
 
@@ -604,7 +609,7 @@ void py_attack(int y, int x)
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
 	/* Attack speed is based on theoretical number of blows per 60 turns*/
-	energy_use=(TURN_ENERGY*60/p_ptr->num_blow);
+	p_ptr->energy_use=(TURN_ENERGY*60/p_ptr->num_blow);
 	/* Test for hit */
 	if (test_hit(chance, r_ptr->ac, m_ptr->ml))
 	{
@@ -757,7 +762,7 @@ void py_attack(int y, int x)
 
 
 			/* Damage, check for fear and death */
-			mon_take_hit(c_ptr->m_idx, k, &fear, NULL);
+			mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
 
 			if (m_ptr->r_idx && m_ptr->smart & SM_ALLY)
 			{
@@ -808,7 +813,7 @@ void py_attack(int y, int x)
 	{
 		chaos_effect = FALSE;
 		msg_format("%^s disappears!", m_name);
-		teleport_away(c_ptr->m_idx, 50);
+		teleport_away(cave_m_idx[y][x], 50);
 		no_extra = TRUE;
 
 	}
@@ -841,7 +846,7 @@ void py_attack(int y, int x)
 			}
 
 			/* "Kill" the "old" monster */
-			delete_monster_idx(c_ptr->m_idx,TRUE);
+			delete_monster_idx(cave_m_idx[y][x],TRUE);
 
 			/* Create a new monster (no groups) */
 			(void)place_monster_aux(y, x, tmp, FALSE, FALSE, FALSE, FALSE);
@@ -849,7 +854,7 @@ void py_attack(int y, int x)
 			/* XXX XXX XXX Hack -- Assume success */
 
 			/* Hack -- Get new monster */
-			m_ptr = &m_list[c_ptr->m_idx];
+			m_ptr = &m_list[cave_m_idx[y][x]];
 
 			/* Oops, we need a different name... */
 			strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0);
@@ -891,7 +896,7 @@ void py_attack(int y, int x)
 		{
 			if (p_has_mutation(n_ptr->mut) && m_ptr->r_idx)
 			{
-				do_natural_attack(c_ptr->m_idx, n_ptr);
+				do_natural_attack(cave_m_idx[y][x], n_ptr);
 			}
 		}
 	}
@@ -908,7 +913,13 @@ void py_attack(int y, int x)
 
 
 	/* Mega-Hack -- apply earthquake brand only once*/
-	if (do_quake) earthquake(py, px, 10);
+	if (do_quake)
+	{
+		int py = p_ptr->py;
+		int px = p_ptr->px;
+
+		earthquake(py, px, 10);
+	}
 
 	TFREE(m_name);
 }
@@ -921,8 +932,6 @@ void do_cmd_attack(void)
 {
 	int y, x;
 
-	cave_type *c_ptr;
-
 	bool more = FALSE;
 
 
@@ -932,21 +941,18 @@ void do_cmd_attack(void)
 	/* Get a direction to attack, or Abort */
 	if (get_rep_target(&x, &y))
 	{
-		/* Get grid */
-		c_ptr = &cave[y][x];
-
 		/* Oops */
-		if (!c_ptr->m_idx)
+		if (cave_m_idx[y][x])
 		{
 			/* Take a turn */
-			energy_use = extract_energy[p_ptr->pspeed];
+			p_ptr->energy_use = extract_energy[p_ptr->pspeed];
 			msg_print("You attack the empty air.");
 		}
 		/* Try fighting. */
 		else
 		{
 			py_attack(y, x);
-			if (c_ptr->m_idx) more = TRUE;
+			if (cave_m_idx[y][x]) more = TRUE;
 		}
 	}
 
@@ -1009,26 +1015,34 @@ static int breakage_chance(object_type *o_ptr)
 static bool do_cmd_fire_aux(object_type *o_ptr,
 	int tdis, int tdam, int chance)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	
 	int dir;
 	int breakage, y, x, ty, tx, nx, ny;
 	int cur_dis, visible;
 
-	object_type q_ptr[1];
+	//object_type q_ptr[1];
+
+	object_type *i_ptr;
+	object_type object_type_body;
 
 	bool do_break = FALSE;
 
 	byte missile_attr;
 	char missile_char;
 
-
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return FALSE;
 
+	/* Get local object */
+	i_ptr = &object_type_body;
+
 	/* Obtain a local object */
-	object_copy(q_ptr, o_ptr);
+	object_copy(i_ptr, o_ptr);
 
 	/* Single object */
-	q_ptr->number = 1;
+	i_ptr->number = 1;
 
 	/* Reduce and describe object */
 	item_increase(o_ptr, -1);
@@ -1039,8 +1053,8 @@ static bool do_cmd_fire_aux(object_type *o_ptr,
 	sound(SOUND_SHOOT);
 
 	/* Find the color and symbol for the object for throwing */
-	missile_attr = object_attr(q_ptr);
-	missile_char = object_char(q_ptr);
+	missile_attr = object_attr(i_ptr);
+	missile_char = object_char(i_ptr);
 
 	/* Start at the player */
 	ny = y = py;
@@ -1093,12 +1107,10 @@ static bool do_cmd_fire_aux(object_type *o_ptr,
 		}
 
 
-		/* Monster here, Try to hit it */
-		if (cave[y][x].m_idx)
+		/* Handle Monster */
+		if (cave_m_idx[y][x] > 0 )
 		{
-			cave_type *c_ptr = &cave[y][x];
-
-			monster_type *m_ptr = &m_list[c_ptr->m_idx];
+			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Check the visibility */
@@ -1138,7 +1150,7 @@ static bool do_cmd_fire_aux(object_type *o_ptr,
 				{
 					/* Invisible monster */
 					msg_format("The %v finds a mark.",
-						object_desc_f3, q_ptr, FALSE, 3);
+						object_desc_f3, i_ptr, FALSE, 3);
 				}
 
 				/* Handle visible monster */
@@ -1146,19 +1158,19 @@ static bool do_cmd_fire_aux(object_type *o_ptr,
 				{
 					/* Message */
 					msg_format("The %v hits %v.",
-						object_desc_f3, q_ptr, FALSE, 3,
+						object_desc_f3, i_ptr, FALSE, 3,
 						monster_desc_f2, m_ptr, 0);
 
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
 					/* Hack -- Track this monster */
-					if (m_ptr->ml) health_track(c_ptr->m_idx);
+					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 				}
 
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
-				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
+				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -1171,7 +1183,7 @@ static bool do_cmd_fire_aux(object_type *o_ptr,
 				}
 
 				/* Hit the monster, check for death */
-				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
+				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
 				{
 					/* Dead monster */
 				}
@@ -1184,7 +1196,7 @@ static bool do_cmd_fire_aux(object_type *o_ptr,
 
 					/* Anger friends */
 					if ((m_ptr->smart & SM_ALLY)
-					&& (k_info[q_ptr->k_idx].tval != TV_POTION))
+					&& (k_info[i_ptr->k_idx].tval != TV_POTION))
 					{
 						msg_format("%^v gets angry!", monster_desc_f2, m_ptr, 0);
 						m_ptr->smart &= ~SM_ALLY;
@@ -1209,16 +1221,16 @@ static bool do_cmd_fire_aux(object_type *o_ptr,
 	}
 
 	/* Potions can break against the wall and the seashore. */
-	if (k_info[q_ptr->k_idx].tval == TV_POTION)
+	if (k_info[i_ptr->k_idx].tval == TV_POTION)
 	{
-		if (!cave_floor_bold(ny, nx) || cave[ny][nx].feat == FEAT_WATER)
+		if (!cave_floor_bold(ny, nx) || cave_feat[ny][nx] == FEAT_WATER)
 			do_break = TRUE;
 	}
 
 	/* Chance of breakage (during attacks) */
 	if (do_break)
 	{
-		breakage = breakage_chance(q_ptr);
+		breakage = breakage_chance(i_ptr);
 	}
 	else
 	{
@@ -1226,7 +1238,7 @@ static bool do_cmd_fire_aux(object_type *o_ptr,
 	}
 
 	/* Drop (or break) near that location */
-	drop_near(q_ptr, breakage, y, x);
+	drop_near(i_ptr, breakage, y, x);
 
 	/* An object was fired. */
 	return TRUE;
@@ -1271,7 +1283,7 @@ void do_cmd_fire(object_type *o_ptr)
 	/* Base damage from thrown object plus launcher bonus */
 	int tdam = damroll(o_ptr->dd, o_ptr->ds) + o_ptr->to_d + bow_ptr->to_d;
 
-	int mult = get_bow_mult(bow_ptr);
+	int mult = p_ptr->ammo_mult;
 
 	/* Base range */
 	int tdis = 10 + 5 * mult;
@@ -1281,14 +1293,14 @@ void do_cmd_fire(object_type *o_ptr)
 	chance = (p_ptr->skill_thb + (chance * BTH_PLUS_ADJ));
 
 	/* Get extra "power" from "extra might" */
-	if (p_ptr->xtra_might) mult++;
+	/* if (p_ptr->xtra_might) mult++; */
 
 	/* Boost the damage */
 	tdam *= mult;
 
 	/* Take time if completed. */
 	if (do_cmd_fire_aux(o_ptr, tdis, tdam, chance))
-		energy_use = (60*TURN_ENERGY / thits);
+		p_ptr->energy_use = (60*TURN_ENERGY / thits);
 }
 
 /*
@@ -1320,7 +1332,7 @@ static void do_cmd_throw_aux(object_type *o_ptr, int mult)
 
 	/* Take time if completed. */
 	if (do_cmd_fire_aux(o_ptr, tdis, tdam, chance))
-		energy_use = extract_energy[p_ptr->pspeed];
+		p_ptr->energy_use = extract_energy[p_ptr->pspeed];
 }
 
 /*
@@ -1765,8 +1777,8 @@ static bool racial_aux(race_power *pw_ptr)
 {
 	const int plev = MAX(1,skill_set[SKILL_RACIAL].value/2);
 	bool use_hp = TRUE;
-	bool use_chi = FALSE;
-	bool use_mana = FALSE;
+	/* bool use_chi = FALSE; */
+	/* bool use_mana = FALSE; */
 	s16b num, denom;
 	int cost = power_cost(pw_ptr, plev);
 
@@ -1807,7 +1819,7 @@ static bool racial_aux(race_power *pw_ptr)
 	/* Else attempt to do it! */
 
 	/* take time and pay the price */
-	energy_use = spell_energy(plev,pw_ptr->min_level);
+	p_ptr->energy_use = spell_energy(plev,pw_ptr->min_level);
 
 	/* Hack - use num to store the actual cost of the attempt. */
 	num = rand_range(cost/2+1, cost/2*2);
@@ -1817,7 +1829,7 @@ static bool racial_aux(race_power *pw_ptr)
 		take_hit (num, "concentrating too hard", MON_CONCENTRATING_TOO_HARD);
 		p_ptr->redraw |= PR_HP;
 	}
-	else if (use_mana)
+	/*else if (use_mana)
 	{
 		p_ptr->csp -= num;
 		p_ptr->redraw |= PR_MANA;
@@ -1826,7 +1838,7 @@ static bool racial_aux(race_power *pw_ptr)
 	{
 		p_ptr->cchi -= num;
 		p_ptr->redraw |= PR_MANA;
-	}
+	}*/
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
@@ -1855,7 +1867,7 @@ void do_cmd_racial_power(void)
 	byte total = count_powers();
 
 	/* Assume free for now. Will be changed if the player attempts to use a power. */
-	energy_use = 0;
+	p_ptr->energy_use = 0;
 
 	if (!total)
 	{

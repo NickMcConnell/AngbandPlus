@@ -3332,13 +3332,13 @@ s16b get_quantity(cptr prompt, int max,bool allbydefault)
 
 
 	/* Use "command_arg" */
-	if (command_arg)
+	if (p_ptr->command_arg)
 	{
 		/* Extract a number */
-		amt = command_arg;
+		amt = p_ptr->command_arg;
 
 		/* Clear "command_arg" */
-		command_arg = 0;
+		p_ptr->command_arg = 0;
 
 		/* Enforce the maximum */
 		if (amt > max) amt = max;
@@ -3485,10 +3485,10 @@ void request_command(bool shopping)
 #endif /* ALLOW_MACROS */
 
 	/* No "argument" yet (exclude special modes). */
-	if (!(command_new & 0xFF00)) command_arg = 0;
+	if (!(p_ptr->command_new & 0xFF00)) p_ptr->command_arg = 0;
 
 	/* No "direction" yet */
-	command_dir = 0;
+	p_ptr->command_dir = 0;
 
 
 	/* Get command */
@@ -3497,16 +3497,16 @@ void request_command(bool shopping)
 		char cmd_char;
 
 		/* Hack -- auto-commands */
-		if (command_new)
+		if (p_ptr->command_new)
 		{
 			/* Flush messages */
 			msg_print(NULL);
 
 			/* Use auto-command */
-			cmd = command_new;
+			cmd = p_ptr->command_new;
 
 			/* Forget it */
-			command_new = 0;
+			p_ptr->command_new = 0;
 		}
 
 		/* Get a keypress in "command" mode */
@@ -3529,7 +3529,7 @@ void request_command(bool shopping)
 		prt("", 0, 0);
 
 		/* There can be only one argument. */
-		if (cmd == '0' && command_arg)
+		if (cmd == '0' && p_ptr->command_arg)
 		{
 			bell("Command count already present.");
 		}
@@ -3611,7 +3611,7 @@ void request_command(bool shopping)
 			}
 
 			/* Accept the argument. */
-			command_arg = arg;
+			p_ptr->command_arg = arg;
 		}
 
 
@@ -3661,20 +3661,20 @@ void request_command(bool shopping)
 	}
 
 	/* Use the command */
-    /* if (!(cmd & 0xFF00)) command_cmd = cmd; */
-    command_cmd = cmd; 
+    	/* if (!(cmd & 0xFF00)) command_cmd = cmd; */
+    	p_ptr->command_cmd = cmd; 
 
 	/* Remember the command. */
 	record_keymap(cmd);
 
 	/* Hack -- Auto-repeat certain commands */
-	if (always_repeat && (command_arg <= 0))
+	if (always_repeat && (p_ptr->command_arg <= 0))
 	{
 		/* Hack -- auto repeat certain commands */
-		if (!(command_cmd & 0xFF00) && strchr("TBDoc+", command_cmd))
+		if (!(p_ptr->command_cmd & 0xFF00) && strchr("TBDoc+", p_ptr->command_cmd))
 		{
 			/* Repeat 99 times */
-			command_arg = 99;
+			p_ptr->command_arg = 99;
 		}
 	}
 
@@ -3683,16 +3683,16 @@ void request_command(bool shopping)
 	if (shopping)
 	{
 		/* Hack -- Convert a few special keys */
-		switch (command_cmd)
+		switch (p_ptr->command_cmd)
 		{
 			/* Command "p" -> "purchase" (get) */
-			case 'p': command_cmd = 'g'; break;
+			case 'p': p_ptr->command_cmd = 'g'; break;
 
 			/* Command "m" -> "purchase" (get) */
-			case 'm': command_cmd = 'g'; break;
+			case 'm': p_ptr->command_cmd = 'g'; break;
 
 			/* Command "s" -> "sell" (drop) */
-			case 's': command_cmd = 'd'; break;
+			case 's': p_ptr->command_cmd = 'd'; break;
 		}
 	}
 
@@ -3717,13 +3717,13 @@ void request_command(bool shopping)
 		while (s)
 		{
 			/* Check the "restriction" character */
-			if ((s[1] == command_cmd) || (s[1] == '*'))
+			if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
 			{
 				/* Hack -- Verify command */
 				if (!get_check("Are you sure? "))
 				{
 					/* Hack -- Use space */
-					command_cmd = ' ';
+					p_ptr->command_cmd = ' ';
 				}
 			}
 
@@ -3842,13 +3842,13 @@ void repeat_check(void)
 	int what;
 
 	/* Ignore some commands */
-	if (command_cmd == ESCAPE) return;
-	if (command_cmd == ' ') return;
-	if (command_cmd == '\r') return;
-	if (command_cmd == '\n') return;
+	if (p_ptr->command_cmd == ESCAPE) return;
+	if (p_ptr->command_cmd == ' ') return;
+	if (p_ptr->command_cmd == '\r') return;
+	if (p_ptr->command_cmd == '\n') return;
 
 	/* Repeat Last Command */
-	if (command_cmd == 'n') {
+	if (p_ptr->command_cmd == 'n') {
 
 		/* Reset */
 		repeat__idx = 0;
@@ -3857,7 +3857,7 @@ void repeat_check(void)
 		if (repeat_pull(&what)) {
 
 			/* Save the command */
-			command_cmd = what;
+			p_ptr->command_cmd = what;
 		}
 	}
 
@@ -3868,7 +3868,7 @@ void repeat_check(void)
 		repeat__cnt = 0;
 		repeat__idx = 0;
 
-		what = command_cmd;
+		what = p_ptr->command_cmd;
 
 		/* Save this command */
 		repeat_push(what);

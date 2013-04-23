@@ -758,7 +758,7 @@ static void init_feature_priorities(void)
 	}
 
 	feature_priorities = t;
-	priority_table = C_NEW(t, feature_type *);
+	priority_table = C_RNEW(t, feature_type *);
 
 	for (f_ptr = f_info, t = 0; f_ptr < f_info+z_info->f_max; f_ptr++)
 	{
@@ -816,13 +816,6 @@ static void init_other(void)
 
 	/* Hack - the player can always see herself. */
 	m_list[0].ml = TRUE;
-
-	/* Allocate and wipe each line of the cave */
-	for (i = 0; i < MAX_HGT; i++)
-	{
-		/* Allocate one row of the cave */
-		C_MAKE(cave[i], MAX_WID, cave_type);
-	}
 
 
 	/*** Prepare the various "bizarre" arrays ***/

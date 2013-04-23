@@ -157,6 +157,9 @@ static bool PURE cave_naked_bold_p(int y, int x)
 /* Summon a horde of monsters */
 void do_cmd_summon_horde(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int wy, wx;
 	if (scatter(&wy, &wx, py, px, 3, cave_naked_bold_p))
 		alloc_horde(wy, wx, dun_depth);
@@ -242,7 +245,7 @@ static void ang_sort_swap_skills(vptr u, vptr UNUSED v, int a, int b)
 }
 
 /*
- * Aux function for "do_cmd_wiz_change()". -RAK-
+ * Aux function for "do_cmd_wiz_change()"
  */
 static void do_cmd_wiz_change_aux(void)
 {
@@ -368,20 +371,13 @@ void do_cmd_wiz_change(void)
 
 
 /*
- * Wizard routines for creating objects -RAK-
- * And for manipulating them!                   -Bernd-
+ * Wizard routines for creating objects and modifying them
  *
  * This has been rewritten to make the whole procedure
  * of debugging objects much easier and more comfortable.
  *
- * The following functions are meant to play with objects:
- * Create, modify, roll for them (for statistic purposes) and more.
- * The original functions were by RAK.
- * The function to show an item's debug information was written
- * by David Reeve Sward <sward+@CMU.EDU>.
- *                             Bernd (wiebelt@mathematik.hu-berlin.de)
- *
  * Here are the low-level functions
+ *
  * - wiz_display_item()
  *     display an item's debug-info
  * - wiz_create_itemtype()
@@ -424,9 +420,7 @@ void do_cmd_wiz_change(void)
  */
 
 /*
- * Just display an item's properties (debug-info)
- * Originally by David Reeve Sward <sward+@CMU.EDU>
- * Verbose item flags by -Bernd-
+ * Display an item's properties
  */
 static void wiz_display_item(object_type *o_ptr)
 {
@@ -438,8 +432,8 @@ static void wiz_display_item(object_type *o_ptr)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-	/* Clear the screen */
-	for (i = 1; i <= 23; i++) prt("", i, j - 2);
+	/* Clear screen */
+	Term_clear();
 
 	mc_put_fmt(2, j, "%v", object_desc_f3, o_ptr, OD_ART | OD_SHOP, 3);
 
@@ -665,6 +659,9 @@ static int choose_ego_type(int k_idx)
  */
 void wiz_create_named_art(int a_idx)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	object_type q_ptr[1];
 	int i;
 
@@ -1176,6 +1173,9 @@ void do_cmd_wiz_play(object_type *o_ptr)
  */
 void wiz_create_item(int k_idx)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	object_type q_ptr[1];
 
 	/* Ensure reasonable input */
@@ -1282,7 +1282,7 @@ void do_cmd_wiz_jump(int level)
 		char tmp_val[160];
 
 		/* Prompt */
-		sprintf(ppp, "Jump to level (0-%d): ", dun_defs[cur_dungeon].max_level);
+		sprintf(ppp, "Jump to level (0-%d): ", dun_defs[p_ptr->cur_dungeon].max_level);
 
 		/* Default */
 		sprintf(tmp_val, "%d", dun_level);
@@ -1298,8 +1298,8 @@ void do_cmd_wiz_jump(int level)
 	if (level < 0) level = 0;
 
 	/* Paranoia */
-	if (level > dun_defs[cur_dungeon].max_level)
-		level = dun_defs[cur_dungeon].max_level;
+	if (level > dun_defs[p_ptr->cur_dungeon].max_level)
+		level = dun_defs[p_ptr->cur_dungeon].max_level;
 
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", level);
@@ -1344,6 +1344,9 @@ void do_cmd_wiz_learn(int max_level)
  */
 void do_cmd_wiz_summon(int num)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i;
 
 	for (i = 0; i < num; i++)
@@ -1359,6 +1362,9 @@ void do_cmd_wiz_summon(int num)
  */
 static void do_cmd_wiz_named_aux(int r_idx, bool slp, bool friend)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int x, y;
 
 	/* Request a choice if none supplied. */
@@ -1440,7 +1446,7 @@ void do_cmd_debug(void)
 	/* Get a "debug command" */
 	(void)(get_com(&cmd, "Wizard Command: "));
 
-	command_new = CMD_DEBUG + cmd;
+	p_ptr->command_new = CMD_DEBUG + cmd;
 }
 
 

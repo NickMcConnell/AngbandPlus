@@ -1,7 +1,12 @@
-#define WIZARD1_C
 /* File: wizard1.c */
 
-/* Purpose: Spoiler generation -BEN- */
+/*
+ * Copyright (c) 1997 Ben Harrison, and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
 
 #include "angband.h"
 
@@ -98,36 +103,36 @@ static name_centry group_item[] =
 static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 	int k)
 {
-	object_type forge;
-	object_type *q_ptr;
-
 	object_kind *k_ptr;
+
+	object_type *i_ptr;
+	object_type object_type_body;
 
 
 	/* Get local object */
-	q_ptr = &forge;
+	i_ptr = &object_type_body;
 
 	/* Prepare a fake item */
-	object_prep(q_ptr, k);
+	object_prep(i_ptr, k);
 
 	/* Obtain the "kind" info */
-	k_ptr = &k_info[q_ptr->k_idx];
+	k_ptr = &k_info[i_ptr->k_idx];
 
 	/* It is known */
-	q_ptr->ident |= (IDENT_KNOWN);
+	i_ptr->ident |= (IDENT_KNOWN);
 
 	/* Cancel bonuses */
-	q_ptr->pval = 0;
-	q_ptr->to_a = 0;
-	q_ptr->to_h = 0;
-	q_ptr->to_d = 0;
+	i_ptr->pval = 0;
+	i_ptr->to_a = 0;
+	i_ptr->to_h = 0;
+	i_ptr->to_d = 0;
 
 
 	/* Level (is this appropriate?) */
 	(*lev) = object_k_level(k_ptr);
 
 	/* Value */
-	(*val) = object_value(q_ptr, FALSE);
+	(*val) = object_value(i_ptr, FALSE);
 
 
 	/* Hack */
@@ -135,14 +140,14 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 
 
 	/* Description (too brief) */
-	strnfmt(buf, ONAME_MAX, "%v", object_desc_f3, q_ptr, OD_SHOP, 0);
+	strnfmt(buf, ONAME_MAX, "%v", object_desc_f3, i_ptr, OD_SHOP, 0);
 
 
 	/* Misc info */
 	strcpy(dam, "");
 
 	/* Damage */
-	switch (q_ptr->tval)
+	switch (i_ptr->tval)
 	{
 		/* Bows */
 		case TV_BOW:
@@ -155,7 +160,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 		case TV_BOLT:
 		case TV_ARROW:
 		{
-			sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
+			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
 			break;
 		}
 
@@ -165,7 +170,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
+			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
 			break;
 		}
 
@@ -180,14 +185,14 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
-			sprintf(dam, "%d", q_ptr->ac);
+			sprintf(dam, "%d", i_ptr->ac);
 			break;
 		}
 	}
 
 
 	/* Weight */
-	sprintf(wgt, "%3d.%d", q_ptr->weight / 10, q_ptr->weight % 10);
+	sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
 }
 
 
@@ -491,7 +496,7 @@ static void spoil_artifact(void)
 
 
 /*
- * Create a spoiler file for monsters   -BEN-
+ * Create a spoiler file for monsters
  */
 static void spoil_mon_desc(void)
 {
@@ -863,7 +868,7 @@ static option_list spoiler_list[] =
 };
 
 /*
- * Create Spoiler files         -BEN-
+ * Create Spoiler files
  */
 void do_cmd_spoilers(void)
 {

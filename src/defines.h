@@ -1,7 +1,13 @@
 #define DEFINES_H
 /* File: defines.h */
 
-/* Purpose: global constants and macro definitions */
+/*
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
 
 
 /*
@@ -34,7 +40,7 @@
 
 
 /*
- * Current version number of sCthangband: 1.0.19
+ * Current version number of sCthangband: 1.0.20
  */
 
 /* <<VERSION STAMP>>
@@ -43,22 +49,48 @@
  * GAME_NAME is less strict.
  */
 #define GAME_NAME "sCthangband"
-#define GAME_VERSION "1.0.19"
+#define GAME_VERSION "1.0.20"
 
 /* Maximum length of GAME_VERSION above, needed for high_score.what, etc.. */
 #define MAX_VERSION_LEN 8
 
 /*
- * Number of grids used to display the dungeon (vertically).
- * Must be a multiple of 11, probably hard-coded to 22.
+ * Number of grids in each block (vertically)
+ * Probably hard-coded to 11, see "generate.c"
  */
-#define SCREEN_HGT      22
+#define BLOCK_HGT	11
 
 /*
- * Number of grids used to display the dungeon (horizontally).
- * Must be a multiple of 33, probably hard-coded to 66.
+ * Number of grids in each block (horizontally)
+ * Probably hard-coded to 11, see "generate.c"
  */
-#define SCREEN_WID      66
+#define BLOCK_WID	11
+
+
+/*
+ * Number of grids in each panel (vertically)
+ * Must be a multiple of BLOCK_HGT
+ */
+#define PANEL_HGT	11
+
+/*
+ * Number of grids in each panel (horizontally)
+ * Must be a multiple of BLOCK_WID
+ */
+#define PANEL_WID	33
+
+
+/*
+ * Number of grids in each screen (vertically)
+ * Must be a multiple of PANEL_HGT (at least 2x)
+ */
+#define SCREEN_HGT	22
+
+/*
+ * Number of grids in each screen (horizontally)
+ * Must be a multiple of PANEL_WID (at least 2x)
+ */
+#define SCREEN_WID	66
 
 
 /*
@@ -1129,6 +1161,18 @@ logaux(x, 1) logaux(x, 0) 255)
 /* The size of the screen_coords[] array. */
 #define NUM_SCREEN_COORDS 47
 
+/*
+ * The boundaries of the map.
+ */
+#define PRT_MINX (COL_END+1)
+#define PRT_MAXX (Term->wid-1)
+#define PRT_MINY (1)
+#define PRT_MAXY (Term->hgt-1)
+#define ROW_MAP (1)
+#define COL_MAP (COL_END+1)
+
+
+
 /* Handle the CHECK_ARRAYS information for an array. */
 #ifdef CHECK_ARRAYS
 #define IDX(idx) idx,
@@ -1136,9 +1180,34 @@ logaux(x, 1) logaux(x, 0) 255)
 #define IDX(idx)
 #endif /* CHECK_ARRAYS */
 
+/*
+ * Some constants for the "learn" code
+ *
+ * Most of these come from the "SM_xxx" flags
+ */
+#define DRS_FREE	14
+#define DRS_MANA	15
+#define DRS_RES_ACID	16
+#define DRS_RES_ELEC	17
+#define DRS_RES_FIRE	18
+#define DRS_RES_COLD	19
+#define DRS_RES_POIS	20
+#define DRS_RES_FEAR	21
+#define DRS_RES_LITE	22
+#define DRS_RES_DARK	23
+#define DRS_RES_BLIND	24
+#define DRS_RES_CONFU	25
+#define DRS_RES_SOUND	26
+#define DRS_RES_SHARD	27
+#define DRS_RES_NEXUS	28
+#define DRS_RES_NETHR	29
+#define DRS_RES_CHAOS	30
+#define DRS_RES_DISEN	31
+#define DRS_REFLECT     32
 
 
-/*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
+
+/*** Feature Indexes (see "lib/edit/f_info.txt") ***/
 
 /* Nothing */
 #define FEAT_NONE               0x00
@@ -1181,6 +1250,7 @@ logaux(x, 1) logaux(x, 0) 255)
 #define FEAT_WALL_INNER 0x39
 #define FEAT_WALL_OUTER 0x3A
 #define FEAT_WALL_SOLID 0x3B
+#define FEAT_PERM_EXTRA 0x3C
 #define FEAT_PERM_BUILDING 0x3C
 #define FEAT_PERM_INNER 0x3D
 #define FEAT_PERM_OUTER 0x3E
@@ -2085,41 +2155,15 @@ logaux(x, 1) logaux(x, 0) 255)
 
 
 /*
- * Some bit-flags for the "smart" field
+ * Bit flags for the "get_item" function
  */
-#define SM_RES_ACID             0x00000001
-#define SM_RES_ELEC             0x00000002
-#define SM_RES_FIRE             0x00000004
-#define SM_RES_COLD             0x00000008
-#define SM_RES_POIS             0x00000010
-#define SM_RES_NETH             0x00000020
-#define SM_RES_LITE             0x00000040
-#define SM_RES_DARK             0x00000080
-#define SM_RES_FEAR             0x00000100
-#define SM_RES_CONF             0x00000200
-#define SM_RES_CHAOS    0x00000400
-#define SM_RES_DISEN    0x00000800
-#define SM_RES_BLIND    0x00001000
-#define SM_RES_NEXUS    0x00002000
-#define SM_RES_SOUND    0x00004000
-#define SM_RES_SHARD    0x00008000
-#define SM_OPP_ACID             0x00010000
-#define SM_OPP_ELEC             0x00020000
-#define SM_OPP_FIRE             0x00040000
-#define SM_OPP_COLD             0x00080000
-#define SM_OPP_POIS             0x00100000
-/* #define SM_OPP_XXX1             0x00200000 */
-#define SM_CLONED               0x00400000
-#define SM_ALLY                     0x00800000
-#define SM_IMM_ACID             0x01000000
-#define SM_IMM_ELEC             0x02000000
-#define SM_IMM_FIRE             0x04000000
-#define SM_IMM_COLD             0x08000000
-/* #define SM_IMM_XXX5             0x10000000 */
-#define SM_IMM_REFLECT          0x20000000
-#define SM_IMM_FREE             0x40000000
-#define SM_IMM_MANA             0x80000000
+#define USE_EQUIP	0x01	/* Allow equip items */
+#define USE_INVEN	0x02	/* Allow inven items */
+#define USE_FLOOR	0x04	/* Allow floor items */
 
+
+
+/*** Player flags ***/
 
 
 /*
@@ -2343,7 +2387,7 @@ logaux(x, 1) logaux(x, 0) 255)
 #define GF_DISP_ALL 69
 #define GF_DISP_DEMON   70      /* New types for Zangband begin here... */
 #define GF_DISP_LIVING  71
-#define GF_SHARD       72
+/* #define GF_SHARD       72 */
 #define GF_NUKE         73
 #define GF_MAKE_GLYPH   74
 #define GF_STASIS       75
@@ -2369,28 +2413,6 @@ logaux(x, 1) logaux(x, 0) 255)
 	*/
 #define FOLLOW_DISTANCE 4
 
-/*
- * Some things which induce learning
- */
-#define DRS_ACID        1
-#define DRS_ELEC        2
-#define DRS_FIRE        3
-#define DRS_COLD        4
-#define DRS_POIS        5
-#define DRS_NETH        6
-#define DRS_LITE        7
-#define DRS_DARK        8
-#define DRS_FEAR        9
-#define DRS_CONF        10
-#define DRS_CHAOS       11
-#define DRS_DISEN       12
-#define DRS_BLIND       13
-#define DRS_NEXUS       14
-#define DRS_SOUND       15
-#define DRS_SHARD       16
-#define DRS_FREE        30
-#define DRS_MANA        31
-#define DRS_REFLECT     32
 
 
 
@@ -2499,7 +2521,46 @@ logaux(x, 1) logaux(x, 0) 255)
 #define SENSE_Q_ART 16
 #define SENSE_MAX 17
 
-/*
+
+ /*
+ * Some bit-flags for the "smart" field
+ */
+#define SM_OPP_ACID             0x00000001
+#define SM_OPP_ELEC             0x00000002
+#define SM_OPP_FIRE             0x00000004
+#define SM_OPP_COLD             0x00000008
+#define SM_OPP_POIS             0x00000010
+/* #define SM_OPP_XXX1             0x00000020 */
+#define SM_CLONED               0x00000040
+#define SM_ALLY                 0x00000080
+#define SM_IMM_REFLECT          0x00000100
+/* #define SM_OPP_XXX6             0x00000200 */
+#define SM_IMM_FREE             0x00000400
+#define SM_IMM_MANA             0x80000800
+#define SM_IMM_ACID             0x00001000
+#define SM_IMM_ELEC             0x00002000
+#define SM_IMM_FIRE             0x00004000
+#define SM_IMM_COLD             0x00008000
+#define SM_RES_ACID             0x00010000
+#define SM_RES_ELEC             0x00020000
+#define SM_RES_FIRE             0x00040000
+#define SM_RES_COLD             0x00080000
+#define SM_RES_POIS             0x00100000
+#define SM_RES_FEAR             0x00200000
+#define SM_RES_LITE             0x00400000
+#define SM_RES_DARK             0x00800000
+#define SM_RES_BLIND		0x01000000
+#define SM_RES_CONFU            0x02000000
+#define SM_RES_SOUND		0x04000000
+#define SM_RES_SHARD		0x08000000
+#define SM_RES_NEXUS		0x10000000
+#define SM_RES_NETHR            0x20000000
+#define SM_RES_CHAOS		0x40000000
+#define SM_RES_DISEN		0x80000000
+/* #define SM_IMM_XXX5          0x10000000 */
+
+
+ /*
  * Special Monster Flags (all temporary)
  */
 #define MFLAG_VIEW      0x01    /* Monster is in line of sight */
@@ -2539,16 +2600,16 @@ logaux(x, 1) logaux(x, 0) 255)
 #define TR1_DEX   0x00000008L  /* DEX += "pval" */
 #define TR1_CON   0x00000010L  /* CON += "pval" */
 #define TR1_CHR   0x00000020L  /* CHR += "pval" */
-#define TR1_XXX1  0x00000040L  /* Unused */
-#define TR1_XXX2  0x00000080L  /* Unused */
+#define TR1_CHAOTIC  0x00000040L
+#define TR1_VAMPIRIC 0x00000080L
 #define TR1_STEALTH  0x00000100L  /* Stealth += "pval" */
 #define TR1_SEARCH  0x00000200L  /* Search += "pval" */
 #define TR1_INFRA  0x00000400L  /* Infra += "pval" */
 #define TR1_TUNNEL  0x00000800L  /* Tunnel += "pval" */
 #define TR1_SPEED  0x00001000L  /* Speed += "pval" */
 #define TR1_BLOWS  0x00002000L  /* Blows += "pval" */
-#define TR1_CHAOTIC  0x00004000L
-#define TR1_VAMPIRIC 0x00008000L
+#define TR1_SHOTS 0x00004000L	/* Shots += "pval" */
+#define TR1_MIGHT 0x00008000L	/* Might += "pval" */
 #define TR1_SLAY_ANIMAL 0x00010000L
 #define TR1_SLAY_EVIL 0x00020000L
 #define TR1_SLAY_UNDEAD 0x00040000L
@@ -2595,7 +2656,7 @@ logaux(x, 1) logaux(x, 0) 255)
 #define TR2_RES_LITE 0x00400000L
 #define TR2_RES_DARK 0x00800000L
 #define TR2_RES_BLIND 0x01000000L
-#define TR2_RES_CONF 0x02000000L
+#define TR2_RES_CONFU 0x02000000L
 #define TR2_RES_SOUND 0x04000000L
 #define TR2_RES_SHARDS 0x08000000L
 #define TR2_RES_NETHER 0x10000000L
@@ -2649,7 +2710,7 @@ logaux(x, 1) logaux(x, 0) 255)
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
 	TR1_CON | TR1_CHR | \
 	TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
-	TR1_SPEED | TR1_BLOWS )
+	TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
 
 
 
@@ -3243,25 +3304,31 @@ logaux(x, 1) logaux(x, 0) 255)
 
 
 /*
- * Determines if a map location is fully inside the outer walls
+ * Determines if a map location is defined
+ * Note the hack involving casting the args to unsigned
  */
 #define in_bounds(Y,X) \
-	(((Y) > 0) && ((X) > 0) && ((Y) < cur_hgt-1) && ((X) < cur_wid-1))
+   (((unsigned)(Y) < (unsigned)(cur_hgt)) && \
+    ((unsigned)(X) < (unsigned)(cur_wid)))
 
 /*
- * Determines if a map location is on or inside the outer walls
+ * Determines if a map location is fully inside the outer walls
+ * This is more than twice as expensive as "in_bounds()", but
+ * often we need to exclude the outer walls from calculations.
  */
-#define in_bounds2(Y,X) \
-	(((Y) >= 0) && ((X) >= 0) && ((Y) < cur_hgt) && ((X) < cur_wid))
+#define in_bounds_fully(Y,X) \
+   (((Y) > 0) && ((Y) < cur_hgt-1) && \
+    ((X) > 0) && ((X) < cur_wid-1))
 
 
 /*
- * Determines if a map location is currently "on screen" -RAK-
- * Note that "panel_contains(Y,X)" always implies "in_bounds2(Y,X)".
+ * Determines if a map location is currently "on screen"
+ * Note that "panel_contains(Y,X)" always implies "in_bounds(Y,X)".
  */
 #define panel_contains(Y,X) \
-	(((Y) >= panel_row_min) && ((Y) <= panel_row_max) && \
-	((X) >= panel_col_min) && ((X) <= panel_col_max))
+  (((unsigned)((Y) - p_ptr->wy) < (unsigned)(SCREEN_HGT)) && \
+   ((unsigned)((X) - p_ptr->wx) < (unsigned)(SCREEN_WID)))
+
 
 
 
@@ -3274,10 +3341,8 @@ logaux(x, 1) logaux(x, 0) 255)
  * into those features which block line of sight and those that
  * do not, allowing an extremely fast single bit check below.
  */
-#define cave_floor_grid(C) \
-	(~(C)->feat & 0x20 && (C)->feat != FEAT_BUSH && (C)->feat != FEAT_WATER)
-
-#define cave_floor_bold(Y,X) cave_floor_grid(&cave[Y][X])
+#define cave_floor_bold(Y,X) \
+    (!(cave_feat[Y][X] & 0x20) && cave_feat[Y][X] != FEAT_BUSH && cave_feat[Y][X] != FEAT_WATER)
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid
@@ -3285,41 +3350,33 @@ logaux(x, 1) logaux(x, 0) 255)
  * Line 1 -- forbid non-floors
  * Line 2 -- forbid normal objects
  */
-#define cave_clean_grid(C) \
-	(((C)->feat == FEAT_FLOOR) && \
-	(!(C)->o_idx))
-
-#define cave_clean_bold(Y,X) cave_clean_grid(&cave[Y][X])
+#define cave_clean_bold(Y,X) \
+    ((cave_feat[Y][X] == FEAT_FLOOR) && \
+     (cave_o_idx[Y][X] == 0))
 
 /*
  * Determine if a "legal" grid is an "empty" floor grid
  *
  * Line 1 -- forbid doors, rubble, seams, walls
- * Line 2 -- forbid normal monsters
- * Line 3 -- forbid the player
+ * Line 2 -- forbid player/monsters
  */
-#define cave_empty_grid(C) \
-	(cave_floor_grid(C) && \
-	!((C)->m_idx) && \
-	!((C) == &cave[py][px]))
-
-#define cave_empty_bold(Y,X) cave_empty_grid(&cave[Y][X])
+#define cave_empty_bold(Y,X) \
+    (cave_floor_bold(Y,X) && \
+     (cave_m_idx[Y][X] == 0))
 
 /*
  * Determine if a "legal" grid is an "naked" floor grid
  *
  * Line 1 -- forbid non-floors
  * Line 2 -- forbid normal objects
- * Line 3 -- forbid normal monsters
- * Line 4 -- forbid the player
+ * Line 3 -- forbid player/monsters
  */
-#define cave_naked_grid(C) \
-	(((C)->feat == FEAT_FLOOR) && \
-	!((C)->o_idx) && \
-	!((C)->m_idx) && \
-	!((C) == &cave[py][px]))
+#define cave_naked_bold(Y,X) \
+    ((cave_feat[Y][X] == FEAT_FLOOR) && \
+     (cave_o_idx[Y][X] == 0) && \
+     (cave_m_idx[Y][X] == 0))
 
-#define cave_naked_bold(Y,X) cave_naked_grid(&cave[Y][X])
+
 
 
 /*
@@ -3327,16 +3384,15 @@ logaux(x, 1) logaux(x, 0) 255)
  *
  * Line 1 -- perma-walls
  * Line 2-3 -- stairs
- * Line 4 -- town gate
- * Line 5-6 -- shop doors
+ * Line 4-5 -- shop doors
  */
-#define cave_perma_grid(C) \
-	(((C)->feat >= FEAT_PERM_BUILDING) || \
-	(((C)->feat == FEAT_LESS) || \
-		((C)->feat == FEAT_MORE)) || \
-		((C)->feat == FEAT_BUSH) || \
-	(((C)->feat >= FEAT_SHOP_HEAD) && \
-		((C)->feat <= FEAT_SHOP_TAIL)))
+#define cave_perma_bold(Y,X) \
+    ((cave_feat[Y][X] >= FEAT_PERM_EXTRA) || \
+     ((cave_feat[Y][X] == FEAT_LESS) || \
+      (cave_feat[Y][X] == FEAT_MORE)) || \
+     ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
+      (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
+
 
 /*
  * Determine if a "legal" grid is within "los" of the player
@@ -3344,7 +3400,7 @@ logaux(x, 1) logaux(x, 0) 255)
  * Note the use of comparison to zero to force a "boolean" result
  */
 #define player_has_los_bold(Y,X) \
-	((cave[Y][X].info & (CAVE_VIEW)) != 0)
+    ((cave_info[Y][X] & (CAVE_VIEW)) != 0)
 
 
 
@@ -3575,14 +3631,6 @@ extern int PlayerUID;
 
 /* Shopping command set. Ditto. (not yet implemented) */
 #define CMD_SHOP ('_' << 8)
-
-/*
- * The boundaries of the map.
- */
-#define PRT_MINX (COL_END+1)
-#define PRT_MAXX (Term->wid-1)
-#define PRT_MINY (1)
-#define PRT_MAXY (Term->hgt-1)
 
 /* init_macro_type conversion types */
 #define MACRO_CONV_REPLACE 1 /* Replace "name" with "text". */

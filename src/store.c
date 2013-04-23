@@ -1,15 +1,13 @@
-#define STORE_C
 /* File: store.c */
 
-/* Purpose: Store commands */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
 
 #include "angband.h"
 
@@ -893,8 +891,9 @@ static void room_rest(void)
 	p_ptr->csp = p_ptr->msp;
 	p_ptr->cchi = p_ptr->mchi;
 
-	new_level_flag = TRUE;
-	came_from = START_WALK; /* We don't want the player to be moved */
+	/* Leaving */
+	p_ptr->leaving = TRUE;
+	p_ptr->came_from = START_WALK; /* We don't want the player to be moved */
 }
 
 /*
@@ -905,7 +904,7 @@ static bool free_homes(void)
 {
 	int i,tot;
 	tot=0;
-	for(i= (MAX_STORES_PER_TOWN * cur_town); i < ((MAX_STORES_PER_TOWN * cur_town) + (town_defs[cur_town].numstores)); i++)
+	for(i= (MAX_STORES_PER_TOWN * p_ptr->cur_town); i < ((MAX_STORES_PER_TOWN * p_ptr->cur_town) + (town_defs[p_ptr->cur_town].numstores)); i++)
 	{
 		if((store[i].type == STORE_HOME) && (store[i].bought == 0))
 		{
@@ -984,7 +983,7 @@ static void say_comment_3(s32b value, int annoyed)
 
 
 /*
- * Kick 'da bum out. -RAK-
+ * You must leave my store
  */
 static void say_comment_4(void)
 {
@@ -1003,7 +1002,7 @@ static void say_comment_5(void)
 
 
 /*
- * That makes no sense.
+ * You are making no sense.
  */
 static void say_comment_6(void)
 {
@@ -1544,11 +1543,11 @@ static bool PURE store_object_similar(object_ctype *o_ptr, object_ctype *j_ptr)
 
 
 /*
- * Check to see if the shop will be carrying too many objects -RAK-
- * Note that the shop, just like a player, will not accept things
- * it cannot hold.  Before, one could "nuke" potions this way.
+ * Check to see if the shop will be carrying too many objects
  *
- * Returns the number of items that can be absorbed from o_ptr.
+ * Note that the shop, just like a player, will not accept things
+ * it cannot hold.  Before, one could "nuke" objects this way, by
+ * adding them to a pile which was already full.
  */
 static int store_check_num(object_ctype *o_ptr)
 {
@@ -1877,14 +1876,15 @@ static int store_carry(object_type *o_ptr)
 	/* Slide the others up */
 	for (i = st_ptr->stock_num; i > slot; i--)
 	{
-		st_ptr->stock[i] = st_ptr->stock[i-1];
+		/* Hack -- slide the objects */
+		object_copy(&st_ptr->stock[i], &st_ptr->stock[i-1]);
 	}
 
 	/* More stuff now */
 	st_ptr->stock_num++;
 
-	/* Insert the new item */
-	st_ptr->stock[slot] = *o_ptr;
+	/* Hack -- Insert the new item */
+	object_copy(&st_ptr->stock[slot], o_ptr);
 
 	/* Return the location */
 	return (slot);
@@ -2068,8 +2068,8 @@ static void store_create(void)
 {
 	int i, tries, level;
 
-	object_type forge;
-	object_type *q_ptr;
+	object_type *i_ptr;
+	object_type object_type_body;
 
 
 	/* Paranoia -- no room left */
@@ -2104,61 +2104,61 @@ static void store_create(void)
 
 
 		/* Get local object */
-		q_ptr = &forge;
+		i_ptr = &object_type_body;
 
 		/* Create a new object of the chosen kind */
-		object_prep(q_ptr, i);
+		object_prep(i_ptr, i);
 
 		/* Apply some "low-level" magic (no artifacts) */
-		apply_magic(q_ptr, level, FALSE, FALSE, FALSE, FOUND_SHOP,
+		apply_magic(i_ptr, level, FALSE, FALSE, FALSE, FOUND_SHOP,
 			FEAT_SHOP_HEAD+st_ptr->type);
 
 		/* Store objects never get inscriptions. */
-		q_ptr->note = 0;
+		i_ptr->note = 0;
 
 		/* Store objects can't affect skill checks. */
-		object_touch(q_ptr);
+		object_touch(i_ptr);
 
 		/* Hack -- Charge lite's */
-		if (q_ptr->tval == TV_LITE)
+		if (i_ptr->tval == TV_LITE)
 		{
-			if (q_ptr->k_idx == OBJ_WOODEN_TORCH) q_ptr->pval = FUEL_TORCH / 2;
-			if (q_ptr->k_idx == OBJ_BRASS_LANTERN) q_ptr->pval = FUEL_LAMP / 2;
+			if (i_ptr->k_idx == OBJ_WOODEN_TORCH) i_ptr->pval = FUEL_TORCH / 2;
+			if (i_ptr->k_idx == OBJ_BRASS_LANTERN) i_ptr->pval = FUEL_LAMP / 2;
 		}
 
 
 		/* The item is "known" */
-		object_known(q_ptr);
+		object_known(i_ptr);
 
 		/* Mark it storebought */
-		q_ptr->ident |= IDENT_STOREB;
+		i_ptr->ident |= IDENT_STOREB;
 
 		/* Mega-Hack -- no chests in stores */
-		if (q_ptr->tval == TV_CHEST) continue;
+		if (i_ptr->tval == TV_CHEST) continue;
 
 		/* Prune the black market */
 		if (cur_store_type == STORE_BLACK)
 		{
 			/* Hack -- No "crappy" items */
-			if (black_market_crap(q_ptr)) continue;
+			if (black_market_crap(i_ptr)) continue;
 
 			/* Hack -- No "cheap" items */
-			if (object_value(q_ptr, TRUE) < 10) continue;
+			if (object_value(i_ptr, TRUE) < 10) continue;
 		}
 
 		/* Prune normal stores */
 		else
 		{
 			/* No "worthless" items */
-			if (object_value(q_ptr, TRUE) <= 0) continue;
+			if (object_value(i_ptr, TRUE) <= 0) continue;
 		}
 
 
 		/* Mass produce and/or Apply discount */
-		mass_produce(q_ptr);
+		mass_produce(i_ptr);
 
 		/* Attempt to carry the (known) item */
-		i = store_carry(q_ptr);
+		i = store_carry(i_ptr);
 
 #ifdef MAINT_99_MAX
 		/* Prune to 99 if necessary. */
@@ -2323,8 +2323,9 @@ static void display_entry(int pos)
 
 
 /*
- * Displays a store's inventory -RAK-
- * All prices are listed as "per individual object".  -BEN-
+ * Display a store's inventory
+ *
+ * All prices are listed as "per individual object"
  */
 static void display_inventory(void)
 {
@@ -2360,7 +2361,7 @@ static void display_inventory(void)
 
 
 /*
- * Displays players gold -RAK-
+ * Displays players gold
  */
 static void store_prt_gold(void)
 {
@@ -2417,7 +2418,7 @@ static void store_title_aux_f0(char *buf, uint max, cptr UNUSED fmt,
 			cptr owner_name = (s_name+ot_ptr->name);
 			cptr race_name = race_info[ot_ptr->owner_race].title;
 			object_type tmp;
-			s16b old_charisma;
+			/* s16b old_charisma; */
 
 			/* Hack - Create a 10000gp item for price_item() */
 			object_prep(&tmp, OBJ_PRICE_COMPARE);
@@ -2471,7 +2472,7 @@ void store_title_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
 
 
 /*
- * Displays store (after clearing screen) -RAK-
+ * Displays store (after clearing screen)
  */
 static void display_store(void)
 {
@@ -2591,7 +2592,7 @@ static object_type *get_stock(cptr pmt)
 }
 
 /*
- * Increase the insult counter and get angry if too many -RAK-
+ * Increase the insult counter and get angry if necessary
  */
 static int increase_insults(void)
 {
@@ -2622,7 +2623,7 @@ static int increase_insults(void)
 
 
 /*
- * Decrease insults -RAK-
+ * Decrease the insult counter
  */
 static void decrease_insults(void)
 {
@@ -2632,7 +2633,7 @@ static void decrease_insults(void)
 
 
 /*
- * Have insulted while haggling -RAK-
+ * The shop-keeper has been insulted
  */
 static int haggle_insults(void)
 {
@@ -2804,7 +2805,7 @@ static bool receive_offer(cptr pmt, s32b *poffer, s32b last_offer, int factor,
 
 
 /*
- * Haggling routine -RAK-
+ * Haggling routine XXX XXX
  *
  * Return TRUE if purchase is NOT successful
  */
@@ -2860,7 +2861,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 
 		while (!flag && loop_flag)
 		{
-			(void)sprintf(out_val, "%s :  %ld", pmt, (long)cur_ask);
+			sprintf(out_val, "%s :  %ld", pmt, (long)cur_ask);
 			put_str(out_val, 1, 0);
 			cancel = receive_offer("What do you offer? ",
 									&offer, last_offer, 1, cur_ask, final);
@@ -2932,7 +2933,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 				last_offer = offer;
 				allow_inc = TRUE;
 				prt("", 1, 0);
-				(void)sprintf(out_val, "Your last offer: %ld",
+				sprintf(out_val, "Your last offer: %ld",
 								(long)last_offer);
 				put_str(out_val, 1, 39);
 				say_comment_2(cur_ask, annoyed);
@@ -2968,7 +2969,15 @@ static void service_help(byte type)
 			break;
 		case STORE_TEMPLE: /* Restoration */
 		{
-        		msg_print("Restores lost stats and experience.");
+			object_type q_ptr[1];
+
+			/* This doesn't really describe what the service does. */
+			object_prep(q_ptr, OBJ_FAKE_RESTORING);
+			q_ptr->ident |= IDENT_STORE;
+
+			/* This gives an unwelcome "Item attributes" description. */
+			if (!identify_fully_aux(q_ptr, FALSE))
+				msg_print("This won't help you at present.");
 			break;
 		}
 		case STORE_ALCHEMIST: /* Identify all */
@@ -3001,7 +3010,7 @@ static void service_help(byte type)
 			break;
 		}
 		case STORE_HALL: /* Buy a house */
-			msg_format("Gives you a house in %s to store your belongings.", town_name+town_defs[cur_town].name);
+			msg_format("Gives you a house in %s to store your belongings.", town_name+town_defs[p_ptr->cur_town].name);
 			break;
 		case 128: case 129: case 130: case 131:
 		case 132: case 133: case 134: case 135: /* Associate with spirit */
@@ -3056,7 +3065,7 @@ static bool service_haggle(s32b service_cost, s32b *price, cptr service, byte ty
 	bool cancel = FALSE;
 	char out_val[160];
 
-    int factor, adjust;
+	int factor, adjust;
 
 	pmt = "Asking";
 	*price = 0;
@@ -3067,7 +3076,7 @@ static bool service_haggle(s32b service_cost, s32b *price, cptr service, byte ty
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
-    /* Adjust for greed */
+	/* Adjust for greed */
 	adjust = 100 + ((ot_ptr->min_inflate + factor) - 300);
 	if (adjust < 100) adjust = 100;
 
@@ -3103,7 +3112,7 @@ static bool service_haggle(s32b service_cost, s32b *price, cptr service, byte ty
 
 		while (!flag && loop_flag)
 		{
-			(void)sprintf(out_val, "%s :  %ld", pmt, (long)cur_ask);
+			sprintf(out_val, "%s :  %ld", pmt, (long)cur_ask);
 			put_str(out_val, 1, 0);
 			cancel = receive_offer("What do you offer? ",
 									&offer, last_offer, 1, cur_ask, final);
@@ -3175,7 +3184,7 @@ static bool service_haggle(s32b service_cost, s32b *price, cptr service, byte ty
 				last_offer = offer;
 				allow_inc = TRUE;
 				prt("", 1, 0);
-				(void)sprintf(out_val, "Your last offer: %ld",
+				sprintf(out_val, "Your last offer: %ld",
 								(long)last_offer);
 				put_str(out_val, 1, 39);
 				say_comment_2(cur_ask, annoyed);
@@ -3195,7 +3204,7 @@ static bool service_haggle(s32b service_cost, s32b *price, cptr service, byte ty
 
 
 /*
- * Haggling routine -RAK-
+ * Haggling routine XXX XXX
  *
  * Return TRUE if purchase is NOT successful
  */
@@ -3256,7 +3265,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 		{
 			loop_flag = TRUE;
 
-			(void)sprintf(out_val, "%s :  %ld", pmt, (long)cur_ask);
+			sprintf(out_val, "%s :  %ld", pmt, (long)cur_ask);
 			put_str(out_val, 1, 0);
 			cancel = receive_offer("What price do you ask? ",
 									&offer, last_offer, -1, cur_ask, final);
@@ -3330,7 +3339,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 				last_offer = offer;
 				allow_inc = TRUE;
 				prt("", 1, 0);
-				(void)sprintf(out_val,
+				sprintf(out_val,
 								"Your last bid %ld", (long)last_offer);
 				put_str(out_val, 1, 39);
 				say_comment_3(cur_ask, annoyed);
@@ -3353,7 +3362,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 
 
 /*
- * Buy an item from a store -RAK-
+ * Buy an item from a store
  */
 static void store_purchase(void)
 {
@@ -3513,7 +3522,7 @@ static void store_purchase(void)
 
                                 /* Hack -- Set the "found information" */
                                 j_ptr->found.level=0;
-                                j_ptr->found.dungeon=cur_town;
+                                j_ptr->found.dungeon=p_ptr->cur_town;
 
 				/* Message */
 				if (!auto_haggle || verbose_haggle)
@@ -3663,7 +3672,7 @@ static void store_sell(void)
 	item_tester_hook = store_will_buy;
 
 	/* Get an item (from equip or inven) */
-	if (!((o_ptr = get_item(&err, pmt, TRUE, TRUE, FALSE))))
+	if (!((o_ptr = get_item(&err, pmt, "You have nothing that I want.", USE_EQUIP | USE_INVEN))))
 	{
 		if (err == -2) msg_print("You have nothing that I want.");
 		return;
@@ -3978,13 +3987,13 @@ static void store_process_command(void)
 
 #endif /* ALLOW_REPEAT -- TNB */
 
-	if (rogue_like_commands && command_cmd == 'l')
+	if (rogue_like_commands && p_ptr->command_cmd == 'l')
 	{
-		command_cmd = 'x';  /* hack! */
+		p_ptr->command_cmd = 'x';  /* hack! */
 	}
 
 	/* Parse the command */
-	switch (command_cmd)
+	switch (p_ptr->command_cmd)
 	{
 			/* Leave */
 		case ESCAPE:
@@ -4173,7 +4182,7 @@ static void store_process_command(void)
 					}
 				case STORE_MAGIC:
 					{
-							if (p_ptr->ritual != TOWN_NONE)
+						if (p_ptr->ritual != TOWN_NONE)
 						{
 							msg_print("You have already done the ritual!");
 						}
@@ -4200,7 +4209,7 @@ static void store_process_command(void)
 									/* Be happy */
 									decrease_insults();
 									store_prt_gold();
-									p_ptr->ritual = cur_town;
+									p_ptr->ritual = p_ptr->cur_town;
 									msg_print("You perform the Ritual of True Recall.");
 								}
 								p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
@@ -4233,7 +4242,7 @@ static void store_process_command(void)
 				case STORE_LIBRARY:
 					{
 						/* Run a special command. */
-						command_cmd = 'G'+CMD_SHOP;
+						p_ptr->command_cmd = 'G'+CMD_SHOP;
 						process_command();
 						break;
 					}
@@ -4267,7 +4276,7 @@ static void store_process_command(void)
 					}
 				case STORE_HALL:
 					{
-						store_type *h_ptr = find_house(cur_town);
+						store_type *h_ptr = find_house(p_ptr->cur_town);
 						if (h_ptr && h_ptr->bought)
 						{
 							msg_print("You already have the deeds!");
@@ -4278,7 +4287,7 @@ static void store_process_command(void)
 						}
 						else
 						{
-							if (!service_haggle(town_defs[cur_town].house_price,&price, service_name[cur_store_type][0], STORE_HALL))
+							if (!service_haggle(town_defs[p_ptr->cur_town].house_price,&price, service_name[cur_store_type][0], STORE_HALL))
 							{
 								if (price > p_ptr->au)
 								{
@@ -4442,7 +4451,7 @@ static void resize_store(void)
  * Enter a store, and interact with it.
  *
  * Note that we use the standard "request_command()" function
- * to get a command, allowing us to use "command_arg" and all
+ * to get a command, allowing us to use "p_ptr->command_arg" and all
  * command macros and other nifty stuff, but we use the special
  * "shopping" argument, to force certain commands to be converted
  * into other commands, normally, we convert "p" (pray) and "m"
@@ -4450,25 +4459,23 @@ static void resize_store(void)
  */
 void do_cmd_store(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int which, t;
 
 	int tmp_chr = 0;
 
-	cave_type *c_ptr;
-
-	/* Access the player grid */
-	c_ptr = &cave[py][px];
 
 	/* Verify a store */
-	if (!((c_ptr->feat >= FEAT_SHOP_HEAD) &&
-			(c_ptr->feat <= FEAT_SHOP_TAIL)))
+	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
+	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
 	{
 		msg_print("You see no store here.");
 		return;
 	}
 
 	/* Extract the store number */
-
 	which = get_which_store();
 
 	/* Paranoia - not a real shop. */
@@ -4520,13 +4527,13 @@ void do_cmd_store(void)
 
 
 	/* No command argument */
-	command_arg = 0;
+	p_ptr->command_arg = 0;
 
 	/* No repeated command */
-	command_rep = 0;
+	p_ptr->command_rep = 0;
 
 	/* No automatic command */
-	command_new = 0;
+	p_ptr->command_new = 0;
 
 
 	/* Save the store number */
@@ -4607,21 +4614,21 @@ void do_cmd_store(void)
 			{
 				int item_pos;
 
-				object_type forge;
-				object_type *q_ptr;
+				object_type *i_ptr;
+				object_type object_type_body;
 
 
 				/* Give a message */
 				msg_print("Your pack overflows!");
 
 				/* Get local object */
-				q_ptr = &forge;
+				i_ptr = &object_type_body;
 
 				/* Grab a copy of the item */
-				object_copy(q_ptr, o_ptr);
+				object_copy(i_ptr, o_ptr);
 
 				/* Describe it */
-				msg_format("You drop %v (%c).", object_desc_f3, q_ptr, TRUE, 3,
+				msg_format("You drop %v (%c).", object_desc_f3, i_ptr, TRUE, 3,
 					index_to_label(o_ptr));
 
 				/* Remove it from the players inventory */
@@ -4633,7 +4640,7 @@ void do_cmd_store(void)
 				handle_stuff();
 
 				/* Let the home carry it */
-				item_pos = store_carry(q_ptr);
+				item_pos = store_carry(i_ptr);
 
 				/* Redraw the home */
 				if (item_pos >= 0)
@@ -4649,7 +4656,7 @@ void do_cmd_store(void)
 	}
 
 	/* Free turn XXX XXX XXX */
-	energy_use = 0;
+	p_ptr->energy_use = 0;
 
 
 	/* Hack -- Character is no longer in "icky" mode */
@@ -4657,10 +4664,10 @@ void do_cmd_store(void)
 
 
 	/* Hack -- Cancel automatic command */
-	command_new = 0;
+	p_ptr->command_new = 0;
 
 	/* Hack -- Cancel "see" mode */
-	command_see = FALSE;
+	p_ptr->command_see = FALSE;
 
 	/* Reset the resize hook. */
 	delete_resize_hook(resize_store);
@@ -4959,9 +4966,12 @@ void store_init(int which)
 
 static int get_which_store(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i;
 
-	for(i= (MAX_STORES_PER_TOWN * cur_town); i < (MAX_STORES_PER_TOWN * (cur_town+1)); i++)
+	for(i= (MAX_STORES_PER_TOWN * p_ptr->cur_town); i < (MAX_STORES_PER_TOWN * (p_ptr->cur_town+1)); i++)
 	{
 		if((px == store[i].x) && (py == store[i].y))
 		{

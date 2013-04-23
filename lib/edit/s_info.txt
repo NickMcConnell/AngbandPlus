@@ -36,7 +36,7 @@
 
 # Version stamp (required)
 
-V:1.0.19
+V:1.0.20
 
 # Some non-shopkeepers. There isn't really a "None" race, but the race is
 # never used for Houses or Halls.

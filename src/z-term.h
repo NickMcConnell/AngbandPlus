@@ -1,4 +1,3 @@
-#define Z_TERM_H
 /* File: z-term.h */
 
 /*
@@ -262,8 +261,13 @@ struct term
 #define TERM_XTRA_LEVEL 12 /* Change the "soft" level (optional) */
 #define TERM_XTRA_DELAY 13 /* Delay some milliseconds (optional) */
 
-#endif
+/**** Available Functions ****/
 
+extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
+extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
+
+
+extern errr Term_exchange(void);
 
 /*** Color constants ***/
 
@@ -303,3 +307,5 @@ struct term
 
 /* Distinguish errors which prevent action from those which don't. */
 #define WARN(X) -(X)
+
+#endif

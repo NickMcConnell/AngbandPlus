@@ -5,6 +5,72 @@ Based on Cthangband 4.1.0b and Zangband 2.1.0e
 Changes are added to the top of this file, so for a chronological order
 read from the bottom up.
 
+sCthangband 1.0.19
+* Game balance changes:
+  * You can gain experience for twice as long without picking up an object, 
+    however, taking such an object won't set experience gain to it's
+    maximum rate. 
+  * Skeletons no longer gain nutricional benefit from potions. 
+  * Toughness can now be trained slightly further (+1% base). In addition,
+    the starting hitpoints for characters is never below the amount
+    displayed on the character generation screen. 
+  * Removed maximum 95% failure for unskilled spellcasting.  
+  * Dark Elf Magic Missile chance of firing a beam now same as Magic    
+    Missile Spell (from 10%) 
+  * Halved frequency and maximum length of long stair cases
+    at levels within 10 (500') of surface.
+  * Attempting to pick the lock on the chest now has a chance of triggering 
+    the trap. 
+  * Killing monsters now helps to allow skill advancements, provided that
+    it is a new-enough kill for that player.  
+  * Using Racial or Mutant powers will only drain HP.
+  * Starting skill level for spell selection reduced slightly.
+  * Floating Eye does 1d3 damage with its paralyze attack.
+  * Removed the element of chance for gaining levels.  Instead, experience
+    gain will slowly decrease as it approaches 100%.
+  * Changes to some spells:
+    * Detect Doores and Traps (Sorcery) Now skill 4 (down from 6)
+    * Phase Door (Conjuration) failing reduced to 40% (from 50%)
+    * Resist Poison (Necromancy) now at 65% fail (from 75%)
+    * Identify (Geode) now at Skill 60, 5% chance destruction (Was level
+      84, 3.7%)
+    * Added "Identify True" to Geode: Skill 84, 10% destruction, 75% fail. 
+  * Changes to increase gradiation between skill levels (now uses all 100
+    points as opposed to just 50):
+    * Martial Arts attack selection in choose_ma_attack()
+    * Martial Arts critical hit chance in do_ma_attack()
+* General Changes:
+  * Changed and simplified backstab messages. 
+  * cheat_skill now displays the maximum for skill advancement (instead of
+    the "base value".)
+  * Reentering a dungeon through the stairs rather than through recall will
+    no longer reset the maximum depth.  
+  * Being killed now flushes input. 
+  * Removed general messages for Spirit anger upon calling a favour. 
+  * Dylath-Leen is no longer a starting town. 
+  * Modified the terrain generation code to reflect the terrain of nearby
+    sectors. 
+* Bug fixes:
+  * Fixed bug preventing Great-One "dream Travel" racial ability. 
+  * Fixed bug where closed doors were not detected by a spell or power that 
+    detects doors. 
+  * Fixed Staff of light and Rod of Illumination. 
+  * Fixed bug where text-searching did not work as expected in Message
+    Recall.
+  * Fixed bug where the object count was not reset between characters. 
+  * Fixed bug where monsters were usually invulnerable to ranged spell
+    attacks (on some systems).
+  * Removed blank message when you finished Tunneling a vein with treasure.  
+  * Fixed Potential Array Boundry error in object_skill_fail()
+  * Fixed some typos in messages of monster attacks.
+  * Doors no longer open automatically if you have not set easy_open
+  * "I"nspecting a charm no longer list spells as unknown. 
+  * Restoration now gives a fixed description message.  The previous
+    message implied that it was never useful, because list of full effects
+    was never displayed. 
+  * Fixed bug where you could not directly select "Sprite", "Vampire",
+    "yeek", or "Zombie" in one of the character selection screens.  
+
 sCthangband 1.0.18
 * Fix the following bugs:
   * The game could crash if a keymap was used.

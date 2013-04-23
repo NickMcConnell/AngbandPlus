@@ -564,7 +564,7 @@ static void wr_extra(void)
 
 	wr_string(player_name);
 
-	wr_string(format("%.1023s", died_from));
+	wr_string(format("%.1023s", p_ptr->died_from));
 
 	for (i = 0; i < 4; i++)
 	{
@@ -646,7 +646,7 @@ static void wr_extra(void)
 	{
 		for (i = 0; i < 20; i++)
 		{
-			if (cur_dungeon == i) wr_s16b(p_ptr->max_dlv);
+			if (p_ptr->cur_dungeon == i) wr_s16b(p_ptr->max_dlv);
 			else wr_s16b(0);
 		}
 	}
@@ -742,12 +742,12 @@ static void wr_extra(void)
 	strip_bytes(2);
 
 	/* Special stuff */
-	wr_u16b(total_winner);
+	wr_u16b(p_ptr->total_winner);
 	wr_u16b(noscore);
 
 
 	/* Write death */
-	wr_byte(death);
+	wr_byte(p_ptr->is_dead);
 
 	/* Write feeling */
 	wr_byte((byte)(feeling));
@@ -762,70 +762,16 @@ static void wr_extra(void)
 		wr_s32b(curse_turn);
 }
 
-
-/*
- * Simple "run length encoding" of a field in cave.
- * This encodes the "size" smallest bytes from whatever "get" returns for the
- * dungeon squares.
- */
-static void wr_rle_cave(int size, u32b (*get)(cave_type *))
-{
-	int x, y;
-	u32b prev = 0;
-	byte count = 0;
-
-	for (count = y = 0; y < cur_hgt; y++)
-	{
-		for (x = 0; x < cur_wid; x++)
-		{
-			u32b this = (*get)(&cave[y][x]);
-
-			if (this == prev && count < MAX_UCHAR)
-			{
-				count++;
-			}
-			else
-			{
-				wr_byte(count);
-				wr_number(prev, size);
-				prev = this;
-				count = 1;
-			}
-		}
-	}
-	if (count)
-	{
-		wr_byte(count);
-		wr_number(prev, size);
-	}
-}
-
-static u32b get_cave_info(cave_type *c_ptr)
-{
-	return c_ptr->info & (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_TRAP);
-}
-
-static u32b get_cave_feat(cave_type *c_ptr)
-{
-	return c_ptr->feat;
-}
-
-static u32b get_cave_r_feat(cave_type *c_ptr)
-{
-	if (c_ptr->r_feat == c_ptr->feat)
-		return 255;
-	else if (c_ptr->r_feat == 255)
-		return c_ptr->feat;
-	else
-		return c_ptr->r_feat;
-}
-
 /*
  * Write the current dungeon
  */
 static void wr_dungeon(void)
 {
-	int i;
+	int i, x, y;
+	byte count;
+	byte tmp8u;
+	byte prev_char;
+
 
 
 	/*** Basic info ***/
@@ -834,34 +780,138 @@ static void wr_dungeon(void)
 	wr_u16b(dun_level);
 	wr_u16b(dun_offset);
 	wr_u16b(dun_bias);
-	wr_byte(cur_town);
-	wr_byte(cur_dungeon);
-	wr_byte(recall_dungeon);
-	wr_byte(came_from);
+	wr_byte(p_ptr->cur_town);
+	wr_byte(p_ptr->cur_dungeon);
+	wr_byte(0 /*recall_dungeon */);
+	wr_byte(0 /*came_from */ );
 	wr_u16b(num_repro);
-	wr_u16b(py);
-	wr_u16b(px);
-	wr_u16b(wildx);
-	wr_u16b(wildy);
+	wr_s16b(p_ptr->py);
+	wr_s16b(p_ptr->px);
+	wr_u16b(p_ptr->wildx);
+	wr_u16b(p_ptr->wildy);
 	wr_u16b(cur_hgt);
 	wr_u16b(cur_wid);
-	wr_u16b(max_panel_rows);
-	wr_u16b(max_panel_cols);
+	wr_u16b(0 /* max_panel_rows */);
+	wr_u16b(0 /* max_panel_cols */);
 
 
-	/*** Simple "run length encoding" of cave ***/
+	/*** Simple "Run-Length-Encoding" of cave ***/
 
-	/* Encode cave_type.info. */
-	if (has_flag(SF_16_CAVE_FLAG))
-		wr_rle_cave(2, get_cave_info);
-	else
-		wr_rle_cave(1, get_cave_info);
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
 
-	/* Encode cave_type.feat. */
-	wr_rle_cave(1, get_cave_feat);
+	/* Dump the cave */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Extract a byte */
+			tmp8u = cave_info[y][x];
 
-	/* Encode cave_type.r_feat. */
-	if (has_flag(SF_OBSERVED_FEAT)) wr_rle_cave(1, get_cave_r_feat);
+			/* If the run is broken, or too full, flush it */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Extract a byte */
+			tmp8u = cave_feat[y][x];
+
+			/* If the run is broken, or too full, flush it */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Extract a byte */
+			tmp8u = cave_rfeat[y][x];
+
+			/* If the run is broken, or too full, flush it */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+
+
 
 	/* Compact the objects */
 	compact_objects(0);
@@ -928,10 +978,12 @@ static void wr_spell_flags(void)
 		wr_u32b(forgot);
 	}
 
+	/*
 	for (i = 0; i < 128; i++)
 	{
 		wr_byte(spell_order[i]);
 	}
+	*/
 }
 
 /*
@@ -1082,12 +1134,12 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_s16b(player_hp[i]);
+		wr_s16b(p_ptr->player_hp[i]);
 	}
 
 	wr_spell_flags();
 
-		/* Dump spirit info */
+	/* Dump spirit info */
 	for (i=0;i<MAX_SPIRITS;i++)
 	{
 		wr_u16b(spirits[i].pact);
@@ -1128,7 +1180,7 @@ static bool wr_savefile_new(void)
 
 
 	/* Player is not dead, write the dungeon */
-	if (!death)
+	if (!p_ptr->is_dead)
 	{
 		/* Dump the dungeon */
 		wr_dungeon();

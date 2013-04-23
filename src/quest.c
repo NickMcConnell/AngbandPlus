@@ -31,7 +31,7 @@ quest_type *get_quest(void)
 
 	for (q_ptr = q_list; q_ptr < q_list+MAX_Q_IDX; q_ptr++)
 	{
-		if ((q_ptr->level == dun_level) && (q_ptr->dungeon == cur_dungeon))
+		if ((q_ptr->level == dun_level) && (q_ptr->dungeon == p_ptr->cur_dungeon))
 		{
 			return q_ptr;
 		}

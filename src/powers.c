@@ -645,6 +645,9 @@ static void phlogiston (void)
 
 static void call_the_(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i;
 
 	if (cave_floor_bold(py-1,px-1) && cave_floor_bold(py-1, px) &&
@@ -653,7 +656,7 @@ static void call_the_(void)
 		cave_floor_bold(py+1,px) && cave_floor_bold(py+1,px+1))
 	{
 		for (i = 1; i < 10; i++)
-		if (i-5) fire_ball(GF_SHARD, i,
+		if (i-5) fire_ball(GF_SHARDS, i,
 				175, 2);
 
 		for (i = 1; i < 10; i++)
@@ -672,7 +675,7 @@ static void call_the_(void)
 		msg_print("There is a loud explosion!");
 		destroy_area(py, px, 20+(skill_set[SKILL_THAUMATURGY].value/2), TRUE);
 		msg_print("The dungeon collapses...");
-		take_hit(100 + (randint(150)), "a suicidal Call the Void", MON_CALLING_THE_VOID);
+		take_hit(100 + (randint(150)), "a suicidal Call of the Void", MON_CALLING_THE_VOID);
 	}
 }
 
@@ -837,9 +840,9 @@ static void rustproof(void)
 	item_tester_hook = item_tester_hook_armour;
 
 	/* Get an item (from equip or inven or floor) */
-	if (!((o_ptr = get_item(&err, "Rustproof which piece of armour? ", TRUE, TRUE, TRUE))))
+	if (!((o_ptr = get_item(&err, "Rustproof which piece of armour? ", "You have nothing to rustproof.", USE_EQUIP | USE_INVEN | USE_FLOOR))))
 	{
-		if (err == -2) msg_print("You have nothing to rustproof.");
+		//if (err == -2) msg_print();
 		return;
 	}
 
@@ -886,6 +889,9 @@ void do_poly_wounds(int cause)
 
 static void do_poly_race(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	/* Pick a random race other than the current one. */
 	int new_race = rand_int(MAX_RACES-1);
 	if (new_race == p_ptr->prace) new_race = MAX_RACES-1;
@@ -992,7 +998,7 @@ static int PURE mvd_no_object(int y, int x, int d)
 	{
 		return MVD_STOP_BEFORE_HERE;
 	}
-	else if (cave[y][x].o_idx)
+	else if (cave_o_idx[y][x])
 	{
 		return MVD_STOP_HERE;
 	}
@@ -1007,12 +1013,14 @@ static int PURE mvd_no_object(int y, int x, int d)
  */
 static void fetch(int dir, int wgt, bool require_los)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int x, y;
-	cave_type *c_ptr;
 	object_type *o_ptr;
 
 	/* Check to see if an object is already there */
-	if(cave[py][px].o_idx)
+	if(cave_o_idx[py][px])
 	{
 		msg_print("You can't fetch when you're already standing on something.");
 		return;
@@ -1021,13 +1029,10 @@ static void fetch(int dir, int wgt, bool require_los)
 	/* Find the target. */
 	get_dir_target(&x, &y, dir, mvd_no_object);
 
-	/* Extract the target. */
-	c_ptr = &cave[y][x];
-
 	/* Extract the "top" item (the only one this can fetch). */
-	o_ptr = &o_list[c_ptr->o_idx];
+	o_ptr = &o_list[cave_o_idx[y][x]];
 
-	if (!c_ptr->o_idx)
+	if (!cave_o_idx[y][x])
 	{
 		msg_print("There is no object to retrieve.");
 	}
@@ -1047,8 +1052,8 @@ static void fetch(int dir, int wgt, bool require_los)
 	else
 	{
 		/* "move" the object. */
-		cave[py][px].o_idx = c_ptr->o_idx;
-		c_ptr->o_idx = 0;
+		cave_o_idx[py][px] = cave_o_idx[y][x];
+		cave_o_idx[y][x] = 0;
 		o_ptr->iy = (byte)py;
 		o_ptr->ix = (byte)px;
 
@@ -1118,6 +1123,9 @@ static void brand_weapon(int brand_type)
 
 void wild_magic(int spell)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int counter = 0;
 
 	switch(randint(spell) + randint(8) + 1)
@@ -1270,6 +1278,9 @@ static bool speed_up(int min, int max)
 static void summon_1(int type, bool group, int plev,
 	cptr s1, cptr s2_good, cptr s2_bad)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	bool friendly = !one_in(3);
 	if (!friendly) group = TRUE;
 
@@ -1285,6 +1296,9 @@ static void summon_1(int type, bool group, int plev,
 static bool summon_2(int type, int chance, bool group, int plev,
 	cptr where, cptr what)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	bool friendly = percent(chance);
 
 	/* Hostile summons can always come in groups. */
@@ -1317,6 +1331,9 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 {
 	bool b;
 	int i;
+
+	int px = p_ptr->px;
+	int py = p_ptr->py;
 
 	/* Assume that the object was used without identifying it by default. */
 	(*use) = TRUE;
@@ -1539,7 +1556,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 
 		case OBJ_POTION_BOOZE+PO_K_IDX: /* Booze */
 		{
-			if (!((p_ptr->resist_conf) || (p_ptr->resist_chaos)))
+			if (!((p_ptr->resist_confu) || (p_ptr->resist_chaos)))
 			{
 				if (add_flag(TIMED_CONFUSED, rand_int(20) + 15))
 				{
@@ -1749,8 +1766,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 				p_ptr->csp_frac = 0;
 				msg_print("Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_PLAYER);
-				p_ptr->window |= (PW_SPELL);
+				p_ptr->window |= (PW_SPELL | PW_PLAYER);
 				(*ident) = TRUE;
 			}
 			if (p_ptr->cchi < p_ptr->mchi)
@@ -1759,8 +1775,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 				p_ptr->chi_frac = 0;
 				msg_print("Your feel your chi harmonise.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_PLAYER);
-				p_ptr->window |= (PW_SPELL);
+				p_ptr->window |= (PW_SPELL | PW_PLAYER);
 				(*ident) = TRUE;
 			}
 			return SUCCESS;
@@ -2406,8 +2421,6 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 			return SUCCESS;
 		}
 
-
-
 		case OBJ_STAFF_TREASURE_LOCATION+PO_K_IDX:
 		{
 			if (detect_treasure()) (*ident) = TRUE;
@@ -2462,6 +2475,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		case OBJ_STAFF_THE_MAGI+PO_K_IDX:
 		{
 			if (do_res_stat(A_INT)) (*ident) = TRUE;
+			if (do_res_stat(A_WIS)) (*ident) = TRUE;
 			if (p_ptr->csp < p_ptr->msp)
 			{
 				p_ptr->csp = p_ptr->msp;
@@ -2469,8 +2483,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 				(*ident) = TRUE;
 				msg_print("Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_PLAYER);
-				p_ptr->window |= (PW_SPELL);
+				p_ptr->window |= (PW_SPELL | PW_PLAYER);
 			}
 			if (p_ptr->cchi < p_ptr->mchi)
 			{
@@ -2479,8 +2492,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 				(*ident) = TRUE;
 				msg_print("Your feel your chi harmonise.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_PLAYER);
-				p_ptr->window |= (PW_SPELL);
+				p_ptr->window |= (PW_SPELL | PW_PLAYER);
 			}
 			return SUCCESS;
 		}
@@ -2723,7 +2735,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		case OBJ_WAND_SHARD_BALL+PO_K_IDX:
 		{
 			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
-			fire_ball(GF_SHARD, dir, 75 + (randint(50)), 2);
+			fire_ball(GF_SHARDS, dir, 75 + (randint(50)), 2);
 			(*ident) = TRUE;
 			return SUCCESS;
 		}
@@ -2930,19 +2942,17 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 	{
 		{
 		int y = 0, x = 0;
-		cave_type       *c_ptr;
 		monster_type    *m_ptr;
 
 		for (dir = 0; dir < 8; dir++) {
 			y = py + ddy_ddd[dir];
 			x = px + ddx_ddd[dir];
-			c_ptr = &cave[y][x];
 
 			/* Get the monster */
-			m_ptr = &m_list[c_ptr->m_idx];
+			m_ptr = &m_list[cave_m_idx[y][x]];
 
 			/* Hack -- attack monsters */
-			if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
+			if (cave_m_idx[y][x] && (m_ptr->ml || cave_floor_bold(y, x)))
 			py_attack(y, x);
 		}
 		}
@@ -2971,7 +2981,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		case ACT_SHARD+PO_ACTIVATION:
 		{
 		if (!dir) return POWER_ERROR_NO_SUCH_DIR;
-			fire_ball(GF_SHARD, dir,
+			fire_ball(GF_SHARDS, dir,
 					120 + (plev), 2);
 			return SUCCESS;
 		}
@@ -3871,19 +3881,17 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		{
 			{
 			int y = 0, x = 0;
-			cave_type       *c_ptr;
 			monster_type    *m_ptr;
 
 			for (dir = 0; dir < 8; dir++) {
 				y = py + ddy_ddd[dir];
 				x = px + ddx_ddd[dir];
-				c_ptr = &cave[y][x];
 
 				/* Get the monster */
-				m_ptr = &m_list[c_ptr->m_idx];
+				m_ptr = &m_list[cave_m_idx[y][x]];
 
 				/* Hack -- attack monsters */
-				if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
+				if (cave_m_idx[y][x] && (m_ptr->ml || cave_floor_bold(y, x)))
 				py_attack(y, x);
 			}
 			}
@@ -4265,7 +4273,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		case SP_SHARD_BALL:
 		{
 			if (!dir) return POWER_ERROR_NO_SUCH_DIR;
-			fire_ball(GF_SHARD, dir,
+			fire_ball(GF_SHARDS, dir,
 					120 + (plev), 2);
 			return SUCCESS;
 		}
@@ -4431,9 +4439,10 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 			}
 			else
 			{
+				/* Note - this eventually becomes useless. */
 				msg_print("It's the World.");
-					msg_print("You feel more experienced.");
-					gain_skills(100);
+				msg_print("You feel more experienced.");
+				gain_skills(100);
 			}
 
 			return SUCCESS;
@@ -5116,11 +5125,9 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		case RP_VAMPIRE:
 		{
 			/* Only works on adjacent monsters */
-			cave_type *c_ptr;
 			s16b dummy;
 			if (!dir) return POWER_ERROR_NO_SUCH_REP_DIR;   /* was get_aim_dir */
-			c_ptr = &cave[py+ddy[dir]][px+ddx[dir]];
-			if (!(c_ptr->m_idx))
+			if (!(cave_m_idx[py+ddy[dir]][px+ddx[dir]]))
 			{
 				msg_print("You bite into thin air!");
 				return SUCCESS;
@@ -5217,38 +5224,36 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		case MUT_EAT_ROCK+PO_MUTA:
 		{
 			int x,y;
-			cave_type *c_ptr;
 
 			if (!dir) return POWER_ERROR_NO_SUCH_REP_DIR;
 			y = py + ddy[dir];
 			x = px + ddx[dir];
-			c_ptr = &cave[y][x];
 			if (cave_floor_bold(y,x))
 			{
 				msg_print("You bite into thin air!");
 			}
-			else if (((c_ptr->feat >= FEAT_PERM_BUILDING) &&
-				(c_ptr->feat <= FEAT_PERM_SOLID)))
+			else if (((cave_feat[y][x] >= FEAT_PERM_BUILDING) &&
+				(cave_feat[y][x] <= FEAT_PERM_SOLID)))
 			{
 				msg_print("Ouch!  This wall is harder than your teeth!");
 			}
-			else if (c_ptr->m_idx)
+			else if (cave_m_idx[y][x])
 			{
 				msg_print("There's something in the way!");
 			}
-			else if (c_ptr->feat == FEAT_TREE)
+			else if (cave_feat[y][x] == FEAT_TREE)
 			{
 				msg_print("You don't like the woody taste!");
 			}
 			else
 			{
-				if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-					(c_ptr->feat <= FEAT_RUBBLE))
+				if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
+					(cave_feat[y][x] <= FEAT_RUBBLE))
 				{
 					(void)add_flag(TIMED_FOOD, 3000);
 				}
-				else if ((c_ptr->feat >= FEAT_MAGMA) &&
-					(c_ptr->feat <= FEAT_QUARTZ_K))
+				else if ((cave_feat[y][x] >= FEAT_MAGMA) &&
+					(cave_feat[y][x] <= FEAT_QUARTZ_K))
 				{
 					(void)add_flag(TIMED_FOOD, 5000);
 				}
@@ -5368,7 +5373,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 
 			/* Get an item */
 			q = "Drain which item? ";
-			if (!((o_ptr = get_item(&err, q, TRUE,TRUE,TRUE))))
+			if (!((o_ptr = get_item(&err, q, NULL, USE_EQUIP | USE_INVEN | USE_FLOOR))))
 			{
 				(*use) = FALSE;
 				return SUCCESS;
@@ -5429,7 +5434,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 			if (!dir) return POWER_ERROR_NO_SUCH_REP_DIR;
 			y = py + ddy[dir];
 			x = px + ddx[dir];
-			if (cave[y][x].m_idx)
+			if (cave_m_idx[y][x])
 			{
 				py_attack(y, x);
 				teleport_player(30);
@@ -5457,26 +5462,24 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		case MUT_BANISH+PO_MUTA:
 		{
 			int x,y;
-			cave_type *c_ptr;
 			monster_type *m_ptr;
 			monster_race *r_ptr;
 
 			if (!dir) return POWER_ERROR_NO_SUCH_REP_DIR;
 			y = py + ddy[dir];
 			x = px + ddx[dir];
-			c_ptr = &cave[y][x];
-			if (!(c_ptr->m_idx))
+			if (!(cave_m_idx[y][x]))
 			{
 				msg_print("You sense no evil there!");
 				return SUCCESS;
 			}
-			m_ptr = &m_list[c_ptr->m_idx];
+			m_ptr = &m_list[cave_m_idx[y][x]];
 			r_ptr = &r_info[m_ptr->r_idx];
 
 			if (r_ptr->flags3 & RF3_EVIL)
 			{
 				/* Delete the monster, rather than killing it. */
-				delete_monster_idx(c_ptr->m_idx,TRUE);
+				delete_monster_idx(cave_m_idx[y][x],TRUE);
 				msg_print("The evil creature vanishes in a puff of sulfurous smoke!");
 			}
 			else
@@ -5488,13 +5491,11 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 		case MUT_COLD_TOUCH+PO_MUTA:
 		{
 			int x,y;
-			cave_type *c_ptr;
 
 			if (!dir) return POWER_ERROR_NO_SUCH_REP_DIR;
 			y = py + ddy[dir];
 			x = px + ddx[dir];
-			c_ptr = &cave[y][x];
-			if (!(c_ptr->m_idx))
+			if (!(cave_m_idx[y][x]))
 			{
 				msg_print("You wave your hands in the air.");
 				return SUCCESS;

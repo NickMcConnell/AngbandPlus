@@ -1,19 +1,11 @@
-#define TYPES_H
 /* File: types.h */
 
-/* Purpose: global type declarations */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
- */
-
-
-/*
- * This file should ONLY be included by "angband.h"
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 
@@ -25,7 +17,7 @@
  * unless you really need the extra bit of information, or you really
  * need to restrict yourself to a single byte for storage reasons.
  *
- * Also, if possible, attempt to restrict yourself to sub-fields of
+ * Also, if possible, attempt to restrict yourself tog sub-fields of
  * known size (use "s16b" or "s32b" instead of "int", and "byte" instead
  * of "bool"), and attempt to align all fields along four-byte words, to
  * optimize storage issues on 32-bit machines.  Also, avoid "bit flags"
@@ -39,15 +31,43 @@
  * template files, simplify access to indexed data, or facilitate efficient
  * clearing of many variables at once.
  *
- * Certain data is saved in multiple places for efficient access, currently,
- * this includes the tval/weight fields in "object_type", various fields
- * in "header_type", and the "m_idx" and "o_idx" fields in "cave_type".  All
- * of these could be removed, but this would, in general, slow down the game
- * and increase the complexity of the code.
+ * Note that certain data is saved in multiple places for efficient access,
+ * and when modifying the data in one place it must also be modified in the
+ * other places, to prevent the creation of inconsistant data.
  */
 
 
 
+/**** Available Types ****/
+
+typedef struct header header;
+typedef struct init_macro_type init_macro_type;
+typedef struct maxima maxima;
+typedef struct gfx_type gfx_type;
+typedef struct feature_type feature_type;
+typedef struct object_kind object_kind;
+typedef struct unident_type unident_type;
+typedef struct o_base_type o_base_type;
+typedef struct artifact_type artifact_type;
+typedef struct ego_item_type ego_item_type;
+typedef struct monster_blow monster_blow;
+typedef struct monster_race monster_race;
+typedef struct vault_type vault_type;
+typedef struct object_found object_found;
+typedef struct object_type object_type;
+typedef const object_type object_ctype;
+typedef struct store_type store_type;
+typedef struct magic_type magic_type;
+typedef struct player_magic player_magic;
+typedef struct player_sex player_sex;
+typedef struct player_race player_race;
+typedef struct player_class player_class;
+typedef struct player_other player_other;
+typedef struct player_type player_type;
+
+
+
+/**** Available structs ****/
 
 
 /*
@@ -77,8 +97,6 @@
  * computers) which use 2 byte "int" values, and which use "int" for the
  * arguments to the relevent functions.
  */
-
-typedef struct header header;
 
 typedef errr (*parse_info_txt_func)(char *buf, header *head, vptr *extra);
 
@@ -117,8 +135,6 @@ struct header
  * This is the only way to insert non-printable or 8-bit characters into text
  * files.
  */
-typedef struct init_macro_type init_macro_type;
-
 struct init_macro_type
 {
 	u32b name; /* Name (offset) */
@@ -135,7 +151,6 @@ struct init_macro_type
  * Information about maximal indices of certain arrays
  * Actually, these are not the maxima, but the maxima plus one
  */
-typedef struct maxima maxima;
 struct maxima
 {
 #ifdef ALLOW_TEMPLATES
@@ -176,7 +191,6 @@ struct maxima
 /*
  * Graphical representation for various on-screen things.
  */
-typedef struct gfx_type gfx_type;
 struct gfx_type
 {
 	byte da;
@@ -190,7 +204,6 @@ struct gfx_type
  * Information about terrain "features"
  */
 
-typedef struct feature_type feature_type;
 
 struct feature_type
 {
@@ -209,9 +222,6 @@ struct feature_type
  *
  * Only "aware" and "tried" are saved in the savefile
  */
-
-typedef struct object_kind object_kind;
-
 struct object_kind
 {
 	u32b text; /* Text (offset) */
@@ -258,8 +268,6 @@ struct object_kind
 /*
  * Information about the unidentified forms of object "kinds"
  */
-typedef struct unident_type unident_type;
-
 struct unident_type
 {
 	u16b name; /* Name (offset) */
@@ -269,8 +277,6 @@ struct unident_type
 
 	gfx_type gfx; /* On-screen representation. */
 };
-
-typedef struct o_base_type o_base_type;
 
 struct o_base_type
 {
@@ -291,9 +297,6 @@ struct o_base_type
  *
  * Note that "max_num" is always "1" (if that artifact "exists")
  */
-
-typedef struct artifact_type artifact_type;
-
 struct artifact_type
 {
 	u16b name; /* Name (offset) */
@@ -330,9 +333,6 @@ struct artifact_type
 /*
  * Information about "ego-items".
  */
-
-typedef struct ego_item_type ego_item_type;
-
 struct ego_item_type
 {
 	u16b name; /* Name (offset) */
@@ -371,8 +371,6 @@ struct ego_item_type
  * - Damage Sides
  */
 
-typedef struct monster_blow monster_blow;
-
 struct monster_blow
 {
 	byte method;
@@ -403,8 +401,6 @@ struct monster_blow
  * fields have a special prefix to aid in searching for them.
  */
 
-
-typedef struct monster_race monster_race;
 
 struct monster_race
 {
@@ -472,8 +468,6 @@ struct monster_race
  * Information about "vault generation"
  */
 
-typedef struct vault_type vault_type;
-
 struct vault_type
 {
 	u32b name; /* Name (offset) */
@@ -485,58 +479,6 @@ struct vault_type
 
 	byte hgt; /* Vault height */
 	byte wid; /* Vault width */
-};
-
-
-
-
-
-/*
- * A single "grid" in a Cave
- *
- * Note that several aspects of the code restrict the actual cave
- * to a max size of 256 by 256.  In partcular, locations are often
- * saved as bytes, limiting each coordinate to the 0-255 range.
- *
- * The "o_idx" and "m_idx" fields are very interesting.  There are
- * many places in the code where we need quick access to the actual
- * monster or object(s) in a given cave grid.  The easiest way to
- * do this is to simply keep the index of the monster and object
- * (if any) with the grid, but this takes 198*66*4 bytes of memory.
- * Several other methods come to mind, which require only half this
- * amound of memory, but they all seem rather complicated, and would
- * probably add enough code that the savings would be lost.  So for
- * these reasons, we simply store an index into the "o_list" and
- * "m_list" arrays, using "zero" when no monster/object is present.
- *
- * Note that "o_idx" is the index of the top object in a stack of
- * objects, using the "next_o_idx" field of objects (see below) to
- * create the singly linked list of objects.  If "o_idx" is zero
- * then there are no objects in the grid.
- *
- * Note the special fields for the "MONSTER_FLOW" code.
- */
-
-typedef struct cave_type cave_type;
-
-struct cave_type
-{
-	u16b info; /* Hack -- cave flags */
-
-	byte feat; /* Hack -- feature type */
-	byte r_feat; /* Observed feature type */
-
-	s16b o_idx; /* Object in this grid */
-
-	s16b m_idx; /* Monster in this grid */
-
-#ifdef MONSTER_FLOW
-
-	byte cost; /* Hack -- cost of flowing */
-	byte when; /* Hack -- when cost was computed */
-
-#endif
-
 };
 
 
@@ -570,7 +512,6 @@ struct cave_type
  */
 
 /* Where was this object found? */
-typedef struct object_found object_found;
 struct object_found
 {
 	byte how; /* Found under this set of circumstances. */
@@ -578,9 +519,6 @@ struct object_found
 	byte dungeon; /* Found in/near this dungeon (255 for wilderness). */
 	byte level; /* Found on this level within the dungeon. */
 };
-
-typedef struct object_type object_type;
-typedef const object_type object_ctype;
 
 struct object_type
 {
@@ -1074,26 +1012,45 @@ struct player_template
 	make_item_type items[MAX_TPL_ITEMS*2];
 };
 
+/*
+ * Some more player information
+ *
+ * This information is retained across player lives
+ */
+struct player_other
+{
+	char full_name[32];		/* Full name */
+	char base_name[32];		/* Base name */
+
+	bool opt[256];		/* Options */
+
+	u32b window_flag[8];	/* Window flags */
+
+	s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
+
+	s16b delay_factor;		/* Delay factor (0 to 9) */
+};
+
 
 /*
  * Most of the "player" information goes here.
  *
  * This stucture gives us a large collection of player variables.
  *
- * This structure contains several "blocks" of information.
- *   (1) the "permanent" info
- *   (2) the "variable" info
- *   (3) the "transient" info
+ * This entire structure is wiped when a new character is born.
  *
- * All of the "permanent" info, and most of the "variable" info,
- * is saved in the savefile.  The "transient" info is recomputed
- * whenever anything important changes.
+ * This structure is more or less laid out so that the information
+ * which must be saved in the savefile precedes all the information
+ * which can be recomputed as needed.
  */
 
 typedef struct player_type player_type;
 
 struct player_type
-{
+    {
+	s16b py;			/* Player location */
+	s16b px;			/* Player location */
+
 	byte psex; /* Sex index */
 	byte prace; /* Race index */
 	byte ptemplate; /* Template index */
@@ -1111,8 +1068,18 @@ struct player_type
 	s16b birthday;    /* Player's Birthday */
 	s16b startdate;   /* The start date of the adventure */
 
-
 	s32b au; /* Current Gold */
+
+	s16b max_depth;		/* Max depth */
+	s16b depth;			/* Cur depth */
+
+	byte cur_town;          /* Current Town */
+	byte cur_dungeon;    /* Current Dungeon */
+	byte recall_dungeon; /* Last dungeon recalled from */
+	byte came_from;       /* Location player has come from onto this level */
+
+	s16b wildy;	/* Player location in wilderness */
+	s16b wildx;	/* Player location in wilderness */
 
 	s32b exp; /* Cur experience */
 	u16b exp_frac; /* Cur exp frac (times 2^16) */
@@ -1179,6 +1146,56 @@ struct player_type
 	byte confusing; /* Glowing hands */
 	byte sneaking; /* Currently searching */
 
+	byte spell_order[128];	/* Spell order */
+
+	s16b player_hp[100];	/* HP Array */
+
+	cptr died_from;		/* Cause of death */
+	char history[4][60];	/* Initial history */
+
+	u16b total_winner;		/* Total winner */
+	u16b panic_save;		/* Panic save */
+
+	u16b noscore;			/* Cheating flags */
+
+	bool is_dead;			/* Player is dead */
+
+	/*** Temporary fields ***/
+
+	bool playing;			/* True if player is playing */
+
+	bool leaving;			/* True if player is leaving */
+
+	s16b wy;				/* Dungeon panel */
+	s16b wx;				/* Dungeon panel */
+
+	s16b total_weight;		/* Total weight being carried */
+
+	s16b target_who;		/* Target identity */
+	s16b target_row;		/* Target location */
+	s16b target_col;		/* Target location */
+
+	s16b health_who;		/* Health bar trackee */
+
+	s16b monster_race_idx;	/* Monster race trackee */
+
+	s16b object_kind_idx;	/* Object kind trackee */
+
+	s16b energy_use;		/* Energy use this turn */
+	s16b old_energy_use;		/* Energy use last turn */
+
+	s16b command_cmd;		/* Gives identity of current command */
+	s16b command_arg;		/* Gives argument of current command */
+	s16b command_rep;		/* Gives repetition of current command */
+	s16b command_dir;		/* Gives direction of current command */
+
+	s16b command_see;		/* See "cmd1.c" */
+	s16b command_wrk;		/* See "cmd1.c" */
+
+	s16b command_gap;		/* See "cmd1.c" */
+
+	s16b command_new;		/* Hack -- command chaining XXX XXX */
+
 	s16b new_spells; /* Number of spells available */
 
 	byte ma_armour; /* Armour bonus gained through martial arts. */
@@ -1193,7 +1210,6 @@ struct player_type
 	byte wield_skill; /* Weapon skill used for current weapon*/
 	s16b cur_lite; /* Radius of lite (if any) */
 
-
 	u32b notice; /* Special Updates (bit flags) */
 	u32b update; /* Pending Updates (bit flags) */
 	u32b redraw; /* Normal Redraws (bit flags) */
@@ -1202,7 +1218,9 @@ struct player_type
 	s16b stat_use[A_MAX]; /* Current modified stats */
 	s16b stat_top[A_MAX]; /* Maximal modified stats */
 
-	s16b stat_add[A_MAX]; /* Modifiers to stat values */
+	/*** Extracted fields ***/
+
+	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
 	s16b stat_ind[A_MAX]; /* Indexes into stat tables */
 
 	bool immune_acid; /* Immunity to acid */
@@ -1216,17 +1234,30 @@ struct player_type
 	bool resist_cold; /* Resist cold */
 	bool resist_pois; /* Resist poison */
 
-	bool resist_conf; /* Resist confusion */
-	bool resist_sound; /* Resist sound */
-	bool resist_lite; /* Resist light */
-	bool resist_dark; /* Resist darkness */
-	bool resist_chaos; /* Resist chaos */
-	bool resist_disen; /* Resist disenchant */
-	bool resist_shard; /* Resist shards */
-	bool resist_nexus; /* Resist nexus */
-	bool resist_blind; /* Resist blindness */
-	bool resist_neth; /* Resist nether */
-	bool resist_fear; /* Resist fear */
+	bool resist_fear;	/* Resist fear */
+	bool resist_lite;	/* Resist light */
+	bool resist_dark;	/* Resist darkness */
+	bool resist_blind;	/* Resist blindness */
+	bool resist_confu;	/* Resist confusion */
+	bool resist_sound;	/* Resist sound */
+	bool resist_shard;	/* Resist shards */
+	bool resist_nexus;	/* Resist nexus */
+	bool resist_nethr;	/* Resist nether */
+	bool resist_chaos;	/* Resist chaos */
+	bool resist_disen;	/* Resist disenchant */
+
+	bool sustain[A_MAX]; /* Keep various stats. */
+
+	bool slow_digest;	/* Slower digestion */
+	bool ffall;			/* Feather falling */
+	bool lite;			/* Permanent light */
+	bool regenerate;	/* Regeneration */
+	bool telepathy;		/* Telepathy */
+	bool see_inv;		/* See invisible */
+	bool free_act;		/* Free action */
+	bool hold_life;		/* Hold life */
+
+	bool impact;		/* Earthquake blows */
 
 	bool heal_nether; /* Be healed by nether attacks. */
 	bool immune_dark; /* Immunity to dark. */
@@ -1240,23 +1271,12 @@ struct player_type
 	bool anti_magic;    /* Anti-magic */
 	bool anti_tele;     /* Prevent teleportation */
 
-	bool sustain[A_MAX]; /* Keep various stats. */
-
 	bool aggravate; /* Aggravate monsters */
 	bool teleport; /* Random teleporting */
 
 	bool exp_drain; /* Experience draining */
 
-	bool ffall; /* No damage falling */
-	bool lite; /* Permanent light */
-	bool free_act; /* Never paralyzed */
-	bool see_inv; /* Can see invisible */
-	bool regenerate; /* Regenerate hit pts */
-	bool hold_life; /* Resist life draining */
-	bool telepathy; /* Telepathy */
-	bool slow_digest; /* Slower digestion */
-	bool xtra_might; /* Extra might bow */
-	bool impact; /* Earthquake blows */
+	//bool xtra_might; /* Extra might bow */
 	bool no_cut; /* Immune to cuts. */
 	bool no_stun; /* Immune to stunning. */
 
@@ -1284,10 +1304,14 @@ struct player_type
 	s16b skill_tht; /* Skill: To hit (throwing) */
 	s16b skill_dig; /* Skill: Digging */
 
+	u32b noise;			/* Derived from stealth */
+
 	s16b num_blow; /* Number of blows */
 	s16b num_fire; /* Number of shots */
 
-	byte tval_ammo; /* Correct ammo tval */
+	byte ammo_mult;		/* Ammo multiplier */
+
+	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed; /* Current speed */
 };
@@ -1452,7 +1476,7 @@ struct tval_ammo_type {
 
 
 /*
- * Semi-Portable High Score List Entry (128 bytes) -- BEN
+ * Semi-Portable High Score List Entry (128 bytes)
  *
  * All fields listed below are null terminated ascii strings.
  *

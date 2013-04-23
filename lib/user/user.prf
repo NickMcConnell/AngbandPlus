@@ -1,0 +1,1665 @@
+
+
+# Automatic option dump
+
+# Option 'Rogue-like commands'
+X:rogue_like_commands
+
+# Option 'Quick -more- prompts'
+Y:quick_messages
+
+# Option 'Quick [y/n] prompts'
+Y:quick_prompt
+
+# Option 'Prompt for various information'
+X:other_query_flag
+
+# Option 'Prompt before picking things up'
+X:carry_query_flag
+
+# Option 'Use old target by default'
+X:use_old_target
+
+# Option 'Pick things up by default'
+Y:always_pickup
+
+# Option 'Repeat obvious commands'
+Y:always_repeat
+
+# Option 'Show dungeon level in feet'
+Y:depth_in_feet
+
+# Option 'Merge inscriptions when stacking'
+Y:stack_force_notes
+
+# Option 'Merge all inscriptions when stacking'
+X:stack_force_notes_all
+
+# Option 'Merge discounts when stacking'
+X:stack_force_costs
+
+# Option 'Show labels in object listings'
+X:show_labels
+
+# Option 'Show weights in object listings'
+Y:show_weights
+
+# Option 'Show choices in certain sub-windows'
+Y:show_choices
+
+# Option 'Show more detailed monster descriptons'
+Y:show_details
+
+# Option 'Show certain choices in the main window'
+Y:show_choices_main
+
+# Option 'Audible bell (on errors, etc)'
+Y:ring_bell
+
+# Option 'Use color if possible (slow)'
+Y:use_color
+
+# Option 'Run past stairs'
+X:find_ignore_stairs
+
+# Option 'Run through open doors'
+X:find_ignore_doors
+
+# Option 'Run past known corners'
+Y:find_cut
+
+# Option 'Run into potential corners'
+Y:find_examine
+
+# Option 'Stop at corners'
+X:stop_corner
+
+# Option 'Disturb whenever any monster moves'
+X:disturb_move
+
+# Option 'Disturb whenever viewable monster moves'
+Y:disturb_near
+
+# Option 'Disturb whenever map panel changes'
+Y:disturb_panel
+
+# Option 'Disturb whenever player state changes'
+Y:disturb_state
+
+# Option 'Disturb when the sun rises or sets'
+X:disturb_dawn
+
+# Option 'Disturb whenever boring things happen'
+X:disturb_minor
+
+# Option 'Alert user to various failures'
+X:alert_failure
+
+# Option 'Get last words when the character dies'
+X:last_words
+
+# Option 'Allow unusually small dungeon levels'
+Y:small_levels
+
+# Option 'Allow empty 'arena' levels'
+Y:empty_levels
+
+# Option 'Auto-haggle in stores'
+Y:auto_haggle
+
+# Option 'Verbose auto_haggle messages'
+X:verbose_haggle
+
+# Option 'Auto-scum for good levels'
+X:auto_scum
+
+# Option 'Allow weapons and armor to stack'
+Y:stack_allow_items
+
+# Option 'Allow wands/staffs/rods to stack'
+Y:stack_allow_wands
+
+# Option 'Expand the power of the look command'
+Y:expand_look
+
+# Option 'Expand the power of the list commands'
+Y:expand_list
+
+# Option 'Map remembers all perma-lit grids'
+Y:view_perma_grids
+
+# Option 'Map remembers all torch-lit grids'
+X:view_torch_grids
+
+# Option 'Generate dungeons with aligned rooms'
+X:dungeon_align
+
+# Option 'Generate dungeons with connected stairs'
+Y:dungeon_stair
+
+# Option 'Usually generate small dungeons'
+X:dungeon_small
+
+# Option 'Monsters chase current location (v.slow)'
+Y:flow_by_sound
+
+# Option 'Monsters chase recent locations (v.slow)'
+Y:flow_by_smell
+
+# Option 'Display 'equippy' chars'
+Y:equippy_chars
+
+# Option 'Monsters learn from their mistakes'
+Y:smart_learn
+
+# Option 'Monsters exploit players weaknesses'
+X:smart_cheat
+
+# Option 'Open and close automatically'
+X:easy_open
+
+# Option 'Disarm traps automatically'
+X:easy_disarm
+
+# Option 'Reduce lite-radius when running'
+X:view_reduce_lite
+
+# Option 'Reduce view-radius in town'
+X:view_reduce_view
+
+# Option 'Avoid checking for user abort'
+X:avoid_abort
+
+# Option 'Avoid processing special colors'
+X:avoid_other
+
+# Option 'Flush input on incorrect keypresses.'
+Y:flush_error
+
+# Option 'Flush input on various failures'
+Y:flush_failure
+
+# Option 'Flush input whenever disturbed'
+X:flush_disturb
+
+# Option 'Flush output before every command'
+Y:fresh_before
+
+# Option 'Flush output after every command'
+X:fresh_after
+
+# Option 'Flush output after every message'
+X:fresh_message
+
+# Option 'Compress messages in savefiles'
+X:compress_savefile
+
+# Option 'Hilite the player with the cursor'
+Y:hilite_player
+
+# Option 'Use special colors for torch-lit grids'
+Y:view_yellow_lite
+
+# Option 'Use special colors for 'viewable' grids'
+Y:view_bright_lite
+
+# Option 'Use special colors for wall grids (slow)'
+Y:view_granite_lite
+
+# Option 'Use special colors for floor grids (slow)'
+Y:view_special_lite
+
+# Option 'Skip chaos features in 'C'haracter Display'
+X:skip_chaos_features
+
+# Option 'Plain object descriptions'
+Y:plain_descriptions
+
+# Option 'Monsters behave stupidly'
+X:stupid_monsters
+
+# Option 'No query to destroy known worthless items'
+Y:auto_destroy
+
+# Option 'Confirm to wear/wield known cursed items'
+Y:confirm_wear
+
+# Option 'Confirm to wear/wield potentially cursed items'
+Y:confirm_wear_all
+
+# Option 'Prompt before exiting a dungeon level'
+X:confirm_stairs
+
+# Option 'Disturb when visible allies move'
+X:disturb_allies
+
+# Option 'Stairs can be longer than one level'
+Y:multi_stair
+
+# Option 'Use a single 'u'se command for all objects'
+X:unify_commands
+
+# Option 'Allow objects to stack on floor'
+Y:testing_stack
+
+# Option 'Show stacks with a special colour/character'
+Y:show_piles
+
+# Option 'Allow monsters to carry objects'
+Y:testing_carry
+
+# Option 'Centre view around player (v.slow)'
+X:centre_view
+
+# Option 'Use macros as edit keys in prompts'
+Y:macro_edit
+
+# Option 'Display beginner help on startup'
+X:beginner_help
+
+# Option 'Scroll until detection reaches the edge'
+X:scroll_edge
+
+# Option 'Use special monochrome display for emphasis'
+Y:allow_fake_colour
+
+# Option 'Do not centre view whilst running'
+X:no_centre_run
+
+# Option 'Automatically clear '-more-' prompts'
+X:auto_more
+
+# Option 'Remember scores of those who quit the game'
+X:score_quitter
+
+# Option ''
+Y:
+
+# Option 'Include race/template bonuses in stat calcs'
+Y:maximise_mode
+
+# Option ''
+Y:
+
+# Option 'Artifacts are not lost if you never saw them'
+X:preserve_mode
+
+# Option ''
+X:
+
+# Option 'Allow the player to start by using Quick-Start'
+X:allow_quickstart
+
+# Option 'Allow the player to choose pre-set stats'
+X:allow_pickstats
+
+# Option 'Allow stats to be rolled repeatedly with minima'
+X:use_autoroller
+
+# Option 'Allow stats to be chosen by spending points'
+X:spend_points
+
+# Option 'Allow shopkeepers and uniques to speak'
+X:speak_unique
+
+# Option ''
+X:
+
+# Option 'Shops (except for libraries) are locked'
+X:ironman_shop
+
+# Option ''
+X:
+
+# Option 'Level feelings are only given after 2500 turns'
+X:ironman_feeling
+
+# Option ''
+X:
+
+# Option 'Chaos patrons give your character gifts'
+Y:chaos_patrons
+
+# Option ''
+Y:
+
+# Option 'Gain knowledge of normal items'
+X:spoil_base
+
+# Option 'Gain knowledge of ego items'
+X:spoil_ego
+
+# Option 'Gain knowledge of standard artifacts'
+X:spoil_art
+
+# Option 'Gain knowledge of the apparent prices of items'
+X:spoil_value
+
+# Option 'Gain knowledge of monsters'
+X:spoil_mon
+
+# Option 'Gain knowledge of the effects of stat changes'
+X:spoil_stat
+
+# Option 'Gain knowledge of the effects of various flags.'
+X:spoil_flag
+
+# Option 'Gain knowledge of melee weapon damage.'
+X:spoil_dam
+
+?:1
+
+
+
+# Automatic option dump (numerical)
+
+# Option 'Autosave when entering new levels'
+Z:autosave_l:no
+
+# Option 'Timed autosave'
+Z:autosave_t:no
+
+# Option 'Quiet autosaves'
+Z:autosave_q:no
+
+# Option 'Turns between autosaves'
+Z:autosave_freq:off
+
+# Option 'Delay (in ms) for various graphical effects'
+Z:base delay factor:27
+
+# Option 'Percent of HP at which to give a special warning'
+Z:hitpoint warning:50
+
+
+
+# Window option dump
+
+# Reset window flags
+W:---reset---
+
+
+#Window 'sCthangband'
+
+#Window 'Mirror'
+W:Mirror:monster recall:d:.
+W:Mirror:object details:d:.
+W:Mirror:floor information:e:.
+W:Mirror:keymap action:e:e
+
+#Window 'Recall'
+W:Recall:help:a:a
+
+#Window 'Choice'
+
+#Window 'Xtra-1'
+W:Xtra-1:inventory:a:a
+
+#Window 'Xtra-2'
+W:Xtra-2:equipment:b:b
+
+#Window 'Xtra-3'
+W:Xtra-3:messages:a:a
+
+#Window 'Xtra-4'
+W:Xtra-4:overhead view:a:a
+
+
+# Status description locations
+
+L:time:0:1:12
+L:gold:0:3:12
+L:equippy:0:4:12
+L:strength:0:5:12
+L:intelligence:0:6:12
+L:wisdom:0:7:12
+L:dexterity:0:8:12
+L:constitution:0:9:12
+L:charisma:0:10:12
+L:armour:0:12:12
+L:hit points:0:13:12
+L:spell points:0:14:12
+L:chi points:0:15:12
+L:life spirits:0:17:12
+L:wild spirits:0:18:12
+L:monster state:0:19:12
+L:energy used:0:20:12
+L:cut:0:21:12
+L:stunning:0:22:12
+L:hunger:0:23:6
+L:blindness:7:23:5
+L:confusion:13:23:8
+L:fear:22:23:6
+L:poison:29:16:8
+L:searching:38:-1:10
+L:speed:49:-1:14
+L:study:63:-1:5
+L:depth:69:-1:9
+L:paralysis:0:0:0
+L:hallucination:0:0:0
+L:temporary speed:0:0:0
+L:temporary slowing:0:0:0
+L:Stone skin:0:0:0
+L:Blessedness:0:0:0
+L:Heroism:0:0:0
+L:Berserkness:0:0:0
+L:Protection from Evil:0:0:0
+L:Wraith form:0:0:0
+L:Invulnerability:0:0:0
+L:Temporary ESP:0:0:0
+L:Ability to see invisible things:0:0:0
+L:Extra infra-red vision:0:0:0
+L:Acid resistance:0:0:0
+L:Electricity resistance:0:0:0
+L:Fire resistance:0:0:0
+L:Cold resistance:0:0:0
+L:Poison resistance:0:0:0
+
+# Current version
+O:57343:254
+
+
+# Inventory colour dump
+
+# Reset inventory colours to white
+E:---reset---
+
+# Setting various inventory colours
+
+# Mushroom of Poison
+E:k:3:g
+
+# Mushroom of Blindness
+E:k:4:g
+
+# Mushroom of Paranoia
+E:k:5:g
+
+# Mushroom of Confusion
+E:k:6:g
+
+# Mushroom of Hallucination
+E:k:7:g
+
+# Mushroom of Paralysis
+E:k:8:g
+
+# Mushroom of Weakness
+E:k:9:g
+
+# Mushroom of Sickness
+E:k:10:g
+
+# Mushroom of Stupidity
+E:k:11:g
+
+# Mushroom of Naivety
+E:k:12:g
+
+# Mushroom of Unhealth
+E:k:13:g
+
+# Mushroom of Disease
+E:k:14:g
+
+# Mushroom of Cure Poison
+E:k:15:g
+
+# Mushroom of Cure Blindness
+E:k:16:g
+
+# Mushroom of Cure Paranoia
+E:k:17:g
+
+# Mushroom of Cure Confusion
+E:k:18:g
+
+# Mushroom of Cure Serious Wounds
+E:k:19:g
+
+# Mushroom of Restore Strength
+E:k:20:g
+
+# Mushroom of Restore Constitution
+E:k:21:g
+
+# Mushroom of Restoring
+E:k:22:g
+
+# Hard Biscuit
+E:k:23:g
+
+# Pint of Fine Ale
+E:k:24:g
+
+# Bottle of Fine Wine
+E:k:25:g
+
+# Strip of Venison
+E:k:26:g
+
+# Slime Mould
+E:k:27:g
+
+# Ration of Food
+E:k:28:g
+
+# Piece of Elvish Waybread
+E:k:29:g
+
+# Broken Dagger
+E:k:30:W
+
+# Broken Sword
+E:k:31:W
+
+# Dagger
+E:k:32:W
+
+# Main Gauche
+E:k:33:W
+
+# Rapier
+E:k:34:W
+
+# Small Sword
+E:k:35:W
+
+# Sabre
+E:k:36:W
+
+# Cutlass
+E:k:37:W
+
+# Short Sword
+E:k:38:W
+
+# Tulwar
+E:k:39:W
+
+# Scimitar
+E:k:40:W
+
+# Broad Sword
+E:k:41:W
+
+# Long Sword
+E:k:42:W
+
+# Bastard Sword
+E:k:43:W
+
+# Katana
+E:k:44:W
+
+# Two-Handed Sword
+E:k:45:W
+
+# Executioner's Sword
+E:k:46:W
+
+# Blade of Chaos
+E:k:47:W
+
+# Whip
+E:k:48:W
+
+# Mace
+E:k:49:W
+
+# Quarterstaff
+E:k:50:W
+
+# Ball-and-Chain
+E:k:51:W
+
+# War Hammer
+E:k:52:W
+
+# Flail
+E:k:53:W
+
+# Lucerne Hammer
+E:k:54:W
+
+# Morning Star
+E:k:55:W
+
+# Lead-Filled Mace
+E:k:56:W
+
+# Two-Handed Flail
+E:k:57:W
+
+# Mace of Disruption
+E:k:58:W
+
+# Spear
+E:k:59:W
+
+# Trident
+E:k:60:W
+
+# Lance
+E:k:61:W
+
+# Broad Axe
+E:k:62:W
+
+# Battle Axe
+E:k:63:W
+
+# Awl-Pike
+E:k:64:W
+
+# Pike
+E:k:65:W
+
+# Glaive
+E:k:66:W
+
+# Beaked Axe
+E:k:67:W
+
+# Halberd
+E:k:68:W
+
+# Great Axe
+E:k:69:W
+
+# Lochaber Axe
+E:k:70:W
+
+# Scythe
+E:k:71:W
+
+# Scythe of Slicing
+E:k:72:W
+
+# Shovel
+E:k:73:s
+
+# Gnomish Shovel
+E:k:74:s
+
+# Dwarven Shovel
+E:k:75:s
+
+# Pick
+E:k:76:s
+
+# Orcish Pick
+E:k:77:s
+
+# Dwarven Pick
+E:k:78:s
+
+# Sling
+E:k:79:u
+
+# Short Bow
+E:k:80:u
+
+# Long Bow
+E:k:81:u
+
+# Light Crossbow
+E:k:82:u
+
+# Heavy Crossbow
+E:k:83:u
+
+# Arrow
+E:k:84:U
+
+# Seeker Arrow
+E:k:85:U
+
+# Bolt
+E:k:86:U
+
+# Seeker Bolt
+E:k:87:U
+
+# Rounded Pebble
+E:k:88:U
+
+# Iron Shot
+E:k:89:U
+
+# Filthy Rag
+E:k:90:s
+
+# Robe
+E:k:91:s
+
+# Soft Leather Armour
+E:k:92:s
+
+# Soft Studded Leather
+E:k:93:s
+
+# Hard Leather Armour
+E:k:94:s
+
+# Hard Studded Leather
+E:k:95:s
+
+# Leather Scale Mail
+E:k:96:s
+
+# Metal Scale Mail
+E:k:97:s
+
+# Rusty Chain Mail
+E:k:98:s
+
+# Chain Mail
+E:k:99:s
+
+# Double Chain Mail
+E:k:100:s
+
+# Augmented Chain Mail
+E:k:101:s
+
+# Bar Chain Mail
+E:k:102:s
+
+# Metal Brigandine Armour
+E:k:103:s
+
+# Partial Plate Armour
+E:k:104:s
+
+# Metal Lamellar Armour
+E:k:105:s
+
+# Full Plate Armour
+E:k:106:s
+
+# Ribbed Plate Armour
+E:k:107:s
+
+# Mithril Chain Mail
+E:k:108:s
+
+# Mithril Plate Mail
+E:k:109:s
+
+# Adamantite Plate Mail
+E:k:110:s
+
+# Bronze Dragon Scale Mail
+E:k:111:s
+
+# Black Dragon Scale Mail
+E:k:112:s
+
+# Blue Dragon Scale Mail
+E:k:113:s
+
+# White Dragon Scale Mail
+E:k:114:s
+
+# Gold Dragon Scale Mail
+E:k:115:s
+
+# Pseudo Dragon Scale Mail
+E:k:116:s
+
+# Chaos Dragon Scale Mail
+E:k:117:s
+
+# Green Dragon Scale Mail
+E:k:118:s
+
+# Law Dragon Scale Mail
+E:k:119:s
+
+# Red Dragon Scale Mail
+E:k:120:s
+
+# Balance Dragon Scale Mail
+E:k:121:s
+
+# Multi-Hued Dragon Scale Mail
+E:k:122:s
+
+# Power Dragon Scale Mail
+E:k:123:s
+
+# Cloak
+E:k:124:U
+
+# Shadow Cloak
+E:k:125:U
+
+# Elven Cloak
+E:k:126:U
+
+# Small Leather Shield
+E:k:127:U
+
+# Small Metal Shield
+E:k:128:U
+
+# Large Leather Shield
+E:k:129:U
+
+# Large Metal Shield
+E:k:130:U
+
+# Shield of Deflection
+E:k:131:U
+
+# Dragon Shield
+E:k:132:U
+
+# Iron Crown
+E:k:133:U
+
+# Golden Crown
+E:k:134:U
+
+# Jewel Encrusted Crown
+E:k:135:U
+
+# Hard Leather Cap
+E:k:136:U
+
+# Metal Cap
+E:k:137:U
+
+# Iron Helm
+E:k:138:U
+
+# Steel Helm
+E:k:139:U
+
+# Dragon Helm
+E:k:140:U
+
+# Set of Leather Gloves
+E:k:141:U
+
+# Set of Gauntlets
+E:k:142:U
+
+# Set of Cesti
+E:k:143:U
+
+# Pair of Soft Leather Boots
+E:k:144:U
+
+# Pair of Hard Leather Boots
+E:k:145:U
+
+# Pair of Metal Shod Boots
+E:k:146:U
+
+# Ring of Woe
+E:k:147:o
+
+# Ring of Aggravate Monster
+E:k:148:o
+
+# Ring of Weakness
+E:k:149:o
+
+# Ring of Stupidity
+E:k:150:o
+
+# Ring of Levitation
+E:k:151:o
+
+# Ring of Teleportation
+E:k:152:o
+
+# Ring of Slow Digestion
+E:k:153:o
+
+# Ring of Searching
+E:k:154:o
+
+# Ring of Resist Fire
+E:k:155:o
+
+# Ring of Resist Cold
+E:k:156:o
+
+# Ring of See Invisible
+E:k:157:o
+
+# Ring of Sustain Charisma
+E:k:158:o
+
+# Ring of Sustain Intelligence
+E:k:159:o
+
+# Ring of Sustain Wisdom
+E:k:160:o
+
+# Ring of Sustain Strength
+E:k:161:o
+
+# Ring of Sustain Constitution
+E:k:162:o
+
+# Ring of Sustain Dexterity
+E:k:163:o
+
+# Ring of Protection
+E:k:164:o
+
+# Ring of Acid
+E:k:165:o
+
+# Ring of Flames
+E:k:166:o
+
+# Ring of Ice
+E:k:167:o
+
+# Ring of Accuracy
+E:k:168:o
+
+# Ring of Damage
+E:k:169:o
+
+# Ring of Slaying
+E:k:170:o
+
+# Ring of Strength
+E:k:171:o
+
+# Ring of Intelligence
+E:k:172:o
+
+# Ring of Dexterity
+E:k:173:o
+
+# Ring of Constitution
+E:k:174:o
+
+# Ring of Fear Resistance
+E:k:175:o
+
+# Ring of Free Action
+E:k:176:o
+
+# Ring of Confusion Resistance
+E:k:177:o
+
+# Ring of Nexus Resistance
+E:k:178:o
+
+# Ring of Shard Resistance
+E:k:179:o
+
+# Ring of Sound Resistance
+E:k:180:o
+
+# Ring of Light and Darkness Resistance
+E:k:181:o
+
+# Ring of Blindness Resistance
+E:k:182:o
+
+# Ring of Chaos Resistance
+E:k:183:o
+
+# Ring of Nether Resistance
+E:k:184:o
+
+# Ring of Disenchantment Resistance
+E:k:185:o
+
+# Ring of Poison Resistance
+E:k:186:o
+
+# Ring of Speed
+E:k:187:o
+
+# Ring of Extra Attacks
+E:k:188:o
+
+# Ring of Lordly Protection
+E:k:189:o
+
+# Amulet of DOOM
+E:k:190:o
+
+# Amulet of Adornment
+E:k:191:o
+
+# Amulet of Slow Digestion
+E:k:192:o
+
+# Amulet of Teleportation
+E:k:193:o
+
+# Amulet of Resist Acid
+E:k:194:o
+
+# Amulet of Brilliance
+E:k:195:o
+
+# Amulet of Charisma
+E:k:196:o
+
+# Amulet of Searching
+E:k:197:o
+
+# Amulet of Anti-Teleportation
+E:k:198:o
+
+# Amulet of Resistance
+E:k:199:o
+
+# Amulet of the Magi
+E:k:200:o
+
+# Amulet of Anti-Magic
+E:k:201:o
+
+# Amulet of Reflection
+E:k:202:o
+
+# Potion of Slime Mould Juice
+E:k:250:b
+
+# Potion of Apple Juice
+E:k:251:b
+
+# Potion of Water
+E:k:252:b
+
+# Potion of Slowness
+E:k:253:b
+
+# Potion of Salt Water
+E:k:254:b
+
+# Potion of Poison
+E:k:255:b
+
+# Potion of Blindness
+E:k:256:b
+
+# Potion of Booze
+E:k:257:b
+
+# Potion of Sleep
+E:k:258:b
+
+# Potion of Lose Memories
+E:k:259:b
+
+# Potion of Ruination
+E:k:260:b
+
+# Potion of Weakness
+E:k:261:b
+
+# Potion of Stupidity
+E:k:262:b
+
+# Potion of Naivety
+E:k:263:b
+
+# Potion of Clumsiness
+E:k:264:b
+
+# Potion of Sickliness
+E:k:265:b
+
+# Potion of Ugliness
+E:k:266:b
+
+# Potion of Iocaine
+E:k:267:b
+
+# Potion of Detonations
+E:k:268:b
+
+# Potion of Infra-vision
+E:k:269:b
+
+# Potion of Detect Invisible
+E:k:270:b
+
+# Potion of Slow Poison
+E:k:271:b
+
+# Potion of Neutralize Poison
+E:k:272:b
+
+# Potion of Boldness
+E:k:273:b
+
+# Potion of Speed
+E:k:274:b
+
+# Potion of Resist Heat
+E:k:275:b
+
+# Potion of Resist Cold
+E:k:276:b
+
+# Potion of Heroism
+E:k:277:b
+
+# Potion of Berserk Strength
+E:k:278:b
+
+# Potion of Cure Light Wounds
+E:k:279:b
+
+# Potion of Cure Serious Wounds
+E:k:280:b
+
+# Potion of Cure Critical Wounds
+E:k:281:b
+
+# Potion of Curing
+E:k:282:b
+
+# Potion of Healing
+E:k:283:b
+
+# Potion of *Healing*
+E:k:284:b
+
+# Potion of Life
+E:k:285:b
+
+# Potion of Restore Mana
+E:k:286:b
+
+# Potion of Restore Life Levels
+E:k:287:b
+
+# Potion of Restore Strength
+E:k:288:b
+
+# Potion of Restore Intelligence
+E:k:289:b
+
+# Potion of Restore Wisdom
+E:k:290:b
+
+# Potion of Restore Dexterity
+E:k:291:b
+
+# Potion of Restore Constitution
+E:k:292:b
+
+# Potion of Restore Charisma
+E:k:293:b
+
+# Potion of Strength
+E:k:294:b
+
+# Potion of Intelligence
+E:k:295:b
+
+# Potion of Wisdom
+E:k:296:b
+
+# Potion of Dexterity
+E:k:297:b
+
+# Potion of Constitution
+E:k:298:b
+
+# Potion of Charisma
+E:k:299:b
+
+# Potion of Augmentation
+E:k:300:b
+
+# Potion of Enlightenment
+E:k:301:b
+
+# Potion of *Enlightenment*
+E:k:302:b
+
+# Potion of Self Knowledge
+E:k:303:b
+
+# Potion of Experience
+E:k:304:b
+
+# Potion of Resistance
+E:k:305:b
+
+# Potion of Invulnerability
+E:k:306:b
+
+# Potion of New Life
+E:k:307:b
+
+# Wand of Heal Monster
+E:k:308:v
+
+# Wand of Haste Monster
+E:k:309:v
+
+# Wand of Clone Monster
+E:k:310:v
+
+# Wand of Teleport Other
+E:k:311:v
+
+# Wand of Disarming
+E:k:312:v
+
+# Wand of Trap/Door Destruction
+E:k:313:v
+
+# Wand of Stone to Mud
+E:k:314:v
+
+# Wand of Light
+E:k:315:v
+
+# Wand of Sleep Monster
+E:k:316:v
+
+# Wand of Slow Monster
+E:k:317:v
+
+# Wand of Confuse Monster
+E:k:318:v
+
+# Wand of Scare Monster
+E:k:319:v
+
+# Wand of Tame Monster
+E:k:320:v
+
+# Wand of Drain Life
+E:k:321:v
+
+# Wand of Polymorph
+E:k:322:v
+
+# Wand of Magic Missile
+E:k:323:v
+
+# Wand of Wonder
+E:k:324:v
+
+# Wand of Stinking Cloud
+E:k:325:v
+
+# Wand of Acid Bolts
+E:k:326:v
+
+# Wand of Fire Bolts
+E:k:327:v
+
+# Wand of Frost Bolts
+E:k:328:v
+
+# Wand of Acid Balls
+E:k:329:v
+
+# Wand of Lightning Balls
+E:k:330:v
+
+# Wand of Fire Balls
+E:k:331:v
+
+# Wand of Cold Balls
+E:k:332:v
+
+# Wand of Annihilation
+E:k:333:v
+
+# Wand of Dragon's Flame
+E:k:334:v
+
+# Wand of Dragon's Frost
+E:k:335:v
+
+# Wand of Dragon's Breath
+E:k:336:v
+
+# Wand of Shard Balls
+E:k:337:v
+
+# Staff of Darkness
+E:k:338:v
+
+# Staff of Haste Monsters
+E:k:339:v
+
+# Staff of Summoning
+E:k:340:v
+
+# Staff of Teleportation
+E:k:341:v
+
+# Staff of Perception
+E:k:342:v
+
+# Staff of Remove Curse
+E:k:343:v
+
+# Staff of Starlight
+E:k:344:v
+
+# Staff of Light
+E:k:345:v
+
+# Staff of Enlightenment
+E:k:346:v
+
+# Staff of Treasure Location
+E:k:347:v
+
+# Staff of Object Location
+E:k:348:v
+
+# Staff of Trap Location
+E:k:349:v
+
+# Staff of Door/Stair Location
+E:k:350:v
+
+# Staff of Detect Invisible
+E:k:351:v
+
+# Staff of Detect Evil
+E:k:352:v
+
+# Staff of Cure Light Wounds
+E:k:353:v
+
+# Staff of Curing
+E:k:354:v
+
+# Staff of Earthquakes
+E:k:355:v
+
+# Staff of *Destruction*
+E:k:356:v
+
+# Staff of Slow Monsters
+E:k:357:v
+
+# Staff of Sleep Monsters
+E:k:358:v
+
+# Staff of Speed
+E:k:359:v
+
+# Staff of Slowness
+E:k:360:v
+
+# Staff of Dispel Evil
+E:k:361:v
+
+# Staff of Probing
+E:k:362:v
+
+# Staff of Genocide
+E:k:363:v
+
+# Staff of Power
+E:k:364:v
+
+# Staff of the Magi
+E:k:365:v
+
+# Staff of Holiness
+E:k:366:v
+
+# Staff of Healing
+E:k:367:v
+
+# Ruined chest
+E:k:368:s
+
+# Small wooden chest
+E:k:369:s
+
+# Large wooden chest
+E:k:370:s
+
+# Small iron chest
+E:k:371:s
+
+# Large iron chest
+E:k:372:s
+
+# Small steel chest
+E:k:373:s
+
+# Large steel chest
+E:k:374:s
+
+# Iron Spike
+E:k:375:s
+
+# Wooden Torch
+E:k:376:y
+
+# Brass Lantern
+E:k:377:y
+
+# Flask of oil
+E:k:378:y
+
+# Rod of Trap Location
+E:k:380:v
+
+# Rod of Door/Stair Location
+E:k:381:v
+
+# Rod of Perception
+E:k:382:v
+
+# Rod of Recall
+E:k:383:v
+
+# Rod of Illumination
+E:k:384:v
+
+# Rod of Enlightenment
+E:k:385:v
+
+# Rod of Detection
+E:k:386:v
+
+# Rod of Probing
+E:k:387:v
+
+# Rod of Curing
+E:k:388:v
+
+# Rod of Healing
+E:k:389:v
+
+# Rod of Restoration
+E:k:390:v
+
+# Rod of Speed
+E:k:391:v
+
+# Rod of Teleport Other
+E:k:392:v
+
+# Rod of Disarming
+E:k:393:v
+
+# Rod of Light
+E:k:394:v
+
+# Rod of Sleep Monster
+E:k:395:v
+
+# Rod of Slow Monster
+E:k:396:v
+
+# Rod of Drain Life
+E:k:397:v
+
+# Rod of Polymorph
+E:k:398:v
+
+# Rod of Acid Bolts
+E:k:399:v
+
+# Rod of Lightning Bolts
+E:k:400:v
+
+# Rod of Fire Bolts
+E:k:401:v
+
+# Rod of Frost Bolts
+E:k:402:v
+
+# Rod of Acid Balls
+E:k:403:v
+
+# Rod of Lightning Balls
+E:k:404:v
+
+# Rod of Fire Balls
+E:k:405:v
+
+# Rod of Cold Balls
+E:k:406:v
+
+# Rod of Havoc
+E:k:407:v
+
+# Sorcery Book [Beginner's Handbook]
+E:k:415:B
+
+# Sorcery Book [Master Sorcerer's Handbook]
+E:k:416:B
+
+# Sorcery Book [R'Lyeh Text]
+E:k:417:B
+
+# Sorcery Book [Unausprechlichen Kulten]
+E:k:418:B
+
+# Conjuration Book [Minor Conjurings]
+E:k:419:o
+
+# Conjuration Book [Conjuring Mastery]
+E:k:420:o
+
+# Conjuration Book [Book of Eibon]
+E:k:421:o
+
+# Conjuration Book [Liber Ivonis]
+E:k:422:o
+
+# Necromancy Book [Black Prayers]
+E:k:423:s
+
+# Necromancy Book [Black Mass]
+E:k:424:s
+
+# Necromancy Book [Necronomicon]
+E:k:425:s
+
+# Necromancy Book [Kitab Al Azif]
+E:k:426:s
+
+# Thaumaturgy Book [Sign of Chaos]
+E:k:427:R
+
+# Thaumaturgy Book [Chaos Mastery]
+E:k:428:R
+
+# Thaumaturgy Book [The King in Yellow]
+E:k:429:R
+
+# Thaumaturgy Book [Revelations of Glaaki]
+E:k:430:R
+
+# Star Essence
+E:k:459:y
+
+# Gemstone
+E:k:461:y
+
+# Amulet
+E:k:462:o
+
+# Amulet
+E:k:463:o
+
+# Necklace
+E:k:464:o
+
+# Ring
+E:k:465:o
+
+# Ring
+E:k:466:o
+
+# Ring
+E:k:467:o
+
+# Ring
+E:k:468:o
+
+# Ring
+E:k:469:o
+
+# Ring
+E:k:470:o
+
+# Runesword
+E:k:471:W
+
+# Mighty Hammer
+E:k:472:W
+
+# Lead Crown
+E:k:473:U
+
+# Mushroom
+E:u:1:g
+
+# Ring
+E:u:2:o
+
+# Amulet
+E:u:3:o
+
+# Potion
+E:u:4:b
+
+# Potion
+E:u:5:b
+
+# Potion
+E:u:6:b
+
+# Potion
+E:u:8:b
+
+# Wand
+E:u:9:v
+
+# Staff
+E:u:10:v
+
+# Rod
+E:u:11:v
+
+# Ring
+E:u:12:o
+
+# 
+E:u:13:W
+

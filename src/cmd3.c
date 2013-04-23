@@ -28,7 +28,7 @@ void do_cmd_inven(bool equip)
 
 
 	/* Store the mode. */
-	command_wrk = equip;
+	p_ptr->command_wrk = equip;
 
 
 	/* Save the screen */
@@ -39,32 +39,31 @@ void do_cmd_inven(bool equip)
 
 	/* Build a prompt */
 	sprintf(out_val, "%s: carrying %d.%d pounds (%d%% of capacity). Command: ",
-		title, total_weight / 10, total_weight % 10,
-		(total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+		title, p_ptr->total_weight / 10, p_ptr->total_weight % 10,
+		(p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
 
 	/* Get a command */
 	prt(out_val, 0, 0);
 
 	/* Get a new command */
-	command_new = inkey();
+	p_ptr->command_new = inkey();
 
 	/* Restore the screen */
 	Term_load();
 
 
 	/* Process "Escape" */
-	if (command_new == ESCAPE)
+	if (p_ptr->command_new == ESCAPE)
 	{
 		/* Reset stuff */
-		command_new = 0;
-		command_gap = 50;
+		p_ptr->command_new = 0;
 	}
 
 	/* Process normal keys */
 	else
 	{
 		/* Hack -- Use "display" mode */
-		command_see = TRUE;
+		p_ptr->command_see = TRUE;
 	}
 }
 
@@ -127,7 +126,7 @@ void do_cmd_wield(object_type *o_ptr)
 	}
 
 	/* Take a turn */
-	energy_use = extract_energy[p_ptr->pspeed];
+	p_ptr->energy_use = extract_energy[p_ptr->pspeed];
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -156,7 +155,7 @@ void do_cmd_wield(object_type *o_ptr)
 	object_copy(o_ptr, q_ptr);
 
 	/* Increase the weight */
-	total_weight += q_ptr->weight;
+	p_ptr->total_weight += q_ptr->weight;
 
 	/* Where is the item now */
 	switch (j_ptr - inventory)
@@ -237,7 +236,7 @@ void do_cmd_takeoff(object_type *o_ptr)
 
 
 	/* Take a turn */
-	energy_use = extract_energy[p_ptr->pspeed];
+	p_ptr->energy_use = extract_energy[p_ptr->pspeed];
 
 	/* Take off the item */
 	(void)inven_takeoff(o_ptr, 255);
@@ -265,7 +264,7 @@ void do_cmd_drop(object_type *o_ptr)
 
 
 	/* Take a partial turn */
-	energy_use = (extract_energy[p_ptr->pspeed]+1)/2;
+	p_ptr->energy_use = (extract_energy[p_ptr->pspeed]+1)/2;
 
 	/* Drop (some of) the item */
 	inven_drop(o_ptr, amt);
@@ -286,7 +285,7 @@ void do_cmd_drop(object_type *o_ptr)
 errr do_cmd_destroy_aux(cptr verb, cptr dative, object_type *q_ptr, object_type *o_ptr)
 {
 	/* Hack -- force destruction */
-	bool force = (command_arg > 0);
+	bool force = (p_ptr->command_arg > 0);
 
 	/* Get an object with the number to destroy. */
 	object_copy(q_ptr, o_ptr);
@@ -352,13 +351,7 @@ void do_cmd_destroy(object_type *o_ptr)
 
 	errr err = do_cmd_destroy_aux("destroy", "", q_ptr, o_ptr);
 
-	if (err != POWER_ERROR_ABORT) energy_use = extract_energy[p_ptr->pspeed];
-
-        
-        /* Moved to do_cmd_destroy_aux */
-	/*if (!err)
-	 *	msg_format("You have destroyed %v.", object_desc_f3, q_ptr, TRUE, 3);
-         */
+	if (err != POWER_ERROR_ABORT) p_ptr->energy_use = extract_energy[p_ptr->pspeed];
 }
 
 
@@ -524,7 +517,7 @@ static void do_cmd_refill_lamp(object_type *o_ptr)
 	j_ptr->ident &= ~(IDENT_EMPTY);
 
 	/* Take a partial turn */
-	energy_use = (extract_energy[p_ptr->pspeed]+1)/2;
+	p_ptr->energy_use = (extract_energy[p_ptr->pspeed]+1)/2;
 
 	/* Message */
 	msg_print("You fuel your lamp.");
@@ -555,7 +548,7 @@ static void do_cmd_refill_torch(object_type *o_ptr)
 	object_type *j_ptr = &inventory[INVEN_LITE];
 
 	/* Take a partial turn */
-	energy_use = (extract_energy[p_ptr->pspeed]+1)/2;
+	p_ptr->energy_use = (extract_energy[p_ptr->pspeed]+1)/2;
 
 	/* Refuel */
 	j_ptr->pval += o_ptr->pval + 5;
@@ -673,8 +666,8 @@ void do_cmd_locate(void)
 	int dir, y1, x1, y2, x2;
 
 	/* Start at current panel */
-	y2 = y1 = panel_row;
-	x2 = x1 = panel_col;
+	y2 = y1 = p_ptr->wy;
+	x2 = x1 = p_ptr->wx;
 
 	/* Show panels until done */
 	while (1)
@@ -695,7 +688,7 @@ void do_cmd_locate(void)
 			/* Get a command (or Cancel) */
 			if (!get_com(&command,
 				"Map sector [%d,%d], which is%s%s%s your sector.  Direction?",
-					y2, x2, ys, xs, of)) break;
+					(y2 / PANEL_HGT), (x2 / PANEL_WID), ys, xs, of)) break;
 
 			/* Extract the action (if any) */
 			dir = get_keymap_dir(command);
@@ -708,26 +701,22 @@ void do_cmd_locate(void)
 		if (!dir) break;
 
 		/* Apply the motion */
-		y2 += ddy[dir];
-		x2 += ddx[dir];
+		y2 += ddy[dir] * PANEL_HGT;
+		x2 += ddx[dir] * PANEL_WID;
 
 		/* Verify the row */
-		if (y2 > max_panel_rows) y2 = max_panel_rows;
-		else if (y2 < 0) y2 = 0;
+		if (y2 < 0) y2 = 0;
+		if (y2 > cur_hgt - SCREEN_HGT) y2 = cur_hgt - SCREEN_HGT;
 
 		/* Verify the col */
-		if (x2 > max_panel_cols) x2 = max_panel_cols;
-		else if (x2 < 0) x2 = 0;
+		if (x2 < 0) x2 = 0;
+		if (x2 > cur_wid - SCREEN_WID) x2 = cur_wid - SCREEN_WID;
 
-		/* Handle "changes" */
-		if ((y2 != panel_row) || (x2 != panel_col) || centre_view)
+		if ((p_ptr->wy != y2) || (p_ptr->wx != x2))
 		{
-			/* Save the new panel info */
-			panel_row = y2;
-			panel_col = x2;
-
-			/* Recalculate the boundaries */
-			panel_bounds();
+			/* Update panel */
+			p_ptr->wy = y2;
+			p_ptr->wx = x2;
 
 			/* Update stuff */
 			p_ptr->update |= (PU_MONSTERS);
@@ -740,9 +729,8 @@ void do_cmd_locate(void)
 		}
 	}
 
-
 	/* Recenter the map around the player */
-	verify_panel(FALSE);
+	verify_panel();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);

@@ -124,10 +124,13 @@ static bool squelch_object(object_type **o_ptr)
  */
 static void process_objects(object_type *o_ptr)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	cptr keymap = "K!";
 
 	/* Remember how much energy should really be used. */
-	int old_energy_use = energy_use;
+	int old_energy_use = p_ptr->energy_use;
 
 	/* Nothing to do if squelching is disabled. */
 	if (!allow_squelch) return;
@@ -136,7 +139,7 @@ static void process_objects(object_type *o_ptr)
 	move_cursor_relative(py, px);
 
 	/* Repeat until some energy is used. */
-	for (energy_use = 0; !energy_use && o_ptr; )
+	for (p_ptr->energy_use = 0; !p_ptr->energy_use && o_ptr; )
 	{
 		/* Notice stuff (if needed) */
 		if (p_ptr->notice) notice_stuff();
@@ -164,7 +167,7 @@ static void process_objects(object_type *o_ptr)
 
 		/* Weird conditions. */
 		if (p_ptr->paralyzed || p_ptr->stun >= 100 || 
-			!alive || death || new_level_flag || inventory[INVEN_PACK].k_idx)
+			p_ptr->leaving || inventory[INVEN_PACK].k_idx)
 		{
 			break;
 		}
@@ -189,7 +192,7 @@ static void process_objects(object_type *o_ptr)
 	}
 
 	/* Add back the energy which was used initially. */
-	energy_use += old_energy_use;
+	p_ptr->energy_use += old_energy_use;
 }
 
 /*
@@ -199,7 +202,10 @@ static void process_objects(object_type *o_ptr)
  */
 void squelch_grid(void)
 {
-	int o = cave[py][px].o_idx;
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
+	int o = cave_o_idx[py][px];
 	if (o) process_objects(o_list+o);
 }
 

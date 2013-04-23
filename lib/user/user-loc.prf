@@ -35,13 +35,13 @@ C:0:^L
 # A few default window settings suitable for a 3-window display.
 
 #Window 'Mirror'
-W:Mirror:monster recall:d:.
-W:Mirror:object details:d:.
-W:Mirror:floor information:e:.
-W:Mirror:keymap action:e:e
+#W:Mirror:monster recall:d:.
+#W:Mirror:object details:d:.
+#W:Mirror:floor information:e:.
+#W:Mirror:keymap action:e:e
 
 #Window 'Recall'
-W:Recall:help:a:a
+#W:Recall:help:a:a
 
 
 # Initial stat dump

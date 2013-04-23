@@ -17,25 +17,25 @@ ANGBAND MENU
                 POPUP "&Visibility"
                 {
                         MENUITEM "&sCthAngband", 200
-                        MENUITEM "&Mirror", 201
-                        MENUITEM "&Recall", 202
-                        MENUITEM "&Choice", 203
-                        MENUITEM "Xtra-&1", 204
-                        MENUITEM "Xtra-&2", 205
-                        MENUITEM "Xtra-&3", 206
-                        MENUITEM "Xtra-&4", 207
+                        MENUITEM "Term-&1", 201
+                        MENUITEM "Term-&2", 202
+                        MENUITEM "Term-&3", 203
+                        MENUITEM "Term-&4", 204
+                        MENUITEM "Term-&5", 205
+                        MENUITEM "Term-&6", 206
+                        MENUITEM "Term-&7", 207
                 }
 
                 POPUP "&Font"
                 {
                         MENUITEM "&sCthAngband", 210
-                        MENUITEM "&Mirror", 211
-                        MENUITEM "&Recall", 212
-                        MENUITEM "&Choice", 213
-                        MENUITEM "Xtra-&1", 214
-                        MENUITEM "Xtra-&2", 215
-                        MENUITEM "Xtra-&3", 216
-                        MENUITEM "Xtra-&4", 217
+                        MENUITEM "Term-&1", 211
+                        MENUITEM "Term-&2", 212
+                        MENUITEM "Term-&3", 213
+                        MENUITEM "Term-&4", 214
+                        MENUITEM "Term-&5", 215
+                        MENUITEM "Term-&6", 216
+                        MENUITEM "Term-&7", 217
                 }
 
                 MENUITEM SEPARATOR

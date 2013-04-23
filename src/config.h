@@ -1,14 +1,11 @@
-#define CONFIG_H
 /* File: config.h */
 
-/* Purpose: Angband specific configuration stuff */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 
@@ -256,12 +253,6 @@
 
 
 /*
- * OPTION: Allow use of the monster health bar -DRS-
- */
-#define DRS_SHOW_HEALTH_BAR
-
-
-/*
  * OPTION: Enable the "smart_learn" and "smart_cheat" options.
  * They let monsters make more "intelligent" choices about attacks
  * (including spell attacks) based on their observations of the
@@ -454,7 +445,7 @@
 /*
  * OPTION: Attempt to prevent all "cheating"
  */
-/* #define VERIFY_HONOR */
+/* #define   */
 
 
 /*

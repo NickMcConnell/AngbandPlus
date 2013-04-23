@@ -1,14 +1,12 @@
 #define TABLES_C
 /* File: tables.c */
 
-/* Purpose: Angband Tables */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -1566,7 +1564,7 @@ player_race race_info[MAX_RACES] =
 		14, 6,
 		65,  6, 150, 20,
 		61,  6, 120, 15,
-		{TR0_CHAOS, 0, TR2_RES_SOUND | TR2_RES_CONF, 0},
+		{TR0_CHAOS, 0, TR2_RES_SOUND | TR2_RES_CONFU, 0},
 		NULL, &broo_power,  0, 1, MUT_POLYMORPH, 10,
 		0, 129, RACE_BLANK, EAT_NORMAL, orc_syllables,
 		{
@@ -1790,7 +1788,7 @@ player_race race_info[MAX_RACES] =
 		100,30,
 		111, 11, 255, 86,
 		99, 11, 250, 86,
-		{0, 0, TR2_RES_CHAOS | TR2_RES_CONF | TR2_SUST_STR, 0},
+		{0, 0, TR2_RES_CHAOS | TR2_RES_CONFU | TR2_SUST_STR, 0},
 		NULL, &half_titan_power,  0, 1, 0, 0,
 		0, 76, RACE_BLANK, EAT_NORMAL, human_syllables,
 		{
@@ -1893,7 +1891,7 @@ player_race race_info[MAX_RACES] =
 		20, 3,
 		60,  3, 80,  4,
 		54,  3, 70,  4,
-		{TR0_SPEED_SK, 0, TR2_RES_ACID | TR2_RES_CONF, 0},
+		{TR0_SPEED_SK, 0, TR2_RES_ACID | TR2_RES_CONFU, 0},
 		NULL, &klackon_power,  0, 1, 0, 0,
 		2, 84, RACE_BLANK, EAT_NORMAL, klackon_syllables,
 		{
@@ -3619,13 +3617,13 @@ martial_arts ma_blows[MAX_MA+1] =
 
 window_type windows[ANGBAND_TERM_MAX] = {
 BLANK_WINDOW(GAME_NAME)
-BLANK_WINDOW("Mirror")
-BLANK_WINDOW("Recall")
-BLANK_WINDOW("Choice")
-BLANK_WINDOW("Xtra-1")
-BLANK_WINDOW("Xtra-2")
-BLANK_WINDOW("Xtra-3")
-BLANK_WINDOW("Xtra-4")
+BLANK_WINDOW("Term-1")
+BLANK_WINDOW("Term-2")
+BLANK_WINDOW("Term-3")
+BLANK_WINDOW("Term-4")
+BLANK_WINDOW("Term-5")
+BLANK_WINDOW("Term-6")
+BLANK_WINDOW("Term-7")
 };
 
 #define MONCOL(NAME) \
@@ -3900,7 +3898,7 @@ gf_type gf_info[71] =
 	{GF_DISP_ALL, 144, 151, 156, "w", "DISP_ALL", "monster destruction"},
 	{GF_DISP_DEMON, 144, 151, 156, "w", "DISP_DEMON", "demon destruction"},
 	{GF_DISP_LIVING, 144, 151, 156, "w", "DISP_LIVING", "live monster destruction (1)"},
-	{GF_SHARD, 145, 152, 128, "RRRRUUUr", "SHARD", "shards (type 2)"},
+	{-1, 145, 152, 128, "RRRRUUUr", "SHARD", "shards (type 2)"}, /* GF_SHARD disabled. */
 	{GF_NUKE, 144, 147, 140, "rg", "NUKE", "toxic waste"},
 	{GF_MAKE_GLYPH, 144, 151, 156, "w", "MAKE_GLYPH", "glyphs of warding"},
 	{GF_STASIS, 144, 151, 156, "w", "STASIS", "sleep"},

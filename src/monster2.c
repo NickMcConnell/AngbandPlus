@@ -84,7 +84,7 @@ static cptr funny_comments[MAX_COMMENT] =
 };
 
 /* Check that a grid is available for monster placement. */
-#define space_okay(y,x,dis) (cave_naked_bold(y,x) && distance(y,x,py,px) > dis)
+#define space_okay(y,x,dis) (cave_naked_bold(y,x) && distance(y,x,p_ptr->py,p_ptr->px) > dis)
 
 /* How many "many" is */
 #define MANY_SPACES 128
@@ -336,7 +336,7 @@ static void set_ghost(cptr pname, int hp, int ghost_race, int lev)
 	}
 
 	/* Avoid overflow. */
-	if (i >= (int)sizeof(gb_name)) i = -1+sizeof(gb_name);
+	if (i >= (int)sizeof(gb_name)) i = sizeof(gb_name)-1;
 
 	/* Copy the name across. */
 	else sprintf(gb_name, "%.*s", i, pname);
@@ -432,6 +432,9 @@ bool place_ghost(void)
  */
 void delete_monster_idx(int i,bool visibly)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int x, y;
 
 	monster_type *m_ptr = &m_list[i];
@@ -454,14 +457,14 @@ void delete_monster_idx(int i,bool visibly)
 
 
 	/* Hack -- remove target monster */
-	if (i == target_who) target_who = 0;
+	if (i == p_ptr->target_who) p_ptr->target_who = 0;
 
 	/* Hack -- remove tracked monster */
-	if (i == health_who) health_track(0);
+	if (i == p_ptr->health_who) health_track(0);
 
 
 	/* Monster is gone */
-	cave[y][x].m_idx = 0;
+	cave_m_idx[y][x] = 0;
 
 
 	/* A monster may now be able to be generated here. */
@@ -503,16 +506,11 @@ void delete_monster_idx(int i,bool visibly)
  */
 void delete_monster(int y, int x)
 {
-	cave_type *c_ptr;
-
 	/* Paranoia */
-	if (!in_bounds(y, x)) return;
-
-	/* Check the grid */
-	c_ptr = &cave[y][x];
+	if (!in_bounds_fully(y, x)) return;
 
 	/* Delete the monster (if any) */
-	if (c_ptr->m_idx) delete_monster_idx(c_ptr->m_idx,TRUE);
+	if (cave_m_idx[y][x]) delete_monster_idx(cave_m_idx[y][x],TRUE);
 }
 
 
@@ -635,8 +633,6 @@ static void compact_monsters_aux(int i1, int i2)
 {
 	int y, x;
 
-	cave_type *c_ptr;
-
 	monster_type *m_ptr;
 
 	s16b this_o_idx, next_o_idx = 0;
@@ -653,11 +649,8 @@ static void compact_monsters_aux(int i1, int i2)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
-	/* Cave grid */
-	c_ptr = &cave[y][x];
-
 	/* Update the cave */
-	c_ptr->m_idx = i2;
+	cave_m_idx[y][x] = i2;
 
 	/* Repair objects being carried by monster */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -675,15 +668,15 @@ static void compact_monsters_aux(int i1, int i2)
 	}
 
 	/* Hack -- Update the target */
-	if (target_who == i1) target_who = i2;
+	if (p_ptr->target_who == i1) p_ptr->target_who = i2;
 
 	/* Hack -- Update the health bar */
-	if (health_who == i1) health_track(i2);
+	if (p_ptr->health_who == i1) health_track(i2);
 
-	/* Structure copy */
+	/* Hack -- move monster */
 	COPY(&m_list[i2], &m_list[i1], monster_type);
 
-	/* Wipe the hole */
+	/* Hack -- wipe hole */
 	WIPE(&m_list[i1], monster_type);
 }
 
@@ -1421,7 +1414,7 @@ void lore_do_probe(int r_idx)
 	r_ptr->r_flags3 = r_ptr->flags3;
 
 	/* Update monster recall window */
-	if (monster_race_idx == r_idx)
+	if (p_ptr->monster_race_idx == r_idx)
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_MONSTER);
@@ -1455,7 +1448,7 @@ void lore_treasure(int r_idx, int num_item, int num_gold)
 	if (r_ptr->flags1 & (RF1_DROP_GREAT)) r_ptr->r_flags1 |= (RF1_DROP_GREAT);
 
 	/* Update monster recall window */
-	if (monster_race_idx == r_idx)
+	if (p_ptr->monster_race_idx == r_idx)
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_MONSTER);
@@ -1538,7 +1531,7 @@ static void sanity_blast (monster_type * m_ptr, bool necro)
 	}
 	if (randint(power)<p_ptr->skill_sav) /* Mind blast */
 	{
-		if (!p_ptr->resist_conf)
+		if (!p_ptr->resist_confu)
 		{
 			(void)add_flag(TIMED_CONFUSED, rand_int(4) + 4);
 		}
@@ -1560,22 +1553,22 @@ static void sanity_blast (monster_type * m_ptr, bool necro)
 
 	if (randint(power)<p_ptr->skill_sav) /* Brain smash */
 	{
-				if (!p_ptr->resist_conf)
-				{
-					(void)add_flag(TIMED_CONFUSED, rand_int(4) + 4);
-				}
-				if (!p_ptr->free_act)
-				{
-					(void)add_flag(TIMED_PARALYZED, rand_int(4) + 4);
-				}
-				while (rand_int(100) > p_ptr->skill_sav)
-					(void)do_dec_stat(A_INT);
-				while (rand_int(100) > p_ptr->skill_sav)
-					(void)do_dec_stat(A_WIS);
-				if (!p_ptr->resist_chaos)
-				{
-					(void) add_flag(TIMED_IMAGE, rand_int(250) + 150);
-				}
+		if (!p_ptr->resist_confu)
+		{
+			(void)add_flag(TIMED_CONFUSED, rand_int(4) + 4);
+		}
+		if (!p_ptr->free_act)
+		{
+			(void)add_flag(TIMED_PARALYZED, rand_int(4) + 4);
+		}
+		while (rand_int(100) > p_ptr->skill_sav)
+			(void)do_dec_stat(A_INT);
+		while (rand_int(100) > p_ptr->skill_sav)
+			(void)do_dec_stat(A_WIS);
+		if (!p_ptr->resist_chaos)
+		{
+			(void) add_flag(TIMED_IMAGE, rand_int(250) + 150);
+		}
 		return;
 	}
 
@@ -1694,7 +1687,7 @@ void update_mon(int m_idx, bool full)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	/* The current monster location */
+	/* Current location */
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
 
@@ -1714,6 +1707,9 @@ void update_mon(int m_idx, bool full)
 	bool do_weird_mind = FALSE;
 	bool do_invisible = FALSE;
 	bool do_cold_blood = FALSE;
+
+	int px = p_ptr->px;
+	int py = p_ptr->py;
 
 
 	/* Calculate distance */
@@ -1747,10 +1743,8 @@ void update_mon(int m_idx, bool full)
 	/* Process "nearby" monsters on the current "panel" */
 	else if (panel_contains(fy, fx))
 	{
-		cave_type *c_ptr = &cave[fy][fx];
-
 		/* Normal line of sight, and player is not blind */
-		if ((c_ptr->info & (CAVE_VIEW)) && (!p_ptr->blind))
+		if ((cave_info[fy][fx] & (CAVE_VIEW)) && (!p_ptr->blind))
 		{
 			/* Use "infravision" */
 			if (m_ptr->cdis <= (byte)(p_ptr->see_infra))
@@ -1764,7 +1758,7 @@ void update_mon(int m_idx, bool full)
 			}
 
 			/* Use "illumination" */
-			if (c_ptr->info & (CAVE_LITE | CAVE_GLOW))
+			if (cave_info[fy][fx] & (CAVE_LITE | CAVE_GLOW))
 			{
 				/* Take note of invisibility */
 				if (r_ptr->flags2 & (RF2_INVISIBLE)) do_invisible = TRUE;
@@ -1818,7 +1812,7 @@ void update_mon(int m_idx, bool full)
 			lite_spot(fy, fx);
 
 			/* Update health bar as needed */
-			if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Update monster list window */
 			p_ptr->window |= (PW_VISIBLE);
@@ -1861,17 +1855,17 @@ void update_mon(int m_idx, bool full)
 			lite_spot(fy, fx);
 
 			/* Update health bar as needed */
-			if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Update monster list window */
 			p_ptr->window |= (PW_VISIBLE);
 
-			/* Disturb on disappearance*/
+			/* Disturb on disappearance */
 			if (disturb_move)
 			{
 				if (disturb_allies || !(m_ptr->smart & (SM_ALLY)))
 					disturb(0);
-				}
+			}
 		}
 	}
 
@@ -1946,8 +1940,244 @@ void update_monsters(bool full)
 	}
 }
 
+/*
+ * Make a monster carry an object
+ */
+object_type *monster_carry(int m_idx, object_type *j_ptr)
+{
+	s16b this_o_idx, next_o_idx = 0;
+
+	monster_type *m_ptr = &m_list[m_idx];
+
+	object_type *o_ptr;
+
+	/* Option -- allow carrying */
+	if (!testing_carry) return (0);
 
 
+	/* Scan objects already being held for combination */
+	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Check for combination */
+		if (object_similar(o_ptr, j_ptr))
+		{
+			/* Combine the items */
+			object_absorb(o_ptr, j_ptr);
+
+			/* Result */
+			return (o_ptr);
+		}
+	}
+
+
+	/* Make an object */
+	o_ptr = o_pop();
+
+	/* Success */
+	if (o_ptr)
+	{
+		/* Copy object */
+		object_copy(o_ptr, j_ptr);
+
+		/* Forget mark */
+		o_ptr->marked = FALSE;
+
+		/* Forget location */
+		o_ptr->iy = o_ptr->ix = 0;
+
+		/* Memorize monster */
+		o_ptr->held_m_idx = m_idx;
+
+		/* Build stack */
+		o_ptr->next_o_idx = m_ptr->hold_o_idx;
+
+		/* Build stack */
+		m_ptr->hold_o_idx = o_list - o_ptr;
+	}
+
+	/* Result */
+	return (o_ptr);
+}
+
+
+/*
+ * Swap the players/monsters (if any) at two locations XXX XXX XXX
+ */
+void monster_swap(int y1, int x1, int y2, int x2)
+{
+	int m1, m2;
+
+	monster_type *m_ptr;
+
+
+	/* Monsters */
+	m1 = cave_m_idx[y1][x1];
+	m2 = cave_m_idx[y2][x2];
+
+
+	/* Update grids */
+	cave_m_idx[y1][x1] = m2;
+	cave_m_idx[y2][x2] = m1;
+
+
+	/* Monster 1 */
+	if (m1 > 0)
+	{
+		m_ptr = &m_list[m1];
+
+		/* Move monster */
+		m_ptr->fy = y2;
+		m_ptr->fx = x2;
+
+		/* Update monster */
+		update_mon(m1, TRUE);
+	}
+
+	/* Player 1 */
+	else if (m1 < 0)
+	{
+		/* Move player */
+		p_ptr->py = y2;
+		p_ptr->px = x2;
+
+		/* Check for new panel (redraw map) */
+		verify_panel();
+
+		/* Update stuff */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+		/* Update the monsters */
+		p_ptr->update |= (PU_DISTANCE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
+	}
+
+	/* Monster 2 */
+	if (m2 > 0)
+	{
+		m_ptr = &m_list[m2];
+
+		/* Move monster */
+		m_ptr->fy = y1;
+		m_ptr->fx = x1;
+
+		/* Update monster */
+		update_mon(m2, TRUE);
+	}
+
+	/* Player 2 */
+	else if (m2 > 0)
+	{
+		/* Move player */
+		p_ptr->py = y1;
+		p_ptr->px = x1;
+
+		/* Check for new panel (redraw map) */
+		verify_panel();
+
+		/* Update stuff */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+		/* Update the monsters */
+		p_ptr->update |= (PU_DISTANCE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
+	}
+
+
+	/* Redraw */
+	lite_spot(y1, x1);
+	lite_spot(y2, x2);
+}
+
+
+
+/*
+ * Place the player in the dungeon XXX XXX
+ */
+s16b player_place(int y, int x)
+{
+	/* Paranoia XXX XXX */
+	if (cave_m_idx[y][x] != 0) return (0);
+
+
+	/* Save player location */
+	p_ptr->py = y;
+	p_ptr->px = x;
+
+	/* Mark cave grid */
+	cave_m_idx[y][x] = -1;
+
+	/* Success */
+	return (-1);
+}
+
+
+/*
+ * Place a copy of a monster in the dungeon XXX XXX
+ */
+s16b monster_place(int y, int x, monster_type *n_ptr)
+{
+	s16b m_idx;
+
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+
+
+	/* Paranoia XXX XXX */
+	if (cave_m_idx[y][x] != 0) return (0);
+
+
+	/* Get a new record */
+	m_idx = m_pop();
+
+	/* Oops */
+	if (m_idx)
+	{
+		/* Make a new monster */
+		cave_m_idx[y][x] = m_idx;
+
+		/* Acquire new monster */
+		m_ptr = &m_list[m_idx];
+
+		/* Copy the monster XXX */
+		COPY(m_ptr, n_ptr, monster_type);
+
+		/* Location */
+		m_ptr->fy = y;
+		m_ptr->fx = x;
+
+		/* Update the monster */
+		update_mon(m_idx, TRUE);
+
+		/* Acquire new race */
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Hack -- Notice new multi-hued monsters */
+		if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
+
+		/* Hack -- Count the number of "reproducers" */
+		if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro++;
+
+		/* Count racial occurances */
+		r_ptr->cur_num++;
+	}
+
+	/* Result */
+	return (m_idx);
+}
+
+
+
+/*
 
 /*
  * Return TRUE if this is a living monster (used in various places).
@@ -2000,30 +2230,31 @@ bool live_monster_wide_p(monster_race *r_ptr)
  */
 monster_type *place_monster_one(int y, int x, int r_idx, bool slp, bool charm, bool force)
 {
-	cave_type *c_ptr;
+	monster_race *r_ptr;
 
-	monster_type *m_ptr;
-
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_type *n_ptr;
 
 
-	/* Verify location */
-	if (!in_bounds(y, x)) return NULL;
+	/* Paranoia */
+	if (!in_bounds_fully(y, x)) return NULL;
 
 	/* Require empty space */
 	if (!cave_empty_bold(y, x)) return NULL;
 
 	/* Hack -- no creation on glyph of warding */
-	if (cave[y][x].feat == FEAT_GLYPH) return NULL;
-	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return NULL;
+	if (cave_feat[y][x] == FEAT_GLYPH) return NULL;
+	if (cave_feat[y][x] == FEAT_MINOR_GLYPH) return NULL;
 
 	/* Nor on the Pattern */
-	if ((cave[y][x].feat >= FEAT_PATTERN_START)
-		&& (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+	if ((cave_feat[y][x] >= FEAT_PATTERN_START)
+		&& (cave_feat[y][x] <= FEAT_PATTERN_XTRA2))
 			return NULL;
 
 	/* Paranoia */
 	if (!r_idx) return NULL;
+
+	/* Race */
+	r_ptr = &r_info[r_idx];
 
 	/* Paranoia */
 	if (!r_ptr->name) return NULL;
@@ -2100,81 +2331,78 @@ monster_type *place_monster_one(int y, int x, int r_idx, bool slp, bool charm, b
 		rating += (r_ptr->level - (dun_depth));
 	}
 
-	/* Access the location */
-	c_ptr = &cave[y][x];
-
 	/* Make a new monster */
-	c_ptr->m_idx = m_pop();
+	cave_m_idx[y][x] = m_pop();
 
 	/* Mega-Hack -- catch "failure" */
-	if (!c_ptr->m_idx) return NULL;
+	if (!cave_m_idx[y][x]) return NULL;
 
 
 	/* Get a new monster record */
-	m_ptr = &m_list[c_ptr->m_idx];
+	n_ptr = &m_list[cave_m_idx[y][x]];
 
 	/* Save the race */
-	m_ptr->r_idx = r_idx;
+	n_ptr->r_idx = r_idx;
 
 	/* Place the monster at the location */
-	m_ptr->fy = y;
-	m_ptr->fx = x;
+	n_ptr->fy = y;
+	n_ptr->fx = x;
 
 	/* monster is first generation */
-	m_ptr->generation = 1;
+	n_ptr->generation = 1;
 
 
 	/* No "damage" yet */
-	m_ptr->stunned = 0;
-	m_ptr->confused = 0;
-	m_ptr->monfear = 0;
-	m_ptr->pl_cdam = m_ptr->pl_mdam = 0;
+	n_ptr->stunned = 0;
+	n_ptr->confused = 0;
+	n_ptr->monfear = 0;
+	n_ptr->pl_cdam = n_ptr->pl_mdam = 0;
 
 		/* Friendly? */
 
-		if (charm){
-					m_ptr->smart |= SM_ALLY;
-				}
+	if (charm){
+	        n_ptr->smart |= SM_ALLY;
+	}
 
 	/* Assume no sleeping */
-	m_ptr->csleep = 0;
+	n_ptr->csleep = 0;
 
 	/* Enforce sleeping if needed */
 	if (slp && r_ptr->sleep)
 	{
 		int val = r_ptr->sleep;
-		m_ptr->csleep = ((val * 2) + randint(val * 10));
+		n_ptr->csleep = ((val * 2) + randint(val * 10));
 	}
 
 
 	/* Unknown distance */
-	m_ptr->cdis = 0;
+	n_ptr->cdis = 0;
 
 	/* No flags */
-	m_ptr->mflag = 0;
+	n_ptr->mflag = 0;
 
 	/* Not visible */
-	m_ptr->ml = FALSE;
+	n_ptr->ml = FALSE;
 
 
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
 	{
-		m_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
+		n_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
 	}
 	else
 	{
-		m_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
+		n_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
 	}
 
 	/* And start out fully healthy */
-	m_ptr->hp = m_ptr->maxhp;
+	n_ptr->hp = n_ptr->maxhp;
 
 	/* Give uniques the stated speed. */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Extract the monster base speed */
-		m_ptr->mspeed = r_ptr->speed;
+		n_ptr->mspeed = r_ptr->speed;
 	}
 	/* Hack -- small racial variety for other monsters. */
 	else
@@ -2182,30 +2410,34 @@ monster_type *place_monster_one(int y, int x, int r_idx, bool slp, bool charm, b
 		/* Allow some small variation per monster */
 		int j = TURN_ENERGY/extract_energy[r_ptr->speed];
 		j = r_ptr->speed + rand_spread(0, j);
-		m_ptr->mspeed = MIN(MAX(j, 0), N_ELEMENTS(extract_energy)-1);
+		n_ptr->mspeed = MIN(MAX(j, 0), N_ELEMENTS(extract_energy)-1);
 	}
 
 
 
 	/* Give a random starting energy (should this be a TURN_ENERGY thing?) */
-	m_ptr->energy = rand_int(100)+900;
+	n_ptr->energy = rand_int(100)+900;
 
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
 	{
 		/* Monster is still being nice */
-		m_ptr->mflag |= (MFLAG_NICE);
+		n_ptr->mflag |= (MFLAG_NICE);
 
 		/* Must repair monsters */
 		repair_mflag_nice = TRUE;
 	}
 
+	/* Optimize -- Repair flags */
+	repair_mflag_born = TRUE;
+
+
 	/* Prevent the monster from moving on the game turn of creation. */
-	m_ptr->mflag |= (MFLAG_BORN);
+	n_ptr->mflag |= (MFLAG_BORN);
 
 
 	/* Update the monster */
-	update_mon(c_ptr->m_idx, TRUE);
+	update_mon(cave_m_idx[y][x], TRUE);
 
 
 	/* Hack -- Count the monsters on the level */
@@ -2219,9 +2451,11 @@ monster_type *place_monster_one(int y, int x, int r_idx, bool slp, bool charm, b
 	/* Hack -- Notice new multi-hued monsters */
 	if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
 
+	/* Place the monster in the dungeon */
+	if (!monster_place(y, x, n_ptr)) return (FALSE);
 
 	/* Success */
-	return m_ptr;
+	return n_ptr;
 }
 
 
@@ -2720,7 +2954,7 @@ static bool summon_specific_okay(int summon_specific_type, int r_idx)
  */
 static bool PURE cave_summon_bold_p(int y, int x)
 {
-	int feat = cave[y][x].feat;
+	int feat = cave_feat[y][x];
 
 	if (!cave_empty_bold(y, x)) return FALSE;
 
@@ -2932,91 +3166,128 @@ void update_smart_learn(monster_type *m_ptr, int what)
 	/* Analyze the knowledge */
 	switch (what)
 	{
-		case DRS_ACID:
-		if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
-		if (p_ptr->oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
-		if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
-		break;
-
-		case DRS_ELEC:
-		if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
-		if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
-		if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
-		break;
-
-		case DRS_FIRE:
-		if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
-		if (p_ptr->oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
-		if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
-		break;
-
-		case DRS_COLD:
-		if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
-		if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
-		if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
-		break;
-
-		case DRS_POIS:
-		if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
-		if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
-		break;
-
-
-		case DRS_NETH:
-		if (p_ptr->resist_neth) m_ptr->smart |= (SM_RES_NETH);
-		break;
-
-		case DRS_LITE:
-		if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
-		break;
-
-		case DRS_DARK:
-		if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
-		break;
-
-		case DRS_FEAR:
-		if (p_ptr->resist_fear) m_ptr->smart |= (SM_RES_FEAR);
-		break;
-
-		case DRS_CONF:
-		if (p_ptr->resist_conf) m_ptr->smart |= (SM_RES_CONF);
-		break;
-
-		case DRS_CHAOS:
-		if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
-		break;
-
-		case DRS_DISEN:
-		if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
-		break;
-
-		case DRS_BLIND:
-		if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
-		break;
-
-		case DRS_NEXUS:
-		if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
-		break;
-
-		case DRS_SOUND:
-		if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
-		break;
-
-		case DRS_SHARD:
-		if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
-		break;
-
-
 		case DRS_FREE:
-		if (p_ptr->free_act) m_ptr->smart |= (SM_IMM_FREE);
-		break;
+		{
+			if (p_ptr->free_act) m_ptr->smart |= (SM_IMM_FREE);
+			break;
+		}
 
 		case DRS_MANA:
-		if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
-		break;
+		{
+			if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
+			break;
+		}
+
+		case DRS_RES_ACID:
+		{
+			if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
+			if (p_ptr->oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
+			if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
+			break;
+		}
+
+		case DRS_RES_ELEC:
+		{
+			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
+			if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
+			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+			break;
+		}
+
+		case DRS_RES_FIRE:
+		{
+			if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
+			if (p_ptr->oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
+			if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
+			break;
+		}
+
+		case DRS_RES_COLD:
+		{
+			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
+			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+			break;
+		}
+
+		case DRS_RES_POIS:
+		{
+			if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
+			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
+			break;
+		}
+
+		case DRS_RES_FEAR:
+		{
+			if (p_ptr->resist_fear) m_ptr->smart |= (SM_RES_FEAR);
+			break;
+		}
+
+		case DRS_RES_LITE:
+		{
+			if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
+			break;
+		}
+
+		case DRS_RES_DARK:
+		{
+			if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
+			break;
+		}
+
+		case DRS_RES_BLIND:
+		{
+			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+			break;
+		}
+
+		case DRS_RES_CONFU:
+		{
+			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			break;
+		}
+
+		case DRS_RES_SOUND:
+		{
+			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			break;
+		}
+
+		case DRS_RES_SHARD:
+		{
+			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
+			break;
+		}
+
+		case DRS_RES_NEXUS:
+		{
+			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
+			break;
+		}
+
+		case DRS_RES_NETHR:
+		{
+			if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
+			break;
+		}
+
+		case DRS_RES_CHAOS:
+		{
+			if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
+			break;
+		}
+
+		case DRS_RES_DISEN:
+		{
+			if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
+			break;
+		}
 
 		case DRS_REFLECT:
-		if (p_ptr->reflect) m_ptr-> smart |= (SM_IMM_REFLECT);
+		{
+			if (p_ptr->reflect) m_ptr-> smart |= (SM_IMM_REFLECT);
+			break;
+		}
 	}
 
 #endif /* DRS_SMART_OPTIONS */

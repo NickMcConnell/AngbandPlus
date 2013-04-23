@@ -1835,7 +1835,7 @@ static errr Term_xtra_win_react(void)
 		use_graphics = arg_graphics;
 
 		/* Reset visuals */
-		reset_visuals();
+		reset_visuals(TRUE);
 	}
 
 #endif /* USE_GRAPHICS */

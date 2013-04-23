@@ -52,37 +52,33 @@ bool character_xtra; /* The game is in an icky startup mode */
 u32b seed_flavor; /* Hack -- consistent object colors */
 u32b seed_wild; /* Hack -- consistent wilderness layout */
 
-s16b command_cmd; /* Current "Angband Command" */
+//s16b command_cmd; /* Current "Angband Command" */
 
-s16b command_arg; /* Gives argument of current command */
-s16b command_rep; /* Gives repetition of current command */
-s16b command_dir; /* Gives direction of current command */
+//s16b command_arg; /* Gives argument of current command */
+//s16b command_rep; /* Gives repetition of current command */
+//s16b command_dir; /* Gives direction of current command */
 
-s16b command_see; /* See "cmd1.c" */
-s16b command_wrk; /* See "cmd1.c" */
+//s16b command_see; /* See "cmd1.c" */
+//s16b command_wrk; /* See "cmd1.c" */
 
-s16b command_gap = 50; /* See "cmd1.c" */
+//s16b command_gap = 50; /* See "cmd1.c" */
 
-s16b command_new; /* Command chaining from inven/equip view */
+//s16b command_new; /* Command chaining from inven/equip view */
 
-s16b energy_use; /* Energy use this turn */
-s16b old_energy_use; /* Energy use last turn */
+//s16b energy_use; /* Energy use this turn */
+//s16b old_energy_use; /* Energy use last turn */
 
 bool msg_flag; /* Used in msg_print() for "buffering" */
 
-bool alive; /* True if game is running */
+//bool alive; /* True if game is running */
 
-bool death; /* True if player has died */
+//bool death; /* True if player has died */
 
 s16b cur_hgt; /* Current dungeon height */
 s16b cur_wid; /* Current dungeon width */
 s16b dun_level; /* Current dungeon level */
 s16b dun_offset;       /* Monster/Object offset for current dungeon */
 u16b dun_bias; /* Summon flag used to give the dungeon a bias */
-byte cur_town;          /* Current Town */
-byte cur_dungeon;    /* Current Dungeon */
-byte recall_dungeon; /* Last dungeon recalled from */
-byte came_from;       /* Location player has come from onto this level */
 s16b num_repro; /* Current reproducer count */
 s16b object_level; /* Current object creation level */
 
@@ -94,8 +90,6 @@ bool cheat_wzrd; /* Is the player currently in Wizard mode? */
 
 bool use_sound; /* The "sound" mode is enabled */
 bool use_graphics; /* The "graphics" mode is enabled */
-
-u16b total_winner; /* Semi-Hack -- Game has been won */
 
 u16b noscore; /* Track various "cheating" conditions */
 
@@ -110,9 +104,10 @@ bool inkey_flag; /* See the "inkey()" function */
 bool shimmer_monsters; /* Hack -- optimize multi-hued monsters */
 
 bool repair_monsters; /* Hack -- optimize detect monsters */
-bool repair_mflag_nice; /* Hack -- optimise resetting MFLAG_NICE. */
-
-s16b total_weight; /* Total weight being carried */
+bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
+bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
+bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
+bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
 
 bool hack_mind; /* Prevent sanity_blast() on the first turn. */
 bool hack_chaos_feature; /* Give a new character a chaos feature. */
@@ -319,8 +314,6 @@ bool allow_squelch = TRUE; /* Allow squelching to take place. */
 s16b feeling; /* Most recent feeling */
 s16b rating; /* Level's current rating */
 
-bool new_level_flag; /* Start a new level */
-
 /* 
  * There is no room further than this many squares from the player for monster
  * creation.
@@ -328,42 +321,11 @@ bool new_level_flag; /* Start a new level */
 int full_grid; 
 
 
-/*
- * Dungeon size info
- */
-
-s16b max_panel_rows;
-s16b max_panel_cols;
-s16b panel_row;
-s16b panel_col;
-s16b panel_row_min;
-s16b panel_row_max;
-s16b panel_col_min;
-s16b panel_col_max;
-s16b panel_col_prt;
-s16b panel_row_prt;
-
-/*
- * Player location in dungeon
- */
-s16b py;
-s16b px;
-
-/*
- * Player location in wilderness
- */
-s16b wildx;
-s16b wildy;
-
-/*
- * Targetting variables
- */
-s16b target_who;
 
 /*
  * Health bar variable -DRS-
  */
-s16b health_who;
+//s16b health_who;
 
 /*
  * Monster race to track
@@ -492,9 +454,9 @@ byte angband_color_table[256][4] =
 	{0x00, 0xFF, 0x80, 0x00}, /* TERM_ORANGE */
 	{0x00, 0xC0, 0x00, 0x00}, /* TERM_RED */
 	{0x00, 0x00, 0x80, 0x40}, /* TERM_GREEN */
-	{0x00, 0x00, 0x00, 0xFF}, /* TERM_BLUE */
+	{0x00, 0x00, 0x40, 0xFF}, /* TERM_BLUE */
 	{0x00, 0x80, 0x40, 0x00}, /* TERM_UMBER */
-	{0x00, 0x40, 0x40, 0x40}, /* TERM_L_DARK */
+	{0x00, 0x60, 0x60, 0x60}, /* TERM_L_DARK */
 	{0x00, 0xC0, 0xC0, 0xC0}, /* TERM_L_WHITE */
 	{0x00, 0xFF, 0x00, 0xFF}, /* TERM_VIOLET */
 	{0x00, 0xFF, 0xFF, 0x00}, /* TERM_YELLOW */
@@ -541,13 +503,61 @@ char angband_sound_name[SOUND_MAX][16] =
 	"warn"
 };
 
+#ifdef MONSTER_FLOW
 
 /*
- * The array of "cave grids" [MAX_WID][MAX_HGT].
- * Not completely allocated, that would be inefficient
- * Not completely hardcoded, that would overflow memory
+ * The array of cave grid flow "cost" values
  */
-cave_type *cave[MAX_HGT];
+byte cave_cost[DUNGEON_HGT][DUNGEON_WID];
+
+/*
+ * The array of cave grid flow "when" stamps
+ */
+byte cave_when[DUNGEON_HGT][DUNGEON_WID];
+
+#endif	/* MONSTER_FLOW */
+
+/*
+ * The array of cave grid info flags
+ */
+byte cave_info[DUNGEON_HGT][DUNGEON_WID];
+
+/*
+ * The array of cave grid feature codes
+ */
+byte cave_feat[DUNGEON_HGT][DUNGEON_WID];
+
+/*
+ * The array of cave grid remembered feature codes. 
+ */
+byte cave_rfeat[DUNGEON_HGT][DUNGEON_WID];
+
+/*
+ * The array of cave grid object indexes
+ *
+ * Note that this array yields the index of the top object in the stack of
+ * objects in a given grid, using the "next_o_idx" field in that object to
+ * indicate the next object in the stack, and so on, using zero to indicate
+ * "nothing".  This array replicates the information contained in the object
+ * list, for efficiency, providing extremely fast determination of whether
+ * any object is in a grid, and relatively fast determination of which objects
+ * are in a grid.
+ */
+s16b cave_o_idx[DUNGEON_HGT][DUNGEON_WID];
+
+/*
+ * The array of cave grid monster indexes
+ *
+ * Note that this array yields the index of the monster or player in a grid,
+ * where negative numbers are used to represent the player, positive numbers
+ * are used to represent a monster, and zero is used to indicate "nobody".
+ * This array replicates the information contained in the monster list and
+ * the player structure, but provides extremely fast determination of which,
+ * if any, monster or player is in any given grid.
+ */
+s16b cave_m_idx[DUNGEON_HGT][DUNGEON_WID];
+
+
 
 /*
  * The array of dungeon items [MAX_O_IDX]
@@ -629,20 +639,16 @@ player_race *rp_ptr;
 player_template *cp_ptr;
 
 
-/*
- * More spell info
- */
-byte spell_order[128]; /* order spells learned/remembered/forgotten */
-
 
 /*
- * Calculated base hp values for player at each level,
- * store them so that drain life + restore life does not
- * affect hit points.  Also prevents shameless use of backup
- * savefiles for hitpoint acquirement.
+ * The player other record (static)
  */
-s16b player_hp[100];
+static player_other player_other_body;
 
+/*
+ * Pointer to the player other record
+ */
+player_other *op_ptr = &player_other_body;
 
 /* Various maxima */
 maxima *z_info = NULL;

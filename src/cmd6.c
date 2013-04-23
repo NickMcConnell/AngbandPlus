@@ -146,7 +146,7 @@ void do_cmd_eat_food(object_type *o_ptr)
 
 
 	/* Take a turn */
-	energy_use = item_use_energy(o_ptr);
+	p_ptr->energy_use = item_use_energy(o_ptr);
 
 	/* Process the object's effects. */
 	normal_food = !use_object(o_ptr, 0);
@@ -163,15 +163,19 @@ void do_cmd_eat_food(object_type *o_ptr)
 		case EAT_VAMPIRE:
 		{
 			add_flag(TIMED_FOOD, (o_ptr->pval / 10));
-			msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
 			if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
 				msg_print("Your hunger can only be satisfied with fresh blood!");
+			else
+				msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
 			break;
 		}
 		case EAT_SKELETON:
 		{
 			if (normal_food)
 			{
+				int px = p_ptr->px;
+				int py = p_ptr->py;
+
 				object_type q_ptr[1];
 
 				msg_print("The food falls through your jaws!");
@@ -214,12 +218,15 @@ void do_cmd_eat_food(object_type *o_ptr)
  */
 void do_cmd_quaff_potion(object_type *o_ptr)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	/* Sound */
 	sound(SOUND_QUAFF);
 
 
 	/* Take a turn */
-	energy_use = item_use_energy(o_ptr);
+	p_ptr->energy_use = item_use_energy(o_ptr);
 
 	/* Analyze the potion (which is always used up). */
 	use_object(o_ptr, 0);
@@ -237,10 +244,9 @@ void do_cmd_quaff_potion(object_type *o_ptr)
 	object_tried(o_ptr);
 
 
-	/* Potions can feed the player (should this be altered for skeletons?) */
-    /* RM: Yes.  Potions of Water, Apple Juice and Slime Mould Juice just provide nutrician. */
+	/* Potions can feed the player, provided they are not skeletons. */
 	if (rp_ptr->eat != EAT_SKELETON)
-        (void)add_flag(TIMED_FOOD, o_ptr->pval);
+        	(void)add_flag(TIMED_FOOD, o_ptr->pval);
 
 
 	/* Destroy a potion */
@@ -288,7 +294,7 @@ static bool curse_object(int o_idx, int e_idx, cptr where)
 	p_ptr->update |= (PU_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	return TRUE;
 }
@@ -323,7 +329,7 @@ void do_cmd_read_scroll(object_type *o_ptr)
 	int used_up;
 
 	/* Take a turn */
-	energy_use = item_use_energy(o_ptr);
+	p_ptr->energy_use = item_use_energy(o_ptr);
 
 	/* Analyze the scroll */
 	used_up = use_object(o_ptr, 0);
@@ -407,7 +413,7 @@ static bool use_device_p(object_type *o_ptr)
 }
 
 /*
- * Use a staff. -RAK-
+ * Use a staff
  *
  * One charge of one staff disappears.
  *
@@ -426,7 +432,7 @@ void do_cmd_use_staff(object_type *o_ptr)
 
 
 	/* Take a turn */
-	energy_use = item_use_energy(o_ptr);
+	p_ptr->energy_use = item_use_energy(o_ptr);
 
 	/* Roll for failure. */
 	if (!use_device_p(o_ptr))
@@ -475,25 +481,25 @@ void do_cmd_use_staff(object_type *o_ptr)
 	/* XXX Hack -- unstack if necessary */
 	if ((is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
-		object_type forge;
-		object_type *q_ptr;
+		object_type *i_ptr;
+		object_type object_type_body;
 
 		/* Get local object */
-		q_ptr = &forge;
+		i_ptr = &object_type_body;
 
 		/* Obtain a local object */
-		object_copy(q_ptr, o_ptr);
+		object_copy(i_ptr, o_ptr);
 
 		/* Modify quantity */
-		q_ptr->number = 1;
+		i_ptr->number = 1;
 
 		/* Restore the charges */
 		o_ptr->pval++;
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		total_weight -= q_ptr->weight;
-		inven_carry(q_ptr);
+		p_ptr->total_weight -= i_ptr->weight;
+		inven_carry(i_ptr);
 
 		/* Message */
 		msg_print("You unstack your staff.");
@@ -541,7 +547,7 @@ void do_cmd_aim_wand(object_type *o_ptr)
 
 
 	/* Take a turn */
-	energy_use = item_use_energy(o_ptr);;
+	p_ptr->energy_use = item_use_energy(o_ptr);;
 
 	/* Roll for failure. */
 	if (!use_device_p(o_ptr))
@@ -582,25 +588,25 @@ void do_cmd_aim_wand(object_type *o_ptr)
 	/* Hack -- unstack if necessary */
 	if ((is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
-		object_type forge;
-		object_type *q_ptr;
+		object_type *i_ptr;
+		object_type object_type_body;
 
 		/* Get local object */
-		q_ptr = &forge;
+		i_ptr = &object_type_body;
 
 		/* Obtain a local object */
-		object_copy(q_ptr, o_ptr);
+		object_copy(i_ptr, o_ptr);
 
 		/* Modify quantity */
-		q_ptr->number = 1;
+		i_ptr->number = 1;
 
 		/* Restore the charges */
 		o_ptr->pval++;
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		total_weight -= q_ptr->weight;
-		inven_carry(q_ptr);
+		p_ptr->total_weight -= i_ptr->weight;
+		inven_carry(i_ptr);
 
 		/* Message */
 		msg_print("You unstack your wand.");
@@ -636,7 +642,7 @@ void do_cmd_zap_rod(object_type *o_ptr)
 
 
 	/* Take a turn */
-	energy_use = item_use_energy(o_ptr);
+	p_ptr->energy_use = item_use_energy(o_ptr);
 
 	/* Still charging */
 	if (o_ptr->timeout)
@@ -697,25 +703,25 @@ void do_cmd_zap_rod(object_type *o_ptr)
 	/* XXX Hack -- unstack if necessary */
 	if ((is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
-		object_type forge;
-		object_type *q_ptr;
+		object_type *i_ptr;
+		object_type object_type_body;
 
 		/* Get local object */
-		q_ptr = &forge;
+		i_ptr = &object_type_body;
 
 		/* Obtain a local object */
-		object_copy(q_ptr, o_ptr);
+		object_copy(i_ptr, o_ptr);
 
 		/* Modify quantity */
-		q_ptr->number = 1;
+		i_ptr->number = 1;
 
 		/* Restore "charge" */
-		o_ptr->timeout = 0;
+		o_ptr->pval = 0;
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		total_weight -= q_ptr->weight;
-		inven_carry(q_ptr);
+		p_ptr->total_weight -= i_ptr->weight;
+		inven_carry(i_ptr);
 
 		/* Message */
 		msg_print("You unstack your rod.");
@@ -959,7 +965,7 @@ void do_cmd_activate(object_type *o_ptr)
 	activation_type *ac_ptr;
 
 	/* Take a turn */
-	energy_use = item_use_energy(o_ptr);
+	p_ptr->energy_use = item_use_energy(o_ptr);
 
 
 	/* Roll for failure. */
