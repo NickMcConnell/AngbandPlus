@@ -182,6 +182,10 @@ C:1:T
 A:f
 C:1:t
 
+# Fire default ammo at nearest target
+A:h
+C:1:^I
+
 # Bash a door (Force)
 A:B
 C:1:f
@@ -228,22 +232,16 @@ C:1:^O
 ?:[IOR [EQU $SYS gcu] [EQU $SYS lsl] [EQU $SYS cap] [EQU $SYS vcs] [EQU $SYS sla]]
 %:pref-gcu.prf
 
-?:[EQU $SYS ami]
-%:pref-ami.prf
-
 ?:[EQU $SYS mac]
 %:pref-mac.prf
-
-?:[IOR [EQU $SYS dos] [EQU $SYS ibm]]
-%:pref-dos.prf
 
 ?:[EQU $SYS win]
 %:pref-win.prf
 
-?:[EQU $SYS emx]
-%:pref-emx.prf
-
 ?:[EQU $SYS acn]
 %:pref-acn.prf
+
+?:[EQU $SYS sdl]
+%:pref-sdl.prf
 
 ?:1

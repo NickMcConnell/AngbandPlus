@@ -5,10 +5,7 @@
 --- Spellcasting ---
 
      Spells and prayers are collected in books, nine for each realm.  Four are
-readily available in stores, the other five are harder to find.  One book in 
-each realm, the Tensor's Transformation magic book and Holy Infusions 
-Prayerbook, are only available in 'ironman' games where the birth_no_stores
-or birth_ironman are set to true.
+readily available in stores, the other five are harder to find.  
 
 Getting spell information:
       You may browse books of your realm.  Spells that you have cast
@@ -18,7 +15,7 @@ true usefulness of some spells only becomes apparent with much experimentation.
 Gaining new spells:
      You learn new spells by pressing 'G', choosing a spellbook with unlearnt
 spells that are not too high level for you, and either choosing a spell (mages,
-rogues, rangers) or having one granted to you (priests, paladins).
+rogues, druids, rangers) or having one granted to you (priests, paladins).
 
 Casting spells:
      You may cast any previously learnt spell of your level or less.  You cast
@@ -32,17 +29,20 @@ point of constitution.
 Mana:
      Your mana depends on your level and your spell stat.  All spellcasters lose
 a point of mana for each pound of worn armour above a certain weight; mages are
-most affected.  In addition, mages, rogues, and rangers lose a chunk of mana if
-they wear gloves that do not provide free action or improve dexterity.  Messages
+most affected.  In addition, mages and rogues lose a chunk of mana if they wear 
+gloves that do not provide free action or improve dexterity.  Messages
 will warn you whenever this happens.
+     You'll notice you have more mana in Quickband than in NPP.
 
 Spell failure chance:
      Your spell failure chance depends on the spell itself (some spells are
 inherently hard to cast), the minimum level required to cast the spell compared
 to your current level, and your spell stat.  When stunned, all spells are harder
-to cast.  Only mages and priests can ever have spell failure rates below 5%.
+to cast.  Only mages, druids, and priests can ever have spell failure rates 
+below 5%.
      Priests suffer a substantial increase to prayer failure chance if they
 wield an unblessed edged weapon (a sword or polearm).
+     You'll notice your spell failure rates are better in Quickband than in NPP.
 
 
 --- Magical Devices ---
@@ -73,6 +73,8 @@ can be hindered in some way if you work hard enough at it.
        cannot cast any spells until the effects wear off.
      - Fear : Most monsters can be frightened.  Those that are will attempt to
        teleport away (if they have such a spell) or run.
+       
+     You'll notice these attacks are more effective in Quickband than in NPP.  
 
 
 --- Spell projection types ---
@@ -97,12 +99,10 @@ soon they hit a monster or wall, or reach their maximum range.  These spells
 only do full damage to the single grid at the center of the explosion, but can
 affect monsters that can't see you.
 
+"Cone" or "Arc" - A cone of damage that gradually gets wider the further
+out it goes.  Damage drops 
+
 "Dispel", "Confuse/Slow/Frighten/etc. Monsters"
      A fair number of spells affect all monsters in line of sight (no walls or
 rubble between you and them, up to a range of 20).
-
-
-
-
-
 

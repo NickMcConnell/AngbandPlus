@@ -15,16 +15,15 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:2.0.0
 
 # This slot for the adventurer's guild quests.  This must be 0, as it is hard coded in 
 # the source code
 N:0:Guild quest
 W:0:0:0:0
 
-# This replaces the Sauron and Morgoth quests
 N:1:Lurtz
-W:11:338:0:1
+W:11:643:0:1
 
 N:2:Saruman
-W:12:569:0:1
+W:12:644:0:1

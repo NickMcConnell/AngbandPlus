@@ -7,6 +7,7 @@ Experience:
      As you kill monsters, learn about objects by using them, cast spells and
 pray prayers for the first time, disarm traps, and unlock doors (listed in
 descending order of importance), you gain experience.
+     You will go up levels faster in Quickband than you would in NPP.
 
 Character Level:
      Your level depends on your experience.  This improves hitpoints and
@@ -16,9 +17,8 @@ learn new spells and gain attributes.
 
 Gold:
      Gold is amazingly handy, because the goods and services stores sell can 
-be yours with enough of the stuff.  Characters start out with an amount of 
-gold determined by stats (lower is better).  Social class greatly influences 
-starting gold (higher is better).
+be yours with enough of the stuff.  Characters start out with a set amount of 
+gold determined.  
      Within the Pits of Angband lies more gold than you will ever find, more
 seams of treasure than you will ever dig, and more monsters carrying loot than
 you will ever kill.
@@ -32,10 +32,10 @@ considerable).
 
 Spellpoints:
      If you use magic, you will also have spellpoints, or mana.  Your maximum
-mana depends on your level and your intelligence (if you are a mage, rogue, or
-ranger) or wisdom (if you are a priest or paladin).  Ways to recover mana faster
-than by resting are rare and greatly desired.
-     Mana goes down if you wear heavy armour.  Mages, rogues, and rangers also
+mana depends on your level and your intelligence (if you are a mage, druid, 
+rogue, or ranger) and/or wisdom (if you are a druid, ranger, priest or paladin).  
+Ways to recover mana faster than by resting are rare and greatly desired.
+     Mana goes down if you wear heavy armour.  Mages and rogues also
 lose a chunk of mana if they wear most (but not all) kinds of gloves.
 
 Armour Class:
@@ -49,6 +49,18 @@ Score:
      Your score in Angband depends on how much experience you have earned and
 how deep in the dungeon you have ventured.
 
+Resistances:   
+     Some spells, potions and other dungeon objects can temporarily give 
+the player stronger resistance to the elemental attacks; fire, cold, acid, 
+electricity, and poison.  A line will show which temporary resistances the
+player currently has.
+
+Nativity:
+     The dungeon in Quickband is full of many terrains.  What
+terrain you are in will affect your ability to move, and your
+ effectiveness in combat.  There is magical equipment in the dungeon 
+that will allow you to become native to various terrains, and give 
+you an advantage in moving and fighting in those terrains.
 
 --- Vital Statistics ---
 
@@ -59,15 +71,13 @@ potions exist that can permanently raise your stats.
 
 Values for stats:
      Stats range from 3 to 18/220.  The progression of stats goes from 3 -> 17,
-18, 18/10, 18/20 -> 18/220.  A value of 18/19 is the same as 18/10.
-     The lowest any stat can go is 3, a level that greatly reduces any abilities
-that stat influences.  The lowest "safe" figure for most stats is 7, but you
-can't expect any significant bonuses until the stat reaches 18 or higher.  Once
-you get a stat that high, further increases will greatly enhance your abilities,
-eventually making it possible to slay some truly formidable monsters.  Stats max
+18, 18/10, 18/20 -> 18/220.  A value of 18/19 is the same as 18/10. Stats max
 out at 18/220.
+     Compared to NPP, you will notice that there is more difference between
+stats of 8 and 18, and less difference between 18/01 and 18/200.
      Stats depend on your internal stats, the equipment you are wearing, and
-various temporary conditions.
+various temporary conditions.  The color of the stat becomes a darker green when 
+sustained.
 
 Maximize mode:
      In maximize mode, racial and class adjustments to stats are adjustments to
@@ -81,6 +91,7 @@ Strength:
 with heavier weapons.  It improves both your melee and missile accuracy.
 Strength also improves your tunneling ability, allows you to bear more weight
 without being slowed down, and to wield heavier weapons effectively.
+     Note the blows formula in Quickband is different to NPP.
 
 Intelligence:
      Intelligent characters use magic devices, pick locks, and disarm traps more
@@ -88,6 +99,7 @@ effectively.
      If you are using spells, intelligence is your primary stat.  It controls
 how many spells you may learn, the amount of mana you have, and your spell
 failure rate.  If you are using prayers, wisdom controls all of these things.
+For druids, it is a combination of intelligence and wisdom.
 
 Wisdom:
      Wise characters have a better chance of resisting magical spells cast upon
@@ -99,6 +111,8 @@ allow you to get multiple blows with lighter weapons, and will increase your
 chances of hitting with melee or missile weapons.  Dexterity is also useful in
 picking locks, disarming traps, and protecting yourself from some of the thieves
 that inhabit the dungeon.
+     Note the blows formula in Quickband is different to NPP.
+     High Dexterity also gives you a speed bonus.
 
 Constitution:
      Constitution determines your ability to resist physical damage, and your
@@ -110,7 +124,7 @@ Charisma:
      Charisma represents a character's ability to influence others.  A character
 with a high charisma will receive better prices from store owners, whereas a
 character with a very low charisma will be robbed blind.  Charisma also affects
-the character's ability to use magic to sleep, scare, or confuse a monster.
+the character's ability to use magic to sleep, stun, scare, or confuse a monster.
 
 
 --- Abilities ---
@@ -220,15 +234,6 @@ learn the spells now.
 
 Depth:
      How deep in the dungeon you are.
-
-
-
-
-
-
-
-
-
 
 
 

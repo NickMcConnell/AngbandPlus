@@ -51,7 +51,6 @@ will disappear when the item is identified, and you may overwrite others.
      "50% off"        :  Object is worth 50% less than normal.
 
 
-
 ====== Macros and keymaps ======
 
 --- Quick Tutorial ---
@@ -180,13 +179,6 @@ but there are important exceptions:
      Q                      ^C                  ^C
      w0                     X                   X
      ^V                     n                   '
-
-
-
-
-
-
-
 
 
 

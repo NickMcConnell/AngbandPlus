@@ -14,8 +14,7 @@ Human:
      A flexible and adaptive race, humans are found all over Middle-Earth, from
 desert Harad to icy Horodwaith.  They have no special adjustments to stats, and
 no special strengths or weaknesses.  This, combined with their solid hitpoints,
-makes them flexible but not powerful adventurers.  They probably get the best
-prices in stores, on average.  Humans may choose any class.
+makes them flexible but not powerful adventurers.  Humans may choose any class.
 
 ***** <Half-Elf>
 Half-Elf:
@@ -118,11 +117,14 @@ and paladins.
 Warrior:
      A hack-and-slash character who solves most of his problems by cutting them
 to pieces.  He is unchallengeable with melee weapons, and is also good with all
-missile launchers.  He becomes resistant to fear at level 30, and gets an extra
-attack at level 26.  Although a warrior gets a lot of hitpoints, he is 
+missile launchers.  He becomes resistant to fear at level 30.  
+Although a warrior gets a lot of hitpoints, he is 
 poor at the dungeon survival skills, vulnerable to magic, and suffers greatly 
 from his ignorance of spells and many magical devices.  He gets fast, detailed 
 feelings on weapons and armour (pseudo-ID).
+     Note that a Quickband warrior does not get an extra attack as in NPP. On the
+other hand, with his good Strength and Dexterity, he will probably get plenty
+of attacks to begin with.
 
 ***** <Mage>
 Mage:
@@ -181,7 +183,7 @@ Wisdom is his prayer stat.
 
 ***** <Brigand>
 Brigand:
-     A Brigand is a thief, who simply wants to plunder the pits of Angband
+      A Brigand is a thief, who simply wants to plunder the pits of Angband
 to steal its greatest treasures.  He is close behind the warrior in melee.  
 He is a master of traps and locks, no device being impossible for him to 
 overcome, and has the highest stealth of all classes, which can frequently
@@ -192,6 +194,17 @@ set traps for unsuspecting monsters.  As the brigand gains levels, he
 can create an increasing variety of traps by using the 'O' command on an 
 existing monster trap.  He is exceptionally gifted with a sling, and 
 gets an extra shot with a sling when he reaches level 26.
+
+***** <Druid>
+Druid:
+      A Druid is a master of all things natural.  He cannot hope to simply
+hack his way through the dungeon, and so must therefore call upon the power
+of nature for attack and defense.  A druid is not really complete without 
+an assortment of magical devices to use in addition to his spells.  He can 
+master the higher level magical devices easily, and has a very good saving 
+throw to resist effects of spells cast at him.  Intelligence and Wisdom 
+are his primary stats.  He is the weakest fighter of all the classes, and 
+spells are his true realm.
 
 
 ====== Modifier Tables ======
@@ -207,8 +220,8 @@ Vital statistics:
      Dwarf        +2    -3    +2    -2    +2    -3      11       +20%    50 feet
      Half-Orc     +2    -1     0     0    +1    -4      10       +10%    30 feet
      Half-Troll   +4    -4    -2    -4    +3    -6      12       +20%    30 feet
-     Dunadan      +1    +2    +2    +2    +3    +2      10       +80%     None
-     High-Elf     +1    +3    -1    +3    +1    +5      10      +100%    40 feet
+     Dunadan      +1    +2    +2    +2    +3    +2      10      +150%     None
+     High-Elf     +1    +3    -1    +3    +0    +3      10      +200%    40 feet
      Kobold       -1    -1     0    +2    +2    -2       8       +15%    50 feet
 
                   STR   INT   WIS   DEX   CON   CHR  HD (bonus) XP/level
@@ -218,7 +231,8 @@ Vital statistics:
      Rogue        +2    +1    -2    +3    +1    -1       6       +25%
      Ranger       +2    +2     0    +1    +1    +1       4       +30%
      Paladin      +3    -3    +1     0    +2    +2       6       +35%
-     Brigand	+3    -2    -2    +3    +2    -3       7       +15%
+     Brigand      +3    -2    -2    +3    +2    -3       7       +15%
+     Druid        -2    +3    +3    -2    -1    +1       1       +30%
 
      To get the total hit dice and experience modifier, add the race and class
 numbers together.  For example:  A Dwarven Priest has a hit die of 11 + 2 = 13,
@@ -247,16 +261,14 @@ for stealth, which is an exact value.
 
                 disarm  device   save   stealth  search  percep  melee  missile
      Warrior     4 - 7   3 - 2   3 - 5    +1       5       1     8 -10+  7 - 9
-     Mage        5 - 5   9 - 9   8 - 7    +2       6       7     2 - 1   2 - 1
+     Mage        5 - 5   9 - 9   8 - 7    +2       6       7     2 - 2   1 - 2
      Priest      4 - 4   7 - 7   9 -10    +2       6       3     4 - 3   4 - 3
      Rogue       9 - 9   7 - 7   7 - 7    +5       8       9     6 - 9   8 - 7
      Ranger      5 - 6   7 - 7   7 - 7    +3       7       5     5 - 6   9 -10+
      Paladin     3 - 3   5 - 5   6 - 7    +1       4       1     8 - 9   5 - 6
-     Brigand     9 - 9   5 - 5   7 - 6    +4       7       3     8 - 9   8 - 6
+     Brigand     9 - 9   5 - 5   7 - 6    +7       7       3     8 - 9   8 - 6
+     Druid       4 - 4   7 - 8   8 - 7    +2       6       5     1 - 1   1 - 1
 
      Value for classes are starting ability - final ability.  Note that prayers
 and spells can improve many of these skills dramatically.
-     Melee blows:  Warriors can get up to 5 blows, not counting an additional
-blow they gain at level 26, mages up to 4, and all other classes up to 5 blows.
-
 

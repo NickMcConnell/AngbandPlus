@@ -3,16 +3,125 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * 						Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 
 
 #ifdef ALLOW_DEBUG
+
+/*
+ * Show the extents of all flows
+ */
+static void do_cmd_wiz_show_flows(void)
+{
+	/* Some custom info for each flow */
+	static struct
+	{
+		const char *name;
+	} flow_info[MAX_FLOWS] =
+	{
+		{"NO DOORS"},
+		{"PASS DOORS"},
+		{"FLYING"},
+		{"FLYING_NO_DOORS"},
+		{"PASS WALLS"},
+		{"LAVA"},
+		{"ICE"},
+		{"OIL"},
+		{"FIRE"},
+		{"SAND"},
+		{"FOREST"},
+		{"WATER"},
+		{"ACID"},
+		{"MUD"},
+		{"LAVA_NO_DOORS"},
+		{"ICE_NO_DOORS"},
+		{"OIL_NO_DOORS"},
+		{"FIRE_NO_DOORS"},
+		{"SAND_NO_DOORS"},
+		{"FOREST_NO_DOORS"},
+		{"WATER_NO_DOORS"},
+		{"ACID_NO_DOORS"},
+		{"MUD_NO_DOORS"}
+	};
+	int flow, y, x;
+
+	/* Scan the flows */
+	for (flow = 0; flow < MAX_FLOWS; flow++)
+	{
+		bool flag = FALSE;
+
+		/* Ignore empty flows */
+		if (cost_at_center[flow] < 1) continue;
+
+		/* Scan the visible grids */
+		for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
+		{
+			for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
+			{
+				/* Default character/attribute */
+				byte c = '#';
+				byte a = TERM_RED;
+
+				/* Ignore annoying grids */
+				if (!in_bounds(y, x)) continue;
+
+				/* The flow doesn't reach this grid */
+				if (cave_cost[flow][y][x] < 1) continue;
+
+				/* Found one */
+				flag = TRUE;
+
+				/* Special character/attribute for passable grids */
+				if (cave_ff1_match(y, x, FF1_MOVE))
+				{
+					c = '*';
+				       	a = TERM_YELLOW;
+				}
+
+				/* Special character for player */
+				if (cave_m_idx[y][x] == -1)
+				{
+					c = '@';
+				}
+				/* Special character for monsters */
+				else if (cave_m_idx[y][x] > 0)
+				{
+					c = 'X';
+				}
+
+				/* Mark the grid */
+				print_rel(c, a, y, x);
+			}
+		}
+
+		/* We couldn't find a grid in that flow */
+		if (!flag) continue;
+
+		/* Show a messsage */
+		msg_format("Flow: %s.", flow_info[flow].name);
+
+		/* Pause */
+		message_flush();
+
+		/* Redraw the map */
+		prt_map();
+	}
+}
 
 
 /*
@@ -21,13 +130,7 @@
 
 static void do_cmd_wiz_flow(void)
  {
-
-#ifdef MONSTER_FLOW
-
 	char cmd;
-
- 	int py = p_ptr->py;
- 	int px = p_ptr->px;
 
 	int i, y, x, y2, x2;
 
@@ -38,14 +141,18 @@ static void do_cmd_wiz_flow(void)
 	/* Analyze the command */
 	switch (cmd)
  	{
+
 		case 'S':
 		case 's':
  		{
+#ifdef MONSTER_SMELL
 			/* Update map */
-			for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+			for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
  			{
-				for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+				for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
 				{
+
+
 					byte a;
 
 					int age = get_scent(y, x);
@@ -87,134 +194,71 @@ static void do_cmd_wiz_flow(void)
 			/* Redraw map */
 			prt_map();
 
+#else 	/*MONSTER_SMELL*/
+			msg_print("Monster scent is not enabled in this copy of the game");
+#endif /*MONSTER_SMELL*/
+
 			break;
 
 		}
+
 
 		case 'N':
 		case 'n':
 		{
 
-			/* Get a "debug command" */
-			if (!get_com("Press 'D' for direction of flow, 'C' for actual cost values:", &cmd)) return;
+			/* Update map */
+			for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
+ 			{
+				for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
+				{
+					u16b lowest_cost = cave_cost[FLOW_NO_DOORS][y][x];
+					int dir = -1;
+					u16b cost;
+					if (lowest_cost == 0) continue;
 
-			if ((cmd == 'D') || (cmd == 'd'))
-			{
-				/* Update map */
-				for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
- 				{
-					for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+					for (i = 0; i < 8; i++)
 					{
-						byte lowest_cost = cave_cost[FLOW_PASS_DOORS][y][x];
-						int dir = -1;
-						byte cost;
-						if (lowest_cost == 0) continue;
+						/* Get the location */
+						y2 = y + ddy_ddd[i];
+						x2 = x + ddx_ddd[i];
 
-						for (i = 0; i < 8; i++)
-						{
-							/* Get the location */
-							y2 = y + ddy_ddd[i];
-							x2 = x + ddx_ddd[i];
+						cost = cave_cost[FLOW_NO_DOORS][y2][x2];
+						if (!cost) continue;
 
-							cost = cave_cost[FLOW_PASS_DOORS][y2][x2];
-							if (!cost) continue;
+						/* If this grid's scent is younger, save it */
+						if (lowest_cost > cost) lowest_cost = cost;
 
-							/* If this grid's scent is younger, save it */
-							if (lowest_cost > cost) lowest_cost = cost;
+						/* If it isn't, look elsewhere */
+						else continue;
 
-							/* If it isn't, look elsewhere */
-							else continue;
-
-							/* Save this direction */
-							dir = i;
-						}
-
-						/* If we didn't find any younger scent, print a '5' */
-						if (dir == -1) print_rel('5', TERM_YELLOW, y, x);
-
-						/* Otherwise, convert to true direction and print */
-						else
-						{
-							i = ddd[dir];
-							print_rel('0' + i, TERM_L_BLUE, y, x);
-						}
-					}
- 				}
-
-				/* Prompt */
-				prt("Directions given to advancing monsters using noise info", 0, 0);
-
-				/* Wait for a keypress */
-				(void)inkey();
-
-				/* Redraw map */
-				prt_map();
-			}
-
-			/* Actual cost values */
-			else
-			{
-				int j;
-
-				for (i = cost_at_center[FLOW_PASS_DOORS] - 2; i <= 100 + NOISE_STRENGTH; ++i)
- 				{
-					/* First show grids with no scent */
-					if (i == cost_at_center[FLOW_PASS_DOORS] - 2) j = 0;
-
-					/* Then show specially marked grids (bug-checking) */
-					else if (i == cost_at_center[FLOW_PASS_DOORS] - 1) j = 255;
-
-					/* Then show standard grids */
-					else j = i;
-
-					/* Update map */
-					for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
-					{
-						for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
-						{
-							byte a = TERM_YELLOW;
-
-							/* Display proper cost */
-							if (cave_cost[FLOW_PASS_DOORS][y][x] != j) continue;
-
-							/* Display player/floors/walls */
-							if ((y == py) && (x == px))
-							{
-								print_rel('@', a, y, x);
-							}
-							else if (cave_floor_bold(y, x))
-							{
-								print_rel('*', a, y, x);
-							}
-							else
-							{
-								print_rel('#', a, y, x);
-							}
-						}
+						/* Save this direction */
+						dir = i;
 					}
 
-					/* Prompt */
-					if (j == 0)
-					{
-						prt("Grids with no scent", 0, 0);
-					}
-					else if (j == 255)
-					{
-						prt("Specially marked grids", 0, 0);
-					}
+					/* If we didn't find any younger scent, print a '5' */
+					if (dir == -1) print_rel('5', TERM_YELLOW, y, x);
+
+					/* Otherwise, convert to true direction and print */
 					else
 					{
-						prt(format("Depth %d: ", j), 0, 0);
+						i = ddd[dir];
+						print_rel('0' + i, TERM_L_BLUE, y, x);
 					}
-
-					/* Get key */
-					if (inkey() == ESCAPE) break;
-
-					/* Redraw map */
-					prt_map();
- 				}
+				}
  			}
+
+			/* Prompt */
+			prt("Directions given to advancing monsters using noise info", 0, 0);
+
+			/* Wait for a keypress */
+			(void)inkey();
+
+			/* Redraw map */
+			prt_map();
+
 			break;
+
 		}
 
 
@@ -229,13 +273,6 @@ static void do_cmd_wiz_flow(void)
 
 	/* Redraw map */
 	prt_map();
-
-#else /* MONSTER_FLOW */
-
-	/* Oops */
-	msg_print("Monster flow is not included in this copy of the game.");
-
-#endif /* MONSTER_FLOW */
 
 }
 
@@ -389,6 +426,7 @@ static void do_cmd_wiz_change(void)
 }
 
 
+
 /*
  * Wizard routines for creating objects and modifying them
  *
@@ -446,13 +484,13 @@ static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 0;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, native;
 
 	char buf[256];
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &native);
 
 	/* Clear screen */
 	Term_clear();
@@ -463,7 +501,7 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt(buf, 2, j);
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
-	           o_ptr->k_idx, k_info[o_ptr->k_idx].level,
+	           o_ptr->k_idx, k_info[o_ptr->k_idx].k_level,
 	           o_ptr->tval, o_ptr->sval), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
@@ -474,7 +512,7 @@ static void wiz_display_item(const object_type *o_ptr)
 	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
 
 	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
-	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
+	           o_ptr->art_num, o_ptr->ego_num, (long)object_value(o_ptr)), 7, j);
 
 	prt(format("ident = %04x  timeout = %-d",
 	           o_ptr->ident, o_ptr->timeout), 8, j);
@@ -505,17 +543,19 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt("seteticfca  craxierl  etropd sss", 17, j+32);
 	prt("trenhstekn  tttpdced  detwes eee", 18, j+32);
 	prt_binary(f3, 19, j+32);
+
+	prt("o_ptr->ident:", 20, j+34);
+	prt(format("sense  %c  empty   %c  known   %c",
+		(o_ptr->ident & IDENT_SENSE) ? '+' : ' ',
+		(o_ptr->ident & IDENT_EMPTY) ? '+' : ' ',
+		(o_ptr->ident & IDENT_KNOWN) ? '+' : ' '), 21, j+34);
+	prt(format("store  %c  effect  %c  ",
+		(o_ptr->ident & IDENT_STORE) ? '+' : ' ',
+		(o_ptr->ident & IDENT_EFFECT) ? '+' : ' '), 22, j+34);
+	prt(format("indest %c  ego    %c ",
+		(o_ptr->ident & IDENT_INDESTRUCT) ? '+' : ' '), 23, j+34);
 }
 
-
-/*
- * A structure to hold a tval and its description
- */
-typedef struct tval_desc
-{
-	int tval;
-	cptr desc;
-} tval_desc;
 
 /*
  * A list of tvals and their textual names
@@ -541,7 +581,7 @@ static const tval_desc tvals[] =
 	{ TV_SOFT_ARMOR,        "Soft Armor"           },
 	{ TV_RING,              "Ring"                 },
 	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
+	{ TV_LIGHT,              "Lite"                 },
 	{ TV_POTION,            "Potion"               },
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
@@ -549,6 +589,7 @@ static const tval_desc tvals[] =
 	{ TV_ROD,               "Rod"                  },
 	{ TV_PRAYER_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
+	{ TV_DRUID_BOOK,        "Druid Book"           },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -572,7 +613,7 @@ static int wiz_create_itemtype(void)
 	int col, row;
 	int tval;
 
-	cptr tval_desc;
+	cptr tval2_desc;
 	char ch;
 
 	int choice[60];
@@ -596,6 +637,7 @@ static int wiz_create_itemtype(void)
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
+
 	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
@@ -612,7 +654,7 @@ static int wiz_create_itemtype(void)
 
 	/* Base object type chosen, fill in tval */
 	tval = tvals[num].tval;
-	tval_desc = tvals[num].desc;
+	tval2_desc = tvals[num].desc;
 
 
 	/*** And now we go for k_idx ***/
@@ -629,7 +671,7 @@ static int wiz_create_itemtype(void)
 		if (k_ptr->tval == tval)
 		{
 			/* Hack -- Skip instant artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			if (k_ptr->k_flags3 & (TR3_INSTA_ART)) continue;
 
 			/* Prepare it */
 			row = 2 + (num % 20);
@@ -651,7 +693,7 @@ static int wiz_create_itemtype(void)
 	max_num = num;
 
 	/* Choose! */
-	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
+	if (!get_com(format("What Kind of %s? ", tval2_desc), &ch)) return (0);
 
 	/* Analyze choice */
 	num = -1;
@@ -749,21 +791,21 @@ static void wiz_reroll_item(object_type *o_ptr)
 		else if (ch == 'n' || ch == 'N')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, FALSE, FALSE);
+			apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, FALSE, FALSE, FALSE);
 		}
 
 		/* Apply good magic, but first clear object */
 		else if (ch == 'g' || ch == 'g')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, TRUE, FALSE);
+			apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, TRUE, FALSE, FALSE);
 		}
 
 		/* Apply great magic, but first clear object */
 		else if (ch == 'e' || ch == 'e')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, TRUE, TRUE);
+			apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, TRUE, TRUE, FALSE);
 		}
 	}
 
@@ -771,6 +813,9 @@ static void wiz_reroll_item(object_type *o_ptr)
 	/* Notice change */
 	if (changed)
 	{
+		/* Remember */
+		object_history(i_ptr, ORIGIN_CHEAT, 0);
+
 		/* Restore the position information */
 		i_ptr->iy = o_ptr->iy;
 		i_ptr->ix = o_ptr->ix;
@@ -781,13 +826,14 @@ static void wiz_reroll_item(object_type *o_ptr)
 		object_copy(o_ptr, i_ptr);
 
 		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
+		p_ptr->update |= (PU_BONUS | PU_NATIVE);
 
 		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		/* Redraw stuff */
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+
 	}
 }
 
@@ -824,7 +870,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
+	if (artifact_p(o_ptr)) a_info[o_ptr->art_num].a_cur_num = 0;
 
 
 	/* Interact */
@@ -894,7 +940,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 				/* Dump the stats */
 				prt(format(q, i, matches, better, worse, other), 0, 0);
-				Term_fresh();
+				(void)Term_fresh();
 			}
 
 
@@ -905,10 +951,10 @@ static void wiz_statistics(object_type *o_ptr)
 			object_wipe(i_ptr);
 
 			/* Create an object */
-			make_object(i_ptr, good, great, DROP_TYPE_UNTHEMED);
+			make_object(i_ptr, good, great, DROP_TYPE_UNTHEMED, FALSE);
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-			if (artifact_p(i_ptr)) a_info[i_ptr->name1].cur_num = 0;
+			if (artifact_p(i_ptr)) a_info[i_ptr->art_num].a_cur_num = 0;
 
 			/* Test for the same tval and sval. */
 			if ((o_ptr->tval) != (i_ptr->tval)) continue;
@@ -955,7 +1001,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
+	if (artifact_p(o_ptr)) a_info[o_ptr->art_num].a_cur_num = 1;
 }
 
 
@@ -987,14 +1033,7 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 		if (tmp_int > 99) tmp_int = 99;
 
 		/* Adjust total weight being carried */
-		if (carried)
-		{
-			/* Remove the weight of the old number of objects */
-			p_ptr->total_weight -= (o_ptr->number * o_ptr->weight);
-
-			/* Add the weight of the new number of objects */
-			p_ptr->total_weight += (tmp_int * o_ptr->weight);
-		}
+		if (carried) p_ptr->update |= (PU_BONUS);
 
 		/* Adjust charge for rods */
 		if (o_ptr->tval == TV_ROD)
@@ -1114,13 +1153,14 @@ static void do_cmd_wiz_play(void)
 		object_copy(o_ptr, i_ptr);
 
 		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
+		p_ptr->update |= (PU_BONUS | PU_NATIVE);
 
 		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		/* Redraw stuff */
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+
 	}
 
 	/* Ignore change */
@@ -1170,7 +1210,10 @@ static void wiz_create_item(void)
 	object_prep(i_ptr, k_idx);
 
 	/* Apply magic (no messages, no artifacts) */
-	apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, FALSE, FALSE);
+	apply_magic(i_ptr, effective_depth(p_ptr->depth), FALSE, FALSE, FALSE, FALSE);
+
+	/* Remember history */
+	object_history(i_ptr, ORIGIN_CHEAT, 0);
 
 	/* Drop the object from heaven */
 	drop_near(i_ptr, -1, py, px);
@@ -1183,13 +1226,26 @@ static void wiz_create_item(void)
 /*
  * Create the artifact with the specified number
  */
-static void wiz_create_artifact(int a_idx)
+static void wiz_create_artifact(void)
 {
 	object_type *i_ptr;
 	object_type object_type_body;
-	int k_idx;
+	int k_idx, a_idx;
 
-	artifact_type *a_ptr = &a_info[a_idx];
+	cptr p;
+	char tmp_val[80] = "";
+
+	artifact_type *a_ptr;
+
+	p = "Enter artifact number: ";
+
+	/*Get the artifact Number*/
+	if (!get_string(p, tmp_val, 6)) return;
+
+	a_idx = atoi(tmp_val);
+
+	/*Get teh artifact num*/
+	a_ptr = &a_info[a_idx];
 
 	/* Ignore "empty" artifacts */
 	if (a_ptr->tval + a_ptr->sval == 0) return;
@@ -1210,7 +1266,7 @@ static void wiz_create_artifact(int a_idx)
 	object_prep(i_ptr, k_idx);
 
 	/* Save the name */
-	i_ptr->name1 = a_idx;
+	i_ptr->art_num = a_idx;
 
 	/* Extract the fields */
 	i_ptr->pval = a_ptr->pval;
@@ -1221,6 +1277,9 @@ static void wiz_create_artifact(int a_idx)
 	i_ptr->to_h = a_ptr->to_h;
 	i_ptr->to_d = a_ptr->to_d;
 	i_ptr->weight = a_ptr->weight;
+
+	/* Remember history */
+	object_history(i_ptr, ORIGIN_CHEAT, 0);
 
 	/* Drop the artifact from heaven */
 	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
@@ -1236,7 +1295,7 @@ static void wiz_create_artifact(int a_idx)
 static void do_cmd_wiz_cure_all(void)
 {
 	/* Remove curses */
-	(void)remove_curse(TRUE);
+	(void)remove_all_curse();
 
 	/* Restore stats */
 	(void)res_stat(A_STR);
@@ -1258,15 +1317,15 @@ static void do_cmd_wiz_cure_all(void)
 	p_ptr->csp_frac = 0;
 
 	/* Cure stuff */
-	(void)set_blind(0);
-	(void)set_confused(0);
-	(void)set_poisoned(0);
-	(void)set_afraid(0);
-	(void)set_paralyzed(0);
-	(void)set_image(0);
-	(void)set_stun(0);
-	(void)set_cut(0);
-	(void)set_slow(0);
+	(void)clear_timed(TMD_BLIND, TRUE);
+	(void)clear_timed(TMD_CONFUSED, TRUE);
+	(void)clear_timed(TMD_POISONED, TRUE);
+	(void)clear_timed(TMD_AFRAID, TRUE);
+	(void)clear_timed(TMD_PARALYZED, TRUE);
+	(void)clear_timed(TMD_IMAGE, TRUE);
+	(void)clear_timed(TMD_STUN, TRUE);
+	(void)clear_timed(TMD_CUT, TRUE);
+	(void)clear_timed(TMD_SLOW, TRUE);
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
@@ -1274,6 +1333,7 @@ static void do_cmd_wiz_cure_all(void)
 	/* Redraw everything */
 	do_cmd_redraw();
 }
+
 
 
 /*
@@ -1289,7 +1349,7 @@ static void do_cmd_wiz_jump(void)
 		char tmp_val[160];
 
 		/* Prompt */
-		sprintf(ppp, "Jump to level (0-%d): ", MAX_REACHABLE_DEPTH);
+		sprintf(ppp, "Jump to level (0-%d): ", MAX_DEPTH-1);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->depth);
@@ -1305,16 +1365,14 @@ static void do_cmd_wiz_jump(void)
 	if (p_ptr->command_arg < 0) p_ptr->command_arg = 0;
 
 	/* Paranoia */
-	if (p_ptr->command_arg > MAX_REACHABLE_DEPTH) p_ptr->command_arg = MAX_REACHABLE_DEPTH;
+	if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
 
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
 
 	/* New depth */
-	p_ptr->depth = p_ptr->command_arg;
+	dungeon_change_level(p_ptr->command_arg);
 
-	/* Leaving */
-	p_ptr->leaving = TRUE;
 }
 
 
@@ -1334,7 +1392,7 @@ static void do_cmd_wiz_learn(void)
 		object_kind *k_ptr = &k_info[i];
 
 		/* Induce awareness */
-		if (k_ptr->level <= p_ptr->command_arg)
+		if (k_ptr->k_level <= p_ptr->command_arg)
 		{
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -1352,7 +1410,7 @@ static void do_cmd_wiz_learn(void)
 /*
  * Hack -- Rerate Hitpoints
  */
-extern void do_cmd_rerate(void)
+static void do_cmd_rerate(void)
 {
 	int min_value, max_value, i, percent;
 
@@ -1386,14 +1444,11 @@ extern void do_cmd_rerate(void)
 	p_ptr->update |= (PU_HP);
 	p_ptr->redraw |= (PR_HP);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
 	/* Handle stuff */
 	handle_stuff();
 
 	/* Message */
-	// msg_format("Current Life Rating is %d/100.", percent);
+	msg_format("Current Life Rating is %d/100.", percent);
 }
 
 
@@ -1409,7 +1464,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, effective_depth(p_ptr->depth), 0);
+		(void)summon_specific(py, px, p_ptr->depth, 0);
 	}
 }
 
@@ -1459,6 +1514,7 @@ static void do_cmd_wiz_zap(int d)
 	for (i = 1; i < mon_max; i++)
 	{
 		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1466,9 +1522,19 @@ static void do_cmd_wiz_zap(int d)
 		/* Skip distant monsters */
 		if (m_ptr->cdis > d) continue;
 
+		/* Hack -- Skip unique monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+		/* Quest monsters can only be "killed" by the player */
+		if (m_ptr->mflag & (MFLAG_QUEST)) continue;
+
 		/* Delete the monster */
 		delete_monster_idx(i);
 	}
+
+	/* Update monster list window */
+	p_ptr->redraw |= PR_MONLIST;
+
 }
 
 
@@ -1540,15 +1606,18 @@ static void do_cmd_wiz_query(void)
 		case 's': mask |= (CAVE_SEEN); break;
 		case 'v': mask |= (CAVE_VIEW); break;
 		case 't': mask |= (CAVE_TEMP); break;
-		case 'w': mask |= (CAVE_WALL); break;
+		case 'l': mask |= (CAVE_LOS); break;
 		case 'f': mask |= (CAVE_FIRE); break;
 		case 'V': mask |= (CAVE_G_VAULT); break;
+		case 'h': mask |= (CAVE_HALO); break;
+		case 'p': mask |= (CAVE_PROJECT); break;
+		case 'o': mask |= (CAVE_MOVE); break;
 	}
 
 	/* Scan map */
-	for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
 		{
 			byte a = TERM_RED;
 
@@ -1561,14 +1630,14 @@ static void do_cmd_wiz_query(void)
 			if (!mask && (cave_info[y][x] & (CAVE_MARK))) continue;
 
 			/* Color */
-			if (cave_floor_bold(y, x)) a = TERM_YELLOW;
+			if (cave_los_bold(y, x)) a = TERM_YELLOW;
 
 			/* Display player/floors/walls */
 			if ((y == py) && (x == px))
 			{
 				print_rel('@', a, y, x);
 			}
-			else if (cave_floor_bold(y, x))
+			else if (cave_los_bold(y, x))
 			{
 				print_rel('*', a, y, x);
 			}
@@ -1587,6 +1656,162 @@ static void do_cmd_wiz_query(void)
 	prt_map();
 }
 
+/* Create a specific terrain grid given its feature number or query a grid */
+static void do_cmd_wiz_monster(void)
+{
+
+	int x, y;
+	char buf[10];
+	monster_race *r_ptr;
+	int r_idx;
+
+	int mon_num = 1;
+	int attempts_left = 10000;
+
+	/* Default monster */
+	strnfmt(buf, sizeof(buf), "%d", mon_num);
+
+	/* Ask for a monster number */
+	if (!get_string("Create a specific monster?: ", buf, sizeof(buf)))
+	{
+		return;
+	}
+
+	/* Convert to number */
+	r_idx = atoi(buf);
+
+	/* Get the i'th race */
+	r_ptr = &r_info[r_idx];
+
+	/* Check sanity */
+	if ((r_idx < 1) || (r_idx >= z_info->r_max) || (!r_ptr->name))
+	{
+		msg_print("Invalid monster number");
+
+		return;
+	}
+
+	/* Find a legal, distant, unoccupied, space */
+	while (attempts_left)
+	{
+		--attempts_left;
+
+		/* Pick a location */
+		y = rand_int(p_ptr->cur_map_hgt);
+		x = rand_int(p_ptr->cur_map_wid);
+
+		/* Require a grid that all monsters can exist in. */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/*Success*/
+		break;
+
+	}
+
+	/* Place the monster */
+	if(!place_monster_aux(y, x, r_idx, FALSE, FALSE))
+	{
+		msg_print("Monster placement failed");
+	}
+	else msg_print("Monster placement succeeded");
+
+	p_ptr->redraw |= (PR_MAP | PR_MONLIST);
+}
+
+
+/* Create a specific terrain grid given its feature number or query a grid */
+static void do_cmd_wiz_feature(void)
+{
+	char ch;
+	int x, y;
+	static int feat = FEAT_FLOOR;
+	char buf[10];
+	bool do_create = FALSE;
+
+	/* Show the options */
+	if (!get_com("Pick a terrain command: [c]reate [q]uery? ", &ch))
+	{
+		return;
+	}
+
+	/* Feature creation was chosen */
+	if ((ch == 'c') || (ch == 'C'))
+	{
+		int tmp_feat;
+
+		/* Default feature */
+		strnfmt(buf, sizeof(buf), "%d", (int)feat);
+
+		/* Ask for a feature number */
+		if (!get_string("Enter a feature number: ", buf, sizeof(buf)))
+		{
+			return;
+		}
+
+		/* Convert to number */
+		tmp_feat = atoi(buf);
+
+		/* Check sanity */
+		if ((tmp_feat < 1) || (tmp_feat >= z_info->f_max) ||
+			(!f_info[tmp_feat].name))
+		{
+			msg_print("Invalid feature number");
+
+			return;
+		}
+
+		/* Accept the feature */
+		feat = tmp_feat;
+
+		/* Ask for creation */
+		do_create = TRUE;
+	}
+	/* Ignore all commands but "query" */
+	else if ((ch != 'q') && (ch != 'Q'))
+	{
+		return;
+	}
+
+	/* Pick a location */
+	if (!target_set_interactive(TARGET_GRID, -1, -1)) return;
+
+	/* Paranoia */
+	if (!p_ptr->target_set) return;
+
+	y = p_ptr->target_row;
+	x = p_ptr->target_col;
+
+	/* Feature creation */
+	if (do_create)
+	{
+		/* Paranoia */
+		if (cave_o_idx[y][x] || cave_m_idx[y][x])
+		{
+			msg_print("Must be an empty grid");
+
+			return;
+		}
+
+		/* Create the feature */
+		/*build_terrain(y, x, feat);*/
+		cave_set_feat(y, x, feat);
+
+	}
+	/* Query a dungeon grid */
+	else
+	{
+		char name[80];
+
+		/* Get the feature */
+		feat = cave_feat[y][x];
+
+		/* Get the feature name */
+		feature_desc(name, sizeof(name), feat, FALSE, FALSE);
+
+		/* Show the name */
+		msg_format("You see '%s' (%d)", name, feat);
+	}
+}
 
 /*
  * Ask for and parse a "debug command"
@@ -1599,7 +1824,6 @@ void do_cmd_debug(void)
 	int px = p_ptr->px;
 
 	char cmd;
-	char tmp[32];
 
 
 	/* Get a "debug command" */
@@ -1660,14 +1884,15 @@ void do_cmd_debug(void)
 		/* Create an artifact */
 		case 'C':
 		{
-			wiz_create_artifact(p_ptr->command_arg);
+			wiz_create_artifact();
 			break;
 		}
 
 		/* Detect everything */
 		case 'd':
 		{
-			detect_all();
+			wiz_light();
+			(void)detect(DETECT_RADIUS, DETECT_ALL);
 			break;
 		}
 
@@ -1731,7 +1956,7 @@ void do_cmd_debug(void)
 		/* Magic Mapping */
 		case 'm':
 		{
-			map_area();
+			detect(DETECT_RADIUS + 10, DETECT_MAP);
 			break;
 		}
 
@@ -1797,8 +2022,7 @@ void do_cmd_debug(void)
 		/* Wizard Light the Level */
 		case 'w':
 		{
-			wiz_lite();
-			
+			wiz_light();
 			break;
 		}
 
@@ -1830,6 +2054,37 @@ void do_cmd_debug(void)
 			do_cmd_wiz_flow();
 			break;
 		}
+
+		/* Create terrain or query dungeon grid */
+		case 'F':
+		{
+			do_cmd_wiz_feature();
+			break;
+		}
+
+		/* Create a specific monster */
+		case 'R':
+		{
+			do_cmd_wiz_monster();
+			break;
+		}
+
+		/* Re-draw the dungeon*/
+		case 'D':
+		{
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+			p_ptr->autosave = TRUE;
+			break;
+		}
+
+		/* Display flows */
+		case '/':
+		{
+			do_cmd_wiz_show_flows();
+			break;
+		}
+
 
 		/* Oops */
 		default:

@@ -1,25 +1,29 @@
-Current maintainer of Quickband:
---------------------------------
+The maintainer of Quickband is Antoine (antoine.from.rgrd@gmail.com).
 
-Antoine < antoine.from.rgrd@gmail.com >
+The NPPAngband AUTHORS is below.
 
+=====================
 
+Current maintainer:
+-------------------
 
-Quickband is based on:
-
-NPPAngband, maintained by Jeff Greene.
-
-On NPPAngband 0.4.0, Diego González was a significant source code contributor as well.
+NPPAngband Versions 0.4.1 and later versions: Jeff Greene and Diego González are co-maintainers of NPPAngband.
 
 
-NPPAngband 0.4.0 is based on:
+On NPPAngband 0.4.0, Diego González was a significant source code contributer.
 
-Angband 3.0.5 
 
-maintained by Robert Ruehlmann < rr9@thangorodrim.net >
+NPPAngband 0.5.1 is based on:
+
+Angband 3.1.2v2 Beta
+
+maintained by Andrew Sidwell
 
 Previous maintainers:
 ---------------------
+
+Angband 2.8.6 - 3.0.6:
+Robert Ruehlmann 
 
 Angband 2.7.0 - 2.8.5:
 Ben Harrison < benh@phial.com >

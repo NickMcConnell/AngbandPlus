@@ -42,10 +42,6 @@ Stay still -- with normal pickup (,) / (.) :
 encounter, you will pick up whatever you are standing on.  You may also use the
 "5" key (both keysets).  This command takes a full turn.
 
-Stay still -- flip pickup (g) :
-     Stay in the same square for one move.  Pick up objects if you do not do so
-automatically.  This command takes a full turn.
-
 Walk -- with normal pickup (;) :
      This command activates every time you press a direction key; it moves you
 one step in the given direction.  This command takes a full turn.
@@ -92,7 +88,8 @@ takes half a turn.
 Destroy an item (k) / (Ctrl-D) :
      Destroy an object in your inventory or on the dungeon floor.  If the
 "verify destroy" option is ON, you must verify this command.  This command takes
-a full turn.
+a full turn, and also gives you an option to squelch all of these object types
+in the future.
 
 Wear/Wield equipment (w) :
      Wear or wield an object in your inventory or from the floor.  Since only
@@ -157,7 +154,7 @@ Zap a rod (z) / (a) :
 Tunnel (T) / (Ctrl-T) :
      Dig through barriers, mine treasure found in wall seams, and otherwise
 alter the dungeon to your liking.  This command may take a count and requires a
-full turn.  This command also makes alot of noise.
+full turn.  This command also makes a lot of noise.
 
 Open a door or chest (o) :
      Open a door or chest.  If locked, you will attempt to pick the lock based
@@ -203,7 +200,7 @@ For rogues only, turn an empty dungeon floor space into
 a trap.  Can also be used by rogues to make a normal monster trap into an 
 advanced trap if their level is high enough.
 
-Get objects off of the dungeon floor (']') :
+Get objects off of the dungeon floor ('g') :
      Sort through and pick up selected objects off the floor grid the player
 is standing on, regardless of squelch settings or the order of items on the
 floor.  This command takes no time.
@@ -288,9 +285,9 @@ more information.  This command takes no time.
 
 Check knowledge (~) :
      This command allows you to review what you know about artifacts, unique
-monsters, and objects.  You can also review the contents of your home, total
-kill count for each monster, view your player notes file, or view the 
-player hall of fame.
+monsters, features, terrain, and objects.  You can also review the contents of  
+your home, total kill count for each monster, view your player notes file, 
+or view the player hall of fame.
 
 Identify Symbol (/) :
      Find out what a character represents.  For instance, by pressing '/', then
@@ -327,7 +324,8 @@ Repeat level feeling (Ctrl-F) :
      Displays your feeling about the dungeon level.  This command takes no time.
 
 Display Quest (CTRL-Q)
-	Displays the character's current quest, if they are on one.
+	Displays the character's current quest, if they are on one.  
+This command takes no time.
 
 View previous messages (Ctrl-P) :
      Shows you all the recent messages.  You can scroll through them or exit
@@ -354,7 +352,7 @@ Quit (commit suicide) (Q or Ctrl-K) :
      Kill or retire your character and exit the game.  You will be prompted to
 make sure you really want to do this, and then asked to verify that choice.
 Note that dead characters are dead forever.
-     This is also how you retire after slaying Morgoth.
+     This is also how you retire after slaying Saruman.
 
 
 --- Preferences Commands ---
@@ -393,10 +391,6 @@ redraws all of the windows.  It is normally only necessary in abnormal
 situations, such as after changing the visual preferences or changing display
 modes.
 
-Load screen dump (left-parenthesis) :
-     Load a "snap-shot" of the current screen from a file and displays it on the
-screen.
-
 Save screen dump (right-parenthesis) :
      Dump a "snap-shot" of the current screen to an HTML file, including encoded
 color information.
@@ -434,14 +428,4 @@ game, and return you to the original command shell, until you resume the game
 with the "fg" command.  There is now a compilation option to force the game to
 prevent the "double ctrl-z escape death trick".  The Ctrl-\ and Ctrl-D and Ctrl-
 S keys should not be intercepted.
-
-Window-specific notes:
-     If you playing on Windows, you may need to turn off num lock in order to
-run.  If you are playing a IBM port under Windows, and see what appear to be
-very strange colors, right-click on the executable, go to "Program Properties ->
-Screen -> Usage, and make sure that the program runs in full-screen mode.
-
-
-
-
 

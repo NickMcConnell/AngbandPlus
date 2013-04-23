@@ -307,241 +307,6 @@ S:0xFF:0x85/0x9E
 
 ##### Feature attr/char definitions #####
 
-
-# nothing
-F:0:0x80/0x80
-
-# open floor
-F:1:0x80/0x81
-
-# invisible trap (drawn as open floor)
-F:2:0x80/0x81
-
-# glyph of warding
-F:3:0x8D/0x95
-
-# open door
-F:4:0x82/0x84
-
-# broken door
-F:5:0x82/0x85
-
-# General Store
-F:6:0x82/0x87
-
-# Armoury
-F:7:0x82/0x88
-
-# Weapon Smiths
-F:8:0x82/0x89
-
-# Temple
-F:9:0x82/0x8A
-
-# Alchemy Shop
-F:10:0x82/0x8B
-
-# Magic Shop
-F:11:0x82/0x8C
-
-# Black Market
-F:12:0x82/0x8D
-
-# Home
-F:13:0x82/0x8E
-
-# Adventurer's Guild
-F:14:0x82/0x8C
-
-# visible trap -- dagger pit
-F:15:0x81/0x89
-
-# visible trap -- trap door
-F:16:0x81/0x8C
-
-# visible trap -- open pit
-F:17:0x81/0x89
-
-# visible trap -- spiked pit
-F:18:0x81/0x89
-
-# visible trap -- poison pit
-F:19:0x81/0x89
-
-# visible trap -- rune -- summon
-F:20:0x81/0x8F
-
-# visible trap -- rune -- teleport
-F:21:0x81/0x92
-
-# visible trap -- spot -- fire
-F:22:0x81/0x86
-
-# visible trap -- spot -- acid
-F:23:0x81/0x86
-
-# visible trap -- dart -- slow
-F:24:0x81/0x80
-
-# visible trap -- dart -- lose str
-F:25:0x81/0x80
-
-# visible trap -- dart -- lose dex
-F:26:0x81/0x80
-
-# visible trap -- dart -- lose con
-F:27:0x81/0x80
-
-# visible trap -- gas -- blind
-F:28:0x81/0x83
-
-# visible trap -- gas -- confuse
-F:29:0x81/0x83
-
-# visible trap -- gas -- poison
-F:30:0x81/0x83
-
-# visible trap -- gas -- sleep
-F:31:0x81/0x83
-
-# locked door (power 0)
-F:32:0x82/0x83
-
-# locked door (power 1)
-F:33:0x82/0x83
-
-# locked door (power 2)
-F:34:0x82/0x83
-
-# locked door (power 3)
-F:35:0x82/0x83
-
-# locked door (power 4)
-F:36:0x82/0x83
-
-# locked door (power 5)
-F:37:0x82/0x83
-
-# locked door (power 6)
-F:38:0x82/0x83
-
-# locked door (power 7)
-F:39:0x82/0x83
-
-# jammed door (power 0)
-F:40:0x82/0x83
-
-# jammed door (power 1)
-F:41:0x82/0x83
-
-# jammed door (power 2)
-F:42:0x82/0x83
-
-# jammed door (power 3)
-F:43:0x82/0x83
-
-# jammed door (power 4)
-F:44:0x82/0x83
-
-# jammed door (power 5)
-F:45:0x82/0x83
-
-# jammed door (power 6)
-F:46:0x82/0x83
-
-# jammed door (power 7)
-F:47:0x82/0x83
-
-# secret door (drawn as granite wall)
-F:48:0x80/0x84
-
-# rubble
-F:49:0x80/0x9C
-
-# magma vein
-F:50:0x80/0x8D
-
-# quartz vein
-F:51:0x80/0x87
-
-# magma vein + hidden treasure
-F:52:0x80/0x90
-
-# quartz vein + hidden treasure
-F:53:0x80/0x87
-
-# magma vein with treasure
-F:54:0x80/0x90
-
-# quartz vein with treasure
-F:55:0x80/0x8A
-
-# granite wall -- basic
-F:56:0x80/0x84
-
-# granite wall -- inner
-F:57:0x80/0x84
-
-# granite wall -- outer
-F:58:0x80/0x84
-
-# granite wall -- solid
-F:59:0x80/0x84
-
-# permanent wall -- basic (perm)
-F:60:0x80/0x93
-
-# permanent wall -- inner (perm)
-F:61:0x80/0x93
-
-# permanent wall -- outer (perm)
-F:62:0x80/0x93
-
-# permanent wall -- solid (perm)
-F:63:0x80/0x93
-
-# monster trap (basic)
-F:64:0x81/0x83
-
-# monster trap (sturdy)
-F:65:0x81/0x83
-
-# monster trap (slowing)
-F:66:0x81/0x83
-
-# monster trap (confusion)
-F:67:0x81/0x83
-
-# monster trap (poison gas)
-F:68:0x81/0x83
-
-# monster trap (drain life)
-F:69:0x81/0x83
-
-# monster trap (lightning)
-F:70:0x81/0x83
-
-# monster trap (shocking)
-F:71:0x81/0x83
-
-# monster trap (portal)
-F:72:0x81/0x83
-
-# monster trap (dispel monsters)
-F:73:0x81/0x83
-
-# up staircase
-F:80:0x80/0x96
-
-# down staircase
-F:81:0x80/0x99
-
-# up shaft
-F:82:0x80/0x96
-
-# down shaft
-F:83:0x80/0x99
-
 ##### Object attr/char definitions #####
 
 
@@ -1864,6 +1629,34 @@ K:442:0x86/0x83
 
 # Mass Identify
 K:443:0x86/0x83
+
+# [Call of the Wild]
+K:444:0x8C/0x8F
+
+# [Communion with Nature]
+K:445:0x8C/0x90
+
+# [Gifts of Nature]
+K:446:0x8C/0x91
+
+# [Book of Combat]
+K:447:0x8C/0x92
+
+# [Radagast's Shapeshifts]
+K:448:0x8C/0x93
+
+# [Melian's Lore]
+K:449:0x8C/0x94
+
+# [Primal Forces]
+K:450:0x8C/0x95
+
+# [Bombadil's Songs]
+K:451:0x8C/0x96
+
+# [Spirit of Yavanna]
+K:452:0x8C/0x97
+
 
 ##### Monster attr/char definitions #####
 
@@ -3638,11 +3431,11 @@ R:641:0xA1/0x87
 # Gothmog, the High Captain of Balrogs
 R:642:0xAD/0x98
 
-# Sauron, the Sorcerer
-R:643:0xAC/0x80
+# Lurtz
+R:643:0xA9/0x9F
 
-# Morgoth, Lord of Darkness
-R:644:0xA1/0x99
+# Saruman
+R:644:0xAB/0x9E
 
 # Skeleton
 R:645:0xAC/0x8B

@@ -14,22 +14,17 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:2.0.0
 
 
 ##### Rings #####
-
-# Fixed: The One Ring
-N:1:45:37
-G:=:y
-D:Plain Gold
 
 N:2:45
 G:=:g
 D:Alexandrite
 
 N:3:45
-G:=:v
+G:=:v1
 D:Amethyst
 
 N:4:45
@@ -169,7 +164,7 @@ G:=:D1
 D:Obsidian
 
 N:38:45
-G:=:W
+G:=:s2
 D:Silver
 
 N:39:45
@@ -252,11 +247,11 @@ G:":w
 D:Crystal
 
 N:58:40
-G:":W
+G:":s2
 D:Silver
 
 N:59:40
-G:":U
+G:":u2
 D:Copper
 
 N:60:40
@@ -406,7 +401,7 @@ G:_:U
 D:Bamboo
 
 N:96:55
-G:_:W
+G:_:s2
 D:Silver
 
 N:97:55
@@ -449,7 +444,7 @@ G:-:w
 D:Chromium
 
 N:106:65
-G:-:U
+G:-:u2
 D:Copper
 
 N:107:65
@@ -477,7 +472,7 @@ G:-:r
 D:Rusty
 
 N:113:65
-G:-:W
+G:-:s2
 D:Silver
 
 N:114:65
@@ -509,7 +504,7 @@ G:-:B1
 D:Aluminum-Plated
 
 N:121:65
-G:-:U
+G:-:u2
 D:Copper-Plated
 
 N:122:65
@@ -521,7 +516,7 @@ G:-:U
 D:Nickel-Plated
 
 N:124:65
-G:-:W
+G:-:s2
 D:Silver-Plated
 
 N:125:65
@@ -592,7 +587,7 @@ G:-:w
 D:Chromium
 
 N:141:66
-G:-:U1
+G:-:u2
 D:Copper
 
 N:142:66
@@ -620,7 +615,7 @@ G:-:r
 D:Rusty
 
 N:148:66
-G:-:W
+G:-:s2
 D:Silver
 
 N:149:66
@@ -652,7 +647,7 @@ G:-:B1
 D:Aluminum-Plated
 
 N:156:66
-G:-:U1
+G:-:u2
 D:Copper-Plated
 
 N:157:66
@@ -664,7 +659,7 @@ G:-:U1
 D:Nickel-Plated
 
 N:159:66
-G:-:W
+G:-:s2
 D:Silver-Plated
 
 N:160:66
@@ -857,7 +852,7 @@ G:!:w
 D:Cloudy
 
 N:205:75
-G:!:U
+G:!:u2
 D:Copper Speckled
 
 N:206:75
@@ -945,15 +940,15 @@ G:!:o
 D:Orange
 
 N:227:75
-G:!:o
+G:!:o1
 D:Orange Speckled
 
 N:228:75
-G:!:R
+G:!:R2
 D:Pink
 
 N:229:75
-G:!:R
+G:!:R2
 D:Pink Speckled
 
 N:230:75
@@ -977,7 +972,7 @@ G:!:r
 D:Red Speckled
 
 N:235:75
-G:!:W
+G:!:s2
 D:Silver Speckled
 
 N:236:75
@@ -1017,7 +1012,7 @@ G:!:r
 D:Clotted Red
 
 N:245:75
-G:!:R
+G:!:R2
 D:Viscous Pink
 
 N:246:75
@@ -1279,5 +1274,80 @@ G:!:v1
 D:Dark Purple
 
 N:309:75
-G:!:W
+G:!:s2
 D:Metallic Silver
+
+N:310:75
+G:!:u2
+D:Copper
+
+N:311:75
+G:!:b1
+D:Navy Blue
+
+N:312:75
+G:!:b1
+D:Sparkling Navy Blue
+
+N:313:75
+G:!:Y1
+D:Maize
+
+N:314:75
+G:!:R1
+D:Raspberry
+
+N:315:75
+G:!:Y1
+D:Sparkling Raspberry
+
+#################A couple more of flavors#################
+
+N:316:45
+G:=:w1
+D:Abalone
+
+N:317:45
+G:=:r2
+D:Almandine
+
+N:318:45
+G:=:r2
+D:Lucite
+
+N:319:45
+G:=:R2
+D:Rose Gold
+
+N:320:40
+G:":G1
+D:Piridot
+
+N:321:40
+G:":o1
+D:Cirtine
+
+N:322:40
+G:":s
+D:Jet Black
+
+N:323:80
+G:,:R2
+D:Pink
+
+N:324:55
+G:_:U1
+D:Shesham
+
+
+N:325:55
+G:_:o1
+D:Fir
+
+N:326:65
+G:-:s2
+D:Cadmium
+
+N:327:66
+G:-:b1
+D:Tantalum

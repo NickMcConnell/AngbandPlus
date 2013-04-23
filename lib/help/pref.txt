@@ -172,7 +172,6 @@ H:3              : The hitpoint warning will be at 30%.
                See the usage in "lib/pref/pref.prf", etc.
 
 
-
 ====== Visuals, colors, and multimedia ======
 
 Interact with Visuals:  (command: '%') :
@@ -234,5 +233,4 @@ Interact with multimedia:  (command '!') :
      Some ports of this game (but not all) will play sounds and music.  If your
 port is one of them, you can adjust volumes, turn sounds off and on entirely,
 and tweak various other things.
-
 

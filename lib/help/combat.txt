@@ -20,12 +20,14 @@ Chance of hitting:
      Your chance of hitting a monster depends on your innate melee skill,
 plusses to hit from all equipped items other than your missile weapon, temporary
 effects (like blessing or heroism), and on monster armour class.  Unseen
-monsters are harder to hit.
+monsters are harder to hit.  The terrain you are standing in, and whether you
+are native to that terrain can also make it easier or harder to get a hit.
 
 Damage Dice:
      All weapons have damage dice displayed after their name (1d4, 2d5, etc.).
 The higher the damage dice, the more damage the weapon does, especially if it
-has brands or slays, or gets lots of critical hits.
+has brands or slays, or gets lots of critical hits.  In addition, 
+some creatures are succeptable to extra damage from cold or fire. 
 
 Brands and Slays:
      Some remarkable weapons do extra damage to various kinds of monsters; a
@@ -33,6 +35,8 @@ Dagger branded with Fire, for instance, would do extra damage to creatures not
 immune to fire.  Slays, in contrast, do extra damage to particular monster 
 races, so wield that Mace of Slays (orc) if you come upon any orcs.  Only the 
 best applicable quality is used; they do not combine.
+     Branded weapons can cause additional damage depending on the terrain where
+the target is standing on.
      See the object attributes section for how powerful individual slays and
 brands are.
 
@@ -59,6 +63,7 @@ weight.  You normally start out with one blow, but will get more as time passes.
 becomes (because you get more chances to hit).  If you want to be effective in
 hand-to-hand combat, get extra blows if at all possible.  You can also (I)nspect
 a weapon to find out how many blows you would get if you wielded that weapon.
+     The Quickband blows formula is different from NPP.
 
 
 --- Shooting ---
@@ -87,7 +92,9 @@ Chance of hitting:
      Your chance of hitting a monster depends on your innate missile skill,
 plusses to hit from all equipped items other than your melee weapon, plusses to
 hit on your ammunition, temporary effects (like blessing or heroism), and on
-monster armour class.  Unseen monsters are harder to hit.
+monster armour class.  Unseen monsters are harder to hit.  The terrain you are 
+standing in, and whether you are native to that terrain can also make it easier 
+or harder to get a hit.
 
 Base damage:
      Unlike in melee, launcher, slay/brand, and critical hit multiplers are all
@@ -135,7 +142,9 @@ Chance of hitting:
      Your chance of hitting a monster depends on your innate missile skill,
 plusses to hit from all equipped items other than your melee and missile
 weapons, temporary effects (like blessing or heroism), and on monster armour
-class.  Unseen monsters are harder to hit.
+class.  Unseen monsters are harder to hit.  The terrain you are standing in, 
+and whether you are native to that terrain can also make it easier or harder 
+to get a hit.
 
 Comments:
      You may only throw one object per turn.  Your throwing range depends on
@@ -155,5 +164,3 @@ be after you've enhanced yourself and hindered them.
 Special Notes:
      In order to attack a creature that you can't see in a wall or door, you
 must issue the Tunnel or alter adjacent grid command.
-
-

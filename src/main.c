@@ -1,13 +1,20 @@
-/* File: main.c */
-
 /*
+ * File: main.c
+ * Purpose: Core game initialisation for UNIX (and other) machines
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
-
 #include "angband.h"
 
 
@@ -17,7 +24,9 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(RISCOS)
+#if defined(WIN32_CONSOLE_MODE) \
+    || (!defined(WINDOWS) && !defined(RISCOS)) \
+    || defined(USE_SDL)
 
 #include "main.h"
 
@@ -31,58 +40,35 @@ static const struct module modules[] =
 	{ "gtk", help_gtk, init_gtk },
 #endif /* USE_GTK */
 
-#ifdef USE_XAW
-	{ "xaw", help_xaw, init_xaw },
-#endif /* USE_XAW */
-
 #ifdef USE_X11
 	{ "x11", help_x11, init_x11 },
 #endif /* USE_X11 */
 
-#ifdef USE_XPJ
-	{ "xpj", help_xpj, init_xpj },
-#endif /* USE_XPJ */
+#ifdef USE_SDL
+	{ "sdl", help_sdl, init_sdl },
+#endif /* USE_SDL */
 
 #ifdef USE_GCU
 	{ "gcu", help_gcu, init_gcu },
 #endif /* USE_GCU */
-
-#ifdef USE_CAP
-	{ "cap", help_cap, init_cap },
-#endif /* USE_CAP */
-
-#ifdef USE_DOS
-	{ "dos", help_dos, init_dos },
-#endif /* USE_DOS */
-
-#ifdef USE_IBM
-	{ "ibm", help_ibm, init_ibm },
-#endif /* USE_IBM */
-
-#ifdef USE_EMX
-	{ "emx", help_emx, init_emx },
-#endif /* USE_EMX */
-
-#ifdef USE_SLA
-	{ "sla", help_sla, init_sla },
-#endif /* USE_SLA */
-
-#ifdef USE_LSL
-	{ "lsl", help_lsl, init_lsl },
-#endif /* USE_LSL */
-
-#ifdef USE_AMI
-	{ "ami", help_ami, init_ami },
-#endif /* USE_AMI */
-
-#ifdef USE_VME
-	{ "vme", help_vme, init_vme },
-#endif /* USE_VME */
-
-#ifdef USE_VCS
-	{ "vcs", help_vcs, init_vcs },
-#endif /* USE_VCS */
 };
+
+
+#ifdef USE_SOUND
+
+/*
+ * List of sound modules in the order they should be tried.
+ */
+static const struct module sound_modules[] =
+{
+#ifdef SOUND_SDL
+	{ "sdl", "SDL_mixer sound module", init_sound_sdl },
+#endif /* SOUND_SDL */
+
+	{ "dummy", "Dummy module", NULL },
+};
+
+#endif
 
 
 /*
@@ -111,66 +97,11 @@ static void quit_hook(cptr s)
 
 
 /*
- * Set the stack size (for the Amiga)
+ * SDL needs a look-in
  */
-#ifdef AMIGA
-# include <dos.h>
-__near long __stack = 32768L;
-#endif /* AMIGA */
-
-
-/*
- * Set the stack size and overlay buffer (see main-286.c")
- */
-#ifdef USE_286
-# include <dos.h>
-extern unsigned _stklen = 32768U;
-extern unsigned _ovrbuffer = 0x1500;
-#endif /* USE_286 */
-
-
-#ifdef PRIVATE_USER_PATH
-
-/*
- * Create an ".angband/" directory in the users home directory.
- *
- * ToDo: Add error handling.
- * ToDo: Only create the directories when actually writing files.
- */
-static void create_user_dir(void)
-{
-	char dirpath[1024];
-	char subdirpath[1024];
-
-
-	/* Get an absolute path from the filename */
-	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
-
-	/* Create the ~/.angband/ directory */
-	mkdir(dirpath, 0700);
-
-	/* Build the path to the variant-specific sub-directory */
-	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
-
-	/* Create the directory */
-	mkdir(subdirpath, 0700);
-
-#ifdef USE_PRIVATE_SAVE_PATH
-	/* Build the path to the scores sub-directory */
-	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
-
-	/* Create the directory */
-	mkdir(dirpath, 0700);
-
-	/* Build the path to the savefile sub-directory */
-	path_build(dirpath, sizeof(dirpath), subdirpath, "save");
-
-	/* Create the directory */
-	mkdir(dirpath, 0700);
-#endif /* USE_PRIVATE_SAVE_PATH */
-}
-
-#endif /* PRIVATE_USER_PATH */
+#ifdef USE_SDL
+# include "SDL.h"
+#endif
 
 
 /*
@@ -181,15 +112,12 @@ static void create_user_dir(void)
  *
  * First, we'll look for the ANGBAND_PATH environment variable,
  * and then look for the files in there.  If that doesn't work,
- * we'll try the DEFAULT_PATH constant.  So be sure that one of
+ * we'll try the DEFAULT_PATH constants.  So be sure that one of
  * these two things works...
  *
  * We must ensure that the path ends with "PATH_SEP" if needed,
  * since the "init_file_paths()" function will simply append the
  * relevant "sub-directory names" to the given path.
- *
- * Note that the "path" must be "Angband:" for the Amiga, and it
- * is ignored for "VM/ESA", so I just combined the two.
  *
  * Make sure that the path doesn't overflow the buffer.  We have
  * to leave enough space for the path separator, directory, and
@@ -197,37 +125,27 @@ static void create_user_dir(void)
  */
 static void init_stuff(void)
 {
-	char path[1024];
-
-#if defined(AMIGA) || defined(VM)
-
-	/* Hack -- prepare "path" */
-	strcpy(path, "Angband:");
-
-#else /* AMIGA / VM */
-
-	cptr tail = NULL;
-
-#ifndef FIXED_PATHS
-
-	/* Get the environment variable */
-	tail = getenv("ANGBAND_PATH");
-
-#endif /* FIXED_PATHS */
+	char configpath[512];
+	char libpath[512];
+	char datapath[512];
 
 	/* Use the angband_path, or a default */
-	my_strcpy(path, tail ? tail : DEFAULT_PATH, sizeof(path));
+	my_strcpy(configpath, DEFAULT_CONFIG_PATH, sizeof(configpath));
+	my_strcpy(libpath, DEFAULT_LIB_PATH, sizeof(libpath));
+	my_strcpy(datapath, DEFAULT_DATA_PATH, sizeof(datapath));
 
-	/* Make sure it's terminated */
-	path[511] = '\0';
+	/* Make sure they're terminated */
+	configpath[511] = '\0';
+	libpath[511] = '\0';
+	datapath[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(path, PATH_SEP)) my_strcat(path, PATH_SEP, sizeof(path));
-
-#endif /* AMIGA / VM */
+	if (!suffix(configpath, PATH_SEP)) my_strcat(configpath, PATH_SEP, sizeof(configpath));
+	if (!suffix(libpath, PATH_SEP)) my_strcat(libpath, PATH_SEP, sizeof(libpath));
+	if (!suffix(datapath, PATH_SEP)) my_strcat(datapath, PATH_SEP, sizeof(datapath));
 
 	/* Initialize */
-	init_file_paths(path);
+	init_file_paths(configpath, libpath, datapath);
 }
 
 
@@ -243,109 +161,66 @@ static void init_stuff(void)
  */
 static void change_path(cptr info)
 {
-	cptr s;
+	if (!info || !info[0])
+		quit_fmt("Try '-d<path>'.", info);
 
-	/* Find equal sign */
-	s = strchr(info, '=');
+	string_free(ANGBAND_DIR_USER);
+	ANGBAND_DIR_USER = string_make(info);
+}
 
-	/* Verify equal sign */
-	if (!s) quit_fmt("Try '-d<what>=<path>' not '-d%s'", info);
 
-	/* Analyze */
-	switch (tolower((unsigned char)info[0]))
+
+
+#ifdef SET_UID
+
+/*
+ * Find a default user name from the system.
+ */
+static void user_name(char *buf, size_t len, int id)
+{
+	struct passwd *pw = getpwuid(id);
+
+	/* Default to PLAYER */
+	if (!pw)
 	{
-#ifndef FIXED_PATHS
-		case 'a':
-		{
-			string_free(ANGBAND_DIR_APEX);
-			ANGBAND_DIR_APEX = string_make(s+1);
-			break;
-		}
-
-		case 'f':
-		{
-			string_free(ANGBAND_DIR_FILE);
-			ANGBAND_DIR_FILE = string_make(s+1);
-			break;
-		}
-
-		case 'h':
-		{
-			string_free(ANGBAND_DIR_HELP);
-			ANGBAND_DIR_HELP = string_make(s+1);
-			break;
-		}
-
-		case 'i':
-		{
-			string_free(ANGBAND_DIR_INFO);
-			ANGBAND_DIR_INFO = string_make(s+1);
-			break;
-		}
-
-		case 'x':
-		{
-			string_free(ANGBAND_DIR_XTRA);
-			ANGBAND_DIR_XTRA = string_make(s+1);
-			break;
-		}
-
-#ifdef VERIFY_SAVEFILE
-
-		case 'b':
-		case 'd':
-		case 'e':
-		case 's':
-		{
-			quit_fmt("Restricted option '-d%s'", info);
-		}
-
-#else /* VERIFY_SAVEFILE */
-
-		case 'b':
-		{
-			string_free(ANGBAND_DIR_BONE);
-			ANGBAND_DIR_BONE = string_make(s+1);
-			break;
-		}
-
-		case 'd':
-		{
-			string_free(ANGBAND_DIR_DATA);
-			ANGBAND_DIR_DATA = string_make(s+1);
-			break;
-		}
-
-		case 'e':
-		{
-			string_free(ANGBAND_DIR_EDIT);
-			ANGBAND_DIR_EDIT = string_make(s+1);
-			break;
-		}
-
-		case 's':
-		{
-			string_free(ANGBAND_DIR_SAVE);
-			ANGBAND_DIR_SAVE = string_make(s+1);
-			break;
-		}
-
-#endif /* VERIFY_SAVEFILE */
-
-#endif /* FIXED_PATHS */
-
-		case 'u':
-		{
-			string_free(ANGBAND_DIR_USER);
-			ANGBAND_DIR_USER = string_make(s+1);
-			break;
-		}
-
-		default:
-		{
-			quit_fmt("Bad semantics in '-d%s'", info);
-		}
+		my_strcpy(buf, "PLAYER", len);
+		return;
 	}
+
+	/* Capitalise and copy */
+	strnfmt(buf, len, "%^s", pw->pw_name);
+}
+
+#endif /* SET_UID */
+
+static bool new_game;
+
+/*
+ * Pass the appropriate "Initialisation screen" command to the game,
+ * getting user input if needed.
+ */
+static errr get_init_cmd(void)
+{
+	/* Wait for response */
+	pause_line(Term->hgt - 1);
+
+	if (new_game)
+		cmd_insert(CMD_NEWGAME);
+	else
+		/* This might be modified to supply the filename in future. */
+		cmd_insert(CMD_LOADFILE);
+
+	/* Everything's OK. */
+	return 0;
+}
+
+/* Command dispatcher for curses, etc builds */
+static errr default_get_cmd(cmd_context context, bool wait)
+{
+	if (context == CMD_INIT)
+		return get_init_cmd();
+	else
+		return textui_get_cmd(context, wait);
 }
 
 
@@ -362,26 +237,13 @@ int main(int argc, char *argv[])
 
 	bool done = FALSE;
 
-	bool new_game = FALSE;
-
-	int show_score = 0;
-
-	cptr mstr = NULL;
+	const char *mstr = NULL;
 
 	bool args = TRUE;
 
 
 	/* Save the "program name" XXX XXX XXX */
 	argv0 = argv[0];
-
-
-#ifdef USE_286
-	/* Attempt to use XMS (or EMS) memory for swap space */
-	if (_OvrInitExt(0L, 0L))
-	{
-		_OvrInitEms(0, 0, 64);
-	}
-#endif /* USE_286 */
 
 
 #ifdef SET_UID
@@ -398,42 +260,11 @@ int main(int argc, char *argv[])
 
 #ifdef SET_UID
 
-	/* Get the user id (?) */
+	/* Get the user id */
 	player_uid = getuid();
 
-#ifdef VMS
-	/* Mega-Hack -- Factor group id */
-	player_uid += (getgid() * 1000);
-#endif /* VMS */
-
-# ifdef SAFE_SETUID
-
-#  if defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX)
-
-	/* Save some info for later */
-	player_euid = geteuid();
+	/* Save the effective GID for later recall */
 	player_egid = getegid();
-
-#  endif /* defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX) */
-
-#  if 0 /* XXX XXX XXX */
-
-	/* Redundant setting necessary in case root is running the game */
-	/* If not root or game not setuid the following two calls do nothing */
-
-	if (setgid(getegid()) != 0)
-	{
-		quit("setgid(): cannot set permissions correctly!");
-	}
-
-	if (setuid(geteuid()) != 0)
-	{
-		quit("setuid(): cannot set permissions correctly!");
-	}
-
-#  endif /* 0 */
-
-# endif /* SAFE_SETUID */
 
 #endif /* SET_UID */
 
@@ -444,21 +275,11 @@ int main(int argc, char *argv[])
 
 #ifdef SET_UID
 
-	/* Initialize the "time" checker */
-	if (check_time_init() || check_time())
-	{
-		quit("The gates to Angband are closed (bad time).");
-	}
-
 	/* Get the "user name" as a default player name */
 	user_name(op_ptr->full_name, sizeof(op_ptr->full_name), player_uid);
 
-#ifdef PRIVATE_USER_PATH
-
-	/* Create a directory for the users files. */
-	create_user_dir();
-
-#endif /* PRIVATE_USER_PATH */
+	/* Create any missing directories */
+	create_needed_dirs();
 
 #endif /* SET_UID */
 
@@ -481,13 +302,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			case 'F':
-			case 'f':
-			{
-				arg_fiddle = TRUE;
-				break;
-			}
-
 			case 'W':
 			case 'w':
 			{
@@ -495,10 +309,10 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			case 'V':
-			case 'v':
+			case 'R':
+			case 'r':
 			{
-				arg_sound = TRUE;
+				arg_rebalance = TRUE;
 				break;
 			}
 
@@ -508,28 +322,6 @@ int main(int argc, char *argv[])
 				/* Default graphics tile */
 				arg_graphics = GRAPHICS_ADAM_BOLT;
 				break;
-			}
-
-			case 'R':
-			case 'r':
-			{
-				arg_force_roguelike = TRUE;
-				break;
-			}
-
-			case 'O':
-			case 'o':
-			{
-				arg_force_original = TRUE;
-				break;
-			}
-
-			case 'S':
-			case 's':
-			{
-				show_score = atoi(arg);
-				if (show_score <= 0) show_score = 10;
-				continue;
 			}
 
 			case 'u':
@@ -571,17 +363,14 @@ int main(int argc, char *argv[])
 			{
 				/* Dump usage information */
 				puts("Usage: angband [options] [-- subopts]");
-				puts("  -n       Start a new character");
-				puts("  -f       Request fiddle (verbose) mode");
-				puts("  -w       Request wizard mode");
-				puts("  -v       Request sound mode");
-				puts("  -g       Request graphics mode");
-				puts("  -o       Request original keyset (default)");
-				puts("  -r       Request rogue-like keyset");
-				puts("  -s<num>  Show <num> high scores (default: 10)");
-				puts("  -u<who>  Use your <who> savefile");
-				puts("  -d<def>  Define a 'lib' dir sub-path");
-				puts("  -m<sys>  use Module <sys>, where <sys> can be:");
+				puts("  -n             Start a new character");
+				puts("  -L             Load a new-format save file");
+				puts("  -w             Resurrect dead character (marks savefile)");
+				puts("  -r             Rebalance monsters if monster.raw is absent");
+				puts("  -g             Request graphics mode");
+				puts("  -u<who>        Use your <who> savefile");
+				puts("  -d<path>       Store pref files and screendumps in <path>");
+				puts("  -m<sys>        Use module <sys>, where <sys> can be:");
 
 				/* Print the name and help for each available module */
 				for (i = 0; i < (int)N_ELEMENTS(modules); i++)
@@ -589,7 +378,7 @@ int main(int argc, char *argv[])
 					printf("     %s   %s\n",
 					       modules[i].name, modules[i].help);
 				}
-				
+
 				/* Actually abort the process */
 				quit(NULL);
 			}
@@ -604,13 +393,6 @@ int main(int argc, char *argv[])
 		argv[1] = NULL;
 	}
 
-
-	/* Process the player name */
-	process_player_name(TRUE);
-
-
-	/* Install "quit" hook */
-	quit_aux = quit_hook;
 
 	/* Try the modules in the order specified by modules[] */
 	for (i = 0; i < (int)N_ELEMENTS(modules); i++)
@@ -630,20 +412,36 @@ int main(int argc, char *argv[])
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
+
+	/* Process the player name */
+	process_player_name(TRUE);
+
+	/* Install "quit" hook */
+	quit_aux = quit_hook;
+
+#ifdef USE_SOUND
+
+	/* Try the modules in the order specified by sound_modules[] */
+	for (i = 0; i < (int)N_ELEMENTS(sound_modules) - 1; i++)
+	{
+		if (0 == sound_modules[i].init(argc, argv))
+			break;
+	}
+
+#endif
+
+
 	/* Catch nasty signals */
 	signals_init();
 
-	/* Initialize */
-	init_angband();
+	/* Set up the command hook */
+	cmd_get_hook = default_get_cmd;
 
-	/* Hack -- If requested, display scores and quit */
-	if (show_score > 0) display_scores(0, show_score);
-
-	/* Wait for response */
-	pause_line(Term->hgt - 1);
+	/* Set up the display handlers and things. */
+	init_display();
 
 	/* Play the game */
-	play_game(new_game);
+	play_game();
 
 	/* Free resources */
 	cleanup_angband();

@@ -25,5 +25,8 @@
 ?:[EQU $CLASS Brigand]
 %:Brigand.prf
 
+?:[EQU $CLASS Druid]
+%:Druid.prf
+
 ?:1
 

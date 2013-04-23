@@ -1,24 +1,19 @@
 
 ====== Internet Resources ======
 
-
-news:rec.games.roguelike.angband
-     The Angband Newsgroup.  Lots of friendly people.  You may post character
-dumps there and ask for and offer advice.
-
-nppangband@comcast.net
+antoine.from.rgrd@gmail.com
      The current maintainer's email address.
 
-http://www.thangorodrim.net/angband.html
+http://angband.oook.cz/quickband/
+     The Quickband homepage.
+     
+http://rephial.org/
      The official Angband site, and the largest clearinghouse of Angband and
 Angband variant information on the Internet.  Has more than enough links to keep
 you busy.
 
-http://home.comcast.net/~nppangband/
-	The NPPAngband web site.
-
-The NPPAngband forum at the NPP Fan Site is:
-http://www.tannert.net/nppangband
+The NPPAngband forum and website is at the NPP Fan Site:
+http://forum.nppangband.org/
 
 http://ftp.sunet.se/pub/games/Angband/
      The largest repository of Angband files.
@@ -26,7 +21,7 @@ http://ftp.sunet.se/pub/games/Angband/
 http://angband.oook.cz/index.php
      A major Angband website, including news, discussion, information, and
 various nifty utilities.  Go to "http://angband.oook.cz/ladder.php" to see the
-top scores for many variants of Angband.  There you can post your NPPAngband
+top scores for many variants of Angband.  There you can post your Quickband
 character as well.
 
 http://www.harris.ukgateway.net/angband/code.html
@@ -46,7 +41,5 @@ to this link, download mirc, and use it to connect to one of the Worldirc
 servers (note:  You do have to use a worldirc server).  Then join the channel
 #angband.  You'll know you've got it right when you see other people (the
 channel is always occupied).
-
-
 
 

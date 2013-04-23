@@ -13,14 +13,15 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:2.0.0
+
 
 
 # Maximum number of feature types
-M:F:86
+M:F:206
 
 # Maximum number of object kinds
-M:K:444
+M:K:453
 
 # 
 # Maximum number of total artifacts (special + normal + pre-made random + in-game random)
@@ -37,19 +38,22 @@ M:A:18:123:35
 M:E:145
 
 # Maximum number of monster races
-M:R:656
+M:R:750
+
+# Maximum number of effects
+M:X:750
 
 # Maximum number of permanant maintainer ghost templates (in *angband/lib/bones)
-M:G:19
+M:G:21
 
 # Maximum number of vaults
-M:V:55
+M:V:61
 
 # Maximum number of player races
 M:P:11
 
 # Maximum number of player classes
-M:C:7
+M:C:8
 
 # Maximum number of player history lines
 M:H:165
@@ -61,7 +65,7 @@ M:B:4
 M:Q:4
 
 # Maximum number of flavors
-M:L:310
+M:L:330
 
 # Maximum number of objects on the level
 M:O:512
@@ -79,5 +83,5 @@ M:N:20480
 
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
-M:T:65440
+M:T:70440
 

@@ -1,11 +1,19 @@
 /* File: init1.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *                    Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -27,20 +35,11 @@
  * be able to load any template file with more than 20K of names or 60K
  * of text, even though technically, up to 64K should be legal.
  *
- * Note that if "ALLOW_TEMPLATES" is not defined, then a lot of the code
- * in this file is compiled out, and the game will not run unless valid
- * "binary template files" already exist in "lib/data".  Thus, one can
- * compile Angband with ALLOW_TEMPLATES defined, run once to create the
- * "*.raw" files in "lib/data", and then quit, and recompile without
- * defining ALLOW_TEMPLATES, which will both save 20K and prevent people
- * from changing the ascii template files in potentially dangerous ways.
- *
  * The code could actually be removed and placed into a "stand-alone"
  * program, but that feels a little silly, especially considering some
  * of the platforms that we currently support.
  */
 
-#ifdef ALLOW_TEMPLATES
 
 
 #include "init.h"
@@ -98,7 +97,7 @@ static cptr r_info_blow_effect[] =
 	"EAT_GOLD",
 	"EAT_ITEM",
 	"EAT_FOOD",
-	"EAT_LITE",
+	"EAT_LIGHT",
 	"HUNGER",
 	"POISON",
 	"ACID",
@@ -140,15 +139,20 @@ struct flag_name
 #define TR1 0
 #define TR2 1
 #define TR3 2
-#define RF1 3
-#define RF2 4
-#define RF3 5
-#define RF4 6
-#define RF5 7
-#define RF6 8
-#define RF7 9
-#define CF1 10
-#define MAX_FLAG_SETS	11
+#define TN1	3
+#define RN1 4
+#define RF1 5
+#define RF2 6
+#define RF3 7
+#define RF4 8
+#define RF5 9
+#define RF6 10
+#define RF7 11
+#define CF1 12
+#define FF1 13
+#define FF2 14
+#define FF3 15
+#define MAX_FLAG_SETS	16
 
 
 
@@ -211,7 +215,7 @@ static flag_name info_flags[] =
 
 	{"STUPID", RF2, RF2_STUPID},
 	{"SMART", RF2, RF2_SMART},
-	{"HAS_LITE", RF2, RF2_HAS_LITE},
+	{"HAS_LIGHT", RF2, RF2_HAS_LIGHT},
 	{"RF2XXX2", RF2, RF2_RF2XXX2},
 	{"INVISIBLE", RF2, RF2_INVISIBLE},
 	{"COLD_BLOOD", RF2, RF2_COLD_BLOOD},
@@ -219,12 +223,12 @@ static flag_name info_flags[] =
 	{"WEIRD_MIND", RF2, RF2_WEIRD_MIND},
 	{"MULTIPLY", RF2, RF2_MULTIPLY},
 	{"REGENERATE", RF2, RF2_REGENERATE},
-	{"RF2XXX3", RF2, RF2_RF2XXX3},
+	{"RF2XXX4", RF2, RF2_RF2XXX4},
 	{"EVASIVE", RF2, RF2_EVASIVE},
 	{"CLOUD_SURROUND", RF2, RF2_CLOUD_SURROUND},
 	{"RF2XXX5", RF2, RF2_RF2XXX5},
 	{"PLAYER_GHOST", RF2, RF2_PLAYER_GHOST},
-	{"RF2XXX6", RF2, RF2_RF2XXX6},
+	{"STAY_NATIVE", RF2, RF2_STAY_NATIVE},
 	{"OPEN_DOOR", RF2, RF2_OPEN_DOOR},
 	{"BASH_DOOR", RF2, RF2_BASH_DOOR},
 	{"PASS_WALL", RF2, RF2_PASS_WALL},
@@ -256,11 +260,11 @@ static flag_name info_flags[] =
 	{"UNDEAD", RF3, RF3_UNDEAD},
 	{"EVIL", RF3, RF3_EVIL},
 	{"ANIMAL", RF3, RF3_ANIMAL},
-	{"RF3XXX1", RF3, RF3_RF3XXX1},
+	{"FLYING", RF3, RF3_FLYING},
 	{"RF3XXX2", RF3, RF3_RF3XXX2},
 	{"RF3XXX3", RF3, RF3_RF3XXX3},
 	{"RF3XXX4", RF3, RF3_RF3XXX4},
-	{"HURT_LITE", RF3, RF3_HURT_LITE},
+	{"HURT_LIGHT", RF3, RF3_HURT_LIGHT},
 	{"HURT_ROCK", RF3, RF3_HURT_ROCK},
 	{"HURT_FIRE", RF3, RF3_HURT_FIRE},
 	{"HURT_COLD", RF3, RF3_HURT_COLD},
@@ -289,9 +293,6 @@ static flag_name info_flags[] =
 
 
 /*
- * Object flags 1
- */
-/*
  * Monster race flags 4
  */
 
@@ -310,7 +311,7 @@ static flag_name info_flags[] =
 	{"BRTH_COLD", RF4, RF4_BRTH_COLD},
 	{"BRTH_POIS", RF4, RF4_BRTH_POIS},
 	{"BRTH_PLAS", RF4, RF4_BRTH_PLAS},
-	{"BRTH_LITE", RF4, RF4_BRTH_LITE},
+	{"BRTH_LIGHT", RF4, RF4_BRTH_LIGHT},
 	{"BRTH_DARK", RF4, RF4_BRTH_DARK},
 	{"BRTH_CONFU", RF4, RF4_BRTH_CONFU},
 	{"BRTH_SOUND", RF4, RF4_BRTH_SOUND},
@@ -345,7 +346,7 @@ static flag_name info_flags[] =
 	{"BALL_FIRE", RF5, RF5_BALL_FIRE},
 	{"BALL_COLD", RF5, RF5_BALL_COLD},
 	{"BALL_POIS", RF5, RF5_BALL_POIS},
-	{"BALL_LITE", RF5, RF5_BALL_LITE},
+	{"BALL_LIGHT", RF5, RF5_BALL_LIGHT},
 	{"BALL_DARK", RF5, RF5_BALL_DARK},
 	{"BALL_CONFU", RF5, RF5_BALL_CONFU},
 	{"BALL_SOUND", RF5, RF5_BALL_SOUND},
@@ -375,7 +376,7 @@ static flag_name info_flags[] =
 
 
 /*
- * Monster race flags
+ * Monster race flags 6
  */
 
 	{"HASTE", RF6, RF6_HASTE},
@@ -392,7 +393,7 @@ static flag_name info_flags[] =
 	{"RF6_RF6XXX1", RF6, RF6_RF6XXX1},
 	{"DARKNESS", RF6, RF6_DARKNESS},
 	{"TRAPS", RF6, RF6_TRAPS},
-	{"FORGET", RF6, RF6_FORGET},
+	{"RF6XXX3", RF6, RF6_RF6XXX3},
 	{"DRAIN_MANA", RF6, RF6_DRAIN_MANA},
 	{"RF6XXX4", RF6, RF6_RF6XXX4},
 	{"RF6XXX5", RF6, RF6_RF6XXX5},
@@ -449,6 +450,26 @@ static flag_name info_flags[] =
 	{"S_HI_UNDEAD", RF7, RF7_S_HI_UNDEAD},
 	{"S_WRAITH", RF7, RF7_S_WRAITH},
 
+/*
+ * Monster native flags
+ */
+
+	{"N_LAVA", RN1, RN1_N_LAVA},
+	{"N_ICE", RN1, RN1_N_ICE},
+	{"N_OIL", RN1, RN1_N_OIL},
+	{"N_FIRE", RN1, RN1_N_FIRE},
+	{"N_SAND", RN1, RN1_N_SAND},
+	{"N_FOREST", RN1, RN1_N_FOREST},
+	{"N_WATER", RN1, RN1_N_WATER},
+	{"N_ACID", RN1, RN1_N_ACID},
+	{"N_MUD", RN1, RN1_N_MUD},
+	{"RNXX1_2", RN1, RN1_RNXX1_2},
+	{"RNXX1_1", RN1, RN1_RNXX1_1},
+	{"RNXXX_0", RN1, RN1_RNXXX_0},
+	{"RNXXX_1", RN1, RN1_RNXXX_1},
+	{"RNXXX_2", RN1, RN1_RNXXX_2},
+	{"RNXXX_3", RN1, RN1_RNXXX_3},
+	{"RNXXX_4", RN1, RN1_RNXXX_4},
 
 /*object_flags*/
 
@@ -514,7 +535,7 @@ static flag_name info_flags[] =
 	{"RES_COLD", TR2, TR2_RES_COLD},
 	{"RES_POIS", TR2, TR2_RES_POIS},
 	{"RES_FEAR", TR2, TR2_RES_FEAR},
-	{"RES_LITE", TR2, TR2_RES_LITE},
+	{"RES_LIGHT", TR2, TR2_RES_LIGHT},
 	{"RES_DARK", TR2, TR2_RES_DARK},
 	{"RES_BLIND", TR2, TR2_RES_BLIND},
 	{"RES_CONFU", TR2, TR2_RES_CONFU},
@@ -535,7 +556,7 @@ static flag_name info_flags[] =
 
 	{"SLOW_DIGEST", TR3, TR3_SLOW_DIGEST},
 	{"FEATHER", TR3, TR3_FEATHER},
-	{"LITE", TR3, TR3_LITE},
+	{"LIGHT", TR3, TR3_LIGHT},
 	{"REGEN", TR3, TR3_REGEN},
 	{"TELEPATHY", TR3, TR3_TELEPATHY},
 	{"SEE_INVIS", TR3, TR3_SEE_INVIS},
@@ -565,8 +586,167 @@ static flag_name info_flags[] =
 	{"LIGHT_CURSE", TR3, TR3_LIGHT_CURSE},
 	{"HEAVY_CURSE", TR3, TR3_HEAVY_CURSE},
 	{"PERMA_CURSE",  TR3, TR3_PERMA_CURSE},
-
 	{"IGNORE_ALL",  TR3, TR3_IGNORE_ALL},
+
+/*
+ * Native flags 1
+ */
+
+	{"NATIVE_LAVA", TN1, TN1_NATIVE_LAVA},
+	{"NATIVE_ICE", TN1, TN1_NATIVE_ICE},
+	{"NATIVE_OIL", TN1, TN1_NATIVE_OIL},
+	{"NATIVE_FIRE", TN1, TN1_NATIVE_FIRE},
+	{"NATIVE_SAND", TN1, TN1_NATIVE_SAND},
+	{"NATIVE_FOREST", TN1, TN1_NATIVE_FOREST},
+	{"NATIVE_WATER", TN1, TN1_NATIVE_WATER},
+	{"NATIVE_ACID", TN1, TN1_NATIVE_ACID},
+	{"NATIVE_MUD", TN1, TN1_NATIVE_MUD},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+	{"NATIVE_UNUSED", TN1, TN1_NATIVE_UNUSED},
+
+
+/* Terrain flags */
+
+	{"LOS", FF1, FF1_LOS},
+	{"PROJECT", FF1, FF1_PROJECT},
+	{"MOVE", FF1, FF1_MOVE},
+	{"PLACE", FF1, FF1_PLACE},
+	{"DROP", FF1, FF1_DROP},
+	{"SECRET", FF1, FF1_SECRET},
+	{"NOTICE",	FF1, FF1_NOTICE},
+	{"REMEMBER",	FF1, FF1_REMEMBER},
+	{"CAN_OPEN", FF1, FF1_CAN_OPEN},
+	{"CAN_CLOSE", FF1, FF1_CAN_CLOSE},
+	{"CAN_BASH", FF1, FF1_CAN_BASH},
+	{"CAN_SPIKE", FF1, FF1_CAN_SPIKE},
+	{"CAN_DISARM", FF1, FF1_CAN_DISARM},
+	{"SHOP", FF1, FF1_SHOP},
+	{"CAN_TUNNEL", FF1, FF1_CAN_TUNNEL},
+	{"F1XXX_1", FF1, FF1_F1XXX_1},
+	{"HAS_GOLD", FF1, FF1_HAS_GOLD},
+	{"HAS_ITEM", FF1, FF1_HAS_ITEM},
+	{"DOOR", FF1, FF1_DOOR},
+	{"TRAP", FF1, FF1_TRAP},
+	{"STAIRS", FF1, FF1_STAIRS},
+	{"GLYPH", FF1, FF1_GLYPH},
+	{"LESS", FF1, FF1_LESS},
+	{"MORE", FF1, FF1_MORE},
+	{"RUN", FF1, FF1_RUN},
+	{"FLOOR", FF1, FF1_FLOOR},
+	{"WALL", FF1, FF1_WALL},
+	{"PERMANENT", FF1, FF1_PERMANENT},
+	{"INNER", FF1, FF1_INNER},
+	{"OUTER", FF1, FF1_OUTER},
+	{"SOLID", FF1, FF1_SOLID},
+	{"HIT_TRAP", FF1, FF1_HIT_TRAP},
+
+	/*FF1 Uber-flags*/
+
+
+/*
+ * Terrain flags 2
+ */
+
+	{"BRIDGE", FF2, FF2_BRIDGE},
+	{"RIVER", FF2, FF2_RIVER},
+	{"LAKE", FF2, FF2_LAKE},
+	{"BRIDGED", FF2, FF2_BRIDGED},
+	{"COVERED", FF2, FF2_COVERED},
+	{"GLOW", FF2, FF2_GLOW},
+	{"ATTR_LIGHT", FF2, FF2_ATTR_LIGHT},
+	{"EFFECT", FF2, FF2_EFFECT},
+	{"F2XXX_3", FF2, FF2_F2XXX_3},
+	{"SHALLOW", FF2, FF2_SHALLOW},
+	{"DEEP", FF2, FF2_DEEP},
+	{"F2XXX_13", FF2, FF2_F2XXX_13},
+	{"HURT_ROCK", FF2, FF2_HURT_ROCK},
+	{"HURT_FIRE", FF2, FF2_HURT_FIRE},
+	{"HURT_COLD", FF2, FF2_HURT_COLD},
+	{"HURT_ACID", FF2, FF2_HURT_ACID},
+	{"HURT_ELEC", FF2, FF2_HURT_ELEC},
+	{"HURT_WATER", FF2, FF2_HURT_WATER},
+	{"F2XXX_4", FF2, FF2_F2XXX_4},
+	{"F2XXX_5", FF2, FF2_F2XXX_5},
+	{"F2XXX_6", FF2, FF2_F2XXX_6},
+	{"F2XXX_7", FF2, FF2_F2XXX_7},
+	{"CAN_FLY", FF2, FF2_CAN_FLY},
+	{"F2XXX_8", FF2, FF2_F2XXX_8},
+	{"F2XXX_9", FF2, FF2_F2XXX_9},
+	{"F2XXX_10", FF2, FF2_F2XXX_10},
+	{"TRAP_PASSIVE", FF2, FF2_TRAP_PASSIVE},
+	{"TRAP_SMART", FF2, FF2_TRAP_SMART},
+	{"TRAP_MON", FF2, FF2_TRAP_MON},
+	{"F2XXX_11", FF2, FF2_F2XXX_11},
+	{"F2XXX_12", FF2, FF2_F2XXX_12},
+	{"SHAFT", FF2, FF2_SHAFT},
+
+	/*FF2 Uber-flags*/
+
+
+/*
+ * Terrain flags 3
+ */
+
+	{"LAVA", FF3, FF3_LAVA},
+	{"ICE", FF3, FF3_ICE},
+	{"OIL", FF3, FF3_OIL},
+	{"FIRE", FF3, FF3_FIRE},
+	{"SAND", FF3, FF3_SAND},
+	{"FOREST", FF3, FF3_FOREST},
+	{"WATER", FF3, FF3_WATER},
+	{"ACID", FF3, FF3_ACID},
+	{"MUD", FF3, FF3_MUD},
+	{"F3XXX_0", FF3, FF3_F3XXX_0},
+	{"F3XXX_1", FF3, FF3_F3XXX_1},
+	{"F3XXX_2", FF3, FF3_F3XXX_2},
+	{"F3XXX_3", FF3, FF3_F3XXX_3},
+	{"F3XXX_4", FF3, FF3_F3XXX_4},
+	{"F3XXX_5", FF3, FF3_F3XXX_5},
+	{"F3XXX_6", FF3, FF3_F3XXX_6},
+	{"HURT_BOIL_WATER", FF3, FF3_HURT_BOIL_WATER},
+	{"HURT_POIS", FF3, FF3_HURT_POIS},
+	{"DOOR_JAMMED", FF3, FF3_DOOR_JAMMED},
+	{"DOOR_CLOSED", FF3, FF3_DOOR_CLOSED},
+	{"DOOR_OPEN", FF3, FF3_DOOR_OPEN},
+	{"DOOR_BROKEN", FF3, FF3_DOOR_BROKEN},
+	{"DOOR_LOCKED", FF3, FF3_DOOR_LOCKED},
+	{"PICK_TRAP", FF3, FF3_PICK_TRAP},
+	{"PICK_DOOR", FF3, FF3_PICK_DOOR},
+	{"F3XXX_17", FF3, FF3_F3XXX_17},
+	{"F3XXX_18", FF3, FF3_F3XXX_18},
+	{"F3XXX_19", FF3, FF3_F3XXX_19},
+	{"TREE", FF3, FF3_TREE},
+	{"NEED_TREE", FF3, FF3_NEED_TREE},
+	{"F3XXX_21", FF3, FF3_F3XXX_21},
+#if 0
+	{"F3XXX_22", FF3, FF3_F3XXX_22},
+#endif
+	{"DYNAMIC", FF3, FF3_DYNAMIC},
+
+	/*FFE Uber-Flags*/
+
 
 
 /*
@@ -586,7 +766,7 @@ static flag_name info_flags[] =
 	{"EXTRA_ARROW",  CF1, CF_EXTRA_ARROW},
 	{"SET_TRAPS",  CF1, CF_SET_TRAPS},
 	{"EXTRA_ATTACK",  CF1, CF_EXTRA_ATTACK},
-	{"CFXXX14",  CF1, CF_CFXXX14},
+	{"BRIGAND_COMBAT",  CF1, CF_BRIGAND_COMBAT},
 	{"CFXXX15",  CF1, CF_CFXXX15},
 	{"CFXXX16",  CF1, CF_CFXXX16},
 	{"CFXXX17",  CF1, CF_CFXXX17},
@@ -606,6 +786,7 @@ static flag_name info_flags[] =
 	{"CFXXX30",  CF1, CF_CFXXX30},
 	{"CFXXX31",  CF1, CF_CFXXX31},
 	{"CFXXX32",  CF1, CF_CFXXX32}
+
 };
 
 
@@ -672,8 +853,7 @@ static cptr a_info_act[ACT_MAX] =
 	"RES_ELEC",
 	"RES_FIRE",
 	"RES_COLD",
-	"RES_POIS",
-	"TELE_LVL"
+	"RES_POIS"
 };
 
 
@@ -684,7 +864,7 @@ static cptr a_info_act[ACT_MAX] =
 /*
  * Initialize an "*_info" array, by parsing an ascii "template" file
  */
-errr init_info_txt(FILE *fp, char *buf, header *head,
+errr init_info_txt(ang_file *fp, char *buf, header *head,
                    parse_info_txt_func parse_info_txt_line)
 {
 	errr err;
@@ -704,7 +884,7 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
 	head->text_size = 0;
 
 	/* Parse */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (file_getl(fp, buf, 1024))
 	{
 		/* Advance the line number */
 		error_line++;
@@ -947,6 +1127,18 @@ errr parse_z_info(char *buf, header *head)
 		z_info->c_max = max;
 	}
 
+	/* Process 'X' for "Maximum x_info[] index" */
+	else if (buf[2] == 'X')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->x_max = max;
+	}
+
 	/* Process 'H' for "Maximum h_info[] index" */
 	else if (buf[2] == 'H')
 	{
@@ -1150,7 +1342,96 @@ errr parse_v_info(char *buf, header *head)
 	return (0);
 }
 
+#ifdef ALLOW_DATA_DUMP
 
+void get_feature_name(char *desc, size_t max, byte feature_num)
+{
+	uint i = ((FF1-1) * 32) + feature_num + 1;
+
+	my_strcpy(desc, info_flags[i].name, max);
+
+	return;
+}
+
+#endif /*ALLOW_DATA_DUMP*/
+
+/*
+ * Grab one flag from a textual string
+ */
+static errr grab_one_flag(u32b **flag, cptr errstr, cptr what)
+{
+	u16b i;
+
+	/* Check flags */
+	for (i = 0; i < N_ELEMENTS(info_flags); i++)
+	{
+		flag_name *f_ptr = info_flags+i;
+
+		if (!flag[f_ptr->set]) continue;
+
+		if (streq(what, f_ptr->name))
+		{
+			*(flag[f_ptr->set]) |= f_ptr->flag;
+			return 0;
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown %s flag '%s'.", errstr, what);
+
+	/* Error */
+	return (-1);
+}
+
+
+/*
+ * Grab one flag in an feature_type from a textual string
+ */
+static errr grab_one_feature_flag(feature_type *ptr, cptr what)
+{
+	u32b *f[MAX_FLAG_SETS];
+	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	f[FF1] = &(ptr->f_flags1);
+	f[FF2] = &(ptr->f_flags2);
+	f[FF3] = &(ptr->f_flags3);
+	return grab_one_flag(f, "terrain", what);
+}
+
+/*
+ * Grab an action in an feature_type from a textual string
+ *
+ * IMPORTANT!!! Each set of feature flags (FF1, FF2 and FF3) must be COMPLETE
+ * (32 entries, even with unused flags) and their ordering must match the
+ * ordering in defines.h -DG-
+ */
+static errr grab_one_feature_action(feature_type *ptr, cptr what, int count)
+{
+	int ffx_index = 0;
+	flag_name *f_ptr;
+
+	u16b i;
+
+	for (i = 0; i < N_ELEMENTS(info_flags); i++)
+	{
+		f_ptr = info_flags + i;
+
+		if ((f_ptr->set == FF1) || (f_ptr->set == FF2) ||
+			(f_ptr->set == FF3))
+		{
+			if (streq(what, f_ptr->name))
+			{
+				ptr->state[count].fs_action = ffx_index;
+				return 0;
+			}
+
+			++ffx_index;
+		}
+	}
+
+	msg_format("Unknown feature action flag '%s'", what);
+
+	return -1;
+}
 
 /*
  * Initialize the "f_info" array, by parsing an ascii "template" file
@@ -1159,7 +1440,7 @@ errr parse_f_info(char *buf, header *head)
 {
 	int i;
 
-	char *s;
+	char *s, *t;
 
 	/* Current entry */
 	static feature_type *f_ptr = NULL;
@@ -1200,23 +1481,35 @@ errr parse_f_info(char *buf, header *head)
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* Default "mimic" */
-		f_ptr->mimic = i;
+		f_ptr->f_mimic = i;
+
+		/* Default "state change" -- if not specified */
+		f_ptr->defaults = i;
+
+		/* Default "states" */
+		for (i = 0; i < MAX_FEAT_STATES; i++) f_ptr->state[i].fs_action = FS_FLAGS_END;
+
+		/* Hack -- handle graphics Playtesting*/
+		/* Note (from Unangband) that in a future version of Unangband, a preference 'Use special lighting
+		 * for all features' will set this flag for all features, and the features that are
+		 * dynamically lit in vanilla Angband will have this flag in terrain.txt.
+		 */
+		f_ptr->f_flags2 |= (FF2_ATTR_LIGHT);
 	}
 
 	/* Process 'M' for "Mimic" (one line only) */
 	else if (buf[0] == 'M')
 	{
-		int mimic;
+		u32b f_mimic;
 
 		/* There better be a current f_ptr */
 		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (1 != sscanf(buf+2, "%d",
-			            &mimic)) return (PARSE_ERROR_GENERIC);
+		if (1 != sscanf(buf+2, "%lu", &f_mimic)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		f_ptr->mimic = mimic;
+		f_ptr->f_mimic = f_mimic;
 	}
 
 	/* Process 'G' for "Graphics" (one line only) */
@@ -1258,6 +1551,191 @@ errr parse_f_info(char *buf, header *head)
 		f_ptr->d_attr = d_attr;
 		f_ptr->d_char = d_char;
 	}
+	/* Hack -- Process 'F' for flags */
+	else if (buf[0] == 'F')
+	{
+		/* There better be a current f_ptr */
+		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while (*t == ' ' || *t == '|') t++;
+			}
+
+			/* Parse this entry */
+			if (grab_one_feature_flag(f_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+
+			/* Start the next entry */
+			s = t;
+		}
+	}
+
+	/* Process 'E' for "Edge */
+	else if (buf[0] == 'E')
+	{
+		int edge;
+
+		/* There better be a current f_ptr */
+		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (1 != sscanf(buf+2, "%d", &edge)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		f_ptr->f_edge = edge;
+	}
+
+	/* Process 'W' for "More Info" (one line only) */
+	else if (buf[0] == 'W')
+	{
+		int level, rarity, priority, power;
+
+		/* There better be a current f_ptr */
+		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+				&level, &rarity, &priority, &power)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		f_ptr->f_level = level;
+		f_ptr->f_rarity = rarity;
+		f_ptr->priority = priority;
+		f_ptr->f_power = power;
+	}
+
+	/* Process 'C' for damage and movement info */
+	else if (buf[0] == 'C')
+	{
+		int dam_non_native, native_energy_move, non_native_energy_move;
+		int native_to_hit_adj, non_native_to_hit_adj, stealth_adj;
+
+		/* There better be a current f_ptr */
+		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d", &dam_non_native, &native_energy_move,
+				&non_native_energy_move, &native_to_hit_adj, &non_native_to_hit_adj,
+				&stealth_adj)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		f_ptr->dam_non_native = dam_non_native;
+		f_ptr->native_energy_move = native_energy_move;
+		f_ptr->non_native_energy_move = non_native_energy_move;
+		f_ptr->native_to_hit_adj = native_to_hit_adj;
+		f_ptr->non_native_to_hit_adj = non_native_to_hit_adj;
+		f_ptr->f_stealth_adj = stealth_adj;
+	}
+
+	/* Process 'X' for "Effects Info" (one line for effects only) effects will not have the W or C lines*/
+	else if (buf[0] == 'X')
+	{
+		int level, rarity, power, damage, gf_type, timeout_set, timeout_rand;
+
+		/* There better be a current f_ptr */
+		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
+				&level, &rarity, &power, & damage, &gf_type, &timeout_set, &timeout_rand)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		f_ptr->f_level = level;
+		f_ptr->f_rarity = rarity;
+		f_ptr->f_power = power;
+		f_ptr->x_damage = (byte)damage;
+		f_ptr->x_gf_type = (byte)gf_type;
+		f_ptr->x_timeout_set = (byte)timeout_set;
+		f_ptr->x_timeout_rand = (byte)timeout_rand;
+
+	}
+
+	/* Process 'K' for "States" (up to four lines + default (which cannot be last)) */
+	else if (buf[0] == 'K')
+	{
+		/* There better be a current f_ptr */
+		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Find the next empty state slot (if any) */
+		for (i = 0; i < MAX_FEAT_STATES; i++) if (f_ptr->state[i].fs_action == FS_FLAGS_END) break;
+
+		/* Oops, no more slots */
+		if (i == MAX_FEAT_STATES) return (PARSE_ERROR_GENERIC);
+
+		/* Get the start of the action name */
+		s = buf + 2;
+
+		/* Find a divider */
+		t = strchr(s, ':');
+
+		/* We need a second field (transition result) */
+		if (!t) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the divider */
+		*t++ = '\0';
+
+		/* Is this default entry? */
+		if (streq(s, "DEFAULT"))
+		{
+			/* Analyze result */
+			f_ptr->defaults = atoi(t);
+		}
+		else
+		{
+			char *p;
+
+			/* Reset */
+			f_ptr->state[i].fs_action = 0;
+
+			/* Parse this entry */
+			if (grab_one_feature_action(f_ptr, s, i)) return (PARSE_ERROR_INVALID_FLAG);
+
+			/* Analyze result */
+			f_ptr->state[i].fs_result = atoi(t);
+
+			/* Find a divider, again */
+			p = strchr(t, ':');
+
+			/* The third field is optional (transition power) */
+			if (p)
+			{
+				/* Nuke the divider */
+				*p++ = '\0';
+
+				/* Analyze power */
+				f_ptr->state[i].fs_power = atoi(p);
+			}
+
+			/*
+			 * If we don't have a transition power we just copy
+			 * the default power
+			 */
+			else f_ptr->state[i].fs_power = f_ptr->f_power;
+		}
+	}
+
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current f_ptr */
+		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&f_ptr->f_text, head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */
@@ -1269,33 +1747,6 @@ errr parse_f_info(char *buf, header *head)
 }
 
 
-/*
- * Grab one flag from a textual string
- */
-static errr grab_one_flag(u32b **flag, cptr errstr, cptr what)
-{
-	uint i;
-
-	/* Check flags */
-	for (i = 0; i < N_ELEMENTS(info_flags); i++)
-	{
-		flag_name *f_ptr = info_flags+i;
-
-		if (!flag[f_ptr->set]) continue;
-
-		if (streq(what, f_ptr->name))
-		{
-			*(flag[f_ptr->set]) |= f_ptr->flag;
-			return 0;
-		}
-	}
-
-	/* Oops */
-	msg_format("Unknown %s flag '%s'.", errstr, what);
-
-	/* Error */
-	return (-1);
-}
 
 
 /*
@@ -1305,9 +1756,10 @@ static errr grab_one_kind_flag(object_kind *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
 	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
-	f[TR1] = &(ptr->flags1);
-	f[TR2] = &(ptr->flags2);
-	f[TR3] = &(ptr->flags3);
+	f[TR1] = &(ptr->k_flags1);
+	f[TR2] = &(ptr->k_flags2);
+	f[TR3] = &(ptr->k_flags3);
+	f[TN1] = &(ptr->k_native);
 	return grab_one_flag(f, "object", what);
 }
 
@@ -1433,7 +1885,7 @@ errr parse_k_info(char *buf, header *head)
 			            &level, &extra, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		k_ptr->level = level;
+		k_ptr->k_level = level;
 		k_ptr->extra = extra;
 		k_ptr->weight = wgt;
 		k_ptr->cost = cost;
@@ -1553,9 +2005,10 @@ static errr grab_one_artifact_flag(artifact_type *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
 	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
-	f[TR1] = &(ptr->flags1);
-	f[TR2] = &(ptr->flags2);
-	f[TR3] = &(ptr->flags3);
+	f[TR1] = &(ptr->a_flags1);
+	f[TR2] = &(ptr->a_flags2);
+	f[TR3] = &(ptr->a_flags3);
+	f[TN1] = &(ptr->a_native);
 	return grab_one_flag(f, "object", what);
 }
 
@@ -1633,7 +2086,8 @@ errr parse_a_info(char *buf, header *head)
 		my_strcpy(a_ptr->name, s, MAX_LEN_ART_NAME);
 
 		/* Ignore everything */
-		a_ptr->flags3 |= (TR3_IGNORE_MASK);
+		a_ptr->a_flags3 |= (TR3_IGNORE_MASK);
+
 	}
 
 	/* Process 'I' for "Info" (one line only) */
@@ -1668,8 +2122,8 @@ errr parse_a_info(char *buf, header *head)
 			            &level, &rarity, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		a_ptr->level = level;
-		a_ptr->rarity = rarity;
+		a_ptr->a_level = level;
+		a_ptr->a_rarity = rarity;
 		a_ptr->weight = wgt;
 		a_ptr->cost = cost;
 	}
@@ -1871,6 +2325,7 @@ static bool grab_one_ego_item_flag(ego_item_type *ptr, cptr what)
 	f[TR1] = &(ptr->flags1);
 	f[TR2] = &(ptr->flags2);
 	f[TR3] = &(ptr->flags3);
+	f[TN1] = &(ptr->e_native);
 	return grab_one_flag(f, "object", what);
 }
 
@@ -1950,17 +2405,17 @@ errr parse_e_info(char *buf, header *head)
 	/* Process 'X' for "Xtra" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int rating, xtra;
+		int e_rating, xtra;
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (2 != sscanf(buf+2, "%d:%d", &rating, &xtra))
+		if (2 != sscanf(buf+2, "%d:%d", &e_rating, &xtra))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		e_ptr->rating = rating;
+		e_ptr->rating = e_rating;
 		e_ptr->xtra = xtra;
 	}
 
@@ -2065,6 +2520,7 @@ static errr grab_one_basic_flag(monster_race *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
 	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	f[RN1] = &(ptr->r_native);
 	f[RF1] = &(ptr->flags1);
 	f[RF2] = &(ptr->flags2);
 	f[RF3] = &(ptr->flags3);
@@ -2400,9 +2856,10 @@ static errr grab_one_racial_flag(player_race *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
 	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
-	f[TR1] = &(ptr->flags1);
-	f[TR2] = &(ptr->flags2);
-	f[TR3] = &(ptr->flags3);
+	f[RN1] = &(ptr->pr_native);
+	f[TR1] = &(ptr->pr_flags1);
+	f[TR2] = &(ptr->pr_flags2);
+	f[TR3] = &(ptr->pr_flags3);
 	return grab_one_flag(f, "player", what);
 }
 
@@ -2420,6 +2877,7 @@ errr parse_p_info(char *buf, header *head)
 
 	/* Current entry */
 	static player_race *pr_ptr = NULL;
+
 
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
@@ -2656,6 +3114,7 @@ static errr grab_one_class_flag(player_class *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
 	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	f[RN1] = &(ptr->c_native);
 	f[CF1] = &(ptr->flags);
 	return grab_one_flag(f, "player", what);
 }
@@ -2842,20 +3301,18 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'M' for "Magic Info" (one line only) */
 	else if (buf[0] == 'M')
 	{
-		int spell_book, spell_stat, spell_first, spell_weight;
+		int spell_book, spell_first, spell_weight;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-		                &spell_book, &spell_stat,
-		                &spell_first, &spell_weight))
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+ 		                &spell_book, &spell_first, &spell_weight))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->spell_book = spell_book;
-		pc_ptr->spell_stat = spell_stat;
 		pc_ptr->spell_first = spell_first;
 		pc_ptr->spell_weight = spell_weight;
 	}
@@ -3037,7 +3494,7 @@ errr parse_h_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Store the text */
-		if (!add_text(&h_ptr->text, head, s))
+		if (!add_text(&h_ptr->h_text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 	else
@@ -3058,167 +3515,57 @@ errr parse_h_info(char *buf, header *head)
  */
 errr parse_b_info(char *buf, header *head)
 {
-	int i, j;
-
-	char *s, *t;
-
-	/* Current entry */
-	static owner_type *ot_ptr = NULL;
-
+	static int shop_idx = 0;
+	static int owner_idx = 0;
 
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
 	{
-		/* Find the colon before the subindex */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the subindex */
-		*s++ = '\0';
+		/* Confirm the colon */
+		if (buf[1] != ':') return PARSE_ERROR_MISSING_COLON;
 
 		/* Get the index */
-		i = atoi(buf+2);
+		shop_idx = atoi(buf+2);
+		owner_idx = 0;
 
-		/* Find the colon before the name */
-		t = strchr(s, ':');
-
-		/* Verify that colon */
-		if (!t) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*t++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*t) return (PARSE_ERROR_GENERIC);
-
-		/* Get the subindex */
-		j = atoi(s);
-
-		/* Verify information */
-		if (j >= z_info->b_max) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Get the *real* index */
-		i = (i * z_info->b_max) + j;
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		ot_ptr = (owner_type*)head->info_ptr + i;
-
-		/* Store the name */
-		if (!(ot_ptr->owner_name = add_name(head, t)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
+		return 0;
 	}
 
-	/* Process 'I' for "Info" (one line only) */
-	else if (buf[0] == 'I')
+	/* Process 'S' for "Owner" */
+	else if (buf[0] == 'S')
 	{
-		int idx, gld, max, min, hgl, tol;
+		owner_type *ot_ptr;
+		char *s;
+		int purse;
 
-		/* There better be a current ot_ptr */
-		if (!ot_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		if (owner_idx >= z_info->b_max)
+			return PARSE_ERROR_TOO_MANY_ENTRIES;
+		if ((shop_idx * z_info->b_max) + owner_idx >= head->info_num)
+			return PARSE_ERROR_TOO_MANY_ENTRIES;
 
-		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-			            &idx, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
+		ot_ptr = (owner_type *)head->info_ptr + (shop_idx * z_info->b_max) + owner_idx;
+		if (!ot_ptr) return PARSE_ERROR_GENERIC;
 
-		/* Save the values */
-		ot_ptr->owner_race = idx;
-		ot_ptr->max_cost = gld;
-		ot_ptr->max_inflate = max;
-		ot_ptr->min_inflate = min;
-		ot_ptr->haggle_per = hgl;
-		ot_ptr->insult_max = tol;
+		/* Extract the purse */
+		if (1 != sscanf(buf+2, "%d", &purse)) return PARSE_ERROR_GENERIC;
+		ot_ptr->max_cost = purse;
+
+		s = strchr(buf+2, ':');
+		if (!s || s[1] == 0) return PARSE_ERROR_GENERIC;
+
+		ot_ptr->owner_name = add_name(head, s+1);
+		if (!ot_ptr->owner_name)
+			return PARSE_ERROR_OUT_OF_MEMORY;
+
+		owner_idx++;
+		return 0;
 	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
 
-	/* Success */
-	return (0);
+	/* Oops */
+	return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 }
 
 
-
-
-/*
- * Initialize the "g_info" array, by parsing an ascii "template" file
- */
-errr parse_g_info(char *buf, header *head)
-{
-	int i, j;
-
-	char *s;
-
-	/* Current entry */
-	static byte *g_ptr;
-
-
-	/* Process 'A' for "Adjustments" */
-	if (buf[0] == 'A')
-	{
-		int adj;
-
-		/* Start the string */
-		s = buf+1;
-
-		/* Initialize the counter to max races */
-		j = z_info->p_max;
-
-		/* Repeat */
-		while (j-- > 0)
-		{
-			/* Hack - get the index */
-			i = error_idx + 1;
-
-			/* Verify information */
-			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-			/* Verify information */
-			if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-			/* Save the index */
-			error_idx = i;
-
-			/* Point at the "info" */
-			g_ptr = (byte*)head->info_ptr + i;
-
-			/* Find the colon before the subindex */
-			s = strchr(s, ':');
-
-			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
-
-			/* Nuke the colon, advance to the subindex */
-			*s++ = '\0';
-
-			/* Get the value */
-			adj = atoi(s);
-
-			/* Save the value */
-			*g_ptr = adj;
-		}
-	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
 
 /*
  * Initialize the "q_info" array, by parsing an ascii "template" file
@@ -3435,10 +3782,3 @@ errr parse_flavor_info(char *buf, header *head)
 }
 
 
-#else	/* ALLOW_TEMPLATES */
-
-#ifdef MACINTOSH
-static int i = 0;
-#endif
-
-#endif	/* ALLOW_TEMPLATES */

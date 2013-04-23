@@ -10,237 +10,6 @@
 
 # Feature Graphic Definitions
 
-# open floor
-F:1:1/-39
-
-# invisible trap
-F:2:1/-39
-
-# glyph of warding
-F:3:11/-48
-
-# open door
-F:4:15/-40
-
-# broken door
-F:5:15/-40
-
-# General Store
-F:6:15/-61
-
-# Armoury
-F:7:2/-60
-
-# Weapon Smiths
-F:8:1/-59
-
-# Temple
-F:9:5/-58
-
-# Alchemy Shop
-F:10:6/-57
-
-# Magic Shop
-F:11:4/-56
-
-# Black Market
-F:12:8/-55
-
-# Home
-F:13:11/-54
-
-# Magic Shop
-F:14:4/-56
-
-# dagger pit
-F:15:2/-34
-
-# trap door
-F:16:1/-34
-
-# pit
-F:17:2/-34
-
-# pit
-F:18:2/-34
-
-# pit
-F:19:2/-34
-
-# strange rune
-F:20:3/-33
-
-# strange rune
-F:21:3/-33
-
-# discolored spot
-F:22:7/-33
-
-# discolored spot
-F:23:7/-33
-
-# dart trap
-F:24:4/-36
-
-# dart trap
-F:25:4/-36
-
-# dart trap
-F:26:4/-36
-
-# dart trap
-F:27:4/-36
-
-# gas trap
-F:28:5/-35
-
-# gas trap
-F:29:5/-35
-
-# gas trap
-F:30:5/-35
-
-# gas trap
-F:31:5/-35
-
-# door
-F:32:15/-51
-
-# locked door
-F:33:15/-42
-
-# locked door
-F:34:15/-42
-
-# locked door
-F:35:15/-42
-
-# locked door
-F:36:15/-42
-
-# locked door
-F:37:15/-42
-
-# locked door
-F:38:15/-42
-
-# locked door
-F:39:15/-42
-
-# jammed door
-F:40:15/-43
-
-# jammed door
-F:41:15/-43
-
-# jammed door
-F:42:15/-43
-
-# jammed door
-F:43:15/-43
-
-# jammed door
-F:44:15/-43
-
-# jammed door
-F:45:15/-43
-
-# jammed door
-F:46:15/-43
-
-# jammed door
-F:47:15/-43
-
-# secret door
-F:48:1/-44
-
-# pile of rubble
-F:49:1/-37
-
-# magma vein
-F:50:2/-41
-
-# quartz vein
-F:51:1/-38
-
-# magma vein
-F:52:2/-41
-
-# quartz vein
-F:53:1/-38
-
-# magma vein with treasure
-F:54:3/-46
-
-# quartz vein with treasure
-F:55:3/-45
-
-# granite wall
-F:56:1/-44
-
-# granite wall
-F:57:1/-44
-
-# granite wall
-F:58:1/-44
-
-# granite wall
-F:59:1/-44
-
-# permanent wall
-F:60:1/-44
-
-# permanent wall
-F:61:1/-44
-
-# permanent wall
-F:62:1/-44
-
-# permanent wall
-F:63:1/-44
-
-# monster trap (basic)
-F:64:5/-35
-
-# monster trap (sturdy)
-F:65:5/-35
-
-# monster trap (slowing)
-F:66:5/-35
-
-# monster trap (confusion)
-F:67:5/-35
-
-# monster trap (poison gas)
-F:68:5/-35
-
-# monster trap (drain life)
-F:69:5/-35
-
-# monster trap (lightning)
-F:70:5/-35
-
-# monster trap (shocking)
-F:71:5/-35
-
-# monster trap (portal)
-F:72:5/-35
-
-# monster trap (dispel monsters)
-F:73:5/-35
-
-# up staircase
-F:80:1/-32
-
-# down staircase
-F:81:1/-50
-
-# up shaft
-F:82:1/-32
-
-# down shaft
-F:83:1/-50
-
 # Item Graphic Definitions
 
 # & Phial~
@@ -1556,6 +1325,35 @@ K:442:0/-108
 
 # Mass Identify
 K:443:0/-108
+
+# [Call of the Wild]
+K:444:13/-123
+
+# [Communion with Nature]
+K:445:13/-123
+
+# [Gifts of Nature]
+K:446:13/-123
+
+# [Book of Combat]
+K:447:13/-123
+
+# [Radagast's Shapeshifts]
+K:448:5/-123
+
+# [Melian's Lore]
+K:449:5/-123
+
+# [Primal Forces]
+K:450:5/-123
+
+# [Bombadil's Songs]
+K:451:5/-123
+
+# [Spirit of Yavanna]
+K:452:5/-123
+
+
 
 # The following things should use the "S:<code>:<attr>/<char>" mechanism
 
@@ -3315,11 +3113,11 @@ R:641:12/-80
 # Gothmog, the High Captain of Balrogs
 R:642:12/-71
 
-# Sauron, the Sorcerer
-R:643:10/-16
+# Lurtz
+R:643:4/-17
 
-# Morgoth, Lord of Darkness
-R:644:8/-76
+# Saruman
+R:644:10/-16
 
 # Skeleton
 R:645:1/-13

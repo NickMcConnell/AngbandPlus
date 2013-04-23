@@ -1,29 +1,47 @@
 /*
  * File: main-ros.c
+ * Purpose: Support for RISC OS versions of Angband
  *
- * Abstract: Support for RISC OS versions of Angband, including support
- * for multitasking and dynamic areas.
+ * Copyright (c) 2000-2007 Musus Umbra, Antony Sidwell, Thomas Harris,
+ * Andrew Sidwell, Ben Harrison.
  *
- * Authors: Musus Umbra, Antony Sidwell, Andrew Sidwell,
- *          Ben Harrison, and others.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
  *
- * Licences: Angband licence.
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
+#include "angband.h"
+
 
 #ifdef __riscos
 
-#include "angband.h"
-
 /*
  * Purpose: Support for RISC OS Angband 2.9.x onwards (and variants)
+ * Current maintainer: Antony Sidwell <antony@isparp.co.uk>  (ajps)
  *
  * NB: This code is still under continuous development - if you want to use
  * it for your own compilation/variant, please contact me so that I can
  * keep you up to date and give you support :)
  *
+ * NB: This frontend will no longer work as-is for modern Zangbands (2.7.3
+ * onwards), as the display code has changed, and so our platform-specific
+ * menu needs adjusting to use the appropriate new functions.  A version which
+ * should work should be supplied with the Z source. -- ajps
+ *
+ * NB: This frontend will not work with the in-development ToME3, as the file
+ * handling (and many other parts) have been completely overhauled.  I suspect
+ * it is not worth trying to shoehorn that model into this code, and a fresh,
+ * UNIX-porting-tools approach may be better suited. -- ajps
+ *
  * Prerequisites to compiling:
  *
- * DeskLib 2.50 or later  (earlier versions may be OK though)
+ * DeskLib 2.50 or later 
  *
  * An ANSI C compiler (tested with Acorn's C/C++ and GCC, but should be OK
  *                     with any decent compiler)
@@ -35,18 +53,23 @@
  */
 
 /*
+ * PORTVERSION
+ *   This is the port version; it appears in the infobox.
+ */
+#define PORTVERSION	"1.34 (2007-06-24)"
+
+/*
  * VARIANT & VERSION
  *   These two get variant and version data from Angband itself; older
  *   variants may not have these defined and will have to be altered.
  */
+#ifndef VARIANT
 #define VARIANT		VERSION_NAME
-#define VERSION		VERSION_STRING
+#endif
 
-/*
- * PORTVERSION
- *   This is the port version; it appears in the infobox.
- */
-#define PORTVERSION	"1.29-dev (2003-08-07)"
+#ifndef VERSION
+#define VERSION		VERSION_STRING
+#endif
 
 /*
  * RISCOS_VARIANT
@@ -54,38 +77,137 @@
  *  contain characters that are valid as part of a RISC OS path variable.
  *  [eg. "Yin-Yangband" is not okay, "EyAngband" is.]
  */
-#define RISCOS_VARIANT	"Quickband"
+#ifndef RISCOS_VARIANT
+#define RISCOS_VARIANT	"Angband"
+#endif
 
 /*
  * AUTHORS
  *  For the info box. [eg. "Ben Harrison"]
  */
-#define AUTHORS		"Antoine"
+#ifndef AUTHORS
+#define AUTHORS		"Robert Ruehlmann"
+#endif
 
 /*
  * PORTERS
  *  For the info box. [eg. "Musus Umbra"]
  */
+#ifndef PORTERS
 #define PORTERS		"Antony Sidwell"
+#endif
 
 /*
  * ICONNAME
  *  Iconbar icon sprite name eg. "!angband".  Note that this must be a valid
  *  sprite name; it may need modifying for long variant names.
  */
-#define ICONNAME	"!Quickband"
+#ifndef ICONNAME
+#define ICONNAME	"!"RISCOS_VARIANT
+#endif
 
 /*
  * PDEADCHK
  *   This should expand to an expression that is true if the player is dead.
- *   [eg. (p_ptr->is_dead) for Angband or (!alive || dead) for some Zangbands]
+ *   Examples (correct as of Feb 2004):
+ *   Vanilla (and most variants):  #define PDEADCHK	(p_ptr->is_dead)
+ *   Zangband:                     #define PDEADCHK	(p_ptr->state.is_dead)
+ *   Tome:                         #define PDEADCHK	(!alive)
+ *   SCthAngband:                  #define PDEADCHK	(!alive || death)
  */
-
+#ifndef PDEADCHK
 #define PDEADCHK	(p_ptr->is_dead)
+#endif
+
+/*
+ * MEMTYPE
+ *   This defines which of the various sets of memory allocation prototypes
+ *   should be used for this variant.
+ *
+ *   1: The pre 2.9.x type, where g_free returns an errr (largely obsolete)
+ *   2: The 2.9.x type, where sizes are type "huge" and g_free takes a size.
+ *   3: The 2.9.7(ish)+ type, where they take sizes as size_t
+ */
+#ifndef MEMTYPE
+#define MEMTYPE 3
+#endif
+
+/*
+ * FD_TYPE
+ *   Many of the variants based on older Angbands use huge rather than
+ *   size_t in the fd_* functions.  There are other halfway changes too,
+ *   so you have to pick one of three for each variant. :(
+ */
+#ifndef FDTYPE
+#define FDTYPE 3
+#endif
+
+/*
+ * HAS_MY_STRCPY, HAS_MY_STRCAT, HAS_MY_STRNICMP
+ *   We require the definition of two functions: my_strcat and my_strcpy.
+ *   Some variants already have these defined (e.g. modern Vanilla), and
+ *   so these should be defined when compiling those.
+ */
+/*
+#define HAS_MY_STRCPY
+#define HAS_MY_STRCAT
+#define HAS_MY_STRNICMP
+*/
+
+/*
+ * BIGSCREEN
+ *   This should be TRUE if the variant actually supports bigscreen, FALSE
+ *   otherwise.
+ */
+#ifndef BIGSCREEN
+#define BIGSCREEN FALSE
+#endif
+
+/*
+ * HASNOCORE
+ *   In case someone's removed the core() function in an attempt
+ *   to clean up the code but just making work for people with no
+ *   ultimate benefit.
+ */
+#define HASNOCORE
+
+/*
+ * USE_DA
+ *  If defined, it enables the use of dynamic areas (these are still only
+ *  used when the !Variant file allows it).  It is likely that this option
+ *  will eventually be removed altogether as there is no major advantege
+ *  to using DAs over just using the Wimpslot.
+ */
+/* #define USE_DA */
+
+/*
+ * FULLSCREEN_ONLY
+ *  If defined, the Wimp window-based interface will be disabled, and the
+ *  game will only play in fullscreen mode.  This turns out to be a pointless
+ *  feature, as the memory saving is now negligable compared to the overall
+ *  size of the game.
+ */
+/* #define FULLSCREEN_ONLY */ 
+
+/*
+ * ZANGBAND_TERM_PACKAGE
+ *  New version of Zangband (2.7.3ish and later) use a new term streamlined
+ *  term package including a put_fstr function we have to use for our
+ *  "platform specific menu" in the game.  Define this if you are compiling
+ *  such a version of Zangband or (who knows?) a variant.
+ */
+/* #define ZANGBAND_TERM_PACKAGE */  
+
 
 /*
  * The following symbols control the (optional) file-cache:
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * NOTE (11th Dec 2004): The file caches have not been used for the last
+ * few years - I do not believe they still work with most variants, except
+ * possibly some branched off old Zangband (e.g. Cth).  The introduction of
+ * scripting into those variants which used to use large plain text files
+ * seems to have diminished their usefulness. -- Antony Sidwell
+ *
  * NB: Variants that don't repeatedly read any files whilst running
  * (eg. vanilla, sang, etc) should NOT define USE_FILECACHE, etc. as
  * it causes a non-negligable amount of code to be compiled in.
@@ -152,15 +274,29 @@
  */
 /* #define FE_DEBUG_INFO */
 
-/*
- * USE_DA
- *  If defined, it enables the use of dynamic areas (these are still only
- *  used when the !Variant file allows it).  It is likely that this option
- *  will eventually be removed altogether as there is no major advantege
- *  to using DAs over just using the Wimpslot.
- */
-#define USE_DA
 
+/* sCthAngband oddities */
+#ifdef IS_SCTH
+  #define SAVE_PLAYER_PARAM FALSE
+  #define PAUSE_LINE_PARAM
+  #define TERM_NAME(n) windows[n].name
+  #define TERM(i) windows[i].term
+  extern errr check_modification_date(int fd, cptr template_file);
+#else
+  #define SAVE_PLAYER_PARAM
+  #define PAUSE_LINE_PARAM 23
+  #define TERM_NAME(n) angband_term_name[n]
+  #define TERM(i) angband_term[i]
+#endif
+
+
+/* NPP (for now) oddities */
+#ifdef HASNOCORE
+extern void core(cptr str);
+#endif
+
+/* V, post3.0.7, has a conflicting type for this we have to #define around */
+#undef menu_item
 
 /* Constants, etc. ---------------------------------------------------------*/
 
@@ -230,6 +366,7 @@ enum
 
 #undef rename
 #undef remove
+#undef UNUSED
 
 #include "Desklib:Event.h"
 #include "Desklib:EventMsg.h"
@@ -275,10 +412,15 @@ enum
  | Kamband/Zangband and the Borg in particular can have quite long delays at
  | times.
  */
-#define Start_Hourglass() \
-	{ if (use_glass && !glass_on) { glass_on=1; Hourglass_Start(50); } }
-#define Stop_Hourglass() \
-	{ if (glass_on) { glass_on=0; Hourglass_Off(); } }
+
+/*
+ * Note that empty-bracketed macros aren't ANSI/ISO C89 defined.  GCC and
+ * Norcroft don't mind them though.
+ */
+#define START_HOURGLASS \
+	do { if (use_glass && !glass_on) { glass_on=1; Hourglass_Start(50); }} while (0)
+#define STOP_HOURGLASS \
+	do { if (glass_on) { glass_on=0; Hourglass_Off(); } } while (0)
 
 
 /*--------------------------------------------------------------------------*/
@@ -491,7 +633,7 @@ static ZapFont fonts[MAX_TERM_DATA + 1];	/* The +1 is for the system font */
 /* The system font is always font 0 */
 #define SYSTEM_FONT (&(fonts[0]))
 
-                                                                                                                                 /* Term system variables */
+/* Term system variables */
 static term_data data[MAX_TERM_DATA];	/* One per term */
 
 #ifndef FULLSCREEN_ONLY
@@ -614,6 +756,23 @@ errr cached_fclose(FILE *fch);
 errr cached_fgets(FILE *fch, char *buffer, int max_len);
 #endif
 
+
+/*
+ * There are various different ways in which the g_malloc and g_free functions
+ * are prototyped, depending on the variant.  This is an attempt to unify the
+ * codebase across thoe variants.
+ */
+#if MEMTYPE == 3
+  #define G_MALLOC_PROT static void *g_malloc(size_t size)
+  #define G_FREE_PROT static void *g_free(void *blk)
+#elif MEMTYPE == 2
+  #define G_MALLOC_PROT static vptr g_malloc(huge size)
+  #define G_FREE_PROT static vptr g_free(vptr blk, huge size)
+#elif MEMTYPE == 1
+  #define G_MALLOC_PROT static vptr g_malloc(huge size)
+  #define G_FREE_PROT static errr g_free(vptr blk, huge size)
+#endif
+
 /*
  | These functions act as malloc/free, but (if possible) using memory
  | in the 'Game' Dynamic Area created by init_memory()
@@ -621,11 +780,15 @@ errr cached_fgets(FILE *fch, char *buffer, int max_len);
  | that z-virt.c provides.
  */
 #ifdef USE_DA
-static void* g_malloc(size_t size);
-static void* g_free(void *blk);
-#else
+  G_MALLOC_PROT;
+  G_FREE_PROT;
+#else  
   #define g_malloc(size) malloc(size);
+#if MEMTYPE > 2
+  #define g_free(block, size) free(block);
+#else
   #define g_free(block) free(block);
+#endif
 #endif
 
 /*
@@ -639,6 +802,7 @@ static void f_free(void *blk);
   #define f_malloc(size) malloc(size);
   #define f_free(block) free(block);
 #endif
+
 
 
 /*
@@ -678,7 +842,7 @@ extern int save_player_panic_acn(void)
 	strcpy(l, "!!PANIC!!");
 
 	/* save the game */
-	return save_player();
+	return save_player(SAVE_PLAYER_PARAM);
 }
 
 
@@ -716,9 +880,11 @@ static void debug(const char *fmt, ...)
 {
 	va_list ap;
 	char buffer[260];
+
 	va_start(ap, fmt);
-	vsprintf(buffer, fmt, ap);
+	vstrnfmt(buffer, sizeof(buffer), fmt, ap);
 	va_end(ap);
+
 	plog(buffer);
 }
 
@@ -760,16 +926,15 @@ static int myFile_ReadBytes(const int handle, void *buf, const int n)
  */
 static int file_is_newer(const char *a, const char *b)
 {
-	char a_time[5];
-	char b_time[5];
+	unsigned char a_time[5];
+	unsigned char b_time[5];
 	int n;
 
-	/* If 'a' doesn't exist then 'b' isn't OOD. (?) */
+	/* If 'a' doesn't exist then 'b' isn't out of date */
 	if (!File_Exists(a)) return 0;
 
-	/* If 'b' doesn't exist then 'b' is OOD. */
+	/* If 'b' doesn't exist then 'b' is out of date */
 	if (!File_Exists(b)) return -1;
-
 
 	/* Get the datestamp of the 'a' file */
 	File_Date(a, a_time);
@@ -778,9 +943,12 @@ static int file_is_newer(const char *a, const char *b)
 	File_Date(b, b_time);
 
 	/* Compare timestamps, defaulting to 0 if they are of equal age */
-	for (n = 0; n < 5; n++)
+	for (n = 4; n >= 0; n--)
 	{
-		if (b_time[n] < a_time[n]) return -1;
+		if (b_time[n] < a_time[n])
+		{
+			return -1;
+		}
 		if (b_time[n] > a_time[n]) return 0;
 	}
 
@@ -797,7 +965,7 @@ static void f2printf(FILE *a, FILE *b, const char *fmt, ...)
 	va_list ap;
 	char buffer[2048];
 	va_start(ap, fmt);
-	vsprintf(buffer, fmt, ap);
+	vstrnfmt(buffer, sizeof(buffer), fmt, ap);
 	va_end(ap);
 
 	if (a) fprintf(a, buffer);
@@ -831,7 +999,7 @@ static void final_acn(void)
 	if (flush_scrap && *scrap_path)
 	{
 		char tmp[512];
-		strcpy(tmp, scrap_path);
+		my_strcpy(tmp, scrap_path, sizeof(tmp));
 		tmp[strlen(tmp) - 1] = 0;	/* Remove trailing dot */
 
 		/* ie. "*Wipe <scrapdir> r~c~v~f" */
@@ -842,7 +1010,7 @@ static void final_acn(void)
 	Wimp_CommandWindow(-1);
 #endif /* FULLSCREEN_ONLY */
 
-	Stop_Hourglass();
+	STOP_HOURGLASS;
 }
 
 
@@ -996,16 +1164,21 @@ FILE *my_fopen(const char *f, const char *m)
 }
 
 
-
-
 /*
  * Close a file, a la fclose()
  */
-errr my_fclose(FILE *fp)
+#if FCLOSETYPE == 1
+  #define RETURN
+  void my_fclose(FILE *fp)
+#else
+  #define RETURN return
+  errr my_fclose(FILE *fp)
+#endif
 {
 	/* Close the file, return 1 for an error, 0 otherwise */
-	return fclose(fp) ? 1 : 0;
+	RETURN fclose(fp) ? 1 : 0;
 }
+#undef RETURN
 
 
 /*
@@ -1046,7 +1219,7 @@ errr fd_kill(cptr file)
 errr fd_move(cptr old, cptr new)
 {
 	char new_[260];
-	strcpy(new_, riscosify_name(new));
+	my_strcpy(new_, riscosify_name(new), sizeof(new_));
 	return rename(riscosify_name(old), new_) ? 1 : 0;
 }
 
@@ -1111,7 +1284,13 @@ errr fd_close(int handle)
 
 
 /* Read some bytes from a file */
+#if FDTYPE == 1
+errr fd_read(int handle, char *buf, huge nbytes)
+#elif FDTYPE == 2
+errr fd_read(int handle, char *buf, huge nbytes)
+#else
 errr fd_read(int handle, char *buf, size_t nbytes)
+#endif
 {
 	int unread;
 
@@ -1125,7 +1304,13 @@ errr fd_read(int handle, char *buf, size_t nbytes)
 
 
 /* Write some bytes to a file */
+#if FDTYPE == 1
+errr fd_write(int handle, const char *buf, huge nbytes)
+#elif FDTYPE == 2
+errr fd_write(int handle, cptr buf, huge nbytes)
+#else
 errr fd_write(int handle, const char *buf, size_t nbytes)
+#endif
 {
 	int unwritten;
 
@@ -1139,7 +1324,13 @@ errr fd_write(int handle, const char *buf, size_t nbytes)
 
 
 /* Seek in a file */
+#if FDTYPE == 1
+errr fd_seek(int handle, huge offset)
+#elif FDTYPE == 2
 errr fd_seek(int handle, long offset)
+#else
+errr fd_seek(int handle, long offset)
+#endif
 {
 	os_error *e;
 
@@ -1160,7 +1351,7 @@ errr fd_lock(int handle, int what)
 
 
 /* Get a temporary filename */
-errr path_temp(char *buf, size_t max)
+errr path_temp(char *buf, int max)
 {
 
 	/*
@@ -1196,6 +1387,21 @@ errr path_temp(char *buf, size_t max)
 	return 0;
 }
 
+#ifdef NEEDS_ACCESS
+int access(const char *path, int mode)
+{
+	os_error *e;
+	int f;
+
+    e = SWI(2, 1, SWI_OS_Find, (1<<2) | (1<<3) | 0x40, riscosify_name(path), &f);
+
+	if (e || f == 0) return -1;
+
+    SWI(2, 0, SWI_OS_Find, 0, f);
+
+	return 0;
+}
+#endif
 
 
 /*
@@ -1211,27 +1417,33 @@ errr path_temp(char *buf, size_t max)
  * Note that this function yields a path which must be "parsed"
  * using the "parse" function above.
  */
+#if PATHBUILDTYPE == 1
+void path_build(char *buf, int max, cptr path, cptr file)
+#elif PATHBUILDTYPE == 2
+errr path_build(char *buf, int max, cptr path, cptr file)
+#else
 errr path_build(char *buf, size_t max, cptr path, cptr file)
+#endif
 {
 	/* Special file */
 	if (file[0] == '~')
 	{
 		/* Use the file itself */
-		my_strcpy(buf, file, max);
+		strnfmt(buf, max, "%s", file);
 	}
 
 	/* Absolute file, on "normal" systems */
 	else if (prefix(file, PATH_SEP) && !streq(PATH_SEP, ""))
 	{
 		/* Use the file itself */
-		my_strcpy(buf, file, max);
+		strnfmt(buf, max, "%s", file);
 	}
 
 	/* No path given */
 	else if (!path[0])
 	{
 		/* Use the file itself */
-		my_strcpy(buf, file, max);
+		strnfmt(buf, max, "%s", file);
 	}
 
 	/* Path and File */
@@ -1241,8 +1453,10 @@ errr path_build(char *buf, size_t max, cptr path, cptr file)
 		strnfmt(buf, max, "%s%s%s", path, PATH_SEP, file);
 	}
 
+#if PATHBUILDTYPE > 1
 	/* Success */
-	return (0);
+	return 0;
+#endif
 }
 
 
@@ -1349,6 +1563,66 @@ static ZapFont *find_free_font(void)
 	return NULL;
 }
 
+#ifndef HAS_MY_STRCPY
+/*
+ * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
+ * to 'buf' and NUL-terminates the result.  The 'buf' and 'src' strings may
+ * not overlap.
+ *
+ * my_strcpy() returns strlen(src).  This makes checking for truncation
+ * easy.  Example: if (my_strcpy(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcpy() function in BSD.
+ */
+size_t my_strcpy(char *buf, const char *src, size_t bufsize)
+{
+	size_t len = strlen(src);
+	size_t ret = len;
+
+	/* Paranoia */
+	if (bufsize == 0) return ret;
+
+	/* Truncate */
+	if (len >= bufsize) len = bufsize - 1;
+
+	/* Copy the string and terminate it */
+	(void)memcpy(buf, src, len);
+	buf[len] = '\0';
+
+	/* Return strlen(src) */
+	return ret;
+}
+#endif /* !HAS_MY_STRCPY */
+
+#ifndef HAS_MY_STRCAT
+/*
+ * The my_strcat() tries to append a string to an existing NUL-terminated string.
+ * It never writes more characters into the buffer than indicated by 'bufsize' and
+ * NUL-terminates the buffer.  The 'buf' and 'src' strings may not overlap.
+ *
+ * my_strcat() returns strlen(buf) + strlen(src).  This makes checking for
+ * truncation easy.  Example:
+ * if (my_strcat(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcat() function in BSD.
+ */
+static size_t my_strcat(char *buf, const char *src, size_t bufsize)
+{
+	size_t dlen = strlen(buf);
+
+	/* Is there room left in the buffer? */
+	if (dlen < bufsize - 1)
+	{
+		/* Append as much as possible  */
+		return (dlen + my_strcpy(buf + dlen, src, bufsize - dlen));
+	}
+	else
+	{
+		/* Return without appending */
+		return (dlen + strlen(src));
+	}
+}
+#endif /* !HAS_MY_STRCAT */
 
 
 /*
@@ -1391,10 +1665,10 @@ static ZapFont *load_font(char *name, ZapFont *f)
 	/* Get the path setting */
 	font_path = getenv(path);
 	if (!font_path || !*font_path)
-		strcpy(path, "null:$.");
+		my_strcpy(path, "null:$.", sizeof(path));
 	else
 	{
-		strcpy(path, font_path);
+		my_strcpy(path, font_path, sizeof(path));
 		for (t = path; *t > ' '; t++)
 			;
 		if (t[-1] != '.' && t[-1] != ':')
@@ -1725,6 +1999,7 @@ static menu_ptr make_zfont_menu(const char *dir)
 
 					break;
 				}
+
 			}
 			temp = ((char *) item_info) + 20;
 			while (*temp++);
@@ -1834,6 +2109,7 @@ static void cache_palette(void)
  */
 
 
+#ifndef HAS_MY_STRNICMP
 /*
  | Hack: can't use Str.h without defining HAS_STRICMP.  Rather than
  | require that the header files are altered we simply provide our
@@ -1856,6 +2132,7 @@ static int my_strnicmp(const char *a, const char *b, int n)
 
 	return 0;
 }
+#endif /* HAS_MY_STRNICMP */
 
 
 /*
@@ -1882,19 +2159,28 @@ static BOOL SaveHnd_FileSave(char *filename, void *ref)
 	}
 
 	/* Preserve the old path, in case something goes wrong... */
-	strcpy(old_savefile, savefile);
+	my_strcpy(old_savefile, savefile, sizeof(old_savefile));
 
 	/* Set the new path */
-	strcpy(savefile, unixify_name(filename));
+	my_strcpy(savefile, unixify_name(filename), sizeof(savefile));
 
 	/* Try a save (if sensible) */
 	if (game_in_progress && character_generated)
 	{
-		if (!save_player())
+		if (inkey_flag)
 		{
-			Msgs_Report(0, "err.save", filename);
-			strcpy(savefile, old_savefile);
-			return FALSE;		/* => failure */
+			if (!save_player(SAVE_PLAYER_PARAM))
+			{
+				Msgs_Report(0, "err.save", filename);
+				my_strcpy(savefile, old_savefile, sizeof(savefile));
+				return FALSE;		/* => failure */
+			}
+		}
+		else
+		{
+			Msgs_Report(0, "err.nosave");
+			my_strcpy(savefile, old_savefile, sizeof(savefile));
+			return TRUE; /* Failed really, but not unexpectedly */
 		}
 	}
 
@@ -2167,7 +2453,7 @@ static void set_up_zrb(term_data *t)
  */
 static void RO_redraw_window(window_redrawblock * rb, BOOL *more, term_data *t)
 {
-	int cx, cy, cw, ch;
+	int cx = 0, cy = 0, cw = 0, ch = 0;
 
 	/* set GCOL for cursor colour */
 	if (t->cursor.visible)
@@ -2378,7 +2664,11 @@ static void term_change_size(term_data *t, int wid, int hgt)
 	Term_activate(&(t->t));
 
 	/* Only do all the complicated stuff if the resize attempt succeeded */
+#ifdef IS_SCTH
+        Term_resize(wid, hgt);
+#else
 	if (Term_resize(wid, hgt) == NULL)
+#endif	
 	{
 		initialise_r_data();
 		force_term_resize(t);
@@ -2484,7 +2774,7 @@ static void make_font_menu(void)
 		t = "";
 	}
 
-	strcpy(buffer, t);
+	my_strcpy(buffer, t, sizeof(buffer));
 
 	/*
 	   | Count how many paths there are, build an array of pointers to them
@@ -2565,7 +2855,7 @@ static void make_font_menu(void)
 		}
 
 		/* Fudge so that the fontpath can be a path, not just a dir. */
-		strcpy(menu_buffer, t);
+		my_strcpy(menu_buffer, t, sizeof(menu_buffer));
 		for (t = menu_buffer; *t > ' '; t++)
 			;
 		if (t[-1] == '.')
@@ -2699,10 +2989,10 @@ static void init_menus(void)
 #ifndef OLD_TERM_MENU
 	o = buffer1;
 	o += sprintf(buffer1, "%s|", VARIANT);
-	o += sprintf(o, "%s,%s,%s|", angband_term_name[1], angband_term_name[2],
-				 angband_term_name[3]);
-	sprintf(o, "%s,%s,%s,%s", angband_term_name[4], angband_term_name[5],
-			angband_term_name[6], angband_term_name[7]);
+	o += sprintf(o, "%s,%s,%s|", TERM_NAME(1), TERM_NAME(2),
+				 TERM_NAME(3));
+	sprintf(o, "%s,%s,%s,%s", TERM_NAME(4), TERM_NAME(5),
+			TERM_NAME(6), TERM_NAME(7));
 #else
 	Msgs_printf(buffer1, "menu.windows:%s|Term-1 (Mirror),Term-2 (Recall),"
 				"Term-3 (Choice)|Term-4,Term-5,Term-6,Term-7", VARIANT);
@@ -2798,7 +3088,8 @@ static void set_font_menu_ticks(menu_ptr fm, char *fn, const char *prefix)
 	int pl;	/* prefix string length */
 	menu_item *mi = (menu_item *) (fm + 1);
 
-	strcpy(buffer, prefix);
+	my_strcpy(buffer, prefix, sizeof(buffer));
+
 	pl = strlen(buffer);
 	b_leaf = buffer + pl;
 
@@ -2816,7 +3107,7 @@ static void set_font_menu_ticks(menu_ptr fm, char *fn, const char *prefix)
 		else
 		{
 			/* Yes - must be a partial match (with a dot on :) */
-			strcat(b_leaf, ".");
+			my_strcat(b_leaf, ".", sizeof(buffer) - pl);
 			mi->menuflags.data.ticked =
 				!strncmp(buffer, fn, pl + strlen(b_leaf));
 			if (mi->menuflags.data.ticked)
@@ -2876,6 +3167,14 @@ static void set_up_term_menu(term_data *t)
 	else
 		Menu_SetFlags(term_menu, TERM_MENU_SAVE, 0, TRUE);
 
+	/*
+	 * Shade the resize entry if Term->fixed_shape is set, or if
+	 * bigscreen isn't supported
+	 */
+	if (BIGSCREEN == FALSE || t->t.fixed_shape)
+		Menu_SetFlags(term_menu, TERM_MENU_SIZE, 0, TRUE);
+	else
+		Menu_SetFlags(term_menu, TERM_MENU_SIZE, 0, FALSE);
 }
 
 
@@ -2886,7 +3185,37 @@ static void set_up_term_menu(term_data *t)
  */
 static BOOL Hnd_Click(event_pollblock * pb, void *ref)
 {
-	if (pb->data.mouse.button.data.dragselect ||
+
+  if (pb->data.mouse.window == data[0].w)
+  {
+    if (pb->data.mouse.button.data.select)
+    {
+	int fw, fh;
+        int xpos, ypos;
+        wimp_point clickpoint = pb->data.mouse.pos;
+        convert_block convert;
+
+	set_up_zrb(&data[0]);
+
+	fw = zrb.r_charw << screen_eig.x;
+	fh = zrb.r_charh << screen_eig.y;
+	if (zrb.r_flags.bits.double_height)
+	{
+		fh *= 2;
+	}
+
+        /* SO fw & fh are in OS units here */
+        Window_GetCoords(data[0].w, &convert);
+        Coord_PointToWorkArea(&clickpoint, &convert);
+
+        xpos = clickpoint.x / fw;
+        ypos = -clickpoint.y / fh;
+
+        Term_mousepress(xpos, ypos, 1);
+        key_pressed = 1;
+    }
+  }
+  else if (pb->data.mouse.button.data.dragselect ||
 		pb->data.mouse.button.data.dragadjust)
 	{
 		drag_block b;
@@ -2968,9 +3297,9 @@ static errr Term_xtra_acn_check(void)
 	if ((bl > 0 && got_caret) || ((curr_time - last_poll) > 9))
 	{
 		last_poll = curr_time;
-		Stop_Hourglass();
+		STOP_HOURGLASS;
 		Event_Poll();
-		Start_Hourglass();
+		START_HOURGLASS;
 	}
 
 	/*
@@ -2989,13 +3318,13 @@ static errr Term_xtra_acn_check(void)
  */
 static errr Term_xtra_acn_event(void)
 {
-	Stop_Hourglass();
+	STOP_HOURGLASS;
 
 	while (!key_pressed && !fullscreen_font)
 	{
 		Event_PollIdle(100);
 	}
-	Start_Hourglass();
+	START_HOURGLASS;
 
 	return key_pressed = 0;
 }
@@ -3187,13 +3516,70 @@ static errr Term_xtra_acn(int n, int v)
 			return 0;
 		}
 
-		/* Play a sound :) */
-		case TERM_XTRA_SOUND:
+/*
+ * This is used by ToME2, and presumably will never be picked up by other
+ * variants, so it should be safe to #ifdef out like so:
+ */
+#ifdef TERM_XTRA_SCANSUBDIR
+		/* Subdirectory scan */
+		case TERM_XTRA_SCANSUBDIR:
 		{
-			if (enable_sound) play_sound(v);
+		    filing_dirdata directory;
+		    filing_direntry *entry;
+
+			scansubdir_max = 0;
+
+			if (Filing_OpenDir(riscosify_name(scansubdir_dir), &directory, sizeof(filing_direntry), readdirtype_DIRENTRY) != NULL)
+			{
+			  Error_Report(0, "Couldn't open directory \"%s\"", riscosify_name(scansubdir_dir));
+			  return 0;
+			}
+
+			while ((entry = Filing_ReadDir(&directory)) != NULL)
+			{
+				if (entry->objtype == filing_DIRECTORY)
+				{    
+					string_free(scansubdir_result[scansubdir_max]);
+					scansubdir_result[scansubdir_max] = string_make(entry->name);
+					++scansubdir_max;
+				}
+			}
+
+			Filing_CloseDir(&directory);
 
 			return 0;
 		}
+#endif /* TERM_XTRA_SCANSUBDIR */
+
+
+/*
+ * This is used by ToME, and presumably will never be picked up by other
+ * variants, so it should be safe to #ifdef out like so:
+ */
+#ifdef TERM_XTRA_GET_DELAY
+		/* Return current "time" in milliseconds */
+		case TERM_XTRA_GET_DELAY:
+		{
+			Term_xtra_long = Time_Monotonic() * 100;
+
+			return 0;
+		}
+#endif /* TERM_XTRA_GET_DELAY */
+                  
+/*
+ * This is used by ToME, and presumably will never be picked up by other
+ * variants, so it should be safe to #ifdef out like so:
+ */
+#ifdef TERM_XTRA_RENAME_MAIN_WIN
+#ifndef FULLSCREEN_ONLY
+		/* Rename main window */
+		case TERM_XTRA_RENAME_MAIN_WIN:
+		{
+			Window_SetTitle(data[0].w, angband_term_name[0]);
+			return 0;
+		}
+#endif /* FULLSCREEN_ONLY */
+#endif /* TERM_XTRA_RENAME_MAIN_WIN */
 
 		default:
 			return 1;			/* Unsupported */
@@ -3570,8 +3956,8 @@ static BOOL Hnd_GammaClick(event_pollblock * pb, void *ref)
 		{
 			gamma += 5;
 			Icon_SetDouble(gamma_win, 0, (double) gamma / 100, 2);
-			Term_xtra_acn_react();
 			update_gamma();
+			Term_xtra_acn_react();
 		}
 	}
 	else
@@ -3580,8 +3966,8 @@ static BOOL Hnd_GammaClick(event_pollblock * pb, void *ref)
 		{
 			gamma -= 5;
 			Icon_SetDouble(gamma_win, GAMMA_ICN, (double) gamma / 100, 2);
-			Term_xtra_acn_react();
 			update_gamma();
+			Term_xtra_acn_react();
 		}
 	}
 
@@ -3903,7 +4289,7 @@ static void load_choices(void)
 			if (t_)
 			{
 				if (!strcmp(t_, "Gamma"))
-					gamma = (int) atof(o_) * 100;
+					gamma = atof(o_) * 100;
 				else if (!strcmp(t_, "Monochrome"))
 					force_mono = !strcmp(o_, "on");
 				else if (!strcmp(t_, "Sound"))
@@ -4248,8 +4634,17 @@ static BOOL Hnd_IbarMenu(event_pollblock * pb, void *ref)
 			break;
 		case IBAR_MENU_QUIT:	/* Quit */
 			if (game_in_progress && character_generated)
-				save_player();
-			quit(NULL);
+			{
+				if (inkey_flag)
+				{
+					save_player(SAVE_PLAYER_PARAM);
+					quit(NULL);
+				}
+				else
+				{
+					Msgs_Report(0, "err.nosave");
+				}
+			}
 			break;
 	}
 
@@ -4401,7 +4796,17 @@ static BOOL Hnd_PreQuit(event_pollblock * b, void *ref)
 			return TRUE;		/* no! Pleeeeeease don't kill leeeeddle ol' me! */
 
 		if (ok == 3)
-			save_player();		/* Save & Quit */
+		{
+			if (inkey_flag)
+			{
+				save_player(SAVE_PLAYER_PARAM);		/* Save & Quit */
+			}
+			else
+			{
+				Msgs_Report(0, "err.nosave");
+				return FALSE;
+			}
+		}
 	}
 
 
@@ -4455,7 +4860,7 @@ static void initialise_terms(void)
 			data[i].def_open = 0;
 			data[i].unopened = 1;
 #ifndef OLD_TERM_MENU
-			sprintf(t, "%s (%s %s)", angband_term_name[i], VARIANT, VERSION);
+			sprintf(t, "%s (%s %s)", TERM_NAME(i), VARIANT, VERSION);
 #else
 			sprintf(t, "Term-%d (%s %s)", i, VARIANT, VERSION);
 #endif
@@ -4474,10 +4879,10 @@ static void initialise_terms(void)
 	for (i = 1; i < MAX_TERM_DATA; i++)
 	{
 		term_data_link(&(data[i]), 16);
-		angband_term[i] = &(data[i].t);
+		TERM(i) = &(data[i].t);
 	}
 
-	angband_term[0] = &(data[0].t);
+	TERM(0) = &(data[0].t);
 	Term_activate(&(data[0].t));
 }
 
@@ -4678,6 +5083,36 @@ static char *find_alarmfile(int write)
 }
 
 
+#ifdef HASNOCORE
+/*
+ * Redefinable "core" action
+ */
+void (*core_aux)(cptr) = NULL;
+
+/*
+ * Dump a core file, after printing a warning message
+ * As with "quit()", try to use the "core_aux()" hook first.
+ */
+void core(cptr str)
+{
+	char *crash = NULL;
+
+	/* Use the aux function */
+	if (core_aux) (*core_aux)(str);
+
+	/* Dump the warning string */
+	if (str) plog(str);
+
+	/* Attempt to Crash */
+	(*crash) = (*crash);
+
+	/* Be sure we exited */
+	quit("core() failed");
+}
+#endif
+
+
+
 
 
 int main(int argc, char *argv[])
@@ -4692,7 +5127,7 @@ int main(int argc, char *argv[])
 
 	atexit(final_acn);		/* "I never did care about the little things." */
 
-	Start_Hourglass();
+	START_HOURGLASS;
 
 	/* Parse arguments */
 	for (i = 1; i < argc; i++)
@@ -4824,6 +5259,11 @@ int main(int argc, char *argv[])
 	plog_aux = plog_hook;
 	core_aux = core_hook;
 
+#ifdef IS_SCTH
+	/* Hook in the file modification hook in scth*/
+    check_modification_date_hook = check_modification_date;
+#endif
+
 	/* Expand the (Angband) resource path */
 	t = getenv(RISCOS_VARIANT "$Path");
 	if (!t || !*t) Msgs_ReportFatal(0, "A resources path could not be formed.");
@@ -4902,9 +5342,9 @@ int main(int argc, char *argv[])
 	load_choices();
 	read_alarm_choices();
 
-	init_file_paths(unixify_name(resource_path));
+	init_file_paths(unixify_name(resource_path), unixify_name(resource_path), unixify_name(resource_path));
 
-	Start_Hourglass();			/* Paranoia */
+	START_HOURGLASS;			/* Paranoia */
 
 	/* Hack - override the saved options if -F was on the command line */
 	start_fullscreen |= start_full;
@@ -4927,12 +5367,13 @@ int main(int argc, char *argv[])
 	if (start_fullscreen)
 	{
 #endif /* FULLSCREEN_ONLY */
-		enter_fullscreen_mode();
+		Event_Claim(event_NULL, event_ANY, event_ANY, Hnd_null, NULL);
+		enter_fullscreen_mode();   
 #ifndef FULLSCREEN_ONLY
 	}
 	else
 	{
-		Start_Hourglass();		/* Paranoia */
+		START_HOURGLASS;		/* Paranoia */
 		Hnd_ModeChange(NULL, NULL);	/* Caches the various fonts/palettes */
 		show_windows();
 		grab_caret();
@@ -4949,7 +5390,7 @@ int main(int argc, char *argv[])
 #endif /* FULLSCREEN_ONLY */
 
 	/* Initialise Angband */
-	Start_Hourglass();			/* Paranoia */
+	START_HOURGLASS;			/* Paranoia */
 
 	strncpy(savefile, unixify_name(arg_savefile), sizeof(savefile));
 	savefile[sizeof(savefile) - 1] = '\0';
@@ -4958,14 +5399,14 @@ int main(int argc, char *argv[])
 	init_angband();
 	initialised = 1;
 	game_in_progress = 1;
-	pause_line(23);
+	pause_line(PAUSE_LINE_PARAM);
 	flush();
 
 	play_game(FALSE);
 
 	if (fullscreen_mode) leave_fullscreen_mode();
 
-	Stop_Hourglass();
+	STOP_HOURGLASS;
 
 	quit(NULL);
 
@@ -5471,7 +5912,7 @@ static void enter_fullscreen_mode(void)
 	/* SWI( 1,3, SWI_OS_Byte, 135, NULL, NULL, &old_screenmode ); */
 	old_screenmode = current_mode();
 
-	Stop_Hourglass();
+	STOP_HOURGLASS;
 
 	/* Change to the chosen screen mode */
 	change_screenmode(fullscreen_mode);
@@ -5482,7 +5923,7 @@ static void enter_fullscreen_mode(void)
 	/* Remove the cursors */
 	SWI(0, 0, SWI_OS_RemoveCursors);
 
-	Start_Hourglass();
+	START_HOURGLASS;
 
 	/* Get the base address of screen memory */
 	SWI(2, 0, SWI_OS_ReadVduVariables, vduvars, vduvars);
@@ -5554,12 +5995,12 @@ static void leave_fullscreen_mode(void)
 	fullscreen_font = 0;
 	fullscreen_mode = 0;
 
-	Stop_Hourglass();
+	STOP_HOURGLASS;
 
 	/* Restore the pointer */
 	release_pointer();
 
-	Start_Hourglass();
+	START_HOURGLASS;
 
 	/* Restore the various soft keys */
 	set_keys(FALSE);
@@ -5762,7 +6203,7 @@ static errr Term_xtra_acn_eventFS(int valid)
 	int c;
 	int w = -1;
 
-	Stop_Hourglass();
+	STOP_HOURGLASS;
 
 	/* Loop if we want validation of the keypress */
 	do
@@ -5784,7 +6225,7 @@ static errr Term_xtra_acn_eventFS(int valid)
 		}
 	} while (valid && w == -1);
 
-	Start_Hourglass();
+	START_HOURGLASS;
 
 	return 0;
 }
@@ -5954,7 +6395,7 @@ static void bored()
 
 	time(&ct);
 	lt = localtime(&ct);
-	l = strftime(ts, sizeof(ts), "%c %Z", lt);
+	l = strftime(ts, 80, "%c %Z", lt);
 
 	/* Hack: disable force_mono around printing the time */
 	ofm = force_mono;
@@ -6270,7 +6711,7 @@ static void f_free(void *blk)
 /*
  | Allocate a block of memory in the game heap
  */
-static void* g_malloc(size_t size)
+G_MALLOC_PROT
 {
 	void *c;
 	int s;
@@ -6313,7 +6754,7 @@ static void* g_malloc(size_t size)
  | The 'len' is to be compatible with z-virt.c (we don't need/use it)
  | Returns NULL.
  */
-static void* g_free(void *blk)
+G_FREE_PROT
 {
 	os_error *e;
 	int s;
@@ -6632,13 +7073,16 @@ static void check_playit(void)
 
 
 
-
 static void initialise_sound(void)
 {
 	/* Load the configuration file */
 	Hourglass_On();
 	read_sound_config();
 	check_playit();
+
+	/* Set the sound hook */
+	sound_hook = play_sound;
+
 	Hourglass_Off();
 }
 
@@ -6665,10 +7109,8 @@ static void play_sample(char *leafname)
 static void play_sound(int event)
 {
 	/* Paranoia */
-	if (!sound_initd)
-	{
+	if (!sound_initd || !enable_sound)
 		return;
-	}
 
 	/* Paranoia */
 	if (event < 0 || event >= SOUND_MAX)
@@ -6702,8 +7144,12 @@ static void play_sound(int event)
 /*
  | This stuff is for the Term_user hook
  */
-
-
+#ifdef ZANGBAND_TERM_PACKAGE
+  #define PUT_FSTR put_fstr
+  #define COL(colour) CLR_##colour
+#else
+  #define PUT_FSTR display_line
+  #define COL(colour) TERM_##colour
 
 static void display_line(int x, int y, int c, const char *fmt, ...)
 {
@@ -6711,11 +7157,12 @@ static void display_line(int x, int y, int c, const char *fmt, ...)
 	char buffer[260];
 
 	va_start(ap, fmt);
-	vsprintf(buffer, fmt, ap);
+	vstrnfmt(buffer, sizeof(buffer), fmt, ap);
 	Term_putstr(x, y, -1, c, buffer);
 	va_end(ap);
 }
 
+#endif
 
 
 /*
@@ -6731,7 +7178,7 @@ static void do_alarm_message_input(int y)
 
 	do
 	{
-		display_line(26, y, TERM_YELLOW, "%-51s", alarm_message);
+		PUT_FSTR(26, y, COL(YELLOW), "%-51s", alarm_message);
 		Term_gotoxy(26 + inspos, y);
 		k = inkey();
 		switch (k)
@@ -6760,11 +7207,11 @@ static void do_alarm_message_input(int y)
 	}
 	while (k != 13);
 
-	display_line(26, y, TERM_WHITE, "%-51s", alarm_message);
+	PUT_FSTR(26, y, COL(WHITE), "%-51s", alarm_message);
 }
 
 
-#define tum_col(X)  ((X) ? TERM_L_BLUE : TERM_WHITE )
+#define tum_col(X)  ((X) ? COL(L_BLUE) : COL(WHITE) )
 #define tum_onoff(X)  ((X) ? "On " : "Off")
 
 static errr Term_user_acn(int n)
@@ -6808,53 +7255,53 @@ static errr Term_user_acn(int n)
 	{
 		redraw_mung = 0;
 		Term_clear();
-		display_line(2, 1, TERM_YELLOW, "%s %s", VARIANT, VERSION);
-		display_line(2, 2, TERM_SLATE, "Front-end %s", PORTVERSION);
-		display_line(2, 4, TERM_WHITE, "Use cursor up/down to select an option then cursor left/right to alter it.");
-		display_line(2, 5, TERM_WHITE, "Hit 'S' to save these settings (alarm settings are saved automatically).");
-		display_line(2, 6, TERM_WHITE, "Hit ESC to return to the game.");
+		PUT_FSTR(2, 1, COL(YELLOW), "%s %s", VARIANT, VERSION);
+		PUT_FSTR(2, 2, COL(SLATE), "Front-end %s", PORTVERSION);
+		PUT_FSTR(2, 4, COL(WHITE), "Use cursor up/down to select an option then cursor left/right to alter it.");
+		PUT_FSTR(2, 5, COL(WHITE), "Hit 'S' to save these settings (alarm settings are saved automatically).");
+		PUT_FSTR(2, 6, COL(WHITE), "Hit ESC to return to the game.");
 
 		for (k = 0; k < 32; k++) Term_putch(31 + k + (k / 2), 8, k / 2, '#');
 
 		do
 		{
-			display_line(2, 8, tum_col(optn == 0),
+			PUT_FSTR(2, 8, tum_col(optn == 0),
 			             "     Gamma correction : %i.%02i", gamma / 100, gamma % 100);
-			display_line(2, 9, tum_col(optn == 1),
+			PUT_FSTR(2, 9, tum_col(optn == 1),
 			             "     Force monochrome : %s", tum_onoff(force_mono));
-			display_line(2, 10, tum_col(optn == 2),
+			PUT_FSTR(2, 10, tum_col(optn == 2),
 			             "        Sound effects : %s", tum_onoff(enable_sound));
-			display_line(2, 11, tum_col(optn == 3),
+			PUT_FSTR(2, 11, tum_col(optn == 3),
 			             "  Sound effect volume : ");
-			display_line(26, 11,
-			             sound_volume > 127 ? TERM_RED : tum_col(optn == 3),
+			PUT_FSTR(26, 11,
+			             sound_volume > 127 ? COL(RED) : tum_col(optn == 3),
 			             "%-3d", sound_volume);
-			display_line(30, 11, tum_col(optn == 3), "(127 = full volume)");
-			display_line(2, 12, tum_col(optn == 4),
+			PUT_FSTR(30, 11, tum_col(optn == 3), "(127 = full volume)");
+			PUT_FSTR(2, 12, tum_col(optn == 4),
 			             "     Start fullscreen : %s",
 			             tum_onoff(start_fullscreen));
-			display_line(30, 12, tum_col(optn == 4),
+			PUT_FSTR(30, 12, tum_col(optn == 4),
 			             "(also selects fullscreen/desktop now)");
-			display_line(2, 13, tum_col(optn == 5),
+			PUT_FSTR(2, 13, tum_col(optn == 5),
 			             "        Use hourglass : %s", tum_onoff(use_glass));
-			display_line(2, 14, tum_col(optn == 6),
+			PUT_FSTR(2, 14, tum_col(optn == 6),
 			             "'Hard' input flushing : %s", tum_onoff(hack_flush));
 
-			display_line(2, 16, tum_col(optn == 7),
+			PUT_FSTR(2, 16, tum_col(optn == 7),
 			             "           Alarm type : %-20s",
 			             alarm_types[alarm_type]);
-			display_line(2, 17, TERM_WHITE,
+			PUT_FSTR(2, 17, COL(WHITE),
 			             "                 Time : ");
-			display_line(26, 17, tum_col(optn == 8), "%02d", alarm_h);
-			display_line(28, 17, TERM_WHITE, ":");
-			display_line(29, 17, tum_col(optn == 9), "%02d", alarm_m);
-			display_line(2, 18, tum_col(optn == 10),
+			PUT_FSTR(26, 17, tum_col(optn == 8), "%02d", alarm_h);
+			PUT_FSTR(28, 17, COL(WHITE), ":");
+			PUT_FSTR(29, 17, tum_col(optn == 9), "%02d", alarm_m);
+			PUT_FSTR(2, 18, tum_col(optn == 10),
 			             "              Message : %-51s", alarm_message);
-			display_line(2, 19, tum_col(optn == 11),
+			PUT_FSTR(2, 19, tum_col(optn == 11),
 			             "                 Beep : %s", tum_onoff(alarm_beep));
 
 #ifdef FE_DEBUG_INFO
-			display_line(2, 23, tum_col(optn == 23), "Show debug info");
+			PUT_FSTR(2, 23, tum_col(optn == 23), "Show debug info");
 			max_opt = 12;
 #endif
 
@@ -6886,7 +7333,7 @@ static errr Term_user_acn(int n)
 					break;
 				case 's':  case 'S':
 					save_choices();
-					display_line(2, 23, TERM_YELLOW, "Options saved.     ");
+					PUT_FSTR(2, 23, COL(YELLOW), "Options saved.     ");
 					Term_fresh();
 					Term_xtra(TERM_XTRA_DELAY, 750);
 					Term_erase(2, 23, 60);
@@ -8030,7 +8477,7 @@ static void show_debug_info(void)
 
 static int debug_cx = 0;
 static int debug_cy = 0;
-static int debug_cl = TERM_WHITE;
+static int debug_cl = COL(WHITE);
 static int debug_sl = 0;
 
 
@@ -8088,7 +8535,7 @@ static void debug_print_line(char *l)
 		if (--debug_sl < 0)
 		{
 			int k;
-			display_line(0, 23, TERM_YELLOW, "[RET one line, SPC one page]");
+			PUT_FSTR(0, 23, COL(YELLOW), "[RET one line, SPC one page]");
 			do
 			{
 				k = inkey();
@@ -8183,7 +8630,7 @@ static void debug_printf(char *fmt, ...)
 	char *p = buffer;
 
 	va_start(ap, fmt);
-	vsprintf(buffer, fmt, ap);
+	vstrnfmt(buffer, sizeof(buffer), fmt, ap);
 	va_end(ap);
 
 	/* Now split the string into display lines */
@@ -8194,10 +8641,10 @@ static void debug_printf(char *fmt, ...)
 
 static void debug_version_info(void)
 {
-	debug_tcol(TERM_YELLOW);
+	debug_tcol(COL(YELLOW));
 
 	debug_printf("\n\nMisc. Info:\n");
-	debug_tcol(TERM_WHITE);
+	debug_tcol(COL(WHITE));
 	debug_printf("\tVariant name = \"%s\"\n", VARIANT);
 	debug_printf("\tFront-end version: %s\n", PORTVERSION);
 	debug_printf("\tFront-end compiled: %s %s\n", __TIME__, __DATE__);
@@ -8215,48 +8662,48 @@ static void debug_version_info(void)
 	debug_printf("\t\tSMART_FILECACHE\n");
 #endif
 
-	debug_tcol(TERM_YELLOW);
+	debug_tcol(COL(YELLOW));
 	debug_printf("\nResource path:\n");
-	debug_tcol(TERM_WHITE);
+	debug_tcol(COL(WHITE));
 	debug_printf("\t\"%s\"\n", resource_path);
 
-	debug_tcol(TERM_YELLOW);
+	debug_tcol(COL(YELLOW));
 	debug_printf("\nTempfile path:\n");
-	debug_tcol(TERM_WHITE);
+	debug_tcol(COL(WHITE));
 	debug_printf("\t\"%s\"\n", scrap_path);
 	debug_printf("\tScrapfiles are %s deleted at exit.\n",
 				 (flush_scrap ? "" : "NOT"));
 
-	debug_tcol(TERM_YELLOW);
+	debug_tcol(COL(YELLOW));
 	debug_printf("\nChoices files:\n");
-	debug_tcol(TERM_L_BLUE);
+	debug_tcol(COL(L_BLUE));
 	debug_printf("\tDesired files:\n");
-	debug_tcol(TERM_WHITE);
+	debug_tcol(COL(WHITE));
 	debug_printf("\tPrimary (r/w): \"%s\"\n", choices_file[CHFILE_WRITE]);
 	debug_printf("\t Fallback (r): \"%s\"\n", choices_file[CHFILE_READ]);
 	debug_printf("\t Mirror (r/w): \"%s\"\n", choices_file[CHFILE_MIRROR]);
-	debug_tcol(TERM_L_BLUE);
+	debug_tcol(COL(L_BLUE));
 	debug_printf("\tActual files:\n");
-	debug_tcol(TERM_WHITE);
+	debug_tcol(COL(WHITE));
 	debug_printf("\t		Write: \"%s\"\n", find_choices(TRUE));
 	debug_printf("\t		 Read: \"%s\"\n", find_choices(FALSE));
 
-	debug_tcol(TERM_YELLOW);
+	debug_tcol(COL(YELLOW));
 	debug_printf("\nAlarm files:\n");
-	debug_tcol(TERM_L_BLUE);
+	debug_tcol(COL(L_BLUE));
 	debug_printf("\tDesired files:\n");
-	debug_tcol(TERM_WHITE);
+	debug_tcol(COL(WHITE));
 	debug_printf("\tPrimary (r/w): \"%s\"\n", alarm_file[CHFILE_WRITE]);
 	debug_printf("\t Fallback (r): \"%s\"\n", alarm_file[CHFILE_READ]);
-	debug_tcol(TERM_L_BLUE);
+	debug_tcol(COL(L_BLUE));
 	debug_printf("\tActual files:\n");
-	debug_tcol(TERM_WHITE);
+	debug_tcol(COL(WHITE));
 	debug_printf("\t		Write: \"%s\"\n", find_alarmfile(TRUE));
 	debug_printf("\t		 Read: \"%s\"\n", find_alarmfile(FALSE));
 #ifdef USE_DA
-	debug_tcol(TERM_YELLOW);
+	debug_tcol(COL(YELLOW));
 	debug_printf("\nDynamic areas:\n");
-	debug_tcol(TERM_WHITE);
+	debug_tcol(COL(WHITE));
 	debug_printf("\tFontcache DA = %d\t", font_area);
 	debug_printf("size = %d\theap size = %d\n", font_area_size, font_heap_size);
 	debug_printf("\t   ralloc DA = %d\t", game_area);
@@ -8268,7 +8715,7 @@ static void debug_version_info(void)
 static void debug_filecache_info(void)
 {
 #ifndef USE_FILECACHE
-	debug_tcol(TERM_L_DARK);
+	debug_tcol(COL(L_DARK));
 	debug_printf("File cache disabled at compile time.\n");
 #else
 	int j, k;
@@ -8281,12 +8728,12 @@ static void debug_filecache_info(void)
 	{
 		init_file_cache();
 	}							/* Paranoia */
-	debug_tcol(TERM_YELLOW);
+	debug_tcol(COL(YELLOW));
 	debug_printf("\nFilecache contents:\n");
-	debug_tcol(TERM_L_BLUE);
+	debug_tcol(COL(L_BLUE));
 	debug_printf("Flags: Smart=%d;  Abbrv=%d;  Slave=%d;   Enable=%d\n",
 				 smart_filecache, abbr_filecache, abbr_tmpfile, use_filecache);
-	debug_tcol(TERM_SLATE);
+	debug_tcol(COL(SLATE));
 	if (smart_filecache || abbr_filecache)
 		debug_printf("\t\t%3s  %6s/%-6s  %6s  %6s  Path (relative to lib/)\n",
 					 "Hnd", "Cache", "Disc", "Time", "Status");
@@ -8300,9 +8747,9 @@ static void debug_filecache_info(void)
 		if (fce->name)
 		{
 			cf++;
-			debug_tcol(TERM_L_GREEN);
+			debug_tcol(COL(L_GREEN));
 			debug_printf("\t\t%3d  ", j);
-			debug_tcol(TERM_L_UMBER);
+			debug_tcol(COL(L_UMBER));
 			if (!smart_filecache && !abbr_filecache)
 				debug_printf("%6d  ", fce->eof - fce->text);
 			else
@@ -8320,20 +8767,20 @@ static void debug_filecache_info(void)
 			for (k = 0; k < MAX_OPEN_CACHED_FILES; k++)
 				if (cached_file_handle[k].fce == fce)
 					break;
-			debug_tcol(TERM_RED);
+			debug_tcol(COL(RED));
 			debug_printf("%-6s  ", k < MAX_OPEN_CACHED_FILES ? "Open" : "");
-			debug_tcol(TERM_L_UMBER);
+			debug_tcol(COL(L_UMBER));
 			debug_printf("%s\n", fce->name + t);
 		}
 	}
 
-	debug_tcol(TERM_L_BLUE);
+	debug_tcol(COL(L_BLUE));
 	debug_printf("\tTotal:\t%3d  ", cf);
 	if (ucs)
 		debug_printf("%6d/%-6d\n", cs, ucs);
 	else
 		debug_printf("%6d\n", cs);
-	debug_tcol(TERM_BLUE);
+	debug_tcol(COL(BLUE));
 #endif /* USE_FILECACHE */
 }
 
@@ -8347,7 +8794,7 @@ static void show_debug_info(void)
 	/* Repeatedly prompt for a command */
 	do
 	{
-		debug_tcol(TERM_VIOLET);
+		debug_tcol(COL(VIOLET));
 		debug_printf("\nInfo: (V)ersion, (F)ilecache, ESC=exit ");
 		do
 		{
@@ -8373,5 +8820,6 @@ static void show_debug_info(void)
 #endif /* FE_DEBUG_INFO */
 
 #endif /* __riscos */
+
 
 

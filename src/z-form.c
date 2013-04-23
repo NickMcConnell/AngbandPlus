@@ -1,19 +1,22 @@
 /* File: z-form.c */
-
 /*
+ * File: z-form.c
+ * Purpose: Low-level text formatting (snprintf() replacement)
+ *
  * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
-
-/* Purpose: Low level text formatting -BEN- */
-
-#include "z-form.h"
-
-#include "z-util.h"
-#include "z-virt.h"
+#include "angband.h"
 
 
 /*
@@ -46,7 +49,7 @@
  * removed from the "format sequence", and replaced by the textual form
  * of the next argument in the argument list.  See examples below.
  *
- * Legal format characters: %,n,p,c,s,d,i,o,u,X,x,E,e,F,f,G,g,r,v.
+ * Legal format characters: %,b,n,p,c,s,d,i,o,u,X,x,E,e,F,f,G,g,r,v.
  *
  * Format("%%")
  *   Append the literal "%".
@@ -59,6 +62,11 @@
  * Format("%p", void *v)
  *   Append the pointer "v" (implementation varies).
  *   No legal modifiers.
+ *
+ * format("%b", int b)
+ *   Append the integer formatted as binary.
+ *   If a modifier of 1, 2, 3 or 4 is provided, then only append 2**n bits, not
+ *   all 32.
  *
  * Format("%E", double r)
  * Format("%F", double r)
@@ -105,6 +113,11 @@
  *   Do not use the "+" or "0" flags.
  *   Note that a "NULL" value of "s" is converted to the empty string.
  *
+ * Format("%y", type_union *y). Use any of the above patterns;
+ * z is interpreted as one of c, d, f, or s in the patterns above,
+ * as appropriate for the type of the corresponding argument.
+ * (There is currently no way to render a typeunion in octal or hex.)
+ *
  * For examples below, assume "int n = 0; int m = 100; char buf[100];",
  * plus "char *s = NULL;", and unknown values "char *txt; int i;".
  *
@@ -127,7 +140,6 @@
  * the first "i" characters of "txt", left justified, with the first non-space
  * character capitilized, if reasonable.
  */
-
 
 
 
@@ -207,6 +219,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 	/* Fatal error - no buffer length */
 	if (!max) quit("Called vstrnfmt() with empty buffer!");
 
+
 	/* Mega-Hack -- treat "no format" as "empty string" */
 	if (!fmt) fmt = "";
 
@@ -220,6 +233,8 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 	/* Scan the format string */
 	while (TRUE)
 	{
+		type_union tval = END;
+
 		/* All done */
 		if (!*s) break;
 
@@ -390,7 +405,33 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 		/* Clear "tmp" */
 		tmp[0] = '\0';
 
-		/* Process the "format" char */
+		/* Parse a type_union */
+		if (aux[q-1] == 'y')
+		{
+			tval = va_arg(vp, type_union);
+
+			if (do_long)
+			{
+				/* Error -- illegal type_union argument */
+				buf[0] = '\0';
+
+				/* Return "error" */
+				return (0);
+			}
+
+			/* Replace aux terminator with proper printf char */
+			if (tval.t == T_CHAR) aux[q-1] = 'c';
+			else if (tval.t == T_INT) aux[q-1] = 'd';
+			else if (tval.t == T_FLOAT) aux[q-1] = 'f';
+			else if (tval.t == T_STRING) aux[q-1] = 's';
+			else
+			{
+				buf[0] = '\0';
+				return (0);
+			}
+		}
+
+		/* Process the "format" symbol */
 		switch (aux[q-1])
 		{
 			/* Simple Character -- standard format */
@@ -399,7 +440,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				int arg;
 
 				/* Get the next argument */
-				arg = va_arg(vp, int);
+				arg = tval.t == T_END ? va_arg(vp, int) : tval.u.c;
 
 				/* Format the argument */
 				sprintf(tmp, aux, arg);
@@ -426,7 +467,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 					int arg;
 
 					/* Get the next argument */
-					arg = va_arg(vp, int);
+					arg = tval.t == T_END ? va_arg(vp, int) : tval.u.i;
 
 					/* Format the argument */
 					sprintf(tmp, aux, arg);
@@ -472,7 +513,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				double arg;
 
 				/* Get the next argument */
-				arg = va_arg(vp, double);
+				arg = tval.t == T_END ? va_arg(vp, double) : tval.u.f;
 
 				/* Format the argument */
 				sprintf(tmp, aux, arg);
@@ -502,8 +543,14 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				cptr arg;
 				char arg2[1024];
 
+				/* XXX There is a big bug here: if one
+				 * passes "%.0s" to strnfmt, then really we
+				 * should not dereference the arg at all.
+				 * But it does.  See bug #666.
+				 */
+
 				/* Get the next argument */
-				arg = va_arg(vp, cptr);
+				arg = tval.t == T_END ? va_arg(vp, cptr) : tval.u.s;
 
 				/* Hack -- convert NULL to EMPTY */
 				if (!arg) arg = "";
@@ -511,12 +558,55 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				/* Prevent buffer overflows */
 				(void)my_strcpy(arg2, arg, sizeof(arg2));
 
+				/* Translate it to 8-bit (Latin-1) */
+ 				xstr_trans(arg2, LATIN1);
+
 				/* Format the argument */
 				sprintf(tmp, aux, arg2);
 
 				/* Done */
 				break;
 			}
+
+#if 0 /* Later */
+			/* Binary */
+			case 'b':
+			{
+				int arg;
+				size_t i, max = 32;
+				u32b bitmask;
+				char out[32 + 1];
+
+				/* Get the next argument */
+				arg = va_arg(vp, int);
+
+				/* Check our aux string */
+				switch (aux[0])
+				{
+					case '1': max = 2;  break;
+					case '2': max = 4;  break;
+					case '3': max = 8;  break;
+					case '4': max = 16; break;
+					default:
+					case '5': max = 32; break;
+				}
+				/* Format specially */
+				for (i = 1; i <= max; i++, bitmask *= 2)
+				{
+					if (arg & bitmask) out[max - i] = '1';
+					else out[max - i] = '0';
+				}
+
+				/* Terminate */
+				out[max] = '\0';
+
+				/* Append the argument */
+				my_strcpy(tmp, out, sizeof tmp);
+
+				/* Done */
+				break;
+			}
+#endif
 
 			/* Oops */
 			default:
@@ -536,11 +626,11 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 			for (q = 0; tmp[q]; q++)
 			{
 				/* Notice first non-space */
-				if (!isspace((unsigned char)tmp[q]))
+				if (!my_isspace((unsigned char)tmp[q]))
 				{
 					/* Capitalize if possible */
-					if (islower((unsigned char)tmp[q]))
-						tmp[q] = toupper((unsigned char)tmp[q]);
+					if (my_islower((unsigned char)tmp[q]))
+						tmp[q] = my_toupper((unsigned char)tmp[q]);
 
 					/* Done */
 					break;
@@ -567,6 +657,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 	return (n);
 }
 
+
 /*
  * Add a formatted string to the end of a string
  */
@@ -578,6 +669,7 @@ void strnfcat(char *str, size_t max, size_t *end, cptr fmt, ...)
 
 	/* Paranoia */
 	if (*end >= max) return;
+
 	/* Begin the Varargs Stuff */
 	va_start(vp, fmt);
 
@@ -590,7 +682,6 @@ void strnfcat(char *str, size_t max, size_t *end, cptr fmt, ...)
 	/* Change the end value */
 	*end += len;
 }
-
 
 
 static char *format_buf = NULL;
@@ -607,7 +698,8 @@ char *vformat(cptr fmt, va_list vp)
 	if (!format_buf)
 	{
 		format_len = 1024;
-		C_MAKE(format_buf, format_len, char);
+		format_buf = C_RNEW(format_len, char);
+		format_buf[0] = 0;
 	}
 
 	/* Null format yields last result */
@@ -625,9 +717,8 @@ char *vformat(cptr fmt, va_list vp)
 		if (len < format_len-1) break;
 
 		/* Grow the buffer */
-		KILL(format_buf);
 		format_len = format_len * 2;
-		C_MAKE(format_buf, format_len, char);
+		format_buf = mem_realloc(format_buf, format_len);
 	}
 
 	/* Return the new buffer */
@@ -636,7 +727,7 @@ char *vformat(cptr fmt, va_list vp)
 
 void vformat_kill(void)
 {
-	KILL(format_buf);
+	FREE(format_buf);
 }
 
 
@@ -652,7 +743,7 @@ size_t strnfmt(char *buf, size_t max, cptr fmt, ...)
 	/* Begin the Varargs Stuff */
 	va_start(vp, fmt);
 
-	/* Do a virtual fprintf to stderr */
+	/* Do the va_arg fmt to the buffer */
 	len = vstrnfmt(buf, max, fmt, vp);
 
 	/* End the Varargs Stuff */
@@ -732,27 +823,4 @@ void quit_fmt(cptr fmt, ...)
 
 	/* Call quit() */
 	quit(res);
-}
-
-
-
-/*
- * Vararg interface to core()
- */
-void core_fmt(cptr fmt, ...)
-{
-	char *res;
-	va_list vp;
-
-	/* Begin the Varargs Stuff */
-	va_start(vp, fmt);
-
-	/* If requested, Do a virtual fprintf to stderr */
-	res = vformat(fmt, vp);
-
-	/* End the Varargs Stuff */
-	va_end(vp);
-
-	/* Call core() */
-	core(res);
 }

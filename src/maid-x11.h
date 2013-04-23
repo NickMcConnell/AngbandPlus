@@ -65,6 +65,8 @@ extern XImage *ReadBMP(Display *dpy, char *Name);
 extern bool smoothRescaling;
 extern XImage *ResizeImage(Display *dpy, XImage *Im,
 	int ix, int iy, int ox, int oy);
+extern bool register_angband_fonts(void);
+extern bool unregister_angband_fonts(void);
 
 #endif /* INCLUDED_MAID_X11_H */
 

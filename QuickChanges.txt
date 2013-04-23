@@ -1,0 +1,47 @@
+** v2.00
+
+Rebranded & gave contact details
+Changed version numbers
+Changed fixed quests
+Dealt with all incidences of Sauron, Morgoth, One Ring, Grond and Iron Crown in code
+Changed info files (many items/egos/arts available earlier or more common, others removed, etc)
+Created new rings of Robustness and Alertness
+Set tiles for the two quest monsters
+Improved spell success rates for casters, increased mana for mage-casters
+Randarts never get extra blows
+Reduced max damage from powerful monster distance attacks
+Great and good objects are more likely, cursed objects less likely
+Edited store inventories
+Less low-end hounds, and hounds are worth less XP
+Trapdoors are more common than other traps; level teleportation is more likely to be down than up
+Rings of speed and rings/amulets of +stat cannot be as good as before
+Some store services are no longer available
+Guild is closed
+Rooms are more likely to be lit
+Pseudo-id and level feelings work much faster
+Nexus stat-swapping is less severe
+Slow/sleep/confuse effects are more likely to work on monsters
+No player ghosts, quests, or extra artifacts
+Less XP needed to gain levels... up to a point
+Various stat effect tables are 'steeper'
+High Dex gives a speed bonus
+New blows formula
+Removed quest ticker
+Some wands and staffs have less charges
+Some unpleasant monsters are more common or shallower
+Dragons have more hp and breathe more often
+There are more monsters per level, and wandering monsters appear faster
+The effects of Con bonuses take a while to kick in
+Some funky levels are commoner
+Enchantments are unreliable if you have low Cha
+Warning messages for the effects of low Int, Wis or Cha
+
+
+
+
+
+
+
+
+
+

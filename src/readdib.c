@@ -17,19 +17,11 @@
  *   Sample Application Files which are modified.
  */
 
+#if defined(USE_WIN) || defined(WINDOWS) || defined(WIN32)
+
 #include <windows.h>
 
 #include "readdib.h"
-
-
-/*
- * Extract the "WIN32" flag from the compiler
- */
-#if defined(__WIN32__) || defined(__WINNT__) || defined(__NT__)
-# ifndef WIN32
-#  define WIN32
-# endif
-#endif
 
 
 /*
@@ -235,7 +227,7 @@ BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 			goto ErrExit;
 	}
 
-	if (!(nNumColors = (WORD)lpbi->biClrUsed))
+	if ((nNumColors = (WORD)lpbi->biClrUsed) == 0)
 	{
 		/* no color table for 24-bit, default size otherwise */
 		if (lpbi->biBitCount != 24)
@@ -346,3 +338,4 @@ void FreeDIB(DIBINIT *dib)
 	dib->hDIB = NULL;
 }
 
+#endif /* USE_WIN || WINDOWS || WIN32 */
