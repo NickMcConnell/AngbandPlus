@@ -1,0 +1,156 @@
+Quest_Angband 0.9.0
+
+This variant of angband (based on 2.8.1) features at the
+moment 20 quests.
+These quests are :
+        level 99        Sauron
+        level 100       Morgoth
+The other 18 quests are randomly chosen at the birth of
+a new character.
+
+When you enter a quest level you will get a message saying
+how many and which monster you will have to kill.
+
+The new command CTRL-Q will show the status of the current
+quest.
+
+When you finish a quest (kill the last monster) a staircase
+down will be placed and you will get at least one great item.
+
+Because this is only a test version it is possible to make a
+dump of the quests with the char dump. (Shift-C, f)
+
+The savefile isn't compatible with 2.8.1 because in 2.8.1
+the monster index of a quest was saved as a 8-bit int but I
+needed an 16-bit (more then 256 monsters). If you change
+load2.c you can load your old files but you won't have any
+quests (maybe not even Morgoth and Sauron, I'm not sure). I'll
+try and look in to this for a future version.
+
+If anyone has some ideas on this (or something else) or bugs
+please let me know.
+
+
+I've made the changes on a Win95 PC with Borland C++ 4.5, so
+this should work without any changes, for other platforms
+there shouldn't be a problem either because nothing
+system specific is changed (I think :-). Except the makefiles,
+I've added quest.c and this isn't changed in all the makefiles. 
+
+All the changes I've made, should be marked with my full name.
+
+
+Quest_Angband 0.9.5
+
+Changes made:
+
+Genocide and Mass genocide will (should) no longer kill
+quest monsters.
+
+The quest should be more spread (no five quests in a row).
+
+There is a chance all the quest monsters are placed in
+one special room (see v_info.txt).
+If you want more different rooms, feel free to send them
+to me.
+
+The makefile.ibm is changed to compile with gcc
+(Thanks to Gregory Velichan for sending me this file)
+
+Quest_Angband 0.9.8
+
+Changes Made:
+
+Solved the bug where a unique quest monsters could
+search infinitly for a quest room.
+
+The header of the dump file is changed.
+
+The number of monsters to kill is a bit more random.
+The lower the quest the more monsters you'll get.
+
+It is possible that there are more than one special
+quest room.
+
+I've added some more quest rooms.
+
+Because I'm leaving on vacation, I didn't have much
+time to test it. 
+
+This is probably the last beta, so in the next version
+I will probably remove the option to dump the quests.
+
+
+Other news:
+
+Quest Angband Homepage : http://www.softjoys.ru/~qa
+thanks to Max Maximov (mcsi@softjoys.ru)
+
+
+Quest_Angband 1.0.0
+
+I've finally found the time to work on Quest Angband.
+This is the first official version (without any
+bugs I hope). I'm playing it myself so it will
+probably take a while before any new version will be
+released (unles there are some serious bugs, our
+someone gives me a great idea, ...).
+
+Changes Made:
+
+A quest monster was able to multiply, that should be fixed.
+
+The quest should be a little bit easier (less monsters and
+less out of depth)
+
+I've added a scroll *Word of Recall* which will send you to
+the next Quest level when read in town, or bring you to town
+when read in the dungeon. It takes a little more time than
+the standard WoR scroll.
+
+In the town, drunks will insult you (I liked the idea when
+I read it on the newsgroup, thanks for the sender)
+
+The mages spells are more powerfull. The level of a mage is
+doubled for the damage calculation (only the mage not
+the ranger or rogue). But to compensate, a mage will be
+encumbered by armor much sooner.
+
+With the help of a friend, it is now possible to choose
+how many extra quests you want (between 0 and 40). You can
+still compile the game so that it will take the standard
+20 quests without asking. (Thanks to Jimmy De Leat)
+
+There was a Quest Room without doors (sorry).
+
+By the way, you can still dump the quests (character dump). This
+will probably be turned to a wizard option in the next version.
+
+
+Quest Angband 2.8.2
+
+Changes:
+
+- As you can see from the version, I've upgraded to 2.8.2
+- The mages spells have become even more powerfull (for the
+  mage only).
+- Mage can have a maximum of 2 attacks/round (was 4)
+- GoI changed: protects to a maximum damage of 200hp,
+  when hit with more than 200hp the duration will
+  be decreased, automatic resistant to acid, fire, cold,
+  poison and electicity.
+- The mages armor may weight only up to 15lbs
+- The mages weapon may weight only up to 10lbs
+- mana penalty for exceeding weight is more severe for all
+  classes.
+      for armor:  4lbs to much    -4 mana
+                  9lbs to much   -18 mana
+                 14lbs to much   -42 mana
+                     ...           ...
+- replaced Heroism and Berserker (in Tenser's Transformation)
+  with Collapse Ceiling and Elemental Bolt.
+
+
+Heino Vander Sanden
+
+Heino.VanderSanden@AdValvas.Be

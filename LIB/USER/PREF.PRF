@@ -1,0 +1,49 @@
+# File: pref.prf
+
+#
+# This file defines "default" actions of various kinds
+#
+# This file includes, if appropriate, various "sub-files"
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+
+
+# Command macro -- "X" will now "swap weapons" as long as both weapons
+# contain the inscription "@0".  For example, inscribe your main weapon
+# as "@1@0" and your digger (or secondary weapon) as "@2@0".
+
+A:w0
+C:X
+
+
+## # Option -- Default to original commands
+## X:rogue_like_commands
+
+## # Option -- Default to roguelike commands
+## Y:rogue_like_commands
+
+
+##### System Specific Subfiles #####
+
+?:[IOR [EQU $SYS x11] [EQU $SYS xaw]]
+%:pref-x11.prf
+
+## ?:[EQU $SYS gcu]
+## %:pref-gcu.prf
+
+?:[EQU $SYS ami]
+%:pref-ami.prf
+
+?:[EQU $SYS mac]
+%:pref-mac.prf
+
+?:[IOR [EQU $SYS win] [EQU $SYS ibm]]
+%:pref-win.prf
+
+?:[EQU $SYS emx]
+%:pref-emx.prf
+
+?:[EQU $SYS acn]
+%:pref-acn.prf
+
