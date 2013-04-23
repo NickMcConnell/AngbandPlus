@@ -726,6 +726,28 @@ static void get_stats(void);
 #define USE_AUTOROLLER FALSE
 #endif
 
+/*
+ * Copy birth options to somewhere where they are read.
+ */ 
+static void get_birth_options(void)
+{
+	option_type *op_ptr, *o2_ptr;
+
+	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
+	{
+		/* Not a birth option. */
+		if (op_ptr->o_page != OPTS_BIRTH) continue;
+
+		o2_ptr = op_ptr+1;
+
+		/* Not an option with a BIRTHR equivalent. */
+		if (o2_ptr->o_page != OPTS_BIRTHR) continue;
+
+		/* Copy the option across. */
+		*(o2_ptr->o_var) = *(op_ptr->o_var);
+	}
+}
+
 /* Return codes for birth_choice() */
 #define BC_OKAY	0
 #define BC_ABORT	1
@@ -740,7 +762,13 @@ static bc_type birth_option(void)
 	bool old_allow_pickstats = allow_pickstats;
 	bool old_maximise_mode = maximise_mode;
 	Term_save();
+
+	/* Modify the birth options as desired. */
 	do_cmd_options_aux(7, "Startup Options", NULL);
+
+	/* Copy the birth options to active locations. */
+	get_birth_options();
+
 	Term_load();
 	/* Start again if the set of questions being asked changes.
 	 * This does not include show_credits because this takes
@@ -961,7 +989,6 @@ static int change_points_by_stat(s16b from, s16b to)
 static errr save_stats(void)
 {
 	FILE *fff;
-	char buf[1024];
 	byte i,l;
 
 	/* Paranoia - check that there's something to save (the default entry does not count). */
@@ -970,14 +997,11 @@ static errr save_stats(void)
 	/* Drop priv's */
 	safe_setuid_drop();
 
-	/* Find user-loc.prf. */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "user-loc.prf");
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Append to the file */
-	fff = my_fopen(buf, "a");
+	fff = my_fopen_path(ANGBAND_DIR_USER, "user-loc.prf", "a");
 
 	/* Failure */
 	if (!fff) return ERR_PARSE;
@@ -1082,8 +1106,7 @@ static void display_player_birth(int points, bool details, bool rolled)
 	if (!USE_AUTOROLLER) arstr = "";
 
 	/* Write the point string, if any. */
-	if (attr) mc_roff(format(CC_PREFIX "%c%d" CC_PREFIX "w points left. ",
-		attr, points));
+	if (attr) mc_roff(format("$%c%d$w points left. ", attr, points));
 
 	/* Write the rest of the first string. */
 	mc_roff(format("Press %sX to restart,%c", finstr, b2));
@@ -1226,6 +1249,9 @@ static bool point_mod_player(void)
 	char stat = UNREAD_VALUE; /* Never used when i = IDX_ALL, and initialised below otherwise. */
 	s16b points = UNREAD_VALUE; /* Initialised when i = IDX_ALL */
 	u16b i;
+
+	/* Synchronise the birth options initially. */
+	get_birth_options();
 
 	/* Set cheat_item to ensure that the weapons are described fully. Note
 	 * that this has no long-term effects. */
@@ -2633,48 +2659,6 @@ static void birth_put_stats(void)
 }
 
 /*
- *  Initialise the matrix of quests
- */
-static void initialise_quests(void)
-{
-	int i,j;
-
-	/* Start with no quests */
-	for (i = 0; i < MAX_QUESTS; i++)
-	{
-		q_list[i].level = 0;
-		q_list[i].r_idx = 0;
-		q_list[i].cur_num = 0;
-		q_list[i].cur_num_known = 0;
-		q_list[i].max_num = 0;
-	}
-
-	/* Add end of dungeon quests */
-	for(i=0; i< MAX_CAVES; i++)
-	{
-		/* End Creature */
-		j=i*2;
-		if(dun_defs[i].first_guardian > 0)
-		{
-			q_list[j].level = dun_defs[i].first_level;
-			q_list[j].r_idx = dun_defs[i].first_guardian;
-			q_list[j].dungeon = i;
-			q_list[j].max_num = 1;
-		}
-		j++;
-		/* Second Guardian? */
-		if(dun_defs[i].second_guardian > 0)
-		{
-			q_list[j].level = dun_defs[i].second_level;
-			q_list[j].r_idx = dun_defs[i].second_guardian;
-			q_list[j].dungeon = i;
-			q_list[j].max_num = 1;
-		}
-	}
-}
-
-
-/*
  * Get number of quest monsters for quest i
  * Heino Vander Sanden
  */
@@ -2702,31 +2686,38 @@ static int get_number_monster(int i)
  */
 static int get_rnd_q_monster(int q_idx)
 {
-	int r_idx,j,tmp;
-
-	tmp = rand_range(1,10);
-	/* first level 6 monster (87), last monster (573) */
-	switch (tmp)
+	int r_idx,j;
+	s16b q_ranges[] =
 	{
-		case 1 : r_idx = rand_range(181,220); break;
-		case 2 : r_idx = rand_range(221,260); break;
-		case 3 : r_idx = rand_range(261,300); break;
-		case 4 : r_idx = rand_range(301,340); break;
-		case 5 : r_idx = rand_range(341,380); break;
-		case 6 : r_idx = rand_range(381,420); break;
-		case 7 : r_idx = rand_range(421,460); break;
-		case 8 : r_idx = rand_range(461,500); break;
-		case 9 : r_idx = rand_range(501,530); break;
-		case 10 : r_idx = rand_range(531,560); break;
-		default : r_idx = rand_range (87,573);
-	}
+		MON_HELLBAT,
+		MON_QUASIT,
+		MON_COLD_VORTEX,
+		MON_HELLBLADE,
+		MON_NEXUS_QUYLTHULG,
+		MON_ACIDIC_CYTOPLASM,
+		MON_TIME_VORTEX,
+		MON_MASTER_LICH,
+		MON_DEMONIC_QUYLTHULG,
+		MON_BAST_GODDESS_OF_CATS,
+		MON_MEPHISTOPHELES_LORD_OF_HELL /* Not eligible for quests. */
+	};
+
+	/* Pick a random monster in one of the above ranges. */
+	r_idx = rand_int(10);
+	r_idx = rand_range(q_ranges[r_idx], q_ranges[r_idx+1]-1);
+
 	/* Don't multipliers to be random guardians */
 	if (r_info[r_idx].flags2 & (RF2_MULTIPLY)) return (0);
+
+	/* Paranoia? - Don't allow uncreatable guardians. */
+	if (!r_info[r_idx].rarity) return (0);
+
 	/* Don't allow duplicate guardians */
 	for (j = 2; j < q_idx; j++)
 	{
 		if (q_list[j].r_idx == r_idx) return (0);
 	}
+
 	return (r_idx);
 }
 
@@ -2751,10 +2742,6 @@ static void player_wipe(void)
 	/* No weight */
 	total_weight = 0;
 
-	/* No items */
-	inven_cnt = 0;
-	equip_cnt = 0;
-
 	/* Clear the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
@@ -2769,9 +2756,6 @@ static void player_wipe(void)
 		a_ptr->cur_num = 0;
 	}
 	
-
-	/* Start with no quests */
-	initialise_quests(); /* DEAN */
 
 	/* Reset the "objects" */
 	for (i = 1; i < MAX_K_IDX; i++)
@@ -2976,7 +2960,7 @@ static void player_outfit(void)
         /* These objects are "storebought" */
         q_ptr->ident |= IDENT_STOREB;
 
-        (void)inven_carry(q_ptr, FALSE);
+        (void)inven_carry(q_ptr);
 
                                         
     }
@@ -2987,7 +2971,7 @@ static void player_outfit(void)
         q_ptr->number = (char)rand_range(3, 7);
         object_aware(q_ptr);
         object_known(q_ptr);
-        (void)inven_carry(q_ptr, FALSE);
+        (void)inven_carry(q_ptr);
     }
 
 
@@ -3007,7 +2991,7 @@ static void player_outfit(void)
         /* These objects are "storebought" */
         q_ptr->ident |= IDENT_STOREB;
 
-        (void)inven_carry(q_ptr, FALSE);
+        (void)inven_carry(q_ptr);
 
         /* Get local object */
         q_ptr = &forge;
@@ -3021,7 +3005,7 @@ static void player_outfit(void)
         /* These objects are "storebought" */
         q_ptr->ident |= IDENT_STOREB;
 
-        (void)inven_carry(q_ptr, FALSE);
+        (void)inven_carry(q_ptr);
 
     }
     else
@@ -3033,7 +3017,7 @@ static void player_outfit(void)
         q_ptr->pval = (char)rand_range(3, 7) * 500;
         object_aware(q_ptr);
         object_known(q_ptr);
-        (void)inven_carry(q_ptr, FALSE);
+        (void)inven_carry(q_ptr);
     }
     /* For characters starting with magical skill, give them a spellbook */
     if (skill_set[SKILL_MANA].value > 0) {
@@ -3064,7 +3048,7 @@ static void player_outfit(void)
 		q_ptr->number = 1;
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		(void)inven_carry(q_ptr, FALSE);
+		(void)inven_carry(q_ptr);
     }
         	 		
 
@@ -3103,7 +3087,7 @@ static void player_outfit(void)
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		(void)inven_carry(q_ptr, FALSE);
+		(void)inven_carry(q_ptr);
 	}
 }
 
@@ -3115,9 +3099,18 @@ static void player_birth_quests(void)
 {
 	int i,j;
 	bool same_level;
+	int q_max = z_info->quests;
+	quest_type *q_list_tmp;
+
+	/* Add an extra 11-30 random quests. */
+	q_max = z_info->quests+rand_range(11,30);
+	C_MAKE(q_list_tmp, q_max, quest_type);
+	C_COPY(q_list_tmp, q_list, z_info->quests, quest_type);
+	KILL(q_list);
+	q_list = q_list_tmp;
 
 	/* Generate to MAX_Q_IDX with random quests */
-	for (i = (MAX_CAVES*2); i<MAX_Q_IDX; i++)
+	for (i = z_info->quests; i<q_max; i++)
 	{
 		do
 		{
@@ -3136,8 +3129,8 @@ static void player_birth_quests(void)
 			/* Quest monster at least 2 levels out of depth */
 			q_list[i].level -= rand_range(2, 3+(q_list[i].level / 6));
 
-			/* No 2 quests on the same level */
-			for (j = 2; j<i; j++)
+			/* No 2 quests on the same level (?) */
+			for (j = 0; j<i; j++)
 			{
 				if (q_list[i].level == q_list[j].level)
 				{
@@ -3149,20 +3142,19 @@ static void player_birth_quests(void)
 		while (same_level);
 		
 		/* Make sure uniques aren't created outside their level */
-		if (r_info[q_list[i].r_idx].flags1 & RF1_UNIQUE) r_info[q_list[i].r_idx].flags1 |= RF1_ALWAYS_GUARD;
+		if (r_info[q_list[i].r_idx].flags1 & RF1_UNIQUE) r_info[q_list[i].r_idx].flags1 |= RF1_GUARDIAN;
 
 		/* Now place quest in a random dungeon
 		 * but not on its lowest two levels as they *may*
 		 * contain 'hard-coded' quests.
 		 */
-		j=rand_range(1,MAX_CAVES)-1;
-		while((q_list[i].level <= dun_defs[j].offset) ||
-			      (q_list[i].level >= dun_defs[j].max_level + dun_defs[j].offset) ||
-				  (q_list[i].level == dun_defs[j].first_level + dun_defs[j].offset) ||
-				  (q_list[i].level == dun_defs[j].second_level + dun_defs[j].offset))
+		do
 		{
 			j=rand_range(1,MAX_CAVES)-1;
 		}
+		while((q_list[i].level <= dun_defs[j].offset) ||
+			(q_list[i].level >= dun_defs[j].max_level + dun_defs[j].offset));
+
 		/* j now holds a valid dungeon, so set the quest and
 		 * modify its level
 		 */
@@ -3171,6 +3163,9 @@ static void player_birth_quests(void)
 
 		q_list[i].max_num = get_number_monster(i);
 	}
+
+	/* Remember the new number of quests. */
+	z_info->quests = q_max;
 }
 
 
@@ -3340,8 +3335,6 @@ static bool quick_start_character(void)
 	c_put_str(TERM_L_BLUE, player_name, 2, 13);
 
 	/* Generate quests */
-	/* Set max number of quest */
-	MAX_Q_IDX =randint(20)+10+(2*MAX_CAVES);
 	player_birth_quests();
 
 #ifdef ALLOW_AUTOROLLER
@@ -3665,12 +3658,12 @@ static bool quick_start_character(void)
 		p_ptr->muta3 = 0;
 
 		/* Player has no recal ritual yet */
-		p_ptr->ritual = MAX_TOWNS + 1;
+		p_ptr->ritual = TOWN_NONE;
 
 		/* Player has no house yet */
-		for(i=0;i<MAX_TOWNS;i++)
+		for(i=0;i<MAX_STORES_TOTAL;i++)
 		{
-			p_ptr->house[i] = 0;
+			store[i].bought = FALSE;
 		}
 		
 		/* Input loop */
@@ -4000,8 +3993,6 @@ static bool player_birth_aux(void)
 		clear_from(15);
 
 		/* Generate quests */
-		/* Set max number of quest */
-		MAX_Q_IDX =randint(20)+10+(2*MAX_CAVES);
 		player_birth_quests();
 
 		/* Clean up */
@@ -4016,12 +4007,12 @@ static bool player_birth_aux(void)
 		p_ptr->energy=1050; /* Should this be based on TURN_ENERGY? */
 
 		/* Player has no recal ritual yet */
-		p_ptr->ritual = MAX_TOWNS + 1;
+		p_ptr->ritual = TOWN_NONE;
 
 		/* Player has no house yet */
-		for(i=0;i<MAX_TOWNS;i++)
+		for(i=0;i<MAX_STORES_TOTAL;i++)
 		{
-			p_ptr->house[i] = 0;
+			store[i].bought = FALSE;
 		}
 
 		/* Generate the character. */

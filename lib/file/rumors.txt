@@ -1,3 +1,8 @@
+# rumors.txt
+#
+# This contains the rumours shopkeepers sometimes mention when you trade with
+# them, and is also used for some of the contents of scrolls of rumour.
+
 248
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 They say that you can't trust rumors.

@@ -122,8 +122,8 @@ static void drop_special(monster_type *m_ptr)
 		/* Decide whether to drop correct ones. */
 		if (!death_event_roll(d_ptr, &one_dropped, &total_num, &total_denom)) continue;
 
-		/* Give some feedback to wizards. */
-		if (cheat_wzrd) msg_format("Processing death event %d", i);
+		/* Give some feedback to cheaters. */
+		if (cheat_xtra) msg_format("Processing death event %d", i);
 
 		/* Actually carry out event
 		 * Note that illegal events and default values are dealt with
@@ -209,8 +209,8 @@ static void drop_special(monster_type *m_ptr)
 				/* Print any specified text. */
 				if (d_ptr->text) msg_print(event_text+d_ptr->text);
 
-				/* Give the wizards a basic explanation. */
-				if (cheat_wzrd) msg_format("Explosion of radius %d, power %d and type %d triggered.", i_ptr->radius, damage, typ);
+				/* Give cheaters a basic explanation. */
+				if (cheat_xtra) msg_format("Explosion of radius %d, power %d and type %d triggered.", i_ptr->radius, damage, typ);
 
 				/* Then cause an explosion. */
 				(void)project((m_ptr - m_list), i_ptr->radius, m_ptr->fy, m_ptr->fx, damage, i_ptr->method, typ);
@@ -2280,7 +2280,7 @@ void monster_death(int m_idx)
 		object_copy(q_ptr, o_ptr);
 
 		/* Delete the object */
-		delete_object_idx(this_o_idx);
+		delete_dun_object(o_ptr);
 
 		/* Drop it */
 		drop_near(q_ptr, -1, y, x);
@@ -2301,22 +2301,26 @@ void monster_death(int m_idx)
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 
     if (cloned) number = 0; /* Clones drop no stuff */
- 	if ((is_quest(dun_level)) && ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)))
+ 	if ((is_quest(dun_level)) && (r_ptr->flags1 & RF1_GUARDIAN))
 	{
-		q_idx = get_quest_number ();
-		q_list[q_idx].cur_num++;
-		if (visible) q_list[q_idx].cur_num_known++;
+		quest_type *q_ptr = get_quest();
+		q_ptr->cur_num++;
+		if (visible) q_ptr->cur_num_known++;
 
-		if (q_list[q_idx].cur_num == q_list[q_idx].max_num)
+		if (q_ptr->cur_num == q_ptr->max_num)
 		{
 			/* The quest monsters must have all died. */
-			note_monster_death(r_ptr, q_list[q_idx].cur_num-q_list[q_idx].cur_num_known);
+			note_monster_death(r_ptr, q_ptr->cur_num-q_ptr->cur_num_known);
+
+			/* Remove the block on normal generation. */
+			r_ptr->flags1 &= ~(RF1_GUARDIAN);
 			
 			/* Drop at least 2 items (the stair will probably destroy one */
 			number += 2;
 			quest = TRUE;
-			q_list[q_idx].level=0;
+			q_ptr->level=0;
 		}
+
 	}
 
 
@@ -2382,7 +2386,7 @@ void monster_death(int m_idx)
 
 
 	/* Only process "Quest Monsters" */
-	if (!((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD))) return;
+	if (!(r_ptr->flags1 & RF1_GUARDIAN)) return;
 
 	/* Check if quest is complete (Heino Vander Sanden) */
 	if (q_list[q_idx].cur_num != q_list[q_idx].max_num) return;
@@ -2416,7 +2420,7 @@ void monster_death(int m_idx)
 			/* Explain the stairway */
 			msg_print("A magical stairway appears...");
 
-			if (dun_defs[cur_dungeon].tower)
+			if (dun_defs[cur_dungeon].flags & DF_TOWER)
 			{
 				/* Create stairs up */
 				cave_set_feat(y, x, FEAT_LESS);
@@ -2509,7 +2513,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		C_TNEW(m_name, MNAME_MAX, char);
 
 		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0, MNAME_MAX);
+		strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0);
 
        if ((r_ptr->flags3 & (RF3_GREAT_OLD_ONE)) && (randint(2)==1))
        {
@@ -2522,19 +2526,17 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
        if (speak_unique && (r_ptr->flags2 & (RF2_CAN_SPEAK)))
 			{
-                char line_got[80];
                 int reward=0;
 
                 /* Dump a message */
-
-                get_rnd_line("mondeath.txt", line_got);
-                msg_format("%^s says: %s", m_name, line_got);
+                msg_format("%^s says: %v", m_name,
+					get_rnd_line_f1, "mondeath.txt");
 
                 if (randint(REWARD_CHANCE)==1)
                 {
                     msg_format("There was a price on %s's head.", m_name);
-                    get_rnd_line("crime.txt", line_got);
-                    msg_format("%^s was wanted for %s", m_name, line_got);
+                    msg_format("%^s was wanted for %s", m_name,
+						get_rnd_line_f1, "crime.txt");
                     reward = 250 * (randint (10) + r_ptr->level - 5);
  
                     if (reward > 32000) reward = 32000;/* Force 'good' values */
@@ -2634,7 +2636,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* XXX XXX Mega-Hack -- allow another ghost later
 		 * Remove the slain bone file */
-		if (m_ptr->r_idx == MAX_R_IDX-1)
+		if (m_ptr->r_idx == MON_PLAYER_GHOST)
 		{
 			r_ptr->max_num = 1;
 
@@ -2894,7 +2896,7 @@ void resize_map(void)
 	panel_bounds_prt();
 
 	/* Redraw everything (even the left-hand bar, which is unchanged). */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+	p_ptr->redraw |= (PR_WIPE_1 | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Hack -- update */
 	redraw_stuff();
@@ -3475,7 +3477,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				boring = FALSE;
 
 				/* Get the monster name ("a kobold") */
-				monster_desc(m_name, m_ptr, 0x08, MNAME_MAX);
+				strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0x08);
 
 				/* Hack -- track this monster race */
 				monster_race_track(m_ptr->r_idx);
@@ -3565,7 +3567,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Obtain an object description */
-					object_desc(o_name, o_ptr, TRUE, 3);
+					strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 
 					/* Describe the object */
 					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
@@ -3617,7 +3619,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				boring = FALSE;
 
 				/* Obtain an object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 
 				/* Describe the object */
 				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
@@ -3702,29 +3704,29 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 /*
  * Hack - uniques flash violet in target mode.
- * The violet_uniques variable gives uniques a special colour when
- * violet_uniques == 2 Setting it to 0 disables the effect, making it act like
- * a boolean when not within target_set().
+ * The violet_uniques variable gives uniques, etc., a special colour when TRUE.
  */
 static void do_violet_uniques(bool swap)
 {
 	int i;
-	switch (violet_uniques)
-	{
-		case 1: if (swap) violet_uniques = 2; break;
-		case 2: violet_uniques = 1; break;
-	}
-
+	if (!violet_uniques && swap)
+		violet_uniques = TRUE;
+	else
+		violet_uniques = FALSE;
+	
 	/* Redraw all visible monsters. */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
 		/* Ignore unseen monsters */
 		if (!m_ptr->ml) continue;
 
-		/* Ignore colour-changing uniques half of the time unless hallucinating. */
-		if (r_ptr->flags1 & RF1_UNIQUE && r_ptr->flags1 & RF1_ATTR_MULTI && !p_ptr->image && violet_uniques == 2) continue;
+		/* Ignore colour-changing uniques half of the time unless
+		 * hallucinating. This gives them the desired slow colour change. */
+		if (r_ptr->flags1 & RF1_UNIQUE && r_ptr->flags1 & RF1_ATTR_MULTI &&
+			!p_ptr->image && violet_uniques) continue;
 
 		/* Redraw everything else. */		
 		lite_spot(m_ptr->fy, m_ptr->fx);
@@ -4848,7 +4850,7 @@ void gain_level_reward(int chosen_reward)
         case REW_POLY_WND:
             msg_format("You feel the power of %s touch you.",
                 chaos_patron_shorts[p_ptr->chaos_patron]);
-            do_poly_wounds();
+            do_poly_wounds(MON_CHAOS_PATRON);
             break;
         case REW_AUGM_ABL:
             msg_format("The voice of %s booms out:",
@@ -4864,7 +4866,7 @@ void gain_level_reward(int chosen_reward)
                 chaos_patron_shorts[p_ptr->chaos_patron]);
             msg_print("'Suffer, pathetic fool!'");
             fire_ball(GF_DISINTEGRATE, 0, (skill_used * 4), 4);
-            take_hit(skill_used * 4, wrath_reason);
+            take_hit(skill_used * 4, wrath_reason, MON_CHAOS_PATRON);
             break;
        case REW_HEAL_FUL:
             msg_format("The voice of %s booms out:",
@@ -4922,7 +4924,7 @@ void gain_level_reward(int chosen_reward)
             msg_format("The voice of %s thunders:",
                 chaos_patron_shorts[p_ptr->chaos_patron]);
             msg_print("'Die, mortal!'");
-            take_hit(skill_used * 4, wrath_reason);
+            take_hit(skill_used * 4, wrath_reason, MON_CHAOS_PATRON);
             for (dummy = 0; dummy < 6; dummy++)
             {
                 (void) dec_stat(dummy, 10 + randint(15), FALSE);

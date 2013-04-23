@@ -511,55 +511,20 @@ void search(void)
  */
 static char get_check_ynq(cptr prompt)
 {
-	/* There can be Term->wid characters in the prompt, and 4 in the
-	 * ascii_to_text() output. */
-	C_TNEW(tmp, Term->wid+5, char);
-
-	char i;
-
-	/* Create a single-line prompt. */
-	sprintf(tmp, "%.*s[y/n/q] ", Term->wid-(int)strlen("[y/n/q] "), prompt);
-
-	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
-
-	/* Hack -- display a "useful" prompt */
-	prt(tmp, 0, 0);
+	char rc;
 
 	/* Help */
 	help_track("ynq_prompt");
 
-	/* Get an acceptable answer */
-	while (TRUE)
-	{
-		i = inkey();
-		if (quick_prompt) break;
-		if (i == ESCAPE) break;
-		if (strchr("YyNnQq", i)) break;
-		bell();
-	}
+	rc = get_check_aux(prompt, "%.*s[y/n]%s%v", "nN\033yY\rQq", "nnnyyyqq");
+
+	/* Leave a message. */
+	message_add(format(0));
 
 	/* Done with help */
 	help_track(NULL);
 
-	/* Erase the prompt */
-	prt("", 0, 0);
-
-	/* Find a printable version of the answer. */
-	ascii_to_text(strchr(tmp, '\0'), format("%c", i));
-
-	/* Leave a record */
-	message_add(tmp);
-	
-	TFREE(tmp);
-
-	/* Return output (default to no). */
-	switch (i)
-	{
-		case 'y': case 'Y': return 'y';
-		case 'q': case 'Q': return 'q';
-		case 'n': case 'N': default: return 'n';
-	}
+	return rc;
 }
 
 
@@ -573,8 +538,6 @@ void carry(int pickup)
 	cave_type *c_ptr = &cave[py][px];
 
 	s16b this_o_idx, next_o_idx = 0;
-
-	C_TNEW(o_name, ONAME_MAX, char);
 
 	bool gold_only = FALSE;
 
@@ -595,12 +558,9 @@ void carry(int pickup)
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
 		{
-			/* Describe the object */
-			object_desc(o_name, o_ptr, FALSE, 0);
-
 			/* Message */
-            msg_format("You collect %ld gold pieces worth of %s.",
-				   (long)o_ptr->pval, o_name);
+            msg_format("You collect %ld gold pieces worth of %v.",
+				   (long)o_ptr->pval, object_desc_f3, o_ptr, FALSE, 0);
 
 			/* Collect the gold */
 			p_ptr->au += o_ptr->pval;
@@ -612,7 +572,7 @@ void carry(int pickup)
 			p_ptr->window |= (PW_PLAYER);
 
 			/* Delete the gold */
-			delete_object_idx(this_o_idx);
+			delete_dun_object(o_ptr);
 		}
 
 		/* gold_only cancels the collection of objects, but gold is picked up
@@ -622,22 +582,20 @@ void carry(int pickup)
 		/* Pick up objects */
 		else
 		{
-			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
-
 			/* Display description if needed. */
 			object_track(o_ptr);
 
 			/* Describe the object */
 			if (!pickup)
 			{
-				msg_format("You see %s.", o_name);
+				msg_format("You see %v.", object_desc_f3, o_ptr, TRUE, 3);
 			}
 
 			/* Note that the pack is too full */
 			else if (!inven_carry_okay(o_ptr))
 			{
-				msg_format("You have no room for %s.", o_name);
+				msg_format("You have no room for %v.",
+					object_desc_f3, o_ptr, TRUE, 3);
 			}
 
 			/* Pick up the item (if requested and allowed) */
@@ -648,8 +606,9 @@ void carry(int pickup)
 				/* Hack -- query every item */
 				if (carry_query_flag && !strstr(quark_str(o_ptr->note), "=g"))
 				{
-					char c;
-					c = get_check_ynq(format("Pick up %s? ", o_name));
+					char c = get_check_ynq(format("Pick up %.*v? ",
+						Term->wid-strlen("Pick up ? "),
+						object_desc_f3, o_ptr, TRUE, 3));
 
 					/* Pick up this object. */
 					okay = (c == 'y');
@@ -661,63 +620,26 @@ void carry(int pickup)
 				/* Attempt to pick up an object. */
 				if (okay)
 				{
-					int slot;
-
 					/* Carry the item */
-					slot = inven_carry(o_ptr, FALSE);
-
-					/* Get the item again */
-					o_ptr = &inventory[slot];
-
-					/* Describe the object */
-					object_desc(o_name, o_ptr, TRUE, 3);
+					object_type *j_ptr = inven_carry(o_ptr);
 
 					/* Message */
-					msg_format("You have %s (%c).", o_name, index_to_label(slot));
+					msg_format("You have %v (%c).",
+						object_desc_f3, j_ptr, TRUE, 3, index_to_label(j_ptr));
 
 					/* Remember the object */
-					object_track(o_ptr);
+					object_track(j_ptr);
 
 					/* Delete the object */
-					delete_object_idx(this_o_idx);
+					delete_dun_object(o_ptr);
 				}
 			}
 		}
 	}
-	TFREE(o_name);
 }
 
 
 
-
-
-/*
- * Determine if a trap affects the player.
- * Always miss 5% of the time, Always hit 5% of the time.
- * Otherwise, match trap power against player armor.
- */
-static int check_hit(int power)
-{
-	int k, ac;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- 5% hit, 5% miss */
-	if (k < 10) return (k < 5);
-
-	/* Paranoia -- No power */
-	if (power <= 0) return (FALSE);
-
-	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
-
-	/* Power competes against Armor */
-	if (randint(power) > ((ac * 3) / 4)) return (TRUE);
-
-	/* Assume miss */
-	return (FALSE);
-}
 
 
 
@@ -754,7 +676,7 @@ static void hit_trap(void)
                 msg_print("You fell through a trap door!");
 				dam = damroll(2, 8);
                 name = "a trap door";
-		   		if (dun_defs[cur_dungeon].tower)
+		   		if (dun_defs[cur_dungeon].flags & DF_TOWER)
 				{
 					change_level(dun_level-1, START_RANDOM);
 				}
@@ -762,7 +684,7 @@ static void hit_trap(void)
 				{
 					change_level(dun_level+1, START_RANDOM);
 				}
-			take_hit(dam, name);
+			take_hit(dam, name, MON_TRAP);
 			}
 			break;
 		}
@@ -779,7 +701,7 @@ static void hit_trap(void)
                 msg_print("You fell into a pit!");
 				dam = damroll(2, 6);
                 name = "a pit trap";
-				take_hit(dam, name);
+				take_hit(dam, name, MON_TRAP);
 			}
 			break;
 		}
@@ -811,7 +733,7 @@ static void hit_trap(void)
 				}
 
 				/* Take the damage */
-				take_hit(dam, name);
+				take_hit(dam, name, MON_TRAP);
 			}
 			break;
 		}
@@ -856,7 +778,7 @@ static void hit_trap(void)
 				}
 
 				/* Take the damage */
-				take_hit(dam, name);
+				take_hit(dam, name, MON_TRAP);
 			}
 
 			break;
@@ -889,7 +811,7 @@ static void hit_trap(void)
 		{
 			msg_print("You are enveloped in flames!");
 			dam = damroll(4, 6);
-			fire_dam(dam, "a fire trap");
+			fire_dam(dam, "a fire trap", MON_TRAP);
 			break;
 		}
 
@@ -897,17 +819,17 @@ static void hit_trap(void)
 		{
 			msg_print("You are splashed with acid!");
 			dam = damroll(4, 6);
-			acid_dam(dam, "an acid trap");
+			acid_dam(dam, "an acid trap", MON_TRAP);
 			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x08:
 		{
-			if (check_hit(125))
+			if (check_hit(125, 0))
 			{
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
-				take_hit(dam, name);
+				take_hit(dam, name, MON_TRAP);
 				(void)set_slow(p_ptr->slow + rand_int(20) + 20);
 			}
 			else
@@ -919,11 +841,11 @@ static void hit_trap(void)
 
 		case FEAT_TRAP_HEAD + 0x09:
 		{
-			if (check_hit(125))
+			if (check_hit(125, 0))
 			{
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
-		take_hit(dam, "a dart trap");
+		take_hit(dam, "a dart trap", MON_TRAP);
 				(void)do_dec_stat(A_STR);
 			}
 			else
@@ -935,11 +857,11 @@ static void hit_trap(void)
 
 		case FEAT_TRAP_HEAD + 0x0A:
 		{
-			if (check_hit(125))
+			if (check_hit(125, 0))
 			{
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
-		take_hit(dam, "a dart trap");
+		take_hit(dam, "a dart trap", MON_TRAP);
 				(void)do_dec_stat(A_DEX);
 			}
 			else
@@ -951,11 +873,11 @@ static void hit_trap(void)
 
 		case FEAT_TRAP_HEAD + 0x0B:
 		{
-			if (check_hit(125))
+			if (check_hit(125, 0))
 			{
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
-		take_hit(dam, "a dart trap");
+		take_hit(dam, "a dart trap", MON_TRAP);
 				(void)do_dec_stat(A_CON);
 			}
 			else
@@ -1017,21 +939,16 @@ static void touch_zap_player(monster_type *m_ptr)
         {
             if (!(p_ptr->immune_fire))
             {
-
-                char aura_dam[80];
-
                 aura_damage
                     = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
-
-            /* Hack -- Get the "died from" name */
-             monster_desc(aura_dam, m_ptr, 0x88, MNAME_MAX);
 
                 msg_print("You are suddenly very hot!");
 
                 if (p_ptr->oppose_fire) aura_damage = (aura_damage+2) / 3;
                 if (p_ptr->resist_fire) aura_damage = (aura_damage+2) / 3;
 
-                take_hit(aura_damage, aura_dam);
+                take_hit(aura_damage,
+					format("%v", monster_desc_f2, m_ptr, 0x88), m_ptr->r_idx);
                 r_ptr->r_flags2 |= RF2_AURA_FIRE;
                 handle_stuff();
             }
@@ -1042,19 +959,15 @@ static void touch_zap_player(monster_type *m_ptr)
         {
             if (!(p_ptr->immune_elec))
             {
-                char aura_dam[80];
-
                 aura_damage
                     = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
-
-            /* Hack -- Get the "died from" name */
-             monster_desc(aura_dam, m_ptr, 0x88, MNAME_MAX);
 
                 if (p_ptr->oppose_elec) aura_damage = (aura_damage+2) / 3;
                 if (p_ptr->resist_elec) aura_damage = (aura_damage+2) / 3;
                 
                 msg_print("You get zapped!");
-                take_hit(aura_damage, aura_dam);
+                take_hit(aura_damage,
+					format("%v", monster_desc_f2, m_ptr, 0x88), m_ptr->r_idx);
                 r_ptr->r_flags2 |= RF2_AURA_ELEC;
                 handle_stuff();
             }
@@ -1069,7 +982,6 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
     int             n_weight = 0;
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-	C_TNEW(m_name, MNAME_MAX, char);
 
     int dss, ddd;
 
@@ -1115,9 +1027,6 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
             atk_desc = "undefined body part";
     }
 
-    /* Extract monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0, MNAME_MAX);
-
 
 	/* Calculate the "attack quality" */
     bonus = p_ptr->to_h;
@@ -1129,7 +1038,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			/* Sound */
 			sound(SOUND_HIT);
 
-            msg_format("You hit %s with your %s.", m_name, atk_desc);
+            msg_format("You hit %v with your %s.",
+				monster_desc_f2, m_ptr, 0, atk_desc);
 			
 			/* Give experience if it wasn't too easy */
 			if (chance < (r_ptr->ac * 3))
@@ -1155,7 +1065,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
             if (m_ptr->smart & SM_ALLY)
             {
-                msg_format("%^s gets angry!", m_name);
+                msg_format("%^s gets angry!", monster_desc_f2, m_ptr, 0);
                 m_ptr->smart &= ~SM_ALLY;
             }
 
@@ -1190,10 +1100,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			sound(SOUND_MISS);
 
             /* Message */
-			msg_format("You miss %s.", m_name);
+			msg_format("You miss %s.", monster_desc_f2, m_ptr, 0);
 		}
-
-	TFREE(m_name);
 }
 
 
@@ -1251,7 +1159,7 @@ void py_attack(int y, int x)
 
 
 	/* Extract monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0, MNAME_MAX);
+	strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0);
 
     /* Auto-Recall if possible and visible */
 	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -1321,14 +1229,14 @@ void py_attack(int y, int x)
                 }
             else if (backstab)
 			{
-                msg_format("You cruelly stab the helpless, sleeping %s!",
-                    monster_desc_aux(0, r_ptr, 1, 0));
+                msg_format("You cruelly stab the helpless, sleeping %v!",
+                    monster_desc_aux_f3, r_ptr, 1, 0);
 				skill_exp(SKILL_STEALTH);
             }
 			else
 			{
-                msg_format("You backstab the fleeing %s!",
-                    (monster_desc_aux(0, r_ptr, 1, 0)));
+                msg_format("You backstab the fleeing %v!",
+                    monster_desc_aux_f3, r_ptr, 1, 0);
 				skill_exp(SKILL_STEALTH);
 			}
 
@@ -1515,7 +1423,7 @@ void py_attack(int y, int x)
             if ((o_ptr->name1 == ART_DEMONBLADE) && randint(2)!=1)
             {
                 char chainsword_noise[80];
-                get_rnd_line("chainswd.txt", chainsword_noise);
+                msg_format("%v", get_rnd_line_f1, "chainswd.txt");
                 msg_print(chainsword_noise);
             }
 
@@ -1617,7 +1525,7 @@ void py_attack(int y, int x)
     else if (chaos_effect && cave_floor_bold(y,x)
             && (randint(90) > r_ptr->level))
 	{
-        if (!((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags4 & RF4_BR_CHAO) || (r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)))
+        if (!((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags4 & RF4_BR_CHAO) || (r_ptr->flags1 & RF1_GUARDIAN)))
         {
 
 				/* Pick a "new" monster race */
@@ -1653,7 +1561,7 @@ void py_attack(int y, int x)
 			m_ptr = &m_list[c_ptr->m_idx];
 
             /* Oops, we need a different name... */
-            monster_desc(m_name, m_ptr, 0, MNAME_MAX);
+            strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0);
 
 			/* Hack -- Get new race */
 			r_ptr = &r_info[m_ptr->r_idx];
@@ -1866,7 +1774,7 @@ static bool pattern_seq(byte c_y, byte c_x, byte n_y,byte  n_x)
                     break;
                 default:
                     if (cheat_wzrd)
-                        msg_format("Funny Pattern walking, %d.", cave[c_y][c_x]);
+                        msg_format("Funny Pattern walking, %d.", cave[c_y][c_x].feat);
                     return TRUE; /* Goof-up */
             }
             if ((cave[n_y][n_x].feat == ok_move) ||
@@ -1986,7 +1894,7 @@ void move_player(int dir, int do_pickup)
 		{
 			m_ptr->csleep = 0;
 			/* Extract monster name (or "it") */
-			monster_desc(m_name, m_ptr, 0, MNAME_MAX);
+			strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0);
 			/* Auto-Recall if possible and visible */
 			if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 			/* Track a new monster */
@@ -2076,10 +1984,10 @@ void move_player(int dir, int do_pickup)
 			{
 
 				/* Leave town */
-				if(wild_grid[wildy][wildx].dungeon < MAX_TOWNS)
+				if(is_town_p(wildy, wildx))
 				{
 					cur_town = wild_grid[wildy][wildx].dungeon;
-					msg_format("You stumble out of %s.",town_defs[cur_town].name);
+					msg_format("You stumble out of %s.",town_name+town_defs[cur_town].name);
 				}
 				/* Test which border has been crossed */
 				if(y==0)
@@ -2102,10 +2010,10 @@ void move_player(int dir, int do_pickup)
 					px=1;
 					wildx++;
 				}
-				if(wild_grid[wildy][wildx].dungeon < MAX_TOWNS)
+				if(is_town_p(wildy, wildx))
 				{
 					cur_town = wild_grid[wildy][wildx].dungeon;
-					msg_format("You stumble into %s.",town_defs[cur_town].name);
+					msg_format("You stumble into %s.",town_name+town_defs[cur_town].name);
 				}
 				change_level(0, START_WALK);
 			}
@@ -2168,10 +2076,10 @@ void move_player(int dir, int do_pickup)
 			{
 
 				/* Leave town */
-				if(wild_grid[wildy][wildx].dungeon < MAX_TOWNS)
+				if(is_town_p(wildy, wildx))
 				{
 					cur_town = wild_grid[wildy][wildx].dungeon;
-					msg_format("You leave %s.",town_defs[cur_town].name);
+					msg_format("You leave %s.",town_name+town_defs[cur_town].name);
 				}
 				/* Test which border has been crossed */
 				if(y==0)
@@ -2194,10 +2102,10 @@ void move_player(int dir, int do_pickup)
 					px=1;
 					wildx++;
 				}
-				if(wild_grid[wildy][wildx].dungeon < MAX_TOWNS)
+				if(is_town_p(wildy, wildx))
 				{
 					cur_town = wild_grid[wildy][wildx].dungeon;
-					msg_format("You enter %s.",town_defs[cur_town].name);
+					msg_format("You enter %s.",town_name+town_defs[cur_town].name);
 				}
 				change_level(0, START_WALK);
 			}

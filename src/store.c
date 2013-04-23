@@ -306,7 +306,7 @@ static void room_rest(bool night)
 	cur_store_type=temp_store_type;
 	/* Reset the Store and Owner pointers */
 	st_ptr = &store[cur_store_num];
-	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+	ot_ptr = &owners[st_ptr->owner];
 
 	p_ptr->fast = 0;			/* Timed -- Fast */
 	p_ptr->slow = 0;			/* Timed -- Slow */
@@ -362,16 +362,13 @@ static bool free_homes(void)
  */
 static void say_comment_1(void)
 {
-    char rumour[80];
-
 	if (!auto_haggle || verbose_haggle)
 	msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
     if (randint(RUMOR_CHANCE) == 1 && speak_unique )
-       { msg_print("The shopkeeper whispers something into your ear:");
-
-        get_rnd_line("rumors.txt", rumour);
-        msg_print(rumour);
-        }
+	{
+		msg_print("The shopkeeper whispers something into your ear:");
+        msg_format("%v", get_rnd_line_f1, "rumors.txt");
+	}
 }
 
 
@@ -1320,8 +1317,8 @@ static int home_carry(object_type *o_ptr)
        /* Hack:  otherwise identical rods sort by
           increasing recharge time --dsb */
        if (o_ptr->tval == TV_ROD) {
-           if (o_ptr->pval < j_ptr->pval) break;
-           if (o_ptr->pval > j_ptr->pval) continue;
+           if (o_ptr->timeout < j_ptr->timeout) break;
+           if (o_ptr->timeout > j_ptr->timeout) continue;
        }
 
 		/* Objects sort by decreasing value */
@@ -1417,8 +1414,8 @@ static int store_carry(object_type *o_ptr)
        /* Hack:  otherwise identical rods sort by
           increasing recharge time --dsb */
        if (o_ptr->tval == TV_ROD) {
-           if (o_ptr->pval < j_ptr->pval) break;
-           if (o_ptr->pval > j_ptr->pval) continue;
+           if (o_ptr->timeout < j_ptr->timeout) break;
+           if (o_ptr->timeout > j_ptr->timeout) continue;
        }
   
         /* Evaluate that slot */
@@ -1821,7 +1818,7 @@ static void display_entry(int pos)
 		if (show_weights) maxwid -= 10;
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
 		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, 3);
 
@@ -1847,11 +1844,11 @@ static void display_entry(int pos)
 		/* Describe the object (fully) */
 		if (cur_store_type == STORE_PAWN)
 		{
-			object_desc(o_name, o_ptr, TRUE, 3);
+			strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 		}
 		else
 		{
-			object_desc_store(o_name, o_ptr, TRUE, 3);
+			strnfmt(o_name, ONAME_MAX, "%v", object_desc_store_f3, o_ptr, TRUE, 3);
 		}
 
 
@@ -2004,7 +2001,7 @@ static cptr store_title_aux(void)
 	{
 			cptr tmp_str;
 			cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + st_ptr->type].name);
-		cptr owner_name = (ot_ptr->owner_name);
+		cptr owner_name = (s_name+ot_ptr->name);
 		cptr race_name = race_info[ot_ptr->owner_race].title;
 		object_type tmp;
 			s16b old_charisma;
@@ -2052,7 +2049,7 @@ cptr store_title(int store_num)
 	
 	cur_store_num = store_num;
 	st_ptr = &store[cur_store_num];
-	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+	ot_ptr = &owners[st_ptr->owner];
 	cur_store_type = st_ptr->type;
 
 	/* Determine the title. */
@@ -2446,9 +2443,9 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 	if ((auto_haggle || final) && !verbose_haggle)
 	{
 		if(cur_store_type == STORE_PAWN)
-			object_desc(o_name, o_ptr, TRUE, 3);
+			strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 		else
-		object_desc_store(o_name, o_ptr, TRUE, 3);
+		strnfmt(o_name, ONAME_MAX, "%v", object_desc_store_f3, o_ptr, TRUE, 3);
 		sprintf(out_val, "%s %ld for %s? ", pmt, cur_ask, o_name);
 		*price = final_ask;
 		return !get_check(out_val);
@@ -2617,7 +2614,7 @@ static void service_help(byte type)
 			}			
 			break;
 		case STORE_HALL: /* Buy a house */
-			msg_format("Gives you a house in %s to store your belongings.", town_defs[cur_town].name);
+			msg_format("Gives you a house in %s to store your belongings.", town_name+town_defs[cur_town].name);
 			break;
 		case 128: case 129: case 130: case 131:
 		case 132: case 133: case 134: case 135: /* Associate with spirit */
@@ -2634,58 +2631,29 @@ static void service_help(byte type)
  */
 static bool get_check_service(cptr prompt, byte type)
 {
-	int i;
-
-	char buf[80];
-
-	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
-
-	/* Hack -- Build a "useful" prompt */
-	strnfmt(buf, 78, "%.70s[y/n/?] ", prompt);
-
-	/* Prompt for it */
-	prt(buf, 0, 0);
+	char rc;
 
 	/* Help */
 	help_track("yn?_prompt");
 
-	/* Get an acceptable answer */
-	while (TRUE)
+	while (1)
 	{
-		i = inkey();
-		if (i == ESCAPE) break;
-		if (i == '\r') break;
-		if (strchr("YyNn", i)) break;
-		if (i == '?') 
-		{
-			service_help(type);
-			prt(buf, 0, 0);
-		}
-		else if (quick_prompt)
-			break;
-		else
-			bell();
+		rc = get_check_aux(
+			prompt, "%.*s[y/n/?]%s%v", "nN\033yY\r?", "\0\0\0\1\1\1?");
+
+		/* Accept boolean responses. */
+		if (rc != '?') break;
+
+		service_help(type);
 	}
+
+	/* Leave a message. */
+	message_add(format(0));
 
 	/* Done with help */
 	help_track(NULL);
 
-	/* Erase the prompt */
-	prt("", 0, 0);
-
-	/* Normal negation */
-	if ((i != 'Y') && (i != 'y') && (i != '\r'))
-		i = 'n';
-	/* Success */
-	else
-		i = 'y';
-		
-	/* Leave a (mildly inaccurate) record */
-	message_add(format("%.70s[y/n] %c", prompt, i));
-	
-	/* Tell the calling routine */
-	return (i == 'y') ? TRUE : FALSE;
+	return (rc != '\0');
 }
 
 /* Haggle for a fixed price service from a store owner */
@@ -2864,7 +2832,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	if (auto_haggle && !verbose_haggle)
 	{
 		C_TNEW(o_name, ONAME_MAX, char);
-		object_desc(o_name, o_ptr, TRUE, 3);
+		strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 		sprintf(out_val, "%s %ld for %s? ", pmt, cur_ask, o_name);
 		TFREE(o_name);
 		*price = final_ask;
@@ -2996,7 +2964,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 static void store_purchase_aux(char *o_name)
 {
 	int i, amt, choice;
-	int item, item_new;
+	int item;
 
 	s32b price, best;
 
@@ -3109,11 +3077,11 @@ static void store_purchase_aux(char *o_name)
 			/* Describe the object (fully) */
 			if(cur_store_type == STORE_PAWN)
 			{
-				object_desc(o_name, j_ptr, TRUE, 3);
+				strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, j_ptr, TRUE, 3);
 			}
 			else
 			{
-				object_desc_store(o_name, j_ptr, TRUE, 3);
+				strnfmt(o_name, ONAME_MAX, "%v", object_desc_store_f3, j_ptr, TRUE, 3);
 			}
 			/* Message */
 			if (!auto_haggle || verbose_haggle)
@@ -3164,7 +3132,7 @@ static void store_purchase_aux(char *o_name)
 				j_ptr->ident &= ~(IDENT_STORE);
 
 				/* Describe the transaction */
-				object_desc(o_name, j_ptr, TRUE, 3);
+				strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, j_ptr, TRUE, 3);
 
 				/* Message */
 				if (!auto_haggle || verbose_haggle)
@@ -3183,14 +3151,14 @@ static void store_purchase_aux(char *o_name)
 				j_ptr->note = 0;
 
 				/* Give it to the player */
-				item_new = inven_carry(j_ptr, FALSE);
+				j_ptr = inven_carry(j_ptr);
 
 				/* Describe the final result */
-				object_desc(o_name, &inventory[item_new], TRUE, 3);
+				strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, j_ptr, TRUE, 3);
 
 				/* Message */
 				msg_format("You have %s (%c).",
-				           o_name, index_to_label(item_new));
+				           o_name, index_to_label(j_ptr));
 
 				/* Handle stuff */
 				handle_stuff();
@@ -3263,13 +3231,13 @@ static void store_purchase_aux(char *o_name)
 	else
 	{
 		/* Give it to the player */
-		item_new = inven_carry(j_ptr, FALSE);
+		j_ptr = inven_carry(j_ptr);
 
 		/* Describe just the result */
-		object_desc(o_name, &inventory[item_new], TRUE, 3);
+		strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, j_ptr, TRUE, 3);
 
 		/* Message */
-		msg_format("You have %s (%c).", o_name, index_to_label(item_new));
+		msg_format("You have %s (%c).", o_name, index_to_label(j_ptr));
 
 		/* Handle stuff */
 		handle_stuff();
@@ -3311,8 +3279,9 @@ static void store_purchase(void)
  */
 static void store_sell_aux(char *o_name)
 {
+	errr err;
 	int choice;
-	int item, item_pos;
+	int item_pos;
 	int amt;
 
 	s32b price, value, dummy;
@@ -3332,27 +3301,15 @@ static void store_sell_aux(char *o_name)
 	item_tester_hook = store_will_buy;
 
 	/* Get an item (from equip or inven) */
-	if (!get_item(&item, pmt, TRUE, TRUE, FALSE))
+	if (!((o_ptr = get_item(&err, pmt, TRUE, TRUE, FALSE))))
 	{
-		if (item == -2) msg_print("You have nothing that I want.");
+		if (err == -2) msg_print("You have nothing that I want.");
 		return;
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	if (!item_tester_hook_destroy(o_ptr))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -3372,7 +3329,7 @@ static void store_sell_aux(char *o_name)
 	object_copy(q_ptr, o_ptr);
 
 	/* Get a full description */
-	object_desc(o_name, q_ptr, TRUE, 3);
+	strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, q_ptr, TRUE, 3);
 
 	/* Remove any inscription for stores */
 	if (cur_store_type != 7) q_ptr->note = 0;
@@ -3409,7 +3366,7 @@ static void store_sell_aux(char *o_name)
 		/* Describe the transaction */
 		if (!auto_haggle || verbose_haggle)
 		{
-		msg_format("Selling %s (%c).", o_name, index_to_label(item));
+		msg_format("Selling %s (%c).", o_name, index_to_label(o_ptr));
 		msg_print(NULL);
 		}
 
@@ -3474,7 +3431,7 @@ static void store_sell_aux(char *o_name)
 			{
 				value = object_value(q_ptr) * q_ptr->number;
 				/* Get the description all over again */
-				object_desc(o_name, q_ptr, TRUE, 3);
+				strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, q_ptr, TRUE, 3);
 			}
 
 
@@ -3495,9 +3452,9 @@ static void store_sell_aux(char *o_name)
 				purchase_analyze(price, value, dummy);
 
 			/* Take the item from the player, describe the result */
-			inven_item_increase(item, -amt);
-			inven_item_describe(item);
-			inven_item_optimize(item);
+			item_increase(o_ptr, -amt);
+			item_describe(o_ptr);
+			item_optimize(o_ptr);
 
 			/* Handle stuff */
 			handle_stuff();
@@ -3524,12 +3481,12 @@ static void store_sell_aux(char *o_name)
 	else
 	{
 		/* Describe */
-		msg_format("You drop %s (%c).", o_name, index_to_label(item));
+		msg_format("You drop %s (%c).", o_name, index_to_label(o_ptr));
 
 		/* Take it from the players inventory */
-		inven_item_increase(item, -amt);
-		inven_item_describe(item);
-		inven_item_optimize(item);
+		item_increase(o_ptr, -amt);
+		item_describe(o_ptr);
+		item_optimize(o_ptr);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -3603,7 +3560,7 @@ static void store_sell(void)
    if (cur_store_type == STORE_HOME || cur_store_type == STORE_PAWN)
 	{
 		C_TNEW(o_name, ONAME_MAX, char);
-		object_desc(o_name, o_ptr, TRUE, 3);
+		strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 		msg_format("Examining %s...", o_name);
 		if (!identify_fully_aux(o_ptr, FALSE)) msg_print("You see nothing special.");
 		TFREE(o_name);
@@ -3611,7 +3568,7 @@ static void store_sell(void)
 	else /* Make it look as though we are aware of the item. */
 	{
 		C_TNEW(o_name, ONAME_MAX, char);
-		object_desc_store(o_name, o_ptr, TRUE, 3);
+		strnfmt(o_name, ONAME_MAX, "%v", object_desc_store_f3, o_ptr, TRUE, 3);
 		msg_format("Examining %s...", o_name);
 		if (!identify_fully_aux(o_ptr, TRUE)) msg_print("You see nothing special.");
 		TFREE(o_name);
@@ -3622,6 +3579,16 @@ static void store_sell(void)
 
 
 
+store_type *find_house(int town)
+{
+	int j;
+	for (j = 0; j < town_defs[town].numstores; j++)
+	{
+		store_type *st_ptr = &store[j+MAX_STORES_PER_TOWN * town];
+		if (st_ptr->type == STORE_HOME) return st_ptr;
+	}
+	return NULL;
+}
 
 
 /*
@@ -3872,7 +3839,7 @@ static void store_process_command(void)
 				   }
 			   case STORE_MAGIC:
 				   {
-					   	if (p_ptr->ritual < MAX_TOWNS + 1)
+					   	if (p_ptr->ritual != TOWN_NONE)
 					   {
 						   msg_format("You have already done the ritual!");
 					   }
@@ -3983,7 +3950,8 @@ static void store_process_command(void)
 				   }
 			   case STORE_HALL:
 				   {
-					   if (p_ptr->house[cur_town] == 1)
+						store_type *h_ptr = find_house(cur_town);
+					   if (h_ptr && h_ptr->bought)
 					   {
 						   msg_format("You already have the deeds!");
 					   }
@@ -4009,7 +3977,7 @@ static void store_process_command(void)
 									/* Be happy */
 									decrease_insults();
 									store_prt_gold();
-									p_ptr->house[cur_town] = 1;
+									h_ptr->bought = 1;
 									msg_format("You may move in at once.");
 								}
 								p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
@@ -4229,7 +4197,7 @@ static void store_process_command(void)
 			/* Browse a book */
 		case 'b':
 		{
-			do_cmd_browse(-1);
+			do_cmd_browse(NULL);
 			break;
 		}
 
@@ -4478,8 +4446,6 @@ void do_cmd_store(void)
 
 	cave_type		*c_ptr;
 
-	void (*old_resize_hook)(void);
-
 	/* Access the player grid */
 	c_ptr = &cave[py][px];
 
@@ -4494,6 +4460,13 @@ void do_cmd_store(void)
 	/* Extract the store number */
 
 	which = get_which_store();
+
+	/* Paranoia - not a real shop. */
+	if (which < 0)
+	{
+		msg_print("The shop is empty...");
+		return;
+	}
 
 	/* Check for 'Ironman' option */
 
@@ -4511,17 +4484,16 @@ void do_cmd_store(void)
 	}
 
 	/* Can't enter house unless you own it */
-	if((store[which].type == STORE_HOME) && (p_ptr->house[cur_town] == 0) && (store[which].bought == 0))
+	if((store[which].type == STORE_HOME) && (store[which].bought == 0))
 	{
 		msg_print("The door is locked.");
 		return;
 	}
 
 	/* Unless, of course, you're buying */
-	if((store[which].type == STORE_HOME) && (p_ptr->house[cur_town] == 1) && (store[which].bought == 0))
+	if((store[which].type == STORE_HOME) && (store[which].bought == 1))
 	{
-		store[which].bought = 1;
-		p_ptr->house[cur_town] = 0;
+		store[which].bought = 2;
 		msg_print("You unlock your new house.");
 		return;
 	}
@@ -4533,9 +4505,8 @@ void do_cmd_store(void)
 	/* Forget the view */
 	forget_view();
 	
-	/* Set the redraw hook. */
-	old_resize_hook = term_screen->resize_hook;
-	term_screen->resize_hook = resize_store;
+	/* Set the resize hook. */
+	add_resize_hook(resize_store);
 
 	/* Hack -- Character is in "icky" mode */
 	character_icky = TRUE;
@@ -4557,7 +4528,7 @@ void do_cmd_store(void)
 	/* Save the store and owner pointers */
 	st_ptr = &store[cur_store_num];
 	cur_store_type=st_ptr->type;
-	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+	ot_ptr = &owners[st_ptr->owner];
 
 
 	/* Start at the beginning */
@@ -4649,15 +4620,15 @@ void do_cmd_store(void)
 				object_copy(q_ptr, o_ptr);
 
 				/* Describe it */
-				object_desc(o_name, q_ptr, TRUE, 3);
+				strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, q_ptr, TRUE, 3);
 
 				/* Message */
-				msg_format("You drop %s (%c).", o_name, index_to_label(item));
+				msg_format("You drop %s (%c).", o_name, index_to_label(o_ptr));
 
 				/* Remove it from the players inventory */
-				inven_item_increase(item, -255);
-				inven_item_describe(item);
-				inven_item_optimize(item);
+				item_increase(o_ptr, -255);
+				item_describe(o_ptr);
+				item_optimize(o_ptr);
 
 				/* Handle stuff */
 				handle_stuff();
@@ -4701,8 +4672,8 @@ void do_cmd_store(void)
 	/* Clear the screen */
 	Term_clear();
 
-	/* Reset the resize_hook. */
-	term_screen->resize_hook = old_resize_hook;
+	/* Reset the resize hook. */
+	delete_resize_hook(resize_store);
 
 	/* Update everything */
 	p_ptr->update |= (PU_VIEW | PU_LITE);
@@ -4725,12 +4696,14 @@ void do_cmd_store(void)
  */
 void store_shuffle(int which)
 {
-	int i, j;
+	int i;
 
-
-	/* Ignore home, hall and pawnbroker */
-	if (store[which].type == 7 || store[which].type > 9) return;
-
+	/* Hack - set the owner everywhere it is unset. */
+	if (store[which].owner != -1)
+	{
+		/* Ignore home, hall and pawnbroker */
+		if (store[which].type == 7 || store[which].type > 9) return;
+	}
 
 	/* Save the store index */
 	cur_store_num = which;
@@ -4739,13 +4712,29 @@ void store_shuffle(int which)
 	st_ptr = &store[cur_store_num];
 
 	/* Pick a new owner */
-	for (j = st_ptr->owner; j == st_ptr->owner; )
+	while (1)
 	{
-		st_ptr->owner = (byte)(rand_int(MAX_OWNERS)); 
+		int i = rand_int(NUM_OWNERS);
+		owner_type *ow_ptr = owners+i;
+
+		/* Same shopkeeper. */
+		if (i == st_ptr->owner) continue;
+
+		/* Wrong type of shopkeeper. */
+		if (ow_ptr->shop_type != store[which].type) continue;
+
+		/* Right town. */
+		if (ow_ptr->town == which/MAX_STORES_PER_TOWN ||
+			ow_ptr->town == TOWN_NONE)
+		{
+			/* Accept the owner. */
+			st_ptr->owner = i;
+			break;
+		}
 	}
 
 	/* Activate the new owner */
-	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+	ot_ptr = &owners[st_ptr->owner];
 
 
 	/* Reset the owner data */
@@ -4794,7 +4783,7 @@ void store_maint(int which)
 	st_ptr = &store[cur_store_num];
 
 	/* Activate the owner */
-	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+	ot_ptr = &owners[st_ptr->owner];
 
 
 	/* Store keeper forgives the player */
@@ -4914,12 +4903,17 @@ void store_init(int which)
 	/* Tell the store what type it is */
 	st_ptr->type = cur_store_type;
 
+	/* Don't do much with non-existant stores. */
+	if (cur_store_type == STORE_NONE) return;
+
 	/* Pick an owner */
-	st_ptr->owner = (byte)(rand_int(MAX_OWNERS));
+	st_ptr->owner = -1;
+	store_shuffle(which);
+
 	st_ptr->bought = 0;
 
 	/* Activate the new owner */
-	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+	ot_ptr = &owners[st_ptr->owner];
 
 	/* Initialize the store */
 	st_ptr->store_open = 0;
@@ -4950,7 +4944,7 @@ static int get_which_store(void)
 {
 	int i;
 
-	for(i= (MAX_STORES_PER_TOWN * cur_town); i < ((MAX_STORES_PER_TOWN * cur_town) + (town_defs[cur_town].numstores)); i++)
+	for(i= (MAX_STORES_PER_TOWN * cur_town); i < (MAX_STORES_PER_TOWN * (cur_town+1)); i++)
 	{
 		if((px == store[i].x) && (py == store[i].y))
 		{
@@ -4958,7 +4952,7 @@ static int get_which_store(void)
 		}
 	}
 	/* Should never get to here, but just in case... */
-	return 1;
+	return -1;
 }
 
 /*

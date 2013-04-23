@@ -454,7 +454,8 @@ bool restore_level(void)
  */
 bool alchemy(void)
 {
-	int                     item, amt = 1;
+	errr err;
+	int                     amt = 1;
 	int                     old_number;
     long        price;
 
@@ -474,23 +475,11 @@ bool alchemy(void)
 	item_tester_hook = item_tester_hook_destroy;
 
 	/* Get an item (from equip or inven or floor) */
-    if (!get_item(&item, "Turn which item to gold? ", TRUE, TRUE, TRUE))
+    if (!((o_ptr = get_item(&err, "Turn which item to gold? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to turn to gold.");
+		if (err == -2) msg_print("You have nothing to turn to gold.");
 		TFREE(o_name);
 		return FALSE;
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 
@@ -512,7 +501,7 @@ bool alchemy(void)
 	/* Describe the object */
 	old_number = o_ptr->number;
 	o_ptr->number = amt;
-	object_desc(o_name, o_ptr, TRUE, 3);
+	strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 	o_ptr->number = old_number;
 
 	/* Verify unless quantity given */
@@ -574,21 +563,10 @@ bool alchemy(void)
 
 	}
 
-	/* Eliminate the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -amt);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Eliminate the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -amt);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	/* Eliminate the item */
+	item_increase(o_ptr, -amt);
+	item_describe(o_ptr);
+	item_optimize(o_ptr);
 
 	TFREE(o_name);
     return TRUE;
@@ -2552,7 +2530,7 @@ void stair_creation(void)
 	}
 	else if (is_quest(dun_level) || (dun_level >= dun_defs[cur_dungeon].max_level))
 	{
-		if(dun_defs[cur_dungeon].tower)
+		if(dun_defs[cur_dungeon].flags & DF_TOWER)
 		{
 			cave_set_feat(py, px, FEAT_MORE);
 		}
@@ -2789,12 +2767,10 @@ bool enchant(object_type *o_ptr, int n, int eflag)
  */
 bool enchant_spell(int num_hit, int num_dam, int num_ac)
 {
-	int                     item;
+	errr err;
 	bool            okay = FALSE;
 
 	object_type             *o_ptr;
-
-	C_TNEW(o_name, ONAME_MAX, char);
 
 
 	/* Assume enchant weapon */
@@ -2804,33 +2780,17 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	if (num_ac) item_tester_hook = item_tester_hook_armour;
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Enchant which item? ", TRUE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Enchant which item? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to enchant.");
-		TFREE(o_name);
+		if (err == -2) msg_print("You have nothing to enchant.");
 		return (FALSE);
 	}
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Describe */
-	msg_format("%s %s glow%s brightly!",
-		   ((item >= 0 && !allart_p(o_ptr)) ? "Your" : "The"), o_name,
-		   ((o_ptr->number > 1) ? "" : "s"));
+	msg_format("%s %v glow%s brightly!",
+		   ((is_inventory_p(o_ptr) && !allart_p(o_ptr)) ? "Your" : "The"),
+		   object_desc_f3, o_ptr, FALSE, 0, ((o_ptr->number > 1) ? "" : "s"));
 
 	/* Enchant */
 	if (enchant(o_ptr, num_hit, ENCH_TOHIT)) okay = TRUE;
@@ -2848,14 +2808,12 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	}
 	else
 	{
-		object_desc(o_name, o_ptr, TRUE, 1);
-	
 		/* Describe again */
-		msg_format("You now %s %s", (item >= 0) ? "have" : "see", o_name);
+		msg_format("You now %s %v", (is_inventory_p(o_ptr)) ? "have" : "see",
+			object_desc_f3, o_ptr, TRUE, 1);
 	}	
 
 	/* Something happened */
-	TFREE(o_name);
 	return (TRUE);
 }
 
@@ -4037,6 +3995,30 @@ static void give_activation_power (object_type * o_ptr)
     o_ptr->timeout = 0;
 }
 
+/*
+ * Create a name from syllables in one of two files.
+ */
+static void get_table_name(char * out_string)
+{
+	/* Set up the parameters for the name set to use. */
+	bool set2 = !rand_int(3);
+	cptr str = "", file = (set2) ? "scroll.txt" : "elvish.txt";
+	int num = (set2) ? rand_range(2,4) : rand_range(2,3);
+
+	/* Build up the name. */
+	while (num--)
+	{
+		str = format("%s%v", str, get_rnd_line_f1, file);
+	}
+
+	/* Copy the name across, obeying the length limit set in defines.h
+	 * and the size of new_name.
+	 */
+	strnfmt(out_string, 80, "'%.*^s'", MAX_TABLE_LEN-2, str);
+
+    return;
+}
+
 static void get_random_name(char * return_name, bool armour, int power)
 {
     if (randint(100)<=TABLE_NAME)
@@ -4080,7 +4062,7 @@ static void get_random_name(char * return_name, bool armour, int power)
 
     }
 
-    get_rnd_line(NameFile, return_name);
+    strnfmt(return_name, 80, "%v", get_rnd_line_f1, NameFile);
     }
 }
 
@@ -4264,7 +4246,7 @@ else
 
 bool artifact_scroll(void)
 {
-	int                     item;
+	errr err;
 	bool            okay = FALSE;
 
 	object_type             *o_ptr;
@@ -4276,32 +4258,20 @@ bool artifact_scroll(void)
 	item_tester_hook = item_tester_hook_weapon;
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Enchant which item? ", TRUE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Enchant which item? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to enchant.");
+		if (err == -2) msg_print("You have nothing to enchant.");
 		TFREE(o_name);
 		return (FALSE);
 	}
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, FALSE, 0);
 
 	/* Describe */
     msg_format("%s %s radiate%s a blinding light!",
-		   ((item >= 0) ? "Your" : "The"), o_name,
+		   (is_inventory_p(o_ptr)) ? "Your" : "The", o_name,
 		   ((o_ptr->number > 1) ? "" : "s"));
 
     if (o_ptr->name1 || o_ptr->art_name)
@@ -4354,7 +4324,7 @@ bool artifact_scroll(void)
  */
 bool ident_spell(void)
 {
-	int                     item;
+	errr                     err;
 
 	object_type             *o_ptr;
 
@@ -4362,23 +4332,11 @@ bool ident_spell(void)
 
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Identify which item? ", TRUE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Identify which item? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to identify.");
+		if (err == -2) msg_print("You have nothing to identify.");
 		TFREE(o_name);
 		return (FALSE);
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 
@@ -4396,18 +4354,18 @@ bool ident_spell(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 
 	/* Describe */
-	if (item >= INVEN_WIELD)
+	if (is_worn_p(o_ptr))
 	{
 		msg_format("%^s: %s (%c).",
-			   describe_use(item), o_name, index_to_label(item));
+			   describe_use(o_ptr), o_name, index_to_label(o_ptr));
 	}
-	else if (item >= 0)
+	else if (is_inventory_p(o_ptr))
 	{
 		msg_format("In your pack: %s (%c).",
-			   o_name, index_to_label(item));
+			   o_name, index_to_label(o_ptr));
 	}
 	else
 	{
@@ -4429,7 +4387,7 @@ bool ident_spell(void)
  */
 bool identify_fully(void)
 {
-	int                     item;
+	errr                     err;
 
 	object_type             *o_ptr;
 
@@ -4437,23 +4395,11 @@ bool identify_fully(void)
 
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Identify which item? ", TRUE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Identify which item? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to identify.");
+		if (err == -2) msg_print("You have nothing to identify.");
 		TFREE(o_name);
 		return (FALSE);
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 
@@ -4477,18 +4423,18 @@ bool identify_fully(void)
 	handle_stuff();
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, TRUE, 3);
 
 	/* Describe */
-	if (item >= INVEN_WIELD)
+	if (is_worn_p(o_ptr))
 	{
 		msg_format("%^s: %s (%c).",
-			   describe_use(item), o_name, index_to_label(item));
+			   describe_use(o_ptr), o_name, index_to_label(o_ptr));
 	}
-	else if (item >= 0)
+	else if (is_inventory_p(o_ptr))
 	{
 		msg_format("In your pack: %s (%c).",
-			   o_name, index_to_label(item));
+			   o_name, index_to_label(o_ptr));
 	}
 	else
 	{
@@ -4550,7 +4496,8 @@ bool item_tester_hook_recharge(object_type *o_ptr)
  */
 bool recharge(int num)
 {
-	int                 i, t, item, lev;
+	errr err;
+	int                 i, t,  lev;
 
 	object_type             *o_ptr;
 
@@ -4559,22 +4506,10 @@ bool recharge(int num)
 	item_tester_hook = item_tester_hook_recharge;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Recharge which item? ", TRUE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Recharge which item? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to recharge.");
+		if (err == -2) msg_print("You have nothing to recharge.");
 		return (FALSE);
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 
@@ -4597,7 +4532,8 @@ bool recharge(int num)
 			msg_print("The recharge backfires, draining the rod further!");
 
 			/* Hack -- decharge the rod */
-			if (o_ptr->pval < 10000) o_ptr->pval = (o_ptr->pval + 100) * 2;
+			if (o_ptr->timeout < 10000)
+				o_ptr->timeout = (o_ptr->timeout + 100) * 2;
 		}
 
 		/* Recharge */
@@ -4607,15 +4543,15 @@ bool recharge(int num)
 			t = (num * damroll(2, 4));
 
 			/* Recharge by that amount */
-			if (o_ptr->pval > t)
+			if (o_ptr->timeout > t)
 			{
-				o_ptr->pval -= t;
+				o_ptr->timeout -= t;
 			}
 
 			/* Fully recharged */
 			else
 			{
-				o_ptr->pval = 0;
+				o_ptr->timeout = 0;
 			}
 		}
 	}
@@ -4635,21 +4571,10 @@ bool recharge(int num)
 			/* Dangerous Hack -- Destroy the item */
 			msg_print("There is a bright flash of light.");
 
-			/* Reduce and describe inventory */
-			if (item >= 0)
-			{
-				inven_item_increase(item, -999);
-				inven_item_describe(item);
-				inven_item_optimize(item);
-			}
-
-			/* Reduce and describe floor item */
-			else
-			{
-				floor_item_increase(0 - item, -999);
-				floor_item_describe(0 - item);
-				floor_item_optimize(0 - item);
-			}
+			/* Reduce and describe item */
+			item_increase(o_ptr, -999);
+			item_describe(o_ptr);
+			item_optimize(o_ptr);
 		}
 
 		/* Recharge */
@@ -4911,7 +4836,7 @@ bool genocide(bool player_cast)
 		if (r_ptr->d_char != typ) continue;
 
 		/* Skip Quest Monsters - Dean Anderson */
-		if ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)) continue;
+		if (r_ptr->flags1 & RF1_GUARDIAN) continue;
 
 		/* Delete the monster */
 		delete_monster_idx(i,TRUE);
@@ -4919,7 +4844,7 @@ bool genocide(bool player_cast)
 		if (player_cast)
 		{
 			/* Take damage */
-			take_hit(randint(4), "the strain of casting Genocide");
+			take_hit(randint(4), "the strain of casting Genocide", MON_CASTING_GENOCIDE);
 		}
 
 		/* Visual feedback */
@@ -4973,7 +4898,7 @@ bool mass_genocide(bool player_cast)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 		/* Skip Quest Monsters - Dean Anderson */
-		if ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)) continue;
+		if (r_ptr->flags1 & RF1_GUARDIAN) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
@@ -4984,7 +4909,7 @@ bool mass_genocide(bool player_cast)
 		if (player_cast)
 		{
 			/* Hack -- visual feedback */
-			take_hit(randint(3), "the strain of casting Mass Genocide");
+			take_hit(randint(3), "the strain of casting Mass Genocide", MON_CASTING_MASS_GENOCIDE);
 		}
 
 		move_cursor_relative(py, px);
@@ -5043,7 +4968,7 @@ bool probing(void)
 			if (!probe) msg_print("Probing...");
 
 			/* Get "the monster" or "something" */
-			monster_desc(m_name, m_ptr, 0x04, MNAME_MAX);
+			strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0x04);
 
 			/* Describe the monster */
 			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
@@ -5375,7 +5300,7 @@ void earthquake(int cy, int cx, int r)
 		map[16+py-cy][16+px-cx] = FALSE;
 
 		/* Take some damage */
-		if (damage) take_hit(damage, "an earthquake");
+		if (damage) take_hit(damage, "an earthquake", MON_EARTHQUAKE);
 	}
 
 
@@ -5446,7 +5371,7 @@ void earthquake(int cy, int cx, int r)
 					}
 
 					/* Describe the monster */
-					monster_desc(m_name, m_ptr, 0, MNAME_MAX);
+					strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0);
 
 					/* Scream in pain */
 					msg_format("%^s wails out in pain!", m_name);
@@ -5656,7 +5581,7 @@ static void cave_temp_room_lite(void)
 					C_TNEW(m_name, MNAME_MAX, char);
 
 					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0, MNAME_MAX);
+					strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0);
 
 					/* Dump a message */
 					msg_format("%^s wakes up.", m_name);
@@ -5752,11 +5677,11 @@ static void cave_temp_room_aux(int y, int x)
 	/* Avoid infinite recursion */
 	if (c_ptr->info & (CAVE_TEMP)) return;
 
+	/* Do not "leave" the current room */
+	if (!(c_ptr->info & (CAVE_ROOM))) return;
+
 	/* Paranoia -- verify space */
 	if (temp_n == TEMP_MAX) return;
-
-	/* Not a room or a wall. */
-	if (!is_room_p(y,x)) return;
 
 	/* Mark the grid as "seen" */
 	c_ptr->info |= (CAVE_TEMP);
@@ -5765,10 +5690,6 @@ static void cave_temp_room_aux(int y, int x)
 	temp_y[temp_n] = y;
 	temp_x[temp_n] = x;
 	temp_n++;
-#ifdef TESTING_cave_temp_room_aux
-	move_cursor_relative(y,x);
-	inkey();
-#endif
 }
 
 
@@ -5865,7 +5786,7 @@ bool lite_area(int dam, int rad)
 	(void)project(0, rad, py, px, dam, GF_LITE_WEAK, flg);
 
 	/* Hack - don't light up the town. */
-	if (dun_level || wild_grid[wildy][wildx].dungeon >= MAX_TOWNS)
+	if (dun_level || !is_town_p(wildy,wildx))
 	{
 		/* Lite up the room */
 		lite_room(py, px);
@@ -5894,7 +5815,7 @@ bool unlite_area(int dam, int rad)
     (void)project(0, rad, py, px, dam, GF_DARK_WEAK, flg);
 
 	/* Hack - don't darken the town. */
-	if (dun_level || wild_grid[wildy][wildx].dungeon >= MAX_TOWNS)
+	if (dun_level || !is_town_p(wildy,wildx))
 	{
 		/* Darken the room */
 		unlite_room(py, px);
@@ -6378,7 +6299,7 @@ void wall_breaker(int plev)
 
 void bless_weapon(void)
 {
-	int                     item;
+	errr err;
     object_type             *o_ptr;
     u32b f1, f2, f3;
 
@@ -6390,28 +6311,16 @@ void bless_weapon(void)
 
 
 	/* Get an item (from equip or inven or floor) */
-    if (!get_item(&item, "Bless which weapon? ", TRUE, TRUE, TRUE))
+    if (!((o_ptr = get_item(&err, "Bless which weapon? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have weapon to bless.");
+		if (err == -2) msg_print("You have weapon to bless.");
 		TFREE(o_name);
 		return;
 	}
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, FALSE, 0);
 
         /* Extract the flags */
     object_flags(o_ptr, &f1, &f2, &f3);
@@ -6424,13 +6333,13 @@ void bless_weapon(void)
         {
 
             msg_format("The black aura on %s %s disrupts the blessing!",
-                   ((item >= 0) ? "your" : "the"), o_name);
+                   (is_inventory_p(o_ptr) ? "your" : "the"), o_name);
 			TFREE(o_name);
             return;
         }
 
         msg_format("A malignant aura leaves %s %s.",
-            ((item>=0)? "your" : "the"), o_name);
+           (is_inventory_p(o_ptr) ? "your" : "the"), o_name);
 
 		/* Uncurse it */
 		o_ptr->ident &= ~(IDENT_CURSED);
@@ -6454,7 +6363,7 @@ Ego weapons and normal weapons can be blessed automatically. */
     if (f3 & TR3_BLESSED)
     {
             msg_format("%s %s %s blessed already.",
-                   ((item >= 0) ? "Your" : "The"), o_name,
+                   (is_inventory_p(o_ptr) ? "Your" : "The"), o_name,
                    ((o_ptr->number > 1) ? "were" : "was"));
 			TFREE(o_name);
             return;
@@ -6464,7 +6373,7 @@ Ego weapons and normal weapons can be blessed automatically. */
     {
 	/* Describe */
 	msg_format("%s %s shine%s!",
-	       ((item >= 0) ? "Your" : "The"), o_name,
+	       (is_inventory_p(o_ptr) ? "Your" : "The"), o_name,
 	       ((o_ptr->number > 1) ? "" : "s"));
 	o_ptr->flags3 |= TR3_BLESSED;
     }
@@ -6504,7 +6413,7 @@ Ego weapons and normal weapons can be blessed automatically. */
         {
             msg_print("There is a static feeling in the air...");
             msg_format("%s %s %s disenchanted!",
-                   ((item >= 0) ? "Your" : "The"), o_name,
+                   (is_inventory_p(o_ptr) ? "Your" : "The"), o_name,
                    ((o_ptr->number > 1) ? "were" : "was"));
         }
 
@@ -6588,6 +6497,39 @@ Ego weapons and normal weapons can be blessed automatically. */
    return (flag);
  }
 
+
+/*
+ * Prepare to recall to/from the dungeon after a few turns.
+ *
+ * The "spell" parameter increased the time to wait slightly (by an average
+ * of half a turn). I don't know why...
+ */
+void set_recall(bool spell)
+{
+	if (dun_level && (p_ptr->max_dlv > dun_level) && (cur_dungeon == recall_dungeon))
+	{
+		if (get_check("Reset recall depth? "))
+		p_ptr->max_dlv = dun_level;
+	}
+	if (p_ptr->word_recall == 0)
+	{
+		p_ptr->word_recall = randint(spell ? 21 : 20) + 15;
+		if (dun_level > 0)
+		{
+			recall_dungeon = cur_dungeon;
+		}
+		else
+		{
+			cur_dungeon = recall_dungeon;
+		}
+		msg_print("The air about you becomes charged...");
+	}
+	else
+	{
+		p_ptr->word_recall = 0;
+		msg_print("A tension leaves the air around you...");
+	}
+}
 
 
  /*

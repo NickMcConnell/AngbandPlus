@@ -1726,7 +1726,7 @@ errr init_xaw(int argc, char **argv)
 	if (arg_graphics)
 	{
 		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+		strnfmt(filename, 1024, "%v", path_build_f2, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
 		/* Use the "16x16.bmp" file if it exists */
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -1743,7 +1743,7 @@ errr init_xaw(int argc, char **argv)
 		else
 		{
 			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
+			strnfmt(filename, 1024, "%v", path_build_f2, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
 
 			/* Use the "8x8.bmp" file if it exists */
 			if (0 == fd_close(fd_open(filename, O_RDONLY)))

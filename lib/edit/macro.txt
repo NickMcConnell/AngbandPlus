@@ -68,7 +68,7 @@
 
 # Version stamp (required)
 
-V:1.0.5
+V:
 
 # There are several macros which apply to all files used by object_desc().
 # To simplify things, these macros create them with a single line.
@@ -95,6 +95,14 @@ F:macros:#
 
 X:#:object_desc() names
 A:F:o_base:N:3
+F:macros:#
+
+X:#:monster_desc() names
+A:F:r_info:N:3
+F:macros:#
+
+X:#:monster_desc() names
+A:F:d_quest:Q:4
 F:macros:#
 
 # % masking (part 2)
@@ -144,17 +152,17 @@ M:27
 X:%=P
 M:4
 #:object_desc() names
-F:r_info:N:3
+#:monster_desc() names
 
 X:%+P
 M:12
 #:object_desc() names
-F:r_info:N:3
+#:monster_desc() names
 
 X:%-P
 M:20
 #:object_desc() names
-F:r_info:N:3
+#:monster_desc() names
 
 X:%=E
 M:5
@@ -199,19 +207,19 @@ M:24
 X:%=I
 M:5
 #:object_desc() names
-F:r_info:N:3
+#:monster_desc() names
 
 X:%+I
 M:13
-F:r_info:N:3
+#:monster_desc() names
 
 X:%-I
 M:21
-F:r_info:N:3
+#:monster_desc() names
 
 X:%i
 M:29
-F:r_info:N:3
+#:monster_desc() names
 
 # %Base flags are always at the beginning to make searching for them
 # more efficient.
@@ -281,7 +289,7 @@ F:u_info:s
 
 X:& 
 Y:%+I%i %=I
-F:r_info:N:3
+#:monster_desc() names
 
 # Ensure that tvals are expressed as numbers.
 
@@ -904,6 +912,7 @@ F:a_info:P:3
 X:u
 Y:-
 F:k_info:N:2
+F:r_info:N:2
 
 # Macros to make it relatively easy to keep the k_idx field in a_info.txt up
 # to date, and also to make it clearer.
@@ -1460,58 +1469,137 @@ F:k_info:W:2
 
 X:~
 Y:%+Ps%=P
-F:r_info:N:3
+#:monster_desc() names
 #:object_desc() names
 
 X:s~
 Y:s%+Pes%=P
-F:r_info:N:3
+#:monster_desc() names
 #:object_desc() names
 
 X:ch~
 Y:ch%+Pes%=P
-F:r_info:N:3
+#:monster_desc() names
 
 X:ich~
 Y:ich%+Ps%=P
 
 X:y~
 Y:%-Py%+Pies%=P
-F:r_info:N:3
+#:monster_desc() names
 
 X:ouse~
 Y:%-Pous%+Pic%=Pe
-F:r_info:N:3
+#:monster_desc() names
 
 X:ay~
 Y:ay%+Ps%=P
-F:r_info:N:3
+#:monster_desc() names
 
 X:thief~
 Y:thie%-Pf%+Pves%=P
-F:r_info:N:3
+#:monster_desc() names
 
 X:olf~
 Y:ol%-Pf%+Pves%=P
-F:r_info:N:3
+#:monster_desc() names
 
 X:ex~
 Y:%-Pex%+Pices%=P
-F:r_info:N:3
+#:monster_desc() names
 
 X: Man~
 Y: M%-Pa%+Pe%=Pn
-F:r_info:N:3
+#:monster_desc() names
 
 X:kelman~
 Y:kelm%-Pa%+Pe%=Pn
-F:r_info:N:3
+#:monster_desc() names
+
+X:Townsman~
+Y:Townsm%-Pa%+Pe%=Pn
+#:monster_desc() names
 
 X:child~
 Y:child%+Pren%=P
-F:r_info:N:3
+#:monster_desc() names
 
 X:lous~
 Y:l%-Pous%+Pi%=P
-F:r_info:N:3
+#:monster_desc() names
 
+# Variable default timeouts for rods
+
+X:11-20
+Y:-1
+F:k_info:I:3
+
+X:11-21
+Y:-2
+F:k_info:I:3
+
+X:16-30
+Y:-3
+F:k_info:I:3
+
+# Convert shop names into the indices for the STORE_* macros.
+
+X:General
+Y:0
+F:s_info:I:2
+
+X:Armoury
+Y:1
+F:s_info:I:2
+
+X:Weaponsmith's
+Y:2
+F:s_info:I:2
+
+X:Temple
+Y:3
+F:s_info:I:2
+
+X:Alchemist's
+Y:4
+F:s_info:I:2
+
+X:Magic Shop
+Y:5
+F:s_info:I:2
+
+X:Black Market
+Y:6
+F:s_info:I:2
+
+X:House
+Y:7
+F:s_info:I:2
+
+X:Bookshop
+Y:8
+F:s_info:I:2
+
+X:Inn
+Y:9
+F:s_info:I:2
+
+X:Hall
+Y:10
+F:s_info:I:2
+
+X:Pawn Shop
+Y:11
+F:s_info:I:2
+
+# Allow a fake "None" race.
+# There's no easy way to check this against the shop type, so use a random race.
+
+X:None
+Y:Barbarian
+F:s_info:I:3
+
+# Omit a waste parameter from r_info.txt.
+X::
+Y::0:
+F:r_info:W:4

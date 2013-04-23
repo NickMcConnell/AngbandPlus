@@ -436,31 +436,33 @@ static cptr image_monster_hack_ibm = \
  */
 static void image_monster(byte *ap, char *cp)
 {
-	int n = strlen(image_monster_hack);
-
-	/* Random symbol from set above */
-	if (!use_graphics)
+	if (use_graphics)
 	{
-	if (!(streq(ANGBAND_SYS, "ibm")))
-        {
-            (*cp) = r_info[randint(MAX_R_IDX-2)].x_char;
-            (*ap) = r_info[randint(MAX_R_IDX-2)].x_attr;
-        }
-        else
-        {
-            n = strlen(image_monster_hack_ibm);
-            (*cp) = (image_monster_hack_ibm[rand_int(n)]);
-            /* Random color */
-            (*ap) = randint(15);
-        }
-    }
-    else
-    {
-        (*cp) = (image_monster_hack[rand_int(n)]);
+		int n = strlen(image_monster_hack_ibm);
+		(*cp) = (image_monster_hack[rand_int(n)]);
 
-        /* Random color */
-        (*ap) = randint(15);
-    }
+		/* Random color */
+		(*ap) = randint(15);
+	}
+	else if (streq(ANGBAND_SYS, "ibm"))
+	{
+		int n = strlen(image_monster_hack_ibm);
+		(*cp) = (image_monster_hack_ibm[rand_int(n)]);
+		/* Random color */
+		(*ap) = randint(15);
+	}
+	else
+	{
+		monster_race *r_ptr;
+		do
+		{
+			r_ptr = r_info+rand_int(MAX_R_IDX);
+		}
+		while (is_fake_monster(r_ptr));
+
+		(*cp) = r_ptr->x_char;
+		(*ap) = r_ptr->x_attr;
+	}
 }
 
 
@@ -527,32 +529,50 @@ static void image_random(byte *ap, char *cp)
 
 /*
  * Change the colour of a monster if the player uses the look function.
+ *
+ * Hack - colour-changing uniques don't reach this function when they're doing
+ * something special.
  */
 static bool do_violet_unique(monster_race *r_ptr, byte *ap, char *cp)
 {
-	s16b a = -1;
+	int a;
 
-	/* Multi-hued monsters are not processed. */
+	/* This isn't the correct turn. */
+	if (!violet_uniques) return FALSE;
+
+	/* Multi-hued monsters are handled elsewhere. */
 	if (r_ptr->flags1 & RF1_ATTR_MULTI) return FALSE;
 
 	/* Uniques usually become violet. */
-	if (r_ptr->flags1 & RF1_UNIQUE) a = TERM_VIOLET;
-
-	/* Monsters which would otherwise be invisible become red. */
-	if ((*ap) == r_ptr->x_attr && (*cp) == r_ptr->x_char) a = TERM_RED;
-	
-	/* Monsters which are the colour in question anyway become yellow. */
-	if (a && a == r_ptr->x_attr) a = TERM_YELLOW;
-
-	/* Store the result, if any. */
-	if (a >= 0)
+	if (r_ptr->flags1 & RF1_UNIQUE)
 	{
-		(*ap) = a;
-		(*cp) = r_ptr->x_char;
+		a = TERM_VIOLET;
 	}
 
-	/* Let the game know if something has happened. */
-	return (a >= 0);
+	/* Monsters which would otherwise be invisible become red. */
+	else if ((*ap) == r_ptr->x_attr && (*cp) == r_ptr->x_char)
+	{
+		a = TERM_RED;
+	}
+	
+	/* Only the above types of monster are modified here. */
+	else
+	{
+		return FALSE;
+	}
+
+	/* Monsters which are the colour in question anyway become yellow. */
+	if (a == r_ptr->x_attr)
+	{
+		a = TERM_YELLOW;
+	}
+
+	/* Store the result. */
+	(*ap) = a;
+	(*cp) = r_ptr->x_char;
+
+	/* Let the game know that something has happened. */
+	return TRUE;
 }
 
 
@@ -1055,37 +1075,22 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 			/* Hack - allow non-clear uniques to be set uniformly violet, 
 			or yellow if violet normally. */
-			else if (violet_uniques == 2 && do_violet_unique(r_ptr, ap, cp));
+			else if (do_violet_unique(r_ptr, ap, cp));
 	    /* Multi-hued monster */
         else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
 			{
 		/* Is it a shapechanger? */
 		if (r_ptr->flags2 & (RF2_SHAPECHANGER))
 		{
-
-            if (use_graphics)
+			if (use_graphics)
+			{
+				image_monster(ap, cp);
+			}
+			else
             {
-                if (!(streq(ANGBAND_SYS, "ibm")))
-                {
-                    (*cp) = r_info[randint(MAX_R_IDX-2)].x_char;
-                    (*ap) = r_info[randint(MAX_R_IDX-2)].x_attr;
-                }
-                else
-                {
-                    int n =  strlen(image_monster_hack_ibm);
-                    (*cp) = (image_monster_hack_ibm[rand_int(n)]);
-                    /* Random color */
-                    (*ap) = randint(15);
-                }
-            }
-
-
-            else
-            {
-
-                (*cp) = (randint(25)==1?
-                image_object_hack[randint(strlen(image_object_hack))]:
-                image_monster_hack[randint(strlen(image_monster_hack))]);
+				(*cp) = (randint(25)==1?
+				image_object_hack[randint(strlen(image_object_hack))]:
+				image_monster_hack[randint(strlen(image_monster_hack))]);
             }
 		}
 		else
@@ -1227,9 +1232,9 @@ void print_rel(char c, byte a, int y, int x)
 	{
 		/* Hack -- fake monochrome */
         if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-                && (p_ptr->invuln || !use_color )) a = TERM_WHITE;
+                && (p_ptr->invuln)) a = TERM_WHITE;
         else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-             && (p_ptr->wraith_form && use_color )) a = TERM_L_DARK;
+             && (p_ptr->wraith_form)) a = TERM_L_DARK;
 
 		/* Draw the char using the attr */
 		Term_draw(x-X_SCREEN_ADJ, y-Y_SCREEN_ADJ, a, c);
@@ -1388,9 +1393,9 @@ void lite_spot(int y, int x)
 
 		/* Hack -- fake monochrome */
 		if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-			&& (p_ptr->invuln || !use_color)) a = TERM_WHITE;
+			&& (p_ptr->invuln)) a = TERM_WHITE;
 		else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-			&& (p_ptr->wraith_form && use_color )) a = TERM_L_DARK;
+			&& (p_ptr->wraith_form)) a = TERM_L_DARK;
 
 		/* Hack -- Queue it */
 		Term_queue_char(x-X_SCREEN_ADJ, y-Y_SCREEN_ADJ, a, c, ta, tc);
@@ -1440,9 +1445,9 @@ void prt_map(void)
 
 			/* Hack -- fake monochrome */
 			if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-				&& (p_ptr->invuln || !use_color)) a = TERM_WHITE;
+				&& (p_ptr->invuln)) a = TERM_WHITE;
 			else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-				&& (p_ptr->wraith_form && use_color )) a = TERM_L_DARK;
+				&& (p_ptr->wraith_form)) a = TERM_L_DARK;
 
 			/* Efficiency -- Redraw that grid of the map */
 			Term_queue_char(cx, cy, a, c, ta, tc);
@@ -1472,83 +1477,41 @@ void prt_map(void)
 #define MAP_WID (MAX_WID / RATIO)
 
 /*
- * Hack -- priority array (see below)
- *
- * Note that all "walls" always look like "secret doors" (see "map_info()").
- */
-static byte priority_table[][2] =
-{
-	/* Dark */
-	{ FEAT_NONE, 2 },
-
-	/* Dark (no traps) */
-	{ FEAT_NONE_TD, 3 },
-
-	/* Floors */
-	{ FEAT_FLOOR, 5 },
-
-	/* Walls */
-	{ FEAT_SECRET, 10 },
-
-	/* Quartz */
-	{ FEAT_QUARTZ, 11 },
-
-	/* Magma */
-	{ FEAT_MAGMA, 12 },
-
-	/* Rubble */
-	{ FEAT_RUBBLE, 13 },
-
-	/* Open doors */
-	{ FEAT_OPEN, 15 },
-	{ FEAT_BROKEN, 15 },
-
-	/* Closed doors */
-	{ FEAT_DOOR_HEAD + 0x00, 17 },
-
-	/* Hidden gold */
-	{ FEAT_QUARTZ_K, 19 },
-	{ FEAT_MAGMA_K, 19 },
-
-	/* Stairs */
-	{ FEAT_LESS, 25 },
-	{ FEAT_MORE, 25 },
-
-	/* End */
-	{ 0, 0 }
-};
-
-
-/*
  * Hack -- a priority function (see below)
+ *
+ * This uses the priorities of terrians which are never shown because they are
+ * mimics, as these can be capable of being shown if f_info.txt is written in
+ * an obfuscated way.
  */
-static byte priority(byte a, char c)
+static byte priority(byte f, byte a, char c)
 {
-	int i, p0, p1;
+	feature_type *f_ptr = f_info+f_info[f].mimic;
 
-	feature_type *f_ptr;
+	int priority;
 
-	/* Scan the table */
-	for (i = 0; TRUE; i++)
+	/* Use the priority of this terrain type if the terrain is visible. */
+	if (f_ptr->x_char == c && f_ptr->x_attr == a) return f_ptr->priority;
+
+	/* Otherwise, look to see if it looks like terrain. */
+	for (f_ptr = f_info, priority = -1; f_ptr < f_info+MAX_F_IDX; f_ptr++)
 	{
-		/* Priority level */
-		p1 = priority_table[i][1];
-
-		/* End of table */
-		if (!p1) break;
-
-		/* Feature index */
-		p0 = priority_table[i][0];
-
-		/* Access the feature */
-		f_ptr = &f_info[p0];
-
-		/* Check character and attribute, accept matches */
-		if ((f_ptr->x_char == c) && (f_ptr->x_attr == a)) return (p1);
+		if (f_ptr->priority >= priority &&
+			f_ptr->x_char == c && f_ptr->x_attr == a)
+		{
+			priority = f_ptr->priority;
+		}
 	}
 
-	/* Default */
-	return (20);
+	/* Not the char/attr of a feature, so give a known priority. */
+	if (priority == -1)
+	{
+		return 100;
+	}
+	/* Give it the highest priority of any similar terrain. */
+	else
+	{
+		return priority;
+	}
 }
 
 
@@ -1641,7 +1604,7 @@ void display_map(int *cy, int *cx, bool max)
 			map_info(j, i, &ta, &tc, &ta, &tc);
 
 			/* Extract the priority of that attr/char */
-			tp = priority(ta, tc);
+			tp = priority(cave[j][i].feat, ta, tc);
 
 			/* Save "best" */
 			if (mp[y][x] < tp)
@@ -1683,9 +1646,9 @@ void display_map(int *cy, int *cx, bool max)
 
 			/* Hack -- fake monochrome */
             if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-                && (p_ptr->invuln || !use_color)) ta = TERM_WHITE;
+                && (p_ptr->invuln)) ta = TERM_WHITE;
             else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-                && (p_ptr->wraith_form && use_color )) ta = TERM_L_DARK;
+                && (p_ptr->wraith_form)) ta = TERM_L_DARK;
 
 			/* Add the character */
 			Term_addch(ta, tc);
@@ -1731,40 +1694,13 @@ void display_map(int *cy, int *cx, bool max)
  */
 void display_wild_map(uint xmin)
 {
-	bool dungeon_has_guardians[MAX_CAVES];
 	s16b x,y;
-	int i;
+	int i, j, num_towns;
 	uint l;
 	char wild_map_symbol;
 	byte wild_map_attr;
-	char buffer[60];
 	cptr tmp;
-
-	char symbol_conv[MAX_CAVES];
-
-	/* The towns use numbers */
-	for (i = 0; i < MAX_TOWNS; i++) symbol_conv[i] = '0'+i;
-	
-	/* The dungeons use '*' */
-	for (i = MAX_TOWNS; i < MAX_CAVES; i++) symbol_conv[i] = '*';
-
-	/* Give the dungeon locations. */
-	if (TRUE)
-	{
-		/* The other dungeons uses letters */
-		symbol_conv[8] = 'y';
-		symbol_conv[9] = 'o';
-		symbol_conv[10] = 'z';
-		symbol_conv[11] = 'C';
-		symbol_conv[12] = 'V';
-		symbol_conv[13] = 'D';
-		symbol_conv[14] = 'N';
-		symbol_conv[15] = 'u';
-		symbol_conv[16] = 'E';
-		symbol_conv[17] = 'S';
-		symbol_conv[18] = 'k';
-		symbol_conv[19] = 'K';
-	}
+	C_TNEW(dungeon_has_guardians, MAX_CAVES, bool);
 
 	/* First work out which dungeons have guardians left */
 	for(i=0;i<MAX_CAVES;i++)
@@ -1783,34 +1719,38 @@ void display_wild_map(uint xmin)
 	{
 		for(x=0;x<12;x++)
 		{
-			wild_map_symbol = '^';
-			wild_map_attr = TERM_GREEN;
-			if (wild_grid[y][x].dungeon < MAX_CAVES)
-			{
-				wild_map_symbol = symbol_conv[wild_grid[y][x].dungeon];
-				wild_map_attr = TERM_UMBER;
-				if(dungeon_has_guardians[wild_grid[y][x].dungeon])
-				{
-					wild_map_attr = TERM_RED;
-				}
-			}
-			if(wild_grid[y][x].dungeon < MAX_TOWNS)
-			{
-				wild_map_attr = TERM_WHITE;
-				if(dungeon_has_guardians[wild_grid[y][x].dungeon])
-				{
-					wild_map_attr = TERM_RED;
-				}
-			}
+			wild_type *w_ptr = &wild_grid[y][x];
+
 			if((wildx == x) && (wildy == y))
 			{
 				wild_map_symbol = '@';
 				wild_map_attr = TERM_YELLOW;
 			}
-			if((x == 0) || (y == 0) || (x == 11) || (y == 11))
+			else if (w_ptr->dungeon < MAX_CAVES)
+			{
+				wild_map_symbol = dun_defs[w_ptr->dungeon].sym;
+				if(dungeon_has_guardians[w_ptr->dungeon])
+				{
+					wild_map_attr = TERM_RED;
+				}
+				else if (is_town_p(y, x))
+				{
+					wild_map_attr = TERM_WHITE;
+				}
+				else
+				{
+					wild_map_attr = TERM_UMBER;
+				}
+			}
+			else if((x == 0) || (y == 0) || (x == 11) || (y == 11))
 			{
 				wild_map_symbol = '~';
 				wild_map_attr = TERM_BLUE;
+			}
+			else
+			{
+				wild_map_symbol = '^';
+				wild_map_attr = TERM_GREEN;
 			}
 			Term_putch(xmin+x+1, y+2, wild_map_attr, wild_map_symbol);
 		}
@@ -1827,45 +1767,62 @@ void display_wild_map(uint xmin)
 	/* Find the longest legend. */
 	for (l = i = 0; i < MAX_TOWNS; i++)
 	{
-		l = MAX(l, strlen(town_defs[i].name));
+		l = MAX(l, strlen(town_name+town_defs[i].name));
 	}
 
 	/* Print legend */
-	for (y=0;y<MAX_TOWNS;y++)
+	for (num_towns=i=0;i<MAX_TOWNS;i++)
 	{
+		dun_type *d_ptr = dun_defs+i;
+		town_type *t_ptr = town_defs+i;
+
+		/* Not a town. */
+		if (!t_ptr->name) continue;
+
 		if (l+xmin+23 > Term->wid)
-			sprintf(buffer,"%d = %s",y,dun_defs[y].shortname);
+			tmp = dun_name+d_ptr->shortname;
 		else
-		sprintf(buffer,"%d = %s",y,town_defs[y].name);
-		c_put_str(TERM_WHITE,buffer,y+1,xmin+19);
+			tmp = town_name+t_ptr->name;
+		c_put_str(TERM_WHITE, format("%c = %s", d_ptr->sym, tmp),
+			num_towns+1,xmin+19);
+		num_towns++;
 	}
 
 	/* Print dungeon legend */
-	for (i = MAX_TOWNS; i < MAX_CAVES; i++)
+	for (i = j = 0; i < MAX_CAVES; i++)
 	{
-		x = (i - MAX_TOWNS) % 2;
-		x = (xmin+(x*Term->wid))/(1+x);
-		y = MAX(16, MAX_TOWNS+8) + (i-MAX_TOWNS)/2;
+		dun_type *d_ptr = dun_defs+i;
 
-		tmp = dun_defs[i].name;
+		/* Already shown. */
+		if (is_town_p(d_ptr->y, d_ptr->x)) continue;
+
+		x = j % 2;
+		x = (xmin+(x*Term->wid))/(1+x);
+		y = MAX(16, num_towns+1) + j/2;
+
+		tmp = dun_name+d_ptr->name;
 
 		/* Trim an initial "the ". */
-		if (!strncmp(tmp, "the ", 4)) tmp += 4;
+		if (prefix(tmp, "the ")) tmp += strlen("the ");
 
 		/* If the name is too long, use the short name instead. */
 		if ((strlen(tmp)+4)*2+xmin >= Term->wid)
-			tmp = format("%c = %s", symbol_conv[i], dun_defs[i].shortname);
+			tmp = format("%c = %s", d_ptr->sym, dun_name+d_ptr->shortname);
 		else
-			tmp = format("%c = %s", symbol_conv[i], tmp);
+			tmp = format("%c = %s", d_ptr->sym, tmp);
 		c_put_str(TERM_WHITE, tmp, y, x);
+
+		j++;
 	}
 
-	c_put_str(TERM_UMBER,"* = dungeon entrance",MAX_TOWNS+2,xmin+19);
+	c_put_str(TERM_UMBER,"* = dungeon entrance",num_towns+2,xmin+19);
 	tmp = "(Places that still have guardians are marked in red)";
 	if (xmin+strlen(tmp) > Term->wid)
 		tmp = "(red = has guardian)";
 	c_put_str(TERM_RED,tmp,MAX_TOWNS+4,xmin+18);
 	c_put_str(TERM_YELLOW,"@ = you",MAX_TOWNS+6,xmin+18);
+
+	TFREE(dungeon_has_guardians);
 }
 
 /*
@@ -3753,69 +3710,25 @@ void object_kind_track(int k_idx)
 
 
 /*
- * Returns the object referred to by the given object_idx.
- */
-object_type *cnv_idx_to_obj(s16b index)
-{
-	if (index < 0)
-	{
-		return &o_list[-index];
-	}
-	else if (index < INVEN_TOTAL)
-	{
-		return &inventory[index];
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-
-
-/*
- * Returns the object_idx appropriate for a given item.
- */
-static s16b cnv_obj_to_idx(object_type *o_ptr)
-{
-	if (o_ptr >= inventory && o_ptr-inventory < INVEN_TOTAL)
-	{
-		return o_ptr-inventory;
-	}
-	else if (o_ptr >= o_list && o_ptr-o_list < MAX_O_IDX)
-	{
-		return o_list-o_ptr;
-	}
-	else
-	{
-		return INVEN_TOTAL;
-	}
-}
-
-
-
-/*
  * Track the given item.
  */
 void object_track(object_type *o_ptr)
 {
-	s16b index = cnv_obj_to_idx(o_ptr);
-
 	/* object_track(0) means "forget it, whatever it was". */
 	if (!o_ptr)
 	{
-		object_idx = INVEN_TOTAL;
+		tracked_o_ptr = o_ptr;
 	}
 	/* Always remember real objects. */
 	else if (o_ptr->k_idx)
 	{
 		/* Save the object ID */
-		object_idx = index;
+		tracked_o_ptr = o_ptr;
 	}
 	/* A repeated call to a now-blank object means "forget it". */
-	else if (object_idx == index)
+	else if (o_ptr == tracked_o_ptr)
 	{
-		object_idx = INVEN_TOTAL;
+		tracked_o_ptr = NULL;
 	}
 	/* A call to an untracked blank object is ignored totally. */
 	else

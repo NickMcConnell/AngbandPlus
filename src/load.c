@@ -26,7 +26,7 @@
  * can know the size, interested people can know the type, and the actual
  * data is available to the parsing routines that acknowledge the type.
  *
- * Note that MAX_CAVES, MAX_TOWNS, MAX_QUESTS, MAX_SCHOOL and MAX_SPIRITS are
+ * Note that MAX_CAVES, MAX_TOWNS, MAX_SCHOOL and MAX_SPIRITS are
  * assumed to be constant here.
  *
  * XXX XXX XXX
@@ -173,6 +173,11 @@ static byte sf_get(void)
 static void rd_byte(byte *ip)
 {
 	*ip = sf_get();
+}
+
+static void rd_char(char *ip)
+{
+	rd_byte((byte*)ip);
 }
 
 static void rd_u16b(u16b *ip)
@@ -338,7 +343,7 @@ static void rd_item(object_type *o_ptr)
 	if (o_ptr->k_idx < 0 || o_ptr->k_idx >= MAX_K_IDX)
 	{
 		note("Destroying object with a bad k_idx.");
-		excise_object_idx(o_ptr-o_list);
+		excise_dun_object(o_ptr);
 		object_wipe(o_ptr);
 		return;
 	}
@@ -485,6 +490,8 @@ static void rd_monster(monster_type *m_ptr)
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
 
+	m_ptr->r_idx = convert_r_idx(m_ptr->r_idx, sf_flags, sf_flags_now);
+
 	/* Read the other information */
 	rd_byte(&m_ptr->fy);
 	rd_byte(&m_ptr->fx);
@@ -614,8 +621,7 @@ static errr rd_store(int n)
 	store_type *st_ptr = &store[n];
 
 	int j;
-
-	byte own, num;
+	byte num;
 
 	/* Read the basic info */
 	rd_byte(&st_ptr->type);
@@ -624,13 +630,32 @@ static errr rd_store(int n)
 	rd_s32b(&st_ptr->store_open);
 	rd_s16b(&st_ptr->insult_cur);
 	rd_byte(&st_ptr->bought);
-	rd_byte(&own);
+#ifdef SF_QUEST_DIRECT
+	if (has_flag(SF_QUEST_DIRECT))
+	{
+		rd_s16b(&st_ptr->owner);
+	}
+	else
+	{
+		byte z;
+		rd_byte(&z);
+		st_ptr->owner = convert_owner(n*MAX_OWNERS+z, sf_flags, sf_flags_now);
+	}
+
+	/* Pick a new owner if the current one has been removed. */
+	if (st_ptr->owner < 0 || st_ptr->owner > NUM_OWNERS)
+	{
+		msg_format("Strange shopkeeper in shop %d - finding a new one.", n);
+		store_shuffle(n);
+	}
+
+#else /* SF_QUEST_DIRECT */
+	rd_byte(&st_ptr->owner);
+#endif /* SF_QUEST_DIRECT */
+
 	rd_byte(&num);
 	rd_s16b(&st_ptr->good_buy);
 	rd_s16b(&st_ptr->bad_buy);
-
-	/* Extract the owner (see above) */
-	st_ptr->owner = own;
 
 	/* Read the items */
 	for (j = 0; j < num; j++)
@@ -790,11 +815,42 @@ static void rd_options(void)
 						/* Clear */
 						option_flag[n] &= ~(1L << i);
 					}
-				}                           
+				}
 			}
 		}
 	}
 
+	/* Copy across the birth options if they weren't previously known. */
+	{
+		option_type *op_ptr, *o2_ptr;
+		for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
+		{
+			if (op_ptr->o_page == OPTS_BIRTHR) break;
+		}
+
+		/* Only do something if this option wasn't in the mask. */
+		if (!(mask[op_ptr->o_set] & (1L << op_ptr->o_bit)))
+		{
+			for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
+			{
+				if (op_ptr->o_page != OPTS_BIRTH) continue;
+				o2_ptr = op_ptr+1;
+
+				/* Only some birth options affect the game afterwards. */
+				if (o2_ptr->o_page != OPTS_BIRTHR) continue;
+
+				/* Copy the BIRTH option to the BIRTHR equivalent. */
+				if (option_flag[op_ptr->o_set] & 1L << (op_ptr->o_bit))
+				{
+					option_flag[o2_ptr->o_set] |= 1L << (o2_ptr->o_bit);
+				}
+				else
+				{
+					option_flag[o2_ptr->o_set] &= ~(1L << (o2_ptr->o_bit));
+				}
+			}
+		}
+	}
 
 	/*** Window Options ***/
 
@@ -905,7 +961,9 @@ static void rd_ghost(void)
 {
 	int i;
     
-	monster_race *r_ptr = &r_info[MAX_R_IDX-1];
+	monster_race *r_ptr = r_info+
+		convert_r_idx(MON_PLAYER_GHOST, sf_flags, sf_flags_now);
+
 	/* Name */
 	rd_string(r_name + r_ptr->name, 64);
 
@@ -999,7 +1057,11 @@ static void rd_extra(void)
 	u32b tmp32u;
 	rd_string(player_name, 32);
 
-	rd_string(died_from, 80);
+	{
+		char buf[1024];
+		rd_string(buf, 1024);
+		died_from = string_make(buf);
+	}
 
 	for (i = 0; i < 4; i++)
 	{
@@ -1090,10 +1152,26 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->cchi);
 	rd_u16b(&p_ptr->chi_frac);
 
-	for(i=0;i<MAX_CAVES;i++)
+#ifdef SF_QUEST_DIRECT
+	if (has_flag(SF_QUEST_DIRECT))
+	{
+		rd_s16b(&p_ptr->max_dlv);
+	}
+	else
+	{
+		for (i = 0; i < 20; i++)
+		{
+			s16b tmp;
+			if (cur_dungeon == i) rd_s16b(&p_ptr->max_dlv);
+			else rd_s16b(&tmp);
+		}
+	}
+#else /* SF_QUEST_DIRECT */
+	for(i=0;i<20;i++)
 	{
 		rd_s16b(&p_ptr->max_dlv[i]);
 	}
+#endif /* SF_QUEST_DIRECT */
 
 	/* More info */
 	strip_bytes(8);
@@ -1133,23 +1211,27 @@ static void rd_extra(void)
 
 	rd_s16b(&p_ptr->tim_esp);
 	rd_s16b(&p_ptr->wraith_form);
-	rd_s16b(&p_ptr->resist_magic);
-	rd_s16b(&p_ptr->tim_xtra1);
-	rd_s16b(&p_ptr->tim_xtra2);
-	rd_s16b(&p_ptr->tim_xtra3);
-	rd_s16b(&p_ptr->tim_xtra4);
-	rd_s16b(&p_ptr->tim_xtra5);
-	rd_s16b(&p_ptr->tim_xtra6);
-	rd_s16b(&p_ptr->tim_xtra7);
-	rd_s16b(&p_ptr->tim_xtra8);
+	strip_bytes(18);
 	rd_s16b(&p_ptr->chaos_patron);
 	rd_u32b(&p_ptr->muta1);
 	rd_u32b(&p_ptr->muta2);
 	rd_u32b(&p_ptr->muta3);
 
 	rd_byte(&p_ptr->confusing);
-	for (i=0;i<MAX_TOWNS;i++) rd_byte(&p_ptr->house[i]);
+#ifdef SF_QUEST_DIRECT
+	if (!has_flag(SF_QUEST_DIRECT)) strip_bytes(8);
+#else /* SF_QUEST_DIRECT */
+	for (i=0;i<8;i++) rd_byte(&p_ptr->house[i]);
+#endif /* SF_QUEST_DIRECT */
+
 	rd_byte(&p_ptr->ritual);
+
+#ifdef SF_QUEST_DIRECT
+	/* Use a constant "no ritual" value. */
+	if (!has_flag(SF_QUEST_DIRECT) && p_ptr->ritual == 9)
+		p_ptr->ritual = TOWN_NONE;
+#endif /* SF_QUEST_DIRECT */
+
 	rd_byte(&p_ptr->sneaking);
 	rd_byte(&tmp8u);
 
@@ -1171,6 +1253,10 @@ static void rd_extra(void)
 			rd_u32b(&tmp32u);
 			wild_grid[i][j].seed=tmp32u;
 			rd_byte(&tmp8u);
+#ifdef SF_QUEST_DIRECT
+			/* TOWN_NONE indicates no dungeon as MAX_CAVES can move. */
+			if (!has_flag(SF_QUEST_DIRECT) && tmp8u >= 20) tmp8u = TOWN_NONE;
+#endif /* SF_QUEST_DIRECT */
 			wild_grid[i][j].dungeon=tmp8u;
 
 			/* Fill in the town and dungeon locations if possible */
@@ -1241,10 +1327,6 @@ static errr rd_inventory(void)
 	/* No weight */
 	total_weight = 0;
 
-	/* No items */
-	inven_cnt = 0;
-	equip_cnt = 0;
-
 	/* Read until done */
 	while (1)
 	{
@@ -1276,13 +1358,10 @@ static errr rd_inventory(void)
 
 			/* Add the weight */
 			total_weight += (q_ptr->number * q_ptr->weight);
-
-			/* One more item */
-			equip_cnt++;
 		}
 
 		/* Warning -- backpack is full */
-		else if (inven_cnt == INVEN_PACK)
+		else if (slot == INVEN_PACK)
 		{
 			/* Oops */
 			note("Too many items in the inventory!");
@@ -1302,9 +1381,6 @@ static errr rd_inventory(void)
 
 			/* Add the weight */
 			total_weight += (q_ptr->number * q_ptr->weight);
-
-			/* One more item */
-			inven_cnt++;
 		}
 	}
 
@@ -1391,7 +1467,7 @@ static errr rd_dungeon(void)
 	/* Header info */
 	rd_s16b(&dun_level);
 	rd_s16b(&dun_offset);
-	rd_s16b(&dun_bias);
+	rd_u16b(&dun_bias);
 	rd_byte (&cur_town);
 	rd_byte (&cur_dungeon);
 	rd_byte (&recall_dungeon);
@@ -1501,13 +1577,17 @@ func_false();
 	/* Read the dungeon items */
 	for (i = 1; i < MIN(limit, MAX_O_IDX); i++)
 	{
+		
 		int o_idx;
 
 		object_type *o_ptr;
 
 
 		/* Get a new record */
-		o_idx = o_pop();
+		o_ptr = o_pop();
+
+		/* Note index. */
+		o_idx = o_ptr - o_list;
 
 		/* Oops */
 		if (i != o_idx)
@@ -1516,9 +1596,6 @@ func_false();
 			return (152);
 		}
 
-
-		/* Acquire place */
-		o_ptr = &o_list[o_idx];
 
 		/* Read the item */
 		rd_item(o_ptr);
@@ -1621,18 +1698,6 @@ func_false();
 		rd_monster(&dummy);
 	}
 
-
-	/*
-	 * Reenable quest
-	 * Heino Vander Sanden
-	 */
-	if (is_quest(dun_level))
-	{
-		int r_idx = get_quest_monster();
-
-		r_info[r_idx].flags1 |= (RF1_GUARDIAN);
-	}
-
 	/*** Success ***/
 
 	/* The dungeon is ready */
@@ -1650,6 +1715,9 @@ func_false();
 static errr rd_savefile_new_aux(void)
 {
 	int i;
+	bool warn;
+	quest_type *q_list_new;
+	int max_q_idx_new;
 
 	byte tmp8u;
 	u16b tmp16u;
@@ -1773,27 +1841,43 @@ static errr rd_savefile_new_aux(void)
 	if (arg_fiddle) note("Loaded Messages");
 
 
+	warn = FALSE;
+
 	/* Monster Memory */
 	rd_u16b(&tmp16u);
 
-	/* r_info has shrunk. */
-	if (tmp16u > MAX_R_IDX)
+	/* Hack - set default max_num fields for new monsters. */
+	for (i = 0; i < MAX_R_IDX; i++)
 	{
-		msg_format("Too many (%u) monster memories. Killing a few.", tmp16u);
+		monster_race *r_ptr = r_info+i;
+		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
+		else r_ptr->max_num = 100;
 	}
 
 	/* Read the available records */
-	for (i = 0; i < MIN(MAX_R_IDX, tmp16u); i++)
+	for (i = 0; i < tmp16u; i++)
 	{
+		int j = convert_r_idx(i, sf_flags, sf_flags_now);
+
+		/* No such monster. */
+		if (j < 0 || j >= MAX_R_IDX)
+		{
+			monster_race dummy;
+			rd_lore(&dummy);
+			if (i > MON_MAX_DISTRO) warn = TRUE;
+			printf("%d=%d ", i,j);
+		}
 		/* Read the lore */
-		rd_lore(r_info+i);
+		else
+		{
+			rd_lore(r_info+j);
+		}
 	}
 
-	/* Forget the last few unused memories. */
-	while (tmp16u-- > MAX_R_IDX)
+	/* r_info has shrunk. */
+	if (warn)
 	{
-		monster_race dummy;
-		rd_lore(&dummy);
+		msg_format("Too many (%u) monster memories. Killing a few.", tmp16u);
 	}
 
 	if (arg_fiddle) note("Loaded Monster Memory");
@@ -1832,40 +1916,95 @@ static errr rd_savefile_new_aux(void)
 		/* Load the Quests */
 		rd_u16b(&tmp16u);
 
+#ifdef SF_QUEST_DIRECT
+
+		/* Store the quest list from the save file. */
+		C_MAKE(q_list_new, tmp16u, quest_type);
+
+#else /* SF_QUEST_DIRECT */
+
 		/* Incompatible save files */
 		if (tmp16u > MAX_QUESTS)
 		{
 			note(format("Too many (%u) quests!", tmp16u));
 			return (23);
 		}
-		else
-		{
-			MAX_Q_IDX = tmp16u;
-		}
+
+#endif /* SF_QUEST_DIRECT */
+
+		/* Set the number of quests globally. */
+		max_q_idx_new = tmp16u;
 
 		/* Load the Quests */
-		for (i = 0; i < MAX_Q_IDX; i++)
+		for (i = 0; i < max_q_idx_new; i++)
 		{
+			quest_type *q_ptr = q_list_new+i;
+
 			rd_byte(&tmp8u);
-			q_list[i].level = tmp8u;
+			q_ptr->level = tmp8u;
 			rd_s16b((short *)&tmp16u);
-			q_list[i].r_idx = tmp16u;
-			rd_byte(&q_list[i].dungeon);
+			q_ptr->r_idx = convert_r_idx(tmp16u, sf_flags, sf_flags_now);
+			rd_byte(&q_ptr->dungeon);
 			rd_byte(&tmp8u);
-			q_list[i].cur_num = tmp8u;
+			q_ptr->cur_num = tmp8u;
 			rd_byte(&tmp8u);
-			q_list[i].max_num = tmp8u;
+			q_ptr->max_num = tmp8u;
+#ifdef SF_QUEST_DIRECT
+			/* Check that the quest is inside the dungeon. */
+			if (q_ptr->dungeon >= MAX_CAVES)
+			{
+				msg_print("Removing quest in vanished dungeon.");
+				q_ptr->level = q_ptr->max_num = 0;
+			}
+			else if (q_ptr->level > dun_defs[q_ptr->dungeon].max_level)
+			{
+				msg_print("Removing quest on impossible level.");
+				q_ptr->level = q_ptr->max_num = 0;
+			}
+#endif /* SF_QUEST_DIRECT */
 #ifdef SF_QUEST_UNKNOWN
 			if (has_flag(SF_QUEST_UNKNOWN))
 			{
 				rd_byte(&tmp8u);
-				q_list[i].cur_num_known = tmp8u;
+				q_ptr->cur_num_known = tmp8u;
 			}
 			else
 			{
-				q_list[i].cur_num_known = 0;
+				q_ptr->cur_num_known = 0;
 			}
 #endif
+#ifdef SF_QUEST_KNOWN
+			if (has_flag(SF_QUEST_KNOWN))
+			{
+				rd_byte(&tmp8u);
+				q_ptr->known = tmp8u;
+			}
+			else
+			{
+				/* The default set of known quests is the set of fixed quests. */
+				q_ptr->known = FALSE;
+#ifndef SF_QUEST_DIRECT /* The game doesn't track fixed quests. */
+				for (j = 0; j < MAX_CAVES; j++)
+				{
+					dun_type *d_ptr = dun_defs+j;
+
+					/* Wrong dungeon. */
+					if (q_ptr->dungeon != j) continue;
+
+					/* Wrong level. */
+					
+					if (d_ptr->first_level != q_ptr->level &&
+						d_ptr->second_level != q_ptr->level) continue;
+
+					/* Everyone knows this quest. */
+					q_ptr->known = TRUE;
+
+					/* Found it. */
+					break;
+				}
+#endif /* SF_QUEST_DIRECT */
+			}
+#endif /* SF_QUEST_KNOWN */
 		}
 
 
@@ -1971,11 +2110,19 @@ static errr rd_savefile_new_aux(void)
 
 	/* Read the stores */
 	rd_u16b(&tmp16u);
-	for (i = 0; i < tmp16u; i++)
+
+	/* Too many stores, so delete the first few. */
+	if (tmp16u > MAX_STORES_TOTAL)
+	{
+		msg_format("Deleting %u unrecognised stores", tmp16u - MAX_STORES_TOTAL);
+		for (i = 0; i < tmp16u - MAX_STORES_TOTAL; i++) rd_store(0);
+	}
+	
+	for (i = 0; i < MAX(MAX_STORES_TOTAL, tmp16u); i++)
 	{
 		if (rd_store(i)) return (22);
 	}
-
+	
 	/* I'm not dead yet... */
 	if (!death)
 	{
@@ -1989,6 +2136,19 @@ static errr rd_savefile_new_aux(void)
 
 		/* Read the ghost info */
 		rd_ghost();
+	}
+
+	/* New characters use the base quest list. */
+	if (death)
+	{
+		FREE(q_list_new);
+	}
+	/* Existing ones use the quest list from the save file. */
+	else
+	{
+		FREE(q_list);
+		q_list = q_list_new;
+		MAX_Q_IDX = max_q_idx_new;
 	}
 
 
@@ -2032,7 +2192,7 @@ static errr rd_savefile_new_aux(void)
 /*
  * Actually read the savefile
  */
-errr rd_savefile_new(void)
+static errr rd_savefile_new(void)
 {
 	errr err;
 
@@ -2054,3 +2214,277 @@ errr rd_savefile_new(void)
 	/* Result */
 	return (err);
 }
+
+
+
+/*
+ * Attempt to Load a "savefile"
+ *
+ * Version 2.7.0 introduced a slightly different "savefile" format from
+ * older versions, requiring a completely different parsing method.
+ *
+ * Note that savefiles from 2.7.0 - 2.7.2 are completely obsolete.
+ *
+ * Pre-2.8.0 savefiles lose some data, see "load2.c" for info.
+ *
+ * Pre-2.7.0 savefiles lose a lot of things, see "load1.c" for info.
+ *
+ * On multi-user systems, you may only "read" a savefile if you will be
+ * allowed to "write" it later, this prevents painful situations in which
+ * the player loads a savefile belonging to someone else, and then is not
+ * allowed to save his game when he quits.
+ *
+ * We return "TRUE" if the savefile was usable, and we set the global
+ * flag "character_loaded" if a real, living, character was loaded.
+ *
+ * Note that we always try to load the "current" savefile, even if
+ * there is no such file, so we must check for "empty" savefile names.
+ */
+bool load_player(void)
+{
+	int             fd = -1;
+
+	errr    err = 0;
+
+	byte    vvv[4];
+
+#ifdef VERIFY_TIMESTAMP
+	struct stat     statbuf;
+#endif
+
+	cptr    what = "generic";
+
+
+	/* Paranoia */
+	turn = 0;
+
+	/* Paranoia */
+	death = FALSE;
+
+
+	/* Allow empty savefile name */
+	if (!savefile[0]) return (TRUE);
+
+
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(VM)
+
+	/* XXX XXX XXX Fix this */
+
+	/* Verify the existance of the savefile */
+	if (access(savefile, 0) < 0)
+	{
+		/* Give a message */
+		msg_print("Savefile does not exist.");
+		msg_print(NULL);
+
+		/* Allow this */
+		return (TRUE);
+	}
+
+#endif
+
+
+#ifdef VERIFY_SAVEFILE
+
+	/* Verify savefile usage */
+	if (!err)
+	{
+		FILE *fkk;
+
+		char temp[1024];
+
+		/* Extract name of lock file */
+		strcpy(temp, savefile);
+		strcat(temp, ".lok");
+
+		/* Check for lock */
+		fkk = my_fopen(temp, "r");
+
+		/* Oops, lock exists */
+		if (fkk)
+		{
+			/* Close the file */
+			my_fclose(fkk);
+
+			/* Message */
+			msg_print("Savefile is currently in use.");
+			msg_print(NULL);
+
+			/* Oops */
+			return (FALSE);
+		}
+
+		/* Create a lock file */
+		fkk = my_fopen(temp, "w");
+
+		/* Dump a line of info */
+		fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
+
+		/* Close the lock file */
+		my_fclose(fkk);
+	}
+
+#endif
+
+
+	/* Okay */
+	if (!err)
+	{
+		/* Open the savefile */
+		fd = fd_open(savefile, O_RDONLY);
+
+		/* No file */
+		if (fd < 0) err = -1;
+
+		/* Message (below) */
+		if (err) what = "Cannot open savefile";
+	}
+
+	/* Process file */
+	if (!err)
+	{
+
+#ifdef VERIFY_TIMESTAMP
+		/* Get the timestamp */
+		(void)fstat(fd, &statbuf);
+#endif
+
+		/* Read the first four bytes */
+		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
+
+		/* What */
+		if (err) what = "Cannot read savefile";
+
+		/* Close the file */
+		(void)fd_close(fd);
+	}
+
+	/* Process file */
+	if (!err)
+	{
+
+		/* Extract version */
+        sf_major = vvv[0];
+        sf_minor = vvv[1];
+        sf_patch = vvv[2];
+		sf_extra = vvv[3];
+
+		/* Clear screen */
+		Term_clear();
+
+		/* Attempt to load */
+		err = rd_savefile_new();
+		/* Message (below) */
+		if (err) what = "Cannot parse savefile";
+	}
+
+	/* Paranoia */
+	if (!err)
+	{
+		/* Invalid turn */
+		if (!turn) err = -1;
+
+		/* Message (below) */
+		if (err) what = "Broken savefile";
+	}
+
+#ifdef VERIFY_TIMESTAMP
+	/* Verify timestamp */
+	if (!err)
+	{
+		/* Hack -- Verify the timestamp */
+		if (sf_when > (statbuf.st_ctime + 100) ||
+		    sf_when < (statbuf.st_ctime - 100))
+		{
+			/* Message */
+			what = "Invalid timestamp";
+
+			/* Oops */
+			err = -1;
+		}
+	}
+#endif
+
+
+	/* Okay */
+	if (!err)
+	{
+		u16b cur_flags;
+		byte cur[3];
+		current_version(&cur_flags, cur, cur+1, cur+2);
+		/* Give a conversion warning */
+        if ((cur[0] != sf_major) ||
+            (cur[1] != sf_minor) ||
+            (cur[2] != sf_patch))
+		{
+			/* Message */
+            msg_format("Converted a %d.%d.%d savefile.",
+                       sf_major, sf_minor, sf_patch);
+			msg_print(NULL);
+		}
+
+		/* Player is dead */
+		if (death)
+		{
+			/* Player is no longer "dead" */
+			death = FALSE;
+
+			/* Count lives */
+			sf_lives++;
+
+			/* Forget turns */
+			turn = old_turn = 0;
+
+			/* Done */
+			return (TRUE);
+		}
+
+		/* A character was loaded */
+		character_loaded = TRUE;
+
+		/* Still alive */
+		if (p_ptr->chp >= 0)
+		{
+			/* Froget the cause of death from the save file. */
+			FREE(died_from);
+
+			/* Reset cause of death */
+			died_from = "(alive and well)";
+
+			/* Accept the quest list. */
+			
+		}
+
+		/* Success */
+		return (TRUE);
+	}
+
+
+#ifdef VERIFY_SAVEFILE
+
+	/* Verify savefile usage */
+	if (TRUE)
+	{
+		char temp[1024];
+
+		/* Extract name of lock file */
+		strcpy(temp, savefile);
+		strcat(temp, ".lok");
+
+		/* Remove lock */
+		fd_kill(temp);
+	}
+
+#endif
+
+
+	/* Message */
+	msg_format("Error (%s) reading %d.%d.%d savefile.",
+		   what, sf_major, sf_minor, sf_patch);
+	msg_print(NULL);
+
+	/* Oops */
+	return (FALSE);
+}
+
+

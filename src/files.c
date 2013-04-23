@@ -369,6 +369,9 @@ errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b 
  * Turn an option on, given its name
  *   Y:<str>
  *
+ * Set the priority for a particular display and a given window
+ *   W:<term name>:<display name>:<triggered>:<untriggered>
+ *
  * Specify visual information, given an index, and some data
  *   V:<num>:<kv>:<rv>:<gv>:<bv>
  *
@@ -417,6 +420,8 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 			{
 				monster_race *r_ptr;
 				i = (huge)strtol(zz[0], NULL, 0);
+				if (i < 0 || i > MAX_SHORT) return (1);
+				i = convert_r_idx(i, sf_flags[0], sf_flags_now);
 				n1 = strtol(zz[1], NULL, 0);
 				n2 = strtol(zz[2], NULL, 0);
 				if (i >= MAX_R_IDX) return (1);
@@ -507,16 +512,14 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 		/* Process "A:<str>" -- save an "action" for later */
 		case 'A':
 		{
-			text_to_ascii(macro__buf, buf+2);
+			strnfmt(macro__buf, 1024, "%v", text_to_ascii_f1, buf+2);
 			return (0);
 		}
 
 		/* Process "P:<str>" -- normal macro */
 		case 'P':
 		{
-			char tmp[1024];
-			text_to_ascii(tmp, buf+2);
-			macro_add(tmp, macro__buf);
+			macro_add(format("%v", text_to_ascii_f1, buf+2), macro__buf);
 			return (0);
 		}
 
@@ -525,8 +528,6 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 		case 'C':
 		{
 			int mode;
-	
-			char tmp[1024];
 	
 			/* Hack - handle ---reset--- as a special case */
 			if (!strcmp(buf+2, "---reset---"))
@@ -547,9 +548,9 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 			mode = strtol(zz[0], NULL, 0);
 			if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
 	
-			text_to_ascii(tmp, zz[1]);
-			if (!tmp[0] || tmp[1]) return (1);
-			i = (byte)(tmp[0]);
+			if (strlen(format("%v", text_to_ascii_f1, zz[1])) != 1)
+				return (1);
+			i = (byte)(format(0)[0]);
 	
 			string_free(keymap_act[mode][i]);
 	
@@ -630,7 +631,60 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 				}
 			}
 		}
-	
+		/* Process W:<term name>:<display name>:<triggered>:<untriggered>
+		 * to a window flag.
+		 */
+		case 'W':
+		{
+			cptr goodpri = ".abcdefghij";
+			uint term, display, pri, rep;
+
+			if (!strcmp(buf+2, "---reset---"))
+			{
+				for (display = 0; display < N_ELEMENTS(window_flag_desc);
+					display++)
+				{
+					for (term = 0; term < N_ELEMENTS(windows); term++)
+					{
+						windows[term].rep[display] = 0;
+						windows[term].pri[display] = 0;
+					}
+				}
+				return SUCCESS;
+			}
+
+
+			if (tokenize(buf+2, 4, zz) != 4)
+				return PREF_ERROR_INCORRECT_SYNTAX;
+
+			/* Identify the term and display strings. */
+			for (term = 0;; term++)
+			{
+				if (term == N_ELEMENTS(windows))
+					return PREF_ERROR_UNKNOWN_PARAMETER;
+				if (!strcmp(windows[term].name, zz[0])) break;
+			}
+			for (display = 0;; display++)
+			{
+				if (display == N_ELEMENTS(window_flag_desc))
+					return PREF_ERROR_UNKNOWN_PARAMETER;
+				if (!window_flag_desc[display]) continue;
+				if (!strcmp(window_flag_desc[display]+8, zz[1])) break;
+			}
+
+			/* Identify the triggered and untriggered numbers. */
+			if (!strchr(goodpri, zz[2][0]) || zz[2][1])
+				return PREF_ERROR_OUT_OF_BOUNDS;
+			if (!strchr(goodpri, zz[3][0]) || zz[3][1])
+				return PREF_ERROR_OUT_OF_BOUNDS;
+			rep = strchr(goodpri, zz[2][0])-goodpri;
+			pri = strchr(goodpri, zz[3][0])-goodpri;
+
+			/* Enact the requests and return. */
+			windows[term].rep[display] = rep;
+			windows[term].pri[display] = pri;
+			return SUCCESS;
+		}
 		/*
 		 * Process D:<sex>:<race>:<class>:<maximise_mode>:<Str>:<Int>:<Wis>:<Dex>:<Con>:<Chr>:<Name> for initial stats 
 		 */
@@ -906,14 +960,14 @@ errr process_pref_file(cptr name)
 
 	u16b sf_flags = 0;
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+	/* Look in ANGBAND_DIR_PREF. */
+	if (!((fp = my_fopen_path(ANGBAND_DIR_PREF, name, "r"))) &&
 
-	/* Open the file */
-	fp = my_fopen(buf, "r");
+	/* Look in ANGBAND_DIR_USER. */
+		!((fp = my_fopen_path(ANGBAND_DIR_USER, name, "r"))))
 
 	/* No such file */
-	if (!fp) return (-1);
+		return (-1);
 
 
 	/* Process the file */
@@ -1059,11 +1113,8 @@ errr check_time_init(void)
 	char	buf[1024];
 
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "time.txt");
-
 	/* Open the file */
-	fp = my_fopen(buf, "r");
+	fp = my_fopen_path(ANGBAND_DIR_FILE, "time.txt", "r");
 
 	/* No file, no restrictions */
 	if (!fp) return (0);
@@ -1183,11 +1234,8 @@ errr check_load_init(void)
 	char	thishost[MAXHOSTNAMELEN+1];
 
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "load.txt");
-
 	/* Open the "load" file */
-	fp = my_fopen(buf, "r");
+	fp = my_fopen_path(ANGBAND_DIR_FILE, "load.txt", "r");
 
 	/* No file, no restrictions */
 	if (!fp) return (0);
@@ -1626,7 +1674,7 @@ static void display_player_sides(bool missile)
 
 	/* Dump the damage per round */
 	put_str("Damage/Round", 13, 1);
-	temp = format("%d,%d", damage/60, damage%60);
+	temp = format("%ld,%ld", damage/60, damage%60);
 	c_put_str(TERM_L_BLUE, temp, 13, col-strlen(temp));
 
 	prt_nums("Hit Points:", 9, 52, 76, p_ptr->chp, p_ptr->mhp);
@@ -1845,10 +1893,10 @@ static void display_player_various(void)
 
 
 	put_str("+ To AC:", 16, 55);
-	put_str(format("%6ld", p_ptr->dis_to_a), 16, 69);
+	put_str(format("%6d", p_ptr->dis_to_a), 16, 69);
 
 	put_str("Base AC:", 17, 55);
-	put_str(format("%6ld", p_ptr->dis_ac), 17, 69);
+	put_str(format("%6d", p_ptr->dis_ac), 17, 69);
 
 	put_str("Infra-Vision:", 19, 55);
 	put_str(format("%d feet", p_ptr->see_infra * 10), 19, 69);
@@ -2160,9 +2208,6 @@ static void display_player_equippy(int y, int x)
 
         a = object_attr(o_ptr);
         c = object_char(o_ptr);
-
-		/* No color */
-		if (!use_color) a = TERM_WHITE;
 
         if ((!equippy_chars) ||
             (!o_ptr->k_idx)) /* Clear the part of the screen */
@@ -2657,9 +2702,6 @@ static void display_player_stat_info(void)
 					c = 's';
 			}
 
-			/* Handle monochrome */
-			if (!use_color) a = TERM_WHITE;
-
 			/* Dump proper character */
 			Term_putch(col, row+stat, a, c);
 		}
@@ -2755,9 +2797,6 @@ static void display_player_stat_info(void)
 				c = 's';
 		}
 
-
-		/* No color */
-		if (!use_color) a = TERM_WHITE;
 
 		/* Dump */
 		Term_putch(col, row+stat, a, c);
@@ -3014,9 +3053,6 @@ static void display_player_ben(void)
 				c = '+';
 			}
 
-			/* Monochrome */
-			if (!use_color) a = TERM_WHITE;
-
 			/* Dump flag */
 			Term_putch(x * 13 + 11, y + 4, a, c);
 		}
@@ -3111,9 +3147,6 @@ static void display_player_ben_one(int mode)
 					c = '+';
 				}
 
-				/* Monochrome */
-				if (!use_color) a = TERM_WHITE;
-
 				/* Dump flag */
 				Term_putch(x * 26 + 11 + n, y + 4, a, c);
 			}
@@ -3146,8 +3179,8 @@ static void display_player_name_stats(void)
 		prt_num("Weight       ", (int)p_ptr->wt, 4, 32, TERM_L_BLUE);
 		prt_num("Social Class ", (int)p_ptr->sc, 5, 32, TERM_L_BLUE);
 		put_str("Birthday",6,32);
-		day_to_date(p_ptr->birthday,buf);
-		c_put_str(TERM_L_BLUE,buf,6,48);
+		c_put_str(TERM_L_BLUE,format("%v", day_to_date_f1, p_ptr->birthday),
+			6,48);
 
 		/* Display the stats */
 		for (i = 0; i < 6; i++)
@@ -3322,6 +3355,31 @@ static void dump_final_messages(FILE * OutFile)
 	}
 }
 
+/*
+ * Return whether the player has some equipment.
+ */
+static bool equip_cnt(void)
+{
+	int i;
+	for (i = INVEN_WIELD; i <= INVEN_POUCH_6; i++)
+	{
+		if (inventory[i].k_idx) return TRUE;
+	}
+	return FALSE;
+}
+
+/*
+ * Return whether the player has some inventory.
+ */
+static bool inven_cnt(void)
+{
+	int i;
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		if (inventory[i].k_idx) return TRUE;
+	}
+	return FALSE;
+}
 
 /*
  * Hack -- Dump a character description file
@@ -3351,7 +3409,7 @@ errr file_character(cptr name, bool UNUSED full)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_USER, name);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -3511,7 +3569,7 @@ errr file_character(cptr name, bool UNUSED full)
         else
             fprintf(fff, "\n Long Stairs:       OFF");
 
-		i = p_ptr->max_dlv[cur_dungeon]+dun_defs[cur_dungeon].offset;
+		i = p_ptr->max_dlv+dun_defs[cur_dungeon].offset;
 		fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", i, 50 *i);
 
 
@@ -3526,9 +3584,12 @@ errr file_character(cptr name, bool UNUSED full)
         int k;
         s32b Total = 0;
 
-        for (k = 1; k < MAX_R_IDX-1; k++)
+        for (k = 1; k < MAX_R_IDX; k++)
         {
             monster_race *r_ptr = &r_info[k];
+
+			/* Skip "fake" monsters. */
+			if (is_fake_monster(r_ptr)) continue;
 
             if (r_ptr->flags1 & (RF1_UNIQUE))
             {
@@ -3551,30 +3612,48 @@ errr file_character(cptr name, bool UNUSED full)
 		for (i = y = 0; i < MAX_CAVES; i++)
 		{
 			dun_type *d_ptr = dun_defs+i;
-			quest *q_ptr;
+			quest_type *q_ptr;
+			bool quests_exist = FALSE;
 			
-			/* Find the deepest guaranteed quest, if any. */
-			if (d_ptr->first_level > d_ptr->second_level) q_ptr = q_list+2*i;
-			else if (d_ptr->second_level) q_ptr = q_list+2*i+1;
-			else continue;
+			for (q_ptr = q_list; q_ptr < q_list+z_info->quests; q_ptr++)
+			{
+				/* Skip quests elsewhere. */
+				if (q_ptr->dungeon != i) continue;
 
-			/* Not done it yet? */
-			if (q_ptr->cur_num != q_ptr->max_num) continue;
-			
+				/* Unfinished quests found. */
+				if (q_ptr->cur_num < q_ptr->max_num) goto next_cave;
+
+				/* Found a finished quest. */
+				quests_exist = TRUE;
+			}
+
+			/* No quests found. */
+			if (!quests_exist) continue;
+
 			/* Put a gap before and after the section. */
 			if (!y) fprintf(fff, "\n");
 			y = 1;
 
 			/* Print a message. */
-			fprintf(fff, " You have conquered %s.\n", d_ptr->name);
+			fprintf(fff, " You have conquered %s.\n", dun_name+d_ptr->name);
+
+next_cave:
+			continue; /* Don't ask me, it just prevents a GCC warning. */
 		}
-			
+
+		fprintf(fff, "\n");
+
+		for (i = y = 0; i < z_info->quests; i++)
+		{
+			if (q_list[i].cur_num == q_list[i].max_num) y++;
+		}
+		if (y) fprintf(fff, " You have completed %d quests.", y);
 
         if (Total < 1)
-            fprintf(fff,"\n You have defeated no enemies yet.\n");
+            fprintf(fff," You have defeated no enemies yet.\n");
         else if (Total == 1)
 
-            fprintf(fff,"\n You have defeated one enemy.\n");
+            fprintf(fff," You have defeated one enemy.\n");
         else
            fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
     }
@@ -3592,14 +3671,14 @@ errr file_character(cptr name, bool UNUSED full)
 
 
 	/* Dump the equipment */
-	if (equip_cnt)
+	if (equip_cnt())
 	{
 		fprintf(fff, "  [Character Equipment]\n\n");
 		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
-			object_desc(o_name, &inventory[i], TRUE, 3);
+			strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, &inventory[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n",
-			        index_to_label(i), paren, o_name);
+			        index_to_label(&inventory[i]), paren, o_name);
 
 			/* Describe random object attributes */
 			identify_fully_file(inventory+i, fff);
@@ -3611,9 +3690,9 @@ errr file_character(cptr name, bool UNUSED full)
 	fprintf(fff, "  [Character Inventory]\n\n");
 	for (i = 0; i < INVEN_PACK && inventory[i].k_idx; i++)
 	{
-		object_desc(o_name, &inventory[i], TRUE, 3);
+		strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, &inventory[i], TRUE, 3);
 		fprintf(fff, "%c%s %s\n",
-		        index_to_label(i), paren, o_name);
+		        index_to_label(&inventory[i]), paren, o_name);
 
 		/* Describe random object attributes */
 		identify_fully_file(inventory+i, fff);
@@ -3632,14 +3711,14 @@ errr file_character(cptr name, bool UNUSED full)
 		/* Empty */
 		if (!st_ptr->stock_num)
 		{
-			fprintf(fff, "  [Home in %s empty]\n\n", dun_defs[town].shortname);
+			fprintf(fff, "  [Home in %s empty]\n\n", dun_name+dun_defs[town].shortname);
 			continue;
 		}
 		/* Dump the contents */
-		fprintf(fff, "[Home Inventory (%s)]\n\n", dun_defs[town].shortname);
+		fprintf(fff, "[Home Inventory (%s)]\n\n", dun_name+dun_defs[town].shortname);
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+			strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, &st_ptr->stock[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 
 			/* Describe random object attributes */
@@ -3748,14 +3827,362 @@ struct hyperlink
 	/* Hypertext info */
 	char link[400][32], link_key[400];
 	int  link_x[400], link_y[400], link_line[400];
+
+	int cur_link;	/* Currently selected link. */
+	int max_link;	/* Number of links known. */
 };
 
 typedef struct hyperlink hyperlink_type;
 
 /*
- * ToME's show_file() function 
+ * Attempt to open a file in a standard Angband directory for show_file_aux().
  */
-static bool show_file_tome(cptr name, cptr what, int line, int mode)
+static FILE *show_fopen(hyperlink_type *h_ptr, cptr path, cptr name)
+{
+	FILE *fff;
+
+	/* Build the filename */
+	strnfmt(h_ptr->path, 1024, "%v", path_build_f2, path, name);
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Open the file */
+	fff = my_fopen(h_ptr->path, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+	return fff;
+}
+
+/*
+ * Copy a reflowed version of a file to a temporary file, return a pointer to
+ * the latter and store its name in h_ptr->path.
+ *
+ * It doesn't use any of the display code to find out how much it will fit on
+ * a line, but it probably should...
+ */
+static FILE *reflow_file(FILE *fff, hyperlink_type *h_ptr)
+{
+	cptr s;
+	int w,h,space;
+	int x;
+	FILE *ftmp = my_fopen_temp(h_ptr->path, sizeof(h_ptr->path));
+	Term_get_size(&w, &h);
+
+	/* Don't use my_fgets as that needs short lines and it will process the
+	 * output file anyway. */
+	for (x = 0; fgets(h_ptr->rbuf, 1024, fff); )
+	{
+		/* Skip game links. */
+		if (prefix(h_ptr->rbuf, CC_LINK_PREFIX)) continue;
+
+		for (s = h_ptr->rbuf; *s;)
+		{
+			if ((int)strlen(s) < w-x) break;
+
+			for (h = 0, space = 0; h < w-x; h++)
+			{
+				/* Allow extra space for hyperlinks. */
+				if (prefix(s+h, "*****"))
+				{
+					uint i = strcspn(s+h, "[");
+					x -= i;
+					h += i;
+				}
+				if (s[h] == ' ') space = h;
+			}
+
+			if ((int)strlen(s) < w-x) break;
+
+			/* If there are no spaces, print the line. */
+			if (!space) space = w-x-1;
+
+			fprintf(ftmp, "%.*s\n", space, s);
+			s += space+1;
+			x = 0;
+		}
+
+		/* Print the end of the line. */
+		fprintf(ftmp, "%s", s);
+
+		/* If the buffer was shorter than the line, only take a short
+		 * line as the first part of the next line. */
+		x = (strchr(s, '\n')) ? 0 : strlen(s);
+	}
+	my_fclose(fff);
+	my_fclose(ftmp);
+
+	/* Deal with the temporary file from now on. */
+	fff = ftmp;
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Open the temporary file for reading. */
+	fff = my_fopen(h_ptr->path, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+	return fff;
+}
+
+/*
+ * Find the specified text in a file after a point, return the line
+ * at which it occurs.
+ */
+static int find_text(FILE *fff, hyperlink_type *h_ptr, int minline)
+{
+	int y;
+
+	/* This are trivial without a search string. */
+	if (!h_ptr->finder[0]) return minline;
+
+	/* Start at the beginning. */
+	rewind(fff);
+
+	/* Find and skip the indicated line. */
+	for (y = 0; y <= minline; y++)
+	{
+		/* Skip a line */
+		if (my_fgets(fff, h_ptr->rbuf, 1024)) return minline;
+	}
+
+	/* Search from it. */
+	while (!my_fgets(fff, h_ptr->rbuf, 1024))
+	{
+		if (strstr(h_ptr->rbuf, h_ptr->finder)) return y;
+		y++;
+	}
+
+	/* No match, so do nothing. */
+	return minline;
+}
+
+/*
+ * Show a section of a help file between stated limits.
+ */
+static void show_page(FILE *fff, hyperlink_type *h_ptr, int miny, int maxy, int minline)
+{
+	byte link_color = TERM_ORANGE, link_color_sel = TERM_YELLOW;
+
+	int y, l;
+	char sbuf[1024];
+	cptr buf;
+
+	/* Output buffer (the code below never converts strings to longer ones,
+	 * so 1024 is always enough). */
+	char out_buf[1024], *out_ptr;
+
+	/* Start at the beginning. */
+	rewind(fff);
+
+	/* Find the indicated line. */
+	for (y = 0, buf = sbuf; y < minline; y++)
+	{
+		/* Skip a line */
+		if (my_fgets(fff, sbuf, 1024)) break;
+
+		/* Get the link colors */
+		if (prefix(buf, "|||||"))
+		{
+			link_color = color_char_to_attr(buf[5]);
+			link_color_sel = color_char_to_attr(buf[6]);
+		}
+	}
+
+	Term_gotoxy(0,miny);
+
+	/* Get a cur_link which is on screen if possible. */
+	while ((h_ptr->cur_link > 0) &&
+		(h_ptr->link_y[h_ptr->cur_link] >= minline + (maxy - miny + 1)))
+	{
+		h_ptr->cur_link--;
+	}
+	while ((h_ptr->cur_link < h_ptr->max_link) &&
+		(h_ptr->link_y[h_ptr->cur_link] < minline))
+	{
+		h_ptr->cur_link++;
+	}
+
+	/* Dump the next 20 (or more in bigscreen) lines of the file */
+	for (y = miny, l = minline; y <= maxy; l++)
+	{
+		int x;
+		out_ptr = out_buf;
+
+		/* Get a line of the file or stop */
+		if (my_fgets(fff, sbuf, 1024)) break;
+
+		/* Get a color */
+		if (prefix(sbuf, "#####"))
+		{
+			buf = &sbuf[6];
+			out_ptr += sprintf(out_ptr, "$%c", buf[-1]);
+		}
+		else buf = sbuf;
+
+		/* Skip link colors */
+		if (prefix(buf, "|||||")) continue;
+
+		/* Skip game links (done in reflow_file(). */
+		/* if (prefix(buf, CC_LINK_PREFIX)) continue; */
+
+		/* Skip tags */
+		if (prefix(buf, "~~~~~"))
+		{
+			y++;
+			continue;
+		}
+
+		/* Dump the line */
+		x = 0;
+		while (buf[x])
+		{
+			/* Link */
+			if (h_ptr->shower[0] && prefix(buf+x, h_ptr->shower))
+			{
+				out_ptr += sprintf(out_ptr, "$<$y%s$>", h_ptr->shower);
+
+				x += strlen(h_ptr->shower);
+				continue;
+			}
+			/* Hyperlink ? */
+			else if (prefix(buf + x, "*****"))
+			{
+				int thiscol;
+				int xx = x + 5;
+
+				/* Zap the link info */
+				while (buf[xx] != '[')
+				{
+					xx++;
+				}
+				xx++;
+
+				if ((h_ptr->link_x[h_ptr->cur_link] == x) &&
+					(h_ptr->link_y[h_ptr->cur_link] == l))
+					thiscol = link_color_sel;
+				else
+					thiscol = link_color;
+
+				out_ptr += sprintf(out_ptr, "$%c", atchar[thiscol]);
+
+				/* Ok print the link name */
+				while (buf[xx] && buf[xx] != ']')
+				{
+					if (prefix(buf+xx, "$")) xx++;
+					*out_ptr++ = buf[xx++];
+				}
+				x = xx;
+			}
+			/* Remove HTML ? */
+			else if (prefix(buf + x, "{{{{{"))
+			{
+				int xx = x + 6;
+
+				/* Ok remove this section */
+				while (buf[xx] != '}')
+				{
+					xx++;
+				}
+				x = xx;
+			}
+			else
+			{
+				*out_ptr++ = buf[x];
+			}
+
+			x++;
+		}
+
+		/* Print the line. */
+		strcpy(out_ptr, "\n");
+		mc_roff(out_buf);
+
+		/* Hilite "h_ptr->shower" */
+		if (h_ptr->shower[0])
+		{
+			cptr str = buf;
+
+			/* Display matches */
+			while ((str = strstr(str, h_ptr->shower)) != NULL)
+			{
+				int len = strlen(h_ptr->shower);
+
+				/* Display the match */
+#if 0 /* Broken */
+				Term_putstr(str-buf, y+2, len, TERM_YELLOW, h_ptr->shower);
+#endif
+
+				/* Advance */
+				str += len;
+			}
+		}
+
+		/* Count the printed lines */
+		y++;
+	}
+}
+
+/*
+ * Display a screen of text in a non-interactive way.
+ * fff is initially positioned after the current section marker.
+ */
+void win_help_display_aux(FILE *fff)
+{
+	cptr path;
+	int x,y;
+	hyperlink_type h_ptr[1];
+
+	FILE *ftmp;
+	
+	/* Clear everything to start. */
+	WIPE(h_ptr, hyperlink_type);
+
+	/* Create a temporary file to store the current section in. */
+	if (!((ftmp = my_fopen_temp(h_ptr->path, sizeof(h_ptr->path))))) return;
+
+	/* Copy the rest of this section. */
+	while (fgets(h_ptr->rbuf, 1024, fff) &&
+		!prefix(h_ptr->rbuf, CC_LINK_PREFIX))
+	{
+		fprintf(ftmp, "%s", h_ptr->rbuf);
+	}
+
+	my_fclose(ftmp);
+
+	/* Put the temporary file name somewhere safe. */
+	path = string_make(h_ptr->path);
+
+	/* Open this file for reading. */
+	ftmp = my_fopen(path, "r");
+
+	/* Reformat the text to fit in the window. */
+	ftmp = reflow_file(ftmp, h_ptr);
+
+	/* Delete the old temporary file. */
+	fd_kill(path);
+	FREE(path);
+
+	/* Find the height of the window. */
+	Term_get_size(&x, &y);
+
+	/* Display the help. */
+	show_page(ftmp, h_ptr, 0, y-1, 0);
+
+	my_fclose(ftmp);
+
+	/* Remove the temporary files */
+	fd_kill(h_ptr->path);
+}
+
+/*
+ * A show_file() function based on ToME's version.
+ */
+static char show_file_aux(cptr name, cptr what, int line)
 {
 	int i, k, x;
 
@@ -3767,38 +4194,23 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 	/* Number of "real" lines in the file */
 	int size = 0;
 
-	/* Backup value for "line" */
-	int back = 0;
-
-	/* Color of the next line */
-	byte color = TERM_WHITE;
-
-	/* This screen has sub-screens */
-	bool menu = FALSE;
+	/* This function is from a standard help directory. */
+	bool is_temp_file = FALSE;
 
 	/* Current help file */
 	FILE *fff = NULL;
 
-	/* Find this string (if any) */
-	cptr find = NULL;
-
 	/* Char array type of hyperlink info */
-	hyperlink_type *h_ptr;
+	hyperlink_type h_ptr[1];
 
 	/* Pointer to general buffer in the above */
 	char *buf;
 
-	/* Output buffer (the code below never converts strings to longer ones,
-	 * so 1024 is always enough). */
-	char out_buf[1024], *out_ptr;
-
-	int  cur_link = 0, max_link = 0;
-
 	/* Read size of screen for big-screen stuff -pav- */
 	int wid, hgt;
 
-	/* Allocate hyperlink data */
-	MAKE(h_ptr, hyperlink_type);
+	/* Clear hyperlink data */
+	WIPE(h_ptr, hyperlink_type);
 
 	/* Setup buffer pointer */
 	buf = h_ptr->rbuf;
@@ -3828,61 +4240,28 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		safe_setuid_drop();
 	}
 
+	/* Looking for help files now, which will be rewritten. */
+	if (!fff) is_temp_file = TRUE;
+
 	/* Look in "help" */
-	if (!fff)
+	if (!fff && ((fff = show_fopen(h_ptr, ANGBAND_DIR_HELP, name))))
 	{
-		/* h_ptr->caption */
+		/* Caption. */
 		sprintf(h_ptr->caption, "Help file '%s'", name);
-
-		/* Build the filename */
-		path_build(h_ptr->path, 1024, ANGBAND_DIR_HELP, name);
-
-		/* Grab permission */
-		safe_setuid_grab();
-
-		/* Open the file */
-		fff = my_fopen(h_ptr->path, "r");
-
-		/* Drop permission */
-		safe_setuid_drop();
 	}
 
 	/* Look in "info" */
-	if (!fff)
+	if (!fff && ((fff = show_fopen(h_ptr, ANGBAND_DIR_INFO, name))))
 	{
-		/* h_ptr->caption */
+		/* Caption. */
 		sprintf(h_ptr->caption, "Info file '%s'", name);
-
-		/* Build the filename */
-		path_build(h_ptr->path, 1024, ANGBAND_DIR_INFO, name);
-
-		/* Grab permission */
-		safe_setuid_grab();
-
-		/* Open the file */
-		fff = my_fopen(h_ptr->path, "r");
-
-		/* Drop permission */
-		safe_setuid_drop();
 	}
 
 	/* Look in "file" */
-	if (!fff)
+	if (!fff && ((fff = show_fopen(h_ptr, ANGBAND_DIR_FILE, name))))
 	{
-		/* h_ptr->caption */
+		/* Caption. */
 		sprintf(h_ptr->caption, "File '%s'", name);
-
-		/* Build the filename */
-		path_build(h_ptr->path, 1024, ANGBAND_DIR_FILE, name);
-
-		/* Grab permission */
-		safe_setuid_grab();
-
-		/* Open the file */
-		fff = my_fopen(h_ptr->path, "r");
-
-		/* Drop permission */
-		safe_setuid_drop();
 	}
 
 	/* Oops */
@@ -3892,13 +4271,16 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 		msg_format("Cannot open '%s'.", name);
 		msg_print(NULL);
 
-		/* Free hyperlink info */
-		KILL(h_ptr);
-
 		/* Oops */
-		return (TRUE);
+		return 1;
 	}
 
+	/*
+	 * Copy to a temporary file and reflow (approximately).
+	 * This allows the program to move up or down a line easily whatever
+	 * the formatting is.
+	 */
+	if (is_temp_file) fff = reflow_file(fff, h_ptr);
 
 	/* Pre-Parse the file */
 	while (TRUE)
@@ -3943,28 +4325,28 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 
 				for (z = 0; z < 20; z++) tmp[z] = '\0';
 
-				h_ptr->link_x[max_link] = x;
-				h_ptr->link_y[max_link] = next;
+				h_ptr->link_x[h_ptr->max_link] = x;
+				h_ptr->link_y[h_ptr->max_link] = next;
 
 				if (buf[xx] == '/')
 				{
 					xx++;
-					h_ptr->link_key[max_link] = buf[xx];
+					h_ptr->link_key[h_ptr->max_link] = buf[xx];
 					xx++;
 					xdeb += 2;
 				}
 				else
 				{
-					h_ptr->link_key[max_link] = 0;
+					h_ptr->link_key[h_ptr->max_link] = 0;
 				}
 
 				/* Zap the link info */
 				while (buf[xx] != '*')
 				{
-					h_ptr->link[max_link][xx - xdeb] = buf[xx];
+					h_ptr->link[h_ptr->max_link][xx - xdeb] = buf[xx];
 					xx++;
 				}
-				h_ptr->link[max_link][xx - xdeb] = '\0';
+				h_ptr->link[h_ptr->max_link][xx - xdeb] = '\0';
 				xx++;
 				stmp = xx;
 				while (buf[xx] != '[')
@@ -3974,8 +4356,8 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 				}
 				xx++;
 				tmp[xx - stmp] = '\0';
-				h_ptr->link_line[max_link] = -atoi(tmp);
-				max_link++;
+				h_ptr->link_line[h_ptr->max_link] = -atoi(tmp);
+				h_ptr->max_link++;
 			}
 			x++;
 		}
@@ -3988,15 +4370,9 @@ static bool show_file_tome(cptr name, cptr what, int line, int mode)
 	size = next;
 
 
-	/* Hack - k is compared to check whether this is going backwards over an
-	 * unprinted line. */
-	k = 0;
-
-	/* Display the file */
-	while (TRUE)
+	/* Display the file until a ?, escape, backspace or delete is received. */
+	for (k = 1; !strchr("?\033\b\177", k);)
 	{
-start_of_while:
-
 		/* Clear screen */
 		clear_from(0);
 
@@ -4005,247 +4381,15 @@ start_of_while:
 		/* Restart when necessary */
 		if (line >= size) line = 0;
 
-
-		/* Re-open the file if needed */
-		if (next > line)
-		{
-			/* Close it */
-			my_fclose(fff);
-
-			/* Grab permission */
-			safe_setuid_grab();
-
-			/* Hack -- Re-Open the file */
-			fff = my_fopen(h_ptr->path, "r");
-
-			/* Drop permission */
-			safe_setuid_drop();
-
-
-			/* Oops */
-			if (!fff)
-			{
-				/* Free hyperlink info */
-				KILL(h_ptr);
-
-				return (FALSE);
-			}
-
-			/* File has been restarted */
-			next = 0;
-		}
-
-		/* Skip lines if needed */
-		for (; next < line; next++)
-		{
-			/* Skip a line */
-			if (my_fgets(fff, buf, 1024)) break;
-		}
-
-
-		Term_gotoxy(0,1);
-
-		/* Dump the next 20 (or more in bigscreen) lines of the file */
-		for (i = 0; i < (hgt - 4); )
-		{
-			int print_x;
-			out_ptr = out_buf;
-
-			/* Hack -- track the "first" line */
-			if (!i) line = next;
-
-			/* Get a line of the file or stop */
-			if (my_fgets(fff, h_ptr->rbuf, 1024)) break;
-
-			/* Get a color */
-			if (prefix(h_ptr->rbuf, "#####"))
-			{
-				buf = &h_ptr->rbuf[6];
-				sprintf(out_ptr, "%s%c", CC_PREFIX, buf[-1]);
-				out_ptr += strlen(CC_PREFIX " ");
-			}
-			else buf = h_ptr->rbuf;
-
-			/* Count the "real" lines */
-			next++;
-
-			/* Skip link colors */
-			if (prefix(buf, "|||||") ||
-
-			/* Skip game links. */
-				prefix(buf, CC_LINK_PREFIX))
-			{
-				/*
-				 * If the first displayed line is a non-initial unprinted line
-				 * and it was reached going backwards, display the previous
-				 * line first rather than the next one.
-				 */
-				if (!i && line && k == '8')
-				{
-					line--;
-					goto start_of_while;
-				}
-				else
-				{
-					continue;
-				}
-			}
-
-			/* Skip tags */
-			if (prefix(buf, "~~~~~"))
-			{
-				i++;
-				continue;
-			}
-
-			/* Hack -- keep searching */
-			if (find && !i && !strstr(buf, find)) continue;
-
-			/* Hack -- stop searching */
-			find = NULL;
-
-			/* Be sure to get a correct cur_link */
-			if (h_ptr->link_y[cur_link] >= line + (hgt - 4))
-			{
-				while ((cur_link > 0) && (h_ptr->link_y[cur_link] >= line + (hgt - 4)))
-				{
-					cur_link--;
-				}
-			}
-			if (h_ptr->link_y[cur_link] < line)
-			{
-				while ((cur_link < max_link) && (h_ptr->link_y[cur_link] < line))
-				{
-					cur_link++;
-				}
-			}
-
-			/* Dump the line */
-			x = 0;
-			print_x = 0;
-			while (buf[x])
-			{
-				/* Hyperlink ? */
-				if (prefix(buf + x, "*****"))
-				{
-					int xx = x + 5;
-
-					/* Zap the link info */
-					while (buf[xx] != '[')
-					{
-						xx++;
-					}
-					xx++;
-					strcpy(out_ptr, CC_PREFIX);
-					out_ptr += strlen(CC_PREFIX);
-					if ((h_ptr->link_x[cur_link] == x) && (h_ptr->link_y[cur_link] == line + i))
-						*out_ptr++ = atchar[link_color_sel];
-					else
-						*out_ptr++ = atchar[link_color];
-
-					/* Ok print the link name */
-					while (buf[xx] && buf[xx] != ']')
-					{
-						if (prefix(buf+xx, CC_PREFIX))
-						{
-							xx += strlen(CC_PREFIX);
-						}
-						*out_ptr++ = buf[xx++];
-					}
-					x = xx;
-				}
-				/* Color (ToME style) ? */
-				else if (prefix(buf + x, "[[[[["))
-				{
-					int xx = x + strlen("[[[[[");
-
-					strcpy(out_ptr, CC_PREFIX);
-					out_ptr += strlen(CC_PREFIX);
-
-					/* Ok print the coloured string */
-					while (buf[xx] != ']')
-					{
-						if (prefix(buf+xx, CC_PREFIX))
-						{
-							xx += strlen(CC_PREFIX);
-						}
-						*out_ptr++ = buf[xx++];
-					}
-					x = xx;
-				}
-				/* Remove HTML ? */
-				else if (prefix(buf + x, "{{{{{"))
-				{
-					int xx = x + 6;
-
-					/* Ok remove this section */
-					while (buf[xx] != '}')
-					{
-						xx++;
-					}
-					x = xx;
-				}
-				else
-				{
-					*out_ptr++ = buf[x];
-				}
-
-				x++;
-			}
-
-			/* Print the line. */
-			strcpy(out_ptr, "\n");
-			mc_roff(out_buf);
-
-			color = TERM_WHITE;
-
-			/* Hilite "h_ptr->shower" */
-			if (h_ptr->shower[0])
-			{
-				cptr str = buf;
-
-				/* Display matches */
-				while ((str = strstr(str, h_ptr->shower)) != NULL)
-				{
-					int len = strlen(h_ptr->shower);
-
-					/* Display the match */
-#if 0 /* Broken */
-					Term_putstr(str-buf, i+2, len, TERM_YELLOW, h_ptr->shower);
-#endif
-
-					/* Advance */
-					str += len;
-				}
-			}
-
-			/* Count the printed lines */
-			i++;
-		}
-
-		/* Hack -- failed search */
-		if (find)
-		{
-			bell();
-			line = back;
-			find = NULL;
-			continue;
-		}
-
+		/* Display the text of the file. */
+		show_page(fff, h_ptr, 1, hgt - 4, line);
 
 		/* Show a general "title" */
 		prt(format("[%s %s, %s, Line %d/%d]", GAME_NAME, GAME_VERSION,
 			   h_ptr->caption, line, size), 0, 0);
 
-		/* Prompt -- menu screen */
-		if (menu)
-		{
-			/* Wait for it */
-			prt("[Press a Number, or ESC to exit.]", hgt - 1, 0);
-		}
-
 		/* Prompt -- small files */
-		else if (size <= (hgt - 4))
+		if (size <= (hgt - 4))
 		{
 			/* Wait for it */
 			prt("[Press ESC to exit.]", hgt - 1, 0);
@@ -4261,11 +4405,22 @@ start_of_while:
 		/* Get a keypress */
 		k = inkey();
 
-		/* Hack -- return to last screen */
-		if ((k == '?') || (k == 0x7F) || (k == '\010')) break;
+		/* The current line may not stay in the same place, so start again at
+		 * the top of the file. */
+		if (k == RESIZE_INKEY_KEY)
+		{
+			/* Close the file */
+			my_fclose(fff);
+
+			/* Delete the file if temporary. */
+			if (is_temp_file) fd_kill(h_ptr->path);
+
+			/* Display it again. */
+			return show_file_aux(name, what, 0);
+		}
 
 		/* Hack -- try showing */
-		if (k == '=')
+		else if (k == '=')
 		{
 			/* Get "h_ptr->shower" */
 			prt("Show: ", hgt - 1, 0);
@@ -4273,16 +4428,14 @@ start_of_while:
 		}
 
 		/* Hack -- try finding */
-		if (k == '/')
+		else if (k == '/')
 		{
 			/* Get "h_ptr->finder" */
 			prt("Find: ", hgt - 1, 0);
 			if (askfor_aux(h_ptr->finder, 80))
 			{
-				/* Find it */
-				find = h_ptr->finder;
-				back = line;
-				line = line + 1;
+				/* Find it. */
+				line = find_text(fff, h_ptr, line);
 
 				/* Show it */
 				strcpy(h_ptr->shower, h_ptr->finder);
@@ -4290,7 +4443,7 @@ start_of_while:
 		}
 
 		/* Hack -- go to a specific line */
-		if (k == '#')
+		else if (k == '#')
 		{
 			char tmp[81];
 			prt("Goto Line: ", hgt - 1, 0);
@@ -4302,81 +4455,95 @@ start_of_while:
 		}
 
 		/* Hack -- go to a specific file */
-		if (k == '%')
+		else if (k == '%')
 		{
 			char tmp[81];
 			prt("Goto File: ", hgt - 1, 0);
 			strcpy(tmp, "help.hlp");
 			if (askfor_aux(tmp, 80))
 			{
-				if (!show_file_tome(tmp, NULL, 0, mode)) k = ESCAPE;
+				k  = show_file_aux(tmp, NULL, 0);
 			}
 		}
 
 		/* Hack -- Allow backing up */
-		if (k == '-')
+		else if (k == '-' || k == '9')
 		{
 			line = line - (hgt - 4);
 			if (line < 0) line = 0;
 		}
 
-		if (k == '8')
+		else if (k == '8')
 		{
 			line--;
 			if (line < 0) line = 0;
 		}
 
 		/* Hack -- Advance a single line */
-		if (k == '2')
+		else if (k == '2')
 		{
 			line = line + 1;
 		}
 
 		/* Advance one page */
-		if (k == ' ')
+		else if (k == ' ' || k == '3')
 		{
 			line = line + (hgt - 4);
 		}
 
-		/* Advance one link */
-		if ((k == '6') || (k == '\t'))
+		/* Jump to start */
+		else if (k == '7')
 		{
-			cur_link++;
-			if (cur_link >= max_link) cur_link = max_link - 1;
+			line = 0;
+		}
+		
+		/* Jump to end */
+		else if (k == '1')
+		{
+			line = size - (hgt - 4);
+		}
 
-			if (h_ptr->link_y[cur_link] < line) line = h_ptr->link_y[cur_link];
-			if (h_ptr->link_y[cur_link] >= line + (hgt - 4)) line = h_ptr->link_y[cur_link] - (hgt - 4);
+		/* Advance one link */
+		else if ((k == '6') || (k == '\t'))
+		{
+			h_ptr->cur_link++;
+			if (h_ptr->cur_link >= h_ptr->max_link)
+				h_ptr->cur_link = h_ptr->max_link - 1;
+
+			if (h_ptr->link_y[h_ptr->cur_link] < line)
+				line = h_ptr->link_y[h_ptr->cur_link];
+			if (h_ptr->link_y[h_ptr->cur_link] >= line + (hgt - 4))
+				line = h_ptr->link_y[h_ptr->cur_link] - (hgt - 4);
 		}
 		/* Return one link */
-		if (k == '4')
+		else if (k == '4')
 		{
-			cur_link--;
-			if (cur_link < 0) cur_link = 0;
+			h_ptr->cur_link--;
+			if (h_ptr->cur_link < 0) h_ptr->cur_link = 0;
 
-			if (h_ptr->link_y[cur_link] < line) line = h_ptr->link_y[cur_link];
-			if (h_ptr->link_y[cur_link] >= line + (hgt - 4)) line = h_ptr->link_y[cur_link] - (hgt - 4);
+			if (h_ptr->link_y[h_ptr->cur_link] < line)
+				line = h_ptr->link_y[h_ptr->cur_link];
+			if (h_ptr->link_y[h_ptr->cur_link] >= line + (hgt - 4))
+				line = h_ptr->link_y[h_ptr->cur_link] - (hgt - 4);
 		}
 
 		/* Recurse on numbers */
-		if (k == '\r')
+		else if (k == '\r')
 		{
-			if (h_ptr->link_x[cur_link] != -1)
+			if (h_ptr->link_x[h_ptr->cur_link] != -1)
 			{
 				/* Recurse on that file */
-				if (!show_file_tome(h_ptr->link[cur_link], NULL, h_ptr->link_line[cur_link], mode)) k = ESCAPE;
+				k = show_file_aux(h_ptr->link[h_ptr->cur_link], NULL,
+					h_ptr->link_line[h_ptr->cur_link]);
 			}
 		}
-
-		/* Exit on escape */
-		if (k == ESCAPE) break;
-
-		/* No other key ? lets look for a shortcut */
-		for (i = 0; i < max_link; i++)
+		else
 		{
-			if (h_ptr->link_key[i] == k)
+			/* No other key ? lets look for a shortcut */
+			for (i = 0; i < h_ptr->max_link; i++)
 			{
-				/* Recurse on that file */
-				if (!show_file_tome(h_ptr->link[i], NULL, h_ptr->link_line[i], mode)) k = ESCAPE;
+				if (h_ptr->link_key[i] != k) continue;
+				k = show_file_aux(h_ptr->link[i], NULL, h_ptr->link_line[i]);
 				break;
 			}
 		}
@@ -4385,25 +4552,23 @@ start_of_while:
 	/* Close the file */
 	my_fclose(fff);
 
-	/* Free hyperlink buffers */
-	KILL(h_ptr);
+	/* Delete the file if temporary. */
+	if (is_temp_file) fd_kill(h_ptr->path);
 
-	/* Escape */
-	if (k == ESCAPE) return (FALSE);
-
-	/* Normal return */
-	return (TRUE);
+	/* Return something equivalent to the last key pressed.
+	 * Only escape is currently used in a parent function. */
+	return (k == ESCAPE) ? k : 1;
 }
-
 
 /*
  * Hack -- display the contents of a file on the screen
- * Only a wrapper around show_file_tome() now.
+ * Only a wrapper around show_file_aux() now.
  */
-errr show_file(cptr name, cptr what)
+void show_file(cptr name, cptr what)
 {
-	show_file_tome(name, what, 0, 0);
-	return 0;
+	add_resize_hook(resize_inkey);
+	show_file_aux(name, what, 0);
+	delete_resize_hook(resize_inkey);
 }
 
 
@@ -4498,7 +4663,7 @@ void process_player_name(void)
 #endif /* VM */
 
 		/* Build the filename */
-		path_build(savefile, 1024, ANGBAND_DIR_SAVE, temp);
+		strnfmt(savefile, 1024, "%v", path_build_f2, ANGBAND_DIR_SAVE, temp);
 	}
 }
 
@@ -4607,7 +4772,12 @@ void do_cmd_suicide(void)
 	death = TRUE;
 
 	/* Cause of death */
-	(void)strcpy(died_from, SUICIDE_STRING);
+	died_from = SUICIDE_STRING;
+
+	{
+		monster_race *r_ptr = r_info+MON_SUICIDE;
+		if (r_ptr->r_deaths < MAX_SHORT) r_ptr->r_deaths++;
+	}
 }
 
 
@@ -4649,7 +4819,7 @@ void do_cmd_save_game(bool is_autosave)
 	Term_fresh();
 
 	/* The player is not dead */
-	(void)strcpy(died_from, "(saved)");
+	died_from = "(saved)";
 
 	/* Forbid suspend */
 	signals_ignore_tstp();
@@ -4673,7 +4843,7 @@ void do_cmd_save_game(bool is_autosave)
 	Term_fresh();
 
 	/* Note that the player is not dead */
-	(void)strcpy(died_from, "nobody (yet!)");
+	died_from = "nobody (yet!)";
 }
 
 
@@ -4683,14 +4853,7 @@ void do_cmd_save_game(bool is_autosave)
  */
 static long total_points(void)
 {
-	int i, max_depth;
-	
-	for (i = max_depth = 0; i < MAX_CAVES; i++)
-	{
-		max_depth = MAX(max_depth, p_ptr->max_dlv[i] + dun_defs[i].offset);
-	}
-
-	return p_ptr->exp + 100*max_depth;
+	return p_ptr->exp + 100*p_ptr->max_dlv+dun_defs[cur_dungeon].offset;
 }
 
 
@@ -4726,8 +4889,6 @@ static void make_bones(void)
 {
 	FILE                *fp;
 
-	char                str[1024];
-
 
 	if ((p_ptr->prace == RACE_SKELETON) || (p_ptr->prace == RACE_ZOMBIE) ||
 		(p_ptr->prace == RACE_SPECTRE) || (p_ptr->prace == RACE_VAMPIRE))
@@ -4742,16 +4903,11 @@ static void make_bones(void)
 		/* Ignore people who die in town */
 		if (dun_level)
 		{
-			char tmp[128];
-
 			/* XXX XXX XXX "Bones" name */
-			sprintf(tmp, "bone.%03d", dun_level);
-
-			/* Build the filename */
-			path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
+			cptr tmp = format(tmp, "bone.%03d", dun_level);
 
 			/* Attempt to open the bones file */
-			fp = my_fopen(str, "r");
+			fp = my_fopen_path(ANGBAND_DIR_BONE, tmp, "r");
 
 			/* Close it right away */
 			if (fp) my_fclose(fp);
@@ -4763,7 +4919,7 @@ static void make_bones(void)
 			FILE_TYPE(FILE_TYPE_TEXT);
 
 			/* Try to write a new "Bones File" */
-			fp = my_fopen(str, "w");
+			fp = my_fopen_path(ANGBAND_DIR_BONE, tmp, "w");
 
 			/* Not allowed to write it?  Weird. */
 			if (!fp) return;
@@ -4808,7 +4964,6 @@ static void print_tomb(void)
 	char	tmp[160];
 
 	char	buf[1024];
-    char    dummy[80];
 
 	FILE        *fp;
 
@@ -4819,10 +4974,10 @@ static void print_tomb(void)
 	Term_clear();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "dead.txt");
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_FILE, "dead.txt");
 
 	/* Open the News file */
-	fp = my_fopen(buf, "r");
+	fp = my_fopen_path(ANGBAND_DIR_FILE, "dead.txt", "r");
 
 	/* Dump */
 	if (fp)
@@ -4884,24 +5039,17 @@ static void print_tomb(void)
 	put_str(buf, 14, 11);
 
 	if (dun_level > 0)
-		sprintf(tmp, "of %s", dun_defs[wild_grid[wildy][wildx].dungeon].name);
-	else if (wild_grid[wildy][wildx].dungeon < MAX_TOWNS)
-		sprintf(tmp, "in %s", dun_defs[wild_grid[wildy][wildx].dungeon].shortname);
+		sprintf(tmp, "of %s", dun_name+dun_defs[wild_grid[wildy][wildx].dungeon].name);
+	else if (is_town_p(wildy, wildx))
+		sprintf(tmp, "in %s", dun_name+dun_defs[wild_grid[wildy][wildx].dungeon].shortname);
 	else if (wild_grid[wildy][wildx].dungeon < MAX_CAVES)
-		sprintf(tmp, "near %s", dun_defs[wild_grid[wildy][wildx].dungeon].name);
+		sprintf(tmp, "near %s", dun_name+dun_defs[wild_grid[wildy][wildx].dungeon].name);
 	else
 		strcpy(tmp, "in the Wilderness");
 	center_string(buf, tmp);
 	put_str(buf, 15, 11);
 
-    if (strlen(died_from) > 24)
-    {
-        strncpy(dummy, died_from, 24);
-        dummy[24] = '\0';
-        (void)sprintf(tmp, "by %s.", dummy);
-    }
-    else
-        (void)sprintf(tmp, "by %s.", died_from);
+	(void)sprintf(tmp, "by %.*s.", 24, died_from);
 	center_string(buf, tmp);
 	put_str(buf, 16, 11);
 
@@ -4995,7 +5143,7 @@ static void show_info(void)
 	/* Show equipment and inventory */
 
 	/* Equipment -- if any */
-	if (equip_cnt)
+	if (equip_cnt())
 	{
 		Term_clear();
 		item_tester_full = TRUE;
@@ -5005,7 +5153,7 @@ static void show_info(void)
 	}
 
 	/* Inventory -- if any */
-	if (inven_cnt)
+	if (inven_cnt())
 	{
 		Term_clear();
 		item_tester_full = TRUE;
@@ -5299,7 +5447,7 @@ void display_scores(int from, int to)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Open the binary high score file, for reading */
 	highscore_fd = fd_open(buf, O_RDONLY);
@@ -5338,7 +5486,7 @@ void template_score(int ptemplate)
 	sprintf(tmp_str,"The Masters of the %s Profession",template_info[ptemplate].title);
 	prt(tmp_str,5,0);
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_APEX, "scores.raw");
 
 	highscore_fd = fd_open(buf, O_RDONLY);
 
@@ -5410,7 +5558,7 @@ void race_score(int race_num)
 	prt(tmp_str, 5, 15);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_APEX, "scores.raw");
 
 	highscore_fd = fd_open(buf, O_RDONLY);
 
@@ -5475,7 +5623,7 @@ void race_score(int race_num)
 static void get_details(high_score *the_score)
 {
 	time_t ct = time((time_t*)0);
-	s16b i, best = 0;
+	s16b best = 0;
 
 	/* Save the version */
 	sprintf(the_score->what, "%s", GAME_VERSION);
@@ -5509,12 +5657,9 @@ static void get_details(high_score *the_score)
 	/* Save the level if a dungeon */
 	sprintf(the_score->cur_dun, "%3d", (dun_level) ? dun_depth : 0);
 
-	/* Work out the deepest level */
-	for(i=0;i<MAX_CAVES;i++)
-	{
-		int level = p_ptr->max_dlv[i] + dun_defs[i].offset;
-		if (p_ptr->max_dlv[i] && level > best) best=level;
-	}
+	/* Find the deepest level in the current dungeon. */
+	best = p_ptr->max_dlv+dun_defs[cur_dungeon].offset;
+
 	sprintf(the_score->max_dun, "%3d", best);
 
 	/* Save the cause of death (31 chars) */
@@ -5536,9 +5681,9 @@ static void make_record(high_score *score)
 	cptr dun_str;
 	int dun;
 
-	path_build(str, 1024, ANGBAND_DIR_APEX, "logfile.txt");
+	strnfmt(str, 1024, "%v", path_build_f2, ANGBAND_DIR_APEX, "logfile.txt");
 
-	fp = my_fopen(str, "a");
+	fp = my_fopen_path(ANGBAND_DIR_APEX, "logfile.txt", "a");
 
 	/* Silently give up for now. */
 	if (!fp)
@@ -5559,7 +5704,7 @@ static void make_record(high_score *score)
 	dun = wild_grid[wildy][wildx].dungeon;
 	if (dun < MAX_CAVES)
 	{
-		dun_str = dun_defs[dun].shortname;
+		dun_str = dun_name+dun_defs[dun].shortname;
 	}
 	else
 	{
@@ -5642,12 +5787,12 @@ static errr top_twenty(void)
 	}
 #endif
 
-	/* Quitters are not scored */
-	if ((!score_quitters
-#ifndef SCORE_QUITTERS
-	|| TRUE
-#endif
-	) && !total_winner && streq(died_from, SUICIDE_STRING))
+	/* Quitters are only scored if allowed. */
+	if (
+#ifdef SCORE_QUITTERS
+		!score_quitters &&
+#endif /* SCORE_QUITTERS */
+		!total_winner && streq(died_from, SUICIDE_STRING))
 	{
 		msg_print("Score not registered due to quitting.");
 		msg_print(NULL);
@@ -5758,7 +5903,7 @@ static void kingly(void)
 	dun_level = 0;
 
 	/* Fake death */
-	(void)strcpy(died_from, "Ripe Old Age");
+	died_from = "Ripe Old Age";
 
 	/* Hack -- Instant Gold */
 	p_ptr->au += 10000000L;
@@ -5822,7 +5967,7 @@ void close_game(void)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Open the high score file, for reading/writing */
 	highscore_fd = fd_open(buf, O_RDWR);
@@ -5909,7 +6054,7 @@ void exit_game_panic(void)
 	signals_ignore_tstp();
 
 	/* Indicate panic save */
-	(void)strcpy(died_from, "(panic save)");
+	died_from = "(panic save)";
 
 	/* Panic save, or get worried */
 	if (!save_player(FALSE)) quit("panic save failed!");
@@ -5919,7 +6064,7 @@ void exit_game_panic(void)
 }
 
 
-errr get_rnd_line(const char * file_name, char * output)
+static errr get_rnd_line(const char * file_name, uint len, char * output)
 {
 	FILE        *fp;
 
@@ -5929,20 +6074,26 @@ errr get_rnd_line(const char * file_name, char * output)
     /* test hack */
     if (cheat_wzrd && cheat_xtra) msg_print(file_name);
 
-	/* Build the filename */
-    path_build(buf, 1024, ANGBAND_DIR_FILE, file_name);
-
 	/* Open the file */
-	fp = my_fopen(buf, "r");
+	fp = my_fopen_path(ANGBAND_DIR_FILE, file_name, "r");
 
     /* Failed */
     if (!fp) return (-1);
 
 
 	/* Parse the file */
-    if (0 == my_fgets(fp, buf, 80))
-        lines = atoi(buf);
-    else return (1);
+	while (!my_fgets(fp, buf, 80))
+	{
+		/* Stop at the first line which is neither empty nor a comment. */
+		if (buf[0] && buf[0] != '#')
+		{
+			lines = atoi(buf);
+			break;
+		}
+	}
+
+	/* Some sort of file error occurred. */
+	if (!lines) return (1);
 
     line = randint(lines);
     for (counter = 0; counter <= line; counter++)
@@ -5953,12 +6104,50 @@ errr get_rnd_line(const char * file_name, char * output)
         break;
     }
 
-    strcpy (output, buf);
+    sprintf(output, "%.*s", len-1, buf);
 
 	/* Close the file */
     my_fclose(fp);
 
     return (0);
+}
+
+/*
+ * Process the above as a vstrnfmt_aux function.
+ *
+ * Format: 
+ * "%v", get_rnd_line_f1, (cptr)file_name
+ * or:
+ * "%.*v", (int)len, get_rnd_line_f1, file_name
+ */
+void get_rnd_line_f1(char *buf, uint max, cptr fmt, va_list *vp)
+{
+	cptr s, file_name = va_arg(*vp, cptr);
+	uint len;
+
+	/* Use %.123v to specify a maximum length of 123. */
+	if ((s = strchr(fmt, '.')))
+	{
+		long m = strtol(s+1, 0, 0);
+		len = MAX(0, m+1);
+	}
+	else
+	{
+		len = ONAME_MAX;
+	}
+
+	/* Ensure that the buffer fits within buf. */
+	if (max < len) len = max;
+
+	/* Report errors. */
+	switch (get_rnd_line(file_name, len, buf))
+	{
+		case -1:
+			strnfmt(buf, max, "Error: '%s' not found.", file_name);
+			break;
+		case 1:
+			strnfmt(buf, max, "Error: '%s' failed to parse.", file_name);
+	}
 }
 
 #ifdef HANDLE_SIGNALS
@@ -6036,7 +6225,7 @@ static void handle_signal_simple(int sig)
 	if (death)
 	{
 		/* Mark the savefile */
-		(void)strcpy(died_from, "Abortion");
+		died_from = "Abortion";
 
 		/* Close stuff */
 		close_game();
@@ -6049,13 +6238,18 @@ static void handle_signal_simple(int sig)
 	else if (signal_count >= 5)
 	{
 		/* Cause of "death" */
-		(void)strcpy(died_from, "Interrupting");
+		died_from = "Interrupting";
 
 		/* Stop playing */
 		alive = FALSE;
 
 		/* Suicide */
 		death = TRUE;
+
+		{
+			monster_race *r_ptr = r_info+MON_SUICIDE;
+			if (r_ptr->r_deaths < MAX_SHORT) r_ptr->r_deaths++;
+		}
 
 		/* Close stuff */
 		close_game();
@@ -6122,7 +6316,7 @@ static void handle_signal_abort(int sig)
 	panic_save = 1;
 
 	/* Panic save */
-	(void)strcpy(died_from, "(panic save)");
+	died_from = "(panic save)";
 
 	/* Forbid suspend */
 	signals_ignore_tstp();

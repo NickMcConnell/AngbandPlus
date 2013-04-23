@@ -1,5 +1,11 @@
-148
+# silly.txt
+#
+# Contains the name of a monster the player may sometimes encounter when
+# hallucinating.
+
+149
 ******************BUFFER LINE -- DO NOT REMOVE!*****************************
+Ghost of Christmas Present
 Destructor
 Wizard of Yendor
 Cosmic Horror

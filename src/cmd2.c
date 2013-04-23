@@ -204,7 +204,8 @@ void do_cmd_go_up(void)
 			if(dun_level==0)
 			{
 				cur_dungeon = wild_grid[wildy][wildx].dungeon;
-				msg_format("You enter %s",dun_defs[cur_dungeon].name);
+				p_ptr->max_dlv = 1;
+				msg_format("You enter %s",dun_name+dun_defs[cur_dungeon].name);
 			}
 			else
 			{
@@ -212,7 +213,7 @@ void do_cmd_go_up(void)
 			}
 
 			/* Actually go up. */
-			use_stairs(dun_defs[cur_dungeon].tower, TRUE);
+			use_stairs(!!(dun_defs[cur_dungeon].flags & DF_TOWER), TRUE);
 		}
    }
 }
@@ -273,7 +274,8 @@ void do_cmd_go_down(void)
 				if(dun_level==0)
 				{
 					cur_dungeon = wild_grid[wildy][wildx].dungeon;
-					msg_format("You enter %s",dun_defs[cur_dungeon].name);
+					p_ptr->max_dlv = 1;
+					msg_format("You enter %s",dun_name+dun_defs[cur_dungeon].name);
 				}
 				else
 				{
@@ -281,7 +283,7 @@ void do_cmd_go_down(void)
 				}
 			}
 				/* Go down */
-			use_stairs(!dun_defs[cur_dungeon].tower, !fall_trap);
+			use_stairs(!(dun_defs[cur_dungeon].flags & DF_TOWER), !fall_trap);
 				}
 		}
 	}
@@ -480,7 +482,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_LOSE_STR))
 	{
 		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(damroll(1, 4), "a poison needle", MON_TRAP);
 		(void)do_dec_stat(A_STR);
 	}
 
@@ -488,7 +490,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_LOSE_CON))
 	{
 		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(damroll(1, 4), "a poison needle", MON_TRAP);
 		(void)do_dec_stat(A_CON);
 	}
 
@@ -532,7 +534,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("There is a sudden explosion!");
 		msg_print("Everything inside the chest is destroyed!");
 		o_ptr->pval = 0;
-		take_hit(damroll(5, 8), "an exploding chest");
+		take_hit(damroll(5, 8), "an exploding chest", MON_TRAP);
 	}
 }
 
@@ -1825,14 +1827,6 @@ static bool alter_monster(int y, int x)
 	return TRUE;
 }
 
-/* Track the command actually being executed by do_cmd_alter().
- * This is necessary to enable the "fight" command to be repeated without
- * the command continuing after the fight has finished. */
-static char alter_cmd = 0;
-
-/* Hack - set an arbitrary key as the game lacks a "fight" command. */
-#define FAKE_CMD_FIGHT	' '
-
 /*
  * Manipulate an adjacent grid in some way
  *
@@ -1840,11 +1834,16 @@ static char alter_cmd = 0;
  *
  * Consider confusion XXX XXX XXX
  *
- * This command must always take a turn, to prevent free detection
- * of invisible monsters.
+ * This command must always take a turn for the initial request to prevent free
+ * detection of invisible monsters.
  */
 void do_cmd_alter(void)
 {
+	/* Track the command actually being executed by do_cmd_alter().
+	 * This is necessary to enable the "fight" command to be repeated without
+	 * the command continuing after the fight has finished. */
+	static char alter_cmd = 0;
+
 	int			y, x, dir;
 
 	cave_type	*c_ptr;
@@ -1878,22 +1877,20 @@ void do_cmd_alter(void)
 		/* Take a turn */
 		energy_use = extract_energy[p_ptr->pspeed];
 
-		/* Avoid continuing after the monster has gone. */
-		if ((alter_cmd == FAKE_CMD_FIGHT) && !(c_ptr->m_idx))
-		{
-			energy_use = 0;
-			disturb(0, 0);
-			return;
-		}
-		
 		/* Attack monsters */
-		if (c_ptr->m_idx || alter_cmd == FAKE_CMD_FIGHT)
+		if (c_ptr->m_idx)
 		{
 			/* Attack */
 			more = alter_monster(y, x);
-			alter_cmd = FAKE_CMD_FIGHT;
+			alter_cmd = 'H';
 		}
 
+		/* Avoid continuing to fight after the monster has gone. */
+		else if (alter_cmd == 'H')
+		{
+			energy_use = 0;
+		}
+		
 		/* Tunnel through walls */
         else if (((c_ptr->feat >= FEAT_SECRET)
             && (c_ptr->feat < FEAT_MINOR_GLYPH)) ||
@@ -1956,31 +1953,26 @@ void do_cmd_alter(void)
  *
  * XXX XXX XXX Let user choose a pile of spikes, perhaps?
  */
-static bool get_spike(int *ip)
+static object_type *get_spike(void)
 {
-	int i;
+	object_type *o_ptr;
 
 	/* Check every item in the pack */
-	for (i = 0; i < INVEN_PACK; i++)
+	for (o_ptr = inventory; o_ptr < inventory+INVEN_PACK; o_ptr++)
 	{
-		object_type *o_ptr = &inventory[i];
-
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
 		/* Check the "tval" code */
 		if (o_ptr->tval == TV_SPIKE)
 		{
-			/* Save the spike index */
-			(*ip) = i;
-
-			/* Success */
-			return (TRUE);
+			/* Return the spike index */
+			return o_ptr;
 		}
 	}
 
 	/* Oops */
-	return (FALSE);
+	return NULL;
 }
 
 
@@ -1992,7 +1984,8 @@ static bool get_spike(int *ip)
  */
 void do_cmd_spike(void)
 {
-	int                  y, x, dir, item;
+	int                  y, x, dir;
+	object_type *o_ptr;
 
 	cave_type		*c_ptr;
 
@@ -2016,7 +2009,7 @@ void do_cmd_spike(void)
 		}
 
 		/* Get a spike */
-		else if (!get_spike(&item))
+		else if (!(o_ptr = get_spike()))
 		{
 			/* Message */
 			msg_print("You have no spikes!");
@@ -2051,9 +2044,9 @@ void do_cmd_spike(void)
 			if (c_ptr->feat < FEAT_DOOR_TAIL) c_ptr->feat++;
 
 			/* Use up, and describe, a single spike, from the bottom */
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
+			item_increase(o_ptr, -1);
+			item_describe(o_ptr);
+			item_optimize(o_ptr);
 		}
 	}
 }
@@ -2335,7 +2328,8 @@ static int breakage_chance(object_type *o_ptr)
  */
 void do_cmd_fire(void)
 {
-	int dir, item;
+	errr err;
+	int dir;
 	int j, y, x, ny, nx, ty, tx;
 	int tdam, tdis, thits, tmul;
 	int bonus, chance;
@@ -2352,8 +2346,6 @@ void do_cmd_fire(void)
 	byte missile_attr;
 	char missile_char;
 
-	C_TNEW(o_name, ONAME_MAX, char);
-
 	int msec = delay_factor * delay_factor * delay_factor;
 
 
@@ -2364,7 +2356,6 @@ void do_cmd_fire(void)
 	if (!j_ptr->tval)
 	{
 		msg_print("You have nothing to fire with.");
-		TFREE(o_name);
 		return;
 	}
 
@@ -2373,28 +2364,16 @@ void do_cmd_fire(void)
 	item_tester_tval = p_ptr->tval_ammo;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Fire which item? ", FALSE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Fire which item? ", FALSE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to fire.");
-		TFREE(o_name);
+		if (err == -2) msg_print("You have nothing to fire.");
 		return;
-	}
-
-	/* Access the item (if in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir))
 	{
-		TFREE(o_name);
 		return;
 	}
 
@@ -2408,28 +2387,15 @@ void do_cmd_fire(void)
 	/* Single object */
 	q_ptr->number = 1;
 
-	/* Reduce and describe inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
+	/* Reduce and describe object */
+	item_increase(o_ptr, -1);
+	item_describe(o_ptr);
+	item_optimize(o_ptr);
 
 
 	/* Sound */
 	sound(SOUND_SHOOT);
 
-
-	/* Describe the object */
-	object_desc(o_name, q_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(q_ptr);
@@ -2572,19 +2538,17 @@ void do_cmd_fire(void)
 				if (!visible)
 				{
 					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+					msg_format("The %v finds a mark.",
+						object_desc_f3, q_ptr, FALSE, 3);
 				}
 
 				/* Handle visible monster */
 				else
 				{
-					C_TNEW(m_name, MNAME_MAX, char);
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0, MNAME_MAX);
-
 					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
+					msg_format("The %v hits %v.",
+						object_desc_f3, q_ptr, FALSE, 3,
+						monster_desc_f2, m_ptr, 0);
 
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -2594,10 +2558,9 @@ void do_cmd_fire(void)
 
 					/* Anger friends */
 					if (m_ptr->smart & SM_ALLY) {
-						msg_format("%s gets angry!", m_name);
+						msg_format("%v gets angry!", monster_desc_f2, m_ptr, 0);
 						m_ptr->smart &= ~SM_ALLY;
 					}
-					TFREE(m_name);
               }
 
 				/* Apply special damage XXX XXX XXX */
@@ -2629,18 +2592,12 @@ void do_cmd_fire(void)
 					/* Take note */
 					if (fear && m_ptr->ml)
 					{
-						C_TNEW(m_name, MNAME_MAX, char);
-
 						/* Sound */
 						sound(SOUND_FLEE);
 
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0, MNAME_MAX);
-
 						/* Message */
-						msg_format("%^s flees in terror!", m_name);
-
-						TFREE(m_name);
+						msg_format("%^v flees in terror!",
+							monster_desc_f2, m_ptr, 0);
 					}
 				}
 			}
@@ -2655,8 +2612,6 @@ void do_cmd_fire(void)
 
 	/* Drop (or break) near that location */
 	drop_near(q_ptr, j, y, x);
-
-	TFREE(o_name);
 }
 
 static int throw_mult = 1;
@@ -2688,7 +2643,8 @@ bool item_tester_hook_destroy(object_type *o_ptr)
  */
 void do_cmd_throw(void)
 {
-	int dir, item;
+	errr err;
+	int dir;
 	int j, y, x, ny, nx, ty, tx;
 	int chance, tdam, tdis;
 	int mul, div;
@@ -2704,38 +2660,21 @@ void do_cmd_throw(void)
 	byte missile_attr;
 	char missile_char;
 
-	C_TNEW(o_name, ONAME_MAX, char);
-
 	int msec = delay_factor * delay_factor * delay_factor;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_destroy;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Throw which item? ", TRUE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Throw which item? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to throw.");
-		TFREE(o_name);
+		if (err == -2) msg_print("You have nothing to throw.");
 		return;
-	}
-
-	/* Access the item (if in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir))
-	{
-		TFREE(o_name);
-		return;
-	}
+	if (!get_aim_dir(&dir)) return;
 
 
 	/* Get local object */
@@ -2747,24 +2686,11 @@ void do_cmd_throw(void)
 	/* Single object */
 	q_ptr->number = 1;
 
-	/* Reduce and describe inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
+	/* Reduce and describe item */
+	item_increase(o_ptr, -1);
+	item_describe(o_ptr);
+	item_optimize(o_ptr);
 
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
-
-
-	/* Description */
-	object_desc(o_name, q_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(q_ptr);
@@ -2902,27 +2828,23 @@ void do_cmd_throw(void)
 				if (!visible)
 				{
 					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+					msg_format("The %v finds a mark.",
+						object_desc_f3, q_ptr, FALSE, 3);
 				}
 
 				/* Handle visible monster */
 				else
 				{
-					C_TNEW(m_name, MNAME_MAX, char);
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0, MNAME_MAX);
-
 					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
+					msg_format("The %v hits %v.",
+						object_desc_f3, q_ptr, FALSE, 3, 
+						monster_desc_f2, m_ptr, 0);
 
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(c_ptr->m_idx);
-
-					TFREE(m_name);
 				}
 
 				/* Apply special damage XXX XXX XXX */
@@ -2955,28 +2877,19 @@ void do_cmd_throw(void)
                    if ((m_ptr->smart & SM_ALLY)
                     && (!(k_info[q_ptr->k_idx].tval == TV_POTION)))
                     {
-					C_TNEW(m_name, MNAME_MAX, char);
-                   monster_desc(m_name, m_ptr, 0, MNAME_MAX);
-                      msg_format("%s gets angry!", m_name);
+                      msg_format("%v gets angry!", monster_desc_f2, m_ptr, 0);
                       m_ptr->smart &= ~SM_ALLY;
-					TFREE(m_name);
                    }
 
 					/* Take note */
                     if (fear && m_ptr->ml)
 					{
-						C_TNEW(m_name, MNAME_MAX, char);
-
 						/* Sound */
 						sound(SOUND_FLEE);
 
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0, MNAME_MAX);
-
 						/* Message */
-						msg_format("%^s flees in terror!", m_name);
-
-						TFREE(m_name);
+						msg_format("%^v flees in terror!",
+							monster_desc_f2, m_ptr, 0);
 					}
 				}
 			}
@@ -2993,20 +2906,16 @@ void do_cmd_throw(void)
      if (k_info[q_ptr->k_idx].tval == TV_POTION) {
        if ((hit_body) || (!cave_floor_bold(ny, nx)) || (cave[ny][nx].feat == FEAT_WATER) || (randint(100) < j)) {
        /* Message */
-       msg_format("The %s shatters!", o_name);
+       msg_format("The %v shatters!", object_desc_f3, q_ptr, FALSE, 3);
        if (potion_smash_effect(1, y, x, q_ptr->k_idx))
        {
               if (cave[y][x].m_idx && (m_list[cave[y][x].m_idx].smart & SM_ALLY))
                     {
-					C_TNEW(m_name, MNAME_MAX, char);
-                   monster_desc(m_name, &m_list[cave[y][x].m_idx], 0, MNAME_MAX);
-                   msg_format("%s gets angry!", m_name);
+                   msg_format("%v gets angry!", monster_desc_f2, &m_list[cave[y][x].m_idx], 0);
                    m_list[cave[y][x].m_idx].smart &= ~SM_ALLY;
-					TFREE(m_name);
                }
             }
 
-		TFREE(o_name);
        return;
        } else {
        j = 0;
@@ -3017,7 +2926,6 @@ void do_cmd_throw(void)
 	/* Drop (or break) near that location */
 	drop_near(q_ptr, j, y, x);
 
-	TFREE(o_name);
 	return;
 }
 
@@ -3498,7 +3406,7 @@ static void use_power(powertype *pw_ptr)
 			case iilog(MUT1_GROW_MOLD):
 				for (i=0; i < 8; i++)
 		{
-					summon_specific_friendly(py, px, plev, SUMMON_BIZARRE1, FALSE);
+					summon_specific_friendly(py, px, plev, SUMMON_MOULD, FALSE);
 		}
 				break;
 			case iilog(MUT1_RESIST):
@@ -3541,36 +3449,28 @@ static void use_power(powertype *pw_ptr)
 			case iilog(MUT1_EAT_MAGIC):
 			{
 				object_type * o_ptr;
-				int lev, item;
+				errr err;
+				int lev;
 				cptr q;
 
 				item_tester_hook = item_tester_hook_recharge;
 
 				/* Get an item */
 				q = "Drain which item? ";
-				if (!get_item(&item, q, TRUE,TRUE,TRUE)) break;
-
-				if (item >= 0)
-                {
-					o_ptr = &inventory[item];
-			}
-			else
-			{
-					o_ptr = &o_list[0 - item];
-			}
+				if (!((o_ptr = get_item(&err, q, TRUE,TRUE,TRUE)))) break;
 
 				lev = wand_power(&k_info[o_ptr->k_idx]);
 
 				if (o_ptr->tval == TV_ROD)
         {
-					if (o_ptr->pval > 0)
+					if (o_ptr->timeout > 0)
 		{
 						msg_print("You can't absorb energy from a discharged rod.");
 		}
 					else
 		{
 						p_ptr->csp += 2*lev;
-						o_ptr->pval = 500;
+						o_ptr->timeout = 500;
 	}
     }
         else
@@ -3602,7 +3502,7 @@ static void use_power(powertype *pw_ptr)
 			case iilog(MUT1_STERILITY):
 				/* Fake a population explosion. */
 				msg_print("You suddenly have a headache!");
-				take_hit(randint(30) + 30, "the strain of forcing abstinence");
+				take_hit(randint(30) + 30, "the strain of forcing abstinence", MON_DANGEROUS_MUTATION);
 				num_repro += MAX_REPRO;
 				break;
 			case iilog(MUT1_PANIC_HIT):
@@ -3634,30 +3534,7 @@ static void use_power(powertype *pw_ptr)
 				fire_beam(GF_LITE, dir, 2*plev);
 				break;
 			case iilog(MUT1_RECALL):
-				if (dun_level && (p_ptr->max_dlv[cur_dungeon] > dun_level) && (cur_dungeon == recall_dungeon))
-				{
-					if (get_check("Reset recall depth? "))
-					p_ptr->max_dlv[cur_dungeon] = dun_level;
-				}
-
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					if (dun_level > 0)
-				{
-						recall_dungeon = cur_dungeon;
-				}
-					else
-				{
-						cur_dungeon = recall_dungeon;
-				}
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall(FALSE);
 				break;
 			case iilog(MUT1_BANISH):
 			{
@@ -3728,35 +3605,26 @@ static void use_power(powertype *pw_ptr)
  * Dismiss your allies.
  */
 static void dismiss_pets(bool some)
-					{
+{
 	bool all_pets = FALSE;
 	s16b i,Dismissed = 0;
 	if (some && get_check("Dismiss all allies? ")) all_pets = TRUE;
 	for (i = m_max - 1; i >= 1; i--)
-						{
+	{
 		/* Access the monster */
 		monster_type *m_ptr = &m_list[i];
 		if (m_ptr->smart & (SM_ALLY)) /* Get rid of it! */
-						{
-			bool delete_this;
-			if (all_pets)
-				delete_this = TRUE;
-						else
-						{
-				char friend_name[80], check_friend[80];
-				monster_desc(friend_name, m_ptr, 0x80, MNAME_MAX);
-				sprintf(check_friend, "Dismiss %s? ", friend_name);
-				delete_this = get_check(check_friend);
-				}
+		{
+			bool delete_this = all_pets || get_check(
+					format("Dismiss %v? ", monster_desc_f2, m_ptr, 0x80));
 
 			if (delete_this)
-				{
+			{
 				delete_monster_idx(i,TRUE);
 				Dismissed++;
-				}
-
-				}
-				}
+			}
+		}
+	}
 	msg_format("You have dismissed %d all%s.", Dismissed,
 		(Dismissed==1?"y":"ies"));
 }
@@ -3830,10 +3698,10 @@ static void racial_string(byte num, byte *x, char * text)
  * The confirmation string for do_cmd_racial_power.
  */
 static void racial_confirm_string(byte choice, char * out)
-					{
+{
 	/* Prompt */
 	strnfmt(out, 78, "Use %s? ", cur_powers[choice]->text);
-				}
+}
 
 /*
  * Count the powers the player has.
@@ -4121,7 +3989,7 @@ static bool racial_aux(powertype *pw_ptr)
 
 	if (use_hp)
 	{
-		take_hit (num, "concentrating too hard");
+		take_hit (num, "concentrating too hard", MON_CONCENTRATING_TOO_HARD);
 		p_ptr->redraw |= PR_HP;
 	}
 	else if (use_mana)
@@ -4158,8 +4026,6 @@ static bool racial_aux(powertype *pw_ptr)
  */
 void do_cmd_racial_power(void)
 {
-	char out_val[160];
-					
 	/* Count the available powers. */
 	byte total = count_powers();
 
@@ -4171,9 +4037,6 @@ void do_cmd_racial_power(void)
 		msg_print("You have no abilities to use.");
 		return;
 	}
-
-	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) Use which ability? ", I2A(0), I2A(total - 1));
 
 	/* Display the available powers */
 	total = display_list(racial_string, racial_confirm_string, total, "Powers", "Use which ability?", 0);
@@ -4198,21 +4061,3 @@ void do_cmd_racial_power(void)
         }
     }
 }
-
-#if 0
-/*
- * Get wilderness dungeon at given coordinates
- */
-byte get_wild_dun(y,x)
-{
-	int i;
-	for(i=MAX_TOWNS;i<MAX_CAVES;i++)
-	{
-		if((x==dun_defs[i].x) && (y==dun_defs[i].y))
-		{
-			return(i);
-		}
-	}
-	return MAX_TOWNS;
-}
-#endif

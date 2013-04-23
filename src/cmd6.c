@@ -62,40 +62,39 @@ static bool activate_random_artifact(object_type * o_ptr);
 
 
 /*
+ * Calculate the energy needed to use a magical device.
+ */
+s16b item_use_energy(object_type *o_ptr)
+{
+	if (is_worn_p(o_ptr))
+		return TURN_ENERGY/10;
+	else
+		return extract_energy[p_ptr->pspeed];
+}
+
+/*
  * Eat some food (from the pack or floor)
  */
-void do_cmd_eat_food(int item)
+void do_cmd_eat_food(object_type *o_ptr)
 {
 	int			ident;
 	bool	normal_food = FALSE;
 
-	object_type		*o_ptr;
 
 
 	/* Restrict choices to food */
 	item_tester_tval = TV_FOOD;
 
 	/* Get an item if we weren't passed one */
-	if(item == -999)
+	if(!o_ptr)
 	{
+		errr err;
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Eat which item? ", FALSE, TRUE, TRUE))
+		if (!((o_ptr = get_item(&err, "Eat which item? ", FALSE, TRUE, TRUE))))
 		{
-			if (item == -2) msg_print("You have nothing to eat.");
+			if (err == -2) msg_print("You have nothing to eat.");
 			return;
 		}
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	item_tester_tval = TV_FOOD;
@@ -112,7 +111,7 @@ void do_cmd_eat_food(int item)
 
 
 	/* Take a turn */
-	energy_use = extract_energy[p_ptr->pspeed];
+	energy_use = item_use_energy(o_ptr);
 
 	/* Identity not known yet */
 	ident = FALSE;
@@ -194,7 +193,7 @@ void do_cmd_eat_food(int item)
 
 		case OBJ_FOOD_DEC_STR:
 		{
-			take_hit(damroll(6, 6), "poisonous food.");
+			take_hit(damroll(6, 6), "poisonous food.", MON_POISONOUS_FOOD);
 			(void)do_dec_stat(A_STR);
 			ident = TRUE;
 			break;
@@ -202,7 +201,7 @@ void do_cmd_eat_food(int item)
 
 		case OBJ_FOOD_SICKNESS:
 		{
-			take_hit(damroll(6, 6), "poisonous food.");
+			take_hit(damroll(6, 6), "poisonous food.", MON_POISONOUS_FOOD);
 			(void)do_dec_stat(A_CON);
 			ident = TRUE;
 			break;
@@ -210,7 +209,7 @@ void do_cmd_eat_food(int item)
 
 		case OBJ_FOOD_DEC_INT:
 		{
-			take_hit(damroll(8, 8), "poisonous food.");
+			take_hit(damroll(8, 8), "poisonous food.", MON_POISONOUS_FOOD);
 			(void)do_dec_stat(A_INT);
 			ident = TRUE;
 			break;
@@ -218,7 +217,7 @@ void do_cmd_eat_food(int item)
 
 		case OBJ_FOOD_DEC_WIS:
 		{
-			take_hit(damroll(8, 8), "poisonous food.");
+			take_hit(damroll(8, 8), "poisonous food.", MON_POISONOUS_FOOD);
 			(void)do_dec_stat(A_WIS);
 			ident = TRUE;
 			break;
@@ -226,7 +225,7 @@ void do_cmd_eat_food(int item)
 
 		case OBJ_FOOD_UNHEALTH:
 		{
-			take_hit(damroll(10, 10), "poisonous food.");
+			take_hit(damroll(10, 10), "poisonous food.", MON_POISONOUS_FOOD);
 			(void)do_dec_stat(A_CON);
 			ident = TRUE;
 			break;
@@ -234,7 +233,7 @@ void do_cmd_eat_food(int item)
 
 		case OBJ_FOOD_DISEASE:
 		{
-			take_hit(damroll(10, 10), "poisonous food.");
+			take_hit(damroll(10, 10), "poisonous food.", MON_POISONOUS_FOOD);
 			(void)do_dec_stat(A_STR);
 			ident = TRUE;
 			break;
@@ -375,21 +374,10 @@ void do_cmd_eat_food(int item)
 
 
 
-	/* Destroy a food in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a food on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	/* Destroy a food */
+	item_increase(o_ptr, -1);
+	item_describe(o_ptr);
+	item_optimize(o_ptr);
 }
 
 
@@ -398,37 +386,25 @@ void do_cmd_eat_food(int item)
 /*
  * Quaff a potion (from the pack or the floor)
  */
-void do_cmd_quaff_potion(int item)
+void do_cmd_quaff_potion(object_type *o_ptr)
 {
 	int		ident;
 
-	object_type	*o_ptr;
 
 
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
 
 	/* Get an item if we weren't passed one */
-	if(item == -999)
+	if(!o_ptr)
 	{
+		errr err;
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Quaff which potion? ", TRUE, TRUE, TRUE))
+		if (!((o_ptr = get_item(&err, "Quaff which potion? ", TRUE, TRUE, TRUE))))
 		{
-			if (item == -2) msg_print("You have no potions to quaff.");
+			if (err == -2) msg_print("You have no potions to quaff.");
 			return;
 		}
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	item_tester_tval = TV_POTION;
@@ -444,13 +420,7 @@ void do_cmd_quaff_potion(int item)
 
 
 	/* Take a turn */
-	if (item < INVEN_POUCH_1)
-	{
-		energy_use = extract_energy[p_ptr->pspeed];
-	} else {
-		/* Potions in a pouch are immediately accessible */
-		energy_use = TURN_ENERGY/10;
-	}
+	energy_use = item_use_energy(o_ptr);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -562,7 +532,7 @@ void do_cmd_quaff_potion(int item)
 		case OBJ_POTION_RUINATION:
 		{
 			msg_print("Your nerves and muscles feel weak and lifeless!");
-			take_hit(damroll(10, 10), "a potion of Ruination");
+			take_hit(damroll(10, 10), "a potion of Ruination", MON_HARMFUL_POTION);
 			(void)dec_stat(A_DEX, 25, TRUE);
 			(void)dec_stat(A_WIS, 25, TRUE);
 			(void)dec_stat(A_CON, 25, TRUE);
@@ -612,7 +582,7 @@ void do_cmd_quaff_potion(int item)
 		case OBJ_POTION_DETONATIONS:
 		{
 			msg_print("Massive explosions rupture your body!");
-			take_hit(damroll(50, 20), "a potion of Detonation");
+			take_hit(damroll(50, 20), "a potion of Detonation", MON_HARMFUL_POTION);
 			(void)set_stun(p_ptr->stun + 75);
 			(void)set_cut(p_ptr->cut + 5000);
 			ident = TRUE;
@@ -622,7 +592,7 @@ void do_cmd_quaff_potion(int item)
 		case OBJ_POTION_IOCAINE:
 		{
 			msg_print("A feeling of Death flows through your body.");
-			take_hit(5000, "a potion of Death");
+			take_hit(5000, "a potion of Death", MON_HARMFUL_POTION);
 			ident = TRUE;
 			break;
 		}
@@ -1013,21 +983,10 @@ void do_cmd_quaff_potion(int item)
 	(void)set_food(p_ptr->food + o_ptr->pval);
 
 
-	/* Destroy a potion in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a potion on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	/* Destroy a potion */
+	item_increase(o_ptr, -1);
+	item_describe(o_ptr);
+	item_optimize(o_ptr);
 }
 
 
@@ -1053,7 +1012,7 @@ bool curse_armor(void)
 
 
 	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3);
+	strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw for artifacts */
     if (allart_p(o_ptr) && (rand_int(100) < 50))
@@ -1130,7 +1089,7 @@ bool curse_weapon(void)
 
 
 	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3);
+	strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw */
     if (allart_p(o_ptr) && (rand_int(100) < 50))
@@ -1194,13 +1153,9 @@ bool curse_weapon(void)
  * include scrolls with no effects but recharge or identify, which are
  * cancelled before use.  XXX Reading them still takes a turn, though.
  */
-void do_cmd_read_scroll(int item)
+void do_cmd_read_scroll(object_type *o_ptr)
 {
 	int			k, used_up, ident;
-
-	object_type		*o_ptr;
-
-    char  Rumor[80] ;
 
 	/* Check some conditions */
 	if (p_ptr->blind)
@@ -1224,26 +1179,15 @@ void do_cmd_read_scroll(int item)
 	item_tester_tval = TV_SCROLL;
 
 	/* Get an item if we weren't passed one */
-	if(item == -999)
+	if(!o_ptr)
 	{
+		errr err;
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Read which scroll? ", TRUE, TRUE, TRUE))
+		if (!((o_ptr = get_item(&err, "Read which scroll? ", TRUE, TRUE, TRUE))))
 		{
-			if (item == -2) msg_print("You have no scrolls to read.");
+			if (err == -2) msg_print("You have no scrolls to read.");
 			return;
 		}
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	item_tester_tval = TV_SCROLL;
@@ -1256,13 +1200,7 @@ void do_cmd_read_scroll(int item)
 	item_tester_tval = 0;
 
 	/* Take a turn */
-	if (item < INVEN_POUCH_1)
-	{
-		energy_use = extract_energy[p_ptr->pspeed];
-	} else {
-		/* Scrolls in a pouch are immediately accessible */
-		energy_use = TURN_ENERGY/10;
-	}
+	energy_use = item_use_energy(o_ptr);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1370,31 +1308,7 @@ void do_cmd_read_scroll(int item)
 
 		case OBJ_SCROLL_WORD_OF_RECALL:
 		{
-                if (dun_level && (p_ptr->max_dlv[cur_dungeon] > dun_level) && (cur_dungeon == recall_dungeon))
-                {
-                    if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv[cur_dungeon] = dun_level;
-
-                }
-            
-			if (p_ptr->word_recall == 0)
-			{
-				p_ptr->word_recall = randint(20) + 15;
-				if (dun_level > 0)
-				{
-					recall_dungeon = cur_dungeon;
-				}
-				else
-				{
-					cur_dungeon = recall_dungeon;
-				}
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			set_recall(FALSE);
 			ident = TRUE;
 			break;
 		}
@@ -1621,7 +1535,7 @@ void do_cmd_read_scroll(int item)
                 150, 4); /* Note: "Double" damage since it is centered on
                             the player ... */
             if (!(p_ptr->oppose_fire || p_ptr->resist_fire || p_ptr->immune_fire))
-                take_hit(50+randint(50), "a Scroll of Fire");
+                take_hit(50+randint(50), "a Scroll of Fire", MON_HARMFUL_SCROLL);
             ident = TRUE;
             break;
         }
@@ -1632,7 +1546,7 @@ void do_cmd_read_scroll(int item)
             fire_ball(GF_ICE, 0,
                 175, 4);
             if (!(p_ptr->oppose_cold || p_ptr->resist_cold || p_ptr->immune_cold))
-                take_hit(100+randint(100), "a Scroll of Ice");
+                take_hit(100+randint(100), "a Scroll of Ice", MON_HARMFUL_SCROLL);
             ident = TRUE;
             break;
         }
@@ -1642,7 +1556,7 @@ void do_cmd_read_scroll(int item)
             fire_ball(GF_CHAOS, 0,
                 222, 4);
             if (!p_ptr->resist_chaos)
-                take_hit(111+randint(111), "a Scroll of Chaos");
+                take_hit(111+randint(111), "a Scroll of Chaos", MON_HARMFUL_SCROLL);
             ident = TRUE;
             break;
         }
@@ -1653,19 +1567,18 @@ void do_cmd_read_scroll(int item)
             msg_print(NULL);
             switch(randint(20))
             {   case 1:
-                    get_rnd_line("chainswd.txt", Rumor);
+                    msg_format("%v", get_rnd_line_f1, "chainswd.txt");
                     break;
                 case 2:
-                    get_rnd_line("error.txt", Rumor);
+                    msg_format("%v", get_rnd_line_f1, "error.txt");
                     break;
                 case 3: case 4: case 5:
-                    get_rnd_line("death.txt", Rumor);
+                    msg_format("%v", get_rnd_line_f1, "death.txt");
                     break;
                 default:
-                    get_rnd_line("rumors.txt", Rumor);
+                    msg_format("%v", get_rnd_line_f1, "rumors.txt");
 
             }
-            msg_format("%s", Rumor);
             msg_print(NULL);
             msg_print("The scroll disappears in a puff of smoke!");
             ident = TRUE;
@@ -1701,21 +1614,10 @@ void do_cmd_read_scroll(int item)
 	if (!used_up) return;
 
 
-	/* Destroy a scroll in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a scroll on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	/* Destroy a scroll */
+	item_increase(o_ptr, -1);
+	item_describe(o_ptr);
+	item_optimize(o_ptr);
 }
 
 
@@ -1731,29 +1633,21 @@ void get_device_chance(object_type *o_ptr, int *num, int *denom)
 	int lev;
 	if (is_wand_p(k_info+o_ptr->k_idx))
 	{
-		lev = MIN(wand_power(k_info+o_ptr->k_idx), 50);
+		lev = wand_power(k_info+o_ptr->k_idx);
 	}
-	switch (o_ptr->tval)
+	else if (artifact_p(o_ptr))
 	{
-		case TV_ROD: case TV_WAND: case TV_STAFF:
-		{
-		}
-		default:
-		{
-			if (artifact_p(o_ptr))
-			{
-				/* Use the artefact level for normal artefacts. */
-				lev = a_info[o_ptr->name1].level;
-			}
-			else
-			{
-				/* Extract the base item level otherwise. */
-				lev = object_k_level(k_info+o_ptr->k_idx);
-			}
-			/* Limit the difficulty. */
-			lev = MIN(lev, 50);
-		}
+		/* Use the artefact level for normal artefacts. */
+		lev = a_info[o_ptr->name1].level;
 	}
+	else
+	{
+		/* Extract the base item level otherwise. */
+		lev = object_k_level(k_info+o_ptr->k_idx);
+	}
+
+	/* Hack - Limit the difficulty. */
+	lev = MIN(lev, 50);
 
 	/* Base chance of success */
 	*num = USE_DEVICE;
@@ -1787,7 +1681,6 @@ static bool use_device_p(object_type *o_ptr)
 	return (rand_int(denom) < num);
 }
 
-
 /*
  * Use a staff.			-RAK-
  *
@@ -1795,11 +1688,9 @@ static bool use_device_p(object_type *o_ptr)
  *
  * Hack -- staffs of identify can be "cancelled".
  */
-void do_cmd_use_staff(int item)
+void do_cmd_use_staff(object_type *o_ptr)
 {
 	int			ident, k;
-
-	object_type		*o_ptr;
 
 	/* Hack -- let staffs of identify get aborted */
 	bool use_charge = TRUE;
@@ -1809,26 +1700,15 @@ void do_cmd_use_staff(int item)
 	item_tester_tval = TV_STAFF;
 
 	/* Get an item if we weren't already passed one */
-	if(item == -999)
+	if(!o_ptr)
 	{
+		errr err;
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Use which staff? ", FALSE, TRUE, TRUE))
+		if (!((o_ptr = get_item(&err, "Use which staff? ", FALSE, TRUE, TRUE))))
 		{
-			if (item == -2) msg_print("You have no staff to use.");
+			if (err == -2) msg_print("You have no staff to use.");
 			return;
 		}
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	item_tester_tval = TV_STAFF;
@@ -1841,7 +1721,7 @@ void do_cmd_use_staff(int item)
 	item_tester_tval = 0;
 
 	/* Mega-Hack -- refuse to use a pile from the ground */
-	if ((item < 0) && (o_ptr->number > 1))
+	if ((!is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
 		msg_print("You must first pick up the staffs.");
 		return;
@@ -1849,7 +1729,7 @@ void do_cmd_use_staff(int item)
 
 
 	/* Take a turn */
-	energy_use = extract_energy[p_ptr->pspeed];
+	energy_use = item_use_energy(o_ptr);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2173,7 +2053,7 @@ void do_cmd_use_staff(int item)
 	skill_exp(SKILL_DEVICE);
 
 	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
+	if ((is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
 		object_type forge;
 		object_type *q_ptr;
@@ -2193,23 +2073,14 @@ void do_cmd_use_staff(int item)
 		/* Unstack the used item */
 		o_ptr->number--;
 		total_weight -= q_ptr->weight;
-		item = inven_carry(q_ptr, FALSE);
+		inven_carry(q_ptr);
 
 		/* Message */
 		msg_print("You unstack your staff.");
 	}
 
 	/* Describe charges in the pack */
-	if (item >= 0)
-	{
-		inven_item_charges(item);
-	}
-
-	/* Describe charges on the floor */
-	else
-	{
-		floor_item_charges(0 - item);
-	}
+	item_charges(o_ptr);
 }
 
 /*
@@ -2268,37 +2139,24 @@ static int choose_random_wand(void)
  * basic "bolt" rods, but the basic "ball" wands do the same damage
  * as the basic "ball" rods.
  */
-void do_cmd_aim_wand(int item)
+void do_cmd_aim_wand(object_type *o_ptr)
 {
 	int			ident, k_idx, dir;
-
-	object_type		*o_ptr;
 
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
 
 	/* Get an item if we weren't passed one */
-	if(item == -999)
+	if(!o_ptr)
 	{
+		errr err;
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Aim which wand? ", TRUE, TRUE, TRUE))
+		if (!((o_ptr = get_item(&err, "Aim which wand? ", TRUE, TRUE, TRUE))))
 		{
-			if (item == -2) msg_print("You have no wand to aim.");
+			if (err == -2) msg_print("You have no wand to aim.");
 			return;
 		}
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	item_tester_tval = TV_WAND;
@@ -2311,7 +2169,7 @@ void do_cmd_aim_wand(int item)
 	item_tester_tval = 0;
 
 	/* Mega-Hack -- refuse to aim a pile from the ground */
-	if ((item < 0) && (o_ptr->number > 1))
+	if ((!is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
 		msg_print("You must first pick up the wands.");
 		return;
@@ -2323,13 +2181,7 @@ void do_cmd_aim_wand(int item)
 
 
 	/* Take a turn */
-	if (item < INVEN_POUCH_1)
-	{
-		energy_use = extract_energy[p_ptr->pspeed];
-	} else {
-		/* Wands in a pouch are immediately accessible */
-		energy_use = TURN_ENERGY/10;
-	}
+	energy_use = item_use_energy(o_ptr);;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2618,7 +2470,7 @@ void do_cmd_aim_wand(int item)
 	o_ptr->pval--;
 
 	/* Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
+	if ((is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
 		object_type forge;
 		object_type *q_ptr;
@@ -2638,23 +2490,14 @@ void do_cmd_aim_wand(int item)
 		/* Unstack the used item */
 		o_ptr->number--;
 		total_weight -= q_ptr->weight;
-		item = inven_carry(q_ptr, FALSE);
+		inven_carry(q_ptr);
 
 		/* Message */
 		msg_print("You unstack your wand.");
 	}
 
 	/* Describe the charges in the pack */
-	if (item >= 0)
-	{
-		inven_item_charges(item);
-	}
-
-	/* Describe the charges on the floor */
-	else
-	{
-		floor_item_charges(0 - item);
-	}
+	item_charges(o_ptr);
 }
 
 
@@ -2714,11 +2557,9 @@ static bool directional_rod_p(s16b k_idx)
  * Hack -- rods of perception/genocide can be "cancelled"
  * All rods can be cancelled at the "Direction?" prompt
  */
-void do_cmd_zap_rod(int item)
+void do_cmd_zap_rod(object_type *o_ptr)
 {
 	int			ident, dir;
-
-	object_type		*o_ptr;
 
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
@@ -2728,26 +2569,15 @@ void do_cmd_zap_rod(int item)
 	item_tester_tval = TV_ROD;
 
 	/* Get an item if we do not already have one */
-	if(item == -999)
+	if(!o_ptr)
 	{
+		errr err;
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Zap which rod? ", FALSE, TRUE, TRUE))
+		if (!((o_ptr = get_item(&err, "Zap which rod? ", FALSE, TRUE, TRUE))))
 		{
-			if (item == -2) msg_print("You have no rod to zap.");
+			if (err == -2) msg_print("You have no rod to zap.");
 			return;
 		}
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	item_tester_tval = TV_ROD;
@@ -2760,7 +2590,7 @@ void do_cmd_zap_rod(int item)
 	item_tester_tval = 0;
 
 	/* Mega-Hack -- refuse to zap a pile from the ground */
-	if ((item < 0) && (o_ptr->number > 1))
+	if ((!is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
 		msg_print("You must first pick up the rods.");
 		return;
@@ -2776,13 +2606,13 @@ void do_cmd_zap_rod(int item)
 
 
 	/* Take a turn */
-	energy_use = extract_energy[p_ptr->pspeed];
+	energy_use = item_use_energy(o_ptr);
 
 	/* Not identified yet */
 	ident = FALSE;
 
 	/* Still charging */
-	if (o_ptr->pval)
+	if (o_ptr->timeout)
 	{
 		if (flush_failure) flush();
 		msg_print("The rod is still charging.");
@@ -2805,6 +2635,8 @@ void do_cmd_zap_rod(int item)
 	skill_exp(SKILL_DEVICE);
 
 
+
+
 	/* Analyze the rod */
 	switch (o_ptr->k_idx)
 	{
@@ -2812,7 +2644,6 @@ void do_cmd_zap_rod(int item)
 		{
 			if (detect_traps()) ident = TRUE;
 			if (object_aware_p(o_ptr) || ident) mark_traps();
-            o_ptr->pval = (10 + (randint(10)));
 			break;
 		}
 
@@ -2820,7 +2651,6 @@ void do_cmd_zap_rod(int item)
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
-			o_ptr->pval = 70;
 			break;
 		}
 
@@ -2828,54 +2658,26 @@ void do_cmd_zap_rod(int item)
 		{
 			ident = TRUE;
 			if (!ident_spell()) use_charge = FALSE;
-			o_ptr->pval = 10;
 			break;
 		}
 
 		case OBJ_ROD_RECALL:
 		{
-                if (dun_level && (p_ptr->max_dlv[cur_dungeon] > dun_level) && (cur_dungeon == recall_dungeon))
-                {
-                    if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv[cur_dungeon] = dun_level;
-
-                }
-            
-			if (p_ptr->word_recall == 0)
-			{
-				msg_print("The air about you becomes charged...");
-				if (dun_level > 0)
-				{
-					recall_dungeon = cur_dungeon;
-				}
-				else
-				{
-					cur_dungeon = recall_dungeon;
-				}
-				p_ptr->word_recall = 15 + randint(20);
-			}
-			else
-			{
-				msg_print("A tension leaves the air around you...");
-				p_ptr->word_recall = 0;
-			}
+			set_recall(FALSE);
 			ident = TRUE;
-			o_ptr->pval = 60;
 			break;
 		}
 
 		case OBJ_ROD_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
-            o_ptr->pval = 10 + (randint(11));
-			break;
+ 			break;
 		}
 
 		case OBJ_ROD_ENLIGHTENMENT:
 		{
 			map_area();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -2883,7 +2685,6 @@ void do_cmd_zap_rod(int item)
 		{
 			detect_all();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -2891,7 +2692,6 @@ void do_cmd_zap_rod(int item)
 		{
 			probing();
 			ident = TRUE;
-			o_ptr->pval = 50;
 			break;
 		}
 
@@ -2903,7 +2703,6 @@ void do_cmd_zap_rod(int item)
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
             if (set_image(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2912,7 +2711,6 @@ void do_cmd_zap_rod(int item)
 			if (hp_player(500)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2925,7 +2723,6 @@ void do_cmd_zap_rod(int item)
 			if (do_res_stat(A_DEX)) ident = TRUE;
 			if (do_res_stat(A_CON)) ident = TRUE;
 			if (do_res_stat(A_CHR)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2939,21 +2736,18 @@ void do_cmd_zap_rod(int item)
 			{
 				(void)set_fast(p_ptr->fast + 5);
 			}
-			o_ptr->pval = 99;
 			break;
 		}
 
 		case OBJ_ROD_TELEPORT_OTHER:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
 		case OBJ_ROD_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
-            o_ptr->pval = 15 + (randint(15));
 			break;
 		}
 
@@ -2962,35 +2756,30 @@ void do_cmd_zap_rod(int item)
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
 			ident = TRUE;
-			o_ptr->pval = 9;
 			break;
 		}
 
 		case OBJ_ROD_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir,(skill_set[SKILL_DEVICE].value/2))) ident = TRUE;
-			o_ptr->pval = 18;
 			break;
 		}
 
 		case OBJ_ROD_SLOW_MONSTER:
 		{
 			if (slow_monster(dir,(skill_set[SKILL_DEVICE].value/2))) ident = TRUE;
-			o_ptr->pval = 20;
 			break;
 		}
 
 		case OBJ_ROD_DRAIN_LIFE:
 		{
 			if (drain_life(dir, 75)) ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
 		case OBJ_ROD_POLYMORPH:
 		{
 			if (poly_monster(dir,(skill_set[SKILL_DEVICE].value/2))) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
@@ -2998,7 +2787,6 @@ void do_cmd_zap_rod(int item)
 		{
 			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
 			ident = TRUE;
-			o_ptr->pval = 12;
 			break;
 		}
 
@@ -3006,7 +2794,6 @@ void do_cmd_zap_rod(int item)
 		{
 			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
 			ident = TRUE;
-			o_ptr->pval = 11;
 			break;
 		}
 
@@ -3014,7 +2801,6 @@ void do_cmd_zap_rod(int item)
 		{
 			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
 			ident = TRUE;
-			o_ptr->pval = 15;
 			break;
 		}
 
@@ -3022,7 +2808,6 @@ void do_cmd_zap_rod(int item)
 		{
 			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
 			ident = TRUE;
-			o_ptr->pval = 13;
 			break;
 		}
 
@@ -3030,7 +2815,6 @@ void do_cmd_zap_rod(int item)
 		{
 			fire_ball(GF_ACID, dir, 60, 2);
 			ident = TRUE;
-			o_ptr->pval = 27;
 			break;
 		}
 
@@ -3038,7 +2822,6 @@ void do_cmd_zap_rod(int item)
 		{
 			fire_ball(GF_ELEC, dir, 32, 2);
 			ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
@@ -3046,7 +2829,6 @@ void do_cmd_zap_rod(int item)
 		{
 			fire_ball(GF_FIRE, dir, 72, 2);
 			ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -3054,7 +2836,6 @@ void do_cmd_zap_rod(int item)
 		{
 			fire_ball(GF_COLD, dir, 48, 2);
 			ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
@@ -3062,7 +2843,6 @@ void do_cmd_zap_rod(int item)
 		{
             call_chaos(skill_set[SKILL_DEVICE].value/2);
 			ident = TRUE;
-            o_ptr->pval = 250;
 			break;
 		}
 	}
@@ -3083,16 +2863,27 @@ void do_cmd_zap_rod(int item)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
-	/* Hack -- deal with cancelled zap */
-	if (!use_charge)
+	/* Do nothing more if cancelled. */
+	if (!use_charge) return;
+
+	/* Most rods simply use the pval to decide their recharging rate. */
+	if (o_ptr->pval >= 0) o_ptr->timeout = o_ptr->pval;
+	else
 	{
-		o_ptr->pval = 0;
-		return;
+		/* A few rods use negative pvals to indicate a variable timeout. */
+		int timeout_table[][2] =
+		{
+			{	11,20	}, /* Trap Location */
+			{	11,21	}, /* Illumination */
+			{	16,30	}, /* Disarming */
+		};
+
+		int *t = timeout_table[-1-o_ptr->pval];
+		o_ptr->timeout = rand_range(t[0], t[1]);
 	}
 
-
 	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
+	if ((is_inventory_p(o_ptr)) && (o_ptr->number > 1))
 	{
 		object_type forge;
 		object_type *q_ptr;
@@ -3107,12 +2898,12 @@ void do_cmd_zap_rod(int item)
 		q_ptr->number = 1;
 
 		/* Restore "charge" */
-		o_ptr->pval = 0;
+		o_ptr->timeout = 0;
 
 		/* Unstack the used item */
 		o_ptr->number--;
 		total_weight -= q_ptr->weight;
-		item = inven_carry(q_ptr, FALSE);
+		inven_carry(q_ptr);
 
 		/* Message */
 		msg_print("You unstack your rod.");
@@ -3265,37 +3056,25 @@ static bool brand_bolts(void)
  * Note that it always takes a turn to activate an artifact, even if
  * the user hits "escape" at the "direction" prompt.
  */
-void do_cmd_activate(int item)
+void do_cmd_activate(object_type *o_ptr)
 {
     int         i, k, dir, chance;
-
-	object_type *o_ptr;
 
 
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
 
 	/* Get an item if we weren't passed one from the inventory*/
-	if(item == -999)
+	if(!o_ptr)
 	{
+		errr err;
+
 		/* Get an item (from equip) */
-		if (!get_item(&item, "Activate which item? ", TRUE, FALSE, FALSE))
+		if (!((o_ptr = get_item(&err, "Activate which item? ", TRUE, FALSE, FALSE))))
 		{
-			if (item == -2) msg_print("You have nothing to activate.");
+			if (err == -2) msg_print("You have nothing to activate.");
 			return;
 		}
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	/* Prepare the hook */
@@ -3311,7 +3090,7 @@ void do_cmd_activate(int item)
 	item_tester_hook = 0;
 
 	/* Take a turn */
-	energy_use = TURN_ENERGY/10;
+	energy_use = item_use_energy(o_ptr);
 
 
 	/* Roll for failure. */
@@ -3375,38 +3154,14 @@ void do_cmd_activate(int item)
                 msg_print("The gemstone flashes bright red!");
 				wiz_lite();
                 msg_print("The gemstone drains your vitality...");
-                take_hit(damroll(3,8), "the Gemstone 'Trapezohedron'");
+                take_hit(damroll(3,8), "the Gemstone 'Trapezohedron'", MON_DANGEROUS_EQUIPMENT);
 				(void)detect_traps();
 				mark_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
                 if (get_check("Activate recall? "))
                 {
-                    if (dun_level && (p_ptr->max_dlv[cur_dungeon] > dun_level) && (cur_dungeon == recall_dungeon))
-                        {
-                            if (get_check("Reset recall depth? "))
-                            p_ptr->max_dlv[cur_dungeon] = dun_level;
-
-                        }
-
-                    if (p_ptr->word_recall == 0)
-                    {
-                        p_ptr->word_recall = randint(20) + 15;
-						if (dun_level > 0)
-						{
-							recall_dungeon = cur_dungeon;
-						}
-						else
-						{
-							cur_dungeon = recall_dungeon;
-						}
-                        msg_print("The air about you becomes charged...");
-                    }
-                    else
-                    {
-                        p_ptr->word_recall = 0;
-                        msg_print("A tension leaves the air around you...");
-                    }
+					set_recall(FALSE);
                 }
 
                 o_ptr->timeout = rand_int(20) + 20;
@@ -3868,32 +3623,15 @@ void do_cmd_activate(int item)
 
 			case ART_GHARNE:
 			{
-                if (dun_level && (p_ptr->max_dlv[cur_dungeon] > dun_level) && (recall_dungeon == cur_dungeon))
+                if (dun_level && (p_ptr->max_dlv > dun_level) && (recall_dungeon == cur_dungeon))
                 {
                     if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv[cur_dungeon] = dun_level;
+                    p_ptr->max_dlv = dun_level;
 
                 }
                 
 				msg_print("Your scythe glows soft white...");
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					if (dun_level > 0)
-					{
-						recall_dungeon = cur_dungeon;
-					}
-					else
-					{
-						cur_dungeon = recall_dungeon;
-					}
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall(FALSE);
 				o_ptr->timeout = 200;
 				break;
 			}
@@ -4630,7 +4368,7 @@ static bool activate_random_artifact(object_type * o_ptr)
                    }
                } else {
                    if (summon_specific_friendly((int)py,(int)px, (int)(plev * 1.5),
-                       (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD),
+                       (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD),
                            (bool)(((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE))) {
                    msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
                    msg_print("Ancient, long-dead forms arise from the ground to serve you!");
@@ -4932,32 +4670,15 @@ static bool activate_random_artifact(object_type * o_ptr)
 
             case ACT_RECALL:
 			{
-                if (dun_level && (p_ptr->max_dlv[cur_dungeon] > dun_level) && (recall_dungeon == cur_dungeon))
+                if (dun_level && (p_ptr->max_dlv > dun_level) && (recall_dungeon == cur_dungeon))
                 {
                     if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv[cur_dungeon] = dun_level;
+                    p_ptr->max_dlv = dun_level;
 
                 }
                 
                 msg_print("It glows soft white...");
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					if (dun_level > 0)
-					{
-						recall_dungeon = cur_dungeon;
-					}
-					else
-					{
-						cur_dungeon = recall_dungeon;
-					}
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall(FALSE);
 				o_ptr->timeout = 200;
 				break;
 			}

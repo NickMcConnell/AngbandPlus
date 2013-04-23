@@ -2153,7 +2153,8 @@ static errr term_data_init(term_data *td, int i)
 	/* Prepare the standard font */
 	MAKE(td->fnt, infofnt);
 	Infofnt_set(td->fnt);
-	Infofnt_init_data(font);
+	if (Infofnt_init_data(font))
+		quit_fmt("Failed to initialise font %s", font); /* Any better ideas? */
 
 	/* Hack -- key buffer size */
 	num = ((i == 0) ? 1024 : 16);
@@ -2396,7 +2397,7 @@ errr init_x11(int argc, char **argv)
 	if (arg_graphics)
 	{
 		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+		strnfmt(filename, 1024, "%v", path_build_f2, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
 		/* Use the "16x16.bmp" file if it exists */
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -2413,7 +2414,7 @@ errr init_x11(int argc, char **argv)
 		else
 		{
 			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
+			strnfmt(filename, 1024, "%v", path_build_f2, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
 
 			/* Use the "8x8.bmp" file if it exists */
 			if (0 == fd_close(fd_open(filename, O_RDONLY)))

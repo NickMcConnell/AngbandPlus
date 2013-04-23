@@ -284,7 +284,7 @@
 /*
  * Register score if the player quits.
  */
-/*#define SCORE_QUITTERS*/
+#define SCORE_QUITTERS
 
 
 /*
@@ -408,6 +408,15 @@
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
 #endif
+
+
+/*
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref-files and character-dumps.
+ */
+#ifdef SET_UID
+#define PRIVATE_USER_PATH "~/.angband"
+#endif /* SET_UID */
 
 
 /*

@@ -560,11 +560,8 @@ static bool showfile(cptr name, byte col)
 	FILE *fp;
 	char buf[1024];
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, name);
-
 	/* Check that the filename refers to a real file */
-	if (!(fp = my_fopen(buf, "r"))) return FALSE;
+	if (!(fp = my_fopen_path(ANGBAND_DIR_FILE, name, "r"))) return FALSE;
 
 	/* Dump the file to the screen */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -644,17 +641,34 @@ void do_cmd_options_aux(int page, cptr info, cptr file)
 		/* Display the options */
 		for (i = 0; i < n; i++)
 		{
-			byte a = TERM_WHITE;
+			int a;
+			cptr state, effective;
 
 			/* Color current option */
-			if (i == k) a = TERM_L_BLUE;
+			if (i == k)
+				a = TERM_L_BLUE;
+			else
+				a = TERM_WHITE;
+
+			if (page != OPTS_BIRTH)
+				effective = "";
+			else if (option_info[opt[i]+1].o_page != OPTS_BIRTHR)
+				effective = ".... ";
+			else if (*option_info[opt[i]+1].o_var)
+				effective = "(yes)";
+			else
+				effective = "(no) ";
+
+			if (opt_is_forced(opt[i]))
+				state = "N/A";
+			else if (*option_info[opt[i]].o_var)
+				state = "yes";
+			else
+				state = "no ";
 
 			/* Display the option text */
-			sprintf(buf, "%-48s: %s  (%s)",
-			        option_info[opt[i]].o_desc,
-			        (opt_is_forced(opt[i])) ? "N/A" :
-			        (*option_info[opt[i]].o_var ? "yes" : "no "),
-			        option_info[opt[i]].o_text);
+			sprintf(buf, "%-48s: %s  %s(%s)", option_info[opt[i]].o_desc,
+				state, effective, option_info[opt[i]].o_text);
 			c_prt(a, buf, i + 2, 0);
 }
 
@@ -799,7 +813,7 @@ static void do_cmd_options_win(void)
 			cptr s = windows[j].name;
 
 			/* Use color */
-			if (use_color && (j == x)) a = TERM_L_BLUE;
+			if (j == x) a = TERM_L_BLUE;
 
 			/* Window name, staggered, centered */
 			Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
@@ -813,7 +827,7 @@ static void do_cmd_options_win(void)
 			cptr str = window_flag_desc[i];
 
 			/* Use color */
-			if (use_color && (i == y)) a = TERM_L_BLUE;
+			if (i == y) a = TERM_L_BLUE;
 
 			/* Unused option */
 			if (!str) str = "(Unused option)";
@@ -829,7 +843,7 @@ static void do_cmd_options_win(void)
 				char c1 = '.', c2 = ' ';
 
 				/* Use color */
-				if (use_color && (i == y) && (j == x)) a = TERM_L_BLUE;
+				if ((i == y) && (j == x)) a = TERM_L_BLUE;
 
 				/* Active flags */
 				if (REP(j,i)) c1 = min+REP(j,i);
@@ -1000,6 +1014,135 @@ static void do_cmd_options_hp(void)
 	help_track(NULL);
 }
 
+/*
+ * Actually dump options to an open file.
+ *
+ * This does not dump cheat options on the assumption that this is desired.
+ * It does not dump autosave frequency, base delay or hitpoint warning level
+ * as the game has no way of loading these.
+ */
+static void option_dump_aux(FILE *fff)
+{
+	uint i,j;
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+
+	/* Start dumping */
+	fprintf(fff, "# Automatic option dump\n\n");
+
+	for (i = 0; option_info[i].o_var; i++)
+	{
+		/* Paranoia - require a real option */
+		if (!option_info[i].o_text) continue;
+
+		/* Require a non-cheat option. */
+		if (option_info[i].o_page == OPTS_CHEAT) continue;
+
+		/* Comment */
+		fprintf(fff, "# Option '%s'\n", option_info[i].o_desc);
+
+		/* Dump the option */
+		if ((*option_info[i].o_var))
+		{
+			fprintf(fff, "Y:%s\n\n", option_info[i].o_text);
+		}
+		else
+		{
+			fprintf(fff, "X:%s\n\n", option_info[i].o_text);
+		}
+	}
+
+	/* Dump window flags */
+
+	fprintf(fff, "# Reset window flags\n");
+	fprintf(fff, "W:---reset---\n");
+
+	for (i = 1; i < N_ELEMENTS(windows); i++)
+	{
+		/* Comment */
+		fprintf(fff, "\n#Window '%s'\n", windows[i].name);
+
+		for (j = 0; j < N_ELEMENTS(window_flag_desc); j++)
+		{
+			cptr goodpri = ".abcdefghij";
+
+			/* Not a real display. */
+			if (!window_flag_desc[j]) continue;
+
+			/* Not set. */
+			if (!windows[i].rep[j] && !windows[i].pri[j]) continue;
+
+			/* Dump the values. */
+			fprintf(fff, "W:%s:%s:%c:%c\n", windows[i].name,
+				window_flag_desc[j]+8, goodpri[windows[i].rep[j]],
+				goodpri[windows[i].pri[j]]);
+		}
+	}
+
+	/* Mention options which can't be read. */
+	fprintf(fff, "\n\n# Unparsable options\n\n");
+	fprintf(fff, "# Base delay factor %d\n",
+		delay_factor * delay_factor * delay_factor);
+	fprintf(fff, "# Hitpoint warning %d\n", hitpoint_warn * 10);
+	fprintf(fff, "# Autosave frequency %d\n\n", autosave_freq);
+}
+
+#define DCO_ERROR_ABORT	1
+#define DCO_ERROR_FILE	2
+
+/*
+ * Dump the options to a file.
+ */
+static errr option_dump(void)
+{
+	FILE *fff;
+	char ftmp[256];
+
+	/* Prompt */
+	prt("Command: Append options to a file", 21, 0);
+
+	/* Prompt */
+	prt("File: ", 21, 0);
+
+	/* Default filename */
+	sprintf(ftmp, "%.251s.prf", player_base);
+
+	/* Handle abort. */
+	if (!askfor_aux(ftmp, 256)) return DCO_ERROR_ABORT;
+
+	fff = my_fopen_path(ANGBAND_DIR_USER, ftmp, "a");
+
+	if (!fff) return DCO_ERROR_FILE;
+
+	option_dump_aux(fff);
+
+	fclose(fff);
+
+	return SUCCESS;
+}
+
+static errr option_load(void)
+{
+	char ftmp[256];
+
+	/* Prompt */
+	prt("Command: Append options to a file", 21, 0);
+
+	prt("File: ", 21, 0);
+
+	/* Default filename */
+	sprintf(ftmp, "%.251s.prf", player_base);
+
+	/* Handle abort. */
+	if (!askfor_aux(ftmp, 256)) return DCO_ERROR_ABORT;
+
+	/* Try to process the named file. */
+	if (process_pref_file(ftmp)) return DCO_ERROR_FILE;
+
+	return SUCCESS;
+}
+
 typedef struct option_list option_list;
 struct option_list
 {
@@ -1007,6 +1150,7 @@ struct option_list
 	cptr text;
 	int num;
 	char ch;
+	byte x;
 	byte y;
 };
 
@@ -1014,22 +1158,27 @@ struct option_list
 #define OPTS_HP	-2
 #define OPTS_SAVE	-3
 #define OPTS_WINDOW	-4
+#define OPTS_TO_FILE -5
+#define OPTS_FROM_FILE -6
 
 static option_list opt_lists[] =
 {
-	{"User Interface Options", NULL, OPTS_UI, '1', 4},
-	{"Disturbance Options", NULL, OPTS_DISTURB, '2', 5},
-	{"Creature Options", NULL, OPTS_MON, '3', 6},
-	{"Object Options", NULL, OPTS_OBJ, '4', 7},
-	{"Performance Options", NULL, OPTS_PERF, '5', 8},
-	{"Miscellaneous Options", NULL, OPTS_MISC, '6', 9},
-	{"Base Delay Factor", NULL, OPTS_DELAY, 'D', 11},
-	{"Hitpoint Warning", NULL, OPTS_HP, 'H', 12},
-	{"Autosave Options", NULL, OPTS_SAVE, 'A', 13},
-	{"Window Flags", NULL, OPTS_WINDOW, 'W', 14},
-	{"Spoiler Options", "spoiler.txt", OPTS_SPOIL, 'S', 16},
-	{"Cheating Optins", "o_cheat.txt", OPTS_CHEAT, 'C', 17},
-	{0,0,0,0,0}
+	{"User Interface Options", NULL, OPTS_UI, '1', 5, 4},
+	{"Disturbance Options", NULL, OPTS_DISTURB, '2', 5, 5},
+	{"Creature Options", NULL, OPTS_MON, '3', 5, 6},
+	{"Object Options", NULL, OPTS_OBJ, '4', 5, 7},
+	{"Performance Options", NULL, OPTS_PERF, '5', 5, 8},
+	{"Miscellaneous Options", NULL, OPTS_MISC, '6', 5, 9},
+	{"Birth Options", NULL, OPTS_BIRTH, 'B', 5, 11},
+	{"Spoiler Options", "spoiler.txt", OPTS_SPOIL, 'S', 5, 12},
+	{"Cheating Options", "o_cheat.txt", OPTS_CHEAT, 'C', 5, 13},
+	{"Base Delay Factor", NULL, OPTS_DELAY, 'D', 43, 4},
+	{"Hitpoint Warning", NULL, OPTS_HP, 'H', 43, 5},
+	{"Autosave Options", NULL, OPTS_SAVE, 'A', 43, 6},
+	{"Window Flags", NULL, OPTS_WINDOW, 'W', 43, 7},
+	{"Save options", NULL, OPTS_TO_FILE, 'U', 43, 9},
+	{"Load options", NULL, OPTS_FROM_FILE, 'O', 43, 10},
+	{0,0,0,0,0,0}
 };
 
 
@@ -1067,7 +1216,8 @@ void do_cmd_options(void)
 		/* Give some choices */
 		for (ol_ptr = opt_lists; ol_ptr->title; ol_ptr++)
 		{
-			prt(format("(%c) %s", ol_ptr->ch, ol_ptr->title), ol_ptr->y, 5);
+			prt(format("(%c) %s", ol_ptr->ch, ol_ptr->title), ol_ptr->y,
+				ol_ptr->x);
 		}
 
 		/* Prompt */
@@ -1088,6 +1238,10 @@ void do_cmd_options(void)
 				break;
 			}
 			if (FORCEUPPER(k) != ol_ptr->ch) continue;
+
+			/* Give a message (usually cleared immediately). */
+			roff(ol_ptr->title);
+
 			if (ol_ptr->num > -1)
 			{
 				do_cmd_options_aux(ol_ptr->num, ol_ptr->title, ol_ptr->text);
@@ -1112,6 +1266,32 @@ void do_cmd_options(void)
 				case OPTS_WINDOW:
 				{
 					do_cmd_options_win();
+					break;
+				}
+				case OPTS_TO_FILE:
+				{
+					errr err = option_dump();
+					if (err == DCO_ERROR_FILE)
+					{
+						msg_print("Failed!");
+					}
+					else if (err == SUCCESS)
+					{
+						msg_print("Done.");
+					}
+					break;
+				}
+				case OPTS_FROM_FILE:
+				{
+					errr err = option_load();
+					if (err == DCO_ERROR_FILE)
+					{
+						msg_print("Failed!");
+					}
+					else if (err == SUCCESS)
+					{
+						msg_print("Done.");
+					}
 					break;
 				}
 			}
@@ -1166,17 +1346,12 @@ static errr macro_dump(cptr fname)
 
 	FILE *fff;
 
-	char buf[1024];
-
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Append to the file */
-	fff = my_fopen(buf, "a");
+	fff = my_fopen_path(ANGBAND_DIR_USER, fname, "a");
 
 	/* Failure */
 	if (!fff) return (-1);
@@ -1194,21 +1369,12 @@ static errr macro_dump(cptr fname)
 		/* Start the macro */
 		fprintf(fff, "# Macro '%d'\n\n", i);
 
-		/* Extract the action */
-		ascii_to_text(buf, macro__act[i]);
+		/* Dump the action. */
+		my_fprintf(fff, "A:%v\n", ascii_to_text_f1, macro__act[i]);
 
-		/* Dump the macro */
-		fprintf(fff, "A:%s\n", buf);
-
-		/* Extract the action */
-		ascii_to_text(buf, macro__pat[i]);
-
-		/* Dump normal macros */
-		fprintf(fff, "P:%s\n", buf);
-
-		/* End the macro */
-		fprintf(fff, "\n\n");
-}
+		/* Dump the trigger. */
+		my_fprintf(fff, "P:%v\n\n", ascii_to_text_f1, macro__pat[i]);
+	}
 
 	/* Start dumping */
 	fprintf(fff, "\n\n\n\n");
@@ -1232,9 +1398,6 @@ static errr macro_dump(cptr fname)
 static void do_cmd_macro_aux(char *buf)
 {
 	int i, n = 0;
-
-	char tmp[1024];
-
 
 	/* Flush */
 	flush();
@@ -1268,12 +1431,9 @@ static void do_cmd_macro_aux(char *buf)
 	flush();
  
  
-	/* Convert the trigger */
-	ascii_to_text(tmp, buf);
-
 	/* Hack -- display the trigger */
-	Term_addstr(-1, TERM_WHITE, tmp);
-	}
+	Term_addstr(-1, TERM_WHITE, format("%v", ascii_to_text_f1, buf));
+}
 
 #endif
 
@@ -1286,21 +1446,15 @@ static void do_cmd_macro_aux(char *buf)
  */
 static void do_cmd_macro_aux_keymap(char *buf)
 {
-	char tmp[1024];
-
-
+	cptr tmp;
 	/* Flush */
 	flush();
-
 
 	/* Get a key */
 	buf[0] = inkey();
 	buf[1] = '\0';
 
-
-	/* Convert to ascii */
-	ascii_to_text(tmp, buf);
-
+	tmp = format("%v", ascii_to_text_f1, buf);
 
 	/* Hack -- display the trigger */
 	Term_addstr(-1, TERM_WHITE, tmp);
@@ -1328,20 +1482,14 @@ static errr keymap_dump(cptr fname)
 
 	FILE *fff;
 
-	char key[1024];
-	char buf[1024];
-
 	int mode = keymap_mode();
 
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Append to the file */
-	fff = my_fopen(buf, "a");
+	fff = my_fopen_path(ANGBAND_DIR_USER, fname, "a");
 
 	/* Failure */
 	if (!fff) return (-1);
@@ -1358,8 +1506,9 @@ static errr keymap_dump(cptr fname)
 
 	/* Dump them */
 	for (i = 0; i < 256; i++)
-		{
+	{
 		cptr act;
+		char buf[2]=" ";
 
 		/* Loop up the keymap */
 		act = keymap_act[mode][i];
@@ -1369,16 +1518,11 @@ static errr keymap_dump(cptr fname)
 
 		/* Encode the key */
 		buf[0] = i;
-		buf[1] = '\0';
-		ascii_to_text(key, buf);
-
-		/* Encode the action */
-		ascii_to_text(buf, act);
 
 		/* Dump the macro */
-		fprintf(fff, "A:%s\n", buf);
-                fprintf(fff, "C:%d:%s\n", mode, key);
-		}
+		my_fprintf(fff, "A:%v\nC:%d:%v\n", ascii_to_text_f1, buf,
+			mode, ascii_to_text_f1, act);
+	}
 
 	/* Start dumping */
 	fprintf(fff, "\n\n\n");
@@ -1436,7 +1580,7 @@ void do_cmd_macros(void)
 		prt("Current action (if any) shown below:", 20, 0);
 
 		/* Analyze the current action */
-		ascii_to_text(buf, macro__buf);
+		strnfmt(buf, sizeof(buf), "%v", ascii_to_text_f1, macro__buf);
 
 		/* Display the current action */
 		prt(buf, 22, 0);
@@ -1554,7 +1698,7 @@ void do_cmd_macros(void)
 				strcpy(macro__buf, macro__act[k]);
 
 				/* Analyze the current action */
-				ascii_to_text(buf, macro__buf);
+				strnfmt(buf, sizeof(buf), "%v", ascii_to_text_f1, macro__buf);
 
 				/* Display the current action */
 				prt(buf, 22, 0);
@@ -1583,13 +1727,13 @@ void do_cmd_macros(void)
 			prt("Action: ", 20, 0);
 
 			/* Convert to text */
-			ascii_to_text(tmp, macro__buf);
+			strnfmt(tmp, sizeof(tmp), "%v", ascii_to_text_f1, macro__buf);
 
 			/* Get an encoded action */
 			if (askfor_aux(tmp, 80))
 			{
 				/* Convert to ascii */
-				text_to_ascii(macro__buf, tmp);
+				strnfmt(macro__buf, 1024, "%v", text_to_ascii_f1, tmp);
 
 				/* Link the macro */
 				macro_add(buf, macro__buf);
@@ -1677,7 +1821,7 @@ void do_cmd_macros(void)
 				strcpy(macro__buf, act);
 
 				/* Analyze the current action */
-				ascii_to_text(buf, macro__buf);
+				strnfmt(buf, sizeof(buf), "%v", ascii_to_text_f1, macro__buf);
 	
 				/* Display the current action */
 				prt(buf, 22, 0);
@@ -1706,13 +1850,13 @@ void do_cmd_macros(void)
 			prt("Action: ", 20, 0);
 
 			/* Convert to text */
-			ascii_to_text(tmp, macro__buf);
+			strnfmt(tmp, sizeof(tmp), "%v", ascii_to_text_f1, macro__buf);
 
 			/* Get an encoded action */
 			if (askfor_aux(tmp, 80))
 {
 				/* Convert to ascii */
-				text_to_ascii(macro__buf, tmp);
+				strnfmt(macro__buf, 1024, "%v", text_to_ascii_f1, tmp);
 
 				/* Free old keymap */
 				string_free(keymap_act[mode][(byte)(buf[0])]);
@@ -1769,7 +1913,7 @@ void do_cmd_macros(void)
 			if (!askfor_aux(buf, 80)) continue;
 
 			/* Extract an action */
-			text_to_ascii(macro__buf, buf);
+			strnfmt(macro__buf, 1024, "%v", text_to_ascii_f1, buf);
 		}
 
 #endif /* ALLOW_MACROS */
@@ -1875,7 +2019,7 @@ get_visuals(f_info, f_name)
 static void get_visuals_mon(int i, cptr *name, byte *da, char *dc, byte **xa, char **xc)
 {
 	get_visuals(r_info, (char*)NULL)
-	*name = monster_desc_aux(0, r_info+i, 1, 0);
+	*name = format("%v", monster_desc_aux_f3, r_info+i, 1, 0);
 }
 
 /*
@@ -1883,7 +2027,6 @@ static void get_visuals_mon(int i, cptr *name, byte *da, char *dc, byte **xa, ch
  */
 static void get_visuals_obj(int i, cptr *name, byte *da, char *dc, byte **xa, char **xc)
 {
-	C_TNEW(o_name, ONAME_MAX, char);
 	object_type forge;
 
 	/* Get most of the visuals. */
@@ -1892,14 +2035,8 @@ static void get_visuals_obj(int i, cptr *name, byte *da, char *dc, byte **xa, ch
 	/* Create the object */
 	object_prep(&forge, i);
 
-	/* Describe the object without flavour. */
-	object_desc_store(o_name, &forge, FALSE, 0);
-
 	/* Place in a temporary buffer. */
-	(*name) = format("%s", o_name);
-
-	/* And release the string if necessary. */
-	TFREE(o_name);
+	(*name) = format("%v", object_desc_store_f3, &forge, FALSE, 0);
 }
 
 /*
@@ -1927,7 +2064,6 @@ static void get_visuals_unident(int i, cptr *name, byte *da, char *dc, byte **xa
 	/* Set everything up. k_info[1] is arbitrary, but it certainly exists. */
 	object_kind hack_k, *k_ptr = &k_info[1];
 	object_type o_ptr[1];
-	C_TNEW(o_name, ONAME_MAX, char);
 
 	/* Get most of the visuals (including a mangled name). */
 	get_visuals(u_info, (char*)NULL);
@@ -1942,17 +2078,11 @@ static void get_visuals_unident(int i, cptr *name, byte *da, char *dc, byte **xa
 	k_ptr->u_idx = i;
 	object_prep(o_ptr, k_ptr-k_info);
 
-	/* Get the name. */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	/* Place the name in a temporary buffer. */
+	(*name) = format("%v", object_desc_f3, o_ptr, FALSE, 0);
 
 	/* Replace the real *k_ptr */
 	COPY(k_ptr, &hack_k, object_kind);
-
-	/* Place the name in a temporary buffer. */
-	(*name) = format("%s", o_name);
-
-	/* And release the string if necessary. */
-	TFREE(o_name);
 }
 
 /*
@@ -2146,13 +2276,13 @@ void do_cmd_visuals(void)
 			if (!askfor_aux(tmp, 70)) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+			strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_USER, tmp);
 
 			/* Drop priv's */
 			safe_setuid_drop();
 
 			/* Append to the file */
-			fff = my_fopen(buf, "a");
+			fff = my_fopen_path(ANGBAND_DIR_USER, tmp, "a");
 
 			/* Grab priv's */
 			safe_setuid_grab();
@@ -2297,6 +2427,14 @@ dcv_retry:
 				/* All done */
 				if (i == ESCAPE) break;
 
+				/* Hack - allow control codes to be entered separately. */
+				if (i == '^')
+				{
+					char c;
+					if (get_com("Control: ", &c)) i = KTRL(c);
+					else continue;
+				}
+
 				/* Split i into base character and modifier. */
 				inc = (iscntrl(i)) ? 0 : (islower(i)) ? 1 : -1;
 				i = 'a'+i-(iscntrl(i) ? KTRL('A') : (islower(i)) ? 'a' : 'A');
@@ -2402,8 +2540,6 @@ void do_cmd_colors(void)
 
 	char tmp[160];
 
-	char buf[1024];
-
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2483,14 +2619,11 @@ void do_cmd_colors(void)
 			/* Get a filename */
 			if (!askfor_aux(tmp, 70)) continue;
 
-			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
-
 			/* Drop priv's */
 			safe_setuid_drop();
 
 			/* Append to the file */
-			fff = my_fopen(buf, "a");
+			fff = my_fopen_path(ANGBAND_DIR_USER, tmp, "a");
 
 			/* Grab priv's */
 			safe_setuid_grab();
@@ -2700,13 +2833,13 @@ void do_cmd_feeling(bool FeelingOnly)
 	/* If you are in a town */
 		if(!FeelingOnly)
 		{
-			if(wild_grid[wildy][wildx].dungeon < MAX_TOWNS)
+			if(is_town_p(wildy, wildx))
 			{
-				msg_format("You are in %s.",town_defs[cur_town].name);
+				msg_format("You are in %s.",town_name+town_defs[cur_town].name);
 			}
 			else if(wild_grid[wildy][wildx].dungeon < MAX_CAVES)
 			{
-				msg_format("You are outside %s.",dun_defs[wild_grid[wildy][wildx].dungeon].name);
+				msg_format("You are outside %s.",dun_name+dun_defs[wild_grid[wildy][wildx].dungeon].name);
 			}
 			else
 			{
@@ -2719,7 +2852,7 @@ void do_cmd_feeling(bool FeelingOnly)
 	/* You are in a dungeon, so... */
 	if(!FeelingOnly)
 	{
-		msg_format("You are in %s.",dun_defs[cur_dungeon].name);
+		msg_format("You are in %s.",dun_name+dun_defs[cur_dungeon].name);
 
 		/* Show quest status */
 		if (is_quest(dun_level))
@@ -2754,20 +2887,14 @@ void do_cmd_feeling(bool FeelingOnly)
  */
 void do_cmd_load_screen(void)
 {
-	int y, x;
-
-	bool okay = TRUE;
+	char buf[1024];
+	int y, x, w, h;
 
 	FILE *fff;
 
-	char buf[1024];
-
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
 
 	/* Append to the file */
-	fff = my_fopen(buf, "r");
+	fff = my_fopen_path(ANGBAND_DIR_USER, "dump.txt", "r");
 
 	/* Oops */
 	if (!fff) return;
@@ -2782,17 +2909,15 @@ void do_cmd_load_screen(void)
 	/* Clear the screen */
 	Term_clear();
 
+	Term_get_size(&w, &h);
 
 	/* Load the screen */
-	for (y = 0; okay && (y < 24); y++)
+	for (y = 0; y < h && !my_fgets(fff, buf, 1024) && *buf; y++)
 	{
-		/* Get a line of data */
-		if (my_fgets(fff, buf, 1024)) okay = FALSE;
-
 		/* Show each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < w && buf[2*x]; x++)
 		{
-			byte a = (buf[2*x]-' ')%32;
+			byte a = (buf[2*x]-' ')%0x10;
 			unsigned char c = (buf[2*x+1]-' ')+(((buf[2*x]-' ')/0x10)*0x40);
 
 			/* Put the attr/char */
@@ -2844,16 +2969,14 @@ void do_cmd_save_screen(void)
 	{
 		int y, x;
 
-		byte a = 0;
-		unsigned char c = ' ';
+		byte a;
+		unsigned char c;
+		int w,h;
 
 		FILE *fff;
 
 		char buf[1024];
 
-
-		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
 
 		/* File type is "TEXT" */
 		FILE_TYPE(FILE_TYPE_TEXT);
@@ -2862,7 +2985,7 @@ void do_cmd_save_screen(void)
 		safe_setuid_drop();
 
 		/* Append to the file */
-		fff = my_fopen(buf, "w");
+		fff = my_fopen_path(ANGBAND_DIR_USER, "dump.txt", "w");
 
 		/* Hack -- grab permissions */
 		safe_setuid_grab();
@@ -2870,19 +2993,13 @@ void do_cmd_save_screen(void)
 		/* Oops */
 		if (!fff) return;
 
-
-		/* Enter "icky" mode */
-		character_icky = TRUE;
-
-		/* Save the screen */
-		Term_save();
-
+		Term_get_size(&w, &h);
 
 		/* Dump the screen (reloadable version) */
-		for (y = 0; y < 24; y++)
+		for (y = 0; y < h; y++)
 		{
 			/* Dump each row */
-			for (x = 0; x < 79; x++)
+			for (x = 0; x < w; x++)
 			{
 				/* Get the attr/char */
 				(void)(Term_what(x, y, &a, (char*)&c));
@@ -2965,48 +3082,51 @@ void do_cmd_save_screen(void)
 		/* Message */
 		msg_print("Screen dump saved.");
 		msg_print(NULL);
-
-
-		/* Restore the screen */
-		Term_load();
-
-		/* Leave "icky" mode */
-		character_icky = FALSE;
 	}
 }
 
 
-#if 0  /* This unfortunately doesn't work everywhere. */
-#define GET_SYMBOL_LEN	(strlen(CC_PREFIX "c" CC_PREFIX CC_PREFIX "w")+2)
-#else /* 0 */
-#define GET_SYMBOL_LEN 7
-#endif /* 0 */
-
 /*
  * A simple function to include a coloured symbol in a text file for
  * show_file().
+ *
+ * Format:
+ * "%v", get_symbol_f2, (byte)at, (char)ch
  */
-cptr get_symbol_aux(byte a, char c)
+void get_symbol_f2(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
 {
-	/* Hack - show_file() does not display unprintable characters,
-	 * so replace them with something it will display. */
-	if (!isprint(c)) c = '#';
+	uint at = va_arg(*vp, uint);
+	int ch = va_arg(*vp, int);
 
-	else if (strlen(CC_PREFIX) == 1 && c == CC_PREFIX[0])
-		return format("%s%c%s%s%sw", CC_PREFIX, atchar[a], CC_PREFIX, CC_PREFIX,
-			CC_PREFIX);
+	/* Paranoia - max is not long enough. */
+	if (max <= strlen("$c$$w")+2) return;
 
-	return format("%s%c%c%sw", CC_PREFIX, atchar[a], c, CC_PREFIX);
+	/* Check formatting. */
+	if (at != (byte)at || ch != (char)ch)
+	{
+		strcpy(buf, "(error)");
+	}
+	/* Double $ to print it if necessary. */
+	else if (ch == '$')
+	{
+		sprintf(buf, "$%c$$$w", atchar[at]);
+	}
+	/* Normal string. */
+	else
+	{
+		sprintf(buf, "$%c%c$w", atchar[at], ch);
+	}
 }
 
 /*
  * A wrapper to find an appropriate attr/char combination from the *_info
- * array. The isprint() check is necessary as show_file() reacts badly to
+ * array. The isprint() checks are necessary as show_file() reacts badly to
  * unprintable characters.
  */
 #define get_symbol(x_ptr) \
-	get_symbol_aux((x_ptr)->x_attr, \
-		isprint((x_ptr)->x_char) ? (x_ptr)->x_char : (x_ptr)->d_char)
+	get_symbol_f2, (x_ptr)->x_attr, \
+		isprint((x_ptr)->x_char) ? (x_ptr)->x_char : \
+		isprint((x_ptr)->d_char) ? (x_ptr)->d_char : '#'
 
 /*
  * Check the status of "artifacts"
@@ -3020,9 +3140,7 @@ static void do_cmd_knowledge_artifacts(void)
 	
 	if (fff)
 	{
-	int i, k, z, x, y;
-
-	C_TNEW(base_name, ONAME_MAX, char);
+	int i, k, x, y;
 
 	/* Allocate the "okay" array */
 	C_TNEW(okay, MAX_A_IDX, bool);
@@ -3099,45 +3217,21 @@ static void do_cmd_knowledge_artifacts(void)
 	for (k = 0; k < MAX_A_IDX; k++)
 	{
 		artifact_type *a_ptr = &a_info[k];
+		object_type q_ptr[1];
 
 		/* List "dead" ones */
 		if (!okay[k]) continue;
 
-		/* Paranoia */
-		strcpy(base_name, "Unknown Artifact");
-
-		/* Obtain the base object type */
-		z = a_ptr->k_idx;
-
-		/* Real object */
-		if (z)
-		{
-			object_type forge;
-			object_type *q_ptr;
-
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Create fake object */
-			object_prep(q_ptr, z);
-
-			/* Make it an artifact */
-			q_ptr->name1 = k;
-
-			/* Describe the artifact */
-			object_desc_store(base_name, q_ptr, FALSE, 0);
-		}
+		/* Skip "empty" ones */
+		if (!make_fake_artifact(q_ptr, k)) continue;
 
 		/* Hack -- Build the artifact name */
-		fprintf(fff, " %s   The %s\n",
-			get_symbol(&k_info[a_ptr->k_idx]), base_name);
+		my_fprintf(fff, " %v   %v\n", get_symbol(&k_info[a_ptr->k_idx]),
+			object_desc_store_f3, q_ptr, TRUE, 0);
 	}
 
 	/* Free the "okay" array */
 	TFREE(okay);
-
-	/* Free the "base_name" string */
-	TFREE(base_name);
 
 	/* Close the file */
 	my_fclose(fff);
@@ -3163,33 +3257,32 @@ static void do_cmd_knowledge_uniques(void)
 	FILE *fff;
 
 	char file_name[1024];
-	C_TNEW(m_name, MNAME_MAX, char);
 
 	/* Open a new file */
 	if (!((fff = my_fopen_temp(file_name, 1024)))) return;
 
 
 	/* Scan the monster races */
-	for (k = 1; k < MAX_R_IDX-1; k++)
+	for (k = 1; k < MAX_R_IDX; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
+
+		/* Skip "fake" monsters. */
+		if (is_fake_monster(r_ptr)) continue;
 
 		/* Only print Uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			bool dead = (r_ptr->max_num == 0);
+			quest_type *q_ptr = cnv_monster_to_quest(r_ptr);
+			char quest = (q_ptr && q_ptr->known) ? '!' : ' ';
 
 			/* Only display "known" uniques */
 			if (dead || spoil_mon || r_ptr->r_sights)
 			{
-				char sym[GET_SYMBOL_LEN];
-				strcpy(sym, get_symbol(r_ptr));
-
-				fprintf(fff, " %s %c %s%c%s is %s\n", sym,
-					(r_ptr->flags1 & RF1_GUARDIAN) ? '!' : ' ', CC_PREFIX, 
-					(dead) ? atchar[TERM_L_DARK] : atchar[TERM_WHITE],
-					monster_desc_aux(m_name, r_ptr, 1, MDF_DEF),
-					(dead ? "dead" : "alive"));
+				my_fprintf(fff, " %v %c $%c%v is %s\n", get_symbol(r_ptr),
+					quest,	(dead) ? 'D' : 'w', monster_desc_aux_f3,
+					r_ptr, 1, MDF_DEF, (dead) ? "dead" : "alive");
 			}
 		}
 	}
@@ -3240,14 +3333,11 @@ static void do_cmd_knowledge_pets(void)
 		/* Calculate "upkeep" for friendly monsters */
 		if (m_ptr->smart & (SM_ALLY))
 		{
-			C_TNEW(pet_name, MNAME_MAX, char);
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			t_friends++;
 			t_levels += r_ptr->level;
-			monster_desc(pet_name, m_ptr, 0x88, Term->wid-2);
-			strcat(pet_name, "\n");
-			fprintf(fff,"%s %s\n", get_symbol(r_ptr), pet_name);
-			TFREE(pet_name);
+			my_fprintf(fff, "%v %v\n",	get_symbol(r_ptr),
+				monster_desc_f2, m_ptr, 0x88);
 		}
 	}
 
@@ -3288,11 +3378,14 @@ static int count_kills(FILE *fff, bool noisy)
 	/* Monsters slain */
 	int kk, Total = 0;
 
-	for (kk = 1; kk < MAX_R_IDX-1; kk++)
+	for (kk = 1; kk < MAX_R_IDX; kk++)
 	{
 		monster_race *r_ptr = &r_info[kk];
 
 		s16b This = r_ptr->r_pkills;
+
+		/* Skip "fake" monsters. */
+		if (is_fake_monster(r_ptr)) continue;
 
 		Total += This;
 		if (This && noisy)
@@ -3302,9 +3395,8 @@ static int count_kills(FILE *fff, bool noisy)
 			else if (r_ptr->flags1 & RF1_UNIQUE) flags |= MDF_DEF;
 			else flags |= MDF_INDEF;
 			
-
-			fprintf(fff, " %s   ", get_symbol(r_ptr));
-			fprintf(fff, "%s\n", monster_desc_aux(0, r_ptr, This, flags));
+			my_fprintf(fff, " %v   %v\n", get_symbol(r_ptr),
+				monster_desc_aux_f3, r_ptr, This, flags);
 		}
 	}
 	return Total;
@@ -3419,7 +3511,6 @@ static void do_cmd_knowledge_deaths(void)
 		/* Display the sorted list. */
 		for (i = 0; i < Races; i++)
 		{
-			char sym[GET_SYMBOL_LEN];
 			monster_race *r_ptr = &r_info[races[i]];
 			int num = (r_ptr->flags1 & RF1_UNIQUE) ? 1 : r_ptr->r_deaths;
 			byte flags;
@@ -3436,12 +3527,10 @@ static void do_cmd_knowledge_deaths(void)
 				flags = 0;
 			}
 
-			strcpy(sym, get_symbol(r_ptr));
-
 			/* Format the string, including the monster's ASCII representation. */
-			fprintf(fff, " %s   %d w%s killed by %s.\n", sym, r_ptr->r_deaths,
-				(r_ptr->r_deaths == 1) ? "as" : "ere",
-				monster_desc_aux(0, r_ptr, num, flags));
+			my_fprintf(fff, " %v   %d w%s killed by %v.\n",
+				get_symbol(r_ptr), r_ptr->r_deaths, (r_ptr->r_deaths == 1) ?
+				"as" : "ere", monster_desc_aux_f3, r_ptr, num, flags);
 
 			/* Count the total. */
 			Deaths+=r_ptr->r_deaths;
@@ -3450,7 +3539,7 @@ static void do_cmd_knowledge_deaths(void)
 
 		/* Display a summary at the bottom. */
 		fprintf(fff,"----------------------------------------------\n");
-		fprintf(fff,"Total: Killed %lu times by %lu types of creature (%lu times by uniques).\n", Deaths, Races, Uniques);
+		fprintf(fff,"Total: Killed %lu times by %lu different things (%lu times by uniques).\n", Deaths, Races, Uniques);
 	}
 
 	TFREE(races);
@@ -3476,17 +3565,11 @@ static void do_cmd_knowledge_objects(void)
 
 	FILE *fff;
 
-	C_TNEW(o_name, ONAME_MAX, char);
-
 	char file_name[1024];
 
 
 	/* Open a new file */
-	if (!((fff = my_fopen_temp(file_name, 1024))))
-	{
-		TFREE(o_name);
-		return;
-	}
+	if (!((fff = my_fopen_temp(file_name, 1024)))) return;
 
 	/* Scan the object kinds */
 	for (k = 1; k < MAX_K_IDX; k++)
@@ -3508,12 +3591,11 @@ static void do_cmd_knowledge_objects(void)
 			/* Create fake object */
 			object_prep(i_ptr, k);
 
-			/* Describe the object */
-			object_desc_store(o_name, i_ptr, FALSE, 0);
-
 			/* Print a message */
-			fprintf(fff, " %s   %s\n", get_symbol_aux(object_attr(i_ptr),
-				object_char(i_ptr)), o_name);
+			my_fprintf(fff, " %v   %v\n", get_symbol_f2,
+				object_attr(i_ptr), isprint(object_char(i_ptr)) ?
+				object_char(i_ptr) : '#',
+				object_desc_store_f3, i_ptr, FALSE, 0);
 		}
 	}
 
@@ -3525,8 +3607,6 @@ static void do_cmd_knowledge_objects(void)
 
 	/* Remove the file */
 	fd_kill(file_name);
-
-	TFREE(o_name);
 }
 
 /*
@@ -3556,8 +3636,171 @@ void do_cmd_knowledge_chaos_features(void)
 	fd_kill(file_name);
 }
 
+/*
+ * Return the apparent chance (in percent) of failure of a hit against the
+ * player by a monster with a given level using an attack with a given power.
+ *
+ * The same calculation is also used for traps.
+ */
+static int check_hit_percent(int power, int level)
+{
+	/* Calculate the player's apparent total AC. */
+	int ac = p_ptr->dis_ac + p_ptr->dis_to_a;
 
-#define STORE_NONE 99
+	int num = MAX(1, ac * 3 / 4);
+
+	int denom = MAX(num, power + level * 3);
+
+	return 5 + 90 * num / denom;
+}
+
+/*
+ * Output the effects derived from having your apparent AC to a file.
+ */
+static void do_cmd_knowledge_player_ac(FILE *fff)
+{
+	/* Calculate your current level, your recall level if in town. */
+	int ac = p_ptr->dis_ac + p_ptr->dis_to_a;
+	int lev;
+
+	/* In the dungeon. */
+	if (dun_level)
+	{
+		lev = dun_depth;
+	}
+	/* Previously in the dungeon. */
+	else if (p_ptr->max_dlv)
+	{
+		lev = p_ptr->max_dlv + dun_defs[recall_dungeon].offset;
+	}
+	/* Still on the surface. */
+	else
+	{
+		lev = 0;
+	}
+
+	/* See make_attack_normal(). */
+	fprintf(fff,
+		"You will take %d%% of the damage of attacks to hurt or to shatter.\n",
+		ac < 150 ? 100-100*ac/250 : 40);
+
+	/* See check_hit() in cmd1.c. */
+	fprintf(fff, "A dart trap has a %d%% chance of missing you.\n",
+		check_hit_percent(125, 0));
+
+	/* See check_hit() in melee1.c and make_attack_normal(). */
+	fprintf(fff, "A monster native to level %d which:\n", lev);
+	fprintf(fff, "   attacks to hurt has a %d%% chance of missing you.\n",
+		check_hit_percent(60, lev));
+	fprintf(fff, "   attacks to shoot acid has a %d%% chance of missing you.\n",
+		check_hit_percent(0, lev));
+}
+
+/*
+ * Work out what the player's apparent saving throw is. In most cases, this
+ * will be the actual saving throw, but an anti-magic shell can exist but be
+ * unknown.
+ */
+static void do_cmd_knowledge_player_save(FILE *fff)
+{
+	int skill_sav;
+
+	/* Anti-magic may be possessed unknowingly. */
+	if (p_ptr->anti_magic && p_ptr->skill_sav == 95)
+	{
+		/* Look for an object known to grant an anti-magic field. */
+		for (skill_sav = INVEN_WIELD; skill_sav <= INVEN_FEET; skill_sav++)
+		{
+			object_type o_ptr[1];
+			object_info_known(o_ptr, inventory+skill_sav, 0);
+			if (o_ptr->flags3 & TR3_NO_MAGIC) break;
+		}
+
+		/* Found one. */
+		if (skill_sav <= INVEN_FEET)
+		{
+			skill_sav = p_ptr->skill_sav;
+		}
+		/* Calculate what the saving throw would be otherwise (as in
+		 * calc_bonuses()). */
+		else
+		{
+			skill_sav = skill_set[SKILL_SAVE].value;
+
+			if (p_ptr->muta3 & MUT3_MAGIC_RES)
+			{
+				skill_sav += (15 + ((skill_set[SKILL_RACIAL].value/2) / 5));
+			}
+			
+			/* Affect Skill -- saving throw (WIS) */
+			skill_sav += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
+		}
+	}
+	else
+	{
+		skill_sav = p_ptr->skill_sav;
+	}
+
+	/* Only values between 0 and 101 have an effect. */
+	if (skill_sav < 0) skill_sav = 0;
+	else if (skill_sav > 101) skill_sav = 101;
+
+	fprintf(fff, "You have a %d%% saving throw.\n", skill_sav);
+}
+
+/*
+ * Print out various things about the player and his equipment.
+ * This should include all of the messages printed by update_stuff() as
+ * it is intended as a simple way to access that information.
+ */
+static void do_cmd_knowledge_player_misc(FILE *fff)
+{
+	if (p_ptr->ma_cumber_armour)
+		fprintf(fff, "The weight of your armor disrupts your balance.\n");
+	if (p_ptr->heavy_wield)
+		fprintf(fff, "Your weapon is too heavy for you to wield properly.\n");
+	if (p_ptr->heavy_shoot)
+		fprintf(fff, "Your bow is too heavy for you to wield properly.\n");
+	if (p_ptr->cumber_glove)
+		fprintf(fff, "Your covered hands feel unsuitable for spellcasting.\n");
+	if (p_ptr->cumber_armor)
+		fprintf(fff, "The weight of your armor spellcasting difficult.\n");
+	if (p_ptr->cumber_helm)
+		fprintf(fff, "Your covered head feels unsuitable for mindcrafting.\n");
+	if (p_ptr->new_spells)
+		fprintf(fff, "You can learn %d more spell%s.\n", p_ptr->new_spells,
+				(p_ptr->new_spells != 1) ? "s" : "");
+}
+
+/*
+ * List various pieces of information about the player.
+ */
+static void do_cmd_knowledge_player(void)
+{
+	/* Open a new file. */
+	char file_name[1024];
+	FILE *fff = my_fopen_temp(file_name, 1024);
+	if (!fff) return;
+
+	/* Introduction - this is (of course) all based on known information. */
+	fprintf(fff, "If your equipment has no unknown qualities:\n\n");
+
+	/* Find out various things. */
+	do_cmd_knowledge_player_ac(fff);
+	fprintf(fff, "\n");
+	do_cmd_knowledge_player_save(fff);
+	fprintf(fff, "\n");
+	do_cmd_knowledge_player_misc(fff);
+
+	/* Close the file. */
+	my_fclose(fff);
+
+	/* Display the file contents. */
+	show_file(file_name, "Character features");
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
 
 /*
  * Notice if a given town has any real shops.
@@ -3588,7 +3831,7 @@ void shops_display(int town)
 	town_type *t_ptr = &town_defs[town];
 
 	/* Paranoia (?) - no town */
-	if (town >= MAX_TOWNS)
+	if (!is_town_p(wildy, wildx))
 	{
 		if (alert_failure) message_add("ERROR: No current town.");
 		bell();
@@ -3597,7 +3840,7 @@ void shops_display(int town)
 	clear_from(0);
 	Term_putstr(0,0, Term->wid, TERM_WHITE,
 		format("List of shops in %s",
-			dun_defs[town].shortname));
+			dun_name+dun_defs[town].shortname));
 
 	for (i = 0, j = 1; i < t_ptr->numstores; i++)
 	{
@@ -3630,12 +3873,12 @@ static void do_cmd_knowledge_shops(void)
 	int town = cur_town;
 	
 	/* Paranoia (?) - no town */
-	if (town >= MAX_TOWNS) town = 0;
+	if (!is_town_p(wildy, wildx)) town = 0;
 	for (;;)
 	{
 		char c;
 		shops_display(town);
-		prt("Press +,- or 0-7 to change displayed town, or ESC to exit.", 22, 0);
+		prt("[Press +,- or a town symbol to change displayed town, or press ESC to exit.]", 22, 0);
 		Term_fresh();
 		c = inkey();
 		Term_putch(0,0,TERM_YELLOW,c);
@@ -3659,11 +3902,24 @@ static void do_cmd_knowledge_shops(void)
 				
 			} while (!shops_good(town));
 		}
-		else if (c >= '0' && c < '0'+MAX_TOWNS)
+		else
 		{
-			if (shops_good(c-'0'))
+			int i;
+			for (i = 0;; i++)
 			{
-				town = c-'0';
+				/* None found. */
+				if (i == MAX_TOWNS)
+				{
+					bell();
+					break;
+				}
+
+				if ((dun_defs[i].sym == c) &&
+					(shops_good(i)))
+				{
+					town = i;
+					break;
+				}
 			}
 		}
 	}
@@ -3675,7 +3931,6 @@ static void do_cmd_knowledge_shops(void)
 void do_cmd_knowledge(void)
 {
 	int i;
-
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -3705,6 +3960,7 @@ void do_cmd_knowledge(void)
 		{"chaos features", do_cmd_knowledge_chaos_features},
 		{"current allies", do_cmd_knowledge_pets},
 		{"shop prices", do_cmd_knowledge_shops},
+		{"extra character information", do_cmd_knowledge_player},
 		};
 		byte max_knowledge = sizeof(knowledge)/sizeof(knowledge_type);
 		/* Clear screen */
@@ -3733,7 +3989,11 @@ void do_cmd_knowledge(void)
 		else if (i > '0' && i < '1'+max_knowledge)
 		{
 			knowledge_type *kn_ptr = &knowledge[i-'1'];
+			char help_str[] = "cmd=~0";
+			help_str[5]=i;
+			help_track(help_str);
 			(*(kn_ptr->func))();
+			help_track(NULL);
 		}
 
 		/* Unknown option */

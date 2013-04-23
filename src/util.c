@@ -193,11 +193,10 @@ void user_name(char *buf, int id)
  * Replace "~user/" by the home directory of the user named "user"
  * Replace "~/" by the home directory of the current user
  */
-static errr path_parse(char *buf, int UNUSED max, cptr file)
+static errr path_parse(char *buf, uint max, cptr file)
 {
 	cptr		u, s;
 	struct passwd	*pw;
-	char		user[128];
 
 
 	/* Assume no result */
@@ -209,6 +208,8 @@ static errr path_parse(char *buf, int UNUSED max, cptr file)
 	/* File needs no parsing */
 	if (file[0] != '~')
 	{
+		/* Check length. */
+		if (strlen(file) >= max) return (1);
 		strcpy(buf, file);
 		return (0);
 	}
@@ -219,20 +220,11 @@ static errr path_parse(char *buf, int UNUSED max, cptr file)
 	/* Look for non-user portion of the file */
 	s = strstr(u, PATH_SEP);
 
-	/* Hack -- no long user names */
-	if (s && (s >= u + sizeof(user))) return (1);
+	/* Look up the "current" user */
+	if (u == s) u = getlogin();
 
 	/* Extract a user name */
-	if (s)
-	{
-		int i;
-		for (i = 0; u < s; ++i) user[i] = *u++;
-		user[i] = '\0';
-		u = user;
-	}
-
-	/* Look up the "current" user */
-	if (u[0] == '\0') u = getlogin();
+	else if (s) u = format("%.*s", s-u, u);
 
 	/* Look up a user (or "current" user) */
 	if (u) pw = getpwnam(u);
@@ -241,11 +233,11 @@ static errr path_parse(char *buf, int UNUSED max, cptr file)
 	/* Nothing found? */
 	if (!pw) return (1);
 
-	/* Make use of the info */
-	(void)strcpy(buf, pw->pw_dir);
+	/* Check length. */
+	if (strlen(pw->pw_dir)+strlen(s) >= max) return (1);
 
-	/* Append the rest of the filename, if any */
-	if (s) (void)strcat(buf, s);
+	/* Make use of the info */
+	sprintf(buf, "%s%s", pw->pw_dir, s);
 
 	/* Success */
 	return (0);
@@ -313,7 +305,7 @@ static errr path_temp(char *buf, int max)
  * Note that this function yields a path which must be "parsed"
  * using the "parse" function above.
  */
-errr path_build(char *buf, int max, cptr path, cptr file)
+static void path_build(char *buf, uint max, cptr path, cptr file)
 {
 	/* Special file */
 	if (file[0] == '~')
@@ -344,9 +336,8 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 	}
 
 	/* Success */
-	return (0);
+	return;
 }
-
 
 /*
  * Hack -- replacement for "fopen()"
@@ -380,6 +371,32 @@ errr my_fclose(FILE *fff)
 
 
 #endif /* ACORN */
+
+/*
+ * Process a path_build() function as a vstrnfmt_aux function.
+ *
+ * Format: 
+ * "%v", path_build_f2, (cptr)path, (cptr)file
+ */
+void path_build_f2(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+{
+	cptr path = va_arg(*vp, cptr);
+	cptr file = va_arg(*vp, cptr);
+
+	path_build(buf, max, path, file);
+}
+
+/*
+ * Open and return a file at a given path, which may be converted to suit
+ * the system.
+ * NB This does not convert the FILE_TYPE used in the Macintosh port.
+ */
+FILE *my_fopen_path(cptr path, cptr file, cptr mode)
+{
+	char buf[1024];
+	strnfmt(buf, 1024, "%v", path_build_f2, path, file);
+	return my_fopen(buf, mode);
+}
 
 /*
  * Create a temporary file, store its name in buf, open it, and return a
@@ -491,6 +508,7 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 }
 
 
+#if 0
 /*
  * Hack -- replacement for "fputs()"
  *
@@ -498,16 +516,39 @@ errr my_fgets(FILE *fff, char *buf, huge n)
  *
  * XXX XXX XXX Process internal weirdness?
  */
-errr my_fputs(FILE *fff, cptr buf, huge n)
+errr my_fputs(FILE *fff, cptr buf, huge UNUSED n)
 {
-	/* XXX XXX */
-	n = n ? n : 0;
-
 	/* Dump, ignore errors */
 	(void)fprintf(fff, "%s\n", buf);
 
 	/* Success */
 	return (0);
+}
+#endif
+
+/*
+ * A macro to turn a format string with arguments into a normal string in the
+ * format buffer.
+ */
+#define get_va_arg_string(fmt) \
+	va_list vp; \
+	va_start(vp, (fmt)); \
+	vformat((fmt), vp); \
+	va_end(vp);
+
+
+/*
+ * A version of "fprintf()" which uses strnfmt to process its arguments.
+ *
+ * It uses the format buffer as there is no limit on how long a string
+ * could be sensible, although it could loop over the string a piece at a
+ * time.
+ */
+int my_fprintf(FILE *fff, cptr fmt, ...)
+{
+	get_va_arg_string(fmt)
+
+	return fprintf(fff, "%s", format(0));
 }
 
 
@@ -596,29 +637,49 @@ errr fd_move(cptr file, cptr what)
 }
 
 
-#if 0
 /*
  * Hack -- attempt to copy a file
+ * The player should have read access to "in" and write access to "out".
  */
-static errr fd_copy(cptr file, cptr what)
+errr fd_copy(cptr out, cptr in)
 {
-	char                buf[1024];
-	char                aux[1024];
+	char buf[1024];
 
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	/* Open the files. */
+	FILE *fin = my_fopen(in, "r");
+	FILE *fout = my_fopen(out, "w");
 
-	/* Hack -- Try to parse the path */
-	if (path_parse(aux, 1024, what)) return (-1);
+	if (!fin || !fout) return FILE_ERROR_FATAL;
 
-	/* Copy XXX XXX XXX */
-	/* (void)rename(buf, aux); */
+	/* Copy across faithfully. */
+	while (fgets(buf, 1024, fin)) fprintf(fout, "%s", buf);
 
-	/* XXX XXX XXX */
-	return (1);
+	return SUCCESS;
 }
-#endif
 
+
+/*
+ * Create a directory.
+ * Return 0 if successful.
+ * Return 1 if the directory already exists.
+ * Return -1 on other errors.
+ */
+errr my_mkdir(cptr path, uint mode)
+{
+	char buf[1024];
+	int rc;
+
+	if (path_parse(buf, 1024, path)) return FILE_ERROR_FATAL;
+
+	rc = mkdir(buf, mode);
+
+	/* Success. */
+	if (!rc) return SUCCESS;
+
+	else if (errno == EEXIST) return FILE_ERROR_FILE_EXISTS;
+	
+	else return FILE_ERROR_FATAL;
+}
 
 /*
  * Hack -- attempt to open a file descriptor (create file)
@@ -871,6 +932,7 @@ errr fd_close(int fd)
 }
 
 
+
 #endif /* ACORN */
 
 
@@ -977,12 +1039,12 @@ static int dehex(char c)
  * parsing "\xFF" into a (signed) char.  Whoever thought of making
  * the "sign" of a "char" undefined is a complete moron.  Oh well.
  */
-void text_to_ascii(char *buf, cptr str)
+static void text_to_ascii(char *buf, uint max, cptr str)
 {
 	char *s = buf;
 
 	/* Analyze the "ascii" string */
-	while (*str)
+	while (*str && s+1 < buf+max-1)
 	{
 		/* Backslash codes */
 		if (*str == '\\')
@@ -1095,16 +1157,27 @@ void text_to_ascii(char *buf, cptr str)
 	*s = '\0';
 }
 
+/*
+ * Call text_to_ascii() as a vstrnfmt_aux function.
+ *
+ * Format: 
+ * "%v", text_to_ascii_f1, (cptr)str
+ */
+void text_to_ascii_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+{
+	cptr str = va_arg(*vp, cptr);
+	text_to_ascii(buf, max, str);
+}
 
 /*
  * Hack -- convert a string into a printable form
  */
-void ascii_to_text(char *buf, cptr str)
+static void ascii_to_text(char *buf, uint max, cptr str)
 {
 	char *s = buf;
 
 	/* Analyze the "ascii" string */
-	while (*str)
+	while (*str && s+4 < buf+max-1)
 	{
 		byte i = (byte)(*str++);
 
@@ -1175,6 +1248,18 @@ void ascii_to_text(char *buf, cptr str)
 
 	/* Terminate */
 	*s = '\0';
+}
+
+/*
+ * Call ascii_to_text() as a vstrnfmt_aux function.
+ *
+ * Format: 
+ * "%v", ascii_to_text_f1, (cptr)str
+ */
+void ascii_to_text_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+{
+	cptr str = va_arg(*vp, cptr);
+	ascii_to_text(buf, max, str);
 }
 
 
@@ -2348,9 +2433,6 @@ static void msg_flush(int x)
 {
 	byte a = TERM_L_BLUE;
 
-	/* Hack -- fake monochrome */
-	if (!use_color) a = TERM_WHITE;
-
 	/* Pause for response */
 	Term_putstr(x, 0, -1, a, MORE_STR);
 
@@ -2538,9 +2620,6 @@ void msg_format(cptr fmt, ...)
  */
 void c_put_str(byte attr, cptr str, int row, int col)
 {
-	/* Hack -- fake monochrome */
-	if (!use_color) attr = TERM_WHITE;
-
 	/* Position cursor, Dump the attr/text */
 	Term_putstr(col, row, -1, attr, str);
 }
@@ -2562,9 +2641,6 @@ void put_str(cptr str, int row, int col)
  */
 void c_prt(byte attr, cptr str, int row, int col)
 {
-	/* Hack -- fake monochrome */
-	if (!use_color) attr = TERM_WHITE;
-
 	/* Clear line, position cursor */
 	Term_erase(col, row, 255);
 
@@ -2605,10 +2681,6 @@ bool c_roff(byte a, cptr str)
 	int w, h;
 
 	cptr s;
-
-
-	/* Hack -- fake monochrome */
-	if (!use_color) a = TERM_WHITE;
 
 
 	/* Obtain the size */
@@ -2711,25 +2783,38 @@ void roff(cptr str)
 
 
 /*
- * Print a multi-coloured string where colour-changes are denoted by $x where
- * x is a colour character (see atchar[]). $$ is converted to $, and any other
- * combination is printed unchanged.
- * Unlike show_file_tome, this uses c_roff() to ensure that its lines are
- * wrapped, and so works best with files without unnecessary formatting.
+ * Print a multi-coloured string where colour-changes are denoted as follows:
+ *
+ * $d $w $s $o $r $g $b $u : Change to the specified colour.
+ * $D $W $v $y $R $G $B $U
+ *                      $< : Save a "default" colour (white initially).
+ *                      $> : Restore the "default" colour.
+ *                      $$ : Print a literal $.
+ *
+ * Any other combination is printed directly, although further keys may be
+ * redefined in the future.
  */
 void mc_roff(cptr s)
 {
 	cptr t;
-	int attr, nattr;
+	int attr, nattr, dattr;
 	
-	for (t = s, attr = TERM_WHITE; (t = strstr(t, CC_PREFIX)); t++)
+	for (t = s, attr = dattr = TERM_WHITE; (t = strchr(t, '$')); t++)
 	{
 		if (!c_roff(attr, format("%.*s", t-s, s))) return;
-		s = t + strlen(CC_PREFIX)+1;
-		if (prefix(s-1, CC_PREFIX))
+		s = t + 2;
+		if (s[-1] == '$')
 		{
 			s--;
-			t += strlen(CC_PREFIX);
+			t ++;
+		}
+		else if (s[-1] == '<')
+		{
+			dattr = attr;
+		}
+		else if (s[-1] == '>')
+		{
+			attr = dattr;
 		}
 		else if (((nattr = color_char_to_attr(s[-1]))) != -1)
 		{
@@ -2737,8 +2822,7 @@ void mc_roff(cptr s)
 		}
 		else
 		{
-			s = t;
-			t += strlen(CC_PREFIX);
+			s = t++;
 		}
 	}
 	c_roff(attr, s);
@@ -2971,61 +3055,91 @@ bool get_string(cptr prompt, char *buf, int len)
 }
 
 
+
 /*
  * Verify something with the user
  *
- * The "prompt" should take the form "Query? "
+ * This function returns a character (controlled by conv_to), and places a
+ * message which represents the prompt in the format buffer for further use.
  *
- * Note that "[y/n]" is appended to the prompt.
+ * Prompt should be the question to be asked of the user.
+ *
+ * text should be a prompt of the form "...%.*s...%s%v", where the prompt given
+ * will be ...<prompt>..., and the message returned will be
+ * ...<prompt>... <keypress>
+ *
+ * conv_from contains the list of valid keypresses.
+ *
+ * conv_to contains the list of what should be returned when each key in
+ * conv_from is pressed.
+ *
+ * Hack - if quick_prompt is set, and an otherwise invalid key is pressed, the
+ * first element of conv_to is returned.
  */
-bool get_check(cptr prompt)
+char get_check_aux(cptr prompt, cptr text, cptr conv_from, cptr conv_to)
 {
-	int i;
+	char i[2]=" ";
+	cptr c;
+	bool alloc_prompt = (prompt == format(0));
 
-	C_TNEW(buf, Term->wid, char);
+	if (alloc_prompt) prompt = string_make(prompt);
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
 
 	/* Prompt for it (should "? " be added to long prompts?). */
-	sprintf(buf, "%.*s[y/n] ", Term->wid-8, prompt);
-	prt(buf, 0, 0);
-
-	/* Help */
-	help_track("yn_prompt");
+	prt(format(text, Term->wid-strlen(text)+5, prompt, "", func_nothing_f0),
+		0, 0);
 
 	/* Get an acceptable answer */
 	while (TRUE)
 	{
-		i = inkey();
-		if (quick_prompt) break;
-		if (i == ESCAPE) break;
-		if (i == '\r') break;
-		if (strchr("YyNn", i)) break;
+		*i = inkey();
+		if ((c = strchr(conv_from, *i))) break;
+		else if (quick_prompt)
+		{
+			c = conv_from;
+			break;
+		}
 		bell();
 	}
-
-	/* Done with help */
-	help_track(NULL);
 
 	/* Erase the prompt */
 	prt("", 0, 0);
 
-	/* Normal negation */
-	if ((i != 'Y') && (i != 'y') && (i != '\r'))
-		i = 'n';
-	/* Success */
-	else
-		i = 'y';
-		
-	/* Leave a (mildly inaccurate) record */
-	sprintf(strchr(buf, '\0'), " %c", i);
-	message_add(buf);
+	/* Leave a record somewhere convenient. */
+	format(text, Term->wid-strlen(text)+5, prompt, " ", ascii_to_text_f1, i);
 
-	TFREE(buf);
+	if (alloc_prompt) FREE(prompt);
 
 	/* Tell the calling routine */
-	return (i == 'y') ? TRUE : FALSE;
+	return conv_to[c - conv_from];
+}
+
+/*
+ * Verify something with the user as above.
+ *
+ * The "prompt" should take the form "Query? "
+ *
+ * Note that "[y/n]" is appended to the prompt.
+ *
+ */
+bool get_check(cptr prompt)
+{
+	char rc;
+
+	/* Help */
+	help_track("yn_prompt");
+
+	rc = get_check_aux(prompt, "%.*s[y/n]%s%v", "nN\033yY\r", "\0\0\0\1\1\1");
+
+	/* Leave a message. */
+	message_add(format(0));
+
+	/* Done with help */
+	help_track(NULL);
+
+	return (rc != '\0');
 }
 
 
@@ -3732,3 +3846,51 @@ void build_gamma_table(int gamma)
 }
 
 #endif /* SUPPORT_GAMMA */
+
+#define MAX_RESIZE_HOOKS 8
+
+static void (*resize_hooks[MAX_RESIZE_HOOKS])(void);
+static uint num_resize_hooks = 0;
+
+/*
+ * Add an action to term_screen->resize_hook.
+ */
+errr add_resize_hook(void (*resize_hook)(void))
+{
+	/* No room. */
+	if (num_resize_hooks == MAX_RESIZE_HOOKS)
+	{
+		/* Warning, as this probably means a hook isn't being removed. */
+		if (alert_failure) msg_print("Too many resize hooks.");
+		return ERR_MEMORY;
+	}
+	else
+	{
+		resize_hooks[num_resize_hooks++] = resize_hook;
+		return SUCCESS;
+	}
+}
+
+/*
+ * Remove an action from term_screen->resize_hook.
+ */
+errr delete_resize_hook(void (*resize_hook)(void))
+{
+	uint i;
+	for (i = 0; i < num_resize_hooks; i++)
+	{
+		if (resize_hooks[i] != resize_hook) continue;
+		resize_hooks[i] = resize_hooks[num_resize_hooks--];
+		return SUCCESS;
+	}
+	return ERR_MISSING;
+}
+
+void resize_main_term(void)
+{
+	uint i;
+	for (i = 0; i < num_resize_hooks; i++)
+	{
+		(*resize_hooks[i])();
+	}
+}

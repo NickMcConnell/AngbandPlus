@@ -4,6 +4,35 @@ Based on Cthangband 4.1.0b and Zangband 2.1.0e
 Changes are added to the top of this file, so for a chronological order
 read from the bottom up.
 
+sCthangband 1.0.6
+* Decrease the number of successes needed to train bows from 10 to 4.
+* Add Bokrug, the Water Lizard to r_info.txt, and change tyrannosaurs' colours.
+* Change the descriptions of a few monsters.
+* Add a "character information" knowledge display to show the player's AC and
+  saving throw and the text previously displayed on starting the program.
+* Allow options to be loaded and saved.
+* Allow birth options to be set for the next game via menus.
+* Prevent birth options from being set for the current game.
+* Store most pref files in a lib/pref directory, and create a
+  ~/.angband/sCthangband to store the rest in on multi-user systems.
+* List every "category" flag (evil, demon, etc.) a monster has in the monster
+  recall.
+* Remove the duplication of cheat_live and cheat_skll from cheat_wzrd
+* Use the width of the screen for the inventory/equipment display.
+* Allow the screen to be dumped/loaded at any window size.
+* Allow variable screen size with inventory/equipment lists and screen dumps.
+* Use line wrapping in the help functions, so that help files display correctly
+  with any window size.
+* Replace indentation with colour in various help files.
+* Define dungeons, towns, quests and shopkeepers in external text files.
+* Set the plurals for monsters in r_info.txt.
+* Set the priority of a terrain type for the small scale map in f_info.txt.
+* Define the syllables used for scroll names in an external text file.
+* Allow files used with get_rnd_line() to have an initial comment.
+* Add some more documentation.
+* Clean up some code.
+* Fix some bugs
+
 sCthangband 1.0.5
 * Determine whether somewhere is a room for post-creation lighting and AI
   purposes based on how open the space around it is.

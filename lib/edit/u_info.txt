@@ -66,7 +66,7 @@
 
 # Version stamp (required)
 
-V:1.0.5
+V:
 
 ##### Mushrooms #####
 
@@ -160,10 +160,13 @@ G:,:y:1:29
 ##### Rings #####
 
 N:Adamantite
-G:=:v:2:2
+G:=:v:2:1
 
 N:Alexandrite
-G:=:g:2:3
+G:=:g:2:2
+
+N:Amber
+G:=:o:2:3
 
 N:Amethyst
 G:=:v:2:4
@@ -201,6 +204,9 @@ G:=:u:2:14
 N:Corundum
 G:=:s:2:15
 
+N:Danburite
+G:=:w:2:16
+
 N:Diamond
 G:=:w:2:17
 
@@ -232,13 +238,19 @@ N:Gold
 G:=:y:2:26
 
 N:Granite
-G:=:W:2:28
+G:=:W:2:27
 
 N:Grayish
-G:=:G:2:29
+G:=:G:2:28
 
 N:Greenish
-G:=:g:2:30
+G:=:g:2:29
+
+N:Hessonite
+G:=:w:2:30
+
+N:Iolite
+G:=:v:2:31
 
 N:Iron
 G:=:s:2:32
@@ -409,11 +421,14 @@ G:":U:3:7
 N:Carved Oak
 G:":U:3:8
 
+N:Chrysoberyl
+G:":y:3:9
+
 N:Copper
-G:":U:3:9
+G:":U:3:10
 
 N:Coral
-G:":w:3:10
+G:":w:3:11
 
 N:Crystal
 G:":w:3:12

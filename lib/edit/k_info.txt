@@ -81,7 +81,7 @@
 
 # Version stamp (required)
 
-V:1.0.5
+V:
 
 ##### Non-objects #####
 
@@ -3117,9 +3117,16 @@ P:0:1d1:0:0:0
 
 ##### Rods #####
 
+# The pval field represents the (fixed) timeout of the object after one zap,
+# negative numbers (actually represented by ranges here) representing a
+# particular hard-coded random formula.
+
+# The extra field represents the difficulty the player has in using the rod,
+# usually equal to its first allocation level.
+
 N:380:Trap Location
 G: :d:11
-I:Rod:0:5
+I:Rod:11-20:5
 W:1.5lb:100
 A:5/1
 P:0:1d1:0:0:0
@@ -3127,7 +3134,7 @@ D:It detects all nearby traps when you zap it.
 
 N:381:Door/Stair Location
 G: :d:11
-I:Rod:0:15
+I:Rod:70:15
 W:1.5lb:1,000
 A:15/1
 P:0:1d1:0:0:0
@@ -3135,7 +3142,7 @@ D:It detects all nearby doors and stairs when you zap it.
 
 N:382:Perception
 G: :d:11
-I:Rod:0:50
+I:Rod:10:50
 W:1.5lb:13,000
 A:50/8,100/8
 P:0:1d1:0:0:0
@@ -3143,7 +3150,7 @@ D:It identifies an item when you zap it.
 
 N:383:Recall
 G: :d:11
-I:Rod:0:30
+I:Rod:60:30
 W:1.5lb:4,000
 A:30/4
 P:0:1d1:0:0:0
@@ -3152,7 +3159,7 @@ D:zap it.
 
 N:384:Illumination
 G: :d:11
-I:Rod:0:20
+I:Rod:11-21:20
 W:1.5lb:1,000
 A:20/1
 P:0:1d1:0:0:0
@@ -3161,7 +3168,7 @@ D:causing 2d8 damage to vulnerable monsters within a radius of 2.
 
 N:385:Enlightenment
 G: :d:11
-I:Rod:0:65
+I:Rod:99:65
 W:1.5lb:10,000
 A:65/4
 P:0:1d1:0:0:0
@@ -3169,7 +3176,7 @@ D:It maps your surroundings when you zap it.
 
 N:386:Detection
 G: :d:11
-I:Rod:0:30
+I:Rod:99:30
 W:1.5lb:5,000
 A:30/8
 P:0:1d1:0:0:0
@@ -3178,7 +3185,7 @@ D:when you zap it.
 
 N:387:Probing
 G: :d:11
-I:Rod:0:40
+I:Rod:50:40
 W:1.5lb:4,000
 A:40/4
 P:0:1d1:0:0:0
@@ -3187,7 +3194,7 @@ D:it.
 
 N:388:Curing
 G: :d:11
-I:Rod:0:65
+I:Rod:999:65
 W:1.5lb:15,000
 A:65/8
 P:0:1d1:0:0:0
@@ -3196,7 +3203,7 @@ D:you zap it.
 
 N:389:Healing
 G: :d:11
-I:Rod:0:80
+I:Rod:999:80
 W:1.5lb:20,000
 A:80/8
 P:0:1d1:0:0:0
@@ -3204,7 +3211,7 @@ D:It heals you 500 and cures stunning and cuts when you zap it.
 
 N:390:Restoration
 G: :d:11
-I:Rod:0:80
+I:Rod:999:80
 W:1.5lb:25,000
 A:80/16
 P:0:1d1:0:0:0
@@ -3212,7 +3219,7 @@ D:It restores your skills and stats when you zap it.
 
 N:391:Speed
 G: :d:11
-I:Rod:0:95
+I:Rod:99:95
 W:1.5lb:50,000
 A:95/16
 P:0:1d1:0:0:0
@@ -3221,7 +3228,7 @@ D:you zap it.
 
 N:392:Teleport Other
 G: :d:11
-I:Rod:0:45
+I:Rod:25:45
 W:1.5lb:1,400
 A:45/2
 P:0:1d1:0:0:0
@@ -3229,7 +3236,7 @@ D:It tries to teleport all monsters on a line when you use it.
 
 N:393:Disarming
 G: :d:11
-I:Rod:0:35
+I:Rod:16-30:35
 W:1.5lb:2,100
 A:35/1
 P:0:1d1:0:0:0
@@ -3237,7 +3244,7 @@ D:It destroys all traps on a line when you zap it.
 
 N:394:Light
 G: :d:11
-I:Rod:0:10
+I:Rod:9:10
 W:1.5lb:500
 A:10/1
 P:0:1d1:0:0:0
@@ -3246,7 +3253,7 @@ D:you zap it.
 
 N:395:Sleep Monster
 G: :d:11
-I:Rod:0:30
+I:Rod:18:30
 W:1.5lb:1,500
 A:30/1
 P:0:1d1:0:0:0
@@ -3254,7 +3261,7 @@ D:It tries to send a monster to sleep when you zap it.
 
 N:396:Slow Monster
 G: :d:11
-I:Rod:0:30
+I:Rod:20:30
 W:1.5lb:1,500
 A:30/1
 P:0:1d1:0:0:0
@@ -3262,7 +3269,7 @@ D:It tries to slow a monster down when you zap it.
 
 N:397:Drain Life
 G: :d:11
-I:Rod:0:75
+I:Rod:23:75
 W:1.5lb:3,600
 A:75/4
 P:0:1d1:0:0:0
@@ -3270,7 +3277,7 @@ D:It causes 75 points of damage to living monsters when you use it.
 
 N:398:Polymorph
 G: :d:11
-I:Rod:0:35
+I:Rod:25:35
 W:1.5lb:1,200
 A:35/1
 P:0:1d1:0:0:0
@@ -3278,7 +3285,7 @@ D:It tries to change a monster into another when you zap it.
 
 N:399:Acid Bolts
 G: :d:11
-I:Rod:0:40
+I:Rod:12:40
 W:1.5lb:3,500
 A:40/1
 P:0:1d1:0:0:0
@@ -3286,7 +3293,7 @@ D:It fires a bolt or beam of acid (damage: (6+level/7)d8) when you zap it.
 
 N:400:Lightning Bolts
 G: :d:11
-I:Rod:0:20
+I:Rod:11:20
 W:1.5lb:2,000
 A:20/1
 P:0:1d1:0:0:0
@@ -3294,7 +3301,7 @@ D:It fires a bolt or beam of lightning for 3d8 damage when you zap it.
 
 N:401:Fire Bolts
 G: :d:11
-I:Rod:0:30
+I:Rod:15:30
 W:1.5lb:3,000
 A:30/1
 P:0:1d1:0:0:0
@@ -3302,7 +3309,7 @@ D:It fires a bolt or beam of fire for 8d8 damage when you zap it.
 
 N:402:Frost Bolts
 G: :d:11
-I:Rod:0:25
+I:Rod:13:25
 W:1.5lb:2,500
 A:25/1
 P:0:1d1:0:0:0
@@ -3310,7 +3317,7 @@ D:It fires a bolt or beam of cold for 5d8 damage when you zap it.
 
 N:403:Acid Balls
 G: :d:11
-I:Rod:0:70
+I:Rod:27:70
 W:1.5lb:5,500
 A:70/1
 P:0:1d1:0:0:0
@@ -3318,7 +3325,7 @@ D:It fires a ball of acid with a radius of 2 and damage at centre of 60.
 
 N:404:Lightning Balls
 G: :d:11
-I:Rod:0:55
+I:Rod:23:55
 W:1.5lb:4,000
 A:55/1
 P:0:1d1:0:0:0
@@ -3326,7 +3333,7 @@ D:It fires a ball of electricity with a radius of 2 and damage at centre of 32.
 
 N:405:Fire Balls
 G: :d:11
-I:Rod:0:75
+I:Rod:30:75
 W:1.5lb:5,000
 A:75/1
 P:0:1d1:0:0:0
@@ -3334,7 +3341,7 @@ D:It fires a ball of fire with a radius of 2 and damage at centre of 72.
 
 N:406:Cold Balls
 G: :d:11
-I:Rod:0:60
+I:Rod:25:60
 W:1.5lb:4,500
 A:60/1
 P:0:1d1:0:0:0
@@ -3342,7 +3349,7 @@ D:It fires a ball of cold with a radius of 2 and damage at centre of 48.
 
 N:407:Havoc
 G: :d:11
-I:Rod:0:95
+I:Rod:250:95
 W:1.5lb:150,000
 A:100/16
 P:0:1d1:0:0:0
@@ -3822,7 +3829,7 @@ P:0:1d1:0:0:0
 # This is only an issue when changing versions during a game.
 
 # e.g.
-# N:474:& Invisible Dancing Bandyclef~
+# N:u1:& Invisible Dancing Bandyclef~
 # G:\:D:0
 # I:Hafted:0:CRUSH
 # W:30:100:1000

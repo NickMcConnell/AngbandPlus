@@ -35,6 +35,62 @@
 
 
 
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+static void create_user_dir(void)
+{
+	cptr ANGBAND_DIR_USER_LOC;
+
+	/* Create the ~/.angband/ directory */
+	my_mkdir(PRIVATE_USER_PATH, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	ANGBAND_DIR_USER_LOC =
+		string_make(format("%v", path_build_f2, PRIVATE_USER_PATH, GAME_NAME));
+
+	/* Create the directory */
+	switch (my_mkdir(ANGBAND_DIR_USER_LOC, 0700))
+	{
+		case FILE_ERROR_FILE_EXISTS:
+		{
+			/* Do nothing to a pre-existing directory. */
+			break;
+		}
+		case FILE_ERROR_FATAL:
+		{
+			/* Something bad happened, so hope the old user dir is okay... */
+			return;
+		}
+		case SUCCESS:
+		{
+			char from[1024], to[1024];
+			/* New directory, so copy default user file to it. 
+			 * Maybe it should copy all pref files in ANGBAND_DIR_USER... */
+
+			/* Build the paths. */
+			strnfmt(from, 1024, "%v", path_build_f2, ANGBAND_DIR_USER,
+				"user-loc.prf");
+			strnfmt(to, 1024, "%v", path_build_f2, ANGBAND_DIR_USER_LOC,
+				"user-loc.prf");
+
+			/* Try to copy the file. */
+			fd_copy(to, from);
+		}
+	}
+
+	/* The system user directory will not be looked at again. */
+	string_free(ANGBAND_DIR_USER);
+	ANGBAND_DIR_USER = ANGBAND_DIR_USER_LOC;
+}
+
+#endif /* PRIVATE_USER_PATH */
+
 /*
  * Find the default paths to all of our important sub-directories.
  *
@@ -83,6 +139,7 @@ void init_file_paths(cptr path)
 	string_free(ANGBAND_DIR_FILE);
 	string_free(ANGBAND_DIR_HELP);
 	string_free(ANGBAND_DIR_INFO);
+	string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_SAVE);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
@@ -123,11 +180,20 @@ void init_file_paths(cptr path)
 	ANGBAND_DIR_FILE = string_make(format("%s%s", path, "file"));
 	ANGBAND_DIR_HELP = string_make(format("%s%s", path, "help"));
 	ANGBAND_DIR_INFO = string_make(format("%s%s", path, "info"));
+	ANGBAND_DIR_PREF = string_make(format("%s%s", path, "pref"));
 	ANGBAND_DIR_SAVE = string_make(format("%s%s", path, "save"));
 	ANGBAND_DIR_USER = string_make(format("%s%s", path, "user"));
 	ANGBAND_DIR_XTRA = string_make(format("%s%s", path, "xtra"));
 
 #endif /* VM */
+#ifdef PRIVATE_USER_PATH
+
+	/* Change ANGBAND_DIR_USER to point to a local directory, copying files
+	 * from the existing ANGBAND_DIR_USER if new. */
+	create_user_dir();
+
+#endif /* PRIVATE_USER_PATH */
+
 
 
 #ifdef NeXT
@@ -213,7 +279,7 @@ static errr check_modification_date(int fd, cptr template_file)
 	struct stat txt_stat, raw_stat;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_EDIT, template_file);
 
 	/* Access stats on text file */
 	if (stat(buf, &txt_stat))
@@ -356,7 +422,7 @@ static void display_parse_error(cptr filename, errr err, cptr buf)
 	oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 	/* Oops */
-	msg_format("Error at line %d of '%s.txt'.", error_line, filename);
+	msg_format("Error at line %d of '%s'.", error_line, filename);
 	msg_format("Record %d contains a '%s' error.", error_idx, oops);
 	msg_format("Parsing '%s'.", buf);
 	message_flush();
@@ -368,6 +434,25 @@ static void display_parse_error(cptr filename, errr err, cptr buf)
 #endif /* ALLOW_TEMPLATES */
 
 /*
+ * Find the name of the text file from which a header is read.
+ *
+ * Most are simply derived from the name of the raw file, but there are a
+ * few exceptions.
+ */
+static cptr init_info_text_name(header *head)
+{
+	switch (head->header_num)
+	{
+		case EVENT_HEAD:
+			return "r_info.txt";
+		case D_HEAD: case T_HEAD: case Q_HEAD:
+			return "d_info.txt";
+		default:
+			return format("%s.txt", head->file_name);
+	}
+}
+
+/*
  * Initialize a "*_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
@@ -376,6 +461,8 @@ static void display_parse_error(cptr filename, errr err, cptr buf)
 static void init_info(header *head)
 {
 	cptr filename = head->file_name;
+
+	char textname[13];
 
 	int fd;
 
@@ -389,12 +476,15 @@ static void init_info(header *head)
 
 #ifdef ALLOW_TEMPLATES
 
+	/* Find the text file name (should be in 8.3 format). */
+	sprintf(textname, "%.12s", init_info_text_name(head));
+
 	/*** Load the binary image file ***/
 
 	if (~rebuild_raw & 1<<(head->header_num))
 	{
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+		strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_DATA, format("%s.raw", filename));
 
 		/* Attempt to open the "raw" file */
 		fd = fd_open(buf, O_RDONLY);
@@ -404,7 +494,7 @@ static void init_info(header *head)
 		{
 #ifdef CHECK_MODIFICATION_TIME
 
-			err = check_modification_date(fd, format("%s.txt", filename));
+			err = check_modification_date(fd, textname);
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -435,24 +525,11 @@ static void init_info(header *head)
 
 	/*** Load the ascii template file ***/
 
-	/* Build the filename */
-
-	/* Hack - the death_event array is read from r_info.txt, not
-	 * r_event.txt. */
-	if (head->header_num == EVENT_HEAD)
-	{
-		path_build(buf, 1024, ANGBAND_DIR_EDIT, "r_info.txt");
-	}
-	else
-	{
-		path_build(buf, 1024, ANGBAND_DIR_EDIT, format("%s.txt", filename));
-	}
-
-	/* Open the file */
-	fp = my_fopen(buf, "r");
+	/* Build the filename and open the file. */
+	fp = my_fopen_path(ANGBAND_DIR_EDIT, textname, "r");
 
 	/* Parse it */
-	if (!fp) quit(format("Cannot open '%s.txt' file.", filename));
+	if (!fp) quit(format("Cannot open '%s' file.", textname));
 
 	/* Parse the file */
 	err = init_info_txt(fp, buf, head);
@@ -461,7 +538,7 @@ static void init_info(header *head)
 	my_fclose(fp);
 
 	/* Errors */
-	if (err) display_parse_error(filename, err, buf);
+	if (err) display_parse_error(textname, err, buf);
 
 
 	/*** Dump the binary image file ***/
@@ -470,7 +547,7 @@ static void init_info(header *head)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_DATA, format("%s.raw", filename));
 
 
 	/* Attempt to open the file */
@@ -540,7 +617,7 @@ static void init_info(header *head)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_DATA, format("%s.raw", filename));
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -558,7 +635,7 @@ static void init_info(header *head)
 	if (err) quit(format("Cannot parse '%s.raw' file.", filename));
 }
 
-static errr init_u_info_final(void)
+static void init_u_info_final(void)
 {
 	int i,p_id;
 
@@ -587,7 +664,39 @@ static errr init_u_info_final(void)
 			quit_fmt("Insufficient u_info entries with p_id %d: %d missing.", p_id, bal);
 		}
 	}
-	return SUCCESS;
+}
+
+/*
+ * Check that there is at least one shopkeeper available for each shop in the
+ * game.
+ */
+static void init_s_info_final(void)
+{
+	byte *i;
+	owner_type *s_ptr;
+	town_type *t_ptr;
+	for (t_ptr = town_defs; t_ptr < town_defs+MAX_TOWNS; t_ptr++)
+	{
+		for (i = t_ptr->store; i < t_ptr->store+MAX_STORES_PER_TOWN; i++)
+		{
+			/* Not a real shop. */
+			if (*i == STORE_NONE) continue;
+
+			for (s_ptr = owners; s_ptr < owners+z_info->owners; s_ptr++)
+			{
+				if (s_ptr->shop_type != *i) continue; /* Wrong type. */
+				if (s_ptr->town != TOWN_NONE && s_ptr->town != t_ptr-town_defs)
+					continue; /* Wrong town. */
+
+				/* Acceptable. */
+				goto next_store;
+			}
+			quit_fmt("Failed to find a shopkeeper for shop %d in %s.",
+				*i, town_name+t_ptr->name);
+next_store:
+			continue;
+		}
+	}
 }
 
 /*
@@ -599,6 +708,9 @@ static void init_x_final(int num)
 	{
 		case U_HEAD:
 		init_u_info_final();
+		return;
+		case S_HEAD:
+		init_s_info_final();
 		return;
 	}
 	return;
@@ -1191,7 +1303,10 @@ static errr init_other(void)
 	/*** Prepare the "dungeon" information ***/
 
 	/* Allocate and Wipe the object list */
-	C_MAKE(o_list, MAX_O_IDX, object_type);
+	C_MAKE(o_list, MAX_O_IDX+INVEN_TOTAL, object_type);
+
+	/* Divide the object list into player and dungeon sections. */
+	inventory = o_list + MAX_O_IDX;
 
 	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, MAX_M_IDX, monster_type);
@@ -1227,12 +1342,6 @@ static errr init_other(void)
 
 	/* Hack -- No messages yet */
 	message__tail = MESSAGE_BUF;
-
-
-	/*** Prepare the Player inventory ***/
-
-	/* Allocate it */
-	C_MAKE(inventory, INVEN_TOTAL, object_type);
 
 
 	/*** Prepare the Stores ***/
@@ -1442,20 +1551,19 @@ static errr init_alloc(void)
 	alloc_race_size = 0;
 
 	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	for (i = 1; i < MAX_R_IDX; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
 
-		/* Legal monsters */
-		if (r_ptr->rarity)
-		{
-			/* Count the entries */
-			alloc_race_size++;
+		/* Don't count "fake" monsters. */
+		if (is_fake_monster(r_ptr)) continue;
 
-			/* Group by level */
-			num[r_ptr->level]++;
-		}
+		/* Count the entries */
+		alloc_race_size++;
+
+		/* Group by level */
+		num[r_ptr->level]++;
 	}
 
 	/* Collect the level indexes */
@@ -1478,38 +1586,37 @@ static errr init_alloc(void)
 	table = alloc_race_table;
 
 	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	for (i = 1; i < MAX_R_IDX; i++)
 	{
+		int p, x, y, z;
+
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
 
-		/* Count valid pairs */
-		if (r_ptr->rarity)
-		{
-			int p, x, y, z;
+		/* Don't count "fake" monsters. */
+		if (is_fake_monster(r_ptr)) continue;
 
-			/* Extract the base level */
-			x = r_ptr->level;
+		/* Extract the base level */
+		x = r_ptr->level;
 
-			/* Extract the base probability */
-			p = (100 / r_ptr->rarity);
+		/* Extract the base probability */
+		p = (100 / r_ptr->rarity);
 
-			/* Skip entries preceding our locale */
-			y = (x > 0) ? num[x-1] : 0;
+		/* Skip entries preceding our locale */
+		y = (x > 0) ? num[x-1] : 0;
 
-			/* Skip previous entries at this locale */
-			z = y + aux[x];
+		/* Skip previous entries at this locale */
+		z = y + aux[x];
 
-			/* Load the entry */
-			table[z].index = i;
-			table[z].level = x;
-			table[z].prob1 = p;
-			table[z].prob2 = p;
-			table[z].prob3 = p;
+		/* Load the entry */
+		table[z].index = i;
+		table[z].level = x;
+		table[z].prob1 = p;
+		table[z].prob2 = p;
+		table[z].prob3 = p;
 
-			/* Another entry complete for this locale */
-			aux[x]++;
-		}
+		/* Another entry complete for this locale */
+		aux[x]++;
 	}
 
 
@@ -1618,6 +1725,8 @@ void init_angband(void)
 	/* Hack - a pointer intended not to match anything. */
 	vptr dummy = (vptr)&init_angband;
 
+	WIPE(head, header);
+
 	/* Hack - never call this twice. */
 	if (z_info) return;
 
@@ -1625,7 +1734,7 @@ void init_angband(void)
 	/*** Verify the "news" file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_FILE, "news.txt");
 
 	/* Attempt to open the file */
 	fd = fd_open(buf, O_RDONLY);
@@ -1651,11 +1760,8 @@ void init_angband(void)
 	/* Clear screen */
 	Term_clear();
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
-
 	/* Open the News file */
-	fp = my_fopen(buf, "r");
+	fp = my_fopen_path(ANGBAND_DIR_FILE, "news.txt", "r");
 
 	/* Dump */
 	if (fp)
@@ -1680,7 +1786,7 @@ void init_angband(void)
 	/*** Verify (or create) the "high score" file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Attempt to open the high score file */
 	fd = fd_open(buf, O_RDONLY);
@@ -1754,20 +1860,36 @@ void init_angband(void)
 		e_name, dummy, e_max, E_HEAD)
 
 	/* Initialize monster info */
-	note("[Initializing arrays... (monsters)]");
 	init_x_info("monsters", monster_race, parse_r_info, "r_info", r_info,
 		r_name, r_text, r_max, R_HEAD)
 
 	/* Initialize death events. *
 	 * Must come after init_(k|a|e|r)_info(). */
-	note("[Initializing arrays... (death events)]");
 	init_x_info("death events", monster_race, parse_r_event, "r_event",
 	death_event, event_name, event_text, event_max, EVENT_HEAD)
+
+	/* Initialize dungeons. */
+	init_x_info("dungeons", dun_type, parse_dun_defs, "d_dun", dun_defs,
+		dun_name, dummy, dungeons, D_HEAD)
+
+	/* Initialize towns. */
+	init_x_info("towns", town_type, parse_town_defs, "d_town", town_defs,
+		town_name, dummy, towns, T_HEAD)
+
+	/* Initialize quests.
+	 * Must come after parse_r_info() and parse_dun_defs().
+	 * This array is only actually used when a new game is started.
+	 */
+	init_x_info("quests", quest_type, parse_q_list, "d_quest", q_list,
+		dummy, dummy, quests, Q_HEAD)
  
 	/* Initialize feature info */
-	note("[Initializing arrays... (vaults)]");
 	init_x_info("vaults", vault_type, parse_v_info, "v_info", v_info,
 		v_name, v_text, v_max, V_HEAD)
+
+	/* Initialize feature info */
+	init_x_info("shopkeepers", owner_type, parse_s_info, "s_info", owners,
+		s_name, dummy, owners, S_HEAD)
 
 	/* Delete the fake arrays, we're done with them. */
 	KILL(head->fake_info_ptr);

@@ -354,7 +354,7 @@ static void wiz_display_item(object_type *o_ptr)
 	for (i = 1; i <= 23; i++) prt("", i, j - 2);
 
 	/* Describe fully */
-	object_desc_store(buf, o_ptr, TRUE, 3);
+	strnfmt(buf, ONAME_MAX, "%v", object_desc_store_f3, o_ptr, TRUE, 3);
 
 	prt(buf, 2, j);
 
@@ -465,7 +465,7 @@ static void strip_name(char *buf, int k_idx)
 
 	object_prep(&forge, k_idx);
 
-	object_desc_store(buf, &forge, FALSE, 0);
+	strnfmt(buf, ONAME_MAX, "%v", object_desc_store_f3, &forge, FALSE, 0);
 }
 
 
@@ -1122,7 +1122,7 @@ static void wiz_quantity_item(object_type *o_ptr)
  */
 void do_cmd_wiz_play(void)
 {
-	int item;
+	errr err;
 
 	object_type	forge;
 	object_type *q_ptr;
@@ -1135,22 +1135,10 @@ void do_cmd_wiz_play(void)
 
 
 	/* Get an item (from equip or inven) */
-	if (!get_item(&item, "Play with which object? ", TRUE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Play with which object? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to play with.");
+		if (err == -2) msg_print("You have nothing to play with.");
 		return;
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 
@@ -1456,7 +1444,7 @@ void do_cmd_wiz_named(int r_idx, int slp)
 	/* if (!r_idx) return; */
 
 	/* Prevent illegal monsters */
-	if (r_idx >= MAX_R_IDX-1) return;
+	if (r_idx >= MAX_R_IDX || is_fake_monster(r_info+r_idx)) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1488,7 +1476,7 @@ void do_cmd_wiz_named_friendly(int r_idx, int slp)
 	/* if (!r_idx) return; */
 
 	/* Prevent illegal monsters */
-	if (r_idx >= MAX_R_IDX-1) return;
+	if (r_idx >= MAX_R_IDX || is_fake_monster(r_info+r_idx)) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)

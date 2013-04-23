@@ -152,20 +152,24 @@ struct maxima
 	u16b mname;		/* Usual maximum length of monster_desc() strings. */
 	u16b ar_delay;	/* Delay between rolls of the auto-roller. */
 
-	u16b macros;	/* Total size for "macro_info" */
-	u16b v_max;		/* Total size for "v_info[]" */
-	u16b f_max;		/* Total size for "f_info[]" */
-	u16b k_max;		/* Total size for "k_info[]" */
-	u16b u_max;		/* Total size for "u_info[]" */
-	u16b ob_max;	/* Total size for "o_base[]" */
-	u16b a_max;		/* Total size for "a_info[]" */
-	u16b e_max;		/* Total size for "e_info[]" */
-	u16b r_max;		/* Total size for "r_info[]" */
-	u16b event_max;	/* Total size for "death_events[]" */
-	u16b p_max;		/* Total size for "p_info[]" */
-	u16b h_max;		/* Total size for "h_info[]" */
+	u16b macros;	/* Total size of "macro_info" */
+	u16b v_max;		/* Total size of "v_info[]" */
+	u16b f_max;		/* Total size of "f_info[]" */
+	u16b k_max;		/* Total size of "k_info[]" */
+	u16b u_max;		/* Total size of "u_info[]" */
+	u16b ob_max;	/* Total size of "o_base[]" */
+	u16b a_max;		/* Total size of "a_info[]" */
+	u16b e_max;		/* Total size of "e_info[]" */
+	u16b r_max;		/* Total size of "r_info[]" */
+	u16b event_max;	/* Total size of "death_events[]" */
+	u16b p_max;		/* Total size of "p_info[]" */
+	u16b h_max;		/* Total size of "h_info[]" */
 	u16b b_max;		/* Total size per element of "b_info[]" */
-	u16b flavor_max; /* Total size for "flavor_info[]" */
+	u16b flavor_max; /* Total size of "flavor_info[]" */
+	u16b quests; /* Total size of "q_list[]" */
+	u16b dungeons; /* Total size of "dun_defs[]" */
+	u16b towns; /* Total size of "town_defs[]" */
+	u16b owners; /* Total size of "owners[]" */
 };
 
 
@@ -181,6 +185,7 @@ struct feature_type
 	u16b text;			/* Text (offset) */
 
 	byte mimic;			/* Feature to mimic */
+	byte priority;		/* Priority for small-scale map. See priority(). */
 
 	byte d_attr;		/* Object "attribute" */
 	char d_char;		/* Object "symbol" */
@@ -759,17 +764,18 @@ struct moncol_type
  * Structure for the "quests"
  */
 
-typedef struct quest quest;
+typedef struct quest_type quest_type;
 
-struct quest
+struct quest_type
 {
-	int level;		/* Dungeon level */
-	int r_idx;		/* Monster race */
+	s16b r_idx;		/* Monster race */
+	byte level;		/* Dungeon level */
 	byte dungeon; /* Dungeon containing quest */
 
-	int cur_num;	/* Number killed */
-	int cur_num_known;	/* Number known by the player to have been killed */
-	int max_num;	/* Number required */
+	byte cur_num;	/* Number killed */
+	byte cur_num_known;	/* Number known by the player to have been killed */
+	byte max_num;	/* Number required */
+	bool known;	/* The player has entered this quest. */
 };
 
 
@@ -783,7 +789,7 @@ typedef struct owner_type owner_type;
 
 struct owner_type
 {
-	cptr owner_name;	/* Name */
+	s16b name;	/* Name */
 
 	s16b max_cost;		/* Purse limit */
 
@@ -795,6 +801,9 @@ struct owner_type
 	byte insult_max;	/* Insult limit */
 
 	byte owner_race;	/* Owner race */
+
+	byte shop_type;	/* The category of shop this shopkeeper owns. */
+	byte town;	/* The town restriction, if any. */
 };
 
 
@@ -814,7 +823,7 @@ struct store_type
 
 	byte type;               /* Type of store */ 
 	byte bought;             /* Flag for player purchase (only used on houses) */
-	byte owner;			  /* Owner index */
+	s16b owner;			  /* Owner index */
 
 	s16b insult_cur;		/* Insult counter */
 
@@ -1011,7 +1020,6 @@ struct player_type
                             characters (such as Great One Paladins) */
 
 	byte ritual;			  /* Flag for recall ritual */
-	byte house[MAX_TOWNS];            /* Flag for house ownership */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -1039,7 +1047,7 @@ struct player_type
 	s16b cchi; /* Cur chi points */
 	u16b chi_frac; /* Cur chi frac (times 2^16) */
 
-	s16b max_dlv[MAX_CAVES];		/* Max levels explored */
+	s16b max_dlv;		/* Max levels explored in current dungeon. */
 
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
@@ -1074,16 +1082,6 @@ struct player_type
     s16b tim_esp;       /* Timed ESP */
     s16b wraith_form;   /* Timed wraithform */
 
-    s16b resist_magic;  /* Timed Resist Magic (later) */
-    s16b tim_xtra1;     /* Later */
-    s16b tim_xtra2;     /* Later */
-    s16b tim_xtra3;     /* Later */
-    s16b tim_xtra4;     /* Later */
-    s16b tim_xtra5;     /* Later */
-    s16b tim_xtra6;     /* Later */
-    s16b tim_xtra7;     /* Later */
-    s16b tim_xtra8;     /* Later */
-
     s16b chaos_patron;
     u32b muta1;
     u32b muta2;
@@ -1100,21 +1098,8 @@ struct player_type
 
 	s16b new_spells;	/* Number of spells available */
 
-	s16b old_spells;
 
-	bool old_cumber_armor;
-	bool old_cumber_glove;
-	bool old_cumber_helm;
-	bool old_heavy_wield;
-	bool old_heavy_shoot;
-	bool old_icky_wield;	/* Obsolete */
-
-	s16b old_lite;		/* Old radius of lite (if any) */
-	s16b old_view;		/* Old radius of view (if any) */
-
-	s16b old_food_aux;	/* Obsolete */
-
-
+	bool ma_cumber_armour; /* Martial arts limiting armour */
 	bool cumber_armor;	/* Mana draining armor */
 	bool cumber_glove;	/* Mana draining gloves */
 	bool cumber_helm; /* Chi draining helm */
@@ -1198,9 +1183,8 @@ struct player_type
 
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to dam */
-	s16b to_a;			/* Bonus to ac */
 
-	s16b ac;			/* Base ac */
+	s16b ac;			/* Armour class (base + bonus) */
 
 	s16b see_infra;		/* Infravision range */
 
@@ -1278,39 +1262,36 @@ struct stat_default_type {
 /* Towns */
 
 typedef struct town_type town_type;
-struct town_type {
-		s16b x; /* Coords on map */
-		s16b y;
+struct town_type
+{
+	s16b name; /* Town name. */
+
+	byte x,y; /* Coords on map */
 		
-		u32b seed; /* Seed for RNG */
+	u32b seed; /* Seed for RNG */
 
-		byte store[MAX_STORES_PER_TOWN];
-		byte numstores;
+	u32b house_price; /* Price of the house in town (if any) */
 
-		u32b house_price;
-
-		cptr name;
+	byte store[MAX_STORES_PER_TOWN];
+	byte numstores;
 };
 
 /* Dungeons */
 
 typedef struct dun_type dun_type;
-struct dun_type {
-		s16b x;
-		s16b y;
-		bool tower; /* Is this dungeon a tower */
+struct dun_type
+{
+	byte x,y; /* The location of the dungeon on the max. */
 
-		byte  offset; /* Offset to level to apply to Monster/Object creation */
-		byte  max_level; /* Maximum dungeon level allowed */
-		s16b  bias; /* summon type used for biasing random creature generation */
-		
-		s16b first_guardian; /* The Guardian of the first named level */
-		s16b second_guardian; /* The Guardian of the second named level */
+	byte flags; /* Is this dungeon a tower */
+	char sym; /* A letter used to represent the dungeon on the map. */
 
-		byte first_level; /* The level of the final guardian */
-		byte second_level; /* The level of the second guardian */
-		cptr name; /* Full name for entering/leaving */
-		cptr shortname; /* 11 character name for depth display */
+	byte  offset; /* Offset to level to apply to Monster/Object creation */
+	byte  max_level; /* Maximum dungeon level allowed */
+	u16b  bias; /* summon type used for biasing random creature generation */
+
+	s16b name; /* Full name for entering/leaving (offset) */
+	s16b shortname; /* 11 character name for depth display (offset) */
 };
 
 typedef struct wild_type wild_type;
@@ -1442,3 +1423,21 @@ struct high_score
 
 	char how[32];		/* Method of death (string) */
 };
+
+/*
+ * List the variable elements of a monster blow method.
+ */
+typedef const struct blow_method_type blow_method_type;
+
+struct blow_method_type
+{
+	byte flags; /* RBF_* flags. */
+	cptr name; /* Descriptive name. */
+	cptr hitmsg; /* Message on hitting the target. */
+	cptr *hitplayer; /* Null-terminated list of random messages for hitting the
+		* player. Overrides hitmsg. */
+	cptr missmsg; /* Message on missing the target, if any. */
+	cptr flagname; /* The name used to describe this flag in a text file.
+		* Unused withose ALLOW_TEMPLATES. */
+};
+

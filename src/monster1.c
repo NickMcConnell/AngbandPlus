@@ -113,27 +113,17 @@ static bool know_damage(int r_idx, int i)
 #define MONCOL_ATTACK	(moncol[17].attr)	/* What melee attacks it has */
 #define MONCOL_QUEST	(moncol[18].attr)	/* If it is a quest monster */
 
-/* Colour for croff() */
-static byte colour;
-
-/*
- * Hack - input routine for c_roff which does not require two parameters.
- */
-static void croff(cptr str)
-{
-	c_roff(colour, str);
-}
-
 /* "will" if always true and omniscient, "may" otherwise. */
 #define DDE_MAY ((omniscient && d_ptr->num >= d_ptr->denom) ? "will" : "may")
 
 /*
  * Display information about death events
  */
-void describe_death_events(int r_idx, cptr he, void (*out)(cptr), bool omniscient)
+cptr describe_death_events(int r_idx, cptr he, bool omniscient)
 {
 	u16b j;
 	s16b start = -1, end = -1;
+	cptr s = format("When %s dies, ", he);
 
 	/* First count the interesting events */
 	for (j = 0; j < MAX_DEATH_EVENTS; j++)
@@ -159,11 +149,8 @@ void describe_death_events(int r_idx, cptr he, void (*out)(cptr), bool omniscien
 	}
 	
 	/* Nothing to do. */
-	if (end == -1) return;
+	if (end == -1) return "";
 
-	/* Make a note of the colour for croff(). */
-	colour = MONCOL_DROP;
-	
 	/* Then loop through them. There may be unknown ones in the range, but no incorrect ones. */
 	for (j = start; j <= end; j++)
 	{
@@ -175,12 +162,9 @@ void describe_death_events(int r_idx, cptr he, void (*out)(cptr), bool omniscien
 		/* Ignore DEATH_NOTHING entries */
 		if (d_ptr->type == DEATH_NOTHING) continue;
 
-		/* Start the string. */
-		if (j == start)
-			(*out)(format("When %s dies, ", he));
 		/* Prepare to finish the string */
-		else if (j == end)
-			(*out)("and ");
+		if (j != start && j == end)
+			s = format("%sand ", s);
 
 		switch (d_ptr->type)
 		{
@@ -197,8 +181,8 @@ void describe_death_events(int r_idx, cptr he, void (*out)(cptr), bool omniscien
 				if (i_ptr->flags & EI_EGO)
 				o_ptr->name2 = EP_EGO;
 #endif
-				object_desc_store(o_name, o_ptr, TRUE, 0);
-				(*out)(format("%s %s drop %s", he, DDE_MAY, o_name));
+				strnfmt(o_name, ONAME_MAX, "%v", object_desc_store_f3, o_ptr, TRUE, 0);
+				s = format("%s%s %s drop %s", s, he, DDE_MAY, o_name);
 				TFREE(o_name);
 				break;
 			}
@@ -206,16 +190,15 @@ void describe_death_events(int r_idx, cptr he, void (*out)(cptr), bool omniscien
 			{
 				make_monster_type *i_ptr = &d_ptr->par.monster;
 				monster_race *r_ptr = &r_info[i_ptr->num];
-				C_TNEW(m_name, MNAME_MAX, char);
-				monster_desc_aux(m_name, r_ptr, i_ptr->max, MDF_INDEF);
-				(*out)(format("%s %s be created", m_name, DDE_MAY));
-				TFREE(m_name);
+				s = format("%s%v %s be created", s, monster_desc_aux_f3, r_ptr,
+					i_ptr->max, MDF_INDEF, DDE_MAY);
 				break;
 			}
 			case DEATH_EXPLODE:
 			{
 				make_explosion_type *i_ptr = &d_ptr->par.explosion;
-				(*out)(format("%s %s explode in a ball of %s of radius %d", he, DDE_MAY, explode_flags[i_ptr->method-1], i_ptr->radius));
+				s = format("%s%s %s explode in a ball of %s of radius %d", s, 
+					he, DDE_MAY, explode_flags[i_ptr->method-1], i_ptr->radius);
 				break;
 			}
 			case DEATH_COIN:
@@ -224,56 +207,89 @@ void describe_death_events(int r_idx, cptr he, void (*out)(cptr), bool omniscien
 				char coin[80];
 				int i;
 				for (i = 0; ((coin[i] = FORCELOWER(coin_types[i_ptr->metal][i]))) != '\0'; i++);
-				(*out)(format("%s %s only drop %s coins", he, DDE_MAY, coin));
+				s = format("%s%s %s only drop %s coins", s, he, DDE_MAY, coin);
 				break;
 			}
 			case DEATH_NOTHING: /* But nothing happens. */
 			break;
 			default: /* Shouldn't get here, but... */
-			(*out)("Something awful has happened.");
+			if (alert_failure)
+				msg_format("Strange death event %d encountered.", d_ptr->type);
 		}
 		if (j == end)
-			(*out)(". ");
+			s = format("%s. ", s);
 		else
-			(*out)(", ");
+			s = format("%s, ", s);
 	}
+	return s;
 }
 
-/* A macro to regularise the function below. */
-#define ROFF_MONSTER(var, flag, string) \
-	if ((var) & (flag)) out = format("%s %s", out, string)
+typedef struct roff_monster_type roff_monster_type;
+
+struct roff_monster_type
+{
+	int set;
+	u32b value;
+	cptr adjective;
+	cptr noun;
+};
 
 /*
  * Return the type of monster something is (e.g. an undead dragon) on demand.
  * This doesn't allow conditional colour codes, but could if c_roff() had
  * escape sequences for them. It doesn't print anything directly as it doesn't
  * know what colour everything should be by default.
- *
- * Hack - It should be identical to the version in spoil_mon_info().
- * Its output needs to be handled carefully if used in format strings as it's
- * stored in the format buffer.
  */
-static cptr roff_monster(u32b flags2, u32b flags3)
+cptr roff_monster(u32b flags2, u32b flags3)
 {
-	cptr out = "this";
+	roff_monster_type cats[] =
+	{
+		{2, RF2_ELDRITCH_HORROR, "sanity-blasting", "eldritch horror"},
+		{3, RF3_ANIMAL, "natural", "animal"},
+		{3, RF3_EVIL, "evil", "evil monster"},
+		{3, RF3_GOOD, "good", "good creature"},
+		{3, RF3_UNDEAD, "undead", "undead thing"},
+		{3, RF3_DRAGON, "draconic", "dragon"},
+		{3, RF3_DEMON, "demoniac", "demon"},
+		{3, RF3_CTHULOID, "Cthuloid", "Cthuloid entity"},
+		{3, RF3_GIANT, "gigantic", "giant"},
+		{3, RF3_TROLL, "trollish", "troll"},
+		{3, RF3_ORC, "orcish", "orc"},
+		{3, RF3_GREAT_OLD_ONE, "Great Old One", "Great Old One"},
+	};
 
-	/* Describe the "quality" */
-	ROFF_MONSTER(flags2, RF2_ELDRITCH_HORROR, "sanity-blasting");
-	ROFF_MONSTER(flags3, RF3_ANIMAL, "natural");
-	ROFF_MONSTER(flags3, RF3_EVIL, "evil");
-	ROFF_MONSTER(flags3, RF3_GOOD, "good");
-	ROFF_MONSTER(flags3, RF3_UNDEAD, "undead");
+	u32b flags[4];
 
-	ROFF_MONSTER(flags3, RF3_DRAGON, "dragon");
-	else ROFF_MONSTER(flags3, RF3_DEMON, "demon");
-	else ROFF_MONSTER(flags3, RF3_CTHULOID, "Cthuloid entity");
-	else ROFF_MONSTER(flags3, RF3_GIANT, "giant");
-	else ROFF_MONSTER(flags3, RF3_TROLL, "troll");
-	else ROFF_MONSTER(flags3, RF3_ORC, "orc");
-	else ROFF_MONSTER(flags3, RF3_GREAT_OLD_ONE, "Great Old One");
-	else out = format("%s %s", out, "creature");
+	uint i, j;
 
-	return out;
+	/* Put the input in the flags array for convenience. */
+	flags[2] = flags2;
+	flags[3] = flags3;
+
+	/* Count the number of applicable flags. */
+	for (i = j = 0; i < N_ELEMENTS(cats); i++)
+	{
+		if (flags[cats[i].set] & cats[i].value) j++;
+	}
+
+	if (!j)
+	{
+		/* No applicable categories, so use something simple. */
+		return "This creature";
+	}
+	else
+	{
+		cptr out = "This";
+
+		/* Write out the strings, putting the last as a noun. */
+		for (i = 0; j; i++)
+		{
+			if (flags[cats[i].set] & cats[i].value)
+				out = format("%s %s", out,
+					(--j) ? cats[i].adjective : cats[i].noun);
+		}
+		return out;
+	}
 }
 	
 
@@ -569,7 +585,7 @@ static void roff_aux(int r_idx)
 
 	/* Assume some "obvious" flags */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) flags1 |= (RF1_UNIQUE);
-	if ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)) flags1 |= (RF1_GUARDIAN);
+	if (r_ptr->flags1 & RF1_GUARDIAN) flags1 |= (RF1_GUARDIAN);
 	if (r_ptr->flags1 & (RF1_MALE)) flags1 |= (RF1_MALE);
 	if (r_ptr->flags1 & (RF1_FEMALE)) flags1 |= (RF1_FEMALE);
 
@@ -728,7 +744,7 @@ static void roff_aux(int r_idx)
 			int i;
 			for (i = 0; i < MAX_Q_IDX; i++)
 			{
-				quest *q_ptr = &q_list[i];
+				quest_type *q_ptr = &q_list[i];
 				if (q_ptr->r_idx == r_ptr-r_info)
 				{
 					depth = q_ptr->level+dun_defs[q_ptr->dungeon].offset;
@@ -893,7 +909,7 @@ static void roff_aux(int r_idx)
 	vn = 0;
 	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
 	if (flags4 & (RF4_XXX3))		vp[vn++] = "do something";
-    if (flags4 & (RF4_SHARD))      vp[vn++] = "produce shard balls";
+    if (flags4 & (RF4_BA_SHARD))      vp[vn++] = "produce shard balls";
 	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire an arrow (1d6)";
 	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire arrows (3d6)";
 	if (flags4 & (RF4_ARROW_3))		vp[vn++] = "fire a missile (5d6)";
@@ -1027,7 +1043,6 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
     if (flags6 & (RF6_S_MONSTER))       vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))	vp[vn++] = "summon monsters";
     if (flags6 & (RF6_S_KIN))       vp[vn++] = "summon aid";
@@ -1035,6 +1050,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
 	if (flags6 & (RF6_S_HYDRA))		vp[vn++] = "summon hydras";
+		if (flags6 & (RF6_S_IB))	vp[vn++] = "summon beings of Ib";
 	if (flags6 & (RF6_S_CTHULOID))		vp[vn++] = "summon a Cthuloid entity";
 	if (flags6 & (RF6_S_DEMON))		vp[vn++] = "summon a demon";
 	if (flags6 & (RF6_S_UNDEAD))		vp[vn++] = "summon an undead";
@@ -1462,7 +1478,7 @@ static void roff_aux(int r_idx)
 	}
 
 	/* Include death events here. */
-	describe_death_events(r_idx, wd_he[msex], croff, spoil_mon);
+	c_roff(MONCOL_DROP, describe_death_events(r_idx, wd_he[msex], spoil_mon));
 
 	/* Count the number of "known" attacks */
 	for (n = 0, m = 0; m < 4; m++)
@@ -1479,9 +1495,11 @@ static void roff_aux(int r_idx)
 	{
 		int method, effect, d1, d2;
 
-		/* Skip non-attacks */
-		if (!r_ptr->blow[m].method) continue;
+		blow_method_type *b_ptr = get_blow_method(r_ptr->blow[m].method);
 
+		/* Skip non-attacks. */
+		if (!b_ptr) continue;
+ 
 		/* Skip unknown attacks */
 		if (!r_ptr->r_blows[m]) continue;
 
@@ -1493,37 +1511,8 @@ static void roff_aux(int r_idx)
 		d2 = r_ptr->blow[m].d_side;
 
 
-		/* No method yet */
-		p = NULL;
-
-		/* Acquire the method */
-		switch (method)
-		{
-			case RBM_HIT:	p = "hit"; break;
-			case RBM_TOUCH:	p = "touch"; break;
-			case RBM_PUNCH:	p = "punch"; break;
-			case RBM_KICK:	p = "kick"; break;
-			case RBM_CLAW:	p = "claw"; break;
-			case RBM_BITE:	p = "bite"; break;
-			case RBM_STING:	p = "sting"; break;
-			case RBM_XXX1:	break;
-			case RBM_BUTT:	p = "butt"; break;
-			case RBM_CRUSH:	p = "crush"; break;
-			case RBM_ENGULF:	p = "engulf"; break;
-            case RBM_CHARGE: p = "charge";   break;
-			case RBM_CRAWL:	p = "crawl on you"; break;
-			case RBM_DROOL:	p = "drool on you"; break;
-			case RBM_SPIT:	p = "spit"; break;
-			case RBM_XXX3:	break;
-			case RBM_GAZE:	p = "gaze"; break;
-			case RBM_WAIL:	p = "wail"; break;
-			case RBM_SPORE:	p = "release spores"; break;
-			case RBM_WORSHIP:p = "hero worship";	break;
-			case RBM_BEG:	p = "beg"; break;
-			case RBM_INSULT:	p = "insult"; break;
-			case RBM_MOAN:	p = "moan"; break;
-            case RBM_SHOW:  p = "sing"; break;
-		}
+		/* Method string. */
+		p = b_ptr->name;
 
 
 		/* Default effect */
@@ -1664,7 +1653,6 @@ void roff_top(int r_idx)
 
 	byte		a1, a2;
 	char		c1, c2;
-	cptr		s1, s2;
 
 
 	/* Access the chars */
@@ -1675,18 +1663,6 @@ void roff_top(int r_idx)
 	a1 = r_ptr->d_attr;
 	a2 = r_ptr->x_attr;
 
-	/* Format the above into a string mc_roff() understands. */
- 	s1 = string_make(get_symbol_aux(a1, c1));
-	s2 = string_make(get_symbol_aux(a2, c2));
-
- 	/* Hack -- fake monochrome */
-	if (!use_color) a1 = TERM_WHITE;
-	if (!use_color) a2 = TERM_WHITE;
-
-	/* Convert to characters. */
-	a1 = atchar[a1];
-	a2 = atchar[a2];
-
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
 
@@ -1694,11 +1670,8 @@ void roff_top(int r_idx)
 	Term_gotoxy(0, 0);
 
 	/* Dump the name */
-	mc_roff(format("%^s (%s)/(%s):", monster_desc_aux(0, r_ptr, 1, MDF_DEF ),
-		s1, s2));
-
-	FREE(s1);
-	FREE(s2);
+	mc_roff(format("%^v (%v)/(%v):", monster_desc_aux_f3, r_ptr, 1, MDF_DEF,
+		get_symbol_f2, a1, c1, get_symbol_f2, a2, c2));
 }
 
 

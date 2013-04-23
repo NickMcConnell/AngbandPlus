@@ -1345,7 +1345,7 @@ static void open_event_handler(GtkButton UNUSED *was_clicked, gpointer UNUSED us
 	if (!game_in_progress)
 	{
 		/* Prepare the savefile path */
-		path_build(buf, 1024, ANGBAND_DIR_SAVE, "*");
+		strnfmt(buf, 1024, "%v", path_build_f2, ANGBAND_DIR_SAVE, "*");
 
 		file_selector = gtk_file_selection_new("Select a savefile");
 		gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_selector), buf);
@@ -1462,7 +1462,7 @@ static bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 		|| (graphics == GRAPHICS_ADAM_BOLT) || (graphics == GRAPHICS_HALF_3D))
 	{
 		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+		strnfmt(filename, 1024, "%v", path_build_f2, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
 		/* Use the "16x16.bmp" file if it exists */
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -1489,7 +1489,7 @@ static bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 		&& ((graphics == GRAPHICS_ANY) || (graphics == GRAPHICS_ORIGINAL)))
 	{
 		/* Try the "8x8.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
+		strnfmt(filename, 1024, "%v", path_build_f2, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
 
 		/* Use the "8x8.bmp" file if it exists */
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))

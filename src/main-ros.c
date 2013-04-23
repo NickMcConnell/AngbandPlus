@@ -7904,7 +7904,7 @@ extern errr check_modification_date(int fd, cptr template_file)
 	}
 
 	/* Build the path to the template_file */
-	path_build(txt_buf, 1024, ANGBAND_DIR_EDIT, template_file);
+	strnfmt(txt_buf, 1024, "%v", path_build_f2, ANGBAND_DIR_EDIT, template_file);
 
 	i = file_is_newer(riscosify_name(txt_buf), raw_buf);
 

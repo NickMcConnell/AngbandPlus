@@ -1,3 +1,7 @@
+# w_med.txt
+#
+# Contains possible names for cursed random armour artefacts.
+
 50
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Misery

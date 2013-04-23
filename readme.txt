@@ -1,7 +1,7 @@
 
 
                           *************************
-                          ** sCthangband 1.0.5   **
+                          ** sCthangband    **
                           *************************
 
            Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -43,8 +43,8 @@ This version of sCthangband should run on Macintosh, Windows, Acorn, Amiga,
 Unix (X11/Curses), Linux (X11/Curses), various DOS machines, and many
 others...
 
-See compile.txt, and the Makefiles, h-config.h, and config.h in the src
-directory for details on compiling.
+See the Makefiles, h-config.h, and config.h in the src directory for details
+on compiling.
 See "Makefile.xxx" and "main-xxx.c" for various supported systems.
 
 
@@ -59,7 +59,7 @@ Step 1: Acquire.  Go to the sCthangband Web-site
 Step 2: Extract.  Try "unzip *.zip"
 Step 3: Prepare.  Try "cd scthangband*/src", then edit the "makefile.org" file
                   You may also edit "h-config.h" and "config.h"
-Step 4: Compile.  Try "make", and then "cd .." if successful
+Step 4: Compile.  Try "make -f makefile.org", and then "cd .." if successful
 Step 5: Execute.  Try "./Cthangband -uTest" to initialize stuff
 Step 6: Play....  Read the "online help" via the "?" command.
 

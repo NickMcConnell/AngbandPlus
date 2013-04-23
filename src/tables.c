@@ -1079,702 +1079,6 @@ byte blows_table[12][12] =
 
 
 
-/*
- * Store owners (exactly four "possible" owners per store, chosen randomly)
- * { name, purse, max greed, min greed, haggle_per, tolerance, race }
- */
-owner_type owners[MAX_STORES_TOTAL][MAX_OWNERS] =
-{
-	{
-		/* Celephais Store 0 (General Store)*/
-		{ "Falilmawen the Friendly",         250,    170, 108,  5, 15, RACE_HOBBIT},
-		{ "Voirin the Cowardly",       500,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Erashnak the Midget",          750,    170, 107,  5, 15, RACE_BROO},
-		{ "Grug the Comely",        1000,    165, 107,  6, 18, RACE_HALF_TITAN},
-	},
-	{
-		/* Celephais Store 1 (Armoury) */
-		{ "Kon-Dar the Ugly",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",          15000,  190, 111,  4,  9, RACE_HUMAN},
-		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_GREAT},
-        { "Elo Dragonscale",          30000,  200, 112,  4,  5, RACE_ELF},
-	},
-	{
-		/* Celephais Store 2 (Weaponsmith)*/
-		{ "Arnold the Beastly",      10000,   210, 115,  6,  6, RACE_BARBARIAN},
-		{"Arndal Beast-Slayer",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
-		{ "Edor the Short",         25000,  190, 115,  5,  7, RACE_HOBBIT},
-		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
-	},
-	{
-		/* Celephais Store 3 (Temple)*/
-		{ "Ludwig the Humble",         10000,   175, 109,  6, 15, RACE_DWARF},
-		{ "Gunnar the Paladin",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
-		{ "Sir Parsival the Pure",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN},
-	},
-	{
-		/* Celephais Store 4 (Temple) */
-		{ "McKinnon",         10000,   175, 109,  6, 15, RACE_HUMAN},
-		{ "Mistress Chastity",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
-		{ "Hashnik the Druid",           25000,  180, 107,  6, 20, RACE_HOBBIT},
-		{ "Finak",          30000,  185, 109,  5, 15, RACE_YEEK},
-	},
-	{
-		/* Celephais Store 5 (Alchemist)*/
-		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
-		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
-        { "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
-        { "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
-	},
-	{
-		/* Celephais Store 6 (Magic)*/
-        { "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
-		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
-        { "Kyria the Illusionist",       30000,  200, 110,  7, 10, RACE_HUMAN},
-        { "Nikki the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-	},
-	{
-		/* Celephais Store 7 (Home)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Celephais Store 8 (Bookstore)*/
-		{ "Randolph Carter", 15000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Odnar the Sage", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_VAMPIRE},
-		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_GOLEM},
-	},
-	{
-		/* Celephais Store 9 (Inn)*/
-		{ "Mordsan", 15000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Furfoot Pobber", 20000, 120, 105, 6, 16, RACE_HOBBIT},
-		{ "Oddo Yeekson", 25000, 120, 110, 7, 19, RACE_YEEK},
-		{ "Dry-Bones", 30000, 140, 105, 6, 12, RACE_SKELETON},
-	},
-	{
-		/* Celephais Store 10 (Hall)*/
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Celephais Store 11 (Pawnbroker)*/
-		{ "Magd the Ruthless", 2000, 100, 100, 4, 12, RACE_HUMAN},
-		{ "Drako Fairdeal", 4000, 100, 100, 6, 16, RACE_DRACONIAN},
-		{ "Featherwing", 5000, 100, 100, 7, 19, RACE_SPRITE},
-		{ "Xochinaggua", 10000, 100, 100, 6, 12, RACE_MIND_FLAYER},
-	},
-
-
-	{
-		/* Ulthar Store 0 (General Store)*/
-		{ "Forovir the Cheap",         250,    170, 108,  5, 15, RACE_HUMAN},
-		{ "Ellis the Fool",       500,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Filbert the Hungry",          750,    170, 107,  5, 15, RACE_VAMPIRE},
-		{ "Fthnargl Psathiggua",        1000,    165, 107,  6, 18, RACE_MIND_FLAYER},
-	},
-	{
-		/* Ulthar Store 1 (Armoury)*/
-		{ "Delicatus",           10000,   210, 115,  5,  7, RACE_SPRITE},
-		{ "Gruce the Huge",          15000,  190, 111,  4,  9, RACE_HALF_GIANT},
-		{ "Animus",            25000,  200, 112,  4, 10, RACE_GOLEM},
-        { "Malvus",          30000,  200, 112,  4,  5, RACE_HALF_TITAN},
-	},
-	{
-		/* Ulthar Store 2 (Weaponsmith)*/
-		{ "Drew the Skilled",      10000,   210, 115,  6,  6, RACE_HUMAN},
-		{"Orrax Dragonson",        15000,  185, 110,  5,  9, RACE_DRACONIAN},
-		{ "Anthrax Disease-Carrier",         25000,  190, 115,  5,  7, RACE_BROO},
-		{ "Arkhoth the Stout",       30000,  195, 112,  4,  8, RACE_DWARF},
-	},
-	{
-		/* Ulthar Store 3 (Temple)*/
-		{ "Krikkik",         10000,   175, 109,  6, 15, RACE_KLACKON},
-		{ "Morival the Wild",         15000,  185, 110,  5, 23, RACE_ELF},
-		{ "Hoshak the Dark",           25000,  180, 107,  6, 20, RACE_IMP},
-		{ "Atal the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
-	},
-	{
-		/* Ulthar Store 4 (Alchemist)*/
-		{ "Fanelath the Cautious",         10000,  190, 111,  5,  8, RACE_DWARF},
-		{ "Runcie the Insane",         10000,  190, 110,  6,  8, RACE_HUMAN},
-        { "Grumbleworth",           15000,  200, 116,  6,  9, RACE_GNOME},
-        { "Flitter",       15000,  220, 111,  4,  9, RACE_SPRITE},
-	},
-	{
-		/* Ulthar Store 5 (Magic)*/
-        { "Solostoran",        15000,  200, 110,  7,  8, RACE_SPRITE},
-		{ "Achshe the Tentacled",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
-        { "Kaza the Noble",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
-        { "Fazzil the Dark",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-	},
-	{
-		/* Ulthar Store 6 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Ulthar Store 7 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Ulthar Store 8 (Bookstore)*/
-		{ "Sarai the Swift", 15000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Bodril the Seer", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-		{ "Veloin the Quiet", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-		{ "Vanthylas the Learned", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
-	},
-	{
-		/* Ulthar Store 9 (Inn)*/
-		{ "Kleibons", 15000, 175, 108, 4, 12, RACE_KLACKON},
-		{ "Prendegast", 20000, 120, 105, 6, 16, RACE_HOBBIT},
-		{ "Straasha", 25000, 120, 110, 7, 19, RACE_DRACONIAN},
-		{ "Allia the Servile", 30000, 140, 105, 6, 12, RACE_HUMAN},
-	},
-	{
-		/* Ulthar Store 10 (Hall)*/
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Ulthar Store 11 (Pawnbroker)*/
-		{ "Od the Penniless", 2000, 100, 100, 4, 12, RACE_ELF},
-		{ "Xax", 4000, 100, 100, 6, 16, RACE_GOLEM},
-		{ "Jake Small", 5000, 100, 100, 7, 19, RACE_HALF_GIANT},
-		{ "Helga the Lost", 10000, 100, 100, 6, 12, RACE_HUMAN},
-	},
-
-
-	{
-		/* Dylath Leen Store 0 (General Store)*/
-		{ "Eloise Long-Dead",         250,    170, 108,  5, 15, RACE_SPECTRE},
-		{ "Fundi the Slow",       500,    175, 108,  4, 12, RACE_ZOMBIE},
-		{ "Granthus",          750,    170, 107,  5, 15, RACE_SKELETON},
-		{ "Lorax the Suave",        1000,    165, 107,  6, 18, RACE_VAMPIRE},
-	},
-	{
-		/* Dylath Leen Store 1 (Armoury)*/
-		{ "Selaxis",           10000,   210, 115,  5,  7, RACE_ZOMBIE},
-		{ "Deathchill",          15000,  190, 111,  4,  9, RACE_SPECTRE},
-		{ "Drios the Faint",            25000,  200, 112,  4, 10, RACE_SPECTRE},
-        { "Bathric the Cold",          30000,  200, 112,  4,  5, RACE_VAMPIRE},
-	},
-	{
-		/* Dylath Leen Store 2 (Weaponsmith)*/
-		{ "Sarlyas the Rotten",      10000,   210, 115,  6,  6, RACE_ZOMBIE},
-		{"Tuethic Bare-Bones",        15000,  185, 110,  5,  9, RACE_SKELETON},
-		{ "Bilious",         25000,  190, 115,  5,  7, RACE_BROO},
-		{ "Fasgul",       30000,  195, 112,  4,  8, RACE_ZOMBIE},
-	},
-	{
-		/* Dylath Leen Store 3 (Black Market)*/
-		{ "Vhassa the Dead",             20000,  250, 150, 10,  5, RACE_ZOMBIE},
-		{ "Kyn the Treacherous",          20000,  250, 150, 10,  5, RACE_VAMPIRE},
-		{ "Bubonicus",          30000,  250, 150, 10,  5, RACE_BROO},
-		{ "Corpselight",           30000,  250, 150, 10,  5, RACE_SPECTRE},
-	},
-	{
-		/* Dylath Leen Store 4 (Black Market)*/
-		{ "Parrish the Bloodthirsty",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
-		{ "Vile",          20000,  250, 150, 10,  5, RACE_SKELETON},
-		{ "Prentice the Trusted",          30000,  250, 150, 10,  5, RACE_SKELETON},
-		{ "Griella Humanslayer",           30000,  250, 150, 10,  5, RACE_IMP},
-	},
-	{
-		/* Dylath Leen Store 5 (Black Market)*/
-		{ "Angelface",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
-		{ "Flotsam the Bloated",          20000,  250, 150, 10,  5, RACE_ZOMBIE},
-		{ "Nieval",          30000,  250, 150, 10,  5, RACE_VAMPIRE},
-		{ "Anastasia the Luminous",           30000,  250, 150, 10,  5, RACE_SPECTRE},
-	},
-	{
-		/* Dylath Leen Store 6 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Dylath Leen Store 7 (Bookstore)*/
-		{ "Ossein the Literate", 15000, 175, 108, 4, 12, RACE_SKELETON},
-		{ "Olvar Bookworm", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
-		{ "Shallowgrave", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-		{ "D'ndrasn", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
-	},
-	{
-		/* Dylath Leen Store 8 (Inn)*/
-		{ "Fubble the Boring", 15000, 175, 108, 4, 12, RACE_ZOMBIE},
-		{ "Bare-Bones Salluah", 20000, 120, 105, 6, 16, RACE_SKELETON},
-		{ "Winsalt Once-Living", 25000, 120, 110, 7, 19, RACE_SPECTRE},
-		{ "Agnes D'Arcy", 30000, 140, 105, 6, 12, RACE_VAMPIRE},
-	},
-	{
-		/* Dylath Leen Store 9 (Inn)*/
-		{ "Lumin the Blue", 15000, 175, 108, 4, 12, RACE_SPECTRE},
-		{ "Short Al", 20000, 120, 105, 6, 16, RACE_ZOMBIE},
-		{ "Silent Faldus", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-		{ "Quirmby the Strange", 30000, 140, 105, 6, 12, RACE_VAMPIRE},
-	},
-	{
-		/* Dylath Leen Store 10 (Hall)*/
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Dylath Leen Store 11 (Pawnbroker)*/
-		{ "Gloom the Phlegmatic", 2000, 100, 100, 4, 12, RACE_ZOMBIE},
-		{ "Quick-Arm Vollaire", 4000, 100, 100, 6, 16, RACE_VAMPIRE},
-		{ "Asenath", 5000, 100, 100, 7, 19, RACE_ZOMBIE},
-		{ "Lord Filbert", 10000, 100, 100, 6, 12, RACE_VAMPIRE},
-	},
-
-
-	{
-		/* Kadath Store 0 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 1 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 2 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 3 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 4 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 5 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 6 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 7 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 8 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 9 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 10 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Kadath Store 11 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-
-
-	{
-		/* Hlanth Store 0 (General Store)*/
-		{ "Butch",         250,    170, 108,  5, 15, RACE_HALF_ORC},
-		{ "Elbereth the Beautiful",       500,    175, 108,  4, 12, RACE_HIGH_ELF},
-		{ "Sarleth the Sneaky",          750,    170, 107,  5, 15, RACE_GNOME},
-		{ "Narlock",        1000,    165, 107,  6, 18, RACE_DWARF},
-	},
-	{
-		/* Hlanth Store 1 (Armoury)*/
-		{ "Vengella the Cruel",           10000,   210, 115,  5,  7, RACE_HALF_TROLL},
-		{ "Wyrana the Mighty",          15000,  190, 111,  4,  9, RACE_HUMAN},
-		{ "Yojo II",            25000,  200, 112,  4, 10, RACE_DWARF},
-        { "Ranalar the Sweet",          30000,  200, 112,  4,  5, RACE_GREAT},
-	},
-	{
-		/* Hlanth Store 2 (Armoury)*/
-		{ "Uurda the Infectious",           10000,   210, 115,  5,  7, RACE_BROO},
-		{ "Sparrow II",          15000,  190, 111,  4,  9, RACE_HALF_ELF},
-		{ "Westmark the Fallen",            25000,  200, 112,  4, 10, RACE_GREAT},
-        { "Grob the Stupid",          30000,  200, 112,  4,  5, RACE_HALF_TROLL},
-	},
-	{
-		/* Hlanth Store 3 (Weaponsmith)*/
-		{ "Ellefris the Paladin",      10000,   210, 115,  6,  6, RACE_BARBARIAN},
-		{"K'trrik'k",        15000,  185, 110,  5,  9, RACE_KLACKON},
-		{ "Drocus Spiderfriend",         25000,  190, 115,  5,  7, RACE_DARK_ELF},
-		{ "Fungus Giant-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
-	},
-	{
-		/* Hlanth Store 4 (Weaponsmith)*/
-		{ "Delantha",      10000,   210, 115,  6,  6, RACE_ELF},
-		{"Solvistani the Ranger",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
-		{ "Xoril the Slow",         25000,  190, 115,  5,  7, RACE_GOLEM},
-		{ "Aeon Flux",       30000,  195, 112,  4,  8, RACE_HALF_ELF},
-	},
-	{
-		/* Hlanth Store 5 (Alchemist)*/
-		{ "Xarillus",         10000,  190, 111,  5,  8, RACE_HUMAN},
-		{ "Egbert the Old",         10000,  190, 110,  6,  8, RACE_DWARF},
-        { "Valindra the Proud",           15000,  200, 116,  6,  9, RACE_HIGH_ELF},
-        { "Taen the Alchemist",       15000,  220, 111,  4,  9, RACE_HUMAN},
-	},
-	{
-		/* Hlanth Store 6 (Magic)*/
-        { "Keldorn the Grand",        15000,  200, 110,  7,  8, RACE_DWARF},
-		{ "Philanthropus",         20000,  215, 113,  6, 10, RACE_HOBBIT},
-        { "Agnar the Enchantress",       30000,  200, 110,  7, 10, RACE_HUMAN},
-        { "Buliance the Necromancer",       30000,  175, 110,  5, 11, RACE_BROO},
-	},
-	{
-		/* Hlanth Store 7 (Black Market)*/
-		{ "Charity the Necromancer", 20000,  250, 150, 10,  5, RACE_DARK_ELF},
-		{ "Pugnacious the Pugilist",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Footsore the Lucky",          30000,  250, 150, 10,  5, RACE_BROO},
-		{ "Sidria Lighfingered",           30000,  250, 150, 10,  5, RACE_HUMAN},
-	},
-	{
-		/* Hlanth Store 8 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Hlanth Store 9 (Bookstore)*/
-		{ "Porcina the Obese", 15000, 175, 108, 4, 12, RACE_HALF_ORC},
-		{ "Glaruna Brandybreath", 20000, 120, 105, 6, 16, RACE_DWARF},
-		{ "Furface Yeek", 25000, 120, 110, 7, 19, RACE_YEEK},
-		{ "Bald Oggin", 30000, 140, 105, 6, 12, RACE_GNOME},
-	},
-	{
-		/* Hlanth Store 10 (Inn)*/
-		{ "Aldous the Sleepy", 15000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Grundy the Tall", 20000, 120, 105, 6, 16, RACE_HOBBIT},
-		{ "Gobbleguts Thunderbreath", 25000, 120, 110, 7, 19, RACE_HALF_TROLL},
-		{ "Silverscale", 30000, 140, 105, 6, 12, RACE_DRACONIAN},
-	},
-	{
-		/* Hlanth Store 11 (Hall)*/
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-	},
-
-
-	{
-		/* Ilek Vad Store 0 (General Store)*/
-		{ "Haneka the Small",         250,    170, 108,  5, 15, RACE_GNOME},
-		{ "Loirin the Mad",       500,    175, 108,  4, 12, RACE_HALF_GIANT},
-		{ "Wuto Poisonbreath",          750,    170, 107,  5, 15, RACE_DRACONIAN},
-		{ "Araaka the Rotund",        1000,    165, 107,  6, 18, RACE_DRACONIAN},
-	},
-	{
-		/* Ilek Vad Store 1 (Armoury)*/
-		{ "Horbag the Unclean",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Elelen the Telepath",          15000,  190, 111,  4,  9, RACE_DARK_ELF},
-		{ "Isedrelias",            25000,  200, 112,  4, 10, RACE_SPRITE},
-        { "Vegnar One-eye",          30000,  200, 112,  4,  5, RACE_CYCLOPS},
-	},
-	{
-		/* Ilek Vad Store 2 (Weaponsmith)*/
-		{ "Nadoc the Strong",      10000,   210, 115,  6,  6, RACE_HOBBIT},
-		{"Eramog the Weak",        15000,  185, 110,  5,  9, RACE_KOBOLD},
-		{ "Eowilith the Fair",         25000,  190, 115,  5,  7, RACE_VAMPIRE},
-		{ "Huimog Balrog-Slayer",       30000,  195, 112,  4,  8, RACE_HALF_ORC},
-	},
-	{
-		/* Ilek Vad Store 3 (Temple)*/
-		{ "Ibenidd the Chaste",         10000,   175, 109,  6, 15, RACE_HUMAN},
-		{ "Eridish",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
-		{ "Vrudush the Shaman",           25000,  180, 107,  6, 20, RACE_HALF_OGRE},
-		{ "Haob the Berserker",          30000,  185, 109,  5, 15, RACE_BARBARIAN},
-	},
-	{
-		/* Ilek Vad Store 4 ( Alchemist)*/
-		{ "Cayd the Sweet",         10000,  190, 111,  5,  8, RACE_VAMPIRE},
-		{ "Fulir the Dark",         10000,  190, 110,  6,  8, RACE_NIBELUNG},
-        { "Domli the Humble",           15000,  200, 116,  6,  9, RACE_DWARF},
-        { "Yaarjukka Demonspawn",       15000,  220, 111,  4,  9, RACE_IMP},
-	},
-	{
-		/* Ilek Vad Store 5 (Magic)*/
-        { "Vuirak the Wizard",        15000,  200, 110,  7,  8, RACE_BROO},
-		{ "Madish the Smart",         20000,  215, 113,  6, 10, RACE_BROO},
-        { "Falebrimbor",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
-        { "Felil-Gand the Subtle",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-	},
-	{
-		/* Ilek Vad Store 6 (Black Market)*/
-		{ "Riatho the Juggler",                 20000,  250, 150, 10,  5, RACE_HOBBIT},
-		{ "Janaaka the Shifty",          20000,  250, 150, 10,  5, RACE_GNOME},
-		{ "Cina the Rogue",          30000,  250, 150, 10,  5, RACE_GNOME},
-		{ "Arunikki Greatclaw",           30000,  250, 150, 10,  5, RACE_DRACONIAN},
-	},
-	{
-		/* Ilek Vad Store 7 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Ilek Vad Store 8 (Bookstore)*/
-		{ "Asuunu the Learned", 15000, 175, 108, 4, 12, RACE_MIND_FLAYER},
-		{ "Prirand the Dead", 20000, 120, 105, 6, 16, RACE_ZOMBIE},
-		{ "Ronar the Iron", 25000, 120, 110, 7, 19, RACE_GOLEM},
-		{ "Galil-Gamir", 30000, 140, 105, 6, 12, RACE_ELF},
-	},
-	{
-		/* Ilek Vad Store 9 (Bookstore)*/
-		{ "Togdush the Quiet", 15000, 175, 108, 4, 12, RACE_KOBOLD},
-		{ "Vurjaana the Studious", 20000, 120, 105, 6, 16, RACE_GNOME},
-		{ "Yietram the Luminous", 25000, 120, 110, 7, 19, RACE_SPECTRE},
-		{ "Thradrierith", 30000, 140, 105, 6, 12, RACE_DARK_ELF},
-	},
-	{
-		/* Ilek Vad Store 10 (Inn)*/
-		{ "Etheraa the Furious", 15000, 175, 108, 4, 12, RACE_BARBARIAN},
-		{ "Paetlan the Alcoholic", 20000, 120, 105, 6, 16, RACE_HUMAN},
-		{ "Drang", 25000, 120, 110, 7, 19, RACE_HALF_OGRE},
-		{ "Barbag the Sly", 30000, 140, 105, 6, 12, RACE_KOBOLD},
-	},
-	{
-		/* Ilek Vad Store 11 (Hall)*/
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
-	},
-
-
-	{
-		/* Inganok Store 0 (General Store)*/
-		{ "Poogor the Dumb",         250,    170, 108,  5, 15, RACE_BROO},
-		{ "Felorfiliand",       500,    175, 108,  4, 12, RACE_ELF},
-		{ "Maroka the Aged",          750,    170, 107,  5, 15, RACE_GNOME},
-		{ "Sasin the Bold",        1000,    165, 107,  6, 18, RACE_HALF_GIANT},
-	},
-	{
-		/* Inganok Store 1 (Armoury)*/
-		{ "Rodish the Chaotic",           10000,   210, 115,  5,  7, RACE_BROO},
-		{ "Hesin Swordmaster",          15000,  190, 111,  4,  9, RACE_NIBELUNG},
-		{ "Elvererith the Cheat",            25000,  200, 112,  4, 10, RACE_DARK_ELF},
-        { "Zzathath the Imp",          30000,  200, 112,  4,  5, RACE_IMP},
-	},
-	{
-		/* Inganok Store 2 (Weaponsmith)*/
-		{ "Peadus the Cruel",      10000,   210, 115,  6,  6, RACE_HUMAN},
-		{ "Vamog Slayer",        15000,  185, 110,  5,  9, RACE_HALF_OGRE},
-		{ "Hooshnak the Vicious",         25000,  190, 115,  5,  7, RACE_BROO},
-		{ "Balenn War-Dancer",       30000,  195, 112,  4,  8, RACE_BARBARIAN},
-	},
-	{
-		/* Inganok Store 3 (Temple)*/
-		{ "Proogdish the Youthfull",         10000,   175, 109,  6, 15, RACE_HALF_OGRE},
-		{ "Lumwise the Mad",         15000,  185, 110,  5, 23, RACE_YEEK},
-		{ "Muirt the Virtuous",           25000,  180, 107,  6, 20, RACE_KOBOLD},
-		{ "Dardobard the Weak",          30000,  185, 109,  5, 15, RACE_SPECTRE},
-	},
-	{
-		/* Inganok Store 4 (Alchemist)*/
-		{ "Gelaraldor the Herbmaster",         10000,  190, 111,  5,  8, RACE_HIGH_ELF},
-		{ "Olelaldan the Wise",         10000,  190, 110,  6,  8, RACE_BARBARIAN},
-        { "Fthoglo the Demonicist",           15000,  200, 116,  6,  9, RACE_IMP},
-        { "Dridash the Alchemist",       15000,  220, 111,  4,  9, RACE_HALF_ORC},
-	},
-	{
-		/* Inganok Store 5 (Alchemist)*/
-		{ "Nelir the Strong",         10000,  190, 111,  5,  8, RACE_CYCLOPS},
-		{ "Lignus the Pungent",         10000,  190, 110,  6,  8, RACE_HALF_ORC},
-        { "Tilba",           15000,  200, 116,  6,  9, RACE_HOBBIT},
-        { "Myrildric the Wealthy",       15000,  220, 111,  4,  9, RACE_HUMAN},
-	},
-	{
-		/* Inganok Store 6 (Magic)*/
-        { "Thalegord the Shaman",        15000,  200, 110,  7,  8, RACE_BARBARIAN},
-		{ "Cthoaloth the Mystic",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
-        { "Ibeli the Illusionist",       30000,  200, 110,  7, 10, RACE_SKELETON},
-        { "Heto the Necromancer",       30000,  175, 110,  5, 11, RACE_YEEK},
-	},
-	{
-		/* Inganok Store 7 (Black Market)*/
-		{ "Chaeand the Poor",                 20000,  250, 150, 10,  5, RACE_HUMAN},
-		{ "Afardorf the Brigand",          20000,  250, 150, 10,  5, RACE_BARBARIAN},
-		{ "Lathaxl the Greedy",          30000,  250, 150, 10,  5, RACE_MIND_FLAYER},
-		{ "Falarewyn",           30000,  250, 150, 10,  5, RACE_SPRITE},
-	},
-	{
-		/* Inganok Store 8 (Black Market)*/
-		{ "Vosur the Wrinkled",                 20000,  250, 150, 10,  5, RACE_NIBELUNG},
-		{ "Araord the Handsome",          20000,  250, 150, 10,  5, RACE_GREAT},
-		{ "Theradfrid the Loser",          30000,  250, 150, 10,  5, RACE_HUMAN},
-		{ "One-Legged Eroolo",           30000,  250, 150, 10,  5, RACE_HALF_OGRE},
-	},
-	{
-		/* Inganok Store 9 (Bookstore)*/
-		{ "Rorbag Book-Eater", 15000, 175, 108, 4, 12, RACE_KOBOLD},
-		{ "Kiriarikirk", 20000, 120, 105, 6, 16, RACE_KLACKON},
-		{ "Rilin the Quiet", 25000, 120, 110, 7, 19, RACE_DWARF},
-		{ "Isung the Lord", 30000, 140, 105, 6, 12, RACE_HIGH_ELF},
-	},
-	{
-		/* Inganok Store 10 (Inn)*/
-		{ "Kirakak", 15000, 175, 108, 4, 12, RACE_KLACKON},
-		{ "Nafur the Wooden", 20000, 120, 105, 6, 16, RACE_GOLEM},
-		{ "Grarak the Hospitable", 25000, 120, 110, 7, 19, RACE_HALF_GIANT},
-		{ "Lona the Charismatic", 30000, 140, 105, 6, 12, RACE_GNOME},
-	},
-	{
-		/* Inganok Store 11 (Pawnbroker)*/
-		{ "Herranyth the Ruthless", 2000, 100, 100, 4, 12, RACE_HUMAN},
-		{ "Gagrin Moneylender", 4000, 100, 100, 6, 16, RACE_YEEK},
-		{ "Thrambor the Grubby", 5000, 100, 100, 7, 19, RACE_HALF_ELF},
-		{ "Derigrin the Honest", 10000, 100, 100, 6, 12, RACE_HOBBIT},
-	},
-
-
-	{
-		/* Nir Store 0 (General Store)*/
-		{ "Abiemar the Peasant",         250,    170, 108,  5, 15, RACE_HUMAN},
-		{ "Hurk the Poor",       500,    175, 108,  4, 12, RACE_HALF_ORC},
-		{ "Soalin the Wretched",          750,    170, 107,  5, 15, RACE_ZOMBIE},
-		{ "Merulla the Humble",        1000,    165, 107,  6, 18, RACE_ELF},
-	},
-	{
-		/* Nir Store 1 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Nir Store 2 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Nir Store 3 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Nir Store 4 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Nir Store 5 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Nir Store 6 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Nir Store 7 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Nir Store 8 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Nir Store 9 (House)*/
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-	},
-	{
-		/* Nir Store 10 (Inn)*/
-		{ "Crediric the Brewer", 15000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Nydudus the Slow", 20000, 120, 105, 6, 16, RACE_ZOMBIE},
-		{ "Baurk the Busy", 25000, 120, 110, 7, 19, RACE_YEEK},
-		{ "Seviras the Mindcrafter", 30000, 140, 105, 6, 12, RACE_HUMAN},
-	},
-	{
-		/* Nir Store 11 (Pawnbroker)*/
-		{ "Munk the Barterer", 2000, 100, 100, 4, 12, RACE_HALF_OGRE},
-		{ "Gadrialdur the Fair", 4000, 100, 100, 6, 16, RACE_HALF_ELF},
-		{ "Ninar the Stooped", 5000, 100, 100, 7, 19, RACE_DWARF},
-		{ "Adirath the Unmagical", 10000, 100, 100, 6, 12, RACE_BARBARIAN},
-	}
-};
-
-
-
 
 /*
  * This table allows quick conversion from "speed" to "energy"
@@ -2921,6 +2225,8 @@ cptr favour_names[MAX_SPHERE][32]=
 
 /*
  * Player's Skills
+ *
+ * name,increase,0,0,0,0,0,exp_to_raise
  */
  player_skill skill_set[MAX_SKILLS] =
  {
@@ -2933,7 +2239,7 @@ cptr favour_names[MAX_SPHERE][32]=
 	 { "Searching","You are getting better at searching.",0,0,0,0,0,1},
 	 { "Perception","You are getting more perceptive.",0,0,0,0,0,1},
 	 { "Close Combat","Your combat skills are increasing.",0,0,0,0,0,10},
-	 { "Missile","Your accuracy is increasing.",0,0,0,0,0,10},
+	 { "Missile","Your accuracy is increasing.",0,0,0,0,0,4},
 	 { "Martial Arts","Your martial arts are improving.",0,0,0,0,0,9},
 	 { "Corporis","Your magice corporis is improving.",0,0,0,0,0,2},
 	 { "Animae","Your magice animae magic is improving.",0,0,0,0,0,2},
@@ -3055,6 +2361,8 @@ cptr color_names[16] =
 
 /*
  * The character used to represent each colour.
+ *
+ * This is hardcoded.
  */
 cptr atchar = "dwsorgbuDWvyRGBU";
 
@@ -3124,7 +2432,13 @@ cptr window_flag_desc[32] =
 
 
 /*
- * Available Options (full to 3,12), 7 reserved for cheat options
+ * Available Options (full to 3,17), 7 reserved for cheat options
+ *
+ * Note that birth options should always be followed by BIRTHR ones which
+ * store the value used in the game.
+ *
+ * Note also that these BIRTHR options have no text name. This, and the lack
+ * of a BIRTHR option screen, prevents them from being set.
  */
 option_type option_info[] =
 {
@@ -3415,14 +2729,22 @@ option_type option_info[] =
 	{ &auto_more,                   FALSE,  OPTS_DISTURB,      3, 12,
 	"auto_more",                    "Automatically clear '-more-' prompts" },
 
-	{ &score_quitters,		FALSE, OPTS_BIRTH, 2, 29,
+#ifdef SCORE_QUITTERS
+	{ &score_quitters_w,		FALSE, OPTS_BIRTH, 2, 29,
 	"score_quitter",			"Remember scores of those who quit the game" },
 
-	{ &maximise_mode,               TRUE, OPTS_BIRTH, 2, 18,
+	{ &score_quitters, 0, OPTS_BIRTHR, 3, 14, 0, ""},
+#endif /* SCORE_QUITTERS */
+
+	{ &maximise_mode_w,               TRUE, OPTS_BIRTH, 2, 18,
     "maximise_mode",                "Include race/template bonuses in stat calcs" },
 
-	{ &preserve_mode,               TRUE, OPTS_BIRTH, 2, 19,
+	{ &maximise_mode, 0, OPTS_BIRTHR, 3, 15, 0, ""},
+
+	{ &preserve_mode_w,               TRUE, OPTS_BIRTH, 2, 19,
     "preserve_mode",                "Artifacts are not lost if you never saw them" },
+
+	{ &preserve_mode, 0, OPTS_BIRTHR, 3, 16, 0, ""},
 
 	{ &allow_quickstart,		TRUE,	OPTS_BIRTH, 3, 4,
 	"allow_quickstart",	"Allow the player to start by using Quick-Start"},
@@ -3441,11 +2763,15 @@ option_type option_info[] =
 	{ &spend_points,               FALSE, OPTS_BIRTH, 2, 21,
     "spend_points",                "Allow stats to be chosen by spending points" },
 
-	{ &ironman_shop,               FALSE, OPTS_BIRTH, 2, 22,
+	{ &ironman_shop_w,               FALSE, OPTS_BIRTH, 2, 22,
     "ironman_shop",                "Shops (except for libraries) are locked" },
 
-	{ &ironman_feeling,	FALSE, OPTS_BIRTH, 3, 3,
+	{ &ironman_shop, 0, OPTS_BIRTHR, 3, 17, 0, ""},
+
+	{ &ironman_feeling_w,	FALSE, OPTS_BIRTH, 3, 3,
 	"ironman_feeling",	"Level feelings are only given after 2500 turns" },
+
+	{ &ironman_feeling, 0, OPTS_BIRTHR, 3, 18, 0, ""},
 
 	{ &spoil_base,			FALSE, OPTS_SPOIL,	2, 31,
 	"spoil_base",			"Gain knowledge of normal items" },
@@ -3511,6 +2837,7 @@ force_type option_force[] =
 	{&stack_force_notes, FALSE, &stack_force_notes_all},
 	{&wear_confirm, FALSE, &confirm_wear_all},
 	{&flow_by_sound, FALSE, &flow_by_smell},
+	{&use_graphics, TRUE, &use_color},
 	{0, 0, 0}
 };
 
@@ -3780,178 +3107,6 @@ BLANK_WINDOW("Xtra-3")
 BLANK_WINDOW("Xtra-4")
 };
 
-town_type town_defs[MAX_TOWNS] = {
-	/* 
-	 * X,Y,Seed (all zero here and filled in during dungeon generation)
-	 * store indices, number of stores, house price
-	 * name
-	 */
-	{  0,  0,  0,
-	{  0,  1,  2,  3,  3,  4,  5,  7,  8,  9, 10, 11}, 12, 50000,
-	"the beautiful city of Celephais"},
-	
-	{ 0, 0, 0,
-	{  0,  1,  2,  3,  4,  5,  99,  7,  8,  9, 10, 11}, 12, 45000,
-	"the picturesque town of Ulthar"},
-	
-	{ 0, 0, 0,
-	{  0,  1,  2,  6,  6,  6,  7,  8,  99,  9, 10, 11}, 12, 25000,
-	"the unwholesome city of Dylath-Leen"},
-	
-	{ 0, 0, 0,
-	{  99,  99,  99,  99,  99,  99,  99,  99,  99,  99,  99,  99}, 12, 0,
-	"Kadath, home of the Gods"},
-	
-	{ 0, 0, 0,
-	{  0,  1,  99,  2,  99,  4,  5,  6,  7,  8,  9, 10}, 12, 45000,
-	"the market town of Hlanth"},
-	
-	{ 0, 0, 0,
-	{  0,  1,  2,  3,  4,  5,  6,  7,  8,  99,  9, 10}, 12, 60000,
-	"the city of Ilek-Vad"},
-	
-	{ 0, 0, 0,
-	{  0,  1,  2,  3,  4,  99,  5,  6,  99,  8,  9, 11}, 12, 0,
-	"the industrious town of Inganok"},
-	
-	{ 0, 0, 0,
-	{  0,  99,  99,  99,  99,  99,  99,  99,  99,  99,  9, 11}, 12, 0,
-	"the hamlet of Nir"},
-};
-
-dun_type dun_defs[MAX_CAVES] = {
-
-/* x,y (Zero now, filled in during wilderness or town creation),tower
- * offset,max_depth,bias
- * first_guardian,second_guardian,first_level,second_level
- * name
- */
-
-/* The first (MAX_TOWNS) entries are each found in a town */
-	/* 0 = Under Celephais */
-	{ 0, 0,FALSE,
-	0, 3,0,
-	0,0,0,0,
-	"the Sewers under Celephais","Celephais"},
-
-	/* 1 = Under Ulthar */
-	{ 0, 0,FALSE,
-	0, 7,0,
-	156,0,7,0, /* The Champion of Cats */
-	"the Sewers under Ulthar","Ulthar"},
-	
-	/* 2 = Under Dylath-Leen */
-	{ 0, 0,FALSE,
-	1, 9,0,
-	0,0,0,0,
-	"the Sewers under Dylath Leen","Dylath Leen"},
-	
-	/* 3 = Under Kadath */
-	{ 0, 0,FALSE,
-	50, 75, SUMMON_CTHULOID,
-	574,575,49,50, /* Nyarlathotep/Azathoth */
-	"the Catacombs under Kadath","Kadath"},
-	
-	/* 4 = Under Hlanth */
-	{ 0, 0,FALSE,
-	0, 5,0,
-	0,0,0,0,
-	"the Sewers under Hlanth","Hlanth"},
-	
-	/* 5 = Under Ilek-Vad */
-	{ 0, 0,FALSE,
-	0, 5,0,
-	0,0,0,0,
-	"the Sewers under Ilek-Vad","Ilek-Vad"},
-	
-	/* 6 = Under Inganok */
-	{ 0, 0,FALSE,
-	0, 5,0,
-	0,0,0,0,
-	"the Sewers under Inganok","Inganok"},
-	
-	/* 7 = Under Nir */
-	{ 0, 0,FALSE,
-	0, 7,SUMMON_HUMAN,
-	112,0,7,0, /* Robin Hood */
-	"the Sewers under Nir","Nir"},
-
-/* The rest are found outside */
-	/* 8 */
-	{ 0, 0,FALSE,
-	2, 8,SUMMON_YEEK,
-	143,183,7,8, /* Orfax/Boldor */
-	"the Yeek King's Lair","Yeek Lair"},
-
-	/* 9 */
-	{ 0, 0,TRUE,
-	3,17 ,SUMMON_ORC,
-	243,270,16,17, /* Bolg/Azog */
-	"the Orc Tower","Orc Tower"},
-	
-	/* 10 */
-	{ 0, 0,FALSE,
-	4, 21,SUMMON_UNDEAD,
-	92,294,1,21, /* Disembodied Hand/Khufu */
-	"Khufu's Tomb","Tomb"},
-
-	/* 11 */
-	{ 0, 0,FALSE,
-	30, 20,0,
-	505,0,20,0, /* Collector */
-	"the Collector's Cave","Cave"},
-
-	/* 12 */
-	{ 0, 0,FALSE,
-	10, 30,0,
-	484,0,30,0, /* Stormbringer */
-	"the Vault of the Sword","Vault"},
-
-	/* 13 */
-	{ 0, 0,FALSE,
-	15, 35,SUMMON_DRAGON,
-	492,526,34,35, /* Glaurung/Ancalagon */
-	"the Dragon's Lair","Dragon Lair"},
-
-	/* 14 */
-	{ 0, 0,TRUE,
-	30, 40,SUMMON_HI_UNDEAD,
-	368,546,1,40, /* Fire Phantom/Vecna */
-	"the Necropolis","Necropolis"},
-
-	/* 15 */
-	{ 0, 0, TRUE,
-	15, 20, SUMMON_DEMON,
-	220,459,1,20, /* The Emmisary/Glaryssa */
-	"the Demon Spire","Spire"},
-
-	/* 16 */
-	{ 0, 0, TRUE,
-	20, 20, SUMMON_ELEMENTAL,
-	433,474,15,20, /* Lasha/Grom */
-	"the Conflux of the Elements","Conflux"},
-
-	/* 17 */
-	{ 0,0,TRUE,
-	13, 17, SUMMON_SPIDER,
-	342,0,17,0, /* Shelob */
-	"Shelob's Tower","Tower"},
-
-	/* 18 */
-	{ 0, 0, TRUE,
-	1,5, SUMMON_KOBOLD,
-	110,0,5,0, /* Vort */
-	"the Kobold Fort","Fort"},
-
-	/* 19 */
-	{ 0, 0, TRUE,
-	40, 20, SUMMON_CTHULOID,
-	322,525,1,20, /* Father Dagon/Tulzscha */
-	"the Tower of Koth","Koth"}
-	
-
-};
-
 /*
  * The array of monster recall colour options
  */
@@ -4015,4 +3170,85 @@ spirit_type spirits[MAX_SPIRITS] =
 
 	{"","a major life spirit",0,0,0xff000000,SPIRIT_LIFE,5},
 	{"","a major wild spirit",0,0,0xff000000,SPIRIT_NATURE,20},
+};
+
+/*
+ * Hack -- possible "insult" messages
+ */
+static cptr desc_insult[] =
+{
+	"%^s insults you!",
+	"%^s insults your mother!",
+	"%^s gives you the finger!",
+	"%^s humiliates you!",
+	"%^s defiles you!",
+	"%^s dances around you!",
+	"%^s makes obscene gestures!",
+	"%^s moons you!",
+	0
+};
+
+/*
+ * Hack -- possible "hero worship" messages
+ */
+static cptr desc_worship[] =
+{
+	"%^s looks up at you!",
+	"%^s asks how many dragons you've killed!",
+	"%^s asks for your autograph!",
+	"%^s tries to shake your hand!",
+	"%^s pretends to be you!",
+	"%^s dances around you!",
+	"%^s tugs at your clothing!",
+	"%^s asks if you will adopt him!",
+	0
+};
+
+
+/*
+ * Hack -- possible "moan" messages
+ */
+static cptr desc_moan[] =
+{
+	"%^s seems sad about something.",
+	"%^s asks if you have seen his dogs.",
+	"%^s tells you to get off his land.",
+	"%^s mumbles something about mushrooms.",
+	0
+};
+
+/*
+ * Hack - possible "sing" messages
+ */
+static cptr desc_sing[] =
+{
+	"%^s sings 'I love you, you love me.'",
+	"%^s sings 'I love you, you love me.'",
+	"%^s sings 'We are a happy family.'",
+	0
+};
+blow_method_type blow_methods[NUM_BLOW_METHODS] =
+{
+	{RBF_TOUCH | RBF_CUT | RBF_STUN, "hit", "%^s hits %s.", NULL, "%^s misses %s.", "HIT"},
+	{RBF_TOUCH, "touch", "%^s touches %s.", NULL, "%^s misses %s.", "TOUCH"},
+	{RBF_TOUCH | RBF_STUN, "punch", "%^s punches %s.", NULL, "%^s misses %s.", "PUNCH"},
+	{RBF_TOUCH | RBF_STUN, "kick", "%^s kicks %s.", NULL, "%^s misses %s.", "KICK"},
+	{RBF_TOUCH | RBF_CUT, "claw", "%^s claws %s.", NULL, "%^s misses %s.", "CLAW"},
+	{RBF_TOUCH | RBF_CUT, "bite", "%^s bites %s.", NULL, "%^s misses %s.", "BITE"},
+	{RBF_TOUCH, "sting", "%^s stings %s.", NULL, "%^s misses %s.", "STING"},
+	{RBF_TOUCH | RBF_STUN, "butt", "%^s butts %s.", NULL, "%^s misses %s.", "BUTT"},
+	{RBF_TOUCH | RBF_STUN, "crush", "%^s crushes %s.", NULL, "%^s misses %s.", "CRUSH"},
+	{RBF_TOUCH, "engulf", "%^s engulfs %s.", NULL, "%^s misses %s.", "ENGULF"},
+	{RBF_TOUCH, "charge", "%^s charges at %s.", NULL, "%^s misses %s.", "CHARGE"},
+	{RBF_TOUCH, "crawl on you", "%^s crawl on %s.", NULL, NULL, "CRAWL"},
+	{0, "drool on you", "%^s drool on %s.", NULL, NULL, "DROOL"},
+	{0, "spit", "%^s spits on %s.", NULL, NULL, "SPIT"},
+	{0, "gaze", "%^s gazes at %s.", NULL, NULL, "GAZE"},
+	{0, "wail", "%^s wails at %s.", NULL, NULL, "WAIL"},
+	{0, "release spores", "%^s release spores at %s.", NULL, NULL, "SPORE"},
+	{0, "hero worship", "%^s hero worships %s.", desc_worship, NULL, "WORSHIP"},
+	{RBF_WAKE, "beg", "%^s begs %s for money.", NULL, NULL, "BEG"},
+	{RBF_WAKE, "insult", "%^s insults %s.", desc_insult, NULL, "INSULT"},
+	{RBF_WAKE, "moan", "%^s moans at %s.", desc_moan, NULL, "MOAN"},
+	{RBF_WAKE, "sing", "%^s sings to %s.", desc_sing, NULL, "SHOW"},
 };

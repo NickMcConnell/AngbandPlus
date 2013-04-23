@@ -1,3 +1,8 @@
+# death.txt
+#
+# This contains random strings, one of which may be printed as the player dies.
+# It may also be used for scrolls of rumour.
+
 339
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 Live and let live, right..?

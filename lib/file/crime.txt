@@ -1,3 +1,8 @@
+# crime.txt
+#
+# This contains a list of crimes with which monsters with the CAN_SPEAK flag
+# may be accused if speak_unique is set.
+
 37
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 murder.

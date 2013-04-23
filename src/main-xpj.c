@@ -3312,7 +3312,7 @@ errr init_xpj(int argc, char **argv)
 	Term_activate(&data[0].t);
 
 	/* Try the "16x16.bmp" file */
-	path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+	strnfmt(filename, 1024, "%v", path_build_f2, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
 	/* Use the "16x16.bmp" file if it exists */
 	if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -3589,7 +3589,7 @@ errr init_xpj(int argc, char **argv)
 	pj_cur_row = -255;
 
 	/* Try the "16x16.bmp" file */
-	path_build(filename, 1024, ANGBAND_DIR_XTRA, "font/16x16.txt");
+	strnfmt(filename, 1024, "%v", path_build_f2, ANGBAND_DIR_XTRA, "font/16x16.txt");
 
 	/* Use the "16x16.bmp" file if it exists */
 	if (0 == fd_close(fd_open(filename, O_RDONLY)))

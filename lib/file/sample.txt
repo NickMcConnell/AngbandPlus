@@ -1,3 +1,8 @@
+# sample.txt
+#
+# This is just an example of the format for text files provided for use
+# with get_rnd_line().
+
 3
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 line # 1

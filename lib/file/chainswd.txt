@@ -1,3 +1,9 @@
+# chainswd.txt
+#
+# This contains a list of lines which may be printed whenever Demonblade cuts
+# deeply into a monster and, every so often, as you are carrying it around.
+# It may also be used for scrolls of rumour.
+
 6
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 KILL, KILL, KILL!

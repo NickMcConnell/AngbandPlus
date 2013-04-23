@@ -1,0 +1,223 @@
+# File: d_info.txt
+
+# This file is used to initialise the "lib/data/d_quest.raw",
+# "lib/data/d_dun.raw" and "lib/data/d_town.raw" files, which are used to
+# initialise the towns, dungeons and fixed quests for the sCthAngband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# The format of a monster is as follows... ([] indicates an optional part)
+
+# N:(symbol):(dungeon name)
+# D:(dungeon description)
+# I:(minimum level)-(maximum level):[Bias]
+# Q:level:number:monster
+# T:house price:town description
+# S:[shop]:[shop]:[shop]:...
+# F:flag | flag | ...
+
+# A town (with walls) is generated if a T line exists.
+
+# 'N'
+# Symbol: A symbol used to represent this dungeon on the small scale map.
+# Dungeon name: A short name for the dungeon, primarily used for the "level"
+#     display within towns, but sometimes used for all dungeons.
+
+# 'D'
+# Dungeon description: A long description for the dungeon, printed on entering
+#     the dungeon.
+
+# 'I'
+# Minimum/Maximum level: The range of levels over which this dungeon is spread.
+# Bias: A special restriction which is placed on monster creation approximately
+#     30% of the time. If the game cannot create such a monster (e.g. because
+# it is too out of depth), nothing is created. It can be any of the following:
+# CTHULOID, DEMON, UNDEAD, DRAGON, GREAT_OLD_ONE, ORC, ANIMAL, UNIQUE:
+#     Creates monsters with the given flag.
+# HI_DEMON: Creates demons with the L, V or W symbol.
+# HOUND: Creates monsters with the C or Z symbol.
+# MIMIC: Creates monsters with the !, ?, =, $ or | symbol.
+# ANIMAL_RANGER: Creates animals which have no spells, are not evil, draconic,
+# undead, demoniac or Cthuloid and have a, b, c, f, l, q, r, w, B, C, I, J, K,
+# M, N, R or S as their symbol.
+# REAVER: Creates monsters with "Black reaver" in their names.
+# PHANTOM: Creates monsters with "Phantom" in their names.
+# ELEMENTAL: Creates monsters with "lemental" in their names.
+# An arbitrary single character: Creates monsters with the indicated symbol.
+
+# 'Q'
+# level: The level on which a fixed dungeon quest occurs.
+# number: The number of monsters to create at this level.
+# monster: The name of the monster to be created.
+
+# 'T'
+# House price: The price of the house in this town. If no house is for sale,
+#     this is ignored (but must still be provided).
+# Town description: A long description for a town, printed on entering or
+#     leaving a town.
+
+# S
+# shop: A type of shop present in this town from the following list:
+# GENERAL, ARMOURY, WEAPON, TEMPLE, ALCHEMIST, MAGIC, BLACK, HOME, LIBRARY,
+# INN, HALL, PAWN.
+# There can be at most 12 shops in a single town, and at most one home.
+
+# F contains a number of flags as follows:
+# TOWER: This indicates that any stairs placed here lead to a tower rather
+# than a dungeon. Towers are harder at higher levels rather than lower ones,
+# consist entirely of 1x1 levels and start at a round building rather than a
+# set of stairs leading into the ground. Towers cannot exist in towns.
+# START: This allows the player to start the game in this town (or dungeon).
+# KADATH: This causes monsters generated on the surface to have a Cthuloid
+# bias rather than following the bias of the dungeon.
+# NO_UNIQUES: This prevents uniques from being generated when the game creates
+# a monster according to the above bias.
+
+# Some of the changes which can be made to this file (including all changes
+# relating to quests apart from removing the level a quest is on) only have
+# an effect at the start of the next game, or have a strange effect mid-game.
+# Because of this, you are strongly advised to keep a copy of your savefile
+# somewhere safe if you do intend to alter this file mid-game.
+
+# Version stamp (required)
+
+V:
+
+N:0:Celephais
+D:the Sewers under Celephais
+T:50000:the beautiful city of Celephais
+S:GENERAL:ARMOURY:WEAPON:TEMPLE:TEMPLE:ALCHEMIST:MAGIC:HOME:LIBRARY:INN:HALL:PAWN
+I:1-3
+F:START
+
+N:1:Ulthar
+D:the Sewers under Ulthar
+T:45000:the picturesque town of Ulthar
+S:GENERAL:ARMOURY:WEAPON:TEMPLE:ALCHEMIST:MAGIC:HOME:LIBRARY:INN:HALL:PAWN
+I:1-7
+Q:7:1:Fthssssss, Champion of Cats
+F:START
+
+N:2:Dylath-Leen
+D:the Sewers under Dylath Leen
+T:25000:the unwholesome city of Dylath-Leen
+S:GENERAL:ARMOURY:WEAPON:BLACK:BLACK:BLACK:HOME:LIBRARY:INN:HALL:PAWN
+I:2-10
+F:START
+
+N:3:Kadath
+D:the Catacombs under Kadath
+T:0:Kadath, home of the Gods
+I:51-125
+Q:99:1:Nyarlathotep
+Q:100:1:Azathoth, The Daemon Sultan
+F:KADATH
+
+N:4:Hlanth
+D:the Sewers under Hlanth
+T:45000:the market town of Hlanth
+S:GENERAL:ARMOURY:WEAPON:ALCHEMIST:MAGIC:BLACK:HOME:LIBRARY:INN:HALL
+I:1-5
+F:START
+
+N:5:Ilek-Vad
+D:the Sewers under Ilek-Vad
+T:60000:the city of Ilek-Vad
+S:GENERAL:ARMOURY:WEAPON:TEMPLE:ALCHEMIST:MAGIC:BLACK:HOME:LIBRARY:INN:HALL
+I:1-5
+F:START
+
+N:6:Inganok
+D:the Sewers under Inganok
+T:0:the industrious town of Inganok
+S:GENERAL:ARMOURY:WEAPON:TEMPLE:ALCHEMIST:MAGIC:BLACK:LIBRARY:INN:PAWN
+I:1-5
+F:START
+
+N:7:Nir
+D:the Sewers under Nir
+T:0:the hamlet of Nir
+S:GENERAL:INN:PAWN
+I:1-7:p
+Q:7:1:Robin Hood, the Outlaw
+F:NO_UNIQUES
+
+N:y:Yeek Lair
+D:the Yeek Kings Lair
+I:3-10:y
+Q:9:1:Orfax, Son of Boldor
+Q:10:1:Boldor, King of the Yeeks
+F:NO_UNIQUES
+
+N:o:Orc Tower
+D:the Orc Tower
+I:4-20:o
+Q:19:1:Bolg, Son of Azog
+Q:20:1:Azog, King of the Uruk-Hai
+F:TOWER | NO_UNIQUES
+
+N:z:Tomb
+D:Khufu's Tomb
+I:5-25:UNDEAD
+Q:5:1:The disembodied hand
+Q:25:1:Khufu the mummified King
+F:NO_UNIQUES
+
+N:C:Cave
+D:the Collector's Cave
+I:31-50
+Q:50:1:The Collector
+
+N:V:Vault
+D:the Vault of the Sword
+I:11-40
+Q:40:1:The Stormbringer
+
+N:D:Dragon Lair
+D:the Dragons' Lair
+I:16-50:DRAGON
+Q:49:1:Glaurung, Father of the Dragons
+Q:50:1:Ancalagon the Black
+F:NO_UNIQUES
+
+N:N:Necropolis
+D:the Necropolis
+I:31-70:HI_UNDEAD
+Q:31:1:Fire Phantom~
+Q:70:1:Vecna, the Emperor Lich
+F:TOWER
+
+N:u:Spire
+D:the Demon Spire
+I:16-35:DEMON
+Q:16:1:The Emissary
+Q:35:1:Glaryssa, Succubus Queen
+F:TOWER | NO_UNIQUES
+
+N:E:Conflux
+D:the Conflux of the Elements
+I:21-40:ELEMENTAL
+Q:35:1:Lasha, Mistress of Water
+Q:40:1:Grom, Master of Earth
+F:TOWER | NO_UNIQUES
+
+N:S:Tower
+D:Shelob's Tower
+I:14-30:S
+Q:30:1:Shelob, Spider of Darkness
+F:TOWER | NO_UNIQUES
+
+N:k:Fort
+D:the Kobold Fort
+I:2-6:k
+Q:6:1:Vort the Kobold Queen
+F:TOWER | NO_UNIQUES
+
+N:K:Koth
+D:the Tower of Koth
+I:41-60:CTHULOID
+Q:41:1:Father Dagon
+Q:60:1:Tulzscha
+F:TOWER | NO_UNIQUES
+

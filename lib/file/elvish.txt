@@ -1,3 +1,8 @@
+# elvish.txt
+#
+# This contains a list of syllables from which the names of random artefacts may
+# be constructed.
+
 216
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 adan

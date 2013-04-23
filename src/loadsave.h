@@ -53,3 +53,19 @@
  * Reorganise k_info.txt a bit
  */
 #define SF_K_INFO_1 0x0400
+
+/*
+ * Track which quests have been encountered.
+ */
+#define SF_QUEST_KNOWN	0x0800
+
+/*
+ * Rearrange r_info.txt so that all of the unusual monsters are at the beginning.
+ * Add Bokrug and various causes of death to it.
+ */
+#define SF_R_INFO_1	0x1000
+
+/*
+ * Read quests directly into q_info rather than from the dungeon definition.
+ */
+#define SF_QUEST_DIRECT	0x4000

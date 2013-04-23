@@ -1,18 +1,22 @@
+%%%%% <cmd=?>
 === Using the Online Help ===
 
-* You can press Escape at any time to leave the online help.
-* You can press Question Mark (?) to return to the previous help file.
-* You can press Space to advance one page, or Return to advance one
-  line.
-* If you reach the end of the help file, you will wrap around to the
-  start.
-* You can press Minus (-) to back up one half page at a time towards the
-  start of the help file (this is very inefficient).
-* You can press Hash (#) to go to a specific line (this defaults to
-  line zero).
-* You can press Percent (%) to go to a specific file (this defaults to
-  the index file for your system).
-* You can press Equals (=) to highlight lines containing a string (this
-  is not case sensitive).
-* You can press Slash (/) to search for a string (this is also not case
-  sensitive).
+The help files are arranged in a straightforward menu structure which takes the following commands:
+
+  Escape: Leave help.
+       ?: Return to previous help file.
+3, Space: Advance one page.
+       2: Advance one line.
+       7: Go to the start of the file.
+       1: Go to the end of the file.
+  6, Tab: Highlight the next link.
+       4: Highlight the previous link.
+  Return: Go to the highlighted link.
+       8: Back up one line.
+     9,-: Back up one page.
+       #: Go to a numbered line.
+       %: Go to a specific file.
+       =: Highlight all instances of a string.
+       /: Find and highlight all instances of a string.
+
+If you reach the end of the help file, it will wrap around to the start.

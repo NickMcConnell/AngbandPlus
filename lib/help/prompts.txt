@@ -1,8 +1,6 @@
 === In-game Prompts ===
 
-There are a number of styles of prompt in the game. This is an attempt to list
-some of them, give a means of finding an example from within the game and
-explain the input acceptable at each.
+There are a number of styles of prompt in the game. This is an attempt to list some of them, give a means of finding an example from within the game and explain the input acceptable at each.
 
 %%%%% <command_prompt>
 === Command prompt ===
@@ -11,8 +9,7 @@ There are many single key commands available here. See general.txt for a list.
 %%%%% <option_prompt>
 === Option prompt (type "=1" from the command prompt) ===
 
-This allows you to change some of the options within the game. The following
-commands are available:
+This allows you to change some of the options within the game. The following commands are available:
 
 space,return,2 - Highlight the previous option (the last if the first is now).
       -,8      - Highlight the next option (the first if the last is now).
@@ -32,12 +29,9 @@ In the autosave option menu, there is also the following:
 
 This allows you to modify a string (your character's name in the above case).
 
-When this prompt is first given, it is in overtype mode. In this case, any
-keypress other than Tab deletes the existing name before doing anything else.
-In addition, the string is shown in yellow.
+When this prompt is first given, it is in overtype mode. In this case, any keypress other than Tab deletes the existing name before doing anything else. In addition, the string is shown in yellow.
 
-Pressing Tab moves the cursor to the end of the string, not modifying it. Any
-keypress unsets overtype mode, turning the string white.
+Pressing Tab moves the cursor to the end of the string, not modifying it. Any keypress unsets overtype mode, turning the string white.
 
 %%%%% <string_prompt_det>
 The following commands are available as a string prompt:
@@ -48,8 +42,7 @@ The following commands are available as a string prompt:
     Tab        - Leave overtype mode, toggle command mode if macro_edit is
                  unset (see custom.txt for further information).
 
-If special commands are being accessed (either by using a macro or turning
-command mode on), the following keys are handled in a special way.
+If special commands are being accessed (either by using a macro or turning command mode on), the following keys are handled in a special way.
 
     1, End     - Move the cursor to the end of the string.
     4, Left    - Move the cursor back one place.
@@ -57,8 +50,7 @@ command mode on), the following keys are handled in a special way.
     7, Home    - Move the cursor to the start of the string.
     ., Del     - Remove the character under the cursor.
 
-In all other cases, pressing a key inserts the character associated with it
-into the string at the position of the cursor.
+In all other cases, pressing a key inserts the character associated with it into the string at the position of the cursor.
 
 %%%%% <yn_prompt>
 === [y/n] prompt ===
@@ -67,31 +59,26 @@ This is a straightforward [y/n] prompt. It accepts the following responses:
 y,Y,Enter  - Answer "yes" to the question asked.
 n,N,Escape - Answer "no" to the question asked.
 
-If quick_prompt is set (see custom.txt), any response not mentioned above is
-interpreted as "no".
+If quick_prompt is set (see custom.txt), any response not mentioned above is interpreted as "no".
 
 %%%%% <yn?_prompt>
 === [y/n/?] prompt ===
-This is almost a straightforward [y/n] prompt. It accepts the following
-responses:
+This is almost a straightforward [y/n] prompt. It accepts the following responses:
 
 y,Y,Enter  - Answer "yes" to the question asked.
 n,N,Escape - Answer "no" to the question asked.
 ?          - Display some help for this command in the main window.
 
-If quick_prompt is set (see custom.txt), any response not mentioned above is
-interpreted as "no".
+If quick_prompt is set (see custom.txt), any response not mentioned above is interpreted as "no".
 
 %%%%% <ynq_prompt>
 === [y/n/q] prompt ===
-This is almost a straightforward [y/n] prompt. It accepts the following
-responses:
+This is almost a straightforward [y/n] prompt. It accepts the following responses:
 
 y,Y,Enter  - Answer "yes" to the question asked.
 n,N,Escape - Answer "no" to the question asked.
 q,Q        - Answer "no" every time a question is asked until this action is
              completed.
 
-If quick_prompt is set (see custom.txt), any response not mentioned above is
-interpreted as "no".
+If quick_prompt is set (see custom.txt), any response not mentioned above is interpreted as "no".
 

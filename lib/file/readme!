@@ -10,29 +10,11 @@ form a new name from syllables[].
 
 The files in this directory:
 
-a_cursed.txt Possible names for randomly generated cursed armour artifacts
-a_high.txt   Possible names for randomly generated 'powerful' armour artifacts
-a_low.txt    Possible names for randomly generated 'weak' armour artifacts
-a_med.txt    Possible names for randomly generated 'medium' armour artifacts
-bravado.txt  Possible lines for speaking uniques
-chainswd.txt Possible noise for artefact 85 (currently Demon Blade)
-crime.txt    Possible crimes that speaking uniques may have committed
 dead.txt     The tombstone picture (the death screen)
-death.txt    Possible 'last words' when the player dies
-elvish.txt   Syllables for the names of random artifacts
-error.txt    Possible random error messages (instead of "Type ? for help")
-mondeath.txt Possible 'last words' for speaking uniques
-monfear.txt  Possible lines for scared speaking uniques
 news.txt     The game intro screen
 o_cheat.txt  A text file to be displayed within the "cheat option" menu.
 readme!      You are reading this file right now
-rumors.txt   Possible rumours (for scrolls or rumour and shopkeepers)
-sample.txt   A sample file for the random line selecting function
-silly.txt    Silly monster names for hallucination
-smeagol.txt  Smeagol lines
-smeagolr.txt Smeagol fleeing
 spoiler.txt  A text file to be displayed within the "spoiler option" menu.
-w_cursed.txt Possible names for randomly generated cursed weapon artifacts
-w_high.txt   Possible names for randomly generated 'powerful' weapon artifacts
-w_low.txt    Possible names for randomly generated 'weak' weapon artifacts
-w_med.txt    Possible names for randomly generated 'medium' weapon artifacts
+
+For information about other files, please see the explanatory comment within
+them.

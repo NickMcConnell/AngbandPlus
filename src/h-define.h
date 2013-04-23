@@ -104,6 +104,11 @@
 #undef SGN
 #define SGN(a)		(((a) < 0)   ? (-1) : ((a) != 0))
 
+/*
+ * Given an array, determine how many elements are in the array.
+ */
+#define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
+
 /* Try to mark unused variables as such in a way the compiler understands. */
 #ifdef __GNUC__
 #define UNUSED __attribute__((unused))

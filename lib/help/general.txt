@@ -1,770 +1,442 @@
 === Command Descriptions ===
 
-        The following command descriptions are listed as the command name
-plus the "underlying command" key.  This is followed by the command name
-and "roguelike" keyset key, if different from the underlying command key.
-Then comes a brief description of the command, including information about
-alternative methods of specifying the command in each keyset, when needed.
+The following command descriptions are listed as the command name plus the "underlying command" key. This is followed by the command name and "roguelike" keyset key, if different from the underlying command key. Then comes a brief description of the command, including information about alternative methods of specifying the command in each keyset, when needed.
 
-        Some commands use the "repeat count" to automatically repeat the
-command several times, while others use the "repeat count" to specify a
-"quantity" for the command, and still others use it as an "argument" of
-some kind.  Some commands are auto-repeated several times if no repeat
-count is given and the "always_repeat" option is set.
+Some commands use the "repeat count" to automatically repeat the command several times, while others use the "repeat count" to specify a "quantity" for the command, and still others use it as an "argument" of some kind. Some commands are auto-repeated several times if no repeat count is given and the "always_repeat" option is set.
 
-        Most commands take no "energy" to perform, while most other commands
-only take energy when they cause the world to change in some way.
+Most commands take no "energy" to perform, while most other commands only take energy when they cause the world to change in some way.
 
 --- Inventory Commands ---
 
 %%%%% <cmd=i>
-Inventory list (i)
-        Displays a list of objects being carried but not equipped.  You
-        can carry up to 23 different items, not counting those in your
-        equipment.  Often, many identical objects can be "stacked" into
-        a "pile" which will count as a single item.  This is always
-        true of things like potions, scrolls, and food, but you may have
-        to set options to allow wands, staves, and other such objects to
-        stack.  Each object has a weight, and if you carry more objects
-        than your strength permits, you will begin to slow down.
- 
+$GInventory list (i)
+Displays a list of objects being carried but not equipped. You can carry up to 23 different items, not counting those in your equipment. Often, many identical objects can be "stacked" into a "pile" which will count as a single item. This is always true of things like potions, scrolls, and food, but you may have to set options to allow wands, staves, and other such objects to stack. Each object has a weight, and if you carry more objects than your strength permits, you will begin to slow down.
+
 %%%%% <cmd=e>
-Equipment list (e)
-        Use this command to display a list of the objects currently being
-        used by your character.  Your character has 12 slots for equipment,
-        each corresponding to a different location on the body, and each of
-        which may contain only a single object at a time, and each of which
-        may only contain objects of the proper "type", and which include
-        WIELD (weapon), BOW (missile launcher), LEFT (ring), RIGHT (ring),
-        NECK (amulet), LITE (light source), BODY (armor), OUTER (cloak),
-        ARM (shield), HEAD (helmet), HANDS (gloves), FEET (boots).  You
-        must be wielding/wearing certain objects to take advantage of
-        their special powers.
+$GEquipment list (e)
+Use this command to display a list of the objects currently being used by your character. Your character has 12 slots for equipment, each corresponding to a different location on the body, and each of which may contain only a single object at a time, and each of which may only contain objects of the proper "type", and which include WIELD (weapon), BOW (missile launcher), LEFT (ring), RIGHT (ring), NECK (amulet), LITE (light source), BODY (armor), OUTER (cloak), ARM (shield), HEAD (helmet), HANDS must be wielding/wearing certain objects to take advantage of their special powers.
 
 %%%%% <cmd=d>
-Drop an item (d)
-        This drops an item from your inventory or equipment onto the
-        dungeon floor.  If the floor spot you are standing on already has
-        an object in it, Angband will attempt to drop the item onto an
-        adjacent space.  Be warned that if the floor is full and you
-        attempt to drop something, it may disappear and be destroyed.
-        Doors and traps are considered objects for the purpose of
-        determining if the space is occupied.  This command may take
-        a quantity, and takes some energy.
+$GDrop an item (d)
+This drops an item from your inventory or equipment onto the dungeon floor. If the floor spot you are standing on already has an object in it, Angband will attempt to drop the item onto an adjacent space. Be warned that if the floor is full and you attempt to drop something, it may disappear and be destroyed. Doors and traps are considered objects for the purpose of determining if the space is occupied. This command may take a quantity, and takes some energy.
 
 %%%%% <cmd=k>
-Destroy an item (k) or Destroy an item (Ctrl-D)
-        This destroys an item in your inventory or on the dungeon floor.
-        If the selected pile contains multiple objects, you may specify
-        a quantity.  You must always (currently) verify this command.
-        This command may take a quantity, and takes some energy.
+$GDestroy an item (k) or Destroy an item (Ctrl-D)
+This destroys an item in your inventory or on the dungeon floor. If the selected pile contains multiple objects, you may specify a quantity. You must always (currently) verify this command. This command may take a quantity, and takes some energy.
 
 %%%%% <cmd=w>
-Wear/Wield equipment (w)
-        To wear or wield an object in your inventory, use this command.
-        Since only one object can be in each slot at a time, if you wear
-        or wield an item into a slot which is already occupied, the old
-        item will be first be taken off, and may in fact be dropped if
-        there is no room for it in your inventory.  This command takes
-        some energy.
+$GWear/Wield equipment (w)
+To wear or wield an object in your inventory, use this command. Since only one object can be in each slot at a time, if you wear or wield an item into a slot which is already occupied, the old item will be first be taken off, and may in fact be dropped if there is no room for it in your inventory. This command takes some energy.
 
 %%%%% <cmd=t>
-Take off equipment (t) or Take off equipment (T)
-        Use this command to take off a piece of equipment and return it
-        to your inventory.  Occasionally, you will run into a cursed item
-        which cannot be removed.  These items normally penalize you in some
-        way and cannot be taken off until the curse is removed.  If there
-        is no room in your inventory for the item, your pack will overflow
-        and you will drop the item after taking it off.  This command takes
-        some energy.
+$GTake off equipment (t) or Take off equipment (T)
+Use this command to take off a piece of equipment and return it to your inventory. Occasionally, you will run into a cursed item which cannot be removed. These items normally penalize you in some way and cannot be taken off until the curse is removed. If there is no room in your inventory for the item, your pack will overflow and you will drop the item after taking it off. This command takes some energy.
 
-#####
+%%%%%
 --- Movement Commands ---
 
 %%%%% <cmd=;>
-Walk (with pickup) (;)
-        Moves one step in the given direction.  The square you are moving
-        into must not be blocked by walls or doors.  You will pick up any
-        items in the destination grid if the "always_pickup" option is set,
-        or if the "query_pickup" option is set and you respond correctly.
-        You may also use the "original" direction keys (both keysets) or
-        the "roguelike" direction keys (roguelike keyset) to walk in a
-        direction.  This command may take a count, requires a direction,
-        and takes some energy.
+$GWalk (with pickup) (;)
+Moves one step in the given direction. The square you are moving into must not be blocked by walls or doors. You will pick up any items in the destination grid if the "always_pickup" option is set, or if the "query_pickup" option is set and you respond correctly. You may also use the "original" direction keys (both keysets) or the "roguelike" direction keys (roguelike keyset) to walk in a direction. This command may take a count, requires a direction, and takes some energy.
 
 %%%%% <cmd=->
-Walk (flip pickup) (-)
-        This is just like normal move, except that the "Pick things up"
-        option is inverted.  In other words, if you normally pick up
-        anything you encounter (the default), you will not pick things up
-        when using this command.  If you normally do not pick things up,
-        you will when using this command.  This command may take a count,
-        requires a direction, and takes some energy.
+$GWalk (flip pickup) (-)
+This is just like normal move, except that the "Pick things up" option is inverted. In other words, if you normally pick up anything you encounter (the default), you will not pick things up when using this command. If you normally do not pick things up, you will when using this command. This command may take a count, requires a direction, and takes some energy.
 
 %%%%% <cmd=.>
-Run (.) or Run (,)
-        This command will move in the given direction, following any bends
-        in the corridor, until you either have to make a "choice" between
-        two directions or you are disturbed.  You can configure what will
-        disturb you by setting the disturbance options.  You may also use
-        shift plus the "roguelike" direction keys (roguelike keyset), or
-        shift plus the "original" direction keys on the keypad (both keysets,
-        some machines) to run in a direction.  This command may take an
-        argument, requires a direction, and takes some energy.
+$GRun (.) or Run (,)
+This command will move in the given direction, following any bends in the corridor, until you either have to make a "choice" between two directions or you are disturbed. You can configure what will disturb you by setting the disturbance options. You may also use shift plus the "roguelike" direction keys (roguelike keyset), or shift plus the "original" direction keys on the keypad (both keysets, some machines) to run in a direction. This command may take an argument, requires a direction, and takes some energy.
 
 %%%%% <cmd=<>
-Go up staircase (<)
-        Climbs up an up staircase you are standing on.  There is always at
-        least one staircase going up on every level except for the town
-        level (this doesn't mean it's easy to find).  Going up a staircase
-        will take you to a new dungeon level unless you are at 50 feet
-        (dungeon level 1), in which case you will return to the town
-        level.  Note that whenever you leave a level (not the town), you
-        will never find it again.  This means that for all intents and
-        purposes, any objects on that level are destroyed.  This includes
-        artifacts unless the "Create characters in preserve mode" option
-        was set when your character was created, in which case the artifacts
-        may show up again later.  This command takes some energy.
+$GGo up staircase (<)
+Climbs up an up staircase you are standing on. There is always at least one staircase going up on every level except for the town level (this doesn't mean it's easy to find). Going up a staircase will take you to a new dungeon level unless you are at 50 feet (dungeon level 1), in which case you will return to the town level. Note that whenever you leave a level (not the town), you will never find it again. This means that for all intents and purposes, any objects on that level are destroyed. artifacts unless the "Create characters in preserve mode" option was set when your character was created, in which case the artifacts may show up again later. This command takes some energy.
 
 %%%%% <cmd=>>
-Go down staircase (>)
-        Descends a down staircase you are standing on.  There are always
-        at least two staircases going down on each level, except for the
-        town which has only one, and "quest" levels, which have none until
-        the quest monster is killed.  Going down a staircase will take you
-        to a new dungeon level.  See "Go Up Staircase" for more info.
-        This command takes some energy.
+$GGo down staircase (>)
+Descends a down staircase you are standing on. There are always at least two staircases going down on each level, except for the town which has only one, and "quest" levels, which have none until the quest monster is killed. Going down a staircase will take you to a new dungeon level. See "Go Up Staircase" for more info. This command takes some energy.
 
 
 %%%%% <cmd=^E>
-Enter store (Ctrl-E)
-        When standing on the door of a store, this command allows the character
-        to enter the store. Walking into the door will do the same (in fact,
-		walking into the door explicitly calls this command, so a keymap for
-		^E will be triggered whenever you enter a store).
+$GEnter store (Ctrl-E)
+When standing on the door of a store, this command allows the character to enter the store. Walking into the door will do the same (in fact, walking into the door explicitly calls this command, so a keymap for ^E will be triggered whenever you enter a store).
 
-#####
+%%%%%
 --- Resting Commands ---
 
 %%%%% <cmd=,>
-Stay still (with pickup) (,) or Stay still (with pickup) (.)
-        Stays in the same square for one move.  If you normally pick up
-        objects you encounter, you will pick up whatever you are standing
-        on.  You may also use the "5" key (both keysets).  This command
-        may take a count, and takes some energy.
+$GStay still (with pickup) (,) or Stay still (with pickup) (.)
+Stays in the same square for one move. If you normally pick up objects you encounter, you will pick up whatever you are standing on. You may also use the "5" key (both keysets). This command may take a count, and takes some energy.
 
 %%%%% <cmd=g>
-Stay still (flip pickup) (g)
-        Stays in the same square for one move.  If you normally pick up
-        objects you encounter, you will not pick up whatever you are
-        standing on.  If you normally do not pick up objects, you will
-        pick up what you are standing on.  This command is normally only
-        used when the "always_pickup" option is false.  This command may
-        take a count, and takes some energy.
+$GStay still (flip pickup) (g)
+Stays in the same square for one move. If you normally pick up objects you encounter, you will not pick up whatever you are standing on. If you normally do not pick up objects, you will pick up what you are standing on. This command is normally only used when the "always_pickup" option is false. This command may take a count, and takes some energy.
 
 %%%%% <cmd=R>
-Rest (R)
-        Resting is better for you than repeatedly staying still, and can
-        be told to automatically stop after a certain amount of time, or
-        when various conditions are met.  In any case, you always wake up
-        when anything disturbing happens, or when you press any key.  To
-        rest, enter the Rest command, followed by the number of turns you
-        want to rest, or "*" to rest until your hitpoints and mana are
-        restored, or "&" to rest until you are fully "healed".  This command
-        may take an argument (used for the number of turns to rest), and
-        takes some energy.
+$GRest (R)
+Resting is better for you than repeatedly staying still, and can be told to automatically stop after a certain amount of time, or when various conditions are met. In any case, you always wake up when anything disturbing happens, or when you press any key. To rest, enter the Rest command, followed by the number of turns you want to rest, or "*" to rest until your hitpoints and mana are restored, or "&" to rest until you are fully "healed". This command may take an argument (used for the number otakes some energy.
 
-#####
+%%%%%
 --- Searching Commands ---
 
 %%%%% <cmd=s>
-Search (s)
-        This command can be used to locate hidden traps and secret doors
-        in the spaces adjacent to the player.  More than a single turn of
-        searching will be required in most cases.  You should always
-        search a chest before trying to open it, since they are generally
-        trapped.  This command can take a count, which is useful if you
-        are fairly sure of finding something eventually, since the command
-        stops as soon as anything is found.  This command may take a count,
-        and takes some energy.
+$GSearch (s)
+This command can be used to locate hidden traps and secret doors in the spaces adjacent to the player. More than a single turn of searching will be required in most cases. You should always search a chest before trying to open it, since they are generally trapped. This command can take a count, which is useful if you are fairly sure of finding something eventually, since the command stops as soon as anything is found. This command may take a count, and takes some energy.
 
 %%%%% <cmd=S>
-Toggle search mode (S) or Toggle search mode (#)
-        This command will take you into and out of search mode.  When
-        first pressed, the message "Searching" will appear at the bottom
-        of the screen.  You are now taking two turns for each command, one
-        for the command and one turn to search.  This means that you are
-        taking twice the time to move around the dungeon, and therefore
-        twice the food.  Search mode will automatically turn off if you
-        are disturbed.  You may also turn off search mode by entering the
-        Search Mode command again.
+$GToggle search mode (S) or Toggle search mode (#)
+This command will take you into and out of search mode. When first pressed, the message "Searching" will appear at the bottom of the screen. You are now taking two turns for each command, one for the command and one turn to search. This means that you are taking twice the time to move around the dungeon, and therefore twice the food. Search mode will automatically turn off if you are disturbed. You may also turn off search mode by entering the Search Mode command again.
 
-#####
+%%%%%
 --- Alter Commands ---
 
 %%%%% <cmd=T>
-Tunnel (T) or Tunnel (Ctrl-T)
-        Tunnelling or mining is a very useful art.  There are many kinds of
-        rock, with varying hardness, including permanent rock (permanent),
-        granite (very hard), quartz veins (hard), magma veins (soft), and
-        rubble (very soft).  Quartz and Magma veins may be displayed in a
-        special way, and may sometimes contain treasure, in which case they
-        will be displayed in a different way.  Rubble sometimes covers an
-        object.  It is hard to tunnel unless you are wielding a heavy weapon
-        or a shovel or a pick.  Tunnelling ability increases with strength
-        and weapon weight.  This command may take a count, is affected by
-        the "always_repeat" option, requires a direction, and takes some
-        energy.
+$GTunnel (T) or Tunnel (Ctrl-T)
+Tunnelling or mining is a very useful art. There are many kinds of rock, with varying hardness, including permanent rock (permanent), granite (very hard), quartz veins (hard), magma veins (soft), and rubble (very soft). Quartz and Magma veins may be displayed in a special way, and may sometimes contain treasure, in which case they will be displayed in a different way. Rubble sometimes covers an object. It is hard to tunnel unless you are wielding a heavy weapon or a shovel or a pick. Tunnelliand weapon weight. This command may take a count, is affected by the "always_repeat" option, requires a direction, and takes some energy.
 
 %%%%% <cmd=o>
-Open a door or chest (o)
-        To open an object such as a door or chest, you must use this
-        command.  If the object is locked, you will attempt to pick the
-        lock based on your disarming ability.  If you open a trapped chest
-        without disarming the traps first, the trap will be set off.  Some
-        doors will be jammed shut and may have to be forced open.  You may
-        need several tries to open a door or chest.  This command may take
-        a count, is affected by the "always_repeat" option, requires a
-        direction, and takes some energy.
+$GOpen a door or chest (o)
+To open an object such as a door or chest, you must use this command. If the object is locked, you will attempt to pick the lock based on your disarming ability. If you open a trapped chest without disarming the traps first, the trap will be set off. Some doors will be jammed shut and may have to be forced open. You may need several tries to open a door or chest. This command may take a count, is affected by the "always_repeat" option, requires a direction, and takes some energy.
 
 %%%%% <cmd=c>
-Close a door (c)
-        Non-intelligent and some other creatures cannot open doors, so
-        shutting doors can be quite valuable.  Broken doors cannot be closed.
-        Bashing a door open may break it.  This command may take a count,
-        is affected by the "always_repeat" option, requires a direction, and 
-        takes some energy.
+$GClose a door (c)
+Non-intelligent and some other creatures cannot open doors, so shutting doors can be quite valuable. Broken doors cannot be closed. Bashing a door open may break it. This command may take a count, is affected by the "always_repeat" option, requires a direction, and takes some energy.
 
 %%%%% <cmd=j>
-Jam a door (j) or Spike a door (S)
-        Many monsters can simply open closed doors, and can eventually
-        get through a locked door.  You may therefore occasionally want
-        to jam a door shut with iron spikes.  Each spike used on the door
-        will make it harder to bash down the door, up to a certain limit.
-        Smaller monsters are less able to bash down doors.  In order to
-        use this command, you must be carrying iron spikes.  This command
-        requires a direction, and takes some energy.
+$GJam a door (j) or Spike a door (S)
+Many monsters can simply open closed doors, and can eventually get through a locked door. You may therefore occasionally want to jam a door shut with iron spikes. Each spike used on the door will make it harder to bash down the door, up to a certain limit. Smaller monsters are less able to bash down doors. In order to use this command, you must be carrying iron spikes. This command requires a direction, and takes some energy.
 
 %%%%% <cmd=B>
-Bash a door (B) or Force a door (f)
-        This command allows you to bash down jammed doors.  Your bashing
-        ability increases with strength.  Bashing open a door can (briefly)
-        throw you off balance.  Doors that are stuck, or which have been
-        jammed closed with spikes can only be opened by bashing, and all
-        closed doors can be bashed open if desired.  Bashing a door open
-        may permanently break it so that it can never be closed.  This
-        command may take a count, is affected by the "always_repeat" option,
-        requires a direction, and takes some energy.
+$GBash a door (B) or Force a door (f)
+This command allows you to bash down jammed doors. Your bashing ability increases with strength. Bashing open a door can (briefly) throw you off balance. Doors that are stuck, or which have been jammed closed with spikes can only be opened by bashing, and all closed doors can be bashed open if desired. Bashing a door open may permanently break it so that it can never be closed. This command may take a count, is affected by the "always_repeat" option, requires a direction, and takes some energy.
 
 %%%%% <cmd=D>
-Disarm a trap or chest (D)
-        You can attempt to disarm traps on the floor or on chests.  If you
-        fail, there is a chance that you will blunder and set it off.  You
-        can only disarm a trap after you have found it (usually with the
-        Search command).  This command may take a count, is affected by the
-        "always_repeat" option, requires a direction, and takes some energy.
+$GDisarm a trap or chest (D)
+You can attempt to disarm traps on the floor or on chests. If you fail, there is a chance that you will blunder and set it off. You can only disarm a trap after you have found it (usually with the Search command). This command may take a count, is affected by the "always_repeat" option, requires a direction, and takes some energy.
 
 %%%%% <cmd=H>
-Hit a monster (H) (Ctrl-G)
-This  command attempts to hit a nearby monster with your melee weapon. This
-is generally subsumed by other commands (particularly "walk"), but is included
-separately to avoid ambiguity.
+$GHit a monster (H) (Ctrl-G)
+This command attempts to hit a nearby monster with your melee weapon. This is generally subsumed by other commands (particularly "walk"), but is included separately to avoid ambiguity.
 
 %%%%% <cmd=+>
-Alter (+)
-        This special command allows the use of a single keypress to select
-        any of the "obvious" commands above (attack, tunnel, bash, open,
-        disarm, close), and, by using macros or keymaps, to combine this
-        keypress with directions.  In general, this allows the use of the
-        "control" key plus the appropriate "direction" key (including the
-        roguelike direction keys in roguelike mode) as a kind of generic
-        "alter the terrain feature of an adjacent grid" command.  This
-        command may take a count, is affected by the "always_repeat" option,
-        requires a direction, and takes some energy.
+$GAlter (+)
+This special command allows the use of a single keypress to select any of the "obvious" commands above (attack, tunnel, bash, open, disarm, close), and, by using macros or keymaps, to combine this keypress with directions. In general, this allows the use of the "control" key plus the appropriate "direction" key (including the roguelike direction keys in roguelike mode) as a kind of generic "alter the terrain feature of an adjacent grid" command. This command may take a count, is affected by the requires a direction, and takes some energy.
 
-#####
+%%%%%
 --- Spell Commands ---
 
 %%%%% <cmd=b>
-Browse a book (b) or Peruse a book (P)
-        When this command is used, all of the spells or prayers contained in
-        the selected book are displayed, along with information such as their
-        level, the amount of mana required to cast them, and whether or not
-        you know the spell.
+$GBrowse a book (b) or Peruse a book (P)
+When this command is used, all of the spells or prayers contained in the selected book are displayed, along with information such as their level, the amount of mana required to cast them, and whether or not you know the spell.
 
 %%%%% <cmd=m>
-Cast a spell (m)
-        To cast a spell, you must have previously learned the spell and
-        must have in your inventory a book from which the spell can be
-        read.  Each spell has a chance of failure which starts out fairly
-        large but decreases as you gain levels.  If you don't have enough
-        mana to cast a spell, you will be prompted for confirmation.  If
-        you decide to go ahead, the chance of failure is greatly increased.
-        Since you must read the spell from a book, you cannot be blind or
-        confused while casting, and there must be some light present.  This
-        command takes some energy.
+$GCast a spell (m)
+To cast a spell, you must have previously learned the spell and must have in your inventory a book from which the spell can be read. Each spell has a chance of failure which starts out fairly large but decreases as you gain levels. If you don't have enough mana to cast a spell, you will be prompted for confirmation. If you decide to go ahead, the chance of failure is greatly increased. Since you must read the spell from a book, you cannot be blind or confused while casting, and there must be socommand takes some energy.
 
 %%%%% <cmd=p>
-Call on a spirit (p)
-        To call on a spirit, you must have previously made a ritual pact with
-        one in a temple. Each favour has a chance of failure which decreases
-        as you gain levels. Calling on spirits is not possible if they are
-        still irritated after a previous attempt. Since calling on a spirit
-        requires concentration, you must not be confused while doing so. See
-        shaman.txt for more details. This command takes some energy.
+$GCall on a spirit (p)
+To call on a spirit, you must have previously made a ritual pact with one in a temple. Each favour has a chance of failure which decreases as you gain levels. Calling on spirits is not possible if they are still irritated after a previous attempt. Since calling on a spirit requires concentration, you must not be confused while doing so. See shaman.txt for more details. This command takes some energy.
 
 %%%%% <cmd=P>
-Use a mindcrafting power (P)
-        There are no special prerequisites for mindcraft. Each power has a
-        chance of failure which decreases as you gain levels. If you don't have
-        enough chi to use a power, you will be prompted for confirmation. If you
-        decide to go ahead, the chance of failure is greatly increased. Since
-        mindcraft requires concentration, you must not be confused while doing
-        so. See mindcrft.txt for more details. This command takes some energy.
+$GUse a mindcrafting power (P)
+There are no special prerequisites for mindcraft. Each power has a chance of failure which decreases as you gain levels. If you don't have enough chi to use a power, you will be prompted for confirmation. If you decide to go ahead, the chance of failure is greatly increased. Since mindcraft requires concentration, you must not be confused while doing so. See mindcrft.txt for more details. This command takes some energy.
 
 %%%%% <cmd=h>
-Cast a cantrip (h)
-        A cantrip is a weak form of magic in which the power is derived
-        primarily from an object rather than your own mental powers. To cast a
-        cantrip, you must have in your inventory a charm from which the cantrip
-        can be cast. Each cantrip has a chance of failure which decreases as you
-        gain levels. Cantrips cannot be cast if you are blind or confused. This
-        command takes some energy.
+$GCast a cantrip (h)
+A cantrip is a weak form of magic in which the power is derived primarily from an object rather than your own mental powers. To cast a cantrip, you must have in your inventory a charm from which the cantrip can be cast. Each cantrip has a chance of failure which decreases as you gain levels. Cantrips cannot be cast if you are blind or confused. This command takes some energy.
 
 %%%%% <cmd=U>
-Use bonus power (if any) (U) or (O)
-        Some races and classes have special natural abilities. All of these
-        possible abilities are listed in an index under the U (or O) command.
-        These type of abilities include the vampires' bite, the hobbits' food
-        gathering and the great ones' recovery from harm. This command takes
-        some energy.
+$GUse bonus power (if any) (U) or (O)
+Some races and classes have special natural abilities. All of these possible abilities are listed in an index under the U (or O) command. These type of abilities include the vampires' bite, the hobbits' food gathering and the great ones' recovery from harm. This command takes some energy.
 
-#####
+%%%%%
 --- Object Manipulation Commands ---
 
 %%%%% <cmd=E>
-Eat some food (E)
-        You must eat regularly to prevent starvation.  As you grow hungry,
-        a message will appear at the bottom of the screen saying "Hungry".
-        If you go hungry long enough, you will become weak, then start
-        fainting, and eventually, you may will die of starvation.  You
-        may use this command to eat food in your inventory.  Note that
-        you can sometimes find food in the dungeon, but it is not always
-        wise to eat strange food.  This command takes some energy.
+$GEat some food (E)
+You must eat regularly to prevent starvation. As you grow hungry, a message will appear at the bottom of the screen saying "Hungry". If you go hungry long enough, you will become weak, then start fainting, and eventually, you may will die of starvation. You may use this command to eat food in your inventory. Note that you can sometimes find food in the dungeon, but it is not always wise to eat strange food. This command takes some energy.
 
 %%%%% <cmd=F>
-Fuel your lantern/torch (F)
-        If you are using a torch and have more torches in your pack,
-        or you are using a lantern and have flasks of oil in your pack,
-        then your can "refuel" them with this command.  Torches and Lanterns
-        are limited in their maximal fuel.  In general, two flasks will fully
-        fuel a lantern and two torches will fully fuel a torch.  This command
-        takes some energy.
+$GFuel your lantern/torch (F)
+If you are using a torch and have more torches in your pack, or you are using a lantern and have flasks of oil in your pack, then your can "refuel" them with this command. Torches and Lanterns are limited in their maximal fuel. In general, two flasks will fully fuel a lantern and two torches will fully fuel a torch. This command takes some energy.
 
 %%%%% <cmd=q>
-Quaff a potion (q)
-        Use this command to drink a potion.  Potions affect the player in
-        various ways, but the effects are not always immediately obvious. 
-        This command takes some energy.
+$GQuaff a potion (q)
+Use this command to drink a potion. Potions affect the player in various ways, but the effects are not always immediately obvious. This command takes some energy.
 
 %%%%% <cmd=r>
-Read a scroll (r)
-        Use this command to read a scroll.  Scroll spells usually have an
-        area effect, except for a few cases where they act on other objects.
-        Reading a scroll causes the parchment to disintegrate as the scroll
-        takes effect.  Most scrolls which prompt for more information can be
-        aborted (by pressing escape), which will stop reading the scroll
-        before it disintegrates.  This command takes some energy.
- 
+$GRead a scroll (r)
+Use this command to read a scroll. Scroll spells usually have an area effect, except for a few cases where they act on other objects. Reading a scroll causes the parchment to disintegrate as the scroll takes effect. Most scrolls which prompt for more information can be aborted (by pressing escape), which will stop reading the scroll before it disintegrates. This command takes some energy.
+
 %%%%% <cmd={>
-Inscribe an object ({) 
-Use this command to place an inscription on an object. This inscription (which
-appears in curly brackets together with some other information which the game
-may provide) is mainly intended to allow the player to add things as an aid to
-memory, but there are certain inscriptions which affect the way the game
-behaves. These include:
+$GInscribe an object ({) 
+Use this command to place an inscription on an object. This inscription (which appears in curly brackets together with some other information which the game may provide) is mainly intended to allow the player to add things as an aid to memory, but there are certain inscriptions which affect the way the game behaves. These include:
 
 @zn causes typing "zn" to carry out the command z on this item.
-^x  causes the game to ask for confirmation before carrying out the command x
-    if this item is equipped.
-!z  causes the game to ask for confirmation before carrying out the command z
-    on this particular item.
-^* !* and @n act as above except that every command triggers it rather than
-    only x or z doing so.
-!!  causes a message to be generated when this item has recharged, if it is an
-    item which recharges over time.
-%   allows this item to merge with another item which is similar except for
-    discount, giving both the higher discount.
-=g  automatically answers 'y' to any "Pick up? [y/n]" prompt for this item.
-.   automatically answers 'n' to any "Teleport? [y/n]" prompt for this item.
+^x causes the game to ask for confirmation before carrying out the command x if this item is equipped.
+!z causes the game to ask for confirmation before carrying out the command z on this particular item.
+^* !* and @n act as above except that every command triggers it rather than only x or z doing so.
+!! causes a message to be generated when this item has recharged, if it is an item which recharges over time.
+% allows this item to merge with another item which is similar except for discount, giving both the higher discount.
+=g automatically answers 'y' to any "Pick up? [y/n]" prompt for this item.
+. automatically answers 'n' to any "Teleport? [y/n]" prompt for this item.
 
-In the above, x is any command in the game, z is any command which requires an
-object and n is a number in the range 0-9.
+In the above, x is any command in the game, z is any command which requires an object and n is a number in the range 0-9.
 
 %%%%% <cmd=}>
-Uninscribe an object (})
-        This command removes the inscription on an object.
+$GUninscribe an object (})
+This command removes the inscription on an object.
 
 %%%%% <cmd=^W>
-Rotate object stack (Ctrl-W)
-        This command causes the items in the stack under the player to be
-        rotated, so that you can change which item is first easily. This is
-        useful for sorting through large stacks of items which you may
-        sometimes get.
-        
+$GRotate object stack (Ctrl-W)
+This command causes the items in the stack under the player to be rotated, so that you can change which item is first easily. This is useful for sorting through large stacks of items which you may sometimes get. 
 
-#####
+%%%%%
 --- Magical Object Commands ---
 
 %%%%% <cmd=A>
-Activate a worn item (A)
-        Some magical weaponry, armour and other items have special powers which
-        can be used at the player's command. These powers can only be used if
-        you are wearing or wielding the item, and can only be used infrequently.
-        This command takes some energy.
+$GActivate a worn item (A)
+Some magical weaponry, armour and other items have special powers which can be used at the player's command. These powers can only be used if you are wearing or wielding the item, and can only be used infrequently. This command takes some energy.
 
 %%%%% <cmd=a>
-Aim a wand (a) or Zap a wand (z)
-        Wands must be aimed in a direction to be used.  Wands are magical
-        devices, and therefore there is a chance you will not be able to
-        figure out how to use them if you aren't good with magical
-        devices.  They will fire a shot that affects the first object or
-        creature encountered or fire a beam that affects anything in a
-        given direction, depending on the wand.  An obstruction such as a
-        door or wall will generally stop the effects from traveling any
-        farther.  This command requires a direction and can use a target.
-        This command takes some energy.
+$GAim a wand (a) or Zap a wand (z)
+Wands must be aimed in a direction to be used. Wands are magical devices, and therefore there is a chance you will not be able to figure out how to use them if you aren't good with magical devices. They will fire a shot that affects the first object or creature encountered or fire a beam that affects anything in a given direction, depending on the wand. An obstruction such as a door or wall will generally stop the effects from traveling any farther. This command requires a direction and can usThis command takes some energy.
 
 %%%%% <cmd=u>
-Use a staff (u) or Zap a staff (Z)
-        This command will use a staff.  A staff is normally very similar
-        to a scroll, in that they normally either have an area effect or
-        affect a specific object.  Staves are magical devices, and there
-        is a chance you will not be able to figure out how to use them.
-        This command takes some energy.
- 
+$GUse a staff (u) or Zap a staff (Z)
+This command will use a staff. A staff is normally very similar to a scroll, in that they normally either have an area effect or affect a specific object. Staves are magical devices, and there is a chance you will not be able to figure out how to use them. This command takes some energy.
+
 %%%%% <cmd=z>
-Zap a rod (z) or Activate a rod (a)
-        Rods are extremely powerful magical items, which cannot be burnt
-        or shattered, and which can have either staff-like or wand-like
-        effects, but unlike staves and wands, they don't have charges.
-        Instead, they draw on the ambient magical energy to recharge
-        themselves, and therefore can only be activated once every few
-        turns.  The recharging time varies depending on the type of rod.
-        This command may require a direction (depending on the type of
-        rod, and whether you are aware of its type) and can use a target.
-        This command takes some energy.
+$GZap a rod (z) or Activate a rod (a)
+Rods are extremely powerful magical items, which cannot be burnt or shattered, and which can have either staff-like or wand-like effects, but unlike staves and wands, they don't have charges. Instead, they draw on the ambient magical energy to recharge themselves, and therefore can only be activated once every few turns. The recharging time varies depending on the type of rod. This command may require a direction (depending on the type of rod, and whether you are aware of its type) and can use a This command takes some energy.
 
 %%%%% <cmd=^U>
-Use an object (Ctrl-U) (Ctrl-Z)
-        This command uses one of many types of object in a way listed above.
-        In particular, it allows you to use a staff, wand, rod, scroll, potion,
-        flask of oil or item of food, to browse a spellbook or to activate a
-        worn item.
+$GUse an object (Ctrl-U) (Ctrl-Z)
+This command uses one of many types of object in a way listed above. In particular, it allows you to use a staff, wand, rod, scroll, potion, flask of oil or item of food, to browse a spellbook or to activate a worn item.
 
-#####
+%%%%%
 --- Throwing and Missile Weapons ---
 
 %%%%% <cmd=f>
-Fire an item (f) or Fire an item (t)
-        You may throw any object carried by your character.  Depending on
-        the weight, it may travel across the room or drop down beside you.
-        Only one object from a pile will be thrown at a time.  Note that
-        throwing an object will often cause it to break, so be careful!
-        If you throw something at a creature, your chances of hitting it
-        are determined by your pluses to hit, your ability at throwing,
-        and the object's pluses to hit.  Once the creature is it, the
-        object may or may not do any damage to it.  You've heard rumors
-        that some objects found in the dungeon can do huge amounts of
-        damage when thrown, but you're not sure which objects those
-        are....  Note that flasks of oil will do a fairly large chunk
-        of damage to a monster on impact, supposedly representing fire
-        damage, but it works against fire elementals too - not that it's 
-        exactly worth it by that stage of dungeon exploration.  If you are
-        wielding a missile launcher compatible with the object you are
-        throwing, then you automatically use the launcher to fire the
-        missile with much higher range, accuracy, and damage, then you
-        would get by just throwing the missile.  Fire or Throw requires
-        a direction.  Targeting mode (see the next command) can be invoked
-        with "*" at the "Direction?" prompt.  This command takes some energy.
+$GFire an item (f) or Fire an item (t)
+You may throw any object carried by your character. Depending on the weight, it may travel across the room or drop down beside you. Only one object from a pile will be thrown at a time. Note that throwing an object will often cause it to break, so be careful! If you throw something at a creature, your chances of hitting it are determined by your pluses to hit, your ability at throwing, and the object's pluses to hit. Once the creature is it, the object may or may not do any damage to it. You'vmissile with much higher range, accuracy, and damage, then you would get by just throwing the missile. Fire or Throw requires a direction. Targeting mode (see the next command) can be invoked with "*" at the "Direction?" prompt. This command takes some energy.
 
 %%%%% <cmd=v>
-Throw an item (v)
-        You may throw any object carried by your character.  The lighter
-        the object, the farther you can throw it.  Only one object from a
-        stack may be thrown at a time.  Throwing an object may break it.
-        If you throw something at a monster, your chances of hitting it
-        are determined by your pluses to hit, your ability at throwing,
-        and the object's pluses to hit.  If the object hits the monster,
-        it may or may not do damage.  Some objects, such as weapons, or
-        flasks of oil, can do a substantial amount of damage.  This
-        command requires a direction, and can take a target.  This command
-        takes some energy.
+$GThrow an item (v)
+You may throw any object carried by your character. The lighter the object, the farther you can throw it. Only one object from a stack may be thrown at a time. Throwing an object may break it. If you throw something at a monster, your chances of hitting it are determined by your pluses to hit, your ability at throwing, and the object's pluses to hit. If the object hits the monster, it may or may not do damage. Some objects, such as weapons, or flasks of oil, can do a substantial amount of damcommand requires a direction, and can take a target. This command takes some energy.
 
 %%%%% <cmd=*>
-Targeting Mode (*)
-        This will allow you to aim your spells and such at a specific
-        monster or grid, so that you can point directly towards that
-        monster or grid (even if this is not a "compass" direction) when
-        you are asked for a direction.  You can set a target using this
-        command, or you can set a new target at the "Direction?" prompt when
-        appropriate.  At the targeting prompt, you have many options.  First
-        of all, targetting mode starts targetting nearby monsters which can
-        be reached by "projectable" spells and thrown objects.  In this mode,
-        you can press "t" (or "5" or ".") to select the current monster,
-        space to advance to the next monster, "-" to back up to the previous
-        monster, direction keys to advance to a monster more or less in that
-        direction, "r" to "recall" the current monster, "q" to exit targetting
-        mode, and "p" (or "o") to stop targetting monsters and enter the mode
-        for targetting a location on the floor or in a wall.  Note that if
-        there are no nearby monsters, you will automatically enter this mode.
-        Note that hitting "o" is just like "p", except that the location
-        cursor starts on the last examined monster instead of on the player.
-        In this mode, you use the "direction" keys to move around, and the
-        "q" key to quit, and the "t" (or "5" or ".") key to target the cursor
-        location.  Note that targetting a location is slightly "dangerous",
-        as the target is maintained even if you are far away.  To cancel an
-        old target, simply hit "*" and then ESCAPE (or "q").  Note that when
-        you cast a spell or throw an object at the target location, the path
-        chosen is the "optimal" path towards that location, which may or may
-        not be the path you want.  Sometimes, by clever choice of a location
-        on the floor for your target, you may be able to convince a thrown
-        object or cast spell to squeeze through a hole or corridor that is
-        blocking direct access to a different grid.  Launching a ball spell
-        or breath weapon at a location in the middle of a group of monsters
-        can often improve the effects of that attack, since ball attacks are
-        not stopped by interposed monsters if the ball is launched at a target.
+$GTargeting Mode (*)
+This will allow you to aim your spells and such at a specific monster or grid, so that you can point directly towards that monster or grid (even if this is not a "compass" direction) when you are asked for a direction. You can set a target using this command, or you can set a new target at the "Direction?" prompt when appropriate. At the targeting prompt, you have many options. First of all, targetting mode starts targetting nearby monsters which can be reached by "projectable" spells and throwcursor starts on the last examined monster instead of on the player. In this mode, you use the "direction" keys to move around, and the "q" key to quit, and the "t" (or "5" or ".") key to target the cursor location. Note that targetting a location is slightly "dangerous", as the target is maintained even if you are far away. To cancel an old target, simply hit "*" and then ESCAPE (or "q"). Note that when you cast a spell or throw an object at the target location, the path chosen is the "optimalnot be the path you want. Sometimes, by clever choice of a location on the floor for your target, you may be able to convince a thrown object or cast spell to squeeze through a hole or corridor that is blocking direct access to a different grid. Launching a ball spell or breath weapon at a location in the middle of a group of monsters can often improve the effects of that attack, since ball attacks are not stopped by interposed monsters if the ball is launched at a target.
 
-#####
+%%%%%
 --- Looking Commands ---
 
 %%%%% <cmd=M>
-Full screen map (M)
-        This command will show a map of the entire dungeon, reduced by a
-        factor of nine, on the screen.  Only the major dungeon features
-        will be visible because of the scale, so even some important
-        objects may not show up on the map.  This is particularly useful
-        in locating where the stairs are relative to your current
-        position, or for identifying unexplored areas of the dungeon.
+$GFull screen map (M)
+This command will show a map of the entire dungeon, reduced by a factor of nine, on the screen. Only the major dungeon features will be visible because of the scale, so even some important objects may not show up on the map. This is particularly useful in locating where the stairs are relative to your current position, or for identifying unexplored areas of the dungeon.
 
 %%%%% <cmd=L>
-Locate player on map (L) or Where is the player (W)
-        This command lets you scroll your map around, looking at all sectors
-        of the current dungeon level, until you press escape, at which point
-        the map will be re-centered on the player if necessary.  To scroll
-        the map around, simply press any of the "direction" keys.  The top
-        line will display the sector location, and the offset from your
-        current sector.
+$GLocate player on map (L) or Where is the player (W)
+This command lets you scroll your map around, looking at all sectors of the current dungeon level, until you press escape, at which point the map will be re-centered on the player if necessary. To scroll the map around, simply press any of the "direction" keys. The top line will display the sector location, and the offset from your current sector.
 
 %%%%% <cmd=l>
-Look around (l) or Examine things (x)
-        This command is used to look around at nearby monsters (to determine
-        their type and health) and objects (to determine their type).  It is
-        also used to find out what objects (if any) are under monsters, and
-        if a monster is currently inside a wall, and what is under the player.
-        When you are looking at something, you may hit space for more details,
-        or to advance to the next interesting monster or object, or minus ("-")
-        to go back to the previous monster or object, or a direction key to
-        advance to the nearest interesting monster or object (if any) in that
-        general direction, or "r" to recall information about the current
-        monster race, or "q" or escape to stop looking around.  You always
-        start out looking at "yourself".
+$GLook around (l) or Examine things (x)
+This command is used to look around at nearby monsters (to determine their type and health) and objects (to determine their type). It is also used to find out what objects (if any) are under monsters, and if a monster is currently inside a wall, and what is under the player. When you are looking at something, you may hit space for more details, or to advance to the next interesting monster or object, or minus ("-") to go back to the previous monster or object, or a direction key to advance to thegeneral direction, or "r" to recall information about the current monster race, or "q" or escape to stop looking around. You always start out looking at "yourself".
 
 %%%%% <cmd=I>
-Observe an item (I)
-        This command lets you observe a previously *identified* item.
-        This will tell you things about the special powers of the object.
-        Currently, it only makes sense for artifacts and ego-items.
+$GObserve an item (I)
+This command lets you observe a previously *identified* item. This will tell you things about the special powers of the object. Currently, it only makes sense for artifacts and ego-items.
 
-#####
+%%%%%
 --- Message Commands ---
 
 %%%%% <cmd=^F>
-Repeat level feeling (Ctrl-F)
-        Repeats the feeling about the dungeon level that you got when you
-        first entered the level.
+$GRepeat level feeling (Ctrl-F)
+Repeats the feeling about the dungeon level that you got when you first entered the level.
 
 %%%%% <cmd=^P>
-View previous messages (Ctrl-P)
-        This command shows you all the recent messages.  You can scroll
-        through them, or exit with ESCAPE.
+$GView previous messages (Ctrl-P)
+This command shows you all the recent messages. You can scroll through them, or exit with ESCAPE.
 
 %%%%% <cmd=^O>
-View last message (Ctrl-O)
-        This command shows you the last message to be printed.
+$GView last message (Ctrl-O)
+This command shows you the last message to be printed.
 
 %%%%% <cmd=:>
-Take notes (:)
-        This command allows you to take notes, which will then appear in
-        your message list (prefixed with "Note:").
+$GTake notes (:)
+This command allows you to take notes, which will then appear in your message list (prefixed with "Note:").
 
-#####
+%%%%%
 --- Game Status Commands ---
 
 %%%%% <cmd=C>
-Character Description (C)
-        Brings up a full description of your character, including your
-        skill levels, your current and potential stats, and various other
-        information.  From this screen, you can change your name or use
-        the file character description command to save your character
-        status to a file.  That command saves additional information,
-        including your background, your inventory, and the contents of
-        your house.
+$GCharacter Description (C)
+Brings up a full description of your character, including your skill levels, your current and potential stats, and various other information. From this screen, you can change your name or use the file character description command to save your character status to a file. That command saves additional information, including your background, your inventory, and the contents of your house.
 
 %%%%% <cmd=~>
-Check knowledge (~) (|)
-        This command allows you to ask about the knowledge possessed by
-        your character.  Currently, this includes being able to list all
-        known "artifacts", "uniques", and "objects".  Normally, once an
-        artifact is "generated", and "lost", it can never again be found,
-        and will become "known" to the player.  With "preserve" mode, an
-        artifact can never be "lost" until it is "known" to the player.
-        In either case, any "known" artifacts not in the possession of
-        the player will never again be "generated".  The "uniques" are
-        special "unique" monsters which can only be killed once per game.
-        Certain "objects" come in "flavors", and you must determine the
-        effect of each "flavor" once for each such type of object, and
-        this command will allow you to display all "known" flavors.
+$GCheck knowledge (~) (|)
+This command allows you to ask about the knowledge possessed by your character. It brings up a menu at which you enter one of the following numbers to access the information it stores. Pressing escape exits the command.
+
+%%%%% <cmd=~1>
+$gDisplay known artifacts (~ 1) (! 1)
+This displays a list of the artefacts you have seen, listing its name and the character which represents it on the map. If preserve mode is turned off, it also lists artefacts which have been lost on leaving a level.
+
+%%%%% <cmd=~2>
+$gDisplay known uniques <~ 2> <! 2>
+This displays a list of the uniques your current character, or previous characters in the current save file, have seen. It displays the name of each and the character which represents each on the map. It also mentions which are dead and which alive, and indicates which are (or were) quest monsters in the current game with an exclamation mark.
+
+%%%%% <cmd=~3>
+$gDisplay known objects <~ 3> <! 3>
+There are some objects in the game which are described using a colour, flavour, material, etc. before one has been identified rather than an indication of their function. This command gives a list of the items of this nature which have been identified in the current game.
+
+%%%%% <cmd=~4>
+$gDisplay kill count <~ 4> <! 4>
+This gives a list of the monsters your current character has killed, listing the name, number and symbol on the map for each.
+
+%%%%% <cmd=~5>
+$gDisplay ancestral causes of death <~ 5> <! 5>
+This gives a list of how the characters in the current save file have died. It lists which monsters have killed your characters, and also how many were killed by traps, poison and other misfortunes, or ended the game voluntarily. It lists the name, number and symbol on the map for each (non-monster deaths use an arbitrary symbol).
+
+%%%%% <cmd=~6>
+$gDisplay chaos features <~ 6> <! 6>
+This gives a list of the the changes which have been made to your character by chaos (most easily experienced by practicing thaumaturgy), giving a brief description of each. It does not list whether your stats or race have been affected by chaos, but only those things which cannot be acquired in other ways.
+
+%%%%% <cmd=~7>
+$gDisplay current allies <~ 7> <! 7>
+This lists the friendly monsters which are on the current level. No monsters are generated friendly, but certain spells and items can tame hostile monsters. As friendly monsters slow down the rate at which you regain spell points and chi, it also lists the degree to which this is happening.
+
+%%%%% <cmd=~8>
+$gDisplay shop prices <~ 8> <! 8>
+This lists certain information about each shop in the game, giving the symbol for the door, the name and race of the shopkeeper, the type of shop, the largest amount of money the shopkeeper will pay for a single item and a number which represents how good a deal the shopkeeper will give the player's character relative to other shopkeepers.
+
+The + and - keys can be used to view each town with shops in turn, and pressing the symbol which is used to represent a town on the wilderness map (the numbers 0, 1, 2, 4, 5, 6 and 7 by default) will take you to a particular town immediately.
+
+%%%%% <cmd=~9>
+$gDisplay character features <~ 9> <! 9>
+This displays various things about your character which are not listed elsewhere. At the moment, this comprises your saving throw and some of the effects your AC has. These calculations are based on information known to the player, so objects which are not fully identified may make the numbers inaccurate.
 
 %%%%% <cmd=!>
-Interact with the system (!)
-        This allows some of the system-specific commands for altering the user
-        interface.
- 
-#####
+$GInteract with the system (!)
+This allows some of the system-specific commands for altering the user interface.
+
+%%%%%
 --- Saving and Exiting Commands ---
 
 %%%%% <cmd=^X>
-Save and Quit (Ctrl-X)
-        To save your game so that you can return to it later, use this
-        command.  Save files will also be generated (hopefully) if the
-        game crashes due to a system error.  After you die, you can use
-        your savefile to play again with the same options and such.
+$GSave and Quit (Ctrl-X)
+To save your game so that you can return to it later, use this command. Save files will also be generated (hopefully) if the game crashes due to a system error. After you die, you can use your savefile to play again with the same options and such.
 
 %%%%% <cmd=^S>
-Save (Ctrl-S)
-        This command saves the game but doesn't exit Angband.  Use this
-        frequently if you are paranoid about having your computer crash
-        (or your power go out) while you are playing. It is possible to force
-        the game to do this automatically using the autosave options (see
-        custom.txt).
+$GSave (Ctrl-S)
+This command saves the game but doesn't exit Angband. Use this frequently if you are paranoid about having your computer crash (or your power go out) while you are playing. It is possible to force the game to do this automatically using the autosave options (see custom.txt).
 
 %%%%% <cmd=Q>
-Quit (wake up) (Q)
-        Ends your quest and exits Angband.  You will be prompted to
-        make sure you really want to do this, and then asked to verify
-        that choice.  Your character will forget all that he has learnt and you
-        will have to start again from the very beginning.
+$GQuit (wake up) (Q)
+Ends your quest and exits Angband. You will be prompted to make sure you really want to do this, and then asked to verify that choice. Your character will forget all that he has learnt and you will have to start again from the very beginning.
 
-#####
+%%%%%
 --- User pref file commands ---
 
 %%%%% <cmd==>
-Interact with options (=)
-        Allow you to interact with options.  Note that using the "cheat"
-        options may mark your savefile as unsuitable for the high score
-        list.  You may change normal options using the "X" and "Y" user
-        pref commands.  The "window" options allow you to specify what
-        should be drawn in any of the special sub-windows (not available
-        on all platforms). See the help file "options.txt" for more info.
+$GInteract with options (=)
+Allow you to interact with options. Note that using the "cheat" options may mark your savefile as unsuitable for the high score list. You may change normal options using the "X" and "Y" user pref commands. The "window" options allow you to specify what should be drawn in any of the special sub-windows (not available on all platforms). See the help file "options.txt" for more info.
 
 %%%%% <cmd=@>
-Interact with macros (@)
-        Allow you to interact with macros.  You may load or save macros
-        from user pref files, create macros of various types, or define
-        keymaps.  You must define a "current action", shown at the bottom
-        of the screen, before you attempt to use any of the "create macro"
-        commands, which use that "current action" as their action.  This
-        is a horrible interface, and will be fixed eventually.
+$GInteract with macros (@)
+Allow you to interact with macros. You may load or save macros from user pref files, create macros of various types, or define keymaps. You must define a "current action", shown at the bottom of the screen, before you attempt to use any of the "create macro" commands, which use that "current action" as their action. This is a horrible interface, and will be fixed eventually.
 
 %%%%% <cmd=%>
-Interact with visuals (%)
-        Allow you to interact with visuals.  You may load or save visuals
-        from user pref files, or modify the attr/char mappings for the
-        monsters, objects, and terrain features.  You must use the "redraw"
-        command (Ctrl-R) to redraw the map after changing attr/char mappings.
+$GInteract with visuals (%)
+Allow you to interact with visuals. You may load or save visuals from user pref files, or modify the attr/char mappings for the monsters, objects, and terrain features. You must use the "redraw" command (Ctrl-R) to redraw the map after changing attr/char mappings.
+
+In the "Change" options, the following keys are valid:
+
+n: Move to a valid object, monster, etc..
+a: Change (by index) the colour used for this object.
+c: Change (by index) the character used for this object.
+
+Lower case letters (n, a, c) increase the specified value, wrapping at the end.
+Upper case letters (N, A, C) decrease them.
+Pressing Ctrl with the letter allows you to type in the desired number. As this may not be possible on all terminals, pressing ^ and then the letter gives the same effect.
 
 %%%%% <cmd=&>
-Interact with colors (&)
-        Allow the user to interact with colors.  This command only
-        works on some systems.
- 
-%%%%% <cmd=">
-Enter a user pref command (")
-        Angband stores your preferences in files called "user pref files",
-        which contain comments and "user pref commands", which are simple
-        strings describing one aspect of the system about which the user has a
-        preference. You may enter single user pref commands directly, using the
-        special "Enter a user pref command" command, activated by "double quote".
-        You may have to use the "redraw" command (^R) after changing certain of
-        the aspects of the game, to allow Angband to adapt to your changes.
+$GInteract with colors (&)
+Allow the user to interact with colors. This command only works on some systems.
 
-#####
+In the "Modify" option, the following keys are valid:
+
+      n: Move to the next colour.
+r, g, b: Change the amount of red, blue or green in the indicated colour.
+
+Lower case letters increase the specified value, wrapping at the end.
+Uper case letters decrease them.
+
+%%%%% <cmd=">
+$GEnter a user pref command (")
+Angband stores your preferences in files called "user pref files", which contain comments and "user pref commands", which are simple strings describing one aspect of the system about which the user has a preference. You may enter single user pref commands directly, using the special "Enter a user pref command" command, activated by "double quote". You may have to use the "redraw" command (^R) after changing certain of the aspects of the game, to allow Angband to adapt to your changes.
+
+%%%%%
 --- Help ---
 
-%%%%% <cmd=?>
-Help (?)
-        Brings up the Angband on-line help system.  Note that the help
-        files are just text files in a particular format, and that other
-        help files may be available on the Net.
+%%%%% <cmd!=?> Not used as hlponhlp.txt is more thorough.
+$GHelp (?)
+Brings up the Angband on-line help system. Note that the help files are just text files in a particular format, and that other help files may be available on the Net.
+See *****/ahlponhlp.txt*0[hponhlp.txt]$w for further details.
 
 %%%%% <cmd=/>
-Identify Symbol (/)
-        Use this command to find out what a character stands for.  For
-        instance, by pressing "/.", you can find out that the "." symbol
-        stands for a floor spot.  When used with a symbol that represents
-        creatures, the this command will tell you only what class of
-        creature the symbol stands for, not give you specific information
-        about a creature you can see.  To get that, use the Look command.
+$GIdentify Symbol (/)
+Use this command to find out what a character stands for. For instance, by pressing "/.", you can find out that the "." symbol stands for a floor spot. When used with a symbol that represents creatures, the this command will tell you only what class of creature the symbol stands for, not give you specific information about a creature you can see. To get that, use the Look command.
 
-        There are three special symbols you can use with the Identify
-        Symbol command to access specific parts of your monster memory.
-        Typing Ctrl-A when asked for a symbol will recall details about
-        all monsters, typing Ctrl-U will recall details about all unique
-        monsters, and typing Ctrl-N will recall details about all
-        non-unique monsters.
+A few keypresses are interpreted in a special way as follows:
+Ctrl-A: All monsters encountered.
+Ctrl-U: Unique monsters encountered.
+Ctrl-N: Non-unique monsters encountered.
+Ctrl-S: Monsters whose names contain a string you will be prompted for. This comparison is case insensitive.
 
-        If the character stands for a creature, you are asked if you want
-        to recall details.  If you answer yes, information about the
-        creatures you have encountered with that symbol is shown in the
-        Recall window if available, or on the screen if not.  You can also
-        answer "k" to see the list sorted by number of kills, or "p" to
-        see the list sorted by dungeon level the monster is normally found
-        on.  Pressing ESCAPE at any point will exit this command.
+%%%%% <query 2>
+If the character stands for a creature, you are asked if you want to recall details. There are a number of keys which you can press to control how it is sorted:
+
+     p: Shows monsters in order of depth from the deepest to the shallowest.
+     y: Show monsters from the last in r_info.txt to the first. This is usually the same as with "p".
+     k: Sort by number of kills from the most killed to the least.
+Escape: Exit the command.
+
+Any other key is treated as if it was "Escape".
+
+%%%%% <query 3>
+Once you select a sort method, the game will display them one at a time. This is controlled by the following keys:
+
+     +: Go to the next monster according to the chosen sort method.
+     -: Go to the previous monster.
+     r: Shows/hides details about the selected monster on the main screen.
+Escape: Stop viewing monsters.
+
+Any other key is treated as if it was "+", and the command loops when it reaches the end,
 
 %%%%% <cmd=V>
-Game Version (V)
-        This command will tell you what version of Angband you are using.
-        For more information, see the "version.txt" help file.
+$GGame Version (V)
+This command will tell you what version of Angband you are using. For more information, see the "version.txt" help file.
 
 
-#####
+%%%%%
 --- Extra Commands ---
 
 %%%%% <cmd=^I>
-Toggle Windows (Ctrl-I) 
-        Toggles the display in any sub-windows (if available) which have
-        more than one non-boring display available.
+$GToggle Windows (Ctrl-I) 
+Toggles the display in any sub-windows (if available) which have more than one non-boring display available.
 
 %%%%% <cmd=^R>
-Redraw Screen (Ctrl-R)
-        This command adapts to various changes in global options, and
-        redraws all of the windows.  It is normally only necessary in
-        abnormal situations, such as after changing the visual attr/char
-        mappings, or enabling "graphics" mode.
+$GRedraw Screen (Ctrl-R)
+This command adapts to various changes in global options, and redraws all of the windows. It is normally only necessary in abnormal situations, such as after changing the visual attr/char mappings, or enabling "graphics" mode.
 
 %%%%% <cmd=(>
-Load screen dump (left-paren)
-        This command loads a "snap-shot" of the current screen from the file
-        "dump.txt", and displays it on the screen.
+$GLoad screen dump (left-paren)
+This command loads a "snap-shot" of the current screen from the file "dump.txt", and displays it on the screen.
 
 %%%%% <cmd=)>
-Save screen dump (right-paren)
-        This command dumps a "snap-shot" of the current screen to the file
-        "dump.txt", including encoded color information.
+$GSave screen dump (right-paren)
+This command dumps a "snap-shot" of the current screen to the file "dump.txt", including encoded color information.
 
 %%%%% <cmd=^A>
-Debug commands (Ctrl-A)
-        If the game is compiled with debug commands, and the cheat option
-		cheat_wzrd is set, this allows the player to carry out a number of
-        special commands. It is, of course, cheating to use it in a real game.
+$GDebug commands (Ctrl-A)
+If the game is compiled with debug commands, and the cheat option cheat_wzrd is set, this allows the player to carry out a number of special commands. It is, of course, cheating to use it in a real game.

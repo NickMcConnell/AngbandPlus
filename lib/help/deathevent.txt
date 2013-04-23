@@ -1,8 +1,6 @@
 Instructions for describing death events
 
-To cause a specific action to happen on death, there needs to be a line
-beginning with 'E:'. On the same line, there must be one of the flags listed
-below, usually together with a number of symbols as described.
+To cause a specific action to happen on death, there needs to be a line beginning with 'E:'. On the same line, there must be one of the flags listed below, usually together with a number of symbols as described.
 
 The flags are as follows:
 
@@ -74,12 +72,8 @@ Flag:     ONLY_ONE
 Effect:   Only one of the events with this flag will be generated when a monster
           dies. The probability of each happening will, however, be as stated.
 
-Note that symbols which require numbers as arguments require them to be
-immediately after the number as this is what the parser expects.
+Note that symbols which require numbers as arguments require them to be immediately after the number as this is what the parser expects.
 
-The keywords marked with * can be replaced by an appropriate text string from
-an info file. This must be the name as given in the N: line of the relevant
-file, strange formatting and all.
+The keywords marked with * can be replaced by an appropriate text string from an info file. This must be the name as given in the N: line of the relevant file, strange formatting and all.
 
-Also note that putting an argument which is not associated with the given flag
-will not result in an error, but simply not be parsed.
+Also note that putting an argument which is not associated with the given flag will not result in an error, but simply not be parsed.

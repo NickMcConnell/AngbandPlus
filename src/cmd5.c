@@ -1180,7 +1180,7 @@ static void print_spirits(int *valid_spirits,int num,int y, int x)
 
 static void rustproof(void)
 {
-	int		item;
+	errr err;
 
 	object_type	*o_ptr;
 
@@ -1190,41 +1190,29 @@ static void rustproof(void)
 	item_tester_hook = item_tester_hook_armour;
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Rustproof which piece of armour? ", TRUE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Rustproof which piece of armour? ", TRUE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have nothing to rustproof.");
+		if (err == -2) msg_print("You have nothing to rustproof.");
 		TFREE(o_name);
 		return;
 	}
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, FALSE, 0);
 
 	o_ptr->flags3 |= TR3_IGNORE_ACID;
 
 	if ((o_ptr->to_a < 0) && !(o_ptr->ident & IDENT_CURSED))
 	{
 		msg_format("%s %s look%s as good as new!",
-			((item >= 0) ? "Your" : "The"), o_name,
+			((is_inventory_p(o_ptr)) ? "Your" : "The"), o_name,
 			((o_ptr->number > 1) ? "" : "s"));
 			o_ptr->to_a = 0;
 	}
 
 	msg_format("%s %s %s now protected against corrosion.",
-		((item >= 0) ? "Your" : "The"), o_name,
+		((is_inventory_p(o_ptr)) ? "Your" : "The"), o_name,
 		((o_ptr->number > 1) ? "are" : "is"));
 
 	TFREE(o_name);
@@ -1240,7 +1228,7 @@ static void rustproof(void)
  * Note that browsing is allowed while confused or blind,
  * and in the dark, primarily to allow browsing in stores.
  */
-void do_cmd_browse(int item)
+void do_cmd_browse(object_type *o_ptr)
 {
 	int		sval;
 	int		spell = -1;
@@ -1248,33 +1236,20 @@ void do_cmd_browse(int item)
 
 	byte		spells[64];
 
-	object_type	*o_ptr;
-
 
 	/* Restrict choices to "useful" books */
 	item_tester_tval = TV_SORCERY_BOOK;
 
 	/* Get an item if we do not already have one */
-	if(item < 0)
+	if(!o_ptr)
 	{
+		errr err;
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Browse which book? ", FALSE, TRUE, TRUE))
+		if (!((o_ptr = get_item(&err, "Browse which book? ", FALSE, TRUE, TRUE))))
 		{
-			if (item == -2) msg_print("You have no books that you can read.");
+			if (err == -2) msg_print("You have no books that you can read.");
 			return;
 		}
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	item_tester_tval = TV_SORCERY_BOOK;
@@ -1337,7 +1312,8 @@ void do_cmd_browse(int item)
  */
 void do_cmd_study(void)
 {
-	int	i, item, sval;
+	errr err;
+	int	i, sval;
 	int	spell_school = 0;
 	int	spell = -1;
 
@@ -1372,22 +1348,10 @@ void do_cmd_study(void)
 	item_tester_tval = TV_SORCERY_BOOK;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Study which book? ", FALSE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Study which book? ", FALSE, TRUE, TRUE))))
 	{
-		if (item == -2) msg_print("You have no books that you can read.");
+		if (err == -2) msg_print("You have no books that you can read.");
 		return;
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	/* Access the item's sval */
@@ -1441,26 +1405,15 @@ void do_cmd_study(void)
 	/* Sound */
 	sound(SOUND_STUDY);
 
-	/* One less spell available */
-	p_ptr->new_spells--;
-
-	/* Message if needed */
-	if (p_ptr->new_spells)
-	{
-		/* Message */
-		msg_format("You can learn %d more %s%s.",
-			   p_ptr->new_spells, p,
-			   (p_ptr->new_spells != 1) ? "s" : "");
-	}
-
-	/* Save the new_spells value */
-	p_ptr->old_spells = p_ptr->new_spells;
+	/* Update spells. */
+	p_ptr->update |= PU_SPELLS;
+	update_stuff();
 
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY);
 }
 
-void do_poly_wounds(void)
+void do_poly_wounds(int cause)
 {
 
     s16b wounds = p_ptr->cut, hit_p = (p_ptr->mhp - p_ptr->chp);
@@ -1472,7 +1425,7 @@ void do_poly_wounds(void)
     if (Nasty_effect)
         {
             msg_print("A new wound was created!");
-            take_hit(change, "a polymorphed wound");
+            take_hit(change, "a polymorphed wound", cause);
             set_cut(change);
         }
     else
@@ -1498,7 +1451,7 @@ while (effects-- && more_effects)
         switch (randint(12))
         {
         case 1: case 2:
-            do_poly_wounds();
+            do_poly_wounds(MON_FATAL_POLYMORPH);
             break;
         case 3: case 4:
             (void) gain_chaos_feature(0);
@@ -1564,7 +1517,7 @@ while (effects-- && more_effects)
             if (randint(6)==1)
             {
                 msg_print("You find living difficult in your present form!");
-                take_hit(damroll(randint(skill_set[SKILL_TOUGH].value/2),skill_set[SKILL_TOUGH].value/2), "a lethal chaos feature");
+                take_hit(damroll(randint(skill_set[SKILL_TOUGH].value/2),skill_set[SKILL_TOUGH].value/2), "a lethal chaos feature", MON_FATAL_POLYMORPH);
             }
             /* No break; here! */
         default:
@@ -1639,7 +1592,7 @@ static void brand_weapon(int brand_type)
 		cptr act = NULL;
 
 		C_TNEW(o_name, ONAME_MAX, char);
-        object_desc(o_name, o_ptr, FALSE, 0); /* Let's get the name before
+        strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, FALSE, 0); /* Let's get the name before
                                                 it is changed... */
 
     switch (brand_type)
@@ -1722,7 +1675,7 @@ static void call_the_(void)
         msg_print("There is a loud explosion!");
         destroy_area(py, px, 20+(skill_set[SKILL_THAUMATURGY].value/2), TRUE);
         msg_print("The dungeon collapses...");
-        take_hit(100 + (randint(150)), "a suicidal Call the Void");
+        take_hit(100 + (randint(150)), "a suicidal Call the Void", MON_CALLING_THE_VOID);
     }
 }
 
@@ -1798,9 +1751,9 @@ static void call_the_(void)
 static void wild_magic(int spell)
 {
     int counter = 0;
-    int type = SUMMON_BIZARRE1 - 1 + (randint(6));
-    if (type < SUMMON_BIZARRE1) type = SUMMON_BIZARRE1;
-    else if (type > SUMMON_BIZARRE6) type = SUMMON_BIZARRE6;
+    int type = SUMMON_MOULD + (rand_int(6));
+    if (type < SUMMON_MOULD) type = SUMMON_MOULD;
+    else if (type > SUMMON_MIMIC) type = SUMMON_MIMIC;
 
     switch(randint(spell) + randint(8) + 1)
 
@@ -1856,11 +1809,23 @@ static void wild_magic(int spell)
             wall_stone();
             break;
         case 34: case 35:
+		{
+			int wild_monsters[] =
+			{
+				SUMMON_MOULD,
+				SUMMON_BAT,
+				SUMMON_QUYLTHULG,
+				SUMMON_VORTEX,
+				SUMMON_TREASURE,
+				SUMMON_MIMIC,
+			};
+			int type = wild_monsters[rand_int(N_ELEMENTS(wild_monsters))];
             while (counter++ < 8)
             {
             (void) summon_specific(py, px, ((dun_depth) * 3) / 2, type);
                     }
             break;
+		}
         case 36: case 37:
             activate_hi_summon();
             break;
@@ -1877,7 +1842,8 @@ static void wild_magic(int spell)
  */
 void do_cmd_cast(void)
 {
-	int	item, sval, spell, dir;
+	errr err;
+	int	sval, spell, dir;
 	int	chance, beam;
 	int	plev = 0;
 	int	spell_school = 0, dummy = 0;
@@ -1913,22 +1879,10 @@ void do_cmd_cast(void)
 	item_tester_tval = TV_SORCERY_BOOK;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Use which book? ", FALSE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Use which book? ", FALSE, TRUE, TRUE))))
 	{
-        if (item == -2) msg_format("You have no %s books!", prayer);
+        if (err == -2) msg_format("You have no %s books!", prayer);
 		return;
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	/* Access the item's sval */
@@ -2092,30 +2046,7 @@ void do_cmd_cast(void)
 		       break;
 	   case 23: /* Word of Recall */
 			{
-                if (dun_level && (p_ptr->max_dlv[cur_dungeon] > dun_level) && (cur_dungeon == recall_dungeon))
-                {
-                    if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv[cur_dungeon] = dun_level;
-
-                }
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(21) + 15;
-					if (dun_level > 0)
-					{
-						recall_dungeon = cur_dungeon;
-					}
-					else
-					{
-						cur_dungeon = recall_dungeon;
-					}
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall(TRUE);
 				break;
 			}
        case 24: /* Stasis */
@@ -2487,25 +2418,25 @@ void do_cmd_cast(void)
             else if (die<82)
             {
                 msg_print("It's a picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_BIZARRE1, FALSE)))
+                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_MOULD, FALSE)))
                     none_came = TRUE;
             }
             else if (die<84)
             {
                 msg_print("It's a picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_BIZARRE2, FALSE)))
+                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_BAT, FALSE)))
                     none_came = TRUE;
             }
             else if (die<86)
             {
                 msg_print("It's a picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_BIZARRE4, FALSE)))
+                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_VORTEX, FALSE)))
                     none_came = TRUE;
             }
             else if (die<88)
             {
                 msg_print("It's a picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_BIZARRE5, FALSE)))
+                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_TREASURE, FALSE)))
                     none_came = TRUE;
             }
             else if (die<96)
@@ -2549,7 +2480,7 @@ void do_cmd_cast(void)
         case 3: /* Reset Recall */
             {
                 /* Prompt */
-                sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_dlv[cur_dungeon]);
+                sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_dlv);
 
                 /* Default */
                 sprintf(tmp_val, "%d", MAX(dun_level,1));
@@ -2564,7 +2495,7 @@ void do_cmd_cast(void)
                 if (dummy < 1) dummy = 1;
 
                 /* Paranoia */
-                if (dummy > p_ptr->max_dlv[cur_dungeon]) dummy = p_ptr->max_dlv[cur_dungeon];
+                if (dummy > p_ptr->max_dlv) dummy = p_ptr->max_dlv;
 
                 /* Accept request */
                 msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50 );
@@ -2625,7 +2556,7 @@ void do_cmd_cast(void)
             msg_print ("You reach out your mind...");
             if (randint(5)>2)
             {
-             if (!(summon_specific_friendly(py, px, plev, SUMMON_NO_UNIQUES, FALSE)))
+             if (!(summon_specific_friendly(py, px, plev, 0, FALSE)))
                 none_came = TRUE;
             }
             else
@@ -2667,30 +2598,7 @@ void do_cmd_cast(void)
         break;
         case 14: /* Word of Recall */
 			{
-                if (dun_level && (p_ptr->max_dlv[cur_dungeon] > dun_level) && (cur_dungeon == recall_dungeon))
-                {
-                    if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv[cur_dungeon] = dun_level;
-
-                }
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(21) + 15;
-					if (dun_level > 0)
-					{
-						recall_dungeon = cur_dungeon;
-					}
-					else
-					{
-						cur_dungeon = recall_dungeon;
-					}
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall(TRUE);
 				break;
 			}
         case 15: /* Banish */
@@ -2700,10 +2608,10 @@ void do_cmd_cast(void)
             msg_print("You concentrate on a joker card...");
             switch(randint(4))
             {
-                case 1: dummy = SUMMON_BIZARRE1; break;
-                case 2: dummy = SUMMON_BIZARRE2; break;
-                case 3: dummy = SUMMON_BIZARRE4; break;
-                case 4: dummy = SUMMON_BIZARRE5; break;
+                case 1: dummy = SUMMON_MOULD; break;
+                case 2: dummy = SUMMON_BAT; break;
+                case 3: dummy = SUMMON_VORTEX; break;
+                case 4: dummy = SUMMON_TREASURE; break;
 
             }
             if (randint(2)==1)
@@ -2873,7 +2781,7 @@ void do_cmd_cast(void)
             {
                 if (randint(10)>3)
                 {
-                 if (summon_specific_friendly(py, px, plev, SUMMON_NO_UNIQUES, FALSE))
+                 if (summon_specific_friendly(py, px, plev, 0, FALSE))
                     none_came = FALSE;
                 }
                 else
@@ -2913,7 +2821,7 @@ void do_cmd_cast(void)
             msg_print ("You reach out your mind to the ancient caves...");
             if (randint(10)>3)
             {
-             if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_DRAGON_NO_UNIQUES, FALSE)))
+             if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_DRAGON, FALSE)))
                 none_came = TRUE;
             }
             else
@@ -2935,7 +2843,7 @@ void do_cmd_cast(void)
             msg_print ("You reach out your mind to the darkest tombs...");
             if (randint(10)>3)
             {
-             if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_UNDEAD_NO_UNIQUES, FALSE)))
+             if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_UNDEAD, FALSE)))
                 none_came = TRUE;
             }
             else
@@ -3179,7 +3087,7 @@ void do_cmd_cast(void)
                }
            } else {
                if (summon_specific_friendly((int)py,(int)px, (plev*3)/2,
-                       (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD),
+                       (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD),
                        (bool)(((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE))) {
                msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
                msg_print("Ancient, long-dead forms arise from the ground to serve you!");
@@ -3204,7 +3112,7 @@ void do_cmd_cast(void)
 			if (!get_aim_dir(&dir)) return;
             fire_ball(GF_HELL_FIRE, dir,
                     666, 3);
-            take_hit(50+randint(50), "the strain of casting Hellfire");
+            take_hit(50+randint(50), "the strain of casting Hellfire", MON_CASTING_HELLFIRE);
             break;
         case 30: /* Omnicide */
          p_ptr->csp -= 100;  /* Display doesn't show mana cost (100)
@@ -3225,13 +3133,13 @@ void do_cmd_cast(void)
              if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 			 /* Skip Quest Monsters */
-			 if ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)) continue;
+			 if (r_ptr->flags1 & RF1_GUARDIAN) continue;
 
              /* Delete the monster */
              delete_monster_idx(i,TRUE);
 
              /* Take damage */
-             take_hit(randint(4), "the strain of casting Omnicide");
+             take_hit(randint(4), "the strain of casting Omnicide", MON_CASTING_MASS_GENOCIDE);
 
              /* Absorb power of dead soul */
              p_ptr->csp++;
@@ -3332,13 +3240,13 @@ void do_cmd_cast(void)
  */
 void do_cmd_cantrip(void)
 {
-	int	item, sval, spell, dir;
+	errr err;
+	int	sval, spell, dir;
 	int	chance, beam;
 	int	plev = 0;
 	int	dummy = 0;
 
 	const cptr prayer = "cantrip";
-	bool from_pouch = FALSE;
 	bool item_break = FALSE;
 
 	object_type	*o_ptr;
@@ -3364,28 +3272,10 @@ void do_cmd_cantrip(void)
 	item_tester_tval = TV_CHARM;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Use which charm? ", TRUE, TRUE, TRUE))
+	if (!((o_ptr = get_item(&err, "Use which charm? ", TRUE, TRUE, TRUE))))
 	{
-        if (item == -2) msg_print("You have no charms!");
+        if (err == -2) msg_print("You have no charms!");
 		return;
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-
-		/* Remember if we got this from a pouch */
-		if ((item >= INVEN_POUCH_1) && (item <= INVEN_POUCH_6))
-		{
-			from_pouch = TRUE;
-		}
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
 	}
 
 	/* Access the item's sval */
@@ -3549,30 +3439,7 @@ void do_cmd_cantrip(void)
         break;
         case 30: /* Word of Recall */
 			{
-                if (dun_level && (p_ptr->max_dlv[cur_dungeon] > dun_level) && (cur_dungeon == recall_dungeon))
-                {
-                    if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv[cur_dungeon] = dun_level;
-
-                }
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(21) + 15;
-					if (dun_level > 0)
-					{
-						recall_dungeon = cur_dungeon;
-					}
-					else
-					{
-						cur_dungeon = recall_dungeon;
-					}
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+			set_recall(TRUE);
 				break;
             }
         case 31: /* Clairvoyance */
@@ -3594,14 +3461,7 @@ void do_cmd_cantrip(void)
 	}
 
 	/* Take some time - a cantrip always takes 100, unless the charm is in a pouch */
-	if (from_pouch)
-	{
-		energy_use = TURN_ENERGY/10;
-	}
-	else
-	{
-		energy_use = extract_energy[p_ptr->pspeed];
-	}
+	energy_use = item_use_energy(o_ptr);
 
 	/* If item is going to break, give it a chance of survival at low skill levels, on
 	 * the assumption that the user didn't manage to do anything to the charm.  This will
@@ -3624,21 +3484,10 @@ void do_cmd_cantrip(void)
 		/* Dangerous Hack -- Destroy the item */
 		msg_print("The charm crumbles, drained of magic.");
 
-		/* Reduce and describe inventory */
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-
-		/* Reduce and describe floor item */
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
+		/* Reduce and describe item. */
+		item_increase(o_ptr, -1);
+		item_describe(o_ptr);
+		item_optimize(o_ptr);
 	}
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
@@ -3968,7 +3817,7 @@ void do_cmd_invoke(void)
             if ((p_ptr->prace == RACE_VAMPIRE) && !(p_ptr->resist_lite))
             {
                 msg_print("The daylight scorches your flesh!");
-                take_hit(damroll(2,2), "daylight");
+                take_hit(damroll(2,2), "daylight", MON_LIGHT);
                             }
                break;
        case 5: /* Animal Taming */
@@ -4097,7 +3946,7 @@ void do_cmd_invoke(void)
             if ((p_ptr->prace == RACE_VAMPIRE) && !(p_ptr->resist_lite))
             {
                 msg_print("The sunlight scorches your flesh!");
-                take_hit(50, "sunlight");
+                take_hit(50, "sunlight", MON_LIGHT);
             }
 		       break;
 	   case 30: /* Elemental Brand */

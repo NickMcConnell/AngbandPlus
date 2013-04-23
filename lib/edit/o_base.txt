@@ -32,7 +32,7 @@
 
 # Version stamp (required)
 
-V:1.0.5
+V:
 
 
 N:0:%+K%k%=K%+E %e%=E%+A %a%=A

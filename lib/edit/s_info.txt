@@ -1,0 +1,1074 @@
+# File: s_info.txt
+
+# This file is used to initialise the "lib/data/s_info.raw" file, which is used
+# to initialise the shopkeepers for the sCthAngband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# The format of a monster is as follows... ([] indicates an optional part)
+
+# N:name
+# I:(shop type):(race):[town]
+# C:(max cost):(max greed):(min greed):(haggle):(tolerance)
+
+# 'N'
+# Name: The name given to this shop.
+
+# 'I'
+# Shop type: An index to indicate the shop type. At the time of writing, this
+#     is actually a string located in macro.txt.
+# Race: The race of the shopkeeper. This affects how greedy the shopkeeper is
+#     to each race of character.
+# Town: The town the shopkeeper is found in. If it is omitted, the shopkeeper
+#     may be found anywhere.
+
+# 'C'
+# Max cost: The most this shopkeeper will ever pay for something.
+# Max greed: This is the percentage of the price the shopkeeper will ask for
+#     an item initially with no racial modifier.
+# Min greed: This is the lowest percentage of the price of an item the
+#     shopkeeper will ask for with no racial modifier.
+# Haggle: This affects how quickly a haggling shopkeeper changes his prices
+#     (I'm not sure how it works at present).
+# Tolerance: This is how many "bad" haggles the player can make in a shop
+#     before being thrown out.
+
+# Version stamp (required)
+
+V:
+
+# Some non-shopkeepers. There isn't really a "None" race, but the race is
+# never used for Houses or Halls.
+
+N:Your home
+I:House:None
+
+N:Hall of Records
+I:Hall:None
+
+# Real shopkeepers.
+
+N:Falilmawen the Friendly
+C:250:170:108:5:15
+I:General:Hobbit:Celephais
+
+N:Voirin the Cowardly
+C:500:175:108:4:12
+I:General:Human:Celephais
+
+N:Erashnak the Midget
+C:750:170:107:5:15
+I:General:Broo:Celephais
+
+N:Grug the Comely
+C:1000:165:107:6:18
+I:General:Half-Titan:Celephais
+
+N:Kon-Dar the Ugly
+C:10000:210:115:5:7
+I:Armoury:Half-Orc:Celephais
+
+N:Darg-Low the Grim
+C:15000:190:111:4:9
+I:Armoury:Human:Celephais
+
+N:Decado the Handsome
+C:25000:200:112:4:10
+I:Armoury:Great-One:Celephais
+
+N:Elo Dragonscale
+C:30000:200:112:4:5
+I:Armoury:Elf:Celephais
+
+N:Arnold the Beastly
+C:10000:210:115:6:6
+I:Weaponsmith's:Barbarian:Celephais
+
+N:Arndal Beast-Slayer
+C:15000:185:110:5:9
+I:Weaponsmith's:Half-Elf:Celephais
+
+N:Edor the Short
+C:25000:190:115:5:7
+I:Weaponsmith's:Hobbit:Celephais
+
+N:Oglign Dragon-Slayer
+C:30000:195:112:4:8
+I:Weaponsmith's:Dwarf:Celephais
+
+N:Ludwig the Humble
+C:10000:175:109:6:15
+I:Temple:Dwarf:Celephais
+
+N:Gunnar the Paladin
+C:15000:185:110:5:23
+I:Temple:Half-Troll:Celephais
+
+N:Sir Parsival the Pure
+C:25000:180:107:6:20
+I:Temple:High-Elf:Celephais
+
+N:Asenath the Holy
+C:30000:185:109:5:15
+I:Temple:Human:Celephais
+
+N:McKinnon
+C:10000:175:109:6:15
+I:Temple:Human:Celephais
+
+N:Mistress Chastity
+C:15000:185:110:5:23
+I:Temple:High-Elf:Celephais
+
+N:Hashnik the Druid
+C:25000:180:107:6:20
+I:Temple:Hobbit:Celephais
+
+N:Finak
+C:30000:185:109:5:15
+I:Temple:Yeek:Celephais
+
+N:Mauser the Chemist
+C:10000:190:111:5:8
+I:Alchemist's:Half-Elf:Celephais
+
+N:Wizzle the Chaotic
+C:10000:190:110:6:8
+I:Alchemist's:Hobbit:Celephais
+
+N:Kakalrakakal
+C:15000:200:116:6:9
+I:Alchemist's:Klackon:Celephais
+
+N:Jal-Eth the Alchemist's
+C:15000:220:111:4:9
+I:Alchemist's:Elf:Celephais
+
+N:Skidney the Sorcerer
+C:15000:200:110:7:8
+I:Magic Shop:Half-Elf:Celephais
+
+N:Buggerby the Great
+C:20000:215:113:6:10
+I:Magic Shop:Gnome:Celephais
+
+N:Kyria the Illusionist
+C:30000:200:110:7:10
+I:Magic Shop:Human:Celephais
+
+N:Nikki the Necromancer
+C:30000:175:110:5:11
+I:Magic Shop:Dark-Elf:Celephais
+
+N:Randolph Carter
+C:15000:175:108:4:12
+I:Bookshop:Human:Celephais
+
+N:Odnar the Sage
+C:20000:120:105:6:16
+I:Bookshop:High-Elf:Celephais
+
+N:Gandar the Neutral
+C:25000:120:110:7:19
+I:Bookshop:Vampire:Celephais
+
+N:Ro-sha the Patient
+C:30000:140:105:6:12
+I:Bookshop:Golem:Celephais
+
+N:Mordsan
+C:15000:175:108:4:12
+I:Inn:Human:Celephais
+
+N:Furfoot Pobber
+C:20000:120:105:6:16
+I:Inn:Hobbit:Celephais
+
+N:Oddo Yeekson
+C:25000:120:110:7:19
+I:Inn:Yeek:Celephais
+
+N:Dry-Bones
+C:30000:140:105:6:12
+I:Inn:Skeleton:Celephais
+
+N:Magd the Ruthless
+C:2000:100:100:4:12
+I:Pawn Shop:Human:Celephais
+
+N:Drako Fairdeal
+C:4000:100:100:6:16
+I:Pawn Shop:Draconian:Celephais
+
+N:Featherwing
+C:5000:100:100:7:19
+I:Pawn Shop:Sprite:Celephais
+
+N:Xochinaggua
+C:10000:100:100:6:12
+I:Pawn Shop:Mind-Flayer:Celephais
+
+N:Forovir the Cheap
+C:250:170:108:5:15
+I:General:Human:Ulthar
+
+N:Ellis the Fool
+C:500:175:108:4:12
+I:General:Human:Ulthar
+
+N:Filbert the Hungry
+C:750:170:107:5:15
+I:General:Vampire:Ulthar
+
+N:Fthnargl Psathiggua
+C:1000:165:107:6:18
+I:General:Mind-Flayer:Ulthar
+
+N:Delicatus
+C:10000:210:115:5:7
+I:Armoury:Sprite:Ulthar
+
+N:Gruce the Huge
+C:15000:190:111:4:9
+I:Armoury:Half-Giant:Ulthar
+
+N:Animus
+C:25000:200:112:4:10
+I:Armoury:Golem:Ulthar
+
+N:Malvus
+C:30000:200:112:4:5
+I:Armoury:Half-Titan:Ulthar
+
+N:Drew the Skilled
+C:10000:210:115:6:6
+I:Weaponsmith's:Human:Ulthar
+
+N:Orrax Dragonson
+C:15000:185:110:5:9
+I:Weaponsmith's:Draconian:Ulthar
+
+N:Anthrax Disease-Carrier
+C:25000:190:115:5:7
+I:Weaponsmith's:Broo:Ulthar
+
+N:Arkhoth the Stout
+C:30000:195:112:4:8
+I:Weaponsmith's:Dwarf:Ulthar
+
+N:Krikkik
+C:10000:175:109:6:15
+I:Temple:Klackon:Ulthar
+
+N:Morival the Wild
+C:15000:185:110:5:23
+I:Temple:Elf:Ulthar
+
+N:Hoshak the Dark
+C:25000:180:107:6:20
+I:Temple:Imp:Ulthar
+
+N:Atal the Wise
+C:30000:185:109:5:15
+I:Temple:Human:Ulthar
+
+N:Fanelath the Cautious
+C:10000:190:111:5:8
+I:Alchemist's:Dwarf:Ulthar
+
+N:Runcie the Insane
+C:10000:190:110:6:8
+I:Alchemist's:Human:Ulthar
+
+N:Grumbleworth
+C:15000:200:116:6:9
+I:Alchemist's:Gnome:Ulthar
+
+N:Flitter
+C:15000:220:111:4:9
+I:Alchemist's:Sprite:Ulthar
+
+N:Solostoran
+C:15000:200:110:7:8
+I:Magic Shop:Sprite:Ulthar
+
+N:Achshe the Tentacled
+C:20000:215:113:6:10
+I:Magic Shop:Mind-Flayer:Ulthar
+
+N:Kaza the Noble
+C:30000:200:110:7:10
+I:Magic Shop:High-Elf:Ulthar
+
+N:Fazzil the Dark
+C:30000:175:110:5:11
+I:Magic Shop:Dark-Elf:Ulthar
+
+N:Sarai the Swift
+C:15000:175:108:4:12
+I:Bookshop:Human:Ulthar
+
+N:Bodril the Seer
+C:20000:120:105:6:16
+I:Bookshop:High-Elf:Ulthar
+
+N:Veloin the Quiet
+C:25000:120:110:7:19
+I:Bookshop:Zombie:Ulthar
+
+N:Vanthylas the Learned
+C:30000:140:105:6:12
+I:Bookshop:Mind-Flayer:Ulthar
+
+N:Kleibons
+C:15000:175:108:4:12
+I:Inn:Klackon:Ulthar
+
+N:Prendegast
+C:20000:120:105:6:16
+I:Inn:Hobbit:Ulthar
+
+N:Straasha
+C:25000:120:110:7:19
+I:Inn:Draconian:Ulthar
+
+N:Allia the Servile
+C:30000:140:105:6:12
+I:Inn:Human:Ulthar
+
+N:Od the Penniless
+C:2000:100:100:4:12
+I:Pawn Shop:Elf:Ulthar
+
+N:Xax
+C:4000:100:100:6:16
+I:Pawn Shop:Golem:Ulthar
+
+N:Jake Small
+C:5000:100:100:7:19
+I:Pawn Shop:Half-Giant:Ulthar
+
+N:Helga the Lost
+C:10000:100:100:6:12
+I:Pawn Shop:Human:Ulthar
+
+N:Eloise Long-Dead
+C:250:170:108:5:15
+I:General:Spectre:Dylath-Leen
+
+N:Fundi the Slow
+C:500:175:108:4:12
+I:General:Zombie:Dylath-Leen
+
+N:Granthus
+C:750:170:107:5:15
+I:General:Skeleton:Dylath-Leen
+
+N:Lorax the Suave
+C:1000:165:107:6:18
+I:General:Vampire:Dylath-Leen
+
+N:Selaxis
+C:10000:210:115:5:7
+I:Armoury:Zombie:Dylath-Leen
+
+N:Deathchill
+C:15000:190:111:4:9
+I:Armoury:Spectre:Dylath-Leen
+
+N:Drios the Faint
+C:25000:200:112:4:10
+I:Armoury:Spectre:Dylath-Leen
+
+N:Bathric the Cold
+C:30000:200:112:4:5
+I:Armoury:Vampire:Dylath-Leen
+
+N:Sarlyas the Rotten
+C:10000:210:115:6:6
+I:Weaponsmith's:Zombie:Dylath-Leen
+
+N:Tuethic Bare-Bones
+C:15000:185:110:5:9
+I:Weaponsmith's:Skeleton:Dylath-Leen
+
+N:Bilious
+C:25000:190:115:5:7
+I:Weaponsmith's:Broo:Dylath-Leen
+
+N:Fasgul
+C:30000:195:112:4:8
+I:Weaponsmith's:Zombie:Dylath-Leen
+
+N:Vhassa the Dead
+C:20000:250:150:10:5
+I:Black Market:Zombie:Dylath-Leen
+
+N:Kyn the Treacherous
+C:20000:250:150:10:5
+I:Black Market:Vampire:Dylath-Leen
+
+N:Bubonicus
+C:30000:250:150:10:5
+I:Black Market:Broo:Dylath-Leen
+
+N:Corpselight
+C:30000:250:150:10:5
+I:Black Market:Spectre:Dylath-Leen
+
+N:Parrish the Bloodthirsty
+C:20000:250:150:10:5
+I:Black Market:Vampire:Dylath-Leen
+
+N:Vile
+C:20000:250:150:10:5
+I:Black Market:Skeleton:Dylath-Leen
+
+N:Prentice the Trusted
+C:30000:250:150:10:5
+I:Black Market:Skeleton:Dylath-Leen
+
+N:Griella Humanslayer
+C:30000:250:150:10:5
+I:Black Market:Imp:Dylath-Leen
+
+N:Angelface
+C:20000:250:150:10:5
+I:Black Market:Vampire:Dylath-Leen
+
+N:Flotsam the Bloated
+C:20000:250:150:10:5
+I:Black Market:Zombie:Dylath-Leen
+
+N:Nieval
+C:30000:250:150:10:5
+I:Black Market:Vampire:Dylath-Leen
+
+N:Anastasia the Luminous
+C:30000:250:150:10:5
+I:Black Market:Spectre:Dylath-Leen
+
+N:Ossein the Literate
+C:15000:175:108:4:12
+I:Bookshop:Skeleton:Dylath-Leen
+
+N:Olvar Bookworm
+C:20000:120:105:6:16
+I:Bookshop:Vampire:Dylath-Leen
+
+N:Shallowgrave
+C:25000:120:110:7:19
+I:Bookshop:Zombie:Dylath-Leen
+
+N:D'ndrasn
+C:30000:140:105:6:12
+I:Bookshop:Mind-Flayer:Dylath-Leen
+
+N:Fubble the Boring
+C:15000:175:108:4:12
+I:Inn:Zombie:Dylath-Leen
+
+N:Bare-Bones Salluah
+C:20000:120:105:6:16
+I:Inn:Skeleton:Dylath-Leen
+
+N:Winsalt Once-Living
+C:25000:120:110:7:19
+I:Inn:Spectre:Dylath-Leen
+
+N:Agnes D'Arcy
+C:30000:140:105:6:12
+I:Inn:Vampire:Dylath-Leen
+
+N:Lumin the Blue
+C:15000:175:108:4:12
+I:Inn:Spectre:Dylath-Leen
+
+N:Short Al
+C:20000:120:105:6:16
+I:Inn:Zombie:Dylath-Leen
+
+N:Silent Faldus
+C:25000:120:110:7:19
+I:Inn:Zombie:Dylath-Leen
+
+N:Quirmby the Strange
+C:30000:140:105:6:12
+I:Inn:Vampire:Dylath-Leen
+
+N:Gloom the Phlegmatic
+C:2000:100:100:4:12
+I:Pawn Shop:Zombie:Dylath-Leen
+
+N:Quick-Arm Vollaire
+C:4000:100:100:6:16
+I:Pawn Shop:Vampire:Dylath-Leen
+
+N:Asenath
+C:5000:100:100:7:19
+I:Pawn Shop:Zombie:Dylath-Leen
+
+N:Lord Filbert
+C:10000:100:100:6:12
+I:Pawn Shop:Vampire:Dylath-Leen
+
+N:Butch
+C:250:170:108:5:15
+I:General:Half-Orc:Hlanth
+
+N:Elbereth the Beautiful
+C:500:175:108:4:12
+I:General:High-Elf:Hlanth
+
+N:Sarleth the Sneaky
+C:750:170:107:5:15
+I:General:Gnome:Hlanth
+
+N:Narlock
+C:1000:165:107:6:18
+I:General:Dwarf:Hlanth
+
+N:Vengella the Cruel
+C:10000:210:115:5:7
+I:Armoury:Half-Troll:Hlanth
+
+N:Wyrana the Mighty
+C:15000:190:111:4:9
+I:Armoury:Human:Hlanth
+
+N:Yojo II
+C:25000:200:112:4:10
+I:Armoury:Dwarf:Hlanth
+
+N:Ranalar the Sweet
+C:30000:200:112:4:5
+I:Armoury:Great-One:Hlanth
+
+N:Uurda the Infectious
+C:10000:210:115:5:7
+I:Armoury:Broo:Hlanth
+
+N:Sparrow II
+C:15000:190:111:4:9
+I:Armoury:Half-Elf:Hlanth
+
+N:Westmark the Fallen
+C:25000:200:112:4:10
+I:Armoury:Great-One:Hlanth
+
+N:Grob the Stupid
+C:30000:200:112:4:5
+I:Armoury:Half-Troll:Hlanth
+
+N:Ellefris the Paladin
+C:10000:210:115:6:6
+I:Weaponsmith's:Barbarian:Hlanth
+
+N:K'trrik'k
+C:15000:185:110:5:9
+I:Weaponsmith's:Klackon:Hlanth
+
+N:Drocus Spiderfriend
+C:25000:190:115:5:7
+I:Weaponsmith's:Dark-Elf:Hlanth
+
+N:Fungus Giant-Slayer
+C:30000:195:112:4:8
+I:Weaponsmith's:Dwarf:Hlanth
+
+N:Delantha
+C:10000:210:115:6:6
+I:Weaponsmith's:Elf:Hlanth
+
+N:Solvistani the Ranger
+C:15000:185:110:5:9
+I:Weaponsmith's:Half-Elf:Hlanth
+
+N:Xoril the Slow
+C:25000:190:115:5:7
+I:Weaponsmith's:Golem:Hlanth
+
+N:Aeon Flux
+C:30000:195:112:4:8
+I:Weaponsmith's:Half-Elf:Hlanth
+
+N:Xarillus
+C:10000:190:111:5:8
+I:Alchemist's:Human:Hlanth
+
+N:Egbert the Old
+C:10000:190:110:6:8
+I:Alchemist's:Dwarf:Hlanth
+
+N:Valindra the Proud
+C:15000:200:116:6:9
+I:Alchemist's:High-Elf:Hlanth
+
+N:Taen the Alchemist's
+C:15000:220:111:4:9
+I:Alchemist's:Human:Hlanth
+
+N:Keldorn the Grand
+C:15000:200:110:7:8
+I:Magic Shop:Dwarf:Hlanth
+
+N:Philanthropus
+C:20000:215:113:6:10
+I:Magic Shop:Hobbit:Hlanth
+
+N:Agnar the Enchantress
+C:30000:200:110:7:10
+I:Magic Shop:Human:Hlanth
+
+N:Buliance the Necromancer
+C:30000:175:110:5:11
+I:Magic Shop:Broo:Hlanth
+
+N:Charity the Necromancer
+C:20000:250:150:10:5
+I:Black Market:Dark-Elf:Hlanth
+
+N:Pugnacious the Pugilist
+C:20000:250:150:10:5
+I:Black Market:Half-Orc:Hlanth
+
+N:Footsore the Lucky
+C:30000:250:150:10:5
+I:Black Market:Broo:Hlanth
+
+N:Sidria Lighfingered
+C:30000:250:150:10:5
+I:Black Market:Human:Hlanth
+
+N:Porcina the Obese
+C:15000:175:108:4:12
+I:Bookshop:Half-Orc:Hlanth
+
+N:Glaruna Brandybreath
+C:20000:120:105:6:16
+I:Bookshop:Dwarf:Hlanth
+
+N:Furface Yeek
+C:25000:120:110:7:19
+I:Bookshop:Yeek:Hlanth
+
+N:Bald Oggin
+C:30000:140:105:6:12
+I:Bookshop:Gnome:Hlanth
+
+N:Aldous the Sleepy
+C:15000:175:108:4:12
+I:Inn:Human:Hlanth
+
+N:Grundy the Tall
+C:20000:120:105:6:16
+I:Inn:Hobbit:Hlanth
+
+N:Gobbleguts Thunderbreath
+C:25000:120:110:7:19
+I:Inn:Half-Troll:Hlanth
+
+N:Silverscale
+C:30000:140:105:6:12
+I:Inn:Draconian:Hlanth
+
+N:Haneka the Small
+C:250:170:108:5:15
+I:General:Gnome:Ilek-Vad
+
+N:Loirin the Mad
+C:500:175:108:4:12
+I:General:Half-Giant:Ilek-Vad
+
+N:Wuto Poisonbreath
+C:750:170:107:5:15
+I:General:Draconian:Ilek-Vad
+
+N:Araaka the Rotund
+C:1000:165:107:6:18
+I:General:Draconian:Ilek-Vad
+
+N:Horbag the Unclean
+C:10000:210:115:5:7
+I:Armoury:Half-Orc:Ilek-Vad
+
+N:Elelen the Telepath
+C:15000:190:111:4:9
+I:Armoury:Dark-Elf:Ilek-Vad
+
+N:Isedrelias
+C:25000:200:112:4:10
+I:Armoury:Sprite:Ilek-Vad
+
+N:Vegnar One-eye
+C:30000:200:112:4:5
+I:Armoury:Cyclops:Ilek-Vad
+
+N:Nadoc the Strong
+C:10000:210:115:6:6
+I:Weaponsmith's:Hobbit:Ilek-Vad
+
+N:Eramog the Weak
+C:15000:185:110:5:9
+I:Weaponsmith's:Kobold:Ilek-Vad
+
+N:Eowilith the Fair
+C:25000:190:115:5:7
+I:Weaponsmith's:Vampire:Ilek-Vad
+
+N:Huimog Balrog-Slayer
+C:30000:195:112:4:8
+I:Weaponsmith's:Half-Orc:Ilek-Vad
+
+N:Ibenidd the Chaste
+C:10000:175:109:6:15
+I:Temple:Human:Ilek-Vad
+
+N:Eridish
+C:15000:185:110:5:23
+I:Temple:Half-Troll:Ilek-Vad
+
+N:Vrudush the Shaman
+C:25000:180:107:6:20
+I:Temple:Half-Ogre:Ilek-Vad
+
+N:Haob the Berserker
+C:30000:185:109:5:15
+I:Temple:Barbarian:Ilek-Vad
+
+N:Cayd the Sweet
+C:10000:190:111:5:8
+I:Alchemist's:Vampire:Ilek-Vad
+
+N:Fulir the Dark
+C:10000:190:110:6:8
+I:Alchemist's:Nibelung:Ilek-Vad
+
+N:Domli the Humble
+C:15000:200:116:6:9
+I:Alchemist's:Dwarf:Ilek-Vad
+
+N:Yaarjukka Demonspawn
+C:15000:220:111:4:9
+I:Alchemist's:Imp:Ilek-Vad
+
+N:Vuirak the Wizard
+C:15000:200:110:7:8
+I:Magic Shop:Broo:Ilek-Vad
+
+N:Madish the Smart
+C:20000:215:113:6:10
+I:Magic Shop:Broo:Ilek-Vad
+
+N:Falebrimbor
+C:30000:200:110:7:10
+I:Magic Shop:High-Elf:Ilek-Vad
+
+N:Felil-Gand the Subtle
+C:30000:175:110:5:11
+I:Magic Shop:Dark-Elf:Ilek-Vad
+
+N:Riatho the Juggler
+C:20000:250:150:10:5
+I:Black Market:Hobbit:Ilek-Vad
+
+N:Janaaka the Shifty
+C:20000:250:150:10:5
+I:Black Market:Gnome:Ilek-Vad
+
+N:Cina the Rogue
+C:30000:250:150:10:5
+I:Black Market:Gnome:Ilek-Vad
+
+N:Arunikki Greatclaw
+C:30000:250:150:10:5
+I:Black Market:Draconian:Ilek-Vad
+
+N:Asuunu the Learned
+C:15000:175:108:4:12
+I:Bookshop:Mind-Flayer:Ilek-Vad
+
+N:Prirand the Dead
+C:20000:120:105:6:16
+I:Bookshop:Zombie:Ilek-Vad
+
+N:Ronar the Iron
+C:25000:120:110:7:19
+I:Bookshop:Golem:Ilek-Vad
+
+N:Galil-Gamir
+C:30000:140:105:6:12
+I:Bookshop:Elf:Ilek-Vad
+
+N:Togdush the Quiet
+C:15000:175:108:4:12
+I:Bookshop:Kobold:Ilek-Vad
+
+N:Vurjaana the Studious
+C:20000:120:105:6:16
+I:Bookshop:Gnome:Ilek-Vad
+
+N:Yietram the Luminous
+C:25000:120:110:7:19
+I:Bookshop:Spectre:Ilek-Vad
+
+N:Thradrierith
+C:30000:140:105:6:12
+I:Bookshop:Dark-Elf:Ilek-Vad
+
+N:Etheraa the Furious
+C:15000:175:108:4:12
+I:Inn:Barbarian:Ilek-Vad
+
+N:Paetlan the Alcoholic
+C:20000:120:105:6:16
+I:Inn:Human:Ilek-Vad
+
+N:Drang
+C:25000:120:110:7:19
+I:Inn:Half-Ogre:Ilek-Vad
+
+N:Barbag the Sly
+C:30000:140:105:6:12
+I:Inn:Kobold:Ilek-Vad
+
+N:Poogor the Dumb
+C:250:170:108:5:15
+I:General:Broo:Inganok
+
+N:Felorfiliand
+C:500:175:108:4:12
+I:General:Elf:Inganok
+
+N:Maroka the Aged
+C:750:170:107:5:15
+I:General:Gnome:Inganok
+
+N:Sasin the Bold
+C:1000:165:107:6:18
+I:General:Half-Giant:Inganok
+
+N:Rodish the Chaotic
+C:10000:210:115:5:7
+I:Armoury:Broo:Inganok
+
+N:Hesin Swordmaster
+C:15000:190:111:4:9
+I:Armoury:Nibelung:Inganok
+
+N:Elvererith the Cheat
+C:25000:200:112:4:10
+I:Armoury:Dark-Elf:Inganok
+
+N:Zzathath the Imp
+C:30000:200:112:4:5
+I:Armoury:Imp:Inganok
+
+N:Peadus the Cruel
+C:10000:210:115:6:6
+I:Weaponsmith's:Human:Inganok
+
+N:Vamog Slayer
+C:15000:185:110:5:9
+I:Weaponsmith's:Half-Ogre:Inganok
+
+N:Hooshnak the Vicious
+C:25000:190:115:5:7
+I:Weaponsmith's:Broo:Inganok
+
+N:Balenn War-Dancer
+C:30000:195:112:4:8
+I:Weaponsmith's:Barbarian:Inganok
+
+N:Proogdish the Youthfull
+C:10000:175:109:6:15
+I:Temple:Half-Ogre:Inganok
+
+N:Lumwise the Mad
+C:15000:185:110:5:23
+I:Temple:Yeek:Inganok
+
+N:Muirt the Virtuous
+C:25000:180:107:6:20
+I:Temple:Kobold:Inganok
+
+N:Dardobard the Weak
+C:30000:185:109:5:15
+I:Temple:Spectre:Inganok
+
+N:Gelaraldor the Herbmaster
+C:10000:190:111:5:8
+I:Alchemist's:High-Elf:Inganok
+
+N:Olelaldan the Wise
+C:10000:190:110:6:8
+I:Alchemist's:Barbarian:Inganok
+
+N:Fthoglo the Demonicist
+C:15000:200:116:6:9
+I:Alchemist's:Imp:Inganok
+
+N:Dridash the Alchemist's
+C:15000:220:111:4:9
+I:Alchemist's:Half-Orc:Inganok
+
+N:Nelir the Strong
+C:10000:190:111:5:8
+I:Alchemist's:Cyclops:Inganok
+
+N:Lignus the Pungent
+C:10000:190:110:6:8
+I:Alchemist's:Half-Orc:Inganok
+
+N:Tilba
+C:15000:200:116:6:9
+I:Alchemist's:Hobbit:Inganok
+
+N:Myrildric the Wealthy
+C:15000:220:111:4:9
+I:Alchemist's:Human:Inganok
+
+N:Thalegord the Shaman
+C:15000:200:110:7:8
+I:Magic Shop:Barbarian:Inganok
+
+N:Cthoaloth the Mystic
+C:20000:215:113:6:10
+I:Magic Shop:Mind-Flayer:Inganok
+
+N:Ibeli the Illusionist
+C:30000:200:110:7:10
+I:Magic Shop:Skeleton:Inganok
+
+N:Heto the Necromancer
+C:30000:175:110:5:11
+I:Magic Shop:Yeek:Inganok
+
+N:Chaeand the Poor
+C:20000:250:150:10:5
+I:Black Market:Human:Inganok
+
+N:Afardorf the Brigand
+C:20000:250:150:10:5
+I:Black Market:Barbarian:Inganok
+
+N:Lathaxl the Greedy
+C:30000:250:150:10:5
+I:Black Market:Mind-Flayer:Inganok
+
+N:Falarewyn
+C:30000:250:150:10:5
+I:Black Market:Sprite:Inganok
+
+N:Vosur the Wrinkled
+C:20000:250:150:10:5
+I:Black Market:Nibelung:Inganok
+
+N:Araord the Handsome
+C:20000:250:150:10:5
+I:Black Market:Great-One:Inganok
+
+N:Theradfrid the Loser
+C:30000:250:150:10:5
+I:Black Market:Human:Inganok
+
+N:One-Legged Eroolo
+C:30000:250:150:10:5
+I:Black Market:Half-Ogre:Inganok
+
+N:Rorbag Book-Eater
+C:15000:175:108:4:12
+I:Bookshop:Kobold:Inganok
+
+N:Kiriarikirk
+C:20000:120:105:6:16
+I:Bookshop:Klackon:Inganok
+
+N:Rilin the Quiet
+C:25000:120:110:7:19
+I:Bookshop:Dwarf:Inganok
+
+N:Isung the Lord
+C:30000:140:105:6:12
+I:Bookshop:High-Elf:Inganok
+
+N:Kirakak
+C:15000:175:108:4:12
+I:Inn:Klackon:Inganok
+
+N:Nafur the Wooden
+C:20000:120:105:6:16
+I:Inn:Golem:Inganok
+
+N:Grarak the Hospitable
+C:25000:120:110:7:19
+I:Inn:Half-Giant:Inganok
+
+N:Lona the Charismatic
+C:30000:140:105:6:12
+I:Inn:Gnome:Inganok
+
+N:Herranyth the Ruthless
+C:2000:100:100:4:12
+I:Pawn Shop:Human:Inganok
+
+N:Gagrin Moneylender
+C:4000:100:100:6:16
+I:Pawn Shop:Yeek:Inganok
+
+N:Thrambor the Grubby
+C:5000:100:100:7:19
+I:Pawn Shop:Half-Elf:Inganok
+
+N:Derigrin the Honest
+C:10000:100:100:6:12
+I:Pawn Shop:Hobbit:Inganok
+
+N:Abiemar the Peasant
+C:250:170:108:5:15
+I:General:Human:Nir
+
+N:Hurk the Poor
+C:500:175:108:4:12
+I:General:Half-Orc:Nir
+
+N:Soalin the Wretched
+C:750:170:107:5:15
+I:General:Zombie:Nir
+
+N:Merulla the Humble
+C:1000:165:107:6:18
+I:General:Elf:Nir
+
+N:Crediric the Brewer
+C:15000:175:108:4:12
+I:Inn:Human:Nir
+
+N:Nydudus the Slow
+C:20000:120:105:6:16
+I:Inn:Zombie:Nir
+
+N:Baurk the Busy
+C:25000:120:110:7:19
+I:Inn:Yeek:Nir
+
+N:Seviras the Mindcrafter
+C:30000:140:105:6:12
+I:Inn:Human:Nir
+
+N:Munk the Barterer
+C:2000:100:100:4:12
+I:Pawn Shop:Half-Ogre:Nir
+
+N:Gadrialdur the Fair
+C:4000:100:100:6:16
+I:Pawn Shop:Half-Elf:Nir
+
+N:Ninar the Stooped
+C:5000:100:100:7:19
+I:Pawn Shop:Dwarf:Nir
+
+N:Adirath the Unmagical
+C:10000:100:100:6:12
+I:Pawn Shop:Barbarian:Nir

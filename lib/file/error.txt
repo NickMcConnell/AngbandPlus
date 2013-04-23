@@ -1,3 +1,8 @@
+# error.txt
+#
+# This gives a number of random messages the program may print if an error
+# occurs. They are also sometimes used for scrolls of rumour.
+
 30
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 Invalid keypress

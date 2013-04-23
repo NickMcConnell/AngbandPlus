@@ -7,7 +7,7 @@
 #include "externs.h"
 
 /*
- * Here is some information about the routines in this file.
+ * Here is some information about the routines in this file. (to be updated)
  *
  * In general, the following routines take a "buffer", a "max length",
  * a "format string", and some "arguments", and use the format string
@@ -142,34 +142,15 @@
 /*
  * The "type" of the "user defined print routine" pointer
  */
-typedef uint (*vstrnfmt_aux_func)(char *buf, uint max, cptr fmt, vptr arg);
+typedef void (*vstrnfmt_aux_func) (char *buf, uint max, cptr fmt, va_list *vp);
 
 /*
- * The "default" user defined print routine.  Ignore the "fmt" string.
+ * Hack - do nothing.
  */
-static uint vstrnfmt_aux_dflt(char *buf, uint max, cptr fmt, vptr arg)
+uint func_nothing_f0(char UNUSED *buf, uint UNUSED max, cptr UNUSED fmt, vptr UNUSED arg)
 {
-	uint len;
-	char tmp[32];
-
-	/* XXX XXX */
-	fmt = fmt ? fmt : 0;
-
-	/* Pointer display */
-	sprintf(tmp, "<<%p>>", arg);
-	len = strlen(tmp);
-	if (len >= max) len = max - 1;
-	tmp[len] = '\0';
-	strcpy(buf, tmp);
-	return (len);
+	return 0;
 }
-
-/*
- * The "current" user defined print routine.  It can be changed
- * dynamically by sending the proper "%r" sequence to "vstrnfmt()"
- */
-static vstrnfmt_aux_func vstrnfmt_aux = vstrnfmt_aux_dflt;
-
 
 
 /*
@@ -313,20 +294,6 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			/* Continue */
 			continue;
 		}
-
-		/* Hack -- Pre-process "%r" */
-		if (*s == 'r')
-		{
-			/* Extract the next argument, and save it (globally) */
-			vstrnfmt_aux = va_arg(vp, vstrnfmt_aux_func);
-
-			/* Skip the "r" */
-			s++;
-
-			/* Continue */
-			continue;
-		}
-
 
 		/* Begin the "aux" string */
 		q = 0;
@@ -554,7 +521,6 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			case 's':
 			{
 				cptr arg;
-				char arg2[1024];
 
 				/* Access next argument */
 				arg = va_arg(vp, cptr);
@@ -562,11 +528,11 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 				/* Hack -- convert NULL to EMPTY */
 				if (!arg) arg = "";
 
-				/* Hack -- trim long strings */
-				else if (strlen(arg) >= 1024)
+				/* There should always be a precision specifier to avoid
+				 * the chance of overflow. */
+				if (!strchr(aux, '.'))
 				{
-					sprintf(arg2, "%.*s", 1023, arg);
-					arg = arg2;
+					sprintf(strchr(aux, 's'), ".%us", N_ELEMENTS(tmp)-1);
 				}
 
 				/* Format the argument */
@@ -577,16 +543,15 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			}
 
 			/* User defined data */
-			case 'V':
 			case 'v':
 			{
-				vptr arg;
+				vstrnfmt_aux_func tmp_func;
 
-				/* Access next argument */
-				arg = va_arg(vp, vptr);
+				/* Extract the function to call */
+				tmp_func = va_arg(vp, vstrnfmt_aux_func);
 
 				/* Format the "user data" */
-				(void)vstrnfmt_aux(tmp, 1000, aux, arg);
+				tmp_func(tmp, 1000, aux, &vp);
 
 				/* Done */
 				break;
@@ -646,25 +611,27 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 /*
  * Do a vstrnfmt (see above) into a (growable) static buffer.
  * This buffer is usable for very short term formatting of results.
+ *
+ * It uses a second buffer to ensure that output_buf retains its contents
+ * until the new format string is written (enabling, for instance, nested
+ * format calls).
  */
 char *vformat(cptr fmt, va_list vp)
 {
-	static char *format_buf = NULL;
+	static char *format_buf = NULL, *output_buf = NULL;
 	static huge format_len = 0;
-	uint buf_len;
+	bool grown = FALSE;
 
 	/* Initial allocation */
 	if (!format_buf)
 	{
 		format_len = 1024;
 		C_MAKE(format_buf, format_len, char);
+		grown = TRUE;
 	}
 
 	/* Null format yields last result */
-	if (!fmt) return (format_buf);
-
-	/* Note the end of the string. */
-	buf_len = strlen(format_buf);
+	if (!fmt) return (output_buf);
 
 	/* Keep going until successful */
 	while (1)
@@ -679,20 +646,25 @@ char *vformat(cptr fmt, va_list vp)
 
 		else
 		{
-			/* 
-			 * Grow the buffer, keeping the older string so that
-			 * format("%s...", format(0), ...) gives the expected results.
-			 */
-			char *old_buf = format_buf;
+			/* Grow the buffer. */
 			format_len = format_len * 2;
+			KILL(format_buf);
 			C_MAKE(format_buf, format_len, char);
-			strncpy(format_buf, old_buf, buf_len);
-			KILL(old_buf);
+
+			/* Grow output_buf (later) */
+			grown = TRUE;
 		}
 	}
 
+	if (grown)
+	{
+		FREE(output_buf);
+		C_MAKE(output_buf, format_len, char);
+	}
+	strcpy(output_buf, format_buf);
+
 	/* Return the new buffer */
-	return (format_buf);
+	return (output_buf);
 }
 
 

@@ -1,25 +1,13 @@
 The Speed System
 ================ 
 
-In Cthangband, time is measured in 'Rounds'. Each round lasts just under
-10 seconds of 'game time' (actually, to be precise, a round is 8.64
-seconds because that is exactly 1/10000 of a 24hr day).
+In Cthangband, time is measured in 'Rounds'. Each round lasts just under 10 seconds of 'game time' (actually, to be precise, a round is 8.64 seconds because that is exactly 1/10000 of a 24hr day).
 
-Normally, you will get to make one movement or make one attack during a
-round. However, sometimes you will speed up or slow down depending on
-various factors including weight carried and magical influences.
+Normally, you will get to make one movement or make one attack during a round. However, sometimes you will speed up or slow down depending on various factors including weight carried and magical influences.
 
-Each action that you perform (or that a monster performs) is given a
-cost, which is measured in a percentage of a round. There are ten clock
-ticks (called 'Turns') during a round, and movements are synchronised to
-these. Each turn 10% is removed from the cost of everyone's previous
-action and when the cost has been paid off, that creature can act again.
-Note that there is no rounding of the percentages, so the odd points
-will be carried over from turn to turn both within rounds and between
-rounds.
+Each action that you perform (or that a monster performs) is given a cost, which is measured in a percentage of a round. There are ten clock ticks (called 'Turns') during a round, and movements are synchronised to these. Each turn 10% is removed from the cost of everyone's previous action and when the cost has been paid off, that creature can act again. Note that there is no rounding of the percentages, so the odd points will be carried over from turn to turn both within rounds and between rounds.
 
-For example, if you are performing actions that take 25% of a round
-each, then you the sequence of events will go as follows....
+For example, if you are performing actions that take 25% of a round each, then you the sequence of events will go as follows....
 
 Turn  1 - player performs action and then has a 'wait' of 25%
 Turn  2 - player now has a 'wait' of 15%
@@ -33,8 +21,7 @@ Turn  9 - player performs action again, and has a 'wait' of 20%
 Turn 10 - player now has a 'wait' of 10%
 etc...
 
-Obviously, the sequence gets more complicated when the creature performs
-actions that have different costs.
+Obviously, the sequence gets more complicated when the creature performs actions that have different costs.
 
 Cost of Various Actions
 =======================
@@ -53,12 +40,9 @@ Moving one square while 'Fast (+50)' ...............................22%
 Moving one square while 'Fast (+60)' ...............................21%
 Moving one square while 'Fast (+70)' or faster .....................20%
 
-(Note that the movement costs are on a scale, so speeds between those
-shown will have costs between those shown.)
+(Note that the movement costs are on a scale, so speeds between those shown will have costs between those shown.)
 
-Several other actions have take the same amount of time, and some more
-take half as much, so this amount is indicated below as "Movement Cost"
-or "1/2 Movement Cost".
+Several other actions have take the same amount of time, and some more take half as much, so this amount is indicated below as "Movement Cost" or "1/2 Movement Cost".
 
 Making a melee attack .............................(100/(Blows/Round))%
 Making a missile attack ...........................(100/(Shots/Round))%
@@ -90,13 +74,9 @@ Use a rod ................................................Movement Cost
 Cast a cantrip from a charm ..............................Movement Cost
 Activate an artifact ...............................................10%
 
-(Note that if a potion, scroll, wand or charm is in a belt pouch then it
-only has a cost of 10% to use as it is easily accessible.)
+(Note that if a potion, scroll, wand or charm is in a belt pouch then it only has a cost of 10% to use as it is easily accessible.)
 
-Hermetic spells, shamanic favours, mindcrafting powers and racial
-abilities (including activatable chaos features) have their costs
-calculated based on the difference between the minimum skill needed and
-your actual skill.
+Hermetic spells, shamanic favours, mindcrafting powers and racial abilities (including activatable chaos features) have their costs calculated based on the difference between the minimum skill needed and your actual skill.
 
 (Min > Actual) ..................................(100+((Min-Actual)^2)%
 (Min = Actual) ....................................................100%
@@ -126,8 +106,4 @@ your actual skill.
 Monster Actions
 ===============
 
-Monster movement and attacks have the same costs as those of the player.
-However (for simplicities sake) monsters do not have a skill with each
-of their spells or spell-like attacks. Therefore the cost of making a
-spell attack is assumed to be the same as the cost of making a melee
-attack.
+Monster movement and attacks have the same costs as those of the player. However (for simplicities sake) monsters do not have a skill with each of their spells or spell-like attacks. Therefore the cost of making a spell attack is assumed to be the same as the cost of making a melee attack.

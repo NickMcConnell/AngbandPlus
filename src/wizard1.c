@@ -164,7 +164,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Description (too brief) */
-	object_desc_store(buf, q_ptr, FALSE, 0);
+	strnfmt(buf, ONAME_MAX, "%v", object_desc_store_f3, q_ptr, FALSE, 0);
 
 
 	/* Misc info */
@@ -225,18 +225,11 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
  */
 static FILE *my_fopen_wiz(cptr fname)
 {
-	char buf[1024];
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Open the file */
-	fff = my_fopen(buf, "w");
-
-	return fff;
+	/* Build and open the filename */
+	return my_fopen_path(ANGBAND_DIR_USER, fname, "w");
 }
 
 /*
@@ -738,7 +731,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_ptr,
 static void analyze_general (object_type *o_ptr, char *desc_ptr)
 {
 	/* Get a "useful" description of the object */
-	object_desc_store(desc_ptr, o_ptr, TRUE, 1);
+	strnfmt(desc_ptr, ONAME_MAX, "%v", object_desc_store_f3, o_ptr, TRUE, 1);
 }
 
 /*
@@ -1360,9 +1353,12 @@ static void spoil_mon_desc(cptr fname)
 		"----", "---", "---", "---", "--", "--", "-----------");
 
 	/* Scan the monsters (except the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	for (i = 1; i < MAX_R_IDX; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
+
+		/* Hack - skip "fake" monsters. */
+		if (is_fake_monster(r_ptr)) continue;
 
 		/* Use that monster */
 		if (r_ptr->name) who[n++] = i;
@@ -1373,23 +1369,15 @@ static void spoil_mon_desc(cptr fname)
 	for (i = 0; i < n; i++)
 	{
 		monster_race *r_ptr = &r_info[who[i]];
-
-		cptr name = monster_desc_aux(0, r_ptr, 1, 0);
+		cptr pre;
 
 		/* Get the "name" */
-		if (r_ptr->flags1 & (RF1_ALWAYS_GUARD))
-		{
-			sprintf(nam, "[G] %.*s", N_ELEMENTS(nam)-strlen("[G] ")-1, name);
-		}
-		else if (r_ptr->flags1 & (RF1_UNIQUE))
-		{
-			sprintf(nam, "[U] %.*s", N_ELEMENTS(nam)-strlen("[U] ")-1, name);
-		}
-		else
-		{
-			sprintf(nam, "The %.*s", N_ELEMENTS(nam)-strlen("The ")-1, name);
-		}
+		if (r_ptr->flags1 & (RF1_GUARDIAN)) pre = "[G]";
+		else if (r_ptr->flags1 & (RF1_UNIQUE)) pre = "[U]";
+		else pre = "The";
 
+		strnfmt(nam, N_ELEMENTS(nam), "%s %.*v", pre, monster_desc_aux_f3,
+			N_ELEMENTS(nam)-strlen(pre)-1, r_ptr, 1, 0);
 
 		/* Level */
 		sprintf(lev, "%d", r_ptr->level);
@@ -1573,9 +1561,12 @@ static void spoil_mon_info(cptr fname)
 	/*
 	 * List all monsters in order (except the ghost).
 	 */
-	for (n = 1; n < MAX_R_IDX - 1; n++)
+	for (n = 1; n < MAX_R_IDX; n++)
 	{
 		monster_race *r_ptr = &r_info[n];
+
+		/* Skip "fake" monsters. */
+		if (is_fake_monster(r_ptr)) continue;
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags1;
@@ -1594,7 +1585,7 @@ static void spoil_mon_info(cptr fname)
 
 
 		/* Prefix */
-		if (flags1 & (RF1_ALWAYS_GUARD))
+		if (flags1 & (RF1_GUARDIAN))
 		{
 			spoil_out("[G] ");
 		}
@@ -1608,9 +1599,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		sprintf(buf, "%.*s  (", N_ELEMENTS(buf)-strlen("  (")-1,
-			monster_desc_aux(0, r_ptr, 1, 0));
-		spoil_out(buf);
+		spoil_out(format("%v  (", monster_desc_aux_f3, r_ptr, 1, 0));
 
 		/* Color */
 		spoil_out(attr_to_text(r_ptr->d_attr));
@@ -1672,22 +1661,7 @@ static void spoil_mon_info(cptr fname)
 		spoil_out("  ");
 
 
-		spoil_out("This");
-
-        if (flags2 & (RF2_ELDRITCH_HORROR)) spoil_out (" sanity-blasting");
-		if (flags3 & (RF3_ANIMAL)) spoil_out(" natural");
-		if (flags3 & (RF3_EVIL)) spoil_out(" evil");
-        if (flags3 & (RF3_GOOD)) spoil_out(" good");
-		if (flags3 & (RF3_UNDEAD)) spoil_out(" undead");
-
-		if (flags3 & (RF3_DRAGON)) spoil_out(" dragon");
-		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
-		else if (flags3 & (RF3_CTHULOID)) spoil_out(" Cthuloid entity");
-		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
-		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
-		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-        else if (flags3 & (RF3_GREAT_OLD_ONE)) spoil_out (" Great Old One");
-		else spoil_out(" creature");
+		spoil_out(roff_monster(flags2, flags3));
 
 		spoil_out(" moves");
 
@@ -1761,7 +1735,7 @@ static void spoil_mon_info(cptr fname)
 		vn = 0;
 		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
 		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
-	if (flags4 & (RF4_SHARD)) vp[vn++] = "produce shard balls";
+	if (flags4 & (RF4_BA_SHARD)) vp[vn++] = "produce shard balls";
 		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
 		if (flags4 & (RF4_ARROW_2)) vp[vn++] = "fire arrows";
 		if (flags4 & (RF4_ARROW_3)) vp[vn++] = "fire missiles";
@@ -1870,7 +1844,6 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))            vp[vn++] = "do something";
         if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
         if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon aid";
@@ -1878,6 +1851,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
 		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
 		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
+		if (flags6 & (RF6_S_IB))	vp[vn++] = "summon beings of Ib";
 		if (flags6 & (RF6_S_CTHULOID))           vp[vn++] = "summon a Cthuloid entity";
 		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
@@ -2142,51 +2116,24 @@ static void spoil_mon_info(cptr fname)
 		}
 
 			/* Include death events here. */
-			describe_death_events(n, wd_lhe[msex], spoil_out, TRUE);
+			spoil_out(describe_death_events(n, wd_lhe[msex], TRUE));
 
 		/* Count the actual attacks */
 		for (i = 0, j = 0; j < 4; j++)
 		{
-			if (r_ptr->blow[j].method) i++;
+			if (get_blow_method(r_ptr->blow[j].method)) i++;
 		}
 
 		/* Examine the actual attacks */
 		for (k = 0, j = 0; j < 4; j++)
 		{
-			if (!r_ptr->blow[j].method) continue;
+			blow_method_type *b_ptr = get_blow_method(r_ptr->blow[j].method);
 
-			/* No method yet */
-			p = "???";
-
-			/* Acquire the method */
-			switch (r_ptr->blow[j].method)
-			{
-				case RBM_HIT:   p = "hit"; break;
-				case RBM_TOUCH: p = "touch"; break;
-				case RBM_PUNCH: p = "punch"; break;
-				case RBM_KICK:  p = "kick"; break;
-				case RBM_CLAW:  p = "claw"; break;
-				case RBM_BITE:  p = "bite"; break;
-				case RBM_STING: p = "sting"; break;
-				case RBM_XXX1:  break;
-				case RBM_BUTT:  p = "butt"; break;
-				case RBM_CRUSH: p = "crush"; break;
-				case RBM_ENGULF:        p = "engulf"; break;
-				case RBM_CHARGE: p = "charge";  break;
-				case RBM_CRAWL: p = "crawl on you"; break;
-				case RBM_DROOL: p = "drool on you"; break;
-				case RBM_SPIT:  p = "spit"; break;
-				case RBM_XXX3:  break;
-				case RBM_GAZE:  p = "gaze"; break;
-				case RBM_WAIL:  p = "wail"; break;
-				case RBM_SPORE: p = "release spores"; break;
-				case RBM_WORSHIP:  p = "hero worship";break;
-				case RBM_BEG:   p = "beg"; break;
-				case RBM_INSULT:        p = "insult"; break;
-				case RBM_MOAN:  p = "moan"; break;
-				case RBM_SHOW:  p = "sing"; break;
-			}
-
+			/* No such method. */
+			if (!b_ptr) continue;
+ 
+			/* Method string. */
+			p = b_ptr->name;
 
 			/* Default effect */
 			q = "???";

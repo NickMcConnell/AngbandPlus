@@ -32,12 +32,12 @@ cptr syshelpfile;
 /*
  * Run-time arguments
  */
-bool arg_fiddle;			/* Command arg -- Request fiddle mode */
-bool arg_wizard;			/* Command arg -- Request wizard mode (unused) */
-bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
-bool arg_force_original;	/* Command arg -- Request original keyset */
-bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
+bool arg_fiddle = FALSE;			/* Command arg -- Request fiddle mode */
+bool arg_wizard = FALSE;			/* Command arg -- Request wizard mode (unused) */
+bool arg_sound = FALSE;				/* Command arg -- Request special sounds */
+bool arg_graphics = FALSE;			/* Command arg -- Request graphics mode */
+bool arg_force_original = FALSE;	/* Command arg -- Request original keyset */
+bool arg_force_roguelike = FALSE;	/* Command arg -- Request roguelike keyset */
 
 /*
  * Various things
@@ -86,7 +86,7 @@ s16b cur_hgt;			/* Current dungeon height */
 s16b cur_wid;			/* Current dungeon width */
 s16b dun_level;			/* Current dungeon level */
 s16b dun_offset;       /* Monster/Object offset for current dungeon */
-s16b dun_bias;			/* Summon flag used to give the dungeon a bias */
+u16b dun_bias;			/* Summon flag used to give the dungeon a bias */
 byte cur_town;          /* Current Town */
 byte cur_dungeon;    /* Current Dungeon */
 byte recall_dungeon; /* Last dungeon recalled from */
@@ -134,9 +134,6 @@ bool hack_mind;
 bool hack_chaos_feature;
 int artifact_bias;
 
-s16b inven_cnt;			/* Number of items in inventory */
-s16b equip_cnt;			/* Number of items in equipment */
-
 s16b o_max = 1;			/* Number of allocated objects */
 s16b o_cnt = 0;			/* Number of live objects */
 
@@ -146,7 +143,6 @@ s16b m_cnt = 0;			/* Number of live monsters */
 s16b hack_m_idx = 0;	/* Hack -- see "process_monsters()" */
 s16b hack_m_idx_ii = 0;
 bool multi_rew = FALSE;
-char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
 int total_friends = 0;
 s32b total_friend_levels = 0;
@@ -224,12 +220,20 @@ bool centre_view; /* Centre view on player */
 bool macro_edit; /* Use macros as edit keys in string prompts */
 bool no_centre_run; /* Stop centring when running */
 bool auto_more;
+bool preserve_mode_w; 
 bool preserve_mode; /* Don't lose missed artifacts */
+bool maximise_mode_w;
 bool maximise_mode; /* Unify stat bonuses */
 bool use_autoroller; /* Autoroll characters */
 bool spend_points; /* Spend points on stats */
+bool ironman_shop_w;
 bool ironman_shop; /* Not allowed in shops */
+bool ironman_feeling_w;
+bool ironman_feeling;	/* Only give real feeling after 2500 turns. */
+#ifdef SCORE_QUITTERS
+bool score_quitters_w;
 bool score_quitters; /* Quitting can give a high score */
+#endif /* SCORE_QUITTERS */
 
 /* Option Set 3 -- Game-Play */
 
@@ -318,8 +322,6 @@ bool display_credits;	/* Require a keypress to clear the initial credit screen. 
 #endif
 bool allow_pickstats;	/* Allow the player to choose a stat template. */
 
-bool ironman_feeling;	/* Only give real feeling after 2500 turns. */
-
 s16b hitpoint_warn = 2;		/* Hitpoint warning (0 to 9) */
 
 s16b delay_factor = 4;		/* Delay factor (0 to 9) */
@@ -398,7 +400,7 @@ s16b object_kind_idx;
 /*
  * Object to track
  */
-s16b object_idx;
+object_type *tracked_o_ptr;
 
 /*
  * User info
@@ -420,7 +422,7 @@ char player_base[NAME_LEN];
 /*
  * What killed the player
  */
-char died_from[80];
+cptr died_from;
 
 /*
  * Hack -- Textual "history" for the Player
@@ -608,13 +610,6 @@ object_type *o_list;
 monster_type *m_list;
 
 /*
- * Hack -- Quest array (Heino Vander Sanden)
- */
-quest q_list[MAX_QUESTS];
-int MAX_Q_IDX;
-
-
-/*
  * The stores [MAX_STORES_TOTAL]
  */
 store_type *store;
@@ -718,47 +713,47 @@ maxima *z_info = NULL;
  * The vault generation arrays
  */
 vault_type *v_info;
-char *v_name;
-char *v_text;
+cptr v_name;
+cptr v_text;
 
 /*
  * The terrain feature arrays
  */
 feature_type *f_info;
-char *f_name;
-char *f_text;
+cptr f_name;
+cptr f_text;
 
 /*
  * The object kind arrays
  */
 object_kind *k_info;
-char *k_name;
-char *k_text;
+cptr k_name;
+cptr k_text;
 
 /*
  * The unidentified object arrays
  */
 unident_type *u_info;
-char *u_name;
+char *u_name; /* This is written to in name_scrolls(). */
 
 /*
  * The base object arrays
  */
 o_base_type *o_base;
-char *ob_name;
+cptr ob_name;
 
 /*
  * The artifact arrays
  */
 artifact_type *a_info;
-char *a_name;
+cptr a_name;
 /* char *a_text; */
 
 /*
  * The ego-item arrays
  */
 ego_item_type *e_info;
-char *e_name;
+cptr e_name;
 /* char *e_text; */
 
 
@@ -766,15 +761,38 @@ char *e_name;
  * The monster race arrays
  */
 monster_race *r_info;
-char *r_name;
-char *r_text;
+char *r_name; /* This is written to during ghost creation. */
+cptr r_text;
 
 /*
  * The death event arrays
  */
 death_event_type *death_event;
-char *event_name;
-char *event_text;
+cptr event_name;
+cptr event_text;
+
+/*
+ * The dungeon arrays.
+ */
+dun_type *dun_defs;
+cptr dun_name;
+
+/*
+ * The town arrays.
+ */
+town_type *town_defs;
+cptr town_name;
+
+/*
+ * The quest array.
+ */
+quest_type *q_list;
+
+/*
+ * The shopkeeper array.
+ */
+owner_type *owners;
+cptr s_name;
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -835,6 +853,12 @@ cptr ANGBAND_DIR_HELP;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_INFO;
+
+/*
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
 
 /*
  * Savefiles for current characters (binary)
@@ -906,11 +930,8 @@ bool (*get_obj_num_hook)(int k_idx);
 bool angband_keymap_flag = TRUE;
 
 
-/* Hack, mystic armour */
-bool mystic_notify_aux;
- 
 /* Hack, violet uniques */
-byte violet_uniques = 1;
+bool violet_uniques = FALSE;
 
  #ifdef ALLOW_EASY_OPEN
  bool easy_open = TRUE;

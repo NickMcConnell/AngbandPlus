@@ -1,3 +1,8 @@
+# monfear.txt
+#
+# This contains text which monsters (other than Groo and Smeagol) which have
+# CAN_SPEAK set may utter when afraid if speak_unique is set.
+
 61
 *********** BUFFER LINE ********************** DO NOT REMOVE *****************
 says: 'I am too young to die.'

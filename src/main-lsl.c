@@ -746,7 +746,7 @@ errr init_lsl(int argc, char **argv)
 	}
 
 	/* Build the "graf" path */
-	path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
+	strnfmt(path, 1024, "%v", path_build_f2, ANGBAND_DIR_XTRA, "graf");
 
 	/* Allocate the path */
 	ANGBAND_DIR_XTRA_GRAF = string_make(path);
