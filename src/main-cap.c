@@ -1,4 +1,3 @@
-#define DELAY_EXTERNS_H
 #define MAIN_CAP_C
 /* File: main-cap.c */
 
@@ -37,9 +36,6 @@
 
 
 #ifdef USE_CAP
-
-/* #include "main.h" */
-#include "externs.h"
 
 /*
  * Require a "system"
@@ -368,7 +364,7 @@ static void do_move(int x1, int y1, int x2, int y2)
 /*
  * Help initialize this file (see below)
  */
-errr init_cap_aux(void)
+static errr init_cap_aux(void)
 {
 
 #ifdef USE_TERMCAP

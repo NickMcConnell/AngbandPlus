@@ -63,62 +63,34 @@ void do_cmd_rerate(void)
 
 #ifdef ALLOW_WIZARD
 
+/*
+ * Run a suitable function, return the screen to its appearance before the
+ * function was run (if possible) and return the function's return code.
+ */
+static int choose_on_screen(int (*aux)(void))
+{
+	/* Save the screen */
+	int i, t = Term_save_aux();
+
+	/* Icky */
+	character_icky = TRUE;
+
+	/* Run the auxiliary function, remember its return. */
+	i = (*aux)();
+
+	/* Not Icky */
+	character_icky = FALSE;
+
+	/* Restore the screen */
+	Term_load_aux(t);
+
+	/* Forget the saved copy. */
+	Term_release(t);
+
+	/* Return the remembered value. */
+	return i;
+}
   
- /*
-  * Create the artifact of the specified number -- DAN
-  */
-void wiz_create_named_art(int a_idx)
- {
-
-       object_type forge;
-       object_type *q_ptr;
-       int i;
-
-       artifact_type *a_ptr = &a_info[a_idx];
-
-       /* Get local object */
-       q_ptr = &forge;
-
-       /* Wipe the object */
-       object_wipe(q_ptr);
-
-       /* Ignore "empty" artifacts */
-       if (!a_ptr->name) return;
-
-       /* Acquire the "kind" index */
-       i = a_ptr->k_idx;
-
-       /* Oops */
-       if (i <= 0 || i >= MAX_K_IDX) return;
-
-       /* Create the artifact */
-       object_prep(q_ptr, i);
-
-       /* Save the name */
-       q_ptr->name1 = a_idx;
-
-       /* Extract the fields */
-       q_ptr->pval = a_ptr->pval;
-       q_ptr->ac = a_ptr->ac;
-       q_ptr->dd = a_ptr->dd;
-       q_ptr->ds = a_ptr->ds;
-       q_ptr->to_a = a_ptr->to_a;
-       q_ptr->to_h = a_ptr->to_h;
-       q_ptr->to_d = a_ptr->to_d;
-       q_ptr->weight = a_ptr->weight;
-
-       /* Hack -- acquire "cursed" flag */
-       if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
-
-       random_artifact_resistance(q_ptr);
-
-       /* Drop the artifact from heaven */
-       drop_near(q_ptr, -1, py, px);
-
-       /* All done */
-       msg_print("Allocated.");
- }
-
 
 /*
  * Hack -- quick debugging hook
@@ -183,14 +155,35 @@ void do_cmd_wiz_bamf(void)
 	teleport_player_to(target_row, target_col);
 }
 
+/*
+ * Sorting (comparison) hook for skill furthest to the right, and then the
+ * bottom.
+ */
+static bool ang_sort_comp_skills(vptr u, vptr UNUSED v, int a, int b)
+{
+	player_skill **s = (player_skill**)u;
 
+	if (s[a]->x != s[b]->x) return (s[a]->x < s[b]->x);
+	else return (s[a]->y <= s[b]->y);
+}
+
+/*
+ * Swap two pointers to player_skills around.
+ */
+static void ang_sort_swap_skills(vptr u, vptr UNUSED v, int a, int b)
+{
+	player_skill **s = (player_skill**)u, *st;
+	st = s[a];
+	s[a] = s[b];
+	s[b] = st;
+}
 
 /*
  * Aux function for "do_cmd_wiz_change()".	-RAK-
  */
 static void do_cmd_wiz_change_aux(void)
 {
-	int			i;
+	int			i,win;
 
 	int			tmp_int;
 
@@ -200,6 +193,7 @@ static void do_cmd_wiz_change_aux(void)
 
 	char		ppp[80];
 
+	player_skill *skills[MAX_SKILLS];
 
 	/* Query the stats */
 	for (i = 0; i < 6; i++)
@@ -241,28 +235,63 @@ static void do_cmd_wiz_change_aux(void)
 	p_ptr->au = tmp_long;
 
 
+	/* Initialise. */
+	for (i = 0; i < MAX_SKILLS; i++)
+	{
+		skills[i] = skill_set+i;
+	}
+
+	/* Sort. */
+	ang_sort_swap = ang_sort_swap_skills;
+	ang_sort_comp = ang_sort_comp_skills;
+	ang_sort(skills, 0, MAX_SKILLS);
+
+	win = Term_save_aux();
+
 	for(i=0;i<MAX_SKILLS;i++)
 	{
+		player_skill *sk_ptr = skills[i];
+
+		/* Hack - pretend we're on the surface to avoid skills which are
+		 * normally yellow. See skill_colour() for details.
+		 */
+		const s16b real_dun_level = dun_level;
+		dun_level = 0;
+
+		/* Display the current skill table. */
+		display_player(2);
+
+		dun_level = real_dun_level;
+
+		/* Place the cursor by the skill in question.
+		 * Hack - the 17 is from display_player_skills_aux().
+		 */
+		move_cursor(sk_ptr->y, sk_ptr->x+17);
+
 		/* Default */
-		sprintf(tmp_val, "%ld", (long)(skill_set[i].max_value));
+		sprintf(tmp_val, "%d%%", (int)(skills[i]->max_value));
 
 		/* Query */
-		sprintf(ppp,"%s: ",skill_set[i].name);
-		if (!get_string(ppp, tmp_val, 3)) return;
+		if (!askfor_aux(tmp_val, 3)) return;
 
 		/* Extract */
-		tmp_long = atol(tmp_val);
+		tmp_int = atoi(tmp_val);
 
 		/* Verify */
-		if (tmp_long < 0) tmp_long = 0L;
-		if (tmp_long > 100) tmp_long = 100L;
+		if (tmp_int < 0) tmp_int = 0L;
+		if (tmp_int > 100) tmp_int = 100L;
 
 		/* Save */
-		skill_set[i].max_value = (byte)tmp_long;
-		skill_set[i].value = (byte)tmp_long;
-	}
-}
+		skills[i]->max_value = (byte)tmp_int;
+		skills[i]->value = (byte)tmp_int;
 
+		/* Window stuff. */
+		p_ptr->window |= PW_PLAYER_SKILLS;
+	}
+
+	Term_load_aux(win);
+	Term_release(win);
+}
 
 /*
  * Change various "permanent" player variables.
@@ -344,8 +373,6 @@ static void wiz_display_item(object_type *o_ptr)
 
 	u32b	f1, f2, f3;
 
-	C_TNEW(buf, ONAME_MAX, char);
-
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -353,26 +380,22 @@ static void wiz_display_item(object_type *o_ptr)
 	/* Clear the screen */
 	for (i = 1; i <= 23; i++) prt("", i, j - 2);
 
-	/* Describe fully */
-	strnfmt(buf, ONAME_MAX, "%v", object_desc_store_f3, o_ptr, TRUE, 3);
+	mc_put_fmt(2, j, "%v", object_desc_f3, o_ptr, OD_ART | OD_SHOP, 3);
 
-	prt(buf, 2, j);
+	mc_put_fmt(4, j, "kind = %-5d  tval = %-5d  extra = %-5d",
+	           o_ptr->k_idx, o_ptr->tval, k_info[o_ptr->k_idx].extra);
 
-	prt(format("kind = %-5d  tval = %-5d  extra = %-5d",
-	           o_ptr->k_idx, o_ptr->tval, k_info[o_ptr->k_idx].extra), 4, j);
+	mc_put_fmt(5, j, "number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
+	           o_ptr->number, o_ptr->weight, o_ptr->ac, o_ptr->dd, o_ptr->ds);
 
-	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
-	           o_ptr->number, o_ptr->weight,
-	           o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
+	mc_put_fmt(6, j, "pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
+	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d);
 
-	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
-	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
+	mc_put_fmt(7, j, "name1 = %-4d  name2 = %-4d  cost = %ld",
+	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr, TRUE));
 
-	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
-	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
-
-	prt(format("ident = %04x  timeout = %-d",
-	           o_ptr->ident, o_ptr->timeout), 8, j);
+	mc_put_fmt(8, j, "ident = %04x  timeout = %-d",
+		o_ptr->ident, o_ptr->timeout);
 
 	prt("+------------FLAGS1------------+", 10, j);
     prt("AFFECT........SLAY........BRAND.", 11, j);
@@ -400,106 +423,61 @@ static void wiz_display_item(object_type *o_ptr)
     prt("rr  litsopdretitsehtierltxrtesss", 17, j+32);
     prt("aa  echewestreshtntsdcedeptedeee", 18, j+32);
 	prt_binary(f3, 19, j+32);
-
-	TFREE(buf);
 }
-
-
-/*
- * A structure to hold a tval and its description
- */
-typedef struct tval_desc
-{
-	int        tval;
-	cptr       desc;
-} tval_desc;
 
 /*
  * A list of tvals and their textual names
  */
-static tval_desc tvals[] =
+static name_centry tval_names[] =
 {
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_BOW,               "Bow"                  },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
-	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ TV_RING,              "Ring"                 },
-	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
-	{ TV_POTION,            "Potion"               },
-	{ TV_SCROLL,            "Scroll"               },
-	{ TV_WAND,              "Wand"                 },
-	{ TV_STAFF,             "Staff"                },
-	{ TV_ROD,               "Rod"                  },
-    { TV_SORCERY_BOOK,      "Sorcery Book"    },
-    { TV_THAUMATURGY_BOOK,        "Thaumaturgy Book"      },
-    { TV_CONJURATION_BOOK,        "Conjuration Book"       },
-    { TV_NECROMANCY_BOOK,       "Necromancy Book"     },
-	{ TV_SPIKE,             "Spikes"               },
-	{ TV_DIGGING,           "Digger"               },
-	{ TV_CHEST,             "Chest"                },
-	{ TV_FOOD,              "Food"                 },
-	{ TV_FLASK,             "Flask"                },
-	{ 0,                    NULL                   }
+	{TV_SWORD,	"Sword"},
+	{TV_POLEARM,	"Pole-arm"},
+	{TV_HAFTED,	"Hafted Weapon"},
+	{TV_BOW,	"Bow"},
+	{TV_ARROW,	"Arrows"},
+	{TV_BOLT,	"Bolts"},
+	{TV_SHOT,	"Shots"},
+	{TV_SHIELD,	"Shield"},
+	{TV_CROWN,	"Crown"},
+	{TV_HELM,	"Helm"},
+	{TV_GLOVES,	"Gloves"},
+	{TV_BOOTS,	"Boots"},
+	{TV_CLOAK,	"Cloak"},
+	{TV_DRAG_ARMOR,	"Dragon Scale Mail"},
+	{TV_HARD_ARMOR,	"Hard Armour"},
+	{TV_SOFT_ARMOR,	"Soft Armour"},
+	{TV_RING,	"Ring"},
+	{TV_AMULET,	"Amulet"},
+	{TV_LITE,	"Lite"},
+	{TV_POTION,	"Potion"},
+	{TV_SCROLL,	"Scroll"},
+	{TV_WAND,	"Wand"},
+	{TV_STAFF,	"Staff"},
+	{TV_ROD,	"Rod"},
+	{TV_SORCERY_BOOK,	"Sorcery Book"},
+	{TV_THAUMATURGY_BOOK,	"Thaumaturgy Book"},
+	{TV_CONJURATION_BOOK,	"Conjuration Book"},
+	{TV_NECROMANCY_BOOK,	"Necromancy Book"},
+	{TV_CHARM,	"Charm"},
+	{TV_SPIKE,	"Spike"},
+	{TV_DIGGING,	"Digger"},
+	{TV_CHEST,	"Chest"},
+	{TV_FOOD,	"Food"},
+	{TV_FLASK,	"Flask"},
+	{0, NULL}
 };
 
-
 /*
- * Strip an "object name" into a buffer
+ * Return whether k_info[i] can be generated and is part of the specified
+ * category.
  */
-static void strip_name(char *buf, int k_idx)
+static bool good_cat_object(int a, name_centry *cat)
 {
-	object_type forge;
+	/* Hack -- skip items which only have special generation methods. */
+	if (!kind_created_p(k_info+a)) return FALSE;
 
-	object_prep(&forge, k_idx);
-
-	strnfmt(buf, ONAME_MAX, "%v", object_desc_store_f3, &forge, FALSE, 0);
-}
-
-
-/*
- * Hack -- title for each column
- *
- * XXX XXX XXX This will not work with "EBCDIC", I would think.
- */
-static char head[3] =
-{ 'a', 'A', '0' };
-
-
-/*
- * Sorting hook for wiz_create_item()
- *
- * Sort from highest frequency to lowest.
- */
-static bool ang_sort_comp_wci(vptr u, vptr v, int a, int b)
-{
-	int *has_sub = (int*)u;
-	int *order = (int*)v;
-	return (has_sub[order[a]] >= has_sub[order[b]]);
-}
-
-/*
- * Swapping hook for wiz_create_item()
- */
-static void ang_sort_swap_wci(vptr UNUSED u, vptr v, int a, int b)
-{
-	int *order = (int*)v;
-	int temp;
-	temp = order[a];
-	order[a] = order[b];
-	order[b] = temp;
+	/* Simply check the tval. */
+	return (k_info[a].tval == cat->idx);
 }
 
 /*
@@ -512,62 +490,43 @@ static void ang_sort_swap_wci(vptr UNUSED u, vptr v, int a, int b)
  */
 static int wiz_create_itemtype(void)
 {
-	int                  i, num, max_num;
-	int                  col, row;
-	uint max_len;
-	int			 tval;
+	bool (*item_good)(int, name_centry *) = good_cat_object;
+	void (*print_f1)(char *, uint, cptr, va_list *) = object_k_name_f1;
 
-	cptr                 tval_desc;
-	char                 ch;
+	int i, num;
+	int col, row;
+	uint len;
+	name_centry *cat;
 
-	int			 choice[60];
+	cptr s;
+	char ch;
 
-	C_TNEW(bufx, 60*ONAME_MAX, char);
-	char		*buf[60];
+	int	choice[60];
 
-	for (i = 0; i < 60; i++) buf[i] = bufx+i*ONAME_MAX;
+	/* A list of the valid options for this prompt. */
+	cptr body =	option_chars;
+	char sym[61], buf[80];
 
-	/* Clear screen */
-	Term_clear();
+	C_TNEW(bufx, 61*ONAME_MAX, char);
+	char *obuf[61];
+	bool abort;
 
-	/* Print all tval's and their descriptions */
-	for (num = 0; (num < 60) && tvals[num].tval; num++)
+	WIPE(sym, sym);
+
+	/* Choose a category until a valid response is given. */
+	do
 	{
-		row = 2 + (num % 20);
-		col = 30 * (num / 20);
-		ch = head[num/20] + (num%20);
-		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
+		cat = choose_item_category(item_good, &abort, tval_names,
+			"Select a category:", FALSE);
 	}
+	while (!cat && !abort);
 
-	/* Me need to know the maximal possible tval_index */
-	max_num = num;
-
-	/* Choose! */
-	if (!get_com("Get what type of object? ", &ch))
-	{
-		TFREE(bufx);
-		return (0);
-	}
-
-	/* Analyze choice */
-	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
-
-	/* Bail out if choice is illegal */
-	if ((num < 0) || (num >= max_num))
-	{
-		TFREE(bufx);
-		return (0);
-	}
-
-	/* Base object type chosen, fill in tval */
-	tval = tvals[num].tval;
-	tval_desc = tvals[num].desc;
-
+	if (abort) return 0;
 
 	/*** And now we go for k_idx ***/
+
+	/* Turn obuf[] into a 2 dimensional array. */
+	for (i = 0; i < 61; i++) obuf[i] = bufx+i*ONAME_MAX;
 
 	/* Clear screen */
 	Term_clear();
@@ -575,180 +534,278 @@ static int wiz_create_itemtype(void)
 	/* We have to search the whole itemlist. */
 	for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
 	{
-		object_kind *k_ptr = &k_info[i];
-
-		/* Analyze matching items */
-		if (k_ptr->tval == tval)
-		{
-			/* Hack -- skip items which only have special generation methods. */
-			if (!kind_created_p(k_ptr)) continue;
-
-			/* Prepare it */
-			row = 2 + (num % 20);
-			col = 30 * (num / 20);
-			ch = head[num/20] + (num%20);
-
-			/* Acquire the "name" of object "i" */
-			strip_name(buf[num], i);
-
-			/* Remember the object index */
-			choice[num++] = i;
-		}
+		if (item_good(i, cat)) choice[num++] = i;
 	}
 
-	max_len = 80/((num+19)/20);
+	len = 80/((num+19)/20);
 
-	/*
-	 * Remove words to make every string short enough.
-	 * Starting with the commonest word present in a too-long string,
-	 * words are removed until the total length is within the maximum.
-	 * 
-	 * There are max_len spaces between the starts of adjacent entries.
-	 * The actual format is "[x] entry ", making 5 unavailable.
-	 *
-	 * This may treat repeated words inconsistently, e.g. by
-	 * removing the first "of" in "pack of cards of Tarot"
-	 * when a "die of dodecahedral shape" is shortened,
-	 */
+	/* The name of each option will be stored and trimmed to fit. */
+	for (i = 0; i <= 60; i++) obuf[i] = bufx+i*ONAME_MAX;
 
-	/* Look for prefixes to cut. */
-	for (i = 0; i < num; i++)
-	{
-		char *this;
-		int j,k,l;
-		char *sub[10];
-		int has_sub[10], times[10], order[10];
+	/* Get names for each valid object which can all fit on screen at once. */
+	get_names(obuf, obuf[60], num, choice, len, print_f1);
 
-		/* Short enough already. */
-		if (strlen(buf[i]) < max_len-4) continue;
-
-		/* Copy to temporary string. */
-		this = format("%s", buf[i]);
-
-		/* Locate each word. */
-		for (j = 0; j < 10; j++)
-		{
-			/* Find the end of the current word or the start of the string. */
-			if (j)
-				sub[j] = strchr(sub[j-1], ' ');
-			else
-				sub[j] = this;
-
-			/* Set times and order to default values. */
-			times[j] = 1;
-			order[j] = j;
-			has_sub[j] = 0;
-			
-			/* Don't continue past the end of the name. */
-			if (!sub[j]) break;
-
-			/* Don't change the string for the first word. */
-			if (!j) continue;
-
-			/* End last word and advance. */
-			*(sub[j]++) = '\0';
-		}
-		
-		/* Look for duplicated words. */
-		for (k = 1; k < j; k++)
-		{
-			for (l = 0; l < k; l++)
-			{
-				/* Ignore different words. */
-				if (strcmp(sub[l], sub[k])) continue;
-				
-				/* Increment the number of previous occurrences */
-				times[k]++;
-			}
-		}
-		/* Calculate how often each word appears in other entries. */
-		for (k = 0; k < j; k++)
-		{
-			for (l = has_sub[k] = 0; l < num; l++)
-			{
-				cptr time;
-				int m;
-				for (m = 1, time = buf[l];; m++)
-				{
-					/* Find the next copy. */
-					time = strstr(time, sub[k]);
-
-					/* Not enough found. */
-					if (!time) break;
-					
-					/* Don't consider this copy again. */
-					time++;
-
-					/* Go to the next copy. */
-					if (m < times[k]) continue;
-
-					/* This is a real substring. */
-					has_sub[k]++;
-
-					/* Finish. */
-					break;
-				}
-			}
-		}
-		
-		/* Sort the list. */
-		ang_sort_comp = ang_sort_comp_wci;
-		ang_sort_swap = ang_sort_swap_wci;
-		ang_sort(has_sub, order, j);
-		
-		k = 0;
-		/* Remove words, most common first. */
-		while (strlen(buf[i]) > max_len-5)
-		{
-			/* Replace the word in every string in which it appears. */
-			for (l = 0;l < num; l++)
-			{
-				char *a, *b;
-
-				/* Does it appear here? */
-				if (!((a = strstr(buf[l], sub[k])))) continue;
-
-				/* Actually remove the substring. */
-				for (b = a--+strlen(sub[k]);(*a = *b); a++, b++);
-			}
-			
-			/* Mext. */
-			k++;
-		}
-	}
-	
 	/* Print everything */
 	for (i = 0; i < num; i++)
 	{
 		row = 2 + (i % 20);
-		col = max_len * (i / 20);
-		ch = head[i/20] + (i%20);
+		col = len * (i / 20);
+		ch = body[i];
 		
 		/* Print it */
-		prt(format("[%c] %s", ch, buf[i]), row, col);
+		mc_put_fmt(row, col, "$![%c] %.*^s", ch, len-4, obuf[i]);
 	}
 
-	/* Finished with the buf[] array. */
+	/* Finished with the obuf[] array. */
 	TFREE(bufx);
 
-	/* Me need to know the maximal possible remembered object_index */
-	max_num = num;
-
 	/* Choose! */
-	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
+	sprintf(buf, "What kind of %.60s? ", cat->str);
+	if (!get_com(buf, &ch)) return (0);
 
 	/* Analyze choice */
-	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	s = strchr(body, ch);
 
-	/* Bail out if choice is "illegal" */
-	if ((num < 0) || (num >= max_num)) return (0);
+	/* Bail out if choice is not recognised. */
+	if (!s || s >= body+num) return 0;
 
 	/* And return successful */
-	return (choice[num]);
+	return (choice[s - body]);
 }
+
+/*
+ * Display a two-part prompt to select an item.
+ * It uses a name_entry to describe the entries in the first part, which
+ * should start at start.
+ * type is the description used in the first prompt (e.g. "object").
+ * max is the number of valid items.
+ * If sym_from_cat is set, the int in each name_entry is used for the symbol
+ * at the first prompt (the second never does so).
+ * Otherwise, the ones in the body array are used.
+ * item_good returns whether an item is something which can be generated and
+ * belongs to the specified category.
+ * print_f1 is a vstrnfmt_aux style function which copies the name of the item
+ * specified by number into buf.
+ */
+static int choose_something(name_centry *start, cptr type, int max,
+	bool sym_from_cat, bool (*item_good)(int, name_centry *),
+	void (*print_f1)(char *, uint, cptr, va_list *))
+{
+	int i, num;
+	int col, row;
+	uint len;
+	name_centry *cat;
+
+	cptr s;
+	char ch;
+
+	int	choice[60];
+
+	/* A list of the valid options for this prompt. */
+	cptr body =	option_chars;
+	char sym[61], buf[80];
+	WIPE(sym, sym);
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Print all tval's and their descriptions */
+	for (num = 0, cat = start; (num < 60) && cat->str; cat++)
+	{
+		for (i = 0; i < max; i++)
+		{
+			if ((*item_good)(i, cat)) break;
+		}
+
+		/* No good options exist in this category. */
+		if (i == max) continue;
+
+		row = 2 + (num % 20);
+		col = 30 * (num / 20);
+		if (sym_from_cat) sym[num] = cat->idx;
+		else sym[num] = body[num];
+
+		choice[num] = cat-start;
+		mc_put_fmt(row, col, "$![%c] %.25s", sym[num++], cat->str);
+	}
+
+	/* Choose! */
+	sprintf(buf, "Get what type of %.60s? ", type);
+	if (!get_com(buf, &ch)) return (0);
+
+	/* Analyze choice */
+	s = strchr(sym, ch);
+
+	/* Bail out if choice is not recognised. */
+	if (!s) return (0);
+
+	/* Base object type chosen, fill in tval */
+	cat = &start[choice[s - sym]];
+
+
+	/*** And now we go for a_idx ***/
+
+	/* Clear screen */
+	Term_clear();
+
+	/* We have to search the whole itemlist. */
+	for (num = 0, i = 1; (num < 60) && (i < max); i++)
+	{
+		/* Remember the object index */
+		if (item_good(i, cat)) choice[num++] = i;
+	}
+
+	/* Paranoia - empty categories shouldn't have reached the list. */
+	if (!num) return 0;
+
+	len = 80/((num+19)/20);
+
+	/* Print everything */
+	for (i = 0; i < num; i++)
+	{
+		row = 2 + (i % 20);
+		col = len * (i / 20);
+		ch = body[i];
+		
+		/* Print it */
+		mc_put_fmt(row, col, "$![%c] %.*^v", ch, len-4, print_f1, choice[i]);
+	}
+
+	/* Choose! */
+	sprintf(buf, "What kind of %.60s? ", cat->str);
+	if (!get_com(buf, &ch)) return (0);
+
+	/* Analyze choice */
+	s = strchr(body, ch);
+
+	/* Bail out if choice is not recognised. */
+	if (!s || s >= body+num) return 0;
+
+	/* And return successful */
+	return (choice[s - body]);
+}
+
+/*
+ * Return whether a_info[i] can be generated and is part of the specified
+ * category.
+ */
+static bool good_cat_artefact(int a, name_centry *cat)
+{
+	const artifact_type *a_ptr = a_info+a;
+
+	/* Not a real artefact. */
+	if (!a_ptr->name) return FALSE;
+
+	/* Wrong symbol. */
+	if (k_info[a_ptr->k_idx].tval != cat->idx) return FALSE;
+
+	return TRUE;
+}
+
+/*
+ * Return the name of an artefact specified by a_idx in buf.
+ */
+static void artefact_name_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+{
+	int n = va_arg(*vp, int);
+	object_type q_ptr[1];
+
+	if (!make_fake_artifact(q_ptr, n)) return;
+
+	strnfmt(buf, max, "%v", object_desc_f3, q_ptr, OD_SHOP, 0);
+}
+
+/*
+ * Select an artefact from a list.
+ */
+static int choose_artefact(void)
+{
+	return choose_something(tval_names, "artifact", MAX_A_IDX,
+		FALSE, good_cat_artefact, artefact_name_f1);
+}
+
+/*
+ * Return whether r_info[i] can be generated and is part of the specified
+ * category.
+ */
+static bool good_cat_monster(int r, name_centry *cat)
+{
+	const monster_race *r_ptr = &r_info[r];
+
+	/* Not a valid monster. */
+	if (is_fake_monster(r_ptr)) return FALSE;
+
+	/* Not of this category. */
+	if (r_ptr->d_char != cat->idx) return FALSE;
+
+	return TRUE;
+}
+
+/*
+ * Return the name of a monster specified by r_idx in buf.
+ */
+static void monster_name_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+{
+	int n = va_arg(*vp, int);
+	strnfmt(buf, max, "%v", monster_desc_aux_f3, r_info+n, 1, 0);
+}
+
+/*
+ * Select a race of monster to create based first on the character used,
+ * then on the race itself.
+ *
+ * Hack - this function relies on there being no more than 60 symbols which
+ * are used to represent monsters, or 60 monsters with a symbol. 
+ */
+static int choose_monster_type(void)
+{
+	return choose_something(ident_info, "monster", MAX_R_IDX,
+		FALSE, good_cat_monster, monster_name_f1);
+}
+
+/*
+ * Create the artifact of the specified number -- DAN
+ */
+void wiz_create_named_art(int a_idx)
+{
+	object_type q_ptr[1];
+	int i;
+
+	artifact_type *a_ptr;
+
+	/* Give a selection if needed. */
+	if (!a_idx || !a_info[a_idx].name)
+		a_idx = choose_on_screen(choose_artefact);
+
+	/* Give up if nothing valid is selected. */
+	if (a_idx < 0 || a_idx >= MAX_A_IDX || !a_info[a_idx].name) return;
+
+	a_ptr = &a_info[a_idx];
+
+	/* Wipe the object */
+	object_wipe(q_ptr);
+
+	/* Acquire the "kind" index */
+	i = a_ptr->k_idx;
+
+	/* Oops */
+	if (i <= 0 || i >= MAX_K_IDX) return;
+
+	/* Create the artifact */
+	object_prep(q_ptr, i);
+
+	/* Save the name */
+	q_ptr->name1 = a_idx;
+
+	apply_magic_2(q_ptr, dun_depth);
+
+	/* Drop the artifact from heaven */
+	drop_near(q_ptr, -1, py, px);
+
+	/* All done */
+	msg_print("Allocated.");
+}
+
 
 
 /*
@@ -901,14 +958,8 @@ static void wiz_reroll_item(object_type *o_ptr)
 		/* Apply changes */
 		object_copy(o_ptr, q_ptr);
 
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		/* Recalculate/redraw stuff (later) */
+		update_object(o_ptr, 0);
 	}
 }
 
@@ -1202,7 +1253,7 @@ void do_cmd_wiz_play(void)
 			break;
 			
 			default:
-			bell();
+			bell(0);
 		}
 	}
 
@@ -1223,14 +1274,8 @@ void do_cmd_wiz_play(void)
 		/* Change */
 		object_copy(o_ptr, q_ptr);
 
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		/* Recalculate/redraw stuff (later) */
+		update_object(o_ptr, 0);
 	}
 
 	/* Ignore change */
@@ -1252,37 +1297,17 @@ void do_cmd_wiz_play(void)
  */
 void wiz_create_item(int k_idx)
 {
-	object_type	forge;
-	object_type *q_ptr;
+	object_type q_ptr[1];
 
 	/* Ensure reasonable input */
 	if (k_idx < 0 || k_idx >= MAX_K_IDX) k_idx = 0;
 	else if (!k_info[k_idx].name) k_idx = 0;
 
 	/* No meaningful input. */
-	if (!k_idx)
-	{
-	/* Icky */
-	character_icky = TRUE;
-
-	/* Save the screen */
-	Term_save();
-
-	/* Get object base type */
-	k_idx = wiz_create_itemtype();
-
-	/* Restore the screen */
-	Term_load();
-
-	/* Not Icky */
-	character_icky = FALSE;
-	}
+	if (!k_idx) k_idx = choose_on_screen(wiz_create_itemtype);
 
 	/* Return if failed */
 	if (!k_idx) return;
-
-	/* Get local object */
-	q_ptr = &forge;
 
 	/* Create the item */
 	object_prep(q_ptr, k_idx);
@@ -1330,18 +1355,18 @@ void do_cmd_wiz_cure_all(void)
 	p_ptr->chi_frac = 0;
 
 	/* Cure stuff */
-	(void)set_blind(0);
-	(void)set_confused(0);
-	(void)set_poisoned(0);
-	(void)set_afraid(0);
-	(void)set_paralyzed(0);
-	(void)set_image(0);
-	(void)set_stun(0);
-	(void)set_cut(0);
-	(void)set_slow(0);
+	(void)set_flag(TIMED_BLIND, 0);
+	(void)set_flag(TIMED_CONFUSED, 0);
+	(void)set_flag(TIMED_POISONED, 0);
+	(void)set_flag(TIMED_AFRAID, 0);
+	(void)set_flag(TIMED_PARALYZED, 0);
+	(void)set_flag(TIMED_IMAGE, 0);
+	(void)set_flag(TIMED_STUN, 0);
+	(void)set_flag(TIMED_CUT, 0);
+	(void)set_flag(TIMED_SLOW, 0);
 
 	/* No longer hungry */
-	(void)set_food(PY_FOOD_MAX - 1);
+	(void)set_flag(TIMED_FOOD, PY_FOOD_MAX - 1);
 
 	/* Redraw everything */
 	do_cmd_redraw();
@@ -1426,72 +1451,56 @@ void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-        (void)summon_specific(py, px, (dun_depth), 0);
+        (void)summon_specific(py, px, (dun_depth), SUMMON_ALL);
 	}
 }
-
 
 /*
  * Summon a creature of the specified type
  *
  * XXX XXX XXX This function is rather dangerous
+ */
+static void do_cmd_wiz_named_aux(int r_idx, int slp, bool friend)
+{
+	int i, x, y;
+
+	/* Request a choice if none supplied. */
+	if (!r_idx) r_idx = choose_on_screen(choose_monster_type);
+
+	/* Prevent illegal monsters */
+	if (r_idx >= MAX_R_IDX || r_idx <= 0 || is_fake_monster(r_info+r_idx))
+		return;
+
+	/* Try 10 times */
+	for (i = 0; i < 10; i++)
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&y, &x, py, px, d, 0);
+
+		/* Require empty grids */
+		if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;
+
+		/* Place it (allow groups) */
+        if (place_monster_aux(y, x, r_idx, slp != 0, TRUE, friend, TRUE)) break;
+	}
+}
+
+/*
+ * Make a hostile monster.
  */
 void do_cmd_wiz_named(int r_idx, int slp)
 {
-	int i, x, y;
-
-	/* Paranoia */
-	/* if (!r_idx) return; */
-
-	/* Prevent illegal monsters */
-	if (r_idx >= MAX_R_IDX || is_fake_monster(r_info+r_idx)) return;
-
-	/* Try 10 times */
-	for (i = 0; i < 10; i++)
-	{
-		int d = 1;
-
-		/* Pick a location */
-		scatter(&y, &x, py, px, d, 0);
-
-		/* Require empty grids */
-		if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;
-
-		/* Place it (allow groups) */
-        if (place_monster_aux(y, x, r_idx, (bool)slp, (bool)TRUE, (bool)FALSE, (bool)TRUE)) break; 
-	}
+	do_cmd_wiz_named_aux(r_idx, slp, FALSE);
 }
 
-
 /*
- * Summon a creature of the specified type
- *
- * XXX XXX XXX This function is rather dangerous
+ * Make a friendly monster.
  */
 void do_cmd_wiz_named_friendly(int r_idx, int slp)
 {
-	int i, x, y;
-
-	/* Paranoia */
-	/* if (!r_idx) return; */
-
-	/* Prevent illegal monsters */
-	if (r_idx >= MAX_R_IDX || is_fake_monster(r_info+r_idx)) return;
-
-	/* Try 10 times */
-	for (i = 0; i < 10; i++)
-	{
-		int d = 1;
-
-		/* Pick a location */
-		scatter(&y, &x, py, px, d, 0);
-
-		/* Require empty grids */
-		if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;
-
-		/* Place it (allow groups) */
-        if (place_monster_aux(y, x, r_idx, (bool)slp, (bool)TRUE, (bool)TRUE, (bool)TRUE)) break;
-	}
+	do_cmd_wiz_named_aux(r_idx, slp, TRUE);
 }
 
 /*
@@ -1567,77 +1576,3 @@ static int i = 0;
 #endif
 
 #endif
-
-void do_cmd_wiz_help(void)
-{
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
-	/* Save the screen */
-	Term_save();
-
-	/* Flush */
-	Term_fresh();
-
-	/* Clear the screen */
-	Term_clear();
-
-	c_put_str(TERM_RED,"Wizard Commands",1,32);
-	c_put_str(TERM_RED,"===============",2,32);
-	
-	c_put_str(TERM_RED,"Character Editing",4,1);
-	c_put_str(TERM_RED,"=================",5,1);
-	put_str("a = Cure All",7,1);
-	put_str("e = Edit Stats",8,1);
-	put_str("h = Reroll Hitpoints",9,1);
-	put_str("k = Self Knowledge",10,1);
-	put_str("M = Gain Chaos Feature",11,1);
-	put_str("r = Gain Level Reward",12,1);
-	put_str("x = Gain Experience",13,1);
-
-	c_put_str(TERM_RED,"Movement",15,1);
-	c_put_str(TERM_RED,"========",16,1);
-	put_str("b = Teleport to Target",18,1);
-	put_str("j = Jump Levels",19,1);
-	put_str("p = Phase Door",20,1);
-	put_str("t = Teleport",21,1);
-
-	c_put_str(TERM_RED,"Monsters",4,26);
-	c_put_str(TERM_RED,"========",5,26);
-	put_str("s = Summon Monster",7,26);
-	put_str("n = Summon Named Monster",8,26);
-	put_str("N = Summon Named Ally",9,26);
-	put_str("H = Summon Horde",10,26);
-	put_str("z = Genocide True",11,26);
-	put_str("Z = Zap (Magebolt)",12,26);
-
-	c_put_str(TERM_RED,"General Commands",14,26);
-	c_put_str(TERM_RED,"================",15,26);
-	put_str("\" = Generate spoilers",17,26);
-	put_str("d = Detect All",18,26);
-	put_str("m = Map Area",19,26);
-	put_str("w = Wizard Light",20,26);
-
-	c_put_str(TERM_RED,"Object Commands",4,51);
-	c_put_str(TERM_RED,"===============",5,51);
-	put_str("c = Create Item",7,51);
-	put_str("C = Create Named Artifact",8,51);
-	put_str("f = Identify Fully",9,51);
-	put_str("g = Generate Good Object",10,51);
-	put_str("i = Identify Pack",11,51);
-	put_str("l = Learn About Objects",12,51);
-	put_str("o = Object Editor",13,51);
-	put_str("v = Generate Very Good Object",14,51);
-
-	/* Wait for it */
-	put_str("Hit any key to continue", 23, 23);
-
-	/* Get any key */
-	inkey();
-
-	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
-}

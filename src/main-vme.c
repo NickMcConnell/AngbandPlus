@@ -1,4 +1,3 @@
-#define DELAY_EXTERNS_H
 #define MAIN_VME_C
 /* File: main-vme.c */
 
@@ -54,8 +53,6 @@ SM20616@vm.lanet.lv or SD30066@vm.lanet.lv
 #include "angband.h"
 
 #if defined(USE_VME) || defined(VM)
-
-/* #include "main.h" */
 
 /*
  * Convert EBCDIC to ASCII

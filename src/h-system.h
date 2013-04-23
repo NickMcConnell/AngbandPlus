@@ -12,9 +12,6 @@
  *
  * This file is a big hack to make other files less of a hack.
  * This file has been rebuilt -- it may need a little more work.
- *
- * It is (very) unlikely that VMS will work without help, primarily
- * because VMS does not use the "ASCII" character set.
  */
 
 
@@ -60,7 +57,7 @@
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM)
+    !defined(RISCOS) && !defined(VM) && !defined(__MWERKS__)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else
@@ -69,7 +66,7 @@
 #endif
 
 
-#if !defined(NeXT) && !defined(__MWERKS__) && !defined(ACORN)
+#if !defined(NeXT) && !defined(RISCOS)
 # include <fcntl.h>
 #endif
 
@@ -97,35 +94,26 @@
 
 #endif
 
+#if defined(__DJGPP__) || defined(__MWERKS__)
+#include <unistd.h>
+#endif /* __DJGPP__ || __MWERKS__ */
 
-#ifdef SET_UID
-
-# ifdef USG
-#  include <string.h>
-# else
-#  include <strings.h>
-#  ifndef __STDC__
-extern char *strstr();
-extern char *strchr();
-extern char *strrchr();
-#  endif
-#endif
-
-#else
-
-# include <string.h>
-
-#endif
-
-
-
-#if !defined(linux) && !defined(__linux__) && !defined(__MWERKS__) && !defined(ACORN)
-extern long atol();
-#endif
-
+#include <string.h>
 
 #include <stdarg.h>
 
+/* Various systems not covered above may have a working POSIX library, so
+ * include it if they do. */
+#ifdef HAS_STAT
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif /* HAS_STAT */
+
+/* Most displays rely on main.c to start the game up, but a few do not. */
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+#define USE_MAIN_C
+#endif
 
 #endif
+
 

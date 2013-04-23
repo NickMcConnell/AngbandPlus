@@ -1,0 +1,25 @@
+%%%%% <brief debug> <debug-b.txt>
+
+                                $rWizard Commands
+                                $r===============
+
+ $rCharacter Editing        Monsters                 Object Commands
+ $r=================        ========                 ===============
+
+ a = Cure All             s = Summon Monster       c = Create Item
+ e = Edit Stats           n = Summon Named Monster C = Create Named Artifact
+ h = Reroll Hitpoints     N = Summon Named Ally    f = Identify Fully
+ k = Self Knowledge       H = Summon Horde         g = Generate Good Object
+ M = Gain Chaos Feature   z = Genocide True        i = Identify Pack
+ r = Gain Level Reward    Z = Zap (Magebolt)       l = Learn About Objects
+ x = Gain Experience                               o = Object Editor
+                          $rGeneral Commands         $wv = Generate Very Good Object
+ $rMovement                 ================
+ $r========
+                          " = Generate spoilers
+ b = Teleport to Target   d = Detect All
+ j = Jump Levels          m = Map Area
+ p = Phase Door           w = Wizard Light
+ t = Teleport
+ 
+                        Hit any key to continue

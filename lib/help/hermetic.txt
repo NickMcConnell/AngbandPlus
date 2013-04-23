@@ -1,3 +1,4 @@
+%%%%% <hermetic.txt>
 Hermetic Magic
 ==============
 

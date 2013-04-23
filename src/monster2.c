@@ -83,35 +83,98 @@ static cptr funny_comments[MAX_COMMENT] =
     "Far out!"
 };
 
-/*
- * Ghost generation info
- */
- 
+/* Check that a grid is available for monster placement. */
+#define space_okay(y,x,dis) (cave_naked_bold(y,x) && distance(y,x,py,px) > dis)
 
-static int ghost_race;
-
-static char gb_name[32];
-
-
+/* How many "many" is */
+#define MANY_SPACES 128
 
 /*
- * Set a "blow" record for the ghost
+ * Find a random space. First we find out whether there are a large number of
+ * empty spaces, a small number, or none at all. If there are a large number,
+ * we pick spaces completely at random until we find one of them. If there are
+ * a small number, we pick a random space from amongst them. If there are none
+ * at all, we do nothing. 
  */
-static void ghost_blow(int i, int m, int e, int d, int s)
+static bool find_space(int *y, int *x, int dis)
 {
-	monster_race *g = &r_info[MON_PLAYER_GHOST];
+	int i;
+	s16b empty_space[MANY_SPACES][2];
+	u16b max_tries = (full_grid == MAX_FULL_GRID) ? 1000 : 1000000;
+	/* Hack - we use the special value of full_grid = MAX_FULL_GRID-1 to
+	 * start the thorough search. We don't try otherwise.
+	 */
+	 
+	if (full_grid < MAX_FULL_GRID)
+	{
+		for ((*x) = 0, i = 0; (*x) < cur_wid && i < MANY_SPACES; (*x)++)
+		{
+			for ((*y) = 0; (*y) < cur_hgt && i < MANY_SPACES; (*y)++)
+			{
+				if (space_okay((*y),(*x), dis))
+				{
+					empty_space[i][0] = (*y);
+					empty_space[i++][1] = (*x);
+				}
+			}
+		}
+	}
+	else
+	{
+		i = MANY_SPACES;
+	}
+	switch (i)
+	{
+		case 0: /* No empty spaces at all */
+		/* Remember that we've given up */
+		full_grid = dis;
 
-	/* Save the data */
-	g->blow[i].method = m;
-	g->blow[i].effect = e;
-	g->blow[i].d_dice = d;
-	g->blow[i].d_side = s;
+		if (cheat_xtra || cheat_hear)
+		{
+			msg_print("Warning! Could not allocate a new monster. Small level?");
+		}
+		return FALSE;
+		case MANY_SPACES: /* Lots of empty spaces, so the RNG should find one soon enough. */
+		for (i = 0; i < max_tries; i++)
+		{
+			/* Pick a location */
+			(*y) = rand_int(cur_hgt);
+			(*x) = rand_int(cur_wid);
+
+			/* Return it if good */
+			if (space_okay((*y), (*x), dis)) return TRUE;
+		}
+		/* The RNG just ignored them! */
+		if (full_grid < MAX_FULL_GRID)
+		{
+			if (alert_failure || cheat_hear)
+				msg_print("Warning! RNG not detecting empty spaces!");
+		}
+		/* We're having trouble placing monsters, so start searching for them instead. */
+		else
+		{
+			if (cheat_hear)
+				msg_print("Failed to find a space, so trying again.");
+			full_grid--;
+			return find_space(y, x, dis);
+		}
+		/* Fall through anyway in order to get a space. */
+		default: /* Between 1 and MANY_SPACE-1 spaces, so pick one at random */
+		if (cheat_hear)
+		{
+			msg_format("Looking for one of %d spaces", i);
+		}
+		i = rand_int(i);
+		(*y)=empty_space[i][0];
+		(*x)=empty_space[i][1];
+		return TRUE;
+	}
 }
 
 /*
  * Prepare the ghost.
  */
-static void set_ghost_aux(void)
+static void set_ghost_aux(cptr gb_name, int ghost_race)
 {
 	monster_race *r_ptr;
 
@@ -245,8 +308,10 @@ static void set_ghost_aux(void)
  * we do not really need a "full" random seed, we could just use a
  * random value from which random numbers can be extracted.  (?)
  */
-static void set_ghost(cptr pname, int hp, int grace, int UNUSED gclass, int lev)
+static void set_ghost(cptr pname, int hp, int grace, int lev)
 {
+	char gb_name[32];
+
 	int i;
 
 	monster_race *r_ptr = &r_info[MON_PLAYER_GHOST];
@@ -279,11 +344,8 @@ static void set_ghost(cptr pname, int hp, int grace, int UNUSED gclass, int lev)
 	/* Extract the basic hit dice and sides */
 	r_ptr->hdice = r_ptr->hside = i;
 
-	/* Save the race and class */
-	ghost_race = grace;
-
 	/* Prepare the ghost */
-	set_ghost_aux();
+	set_ghost_aux(gb_name, grace);
 }
 
 
@@ -293,7 +355,7 @@ static void set_ghost(cptr pname, int hp, int grace, int UNUSED gclass, int lev)
  */
 bool place_ghost(void)
 {
-	int y, x, hp, level, grace, gclass;
+	int y, x, hp, level, grace, dummy[1];
 
 	monster_race *r_ptr = &r_info[MON_PLAYER_GHOST];
 
@@ -335,7 +397,7 @@ bool place_ghost(void)
 	if (!fp) return (FALSE);
 
 	/* Scan the file */
-	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", name, &hp, &grace, &gclass) != 4);
+	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", name, &hp, &grace, dummy) != 4);
 
 
 	/* Close the file */
@@ -349,24 +411,11 @@ bool place_ghost(void)
 	}
 
 	/* Set up the ghost */
-	set_ghost(name, hp, grace, gclass, level);
+	set_ghost(name, hp, grace, level);
 
 
 	/* Hack -- pick a nice (far away) location */
-	while (1)
-	{
-
-		/* Pick a location */
-		y = randint(cur_hgt - 2);
-		x = randint(cur_wid - 2);
-
-		/* Require "naked" floor grid */
-		if (!cave_empty_bold(y,x)) continue;
-
-		/* Accept far away grids */
-		if (distance(py, px, y, x) > MAX_SIGHT + 5) break;
-	}
-
+	if (!find_space(&y, &x, MAX_SIGHT+5)) return FALSE;
 
 	/*** Place the Ghost by Hand (so no-one else does it accidentally) ***/
 
@@ -481,6 +530,118 @@ void delete_monster(int y, int x)
 
 
 /*
+ * Try to increase the size of m_list to accommodate current requirements.
+ * Return FALSE if this failed for one reason or another.
+ */
+bool grow_m_list(void)
+{
+#ifdef USE_DYNAMIC_LISTS
+	monster_type *new;
+
+	/* This function returns FALSE on out of memory errors, so need not crash. */
+	vptr (*old_rpanic_aux)(huge) = rpanic_aux;
+
+	uint new_max = z_info->m_max*2;
+
+	size_t new_size = new_max*sizeof(monster_type);
+
+	/* Can't store m_list's new size. */
+	if (new_max <= z_info->m_max || new_max > MAX_SHORT) return FALSE;
+
+	/* Can't request m_list's new size. */
+	if (new_size <= sizeof(monster_type) * z_info->m_max) return FALSE;
+
+	/* Failure is safe here. */
+	rpanic_aux = rpanic_none;
+
+	/* Try to allcoate the new memory. */
+	C_MAKE(new, new_max, monster_type);
+
+	/* Restore rpanic_aux. */
+	rpanic_aux = old_rpanic_aux;
+
+	/* Handle success. */
+	if (new)
+	{
+		/* Let cheaters know the level is really full. */
+		if (cheat_hear) msg_format("Monster list grown from %u to %u.",
+			z_info->m_max, new_max);
+
+		/* Start using the new m_list. */
+		C_COPY(new, m_list, z_info->m_max, monster_type);
+		FREE(m_list);
+		m_list = new;
+		z_info->m_max = new_max;
+	}
+
+	return (new != NULL);
+#else /* USE_DYNAMIC_LISTS */
+
+	/* Not allowed to grow the array. */
+	return FALSE;
+
+#endif /* USE_DYNAMIC_LISTS */
+}
+
+/*
+ * Actually remove monsters during compacting.
+ */
+static void compact_monsters_purge(int size)
+{
+	int num, cnt, i;
+	int		cur_lev, cur_dis, chance;
+
+	assert(size > 0); /* See caller(s). */
+
+	msg_print("Compacting monsters...");
+
+	/* Compact at least 'size' objects */
+	for (num = 0, cnt = 1; num < size; cnt++)
+	{
+		/* Get more vicious each iteration */
+		cur_lev = 5 * cnt;
+
+		/* Get closer each iteration */
+		cur_dis = 5 * (20 - cnt);
+
+		/* Check all the monsters */
+		for (i = 1; i < m_max; i++)
+		{
+			monster_type *m_ptr = &m_list[i];
+
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+			/* Paranoia -- skip "dead" monsters */
+			if (!m_ptr->r_idx) continue;
+
+			/* Hack -- High level monsters start out "immune" */
+			if (r_ptr->level > cur_lev) continue;
+
+			/* Ignore nearby monsters */
+			if ((cur_dis > 0) && (m_ptr->cdis < cur_dis)) continue;
+
+			/* Saving throw chance */
+			chance = 90;
+
+			/* Try not to compact Unique Monsters */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) chance = 99;
+
+			/* Only compact "Quest" Monsters in emergencies */
+			if ((r_ptr->flags1 & RF1_GUARDIAN) && (cnt < 1000)) chance = 100;
+
+			/* All monsters get a saving throw */
+			if (rand_int(100) < chance) continue;
+
+			/* Delete the monster */
+			delete_monster_idx(i,TRUE);
+
+			/* Count the monster */
+			num++;
+		}
+	}
+}
+
+/*
  * Move an object from index i1 to index i2 in the object list
  */
 static void compact_monsters_aux(int i1, int i2)
@@ -539,75 +700,12 @@ static void compact_monsters_aux(int i1, int i2)
 	WIPE(&m_list[i1], monster_type);
 }
 
-
 /*
- * Compact and Reorder the monster list
- *
- * This function can be very dangerous, use with caution!
- *
- * When actually "compacting" monsters, we base the saving throw
- * on a combination of monster level, distance from player, and
- * current "desperation".
- *
- * After "compacting" (if needed), we "reorder" the monsters into a more
- * compact order, and we reset the allocation info, and the "live" array.
- */
-void compact_monsters(int size)
+ * Remove dead (or purged) monsters from the monster list.
+ */	
+static void compact_monsters_excise(void)
 {
-	int		i, num, cnt;
-
-	int		cur_lev, cur_dis, chance;
-
-
-	/* Message (only if compacting) */
-	if (size) msg_print("Compacting monsters...");
-
-
-	/* Compact at least 'size' objects */
-	for (num = 0, cnt = 1; num < size; cnt++)
-	{
-		/* Get more vicious each iteration */
-		cur_lev = 5 * cnt;
-
-		/* Get closer each iteration */
-		cur_dis = 5 * (20 - cnt);
-
-		/* Check all the monsters */
-		for (i = 1; i < m_max; i++)
-		{
-			monster_type *m_ptr = &m_list[i];
-
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-			/* Paranoia -- skip "dead" monsters */
-			if (!m_ptr->r_idx) continue;
-
-			/* Hack -- High level monsters start out "immune" */
-			if (r_ptr->level > cur_lev) continue;
-
-			/* Ignore nearby monsters */
-			if ((cur_dis > 0) && (m_ptr->cdis < cur_dis)) continue;
-
-			/* Saving throw chance */
-			chance = 90;
-
-			/* Try not to compact Unique Monsters */
-			if (r_ptr->flags1 & (RF1_UNIQUE)) chance = 99;
-
-			/* Only compact "Quest" Monsters in emergencies */
-			if ((r_ptr->flags1 & RF1_GUARDIAN) && (cnt < 1000)) chance = 100;
-
-			/* All monsters get a saving throw */
-			if (rand_int(100) < chance) continue;
-
-			/* Delete the monster */
-			delete_monster_idx(i,TRUE);
-
-			/* Count the monster */
-			num++;
-		}
-	}
-
+	int i;
 
 	/* Excise dead monsters (backwards!) */
 	for (i = m_max - 1; i >= 1; i--)
@@ -624,6 +722,31 @@ void compact_monsters(int size)
 		/* Compress "m_max" */
 		m_max--;
 	}
+}
+
+/*
+ * Compact and Reorder the monster list
+ *
+ * This function can be very dangerous, use with caution!
+ *
+ * When actually "compacting" monsters, we base the saving throw
+ * on a combination of monster level, distance from player, and
+ * current "desperation".
+ *
+ * After "compacting" (if needed), we "reorder" the monsters into a more
+ * compact order, and we reset the allocation info, and the "live" array.
+ */
+void compact_monsters(int size)
+{
+	/* Try to increase the space available. */
+	if (size > 0 && !grow_m_list())
+	{
+		/* Purge monsters if impossible. */
+		compact_monsters_purge(size);
+	}
+
+	/* Remove dead monsters from the list. */
+	compact_monsters_excise();
 }
 
 /* Take out non-pets */
@@ -768,7 +891,7 @@ s16b m_pop(void)
 /*
  * Apply a "monster restriction function" to the "monster allocation table"
  */
-errr get_mon_num_prep(void)
+errr get_mon_num_prep(bool (*hook)(int))
 {
 	int i;
 
@@ -779,7 +902,7 @@ errr get_mon_num_prep(void)
 		alloc_entry *entry = &alloc_race_table[i];
 
 		/* Accept monsters which pass the restriction, if any */
-		if (!get_mon_num_hook || (*get_mon_num_hook)(entry->index))
+		if (!hook || (*hook)(entry->index))
 		{
 			/* Accept this monster */
 			entry->prob2 = entry->prob1;
@@ -968,9 +1091,6 @@ s16b get_mon_num(int level)
 
 
 
-#define MCI_PLURAL	0x04
-#define MCI_ARTICLE	0x05
-
 /* Add a string at t (within buf) if there is enough room. */
 #define MDA_ADD(X) \
 { \
@@ -994,10 +1114,11 @@ s16b get_mon_num(int level)
  *  10 TRUE  -     FALSE  "the Newts"
  *  10 TRUE  -     TRUE   "the 10 Newts"
  */
-static void monster_desc_aux(char *out, char *buf, uint max, cptr name,
-	int num, byte flags)
+static void monster_desc_aux(char *buf, uint max, cptr name, int num,
+	byte flags)
 {
 	cptr artstr = "";
+	char tmp[20];
 	cptr s;
 	char *t;
 	byte reject = 0;
@@ -1023,9 +1144,9 @@ static void monster_desc_aux(char *out, char *buf, uint max, cptr name,
 	}
 	else if (flags & MDF_INDEF)
 	{
-		/* To be turned into English later... */
-		char artstr_art[2] = {CM_ACT | MCI_ARTICLE, '\0'};
-		artstr = artstr_art;
+		/* CM_ACT | MCI_ARTICLE, to be turned into English later... */
+		sprintf(tmp, ".%c", CM_ACT | MCI_ARTICLE);
+		artstr = tmp;
 	}
 	else if (flags & MDF_YOUR)
 	{
@@ -1033,9 +1154,9 @@ static void monster_desc_aux(char *out, char *buf, uint max, cptr name,
 	}
 	if (flags & MDF_NUMBER)
 	{
-		/* out is just used as a temporary buffer here... */
-		sprintf(out, "%s%s%d", artstr, (artstr[0]) ? " " : "", num);
-		artstr = out;
+		/* Add a number to the end of the article. */
+		sprintf(tmp, "%s%s%d", artstr, (artstr[0]) ? " " : "", num);
+		artstr = tmp;
 	}
 
 	for (s = name, t = buf; *s && t < buf+max-1; s++)
@@ -1058,26 +1179,8 @@ static void monster_desc_aux(char *out, char *buf, uint max, cptr name,
 	/* Finish off. */
 	*t = '\0';
 
-	/* Decipher articles, and copy across. */
-	for (s = buf, t = out; t < out+max-1;)
-	{
-		if (*s == (MCI_ARTICLE | CM_ACT))
-		{
-			cptr u,article;
-			for (u = s; !isalnum(*u) && *u; u++);
-			article = (strchr("aeiouAEIOU8", *u)) ? "an" : "a";
-			if (t-out+strlen(article)+1 < max)
-			{
-				strcpy(t, article);
-				t = strchr(t, '\0');
-				s++;
-			}
-		}
-		else
-		{
-			if (((*t++ = *s++)) == '\0') break;
-		}
-	}
+	/* Turn any article strings into normal characters. */
+	convert_articles(buf);
 }
 
 /*
@@ -1097,22 +1200,13 @@ void monster_desc_aux_f3(char *buf, uint max, cptr fmt, va_list *vp)
 	vptr *r_ptr = va_arg(*vp, vptr);
 	int num = va_arg(*vp, int);
 	uint flags = va_arg(*vp, uint);
-	uint len;
-	cptr s, name;
+	cptr name;
 
-	/* Use %.123v to specify a maximum length of 123. */
-	if ((s = strchr(fmt, '.')))
+	/* Use a length of MNAME_MAX if unspecified. */
+	if (!strchr(fmt, '.'))
 	{
-		long m = strtol(s+1, 0, 0);
-		len = MAX(0, m)+1;
+		max = MIN(MNAME_MAX, max);
 	}
-	else
-	{
-		len = MNAME_MAX;
-	}
-
-	/* Ensure that both buffers fit within buf. */
-	if (max < len*2) len = max/2;
 
 	/*
 	 * The first argument is either a monster_race * or a cptr.
@@ -1130,7 +1224,7 @@ void monster_desc_aux_f3(char *buf, uint max, cptr fmt, va_list *vp)
 	}
 
 	/* Create the name now the arguments are known. */
-	monster_desc_aux(buf, buf+len, len, name, num, flags);
+	monster_desc_aux(buf, max, name, num, flags);
 }
 
 /*
@@ -1350,25 +1444,15 @@ void monster_desc_f2(char *buf, uint max, cptr fmt, va_list *vp)
 {
 	monster_type *m_ptr = va_arg(*vp, monster_type *);
 	int mode = va_arg(*vp, int);
-	cptr s;
-	uint len;
 
-	/* Use %.123v to specify a maximum length of 123. */
-	if ((s = strchr(fmt, '.')))
+	/* Use a length of MNAME_MAX if unspecified. */
+	if (!strchr(fmt, '.'))
 	{
-		long m = strtol(s+1, 0, 0);
-		len = MAX(0, m)+1;
+		max = MIN(MNAME_MAX, max);
 	}
-	else
-	{
-		len = MNAME_MAX;
-	}
-
-	/* Ensure that the buffer fits within buf. */
-	if (max < len) len = max;
 
 	/* Copy the string to buf. */
-	monster_desc(buf, m_ptr, mode, len);
+	monster_desc(buf, m_ptr, mode, max);
 }
 
 
@@ -1516,11 +1600,11 @@ static void sanity_blast (monster_type * m_ptr, bool necro)
 	{
 		if (!p_ptr->resist_conf)
 		{
-			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+			(void)add_flag(TIMED_CONFUSED, rand_int(4) + 4);
 		}
 		if ((!p_ptr->resist_chaos) && (randint(3)==1))
 		{
-			(void) set_image(p_ptr->image + rand_int(250) + 150);
+			(void) add_flag(TIMED_IMAGE, rand_int(250) + 150);
 		}
 		return;
 	}
@@ -1538,11 +1622,11 @@ static void sanity_blast (monster_type * m_ptr, bool necro)
     {
 				if (!p_ptr->resist_conf)
 				{
-					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+					(void)add_flag(TIMED_CONFUSED, rand_int(4) + 4);
 				}
 				if (!p_ptr->free_act)
 				{
-					(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
+					(void)add_flag(TIMED_PARALYZED, rand_int(4) + 4);
 				}
                 while (rand_int(100) > p_ptr->skill_sav)
                     (void)do_dec_stat(A_INT);
@@ -1550,7 +1634,7 @@ static void sanity_blast (monster_type * m_ptr, bool necro)
                     (void)do_dec_stat(A_WIS);
                 if (!p_ptr->resist_chaos)
                 {
-                    (void) set_image(p_ptr->image + rand_int(250) + 150);
+                    (void) add_flag(TIMED_IMAGE, rand_int(250) + 150);
                 }
         return;
     }
@@ -1837,7 +1921,7 @@ void update_mon(int m_idx, bool full)
 			/* Disturb on appearance */
             if (disturb_move)
             {   if (disturb_allies || !(m_ptr->smart & (SM_ALLY)))
-                    disturb(0, 0);
+                    disturb(0);
                 }
 		}
 
@@ -1878,7 +1962,7 @@ void update_mon(int m_idx, bool full)
             if (disturb_move)
             {
                 if (disturb_allies || !(m_ptr->smart & (SM_ALLY)))
-                    disturb(0, 0);
+                    disturb(0);
                 }
 		}
 	}
@@ -1906,7 +1990,7 @@ void update_mon(int m_idx, bool full)
             if (disturb_near)
             {
                 if (disturb_allies || !(m_ptr->smart & (SM_ALLY)))
-                    disturb(0, 0);
+                    disturb(0);
                 }
 
 		}
@@ -1925,7 +2009,7 @@ void update_mon(int m_idx, bool full)
             if (disturb_near)
             {
                 if (disturb_allies || !(m_ptr->smart & (SM_ALLY)))
-                    disturb(0, 0);
+                    disturb(0);
             }
 		}
 	}
@@ -1958,6 +2042,30 @@ void update_monsters(bool full)
 
 
 /*
+ * Return TRUE if this is a living monster (used in various places).
+ */
+bool live_monster_p(monster_race *r_ptr)
+{
+	if (r_ptr->flags3 & (RF3_UNDEAD)) return FALSE;
+	if (r_ptr->flags3 & (RF3_DEMON)) return FALSE;
+	if (r_ptr->flags3 & (RF3_CTHULOID)) return FALSE;
+    if (r_ptr->flags3 & (RF3_NONLIVING)) return FALSE;
+	if (strchr("Egv", r_ptr->d_char)) return FALSE;
+
+	return TRUE;
+}
+
+/*
+ * Return TRUE if this is a living monster (less restrictive version).
+ */
+bool live_monster_wide_p(monster_race *r_ptr)
+{
+	if (r_ptr->flags3 & (RF3_UNDEAD)) return FALSE;
+    if (r_ptr->flags3 & (RF3_NONLIVING)) return FALSE;
+	return TRUE;
+}
+
+/*
  * Attempt to place a monster of the given race at the given location.
  *
  * To give the player a sporting chance, any monster that appears in
@@ -1982,8 +2090,6 @@ void update_monsters(bool full)
  */
 bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, bool force)
 {
-	int			i;
-
 	cave_type		*c_ptr;
 
 	monster_type	*m_ptr;
@@ -2152,17 +2258,21 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, bool force
 	/* And start out fully healthy */
 	m_ptr->hp = m_ptr->maxhp;
 
-
-	/* Extract the monster base speed */
-	m_ptr->mspeed = r_ptr->speed;
-
-	/* Hack -- small racial variety */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+	/* Give uniques the stated speed. */
+	if (r_ptr->flags1 & (RF1_UNIQUE))
+	{
+		/* Extract the monster base speed */
+		m_ptr->mspeed = r_ptr->speed;
+	}
+	/* Hack -- small racial variety for other monsters. */
+	else
 	{
 		/* Allow some small variation per monster */
-		i = extract_energy[r_ptr->speed] / (TURN_ENERGY/10);
-		if (i) m_ptr->mspeed += rand_spread(0, i);
+		int j = TURN_ENERGY/extract_energy[r_ptr->speed];
+		j = r_ptr->speed + rand_spread(0, j);
+		m_ptr->mspeed = MIN(MAX(j, 0), N_ELEMENTS(extract_energy)-1);
 	}
+
 
 
 	/* Give a random starting energy (should this be a TURN_ENERGY thing?) */
@@ -2380,22 +2490,16 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm, 
 			place_monster_idx = r_idx;
 
 
-			/* Set the escort hook */
-			get_mon_num_hook = place_monster_okay;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
+			/* Prepare allocation table for the escort. */
+			get_mon_num_prep(place_monster_okay);
 
 
 			/* Pick a random race */
 			z = get_mon_num(r_ptr->level);
 
 
-			/* Remove restriction */
-			get_mon_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
+			/* Prepare normal allocation table */
+			get_mon_num_prep(NULL);
 
 
 			/* Handle failure */
@@ -2457,13 +2561,13 @@ bool place_monster(int y, int x, bool slp, bool grp)
  * Put Quest monster in dungeon
  * Heino Vander Sanden
  */
-void put_quest_monster(int r_idx)
+bool put_quest_monster(int r_idx)
 {
 	int	y, x;
 
-   /*
+	/*
 	 * Safety check to make sure it is allowed
- 	 * This is really just paranoia, but it means that if a unique is
+	 * This is really just paranoia, but it means that if a unique is
 	 * somehow killed before its time then it is resurrected rather than
 	 * forcing an infinite loop
 	 */
@@ -2472,23 +2576,10 @@ void put_quest_monster(int r_idx)
 		r_info[r_idx].max_num++;
 		msg_print("Resurrecting guardian to fix corrupted savefile...");
 	}
-	do
-	{
-		/* Find a legal unoccupied space */
-		while (1)
-		{
-			/* Pick a location */
-			y = rand_int(MAX_HGT);
-			x = rand_int(MAX_WID);
 
-			/* Require "naked" floor grid */
-			if (!cave_naked_bold(y, x)) continue;
-			{
-				/* At least 15 grids away */
-				if (distance(y, x, py, px) > 15) break;
-			}
-		}
-	} while (!place_monster_aux(y, x, r_idx, 0,0,0, FALSE));
+	/* Place the monster somewhere, or fail. */
+	return (find_space(&y, &x, 15) &&
+		place_monster_aux(y, x, r_idx, 0,0,0, FALSE));
 }
 
 #ifdef MONSTER_HORDES
@@ -2540,94 +2631,6 @@ bool alloc_horde(int y, int x)
 }
 #endif
 
-/* Check that a grid is available for monster placement. */
-#define space_okay(y,x,dis) (cave_naked_bold(y,x) && distance(y,x,py,px) > dis)
-
-/* How many "many" is */
-#define MANY_SPACES 128
-
-/*
- * Find a random space. First we find out whether there are a large number of
- * empty spaces, a small number, or none at all. If there are a large number,
- * we pick spaces completely at random until we find one of them. If there are
- * a small number, we pick a random space from amongst them. If there are none
- * at all, we do nothing. 
- */
-static bool find_space(int *y, int *x, int dis)
-{
-	int i;
-	s16b empty_space[MANY_SPACES][2];
-	u16b max_tries = (full_grid == MAX_FULL_GRID) ? 1000 : 1000000;
-	/* Hack - we use the special value of full_grid = MAX_FULL_GRID-1 to
-	 * start the thorough search. We don't try otherwise.
-	 */
-	 
-	if (full_grid < MAX_FULL_GRID)
-	{
-		for ((*x) = 0, i = 0; (*x) < cur_wid && i < MANY_SPACES; (*x)++)
-		{
-			for ((*y) = 0; (*y) < cur_hgt && i < MANY_SPACES; (*y)++)
-			{
-				if (space_okay((*y),(*x), dis))
-				{
-					empty_space[i][0] = (*y);
-					empty_space[i++][1] = (*x);
-				}
-			}
-		}
-	}
-	else
-	{
-		i = MANY_SPACES;
-	}
-	switch (i)
-	{
-		case 0: /* No empty spaces at all */
-		/* Remember that we've given up */
-		full_grid = dis;
-
-		if (cheat_xtra || cheat_hear)
-		{
-			msg_print("Warning! Could not allocate a new monster. Small level?");
-		}
-		return FALSE;
-		case MANY_SPACES: /* Lots of empty spaces, so the RNG should find one soon enough. */
-		for (i = 0; i < max_tries; i++)
-		{
-			/* Pick a location */
-			(*y) = rand_int(cur_hgt);
-			(*x) = rand_int(cur_wid);
-
-			/* Return it if good */
-			if (space_okay((*y), (*x), dis)) return TRUE;
-		}
-		/* The RNG just ignored them! */
-		if (full_grid < MAX_FULL_GRID)
-		{
-			if (alert_failure || cheat_hear)
-				msg_print("Warning! RNG not detecting empty spaces!");
-		}
-		/* We're having trouble placing monsters, so start searching for them instead. */
-		else
-		{
-			if (cheat_hear)
-				msg_print("Failed to find a space, so trying again.");
-			full_grid--;
-			return find_space(y, x, dis);
-		}
-		/* Fall through anyway in order to get a space. */
-		default: /* Between 1 and MANY_SPACE-1 spaces, so pick one at random */
-		if (cheat_hear)
-		{
-			msg_format("Looking for one of %d spaces", i);
-		}
-		i = rand_int(i);
-		(*y)=empty_space[i][0];
-		(*x)=empty_space[i][1];
-		return TRUE;
-	}
-}
-
 /*
  * Attempt to allocate a random monster in the dungeon.
  *
@@ -2666,7 +2669,7 @@ bool alloc_monster(int dis, int slp)
 		}
 		else
 		{
-			if (place_monster(y, x, (bool)slp, (bool)TRUE)) return (TRUE);
+			if (place_monster(y, x, slp != 0, TRUE)) return (TRUE);
 		}
 
 #ifdef MONSTER_HORDES
@@ -2792,15 +2795,17 @@ static bool summon_specific_okay(int r_idx)
         {
 			return !!strstr(format("%v", monster_desc_aux_f3, r_ptr, 1, 0),
 				"Phantom");
-            break;
         }
         case UNFLAG(SUMMON_ELEMENTAL):
         {
             return !!strstr(format("%v", monster_desc_aux_f3, r_ptr, 1, 0),
 				"lemental");
-            break;
         }
-		case 0: /* No restrictions. */
+		case UNFLAG(SUMMON_LIVING):
+		{
+			return live_monster_p(r_ptr);
+		}
+		case UNFLAG(SUMMON_ALL): /* No restrictions. */
 		{
 			return TRUE;
 		}
@@ -2877,25 +2882,21 @@ bool summon_specific_aux(int y1, int x1, int lev, int type, bool Group_ok, bool 
 	if (i == 20) return (FALSE);
 
 
-	/* Save the "summon" type */
-	summon_specific_type = type;
+	if (type)
+	{
+		/* Save the "summon" type */
+		summon_specific_type = type;
 
-
-	/* Require "okay" monsters */
-	get_mon_num_hook = summon_specific_okay;
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
+		/* Prepare allocation table ("okay" monster) */
+		get_mon_num_prep(summon_specific_okay);
+	}
 
 
 	/* Pick a monster, using the level calculation */
 	r_idx = get_mon_num(((dun_depth) + lev) / 2 + 5);
 
-	/* Remove restriction */
-	get_mon_num_hook = NULL;
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
+	/* Prepare normal allocation table */
+	get_mon_num_prep(NULL);
 
 
 	/* Handle failure */

@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:1.0.7
+V:1.0.11
 
 
 # maximum number of objects on the level

@@ -1,3 +1,4 @@
+%%%%% <chargen.txt>
 Characters
 ==========
 
@@ -33,7 +34,7 @@ S, I, W, D, C, H: Decrease the specified stat.
                /: Change from one birth display to the other.
                f: Save the current set of stats to a file.
                l: Load a saved set of stats for this race and template.
-               =: Modify the birth options (see *****chargen.txt*0[chargen.txt] $wfor details).
+               =: Modify the birth options (see *****option=B*[custom.txt] for details).
                ?: Display help.
 
 Primary Stats
@@ -99,7 +100,7 @@ Elves that succumbed to the blandishments of great caverns, Dark Elves take litt
 
 Draconian (EXP Factor 250%, HD 11)
 {STR:+2 INT:+1 WIS:+1 DEX:+1 CON:+2 CHR:-3}
-The children of dragons that assumed human form, Draconians always fall lightly, and gain resistance to various common forms of attack as they age.  They can breathe out with devastating effect.
+The children of dragons that assumed human form, Draconians always fall lightly, and gain resistance to various common forms of attack as they become more powerful.  They can breathe out with devastating effect.
 
 Dwarf (EXP Factor 125%, HD 11)
 {STR:+2 INT:-2 WIS:+2 DEX:-2 CON:+2 CHR:-3}
@@ -115,7 +116,7 @@ Smaller than Dwarves, but otherwise similar.  Gnomes cannot be slowed or paralyz
 
 Golem (EXP Factor 200%, HD 12)
 {STR:+4 INT:-5 WIS:-5 DEX:+0 CON:+4 CHR:-4}
-Golems are not born, but made by arcane rituals that give them words instead of brains.  They are resistant to poison, magical slowing and paralyzation, and can see the invisible.  They need but little sustenance, but normal food helps little.  As they age,  they gain a tenacious hold on their artificial life force.  Their skins are hard to the point of armor, and can become harder with concentration.
+Golems are not born, but made by arcane rituals that give them words instead of brains.  They are resistant to poison, magical slowing and paralyzation, and can see the invisible.  They need but little sustenance, but normal food helps little.  Sufficently powerful golems gain a tenacious hold on their artificial life force.  Their skins are hard to the point of armor, and can become harder with concentration.
 
 Great One (EXP Factor 225%, HD 10)
 {STR:+1 INT:+2 WIS:+2 DEX:+2 CON:+3 CHR:+2}
@@ -162,7 +163,7 @@ Imps are demons who have been forced to live on Earth.  They can survive great h
 
 Klackon (EXP Factor 135%, HD 12)
 {STR:+2 INT:-1 WIS:-1 DEX:+1 CON:+2 CHR:-2}
-Insectile but larger than Men, Klackon brains cannot be confused, and the chitin is resistant to acid.  They can spit acid, and move faster and faster as they age.
+Insectile but larger than Men, Klackon brains cannot be confused, and the chitin is resistant to acid.  They can spit acid, and move faster and faster as they become more powerful.
 
 Kobold (EXP Factor 125%, HD 9)
 {STR:+1 INT:-1 WIS:+0 DEX:+1 CON:+2 CHR:-2}
@@ -186,7 +187,7 @@ Spectres have died, but have not left the Earth, perhaps on a quest. They need l
 
 Sprite (EXP Factor 175%, HD 7)
 {STR:-4 INT:+3 WIS:+3 DEX:+3 CON:-2 CHR:+2}
-Of faery blood, sprites fall lightly on their feet and are resistant to bright light.  They can throw sleeping dust, and gain speed as they age.
+Of faery blood, sprites fall lightly on their feet and are resistant to bright light.  They can throw sleeping dust, and gain speed as they become more powerful.
 
 Vampire (EXP Factor 200%, HD 11)
 {STR:+3 INT:+3 WIS:-1 DEX:-1 CON:+1 CHR:+2}
@@ -194,7 +195,7 @@ Vampires can feed and heal themselves with the blood of their foes, and gain lit
 
 Yeek (EXP Factor 100%, HD 7)
 {STR:-2 INT:+1 WIS:+1 DEX:+1 CON:-2 CHR:-7}
-Unimpressive looking humanoids, but Yeeks take little damage from strong acid, and as they age become totally immune to the stuff. Their shriek can terrorize their foes.
+Unimpressive looking humanoids, but Yeeks take little damage from strong acid, and can eventually become totally immune to the stuff. Their shriek can terrorize their foes.
 
 Zombie (EXP Factor 135%, HD 13)
 {STR:+2 INT:-6 WIS:-6 DEX:+1 CON:+4 CHR:=5}

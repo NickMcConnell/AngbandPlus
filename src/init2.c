@@ -5,11 +5,6 @@
 
 #include "angband.h"
 
-#ifdef CHECK_MODIFICATION_TIME
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif /* CHECK_MODIFICATION_TIME */
-
 /*
  * This file is used to initialize various variables and arrays for the
  * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
@@ -62,7 +57,7 @@ static void create_user_dir(void)
 			/* Do nothing to a pre-existing directory. */
 			break;
 		}
-		case FILE_ERROR_FATAL:
+		case FILE_ERROR_CANNOT_OPEN_FILE:
 		{
 			/* Something bad happened, so hope the old user dir is okay... */
 			return;
@@ -85,7 +80,7 @@ static void create_user_dir(void)
 	}
 
 	/* The system user directory will not be looked at again. */
-	string_free(ANGBAND_DIR_USER);
+	FREE(ANGBAND_DIR_USER);
 	ANGBAND_DIR_USER = ANGBAND_DIR_USER_LOC;
 }
 
@@ -129,20 +124,20 @@ void init_file_paths(cptr path)
 	/*** Free everything ***/
 
 	/* Free the main path */
-	string_free(ANGBAND_DIR);
+	FREE(ANGBAND_DIR);
 
 	/* Free the sub-paths */
-	string_free(ANGBAND_DIR_APEX);
-	string_free(ANGBAND_DIR_BONE);
-	string_free(ANGBAND_DIR_DATA);
-	string_free(ANGBAND_DIR_EDIT);
-	string_free(ANGBAND_DIR_FILE);
-	string_free(ANGBAND_DIR_HELP);
-	string_free(ANGBAND_DIR_INFO);
-	string_free(ANGBAND_DIR_PREF);
-	string_free(ANGBAND_DIR_SAVE);
-	string_free(ANGBAND_DIR_USER);
-	string_free(ANGBAND_DIR_XTRA);
+	FREE(ANGBAND_DIR_APEX);
+	FREE(ANGBAND_DIR_BONE);
+	FREE(ANGBAND_DIR_DATA);
+	FREE(ANGBAND_DIR_EDIT);
+	FREE(ANGBAND_DIR_FILE);
+	FREE(ANGBAND_DIR_HELP);
+	FREE(ANGBAND_DIR_INFO);
+	FREE(ANGBAND_DIR_PREF);
+	FREE(ANGBAND_DIR_SAVE);
+	FREE(ANGBAND_DIR_USER);
+	FREE(ANGBAND_DIR_XTRA);
 
 
 	/*** Prepare the "path" ***/
@@ -223,7 +218,7 @@ void init_file_paths(cptr path)
 		if (next)
 		{
 			/* Forget the old path name */
-			string_free(ANGBAND_DIR_DATA);
+			FREE(ANGBAND_DIR_DATA);
 
 			/* Build a new path name */
 			ANGBAND_DIR_DATA = string_make(format("data-%s", next));
@@ -270,8 +265,12 @@ static cptr err_str[PARSE_ERROR_MAX] =
 
 #endif
 
-#ifdef CHECK_MODIFICATION_TIME
+#if defined(CHECK_MODIFICATION_TIME) && defined(HAS_STAT)
 
+/*
+ * Hack - put the SET_UID version of the check_modification_date() function
+ * here.
+ */
 static errr check_modification_date(int fd, cptr template_file)
 {
 	char buf[1024];
@@ -305,8 +304,13 @@ static errr check_modification_date(int fd, cptr template_file)
 	return (0);
 }
 
-#endif /* CHECK_MODIFICATION_TIME */
+#endif /* CHECK_MODIFICATION_TIME && HAS_STAT */
 
+/* 
+ * A hook for a function which compares the modification date of a raw fd
+ * to the text file from which it was derived.
+ */
+errr (*check_modification_date_hook)(int fd, cptr template_file) = 0;
 
 /*** Initialize from binary image files ***/
 
@@ -494,7 +498,10 @@ static void init_info(header *head)
 		{
 #ifdef CHECK_MODIFICATION_TIME
 
-			err = check_modification_date(fd, textname);
+			if (check_modification_date_hook)
+			{
+				err = (*check_modification_date_hook)(fd, textname);
+			}
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -716,11 +723,16 @@ static void init_x_final(int num)
 	return;
 }
 		
+#ifdef ALLOW_TEMPLATES
+#define IF_AT(X) X
+#else /* ALLOW_TEMPLATES */
+#define IF_AT(X) 0
+#endif /* ALLOW_TEMPLATES */
 
 #define init_x_info(title, type, parse, file, x_info, x_name, x_text, x_max, num) \
 { \
 	note(format("[Initializing arrays... (%s)]", title)); \
-	init_header(type, num, parse, file); \
+	init_header(type, num, IF_AT(parse), file); \
 	init_info(head); \
 	x_info = head->info_ptr; \
 	if (x_name != dummy) x_name = head->name_ptr; \
@@ -728,8 +740,6 @@ static void init_x_final(int num)
 	z_info->x_max = head->info_num;\
 	init_x_final(num); \
 }
-
-
 
 
 
@@ -1311,6 +1321,8 @@ static errr init_other(void)
 	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, MAX_M_IDX, monster_type);
 
+	/* Hack - the player can always see herself. */
+	m_list[0].ml = TRUE;
 
 	/* Allocate and wipe each line of the cave */
 	for (i = 0; i < MAX_HGT; i++)
@@ -1402,14 +1414,10 @@ static errr init_other(void)
 	for (n = 0; n < 8; n++)
 	{
 		/* Analyze the options */
-		for (i = 0; i < 32; i++)
+		for (i = 0; i < NUM_DISPLAY_FUNCS; i++)
 		{
 			/* Accept */
-			if (window_flag_desc[i])
-			{
-				/* Accept */
-				windows[n].mask |= (1L << i);
-			}
+			windows[n].mask |= display_func[i].flag;
 		}
 	}
 
@@ -1417,7 +1425,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Dean Anderson", MAINTAINER);
+	(void)format("");
 
 	/* Prepare the stat_default array */
 	C_MAKE(stat_default, MAX_STAT_DEFAULT, stat_default_type);
@@ -1425,6 +1433,9 @@ static errr init_other(void)
 
 	/* Initialise the term_wins array. */
 	init_term_wins();
+
+	/* Initialise the squelch information. */
+	init_squelch();
 
 	/* Success */
 	return (0);
@@ -1626,6 +1637,207 @@ static errr init_alloc(void)
 
 
 
+#ifdef CHECK_ARRAYS
+
+/*
+ * Check screen_coords.
+ */
+static void check_screen_coords(void)
+{
+	const co_ord *co_ptr;
+	for (co_ptr = screen_coords; co_ptr < END_PTR(screen_coords); co_ptr++)
+	{
+		if (co_ptr->idx != co_ptr)
+		{
+			quit_fmt("The %s screen co-ordinates have index %d rather than %d",
+				co_ptr->name, co_ptr - screen_coords,
+				co_ptr->idx - screen_coords);
+		}
+	}
+}
+
+/*
+ * Check that skill_set is ordered correctly.
+ */
+static void check_skill_set(void)
+{
+	const player_skill *ptr;
+	for (ptr = skill_set; ptr < END_PTR(skill_set); ptr++)
+	{
+		if (ptr != skill_set+ptr->idx)
+		{
+			quit_fmt("The %s skill has index %d rather than %d.", ptr->name,
+				ptr - skill_set, ptr->idx);
+		}
+	}
+}
+
+/*
+ * Check that option_info[] avoids putting too many options into a category,
+ * or use the same bit in the save file to denote two options.
+ */
+static void check_options(void)
+{
+	bool flag_error = FALSE, error = FALSE;
+	const option_type *op_ptr;
+	int n[OPTS_MAX];
+	u32b flag[8];
+
+	WIPE(n, n);
+	WIPE(flag, flag);
+
+	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
+	{
+		/* Negative categories are special. */
+		if (op_ptr->o_page >= 0 && n[op_ptr->o_page]++ >= MAX_OPTS_PER_PAGE)
+		{
+			plog_fmt("The %s option overflows its category.", op_ptr->o_text);
+			error = TRUE;
+		}
+		if (flag[op_ptr->o_set] & (1L << op_ptr->o_bit))
+		{
+			plog_fmt(
+				"The %s option shares a set and a bit with another option.",
+				op_ptr->o_text);
+			flag_error = error = TRUE;
+		}
+		flag[op_ptr->o_set] |= (1L << op_ptr->o_bit);
+	}
+	if (flag_error)
+	{
+		/* Draw a "helpful" table. */
+		int i,j;
+		char buf[40], *s;
+
+		/* Introduction. */
+		plog("The following table shows the unused bits as dots.");
+
+		/* Draw the table. */
+		for (i = 0; i < 8; i++)
+		{
+			for (j = 0, s = buf; j < 32; j++)
+			{
+				if (flag[i] & (1L << j))
+				{
+					*s++ = '*';
+				}
+				else
+				{
+					*s++ = '.';
+				}
+				if ((j % 4) == 3) *s++ = ' ';
+			}
+			*s++ = '\0';
+			plog(buf);
+		}
+	}
+	if (error)
+	{
+		/* Exit. */
+		quit("Failed to parse option_info.");
+	}	
+}
+
+/*
+ * Check that book_info[] uses the correct indices.
+ */
+static void check_book_info(void)
+{
+	int i;
+	for (i = 0; i < N_ELEMENTS(book_info); i++)
+	{
+		const book_type *b_ptr = book_info+i;
+
+		/* Bad index. */
+		if (b_ptr->idx != i) quit_fmt("Book %d has index %d.", i, b_ptr->idx);
+
+		/* Bad value. */
+		if (!b_ptr->info || !b_ptr->flags) quit_fmt("Book %d is malformed.", i);
+	}
+}
+
+/*
+ * Check various things about ma_blows[].
+ */
+static void check_ma_blows(void)
+{
+	bool first_attack = FALSE;
+	martial_arts *ma_ptr;
+
+	/* ma_blows[MAX_MA] is used for unskilled attacks. */
+	assert(!ma_blows[MAX_MA].min_level);
+	assert(!ma_blows[MAX_MA].chance);
+
+	for (ma_ptr = ma_blows; ma_ptr < ma_blows+MAX_MA; ma_ptr++)
+	{
+		/* Check that a player who passes the "min_level" check for the easiest
+		 * attack has a "chance" of using at least one attack. */
+		if (ma_ptr->min_level == ma_blows->min_level &&
+			ma_ptr->chance <= ma_blows->min_level)
+		{
+			first_attack = TRUE;
+		}
+
+		if (ma_ptr != ma_blows && ma_ptr->min_level < ma_ptr[-1].min_level)
+		{
+			quit_fmt("Mis-ordered martial arts techniques: %d < %d.",
+				ma_ptr->min_level, ma_ptr[-1].min_level);
+		}
+
+		/* Field silliness. */
+		if (ma_ptr->min_level < 0 || ma_ptr->min_level > 100 ||
+			ma_ptr->chance < -1 || ma_ptr->chance > 99 ||
+			ma_ptr->dd < 0 || ma_ptr->ds < 0)
+		{
+			quit_fmt("Martial arts technique \"%s\" (%d) malformed.",
+				ma_ptr->desc, ma_ptr-ma_blows);
+		}
+	}
+
+	if (!first_attack)
+		quit_fmt("There is a %d%% minimum attack, but no attack can be used "
+		"at %d%% skill.", ma_blows->min_level, ma_blows->min_level);
+}
+
+static void check_feeling_str(void)
+{
+	cptr_ch *ptr;
+	FOR_ALL_IN(feeling_str, ptr)
+	{
+		if (ptr->idx != ptr - feeling_str)
+			quit_fmt("feeling_str[] incorrectly ordered.");
+	}
+}
+
+
+/*
+ * Check that the members of various arrays are in the correct order,
+ * by calling functions which quit if this is not the case.
+ * This should be called when any of the arrays listed below may have changed
+ * as the rest of code may assume that this is correct.
+ */
+static void check_arrays(void)
+{
+	check_bonus_table();
+	check_screen_coords();
+	check_temp_effects();
+	check_options();
+	check_skill_set();
+	check_activation_info();
+	check_book_info();
+	check_magic_info();
+	check_ma_blows();
+	check_feeling_str();
+}
+#else /* CHECK_ARRAYS */
+/*
+ * Do nothing.
+ */
+static void check_arrays(void)
+{
+}
+#endif /* CHECK_ARRAYS */
+
 /*
  * Hack -- take notes on line 23
  */
@@ -1723,7 +1935,11 @@ void init_angband(void)
 	header head[1];
 
 	/* Hack - a pointer intended not to match anything. */
-	vptr dummy = (vptr)&init_angband;
+	cptr dummy = buf;
+
+	/* Paranoia - check the version. */
+	if (strlen(GAME_VERSION) >= MAX_VERSION_LEN)
+		quit("Version string too long.");
 
 	WIPE(head, header);
 
@@ -1817,6 +2033,11 @@ void init_angband(void)
 	(void)fd_close(fd);
 
 
+	/* Hack - find the POSIX check_modification_date() function here. */
+#if defined(CHECK_MODIFICATION_TIME) && defined(HAS_STAT)
+	check_modification_date_hook = check_modification_date;
+#endif /* CHECK_MODIFICATION_TIME && HAS_STAT */
+
 	/*** Initialize some arrays ***/
 
 	note("[Initializing array maxima...]");
@@ -1824,19 +2045,19 @@ void init_angband(void)
 	init_x_info("maxima", maxima, parse_z_info, "z_info", z_info,
 		dummy, dummy, u_max, Z_HEAD);
 
-	/* Initialise the fake arrays now their sizes are known. */
+#ifdef ALLOW_TEMPLATES
+	/* Initialise the fake arrays if needed. */
 	C_MAKE(head->fake_info_ptr, z_info->fake_info_size, char);
 	C_MAKE(head->fake_name_ptr, z_info->fake_name_size, char);
 	C_MAKE(head->fake_text_ptr, z_info->fake_text_size, char);
 
 	/* initialisation macros are only used in init1.c. */
-#ifdef ALLOW_TEMPLATES
 	init_x_info("macros", init_macro_type, parse_macro_info, "macro",
 		macro_info, macro_name, macro_text, macros, MACRO_HEAD)
 #endif /* ALLOW_TEMPLATES */
 
 	init_x_info("features", feature_type, parse_f_info, "f_info", f_info,
-		f_name, f_text, f_max, F_HEAD)
+		f_name, dummy, f_max, F_HEAD)
 
 	init_x_info("objects", object_kind, parse_k_info, "k_info", k_info,
 		k_name, k_text, k_max, K_HEAD)
@@ -1896,10 +2117,12 @@ void init_angband(void)
 	KILL(head->fake_name_ptr);
 	KILL(head->fake_text_ptr);
 
+#ifdef ALLOW_TEMPLATES
 	/* Delete the initialisation macro arrays, we're done with them. */
 	KILL(macro_info);
 	KILL(macro_text);
 	KILL(macro_name);
+#endif /* ALLOW_TEMPLATES */
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");
@@ -1917,6 +2140,9 @@ void init_angband(void)
 
 	/* build a name for the basic 'help' index */
 	syshelpfile = "help.hlp";
+
+	/* Initialise the help file links. */
+	init_help_files();
 
 	/* Access the "basic" pref file */
 	strcpy(buf, "pref.prf");
@@ -1941,6 +2167,12 @@ void init_angband(void)
 
 	/* Process that file */
 	process_pref_file(buf);
+
+	/* Flush any messages the pref files created. */
+	msg_print(NULL);
+
+	/* Check that various arrays are in the correct order if required. */
+	check_arrays();
 
 	/* Done */
 	note("[Initialization complete]");

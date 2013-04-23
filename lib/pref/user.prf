@@ -23,7 +23,7 @@
 ?:[EQU $SYS mac]
 %:user-mac.prf
 
-?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
+?:[IOR [EQU $SYS w2k] [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
 %:user-win.prf
 
 ?:[EQU $SYS emx]

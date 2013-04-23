@@ -1,4 +1,4 @@
-#define DELAY_EXTERNS_H
+#define DELAY_EXTERNS_H /* Display, XImage */
 #define MAIN_XAW_C
 /* File: main-xaw.c */
 
@@ -38,16 +38,10 @@
 
 #ifdef USE_XAW
 
-/* #include "main.h" */
-
 #ifndef __MAKEDEPEND__
-#include <X11/Xlib.h>
 #include <X11/StringDefs.h>
-#include <X11/Xutil.h>
 #include <X11/Intrinsic.h>
 #include <X11/Shell.h>
-#include <X11/keysym.h>
-#include <X11/keysymdef.h>
 #include <X11/IntrinsicP.h>
 #include <X11/CoreP.h>
 #include <X11/ShellP.h>
@@ -152,7 +146,7 @@ struct term_data
 /*
  * Maximum number of windows
  */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA MIN(ANGBAND_TERM_MAX, 8)
 
 
 /*
@@ -164,7 +158,7 @@ static term_data data[MAX_TERM_DATA];
 /*
  * Current number of windows open
  */
-static int num_term = 1;
+static int num_term = ANGBAND_TERM_DEFAULT;
 
 /*
  * New fields for the Angband widget record
@@ -573,7 +567,6 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 		unsigned long pixel;
 
 		/* Acquire Angband colors */
-		wnew->angband.color[i][0] = angband_color_table[i][0];
 		wnew->angband.color[i][1] = angband_color_table[i][1];
 		wnew->angband.color[i][2] = angband_color_table[i][2];
 		wnew->angband.color[i][3] = angband_color_table[i][3];
@@ -1261,15 +1254,13 @@ static void Term_xtra_xaw_react_aux(term_data *td)
 	{
 		if (depth > 1)
 		{
-			if ((wnew->angband.color[i][0] != angband_color_table[i][0]) ||
-			    (wnew->angband.color[i][1] != angband_color_table[i][1]) ||
+			if ((wnew->angband.color[i][1] != angband_color_table[i][1]) ||
 			    (wnew->angband.color[i][2] != angband_color_table[i][2]) ||
 			    (wnew->angband.color[i][3] != angband_color_table[i][3]))
 			{
 				unsigned long pixel;
 
 				/* Save new values */
-				wnew->angband.color[i][0] = angband_color_table[i][0];
 				wnew->angband.color[i][1] = angband_color_table[i][1];
 				wnew->angband.color[i][2] = angband_color_table[i][2];
 				wnew->angband.color[i][3] = angband_color_table[i][3];

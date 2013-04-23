@@ -46,13 +46,6 @@
 
 
 /*
- * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
- * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
- */
-/* #define SPECIAL_BSD */
-
-
-/*
  * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
  */
 /* #define USE_TPOSIX */
@@ -226,45 +219,6 @@
 #define ALLOW_TEMPLATES
 
 /*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-/* #define ALLOW_OLD_SAVEFILES */
-
-
-/*
- * OPTION: Delay the loading of the "f_text" array until it is actually
- * needed, saving ~1K, since "feature" descriptions are unused.
- */
-#define DELAY_LOAD_F_TEXT
-
-/*
- * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ~1K, since "object" descriptions are unused.
- */
-#define DELAY_LOAD_K_TEXT
-
-/*
- * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ~1K, since "artifact" descriptions are unused.
- */
-#define DELAY_LOAD_A_TEXT
-
-/*
- * OPTION: Delay the loading of the "e_text" array until it is actually
- * needed, saving ~1K, since "ego-item" descriptions are unused.
- */
-#define DELAY_LOAD_E_TEXT
-
-/*
- * OPTION: Delay the loading of the "v_text" array until it is actually
- * needed, saving ~1K, but "destroying" the "vault" generation.
- */
-/* #define DELAY_LOAD_V_TEXT */
-
-
-/*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS
@@ -414,7 +368,7 @@
  * OPTION: Create and use a hidden directory in the users home directory
  * for storing pref-files and character-dumps.
  */
-#ifdef SET_UID
+#if defined(SET_UID) && !defined(MACH_O_CARBON)
 #define PRIVATE_USER_PATH "~/.angband"
 #endif /* SET_UID */
 
@@ -422,13 +376,13 @@
 /*
  * On multiuser systems, add the "uid" to savefile names
  */
-#ifdef SET_UID
+#if defined(SET_UID) && !defined(MACH_O_CARBON)
 # define SAVEFILE_USE_UID
 #endif
 
 
 /*
- * OPTION: Check the "time" against "lib/file/hours.txt"
+ * OPTION: Check the "time" against "lib/file/time.txt"
  */
 /* #define CHECK_TIME */
 
@@ -466,7 +420,8 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"david@thornley.net"
+#define MAINT_NAME "Kieron Dunbar"
+#define MAINTAINER	"kieron@dimetrodon.demon.co.uk"
 
 
 /*
@@ -510,12 +465,9 @@
 # undef MONSTER_FLOW
 # undef WDT_TRACK_OPTIONS
 # undef DRS_SMART_OPTIONS
-# undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
-# undef DELAY_LOAD_R_TEXT
-# define DELAY_LOAD_R_TEXT
 #endif
 
 
@@ -542,25 +494,11 @@
  #define DRS_SMART_OPTIONS
 #endif
 
-/* Should the player know his / her starting life rate? */
-/* # define SHOW_LIFE_RATE */
-
-/* Do we want different characters for different races? */
-# define VARIABLE_PLAYER_GRAPH
-
-/* To turn on the "confirm staircases" check  -- obsolete in 2.1.0 and later */
-/* # define CONFIRM_STAIRCASES */
-
 /* For longer martial arts descriptions */
 # define VERBOSE_MARTIAL_ARTS
 
 /* Allow hordes of 'similar' monsters */
 # define MONSTER_HORDES
-
-/* Allow Klackon- and Sprite-Mystics to get extra speed */
-/* Klackons and Sprites are not *supposed* to be
-   playing mystics in the first place */
-/* #define MYSTIC_HACK */
 
 /* Wizard mode testing options: */
 
@@ -603,3 +541,14 @@
  * on cmd4.c being recompiled whenever the game is compiled.
  */
 /* #define SHOW_COMPILE_TIME */
+
+
+/* OPTION: Check that the indices used for various arrays are correct. */
+#ifndef NDEBUG
+/* #define CHECK_ARRAYS */
+#endif /* NDEBUG */
+
+/* OPTION: Allow m_list and o_list to grow as far as is needed to avoid
+ * compacting either.
+ */
+#define USE_DYNAMIC_LISTS

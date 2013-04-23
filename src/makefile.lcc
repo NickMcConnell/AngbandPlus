@@ -26,10 +26,10 @@ OBJS=\
 	xtra1.o xtra2.o spells1.o spells2.o \
 	melee1.o melee2.o save.o files.o \
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd1.o \
-	store.o birth.o load.o \
+	store.o birth.o load.o loadsave.o \
 	wizard1.o wizard2.o \
 	generate.o dungeon.o init1.o init2.o \
-	quest.o
+	quest.o powers.o powers.o squelch.o
 
 #
 # Targets
@@ -354,6 +354,46 @@ QUEST_C=\
 quest.obj: $(QUEST_C) quest.c
 	$(CC) -c $(CFLAGS) quest.c
 
+# Build POWERS.C
+POWERS_C=\
+	angband.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+	z-term.h\
+	z-rand.h\
+	z-virt.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	h-basic.h\
+
+powers.obj: $(QUEST_C) powers.c
+	$(CC) -c $(CFLAGS) powers.c
+
+# Build SQUELCH.C
+SQUELCH_C=\
+	angband.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+	z-term.h\
+	z-rand.h\
+	z-virt.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	h-basic.h\
+
+squelch.obj: $(SQUELCH_C) squelch.c
+	$(CC) -c $(CFLAGS) squelch.c
+
 # Build OBJECT2.C
 OBJECT2_C=\
 	angband.h\
@@ -510,9 +550,31 @@ LOAD_C=\
 	h-type.h\
 	h-define.h\
 	h-basic.h\
+	loadsave.h\
 
 load.obj: $(LOAD_C) load.c
 	$(CC) -c $(CFLAGS) load.c
+
+# Build LOADSAVE.C
+LOADSAVE_C=\
+	angband.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+	z-term.h\
+	z-rand.h\
+	z-virt.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	h-basic.h\
+	loadsave.h\
+
+loadsave.obj: $(LOADSAVE_C) loadsave.c
+	$(CC) -c $(CFLAGS) loadsave.c
 
 # Build INIT2.C
 INIT2_C=\

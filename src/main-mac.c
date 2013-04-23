@@ -1,4 +1,4 @@
-#define DELAY_EXTERNS_H
+#define DELAY_EXTERNS_H /* Boolean, AEEventHandlerUPP */
 #define MAIN_MAC_C
 /* File: main-mac.c */
 
@@ -334,7 +334,7 @@ static WindowPtr active = NULL;
 /*
  * Maximum number of terms
  */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA MIN(ANGBAND_TERM_MAX, 8)
 
 
 /*
@@ -1986,17 +1986,19 @@ static void putshort(int x)
  */
 static void save_prefs(void)
 {
-	int i;
+	int i, v[4];
 
 	term_data *td;
 
+	/* Obtain some version numbers. */
+	get_version_mac(v);
 
 	/*** The current version ***/
 
-	putshort(GAME_VERSION[0]-'0');
-	putshort(GAME_VERSION[2]-'0');
-	putshort(GAME_VERSION[4]-'0');
-	putshort(0);
+	putshort(v[0]);
+	putshort(v[1]);
+	putshort(v[2]);
+	putshort(v[3]);
 
 
 	/* Dump */
@@ -2043,11 +2045,14 @@ static void load_prefs(void)
 	old_patch = getshort();
 	old_extra = getshort();
 
+	/* Obtain some version numbers. */
+	get_version_mac(v);
+
 	/* Hack -- Verify or ignore */
-	if ((old_major != GAME_VERSION[0]-'0') ||
-	    (old_minor != GAME_VERSION[0]-'0') ||
-	    (old_patch != GAME_VERSION[0]-'0') ||
-	    (old_extra != 0))
+	if ((old_major != v[0]) ||
+	    (old_minor != v[1]) ||
+	    (old_patch != v[2]) ||
+	    (old_extra != v[3]))
 	{
 		/* Message */
 		mac_warning("Ignoring old preferences.");
@@ -4668,3 +4673,31 @@ int main(void)
 }
 
 #endif /* MACINTOSH */
+
+/* Hack - put various functions used both by main-mac.c and main-crb.c here. */
+#if defined(MACINTOSH) || defined(MACH_O_CARBON)
+
+/*
+ * Extract the version from the GAME_VERSION string if possible.
+ * Set the version to something distinctive otherwise.
+ * It would be better to load/save a string as this is the only place in the
+ * code which requires a particular format, but I don't know how. (KD)
+ *
+ * The input is a pointer to an array of (at least) 4 ints.
+ */
+void get_version_mac(int *v)
+{
+	int i;
+
+	/* Pull a version string out of the macro. */
+	for (i = sscanf(GAME_VERSION, "%d.%d.%d", v, v+1, v+2); i < 3; i++)
+	{
+		/* Turn unset numbers into something predictable. */
+		v[i] = 99;
+	}
+
+	/* The "VERSION_EXTRA" value is simple. */
+	v[3] = 0;
+}
+
+#endif /* MACINTOSH || MACH_O_CARBON */

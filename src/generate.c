@@ -260,33 +260,34 @@ struct dun_data
  */
 static dun_data *dun;
 
+void generate_spirit_name(spirit_type *s_ptr)
+{
+	if (s_ptr->pact) return;
+
+	if (s_ptr->sphere == SPIRIT_NATURE)
+	{
+		create_random_name(RACE_ELF,s_ptr->name);
+	}
+	else
+	{
+		create_random_name(RACE_HOBBIT,s_ptr->name);
+	}
+}	
+
 /* Re-randomise spirit names after town creation */
 void generate_spirit_names(void)
 {
 	int i;
-	spirit_type *s_ptr;
 	for (i=0;i<MAX_SPIRITS;i++)
 	{
-		s_ptr = &(spirits[i]);
-		/* Only randomise non-pact spirits */
-		if (!(s_ptr->pact))
-		{
-			if (s_ptr->sphere == SPIRIT_NATURE)
-			{
-				create_random_name(RACE_ELF,s_ptr->name);
-			}
-			else
-			{
-				create_random_name(RACE_HOBBIT,s_ptr->name);
-			}
-		}
+		generate_spirit_name(spirits+i);
 	}
 }
 
 /*
  * Array of room types (assumes 11x11 blocks)
  */
-static room_data room[ROOM_MAX] =
+static room_data room_info[ROOM_MAX] =
 {
 	{  0, 0,  0, 0,  0 },		/* 0 = Nothing */
 	{  0, 0, -1, 1,  1 },		/* 1 = Simple (33x11) */
@@ -368,10 +369,7 @@ static void replace_friend(int m_idx)
 
     if (attempts < 1) 
 	{
-		C_TNEW(m_name, MNAME_MAX, char);
-		strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0x80);
-		msg_format("You get seperated from %s.",m_name);
-		TFREE(m_name);
+		msg_format("You get separated from %v.", monster_desc_f2, m_ptr, 0x80);
 		return;
 	}
 	/* Update the new location */
@@ -3015,6 +3013,7 @@ static void build_type5(int yval, int xval)
 
 	bool		empty = FALSE;
 
+	bool (*get_mon_num_hook)(int);
 
 	/* Large room */
 	y1 = yval - 4;
@@ -3167,8 +3166,8 @@ static void build_type5(int yval, int xval)
 /* test hack - force nest type to test */
 #endif
 
-	/* Prepare allocation table */
-	get_mon_num_prep();
+	/* Prepare special allocation table */
+	get_mon_num_prep(get_mon_num_hook);
 
 
 	/* Pick some monster types */
@@ -3182,11 +3181,8 @@ static void build_type5(int yval, int xval)
 	}
 
 
-	/* Remove restriction */
-	get_mon_num_hook = NULL;
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
+	/* Prepare normal allocation table */
+	get_mon_num_prep(NULL);
 
 
 	/* Oops */
@@ -3281,6 +3277,7 @@ static void build_type6(int yval, int xval)
 
 	cptr		name;
 
+	bool (*get_mon_num_hook)(int);
 
 	/* Large room */
 	y1 = yval - 4;
@@ -3518,8 +3515,8 @@ static void build_type6(int yval, int xval)
 		get_mon_num_hook = vault_aux_demon;
 	}
 
-	/* Prepare allocation table */
-	get_mon_num_prep();
+	/* Prepare special allocation table */
+	get_mon_num_prep(get_mon_num_hook);
 
 
 	/* Pick some monster types */
@@ -3533,11 +3530,8 @@ static void build_type6(int yval, int xval)
 	}
 
 
-	/* Remove restriction */
-	get_mon_num_hook = NULL;
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
+	/* Prepare normal allocation table */
+	get_mon_num_prep(NULL);
 
 
 	/* Oops */
@@ -3560,9 +3554,9 @@ static void build_type6(int yval, int xval)
 			/* Bubble */
 			if (p1 > p2)
 			{
-				int tmp = what[i1];
+				int swaptmp = what[i1];
 				what[i1] = what[i2];
-				what[i2] = tmp;
+				what[i2] = swaptmp;
 			}
 		}
 	}
@@ -3849,6 +3843,11 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 }
 
 
+static cptr vault_name(vault_type *v_ptr)
+{
+	return v_name+v_ptr->name;
+}
+
 /*
  * Type 7 -- simple vaults (see "v_info.txt")
  */
@@ -3884,7 +3883,7 @@ static void build_type7(int yval, int xval)
 #endif
 
 	/* Message */
-	if (cheat_room) msg_print("Lesser Vault");
+	if (cheat_room) msg_format("Lesser Vault %s", vault_name(v_ptr));
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -3937,7 +3936,7 @@ static void build_type8(int yval, int xval)
 #endif
 
 	/* Message */
-	if (cheat_room) msg_print("Greater Vault");
+	if (cheat_room) msg_format("Greater Vault %s", vault_name(v_ptr));
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -4326,16 +4325,16 @@ static bool room_build(int y0, int x0, int typ)
 
 
 	/* Restrict level */
-	if ((dun_depth) < room[typ].level) return (FALSE);
+	if ((dun_depth) < room_info[typ].level) return (FALSE);
 
 	/* Restrict "crowded" rooms */
 	if (dun->crowded && ((typ == 5) || (typ == 6))) return (FALSE);
 
 	/* Extract blocks */
-	y1 = y0 + room[typ].dy1;
-	y2 = y0 + room[typ].dy2;
-	x1 = x0 + room[typ].dx1;
-	x2 = x0 + room[typ].dx2;
+	y1 = y0 + room_info[typ].dy1;
+	y2 = y0 + room_info[typ].dy2;
+	x1 = x0 + room_info[typ].dx1;
+	x2 = x0 + room_info[typ].dx2;
 
 	/* Never run off the screen */
 	if ((y1 < 0) || (y2 >= dun->row_rooms)) return (FALSE);
@@ -4400,7 +4399,7 @@ static bool room_build(int y0, int x0, int typ)
 
 
 /*
- * Generate a new dungeon level
+ * Generate a new dungeon level. Return FALSE if this attempt failed.
  *
  * Note that "dun_body" adds about 4000 bytes of memory to the stack.
  */
@@ -4697,7 +4696,7 @@ static bool cave_gen(void)
 		if (q_ptr->cur_num != 0) q_ptr->cur_num = q_ptr->cur_num_known = 0;
 		while (r_info[r_idx].cur_num < q_ptr->max_num)
 		{
-			put_quest_monster(q_ptr->r_idx);
+			if (!put_quest_monster(q_ptr->r_idx)) return FALSE;
 		}
 
 	}
@@ -5086,8 +5085,10 @@ static void town_gen_hack(void)
 static void town_gen(void)
 {
 	int i, y, x;
-	cave_type *c_ptr;
 	
+	/* Identify the town. */
+	cur_town = wild_grid[wildy][wildx].dungeon;
+
 	/* Hack -- Start with basic floors */
 	for (y = 0; y < cur_hgt; y++)
 	{
@@ -5105,7 +5106,7 @@ static void town_gen(void)
 	for (x = 0; x < cur_wid; x++)
 	{
 		/* Outer North wall */
-		c_ptr = &cave[0][x];
+		cave_type *c_ptr = &cave[0][x];
 
 		/* Clear previous contents, add "solid" perma-wall */
 		c_ptr->feat = FEAT_PERM_SOLID;
@@ -5128,7 +5129,7 @@ static void town_gen(void)
 	for (y = 0; y < cur_hgt; y++)
 	{
 		/* Outer West wall */
-		c_ptr = &cave[y][0];
+		cave_type *c_ptr = &cave[y][0];
 
 		/* Clear previous contents, add "solid" perma-wall */
 		c_ptr->feat = FEAT_PERM_SOLID;
@@ -5158,7 +5159,7 @@ static void town_gen(void)
 		{
 			for (x = 0; x < cur_wid; x++)
 			{
-				c_ptr = &cave[y][x];
+				cave_type *c_ptr = &cave[y][x];
 
 				/* Perma-Lite */
 				c_ptr->info |= (CAVE_GLOW);

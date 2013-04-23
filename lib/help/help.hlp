@@ -1,21 +1,48 @@
+%%%%% <help.hlp>
  Please choose one of the following online help files:
 
-    *****/ahlponhlp.txt*0[[a$]]$w How to use the help system
-    *****/bchargen.txt*0[[b$]]$w Creating a character
-    *****/cgeneral.txt*0[[c$]]$w Moving around and general commands
-    *****/dprompts.txt*0[[d$]]$w In-game prompts
-    *****/emindcrft.txt*0[[e$]]$w Mindcrafting
-    *****/fhedge.txt*0[[f$]]$w Hedge Magic
-    *****/ghermetic.txt*0[[g$]]$w Hermetic Magic
-    *****/hshaman.txt*0[[h$]]$w Shamanism
-    *****/ioutdoors.txt*0[[i$]]$w The great outdoors
-    *****/jcustom.txt*0[[j$]]$w Customising sCthangband
-    *****/kwindowpri.txt*0[[k$]]$w Customising sCthangband windows
-    *****/lhistory.txt*0[[l$]]$w History of Moria, Angband, Zangband & Cthangband
+    *****/?hlponhlp.txt*0[[?$]] How to use the help system
+    *****/achargen.txt*0[[a$]] Creating a character
+    *****/bgeneral.txt*0[[b$]] Moving around and general commands
+    *****/cprompts.txt*0[[c$]] In-game prompts
+    *****/dmindcrft.txt*0[[d$]] Mindcrafting
+    *****/ehedge.txt*0[[e$]] Hedge Magic
+    *****/fhermetic.txt*0[[f$]] Hermetic Magic
+    *****/gshaman.txt*0[[g$]] Shamanism
+    *****/houtdoors.txt*0[[h$]] The great outdoors
+    *****/icustom.txt*0[[i$]] Customising sCthangband
+    *****/jhistory.txt*0[[j$]] History of Moria, Angband, Zangband & Cthangband
+    *****/kcredits.txt*0[[k$]] List of contributors.
 
  (The following files are for people already familiar with Angband)
 
-    *****/mupdate.txt*0[[m]]$w Summary of updates
-    *****/nskills.txt*0[[n]]$w The skill system
-    *****/ospeed.txt*0[[o]]$w The speed system
-    *****/pdebug.txt*0[[p]]$w Debug mode commands (if available)
+    *****/lupdate.txt*0[[l$]] Summary of updates
+    *****/mskills.txt*0[[m$]] The skill system
+    *****/nspeed.txt*0[[n$]] The speed system
+%%%%? [EQU $SYS x11]
+    *****/ohelp-x11.txt*0[[o$]] Extra features for the X11 port
+%%%%? 0
+(The following is a list of the files which should be in this directory.
+It will not be displayed in the game.)
+
+%%%%F chargen.txt
+%%%%F credits.txt
+%%%%F custom.txt
+%%%%F deathevent.txt
+%%%%F debug-b.txt
+%%%%F debug.txt
+%%%%F general.txt
+%%%%F hedge.txt
+%%%%F help.hlp
+%%%%F help-x11.txt
+%%%%F hermetic.txt
+%%%%F history.txt
+%%%%F hlponhlp.txt
+%%%%F mindcrft.txt
+%%%%F outdoors.txt
+%%%%F prompts.txt
+%%%%F shaman.txt
+%%%%F skills.txt
+%%%%F speed.txt
+%%%%F update.txt
+%%%%F windowpri.txt

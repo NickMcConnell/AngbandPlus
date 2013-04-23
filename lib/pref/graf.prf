@@ -16,10 +16,10 @@
 
 ##### System Specific Subfiles #####
 
-?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj] [EQU $SYS gtk]]
 %:graf-x11.prf
 
-?:[EQU $SYS gcu]
+?:[IOR [EQU $SYS gcu] [EQU $SYS vcs]]
 %:graf-gcu.prf
 
 ?:[EQU $SYS ami]
@@ -27,6 +27,9 @@
 
 ?:[EQU $SYS mac]
 %:graf-mac.prf
+
+?:[IOR [EQU $SYS win] [EQU $SYS w2k]]
+%:graf-win.prf
 
 ?:[EQU $SYS dos]
 %:graf-dos.prf

@@ -56,3 +56,8 @@
 #endif
 
 
+/*
+ * Evaluate to TRUE 1 time in X.
+ */
+#define one_in(X) \
+	(!rand_int(X))

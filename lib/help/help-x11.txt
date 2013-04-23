@@ -1,0 +1,21 @@
+%%%%% <help-x11.txt>
+Extra X11 features
+==================
+
+The X11 port contains a few features which are accessed via the mouse.
+
+If you move the mouse over the map (or over where the map would be on another screen, as the game currently makes no distinction) and have extra windows displaying information about the floor, a monster or an object, these will
+contain versions of this information relevant to the square under the mouse
+cursor.
+
+The port also makes use of the X11 copy/paste routines in the same way as running the gcu port in an xterm does. That is to say, it works as follows:
+
+1. Select some text in an xterm or some other program, typically by pressing the left mouse button when the pointer is at one end of the text and moving the mouse to the other end of the text.
+
+2. Change the focus to sCthangband by whatever mechanism your window manager uses.
+
+3. Press the middle mouse button. This will paste the selected text into sCthangband, which will interpret them as if you had created a macro containing that text and just run in.
+
+It works in a similar way in the other direction. If you hold the left mouse button down and move the mouse over an area of the screen, a box will appear around a rectangular area of text which can then be copied to another program which accepts text pasted to it. You can even copy text from sCthangband to itself by this method.
+
+It will only paste as plain text at the moment, so that you will need to obtain colour information from another source (e.g. the "Save screen dump" command) in order to obtain a colourful representation of the screen.

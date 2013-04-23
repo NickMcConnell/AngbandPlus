@@ -15,7 +15,7 @@
  *
  * These routines will not work as well if the program calls malloc/free.
  *
- * The string_make() and string_free() routines handle dynamic strings.
+ * The string_make() routine allocates dynamic strings.
  * A dynamic string is a string allocated at run-time, but not really
  * intended to be modified once allocated.
  *
@@ -142,7 +142,7 @@
 	T P[N]
 
 /* Free a local array at P (automatic). */
-#define TFREE(P)
+#define TFREE(P) (void)(P)
 
 #else /* VARIABLE_ARRAYS */
 

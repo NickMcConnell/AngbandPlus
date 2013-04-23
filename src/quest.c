@@ -69,7 +69,9 @@ void print_quest_message(void)
 		q_num, flag);
 }
 
-/* Array of places to find an inscription */
+/* Array of places to find an inscription. Should the game check that the
+ * player can see the mentioned feature?
+ */
 static cptr find_quest[5] =
 {
 	"You find the following inscription in the floor",
@@ -81,8 +83,10 @@ static cptr find_quest[5] =
 
 /*
  * Discover quest
+ *
+ * Set new if the player is encountering this level for the first time
  */
-void quest_discovery(void)
+void quest_discovery(bool new)
 {
 	quest_type *q_ptr = get_quest();
 	monster_race	*r_ptr = &r_info[q_ptr->r_idx];
@@ -99,8 +103,12 @@ void quest_discovery(void)
 	else
 		flags = MDF_INDEF;
 
-	msg_print (find_quest[rand_range(0,4)]);
-	msg_print (NULL);
+	/* There isn't an inscription everywhere the player saves the game... */
+	if (new)
+	{
+		msg_print (find_quest[rand_range(0,4)]);
+		msg_print (NULL);
+	}
 	msg_format("Beware, this level is protected by %v!", monster_desc_aux_f3,
 		r_ptr, q_num, flags);
 

@@ -12,7 +12,6 @@
  */
 
 #include "angband.h"
-#define MAX_VAMPIRIC_DRAIN 100
 
 
 /*
@@ -170,7 +169,7 @@ static s16b critical_norm(int weight, int plus, int dam)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
-s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
+s16b tot_dam_aux(object_ctype *o_ptr, int tdam, monster_type *m_ptr)
 {
 	int mult = 1;
 
@@ -443,7 +442,7 @@ void search(void)
 					skill_exp(SKILL_PERCEPTION);
 
 					/* Disturb */
-					disturb(0, 0);
+					disturb(0);
 				}
 
 				/* Secret door */
@@ -461,7 +460,7 @@ void search(void)
 					replace_secret_door(y, x);
 
 					/* Disturb */
-					disturb(0, 0);
+					disturb(0);
 				}
 
 				/* Scan all objects in the grid */
@@ -495,7 +494,7 @@ void search(void)
 						object_known(o_ptr);
 
 						/* Notice it */
-						disturb(0, 0);
+						disturb(0);
 					}
 				}
 			}
@@ -516,7 +515,7 @@ static char get_check_ynq(cptr prompt)
 	/* Help */
 	help_track("ynq_prompt");
 
-	rc = get_check_aux(prompt, "%.*s[y/n]%s%v", "nN\033yY\rQq", "nnnyyyqq");
+	rc = get_check_aux(prompt, "$!%.*s[y/n/q]%s%v", "nN\033yY\rQq", "nnnyyyqq");
 
 	/* Leave a message. */
 	message_add(format(0));
@@ -541,6 +540,12 @@ void carry(int pickup)
 
 	bool gold_only = FALSE;
 
+	/* First check the pile for squelching opportunities. */
+	p_ptr->notice |= PN_FSQUELCH;
+	notice_stuff();
+
+	/* Then pick everything up. */
+
 	/* Scan the pile of objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -553,7 +558,7 @@ void carry(int pickup)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Hack -- disturb */
-		disturb(0, 0);
+		disturb(0);
 
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
@@ -582,57 +587,67 @@ void carry(int pickup)
 		/* Pick up objects */
 		else
 		{
+			bool pickup_this = FALSE;
+
+			/* Hack - ignore hidden items altogether. */
+			if (hidden_p(o_ptr)) continue;
+
 			/* Display description if needed. */
 			object_track(o_ptr);
 
-			/* Describe the object */
-			if (!pickup)
-			{
-				msg_format("You see %v.", object_desc_f3, o_ptr, TRUE, 3);
-			}
-
 			/* Note that the pack is too full */
-			else if (!inven_carry_okay(o_ptr))
+			if (!inven_carry_okay(o_ptr))
 			{
 				msg_format("You have no room for %v.",
 					object_desc_f3, o_ptr, TRUE, 3);
 			}
+			else if (strstr(quark_str(o_ptr->note), "=g"))
+			{
+				pickup_this = TRUE;
+			}
+			else if (!pickup)
+			{
+				pickup_this = FALSE;
+			}
+			else if (carry_query_flag)
+			{
+				char c = get_check_ynq(format("Pick up %.*v? ",
+					Term->wid-strlen("Pick up ? "),
+					object_desc_f3, o_ptr, TRUE, 3));
 
-			/* Pick up the item (if requested and allowed) */
+				/* Pick up no more objects. */
+				gold_only = (c == 'q');
+
+				/* Pick up this object. */
+				if (c == 'y') pickup_this = TRUE;
+
+				/* Say nothing more. */
+				else continue;
+			}
 			else
 			{
-				int okay = TRUE;
+				pickup_this = TRUE;
+			}
 
-				/* Hack -- query every item */
-				if (carry_query_flag && !strstr(quark_str(o_ptr->note), "=g"))
-				{
-					char c = get_check_ynq(format("Pick up %.*v? ",
-						Term->wid-strlen("Pick up ? "),
-						object_desc_f3, o_ptr, TRUE, 3));
+			if (pickup_this)
+			{
+				/* Carry the item */
+				object_type *j_ptr = inven_carry(o_ptr);
 
-					/* Pick up this object. */
-					okay = (c == 'y');
+				/* Message */
+				msg_format("You have %v (%c).",
+					object_desc_f3, j_ptr, TRUE, 3, index_to_label(j_ptr));
 
-					/* Pick up no more objects. */
-					gold_only = (c == 'q');
-				}
+				/* Remember the object */
+				object_track(j_ptr);
 
-				/* Attempt to pick up an object. */
-				if (okay)
-				{
-					/* Carry the item */
-					object_type *j_ptr = inven_carry(o_ptr);
-
-					/* Message */
-					msg_format("You have %v (%c).",
-						object_desc_f3, j_ptr, TRUE, 3, index_to_label(j_ptr));
-
-					/* Remember the object */
-					object_track(j_ptr);
-
-					/* Delete the object */
-					delete_dun_object(o_ptr);
-				}
+				/* Delete the object */
+				delete_dun_object(o_ptr);
+			}
+			else
+			{
+				/* Give a message. */
+				msg_format("You see %v.", object_desc_f3, o_ptr, TRUE, 3);
 			}
 		}
 	}
@@ -656,7 +671,7 @@ static void hit_trap(void)
 
 
 	/* Disturb the player */
-	disturb(0, 0);
+	disturb(0);
 
 	/* Get the cave grid */
 	c_ptr = &cave[py][px];
@@ -729,7 +744,7 @@ static void hit_trap(void)
 
 		    name = "a spiked pit";
 					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint(dam));
+					(void)add_flag(TIMED_CUT, randint(dam));
 				}
 
 				/* Take the damage */
@@ -763,7 +778,7 @@ static void hit_trap(void)
 		    name = "a spiked pit";
 
 					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint(dam));
+					(void)add_flag(TIMED_CUT, randint(dam));
 
 					if (p_ptr->resist_pois || p_ptr->oppose_pois)
 					{
@@ -773,7 +788,7 @@ static void hit_trap(void)
 					else
 					{
 						dam = dam * 2;
-						(void)set_poisoned(p_ptr->poisoned + randint(dam));
+						(void)add_flag(TIMED_POISONED, randint(dam));
 					}
 				}
 
@@ -792,7 +807,7 @@ static void hit_trap(void)
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
                 {
-					 (void)summon_specific(py, px, dun_depth, 0);
+					 (void)summon_specific(py, px, dun_depth, SUMMON_ALL);
 
                 }
 			if ((dun_depth)>randint(100)) /* No nasty effect for low levels */
@@ -830,7 +845,7 @@ static void hit_trap(void)
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
 				take_hit(dam, name, MON_TRAP);
-				(void)set_slow(p_ptr->slow + rand_int(20) + 20);
+				(void)add_flag(TIMED_SLOW, rand_int(20) + 20);
 			}
 			else
 			{
@@ -892,7 +907,7 @@ static void hit_trap(void)
 			msg_print("A black gas surrounds you!");
 			if (!p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + rand_int(50) + 25);
+				(void)add_flag(TIMED_BLIND, rand_int(50) + 25);
 			}
 			break;
 		}
@@ -902,7 +917,7 @@ static void hit_trap(void)
 			msg_print("A gas of scintillating colors surrounds you!");
 			if (!p_ptr->resist_conf)
 			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+				(void)add_flag(TIMED_CONFUSED, rand_int(20) + 10);
 			}
 			break;
 		}
@@ -912,7 +927,7 @@ static void hit_trap(void)
 			msg_print("A pungent green gas surrounds you!");
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
+				(void)add_flag(TIMED_POISONED, rand_int(20) + 10);
 			}
 			break;
 		}
@@ -922,7 +937,7 @@ static void hit_trap(void)
 			msg_print("A strange white mist surrounds you!");
 			if (!p_ptr->free_act)
 			{
-				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
+				(void)add_flag(TIMED_PARALYZED, rand_int(10) + 5);
 			}
 			break;
 		}
@@ -983,7 +998,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
-    int dss, ddd;
+    int dss, ddice;
 
 	const char * atk_desc;
 	
@@ -994,36 +1009,36 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
     {
 	case MUT2_SCOR_TAIL:
 		dss = 3;
-		ddd = 7;
+		ddice = 7;
 		n_weight = 5;
 		atk_desc = "tail";
 		break;
 	case MUT2_HORNS:
 		dss = 2;
-		ddd = 6;
+		ddice = 6;
 		n_weight = 15;
 		atk_desc = "horns";
 		break;
 	case MUT2_BEAK:
 		dss = 2;
-		ddd = 4;
+		ddice = 4;
 		n_weight = 5;
 		atk_desc = "beak";
 		break;
 	case MUT2_TRUNK:
 		dss = 1;
-		ddd = 4;
+		ddice = 4;
 		n_weight = 35;
 		atk_desc = "trunk";
 		break;
 	case MUT2_TENTACLES:
 		dss = 2;
-		ddd = 5;
+		ddice = 5;
 		n_weight = 5;
 		atk_desc = "tentacles";
 		break;
         default:
-            dss = ddd = n_weight = 1;
+            dss = ddice = n_weight = 1;
             atk_desc = "undefined body part";
     }
 
@@ -1047,7 +1062,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 				skill_exp(SKILL_CLOSE);
 			}
 
-            k = damroll(ddd, dss);
+            k = damroll(ddice, dss);
             k = critical_norm(n_weight, p_ptr->to_h, k);
 
 			/* Apply the player damage bonuses */
@@ -1065,7 +1080,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
             if (m_ptr->smart & SM_ALLY)
             {
-                msg_format("%^s gets angry!", monster_desc_f2, m_ptr, 0);
+                msg_format("%^v gets angry!", monster_desc_f2, m_ptr, 0);
                 m_ptr->smart &= ~SM_ALLY;
             }
 
@@ -1100,11 +1115,152 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			sound(SOUND_MISS);
 
             /* Message */
-			msg_format("You miss %s.", monster_desc_f2, m_ptr, 0);
+			msg_format("You miss %v.", monster_desc_f2, m_ptr, 0);
 		}
 }
 
+/*
+ * Choose a martial arts attack from those in ma_blows based on your current
+ * skill level.
+ */
+static martial_arts *choose_ma_attack(int skill)
+{
+	martial_arts *ma_ptr, *new_ptr;
+	int i,max;
 
+	/* Find the last martial arts technique the player may be able to use. */
+	for (max = 0; max < MAX_MA; max++)
+	{
+		if (ma_blows[max].min_level > skill) break;
+	}
+
+	/* Very low skills use a special "unskilled" blow. */
+	if (!max) return ma_blows+MAX_MA;
+
+	/* As do stunned or confused characters (rather than the weak skilled blow
+	 * used in other variants). */
+	if (p_ptr->stun || p_ptr->confused) return ma_blows+MAX_MA;
+
+	for (i = MAX(1, skill/14), ma_ptr = ma_blows+MAX_MA; i; i--)
+	{
+		do
+		{
+			new_ptr = &ma_blows[(rand_int(max))];
+		}
+		while (rand_int(skill/2*2) < new_ptr->chance);
+
+		/* keep the highest level attack available we found */
+		if (new_ptr->min_level > ma_ptr->min_level)
+		{
+			ma_ptr = new_ptr;
+			if (cheat_wzrd && cheat_xtra)
+			{
+				msg_print("Attack re-selected.");
+			}
+		}
+	}
+	return ma_ptr;
+}
+
+/*
+ * Return TRUE if a monster can be kicked in the ankle.
+ * This gives some unintuitive results.
+ */
+static PURE bool mon_has_knee(const monster_race *r_ptr)
+{
+	/* What would this knee do? */
+	if (r_ptr->flags1 & RF1_NEVER_MOVE) return FALSE;
+
+	/* Monsters with symbols which suggest no knees... */
+	if (strchr("UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char))
+		return FALSE;
+
+	/* Assume it has knees. */
+	return TRUE;
+}
+
+/*
+ * Calculate the damage a martial art and carry out various side effects.
+ */
+static int do_ma_attack(monster_type *m_ptr)
+{
+	int k, resist_stun = 0, stun_effect = 0;
+	bool survives;
+	int skill = skill_set[SKILL_MA].value;
+	monster_race *r_ptr = r_info+m_ptr->r_idx;
+	martial_arts *ma_ptr = choose_ma_attack(skill);
+
+	/* Calculate the stun resistance. */
+	if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
+	if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 44;
+	if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 44;
+	if (!live_monster_wide_p(r_ptr)) resist_stun += 88;
+	
+	/* Calculate the damage. */
+	k = damroll(ma_ptr->dd, ma_ptr->ds);
+	k = critical_norm((skill/2) * (randint(10)), ma_ptr->min_level/2, k);
+
+	/* Hack - say some extra stuff if the monster will survive. */
+	survives = (k + p_ptr->to_d < m_ptr->hp);
+
+	if (ma_ptr->effect == MA_KNEE && r_ptr->flags1 & RF1_MALE)
+	{
+		msg_format("You hit %v in the groin with your knee!",
+			monster_desc_f2, m_ptr, 0);
+
+		if (survives)
+		{
+			msg_format("%^v moans in agony!", monster_desc_f2, m_ptr, 0);
+			stun_effect = 7 + randint(13);
+			resist_stun /= 3;
+		}
+	}
+
+	else if (ma_ptr->effect == MA_SLOW && mon_has_knee(r_ptr))
+	{
+		msg_format("You kick %v in the ankle.", monster_desc_f2, m_ptr, 0);
+
+		if (survives)
+		{
+			if (!(r_ptr->flags1 & RF1_UNIQUE) &&
+				(randint(skill_set[SKILL_MA].value/2) > r_ptr->level)
+				&& m_ptr->mspeed > 60)
+			{
+				msg_format("%^v starts limping slower.",
+					monster_desc_f2, m_ptr, 0);
+				m_ptr->mspeed -= 10;
+			}
+		}
+	}
+
+	else
+	{
+		if (ma_ptr->effect)
+		{
+			stun_effect = rand_range(ma_ptr->effect/2+1, ma_ptr->effect/2*2);
+		}
+
+		msg_format(ma_ptr->desc, monster_desc_f2, m_ptr, 0);
+	}
+
+	if (stun_effect && survives)
+	{
+		if ((skill_set[SKILL_MA].value/2) >
+			randint(r_ptr->level + resist_stun + 10))
+		{
+			if (m_ptr->stunned)
+			{
+				msg_format("%^v is more stunned.", monster_desc_f2, m_ptr, 0);
+			}
+			else
+			{
+				msg_format("%^v is stunned.", monster_desc_f2, m_ptr, 0);
+			}
+			m_ptr->stunned += (stun_effect);
+		}
+	}
+	return k;
+}
 
 /*
  * Player attacks a (poor, defenseless) creature        -RAK-
@@ -1131,19 +1287,16 @@ void py_attack(int y, int x)
     bool        backstab = FALSE, vorpal_cut = FALSE, chaos_effect = FALSE;
     bool        stab_fleeing = FALSE;
     bool        do_quake = FALSE;
-	bool		drain_msg = TRUE, drain_life = FALSE;
+	bool		drain_life = FALSE;
     u32b        f1, f2, f3; /* A massive hack -- life-draining weapons */
     bool        no_extra = FALSE;
 
 
 
-    if (p_ptr->sneaking)
-    {
-        if ((m_ptr->csleep) && (m_ptr->ml))
-        {
-            /* Can't backstab creatures that we can't see, right? */
-            backstab = TRUE;
-        }
+	if ((m_ptr->csleep) && (m_ptr->ml))
+	{
+		/* Can't backstab creatures that we can't see, right? */
+		backstab = TRUE;
 	}
     if ((m_ptr->monfear) && (m_ptr->ml) && (rand_int(50) < p_ptr->skill_stl))
     {
@@ -1151,7 +1304,7 @@ void py_attack(int y, int x)
     }
 
 	/* Disturb the player */
-	/*disturb(1, 0);*/
+	/*disturb(1);*/
 
 
 	/* Disturb the monster */
@@ -1260,138 +1413,23 @@ void py_attack(int y, int x)
        /* Prepare for drain... */
 	   {
         chaos_effect = FALSE;
-        if (!((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING)))
-		drain_life = TRUE;
-
+        if (live_monster_wide_p(r_ptr)) drain_life = TRUE;
 	}
 
     if (f1 & TR1_VORPAL && (randint((o_ptr->name1 == ART_VORPAL_BLADE)?3:6) == 1))
         vorpal_cut = TRUE;
     else vorpal_cut = FALSE;
 
+	/* Handle martial arts. */
     if (ma_empty_hands())
     {
-        int special_effect = 0, stun_effect = 0, times = 0;
-        martial_arts * ma_ptr = &ma_blows[0], * old_ptr = &ma_blows[0];
-        int resist_stun = 0;
-        if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
-        if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 44;
-        if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 44;
-        if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING))
-            resist_stun += 88;
-
-        for (times = 0; times < (skill_set[SKILL_MA].value<14?1:skill_set[SKILL_MA].value/14); times++)
-        /* Attempt 'times' */
-        {
-            do
-            {
-				if(skill_set[SKILL_MA].value < 2)
-				{
-					ma_ptr = &ma_blows[0];
-				}
-				else
-				{
-					ma_ptr = &ma_blows[(randint(MAX_MA-1))];
-				}
-            }
-            while ((ma_ptr->min_level > skill_set[SKILL_MA].value/2)
-                    || (randint(skill_set[SKILL_MA].value/2) < ma_ptr->chance));
-
-            /* keep the highest level attack available we found */
-            if ((ma_ptr->min_level > old_ptr->min_level) &&
-                !(p_ptr->stun || p_ptr->confused))
-            {
-                old_ptr = ma_ptr;
-                if (cheat_wzrd && cheat_xtra)
-                {
-                    msg_print("Attack re-selected.");
-                }
-            }
-            else
-            {
-                ma_ptr = old_ptr;
-            }
-        }
-
-        k = damroll(ma_ptr->dd, ma_ptr->ds);
-
-
-
-
-        if (ma_ptr->effect == MA_KNEE)
-        {
-            if (r_ptr->flags1 & RF1_MALE)
-            {
-                msg_format("You hit %s in the groin with your knee!", m_name);
-                special_effect = MA_KNEE;
-            }
-            else
-                msg_format(ma_ptr->desc, m_name);
-        }
-
-        else if (ma_ptr->effect == MA_SLOW)
-        {
-            if (!((r_ptr->flags1 & RF1_NEVER_MOVE)
-                    || strchr("UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
-            {
-                msg_format("You kick %s in the ankle.", m_name);
-                special_effect = MA_SLOW;
-
-            }
-            else
-
-                msg_format(ma_ptr->desc, m_name);
-        }
-        else {
-                if (ma_ptr->effect)
-                    {
-                    stun_effect
-                        = (ma_ptr->effect/2) + randint(ma_ptr->effect/2);
-                    }
-
-                msg_format(ma_ptr->desc, m_name);
-            }
-
-
-        k = critical_norm((skill_set[SKILL_MA].value/2) * (randint(10)), ma_ptr->min_level, k);
-
-        if ((special_effect == MA_KNEE) && ((k + p_ptr->to_d) < m_ptr->hp))
-        {
-            msg_format("%^s moans in agony!", m_name);
-            stun_effect = 7 + randint(13);
-            resist_stun /= 3;
-        }
-
-        else if ((special_effect == MA_SLOW) && ((k + p_ptr->to_d) < m_ptr->hp))
-        {
-            if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-               (randint(skill_set[SKILL_MA].value/2) > r_ptr->level)
-               && m_ptr->mspeed > 60)
-            {
-                msg_format("%^s starts limping slower.", m_name);
-                m_ptr->mspeed -= 10;
-            }
-        }
-
-
-        if (stun_effect && ((k + p_ptr->to_d) < m_ptr->hp))
-        {
-            if ((skill_set[SKILL_MA].value/2) > randint(r_ptr->level + resist_stun + 10))
-            {
-                if (m_ptr->stunned)
-                  msg_format("%^s is more stunned.", m_name);
-                else
-                  msg_format("%^s is stunned.", m_name);
-
-                m_ptr->stunned += (stun_effect);
-            }
-
-        }
-		if ((chance < (r_ptr->ac * 3)) || (skill_set[SKILL_MA].value * 3 < r_ptr->ac * 4))
+		k = do_ma_attack(m_ptr);
+		if ((chance < (r_ptr->ac * 3)) ||
+			(skill_set[SKILL_MA].value * 3 < r_ptr->ac * 4))
 		{
 			skill_exp(SKILL_MA);
 		}
-    }
+	}
 
 	/* Handle normal weapon */
     else if (o_ptr->k_idx)
@@ -1418,22 +1456,28 @@ void py_attack(int y, int x)
 
         if (vorpal_cut)
         {
-            int step_k = k;
+			int chance = (o_ptr->name1 == ART_VORPAL_BLADE) ? 2 : 4;
+            int i;
 
-            if ((o_ptr->name1 == ART_DEMONBLADE) && randint(2)!=1)
+            if ((o_ptr->name1 == ART_DEMONBLADE) && one_in(2))
             {
-                char chainsword_noise[80];
                 msg_format("%v", get_rnd_line_f1, "chainswd.txt");
-                msg_print(chainsword_noise);
             }
+			else if (o_ptr->name1 == ART_VORPAL_BLADE)
+			{
+				msg_print("Your Vorpal Blade goes snicker-snack!");
+			}
+			else
+			{
+				msg_format("Your weapon cuts deep into %s!", m_name);
+			}
 
-            if (o_ptr->name1 == ART_VORPAL_BLADE)
-                msg_print("Your Vorpal Blade goes snicker-snack!");
-            else
-                msg_format("Your weapon cuts deep into %s!", m_name);
-            do { k += step_k; }
-            while (randint((o_ptr->name1 == ART_VORPAL_BLADE)?2:4)==1);
+			/* Paranoia - it's only improbable. */
+			for (i = 1; i < 32767 && one_in(chance); i++) ;
 
+			/* Multiply to get the new damage. */
+			if (32767 / i < k) k = 32767;
+			else k *= i;
         }
 
         k += o_ptr->to_d;
@@ -1453,12 +1497,26 @@ void py_attack(int y, int x)
 			}
 
 		/* Drain the life (message if it has an effect). */
-		if (drain_life && (hp_player(k) || !object_known_p(o_ptr)))
+		if (drain_life)
 		{
-			s16b drain_heal = damroll(4,(k / 6));
-			if (drain_heal > MAX_VAMPIRIC_DRAIN) drain_heal = MAX_VAMPIRIC_DRAIN;
-			if (drain_msg) msg_format("Your weapon drains life from %s!", m_name);
-		}	
+			/* Heal by about 1/3 of the damage caused. */
+			int drain_heal = damroll(4,(k / 6));
+
+			/* Never more than was taken or needed or too much too quickly. */
+			drain_heal = MIN(MIN(MIN(drain_heal, m_ptr->hp),
+				p_ptr->mhp - p_ptr->chp),
+				MAX_VAMPIRIC_DRAIN - p_ptr->vamp_drain);
+
+			/* Remember how much the player has been healed by recently. */
+			add_flag(TIMED_VAMP, drain_heal);
+
+			/* Give a message if anything happened. */
+ 			if (drain_heal)
+				msg_format("Your weapon drains life from %s!", m_name);
+
+			/* Gain the drained HP. */
+			hp_player(drain_heal);
+ 		}
 
 
 			/* Damage, check for fear and death */
@@ -1535,7 +1593,6 @@ void py_attack(int y, int x)
         /* Handle polymorph */
 		if (tmp != m_ptr->r_idx)
 		{
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			monster_race *r2_ptr = &r_info[tmp];
 			byte i = 0;
 			/* Hack - SHAPECHANGERs change regularly anyway. */
@@ -1676,7 +1733,7 @@ void do_cmd_attack(void)
 	}
 
 	/* Cancel repetition unless we can continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(0);
 }
 
 static bool pattern_tile(byte y, byte x)
@@ -1817,10 +1874,16 @@ void move_to(s16b y, s16b x)
 		lite_spot(oy, ox);
 
 		/* Check for new panel (redraw map) */
-		verify_panel();
+		verify_panel(FALSE);
+
+		/* Track the player's location. */
+		cave_track(py, px);
 
 		/* Update stuff */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+		/* Update floor objects. */
+		p_ptr->notice |= PN_FSQUELCH;
 
 		/* A different area of the grid is eligible for monster creation. */
 		full_grid = MAX_FULL_GRID;
@@ -1951,7 +2014,7 @@ void move_player(int dir, int do_pickup)
 	   (c_ptr->feat == FEAT_WATER))
 	{
 		/* Disturb the player */
-		disturb(0, 0);
+		disturb(0);
 
 		/* Notice things in the dark */
 		if (!(c_ptr->info & (CAVE_MARK)) &&
@@ -2153,7 +2216,7 @@ void move_player(int dir, int do_pickup)
                 {
                     energy_use = 0;
                 }
-                disturb(0,0); /* To avoid a loop with running */
+                disturb(0); /* To avoid a loop with running */
 				TFREE(m_name);
                 return;
     }
@@ -2193,7 +2256,7 @@ void move_player(int dir, int do_pickup)
 		    (c_ptr->feat <= FEAT_SHOP_TAIL))
 		{
 			/* Disturb */
-			disturb(0, 0);
+			disturb(0);
 
 			/* Hack -- Enter store */
 			command_new = KTRL('E');
@@ -2203,7 +2266,7 @@ void move_player(int dir, int do_pickup)
 		else if (c_ptr->feat == FEAT_INVIS)
 		{
 			/* Disturb */
-			disturb(0, 0);
+			disturb(0);
 
 			/* Message */
 			msg_print("You found a trap!");
@@ -2220,7 +2283,7 @@ void move_player(int dir, int do_pickup)
 			 (c_ptr->feat <= FEAT_TRAP_TAIL))
 		{
 			/* Disturb */
-			disturb(0, 0);
+			disturb(0);
 
 			/* Hit the trap */
 			hit_trap();
@@ -2944,7 +3007,7 @@ void run_step(int dir)
 			msg_print("You cannot run in that direction.");
 
 			/* Disturb */
-			disturb(0, 0);
+			disturb(0);
 
 			/* Done */
 			return;
@@ -2971,7 +3034,7 @@ void run_step(int dir)
 			|| !(m_list[ignm_idx].r_idx) || !(m_list[ignm_idx].ml))
 		{
 			/* Disturb */
-			disturb(0, 0);
+			disturb(0);
 
 			/* Done */
 			return;
@@ -2984,7 +3047,7 @@ void run_step(int dir)
 		if (run_test())
 		{
 			/* Disturb */
-			disturb(0, 0);
+			disturb(0);
 
 			/* Done */
 			return;

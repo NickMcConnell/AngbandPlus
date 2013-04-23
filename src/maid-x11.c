@@ -1,5 +1,5 @@
 #define MAID_X11_C
-#define DELAY_EXTERNS_H
+#define DELAY_EXTERNS_H /* Display, XImage. */
 /* File: maid-x11.c */
 
 /*
@@ -27,13 +27,6 @@
 #include "angband.h"
 
 #if defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ) || defined(USE_GTK)
-
-#ifndef __MAKEDEPEND__
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
-#include <X11/keysymdef.h>
-#endif /* __MAKEDEPEND__ */
 
 /* Include our headers */
 #include "maid-x11.h"

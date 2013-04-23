@@ -64,6 +64,7 @@ OBJ = \
   init1.obj \
   init2.obj \
   load.obj \
+  loadsave.obj \
   melee1.obj \
   melee2.obj \
   monster1.obj \
@@ -71,6 +72,8 @@ OBJ = \
   object1.obj \
   object2.obj \
   quest.obj \
+  powers.obj \
+  squelch.obj \
   save.obj \
   spells1.obj \
   spells2.obj \

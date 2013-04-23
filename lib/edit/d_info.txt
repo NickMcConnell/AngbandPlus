@@ -49,7 +49,7 @@
 # 'Q'
 # level: The level on which a fixed dungeon quest occurs.
 # number: The number of monsters to create at this level.
-# monster: The name of the monster to be created.
+# monster: The name of the monster to be created (as described in visual prefs).
 
 # 'T'
 # House price: The price of the house in this town. If no house is for sale,
@@ -82,7 +82,7 @@
 
 # Version stamp (required)
 
-V:1.0.7
+V:1.0.11
 
 N:0:Celephais
 D:the Sewers under Celephais
@@ -184,7 +184,7 @@ F:NO_UNIQUES
 N:N:Necropolis
 D:the Necropolis
 I:31-70:HI_UNDEAD
-Q:31:1:Fire Phantom~
+Q:31:1:Fire Phantom
 Q:70:1:Vecna, the Emperor Lich
 F:TOWER
 

@@ -1,4 +1,4 @@
-#define DELAY_EXTERNS_H
+#define DELAY_EXTERNS_H /* Library, IntuitionBase, GfxBase, ... */
 #define MAIN_AMI_C
 /*
 	File			: main-ami.c
@@ -19,10 +19,12 @@
 	WWW			: http://www.angband.pwp.blueyonder.co.uk
 */
 
+#include "angband.h"
+
 #ifdef USE_AMI
 
-/* Variant name and version (incorrect, can this be grabbed from defines.h?) */
-#define VARIANT "Angband 3.0.1"
+/* Variant name and version */
+#define VARIANT GAME_NAME " " GAME_VERSION
 
 /* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
 #define VERPATH "Angband:"
@@ -30,9 +32,6 @@
 #define CGXSUPPORT		/* Define for RTG support. Leave on */
 
 #ifndef __CEXTRACT__
-#include "angband.h"
-
-/* #include "main.h" */
 
 #include "vers.h"
 
@@ -104,7 +103,7 @@
 #endif /* __CEXTRACT__ */
 
 #include "externs.h"
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA MIN(ANGBAND_TERM_MAX, 8)
 
 /* Maximum length a filename (including a path) can reach. Somewhat arbitary */
 #define MAX_PATH_LENGTH		160

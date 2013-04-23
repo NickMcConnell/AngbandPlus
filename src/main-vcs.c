@@ -1,4 +1,3 @@
-#define DELAY_EXTERNS_H
 #define MAIN_VCS_C
 /* File: main-vcs.c */
 
@@ -29,11 +28,8 @@
 
 #ifdef USE_VCS
 
-/* #include "main.h" */
-
 #include <sys/ioctl.h>
 #include <termios.h>
-#include "externs.h"
 
 #define VCSA_CURSOR	2	/* seek offset of cursor position */
 #define VCSA_SCREEN	4	/* seek offset of screen contents */

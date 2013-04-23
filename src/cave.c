@@ -484,27 +484,24 @@ static void image_object(byte *ap, char *cp)
 {
 	int n = strlen(image_object_hack);
 
-	if (!use_graphics)
+	if (use_graphics)
 	{
-        	if (!(streq(ANGBAND_SYS, "ibm")))
-        {
-            (*cp) = k_info[randint(MAX_K_IDX-1)].x_char;
-            (*ap) = k_info[randint(MAX_K_IDX-1)].x_attr;
-        }
-        else
-        {
-            n = strlen(image_object_hack_ibm);
-            (*cp) = (image_object_hack_ibm[rand_int(n)]);
-            /* Random color */
-            (*ap) = randint(15);
-        }
-    }
-    else
-    {
-        (*cp) = (image_object_hack[rand_int(n)]);
-        /* Random color */
-        (*ap) = randint(15);
-    }
+		(*cp) = (image_object_hack[rand_int(n)]);
+		/* Random color */
+		(*ap) = randint(15);
+	}
+	else if (streq(ANGBAND_SYS, "ibm"))
+	{
+		n = strlen(image_object_hack_ibm);
+		(*cp) = (image_object_hack_ibm[rand_int(n)]);
+		/* Random color */
+		(*ap) = randint(15);
+	}
+	else
+	{
+		(*cp) = object_kind_char(&k_info[randint(MAX_K_IDX-1)]);
+		(*ap) = object_kind_attr(&k_info[randint(MAX_K_IDX-1)]);
+	}
 }
 
 
@@ -544,28 +541,16 @@ static bool do_violet_unique(monster_race *r_ptr, byte *ap, char *cp)
 	if (r_ptr->flags1 & RF1_ATTR_MULTI) return FALSE;
 
 	/* Uniques usually become violet. */
-	if (r_ptr->flags1 & RF1_UNIQUE)
-	{
-		a = TERM_VIOLET;
-	}
+	if (r_ptr->flags1 & RF1_UNIQUE) a = TERM_VIOLET;
 
 	/* Monsters which would otherwise be invisible become red. */
-	else if ((*ap) == r_ptr->x_attr && (*cp) == r_ptr->x_char)
-	{
-		a = TERM_RED;
-	}
+	else if ((*ap) == r_ptr->x_attr && (*cp) == r_ptr->x_char) a = TERM_RED;
 	
 	/* Only the above types of monster are modified here. */
-	else
-	{
-		return FALSE;
-	}
-
+	else return FALSE;
+	
 	/* Monsters which are the colour in question anyway become yellow. */
-	if (a == r_ptr->x_attr)
-	{
-		a = TERM_YELLOW;
-	}
+	if (a == r_ptr->x_attr) a = TERM_YELLOW;
 
 	/* Store the result. */
 	(*ap) = a;
@@ -702,7 +687,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 	feature_type *f_ptr;
 
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
+	bool seen_obj;
 
 	int feat;
 
@@ -1008,18 +994,28 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	(*cp) = c;
 
 	/* Objects */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = o_list+c_ptr->o_idx, seen_obj = FALSE; o_ptr != o_list;
+		o_ptr = o_list+o_ptr->next_o_idx)
 	{
-		object_type *o_ptr;
-		
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Memorized objects */
-		if (o_ptr->marked)
+		/* Only show memorised objects. */
+		if (!o_ptr->marked)
+		{
+			continue;
+		}
+		/* Hack -- hallucination */
+		else if (p_ptr->image)
+		{
+			image_object(ap, cp);
+			break;
+		}
+		else if (seen_obj)
+		{
+			/* Use a special stack object, if required. */
+			(*cp) = object_kind_char(k_info+OBJ_STACK);
+			(*ap) = object_kind_attr(k_info+OBJ_STACK);
+			break;
+		}
+		else
 		{
 			/* Normal char */
 			(*cp) = object_char(o_ptr);
@@ -1027,11 +1023,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			/* Normal attr */
 			(*ap) = object_attr(o_ptr);
 
-			/* Hack -- hallucination */
-			if (p_ptr->image) image_object(ap, cp);
+			/* Done, if no special stack image is being used. */
+			if (!show_piles) break;
 
-			/* Done */
-			break;
+			/* One object has been seen on this square. */
+			seen_obj = TRUE;
 		}
 	}
 
@@ -1241,6 +1237,62 @@ void print_rel(char c, byte a, int y, int x)
 	}
 }
 
+/*
+ * Activate various external displays based on the contents of a specified
+ * map square.
+ */
+static void highlight_map_square(const int y, const int x)
+{
+	cave_type *c_ptr = &cave[y][x];
+	monster_type *m_ptr = m_list+c_ptr->m_idx;
+	object_type *o_ptr = o_list+c_ptr->o_idx;
+
+	/* Track a monster, if any. */
+	if (c_ptr->m_idx && m_ptr->ml)
+	{
+		health_track(c_ptr->m_idx);
+		monster_race_track(m_ptr->r_idx);
+	}
+
+	/* Track an object, if any. */
+	if (c_ptr->o_idx && o_ptr->marked)
+	{
+		object_track(o_ptr);
+		object_kind_track(o_ptr->k_idx);
+	}
+
+	/* Track the square. */
+	cave_track(y, x);
+}
+
+/*
+ * Highlight a square in a particular window.
+ */
+void highlight_square(int win, int y, int x)
+{
+	static int win2=-1, y2, x2;
+
+	/* Do nothing if the cursor remains within the same square. */
+	if (win == win2 && y == y2 && x == x2) return;
+	
+	/* Remember the square for next time. */
+	win2 = win;
+	y2 = y;
+	x2 = x;
+
+	/* If over a known section of map, display details.
+	 * Note that this does not check where the map is actually visible.
+	 */
+	if (character_dungeon && track_mouse && win == 0)
+	{
+		int ys = y + Y_SCREEN_ADJ;
+		int xs = x + X_SCREEN_ADJ;
+		if (panel_contains_prt(ys, xs) && in_bounds2(ys, xs))
+		{
+			highlight_map_square(ys, xs);
+		}
+	}
+}
 
 
 
@@ -1313,8 +1365,8 @@ void note_spot(int y, int x)
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
-		/* Memorize objects */
-		o_ptr->marked = TRUE;
+		/* Memorize legal objects */
+		if (!hidden_p(o_ptr)) o_ptr->marked = TRUE;
 	}
 
 
@@ -1416,7 +1468,7 @@ void prt_map(void)
 {
 	int cx, cy;
 
-	int v;
+	bool v;
 
 	/* Access the cursor state */
 	(void)Term_get_cursor(&v);
@@ -1528,10 +1580,10 @@ static byte priority(byte f, byte a, char c)
  * function to work with any graphic attr/char mappings, and the
  * attempts to optimize this function where possible.
  *
- * If max is false, cy and cx are the player's co-ordinates.
- * If max is true, cy and cx are the bottom right corner of the map.
+ * If present, cy and cx are set to the player's co-ordinates.
+ * If present, my and mx are set to the bottom right corner of the map.
  */
-void display_map(int *cy, int *cx, bool max)
+void display_map(int *cy, int *cx, int *my, int *mx)
 {
 	int i, j, x, y;
 
@@ -1623,13 +1675,18 @@ void display_map(int *cy, int *cx, bool max)
 
 
 	/* Draw the corners */
-	mc[0][0] = mc[0][map_wid] = mc[map_hgt][0] = mc[map_hgt][map_wid] = '+';
+	mc[0][0] = '+';
+	mc[0][map_wid] = '+';
+	mc[map_hgt][0] = '+';
+	mc[map_hgt][map_wid] = '+';
 
 	/* Draw the horizontal edges */
-	for (x = 1; x < map_wid; x++) mc[0][x] = mc[map_hgt][x] = '-';
+	for (x = 1; x < map_wid; x++) mc[0][x] = '-';
+	for (x = 1; x < map_wid; x++) mc[map_hgt][x] = '-';
 
 	/* Draw the vertical edges */
-	for (y = 1; y < map_hgt; y++) mc[y][0] = mc[y][map_wid] = '|';
+	for (y = 1; y < map_hgt; y++) mc[y][0] = '|';
+	for (y = 1; y < map_hgt; y++) mc[y][map_wid] = '|';
 
 
 	/* Display each map line in order */
@@ -1668,19 +1725,13 @@ void display_map(int *cy, int *cx, bool max)
 	FREE(mc);
 	FREE(mp);
 
-	if (max)
-	{
-		/* Edge of map */
-		(*cx) = map_wid;
-		(*cy) = map_hgt;
-	}
-	else
-	{
-		/* Player location */
-		(*cy) = py / ratio + 1;
-		(*cx) = px / ratio + 1;
-	}
+	/* Edge of map */
+	if (my) (*my) = map_hgt;
+	if (mx) (*mx) = map_wid;
 
+	/* Player location */
+	if (cy) (*cy) = py / ratio + 1;
+	if (cx) (*cx) = px / ratio + 1;
 
 	/* Restore lighting effects */
 	view_special_lite = old_view_special_lite;
@@ -1832,7 +1883,8 @@ void display_wild_map(uint xmin)
  */
 void do_cmd_view_map(void)
 {
-	int cy, cx;
+	cptr str;
+	int cy, cx, my, mx;
 
 	/* Enter "icky" mode */
 	character_icky = TRUE;
@@ -1856,11 +1908,12 @@ void do_cmd_view_map(void)
 	}
 	else
 	{
-		display_map(&cy, &cx, FALSE);
+		display_map(&cy, &cx, &my, &mx);
 	}
 
 	/* Wait for it */
-	put_str("Hit any key to continue", 23, 23);
+	str = "Hit any key to continue";
+	put_str(str, my+1, (mx-strlen(str))/2);
 
 	/* Hilite the player */
 	move_cursor(cy, cx);
@@ -3520,6 +3573,9 @@ void cave_set_feat(int y, int x, int feat)
 
 	/* Redraw */
 	lite_spot(y, x);
+
+	/* Window stuff, if needed. */
+	if (y == py && x == px) p_ptr->window |= PW_FLOOR;
 }
 
 
@@ -3719,6 +3775,11 @@ void object_track(object_type *o_ptr)
 	{
 		tracked_o_ptr = o_ptr;
 	}
+	/* As does a request to track a hidden object. */
+	else if (hidden_p(o_ptr))
+	{
+		tracked_o_ptr = NULL;
+	}
 	/* Always remember real objects. */
 	else if (o_ptr->k_idx)
 	{
@@ -3740,6 +3801,18 @@ void object_track(object_type *o_ptr)
 	p_ptr->window |= (PW_OBJECT_DETAILS);
 }
 
+/*
+ * Track the given floor square.
+ */
+void cave_track(const int y, const int x)
+{
+	/* Remember the new cave square (or 0 to clear). */
+	tracked_co_ord.x = x;
+	tracked_co_ord.y = y;
+
+	p_ptr->window |= (PW_FLOOR);
+}
+
 
 
 /*
@@ -3751,11 +3824,8 @@ void object_track(object_type *o_ptr)
  *
  * All disturbance cancels repeated commands, resting, and running.
  */
-void disturb(int stop_stealth, int unused_flag)
+void disturb(int stop_stealth)
 {
-	/* Unused */
-	unused_flag = unused_flag;
-
 	/* Cancel auto-commands */
 	/* command_new = 0; */
 
@@ -3793,13 +3863,7 @@ void disturb(int stop_stealth, int unused_flag)
 	if (stop_stealth && p_ptr->sneaking)
 	{
 		/* Cancel */
-		p_ptr->sneaking = FALSE;
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Redraw the state */
-		p_ptr->redraw |= (PR_STATE);
+		do_cmd_toggle_sneak();
 	}
 
 	/* Flush the input if requested */

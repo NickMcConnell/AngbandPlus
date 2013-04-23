@@ -146,8 +146,6 @@ bool multi_rew = FALSE;
 int total_friends = 0;
 s32b total_friend_levels = 0;
 
-byte current_function = 0;	/* A variable to give subsidiary functions information about what's happening. */
-
 /*
  * Software options (set via the '=' command).  See "tables.c"
  */
@@ -180,6 +178,7 @@ bool ring_bell;				/* Ring the bell (on errors, etc) */
 bool use_color;				/* Use color if possible (slow) */
 bool verbose_haggle;		/* Verbose messages if auto_haggle is set */
 bool scroll_edge;	/* Scroll until detection reaches the edge. */
+bool show_piles; /* Show stacks with a special colour/character. */
 
 
 /* Option Set 2 -- Disturbance */
@@ -200,7 +199,6 @@ bool disturb_minor;			/* Disturb whenever boring things happen */
 
 bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
-bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool player_symbols;		/* Use varying symbols for the player char */
@@ -218,7 +216,11 @@ bool unify_commands; /* Combine object commands into a single 'u'se command */
 bool centre_view; /* Centre view on player */
 bool macro_edit; /* Use macros as edit keys in string prompts */
 bool no_centre_run; /* Stop centring when running */
+bool track_mouse; /* Track the cursor in extra windows */
 bool auto_more;
+
+/* Option Set B -- Birth Options */
+
 bool preserve_mode_w; 
 bool preserve_mode; /* Don't lose missed artifacts */
 bool maximise_mode_w;
@@ -229,6 +231,8 @@ bool ironman_shop_w;
 bool ironman_shop; /* Not allowed in shops */
 bool ironman_feeling_w;
 bool ironman_feeling;	/* Only give real feeling after 2500 turns. */
+bool speak_unique_w;
+bool speak_unique;		/* Speaking uniques + shopkeepers */
 #ifdef SCORE_QUITTERS
 bool score_quitters_w;
 bool score_quitters; /* Quitting can give a high score */
@@ -317,7 +321,7 @@ bool cheat_skll;        /* Peek into skill rolls */
 /* Special options */
 
 bool allow_quickstart;	/* Allow Quick-Start */
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+#ifdef USE_MAIN_C
 bool display_credits;	/* Require a keypress to clear the initial credit screen. */
 #endif
 bool allow_pickstats;	/* Allow the player to choose a stat template. */
@@ -326,9 +330,9 @@ s16b hitpoint_warn = 2;		/* Hitpoint warning (0 to 9) */
 
 s16b delay_factor = 4;		/* Delay factor (0 to 9) */
 
-byte autosave_l;        /* Autosave before entering new levels */
-byte autosave_t;        /* Timed autosave */
-byte autosave_q;        /* Quiet autosave */
+bool autosave_l;        /* Autosave before entering new levels */
+bool autosave_t;        /* Timed autosave */
+bool autosave_q;        /* Quiet autosave */
 s16b autosave_freq;     /* Autosave frequency */
 
 
@@ -342,8 +346,6 @@ s16b rating;			/* Level's current rating */
 bool good_item_flag;		/* True if "Artifact" on this level */
 
 bool new_level_flag;		/* Start a new level */
-
-bool closing_flag;		/* Dungeon is closing */
 
 int full_grid;	/* Monsters can't be created outside a circle of radius full_grid around the player */
 
@@ -401,6 +403,11 @@ s16b object_kind_idx;
  * Object to track
  */
 object_type *tracked_o_ptr;
+
+/*
+ * Floor square to track
+ */
+co_ord tracked_co_ord;
 
 /*
  * User info
@@ -685,15 +692,11 @@ player_type *p_ptr = &p_body;
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_template *cp_ptr;
-player_magic *mp_ptr = &magic_info;
 
 
 /*
  * More spell info
  */
-u32b spell_learned[MAX_SCHOOL];	/* bit mask of spells learned */
-u32b spell_worked[MAX_SCHOOL];	/* bit mask of spells tried and worked */
-u32b spell_forgotten[MAX_SCHOOL];	/* bit mask of spells learned but forgotten */
 byte spell_order[128];	/* order spells learned/remembered/forgotten */
 
 
@@ -721,7 +724,7 @@ cptr v_text;
  */
 feature_type *f_info;
 cptr f_name;
-cptr f_text;
+/* cptr f_text; */
 
 /*
  * The object kind arrays
@@ -897,7 +900,7 @@ byte item_tester_tval;
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
-bool (*item_tester_hook)(object_type*);
+bool (*item_tester_hook)(object_ctype*);
 
 
 
@@ -913,21 +916,6 @@ bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
 void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 
 
-
-/*
- * Hack -- function hook to restrict "get_mon_num_prep()" function
- */
-bool (*get_mon_num_hook)(int r_idx);
-
-
-
-/*
- * Hack -- function hook to restrict "get_obj_num_prep()" function
- */
-bool (*get_obj_num_hook)(int k_idx);
-
-/* XXX Mega-Hack - See main-win.c */
-bool angband_keymap_flag = TRUE;
 
 
 /* Hack, violet uniques */

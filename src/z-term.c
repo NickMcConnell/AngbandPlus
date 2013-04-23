@@ -264,6 +264,12 @@
  * create a "visual system" for a new platform when porting Angband.
  */
 
+/*
+ * N.B. There are a number of void functions with commented out return codes.
+ * This isn't a claim that the return code isn't meaningful, but that the
+ * meaning could be redefined according to need without disrupting existing
+ * functions.
+ */
 
 
 
@@ -283,7 +289,7 @@ term *Term = NULL;
 /*
  * Nuke a term_win (see below)
  */
-static errr term_win_nuke(term_win *s, int UNUSED w, int UNUSED h)
+static void term_win_nuke(term_win *s)
 {
 	/* Free the window access arrays */
 	KILL(s->a);
@@ -302,14 +308,14 @@ static errr term_win_nuke(term_win *s, int UNUSED w, int UNUSED h)
 	KILL(s->vtc);
 
 	/* Success */
-	return (0);
+	return;
 }
 
 
 /*
  * Initialize a "term_win" (using the given window size)
  */
-static errr term_win_init(term_win *s, int w, int h)
+static void term_win_init(term_win *s, int w, int h)
 {
 	int y;
 
@@ -340,14 +346,14 @@ static errr term_win_init(term_win *s, int w, int h)
 	}
 
 	/* Success */
-	return (0);
+	return;
 }
 
 
 /*
  * Copy a "term_win" from another
  */
-static errr term_win_copy(term_win *s, term_win *f, int w, int h)
+static void term_win_copy(term_win *s, term_win *f, int w, int h)
 {
 	int x, y;
 
@@ -383,7 +389,7 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 	s->cv = f->cv;
 
 	/* Success */
-	return (0);
+	return;
 }
 
 
@@ -394,25 +400,25 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 /*
  * Execute the "Term->user_hook" hook, if available (see above).
  */
-errr Term_user(int n)
+void Term_user(void)
 {
 	/* Verify the hook */
-	if (!Term->user_hook) return (-1);
+	if (!Term->user_hook) return;
 
 	/* Call the hook */
-	return ((*Term->user_hook)(n));
+	(*Term->user_hook)(0);
 }
 
 /*
  * Execute the "Term->xtra_hook" hook, if available (see above).
  */
-errr Term_xtra(int n, int v)
+void Term_xtra(int n, int v)
 {
 	/* Verify the hook */
-	if (!Term->xtra_hook) return (-1);
+	if (!Term->xtra_hook) return;
 
 	/* Call the hook */
-	return ((*Term->xtra_hook)(n, v));
+	(*Term->xtra_hook)(n, v);
 }
 
 
@@ -1086,7 +1092,7 @@ static void Term_fresh_row_text(int y, int x1, int x2)
  * Currently, the use of "Term->icky_corner" and "Term->soft_cursor"
  * together may result in undefined behavior.
  */
-errr Term_fresh(void)
+void Term_fresh(void)
 {
 	int x, y;
 
@@ -1101,7 +1107,7 @@ errr Term_fresh(void)
 
 
 	/* Do nothing unless "mapped" */
-	if (!Term->mapped_flag) return (1);
+	if (!Term->mapped_flag) return /*(1)*/;
 
 
 	/* Trivial Refresh */
@@ -1113,7 +1119,7 @@ errr Term_fresh(void)
 	    !(Term->total_erase))
 	{
 		/* Nothing */
-		return (1);
+		return /*(1)*/;
 	}
 
 
@@ -1354,7 +1360,7 @@ errr Term_fresh(void)
 
 
 	/* Success */
-	return (0);
+	return /*(0)*/;
 }
 
 
@@ -1365,16 +1371,15 @@ errr Term_fresh(void)
 /*
  * Set the cursor visibility
  */
-errr Term_set_cursor(int v)
+void Term_set_cursor(bool v)
 {
 	/* Already done */
-	if (Term->scr->cv == v) return (1);
+	if (Term->scr->cv == v) return /*TERM_ERROR_TRIVIAL_REQUEST*/;
 
 	/* Change */
 	Term->scr->cv = v;
 
-	/* Success */
-	return (0);
+	return /*SUCCESS*/;
 }
 
 
@@ -1389,8 +1394,8 @@ errr Term_gotoxy(int x, int y)
 	int h = Term->hgt;
 
 	/* Verify */
-	if ((x < 0) || (x >= w)) return (-1);
-	if ((y < 0) || (y >= h)) return (-1);
+	if ((x < 0) || (x >= w)) return TERM_ERROR_OUT_OF_BOUNDS;
+	if ((y < 0) || (y >= h)) return TERM_ERROR_OUT_OF_BOUNDS;
 
 	/* Remember the cursor */
 	Term->scr->cx = x;
@@ -1399,8 +1404,7 @@ errr Term_gotoxy(int x, int y)
 	/* The cursor is not useless */
 	Term->scr->cu = 0;
 
-	/* Success */
-	return (0);
+	return SUCCESS;
 }
 
 
@@ -1409,51 +1413,50 @@ errr Term_gotoxy(int x, int y)
  * Do not change the cursor position
  * No visual changes until "Term_fresh()".
  */
-errr Term_draw(int x, int y, byte a, char c)
+void Term_draw(int x, int y, byte a, char c)
 {
 	int w = Term->wid;
 	int h = Term->hgt;
 
 	/* Verify location */
-	if ((x < 0) || (x >= w)) return (-1);
-	if ((y < 0) || (y >= h)) return (-1);
+	if ((x < 0) || (x >= w)) return /*TERM_ERROR_OUT_OF_BOUNDS*/;
+	if ((y < 0) || (y >= h)) return /*TERM_ERROR_OUT_OF_BOUNDS*/;
 
 	/* Paranoia -- illegal char */
-	if (!c) return (-2);
+	if (!c) return /*TERM_ERROR_BAD_INPUT*/;
 
 	/* Queue it for later */
 	Term_queue_char(x, y, a, c, 0, 0);
 
-	/* Success */
-	return (0);
+	return /*SUCCESS*/;
 }
 
 
 /*
  * Using the given attr, add the given char at the cursor.
  *
- * We return "-2" if the character is "illegal". XXX XXX
+ * We return "BAD_INPUT" if the character is "illegal". XXX XXX
  *
- * We return "-1" if the cursor is currently unusable.
+ * We return "OUT_OF_BOUNDS" if the cursor is currently unusable.
  *
  * We queue the given attr/char for display at the current
  * cursor location, and advance the cursor to the right,
- * marking it as unuable and returning "1" if it leaves
+ * marking it as unuable and returning "WARN(OUT_OF_BOUNDS)" if it leaves
  * the screen, and otherwise returning "0".
  *
  * So when this function, or the following one, return a
- * positive value, future calls to either function will
- * return negative ones.
+ * positive value (warning), future calls to either function will
+ * return negative ones (errors).
  */
 errr Term_addch(byte a, char c)
 {
 	int w = Term->wid;
 
 	/* Handle "unusable" cursor */
-	if (Term->scr->cu) return (-1);
+	if (Term->scr->cu) return TERM_ERROR_OUT_OF_BOUNDS;
 
 	/* Paranoia -- no illegal chars */
-	if (!c) return (-2);
+	if (!c) return TERM_ERROR_BAD_INPUT;
 
 	/* Queue the given character for display */
 	Term_queue_char(Term->scr->cx, Term->scr->cy, a, c, 0, 0);
@@ -1462,13 +1465,13 @@ errr Term_addch(byte a, char c)
 	Term->scr->cx++;
 
 	/* Success */
-	if (Term->scr->cx < w) return (0);
+	if (Term->scr->cx < w) return SUCCESS;
 
 	/* Note "Useless" cursor */
 	Term->scr->cu = 1;
 
 	/* Note "Useless" cursor */
-	return (1);
+	return WARN(TERM_ERROR_OUT_OF_BOUNDS);
 }
 
 
@@ -1482,7 +1485,7 @@ errr Term_addch(byte a, char c)
  * displaying more characters than will actually fit, since
  * we do NOT attempt to "wrap" the cursor at the screen edge.
  *
- * We return "-1" if the cursor is currently unusable.
+ * We return "OUT_OF_BOUNDS" if the cursor is currently unusable.
  * We return "N" if we were "only" able to write "N" chars,
  * even if all of the given characters fit on the screen,
  * and mark the cursor as unusable for future attempts.
@@ -1500,7 +1503,7 @@ errr Term_addstr(int n, byte a, cptr s)
 	errr res = 0;
 
 	/* Handle "unusable" cursor */
-	if (Term->scr->cu) return (-1);
+	if (Term->scr->cu) return TERM_ERROR_OUT_OF_BOUNDS;
 
 	/* Obtain maximal length */
 	k = (n < 0) ? (w + 1) : n;
@@ -1528,36 +1531,36 @@ errr Term_addstr(int n, byte a, cptr s)
 /*
  * Move to a location and, using an attr, add a char
  */
-errr Term_putch(int x, int y, byte a, char c)
+void Term_putch(int x, int y, byte a, char c)
 {
 	errr res;
 
 	/* Move first */
-	if ((res = Term_gotoxy(x, y)) != 0) return (res);
+	if ((res = Term_gotoxy(x, y)) != 0) return /* (res) */;
 
 	/* Then add the char */
-	if ((res = Term_addch(a, c)) != 0) return (res);
+	if ((res = Term_addch(a, c)) != 0) return /* (res) */;
 
 	/* Success */
-	return (0);
+	return /* (0) */;
 }
 
 
 /*
  * Move to a location and, using an attr, add a string
  */
-errr Term_putstr(int x, int y, int n, byte a, cptr s)
+void Term_putstr(int x, int y, int n, byte a, cptr s)
 {
 	errr res;
 
 	/* Move first */
-	if ((res = Term_gotoxy(x, y)) != 0) return (res);
+	if ((res = Term_gotoxy(x, y)) != 0) return /* (res) */;
 
 	/* Then add the string */
-	if ((res = Term_addstr(n, a, s)) != 0) return (res);
+	if ((res = Term_addstr(n, a, s)) != 0) return /* (res) */;
 
 	/* Success */
-	return (0);
+	return /* (0) */;
 }
 
 
@@ -1766,13 +1769,13 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 /*
  * Extract the cursor visibility
  */
-errr Term_get_cursor(int *v)
+void Term_get_cursor(bool *v)
 {
 	/* Extract visibility */
 	(*v) = Term->scr->cv;
 
-	/* Success */
-	return (0);
+	/* Success (?) */
+	return;
 }
 
 
@@ -1812,21 +1815,20 @@ errr Term_locate(int *x, int *y)
  * Note that this refers to what will be on the window after the
  * next call to "Term_fresh()".  It may or may not already be there.
  */
-errr Term_what(int x, int y, byte *a, char *c)
+void Term_what(int x, int y, byte *a, char *c)
 {
 	int w = Term->wid;
 	int h = Term->hgt;
 
 	/* Verify location */
-	if ((x < 0) || (x >= w)) return (-1);
-	if ((y < 0) || (y >= h)) return (-1);
+	if ((x < 0) || (x >= w)) return /*TERM_ERROR_OUT_OF_BOUNDS*/;
+	if ((y < 0) || (y >= h)) return /*TERM_ERROR_OUT_OF_BOUNDS*/;
 
 	/* Direct access */
 	(*a) = Term->scr->a[y][x];
 	(*c) = Term->scr->c[y][x];
 
-	/* Success */
-	return (0);
+	return /*SUCCESS*/;
 }
 
 
@@ -1837,49 +1839,58 @@ errr Term_what(int x, int y, byte *a, char *c)
 /*
  * Flush and forget the input
  */
-errr Term_flush(void)
+void Term_flush(void)
 {
 	/* Hack -- Flush all events */
 	Term_xtra(TERM_XTRA_FLUSH, 0);
 
 	/* Forget all keypresses */
 	Term->key_head = Term->key_tail = 0;
-
-	/* Success */
-	return (0);
 }
 
 
 
 /*
  * Add a keypress to the "queue"
+ * Do nothing if there is insufficient space.
  */
 errr Term_keypress(int k)
 {
+	uint next_char;
+
 	/* Hack -- Refuse to enqueue non-keys */
-	if (!k) return (-1);
+	if (!k) return TERM_ERROR_BAD_INPUT;
+
+	/* Do nothing without a queue. */
+	if (!Term->key_size) return TERM_ERROR_OUT_OF_MEMORY;
+
+	/* Find where the following character should be copied. */
+	next_char = Term->key_head+1;
+	if (next_char == Term->key_size) next_char = 0;
+
+	/* Prevent overflow. */
+	if (next_char == Term->key_tail) return TERM_ERROR_OUT_OF_MEMORY;
 
 	/* Store the char, advance the queue */
-	Term->key_queue[Term->key_head++] = k;
+	Term->key_queue[Term->key_head] = k;
 
-	/* Circular queue, handle wrap */
-	if (Term->key_head == Term->key_size) Term->key_head = 0;
+	Term->key_head = next_char;
 
-	/* Success (unless overflow) */
-	if (Term->key_head != Term->key_tail) return (0);
-
-	/* Problem */
-	return (1);
+	return SUCCESS;
 }
 
 
 /*
  * Add a keypress to the FRONT of the "queue"
+ * Forget the last existing character if there is insufficient space.
  */
 errr Term_key_push(int k)
 {
 	/* Hack -- Refuse to enqueue non-keys */
-	if (!k) return (-1);
+	if (!k) return TERM_ERROR_BAD_INPUT;
+
+	/* Do nothing without a queue. */
+	if (!Term->key_size) return TERM_ERROR_OUT_OF_MEMORY;
 
 	/* Hack -- Overflow may induce circular queue */
 	if (Term->key_tail == 0) Term->key_tail = Term->key_size;
@@ -1888,10 +1899,31 @@ errr Term_key_push(int k)
 	Term->key_queue[--Term->key_tail] = k;
 
 	/* Success (unless overflow) */
-	if (Term->key_head != Term->key_tail) return (0);
+	if (Term->key_head != Term->key_tail) return SUCCESS;
+
+	/* Forget the last character on the queue. */
+	if (Term->key_head) Term->key_head--;
+	else Term->key_head = Term->key_size-1;
 
 	/* Problem */
-	return (1);
+	return WARN(TERM_ERROR_OUT_OF_MEMORY);
+}
+
+
+/*
+ * Calculate how much space there is in the key queue for the current term.
+ */
+int Term_queue_space(void)
+{
+	/* Find the gap if the tail is before the head. */
+	int space = Term->key_tail - Term->key_head;
+
+	/* Otherwise, add in the extra for looping. */
+	if (space <= 0) space = Term->key_size - space;
+
+	/* The last space is never used as that would be interpreted as leaving
+	 * no pending keypresses. */
+	return space-1;
 }
 
 
@@ -1901,8 +1933,8 @@ errr Term_key_push(int k)
 /*
  * Check for a pending keypress on the key queue.
  *
- * Store the keypress, if any, in "ch", and return "0".
- * Otherwise store "zero" in "ch", and return "1".
+ * Store the keypress, if any, in "ch", and return SUCCESS.
+ * Otherwise store "zero" in "ch", and return NO_OUTPUT.
  *
  * Wait for a keypress if "wait" is true.
  *
@@ -1928,6 +1960,9 @@ errr Term_inkey(char *ch, bool wait, bool take)
 		{
 			/* Process events (wait for one) */
 			Term_xtra(TERM_XTRA_EVENT, TRUE);
+
+			/* Handle various in-game things any event may trigger. */
+			if (Term->key_head == Term->key_tail) event_stuff();
 		}
 	}
 
@@ -1943,7 +1978,7 @@ errr Term_inkey(char *ch, bool wait, bool take)
 	}
 
 	/* No keys are ready */
-	if (Term->key_head == Term->key_tail) return (1);
+	if (Term->key_head == Term->key_tail) return TERM_ERROR_NO_OUTPUT;
 
 	/* Extract the next keypress */
 	(*ch) = Term->key_queue[Term->key_tail];
@@ -1952,7 +1987,7 @@ errr Term_inkey(char *ch, bool wait, bool take)
 	if (take && (++Term->key_tail == Term->key_size)) Term->key_tail = 0;
 
 	/* Success */
-	return (0);
+	return SUCCESS;
 }
 
 
@@ -2043,7 +2078,7 @@ int Term_save_aux(void)
 	if (!blank && i == NUM_TERM_WINS)
 	{
 		w_ptr = term_wins+free-1;
-		term_win_nuke(&w_ptr->win, w_ptr->wid, w_ptr->hgt);
+		term_win_nuke(&w_ptr->win);
 		blank = free;
 	}
 
@@ -2085,19 +2120,12 @@ void Term_save(void)
 }
 
 /*
- * Restore the "requested" contents from a specified saved term.
- *
- * Does not alter the term_wins array.
+ * Load a saved window from w_ptr to Term->scr.
+ * Return FALSE on error.
  */
-void Term_load_aux(int win)
+static bool Term_load_aux_do(term_win2 *w_ptr)
 {
-	term_win2 *w_ptr;
 	int y;
-
-	/* Paranoia - ignore invalid calls. */
-	if (win <= 0 || win > NUM_TERM_WINS) return;
-
-	w_ptr = term_wins+win-1;
 
 	/* Load */
 	term_win_copy(Term->scr, &w_ptr->win,
@@ -2115,9 +2143,19 @@ void Term_load_aux(int win)
 	Term->y1 = 0;
 	Term->y2 = Term->hgt - 1;
 
-	/* The screen size has changed since this was saved, so the screen should
-	 * really be redrawn. */
-	if (w_ptr->wid != Term->wid || w_ptr->hgt != Term->hgt)
+	/* Unexpected size, so part of the window may not have been copied. */
+	return (w_ptr->wid == Term->wid && w_ptr->hgt == Term->hgt);
+}
+
+/*
+ * Restore the "requested" contents from a specified saved term.
+ *
+ * Does not alter the term_wins array.
+ */
+void Term_load_aux(int win)
+{
+	/* Attempt to redraw, but catch errors. */
+	if (win <= 0 || win > NUM_TERM_WINS || !Term_load_aux_do(term_wins+win-1))
 	{
 		/* Try the resize hook if possible. */
 		if (Term->resize_hook != 0) (*Term->resize_hook)();
@@ -2144,58 +2182,10 @@ void Term_load(void)
 
 
 
-#if 0
-/*
- * Exchange the "requested" screen with the "tmp" screen
- */
-static errr Term_exchange(void)
-{
-	int y;
-
-	int w = Term->wid;
-	int h = Term->hgt;
-
-	term_win *exchanger;
-
-
-	/* Create */
-	if (!Term->tmp)
-	{
-		/* Allocate window */
-		MAKE(Term->tmp, term_win);
-
-		/* Initialize window */
-		term_win_init(Term->tmp, w, h);
-	}
-
-	/* Swap */
-	exchanger = Term->scr;
-	Term->scr = Term->tmp;
-	Term->tmp = exchanger;
-
-	/* Assume change */
-	for (y = 0; y < h; y++)
-	{
-		/* Assume change */
-		Term->x1[y] = 0;
-		Term->x2[y] = w - 1;
-	}
-
-	/* Assume change */
-	Term->y1 = 0;
-	Term->y2 = h - 1;
-
-	/* Success */
-	return (0);
-}
-#endif
-
-
-
 /*
  * React to a new physical window size.
  */
-errr Term_resize(int w, int h)
+void Term_resize(int w, int h)
 {
 	int i;
 
@@ -2210,15 +2200,16 @@ errr Term_resize(int w, int h)
 
 
 	/* Resizing is forbidden */
-	if (Term->fixed_shape) return (-1);
+	if (Term->fixed_shape) return /*TERM_ERROR_FORBIDDEN*/;
 
 
 	/* Ignore illegal changes */
-	if ((w < 1) || (h < 1)) return (-1);
+	if ((w < 1) || (h < 1)) return /*TERM_ERROR_BAD_INPUT*/;
 
 
 	/* Ignore non-changes */
-	if ((Term->wid == w) && (Term->hgt == h)) return (1);
+	if ((Term->wid == w) && (Term->hgt == h))
+		return /*WARN(TERM_ERROR_TRIVIAL_REQUEST)*/;
 
 
 	/* Minimum dimensions */
@@ -2278,7 +2269,7 @@ errr Term_resize(int w, int h)
 	KILL(hold_x2);
 
 	/* Nuke */
-	term_win_nuke(hold_old, Term->wid, Term->hgt);
+	term_win_nuke(hold_old);
 
 	/* Kill */
 	KILL(hold_old);
@@ -2288,7 +2279,7 @@ errr Term_resize(int w, int h)
 	if (Term->old->cy >= h) Term->old->cu = 1;
 
 	/* Nuke */
-	term_win_nuke(hold_scr, Term->wid, Term->hgt);
+	term_win_nuke(hold_scr);
 
 	/* Kill */
 	KILL(hold_scr);
@@ -2301,7 +2292,7 @@ errr Term_resize(int w, int h)
 	if (hold_tmp)
 	{
 		/* Nuke */
-		term_win_nuke(hold_tmp, Term->wid, Term->hgt);
+		term_win_nuke(hold_tmp);
 
 		/* Kill */
 		KILL(hold_tmp);
@@ -2337,7 +2328,7 @@ errr Term_resize(int w, int h)
 	}
 
 	/* Success */
-	return (0);
+	return /*SUCCESS*/;
 }
 
 
@@ -2351,10 +2342,10 @@ errr Term_resize(int w, int h)
  * To "create" a valid "term", one should do "term_init(t)", then
  * set the various flags and hooks, and then do "Term_activate(t)".
  */
-errr Term_activate(term *t)
+void Term_activate(term *t)
 {
 	/* Hack -- already done */
-	if (Term == t) return (1);
+	if (Term == t) return /*TERM_ERROR_TRIVIAL_REQUEST*/;
 
 	/* Deactivate the old Term */
 	if (Term) Term_xtra(TERM_XTRA_LEVEL, 0);
@@ -2378,8 +2369,7 @@ errr Term_activate(term *t)
 	/* Activate the new Term */
 	if (Term) Term_xtra(TERM_XTRA_LEVEL, 1);
 
-	/* Success */
-	return (0);
+	return /*SUCCESS*/;
 }
 
 
@@ -2387,12 +2377,8 @@ errr Term_activate(term *t)
 /*
  * Nuke a term
  */
-errr term_nuke(term *t)
+void term_nuke(term *t)
 {
-	int w = t->wid;
-	int h = t->hgt;
-
-
 	/* Hack -- Call the special "nuke" hook */
 	if (t->active_flag)
 	{
@@ -2408,13 +2394,13 @@ errr term_nuke(term *t)
 
 
 	/* Nuke "displayed" */
-	term_win_nuke(t->old, w, h);
+	term_win_nuke(t->old);
 
 	/* Kill "displayed" */
 	KILL(t->old);
 
 	/* Nuke "requested" */
-	term_win_nuke(t->scr, w, h);
+	term_win_nuke(t->scr);
 
 	/* Kill "requested" */
 	KILL(t->scr);
@@ -2423,7 +2409,7 @@ errr term_nuke(term *t)
 	if (t->tmp)
 	{
 		/* Nuke "temporary" */
-		term_win_nuke(t->tmp, w, h);
+		term_win_nuke(t->tmp);
 
 		/* Kill "temporary" */
 		KILL(t->tmp);
@@ -2435,9 +2421,6 @@ errr term_nuke(term *t)
 
 	/* Free the input queue */
 	KILL(t->key_queue);
-
-	/* Success */
-	return (0);
 }
 
 
@@ -2447,7 +2430,7 @@ errr term_nuke(term *t)
  * By default, the cursor starts out "invisible"
  * By default, we "erase" using "black spaces"
  */
-errr term_init(term *t, int w, int h, int k)
+void term_init(term *t, int w, int h, int k)
 {
 	int y;
 
@@ -2508,8 +2491,4 @@ errr term_init(term *t, int w, int h, int k)
 	/* Default "blank" */
 	t->attr_blank = 0;
 	t->char_blank = ' ';
-
-
-	/* Success */
-	return (0);
 }

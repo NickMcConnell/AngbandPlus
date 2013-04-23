@@ -105,15 +105,56 @@
 #define SGN(a)		(((a) < 0)   ? (-1) : ((a) != 0))
 
 /*
+ * An assertion macro
+ */
+#undef assert
+
+#ifdef NDEBUG
+# define assert(ignore)	((void) 0)
+#else /* NDEBUG */
+
+/* Dump the core on an assert() failure rather than simply quitting. */
+/* #define DEBUG_ASSERT_CORE */
+
+/* Pick whether to save the game before aborting */
+#define DEBUG_ASSERT_SAVE
+
+/* Possibly save the game, and then abort. */
+# define assert(expr)\
+		if (!(expr)) assert_fail(#expr, __FILE__, __LINE__)
+#endif /* NDEBUG */
+
+
+
+/*
  * Given an array, determine how many elements are in the array.
  */
 #define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
 
+/*
+ * Given an array, find the pointer at the end of it.
+ */
+#define END_PTR(X) ((X) + N_ELEMENTS(X))
+
+/*
+ * Given an array with known size, set a pointer to each element in turn with
+ * a for loop.
+ */
+#define FOR_ALL_IN(ARRAY, PTR) \
+	for ((PTR) = (ARRAY); (PTR) < END_PTR(ARRAY); (PTR)++)
+
 /* Try to mark unused variables as such in a way the compiler understands. */
-#ifdef __GNUC__
-#define UNUSED __attribute__((unused))
+#if defined(__GNUC__) || defined(__TINYC__)
+#define UNUSED __attribute__((__unused__))
 #else
 #define UNUSED
+#endif
+
+/* Indicate functions which have no side-effects if possible. */
+#ifdef __GNUC__
+#define PURE __attribute__((__pure__))
+#else
+#define PURE
 #endif
 
 /* Avoid variable-length arrays unless allowed and supported. */

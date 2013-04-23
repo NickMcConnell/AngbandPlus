@@ -1,3 +1,4 @@
+%%%%% <windowpri.txt>
 === Window Options ===
 
 Some platforms support "sub-windows", which are windows which can be used to display useful information generally available through other means. This screen governs their contents.
@@ -55,6 +56,11 @@ Display information (as obtained with 'I') about the last object to be selected.
 %%%%% <Display shop names>
 $GDisplay shop names (boring except in towns with shops)
 Display information (as obtained with '~8') about the shops in the current town.
+
+%%%%% <Display floor information>
+$GDisplay floor information (boring if the player can't see the floor)
+Display a description of the floor the player is standing on, as well as a 
+(usually complete) list of objects on it.
 
 %%%%% <Display help>
 $GDisplay help (boring if none available)

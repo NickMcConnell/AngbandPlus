@@ -1,3 +1,4 @@
+%%%%% <speed.txt>
 The Speed System
 ================ 
 
@@ -58,6 +59,7 @@ Spiking a door closed ....................................Movement Cost
 Standing still ...........................................Movement Cost
 Resting ..................................................Movement Cost
 Searching ................................................Movement Cost
+Climbing/Descending a flight of stairs....................Movement Cost
 
 Wield/wear an item .......................................Movement Cost
 Take off an item .........................................Movement Cost

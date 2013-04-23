@@ -92,11 +92,44 @@ blow_method_type *get_blow_method(byte idx)
 		return NULL;
 }
 
+#define MAX_BLOWS_PER_MONSTER 4
+
+/*
+ * Return a random blow the specified monster has available.
+ */
+static monster_blow *choose_blow(monster_type *m_ptr, monster_blow *blows)
+{
+	int i;
+	monster_blow *b_ptr, *b[MAX_BLOWS_PER_MONSTER];
+
+	/* Count the suitable blows. */
+	for (b_ptr = blows, i = 0; b_ptr < blows+MAX_BLOWS_PER_MONSTER; b_ptr++)
+	{
+		blow_method_type *bm_ptr = get_blow_method(b_ptr->method);
+
+		/* No such blow. */
+		if (!bm_ptr) continue;
+
+		/* Nice monsters don't use 300 point attacks without warning. */
+		if (m_ptr->mflag & MFLAG_NICE && b_ptr->effect == RBE_SHATTER) continue;
+
+		/* Allow this one. */
+		b[i++] = b_ptr;
+	}
+
+	/* Return a random blow. */
+	if (i) return b[rand_int(i)];
+
+	/* Failed to find one. */
+	return 0;
+}
+
 /*
  * Attack the player via physical attacks.
  */
 bool make_attack_normal(int m_idx)
 {
+	monster_blow *mb_ptr;
 	blow_method_type *b_ptr;
 
 	monster_type	*m_ptr = &m_list[m_idx];
@@ -105,16 +138,12 @@ bool make_attack_normal(int m_idx)
 
 	
 
-	int			ap_cnt,blow_types;
-
 	int			i, j, k, tmp, rlev;
 	int			do_cut, do_stun;
 
 	s32b		gold;
 
 	object_type		*o_ptr;
-
-	C_TNEW(o_name, ONAME_MAX, char);
 
 	C_TNEW(m_name, MNAME_MAX, char);
 
@@ -143,7 +172,6 @@ bool make_attack_normal(int m_idx)
 	m_ptr->smart & SM_ALLY)
 	{
 		TFREE(m_name);
-		TFREE(o_name);
 		return FALSE;
 	}
 
@@ -162,26 +190,10 @@ bool make_attack_normal(int m_idx)
 	/* Assume no blink */
 	blinked = FALSE;
 	
-	/*
-	 * Scan through all four blows 
-	 * until we find one that is valid
-	 */
-	blow_types=4;
-	for(ap_cnt=3;ap_cnt>0;ap_cnt--)
-	{
-		if(!(r_ptr->blow[ap_cnt].method))
-		{
-			blow_types = ap_cnt;
-		}
-	}
-
 	/* Give back movement energy */	
 	m_ptr->energy += extract_energy[m_ptr->mspeed];
 	/* And take some attack energy instead */
 	m_ptr->energy -= (TURN_ENERGY/r_ptr->num_blows);
-
-	/* Select an attack at random */
-	ap_cnt=rand_range(0,blow_types-1);
 
 		 visible = FALSE;
 		 obvious = FALSE;
@@ -191,11 +203,17 @@ bool make_attack_normal(int m_idx)
 
 		 act = NULL;
 
+		/* Choose an attack randomly. */
+		mb_ptr = choose_blow(m_ptr, r_ptr->blow);
+
+		/* No valid attacks. */
+		if (!mb_ptr) return FALSE;
+
 		/* Extract the attack infomation */
-		 effect = r_ptr->blow[ap_cnt].effect;
-		 method = r_ptr->blow[ap_cnt].method;
-		 d_dice = r_ptr->blow[ap_cnt].d_dice;
-		 d_side = r_ptr->blow[ap_cnt].d_side;
+		 effect = mb_ptr->effect;
+		 method = mb_ptr->method;
+		 d_dice = mb_ptr->d_dice;
+		 d_side = mb_ptr->d_side;
 
 		/* Extract the attack details. */
 		b_ptr = get_blow_method(method);
@@ -245,7 +263,7 @@ bool make_attack_normal(int m_idx)
 		if (!effect || check_hit(power, rlev))
 		{
 			/* Always disturbing */
-			disturb(1, 0);
+			disturb(1);
 
 
 			/* Hack -- Apply "protection from evil" */
@@ -337,7 +355,7 @@ bool make_attack_normal(int m_idx)
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 					{
-						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
+						if (add_flag(TIMED_POISONED, randint(rlev) + 5))
 						{
 							obvious = TRUE;
 						}
@@ -376,7 +394,11 @@ bool make_attack_normal(int m_idx)
 					for (k = 0; k < 10; k++)
 					{
 						/* Pick an item */
-						i = rand_int(INVEN_PACK);
+						do
+						{
+							i = rand_int(INVEN_TOTAL);
+						}
+						while (i >= INVEN_WIELD && i <= INVEN_FEET);
 
 						/* Obtain the item */
 						o_ptr = &inventory[i];
@@ -406,11 +428,11 @@ bool make_attack_normal(int m_idx)
 							/* Uncharge */
 							o_ptr->pval = 0;
 
-							/* Combine / Reorder the pack */
-							p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+							/* Forget stacking state. */
+							set_stack_number(o_ptr);
 
-							/* Window stuff */
-							p_ptr->window |= (PW_INVEN);
+							/* Recalculate/redraw stuff (later) */
+							update_object(o_ptr, 0);
 
 							/* Done */
 							break;
@@ -514,13 +536,11 @@ bool make_attack_normal(int m_idx)
 						/* Skip artifacts */
                         if (allart_p(o_ptr)) continue;
 
-						/* Get a description */
-						strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, FALSE, 3);
-
 						/* Message */
-						msg_format("%sour %s (%c) was stolen!",
+						msg_format("%sour %v (%c) was stolen!",
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
-						           o_name, index_to_label(o_ptr));
+						           object_desc_f3, o_ptr, FALSE, 3,
+								   index_to_label(o_ptr));
 
 						/* Option */
 						if (testing_carry)
@@ -551,39 +571,6 @@ bool make_attack_normal(int m_idx)
 								/* Build stack */
 								m_ptr->hold_o_idx = j_ptr - o_list;
 							}
-                        }
-
-
-                        else
-                        {
-                            if (strstr(format("%v", monster_desc_aux_f3, r_ptr,
-								1, 0), "black market") && randint(2)!=1)
-                                {
-                                   object_type *j_ptr;
-
-                                /* Make an object */
-                                j_ptr = o_pop();
-
-                                /* Success */
-                                if (j_ptr)
-                                 {
-                                    if (cheat_xtra || cheat_peek)
-                                          msg_print("Moving object to black market...");
-
-
-                                    /* Copy object */
-                                    object_copy(j_ptr, o_ptr);
-
-                                    /* Modify number */
-                                    j_ptr->number = 1;
-
-                                    /* Forget mark */
-                                    j_ptr->marked = FALSE;
-
-                                    move_to_black_market(j_ptr);
-                                  }
-                                }
-
                         }
 						
 						/* Steal the items */
@@ -623,13 +610,11 @@ bool make_attack_normal(int m_idx)
 						/* Skip non-food objects */
 						if (o_ptr->tval != TV_FOOD) continue;
 
-						/* Get a description */
-						strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, o_ptr, FALSE, 0);
-
 						/* Message */
-						msg_format("%sour %s (%c) was eaten!",
+						msg_format("%sour %v (%c) was eaten!",
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
-						           o_name, index_to_label(o_ptr));
+						           object_desc_f3, o_ptr, FALSE, 0,
+								   index_to_label(o_ptr));
 
 						/* Steal the items */
 						item_increase(o_ptr, -1);
@@ -659,6 +644,9 @@ bool make_attack_normal(int m_idx)
 						/* Reduce fuel */
 						o_ptr->pval -= (250 + randint(250));
 						if (o_ptr->pval < 1) o_ptr->pval = 1;
+
+						/* Forget stacking state. */
+						set_stack_number(o_ptr);
 
 						/* Notice */
 						if (!p_ptr->blind)
@@ -750,7 +738,7 @@ bool make_attack_normal(int m_idx)
 					/* Increase "blind" */
 					if (!p_ptr->resist_blind)
 					{
-						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
+						if (add_flag(TIMED_BLIND, 10 + randint(rlev)))
 						{
 							obvious = TRUE;
 						}
@@ -770,7 +758,7 @@ bool make_attack_normal(int m_idx)
 					/* Increase "confused" */
 					if (!p_ptr->resist_conf)
 					{
-						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
+						if (add_flag(TIMED_CONFUSED, 3 + randint(rlev)))
 						{
 							obvious = TRUE;
 						}
@@ -801,7 +789,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (set_afraid(p_ptr->afraid + 3 + randint(rlev)))
+						if (add_flag(TIMED_AFRAID, 3 + randint(rlev)))
 						{
 							obvious = TRUE;
 						}
@@ -836,7 +824,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (set_paralyzed(p_ptr->paralyzed + 3 + randint(rlev)))
+						if (add_flag(TIMED_PARALYZED, 3 + randint(rlev)))
 						{
 							obvious = TRUE;
 						}
@@ -1099,7 +1087,7 @@ bool make_attack_normal(int m_idx)
 				}
 
 				/* Apply the cut */
-				if (k) (void)set_cut(p_ptr->cut + k);
+				if (k) (void)add_flag(TIMED_CUT, k);
 			}
 
 			/* Handle stun */
@@ -1123,8 +1111,12 @@ bool make_attack_normal(int m_idx)
 					default: k = 200; break;
 				}
 
+				/* Hack - FORCE_SLEEP monsters only knock a properly prepared
+				 * character out after a warning. */
+				if (m_ptr->mflag & MFLAG_NICE) k = MIN(k, 99-p_ptr->stun);
+
 				/* Apply the stun */
-				if (k) (void)set_stun(p_ptr->stun + k);
+				if (k) (void)add_flag(TIMED_STUN, k);
 			}
             if (touched)
             {
@@ -1187,7 +1179,7 @@ bool make_attack_normal(int m_idx)
 				if (m_ptr->ml)
 				{
 					/* Disturbing */
-					disturb(1, 0);
+					disturb(1);
 
 					/* Message */
 					msg_format(b_ptr->missmsg, m_name, "you");
@@ -1199,13 +1191,15 @@ bool make_attack_normal(int m_idx)
 		/* Analyze "visible" monsters only */
 		if (visible)
 		{
+			int blow = mb_ptr-r_ptr->blow;
+
 			/* Count "obvious" attacks (and ones that cause damage) */
-			if (obvious || damage || (r_ptr->r_blows[ap_cnt] > 10))
+			if (obvious || damage || (r_ptr->r_blows[blow] > 10))
 			{
 				/* Count attacks of this type */
-				if (r_ptr->r_blows[ap_cnt] < MAX_UCHAR)
+				if (r_ptr->r_blows[blow] < MAX_UCHAR)
 				{
-					r_ptr->r_blows[ap_cnt]++;
+					r_ptr->r_blows[blow]++;
 				}
 			}
 		}
@@ -1226,7 +1220,6 @@ bool make_attack_normal(int m_idx)
     }
 
 	TFREE(m_name);
-	TFREE(o_name);
 
 	/* Assume we attacked */
 	return (TRUE);

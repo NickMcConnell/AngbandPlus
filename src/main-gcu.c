@@ -1,4 +1,3 @@
-#define DELAY_EXTERNS_H
 #define MAIN_GCU_C
 /* File: main-gcu.c */
 
@@ -49,9 +48,6 @@
 
 
 #ifdef USE_GCU
-
-/* #include "main.h" */
-#include "externs.h"
 
 /*
  * Hack -- play games with "bool" and "term"
@@ -210,7 +206,7 @@ struct term_data
 };
 
 /* Max number of windows on screen */
-#define MAX_TERM_DATA 4
+#define MAX_TERM_DATA MIN(ANGBAND_TERM_MAX, 4)
 
 /* Information about our windows */
 static term_data data[MAX_TERM_DATA];
@@ -998,7 +994,7 @@ errr init_gcu(int argc, char **argv)
 	/* Require standard size screen */
 	if ((LINES < 24) || (COLS < 80))
 	{
-		quit("Angband needs at least an 80x24 'curses' screen");
+		quit(GAME_NAME " needs at least an 80x24 'curses' screen");
 	}
 
 

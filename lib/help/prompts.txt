@@ -1,15 +1,17 @@
+%%%%% <prompts.txt>
 === In-game Prompts ===
 
 There are a number of styles of prompt in the game. This is an attempt to list some of them, give a means of finding an example from within the game and explain the input acceptable at each.
 
 %%%%% <command_prompt>
 === Command prompt ===
+
 There are many single key commands available here. See general.txt for a list.
 
 %%%%% <option_prompt>
 === Option prompt (type "=1" from the command prompt) ===
 
-This allows you to change some of the options within the game. The following commands are available:
+This allows you to change some of the options within the game. It accepts the following responses:
 
 space,return,2 - Highlight the previous option (the last if the first is now).
       -,8      - Highlight the next option (the first if the last is now).
@@ -24,6 +26,25 @@ In the autosave option menu, there is also the following:
 
        f       - Select the frequency of autosave (see custom.txt for details).
 
+%%%%%
+=== Object prompt (type "d" from the command prompt) ===
+
+This allows you to select a single object from some or all of your equipment, your inventory or the contents of the floor square on which you are standing for use in the command which requested it. It accepts the following responses:
+
+ a-w   - selects an object in your inventory or equipment as appropriate.
+  x    - selects the most expensive item available if spoil_value is set.
+  y    - selects the cheapest item available if spoil_value is set.
+  z    - selects a squelched, useless or cursed item which has not been inscribed with !k or !K.
+ 0-9   - selects an object inscribed with @n or @zn where n is the number and z the command. An object inscribed with @zn will be used in preference to one inscribed with @n.
+return - selects the item, if there is only one available at the prompt.
+  -    - selects a floor item (if possible)
+  !    - selects the last object to be selected in various ways.
+  /    - switch between inventory and equipment (if possible)
+*, ?,
+space  - displays/hides the list of objects.
+escape - aborts the command.
+
+
 %%%%% <string_prompt>
 === String prompt (type "Cc" from the command prompt) ===
 
@@ -34,7 +55,7 @@ When this prompt is first given, it is in overtype mode. In this case, any keypr
 Pressing Tab moves the cursor to the end of the string, not modifying it. Any keypress unsets overtype mode, turning the string white.
 
 %%%%% <string_prompt_det>
-The following commands are available as a string prompt:
+It accepts the following responses:
 
     Escape     - Abort, do not modify the string.
     Enter      - Accept the modifications to the string.
@@ -53,7 +74,8 @@ If special commands are being accessed (either by using a macro or turning comma
 In all other cases, pressing a key inserts the character associated with it into the string at the position of the cursor.
 
 %%%%% <yn_prompt>
-=== [y/n] prompt ===
+=== [y/n] prompt (press dA from the command prompt) ===
+
 This is a straightforward [y/n] prompt. It accepts the following responses:
 
 y,Y,Enter  - Answer "yes" to the question asked.
@@ -63,6 +85,7 @@ If quick_prompt is set (see custom.txt), any response not mentioned above is int
 
 %%%%% <yn?_prompt>
 === [y/n/?] prompt ===
+
 This is almost a straightforward [y/n] prompt. It accepts the following responses:
 
 y,Y,Enter  - Answer "yes" to the question asked.
@@ -73,6 +96,7 @@ If quick_prompt is set (see custom.txt), any response not mentioned above is int
 
 %%%%% <ynq_prompt>
 === [y/n/q] prompt ===
+
 This is almost a straightforward [y/n] prompt. It accepts the following responses:
 
 y,Y,Enter  - Answer "yes" to the question asked.

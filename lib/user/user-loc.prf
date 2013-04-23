@@ -25,10 +25,19 @@ M: w: w: w: y: y: y: y: y: w: w: w: o: b: b: b: w: g: y: R
 # A simple keymap to destroy the first item immediately under the character.
 
 A:"X:other_query_flag\n099k-\e\e\e"Y:other_query_flag\n^W
-C:0:^K
+C:0:^Q
 
 # The same, but this time for use if other_query_flag is normally turned off.
 
 A:099k-\e\e\e^W
 C:0:^L
 
+# A few default window settings suitable for a 3-window display.
+
+#Window 'Mirror'
+W:Mirror:monster recall:d:.
+W:Mirror:object details:d:.
+W:Mirror:floor information:e:.
+
+#Window 'Recall'
+W:Recall:help:a:a

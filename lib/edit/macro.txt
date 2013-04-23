@@ -68,7 +68,7 @@
 
 # Version stamp (required)
 
-V:1.0.7
+V:1.0.11
 
 # There are several macros which apply to all files used by object_desc().
 # To simplify things, these macros create them with a single line.
@@ -101,8 +101,14 @@ X:#:monster_desc() names
 A:F:r_info:N:3
 F:macros:#
 
-X:#:monster_desc() names
-A:F:d_quest:Q:4
+# d_info.txt actually uses processed names.
+
+# X:#:monster_desc() names
+# A:F:d_quest:Q:4
+# F:macros:#
+
+X:#:feature_desc() names
+A:F:f_info:N:3
 F:macros:#
 
 # % masking (part 2)
@@ -206,20 +212,23 @@ M:24
 
 X:%=I
 M:5
-#:object_desc() names
 #:monster_desc() names
+#:feature_desc() names
 
 X:%+I
 M:13
 #:monster_desc() names
+#:feature_desc() names
 
 X:%-I
 M:21
 #:monster_desc() names
+#:feature_desc() names
 
 X:%i
 M:29
 #:monster_desc() names
+#:feature_desc() names
 
 # %Base flags are always at the beginning to make searching for them
 # more efficient.
@@ -290,6 +299,7 @@ F:u_info:s
 X:& 
 Y:%+I%i %=I
 #:monster_desc() names
+#:feature_desc() names
 
 # Ensure that tvals are expressed as numbers.
 
@@ -898,12 +908,63 @@ X: STEEL
 Y:3
 F:k_info:I:4
 
+# Make the P line in a_info.txt and k_info.txt a bit prettier.
+
+X:::
+Y::
+F:a_info:P
+F:k_info:P
+F:e_info:P
+
+X: 
+Y:
+F:a_info:P
+F:e_info:P
+F:k_info:P
+
+X:(
+Y::
+F:a_info:P
+F:e_info:P
+F:k_info:P
+
+X:[
+Y::
+F:a_info:P
+F:e_info:P
+F:k_info:P
+
+X:,
+Y::
+F:a_info:P
+F:e_info:P
+F:k_info:P
+
+X:d
+Y::
+F:a_info:P
+F:e_info:P
+F:k_info:P
+
+X:)
+Y:
+F:a_info:P
+F:e_info:P
+F:k_info:P
+
+X:]
+Y:
+F:a_info:P
+F:e_info:P
+F:k_info:P
+
 # Bows
 
 X:x
 Y:0d
-F:k_info:P:3
-F:a_info:P:3
+F:k_info:P
+F:e_info:P
+F:a_info:P
 
 # init1.c interprets negative numbers as belonging to the user area, but
 # expects them to be in decreasing order. As this is unusual, changing it to
@@ -914,552 +975,570 @@ Y:-
 F:k_info:N:2
 F:r_info:N:2
 
-# Macros to make it relatively easy to keep the k_idx field in a_info.txt up
-# to date, and also to make it clearer.
+# Macros to make it relatively easy to keep the k_idx field in a_info.txt 
+# (and elsewhere) up to date, and also to make it clearer.
+# Objects need never be mentioned by index, but not doing so in k_info.txt
+# would be a little confusing.
 
-X:BROKEN_DAGGER
-Y:30
-F:a_info:I:2
+# First, define the scope of these macros:
+
+X:k_info names
+A:F:macros:Y:2
+F:macros:#:2
+
+X:k_info names
+A:F:e_info:O:2
+F:macros:#:2
+
+X:k_info names
+A:F:a_info:I:2
+F:macros:#:2
+
+# Then define the macros.
 
 X:BROKEN_SWORD
 Y:31
-F:a_info:I:2
+#:k_info names
 
 X:DAGGER
 Y:32
-F:a_info:I:2
+#:k_info names
+
+X:BROKEN_DAGGER
+Y:30
+#:k_info names
 
 X:MAIN_GAUCHE
 Y:33
-F:a_info:I:2
+#:k_info names
 
 X:RAPIER
 Y:34
-F:a_info:I:2
+#:k_info names
 
 X:SMALL_SWORD
 Y:35
-F:a_info:I:2
+#:k_info names
 
 X:SABRE
 Y:36
-F:a_info:I:2
+#:k_info names
 
 X:CUTLASS
 Y:37
-F:a_info:I:2
+#:k_info names
 
 X:SHORT_SWORD
 Y:38
-F:a_info:I:2
+#:k_info names
 
 X:TULWAR
 Y:39
-F:a_info:I:2
+#:k_info names
 
 X:SCIMITAR
 Y:40
-F:a_info:I:2
+#:k_info names
 
 X:BROAD_SWORD
 Y:41
-F:a_info:I:2
+#:k_info names
 
 X:LONG_SWORD
 Y:42
-F:a_info:I:2
+#:k_info names
 
 X:BASTARD_SWORD
 Y:43
-F:a_info:I:2
+#:k_info names
 
 X:KATANA
 Y:44
-F:a_info:I:2
+#:k_info names
 
 X:TWO_HANDED_SWORD
 Y:45
-F:a_info:I:2
+#:k_info names
 
 X:EXECUTIONERS_SWORD
 Y:46
-F:a_info:I:2
+#:k_info names
 
 X:BLADE_OF_CHAOS
 Y:47
-F:a_info:I:2
+#:k_info names
 
 X:WHIP
 Y:48
-F:a_info:I:2
+#:k_info names
 
 X:MACE
 Y:49
-F:a_info:I:2
+#:k_info names
 
 X:QUARTERSTAFF
 Y:50
-F:a_info:I:2
+#:k_info names
 
 X:BALL_AND_CHAIN
 Y:51
-F:a_info:I:2
+#:k_info names
 
 X:WAR_HAMMER
 Y:52
-F:a_info:I:2
+#:k_info names
 
 X:FLAIL
 Y:53
-F:a_info:I:2
+#:k_info names
 
 X:LUCERNE_HAMMER
 Y:54
-F:a_info:I:2
+#:k_info names
 
 X:MORNING_STAR
 Y:55
-F:a_info:I:2
+#:k_info names
 
 X:LEAD_FILLED_MACE
 Y:56
-F:a_info:I:2
+#:k_info names
 
 X:TWO_HANDED_FLAIL
 Y:57
-F:a_info:I:2
+#:k_info names
 
 X:MACE_OF_DISRUPTION
 Y:58
-F:a_info:I:2
+#:k_info names
 
 X:SPEAR
 Y:59
-F:a_info:I:2
+#:k_info names
 
 X:TRIDENT
 Y:60
-F:a_info:I:2
+#:k_info names
 
 X:LANCE
 Y:61
-F:a_info:I:2
+#:k_info names
 
 X:BROAD_AXE
 Y:62
-F:a_info:I:2
+#:k_info names
 
 X:BATTLE_AXE
 Y:63
-F:a_info:I:2
+#:k_info names
 
 X:AWL_PIKE
 Y:64
-F:a_info:I:2
+#:k_info names
 
 X:PIKE
 Y:65
-F:a_info:I:2
+#:k_info names
 
 X:GLAIVE
 Y:66
-F:a_info:I:2
+#:k_info names
 
 X:BEAKED_AXE
 Y:67
-F:a_info:I:2
+#:k_info names
 
 X:HALBERD
 Y:68
-F:a_info:I:2
+#:k_info names
 
 X:GREAT_AXE
 Y:69
-F:a_info:I:2
+#:k_info names
 
 X:LOCHABER_AXE
 Y:70
-F:a_info:I:2
+#:k_info names
 
 X:SCYTHE
 Y:71
-F:a_info:I:2
+#:k_info names
 
 X:SCYTHE_OF_SLICING
 Y:72
-F:a_info:I:2
+#:k_info names
 
 X:SHOVEL
 Y:73
-F:a_info:I:2
+#:k_info names
 
 X:GNOMISH_SHOVEL
 Y:74
-F:a_info:I:2
+#:k_info names
 
 X:DWARVEN_SHOVEL
 Y:75
-F:a_info:I:2
+#:k_info names
 
 X:PICK
 Y:76
-F:a_info:I:2
+#:k_info names
 
 X:ORCISH_PICK
 Y:77
-F:a_info:I:2
+#:k_info names
 
 X:DWARVEN_PICK
 Y:78
-F:a_info:I:2
+#:k_info names
 
 X:SLING
 Y:79
-F:a_info:I:2
+#:k_info names
 
 X:SHORT_BOW
 Y:80
-F:a_info:I:2
+#:k_info names
 
 X:LONG_BOW
 Y:81
-F:a_info:I:2
+#:k_info names
 
 X:LIGHT_CROSSBOW
 Y:82
-F:a_info:I:2
+#:k_info names
 
 X:HEAVY_CROSSBOW
 Y:83
-F:a_info:I:2
+#:k_info names
 
 X:ARROW
 Y:84
-F:a_info:I:2
+#:k_info names
 
 X:SEEKER_ARROW
 Y:85
-F:a_info:I:2
+#:k_info names
 
 X:BOLT
 Y:86
-F:a_info:I:2
+#:k_info names
 
 X:SEEKER_BOLT
 Y:87
-F:a_info:I:2
+#:k_info names
 
 X:ROUNDED_PEBBLE
 Y:88
-F:a_info:I:2
+#:k_info names
 
 X:IRON_SHOT
 Y:89
-F:a_info:I:2
+#:k_info names
 
 X:FILTHY_RAG
 Y:90
-F:a_info:I:2
+#:k_info names
 
 X:ROBE
 Y:91
-F:a_info:I:2
+#:k_info names
 
 X:SOFT_LEATHER_ARMOUR
 Y:92
-F:a_info:I:2
+#:k_info names
 
 X:SOFT_STUDDED_LEATHER
 Y:93
-F:a_info:I:2
+#:k_info names
 
 X:HARD_LEATHER_ARMOUR
 Y:94
-F:a_info:I:2
+#:k_info names
 
 X:HARD_STUDDED_LEATHER
 Y:95
-F:a_info:I:2
+#:k_info names
 
 X:LEATHER_SCALE_MAIL
 Y:96
-F:a_info:I:2
+#:k_info names
 
 X:METAL_SCALE_MAIL
 Y:97
-F:a_info:I:2
+#:k_info names
 
 X:RUSTY_CHAIN_MAIL
 Y:98
-F:a_info:I:2
+#:k_info names
 
 X:CHAIN_MAIL
 Y:99
-F:a_info:I:2
+#:k_info names
 
 X:DOUBLE_CHAIN_MAIL
 Y:100
-F:a_info:I:2
+#:k_info names
 
 X:AUGMENTED_CHAIN_MAIL
 Y:101
-F:a_info:I:2
+#:k_info names
 
 X:BAR_CHAIN_MAIL
 Y:102
-F:a_info:I:2
+#:k_info names
 
 X:METAL_BRIGANDINE_ARMOUR
 Y:103
-F:a_info:I:2
+#:k_info names
 
 X:PARTIAL_PLATE_ARMOUR
 Y:104
-F:a_info:I:2
+#:k_info names
 
 X:METAL_LAMELLAR_ARMOUR
 Y:105
-F:a_info:I:2
+#:k_info names
 
 X:FULL_PLATE_ARMOUR
 Y:106
-F:a_info:I:2
+#:k_info names
 
 X:RIBBED_PLATE_ARMOUR
 Y:107
-F:a_info:I:2
+#:k_info names
 
 X:MITHRIL_CHAIN_MAIL
 Y:108
-F:a_info:I:2
+#:k_info names
 
 X:MITHRIL_PLATE_MAIL
 Y:109
-F:a_info:I:2
+#:k_info names
 
 X:ADAMANTITE_PLATE_MAIL
 Y:110
-F:a_info:I:2
+#:k_info names
 
 X:DSM_BRONZE
 Y:111
-F:a_info:I:2
+#:k_info names
 
 X:DSM_BLACK
 Y:112
-F:a_info:I:2
+#:k_info names
 
 X:DSM_BLUE
 Y:113
-F:a_info:I:2
+#:k_info names
 
 X:DSM_WHITE
 Y:114
-F:a_info:I:2
+#:k_info names
 
 X:DSM_GOLD
 Y:115
-F:a_info:I:2
+#:k_info names
 
 X:DSM_PSEUDO
 Y:116
-F:a_info:I:2
+#:k_info names
 
 X:DSM_CHAOS
 Y:117
-F:a_info:I:2
+#:k_info names
 
 X:DSM_GREEN
 Y:118
-F:a_info:I:2
+#:k_info names
 
 X:DSM_LAW
 Y:119
-F:a_info:I:2
+#:k_info names
 
 X:DSM_RED
 Y:120
-F:a_info:I:2
+#:k_info names
 
 X:DSM_BALANCE
 Y:121
-F:a_info:I:2
+#:k_info names
 
 X:DSM_MULTI_HUED
 Y:122
-F:a_info:I:2
+#:k_info names
 
 X:DSM_POWER
 Y:123
-F:a_info:I:2
+#:k_info names
 
 X:CLOAK
 Y:124
-F:a_info:I:2
-
-X:ELVEN_CLOAK
-Y:125
-F:a_info:I:2
+#:k_info names
 
 X:SHADOW_CLOAK
+Y:125
+#:k_info names
+
+X:ELVEN_CLOAK
 Y:126
-F:a_info:I:2
+#:k_info names
 
 X:SMALL_LEATHER_SHIELD
 Y:127
-F:a_info:I:2
+#:k_info names
 
 X:SMALL_METAL_SHIELD
 Y:128
-F:a_info:I:2
+#:k_info names
 
 X:LARGE_LEATHER_SHIELD
 Y:129
-F:a_info:I:2
+#:k_info names
 
 X:LARGE_METAL_SHIELD
 Y:130
-F:a_info:I:2
-
-X:DRAGON_SHIELD
-Y:131
-F:a_info:I:2
+#:k_info names
 
 X:SHIELD_OF_DEFLECTION
+Y:131
+#:k_info names
+
+X:DRAGON_SHIELD
 Y:132
-F:a_info:I:2
+#:k_info names
 
 X:HARD_LEATHER_CAP
-Y:133
-F:a_info:I:2
+Y:136
+#:k_info names
 
 X:METAL_CAP
-Y:134
-F:a_info:I:2
+Y:137
+#:k_info names
 
 X:IRON_HELM
-Y:135
-F:a_info:I:2
+Y:138
+#:k_info names
 
 X:STEEL_HELM
-Y:136
-F:a_info:I:2
+Y:139
+#:k_info names
 
 X:DRAGON_HELM
-Y:137
-F:a_info:I:2
+Y:140
+#:k_info names
 
 X:IRON_CROWN
-Y:138
-F:a_info:I:2
+Y:133
+#:k_info names
 
 X:GOLDEN_CROWN
-Y:139
-F:a_info:I:2
+Y:134
+#:k_info names
 
 X:JEWEL_ENCRUSTED_CROWN
-Y:140
-F:a_info:I:2
+Y:135
+#:k_info names
 
 X:LEATHER_GLOVES
 Y:141
-F:a_info:I:2
+#:k_info names
 
 X:GAUNTLETS
 Y:142
-F:a_info:I:2
+#:k_info names
 
 X:CESTI
 Y:143
-F:a_info:I:2
+#:k_info names
 
 X:SOFT_LEATHER_BOOTS
 Y:144
-F:a_info:I:2
+#:k_info names
 
 X:HARD_LEATHER_BOOTS
 Y:145
-F:a_info:I:2
+#:k_info names
 
 X:METAL_SHOD_BOOTS
 Y:146
-F:a_info:I:2
+#:k_info names
 
 X:STAR_ESSENCE_OF_POLARIS
 Y:459
-F:a_info:I:2
+#:k_info names
 
 X:STAR_ESSENCE_OF_XOTH
 Y:460
-F:a_info:I:2
+#:k_info names
 
 X:GEMSTONE_TRAPEZODEDRON
 Y:461
-F:a_info:I:2
+#:k_info names
 
 X:AMULET_LOBON
 Y:462
-F:a_info:I:2
+#:k_info names
 
 X:AMULET_ABD_ALHAZRED
 Y:463
-F:a_info:I:2
+#:k_info names
 
 X:NECKLACE_OF_THE_DWARVES
 Y:464
-F:a_info:I:2
+#:k_info names
 
 X:RING_MAGIC
 Y:465
-F:a_info:I:2
+#:k_info names
 
 X:RING_BAST
 Y:466
-F:a_info:I:2
+#:k_info names
 
 X:RING_ELEMENTAL_POWER_FIRE
 Y:467
-F:a_info:I:2
+#:k_info names
 
 X:RING_ELEMENTAL_POWER_ICE
 Y:468
-F:a_info:I:2
+#:k_info names
 
 X:RING_ELEMENTAL_POWER_STORM
 Y:469
-F:a_info:I:2
+#:k_info names
 
 X:RING_NYARLATHOTEP
 Y:470
-F:a_info:I:2
+#:k_info names
 
 X:RUNESWORD_STORMBRINGER
 Y:471
-F:a_info:I:2
+#:k_info names
 
 X:MIGHTY_HAMMER_OF_WORLDS
 Y:472
-F:a_info:I:2
+#:k_info names
 
 X:LEAD_CROWN_OF_THE_UNIVERSE
 Y:473
-F:a_info:I:2
+#:k_info names
 
 X:,
 Y:
 F:a_info:W:6
-F:e_info:W:5
-F:k_info:W:3
+F:e_info:W:3
+F:k_info:W:4
 
 X:lb
 Y:
 F:a_info:W:5
-F:k_info:W:2
+F:k_info:W:3
 
 X:.
 Y:
 F:a_info:W:5
-F:k_info:W:2
+F:k_info:W:3
 
 # Monster/object plural strings.
 # The section after %-P is only printed for singular names.
@@ -1480,9 +1559,12 @@ Y:s%+Pes%=P
 X:ch~
 Y:ch%+Pes%=P
 #:monster_desc() names
+#:object_desc() names
 
 X:ich~
 Y:ich%+Ps%=P
+#:monster_desc() names
+#:object_desc() names
 
 X:y~
 Y:%-Py%+Pies%=P
@@ -1531,15 +1613,15 @@ Y:l%-Pous%+Pi%=P
 # Variable default timeouts for rods
 
 X:11-20
-Y:-1
+Y:-20
 F:k_info:I:3
 
 X:11-21
-Y:-2
+Y:-21
 F:k_info:I:3
 
 X:16-30
-Y:-3
+Y:-30
 F:k_info:I:3
 
 # Convert shop names into the indices for the STORE_* macros.
@@ -1603,3 +1685,187 @@ F:s_info:I:3
 X::
 Y::0:
 F:r_info:W:4
+
+# Enter a range with -, interpret with :.
+X:-
+Y::
+F:e_info:O:2
+
+# Give object ranges here.
+
+X:Body Armour
+Y:FILTHY_RAG-ADAMANTITE_PLATE_MAIL
+F:e_info:O:2
+
+X:Dragon Armour
+Y:DSM_BRONZE-DSM_POWER
+F:e_info:O:2
+
+X:Shield
+Y:SMALL_LEATHER_SHIELD-SHIELD_OF_DEFLECTION
+F:e_info:O:2
+
+X:Gloves
+Y:LEATHER_GLOVES-CESTI
+F:e_info:O:2
+
+X:Boots
+Y:SOFT_LEATHER_BOOTS-METAL_SHOD_BOOTS
+F:e_info:O:2
+
+X:Crown
+Y:IRON_CROWN-JEWEL_ENCRUSTED_CROWN
+F:e_info:O:2
+
+X:Helmet
+Y:HARD_LEATHER_CAP-STEEL_HELM
+F:e_info:O:2
+
+X:Crown/Helmet
+Y:IRON_CROWN-STEEL_HELM
+F:e_info:O:2
+
+X:Cloak
+Y:CLOAK-SHADOW_CLOAK
+F:e_info:O:2
+
+X:Dig
+Y:SHOVEL-DWARVEN_PICK
+F:e_info:O:2
+
+X:Weapon
+Y:BROKEN_DAGGER-SCYTHE_OF_SLICING
+F:e_info:O:2
+
+X:Sword
+Y:BROKEN_DAGGER-BLADE_OF_CHAOS
+F:e_info:O:2
+
+X:Hafted
+Y:WHIP-MACE_OF_DISRUPTION
+F:e_info:O:2
+
+X:Bow
+Y:SLING-HEAVY_CROSSBOW
+F:e_info:O:2
+
+X:Ammunition
+Y:ARROW-IRON_SHOT
+F:e_info:O:2
+
+## Ego-item special effect codes ##
+
+X:No ego
+Y:1
+F:e_info:X:3
+
+X:Randart
+Y:2
+F:e_info:X:3
+
+X:Ability
+Y:3
+F:e_info:X:3
+
+X:Power
+Y:4
+F:e_info:X:3
+
+X:High
+Y:6
+F:e_info:X:3
+
+X:Resist
+Y:7
+F:e_info:X:3
+
+X:Low
+Y:8
+F:e_info:X:3
+
+X:High, 1/5 slay demon
+Y:10
+F:e_info:X:3
+
+X:Sustain+High+1/3 rpoison
+Y:11
+F:e_info:X:3
+
+X:Sustain+1/4 blows
+Y:12
+F:e_info:X:3
+
+X:Slaying
+Y:13
+F:e_info:X:3
+
+X:High+1/4 rpoison
+Y:14
+F:e_info:X:3
+
+X:Resist+1/4 rpoison
+Y:15
+F:e_info:X:3
+
+X:1/3 Telepathy
+Y:16
+F:e_info:X:3
+
+X:1/3 rfear
+Y:17
+F:e_info:X:3
+
+X:pval 1-6
+Y:18
+F:e_info:X:3
+
+X:pval 0-3, 1/3 blows
+Y:19
+F:e_info:X:3
+
+X:1-3 Low/Poison
+Y:20
+F:e_info:X:3
+
+X:High, 1/3 hold life, 1/3 dex, 1/5 rfear
+Y:21
+F:e_info:X:3
+
+X:1/6 TY-curse
+Y:22
+F:e_info:X:3
+
+X:+1 dice
+Y:23
+F:e_info:X:3
+
+# More special effect codes, but this time applied to rings and amulets.
+
+X:1/3 resist+1/5 rpoison
+Y:24
+F:k_info:I:4
+
+X:1/3 slow digestion
+Y:25
+F:k_info:I:4
+
+X:~4 high resists
+Y:26
+F:k_info:I:4
+
+X:+~1 to pval
+Y:27
+F:k_info:I:4
+
+X:pval != 0
+Y:28
+F:k_info:I:4
+
+X:dragon resists
+Y:29
+F:k_info:I:4
+
+X:random pval
+Y:30
+F:k_info:I:4
+

@@ -455,92 +455,6 @@ static flag_name info_flags[] =
 	{"PAWN", SHOP, STORE_PAWN},
 };
 
-/* A list of the flags for explosion types understood by project(). */
-cptr explode_flags[] =
-{
-	"ELEC",
-	"POIS",
-	"ACID",
-	"COLD",
-	"FIRE",
-	"","","","",
-	"MISSILE",
-	"ARROW",
-	"PLASMA",
-	"",
-	"WATER",
-	"LITE",
-	"DARK",
-	"LITE_WEAK",
-	"DARK_WEAK",
-	"",
-	"SHARDS",
-	"SOUND",
-	"CONFUSION",
-	"FORCE",
-	"INERTIA",
-	"",
-	"MANA",
-	"METEOR",
-	"ICE",
-	"",
-	"CHAOS",
-	"NETHER",
-	"DISENCHANT",
-	"NEXUS",
-	"TIME",
-	"GRAVITY",
-	"","","","",
-	"KILL_WALL",
-	"KILL_DOOR",
-	"KILL_TRAP",
-	"","",
-	"MAKE_WALL",
-	"MAKE_DOOR",
-	"MAKE_TRAP",
-	"","","",
-	"OLD_CLONE",
-	"OLD_POLY",
-	"OLD_HEAL",
-	"OLD_SPEED",
-	"OLD_SLOW",
-	"OLD_CONF",
-	"OLD_SLEEP",
-	"OLD_DRAIN",
-	"","",
-	"AWAY_UNDEAD",
-	"AWAY_EVIL",
-	"AWAY_ALL",
-	"TURN_UNDEAD",
-	"TURN_EVIL",
-	"TURN_ALL",
-	"DISP_UNDEAD",
-	"DISP_EVIL",
-	"DISP_ALL",
-	"DISP_DEMON",
-	"DISP_LIVING",
-	"SHARD",
-	"NUKE",
-	"MAKE_GLYPH",
-	"STASIS",
-	"STONE_WALL",
-	"DEATH_RAY",
-	"STUN",
-	"HOLY_FIRE",
-	"HELL_FIRE",
-	"DISINTEGRATE",
-	"CHARM",
-	"CONTROL_UNDEAD",
-	"CONTROL_ANIMAL",
-	"PSI",
-	"PSI_DRAIN",
-	"TELEKINESIS",
-	"JAM_DOOR",
-	"DOMINATION",
-	"DISP_GOOD",
-	NULL
-};
-
 /* A list of the types of death event in order */
 static cptr death_flags[] =
 {
@@ -549,18 +463,6 @@ static cptr death_flags[] =
 	"OBJECT",
 	"EXPLODE",
 	"COIN",
-	NULL
-};
-
-/* A list of the types of coins. This can't be taken from k_info.txt because of
- * the duplicate entries. */
-cptr coin_types[] =
-{
-	"","","COPPER", /* 482 */
-	"","","SILVER", /* 485 */
-	"","","","","GOLD", /* 490 */
-	"","","","","","MITHRIL", /* 496 */
-	"ADAMANTIUM", /* 497 */
 	NULL
 };
 
@@ -655,7 +557,7 @@ if (readnum(chr) == -2) \
 { \
 	msg_format("Too many '%c's!", chr); \
 	msg_print(NULL); \
-	return ERR_PARSE; \
+	return PARSE_ERROR_GENERIC; \
 } \
 else if (readnum(chr) > -1) \
 { \
@@ -690,7 +592,7 @@ static bool find_string_x(char *buf, cptr string)
 	cptr array[2];
 	array[0] = string;
 	array[1] = NULL;
-	return (bool)find_string(buf, array);
+	return (0 != find_string(buf, array));
 }
 
 /* Find a string beginning and ending with a given character. Complain if it contains one of a set of other
@@ -747,7 +649,7 @@ static errr do_get_string(char *buf, char this, cptr all, char *output, u32b *th
 		else if (strchr(all, *r) && *r != this)
 		{
 			printf("Unexpected termination character!");
-			return ERR_PARSE;
+			return PARSE_ERROR_GENERIC;
 		}
 		/* Everything else is fine. */
 		else
@@ -760,7 +662,7 @@ static errr do_get_string(char *buf, char this, cptr all, char *output, u32b *th
 	if (max_size-(*this_size) < strlen(s))
 	{
 		msg_print("Not enough space for string!");
-		return ERR_MEMORY;
+		return PARSE_ERROR_OUT_OF_MEMORY;
 	}
 	/* Advance and save the index. */
 	if (!(*offset)) (*offset) = ++(*this_size);
@@ -880,14 +782,14 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 			if (!r_idx)
 			{
 				msg_print("No r_idx specified!");
-				return ERR_MISSING;
+				return PARSE_ERROR_MISSING_RECORD_HEADER;
 			}
 
 			/* Find an unused event slot */
 			if ((++error_idx) >= MAX_I)
 			{
 				msg_print("Too many events!");
-				return ERR_MEMORY;
+				return PARSE_ERROR_OUT_OF_MEMORY;
 			}
 			d_ptr = (death_event_type*)head->info_ptr+error_idx;
 
@@ -935,7 +837,7 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 			d_ptr->r_idx != (d_ptr-1)->r_idx))
 			{
 				msg_print("IF_PREV without previous entry.");
-				return ERR_FLAG;
+				return PARSE_ERROR_INVALID_FLAG;
 			}
 
 			/* Look for flags compatible with the event type
@@ -1020,7 +922,7 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 						if (!a_ptr->name)
 						{
 							msg_print("No valid artefact specified.");
-							return ERR_PARSE;
+							return PARSE_ERROR_GENERIC;
 						}
 						/* Take an unstated k_idx to be that of the artefact. */
 						else if (!i_ptr->k_idx)
@@ -1031,7 +933,7 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 						else if (i_ptr->k_idx != a_ptr->k_idx)
 						{
 							msg_print("Incompatible object and artefact.");
-							return ERR_PARSE;
+							return PARSE_ERROR_GENERIC;
 						}
 					}
 #ifdef ALLOW_EGO_DROP
@@ -1042,7 +944,7 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 						if (!e_ptr->name)
 						{
 							msg_print("No valid ego type specified.");
-							return ERR_PARSE;
+							return PARSE_ERROR_GENERIC;
 						}
 						/* Ensure that the ego type is possible for this k_idx. */
 					}
@@ -1052,7 +954,7 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 					if (k_info[i_ptr->k_idx].name == 0)
 					{
 						msg_print("No valid object specified.");
-						return ERR_PARSE;
+						return PARSE_ERROR_GENERIC;
 					}
 
 					/* Ensure that RAND has not been used without a sensible thing
@@ -1064,14 +966,14 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 					))
 					{
 						msg_print("Nothing valid to randomise.");
-						return ERR_PARSE;
+						return PARSE_ERROR_GENERIC;
 					}
 
 					/* Prevent badly formatted ranges. */
 					if (i_ptr->min > i_ptr->max || !i_ptr->min)
 					{
 						msg_print("Bad number parameter.");
-						return ERR_FLAG;
+						return PARSE_ERROR_INVALID_FLAG;
 					}
 					break;
 				}
@@ -1104,14 +1006,14 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 					if (i_ptr->min > i_ptr->max || !i_ptr->min)
 					{
 						msg_print("Bad number parameter.");
-						return ERR_FLAG;
+						return PARSE_ERROR_INVALID_FLAG;
 					}
 
 					/* Prevent non-existant monster references. */
 					if (!i_ptr->num || i_ptr->num >= MAX_R_IDX)
 					{
 						msg_print("No monster specified!");
-						return ERR_FLAG;
+						return PARSE_ERROR_INVALID_FLAG;
 					}
 					break;
 				}
@@ -1127,14 +1029,14 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 					if (!i_ptr->method)
 					{
 						msg_print("No method indicated.");
-						return ERR_FLAG;
+						return PARSE_ERROR_INVALID_FLAG;
 					}
 					/* Allow (d30) or (100) damage formats,
 					 * but not no damage indicator at all. */
 					if (!i_ptr->dice && !i_ptr->sides)
 					{
 						msg_print("No damage indicator.");
-						return ERR_FLAG;
+						return PARSE_ERROR_INVALID_FLAG;
 					}
 					else if (!i_ptr->dice)
 					{
@@ -1153,7 +1055,7 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 					if (i_ptr->metal == -1)
 					{
 						msg_print("No coin type!");
-						return ERR_FLAG;
+						return PARSE_ERROR_INVALID_FLAG;
 					}
 					break;
 				}
@@ -1162,7 +1064,7 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 				default: /* i.e. no valid type specification */
 				{
 					msg_print("No event type specified!");
-					return ERR_MISSING;
+					return PARSE_ERROR_MISSING_RECORD_HEADER;
 				}
 			}
 			/* Fill in the other general flags now the text
@@ -1180,14 +1082,14 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 			if (!d_ptr->num || d_ptr->num > d_ptr->denom)
 			{
 				msg_print("Bad probability specification.");
-				return ERR_PARSE;
+				return PARSE_ERROR_GENERIC;
 			}
 			/* The type-specific text field should have either been reset, or not
 			 * set in the first place. */
 			if (temp_name_offset)
 			{
 				msg_print("Meaningless text field found.");
-				return ERR_PARSE;
+				return PARSE_ERROR_GENERIC;
 			}
 
 			/* Finally check that everything has been read. */
@@ -1198,7 +1100,7 @@ errr parse_r_event(char *buf, header *head, vptr *extra)
 					if (!strchr(": )\"", *s))
 					{
 						msg_print("Uninterpreted characters!");
-						return ERR_PARSE;
+						return PARSE_ERROR_GENERIC;
 					}
 				}
 			}
@@ -1334,7 +1236,7 @@ static u32b add_name(header *head, cptr buf)
  */
 errr parse_z_info(char *buf, header *head, vptr UNUSED *extra)
 {
-	char c;
+	char c, end[1];
 	long max;
 	maxima *z = head->info_ptr;
 
@@ -1342,7 +1244,8 @@ errr parse_z_info(char *buf, header *head, vptr UNUSED *extra)
 	error_idx = 0;
 
 	/* Verify M:x:num format. */
-	if (2 != sscanf(buf, "M:%c:%ld", &c, &max)) return PARSE_ERROR_GENERIC;
+	if (2 != sscanf(buf, "M:%c:%ld%c", &c, &max, end))
+		return PARSE_ERROR_INCORRECT_SYNTAX;
 
 	switch (c)
 	{
@@ -1368,7 +1271,7 @@ errr parse_f_info(char *buf, header *head, vptr *extra)
 {
 	int i;
 
-	char *s;
+	char *s, end[1];
 
 	/* Current entry */
 	feature_type *f_ptr = *extra;
@@ -1419,7 +1322,8 @@ errr parse_f_info(char *buf, header *head, vptr *extra)
 			int mimic;
 
 			/* Scan for the values */
-			if (1 != sscanf(buf+2, "%d", &mimic)) return (1);
+			if (1 != sscanf(buf+2, "%d%c", &mimic, end))
+				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
 			f_ptr->mimic = mimic;
@@ -1433,9 +1337,9 @@ errr parse_f_info(char *buf, header *head, vptr *extra)
 			char sym, col;
 
 			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%c:%c", &pri, &sym, &col))
+			if (3 != sscanf(buf+2, "%d:%c:%c%c", &pri, &sym, &col, end))
 			{
-				return PARSE_ERROR_MISSING_RECORD_HEADER;
+				return PARSE_ERROR_INCORRECT_SYNTAX;
 			}
 
 			/* Extract and check the color */
@@ -1467,7 +1371,7 @@ errr parse_v_info(char *buf, header *head, vptr *extra)
 {
 	int i;
 
-	char *s;
+	char *s, end[1];
 
 	/* Current entry */
 	vault_type *v_ptr = *extra;
@@ -1528,8 +1432,9 @@ errr parse_v_info(char *buf, header *head, vptr *extra)
 			int typ, rat, hgt, wid;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			                &typ, &rat, &hgt, &wid)) return (1);
+			if (4 != 
+				sscanf(buf+2, "%d:%d:%d:%d%c", &typ, &rat, &hgt, &wid, end))
+					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
 			v_ptr->typ = typ;
@@ -1597,7 +1502,7 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 {
 	int i;
 
-	char *s, *t;
+	char *s, *t, end[1];
 
 	/* Current entry */
 	object_kind *k_ptr = *extra;
@@ -1649,9 +1554,9 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 			int tmp, p_id;
 
 			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%c:%c:%d", &sym, &col, &p_id))
+			if (3 != sscanf(buf+2, "%c:%c:%d%c", &sym, &col, &p_id, end))
 			{
-				return (2);
+				return PARSE_ERROR_INCORRECT_SYNTAX;
 			}
 
 			/* Extract the attr */
@@ -1674,16 +1579,29 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 
 		case 'I':
 		{
-			int tval, pval, extra;
+			int tval, pval, kextra;
 
 			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &tval, &pval, &extra)) return (1);
+			if (3 != sscanf(buf+2, "%d:%d:%d%c", &tval, &pval, &kextra, end))
+				return PARSE_ERROR_INCORRECT_SYNTAX;
+
+			if (tval < 0 || tval > 255 || kextra < 0 || kextra > 255)
+				return PARSE_ERROR_OUT_OF_BOUNDS;
+
+			switch(tval)
+			{
+				case TV_SORCERY_BOOK: case TV_THAUMATURGY_BOOK: case TV_CHARM:
+				case TV_CONJURATION_BOOK: case TV_NECROMANCY_BOOK:
+				{
+					if (kextra > MAX_BK) return PARSE_ERROR_OUT_OF_BOUNDS;
+					break;
+				}
+			}
 
 			/* Save the values */
 			k_ptr->tval = tval;
 			k_ptr->pval = pval;
-			k_ptr->extra = extra;
+			k_ptr->extra = kextra;
 
 			/* Next... */
 			return SUCCESS;
@@ -1692,13 +1610,15 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 		/* Process 'W' for "More Info" (one line only) */
 		case 'W':
 		{
-			int wgt;
+			int krating, wgt;
 			long cost;
 
 			/* Scan for the values */
-			if (2 != sscanf(buf+2, "%d:%ld", &wgt, &cost)) return (1);
+			if (3 != sscanf(buf+2, "%d:%d:%ld%c", &krating, &wgt, &cost, end))
+				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
+			k_ptr->rating = krating;
 			k_ptr->weight = wgt;
 			k_ptr->cost = cost;
 
@@ -1709,8 +1629,6 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 		/* Process 'A' for "Allocation" (one line only) */
 		case 'A':
 		{
-			int i;
-
 			/* XXX XXX XXX Simply read each number following a colon */
 			for (i = 0, s = buf+1; s && (s[0] == ':') && s[1]; ++i)
 			{
@@ -1744,8 +1662,9 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 			int ac, hd1, hd2, th, td, ta;
 
 			/* Scan for the values */
-			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			                &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d%c",
+				&hd1, &hd2, &th, &td, &ac, &ta, end))
+					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			k_ptr->ac = ac;
 			k_ptr->dd = hd1;
@@ -1808,6 +1727,8 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
  */
 errr parse_o_base(char *buf, header *head, vptr *extra)
 {
+	char end[1];
+
 	/* Current entry */
 	o_base_type *ob_ptr = *extra;
 
@@ -1869,8 +1790,8 @@ errr parse_o_base(char *buf, header *head, vptr *extra)
 			int oldp_id, newp_id;
 			o_base_type *ob2_ptr;
 
-			if (2 != sscanf(buf+2, "%d:%d",
-				&oldp_id, &newp_id)) return PARSE_ERROR_INCORRECT_SYNTAX;
+			if (2 != sscanf(buf+2, "%d:%d%c", &oldp_id, &newp_id, end))
+				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Check for valid indices */
 			try(byte_ok(oldp_id));
@@ -1924,7 +1845,8 @@ errr parse_o_base(char *buf, header *head, vptr *extra)
 			else
 			{
 				/* Scan for the values */
-				if (1 != sscanf(buf+2, "%ld", &cost)) return (PARSE_ERROR_GENERIC);
+				if (1 != sscanf(buf+2, "%ld%c", &cost, end))
+					return PARSE_ERROR_INCORRECT_SYNTAX;
 			}
 
 			/* Save the value */
@@ -1934,9 +1856,26 @@ errr parse_o_base(char *buf, header *head, vptr *extra)
 		}
 		default: /* Never reached. */
 		{
-			return UNREAD_VALUE;
+			return PARSE_ERROR_GENERIC;
 		}
 	}
+}
+
+static errr parse_unid_flavourless_aux(header *head, int p_id)
+{
+	/* Find the next element in u_info. */
+	unident_type *u_ptr = (unident_type*)head->info_ptr + (++error_idx);
+
+	/* Check that u_info is large enough. */
+	if (error_idx >= MAX_I) return PARSE_ERROR_OUT_OF_MEMORY;
+
+	/* Set the fields as required. */
+	u_ptr->name = 0;
+	u_ptr->p_id = p_id;
+	u_ptr->d_attr = TERM_DARK;
+	u_ptr->d_char = ' ';
+
+	return SUCCESS;
 }
 
 /*
@@ -1951,7 +1890,6 @@ static errr parse_unid_flavourless(header *head)
 	for (i = 0; i < z_info->ob_max; i++)
 	{
 		o_base_type *ob_ptr = &o_base[i];
-		unident_type *u_ptr;
 
 		/* No entry. */
 		if (!ob_ptr->name) continue;
@@ -1959,16 +1897,17 @@ static errr parse_unid_flavourless(header *head)
 		/* Not flavourless. */
 		if (strchr(ob_name+ob_ptr->name, CM_ACT+CI_FLAVOUR)) continue;
 			
-		/* Check that u_info is large enough. */
-		if (++error_idx >= MAX_I) return PARSE_ERROR_OUT_OF_MEMORY;
-
-		/* Set u_ptr. */
-		u_ptr = (unident_type*)head->info_ptr + error_idx;
-			
-		/* Set its p_id appropriately. */
-		u_ptr->name = 0;
-		u_ptr->p_id = i;
+		/* Add an entry. */
+		try(parse_unid_flavourless_aux(head, i));
 	}
+
+	/* Hack - there must always be at least one flavourless entry. */
+	if (((unident_type*)(head->info_ptr))[error_idx].name)
+	{
+		/* Add a dummy entry. */
+		try(parse_unid_flavourless_aux(head, 0));
+	}
+
 	return SUCCESS;
 }
 
@@ -1979,7 +1918,7 @@ errr parse_u_info(char *buf, header *head, vptr *extra)
 {
 	/* Current entry */
 	unident_type *u_ptr = *extra;
-	char *s;
+	char *s, end[1];
 
 	/* 
 	 * Only 'N' entries can set u_ptr.
@@ -2015,7 +1954,9 @@ errr parse_u_info(char *buf, header *head, vptr *extra)
 			s16b i;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%c:%c:%d:%d", &sym, &col, &p_id, &s_id)) return PARSE_ERROR_GENERIC;
+			if (4 != sscanf(buf+2, "%c:%c:%d:%d%c",
+				&sym, &col, &p_id, &s_id, end))
+					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Paranoia */
 			if (color_char_to_attr(col) < 0)
@@ -2090,7 +2031,7 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 
 	int i;
 
-	char *s, *t;
+	char *s, *t, end[1];
 
 	/* Need an a_ptr before anything is written. */
 	if (*buf != 'N' && !a_ptr) return PARSE_ERROR_MISSING_RECORD_HEADER;
@@ -2135,7 +2076,8 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 			int k_idx, pval;
 
 			/* Scan for the values */
-			if (2 != sscanf(buf+2, "%d:%d", &k_idx, &pval)) return 1;
+			if (2 != sscanf(buf+2, "%d:%d%c", &k_idx, &pval, end))
+				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Test the values */
 			if (k_idx < 0 || k_idx >= MAX_K_IDX || !k_info[k_idx].name ||
@@ -2157,8 +2099,9 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 			long cost;
 
 			/* Scan for the values */
-			if (5 != sscanf(buf+2, "%d:%d:%d:%d:%ld",
-			                &level, &level2, &rarity, &wgt, &cost)) return (1);
+			if (5 != sscanf(buf+2, "%d:%d:%d:%d:%ld%c",
+				&level, &level2, &rarity, &wgt, &cost, end))
+					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
 			a_ptr->level = level;
@@ -2175,8 +2118,9 @@ errr parse_a_info(char *buf, header *head, vptr *extra)
 			int ac, hd1, hd2, th, td, ta;
 
 			/* Scan for the values */
-			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			                &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d%c",
+				&hd1, &hd2, &th, &td, &ac, &ta, end))
+					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			a_ptr->ac = ac;
 			a_ptr->dd = hd1;
@@ -2243,6 +2187,7 @@ static errr grab_one_ego_item_flag(ego_item_type *ptr, cptr what)
  */
 errr parse_e_info(char *buf, header *head, vptr *extra)
 {
+	char end[1];
 	int i;
 
 	char *s, *t;
@@ -2290,15 +2235,15 @@ errr parse_e_info(char *buf, header *head, vptr *extra)
 		/* Process 'X' for "Xtra" (one line only) */
 		case 'X':
 		{
-			int slot, rating;
+			int r,s;
 
 			/* Scan for the values */
-			if (2 != sscanf(buf+2, "%d:%d",
-			                &slot, &rating)) return (1);
+			if (2 != sscanf(buf+2, "%d:%d%c", &r, &s, end))
+				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
-			e_ptr->slot = slot;
-			e_ptr->rating = rating;
+			e_ptr->rating = r;
+			e_ptr->special = s;
 
 			return SUCCESS;
 		}
@@ -2306,30 +2251,28 @@ errr parse_e_info(char *buf, header *head, vptr *extra)
 		/* Process 'W' for "More Info" (one line only) */
 		case 'W':
 		{
-			int level, rarity, pad2;
+			int chance;
 			long cost;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &rarity, &pad2, &cost)) return (1);
+			if (2 != sscanf(buf+2, "%d:%ld%c", &chance, &cost, end))
+				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
-			e_ptr->level = level;
-			e_ptr->rarity = rarity;
-			/* e_ptr->weight = wgt; */
+			e_ptr->chance = chance;
 			e_ptr->cost = cost;
 
 			return SUCCESS;
 		}
 
-		/* Hack -- Process 'C' for "creation" */
-		case 'C':
+		/* Process 'P' for "potential power". */
+		case 'P':
 		{
 			int th, td, ta, pv;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			                &th, &td, &ta, &pv)) return (1);
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d%c", &th, &td, &ta, &pv, end))
+				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			e_ptr->max_to_h = th;
 			e_ptr->max_to_d = td;
@@ -2339,6 +2282,35 @@ errr parse_e_info(char *buf, header *head, vptr *extra)
 			return SUCCESS;
 		}
 
+		/* Process 'O' for object range. */
+		case 'O':
+		{
+			int min, max;
+			switch (sscanf(buf+2, "%d:%d%c", &min, &max, end))
+			{
+				case 1:
+				{
+					max = min;
+					/* Fall through. */
+				}
+				case 2:
+				{
+					/* Check for sanity. */
+					if (!min || max >= z_info->k_max || max < min)
+						return PARSE_ERROR_OUT_OF_BOUNDS;
+
+					/* Set stuff. */
+					e_ptr->min_obj = min;
+					e_ptr->max_obj = max;
+					return SUCCESS;
+				}
+				default:
+				{
+					return PARSE_ERROR_INCORRECT_SYNTAX;
+				}
+			}
+		}
+		
 		/* Hack -- Process 'F' for flags */
 		case 'F':
 		{
@@ -2403,7 +2375,7 @@ errr parse_r_info(char *buf, header *head, vptr *extra)
 {
 	int i;
 
-	char *s, *t;
+	char *s, *t, end[1];
 
 	monster_race *r_ptr = (monster_race *)(*extra);
 
@@ -2482,8 +2454,9 @@ errr parse_r_info(char *buf, header *head, vptr *extra)
 			int spd, atspd, hp1, hp2, aaf, ac, slp;
 
 			/* Scan for the other values */
-			if (7 != sscanf(buf+2, "%d:%d:%dd%d:%d:%d:%d",
-			                &spd, &atspd, &hp1, &hp2, &aaf, &ac, &slp)) return (1);
+			if (7 != sscanf(buf+2, "%d:%d:%dd%d:%d:%d:%d%c",
+				&spd, &atspd, &hp1, &hp2, &aaf, &ac, &slp, end))
+					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
 			r_ptr->speed = spd+110;
@@ -2504,8 +2477,9 @@ errr parse_r_info(char *buf, header *head, vptr *extra)
 			long exp;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &lev, &rar, &pad, &exp)) return (1);
+			if (4 !=
+				sscanf(buf+2, "%d:%d:%d:%ld%c", &lev, &rar, &pad, &exp, end))
+					return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Save the values */
 			r_ptr->level = lev;
@@ -2983,7 +2957,7 @@ errr parse_q_list(char *buf, header *head, vptr *extra)
 			mon = find_monster_race(buf);
 
 			/* Check that a monster was found. */
-			if (mon < 0) return PARSE_ERROR_INVALID_FLAG;
+			if (mon < 1 || mon >= MAX_R_IDX) return PARSE_ERROR_INVALID_FLAG;
 
 			/* Only one unique can exist. */
 			if ((r_info[mon].flags1 & RF1_UNIQUE) && num > 1)
@@ -2997,6 +2971,8 @@ errr parse_q_list(char *buf, header *head, vptr *extra)
 			q_ptr->dungeon = n;
 			q_ptr->max_num = num;
 			q_ptr->known = TRUE; /* Fixed quests are known from the start. */
+
+			return SUCCESS;
 		}
 		case 'D': case 'I': case 'T': case 'S': case 'F':
 		{
@@ -3015,6 +2991,7 @@ errr parse_q_list(char *buf, header *head, vptr *extra)
  */
 errr parse_s_info(char *buf, header *head, vptr *extra)
 {
+	char end[1];
 	owner_type *ptr = *extra;
 
 	/* Only N can start a record. */
@@ -3041,8 +3018,8 @@ errr parse_s_info(char *buf, header *head, vptr *extra)
 			long cost, linf, uinf, haggle, insult;
 
 			/* Scan for values. */
-			if (sscanf(buf+2, "%ld:%ld:%ld:%ld:%ld", &cost, &uinf, &linf,
-				&haggle, &insult) != 5)
+			if (sscanf(buf+2, "%ld:%ld:%ld:%ld:%ld%c", &cost, &uinf, &linf,
+				&haggle, &insult, end) != 5)
 				return PARSE_ERROR_INCORRECT_SYNTAX;
 
 			/* Check the numbers are reasonable. */
@@ -3337,7 +3314,9 @@ errr parse_macro_info(char *buf, header *head, vptr *extra)
 			return add_text(&ptr->text, head, conv_string);
 		}
 		default: /* Never reached */
-		return UNREAD_VALUE;
+		{
+			return PARSE_ERROR_GENERIC;
+		}
 	}
 }
 
@@ -3538,15 +3517,15 @@ static errr parse_info_line_aux(char *buf, header *head, vptr *extra)
  *
  * It enforces the macros in the opposite order to that in which they are given.
  */
-static errr parse_info_line(char *buf, header *head, int start, vptr *extra)
+static errr parse_info_line(char *buf, header *head, int initmacro, vptr *extra)
 {
 	char buf2[1024];
 	char *buf2end = buf2+1023;
 	int i;
 
-	*buf2end = '\0';
+	WIPE(buf2, buf2);
 
-	for (i = start-1; i >= 0; i--)
+	for (i = initmacro-1; i >= 0; i--)
 	{
 		init_macro_type *macro_ptr = macro_info+i;
 
@@ -3707,7 +3686,7 @@ static errr parse_info_line(char *buf, header *head, int start, vptr *extra)
 
 				/* Parse the rest of this string. */
 				strcpy(buf, this_buf);
-				string_free(this_buf);
+				FREE(this_buf);
 				try(parse_info_line(buf, head, i, extra));
 
 				/* All done. */

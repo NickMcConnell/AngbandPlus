@@ -11,7 +11,7 @@
 # N:<monster index>:<monster name>
 # G:<monster symbol>:<monster colour>
 # I:<movement speed>:<attack speed>:<hit points>:<perception>:<armour class>:<sleep>
-# W:<level found at>:<rarity>:<kill score>
+# W:<level found at>:<rarity>:<power>
 # B:<attack type>[:<attack effect>][:<attack damage>]
 # F:<flag1> | <flag2>...
 # E:<information about special things which happen when the monster dies>
@@ -38,9 +38,12 @@
 # armor class, and alertness. Alertness ranges from 0 (ever vigilant for
 # intruders) to 255 (prefers to ignore intruders).
 
-# 'W' is for more information - level, rarity, and experience for
-# killing. A low positive rarity make the monster more common, but a rarity of
-# 0 prevents generation altogether.
+# 'W' is for more information - level, rarity, and relative power. A low
+# positive rarity make the monster more common, but a rarity of 0 prevents
+# generation altogether.
+# Power controls whether a monster with either the KILL_BODY or MOVE_BODY flag
+# can displace or destroy another given monster, affects the score bonus for
+# killing one and has a few other minor effects.
 
 # 'B' is for blows - method of attack, effect of attack, and damage
 # from attack. There may be up to four of these lines; effect and
@@ -94,7 +97,7 @@
 
 # Version stamp (required)
 
-V:1.0.7
+V:1.0.11
 
 
 ##### The Player #####
@@ -895,7 +898,7 @@ G:r:u
 I:+10:3:5d5:30:30:0
 W:2:1:32
 B:CLAW:HURT:1d2
-F:UNIQUE | ESCORT | ESCORTS |
+F:UNIQUE | ESCORT | ESCORTS | MALE
 F:FORCE_MAXHP |
 F:BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
@@ -2142,7 +2145,7 @@ F:EVIL
 D:He is eyeing your purse suspiciously.
 
 N:192:Fthssssss, Champion of Cats
-G:f:y
+G:f:w
 I:+10:5:10d10:40:30:0
 W:10:2:45
 B:CLAW:HURT:1d11
@@ -4965,7 +4968,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:Cool and confident, fast and lithe; protect your possessions quickly!
 
-N:405:Fire Phantom~
+N:405:& Fire Phantom~
 G:G:R
 I:+10:2:10d100:20:90:40
 W:34:5:1200
@@ -7611,7 +7614,7 @@ D:cloaked figure floats towards you.
 ##### Level 64 #####
 
 N:568:Bast, Goddess of Cats
-G:f:o
+G:f:v
 I:+20:8:48d100:100:200:0
 W:64:3:30500
 B:HIT:CONFUSE:12d12
@@ -8378,7 +8381,7 @@ I:+20:5:99d99:100:150:100
 W:93:3:50000
 B:CLAW:HURT:35d5
 B:TOUCH:ACID:35d5
-F:UNIQUE | ELDRITCH_HORROR | RES_TELE
+F:UNIQUE | ELDRITCH_HORROR | MALE | RES_TELE
 F:FORCE_SLEEP | FORCE_MAXHP | KILL_WALL | DEMON | AURA_FIRE | AURA_ELEC |
 F:ATTR_MULTI | ESCORTS | ESCORT | POWERFUL | ATTR_ANY | NONLIVING |
 F:KILL_ITEM | KILL_WALL | GREAT_OLD_ONE |

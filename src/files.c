@@ -186,16 +186,11 @@ static s16b tokenize(char *buf, s16b num, char **tokens)
 
 
 
-/* Just in case */
-#ifndef SUCCESS
-#define SUCCESS 0
-#define ERR_PARSE 1
-#define ERR_MEMORY 7
-#endif
 /*
  * Insert a set of stats into the stat_default array.
+ * Returns NULL on success, and an error string on failure.
  */
-errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b in, s16b wi, s16b dx, s16b co, s16b ch, cptr name)
+cptr add_stats(s16b sex, s16b race, s16b template, bool maximise, s16b st, s16b in, s16b wi, s16b dx, s16b co, s16b ch, cptr name)
 {
 	stat_default_type *sd_ptr;
 	byte i;
@@ -214,27 +209,30 @@ errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b 
 	/* Ignore nonsense values */
 	if (maximise != DEFAULT_STATS)
 	{
-		if (sex < 0 || sex >= MAX_SEXES) return ERR_PARSE;
-		if (race < 0 || race >= MAX_RACES) return ERR_PARSE;
-		if (template < 0 || template >= MAX_TEMPLATE) return ERR_PARSE;
-		if (maximise != TRUE && maximise != FALSE) return ERR_PARSE;
+		if (sex < 0 || sex >= MAX_SEXES) return "no such sex";
+		if (race < 0 || race >= MAX_RACES) return "no such race";
+		if (template < 0 || template >= MAX_TEMPLATE) return "no such template";
+		if (maximise != TRUE && maximise != FALSE) return "bad maximuse value";
 		for (i = 0; i < A_MAX; i++)
 		{
 			if (maximise)
 			{
 				/* Stats above 17 are not allowed. */
-				if (stat[i] > 17) return ERR_PARSE;
+				if (stat[i] > 17) return "bad stat value";
 
 				/* Stats below 8 with external values below 3 are not allowed. */
-				if (stat[i] < 8 && stat[i]+race_info[race].r_adj[i]+template_info[template].c_adj[i] < 3) return ERR_PARSE;
+				if (stat[i] < 8 && stat[i]+race_info[race].r_adj[i] +
+					template_info[template].c_adj[i] < 3)
+					return "bad stat value";
 			}
 			else
 			{
 				/* Stats above their maxima are not allowed. */
-				if (stat[i] > maxstat(race, template, i)) return ERR_PARSE;
+				if (stat[i] > maxstat(race, template, i))
+					return "bad stat value";
 
 				/* Stats below 3 are not allowed. */
-				if (stat[i] < 3) return ERR_PARSE;
+				if (stat[i] < 3) return "bad stat value";
 			}
 		}
 	}
@@ -246,7 +244,7 @@ errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b 
 	if (stat_default_total == MAX_STAT_DEFAULT)
 	{
 		/* Too many defaults, so give an error in the absence of a better idea. */
-		return ERR_MEMORY;
+		return "too many stat values";
 	}
 
 	sd_ptr = &stat_default[stat_default_total];
@@ -263,7 +261,7 @@ errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b 
 	sd_ptr->name = quark_add(name);
 
 	/* Require space for the name. */
-	if (!sd_ptr->name) return ERR_MEMORY;
+	if (!sd_ptr->name) return "too many strings";
 
 	/* Look for duplicates.
 	 * These are common as saving creates a new copy of everything.
@@ -290,7 +288,7 @@ errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b 
 
 	/* No duplicates, so advance the index */
 	if (i == stat_default_total) stat_default_total++;
-	return SUCCESS;
+	return NULL;
 }
 
 /*
@@ -377,8 +375,13 @@ errr add_stats(s16b sex, s16b race, s16b template, s16b maximise, s16b st, s16b 
  *
  * Specify a default set of initial statistics for spend_points
  *   D:<sex>:<race>:<class>:<maximise_mode>:<Str>:<Int>:<Wis>:<Dex>:<Con>:<Chr>:<Name>
+ *
+ * Specify the screen location of a redraw_stuff() display.
+ *   L:<name>:<x>:<y>
+ *
+ * Returns NULL on success, an error message on failure.
  */
-errr process_pref_file_aux(char *buf, u16b *sf_flags)
+cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 {
 	int i, j, n1, n2;
 
@@ -394,7 +397,7 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 	if (buf[0] == '#') return (0);
 
 	/* Require "?:*" format */
-	if (buf[1] != ':') return (1);
+	if (buf[1] != ':') return "missing colon";
 
 
 	/* Process "%:<fname>" */
@@ -404,12 +407,17 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 		case '%': 
 		{
 			/* Attempt to Process the given file */
-			return (process_pref_file(buf + 2));
+			process_pref_file(buf + 2);
 		}
 		/* Process O:<version> -- save file version for this file. */
 		case 'O': 
 		{
-			*sf_flags = strtol(buf+2, NULL, 0);
+			j = tokenize(buf+2, MAX_SF_VAR, zz);
+			if (!j) return "format not O:<ver>:<ver>:...";
+			for (i = 0; i < j; i++)
+			{
+				sf_flags[i] = strtol(zz[i], NULL, 0);
+			}
 			return 0;
 		}
 		/* Process "R:<num>:<a>/<c>" -- attr/char for monster races */
@@ -420,17 +428,17 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 			{
 				monster_race *r_ptr;
 				i = (huge)strtol(zz[0], NULL, 0);
-				if (i < 0 || i > MAX_SHORT) return (1);
-				i = convert_r_idx(i, sf_flags[0], sf_flags_now);
+				if (i < 0 || i > MAX_SHORT) return "no such monster";
+				i = convert_r_idx(i, sf_flags, sf_flags_now);
 				n1 = strtol(zz[1], NULL, 0);
 				n2 = strtol(zz[2], NULL, 0);
-				if (i >= MAX_R_IDX) return (1);
+				if (i >= MAX_R_IDX) return "no such monster";
 				r_ptr = &r_info[i];
 				if (n1) r_ptr->x_attr = n1;
 				if (n2) r_ptr->x_char = n2;
 				return (0);
 			}
-			else return (1);
+			else return "format not R:<num>:<a>/<c>";
 		}
 		/* Process "K:<num>:<a>/<c>"  -- attr/char for object kinds */
 		case 'K':
@@ -440,17 +448,26 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 			{
 				object_kind *k_ptr;
 				i = (huge)strtol(zz[0], NULL, 0);
-				if (i < 0 || i > MAX_SHORT) return (1);
-				i = convert_k_idx(i, sf_flags[0], sf_flags_now);
+				if (i < 0 || i > MAX_SHORT) return "no such object";
+				i = convert_k_idx(i, sf_flags, sf_flags_now);
 				n1 = strtol(zz[1], NULL, 0);
 				n2 = strtol(zz[2], NULL, 0);
-				if (i >= MAX_K_IDX) return (1);
+				if (i >= MAX_K_IDX) return "no such object";
 				k_ptr = &k_info[i];
 				if (n1) k_ptr->x_attr = n1;
 				if (n2) k_ptr->x_char = n2;
 				return (0);
 			}
-			else return (1);
+			else return "format not K:<num>:<a>/<c>";
+		}
+		/* 
+		 * Simply extract the tokens and pass to squelch.c, as no action is
+		 * appropriate without detailed knowledge.
+		 */
+		case 'Q':
+		{
+			int i = tokenize(buf+2, 16, zz);
+			return process_pref_squelch(zz, i, sf_flags);
 		}
 		/* Process "U:<p_id>:<s_id>:<a>/<c>"  -- attr/char for unidentified objects */
 		case 'U':
@@ -463,17 +480,19 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 				j = (huge)strtol(zz[1], NULL, 0);
 				n1 = strtol(zz[2], NULL, 0);
 				n2 = strtol(zz[3], NULL, 0);
-				if (i < 0 || i > 255 || j < 0 || j > 255) return (1);
+				if (i < 0 || i > 255 || j < 0 || j > 255)
+					return "no such unidentified object";
 
 				i = lookup_unident(i,j);
-				if (i >= MAX_U_IDX) return (1);
-				if (i < 0) return (1);
+				if (i < 0 || i >= MAX_U_IDX)
+					return "no such unidentified object";
 				u_ptr = &u_info[i];
 				if (n1) u_ptr->x_attr = n1;
 				if (n2) u_ptr->x_char = n2;
 				return (0);
 			}
-	}
+			else return "format not U:<p_id>:<s_id>:<a>/<c>";
+		}
 
 		/* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
 		case 'F':
@@ -485,12 +504,13 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 				i = (huge)strtol(zz[0], NULL, 0);
 				n1 = strtol(zz[1], NULL, 0);
 				n2 = strtol(zz[2], NULL, 0);
-				if (i >= MAX_F_IDX) return (1);
+				if (i >= MAX_F_IDX) return "no such feature";
 				f_ptr = &f_info[i];
 				if (n1) f_ptr->x_attr = n1;
 				if (n2) f_ptr->x_char = n2;
 				return (0);
 			}
+			else return "format not F:<num>:<a>/<c>";
 		}
 
 
@@ -506,6 +526,7 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 				if (n2) tval_to_char[j] = n2;
 				return (0);
 			}
+			else return "format not E:<tv>:<a>/<c>";
 		}
 
 
@@ -536,28 +557,26 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 				{
 					for (mode = 0; mode < KEYMAP_MODES; mode++)
 					{
-						string_free(keymap_act[mode][i]);
+						FREE(keymap_act[mode][i]);
 					}
 				}
 				C_WIPE(keymap_act, (MAX_UCHAR+1)*KEYMAP_MODES, cptr);
 				return SUCCESS;
 			}
 	
-			if (tokenize(buf+2, 2, zz) != 2) return (1);
+			if (tokenize(buf+2, 2, zz) != 2) return "format not C:<mode>:<key>";
 	
 			mode = strtol(zz[0], NULL, 0);
-			if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
+			if ((mode < 0) || (mode >= KEYMAP_MODES))
+				return "no such keymap mode";
 	
 			if (strlen(format("%v", text_to_ascii_f1, zz[1])) != 1)
-				return (1);
+				return "no such key";
 			i = (byte)(format(0)[0]);
 	
-			string_free(keymap_act[mode][i]);
+			FREE(keymap_act[mode][i]);
 	
 			keymap_act[mode][i] = string_make(macro__buf);
-	
-			/* XXX Hack -- See main-win.c */
-			angband_keymap_flag = TRUE;
 	
 			return (0);
 		}
@@ -575,29 +594,15 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 				angband_color_table[i][3] = (byte)strtol(zz[4], NULL, 0);
 				return (0);
 			}
+			else return "format not V:<num>:<kv>:<rv>:<gv>:<bv>";
 		}
-	
-	
-		/* Process "X:<str>" -- turn option off */
-		case 'X':
-		{
-			for (i = 0; option_info[i].o_desc; i++)
-			{
-				if (option_info[i].o_var &&
-				    option_info[i].o_text &&
-				    streq(option_info[i].o_text, buf + 2))
-				{
-					(*option_info[i].o_var) = FALSE;
-					return (0);
-				}
-			}
-		}
-	
+
 		/* Process M:<attr>:<attr>... -- set monster memory colours */
 		case 'M':
 		{
 			/* Expect M:xx:xx:xx:xx (MAX_MONCOL times) format. */
-			if (strlen(buf) < MAX_MONCOL*3+1) return 1;
+			if (strlen(buf) < MAX_MONCOL*3+1)
+				return "format not M:<attr>:<attr>:...";
 			for (i = 0; i < MAX_MONCOL; i++)
 			{
 				moncol_type *mc_ptr = &moncol[i];
@@ -607,47 +612,54 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 				if (strchr(atchar, c2))
 					mc_ptr->attr = strchr(atchar, c2)-atchar;
 				else
-					return 1;
+					return "unidentified colour";
 				/* Then read the first character, if present. */
 				if (strchr(atchar, c1))
 					mc_ptr->attr += 16*(strchr(atchar, c1)-atchar);
 				else if (c1 != ' ')
-					return 1;
+					return "unidentified colour";
 			}
 			return 0;
 		}
 		
-		/* Process "Y:<str>" -- turn option on */
-		case 'Y':
+		/* Process "Y:<str>"/"X:<str>" -- turn option on/off */
+		case 'Y': case 'X':
 		{
-			for (i = 0; option_info[i].o_desc; i++)
+			const option_type *op_ptr;
+			for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
 			{
-				if (option_info[i].o_var &&
-				    option_info[i].o_text &&
-				    streq(option_info[i].o_text, buf + 2))
+				if (op_ptr->o_var && op_ptr->o_text &&
+				    !strcmp(op_ptr->o_text, buf + 2))
 				{
-					(*option_info[i].o_var) = TRUE;
-					return (0);
+					/* Set the option. */
+					(*op_ptr->o_var) = (buf[0] == 'Y');
+
+					/* Do whatever should be done for it. */
+					opt_special_effect(op_ptr);
+
+					return SUCCESS;
 				}
 			}
+			/* Not a real option. */
+			return "no such option";
 		}
 		/* Process W:<term name>:<display name>:<triggered>:<untriggered>
 		 * to a window flag.
 		 */
 		case 'W':
 		{
-			cptr goodpri = ".abcdefghij";
-			uint term, display, pri, rep;
+			cptr goodpri = ".abcdefghij.0123456789";
+			uint display, pri, rep;
+			window_type *w_ptr;
 
 			if (!strcmp(buf+2, "---reset---"))
 			{
-				for (display = 0; display < N_ELEMENTS(window_flag_desc);
-					display++)
+				for (display = 0; display < NUM_DISPLAY_FUNCS; display++)
 				{
-					for (term = 0; term < N_ELEMENTS(windows); term++)
+					for (w_ptr = windows; w_ptr < END_PTR(windows); w_ptr++)
 					{
-						windows[term].rep[display] = 0;
-						windows[term].pri[display] = 0;
+						w_ptr->rep[display] = 0;
+						w_ptr->pri[display] = 0;
 					}
 				}
 				return SUCCESS;
@@ -655,34 +667,32 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 
 
 			if (tokenize(buf+2, 4, zz) != 4)
-				return PREF_ERROR_INCORRECT_SYNTAX;
+				return "format not W:<window>:<display>:<triggered>:<untriggered>";
 
 			/* Identify the term and display strings. */
-			for (term = 0;; term++)
+			for (w_ptr = windows;; w_ptr++)
 			{
-				if (term == N_ELEMENTS(windows))
-					return PREF_ERROR_UNKNOWN_PARAMETER;
-				if (!strcmp(windows[term].name, zz[0])) break;
+				if (w_ptr == END_PTR(windows))
+					return "no such window";
+				if (!strcmp(w_ptr->name, zz[0])) break;
 			}
 			for (display = 0;; display++)
 			{
-				if (display == N_ELEMENTS(window_flag_desc))
-					return PREF_ERROR_UNKNOWN_PARAMETER;
-				if (!window_flag_desc[display]) continue;
-				if (!strcmp(window_flag_desc[display]+8, zz[1])) break;
+				if (display == NUM_DISPLAY_FUNCS)
+					return "no such display";
+				if (!strcmp(display_func[display].name, zz[1])) break;
 			}
 
 			/* Identify the triggered and untriggered numbers. */
-			if (!strchr(goodpri, zz[2][0]) || zz[2][1])
-				return PREF_ERROR_OUT_OF_BOUNDS;
-			if (!strchr(goodpri, zz[3][0]) || zz[3][1])
-				return PREF_ERROR_OUT_OF_BOUNDS;
-			rep = strchr(goodpri, zz[2][0])-goodpri;
-			pri = strchr(goodpri, zz[3][0])-goodpri;
+			if ((!strchr(goodpri, zz[2][0]) || zz[2][1]) ||
+				!strchr(goodpri, zz[3][0]) || zz[3][1])
+				return "no such priority";
+			rep = (strchr(goodpri, zz[2][0])-goodpri)%11;
+			pri = (strchr(goodpri, zz[3][0])-goodpri)%11;
 
 			/* Enact the requests and return. */
-			windows[term].rep[display] = rep;
-			windows[term].pri[display] = pri;
+			w_ptr->rep[display] = rep;
+			w_ptr->pri[display] = pri;
 			return SUCCESS;
 		}
 		/*
@@ -691,40 +701,73 @@ errr process_pref_file_aux(char *buf, u16b *sf_flags)
 		case 'D':
 		{
 			byte total = tokenize(buf+2, 11, zz);
-			errr err;
+			cptr err;
 			/* We can accept D with or without a name, but everything else must be there. */
 			switch (total)
-				{
+			{
 				/* No name given, so make one up. */
 				case 10:
-						{
+				{
 					char name[32];
 					create_random_name(ator(*zz[1]), name);
 					err = add_stats(ator(*zz[0]), ator(*zz[1]),
-					 ator(*zz[2]), strtol(zz[3], NULL, 0),
+					 ator(*zz[2]), strtol(zz[3], NULL, 0) != 0,
 					 strtol(zz[4], NULL, 0), strtol(zz[5], NULL, 0),
 					 strtol(zz[6], NULL, 0), strtol(zz[7], NULL, 0),
 					 strtol(zz[8], NULL, 0), strtol(zz[9], NULL, 0), name);
 					break;
-						}
+				}
 				case 11:
-						{
+				{
 					err = add_stats(ator(*zz[0]), ator(*zz[1]),
-					 ator(*zz[2]), strtol(zz[3], NULL, 0),
+					 ator(*zz[2]), strtol(zz[3], NULL, 0) != 0,
 					 strtol(zz[4], NULL, 0), strtol(zz[5], NULL, 0),
 					 strtol(zz[6], NULL, 0), strtol(zz[7], NULL, 0),
 					 strtol(zz[8], NULL, 0), strtol(zz[9], NULL, 0), zz[10]);
 					break;
 				}
 				default:
-				return ERR_PARSE;
+				return "format not D:<sex>:<race>:<class>:<maximise>:<str>:<int>:<wis>:<dex>:<con>:<chr>:<name>";
 			}
 			return err;
+		}
+		case 'L':
+		{
+			if (tokenize(buf+2, 3, zz) == 3)
+			{
+				int x,y;
+				co_ord *co_ptr;
+				for (co_ptr = screen_coords; co_ptr < END_PTR(screen_coords);
+					co_ptr++)
+				{
+					if (!strcmp(co_ptr->name, zz[0])) goto L_okay;
+				}
+				return "no such display";
+L_okay:
+
+				if (!isdigit(zz[1][0]) || !isdigit(zz[2][0]))
+					return "non-numerical co-ordinate";
+
+				x = atoi(zz[1]);
+				y = atoi(zz[2]);
+
+				if (x < -255 || x > 255 || y < -255 || y > 255)
+					return "co-ordinates must be between -255 and 255";
+
+				co_ptr->x = x;
+				co_ptr->y = y;
+
+				return SUCCESS;
+			}
+			else
+			{
+				return "format not L:<display>:<x>:<y>";
+			}
 		}
 		default:
 		{
 			/* Failure */
-			return (1);
+			return "no such preference category";
 		}
 	}
 }
@@ -937,6 +980,14 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 	return (v);
 }
 
+/*
+ * Helper function for process_pref_file().
+ */
+static bool process_pref_file_expr_p(char *str)
+{
+	char c;
+	return strcmp(process_pref_file_expr(&str, &c), "0");
+}
 
 /*
  * Process the "user pref file" with the given name
@@ -954,11 +1005,13 @@ errr process_pref_file(cptr name)
 
 	int num;
 
-	errr err = 0;
+	cptr err = 0;
 
 	bool bypass = FALSE;
 
-	u16b sf_flags = 0;
+	/* Use the oldest version as a default. */
+	u16b sf_flags[MAX_SF_VAR];
+	WIPE(sf_flags, sf_flags);
 
 	/* Look in ANGBAND_DIR_PREF. */
 	if (!((fp = my_fopen_path(ANGBAND_DIR_PREF, name, "r"))) &&
@@ -967,12 +1020,14 @@ errr process_pref_file(cptr name)
 		!((fp = my_fopen_path(ANGBAND_DIR_USER, name, "r"))))
 
 	/* No such file */
-		return (-1);
+		return FILE_ERROR_CANNOT_OPEN_FILE;
 
 
 	/* Process the file */
 	for (num = 0; !my_fgets(fp, buf, 1024); num++)
 	{
+		char buf2[1024];
+
 		/* Skip "empty" lines */
 		if (!buf[0]) continue;
 
@@ -986,18 +1041,8 @@ errr process_pref_file(cptr name)
 		/* Process "?:<expr>" */
 		if ((buf[0] == '?') && (buf[1] == ':'))
 		{
-			char f;
-			cptr v;
-			char *s;
-
-			/* Start */
-			s = buf + 2;
-
 			/* Parse the expr */
-			v = process_pref_file_expr(&s, &f);
-
-			/* Set flag */
-			bypass = (streq(v, "0") ? TRUE : FALSE);
+			bypass = !process_pref_file_expr_p(buf+2);
 
 			/* Continue */
 			continue;
@@ -1011,15 +1056,17 @@ errr process_pref_file(cptr name)
 		if (buf[0] == '%')
 		{
 			/* Process that file if allowed */
-			(void)process_pref_file(buf + 2);
+			process_pref_file(buf + 2);
 
 			/* Continue */
 			continue;
 		}
 
+		/* Make a copy to make any error message clearer. */
+		strcpy(buf2, buf);
 
 		/* Process the line */
-		err = process_pref_file_aux(buf, &sf_flags);
+		err = process_pref_file_aux(buf2, sf_flags);
 
 		/* Oops */
 		if (err) break;
@@ -1030,7 +1077,7 @@ errr process_pref_file(cptr name)
 	if (err)
 	{
 		/* Useful error message */
-		msg_format("Error %d in line %d of file '%s'.", err, num, name);
+		msg_format("Error \"%s\" in line %d of file '%s'.", err, num, name);
 		msg_format("Parsing '%s'", buf);
 	}
 
@@ -1038,7 +1085,7 @@ errr process_pref_file(cptr name)
 	my_fclose(fp);
 
 	/* Result */
-	return (err);
+	return (err) ? PARSE_ERROR_GENERIC : SUCCESS;
 }
 
 
@@ -1284,11 +1331,11 @@ errr check_load_init(void)
  * Print long number with header at given row, column
  * Use the color for the number, not the header
  */
-static void prt_lnum(cptr header, s32b num, int row, int col, byte color)
+static void prt_lnum(cptr str, s32b num, int row, int col, byte color)
 {
-	int len = strlen(header);
+	int len = strlen(str);
 	char out_val[32];
-	put_str(header, row, col);
+	put_str(str, row, col);
 	(void)sprintf(out_val, "%9ld", (long)num);
 	c_put_str(color, out_val, row, col + len);
 }
@@ -1296,11 +1343,11 @@ static void prt_lnum(cptr header, s32b num, int row, int col, byte color)
 /*
  * Print number with header at given row, column
  */
-static void prt_num(cptr header, int num, int row, int col, byte color)
+static void prt_num(cptr str, int num, int row, int col, byte color)
 {
-	int len = strlen(header);
+	int len = strlen(str);
 	char out_val[32];
-	put_str(header, row, col);
+	put_str(str, row, col);
 	put_str("   ", row, col + len);
 	(void)sprintf(out_val, "%6ld", (long)num);
 	c_put_str(color, out_val, row, col + len + 3);
@@ -1342,7 +1389,7 @@ void prt_nums(cptr txt, int y, int minx, int maxx, int cur, int max)
 	c_put_str(attr, temp, y, maxx-strlen(temp));
 }
 
-static void choose_ammunition(object_type *wp_ptr, object_type **am_ptr)
+static void choose_ammunition(object_ctype *wp_ptr, object_type **am_ptr)
 {
 	object_type *o_ptr;
 	int i;
@@ -1369,7 +1416,7 @@ static void choose_ammunition(object_type *wp_ptr, object_type **am_ptr)
 	return;
 }
 
-static void choose_bow(object_type *am_ptr, object_type **wp_ptr)
+static void choose_bow(object_ctype *am_ptr, object_type **wp_ptr)
 {
 	object_type *o_ptr;
 	s16b k_idx;
@@ -1407,6 +1454,124 @@ static void choose_bow(object_type *am_ptr, object_type **wp_ptr)
 }
 
 /*
+ * Calculate the average critical damage from a melee attack.
+ * This tends to underestimate the effects of critical hits, but is  fairly
+ * accurate.
+ */
+static s32b critical_average(int weight, int plus, int dam)
+{
+	int j, p = weight + ((p_ptr->to_h + plus) * 5) +
+		(skill_set[p_ptr->wield_skill].value);
+	s32b c;
+
+	if (p <= 0) return dam;
+	if (p > 5000) p = 5000;
+
+	for (j = weight+1, c = 0; j <= weight+650; j++)
+	{
+		if (j < 400) c += dam+5;
+		else if (j < 700) c += dam+10;
+		else if (j < 900) c += 2*dam+15;
+		else if (j < 1300) c += 2*dam+20;
+		else c += ((5*dam)/2)+25;
+	}
+
+	return dam+c/650*p/5000;
+}
+
+/*
+ * Give the average base damage the player gains from martial arts based on
+ * do_ma_attack(), which works as follows:
+ * 
+ * An attack is selected i times.
+ * The game chooses attacks randomly until one is selected, which happens
+ * (skill-ma_ptr->chance)/skill of the time.
+ * The attack with the greatest skill is chosen. If there are two such,
+ * the one chosen first is used.
+ *
+ * This does tend to underestimate the damage at high levels, but not by much.
+ */
+static s32b average_ma_damage(void)
+{
+	int i, j, k, t, skill = skill_set[SKILL_MA].value/2*2;
+	s32b c[MAX_MA], d[MAX_MA], tdam, denom;
+	for (t = 0; t < MAX_MA; t++)
+	{
+		if (ma_blows[t].min_level > skill) break;
+	}
+	if (!t || p_ptr->stun || p_ptr->confused)
+	{
+		martial_arts *ma_ptr = ma_blows+MAX_MA;
+		s32b crit, dam = 60*ma_ptr->dd*(ma_ptr->ds+1)/2;
+		for (k = 1, crit = 0; k <= 10; k++)
+		{
+			crit += critical_average(skill/2*k, ma_ptr->min_level/2, dam);
+		}
+		return crit/10;
+	}
+
+	/* Initialise d with the lowest blow. */
+	WIPE(d,d);
+	d[0] = 1;
+
+	for (i = MAX(1, skill/14); i; i--)
+	{
+		bool overflow = FALSE;
+		WIPE(c,c);
+
+		for (j = 0; j < t; j++)
+		{
+			/* Calculate how likely the routine is to select attack j. */
+			martial_arts *ma_ptr = ma_blows+j;
+			int chance = MAX(0, skill - ma_ptr->chance);
+
+			/* Transfer the chance for each previously selected attack. */
+			for (k = 0; k < t; k++)
+			{
+				/* If j is a higher level attack, it is used instead of k. */
+				if (ma_blows[k].min_level < ma_ptr->min_level)
+				{
+					c[j] += d[k]*chance;
+				}
+				/* Otherwise, k is still the chosen attack. */
+				else
+				{
+					c[k] += d[k]*chance;
+				}
+			}
+		}
+
+		for (j = 0; j < t; j++)
+		{
+			if (c[j] > MAX_S32B/MA_INTERVAL) overflow = TRUE;
+		}
+
+		/* Copy back, rounding if necessary. */
+		for (j = 0; j < t; j++)
+		{
+			if (overflow)
+				d[j] = c[j]/MA_INTERVAL;
+			else
+				d[j] = c[j];
+		}
+	}
+
+	for (j = denom = 0; j < MAX_MA; j++) denom += d[j];
+
+	for (j = tdam = 0; j < MAX_MA; j++)
+	{
+		s32b crit, dam = 60*ma_blows[j].dd*(ma_blows[j].ds+1)/2;
+		for (k = 1, crit = 0; k <= 10; k++)
+		{
+			crit += critical_average(skill/2*k, ma_blows[j].min_level/2, dam);
+		}
+		tdam += crit*d[j]/10;
+	}
+
+	return tdam/denom;
+}
+
+/*
  * Given an object to be scrutinised, find a weapon and some ammunition (if
  * appropriate) to use it.
  * 
@@ -1416,12 +1581,13 @@ static void choose_bow(object_type *am_ptr, object_type **wp_ptr)
 static int choose_weapon(object_type *o_ptr, object_type **wp_ptr,
 	object_type **am_ptr)
 {
-	s16b slot = wield_slot(o_ptr);
+	int slot = wield_slot(o_ptr);
+	object_ctype *j_ptr = get_real_obj(o_ptr);
 
 	/* Is o_ptr equipped? */
-	if (o_ptr == inventory+INVEN_WIELD || o_ptr == inventory+INVEN_BOW)
+	if (j_ptr == inventory+INVEN_WIELD || j_ptr == inventory+INVEN_BOW)
 	{
-		slot = o_ptr-inventory;
+		slot = j_ptr-inventory;
 	}
 
 	/* Set the weapon and ammunition pointers. */
@@ -1450,12 +1616,14 @@ static int choose_weapon(object_type *o_ptr, object_type **wp_ptr,
 	return slot;
 }
 
-	/* Now that's done, we do some statistical stuff.
-	 * We want to know the to-hit bonus, the damage bonus, the number of blows
-	 * per turn and the average damage per turn. */
-static void weapon_stats_calc(object_type *wp_ptr, object_type *am_ptr,
-	int slot, int slay, s16b *tohit, s16b *todam, s16b *weap_blow,
-	s16b *mut_blow, s32b *damage)
+/*
+ * Now that's done, we do some statistical stuff.
+ * We want to know the to-hit bonus, the damage bonus, the number of blows
+ * per turn and the average damage per turn.
+ */
+static void weapon_stats_calc(object_ctype *wp_ptr,
+	object_ctype *am_ptr, int slot, int slay, s16b *tohit, s16b *todam,
+	s16b *weap_blow, s16b *mut_blow, s32b *damage)
 {
 	int power, damsides, damdice, dicedam;
 
@@ -1512,10 +1680,16 @@ static void weapon_stats_calc(object_type *wp_ptr, object_type *am_ptr,
 	/* Calculate the damage bonus. */
 	(*damage) += 60*(*todam);
 	
-	/* Add in the slays. */
-	if (slot == INVEN_WIELD)
+	/* Martial arts damage. */
+	if (slot == INVEN_WIELD && ma_empty_hands())
 	{
-		(*damage) += dicedam * slay;
+		(*damage) += average_ma_damage();
+	}
+	/* Add in the slays. */
+	else if (slot == INVEN_WIELD)
+	{
+		(*damage) +=
+			critical_average(wp_ptr->weight, wp_ptr->to_h, dicedam * slay);
 	}
 	else
 	{
@@ -1534,12 +1708,12 @@ static void weapon_stats_calc(object_type *wp_ptr, object_type *am_ptr,
 		/* Hack - Vorpal Blade is more powerful. */
 		else if (wp_ptr->name1 == ART_VORPAL_BLADE)
 		{
-			(*damage) = (*damage) * 4 / 3;
+			(*damage) += dicedam * slay * 4 / 3;
 		}
 		/* Other VORPAL weapons. */
 		else
 		{
-			(*damage) = (*damage) * 19 / 18;
+			(*damage) = dicedam * slay * 19 / 18;
 		}			
 	}
 
@@ -1653,7 +1827,7 @@ static void display_player_sides(bool missile)
 
 	object_type j_ptr[1], *o_ptr = &inventory[(missile) ? INVEN_BOW : INVEN_WIELD];
 
-	object_info_known(j_ptr, o_ptr, 0);
+	object_info_known(j_ptr, o_ptr);
 
 	weapon_stats(j_ptr, 1, &show_tohit, &show_todam, &weap_blow, &mut_blow, &damage);
 
@@ -1907,7 +2081,7 @@ static void display_player_various(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-static void player_flags(u32b *f1, u32b *f2, u32b *f3)
+void player_flags(u32b *f1, u32b *f2, u32b *f3)
 {
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
@@ -2190,7 +2364,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 /*
  * Equippy chars
  */
-static void display_player_equippy(int y, int x)
+void display_player_equippy(int y, int x)
 {
 	int i;
 
@@ -2222,16 +2396,11 @@ static void display_player_equippy(int y, int x)
 }
 
 
-void print_equippy(void)
-{
-    display_player_equippy(ROW_EQUIPPY, COL_EQUIPPY);
-}
-
 /*
  * Helper function, see below
  */
 static void display_player_flag_aux(int row, int col,
-			const char *header, int n, u32b flag)
+			cptr str, int n, u32b flag)
 {
 	int i;
 
@@ -2239,10 +2408,10 @@ static void display_player_flag_aux(int row, int col,
 
 
 	/* Header */
-	c_put_str(TERM_WHITE, header, row, col);
+	c_put_str(TERM_WHITE, str, row, col);
 
 	/* Advance */
-	col += strlen(header) + 1;
+	col += strlen(str) + 1;
 
 
 	/* Check equipment */
@@ -2398,9 +2567,9 @@ static byte skill_colour(int skill_index)
 /*
  * Display the information for a given skill at a given position.
  */
-static void display_player_skills_aux(int skill, int x, int y)
+static void display_player_skills_aux(int skill)
 {
-	player_skill *sk_ptr = skill_set+skill;
+	const player_skill *sk_ptr = skill_set+skill;
 	cptr name;
 	char *s, buf[30];
 
@@ -2443,7 +2612,7 @@ static void display_player_skills_aux(int skill, int x, int y)
 	}
 
 	/* Print at the desired position. */
-	c_put_str(skill_colour(skill),buf,y,x);
+	c_put_str(skill_colour(skill), buf, sk_ptr->y, sk_ptr->x);
 }
 
 /*
@@ -2452,8 +2621,9 @@ static void display_player_skills_aux(int skill, int x, int y)
 
 static void display_player_skills(void)
 {
-	int x,y;
+	int skill;
 
+	/* Headers. */
 	put_str("Everyman Skills",1,7);
 	put_str("===============",2,7);
 	put_str("Specialist Skills",1,31);
@@ -2461,52 +2631,11 @@ static void display_player_skills(void)
 	put_str("Hermetic Skills",1,56);
 	put_str("===============",2,56);
 
-	/* Everyman Skills */
-	x = 5; y = 4;
-	display_player_skills_aux(SKILL_CLOSE, x, y++);
-	display_player_skills_aux(SKILL_SLASH, x, y++);
-	display_player_skills_aux(SKILL_STAB, x, y++);
-	display_player_skills_aux(SKILL_CRUSH, x, y++);
-	display_player_skills_aux(SKILL_MISSILE, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_TOUGH, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_DEVICE, x, y++);
-	display_player_skills_aux(SKILL_SAVE, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_PERCEPTION, x, y++);
-	display_player_skills_aux(SKILL_SEARCH, x, y++);
-	display_player_skills_aux(SKILL_PSEUDOID, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_DISARM, x, y++);
-	display_player_skills_aux(SKILL_STEALTH, x, y++);
-
-	/* Specialist Skills */
-	x = 30; y = 4;
-	display_player_skills_aux(SKILL_MA, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_MINDCRAFTING, x, y++);
-	display_player_skills_aux(SKILL_CHI, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_SHAMAN, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_HEDGE, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_RACIAL, x, y++);
-
-	/* Hermetic Skills */
-	x = 54; y = 4;
-	display_player_skills_aux(SKILL_THAUMATURGY, x, y++);
-	display_player_skills_aux(SKILL_NECROMANCY, x, y++);
-	display_player_skills_aux(SKILL_CONJURATION, x, y++);
-	display_player_skills_aux(SKILL_SORCERY, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_CORPORIS, x, y++);
-	display_player_skills_aux(SKILL_VIS, x, y++);
-	display_player_skills_aux(SKILL_NATURAE, x, y++);
-	display_player_skills_aux(SKILL_ANIMAE, x, y++);
-	y++;
-	display_player_skills_aux(SKILL_MANA, x, y++);
+	/* Skills */
+	for (skill = 0; skill < (int)N_ELEMENTS(skill_set); skill++)
+	{
+		display_player_skills_aux(skill);
+	}
 }
 
 /*
@@ -2617,7 +2746,7 @@ static void display_player_stat_info(void)
       
 		/* Internal "natural" max value.  Maxes at 18/100 */
 		/* This is useful to see if you are maxed out     */
-		cnv_stat(p_ptr->stat_max[i], buf);
+		strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_max[i]);
 		c_put_str(TERM_BLUE, buf, row+i, stat_col+5);
       
 		/* Race, template, and equipment modifiers */
@@ -2629,13 +2758,13 @@ static void display_player_stat_info(void)
 		c_put_str(TERM_L_BLUE, buf, row+i, stat_col+20);
       
 		/* Actual maximal modified value */
-		cnv_stat(p_ptr->stat_top[i], buf);
+		strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_top[i]);
 		c_put_str(TERM_L_GREEN, buf, row+i, stat_col+24);
       
 		/* Only display stat_use if not maximal */
 		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
 		{
-			cnv_stat(p_ptr->stat_use[i], buf);
+			strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_use[i]);
 			c_put_str(TERM_YELLOW, buf, row+i, stat_col+31);
 		}
 	}
@@ -2844,7 +2973,7 @@ static void display_player_stat_info_birth(void)
       
 		/* Internal "natural" max value.  Maxes at 18/100 */
 		/* This is useful to see if you are maxed out     */
-		cnv_stat(p_ptr->stat_max[i], buf);
+		strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_max[i]);
 		c_put_str(TERM_BLUE, buf, row+i, stat_col+5);
       
 		/* Race, template, and equipment modifiers */
@@ -2856,13 +2985,13 @@ static void display_player_stat_info_birth(void)
 		c_put_str(TERM_L_BLUE, buf, row+i, stat_col+20);
       
 		/* Actual maximal modified value */
-		cnv_stat(p_ptr->stat_top[i], buf);
+		strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_top[i]);
 		c_put_str(TERM_L_GREEN, buf, row+i, stat_col+24);
       
 		/* Only display stat_use if not maximal */
 		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
 		{
-			cnv_stat(p_ptr->stat_use[i], buf);
+			strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_use[i]);
 			c_put_str(TERM_YELLOW, buf, row+i, stat_col+31);
 		}
 	}
@@ -2976,59 +3105,62 @@ static cptr object_flag_names[96] =
 	"Prm Curse"
 };
 
+/*
+ * Return the flags the player is assumed to know his character to have.
+ */
+static void player_flags_known(u32b *f1, u32b *f2, u32b *f3)
+{
+	object_type *o_ptr;
+
+	/* Assume the racial flags are known. */
+	player_flags(f1, f2, f3);
+
+	/* Check the equipment. */
+	for (o_ptr = inventory+INVEN_WIELD; o_ptr <= inventory+INVEN_FEET; o_ptr++)
+	{
+		object_type j_ptr[1];
+
+		/* Known object things. */
+		object_info_known(j_ptr, o_ptr);
+
+		/* Add the flags. */
+		(*f1) |= j_ptr->flags1;
+		(*f2) |= j_ptr->flags2;
+		(*f3) |= j_ptr->flags3;
+	}
+}
+
+/*
+ * Return TRUE if the player knows his character possesses one of the
+ * indicated flags in the given variable.
+ */
+bool PURE player_has_flag_known(int set, u32b flag)
+{
+	u32b f[3];
+	assert(set > 0 && set < 4);
+	player_flags_known(f, f+1, f+2);
+	return (f[set-1] & flag) != 0;
+}
 
 /*
  * Summarize resistances
  */
 static void display_player_ben(void)
 {
-	int i, x, y;
+	int x, y;
 	
-	object_type *o_ptr;
+	u32b f[3];
 
-	u32b f1, f2, f3;
-
-	u16b b[6];
-
-
-	/* Reset */
-	for (i = 0; i < 6; i++) b[i] = 0;
-	
-
-	/* Scan equipment */
-	for (i = INVEN_WIELD; i < INVEN_POUCH_1; i++)
-	{
-		/* Object */
-		o_ptr = &inventory[i];
-
-		/* Known object flags */
-		object_flags_known(o_ptr, &f1, &f2, &f3);
-
-		/* Incorporate */
-		b[0] |= (f1 & 0xFFFF);
-		b[1] |= (f1 >> 16);
-		b[2] |= (f2 & 0xFFFF);
-		b[3] |= (f2 >> 16);
-		b[4] |= (f3 & 0xFFFF);
-		b[5] |= (f3 >> 16);
-	}
-
-
-	/* Player flags */
-	player_flags(&f1, &f2, &f3);
-	
-	/* Incorporate */
-	b[0] |= (f1 & 0xFFFF);
-	b[1] |= (f1 >> 16);
-	b[2] |= (f2 & 0xFFFF);
-	b[3] |= (f2 >> 16);
-	b[4] |= (f3 & 0xFFFF);
-	b[5] |= (f3 >> 16);
-
+	/* Get the known flags. */
+	player_flags_known(f, f+1, f+2);
 
 	/* Scan cols */
 	for (x = 0; x < 6; x++)
 	{
+		/* Split each variable in two. */
+		u32b b = f[x/2];
+		if (x % 2) b >>= 16;
+
 		/* Scan rows */
 		for (y = 0; y < 16; y++)
 		{
@@ -3047,7 +3179,7 @@ static void display_player_ben(void)
 			Term_putch(x * 13 + 10, y + 4, TERM_WHITE, ':');
 
 			/* Check flag */
-			if (b[x] & (1<<y))
+			if (b & (1<<y))
 			{
 				a = TERM_WHITE;
 				c = '+';
@@ -3197,7 +3329,7 @@ static void display_player_name_stats(void)
 				value = p_ptr->stat_use[i];
 
 				/* Obtain the current stat (modified) */
-				cnv_stat(value, buf);
+				strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_max[i]);
 
 				/* Display the current stat (modified) */
 				c_put_str(TERM_YELLOW, buf, 2 + i, 66);
@@ -3206,7 +3338,7 @@ static void display_player_name_stats(void)
 				value = p_ptr->stat_top[i];
 
 				/* Obtain the maximum stat (modified) */
-				cnv_stat(value, buf);
+				strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, value);
 
 				/* Display the maximum stat (modified) */
 				c_put_str(TERM_L_GREEN, buf, 2 + i, 73);
@@ -3219,7 +3351,7 @@ static void display_player_name_stats(void)
 				put_str(stat_names[i], 2 + i, 61);
 
 				/* Obtain the current stat (modified) */
-				cnv_stat(p_ptr->stat_use[i], buf);
+				strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_use[i]);
 
 				/* Display the current stat (modified) */
 				c_put_str(TERM_L_GREEN, buf, 2 + i, 66);
@@ -3387,7 +3519,7 @@ static bool inven_cnt(void)
  * XXX XXX XXX Allow the "full" flag to dump additional info,
  * and trigger its usage from various places in the code.
  */
-errr file_character(cptr name, bool UNUSED full)
+errr file_character(cptr name)
 {
 	int			i, x, y;
 
@@ -3399,8 +3531,6 @@ errr file_character(cptr name, bool UNUSED full)
 	int			fd = -1;
 
 	FILE		*fff = NULL;
-
-	C_TNEW(o_name, ONAME_MAX, char);
 
 	char		buf[1024];
 
@@ -3443,10 +3573,8 @@ errr file_character(cptr name, bool UNUSED full)
 	if (!fff)
 	{
 		/* Message */
-		msg_format("Character dump failed!");
+		msg_print("Character dump failed!");
 		msg_print(NULL);
-
-		TFREE(o_name);
 
 		/* Error */
 		return (-1);
@@ -3655,7 +3783,7 @@ next_cave:
 
             fprintf(fff," You have defeated one enemy.\n");
         else
-           fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
+           fprintf(fff,"\n You have defeated %ld enemies.\n", Total);
     }
     
 
@@ -3676,9 +3804,8 @@ next_cave:
 		fprintf(fff, "  [Character Equipment]\n\n");
 		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
-			strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, &inventory[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n",
-			        index_to_label(&inventory[i]), paren, o_name);
+			my_fprintf(fff, "%c%s %v\n", index_to_label(&inventory[i]), paren,
+				object_desc_f3, &inventory[i], TRUE, 3);
 
 			/* Describe random object attributes */
 			identify_fully_file(inventory+i, fff);
@@ -3690,9 +3817,8 @@ next_cave:
 	fprintf(fff, "  [Character Inventory]\n\n");
 	for (i = 0; i < INVEN_PACK && inventory[i].k_idx; i++)
 	{
-		strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, &inventory[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n",
-		        index_to_label(&inventory[i]), paren, o_name);
+		my_fprintf(fff, "%c%s %v\n", index_to_label(&inventory[i]), paren,
+			object_desc_f3, &inventory[i], TRUE, 3);
 
 		/* Describe random object attributes */
 		identify_fully_file(inventory+i, fff);
@@ -3718,8 +3844,8 @@ next_cave:
 		fprintf(fff, "[Home Inventory (%s)]\n\n", dun_name+dun_defs[town].shortname);
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
-			strnfmt(o_name, ONAME_MAX, "%v", object_desc_f3, &st_ptr->stock[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
+			my_fprintf(fff, "%c%s %v\n", I2A(i%12), paren,
+				object_desc_f3, &st_ptr->stock[i], TRUE, 3);
 
 			/* Describe random object attributes */
 			identify_fully_file(&st_ptr->stock[i], fff);
@@ -3737,8 +3863,6 @@ next_cave:
 	/* Message */
 	msg_print("Character dump successful.");
 	msg_print(NULL);
-
-	TFREE(o_name);
 
 	/* Success */
 	return (0);
@@ -3803,10 +3927,21 @@ int color_char_to_attr(char c)
 }
 
 
+typedef struct link_det link_det;
+struct link_det
+{
+	char tag[32];
+	char key;
+	int x;
+	int y;
+	int line;
+};
+
 /*
  * A structure to hold (some of == XXX) the hyperlink information.
  * This prevents excessive use of stack.
  */
+typedef struct hyperlink hyperlink_type;
 struct hyperlink
 {
 	/* Path buffer */
@@ -3825,14 +3960,26 @@ struct hyperlink
 	char caption[128];
 
 	/* Hypertext info */
-	char link[400][32], link_key[400];
-	int  link_x[400], link_y[400], link_line[400];
+	link_det link[400];
 
 	int cur_link;	/* Currently selected link. */
 	int max_link;	/* Number of links known. */
 };
 
-typedef struct hyperlink hyperlink_type;
+static cptr *help_files = NULL;
+
+typedef struct link_type link_type;
+struct link_type
+{
+	cptr str; /* The line which includes the links. */
+	cptr file; /* The file the links appear in. */
+	long pos; /* The position in the file of the line after the link. */
+};
+
+static link_type *links = NULL;
+static int num_links;
+
+#define MAX_LINKS 1024
 
 /*
  * Attempt to open a file in a standard Angband directory for show_file_aux().
@@ -3865,6 +4012,7 @@ static FILE *show_fopen(hyperlink_type *h_ptr, cptr path, cptr name)
  */
 static FILE *reflow_file(FILE *fff, hyperlink_type *h_ptr)
 {
+	bool skip;
 	cptr s;
 	int w,h,space;
 	int x;
@@ -3873,10 +4021,17 @@ static FILE *reflow_file(FILE *fff, hyperlink_type *h_ptr)
 
 	/* Don't use my_fgets as that needs short lines and it will process the
 	 * output file anyway. */
-	for (x = 0; fgets(h_ptr->rbuf, 1024, fff); )
+	for (x = 0, skip = FALSE; !my_fgets_long(h_ptr->rbuf, 1024, fff); )
 	{
-		/* Skip game links. */
-		if (prefix(h_ptr->rbuf, CC_LINK_PREFIX)) continue;
+		/* Interpret conditions. */
+		if (prefix(h_ptr->rbuf, CC_IF_PREFIX))
+		{
+			skip = !process_pref_file_expr_p(h_ptr->rbuf+strlen(CC_IF_PREFIX));
+			continue;
+		}
+
+		/* Skip excluded lines. */
+		if (skip) continue;
 
 		for (s = h_ptr->rbuf; *s;)
 		{
@@ -3962,11 +4117,21 @@ static int find_text(FILE *fff, hyperlink_type *h_ptr, int minline)
 }
 
 /*
+ * Return TRUE if s is a non-printed line which is preserved by reflow_file().
+ */
+static bool fake_line(cptr s)
+{
+	if (prefix(s, CC_LINK_PREFIX)) return TRUE;
+	if (prefix(s, "|||||")) return TRUE;
+	return FALSE;
+}
+
+/*
  * Show a section of a help file between stated limits.
  */
 static void show_page(FILE *fff, hyperlink_type *h_ptr, int miny, int maxy, int minline)
 {
-	byte link_color = TERM_ORANGE, link_color_sel = TERM_YELLOW;
+	char link_colour = 'o', link_colour_sel = 'y';
 
 	int y, l;
 	char sbuf[1024];
@@ -3988,21 +4153,24 @@ static void show_page(FILE *fff, hyperlink_type *h_ptr, int miny, int maxy, int 
 		/* Get the link colors */
 		if (prefix(buf, "|||||"))
 		{
-			link_color = color_char_to_attr(buf[5]);
-			link_color_sel = color_char_to_attr(buf[6]);
+			link_colour = buf[5];
+			link_colour_sel = buf[6];
 		}
+
+		/* Ignore unprinted lines. */
+		if (fake_line(buf)) y--;
 	}
 
 	Term_gotoxy(0,miny);
 
 	/* Get a cur_link which is on screen if possible. */
 	while ((h_ptr->cur_link > 0) &&
-		(h_ptr->link_y[h_ptr->cur_link] >= minline + (maxy - miny + 1)))
+		(h_ptr->link[h_ptr->cur_link].y >= minline + (maxy - miny + 1)))
 	{
 		h_ptr->cur_link--;
 	}
 	while ((h_ptr->cur_link < h_ptr->max_link) &&
-		(h_ptr->link_y[h_ptr->cur_link] < minline))
+		(h_ptr->link[h_ptr->cur_link].y < minline))
 	{
 		h_ptr->cur_link++;
 	}
@@ -4024,16 +4192,10 @@ static void show_page(FILE *fff, hyperlink_type *h_ptr, int miny, int maxy, int 
 		}
 		else buf = sbuf;
 
-		/* Skip link colors */
-		if (prefix(buf, "|||||")) continue;
-
-		/* Skip game links (done in reflow_file(). */
-		/* if (prefix(buf, CC_LINK_PREFIX)) continue; */
-
-		/* Skip tags */
-		if (prefix(buf, "~~~~~"))
+		/* Ignore unprinted lines. */
+		if (fake_line(buf))
 		{
-			y++;
+			l--;
 			continue;
 		}
 
@@ -4062,13 +4224,13 @@ static void show_page(FILE *fff, hyperlink_type *h_ptr, int miny, int maxy, int 
 				}
 				xx++;
 
-				if ((h_ptr->link_x[h_ptr->cur_link] == x) &&
-					(h_ptr->link_y[h_ptr->cur_link] == l))
-					thiscol = link_color_sel;
+				if ((h_ptr->link[h_ptr->cur_link].x == x) &&
+					(h_ptr->link[h_ptr->cur_link].y == l))
+					thiscol = link_colour_sel;
 				else
-					thiscol = link_color;
+					thiscol = link_colour;
 
-				out_ptr += sprintf(out_ptr, "$%c", atchar[thiscol]);
+				out_ptr += sprintf(out_ptr, "$<$%c", thiscol);
 
 				/* Ok print the link name */
 				while (buf[xx] && buf[xx] != ']')
@@ -4076,6 +4238,7 @@ static void show_page(FILE *fff, hyperlink_type *h_ptr, int miny, int maxy, int 
 					if (prefix(buf+xx, "$")) xx++;
 					*out_ptr++ = buf[xx++];
 				}
+				out_ptr += sprintf(out_ptr, "$>");
 				x = xx;
 			}
 			/* Remove HTML ? */
@@ -4131,7 +4294,7 @@ static void show_page(FILE *fff, hyperlink_type *h_ptr, int miny, int maxy, int 
  * Display a screen of text in a non-interactive way.
  * fff is initially positioned after the current section marker.
  */
-void win_help_display_aux(FILE *fff)
+static void display_help_page_aux(FILE *fff)
 {
 	cptr path;
 	int x,y;
@@ -4146,7 +4309,7 @@ void win_help_display_aux(FILE *fff)
 	if (!((ftmp = my_fopen_temp(h_ptr->path, sizeof(h_ptr->path))))) return;
 
 	/* Copy the rest of this section. */
-	while (fgets(h_ptr->rbuf, 1024, fff) &&
+	while (!my_fgets_long(h_ptr->rbuf, 1024, fff) &&
 		!prefix(h_ptr->rbuf, CC_LINK_PREFIX))
 	{
 		fprintf(ftmp, "%s", h_ptr->rbuf);
@@ -4180,19 +4343,34 @@ void win_help_display_aux(FILE *fff)
 }
 
 /*
+ * If link is mentioned as a link in links[], return the name of the file it
+ * appears in.
+ */
+static cptr link_name_to_file(cptr link)
+{
+	link_type *l_ptr;
+	for (l_ptr = links; l_ptr < links+num_links; l_ptr++)
+	{
+		if (strstr(l_ptr->str, link)) return l_ptr->file;
+	}
+	return NULL;
+}
+
+/*
  * A show_file() function based on ToME's version.
  */
-static char show_file_aux(cptr name, cptr what, int line)
+static char show_file_aux(cptr name, cptr what, cptr link)
 {
 	int i, k, x;
-
-	byte link_color = TERM_ORANGE, link_color_sel = TERM_YELLOW;
 
 	/* Number of "real" lines passed by */
 	int next = 0;
 
 	/* Number of "real" lines in the file */
 	int size = 0;
+
+	/* Current line. */
+	int line = 0;
 
 	/* This function is from a standard help directory. */
 	bool is_temp_file = FALSE;
@@ -4218,7 +4396,7 @@ static char show_file_aux(cptr name, cptr what, int line)
 	/* Wipe the links */
 	for (i = 0; i < 400; i++)
 	{
-		h_ptr->link_x[i] = -1;
+		h_ptr->link[i].x = -1;
 	}
 
 	/* Hack XXX XXX XXX */
@@ -4295,22 +4473,12 @@ static char show_file_aux(cptr name, cptr what, int line)
 		}
 		else buf = h_ptr->rbuf;
 
-		/* Get the link colors */
-		if (prefix(buf, "|||||"))
+		/* Tag ? */
+		if (prefix(buf, CC_LINK_PREFIX))
 		{
-			link_color = color_char_to_attr(buf[5]);
-			link_color_sel = color_char_to_attr(buf[6]);
-		}
-
-                /* Tag ? */
-                if (prefix(buf, "~~~~~"))
-		{
-			if (line < 0)
+			if (link && strstr(buf+CC_LINK_LEN, link))
 			{
-				if (atoi(buf + 5) == -line)
-				{
-					line = next + 1;
-				}
+				line = next;
 			}
 		}
 
@@ -4325,28 +4493,28 @@ static char show_file_aux(cptr name, cptr what, int line)
 
 				for (z = 0; z < 20; z++) tmp[z] = '\0';
 
-				h_ptr->link_x[h_ptr->max_link] = x;
-				h_ptr->link_y[h_ptr->max_link] = next;
+				h_ptr->link[h_ptr->max_link].x = x;
+				h_ptr->link[h_ptr->max_link].y = next;
 
 				if (buf[xx] == '/')
 				{
 					xx++;
-					h_ptr->link_key[h_ptr->max_link] = buf[xx];
+					h_ptr->link[h_ptr->max_link].key = buf[xx];
 					xx++;
 					xdeb += 2;
 				}
 				else
 				{
-					h_ptr->link_key[h_ptr->max_link] = 0;
+					h_ptr->link[h_ptr->max_link].key = 0;
 				}
 
 				/* Zap the link info */
 				while (buf[xx] != '*')
 				{
-					h_ptr->link[h_ptr->max_link][xx - xdeb] = buf[xx];
+					h_ptr->link[h_ptr->max_link].tag[xx - xdeb] = buf[xx];
 					xx++;
 				}
-				h_ptr->link[h_ptr->max_link][xx - xdeb] = '\0';
+				h_ptr->link[h_ptr->max_link].tag[xx - xdeb] = '\0';
 				xx++;
 				stmp = xx;
 				while (buf[xx] != '[')
@@ -4356,14 +4524,14 @@ static char show_file_aux(cptr name, cptr what, int line)
 				}
 				xx++;
 				tmp[xx - stmp] = '\0';
-				h_ptr->link_line[h_ptr->max_link] = -atoi(tmp);
+				h_ptr->link[h_ptr->max_link].line = -atoi(tmp);
 				h_ptr->max_link++;
 			}
 			x++;
 		}
 
 		/* Count the "real" lines */
-		next++;
+		if (!fake_line(buf)) next++;
 	}
 
 	/* Save the number of "real" lines */
@@ -4382,7 +4550,7 @@ static char show_file_aux(cptr name, cptr what, int line)
 		if (line >= size) line = 0;
 
 		/* Display the text of the file. */
-		show_page(fff, h_ptr, 1, hgt - 4, line);
+		show_page(fff, h_ptr, 1, hgt - 3, line);
 
 		/* Show a general "title" */
 		prt(format("[%s %s, %s, Line %d/%d]", GAME_NAME, GAME_VERSION,
@@ -4510,10 +4678,10 @@ static char show_file_aux(cptr name, cptr what, int line)
 			if (h_ptr->cur_link >= h_ptr->max_link)
 				h_ptr->cur_link = h_ptr->max_link - 1;
 
-			if (h_ptr->link_y[h_ptr->cur_link] < line)
-				line = h_ptr->link_y[h_ptr->cur_link];
-			if (h_ptr->link_y[h_ptr->cur_link] >= line + (hgt - 4))
-				line = h_ptr->link_y[h_ptr->cur_link] - (hgt - 4);
+			if (h_ptr->link[h_ptr->cur_link].y < line)
+				line = h_ptr->link[h_ptr->cur_link].y;
+			if (h_ptr->link[h_ptr->cur_link].y >= line + (hgt - 4))
+				line = h_ptr->link[h_ptr->cur_link].y - (hgt - 4);
 		}
 		/* Return one link */
 		else if (k == '4')
@@ -4521,20 +4689,23 @@ static char show_file_aux(cptr name, cptr what, int line)
 			h_ptr->cur_link--;
 			if (h_ptr->cur_link < 0) h_ptr->cur_link = 0;
 
-			if (h_ptr->link_y[h_ptr->cur_link] < line)
-				line = h_ptr->link_y[h_ptr->cur_link];
-			if (h_ptr->link_y[h_ptr->cur_link] >= line + (hgt - 4))
-				line = h_ptr->link_y[h_ptr->cur_link] - (hgt - 4);
+			if (h_ptr->link[h_ptr->cur_link].y < line)
+				line = h_ptr->link[h_ptr->cur_link].y;
+			if (h_ptr->link[h_ptr->cur_link].y >= line + (hgt - 4))
+				line = h_ptr->link[h_ptr->cur_link].y - (hgt - 4);
 		}
 
 		/* Recurse on numbers */
 		else if (k == '\r')
 		{
-			if (h_ptr->link_x[h_ptr->cur_link] != -1)
+			link_det *ld_ptr = &h_ptr->link[h_ptr->cur_link];
+			if (ld_ptr->x != -1)
 			{
+				cptr link = ld_ptr->tag;
+				cptr file = link_name_to_file(link);
+
 				/* Recurse on that file */
-				k = show_file_aux(h_ptr->link[h_ptr->cur_link], NULL,
-					h_ptr->link_line[h_ptr->cur_link]);
+				k = show_file_aux(file, NULL, link);
 			}
 		}
 		else
@@ -4542,11 +4713,18 @@ static char show_file_aux(cptr name, cptr what, int line)
 			/* No other key ? lets look for a shortcut */
 			for (i = 0; i < h_ptr->max_link; i++)
 			{
-				if (h_ptr->link_key[i] != k) continue;
-				k = show_file_aux(h_ptr->link[i], NULL, h_ptr->link_line[i]);
-				break;
+				link_det *ld_ptr = &h_ptr->link[i];
+				if (ld_ptr->key == k)
+				{
+					cptr link = ld_ptr->tag;
+					cptr file = link_name_to_file(link);
+
+					/* Recurse on that file */
+					k = show_file_aux(file, NULL, link);
+				}
 			}
 		}
+		if (line < 0) line = 0;
 	}
 
 	/* Close the file */
@@ -4569,6 +4747,176 @@ void show_file(cptr name, cptr what)
 	add_resize_hook(resize_inkey);
 	show_file_aux(name, what, 0);
 	delete_resize_hook(resize_inkey);
+}
+
+static void init_links(void)
+{
+	cptr *file;
+	char buf[1025];
+	int max;
+	link_type ilinks[MAX_LINKS];
+
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	for (file = help_files, max = 0; *file; file++)
+	{
+		FILE *fff = my_fopen_path(ANGBAND_DIR_HELP, *file, "r");
+
+		if (!fff) quit_fmt("Could not open %s.", *file);
+
+		while (!my_fgets_long(buf, sizeof(buf), fff))
+		{
+			/* Not a link. */
+			if (!prefix(buf, CC_LINK_PREFIX)) continue;
+
+			/* Too many links. */
+			if (max == MAX_LINKS) quit("Too many links found");
+
+			/* Ignore overflowing links. */
+			if (!strchr(buf, '\n')) continue;
+
+			ilinks[max].str = string_make(buf+CC_LINK_LEN);
+			ilinks[max].file = *file;
+			ilinks[max].pos = ftell(fff);
+			max++;
+		}
+
+		fclose(fff);
+	}
+
+	/* Allow links to be re-initialised. */
+	if (links) FREE(links);
+
+	/* Copy everything to a permanent location. */
+	C_MAKE(links, max, link_type);
+	C_COPY(links, ilinks, max, link_type);
+	num_links = max;
+}
+
+/*
+ * Find the specified position in a file, if legal.
+ * Return TRUE if this is successful.
+ *
+ * Hack - this function does not react to changes in the files.
+ */
+static bool find_link(FILE *fff, const link_type *l_ptr)
+{
+	/* Try to return to the known file position. */
+	if (l_ptr->pos >= 0)
+	{
+		return (!fseek(fff, l_ptr->pos, SEEK_SET));
+	}
+	/* Find the link from scratch. */
+	else
+	{
+		char buf[1025];
+		while (!my_fgets_long(buf, sizeof(buf), fff))
+		{
+			/* Found it. */
+			if (prefix(buf, CC_LINK_PREFIX) &&
+				!strcmp(buf+CC_LINK_LEN, l_ptr->str)) return TRUE;
+		}
+	}
+	/* Failed. */
+	return FALSE;
+}
+
+/*
+ * Initialise the help_files[] array above.
+ * Return false if the base help file was not found, true otherwise.
+ */
+void init_help_files(void)
+{
+	int i;
+	FILE *fff;
+	char buf[1024];
+
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	if (help_files) FREE(help_files);
+
+	if (!((fff = my_fopen_path(ANGBAND_DIR_HELP, syshelpfile, "r"))))
+	{
+		quit_fmt("Cannot open '%s'!", syshelpfile);
+	}
+		
+
+	/* Count the file references. */
+	for (i = 1; !my_fgets(fff, buf, 1024);)
+	{
+		if (prefix(buf, "%%%%F ")) i++;
+	}
+
+	/* Create the help_files array. */
+	help_files = C_NEW(i, cptr);
+
+	/* Hack - The last element must be NULL. */
+	help_files[--i] = NULL;
+
+	/* Return to the start of the file. */
+	fseek(fff, 0, SEEK_SET);
+
+	/* Fill the help_files array. */
+	while (!my_fgets(fff, buf, 1024))
+	{
+		if (prefix(buf, "%%%%F "))
+		{
+			/* Fill in the help_files array (backwards). */
+			help_files[--i] = string_make(buf+6);
+		}
+	}
+
+	my_fclose(fff);
+
+	init_links();
+}
+
+/*
+ * Centre a string on a specified line of the current term.
+ */
+static void put_str_centre(cptr str, int y)
+{
+	int l = strlen(str);
+	int x = MAX(0, (Term->wid-l)/2);
+	put_str(str, y, x);
+}
+
+void display_help_page(cptr str)
+{
+	FILE *fff;
+	link_type *l_ptr;
+
+	for (l_ptr = links; l_ptr < links+num_links; l_ptr++)
+	{
+		if (strstr(l_ptr->str, str))
+		{
+			FILE_TYPE(FILE_TYPE_TEXT);
+
+			/* Open the file. */
+			fff = my_fopen_path(ANGBAND_DIR_HELP, l_ptr->file, "r");
+			if (!fff) return;
+
+			/* Find a previously remembered position in it. */
+			if (find_link(fff, l_ptr))
+			{
+				/* Display it. */
+				display_help_page_aux(fff);
+			}
+
+			/* And finally close it. */
+			fclose(fff);
+
+			/* Done. */
+			return;
+		}
+	}
+
+	/* Oops - no-one's written the rquested help file. */
+	put_str_centre(
+		"Sorry, help for this command is not available.", Term->hgt/2-1);
+
+	put_str_centre(
+		"Please contact " MAINTAINER " for further information.", Term->hgt/2+1);
 }
 
 
@@ -4794,7 +5142,7 @@ void do_cmd_save_game(bool is_autosave)
     if (!is_autosave)
     {
         /* Disturb the player */
-        disturb(1, 0);
+        disturb(1);
 
 #ifdef ALLOW_410_SAVES
 	/* Determine the appropriate save version */
@@ -4900,11 +5248,12 @@ static void make_bones(void)
 	/* Ignore wizards and borgs */
 	if (!(noscore & 0x00FF))
 	{
-		/* Ignore people who die in town */
-		if (dun_level)
+		/* Ignore people who die in town (and on impossible levels). */
+		if (dun_level > 0 && dun_level < 1000)
 		{
 			/* XXX XXX XXX "Bones" name */
-			cptr tmp = format(tmp, "bone.%03d", dun_level);
+			char tmp[8];
+			sprintf(tmp, "bone.%03d", dun_level);
 
 			/* Attempt to open the bones file */
 			fp = my_fopen_path(ANGBAND_DIR_BONE, tmp, "r");
@@ -5123,7 +5472,7 @@ static void show_info(void)
 		Term_save();
 
 		/* Dump a character file */
-		(void)file_character(out_val, FALSE);
+		(void)file_character(out_val);
 
 		/* Load screen */
 		Term_load();
@@ -5632,10 +5981,10 @@ static void get_details(high_score *the_score)
 	sprintf(the_score->pts, "%9ld", MIN(999999999, total_points()));
 
 	/* Save the current gold */
-	sprintf(the_score->gold, "%9lu", MIN(999999999, p_ptr->au));
+	sprintf(the_score->gold, "%9ld", MIN(999999999, p_ptr->au));
 
 	/* Save the current turn */
-	sprintf(the_score->turns, "%9lu", MIN(999999999, turn));
+	sprintf(the_score->turns, "%9ld", MIN(999999999, turn));
 
 #ifdef HIGHSCORE_DATE_HACK
 	/* Save the date in a hacked up form (9 chars) */
@@ -5649,7 +5998,7 @@ static void get_details(high_score *the_score)
 	sprintf(the_score->who, "%-.15s", player_name);
 
 	/* Save the player info XXX XXX XXX */
-	sprintf(the_score->uid, "%7u", player_uid);
+	sprintf(the_score->uid, "%7d", player_uid);
 	sprintf(the_score->sex, "%c", (p_ptr->psex ? 'm' : 'f'));
 	sprintf(the_score->p_r, "%2d", p_ptr->prace);
 	sprintf(the_score->p_c, "%2d", p_ptr->ptemplate);
@@ -6042,7 +6391,7 @@ void exit_game_panic(void)
 	prt("", 0, 0);
 
 	/* Hack -- turn off some things */
-	disturb(1, 0);
+	disturb(1);
 
 	/* Mega-Hack -- Delay death */
 	if (p_ptr->chp < 0) death = FALSE;
@@ -6071,9 +6420,6 @@ static errr get_rnd_line(const char * file_name, uint len, char * output)
 	char	buf[1024];
     int lines=0, line, counter;
 
-    /* test hack */
-    if (cheat_wzrd && cheat_xtra) msg_print(file_name);
-
 	/* Open the file */
 	fp = my_fopen_path(ANGBAND_DIR_FILE, file_name, "r");
 
@@ -6082,7 +6428,7 @@ static errr get_rnd_line(const char * file_name, uint len, char * output)
 
 
 	/* Parse the file */
-	while (!my_fgets(fp, buf, 80))
+	while (!my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* Stop at the first line which is neither empty nor a comment. */
 		if (buf[0] && buf[0] != '#')
@@ -6098,7 +6444,7 @@ static errr get_rnd_line(const char * file_name, uint len, char * output)
     line = randint(lines);
     for (counter = 0; counter <= line; counter++)
     {
-    if (!(0 == my_fgets(fp, buf, 80)))
+    if (!(0 == my_fgets(fp, buf, sizeof(buf))))
         return (1);
     else if (counter == line)
         break;
@@ -6120,27 +6466,12 @@ static errr get_rnd_line(const char * file_name, uint len, char * output)
  * or:
  * "%.*v", (int)len, get_rnd_line_f1, file_name
  */
-void get_rnd_line_f1(char *buf, uint max, cptr fmt, va_list *vp)
+void get_rnd_line_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
 {
-	cptr s, file_name = va_arg(*vp, cptr);
-	uint len;
-
-	/* Use %.123v to specify a maximum length of 123. */
-	if ((s = strchr(fmt, '.')))
-	{
-		long m = strtol(s+1, 0, 0);
-		len = MAX(0, m+1);
-	}
-	else
-	{
-		len = ONAME_MAX;
-	}
-
-	/* Ensure that the buffer fits within buf. */
-	if (max < len) len = max;
+	cptr file_name = va_arg(*vp, cptr);
 
 	/* Report errors. */
-	switch (get_rnd_line(file_name, len, buf))
+	switch (get_rnd_line(file_name, max, buf))
 	{
 		case -1:
 			strnfmt(buf, max, "Error: '%s' not found.", file_name);
@@ -6157,6 +6488,19 @@ void get_rnd_line_f1(char *buf, uint max, cptr fmt, va_list *vp)
 
 
 /*
+ * Wrapper around signal() which it is safe to take the address
+ * of, in case signal itself is hidden by some some macro magic.
+ */
+static Signal_Handler_t wrap_signal(int sig, Signal_Handler_t handler)
+{
+	return signal(sig, handler);
+}
+
+/* Call this instead of calling signal() directly. */  
+Signal_Handler_t (*signal_aux)(int, Signal_Handler_t) = wrap_signal;
+
+
+/*
  * Handle signals -- suspend
  *
  * Actually suspend the game, and then resume cleanly
@@ -6164,7 +6508,7 @@ void get_rnd_line_f1(char *buf, uint max, cptr fmt, va_list *vp)
 static void handle_signal_suspend(int sig)
 {
 	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
+	(void)(*signal_aux)(sig, SIG_IGN);
 
 #ifdef SIGSTOP
 
@@ -6189,7 +6533,7 @@ static void handle_signal_suspend(int sig)
 #endif
 
 	/* Restore handler */
-	(void)signal(sig, handle_signal_suspend);
+	(void)(*signal_aux)(sig, handle_signal_suspend);
 }
 
 
@@ -6210,7 +6554,7 @@ static void handle_signal_suspend(int sig)
 static void handle_signal_simple(int sig)
 {
 	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
+	(void)(*signal_aux)(sig, SIG_IGN);
 
 
 	/* Nothing to save, just quit */
@@ -6282,7 +6626,7 @@ static void handle_signal_simple(int sig)
 	}
 
 	/* Restore handler */
-	(void)signal(sig, handle_signal_simple);
+	(void)(*signal_aux)(sig, handle_signal_simple);
 }
 
 
@@ -6292,7 +6636,7 @@ static void handle_signal_simple(int sig)
 static void handle_signal_abort(int sig)
 {
 	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
+	(void)(*signal_aux)(sig, SIG_IGN);
 
 
 	/* Nothing to save, just quit */
@@ -6352,7 +6696,7 @@ static void signals_ignore_tstp(void)
 
 #ifdef HANDLE_SIGNALS
 # ifdef SIGTSTP
-	(void)signal(SIGTSTP, SIG_IGN);
+	(void)(*signal_aux)(SIGTSTP, SIG_IGN);
 # endif
 #endif /* HANDLE_SIGNALS */
 
@@ -6366,7 +6710,7 @@ static void signals_handle_tstp(void)
 
 #ifdef HANDLE_SIGNALS
 # ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
+	(void)(*signal_aux)(SIGTSTP, handle_signal_suspend);
 # endif
 #endif /* HANDLE_SIGNALS */
 
@@ -6380,78 +6724,104 @@ void signals_init(void)
 {
 #ifdef HANDLE_SIGNALS
 #ifdef SIGHUP
-	(void)signal(SIGHUP, SIG_IGN);
+	(void)(*signal_aux)(SIGHUP, SIG_IGN);
 #endif
 
 
 #ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
+	(void)(*signal_aux)(SIGTSTP, handle_signal_suspend);
 #endif
 
 
 #ifdef SIGINT
-	(void)signal(SIGINT, handle_signal_simple);
+	(void)(*signal_aux)(SIGINT, handle_signal_simple);
 #endif
 
 #ifdef SIGQUIT
-	(void)signal(SIGQUIT, handle_signal_simple);
+	(void)(*signal_aux)(SIGQUIT, handle_signal_simple);
 #endif
 
 
 #ifdef SIGFPE
-	(void)signal(SIGFPE, handle_signal_abort);
+	(void)(*signal_aux)(SIGFPE, handle_signal_abort);
 #endif
 
 #ifdef SIGILL
-	(void)signal(SIGILL, handle_signal_abort);
+	(void)(*signal_aux)(SIGILL, handle_signal_abort);
 #endif
 
 #ifdef SIGTRAP
-	(void)signal(SIGTRAP, handle_signal_abort);
+	(void)(*signal_aux)(SIGTRAP, handle_signal_abort);
 #endif
 
 #ifdef SIGIOT
-	(void)signal(SIGIOT, handle_signal_abort);
+	(void)(*signal_aux)(SIGIOT, handle_signal_abort);
 #endif
 
 #ifdef SIGKILL
-	(void)signal(SIGKILL, handle_signal_abort);
+	(void)(*signal_aux)(SIGKILL, handle_signal_abort);
 #endif
 
 #ifdef SIGBUS
-	(void)signal(SIGBUS, handle_signal_abort);
+	(void)(*signal_aux)(SIGBUS, handle_signal_abort);
 #endif
 
 #ifdef SIGSEGV
-	(void)signal(SIGSEGV, handle_signal_abort);
+	(void)(*signal_aux)(SIGSEGV, handle_signal_abort);
 #endif
 
 #ifdef SIGTERM
-	(void)signal(SIGTERM, handle_signal_abort);
+	(void)(*signal_aux)(SIGTERM, handle_signal_abort);
 #endif
 
 #ifdef SIGPIPE
-	(void)signal(SIGPIPE, handle_signal_abort);
+	(void)(*signal_aux)(SIGPIPE, handle_signal_abort);
 #endif
 
 #ifdef SIGEMT
-	(void)signal(SIGEMT, handle_signal_abort);
+	(void)(*signal_aux)(SIGEMT, handle_signal_abort);
 #endif
 
 #ifdef SIGDANGER
-	(void)signal(SIGDANGER, handle_signal_abort);
+	(void)(*signal_aux)(SIGDANGER, handle_signal_abort);
 #endif
 
 #ifdef SIGSYS
-	(void)signal(SIGSYS, handle_signal_abort);
+	(void)(*signal_aux)(SIGSYS, handle_signal_abort);
 #endif
 
 #ifdef SIGXCPU
-	(void)signal(SIGXCPU, handle_signal_abort);
+	(void)(*signal_aux)(SIGXCPU, handle_signal_abort);
 #endif
 
 #ifdef SIGPWR
-	(void)signal(SIGPWR, handle_signal_abort);
+	(void)(*signal_aux)(SIGPWR, handle_signal_abort);
 #endif
 #endif /* HANDLE_SIGNALS */
+}
+
+/*
+ * Quit the game in an orderly fashion if an assert() call fails.
+ */
+void assert_fail(cptr error, cptr file, int line)
+{
+	void (*assert_fmt)(cptr fmt, ...);
+
+	/* Forbid suspending. */
+	signals_ignore_tstp();
+
+	/* Save the game if allowed. */
+#ifdef DEBUG_ASSERT_SAVE
+	save_player(TRUE);
+#endif /* DEBUG_ASSERT_SAVE */
+
+	/* Quit via the specified mechanism. */
+#ifdef DEBUG_ASSERT_CORE
+	assert_fmt = core_fmt;
+#else /* DEBUG_ASSERT_CORE */
+	assert_fmt = quit_fmt;
+#endif /* DEBUG_ASSERT_CORE */
+
+	(*assert_fmt)("\nAssertion failed: %s\nin file %s\non line %d\n\n",
+		error, file, line);
 }

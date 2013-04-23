@@ -18,6 +18,12 @@
  *   Sample Application Files which are modified.
  */
 
+#include "h-config.h"
+#include "h-define.h"
+#include "config.h"
+
+#if defined(WINDOWS) && defined(USE_GRAPHICS)
+
 #include <windows.h>
 
 #include "readdib.h"
@@ -332,3 +338,8 @@ ErrExit2:
 	_lclose(fh);
 	return (result);
 }
+
+#else /* WINDOWS && USE_GRAPHICS */
+/* The normal headers here include no statements. */
+static UNUSED int i = 1;
+#endif /* WINDOWS && USE_GRAPHICS */

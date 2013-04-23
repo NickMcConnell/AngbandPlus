@@ -21,10 +21,8 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <X11/keysymdef.h>
+#include <X11/Xatom.h>
 #endif /* __MAKEDEPEND__ */
-
-/* The typedefs needed for externs.h will certainly be available now. */
-#include "externs.h"
 
 #ifndef IsModifierKey
 

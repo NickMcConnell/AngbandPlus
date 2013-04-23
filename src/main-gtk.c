@@ -1,4 +1,3 @@
-#define DELAY_EXTERNS_H
 #define MAIN_GTK_C
 /* File: main-gtk.c */
 
@@ -29,8 +28,6 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-#include "externs.h"
-
 const char help_gtk[] =
 {
 	"To use GTK toolkit\n"
@@ -48,7 +45,7 @@ const char help_gtk[] =
 /*
  * Largest possible number of terminal windows supported by the game
  */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA MIN(ANGBAND_TERM_MAX, 8)
 
 /*
  * Extra data to associate with each "window"
@@ -128,7 +125,7 @@ static bool gtk_exitgame = FALSE;
 /*
  * Number of active terms
  */
-static int num_term = 3;
+static int num_term = ANGBAND_TERM_DEFAULT;
 
 
 #ifdef SUPPORT_GAMMA
@@ -2438,10 +2435,10 @@ static void free_menu_paths(void)
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		/* XXX XXX Free Term menu path */
-		string_free((cptr)term_entry[i].path);
+		FREE((cptr)term_entry[i].path);
 
 		/* XXX XXX Free Font menu path */
-		string_free((cptr)font_entry[i].path);
+		FREE((cptr)font_entry[i].path);
 	}
 }
 

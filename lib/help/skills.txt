@@ -1,3 +1,4 @@
+%%%%% <skills.txt>
 The Skill System
 ================
 
@@ -101,9 +102,9 @@ Hedge Magic (Checked every 5 uses)
 
 This skill determines your ability to produce magical effects from charms. The more skill you have, the less likely you are to drain the charm.
 
-Innate Racial (Checked every use)
+Innate Powers (Checked every use)
 
-This skill indicates how 'in touch' you are with your body. It is used whenever you try to use a racial power or whenever you use a chaos feature that must be activated. The higher your skill, the more chance these powers have of working (and the more effect you will get out of them).
+This skill indicates how 'in touch' you are with your body. It is used whenever you try to use a racial power or whenever you use a chaos feature that must be activated. The higher your skill, the more chance these powers have of working (and the more effect you will get out of them). Skilled characters may may also gain continuous bonuses such as resistances or speed boosts.
 
 Thaumaturgy (Checked every 3 uses)
 

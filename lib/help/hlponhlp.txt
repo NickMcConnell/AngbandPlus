@@ -1,4 +1,4 @@
-%%%%% <cmd=?>
+%%%%% <cmd=?> <option=?> <hlponhlp.txt>
 === Using the Online Help ===
 
 The help files are arranged in a straightforward menu structure which takes the following commands:

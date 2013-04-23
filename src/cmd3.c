@@ -133,7 +133,7 @@ void do_cmd_equip(void)
 /*
  * The "wearable" tester
  */
-static bool item_tester_hook_wear(object_type *o_ptr)
+static bool item_tester_hook_wear(object_ctype *o_ptr)
 {
 	/* Check for a usable slot */
 	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
@@ -350,7 +350,7 @@ void do_cmd_drop(void)
 
 
 	/* Hack -- Cannot remove cursed items */
-	if (!item_tester_hook_destroy(o_ptr))
+	if (!item_tester_hook_drop(o_ptr))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -378,6 +378,30 @@ void do_cmd_drop(void)
 	inven_drop(o_ptr, amt);
 
     p_ptr->redraw |= (PR_EQUIPPY);
+}
+
+/*
+ * Hook to determine if an item can be destroyed (or turned to gold).
+ */
+bool PURE item_tester_hook_destroy(object_ctype *o_ptr)
+{
+	object_type j_ptr[1];
+
+	int feel = find_feeling(o_ptr);
+	object_info_known(j_ptr, o_ptr);
+
+	/* Reject known artefacts. */
+	if (allart_p(j_ptr)) return FALSE;
+
+	/* Reject known cursed worn items. */
+	if (is_worn_p(o_ptr) && cursed_p(j_ptr)) return FALSE;
+
+	/* Reject felt artefacts. */
+	if (feel == SENSE_C_ART || feel == SENSE_G_ART || feel == SENSE_Q_ART)
+		return FALSE;
+
+	/* Accept everything else. */
+	return TRUE;
 }
 
 /*
@@ -427,7 +451,7 @@ void do_cmd_destroy(void)
 	/* Verify unless quantity given */
 	if (!force)
 	{
-		if (!((auto_destroy) && (object_value(o_ptr)<1)))
+		if (!((auto_destroy) && (object_value(o_ptr, FALSE)<1)))
 		{
 			/* Make a verification */
 			if (!get_check(format("Really destroy %v? ",
@@ -454,13 +478,8 @@ void do_cmd_destroy(void)
 		/* We know that it's extraordinary. */
 		o_ptr->ident |= (IDENT_SENSE_HEAVY);
 
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-      p_ptr->redraw |= (PR_EQUIPPY);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		/* Recalculate/redraw stuff (later) */
+		update_object(o_ptr, 0);
 
 		/* Done */
 		return;
@@ -475,6 +494,66 @@ void do_cmd_destroy(void)
 	item_optimize(o_ptr);
 }
 
+static bool item_tester_unhidden(object_ctype *o_ptr)
+{
+	return !hidden_p(o_ptr);
+}
+
+/*
+ * Hide an object stack on the floor, and ask if its tval should be hidden.
+ *
+ * Only floor items are considered, as the player is assumed not to 
+ */
+void do_cmd_hide_object(void)
+{
+	errr err;
+	object_type *o_ptr;
+	
+	/* Get an item */
+	item_tester_hook = item_tester_unhidden;
+	if (!((o_ptr = get_item(&err, "Hide which item? ", TRUE, TRUE, TRUE))))
+	{
+		if (err == -2) msg_print("You have nothing you can hide.");
+		return;
+	}
+
+	msg_format("You hide %v.", object_desc_f3, o_ptr, TRUE, 3);
+
+	/* Hide the object. */
+	object_hide(o_ptr);
+
+	/* Stop tracking the object. */
+	object_track(NULL);
+}
+
+/*
+ * Reveal all hidden objects on the current level.
+ */
+void do_cmd_unhide_objects(void)
+{
+	object_type *o_ptr;
+	int t = 0;
+
+	for (o_ptr = o_list; o_ptr < o_list+MAX_O_IDX; o_ptr++)
+	{
+		if (hidden_p(o_ptr)) t++;
+		o_ptr->ident &= ~(IDENT_HIDDEN);
+	}
+
+	for (o_ptr = inventory; o_ptr < inventory+INVEN_TOTAL; o_ptr++)
+	{
+		if (hidden_p(o_ptr)) t++;
+		o_ptr->ident &= ~(IDENT_HIDDEN);
+	}
+
+	/* Display any newly visible things. */
+	update_object(0, OUP_ALL);
+
+	/* Show more distant changes. */
+	p_ptr->update |= PU_UN_VIEW | PU_VIEW;
+
+	msg_format("You reveal %d hidden object%s.", t, (t == 1) ? "" : "s");
+}
 
 /*
  * Destroy whole pack (and equip)
@@ -567,11 +646,8 @@ void do_cmd_uninscribe(void)
 	/* Remove the incription */
 	o_ptr->note = 0;
 
-	/* Combine the pack */
-	p_ptr->notice |= (PN_COMBINE);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Recalculate/redraw stuff (later) */
+	update_object(o_ptr, 0);
 }
 
 
@@ -607,11 +683,8 @@ void do_cmd_inscribe(void)
 		/* Save the inscription */
 		o_ptr->note = quark_add(out_val);
 
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		/* Recalculate/redraw stuff (later) */
+		update_object(o_ptr, 0);
 	}
 
 		/* Make a note of the change. */
@@ -624,7 +697,7 @@ void do_cmd_inscribe(void)
 /*
  * An "item_tester_hook" for refilling lanterns
  */
-static bool item_tester_refill_lantern(object_type *o_ptr)
+static bool item_tester_refill_lantern(object_ctype *o_ptr)
 {
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
@@ -678,6 +751,9 @@ static void do_cmd_refill_lamp(object_type *o_ptr)
 	/* Refuel */
 	j_ptr->pval += o_ptr->pval;
 
+	/* No longer empty. */
+	j_ptr->ident &= ~(IDENT_EMPTY);
+
 	/* Message */
 	msg_print("You fuel your lamp.");
 
@@ -702,7 +778,7 @@ static void do_cmd_refill_lamp(object_type *o_ptr)
 /*
  * An "item_tester_hook" for refilling torches
  */
-static bool item_tester_refill_torch(object_type *o_ptr)
+static bool item_tester_refill_torch(object_ctype *o_ptr)
 {
 	/* Torches are okay */
 	if (o_ptr->k_idx == OBJ_WOODEN_TORCH) return (TRUE);
@@ -752,6 +828,9 @@ static void do_cmd_refill_torch(object_type *o_ptr)
 
 	/* Refuel */
 	j_ptr->pval += o_ptr->pval + 5;
+
+	/* No longer empty. */
+	j_ptr->ident &= ~(IDENT_EMPTY);
 
 	/* Message */
 	msg_print("You combine the torches.");
@@ -906,7 +985,7 @@ void do_cmd_locate(void)
 			dir = get_keymap_dir(command);
 
 			/* Error */
-			if (!dir) bell();
+			if (!dir) bell(0);
 		}
 
 		/* No direction */
@@ -947,7 +1026,7 @@ void do_cmd_locate(void)
 
 
 	/* Recenter the map around the player */
-	verify_panel();
+	verify_panel(FALSE);
 
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);
@@ -965,111 +1044,6 @@ void do_cmd_locate(void)
 
 
 
-
-
-/*
- * The table of "symbol info" -- each entry is a string of the form
- * "X:desc" where "X" is the trigger, and "desc" is the "info".
- */
-static cptr ident_info[] =
-{
-	" :A dark grid",
-	"!:A potion (or oil)",
-	"\":An amulet (or necklace)",
-	"#:A wall (or secret door)",
-	"$:Treasure (gold or gems)",
-	"%:A vein (magma or quartz)",
-	/* "&:unused", */
-	"':An open door",
-	"(:Soft armor",
-	"):A shield",
-	"*:A vein with treasure",
-	"+:A closed door",
-	",:Food (or mushroom patch)",
-	"-:A wand (or rod)",
-	".:Floor",
-	"/:A polearm (Axe/Pike/etc)",
-	/* "0:unused", */
-	"1:Entrance to General Store",
-	"2:Entrance to Armory",
-	"3:Entrance to Weaponsmith",
-	"4:Entrance to Temple",
-	"5:Entrance to Alchemy shop",
-	"6:Entrance to Magic store",
-	"7:Entrance to Black Market",
-	"8:Entrance to your home",
-	"9:Entrance to Book Store",
-	"::Rubble",
-    ";:A glyph of warding / explosive rune",
-	"<:An up staircase",
-	"=:A ring",
-	">:A down staircase",
-	"?:A scroll",
-	"@:You",
-	"A:Golem",
-	"B:Bird",
-	"C:Canine",
-	"D:Ancient Dragon/Wyrm",
-	"E:Elemental",
-	"F:Dragon Fly",
-	"G:Ghost",
-	"H:Hybrid",
-	"I:Insect",
-	"J:Snake",
-	"K:Killer Beetle",
-	"L:Lich",
-	"M:Multi-Headed Reptile",
-	/* "N:unused", */
-	"O:Ogre",
-	"P:Giant Humanoid",
-	"Q:Quylthulg (Pulsing Flesh Mound)",
-	"R:Reptile/Amphibian",
-	"S:Spider/Scorpion/Tick",
-	"T:Troll",
-	"U:Major Demon",
-	"V:Vampire",
-	"W:Wight/Wraith/etc",
-	"X:Xorn/Xaren/etc",
-	"Y:Yeti",
-	"Z:Zephyr Hound",
-	"[:Hard armor",
-	"\\:A hafted weapon (mace/whip/etc)",
-	"]:Misc. armor",
-	"^:A trap",
-	"_:A staff",
-	/* "`:unused", */
-	"a:Ant",
-	"b:Bat",
-	"c:Centipede",
-	"d:Dragon",
-	"e:Floating Eye",
-	"f:Feline",
-	"g:Ghoul",
-	"h:Hobbit/Elf/Dwarf",
-	"i:Beings of Ib",
-	"j:Jelly",
-	"k:Kobold",
-	"l:Louse",
-	"m:Mold",
-	"n:Naga",
-	"o:Orc",
-	"p:Person/Human",
-	"q:Quadruped",
-	"r:Rodent",
-	"s:Skeleton",
-	"t:Townsperson",
-	"u:Minor Demon",
-	"v:Vortex",
-	"w:Worm/Worm-Mass",
-	/* "x:unused", */
-	"y:Yeek",
-	"z:Zombie/Mummy",
-	"{:A missile (arrow/bolt/shot)",
-	"|:An edged weapon (sword/dagger/etc)",
-	"}:A launcher (bow/crossbow/sling)",
-	"~:A tool (or miscellaneous item)",
-	NULL
-};
 
 
 
@@ -1198,14 +1172,16 @@ static void do_cmd_query_symbol_aux(u16b *who)
 
 	u16b	why = 0;
 
+	name_centry *nam_ptr;
 
 	/* Get a character, or abort */
 	if (!get_com("Enter character to be identified: ", &sym)) return;
 
-	/* Find that character info, and describe it */
-	for (i = 0; ident_info[i]; ++i)
+	/* Find that character info, and describe it.
+	 * This assumes that no monster uses \0 as its symbol. */
+	for (nam_ptr = ident_info; nam_ptr->idx; nam_ptr++)
 	{
-		if (sym == ident_info[i][0]) break;
+		if (sym == nam_ptr->idx) break;
 	}
 
 	/* Describe */
@@ -1225,31 +1201,23 @@ static void do_cmd_query_symbol_aux(u16b *who)
 	}
 	else if (sym == KTRL('S'))
 	{
+		char *s;
+
 		/* No name. */
 		strcpy(buf, "Name: ");
 		if (!get_string("Enter the name: ", buf+6, sizeof(buf)-6)) return;
 		string = TRUE;
-	}
-	else if (ident_info[i])
-	{
-		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
-		symbol = TRUE;
+
+		for (s = buf+6; *s; s++) if (isupper(*s)) *s = tolower(*s);
 	}
 	else
 	{
-		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
+		sprintf(buf, "%c - %s.", sym, nam_ptr->str);
 		symbol = TRUE;
 	}
 
 	/* Display the result */
 	prt(buf, 0, 0);
-
-	/* String searching is case insensitive, so make the case predictable. */
-	if (string)
-	{
-		char *s;
-		for (s = buf+6; *s; s++) if (isupper(*s)) *s = tolower(*s);
-	}
 
 
 	/* Collect matching monsters */
@@ -1295,14 +1263,17 @@ static void do_cmd_query_symbol_aux(u16b *who)
 	/* Nothing to recall */
 	if (!n) return;
 
-	/* Show help. */
-	help_track("<query 2>");
-
 	/* Prompt XXX XXX XXX */
 	put_str("Recall details? (k/p/y/n): ", 0, 40);
 
+	/* Show help. */
+	help_track("<query 2>");
+
 	/* Query */
 	query = inkey();
+
+	/* Remove help */
+	help_track(NULL);
 
 	/* Restore */
 	prt(buf, 0, 0);
@@ -1338,8 +1309,7 @@ static void do_cmd_query_symbol_aux(u16b *who)
 	}
 
 
-	/* Show help (removing the old one first). */
-	help_track(NULL);
+	/* Show help. */
 	help_track("<query 3>");
 
 	/* Start at the end */
@@ -1501,16 +1471,11 @@ void do_cmd_handle(void)
 	case TV_THAUMATURGY_BOOK:
 	case TV_CONJURATION_BOOK:
 	case TV_NECROMANCY_BOOK:
+	case TV_CHARM:
 		{
 			do_cmd_browse(o_ptr);
 			break;
 		}
-	case TV_CHARM:
-	{
-		int i;
-		get_cantrip(&i, k_info[o_ptr->k_idx].extra);
-		break;
-	}
 	default:
 		{
 			item_tester_hook=item_tester_hook_wear;

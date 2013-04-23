@@ -10,30 +10,12 @@
 # or possibly for "Atari" or "Amiga" computers with "Curses" ports,
 # see below for more information.
 #
-# Note that "main-mac.c", the visual module for the Macintosh,
-# must be compiled in a special way, see elsewhere.
-#
-# Note that "main-win.c", the visual module for Windows,
-# must be compiled in a special way, see elsewhere.
-#
-# Note that "main-ibm.c", "main-emx.c", and "main-286.c",
-# the visual modules for various types of IBM-PC computers,
-# must be compiled with special Makefiles, see elsewhere.
-#
-# Note that "main-lsl.c", the visual module for ???,
-# must be compiled with "Makefile.lsl", see elsewhere.
-#
-# Note that "main-acn.c", the visual module for Risc Acorn,
-# must be compiled with "Makefile.acn", see elsewhere.
-#
-# Note that "Makefile.w31" and "Makefile.wat" are slight variations
-# on "Makefile.win" and "Makefile.ibm", respectively, which allow
-# the use of the "main-win.c" and "main-ibm.c" files, respectively,
-# with special compilers.
+# Note that various systems (including most non-UNIX ones) have separate
+# makefiles which will compile appropriate visual modules.
 #
 # If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
-# files for a currently unsupported system, please send them to me
-# (benh@voicenet.com) for inclusion in future versions.
+# file for a currently unsupported system, please send them to me
+# (kieron@dimetrodon.demon.co.uk) for inclusion in future versions.
 #
 # This Makefile comes with "default" dependancies that may be obsolete.
 #
@@ -44,30 +26,24 @@
 #
 
 SRCS = \
-  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
-  variable.c tables.c util.c cave.c \
-  object1.c object2.c monster1.c monster2.c \
-  xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c save.c files.c \
-  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load.c loadsave.c \
-  wizard1.c wizard2.c \
-  generate.c dungeon.c init1.c init2.c \
-  quest.c main-cap.c \
-  main-xpj.c main-gtk.c main-gcu.c main-x11.c maid-x11.c main-xaw.c main.c
+  birth.c cave.c cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c dungeon.c files.c \
+  generate.c init1.c init2.c load.c loadsave.c maid-x11.c main-ami.c main-cap.c \
+  main-dos.c main-emx.c main-gcu.c main-gtk.c main-ibm.c main-lsl.c main-mac.c \
+  main-ros.c main-sla.c main-vcs.c main-vme.c main-win.c main-x11.c main-xaw.c \
+  main-xpj.c main-xxx.c main.c melee1.c melee2.c monster1.c monster2.c \
+  object1.c object2.c quest.c powers.c readdib.c save.c spells1.c spells2.c \
+  squelch.c store.c tables.c util.c variable.c wizard1.c wizard2.c xtra1.c \
+  xtra2.c z-form.c z-rand.c z-term.c z-util.c z-virt.c main-crb.c
 
 OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o \
-  object1.o object2.o monster1.o monster2.o \
-  xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load.o loadsave.o \
-  wizard1.o wizard2.o \
-  generate.o dungeon.o init1.o init2.o \
-  quest.o main-cap.o \
-  main-xpj.o main-gtk.o main-gcu.o main-x11.o maid-x11.o main-xaw.o main.o
+  birth.o cave.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o \
+  generate.o init1.o init2.o load.o loadsave.o maid-x11.o main-ami.o main-cap.o \
+  main-dos.o main-emx.o main-gcu.o main-gtk.o main-ibm.o main-lsl.o main-mac.o \
+  main-ros.o main-sla.o main-vcs.o main-vme.o main-win.o main-x11.o main-xaw.o \
+  main-xpj.o main-xxx.o main.o melee1.o melee2.o monster1.o monster2.o \
+  object1.o object2.o quest.o powers.o readdib.o save.o spells1.o spells2.o \
+  squelch.o store.o tables.o util.o variable.o wizard1.o wizard2.o xtra1.o \
+  xtra2.o z-form.o z-rand.o z-term.o z-util.o z-virt.o main-crb.o
 
 
 
@@ -97,7 +73,7 @@ OBJS = \
 # This is my compiler of choice, it seems to work most everywhere
 #
 CC = gcc
-
+STD_CFLAGS = $(GCC_CFLAGS)
 
 #
 # Standard version (see main-x11.c, main-gtk.c and main-gcu.c)
@@ -120,32 +96,56 @@ CC = gcc
 # Specifying -ansi -pedantic generates a number of irrelevant warnings, but
 # it doesn't prevent compiling and generates some important warnings.
 
-STD_CFLAGS = -O3 -fno-strength-reduce -pipe -g  \
+GCC_CFLAGS = -O3 -fno-strength-reduce -pipe -g  \
 	-W -Wall -Wmissing-prototypes -Wmissing-declarations \
 	-Wno-long-long -Wwrite-strings -Wpointer-arith -Wredundant-decls \
 	-Wbad-function-cast -Wsign-compare -DHAVE_MKSTEMP \
 	-Waggregate-return -Wno-format-y2k -Wstrict-prototypes
 
+# An alternative set of compiler flags for a different compiler.
+TCC_CFLAGS = -D"HAVE_MKSTEMP" -g
+
 # Test that Cthangband does not require obviously non-c89 things.
 ANSI_CFLAGS = -std=c89 -pedantic -D"NO_VARIABLE_ARRAYS"
 
+# X11-based display with multiple windows.
 X11_CFLAGS = -D"USE_X11"
 X11_LIBS = -L/usr/X11R6/lib -lX11 
 
+# X11 Athena Widget display.
 XAW_CFLAGS = -D"USE_XAW"
 XAW_LIBS = -L/usr/X11R6/lib -lXaw -lXmu -lXt -lX11
 
+# Curses display for a console.
 GCU_CFLAGS = -D"USE_GCU"
 GCU_LIBS = -lcurses -ltermcap
 
-XPJ_CFLAGS = -D"USE_XPJ"
-XPJ_LIBS = $(X11_LIBS)
-
+# X11 GTK display with menus.
 GTK_CFLAGS = -D"USE_GTK" `gtk-config --cflags`
 GTK_LIBS = `gtk-config --libs` 
 
+# X11 display with slanted windows.
+XPJ_CFLAGS = -D"USE_XPJ"
+XPJ_LIBS = $(X11_LIBS)
+
+# S-Lang display for terminal console
+SLA_CFLAGS = -Wall -O2 -fno-strength-reduce -D"USE_SLA" -I/usr/include/slang
+SLA_LIBS = -lslang
+
+# SVGALib display for a console. May need the fontfile to be changed to work.
+LSL_CFLAGS = -D"USE_LSL"
+LSL_LIBS = -lz -lvgagl -lvga
+
+# Virtual console display. May also need source modification.
+VCS_CFLAGS = -D"USE_VCS"
+
+# Termcap/vt100-based display for a console.
 CAP_CFLAGS = -D"USE_CAP"
 CAP_LIBS = -ltermcap
+
+# (Untested) OSX/gcc port.
+OSX_CFLAGS = -D"MACH_O_CARBON"
+OSX_LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
 
 # One possible set of CFLAGS/LIBS. Add/remove matching pairs as desired.
 CFLAGS = $(STD_CFLAGS) $(X11_CFLAGS) $(GCU_CFLAGS) $(GTK_CFLAGS)
@@ -218,44 +218,40 @@ LIBS =                 $(X11_LIBS)   $(GCU_LIBS)   $(GTK_LIBS)
 #LIBS = -lcurses -ltermcap
 
 
-##
-## Variation -- Support Linux + SVGA library
-##
-#CFLAGS = -Wall -O2 -fno-strength-reduce -D"USE_LSL"
-#LIBS = -lz -lvgagl -lvga
-
 
 ##
-## Variation -- Support Linux "vcs" (Virtual Console memory) module
+## Variation -- compile for OSX with gcc.
 ##
-#CFLAGS = -Wall -O2 -fno-strength-reduce -D"USE_VCS"
-#LIBS =
+#CFLAGS = $(STD_CFLAGS) $(OSX_CFLAGS)
+#LIBS   =               $(OSX_LIBS)
 
+GAME = Cthangband
 
-##
-## Variation -- Support S-Lang library
-##
-#CFLAGS = -Wall -O2 -fno-strength-reduce -D"USE_SLA" -I/usr/include/slang
-#LIBS = -lslang
+#
+# Base target.
+#
+default: sCthangband
 
-
-
+#
+# Install the game.
+#
+install: default
+	mv $(GAME) ..
 
 
 #
-# Hack -- "install" as the base target
+# Hack - build without optimisation for debugging.
 #
 
-install: Cthangband
-	mv Cthangband ..
-
+debug: CFLAGS := $(CFLAGS) -O0
+debug: default
 
 #
 # Build the "Angband" program
 #
 
-Cthangband: $(OBJS)
-	$(CC) $(CFLAGS) -o Cthangband $(OBJS) $(LDFLAGS) $(LIBS)
+sCthangband: $(OBJS)
+	$(CC) $(CFLAGS) -o $(GAME) $(OBJS) $(LDFLAGS) $(LIBS)
 
 
 #
@@ -263,7 +259,7 @@ Cthangband: $(OBJS)
 #
 
 clean:
-	\rm -f *.bak *.o
+	\rm -f *.bak *.o $(GAME)
 
 
 #
@@ -302,6 +298,7 @@ generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 load.o: load.c $(INCS) loadsave.h
+loadsave.o: loadsave.c $(INCS) loadsave.h
 main-gcu.o: main-gcu.c $(INCS)
 main-x11.o: main-x11.c $(INCS) maid-x11.h
 maid-x11.o: maid-x11.c $(INCS) maid-x11.h
@@ -312,10 +309,12 @@ monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
+powers.o: powers.c $(INCS)
 quest.o: quest.c $(INCS)
 save.o: save.c $(INCS) loadsave.h
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
+squelch.o: squelch.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)

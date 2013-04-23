@@ -54,7 +54,7 @@ char hexsym[16] =
  * Stat Table: (INT) -- Number of half-spells per level
  * (CHR) -- Decrease in the annoyance of a favour
  */
-byte adj_mag_study[] =
+const byte adj_mag_study[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -100,7 +100,7 @@ byte adj_mag_study[] =
 /*
  * Stat Table (INT/WIS) -- extra quarter-mana/chi-points per skill percent
  */
-byte adj_mag_mana[] =
+const byte adj_mag_mana[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -146,7 +146,7 @@ byte adj_mag_mana[] =
 /*
  * Stat Table (INT/WIS/CHR) -- Minimum failure rate (percentage)
  */
-byte adj_mag_fail[] =
+const byte adj_mag_fail[NUM_STAT_INDICES] =
 {
 	99      /* 3 */,
 	99      /* 4 */,
@@ -192,7 +192,7 @@ byte adj_mag_fail[] =
 /*
  * Stat Table: (INT/WIS/CHR) -- Decreases failure rate (*3-3)
  */
-byte adj_mag_stat[] =
+const byte adj_mag_stat[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -238,7 +238,7 @@ byte adj_mag_stat[] =
 /*
  * Stat Table (CHR) -- payment percentages
  */
-byte adj_chr_gold[] =
+const byte adj_chr_gold[NUM_STAT_INDICES] =
 {
 	130     /* 3 */,
 	125     /* 4 */,
@@ -284,7 +284,7 @@ byte adj_chr_gold[] =
 /*
  * Stat Table (INT) -- Magic devices
  */
-byte adj_int_dev[] =
+const byte adj_int_dev[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -330,7 +330,7 @@ byte adj_int_dev[] =
 /*
  * Stat Table (WIS) -- Saving throw
  */
-byte adj_wis_sav[] =
+const byte adj_wis_sav[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -376,7 +376,7 @@ byte adj_wis_sav[] =
 /*
  * Stat Table (DEX) -- disarming
  */
-byte adj_dex_dis[] =
+const byte adj_dex_dis[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -422,7 +422,7 @@ byte adj_dex_dis[] =
 /*
  * Stat Table (INT) -- disarming
  */
-byte adj_int_dis[] =
+const byte adj_int_dis[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -468,7 +468,7 @@ byte adj_int_dis[] =
 /*
  * Stat Table (DEX) -- bonus to ac (plus 128)
  */
-byte adj_dex_ta[] =
+const byte adj_dex_ta[NUM_STAT_INDICES] =
 {
 	128 + -4        /* 3 */,
 	128 + -3        /* 4 */,
@@ -514,7 +514,7 @@ byte adj_dex_ta[] =
 /*
  * Stat Table (STR) -- bonus to dam (plus 128)
  */
-byte adj_str_td[] =
+const byte adj_str_td[NUM_STAT_INDICES] =
 {
 	128 + -2        /* 3 */,
 	128 + -2        /* 4 */,
@@ -560,7 +560,7 @@ byte adj_str_td[] =
 /*
  * Stat Table (DEX) -- bonus to hit (plus 128)
  */
-byte adj_dex_th[] =
+const byte adj_dex_th[NUM_STAT_INDICES] =
 {
 	128 + -3        /* 3 */,
 	128 + -2        /* 4 */,
@@ -606,7 +606,7 @@ byte adj_dex_th[] =
 /*
  * Stat Table (STR) -- bonus to hit (plus 128)
  */
-byte adj_str_th[] =
+const byte adj_str_th[NUM_STAT_INDICES] =
 {
 	128 + -3        /* 3 */,
 	128 + -2        /* 4 */,
@@ -652,7 +652,7 @@ byte adj_str_th[] =
 /*
  * Stat Table (STR) -- weight limit in deca-pounds
  */
-byte adj_str_wgt[] =
+const byte adj_str_wgt[NUM_STAT_INDICES] =
 {
 	5       /* 3 */,
 	6       /* 4 */,
@@ -698,7 +698,7 @@ byte adj_str_wgt[] =
 /*
  * Stat Table (STR) -- weapon weight limit in pounds
  */
-byte adj_str_hold[] =
+const byte adj_str_hold[NUM_STAT_INDICES] =
 {
 	4       /* 3 */,
 	5       /* 4 */,
@@ -744,7 +744,7 @@ byte adj_str_hold[] =
 /*
  * Stat Table (STR) -- digging value
  */
-byte adj_str_dig[] =
+const byte adj_str_dig[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -790,7 +790,7 @@ byte adj_str_dig[] =
 /*
  * Stat Table (STR) -- help index into the "blow" table
  */
-byte adj_str_blow[] =
+const byte adj_str_blow[NUM_STAT_INDICES] =
 {
 	3       /* 3 */,
 	4       /* 4 */,
@@ -836,7 +836,7 @@ byte adj_str_blow[] =
 /*
  * Stat Table (DEX) -- index into the "blow" table
  */
-byte adj_dex_blow[] =
+const byte adj_dex_blow[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -882,7 +882,7 @@ byte adj_dex_blow[] =
 /*
  * Stat Table (DEX) -- chance of avoiding "theft" and "falling"
  */
-byte adj_dex_safe[] =
+const byte adj_dex_safe[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	1       /* 4 */,
@@ -928,7 +928,7 @@ byte adj_dex_safe[] =
 /*
  * Stat Table (CON) -- base regeneration rate
  */
-byte adj_con_fix[] =
+const byte adj_con_fix[NUM_STAT_INDICES] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -974,7 +974,7 @@ byte adj_con_fix[] =
 /*
  * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
  */
-byte adj_con_mhp[] =
+const byte adj_con_mhp[NUM_STAT_INDICES] =
 {
 	128 + -5        /* 3 */,
 	128 + -3        /* 4 */,
@@ -1622,643 +1622,384 @@ player_template template_info[MAX_TEMPLATE] =
  *
  *   Array of { Lev, Mana, Fail, Exp/Lev, school, type }
  */
-player_magic magic_info =
+static magic_type magic_info[MAX_SCHOOL][32] =
 {
-	300, /* Max weight for spellcasting */
+	/* Sorcery */
 	{
-		/* Sorcery */
-		{
-			{ 1, 1, 23, 4, SCH_SORCERY, SP_ANIMAE },
-			{ 1, 2, 24, 4, SCH_SORCERY, SP_CORPORIS },
-			{ 3, 3, 25, 1, SCH_SORCERY, SP_NATURAE },
-			{ 3, 3, 30, 1, SCH_SORCERY, SP_VIS },
-			{ 4, 4, 30, 1, SCH_SORCERY, SP_ANIMAE },
-			{ 5, 5, 35, 5, SCH_SORCERY, SP_CORPORIS },
-			{ 6, 5, 30, 4, SCH_SORCERY, SP_ANIMAE },
-			{ 7, 7, 75, 9, SCH_SORCERY, SP_VIS },
-
-			{ 9, 7, 75, 8, SCH_SORCERY, SP_NATURAE },
-			{ 10, 7, 75, 8, SCH_SORCERY, SP_NATURAE },
-			{ 11, 7, 75, 7, SCH_SORCERY, SP_CORPORIS },
-			{ 13, 7, 50, 6, SCH_SORCERY, SP_ANIMAE },
-			{ 18, 12, 60, 8, SCH_SORCERY, SP_CORPORIS },
-			{ 22, 12, 60, 8, SCH_SORCERY, SP_CORPORIS },
-			{ 28, 20, 70, 15, SCH_SORCERY, SP_ANIMAE },
-			{ 33, 30, 75, 20, SCH_SORCERY, SP_NATURAE },
-
-			{ 3, 3, 25, 15, SCH_SORCERY, SP_NATURAE },
-			{ 10, 10, 70, 40, SCH_SORCERY, SP_VIS },
-			{ 10, 10, 80, 40, SCH_SORCERY, SP_ANIMAE },
-			{ 12, 12, 80, 40, SCH_SORCERY, SP_NATURAE },
-			{ 14, 10, 60, 25, SCH_SORCERY, SP_ANIMAE },
-			{ 20, 18, 85, 50, SCH_SORCERY, SP_ANIMAE },
-			{ 20, 18, 60, 25, SCH_SORCERY, SP_CORPORIS },
-			{ 25, 25, 75, 19, SCH_SORCERY, SP_CORPORIS },
-
-			{ 10, 10, 40, 20, SCH_SORCERY, SP_VIS },
-			{ 25, 25, 75, 70, SCH_SORCERY, SP_NATURAE },
-			{ 25, 30, 95, 160, SCH_SORCERY, SP_VIS },
-			{ 30, 40, 80, 120, SCH_SORCERY, SP_NATURAE },
-			{ 40, 80, 95, 200, SCH_SORCERY, SP_VIS },
-			{ 40, 100, 95, 200, SCH_SORCERY, SP_VIS },
-			{ 42, 50, 90, 175, SCH_SORCERY, SP_NATURAE },
-			{ 45, 70, 75, 250, SCH_SORCERY, SP_ANIMAE },
-		},
-		/* Thaumaturgy */
-		{
-			{ 1, 1, 20, 4, SCH_THAUMATURGY, SP_NATURAE },
-			{ 1, 2, 22, 4, SCH_THAUMATURGY, SP_NATURAE },
-			{ 2, 2, 25, 4, SCH_THAUMATURGY, SP_VIS },
-			{ 5, 5, 30, 1, SCH_THAUMATURGY, SP_ANIMAE },
-			{ 9, 6, 50, 1, SCH_THAUMATURGY, SP_VIS },
-			{ 13, 9, 45, 6, SCH_THAUMATURGY, SP_VIS },
-			{ 14, 9, 45, 6, SCH_THAUMATURGY, SP_VIS },
-			{ 15, 9, 35, 5, SCH_THAUMATURGY, SP_CORPORIS },
-
-			{ 17, 10, 25, 5, SCH_THAUMATURGY, SP_VIS },
-			{ 19, 12, 45, 9, SCH_THAUMATURGY, SP_VIS },
-			{ 21, 13, 45, 10, SCH_THAUMATURGY, SP_VIS },
-			{ 23, 15, 50, 11, SCH_THAUMATURGY, SP_VIS },
-			{ 25, 16, 50, 12, SCH_THAUMATURGY, SP_VIS },
-			{ 25, 18, 60, 8, SCH_THAUMATURGY, SP_CORPORIS },
-			{ 30, 20, 80, 15, SCH_THAUMATURGY, SP_ANIMAE },
-			{ 35, 40, 85, 40, SCH_THAUMATURGY, SP_NATURAE },
-
-			{ 11, 7, 45, 9, SCH_THAUMATURGY, SP_CORPORIS },
-			{ 15, 15, 80, 35, SCH_THAUMATURGY, SP_VIS },
-			{ 16, 14, 80, 35, SCH_THAUMATURGY, SP_NATURAE },
-			{25, 25, 85, 100, SCH_THAUMATURGY, SP_NATURAE },
-			{ 30, 25, 85, 150, SCH_THAUMATURGY, SP_ANIMAE },
-			{ 42, 50, 85, 250, SCH_THAUMATURGY, SP_CORPORIS },
-			{ 45, 90, 80, 250, SCH_THAUMATURGY, SP_NATURAE },
-			{ 47, 100, 90, 250, SCH_THAUMATURGY, SP_ANIMAE },
-
-			{ 20, 20, 66, 8, SCH_THAUMATURGY, SP_NATURAE },
-			{ 35, 32, 85, 35, SCH_THAUMATURGY, SP_NATURAE },
-			{ 37, 34, 75, 40, SCH_THAUMATURGY, SP_VIS },
-			{ 41, 42, 85, 100, SCH_THAUMATURGY, SP_VIS },
-			{ 43, 44, 80, 150, SCH_THAUMATURGY, SP_NATURAE },
-			{ 45, 48, 85, 200, SCH_THAUMATURGY, SP_VIS },
-			{ 47, 75, 80, 200, SCH_THAUMATURGY, SP_CORPORIS },
-			{ 49, 100, 85, 250, SCH_THAUMATURGY, SP_ANIMAE }
-		},
-		/* Conjuration Magic */
-		{
-			{ 1, 1, 50, 3, SCH_CONJURATION, SP_CORPORIS },
-			{ 3, 3, 50, 4, SCH_CONJURATION, SP_ANIMAE },
-			{ 5, 5, 75, 8, SCH_CONJURATION, SP_VIS },
-			{ 6, 6, 80, 8, SCH_CONJURATION, SP_ANIMAE },
-			{ 7, 7, 40, 4, SCH_CONJURATION, SP_CORPORIS },
-			{ 9, 9, 60, 6, SCH_CONJURATION, SP_NATURAE },
-			{ 14, 12, 60, 6, SCH_CONJURATION, SP_VIS },
-			{ 17, 15, 60, 5, SCH_CONJURATION, SP_CORPORIS },
-
-			{ 20, 20, 80, 8, SCH_CONJURATION, SP_NATURAE },
-			{ 24, 22, 60, 8, SCH_CONJURATION, SP_ANIMAE },
-			{ 28, 24, 60, 8, SCH_CONJURATION, SP_VIS },
-			{ 30, 25, 70, 9, SCH_CONJURATION, SP_ANIMAE },
-			{ 33, 28, 80, 12, SCH_CONJURATION, SP_NATURAE },
-			{ 35, 30, 70, 10, SCH_CONJURATION, SP_CORPORIS },
-			{ 40, 35, 80, 15, SCH_CONJURATION, SP_CORPORIS },
-			{ 42, 40, 70, 12, SCH_CONJURATION, SP_ANIMAE },
-
-			{ 15, 15, 80, 20, SCH_CONJURATION, SP_VIS },
-			{ 24, 24, 70, 25, SCH_CONJURATION, SP_ANIMAE },
-			{ 26, 26, 70, 30, SCH_CONJURATION, SP_ANIMAE },
-			{ 30, 30,  70, 35, SCH_CONJURATION, SP_ANIMAE },
-			{ 35, 70, 80, 100, SCH_CONJURATION, SP_VIS },
-			{ 40, 100, 90, 250, SCH_CONJURATION, SP_CORPORIS },
-			{ 42, 50, 50, 75, SCH_CONJURATION, SP_VIS },
-			{ 45, 100, 90, 200, SCH_CONJURATION, SP_ANIMAE },
-
-			{ 30, 30, 60, 50, SCH_CONJURATION, SP_ANIMAE },
-			{ 35, 50, 90, 100, SCH_CONJURATION, SP_ANIMAE },
-			{ 36, 80, 80, 150, SCH_CONJURATION, SP_ANIMAE },
-			{ 39, 80, 80, 150, SCH_CONJURATION, SP_ANIMAE },
-			{ 42, 100, 80, 200, SCH_CONJURATION, SP_ANIMAE },
-			{ 47, 100, 80, 150, SCH_CONJURATION, SP_ANIMAE },
-			{ 48, 100, 80, 200, SCH_CONJURATION, SP_ANIMAE },
-			{ 49, 100, 80, 220, SCH_CONJURATION, SP_ANIMAE }
-		},
-		/* Necromancy */
-		{
-			{ 1, 1, 25, 4, SCH_NECROMANCY,SP_ANIMAE },
-			{ 2, 2, 25, 4, SCH_NECROMANCY,SP_VIS },
-			{ 2, 2, 25, 4, SCH_NECROMANCY,SP_ANIMAE },
-			{ 3, 3, 27, 3, SCH_NECROMANCY,SP_NATURAE },
-			{ 5, 5, 30, 4, SCH_NECROMANCY,SP_ANIMAE },
-			{ 7, 10, 75, 6, SCH_NECROMANCY,SP_CORPORIS },
-			{ 9, 9, 30, 4, SCH_NECROMANCY,SP_CORPORIS },
-			{ 10, 10, 30, 4, SCH_NECROMANCY,SP_ANIMAE },
-
-			{ 12, 12, 40, 5, SCH_NECROMANCY,SP_VIS },
-			{ 13, 12, 30, 4, SCH_NECROMANCY,SP_VIS },
-			{ 18, 15, 50, 10, SCH_NECROMANCY,SP_ANIMAE },
-			{ 23, 20, 60, 16, SCH_NECROMANCY,SP_CORPORIS },
-			{ 30, 75, 50, 30, SCH_NECROMANCY,SP_NATURAE },
-			{ 33, 35, 60, 16, SCH_NECROMANCY,SP_VIS },
-			{ 37, 25, 95, 25, SCH_NECROMANCY,SP_CORPORIS },
-			{ 45, 50, 95, 150, SCH_NECROMANCY,SP_CORPORIS },
-
-			{ 10, 20, 80, 180, SCH_NECROMANCY,SP_CORPORIS },
-			{ 10, 15, 80, 30, SCH_NECROMANCY,SP_ANIMAE },
-			{ 11, 11, 30, 15, SCH_NECROMANCY,SP_VIS },
-			{ 30, 25, 75, 50, SCH_NECROMANCY,SP_CORPORIS },
-			{ 33, 35, 60, 125, SCH_NECROMANCY,SP_VIS },
-			{ 33, 90, 70, 90, SCH_NECROMANCY,SP_NATURAE },
-			{ 40, 40, 70, 200, SCH_NECROMANCY,SP_VIS },
-			{ 40, 75, 80, 100, SCH_NECROMANCY,SP_CORPORIS },
-
-			{ 20, 20, 75, 50, SCH_NECROMANCY,SP_VIS },
-			{ 25, 66, 95 , 250, SCH_NECROMANCY,SP_CORPORIS },
-			{ 30, 40, 95, 250, SCH_NECROMANCY,SP_NATURAE },
-			{ 33, 35, 70, 40, SCH_NECROMANCY,SP_ANIMAE },
-			{ 37, 35, 80, 70, SCH_NECROMANCY,SP_VIS },
-			{ 42, 120, 95, 250, SCH_NECROMANCY,SP_VIS },
-			{ 45, 100, 90, 250, SCH_NECROMANCY,SP_CORPORIS },
-			{ 47, 100, 90, 250, SCH_NECROMANCY,SP_CORPORIS }
-		},
-	}
+		{"Detect Monsters", "", 1, 1, 23, 4, SKILL_SORCERY, SKILL_ANIMAE, SP_DETECT_MONSTERS, 0},
+		{"Phase Door", "range 10", 1, 2, 24, 4, SKILL_SORCERY, SKILL_CORPORIS, SP_PHASE_DOOR, 0},
+		{"Detect Doors and Traps", "", 3, 3, 25, 1, SKILL_SORCERY, SKILL_NATURAE, SP_DETECT_DOORS_AND_TRAPS, 0},
+		{"Light Area", "dam LEV/2+10", 3, 3, 30, 1, SKILL_SORCERY, SKILL_VIS, SP_LIGHT_AREA, 0},
+		{"Confuse Monster", "", 4, 4, 30, 1, SKILL_SORCERY, SKILL_ANIMAE, SP_CONFUSE_MONSTER, 0},
+		{"Teleport", "range LEV*5", 5, 5, 35, 5, SKILL_SORCERY, SKILL_CORPORIS, SP_TELEPORT, 0},
+		{"Sleep Monster", "", 6, 5, 30, 4, SKILL_SORCERY, SKILL_ANIMAE, SP_SLEEP_MONSTER, 0},
+		{"Recharging", "", 7, 7, 75, 9, SKILL_SORCERY, SKILL_VIS, SP_RECHARGING, 0},
+		{"Magic Mapping", "", 9, 7, 75, 8, SKILL_SORCERY, SKILL_NATURAE, SP_MAGIC_MAPPING, 0},
+		{"Identify", "", 10, 7, 75, 8, SKILL_SORCERY, SKILL_NATURAE, SP_IDENTIFY, 0},
+		{"Slow Monster", "", 11, 7, 75, 7, SKILL_SORCERY, SKILL_CORPORIS, SP_SLOW_MONSTER, 0},
+		{"Mass Sleep", "", 13, 7, 50, 6, SKILL_SORCERY, SKILL_ANIMAE, SP_MASS_SLEEP, 0},
+		{"Teleport Away", "", 18, 12, 60, 8, SKILL_SORCERY, SKILL_CORPORIS, SP_TELEPORT_AWAY, 0},
+		{"Haste Self", "dur LEV;+dLEV+20", 22, 12, 60, 8, SKILL_SORCERY, SKILL_CORPORIS, SP_HASTE_SELF, 0},
+		{"Detection True", "", 28, 20, 70, 15, SKILL_SORCERY, SKILL_ANIMAE, SP_DETECTION_TRUE, 0},
+		{"Identify True", "", 33, 30, 75, 20, SKILL_SORCERY, SKILL_NATURAE, SP_IDENTIFY_TRUE, 0},
+		{"Detect Objects & Treasure", "", 3, 3, 25, 15, SKILL_SORCERY, SKILL_NATURAE, SP_DETECT_OBJECTS_AND_TREASURE, 0},
+		{"Detect Enchantment", "", 10, 10, 70, 40, SKILL_SORCERY, SKILL_VIS, SP_DETECT_ENCHANTMENT, 0},
+		{"Charm Monster", "", 10, 10, 80, 40, SKILL_SORCERY, SKILL_ANIMAE, SP_CHARM_MONSTER, 0},
+		{"Dimension Door", "range LEV+2", 12, 12, 80, 40, SKILL_SORCERY, SKILL_NATURAE, SP_DIMENSION_DOOR, 0},
+		{"Sense Minds", "dur 25+d30", 14, 10, 60, 25, SKILL_SORCERY, SKILL_ANIMAE, SP_SENSE_MINDS, 0},
+		{"Self Knowledge", "", 20, 18, 85, 50, SKILL_SORCERY, SKILL_ANIMAE, SP_SELF_KNOWLEDGE, 0},
+		{"Teleport Level", "", 20, 18, 60, 25, SKILL_SORCERY, SKILL_CORPORIS, SP_TELEPORT_LEVEL, 0},
+		{"Word of Recall", "delay 15+d21", 25, 25, 75, 19, SKILL_SORCERY, SKILL_CORPORIS, SP_WORD_OF_RECALL, 0},
+		{"Stasis", "", 10, 10, 40, 20, SKILL_SORCERY, SKILL_VIS, SP_STASIS, 0},
+		{"Telekinesis", "max wgt LEV*15/10;.LEV*15%10", 25, 25, 75, 70, SKILL_SORCERY, SKILL_NATURAE, SP_TELEKINESIS, 0},
+		{"Explosive Rune", "dam 7d7+LEV/2", 25, 30, 95, 160, SKILL_SORCERY, SKILL_VIS, SP_EXPLOSIVE_RUNE, 0},
+		{"Clairvoyance", "dur 25+d30", 30, 40, 80, 120, SKILL_SORCERY, SKILL_NATURAE, SP_CLAIRVOYANCE, 0},
+		{"Enchant Weapon", "", 40, 80, 95, 200, SKILL_SORCERY, SKILL_VIS, SP_ENCHANT_WEAPON, 0},
+		{"Enchant Armour", "", 40, 100, 95, 200, SKILL_SORCERY, SKILL_VIS, SP_ENCHANT_ARMOUR, 0},
+		{"Alchemy", "", 42, 50, 90, 175, SKILL_SORCERY, SKILL_NATURAE, SP_ALCHEMY, 0},
+		{"Globe of Invulnerability", "dur 8+d8", 45, 70, 75, 250, SKILL_SORCERY, SKILL_ANIMAE, SP_GLOBE_OF_INVULNERABILITY, 0},
+	},
+	/* Thaumaturgy */
+	{
+		{"Magic Missile", "dam LEV-1/5+3;d4", 1, 1, 20, 4, SKILL_THAUMATURGY, SKILL_NATURAE, SP_MAGIC_MISSILE, 0},
+		{"Trap / Door Destruction", "", 1, 2, 22, 4, SKILL_THAUMATURGY, SKILL_NATURAE, SP_TRAP_DOOR_DESTRUCTION, 0},
+		{"Flash of Light", "dam LEV/2+10", 2, 2, 25, 4, SKILL_THAUMATURGY, SKILL_VIS, SP_FLASH_OF_LIGHT, 0},
+		{"Touch of Confusion", "", 5, 5, 30, 1, SKILL_THAUMATURGY, SKILL_ANIMAE, SP_TOUCH_OF_CONFUSION, 0},
+		{"Mana Burst", "dam 3d5+LEV*5/4", 9, 6, 50, 1, SKILL_THAUMATURGY, SKILL_VIS, SP_MANA_BURST, 0},
+		{"Fire Bolt", "dam LEV-5/4+6;d8", 13, 9, 45, 6, SKILL_THAUMATURGY, SKILL_VIS, SP_FIRE_BOLT, 0},
+		{"Fist of Force", "dam LEV-5/4+8;d8", 14, 9, 45, 6, SKILL_THAUMATURGY, SKILL_VIS, SP_FIST_OF_FORCE, 0},
+		{"Teleport Self", "range LEV*5", 15, 9, 35, 5, SKILL_THAUMATURGY, SKILL_CORPORIS, SP_TELEPORT_SELF, 0},
+		{"Wonder", "random", 17, 10, 25, 5, SKILL_THAUMATURGY, SKILL_VIS, SP_WONDER, 0},
+		{"Chaos Bolt", "dam LEV-5/4+10;d8", 19, 12, 45, 9, SKILL_THAUMATURGY, SKILL_VIS, SP_CHAOS_BOLT, 0},
+		{"Sonic Boom", "dam LEV+45", 21, 13, 45, 10, SKILL_THAUMATURGY, SKILL_VIS, SP_SONIC_BOOM, 0},
+		{"Doom Bolt", "dam LEV-5/4+11;d8", 23, 15, 50, 11, SKILL_THAUMATURGY, SKILL_VIS, SP_DOOM_BOLT, 0},
+		{"Fire Ball", "dam LEV+55", 25, 16, 50, 12, SKILL_THAUMATURGY, SKILL_VIS, SP_FIRE_BALL, 0},
+		{"Teleport Other", "", 25, 18, 60, 8, SKILL_THAUMATURGY, SKILL_CORPORIS, SP_TELEPORT_OTHER, 0},
+		{"Word of Destruction", "", 30, 20, 80, 15, SKILL_THAUMATURGY, SKILL_ANIMAE, SP_WORD_OF_DESTRUCTION, 0},
+		{"Invoke Chaos", "dam LEV+66", 35, 40, 85, 40, SKILL_THAUMATURGY, SKILL_NATURAE, SP_INVOKE_CHAOS, 0},
+		{"Polymorph Other", "", 11, 7, 45, 9, SKILL_THAUMATURGY, SKILL_CORPORIS, SP_POLYMORPH_OTHER, 0},
+		{"Chain Lightning", "dam LEV/10+5;d8", 15, 15, 80, 35, SKILL_THAUMATURGY, SKILL_VIS, SP_CHAIN_LIGHTNING, 0},
+		{"Arcane Binding", "", 16, 14, 80, 35, SKILL_THAUMATURGY, SKILL_NATURAE, SP_ARCANE_BINDING, 0},
+		{"Disintegrate", "dam LEV+80", 25, 25, 85, 100, SKILL_THAUMATURGY, SKILL_NATURAE, SP_DISINTEGRATE, 0},
+		{"Alter Reality", "", 30, 25, 85, 150, SKILL_THAUMATURGY, SKILL_ANIMAE, SP_ALTER_REALITY, 0},
+		{"Polymorph Self", "", 42, 50, 85, 250, SKILL_THAUMATURGY, SKILL_CORPORIS, SP_POLYMORPH_SELF, 0},
+		{"Chaos Branding", "", 45, 90, 80, 250, SKILL_THAUMATURGY, SKILL_NATURAE, SP_CHAOS_BRANDING, 0},
+		{"Summon Demon", "", 47, 100, 90, 250, SKILL_THAUMATURGY, SKILL_ANIMAE, SP_SUMMON_DEMON, 0},
+		{"Beam of Gravity", "dam LEV/10+9;d8", 20, 20, 66, 8, SKILL_THAUMATURGY, SKILL_NATURAE, SP_BEAM_OF_GRAVITY, 0},
+		{"Meteor Swarm", "dam LEV*3/2; each", 35, 32, 85, 35, SKILL_THAUMATURGY, SKILL_NATURAE, SP_METEOR_SWARM, 0},
+		{"Flame Strike", "dam LEV+75", 37, 34, 75, 40, SKILL_THAUMATURGY, SKILL_VIS, SP_FLAME_STRIKE, 0},
+		{"Call Chaos", "dam 75 / 150", 41, 42, 85, 100, SKILL_THAUMATURGY, SKILL_VIS, SP_CALL_CHAOS, 0},
+		{"Shard Ball", "dam LEV+120", 43, 44, 80, 150, SKILL_THAUMATURGY, SKILL_NATURAE, SP_SHARD_BALL, 0},
+		{"Mana Storm", "dam LEV*2+300", 45, 48, 85, 200, SKILL_THAUMATURGY, SKILL_VIS, SP_MANA_STORM, 0},
+		{"Breathe Chaos", "dam CHP", 47, 75, 80, 200, SKILL_THAUMATURGY, SKILL_CORPORIS, SP_BREATHE_CHAOS, 0},
+		{"Call the Void", "dam 3*175", 49, 100, 85, 250, SKILL_THAUMATURGY, SKILL_ANIMAE, SP_CALL_THE_VOID, 0},
+	},
+	/* Conjuration Magic */
+	{
+		{"Phase Door", "range 10", 1, 1, 50, 3, SKILL_CONJURATION, SKILL_CORPORIS, SP_PHASE_DOOR, 0},
+		{"Mind Blast", "dam LEV-1/5+3;d3", 3, 3, 50, 4, SKILL_CONJURATION, SKILL_ANIMAE, SP_MIND_BLAST, 0},
+		{"Tarot Draw", "random", 5, 5, 75, 8, SKILL_CONJURATION, SKILL_VIS, SP_TAROT_DRAW, 0},
+		{"Reset Recall", "", 6, 6, 80, 8, SKILL_CONJURATION, SKILL_ANIMAE, SP_RESET_RECALL, 0},
+		{"Teleport", "range LEV*4", 7, 7, 40, 4, SKILL_CONJURATION, SKILL_CORPORIS, SP_TELEPORT, 0},
+		{"Dimension Door", "range LEV+2", 9, 9, 60, 6, SKILL_CONJURATION, SKILL_NATURAE, SP_DIMENSION_DOOR, 0},
+		{"Planar Spying", "dur 25+d30", 14, 12, 60, 6, SKILL_CONJURATION, SKILL_VIS, SP_PLANAR_SPYING, 0},
+		{"Teleport Away", "", 17, 15, 60, 5, SKILL_CONJURATION, SKILL_CORPORIS, SP_TELEPORT_AWAY, 0},
+		{"Summon Object", "max wgt LEV*15/10;.LEV*15%10", 20, 20, 80, 8, SKILL_CONJURATION, SKILL_NATURAE, SP_SUMMON_OBJECT, 0},
+		{"Summon Animal", "", 24, 22, 60, 8, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_ANIMAL, 0},
+		{"Phantasmal Servant", "", 28, 24, 60, 8, SKILL_CONJURATION, SKILL_VIS, SP_PHANTASMAL_SERVANT, 0},
+		{"Summon Monster", "", 30, 25, 70, 9, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_MONSTER, 0},
+		{"Conjure Elemental", "", 33, 28, 80, 12, SKILL_CONJURATION, SKILL_NATURAE, SP_CONJURE_ELEMENTAL, 0},
+		{"Teleport Level", "", 35, 30, 70, 10, SKILL_CONJURATION, SKILL_CORPORIS, SP_TELEPORT_LEVEL, 0},
+		{"Word of Recall", "delay 15+d21", 40, 35, 80, 15, SKILL_CONJURATION, SKILL_CORPORIS, SP_WORD_OF_RECALL, 0},
+		{"Banish", "", 42, 40, 70, 12, SKILL_CONJURATION, SKILL_ANIMAE, SP_BANISH, 0},
+		{"Joker Card", "", 15, 15, 80, 20, SKILL_CONJURATION, SKILL_VIS, SP_JOKER_CARD, 0},
+		{"Summon Spiders", "", 24, 24, 70, 25, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_SPIDERS, 0},
+		{"Summon Reptiles", "", 26, 26, 70, 30, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_REPTILES, 0},
+		{"Summon Hounds", "", 30, 30, 70, 35, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_HOUNDS, 0},
+		{"Planar Branding", "", 35, 70, 80, 100, SKILL_CONJURATION, SKILL_VIS, SP_PLANAR_BRANDING, 0},
+		{"Planar Being", "", 40, 100, 90, 250, SKILL_CONJURATION, SKILL_CORPORIS, SP_PLANAR_BEING, 0},
+		{"Death Dealing", "dam LEV*3", 42, 50, 50, 75, SKILL_CONJURATION, SKILL_VIS, SP_DEATH_DEALING, 0},
+		{"Summon Reaver", "", 45, 100, 90, 200, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_REAVER, 0},
+		{"Planar Divination", "", 30, 30, 60, 50, SKILL_CONJURATION, SKILL_ANIMAE, SP_PLANAR_DIVINATION, 0},
+		{"Planar Lore", "", 35, 50, 90, 100, SKILL_CONJURATION, SKILL_ANIMAE, SP_PLANAR_LORE, 0},
+		{"Summon Undead", "", 36, 80, 80, 150, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_UNDEAD, 0},
+		{"Summon Dragon", "", 39, 80, 80, 150, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_DRAGON, 0},
+		{"Mass Summons", "", 42, 100, 80, 200, SKILL_CONJURATION, SKILL_ANIMAE, SP_MASS_SUMMONS, 0},
+		{"Summon Demon", "", 47, 100, 80, 150, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_DEMON, 0},
+		{"Summon Ancient Dragon", "", 48, 100, 80, 200, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_ANCIENT_DRAGON, 0},
+		{"Summon Greater Undead", "", 49, 100, 80, 220, SKILL_CONJURATION, SKILL_ANIMAE, SP_SUMMON_GREATER_UNDEAD, 0},
+	},
+	/* Necromancy */
+	{
+		{"Detect Unlife", "", 1, 1, 25, 4, SKILL_NECROMANCY, SKILL_ANIMAE, SP_DETECT_UNLIFE, 0},
+		{"Malediction", "dam LEV-1/5+3;d3", 2, 2, 25, 4, SKILL_NECROMANCY, SKILL_VIS, SP_MALEDICTION, 0},
+		{"Detect Evil", "", 2, 2, 25, 4, SKILL_NECROMANCY, SKILL_ANIMAE, SP_DETECT_EVIL, 0},
+		{"Stinking Cloud", "dam LEV/2+10", 3, 3, 27, 3, SKILL_NECROMANCY, SKILL_NATURAE, SP_STINKING_CLOUD, 0},
+		{"Black Sleep", "", 5, 5, 30, 4, SKILL_NECROMANCY, SKILL_ANIMAE, SP_BLACK_SLEEP, 0},
+		{"Resist Poison", "dur 20+d20", 7, 10, 75, 6, SKILL_NECROMANCY, SKILL_CORPORIS, SP_RESIST_POISON, 0},
+		{"Horrify", "", 9, 9, 30, 4, SKILL_NECROMANCY, SKILL_CORPORIS, SP_HORRIFY, 0},
+		{"Enslave Undead", "", 10, 10, 30, 4, SKILL_NECROMANCY, SKILL_ANIMAE, SP_ENSLAVE_UNDEAD, 0},
+		{"Orb of Entropy", "dam 3d6+LEV*5/4", 12, 12, 40, 5, SKILL_NECROMANCY, SKILL_VIS, SP_ORB_OF_ENTROPY, 0},
+		{"Nether Bolt", "dam LEV-5/4+6;d8", 13, 12, 30, 4, SKILL_NECROMANCY, SKILL_VIS, SP_NETHER_BOLT, 0},
+		{"Terror", "", 18, 15, 50, 10, SKILL_NECROMANCY, SKILL_ANIMAE, SP_TERROR, 0},
+		{"Vampiric Drain", "dam LEV/15+2;* 5+d15", 23, 20, 60, 16, SKILL_NECROMANCY, SKILL_CORPORIS, SP_VAMPIRIC_DRAIN, 0},
+		{"Poison Branding", "", 30, 75, 50, 30, SKILL_NECROMANCY, SKILL_NATURAE, SP_POISON_BRANDING, 0},
+		{"Dispel Good", "dam LEV*4", 33, 35, 60, 16, SKILL_NECROMANCY, SKILL_VIS, SP_DISPEL_GOOD, 0},
+		{"Genocide", "", 37, 25, 95, 25, SKILL_NECROMANCY, SKILL_CORPORIS, SP_GENOCIDE, 0},
+		{"Restore Life", "", 45, 50, 95, 150, SKILL_NECROMANCY, SKILL_CORPORIS, SP_RESTORE_LIFE, 0},
+		{"Berserk", "dur 25+d25", 10, 20, 80, 180, SKILL_NECROMANCY, SKILL_CORPORIS, SP_BERSERK, 0},
+		{"Invoke Spirits", "random", 10, 15, 80, 30, SKILL_NECROMANCY, SKILL_ANIMAE, SP_INVOKE_SPIRITS, 0},
+		{"Dark Bolt", "dam LEV-5/4+4", 11, 11, 30, 15, SKILL_NECROMANCY, SKILL_VIS, SP_DARK_BOLT, 0},
+		{"Battle Frenzy", "max dur 50", 30, 25, 75, 50, SKILL_NECROMANCY, SKILL_CORPORIS, SP_BATTLE_FRENZY, 0},
+		{"Vampirism True", "dam 3*100", 33, 35, 60, 125, SKILL_NECROMANCY, SKILL_VIS, SP_VAMPIRISM_TRUE, 0},
+		{"Vampiric Branding", "", 33, 90, 70, 90, SKILL_NECROMANCY, SKILL_NATURAE, SP_VAMPIRIC_BRANDING, 0},
+		{"Darkness Storm", "dam 120", 40, 40, 70, 200, SKILL_NECROMANCY, SKILL_VIS, SP_DARKNESS_STORM, 0},
+		{"Mass Genocide", "", 40, 75, 80, 100, SKILL_NECROMANCY, SKILL_CORPORIS, SP_MASS_GENOCIDE, 0},
+		{"Death Ray", "", 20, 20, 75, 50, SKILL_NECROMANCY, SKILL_VIS, SP_DEATH_RAY, 0},
+		{"Raise the Dead", "", 25, 66, 95, 250, SKILL_NECROMANCY, SKILL_CORPORIS, SP_RAISE_THE_DEAD, 0},
+		{"Esoteria", "", 30, 40, 95, 250, SKILL_NECROMANCY, SKILL_NATURAE, SP_ESOTERIA, 0},
+		{"Word of Death", "dam LEV*3", 33, 35, 70, 40, SKILL_NECROMANCY, SKILL_ANIMAE, SP_WORD_OF_DEATH, 0},
+		{"Evocation", "dam LEV*4", 37, 35, 80, 70, SKILL_NECROMANCY, SKILL_VIS, SP_EVOCATION, 0},
+		{"Hellfire", "dam 666", 42, 120, 95, 250, SKILL_NECROMANCY, SKILL_VIS, SP_HELLFIRE, 0},
+		{"Omnicide", "", 45, 100, 90, 250, SKILL_NECROMANCY, SKILL_CORPORIS, SP_OMNICIDE, 0},
+		{"Wraithform", "dur LEV/2;+dLEV/2", 47, 100, 90, 250, SKILL_NECROMANCY, SKILL_CORPORIS, SP_WRAITHFORM, 0},
+	},
 };
 
-favour_type favour_info[MAX_SPHERE][32] =
+static magic_type favour_info[MAX_SPHERE][32] =
 {
 	/* Life Favours */
 	{
-		{ 1, 1, 10},
-		{ 1, 2, 15},
-		{ 1, 2, 20},
-		{ 3, 2, 25},
-		{ 3, 3, 27},
-		{ 4, 4, 28},
-		{ 5, 4, 32},
-		{ 7, 5, 38},
-
-		{ 7, 6, 38},
-		{ 9, 6, 38},
-		{ 9, 7, 40},
-		{ 10, 8, 38},
-		{ 10, 8, 40},
-		{ 11, 8, 42},
-		{ 20, 16, 60},
-		{ 33, 55, 90},
-
-		{ 15, 14, 50},
-		{ 16, 14, 80},
-		{ 17, 14, 55},
-		{ 24, 20, 55},
-		{ 25, 20, 70},
-		{ 25, 25, 80},
-		{ 39, 32, 95},
-		{ 44, 44, 80},
-
-		{ 5, 5, 50},
-		{ 15, 14, 50},
-		{ 30, 50, 80},
-		{ 35, 70, 90},
-		{ 40, 50, 80},
-		{ 40, 40, 80},
-		{ 42, 90, 85},
-		{ 45, 90, 85},
+		{"Detect Evil", "", 1, 1, 10, 0, SKILL_SHAMAN, SKILL_NONE, SP_DETECT_EVIL, 0},
+		{"Cure Light Wounds", "heal 2d10", 1, 2, 15, 0, SKILL_SHAMAN, SKILL_NONE, SP_CURE_LIGHT_WOUNDS, 0},
+		{"Bless", "dur 12+d12 turns", 1, 2, 20, 0, SKILL_SHAMAN, SKILL_NONE, SP_BLESS, 0},
+		{"Remove Fear", "", 3, 2, 25, 0, SKILL_SHAMAN, SKILL_NONE, SP_REMOVE_FEAR, 0},
+		{"Call Light", "dam LEV/2+10", 3, 3, 27, 0, SKILL_SHAMAN, SKILL_NONE, SP_CALL_LIGHT, 0},
+		{"Detect Traps and Secret Doors", "", 4, 4, 28, 0, SKILL_SHAMAN, SKILL_NONE, SP_DETECT_TRAPS_AND_SECRET_DOORS, 0},
+		{"Cure Medium Wounds", "heal 4d10", 5, 4, 32, 0, SKILL_SHAMAN, SKILL_NONE, SP_CURE_MEDIUM_WOUNDS, 0},
+		{"Satisfy Hunger", "", 7, 5, 38, 0, SKILL_SHAMAN, SKILL_NONE, SP_SATISFY_HUNGER, 0},
+		{"Remove Curse", "", 7, 6, 38, 0, SKILL_SHAMAN, SKILL_NONE, SP_REMOVE_CURSE, 0},
+		{"Cure Poison", "", 9, 6, 38, 0, SKILL_SHAMAN, SKILL_NONE, SP_CURE_POISON, 0},
+		{"Cure Critical Wounds", "heal 8d10", 9, 7, 40, 0, SKILL_SHAMAN, SKILL_NONE, SP_CURE_CRITICAL_WOUNDS, 0},
+		{"Sense Unseen", "dur 24+d24", 10, 8, 38, 0, SKILL_SHAMAN, SKILL_NONE, SP_SENSE_UNSEEN, 0},
+		{"Holy Orb", "dam 3d6+LEV*5/4", 10, 8, 40, 0, SKILL_SHAMAN, SKILL_NONE, SP_HOLY_ORB, 0},
+		{"Protection from Evil", "dur d25+LEV*3", 11, 8, 42, 0, SKILL_SHAMAN, SKILL_NONE, SP_PROTECTION_FROM_EVIL, 0},
+		{"Healing", "heal 300", 20, 16, 60, 0, SKILL_SHAMAN, SKILL_NONE, SP_HEALING, 0},
+		{"Glyph of Warding", "", 33, 55, 90, 0, SKILL_SHAMAN, SKILL_NONE, SP_GLYPH_OF_WARDING, 0},
+		{"Exorcism", "dam LEV;+LEV", 15, 14, 50, 0, SKILL_SHAMAN, SKILL_NONE, SP_EXORCISM, 0},
+		{"Dispel Curse", "", 16, 14, 80, 0, SKILL_SHAMAN, SKILL_NONE, SP_DISPEL_CURSE, 0},
+		{"Dispel Undead & Demons", "dam LEV*3;+LEV*3", 17, 14, 55, 0, SKILL_SHAMAN, SKILL_NONE, SP_DISPEL_UNDEAD_AND_DEMONS, 0},
+		{"Day of the Dove", "", 24, 20, 55, 0, SKILL_SHAMAN, SKILL_NONE, SP_DAY_OF_THE_DOVE, 0},
+		{"Dispel Evil", "dam LEV*4", 25, 20, 70, 0, SKILL_SHAMAN, SKILL_NONE, SP_DISPEL_EVIL, 0},
+		{"Banish", "", 25, 25, 80, 0, SKILL_SHAMAN, SKILL_NONE, SP_BANISH, 0},
+		{"Holy Word", "d LEV*4;/h 1000", 39, 32, 95, 0, SKILL_SHAMAN, SKILL_NONE, SP_HOLY_WORD, 0},
+		{"Warding True", "", 44, 44, 80, 0, SKILL_SHAMAN, SKILL_NONE, SP_WARDING_TRUE, 0},
+		{"Heroism", "dur 25+d25", 5, 5, 50, 0, SKILL_SHAMAN, SKILL_NONE, SP_HEROISM, 0},
+		{"Prayer", "dur 48+d48", 15, 14, 50, 0, SKILL_SHAMAN, SKILL_NONE, SP_PRAYER, 0},
+		{"Bless Weapon", "", 30, 50, 80, 0, SKILL_SHAMAN, SKILL_NONE, SP_BLESS_WEAPON, 0},
+		{"Restoration", "", 35, 70, 90, 0, SKILL_SHAMAN, SKILL_NONE, SP_RESTORATION, 0},
+		{"Healing True", "heal 2000", 40, 50, 80, 0, SKILL_SHAMAN, SKILL_NONE, SP_HEALING_TRUE, 0},
+		{"Holy Vision", "", 40, 40, 80, 0, SKILL_SHAMAN, SKILL_NONE, SP_HOLY_VISION, 0},
+		{"Divine Intervention", "h300/dLEV*4;+388", 42, 90, 85, 0, SKILL_SHAMAN, SKILL_NONE, SP_DIVINE_INTERVENTION, 0},
+		{"Holy Invulnerability", "dur 7+d7", 45, 90, 85, 0, SKILL_SHAMAN, SKILL_NONE, SP_HOLY_INVULNERABILITY, 0},
 	},
 			/* Nature Favours*/
 	{
-		{ 1, 1, 23},
-		{ 3, 3, 25},
-		{ 3, 3, 25},
-		{ 4, 4, 35},
-		{ 4, 4, 50},
-		{ 4, 5, 50},
-		{ 5, 5, 50},
-		{ 5, 5, 35},
-
-		{ 5, 5, 40},
-		{ 5, 5, 30},
-		{ 7, 6, 45},
-		{ 7, 6, 40},
-		{ 9, 6, 30},
-		{ 19, 12, 55},
-		{ 25, 25, 90},
-		{ 40, 100, 95},
-
-		{ 7, 7, 20},
-		{ 9, 12, 40},
-		{ 10, 12, 75},
-		{ 15, 20, 85},
-		{ 30, 30, 90},
-		{ 37, 40, 90},
-		{ 38, 45, 75},
-		{ 40, 90, 90},
-
-
-		{ 20, 18, 60},
-		{ 23, 23, 80},
-		{ 25, 25, 75},
-		{ 30, 27, 75},
-		{ 35, 30, 85},
-		{ 37, 35, 90},
-		{ 40, 90, 95},
-		{ 40, 75, 65},
+		{"Detect Creatures", "", 1, 1, 23, 0, SKILL_SHAMAN, SKILL_NONE, SP_DETECT_CREATURES, 0},
+		{"First Aid", "heal 2d8", 3, 3, 25, 0, SKILL_SHAMAN, SKILL_NONE, SP_FIRST_AID, 0},
+		{"Detect Doors and Traps", "", 3, 3, 25, 0, SKILL_SHAMAN, SKILL_NONE, SP_DETECT_DOORS_AND_TRAPS, 0},
+		{"Foraging", "", 4, 4, 35, 0, SKILL_SHAMAN, SKILL_NONE, SP_FORAGING, 0},
+		{"Daylight", "dam LEV/2+10", 4, 4, 50, 0, SKILL_SHAMAN, SKILL_NONE, SP_DAYLIGHT, 0},
+		{"Animal Taming", "", 4, 5, 50, 0, SKILL_SHAMAN, SKILL_NONE, SP_ANIMAL_TAMING, 0},
+		{"Resist Environment", "dur 20+d20", 5, 5, 50, 0, SKILL_SHAMAN, SKILL_NONE, SP_RESIST_ENVIRONMENT, 0},
+		{"Cure Wounds & Poison", "", 5, 5, 35, 0, SKILL_SHAMAN, SKILL_NONE, SP_CURE_WOUNDS_AND_POISON, 0},
+		{"Stone to Mud", "", 5, 5, 40, 0, SKILL_SHAMAN, SKILL_NONE, SP_STONE_TO_MUD, 0},
+		{"Lightning Bolt", "dam LEV-5/4+3;d8", 5, 5, 30, 0, SKILL_SHAMAN, SKILL_NONE, SP_LIGHTNING_BOLT, 0},
+		{"Nature Awareness", "", 7, 6, 45, 0, SKILL_SHAMAN, SKILL_NONE, SP_NATURE_AWARENESS, 0},
+		{"Frost Bolt", "dam LEV-5/4+5;d8", 7, 6, 40, 0, SKILL_SHAMAN, SKILL_NONE, SP_FROST_BOLT, 0},
+		{"Ray of Sunlight", "dam 6d8", 9, 6, 30, 0, SKILL_SHAMAN, SKILL_NONE, SP_RAY_OF_SUNLIGHT, 0},
+		{"Entangle", "", 19, 12, 55, 0, SKILL_SHAMAN, SKILL_NONE, SP_ENTANGLE, 0},
+		{"Summon Animal", "", 25, 25, 90, 0, SKILL_SHAMAN, SKILL_NONE, SP_SUMMON_ANIMAL, 0},
+		{"Herbal Healing", "heal 1000", 40, 100, 95, 0, SKILL_SHAMAN, SKILL_NONE, SP_HERBAL_HEALING, 0},
+		{"Door Building", "", 7, 7, 20, 0, SKILL_SHAMAN, SKILL_NONE, SP_DOOR_BUILDING, 0},
+		{"Stair Building", "", 9, 12, 40, 0, SKILL_SHAMAN, SKILL_NONE, SP_STAIR_BUILDING, 0},
+		{"Stone Skin", "dur 20+d30", 10, 12, 75, 0, SKILL_SHAMAN, SKILL_NONE, SP_STONE_SKIN, 0},
+		{"Resistance True", "dur 20+d20", 15, 20, 85, 0, SKILL_SHAMAN, SKILL_NONE, SP_RESISTANCE_TRUE, 0},
+		{"Animal Friendship", "", 30, 30, 90, 0, SKILL_SHAMAN, SKILL_NONE, SP_ANIMAL_FRIENDSHIP, 0},
+		{"Stone Tell", "", 37, 40, 90, 0, SKILL_SHAMAN, SKILL_NONE, SP_STONE_TELL, 0},
+		{"Wall of Stone", "", 38, 45, 75, 0, SKILL_SHAMAN, SKILL_NONE, SP_WALL_OF_STONE, 0},
+		{"Protect from Corrosion", "", 40, 90, 90, 0, SKILL_SHAMAN, SKILL_NONE, SP_PROTECT_FROM_CORROSION, 0},
+		{"Earthquake", "rad 10", 20, 18, 60, 0, SKILL_SHAMAN, SKILL_NONE, SP_EARTHQUAKE, 0},
+		{"Whirlwind Attack", "", 23, 23, 80, 0, SKILL_SHAMAN, SKILL_NONE, SP_WHIRLWIND_ATTACK, 0},
+		{"Blizzard", "dam LEV+70", 25, 25, 75, 0, SKILL_SHAMAN, SKILL_NONE, SP_BLIZZARD, 0},
+		{"Lightning Storm", "dam LEV+90", 30, 27, 75, 0, SKILL_SHAMAN, SKILL_NONE, SP_LIGHTNING_STORM, 0},
+		{"Whirlpool", "dam LEV+100", 35, 30, 85, 0, SKILL_SHAMAN, SKILL_NONE, SP_WHIRLPOOL, 0},
+		{"Call Sunlight", "dam 75", 37, 35, 90, 0, SKILL_SHAMAN, SKILL_NONE, SP_CALL_SUNLIGHT, 0},
+		{"Elemental Branding", "", 40, 90, 95, 0, SKILL_SHAMAN, SKILL_NONE, SP_ELEMENTAL_BRANDING, 0},
+		{"Nature's Wrath", "dam LEV*4;+LEV+100", 40, 75, 65, 0, SKILL_SHAMAN, SKILL_NONE, SP_NATURES_WRATH, 0},
 	},
 };
 
-cantrip_type cantrip_info[32] =
+static magic_type cantrip_info[32] =
 {
-	{ 1, 1, 20},
-	{ 1, 1, 33},
-	{ 2, 1, 33},
-	{ 2, 2, 33},
-	{ 3, 3, 33},
-	{ 5, 5, 40},
-	{ 6, 6, 33},
-	{ 7, 7, 44},
-
-	{ 8, 8, 40},
-	{ 9, 9, 60},
-	{ 10, 10, 50},
-	{ 11, 11, 50},
-	{ 13, 11, 50},
-	{ 14, 12, 50},
-	{ 15, 13, 50},
-	{ 16, 14, 50},
-
-	{ 17, 15, 50},
-	{ 18, 16, 50},
-	{ 19, 17, 33},
-	{ 20, 20, 50},
-	{ 23, 22, 60},
-	{ 25, 24, 60},
-	{ 28, 25, 70},
-	{ 30, 28, 60},
-
-	{ 35, 30, 80},
-	{ 39, 36, 80},
-	{ 42, 37, 60},
-	{ 44, 38, 70},
-	{ 46, 40, 66},
-	{ 47, 42, 80},
-	{ 48, 60, 70},
-	{ 50, 125, 80}
+	{"Zap", "dam LEV-1/5+3;d3", 1, 1, 20, 0, SKILL_HEDGE, SKILL_NONE, SP_ZAP, 0},
+	{"Wizard Lock", "", 1, 1, 33, 0, SKILL_HEDGE, SKILL_NONE, SP_WIZARD_LOCK, 0},
+	{"Detect Invisibility", "", 2, 1, 33, 0, SKILL_HEDGE, SKILL_NONE, SP_DETECT_INVISIBILITY, 0},
+	{"Detect Monsters", "", 2, 2, 33, 0, SKILL_HEDGE, SKILL_NONE, SP_DETECT_MONSTERS, 0},
+	{"Blink", "range 10", 3, 3, 33, 0, SKILL_HEDGE, SKILL_NONE, SP_BLINK, 0},
+	{"Light Area", "dam 2dLEV/2", 5, 5, 40, 0, SKILL_HEDGE, SKILL_NONE, SP_LIGHT_AREA, 0},
+	{"Trap & Door Destruction", "", 6, 6, 33, 0, SKILL_HEDGE, SKILL_NONE, SP_TRAP_DOOR_DESTRUCTION, 0},
+	{"Cure Light Wounds", "heal 2d8", 7, 7, 44, 0, SKILL_HEDGE, SKILL_NONE, SP_CURE_LIGHT_WOUNDS, 0},
+	{"Detect Doors & Traps", "", 8, 8, 40, 0, SKILL_HEDGE, SKILL_NONE, SP_DETECT_DOORS_AND_TRAPS, 0},
+	{"Phlogiston", "", 9, 9, 60, 0, SKILL_HEDGE, SKILL_NONE, SP_PHLOGISTON, 0},
+	{"Detect Treasure", "", 10, 10, 50, 0, SKILL_HEDGE, SKILL_NONE, SP_DETECT_TREASURE, 0},
+	{"Detect Enchantment", "", 11, 11, 50, 0, SKILL_HEDGE, SKILL_NONE, SP_DETECT_ENCHANTMENT, 0},
+	{"Detect Objects", "", 13, 11, 50, 0, SKILL_HEDGE, SKILL_NONE, SP_DETECT_OBJECTS, 0},
+	{"Cure Poison", "", 14, 12, 50, 0, SKILL_HEDGE, SKILL_NONE, SP_CURE_POISON, 0},
+	{"Resist Cold", "dur 20+d20", 15, 13, 50, 0, SKILL_HEDGE, SKILL_NONE, SP_RESIST_COLD, 0},
+	{"Resist Fire", "dur 20+d20", 16, 14, 50, 0, SKILL_HEDGE, SKILL_NONE, SP_RESIST_FIRE, 0},
+	{"Resist Lightning", "dur 20+d20", 17, 15, 50, 0, SKILL_HEDGE, SKILL_NONE, SP_RESIST_LIGHTNING, 0},
+	{"Resist Acid", "dur 20+d20", 18, 16, 50, 0, SKILL_HEDGE, SKILL_NONE, SP_RESIST_ACID, 0},
+	{"Cure Medium Wounds", "heal 4d8", 19, 17, 33, 0, SKILL_HEDGE, SKILL_NONE, SP_CURE_MEDIUM_WOUNDS, 0},
+	{"Teleport", "range LEV*5", 20, 20, 50, 0, SKILL_HEDGE, SKILL_NONE, SP_TELEPORT, 0},
+	{"Stone to Mud", "", 23, 22, 60, 0, SKILL_HEDGE, SKILL_NONE, SP_STONE_TO_MUD, 0},
+	{"Ray of Light", "dam 6d8", 25, 24, 60, 0, SKILL_HEDGE, SKILL_NONE, SP_RAY_OF_LIGHT, 0},
+	{"Satisfy Hunger", "", 28, 25, 70, 0, SKILL_HEDGE, SKILL_NONE, SP_SATISFY_HUNGER, 0},
+	{"See Invisible", "dur 24+d24", 30, 28, 60, 0, SKILL_HEDGE, SKILL_NONE, SP_SEE_INVISIBLE, 0},
+	{"Recharging", "", 35, 30, 80, 0, SKILL_HEDGE, SKILL_NONE, SP_RECHARGING, 0},
+	{"Teleport Level", "", 39, 36, 80, 0, SKILL_HEDGE, SKILL_NONE, SP_TELEPORT_LEVEL, 0},
+	{"Identify", "", 42, 37, 60, 0, SKILL_HEDGE, SKILL_NONE, SP_IDENTIFY, 0},
+	{"Teleport Away", "", 44, 38, 70, 0, SKILL_HEDGE, SKILL_NONE, SP_TELEPORT_AWAY, 0},
+	{"Elemental Ball", "dam LEV+75", 46, 40, 66, 0, SKILL_HEDGE, SKILL_NONE, SP_ELEMENTAL_BALL, 0},
+	{"Detection", "", 47, 42, 80, 0, SKILL_HEDGE, SKILL_NONE, SP_DETECTION, 0},
+	{"Word of Recall", "delay 15+d21", 48, 60, 70, 0, SKILL_HEDGE, SKILL_NONE, SP_WORD_OF_RECALL, 0},
+	{"Clairvoyance", "dur 25+30", 50, 125, 80, 0, SKILL_HEDGE, SKILL_NONE, SP_CLAIRVOYANCE, 0},
 };
 
-/* Bitwise mask for spells to split them into books */
-
-u32b spell_flags[4]=
+static magic_type mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 {
-    0x000000ff,
-    0x0000ff00,
-    0x00ff0000,
-    0xff000000
+	/* Det. monsters/traps */
+	{"Precognition", "", 0, 1, 15, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_PRECOGNITION, 0},
+	/* ~MM */
+	{"Neural Blast", "dam LEV-1/4+3;dLEV/15+3", 1, 1, 20, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_NEURAL_BLAST, 0}, 
+	/* Phase/dimension door (range 10 for sk 0-49, LEV+2 above) */
+	{"Minor Displacement", NULL, 3, 2, 25, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_MINOR_DISPLACEMENT, 0},
+	/* Tele. Self / All */
+	{"Major Displacement", "range LEV*5", 7, 6, 35, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_MAJOR_DISPLACEMENT, 0}, 
+	{"Domination", "", 9, 7, 50, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_DOMINATION, 0},
+	/* Telekinetic "bolt" */
+	{"Pulverise", "dam LEV-5/4+8;d8", 11, 7, 30, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_PULVERISE, 0},
+	/* Psychic/physical defenses */
+	{"Character Armour", "dur LEV", 13, 12, 50, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_CHARACTER_ARMOUR, 0},
+	{"Psychometry", "", 15, 12, 60, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_PSYCHOMETRY, 0},
+	/* Ball -> LOS */
+	{"Mind Wave", "dam LEV-5/10+1*LEV", 18, 10, 45, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_MIND_WAVE, 0},
+	{"Adrenaline Channeling", "dur 11-LEV*3/2", 23, 15, 50, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_ADRENALINE_CHANNELING, 0},
+ 	/* Convert enemy HP to mana */
+ 	{"Psychic Drain", "dam LEV/2;d6", 25, 10, 40, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_PSYCHIC_DRAIN, 0},
+	/* Ball -> LOS (dam LEV*3 for sk 0-79, LEV*4 above) */
+	{"Telekinetic Wave", NULL, 29, 20, 45, 0, SKILL_MINDCRAFTING, SKILL_NONE, SP_TELEKINETIC_WAVE, 0},
 };
 
-/*
- * 
- * Bitwise mask for cantrips to split them into charms.
- * Note the strange values, because cantrips are ordered
- * by difficulty, but charms each hold cantrips of a given
- * theme.
- *
- */
-u32b cantrip_flags[7]=
+
+book_type book_info[MAX_BK] =
 {
-	0x10300221, /* Elemental cantrips (Charm = Sulphur)*/
-	0x4a080010, /* Movement cantrips (Charm = Hemlock)*/
-	0x00442080, /* Healing cantrips (Charm = Unicorn Horn) */
-	0x20001508, /* Visions cantrips (Charm = Crystal)*/
-	0x80800804, /* Illusion cantrips (Charm = Fly Agaric)*/
-	0x0003c000, /* Protection cantrips (Charm = Garlic)*/
-	0x05000042 /* Artifice cantrips (Charm = Geode)*/
-};
-
-/*
- * Names of the spells (hermetic)
- */
-cptr spell_names[MAX_SCHOOL][32] =
-{
-    /*** Sorcery Spells ***/
-
-    {
-	/* Common Sorcery Spellbooks */
-		"Detect Monsters",
-		"Phase Door",
-		"Detect Doors and Traps",
-		"Light Area",
-		"Confuse Monster",
-		"Teleport",
-		"Sleep Monster",
-		"Recharging",
-
-		"Magic Mapping",
-		"Identify",
-		"Slow Monster",
-		"Mass Sleep",
-		"Teleport Away",
-		"Haste Self",
-		"Detection True",
-		"Identify True",
-
-	/* Rare Sorcery Spellbooks */
-		"Detect Objects & Treasure",
-		"Detect Enchantment",
-		"Charm Monster",
-		"Dimension Door",
-		"Sense Minds",
-		"Self Knowledge",
-		"Teleport Level",
-		"Word of Recall",
-
-		"Stasis",
-		"Telekinesis",
-		"Explosive Rune",
-		"Clairvoyance",
-		"Enchant Weapon",
-		"Enchant Armour",
-		"Alchemy",
-		"Globe of Invulnerability"
-
-    },
-    /*** Thaumaturgy Spells ***/
-    {
-	/* Common Thaumaturgy Spellbooks */
-		"Magic Missile",
-		"Trap / Door Destruction",
-		"Flash of Light",
-		"Touch of Confusion",
-		"Mana Burst",
-		"Fire Bolt",
-		"Fist of Force",
-		"Teleport Self",
-
-		"Wonder",
-		"Chaos Bolt",
-		"Sonic Boom",
-		"Doom Bolt",
-		"Fire Ball",
-		"Teleport Other",
-		"Word of Destruction",
-		"Invoke Chaos",
-
-	/* Rare Thaumaturgy Spellbooks */
-		"Polymorph Other",
-		"Chain Lightning",
-		"Arcane Binding",
-		"Disintegrate",
-		"Alter Reality",
-		"Polymorph Self",
-		"Chaos Branding",
-		"Summon Demon",
-
-		"Beam of Gravity",
-		"Meteor Swarm",
-		"Flame Strike",
-		"Call Chaos",
-		"Shard Ball",
-		"Mana Storm",
-		"Breathe Chaos",
-		"Call the Void"
-    },
-    /* Conjuration Spellbooks */
-    {
-        /* Common Conjuration Spellbooks */
-		"Phase Door",
-		"Mind Blast",
-		"Tarot Draw",
-		"Reset Recall",
-		"Teleport",
-		"Dimension Door",
-		"Planar Spying",
-		"Teleport Away",
-
-		"Summon Object",
-		"Summon Animal",
-		"Phantasmal Servant",
-		"Summon Monster",
-		"Conjure Elemental",
-		"Teleport Level",
-		"Word of Recall",
-		"Banish",
-
-        /* Rare Conjuration Spellbooks */
-		"Joker Card",
-		"Summon Spiders",
-		"Summon Reptiles",
-		"Summon Hounds",
-		"Planar Branding",
-		"Planar Being",
-		"Death Dealing",
-		"Summon Reaver",
-
-		"Planar Divination",
-		"Planar Lore",
-		"Summon Undead",
-		"Summon Dragon",
-		"Mass Summons",
-		"Summon Demon",
-		"Summon Ancient Dragon",
-		"Summon Greater Undead"
-    },
-    /* Necromancy Spellbooks */
-    {
-	/* Common Necromancy Spellbooks */
-		"Detect Unlife",
-		"Malediction",
-		"Detect Evil",
-		"Stinking Cloud",
-		"Black Sleep",
-		"Resist Poison",
-		"Horrify",
-		"Enslave Undead",
-
-		"Orb of Entropy",
-		"Nether Bolt",
-		"Terror",
-		"Vampiric Drain",
-		"Poison Branding",
-		"Dispel Good",
-		"Genocide",
-		"Restore Life",
-
-	/* Rare Necromancy Spellbooks */
-		"Berserk",
-		"Invoke Spirits",
-		"Dark Bolt",
-		"Battle Frenzy",
-		"Vampirism True",
-		"Vampiric Branding",
-		"Darkness Storm",
-		"Mass Genocide",
-
-		"Death Ray",
-		"Raise the Dead",
-		"Esoteria",
-		"Word of Death",
-		"Evocation",
-		"Hellfire",
-		"Omnicide",
-		"Wraithform"
-    }
-};
-
-cptr cantrip_names[32]=
-{
-		"Zap", /* Elemental (1) */
-		"Wizard Lock", /* Artifice (1) */
-        "Detect Invisibility", /* Illusion (1) */
-        "Detect Monsters", /* Visions (1) */
-        
-		"Blink", /* Movement (1) */
-        "Light Area", /* Elemental (2) */
-        "Trap & Door Destruction", /* Artifice (2) */
-        "Cure Light Wounds", /* Healing (1) */
-
-        "Detect Doors & Traps", /* Visions (2) */
-        "Phlogiston", /* Elemental (3) */
-        "Detect Treasure", /* Visions (3) */
-        "Detect Enchantment", /* Illusion (2) */
-        
-		"Detect Objects", /* Visions (4) */
-        "Cure Poison", /* Healing (2) */
-        "Resist Cold", /* Protection (1) */
-        "Resist Fire", /* Protection (2) */
-
-        "Resist Lightning", /* Protection (3) */
-        "Resist Acid", /* Protection (4) */
-        "Cure Medium Wounds", /* Healing (3) */
-        "Teleport", /* Movement (2) */
-        
-		"Stone to Mud", /* Elemental (4) */
-        "Ray of Light", /* Elemental (5) */
-        "Satisfy Hunger", /* Healing (4) */
-        "See Invisible", /* Illusion (3) */
-
-        "Recharging", /* Artifice (3) */
-        "Teleport Level", /* Movement (3) */
-        "Identify", /* Artifice (4) */
-        "Teleport Away", /* Movement (4) */
-        
-		"Elemental Ball", /* Elemental (6) */
-        "Detection", /* Visions (5) */
-        "Word of Recall", /* Movement (5) */
-        "Clairvoyance" /* Illusion (4) */
-};
-
-/* Favour names */
-cptr favour_names[MAX_SPHERE][32]=
-{
-    /*** Life Spirit Favours ***/
-	{
-		"Detect Evil",
-		"Cure Light Wounds",
-		"Bless",
-		"Remove Fear",
-		"Call Light",
-		"Detect Traps and Secret Doors",
-		"Cure Medium Wounds",
-		"Satisfy Hunger",
-
-		"Remove Curse",
-		"Cure Poison",   
-		"Cure Critical Wounds",
-		"Sense Unseen",
-		"Holy Orb",
-		"Protection from Evil",
-		"Healing",
-		"Glyph of Warding",
-
-		"Exorcism",
-		"Dispel Curse",
-		"Dispel Undead & Demons",
-		"Day of the Dove",
-		"Dispel Evil",
-		"Banish",      
-		"Holy Word",
-		"Warding True",
-
-		"Heroism",
-		"Prayer",
-		"Bless Weapon",
-		"Restoration",
-		"Healing True",
-		"Holy Vision",
-		"Divine Intervention",
-		"Holy Invulnerability"
-	},
-    /*** Wild Spirit Favours ***/
-    {
-		"Detect Creatures",
-		"First Aid",
-		"Detect Doors and Traps",
-		"Foraging",
-		"Daylight",
-		"Animal Taming",
-		"Resist Environment",
-		"Cure Wounds & Poison",
-
-		"Stone to Mud",
-		"Lightning Bolt",
-		"Nature Awareness",
-		"Frost Bolt",
-		"Ray of Sunlight",
-		"Entangle",
-		"Summon Animal",
-		"Herbal Healing",
-
-		"Door Building",
-		"Stair Building",
-		"Stone Skin",
-		"Resistance True",
-		"Animal Friendship",
-		"Stone Tell",
-		"Wall of Stone",
-		"Protect from Corrosion",
-
-		"Earthquake",
-		"Whirlwind Attack",
-		"Blizzard",
-		"Lightning Storm",
-		"Whirlpool",
-		"Call Sunlight",
-		"Elemental Branding",
-		"Nature's Wrath"
-    },
+	{IDX(BK_SORC_0) magic_info[SCH_SORCERY], 0x000000ff},
+	{IDX(BK_SORC_1) magic_info[SCH_SORCERY], 0x0000ff00},
+	{IDX(BK_SORC_2) magic_info[SCH_SORCERY], 0x00ff0000},
+	{IDX(BK_SORC_3) magic_info[SCH_SORCERY], 0xff000000},
+	{IDX(BK_NECRO_0) magic_info[SCH_NECROMANCY], 0x000000ff},
+	{IDX(BK_NECRO_1) magic_info[SCH_NECROMANCY], 0x0000ff00},
+	{IDX(BK_NECRO_2) magic_info[SCH_NECROMANCY], 0x00ff0000},
+	{IDX(BK_NECRO_3) magic_info[SCH_NECROMANCY], 0xff000000},
+	{IDX(BK_THAUM_0) magic_info[SCH_THAUMATURGY], 0x000000ff},
+	{IDX(BK_THAUM_1) magic_info[SCH_THAUMATURGY], 0x0000ff00},
+	{IDX(BK_THAUM_2) magic_info[SCH_THAUMATURGY], 0x00ff0000},
+	{IDX(BK_THAUM_3) magic_info[SCH_THAUMATURGY], 0xff000000},
+	{IDX(BK_CONJ_0) magic_info[SCH_CONJURATION], 0x000000ff},
+	{IDX(BK_CONJ_1) magic_info[SCH_CONJURATION], 0x0000ff00},
+	{IDX(BK_CONJ_2) magic_info[SCH_CONJURATION], 0x00ff0000},
+	{IDX(BK_CONJ_3) magic_info[SCH_CONJURATION], 0xff000000},
+	{IDX(BK_CHARM_SULPHUR) cantrip_info, 0x10300221},
+	{IDX(BK_CHARM_HEMLOCK) cantrip_info, 0x4a080010},
+	{IDX(BK_CHARM_UNICORN) cantrip_info, 0x00442080},
+	{IDX(BK_CHARM_CRYSTAL) cantrip_info, 0x20001508},
+	{IDX(BK_CHARM_AGARIC) cantrip_info, 0x80800804},
+	{IDX(BK_CHARM_GARLIC) cantrip_info, 0x0003c000},
+	{IDX(BK_CHARM_GEODE) cantrip_info, 0x05000042},
+	{IDX(BK_LIFE_0) favour_info[SPIRIT_LIFE], 0x000000ff},
+	{IDX(BK_LIFE_1) favour_info[SPIRIT_LIFE], 0x0000ff00},
+	{IDX(BK_LIFE_2) favour_info[SPIRIT_LIFE], 0x00ff0000},
+	{IDX(BK_LIFE_3) favour_info[SPIRIT_LIFE], 0xff000000},
+	{IDX(BK_WILD_0) favour_info[SPIRIT_NATURE], 0x000000ff},
+	{IDX(BK_WILD_1) favour_info[SPIRIT_NATURE], 0x0000ff00},
+	{IDX(BK_WILD_2) favour_info[SPIRIT_NATURE], 0x00ff0000},
+	{IDX(BK_WILD_3) favour_info[SPIRIT_NATURE], 0xff000000},
+	{IDX(BK_MIND) mindcraft_powers, 0x0000fff},
 };
 
 /*
  * Player's Skills
  *
- * name,increase,0,0,0,0,0,exp_to_raise
+ * name,increase,0,0,0,0,0,exp_to_raise,x,y
  */
  player_skill skill_set[MAX_SKILLS] =
  {
-	 { "Toughness","You are toughening up.",0,0,0,0,0,5},
-	 { "Mana Channeling","You are getting better at channeling mana.",0,0,0,0,0,6},
-	 { "Disarming","You are getting better at disarming.",0,0,0,0,0,1},
-	 { "Magical Devices","You are getting better with magical devices.",0,0,0,0,0,1},
-	 { "Resistance","You are building your resistances.",0,0,0,0,0,1},
-	 { "Stealth","You are getting more stealthy.",0,0,0,0,0,1},
-	 { "Searching","You are getting better at searching.",0,0,0,0,0,1},
-	 { "Perception","You are getting more perceptive.",0,0,0,0,0,1},
-	 { "Close Combat","Your combat skills are increasing.",0,0,0,0,0,10},
-	 { "Missile","Your accuracy is increasing.",0,0,0,0,0,4},
-	 { "Martial Arts","Your martial arts are improving.",0,0,0,0,0,9},
-	 { "Corporis","Your magice corporis is improving.",0,0,0,0,0,2},
-	 { "Animae","Your magice animae magic is improving.",0,0,0,0,0,2},
-	 { "Vis","Your magice vis is improving.",0,0,0,0,0,2},
-	 { "Naturae","Your magice naturae is improving.",0,0,0,0,0,2},
-	 { "Necromancy","Your necromancy is improving.",0,0,0,0,0,3},
-	 { "Sorcery","Your sorcery is improving.",0,0,0,0,0,3},
-	 { "Conjuration","Your conjuration is improving.",0,0,0,0,0,3},
-	 { "Thaumaturgy","Your thaumaturgy is improving.",0,0,0,0,0,3},
-	 { "Mindcrafting","Your mind is getting stronger.",0,0,0,0,0,5},
-	 { "Chi","Your Chi flow is improving.",0,0,0,0,0,6},
-	 { "Innate Racial","Your innate skills are improving.",0,0,0,0,0,1},
-	 { "Stabbing Weapons","Your skill with stabbing weapons is improving.",0,0,0,0,0,10},
-	 { "Slashing Weapons","Your skill with slashing weapons is improving.",0,0,0,0,0,10},
-	 { "Crushing Weapons","Your skill with crushing weapons is improving.",0,0,0,0,0,10},
-	 { "Spirit Lore","You are learning more about the spirit world",0,0,0,0,0,6},
-	 { "Hedge Magic","You are getting better at hedge magic.",0,0,0,0,0,3},
-	 { "Item Sensing","You feel more able to judge items.",0,0,0,0,0,1},
- };
+	{IDX(SKILL_TOUGH) "Toughness","You are toughening up.",
+		0,0,0,0,0,5,5,10},
+	{IDX(SKILL_MANA) "Mana Channeling",
+		"You are getting better at channeling mana.",0,0,0,0,0,6,54,14},
+	{IDX(SKILL_DISARM) "Disarming","You are getting better at disarming.",
+		0,0,0,0,0,1,5,19},
+	{IDX(SKILL_DEVICE) "Magical Devices",
+		"You are getting better with magical devices.",0,0,0,0,0,1,5,12},
+	{IDX(SKILL_SAVE) "Resistance","You are building your resistances.",
+		0,0,0,0,0,1,5,13},
+	{IDX(SKILL_STEALTH) "Stealth","You are getting more stealthy.",
+		0,0,0,0,0,1,5,20},
+	{IDX(SKILL_SEARCH) "Searching","You are getting better at searching.",
+		0,0,0,0,0,1,5,16},
+	{IDX(SKILL_PERCEPTION) "Perception","You are getting more perceptive.",
+		0,0,0,0,0,1,5,15},
+	{IDX(SKILL_CLOSE) "Close Combat","Your combat skills are increasing.",
+		0,0,0,0,0,10,5,4},
+	{IDX(SKILL_MISSILE) "Missile","Your accuracy is increasing.",
+		0,0,0,0,0,4,5,8},
+	{IDX(SKILL_MA) "Martial Arts","Your martial arts are improving.",
+		0,0,0,0,0,9,30,4},
+	{IDX(SKILL_CORPORIS) "Corporis","Your magice corporis is improving.",
+		0,0,0,0,0,2,54,9},
+	{IDX(SKILL_ANIMAE) "Animae","Your magice animae magic is improving.",
+		0,0,0,0,0,2,54,12},
+	{IDX(SKILL_VIS) "Vis","Your magice vis is improving.",0,0,0,0,0,2,54,10},
+	{IDX(SKILL_NATURAE) "Naturae","Your magice naturae is improving.",
+		0,0,0,0,0,2,54,11},
+	{IDX(SKILL_NECROMANCY) "Necromancy","Your necromancy is improving.",
+		0,0,0,0,0,3,54,5},
+	{IDX(SKILL_SORCERY) "Sorcery","Your sorcery is improving.",
+		0,0,0,0,0,3,54,7},
+	{IDX(SKILL_CONJURATION) "Conjuration","Your conjuration is improving.",
+		0,0,0,0,0,3,54,6},
+	{IDX(SKILL_THAUMATURGY) "Thaumaturgy","Your thaumaturgy is improving.",
+		0,0,0,0,0,3,54,4},
+	{IDX(SKILL_MINDCRAFTING) "Mindcrafting","Your mind is getting stronger.",
+		0,0,0,0,0,5,30,6},
+	{IDX(SKILL_CHI) "Chi","Your Chi flow is improving.",0,0,0,0,0,6,30,7},
+	{IDX(SKILL_RACIAL) "Innate Powers","Your innate powers are improving.",
+		0,0,0,0,0,1,30,13},
+	{IDX(SKILL_STAB) "Stabbing Weapons",
+		"Your skill with stabbing weapons is improving.",0,0,0,0,0,10,5,6},
+	{IDX(SKILL_SLASH) "Slashing Weapons",
+		"Your skill with slashing weapons is improving.",0,0,0,0,0,10,5,5},
+	{IDX(SKILL_CRUSH) "Crushing Weapons",
+		"Your skill with crushing weapons is improving.",0,0,0,0,0,10,5,7},
+	{IDX(SKILL_SHAMAN) "Spirit Lore",
+		"You are learning more about the spirit world",0,0,0,0,0,6,30,9},
+	{IDX(SKILL_HEDGE) "Hedge Magic","You are getting better at hedge magic.",
+		0,0,0,0,0,3,30,11},
+	{IDX(SKILL_PSEUDOID) "Item Sensing","You feel more able to judge items.",
+		0,0,0,0,0,1,5,17},
+};
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -2384,58 +2125,13 @@ cptr stat_names_reduced[6] =
 
 
 /*
- * Certain "screens" always use the main screen, including News, Birth,
- * Dungeon, Tomb-stone, High-scores, Macros, Colors, Visuals, Options.
+ * Available Options (full to 3,22 except for 0,25 and 2,24).
+ * In addition, 7,2 7,8-11 and 7,13-15 are used for cheat options, and the
+ * rest of 7,0-15 is reserved for them to ensure that "noscore" is correct.
  *
- * Later, special flags may allow sub-windows to "steal" stuff from the
- * main window, including File dump (help), File dump (artifacts, uniques),
- * Character screen, Small scale map, Previous Messages, Store screen, etc.
- *
- * The "ctrl-g" command (or pseudo-command) should perhaps grab a snapshot
- * of the main screen into any interested windows.
- */
-cptr window_flag_desc[32] =
-{
-	"Display inventory",
-	"Display equipment",
-	"Display spell list",
-	"Display character",
-	"Display nearby monsters",
-	"Display skills",
-	"Display messages",
-	"Display overhead view",
-	"Display monster recall",
-	"Display object recall",
-	"Display object details",
-	/*"Display snap-shot"*/ NULL,
-	"Display shop names",
-	"Display help",
-	/*"Display borg messages"*/ NULL,
-	/*"Display borg status"*/ NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
-
-/*
- * Available Options (full to 3,19), 7 reserved for cheat options
- *
- * Note that birth options should always be followed by BIRTHR ones which
- * store the value used in the game.
+ * Note that options which are only set at character creation but are active
+ * throughout the game should always be followed by a BIRTHR option which 
+ * should contain a pointer to the variable actually read in the game.
  *
  * Note also that these BIRTHR options have no text name. This, and the lack
  * of a BIRTHR option screen, prevents them from being set.
@@ -2546,9 +2242,6 @@ option_type option_info[] =
 
     { &last_words,                  FALSE, OPTS_MISC,      0, 28,
       "last_words",                 "Get last words when the character dies" },
-
-    { &speak_unique,                FALSE, OPTS_MISC,      0, 29,
-       "speak_unique",              "Allow shopkeepers and uniques to speak" },
 
     { &small_levels,                TRUE, OPTS_MISC,      0, 30,
        "small_levels",              "Allow unusually small dungeon levels" },
@@ -2714,6 +2407,9 @@ option_type option_info[] =
 	{ &testing_stack,               TRUE, OPTS_OBJ, 2, 14,
     "testing_stack",                "Allow objects to stack on floor" },
 
+	{ &show_piles, FALSE, OPTS_OBJ, 3, 21,
+	"show_piles", "Show stacks with a special colour/character" },
+
 	{ &testing_carry,               TRUE, OPTS_MON, 2, 15,
     "testing_carry",                "Allow monsters to carry objects" },
 
@@ -2729,11 +2425,16 @@ option_type option_info[] =
 	{ &no_centre_run,               FALSE, OPTS_PERF, 2, 17,
     "no_centre_run",                "Do not centre view whilst running" },
 
+#ifdef USE_X11
+	{ &track_mouse, TRUE, OPTS_PERF, 3, 22,
+	"track_mouse", "Track the cursor in various extra windows." },
+#endif
+
 	{ &auto_more,                   FALSE,  OPTS_DISTURB,      3, 12,
 	"auto_more",                    "Automatically clear '-more-' prompts" },
 
 #ifdef SCORE_QUITTERS
-	{ &score_quitters_w,		FALSE, OPTS_BIRTH, 2, 29,
+	{ &score_quitters_w,		FALSE, OPTS_BIRTH, 0, 26,
 	"score_quitter",			"Remember scores of those who quit the game" },
 
 	{ &score_quitters, 0, OPTS_BIRTHR, 3, 14, 0, ""},
@@ -2755,7 +2456,7 @@ option_type option_info[] =
 	{ &allow_pickstats,		TRUE,	OPTS_BIRTH, 3, 6,
 	"allow_pickstats",	"Allow the player to choose pre-set stats"},
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+#ifdef USE_MAIN_C
 	{ &display_credits,	TRUE,	OPTS_BIRTH, 3, 5,
 	"display_credits",	"Require a keypress to clear the initial screen"},
 #endif
@@ -2763,8 +2464,13 @@ option_type option_info[] =
 	{ &use_autoroller,               TRUE, OPTS_BIRTH, 2, 20,
     "use_autoroller",                "Allow stats to be rolled repeatedly with minima" },
 
-	{ &spend_points,               FALSE, OPTS_BIRTH, 2, 21,
-    "spend_points",                "Allow stats to be chosen by spending points" },
+	{ &spend_points, TRUE, OPTS_BIRTH, 2, 21,
+    "spend_points", "Allow stats to be chosen by spending points" },
+
+    { &speak_unique_w,                FALSE, OPTS_BIRTH,      0, 29,
+       "speak_unique",              "Allow shopkeepers and uniques to speak" },
+
+	{ &speak_unique,	0,	OPTS_BIRTHR, 3, 20, 0, ""},
 
 	{ &ironman_shop_w,               FALSE, OPTS_BIRTH, 2, 22,
     "ironman_shop",                "Shops (except for libraries) are locked" },
@@ -3027,66 +2733,37 @@ int chaos_rewards[MAX_PATRON][20] =
     }
 };
 
-martial_arts ma_blows[MAX_MA] =
-{
 #ifdef VERBOSE_MARTIAL_ARTS
-	{ "You hit %s.",							0, 0, 1, 1, 0},
-    { "You punch %s.",                          1, 0, 1, 4, 0 },
-    { "You kick %s.",                           2, 0, 1, 6, 0 },
-    { "You strike %s.",                         3, 0, 1, 7, 0 },
-    { "You hit %s with your knee.",             5, 5, 2, 3, MA_KNEE },
-    { "You hit %s with your elbow.",            7, 5, 1, 8, 0 },
-    { "You butt %s.",                           9, 10, 2, 5, 0 },
-    { "You kick %s.",                           11, 10, 3, 4, MA_SLOW },
-    { "You uppercut %s.",                       13, 12, 4, 4, 6 },
-    { "You double-kick %s.",                    16, 15, 5, 4, 8 },
-    { "You hit %s with a Cat's Claw.",          20, 20, 5, 5, 0 },
-    { "You hit %s with a jump kick.",           25, 25, 5, 6, 10 },
-    { "You hit %s with an Eagle's Claw.",       29, 25, 6, 6, 0 },
-    { "You hit %s with a circle kick.",         33, 30, 6, 8, 10 },
-    { "You hit %s with an Iron Fist.",          37, 35, 8, 8, 10 },
-    { "You hit %s with a flying kick.",         41, 35, 8, 10, 12 },
-    { "You hit %s with a Dragon Fist.",       45, 35, 10, 10, 16 },
-    { "You hit %s with a Crushing Blow.",         48, 35, 10, 12, 18 },
-#else
-    { "You hit %s.",							0, 0, 1, 1, 0},
-	{ "You punch %s.",                          1, 0, 1, 4, 0 },
-    { "You kick %s.",                           2, 0, 1, 6, 0 },
-    { "You strike %s.",                         3, 0, 1, 7, 0 },
-    { "You knee %s.",             5, 5, 2, 3, MA_KNEE },
-    { "You hit %s.",            7, 5, 1, 8, 0 },
-    { "You butt %s.",                           9, 10, 2, 5, 0 },
-    { "You kick %s.",                           11, 10, 3, 4, MA_SLOW },
-    { "You uppercut %s.",                       13, 12, 4, 4, 6 },
-    { "You double-kick %s.",                    16, 15, 5, 4, 8 },
-    { "You hit %s.",          20, 20, 5, 5, 0 },
-    { "You kick %s.",           25, 25, 5, 6, 10 },
-    { "You hit %s.",       29, 25, 6, 6, 0 },
-    { "You kick %s.",         33, 30, 6, 8, 10 },
-    { "You punch %s.",          37, 35, 8, 8, 10 },
-    { "You kick %s.",         41, 35, 8, 10, 12 },
-    { "You punch %s.",       45, 35, 10, 10, 16 },
-    { "You punch %s.",       48, 35, 10, 12, 18 },
-#endif
+#define MA(BRIEF,VERBOSE) VERBOSE
+#else /* VERBOSE_MARTIAL_ARTS */
+#define MA(BRIEF,VERBOSE) BRIEF
+#endif /* VERBOSE_MARTIAL_ARTS */
+
+martial_arts ma_blows[MAX_MA+1] =
+{
+	{ "You punch %v.",                          2, 0, 1, 4, 0 },
+	{ "You kick %v.",                           4, 0, 1, 6, 0 },
+	{ "You strike %v.",                         6, 0, 1, 7, 0 },
+	{MA("You knee %v.", "You hit %v with your knee."), 10, 9, 2, 3, MA_KNEE },
+	{MA("You hit %v.", "You hit %v with your elbow."), 14, 9, 1, 8, 0 },
+	{ "You butt %v.",                           18, 19, 2, 5, 0 },
+	{ "You kick %v.",                           22, 19, 3, 4, MA_SLOW },
+	{ "You uppercut %v.",                       26, 23, 4, 4, 6 },
+	{ "You double-kick %v.",                    32, 29, 5, 4, 8 },
+	{MA("You hit %v.", "You hit %v with a Cat's Claw."), 40, 39, 5, 5, 0 },
+	{MA("You kick %v.", "You hit %v with a jump kick."), 50, 49, 5, 6, 10 },
+	{MA("You hit %v.", "You hit %v with an Eagle's Claw."), 58, 49, 6, 6, 0 },
+	{MA("You kick %v.", "You hit %v with a circle kick."), 66, 59, 6, 8, 10 },
+	{MA("You punch %v.", "You hit %v with an Iron Fist."), 74, 69, 8, 8, 10 },
+	{MA("You kick %v.", "You hit %v with a flying kick."), 82, 69, 8, 10, 12 },
+	{MA("You punch %v.", "You hit %v with a Dragon Fist."),
+		90, 69, 10, 10, 16},
+	{MA("You punch %v.", "You hit %v with a Crushing Blow."),
+		96, 69, 10, 12, 18},
+
+	/* A weak unarmed attack for unskilled characters. */
+	{ "You hit %v.",							0, 0, 1, 1, 0},
 };
-
-
-mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] = {
-    /* Skill gained,  cost,  %fail,  name */
-        { 0,   1,  15, "Precognition" },       /* Det. monsters/traps */
-        { 1,   1,  20, "Neural Blast" },     /* ~MM */
-        { 3,   2,  25, "Minor Displacement" }, /* Phase/dimension door */
-        { 7,   6,  35, "Major Displacement" }, /* Tele. Self / All */
-        { 9,   7,  50, "Domination" },
-        { 11,  7,  30, "Pulverise" },      /* Telekinetic "bolt" */
-        { 13, 12,  50, "Character Armour" },   /* Psychic/physical defenses */
-        { 15, 12,  60, "Psychometry" },
-        { 18, 10,  45, "Mind Wave" },          /* Ball -> LOS */
-        { 23, 15,  50, "Adrenaline Channeling" },
-        { 25, 10,  40, "Psychic Drain" },      /* Convert enemy HP to mana */
-        { 29, 20,  45, "Telekinetic Wave" },   /* Ball -> LOS */
-};
-
 
 /*
  * Window definitions. Defined here to ensure that the names are available ASAP.
@@ -3162,17 +2839,17 @@ wild_type wild_grid[12][12] = {
 /* Shamanic spirits */
 spirit_type spirits[MAX_SPIRITS] =
 {
-	{"","a minor life spirit",0,0,0x000000ff,SPIRIT_LIFE,1},
-	{"","a minor wild spirit",0,0,0x000000ff,SPIRIT_NATURE,1},
+	{"","a minor life spirit",0x000000ff,0,0,SPIRIT_LIFE,1, 15},
+	{"","a minor wild spirit",0x000000ff,0,0,SPIRIT_NATURE,1, 15},
 
-	{"","a lesser life spirit",0,0,0x0000ff00,SPIRIT_LIFE,7},
-	{"","a lesser wild spirit",0,0,0x0000ff00,SPIRIT_NATURE,5},
+	{"","a lesser life spirit",0x0000ff00,0,0,SPIRIT_LIFE,7, 30},
+	{"","a lesser wild spirit",0x0000ff00,0,0,SPIRIT_NATURE,5, 30},
 
-	{"","a greater life spirit",0,0,0x00ff0000,SPIRIT_LIFE,15},
-	{"","a greater wild spirit",0,0,0x00ff0000,SPIRIT_NATURE,7},
+	{"","a greater life spirit",0x00ff0000,0,0,SPIRIT_LIFE,15, 45},
+	{"","a greater wild spirit",0x00ff0000,0,0,SPIRIT_NATURE,7, 45},
 
-	{"","a major life spirit",0,0,0xff000000,SPIRIT_LIFE,5},
-	{"","a major wild spirit",0,0,0xff000000,SPIRIT_NATURE,20},
+	{"","a major life spirit",0xff000000,0,0,SPIRIT_LIFE,5, 60},
+	{"","a major wild spirit",0xff000000,0,0,SPIRIT_NATURE,20, 60},
 };
 
 /*
@@ -3255,3 +2932,264 @@ blow_method_type blow_methods[NUM_BLOW_METHODS] =
 	{RBF_WAKE, "moan", "%^s moans at %s.", desc_moan, NULL, "MOAN"},
 	{RBF_WAKE, "sing", "%^s sings to %s.", desc_sing, NULL, "SHOW"},
 };
+
+/*
+ * The initial co-ordinates of the things displayed by do_cmd_redraw().
+ */
+co_ord screen_coords[NUM_SCREEN_COORDS] =
+{
+	{IDX(XY_TIME) "time", 0, 1},
+	{IDX(XY_GOLD) "gold", 0, 3},
+	{IDX(XY_EQUIPPY) "equippy", 0, 4},
+	{IDX(XY_STAT+A_STR) "strength", 0, 5},
+	{IDX(XY_STAT+A_INT) "intelligence", 0, 6},
+	{IDX(XY_STAT+A_WIS) "wisdom", 0, 7},
+	{IDX(XY_STAT+A_DEX) "dexterity", 0, 8},
+	{IDX(XY_STAT+A_CON) "constitution", 0, 9},
+	{IDX(XY_STAT+A_CHR) "charisma", 0, 10},
+	{IDX(XY_AC) "armour", 0, 12},
+	{IDX(XY_HP) "hit points", 0, 13},
+	{IDX(XY_SP) "spell points", 0, 14},
+	{IDX(XY_CHI) "chi points", 0, 15},
+	{IDX(XY_LIFE_SPIRIT) "life spirits", 0, 17},
+	{IDX(XY_WILD_SPIRIT) "wild spirits", 0, 18},
+	{IDX(XY_INFO) "monster state", 0, 19},
+	{IDX(XY_ENERGY) "energy used", 0, 20},
+	{IDX(XY_CUT) "cut", 0, 21},
+	{IDX(XY_STUN) "stunning", 0, 22},
+	{IDX(XY_HUNGRY) "hunger", 0, 23},
+	{IDX(XY_BLIND) "blindness", 7, -1},
+	{IDX(XY_CONFUSED) "confusion", 13, -1},
+	{IDX(XY_AFRAID) "fear", 22, -1},
+	{IDX(XY_POISONED) "poison", 29, -1},
+	{IDX(XY_STATE) "searching", 38, -1},
+	{IDX(XY_SPEED) "speed", 51, -1},
+	{IDX(XY_STUDY) "study", 63, -1},
+	{IDX(XY_DEPTH) "depth", 69, -1},
+};
+
+/* A list of the flags for explosion types understood by project(). */
+cptr explode_flags[] =
+{
+	"ELEC",
+	"POIS",
+	"ACID",
+	"COLD",
+	"FIRE",
+	"","","","",
+	"MISSILE",
+	"ARROW",
+	"PLASMA",
+	"",
+	"WATER",
+	"LITE",
+	"DARK",
+	"LITE_WEAK",
+	"DARK_WEAK",
+	"",
+	"SHARDS",
+	"SOUND",
+	"CONFUSION",
+	"FORCE",
+	"INERTIA",
+	"",
+	"MANA",
+	"METEOR",
+	"ICE",
+	"",
+	"CHAOS",
+	"NETHER",
+	"DISENCHANT",
+	"NEXUS",
+	"TIME",
+	"GRAVITY",
+	"","","","",
+	"KILL_WALL",
+	"KILL_DOOR",
+	"KILL_TRAP",
+	"","",
+	"MAKE_WALL",
+	"MAKE_DOOR",
+	"MAKE_TRAP",
+	"","","",
+	"OLD_CLONE",
+	"OLD_POLY",
+	"OLD_HEAL",
+	"OLD_SPEED",
+	"OLD_SLOW",
+	"OLD_CONF",
+	"OLD_SLEEP",
+	"OLD_DRAIN",
+	"","",
+	"AWAY_UNDEAD",
+	"AWAY_EVIL",
+	"AWAY_ALL",
+	"TURN_UNDEAD",
+	"TURN_EVIL",
+	"TURN_ALL",
+	"DISP_UNDEAD",
+	"DISP_EVIL",
+	"DISP_ALL",
+	"DISP_DEMON",
+	"DISP_LIVING",
+	"SHARD",
+	"NUKE",
+	"MAKE_GLYPH",
+	"STASIS",
+	"STONE_WALL",
+	"DEATH_RAY",
+	"STUN",
+	"HOLY_FIRE",
+	"HELL_FIRE",
+	"DISINTEGRATE",
+	"CHARM",
+	"CONTROL_UNDEAD",
+	"CONTROL_ANIMAL",
+	"PSI",
+	"PSI_DRAIN",
+	"TELEKINESIS",
+	"JAM_DOOR",
+	"DOMINATION",
+	"DISP_GOOD",
+	NULL
+};
+
+/* A list of the types of coins. This can't be taken from k_info.txt because of
+ * the duplicate entries. */
+cptr coin_types[] =
+{
+	"","","COPPER", /* 482 */
+	"","","SILVER", /* 485 */
+	"","","","","GOLD", /* 490 */
+	"","","","","","MITHRIL", /* 496 */
+	"ADAMANTIUM", /* 497 */
+	NULL
+};
+
+/*
+ * The table of "symbol info" -- each entry is a string of the form
+ * "X:desc" where "X" is the trigger, and "desc" is the "info".
+ */
+name_centry ident_info[] =
+{
+	{' ', "A dark grid"},
+	{'!', "A potion (or oil)"},
+	{'"', "An amulet (or necklace)"},
+	{'#', "A wall (or secret door)"},
+	{'$', "Treasure (gold or gems)"},
+	{'%', "A vein (magma or quartz)"},
+	/* {'&', "unused"}, */
+	{'\'', "An open door"},
+	{'(', "Soft armor"},
+	{')', "A shield"},
+	{'*', "A vein with treasure"},
+	{'+', "A closed door"},
+	{',', "Food (or mushroom patch)"},
+	{'-', "A wand (or rod)"},
+	{'.', "Floor"},
+	{'/', "A polearm (Axe/Pike/etc)"},
+	/* {'0', "unused"}, */
+	{'1', "Entrance to General Store"},
+	{'2', "Entrance to Armory"},
+	{'3', "Entrance to Weaponsmith"},
+	{'4', "Entrance to Temple"},
+	{'5', "Entrance to Alchemy shop"},
+	{'6', "Entrance to Magic store"},
+	{'7', "Entrance to Black Market"},
+	{'8', "Entrance to your home"},
+	{'9', "Entrance to Book Store"},
+	{':', "Rubble"},
+    {';', "A glyph of warding / explosive rune"},
+	{'<', "An up staircase"},
+	{'=', "A ring"},
+	{'>', "A down staircase"},
+	{'?', "A scroll"},
+	{'@', "You"},
+	{'A', "Golem"},
+	{'B', "Bird"},
+	{'C', "Canine"},
+	{'D', "Ancient Dragon/Wyrm"},
+	{'E', "Elemental"},
+	{'F', "Dragon Fly"},
+	{'G', "Ghost"},
+	{'H', "Hybrid"},
+	{'I', "Insect"},
+	{'J', "Snake"},
+	{'K', "Killer Beetle"},
+	{'L', "Lich"},
+	{'M', "Multi-Headed Reptile"},
+	/* {'N', "unused"}, */
+	{'O', "Ogre"},
+	{'P', "Giant Humanoid"},
+	{'Q', "Quylthulg (Pulsing Flesh Mound)"},
+	{'R', "Reptile/Amphibian"},
+	{'S', "Spider/Scorpion/Tick"},
+	{'T', "Troll"},
+	{'U', "Major Demon"},
+	{'V', "Vampire"},
+	{'W', "Wight/Wraith/etc"},
+	{'X', "Xorn/Xaren/etc"},
+	{'Y', "Yeti"},
+	{'Z', "Zephyr Hound"},
+	{'[', "Hard armor"},
+	{'\\', ":A hafted weapon (mace/whip/etc)"},
+	{']', "Misc. armor"},
+	{'^', "A trap"},
+	{'_', "A staff"},
+	/* {'`', "unused"}, */
+	{'a', "Ant"},
+	{'b', "Bat"},
+	{'c', "Centipede"},
+	{'d', "Dragon"},
+	{'e', "Floating Eye"},
+	{'f', "Feline"},
+	{'g', "Ghoul"},
+	{'h', "Hobbit/Elf/Dwarf"},
+	{'i', "Beings of Ib"},
+	{'j', "Jelly"},
+	{'k', "Kobold"},
+	{'l', "Louse"},
+	{'m', "Mold"},
+	{'n', "Naga"},
+	{'o', "Orc"},
+	{'p', "Person/Human"},
+	{'q', "Quadruped"},
+	{'r', "Rodent"},
+	{'s', "Skeleton"},
+	{'t', "Townsperson"},
+	{'u', "Minor Demon"},
+	{'v', "Vortex"},
+	{'w', "Worm/Worm-Mass"},
+	/* {'x', "unused"}, */
+	{'y', "Yeek"},
+	{'z', "Zombie/Mummy"},
+	{'{', "A missile (arrow/bolt/shot)"},
+	{'|', "An edged weapon (sword/dagger/etc)"},
+	{'}', "A launcher (bow/crossbow/sling)"},
+	{'~', "A tool (or miscellaneous item)"},
+	{0, "Unknown Symbol"}
+};
+
+cptr_ch feeling_str[SENSE_MAX] =
+{
+	{IDX(SENSE_NONE) ""},
+	{IDX(SENSE_C_ART) "terrible"},
+	{IDX(SENSE_C_EGO) "worthless"},
+	{IDX(SENSE_CP_OBJ) "very bad"},
+	{IDX(SENSE_C_OBJ) "cursed"},
+	{IDX(SENSE_BROKEN) "useless"},
+	{IDX(SENSE_U_OBJ) "average"},
+	{IDX(SENSE_G_OBJ) "good"},
+	{IDX(SENSE_GP_OBJ) "very good"},
+	{IDX(SENSE_G_EGO) "excellent"},
+	{IDX(SENSE_G_ART) "special"},
+	{IDX(SENSE_EMPTY) "empty"},
+	{IDX(SENSE_TRIED) "tried"},
+	{IDX(SENSE_PCURSE) "poss. cursed"},
+	{IDX(SENSE_Q_OBJ) "uncursed"},
+	{IDX(SENSE_QP_OBJ) "powerful"},
+	{IDX(SENSE_Q_ART) "unbreakable"},
+};
+
+cptr option_chars =
+	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789;:'@#~<>/?";

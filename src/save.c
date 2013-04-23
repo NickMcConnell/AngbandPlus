@@ -93,7 +93,7 @@ static void wr_string(cptr str)
  */
 static void wr_item(object_type *o_ptr)
 {
-	u16b k_idx = convert_k_idx(o_ptr->k_idx, sf_flags_now, sf_flags);
+	u16b k_idx = convert_k_idx(o_ptr->k_idx, sf_flags_now, sf_flags_sf);
 	wr_s16b(k_idx);
 
 	/* Location */
@@ -119,7 +119,6 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
 
-#ifdef SF_16_IDENT
 	if (!has_flag(SF_16_IDENT))
 	{
 		byte temp = (o_ptr->ident & 0xFE) | (0x01 * ((o_ptr->ident & IDENT_SENSE) == IDENT_SENSE));
@@ -129,9 +128,6 @@ static void wr_item(object_type *o_ptr)
 	{
 		wr_u16b(o_ptr->ident);
 	}
-#else
-	wr_byte(o_ptr->ident);
-#endif
 
 	wr_byte(o_ptr->marked);
 
@@ -143,14 +139,28 @@ static void wr_item(object_type *o_ptr)
 	wr_s16b(o_ptr->held_m_idx);
 
 	/* Extra information */
-	wr_byte(o_ptr->xtra1);
-	wr_byte(o_ptr->xtra2);
+	if (has_flag(SF_EGO_DISTRO))
+	{
+		wr_byte(o_ptr->activation);
+	}
+	else if (o_ptr->activation)
+	{
+		wr_byte(4); /* EGO_XTRA_ACTIVATE */
+		wr_byte(o_ptr->activation);
+	}
+	else /* Luckily, no other EGO_XTRA_* flags need to be recreated. */
+	{
+		strip_bytes(2);
+	}
 
 	/* Save the inscription (if any) */
 	wr_string(quark_str(o_ptr->note));
 	
 	/* Save the randart name, if any. */
 	wr_string(quark_str(o_ptr->art_name));
+
+	/* Set the stack number. */
+	if (has_flag(SF_STACK_IDX)) wr_byte(o_ptr->stack);
 }
 
 
@@ -159,7 +169,7 @@ static void wr_item(object_type *o_ptr)
  */
 static void wr_monster(monster_type *m_ptr)
 {
-	wr_s16b(convert_r_idx(m_ptr->r_idx, sf_flags_now, sf_flags));
+	wr_s16b(convert_r_idx(m_ptr->r_idx, sf_flags_now, sf_flags_sf));
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
 	wr_byte(m_ptr->generation);
@@ -233,15 +243,13 @@ static void wr_lore(int r_idx)
 	wr_byte(0);
 }
 
-#ifdef SF_DEATHEVENTTEXT
-
 /*
  * Write a "death event" record
  */
 static void wr_death(void)
 {
 	uint i;
-	u16b tmp16u = UNREAD_VALUE;
+	u16b UNREAD(tmp16u);
 		for (i = 0; i < MAX_DEATH_EVENTS; i++)
 		{
 			death_event_type *d_ptr = &death_event[i];
@@ -261,20 +269,29 @@ static void wr_death(void)
 		wr_u16b(tmp16u);
 }
 
-#endif
-
 /*
- * Write an "xtra" record
+ * Write information about an element of k_info.
  */
 static void wr_xtra(s16b k_idx)
 {
 	byte tmp8u = 0;
-	object_kind *k_ptr = &k_info[k_idx];
+	object_kind dummy, *k_ptr = &dummy;
 
+	/* Write from a blank record, if none known. */
+	WIPE(k_ptr, dummy);
+
+	/* Find what the save version expects the k_idx to be. */
+	k_idx = convert_k_idx(k_idx, sf_flags_now, sf_flags_sf);
+
+	/* Use that k_idx, if any. */
+	if (k_idx >= 0) k_ptr = &k_info[k_idx];
+
+	/* Write stuff. */
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
-
 	wr_byte(tmp8u);
+
+	if (has_flag(SF_OBJECT_SEEN)) wr_byte(k_ptr->seen);
 }
 
 
@@ -299,21 +316,16 @@ static void wr_store(store_type *st_ptr)
 
 	/* Save the current owner */
 	wr_byte(st_ptr->bought);
-#ifdef SF_QUEST_DIRECT
 	if (has_flag(SF_QUEST_DIRECT))
 	{
 		wr_s16b(st_ptr->owner);
 	}
 	else
 	{
-		s16b owner = convert_owner(st_ptr->owner, sf_flags_now, sf_flags);
+		s16b owner = convert_owner(st_ptr->owner, sf_flags_now, sf_flags_sf);
 		if (owner < 0) quit("Unsupported shopkeeper.");
 		wr_byte(owner % MAX_OWNERS);
 	}
-#else /* SF_QUEST_DIRECT */
-	wr_byte(st_ptr->owner);
-#endif /* SF_QUEST_DIRECT */
-
 
 	/* Save the stock size */
 	wr_byte((byte)(st_ptr->stock_num));
@@ -363,6 +375,7 @@ static void wr_options(void)
 	int i;
 
 	u16b c;
+	byte tmp8u;
 
 
 	/*** Oops ***/
@@ -397,10 +410,9 @@ static void wr_options(void)
 
     /* Autosave info */
     wr_byte(autosave_l);
-#ifdef SF_Q_SAVE
-	if (has_flag(SF_Q_SAVE) && autosave_q) autosave_t |= 2;
-#endif
-    wr_byte(autosave_t);
+	tmp8u = (autosave_t) ? 1 : 0;
+	if (has_flag(SF_Q_SAVE) && autosave_q) tmp8u |= 2;
+    wr_byte(tmp8u);
     wr_s16b(autosave_freq);
 
 	/*** Extract options ***/
@@ -442,7 +454,6 @@ static void wr_options(void)
 
 	/*** Window options ***/
 
-#ifdef SF_3D_WINPRI
 	/* Dump the flags */
 	for (i = 0; i < 8; i++)
 	{
@@ -464,13 +475,6 @@ static void wr_options(void)
 
 	/* Dump the masks */
 	for (i = 0; i < 8; i++) wr_u32b(windows[i].mask);
-#else
-	/* Dump the flags */
-	for (i = 0; i < 8; i++) wr_u32b(window_flag[i]);
-
-	/* Dump the masks */
-	for (i = 0; i < 8; i++) wr_u32b(window_mask[i]);
-#endif
 }
 
 
@@ -581,7 +585,6 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->exp);
 	wr_u16b(p_ptr->exp_frac);
 
-#ifdef SF_SAVE_MAX_SKILLS
 
 	if (has_flag(SF_SAVE_MAX_SKILLS))
 	{
@@ -589,9 +592,6 @@ static void wr_extra(void)
 		wr_byte(j);
 	}
 	else
-
-#endif /* SF_SAVE_MAX_SKILLS */
-
 	/* Without SAVE_MAX_SKILLS, there are assumed to be 27 skills. */
 	{
 		j = 27;
@@ -601,13 +601,11 @@ static void wr_extra(void)
 	{
 		wr_byte(skill_set[i].value);
 		wr_byte(skill_set[i].max_value);
-#ifdef SF_SKILL_BASE
 		if (has_flag(SF_SKILL_BASE))
 		{
 			wr_byte(skill_set[i].base);
 			wr_byte(skill_set[i].ceiling);
 		}
-#endif
 		wr_u16b(skill_set[i].exp_to_raise);
 		wr_u16b(skill_set[i].experience);
 	}
@@ -625,7 +623,6 @@ static void wr_extra(void)
 	wr_u16b(p_ptr->chi_frac);
 
 	/* Max Player and Dungeon Levels */
-#ifdef SF_QUEST_DIRECT
 	if (has_flag(SF_QUEST_DIRECT))
 	{
 		wr_s16b(p_ptr->max_dlv);
@@ -638,12 +635,6 @@ static void wr_extra(void)
 			else wr_s16b(0);
 		}
 	}
-#else /* SF_QUEST_DIRECT */
-	for(i=0;i<MAX_CAVES;i++)
-	{
-		wr_s16b(p_ptr->max_dlv[i]);
-	}
-#endif /* SF_QUEST_DIRECT */
 
 	/* More info */
 	wr_s16b(0);     /* oops */
@@ -685,6 +676,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_pois);
     wr_s16b(p_ptr->tim_esp);
     wr_s16b(p_ptr->wraith_form);
+	if (has_flag(SF_STORE_VAMP)) wr_s16b(p_ptr->vamp_drain);
 	strip_bytes(18);
 
     wr_s16b(p_ptr->chaos_patron);
@@ -697,7 +689,6 @@ static void wr_extra(void)
 	/* Store p_ptr->ritual temporarily as it may need to be changed. */
 	j = p_ptr->ritual;
 
-#ifdef SF_QUEST_DIRECT
 	/* This is duplicated information, but it was used. */
 	if (!has_flag(SF_QUEST_DIRECT))
 	{
@@ -709,9 +700,6 @@ static void wr_extra(void)
 		}
 		if (p_ptr->ritual == TOWN_NONE) j = 9;
 	}
-#else /* SF_QUEST_DIRECT */
-	for (i=0;i<8;i++) wr_byte(p_ptr->house[i]);
-#endif /* SF_QUEST_DIRECT */
 	wr_byte(j); /* p_ptr->ritual */
 	wr_byte(p_ptr->sneaking);
 	wr_byte(0);
@@ -757,10 +745,8 @@ static void wr_extra(void)
 	/* Current turn */
 	wr_s32b(turn);
 
-#ifdef SF_CURSE
 	if (has_flag(SF_CURSE))
 		wr_s32b(curse_turn);
-#endif
 }
 
 
@@ -818,20 +804,16 @@ static void wr_dungeon(void)
 
 			/* Extract the cave flags */
 			tmp16u = c_ptr->info;
-#ifdef SF_16_CAVE_FLAG
 			if (!has_flag(SF_16_CAVE_FLAG)) tmp16u &= 0x00FF;
-#endif
 			
 			/* If the run is broken, or too full, flush it */
 			if ((tmp16u != prev_char) || (count == MAX_UCHAR))
 			{
 				wr_byte((byte)count);
-#ifdef SF_16_CAVE_FLAG
 				if (has_flag(SF_16_CAVE_FLAG))
 					wr_u16b(prev_char);
 				else
-#endif
-				wr_byte((byte)prev_char);
+					wr_byte((byte)prev_char);
 
 				prev_char = tmp16u;
 				count = 1;
@@ -849,14 +831,11 @@ static void wr_dungeon(void)
 	if (count)
 	{
 		wr_byte((byte)count);
-#ifdef SF_16_CAVE_FLAG
 		if (has_flag(SF_16_CAVE_FLAG))
 			wr_u16b(prev_char);
 		else
-#endif
-		wr_byte((byte)prev_char);
+			wr_byte((byte)prev_char);
 	}
-func_false();
 
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
@@ -941,6 +920,38 @@ func_false();
 
 
 
+static void wr_spell_flags(void)
+{
+	int i, j;
+	/* Read spell info */
+	for (i=0;i<MAX_SCHOOL;i++)
+	{
+		u32b learned = 0, worked = 0, forgot = 0;
+
+		for (j = 0; j < MAX_SPELLS_PER_BOOK; j++)
+		{
+			u32b f = 1L << j;
+			const magic_type *s_ptr = num_to_spell(i*MAX_SPELLS_PER_BOOK+j);
+
+			/* Not a real spell. */
+			if (!s_ptr) continue;
+
+			if (s_ptr->flags & MAGIC_LEARNED) learned |= f;
+			if (s_ptr->flags & MAGIC_WORKED) worked |= f;
+			if (s_ptr->flags & MAGIC_FORGOT) forgot |= f;
+		}
+
+		wr_u32b(learned);
+		wr_u32b(worked);
+		wr_u32b(forgot);
+	}
+
+	for (i = 0; i < 128; i++)
+	{
+		wr_byte(spell_order[i]);
+	}
+}
+
 /*
  * Actually write a save-file
  */
@@ -987,6 +998,15 @@ static bool wr_savefile_new(void)
 	v_stamp = 0L;
 	x_stamp = 0L;
 
+	/* Additional u16b savefile flags. */
+	if (sf_flags_sf[0] & 1<<SF_CONTINUE)
+	{
+		for (i = 1; i < MAX_SF_VAR; i++)
+		{
+			wr_u16b(sf_flags_sf[i]);
+			if (~sf_flags_sf[i] & SF_CONTINUE) break;
+		}
+	}
 
 	/* Operating system */
 	wr_u32b(sf_xtra);
@@ -1028,19 +1048,17 @@ static bool wr_savefile_new(void)
 
 
 	/* Dump the monster lore */
-	tmp16u = convert_r_idx(MAX_R_IDX, sf_flags_now, sf_flags);
+	tmp16u = convert_r_idx(MAX_R_IDX, sf_flags_now, sf_flags_sf);
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_lore(MAX(0, convert_r_idx(i, sf_flags, sf_flags_now)));
+	for (i = 0; i < tmp16u; i++) wr_lore(MAX(0, convert_r_idx(i, sf_flags_sf, sf_flags_now)));
 
-#ifdef SF_DEATHEVENTTEXT
 	/* Dump the death event lore */
 	if (has_flag(SF_DEATHEVENTTEXT)) wr_death();
-#endif
 
 	/* Dump the object memory */
-	tmp16u = convert_k_idx(MAX_K_IDX, sf_flags_now, sf_flags);
+	tmp16u = convert_k_idx(MAX_K_IDX, sf_flags_now, sf_flags_sf);
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_xtra(MAX(0, convert_k_idx(i, sf_flags, sf_flags_now)));
+	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
 
 	/* Hack -- Dump the quests */
@@ -1050,16 +1068,12 @@ static bool wr_savefile_new(void)
 	{
 		quest_type *q_ptr = q_list+i;
 		wr_byte(q_ptr->level);
-		wr_s16b(convert_r_idx(q_ptr->r_idx, sf_flags_now, sf_flags));
+		wr_s16b(convert_r_idx(q_ptr->r_idx, sf_flags_now, sf_flags_sf));
 		wr_byte(q_ptr->dungeon);
 		wr_byte(q_ptr->cur_num);
 		wr_byte(q_ptr->max_num);
-#ifdef SF_QUEST_UNKNOWN
 		if (has_flag(SF_QUEST_UNKNOWN)) wr_byte(q_ptr->cur_num_known);
-#endif
-#ifdef SF_QUEST_KNOWN
 		if (has_flag(SF_QUEST_KNOWN)) wr_byte(q_ptr->known);
-#endif
 	}
 
 	/* Hack -- Dump the artifacts */
@@ -1088,20 +1102,7 @@ static bool wr_savefile_new(void)
 		wr_s16b(player_hp[i]);
 	}
 
-
-	/* Write spell data */
-	for (i=0;i<MAX_SCHOOL;i++)
-	{
-		wr_u32b(spell_learned[i]);
-		wr_u32b(spell_worked[i]);
-		wr_u32b(spell_forgotten[i]);
-	}
-
-	/* Dump the ordered spells */
-	for (i = 0; i < 128; i++)
-	{
-		wr_byte(spell_order[i]);
-	}
+	wr_spell_flags();
 
 		/* Dump spirit info */
 	for (i=0;i<MAX_SPIRITS;i++)
@@ -1133,6 +1134,10 @@ static bool wr_savefile_new(void)
 
 	/* Note the stores */
 	tmp16u = MAX_STORES_TOTAL;
+
+	/* Old savefiles can't accept more than 96 shops. */
+	if (!has_flag(SF_QUEST_DIRECT) && tmp16u > 96) tmp16u = 96;
+
 	wr_u16b(tmp16u);
 
 	/* Dump the stores */
@@ -1238,28 +1243,27 @@ bool save_player(bool as_4_1_0)
 
 	char    safe[1024];
 
-	/* Find the current version. */
-	current_version(&sf_flags, &sf_major, &sf_minor, &sf_patch);
-
-#ifdef SF_SKILL_BASE
 	/* If a 4.1.0 savefile is required, provide one. */
 	if (as_4_1_0)
 	{
-		sf_flags = SF_SKILL_BASE;
+		WIPE(sf_flags_sf, sf_flags_sf);
+		sf_flags_sf[0] = SF_SKILL_BASE;
 		sf_major = 4;
 		sf_minor = 1;
 		sf_patch = 0;
 	}
-#endif
+	/* If not, simply find the current version. */
+	else
+	{
+		current_version(sf_flags_sf, &sf_major, &sf_minor, &sf_patch);
+	}
 
-#ifdef SET_UID
+	
 
-# ifdef SECURE
+#if defined(SET_UID) && defined(SECURE)
 
 	/* Get "games" permissions */
 	beGames();
-
-# endif
 
 #endif
 

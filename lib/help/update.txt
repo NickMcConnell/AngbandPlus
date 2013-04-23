@@ -1,8 +1,143 @@
+%%%%% <update.txt>
 sCthangband
 Based on Cthangband 4.1.0b and Zangband 2.1.0e
 
 Changes are added to the top of this file, so for a chronological order
 read from the bottom up.
+
+sCthangband 1.0.11
+* Regain SP and CHI, and become hungry, while resting in a house or inn.
+* Always benefit from stealth when attacking a sleeping monster.
+* Take time when climbing the stairs.
+* Allow staffs the player has recharged as a stack to stack given equal charges
+  whether identified or not.
+* Prevent two separate unidentified stacks of similar arrows from stacking.
+* Create "hide" and "reveal" commands to prevent objects the player is not
+  interested in from cluttering up the screen.
+* Create an auto-squelch display based on Iain McFall's implementation, which
+  hides unwanted objects.
+* Ensure that starting rings do not duplicate intrinsic abilities.
+* Remove the pointless "Learn folk magic" option from the magic shop.
+* Give a special message if the player is both teleporting randomly and unable
+  to teleport.
+* Allow the player to browse cantrips.
+* Mention the S key in the general on-screen birth help.
+* Remove the general options from the "quick-start" prompt.
+* Prevent the destroy command object list from including known artefacts.
+* Set up the help file list at start-up rather than searching at each request.
+* The (e.g.) v command will select an object inscribed @v1 in preference to @1.
+* Objects on the floor can be selected by number.
+* Consider critical hits in calculating average weapon damage.
+* Calculate average martial arts damage fairly accurately.
+* The last object to be highlighted can be selected with !.
+* Avoid using energy whenever a magic device is used.
+* The game will attempt to increase the size of o_list and m_list as necessary
+  with an appropriate compile-time option.
+* Give specific help for some spells if the player selects them with a capital
+  letter (as well as requesting confirmation).
+* Track whether an object has been named in this save file and avoid mentioning
+  them in user interface functions if not.
+* Make | a keymap rather than a second key for the ~ command.
+* Understand TARGETS and TIMESTAMP requests from other clients in X11.
+* Correct the comment in k_info.txt.
+* Work through the skill display when using the debug "edit character" command.
+* Use menus to create a specific monster or artefact as with objects.
+* Turn debug command help into a text file.
+* Add some more docs.
+* Indicate with version numbers in custom.txt which options I've added/changed.
+* Create a general "set this counter to this" function.
+* Rearrange some code, especially that concerning spells and magical devices.
+* Fix the following bugs:
+  * Bows got "too many" shots at 100% skill.
+  * Vampiric weapons gave the player "too many" extra HP.
+  * Most distance attacks which affect the floor type (e.g. destroy doors) did
+    not do so.
+  * Recalling into a dungeon and leaving via the stairs could leave you in the
+    wrong town.
+  * Stormbringer and the Hammer of Worlds had the wrong weapon skills.
+  * The game could crash if the screen was redrawn with (e.g.) Ctrl-R and the
+    player did something which affected the surrounding area.
+  * The =g inscription was ignored unless auto_pickup was set.
+  * A quest level could sometimes be generated with too few quest monsters.
+  * The "reset recall depth" question could sometimes be asked twice.
+  * Keys to decrease things on the birth screen did not wrap around correctly.
+  * The numbers in the "nearby monsters" window were wrong.
+  * Setting "spend_points" prevented quick-start from using the auto-roller.
+  * The game could generate "old" save files with too many shops.
+  * Pref file errors at the start were cleared immediately.
+  * Pack reordering moved objects which could be in any order around.
+  * Undefining ALLOW_TEMPLATES prevented the game from compiling.
+  * Objects in shops loaded from old versions were not shown correctly.
+  * The message given after saving all preferences was inappropriate.
+  * The game falsely claimed that un*identified* objects had bad activations.
+  * Vorpal weapons were displayed as causing more damage than they do.
+  * There was no way to create a charm in wizard mode.
+
+sCthangband 1.0.10
+* Allow the charges of objects in slots to be drained.
+* Allow inscriptions such as @^A1 to be interpreted correctly.
+* Allow text to be copied directly from/to the game in the X11 port.
+* Give information about the square under the mouse cursor in the X11 port.
+* Give the unique cats distinctive colours.
+* Give meaningful error messages for some errors which cause beeps.
+* Give an error message if the "enter pref line" command is not parsed.
+* Remove confusing age references from the docs.
+* Omit help text for some options which don't exist as compiled.
+* Add code to check for some bugs in the options table during initialisation.
+* Fix the following bugs:
+  * Barbarians could not be selected from the "pick a race" screen.
+  * Branding, but not enchanting, ammunition did not rearrange the pack.
+  * Keymap dumps were the wrong way around.
+  * Some potions could not be created directly in debug mode.
+  * Bad rings/amulets could sometimes gain a positive pval, etc..
+  * Macintosh-style text files were not read correctly by the game.
+  * Some format strings could return nonsense.
+  * Monster speed boosts were calculated the wrong way around.
+  * Reflected attacks always went down and to the right.
+  * Cone-shaped attacks never caused the stated amount of damage.
+  * Martial arts AC was only modified when the player stopped being encumbered.
+  * The game used the keymap of a keymap to see where the player was moving to.
+  * +, - and the number keys in roguelike mode did not work correctly.
+  * Bones files were not saved correctly.
+  * It was possible to overflow player_name and a macro buffer.
+* Clean up some code.
+
+sCthangband 1.0.9
+* Allow the layout of the main window to be controlled from the options menu.
+* Add an option to use a special character for piles of stuff.
+* Describe blindness resistance on an item as an immunity (as it is).
+* Ensure that wands, rings, etc., always get the intended pval, etc..
+* Allow monsters to summon other monsters at random again.
+* Allow recall scrolls, etc., to work properly again.
+* Make the Fire Phantom a quest monster again.
+* Allow the lists of shops to be browsed when the player is in the wilderness.
+* Prevent incorrect object names from being given when selling things.
+* Prevent a changing window from being shown in preference to a higher
+  priority unchanging one.
+* Allow main-ibm.c to be compiled again (thanks to Luc French).
+* Use a signal_aux() wrapper to signal() to allow main-sla.c to be compiled.
+* Correct various makefiles.
+* Clean up some code.
+
+sCthangband 1.0.8
+* Reduce the danger of failing to use a spirit favour.
+* Make more of the game use the full size of the main window.
+* Create an extra window to show information about the player's square.
+* Turn speak_unique into a birth option.
+* Set the rarities (and, to an extent, the random properties) of ego items
+  from e_info.txt.
+* Set the chance of producing a random artefact in e_info.txt.
+* Set the boost to the level feeling from each base item in k_info.txt.
+* Rearrange the P lines in k_info.txt and a_info.txt so that it looks more
+  like an object description.
+* Set the article features get in f_info.txt so that you don't see "a water".
+* Make extra characters at the end of a line in lib/edit cause an error.
+* List a few more things in the '~' character screen.
+* Make the 'I' description of non-weapons and objects with anti-magic a bit
+  more appropriate.
+* Clean up some code.
+* Fix a few bugs (some possibly fatal).
+
 
 sCthangband 1.0.7
 * Create an option to flush input if invalid input is given.
@@ -13,7 +148,7 @@ sCthangband 1.0.7
 
 sCthangband 1.0.6
 * Decrease the number of successes needed to train bows from 10 to 4.
-* Add Bokrug, the Water Lizard to r_info.txt, and change tyrannosaurs' colours.
+* Add Bokrug, the Water Lizard to r_info.txt, and make tyrannosaurs grey.
 * Change the descriptions of a few monsters.
 * Add a "character information" knowledge display to show the player's AC and
   saving throw and the text previously displayed on starting the program.
@@ -28,8 +163,8 @@ sCthangband 1.0.6
 * Use the width of the screen for the inventory/equipment display.
 * Allow the screen to be dumped/loaded at any window size.
 * Allow variable screen size with inventory/equipment lists and screen dumps.
-* Use line wrapping in the help functions, so that help files display correctly
-  with any window size.
+* Use line wrapping in the help functions, so that help files display
+  correctly with any window size.
 * Replace indentation with colour in various help files.
 * Define dungeons, towns, quests and shopkeepers in external text files.
 * Set the plurals for monsters in r_info.txt.
@@ -48,12 +183,12 @@ sCthangband 1.0.5
   real weapon.
 * Remove telepathy from precognition and being a mindcrafter.
 * Give the Long Bow of Serpents a x5 multiplier.
-* Remove lucerne hammers from the temple stock and add them to the weapon shop.
+* Remove lucerne hammers from the temple and add them to the weapon shop.
 * Prevent permanently cursed randarts from being created.
-* Include the approximate chance of activating an object with a known activation
-  in the 'I' display.
-* Use formatted input for the function which adds arbitrary strings for the 'I'
-  display.
+* Include the approximate chance of activating an object with a known
+  activation in the 'I' display.
+* Use formatted input for the function which adds arbitrary strings for the
+  'I' display.
 * Indicate temporary fear resistance/telepathy in the 'Chhh' display with a
   coloured *.
 * Change the "change colour here" string in help files to $.
@@ -72,11 +207,12 @@ sCthangband 1.0.5
 * Add comments to those lib/edit files which lacked them.
 * Use commas in lib/edit/* to make it easier to work out the prices of objects
   there.
-* Represent speeds as "+10", etc., and weights as "1.0lb", etc., in lib/edit/*.
+* Represent speeds as "+10", etc., and weights as "1.0lb", etc., in lib/edit
+  files.
 * Change "Armor" to "Armour" in various places for uniformity.
 * Save a version string in pref files so that they can be imported into newer
   versions easily.
-* Make it so that the old rolling routine is really only used with quick_start.
+* Restrict the old rolling routine to quick_start.
 * Suppress the "It modifies your number of blows by X." for weapons.
 * Use store_table directly rather than giving each shop a copy of its section.
 * Replace the various SV_* macros with OBJ_* ones based on index.
@@ -85,7 +221,7 @@ sCthangband 1.0.5
   than the calling function. 
 * Use the correct symbols for the non-numerical shops in the help files.
 * Spread out the columns in the visible monster display to fill the space.
-* Fix some bugs which missed out the damage most starting players did at birth.
+* Fix some bugs which gave incorrect damage figures during creation.
 * Fix a bug which prevented the generation of monster spoilers.
 * Fix a bug which prevented any but the first 12 items on the current page in
   a shop's inventory from being accessible.
@@ -109,23 +245,23 @@ sCthangband 1.0.4
   representation.
 * Set the length of the pet descriptions to the screen width, disregarding
   MNAME_MAX.
-* Add the inscription from both objects to the combined one if two objects with
-  different inscriptions are merged and stack_force_notes_all is set.
+* Add the inscription from both objects to the combined one if two objects
+  with different inscriptions are merged and stack_force_notes_all is set.
 * Allow some simple scripting when pre-parsing text files. Use this to remove
   some magic numbers from v_info.txt and make it easy to search based on
   dimensions.
 * Also use the scripting to set tval-based flags.
 * Add an o_base.txt file to contain the framework from which the names of
   objects created (e.g. "A ? potion of ?").
-* Allow the format of ego items and artefacts to be set in their respective text
-  files.
-* Add object descriptions (based on those in Hengband) for various objects which
-  wouldn't otherwise be described in k_info.txt to that file.
-* Calculate whether an unaware object can be expected to have a flag in init1.c.
+* Allow the format of ego items and artefacts to be set in their respective
+  text files.
+* Add object descriptions (based on those in Hengband) for various objects
+  which wouldn't otherwise be described in k_info.txt to that file.
+* Work out if an unaware object can be expected to have a flag in init1.c.
 * Give resize hooks to do_cmd_store() and get_item(). Resizing in subsidiary
   prompts from the latter are not handled correctly at present, however.
-* Create a logfile.txt file to list a summary for every game which is played in
-  chronological order.
+* Create a logfile.txt file to list a summary for every game which is played
+  in chronological order.
 * Create a TR1_X15_DRAGON flag to replace the hard-coded flag on Lightning.
   This means that each object should only have one dragon slaying flag.
 * Tell the player that objects with R_CHAOS have R_CONF.
@@ -134,8 +270,8 @@ sCthangband 1.0.4
 * Modify the code so that it compiles in MS VC++ (thanks to Iain Maclean for
   his help with this) and hopefully also other compilers.
 * Add makefiles for bcc, cygwin (tested by Scott Holder) and lcc.
-* Put main-ami.c in an #ifdef USE_AMI directive to prevent it from contaminating
-  other systems.
+* Put main-ami.c in an #ifdef USE_AMI directive to prevent it from
+  contaminating other systems.
 * Clean up some code.
 * Fix some bugs.
 
@@ -150,8 +286,8 @@ sCthangband 1.0.3
 * Replace the main-*.c files with versions based on those in Angband 3.0.0.
 * Make the level generation loop a bit more efficient.
 * Unify the initial help files, so that help.hlp is used on every system.
-* Use a VARIABLE_ARRAYS macro to indicate whether it is safe to define an array
-  the size of which is set at runtime. Use this in many places if it is,
+* Use a VARIABLE_ARRAYS macro to indicate whether it is safe to define an
+  array the size of which is set at runtime. Use this in many places if it is,
   falling back to C_NEW() and C_FREE() otherwise.
 * Fix a bug which prevented the "use racial/other powers" command from working
   (thanks to James Gordon for pointing it out).
@@ -166,8 +302,8 @@ sCthangband 1.0.3
   preferences.
 * Turn a couple of the long sections in play_game() into separate functions.
   Move the exit point in generate_cave() to the end of the loop. Also move the
-  "give up on autoscum" check to the end of the generation loop, and move a few
-  more things outside the loop.
+  "give up on autoscum" check to the end of the generation loop, and move a
+  few more things outside the loop.
 * Fix a bug whereby items which affect strength didn't indicate an effect on
   how many blows the player had.
 * Restore the commented sections of makefile.org I'd deleted.
@@ -186,7 +322,7 @@ sCthangband 1.0.3
 * Make object_desc() use a lower case "t" in "the".
 * Fix a missing break; statement that caused a bug when the autosave options
   were used.
-* Make the input to quark_str() unsigned, as its input (almost?) invariably is.
+* Declare quark_str() to take a u16b, as that is what its input usually is.
 * Optimise the "find useful ammunition" loop a bit.
 * Remove the (now unused) strfmt function.
 * Fix a mysterious bug whereby the boundary walls couldn't be targetted.
@@ -200,15 +336,15 @@ sCthangband 1.0.3
 sCthangband 1.0.2
 * Call debug commands from process_command().
 * Provide context-sensitive help for debug commands.
-* Fix a bug whereby the races represented by numbers could not be selected, and
-  the range given didn't match the displayed range.
+* Fix a bug whereby the races represented by numbers could not be selected,
+  and the range given didn't match the displayed range.
 * Change numerous arrays which had a size determined at run-time because of
   z_info into dynamic ones, or ones which have a constant size.
 
 sCthangband 1.0.1
-* Remove the level feelings delay (although the original behaviour exists as an
-  option), as it can make the difference between being given a level feeling
-  before you clear a level and getting one afterwards.
+* Remove the level feelings delay (although the original behaviour exists as
+  an option), as it can make the difference between being given a level
+  feeling before you clear a level and getting one afterwards.
 * Separate the magic device skill from the pseudoid one. The latter is now
   trained by pseudo-identifying items as something other than average, and
   randomly gives strong and weak pseudo-id at skill levels between 20 and 60.
@@ -218,7 +354,7 @@ sCthangband 1.0.1
 * Make actions which took either 50 or 100 energy take either half as much or
   as much as walking a step so that rods can be somewhat useful later on.
 * Increase the energy per turn from 100 to 1000, thereby decreasing the number
-  of blows per turn a player with 8 blows per turn has from 8 1/3 to exactly 8.
+  of blows per turn a player with 8 blows per turn has from 8 1/3 to 8.
 * Rename mages as wizards, as I've read stories involving wizards...
 * Make the quit command messages a bit more in-theme.
 * Compare the stat effects of an item with those of the currently equipped
@@ -237,8 +373,8 @@ sCthangband 1.0.1
 * Only use the randart valuation mechanism for calculating the value of the
   random features of an item which has random flags rather than all of them.
 * Saved stats are now used as the defaults for the autoroller.
-* Display maximum and current chi total in the character screen, make the other
-  displays more compact.
+* Display maximum and current chi total in the character screen, make the
+  other displays more compact.
 * Use the average discount when piles are combined.
 * Make the knowledge screens a bit more colourful, with a picture for each
   entry and a darker colour for dead uniques. As this uses the show_file
@@ -246,16 +382,16 @@ sCthangband 1.0.1
   by ] cannot have its true colour.
 * Create an auto_more option to cause --more-- prompts to be cleared
   immediately.
-* Create a macro_edit option to allow the use of number keys to edit strings to
-  be turned on or off with a keypress. If this is on, TAB causes the prompt to
-  switch between edit mode and insert mode. If it is off, numbers entered via
-  macros are counted as edit commands, and ones entered directly as numbers to
-  be inserted.
+* Create a macro_edit option to allow the use of number keys to edit strings
+  to be turned on or off with a keypress. If this is on, TAB causes the prompt
+  to switch between edit mode and insert mode. If it is off, numbers entered
+  via macros are counted as edit commands, and ones entered directly as
+  numbers to be inserted.
 * Remove bypass_prompt (off), and allow "p\n" to select the default spirit.
 * Remove disturb_other (off), as the inscription equivalent is easy to use.
 * Remove hp_alert (on), as setting the level to 0% works as well.
-* Update z-virt.c and mai*-x11.c to 3.0.0 version. I haven't changed the others
-  as I haven't tried to get big screen to work with the main map yet.
+* Update z-virt.c and mai*-x11.c to 3.0.0 version. I haven't changed the
+  others as I haven't tried to get big screen to work with the main map yet.
 * Unset cheat_item at birth.
 * Make inscribe_depth apply to every object which is created if set.
 * Create a "dimension door" function to handle every attempt to do this.
@@ -268,9 +404,9 @@ sCthangband 1.0.1
   than being declared static, and the fake arrays (including a fake info array
   provided to allow the size of the info array to be determined as it is
   parsed) remain for most of initialisation.
-* The game ignores the last few elements of m_list[], k_info[], etc., in a save
-  file rather than refusing to load it. It prints a message as it does so so
-  that the player can abort if removing an item was a mistake.
+* The game ignores the last few elements of m_list[], k_info[], etc., in a
+  save file rather than refusing to load it. It prints a message as it does so
+  so that the player can abort if removing an item was a mistake.
 * Remove the redundant object_absorb_2() function.
 * Use a function to determine the keymap in use, and one to determine which
   keymap to use rather than looking them up in the code.
@@ -296,8 +432,8 @@ sCthangband 1.0.1
 * Give an informative message when a pref file loads/doesn't load.
 * Put most of load_all_pref_files() in user.prf, and make this safe to do
   before rp_ptr and cp_ptr have been initialised.
-* Objects now lose the IDENT_SENSE_POWER flag as they become better identified,
-  and *identified* items cannot be called "powerful".
+* Objects now lose the IDENT_SENSE_POWER flag as they become better
+  identified, and *identified* items cannot be called "powerful".
 * Make quark_str(0) return "", as this is often a good thing.
 * Make item_activation() return an error message rather than a null pointer if
   no activation is found, remove the attempts to use this function as a guide
@@ -361,7 +497,7 @@ sCthangband 1.0.0
   in the character dump.
 * Cause text screen dumps to be loaded/saved correctly regardless of the
   characters used.
-* Allow partial identical stacks to be rearranged to give the larger 99 objects.
+* Allow identical stacks to be rearranged to give the larger 99 objects.
 * Incorporate the show_file() function from ToME, and use colour in various
   '~' screens.
 * Indicate the effective slays and the real movement and attack speeds in
@@ -370,11 +506,11 @@ sCthangband 1.0.0
 * Display the shops in a town with "~8", and provide a window display to show
   the current one if appropriate.
 * Display obvious flags for objects which have been tried.
-* Prevent the player from attempting to sell an object the shop has no room for.
+* Prevent the player from attempting to sell objects the shop has no room for.
 * Cause flavoured objects to use the flavour's colour if the colour of the
   object is black, and its symbol if a space.
-* Only give vampiric messages if the object is unidentified or the player gains
-  HP.
+* Only give vampiric messages if the object is unidentified or the player
+  gains HP.
 * Display the shopkeeper's relative greed in a Chr-independent way.
 * Cause '^W' to rotate the pile of objects the player is standing on.
 * Cause 'x' to select the cheapest object at a prompt.
@@ -384,8 +520,8 @@ sCthangband 1.0.0
 * Fix some bugs.
 
 30/4/2002 (copied from the Cthangband 4.1.1 beta by David Thornley)
-* Prevent the "uncontrollable storm" mindcraft failure from using more chi than
-  the player originally possessed.
+* Prevent the "uncontrollable storm" mindcraft failure from using more chi
+  than the player originally possessed.
 * Change golems to A, ghouls to G, icky things into people of Ib and quiver
   slots to archer mushrooms.
 * Detect doors/stairs via precognition at level 15, and invisible monsters at
@@ -395,10 +531,10 @@ sCthangband 1.0.0
 2/3/2002
 * Display the small-scale map in a square which is as large as will fit in the
   window, and add a world map beside it on the surface.
-* Use the equipped bow by preference to a plain one when calculating the damage
-  caused by a missile.
-* Indicate a square which has been checked for traps but not seen with an umber
-  dot.
+* Use the equipped bow by preference to a plain one when calculating the
+  damage caused by a missile.
+* Indicate a square which has been checked for traps but not seen with an
+  umber dot.
 * Add a window display for the list of shops in the current town.
 * Give RES_CONF to objects which have RES_CHAOS.
 * Use a set of flags to indicate the save file version to make more precise
@@ -427,8 +563,8 @@ sCthangband 1.0.0
 * Inform the player if an item inscribed with !! has finished recharging.
 * Display all stats above 18 as (e.g.) 23/45, using XX/XX for stats above
   18/8199 (!).
-* Use an UNUSED macro to indicate unused parameters and suppress warnings given
-  by GCC.
+* Use an UNUSED macro to indicate unused parameters and suppress warnings
+  given by GCC.
 * Use environment variables for fonts under X11.
 * Fix some bugs.
 
@@ -450,7 +586,7 @@ sCthangband 1.0.0
   with a tval will have.
 * Remove the hates_*() functions, relying on the object to have immunities
   instead.
-* Tell the player which flags an unaware object must have if spoil_base is set.
+* Show the player the flags an unaware object must have if spoil_base is set.
 * Use object_desc() for all object name strings instead of using k_name
   fragments for some.
 * Use the lowest possible value for an object in object_value_base() in the
@@ -462,14 +598,14 @@ sCthangband 1.0.0
   generation.
 * Don't tell the player that a quest monster has died unless he saw it die or
   all of the quest monsters in that quest are now dead.
-* Create a u_info.txt file to store how the game refers to unidentified objects,
-  and categories of identified objects.
-* Replace "It cannot be harmed by acid", etc., with "It can be harmed by acid.",
-  and include the immunity derived from tval in this.
+* Create a u_info.txt file to store how the game refers to unidentified
+  objects, and categories of identified objects.
+* Replace "It cannot be harmed by acid", etc., with "It can be harmed by
+  acid.", and include the immunity derived from tval in this.
 * Fix some bugs.
 
 1/6/2001
-* Display the average damage of melee/missile weapons ont the charaacter
+* Display the average damage of melee/missile weapons on the character
   information screen.
 * Show the average damage caused by weapons with various slays on the 'I'
   screen if allowed.
@@ -482,7 +618,8 @@ sCthangband 1.0.0
 21/5/2001
 * Allow the character to be born on 29th February.
 * Show a few potentially useful stat effects on the point buying screen.
-* Let the player access the options menu and help from the point buying screen.
+* Let the player access the options menu and help from the point buying
+  screen.
 * Allow the player to modify monster memory colours in the visual preferences.
 * Remove the preferences question from the stat prompts and make the quick
   start and initialisation completed prompts optional.
@@ -505,8 +642,8 @@ sCthangband 1.0.0
   identified ones.
 * Display the amount of money the shopkeeper will give you for an object with
   a standard base price.
-* Display known information about items which have not been *identified* on the
-  'I' display.
+* Display known information about items which have not been *identified* on
+  the 'I' display.
 * Include the symbol of each monster in the relevant '~' sections.
 * Make traps which have the same symbol indistinguishable.
 * Include the failure chance in the "use power" menu.
@@ -542,12 +679,14 @@ sCthangband 1.0.0
 * Mention in the artefact spoilers when an artefact has a random power or
   resistance.
 * Allow the player to make the game display obvious modifiers an item has.
-* Allow the player to make the game display the effects of restore stat potions.
+* Allow the player to make the game display the effects of restore stat
+  potions.
 * Give some appropriate help for shop services.
 * Prevent stairs from destroying objects at the end of a quest.
 * Display blessing, stone skin, etc., on the first character screen.
 * Make death by trap door occur on the lower level rather than the upper one.
-* Allow the player to edit the tval, sval and name2 in the debug object editor.
+* Allow the player to edit the tval, sval and name2 in the debug object
+  editor.
 * Allow the player to create any monster at all in debug mode.
 * Randomise the order in which artefacts are chosen in make_artifact() and
   make_artifact_special() so that equiprobably artefacts are more feasible.
@@ -571,7 +710,8 @@ sCthangband 1.0.0
 * Calculate the average social class for a race when using point-based
   generation.
 * Display each race's experience penalty during point-based generation.
-* Give a single "It cannot be harmed by the elements." in 'I' where appropriate.
+* Give a single "It cannot be harmed by the elements." in 'I' where
+  appropriate.
 * Call Smeagol "he" rather than "it" when he can't be seen.
 * Fix some bugs.
 
@@ -614,11 +754,12 @@ sCthangband 1.0.0
   give weapon damage as if an appropriate weapon was wielded.
 * Indicate the final dungeon on the tombstone.
 * Cause an inscription of '%' to set "stack_force_costs" for that item alone.
-* Show the AC from not wearing an item in each armour slot for martial artists.
+* Show the AC from not wearing an item in each armour slot for martial
+  artists.
 * Provide an option to show the known information for artefacts on the 'I'
   screen.
-* Prevent quitters from being shown on the high score table with a compile-time
-  option.
+* Prevent quitters from being shown on the high score table with a
+  compile-time option.
 * Cause trying to walk into a tree or water to take no time.
 * Inscribe a permanently worthless uncursed item as "worthless".
 * Fix some bugs.
@@ -627,13 +768,14 @@ sCthangband 1.0.0
 * Display skills above 0% which can still be improved in yellow, and use
   square brackets to indicate when the player reaches the current maximum for
   a skill.
-* Use a dark green number rather than a 's' to indicate sustained and increased
-  stats.
+* Use a dark green number rather than a 's' to indicate sustained and
+  increased stats.
 * Fix a bug which prevented a shop service from using your last AU.
 
 Cthangband 4.1.0 (the first under the maintainership of David Thornley)
 * Any character starting with Shaman skill gets one free spirit bound.
-* Any character with hermetic magic skills will get one free spellbook to start.
+* Any character with hermetic magic skills will get one free spellbook to
+  start.
 * Pets will not be targetted by the "*" key.
 * There are new base skill levels, essentially the level learnable at 0', and 
   these are subtracted from the skill learnable at the current dungeon level;
@@ -654,12 +796,12 @@ Cthangband 4.1.0 (the first under the maintainership of David Thornley)
 (Thanks to Kieron Dunbar for the following ideas, and, sometimes, code.)
 * The display has been changed to show spirits and how annoyed they are.
 * *Identified* weapons show what skill they need.
-* The restriction on a 6% failure rate to learn magical skills has been replaced
-  by a restriction that character skill must be no more than 50% greater than 
-  the minimum skill for that spell, mindcrafting power, cantrip, or spirit 
-  favor.
-* Minimum annoyance for spirit favors has been raised to 2, so a spirit will not
-  immediately become placated for the next turn.
+* The restriction on a 6% failure rate to learn magical skills has been
+  replaced by a restriction that character skill must be no more than 50%
+  greater than the minimum skill for that spell, mindcrafting power, cantrip,
+  or spirit favor.
+* Minimum annoyance for spirit favors has been raised to 2, so a spirit will
+  not immediately become placated for the next turn.
 
 Cthangband 4.0.1
 * Wizard Mode moved to 'Cheat Options' page.

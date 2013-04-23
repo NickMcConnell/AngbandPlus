@@ -1,3 +1,4 @@
+%%%%% <shaman.txt>
 Shamanism
 =========
 
@@ -28,6 +29,7 @@ Life spirits provide protection and healing favours. They are opposed to the und
 
 Minor Spirit of Life
 
+%%%%% <spirit=L0>
 Detect Evil (2% Skill)
 This favour will detect any evil monsters that are nearby.
 
@@ -52,8 +54,10 @@ This favour will heal you of 4-40 hit points and heal most cuts.
 Satisfy Hunger (14% Skill)
 This favour will cure you of all hunger, filling your stomach.
 
+%%%%%
 Lesser Spirit of Life
 
+%%%%% <spirit=L2>
 Remove Curse (14% Skill)
 This favour will remove any minor curses on yourself or your equipment. It is not powerful enough to remove more major curses.
 
@@ -78,8 +82,10 @@ This favour will heal you of 300 hit points and completely heal cuts.
 Glyph of Warding (66% Skill)
 This favour will create a magical glyph on the ground by your feet that will block most smaller creatures that try to pass it.
 
+%%%%%
 Greater Spirit of Life
 
+%%%%% <spirit=L4>
 Exorcism (30% Skill)
 This favour will harm all undead and demons that are nearby, and also scare away any other evil creaturs.
 
@@ -104,8 +110,10 @@ This favour will severely harm all nearby evil creatures, as well as totally hea
 Warding True (88% Skill)
 This favour will create magical glyphs of warding both by your feet and in a ring around you.
 
+%%%%%
 Major Spirit of Life
 
+%%%%% <spirit=L6>
 Heroism (10% Skill)
 This favour will heal you of 10 hit points, cure you of any fear and give you a temporary bonus on your attack skill.
 
@@ -130,12 +138,14 @@ This favour will bathe you in a sheathe of holy fire, hurt, slow, stun, confuse,
 Holy Invulnerability (90% Skill)
 This favour will make you almost invulnerable to damage for a short while.
 
+%%%%%
 Spirits of the Wild
 
 Spirits of the wild are much less concerned with morality than those of life. The favours that these spirits grant are more nature oriented.
 
 Minor Spirit of the Wild
 
+%%%%% <spirit=W1>
 Detect Creatures (2% Skill)
 This favour will detect the presence of any nearby creatures.
 
@@ -160,8 +170,10 @@ This favour will give you a temporary resistance to the elements of heat, cold a
 Cure Wounds & Poison (10% Skill)
 This favour will stop you bleeding and purge any poisons from your system.
 
+%%%%%
 Lesser Spirit of the Wild
 
+%%%%% <spirit=W3>
 Stone to Mud (10% Skill)
 This favour will turn a section of wall into a pile of mud, destroying it.
 
@@ -186,8 +198,10 @@ This favour will summon an animal to be your ally.
 Herbal Healing (80% Skill)
 This favour will heal you of all damage, bleeding and poison.
 
+%%%%%
 Greater Spirit of the Wild
 
+%%%%% <spirit=W5>
 Door Building (14% Skill)
 This favour will cause wooden doors to grow out of the ground all around you.
 
@@ -212,8 +226,10 @@ This favour will surround you in a protective ring of granite.
 Protect from Corrosion (80% Skill)
 This favour will protect a piece of your armour from the effects of acid.
 
+%%%%%
 Major Spirit of the Wild
 
+%%%%% <spirit=W7>
 Earthquake (40% Skill)
 This favour will create an earthquake, causing the area around you to collapse.
 
@@ -237,3 +253,9 @@ This favour will brand your weapon with one of the elements, causing it to do ex
 
 Nature's Wrath (80% Skill)
 This favour will hurt all nearby monsters greatly, cause an earthquake to occur in your vicinity, and then send out a wave of destruction around you.
+
+%%%%%
+Warning
+=======
+
+If the player calls on a spirit to grant a favour, the spirit may refuse to do so. A particularly inept call to a powerful spirit may cause the spirit to take great offense. Most of the time, this merely results in the spirit taking rather longer to calm down again. However, spirits have the power to call down monsters to teach the player humility, and a very angry spirit may simply abandon the player altogether.

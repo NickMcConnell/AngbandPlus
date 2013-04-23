@@ -135,7 +135,7 @@ struct term_win
  *	- Requested screen image
  *
  *	- Temporary screen image
- *	- Memorized screen image
+ *
  *
  *
  *	- Hook for init-ing the term
@@ -289,3 +289,16 @@ struct term
 #define TERM_L_GREEN    13      /* 'G' */       /* 0,4,0 */
 #define TERM_L_BLUE             14      /* 'B' */       /* 0,4,4 */
 #define TERM_L_UMBER    15      /* 'U' */       /* 3,2,1 */
+
+#define SUCCESS 0	/* No error */
+
+/* Errors from Term_keypress(), etc.. */
+#define TERM_ERROR_BAD_INPUT -501
+#define TERM_ERROR_OUT_OF_MEMORY -502
+#define TERM_ERROR_TRIVIAL_REQUEST -503
+#define TERM_ERROR_OUT_OF_BOUNDS -504
+#define TERM_ERROR_NO_OUTPUT -505
+#define TERM_ERROR_FORBIDDEN -506
+
+/* Distinguish errors which prevent action from those which don't. */
+#define WARN(X) -(X)

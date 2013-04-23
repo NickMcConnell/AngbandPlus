@@ -41,7 +41,7 @@ struct birther
 /*
  * The last character displayed
  */
-static birther prev;
+static birther prev_stat;
 
 
 
@@ -810,7 +810,7 @@ static bc_type birth_choice(int row, s16b max, cptr prompt, int *option, bool al
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		else if (c == 'S') return BC_RESTART;
-		else if (c == '?') do_cmd_help(syshelpfile);
+		else if (c == '?') do_cmd_help(NULL);
 		else if (c == ESCAPE && allow_abort) return BC_ABORT;
 		else if (c == '=')
 		{
@@ -822,7 +822,7 @@ static bc_type birth_choice(int row, s16b max, cptr prompt, int *option, bool al
 		{
 			(*option) = ator(c);
 			if (((*option) >= 0) && ((*option) < max)) return BC_OKAY;
-			else bell();
+			else bell(0);
 		}
 	}
 }
@@ -1004,7 +1004,7 @@ static errr save_stats(void)
 	fff = my_fopen_path(ANGBAND_DIR_USER, "user-loc.prf", "a");
 
 	/* Failure */
-	if (!fff) return ERR_PARSE;
+	if (!fff) return FILE_ERROR_CANNOT_OPEN_FILE;
 
 	/* Start dumping */
 	fprintf(fff, "\n\n# Initial stat dump\n\n");
@@ -1119,11 +1119,6 @@ static void display_player_birth(int points, bool details, bool rolled)
 	prt(format("['a' to roll%s, or '?' for help.]", arstr), 23, 2);
 }
 
-/* Just in case */
-#ifndef ind_stat
-#define ind_stat(X) \
-	((X < 4) ? 0 : (X < 18) ? X-3 : (X < 18+220) ? 15+(X-18)/10 : 37)
-#endif
 /*
  * Display various things there isn't space for normally during character creation.
  * It could be argued that this would be better placed in files.c, but it's easier here.
@@ -1212,6 +1207,10 @@ static void display_player_birth_details(void)
 	}
 }
 
+/* A macro for A = (A+B) mod M */
+#define MOD_ADD(A, B, M) \
+	(A) += (B)+(M); \
+	(A) %= (M);
 
 /* Indexes for point_mod_player (0-6 hard-coded as stats and nothing) */
 #define IDX_STATS	((A_STR+1) | (A_INT+1) | (A_WIS+1) | (A_DEX+1) | (A_CON+1) | (A_CHR+1))
@@ -1246,8 +1245,8 @@ static void display_player_birth_details(void)
 static bool point_mod_player(void)
 {
 	bool details, own_name, rolled;
-	char stat = UNREAD_VALUE; /* Never used when i = IDX_ALL, and initialised below otherwise. */
-	s16b points = UNREAD_VALUE; /* Initialised when i = IDX_ALL */
+	char UNREAD(stat); /* Never used when i = IDX_ALL, and initialised below otherwise. */
+	s16b UNREAD(points); /* Initialised when i = IDX_ALL */
 	u16b i;
 
 	/* Synchronise the birth options initially. */
@@ -1382,7 +1381,7 @@ static bool point_mod_player(void)
 		}
 		if (i == IDX_HELP)
 		{
-			do_cmd_help(syshelpfile);
+			do_cmd_help(NULL);
 		}
 		/* Toggle details if required. */
 		if (i == IDX_DETAILS)
@@ -1417,26 +1416,22 @@ static bool point_mod_player(void)
 
 		/* Modify the player's race. */
 		if (i == IDX_RACE)
-			{
-				p_ptr->prace += (islower(stat) ? 1 : -1);
-				p_ptr->prace %= MAX_RACES;
-				rp_ptr = &race_info[p_ptr->prace];
-			}
+		{
+			MOD_ADD(p_ptr->prace, (islower(stat) ? 1 : -1), MAX_RACES);
+			rp_ptr = &race_info[p_ptr->prace];
+		}
 
 		/* Modify the player's template. */
 		if (i == IDX_TEMPLATE)
-			{
-				p_ptr->ptemplate += (islower(stat) ? 1 : -1);
-				p_ptr->ptemplate %= MAX_TEMPLATE;
-				cp_ptr = &template_info[p_ptr->ptemplate];
-			}
+		{
+			MOD_ADD(p_ptr->ptemplate, (islower(stat) ? 1 : -1), MAX_TEMPLATE);
+			cp_ptr = &template_info[p_ptr->ptemplate];
+		}
 
 		/* Modify the player's sex. */
 		if (i == IDX_SEX)
 		{
-			p_ptr->psex += (islower(stat) ? 1 : -1);
-			p_ptr->psex += MAX_SEXES;
-			p_ptr->psex %= MAX_SEXES;
+			MOD_ADD(p_ptr->psex, (islower(stat) ? 1 : -1), MAX_SEXES);
 			sp_ptr = &sex_info[p_ptr->psex];
 		}
 
@@ -1557,8 +1552,9 @@ static bool point_mod_player(void)
 		/* Give a special mention to the help text at the start. */
 		if (i == IDX_ALL)
 		{
-			/* Display the help text prominently. */
-			put_str("Press ? and then b for detailed instructions.", 0, 0);
+			/* Display the help text prominently.
+			 * Hack - must match help.hlp. */
+			put_str("Press ? and then a for detailed instructions.", 0, 0);
 		}
 
 
@@ -1613,7 +1609,7 @@ static bool load_stat_set_aux(bool menu, s16b *temp_stat_default)
 		stat_default_type *sd_ptr = &stat_default[x];
 
 		/* Don't load default stats without a race/template combination chosen. */
-		if (x == DEFAULT_STATS && !p_ptr->prace) continue;
+		if (x == DEFAULT_STATS && p_ptr->prace == RACE_NONE) continue;
 		
 		/* Hack - make the default stats take the current race, class and maximise values */
 		if (x == DEFAULT_STATS)
@@ -1628,7 +1624,7 @@ static bool load_stat_set_aux(bool menu, s16b *temp_stat_default)
 
 		/* Accept if the race, template are correct,
 		 * or if no race has been specified. */
-		if (!p_ptr->prace || 
+		if (p_ptr->prace == RACE_NONE || 
 			(sd_ptr->race == p_ptr->prace &&
 			sd_ptr->template == p_ptr->ptemplate))
 		{
@@ -1645,36 +1641,41 @@ static bool load_stat_set_aux(bool menu, s16b *temp_stat_default)
 		bc_type b;
 
 		/* Start half-way down the screen if possible. */
-		byte start = 14;
+		int start = 14, blank = 0;
 
 		/* Allow more room if we need to display a race and template. */
-		byte width = (p_ptr->prace) ? 40 : 80;
+		int width = (p_ptr->prace != RACE_NONE) ? 40 : 80;
 		
+		int minx = (Term->wid >= 82) ? 2 : 0;
+
 		/* If not, start at the top. This should be enough... */
-		if (y > 560/width) start = 0;
+		if (y > (Term->hgt-17)*80/width) start = 2;
+
+		/* If there's lots of space, leave a blank line. */
+		if (y < (Term->hgt-17)*80/width) blank = 1;
 
 		clear_from(start);
 		for (x = 0; x < y; x++)
 		{
 			stat_default_type *sd_ptr = &stat_default[temp_stat_default[x]];
 			char buf[120];
-			byte z;
+			int z;
 			sprintf(buf, "%c) %s (", rtoa(x), quark_str(sd_ptr->name));
 
 			/* If we're just starting, we need to know the race & template. */
-			if (!p_ptr->prace)
+			if (p_ptr->prace == RACE_NONE)
 			{
 				sprintf(buf+strlen(buf), "%s %s %s) (", sex_info[sd_ptr->sex].title, race_info[sd_ptr->race].title, template_info[sd_ptr->template].title);
 			}
 			for (z = 0; z < A_MAX; z++)
 			{
-				byte w = sd_ptr->stat[z];
+				int w = sd_ptr->stat[z];
 				char stat[32];
 				if (sd_ptr->maximise)
 				{
 					w=modify_stat_value(w, race_info[sd_ptr->race].r_adj[z]+template_info[sd_ptr->template].c_adj[z]);
 				}
-				cnv_stat(w, stat);
+				strnfmt(stat, sizeof(stat), "%v", cnv_stat_f1, w);
 				w = 0;
 				while (stat[w] == ' ') w++;
 				sprintf(buf+strlen(buf), "%s%s%s", (z) ? "," : "", stat+w, (z+1 < A_MAX) ? "" : ")");
@@ -1685,19 +1686,18 @@ static bool load_stat_set_aux(bool menu, s16b *temp_stat_default)
 
 			if (width > 40)
 			{
-				put_str(buf, start+2+x, 0);
-			}
-			else if (x%2)
-			{
-				put_str(buf, start+2+x/2, 40);
+				put_str(buf, start+blank+2+x, minx);
 			}
 			else
 			{
-				put_str(buf, start+2+x/2, 0);
+				put_str(buf, start+blank+2+x/2, minx + 40 * (x%2));
 			}
 		}
+		prt("Stat templates provide a quick method of obtaining a specific character.", start-2, 5);
+		prt("Selecting a character will set the sex, race, template and stats as shown.",  start-1, 5);
+
 		/* Ask for a choice */
-		b = birth_choice(start+1, y, "Choose a template", &x, TRUE);
+		b = birth_choice(start+1, y, "Choose a stat template", &x, TRUE);
 		if (b == BC_ABORT)
 		{
 			x = -1;
@@ -1724,7 +1724,7 @@ static bool load_stat_set_aux(bool menu, s16b *temp_stat_default)
 	if (x != -1)
 	{
 		stat_default_type *sd_ptr = &stat_default[temp_stat_default[x]];
-		if (!p_ptr->prace)
+		if (p_ptr->prace == RACE_NONE)
 		{
 			p_ptr->psex = sd_ptr->sex;
 			sp_ptr = &sex_info[sd_ptr->sex];
@@ -1997,7 +1997,7 @@ static bc_type get_hermetic_skills()
 			/* Get a choice */
 		cptr buf = string_make(format("%d choic%s left. Choose a school or type", i,(i>1 ? "es":"e")));
 		bc_type b = birth_choice(21, MAX_SCHOOL*2, buf, &k, TRUE);
-		(void)string_free(buf);
+		(void)FREE(buf);
 		if (b) return b;
 
 			switch(k)
@@ -2042,22 +2042,22 @@ static void save_prev_data(void)
 	/*** Save the current data ***/
 
 	/* Save the data */
-	prev.age = p_ptr->age;
-	prev.wt = p_ptr->wt;
-	prev.ht = p_ptr->ht;
-	prev.sc = p_ptr->sc;
-	prev.au = p_ptr->au;
+	prev_stat.age = p_ptr->age;
+	prev_stat.wt = p_ptr->wt;
+	prev_stat.ht = p_ptr->ht;
+	prev_stat.sc = p_ptr->sc;
+	prev_stat.au = p_ptr->au;
 
 	/* Save the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		prev.stat[i] = p_ptr->stat_max[i];
+		prev_stat.stat[i] = p_ptr->stat_max[i];
 	}
 
 	/* Save the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(prev.history[i], history[i]);
+		strcpy(prev_stat.history[i], history[i]);
 	}
 }
 
@@ -2098,45 +2098,45 @@ static void load_prev_data(void)
 	/*** Load the previous data ***/
 
 	/* Load the data */
-	p_ptr->age = prev.age;
-	p_ptr->wt = prev.wt;
-	p_ptr->ht = prev.ht;
-	p_ptr->sc = prev.sc;
-	p_ptr->au = prev.au;
+	p_ptr->age = prev_stat.age;
+	p_ptr->wt = prev_stat.wt;
+	p_ptr->ht = prev_stat.ht;
+	p_ptr->sc = prev_stat.sc;
+	p_ptr->au = prev_stat.au;
 
 	/* Load the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		p_ptr->stat_max[i] = prev.stat[i];
-		p_ptr->stat_cur[i] = prev.stat[i];
+		p_ptr->stat_max[i] = prev_stat.stat[i];
+		p_ptr->stat_cur[i] = prev_stat.stat[i];
 	}
 
 	/* Load the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(history[i], prev.history[i]);
+		strcpy(history[i], prev_stat.history[i]);
 	}
 
 
 	/*** Save the current data ***/
 
 	/* Save the data */
-	prev.age = temp.age;
-	prev.wt = temp.wt;
-	prev.ht = temp.ht;
-	prev.sc = temp.sc;
-	prev.au = temp.au;
+	prev_stat.age = temp.age;
+	prev_stat.wt = temp.wt;
+	prev_stat.ht = temp.ht;
+	prev_stat.sc = temp.sc;
+	prev_stat.au = temp.au;
 
 	/* Save the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		prev.stat[i] = temp.stat[i];
+		prev_stat.stat[i] = temp.stat[i];
 	}
 
 	/* Save the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(prev.history[i], temp.history[i]);
+		strcpy(prev_stat.history[i], temp.history[i]);
 	}
 }
 
@@ -2285,9 +2285,6 @@ static void get_extra(void)
 {
 	int		i, j;
 	int		lastroll;
-#ifdef SHOW_LIFE_RATE
-    int         percent;
-#endif
     
 
 
@@ -2335,7 +2332,7 @@ static void get_extra(void)
  * Oldseen is an array which indicates how often each chart has been used in the
  * path leading to the current one, generally 0 or 1.
  */
-static s16b get_social_average_aux(byte *oldseen, byte chart, byte total)
+static s16b get_social_average_aux(byte *oldseen, int chart, int total)
 {
 	/* We stop at nothing. */
 	if (chart == 0) return 0;
@@ -2359,8 +2356,8 @@ static s16b get_social_average_aux(byte *oldseen, byte chart, byte total)
 			seen[i]=oldseen[i];
 		}
 
-		/* We have now seen this chart. */
-		seen[chart] = TRUE;
+		/* We have now seen this chart (again). */
+		seen[chart]++;
 
 		/* Get the next charts. */
 		for (i=0; bg[i].chart; i++)
@@ -2647,7 +2644,7 @@ static void birth_put_stats(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Put the stat */
-		cnv_stat(p_ptr->stat_use[i], buf);
+		strnfmt(buf, sizeof(buf), "%v", cnv_stat_f1, p_ptr->stat_use[i]);
 		c_put_str(TERM_L_GREEN, buf, 2 + i, 66);
 
 		/* Put the percent */
@@ -2736,6 +2733,7 @@ static int get_rnd_q_monster(int q_idx)
 static void player_wipe(void)
 {
 	int i;
+	option_type *op_ptr;
 
 
 	/* Hack -- zero the struct */
@@ -2797,17 +2795,18 @@ static void player_wipe(void)
 		r_ptr->r_pkills = 0;
 	}
 
+	/* Reset the player's race. */
+	p_ptr->prace = RACE_NONE;
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
 
 	/* Wipe the spells */
-	for (i=0;i<MAX_SCHOOL;i++)
+	for (i=0;i<MAX_SCHOOL*MAX_SPELLS_PER_BOOK;i++)
 	{
-		spell_learned[i] = 0L;
-		spell_worked[i] = 0L;
-		spell_forgotten[i] = 0L;
+		magic_type *s_ptr = num_to_spell(i);
+		if (s_ptr) s_ptr->flags = 0;
 	}
 	for (i = 0; i < 128; i++)
 	{
@@ -2815,14 +2814,13 @@ static void player_wipe(void)
 	}
 
 	/* Clear "cheat" options */
-	cheat_peek = FALSE;
-	cheat_hear = FALSE;
-	cheat_room = FALSE;
-	cheat_xtra = FALSE;
-	cheat_item = FALSE;
-	cheat_live = FALSE;
-	cheat_skll = FALSE;
-	cheat_wzrd = FALSE;
+	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++)
+	{
+		if (op_ptr->o_page == OPTS_CHEAT)
+		{
+			*(op_ptr->o_var) = FALSE;
+		}
+	}
 
 	/* Assume no winning game */
 	total_winner = FALSE;
@@ -2840,64 +2838,80 @@ static void player_wipe(void)
 /*
  * Each player starts out with a few items, given as k_idx.
  * In addition, he always has some food and a few torches.
+ *
+ * The last object if the player has a power from one of the earlier objects
+ * intrinsically.
  */
 
-static s16b player_init[MAX_TEMPLATE][3] =
+static s16b player_init[MAX_TEMPLATE][6] =
 {
 	{
 		/* Adventurer */
 		OBJ_RING_RES_FEAR, /* Warriors need it! */
 		OBJ_CUTLASS,
-		OBJ_LUMP_OF_SULPHUR
+		OBJ_LUMP_OF_SULPHUR,
+		OBJ_RING_SUSTAIN_STR,
+		0,0
 	},
 
 	{
 		/* Swashbuckler */
 		OBJ_POTION_SPEED,
 		OBJ_RAPIER,
-		OBJ_HARD_LEATHER_ARMOUR 
+		OBJ_HARD_LEATHER_ARMOUR,
+		0,0,0
 	},
 
 	{
 		/* Gladiator */
 		OBJ_RING_FREE_ACTION,
 		OBJ_BROAD_SWORD,
-		OBJ_SMALL_METAL_SHIELD 
+		OBJ_SMALL_METAL_SHIELD,
+		OBJ_RING_RES_FEAR,
+		0,0
 	},
 
 	{
 		/* Warrior Monk */
 		OBJ_RING_SUSTAIN_DEX,
 		OBJ_SCROLL_MONSTER_CONFUSION,
-		OBJ_SOFT_LEATHER_ARMOUR 
+		OBJ_SOFT_LEATHER_ARMOUR,
+		OBJ_RING_SUSTAIN_STR,
+		0,0
 	},
 
 	{
 		/* Zen Monk */
 		OBJ_RING_SUSTAIN_WIS,
 		OBJ_SOFT_LEATHER_ARMOUR,
-		OBJ_SCROLL_MONSTER_CONFUSION 
+		OBJ_SCROLL_MONSTER_CONFUSION,
+		OBJ_RING_SUSTAIN_CON,
+		0,0
 	},
 
 	{
 		/* Assassin */
 		OBJ_RING_RES_POISON,
 		OBJ_DAGGER,
-		OBJ_SOFT_LEATHER_ARMOUR 
+		OBJ_SOFT_LEATHER_ARMOUR,
+		OBJ_RING_RES_DISENCHANTMENT,
+		0,0
     },
 
 	{
         /* Ranger */
 		OBJ_LONG_BOW,
 		OBJ_ARROW,
-		OBJ_HARD_LEATHER_ARMOUR 
+		OBJ_HARD_LEATHER_ARMOUR,
+		0,0,0
     },
 
     {
         /* Shaman */
 		OBJ_QUARTERSTAFF,
 		OBJ_POTION_HEALING,
-		OBJ_SCROLL_PROTECTION_FROM_EVIL 
+		OBJ_SCROLL_PROTECTION_FROM_EVIL,
+		0,0,0
 	},
 
     {
@@ -2905,6 +2919,8 @@ static s16b player_init[MAX_TEMPLATE][3] =
 		OBJ_RING_SUSTAIN_WIS,
 		OBJ_SHORT_SWORD,
 		OBJ_SOFT_LEATHER_ARMOUR,
+		OBJ_RING_RES_CONFUSION,
+		0,0
     },
 
     {
@@ -2912,6 +2928,8 @@ static s16b player_init[MAX_TEMPLATE][3] =
 		OBJ_RING_SUSTAIN_INT,
 		OBJ_POTION_RES_MANA,
 		OBJ_SOFT_LEATHER_ARMOUR,
+		OBJ_RING_RES_LIGHT_AND_DARKNESS,
+		0,0
     },
 
 	{
@@ -2919,21 +2937,26 @@ static s16b player_init[MAX_TEMPLATE][3] =
 		OBJ_RING_SUSTAIN_INT,
 		OBJ_SMALL_SWORD,
 		OBJ_SOFT_LEATHER_ARMOUR,
-
+		OBJ_RING_SUSTAIN_STR,
+		0,0
 	},
 
 	{
 		/* Powerweaver */
 		OBJ_RING_SUSTAIN_INT,
-		OBJ_POTION_RES_MANA,
 		OBJ_RING_SUSTAIN_WIS,
+		OBJ_POTION_RES_MANA,
+		OBJ_RING_SEE_INVIS,
+		OBJ_RING_RES_LIGHT_AND_DARKNESS,
+		0
 	},
 
 	{
 		/* Tourist */
 		OBJ_DAGGER,
 		OBJ_HARD_LEATHER_BOOTS,
-		OBJ_CLOAK 
+		OBJ_CLOAK,
+		0,0,0
 	},
 
 };
@@ -2951,7 +2974,10 @@ static void player_outfit(void)
 
 	object_type	forge;
 	object_type	*q_ptr;
-	
+	u32b f[3];
+
+	/* Find out about the player. */
+	player_flags(f, f+1, f+2);
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -3067,10 +3093,17 @@ static void player_outfit(void)
 		/* Look up standard equipment */
 		s16b k = player_init[p_ptr->ptemplate][i];
 
-        if (k == OBJ_RING_RES_FEAR &&
-                 p_ptr->prace == RACE_BARBARIAN)
-        /* Barbarians do not need a ring of resist fear */
-                 k = OBJ_RING_SUSTAIN_STR;
+		/* Hack - avoid rings which duplicate the player's powers. */
+		if (k_info[k].flags1 & f[0] || k_info[k].flags2 & f[1] ||
+			k_info[k].flags3 & f[2])
+		{
+			/* Give the character the alternative item. */
+			int k2 = player_init[p_ptr->ptemplate][i+3];
+
+			/* Paranoia - all absent alternatives should be unused, but
+			 * someone may have changed the objects. */
+			if (k2) k = k2;
+		}
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -3089,6 +3122,7 @@ static void player_outfit(void)
 		if (k == OBJ_DAGGER && p_ptr->ptemplate == TPL_ASSASSIN)
         {
             q_ptr->name2 = EGO_BRAND_POIS;
+			apply_magic_2(q_ptr, 0);
         }
 
         /* These objects are "storebought" */
@@ -3164,13 +3198,16 @@ static void player_birth_quests(void)
 		while((q_list[i].level <= dun_defs[j].offset) ||
 			(q_list[i].level >= dun_defs[j].max_level + dun_defs[j].offset));
 
-		/* j now holds a valid dungeon, so set the quest and
-		 * modify its level
-		 */
 		q_list[i].dungeon = j;
-		q_list[i].level -= dun_defs[j].offset;
-
 		q_list[i].max_num = get_number_monster(i);
+	}
+
+	/* Set the new quest depths correctly now, as some of the above relies
+	 * on q_list[i].level including the offset.
+	 */
+	for (i = z_info->quests; i < q_max; i++)
+	{
+		q_list[i].level -= dun_defs[q_list[i].dungeon].offset;
 	}
 
 	/* Remember the new number of quests. */
@@ -3297,7 +3334,7 @@ static bool quick_start_character(void)
 
 	cptr str;
 
-	char c = UNREAD_VALUE;
+	char UNREAD(c);
 
 	char b1 = '[';
 	char b2 = ']';
@@ -3348,7 +3385,7 @@ static bool quick_start_character(void)
 
 #ifdef ALLOW_AUTOROLLER
 	/* Initialize */
-	if (USE_AUTOROLLER && !spend_points)
+	if (USE_AUTOROLLER)
 	{
 		int mval[A_MAX];
 		/* Clear fields */
@@ -3540,7 +3577,7 @@ static bool quick_start_character(void)
 	while (TRUE)
 	{
 		/* Feedback */
-		if (USE_AUTOROLLER && !spend_points)
+		if (USE_AUTOROLLER)
 		{
 			Term_clear();
 
@@ -3580,7 +3617,7 @@ static bool quick_start_character(void)
 		}
 
 		/* Auto-roll */
-		while (USE_AUTOROLLER && !spend_points)
+		while (USE_AUTOROLLER)
 		{
 			bool accept = TRUE;
 
@@ -3676,7 +3713,6 @@ static bool quick_start_character(void)
 		}
 		
 		/* Input loop */
-		if (!spend_points)
 		while (TRUE)
 		{
 			/* Calculate the bonuses and hitpoints */
@@ -3738,12 +3774,12 @@ static bool quick_start_character(void)
 			/* Help */
 			if (c == '?')
 			{
-				do_cmd_help(syshelpfile);
+				do_cmd_help(NULL);
 				continue;
 			}
 
 			/* Warning */
-			bell();
+			bell(0);
 		}
 
 		/* Are we done? */
@@ -3816,22 +3852,22 @@ static bool player_birth_aux(void)
 	/*** Instructions ***/
 
 	/* Display some helpful information */
+	Term_putstr(5, 7, -1, TERM_WHITE,
+		"Please answer the following questions.  Most of the questions display");
+	Term_putstr(5, 8, -1, TERM_WHITE,
+		"a set of standard answers, and many will also accept special responses,");
+	Term_putstr(5, 9, -1, TERM_WHITE,
+		"including 'Q' to quit, '=' to change options, 'S' to restart character");
 	Term_putstr(5, 10, -1, TERM_WHITE,
-		"Please answer the following questions.  Most of the questions");
-	Term_putstr(5, 11, -1, TERM_WHITE,
-		"display a set of standard answers, and many will also accept");
-	Term_putstr(5, 12, -1, TERM_WHITE,
-		"special responses, including 'Q' to quit, '=' to change options");
-	Term_putstr(5, 13, -1, TERM_WHITE,
-		"or '?' for help.  Note that 'Q' and 'S' must be capitalized.");
+		"creation and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
 
 	/*** Quick-Start ***/
 
 	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
+	Term_putstr(5, 12, -1, TERM_WHITE,
 		"Quick-Start gives you a completely random character without");
-	Term_putstr(5, 16, -1, TERM_WHITE,
+	Term_putstr(5, 13, -1, TERM_WHITE,
 		"further prompting.");
 
 	/* Choose */
@@ -3843,20 +3879,19 @@ static bool player_birth_aux(void)
 			c = 'n';
 			break;
 		}
-		sprintf(buf, "Quick-Start? (y/n/Q/S/?/=): ");
-		put_str(buf, 20, 2);
+		put_str("Quick-Start? (y/n): ", 15, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if ((c == 'y') || (c == 'n') || (c == 'Y') || (c == 'N')) break;
-		if (c == '?') do_cmd_help(syshelpfile);
-		if (c == '=')
+		else if (c == 'S') return (FALSE);
+		else if ((c == 'y') || (c == 'n') || (c == 'Y') || (c == 'N')) break;
+		else if (c == '?') do_cmd_help(NULL);
+		else if (c == '=')
 		{
 			Term_save();
 			do_cmd_options_aux(7,"Startup Options", NULL);
 			Term_load();
 		}
-		else bell();
+		else bell(0);
 	}
 
 	/* Clean up */
@@ -3880,13 +3915,14 @@ static bool player_birth_aux(void)
 		 * ask again. The stats selected do not currently carry forward
 		 * into autoroller selections, but this should be easy to change.
 		 */
-		if (!p_ptr->prace)
+		if (p_ptr->prace == RACE_NONE)
 		{
+			clear_from(12);
 
 			/*** Player sex ***/
 	
 			/* Extra info */
-			Term_putstr(5, 15, -1, TERM_WHITE,
+			Term_putstr(5, 12, -1, TERM_WHITE,
 			"Your 'sex' does not have any significant gameplay effects.");
 	
 			/* Prompt for "Sex" */
@@ -3899,11 +3935,11 @@ static bool player_birth_aux(void)
 	
 				/* Display */
 				sprintf(buf, "%c%c %s", I2A(n), p2, str);
-				put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+				put_str(buf, 17 + (n/5), 2 + 15 * (n%5));
 			}
 	
 			/* Choose */
-			if (birth_choice(20, MAX_SEXES, "Choose a sex", &k, FALSE) == BC_RESTART) return FALSE;
+			if (birth_choice(15, MAX_SEXES, "Choose a sex", &k, FALSE) == BC_RESTART) return FALSE;
 	
 			/* Set sex */
 			p_ptr->psex = k;
@@ -3914,13 +3950,13 @@ static bool player_birth_aux(void)
 			c_put_str(TERM_L_BLUE, str, 3, 15);
 	
 			/* Clean up */
-			clear_from(15);
+			clear_from(12);
 	
 	
 			/*** Player race ***/
-	
+
 			/* Extra info */
-			Term_putstr(5, 15, -1, TERM_WHITE,
+			Term_putstr(5, 12, -1, TERM_WHITE,
 			"Your 'race' determines various intrinsic factors and bonuses.");
 	
 			/* Dump races */
@@ -3934,11 +3970,11 @@ static bool player_birth_aux(void)
 				/* Display */
 	
 				sprintf(buf, "%c%c %s", rtoa(n), p2, str);
-				put_str(buf, 18 + (n/5), 2 + 15 * (n%5));
+				put_str(buf, 17 + (n/5), 2 + 15 * (n%5));
 			}
 	
 			/* Choose */
-			if (birth_choice(17, MAX_RACES, "Choose a race", &k, FALSE) == BC_RESTART) return FALSE;
+			if (birth_choice(15, MAX_RACES, "Choose a race", &k, FALSE) == BC_RESTART) return FALSE;
 	
 			/* Set race */
 			p_ptr->prace = k;
@@ -3948,21 +3984,18 @@ static bool player_birth_aux(void)
 			/* Display */
 			c_put_str(TERM_L_BLUE, str, 4, 15);
 			
-			/* Get a random name now we have a race*/
-			create_random_name(p_ptr->prace,player_name);
-			/* Display */
-			c_put_str(TERM_L_BLUE, player_name, 2, 15);
-	
 			/* Clean up */
-			clear_from(15);
+			clear_from(12);
 	
 	
 			/*** Player template ***/
 	
+			clear_from(12);
+
 			/* Extra info */
-			Term_putstr(5, 15, -1, TERM_WHITE,
+			Term_putstr(5, 12, -1, TERM_WHITE,
 			"Your 'template' determines various starting abilities and bonuses.");
-			Term_putstr(5, 16, -1, TERM_WHITE,
+			Term_putstr(5, 13, -1, TERM_WHITE,
 			"Any entries in parentheses should only be used by advanced players.");
 	
 			/* Dump templates */
@@ -3984,10 +4017,10 @@ static bool player_birth_aux(void)
 					sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
 				}
 				/* Display */
-				put_str(buf, 19 + (n/3), 2 + 20 * (n%3));
+				put_str(buf, 17 + (n/3), 2 + 20 * (n%3));
 			}
 	
-			if (birth_choice(18, MAX_TEMPLATE, "Choose a template", &k, FALSE) == BC_RESTART) return FALSE;
+			if (birth_choice(15, MAX_TEMPLATE, "Choose a template", &k, FALSE) == BC_RESTART) return FALSE;
 	
 			/* Set template */
 			p_ptr->ptemplate = k;
@@ -4067,15 +4100,8 @@ void player_birth(void)
 		/* Initialize */
 		store_init(n);
 
-		/* Ignore home, hall  and pawnbrokers */
-		if ((store[n].type != 99) &&
-			(store[n].type != STORE_HOME) &&
-			(store[n].type != STORE_HALL) &&
-			(store[n].type != STORE_PAWN))
-		{
-			/* Maintain the shop (ten times) */
-			for (i = 0; i < 10; i++) store_maint(n);
-		}
+		/* Maintain the shop (ten times) */
+		for (i = 0; i < 10; i++) store_maint(n);
 	}
 }
 

@@ -1,3 +1,4 @@
+%%%%% <deathevent.txt>
 Instructions for describing death events
 
 To cause a specific action to happen on death, there needs to be a line beginning with 'E:'. On the same line, there must be one of the flags listed below, usually together with a number of symbols as described.

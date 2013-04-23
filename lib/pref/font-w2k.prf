@@ -1,0 +1,19 @@
+# File font-w2k.prf
+
+#
+# This file is used by Angband (when it was compiled using "main-win.c")
+# to specify simple attr/char remappings using a standard font, allowing
+# the use of special pseudo-graphic pictures for walls and such.
+#
+# This file is used to override various settings in font-win.prf where
+# characters which are not available on Windows XP are used.
+# In particular, the "centred dot" character (31) is not displayed.
+#
+
+
+### Terrain features ###
+
+# Floors (white / normal dot)
+
+F:1:1/46
+

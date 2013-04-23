@@ -1,4 +1,4 @@
-#define DELAY_EXTERNS_H
+#define DELAY_EXTERNS_H /* Lots of capitalised stuff here and in readdib.c. */
 #define MAIN_WIN_C
 /* File: main-win.c */
 
@@ -421,7 +421,7 @@ struct _term_data
 /*
  * Maximum number of windows XXX XXX XXX
  */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA MIN(ANGBAND_TERM_MAX, 8)
 
 
 /*
@@ -1534,7 +1534,7 @@ static errr term_force_font(term_data *td, cptr path)
 		if (!used) RemoveFontResource(td->font_file);
 
 		/* Free the old name */
-		string_free(td->font_file);
+		FREE(td->font_file);
 
 		/* Forget it */
 		td->font_file = NULL;
@@ -3084,7 +3084,7 @@ static void start_screensaver(void)
 #endif /* ALLOW_BORG */
 
 	/* Play game */
-	play_game((bool)!file_exists);
+	play_game(!file_exists);
 }
 
 #endif /* USE_SAVER */
@@ -3093,7 +3093,7 @@ static void start_screensaver(void)
 /*
  * Display a help file
  */
-static void display_help(cptr filename)
+static void display_help_win(cptr filename)
 {
 	char tmp[1024];
 
@@ -3107,7 +3107,7 @@ static void display_help(cptr filename)
 
 #else /* HTML_HELP */
 
-		char buf[1024];
+		char buf[1036];
 
 		sprintf(buf, "winhelp.exe %s", tmp);
 		WinExec(buf, SW_NORMAL);
@@ -3661,13 +3661,13 @@ static void process_menus(WORD wCmd)
 
 		case IDM_HELP_GENERAL:
 		{
-			display_help(HELP_GENERAL);
+			display_help_win(HELP_GENERAL);
 			break;
 		}
 
 		case IDM_HELP_SPOILERS:
 		{
-			display_help(HELP_SPOILERS);
+			display_help_win(HELP_SPOILERS);
 			break;
 		}
 	}
@@ -4489,7 +4489,7 @@ static void hook_quit(cptr str)
 	for (i = MAX_TERM_DATA - 1; i >= 0; --i)
 	{
 		term_force_font(&data[i], NULL);
-		if (data[i].font_want) string_free(data[i].font_want);
+		if (data[i].font_want) FREE(data[i].font_want);
 		if (data[i].w) DestroyWindow(data[i].w);
 		data[i].w = 0;
 
@@ -4513,7 +4513,7 @@ static void hook_quit(cptr str)
 		{
 			if (!sound_file[i][j]) break;
 
-			string_free(sound_file[i][j]);
+			FREE(sound_file[i][j]);
 		}
 	}
 #endif /* USE_SOUND */
@@ -4529,15 +4529,15 @@ static void hook_quit(cptr str)
 	if (hIcon) DestroyIcon(hIcon);
 
 	/* Free strings */
-	string_free(ini_file);
-	string_free(argv0);
-	string_free(ANGBAND_DIR_XTRA_FONT);
-	string_free(ANGBAND_DIR_XTRA_GRAF);
-	string_free(ANGBAND_DIR_XTRA_SOUND);
-	string_free(ANGBAND_DIR_XTRA_HELP);
+	FREE(ini_file);
+	FREE(argv0);
+	FREE(ANGBAND_DIR_XTRA_FONT);
+	FREE(ANGBAND_DIR_XTRA_GRAF);
+	FREE(ANGBAND_DIR_XTRA_SOUND);
+	FREE(ANGBAND_DIR_XTRA_HELP);
 
 #ifdef USE_MUSIC
-	string_free(ANGBAND_DIR_XTRA_MUSIC);
+	FREE(ANGBAND_DIR_XTRA_MUSIC);
 #endif /* USE_MUSIC */
 
 #ifdef HAS_CLEANUP
@@ -4711,6 +4711,29 @@ static void init_stuff(void)
 }
 
 
+/*
+ * Test to see if we need to work-around bugs in
+ * the windows ascii-drawing routines.
+ */
+static bool broken_ascii(void)
+{
+	OSVERSIONINFO Dozeversion;
+ 	Dozeversion.dwOSVersionInfoSize = sizeof(Dozeversion);
+
+	if (GetVersionEx((OSVERSIONINFO*) &Dozeversion))
+	{
+		/* Win XP is b0rken */
+		if ((Dozeversion.dwPlatformId == VER_PLATFORM_WIN32_NT) &&
+			(Dozeversion.dwMajorVersion > 5))
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
 int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
                        LPSTR lpCmdLine, int nCmdShow)
 {
@@ -4848,8 +4871,17 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	quit_aux = hook_quit;
 	core_aux = hook_quit;
 
-	/* Set the system suffix */
-	ANGBAND_SYS = "win";
+	/* Test if character 31 is displayed incorrectly. */
+	if (broken_ascii())
+	{
+		/* Set the system suffix */
+		ANGBAND_SYS = "w2k";
+	}
+	else
+	{
+		/* Set the system suffix */
+		ANGBAND_SYS = "win";
+	}
 
 	/* Initialize */
 	init_angband();

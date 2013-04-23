@@ -1,4 +1,3 @@
-#define DELAY_EXTERNS_H
 #define MAIN_XXX_C
 /* File: main-xxx.c */
 
@@ -73,9 +72,6 @@
 
 #ifdef USE_XXX
 
-/* #include "main.h" */
-
-#include "externs.h"
 /*
  * Extra data to associate with each "window"
  *
@@ -102,13 +98,14 @@ struct term_data
  * game will currently use up to eight "term_data" structures if
  * they are available.
  *
- * Actually, MAX_TERM_DATA is now defined as eight in 'defines.h'.
+ * You should not attempt to support more than ANGBAND_TERM_MAX "term_data"
+ * structures, as the non-system specific code will not take advantage of this.
  *
  * If only one "term_data" structure is supported, then a lot of
  * the things that would normally go into a "term_data" structure
  * could be made into global variables instead.
  */
-#define MAX_XXX_TERM 1
+#define MAX_TERM_DATA MIN(ANGBAND_TERM_MAX, 1)
 
 
 /*

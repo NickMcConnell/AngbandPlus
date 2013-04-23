@@ -1,4 +1,3 @@
-#define DELAY_EXTERNS_H
 #define MAIN_ROS_C
 /*
  * File: main-ros.c
@@ -11,9 +10,9 @@
  * Licences: Angband licence.
  */
 
-#ifdef __riscos
-
 #include "angband.h"
+
+#ifdef ACORN
 
 /*
  * Purpose: Support for RISC OS Angband 2.9.x onwards (and variants)
@@ -55,13 +54,13 @@
  *  contain characters that are valid as part of a RISC OS path variable.
  *  [eg. "Yin-Yangband" is not okay, "EyAngband" is.]
  */
-#define RISCOS_VARIANT	"Angband"
+#define RISCOS_VARIANT	GAME_NAME
 
 /*
  * AUTHORS
  *  For the info box. [eg. "Ben Harrison"]
  */
-#define AUTHORS		"Robert Ruehlmann"
+#define AUTHORS		MAINT_NAME
 
 /*
  * PORTERS
@@ -162,7 +161,7 @@
 #endif
 
 /* Maximum terminals */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA MIN(ANGBAND_TERM_MAX, 8)
 
 /* Menu entry numbers */
 #define IBAR_MENU_INFO			0
@@ -243,7 +242,6 @@
 #include <stdarg.h>
 #include <time.h>
 #include <math.h>
-#include "externs.h"
 
 /*--------------------------------------------------------------------------*/
 
@@ -591,9 +589,9 @@ static void show_debug_info(void);
 
 /* File-caching functions (if enabled at compile time) */
 #ifdef USE_FILECACHE
-FILE *cached_fopen(char *name, char *mode);
+FILE *cached_fopen(cptr name, cptr mode);
 errr cached_fclose(FILE *fch);
-errr cached_fgets(FILE *fch, char *buffer, int max_len);
+errr cached_fgets(FILE *fch, char *buffer, size_t max_len);
 #endif
 
 /*
@@ -643,7 +641,7 @@ static char *find_alarmfile(int write);
  | the function if you like.
  */
 
-extern int save_player_panic_acn(void)
+static int save_player_panic_acn(void)
 {
 	char *e, *l;
 
@@ -1028,7 +1026,7 @@ static char *translate_name(const char *path, int trunc)
 }
 
 
-extern char *riscosify_name(const char *path)
+static char *riscosify_name(const char *path)
 {
 	return translate_name(path, TRUE);
 }
@@ -1044,7 +1042,7 @@ static char *unixify_name(const char *path)
 
 /* Open a file [as fopen()] but translate the requested filename first */
 
-FILE *my_fopen(const char *f, const char *m)
+FILE *my_fopen(cptr f, cptr m)
 {
 	FILE *fp;
 	char *n = riscosify_name(f);	/* translate for RO */
@@ -1274,60 +1272,53 @@ errr path_temp(char *buf, int max)
 
 
 
-/*
- * Create a new path by appending a file (or directory) to a path
- *
- * This requires no special processing on simple machines, except
- * for verifying the size of the filename, but note the ability to
- * bypass the given "path" with certain special file-names.
- *
- * Note that the "file" may actually be a "sub-path", including
- * a path and a file.
- *
- * Note that this function yields a path which must be "parsed"
- * using the "parse" function above.
- */
-errr path_build(char *buf, int max, cptr path, cptr file)
-{
-	/* Special file */
-	if (file[0] == '~')
-	{
-		/* Use the file itself */
-		strnfmt(buf, max, "%s", file);
-	}
-
-	/* Absolute file, on "normal" systems */
-	else if (prefix(file, PATH_SEP) && !streq(PATH_SEP, ""))
-	{
-		/* Use the file itself */
-		strnfmt(buf, max, "%s", file);
-	}
-
-	/* No path given */
-	else if (!path[0])
-	{
-		/* Use the file itself */
-		strnfmt(buf, max, "%s", file);
-	}
-
-	/* Path and File */
-	else
-	{
-		/* Build the new path */
-		strnfmt(buf, max, "%s%s%s", path, PATH_SEP, file);
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-
 /*--------------------------------------------------------------------------*/
 
+/*
+ | This section deals with checking that the .raw files are up to date
+ | wrt to the .txt files.  Note that this function won't work for RISC OS 2
+ | (due to the lack of OS_Args 7) so it simply returns 0 to indicate that
+ | the file isn't OOD.
+ */
 
+#ifdef CHECK_MODIFICATION_TIME
 
+static errr check_modification_date(int fd, cptr template_file)
+{
+	char raw_buf[1024];
+	char txt_buf[1024];
+	int i;
+	os_error *e;
 
+	if (os_version() < 300)
+	{
+		return 0;
+	}
+
+	/* Use OS_Args 7 to find out the pathname 'fd' refers to */
+	e = SWI(6, 0, SWI_OS_Args,
+			/* In: */
+			7,					/* Get path from filehandle */
+			fd,					/* file handle */
+			raw_buf,			/* buffer */
+			0, 0,				/* unused */
+			1024				/* size of buffer */
+			/* No output regs used */
+		);
+	if (e)
+	{
+		core(e->errmess);
+	}
+
+	/* Build the path to the template_file */
+	strnfmt(txt_buf, 1024, "%v", path_build_f2, ANGBAND_DIR_EDIT, template_file);
+
+	i = file_is_newer(riscosify_name(txt_buf), raw_buf);
+
+	return i;
+}
+
+#endif /* CHECK_MODIFICATION_TIME */
 
 /*--------------------------------------------------------------------------*/
 /* Font Functions															*/
@@ -4301,7 +4292,7 @@ static void initialise_terms(void)
 		windows[i].term = &(data[i].t);
 	}
 
-	windows[8].term = &(data[0].t);
+	windows[0].term = &(data[0].t);
 	Term_activate(&(data[0].t));
 }
 
@@ -4693,6 +4684,11 @@ int main(int argc, char *argv[])
 	quit_aux = quit_hook;
 	plog_aux = plog_hook;
 	core_aux = core_hook;
+
+	/* Install raw file verification hook */
+#ifdef CHECK_MODIFICATION_TIME
+	check_modification_date_hook = check_modification_date;
+#endif /* CHECK_MODIFICATION_TIME && HAS_STAT */
 
 	/* Expand the (Angband) resource path */
 	t = getenv(RISCOS_VARIANT "$Path");
@@ -6750,7 +6746,7 @@ static void do_alarm_message_input(int y)
 
 static errr Term_user_acn(int n)
 {
-	int i;
+	bool i;
 	int optn = 0;
 	int k, adj;
 	int redraw_mung = 0;
@@ -7734,7 +7730,7 @@ static FileCacheEntry *find_cached_file(char *name)
  | Failure to do so will result in, ahem, unpleasantness.  Extreme
  | unpleasantness.
  */
-FILE *cached_fopen(char *name, char *mode)
+FILE *cached_fopen(cptr name, cptr mode)
 {
 	FileCacheEntry *fcs = NULL;
 	int fch;
@@ -7811,7 +7807,7 @@ errr cached_fclose(FILE *fch_)
 /*
  | Do the my_fgets thing on a file
  */
-errr cached_fgets(FILE *fch_, char *buffer, int max_len)
+errr cached_fgets(FILE *fch_, char *buffer, size_t max_len)
 {
 	CachedFileHandle *fch;
 	char *eof;
@@ -7863,53 +7859,6 @@ errr cached_fgets(FILE *fch_, char *buffer, int max_len)
 }
 
 #endif /* USE_FILECACHE */
-
-
-/*
- | This section deals with checking that the .raw files are up to date
- | wrt to the .txt files.  Note that this function won't work for RISC OS 2
- | (due to the lack of OS_Args 7) so it simply returns 0 to indicate that
- | the file isn't OOD.
- |
- | For this to work, the equivalent function (in init2.c) needs to be
- | #if-d out (and this function should be declared).  You'll probably
- | also need to zap the UNIX #includes at the top of the file
- */
-
-extern errr check_modification_date(int fd, cptr template_file)
-{
-	char raw_buf[1024];
-	char txt_buf[1024];
-	int i;
-	os_error *e;
-
-	if (os_version() < 300)
-	{
-		return 0;
-	}
-
-	/* Use OS_Args 7 to find out the pathname 'fd' refers to */
-	e = SWI(6, 0, SWI_OS_Args,
-			/* In: */
-			7,					/* Get path from filehandle */
-			fd,					/* file handle */
-			raw_buf,			/* buffer */
-			0, 0,				/* unused */
-			1024				/* size of buffer */
-			/* No output regs used */
-		);
-	if (e)
-	{
-		core(e->errmess);
-	}
-
-	/* Build the path to the template_file */
-	strnfmt(txt_buf, 1024, "%v", path_build_f2, ANGBAND_DIR_EDIT, template_file);
-
-	i = file_is_newer(riscosify_name(txt_buf), raw_buf);
-
-	return i;
-}
 
 
 /*--------------------------------------------------------------------------*/

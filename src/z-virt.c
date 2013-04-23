@@ -33,6 +33,15 @@ vptr rnfree(vptr p)
 	return (NULL);
 }
 
+/*
+ * Hack - a fake rpanic_aux hook for when "out of memory" errors are handled
+ * by the caller.
+ */
+vptr rpanic_none(huge UNUSED len)
+{
+	return NULL;
+}
+
 
 /*
  * Optional auxiliary "rpanic" function
@@ -113,23 +122,6 @@ cptr string_make(cptr str)
 
 	/* Return the allocated, initialized, string */
 	return (res);
-}
-
-
-/*
- * Un-allocate a string allocated above.
- * Depends on no changes being made to the string.
- */
-errr string_free(cptr str)
-{
-	/* Succeed on non-strings */
-	if (!str) return (0);
-
-	/* Kill the buffer of chars we must have allocated above */
-	rnfree((vptr)(str));
-
-	/* Success */
-	return (0);
 }
 
 

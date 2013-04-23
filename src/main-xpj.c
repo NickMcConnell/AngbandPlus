@@ -1,4 +1,4 @@
-#define DELAY_EXTERNS_H
+#define DELAY_EXTERNS_H /* Display, XImage */
 #define MAIN_XPJ_C
 /* File: main-x11.c */
 
@@ -39,8 +39,6 @@
 
 #ifdef USE_XPJ
 
-/* #include "main.h" */
-
 #ifndef USE_GRAPHICS
 #error Must have USE_GRAPHICS compile-time flag on.
 #endif
@@ -67,16 +65,6 @@
 #define BRIGHT_WALLS 0
 
 
-
-
-/* Rest of the dependencies */
-
-#ifndef __MAKEDEPEND__
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
-#include <X11/keysymdef.h>
-#endif /* __MAKEDEPEND__ */
 
 
 /*
@@ -326,7 +314,7 @@ struct term_data
 /*
  * The number of term data structures
  */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA MIN(ANGBAND_TERM_MAX, 8)
 
 /*
  * The array of term data structures
@@ -1744,15 +1732,13 @@ static errr Term_xtra_xpj_react(void)
 		/* Check the colors */
 		for (i = 0; i < 256; i++)
 		{
-			if ((color_table[i][0] != angband_color_table[i][0]) ||
-			    (color_table[i][1] != angband_color_table[i][1]) ||
+			if ((color_table[i][1] != angband_color_table[i][1]) ||
 			    (color_table[i][2] != angband_color_table[i][2]) ||
 			    (color_table[i][3] != angband_color_table[i][3]))
 			{
 				Pixell pixel;
 
 				/* Save new values */
-				color_table[i][0] = angband_color_table[i][0];
 				color_table[i][1] = angband_color_table[i][1];
 				color_table[i][2] = angband_color_table[i][2];
 				color_table[i][3] = angband_color_table[i][3];
@@ -3201,7 +3187,7 @@ errr init_xpj(int argc, char **argv)
 
 	cptr dpy_name = "";
 
-	int num_term = 3;
+	int num_term = ANGBAND_TERM_DEFAULT;
 
 	char filename[1024];
 
@@ -3269,7 +3255,6 @@ errr init_xpj(int argc, char **argv)
 		Infoclr_set(clr[i]);
 
 		/* Acquire Angband colors */
-		color_table[i][0] = angband_color_table[i][0];
 		color_table[i][1] = angband_color_table[i][1];
 		color_table[i][2] = angband_color_table[i][2];
 		color_table[i][3] = angband_color_table[i][3];

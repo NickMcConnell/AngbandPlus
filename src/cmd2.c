@@ -123,36 +123,61 @@ static int chest_check(int y, int x);
  * deeper stores whether we are moving to a deeper or a shallower level.
  * stairs stores whether we want stairs at the player's feet or not.
  */
-static void use_stairs(bool deeper, byte stairs)
+static void use_stairs(cptr dir, bool deeper, bool trapdoor)
 {
-	byte j = (multi_stair) ? randint(5) : 1;
-	byte start = (stairs) ? START_STAIRS : START_RANDOM;
+	int i, j = (multi_stair) ? randint(5) : 1;
+	int start = (trapdoor) ? START_RANDOM : START_STAIRS;
+
+	if (dun_level && confirm_stairs)
+	{
+		if (!get_check("Really leave the level? ")) return;
+	}
+
+	/* Take some time... */
+	energy_use = extract_energy[p_ptr->pspeed];
+
+	if (trapdoor)
+	{
+		msg_print("You deliberately jump through the trap door.");
+	}
+	else if (!dun_level)
+	{
+		cur_dungeon = wild_grid[wildy][wildx].dungeon;
+		p_ptr->max_dlv = 1;
+		msg_format("You enter %s",dun_name+dun_defs[cur_dungeon].name);
+	}
+	else
+	{
+		msg_format("You enter a maze of %s staircases.", dir);
+	}
+
 	if (j > dun_level) j = 1;
 
 	/* Don't allow the player to pass a quest level.
 	 * This is very inefficient, but it's a very simple process.
 	 */
-	if (deeper)
+	if (!deeper)
 	{
-		byte i;
+		j *= -1;
+	}
+	else
+	{
 		for (i = 1; i < j; i++)
 		{
 			if (is_quest(dun_level+i)) break;
 			if (dun_level+i == dun_defs[cur_dungeon].max_level) break;
 		}
-		change_level(dun_level+i, start);
+		j = i;
 	}
-	else
-	{
-		change_level(dun_level-j, start);
 
-		/* Check for leaving dungeon */
-		if(dun_level == 0)
-		{
-			recall_dungeon = cur_dungeon;
-			wildx=dun_defs[cur_dungeon].x;
-			wildy=dun_defs[cur_dungeon].y;
-		}
+	change_level(dun_level+j, start);
+
+	/* Check for leaving dungeon */
+	if(!dun_level)
+	{
+		recall_dungeon = cur_dungeon;
+		wildx=dun_defs[cur_dungeon].x;
+		wildy=dun_defs[cur_dungeon].y;
 	}
 }
 
@@ -161,11 +186,9 @@ static void use_stairs(bool deeper, byte stairs)
  */
 void do_cmd_go_up(void)
 {
-    bool go_up = FALSE;
-	cave_type *c_ptr;
-
 	/* Player grid */
-	c_ptr = &cave[py][px];
+	cave_type *c_ptr = &cave[py][px];
+	bool deeper;
 
 	/* Verify stairs */
 	if (c_ptr->feat != FEAT_LESS)
@@ -173,49 +196,9 @@ void do_cmd_go_up(void)
 		msg_print("I see no up staircase here.");
 		return;
 	}
-	else
-    {
-		if (dun_level <= 0)
-		{
-			go_up = TRUE;
-		}
-		else
-		{
-			if (confirm_stairs)
-			{
-				if (get_check("Really leave the level? "))
-				{
-					go_up = TRUE;
-				}
-			}
-			else
-			{
-				go_up = TRUE;
-			}
-		}
 
-		if(go_up == FALSE) msg_print("'go_up' = FALSE");
-
-		if (go_up)
-		{
-			energy_use = 0;
-			/* Success */
-			/* Check for entering a tower */
-			if(dun_level==0)
-			{
-				cur_dungeon = wild_grid[wildy][wildx].dungeon;
-				p_ptr->max_dlv = 1;
-				msg_format("You enter %s",dun_name+dun_defs[cur_dungeon].name);
-			}
-			else
-			{
-				msg_print("You enter a maze of up staircases.");
-			}
-
-			/* Actually go up. */
-			use_stairs(!!(dun_defs[cur_dungeon].flags & DF_TOWER), TRUE);
-		}
-   }
+	deeper = (!dun_level || dun_defs[cur_dungeon].flags & DF_TOWER);
+	use_stairs("up", deeper, FALSE);
 }
 
 
@@ -224,69 +207,21 @@ void do_cmd_go_up(void)
  */
 void do_cmd_go_down(void)
 {
-	cave_type *c_ptr;
-    bool go_down = FALSE;
-    bool fall_trap = FALSE;
-
 	/* Player grid */
-	c_ptr = &cave[py][px];
-
-    if (c_ptr->feat == (FEAT_TRAP_HEAD + 0x00)) fall_trap = TRUE;
-
+	cave_type *c_ptr = &cave[py][px];
+	bool deeper, trapdoor;
 
 	/* Verify stairs */
-    if ((c_ptr->feat != FEAT_MORE) && !(fall_trap))
+    if ((c_ptr->feat != FEAT_MORE) && (c_ptr->feat != FEAT_TRAP_DOOR))
 	{
 		msg_print("I see no down staircase here.");
 		return;
 	}
-    else
-    {
-		if (dun_level < 1)
-		{
-			go_down = TRUE;
-		}
-		else
-		{
-			if (confirm_stairs)
-			{
-				if (get_check("Really leave the level? "))
-				{
-					go_down = TRUE;
-				}
-			}
-			else
-			{
-				go_down = TRUE;
-			}
-		}
-		if (go_down)
-		{
-			energy_use = 0;
-			if (fall_trap)
-			{
-				msg_print("You deliberately jump through the trap door.");
-			}
-			else
-			{
-				/* Success */
-				/* Check for entering a dungeon */
-				if(dun_level==0)
-				{
-					cur_dungeon = wild_grid[wildy][wildx].dungeon;
-					p_ptr->max_dlv = 1;
-					msg_format("You enter %s",dun_name+dun_defs[cur_dungeon].name);
-				}
-				else
-				{
-					msg_print("You enter a maze of down staircases.");
-				}
-			}
-				/* Go down */
-			use_stairs(!(dun_defs[cur_dungeon].flags & DF_TOWER), !fall_trap);
-				}
-		}
-	}
+
+	deeper = (!dun_level || ~dun_defs[cur_dungeon].flags & DF_TOWER);
+	trapdoor = (c_ptr->feat == FEAT_TRAP_DOOR);
+	use_stairs("down", deeper, trapdoor);
+}
 
 
 /*
@@ -320,31 +255,14 @@ void do_cmd_search(void)
  */
 void do_cmd_toggle_sneak(void)
 {
-	/* Stop sneaking */
-	if (p_ptr->sneaking)
-	{
-		/* Clear the sneaking flag */
-		p_ptr->sneaking = FALSE;
+	/* Toggle sneaking */
+	p_ptr->sneaking = !p_ptr->sneaking;
 
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
 
-		/* Redraw the state */
-		p_ptr->redraw |= (PR_STATE);
-	}
-
-	/* Start sneaking */
-	else
-	{
-		/* Set the sneaking flag */
-		p_ptr->sneaking = TRUE;
-
-		/* Update stuff */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Redraw stuff */
-		p_ptr->redraw |= (PR_STATE | PR_SPEED);
-	}
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE | PR_SPEED);
 }
 
 
@@ -500,7 +418,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("A puff of green gas surrounds you!");
 		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
+			(void)add_flag(TIMED_POISONED, 10 + randint(20));
 		}
 	}
 
@@ -510,7 +428,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("A puff of yellow gas surrounds you!");
 		if (!p_ptr->free_act)
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint(20));
+			(void)add_flag(TIMED_PARALYZED, 10 + randint(20));
 		}
 	}
 
@@ -524,7 +442,7 @@ static void chest_trap(int y, int x, s16b o_idx)
             if (randint(100)<(dun_depth))
                 activate_hi_summon();
             else
-                (void)summon_specific(y, x, dun_depth, 0);
+                (void)summon_specific(y, x, dun_depth, SUMMON_ALL);
 		}
 	}
 
@@ -624,7 +542,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_open_aux(int y, int x, int UNUSED dir)
+static bool do_cmd_open_aux(int y, int x)
 {
 	int i, j;
 
@@ -814,12 +732,12 @@ void do_cmd_open(void)
 		else
 		{
 			/* Open the door */
-			more = do_cmd_open_aux(y, x, dir);
+			more = do_cmd_open_aux(y, x);
 		}
 	}
 
 	/* Cancel repeat unless we may continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(0);
 }
 
 
@@ -833,7 +751,7 @@ void do_cmd_open(void)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_close_aux(int y, int x, int UNUSED dir)
+static bool do_cmd_close_aux(int y, int x)
 {
 	cave_type	*c_ptr;
 
@@ -941,12 +859,12 @@ void do_cmd_close(void)
 		else
 		{
 			/* Close the door */
-			more = do_cmd_close_aux(y, x, dir);
+			more = do_cmd_close_aux(y, x);
 		}
 	}
 
 	/* Cancel repeat unless we may continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(0);
 }
 
 
@@ -990,6 +908,59 @@ static void twall(int y, int x)
 #define WMSG_RUBBLE	4	/* Rubble */
 #define WMSG_MAX	5
 
+
+typedef struct wall_type wall_type;
+typedef struct wall_message_type wall_message_type;
+
+struct wall_type
+{
+	byte feature;	/* Name of the feature being dug. */
+	s16b sk_min;	/* Minimum p_ptr->skill_dig to dig through the wall. */
+	s16b sk_max;	/* Minimum skill to dig through the wall at once. */
+	byte special;	/* WALL_* entry for special cases. */
+	byte msg;	/* The set of messages to use (see wall_message) */
+	cptr name;	/* Name of the wall type. Derived from f_name if none. */
+};
+
+struct wall_message_type
+{
+	cptr cont;
+	cptr fail;
+	cptr succeed;
+};
+
+static wall_type wall_info[] =
+{
+	{FEAT_SECRET, 31, 1230, WALL_DOOR, WMSG_WALL, NULL},
+	{FEAT_RUBBLE, 0, 200, WALL_OBJ, WMSG_RUBBLE, "rubble"},
+	{FEAT_MAGMA, 11, 410, 0, WMSG_WALL, NULL},
+	{FEAT_QUARTZ, 21, 820, 0, WMSG_WALL, NULL},
+	{FEAT_MAGMA_H, 11, 410, WALL_GOLD, WMSG_GOLD, NULL},
+	{FEAT_QUARTZ_H, 21, 820, WALL_GOLD, WMSG_GOLD, NULL},
+	{FEAT_MAGMA_K, 11, 410, WALL_GOLD, WMSG_GOLD, "magma vein"},
+	{FEAT_QUARTZ_K, 21, 820, WALL_GOLD, WMSG_GOLD, "quartz vein"},
+	{FEAT_WALL_EXTRA, 41, 1640, 0, WMSG_WALL, NULL},
+	{FEAT_WALL_INNER, 41, 1640, 0, WMSG_WALL, NULL},
+	{FEAT_WALL_OUTER, 41, 1640, 0, WMSG_WALL, NULL},
+	{FEAT_WALL_SOLID, 41, 1640, 0, WMSG_WALL, NULL},
+	{FEAT_PERM_BUILDING, 0, 0, WALL_NO_DIG, WMSG_WALL, NULL},
+	{FEAT_PERM_INNER, 0, 0, WALL_NO_DIG, WMSG_WALL, NULL},
+	{FEAT_PERM_OUTER, 0, 0, WALL_NO_DIG, WMSG_WALL, NULL},
+	{FEAT_PERM_SOLID, 0, 0, WALL_NO_DIG, WMSG_WALL, NULL},
+	{FEAT_WATER, 0, 0, WALL_NO_DIG, WMSG_WATER, NULL},
+	{FEAT_TREE, 41, 140, 0, WMSG_TREE, NULL},
+	{FEAT_BUSH, 0, 0, 0, WMSG_TREE, NULL},
+};
+
+static const wall_message_type wall_message[WMSG_MAX] =
+{
+	{"You hack away at the %s.", "You leave no mark on the %s.", "You have chopped down the %s."},
+	{"You empty out the %s.", "The %s fills up your tunnel as quickly as you dig!", "You have removed the %s."},
+	{"You tunnel into the %s.", "You make no impression on the %s.", "You have finished the tunnel."},
+	{"You tunnel into the %s.", "You make no impression on the %s.", ""},
+	{"You dig in the %s.", "You make no impression on the %s.", "You have removed the %s."},
+};
+
 /*
  * Perform the basic "tunnel" command
  *
@@ -999,61 +970,12 @@ static void twall(int y, int x)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_tunnel_aux(int y, int x, int UNUSED dir)
+static bool do_cmd_tunnel_aux(int y, int x)
 {
 	cave_type *c_ptr;
-
-	typedef struct wall_type wall_type;
-	typedef struct wall_message_type wall_message_type;
-
-	struct wall_type
-	{
-		byte feature;	/* Name of the feature being dug. */
-		byte skill_min;	/* Minimum p_ptr->skill_dig to dig through the wall. */
-		s16b skill_rand;	/* Random factor for digging. */
-		byte special;	/* WALL_* entry for special cases. */
-		byte msg;	/* The set of messages to use (see wall_message) */
-		cptr name;	/* Name of the wall type. Derived from f_name if none. */
-	};
-
-	struct wall_message_type
-	{
-		cptr cont;
-		cptr fail;
-		cptr succeed;
-	};
-
-	wall_type wall_info[] =
-	{
-		{FEAT_SECRET, 30, 1200, WALL_DOOR, WMSG_WALL, NULL},
-		{FEAT_RUBBLE, 0, 200, WALL_OBJ, WMSG_RUBBLE, "rubble"},
-		{FEAT_MAGMA, 10, 400, 0, WMSG_WALL, NULL},
-		{FEAT_QUARTZ, 20, 800, 0, WMSG_WALL, NULL},
-		{FEAT_MAGMA_H, 10, 400, WALL_GOLD, WMSG_GOLD, NULL},
-		{FEAT_QUARTZ_H, 20, 800, WALL_GOLD, WMSG_GOLD, NULL},
-		{FEAT_MAGMA_K, 10, 400, WALL_GOLD, WMSG_GOLD, "magma vein"},
-		{FEAT_QUARTZ_K, 20, 800, WALL_GOLD, WMSG_GOLD, "quartz vein"},
-		{FEAT_WALL_EXTRA, 40, 1600, 0, WMSG_WALL, NULL},
-		{FEAT_WALL_INNER, 40, 1600, 0, WMSG_WALL, NULL},
-		{FEAT_WALL_OUTER, 40, 1600, 0, WMSG_WALL, NULL},
-		{FEAT_WALL_SOLID, 40, 1600, 0, WMSG_WALL, NULL},
-		{FEAT_PERM_BUILDING, 0, 0, WALL_NO_DIG, WMSG_WALL, NULL},
-		{FEAT_PERM_INNER, 0, 0, WALL_NO_DIG, WMSG_WALL, NULL},
-		{FEAT_PERM_OUTER, 0, 0, WALL_NO_DIG, WMSG_WALL, NULL},
-		{FEAT_PERM_SOLID, 0, 0, WALL_NO_DIG, WMSG_WALL, NULL},
-		{FEAT_WATER, 0, 0, WALL_NO_DIG, WMSG_WATER, NULL},
-		{FEAT_TREE, 40, 100, 0, WMSG_TREE, NULL},
-		{FEAT_BUSH, 0, 1, 0, WMSG_TREE, NULL},
-		{FEAT_NONE,0,0,0,0,0}
-	}, *w_ptr;
-	wall_message_type wall_message[WMSG_MAX] =
-	{
-		{"You hack away at the %s.", "You leave no mark on the %s.", "You have chopped down the %s."},
-		{"You empty out the %s.", "The %s fills up your tunnel as quickly as you dig!", "You have removed the %s."},
-		{"You tunnel into the %s.", "You make no impression on the %s.", "You have finished the tunnel."},
-		{"You tunnel into the %s.", "You make no impression on the %s.", ""},
-		{"You dig in the %s.", "You make no impression on the %s.", "You have removed the %s."},
-	}, *wm_ptr;
+	wall_type *w_ptr;
+	const wall_message_type *wm_ptr;
+	cptr w_name;
 
 	bool more = FALSE;
 
@@ -1066,31 +988,41 @@ static bool do_cmd_tunnel_aux(int y, int x, int UNUSED dir)
 	/* Sound */
 	sound(SOUND_DIG);
 
-	for (w_ptr = wall_info; w_ptr->feature != FEAT_NONE; w_ptr++)
+	for (w_ptr = wall_info;; w_ptr++)
+	{
 		if (w_ptr->feature == c_ptr->feat) break;
-
-	/* Paranoia - not a valid wall (should not reach here). */
-	if (w_ptr->feature == FEAT_NONE)
+		
+		/* Paranoia - not a valid wall (should not reach here). */
+		if (w_ptr == wall_info+N_ELEMENTS(wall_info))
 		{
-		if (alert_failure) msg_print("Strange wall type found!");
-		return FALSE;
+			if (alert_failure) msg_print("Strange wall type found!");
+			return FALSE;
+		}
 	}
 
-	/* the "name" field is only used if the name in f_name isn't suitable. */
-	if (!w_ptr->name) w_ptr->name = f_name+f_info[f_info[w_ptr->feature].mimic].name;
+	/* If a name is given here, use it. */
+	/* If no name has been set, read it from f_name. */
+	if (w_ptr->name)
+	{
+		w_name = w_ptr->name;
+	}
+	else
+	{
+		w_name = format("%v", feature_desc_f2, w_ptr->feature, FDF_MIMIC);
+	}
 
 	/* Find the message set. */
 	wm_ptr = &wall_message[w_ptr->msg];
 
 	/* Certain failure */
-	if (w_ptr->special == WALL_NO_DIG || p_ptr->skill_dig <= w_ptr->skill_min)
-		{
-		msg_format(wm_ptr->fail, w_ptr->name);
-		}
+	if (w_ptr->special == WALL_NO_DIG || p_ptr->skill_dig < w_ptr->sk_min)
+	{
+		msg_format(wm_ptr->fail, w_name);
+	}
 	/* Normal failure */
-	else if (p_ptr->skill_dig <= w_ptr->skill_min + rand_int(w_ptr->skill_rand))
-		{
-		msg_format(wm_ptr->cont, w_ptr->name);
+	else if (p_ptr->skill_dig < rand_range(w_ptr->sk_min, w_ptr->sk_max))
+	{
+		msg_format(wm_ptr->cont, w_name);
 		more = TRUE;
 
 		/* Occasional Search XXX XXX */
@@ -1098,24 +1030,24 @@ static bool do_cmd_tunnel_aux(int y, int x, int UNUSED dir)
 	}
 		/* Success */
 	else
-			{
+	{
 		bool found = FALSE;
 
 		/* Actually tunnel through wall. */
 		twall(y, x);
 
-				/* Message */
-		msg_format(wm_ptr->succeed, w_ptr->name);
+		/* Message */
+		msg_format(wm_ptr->succeed, w_name);
 
 		/* Handle special cases. */
 		switch (w_ptr->special)
 		{
 			case WALL_GOLD:
-		{
+			{
 				place_gold(y,x);
 				found = TRUE;
-	}
-			break;
+				break;
+			}
 			case WALL_OBJ:
 			if (rand_int(100) < 10)
 			{
@@ -1124,10 +1056,9 @@ static bool do_cmd_tunnel_aux(int y, int x, int UNUSED dir)
 
 				/* Observe new object */
 				if (player_can_see_bold(y, x)) found = TRUE;
+				break;
 			}
-			break;
 		}
-
 		if (found) msg_print("You have found something!");
 	}
 
@@ -1209,12 +1140,12 @@ void do_cmd_tunnel(void)
 		else
 		{
 			/* Tunnel through walls */
-			more = do_cmd_tunnel_aux(y, x, dir);
+			more = do_cmd_tunnel_aux(y, x);
 		}
 	}
 
 	/* Cancel repetition unless we can continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(0);
 }
 
  #ifdef ALLOW_EASY_OPEN
@@ -1436,7 +1367,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 	c_ptr = &cave[y][x];
 
 	/* Access trap name */
-	name = (f_name + f_info[c_ptr->feat].name);
+	name = format("%v", feature_desc_f2, c_ptr->feat, FDF_MIMIC);
 
 	/* Get the "disarm" factor */
 	i = p_ptr->skill_dis;
@@ -1619,7 +1550,7 @@ void do_cmd_disarm(void)
 	}
 
 	/* Cancel repeat unless told not to */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(0);
 }
 
 
@@ -1710,7 +1641,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		msg_print("You are off-balance.");
 
 		/* Hack -- Lose balance ala paralysis */
-		(void)set_paralyzed(p_ptr->paralyzed + 2 + rand_int(2));
+		(void)add_flag(TIMED_PARALYZED, 2 + rand_int(2));
 	}
 
 	/* Result */
@@ -1794,7 +1725,7 @@ void do_cmd_bash(void)
 	}
 
 	/* Unless valid action taken, cancel bash */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(0);
 }
 
 
@@ -1899,7 +1830,7 @@ void do_cmd_alter(void)
 				(c_ptr->feat == FEAT_BUSH))
 		{
 			/* Tunnel */
-			more = do_cmd_tunnel_aux(y, x, dir);
+			more = do_cmd_tunnel_aux(y, x);
 			alter_cmd = 'T';
 		}
 
@@ -1917,7 +1848,7 @@ void do_cmd_alter(void)
             && (c_ptr->feat < FEAT_MINOR_GLYPH))
 		{
 			/* Tunnel */
-			more = do_cmd_open_aux(y, x, dir);
+			more = do_cmd_open_aux(y, x);
 			alter_cmd = 'o';
 		}
 
@@ -1942,7 +1873,7 @@ void do_cmd_alter(void)
 	/* Cancel repetition unless we can continue */
 	if (!more)
 	{
-		disturb(0, 0);
+		disturb(0);
 		alter_cmd = 0;
 	}
 }
@@ -2090,7 +2021,7 @@ void do_cmd_walk(int pickup)
 	}
 
 	/* Cancel repeat unless we may continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(0);
 }
 
 
@@ -2171,7 +2102,7 @@ void do_cmd_stay(int pickup)
 	    (c_ptr->feat <= FEAT_SHOP_TAIL))
 	{
 		/* Disturb */
-		disturb(0, 0);
+		disturb(0);
 
 		/* Hack -- enter store */
 		command_new = KTRL('E');
@@ -2614,22 +2545,20 @@ void do_cmd_fire(void)
 	drop_near(q_ptr, j, y, x);
 }
 
-static int throw_mult = 1;
-
 
 /*
- * Hook to determine if an item is not both worn and cursed.
+ * Hook to determine if an item can be dropped or thrown.
  */
-bool item_tester_hook_destroy(object_type *o_ptr)
+bool PURE item_tester_hook_drop(object_ctype *o_ptr)
 {
-	/* Accept all uncursed items. */
-	if (!cursed_p(o_ptr)) return TRUE;
+	object_type j_ptr[1];
+	object_info_known(j_ptr, o_ptr);
 
-	/* Accept all non-worn items. */
-	if (o_ptr < &inventory[INVEN_WIELD] || o_ptr > &inventory[INVEN_FEET]) return TRUE;
+	/* Reject known cursed worn items. */
+	if (is_worn_p(o_ptr) && cursed_p(j_ptr)) return FALSE;
 
-	/* Reject everything else. */
-	return FALSE;
+	/* Accept everything else. */
+	return TRUE;
 }
 
 /*
@@ -2641,7 +2570,7 @@ bool item_tester_hook_destroy(object_type *o_ptr)
  * to hit bonus of the weapon to have an effect?  Should it ever cause
  * the item to be destroyed?  Should it do any damage at all?
  */
-void do_cmd_throw(void)
+void do_cmd_throw(int throw_mult)
 {
 	errr err;
 	int dir;
@@ -2663,7 +2592,7 @@ void do_cmd_throw(void)
 	int msec = delay_factor * delay_factor * delay_factor;
 
 	/* Restrict the choices */
-	item_tester_hook = item_tester_hook_destroy;
+	item_tester_hook = item_tester_hook_drop;
 
 	/* Get an item (from inven or floor) */
 	if (!((o_ptr = get_item(&err, "Throw which item? ", TRUE, TRUE, TRUE))))
@@ -2951,8 +2880,6 @@ static powercosttype powercosts[] = {
 #define POWER_MUTA2 3 /* Relevant if (p_ptr->muta2 & 1<<(power%32)). */
 #define POWER_MUTA3 4 /* Relevant if (p_ptr->muta3 & 1<<(power%32)). */
 #define POWER_DISMISS 5 /* Relevant if you have pets. */
-#define POWER_DISMISS_ONE 0 /* Dismiss one pet */
-#define POWER_DISMISS_MANY 1 /* Dismiss more than one pet */
 
 typedef struct powertype powertype;
 struct powertype
@@ -2974,7 +2901,7 @@ struct powertype
  * The number of spaces will be adjusted as necessary.
  */
 /*
- * The table of powers, as defined above. Note that the effects of powers must be described in use_power().
+ * The table of powers, as defined above. Note that the effects of powers must be described in use_innate_power().
  */
 static powertype powers[] = {
 {POWER_RACIAL, RACE_DWARF, 5, 5, A_WIS, 12, "detect doors+traps",0},
@@ -3036,599 +2963,58 @@ static powertype powers[] = {
 {POWER_MUTA1, iilog(MUT1_BANISH), 25, 25, A_WIS, 18, "banish evil",0},
 {POWER_MUTA1, iilog(MUT1_COLD_TOUCH), 2, 2, A_CON, 11, "cold touch",0},
 {POWER_MUTA1, iilog(MUT1_LAUNCHER), 1, -1, A_STR, 6, "throw object",0},
-{POWER_DISMISS, POWER_DISMISS_ONE, 0, 0, 0, 0, "dismiss ally",0},
-{POWER_DISMISS, POWER_DISMISS_MANY, 0, 0, 0, 0, "dismiss allies",0},
+{POWER_DISMISS, PET_DISMISS_ONE, 0, 0, 0, 0, "dismiss ally",0},
+{POWER_DISMISS, PET_DISMISS_MANY, 0, 0, 0, 0, "dismiss allies",0},
 {0,0,0,0,0,0,0,0}};
 #define MAX_POWERS	36 /* There shouldn't be more powers than this at a time. */
 static powertype *cur_powers[MAX_POWERS];
 
 
 #define RACIAL_MIN_X 13 /* The distance across the screen at which the display starts. */
-#define MIN_STRING_LEN 25 /* The space allowed for all description strings. Longer strings are still longer. */
+#define MIN_STRING_LEN 22 /* The space allowed for all description strings. Longer strings are still longer. */
 
 
 #ifndef A_MAX
 #define A_MAX 6
 #endif
 
-static void dismiss_pets(bool some);
 static void racial_confirm_string(byte choice, char * out);
 static bool racial_aux(powertype *pw_ptr);
 static void racial_success_chance(powertype *pw_ptr, s16b *num, s16b *denom);
 static byte display_list(void (*display)(byte, byte *, char *), void (*confirm)(byte, char *), byte, cptr, cptr, cptr);
 static void racial_string(byte num, byte *x, char * text);
 static s16b count_powers(void);
-static void use_power(powertype *pw_ptr);
+static void use_innate_power(powertype *pw_ptr);
+
+#ifdef CHECK_ARRAYS
+static int offsets[][2] =
+#else /* CHECK_ARRAYS */
+static int offsets[][1] =
+#endif /* CHECK_ARRAYS */
+{
+	{0,IDX(0)},
+	{PO_RACIAL, IDX(POWER_RACIAL)},
+	{PO_MUTA1, IDX(POWER_MUTA1)},
+	{PO_MUTA2, IDX(POWER_MUTA2)},
+	{PO_MUTA3, IDX(POWER_MUTA3)},
+	{PO_PETS, IDX(POWER_DISMISS)},
+};
 
 /*
  * Actually put a racial or mutation-based activation into effect.
  * See the individual entries for details.
+ *
+ * Note that there is no special treatment for aborted powers.
  */
-
-static void use_power(powertype *pw_ptr)
-	{
-	const byte plev = MIN(skill_set[SKILL_RACIAL].value/2,1);
-	int dir;
-	s16b i;
-
-	switch (pw_ptr->type)
+static void use_innate_power(powertype *pw_ptr)
 {
-		case POWER_RACIAL:
-		switch (pw_ptr->power)
-    {
-        case RACE_DWARF:
-                    msg_print("You examine your surroundings.");
-                    (void)detect_traps();
-					mark_traps();
-                    (void)detect_doors();
-                    (void)detect_stairs();
-                break;
-        case RACE_HOBBIT:
-                {
-                    /* Get local object */
-				object_type q;
+	int plev = MAX(skill_set[SKILL_RACIAL].value/2,1);
+	int power = pw_ptr->power;
+	power += offsets[pw_ptr->type][0];
 
-                   /* Create the item */
-				object_prep(&q, OBJ_RATION_OF_FOOD);
-
-                    /* Drop the object from heaven */
-				drop_near(&q, -1, py, px);
-                    msg_print("You cook some food.");
-                }
-                break;
-        case RACE_GNOME:
-                msg_print("Blink!");
-                teleport_player(10 + (plev));
-            break;
-        case RACE_HALF_ORC:
-                    msg_print("You play tough.");
-                    (void)set_afraid(0);
-            break;
-        case RACE_HALF_TROLL:
-                msg_print("RAAAGH!");
-                (void)set_afraid(0);
-                (void)set_shero(p_ptr->shero + 10 + randint(plev));
-                (void)hp_player(30);
-                        break;
-			case RACE_GREAT: /* Dreaming */
-                    msg_print("You dream of a time of health and peace...");
-                    (void)set_poisoned(0);
-                    (void)set_image(0);
-                    (void)set_stun(0);
-                    (void)set_cut(0);
-                    (void)set_blind(0);
-                    (void)set_afraid(0);
-                    (void)do_res_stat(A_STR);
-                    (void)do_res_stat(A_INT);
-                    (void)do_res_stat(A_WIS);
-                    (void)do_res_stat(A_DEX);
-                    (void)do_res_stat(A_CON);
-                    (void)do_res_stat(A_CHR);
-                    (void)restore_level();
-				break;
-			case RACE_GREAT+MAX_RACES: /* dream travel */
-                    msg_print("You start walking around. Your surroundings change.");
-			change_level(dun_level, START_RANDOM);
-            break;
-        case RACE_BARBARIAN:
-                msg_print("Raaagh!");
-                (void)set_afraid(0);
-                (void)set_shero(p_ptr->shero + 10 + randint(plev));
-                (void)hp_player(30);
-            break;
-        case RACE_HALF_OGRE:
-                msg_print("You carefully set an explosive rune...");
-                explosive_rune();
-            break;
-        case RACE_HALF_GIANT:
-                if (!get_aim_dir(&dir)) break;
-                msg_print("You bash at a stone wall.");
-                (void)wall_to_mud(dir);
-            break;
-        case RACE_HALF_TITAN:
-                msg_print("You examine your foes...");
-                probing();
-            break;
-        case RACE_CYCLOPS:
-                if (!get_aim_dir(&dir)) break;
-                msg_print("You throw a huge boulder.");
-                fire_bolt(GF_MISSILE, dir, (3 * plev) / 2);
-            break;
-        case RACE_YEEK:
-                if (!get_aim_dir(&dir)) break;
-                msg_print("You make a horrible scream!");
-                (void)fear_monster(dir, plev);
-            break;
-        case RACE_KLACKON:
-                if (!(get_aim_dir(&dir))) break;
-                msg_print("You spit acid.");
-                if (plev < 25)
-                    fire_bolt(GF_ACID, dir, plev);
-                else
-                    fire_ball(GF_ACID, dir, plev, 2);
-            break;
-        case RACE_KOBOLD:
-                if(!get_aim_dir(&dir)) break;
-                msg_print("You throw a dart of poison.");
-                fire_bolt(GF_POIS, dir, plev);
-            break;
-        case RACE_NIBELUNG:
-                    msg_print("You examine your surroundings.");
-                    (void)detect_traps();
-					mark_traps();
-                    (void)detect_doors();
-                    (void)detect_stairs();
-                break;
-        case RACE_DARK_ELF:
-                if (!get_aim_dir(&dir)) break;
-                msg_print("You cast a magic missile.");
-                fire_bolt_or_beam(10, GF_MISSILE, dir,
-                          damroll(3 + ((plev - 1) / 5), 4));
-            break;
-        case RACE_DRACONIAN:
-                if (!get_aim_dir(&dir)) break;
-				msg_format("You breathe poison.");
-				fire_ball(GF_POIS, dir, (plev)*2, -((plev)/15) + 1);
-            break;
-        case RACE_MIND_FLAYER:
-                if (!get_aim_dir(&dir)) break;
-                    msg_print("You concentrate and your eyes glow red...");
-                    fire_bolt(GF_PSI, dir, plev);
-            break;
-        case RACE_IMP:
-                if (!get_aim_dir(&dir)) break;
-                if (plev >= 30)
-                {
-                    msg_print("You cast a ball of fire.");
-                    fire_ball(GF_FIRE, dir, plev, 2);
-                }
-                else
-                {
-                    msg_print("You cast a bolt of fire.");
-                    fire_bolt(GF_FIRE, dir, plev);
-                }
-            break;
-        case RACE_GOLEM:
-                    (void)set_shield(p_ptr->shield + randint(20) + 30);
-            break;
-        case RACE_SKELETON: case RACE_ZOMBIE:
-                msg_print("You attempt to restore your lost energies.");
-                (void)restore_level();
-            break;
-       case RACE_VAMPIRE:
-       /* Only works on adjacent monsters */
-			{
-				cave_type *c_ptr;
-				s16b dummy;
-                     if (!get_rep_dir(&dir)) break;   /* was get_aim_dir */
-				c_ptr = &cave[py+ddy[dir]][px+ddx[dir]];
-           if (!(c_ptr->m_idx)) {
-               msg_print("You bite into thin air!");
-               break;
-           }
-                     msg_print("You grin and bare your fangs...");
-           dummy = plev + randint(plev) * MAX(1, plev/10);   /* Dmg */
-				if (!drain_life(dir, dummy))
-				{
-					msg_print("Yechh. That tastes foul.");
-				}
-				else
-				{
-                       if (p_ptr->food < PY_FOOD_FULL)
-						/* No heal if we are "full" (although we still get more full). */
-                           (void)hp_player(dummy);
-                        else
-                            msg_print("You were not hungry.");
-               /* Gain nutritional sustenance: 150/hp drained */
-               /* A Food ration gives 5000 food points (by contrast) */
-               /* Don't ever get more than "Full" this way */
-               /* But if we ARE Gorged,  it won't cure us */
-               dummy = p_ptr->food + MIN(5000, 100 * dummy);
-               if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
-                 (void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
-               }
-            }
-            break;
-        case RACE_SPECTRE:
-                     msg_print("You emit an eldritch howl!");
-                     if (!get_aim_dir(&dir)) break;
-                     (void)fear_monster(dir, plev);
-              break;
-        case RACE_BROO:
-                     msg_print("You emit a fearsome growl!");
-                     if (!get_aim_dir(&dir)) break;
-                     (void)fear_monster(dir, plev);
-              break;
-        case RACE_SPRITE:
-                msg_print("You throw some magic dust...");
-                if (plev < 25)
-                    sleep_monsters_touch(plev);
-                else
-                    (void)sleep_monsters(plev);
-            break;
-        default:
-				msg_print("You still don't know what that does.");
-        energy_use = 0;
-    }
-            break;
-		case POWER_MUTA1:
-		switch (pw_ptr->power)
-    {
-			case iilog(MUT1_SPIT_ACID):
-				msg_print("You spit acid...");
-				if (get_aim_dir(&dir))
-					fire_ball(GF_ACID, dir, plev, 1 + (plev/30));
-            break;
-			case iilog(MUT1_BR_FIRE):
-				msg_print("You breathe fire...");
-				if (get_aim_dir(&dir))
-					fire_ball(GF_FIRE, dir, plev * 2, -(1 + (plev/20)));
-            break;
-			case iilog(MUT1_HYPN_GAZE):
-				msg_print("Your eyes look mesmerizing...");
-				if (get_aim_dir(&dir))
-					(void) charm_monster(dir, plev);
-            break;
-			case iilog(MUT1_TELEKINES):
-				msg_print("You concentrate...");
-				if (get_aim_dir(&dir))
-					fetch(dir, plev * 10, TRUE);
-            break;
-			case iilog(MUT1_VTELEPORT):
-				msg_print("You concentrate...");
-				teleport_player(10 + 4*(plev));
-            break;
-			case iilog(MUT1_MIND_BLST):
-				msg_print("You concentrate...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_PSI, dir, damroll(3 + ((plev - 1) / 5), 3));
-            break;
-			case iilog(MUT1_RADIATION):
-				msg_print("Radiation flows from your body!");
-				fire_ball(GF_NUKE, 0, (plev * 2), 3 + (plev / 20));
-            break;
-			case iilog(MUT1_VAMPIRISM):
-				if (!get_aim_dir(&dir)) return;
-				if (drain_life(dir, (plev * 2)))
-					hp_player(plev + randint(plev));
-            break;
-			case iilog(MUT1_SMELL_MET):
-				(void)detect_treasure();
-            break;
-			case iilog(MUT1_SMELL_MON):
-				(void)detect_monsters_normal();
-            break;
-			case iilog(MUT1_BLINK):
-				teleport_player(10);
-            break;
-			case iilog(MUT1_EAT_ROCK):
-			{
-				int x,y;
-				cave_type *c_ptr;
-					
-				if (!get_rep_dir(&dir)) break;
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-				c_ptr = &cave[y][x];
-				if (cave_floor_bold(y,x))
-				{
-					msg_print("You bite into thin air!");
-            break;
-				}
-				else if (((c_ptr->feat >= FEAT_PERM_BUILDING) &&
-					(c_ptr->feat <= FEAT_PERM_SOLID)))
-				{
-					msg_print("Ouch!  This wall is harder than your teeth!");
-            break;
-		}
-				else if (c_ptr->m_idx)
-		{
-					msg_print("There's something in the way!");
-            break;
-		}
-				else if (c_ptr->feat == FEAT_TREE)
-		{
-					msg_print("You don't like the woody taste!");
-					break;
-		}
-				else
-		{
-					if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-						(c_ptr->feat <= FEAT_RUBBLE))
-		{
-						(void)set_food(p_ptr->food + 3000);
-		}
-					else if ((c_ptr->feat >= FEAT_MAGMA) &&
-						(c_ptr->feat <= FEAT_QUARTZ_K))
-		{
-						(void)set_food(p_ptr->food + 5000);
-		}
-					else
-		{
-						msg_print("This granite is very filling!");
-						(void)set_food(p_ptr->food + 10000);
-		}
-		}
-				(void)wall_to_mud(dir);
-				move_to(y,x);
-				break;
-		}
-			case iilog(MUT1_SWAP_POS):
-				if (!get_aim_dir(&dir)) return;
-				(void)teleport_swap(dir);
-				break;
-			case iilog(MUT1_SHRIEK):
-				(void)fire_ball(GF_SOUND, 0, 4 * plev, 8);
-				(void)aggravate_monsters(0);
-			case iilog(MUT1_ILLUMINE):
-				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-				break;
-			case iilog(MUT1_DET_CURSE):
-				for (i=0; i < INVEN_TOTAL; i++)
-		{
-					object_type *o_ptr = &inventory[i];
-					
-					if (!o_ptr->k_idx) continue;
-					o_ptr->ident |= IDENT_SENSE_CURSED;
-		}
-			break;
-			case iilog(MUT1_BERSERK):
-				(void)set_shero(p_ptr->shero + randint(25) + 25);
-				(void)hp_player(30);
-				(void)set_afraid(0);
-				break;
-			case iilog(MUT1_POLYMORPH):
-				do_poly_self();
-				break;
-			case iilog(MUT1_MIDAS_TCH):
-				(void)alchemy();
-				break;
-			case iilog(MUT1_GROW_MOLD):
-				for (i=0; i < 8; i++)
-		{
-					summon_specific_friendly(py, px, plev, SUMMON_MOULD, FALSE);
-		}
-				break;
-			case iilog(MUT1_RESIST):
-		{
-				int num = plev/10;
-				int dur = randint(20) + 20;
-
-				if (rand_int(5) < num)
-		{
-					(void)set_oppose_acid(p_ptr->oppose_acid + dur);
-					num--;
-		}
-				if (rand_int(4) < num)
-		{
-					(void)set_oppose_elec(p_ptr->oppose_elec + dur);
-					num--;
-		}
-				if (rand_int(3) < num)
-		{
-					(void)set_oppose_fire(p_ptr->oppose_fire + dur);
-					num--;
-		}
-				if (rand_int(2) < num)
-		{
-					(void)set_oppose_cold(p_ptr->oppose_cold + dur);
-					num--;
-		}
-				if (num)
-		{
-					(void)set_oppose_pois(p_ptr->oppose_pois + dur);
-					num--;
-	}
-				break;
-    }
-			case iilog(MUT1_EARTHQUAKE):
-				/* Prevent destruction of quest levels and town */
-				if (!is_quest(dun_level) && dun_level)
-					earthquake(py, px, 10);
-				break;
-			case iilog(MUT1_EAT_MAGIC):
-			{
-				object_type * o_ptr;
-				errr err;
-				int lev;
-				cptr q;
-
-				item_tester_hook = item_tester_hook_recharge;
-
-				/* Get an item */
-				q = "Drain which item? ";
-				if (!((o_ptr = get_item(&err, q, TRUE,TRUE,TRUE)))) break;
-
-				lev = wand_power(&k_info[o_ptr->k_idx]);
-
-				if (o_ptr->tval == TV_ROD)
-        {
-					if (o_ptr->timeout > 0)
-		{
-						msg_print("You can't absorb energy from a discharged rod.");
-		}
-					else
-		{
-						p_ptr->csp += 2*lev;
-						o_ptr->timeout = 500;
-	}
-    }
-        else
-        {
-					if (o_ptr->pval > 0)
-                {
-						p_ptr->csp += o_ptr->pval * lev;
-						o_ptr->pval = 0;
-					}
-                    else
-                    {
-						msg_print("There's no energy there to absorb!");
-					}
-					o_ptr->ident |= IDENT_EMPTY;
-                    }
-
-				if (p_ptr->csp > p_ptr->msp)
-                    {
-					p_ptr->csp = p_ptr->msp;
-                    }
-
-				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-				p_ptr->window |= (PW_INVEN);
-				break;
-                }
-			case iilog(MUT1_WEIGH_MAG):
-				report_magics();
-				break;
-			case iilog(MUT1_STERILITY):
-				/* Fake a population explosion. */
-				msg_print("You suddenly have a headache!");
-				take_hit(randint(30) + 30, "the strain of forcing abstinence", MON_DANGEROUS_MUTATION);
-				num_repro += MAX_REPRO;
-				break;
-			case iilog(MUT1_PANIC_HIT):
-			{
-				int x,y;
-
-				if (!get_rep_dir(&dir)) return;
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-				if (cave[y][x].m_idx)
-				{
-					py_attack(y, x);
-					teleport_player(30);
-    }
-    else
-    {
-					msg_print("You don't see any monster in this direction");
-					msg_print(NULL);
-				}
-				break;
-				}
-			case iilog(MUT1_DAZZLE):
-				stun_monsters(plev * 4);
-				confuse_monsters(plev * 4);
-				turn_monsters(plev * 4);
-				break;
-			case iilog(MUT1_EYE_BEAM):
-				if (!get_aim_dir(&dir)) return;
-				fire_beam(GF_LITE, dir, 2*plev);
-				break;
-			case iilog(MUT1_RECALL):
-				set_recall(FALSE);
-				break;
-			case iilog(MUT1_BANISH):
-			{
-				int x,y;
-				cave_type *c_ptr;
-				monster_type *m_ptr;
-				monster_race *r_ptr;
-
-				if (!get_rep_dir(&dir)) return;
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-				c_ptr = &cave[y][x];
-				if (!(c_ptr->m_idx))
-				{
-					msg_print("You sense no evil there!");
-				break;
-				}
-				m_ptr = &m_list[c_ptr->m_idx];
-				r_ptr = &r_info[m_ptr->r_idx];
-
-				if (r_ptr->flags3 & RF3_EVIL)
-				{
-					/* Delete the monster, rather than killing it. */
-					delete_monster_idx(c_ptr->m_idx,TRUE);
-					msg_print("The evil creature vanishes in a puff of sulfurous smoke!");
-				}
-				else
-				{
-					msg_print("Your invocation is ineffectual!");
-				}
-				break;
-			}
-			case iilog(MUT1_COLD_TOUCH):
-				{
-				int x,y;
-					cave_type *c_ptr;
-					
-				if (!get_rep_dir(&dir)) return;
-					y = py + ddy[dir];
-					x = px + ddx[dir];
-					c_ptr = &cave[y][x];
-				if (!(c_ptr->m_idx))
-					{
-					msg_print("You wave your hands in the air.");
-						break;
-					}
-				fire_bolt(GF_COLD, dir, 2 * (plev));
-						break;
-					}
-			case iilog(MUT1_LAUNCHER):
-				/* Gives a multiplier of 2 at first, up to 5 at 48th */
-				throw_mult = 2 + (plev)/16;
-				do_cmd_throw();
-				throw_mult = 1;
-						break;
-			default:
-				msg_print("You don't know what that does.");
-					}
-						break;
-		case POWER_MUTA2:
-		case POWER_MUTA3:
-		default:
-		msg_print("You don't know what that does.");
-					}
+	use_known_power(power, plev);
 }
 
-/*
- * Dismiss your allies.
- */
-static void dismiss_pets(bool some)
-{
-	bool all_pets = FALSE;
-	s16b i,Dismissed = 0;
-	if (some && get_check("Dismiss all allies? ")) all_pets = TRUE;
-	for (i = m_max - 1; i >= 1; i--)
-	{
-		/* Access the monster */
-		monster_type *m_ptr = &m_list[i];
-		if (m_ptr->smart & (SM_ALLY)) /* Get rid of it! */
-		{
-			bool delete_this = all_pets || get_check(
-					format("Dismiss %v? ", monster_desc_f2, m_ptr, 0x80));
-
-			if (delete_this)
-			{
-				delete_monster_idx(i,TRUE);
-				Dismissed++;
-			}
-		}
-	}
-	msg_format("You have dismissed %d all%s.", Dismissed,
-		(Dismissed==1?"y":"ies"));
-}
-					
 /* 
  * Describe a power for do_cmd_racial_power.
  * In general, this becomes text+"     "+"(racial, cost power->cost, power->use_stat power->difficulty)".
@@ -3638,59 +3024,71 @@ static void dismiss_pets(bool some)
  * The number of spaces will be adjusted as necessary.
  * Display the powers available in choose_power()
  */
-static void racial_string(byte num, byte *x, char * text)
-					{
-	powertype *pw_ptr = cur_powers[num];
+static void racial_string(byte idx, byte *x, char * text)
+{
+	powertype *pw_ptr = cur_powers[idx];
 						
 	/* Set the distance from the left margin. */
 	(*x) = RACIAL_MIN_X;
 
 	sprintf(text, ")  %s", pw_ptr->text);
 	switch (pw_ptr->type)
-				{
+	{
 		/* Racial and mutated powers have a fairly complex format. */
 		case POWER_RACIAL: case POWER_MUTA1: case POWER_MUTA2: case POWER_MUTA3:
 		{
-			char stat[A_MAX][4] = {"STR","INT","WIS","DEX","CON","CHR"};
-			char text2[80], cost[80];
+			cptr cost;
+			cptr racstr = (pw_ptr->type == POWER_RACIAL) ? "racial, " : "";
+			cptr t2str1 = (pw_ptr->text2) ? pw_ptr->text2 : "";
+			cptr t2str2 = (pw_ptr->text2) ? ", " : "";
 			s16b num, denom;
+			int perc;
 			if (pw_ptr->cost > 0)
 			{
-				sprintf(cost, "%d", pw_ptr->cost);
-				}
+				cost = format("%d", pw_ptr->cost);
+			}
 			else if (!pw_ptr->cost)
-				{
-				cost[0]='\0';
-				}
+			{
+				cost = "";
+			}
 			else
-				{
+			{
 				powercosttype *pc_ptr = &powercosts[-pw_ptr->cost];
 				if (!(pc_ptr->levc))
-					strcpy(cost, "odd");
+				{
+					cost = "odd";
+				}
+				else if (pc_ptr->minc)
+				{
+					cost = format("%d+lev", pc_ptr->minc);
+				}
 				else
 				{
-					if (pc_ptr->minc)
-						sprintf(cost, "%d+lev", pc_ptr->minc);
-					else
-						strcpy(cost, "lvl");
-					if (pc_ptr->levc>1)
-						strcat(cost, format("/%d", pc_ptr->levc));
+					cost = "lvl";
 				}
+				if (pc_ptr->levc>1)
+				{
+					cost = format("%s/%d", cost, pc_ptr->levc);
 				}
+			}
 			racial_success_chance(pw_ptr, &num, &denom);
-			sprintf(text2, "%-*s(%scost %s, %s%s %d %d%%)", MIN_STRING_LEN, text,
-			(pw_ptr->type == POWER_RACIAL) ? "racial, " : "", cost,
-			(pw_ptr->text2) ? format("%s, ", pw_ptr->text2) : "",
-			stat[pw_ptr->use_stat], pw_ptr->difficulty, 100-num*100/denom);
-			strcpy(text, text2);
+			perc = 100-num*100/denom;
+			sprintf(text, ")  %-*s(%scost %s, %s%s%.3s %d %d%%)",
+				MIN_STRING_LEN, pw_ptr->text, racstr, cost, t2str1, t2str2,
+				stat_names[pw_ptr->use_stat], pw_ptr->difficulty, perc);
 				break;
-				}
+		}
 		/* Dismissing uses a constant string, however. */
 		case POWER_DISMISS:
-				break;
+		{
+			sprintf(text, ")  %s", pw_ptr->text);
+			break;
+		}
 		/* As do unknown strings. */
 		default:
-		strcpy(text, "Unknown power");
+		{
+			strcpy(text, "Unknown power");
+		}
 	}
 }
 
@@ -3740,10 +3138,10 @@ static s16b count_powers(void)
 				case 0:
 				break;
 				case 1:
-				available = (pw_ptr->power == POWER_DISMISS_ONE);
+				available = (pw_ptr->power == PET_DISMISS_ONE);
 				break;
 				default:
-				available = (pw_ptr->power == POWER_DISMISS_MANY);
+				available = (pw_ptr->power == PET_DISMISS_MANY);
 					}
 			break;
 			default: /* How did we get here? */
@@ -3871,7 +3269,7 @@ static byte display_list(void (*display)(byte, byte *, char *), void (*confirm)(
 			/* Not a valid choice. */
 			default:
 			{
-				bell();
+				bell(0);
 			}
 		}
 	}
@@ -3886,8 +3284,8 @@ static void racial_success_chance(powertype *pw_ptr, s16b *num, s16b *denom)
 	int difficulty = pw_ptr->difficulty;
 	
 				
-	const byte plev = MIN(1,skill_set[SKILL_RACIAL].value/2);
-	const byte stat = (byte)p_ptr->stat_cur[pw_ptr->use_stat];
+	const int plev = MAX(1,skill_set[SKILL_RACIAL].value/2);
+	const int stat = p_ptr->stat_cur[pw_ptr->use_stat];
 
 	/* Should never happen, but... */
 	if (difficulty > 100)
@@ -3931,7 +3329,7 @@ static void racial_success_chance(powertype *pw_ptr, s16b *num, s16b *denom)
  */
 static bool racial_aux(powertype *pw_ptr)
 {
-	bool plev = MIN(1,skill_set[SKILL_RACIAL].value/2);
+	const int plev = MAX(1,skill_set[SKILL_RACIAL].value/2);
 	bool use_hp = FALSE;
 	bool use_chi = FALSE;
 	bool use_mana = TRUE;
@@ -4051,10 +3449,10 @@ void do_cmd_racial_power(void)
 			case POWER_RACIAL: case POWER_MUTA1: case POWER_MUTA2: case POWER_MUTA3:
 			/* Try to use the power. */
 			if (racial_aux(pw_ptr))
-				use_power(pw_ptr);
+				use_innate_power(pw_ptr);
 			break;
 			case POWER_DISMISS:
-		 	dismiss_pets(pw_ptr->power != POWER_DISMISS_ONE);
+			use_innate_power(pw_ptr);
 			break;
             default:
 			msg_print("You don't know what that does.");

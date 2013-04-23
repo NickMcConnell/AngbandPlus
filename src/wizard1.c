@@ -106,6 +106,8 @@ static grouper group_item[] =
     { TV_CONJURATION_BOOK,      "Books (Conjuration)" },
     { TV_NECROMANCY_BOOK,     "Books (Necromancy)" },
 
+	{ TV_CHARM, "Charm" },
+
 	{ TV_CHEST,             "Chests" },
 
 	{ TV_SPIKE,             "Various" },
@@ -156,7 +158,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	(*lev) = object_k_level(k_ptr);
 
 	/* Value */
-	(*val) = object_value(q_ptr);
+	(*val) = object_value(q_ptr, FALSE);
 
 
 	/* Hack */
@@ -164,7 +166,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Description (too brief) */
-	strnfmt(buf, ONAME_MAX, "%v", object_desc_store_f3, q_ptr, FALSE, 0);
+	strnfmt(buf, ONAME_MAX, "%v", object_desc_f3, q_ptr, OD_SHOP, 0);
 
 
 	/* Misc info */
@@ -731,7 +733,8 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_ptr,
 static void analyze_general (object_type *o_ptr, char *desc_ptr)
 {
 	/* Get a "useful" description of the object */
-	strnfmt(desc_ptr, ONAME_MAX, "%v", object_desc_store_f3, o_ptr, TRUE, 1);
+	strnfmt(desc_ptr, ONAME_MAX, "%v",
+		object_desc_f3, o_ptr, OD_ART | OD_SHOP, 1);
 }
 
 /*
@@ -1051,7 +1054,7 @@ static void print_header(void)
 #define LIST_SEP ';'
 
 
-static void spoiler_outlist(cptr header, cptr *list, char separator)
+static void spoiler_outlist(cptr init, cptr *list, char separator)
 {
 	int line_len, buf_len;
 	char line[MAX_LINE_LEN+1], buf[80];
@@ -1063,9 +1066,9 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	strcpy(line, INDENT1);
 
 	/* Create header (if one was given) */
-	if (header && (header[0]))
+	if (init && (init[0]))
 	{
-		strcat(line, header);
+		strcat(line, init);
 		strcat(line, " ");
 	}
 
@@ -1195,7 +1198,12 @@ bool make_fake_artifact(object_type *o_ptr, int name1)
 {
 	int i;
 
-	artifact_type *a_ptr = &a_info[name1];
+	artifact_type *a_ptr;
+
+	/* Ignore illegal artefacts. */
+	if (name1 < 0 || name1 >= MAX_A_IDX) return FALSE;
+
+	a_ptr = &a_info[name1];
 
 
 	/* Ignore "empty" artifacts */
@@ -1376,8 +1384,8 @@ static void spoil_mon_desc(cptr fname)
 		else if (r_ptr->flags1 & (RF1_UNIQUE)) pre = "[U]";
 		else pre = "The";
 
-		strnfmt(nam, N_ELEMENTS(nam), "%s %.*v", pre, monster_desc_aux_f3,
-			N_ELEMENTS(nam)-strlen(pre)-1, r_ptr, 1, 0);
+		strnfmt(nam, N_ELEMENTS(nam), "%s %.*v", pre,
+			N_ELEMENTS(nam)-strlen(pre)-1, monster_desc_aux_f3, r_ptr, 1, 0);
 
 		/* Level */
 		sprintf(lev, "%d", r_ptr->level);
@@ -1409,7 +1417,7 @@ static void spoil_mon_desc(cptr fname)
 		}
 
 
-		/* Experience */
+		/* Power */
 		sprintf(exp, "%ld", (long)(r_ptr->mexp));
 
 		/* Hack -- use visual instead */
@@ -1651,8 +1659,8 @@ static void spoil_mon_info(cptr fname)
 		sprintf(buf, "Ac:%d  ", r_ptr->ac);
 		spoil_out(buf);
 
-		/* Experience */
-		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
+		/* Power */
+		sprintf(buf, "Power:%ld\n", (long)(r_ptr->mexp));
 		spoil_out(buf);
 
 
@@ -2310,7 +2318,7 @@ void do_cmd_spoilers(void)
 		/* Oops */
 		else
 		{
-			bell();
+			bell(0);
 		}
 
 		/* Flush messages */

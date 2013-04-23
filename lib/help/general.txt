@@ -1,3 +1,4 @@
+%%%%% <general.txt>
 === Command Descriptions ===
 
 The following command descriptions are listed as the command name plus the "underlying command" key. This is followed by the command name and "roguelike" keyset key, if different from the underlying command key. Then comes a brief description of the command, including information about alternative methods of specifying the command in each keyset, when needed.
@@ -22,7 +23,19 @@ This drops an item from your inventory or equipment onto the dungeon floor. If t
 
 %%%%% <cmd=k>
 $GDestroy an item (k) or Destroy an item (Ctrl-D)
-This destroys an item in your inventory or on the dungeon floor. If the selected pile contains multiple objects, you may specify a quantity. You must always (currently) verify this command. This command may take a quantity, and takes some energy.
+This destroys an item in your inventory or on the dungeon floor. If the selected pile contains multiple objects, you may specify a quantity. You may have to verify this command. This command may take a quantity, and takes some energy.
+
+%%%%% <cmd=K>
+$GHide an item (K)/(Ctrl-Q)
+This hides an item in your inventory or on the dungeon floor. Hidden objects on the floor are not displayed by the game, but are affected by the game in exactly the same way as before. Hidden objects in your inventory are displayed as "(hidden)", and can be easily selected with the 'z' option at any object prompt, but are normal in other respects. 
+
+As this action only changes how the game represents an object to the player, it takes no energy to perform.
+
+%%%%% <cmd=^K>
+$GReveal hidden items (Ctrl-K)/(Ctrl-V)
+This causes all hidden objects to be displayed as normal. Note that a hidden object may have been destroyed or picked up whilst it was hidden.
+
+This action takes no energy to perform.
 
 %%%%% <cmd=w>
 $GWear/Wield equipment (w)
@@ -136,7 +149,7 @@ To cast a spell, you must have previously learned the spell and must have in you
 $GCall on a spirit (p)
 To call on a spirit, you must have previously made a ritual pact with one in a temple. Each favour has a chance of failure which decreases as you gain levels. Calling on spirits is not possible if they are still irritated after a previous attempt. Since calling on a spirit requires concentration, you must not be confused while doing so. See shaman.txt for more details. This command takes some energy.
 
-%%%%% <cmd=P>
+%%%%%
 $GUse a mindcrafting power (P)
 There are no special prerequisites for mindcraft. Each power has a chance of failure which decreases as you gain levels. If you don't have enough chi to use a power, you will be prompted for confirmation. If you decide to go ahead, the chance of failure is greatly increased. Since mindcraft requires concentration, you must not be confused while doing so. See mindcrft.txt for more details. This command takes some energy.
 
@@ -271,10 +284,18 @@ This command allows you to take notes, which will then appear in your message li
 
 %%%%% <cmd=C>
 $GCharacter Description (C)
-Brings up a full description of your character, including your skill levels, your current and potential stats, and various other information. From this screen, you can change your name or use the file character description command to save your character status to a file. That command saves additional information, including your background, your inventory, and the contents of your house.
+Brings up a full description of your character, including your skill levels, your current and potential stats, the power of your weapons and various other information.
+
+The blows/round and damage/round indicate how much damage the indicated weapon
+can cause for 1000 energy if all blows hit. They are laid out as X,YY, where the player can cause X Y/60 damage over that period.
+
+The following keys are used when this display is active:
+c - Change your name.
+h - Change the page of information being displayed.
+f - Save various information about your character to a text file.
 
 %%%%% <cmd=~>
-$GCheck knowledge (~) (|)
+$GCheck knowledge (~)
 This command allows you to ask about the knowledge possessed by your character. It brings up a menu at which you enter one of the following numbers to access the information it stores. Pressing escape exits the command.
 
 %%%%% <cmd=~1>
@@ -319,6 +340,8 @@ This displays various things about your character which are not listed elsewhere
 $GInteract with the system (!)
 This allows some of the system-specific commands for altering the user interface.
 
+It is currently only used by the MS-DOS and RISC OS ports.
+
 %%%%%
 --- Saving and Exiting Commands ---
 
@@ -339,37 +362,7 @@ Ends your quest and exits Angband. You will be prompted to make sure you really 
 
 %%%%% <cmd==>
 $GInteract with options (=)
-Allow you to interact with options. Note that using the "cheat" options may mark your savefile as unsuitable for the high score list. You may change normal options using the "X" and "Y" user pref commands. The "window" options allow you to specify what should be drawn in any of the special sub-windows (not available on all platforms). See the help file "options.txt" for more info.
-
-%%%%% <cmd=@>
-$GInteract with macros (@)
-Allow you to interact with macros. You may load or save macros from user pref files, create macros of various types, or define keymaps. You must define a "current action", shown at the bottom of the screen, before you attempt to use any of the "create macro" commands, which use that "current action" as their action. This is a horrible interface, and will be fixed eventually.
-
-%%%%% <cmd=%>
-$GInteract with visuals (%)
-Allow you to interact with visuals. You may load or save visuals from user pref files, or modify the attr/char mappings for the monsters, objects, and terrain features. You must use the "redraw" command (Ctrl-R) to redraw the map after changing attr/char mappings.
-
-In the "Change" options, the following keys are valid:
-
-n: Move to a valid object, monster, etc..
-a: Change (by index) the colour used for this object.
-c: Change (by index) the character used for this object.
-
-Lower case letters (n, a, c) increase the specified value, wrapping at the end.
-Upper case letters (N, A, C) decrease them.
-Pressing Ctrl with the letter allows you to type in the desired number. As this may not be possible on all terminals, pressing ^ and then the letter gives the same effect.
-
-%%%%% <cmd=&>
-$GInteract with colors (&)
-Allow the user to interact with colors. This command only works on some systems.
-
-In the "Modify" option, the following keys are valid:
-
-      n: Move to the next colour.
-r, g, b: Change the amount of red, blue or green in the indicated colour.
-
-Lower case letters increase the specified value, wrapping at the end.
-Uper case letters decrease them.
+This command allows you to modify your Angband experience in many ways, which are listed in some depth in *****custom.txt*0[custom.txt].
 
 %%%%% <cmd=">
 $GEnter a user pref command (")
@@ -378,10 +371,10 @@ Angband stores your preferences in files called "user pref files", which contain
 %%%%%
 --- Help ---
 
-%%%%% <cmd!=?> Not used as hlponhlp.txt is more thorough.
+%%%%% <cmd!=?>
 $GHelp (?)
 Brings up the Angband on-line help system. Note that the help files are just text files in a particular format, and that other help files may be available on the Net.
-See *****/ahlponhlp.txt*0[hponhlp.txt]$w for further details.
+See *****hlponhlp.txt*0[hponhlp.txt]$w for further details.
 
 %%%%% <cmd=/>
 $GIdentify Symbol (/)
@@ -429,6 +422,8 @@ Toggles the display in any sub-windows (if available) which have more than one n
 $GRedraw Screen (Ctrl-R)
 This command adapts to various changes in global options, and redraws all of the windows. It is normally only necessary in abnormal situations, such as after changing the visual attr/char mappings, or enabling "graphics" mode.
 
+It also forces the help file index to be re-loaded, which may be useful if the help files have been modified since the game was loaded.
+
 %%%%% <cmd=(>
 $GLoad screen dump (left-paren)
 This command loads a "snap-shot" of the current screen from the file "dump.txt", and displays it on the screen.
@@ -440,3 +435,5 @@ This command dumps a "snap-shot" of the current screen to the file "dump.txt", i
 %%%%% <cmd=^A>
 $GDebug commands (Ctrl-A)
 If the game is compiled with debug commands, and the cheat option cheat_wzrd is set, this allows the player to carry out a number of special commands. It is, of course, cheating to use it in a real game.
+
+The list of commands you can access using this command is given in *****debug.txt*0[debug.txt].

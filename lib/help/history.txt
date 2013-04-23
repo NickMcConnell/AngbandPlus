@@ -1,3 +1,4 @@
+%%%%% <history.txt>
 === Cthangband History and Information === 
 
 Cthangband started life as version 2.1.0 of Zangband. Dean Anderson (me) had been playing Angband and its variants for years, ever since finding Moria on the old VMS computers at university in the '80s. While each one was good in its own way, none of them were 'just right'. So, he got out his trusty compiler, and set out to make the ideal Angband for himself. 

@@ -84,7 +84,7 @@ typedef errr (*parse_info_txt_func)(char *buf, header *head, vptr *extra);
 
 struct header
 {
-	char version[6];	/* Version */
+	char version[MAX_VERSION_LEN];	/* Version */
 
 	u16b info_num;		/* Number of "info" records */
 
@@ -229,17 +229,17 @@ struct object_kind
 
 	s32b cost;			/* Object "base cost" */
 	s16b weight;		/* Weight */
+	u16b u_idx;	/* The u_info[] entry which represents this item. */
 
 	byte d_attr;		/* Default object attribute */
 	char d_char;		/* Default object character */
 	byte x_attr;		/* Desired object attribute */
 	char x_char;		/* Desired object character */
 
-	u16b u_idx;	/* The u_info[] entry which represents this item. */
+	byte rating;		/* Bonus to level rating. */
 	bool aware;			/* The player is "aware" of the item's effects */
 	bool tried;			/* The player has "tried" one of the items */
-
-	/* u16b blank; */	/* Nothing */
+	bool seen;	/* The player has encountered at least one of these. */
 };
 
 
@@ -329,11 +329,13 @@ struct ego_item_type
 	u16b name;			/* Name (offset) */
 	u16b text;			/* Text (offset) */
 
-	byte slot;			/* Standard slot value */
 	byte rating;		/* Rating boost */
+	byte special;		/* Index into random item modifications on creation. */
 
-	byte level;			/* Minimum level */
-	byte rarity;		/* Object rarity */
+	byte chance;		/* Chance of being created. */
+
+	s16b min_obj;	/* Minimum legal object. */
+	s16b max_obj;	/* Maximum legal object. */
 
 	byte max_to_h;		/* Maximum to-hit bonus */
 	byte max_to_d;		/* Maximum to-dam bonus */
@@ -570,6 +572,7 @@ struct cave_type
  */
 
 typedef struct object_type object_type;
+typedef const object_type object_ctype;
 
 struct object_type
 {
@@ -580,12 +583,12 @@ struct object_type
 	byte tval;			/* Item type (from kind) */
 	byte discount;		/* Discount (if any) */
 	byte number;		/* Number of items */
-	byte marked;		/* Object is marked */
+	bool marked;		/* Object is marked */
 
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
-	byte xtra1;			/* Extra info type */
-	byte xtra2;			/* Extra info index */
+	byte activation;	/* Object activation (e.g. as randart) */
+	byte stack;         /* The stack of objects this was part of. */
 
 	s16b to_h;			/* Plusses to hit */
 	s16b to_d;			/* Plusses to damage */
@@ -722,7 +725,7 @@ typedef struct option_type option_type;
 
 struct option_type
 {
-	char	*o_var;
+	bool	*o_var;
 
 	byte	o_norm;
 
@@ -845,30 +848,27 @@ typedef struct magic_type magic_type;
 
 struct magic_type
 {
-	byte minskill;		/* Required skill (to learn) */
-	byte smana;			/* Required mana (to cast) */
-	byte sfail;			/* Minimum chance of failure */
-	byte sexp;			/* Encoded experience bonus */
-	byte sschool;        /* School of spell */
-	byte stype;         /* Type of spell */
+	cptr name;	/* Name listed in spell book, etc. */
+	cptr desc;	/* Information about the spell. */
+	byte min;	/* Required skill (to learn) */
+	byte mana;	/* Required mana (to cast) */
+	byte fail;	/* Minimum chance of failure */
+	byte exp;	/* Encoded experience bonus */
+	byte skill1;	/* School of spell */
+	byte skill2;	/* Type of spell (or NONE) */
+	byte power; /* The index of the spell effect (offset). */
+	byte flags; /* (Variable) MAGIC_* flags. */
 };
 
-typedef struct favour_type favour_type;
-struct favour_type
+typedef struct book_type book_type;
+struct book_type
 {
-	byte minskill; /* Required skill to persuade */
-	byte annoy_inc; /* Annoyance increase for spirit */
-	byte sfail; /* Base chance of refusal */
+#ifdef CHECK_ARRAYS
+	int idx;
+#endif /* CHECK_ARRAYS */
+	magic_type *info; /* A superset of the spells available in this book. */
+	u32b flags; /* The set of spells from info in this book. */
 };
-
-typedef struct cantrip_type cantrip_type;
-struct cantrip_type
-{
-	byte minskill; /* Required skill to cast */
-	byte mana; /* Mana cost */
-	byte sfail; /* Base chance of failure */
-};
-
 
 /*
  * Structure for the display windows.
@@ -883,20 +883,6 @@ struct window_type
 	byte current; /* Current display for this window */
 	u32b mask;
 };
-
-/*
- * Information about the player's "magic"
- */
-
-typedef struct player_magic player_magic;
-
-struct player_magic
-{
-	s16b spell_weight;		/* Weight that hurts spells */
-    magic_type info[MAX_SCHOOL][32];    /* The available spells */
-};
-
-
 
 /*
  * Player sex info
@@ -961,15 +947,21 @@ struct player_race
  */
 
 typedef struct player_skill player_skill;
-struct player_skill {
-		cptr name; /* Skill name */
-		cptr increase; /* Message printed on an increase */
-		u16b experience; /* Amount of times the skill has been used */
-		byte value; /* The current skill level */
-		byte max_value; /* Maximum value the skill has had */
-		byte base; /* The skill level that may be raised to at dungeon level zero */
-		byte ceiling; /* The absolute maximum the skill may be raised to */
-		u16b exp_to_raise; /* The number of times the skill needs to be used for each raise */
+struct player_skill
+{
+#ifdef CHECK_ARRAYS
+	int idx;
+#endif /* CHECK_ARRAYS */
+	cptr name; /* Skill name */
+	cptr increase; /* Message printed on an increase */
+	u16b experience; /* Amount of times the skill has been used */
+	byte value; /* The current skill level */
+	byte max_value; /* Maximum value the skill has had */
+	byte base; /* The skill level that may be raised to at dungeon level zero */
+	byte ceiling; /* The absolute maximum the skill may be raised to */
+	u16b exp_to_raise; /* The number of times the skill needs to be used for each raise */
+	byte x; /* The x co-ordinate used in player_skills(). */
+	byte y; /* The y co-ordinate used in player_skills(). */
 };
 
 /*
@@ -1081,6 +1073,7 @@ struct player_type
 
     s16b tim_esp;       /* Timed ESP */
     s16b wraith_form;   /* Timed wraithform */
+	s16b vamp_drain;	/* Vampiric drain during last round. */
 
     s16b chaos_patron;
     u32b muta1;
@@ -1151,6 +1144,7 @@ struct player_type
     bool anti_magic;    /* Anti-magic */
     bool anti_tele;     /* Prevent teleportation */
 
+	bool sustain[A_MAX];	/* Keep various stats. */
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */
 	bool sustain_wis;	/* Keep wisdom */
@@ -1241,11 +1235,12 @@ typedef struct spirit_type spirit_type;
 struct spirit_type {
 	char name[20]; /* The name of the spirit */
 	cptr desc; /* The description of the spirit */
-	u16b pact; /* Whether the player has a pact with this spirit */
-	u32b annoyance; /* How annoyed the spirit is with the player */
 	u32b favour_flags; /* Like the 'spell_flags' array */
+	u32b annoyance; /* How annoyed the spirit is with the player */
+	bool pact; /* Whether the player has a pact with this spirit */
 	byte sphere; /* sphere of influence */
 	byte minskill; /* Minimum skill to form a pact (= min skill of easiest favour) */
+	byte punish_chance; /* How likely the spirit is to punish the player. */
 };
 
 /* Stat defaults */
@@ -1256,7 +1251,7 @@ struct stat_default_type {
 	byte	template;	/* Template */
 	bool	maximise;	/* Whether maximise mode is used in this stat set */
 	byte	stat[A_MAX];	/* The stats used */
-	s16b	name;	/* The quark containing the name */
+	u16b	name;	/* The quark containing the name */
 };
 
 /* Towns */
@@ -1374,15 +1369,6 @@ struct tval_ammo_type {
 
 
 
-/* Hack - provide a structure for things about an object which may be unknown,
- * but are needed by various functions. */
-typedef struct object_extra object_extra;
-
-#if 0 /* Only currently used in object1.c, so defined there for now. */
-struct object_extra {
-};
-#endif
-
 /*
  * Semi-Portable High Score List Entry (128 bytes) -- BEN
  *
@@ -1398,7 +1384,7 @@ typedef struct high_score high_score;
 
 struct high_score
 {
-	char what[8];		/* Version info (string) */
+	char what[MAX_VERSION_LEN];		/* Version info (string) */
 
 	char pts[10];		/* Total Score (number) */
 
@@ -1441,3 +1427,55 @@ struct blow_method_type
 		* Unused withose ALLOW_TEMPLATES. */
 };
 
+/*
+ * Describe a display function used for an external window.
+ */
+typedef struct display_func_type display_func_type;
+
+struct display_func_type
+{
+	u32b flag; /* PW_* flag for this display. */
+	cptr name; /* Name (used in preferences) for this display. */
+	bool (*good)(void); /* Check if this display is interesting. */
+	void (*display)(void); /* Display this display. */
+};
+
+/* Describe a set of co-ordinates. */
+typedef struct co_ord co_ord;
+struct co_ord
+{
+#ifdef CHECK_ARRAYS
+	co_ord *idx;
+#endif /* CHECK_ARRAYS */
+	cptr name;
+	int x;
+	int y;
+};
+
+/* A set of strings in a particular order. */
+typedef struct cptr_ch cptr_ch;
+struct cptr_ch
+{
+#ifdef CHECK_ARRAYS
+	int idx;
+#endif /* CHECK_ARRAYS */
+	cptr str;
+};
+
+#ifdef HANDLE_SIGNALS
+
+/* Define a signal handler here where everything can see it. */
+typedef void (*Signal_Handler_t)(int);
+
+#endif
+
+/*
+ * Associate numbers with names for one reason or another.
+ */
+typedef const struct name_entry name_centry;
+typedef struct name_entry name_entry;
+struct name_entry
+{
+	int idx;
+	cptr str;
+};

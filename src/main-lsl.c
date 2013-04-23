@@ -1,4 +1,3 @@
-#define DELAY_EXTERNS_H
 #define MAIN_LSL_C
 /*****************************************************************************
  * File: main-lsl.c
@@ -16,8 +15,6 @@
 
 #ifdef USE_LSL
 
-/* #include "main.h" */
-
 /* Standard C header files */
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +24,6 @@
 #include <vgagl.h>
 #include <vgakeyboard.h>
 #include <zlib.h>
-#include "externs.h"
 
 static cptr ANGBAND_DIR_XTRA_GRAF;
 
@@ -91,7 +87,7 @@ static int flip(unsigned char *image, unsigned int w, unsigned int h);
 static unsigned char *pal;
 static unsigned int bw, bh;
 
-void *read_bmp_file(void)
+static void *read_bmp_file(void)
 {
 	FILE *infile;
 	int i, j;
@@ -454,16 +450,16 @@ static int flip(unsigned char *image, unsigned int w, unsigned int h)
 static term term_screen_body;
 
 /* The visible and virtual screens */
-GraphicsContext *screen;
-GraphicsContext *backscreen;
-GraphicsContext *buffer;
+static GraphicsContext *screen;
+static GraphicsContext *backscreen;
+static GraphicsContext *buffer;
 
 /* The font data */
-void *font;
+static void *font;
 
 
 /* Initialize the screen font */
-void initfont(void)
+static void initfont(void)
 {
 	gzFile fontfile;
 	void *temp;
@@ -495,7 +491,7 @@ void initfont(void)
 
 
 /* Initialize palette values for colors 0-15 */
-void setpal(void)
+static void setpal(void)
 {
 	int i;
 
@@ -616,7 +612,7 @@ static errr term_wipe_svgalib(int x,int y,int n)
  * Low-level graphics routine (assumes valid input)
  * Draw n chars at location (x,y) with value s and attribute a
  ***************************************************************************/
-errr term_text_svgalib(int x, int y, int n, unsigned char a, cptr s)
+static errr term_text_svgalib(int x, int y, int n, unsigned char a, cptr s)
 {
 	term_wipe_svgalib(x, y, n);
 	gl_colorfont(8, 12, COLOR_OFFSET + (a & 0x0F)/*pal_trans[a]*/, font);
@@ -630,7 +626,7 @@ errr term_text_svgalib(int x, int y, int n, unsigned char a, cptr s)
  * Low-level graphics routine (assumes valid input)
  * Draw n chars at location (x,y) with value s and attribute a
  ***************************************************************************/
-errr term_pict_svgalib(int x, int y, int n, const byte *ap, const char *cp,
+static errr term_pict_svgalib(int x, int y, int n, const byte *ap, const char *cp,
                        const byte *tap, const char *tcp)
 {
 	int i;
@@ -652,7 +648,7 @@ errr term_pict_svgalib(int x, int y, int n, const byte *ap, const char *cp,
 }
 
 
-void term_load_bitmap(void)
+static void term_load_bitmap(void)
 {
 	void *temp;
 

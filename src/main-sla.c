@@ -1,4 +1,3 @@
-#define DELAY_EXTERNS_H
 #define MAIN_SLA_C
 /* File: main-sla.c */
 
@@ -28,11 +27,8 @@
 
 #ifdef USE_SLA
 
-/* #include "main.h" */
-
 
 #include <slang.h>
-#include "externs.h"
 
 
 /*
@@ -120,7 +116,7 @@ static char *color_terminals[] =
 /*
  * Stolen from the Midnight Commander
  */
-int has_colors(void)
+static int has_colors(void)
 {
 	int i;
 
