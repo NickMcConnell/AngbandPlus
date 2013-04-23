@@ -5,8 +5,8 @@ is today:
 Ken Dubuc, Mario Feldberg, Justin Rail and Iain Maclean for porting it to
 various operating systems.
 
-James Gordon, Doug G., Leon Marrick, Rob Rowe, Andrew Sidwell, Stig E Sandø and
-Wesley Weimer for various bug reports and fixes.
+James Gordon, Doug G., Leon Marrick, Rob Rowe, Dario Saccavino, Andrew Sidwell,
+Stig E Sandø and Wesley Weimer for various bug reports and fixes.
 
 Various people (including DarkGod, Steven Fuerst, Leon Marrick, Iain McFall and
 Robert Ruehlmann) for code of theirs which I have used.

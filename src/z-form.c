@@ -632,7 +632,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 /*
  * A vstrnfmt_aux wrapper for vstrnfmt_do().
  */
-void vstrnfmt_fn(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+void format_fn(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
 {
 	cptr nfmt = va_arg(*vp, cptr);
 	vstrnfmt_do(buf, max, nfmt, vp);

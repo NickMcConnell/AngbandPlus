@@ -174,22 +174,24 @@ static bool find_space(int *y, int *x, int dis)
 /*
  * Prepare the ghost.
  */
-static void set_ghost_aux(cptr gb_name, int ghost_race)
+static void set_ghost_aux(cptr gb_name, int ghost_race, int lev)
 {
 	monster_race *r_ptr;
 
 	monster_race *rt_ptr;
 
-	int i, lev = r_info[MON_PLAYER_GHOST].level;
+	int i;
 
-	int grace = ghost_race;
+	cptr g_name, gr_name;
 
-	cptr g_name;
-	cptr gr_name = "";
-
-	if (grace < MAX_RACES)
+	/* Paranoia - unwanted races should be disabled, not deleted. */
+	if (ghost_race >= 0 && ghost_race < MAX_RACES)
 	{
-		gr_name=race_info[grace].title;
+		gr_name=race_info[ghost_race].title;
+	}
+	else
+	{
+		gr_name = "Alien";
 	}
 
 	/* Pick a level to obtain the ghost for. */
@@ -235,8 +237,11 @@ static void set_ghost_aux(cptr gb_name, int ghost_race)
 		g_name = format("%s, %s", gb_name, r_name+rt_ptr->name);
 	}
 
+	/* Hack - assume that the names are always in increasing order. */
+	i = r_ptr[1].name - r_ptr->name - 1;
+
 	/* Copy to r_name (r_ptr->level stores its maximum length). */
-	sprintf(r_name+r_ptr->name, "%.*s", r_ptr->level, g_name);
+	sprintf(r_name+r_ptr->name, "%.*s", i, g_name);
 
 	/* The hit dice in rt_ptr are a multiple of the base values. */
 	i = (int)(r_ptr->hdice) * rt_ptr->hdice;
@@ -247,7 +252,12 @@ static void set_ghost_aux(cptr gb_name, int ghost_race)
 	/* The experience is similar, but is boosted by 100 for finer control. */
 	r_ptr->mexp = MAX(r_ptr->mexp * rt_ptr->mexp / 100, 0);
 
+	/* The ghost doesn't yet exist. */
+	r_ptr->cur_num = 0;
+	r_ptr->max_num = 1;
+
 	/* Most other fields are simply copied. */
+	r_ptr->level = rt_ptr->level;
 	r_ptr->ac = rt_ptr->ac;
 	r_ptr->sleep = rt_ptr->sleep;
 	r_ptr->aaf = rt_ptr->aaf;
@@ -260,15 +270,15 @@ static void set_ghost_aux(cptr gb_name, int ghost_race)
 	r_ptr->flags4 = rt_ptr->flags4;
 	r_ptr->flags5 = rt_ptr->flags5;
 	r_ptr->flags6 = rt_ptr->flags6;
-	r_ptr->d_attr = rt_ptr->d_attr;
-	r_ptr->d_char = rt_ptr->d_char;
-	r_ptr->x_attr = rt_ptr->x_attr;
-	r_ptr->x_char = rt_ptr->x_char;
+	r_ptr->gfx.da = rt_ptr->gfx.da;
+	r_ptr->gfx.dc = rt_ptr->gfx.dc;
+	r_ptr->gfx.xa = rt_ptr->gfx.xa;
+	r_ptr->gfx.xc = rt_ptr->gfx.xc;
 	r_ptr->num_blows = rt_ptr->num_blows;
 	C_COPY(r_ptr->blow, rt_ptr->blow, 4, monster_blow);
 
 	/* Remove the RF3_ORC and RF3_TROLL flags if necessary. */
-	switch (race_info[grace].grace)
+	switch (race_info[ghost_race].grace)
 	{
 		case RACE_ORC: r_ptr->flags3 &= ~(RF3_TROLL); break;
 		case RACE_TROLL: r_ptr->flags3 &= ~(RF3_ORC); break;
@@ -308,7 +318,7 @@ static void set_ghost_aux(cptr gb_name, int ghost_race)
  * we do not really need a "full" random seed, we could just use a
  * random value from which random numbers can be extracted.  (?)
  */
-static void set_ghost(cptr pname, int hp, int grace, int lev)
+static void set_ghost(cptr pname, int hp, int ghost_race, int lev)
 {
 	char gb_name[32];
 
@@ -316,24 +326,24 @@ static void set_ghost(cptr pname, int hp, int grace, int lev)
 
 	monster_race *r_ptr = &r_info[MON_PLAYER_GHOST];
 
+	/* Prepare to copy until the first comma. */
+	for (i = 0; pname[i] && pname[i] != ','; i++);
 
-	/* Extract the basic ghost name */
-	strcpy(gb_name, pname);
+	/* Force a name (if no real name was provided). */
+	if (i < 2)
+	{
+		pname = "Nobody";
+		i = strlen(pname);
+	}
 
-	/* Find the first comma, or end of string */
-	for (i = 0; (i < 16) && (gb_name[i]) && (gb_name[i] != ','); i++) ;
+	/* Avoid overflow. */
+	if (i >= (int)sizeof(gb_name)) i = -1+sizeof(gb_name);
 
-	/* Terminate the name */
-	gb_name[i] = '\0';
-
-	/* Force a name */
-	if (!gb_name[1]) strcpy(gb_name, "Nobody");
+	/* Copy the name across. */
+	else sprintf(gb_name, "%.*s", i, pname);
 
 	/* Capitalize the name */
-	if (ISLOWER(gb_name[0])) gb_name[0] = TOUPPER(gb_name[0]);
-
-	/* Save the level */
-	r_ptr->level = lev;
+	gb_name[0] = TOUPPER(gb_name[0]);
 
 	/* Extract the default experience */
 	r_ptr->mexp = lev * 5 + 5;
@@ -345,7 +355,7 @@ static void set_ghost(cptr pname, int hp, int grace, int lev)
 	r_ptr->hdice = r_ptr->hside = i;
 
 	/* Prepare the ghost */
-	set_ghost_aux(gb_name, grace);
+	set_ghost_aux(gb_name, ghost_race, lev);
 }
 
 
@@ -361,11 +371,11 @@ bool place_ghost(void)
 
 	FILE *fp;
 
-	bool err = FALSE;
+	bool b;
 
 	char                name[100];
 
-	/* Hack -- no ghosts in the town */
+	/* Hack -- no ghosts on the surface. */
 	if (!dun_level) return (FALSE);
 
 	/* Already have a ghost */
@@ -379,13 +389,6 @@ bool place_ghost(void)
 
 	/* Dungeon -- Use Dungeon Level */
 
-	/* And even then, it only happens sometimes */
-	if (14 > randint(((dun_depth) / 2) + 11)) return (FALSE);
-
-	/* Only a 33% chance */
-	if (!one_in(3)) return (FALSE);
-
-
 	/* Choose and open the bones file */
 	fp = my_fopen_path(ANGBAND_DIR_BONE, format("bone.%03d", dun_depth), "r");
 
@@ -393,44 +396,33 @@ bool place_ghost(void)
 	if (!fp) return (FALSE);
 
 	/* Scan the file */
-	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", name, &hp, &grace, dummy) != 4);
+	b = (fscanf(fp, "%99[^\n]\n%d\n%d\n%d", name, &hp, &grace, dummy) == 4);
 
 
 	/* Close the file */
 	fclose(fp);
 
 	/* Catch errors */
-	if (err)
+	if (!b)
 	{
 		msg_print("Warning -- corrupt 'ghost' file!");
 		return (FALSE);
 	}
 
-	/* Set up the ghost */
-	set_ghost(name, hp, grace, dun_depth);
-
-
 	/* Hack -- pick a nice (far away) location */
 	if (!find_space(&y, &x, MAX_SIGHT+5)) return FALSE;
 
-	/*** Place the Ghost by Hand (so no-one else does it accidentally) ***/
+	/* Set up the ghost */
+	set_ghost(name, hp, grace, dun_depth);
 
-	r_ptr->cur_num = 0;
-	r_ptr->max_num = 1;
-
-	if (!place_monster_one(y, x, MON_PLAYER_GHOST, FALSE,FALSE, FALSE))
-	{
-		return FALSE;
-	}
-
-	/* Make sure it looks right */
-	r_ptr->x_attr = r_ptr->d_attr;
-	r_ptr->x_char = r_ptr->d_char;
+	/* Try to create the ghost in the dungeon. */
+	b = !!place_monster_one(y, x, MON_PLAYER_GHOST, FALSE,FALSE, FALSE);
 
 	/* Wizard mode message */
-	if (cheat_wzrd) msg_print("WIZARD: Ghost placed");
+	if (b && cheat_wzrd) msg_print("WIZARD: Ghost placed");
 
-	return TRUE;
+	/* Tell the caller if a ghost was created. */
+	return b;
 }
 
 
@@ -1968,7 +1960,7 @@ bool live_monster_p(monster_race *r_ptr)
 	if (r_ptr->flags3 & (RF3_DEMON)) return FALSE;
 	if (r_ptr->flags3 & (RF3_CTHULOID)) return FALSE;
 	if (r_ptr->flags3 & (RF3_NONLIVING)) return FALSE;
-	if (strchr("Egv", r_ptr->d_char)) return FALSE;
+	if (strchr("Egv", r_ptr->gfx.dc)) return FALSE;
 
 	return TRUE;
 }
@@ -2071,41 +2063,43 @@ monster_type *place_monster_one(int y, int x, int r_idx, bool slp, bool charm, b
 	}
 
 
-
-	/* Powerful monster */
-	if (r_ptr->level > (dun_depth))
+	/* Hack - ghosts give a constant rating boost. */
+	if (r_idx == MON_PLAYER_GHOST)
 	{
-		/* Unique monsters */
+		rating += 10;
+	}
+	/* In depth normal monsters have no effect on rating. */
+	else if (r_ptr->level <= dun_depth)
+	{
+		/* Note a unique anyway. */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			/* Message for cheaters */
-			if (cheat_hear) msg_format("Deep Unique (%v).",
+			/* Unique monsters induce message */
+			if (cheat_hear) msg_format("Unique (%v).",
 				monster_desc_aux_f3, r_ptr, 1, 0);
-
-			/* Boost rating by twice delta-depth */
-			rating += (r_ptr->level - (dun_depth)) * 2;
-		}
-
-		/* Normal monsters */
-		else
-		{
-			/* Message for cheaters */
-			if (cheat_hear) msg_format("Deep Monster (%v).",
-				monster_desc_aux_f3, r_ptr, 1, 0);
-
-			/* Boost rating by delta-depth */
-			rating += (r_ptr->level - (dun_depth));
 		}
 	}
-
-	/* Note the monster */
+	/* Deep unique monsters */
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
-		/* Unique monsters induce message */
-		if (cheat_hear) msg_format("Unique (%v).",
+		/* Message for cheaters */
+		if (cheat_hear) msg_format("Deep Unique (%v).",
 			monster_desc_aux_f3, r_ptr, 1, 0);
+
+		/* Boost rating by twice delta-depth */
+		rating += (r_ptr->level - (dun_depth)) * 2;
 	}
 
+	/* Deep normal monsters */
+	else
+	{
+		/* Message for cheaters */
+		if (cheat_hear) msg_format("Deep Monster (%v).",
+			monster_desc_aux_f3, r_ptr, 1, 0);
+
+		/* Boost rating by delta-depth */
+		rating += (r_ptr->level - (dun_depth));
+	}
 
 	/* Access the location */
 	c_ptr = &cave[y][x];
@@ -2338,7 +2332,7 @@ static bool place_monster_okay(int place_monster_idx, int r_idx)
 	monster_race *z_ptr = &r_info[r_idx];
 
 	/* Require similar "race" */
-	if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
+	if (z_ptr->gfx.dc != r_ptr->gfx.dc) return (FALSE);
 
 	/* Skip more advanced monsters */
 	if (z_ptr->level > r_ptr->level) return (FALSE);
@@ -2530,7 +2524,7 @@ static bool alloc_horde_aux(int y, int x, int level)
 		for (i = rand_range(6, 15); i; i--)
 		{
 			summon_specific(m_ptr->fy, m_ptr->fx, level,
-				SUMMON_CHAR(r_info[r_idx].d_char) | SUMMON_NO_UNIQUES);
+				SUMMON_CHAR(r_info[r_idx].gfx.dc) | SUMMON_NO_UNIQUES);
 		}
 
 		return TRUE;
@@ -2637,7 +2631,7 @@ static bool summon_specific_okay(int summon_specific_type, int r_idx)
 	/* Hack - summon by symbol. */
 	if (summon_specific_type & SUMMON_BY_CHAR)
 	{
-		return (r_ptr->d_char == (summon_specific_type & 0x00FF));
+		return (r_ptr->gfx.dc == (summon_specific_type & 0x00FF));
 	}
 	else if (summon_specific_type & SUMMON_BY_FLAG)
 	{
@@ -2665,18 +2659,18 @@ static bool summon_specific_okay(int summon_specific_type, int r_idx)
 	{
 		case UNFLAG(SUMMON_HOUND):
 		{
-			return ((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z'));
+			return ((r_ptr->gfx.dc == 'C') || (r_ptr->gfx.dc == 'Z'));
 		}
 
 		case UNFLAG(SUMMON_HI_UNDEAD):
 		{
-			return !!strchr("LVW", r_ptr->d_char);
+			return !!strchr("LVW", r_ptr->gfx.dc);
 		}
 
 		case UNFLAG(SUMMON_ANIMAL_RANGER):
 		{
 			return ((r_ptr->flags3 & (RF3_ANIMAL)) &&
-				(strchr("abcflqrwBCIJKMRS", r_ptr->d_char)) &&
+				(strchr("abcflqrwBCIJKMRS", r_ptr->gfx.dc)) &&
 				!(r_ptr->flags3 & (RF3_DRAGON))&&
 				!(r_ptr->flags3 & (RF3_EVIL)) &&
 				!(r_ptr->flags3 & (RF3_UNDEAD))&&
@@ -2881,7 +2875,7 @@ void message_pain(monster_type *m_ptr, int dam)
 		long tmp = (newhp * 100L) / oldhp;
 		int percentage = (int)(tmp);
 		uint race, pain;
-		char d_char = r_info[m_ptr->r_idx].d_char;
+		char d_char = r_info[m_ptr->r_idx].gfx.dc;
 
 		/* Find the message set by race, the last being a default set. */
 		for (race = 0; race < N_ELEMENTS(pain_races)-1; race++)

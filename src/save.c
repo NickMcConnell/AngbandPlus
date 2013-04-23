@@ -397,11 +397,12 @@ static void wr_options(void)
 
 	/*** Special Options ***/
 
-	/* Write "delay_factor" */
-	wr_byte((byte)(delay_factor));
+	/* Write the cube root of "delay_factor", rounded up. */
+	for (i = 0; i*i*i < delay_factor; i++) ;
+	wr_byte((byte)i);
 
 	/* Write "hitpoint_warn" */
-	wr_byte((byte)(hitpoint_warn));
+	wr_byte((byte)(hitpoint_warn/10));
 
 
 	/*** Cheating options ***/
@@ -496,8 +497,8 @@ static void wr_ghost(void)
 	wr_string(r_name + r_ptr->name);
 
 	/* Visuals */
-	wr_byte(r_ptr->d_char);
-	wr_byte(r_ptr->d_attr);
+	wr_byte(r_ptr->gfx.dc);
+	wr_byte(r_ptr->gfx.da);
 
 	/* Level/Rarity */
 	wr_byte(r_ptr->level);

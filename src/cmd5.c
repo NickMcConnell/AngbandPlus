@@ -29,8 +29,7 @@ static book_type *k_idx_to_book(int i)
 	switch (k_ptr->tval)
 	{
 		/* Only some objects can be spellbooks. */
-		case TV_SORCERY_BOOK: case TV_THAUMATURGY_BOOK: case TV_CHARM:
-		case TV_CONJURATION_BOOK: case TV_NECROMANCY_BOOK:
+		case TV_BOOK: case TV_CHARM:
 		{
 			if (k_ptr->extra) return book_info+(k_info[i].extra-1);
 			else return 0;
@@ -42,39 +41,6 @@ static book_type *k_idx_to_book(int i)
 	}
 }
 
-/* Find an arbitrary spell in a book. */
-#define a_spell_from(B) ((B)->info+iilog((B)->flags))
-
-static int book_to_school(book_type *b_ptr)
-{
-	switch (a_spell_from(b_ptr)->skill1)
-	{
-		case SKILL_SORCERY: return SCH_SORCERY;
-		case SKILL_THAUMATURGY: return SCH_THAUMATURGY;
-		case SKILL_CONJURATION: return SCH_CONJURATION;
-		case SKILL_NECROMANCY: return SCH_NECROMANCY;
-
-		/* Not one of these books. */
-		default: return -1;
-	}
-}
-
-static book_type *spirit_to_book(int i)
-{
-	switch (i)
-	{
-		case 0: return book_info+BK_LIFE_0;
-		case 2: return book_info+BK_LIFE_1;
-		case 4: return book_info+BK_LIFE_2;
-		case 6: return book_info+BK_LIFE_3;
-		case 1: return book_info+BK_WILD_0;
-		case 3: return book_info+BK_WILD_1;
-		case 5: return book_info+BK_WILD_2;
-		case 7: return book_info+BK_WILD_3;
-		default: return 0;
-	}
-}
-
 /*
  * Find the number a hermetic spell is associated with.
  */
@@ -83,13 +49,12 @@ static int spell_to_num(const magic_type *s_ptr)
 	book_type *b_ptr;
 	for (b_ptr = book_info; b_ptr < END_PTR(book_info); b_ptr++)
 	{
-		int s = book_to_school(b_ptr);
-		assert(s < MAX_SCHOOL);
-		if (s < 0) continue;
+		/* Spells in this book need not be learnt. */
+		if (b_ptr->learn == 255) continue;
 
-		if (s_ptr >= b_ptr->info && s_ptr < b_ptr->info+MAX_SPELLS_PER_BOOK)
+		if (s_ptr >= b_ptr->info && s_ptr < b_ptr->info+b_ptr->max)
 		{
-			return s_ptr - b_ptr->info + MAX_SPELLS_PER_BOOK * s;
+			return s_ptr - b_ptr->info + b_ptr->learn;
 		}
 	}
 	return -1;
@@ -105,13 +70,9 @@ magic_type *num_to_spell(int i)
 
 	for (b_ptr = book_info; b_ptr < END_PTR(book_info); b_ptr++)
 	{
-		int s = book_to_school(b_ptr);
-		assert(s < MAX_SCHOOL);
-		if (s < 0) continue;
-
-		if (i/MAX_SPELLS_PER_BOOK == s)
+		if (i >= b_ptr->learn && i < b_ptr->learn+b_ptr->max)
 		{
-			return b_ptr->info + i%MAX_SPELLS_PER_BOOK;
+			return b_ptr->info + (i - b_ptr->learn);
 		}
 	}
 	return NULL;
@@ -217,27 +178,6 @@ static void low_mana_check(int *chance, const magic_type *s_ptr)
 			return;
 		}
 	}
-}
-
-/*
- * List the spells which can be cast from b_ptr
- */
-static int build_spell_list(byte *s, const book_type *b_ptr)
-{
-	int i, j;
-	assert(b_ptr);
-
-	/* Extract spells */
-	for (i = j = 0; i < MAX_SPELLS_PER_BOOK; i++)
-	{
-		/* Check for this spell */
-		if (b_ptr->flags & (1L << i))
-		{
-			/* Collect this spell */
-			s[j++] = i;
-		}
-	}
-	return j;
 }
 
 /*
@@ -573,8 +513,8 @@ static cptr spell_string(int i, const magic_type *s_ptr, cptr comment)
 /*
  * Print a list of spells of some sort (for casting or learning)
  */
-static int print_spell_list(byte *spells, book_type *b_ptr, int num,
-	int y, int x, cptr (*get)(int, const magic_type *, cptr))
+static int print_spell_list(book_type *b_ptr, int y, int x,
+	cptr (*get)(int, const magic_type *, cptr))
 {
 	int i;
 	char info[80];
@@ -584,10 +524,10 @@ static int print_spell_list(byte *spells, book_type *b_ptr, int num,
 	prt((*get)(0, 0, 0), y++, x);
 
 	/* Dump the spells. */
-	for (i = 0; i < num; i++)
+	for (i = 0; i < b_ptr->max; i++)
 	{
 		/* Access the spell. */
-		const magic_type *s_ptr = &(b_ptr->info[spells[i]]);
+		const magic_type *s_ptr = &(b_ptr->info[i]);
 
 		get_magic_info(info, sizeof(info), s_ptr);
 
@@ -603,11 +543,6 @@ static int print_spell_list(byte *spells, book_type *b_ptr, int num,
 
 	/* Return it. */
 	return y;
-}
-
-static int print_spells(byte *spells, int num, int y, int x, book_type *b_ptr)
-{
-	return print_spell_list(spells, b_ptr, num, y, x, spell_string);
 }
 
 /*
@@ -663,11 +598,9 @@ static bool get_spell_aux(int *sn, book_type *b_ptr, cptr noun, cptr verb,
 	void (*confirm)(char *, uint, const magic_type *, cptr),
 	cptr (*get)(int, const magic_type *, cptr))
 {
-	int i, num, ask, spell = -1;
+	int i, ask, spell = -1;
 	int x = 15, y = 1;
 	int UNREAD(maxy), t_clear, t_list;
-
-	byte spells[64];
 
 	bool flag, redraw, okay;
 	char choice;
@@ -686,9 +619,6 @@ static bool get_spell_aux(int *sn, book_type *b_ptr, cptr noun, cptr verb,
 
 #endif /* ALLOW_REPEAT -- TNB */
 
-	/* Extract spells */
-	num = build_spell_list(spells, b_ptr);
-
 	/* Assume no usable spells */
 	okay = FALSE;
 
@@ -696,10 +626,10 @@ static bool get_spell_aux(int *sn, book_type *b_ptr, cptr noun, cptr verb,
 	(*sn) = -2;
 
 	/* Check for "okay" spells */
-	for (i = 0; i < num; i++)
+	for (i = 0; i < b_ptr->max; i++)
 	{
 		/* Look for "okay" spells */
-		if ((*okay_p)(&b_ptr->info[spells[i]])) okay = TRUE;
+		if ((*okay_p)(&b_ptr->info[i])) okay = TRUE;
 	}
 
 	/* No "okay" spells */
@@ -738,7 +668,7 @@ static bool get_spell_aux(int *sn, book_type *b_ptr, cptr noun, cptr verb,
 	{
 		/* Get a choice, or abort. */
 		if (!get_com(&choice, "(%c-%c, *=List, ESC=exit) %^s which %s? ",
-			I2A(0), I2A(num - 1), verb, noun)) break;
+			I2A(0), I2A(b_ptr->max - 1), verb, noun)) break;
 
 		/* Resize the screen. */
 		if (choice == RESIZE_INKEY_KEY)
@@ -771,7 +701,7 @@ static bool get_spell_aux(int *sn, book_type *b_ptr, cptr noun, cptr verb,
 			}
 			else
 			{
-				maxy = print_spell_list(spells, b_ptr, num, y, x, get);
+				maxy = print_spell_list(b_ptr, y, x, get);
 				t_list = Term_save_aux();
 			}
 			/* Load the other screen. */
@@ -795,14 +725,14 @@ static bool get_spell_aux(int *sn, book_type *b_ptr, cptr noun, cptr verb,
 			i = (ISLOWER(choice) ? A2I(choice) : -1);
 
 			/* Totally Illegal */
-			if ((i < 0) || (i >= num))
+			if ((i < 0) || (i >= b_ptr->max))
 			{
 				bell("Illegal spell choice!");
 				continue;
 			}
 
 			/* Save the spell index */
-			spell = spells[i];
+			spell = i;
 
 			/* Require "okay" spells */
 			if (!(*okay_p)(&b_ptr->info[spell]))
@@ -1218,23 +1148,19 @@ bool PURE item_tester_spells(object_ctype *o_ptr)
 	return (k_idx_to_book(o_ptr->k_idx) != 0);
 }
 
+/*
+ * Display a list of the spells in an object at a point on screen.
+ */
 void display_spells(int y, int x, object_ctype *o_ptr)
 {
-	book_type *b_ptr;
-	int num;
-
-	byte spells[64];
-
-	assert(item_tester_spells(o_ptr));
-
 	/* Access the item's spell list. */
-	b_ptr = k_idx_to_book(o_ptr->k_idx);
+	book_type *b_ptr = k_idx_to_book(o_ptr->k_idx);
 
-	/* Count the spells out. */
-	num = build_spell_list(spells, b_ptr);
+	/* Not a spellbook. */
+	if (!b_ptr) return;
 
 	/* Display the spells */
-	print_spells(spells, num, y, x, b_ptr);
+	print_spell_list(b_ptr, y, x, spell_string);
 }
 
 /*
@@ -1247,7 +1173,10 @@ void display_spells(int y, int x, object_ctype *o_ptr)
  */
 void do_cmd_browse(object_type *o_ptr)
 {
-	if(!item_tester_spells(o_ptr))
+	/* Access the item's spell list. */
+	book_type *b_ptr = k_idx_to_book(o_ptr->k_idx);
+
+	if (!b_ptr)
 	{
 		msg_print("You can't read that.");
 		return;
@@ -1263,7 +1192,7 @@ void do_cmd_browse(object_type *o_ptr)
 	Term_save();
 
 	/* Display the spells */
-	display_spells(1, 15, o_ptr);
+	print_spell_list(b_ptr, 1, 15, spell_string);
 
 	/* Clear the top line */
 	prt("", 0, 0);
@@ -1417,7 +1346,7 @@ void do_cmd_cast(object_type *o_ptr)
 
 		msg_print("You failed to get the spell off!");
 
-		if (o_ptr->tval == TV_THAUMATURGY_BOOK && (randint(100)<spell))
+		if (s_ptr->skill1 == SKILL_THAUMATURGY && percent(spell-1))
 		{
 			msg_print("You produce a chaotic effect!");
 			wild_magic(spell);
@@ -1726,7 +1655,7 @@ void do_cmd_invoke(void)
 	s_ptr = &(spirits[spirit]);
 
 	/* Get a pointer to its spells. */
-	b_ptr = spirit_to_book(spirit);
+	b_ptr = book_info+s_ptr->book;
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -1934,10 +1863,7 @@ void do_cmd_mindcraft(void)
  */
 void display_spell_list(void)
 {
-	byte spells[MAX_SPELLS_PER_BOOK];
-	book_type *b_ptr = MINDCRAFT_BOOK;
-	int num = build_spell_list(spells, b_ptr);
-	print_spell_list(spells, b_ptr, num, 1, 1, c_mindcraft_string);
+	print_spell_list(MINDCRAFT_BOOK, 1, 1, c_mindcraft_string);
 }
 
 #ifdef CHECK_ARRAYS
@@ -1957,14 +1883,12 @@ void check_magic_info(void)
 
 		if (b_ptr->idx != j) quit_fmt("Book %d has index %d", j, b_ptr->idx);
 
-		if (!b_ptr->flags) quit_fmt("Book %d is empty.", j);
+		if (!b_ptr->max) quit_fmt("Book %d is empty.", j);
 
 		if (!b_ptr->info) quit_fmt("Book %d has no spells.", j);
 
-		for (i = 0; i < MAX_SPELLS_PER_BOOK; i++)
+		for (i = 0; i < b_ptr->max; i++)
 		{
-			if (~b_ptr->flags & (1L << i)) continue;
-
 			s_ptr = b_ptr->info+i;
 
 			/* Try to generate the extra string. Failure gives an assert()

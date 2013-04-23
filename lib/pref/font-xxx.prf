@@ -65,8 +65,26 @@ E:t:75:b
 # Food
 E:t:80:g
 
-# Magic books
-E:t:90:B
-E:t:91:R
-E:t:92:o
-E:t:93:s
+# Sorcery Books
+E:k:415:B
+E:k:416:B
+E:k:417:B
+E:k:418:B
+
+# Conjuration Books
+E:k:419:o
+E:k:420:o
+E:k:421:o
+E:k:422:o
+
+# Necromancy Books
+E:k:423:s
+E:k:424:s
+E:k:425:s
+E:k:426:s
+
+# Thaumaturgy Books
+E:k:427:R
+E:k:428:R
+E:k:429:R
+E:k:430:R

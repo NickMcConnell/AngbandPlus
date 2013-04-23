@@ -411,33 +411,36 @@ Setting this option prevents chaos features from being displayed in the characte
 $GStairs can be longer than one level [multi_stair]
 Setting this option allows stairs to move you by anything up to 5 levels at a time.
 
-%%%%% <option=D>
-==== Base Delay Factor ===
+%%%%% <options=N>
+=== Miscellaneous numerical options ===
 
-The "delay_factor" value, if non-zero, is used to "slow down" the game, which is useful to allow you to "observe" the temporal effects of bolt, beam, and ball attacks. The actual delay is equal to "delay_factor" cubed, in milliseconds. Frequently used factors are 2 or 3.
+These include a range of options which are only similar in that they involve the user setting a number, rather than simply turning something on or off. They are set by pressing y to increase the value or n to decrease it.
 
+As this is likely to involve pressing a key several times for one option, this menu does not advance the selected option if you press a key.
 
-%%%%% <option=H>
-==== Hitpoint Warning ===
-
-The "hitpoint_warn" value, if non-zero, is the percentage of maximal hitpoints at which the player is warned that he may die. It is also used as the cut-off for using red to display both hitpoints and mana. It is entered as a value between 0 and 9 (0% and 90%).
-
-%%%%% <autosave>
-=== Autosave options ===
-
-Ideally, the game should be so stable that these options are not needed at all. However, even if the game were 100% reliable (which it, to be frank, probably is not), the user might forget to and his hardware could fail him. For all of these reasons, you may want to use these options:
+As the autosave feature (which saves the game at various points to guard against crashes and power failures) is controlled by such an option, all of the options which concern it are listed here.
 
 %%%%% <autosave_l>
 $GAutosave when entering new levels [autosave_l]
 If this option is set, the program will attempt to save your character every time before creating a new dungeon level. Useful if you experience any game or computer crashes (or your dog enjoys kicking your power cords out of the wall like mine does!).
 
-%%%%% <autosave_t>
-$GTimed autosave [autosave_t]
-If this option is set, the program will attempt to save your character every n game turns, where n is the "frequency". To set frequency press n: it will increase the frequency to the next category (and from 25000 to 0), the categories being every 50, 100, 250, 500, 1000, 2500, 5000, 10000 and 25000 turns. Note that the frequency must be higher than 0 and the "Timed autosave" set to "yes" for timed autosaves to take place.
+%%%%% <autosave_t> <autosave_freq>
+$GTimed autosave [autosave_t] [autosave_freq]
+If this option is set, the program will attempt to save your character every so many turns. This is controlled by the autosave_freq setting, which can be set to one of a range of values.
+
+As an additional control, this can be disabled by setting autosave_t to FALSE.
 
 %%%%% <autosave_q>
 $GQuiet autosave [autosave_q] (21/5/2001)
 If this option is set, no messages will be printed, or input required, as the game is being saved via one of the autosave options above.
+
+%%%%% <base delay factor>
+$GDelay (in ms) for various graphical effects [base delay factor]
+This may be used to "slow down" the game, which is useful to allow you to "observe" the temporal effects of bolt, beam, and ball attacks.
+
+%%%%% <hitpoint warning>
+$GPercent of HP at which to give a special warning [hitpoint warning]
+This value, if non-zero, is the percentage of maximal hitpoints at which the player is warned that he may die. It is also used as the cut-off for using red to display both hitpoints and mana.
 
 %%%%%
 === Window options ===
@@ -574,7 +577,7 @@ $GWizard (Debug) Mode active [cheat_wzrd]
 This sets cheat_live and cheat_skll, forces special monster drops to always occur, allows friendly uniques to be generated, causes amulets of adornment to remove the requirement for food, allows the debug commands (Ctrl+a) to be used and gives a variety of extra messages.
 
 %%%%% <cheat_save>
-$GDon't auto-save on in-game events [cheat_save] (1.0.14)
+$GDon't auto-save on in-game events [cheat_save] (1.0.15)
 This prevents the game from being saved when it exits via the *****cmd=^X*[Save and Quit] command or on your character's death. Other things which may save the game (such as auto-save) work as normal.
 
 %%%%% <option=B>

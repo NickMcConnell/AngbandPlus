@@ -62,8 +62,8 @@
 # to the special field in e_info.txt.
 #   If tval is 55 (Staff),65 (Wand) or 66 (Staff),it represents the difficulty
 # with which the object is used or recharged,higher being harder.
-#   If tval is 90 (Sorcery),91 (Thaumaturgy),92 (Conjuration),93 (Necromancy)
-# or 94 (Charm),it is an index into the (hard coded) spell table.
+#   If tval is 90 (Book) or 94 (Charm), it is an index into the (hard coded)
+# spell table.
 
 # 'W' is for extra information. Rating is the bonus to the level feeling given
 # if this object is created then, weight is in tenth-pounds (and is unused for
@@ -91,7 +91,7 @@
 
 # Version stamp (required)
 
-V:1.0.14
+V:1.0.15
 
 ##### Non-objects #####
 
@@ -99,7 +99,6 @@ V:1.0.14
 
 N:0:(nothing)
 G:&:w:0
-F:EASY_KNOW
 
 # The price of this object is used as a price comparison in shops.
 # The name and graphic representation are used for the special "stack" image.
@@ -1308,7 +1307,7 @@ G: :d:2
 I:Ring:0:0
 W:0:0.2lb:0
 A:5/1
-F:CURSED | AGGRAVATE | EASY_KNOW
+F:CURSED | AGGRAVATE
 
 N:149:Weakness
 G: :d:2
@@ -1329,21 +1328,21 @@ G: :d:2
 I:Ring:0:0
 W:0:0.2lb:200
 A:5/1
-F:FEATHER | EASY_KNOW
+F:FEATHER
 
 N:152:Teleportation
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:250
 A:5/1
-F:CURSED | TELEPORT | EASY_KNOW
+F:CURSED | TELEPORT
 
 N:153:Slow Digestion
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:250
 A:5/1
-F:SLOW_DIGEST | EASY_KNOW
+F:SLOW_DIGEST
 
 N:154:Searching
 G: :d:2
@@ -1357,63 +1356,63 @@ G: :d:2
 I:Ring:0:0
 W:0:0.2lb:250
 A:10/1
-F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
+F:RES_FIRE | IGNORE_FIRE
 
 N:156:Resist Cold
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:250
 A:10/1
-F:RES_COLD | IGNORE_COLD | EASY_KNOW
+F:RES_COLD | IGNORE_COLD
 
 N:157:See Invisible
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:340
 A:30/1
-F:SEE_INVIS | EASY_KNOW
+F:SEE_INVIS
 
 N:158:Sustain Charisma
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:500
 A:30/1
-F:SUST_CHR | EASY_KNOW
+F:SUST_CHR
 
 N:159:Sustain Intelligence
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:600
 A:30/1
-F:SUST_INT | EASY_KNOW
+F:SUST_INT
 
 N:160:Sustain Wisdom
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:600
 A:30/1
-F:SUST_WIS | EASY_KNOW
+F:SUST_WIS
 
 N:161:Sustain Strength
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:750
 A:30/1
-F:SUST_STR | EASY_KNOW
+F:SUST_STR
 
 N:162:Sustain Constitution
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:750
 A:30/1
-F:SUST_CON | EASY_KNOW
+F:SUST_CON
 
 N:163:Sustain Dexterity
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:750
 A:30/1
-F:SUST_DEX | EASY_KNOW
+F:SUST_DEX
 
 N:164:Protection
 G: :d:2
@@ -1499,84 +1498,84 @@ G: :d:2
 I:Ring:0:0
 W:0:0.2lb:3,00
 A:10/2
-F:RES_FEAR | EASY_KNOW
+F:RES_FEAR
 
 N:176:Free Action
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:1,500
 A:20/1
-F:FREE_ACT | EASY_KNOW
+F:FREE_ACT
 
 N:177:Confusion Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:3,000
 A:22/2
-F:RES_CONF | EASY_KNOW
+F:RES_CONF
 
 N:178:Nexus Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:3,000
 A:24/2
-F:RES_NEXUS | EASY_KNOW
+F:RES_NEXUS
 
 N:179:Shard Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:3,000
 A:25/2
-F:RES_SHARDS | EASY_KNOW
+F:RES_SHARDS
 
 N:180:Sound Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:3,000
 A:26/2
-F:RES_SOUND | EASY_KNOW
+F:RES_SOUND
 
 N:181:Light and Darkness Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:3,000
 A:30/2
-F:RES_LITE | RES_DARK | EASY_KNOW
+F:RES_LITE | RES_DARK
 
 N:182:Blindness Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:7,500
 A:60/2
-F:RES_BLIND | EASY_KNOW
+F:RES_BLIND
 
 N:183:Chaos Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:13,000
 A:50/2
-F:RES_CHAOS | RES_CONF | EASY_KNOW
+F:RES_CHAOS | RES_CONF
 
 N:184:Nether Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:14,500
 A:34/2
-F:RES_NETHER | HOLD_LIFE | EASY_KNOW
+F:RES_NETHER | HOLD_LIFE
 
 N:185:Disenchantment Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:15,000
 A:90/10
-F:RES_DISEN | EASY_KNOW
+F:RES_DISEN
 
 N:186:Poison Resistance
 G: :d:2
 I:Ring:0:0
 W:0:0.2lb:16,000
 A:60/2
-F:RES_POIS | EASY_KNOW
+F:RES_POIS
 
 N:187:Speed
 G: :d:2
@@ -1613,28 +1612,27 @@ G: :d:3
 I:Amulet:0:0
 W:0:0.3lb:20
 A:15/1
-F:EASY_KNOW
 
 N:192:Slow Digestion
 G: :d:3
 I:Amulet:0:0
 W:0:0.3lb:200
 A:15/1
-F:SLOW_DIGEST | EASY_KNOW
+F:SLOW_DIGEST
 
 N:193:Teleportation
 G: :d:3
 I:Amulet:0:0
 W:0:0.3lb:250
 A:15/1
-F:CURSED | TELEPORT | EASY_KNOW
+F:CURSED | TELEPORT
 
 N:194:Resist Acid
 G: :d:3
 I:Amulet:0:0
 W:0:0.3lb:300
 A:20/1
-F:RES_ACID | IGNORE_ACID | EASY_KNOW
+F:RES_ACID | IGNORE_ACID
 
 N:195:Brilliance
 G: :d:3
@@ -1695,7 +1693,7 @@ G: :d:3
 I:Amulet:0:0
 W:0:0.3lb:30,000
 A:60/4
-F:REFLECT | EASY_KNOW
+F:REFLECT
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Scrolls #####
@@ -3427,21 +3425,21 @@ P:(1d1) (+0,+0) [0,+0]
 
 N:415:[Beginner's Handbook]
 G:?:B:201
-I:Sorcery:0:1
+I:Book:0:1
 W:0:3.0lb:100
 A:10/1
 P:(1d1) (+0,+0) [0,+0]
 
 N:416:[Master Sorcerer's Handbook]
 G:?:B:201
-I:Sorcery:0:2
+I:Book:0:2
 W:0:3.0lb:1,000
 A:20/1
 P:(1d1) (+0,+0) [0,+0]
 
 N:417:[R'Lyeh Text]
 G:?:b:201
-I:Sorcery:0:3
+I:Book:0:3
 W:0:3.0lb:25,000
 A:40/1
 P:(1d1) (+0,+0) [0,+0]
@@ -3449,7 +3447,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 
 N:418:[Unausprechlichen Kulten]
 G:?:b:201
-I:Sorcery:0:4
+I:Book:0:4
 W:0:3.0lb:100,000
 A:90/3
 P:(1d1) (+0,+0) [0,+0]
@@ -3459,21 +3457,21 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 
 N:419:[Minor Conjurings]
 G:?:U:203
-I:Conjuration:0:13
+I:Book:0:13
 W:0:3.0lb:100
 A:10/1
 P:(1d1) (+0,+0) [0,+0]
 
 N:420:[Conjuring Mastery]
 G:?:U:203
-I:Conjuration:0:14
+I:Book:0:14
 W:0:3.0lb:1,000
 A:20/1
 P:(1d1) (+0,+0) [0,+0]
 
 N:421:[Book of Eibon]
 G:?:o:203
-I:Conjuration:0:15
+I:Book:0:15
 W:0:3.0lb:25,000
 A:40/1
 P:(1d1) (+0,+0) [0,+0]
@@ -3481,7 +3479,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 
 N:422:[Liber Ivonis]
 G:?:o:203
-I:Conjuration:0:16
+I:Book:0:16
 W:0:3.0lb:100,000
 A:90/3
 P:(1d1) (+0,+0) [0,+0]
@@ -3491,21 +3489,21 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 
 N:423:[Black Prayers]
 G:?:D:204
-I:Necromancy:0:5
+I:Book:0:5
 W:0:3.0lb:100
 A:10/1
 P:(1d1) (+0,+0) [0,+0]
 
 N:424:[Black Mass]
 G:?:D:204
-I:Necromancy:0:6
+I:Book:0:6
 W:0:3.0lb:1,000
 A:20/1
 P:(1d1) (+0,+0) [0,+0]
 
 N:425:[Necronomicon]
 G:?:v:204
-I:Necromancy:0:7
+I:Book:0:7
 W:0:3.0lb:25,000
 A:50/1
 P:(1d1) (+0,+0) [0,+0]
@@ -3513,7 +3511,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 
 N:426:[Kitab Al Azif]
 G:?:v:204
-I:Necromancy:0:8
+I:Book:0:8
 W:0:3.0lb:100,000
 A:90/3
 P:(1d1) (+0,+0) [0,+0]
@@ -3523,21 +3521,21 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 
 N:427:[Sign of Chaos]
 G:?:R:202
-I:Thaumaturgy:0:9
+I:Book:0:9
 W:0:3.0lb:100
 A:10/1
 P:(1d1) (+0,+0) [0,+0]
 
 N:428:[Chaos Mastery]
 G:?:R:202
-I:Thaumaturgy:0:10
+I:Book:0:10
 W:0:3.0lb:1,000
 A:20/1
 P:(1d1) (+0,+0) [0,+0]
 
 N:429:[The King in Yellow]
 G:?:r:202
-I:Thaumaturgy:0:11
+I:Book:0:11
 W:0:3.0lb:25,000
 A:50/1
 P:(1d1) (+0,+0) [0,+0]
@@ -3545,7 +3543,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 
 N:430:[Revelations of Glaaki]
 G:?:r:202
-I:Thaumaturgy:0:12
+I:Book:0:12
 W:0:3.0lb:100,000
 A:100/3
 P:(1d1) (+0,+0) [0,+0]

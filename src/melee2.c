@@ -730,20 +730,21 @@ static bool summon_possible(int y1, int x1)
 
 
 /*
- * Return TRUE if (x,y) is a clear square without a monster.
+ * Return MVD_CONTINUE if (x,y) is a clear square without a monster,
+ * MVD_STOP_BEFORE_HERE otherwise.
  */
-static bool PURE clean_shot_p(int y, int x, int UNUSED d)
+static int PURE mvd_clean_shot(int y, int x, int UNUSED d)
 {
 	int m_idx = cave[y][x].m_idx;
 
 	/* Never pass through walls */
-	if (!cave_floor_bold(y, x)) return FALSE;
+	if (!cave_floor_bold(y, x)) return MVD_STOP_BEFORE_HERE;
 
 	/* Never pass through hostile monsters */
-	if (m_idx && ~m_list[m_idx].smart & SM_ALLY) return FALSE;
+	if (m_idx && ~m_list[m_idx].smart & SM_ALLY) return MVD_STOP_HERE;
 
 	/* Pass through other things. */
-	return TRUE;
+	return MVD_CONTINUE;
 }
 
 /*
@@ -757,7 +758,7 @@ static bool clean_shot(int y1, int x1, int y2, int x2)
 	int y, x;
 
 	/* Does it get to the end before clean_shot_p() fails? */
-	return move_in_direction(&x, &y, x1, y1, x2, y2, clean_shot_p);
+	return move_in_direction(&x, &y, x1, y1, x2, y2, mvd_clean_shot);
 }
 
 
@@ -2348,7 +2349,7 @@ static bool monst_spell_monst(int m_idx)
 								"minions" : "kin"));
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific_aux(y, x, rlev, SUMMON_CHAR(r_ptr->d_char) | SUMMON_NO_UNIQUES, TRUE, friendly);
+				count += summon_specific_aux(y, x, rlev, SUMMON_CHAR(r_ptr->gfx.dc) | SUMMON_NO_UNIQUES, TRUE, friendly);
 			}
 			if (blind && count) msg_print("You hear many things appear nearby.");
 
@@ -3849,7 +3850,7 @@ static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int 
 							"minions" : "kin"));
 			for (k = count = 0; k < 6; k++)
 			{
-					count += summon_specific(y, x, rlev, SUMMON_CHAR(r_ptr->d_char) | SUMMON_NO_UNIQUES);
+					count += summon_specific(y, x, rlev, SUMMON_CHAR(r_ptr->gfx.dc) | SUMMON_NO_UNIQUES);
 			}
 			if (blind && count) msg_print("You hear many things appear nearby.");
 
@@ -5522,7 +5523,7 @@ static u32b noise = 0L;
  *
  * A "direction" of "5" means "pick a random direction".
  */
-static void process_monster(int m_idx, bool is_friend)
+static void process_monster(int m_idx)
 {
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -5776,21 +5777,11 @@ static void process_monster(int m_idx, bool is_friend)
 			}
 		}
 
-		if (m_ptr->smart & SM_ALLY)
-		{
-			is_friend = TRUE;
-		}
-			else
-		{
-			is_friend = FALSE;
-		}
-
-
 		/* Hack -- multiply slower in crowded areas */
 		if ((k < 4) && (!k || !rand_int(k * MONSTER_MULT_ADJ)))
 		{
 			/* Try to multiply */
-			if (multiply_monster(m_ptr, is_friend, FALSE))
+			if (multiply_monster(m_ptr, !!(m_ptr->smart & SM_ALLY), FALSE))
 			{
 				/* Take note if visible */
 				if (m_ptr->ml)
@@ -6609,7 +6600,6 @@ void process_monsters(void)
 	int                     fx, fy;
 
 	bool            test;
-	bool            is_friend = FALSE;
 
 	monster_type    *m_ptr;
 	monster_race    *r_ptr;
@@ -6744,11 +6734,8 @@ void process_monsters(void)
 		/* Do nothing */
 		if (!test) continue;
 
-		if ((m_ptr->smart) &  (SM_ALLY))
-			is_friend = TRUE;
-
 		/* Process the monster */
-		process_monster(i, is_friend);
+		process_monster(i);
 
 		/* Hack -- notice death or departure */
 		if (!alive || death || new_level_flag) break;

@@ -963,7 +963,7 @@ static void do_cmd_query_symbol_aux(u16b *who)
 		}
 
 		/* Require a base symbol if needed. */
-		if (symbol && (r_ptr->d_char != sym)) continue;
+		if (symbol && (r_ptr->gfx.dc != sym)) continue;
 
 		/* Collect this monster. */
 		who[n++] = i;
@@ -1113,77 +1113,42 @@ void do_cmd_query_symbol(void)
 }
 
 
-/* 'Handle' an object, doing whatever seems the sensible thing to it... */
+/*
+ * 'Handle' an object, doing whatever seems the sensible thing to it...
+ */
 void do_cmd_handle(object_type *o_ptr)
 {
-	/* First test Wielded items */
-	if (o_ptr >= inventory+INVEN_WIELD && o_ptr <= inventory+INVEN_FEET)
+	void (*funcs[])(object_type *) =
 	{
-		/* Try to activate the wielded item, whatever it is */
-		do_cmd_activate(o_ptr);
-		return;
-	}
-	/* The item is in our inventory or in a pouch*/
-	switch(o_ptr->tval)
+		do_cmd_activate,
+		do_cmd_use_staff,
+		do_cmd_aim_wand,
+		do_cmd_zap_rod,
+		do_cmd_read_scroll,
+		do_cmd_quaff_potion,
+		do_cmd_refill,
+		do_cmd_eat_food,
+		do_cmd_browse,
+	}, (**ptr)(object_type *);
+
+	/* If one of the above is suitable for this object, carry it out. */
+	FOR_ALL_IN(funcs, ptr)
 	{
-	case TV_STAFF:
+		if (item_tester_okay_cmd(*ptr, o_ptr))
 		{
-			do_cmd_use_staff(o_ptr);
-			break;
-		}
-	case TV_WAND:
-		{
-			do_cmd_aim_wand(o_ptr);
-			break;
-		}
-	case TV_ROD:
-		{
-			do_cmd_zap_rod(o_ptr);
-			break;
-		}
-	case TV_SCROLL:
-		{
-			do_cmd_read_scroll(o_ptr);
-			break;
-		}
-	case TV_POTION:
-		{
-			do_cmd_quaff_potion(o_ptr);
-			break;
-		}
-	case TV_FLASK:case TV_LITE:
-		{
-			do_cmd_refill(o_ptr);
-			break;
-		}
-	case TV_FOOD:
-		{
-			do_cmd_eat_food(o_ptr);
-			break;
-		}
-	case TV_SORCERY_BOOK:
-	case TV_THAUMATURGY_BOOK:
-	case TV_CONJURATION_BOOK:
-	case TV_NECROMANCY_BOOK:
-	case TV_CHARM:
-		{
-			do_cmd_browse(o_ptr);
-			break;
-		}
-	default:
-		{
-			item_tester_hook=item_tester_hook_wear;
-			if(item_tester_okay(o_ptr))
-			{
-				msg_print("That item must be wielded to be used.");
-			}
-			else
-			{
-				msg_print("That item can't be used directly.");
-			}
-			item_tester_hook=0;
+			(**ptr)(o_ptr);
 			return;
 		}
+	}
+
+	/* If none is, give an error message. */
+	if (item_tester_okay_cmd(do_cmd_wield, o_ptr))
+	{
+		msg_print("That item must be wielded to be used.");
+	}
+	else
+	{
+		msg_print("That item can't be used directly.");
 	}
 }
 

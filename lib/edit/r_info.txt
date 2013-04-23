@@ -97,7 +97,7 @@
 
 # Version stamp (required)
 
-V:1.0.14
+V:1.0.15
 
 
 ##### The Player #####
@@ -111,7 +111,7 @@ G:@:w
 # the template provided solely to avoid some potential bugs.
 
 N:1:Nobody, the Unnamed Ghost---------------------------------------
-D:--------------------------------------------------------------64
+D:The sight of this monster brings back painful memories...
 G:G:w
 I:0:0:1d1:0:0:0
 W:0:0:1

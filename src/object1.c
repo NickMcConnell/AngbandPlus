@@ -241,7 +241,7 @@ void reset_visuals(void)
 	for (i = 0; i < MAX_MONCOL; i++)
 	{
 		/* Hack - always default to white */
-		moncol[i].attr = TERM_WHITE;
+		moncol[i].gfx.xa = TERM_WHITE;
 	}
 	/* Access the "font" or "graf" pref file, based on "use_graphics" */
 	sprintf(buf, "%s-%s.prf", (use_graphics ? "graf" : "font"), ANGBAND_SYS);
@@ -1596,10 +1596,6 @@ static cptr PURE item_activation(object_ctype *o_ptr)
 				return "teleport (range 100) every 50+d50 turns";
 			case ACT_RECALL:
 				return "word of recall every 200 turns";
-			case 0:
-				break;
-			default:
-				return "a bad randart activation";
 		}
 
 	/* Some artifacts can be activated */
@@ -1757,8 +1753,15 @@ static cptr PURE item_activation(object_ctype *o_ptr)
 			return "breathe the elements (300) every 300+d300 turns";
 	}
 
+	{
+		cptr s = describe_object_power(o_ptr);
+		if (s) return safe_string_make(s);
+	}
+
 	/* Error types */
-	switch (o_ptr->tval)
+	if (o_ptr->activation) return "a bad randart activation";
+
+	else switch (o_ptr->tval)
 	{
 		case TV_RING:
 			return "a bad ring activation";
@@ -2658,16 +2661,30 @@ static void identify_fully_get(object_ctype *o1_ptr, cptr *info, byte flags)
 	/* Extract the known info */
 	object_info_known(o_ptr, o1_ptr);
 
+	/* Hack - give the name here for a hidden object, just in case. */
+	if (hidden_p(o_ptr)) alloc_ifa(info+i++, "It is really %v.", object_desc_f3,
+		o1_ptr, OD_ART | OD_NOHIDE, 0);
+
 	/* Mega-Hack -- describe activation */
 	if (o_ptr->flags3 & (TR3_ACTIVATE))
 	{
-		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
+		cptr act = item_activation(o_ptr);
+
+		/* 
+		 * Hack - describe_object_power() and item_activation() don't produce
+		 * grammatically equivalent sentences.
+		 */
+		if (ISUPPER(act[0]))
+			info[i++] = "When activated...";
+		else
+			info[i++] = "It can be activated for...";
+
+		info[i++] = act;
 		info[i++] = "...if it is being worn.";
 	}
 
 	/* Describe use of the base object, if any. */
-	if (spoil_base && !brief)
+	else if (spoil_base && !brief)
 	{
 		/* There's a description in k_info.txt. */
 		if (k_info[o_ptr->k_idx].text)
@@ -3577,7 +3594,7 @@ static bool item_tester_try_cmd(s16b cmd, object_ctype *o_ptr);
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(object_ctype *o_ptr)
+static bool item_tester_okay(object_ctype *o_ptr)
 {
 	/* Require an item */
 	if (!o_ptr->k_idx) return (FALSE);
@@ -3591,7 +3608,30 @@ bool item_tester_okay(object_ctype *o_ptr)
 		return item_tester_okay_aux(o_ptr, item_tester_hook, item_tester_tval);
 }
 
+/*
+ * Obtain the correct colour in which to show an object in an inventory list.
+ */
+byte get_i_attr(object_type *o_ptr)
+{
+	obj_know_type ok_ptr[1];
+	object_knowledge(ok_ptr, o_ptr);
 
+	/* Use the k_idx if known. */
+	if (ok_ptr->obj->k_idx)
+	{
+		return k_info[o_ptr->k_idx].i_attr;
+	}
+	/* Use the p_id if known (which is true because of the way p_id works). */
+	else if (ok_ptr->p_id)
+	{
+		return o_base[u_info[k_info[o_ptr->k_idx].u_idx].p_id].i_attr;
+	}
+	/* Paranoia */
+	else
+	{
+		return TERM_WHITE;
+	}
+}
 
 
 /*
@@ -3623,7 +3663,7 @@ void display_inven(bool equip)
 		object_type *o_ptr = &inventory[i];
 
 		/* Get a color */
-		char attr = atchar[k_info[o_ptr->k_idx].i_attr];
+		char attr = atchar[get_i_attr(o_ptr)];
 
 		cptr slot1, slot2;
 
@@ -3652,7 +3692,7 @@ void display_inven(bool equip)
 			sprintf(label, "%c) ", index_to_label(o_ptr));
 
 		/* Display the entry itself (including the slot description). */
-		mc_put_fmt(i - min, 3, "%c) $%c%.*v%s%s%s", label, attr, wid,
+		mc_put_fmt(i - min, 3, "%s$%c%.*v%s%s%s", label, attr, wid,
 			object_desc_f3, o_ptr, TRUE, 3, wgt, slot1, slot2);
 	}
 }
@@ -3722,7 +3762,7 @@ void show_inven(bool equip, bool all)
 
 		/* Save the object index, color, and description */
 		out_index[k] = i;
-		out_color[k] = k_info[o_ptr->k_idx].i_attr;
+		out_color[k] = get_i_attr(o_ptr);
 		out_desc[k] = string_make(o_name);
 
 		/* Find the predicted "line length" */
@@ -4003,6 +4043,7 @@ static bool get_tag(object_type **o_ptr, char tag, s16b cmd, object_type *first)
 	char buf[2*MAX_ASCII_LEN+2];
 	int len;
 	cptr s;
+	bool xn;
 
 	object_type *j_ptr;
 
@@ -4011,7 +4052,7 @@ static bool get_tag(object_type **o_ptr, char tag, s16b cmd, object_type *first)
 	len = strlen(buf);
 
 	/* Check every object */
-	for (j_ptr = first; j_ptr; next_object(&j_ptr))
+	for (j_ptr = first, xn = FALSE; j_ptr; next_object(&j_ptr))
 	{
 		/* Never check the overflow slot. */
 		if (j_ptr == inventory+INVEN_PACK) break;
@@ -4026,7 +4067,7 @@ static bool get_tag(object_type **o_ptr, char tag, s16b cmd, object_type *first)
 		while ((s = strchr(s, '@')))
 		{
 			/* Advance and check for short tags. */
-			if (*++s == tag)
+			if (*++s == tag && !xn)
 			{
 				/* Success */
 				if (!*o_ptr) *o_ptr = j_ptr;
@@ -4037,13 +4078,13 @@ static bool get_tag(object_type **o_ptr, char tag, s16b cmd, object_type *first)
 			{
 				/* Success */
 				*o_ptr = j_ptr;
-				return TRUE;
+				xn = TRUE;
 			}
 		}
 	}
 
 	/* No @xn tag. */
-	return FALSE;
+	return xn;
 }
 
 
@@ -4203,7 +4244,7 @@ static object_type *get_item_aux(errr *err, cptr pmt, bool equip, bool inven,
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Accept the item on the floor if legal */
-			if (item_tester_okay(o_ptr)) allow_floor = TRUE;
+			if (item_tester_okay(o_ptr) && !hidden_p(o_ptr)) allow_floor = TRUE;
 		}
 	}
 
@@ -4764,23 +4805,6 @@ static bool PURE item_tester_unhidden(object_ctype *o_ptr)
 }
 
 /*
- * Is it a book?
- */
-static bool PURE item_tester_book(object_ctype *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_SORCERY_BOOK:
-		case TV_THAUMATURGY_BOOK:
-		case TV_CONJURATION_BOOK:
-		case TV_NECROMANCY_BOOK:
-			return TRUE;
-		default:
-			return FALSE;
-	}
-}
-
-/*
  * Can it be dropped?
  */
 static bool PURE item_tester_hook_drop(object_ctype *o_ptr)
@@ -5003,9 +5027,9 @@ static object_function object_functions[] =
 	{'b', do_cmd_browse, "browse", "book",
 		NULL, item_tester_spells, 0, FALSE, TRUE, TRUE},
 	{'G'+CMD_SHOP, do_cmd_study, "study", "book",
-		forbid_study, item_tester_book, 0, FALSE, TRUE, TRUE},
+		forbid_study, NULL, TV_BOOK, FALSE, TRUE, TRUE},
 	{'m', do_cmd_cast, "use", "book",
-		forbid_cast, item_tester_book, 0, FALSE, TRUE, TRUE},
+		forbid_cast, NULL, TV_BOOK, FALSE, TRUE, TRUE},
 	{'h', do_cmd_cantrip, "use", "charm",
 		forbid_cast, NULL, TV_CHARM, TRUE, TRUE, TRUE},
 	{'w', do_cmd_wield, "wear or wield", "item",
@@ -5112,36 +5136,60 @@ static object_function PURE *get_function_for_object(s16b cmd,
 }
 
 /*
+ * Return TRUE if this object is suitable for this object_function.
+ */
+static bool PURE item_tester_okay_func(object_function *func,
+	object_ctype *o_ptr)
+{
+	/* Only allow functions which can be performed on this object. */
+	if (is_worn_p(o_ptr))
+	{
+		if (!func->equip) return FALSE;
+	}
+	else if (is_inventory_p(o_ptr))
+	{
+		if (!func->inven) return FALSE;
+	}
+	else
+	{
+		if (!func->floor) return FALSE;
+	}
+
+	return item_tester_okay_aux(o_ptr, func->hook, func->tval);
+}
+
+/*
+ * Return TRUE if this object is suitable for this function according to the
+ * above table.
+ */
+bool PURE item_tester_okay_cmd(void (*func)(object_type *), object_ctype *o_ptr)
+{
+	object_function *ptr;
+
+	FOR_ALL_IN(object_functions, ptr)
+	{
+		if (ptr->func == func) return item_tester_okay_func(ptr, o_ptr);
+	}
+
+	/* No object is suitable for an unrecognised function. */
+	return FALSE;
+}
+
+/*
  * Look for a key sequence of the form ~ab where a is cmd.
  */
 static bool item_tester_try_cmd(s16b cmd, object_ctype *o_ptr)
 {
+	/* Look for a key sequence of the form ~ab where a is cmd.
+	 * If one is found, extract the function associated with it.
+	 */
 	object_function *func = get_function_for_object(cmd, o_ptr);
 
-	if (func)
-	{
-		/* Only allow functions which can be performed on this object. */
-		if (is_worn_p(o_ptr))
-		{
-			if (!func->equip) return FALSE;
-		}
-		else if (is_inventory_p(o_ptr))
-		{
-			if (!func->inven) return FALSE;
-		}
-		else
-		{
-			if (!func->floor) return FALSE;
-		}
-	}
-	else
-	{
-		/* Use the hook for the original function. */
-		func = get_object_function(cmd);
-	}
+	/* Without one, use the function for the key pressed. */
+	if (!func) func = get_object_function(cmd);
 
-	/* Use the hook from this function. */
-	return item_tester_okay_aux(o_ptr, func->hook, func->tval);
+	/* Check that this object is suitable for the function chosen. */
+	return item_tester_okay_func(func, o_ptr);
 }
 
 /*

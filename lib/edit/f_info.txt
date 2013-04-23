@@ -47,7 +47,7 @@
 
 # Version stamp (required)
 
-V:1.0.14
+V:1.0.15
 
 
 # 0x00 --> unknown

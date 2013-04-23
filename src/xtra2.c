@@ -724,6 +724,9 @@ static bool set_flag_aux(int flag, int v, bool add)
 	/* Bound the new value. */
 	v = MIN(MAX(v, 0), 20000);
 
+	/* Hack - an extra return value for notice. */
+	worsen = FALSE;
+
 	/* Determine whether further needs to be done. */
 	notice = (*t_ptr->notice)(*var, v);
 
@@ -744,9 +747,6 @@ static bool set_flag_aux(int flag, int v, bool add)
 
 	/* Hack - carry out side-effects, if any. */
 	if (worsen && t_ptr->worsen) (*t_ptr->worsen)(v);
-
-	/* Only carry out side effects once. */
-	worsen = FALSE;
 
 	/* Print the on-screen symbol, if any. */
 	prt_timer(t_ptr);
@@ -2232,13 +2232,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			{
 				bool recall = FALSE;
 
-				C_TNEW(m_name, MNAME_MAX, char);
-
 				/* Not boring */
 				boring = FALSE;
-
-				/* Get the monster name ("a kobold") */
-				strnfmt(m_name, MNAME_MAX, "%v", monster_desc_f2, m_ptr, 0x08);
 
 				/* Hack -- track this monster race */
 				monster_race_track(m_ptr->r_idx);
@@ -2274,13 +2269,12 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					/* Normal */
 					else
 					{
-						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s)%s%s [r,%s]",
-							s1, s2, s3, m_name, look_mon_desc(m_ptr),
-							(m_ptr->smart & SM_CLONED ? " (clone)": ""),
-							(m_ptr->smart & SM_ALLY ? " (allied)" : ""), info);
+						cptr clo = (m_ptr->smart & SM_CLONED) ? " (clone)": "";
+						cptr all = (m_ptr->smart & SM_ALLY) ? " (allied)" : "";
 
-						prt(out_val, 0, 0);
+						mc_put_fmt(0, 0, "%s%s%s%v (%s)%s%s [r,%s]%v",
+							s1, s2, s3, monster_desc_f2, m_ptr, 0x08,
+							look_mon_desc(m_ptr), clo, all, info, clear_f0);
 
 						/* Place cursor */
 						move_cursor_relative(y, x);
@@ -2295,8 +2289,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					/* Toggle recall */
 					recall = !recall;
 				}
-
-				TFREE(m_name);
 
 				/* Always stop at "normal" keys */
 				if ((query != '\r') && (query != '\n') && (query != ' ')) break;
@@ -2327,8 +2319,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Describe the object */
-					mc_put_fmt(0, 0, "%s%s%s%v [%s]%255s", s1, s2, s3,
-						object_desc_f3, o_ptr, TRUE, 3, info, "");
+					mc_put_fmt(0, 0, "%s%s%s%v [%s]%v", s1, s2, s3,
+						object_desc_f3, o_ptr, TRUE, 3, info, clear_f0);
 					move_cursor_relative(y, x);
 					query = inkey();
 
@@ -2769,8 +2761,8 @@ static sint draw_path(u16b *path, char *c, byte *a,
 		{
 			/* Hallucination sometimes alters the player's
 			 * perception. */
-			if (a[i] != f_info[f_info[c_ptr->feat].mimic].x_attr ||
-				c[i] != f_info[f_info[c_ptr->feat].mimic].x_char)
+			if (a[i] != f_info[f_info[c_ptr->feat].mimic].gfx.xa ||
+				c[i] != f_info[f_info[c_ptr->feat].mimic].gfx.xc)
 			{
 				switch (GRID(a[i], c[i]) % 3)
 				{
@@ -2910,17 +2902,14 @@ bool target_set(int mode)
 			/* Access */
 			c_ptr = &cave[y][x];
 
-			/* Allow target */
-			if (target_able(c_ptr->m_idx))
-			{
-				strcpy(info, "q,t,p,o,+,-,<dir>");
-			}
+			strcpy(info, "q");
 
-			/* Dis-allow target */
-			else
-			{
-				strcpy(info, "q,p,o,+,-,<dir>");
-			}
+			/* Allow target */
+			if (target_able(c_ptr->m_idx)) strcat(info, ",t");
+
+			if (y != py || x != px) strcat(info, ",p");
+			strcat(info, ",o");
+			if (temp_n > 1) strcat(info, ",+,-,<dir>");
 
 			/* Draw the path in "target" mode, if there is one. */
 			if (mode & TARGET_KILL)
@@ -3007,7 +2996,7 @@ bool target_set(int mode)
 
 				case 'o':
 				{
-					flag = !flag;
+					flag = FALSE;
 					break;
 				}
 
@@ -3042,7 +3031,10 @@ bool target_set(int mode)
 			c_ptr = &cave[y][x];
 
 			/* Default prompt */
-			strcpy(info, "q,t,p,m,+,-,<dir>");
+			strcpy(info, "q,t");
+			if (y != py || x != px) strcat(info, ",p");
+			if (temp_n) strcat(info, ",m");
+			strcat(info, ",<dir>");
 
 			/* Draw the path, if there is one. */
 			if (mode & TARGET_KILL)
@@ -3106,7 +3098,7 @@ bool target_set(int mode)
 
 				case 'm':
 				{
-					flag = !flag;
+					flag = TRUE;
 					break;
 				}
 
@@ -3425,21 +3417,28 @@ bool get_rep_target(int *x, int *y)
 
 /*
  * Extract the target from a get_aim_dir() call.
- * Return TRUE if a location was chosen, FALSE for a direction.
+ * This does not check that the chosen target is suitable, as "okay" may fail
+ * on targets which can be selected with direction 5.
+ * If a test is needed, following this up with a suitable move_in_direction()
+ * call is one way of obtaining it.
  */
-bool get_dir_target(int *x, int *y, int dir)
+void get_dir_target(int *x, int *y, int dir, int (*okay)(int, int, int))
 {
+	assert(x && y); /* Caller */
+
 	if (dir == 5 && target_okay())
 	{
 		*x = target_col;
 		*y = target_row;
-		return TRUE;
+	}
+	else if (okay)
+	{
+		move_in_direction(x, y, px, py, px+99*ddx[dir], py+99*ddy[dir], okay);
 	}
 	else
 	{
-		*x = px + 99 * ddx[dir];
-		*y = py + 99 * ddy[dir];
-		return FALSE;
+		*x = px+99*ddx[dir];
+		*y = py+99*ddy[dir];
 	}
 }
 

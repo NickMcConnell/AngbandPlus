@@ -784,12 +784,31 @@ static void init_feature_priorities(void)
 
 /*** Initialize others ***/
 
+/*
+ * Turn gf_type.colour into a form which is easier for a computer to read.
+ */
+static void init_gf_info(void)
+{
+	gf_type *gf_ptr;
+	char *t;
 
+	FOR_ALL_IN(gf_info, gf_ptr)
+	{
+		/* Store the attr, as this is what spell_color() returns. */
+		for (t = gf_ptr->colour; *t; t++)
+		{
+			*t = color_char_to_attr(*t);
+		}
+
+		/* Store the string length. */
+		gf_ptr->colour[15] = t - gf_ptr->colour;
+	}
+}
 
 /*
  * Initialize some other arrays
  */
-static errr init_other(void)
+static void init_other(void)
 {
 	int i, j, n;
 	option_type *op_ptr;
@@ -908,8 +927,11 @@ static errr init_other(void)
 	init_visuals();
 #endif /* ALLOW_VISUALS */
 
-	/* Success */
-	return (0);
+	/* Finish off the gf_info[] colour table. */
+	init_gf_info();
+
+	/* Set the EASY_KNOW flag for various appropriate objects. */
+	init_easy_know();
 }
 
 
@@ -917,7 +939,7 @@ static errr init_other(void)
 /*
  * Initialize some other arrays
  */
-static errr init_alloc(void)
+static void init_alloc(void)
 {
 	int i, j;
 
@@ -1098,10 +1120,6 @@ static errr init_alloc(void)
 		/* Another entry complete for this locale */
 		aux[x]++;
 	}
-
-
-	/* Success */
-	return (0);
 }
 
 

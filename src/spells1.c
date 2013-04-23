@@ -473,134 +473,37 @@ void teleport_player_level(void)
 
 
 /*
- * Get a legal "multi-hued" color for drawing "spells"
+ * Return the gf_type which describes this type of attack.
  */
-static byte mh_attr(int max)
+gf_type *lookup_gf(int type)
 {
-	switch (randint(max))
+	gf_type *ptr;
+
+	FOR_ALL_IN(gf_info, ptr)
 	{
-		case 1: return (TERM_RED);
-		case 2: return (TERM_GREEN);
-		case 3: return (TERM_BLUE);
-		case 4: return (TERM_YELLOW);
-		case 5: return (TERM_ORANGE);
-		case 6: return (TERM_VIOLET);
-		case 7: return (TERM_L_RED);
-		case 8: return (TERM_L_GREEN);
-		case 9: return (TERM_L_BLUE);
-		case 10: return (TERM_UMBER);
-		case 11: return (TERM_L_UMBER);
-		case 12: return (TERM_SLATE);
-		case 13: return (TERM_WHITE);
-		case 14: return (TERM_L_WHITE);
-		case 15: return (TERM_L_DARK);
+		if (ptr->idx == type) return ptr;
 	}
 
-	return (TERM_WHITE);
+	/* Hack - gf_info[0] contains defaults for unknown types. */
+	return gf_info;
 }
-
 
 /*
  * Return a color to use for the bolt/ball spells in ascii mode
  */
 static byte spell_color(int type)
 {
-	/* Analyze */
-	switch (type)
-	{
-		case GF_MISSILE:        return (TERM_SLATE);
-		case GF_ACID:           return (randint(5)<3?TERM_YELLOW:TERM_L_GREEN);
-			case GF_ELEC:           return (randint(7)<6?TERM_WHITE:(randint(4)==1?TERM_BLUE:TERM_L_BLUE));
-		case GF_FIRE:           return (randint(6)<4?TERM_YELLOW:(randint(4)==1?TERM_RED:TERM_L_RED));
-		case GF_COLD:           return (randint(6)<4?TERM_WHITE:TERM_L_WHITE);
-		case GF_POIS:           return (randint(5)<3?TERM_L_GREEN:TERM_GREEN);
-		case GF_HOLY_FIRE:       return (randint(5)==1?TERM_ORANGE:TERM_WHITE);
-		case GF_HELL_FIRE:       return (randint(6)==1?TERM_RED:TERM_L_DARK);
-		case GF_MANA:           return (randint(5)!=1?TERM_VIOLET:TERM_L_BLUE);
-		case GF_ARROW:          return (TERM_L_UMBER);
-		case GF_WATER:          return (randint(4)==1?TERM_L_BLUE:TERM_BLUE);
-		case GF_NETHER:         return (randint(4)==1?TERM_SLATE:TERM_L_DARK);
-		case GF_CHAOS:          return (mh_attr(15));
-		case GF_DISENCHANT:     return (randint(5)!=1?TERM_L_BLUE:TERM_VIOLET);
-		case GF_NEXUS:          return (randint(5)<3?TERM_L_RED:TERM_VIOLET);
-		case GF_CONFUSION:      return (mh_attr(4));
-		case GF_SOUND:          return (randint(4)==1?TERM_VIOLET:TERM_WHITE);
-		case GF_SHARDS:         return (randint(5)<3?TERM_UMBER:TERM_SLATE);
-		case GF_FORCE:          return (randint(5)<3?TERM_L_WHITE:TERM_ORANGE);
-		case GF_INERTIA:        return (randint(5)<3?TERM_SLATE:TERM_L_WHITE);
-		case GF_GRAVITY:        return (randint(3)==1?TERM_L_UMBER:TERM_UMBER);
-		case GF_TIME:           return (randint(2)==1?TERM_WHITE:TERM_L_DARK);
-		case GF_LITE_WEAK:      return (randint(3)==1?TERM_ORANGE:TERM_YELLOW);
-		case GF_LITE:           return (randint(4)==1?TERM_ORANGE:TERM_YELLOW);
-		case GF_DARK_WEAK:      return (randint(3)==1?TERM_DARK:TERM_L_DARK);
-		case GF_DARK:           return (randint(4)==1?TERM_DARK:TERM_L_DARK);
-		case GF_PLASMA:         return (randint(5)==1?TERM_RED:TERM_L_RED);
-		case GF_METEOR:         return (randint(3)==1?TERM_RED:TERM_UMBER);
-		case GF_ICE:            return (randint(4)==1?TERM_L_BLUE:TERM_WHITE);
-		case GF_SHARD:         return (randint(6)<4?TERM_L_RED:(randint(4)==1?TERM_RED:TERM_L_UMBER));
-		case GF_DEATH_RAY:      return (TERM_L_DARK);
-		case GF_NUKE:           return (mh_attr(2));
-		case GF_DISINTEGRATE:   return (randint(3)!=1?TERM_L_DARK:(randint(2)==1?TERM_ORANGE:TERM_L_UMBER));
-		case GF_PSI:
-		case GF_PSI_DRAIN:
-		case GF_TELEKINESIS:
-		case GF_DOMINATION:
-					return (randint(3)!=1?TERM_L_BLUE:TERM_WHITE);
-	}
+	gf_type *gf_ptr = lookup_gf(type);
 
-	/* Standard "color" */
-	return (TERM_WHITE);
+	return gf_ptr->colour[rand_int(gf_ptr->colour[15])];
 }
+
 /*
  * Return an attr to use for the bolt spells in graphics mode
  */
 static byte bolt_graf_attr(int type)
 {
-	/* Analyze */
-	switch (type)
-	{
-		case GF_MISSILE:        return (144);
-		case GF_ACID:           return (143);
-			case GF_ELEC:           return (143);
-		case GF_FIRE:           return (143);
-		case GF_COLD:           return (143);
-		case GF_POIS:           return (143);
-		case GF_HOLY_FIRE:       return (144);
-		case GF_HELL_FIRE:       return (144);
-		case GF_MANA:           return (143);
-		case GF_ARROW:          return (144);
-		case GF_WATER:          return (143);
-		case GF_NETHER:         return (143);
-		case GF_CHAOS:          return (144);
-		case GF_DISENCHANT:     return (143);
-		case GF_NEXUS:          return (144);
-		case GF_CONFUSION:      return (144);
-		case GF_SOUND:          return (144);
-		case GF_SHARDS:         return (145);
-		case GF_FORCE:          return (144);
-		case GF_INERTIA:        return (145);
-		case GF_GRAVITY:        return (145);
-		case GF_TIME:           return (144);
-		case GF_LITE_WEAK:      return (143);
-		case GF_LITE:           return (143);
-		case GF_DARK_WEAK:      return (143);
-		case GF_DARK:           return (143);
-		case GF_PLASMA:         return (144);
-		case GF_METEOR:         return (145);
-		case GF_ICE:            return (143);
-		case GF_SHARD:         return (145);
-		case GF_DEATH_RAY:      return (144);
-		case GF_NUKE:           return (144);
-		case GF_DISINTEGRATE:   return (144);
-		case GF_PSI:
-		case GF_PSI_DRAIN:
-		case GF_TELEKINESIS:
-		case GF_DOMINATION:
-					return (144);
-	}
-
-	/* Standard attr */
-	return (144);
+	return lookup_gf(type)->bolt_graf_attr;
 }
 /*
  * Return an attr to use for the ball spells in graphics mode
@@ -615,102 +518,15 @@ static byte ball_graf_attr(int UNUSED type)
  */
 static byte ball_graf_char(int type)
 {
-	/* Analyze */
-	switch (type)
-	{
-		case GF_MISSILE:        return (151);
-		case GF_ACID:           return (140);
-			case GF_ELEC:           return (138);
-		case GF_FIRE:           return (136);
-		case GF_COLD:           return (137);
-		case GF_POIS:           return (139);
-		case GF_HOLY_FIRE:       return (147);
-		case GF_HELL_FIRE:       return (148);
-		case GF_MANA:           return (141);
-		case GF_ARROW:          return (151);
-		case GF_WATER:          return (140);
-		case GF_NETHER:         return (143);
-		case GF_CHAOS:          return (149);
-		case GF_DISENCHANT:     return (141);
-		case GF_NEXUS:          return (150);
-		case GF_CONFUSION:      return (149);
-		case GF_SOUND:          return (146);
-		case GF_SHARDS:         return (152);
-		case GF_FORCE:          return (150);
-		case GF_INERTIA:        return (153);
-		case GF_GRAVITY:        return (153);
-		case GF_TIME:           return (145);
-		case GF_LITE_WEAK:      return (142);
-		case GF_LITE:           return (142);
-		case GF_DARK_WEAK:      return (143);
-		case GF_DARK:           return (143);
-		case GF_PLASMA:         return (147);
-		case GF_METEOR:         return (152);
-		case GF_ICE:            return (137);
-		case GF_SHARD:         return (152);
-		case GF_DEATH_RAY:      return (TERM_L_DARK);
-		case GF_NUKE:           return (147);
-		case GF_DISINTEGRATE:   return (145);
-		case GF_PSI:
-		case GF_PSI_DRAIN:
-		case GF_TELEKINESIS:
-		case GF_DOMINATION:
-					return (144);
-	}
-
-	/* Standard "char" */
-	return (151);
+	return lookup_gf(type)->ball_graf_char;
 }
+
 /*
  * Return a base char to use for the bolt spells in graphics mode
  */
 static byte base_bolt_char(int type)
 {
-	/* Analyze */
-	switch (type)
-	{
-		case GF_MISSILE:        return (156);
-		case GF_ACID:           return (144);
-			case GF_ELEC:           return (136);
-		case GF_FIRE:           return (128);
-		case GF_COLD:           return (132);
-		case GF_POIS:           return (140);
-		case GF_HOLY_FIRE:       return (140);
-		case GF_HELL_FIRE:       return (144);
-		case GF_MANA:           return (148);
-		case GF_ARROW:          return (156);
-		case GF_WATER:          return (144);
-		case GF_NETHER:         return (156);
-		case GF_CHAOS:          return (148);
-		case GF_DISENCHANT:     return (148);
-		case GF_NEXUS:          return (152);
-		case GF_CONFUSION:      return (148);
-		case GF_SOUND:          return (136);
-		case GF_SHARDS:         return (128);
-		case GF_FORCE:          return (152);
-		case GF_INERTIA:        return (132);
-		case GF_GRAVITY:        return (132);
-		case GF_TIME:           return (132);
-		case GF_LITE_WEAK:      return (152);
-		case GF_LITE:           return (152);
-		case GF_DARK_WEAK:      return (156);
-		case GF_DARK:           return (156);
-		case GF_PLASMA:         return (140);
-		case GF_METEOR:         return (128);
-		case GF_ICE:            return (132);
-		case GF_SHARD:         return (128);
-		case GF_DEATH_RAY:      return (132);
-		case GF_NUKE:           return (140);
-		case GF_DISINTEGRATE:   return (132);
-		case GF_PSI:
-		case GF_PSI_DRAIN:
-		case GF_TELEKINESIS:
-		case GF_DOMINATION:
-					return (128);
-	}
-
-	/* Standard "char" */
-	return (156);
+	return lookup_gf(type)->base_bolt_char;
 }
 
 
@@ -739,7 +555,7 @@ void take_hit(int damage, cptr hit_from, int monster)
 
 	bool pen_invuln = FALSE;
 
-	int warning = (p_ptr->mhp * hitpoint_warn / 10);
+	int warning = (p_ptr->mhp * hitpoint_warn / 100);
 
 
 	/* Paranoia */
@@ -4441,20 +4257,7 @@ static void project_p_aux(monster_type *m_ptr, int dam, int typ)
 
 		/* Standard damage */
 		case GF_MISSILE:
-		{
-			if (blind) msg_print("You are hit by something!");
-			take_hit(dam, killer, m_ptr->r_idx);
-			break;
-		}
-
-		/* Holy Orb -- Player only takes partial damage */
 		case GF_HOLY_FIRE:
-		{
-			if (blind) msg_print("You are hit by something!");
-			take_hit(dam, killer, m_ptr->r_idx);
-			break;
-		}
-
 		case GF_HELL_FIRE:
 		{
 			if (blind) msg_print("You are hit by something!");
@@ -5237,8 +5040,6 @@ bool project(monster_type *mw_ptr, int rad, int y, int x, int dam, int typ, int 
 	int dist_centre;
 	int y_target, x_target; /* For reflecting monsters */
 
-	int msec = delay_factor * delay_factor * delay_factor;
-
 	/* Affected location(s) */
 	cave_type *c_ptr;
 
@@ -5406,7 +5207,7 @@ bool project(monster_type *mw_ptr, int rad, int y, int x, int dam, int typ, int 
 				move_cursor_relative(y9, x9);
 				Term_fresh();
 				visual = TRUE;
-				Term_xtra(TERM_XTRA_DELAY, msec);
+				Term_xtra(TERM_XTRA_DELAY, delay_factor);
 				lite_spot(y9, x9);
 				Term_fresh();
 			}
@@ -5415,7 +5216,7 @@ bool project(monster_type *mw_ptr, int rad, int y, int x, int dam, int typ, int 
 			else if (visual)
 			{
 				/* Delay for consistency */
-				Term_xtra(TERM_XTRA_DELAY, msec);
+				Term_xtra(TERM_XTRA_DELAY, delay_factor);
 			}
 		}
 
@@ -5617,7 +5418,7 @@ bool project(monster_type *mw_ptr, int rad, int y, int x, int dam, int typ, int 
 			/* Delay (efficiently) */
 			if (visual || drawn)
 			{
-				Term_xtra(TERM_XTRA_DELAY, msec);
+				Term_xtra(TERM_XTRA_DELAY, delay_factor);
 			}
 		}
 

@@ -293,8 +293,8 @@ cptr add_stats(s16b sex, s16b race, s16b template, bool maximise,
 	{ \
 		for (i = 0; i < max; i++) \
 		{ \
-			x_info[i].x_attr = x_info[i].d_attr; \
-			x_info[i].x_char = x_info[i].d_char; \
+			x_info[i].gfx.xa = x_info[i].gfx.da; \
+			x_info[i].gfx.xc = x_info[i].gfx.dc; \
 		} \
 		return 0; \
 	} \
@@ -522,8 +522,8 @@ cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 				n2 = strtol(zz[2], NULL, 0);
 				if (i >= MAX_R_IDX) return "no such monster";
 				r_ptr = &r_info[i];
-				if (n1) r_ptr->x_attr = n1;
-				if (n2) r_ptr->x_char = n2;
+				if (n1) r_ptr->gfx.xa = n1;
+				if (n2) r_ptr->gfx.xc = n2;
 				return (0);
 			}
 			else return "format not R:<num>:<a>/<c>";
@@ -542,8 +542,8 @@ cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 				n2 = strtol(zz[2], NULL, 0);
 				if (i >= MAX_K_IDX || !k_info[i].name) return "no such object";
 				k_ptr = &k_info[i];
-				if (n1) k_ptr->x_attr = n1;
-				if (n2) k_ptr->x_char = n2;
+				if (n1) k_ptr->gfx.xa = n1;
+				if (n2) k_ptr->gfx.xc = n2;
 				return (0);
 			}
 			else return "format not K:<num>:<a>/<c>";
@@ -617,8 +617,8 @@ cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 				if (i < 0 || i >= MAX_U_IDX)
 					return "no such unidentified object";
 				u_ptr = &u_info[i];
-				if (n1) u_ptr->x_attr = n1;
-				if (n2) u_ptr->x_char = n2;
+				if (n1) u_ptr->gfx.xa = n1;
+				if (n2) u_ptr->gfx.xc = n2;
 				return (0);
 			}
 			else return "format not U:<p_id>:<s_id>:<a>/<c>";
@@ -636,8 +636,8 @@ cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 				n2 = strtol(zz[2], NULL, 0);
 				if (i >= MAX_F_IDX) return "no such feature";
 				f_ptr = &f_info[i];
-				if (n1) f_ptr->x_attr = n1;
-				if (n2) f_ptr->x_char = n2;
+				if (n1) f_ptr->gfx.xa = n1;
+				if (n2) f_ptr->gfx.xc = n2;
 				return (0);
 			}
 			else return "format not F:<num>:<a>/<c>";
@@ -654,6 +654,9 @@ cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 			{
 				for (i = 0; i < z_info->k_max; i++)
 					k_info[i].i_attr = TERM_WHITE;
+
+				for (i = 0; i < z_info->ob_max; i++)
+					o_base[i].i_attr = TERM_WHITE;
 
 				return SUCCESS;
 			}
@@ -673,10 +676,17 @@ cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 				 * are found. */
 				else if (c == 't')
 				{
-					if (l < 0 || l > 255) return "no such tval";
+					if (l < 0 || l > 255 || l == TV_UNKNOWN)
+						return "no such tval";
 					for (i = 0; i < z_info->k_max; i++)
 					{
 						if (k_info[i].tval == l) k_info[i].i_attr = a;
+					}
+
+					/* Hack - propegate tval selections to appropriate p_ids. */
+					for (i = 0; i < z_info->ob_max; i++)
+					{
+						if (o_base[i].tval == l) o_base[i].i_attr = a;
 					}
 				}
 				/* Set the object_kind with this k_idx. */
@@ -684,6 +694,12 @@ cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 				{
 					if (l < 0 || l >= z_info->k_max) return "no such k_idx";
 					k_info[l].i_attr = a;
+				}
+				/* Set the o_base_type with this p_id. */
+				else if (c == 'u')
+				{
+					if (l < 0 || l >= z_info->ob_max) return "no such p_id";
+					o_base[l].i_attr = a;
 				}
 				else
 				{
@@ -779,12 +795,12 @@ cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 				char c2 = buf[3+i*3];
 				/* Read the second character first. */
 				if (strchr(atchar, c2))
-					mc_ptr->attr = strchr(atchar, c2)-atchar;
+					mc_ptr->gfx.xa = strchr(atchar, c2)-atchar;
 				else
 					return "unidentified colour";
 				/* Then read the first character, if present. */
 				if (strchr(atchar, c1))
-					mc_ptr->attr += 16*(strchr(atchar, c1)-atchar);
+					mc_ptr->gfx.xa += 16*(strchr(atchar, c1)-atchar);
 				else if (c1 != ' ')
 					return "unidentified colour";
 			}
@@ -825,6 +841,27 @@ cptr process_pref_file_aux(char *buf, u16b *sf_flags)
 				}
 			}
 			/* Not a real option. */
+			return "no such option";
+		}
+		/* Process Z:<option>:<setting> for miscellaneous options. */
+		case 'Z':
+		{
+			option_special *op_ptr;
+
+			/* All options take one parameter, although this can be changed. */
+			if (2 != tokenize(buf+2, 16, zz))
+			{
+				return "format not Z:<option>:<setting>";
+			}
+
+			FOR_ALL_IN(autosave_info, op_ptr)
+			{
+				if (strcmp(zz[0], op_ptr->text)) continue;
+
+				if (!(*op_ptr->parse)(op_ptr->var, zz[1]))
+					return "invalid value for option";
+			}
+
 			return "no such option";
 		}
 		/* Process W:<term name>:<display name>:<triggered>:<untriggered>
@@ -1170,6 +1207,10 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "PLAYER"))
 			{
 				v = player_base;
+			}
+			else if (streq(b+1, "CHEAT"))
+			{
+				v = (noscore) ? "1" : "0";
 			}
 			else
 			{
@@ -1547,7 +1588,7 @@ errr check_load_init(void)
 static char percent_to_colour(s16b cur, s16b max)
 {
 	if (cur == max) return 'G';
-	if (cur > (max * hitpoint_warn) / 10) return 'y';
+	if (cur > ((long)max * hitpoint_warn) / 100) return 'y';
 	return 'r';
 }
 
@@ -4959,48 +5000,46 @@ static void center_string(char *buf, cptr str)
 static void make_bones(void)
 {
 	FILE                *fp;
+	char tmp[8];
 
 	/* Undead can't be raised as undead. */
 	if (rp_ptr->grace == RACE_UNDEAD) return;
 
 	/* Ignore wizards and borgs */
-	if (!(noscore & 0x00FF))
-	{
-		/* Ignore people who die in town (and on impossible levels). */
-		if (dun_level > 0 && dun_level < 1000)
-		{
-			/* XXX XXX XXX "Bones" name */
-			char tmp[8];
-			sprintf(tmp, "bone.%03d", dun_depth);
+	if (noscore & NOSCORE_NO_BONES) return;
 
-			/* Attempt to open the bones file */
-			fp = my_fopen_path(ANGBAND_DIR_BONE, tmp, "r");
+	/* Ignore people who die in town (and on impossible levels). */
+	if (dun_level <= 0 || dun_level >= 1000) return;
 
-			/* Close it right away */
-			if (fp) my_fclose(fp);
+	/* XXX XXX XXX "Bones" name */
+	sprintf(tmp, "bone.%03d", dun_depth);
 
-			/* Do not over-write a previous ghost */
-			if (fp) return;
+	/* Attempt to open the bones file */
+	fp = my_fopen_path(ANGBAND_DIR_BONE, tmp, "r");
 
-			/* File type is "TEXT" */
-			FILE_TYPE(FILE_TYPE_TEXT);
+	/* Close it right away */
+	if (fp) my_fclose(fp);
 
-			/* Try to write a new "Bones File" */
-			fp = my_fopen_path(ANGBAND_DIR_BONE, tmp, "w");
+	/* Do not over-write a previous ghost */
+	if (fp) return;
 
-			/* Not allowed to write it?  Weird. */
-			if (!fp) return;
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
 
-			/* Save the info */
-			fprintf(fp, "%s\n", player_name);
-			fprintf(fp, "%d\n", p_ptr->mhp);
-			fprintf(fp, "%d\n", p_ptr->prace);
-			fprintf(fp, "%d\n", p_ptr->ptemplate);
+	/* Try to write a new "Bones File" */
+	fp = my_fopen_path(ANGBAND_DIR_BONE, tmp, "w");
 
-			/* Close and save the Bones file */
-			my_fclose(fp);
-		}
-	}
+	/* Not allowed to write it?  Weird. */
+	if (!fp) return;
+
+	/* Save the info */
+	fprintf(fp, "%s\n", player_name);
+	fprintf(fp, "%d\n", p_ptr->mhp);
+	fprintf(fp, "%d\n", p_ptr->prace);
+	fprintf(fp, "%d\n", p_ptr->ptemplate);
+
+	/* Close and save the Bones file */
+	my_fclose(fp);
 }
 
 
@@ -5084,7 +5123,7 @@ static void print_tomb(void)
 	put_str(buf, 14, 11);
 
 	if (dun_level > 0)
-		sprintf(tmp, "of %s", dun_name+dun_defs[wild_grid[wildy][wildx].dungeon].name);
+		sprintf(tmp, "of %s", dun_name+dun_defs[cur_dungeon].name);
 	else if (is_town_p(wildy, wildx))
 		sprintf(tmp, "in %s", dun_name+dun_defs[wild_grid[wildy][wildx].dungeon].shortname);
 	else if (wild_grid[wildy][wildx].dungeon < MAX_CAVES)
@@ -5810,7 +5849,7 @@ static errr top_twenty(void)
 
 #ifndef SCORE_BORGS
 	/* Borg-mode pre-empts scoring */
-	if (noscore & 0x00F0)
+	if (noscore & NOSCORE_BORG)
 	{
 		msg_print("Score not registered for borgs.");
 		msg_print(NULL);
@@ -5821,7 +5860,7 @@ static errr top_twenty(void)
 
 #ifndef SCORE_CHEATERS
 	/* Cheaters are not scored */
-	if (noscore & 0xFF02)
+	if (noscore & (NOSCORE_CHEAT_ALL))
 	{
 		msg_print("Score not registered for cheaters.");
 		msg_print(NULL);

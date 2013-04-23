@@ -38,10 +38,8 @@ static cptr wd_his[3] =
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
  */
-static bool know_armour(int r_idx)
+static bool know_armour(monster_race *r_ptr)
 {
-	monster_race *r_ptr = &r_info[r_idx];
-
 	s32b level = r_ptr->level;
 
 	s32b kills = r_ptr->r_tkills;
@@ -93,25 +91,25 @@ static bool know_damage(int r_idx, int i)
 
 
 /* Colourful monster descriptions to make the important points more obvious. */
-#define MONCOL_DEATH (moncol[0].attr) /* How many times you've fought to the death */
-#define MONCOL_FLAVOUR (moncol[1].attr) /* The flavour text from r_info.txt */
-#define MONCOL_DEPTH (moncol[2].attr) /* Normal depth and speed */
-#define MONCOL_AURA (moncol[3].attr) /* Any defensive auras it may have */
-#define MONCOL_ESCORT (moncol[4].attr) /* Any escort it may have */
-#define MONCOL_INATE (moncol[5].attr) /* Any inate attacks it may have */
-#define MONCOL_BREATH (moncol[6].attr) /* Any breath attacks it may have */
-#define MONCOL_MAGIC (moncol[7].attr) /* Any magical attacks it may have */
-#define MONCOL_ACHP (moncol[8].attr) /* The AC and HP of the monster */
-#define MONCOL_ABLE1 (moncol[9].attr) /* Bashing down doors, destroying items, etc. */
-#define MONCOL_ABLE2 (moncol[10].attr) /* Breeding explosively, invisibility, etc. */
-#define MONCOL_WEAK (moncol[11].attr) /* Susceptibilities to specific attacks */
-#define MONCOL_ELEM (moncol[12].attr) /* Elemental resistances */
-#define MONCOL_RESIST (moncol[13].attr) /* Other resistances */
-#define MONCOL_IMMUN (moncol[14].attr) /* Immunity to stunning, fear, confusion or sleep */
-#define MONCOL_OBSERVE (moncol[15].attr) /* How observant it is */
-#define MONCOL_DROP (moncol[16].attr) /* What it can drop */
-#define MONCOL_ATTACK (moncol[17].attr) /* What melee attacks it has */
-#define MONCOL_QUEST (moncol[18].attr) /* If it is a quest monster */
+#define MONCOL_DEATH (moncol[0].gfx.xa) /* How many times you've fought to the death */
+#define MONCOL_FLAVOUR (moncol[1].gfx.xa) /* The flavour text from r_info.txt */
+#define MONCOL_DEPTH (moncol[2].gfx.xa) /* Normal depth and speed */
+#define MONCOL_AURA (moncol[3].gfx.xa) /* Any defensive auras it may have */
+#define MONCOL_ESCORT (moncol[4].gfx.xa) /* Any escort it may have */
+#define MONCOL_INATE (moncol[5].gfx.xa) /* Any inate attacks it may have */
+#define MONCOL_BREATH (moncol[6].gfx.xa) /* Any breath attacks it may have */
+#define MONCOL_MAGIC (moncol[7].gfx.xa) /* Any magical attacks it may have */
+#define MONCOL_ACHP (moncol[8].gfx.xa) /* The AC and HP of the monster */
+#define MONCOL_ABLE1 (moncol[9].gfx.xa) /* Bashing down doors, destroying items, etc. */
+#define MONCOL_ABLE2 (moncol[10].gfx.xa) /* Breeding explosively, invisibility, etc. */
+#define MONCOL_WEAK (moncol[11].gfx.xa) /* Susceptibilities to specific attacks */
+#define MONCOL_ELEM (moncol[12].gfx.xa) /* Elemental resistances */
+#define MONCOL_RESIST (moncol[13].gfx.xa) /* Other resistances */
+#define MONCOL_IMMUN (moncol[14].gfx.xa) /* Immunity to stunning, fear, confusion or sleep */
+#define MONCOL_OBSERVE (moncol[15].gfx.xa) /* How observant it is */
+#define MONCOL_DROP (moncol[16].gfx.xa) /* What it can drop */
+#define MONCOL_ATTACK (moncol[17].gfx.xa) /* What melee attacks it has */
+#define MONCOL_QUEST (moncol[18].gfx.xa) /* If it is a quest monster */
 
 /* "will" if always true and omniscient, "may" otherwise. */
 #define DDE_MAY ((omniscient && d_ptr->num >= d_ptr->denom) ? "will" : "may")
@@ -194,7 +192,7 @@ static cptr describe_death_events(int r_idx, cptr he, bool omniscient)
 			{
 				make_explosion_type *i_ptr = &d_ptr->par.explosion;
 				s = format("%s%s %s explode in a ball of %s of radius %d", s,
-					he, DDE_MAY, explode_flags[i_ptr->method-1], i_ptr->radius);
+					he, DDE_MAY, lookup_gf(i_ptr->method)->desc, i_ptr->radius);
 				break;
 			}
 			case DEATH_COIN:
@@ -303,30 +301,34 @@ static cptr roff_monster(u32b flags2, u32b flags3)
  */
 static cptr convert_spell_text(cptr string, monster_race *r_ptr)
 {
+	cptr start = strchr(string, '(');
 
-	cptr t=0;
+	assert(start != format(NULL)); /* Caller */
 
-	/* Dump */
+	/* Numerical strings are always preceded by ( to simplify spoil_flag. */
+	if (!start) return string;
+
+	/* !spoil_flag hides the numerical information. */
+	if (!spoil_flag)
+	{
+		/* Assume that there is nothing to display after the numerical term. */
+		return format("%.*s", start-string-1, string);
+	}
 
 	/* Is there a LEV term to evaluate? */
-	if (r_ptr->r_tkills || spoil_mon) t = strchr(string, '(');
-	if (t && spoil_flag) t = strstr(t, "LEV");
-	/* Unknown/missing level term, so give the formula. */
-	if (!t)
+	if ((r_ptr->r_tkills || spoil_mon) && strstr(start, "LEV"))
 	{
-		return string;
+		string = format("%v", evaluate_text_f3, string, "LEV", r_ptr->level);
 	}
-	/* Use spoil_flag to hide all of this information. */
-	else if (!spoil_flag)
+	
+	/* Is there a MHP term to evaluate? */
+	if ((know_armour(r_ptr) || spoil_mon) && strstr(start, "MHP"))
 	{
-		return (cptr)format("%.*s", t-string-1, string);
-	}
-	else
-	{
-		t = format("%v", evaluate_text_f3, string, "LEV", r_ptr->level);
-		return format("%v", evaluate_text_f3, t, "MHP",
+		string = format("%v", evaluate_text_f3, string, "MHP",
 			r_ptr->hdice * r_ptr->hside);
 	}
+
+	return string;
 }
 
 
@@ -975,7 +977,7 @@ static void roff_aux(int r_idx)
 
 
 	/* Describe monster "toughness" */
-	if (know_armour(r_idx) || spoil_mon)
+	if (know_armour(r_ptr) || spoil_mon)
 	{
 		/* Armor */
 		c_roff(MONCOL_ACHP, format("%^s has an armor rating of %d",
@@ -1506,12 +1508,12 @@ void roff_top(int r_idx)
 
 
 	/* Access the chars */
-	c1 = r_ptr->d_char;
-	c2 = r_ptr->x_char;
+	c1 = r_ptr->gfx.dc;
+	c2 = r_ptr->gfx.xc;
 
 	/* Access the attrs */
-	a1 = r_ptr->d_attr;
-	a2 = r_ptr->x_attr;
+	a1 = r_ptr->gfx.da;
+	a2 = r_ptr->gfx.xa;
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);

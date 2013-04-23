@@ -72,10 +72,7 @@ static name_centry group_item[] =
 	{ TV_WAND,              "Wands" },
 	{ TV_STAFF,             "Staffs" },
 
-	{ TV_SORCERY_BOOK,    "Books (Sorcery)" },
-	{ TV_THAUMATURGY_BOOK,      "Books (Thaumaturgy)" },
-	{ TV_CONJURATION_BOOK,      "Books (Conjuration)" },
-	{ TV_NECROMANCY_BOOK,     "Books (Necromancy)" },
+	{ TV_BOOK,    "Books" },
 
 	{ TV_CHARM, "Charm" },
 
@@ -584,7 +581,7 @@ static void spoil_mon_desc(void)
 		sprintf(exp, "%ld", (long)(r_ptr->mexp));
 
 		/* Hack -- use visual instead */
-		sprintf(exp, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
+		sprintf(exp, "%s '%c'", attr_to_text(r_ptr->gfx.da), r_ptr->gfx.dc);
 
 		/* Dump the info */
 		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
@@ -715,10 +712,10 @@ static void spoil_mon_info(void)
 	/* Give full information. */
 	spoil_mon = TRUE;
 
-	for (n = 0; n < MAX_MONCOL; n++) old_moncol[n] = moncol[n].attr;
+	for (n = 0; n < MAX_MONCOL; n++) old_moncol[n] = moncol[n].gfx.xa;
 
 	/* Hack - hide some information. */
-	moncol[0].attr = moncol[8].attr = moncol[18].attr = TERM_DARK;
+	moncol[0].gfx.xa = moncol[8].gfx.xa = moncol[18].gfx.xa = TERM_DARK;
 
 	/* Dump the header */
 	spoil_out("Monster Spoilers for %s Version %s\n",
@@ -765,10 +762,10 @@ static void spoil_mon_info(void)
 		spoil_out("%v  (", monster_desc_aux_f3, r_ptr, 1, 0);
 
 		/* Color */
-		spoil_out(attr_to_text(r_ptr->d_attr));
+		spoil_out(attr_to_text(r_ptr->gfx.da));
 
 		/* Symbol --(-- */
-		spoil_out(" '%c')\n", r_ptr->d_char);
+		spoil_out(" '%c')\n", r_ptr->gfx.dc);
 
 
 		/* Indent */
@@ -840,7 +837,7 @@ static void spoil_mon_info(void)
 	spoil_mon = old_spoil_mon;
 
 	/* Restore moncol[]. */
-	for (n = 0; n < MAX_MONCOL; n++) moncol[n].attr = old_moncol[n];
+	for (n = 0; n < MAX_MONCOL; n++) moncol[n].gfx.xa = old_moncol[n];
 
 	/* Don't leave a monster display lying around. */
 	Term_clear();

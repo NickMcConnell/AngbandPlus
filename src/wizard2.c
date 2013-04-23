@@ -125,6 +125,20 @@ static int choose_something(name_centry *start, cptr noun, cptr verb, int max,
 }
 
 /*
+ * Return TRUE if this ego type is suitable for this object_kind.
+ */
+static bool good_ego_type(int e_idx, int k_idx)
+{
+	/* Hack - no ego type is suitable for all objects. */
+	if (!e_idx) return TRUE;
+
+	/* Check the bounds for this ego type. */
+	if (e_info[e_idx].min_obj > k_idx) return FALSE;
+	if (e_info[e_idx].max_obj < k_idx) return FALSE;
+	return TRUE;
+}
+
+/*
  * Hack -- quick debugging hook
  */
 void do_cmd_wiz_hack_ben(void)
@@ -175,9 +189,13 @@ static void prt_binary(u32b flags, int row, int col)
 }
 
 
-static bool cave_floor_bold_p(int y, int x, int UNUSED d)
+/*
+ * Return CONTINUE for floor, so that teleporting in a direction moves the
+ * player to the next wall.
+ */
+static int PURE mvd_cave_floor(int y, int x, int UNUSED d)
 {
-	return cave_floor_bold(y, x);
+	return cave_floor_bold(y, x) ? MVD_CONTINUE : MVD_STOP_BEFORE_HERE;
 }
 
 /*
@@ -190,12 +208,11 @@ void do_cmd_wiz_bamf(void)
 	/* Hack - start with the "pick a location" display, but allow directions. */
 	set_gnext("*op");
 
+	/* Request a direction/target. */
 	if (!get_aim_dir(&d)) return;
 
-	if (!get_dir_target(&x, &y, d))
-	{
-		move_in_direction(&x, &y, px, py, x, y, cave_floor_bold_p);
-	}
+	/* Extract the target. */
+	get_dir_target(&x, &y, d, mvd_cave_floor);
 
 	/* Teleport to the target */
 	teleport_player_to(y, x);
@@ -498,10 +515,7 @@ static name_centry tval_names[] =
 	{TV_WAND, "Wand"},
 	{TV_STAFF, "Staff"},
 	{TV_ROD, "Rod"},
-	{TV_SORCERY_BOOK, "Sorcery Book"},
-	{TV_THAUMATURGY_BOOK, "Thaumaturgy Book"},
-	{TV_CONJURATION_BOOK, "Conjuration Book"},
-	{TV_NECROMANCY_BOOK, "Necromancy Book"},
+	{TV_BOOK, "Spellbook"},
 	{TV_CHARM, "Charm"},
 	{TV_SPIKE, "Spike"},
 	{TV_DIGGING, "Digger"},
@@ -568,7 +582,7 @@ static bool good_cat_monster(int r, int idx)
 	if (is_fake_monster(r_ptr)) return FALSE;
 
 	/* Not of this category. */
-	if (r_ptr->d_char != idx) return FALSE;
+	if (r_ptr->gfx.dc != idx) return FALSE;
 
 	return TRUE;
 }
@@ -593,6 +607,57 @@ static int choose_monster_type(void)
 {
 	return choose_something(ident_info, "monster", "create", MAX_R_IDX, TRUE,
 		good_cat_monster, monster_name_f1);
+}
+
+/*
+ * Choose an ego type for a new item. Based on choose_something().
+ */
+static int choose_ego_type(int k_idx)
+{
+	name_entry choice[60];
+	object_type o_ptr[1];
+
+	/* Obtain the ego type list for this object. */
+	int i, t, num = build_choice_list_2(choice, k_idx, 60, z_info->e_max,
+		good_ego_type);
+
+	/* Hack - do nothing if "no ego" is the only valid selection. */
+	if (num == 1) return choice[0].idx;
+
+	object_prep(o_ptr, k_idx);
+
+	/* Obtain the names of the ego type list for this object. */
+	for (i = 0; i < num; i++)
+	{
+		o_ptr->name2 = choice[i].idx;
+		choice[i].str = string_make(format("%v",
+			object_desc_f3, o_ptr, OD_SHOP, 0));
+	}
+
+	/* Save the screen. */
+	t = Term_save_aux();
+
+	/* Icky. */
+	character_icky = TRUE;
+
+	/* Request a choice. */
+	i = choose_something_str("ego item", "create", "which", FALSE, choice, num);
+
+	/* No longer icky. */
+	character_icky = FALSE;
+
+	/* Restore the screen. */
+	Term_load_aux(t);
+
+	/* Forget the saved copy. */
+	Term_release(t);
+
+	/* Remove the allocated strings. */
+	while (num--) FREE(choice[num].str);
+
+	if (i == CHOOSE_NOTHING) return i;
+
+	return choice[i].idx;
 }
 
 /*
@@ -688,6 +753,7 @@ static void wiz_change_item(object_type *o_ptr)
 {
 	cptr p;
 	char        tmp_val[80];
+	ego_item_type *e_ptr;
 
 	/* Hack -- leave artifacts alone */
 	if (allart_p(o_ptr)) return;
@@ -699,24 +765,20 @@ static void wiz_change_item(object_type *o_ptr)
 	wiz_display_item(o_ptr);
 	wiz_display_item(o_ptr);
 
-	/* There's no easy way to detect impossible ego items, but restricting
-	it to weapons and non-dragon armour is simple. */
-	switch (o_ptr->tval)
+	/* Allow any ego type to be selected if at least one is valid for this
+	 * object kind. */
+	for (e_ptr = e_info; e_ptr < e_info+z_info->e_max; e_ptr++)
 	{
-		case TV_SHOT: case TV_ARROW: case TV_BOLT: case TV_BOW:
-		case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD:
-		case TV_BOOTS: case TV_GLOVES: case TV_HELM: case TV_CROWN:
-		case TV_SHIELD: case TV_CLOAK: case TV_SOFT_ARMOR: case TV_HARD_ARMOR:
-		break;
-		default:
-		return;
+		if (o_ptr->k_idx >= e_ptr->min_obj && o_ptr->k_idx <= e_ptr->max_obj)
+		{
+			p = "Enter new 'ego' number: ";
+			sprintf(tmp_val, "%d", o_ptr->name2);
+			if (!get_string(p, tmp_val, 5)) return;
+			o_ptr->name2 = atoi(tmp_val);
+			wiz_display_item(o_ptr);
+			return;
+		}
 	}
-
-	p = "Enter new 'ego' number: ";
-	sprintf(tmp_val, "%d", o_ptr->name2);
-	if (!get_string(p, tmp_val, 5)) return;
-	o_ptr->name2 = atoi(tmp_val);
-	wiz_display_item(o_ptr);
 }
 
 
@@ -1129,8 +1191,25 @@ void wiz_create_item(int k_idx)
 	/* Create the item */
 	object_prep(q_ptr, k_idx);
 
+	/* Select an ego type now, if appropriate. */
+	k_idx = choose_ego_type(k_idx);
+
 	/* Apply magic (no messages, no artifacts) */
 	apply_magic(q_ptr, dun_depth, FALSE, FALSE, FALSE, FOUND_CHEAT, 0);
+
+	/* Allow abort. */
+	if (k_idx == CHOOSE_NOTHING)
+	{
+		return;
+	}
+	/* Apply any real ego type. */
+	else if (k_idx != q_ptr->name2)
+	{
+		q_ptr->name2 = k_idx;
+
+		/* Hack - apply the bonuses again. */
+		apply_magic_2(q_ptr, 0);
+	}
 
 	/* Drop the object from heaven */
 	drop_near(q_ptr, -1, py, px);
@@ -1338,20 +1417,13 @@ void do_cmd_wiz_zap(void)
 void do_cmd_magebolt(void)
 {
 	int dir;
-	int tx, ty;
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 	/* Get a direction */
-	if (!get_aim_dir(&dir)) return;
-
-	/* Use the given direction */
-	if (get_dir_target(&tx, &ty, dir))
+	if (get_aim_dir(&dir))
 	{
-		flg &= ~(PROJECT_STOP);
+		/* Attack everything in the selected square. */
+		fire_ball(GF_MANA, dir, 32767, 0);
 	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	project(0, 0, ty, tx, 1000000, GF_MANA, flg);
 }
 
 

@@ -1960,11 +1960,9 @@ static void random_artifact_resistance(object_type * o_ptr)
 		add_ability(o_ptr);
 	}
 
-	artifact_bias = 0;
-
 	if (give_resistance)
 	{
-		random_resistance(o_ptr, FALSE, ((randint(22))+16));
+		add_resistance(o_ptr, 17, 38);
 	}
 }
 
@@ -2156,6 +2154,9 @@ static bool PURE get_ego_test(object_ctype *o_ptr, const ego_item_type *e_ptr,
 {
 	bool ecursed = !(e_ptr->cost);
 
+	/* Some ego types are never used on creation. */
+	if (!e_ptr->max_obj) return FALSE;
+
 	/* Not true if the range is wrong. */
 	if (e_ptr->min_obj > o_ptr->k_idx) return FALSE;
 	if (e_ptr->max_obj < o_ptr->k_idx) return FALSE;
@@ -2335,14 +2336,12 @@ static void dragon_resist(object_type * o_ptr)
 {
 	do
 	{
-		artifact_bias = 0;
-
 		if (randint(4)==1)
-			random_resistance(o_ptr, FALSE, rand_range(5, 18));
+			add_resistance(o_ptr, 5, 18);
 		else
-			random_resistance(o_ptr, FALSE, rand_range(17, 38));
-		}
-		while (one_in(2));
+			add_resistance(o_ptr, 17, 38);
+	}
+	while (one_in(2));
 }
 
 
@@ -2354,8 +2353,6 @@ static void a_m_aux_2(object_type *o_ptr, const int level, const int power)
 	const int toac1 = randint(5) + m_bonus(5, level);
 
 	const int toac2 = m_bonus(10, level);
-
-	artifact_bias = 0;
 
 	/* Good */
 	if (power > 0)
@@ -2438,8 +2435,12 @@ static bonus_type bonus_table[] =
 	{OBJ_RING_SLAYING, 1, 7, 10, BV_TO_D, BT_VARY},
 	{OBJ_AMULET_BRILLIANCE, 1, 1, 5, BV_PVAL, BT_VARY},
 	{OBJ_AMULET_INC_CHR, 1, 1, 5, BV_PVAL, BT_VARY},
+
+	/* Hack - pretend to set a random value purely to make these randomly
+	 * cursed or otherwise. */
 	{OBJ_AMULET_ANTI_MAGIC, 0, 0, 0, BV_PVAL, BT_VARY},
 	{OBJ_AMULET_ANTI_TELEPORTATION, 0, 0, 0, BV_PVAL, BT_VARY},
+
 	{OBJ_AMULET_SEARCHING, 1, 5, 5, BV_PVAL, BT_VARY},
 	{OBJ_AMULET_THE_MAGI, 1, 5, 5, BV_PVAL, BT_UNCURSED},
 	{OBJ_AMULET_THE_MAGI, 1, 5, 5, BV_TO_A, BT_UNCURSED},
@@ -2643,14 +2644,14 @@ static bool add_ego_special(object_type *o_ptr, const byte special,
 		{
 			add_sustain(o_ptr);
 			if (one_in(3)) o_ptr->flags2 |= TR2_RES_POIS;
-			random_resistance(o_ptr, FALSE, ((randint(22))+16));
+			add_resistance(o_ptr, 17, 38);
 			return TRUE;
 		}
 		case E_SPEC_PLANAR:
 		{
 			if (one_in(7)) add_ability(o_ptr);
 			if (one_in(5)) o_ptr->flags1 |= TR1_SLAY_DEMON;
-			random_resistance(o_ptr, FALSE, ((randint(22))+16));
+			add_resistance(o_ptr, 17, 38);
 			o_ptr->activation = ACT_TELEPORT_WAIT;
 			return TRUE;
 		}
@@ -2679,21 +2680,21 @@ static bool add_ego_special(object_type *o_ptr, const byte special,
 		}
 		case E_SPEC_DRAGON_BANE:
 		{
-			random_resistance(o_ptr, FALSE, rand_range(5, 16));
-			random_resistance(o_ptr, FALSE, rand_range(5, 18));
+			add_resistance(o_ptr, 5, 16);
+			add_resistance(o_ptr, 5, 18);
 			if (one_in(3)) o_ptr->flags2 |= TR2_RES_POIS;
 			return TRUE;
 		}
 		case E_SPEC_A_RESISTANCE:
 		{
 			if (one_in(4)) o_ptr->flags2 |= TR2_RES_POIS;
-			random_resistance(o_ptr, FALSE, rand_range(17,38));
+			add_resistance(o_ptr, 17, 38);
 			return TRUE;
 		}
 		case E_SPEC_S_RESISTANCE:
 		{
 			if (one_in(4)) o_ptr->flags2 |= TR2_RES_POIS;
-			random_resistance(o_ptr, FALSE, rand_range(5,38));
+			add_resistance(o_ptr, 5, 38);
 			return TRUE;
 		}
 		case E_SPEC_SEEING:
@@ -2713,7 +2714,7 @@ static bool add_ego_special(object_type *o_ptr, const byte special,
 		}
 		case E_SPEC_LAW:
 		{
-			random_resistance(o_ptr, FALSE, rand_range(17, 38));
+			add_resistance(o_ptr, 17, 38);
 			if (one_in(3)) o_ptr->flags2 |= TR2_HOLD_LIFE;
 			if (one_in(3)) o_ptr->flags1 |= TR1_DEX;
 			if (one_in(5)) o_ptr->flags2 |= TR2_RES_FEAR;
@@ -2731,7 +2732,7 @@ static bool add_ego_special(object_type *o_ptr, const byte special,
 		}
 		case E_SPEC_AM_RESISTANCE:
 		{
-			if (one_in(3)) random_resistance(o_ptr, FALSE, rand_range(5, 38));
+			if (one_in(3)) add_resistance(o_ptr, 5, 38);
 			if (one_in(5)) o_ptr->flags2 |= TR2_RES_POIS;
 			return TRUE;
 		}
@@ -2744,7 +2745,7 @@ static bool add_ego_special(object_type *o_ptr, const byte special,
 		{
 			do
 			{
-				random_resistance(o_ptr, FALSE, rand_range(19, 38));
+				add_resistance(o_ptr, 19, 38);
 			}
 			while (one_in(4));
 			return TRUE;
@@ -2785,7 +2786,6 @@ static bool add_ego_special(object_type *o_ptr, const byte special,
 		/* Hack - turn into a randart, not an ego item. */
 		case E_SPEC_RANDART:
 		{
-			artifact_bias = 0;
 			o_ptr->name2 = 0;
 			create_artifact(o_ptr, FALSE);
 			return TRUE;
@@ -2807,16 +2807,16 @@ static bool add_ego_special(object_type *o_ptr, const byte special,
 		}
 		case E_SPEC_HIGH:
 		{
-			random_resistance(o_ptr, FALSE, rand_range(17,38));
+			add_resistance(o_ptr, 17, 38);
 			return TRUE;
 		}
 		case E_SPEC_LOW:
 		{
-			random_resistance(o_ptr, FALSE, rand_range(5, 16));
+			add_resistance(o_ptr, 5, 16);
 		}
 		case E_SPEC_RESIST:
 		{
-			random_resistance(o_ptr, FALSE, rand_range(5, 38));
+			add_resistance(o_ptr, 5, 38);
 			return TRUE;
 		}
 		/* Nothing. */
@@ -2885,85 +2885,79 @@ static byte k_ego_special(object_kind *k_ptr)
  */
 
 /*
- * Turn an ordinary object into an ego item or artefact, and give it appropriate
- * bonuses.
+ * Choose how powerful a newly created object should be, and how many times
+ * the game may attempt to replace it with an artefact.
  */
-static void apply_magic_1(object_type *o_ptr, const int lev, const bool okay,
-	const bool good, const bool great)
+static void choose_magic_power(int *power, int *rolls,
+	int lev, bool okay, bool good, bool great)
 {
-	int i, rolls, f1, f2, power;
+	/* Chance of being "good" */
+	int f1 = MIN(lev + 10, 75);
 
-	/* Normal artefacts have no business here. */
-	if (o_ptr->name1) return;
-
-
-	/* Base chance of being "good" */
-	f1 = lev + 10;
-
-	/* Maximal chance of being "good" */
-	if (f1 > 75) f1 = 75;
-
-	/* Base chance of being "great" */
-	f2 = f1 / 2;
-
-	/* Maximal chance of being "great" */
-	if (f2 > 20) f2 = 20;
-
+	/* Chance of being "great" */
+	int f2 = MIN(lev/2 + 5, 20);
 
 	/* Assume normal */
-	power = 0;
+	*power = 0;
 
 	/* Roll for "good" */
 	if (good || percent(f1))
 	{
 		/* Assume "good" */
-		power = 1;
+		*power = 1;
 
 		/* Roll for "great" */
-		if (great || percent(f2)) power = 2;
+		if (great || percent(f2)) *power = 2;
 	}
 
 	/* Roll for "cursed" */
 	else if (percent(f1))
 	{
 		/* Assume "cursed" */
-		power = -1;
+		*power = -1;
 
 		/* Roll for "broken" */
-		if (percent(f2)) power = -2;
+		if (percent(f2)) *power = -2;
 	}
-
 
 	/* Assume no rolls */
-	rolls = 0;
+	*rolls = 0;
 
 	/* Get one roll if excellent */
-	if (power >= 2) rolls = 1;
+	if (*power >= 2) *rolls = 1;
 
 	/* Hack -- Get four rolls if forced great */
-	if (great) rolls = 4;
+	if (great) *rolls = 4;
 
 	/* Hack -- Get no rolls if not allowed */
-	if (!okay) rolls = 0;
+	if (!okay) *rolls = 0;
 
-	/* Roll for artifacts if allowed */
-	for (i = 0; i < rolls; i++)
+}
+
+/*
+ * Try to turn "o_ptr" into an artefact "rolls" times.
+ * If it succeeds, or if it cannot succeed, return immediately.
+ */
+static void art_roll(object_type *o_ptr, int rolls)
+{
+	while (rolls--)
 	{
-		errr err;
-		if (cheat_peek) msg_format("Rolling %d", i);
+		if (cheat_peek) msg_format("Rolling %d", rolls);
+
 		/* Roll for an artifact */
-		err = make_artifact(o_ptr, FALSE);
+		if (make_artifact(o_ptr, FALSE)
 
-		/* Continue if the roll went against us. */
-		if (err == MAKE_ART_RANDOM_FAIL) continue;
-
-		/* Return if an artefact has been produced. */
-		else if (err == SUCCESS) return;
-
-		/* Finish if it failed for some other reason. */
-		else break;
+		/* Finish unless it fails because of bad luck. */
+			!= MAKE_ART_RANDOM_FAIL) return;
 	}
+}
 
+/*
+ * Turn an ordinary object into an ego item or artefact, and give it appropriate
+ * bonuses.
+ */
+static void apply_magic_1(object_type *o_ptr, int lev, int power)
+{
 	/* Apply magic */
 	switch (o_ptr->tval)
 	{
@@ -2997,7 +2991,7 @@ static void apply_magic_1(object_type *o_ptr, const int lev, const bool okay,
 		case TV_RING:
 		case TV_AMULET:
 		{
-			if (!power && (rand_int(100) < 50)) power = -1;
+			if (!power && aux3_can_curse(o_ptr->k_idx) && one_in(2)) power = -1;
 		}
 		/* Fall through... */
 
@@ -3052,9 +3046,6 @@ void apply_magic_2(object_type *o_ptr, const int lev)
 
 		/* Mega-Hack -- increase the rating again */
 		if (a_ptr->cost > 50000L) rating += 10;
-
-		/* Set the good item flag */
-		good_item_flag = TRUE;
 
 		/* Cheat -- describe the item */
 		object_mention(o_ptr);
@@ -3128,6 +3119,9 @@ void apply_magic_2(object_type *o_ptr, const int lev)
 
 }
 
+/*
+ * Set o_ptr->found according to the circumstances of creation.
+ */
 void set_object_found(object_type *o_ptr, int how, int idx)
 {
 	object_found *ptr = &o_ptr->found;
@@ -3144,17 +3138,32 @@ void set_object_found(object_type *o_ptr, int how, int idx)
 	if (how != FOUND_BIRTH)
 	{
 		ptr->level = dun_level;
-		ptr->dungeon = wild_grid[wildy][wildx].dungeon;
+		ptr->dungeon = cur_dungeon;
 	}
 }
 
+/*
+ * Carry out a range of things which happen to an object after it has had its
+ * k_idx decided.
+ */
 void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, int how, int idx)
 {
+	int power, rolls;
+
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
+	/* 
+	 * Calculate the "power" the new object should have, and how many times
+	 * the game may try to turn it into a special artefact.
+	 */
+	choose_magic_power(&power, &rolls, lev, okay, good, great);
+
+	/* Roll for an artefact, if allowed. */
+	art_roll(o_ptr, rolls);
+
 	/* Turn the object into an ego-item or artefact (or not). */
-	apply_magic_1(o_ptr, lev, okay, good, great);
+	if (!o_ptr->name1) apply_magic_1(o_ptr, lev, power);
 
 	/* Give it any bonuses its ego- or artefact type requires, and add random
 	 * bonuses to rings and armour. */
@@ -4551,10 +4560,7 @@ void display_koff(int k_idx)
 
 
 	/* Display spells in books */
-	if (item_tester_spells(q_ptr))
-	{
-		display_spells(2, 0, q_ptr);
-	}
+	display_spells(2, 0, q_ptr);
 }
 
 /*
@@ -4570,4 +4576,86 @@ void object_hide(object_type *o_ptr)
 
 	/* Redraw appropriate stuff. */
 	update_object(o_ptr);
+}
+
+/*
+ * Set TR3_EASY_KNOW for various object_kinds which are always the same.
+ * This makes various assumptions about how apply_magic() works.
+ * In particular, it assumes that any RNG call after the choose_magic_power()
+ * call has some effect on the object created.
+ *
+ * As choose_magic_power() is called by apply_magic(), a version of the latter
+ * (albeit one without several unnecessary sections) is embedded in this
+ * function.
+ */
+void init_easy_know(void)
+{
+	int i, k;
+	object_type o_ptr[1];
+
+	/* Use a local array to track which object_kinds have random properties. */
+	C_TNEW(random, z_info->k_max, bool);
+	WIPE(random, random);
+
+	/*
+	 * Hack - don't create EASY_KNOW artefacts.
+	 * This may not be appropriate for objects which are only created as a
+	 * single artefact, but artefacts do not stack, and making identification
+	 * give permanent access to an activation is not necessarily beneficial.
+	 */
+	for (i = 0; i < z_info->a_max; i++)
+	{
+		if (a_info[i].name) random[a_info[i].k_idx] = TRUE;
+	}
+
+	/* The following code needs to check if the RNG has been called. To do
+	 * this, it uses the simple RNG and checks what it does to the random state.
+	 */
+	Rand_quick = TRUE;
+
+#ifdef CHECK_ARRAYS
+	/* Paranoia - Rand_value must not return to 0 too quickly. */
+	for (i = 2, Rand_value = 0; i < 100; i++)
+	{
+		(void)rand_int(i);
+		assert(Rand_value);
+	}
+#endif /* CHECK_ARRAYS */
+
+	for (k = 0; k < z_info->k_max; k++)
+	{
+		/* Not a real object_kind. */
+		if (!k_info[k].name) continue;
+
+		/* One which is already known to be random. */
+		if (random[k]) continue;
+
+		/* If apply_magic() can curse an object, it shouldn't be EASY_KNOW. */
+		if (magic_can_curse(k)) continue;
+
+		/* Create an object. */
+		object_prep(o_ptr, k);
+
+		/* Reset the RNG. */
+		Rand_value = 0;
+
+		/* Hack - perform the interesting parts of apply_magic() on an object
+		 * of this type at various power ratings.
+		 */
+		for (i = -2; i <= 2; i++)
+		{
+			apply_magic_1(o_ptr, 50, i);
+			apply_magic_2(o_ptr, 50);
+		}
+
+		/* Something has used the RNG in producing this item. */
+		if (Rand_value) continue;
+
+		/* Set EASY_KNOW for all non-"random" object_kinds. */
+		k_info[k].flags3 |= TR3_EASY_KNOW;
+	}
+
+	/* Clean up. */
+	Rand_quick = FALSE;
+	TFREE(random);
 }

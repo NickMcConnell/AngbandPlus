@@ -460,8 +460,8 @@ static void image_monster(byte *ap, char *cp)
 		}
 		while (is_fake_monster(r_ptr));
 
-		(*cp) = r_ptr->x_char;
-		(*ap) = r_ptr->x_attr;
+		(*cp) = r_ptr->gfx.xc;
+		(*ap) = r_ptr->gfx.xa;
 	}
 }
 
@@ -544,17 +544,17 @@ static bool do_violet_unique(monster_race *r_ptr, byte *ap, char *cp)
 	if (r_ptr->flags1 & RF1_UNIQUE) a = TERM_VIOLET;
 
 	/* Monsters which would otherwise be invisible become red. */
-	else if ((*ap) == r_ptr->x_attr && (*cp) == r_ptr->x_char) a = TERM_RED;
+	else if ((*ap) == r_ptr->gfx.xa && (*cp) == r_ptr->gfx.xc) a = TERM_RED;
 
 	/* Only the above types of monster are modified here. */
 	else return FALSE;
 
 	/* Monsters which are the colour in question anyway become yellow. */
-	if (a == r_ptr->x_attr) a = TERM_YELLOW;
+	if (a == r_ptr->gfx.xa) a = TERM_YELLOW;
 
 	/* Store the result. */
 	(*ap) = a;
-	(*cp) = r_ptr->x_char;
+	(*cp) = r_ptr->gfx.xc;
 
 	/* Let the game know that something has happened. */
 	return TRUE;
@@ -699,11 +699,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	if (!in_bounds2(y, x))
 	{
 		f_ptr = f_info+FEAT_ILLEGAL;
-		*ap = f_ptr->x_attr;
-		*cp = f_ptr->x_char;
+		*ap = f_ptr->gfx.xa;
+		*cp = f_ptr->gfx.xc;
 
-		*tap = f_ptr->x_attr;
-		*tcp = f_ptr->x_char;
+		*tap = f_ptr->gfx.xa;
+		*tcp = f_ptr->gfx.xc;
 
 		return;
 	}
@@ -732,10 +732,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			if (feat == FEAT_PATH) f_ptr = &f_info[FEAT_PATH];
 
 			/* Normal char */
-			c = f_ptr->x_char;
+			c = f_ptr->gfx.xc;
 
 			/* Normal attr */
-			a = f_ptr->x_attr;
+			a = f_ptr->gfx.xa;
 
 			/* Special lighting effects */
 			if (view_special_lite && ((a == TERM_WHITE) || use_graphics))
@@ -824,10 +824,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 
 			/* Normal attr */
-			a = f_ptr->x_attr;
+			a = f_ptr->gfx.xa;
 
 			/* Normal char */
-			c = f_ptr->x_char;
+			c = f_ptr->gfx.xc;
 		}
 	}
 
@@ -844,10 +844,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			f_ptr = &f_info[feat];
 
 			/* Normal char */
-			c = f_ptr->x_char;
+			c = f_ptr->gfx.xc;
 
 			/* Normal attr */
-			a = f_ptr->x_attr;
+			a = f_ptr->gfx.xa;
 
 			/* Special lighting effects */
 			if (view_granite_lite && ((a == TERM_WHITE) || (use_graphics)) &&
@@ -971,10 +971,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 
 			/* Normal attr */
-			a = f_ptr->x_attr;
+			a = f_ptr->gfx.xa;
 
 			/* Normal char */
-			c = f_ptr->x_char;
+			c = f_ptr->gfx.xc;
 		}
 	}
 
@@ -1043,10 +1043,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Desired attr */
-			a = r_ptr->x_attr;
+			a = r_ptr->gfx.xa;
 
 			/* Desired char */
-			c = r_ptr->x_char;
+			c = r_ptr->gfx.xc;
 
 			/* Ignore weird codes */
 			if (avoid_other)
@@ -1173,10 +1173,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		monster_race *r_ptr = &r_info[0];
 
 		/* Get the "player" attr */
-		a = r_ptr->x_attr;
+		a = r_ptr->gfx.xa;
 
 		/* Get the "player" char */
-		c = r_ptr->x_char;
+		c = r_ptr->gfx.xc;
 
 		/* Save the info */
 		(*ap) = a;
@@ -1558,13 +1558,13 @@ static int get_priority(int y, int x)
 	map_info(y, x, &a, &c, &da, &dc);
 
 	/* Use the priority of this terrain type if the terrain is visible. */
-	if (f_ptr->x_char == c && f_ptr->x_attr == a) return f_ptr->priority;
+	if (f_ptr->gfx.xc == c && f_ptr->gfx.xa == a) return f_ptr->priority;
 
 	/* Otherwise, look to see if it looks like terrain. */
 	for (i = 0; i < feature_priorities; i++)
 	{
 		f_ptr = priority_table[i];
-		if (f_ptr->x_char == c && f_ptr->x_attr == a) return f_ptr->priority;
+		if (f_ptr->gfx.xc == c && f_ptr->gfx.xa == a) return f_ptr->priority;
 	}
 
 	/* Not the char/attr of a feature, so give a known priority. */
@@ -3562,19 +3562,28 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
  *
  * Return TRUE if the entire path (excluding the starting position) is "okay".
  */
-bool move_in_direction(int *xx, int *yy, int x1, int y1, int x2, int y2, bool (*okay)(int, int, int))
+bool move_in_direction(int *xx, int *yy, int x1, int y1, int x2, int y2,
+	int (*okay)(int, int, int))
 {
-	int x, y, d;
+	int x, y, d, r;
+	
+	assert(okay); /* Caller */
 
 	/* Set (*xx, *yy) to the square before the first on which okay() fail. */
-	for (d = 0, x = x1, y = y1; !d || (*okay)(y, x, d); d++)
+	for (d = 0, x = x1, y = y1; ; d++)
 	{
+		r = (d) ? (*okay)(y, x, d) : MVD_CONTINUE;
+
+		if (r == MVD_STOP_BEFORE_HERE) break;
+
 		/* Save the new location if desired. */
 		if (xx) *xx = x;
 		if (yy) *yy = y;
 
 		/* Okay for the entire distance. */
 		if (x == x2 && y == y2) return TRUE;
+
+		if (r == MVD_STOP_HERE) break;
 
 		mmove2(&y, &x, y1, x1, y2, x2);
 	}
@@ -3587,20 +3596,20 @@ bool move_in_direction(int *xx, int *yy, int x1, int y1, int x2, int y2, bool (*
  * Return TRUE if (x,y) is a "floor" grid, part of the pattern or an explosive
  * rune.
  */
-static bool PURE projectable_p(int y, int x, int d)
+static int PURE mvd_projectable(int y, int x, int d)
 {
 	/* Too far. */
-	if (d > MAX_RANGE || !in_bounds2(y, x)) return FALSE;
+	if (d > MAX_RANGE || !in_bounds2(y, x)) return MVD_STOP_BEFORE_HERE;
 
 	/* Floor */
-	else if (cave_floor_bold(y, x)) return TRUE;
+	else if (cave_floor_bold(y, x)) return MVD_CONTINUE;
 
 	/* Pattern or explosive rune. */
 	else if ((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
-		(cave[y][x].feat >= FEAT_MINOR_GLYPH)) return TRUE;
+		(cave[y][x].feat >= FEAT_MINOR_GLYPH)) return MVD_CONTINUE;
 
 	/* Bad terrain feature. */
-	else return FALSE;
+	else return MVD_STOP_BEFORE_HERE;
 }
 
 /*
@@ -3612,7 +3621,7 @@ static bool PURE projectable_p(int y, int x, int d)
 bool projectable(int y1, int x1, int y2, int x2)
 {
 	/* See "project()" */
-	return move_in_direction(NULL, NULL, x1, y1, x2, y2, projectable_p);
+	return move_in_direction(NULL, NULL, x1, y1, x2, y2, mvd_projectable);
 }
 
 /*

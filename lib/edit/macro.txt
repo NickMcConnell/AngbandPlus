@@ -68,7 +68,7 @@
 
 # Version stamp (required)
 
-V:1.0.14
+V:1.0.15
 
 # There are several macros which apply to all files used by object_desc().
 # To simplify things, these macros create them with a single line.
@@ -482,23 +482,8 @@ Y:80
 F:k_info:I:2
 F:k_info:I:4
 
-X:Sorcery
+X:Book
 Y:90
-F:k_info:I:2
-F:k_info:I:4
-
-X:Thaumaturgy
-Y:91
-F:k_info:I:2
-F:k_info:I:4
-
-X:Conjuration
-Y:92
-F:k_info:I:2
-F:k_info:I:4
-
-X:Necromancy
-Y:93
 F:k_info:I:2
 F:k_info:I:4
 
@@ -520,19 +505,19 @@ F:k_info:I:4
 # Add IGNORE_* as appropriate, and SHOW_ARMOUR to armour
 
 X:I:Skeleton
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Bottle
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_ELEC
+A:F:IGNORE_FIRE|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Junk
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Spike
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Chest
@@ -628,47 +613,35 @@ A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID
 F:k_info:I:1
 
 X:I:Rod
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Scroll
-A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ELEC
+A:F:IGNORE_COLD|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Potion
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_ACID|IGNORE_ELEC
+A:F:IGNORE_FIRE|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Flask
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_ACID|IGNORE_ELEC|EASY_KNOW
+A:F:IGNORE_FIRE|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Food
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
-X:I:Sorcery
-A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
-F:k_info:I:1
-
-X:I:Thaumaturgy
-A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
-F:k_info:I:1
-
-X:I:Conjuration
-A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
-F:k_info:I:1
-
-X:I:Necromancy
-A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+X:I:Book
+A:F:IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Charm
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
 X:I:Gold
-A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
 F:k_info:I:1
 
 # All artefacts ignore the elements
@@ -809,19 +782,7 @@ Y:Food
 F:k_info:I:2
 
 X:90
-Y:Sorcery
-F:k_info:I:2
-
-X:91
-Y:Thaumaturgy
-F:k_info:I:2
-
-X:92
-Y:Conjuration
-F:k_info:I:2
-
-X:93
-Y:Necromancy
+Y:Book
 F:k_info:I:2
 
 X:94
@@ -1625,6 +1586,10 @@ X:lous~
 Y:l%-Pous%+Pi%=P
 #:plural names
 
+X:ung~
+Y:ung%+Pen%=P
+#:plural names
+
 # Variable default timeouts for rods
 
 X:11-20
@@ -1741,7 +1706,7 @@ Y:IRON_CROWN-STEEL_HELM
 F:e_info:O:2
 
 X:Cloak
-Y:CLOAK-SHADOW_CLOAK
+Y:CLOAK-ELVEN_CLOAK
 F:e_info:O:2
 
 X:Dig

@@ -277,8 +277,11 @@ static void prt_spirit(void)
 		spirit_type *s_ptr = spirits+i;
 
 		/* Add to the appropriate string. */
-		if (i % 2) s = &ws;
-		else s = &ls;
+		if (s_ptr->sphere == SPIRIT_NATURE) s = &ws;
+		else if (s_ptr->sphere == SPIRIT_LIFE) s = &ls;
+
+		/* Paranoia - an unidentified sphere. */
+		else continue;
 
 		if(!(s_ptr->pact))
 		{
@@ -416,7 +419,7 @@ static void prt_speed(void)
 	else change = "$d";
 
 	/* Display the speed */
-	mc_put_lfmt(GET_YX(XY_SPEED), "%-14v", vstrnfmt_fn, "%s (%+d)", change, i);
+	mc_put_lfmt(GET_YX(XY_SPEED), "%-14v", format_fn, "%s (%+d)", change, i);
 }
 
 /*
@@ -1595,7 +1598,6 @@ static void calc_bonuses_add(s16b (*flags)[32])
 	if (flags[3][iilog(TR3_AGGRAVATE)]) p_ptr->aggravate = TRUE;
 	if (flags[3][iilog(TR3_TELEPORT)]) p_ptr->teleport = TRUE;
 	if (flags[3][iilog(TR3_DRAIN_EXP)]) p_ptr->exp_drain = TRUE;
-	if (flags[3][iilog(TR3_BLESSED)]) p_ptr->bless_blade = TRUE;
 	if (flags[3][iilog(TR3_XTRA_MIGHT)]) p_ptr->xtra_might = TRUE;
 	if (flags[3][iilog(TR3_SLOW_DIGEST)]) p_ptr->slow_digest = TRUE;
 	if (flags[3][iilog(TR3_REGEN)]) p_ptr->regenerate = TRUE;
@@ -1749,7 +1751,6 @@ static void calc_bonuses(void)
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
-	p_ptr->bless_blade = FALSE;
 	p_ptr->xtra_might = FALSE;
 	p_ptr->impact = FALSE;
 	p_ptr->see_inv = FALSE;
@@ -3172,8 +3173,8 @@ static void dump_race(int w, int h, int num, char attr, monster_list_entry *ptr)
 	byte flags = (total == 1) ? 0 : MDF_NUMBER;
 
 	/* Dump the monster name. */
-	mc_put_fmt(y, x, "%v $%c%.*v", get_symbol_f2, r_ptr->x_attr,
-		r_ptr->x_char, attr, w-3, monster_desc_aux_f3, r_ptr, total, flags);
+	mc_put_fmt(y, x, "%v $%c%.*v", get_symbol_f2, r_ptr->gfx.xa,
+		r_ptr->gfx.xc, attr, w-3, monster_desc_aux_f3, r_ptr, total, flags);
 }
 
 
@@ -3355,8 +3356,8 @@ static void win_floor_display(void)
 
 		if (c_ptr->m_idx && m_ptr->ml)
 		{
-			mc_put_fmt(y++, 0, "%v %v", get_symbol_f2, r_ptr->x_attr,
-				r_ptr->x_char, monster_desc_f2, m_ptr, 0x0C);
+			mc_put_fmt(y++, 0, "%v %v", get_symbol_f2, r_ptr->gfx.xa,
+				r_ptr->gfx.xc, monster_desc_f2, m_ptr, 0x0C);
 		}
 
 		for (; y < Term->hgt && o_ptr != o_list;
@@ -3839,9 +3840,12 @@ void update_objects(int where)
 		/* Display the inventory window. */
 		p_ptr->window |= PW_INVEN;
 	}
-	/* Pouches are . */
+	/* Pouches don't need to be reordered, and don't affect the player. */
 	if (where & OUP_POUCH)
 	{
+		/* Hide any apppropriate objects. */
+		p_ptr->notice |= PN_ISQUELCH;
+
 		/* Correct the speed, for if the weight has changed. */
 		p_ptr->update |= PU_BONUS;
 
@@ -3850,6 +3854,9 @@ void update_objects(int where)
 	}
 	if (where & OUP_EQUIP)
 	{
+		/* Hide any apppropriate objects. */
+		p_ptr->notice |= PN_ISQUELCH;
+
 		/* Update various item bonuses. */
 		p_ptr->update |= PU_BONUS;
 

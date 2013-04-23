@@ -540,15 +540,26 @@ static void rd_item(object_type *o_ptr)
 
 /*
  * Read a monster
+ * Return FALSE if an invalid r_idx is given.
  */
-static void rd_monster(monster_type *m_ptr)
+static bool rd_monster(monster_type *m_ptr)
 {
+	monster_type dummy[1];
 	byte tmp8u;
 
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
 
 	m_ptr->r_idx = convert_r_idx(m_ptr->r_idx, sf_flags_sf, sf_flags_now);
+
+	if (m_ptr->r_idx < 0 || m_ptr->r_idx >= MAX_R_IDX ||
+		!r_info[m_ptr->r_idx].name)
+	{
+		note("Deleting monster with an unknown race.");
+
+		m_ptr->r_idx = 0;
+		m_ptr = dummy;
+	}
 
 	/* Read the other information */
 	rd_byte(&m_ptr->fy);
@@ -571,12 +582,8 @@ static void rd_monster(monster_type *m_ptr)
 		rd_s16b(&m_ptr->pl_cdam);
 	}
 
-	if (m_ptr->r_idx < 0 || m_ptr->r_idx >= MAX_R_IDX ||
-		!r_info[m_ptr->r_idx].name)
-	{
-		note("Deleting monster with an unknown race.");
-		delete_monster_idx(m_ptr-m_list, FALSE);
-	}
+	/* Succeed if the information hasn't been discarded. */
+	return (m_ptr != dummy);
 }
 
 
@@ -829,13 +836,13 @@ static void rd_options(void)
 
 	/*** Special info */
 
-	/* Read "delay_factor" */
+	/* Read "delay_factor" (cube root) */
 	rd_byte(&b);
-	delay_factor = b;
+	delay_factor = b*b*b;
 
 	/* Read "hitpoint_warn" */
 	rd_byte(&b);
-	hitpoint_warn = b;
+	hitpoint_warn = b*10;
 
 
 	/*** Cheating options ***/
@@ -974,8 +981,8 @@ static void rd_ghost(void)
 	rd_string(r_name + r_ptr->name, 64);
 
 	/* Visuals */
-	rd_byte((byte *)&r_ptr->d_char);
-	rd_byte(&r_ptr->d_attr);
+	rd_byte((byte *)&r_ptr->gfx.dc);
+	rd_byte(&r_ptr->gfx.da);
 
 	/* Level/Rarity */
 	rd_byte(&r_ptr->level);
@@ -1019,8 +1026,8 @@ static void rd_ghost(void)
 	}
 
 	/* Hack -- set the "graphic" info */
-	r_ptr->x_attr = r_ptr->d_attr;
-	r_ptr->x_char = r_ptr->d_char;
+	r_ptr->gfx.xa = r_ptr->gfx.da;
+	r_ptr->gfx.xc = r_ptr->gfx.dc;
 
 }
 
@@ -1624,7 +1631,7 @@ static errr rd_dungeon(void)
 		m_ptr = &m_list[m_idx];
 
 		/* Read the monster */
-		rd_monster(m_ptr);
+		if (!rd_monster(m_ptr)) continue;
 
 
 		/* Access grid */

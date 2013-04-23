@@ -412,39 +412,78 @@ void do_cmd_messages(void)
 	character_icky = FALSE;
 }
 
-
 #define DCO_ERROR_ABORT 1
 #define DCO_ERROR_FILE 2
 
 /* Option-handling code */
 
-static option_type autosave_info[3] =
+/*
+ * Increase/decrease *var to the next element of array[], if possible.
+ * Assume that *var >= 0.
+ */
+static void set_s16b(s16b *var, bool inc, const s16b *array, uint max)
 {
-	{ &autosave_l,      FALSE, 255, 0x01, 0x00,
-		"autosave_l",    "Autosave when entering new levels" },
+	const s16b *high, *low;
 
-	{ &autosave_t,      FALSE, 255, 0x02, 0x00,
-		"autosave_t",   "Timed autosave" },
+	for (low = high = array; high < array+max; high++)
+	{
+		if (*var < *high) break;
+		else if (*var > *high) low = high;
+	}
 
-	{ &autosave_q,      FALSE, 255, 0x04, 0x00,
-		"autosave_q",   "Quiet autosaves" },
-	};
-
-static s16b toggle_frequency(s16b current)
-{
-	if (current == 0) return 50;
-	if (current == 50) return 100;
-	if (current == 100) return 250;
-	if (current == 250) return 500;
-	if (current == 500) return 1000;
-	if (current == 1000) return 2500;
-	if (current == 2500) return 5000;
-	if (current == 5000) return 10000;
-	if (current == 10000) return 25000;
-
-	return 0;
+	if (!inc) *var = *low;
+	else if (*high > *var) *var = *high;
 }
 
+/*
+ * Print a bool option setting into buf.
+ */
+void print_bool_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+{
+	bool v = *((bool*)(va_arg(*vp, void *)));
+	strnfmt(buf, max, "%s", (v) ? "yes" : "no");
+}
+
+/*
+ * Print a s16b option setting into buf.
+ */
+void print_s16b_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+{
+	s16b v = *((s16b*)(va_arg(*vp, void *)));
+	strnfmt(buf, max, (v) ? "%d" : "off", v);
+}
+
+/*
+ * Try to parse "in" as something produced by a function above.
+ * If successful, put the result in *out and return TRUE.
+ * Otherwise, return FALSE.
+ */
+#define PARSE_TYPE(TYPE, FUNC_F1, MIN, MAX) \
+{ \
+	char buf[32]; \
+	TYPE v[1]; \
+	long l; \
+	for (*v = l = MIN; l <= MAX; l++, (*v)++) \
+	{ \
+		strnfmt(ARRAY(buf), "%v", FUNC_F1, (void*)v); \
+		if (!strcmp(in, buf)) \
+		{ \
+			*((TYPE *)(out)) = *v; \
+			return TRUE; \
+		} \
+	} \
+	return FALSE; \
+}
+
+bool parse_bool(void *out, cptr in)
+{
+	PARSE_TYPE(bool, print_bool_f1, FALSE, TRUE)
+}
+
+bool parse_s16b(void *out, cptr in)
+{
+	PARSE_TYPE(s16b, print_s16b_f1, 0, MAX_SHORT)
+}
 
 /*
  * Give a description of an unidentified object.
@@ -475,14 +514,40 @@ static void unident_name_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
 }
 
 /*
- * Interact with some options for cheating
+ * Give a description of the base object name style.
+ * Use a real unidentified object description if possible.
+ */
+static void o_base_name_f1(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
+{
+	int i, p_id = va_arg(*vp, int);
+
+	/* Search u_info for a place where this p_id is used. */
+	for (i = 0; i < z_info->u_max; i++)
+	{
+		/* Found a match. */
+		if (u_info[i].p_id == p_id)
+		{
+			strnfmt(buf, max, "%v", unident_name_f1, i);
+			return;
+		}
+	}
+
+	/* Copy the template name directly. */
+	sprintf(buf, "%.*s", max-1, ob_name+o_base[p_id].name);
+
+	/* Mask any unusual characters in it with X. */
+	while (*buf++) if (!ISPRINT(*buf)) *buf = 'X';
+}
+
+/*
+ * Interact with some "special" options.
+ * As repeated increases/decreases make sense for some of the options in
+ * this menu, setting an option here does not change the currently selected
+ * option.
  */
 static void do_cmd_options_autosave(cptr info)
 {
-	char ch;
-
-	int     i, k = 0, n = 3;
-
+	int i, k = 0, n = N_ELEMENTS(autosave_info);
 
 	/* Clear screen */
 	Term_clear();
@@ -490,37 +555,49 @@ static void do_cmd_options_autosave(cptr info)
 	/* Interact with the player */
 	while (TRUE)
 	{
+		cptr opts[2] =
+		{
+			"\033-8 \n\r2yY6nN4xX?",
+			"\033--    yyynnnxx?"
+		};
+		char ch;
+
+		option_special *this = &autosave_info[k];
+
+		assert(strlen(opts[0]) == strlen(opts[1])); /* Hmm... */
+
 		/* Prompt XXX XXX XXX */
-		mc_put_fmt(0, 0, "%s (RET to advance, y/n to set,"
-			" 'F' for frequency, ESC to accept)%v", info, clear_f0);
+		mc_put_fmt(0, 0, "%s (RET to advance, y/n to set, ESC to accept)%v",
+			info, clear_f0);
 
 		/* Display the options */
 		for (i = 0; i < n; i++)
 		{
-			option_type *op_ptr = &autosave_info[i];
+			option_special *op_ptr = &autosave_info[i];
 
 			/* Highlight the current option in blue. */
 			char a = (i == k) ? 'B' : 'w';
 
 			/* Display the option text */
-			mc_put_fmt(i+2, 0, "$%c$!%-48s: %s  (%s)", a, op_ptr->o_desc,
-				(*op_ptr->o_var) ? "yes" : "no ", op_ptr->o_text);
+			mc_put_fmt(i+2, 0, "$%c$!%-48s: %-5.5v (%s)", a, op_ptr->desc,
+				op_ptr->print_f1, op_ptr->var, op_ptr->text);
 		}
-
-		mc_put_fmt(5, 0, "Timed autosave frequency: every %d turns",
-			autosave_freq);
 
 		/* Hilite current option */
 		move_cursor(k + 2, 50);
 
 		/* Track this option. */
-		help_track(autosave_info[k].o_text);
+		help_track(this->text);
 
 		/* Get a key */
 		ch = inkey();
 
 		/* Assume the help needed has changed. */
 		help_track(NULL);
+
+		/* Convert various synonyms to the base key set. */
+		for (i = 0; opts[0][i] && opts[0][i] != ch; i++) ;
+		ch = opts[1][i];
 
 		/* Analyze */
 		switch (ch)
@@ -530,55 +607,48 @@ static void do_cmd_options_autosave(cptr info)
 				return;
 			}
 
-			case '-':
-			case '8':
+			case '-': case ' ':
 			{
-				k = (n + k - 1) % n;
-				break;
-			}
-
-			case ' ':
-			case '\n':
-			case '\r':
-			case '2':
-			{
-				k = (k + 1) % n;
+				int inc = (ch == ' ') ? 1 : -1;
+				k = (k + n + inc) % n;
 				break;
 			}
 
 			case 'y':
-			case 'Y':
-			case '6':
 			{
-
-				(*autosave_info[k].o_var) = TRUE;
-				k = (k + 1) % n;
+				i = TRUE;
 				break;
 			}
-
 			case 'n':
-			case 'N':
-			case '4':
 			{
-				(*autosave_info[k].o_var) = FALSE;
-				k = (k + 1) % n;
+				i = FALSE;
 				break;
 			}
-
-			case 'f':
-			case 'F':
+			case 'x':
 			{
-				autosave_freq = toggle_frequency(autosave_freq);
-				prt(format("Timed autosave frequency: every %d turns",
-					autosave_freq), 5, 0);
+				i = !(*((bool*)(this->var)));
 				break;
 			}
-
+			case '?':
+			{
+				/* Hack - show help on the main term. */
+				show_link(this->text);
+				break;
+			}
 			default:
 			{
-				bell(0);
-				break;
+				bell("Illegal command for options!");
 			}
+		}
+
+		/* Handle the "set something" things in one place. */
+		if (strchr("ynx", ch))
+		{
+			/* Hack - use print_f1 to identify bools. */
+			if (this->print_f1 == print_bool_f1)
+				*((bool*)(this->var)) = i;
+			else
+				set_s16b(this->var, i, this->vals, this->nvals);
 		}
 	}
 }
@@ -633,12 +703,23 @@ static bool opt_is_forced(option_type *op_ptr)
  */
 void opt_special_effect(const option_type * const op_ptr)
 {
-	if (op_ptr->o_page == OPTS_CHEAT)
+	if (op_ptr->o_page == OPTS_CHEAT && *(op_ptr->o_var))
 	{
-		/* Hack - save the game when the player first starts cheating. */
-		if (!noscore) do_cmd_save_game(TRUE);
+		u16b old_noscore = noscore;
 
-		noscore |= (1L<<op_ptr->o_bit);
+		/* cheat_wzrd is special as it prevents bones files from being made. */
+		if (op_ptr->o_var == &cheat_wzrd)
+		{
+			noscore |= NOSCORE_WIZARD;
+		}
+		/* "Knowledge" cheat options only prevent scoring. */
+		else
+		{
+			noscore |= NOSCORE_CHEAT;
+		}
+
+		/* Hack - save the game when noscore changes. */
+		if (noscore != old_noscore) do_cmd_save_game(TRUE);
 	}
 	if (op_ptr->o_var == &equippy_chars)
 	{
@@ -1098,50 +1179,6 @@ static void do_cmd_options_redraw(void)
 }
 
 /*
- * Set the base delay factor.
- */
-static void do_cmd_options_delay(void)
-{
-	/* Prompt */
-	prt("Command: Base Delay Factor", 18, 0);
-
-	/* Get a new value */
-	while (1)
-	{
-		int k, msec = delay_factor * delay_factor * delay_factor;
-		prt(format("Current base delay factor: %d (%d msec)",
-					delay_factor, msec), 22, 0);
-		prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
-		k = inkey();
-		if (k == ESCAPE) break;
-		if (ISDIGIT(k)) delay_factor = D2I(k);
-		else bell(0);
-	}
-}
-
-/*
- * Set the HP warning level.
- */
-static void do_cmd_options_hp(void)
-{
-	/* Prompt */
-	prt("Command: Hitpoint Warning", 18, 0);
-
-	/* Get a new value */
-	while (1)
-	{
-		int k;
-		prt(format("Current hitpoint warning: %d0%%",
-			hitpoint_warn), 22, 0);
-		prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
-		k = inkey();
-		if (k == ESCAPE) break;
-		if (ISDIGIT(k)) hitpoint_warn = D2I(k);
-		else bell(0);
-	}
-}
-
-/*
  * Give some feedback for one of the above functions.
  * Note that a user abort passes unmentioned.
  */
@@ -1250,7 +1287,7 @@ static void save_preferences(void (*func)(FILE *fff))
  */
 static void inscription_dump(FILE *fff)
 {
-	int i,j;
+	int i;
 
 	/* Title. */
 	fprintf(fff, "\n\n# Automatic default inscription dump\n\n");
@@ -1276,15 +1313,8 @@ static void inscription_dump(FILE *fff)
 		/* Nothing more to say. */
 		if (!o_base[i].note) continue;
 
-		/* Add a comment if this o_base is used. */
-		for (j = 0; i < z_info->u_max; i++)
-		{
-			if (u_info[j].p_id == i)
-			{
-				my_fprintf(fff, "# %v\n", unident_name_f1, j);
-				break;
-			}
-		}
+		/* Add a comment. */
+		my_fprintf(fff, "# %v\n", o_base_name_f1, i);
 
 		/* Save the setting. */
 		fprintf(fff, "}:%d:%s\n\n", i, quark_str(k_info[i].note));
@@ -1320,7 +1350,7 @@ static name_centry tval_names_inscribe[] =
 	{TV_WAND, "Wand"},
 	{TV_STAFF, "Staff"},
 	{TV_ROD, "Rod"},
-	{TV_SORCERY_BOOK, "Spellbook"},
+	{TV_BOOK, "Spellbook"},
 	{TV_CHARM, "Charm"},
 	{TV_SKELETON, "Other thing"},
 	{0, NULL}
@@ -1353,9 +1383,6 @@ static int get_category_tval(int tval)
 	{
 		case TV_ARROW: case TV_BOLT: case TV_SHOT:
 			return TV_ARROW;
-		case TV_SORCERY_BOOK: case TV_THAUMATURGY_BOOK:
-		case TV_CONJURATION_BOOK: case TV_NECROMANCY_BOOK:
-			return TV_SORCERY_BOOK;
 	}
 
 	/* Single categories in the above table. */
@@ -1700,8 +1727,8 @@ static void object_k_name_squelch_f1(char *buf, uint max,
 	cptr UNUSED fmt, va_list *vp)
 {
 	int n = va_arg(*vp, int);
-	strnfmt(buf, max, "$%c%v",qual_str[k_info[n].squelch].str[1],
-		object_k_name_f1, n, quark_str(k_info[n].note));
+	strnfmt(buf, max, "$%c%v",
+		qual_str[k_info[n].squelch].str[1], object_k_name_f1, n);
 }
 /*
  * Modify object_kind.squelch according to the player's wishes.
@@ -1873,9 +1900,44 @@ static void tval_attr_dump(FILE *fff)
 		char a = atchar[k_info[i].i_attr];
 
 		/* Nothing new to say. */
-		if (a == TERM_WHITE) continue;
+		if (a == 'w') continue;
 
 		my_fprintf(fff, "# %v\nE:k:%d:%c\n\n", object_k_name_f1, i, i, a);
+	}
+
+	for (i = 0; i < z_info->ob_max; i++)
+	{
+		char a = atchar[o_base[i].i_attr];
+
+		/* Nothing new to say. */
+		if (a == 'w') continue;
+
+		my_fprintf(fff, "# %v\nE:u:%d:%c\n\n", o_base_name_f1, i, i, a);
+	}
+}
+
+/*
+ * Save the "numerical" options to a file.
+ * Also mention those which cannot be stored in a save file.
+ */
+static void dump_numerical_options(FILE *fff)
+{
+	option_special *ptr;
+
+	/* Start dumping */
+	fprintf(fff, "\n\n# Automatic option dump (numerical)\n\n");
+
+	/* Dump each of the numerical options in turn. */
+	FOR_ALL_IN(autosave_info, ptr)
+	{
+		/* Paranoia - require a real option */
+		if (!ptr->text) continue;
+
+		/* Comment */
+		fprintf(fff, "# Option '%s'\n", ptr->desc);
+
+		/* Dump the option */
+		my_fprintf(fff, "Z:%s:%v\n\n", ptr->text, ptr->print_f1, ptr->var);
 	}
 }
 
@@ -1887,18 +1949,28 @@ static void dump_normal_options(FILE *fff)
 {
 	option_type *op_ptr;
 	char y;
+	bool cheat = FALSE, old_cheat = FALSE;
 
 	/* Start dumping */
 	fprintf(fff, "\n\n# Automatic option dump\n\n");
 
 	/* Dump each of the normal options in turn. */
-	for (op_ptr = option_info; op_ptr->o_var; op_ptr++)
+	for (op_ptr = option_info; op_ptr->o_desc; op_ptr++, old_cheat = cheat)
 	{
 		/* Paranoia - require a real option */
 		if (!op_ptr->o_text) continue;
 
-		/* Require a non-cheat option. */
-		if (op_ptr->o_page == OPTS_CHEAT) continue;
+		/* Treat cheat options in a special way. */
+		cheat = (op_ptr->o_page == OPTS_CHEAT);
+
+		if (cheat && !old_cheat)
+		{
+			fprintf(fff, "?:$CHEAT\n\n");
+		}
+		else if (!cheat && old_cheat)
+		{
+			fprintf(fff, "?:1\n\n");
+		}
 
 		/* Comment */
 		fprintf(fff, "# Option '%s'\n", op_ptr->o_desc);
@@ -1910,12 +1982,10 @@ static void dump_normal_options(FILE *fff)
 		fprintf(fff, "%c:%s\n\n", y, op_ptr->o_text);
 	}
 
-	/* Mention options which can't be read. */
-	fprintf(fff, "\n\n# Unparsable options\n\n");
-	fprintf(fff, "# Base delay factor %d\n",
-		delay_factor * delay_factor * delay_factor);
-	fprintf(fff, "# Hitpoint warning %d\n", hitpoint_warn * 10);
-	fprintf(fff, "# Autosave frequency %d\n", autosave_freq);
+	if (cheat)
+	{
+		fprintf(fff, "?:1\n\n");
+	}
 }
 
 /*
@@ -2007,6 +2077,9 @@ static errr option_dump(void)
 	/* Dump options */
 	dump_normal_options(fff);
 
+	/* Dump numerical options. */
+	dump_numerical_options(fff);
+
 	/* Dump window flags */
 	dump_window_options(fff);
 
@@ -2018,6 +2091,9 @@ static errr option_dump(void)
 
 	/* Save the default tval colours. */
 	tval_attr_dump(fff);
+
+	/* Close */
+	my_fclose(fff);
 
 	return SUCCESS;
 }
@@ -2071,19 +2147,17 @@ static option_list opt_lists[] =
 	{"Spoiler Options", "spoiler.txt", OPTS_SPOIL, 'S', LEFT, 13},
 	{"Cheating Options", "o_cheat.txt", OPTS_CHEAT, 'C', LEFT, 14},
 	{"Help", NULL, OPTS_HELP, '?', LEFT, 16},
-	{"Autosave Options", NULL, OPTS_SAVE, 'A', RIGHT, 4},
-	{"Base Delay Factor", NULL, OPTS_DELAY, 'D', RIGHT, 5},
-	{"Hitpoint Warning", NULL, OPTS_HP, 'H', RIGHT, 6},
-	{"Window Options", NULL, OPTS_WINDOW, 'W', RIGHT, 7},
-	{"Redraw Options", NULL, OPTS_REDRAW, 'R', RIGHT, 8},
-	{"Interact with Macros", NULL, OPTS_MACRO, 'M', RIGHT, 9},
-	{"Interact with Visuals", NULL, OPTS_VISUAL, 'V', RIGHT, 10},
-	{"Interact with Colours", NULL, OPTS_COLOUR, 'K', RIGHT, 11},
-	{"Squelch Settings", NULL, OPTS_SQUELCH, 'Q', RIGHT, 12},
-	{"Inscription settings", NULL, OPTS_INSCRIBE, 'I', RIGHT, 13},
-	{"Save options", NULL, OPTS_TO_FILE, 'U', RIGHT, 15},
-	{"Save all preferences", NULL, OPTS_ALL_TO_FILE, 'P', RIGHT, 16},
-	{"Load preferences", NULL, OPTS_FROM_FILE, 'O', RIGHT, 17},
+	{"Misc. Numerical Options", NULL, OPTS_SAVE, 'N', RIGHT, 4},
+	{"Window Options", NULL, OPTS_WINDOW, 'W', RIGHT, 5},
+	{"Redraw Options", NULL, OPTS_REDRAW, 'R', RIGHT, 6},
+	{"Interact with Macros", NULL, OPTS_MACRO, 'M', RIGHT, 7},
+	{"Interact with Visuals", NULL, OPTS_VISUAL, 'V', RIGHT, 8},
+	{"Interact with Colours", NULL, OPTS_COLOUR, 'K', RIGHT, 9},
+	{"Squelch Settings", NULL, OPTS_SQUELCH, 'Q', RIGHT, 10},
+	{"Inscription settings", NULL, OPTS_INSCRIBE, 'I', RIGHT, 11},
+	{"Save options", NULL, OPTS_TO_FILE, 'U', RIGHT, 13},
+	{"Save all preferences", NULL, OPTS_ALL_TO_FILE, 'P', RIGHT, 14},
+	{"Load preferences", NULL, OPTS_FROM_FILE, 'O', RIGHT, 15},
 };
 
 
@@ -2166,19 +2240,9 @@ good: /* Success */
 		}
 		else switch (ol_ptr->num)
 		{
-			case OPTS_DELAY:
-			{
-				do_cmd_options_delay();
-				break;
-			}
-			case OPTS_HP:
-			{
-				do_cmd_options_hp();
-				break;
-			}
 			case OPTS_SAVE:
 			{
-				do_cmd_options_autosave("Autosave");
+				do_cmd_options_autosave(ol_ptr->title);
 				break;
 			}
 			case OPTS_WINDOW:
@@ -2867,16 +2931,16 @@ struct visual_type
 /*
  * Extract pointers to the following elements of something:
  * (cptr)(x_name+x_info[i].name)
- * (byte)(x_info[i].d_attr)
- * (char)(x_info[i].d_char)
- * (byte*)(&x_info[i].x_attr)
- * (char*)(&x_info[i].x_char)
+ * (byte)(x_info[i].gfx.da)
+ * (char)(x_info[i].gfx.dc)
+ * (byte*)(&x_info[i].gfx.xa)
+ * (char*)(&x_info[i].gfx.xc)
  */
 #define get_visuals(x_info) \
-	((*da) = x_info[i].d_attr, \
-	(*dc) = x_info[i].d_char, \
-	(*xa) = &(x_info[i].x_attr), \
-	(*xc) = &(x_info[i].x_char))
+	((*da) = x_info[i].gfx.da, \
+	(*dc) = x_info[i].gfx.dc, \
+	(*xa) = &(x_info[i].gfx.xa), \
+	(*xc) = &(x_info[i].gfx.xc))
 
 
 
@@ -2920,9 +2984,11 @@ static void get_visuals_obj(int i, cptr *name, byte *da, char *dc,
 static void get_visuals_moncol(int i, cptr *name, byte *da, char UNUSED *dc,
 	byte **xa, char UNUSED **xc)
 {
+	/* Get most of the visuals. */
+	get_visuals(moncol);
+
+	/* Get the (constant) name. */
 	(*name) = moncol[i].name;
-	(*da) = TERM_WHITE;
-	(*xa) = &(moncol[i].attr);
 }
 
 /*
@@ -2969,8 +3035,8 @@ static void visual_dump_moncol(FILE *fff)
 
 	FOR_ALL_IN(moncol, mc_ptr)
 	{
-		char c1 = atchar[mc_ptr->attr/16];
-		char c2 = atchar[mc_ptr->attr%16];
+		char c1 = atchar[mc_ptr->gfx.xa/16];
+		char c2 = atchar[mc_ptr->gfx.xa%16];
 
 		/* A leading space looks neater than a leading d.*/
 		if (c1 == 'd') c1 = ' ';
@@ -3625,6 +3691,9 @@ static errr preference_dump(void)
 	/* Dump options */
 	dump_normal_options(fff);
 
+	/* Dump numerical options. */
+	dump_numerical_options(fff);
+
 	/* Dump window flags */
 	dump_window_options(fff);
 
@@ -4037,9 +4106,9 @@ void get_symbol_f2(char *buf, uint max, cptr UNUSED fmt, va_list *vp)
  * unprintable characters.
  */
 #define get_symbol(x_ptr) \
-	get_symbol_f2, (x_ptr)->x_attr, \
-		ISPRINT((x_ptr)->x_char) ? (x_ptr)->x_char : \
-		ISPRINT((x_ptr)->d_char) ? (x_ptr)->d_char : '#'
+	get_symbol_f2, (x_ptr)->gfx.xa, \
+		ISPRINT((x_ptr)->gfx.xc) ? (x_ptr)->gfx.xc : \
+		ISPRINT((x_ptr)->gfx.dc) ? (x_ptr)->gfx.dc : '#'
 
 /*
  * Check the status of "artifacts"
@@ -4835,8 +4904,8 @@ void shops_display(int town)
 		f_ptr = &f_info[FEAT_SHOP_HEAD+store[i+offset].type];
 
 		/* Display the symbol and name of the store. */
-		mc_put_fmt(j++, 0, "%v%s", get_symbol_f2, f_ptr->x_attr, f_ptr->x_char,
-			store_title(i+offset));
+		mc_put_fmt(j++, 0, "%v%v", get_symbol_f2, f_ptr->gfx.xa, f_ptr->gfx.xc,
+			store_title_f1, i+offset);
 	}
 }
 

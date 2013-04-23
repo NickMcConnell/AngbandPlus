@@ -4034,8 +4034,8 @@ static void amiga_map(void)
 			/* Get frame tile */
 			if ((i == 0) || (i == cur_wid - 1) || (j == 0) || (j == cur_hgt - 1))
 			{
-				ta = f_info[63].x_attr;
-				tc = f_info[63].x_char;
+				ta = f_info[63].gfx.xa;
+				tc = f_info[63].gfx.xc;
 			}
 
 			/* Get tile from cave table */

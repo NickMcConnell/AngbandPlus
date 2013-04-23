@@ -115,7 +115,6 @@ s16b total_weight; /* Total weight being carried */
 
 bool hack_mind; /* Prevent sanity_blast() on the first turn. */
 bool hack_chaos_feature; /* Give a new character a chaos feature. */
-int artifact_bias; /* Produce a particular sort of artefact. */
 
 s16b o_max = 1; /* Number of allocated objects */
 s16b o_cnt = 0; /* Number of live objects */
@@ -200,23 +199,16 @@ bool auto_more; /* Automatically clear '-more-' prompts */
 
 /* Option Set B -- Birth Options */
 
-bool preserve_mode_w;
 bool preserve_mode; /* Don't lose missed artifacts */
-bool maximise_mode_w;
 bool maximise_mode; /* Unify stat bonuses */
 bool use_autoroller; /* Autoroll characters */
 bool spend_points; /* Spend points on stats */
-bool ironman_shop_w;
 bool ironman_shop; /* Not allowed in shops */
-bool ironman_feeling_w;
 bool ironman_feeling; /* Only give real feeling after 2500 turns. */
-bool speak_unique_w;
 bool speak_unique; /* Speaking uniques + shopkeepers */
 #ifdef SCORE_QUITTERS
-bool score_quitters_w;
 bool score_quitters; /* Quitting can give a high score */
 #endif /* SCORE_QUITTERS */
-bool chaos_patrons_w;
 bool chaos_patrons; /* Chaos patrons exist in the game. */
 
 /* Option Set 3 -- Game-Play */
@@ -307,9 +299,9 @@ bool display_credits; /* Require a keypress to clear the initial screen. */
 #endif
 bool allow_pickstats; /* Allow the player to choose a stat template. */
 
-s16b hitpoint_warn = 2; /* Hitpoint warning (0 to 9) */
+s16b hitpoint_warn = 20; /* Hitpoint warning (0 to 9) */
 
-s16b delay_factor = 4; /* Delay factor (0 to 9) */
+s16b delay_factor = 64; /* Delay factor (0 to 9) */
 
 bool autosave_l;        /* Autosave before entering new levels */
 bool autosave_t;        /* Timed autosave */
@@ -324,8 +316,6 @@ bool allow_squelch = TRUE; /* Allow squelching to take place. */
 
 s16b feeling; /* Most recent feeling */
 s16b rating; /* Level's current rating */
-
-bool good_item_flag; /* True if "Artifact" on this level */
 
 bool new_level_flag; /* Start a new level */
 

@@ -173,6 +173,18 @@ struct maxima
 	u16b templates; /* Elements in template_info[] */
 };
 
+/*
+ * Graphical representation for various on-screen things.
+ */
+typedef struct gfx_type gfx_type;
+struct gfx_type
+{
+	byte da;
+	char dc;
+
+	byte xa;
+	char xc;
+};
 
 /*
  * Information about terrain "features"
@@ -188,11 +200,7 @@ struct feature_type
 	byte mimic; /* Feature to mimic */
 	byte priority; /* Priority for small-scale map. See priority(). */
 
-	byte d_attr; /* Object "attribute" */
-	char d_char; /* Object "symbol" */
-
-	byte x_attr; /* The desired attr for this feature */
-	char x_char; /* The desired char for this feature */
+	gfx_type gfx; /* On-screen representation. */
 };
 
 
@@ -232,10 +240,8 @@ struct object_kind
 	s16b weight; /* Weight */
 	u16b u_idx; /* The u_info[] entry which represents this item. */
 
-	byte d_attr; /* Default object colour */
-	char d_char; /* Default object character */
-	byte x_attr; /* Desired object colour */
-	char x_char; /* Desired object character */
+	gfx_type gfx; /* On-screen representation. */
+
 	byte i_attr; /* Desired equipment list colour */
 
 	bool aware; /* The player is "aware" of the item's effects */
@@ -261,11 +267,7 @@ struct unident_type
 	byte p_id; /* Primary index */
 	byte s_id; /* Secondary index (internally generated) */
 
-	byte d_attr; /* Default colour */
-	char d_char; /* Default symbol */
-
-	byte x_attr; /* The desired attr for this object */
-	char x_char; /* The desired char for this object */
+	gfx_type gfx; /* On-screen representation. */
 };
 
 typedef struct o_base_type o_base_type;
@@ -279,6 +281,7 @@ struct o_base_type
 	u32b flags2; /* Expected flags, set 2 */
 	u32b flags3; /* Expected flags, set 3 */
 	byte tval; /* The tval for this base type, TV_UNKNOWN if none. */
+	byte i_attr; /* The colour of such an item in the player's inventory. */
 };
 
 /*
@@ -435,14 +438,7 @@ struct monster_race
 	byte level; /* Level of creature */
 	byte rarity; /* Rarity of creature */
 
-
-	byte d_attr; /* Default monster attribute */
-	char d_char; /* Default monster character */
-
-
-	byte x_attr; /* Desired monster attribute */
-	char x_char; /* Desired monster character */
-
+	gfx_type gfx; /* On-screen representation. */
 
 	byte max_num; /* Maximum population allowed per level */
 
@@ -760,6 +756,22 @@ struct option_type
 
 
 /*
+ * A more complex option structure.
+ * This includes an array and a function to print out the current value.
+ */
+typedef struct option_special option_special;
+struct option_special
+{
+	void (*print_f1)(char *, uint, cptr, va_list *); /* value->string */
+	bool (*parse)(void *, cptr); /* string->value */
+	const s16b *vals; /* A list of the values this option can take. */
+	u16b nvals; /* N_ELEMENTS(vals) */
+	void *var; /* A pointer to the variable being set. Normally a s16b. */
+	cptr text; /* The name by which the option may be referred. */
+	cptr desc; /* A short description of the option. */
+};
+
+/*
  * Structure to specify how some options can override other options.
  */
 typedef struct force_type force_type;
@@ -780,7 +792,8 @@ typedef struct moncol_type moncol_type;
 struct moncol_type
 {
 	cptr name;
-	byte attr;
+
+	gfx_type gfx; /* N.B. Only the attr fields are actually read. */
 };
 
 /*
@@ -870,13 +883,15 @@ struct magic_type
 {
 	cptr name; /* Name listed in spell book, etc. */
 	cptr desc; /* Information about the spell. */
+
 	byte min; /* Required skill (to learn) */
 	byte mana; /* Required mana (to cast) */
 	byte fail; /* Minimum chance of failure */
 	byte flags; /* (Variable) MAGIC_* flags. */
+
 	byte skill1; /* School of spell */
 	byte skill2; /* Type of spell (or NONE) */
-	s16b power; /* The index of the spell effect (offset). */
+	s16b power; /* The index of the spell effect. */
 };
 
 typedef struct book_type book_type;
@@ -885,8 +900,11 @@ struct book_type
 #ifdef CHECK_ARRAYS
 	int idx;
 #endif /* CHECK_ARRAYS */
-	magic_type *info; /* A superset of the spells available in this book. */
-	u32b flags; /* The set of spells from info in this book. */
+
+	magic_type *info; /* A list of the spells available in this book. */
+
+	byte max; /* The number of spells in this book. */
+	byte learn; /* Index offset for learning (or 0). */
 };
 
 /*
@@ -1241,7 +1259,6 @@ struct player_type
 	bool hold_life; /* Resist life draining */
 	bool telepathy; /* Telepathy */
 	bool slow_digest; /* Slower digestion */
-	bool bless_blade; /* Blessed blade */
 	bool xtra_might; /* Extra might bow */
 	bool impact; /* Earthquake blows */
 	bool no_cut; /* Immune to cuts. */
@@ -1273,8 +1290,6 @@ struct player_type
 
 	s16b num_blow; /* Number of blows */
 	s16b num_fire; /* Number of shots */
-
-	byte tval_xtra; /* Correct xtra tval (unused) */
 
 	byte tval_ammo; /* Correct ammo tval */
 
@@ -1313,12 +1328,16 @@ typedef struct spirit_type spirit_type;
 struct spirit_type {
 	char name[20]; /* The name of the spirit */
 	cptr desc; /* The description of the spirit */
-	u32b favour_flags; /* Like the 'spell_flags' array */
 	u32b annoyance; /* How annoyed the spirit is with the player */
+
 	bool pact; /* Whether the player has a pact with this spirit */
 	byte sphere; /* sphere of influence */
 	byte minskill; /* Minimum skill to form a pact */
 	byte punish_chance; /* How likely the spirit is to punish the player. */
+
+	s16b cost; /* The base cost of associating with this spirit. */
+	byte stat; /* The stats drained by associating with this spirit. */
+	byte book; /* The index of the book_type associated with this spirit. */
 };
 
 /* Stat defaults */
@@ -1570,3 +1589,20 @@ struct natural_attack
 	cptr desc; /* The name of the body part used. */
 };
 
+/* Some basic information about a GF_* flag. */
+typedef struct gf_type gf_type;
+struct gf_type
+{
+	byte idx;
+
+	/* Graphics stuff */
+	byte bolt_graf_attr;
+	byte ball_graf_char;
+	byte base_bolt_char;
+
+	/* Colours used. */
+	char colour[16];
+
+	cptr flag; /* The name of the flag, used in text files. */
+	cptr desc; /* A textual description of this effect. */
+};

@@ -2180,23 +2180,22 @@ static void process_world(void)
  */
 static bool enter_borg_mode(void)
 {
-	/* Ask first time */
-	if (!(noscore & 0x0010))
+	/* Only ask first time */
+	if (noscore & NOSCORE_BORG) return TRUE;
+
+	/* Mention effects */
+	msg_print("The borg commands are for debugging and experimenting.");
+	msg_print("The game will not be scored if you use borg commands.");
+	msg_print(NULL);
+
+	/* Verify request */
+	if (!get_check("Are you sure you want to use borg commands? "))
 	{
-		/* Mention effects */
-		msg_print("The borg commands are for debugging and experimenting.");
-		msg_print("The game will not be scored if you use borg commands.");
-		msg_print(NULL);
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to use borg commands? "))
-		{
-			return (FALSE);
-		}
-
-		/* Mark savefile */
-		noscore |= 0x0010;
+		return (FALSE);
 	}
+
+	/* Mark savefile */
+	noscore |= NOSCORE_BORG;
 
 	/* Success */
 	return (TRUE);
@@ -3657,7 +3656,7 @@ static void resurrect(bool wizard)
 		p_ptr->age++;
 
 		/* Mark savefile */
-		noscore |= 0x0001;
+		noscore |= NOSCORE_WIZARD;
 	}
 	else
 	{

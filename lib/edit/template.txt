@@ -52,7 +52,7 @@
 
 # Version stamp (required)
 
-V:1.0.14
+V:1.0.15
 
 N:0:Adventurer
 S:3:1:-1:2:2:-1
@@ -143,6 +143,7 @@ E:Soft Leather Armour~
 
 N:9:Wizard
 S:-2:5:2:1:-1:1
+X:3
 A:Mage:0:0
 K:Mana=4:Disarm=5:Devices=25:Resist=20:Stealth=5:Search=10:Perception=15
 K:Close=10:Missile=10:Stab=10:Slash=10:Crush=10:Sensing=5
@@ -153,6 +154,7 @@ E:Soft Leather Armour~
 
 N:10:Warlock
 S:1:3:-1:0:2:-1
+X:1
 A:Mage:0:0
 K:Tough=1:Mana=2:Disarm=5:Devices=10:Resist=15:Stealth=5:Search=10
 K:Perception=10:Close=15:Missile=10:Stab=15:Slash=15:Crush=20:Sensing=10
@@ -163,6 +165,7 @@ E:Soft Leather Armour~
 
 N:11:Powerweaver
 S:-3:3:3:-2:-2:3
+X:2
 A:Mage:0:0
 K:Mana=2:Disarm=5:Devices=15:Resist=15:Stealth=5:Search=10:Perception=10
 K:Close=5:Missile=5:Mindcraft=3:Chi=2:Stab=5:Slash=5:Crush=5:Spirit=3:Sensing=10

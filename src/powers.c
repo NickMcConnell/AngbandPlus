@@ -392,18 +392,25 @@ static errr power_project_ball(int power, int dir, bool *ident)
 static cptr balls_to_strings(project_ball_type **table, int total)
 {
 	int i;
-	cptr str[10], pre;
+	cptr str[10], pre, s;
 	assert(total >= 0 && total <= 10);
 	if (!total) return 0;
 
 	for (i = 0; i < total; i++)
 	{
-		str[i] = explode_flags[table[i]->type-1];
+		str[i] = string_make(format("%s (%d, rad %d)",
+			lookup_gf(table[i]->type)->desc, table[i]->dam, table[i]->rad));
 	}
 	if (table[0]->rad < 0) pre = "It fires a breath of";
 	else pre = "It fires a ball of";
 
-	return list_timers(pre, " or ", str, total);
+	/* Format the list as a sentence. */
+	s = list_timers(pre, " or ", str, total);
+
+	/* Clean up. */
+	for (i = 0; i < total; i++) FREE(str[i]);
+
+	return s;
 }
 
 /*
@@ -668,8 +675,6 @@ static void call_the_(void)
 		take_hit(100 + (randint(150)), "a suicidal Call the Void", MON_CALLING_THE_VOID);
 	}
 }
-
-#define RAND_ELEMENT(X) (X[rand_int(N_ELEMENTS(X))])
 
 /*
  * Choose a random wand from a list for the effect of a wand of wonder.
@@ -973,12 +978,36 @@ void do_poly_self(void)
 	}
 }
 
+/*
+ * mvd hook for fetch(). Stop on the first item or before the first wall or the
+ * edge of the range.
+ */
+static int PURE mvd_no_object(int y, int x, int d)
+{
+	if (d == MAX_RANGE)
+	{
+		return MVD_STOP_HERE;
+	}
+	else if (!cave_floor_bold(y, x))
+	{
+		return MVD_STOP_BEFORE_HERE;
+	}
+	else if (cave[y][x].o_idx)
+	{
+		return MVD_STOP_HERE;
+	}
+	else
+	{
+		return MVD_CONTINUE;
+	}
+}
 
-
-/* Fetch an item (teleport it right underneath the caster) */
+/*
+ * Fetch an item (teleport it right underneath the caster)
+ */
 static void fetch(int dir, int wgt, bool require_los)
 {
-	int x, y, tx, ty, i;
+	int x, y;
 	cave_type *c_ptr;
 	object_type *o_ptr;
 
@@ -989,46 +1018,43 @@ static void fetch(int dir, int wgt, bool require_los)
 		return;
 	}
 
-	/* Use a target */
-	if (get_dir_target(&tx, &ty, dir))
+	/* Find the target. */
+	get_dir_target(&x, &y, dir, mvd_no_object);
+
+	/* Extract the target. */
+	c_ptr = &cave[y][x];
+
+	/* Extract the "top" item (the only one this can fetch). */
+	o_ptr = &o_list[c_ptr->o_idx];
+
+	if (!c_ptr->o_idx)
 	{
-		if(distance(py, px, ty, tx)>MAX_RANGE)
-		{
-			msg_print("You can't fetch something that far away!");
-			return;
-		}
-		if (require_los && (!player_has_los_bold(ty,tx)))
-		{
-			msg_print("You have no direct line of sight to that location.");
-			return;
-		}
-		c_ptr = &cave[ty][tx];
+		msg_print("There is no object to retrieve.");
+	}
+	else if (distance(py, px, y, x) > MAX_RANGE)
+	{
+		msg_print("You can't fetch something that far away!");
+	}
+	else if (require_los && (!player_has_los_bold(y, x)))
+	{
+		msg_print("You have no direct line of sight to that location.");
+	}
+	/* Too heavy to 'fetch' */
+	else if (o_ptr->weight > wgt)
+	{
+		msg_print("The object is too heavy.");
 	}
 	else
 	{
-		for (x = tx, y = ty; !cave[y][x].o_idx;
-			mmove2(&y, &x, py, px, ty, tx))
-		{
-			if (!cave_floor_bold(ty, tx)) return;
-			if (distance(py, px, y, x) > MAX_RANGE) return;
-		}
-		c_ptr = &cave[y][x];
-	}
+		/* "move" the object. */
+		cave[py][px].o_idx = c_ptr->o_idx;
+		c_ptr->o_idx = 0;
+		o_ptr->iy = (byte)py;
+		o_ptr->ix = (byte)px;
 
-	o_ptr = &o_list[c_ptr->o_idx];
-	if (o_ptr->weight > wgt)
-	{   /* Too heavy to 'fetch' */
-		msg_print("The object is too heavy.");
-		return;
+		note_spot(py,px);
+		p_ptr->redraw |= PR_MAP;
 	}
-	i = c_ptr->o_idx;
-	c_ptr->o_idx = 0;
-	cave[py][px].o_idx = i; /* 'move' it */
-	o_ptr->iy = (byte)py;
-	o_ptr->ix = (byte)px;
-
-	note_spot(py,px);
-	p_ptr->redraw |= PR_MAP;
 }
 
 static void brand_weapon(int brand_type)
@@ -4886,8 +4912,7 @@ static errr do_power(int power, int plev, int dir, bool known, bool *use, bool *
 			Term_fresh();
 
 			/* Delay */
-			Term_xtra(TERM_XTRA_DELAY,
-				delay_factor * delay_factor * delay_factor);
+			Term_xtra(TERM_XTRA_DELAY, delay_factor);
 		}
 		p_ptr->csp += 100;   /* Restore, ready to be deducted properly */
 

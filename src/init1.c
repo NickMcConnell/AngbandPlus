@@ -961,6 +961,18 @@ static errr parse_monster(make_monster_type *i_ptr, char *buf)
  */
 static errr parse_explosion(make_explosion_type *i_ptr, char *buf)
 {
+	cptr explode_flags[N_ELEMENTS(gf_info)+1], *s;
+	gf_type *gf_ptr;
+
+	for (gf_ptr = gf_info, s = explode_flags; gf_ptr < END_PTR(gf_info);
+		gf_ptr++, s++)
+	{
+		*s = gf_ptr->flag;
+	}
+
+	/* Terminate the array. */
+	*s = NULL;
+
 	i_ptr->method = find_string(buf, explode_flags);
 	readclearnum(i_ptr->radius,'r');
 	readclearnum(i_ptr->dice,'(');
@@ -1392,7 +1404,7 @@ errr parse_f_info(char *buf, header *head, vptr *extra)
 			if (mimic == error_idx) return PARSE_ERROR_GENERIC;
 
 			/* Mimic fields override graphics ones entirely. */
-			if (f_ptr->priority || f_ptr->d_char || f_ptr->d_attr)
+			if (f_ptr->priority || f_ptr->gfx.dc || f_ptr->gfx.da)
 				return PARSE_ERROR_GENERIC;
 
 			/* Save the values */
@@ -1423,8 +1435,8 @@ errr parse_f_info(char *buf, header *head, vptr *extra)
 
 			/* Save the values */
 			f_ptr->priority = pri;
-			f_ptr->d_char = sym;
-			f_ptr->d_attr = color_char_to_attr(col);
+			f_ptr->gfx.dc = sym;
+			f_ptr->gfx.da = color_char_to_attr(col);
 
 			return SUCCESS;
 		}
@@ -1645,8 +1657,8 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 			if (p_id < 0 || p_id > 255) return PARSE_ERROR_GENERIC;
 
 			/* Save the values */
-			k_ptr->d_char = sym;
-			k_ptr->d_attr = tmp;
+			k_ptr->gfx.dc = sym;
+			k_ptr->gfx.da = tmp;
 
 			/* Hack - store p_id in k_ptr->u_idx until flavor_init() */
 			k_ptr->u_idx = p_id;
@@ -1668,8 +1680,7 @@ errr parse_k_info(char *buf, header *head, vptr *extra)
 
 			switch(tval)
 			{
-				case TV_SORCERY_BOOK: case TV_THAUMATURGY_BOOK: case TV_CHARM:
-				case TV_CONJURATION_BOOK: case TV_NECROMANCY_BOOK:
+				case TV_BOOK: case TV_CHARM:
 				{
 					if (kextra > MAX_BK) return PARSE_ERROR_OUT_OF_BOUNDS;
 					break;
@@ -1950,8 +1961,8 @@ static errr parse_unid_flavourless_aux(header *head, int p_id)
 	/* Set the fields as required. */
 	u_ptr->name = 0;
 	u_ptr->p_id = p_id;
-	u_ptr->d_attr = TERM_DARK;
-	u_ptr->d_char = ' ';
+	u_ptr->gfx.da = TERM_DARK;
+	u_ptr->gfx.dc = ' ';
 
 	return SUCCESS;
 }
@@ -2048,10 +2059,10 @@ errr parse_u_info(char *buf, header *head, vptr *extra)
 				return PARSE_ERROR_GENERIC;
 			}
 			/* Extract the char */
-			u_ptr->d_char = sym;
+			u_ptr->gfx.dc = sym;
 
 			/* Extract the attr */
-			u_ptr->d_attr = color_char_to_attr(col);
+			u_ptr->gfx.da = color_char_to_attr(col);
 
 			/* Verify indices' legality */
 			try(byte_ok(p_id));
@@ -2520,8 +2531,8 @@ errr parse_r_info(char *buf, header *head, vptr *extra)
 			if (tmp < 0) return PARSE_ERROR_GENERIC;
 
 			/* Save the values */
-			r_ptr->d_char = buf[2];
-			r_ptr->d_attr = tmp;
+			r_ptr->gfx.dc = buf[2];
+			r_ptr->gfx.da = tmp;
 
 			return SUCCESS;
 		}
@@ -3728,14 +3739,28 @@ static errr init_info_txt_final(header *head)
 			find_monster_race(0);
 			break;
 		}
-		/* *Hack* - deduce the length of the ghost's name and hide it in its
-		 * (unused) level field. */
 		case R_HEAD:
 		{
-			monster_race *r_ptr = ((monster_race*)(head->info_ptr)) +
-				MON_PLAYER_GHOST;
-			cptr rname = head->name_ptr+r_ptr->name;
-			r_ptr->level = MIN(255, strlen(rname));
+			/* Ensure that various indices mentioned in the game exist. */
+
+			/* get_rnd_q_monster */
+			int max = MON_MEPHISTOPHELES_LORD_OF_HELL-1;
+
+			/* do_cmd_suicide */
+			max = MAX(max, MON_SUICIDE);
+
+			/* take_hit */
+			max = MAX(max, MON_FATAL_POLYMORPH);
+
+			/* place_ghost */
+			max = MAX(max, MON_PLAYER_GHOST);
+
+			/* Paranoia - check that there's space for the required monsters. */
+			if (max >= MAX_I) return PARSE_ERROR_OUT_OF_MEMORY;
+
+			/* Check that r_info is as big as the game expects. */
+			if (error_idx < max) error_idx = max;
+
 			break;
 		}
 		case F_HEAD:
@@ -4039,12 +4064,11 @@ errr init_info_txt(FILE *fp, char *buf, header *head)
 		try(parse_info_line(buf, head, NUM_MACROS, &extra));
 	}
 
-	head->info_num = error_idx+1;
-
 	/* Carry out any post-initialisation checks. */
 	try(init_info_txt_final(head));
 
 	/* Set the info size. */
+	head->info_num = error_idx+1;
 	head->info_size = head->info_len * head->info_num;
 
 	/* Complete the "name" and "text" sizes */
