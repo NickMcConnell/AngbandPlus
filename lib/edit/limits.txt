@@ -13,7 +13,7 @@
 
 # Version stamp (required)
 
-V:2.0.0
+V:2.0.1
 
 
 
@@ -32,7 +32,7 @@ M:K:453
 # reads M:A:special:normal:random
 # changing these numbers will almost always break savefile compatibility
 #
-M:A:18:123:35
+M:A:18:126:35
 
 # Maximum number of ego-item types
 M:E:145
@@ -79,9 +79,9 @@ M:M:1024
 
 # Size of the "fake" array for reading in names of monsters, objects,
 # artifacts, store-owners, player-races, ...
-M:N:20480
+M:N:30000
 
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
-M:T:70440
+M:T:80000
 

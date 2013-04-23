@@ -109,7 +109,7 @@
 
 # Version stamp (required)
 
-V:2.0.0
+V:2.0.1
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -1409,7 +1409,7 @@ G:":d
 I:40:15:0
 W:30:0:3:600
 P:0:0d0:0:0:0
-A:30/3
+A:15/2
 F:REGEN | EASY_KNOW
 
 

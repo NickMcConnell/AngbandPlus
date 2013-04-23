@@ -115,7 +115,9 @@ static int mon_resist_effect(int m_idx, int idx, u16b flag)
 		resist_chance = r_ptr->level + 25 - p_ptr->lev / 5;
 		resist_chance -= charisma_adjustment(r_ptr);
 		if (charisma_adjustment(r_ptr)+30<=randint0(33)){
-			msg_format("A monster is unimpressed by you...");
+			if (idx!=MON_TMD_FEAR){
+				msg_format("A monster is unimpressed by you...");
+			}
 			resisted = HALF_RESIST;
 		}
 	}
@@ -1855,7 +1857,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		else
 			text_out_c(TERM_SLATE, " is normally found ");
 
-		text_out_c(TERM_SLATE, "at depths of %d feet", r_ptr->level * 50);
+		text_out_c(TERM_SLATE, "at depths of %d feet", inverse_effective_depth(r_ptr->level) * 50);
 
 		old = TRUE;
 	}

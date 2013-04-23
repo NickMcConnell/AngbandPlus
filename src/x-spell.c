@@ -313,7 +313,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 
 			dice = 3 + ((plev - 1) / 5);
-			sides = 4;
+			sides = (BLAST_BONUS) * 4;
 
 			if (name) return ("Magic Missile");
 			if (desc) return (format("Fires a magic missile for %dd%d hp damage.", dice, sides));
@@ -421,7 +421,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		case SPELL_STINKING_CLOUD:
 		{
 			rad = 2;
-			dam = 10 + (plev / 2);
+			dam = (BLAST_BONUS) * (10 + (plev / 2));
 
 			if (name) return ("Stinking Cloud");
 			if (desc) return (format("Fires a radius %d cloud of poison for %d hp damage.", rad, dam));
@@ -454,15 +454,15 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_SHOCK_WAVE:
 		{
-			dam = 20;
+			dam = (BLAST_BONUS) * 20;
 			dice = 1 + ((plev - 1 ) / 5); /*Reaches max damage (20+10d11, average 80) at plev 46. */
-			sides = 11;
+			sides = (BLAST_BONUS) * 11;
 
 			if (name) return ("Shock Wave");
 			if (desc) return (format("Fires an arc of sonic energy for %d+%dd%d hp damage.", dam, dice, sides));
 			if (cast)
 			{
-				fire_arc(GF_SOUND, dir, dam + damroll(dice, sides), 0, 60);
+				fire_arc(GF_SOUND, dir, (dam + damroll(dice, sides)), 0, 60);
 			}
 
 			break;
@@ -521,7 +521,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		case SPELL_SPEAR_OF_LIGHT:
 		{
 			dice = 6;
-			sides = 8;
+			sides = (BLAST_BONUS) * 8;
 
 			if (name) return ("Spear of Light");
 			if (desc) return (format("Fires a line of weak light.  %dd%d hp damage for light-hating creatures.", dice, sides));
@@ -559,7 +559,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		case SPELL_ICE_BOLT:
 		{
 			dice = 5 + ((plev - 3) / 3);
-			sides = 9;
+			sides = (BLAST_BONUS) * 9;
 
 			if (name) return ("Ice Bolt");
 			if (desc) return (format("Fires a bolt or beam of ice for %dd%d hp damage.", dice, sides));
@@ -573,7 +573,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_TURN_STONE_TO_MUD:
 		{
-			dam = 20 + randint(30);
+			dam = (BLAST_BONUS) * (20 + randint(30));
 
 			if (name) return ("Turn Stone to Mud");
 			if (desc) return ("Removes one section of a normal wall to floor.");
@@ -611,7 +611,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_PRISMATIC_SPRAY: /* Replaces Wonder with something more consistently usefull. -AR*/
 		{
-			dam = 25 + 2 * plev;
+			dam = (BLAST_BONUS) * (25 + 2 * plev);
 
 			if (name) return ("Prismatic Spray");
 			if (desc) return (format("Invokes a cone of a random element with a "
@@ -679,6 +679,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			if (plev>30)
 			   dam+=(plev-30)*9;
 
+			dam *= (BLAST_BONUS);
 
 			dam1 = (dam * f_info[FEAT_SHARD].x_damage) / 100;
 
@@ -713,11 +714,14 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			 * Note the damage of the final static is 10% of the
 			 * damage listed below, according to terrain.txt
 			 * Final damage is double the damage od Drain Life Bursts
-			 * at double the mana cost, a big bang for bick bucks theme
+			 * at double the mana cost, a big bang for big bucks theme
 			 * I have for Mages. Maybe cut it down to 150% damage for 150%
 			 * mana later if it is too fast a damage dealing rate. -AR
 			 */
 			dam = 2400 + (plev * 40);  /*240 + plev times 4 damage*/
+
+			dam *= (BLAST_BONUS);
+
 			dam1 = (dam * f_info[FEAT_SPARKS].x_damage) / 100;
 
 			if (name) return ("Call Lightning");
@@ -765,6 +769,9 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			* Bedlam is now a cloud of confusion -AR
 			*/
 			dam = 120 + (plev * 8);
+
+			dam *= (BLAST_BONUS);
+
 			dam1 = (dam * f_info[FEAT_CONFUSION].x_damage) / 100;
 
 			if (name) return ("Bedlam");
@@ -781,7 +788,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		case SPELL_WATER_BOLT: /*The culmination of a mages pre-Raal's arsenal -AR*/
 		{
 			dice =  3 + (plev + 3) / 3;
-			sides = 19;
+			sides = (BLAST_BONUS) * 19;
 
 			if (name) return ("Water Bolt");
 			if (desc) return (format("Fires a bolt or beam of water for %dd%d hp damage.", dice, sides));
@@ -883,7 +890,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_HURRICANE:
 		{
-			dam = 50 + (plev * 4);
+			dam = (BLAST_BONUS) * (50 + (plev * 4));
 			rad = 2;
 			/*Big damage for big mana. Final damage will be 12.5 points per mana,
 		    * a bit better than Druid Fire Ball, Druid Frost Ball is almost
@@ -916,6 +923,8 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (plev > 40) dam += (plev - 40) * 24;
 
+			dam *= (BLAST_BONUS);
+
 			dam1 = (dam * f_info[FEAT_NETHER].x_damage) / 100;
 
 			if (name) return ("Cloudkill");
@@ -931,7 +940,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_ICE_STORM: /* Moved down to make room for more powerful spells. Final damage ratio is 12 damage for 1 mana. -AR*/
 		{
-			dam = 160 + (plev * 4);
+			dam = (BLAST_BONUS) * (160 + (plev * 4));
 			rad = 3;
 
 			if (name) return ("Ice Storm");
@@ -947,7 +956,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		case SPELL_PLASMA_BOLT: /*Most powerful bolt for pre-Kelek's Mages. -AR */
 		{
 			dice =  15 + (plev / 2);
-			sides = 19;
+			sides = (BLAST_BONUS) * 19;
 
 			if (name) return ("Plasma Bolt");
 			if (desc) return (format("Fires a bolt or beam of plasma for %dd%d hp damage.", dice, sides));
@@ -970,6 +979,9 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			 * required of course, at least 60 or 75 mana. -AR
 			 */
 			dam = 1800 + (plev * 30);  /*540 + plev times 9 damage for each meteor*/
+
+			dam += (BLAST_BONUS);
+
 			dam1 = (dam * f_info[FEAT_METEOR_BURST].x_damage) / 100;
 
 			if (name) return ("Meteor Storm");
@@ -984,7 +996,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_MANA_STORM:
 		{
-			dam = 160 + (plev * 10);
+			dam = (BLAST_BONUS) * (160 + (plev * 10));
 			rad = 3;
 
 			if (name) return ("Mana Storm");
@@ -1029,7 +1041,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			* mages though, so considering GF_PLASMA or possibly something else
 			* with a different spell name. -AR
 			*/
-			dam = 60 + ((plev * 6) / 5);
+			dam = (BLAST_BONUS) * (60 + ((plev * 6) / 5));
 			rad = 2;
 
 			if (name) return ("Nova");
@@ -1045,7 +1057,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		case SPELL_REND_SOUL:
 		{
 			dice =  10 + ((plev * 2) / 5);
-			sides = 19;
+			sides = (BLAST_BONUS) * 19;
 
 			/*Has greater than 20/1 final damage ratio, 25/1 but
 			* balanced by the fact that EVIL monsters resist. Take
@@ -1227,9 +1239,9 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_RIFT:
 		{
-			dam1 = 40;
+			dam1 = (BLAST_BONUS) * 40;
 			dice = plev;
-			sides = 7;
+			sides = (BLAST_BONUS) * 7;
 
 			if (name) return ("Rift");
 			if (desc) return (format("Fires a beam of gravity for %d+%dd%d hp damage.", dam1, dice, sides));
@@ -1249,7 +1261,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			* -AR
 			*/
 
-			dam = 280 + (plev * 4);
+			dam = (BLAST_BONUS) * (280 + (plev * 4));
 			rad = 3;
 
 			if (name) return ("Darness Storm");
@@ -1265,7 +1277,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		case SPELL_MANA_BOLT:
 		{
 			dice = 20 + (plev * 2);
-			sides = 9;
+			sides = (BLAST_BONUS) * 9;
 
 			if (name) return ("Mana Bolt");
 			if (desc) return (format("Fires a bolt or beam of pure mana for %dd%d hp damage.", dice, sides));
@@ -1375,7 +1387,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		case DRUID_ACID_BOLT:
 		{
 			dice = 3 + ((plev - 1) / 5);
-			sides = 5;
+			sides = (BLAST_BONUS) * 5;
 
 			if (name) return ("Acid bolt");
 			if (desc) return (format("Fires a bolt of acid for %dd%d hp damage.", dice, sides));
@@ -1463,6 +1475,9 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			 * damage listed below, according to terrain.txt
 			 */
 			dam = 30 + (plev * 2);
+
+			dam *= (BLAST_BONUS);
+
 			dam1 = (dam * f_info[FEAT_POISON_CLOUD].x_damage) / 100;
 
 			if (name) return ("Poison Cloud");
@@ -1539,7 +1554,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		case DRUID_FROST_BEAM:
 		{
 			dice = 6 + ((plev - 3) / 4);
-			sides = 8;
+			sides = (BLAST_BONUS) * 8;
 
 			if (name) return ("Frost Beam");
 			if (desc) return (format("Fires a beam of frost for %dd%d hp damage.", dice, sides));
@@ -1596,7 +1611,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		case DRUID_SPEAR_OF_LIGHT:
 		{
 			dice = 6;
-			sides = 8;
+			sides = (BLAST_BONUS) * 8;
 
 			if (name) return ("Spear of Light");
 			if (desc) return (format("Fires a line of weak light.  %dd%d hp damage for light-hating creatures.", dice, sides));
@@ -1612,7 +1627,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		case DRUID_FIRE_BEAM:
 		{
 			dice = 7 + (plev-3) / 4;
-			sides = 7;
+			sides = (BLAST_BONUS) * 7;
 
 			if (name) return ("Fire Beam");
 			if (desc) return (format("Fires a beam of fire for %dd%d hp damage", dice, sides));
@@ -1760,6 +1775,9 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			 * damage listed below, according to terrain.txt
 			 */
 			dam = 400 + (plev * 6);  /*120 + plev times 2 damage*/
+
+			dam *= (BLAST_BONUS);
+
 			dam1 = (dam * f_info[FEAT_LIFE_DRAIN].x_damage) / 100;
 
 			if (name) return ("Life draining bursts");
@@ -1799,7 +1817,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_FROST_BALL:
 		{
-			dam = 25 + 7 * plev / 2;
+			dam = (BLAST_BONUS) * (25 + 7 * plev / 2);
 			rad = 2;
 
 			if (name) return ("Frost Ball");
@@ -1835,7 +1853,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		case DRUID_DISPEL_LIFE:
 		{
 			dice = 1;
-			sides = plev * 3;
+			sides = (BLAST_BONUS) * (plev * 3);
 
 			if (name) return ("Dispel Life");
 			if (desc) return (format("Does %dd%d damage to all living creatures in line of sight.", dice, sides));
@@ -1854,8 +1872,9 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_FIRE_BALL:
 		{
-			dam = 50 + plev * 3;
-			dam1 = plev * 2;
+			dam = (BLAST_BONUS) * (50 + plev * 3);
+
+			dam1 = (BLAST_BONUS) * (plev * 2);
 			rad = 2;
 
 			if (name) return ("Fire Ball");
@@ -1871,9 +1890,9 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_DRAIN_LIFE_ARC:
 		{
-			dam = 125;
+			dam = (BLAST_BONUS) * 125;
 			dice = 5;
-			sides = plev;
+			sides = (BLAST_BONUS) * plev;
 
 			if (name) return ("Life Draining Arc");
 			if (desc) return (format("Fires an arc of life draining for %d+%dd%d hp damage.", dam, dice, sides));
@@ -2078,9 +2097,9 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_SANDSTORM:
 		{
-			dam = plev * 3;
+			dam = (BLAST_BONUS) * (plev * 3);
 			dice = 6;
-			sides = plev;
+			sides = (BLAST_BONUS) * plev;
 
 			if (name) return ("Sand storm");
 			if (desc) return (format("Fires an arc of sand for %d+%dd%d hp damage",
@@ -2188,7 +2207,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		case DRUID_CHANNEL_LIGHTNING:
 		{
 			dice = 4 + plev / 3;
-			sides = 10 + plev / 2;
+			sides = (BLAST_BONUS) * (10 + plev / 2);
 
 			if (name) return ("Channel Lightning");
 			if (desc) return (format("Fires a powerful bolt of lightning for %dd%d hp damage.",
@@ -2266,9 +2285,9 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_WATER_CHAIN:
 		{
-			dam = 100;
+			dam = (BLAST_BONUS) * 100;
 			dice = 3 + plev / 10;
-			sides = plev;
+			sides = (BLAST_BONUS) * plev;
 
 			if (name) return ("Ulmo's Wrath");
 			if (desc) return (format("Fires chained beams of water for %d+%dd%d hp damage.",
@@ -2319,7 +2338,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_MASTER_ELEMENTS:
 		{
-			dam = p_ptr->lev * ((28 * p_ptr->lev) / 100);
+			dam = (BLAST_BONUS) * (p_ptr->lev * ((28 * p_ptr->lev) / 100));
 
 			if (name) return ("Master Elements");
 			if (desc) return (format("Cast a powerful ball of elements for %d hp damage.", dam));
@@ -2465,8 +2484,8 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		case PRAYER_SHOCK_BOLT:
 		{
 			dice = 6;
-			sides = 4;
-			dam = (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 3));
+			sides = (BLAST_BONUS) * 4;
+			dam = (BLAST_BONUS) * (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 3));
 
 			if (name) return ("Shock Bolt");
 			if (desc) return (format("Fires a bolt of solid light for %d+%dd%d damage.", dam, dice, sides));
@@ -2624,9 +2643,9 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		}
 		case PRAYER_ORB_OF_DRAINING:
 		{
-			dice = 10;
+			dice = (BLAST_BONUS) * 10;
 			sides = 5;
-			dam = plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 1 : 2);
+			dam = (BLAST_BONUS) * (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 1 : 2));
 			rad = 2;
 
 			if (name) return ("Orb of Draining");
@@ -2773,9 +2792,9 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		case PRAYER_SUN_BEAM:
 		{
 			/* Reaches max damage (85+10d10, average 140) at plev 46. */
-			dam = 85;
+			dam = (BLAST_BONUS) * 85;
 			dice = 1 + (plev - 1) / 5;
-			sides = 10;
+			sides = (BLAST_BONUS) * 10;
 
 			if (name) return ("Sun Beam");
 			if (desc) return (format("Fires an narrow arc of intense light energy"
@@ -2806,7 +2825,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_DISPEL_EVIL:
 		{
-			dam = plev * 3;
+			dam = (BLAST_BONUS) * (plev * 3);
 
 			if (name) return ("Dispel Evil");
 			if (desc) return (format("Does 1d%d damage to all evil creatures in line of sight.", dam));
@@ -2832,7 +2851,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_HOLY_WORD:
 		{
-			dam = 150;
+			dam = (BLAST_BONUS) * 150;
 
 			if (name) return ("Holy Word");
 			if (desc) return (format("Dispels evil with %d hp damage."
@@ -2989,7 +3008,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_SUN_BURST:
 		{
-			dice = 25 + plev / 2;
+			dice = (BLAST_BONUS) * (25 + plev / 2);
 			sides = 7;
 			rad = 5;
 
@@ -3007,7 +3026,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		case PRAYER_DISPEL_EVIL2:
 		{
 			dice = 2;
-			sides = plev * 3;
+			sides = (BLAST_BONUS) * (plev * 3);
 
 			if (name) return ("Dispel Evil");
 			if (desc) return (format("Does %dd%d damage to all evil creatures in line of sight.", dice, sides));
@@ -3052,8 +3071,8 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			rad = 9;
 			dice = 20;
-			sides = 10;
-			dam1 = 5 * (plev - 30);
+			sides = (BLAST_BONUS) * 10;
+			dam1 = (BLAST_BONUS) * (5 * (plev - 30));
 
 			if (name) return ("Judgement of Mandos");
 			if (desc) return (format("You release a massive starburst of holy energy."

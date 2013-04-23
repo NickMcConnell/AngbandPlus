@@ -702,7 +702,8 @@ enum
 #define CF_CFXXX32			0x80000000L
 
 
-
+/* BB added */
+#define BLAST_BONUS ((cp_ptr->flags & CF_ZERO_FAIL) ? 1.5 : 1)
 
 /* flags for q_flags */
 #define QFLAG_STARTED   	0x01

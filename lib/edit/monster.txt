@@ -135,7 +135,7 @@
 
 # Version stamp (required)
 
-V:2.0.0
+V:2.0.1
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -2353,21 +2353,6 @@ D:A strange creature that merges with the dungeon floor, trapping its
 D: victims by enveloping them within its perfectly disguised form.
 
 
-N:197:Ufthak of Cirith Ungol
-G:o:g1
-I:110:32d10:20:50:20
-W:14:3:0:250
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-F:UNIQUE | MALE | FORCE_MAXHP | ESCORT | ONLY_ITEM
-F:DROP_1D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR | ORC
-F:EVIL | IM_COLD | IM_POIS
-D:A strong orc guarding the pass of Cirith Ungol.  He is mortally afraid
-D: of spiders.
-
-
 N:198:Magic mushroom patch
 G:,:B
 I:135:3d3:40:10:0
@@ -2686,20 +2671,6 @@ D:It is a strange, vast gelatinous structure that assumes cubic
 D: proportions as it lines all four walls of the corridors it patrols.
 D: Through its transparent jelly structure you can see treasures it has
 D: engulfed, and a few corpses as well.
-
-
-N:223:Ulfast, Son of Ulfang
-G:p:U1
-I:110:34d10:20:40:40
-W:16:3:0:200
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_90
-F:DROP_GOOD | HAS_LIGHT | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
-F:EVIL
-D:A short and swarthy Easterling.
 
 
 N:224:Imp
@@ -3908,19 +3879,6 @@ F:GIANT | EVIL
 D:A large, ugly half-human looking for a fight.
 
 
-N:315:Ulwarth, Son of Ulfang
-G:p:U
-I:110:85d10:20:40:40
-W:26:4:0:500
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_90
-F:DROP_GOOD | HAS_LIGHT | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
-F:EVIL
-D:A short and swarthy Easterling.
-
-
 N:316:Creeping adamantite coins
 G:$:G
 I:125:20d25:5:50:10
@@ -5041,24 +4999,6 @@ S:HOLD
 D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 
 
-N:392:Ulfang the Black
-G:p:U
-I:120:10d100:20:90:40
-W:34:5:43:1200
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_2D2
-F:DROP_GOOD | HAS_LIGHT | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
-F:EVIL
-S:SPELL_PCT_10 | POW_1
-S:S_KIN
-D:A short and swarthy Easterling dressed in black.  He and his three
-D: sons once openly swore allegiance to the High Elves, but were
-D: secretly in the pay of Morgoth.
-
-
 N:393:Eog golem
 G:g:u
 I:100:100d20:12:125:10
@@ -5241,24 +5181,6 @@ B:BITE:FIRE:3d12
 F:FORCE_MAXHP | FRIENDS | HAS_LIGHT | WEIRD_MIND | BASH_DOOR
 F:KILL_BODY | ANIMAL | HURT_COLD | IM_FIRE | N_FIRE
 D:A giant ant covered in shaggy fur.  Its powerful jaws glow with heat.
-
-
-N:405:Gravity hound
-G:Z:W1
-I:110:35d10:30:30:0
-W:35:2:0:300
-B:CLAW:HURT:2d8
-B:CLAW:HURT:2d8
-B:BITE:HURT:2d8
-B:BITE:HURT:2d8
-F:FORCE_SLEEP | FRIENDS | BASH_DOOR | ANIMAL | FLYING
-F:NO_SLOW | NO_CONF | NO_SLEEP
-S:SPELL_PCT_20 | POW_0
-S:BRTH_GRAV
-D:Unfettered by the usual constraints of gravity, these unnatural
-D: creatures are walking on the walls and even the ceiling!  The earth
-D: suddenly feels rather less solid as you see gravity warp all round
-D: the monsters.
 
 
 N:406:Water troll
@@ -7583,23 +7505,6 @@ D: shape of a giant hound.  Your hair stands on end and your palms itch
 D: as you sense trouble.
 
 
-N:542:Time hound
-G:Z:B
-I:125:60d15:30:100:0
-W:51:2:0:5000
-B:CLAW:HURT:3d12
-B:CLAW:HURT:3d12
-B:BITE:HURT:3d12
-B:BITE:HURT:3d12
-F:FORCE_SLEEP | FRIENDS | OPEN_DOOR | BASH_DOOR | ANIMAL
-F:NO_SLOW | NO_STUN | NO_CONF | NO_SLEEP
-S:SPELL_PCT_20 | POW_0
-S:BRTH_TIME
-D:You get a terrible sense of deja vu, or is it a premonition?  All at
-D: once you see a little puppy and a toothless old dog.  Perhaps you
-D: should give up and go to bed.
-
-
 N:543:Harowen the Black Hand
 G:p:D1
 I:135:25d100:40:90:0
@@ -9012,19 +8917,6 @@ D: universe and despises all other life.  It sees all who do not obey it
 D: as mere insects to be crushed underfoot.
 
 
-N:616:Master quylthulg
-G:Q:B
-I:120:30d100:30:1:0
-W:76:2:147:12000
-F:FORCE_MAXHP | FORCE_SLEEP | NEVER_BLOW | NEVER_MOVE | INVISIBLE
-F:EMPTY_MIND | ANIMAL | NO_SLOW | NO_FEAR | NO_STUN
-F:NO_CONF | NO_SLEEP
-S:SPELL_PCT_100 | POW_0
-S:BLINK | TELE_TO | S_MONSTERS | S_ANIMAL | S_THIEF
-S:S_BERTBILLTOM | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD
-D:A giant seething mass of flesh, overwhelming you with monster after
-D: monster.
-
 
 N:617:Diamond golem
 G:g:w
@@ -9584,7 +9476,7 @@ D: Ungoliant's rage.
 
 N:643:Lurtz the Uruk-Hai Captain
 G:o:r
-I:115:30d100:20:100:20
+I:120:30d100:20:100:20
 W:42:4:80:2000
 B:HIT:WOUND:8d8
 B:HIT:WOUND:8d8
@@ -9596,7 +9488,7 @@ F:OPEN_DOOR | BASH_DOOR
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD | DROP_GREAT
 F:REGENERATE
 F:ORC | EVIL
-F:IM_POIS | NO_SLOW | NO_SLEEP | NO_CONF | NO_FEAR
+F:IM_COLD | IM_FIRE | IM_POIS | NO_SLOW | NO_SLEEP | NO_CONF | NO_FEAR
 F:N_LAVA | N_ICE | N_OIL | N_FIRE | N_SAND
 F:N_FOREST | N_ACID | N_MUD
 S:SPELL_PCT_25 | POW_20
@@ -9611,7 +9503,7 @@ D: You will taste man-flesh!!"
 
 N:644:Saruman of Many Colours
 G:A:v
-I:120:40d100:100:100:0
+I:125:40d100:100:100:0
 W:44:1:350:35000
 B:HIT:PARALYZE:4d4
 B:HIT:LOSE_STR:4d4
@@ -10497,5 +10389,224 @@ D: Like Tulkas himself, this Ainu delights in tests of strenght and
 D: laughs ever, even in the face of Morgoth's wrath. The strongest among
 D: those that follow the Champion of Aman seek to disrupt their opponent
 D: with spells while pummeling them with mighty blows.
+
+N:688:Cerevas the Deranged
+G:p:v
+I:115:60d10:20:50:10
+W:23:4:80:800
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+F:MALE | FORCE_MAXHP | UNIQUE
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR
+F:SMART | HAS_LIGHT | LOW_MANA_RUN
+F:EVIL | IM_FIRE | IM_COLD 
+S:SPELL_PCT_30 | POW_25
+S:BOLT_FIRE | BOLT_COLD | ADD_MANA | TPORT
+S:SCARE | BALL_FIRE
+D:A deranged sorcerer of the court of Rhudaur, Cerevas 
+D:discontinued his studies after learning the Fireball spell, 
+D:which he felt was a perfectly sufficient solution to any 
+D:problems or social situations he might encounter.
+
+N:690:Thrukur, Undead Dwarf Lord
+G:G:y
+I:120:50d10:20:50:10
+W:34:3:100:2000
+B:WAIL:TERRIFY
+B:HIT:LOSE_WIS:5d8
+B:HIT:EAT_LIGHT:5d8
+B:TOUCH:EAT_ITEM
+F:FORCE_MAXHP | UNIQUE | RAND_25 | ONLY_ITEM | DROP_3D2 | DROP_GOOD
+F:SMART | INVISIBLE | COLD_BLOOD | FLYING
+F:PASS_WALL | TAKE_ITEM | UNDEAD | EVIL 
+F:IM_COLD | IM_POIS | NO_SLEEP
+S:SPELL_PCT_20 | POW_35
+S:BOLT_ACID | TRAPS | WOUND
+S:BLIND | CONF | HOLD | S_UNDEAD
+D:Thrukur was the bearer of one of the seven Dwarven Rings 
+D:wrought by Sauron at the forge of Celebrimbor. Overcome by 
+D:greed for gold, he soon succumbed to the Ring's evil and 
+D:faded until he became a shade. The ring, Bunglost, fell from 
+D:his insubstantial fingers and was lost to man and dwarf alike.
+D:Thrukur remains a greedy and malevolent ghost.
+
+N:691:Spreading infestation
+G:m:G
+I:120:40d20:200:60:0
+W:31:4:60:600
+B:SPORE:CONFUSE:7d7
+B:SPORE:TERRIFY:7d7
+B:SPORE:POISON:7d7
+B:SPORE:LOSE_CON:5d5
+F:NEVER_MOVE | EVIL | IM_ACID | IM_ELEC
+F:IM_FIRE | IM_COLD | IM_POIS | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP | ESCORTS 
+S:SPELL_PCT_20 | POW_15
+S:S_KIN | BLINK
+D:A despicable mould that seems to spread like a giant decaying 
+D:carpet throughout the dungeon.
+
+N:692:Nugrush, the Goblin Lobber
+G:o:R
+I:110:40d10:20:20:10
+W:20:4:30:400
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:UNIQUE | MALE | FORCE_MAXHP
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR
+F:ORC | EVIL | IM_POIS | RAND_25 | IM_FIRE
+S:SPELL_PCT_50 | POW_7
+S:MISSL | BALL_FIRE
+D:Nugrush is not particularly strong or clever or devious,
+D: but he is a great shot and is widely considered to be a
+D: dab hand with a Molotov cocktail.
+
+N:693:Master quylthulg
+G:Q:w
+I:120:48d10:20:1:0
+W:45:3:119:3000
+F:FORCE_MAXHP | FORCE_SLEEP | NEVER_BLOW | NEVER_MOVE | INVISIBLE
+F:EMPTY_MIND | ANIMAL | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_50 | POW_0
+S:BLINK | S_DRAGON | S_UNDEAD | S_DEMON | S_KIN
+D:Great is OEDE-Shoggog, who is the servant of the Elder Gods. Iah!
+D: OEDE-Shoggog!
+
+N:694:Curious spirit
+G:G:G1
+I:115:5d10:100:100:0
+W:24:4:100:100
+B:TOUCH:CONFUSE
+B:TOUCH:EXP_20
+F:FEMALE | RAND_25 | INVISIBLE | COLD_BLOOD
+F:PASS_WALL | UNDEAD | EVIL | FLYING
+F:HURT_FIRE | IM_COLD | IM_POIS | NO_FEAR | NO_SLEEP
+F:FRIENDS
+S:SPELL_PCT_20 | POW_0
+S:BLINK | TELE_SELF_TO
+D:This curious ghost wants to see you meet your end, and will flock
+D: from a long way away to spectate. You will not easily be able to
+D: escape its scrutiny!
+
+N:695:Mercury golem
+G:g:s2
+I:110:80d15:12:100:10
+W:33:4:300:800
+B:HIT:HURT:5d8
+B:HIT:HURT:5d8
+F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR | HURT_COLD
+F:IM_ELEC | IM_FIRE | IM_POIS | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_33 | POW_30
+S:HEAL
+D:As quickly as you damage this quicksilver figure, it seems to flow back
+D: into its original shape. Oh, for a truckful of liquid nitrogen!
+
+N:696:Zombie Master
+G:p:D
+I:110:10d10:20:30:10
+W:18:4:40:60
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+F:MALE | FORCE_SLEEP | ONLY_ITEM | DROP_1D2
+F:SMART | OPEN_DOOR | LOW_MANA_RUN
+S:SPELL_PCT_40 | POW_10
+S:BOLT_NETHR | BLINK | S_UNDEAD | ADD_MANA
+D:A leering, decrepit figure who stinks of the grave.
+
+
+N:697:Occultist
+G:p:o1
+I:110:10d10:20:30:10
+W:18:4:40:60
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+F:MALE | FORCE_SLEEP | ONLY_ITEM | DROP_1D2
+F:SMART | OPEN_DOOR | LOW_MANA_RUN
+F:EVIL
+S:SPELL_PCT_40 | POW_10
+S:BOLT_FIRE | BLINK | S_DEMON | ADD_MANA
+D:A foolish young sorcerer who toys with infernal powers that are sure to destroy him
+D: in the end.
+
+N:698:Dragon trainer
+G:p:y1
+I:110:10d10:20:30:10
+W:18:4:40:60
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+F:FEMALE | FORCE_SLEEP | ONLY_ITEM | DROP_1D2
+F:SMART | HAS_LIGHT | OPEN_DOOR | LOW_MANA_RUN
+S:SPELL_PCT_40 | POW_10
+S:BOLT_ELEC | BLINK | S_DRAGON | ADD_MANA
+D:An enchantress in training, she goads her pet dragons on with
+D: little sparks of lightning. They roar in protest and slither 
+D: towards you.
+
+N:699:Zephyr Huntmaster
+G:p:u2
+I:120:50d10:30:30:0
+W:40:4:100:2000
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:3d5
+F:MALE | FORCE_MAXHP | NO_SLEEP | DROP_4D2 
+F:SMART | HAS_LIGHT | OPEN_DOOR | BASH_DOOR | FLYING
+F:EVIL
+F:NO_CONF | NO_SLEEP | NO_SLOW | NO_FEAR
+F:IM_ACID | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | RES_CHAOS
+F:RES_NETHR | RES_WATER | RES_PLAS | RES_NEXUS | RES_DISEN
+S:SPELL_PCT_20 | POW_40
+S:ADD_MANA | HEAL | S_HOUND | SHRIEK
+D:A bizarre hunter from another dimension. To him and his hounds, you
+D: are just anough trophy.
+
+
+N:700:Quickling
+G:h:B
+I:130:30d10:20:30:10
+W:30:4:50:300
+B:HIT:WOUND:1d10
+B:HIT:WOUND:1d10
+B:HIT:WOUND:1d10
+B:HIT:WOUND:1d10
+F:MALE | FORCE_SLEEP | DROP_1D2 | EVASIVE | OPEN_DOOR
+S:SPELL_PCT_15 | POW_8
+S:MISSL | BLINK | CONF
+D:A strange little creature, moving ridiculously fast.
+
+N:701:Warlock
+G:p:o
+I:120:50d10:20:30:10
+W:35:4:80:800
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+F:MALE | FORCE_SLEEP | ONLY_ITEM | DROP_2D2
+F:HAS_LIGHT | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | SMART
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC
+F:EVIL | NO_CONF | NO_SLEEP
+S:SPELL_PCT_50 | POW_33
+S:BOLT_COLD | BOLT_ACID | BOLT_ELEC | BOLT_FIRE | ADD_MANA | BLINK
+S:BOLT_NETHR | BALL_SHARD
+D:A spellcaster who specialises in sieges and military engagements,
+D: he has a formidable array of offensive spells and some practice in picking
+D: the most effective one to employ. If you have a resistance hole,
+D: he will find it.
+
+N:702:Chaos adept
+G:p:v
+I:120:50d10:20:30:10
+W:35:4:80:800
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+F:MALE | FORCE_SLEEP | ONLY_ITEM | DROP_2D2
+F:HAS_LIGHT | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | SMART
+F:EVIL | NO_CONF | NO_SLEEP | RES_CHAOS
+S:SPELL_PCT_50 | POW_33
+S:BALL_CHAOS | HEAL | BLINK | S_DEMON
+D:An adept of chaos, his body is already beginning to warp
+D: and twist from exposure to poorly controlled Chaotic forces.
+
 
 

@@ -22,7 +22,7 @@ First row:
      - Weight : in pounds
      - Status : social class (affects starting gold)
      - {Blank)
-     - Level : goes from 1 to 50
+     - Level : goes from 1 to 36
 
      - Internal values for each vital statistic, racial modifiers, class
        modifiers, total modifiers from equipment, and maximum and current

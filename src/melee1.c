@@ -3221,7 +3221,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else if (spower < 40)
 			{
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
-				else msg_format("%^s casts an exlosion of raw chaos.", m_name);
+				else msg_format("%^s casts an explosion of raw chaos.", m_name);
 				rad = 2;
 			}
 			else

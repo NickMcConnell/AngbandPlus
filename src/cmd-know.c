@@ -1420,7 +1420,7 @@ static bool artifact_is_known(int a_idx)
 
 /* If 'artifacts' is NULL, it counts the number of known artifacts, otherwise
    it collects the list of known artifacts into 'artifacts' as well. */
-static int collect_known_artifacts(int *artifacts, size_t artifacts_len)
+int collect_known_artifacts(int *artifacts, size_t artifacts_len)
 {
 	int a_count = 0;
 	int j;

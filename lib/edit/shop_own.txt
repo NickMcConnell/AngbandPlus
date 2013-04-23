@@ -12,7 +12,7 @@
 
 # Version stamp (required)
 
-V:2.0.0
+V:2.0.1
 
 # General Store
 N:0

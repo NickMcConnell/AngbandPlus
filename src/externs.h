@@ -421,6 +421,7 @@ extern void disturb(int stop_search, int unused_flag);
 extern void disturb(int stop_search, int unused_flag);
 
 extern int effective_depth(int depth);
+extern int inverse_effective_depth(int depth);
 extern int challenge();
 
 /* cmd0.c */
@@ -550,7 +551,7 @@ extern void do_cmd_knowledge_objects(void *obj, const char *name);
 extern void do_cmd_knowledge_notes(void);
 extern void init_cmd_know(void);
 extern void do_cmd_knowledge(void);
-
+extern int collect_known_artifacts(int *artifacts, size_t artifacts_len);
 
 
 /*cmd-obj.c*/

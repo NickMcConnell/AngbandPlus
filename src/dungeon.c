@@ -1152,7 +1152,7 @@ static void process_world(void)
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
-		regenmana(regen_amount);
+		regenmana(regen_amount * ((cp_ptr->flags & CF_ZERO_FAIL) ? 2 : 1)); /* Faster mana regen for full casters */
 	}
 
 	/* Various things interfere with healing */
@@ -1424,6 +1424,37 @@ static void process_world(void)
 
 	/* Notice stuff */
 	notice_stuff();
+
+	/* Summon monsters on the player, if they ought to be going to get Saruman */
+	if (one_in_(100))
+	{
+		if ((p_ptr->lev>=30) && (p_ptr->depth>0) && (p_ptr->depth<12) && !(p_ptr->total_winner) && !(p_ptr->depth == q_info[quest_num(p_ptr->cur_quest)].active_level))
+		{
+			int num_artifacts_already = 0;
+			int n_summoned;
+			for (i = z_info->art_spec_max; i < z_info->art_norm_max; i++)
+			{
+				artifact_type *a_ptr = &a_info[i];
+
+				/* Skip "empty" items */
+				if (a_ptr->tval + a_ptr->sval == 0) continue;
+
+				if (a_ptr->a_cur_num) {
+					num_artifacts_already = num_artifacts_already + 1;
+				}
+			}
+			if (num_artifacts_already > 30)
+			{
+				msg_print("Saruman senses your growing power from afar and sends monsters against you!");
+				sound(MSG_SUM_MONSTER);
+				n_summoned = 4 + (randint(4));
+				for (i = 0; i < n_summoned; i++)
+				{
+					(void)summon_specific(p_ptr->py, p_ptr->px, effective_depth(p_ptr->depth), 0);
+				}
+			}
+		}
+	}
 
 }
 

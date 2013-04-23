@@ -36,6 +36,23 @@ Some funky levels are commoner
 Enchantments are unreliable if you have low Cha
 Warning messages for the effects of low Int, Wis or Cha
 
+** v2.01
+
+Weakened some artifacts, added some minor arts
+Beefed up Lurtz and Saruman a bit
+Minor bugfixes
+No more +shots launchers
+Removed four early melee uniques
+Added more monsters
+Con over 18/70 is less useful than it was
+Spell stat over 18/50 is less useful than it was
+Zero-fail caster classes get faster mana regeneration and more spell damage
+Paladins no longer get OOD or Shock Bolt
+CL 36 is now a hard cap
+If players hang round at high level with many artifacts, they get 'prods' to hurry up
+
+
+
 
 
 

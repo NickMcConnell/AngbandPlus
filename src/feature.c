@@ -2304,7 +2304,7 @@ static void describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 			text_out_c(TERM_L_GREEN, " appears");
 
 			text_out_c(TERM_L_GREEN, format(" at depths of %d feet and below",
-			                            f_ptr->f_level * 50));
+			                            inverse_effective_depth(f_ptr->f_level * 50)));
 		}
 
 	}

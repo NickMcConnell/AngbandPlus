@@ -6285,11 +6285,23 @@ int effective_depth(int depth){
 	else return 46;
 }
 
+int inverse_effective_depth(int depth){
+	int i;
+	for (i=0; i<=12; i++){
+		if (effective_depth(i)>=depth){
+			return i;
+		}
+	}
+	return 13;
+}
+
 int challenge(){
 	// object quality will be affected by this number
 	// 10 is nominal: any less means worse
 	if (p_ptr->depth>=11) return 10;
 	else if (p_ptr->lev > 2*effective_depth(p_ptr->depth)) return 3;
 	else if (p_ptr->lev > effective_depth(p_ptr->depth)) return 7;
+	else if (p_ptr->lev >= 34 && p_ptr->depth<10) return 7;
+	else if (p_ptr->lev >= 36 && p_ptr->depth<11) return 7;
 	else return 10;
 }
