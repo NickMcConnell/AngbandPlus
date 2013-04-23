@@ -647,6 +647,12 @@ static void rd_item(object_type *o_ptr)
 	o_ptr->tval = k_ptr->tval;
 	o_ptr->sval = k_ptr->sval;
 
+	/* For rod-stacking */
+	if (z_older_than(2, 2, 5) && (o_ptr->tval == TV_ROD))
+	{
+		o_ptr->timeout = o_ptr->pval * o_ptr->number;
+		o_ptr->pval = k_ptr->pval * o_ptr->number;
+	}
 
 	/* Hack -- notice "broken" items */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);

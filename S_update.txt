@@ -12,6 +12,11 @@ NOTE: I am currently looking for quests, towns, vaults, and interesting rooms to
 Reported but unfixed bugs:
 An '&' object has appeared as '(nothing)' (from flavor.c, object_desc function) and is probably related to 'The Unknown Artifact' (from cmd4.c, do_cmd_knowledge_artifacts function) bug that has been reported.  This relates to the artifact 'the Amulet of Beldaran.'
 
+SBFband 0.2.2 (November 10, 1999)
+* Fixed bug that caused the game to crash when entering some stores.  Many thanks to the one and only Robert Ruehlmann for pointing out what was causing the bug.
+* Added Alexey Guzeev's <aga@russia.crosswinds.net> OS/2 makefile and preferences.
+Note: Be sure to clear the .raw files in ../lib/data
+
 SBFband 0.2.1 (September 19, 1999)
 * Activation for Cubragol fixed.
 * Fixed bug that looks for a nonexistant quest after the spawning pits.
@@ -22,7 +27,7 @@ SBFband 0.2.1 (September 19, 1999)
 * Fixed a bug in detect_doors that didn't show locked doors.
 * Multiplying monsters don't multiply as often.
 * Rogues and characters with passable disarming gain more info about what traps do.
-* Experience gained by disarming traps depends on the dungeon level. (from GSNband)
+* Experience gained by disarming traps depends on the dungeon level. (from Oangband?)
 * Appropriate rods and wands, when *identified*, shows the amount of damage done by them.  *Identifying* rods also shows how long it takes to recharge.
 * Damage done by wands and rods has been tweaked; in general, wands do more damage than their rod equivalent.
 * Made additions to the documentation.

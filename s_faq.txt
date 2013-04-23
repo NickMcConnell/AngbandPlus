@@ -5,8 +5,8 @@
                      Sperlock74@yahoo.com
        (based off the Zangband Official FAQ by Robert Ruehlmann)
 	 	(with some stuff borrowed from the GSNband FAQ)				
-                         September 19, 1999
-                         Version 0.2.1
+                         November 10, 1999
+                         Version 0.2.2
 
 Note: If your wrists start to hurt during typing, (which could be 
 Repetitive Stress Inury, which can lead to Carpal Tunnel Syndrome)
@@ -153,8 +153,8 @@ Nope.  For one thing, the worlds Eddings created are too big to fit
 in SBFband.  Trying to do so would increase memory consumption.  This
 would result in less people playing the game.  Besides, I have some
 stuff from the anime "Record of Lodoss War" and plan to include ideas 
-I get from the books of other authors sometime in the future.  
-Currently, SBFband's world is fictional and has no name.
+I get from the books of other authors and other sources sometime in 
+the future.  Currently, SBFband's world is fictional and has no name.
 
 =====================================================================
 3. System-specific questions
