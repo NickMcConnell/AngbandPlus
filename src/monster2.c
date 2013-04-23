@@ -3602,7 +3602,9 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_BESIEGERS:
 		{
-/*			DO THIS. AND TELL THE AI WHEN TO INVOKE THEM */
+			okay = (((r_ptr->flags2 & (RF2_KILL_WALL)) || (r_ptr->flags2 & (RF2_PASS_WALL))) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
  		}
 
 		case SUMMON_SPIDER:

@@ -1659,6 +1659,14 @@ static void display_special_abilities(int row, int col)
                c_put_str(TERM_RED, "whirlwind", row++, col + strlen(msg));
        }
 
+       /* Print whirlwind */
+       if (p_ptr->state.thorns)
+       {
+               msg = "Your armour damages enemies who attack you in melee";
+
+               put_str(msg, row, col);
+       }
+
        /* Reset item counter */
        n = 0;
 

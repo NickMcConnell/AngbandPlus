@@ -53,7 +53,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.0.3"
+#define VERSION_STRING	"2.0.4"
 
 
 /*
@@ -61,7 +61,7 @@
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	0
-#define VERSION_PATCH	3
+#define VERSION_PATCH	4
 #define VERSION_EXTRA	0
 
 

@@ -39,6 +39,9 @@ best applicable quality is used; they do not combine.
 the target is standing on.
      See the object attributes section for how powerful individual slays and
 brands are.
+     In Quickband, some weapons are branded with life draining (which gives you
+health when you hit a living monster) or mana burn (which reduces a spellcasting
+monster's mana when you hit it).
 
 Critical Hits:
      The number of critical hits you get depends on your total bonuses to melee

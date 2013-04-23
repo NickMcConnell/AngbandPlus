@@ -35,7 +35,7 @@ Second row:
      - Adv Exp : total experience needed to advance to the next level.  With the 
                  toggle_xp option on, this line displays the total remaining
                  experience needed to gain the next level
-     - MaxDepth : The deepest the palyer has been in the dungeon
+     - MaxDepth : The deepest the player has been in the dungeon
      - Gold : money on hand (in gold pieces)
      - Burden : total carried weight (equipment and backpack combined).  Helps
        you learn how much you can carry without being slowed down.  You begin

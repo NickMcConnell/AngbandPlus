@@ -161,9 +161,9 @@ have intrinsic abilities.
                Elves are better at searching, disarming, perception, stealth,
                bows and magic, but they are not as good at hand weapons.  
                Elves are resistant to attacks involving bright light, and have
-               their dexterity sustained, and are native 
-               to forest terrain.
-
+               their dexterity sustained, and are native to forest terrain.
+               (Once an Elf pseudo-IDs a bow or arrows, they fully identify 
+               it.)
  
           Hobbits
                Hobbits, or Halflings, are very good at bows, throwing, and
@@ -175,6 +175,8 @@ have intrinsic abilities.
                creatures at a distance.  Hobbits have a strong hold on their
                life force, and are thus intrinsically resistant to life
                draining.
+               (Once a Hobbit pseudo-IDs a sling or shots, they fully
+               identify it.)
  
           Gnome
                Gnomes are smaller than dwarves but larger than halflings.
@@ -186,6 +188,7 @@ have intrinsic abilities.
                fair infra-vision, so they can detect warm-blooded creatures
                at a distance.  Gnomes are intrinsically protected
                against paralysis and some slowing effects.
+               (Once an Gnome zaps a wand or staff, they fully identify it.)
  
           Dwarf
                Dwarves are the headstrong miners and fighters of legend.
@@ -201,6 +204,8 @@ have intrinsic abilities.
                good reason, screaming out challenges at imagined foes.  In
                other words, dwarves have a miserable stealth.  They can never
                be blinded. 
+               (Once an Dwarf pseudo-IDs a helmet or heavy armor, they fully 
+               identify it.)
  
           Half-Orc
                Half-Orcs make excellent warriors and decent priests, but
@@ -223,6 +228,8 @@ have intrinsic abilities.
                their strength sustained, and they regenerate like other trolls.
                Unfortunately, this regeneration also requires them to eat more 
                food than other races.
+               (Half-Troll spell casters can wear heavier equipment than 
+               other races without losing SP.)
  
           Dunadan
                Dunedain are the descendants of the people of Numenor, who have
@@ -244,7 +251,8 @@ have intrinsic abilities.
                is on them, and nothing they do will come to a good end. They are
                doomed by their own greed and pride.
                High-elves can see invisible (the Unseen Realm), are resistant
-               to light and native to forest.
+               to light and native to forest. Like normal Elves, they have 
+               special knowledge of bows and arrows.
                (As one of the Noldor, you will find the early game easy. However,
                once you reach CL 27, you will begin to be affected by the Doom of
                Mandos. This can have several nasty effects at random intervals. 

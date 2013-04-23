@@ -669,7 +669,7 @@ static void prt_mon_mana(int row, int col)
 		byte attr = TERM_RED;
 
 		/*no mana, stop here*/
-		if (!r_ptr->mana)
+		if (!(m_ptr->mana))
 		{
 			/* Erase the health bar */
 			Term_erase(col, row, 12);

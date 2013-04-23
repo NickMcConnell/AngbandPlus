@@ -434,9 +434,6 @@ static int remove_curse_aux(bool heavy)
 		/* Heavily Cursed Items need a special spell */
 		if (!heavy && (f3 & (TR3_HEAVY_CURSE))) continue;
 
-		/* Perma-Cursed Items can NEVER be uncursed */
-		if (f3 & (TR3_PERMA_CURSE)) continue;
-
 		/* Uncurse the object */
 		uncurse_object(o_ptr);
 
@@ -729,6 +726,10 @@ void self_knowledge(void)
 	{
 		info[i++] = "You have a firm hold on your life force.";
 	}
+	if (p_ptr->state.thorns)
+	{
+		info[i++] = "Your armour damages enemies who attack you in melee.";
+	}
 	if (p_ptr->timed[TMD_WWIND])
 	{
 		info[i++] = "You can cleave multiple opponents!";
@@ -1015,6 +1016,14 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
+		if (f1 & (TR1_BRAND_BURN))
+		{
+			info[i++] = "Your weapon drains mana from your foes.";
+		}
+		if (f1 & (TR1_BRAND_VAMP))
+		{
+			info[i++] = "Your weapon drains life from your foes.";
+		}
 
 		/* Special "slay" flags */
 		if (f1 & (TR1_SLAY_ANIMAL))
@@ -1071,11 +1080,6 @@ void self_knowledge(void)
 			info[i++] = "Your weapon has been blessed by the gods.";
 		}
 
-		/* Hack */
-		if (f3 & (TR3_IMPACT))
-		{
-			info[i++] = "Your weapon can induce earthquakes.";
-		}
 	}
 
 
@@ -2140,7 +2144,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_h >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
@@ -2168,7 +2171,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_d >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
@@ -2196,7 +2198,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_a >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");

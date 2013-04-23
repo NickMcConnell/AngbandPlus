@@ -207,6 +207,7 @@
 #define RBE_EXP_40    33
 #define RBE_EXP_80    34
 
+#define RBE_CONFUSE_OUCH   35
 
 
 /*** Monster flags ***/
@@ -480,7 +481,7 @@
 #define RF6_CURE           0x00000008  /* Cure self */
 #define RF6_BLINK          0x00000010  /* Teleport Short */
 #define RF6_TPORT          0x00000020  /* Teleport Long */
-#define RF6_RF6XXX1        0x00000040  /*  */
+#define RF6_TRAP        0x00000040  /*  */
 #define RF6_TELE_SELF_TO   0x00000080  /* Teleport Selt to Player */
 #define RF6_TELE_TO        0x00000100  /* Move player to monster */
 #define RF6_TELE_AWAY      0x00000200  /* Move player far away */
@@ -719,10 +720,10 @@
         (0L)
 
 #define RF6_NO_PLAYER_MASK \
-        (RF6_HEAL | RF6_ADD_MANA | RF6_TELE_SELF_TO | RF6_CURE)
+        (RF6_HEAL | RF6_ADD_MANA | RF6_TELE_SELF_TO | RF6_CURE | RF6_TRAP)
 
 #define RF7_NO_PLAYER_MASK \
-        (0L)
+        (RF7_S_BESIEGERS)
 
 
 /* Spell Desire Table Columns */

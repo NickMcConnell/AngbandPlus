@@ -482,7 +482,6 @@ static bool make_artifact_special(object_type *o_ptr)
 		{
 			if (a_ptr->a_flags3 & (TR3_LIGHT_CURSE)) continue;
 			if (a_ptr->a_flags3 & (TR3_HEAVY_CURSE)) continue;
-			if (a_ptr->a_flags3 & (TR3_PERMA_CURSE)) continue;
 		}
 
 		/* Enforce minimum "depth" (loosely) */
@@ -546,7 +545,7 @@ static bool make_artifact(object_type *o_ptr)
 	/* No artifacts, do nothing */
 	if (adult_no_artifacts) return (FALSE);
 
-	if (rand_int(11)>challenge()){
+	if ((3 + rand_int(8))>challenge()){
 		return (FALSE);
 	}
 
@@ -599,7 +598,6 @@ static bool make_artifact(object_type *o_ptr)
 		{
 			if (a_ptr->a_flags3 & (TR3_LIGHT_CURSE)) continue;
 			if (a_ptr->a_flags3 & (TR3_HEAVY_CURSE)) continue;
-			if (a_ptr->a_flags3 & (TR3_PERMA_CURSE)) continue;
 		}
 
 		/* XXX XXX Enforce minimum "depth" (loosely) */
@@ -1578,8 +1576,11 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	/* Assume no rolls */
 	rolls = 0;
 
-	/* Get one roll if excellent */
-	if (power >= 2) rolls = 1;
+	/* Get one roll if excellent - two if at DL 8 or below */
+	if (power >= 2){
+		if (lev >= 30) rolls = 2;
+		else rolls = 1;
+	}
 
 	/*
 	 * Get four rolls if good and great flags are true,
@@ -1594,9 +1595,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	/* Get no rolls if not allowed */
 	if (!okay || o_ptr->art_num) rolls = 0;
 
-	if (fated())
+	if (fated() && rolls>0)
 	{
-		rolls = (rolls * 3) / 2;
+		rolls = rolls + 1;
 	}
 
 	/* Roll for artifacts if allowed */
@@ -4183,6 +4184,9 @@ void format_object_flags(const object_type *o_ptr, char buf[], int max, bool onl
 		{TR1_BRAND_FIRE,	1,	"BrandFire"},
 		{TR1_BRAND_COLD,	1,	"BrandCold"},
 		{TR1_BRAND_POIS,	1,	"BrandPois"},
+		{TR1_BRAND_BURN,	1,	"BrandBurn"},
+		{TR1_BRAND_VAMP,	1,	"BrandVamp"},
+		{TR3_THORNS,	3,	"Thorns"},
 		{TR1_SLAY_ANIMAL,	1,	"SlayAnimal"},
 		{TR1_SLAY_EVIL,		1,	"SlayEvil"},
 		{TR1_SLAY_UNDEAD,	1,	"SlayUndead"},

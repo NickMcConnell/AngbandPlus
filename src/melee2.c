@@ -2038,9 +2038,21 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 		/* modified for breath weapons */
 		if (is_breath) cur_spell_rating = (cur_spell_rating * breath_hp) / breath_maxhp;
 
-		/* Bonus if want summon and this spell is helpful */
-		if (spell_desire[D_SUMM] && want_summon) cur_spell_rating +=
-						      want_summon * spell_desire[D_SUMM];
+		if ((RF7_S_BESIEGERS & i) && !(path == PROJECT_NO)){
+			if (summon_possible(p_ptr->py, p_ptr->px) <= 4){
+				cur_spell_rating += 5 * spell_desire[D_SUMM];
+			} else if (summon_possible(p_ptr->py, p_ptr->px) <= 6){
+				cur_spell_rating += spell_desire[D_SUMM];
+			} else {
+				cur_spell_rating = 0;
+			}
+		} else if ((RF6_TRAP & i) && !(path == PROJECT_NO)){
+			cur_spell_rating += 10;
+		} else {
+			/* Bonus if want summon and this spell is helpful */
+			if (spell_desire[D_SUMM] && want_summon) cur_spell_rating +=
+							      want_summon * spell_desire[D_SUMM];
+		}
 
 		/* Bonus if wounded and this spell is helpful */
 		if (spell_desire[D_HURT] && want_hps) cur_spell_rating +=

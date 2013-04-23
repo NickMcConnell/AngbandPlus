@@ -317,6 +317,7 @@ bool make_attack_normal(monster_type *m_ptr)
 			case RBE_COLD:       power = 10;  break;
 			case RBE_BLIND:      power =  5;  break;
 			case RBE_CONFUSE:    power = 10;  break;
+			case RBE_CONFUSE_OUCH:    power = 10;  break;
 			case RBE_TERRIFY:    power = 10;  break;
 			case RBE_PARALYZE:   power =  5;  break;
 			case RBE_HALLU:      power = 10;  break;
@@ -1336,13 +1337,43 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Take damage */
 					take_hit(dam, ddesc);
 
-					/* Increase "confused" */
-					if (allow_player_confusion())
-					{
-						if (inc_timed(TMD_CONFUSED, 3 + randint(rlev), TRUE))
+						/* Increase "confused" */
+						if (allow_player_confusion())
 						{
-							obvious = TRUE;
+							if (inc_timed(TMD_CONFUSED, 3 + randint(rlev), TRUE))
+							{
+								obvious = TRUE;
+							}
 						}
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, LRN_CONFU);
+
+
+					break;
+				}
+
+
+				/* Hit to confuse */
+				case RBE_CONFUSE_OUCH:
+				{
+					/* Player armour reduces total damage */
+					ac_dam(&dam, ac);
+
+					/* Take damage */
+					take_hit(dam, ddesc);
+
+					if (m_ptr->mana >= 5)
+					{
+						/* Increase "confused" */
+						if (allow_player_confusion())
+						{
+							if (inc_timed(TMD_CONFUSED, 3 + randint(rlev), TRUE))
+							{
+								obvious = TRUE;
+							}
+						}
+						m_ptr->mana = MAX(0,m_ptr->mana-20);
 					}
 
 					/* Learn about the player */
@@ -1602,6 +1633,11 @@ bool make_attack_normal(monster_type *m_ptr)
 
 				/* Leave immediately */
 				return (TRUE);
+			}
+
+			if (dam && p_ptr->state.thorns){
+				m_ptr->hp = MAX(1,m_ptr->hp-dam);
+				msg_format("Ouch!");
 			}
 
 			/* Hack -- only one of cut or stun */
@@ -2437,6 +2473,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 					break;
 				}
 				case RBE_CONFUSE:
+				case RBE_CONFUSE_OUCH:
 				case RBE_PARALYZE:
 				{
 					typ = GF_CONFUSION;
@@ -3795,9 +3832,10 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF6_XXX3 */
+		/* RF6_TRAP */
 		case 160+6:
 		{
+			project(SOURCE_OTHER, 0, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, 0, GF_MAKE_TRAP, PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_EFCT, 0, 0);
 			break;
 		}
 

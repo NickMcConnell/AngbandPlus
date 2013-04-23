@@ -227,6 +227,8 @@ static bool describe_brand(const object_type *o_ptr, u32b f1)
 	if (f1 & (TR1_BRAND_FIRE)) descs[cnt++] = "fire";
 	if (f1 & (TR1_BRAND_COLD)) descs[cnt++] = "frost";
 	if (f1 & (TR1_BRAND_POIS)) descs[cnt++] = "poison";
+	if (f1 & (TR1_BRAND_BURN)) descs[cnt++] = "mana burn";
+	if (f1 & (TR1_BRAND_VAMP)) descs[cnt++] = "life draining";
 
 	/* Describe brands */
 	output_desc_list("It is branded with ", descs, cnt);
@@ -531,6 +533,16 @@ static bool describe_attacks (const object_type *o_ptr, u32b f1, bool extra_info
 		text_out("This damage calculation can be increased due to elemental branding.");
 		text_out("\n\n");
 	}
+	if (f1 & TR1_BRAND_BURN)
+	{
+		text_out("This damage calculation can be increased due to mana-burn branding.");
+		text_out("\n\n");
+	}
+	if (f1 & TR1_BRAND_VAMP)
+	{
+		text_out("This damage calculation can be increased due to life-drain branding.");
+		text_out("\n\n");
+	}
 
 
 	percent = ((o_ptr->weight + ((to_hit + o_ptr->to_h) * 5) + (p_ptr->lev * 3)) * 100) / 5000;
@@ -643,12 +655,12 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 
 	/* Collect stuff which can't be categorized */
 	if (f3 & (TR3_BLESSED))     good[gc++] = "is blessed by the gods";
-	if (f3 & (TR3_IMPACT))      good[gc++] = "creates earthquakes on impact";
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
 	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
 	if (((o_ptr->tval == TV_LIGHT) && artifact_p(o_ptr)) || (f3 & (TR3_LIGHT)))
 		good[gc++] = "lights the dungeon around you";
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
+	if (f3 & (TR3_THORNS))       good[gc++] = "damages enemies who attack you in melee";
 
 	/* Describe */
 	output_desc_list("It ", good, gc);
@@ -670,8 +682,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	/* Deal with cursed stuff */
 	if (cursed_p(o_ptr))
 	{
-		if (f3 & (TR3_PERMA_CURSE)) bad[bc++] = "is permanently cursed";
-		else if (f3 & (TR3_HEAVY_CURSE)) bad[bc++] = "is heavily cursed";
+		if (f3 & (TR3_HEAVY_CURSE)) bad[bc++] = "is heavily cursed";
 		else if (object_known_p(o_ptr)) bad[bc++] = "is cursed";
 	}
 

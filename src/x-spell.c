@@ -283,7 +283,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		case SPELL_MAGIC_MISSILE:
 		{
 
-			dice = 3 + ((plev - 1) / 5);
+			dice = 3 + ((plev - 1) / 8);
 			sides = (BLAST_BONUS) * 4;
 
 			if (name) return ("Magic Missile");

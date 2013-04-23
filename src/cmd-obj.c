@@ -1977,6 +1977,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 {
 	int lev, sval;
+	u32b f1, f2, f3, fn;
 
 	/*Special allowance for disarming and traps*/
 	bool is_disarm = FALSE;
@@ -2240,6 +2241,12 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 		}
 	}
 
+	player_flags(&f1, &f2, &f3, &fn);
+	if (f3 & TR3_ID_CHARGES)
+	{
+		object_aware(o_ptr);
+		object_known(o_ptr);
+	}
 
 	return (TRUE);
 }

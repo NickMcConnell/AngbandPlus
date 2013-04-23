@@ -109,7 +109,7 @@
 
 # Version stamp (required)
 
-V:2.0.3
+V:2.0.4
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -3008,7 +3008,7 @@ D:It creates a random artifact on the ground near you.
 N:311:Acquirement
 G:?:w
 I:70:46:0
-W:20:0:5:100000
+W:20:0:5:10000
 P:0:0d0:0:0:0
 A:20/8
 F:EASY_KNOW

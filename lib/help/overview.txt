@@ -28,6 +28,8 @@ can display it again by pressing control-P.
 look by pressing 'l'ook (or e'x'amine).
      4)  The bottom line of the main screen shows various status displays, such
 as your speed, ailments, depth, and so on.
+     5)  One way to access many commands is to press Control-Shift-h. This 
+allows you to choose from a menu of options.
 
 
 --- The character screen  ('C') ---

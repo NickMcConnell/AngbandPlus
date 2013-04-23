@@ -625,7 +625,7 @@ void py_pickup(bool pickup)
 		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
 		/* Object is marked to always pickup */
-		if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP) do_continue = FALSE;
+		if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP  && (k_info[o_ptr->k_idx].aware)) do_continue = FALSE;
 
 		/* Item is marked for auto-pickup with =g */
 		if (auto_pickup_inscrip(o_ptr)) do_continue = FALSE;

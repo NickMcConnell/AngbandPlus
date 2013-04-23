@@ -46,8 +46,8 @@
 #define INHIBIT_STRONG  15
 #define INHIBIT_WEAK 7
 
-#define ART_FLAGS_BAD 	(TR3_TELEPORT | TR3_DRAIN_EXP | TR3_IMPACT | TR3_AGGRAVATE | \
-						 TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE)
+#define ART_FLAGS_BAD 	(TR3_TELEPORT | TR3_DRAIN_EXP | TR3_AGGRAVATE | \
+						 TR3_LIGHT_CURSE | TR3_HEAVY_CURSE)
 
 /*
  * Numerical index values for the different types
@@ -128,8 +128,8 @@
 static const byte table_type_freq[ART_TYPE_MAX][CAT_MAX] =
 {
 		   /*#0, #1,#2, #3, #4, #5, #6, #7, #8, #9,#10,#11,#12 #13#14 #15,#16 #17		*/
-			{25, 2, 60,  7, 30, 12,  5,  2, 0,  0,  8,  1,120, 10, 18, 10, 20,	0}, /*  ART_TYPE_WEAPON   */
-			{16, 1,	20,  3, 20, 10, 80, 10, 0,  0,  8,  1, 40, 10, 10, 10, 10,	0}, /*  ART_TYPE_SHOVEL   */
+			{25, 2, 60,  7, 30, 12,  5,  0, 0,  0,  8,  1,120, 10, 18, 10, 20,	0}, /*  ART_TYPE_WEAPON   */
+			{16, 1,	20,  3, 20, 10, 80,  0, 0,  0,  8,  1, 40, 10, 10, 10, 10,	0}, /*  ART_TYPE_SHOVEL   */
 			{20, 1,	 0,  0, 10, 10,  0,  0, 0,  0,  8,  1, 80,  0,  0,  6,  0,	0}, /*  ART_TYPE_BOW   	*/
 			{45, 3,	 0,  0, 30, 30,  0,  0, 0,  0, 10,  2, 10, 10,  0,  0, 14,	5}, /*  ART_TYPE_SPECIAL  */
 			{30, 1,	 0,  0, 40, 14,  0,  0, 0,  0, 10,  1,  1, 50, 10, 20,  4,	0}, /*  ART_TYPE_ARMOR   	*/
@@ -247,25 +247,26 @@ static byte art_stat_freq[A_MAX];
 	#5  TR3_SEE_INVIS
 	#6  TR3_FREE_ACT
 	#7  TR3_HOLD_LIFE
+	#8  TR3_THORNS
 
  * Table of frequency adjustments of each ability for each type
  * 10 is normal frequency, -10 means no chance
  */
 static const int table_ability_freq[ART_TYPE_MAX][OBJECT_XTRA_SIZE_POWER] =
 {
-   /*#0, #1, #2, #3, #4, #5, #6, #7*/
-	{ 8,  7,  10, 10,  3, 10, 10,  5}, /*  ART_TYPE_WEAPON   */
-	{ 8,  7,  10, 10,  3, 10, 10,  5}, /*  ART_TYPE_SHOVEL   */
-	{ 8,  7,   0, 10,  3, 10, 10,  5}, /*  ART_TYPE_BOW   	*/
-	{ 8,  5,   0, 10,  3, 10, 10,  7}, /*  ART_TYPE_SPECIAL  */
-	{ 8,  7,   0, 10,  3, 10, 10,  5}, /*  ART_TYPE_ARMOR   	*/
-	{ 8,  7,   0, 10,  5, 10, 10,  5}, /*  ART_TYPE_DRAG_ARMOR   */
-	{ 8,  7,   0, 10,  3, 10, 10,  5}, /*  ART_TYPE_CLOAK 	*/
-	{ 8,  7,   0, 10,  3, 10,  8,  5}, /*  ART_TYPE_SHIELD   */
-	{ 8,  7,   0, 10,  5, 13,  8,  5}, /*  ART_TYPE_HELM   	*/
-	{ 8,  7,   0, 10,  5, 13,  8,  5}, /*  ART_TYPE_CROWN  	*/
-	{ 8,  7,   0, 10,  3, 10, 12,  5}, /*  ART_TYPE_GLOVES   */
-	{ 8, 20,   0, 10,  3, 10,  8,  5}, /*  ART_TYPE_BOOTS   	*/
+   /*#0, #1, #2, #3, #4, #5, #6, #7, #8*/
+	{ 8,  7,  10, 10,  3, 10, 10,  5, 0}, /*  ART_TYPE_WEAPON   */
+	{ 8,  7,  10, 10,  3, 10, 10,  5, 0}, /*  ART_TYPE_SHOVEL   */
+	{ 8,  7,   0, 10,  3, 10, 10,  5, 0}, /*  ART_TYPE_BOW   	*/
+	{ 8,  5,   0, 10,  3, 10, 10,  7, 0}, /*  ART_TYPE_SPECIAL  */
+	{ 8,  7,   0, 10,  3, 10, 10,  5, 8}, /*  ART_TYPE_ARMOR   	*/
+	{ 8,  7,   0, 10,  5, 10, 10,  5, 8}, /*  ART_TYPE_DRAG_ARMOR   */
+	{ 8,  7,   0, 10,  3, 10, 10,  5, 0}, /*  ART_TYPE_CLOAK 	*/
+	{ 8,  7,   0, 10,  3, 10,  8,  5, 0}, /*  ART_TYPE_SHIELD   */
+	{ 8,  7,   0, 10,  5, 13,  8,  5, 0}, /*  ART_TYPE_HELM   	*/
+	{ 8,  7,   0, 10,  5, 13,  8,  5, 0}, /*  ART_TYPE_CROWN  	*/
+	{ 8,  7,   0, 10,  3, 10, 12,  5, 0}, /*  ART_TYPE_GLOVES   */
+	{ 8, 20,   0, 10,  3, 10,  8,  5, 0}, /*  ART_TYPE_BOOTS   	*/
 };
 
 /*used to keep frequencies for each ability*/
@@ -820,6 +821,7 @@ static long eval_max_dam(int r_idx)
 				case RBE_COLD:
 				case RBE_BLIND:
 				case RBE_CONFUSE:
+				case RBE_CONFUSE_OUCH:
 				case RBE_PARALYZE:
 				case RBE_DISEASE:
 				case RBE_LOSE_STR:
@@ -1193,6 +1195,8 @@ static int weapon_damage_calc(const artifact_type *a_ptr)
 	if (a_ptr->a_flags1 & TR1_BRAND_ELEC) slay_adjust += 4;
 	if (a_ptr->a_flags1 & TR1_BRAND_FIRE) slay_adjust += 4;
 	if (a_ptr->a_flags1 & TR1_BRAND_COLD) slay_adjust += 4;
+	if (a_ptr->a_flags1 & TR1_BRAND_VAMP) slay_adjust += 4;
+	if (a_ptr->a_flags1 & TR1_BRAND_BURN) slay_adjust += 4;
 
 	/*increse the weapon damage rater based on the number and power of slays*/
 	damage_calc += damage_calc * (slay_adjust) / 10;
@@ -1596,6 +1600,9 @@ s32b artifact_power(int a_idx)
 		if (abilities > 6) p += 5;
 		if (abilities > 7) p += 5;
 	}
+
+	if (a_ptr->a_flags3 & TR3_THORNS) p += 8;
+
 
 	if (a_ptr->a_flags3 & TR3_BLESSED) p += 1;
 	if (a_ptr->a_flags3 & TR3_SLOW_DIGEST) p += 1;
@@ -2071,34 +2078,46 @@ static bool add_brand(artifact_type *a_ptr)
 	/* Hack - if all brands are added already, exit to avoid infinite loop */
 	if ((a_ptr->a_flags1 & TR1_BRAND_ACID) && (a_ptr->a_flags1 & TR1_BRAND_ELEC) &&
 		(a_ptr->a_flags1 & TR1_BRAND_COLD) && (a_ptr->a_flags1 & TR1_BRAND_FIRE) &&
-		(a_ptr->a_flags1 & TR1_BRAND_POIS))  return (FALSE);
+		(a_ptr->a_flags1 & TR1_BRAND_POIS)
+		 && (a_ptr->a_flags1 & TR1_BRAND_BURN)
+		 && (a_ptr->a_flags1 & TR1_BRAND_VAMP))  return (FALSE);
 
 	/* Make sure we add one that hasn't been added yet */
 	while (TRUE)
 	{
-		u32b brand_flag = OBJECT_XTRA_BASE_BRAND;
+		if (one_in_(20)){
+			if(a_ptr->a_flags1 & TR1_BRAND_BURN) continue;
+			a_ptr->a_flags1 |= TR1_BRAND_BURN;
+			break;
+		} else if (one_in_(20)){
+			if(a_ptr->a_flags1 & TR1_BRAND_VAMP) continue;
+			a_ptr->a_flags1 |= TR1_BRAND_VAMP;
+			break;
+		} else {
+			u32b brand_flag = OBJECT_XTRA_BASE_BRAND;
 
-		int r = rand_int(OBJECT_XTRA_SIZE_BRAND);
+			int r = rand_int(OBJECT_XTRA_SIZE_BRAND);
 
-		/*use bit operations to get to the right stat flag*/
-		brand_flag = brand_flag << r;
+			/*use bit operations to get to the right stat flag*/
+			brand_flag = brand_flag << r;
 
-		/*We already have this one*/
-		if(a_ptr->a_flags1 & brand_flag) continue;
+			/*We already have this one*/
+			if(a_ptr->a_flags1 & brand_flag) continue;
 
-		/*We don't have this one.  Add it*/
-		a_ptr->a_flags1 |= brand_flag;
+			/*We don't have this one.  Add it*/
+			a_ptr->a_flags1 |= brand_flag;
 
-		/* 50% of the time, add the corresponding resist. */
-		if (one_in_(2))
-		{
-			u32b res_flag = OBJECT_XTRA_BASE_LOW_RESIST;
-			res_flag = res_flag << r;
-			a_ptr->a_flags2 |= res_flag;
+			/* 50% of the time, add the corresponding resist. */
+			if (one_in_(2))
+			{
+				u32b res_flag = OBJECT_XTRA_BASE_LOW_RESIST;
+				res_flag = res_flag << r;
+				a_ptr->a_flags2 |= res_flag;
+			}
+
+			/*Get out of the loop*/
+			break;
 		}
-
-		/*Get out of the loop*/
-		break;
 	}
 
 
@@ -2996,21 +3015,6 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 				}
 				default: art_freq[CAT_TUNNEL] = 0;
 			}
-			break;
-		}
-		case CAT_IMPACT:
-		{
-			object_kind *k_ptr = &k_info[cur_art_k_idx];
-
-			/*Only try this one once*/
-			art_freq[CAT_IMPACT] = 0;
-
-			/*light objects shouldn't be allowed to impact*/
-			if (k_ptr->weight < 120) break;
-
-			/*heavier objects only do this some of the time*/
-			if (randint(1000) < (k_ptr->weight - 120))	a_ptr->a_flags3 |= TR3_IMPACT;
-
 			break;
 		}
 		case CAT_WEAP_XTRA:

@@ -245,6 +245,8 @@ static void calc_mana(void)
 {
 	int msp, levels, cur_wgt, max_wgt;
 
+	u32b f1, f2, f3, fn, native;
+
 	object_type *o_ptr;
 
 	bool old_cumber_glove = p_ptr->cumber_glove;
@@ -273,8 +275,6 @@ static void calc_mana(void)
 	/* Process gloves for those disturbed by them */
 	if (cp_ptr->flags & CF_CUMBER_GLOVE)
 	{
-		u32b f1, f2, f3, native;
-
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
 
@@ -312,6 +312,12 @@ static void calc_mana(void)
 
 	/* Determine the weight allowance */
 	max_wgt = cp_ptr->spell_weight;
+
+	player_flags(&f1, &f2, &f3, &fn);
+	if (f3 & TR3_HEAVY_KIT)
+	{
+		max_wgt = (max_wgt * 3) / 2;
+	}
 
 	/* Heavy armor penalizes mana */
 	if (((cur_wgt - max_wgt) / 10) > 0)
@@ -931,12 +937,12 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->state.see_inv = TRUE;
 	if (f3 & (TR3_FREE_ACT)) p_ptr->state.free_act = TRUE;
 	if (f3 & (TR3_HOLD_LIFE)) p_ptr->state.hold_life = TRUE;
+	if (f3 & (TR3_THORNS)) p_ptr->state.thorns = TRUE;
 
 	/* Weird flags */
 	if (f3 & (TR3_BLESSED)) p_ptr->state.bless_blade = TRUE;
 
 	/* Bad flags */
-	if (f3 & (TR3_IMPACT)) p_ptr->state.impact = TRUE;
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->state.aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->state.teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->state.exp_drain = TRUE;
@@ -1028,12 +1034,12 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->state.see_inv = TRUE;
 		if (f3 & (TR3_FREE_ACT)) p_ptr->state.free_act = TRUE;
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->state.hold_life = TRUE;
+		if (f3 & (TR3_THORNS)) p_ptr->state.thorns = TRUE;
 
 		/* Weird flags */
 		if (f3 & (TR3_BLESSED)) p_ptr->state.bless_blade = TRUE;
 
 		/* Bad flags */
-		if (f3 & (TR3_IMPACT)) p_ptr->state.impact = TRUE;
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->state.aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->state.teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->state.exp_drain = TRUE;

@@ -835,6 +835,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->r_l_flags6 & (RF6_CURE))		vp[vn++] = "cure what ails it";
 	if (l_ptr->r_l_flags6 & RF6_BLINK)       vp[vn++] = "blink-self";
 	if (l_ptr->r_l_flags6 & RF6_TPORT)       vp[vn++] = "teleport-self";
+	if (l_ptr->r_l_flags6 & RF6_TRAP)       vp[vn++] = "make a trap when you're not looking";
 	if (l_ptr->r_l_flags6 & (RF6_TELE_SELF_TO))	vp[vn++] = "teleport toward you";
 	if (l_ptr->r_l_flags6 & RF6_TELE_TO)     vp[vn++] = "teleport to";
 	if (l_ptr->r_l_flags6 & RF6_TELE_AWAY)   vp[vn++] = "teleport away";
@@ -1224,6 +1225,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 
 			case RBE_BLIND:         q = "blind"; break;
 			case RBE_CONFUSE:       q = "confuse"; break;
+			case RBE_CONFUSE_OUCH:  q = "confuse"; break;
 			case RBE_TERRIFY:       q = "terrify"; break;
 			case RBE_PARALYZE:      q = "paralyze"; break;
 			case RBE_HALLU:         q = "induce hallucinations"; break;

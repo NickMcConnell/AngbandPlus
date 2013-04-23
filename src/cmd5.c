@@ -885,8 +885,8 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 			/* The spell worked */
 			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
 
-			/* Gain experience */
-			gain_exp(e * s_ptr->slevel);
+			/* Gain experience - Not any more
+			gain_exp(e * s_ptr->slevel); */
 
 			/* Redraw object recall */
 			p_ptr->redraw |= (PR_OBJECT);

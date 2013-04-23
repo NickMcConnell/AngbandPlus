@@ -682,7 +682,6 @@ static bool store_service_aux(int store_num, s16b choice)
 
 			/* Break curse */
 			if (cursed_p(o_ptr) &&
-				(!(k_ptr->k_flags3 & (TR3_PERMA_CURSE))) &&
 				 (add_to >= 0) && (rand_int(100) < 25))
 			{
 				msg_print("The curse is broken!");

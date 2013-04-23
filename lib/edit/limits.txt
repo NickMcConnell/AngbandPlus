@@ -13,7 +13,7 @@
 
 # Version stamp (required)
 
-V:2.0.3
+V:2.0.4
 
 
 
@@ -32,7 +32,7 @@ M:K:455
 # reads M:A:special:normal:random
 # changing these numbers will almost always break savefile compatibility
 #
-M:A:18:126:35
+M:A:18:130:35
 
 # Maximum number of ego-item types
 M:E:145

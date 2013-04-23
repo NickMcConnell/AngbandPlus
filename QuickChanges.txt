@@ -78,16 +78,28 @@ Set some display options TRUE by default (auto_display_lists, hp_changes_color, 
 Devices fail more often
 Picks are better than shovels
 Several monsters are more alert
-... (bugfix release follows) ...
-Teleport Other is a bolt not a beam
-Branded ammo are more likely to be destroyed on fire
-When a monster melees you, nearby sleeping monsters who have LOS to you are likely to wake up
-If you are very poisoned, you lose multiple HP per turn 
-Smart monsters with full mana will usually summon if they can
-You can start the game with 'n' or 'o' in Windows
 
+** 2.0.4
 
+New monster spells: summon besiegers, create trap (out of your sight)
+New armor type: thorns
+New weapon brands: vampiric draining and mana burn
+Characters no longer gain XP for casting spells
+Some artifact rarities have changed; all artifacts are more common below DL 8; all artifacts are less common if you are "not challenged" by your depth
+When an Elf or High-Elf pseudo-IDs a bow or arrows, they fully ID it
+When a Hobbit pseudo-IDs a sling or shots, they fully ID it
+When an Dwarf pseudo-IDs a helmet or heavy armor, they fully ID it
+When a Gnome zaps a wand or staff, they fully ID it
+Half-troll casters can wear heavier equipment without losing SP
 
+(and from the 2.0.3 bugfix release:
+  Teleport Other is a bolt not a beam
+  Branded ammo are more likely to be destroyed on fire
+  When a monster melees you, nearby sleeping monsters who have LOS to you are likely to wake up
+  If you are very poisoned, you lose multiple HP per turn 
+  Smart monsters with full mana will usually summon if they can
+  You can start the game with 'n' or 'o' in Windows
+)
 
 
 

@@ -210,6 +210,7 @@ void sense_inventory(void)
 
 	char o_name[80];
 
+	u32b f1, f2, f3, fn;
 
 	/*** Check for "sensing" ***/
 
@@ -313,6 +314,24 @@ void sense_inventory(void)
 		{
 			/* The object has been "sensed" */
 			o_ptr->ident |= (IDENT_SENSE);
+		}
+
+		player_flags(&f1, &f2, &f3, &fn);
+		if ( ((f3 & TR3_ID_HARD_ARMOR) && (o_ptr->tval==TV_HARD_ARMOR || o_ptr->tval==TV_HELM)) ||
+		     ((f3 & TR3_ID_SLINGS_SHOTS) && (o_ptr->tval==TV_SHOT || (o_ptr->tval==TV_BOW && o_ptr->sval == SV_SLING))) ||
+		     ((f2 & TR2_ID_BOWS_ARROWS) && (o_ptr->tval==TV_ARROW || (o_ptr->tval==TV_BOW && (o_ptr->sval == SV_SHORT_BOW || o_ptr->sval == SV_LONG_BOW)))))
+		{
+			/* Mark the item as fully known */
+			o_ptr->ident |= (IDENT_MENTAL);
+
+			/* Identify the object and get the squelch setting */
+			squelch = do_ident_item(i, o_ptr);
+
+			/* Now squelch it if needed */
+			if (squelch == SQUELCH_YES)
+			{
+				do_squelch_item(squelch, i, o_ptr);
+			}
 		}
 
 		/* Squelch it if necessary */

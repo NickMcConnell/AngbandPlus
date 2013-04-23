@@ -107,6 +107,9 @@ Damage multipliers  (only the best applies):
      Brand Fire     :  x3 against everything not resistant to fire
      Brand Cold     :  x3 against everything not resistant to cold
      Brand Pois     :  x3 against everything not resistant to poison
+     
+     Brand Burn     :  x2 against monsters with mana, and reduces their mana
+     Brand Vamp     :  x2 against living monsters, and gives you hit points
 
 Throwing Weapons: 	Damage is doubled when throwing this weapon.
 Well balanced Weapons:  Damage is doubled (again).
@@ -267,6 +270,9 @@ aid.
 Hold Life:
      Offers a high degree of protection from attacks (but not items) that reduce
 experience.
+
+Thorns:
+     Some body armors have Thorns, which damages enemies who attack you in melee.
 
 
 --- Curses and other Nastiness ---

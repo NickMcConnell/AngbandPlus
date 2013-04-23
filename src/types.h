@@ -969,6 +969,7 @@ struct player_state
 	bool hold_life;		/* Hold life */
 	bool afraid; 		/* Afraid */
 	bool light;			/* Permanent light */
+	bool thorns;
 
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */

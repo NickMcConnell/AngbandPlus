@@ -135,7 +135,7 @@
 
 # Version stamp (required)
 
-V:2.0.3
+V:2.0.4
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -1902,7 +1902,7 @@ F:UNIQUE | MALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM
 F:DROP_1D2 | DROP_GOOD | DROP_GREAT | HAS_LIGHT | OPEN_DOOR
 F:BASH_DOOR | TAKE_ITEM | EVIL
 S:SPELL_PCT_20 | POW_8
-S:BALL_POIS | BOLT_COLD | HEAL | TRAPS | SLOW
+S:BALL_POIS | BOLT_COLD | HEAL | TRAPS | SLOW | TRAP
 D:He's been spying for Saruman.  He is a snivelling wretch with no
 D: morals and disgusting habits.
 
@@ -4244,7 +4244,7 @@ F:EVASIVE | BASH_DOOR | LOW_MANA_RUN | DEMON | EVIL
 F:IM_FIRE
 S:SPELL_PCT_20 | POW_17
 S:ADD_MANA | BLINK | TPORT | TELE_SELF_TO | TELE_TO
-S:TELE_AWAY | TELE_LEVEL | SCARE | BLIND | CONF
+S:TELE_AWAY | TELE_LEVEL | SCARE | BLIND | CONF 
 S:S_KIN
 D:An intensely irritating git of a monster.
 
@@ -4931,7 +4931,7 @@ B:HIT:EAT_ITEM:4d5
 F:MALE | DROP_90 | DROP_2D2 | OPEN_DOOR | BASH_DOOR
 F:TAKE_ITEM | EVIL
 S:SPELL_PCT_18 | POW_7
-S:SHOT | BLINK | TELE_SELF_TO | TRAPS
+S:SHOT | BLINK | TELE_SELF_TO | TRAPS | TRAP
 D:Cool and confident, fast and lithe; protect your possessions quickly!
 
 
@@ -4994,7 +4994,7 @@ F:HURT_FIRE | IM_COLD | IM_POIS | NO_FEAR | NO_CONF
 F:NO_SLEEP
 S:SPELL_PCT_25 | POW_33
 S:ADD_MANA | BLINK | TELE_TO | TELE_AWAY | DRAIN_MANA
-S:BRAIN_SMASH | WOUND | SCARE | BLIND | SLOW
+S:BRAIN_SMASH | WOUND | SCARE | BLIND | SLOW 
 S:HOLD
 D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 
@@ -5969,7 +5969,7 @@ F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | EVIL
 F:IM_COLD | RES_NETHR
 S:SPELL_PCT_20 | POW_30
 S:PMISSL | BOLT_NETHR | TELE_SELF_TO | WOUND | SCARE
-S:BLIND | S_MONSTERS
+S:BLIND | S_MONSTERS | S_BESIEGERS
 D:It is a humanoid figure dressed in armour of an ancient form.  From
 D: beneath its helmet, eyes glow a baleful red and seem to pierce you
 D: like lances of fire.
@@ -6249,7 +6249,7 @@ F:DROP_2D2 | SMART | HAS_LIGHT | OPEN_DOOR | BASH_DOOR
 F:LOW_MANA_RUN | EVIL | NO_CONF | NO_SLEEP
 S:SPELL_PCT_50 | POW_60
 S:ADD_MANA | HEAL | CURE | WOUND | BLIND
-S:HOLD | S_MONSTER | S_UNDEAD
+S:HOLD | S_MONSTER | S_UNDEAD | S_BESIEGERS
 D:An evil priest, dressed all in black.  Deadly spells hit you at an
 D: alarming rate as his black spiked mace rains down blow after blow on
 D: your pitiful frame.
@@ -6550,7 +6550,7 @@ F:EVIL | HURT_LIGHT | NO_CONF | NO_SLEEP | N_FOREST
 S:SPELL_PCT_50 | POW_20
 S:BALL_FIRE | BALL_COLD | BOLT_ACID | ADD_MANA | HEAL
 S:BLINK | TELE_SELF_TO | TELE_TO | DARKNESS | WOUND
-S:BLIND | CONF | S_MONSTER | S_DEMON | S_UNDEAD
+S:BLIND | CONF | S_MONSTER | S_DEMON | S_UNDEAD | S_BESIEGERS
 D:A dark elven figure, dressed in deepest black.  Power seems to crackle
 D: from his slender frame.
 
@@ -6929,7 +6929,7 @@ F:TAKE_ITEM | UNDEAD | EVIL | FLYING | HURT_FIRE
 F:IM_COLD | IM_POIS | NO_FEAR | NO_SLEEP
 S:SPELL_PCT_12 | POW_65
 S:BOLT_NETHR | BEAM_NETHR | TELE_LEVEL | DRAIN_MANA | WOUND
-S:BLIND | CONF | HOLD | S_UNDEAD
+S:BLIND | CONF | HOLD | S_UNDEAD | S_BESIEGERS
 D:It is an unlife of power almost unequaled.  An affront to existence,
 D: its very touch abuses and disrupts the flow of life, and its
 D: unearthly limbs, of purest black, crush rock and flesh with ease.
@@ -7407,7 +7407,7 @@ F:N_FOREST
 S:SPELL_PCT_55 | POW_55
 S:BALL_ACID | BALL_ELEC | BALL_FIRE | BALL_COLD | BALL_NETHR
 S:BOLT_MANA | HEAL | BLINK | TELE_TO | DARKNESS
-S:WOUND | BLIND | CONF | S_MONSTERS | S_DRAGON
+S:WOUND | BLIND | CONF | S_MONSTERS | S_DRAGON | S_BESIEGERS
 S:S_DEMON | S_UNDEAD
 D:A lord of the Teleri, E["o]l is a mighty metalsmith, the only one to
 D: ever forge weapons of meteorite iron.  The mortal enemy of the Eldar,
@@ -7517,7 +7517,7 @@ F:UNIQUE | MALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM
 F:DROP_2D2 | DROP_3D2 | DROP_GOOD | EVASIVE | OPEN_DOOR
 F:BASH_DOOR | TAKE_ITEM | IM_POIS | NO_CONF | NO_SLEEP
 S:SPELL_PCT_18 | POW_35
-S:SHOT | TELE_SELF_TO | TRAPS
+S:SHOT | TELE_SELF_TO | TRAPS | TRAP
 D:He is a master of disguise, an expert of stealth, a genius at traps,
 D: and moves with blinding speed.  Check your pockets!
 
@@ -7749,7 +7749,7 @@ F:DROP_1D2 | DROP_3D2 | DROP_GREAT | SMART | HAS_LIGHT
 F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM | EVIL | IM_ELEC
 F:IM_FIRE | IM_POIS
 S:SPELL_PCT_18 | POW_25
-S:HEAL | TELE_AWAY | S_KIN | S_MONSTERS
+S:HEAL | TELE_AWAY | S_KIN | S_MONSTERS | S_BESIEGERS
 D:Last and proudest king of ancient N['u]menor. Corrupted by power and
 D: avarice, he fell victim to Sauron's wiles, tried to fight the Valar
 D: themselves, and condemned N['u]menor to oblivion.
@@ -7837,7 +7837,7 @@ F:COLD_BLOOD | UNDEAD | EVIL | FLYING | IM_FIRE
 F:IM_COLD | IM_POIS | RES_NETHR | NO_SLOW | NO_FEAR
 F:NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_100 | POW_55
-S:BALL_NETHR | BOLT_NETHR | BOLT_MANA | BRAIN_SMASH | S_UNDEAD
+S:BALL_NETHR | BOLT_NETHR | BOLT_MANA | BRAIN_SMASH | S_UNDEAD | S_BESIEGERS
 D:A bloodshot eyeball floating in the air, you'd be forgiven for
 D: assuming it harmless.
 
@@ -10474,9 +10474,9 @@ D: OEDE-Shoggog!
 
 N:694:Curious spirit
 G:G:G1
-I:115:5d10:100:100:0
+I:115:2d10:100:100:0
 W:24:4:100:100
-B:TOUCH:CONFUSE
+B:TOUCH:CONF_OUCH
 F:FEMALE | RAND_25 | INVISIBLE | COLD_BLOOD
 F:PASS_WALL | UNDEAD | EVIL | FLYING
 F:HURT_FIRE | IM_COLD | IM_POIS | NO_FEAR | NO_SLEEP
@@ -10637,4 +10637,33 @@ D: and will use it to fling you across the dungeon or to
 D: escape himself. Then he will summon a comfortable chair
 D: and a cold beer and sit down to enjoy a well earned 
 D: break.
+
+N:705:Gnome trickster
+G:h:R1
+I:120:15d8:20:30:0
+W:15:4:30:100
+B:HIT:HURT:1d5
+F:MALE | DROP_1D2 | OPEN_DOOR | BASH_DOOR
+F:LOW_MANA_RUN | EVIL
+S:SPELL_PCT_25 | POW_10
+S:ADD_MANA | TPORT | DARKNESS | CONF | SLOW | TRAP
+D:A sneaky little wizened creature. He says he was just
+D: going to read the meter or check your drains, but
+D: you suspect he was up to no good. 
+
+N:706:Illitha, Dark Elf Sorceress
+G:h:b
+I:115:30d10:25:75:25
+W:21:3:70:400
+B:CLAW:LOSE_STR:1d10
+B:CLAW:POISON:1d10
+F:FEMALE | ONLY_ITEM | DROP_1D2 | DROP_GOOD | OPEN_DOOR
+F:BASH_DOOR | LOW_MANA_RUN | EVIL | HURT_LIGHT | IM_POIS
+F:NO_CONF | NO_SLEEP | N_FOREST | UNIQUE | FORCE_MAXHP
+S:SPELL_PCT_30 | POW_12
+S:ADD_MANA | HEAL | WOUND | DARKNESS | CONF
+S:S_MONSTER | S_SPIDER 
+D:Sinister, shrouded in darkness, bitchy and vindictive.
+D: At least she's cute when she's angry (which is all the time).
+
 

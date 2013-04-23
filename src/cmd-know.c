@@ -1535,7 +1535,7 @@ static void desc_ego_fake(int oid)
 	if (e_ptr->xtra)
 		text_out(format("It provides one or more random %s.", xtra[e_ptr->xtra - 1]));
 
-	for (i = 0, f3 = TR3_PERMA_CURSE; i < 3 ; f3 >>= 1, i++)
+	for (i = 0, f3 = TR3_HEAVY_CURSE; i < 2 ; f3 >>= 1, i++)
 	{
 		if (e_ptr->flags3 & f3)
 		{

@@ -269,6 +269,38 @@ static int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m
 				}
 			}
 
+			/* Brand (Vampiric draining) */
+			if (f1 & (TR1_BRAND_VAMP))
+			{
+				/* Does it resist? */
+				if ((r_ptr->flags2 & (TR2_RES_NETHR)) || (monster_nonliving(r_ptr)))
+				{
+					/* Yep */
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 2) mult = 2;
+				}
+			}
+
+			/* Brand (Mana burn) */
+			if (f1 & (TR1_BRAND_BURN))
+			{
+				/* Does it resist? */
+				if (m_ptr->mana == 0)
+				{
+					/* Yep */
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 2) mult = 2;
+				}
+			}
+
 			/* Brand (Acid) */
 			if (f1 & (TR1_BRAND_ACID))
 			{
@@ -766,6 +798,36 @@ cptr tot_dam_aux_verb(const object_type *o_ptr, const monster_type *m_ptr, bool 
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
+			/* Brand (Vampiric Draining) */
+			if (f1 & (TR1_BRAND_VAMP))
+			{
+				/* Does it resist? */
+				if ((r_ptr->flags2 & (TR2_RES_NETHR)) || (monster_nonliving(r_ptr)))
+				{
+					/* yes */
+				}
+
+				else
+				{
+					return "drain";
+				}
+			}
+
+			/* Brand (Mana Burn) */
+			if (f1 & (TR1_BRAND_BURN))
+			{
+				/* Does it resist? */
+				if (m_ptr->mana == 0)
+				{
+					/* yes */
+				}
+
+				else
+				{
+					return "mana-burn";
+				}
+			}
+
 			/* Execute Dragon */
 			if ((f1 & (TR1_KILL_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
@@ -920,6 +982,7 @@ cptr tot_dam_aux_verb(const object_type *o_ptr, const monster_type *m_ptr, bool 
 					return "smite";
 				}
 			}
+
 
 			/* Brand (Poison) */
 			if (f1 & (TR1_BRAND_POIS))
@@ -1247,6 +1310,48 @@ void py_attack(int y, int x, int less_attacks)
 
 			/* No negative damage */
 			if (k < 0) k = 0;
+
+			if (o_ptr)
+			{
+				u32b f1, f2, f3, fn;
+				object_flags(o_ptr, &f1, &f2, &f3, &fn);
+
+				/* Brand (Vampiric Draining) */
+				if (f1 & (TR1_BRAND_VAMP))
+				{
+					/* Does it resist? */
+					if ((r_ptr->flags2 & (TR2_RES_NETHR)) || (monster_nonliving(r_ptr)))
+					{
+						/* yes */
+					}
+
+					else
+					{
+						(void)hp_player((MIN(k, m_ptr->hp)+9)/10);
+					}
+				}
+
+				/* Brand (Mana Burn) */
+				if (f1 & (TR1_BRAND_BURN))
+				{
+					/* Does it resist? */
+					if (m_ptr->mana == 0)
+					{
+						/* yes */
+					}
+
+					else
+					{
+						if (m_ptr->mana >= 200){
+							m_ptr->mana = MAX(0,m_ptr->mana-k/12);
+						} else if (m_ptr->mana >= 100){
+							m_ptr->mana = MAX(0,m_ptr->mana-k/10);
+						} else {
+							m_ptr->mana = MAX(0,m_ptr->mana-k/7);
+						}
+					}
+				}
+			}
 
 			/* Complex message */
 			if (p_ptr->wizard)
@@ -1672,23 +1777,23 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
         if (f1 & (TR1_BRAND_ELEC))
         {
 			msg_format("The %s fizzle%s out!",o_name, (plural ? "" : "s"));
-			j = 100; 
+			j = 100;
 			suppress = 1;
 		} else if (f1 & (TR1_BRAND_POIS)) {
 			msg_format("The %s warp%s!",o_name, (plural ? "" : "s"));
-			j = 100; 
+			j = 100;
 			suppress = 1;
 		} else if (f1 & (TR1_BRAND_FIRE)) {
 			msg_format("The %s burn%s up!",o_name, (plural ? "" : "s"));
-			j = 100; 
+			j = 100;
 			suppress = 1;
 		} else if (f1 & (TR1_BRAND_COLD)) {
 			msg_format("The %s shatter%s!",o_name, (plural ? "" : "s"));
-			j = 100; 
+			j = 100;
 			suppress = 1;
 		} else if (f1 & (TR1_BRAND_ACID)) {
 			msg_format("The %s dissolve%s!",o_name, (plural ? "" : "s"));
-			j = 100; 
+			j = 100;
 			suppress = 1;
 		}
 	}

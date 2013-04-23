@@ -33,6 +33,7 @@ knowledge and craftsmanship.  They are somewhat weaker and less robust than
 humans, but have superior wisdom and intelligence and strong magical abilities.
 They are fond of bows, somewhat weak in melee, and have some infravision.  They
 sustain dexterity and resist light inherently. They are native to forest.
+(Once an Elf pseudo-IDs a bow or arrows, they fully identify it.)
 
 ***** <Hobbit>
 Hobbit:
@@ -42,6 +43,7 @@ smallest of all the races.  Although they are weak, have perilously few
 hitpoints, and are very poor at melee, all of their other abilities are
 extraordinary.  Hobbits are highly intelligent, dexterous, and hardy, have
 innate infravision, and resist attacks on their life force.  
+(Once a Hobbit pseudo-IDs a sling or shots, they fully identify it.)
 
 ***** <Gnome>
 Gnome:
@@ -51,6 +53,7 @@ outbargain and outwit just about anyone.  They are among the frailer races, and
 not powerful in combat, but have solid basic abilities, are highly intelligent
 and dexterous, have innate infravision, and -- most importantly -- are immune to
 paralyzation.
+(Once an Gnome zaps a wand or staff, they fully identify it.)
 
 ***** <Dwarf>
 Dwarf:
@@ -62,6 +65,7 @@ blinded.  They do have one big drawback, though:  Dwarves are loudmouthed and
 proud, singing in loud voices, arguing with themselves for no good reason,
 screaming out challenges at imagined foes.  In other words, dwarves have a
 miserable stealth.
+(Once an Dwarf pseudo-IDs a helmet or heavy armor, they fully identify it.)
 
 ***** <Half-Orc>
 Half-Orc:
@@ -80,6 +84,8 @@ fearsome and they are amazingly tough.  Unfortunately, they do poorly at almost
 everything else, are very noisy, need to eat a lot, and have a hard time in
 stores.  Half-trolls will be bad at anything that requires heavy thinking.  They
 have innate infravision and always have their strength sustained.  
+(Half-Troll spell casters can wear heavier equipment than other races without 
+losing SP.)
 
 ***** <Dunadan>
 Dunadan:
@@ -103,7 +109,8 @@ they are mighty and beautiful, the curse of Mandos is on them, and
 nothing they do will come to a good end. They are doomed by their 
 own greed and pride. 
 High-elves can see invisible (the Unseen Realm), are resistant to 
-light and native to forest.
+light and native to forest. Like ordinary Elves, they have special
+knowledge of bows and arrows.
 (As one of the Noldor, you will find the early game easy. However,
 once you reach CL 27, you will begin to be affected by the Doom of
 Mandos. This can have several nasty effects at random intervals. 
