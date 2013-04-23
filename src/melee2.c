@@ -1,3 +1,4 @@
+#define MELEE2_C
 /* File: melee2.c */
 
 /* Purpose: Monster spells and movement */
@@ -254,10 +255,10 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
         }
     else
 	{
-		char m_name[80];
+		C_TNEW(m_name, MNAME_MAX, char);
 
 		/* Extract monster name */
-        monster_desc(m_name, m_ptr, 0);
+        monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 		/* Make a sound */
 		sound(SOUND_KILL);
@@ -298,6 +299,8 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 		/* Not afraid */
 		(*fear) = FALSE;
 
+		TFREE(m_name);
+		
 		/* Monster is dead */
         return;
     }
@@ -1112,9 +1115,6 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
      int i, k, t_idx;
      int chance, thrown_spell, count = 0;
      byte spell[96], num = 0;
-     char m_name[80], t_name[80];
-     char m_poss[80];
-     char ddesc[80];
      int rlev;                /* monster level */
      monster_type    *m_ptr = &m_list[m_idx];  /* Attacker */
      monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -1223,20 +1223,26 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
    /* Stop if player is dead or gone */
    if (!alive || death || new_level_flag) return (FALSE);
 
-   /* Get the monster name (or "it") */
-   monster_desc(m_name, m_ptr, 0x00);
+	{
+		C_TNEW(m_name, MNAME_MAX, char);
+		C_TNEW(m_poss, MNAME_MAX, char);
+		C_TNEW(t_name, MNAME_MAX, char);
+/*		C_TNEW(ddesc, MNAME_MAX, char);*/
 
-   /* Get the monster possessive ("his"/"her"/"its") */
-   monster_desc(m_poss, m_ptr, 0x22);
+		/* Get the monster name (or "it") */
+		monster_desc(m_name, m_ptr, 0x00, MNAME_MAX);
 
-   /* Get the target's name (or "it") */
-   monster_desc(t_name, t_ptr, 0x00);
+		/* Get the monster possessive ("his"/"her"/"its") */
+		monster_desc(m_poss, m_ptr, 0x22, MNAME_MAX);
 
-   /* Hack -- Get the "died from" name */
-   monster_desc(ddesc, m_ptr, 0x88);
+		/* Get the target's name (or "it") */
+		monster_desc(t_name, t_ptr, 0x00, MNAME_MAX);
 
-   /* Choose a spell to cast */
-   thrown_spell = spell[rand_int(num)];
+		/* Hack -- Get the "died from" name */
+/*		monster_desc(ddesc, m_ptr, 0x88, MNAME_MAX);*/
+
+		/* Choose a spell to cast */
+		thrown_spell = spell[rand_int(num)];
 
 
      see_m = seen;
@@ -1256,12 +1262,6 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
            else
            msg_format("%^s shrieks at %s.", m_name, t_name);
            wake_up = TRUE;
-           break;
-       }
-
-       /* RF4_XXX2X4 */
-       case 96+1:
-       {
            break;
        }
 
@@ -2721,51 +2721,56 @@ static void mon_ball(int m_idx, int typ, int dam_hp, int rad)
        }
 
    }
-
-    if (wake_up)
-    {
-        t_ptr->csleep = 0;
-    }
-
-
-   /* Remember what the monster did, if we saw it */
-   if (seen)
-   {
-       /* Inate spell */
-       if (thrown_spell < 32*4)
-       {
-           r_ptr->r_flags4 |= (1L << (thrown_spell - 32*3));
-           if (r_ptr->r_cast_inate < MAX_UCHAR) r_ptr->r_cast_inate++;
-       }
-
-       /* Bolt or Ball */
-       else if (thrown_spell < 32*5)
-       {
-           r_ptr->r_flags5 |= (1L << (thrown_spell - 32*4));
-           if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
-       }
-
-       /* Special spell */
-       else if (thrown_spell < 32*6)
-       {
-           r_ptr->r_flags6 |= (1L << (thrown_spell - 32*5));
-           if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
-       }
+		TFREE(m_name);
+		TFREE(m_poss);
+		TFREE(t_name);
+/*		TFREE(ddesc);*/
    }
 
-   /* Always take note of monsters that kill you ---
-    * even accidentally */
-   if (death && (r_ptr->r_deaths < MAX_SHORT)) {
-       r_ptr->r_deaths++;
-   }
+		if (wake_up)
+		{
+			t_ptr->csleep = 0;
+		}
 
-   /* A spell was cast */
-   return (TRUE);
-     }
 
-     /* No enemy found */
-     return (FALSE);
- }
+		/* Remember what the monster did, if we saw it */
+		if (seen)
+		{
+			/* Inate spell */
+			if (thrown_spell < 32*4)
+			{
+				r_ptr->r_flags4 |= (1L << (thrown_spell - 32*3));
+				if (r_ptr->r_cast_inate < MAX_UCHAR) r_ptr->r_cast_inate++;
+			}
+
+			/* Bolt or Ball */
+			else if (thrown_spell < 32*5)
+			{
+				r_ptr->r_flags5 |= (1L << (thrown_spell - 32*4));
+				if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
+			}
+
+			/* Special spell */
+			else if (thrown_spell < 32*6)
+			{
+				r_ptr->r_flags6 |= (1L << (thrown_spell - 32*5));
+				if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
+			}
+		}
+
+		/* Always take note of monsters that kill you ---
+		 * even accidentally */
+		if (death && (r_ptr->r_deaths < MAX_SHORT)) {
+			r_ptr->r_deaths++;
+		}
+
+		/* A spell was cast */
+		return (TRUE);
+	}
+
+	/* No enemy found */
+	return (FALSE);
+}
 
 void curse_equipment(int chance, int heavy_chance)
 {
@@ -2796,315 +2801,48 @@ void curse_equipment(int chance, int heavy_chance)
     {
         if (!(o3 & TR3_HEAVY_CURSE))
             changed = TRUE;
-        o_ptr->art_flags3 |= TR3_HEAVY_CURSE;
-        o_ptr->art_flags3 |= TR3_CURSED;
+        o_ptr->flags3 |= TR3_HEAVY_CURSE;
+        o_ptr->flags3 |= TR3_CURSED;
         o_ptr->ident |= IDENT_CURSED;
     }
     else
     {
         if (!(o_ptr->ident & (IDENT_CURSED)))
             changed = TRUE;
-        o_ptr->art_flags3 |= TR3_CURSED;
+        o_ptr->flags3 |= TR3_CURSED;
         o_ptr->ident |= IDENT_CURSED;
+	o_ptr->ident |= IDENT_SENSE_CURSED;
     }
 
     if (changed)
     {
         msg_print("There is a malignant black aura surrounding you...");
-        if (o_ptr->note)
-        {
-            if (streq(quark_str(o_ptr->note), "uncursed"))
-            {
-                o_ptr->note = 0;
-            }
-        }
     }
 }
 
 
-/*
- * Creatures can cast spells, shoot missiles, and breathe.
- *
- * Returns "TRUE" if a spell (or whatever) was (successfully) cast.
- *
- * XXX XXX XXX This function could use some work, but remember to
- * keep it as optimized as possible, while retaining generic code.
- *
- * Verify the various "blind-ness" checks in the code.
- *
- * XXX XXX XXX Note that several effects should really not be "seen"
- * if the player is blind.  See also "effects.c" for other "mistakes".
- *
- * Perhaps monsters should breathe at locations *near* the player,
- * since this would allow them to inflict "partial" damage.
- *
- * Perhaps smart monsters should decline to use "bolt" spells if
- * there is a monster in the way, unless they wish to kill it.
- *
- * Note that, to allow the use of the "track_target" option at some
- * later time, certain non-optimal things are done in the code below,
- * including explicit checks against the "direct" variable, which is
- * currently always true by the time it is checked, but which should
- * really be set according to an explicit "projectable()" test, and
- * the use of generic "x,y" locations instead of the player location,
- * with those values being initialized with the player location.
- *
- * It will not be possible to "correctly" handle the case in which a
- * monster attempts to attack a location which is thought to contain
- * the player, but which in fact is nowhere near the player, since this
- * might induce all sorts of messages about the attack itself, and about
- * the effects of the attack, which the player might or might not be in
- * a position to observe.  Thus, for simplicity, it is probably best to
- * only allow "faulty" attacks by a monster if one of the important grids
- * (probably the initial or final grid) is in fact in view of the player.
- * It may be necessary to actually prevent spell attacks except when the
- * monster actually has line of sight to the player.  Note that a monster
- * could be left in a bizarre situation after the player ducked behind a
- * pillar and then teleported away, for example.
- *
- * Note that certain spell attacks do not use the "project()" function
- * but "simulate" it via the "direct" variable, which is always at least
- * as restrictive as the "project()" function.  This is necessary to
- * prevent "blindness" attacks and such from bending around walls, etc,
- * and to allow the use of the "track_target" option in the future.
- *
- * Note that this function attempts to optimize the use of spells for the
- * cases in which the monster has no spells, or has spells but cannot use
- * them, or has spells but they will have no "useful" effect.  Note that
- * this function has been an efficiency bottleneck in the past.
- *
- * Note the special "MFLAG_NICE" flag, which prevents a monster from using
- * any spell attacks until the player has had a single chance to move.
- */
-bool make_attack_spell(int m_idx)
+static void make_attack_spell_aux(int m_idx, monster_race *r_ptr, int rlev, int thrown_spell, bool seen)
 {
-    int                     k, chance, thrown_spell, rlev, failrate;
-
-	byte            spell[96], num = 0;
-
-	u32b            f4, f5, f6;
-
-	monster_type    *m_ptr = &m_list[m_idx];
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-
-	char            m_name[80];
-	char            m_poss[80];
-
-	char            ddesc[80];
-    
-
-   bool no_inate = FALSE;
- 
-
-
-    /* Target location */
-	int x = px;
-	int y = py;
-
-
-	/* Summon count */
-	int count = 0;
-
+	int k, count;
+	const bool direct = TRUE;
+	const int x = px, y = py;
 
 	/* Extract the blind-ness */
 	bool blind = (p_ptr->blind ? TRUE : FALSE);
 
-	/* Extract the "see-able-ness" */
-	bool seen = (!blind && m_ptr->ml);
-
-
-	/* Assume "normal" target */
-	bool normal = TRUE;
-
-	/* Assume "projectable" */
-	bool direct = TRUE;
-
-
-	/* Cannot cast spells when confused */
-	if (m_ptr->confused) return (FALSE);
-
-	/* Cannot cast spells when nice */
-	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
-    if (m_ptr->smart & (SM_ALLY)) return (FALSE);
-
-    
-
-	/* Hack -- Extract the spell probability */
-	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
-
-	/* Not allowed to cast spells */
-	if (!chance) return (FALSE);
-
-
-
-    if (stupid_monsters)
-    {
-        /* Only do spells occasionally */
-        if (rand_int(100) >= chance) return (FALSE);
-    }
-    else
-    {
-
-           if (rand_int(100) >=  chance) return (FALSE);
- 
-           /* Sometimes forbid inate attacks (breaths) */
-           if (rand_int(100) >= (chance * 2)) no_inate = TRUE;
-        }
- 
-
-	/* XXX XXX XXX Handle "track_target" option (?) */
-
-
-	/* Hack -- require projectable player */
-	if (normal)
-	{
-		/* Check range */
-		if (m_ptr->cdis > MAX_RANGE) return (FALSE);
-
-		/* Check path */
-		if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
-	}
-
-
-	/* Extract the monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
-
-
-	/* Extract the racial spell flags */
-	f4 = r_ptr->flags4;
-	f5 = r_ptr->flags5;
-	f6 = r_ptr->flags6;
-
-
-    if (!stupid_monsters)
-    {
-          /* Forbid inate attacks sometimes */
-       if (no_inate) f4 = 0L;
-    }
-
-
-	/* Hack -- allow "desperate" spells */
-	if ((r_ptr->flags2 & (RF2_SMART)) &&
-	    (m_ptr->hp < m_ptr->maxhp / 10) &&
-	    (rand_int(100) < 50))
-	{
-		/* Require intelligent spells */
-		f4 &= (RF4_INT_MASK);
-		f5 &= (RF5_INT_MASK);
-		f6 &= (RF6_INT_MASK);
-
-		/* No spells left */
-		if (!f4 && !f5 && !f6) return (FALSE);
-	}
-
-
-#ifdef DRS_SMART_OPTIONS
-
-	/* Remove the "ineffective" spells */
-	remove_bad_spells(m_idx, &f4, &f5, &f6);
-
-	/* No spells left */
-	if (!f4 && !f5 && !f6) return (FALSE);
-
-#endif
-
-    if (!stupid_monsters)
-    {
-
-           /* Check for a clean bolt shot */
-           if ((f4&(RF4_BOLT_MASK) || f5 & (RF5_BOLT_MASK) ||
-                f6&(RF6_BOLT_MASK)) 
-            && !(r_ptr->flags2 & (RF2_STUPID)) &&
-               !clean_shot(m_ptr->fy, m_ptr->fx, py, px))
-           {
-               /* Remove spells that will only hurt friends */
-               f4 &= ~(RF4_BOLT_MASK);
-               f5 &= ~(RF5_BOLT_MASK);
-               f6 &= ~(RF6_BOLT_MASK);
-
-           }
-
-           /* Check for a possible summon */
-           if ((f4 & (RF4_SUMMON_MASK) || f5 & (RF5_SUMMON_MASK) ||
-                f6 & (RF6_SUMMON_MASK)) &&
-                !(r_ptr->flags2 & (RF2_STUPID)) &&
-                !(summon_possible(py,px)))
-            {
-                /* Remove summoning spells */
-                f4 &= ~(RF4_SUMMON_MASK);
-                f5 &= ~(RF5_SUMMON_MASK);
-                f6 &= ~(RF6_SUMMON_MASK);
-            }
-
-            /* No spells left */
-            if (!f4 && !f5 && !f6) return (FALSE);
-        }
-
-     /* Extract the "inate" spells */
-	for (k = 0; k < 32; k++)
-	{
-		if (f4 & (1L << k)) spell[num++] = k + 32 * 3;
-	}
-
-	/* Extract the "normal" spells */
-	for (k = 0; k < 32; k++)
-	{
-		if (f5 & (1L << k)) spell[num++] = k + 32 * 4;
-	}
-
-	/* Extract the "bizarre" spells */
-	for (k = 0; k < 32; k++)
-	{
-		if (f6 & (1L << k)) spell[num++] = k + 32 * 5;
-	}
-
-	/* No spells left */
-	if (!num) return (FALSE);
-
-
-	/* Stop if player is dead or gone */
-	if (!alive || death || new_level_flag) return (FALSE);
+	monster_type *m_ptr = m_list+m_idx;
+	C_TNEW(m_name, MNAME_MAX, char);
+	C_TNEW(m_poss, MNAME_MAX, char);
+	C_TNEW(ddesc, MNAME_MAX, char);
 
 	/* Get the monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0x00);
+	monster_desc(m_name, m_ptr, 0x00, MNAME_MAX);
 
 	/* Get the monster possessive ("his"/"her"/"its") */
-	monster_desc(m_poss, m_ptr, 0x22);
+	monster_desc(m_poss, m_ptr, 0x22, MNAME_MAX);
 
 	/* Hack -- Get the "died from" name */
-	monster_desc(ddesc, m_ptr, 0x88);
-
-
-    if (stupid_monsters)
-    {
-        /* Choose a spell to cast */
-        thrown_spell = spell[rand_int(num)];
-    }
-    else
-    {
-
-       thrown_spell = choose_attack_spell(m_idx, spell, num);
-
-       /* Abort if no spell was chosen */
-       if (!thrown_spell) return (FALSE);
-
-       /* Calculate spell failure rate */
-       failrate = 25 - (rlev + 3) / 4;
-
-       /* Hack -- Stupid monsters will never fail (for jellies and such) */
-       if (r_ptr->flags2 & (RF2_STUPID)) failrate = 0;
-
-       /* Check for spell failure (inate attacks never fail) */
-       if ((thrown_spell >= 128) && (rand_int(100) < failrate))
-       {
-           /* Message */
-           msg_format("%^s tries to cast a spell, but fails.", m_name);
-
-           return (TRUE);
-       }
-    }
-
-
+	monster_desc(ddesc, m_ptr, 0x88, MNAME_MAX);
 
 	/* Cast the spell. */
 	switch (thrown_spell)
@@ -3116,12 +2854,6 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			msg_format("%^s makes a high pitched shriek.", m_name);
 			aggravate_monsters(m_idx);
-			break;
-		}
-
-		/* RF4_XXX2X4 */
-		case 96+1:
-		{
 			break;
 		}
 
@@ -4346,7 +4078,7 @@ bool make_attack_spell(int m_idx)
                             ((r_ptr->flags1) & RF1_UNIQUE ?
                              "minions" : "kin"));
             summon_kin_type = r_ptr->d_char; /* Big hack */
-            for (k = 0; k < 6; k++)
+            for (k = count = 0; k < 6; k++)
             {
                    count += summon_specific(y, x, rlev, SUMMON_KIN);
             }
@@ -4362,7 +4094,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
             else msg_format("%^s magically summons Black Reavers!", m_name);
-            if (blind && count) msg_print("You hear heavy steps nearby.");
+            if (blind /*&& count*/) msg_print("You hear heavy steps nearby.");
             summon_reaver();
 			break;
 		}
@@ -4373,7 +4105,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons help!", m_name);
-			for (k = 0; k < 1; k++)
+			for (k = count = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, 0);
 			}
@@ -4387,7 +4119,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons monsters!", m_name);
-			for (k = 0; k < 8; k++)
+			for (k = count = 0; k < 8; k++)
 			{
 				count += summon_specific(y, x, rlev, 0);
 			}
@@ -4401,7 +4133,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons ants.", m_name);
-			for (k = 0; k < 6; k++)
+			for (k = count = 0; k < 6; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_ANT);
 			}
@@ -4415,7 +4147,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons spiders.", m_name);
-			for (k = 0; k < 6; k++)
+			for (k = count = 0; k < 6; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_SPIDER);
 			}
@@ -4429,7 +4161,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons hounds.", m_name);
-			for (k = 0; k < 6; k++)
+			for (k = count = 0; k < 6; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HOUND);
 			}
@@ -4443,7 +4175,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons hydras.", m_name);
-			for (k = 0; k < 6; k++)
+			for (k = count = 0; k < 6; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HYDRA);
 			}
@@ -4457,7 +4189,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons a Cthuloid entity!", m_name);
-			for (k = 0; k < 1; k++)
+			for (k = count = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_CTHULOID);
 			}
@@ -4471,7 +4203,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
             else msg_format("%^s magically summons a demon!", m_name);
-			for (k = 0; k < 1; k++)
+			for (k = count = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DEMON);
 			}
@@ -4485,7 +4217,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons an undead adversary!", m_name);
-			for (k = 0; k < 1; k++)
+			for (k = count = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_UNDEAD);
 			}
@@ -4499,7 +4231,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons a dragon!", m_name);
-			for (k = 0; k < 1; k++)
+			for (k = count = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DRAGON);
 			}
@@ -4513,7 +4245,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons greater undead!", m_name);
-			for (k = 0; k < 8; k++)
+			for (k = count = 0; k < 8; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
 			}
@@ -4530,7 +4262,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons ancient dragons!", m_name);
-			for (k = 0; k < 8; k++)
+			for (k = count = 0; k < 8; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HI_DRAGON);
 			}
@@ -4549,7 +4281,7 @@ bool make_attack_spell(int m_idx)
             else msg_format("%^s magically summons Great Old Ones!", m_name);
 
 
-			for (k = 0; k < 8; k++)
+			for (k = count = 0; k < 8; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_GOO);
 			}
@@ -4567,7 +4299,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons special opponents!", m_name);
-			for (k = 0; k < 8; k++)
+			for (k = count = 0; k < 8; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_UNIQUE);
 			}
@@ -4582,6 +4314,273 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 	}
+
+	TFREE(m_name);
+	TFREE(m_poss);
+	TFREE(ddesc);
+}
+
+/*
+ * Creatures can cast spells, shoot missiles, and breathe.
+ *
+ * Returns "TRUE" if a spell (or whatever) was (successfully) cast.
+ *
+ * XXX XXX XXX This function could use some work, but remember to
+ * keep it as optimized as possible, while retaining generic code.
+ *
+ * Verify the various "blind-ness" checks in the code.
+ *
+ * XXX XXX XXX Note that several effects should really not be "seen"
+ * if the player is blind.  See also "effects.c" for other "mistakes".
+ *
+ * Perhaps monsters should breathe at locations *near* the player,
+ * since this would allow them to inflict "partial" damage.
+ *
+ * Perhaps smart monsters should decline to use "bolt" spells if
+ * there is a monster in the way, unless they wish to kill it.
+ *
+ * Note that, to allow the use of the "track_target" option at some
+ * later time, certain non-optimal things are done in the code below,
+ * including explicit checks against the "direct" variable, which is
+ * currently always true by the time it is checked, but which should
+ * really be set according to an explicit "projectable()" test, and
+ * the use of generic "x,y" locations instead of the player location,
+ * with those values being initialized with the player location.
+ *
+ * It will not be possible to "correctly" handle the case in which a
+ * monster attempts to attack a location which is thought to contain
+ * the player, but which in fact is nowhere near the player, since this
+ * might induce all sorts of messages about the attack itself, and about
+ * the effects of the attack, which the player might or might not be in
+ * a position to observe.  Thus, for simplicity, it is probably best to
+ * only allow "faulty" attacks by a monster if one of the important grids
+ * (probably the initial or final grid) is in fact in view of the player.
+ * It may be necessary to actually prevent spell attacks except when the
+ * monster actually has line of sight to the player.  Note that a monster
+ * could be left in a bizarre situation after the player ducked behind a
+ * pillar and then teleported away, for example.
+ *
+ * Note that certain spell attacks do not use the "project()" function
+ * but "simulate" it via the "direct" variable, which is always at least
+ * as restrictive as the "project()" function.  This is necessary to
+ * prevent "blindness" attacks and such from bending around walls, etc,
+ * and to allow the use of the "track_target" option in the future.
+ *
+ * Note that this function attempts to optimize the use of spells for the
+ * cases in which the monster has no spells, or has spells but cannot use
+ * them, or has spells but they will have no "useful" effect.  Note that
+ * this function has been an efficiency bottleneck in the past.
+ *
+ * Note the special "MFLAG_NICE" flag, which prevents a monster from using
+ * any spell attacks until the player has had a single chance to move.
+ */
+static bool make_attack_spell(int m_idx)
+{
+    int                     k, chance, thrown_spell, rlev, failrate;
+
+	byte            spell[96], num = 0;
+
+	u32b            f4, f5, f6;
+
+	monster_type    *m_ptr = &m_list[m_idx];
+	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+
+   bool no_inate = FALSE;
+ 
+
+
+
+
+	/* Extract the "see-able-ness" */
+	bool seen = (!p_ptr->blind && m_ptr->ml);
+
+
+	/* Assume "normal" target */
+	bool normal = TRUE;
+
+
+	/* Cannot cast spells when confused */
+	if (m_ptr->confused) return (FALSE);
+
+	/* Cannot cast spells when nice */
+	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
+    if (m_ptr->smart & (SM_ALLY)) return (FALSE);
+
+    
+
+	/* Hack -- Extract the spell probability */
+	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
+
+	/* Not allowed to cast spells */
+	if (!chance) return (FALSE);
+
+
+
+    if (stupid_monsters)
+    {
+        /* Only do spells occasionally */
+        if (rand_int(100) >= chance) return (FALSE);
+    }
+    else
+    {
+
+           if (rand_int(100) >=  chance) return (FALSE);
+ 
+           /* Sometimes forbid inate attacks (breaths) */
+           if (rand_int(100) >= (chance * 2)) no_inate = TRUE;
+        }
+ 
+
+	/* XXX XXX XXX Handle "track_target" option (?) */
+
+
+	/* Hack -- require projectable player */
+	if (normal)
+	{
+		/* Check range */
+		if (m_ptr->cdis > MAX_RANGE) return (FALSE);
+
+		/* Check path */
+		if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
+	}
+
+
+	/* Extract the monster level */
+	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+
+
+	/* Extract the racial spell flags */
+	f4 = r_ptr->flags4;
+	f5 = r_ptr->flags5;
+	f6 = r_ptr->flags6;
+
+
+    if (!stupid_monsters)
+    {
+          /* Forbid inate attacks sometimes */
+       if (no_inate) f4 = 0L;
+    }
+
+
+	/* Hack -- allow "desperate" spells */
+	if ((r_ptr->flags2 & (RF2_SMART)) &&
+	    (m_ptr->hp < m_ptr->maxhp / 10) &&
+	    (rand_int(100) < 50))
+	{
+		/* Require intelligent spells */
+		f4 &= (RF4_INT_MASK);
+		f5 &= (RF5_INT_MASK);
+		f6 &= (RF6_INT_MASK);
+
+		/* No spells left */
+		if (!f4 && !f5 && !f6) return (FALSE);
+	}
+
+
+#ifdef DRS_SMART_OPTIONS
+
+	/* Remove the "ineffective" spells */
+	remove_bad_spells(m_idx, &f4, &f5, &f6);
+
+	/* No spells left */
+	if (!f4 && !f5 && !f6) return (FALSE);
+
+#endif
+
+    if (!stupid_monsters)
+    {
+
+           /* Check for a clean bolt shot */
+           if ((f4&(RF4_BOLT_MASK) || f5 & (RF5_BOLT_MASK) ||
+                f6&(RF6_BOLT_MASK)) 
+            && !(r_ptr->flags2 & (RF2_STUPID)) &&
+               !clean_shot(m_ptr->fy, m_ptr->fx, py, px))
+           {
+               /* Remove spells that will only hurt friends */
+               f4 &= ~(RF4_BOLT_MASK);
+               f5 &= ~(RF5_BOLT_MASK);
+               f6 &= ~(RF6_BOLT_MASK);
+
+           }
+
+           /* Check for a possible summon */
+           if ((f4 & (RF4_SUMMON_MASK) || f5 & (RF5_SUMMON_MASK) ||
+                f6 & (RF6_SUMMON_MASK)) &&
+                !(r_ptr->flags2 & (RF2_STUPID)) &&
+                !(summon_possible(py,px)))
+            {
+                /* Remove summoning spells */
+                f4 &= ~(RF4_SUMMON_MASK);
+                f5 &= ~(RF5_SUMMON_MASK);
+                f6 &= ~(RF6_SUMMON_MASK);
+            }
+
+            /* No spells left */
+            if (!f4 && !f5 && !f6) return (FALSE);
+        }
+
+     /* Extract the "inate" spells */
+	for (k = 0; k < 32; k++)
+	{
+		if (f4 & (1L << k)) spell[num++] = k + 32 * 3;
+	}
+
+	/* Extract the "normal" spells */
+	for (k = 0; k < 32; k++)
+	{
+		if (f5 & (1L << k)) spell[num++] = k + 32 * 4;
+	}
+
+	/* Extract the "bizarre" spells */
+	for (k = 0; k < 32; k++)
+	{
+		if (f6 & (1L << k)) spell[num++] = k + 32 * 5;
+	}
+
+	/* No spells left */
+	if (!num) return (FALSE);
+
+
+	/* Stop if player is dead or gone */
+	if (!alive || death || new_level_flag) return (FALSE);
+
+
+    if (stupid_monsters)
+    {
+        /* Choose a spell to cast */
+        thrown_spell = spell[rand_int(num)];
+    }
+    else
+    {
+
+       thrown_spell = choose_attack_spell(m_idx, spell, num);
+
+       /* Abort if no spell was chosen */
+       if (!thrown_spell) return (FALSE);
+
+       /* Calculate spell failure rate */
+       failrate = 25 - (rlev + 3) / 4;
+
+       /* Hack -- Stupid monsters will never fail (for jellies and such) */
+       if (r_ptr->flags2 & (RF2_STUPID)) failrate = 0;
+
+       /* Check for spell failure (inate attacks never fail) */
+       if ((thrown_spell >= 128) && (rand_int(100) < failrate))
+       {
+			C_TNEW(m_name, MNAME_MAX, char);
+			monster_desc(m_name, m_ptr, 0x00, MNAME_MAX);
+
+           /* Message */
+           msg_format("%^s tries to cast a spell, but fails.", m_name);
+
+			TFREE(m_name);
+           return (TRUE);
+       }
+    }
+
+	/* Cast a spell. */
+	make_attack_spell_aux(m_idx, r_ptr, rlev, thrown_spell, seen);
 
 
 	/* Remember what the monster did to us */
@@ -5391,10 +5390,6 @@ static bool get_moves(int m_idx, int *mm)
 
    int                     ac, rlev,pt;
 
-   char            m_name[80],t_name[80];
-
-   char            ddesc[80],temp[80];
-
    bool            blinked = FALSE, touched = FALSE;
    byte y_saver = t_ptr->fy;
    byte x_saver = t_ptr->fx;
@@ -5402,6 +5397,10 @@ static bool get_moves(int m_idx, int *mm)
 
    /* Not allowed to attack */
    if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return FALSE;
+   else
+   {
+		C_TNEW(m_name, MNAME_MAX, char);
+		C_TNEW(t_name, MNAME_MAX, char);
 
    /* Total armor */
    ac = tr_ptr->ac;
@@ -5411,13 +5410,13 @@ static bool get_moves(int m_idx, int *mm)
 
 
    /* Get the monster name (or "it") */
-   monster_desc(m_name, m_ptr, 0);
+   monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
    /* Get the monster name (or "it") */
-   monster_desc(t_name, t_ptr, 0);
+   monster_desc(t_name, t_ptr, 0, MNAME_MAX);
 
    /* Get the "died from" information (i.e. "a kobold") */
-   monster_desc(ddesc, m_ptr, 0x88);
+/*   monster_desc(ddesc, m_ptr, 0x88, MNAME_MAX);*/
 
    /* Assume no blink */
    blinked = FALSE;
@@ -5509,146 +5508,146 @@ static bool get_moves(int m_idx, int *mm)
            {
                case RBM_HIT:
                {
-                   act = "hits %s.";
+                   act = "%^s hits %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_TOUCH:
                {
-                   act = "touches %s.";
+                   act = "%^s touches %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_PUNCH:
                {
-                   act = "punches %s.";
+                   act = "%^s punches %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_KICK:
                {
-                   act = "kicks %s.";
+                   act = "%^s kicks %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_CLAW:
                {
-                   act = "claws %s.";
+                   act = "%^s claws %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_BITE:
                {
-                   act = "bites %s.";
+                   act = "%^s bites %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_STING:
                {
-                   act = "stings %s.";
+                   act = "%^s stings %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_XXX1:
                {
-                   act = "XXX1's %s.";
+                   act = "%^s XXX1's %s.";
                    break;
                }
 
                case RBM_BUTT:
                {
-                   act = "butts %s.";
+                   act = "%^s butts %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_CRUSH:
                {
-                   act = "crushes %s.";
+                   act = "%^s crushes %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_ENGULF:
                {
-                   act = "engulfs %s.";
+                   act = "%^s engulfs %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_CHARGE:
                {
-                   act = "charges %s.";
+                   act = "%^s charges %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_CRAWL:
                {
-                   act = "crawls on %s.";
+                   act = "%^s crawls on %s.";
                    touched = TRUE;
                    break;
                }
 
                case RBM_DROOL:
                {
-                   act = "drools on %s.";
+                   act = "%^s drools on %s.";
                    touched = FALSE;
                    break;
                }
 
                case RBM_SPIT:
                {
-                   act = "spits on %s.";
+                   act = "%^s spits on %s.";
                    touched = FALSE;
                    break;
                }
 
                case RBM_XXX3:
                {
-                   act = "XXX3's on %s.";
+                   act = "%^s XXX3's on %s.";
                    touched = FALSE;
                    break;
                }
 
                case RBM_GAZE:
                {
-                   act = "gazes at %s.";
+                   act = "%^s gazes at %s.";
                    touched = FALSE;
                    break;
                }
 
                case RBM_WAIL:
                {
-                   act = "wails at %s.";
+                   act = "%^s wails at %s.";
                    touched = FALSE;
                    break;
                }
 
                case RBM_SPORE:
                {
-                   act = "releases spores at %s.";
+                   act = "%^s releases spores at %s.";
                    touched = FALSE;
                    break;
                }
 
                case RBM_WORSHIP:
                {
-                   act = "hero worships %s.";
+                   act = "%^s hero worships %s.";
                    touched = FALSE;
                    break;
                }
 
                case RBM_BEG:
                {
-                   act = "begs %s for money.";
+                   act = "%^s begs %s for money.";
                    touched = FALSE;
                    t_ptr->csleep = 0;
                    break;
@@ -5656,7 +5655,7 @@ static bool get_moves(int m_idx, int *mm)
 
                case RBM_INSULT:
                {
-                   act = "insults %s.";
+                   act = "%^s insults %s.";
                    touched = FALSE;
                    t_ptr->csleep = 0;
                    break;
@@ -5664,7 +5663,7 @@ static bool get_moves(int m_idx, int *mm)
 
                case RBM_MOAN:
                {
-                   act = "moans at %s.";
+                   act = "%^s moans at %s.";
                    touched = FALSE;
                    t_ptr->csleep = 0;
                    break;
@@ -5672,7 +5671,7 @@ static bool get_moves(int m_idx, int *mm)
 
                case RBM_SHOW:
                {
-                   act = "sings to %s.";
+                   act = "%^s sings to %s.";
                    touched = FALSE;
                    t_ptr->csleep = 0;
                    break;
@@ -5680,13 +5679,10 @@ static bool get_moves(int m_idx, int *mm)
            }
 
            /* Message */
-           if (act)
-    {
-      strfmt(temp,act,t_name);
-      if (m_ptr->ml || t_ptr->ml)
-          msg_format("%^s %s", m_name, temp);
-
-     }
+           if (act && (m_ptr->ml || t_ptr->ml))
+			{
+				msg_format(act, m_name, t_name);
+			}
 
             /* Hack -- assume all attacks are obvious */
             obvious = TRUE;
@@ -5918,8 +5914,12 @@ static bool get_moves(int m_idx, int *mm)
        teleport_away(m_idx, MAX_SIGHT * 2 + 5);
    }
 
-    return TRUE;
- }
+		TFREE(m_name);
+		TFREE(t_name);
+
+		return TRUE;
+	}
+}
 
 
 /*
@@ -6028,10 +6028,10 @@ static void process_monster(int m_idx, bool is_friend)
 				/* Notice the "waking up" */
 				if (m_ptr->ml)
 				{
-					char m_name[80];
+					C_TNEW(m_name, MNAME_MAX, char);
 
 					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0);
+					monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 					/* Dump a message */
 					msg_format("%^s wakes up.", m_name);
@@ -6041,6 +6041,8 @@ static void process_monster(int m_idx, bool is_friend)
 					{
 						r_ptr->r_wake++;
 					}
+					
+					TFREE(m_name);
 				}
 			}
 		}
@@ -6078,13 +6080,15 @@ static void process_monster(int m_idx, bool is_friend)
 			/* Message if visible */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
+				C_TNEW(m_name, MNAME_MAX, char);
 
 				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
+				monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 				/* Dump a message */
 				msg_format("%^s is no longer stunned.", m_name);
+
+				TFREE(m_name);
 			}
 		}
 
@@ -6115,13 +6119,15 @@ static void process_monster(int m_idx, bool is_friend)
 			/* Message if visible */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
+				C_TNEW(m_name, MNAME_MAX, char);
 
 				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
+				monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 				/* Dump a message */
 				msg_format("%^s is no longer confused.", m_name);
+				
+				TFREE(m_name);
 			}
 		}
 	}
@@ -6137,10 +6143,11 @@ static void process_monster(int m_idx, bool is_friend)
 
     if (gets_angry)
     {
-       char m_name[80];
-       monster_desc(m_name, m_ptr, 0);
+		C_TNEW(m_name, MNAME_MAX, char);
+       monster_desc(m_name, m_ptr, 0, MNAME_MAX);
        msg_format("%^s suddenly becomes hostile!", m_name);
        m_ptr->smart &= ~SM_ALLY;
+		TFREE(m_name);
        }
 
 	/* Handle "fear" */
@@ -6165,15 +6172,18 @@ static void process_monster(int m_idx, bool is_friend)
 			/* Visual note */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
-				char m_poss[80];
+				C_TNEW(m_name, MNAME_MAX, char);
+				C_TNEW(m_poss, MNAME_MAX, char);
 
 				/* Acquire the monster name/poss */
-				monster_desc(m_name, m_ptr, 0);
-				monster_desc(m_poss, m_ptr, 0x22);
+				monster_desc(m_name, m_ptr, 0, MNAME_MAX);
+				monster_desc(m_poss, m_ptr, 0x22, MNAME_MAX);
 
 				/* Dump a message */
 				msg_format("%^s recovers %s courage.", m_name, m_poss);
+
+				TFREE(m_name);
+				TFREE(m_poss);
 			}
 		}
 	}
@@ -6232,15 +6242,15 @@ static void process_monster(int m_idx, bool is_friend)
     /* Hack! "Black Reaver" monster makes noise... */
     if (strstr((r_name + r_ptr->name),"Black Reaver"))
     {
-        if (randint(REAVERNOISE)==1)
-        {
-            if (!(m_ptr->ml))
-               {
-                disturb(FALSE, FALSE);
-                msg_print("You hear heavy steps.");
-                }
-            }
-    }
+		if (!(m_ptr->ml))
+		{
+			if (randint(REAVERNOISE)==1)
+			{
+				if (disturb_move) disturb(FALSE, FALSE);
+				msg_print("You hear heavy steps.");
+			}
+		}
+	}
 
 
     if (speak_unique)
@@ -6249,7 +6259,7 @@ static void process_monster(int m_idx, bool is_friend)
         {
             if (player_has_los_bold(oy, ox) && (r_ptr->flags2 & (RF2_CAN_SPEAK)))
 			{
-				char m_name[80];
+				C_TNEW(m_name, MNAME_MAX, char);
                 char bravado[80];
 
                 bool is_groo = !!(strstr(r_name + r_ptr->name, "Groo"));
@@ -6260,7 +6270,10 @@ static void process_monster(int m_idx, bool is_friend)
 
 				/* Acquire the monster name/poss */
                 if (m_ptr->ml)
-                    monster_desc(m_name, m_ptr, 0);
+                    monster_desc(m_name, m_ptr, 0, MNAME_MAX);
+				/* Some of smeagol.txt requires that he be male. */
+                else if (is_smeagol)
+                    strcpy(m_name, "He");
                 else
                     strcpy(m_name, "It");
 
@@ -6289,6 +6302,7 @@ static void process_monster(int m_idx, bool is_friend)
                     get_rnd_line("bravado.txt", bravado);
                 msg_format("%^s %s", m_name, bravado);
                 }
+				TFREE(m_name);
 			}
         }
 
@@ -6299,7 +6313,7 @@ static void process_monster(int m_idx, bool is_friend)
 		/* Give back movement energy */	
 		m_ptr->energy += extract_energy[m_ptr->mspeed];
 		/* And take some attack energy instead */
-		m_ptr->energy -= (100/r_ptr->num_blows);
+		m_ptr->energy -= (TURN_ENERGY/r_ptr->num_blows);
 		return;
 	}
          /* Attempt to cast a spell at an enemy other than the
@@ -6310,7 +6324,7 @@ static void process_monster(int m_idx, bool is_friend)
 		/* Give back movement energy */	
 		m_ptr->energy += extract_energy[m_ptr->mspeed];
 		/* And take some attack energy instead */
-		m_ptr->energy -= (100/r_ptr->num_blows);
+		m_ptr->energy -= (TURN_ENERGY/r_ptr->num_blows);
 		return;
 	}
 
@@ -6774,6 +6788,9 @@ static void process_monster(int m_idx, bool is_friend)
 			m_ptr->fy = ny;
 			m_ptr->fx = nx;
 
+			/* Maybe a monster can be created in the old grid. */
+			full_grid = MAX(full_grid, distance(py,px,m_ptr->fy,m_ptr->fx));
+
 			/* Update the monster */
 			update_mon(m_idx, TRUE);
 
@@ -6816,10 +6833,10 @@ static void process_monster(int m_idx, bool is_friend)
 				{
 					u32b f1, f2, f3;
 
-					u32b flg3 = 0L;
+					u32b f1_want = 0L;
 
-					char m_name[80];
-					char o_name[80];
+					C_TNEW(m_name, MNAME_MAX, char);
+					C_TNEW(o_name, ONAME_MAX, char);
 
 					/* Extract some flags */
 					object_flags(o_ptr, &f1, &f2, &f3);
@@ -6828,35 +6845,49 @@ static void process_monster(int m_idx, bool is_friend)
 					object_desc(o_name, o_ptr, TRUE, 3);
 
 					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0x04);
+					monster_desc(m_name, m_ptr, 0x04, MNAME_MAX);
 
 					/* React to objects that hurt the monster */
-					if (f1 & (TR1_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
-					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
-					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
-					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
-					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
-					if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
-					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
-					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
-					if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
+					if (r_ptr->flags3 & (RF3_DRAGON)) f1_want |=
+						(TR1_ALL_SLAY_DRAGON);
+					if (r_ptr->flags3 & (RF3_TROLL)) f1_want |=
+						(TR1_SLAY_TROLL);
+					if (r_ptr->flags3 & (RF3_GIANT)) f1_want |=
+						(TR1_SLAY_GIANT);
+					if (r_ptr->flags3 & (RF3_ORC)) f1_want |= (TR1_SLAY_ORC);
+					if (r_ptr->flags3 & (RF3_DEMON)) f1_want |=
+						(TR1_SLAY_DEMON);
+					if (r_ptr->flags3 & (RF3_UNDEAD)) f1_want |=
+						(TR1_SLAY_UNDEAD);
+					if (r_ptr->flags3 & (RF3_ANIMAL)) f1_want |=
+						(TR1_SLAY_ANIMAL);
+					if (r_ptr->flags3 & (RF3_EVIL)) f1_want |= (TR1_SLAY_EVIL);
 
 					/* The object cannot be picked up by the monster */
-                    if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) ||
-                            (o_ptr->art_name))
+                    if (allart_p(o_ptr) || (f1 & f1_want))
 					{
 						/* Only give a message for "take_item" */
 						if (r_ptr->flags2 & (RF2_TAKE_ITEM))
 						{
+							object_type j_ptr[1];
+
 							/* Take note */
 							did_take_item = TRUE;
 
 							/* Describe observable situations */
 							if (m_ptr->ml && player_has_los_bold(ny, nx))
 							{
+								/* Should we expect this to happen? */
+								object_info_known(j_ptr, o_ptr, 0);
+
 								/* Dump a message */
 								msg_format("%^s tries to pick up %s, but fails.",
 									   m_name, o_name);
+
+								/* Remember this event if unexpected. */
+								if (!(j_ptr->flags1 & f1_want) &&
+									!allart_p(j_ptr))
+									o_ptr->ident = ident_power(o_ptr);
 							}
 						}
 					}
@@ -6920,6 +6951,8 @@ static void process_monster(int m_idx, bool is_friend)
 						/* Delete the object */
 						delete_object_idx(this_o_idx);
 					}
+					TFREE(o_name);
+					TFREE(m_name);
 				}
 			}
 		}
@@ -6984,13 +7017,15 @@ static void process_monster(int m_idx, bool is_friend)
 		/* Message if seen */
 		if (m_ptr->ml)
 		{
-			char m_name[80];
+			C_TNEW(m_name, MNAME_MAX, char);
 
 			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
+			monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 			/* Dump a message */
 			msg_format("%^s turns to fight!", m_name);
+			
+			TFREE(m_name);
 		}
 
 		/* XXX XXX XXX Actually do something now (?) */
@@ -7125,7 +7160,7 @@ void process_monsters(void)
 
 
 		/* Give this monster some energy */
-		m_ptr->energy += 10;
+		m_ptr->energy += TICK_ENERGY;
 
 
 		/* Not enough energy to move */

@@ -1,8 +1,10 @@
+#define Z_RAND_C
 /* File: z-rand.c */
 
 /* Purpose: a simple random number generator -BEN- */
 
 #include "z-rand.h"
+#include "externs.h"
 
 
 
@@ -71,6 +73,8 @@ u16b Rand_place;
 u32b Rand_state[RAND_DEG];
 
  
+static s32b Rand_div(s32b m);
+
  /* Random number generator selector */
  
  
@@ -104,7 +108,8 @@ u32b Rand_state[RAND_DEG];
   *
   * Eric Bock (kobe@micron.net)
   */
- int Rand_bit(void)
+#if 0
+static int Rand_bit(void)
  {
  	int a, b;
  
@@ -118,12 +123,14 @@ u32b Rand_state[RAND_DEG];
  
  	return a;
  }
+#endif
  
  /*
   * Generate a random 32-bit integer.
   * Note that this can be extended to any number of bits.
   */
- u32b Rand_u32b(void)
+#if 0
+static u32b Rand_u32b(void)
  {
  	u32b r = 0;
  	byte i = 0;
@@ -146,9 +153,11 @@ u32b Rand_state[RAND_DEG];
  
  	return r;
  }
+#endif
  
+#if 0
  /* Generate a random integer with 0 <= X < M */
- u32b Rand_num(u32b m)
+static u32b Rand_num(u32b m)
  {
  	u32b r = m;
  
@@ -183,6 +192,7 @@ u32b Rand_state[RAND_DEG];
  	/* Success */
  	return r;
  }
+#endif
 
 
 /*
@@ -220,7 +230,7 @@ void Rand_state_init(u32b seed)
  * Note that "m" should probably be less than 500000, or the
  * results may be rather biased towards low values.
  */
-s32b Rand_mod(s32b m)
+static s32b Rand_mod(s32b m)
 {
 	int j;
 	u32b r;
@@ -271,7 +281,7 @@ s32b Rand_mod(s32b m)
  * This method has no bias, and is much less affected by patterns
  * in the "low" bits of the underlying RNG's.
  */
-s32b Rand_div(s32b m)
+static s32b Rand_div(s32b m)
 {
 	u32b r, n;
 
@@ -327,8 +337,6 @@ s32b Rand_div(s32b m)
 	/* Use the value */
 	return (r);
 }
-
-
 
 
 /*
@@ -449,6 +457,25 @@ s16b randnor(int mean, int stand)
 
 
 /*
+ * Generates a random long integer X where O<=X<M.
+ * The integer X falls along a uniform distribution.
+ * For example, if M is 100, you get "percentile dice"
+ */
+s32b rand_int(u32b m)
+{
+	if (rand_unbiased && !Rand_quick)
+	{
+		return Rand_mod((s32b)(m));
+	}
+	else
+	{
+		return (s32b)Rand_div(m);
+	}
+}
+
+
+
+/*
  * Generates damage for "2d6" style dice rolls
  */
 s16b damroll(int num, int sides)
@@ -469,3 +496,53 @@ s16b maxroll(int num, int sides)
 
 
 
+/*
+ * Extract a "random" number from 0 to m-1, using the "simple" RNG.
+ *
+ * This function should be used when generating random numbers in
+ * "external" program parts like the main-*.c files.  It preserves
+ * the current RNG state to prevent influences on game-play.
+ *
+ * Could also use rand() from <stdlib.h> directly. XXX XXX XXX
+ */
+u32b Rand_simple(u32b m)
+{
+	static bool initialized = FALSE;
+	static u32b simple_rand_value;
+	bool old_rand_quick;
+	u32b old_rand_value;
+	u32b result;
+
+
+	/* Save RNG state */
+	old_rand_quick = Rand_quick;
+	old_rand_value = Rand_value;
+
+	/* Use "simple" RNG */
+	Rand_quick = TRUE;
+
+	if (initialized)
+	{
+		/* Use stored seed */
+		Rand_value = simple_rand_value;
+	}
+	else
+	{
+		/* Initialize with new seed */
+		Rand_value = time(NULL);
+		initialized = TRUE;
+	}
+
+	/* Get a random number */
+	result = rand_int(m);
+
+	/* Store the new seed */
+	simple_rand_value = Rand_value;
+
+	/* Restore RNG state */
+	Rand_quick = old_rand_quick;
+	Rand_value = old_rand_value;
+
+	/* Use the value */
+	return (result);
+}

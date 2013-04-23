@@ -1,3 +1,4 @@
+#define VARIABLE_C
 /* File: variable.c */
 
 /* Purpose: Angband variables */
@@ -26,31 +27,7 @@ cptr copyright[5] =
 };
 
 /* The name of the help index file */
-char syshelpfile[20];
-
-/*
- * Executable version
- */
-byte version_major = VERSION_MAJOR;
-byte version_minor = VERSION_MINOR;
-byte version_patch = VERSION_PATCH;
-byte version_extra = VERSION_EXTRA;
-
-/*
- * Savefile version
- */
-byte sf_major;			/* Savefile's "version_major" */
-byte sf_minor;			/* Savefile's "version_minor" */
-byte sf_patch;			/* Savefile's "version_patch" */
-byte sf_extra;			/* Savefile's "version_extra" */
-
-/*
- * Savefile information
- */
-u32b sf_xtra;			/* Operating system info */
-u32b sf_when;			/* Time when savefile created */
-u16b sf_lives;			/* Number of past "lives" with this file */
-u16b sf_saves;			/* Number of "saves" during this life */
+cptr syshelpfile;
 
 /*
  * Run-time arguments
@@ -91,6 +68,7 @@ s16b command_gap = 50;	/* See "cmd1.c" */
 s16b command_new;		/* Command chaining from inven/equip view */
 
 s16b energy_use;		/* Energy use this turn */
+s16b old_energy_use;		/* Energy use last turn */
 
 bool create_up_stair;	/* Auto-create "up stairs" */
 bool create_down_stair;	/* Auto-create "down stairs" */
@@ -119,6 +97,7 @@ s16b monster_level;		/* Current monster creation level */
 
 s32b turn;				/* Current game turn */
 s32b old_turn;			/* Turn when level began (feelings) */
+s32b curse_turn;		/* Turn when autocurse activates */
 
 bool cheat_wzrd;			/* Is the player currently in Wizard mode? */
 
@@ -129,6 +108,8 @@ u16b total_winner;		/* Semi-Hack -- Game has been won */
 
 u16b panic_save;		/* Track some special "conditions" */
 u16b noscore;			/* Track various "cheating" conditions */
+
+bool use_transparency = FALSE; /* Use transparent tiles */
 
 s16b signal_count;		/* Hack -- Count interupts */
 
@@ -149,11 +130,9 @@ bool repair_objects;	/* Hack -- optimize detect objects */
 
 s16b total_weight;		/* Total weight being carried */
 
-s16b inven_nxt;			/* Hack -- unused */
 bool hack_mind;
 bool hack_chaos_feature;
 int artifact_bias;
-bool is_autosave = FALSE;
 
 s16b inven_cnt;			/* Number of items in inventory */
 s16b equip_cnt;			/* Number of items in equipment */
@@ -172,6 +151,7 @@ char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 int total_friends = 0;
 s32b total_friend_levels = 0;
 
+byte current_function = 0;	/* A variable to give subsidiary functions information about what's happening. */
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -180,8 +160,10 @@ s32b total_friend_levels = 0;
 
 /* Option Set 1 -- User Interface */
 
+bool inscribe_depth;			/* Inscribe a new object with the depth made at. */
 bool rogue_like_commands;	/* Rogue-like commands */
 bool quick_messages;		/* Activate quick messages */
+bool quick_prompt;		/* Activate quick [y/n] prompts */
 bool other_query_flag;		/* Prompt for various information */
 bool carry_query_flag;		/* Prompt before picking things up */
 bool use_old_target;		/* Use old target by default */
@@ -190,15 +172,19 @@ bool always_repeat;			/* Repeat obvious commands */
 bool depth_in_feet;			/* Show dungeon level in feet */
 
 bool stack_force_notes;		/* Merge inscriptions when stacking */
+bool stack_force_notes_all;		/* Merge all inscriptions when stacking (inc. dissimilar ones) */
 bool stack_force_costs;		/* Merge discounts when stacking */
 
 bool show_labels;			/* Show labels in object listings */
 bool show_weights;			/* Show weights in object listings */
 bool show_choices;			/* Show choices in certain sub-windows */
-bool show_details;			/* Show details in certain sub-windows */
+bool show_details;			/* Show more detailed monster descriptons */
+bool show_choices_main;			/* Show choices in main window */
 
 bool ring_bell;				/* Ring the bell (on errors, etc) */
 bool use_color;				/* Use color if possible (slow) */
+bool verbose_haggle;		/* Verbose messages if auto_haggle is set */
+bool scroll_edge;	/* Scroll until detection reaches the edge. */
 
 
 /* Option Set 2 -- Disturbance */
@@ -206,17 +192,17 @@ bool use_color;				/* Use color if possible (slow) */
 bool find_ignore_stairs;	/* Run past stairs */
 bool find_ignore_doors;		/* Run through open doors */
 bool find_cut;				/* Run past known corners */
+bool stop_corner;				/* Stop at corners */
 bool find_examine;			/* Run into potential corners */
 
 bool disturb_move;			/* Disturb whenever any monster moves */
 bool disturb_near;			/* Disturb whenever viewable monster moves */
 bool disturb_panel;			/* Disturb whenever map panel changes */
 bool disturb_state;			/* Disturn whenever player state changes */
+bool disturb_dawn;	/* Disturb at sunrise or sunset on the surface. */
 bool disturb_minor;			/* Disturb whenever boring things happen */
-bool disturb_other;			/* Disturb whenever various things happen */
 
 
-bool alert_hitpoint;		/* Alert user to critical hitpoints */
 bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
@@ -230,17 +216,20 @@ bool stupid_monsters;		/* Monsters use old AI */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
+bool confirm_wear_all;		/* Confirm before wearing items with unknown cursed status */
 bool disturb_allies;		/* Allies moving nearby disturb us */
 bool multi_stair;         /* Multiple level staircases */
 bool unify_commands; /* Combine object commands into a single 'u'se command */
 bool centre_view; /* Centre view on player */
+bool macro_edit; /* Use macros as edit keys in string prompts */
 bool no_centre_run; /* Stop centring when running */
+bool auto_more;
 bool preserve_mode; /* Don't lose missed artifacts */
 bool maximise_mode; /* Unify stat bonuses */
 bool use_autoroller; /* Autoroll characters */
 bool spend_points; /* Spend points on stats */
 bool ironman_shop; /* Not allowed in shops */
-
+bool score_quitters; /* Quitting can give a high score */
 
 /* Option Set 3 -- Game-Play */
 
@@ -263,9 +252,6 @@ bool dungeon_small;         /* Generate dungeons with small levels always */
 
 bool flow_by_sound;			/* Monsters track new player location */
 bool flow_by_smell;			/* Monsters track old player location */
-
-bool track_follow;			/* Monsters follow the player */
-bool track_target;			/* Monsters target the player */
 
 bool smart_learn;			/* Monsters learn from their mistakes */
 bool smart_cheat;			/* Monsters exploit player weaknesses */
@@ -304,17 +290,35 @@ bool testing_stack;			/* Test the stacking code */
 bool testing_carry;			/* Test the carrying code */
 
 
+/* Spoiler options */
+bool spoil_art;				/* Benefit from artefact spoilers */
+bool spoil_mon;		/* Know complete monster info */
+bool spoil_ego;		/* Know complete ego item info */
+bool spoil_value;	/* Know the apparent prices of items */
+bool spoil_base;	/* Know complete info about base items */
+bool spoil_stat;	/* Know the significance of stat values */
+bool spoil_dam;	/* Know the damage done by a melee weapon */
+bool spoil_flag; /* Know the effects of various flags */
+
 /* Cheating options */
 
 bool cheat_peek;		/* Peek into object creation */
 bool cheat_hear;		/* Peek into monster creation */
 bool cheat_room;		/* Peek into dungeon creation */
 bool cheat_xtra;		/* Peek into something else */
-bool cheat_know;		/* Know complete monster info */
+bool cheat_item;		/* Know complete item info */
 bool cheat_live;		/* Allow player to avoid death */
 bool cheat_skll;        /* Peek into skill rolls */
 
 /* Special options */
+
+bool allow_quickstart;	/* Allow Quick-Start */
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+bool display_credits;	/* Require a keypress to clear the initial credit screen. */
+#endif
+bool allow_pickstats;	/* Allow the player to choose a stat template. */
+
+bool ironman_feeling;	/* Only give real feeling after 2500 turns. */
 
 s16b hitpoint_warn = 2;		/* Hitpoint warning (0 to 9) */
 
@@ -322,6 +326,7 @@ s16b delay_factor = 4;		/* Delay factor (0 to 9) */
 
 byte autosave_l;        /* Autosave before entering new levels */
 byte autosave_t;        /* Timed autosave */
+byte autosave_q;        /* Quiet autosave */
 s16b autosave_freq;     /* Autosave frequency */
 
 
@@ -338,16 +343,23 @@ bool new_level_flag;		/* Start a new level */
 
 bool closing_flag;		/* Dungeon is closing */
 
+int full_grid;	/* Monsters can't be created outside a circle of radius full_grid around the player */
+
 
 /*
  * Dungeon size info
  */
 
-s16b max_panel_rows, max_panel_cols;
-s16b panel_row, panel_col;
-s16b panel_row_min, panel_row_max;
-s16b panel_col_min, panel_col_max;
-s16b panel_col_prt, panel_row_prt;
+s16b max_panel_rows;
+s16b max_panel_cols;
+s16b panel_row;
+s16b panel_col;
+s16b panel_row_min;
+s16b panel_row_max;
+s16b panel_col_min;
+s16b panel_col_max;
+s16b panel_col_prt;
+s16b panel_row_prt;
 
 /*
  * Player location in dungeon
@@ -383,7 +395,10 @@ s16b monster_race_idx;
  */
 s16b object_kind_idx;
 
-
+/*
+ * Object to track
+ */
+s16b object_idx;
 
 /*
  * User info
@@ -395,12 +410,12 @@ int player_egid;
 /*
  * Current player's character name
  */
-char player_name[32];
+char player_name[NAME_LEN];
 
 /*
  * Stripped version of "player_name"
  */
-char player_base[32];
+char player_base[NAME_LEN];
 
 /*
  * What killed the player
@@ -415,7 +430,7 @@ char history[4][60];
 /*
  * Buffer to hold the current savefile name
  */
-char savefile[1024];
+char savefile[1024]="";
 
 
 /*
@@ -513,36 +528,6 @@ char *message__buf;
  */
 u32b option_flag[8];
 u32b option_mask[8];
-
-
-/*
- * The array of window options
- */
-u32b window_flag[8];
-u32b window_mask[8];
-
-
-/*
- * The array of window pointers
- */
-term *angband_term[8];
-
-
-/*
- * Standard window names
- */
-char angband_term_name[8][16] =
-{
-	"Cthangband",
-	"Mirror",
-	"Recall",
-	"Choice",
-	"Xtra-1",
-	"Xtra-2",
-	"Xtra-3",
-	"Xtra-4"
-};
-
 
 /*
  * Global table of color definitions
@@ -666,8 +651,8 @@ alloc_entry *alloc_race_table;
  * Specify attr/char pairs for visual special effects
  * Be sure to use "index & 0x7F" to avoid illegal access
  */
-byte misc_to_attr[128];
-char misc_to_char[128];
+/* byte misc_to_attr[128]; */
+/* char misc_to_char[128]; */
 
 
 /*
@@ -688,9 +673,9 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*** Player information ***/
 
 /*
- * Static player info record
+ * Player info record
  */
-static player_type p_body;
+player_type p_body;
 
 /*
  * Pointer to the player info
@@ -705,7 +690,7 @@ player_type *p_ptr = &p_body;
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_template *cp_ptr;
-player_magic *mp_ptr;
+player_magic *mp_ptr = &magic_info;
 
 
 /*
@@ -726,10 +711,12 @@ byte spell_order[128];	/* order spells learned/remembered/forgotten */
 s16b player_hp[100];
 
 
+/* Various maxima */
+maxima *z_info = NULL;
+
 /*
  * The vault generation arrays
  */
-header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
@@ -737,7 +724,6 @@ char *v_text;
 /*
  * The terrain feature arrays
  */
-header *f_head;
 feature_type *f_info;
 char *f_name;
 char *f_text;
@@ -745,36 +731,50 @@ char *f_text;
 /*
  * The object kind arrays
  */
-header *k_head;
 object_kind *k_info;
 char *k_name;
 char *k_text;
 
 /*
+ * The unidentified object arrays
+ */
+unident_type *u_info;
+char *u_name;
+
+/*
+ * The base object arrays
+ */
+o_base_type *o_base;
+char *ob_name;
+
+/*
  * The artifact arrays
  */
-header *a_head;
 artifact_type *a_info;
 char *a_name;
-char *a_text;
+/* char *a_text; */
 
 /*
  * The ego-item arrays
  */
-header *e_head;
 ego_item_type *e_info;
 char *e_name;
-char *e_text;
+/* char *e_text; */
 
 
 /*
  * The monster race arrays
  */
-header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
 
+/*
+ * The death event arrays
+ */
+death_event_type *death_event;
+char *event_name;
+char *event_text;
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -782,6 +782,11 @@ char *r_text;
  */
 cptr ANGBAND_SYS = "xxx";
 
+/*
+ * Hack -- The special Angband "Graphics Suffix"
+ * This variable is used to choose an appropriate "graf-xxx" file
+ */
+cptr ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory
@@ -902,14 +907,35 @@ bool angband_keymap_flag = TRUE;
 
 
 /* Hack, mystic armour */
-bool mystic_armour_aux;
 bool mystic_notify_aux;
  
- #ifdef ALLOW_EASY_OPEN /* TNB */
+/* Hack, violet uniques */
+byte violet_uniques = 1;
+
+ #ifdef ALLOW_EASY_OPEN
  bool easy_open = TRUE;
  #endif /* ALLOW_EASY_OPEN -- TNB */
  
- #ifdef ALLOW_EASY_DISARM /* TNB */
+ #ifdef ALLOW_EASY_DISARM
  bool easy_disarm = TRUE;
  #endif /* ALLOW_EASY_DISARM -- TNB */
+
+/*
+ * Player stat defaults
+ */
+stat_default_type *stat_default;
+s16b stat_default_total;
+
+/* 
+ * Initialisation macros
+ */
+#ifdef ALLOW_TEMPLATES
+
+init_macro_type *macro_info = NULL;
+char *macro_name;
+char *macro_text;
+
+u16b rebuild_raw = 0;
+
+#endif /* ALLOW_TEMPLATES */
 

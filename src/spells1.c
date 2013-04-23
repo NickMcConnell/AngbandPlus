@@ -1,3 +1,4 @@
+#define SPELLS1_C
 /* File: spells1.c */
 
 /* Purpose: Spell code (part 1) */
@@ -17,9 +18,6 @@
 
  /* 1/x chance of hurting even if invulnerable!*/
 #define PENETRATE_INVULNERABILITY 13
-
-
-extern void do_poly_self();
 
 
 
@@ -45,7 +43,7 @@ s16b poly_r_idx(int r_idx)
 	for (i = 0; i < 1000; i++)
 	{
 		/* Pick a new race, using a level calculation */
-		r = get_mon_num(((dun_level+dun_offset) + r_ptr->level) / 2 + 5);
+		r = get_mon_num(((dun_depth) + r_ptr->level) / 2 + 5);
 
 		/* Handle failure */
 		if (!r) break;
@@ -174,15 +172,13 @@ void teleport_away(int m_idx, int dis)
 /*
  * Teleport monster next to the player
  */
-void teleport_to_player(int m_idx)
+static void teleport_to_player(int m_idx)
 {
 	int                     ny, nx, oy, ox, d, i, min;
     int dis = 2;
 
-	bool            look = TRUE;
-
 	monster_type    *m_ptr = &m_list[m_idx];
-    int attempts = 500;
+    int attempts;
 
 
 	/* Paranoia */
@@ -199,7 +195,7 @@ void teleport_to_player(int m_idx)
 	min = dis / 2;
 
 	/* Look until done */
-    while ((look) && --attempts)
+	for (attempts = 500; attempts; attempts--)
 	{
 		/* Verify max distance */
 		if (dis > 200) dis = 200;
@@ -234,10 +230,7 @@ void teleport_to_player(int m_idx)
 			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
 
 			/* This grid looks good */
-			look = FALSE;
-
-			/* Stop looking */
-			break;
+			goto ttp_done;
 		}
 
 		/* Increase the maximum distance */
@@ -246,6 +239,7 @@ void teleport_to_player(int m_idx)
 		/* Decrease the minimum distance */
 		min = min / 2;
 	}
+ttp_done:
 
     if (attempts < 1) return;
 
@@ -342,16 +336,12 @@ void teleport_player(int dis)
 	/* Sound */
 	sound(SOUND_TELEPORT);
 
-	/* Save the old location */
+	/* Save old location. */
 	oy = py;
 	ox = px;
 
 	/* Move the player */
-	py = y;
-	px = x;
-
-	/* Redraw the old spot */
-	lite_spot(oy, ox);
+	move_to(y,x);
 
     while (xx < 2)
     {
@@ -384,21 +374,6 @@ void teleport_player(int dis)
         xx++;
     }
 
-	/* Redraw the new spot */
-	lite_spot(py, px);
-
-	/* Check for new panel (redraw map) */
-	verify_panel();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_DISTANCE);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
-
 	/* Handle stuff XXX XXX XXX */
 	handle_stuff();
 }
@@ -413,7 +388,7 @@ void teleport_player(int dis)
  */
 void teleport_player_to(int ny, int nx)
 {
-	int y, x, oy, ox, dis = 0, ctr = 0;
+	int y, x, dis = 0, ctr = 0;
 
     if (p_ptr->anti_tele)
     {
@@ -446,31 +421,8 @@ void teleport_player_to(int ny, int nx)
 	/* Sound */
 	sound(SOUND_TELEPORT);
 
-	/* Save the old location */
-	oy = py;
-	ox = px;
-
 	/* Move the player */
-	py = y;
-	px = x;
-
-	/* Redraw the old spot */
-	lite_spot(oy, ox);
-
-	/* Redraw the new spot */
-	lite_spot(py, px);
-
-	/* Check for new panel (redraw map) */
-	verify_panel();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_DISTANCE);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	move_to(y,x);
 
 	/* Handle stuff XXX XXX XXX */
 	handle_stuff();
@@ -483,65 +435,33 @@ void teleport_player_to(int ny, int nx)
  */
 void teleport_player_level(void)
 {
+	bool into;
     if (p_ptr->anti_tele)
     {
         msg_print("A mysterious force prevents you from teleporting!");
         return;
     }
 
-	if (dun_level <= 0)
-	{
+	/* Always go into the dungeon if outside. */
+	if (dun_level <= 0) into = TRUE;
+	/* Don't go any further if you can't. */
+	else if (is_quest(dun_level) || (dun_level >= dun_defs[cur_dungeon].max_level)) into = FALSE;
+	/* Else choose randomly. */
+	else into = (magik(50));
+	
+	/* Get a special message if you leave a tower altogether. */
+	if (!into && dun_defs[cur_dungeon].tower && dun_level == 1)
+		msg_print("You fall out of the tower!");
+	/* "into" is down in dungeons, up in towers. */
+	else if (into ^ dun_defs[cur_dungeon].tower)
 		msg_print("You sink through the floor.");
-                if (autosave_l)
-                {
-                    is_autosave = TRUE;
-                    msg_print("Autosaving the game...");
-                    do_cmd_save_game();
-                    is_autosave = FALSE;
-                }
-		dun_level++;
-		new_level_flag = TRUE;
-	}
-	else if (is_quest(dun_level) || (dun_level >= dun_defs[cur_dungeon].max_level))
-	{
-		msg_print("You rise up through the ceiling.");
-                if (autosave_l)
-                {
-                    is_autosave = TRUE;
-                    msg_print("Autosaving the game...");
-                    do_cmd_save_game();
-                    is_autosave = FALSE;
-                }
-		dun_level--;
-		new_level_flag = TRUE;
-	}
-	else if (rand_int(100) < 50)
-	{
-		msg_print("You rise up through the ceiling.");
-                if (autosave_l)
-                {
-                    is_autosave = TRUE;
-                    msg_print("Autosaving the game...");
-                    do_cmd_save_game();
-                    is_autosave = FALSE;
-                }
-		dun_level--;
-		new_level_flag = TRUE;
-		came_from=START_RANDOM;
-	}
 	else
-	{
-		msg_print("You sink through the floor.");
-                if (autosave_l)
-                {
-                    is_autosave = TRUE;
-                    msg_print("Autosaving the game...");
-                    do_cmd_save_game();
-                    is_autosave = FALSE;
-                }
-		dun_level++;
-		new_level_flag = TRUE;
-	}
+		msg_print("You rise up through the ceiling.");
+
+	if (into)
+		change_level(dun_level+1, START_RANDOM);
+	else
+		change_level(dun_level-1, START_RANDOM);
 
 	/* Sound */
 	sound(SOUND_TPLEVEL);
@@ -688,7 +608,7 @@ static byte bolt_graf_attr(int type)
 /*
  * Return an attr to use for the ball spells in graphics mode
  */
-static byte ball_graf_attr(int type)
+static byte ball_graf_attr(int UNUSED type)
 {
 	return(145);
 }
@@ -901,7 +821,7 @@ void take_hit(int damage, cptr hit_from)
 	if (p_ptr->chp < warning)
 	{
 		/* Hack -- bell on first notice */
-		if (alert_hitpoint && (old_chp > warning)) bell();
+		if (old_chp > warning) bell();
 
 		sound(SOUND_WARN);
 
@@ -919,153 +839,6 @@ void take_hit(int damage, cptr hit_from)
 
 
 
-/*
- * Note that amulets, rods, and high-level spell books are immune
- * to "inventory damage" of any kind.  Also sling ammo and shovels.
- */
-
-
-/*
- * Does a given class of objects (usually) hate acid?
- * Note that acid can either melt or corrode something.
- */
-static bool hates_acid(object_type *o_ptr)
-{
-	/* Analyze the type */
-	switch (o_ptr->tval)
-	{
-		/* Wearable items */
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
-		case TV_SWORD:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_HELM:
-		case TV_CROWN:
-		case TV_SHIELD:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			return (TRUE);
-		}
-
-		/* Staffs/Scrolls are wood/paper */
-		case TV_STAFF:
-		case TV_SCROLL:
-		{
-			return (TRUE);
-		}
-
-		/* Ouch */
-		case TV_CHEST:
-		{
-			return (TRUE);
-		}
-
-		/* Junk is useless */
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-/*
- * Does a given object (usually) hate electricity?
- */
-static bool hates_elec(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_RING:
-		case TV_WAND:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-/*
- * Does a given object (usually) hate fire?
- * Hafted/Polearm weapons have wooden shafts.
- * Arrows/Bows are mostly wooden.
- */
-static bool hates_fire(object_type *o_ptr)
-{
-	/* Analyze the type */
-	switch (o_ptr->tval)
-	{
-		/* Wearable */
-		case TV_LITE:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		{
-			return (TRUE);
-		}
-
-		/* Books */
-	case TV_SORCERY_BOOK:
-	case TV_THAUMATURGY_BOOK:
-    case TV_CONJURATION_BOOK:
-    case TV_NECROMANCY_BOOK:
-		{
-			return (TRUE);
-		}
-
-		/* Chests */
-		case TV_CHEST:
-		{
-			return (TRUE);
-		}
-
-		/* Staffs/Scrolls burn */
-		case TV_STAFF:
-		case TV_SCROLL:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-/*
- * Does a given object (usually) hate cold?
- */
-static bool hates_cold(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_POTION:
-		case TV_FLASK:
-		case TV_BOTTLE:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
 
 
 
@@ -1081,7 +854,6 @@ static bool hates_cold(object_type *o_ptr)
 static int set_acid_destroy(object_type *o_ptr)
 {
 	u32b f1, f2, f3;
-	if (!hates_acid(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
 	return (TRUE);
@@ -1094,7 +866,6 @@ static int set_acid_destroy(object_type *o_ptr)
 static int set_elec_destroy(object_type *o_ptr)
 {
 	u32b f1, f2, f3;
-	if (!hates_elec(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & (TR3_IGNORE_ELEC)) return (FALSE);
 	return (TRUE);
@@ -1107,7 +878,6 @@ static int set_elec_destroy(object_type *o_ptr)
 static int set_fire_destroy(object_type *o_ptr)
 {
 	u32b f1, f2, f3;
-	if (!hates_fire(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & (TR3_IGNORE_FIRE)) return (FALSE);
 	return (TRUE);
@@ -1120,7 +890,6 @@ static int set_fire_destroy(object_type *o_ptr)
 static int set_cold_destroy(object_type *o_ptr)
 {
 	u32b f1, f2, f3;
-	if (!hates_cold(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & (TR3_IGNORE_COLD)) return (FALSE);
 	return (TRUE);
@@ -1146,22 +915,25 @@ static int inven_damage(inven_func typ, int perc)
 
 	object_type     *o_ptr;
 
-	char    o_name[80];
+	C_TNEW(o_name, ONAME_MAX, char);
 
 
 	/* Count the casualties */
 	k = 0;
 
 	/* Scan through the slots backwards */
-	for (i = 0; i < INVEN_PACK; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
+		/* Hack - skip weapons, armour, lights and accessories. */
+		if (i == INVEN_PACK) i = INVEN_POUCH_1;
+		
 		o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
 		/* Hack -- for now, skip artifacts */
-        if (artifact_p(o_ptr) || o_ptr->art_name) continue;
+        if (allart_p(o_ptr)) continue;
 
 		/* Give this item slot a shot at death */
 		if ((*typ)(o_ptr))
@@ -1202,6 +974,8 @@ static int inven_damage(inven_func typ, int perc)
 		}
 	}
 
+	TFREE(o_name);
+
 	/* Return the casualty count */
 	return (k);
 }
@@ -1216,14 +990,13 @@ static int inven_damage(inven_func typ, int perc)
  *
  * If any armor is damaged (or resists), the player takes less damage.
  */
-static int minus_ac(void)
+static bool minus_ac(void)
 {
 	object_type             *o_ptr = NULL;
 
 	u32b            f1, f2, f3;
 
-	char            o_name[80];
-
+	C_TNEW(o_name, ONAME_MAX, char);
 
 	/* Pick a (possibly empty) inventory slot */
 	switch (randint(6))
@@ -1237,10 +1010,14 @@ static int minus_ac(void)
 	}
 
 	/* Nothing to damage */
-	if (!o_ptr->k_idx) return (FALSE);
+	if (!o_ptr->k_idx ||
 
 	/* No damage left to be done */
-	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
+		(o_ptr->ac + o_ptr->to_a <= 0))
+	{
+		TFREE(o_name);
+		return (FALSE);
+	}
 
 
 	/* Describe */
@@ -1253,12 +1030,16 @@ static int minus_ac(void)
 	if (f3 & (TR3_IGNORE_ACID))
 	{
 		msg_format("Your %s is unaffected!", o_name);
-
+		TFREE(o_name);
 		return (TRUE);
 	}
 
 	/* Message */
 	msg_format("Your %s is damaged!", o_name);
+
+	/* Hack - the player doesn't know whether a good item just became an average one. */
+	if (find_feeling(o_ptr) == "good")
+		o_ptr->ident &= ~(IDENT_SENSE_VALUE);
 
 	/* Damage the item */
 	o_ptr->to_a--;
@@ -1268,6 +1049,8 @@ static int minus_ac(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+
+	TFREE(o_name);
 
 	/* Item was damaged */
 	return (TRUE);
@@ -1399,7 +1182,6 @@ void cold_dam(int dam, cptr kb_str)
     if (!(p_ptr->resist_cold && p_ptr->oppose_cold))
         inven_damage(set_cold_destroy, inv);
 }
-
 
 
 
@@ -1631,8 +1413,7 @@ bool apply_disenchant(int mode)
 
 	object_type             *o_ptr;
 
-	char            o_name[80];
-
+	C_TNEW(o_name, ONAME_MAX, char);
 
 	/* Unused */
 	mode = mode;
@@ -1655,12 +1436,13 @@ bool apply_disenchant(int mode)
 	o_ptr = &inventory[t];
 
 	/* No item, nothing happens */
-	if (!o_ptr->k_idx) return (FALSE);
+	if (!o_ptr->k_idx ||
 
 
 	/* Nothing to disenchant */
-	if ((o_ptr->to_h <= 0) && (o_ptr->to_d <= 0) && (o_ptr->to_a <= 0))
+		((o_ptr->to_h <= 0) && (o_ptr->to_d <= 0) && (o_ptr->to_a <= 0)))
 	{
+		TFREE(o_name);
 		/* Nothing to notice */
 		return (FALSE);
 	}
@@ -1671,17 +1453,21 @@ bool apply_disenchant(int mode)
 
 
     /* Artifacts have 71% chance to resist */
-    if ((artifact_p(o_ptr) || o_ptr->art_name) && (rand_int(100) < 71))
+    if (allart_p(o_ptr) && (rand_int(100) < 71))
 	{
 		/* Message */
 		msg_format("Your %s (%c) resist%s disenchantment!",
 			   o_name, index_to_label(t),
 			   ((o_ptr->number != 1) ? "" : "s"));
 
+		TFREE(o_name);
 		/* Notice */
 		return (TRUE);
 	}
 
+	/* Hack - the player doesn't know whether a good item just became an average one. */
+	if (find_feeling(o_ptr) == "good")
+		o_ptr->ident &= ~(IDENT_SENSE_VALUE);
 
 	/* Disenchant tohit */
 	if (o_ptr->to_h > 0) o_ptr->to_h--;
@@ -1706,6 +1492,7 @@ bool apply_disenchant(int mode)
 	/* Window stuff */
 	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
 
+	TFREE(o_name);
 	/* Notice */
 	return (TRUE);
 }
@@ -2067,6 +1854,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
 
+			full_grid = MAX(full_grid, distance(y,x,py,px));
+
 			/* Update some things */
 			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
 
@@ -2214,7 +2003,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	u32b f1, f2, f3;
 
-	char o_name[80];
+	C_TNEW(o_name, ONAME_MAX, char);
 
     int o_sval = 0;
     bool is_potion = FALSE;
@@ -2230,7 +2019,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 	/* Scan all objects in the grid */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
+		object_type *o_ptr, j_ptr[1];
 	
 		bool is_art = FALSE;
 		bool ignore = FALSE;
@@ -2245,6 +2034,9 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
+		/* Extract the known information */
+		object_info_known(j_ptr, o_ptr, 0);
+
 		/* Extract the flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -2252,7 +2044,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		if (o_ptr->number > 1) plural = TRUE;
 
 		/* Check for artifact */
-        if ((artifact_p(o_ptr) || o_ptr->art_name)) is_art = TRUE;
+        if (allart_p(o_ptr)) is_art = TRUE;
 
 		/* Analyze the type */
 		switch (typ)
@@ -2260,7 +2052,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Acid -- Lots of things */
 			case GF_ACID:
 			{
-				if (hates_acid(o_ptr))
+				if (set_acid_destroy(j_ptr))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " melt!" : " melts!");
@@ -2272,7 +2064,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Elec -- Rings and Wands */
 			case GF_ELEC:
 			{
-				if (hates_elec(o_ptr))
+				if (set_elec_destroy(j_ptr))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
@@ -2284,7 +2076,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Fire -- Flammable objects */
 			case GF_FIRE:
 			{
-				if (hates_fire(o_ptr))
+				if (set_fire_destroy(j_ptr))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
@@ -2296,7 +2088,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Cold -- potions and flasks */
 			case GF_COLD:
 			{
-				if (hates_cold(o_ptr))
+				if (set_cold_destroy(j_ptr))
 				{
 					note_kill = (plural ? " shatter!" : " shatters!");
 					do_kill = TRUE;
@@ -2308,13 +2100,13 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Fire + Elec */
 			case GF_PLASMA:
 			{
-				if (hates_fire(o_ptr))
+				if (set_fire_destroy(j_ptr))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
 				}
-				if (hates_elec(o_ptr))
+				if (set_elec_destroy(j_ptr))
 				{
 					ignore = FALSE;
 					do_kill = TRUE;
@@ -2327,13 +2119,13 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Fire + Cold */
 			case GF_METEOR:
 			{
-				if (hates_fire(o_ptr))
+				if (set_fire_destroy(j_ptr))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
 				}
-				if (hates_cold(o_ptr))
+				if (set_cold_destroy(j_ptr))
 				{
 					ignore = FALSE;
 					do_kill = TRUE;
@@ -2349,7 +2141,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			case GF_FORCE:
 			case GF_SOUND:
 			{
-				if (hates_cold(o_ptr))
+				if (set_cold_destroy(j_ptr))
 				{
 					note_kill = (plural ? " shatter!" : " shatters!");
 					do_kill = TRUE;
@@ -2385,6 +2177,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
             case GF_HOLY_FIRE:
             case GF_HELL_FIRE:
 			{
+				/* The player is told about any remaining cursed items. */
+				o_ptr->ident |= IDENT_SENSE_CURSED;
 				if (cursed_p(o_ptr))
 				{
 					do_kill = TRUE;
@@ -2472,6 +2266,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		}
 	}
 
+	TFREE(o_name);
+
 	/* Return "Anything seen?" */
 	return (obvious);
 }
@@ -2541,7 +2337,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-    char killer [80];
+    C_TNEW(m_name, MNAME_MAX, char);
 
 	cptr name = (r_name + r_ptr->name);
 
@@ -2575,7 +2371,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Hold the monster name */
-	char m_name[80];
+	C_TNEW(killer, MNAME_MAX, char);
 
 	/* Assume no note */
 	cptr note = NULL;
@@ -2584,10 +2380,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	cptr note_dies = " dies.";
 
 	/* Nobody here */
-	if (!c_ptr->m_idx) return (FALSE);
+	if (!c_ptr->m_idx ||
 
 	/* Never affect projector */
-	if (who && (c_ptr->m_idx == who)) return (FALSE);
+		(who && (c_ptr->m_idx == who)))
+	{
+		TFREE(killer);
+		return (FALSE);
+	}
 
 
 	/* Reduce damage by distance */
@@ -2595,7 +2395,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Get the monster name (BEFORE polymorphing) */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 
 
@@ -3168,7 +2968,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				skill_exp(SKILL_SAVE);
 			    } else {
 				/* Injure +/- confusion */
-				monster_desc(killer, m_ptr, 0x88);
+				monster_desc(killer, m_ptr, 0x88, MNAME_MAX);
                 take_hit(dam, killer);  /* has already been /3 */
 				if (randint(4) == 1) {
 				    switch (randint(4)) {
@@ -3242,7 +3042,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				skill_exp(SKILL_SAVE);
 			    } else {
 				/* Injure + mana drain */
-				monster_desc(killer, m_ptr, 0x88);
+				monster_desc(killer, m_ptr, 0x88, MNAME_MAX);
                 msg_print("Your psychic energy is drained!");
                 p_ptr->cchi = MAX(0, p_ptr->cchi - damroll(5, dam)/2);
 				p_ptr->redraw |= PR_MANA;
@@ -4276,7 +4076,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Absolutely no effect */
-	if (skipped) return (FALSE);
+	if (skipped)
+	{
+		TFREE(killer);
+		return (FALSE);
+	}
 
 
 	/* "Unique" monsters cannot be polymorphed */
@@ -4343,7 +4147,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			delete_monster_idx(c_ptr->m_idx,TRUE);
 
 			/* Create a new monster (no groups) */
-            (void)place_monster_aux(y, x, tmp, FALSE, FALSE, charm);
+			(void)place_monster_aux(y, x, tmp, FALSE, FALSE, charm, FALSE);
 
 			/* XXX XXX XXX Hack -- Assume success */
 
@@ -4548,6 +4352,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	project_m_x = x;
 	project_m_y = y;
 
+	TFREE(killer);
 
 	/* Return "Anything seen?" */
 	return (obvious);
@@ -4557,6 +4362,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 
+/* in_bounds2() rewritten to avoid "always true" errors for unsigned variables. */
+#define in_bounds2_unsigned(Y,X) \
+	((Y) < cur_hgt && (X) < cur_wid)
 
 /*
  * Helper function for "project()" below.
@@ -4594,20 +4402,25 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	monster_type *m_ptr;
 
 	/* Monster name (for attacks) */
-	char m_name[80];
+	C_TNEW(m_name, MNAME_MAX, char);
 
 	/* Monster name (for damage) */
-	char killer[80];
+	C_TNEW(killer, MNAME_MAX, char);
 
 	/* Hack -- messages */
 	cptr act = NULL;
 
 
 	/* Player is not here */
-	if ((x != px) || (y != py)) return (FALSE);
+	if ((x != px) || (y != py) ||
 
 	/* Player cannot hurt himself */
-	if (!who) return (FALSE);
+		!who)
+	{
+		TFREE(m_name);
+		TFREE(killer);
+		return (FALSE);
+	}
 
 
     if (p_ptr->reflect && !a_rad && !(randint(10)==1))
@@ -4629,7 +4442,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
             max_attempts--;
         }
 
-        while ((max_attempts > 0) && in_bounds2(t_y, t_x) &&
+        while ((max_attempts > 0) && in_bounds2_unsigned(t_y, t_x) &&
                       !(player_has_los_bold(t_y, t_x)));
 
         if (max_attempts < 1)
@@ -4642,6 +4455,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
         project(0, 0, t_y, t_x, dam, typ,
             (PROJECT_STOP|PROJECT_KILL));
         disturb(1, 0);
+		TFREE(m_name);
+		TFREE(killer);
         return TRUE;
     }
 
@@ -4661,10 +4476,10 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	m_ptr = &m_list[who];
 
 	/* Get the monster name */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 	/* Get the monster's real name */
-	monster_desc(killer, m_ptr, 0x88);
+	monster_desc(killer, m_ptr, 0x88, MNAME_MAX);
 
 
 	/* Analyze the damage */
@@ -5275,6 +5090,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	/* Disturb */
 	disturb(1, 0);
 
+
+	TFREE(killer);
+	TFREE(m_name);
 
 	/* Return "Anything seen?" */
 	return (obvious);
@@ -5964,7 +5782,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
                         max_attempts--;
                     }
 
-                    while ((max_attempts > 0) && in_bounds2(t_y, t_x) &&
+                    while ((max_attempts > 0) && in_bounds2_unsigned(t_y, t_x) &&
                             !(los(y, x, t_y, t_x)));
 
                     if (max_attempts < 1)

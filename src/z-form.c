@@ -1,12 +1,10 @@
+#define Z_FORM_C
 /* File: z-form.c */
 
 /* Purpose: Low level text formatting -BEN- */
 
-#include "z-form.h"
-
-#include "z-util.h"
 #include "z-virt.h"
-
+#include "externs.h"
 
 /*
  * Here is some information about the routines in this file.
@@ -556,12 +554,20 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			case 's':
 			{
 				cptr arg;
+				char arg2[1024];
 
 				/* Access next argument */
 				arg = va_arg(vp, cptr);
 
 				/* Hack -- convert NULL to EMPTY */
 				if (!arg) arg = "";
+
+				/* Hack -- trim long strings */
+				else if (strlen(arg) >= 1024)
+				{
+					sprintf(arg2, "%.*s", 1023, arg);
+					arg = arg2;
+				}
 
 				/* Format the argument */
 				sprintf(tmp, aux, arg);
@@ -641,7 +647,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
  * Do a vstrnfmt (see above) into a (growable) static buffer.
  * This buffer is usable for very short term formatting of results.
  */
-char *vformat(cptr fmt, va_list vp)
+static char *vformat(cptr fmt, va_list vp)
 {
 	static char *format_buf = NULL;
 	static huge format_len = 0;
@@ -668,7 +674,7 @@ char *vformat(cptr fmt, va_list vp)
 		if (len < format_len-1) break;
 
 		/* Grow the buffer */
-		C_KILL(format_buf, format_len, char);
+		KILL(format_buf);
 		format_len = format_len * 2;
 		C_MAKE(format_buf, format_len, char);
 	}
@@ -702,6 +708,7 @@ uint strnfmt(char *buf, uint max, cptr fmt, ...)
 }
 
 
+#if 0
 /*
  * Do a vstrnfmt (see above) into a buffer of unknown size.
  * Since the buffer size is unknown, the user better verify the args.
@@ -724,6 +731,7 @@ uint strfmt(char *buf, cptr fmt, ...)
 	/* Return the number of bytes written */
 	return (len);
 }
+#endif
 
 
 
@@ -801,6 +809,7 @@ void quit_fmt(cptr fmt, ...)
 
 
 
+#if 0
 /*
  * Vararg interface to core()
  */
@@ -821,5 +830,5 @@ void core_fmt(cptr fmt, ...)
 	/* Call core() */
 	core(res);
 }
-
+#endif /* 0 */
 

@@ -1,3 +1,4 @@
+#define CMD5_C
 /* File: cmd5.c */
 
 /* Purpose: Spell/Prayer commands */
@@ -14,9 +15,15 @@
 #include "angband.h"
 
 
-extern void do_cmd_rerate(void);
-extern void chaos_feature_shuffle(void);
-extern bool item_tester_hook_armour(object_type *o_ptr);
+static s16b cantrip_chance(int ctp);
+static void print_favours(byte *spells, int num, int y, int x, int sphere);
+static s16b favour_chance(int fav,int sphere);
+static bool spirit_okay(int spirit, bool call);
+static void print_spirits(int *valid_spirits,int num,int y, int x);
+static void rustproof(void);
+static s32b favour_annoyance(favour_type *f_ptr);
+static void annoy_spirit(spirit_type *s_ptr,u32b amount);
+
 
 
 /*
@@ -47,7 +54,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int school_no)
 
 	cptr p = "spell";
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      /* Get the spell, if available */
      if (repeat_pull(sn)) {
@@ -96,17 +103,24 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int school_no)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
+	if (show_choices_main)
+	{
+		/* Show list */
+		redraw = TRUE;
+		Term_save();
+		print_spells(spells, num, 1, -1, school_no);
+	}		
+	else
+	{
 	/* No redraw yet */
 	redraw = FALSE;
+	}
 
 	/* Show choices */
 	if (show_choices)
 	{
 		/* Update */
 		p_ptr->window |= (PW_SPELL);
-
-		/* Window stuff */
-		window_stuff();
 	}
 
 
@@ -130,7 +144,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int school_no)
 				Term_save();
 
 				/* Display a list of spells */
-				print_spells(spells, num, 1, 20, school_no);
+				print_spells(spells, num, 1, -1, school_no);
 			}
 
 			/* Hide the list */
@@ -206,9 +220,6 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int school_no)
 	{
 		/* Update */
 		p_ptr->window |= (PW_SPELL);
-
-		/* Window stuff */
-		window_stuff();
 	}
 
 
@@ -218,7 +229,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int school_no)
 	/* Save the choice */
 	(*sn) = spell;
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
  	repeat_push(*sn);
  
@@ -231,7 +242,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int school_no)
 /*
  * Determine if a cantrip is "okay" for the player to cast
  */
-bool cantrip_okay(int fav)
+static bool cantrip_okay(int fav)
 {
 	byte plev = skill_set[SKILL_HEDGE].value/2;
 	cantrip_type *s_ptr;
@@ -323,7 +334,7 @@ int get_cantrip(int *sn, int sval)
 
 	char		out_val[160];
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      /* Get the spell, if available */
      if (repeat_pull(sn)) {
@@ -372,17 +383,24 @@ int get_cantrip(int *sn, int sval)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
+	if (show_choices_main)
+	{
+		/* Show list */
+		redraw = TRUE;
+		Term_save();
+		print_cantrips(spells, num, 1, 20);
+	}		
+	else
+	{
 	/* No redraw yet */
 	redraw = FALSE;
+	}
 
 	/* Show choices */
 	if (show_choices)
 	{
 		/* Update */
 		p_ptr->window |= (PW_SPELL);
-
-		/* Window stuff */
-		window_stuff();
 	}
 
 
@@ -482,9 +500,6 @@ int get_cantrip(int *sn, int sval)
 	{
 		/* Update */
 		p_ptr->window |= (PW_SPELL);
-
-		/* Window stuff */
-		window_stuff();
 	}
 
 
@@ -494,7 +509,7 @@ int get_cantrip(int *sn, int sval)
 	/* Save the choice */
 	(*sn) = spell;
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
  	repeat_push(*sn);
  
@@ -507,7 +522,7 @@ int get_cantrip(int *sn, int sval)
 /*
  * Determine if a favour is "okay" for the player to cast
  */
-bool favour_okay(int fav,  int sphere)
+static bool favour_okay(int fav,  int sphere)
 {
 	byte plev = skill_set[SKILL_SHAMAN].value/2;
 	favour_type *s_ptr;
@@ -526,7 +541,7 @@ bool favour_okay(int fav,  int sphere)
 /*
  * Returns cantrip chance of failure (much simpler than 'spell_chance')
  */
-s16b cantrip_chance(int ctp)
+static s16b cantrip_chance(int ctp)
 {
 	int             chance, minfail;
 	byte plev = skill_set[SKILL_HEDGE].value/2;
@@ -588,7 +603,7 @@ static int get_favour(int *sn, int spirit,int sphere)
 	char		out_val[160];
 
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      /* Get the spell, if available */
      if (repeat_pull(sn)) {
@@ -637,17 +652,24 @@ static int get_favour(int *sn, int spirit,int sphere)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
+	if (show_choices_main)
+	{
+		/* Show list */
+		redraw = TRUE;
+		Term_save();
+		print_favours(spells, num, 1, -1, sphere);
+	}		
+	else
+	{
 	/* No redraw yet */
 	redraw = FALSE;
+	}
 
 	/* Show choices */
 	if (show_choices)
 	{
 		/* Update */
 		p_ptr->window |= (PW_SPELL);
-
-		/* Window stuff */
-		window_stuff();
 	}
 
 
@@ -671,7 +693,7 @@ static int get_favour(int *sn, int spirit,int sphere)
 				Term_save();
 
 				/* Display a list of spells */
-				print_favours(spells, num, 1, 20, sphere);
+				print_favours(spells, num, 1, -1, sphere);
 			}
 
 			/* Hide the list */
@@ -747,9 +769,6 @@ static int get_favour(int *sn, int spirit,int sphere)
 	{
 		/* Update */
 		p_ptr->window |= (PW_SPELL);
-
-		/* Window stuff */
-		window_stuff();
 	}
 
 
@@ -759,7 +778,7 @@ static int get_favour(int *sn, int spirit,int sphere)
 	/* Save the choice */
 	(*sn) = spell;
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
  	repeat_push(*sn);
  
@@ -770,9 +789,19 @@ static int get_favour(int *sn, int spirit,int sphere)
 }
 
 /*
+ * Determine the energy used to invoke a specified favour.
+ */
+static int spirit_energy(int favour_sphere, int spell)
+{
+	int plev = MAX((skill_set[SKILL_SHAMAN].value/2), 1);
+	favour_type *f_ptr = &(favour_info[favour_sphere][spell]);
+	return spell_energy(plev,(u16b)(f_ptr->minskill));
+}
+
+/*
  * Print a list of favours (for invoking)
  */
-void print_favours(byte *spells, int num, int y, int x, int sphere)
+static void print_favours(byte *spells, int num, int y, int x, int sphere)
 {
 	int                     i, spell;
 
@@ -785,6 +814,9 @@ void print_favours(byte *spells, int num, int y, int x, int sphere)
 
 	char            out_val[160];
 
+	/* Hack - Treat an 'x' value of -1 as a request for a default value. */
+	if (x == -1) x = 15;
+
 	if (plev == 0) plev++;
     if ((sphere<0 || sphere>MAX_SPHERE - 1) && cheat_wzrd)
 	msg_print ("Warning! print_favours called with null sphere");
@@ -792,7 +824,7 @@ void print_favours(byte *spells, int num, int y, int x, int sphere)
     /* Title the list */
     prt("", y, x);
 	put_str("Name", y, x + 5);
-	put_str("Sk Fail Info", y, x + 40);
+	put_str("Sk Time Fail Info", y, x + 40);
 
 
     /* Dump the favours */
@@ -813,9 +845,9 @@ void print_favours(byte *spells, int num, int y, int x, int sphere)
 		}
 			
 		/* Dump the favour --(-- */
-		sprintf(out_val, "  %c) %-35s%2d %3d%%%s",
+		sprintf(out_val, "  %c) %-35s%2d %4d %3d%%%s",
 		I2A(i), favour_names[sphere][spell], /* sphere, spell */
-		s_ptr->minskill*2, favour_chance(spell,sphere), comment);
+		s_ptr->minskill*2, spirit_energy(sphere, spell), favour_chance(spell,sphere), comment);
 		prt(out_val, y + i + 1, x);
 	}
 
@@ -826,7 +858,7 @@ void print_favours(byte *spells, int num, int y, int x, int sphere)
 /*
  * Returns favour chance of failure (much simpler than 'spell_chance')
  */
-s16b favour_chance(int fav,int sphere)
+static s16b favour_chance(int fav,int sphere)
 {
 	int             chance, minfail;
 	byte plev = skill_set[SKILL_SHAMAN].value/2;
@@ -876,14 +908,13 @@ s16b favour_chance(int fav,int sphere)
 int get_spirit(int *sn, cptr prompt, bool call)
 {
 	int		i;
-	int		spirit = -1;
 	int		ask;
 	bool		flag, redraw, okay;
 	char		choice;
 	char		out_val[160];
 	int valid_spirits[MAX_SPIRITS],total;
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      /* Get the spirit, if available */
      if (repeat_pull(sn)) {
@@ -926,20 +957,26 @@ int get_spirit(int *sn, cptr prompt, bool call)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
-
 	/* Show choices */
 	if (show_choices)
 	{
 		/* Update */
 		p_ptr->window |= (PW_SPELL);
-
-		/* Window stuff */
-		window_stuff();
 	}
 
 
+	if (show_choices_main)
+	{
+		/* Show list */
+		redraw = TRUE;
+		Term_save();
+		print_spirits(valid_spirits,total,1, -1);
+	}
+	else
+	{
+		/* No redraw yet */
+		redraw = FALSE;
+	}
 	/* Build a prompt (accept all spirits) */
 	strnfmt(out_val, 78, "(%c-%c, *=List, ESC=exit) %^s which spirit? ",
 		I2A(0), I2A(total - 1), prompt);
@@ -960,7 +997,7 @@ int get_spirit(int *sn, cptr prompt, bool call)
 				Term_save();
 
 				/* Display a list of spirits */
-				print_spirits(valid_spirits,total,1, 20);
+				print_spirits(valid_spirits,total,1, -1);
 			}
 
 			/* Hide the list */
@@ -977,6 +1014,11 @@ int get_spirit(int *sn, cptr prompt, bool call)
 			continue;
 		}
 
+		/* Default option if unambiguous. */
+		if (choice == '\n' && total == 1)
+		{
+			choice = 'a';
+		}
 
 		/* Note verify */
 		ask = (isupper(choice));
@@ -985,17 +1027,17 @@ int get_spirit(int *sn, cptr prompt, bool call)
 		if (ask) choice = tolower(choice);
 
 		/* Extract request */
-		i = (islower(choice) ? A2I(choice) : -1);
+		i = (islower(choice) ? valid_spirits[A2I(choice)] : isdigit(choice) ? choice-'0' : -1);
 
 		/* Totally Illegal */
-		if ((i < 0) || (i >= total))
+		if ((i < 0) || (i >= MAX_SPIRITS))
 		{
 			bell();
 			continue;
 		}
 
 		/* Require "okay" spells */
-		if (!spirit_okay(valid_spirits[i], call))
+		if (!spirit_okay(i, call))
 		{
 			bell();
 			msg_format("You may not %s that spirit.", prompt);
@@ -1006,7 +1048,6 @@ int get_spirit(int *sn, cptr prompt, bool call)
 		flag = TRUE;
 	}
 
-
 	/* Restore the screen */
 	if (redraw) Term_load();
 
@@ -1016,9 +1057,6 @@ int get_spirit(int *sn, cptr prompt, bool call)
 	{
 		/* Update */
 		p_ptr->window |= (PW_SPELL);
-
-		/* Window stuff */
-		window_stuff();
 	}
 
 
@@ -1026,9 +1064,9 @@ int get_spirit(int *sn, cptr prompt, bool call)
 	if (!flag) return (FALSE);
 
 	/* Save the choice */
-	(*sn) = valid_spirits[i];
+	(*sn) = i;
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
  	repeat_push(*sn);
  
@@ -1044,7 +1082,7 @@ int get_spirit(int *sn, cptr prompt, bool call)
  * Set call to true to test if a spirit can be called upon
  * Set call to false to test if a spirit can form a pact
  */
-bool spirit_okay(int spirit, bool call)
+static bool spirit_okay(int spirit, bool call)
 {
 
 	byte plev = skill_set[SKILL_SHAMAN].value/2;
@@ -1073,7 +1111,7 @@ bool spirit_okay(int spirit, bool call)
 /*
  * Print a list of spirits (for initiating to or calling upon)
  */
-void print_spirits(int *valid_spirits,int num,int y, int x)
+static void print_spirits(int *valid_spirits,int num,int y, int x)
 {
 	int                     i;
 	byte plev = skill_set[SKILL_SHAMAN].value/2;
@@ -1081,6 +1119,10 @@ void print_spirits(int *valid_spirits,int num,int y, int x)
 	cptr            comment;
 	char            out_val[160];
 	char			full_name[80];
+
+	/* Hack - Treat an 'x' value of -1 as a request for a default value. */
+	if (x == -1) x = 15;
+
 	if(plev == 0) plev++;
     /* Title the list */
     prt("", y, x);
@@ -1126,8 +1168,8 @@ void print_spirits(int *valid_spirits,int num,int y, int x)
 		/* Pre-process the spirit name and description */
 		sprintf(full_name,"%s, %s",s_ptr->name,s_ptr->desc);
 		/* Now insert it into the line */
-		sprintf(out_val, "  %c) %-42s%s",
-		I2A(i), full_name,comment);
+		sprintf(out_val, "  %c/%d) %-42s%s",
+		I2A(i), valid_spirits[i], full_name,comment);
 		prt(out_val, y + i + 1, x);
 	}
 
@@ -1136,13 +1178,13 @@ void print_spirits(int *valid_spirits,int num,int y, int x)
 }
 
 
-void rustproof(void)
+static void rustproof(void)
 {
 	int		item;
 
 	object_type	*o_ptr;
 
-	char		o_name[80];
+	C_TNEW(o_name, ONAME_MAX, char);
 
 	/* Select a piece of armour */
 	item_tester_hook = item_tester_hook_armour;
@@ -1151,6 +1193,7 @@ void rustproof(void)
 	if (!get_item(&item, "Rustproof which piece of armour? ", TRUE, TRUE, TRUE))
 	{
 		if (item == -2) msg_print("You have nothing to rustproof.");
+		TFREE(o_name);
 		return;
 	}
 
@@ -1170,7 +1213,7 @@ void rustproof(void)
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
-	o_ptr->art_flags3 |= TR3_IGNORE_ACID;
+	o_ptr->flags3 |= TR3_IGNORE_ACID;
 
 	if ((o_ptr->to_a < 0) && !(o_ptr->ident & IDENT_CURSED))
 	{
@@ -1184,6 +1227,8 @@ void rustproof(void)
 		((item >= 0) ? "Your" : "The"), o_name,
 		((o_ptr->number > 1) ? "are" : "is"));
 
+	TFREE(o_name);
+	return;
 }
 
 
@@ -1236,6 +1281,8 @@ void do_cmd_browse(int item)
 	if(!item_tester_okay(o_ptr))
 	{
 		msg_print("You can't read that.");
+	
+
 		item_tester_tval = 0;
 		return;
 	}
@@ -1267,7 +1314,7 @@ void do_cmd_browse(int item)
 	Term_save();
 
 	/* Display the spells */
-	print_spells(spells, num, 1, 20, (o_ptr->tval-90));
+	print_spells(spells, num, 1, -1, (o_ptr->tval-90));
 
 	/* Clear the top line */
 	prt("", 0, 0);
@@ -1370,7 +1417,7 @@ void do_cmd_study(void)
 
 
 	/* Take a turn */
-	energy_use = 100;
+	energy_use = extract_energy[p_ptr->pspeed];
 
 
 	/* Learn the spell */
@@ -1586,13 +1633,12 @@ static void brand_weapon(int brand_type)
 	/* you can never modify artifacts / ego-items */
     /* you can never modify cursed items */
     /* TY: You _can_ modify broken items (if you're silly enough) */
-	if ((o_ptr->k_idx) &&
-	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-        (!(o_ptr->art_name)) && (!cursed_p(o_ptr)))
+	if ((o_ptr->k_idx) && (!allart_p(o_ptr)) &&
+	(!ego_item_p(o_ptr)) &&	(!cursed_p(o_ptr)))
 	{
 		cptr act = NULL;
 
-		char o_name[80];
+		C_TNEW(o_name, ONAME_MAX, char);
         object_desc(o_name, o_ptr, FALSE, 0); /* Let's get the name before
                                                 it is changed... */
 
@@ -1634,6 +1680,8 @@ static void brand_weapon(int brand_type)
 		msg_format("Your %s %s", o_name, act);
 
 		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+
+		TFREE(o_name);
 	}
 
 	else
@@ -1747,7 +1795,7 @@ static void call_the_(void)
 
 
 
-void wild_magic(int spell)
+static void wild_magic(int spell)
 {
     int counter = 0;
     int type = SUMMON_BIZARRE1 - 1 + (randint(6));
@@ -1810,7 +1858,7 @@ void wild_magic(int spell)
         case 34: case 35:
             while (counter++ < 8)
             {
-            (void) summon_specific(py, px, ((dun_level+dun_offset) * 3) / 2, type);
+            (void) summon_specific(py, px, ((dun_depth) * 3) / 2, type);
                     }
             break;
         case 36: case 37:
@@ -1824,7 +1872,6 @@ void wild_magic(int spell)
     return;
 }
 
-
 /*
  * Cast a spell
  */
@@ -1835,7 +1882,6 @@ void do_cmd_cast(void)
 	int	plev = 0;
 	int	spell_school = 0, dummy = 0;
 	int	i;
-	int	ii = 0, ij = 0;
 
 	bool	none_came = FALSE;
 	const cptr prayer = "spell";
@@ -1963,6 +2009,7 @@ void do_cmd_cast(void)
 		       break;
 	   case 2: /* Detect Doors and Traps */
 			(void)detect_traps();
+			mark_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
 		       break; 
@@ -2028,22 +2075,11 @@ void do_cmd_cast(void)
                  if (!get_aim_dir(&dir)) return;
                  (void) charm_monster(dir, plev);
                break;
-       case 19: /* Dimension Door */
-       {
-             msg_print("You open a dimensional gate. Choose a destination.");
-             if (!tgt_pt(&ii,&ij)) return;
-             p_ptr->energy -= 60 - plev;
-             if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) || (cave[ij][ii].feat == FEAT_WATER) ||
-             (distance(ij,ii,py,px) > plev + 2) ||
-             (!rand_int(plev * plev / 2)))
-             {
-                 msg_print("You fail to exit the astral plane correctly!");
-                 p_ptr->energy -= 100;
-                 teleport_player(10);
-             }
-             else teleport_player_to(ij,ii);
-             break;
-            }
+		case 19: /* Dimension Door */
+		{
+			if (!dimension_door(plev, 10)) return;
+			break;
+		}
 
        case 20: /* Sense Minds */
             (void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
@@ -2266,15 +2302,7 @@ void do_cmd_cast(void)
             break;
         case 20: /* Alter Reality */
 			msg_print("The world changes!");
-                if (autosave_l)
-                {
-                    is_autosave = TRUE;
-                    msg_print("Autosaving the game...");
-                    do_cmd_save_game();
-                    is_autosave = FALSE;
-                }
-			new_level_flag = TRUE;
-			came_from=START_RANDOM;
+			change_level(dun_level, START_RANDOM);
 			break;
         case 21: /* Polymorph Self */
             do_poly_self();
@@ -2387,7 +2415,7 @@ void do_cmd_cast(void)
             else if (die < 14)
             {
                 msg_print("Oh no! It's the Devil!");
-                (void) summon_specific(py, px, (dun_level+dun_offset), SUMMON_DEMON);
+                (void) summon_specific(py, px, (dun_depth), SUMMON_DEMON);
             }
             else if (die < 18 )
             {
@@ -2408,7 +2436,7 @@ void do_cmd_cast(void)
             else if (die < 30)
             {
                 msg_print("It's a picture of a strange monster.");
-                if (!(summon_specific(py, px, ((dun_level+dun_offset) * 3) / 2, 32 + randint(6))))
+                if (!(summon_specific(py, px, ((dun_depth) * 3) / 2, 32 + randint(6))))
                     none_came = TRUE;
             }
             else if (die < 33)
@@ -2459,25 +2487,25 @@ void do_cmd_cast(void)
             else if (die<82)
             {
                 msg_print("It's a picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, ((dun_level+dun_offset) * 3) / 2, SUMMON_BIZARRE1, FALSE)))
+                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_BIZARRE1, FALSE)))
                     none_came = TRUE;
             }
             else if (die<84)
             {
                 msg_print("It's a picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, ((dun_level+dun_offset) * 3) / 2, SUMMON_BIZARRE2, FALSE)))
+                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_BIZARRE2, FALSE)))
                     none_came = TRUE;
             }
             else if (die<86)
             {
                 msg_print("It's a picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, ((dun_level+dun_offset) * 3) / 2, SUMMON_BIZARRE4, FALSE)))
+                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_BIZARRE4, FALSE)))
                     none_came = TRUE;
             }
             else if (die<88)
             {
                 msg_print("It's a picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, ((dun_level+dun_offset) * 3) / 2, SUMMON_BIZARRE5, FALSE)))
+                if (!(summon_specific_friendly(py, px, ((dun_depth) * 3) / 2, SUMMON_BIZARRE5, FALSE)))
                     none_came = TRUE;
             }
             else if (die<96)
@@ -2512,12 +2540,9 @@ void do_cmd_cast(void)
             else
             {
                 msg_print("It's the World.");
-                if (p_ptr->exp < PY_MAX_EXP)
-                {
                     msg_print("You feel more experienced.");
 					gain_skills(100);
                 }
-            }
 
            }
         break;
@@ -2550,18 +2575,7 @@ void do_cmd_cast(void)
         break;
         case 5: /* Dimension Door */
        {
-             msg_print("You open a dimensional gate. Choose a destination.");
-             if (!tgt_pt(&ii,&ij)) return;
-             p_ptr->energy -= 60 - plev;
-             if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) || (cave[ij][ii].feat == FEAT_WATER) ||
-             (distance(ij,ii,py,px) > plev + 2) ||
-             (!rand_int(plev * plev / 2)))
-             {
-                 msg_print("You fail to exit the astral plane correctly!");
-                 p_ptr->energy -= 100;
-                 teleport_player(10);
-             }
-             else teleport_player_to(ij,ii);
+			if (!dimension_door(plev, 10)) return;
              break;
             }
         case 6: /* Planar Spying */
@@ -3053,7 +3067,7 @@ void do_cmd_cast(void)
 
                if (die < 8) {
                msg_print("Oh no! Mouldering forms rise from the earth around you!");
-               (void) summon_specific(py, px, (dun_level+dun_offset), SUMMON_UNDEAD);
+               (void) summon_specific(py, px, (dun_depth), SUMMON_UNDEAD);
                } else if (die < 14) {
                msg_print("An unnamable evil brushes against your mind...");
                set_afraid(p_ptr->afraid + randint(4) + 4);
@@ -3260,8 +3274,6 @@ void do_cmd_cast(void)
 			/* A spell was cast */
 		if (!(spell_worked[spell_school] & (1L << (spell))))
 		{
-			int e = s_ptr->sexp;
-
 			/* The spell worked */
 	   		spell_worked[spell_school] |= (1L << spell);
 		}
@@ -3324,9 +3336,7 @@ void do_cmd_cantrip(void)
 	int	chance, beam;
 	int	plev = 0;
 	int	dummy = 0;
-	int	ii = 0, ij = 0;
 
-	bool	none_came = FALSE;
 	const cptr prayer = "cantrip";
 	bool from_pouch = FALSE;
 	bool item_break = FALSE;
@@ -3454,6 +3464,7 @@ void do_cmd_cantrip(void)
         break;
         case 8: /* Detect Doors & Traps */
 			(void)detect_traps();
+			mark_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
         break;
@@ -3585,11 +3596,11 @@ void do_cmd_cantrip(void)
 	/* Take some time - a cantrip always takes 100, unless the charm is in a pouch */
 	if (from_pouch)
 	{
-		energy_use = 10;
+		energy_use = TURN_ENERGY/10;
 	}
 	else
 	{
-		energy_use = 100;
+		energy_use = extract_energy[p_ptr->pspeed];
 	}
 
 	/* If item is going to break, give it a chance of survival at low skill levels, on
@@ -3641,7 +3652,7 @@ void do_cmd_cantrip(void)
 /*
  * calculate the annoyance factor of a favour
  */
-s32b favour_annoyance(favour_type *f_ptr)
+static s32b favour_annoyance(favour_type *f_ptr)
 {
 	s32b annoy;
 
@@ -3660,7 +3671,7 @@ s32b favour_annoyance(favour_type *f_ptr)
 /*
  * annoy a spirit
  */
-void annoy_spirit(spirit_type *s_ptr,u32b amount)
+static void annoy_spirit(spirit_type *s_ptr,u32b amount)
 {
 	u32b old_annoy;
 	p_ptr->redraw |= (PR_SPIRIT);
@@ -3693,8 +3704,7 @@ void do_cmd_invoke(void)
 	int	spell, dir;
 	int	chance, beam;
 	u16b	plev = 0;
-	int	favour_sphere = 0, dummy = 0;
-	int	ii = 0, ij = 0;
+	int	favour_sphere = 0;
 	int spirit;
 	bool	none_came = FALSE;
 
@@ -3746,13 +3756,21 @@ void do_cmd_invoke(void)
 	/* Spell failure chance */
 	chance = favour_chance(spell,favour_sphere);
 
+	/* Don't punish those silly enough to pray to an angry spirit too harshly. */
+	if (s_ptr->annoyance)
+	{
+		if (flush_failure) flush();
+		msg_format("You feel that %s isn't listening...", s_ptr->name);
+		/* And sit still for a little while to avoid this being a short wait command. */
+		energy_use = extract_energy[p_ptr->pspeed];
+	}
 	/* Failed spell */
-	if ((rand_int(100) < chance) || (s_ptr->annoyance))
+	else if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
 		msg_format("%s refuses your call!",s_ptr->name);
 		/* the call still took energy */
-		energy_use = spell_energy(plev,(u16b)(f_ptr->minskill));
+		energy_use = spirit_energy(favour_sphere, spell);
 		/* The spirit still gets somewhat pissed off */
 		annoy_spirit(s_ptr,rand_int(favour_annoyance(f_ptr)));
 		/* Chance for retribution based on level of favour */
@@ -3766,7 +3784,7 @@ void do_cmd_invoke(void)
 	else
 	{
 		/* the call takes energy */
-		energy_use = spell_energy(plev,(u16b)(f_ptr->minskill));
+		energy_use = spirit_energy(favour_sphere, spell);
 		/* The spirit gets pissed off */
 		annoy_spirit(s_ptr,favour_annoyance(f_ptr));
 
@@ -3796,6 +3814,7 @@ void do_cmd_invoke(void)
 		       break;
 	   case 5: /* Detect Traps + Secret Doors */
 			(void)detect_traps();
+			mark_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
 		       break;
@@ -3937,6 +3956,7 @@ void do_cmd_invoke(void)
 		       break;
 	   case 2: /* Detect Doors + Traps */
 			(void)detect_traps();
+			mark_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
 		       break; 
@@ -3976,6 +3996,7 @@ void do_cmd_invoke(void)
        case 10: /* Nature Awareness -- downgraded */
 			map_area();
 			(void)detect_traps();
+			mark_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
 			(void)detect_monsters_normal();
@@ -4105,9 +4126,6 @@ void do_cmd_invoke(void)
 		}
 	}
 
-	/* Take some time - a spell of your level takes 100, lower level spells take less */
-	energy_use = spell_energy((u16b)plev,(u16b)(f_ptr->minskill));
-
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
 	p_ptr->window |=(PW_SPELL);
@@ -4137,6 +4155,78 @@ void mindcraft_info(char *p, int power)
     }
 }
 
+/*
+ * Calculate the enrgy required for a given mindcrafting power.
+ */
+static int mindcraft_energy(int power)
+{
+    int psi = skill_set[SKILL_MINDCRAFTING].value/2;
+    mindcraft_power spell = mindcraft_powers[power];
+
+	return spell_energy((u16b)psi,(u16b)(spell.min_lev));
+}
+
+/*
+ * Display mindcrafting powers
+ */
+static void print_mindcraft(int x, int y)
+{
+	int i, chance, minfail, psi = skill_set[SKILL_MINDCRAFTING].value/2;
+	mindcraft_power spell;
+	char		comment[80];
+	/* Display a list of spells */
+	prt("", y, x);
+	put_str("Name", y, x + 5);
+	put_str("Sk  Chi Time Fail Info", y, x + 35);
+
+	/* Dump the spells */
+	for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
+	{
+		char psi_desc[80];
+
+		/* Access the spell */
+		spell = mindcraft_powers[i];
+		if (spell.min_lev > psi)   break;
+
+		chance = spell.fail;
+		/* Reduce failure rate by "effective" level adjustment */
+		chance -= 3 * ((skill_set[SKILL_MINDCRAFTING].value/2) - spell.min_lev);
+
+		/* Reduce failure rate by INT/WIS adjustment */
+		chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[A_WIS]] - 1);
+
+		/* Not enough mana to cast */
+		if (spell.mana_cost > p_ptr->cchi)
+		{
+			chance += 5 * (spell.mana_cost - p_ptr->cchi);
+		}
+		
+		/* Extract the minimum failure rate */
+		minfail = adj_mag_fail[p_ptr->stat_ind[A_WIS]];
+				    
+		/* Minimum failure rate */
+		if (chance < minfail) chance = minfail;
+
+		/* Stunning makes spells harder */
+		if (p_ptr->stun > 50) chance += 25;
+		else if (p_ptr->stun) chance += 15;
+
+		/* Always a 5 percent chance of working */
+		if (chance > 95) chance = 95;
+				    
+		/* Get info */
+		mindcraft_info(comment, i);
+				    
+		/* Dump the spell --(-- */
+		sprintf(psi_desc, "  %c) %-30s%2d %4d %4d %3d%%%s",
+		I2A(i), spell.name,
+		spell.min_lev*2, spell.mana_cost, mindcraft_energy(i), chance, comment);
+		prt(psi_desc, y + i + 1, x);
+	}
+
+	/* Clear the bottom line */
+	prt("", y + i + 1, x);
+}
 
 /*
  * Allow user to choose a mindcrafter power.
@@ -4158,27 +4248,20 @@ static int get_mindcraft_power(int *sn)
 
 	int                     num = 0;
     int y = 1;
-    int x = 20;
-    int minfail = 0;
-    
+    int x = 15;
         int  psi = skill_set[SKILL_MINDCRAFTING].value/2;
-    int chance = 0;
-    
     bool            flag, redraw;
     int             ask;
 	char            choice;
-
-        mindcraft_power spell;
-    
 	char            out_val[160];
-        char            comment[80];
+	mindcraft_power spell;
     
     cptr p = "power";
 
 	/* Assume cancelled */
 	*sn = (-1);
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      /* Get the spell, if available */
      if (repeat_pull(sn)) {
@@ -4196,9 +4279,18 @@ static int get_mindcraft_power(int *sn)
 
 	/* Nothing chosen yet */
 	flag = FALSE;
-
+	if (show_choices_main)
+	{
+		/* Show list */
+		redraw = TRUE;
+		Term_save();
+		print_mindcraft(x,y);
+	}		
+	else
+	{
 	/* No redraw yet */
 	redraw = FALSE;
+	}
 
        for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
 	      if (mindcraft_powers[i].min_lev <= psi)
@@ -4217,8 +4309,6 @@ static int get_mindcraft_power(int *sn)
             /* Show the list */
 			if (!redraw)
 			{
-                char psi_desc[80];
-
 				/* Show list */
 				redraw = TRUE;
 
@@ -4226,55 +4316,7 @@ static int get_mindcraft_power(int *sn)
 				Term_save();
 
 			    /* Display a list of spells */
-			    prt("", y, x);
-			    put_str("Name", y, x + 5);
-			    put_str("Sk  Chi Fail Info", y, x + 35);
-
-			    /* Dump the spells */
-			    for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
-				{
-				    /* Access the spell */
-				    spell = mindcraft_powers[i];
-				    if (spell.min_lev > psi)   break;
-
-				    chance = spell.fail;
-                    /* Reduce failure rate by "effective" level adjustment */
-                    chance -= 3 * ((skill_set[SKILL_MINDCRAFTING].value/2) - spell.min_lev);
-
-                    /* Reduce failure rate by INT/WIS adjustment */
-                    chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[A_WIS]] - 1);
-
-				    /* Not enough mana to cast */
-				    if (spell.mana_cost > p_ptr->cchi)
-					{
-                        chance += 5 * (spell.mana_cost - p_ptr->cchi);
-					}
-
-                    /* Extract the minimum failure rate */
-                    minfail = adj_mag_fail[p_ptr->stat_ind[A_WIS]];
-				    
-				    /* Minimum failure rate */
-                    if (chance < minfail) chance = minfail;
-
-				    /* Stunning makes spells harder */
-                    if (p_ptr->stun > 50) chance += 25;
-                    else if (p_ptr->stun) chance += 15;
-
-                    /* Always a 5 percent chance of working */
-				    if (chance > 95) chance = 95;
-				    
-				    /* Get info */
-				    mindcraft_info(comment, i);
-				    
-				    /* Dump the spell --(-- */
-                    sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
-                        I2A(i), spell.name,
-                        spell.min_lev*2, spell.mana_cost, chance, comment);
-                    prt(psi_desc, y + i + 1, x);
-				}
-
-			    /* Clear the bottom line */
-			    prt("", y + i + 1, x);
+				print_mindcraft(x,y);
 			}
 
 			/* Hide the list */
@@ -4340,9 +4382,6 @@ static int get_mindcraft_power(int *sn)
 	{
 		/* Update */
 		p_ptr->window |= (PW_SPELL);
-
-		/* Window stuff */
-		window_stuff();
 	}
 
 
@@ -4352,7 +4391,7 @@ static int get_mindcraft_power(int *sn)
 	/* Save the choice */
 	(*sn) = i;
  
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      repeat_push(*sn);
  
@@ -4452,7 +4491,12 @@ void do_cmd_mindcraft(void)
 				msg_print("Your mind unleashes its power in an uncontrollable storm!");
 				project(1, 2+psi/10, py, px,
                 psi * 2, GF_MANA,PROJECT_JUMP|PROJECT_KILL|PROJECT_GRID|PROJECT_ITEM);
+				if (p_ptr->cchi < spell.mana_cost)
+				{
 				p_ptr->cchi = MAX(0, p_ptr->cchi - psi * MAX(1, psi/10));
+				} else {
+					p_ptr->cchi = MAX(spell.mana_cost, p_ptr->cchi - psi * MAX(1, psi/10));
+				}
 			}
 	    }
 	}
@@ -4473,8 +4517,17 @@ void do_cmd_mindcraft(void)
 			if (psi < 30)
 			{
 				b = detect_monsters_normal();
-				if (psi > 14)  b |=  detect_monsters_invis();
-				if (psi > 4)   b |=  detect_traps();
+				if (psi > 19)  b |=  detect_monsters_invis();
+				if (psi > 14)
+				{
+					b |= detect_doors();
+					b |= detect_stairs();
+				}
+				if (psi > 4)
+				{
+					b |=  detect_traps();
+					mark_traps();
+				}
 			}
 			else
 			{
@@ -4501,22 +4554,7 @@ void do_cmd_mindcraft(void)
 			}
 			else
 			{
-				int i = 0, j = 0;
-				msg_print("Choose a destination.");
-				if (!tgt_pt(&i,&j)) return;
-				p_ptr->energy -= 60 - psi;
-				if (!cave_empty_bold(j,i) || (cave[j][i].info & CAVE_ICKY) || (cave[j][i].feat == FEAT_WATER) ||
-				(distance(j,i,py,px) > psi + 2) || (!rand_int(psi * psi / 2)))
-				{
-					msg_print("Something disrupts your concentration!");
-					p_ptr->energy -= 100;
-					teleport_player(20);
-				}
-				else
-				{
-					teleport_player_to(j,i);
-				}
-				break;
+				if (!dimension_door(psi, 20)) return;
 			}
 			break;
 		case 3:   /* Major displace */
@@ -4593,7 +4631,7 @@ void do_cmd_mindcraft(void)
 			if (!get_aim_dir(&dir)) return;
 			b = damroll(psi/2, 6);
 			if (fire_ball(GF_PSI_DRAIN, dir, b,  0 + (psi-25)/10))
-			p_ptr->energy -= randint(150);
+			p_ptr->energy -= randint(TURN_ENERGY*15/10);
 			break;
 		case 11:   /* Telekinesis */
 			msg_print("A wave of pure physical force radiates out from your body!");
@@ -4610,7 +4648,7 @@ void do_cmd_mindcraft(void)
 		}
 	}
 	/* Take a turn */
-	energy_use = spell_energy((u16b)psi,(u16b)(spell.min_lev));
+	energy_use = mindcraft_energy(n);
 
 	/* Sufficient mana */
 	if (spell.mana_cost <= p_ptr->cchi)

@@ -1,3 +1,5 @@
+#define DELAY_EXTERNS_H
+#define MAIN_DOS_C
 /* File: main-dos.c */
 
 /*
@@ -45,7 +47,7 @@
  * they modify the underlying "ascii" value of the key.  You must use the
  * new "user pref files" to be able to interact with the keypad and such.
  *
- * Note that "Term_xtra_dos_react()" allows runtime color, graphics, 
+ * Note that "Term_xtra_dos_react()" allows runtime color, graphics,
  * screen resolution, and sound modification.
  *
  *
@@ -54,7 +56,8 @@
  * one will be played when the event occures. Look at the
  * "lib/xtra/sound/sound.cfg" configuration file for more informations.
  *
- * The background music uses midi-files from the "lib/xtra/music" folder.
+ * The background music uses midi-files (and mod files) from the
+ * "lib/xtra/music" folder.
  *
  *
  * Comment by Ben Harrison (benh@phial.com):
@@ -71,18 +74,20 @@
 
 #ifdef USE_DOS
 
+/* #include "main.h" */
+
 #include <allegro.h>
 
 #ifdef USE_MOD_FILES
 #include <jgmod.h>
 #endif /* USE_MOD_FILES */
 
-
 #include <bios.h>
 #include <dos.h>
 #include <keys.h>
 #include <unistd.h>
 #include <dir.h>
+#include "externs.h"
 
 /*
  * Index of the first standard Angband color.
@@ -128,6 +133,8 @@ struct term_data
 
 	FONT *font;
 
+	bool uses_grx_font;
+
 #ifdef USE_GRAPHICS
 
 	BITMAP *tiles;
@@ -164,6 +171,13 @@ static term_data data[MAX_TERM_DATA];
 
 
 #ifdef USE_GRAPHICS
+
+/*
+ * Available graphic modes
+ */
+#define GRAPHICS_NONE       0
+#define GRAPHICS_ORIGINAL   1
+#define GRAPHICS_ADAM_BOLT  2
 
 /*
  * Are graphics already initialized ?
@@ -251,9 +265,8 @@ static char xtra_graf_dir[1024];
 static char xtra_sound_dir[1024];
 static char xtra_music_dir[1024];
 
-
 /*
- * List of the available videomodes to reduce executable size
+ * List of used videomodes to reduce executable size
  */
 BEGIN_GFX_DRIVER_LIST
 	GFX_DRIVER_VBEAF
@@ -266,7 +279,7 @@ END_GFX_DRIVER_LIST
 
 
 /*
- * Declare the videomode list
+ * List of used color depths to reduce executeable size
  */
 BEGIN_COLOR_DEPTH_LIST
 	COLOR_DEPTH_8
@@ -303,7 +316,6 @@ static void term_data_link(term_data *td);
 static void dos_dump_screen(void);
 static void dos_quit_hook(cptr str);
 static bool init_windows(void);
-errr init_dos(void);
 #ifdef USE_SOUND
 static bool init_sound(void);
 static errr Term_xtra_dos_sound(int v);
@@ -311,11 +323,7 @@ static void play_song(void);
 #endif /* USE_SOUND */
 #ifdef USE_GRAPHICS
 static bool init_graphics(void);
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp);
-# endif /* USE_TRANSPARENCY */
 #endif /* USE_GRAPHICS */
 
 
@@ -458,7 +466,7 @@ static errr Term_xtra_dos_event(int v)
 
 
 /*
- * React to global changes in the colors, graphics, and sound settings. 
+ * React to global changes in the colors, graphics, and sound settings.
  */
 static void Term_xtra_dos_react(void)
 {
@@ -477,12 +485,17 @@ static void Term_xtra_dos_react(void)
 	 */
 	for (i = 0; i < 16; i++)
 	{
+		RGB color;
+
 		/* Extract desired values */
 		char rv = angband_color_table[i][1] >> 2;
 		char gv = angband_color_table[i][2] >> 2;
 		char bv = angband_color_table[i][3] >> 2;
 
-		RGB color = { rv,  gv,  bv  };
+		/* Set the colors */
+		color.r = rv;
+		color.g = gv;
+		color.b = bv;
 
 		set_color(COLOR_OFFSET + i, &color);
 	}
@@ -501,7 +514,7 @@ static void Term_xtra_dos_react(void)
 			plog("Cannot initialize graphics!");
 
 			/* Cannot enable */
-			arg_graphics = FALSE;
+			arg_graphics = GRAPHICS_NONE;
 		}
 
 		/* Change setting */
@@ -519,7 +532,7 @@ static void Term_xtra_dos_react(void)
 	{
 		/* Clear the old song */
 		if (midi_song) destroy_midi(midi_song);
-		midi_song =NULL;
+		midi_song = NULL;
 
 #ifdef USE_MOD_FILES
 		if (mod_file_initialized)
@@ -534,7 +547,7 @@ static void Term_xtra_dos_react(void)
 		{
 			/* Warning */
 			plog("Cannot initialize sound!");
-			
+
 			/* Cannot enable */
 			arg_sound = FALSE;
 		}
@@ -545,12 +558,13 @@ static void Term_xtra_dos_react(void)
 
 #endif /* USE_SOUND */
 
+/* The following is wrong, but I don't know what it's trying to do. */
 #ifdef USE_SPECIAL_BACKGROUND
 
 	/*
 	 * Initialize the window backgrounds
 	 */
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		td = &data[i];
 
@@ -673,7 +687,6 @@ static errr Term_xtra_dos(int n, int v)
 		/* Do something useful if bored */
 		case TERM_XTRA_BORED:
 		{
-
 #ifdef USE_SOUND
 			/*
 			 * Check for end of song and start a new one
@@ -681,9 +694,9 @@ static errr Term_xtra_dos(int n, int v)
 			if (!use_sound) return (0);
 
 #ifdef USE_MOD_FILES
-			if (song_number && ((midi_pos == -1) && !is_mod_playing()))
+			if (song_number && (midi_pos < 0) && !is_mod_playing())
 #else /* USE_MOD_FILES */
-			if (song_number && (midi_pos == -1))
+			if (song_number && (midi_pos < 0))
 #endif /* USE_MOD_FILES */
 			{
 				if (song_number > 1)
@@ -691,7 +704,7 @@ static errr Term_xtra_dos(int n, int v)
 					/* Get a *new* song at random */
 					while (1)
 					{
-						n = randint(song_number);
+						n = Rand_simple(song_number) + 1;
 						if (n != current_song) break;
 					}
 					current_song = n;
@@ -760,14 +773,20 @@ static errr Term_user_dos(int n)
 
 	char section[80];
 
+	/* Unused parameter */
+	(void)n;
+
 	/* Interact */
 	while (1)
 	{
 		/* Clear screen */
 		Term_clear();
 
+		/* Print date and time of compilation */
+		prt(format("Compiled: %s %s\n", __TIME__, __DATE__), 1, 45);
+
 		/* Why are we here */
-		prt("DOS options", 2, 1);
+		prt("DOS options", 2, 0);
 
 		/* Give some choices */
 #ifdef USE_SOUND
@@ -898,7 +917,7 @@ static errr Term_user_dos(int n)
 				break;
 			}
 
-#endif /*USE_SOUND */
+#endif /* USE_SOUND */
 
 #ifdef USE_GRAPHICS
 
@@ -948,7 +967,7 @@ static errr Term_user_dos(int n)
 
 				/* Prompt */
 				prt("Command: Screen Resolution", 1, 0);
-				prt("Restart Cthangband to get the new screenmode.", 3, 0);
+				prt(format("Restart %s to get the new screenmode.", GAME_NAME), 3, 0);
 
 				/* Get a list of the available presets */
 				while (1)
@@ -971,7 +990,7 @@ static errr Term_user_dos(int n)
 				}
 
 				/* Get a new resolution */
-				prt(format("Screen Resolution : %d",resolution), 20, 0);
+				prt(format("Screen Resolution : %d", resolution), 20, 0);
 				k = inkey();
 				if (k == ESCAPE) break;
 				if (isdigit(k)) resolution = D2I(k);
@@ -1115,7 +1134,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 
 	int x1, y1;
 
-	char text[257];
+	unsigned char text[257];
 
 	/* Location */
 	x1 = x * td->tile_wid + td->x;
@@ -1144,7 +1163,6 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 		textout(screen, td->font, text, x1, y1,
 		       	COLOR_OFFSET + (a & 0x0F));
 	}
-
 	/* Stretch needed */
 	else
 	{
@@ -1156,7 +1174,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 		{
 			/* Build a one character string */
 			text[0] = cp[i];
-	
+
 			/* Dump some text */
 			textout(screen, td->font, text, x1, y1,
 		        	COLOR_OFFSET + (a & 0x0F));
@@ -1182,11 +1200,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
  * "ap[i]" and "cp[i]" values, but we must map the resulting value
  * onto the legal bitmap size, which is normally 32x32.  XXX XXX XXX
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -1196,12 +1210,7 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 
 	int x1, y1;
 	int x2, y2;
-
-# ifdef USE_TRANSPARENCY
-
 	int x3, y3;
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Size */
 	w = td->tile_wid;
@@ -1218,7 +1227,6 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 		x2 = (cp[i] & 0x7F) * w;
 		y2 = (ap[i] & 0x7F) * h;
 
-# ifdef USE_TRANSPARENCY
 		x3 = (tcp[i] & 0x7F) * w;
 		y3 = (tap[i] & 0x7F) * h;
 
@@ -1227,13 +1235,6 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 
 		/* Blit the tile to the screen */
 		masked_blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# else /* USE_TRANSPARENCY */
-
-		/* Blit the tile to the screen */
-		blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# endif /* USE_TRANSPARENCY */
 
 		/* Advance (window) */
 		x1 += w;
@@ -1251,6 +1252,9 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
  */
 static void Term_init_dos(term *t)
 {
+	/* Unused parameter */
+	(void)t;
+
 	/* XXX Nothing */
 }
 
@@ -1263,7 +1267,18 @@ static void Term_nuke_dos(term *t)
 	term_data *td = (term_data*)(t->data);
 
 	/* Free the terminal font */
-	if (td->font) destroy_font(td->font);
+	if (td->font)
+	{
+		if (td->uses_grx_font)
+		{
+			free(td->font->dat.dat_prop);
+			free(td->font);
+		}
+		else
+		{
+			destroy_font(td->font);
+		}
+	}
 
 #ifdef USE_GRAPHICS
 
@@ -1331,14 +1346,18 @@ static void dos_quit_hook(cptr str)
 {
 	int i;
 
-	/* Destroy sub-windows */
-	for (i = MAX_TERM_DATA - 1; i >= 1; i--)
+
+	/* Unused parameter */
+	(void)str;
+
+	/* Destroy windows */
+	for (i = MAX_TERM_DATA - 1; i >= 0; i--)
 	{
 		/* Unused */
-		if (!angband_term[i]) continue;
+		if (!windows[i].term) continue;
 
 		/* Nuke it */
-		term_nuke(angband_term[i]);
+		term_nuke(windows[i].term);
 	}
 
 
@@ -1421,31 +1440,22 @@ static void dos_dump_screen(void)
 }
 
 
-/*
- * GRX font file reader by Mark Wodrich.
+/* GRX font file reader by Mark Wodrich.
  *
  * GRX FNT files consist of the header data (see struct below). If the font
- * is proportional, followed by a table of widths per character (unsigned 
+ * is proportional, followed by a table of widths per character (unsigned
  * shorts). Then, the data for each character follows. 1 bit/pixel is used,
  * with each line of the character stored in contiguous bytes. High bit of
  * first byte is leftmost pixel of line.
  *
- * Note that GRX FNT files can have a variable number of characters, so you
- * must verify that any "necessary" characters exist before using them.
- *
- * The GRX FNT files were developed by ???.
+ * Note : FNT files can have a variable number of characters, so we must
+ *        check that the chars 32..127 exist.
  */
 
-
-/*
- * Magic value
- */
-#define FONTMAGIC	0x19590214L
+#define FONTMAGIC       0x19590214L
 
 
-/*
- * .FNT file header
- */
+/* .FNT file header */
 typedef struct
 {
 	unsigned long  magic;
@@ -1463,27 +1473,25 @@ typedef struct
 } FNTfile_header;
 
 
-/*
- * Temporary space to store font bitmap
- */
 #define GRX_TMP_SIZE    4096
 
 
+
 /* converts images from bit to byte format */
-void convert_grx_bitmap(int width, int height, unsigned char *src, unsigned char *dest) 
+static void convert_grx_bitmap(int width, int height, unsigned char *src, unsigned char *dest)
 {
 	unsigned short x, y, bytes_per_line;
 	unsigned char bitpos, bitset;
 
-	bytes_per_line = (width+7) >> 3;
+	bytes_per_line = (width + 7) >> 3;
 
-	for (y=0; y<height; y++)
+	for (y = 0; y < height; y++)
 	{
-		for (x=0; x<width; x++)
+		for (x = 0; x < width; x++)
 		{
 			bitpos = 7-(x&7);
-			bitset = !!(src[(bytes_per_line*y) + (x>>3)] & (1<<bitpos));
-			dest[y*width+x] = bitset;
+			bitset = !!(src[(bytes_per_line * y) + (x >> 3)] & (1 << bitpos));
+			dest[y * width + x] = bitset;
 		}
 	}
 }
@@ -1491,8 +1499,7 @@ void convert_grx_bitmap(int width, int height, unsigned char *src, unsigned char
 
 
 /* reads GRX format images from disk */
-static unsigned char **load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
-	int numchar, unsigned short *wtable) 
+static unsigned char **load_grx_bmps(PACKFILE *f, FNTfile_header *hdr, int numchar, unsigned short *wtable)
 {
 	int t, width, bmp_size;
 	unsigned char *temp;
@@ -1507,25 +1514,27 @@ static unsigned char **load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
 	/* temporary working area to store FNT bitmap */
 	temp = malloc(GRX_TMP_SIZE);
 
-	for (t=0; t<numchar; t++)
+	for (t = 0; t < numchar; t++)
 	{
 		/* if prop. get character width */
-		if (!hdr->isfixed) width = wtable[t];
+		if (!hdr->isfixed)
+			width = wtable[t];
 
 		/* work out how many bytes to read */
-		bmp_size = ((width+7) >> 3) * hdr->height;
+		bmp_size = ((width + 7) >> 3) * hdr->height;
 
 		/* oops, out of space! */
 		if (bmp_size > GRX_TMP_SIZE)
 		{
-	 		free(temp);
-	 		for (t--; t>=0; t--) free(bmp[t]);
-	 		free(bmp);
-	 		return NULL;
+			free(temp);
+			for (t--; t >= 0; t--)
+			free(bmp[t]);
+			free(bmp);
+			return NULL;
 		}
 
 		/* alloc space for converted bitmap */
-		bmp[t] = malloc(width*hdr->height);
+		bmp[t] = malloc(width * hdr->height);
 
 		/* read data */
 		pack_fread(temp, bmp_size, f);
@@ -1539,58 +1548,45 @@ static unsigned char **load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
 }
 
 
+
 /* main import routine for the GRX font format */
-FONT *import_grx_font(char *fname)
+static FONT *import_grx_font(char *fname)
 {
 	PACKFILE *f;
-
-	/* GRX font header */
-	FNTfile_header hdr;
-
-	/* number of characters in the font */
-	int numchar;
-
-	/* table of widths for each character */
-	unsigned short *wtable = NULL;
-
-	/* array of font bitmaps */
-	unsigned char **bmp;
-
-	/* the Allegro font */
-	FONT *font = NULL;
-
+	FNTfile_header hdr;              /* GRX font header */
+	int numchar;                     /* number of characters in the font */
+	unsigned short *wtable = NULL;   /* table of widths for each character */
+	unsigned char **bmp;             /* array of font bitmaps */
+	FONT *font = NULL;               /* the Allegro font */
 	FONT_PROP *font_prop;
 	int c, c2, start, width;
 
-
 	f = pack_fopen(fname, F_READ);
+	if (!f)
+		return NULL;
 
-	if (!f) return NULL;
+	pack_fread(&hdr, sizeof(hdr), f);      /* read the header structure */
 
-	/* read the header structure */
-	pack_fread(&hdr, sizeof(hdr), f);
-
-	/* check magic number */
-	if (hdr.magic != FONTMAGIC)
+	if (hdr.magic != FONTMAGIC)		/* check magic number */
 	{
 		pack_fclose(f);
 		return NULL;
 	}
 
-	numchar = hdr.maxchar-hdr.minchar+1;
+	numchar = hdr.maxchar - hdr.minchar + 1;
 
-	/* proportional font */
-	if (!hdr.isfixed)
+	if (!hdr.isfixed)                    /* proportional font */
 	{
 		wtable = malloc(sizeof(unsigned short) * numchar);
 		pack_fread(wtable, sizeof(unsigned short) * numchar, f);
 	}
 
 	bmp = load_grx_bmps(f, &hdr, numchar, wtable);
+	if (!bmp)
+		goto get_out;
 
-	if (!bmp) goto get_out;
-
-	if (pack_ferror(f)) goto get_out;
+	if (pack_ferror(f))
+		goto get_out;
 
 	font = malloc(sizeof(FONT));
 	font->height = -1;
@@ -1600,16 +1596,17 @@ FONT *import_grx_font(char *fname)
 	start = 32 - hdr.minchar;
 	width = hdr.width;
 
-	for (c=0; c<FONT_SIZE; c++)
+	for (c = 0; c  <FONT_SIZE; c++)
 	{
 		c2 = c+start;
 
 		if ((c2 >= 0) && (c2 < numchar))
 		{
-			if (!hdr.isfixed) width = wtable[c2];
+			if (!hdr.isfixed)
+				width = wtable[c2];
 
 			font_prop->dat[c] = create_bitmap_ex(8, width, hdr.height);
-			memcpy(font_prop->dat[c]->dat, bmp[c2], width*hdr.height);
+			memcpy(font_prop->dat[c]->dat, bmp[c2], width * hdr.height);
 		}
 		else
 		{
@@ -1618,15 +1615,17 @@ FONT *import_grx_font(char *fname)
 		}
 	}
 
-get_out:
+	get_out:
 
 	pack_fclose(f);
 
-	if (wtable) free(wtable);
+	if (wtable)
+	free(wtable);
 
 	if (bmp)
 	{
-		for (c=0; c<numchar; c++) free(bmp[c]);
+		for (c = 0; c < numchar; c++)
+			free(bmp[c]);
 
 		free(bmp);
 	}
@@ -1657,7 +1656,7 @@ static bool init_windows(void)
 	num_windows = get_config_int(section, "num_windows", 1);
 
 	/* Paranoia */
-	if (num_windows > 8) num_windows = 8;
+	if (num_windows > MAX_TERM_DATA) num_windows = MAX_TERM_DATA;
 
 	/* Init the terms */
 	for (i = 0; i < num_windows; i++)
@@ -1701,6 +1700,8 @@ static bool init_windows(void)
 			{
 				quit_fmt("Error reading font file '%s'", filename);
 			}
+
+			td->uses_grx_font = TRUE;
 		}
 
 		/* Load a "*.dat" file */
@@ -1729,7 +1730,7 @@ static bool init_windows(void)
 
 		/* Link the term */
 		term_data_link(td);
-		angband_term[i] = &td->t;
+		windows[i].term = &td->t;
 	}
 
 	/* Success */
@@ -1810,7 +1811,7 @@ static bool init_graphics(void)
 		bitmap_hgt = get_config_int(section, "bitmap_hgt", 8);
 
 		/* Get bitmap filename */
-		strcpy(name_tiles, get_config_string(section, "bitmap_file", "16x16.bmp"));
+		strcpy(name_tiles, get_config_string(section, "bitmap_file", "8x8.bmp"));
 
 		/* Get number of windows */
 		num_windows = get_config_int(section, "num_windows", 1);
@@ -1823,6 +1824,15 @@ static bool init_graphics(void)
 		{
 			int i;
 
+			/*
+			 * Set the graphics mode to "new" if Adam Bolt's
+			 * new 16x16 tiles are used.
+			 */
+			ANGBAND_GRAF = get_config_string(section, "graf-mode", "old");
+
+			/* Use transparent blits */
+			if (streq(ANGBAND_GRAF, "new"))
+				use_transparency = TRUE;
 
 			/* Select the bitmap pallete */
 			set_palette_range(tiles_pallete, 0, COLOR_OFFSET - 1, 0);
@@ -1920,7 +1930,7 @@ static bool init_sound(void)
 		 * The parameter for install_mod() is the number
 		 * of channels reserved for the MOD/S3M-file.
 		 */
-		if (install_mod(16) > 0) mod_file_initialized = TRUE;
+		if (install_mod(8) > 0) mod_file_initialized = TRUE;
 #endif /* USE_MOD_FILES */
 
 		/* Access the new sample */
@@ -1933,10 +1943,10 @@ static bool init_sound(void)
 		strcpy(section, "Sound");
 
 		/* Prepare the sounds */
-		for (i = 0; i < SOUND_MAX; i++)
+		for (i = 1; i < SOUND_MAX; i++)
 		{
 			/* Get the sample names */
-			argv = get_config_argv(section, angband_sound_name[i], &sample_count[i]);
+			argv = get_config_argv(section, (char *)angband_sound_name[i], &sample_count[i]);
 
 			/* Limit the number of samples */
 			if (sample_count[i] > SAMPLE_MAX) sample_count[i] = SAMPLE_MAX;
@@ -1957,20 +1967,19 @@ static bool init_sound(void)
 #ifdef USE_MOD_FILES
 		if (mod_file_initialized)
 		{
-			done = findfirst(format("%s/*.*",xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
+			done = findfirst(format("%s/*.*", xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
 		}
 		else
 #endif /* USE_MOD_FILES */
-		done = findfirst(format("%s/*.mid",xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
+		done = findfirst(format("%s/*.mid", xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
 
 
-		while (!done && (song_number <= MAX_SONGS))
+		while (!done && (song_number < MAX_SONGS))
 		{
 			/* Add music files */
-			{
-				strcpy(music_files[song_number], f.ff_name);
-				song_number++;
-			}
+			strncpy(music_files[song_number], f.ff_name, 15);
+			music_files[song_number][15] = '\0';
+			song_number++;
 
 			done = findnext(&f);
 		}
@@ -2011,7 +2020,7 @@ static errr Term_xtra_dos_sound(int v)
 	if ((v < 0) || (v >= SOUND_MAX)) return (1);
 
 	/* Get a random sample from the available ones */
-	n = rand_int(sample_count[v]);
+	n = Rand_simple(sample_count[v]);
 
 	/* Play the sound, catch errors */
 	if (samples[v][n])
@@ -2033,7 +2042,7 @@ static void play_song(void)
 
 	/* Clear the old song */
 	if (midi_song) destroy_midi(midi_song);
-	midi_song =NULL;
+	midi_song = NULL;
 
 #ifdef USE_MOD_FILES
 	if (mod_file_initialized)
@@ -2066,6 +2075,9 @@ static void play_song(void)
 #endif /* USE_SOUND */
 
 
+const char help_dos[] = "DOS module with graphics and sound support";
+
+
 /*
  * Attempt to initialize this file
  *
@@ -2079,7 +2091,7 @@ static void play_song(void)
  * We should attempt to "share" bitmaps (and fonts) between windows
  * with the same "tile" size.  XXX XXX XXX
  */
-errr init_dos(void)
+errr init_dos(int argc, char **argv)
 {
 	term_data *td;
 
@@ -2088,11 +2100,15 @@ errr init_dos(void)
 	int screen_wid;
 	int screen_hgt;
 
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
+
 	/* Initialize the Allegro library (never fails) */
-	(void)allegro_init();
+	if (allegro_init()) return (-1);
 
 	/* Install timer support for music and sound */
-	install_timer();
+	if (install_timer()) return (-1);
 
 	/* Read config info from filename */
 	set_config_file("angdos.cfg");
@@ -2173,14 +2189,10 @@ errr init_dos(void)
 	/* Look for the graphic preferences in "angdos.cfg" */
 	if (!arg_graphics)
 	{
-		arg_graphics = get_config_int("Angband", "Graphics", TRUE);
+		arg_graphics = get_config_int("Angband", "Graphics", GRAPHICS_ORIGINAL);
 	}
 
 #endif /* USE_GRAPHICS */
-
-	/* Initialize the "complex" RNG for the midi-shuffle function */
-	Rand_quick = FALSE;
-	Rand_state_init(time(NULL));
 
 	/* Set the Angband colors/graphics/sound mode */
 	Term_xtra_dos_react();
@@ -2209,7 +2221,7 @@ errr init_dos(void)
 	     COLOR_OFFSET + TERM_YELLOW);
 
 	/* Activate the main term */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 	/* Place the cursor */
 	Term_curs_dos(0, 0);
@@ -2226,4 +2238,3 @@ errr init_dos(void)
 }
 
 #endif /* USE_DOS */
-

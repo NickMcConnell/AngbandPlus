@@ -1,14 +1,17 @@
+#define Z_UTIL_C
 /* File: z-util.c */
 
 /* Purpose: Low level utilities -BEN- */
 
-#include "z-util.h"
+#include "h-basic.h"
+#include "externs.h"
 
 
 
 /*
- * Global variables for temporary use
+ * Global variables for temporary use (unused)
  */
+#if 0
 char char_tmp = 0;
 byte byte_tmp = 0;
 sint sint_tmp = 0;
@@ -25,17 +28,6 @@ cptr cptr_tmp = NULL;
 vptr vptr_tmp = NULL;
 
 
-
-
-/*
- * Constant bool meaning true
- */
-bool bool_true = 1;
-
-/*
- * Constant bool meaning false
- */
-bool bool_false = 0;
 
 
 /*
@@ -56,6 +48,7 @@ vptr vptr_null = NULL;
  */
 vptr vptr_self = (vptr)(&vptr_self);
 
+#endif /* 0 */
 
 
 /*
@@ -74,6 +67,7 @@ void func_nothing(void)
 }
 
 
+#if 0
 /*
  * A routine that always returns "success"
  */
@@ -99,6 +93,7 @@ errr func_failure(void)
 {
 	return (-1);
 }
+#endif /* 0 */
 
 
 
@@ -162,8 +157,6 @@ bool prefix(cptr s, cptr t)
 	/* Matched, we have a prefix */
 	return (TRUE);
 }
-
-
 
 /*
  * Redefinable "plog" action

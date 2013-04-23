@@ -1,3 +1,4 @@
+#define H_SYSTEM_H
 /* File: h-system.h */
 
 #ifndef INCLUDED_H_SYSTEM_H
@@ -103,10 +104,12 @@
 #  include <string.h>
 # else
 #  include <strings.h>
+#  ifndef __STDC__
 extern char *strstr();
 extern char *strchr();
 extern char *strrchr();
-# endif
+#  endif
+#endif
 
 #else
 
@@ -116,7 +119,7 @@ extern char *strrchr();
 
 
 
-#if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
+#if !defined(linux) && !defined(__linux__) && !defined(__MWERKS__) && !defined(ACORN)
 extern long atol();
 #endif
 

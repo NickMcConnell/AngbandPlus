@@ -40,16 +40,13 @@ angband: $(OBJS)
   sc DEFINE AMIGA DEFINE USE_AMI $*
 
 # Dependencies
+
+# System files
+main-ami.o: main-ami.c $(INCS) sound-ami.h
+sound-ami.o: sound-ami.c sound-ami.h
+
+# General files
 birth.o: birth.c $(INCS)
-borg-aux.o: borg-aux.c $(INCS) borg-aux.h borg-ext.h
-borg-aux.o: borg-obj.h borg-map.h borg.h
-borg-ben.o: borg-ben.c $(INCS) borg-ben.h borg-aux.h borg-ext.h
-borg-ben.o: borg-obj.h borg-map.h borg.h
-borg-ext.o: borg-ext.c $(INCS) borg-ext.h
-borg-ext.o: borg-obj.h borg-map.h borg.h
-borg-obj.o: borg-obj.c $(INCS) borg-obj.h borg.h
-borg-map.o: borg-map.c $(INCS) borg-map.h borg.h
-borg.o: borg.c $(INCS) borg.h
 cave.o: cave.c $(INCS)
 cmd1.o: cmd1.c $(INCS)
 cmd2.o: cmd2.c $(INCS)
@@ -62,8 +59,7 @@ files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
-load.o: load.c $(INCS)
-main-ami.o: main-ami.c $(INCS) sound-ami.h
+load.o: load.c $(INCS) loadsave.h
 main.o: main.c $(INCS)
 melee1.o: melee1.c $(INCS)
 melee2.o: melee2.c $(INCS)
@@ -72,8 +68,7 @@ monster2.o: monster2.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 quest.o: quest.c $(INCS)
-save.o: save.c $(INCS)
-sound-ami.o: sound-ami.c sound-ami.h
+save.o: save.c $(INCS) loadsave.h
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
 store.o: store.c $(INCS)
@@ -84,9 +79,9 @@ wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
-z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
+z-form.o: z-form.c $(HDRS) z-virt.h
 z-rand.o: z-rand.c $(HDRS) z-rand.h
 z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
-z-util.o: z-util.c $(HDRS) z-util.h
-z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
+z-util.o: z-util.c $(HDRS) 
+z-virt.o: z-virt.c $(HDRS) z-virt.h
 

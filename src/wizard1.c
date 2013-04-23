@@ -1,3 +1,4 @@
+#define WIZARD1_C
 /* File: wizard1.c */
 
 /* Purpose: Spoiler generation -BEN- */
@@ -229,6 +230,7 @@ static void spoil_obj_desc(cptr fname)
 	u16b who[200];
 
 	char buf[1024];
+	C_TNEW(o_name, ONAME_MAX, char);
 
 	char wgt[80];
 	char dam[80];
@@ -247,6 +249,7 @@ static void spoil_obj_desc(cptr fname)
 	if (!fff)
 	{
 		msg_print("Cannot create spoiler file.");
+		TFREE(o_name);
 		return;
 	}
 
@@ -300,11 +303,11 @@ static void spoil_obj_desc(cptr fname)
 				s32b v;
 
 				/* Describe the kind */
-				kind_info(buf, dam, wgt, &e, &v, who[s]);
+				kind_info(o_name, dam, wgt, &e, &v, who[s]);
 
 				/* Dump it */
 				fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
-					buf, dam, wgt, e, (long)(v));
+					o_name, dam, wgt, e, (long)(v));
 			}
 
 			/* Start a new set */
@@ -333,6 +336,7 @@ static void spoil_obj_desc(cptr fname)
 		}
 	}
 
+	TFREE(o_name);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -370,11 +374,6 @@ static void spoil_obj_desc(cptr fname)
  * MAX_LINE_LEN specifies when a line should wrap.
  */
 #define MAX_LINE_LEN 75
-
-/*
- * Given an array, determine how many elements are in the array
- */
-#define N_ELEMENTS(a) (sizeof (a) / sizeof ((a)[0]))
 
 /*
  * The artifacts categorized by type
@@ -472,7 +471,8 @@ static flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_TROLL,         "Troll" },
 	{ TR1_SLAY_GIANT,         "Giant" },
 	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" }
+	{ TR1_KILL_DRAGON,        "Xdragon" },
+	{ TR1_X15_DRAGON,	"x15-dragon" },
 };
 
 /*
@@ -556,6 +556,9 @@ static const flag_desc misc_flags2_desc[] =
     { TR2_REFLECT,    "Reflection" },
 	{ TR2_FREE_ACT,   "Free Action" },
 	{ TR2_HOLD_LIFE,  "Hold Life" },
+	{ TR2_RAND_POWER, "Random Power" },
+	{ TR2_RAND_RESIST, "Random Resistance" },
+	{ TR2_RAND_EXTRA, "Random Power/Resistance" },
 };
 
 /*
@@ -625,7 +628,7 @@ typedef struct
 typedef struct
 {
 	/* "The Longsword Dragonsmiter (6d4) (+20, +25)" */
-	char description[160];
+	char *description;
 
 	/* Description of what is affected by an object's pval */
 	pval_info_type pval_info;
@@ -891,7 +894,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Artifact lights -- large radius light.
 	 */
-	if ((o_ptr->tval == TV_LITE) && artifact_p(o_ptr))
+	if ((o_ptr->tval == TV_LITE) && allart_p(o_ptr))
 	{
 		*misc_list++ = "Permanent Light(3)";
 	}
@@ -910,11 +913,13 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	 * being "lightly cursed".
 	 */
 
-	if (cursed_p(o_ptr))
-	{
         if (f3 & (TR3_TY_CURSE))
 		{
             *misc_list++ = "Ancient Curse";
+		}
+		if (f3 & (TR3_AUTO_CURSE))
+		{
+			*misc_list++ = "Self-cursing";
 		}
         if (f3 & (TR3_PERMA_CURSE))
 		{
@@ -924,11 +929,10 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 		{
 			*misc_list++ = "Heavily Cursed";
 		}
-		else
+		else if (f3 & (TR3_CURSED))
 		{
 			*misc_list++ = "Cursed";
 		}
-	}
 
 	/* Terminate the description list */
 	*misc_list = NULL;
@@ -949,6 +953,20 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
 		a_ptr->level, a_ptr->rarity,
 		a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+}
+
+static cptr analyse_activation(object_type *o_ptr)
+{
+	u32b j[3];
+	object_flags(o_ptr, j, j+1, j+2);
+	if (j[2] & TR3_ACTIVATE)
+	{
+		return item_activation(o_ptr);
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 /*
@@ -975,7 +993,7 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 
 	analyze_misc(o_ptr, desc_ptr->misc_desc);
 
-	desc_ptr->activation = item_activation(o_ptr);
+	desc_ptr->activation = analyse_activation(o_ptr);
 }
 
 
@@ -983,8 +1001,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Cthangband Version %d.%d.%d",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for %s Version %s", GAME_NAME,
+	GAME_VERSION);
 	spoiler_underline(buf);
 
 }
@@ -1168,7 +1186,7 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 /*
  * Hack -- Create a "forged" artifact
  */
-static bool make_fake_artifact(object_type *o_ptr, int name1)
+bool make_fake_artifact(object_type *o_ptr, int name1)
 {
 	int i;
 
@@ -1215,10 +1233,13 @@ static void spoil_artifact(cptr fname)
 	object_type forge;
 	object_type *q_ptr;
 
-	obj_desc_list artifact;
-
 	char buf[1024];
 
+	C_TNEW(o_name, ONAME_MAX, char);
+
+	obj_desc_list artifact;
+
+	artifact.description = o_name;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -1232,6 +1253,7 @@ static void spoil_artifact(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
+		TFREE(o_name);
 		msg_print("Cannot create spoiler file.");
 		return;
 	}
@@ -1275,6 +1297,8 @@ static void spoil_artifact(cptr fname)
 		}
 	}
 
+	TFREE(o_name);
+
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
@@ -1295,11 +1319,22 @@ static void spoil_artifact(cptr fname)
  */
 static void spoil_mon_desc(cptr fname)
 {
+	char buf[1024];
+
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+	}
+	else
+	{
+
 	int i, n = 0;
 
-	s16b who[MAX_R_IDX];
-
-	char buf[1024];
+	C_TNEW(who, MAX_R_IDX, s16b);
 
 	char nam[80];
 	char lev[80];
@@ -1316,20 +1351,10 @@ static void spoil_mon_desc(cptr fname)
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Open the file */
-	fff = my_fopen(buf, "w");
-
-	/* Oops */
-	if (!fff)
-	{
-		msg_print("Cannot create spoiler file.");
-		return;
-	}
-
 	/* Dump the header */
 
-	fprintf(fff, "Monster Spoilers for Cthangband Version %d.%d.%d\n",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "Monster Spoilers for %s Version %s\n", GAME_NAME,
+		GAME_VERSION);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1337,7 +1362,6 @@ static void spoil_mon_desc(cptr fname)
 		"Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
 	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 		"----", "---", "---", "---", "--", "--", "-----------");
-
 
 	/* Scan the monsters (except the ghost) */
 	for (i = 1; i < MAX_R_IDX - 1; i++)
@@ -1415,16 +1439,21 @@ static void spoil_mon_desc(cptr fname)
 	/* End it */
 	fprintf(fff, "\n");
 
+	/* Free the "who" array */
+	TFREE(who);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
 		msg_print("Cannot close spoiler file.");
-		return;
 	}
-
-	/* Worked */
-	msg_print("Successfully created a spoiler file.");
+	else
+	{
+		/* Worked */
+		msg_print("Successfully created a spoiler file.");
+	}
+	}
+	return;
 }
 
 
@@ -1545,8 +1574,8 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Cthangband Version %d.%d.%d\n",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Monster Spoilers for %s Version %s\n", GAME_NAME,
+		GAME_VERSION);
 
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
@@ -1740,7 +1769,6 @@ static void spoil_mon_info(cptr fname)
 		/* Collect inate attacks */
 		vn = 0;
 		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-		if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
 		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
 	if (flags4 & (RF4_SHARD)) vp[vn++] = "produce shard balls";
 		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
@@ -2122,6 +2150,9 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(".  ");
 		}
 
+			/* Include death events here. */
+			describe_death_events(n, wd_lhe[msex], spoil_out, TRUE);
+
 		/* Count the actual attacks */
 		for (i = 0, j = 0; j < 4; j++)
 		{
@@ -2267,11 +2298,6 @@ static void spoil_mon_info(cptr fname)
 
 
 
-
-/*
- * Forward declare
- */
-extern void do_cmd_spoilers(void);
 
 /*
  * Create Spoiler files         -BEN-

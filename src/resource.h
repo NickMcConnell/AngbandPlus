@@ -1,3 +1,4 @@
+#define RESOURCE_H
 //{{NO_DEPENDENCIES}}
 // Microsoft Developer Studio generated include file.
 // Used by Angband.rc

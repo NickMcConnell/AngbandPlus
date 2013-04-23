@@ -1,0 +1,62 @@
+# File: limits.txt
+
+
+# This file is used to initialize the "lib/data/z_info.raw" file, which is
+# used to initialize the "array sizes" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/limits.raw" file.
+
+
+# Version stamp (required)
+
+V:1.0.4
+
+
+# maximum number of objects on the level
+# Increasing this can prevent or delay object loss associated with the
+# "Compacting objects..." message.
+M:O:1024
+
+# maximum number of monsters on the level
+# Increasing this can prevent or delay monster loss associated with the
+# "Compacting monster..." message.
+M:M:1024
+
+# maximum length of object description
+# Increasing this can prevent incomplete object description strings from being
+# generated (e.g. "A Weapon with a very long name (2d4) (+13,+").
+M:B:120
+
+# maximum length of monster description
+# Increasing this can prevent incomplete monster description strings from being
+# generated (e.g. "The Monster with a very long n").
+M:D:80
+
+# delay between auto-roller iterations
+# Increasing this makes generating a character via "use_autoroller" slower
+# by a delay measured in milliseconds. It also decreases the load the game
+# puts on the processor during that period.
+M:R:100
+
+# array sizes (in bytes) for some initialization stuff
+
+# These can be increased if an "out of memory" error is given during
+# initialisation, but increasing them above 65535 may prevent the game
+# from running on some 16 bit computers.
+
+# This is, in fact, already necessary for the r_info array.
+
+# maximum size of the array in which most of the information for monsters,
+# objects, features, etc., is stored
+M:I:131071
+
+# size of the "fake" array for reading in names of monsters, objects,
+# artifacts, store-owners, player-races, ...
+M:N:20480
+
+# size of the "fake" array for reading in the descriptions of monsters,
+# vaults, and the player-histories
+M:T:131071
+

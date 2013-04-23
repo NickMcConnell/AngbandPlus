@@ -1,3 +1,4 @@
+#define CMD1_C
 /* File: cmd1.c */
 
 /* Purpose: Movement commands (part 1) */
@@ -48,7 +49,7 @@ bool test_hit_fire(int chance, int ac, int vis)
  *
  * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
-bool test_hit_norm(int chance, int ac, int vis)
+static bool test_hit_norm(int chance, int ac, int vis)
 {
 	int k;
 
@@ -116,7 +117,7 @@ s16b critical_shot(int weight, int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-s16b critical_norm(int weight, int plus, int dam)
+static s16b critical_norm(int weight, int plus, int dam)
 {
 	int i, k;
 
@@ -278,7 +279,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Slay Dragon  */
-			if ((f1 & (TR1_SLAY_DRAGON)) &&
+			if ((f1 & (TR1_ALL_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
 				if (m_ptr->ml)
@@ -286,25 +287,13 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
-				if (mult < 3) mult = 3;
-			}
-
-			/* Execute Dragon */
-			if ((f1 & (TR1_KILL_DRAGON)) &&
-			    (r_ptr->flags3 & (RF3_DRAGON)))
-			{
-				if (m_ptr->ml)
+				switch (f1 & (TR1_ALL_SLAY_DRAGON))
 				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
+					case TR1_SLAY_DRAGON: mult = 3; break;
+					case TR1_KILL_DRAGON: mult = 5; break;
+					case TR1_X15_DRAGON: mult = 15; break;
 				}
-
-
-				if (mult < 5) mult = 5;
-
-                if ((o_ptr->name1 == ART_LIGHTNING))
-                    mult *= 3;
 			}
-
 
 			/* Brand (Acid) */
 			if (f1 & (TR1_BRAND_ACID))
@@ -516,6 +505,63 @@ void search(void)
 
 
 
+/*
+ * Modified version of get_check() to give a [y/n/q] prompt, returning
+ * information available. Returns 'y', 'n' or 'q' as appropriate.
+ */
+static char get_check_ynq(cptr prompt)
+{
+	/* There can be Term->wid characters in the prompt, and 4 in the
+	 * ascii_to_text() output. */
+	C_TNEW(tmp, Term->wid+5, char);
+
+	char i;
+
+	/* Create a single-line prompt. */
+	sprintf(tmp, "%.*s[y/n/q] ", Term->wid-(int)strlen("[y/n/q] "), prompt);
+
+	/* Paranoia XXX XXX XXX */
+	msg_print(NULL);
+
+	/* Hack -- display a "useful" prompt */
+	prt(tmp, 0, 0);
+
+	/* Help */
+	help_track("ynq_prompt");
+
+	/* Get an acceptable answer */
+	while (TRUE)
+	{
+		i = inkey();
+		if (quick_prompt) break;
+		if (i == ESCAPE) break;
+		if (strchr("YyNnQq", i)) break;
+		bell();
+	}
+
+	/* Done with help */
+	help_track(NULL);
+
+	/* Erase the prompt */
+	prt("", 0, 0);
+
+	/* Find a printable version of the answer. */
+	ascii_to_text(strchr(tmp, '\0'), format("%c", i));
+
+	/* Leave a record */
+	message_add(tmp);
+	
+	TFREE(tmp);
+
+	/* Return output (default to no). */
+	switch (i)
+	{
+		case 'y': case 'Y': return 'y';
+		case 'q': case 'Q': return 'q';
+		case 'n': case 'N': default: return 'n';
+	}
+}
+
 
 /*
  * Player "wants" to pick up an object or gold.
@@ -528,8 +574,9 @@ void carry(int pickup)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	char o_name[80];
+	C_TNEW(o_name, ONAME_MAX, char);
 
+	bool gold_only = FALSE;
 
 	/* Scan the pile of objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -538,9 +585,6 @@ void carry(int pickup)
 			
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
-
-		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
 
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -551,6 +595,9 @@ void carry(int pickup)
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
 		{
+			/* Describe the object */
+			object_desc(o_name, o_ptr, FALSE, 0);
+
 			/* Message */
             msg_format("You collect %ld gold pieces worth of %s.",
 				   (long)o_ptr->pval, o_name);
@@ -568,9 +615,19 @@ void carry(int pickup)
 			delete_object_idx(this_o_idx);
 		}
 
+		/* gold_only cancels the collection of objects, but gold is picked up
+		 * automatically. */
+		else if (gold_only);
+
 		/* Pick up objects */
 		else
 		{
+			/* Describe the object */
+			object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Display description if needed. */
+			object_track(o_ptr);
+
 			/* Describe the object */
 			if (!pickup)
 			{
@@ -589,11 +646,16 @@ void carry(int pickup)
 				int okay = TRUE;
 
 				/* Hack -- query every item */
-				if (carry_query_flag)
+				if (carry_query_flag && !strstr(quark_str(o_ptr->note), "=g"))
 				{
-					char out_val[160];
-					sprintf(out_val, "Pick up %s? ", o_name);
-					okay = get_check(out_val);
+					char c;
+					c = get_check_ynq(format("Pick up %s? ", o_name));
+
+					/* Pick up this object. */
+					okay = (c == 'y');
+
+					/* Pick up no more objects. */
+					gold_only = (c == 'q');
 				}
 
 				/* Attempt to pick up an object. */
@@ -613,12 +675,16 @@ void carry(int pickup)
 					/* Message */
 					msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
+					/* Remember the object */
+					object_track(o_ptr);
+
 					/* Delete the object */
 					delete_object_idx(this_o_idx);
 				}
 			}
 		}
 	}
+	TFREE(o_name);
 }
 
 
@@ -688,17 +754,15 @@ static void hit_trap(void)
                 msg_print("You fell through a trap door!");
 				dam = damroll(2, 8);
                 name = "a trap door";
-				take_hit(dam, name);
-                if ((autosave_l) && (p_ptr->chp >= 0))
-                {
-                    is_autosave = TRUE;
-                    msg_print("Autosaving the game...");
-                    do_cmd_save_game();
-                    is_autosave = FALSE;
-                }
-                new_level_flag = TRUE;
-                dun_level++;
-
+		   		if (dun_defs[cur_dungeon].tower)
+				{
+					change_level(dun_level-1, START_RANDOM);
+				}
+				else
+				{
+					change_level(dun_level+1, START_RANDOM);
+				}
+			take_hit(dam, name);
 			}
 			break;
 		}
@@ -806,10 +870,10 @@ static void hit_trap(void)
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
                 {
-                     (void)summon_specific(py, px, dun_level+dun_offset, 0);
+					 (void)summon_specific(py, px, dun_depth, 0);
 
                 }
-            if ((dun_level+dun_offset)>randint(100)) /* No nasty effect for low levels */
+			if ((dun_depth)>randint(100)) /* No nasty effect for low levels */
                         { do { activate_ty_curse(); } while (randint(6)==1); }
 			break;
 		}
@@ -944,7 +1008,7 @@ static void hit_trap(void)
 }
 
 
-void touch_zap_player(monster_type *m_ptr)
+static void touch_zap_player(monster_type *m_ptr)
 {
         int             aura_damage = 0;
         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -960,7 +1024,7 @@ void touch_zap_player(monster_type *m_ptr)
                     = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
             /* Hack -- Get the "died from" name */
-             monster_desc(aura_dam, m_ptr, 0x88);
+             monster_desc(aura_dam, m_ptr, 0x88, MNAME_MAX);
 
                 msg_print("You are suddenly very hot!");
 
@@ -984,7 +1048,7 @@ void touch_zap_player(monster_type *m_ptr)
                     = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
             /* Hack -- Get the "died from" name */
-             monster_desc(aura_dam, m_ptr, 0x88);
+             monster_desc(aura_dam, m_ptr, 0x88, MNAME_MAX);
 
                 if (p_ptr->oppose_elec) aura_damage = (aura_damage+2) / 3;
                 if (p_ptr->resist_elec) aura_damage = (aura_damage+2) / 3;
@@ -1005,14 +1069,14 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
     int             n_weight = 0;
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-	char            m_name[80];
+	C_TNEW(m_name, MNAME_MAX, char);
 
     int dss, ddd;
 
-    char * atk_desc;
+	const char * atk_desc;
 	
 	/* Slow down the attack */
-	energy_use += 10;
+	energy_use += TURN_ENERGY/10;
 
     switch (attack)
     {
@@ -1052,7 +1116,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
     }
 
     /* Extract monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 
 	/* Calculate the "attack quality" */
@@ -1128,6 +1192,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
             /* Message */
 			msg_format("You miss %s.", m_name);
 		}
+
+	TFREE(m_name);
 }
 
 
@@ -1148,7 +1214,7 @@ void py_attack(int y, int x)
 
 	object_type             *o_ptr;
 
-	char            m_name[80];
+	C_TNEW(m_name, MNAME_MAX, char);
 
 
 	bool            fear = FALSE;
@@ -1157,9 +1223,7 @@ void py_attack(int y, int x)
     bool        backstab = FALSE, vorpal_cut = FALSE, chaos_effect = FALSE;
     bool        stab_fleeing = FALSE;
     bool        do_quake = FALSE;
-    bool        drain_msg = TRUE;
-    int         drain_result = 0, drain_heal = 0;
-    int         drain_left = MAX_VAMPIRIC_DRAIN;
+	bool		drain_msg = TRUE, drain_life = FALSE;
     u32b        f1, f2, f3; /* A massive hack -- life-draining weapons */
     bool        no_extra = FALSE;
 
@@ -1179,7 +1243,7 @@ void py_attack(int y, int x)
     }
 
 	/* Disturb the player */
-	disturb(1, 0);
+	/*disturb(1, 0);*/
 
 
 	/* Disturb the monster */
@@ -1187,7 +1251,7 @@ void py_attack(int y, int x)
 
 
 	/* Extract monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
     /* Auto-Recall if possible and visible */
 	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -1203,15 +1267,11 @@ void py_attack(int y, int x)
               ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero) ||
                 !(m_ptr->ml)))
    {
-       if (!(inventory[INVEN_WIELD].art_name))
-       {
-       msg_format("You stop to avoid hitting %s.", m_name);
-       return;
-        }
-
-       if (!(streq(quark_str(inventory[INVEN_WIELD].art_name), "'Stormbringer'")))
+		if (inventory[INVEN_WIELD].name1 != ART_STORMBRINGER)
      {
        msg_format("You stop to avoid hitting %s.", m_name);
+
+		TFREE(m_name);
        return;
      }
 
@@ -1231,6 +1291,8 @@ void py_attack(int y, int x)
         else
         msg_format ("There is something scary in your way!");
 
+		TFREE(m_name);
+
 		/* Done */
 		return;
 	}
@@ -1243,8 +1305,8 @@ void py_attack(int y, int x)
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
-	/* Attack speed is based on theoretical number of blows */
-	energy_use=(100/p_ptr->num_blow);
+	/* Attack speed is based on theoretical number of blows per 60 turns*/
+	energy_use=(TURN_ENERGY*60/p_ptr->num_blow);
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
@@ -1291,9 +1353,7 @@ void py_attack(int y, int x)
 	   {
         chaos_effect = FALSE;
         if (!((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING)))
-		drain_result = m_ptr->hp;
-	    else
-		drain_result = 0;
+		drain_life = TRUE;
 
 	}
 
@@ -1484,6 +1544,15 @@ void py_attack(int y, int x)
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
 
+		/* Drain the life (message if it has an effect). */
+		if (drain_life && (hp_player(k) || !object_known_p(o_ptr)))
+		{
+			s16b drain_heal = damroll(4,(k / 6));
+			if (drain_heal > MAX_VAMPIRIC_DRAIN) drain_heal = MAX_VAMPIRIC_DRAIN;
+			if (drain_msg) msg_format("Your weapon drains life from %s!", m_name);
+		}	
+
+
 			/* Damage, check for fear and death */
             if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL))
             {
@@ -1499,55 +1568,20 @@ void py_attack(int y, int x)
 
         touch_zap_player(m_ptr);
 
-        /* Are we draining it?  A little note: If the monster is
-	    dead, the drain does not work... */
 
-	    if (drain_result)
-	    {
-           drain_result -= m_ptr->hp;  /* Calculate the difference */
-
-
-		if (drain_result > 0) /* Did we really hurt it? */
-		{
-            drain_heal = damroll(4,(drain_result / 6));
-
-            if (cheat_xtra)
-            {
-                msg_format("Draining left: %d", drain_left);
-            }
-
-            if (drain_left)
-            {
-                if (drain_heal < drain_left)
-                {
-                    drain_left -= drain_heal;
-                }
-                else
-                {
-                    drain_heal = drain_left;
-                    drain_left = 0;
-                }
-                if (drain_msg)
-                {
-                    msg_format("Your weapon drains life from %s!", m_name);
-                    drain_msg = FALSE;
-                }
-                hp_player(drain_heal);
-                /* We get to keep some of it! */
-            }
-
-            }
-	    }
 			/* Confusion attack */
             if ((p_ptr->confusing) || (chaos_effect && (randint(10)!=1)))
 			{
 				/* Cancel glowing hands */
+			if (p_ptr->confusing)
+			{
 				p_ptr->confusing = FALSE;
-
-				/* Message */
-                if (!chaos_effect)
 				msg_print("Your hands stop glowing.");
-                else chaos_effect = FALSE;
+			}
+
+			/* Prevent chaotic effects further down */
+			chaos_effect = FALSE;
+
 
 				/* Confuse the monster */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -1586,22 +1620,32 @@ void py_attack(int y, int x)
         if (!((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags4 & RF4_BR_CHAO) || (r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)))
         {
 
+				/* Pick a "new" monster race */
         int tmp = poly_r_idx(m_ptr->r_idx);
         chaos_effect = FALSE;
-
-        /* Pick a "new" monster race */
-
 
         /* Handle polymorph */
 		if (tmp != m_ptr->r_idx)
 		{
-            msg_format("%^s changes!", m_name);
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r2_ptr = &r_info[tmp];
+			byte i = 0;
+			/* Hack - SHAPECHANGERs change regularly anyway. */
+			if (r_ptr->flags1 & RF1_ATTR_MULTI && r_ptr->flags2 & RF2_SHAPECHANGER) i |= 1;
+			if (r2_ptr->flags1 & RF1_ATTR_MULTI && r2_ptr->flags2 & RF2_SHAPECHANGER) i |= 2;
+			switch (i)
+			{
+				case 0: msg_format("%^s changes!", m_name); break;
+				case 1: msg_format("%^s stops changing!", m_name); break;
+				case 2: msg_format("%^s starts changing rapidly!", m_name); break;
+				case 3: msg_format("%^s changes subtly!", m_name); break;
+			}
 
             /* "Kill" the "old" monster */
 			delete_monster_idx(c_ptr->m_idx,TRUE);
 
 			/* Create a new monster (no groups) */
-            (void)place_monster_aux(y, x, tmp, FALSE, FALSE, FALSE);
+			(void)place_monster_aux(y, x, tmp, FALSE, FALSE, FALSE, FALSE);
 
 			/* XXX XXX XXX Hack -- Assume success */
 
@@ -1609,7 +1653,7 @@ void py_attack(int y, int x)
 			m_ptr = &m_list[c_ptr->m_idx];
 
             /* Oops, we need a different name... */
-            monster_desc(m_name, m_ptr, 0);
+            monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 			/* Hack -- Get new race */
 			r_ptr = &r_info[m_ptr->r_idx];
@@ -1641,7 +1685,7 @@ void py_attack(int y, int x)
 	 * only give attacks occasionally - depending on number
 	 * on speed of player with weapon
 	 */
-    if ((!no_extra) && (randint(p_ptr->num_blow)==1))
+    if ((!no_extra) && (randint((p_ptr->num_blow+30)/60)==1))
     {
 		if (p_ptr->muta2 & MUT2_HORNS && !mdeath)
 			natural_attack(c_ptr->m_idx, MUT2_HORNS, &fear, &mdeath);
@@ -1668,9 +1712,64 @@ void py_attack(int y, int x)
 
 	/* Mega-Hack -- apply earthquake brand only once*/
 	if (do_quake) earthquake(py, px, 10);
+
+	TFREE(m_name);
 }
 
 
+/*
+ * Attack a monster.
+ */
+void do_cmd_attack(void)
+{
+	int			y, x, dir;
+
+	cave_type	*c_ptr;
+
+	bool		more = FALSE;
+
+
+	/* Allow repeated command */
+	if (command_arg)
+	{
+		/* Set repeat count */
+		command_rep = command_arg - 1;
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);
+
+		/* Cancel the arg */
+		command_arg = 0;
+	}
+
+	/* Get a direction to attack, or Abort */
+	if (get_rep_dir(&dir))
+	{
+		/* Get location */
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		/* Get grid */
+		c_ptr = &cave[y][x];
+
+		/* Oops */
+		if (!c_ptr->m_idx)
+		{
+			/* Take a turn */
+			energy_use = extract_energy[p_ptr->pspeed];
+			msg_print("You attack the empty air.");
+		}
+		/* Try fighting. */
+		else
+		{
+			py_attack(y, x);
+			if (c_ptr->m_idx) more = TRUE;
+		}
+	}
+
+	/* Cancel repetition unless we can continue */
+	if (!more) disturb(0, 0);
+}
 
 static bool pattern_tile(byte y, byte x)
 {
@@ -1788,6 +1887,42 @@ static bool pattern_seq(byte c_y, byte c_x, byte n_y,byte  n_x)
 }
 
 
+/*
+ * Actually move the player to a given location. 
+ */
+void move_to(s16b y, s16b x)
+{
+		int oy, ox;
+
+		/* Save old location */
+		oy = py;
+		ox = px;
+
+		/* Move the player */
+		py = y;
+		px = x;
+
+		/* Redraw new spot */
+		lite_spot(py, px);
+
+		/* Redraw old spot */
+		lite_spot(oy, ox);
+
+		/* Check for new panel (redraw map) */
+		verify_panel();
+
+		/* Update stuff */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+		/* A different area of the grid is eligible for monster creation. */
+		full_grid = MAX_FULL_GRID;
+
+		/* Update the monsters */
+		p_ptr->update |= (PU_DISTANCE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
+}
 
 /*
  * Move player in the given direction, with the given "pickup" flag.
@@ -1805,13 +1940,11 @@ void move_player(int dir, int do_pickup)
 	cave_type               *c_ptr;
 	monster_type    *m_ptr;
 
+	C_TNEW(m_name, MNAME_MAX, char);
 
-
-         char m_name[80];
-
-         bool p_can_pass_walls = FALSE;
-         bool wall_is_perma = FALSE;
-         bool stormbringer = FALSE;
+	bool p_can_pass_walls = FALSE;
+	bool wall_is_perma = FALSE;
+	bool stormbringer = FALSE;
 
     /* Find the result of moving */
 	y = py + ddy[dir];
@@ -1824,13 +1957,10 @@ void move_player(int dir, int do_pickup)
 	m_ptr = &m_list[c_ptr->m_idx];
 
 
-    if (inventory[INVEN_WIELD].art_name)
-    {
-        if (streq(quark_str(inventory[INVEN_WIELD].art_name), "'Stormbringer'"))
-        {
-			stormbringer = TRUE;
-		}
-    }
+	if (inventory[INVEN_WIELD].name1 == ART_STORMBRINGER)
+	{
+		stormbringer = TRUE;
+	}
 
 	/* Player can not walk through "permanent walls"... */
 	/* unless in Shadow Form */
@@ -1856,7 +1986,7 @@ void move_player(int dir, int do_pickup)
 		{
 			m_ptr->csleep = 0;
 			/* Extract monster name (or "it") */
-			monster_desc(m_name, m_ptr, 0);
+			monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 			/* Auto-Recall if possible and visible */
 			if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 			/* Track a new monster */
@@ -1880,6 +2010,7 @@ void move_player(int dir, int do_pickup)
             {
 				msg_format("%^s is in your way!", m_name);
                 energy_use = 0;
+				TFREE(m_name);
                 return;
             }
            /* now continue on to 'movement' */
@@ -1887,10 +2018,11 @@ void move_player(int dir, int do_pickup)
 		else
 		{
 			py_attack(y, x);
+			TFREE(m_name);
 			return;
 		}
 	}
- #ifdef ALLOW_EASY_DISARM /* TNB */
+ #ifdef ALLOW_EASY_DISARM
  
  	/* Disarm a visible trap */
  	if ((do_pickup != easy_disarm) &&
@@ -1898,6 +2030,7 @@ void move_player(int dir, int do_pickup)
  		(c_ptr->feat <= FEAT_TRAP_TAIL))
  	{
  		(void) do_cmd_disarm_aux(y, x, dir);
+		TFREE(m_name);
  		return;
  	}
  
@@ -1974,15 +2107,7 @@ void move_player(int dir, int do_pickup)
 					cur_town = wild_grid[wildy][wildx].dungeon;
 					msg_format("You stumble into %s.",town_defs[cur_town].name);
 				}
-				new_level_flag=TRUE;
-				came_from=START_WALK;
-                if (autosave_l)
-                {
-                    is_autosave = TRUE;
-                    msg_print("Autosaving the game...");
-                    do_cmd_save_game();
-                    is_autosave = FALSE;
-                }
+				change_level(0, START_WALK);
 			}
 			
 			/* Closed door */
@@ -2023,6 +2148,9 @@ void move_player(int dir, int do_pickup)
 				msg_print("There is a tree blocking your way.");
 				c_ptr->info |= (CAVE_MARK);
 				lite_spot(y,x);
+			/* Assume that the player didn't really want to do that. */
+	          		if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
+					energy_use = 0;
 			}
 
 			/* Water */
@@ -2031,6 +2159,9 @@ void move_player(int dir, int do_pickup)
 				msg_print("You cannot swim.");
 				c_ptr->info |= (CAVE_MARK);
 				lite_spot(y,x);
+			/* Assume that the player didn't really want to do that. */
+	          		if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
+					energy_use = 0;
 			}
 
 			else if ((c_ptr->feat == FEAT_WILD_BORDER) || (c_ptr->feat == FEAT_PATH_BORDER))
@@ -2068,23 +2199,19 @@ void move_player(int dir, int do_pickup)
 					cur_town = wild_grid[wildy][wildx].dungeon;
 					msg_format("You enter %s.",town_defs[cur_town].name);
 				}
-				new_level_flag=TRUE;
-				came_from=START_WALK;
-                if (autosave_l)
-                {
-                    is_autosave = TRUE;
-                    msg_print("Autosaving the game...");
-                    do_cmd_save_game();
-                    is_autosave = FALSE;
-                }
+				change_level(0, START_WALK);
 			}
 
 			/* Closed doors */
 			else if (c_ptr->feat < FEAT_SECRET)
 			{
- #ifdef ALLOW_EASY_OPEN /* TNB */
+ #ifdef ALLOW_EASY_OPEN
  
- 				if (easy_open_door(y, x)) return;
+ 				if (easy_open_door(y, x))
+				{
+					TFREE(m_name);
+					return;
+				}
  
  #else /* ALLOW_EASY_OPEN -- TNB */
  
@@ -2107,6 +2234,7 @@ void move_player(int dir, int do_pickup)
 
 		/* Sound */
 		sound(SOUND_HITWALL);
+		TFREE(m_name);
         return;
 	}
 
@@ -2118,41 +2246,14 @@ void move_player(int dir, int do_pickup)
                     energy_use = 0;
                 }
                 disturb(0,0); /* To avoid a loop with running */
+				TFREE(m_name);
                 return;
     }
 /*    else */
-	{
-		int oy, ox;
-
-		/* Save old location */
-		oy = py;
-		ox = px;
-
-		/* Move the player */
-		py = y;
-		px = x;
-
-		/* Redraw new spot */
-		lite_spot(py, px);
-
-		/* Redraw old spot */
-		lite_spot(oy, ox);
+	move_to(y,x);
 
 		/* Sound */
 		/* sound(SOUND_WALK); */
-
-		/* Check for new panel (redraw map) */
-		verify_panel();
-
-		/* Update stuff */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-		/* Update the monsters */
-		p_ptr->update |= (PU_DISTANCE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
-
 
 		/* Spontaneous Searching */
 		if ((p_ptr->skill_fos >= 50) ||
@@ -2168,7 +2269,7 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
- #ifdef ALLOW_EASY_DISARM /* TNB */
+ #ifdef ALLOW_EASY_DISARM
  
  		carry(do_pickup != always_pickup);
  
@@ -2187,7 +2288,7 @@ void move_player(int dir, int do_pickup)
 			disturb(0, 0);
 
 			/* Hack -- Enter store */
-			command_new = '_';
+			command_new = KTRL('E');
 		}
 
 		/* Discover invisible traps */
@@ -2216,8 +2317,8 @@ void move_player(int dir, int do_pickup)
 			/* Hit the trap */
 			hit_trap();
 		}
+	TFREE(m_name);
 	}
-}
 
 
 /*
@@ -2540,6 +2641,8 @@ static void run_init(int dir)
 }
 
 
+static s16b ignm_idx;
+
 /*
  * Update the current "run" path
  *
@@ -2586,7 +2689,7 @@ static bool run_test(void)
 
 
 		/* Visible monsters abort running */
-		if (c_ptr->m_idx)
+		if (c_ptr->m_idx && c_ptr->m_idx != ignm_idx)
 		{
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 
@@ -2831,6 +2934,12 @@ static bool run_test(void)
 			return (TRUE);
 		}
 
+		/* At least one option which isn't in the current direction */
+		else if (stop_corner && (option2 || option != prev_dir))
+		{
+			return TRUE;
+		}
+
 		/* One option */
 		else if (!option2)
 		{
@@ -2911,6 +3020,7 @@ static bool run_test(void)
 
 
 
+
 /*
  * Take one step along the current "run" path
  */
@@ -2937,8 +3047,28 @@ void run_step(int dir)
 
 		/* Initialize */
 		run_init(dir);
+
+		/* Hack - attempting to run into a monster turns the run command
+		 * into a command which attempts to fight the monster until the
+		 * player is disturbed or the monster dies. */
+		ignm_idx = cave[py+ddy[find_current]][px+ddx[find_current]].m_idx;
+		if (!m_list[ignm_idx].r_idx || !m_list[ignm_idx].ml) ignm_idx = 0;
 	}
 
+	/* Keep fighting */
+	else if (ignm_idx)
+	{
+		/* If the expected monster isn't seen to be there, stop running. */
+		if ((cave[py+ddy[find_current]][px+ddx[find_current]].m_idx != ignm_idx)
+			|| !(m_list[ignm_idx].r_idx) || !(m_list[ignm_idx].ml))
+		{
+			/* Disturb */
+			disturb(0, 0);
+
+			/* Done */
+			return;
+		}
+	}
 	/* Keep running */
 	else
 	{
@@ -2960,7 +3090,7 @@ void run_step(int dir)
 	energy_use = extract_energy[p_ptr->pspeed]; 
 
 	/* Move the player, using the "pickup" flag */
- #ifdef ALLOW_EASY_DISARM /* TNB */
+ #ifdef ALLOW_EASY_DISARM
  
  	move_player(find_current, FALSE);
  
@@ -2974,7 +3104,8 @@ void run_step(int dir)
 /*
  * Get town at given coordinates
  */
-byte get_cur_town(y,x)
+#if 0
+static byte get_cur_town(int y, int x)
 {
 	int i;
 	for(i=0;i<MAX_TOWNS;i++)
@@ -2986,3 +3117,4 @@ byte get_cur_town(y,x)
 	}
 	return 0;
 }
+#endif

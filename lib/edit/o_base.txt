@@ -1,0 +1,87 @@
+# File: o_base.txt
+
+# This file is used to initialize the "lib/raw/o_base.raw" file, which is
+# used to initialize the "object base" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/o_base.raw" file.
+
+# === Understanding o_base.txt ===
+
+# N: p_id : name
+# C: cost
+
+# M: old p_id : new p_id
+
+# All entries must begin with the 'N' line.
+
+# The "p_id" is the p_id of those items in o_unid.txt which
+# use this base entry.
+
+# The "name" is the name which objects with this p_id usually have.
+# The syntax it takes is described in detail in o_unid.txt.
+
+# The "cost" is the price which a shopkeeper will offer for an unknown
+# object with this p_id.
+
+# The 'M' field defines a completely separate object in itself. This object,
+# which has a p_id of "new p_id", shares exactly the features of the object
+# with a p_id of "old p_id".
+
+# Version stamp (required)
+
+V:1.0.4
+
+
+N:0:%+K%k%=K%+E %e%=E%+A %a%=A
+C:default
+
+N:1:& # Mushroom~ !
+C:5
+
+N:2:& # Ring~ !
+C:45
+
+M:2:12
+
+N:3:& # Amulet~ !
+C:45
+
+N:4:& # Potion~ !
+C:20
+
+M:4:5
+M:4:6
+M:4:7
+M:4:8
+
+N:9:& # Wand~ !
+C:50
+
+N:10:& # Staff~ !
+C:70
+
+N:11:& # Rod~ !
+C:90
+
+# Katana
+
+N:13:%-K%+F%f%=F%+K%k%=K%+E %e%=E%+A %a%=A
+C:default
+
+N:200:& Scroll~%+F titled "%f"%=F !
+C:20
+
+N:201:& Sorcery Book~ !
+C:default
+
+N:202:& Thaumaturgy Book~ !
+C:default
+
+N:203:& Conjuration Book~ !
+C:default
+
+N:204:& Necromancy Book~ !
+C:default

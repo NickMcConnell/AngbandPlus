@@ -1,3 +1,4 @@
+#define TYPES_H
 /* File: types.h */
 
 /* Purpose: global type declarations */
@@ -79,28 +80,93 @@
 
 typedef struct header header;
 
+typedef errr (*parse_info_txt_func)(char *buf, header *head, vptr *extra);
+
 struct header
 {
-	byte	v_major;		/* Version -- major */
-	byte	v_minor;		/* Version -- minor */
-	byte	v_patch;		/* Version -- patch */
-	byte	v_extra;		/* Version -- extra */
+	char version[6];	/* Version */
 
+	u16b info_num;		/* Number of "info" records */
 
-	u16b	info_num;		/* Number of "info" records */
+	u16b info_len;		/* Size of each "info" record */
 
-	u16b	info_len;		/* Size of each "info" record */
+	u32b info_size;		/* Size of the "info" array in bytes */
 
+	u32b name_size;		/* Size of the "name" array in bytes */
 
-	u16b	head_size;		/* Size of the "header" in bytes */
+	u32b text_size;		/* Size of the "text" array in bytes */
 
-	u32b	info_size;		/* Size of the "info" array in bytes */
+	cptr file_name;		/* Base name of the file to be parsed. */
 
-	u16b	name_size;		/* Size of the "name" array in bytes */
+	void *info_ptr; 
+	char *name_ptr; 
+	char *text_ptr; 
+	void *fake_info_ptr;
+	char *fake_name_ptr;
+	char *fake_text_ptr;
 
-	u32b	text_size;		/* Size of the "text" array in bytes */
+	parse_info_txt_func parse_info_txt;
+
+	byte header_num;
 };
 
+/*
+ * A set of macros used to turn a relatively pretty text file into something
+ * the file parser understands.
+ *
+ * This is the only way to insert non-printable or 8-bit characters into text
+ * files.
+ */
+typedef struct init_macro_type init_macro_type;
+
+struct init_macro_type
+{
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
+
+	byte file;			/* File restriction */
+	char pref;			/* Prefix restriction */
+	byte field;			/* (colon-delimited) field */
+
+	byte conv;			/* Type of conversion to be made. */
+};
+
+/*
+ * Information about maximal indices of certain arrays
+ * Actually, these are not the maxima, but the maxima plus one
+ */
+typedef struct maxima maxima;
+struct maxima
+{
+#ifdef ALLOW_TEMPLATES
+	u32b fake_text_size;
+	u32b fake_name_size;
+	u32b fake_info_size;
+#else /* ALLOW_TEMPLATES */
+	u32b unused[3];
+#endif /* ALLOW_TEMPLATES */
+
+	u16b o_max;		/* Max size for "o_list[]" */
+	u16b m_max;		/* Max size for "m_list[]" */
+	u16b oname;		/* Maximum length of object_desc() strings. */
+	u16b mname;		/* Usual maximum length of monster_desc() strings. */
+	u16b ar_delay;	/* Delay between rolls of the auto-roller. */
+
+	u16b macros;	/* Total size for "macro_info" */
+	u16b v_max;		/* Total size for "v_info[]" */
+	u16b f_max;		/* Total size for "f_info[]" */
+	u16b k_max;		/* Total size for "k_info[]" */
+	u16b u_max;		/* Total size for "u_info[]" */
+	u16b ob_max;	/* Total size for "o_base[]" */
+	u16b a_max;		/* Total size for "a_info[]" */
+	u16b e_max;		/* Total size for "e_info[]" */
+	u16b r_max;		/* Total size for "r_info[]" */
+	u16b event_max;	/* Total size for "death_events[]" */
+	u16b p_max;		/* Total size for "p_info[]" */
+	u16b h_max;		/* Total size for "h_info[]" */
+	u16b b_max;		/* Total size per element of "b_info[]" */
+	u16b flavor_max; /* Total size for "flavor_info[]" */
+};
 
 
 /*
@@ -116,15 +182,11 @@ struct feature_type
 
 	byte mimic;			/* Feature to mimic */
 
-	byte extra;			/* Extra byte (unused) */
+	byte d_attr;		/* Object "attribute" */
+	char d_char;		/* Object "symbol" */
 
-	s16b unused;		/* Extra bytes (unused) */
-
-	byte f_attr;		/* Object "attribute" */
-	char f_char;		/* Object "symbol" */
-
-	byte z_attr;		/* The desired attr for this feature */
-	char z_char;		/* The desired char for this feature */
+	byte x_attr;		/* The desired attr for this feature */
+	char x_char;		/* The desired char for this feature */
 };
 
 
@@ -139,7 +201,7 @@ typedef struct object_kind object_kind;
 struct object_kind
 {
 	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Object type */
 	byte sval;			/* Object sub type */
@@ -169,22 +231,14 @@ struct object_kind
 	byte extra;			/* Something */
 
 
-	byte k_attr;		/* Standard object attribute */
-	char k_char;		/* Standard object character */
-
-
 	byte d_attr;		/* Default object attribute */
-	byte d_char;		/* Default object character */
+	char d_char;		/* Default object character */
 
 
 	byte x_attr;		/* Desired object attribute */
 	char x_char;		/* Desired object character */
 
-
-	bool has_flavor;	/* This object has a flavor */
-
-	bool easy_know;		/* This object is always known (if aware) */
-
+	u16b u_idx;	/* The u_info[] entry which represents this item. */
 
 	bool aware;			/* The player is "aware" of the item's effects */
 
@@ -192,6 +246,37 @@ struct object_kind
 };
 
 
+
+/*
+ * Information about the unidentified forms of object "kinds"
+ */
+typedef struct unident_type unident_type;
+
+struct unident_type
+{
+	u16b name;	/* Name (offset) */
+
+	byte p_id;	/* Primary index */
+	byte s_id;	/* Secondary index (internally generated) */
+
+	byte d_attr;		/* Default colour */
+	char d_char;		/* Default symbol */
+
+	byte x_attr;		/* The desired attr for this object */
+	char x_char;		/* The desired char for this object */
+};
+
+typedef struct o_base_type o_base_type;
+
+struct o_base_type
+{
+	u32b name;	/* Name (offset) */
+	s32b cost;	/* Unaware cost */
+	u32b flags1;	/* Expected flags, set 1 */
+	u32b flags2;	/* Expected flags, set 2 */
+	u32b flags3;	/* Expected flags, set 3 */
+	byte tval;	/* The tval for this base type, TV_UNKNOWN if none. */
+};
 
 /*
  * Information about "artifacts".
@@ -330,8 +415,6 @@ struct monster_race
 
 	s32b mexp;				/* Exp value for kill */
 
-	s16b extra;				/* Unused (for now) */
-
 	byte freq_inate;		/* Inate spell frequency */
 	byte freq_spell;		/* Other spell frequency */
 
@@ -370,9 +453,6 @@ struct monster_race
 
 	byte r_wake;			/* Number of times woken up (?) */
 	byte r_ignore;			/* Number of times ignored (?) */
-
-	byte r_xtra1;			/* Something (unused) */
-	byte r_xtra2;			/* Something (unused) */
 
 	byte r_drop_gold;		/* Max number of gold dropped at once */
 	byte r_drop_item;		/* Max number of item dropped at once */
@@ -446,7 +526,7 @@ typedef struct cave_type cave_type;
 
 struct cave_type
 {
-	byte info;		/* Hack -- cave flags */
+	u16b info;		/* Hack -- cave flags */
 
 	byte feat;		/* Hack -- feature type */
 
@@ -529,7 +609,7 @@ struct object_type
 
 	s16b timeout;		/* Timeout Counter */
 
-	byte ident;			/* Special flags  */
+	u16b ident;			/* Special flags  */
 	
 	byte handed;     /* Number of hands needed to wield  */
 
@@ -538,9 +618,9 @@ struct object_type
 	u16b note;			/* Inscription index */
     u16b art_name;      /* Artifact name (random artifacts) */
 
-    u32b art_flags1;        /* Flags, set 1  Alas, these were necessary */
-    u32b art_flags2;        /* Flags, set 2  for the random artifacts of*/
-    u32b art_flags3;        /* Flags, set 3  Zangband */
+    u32b flags1;        /* Flags, set 1 */
+    u32b flags2;        /* Flags, set 2 */
+    u32b flags3;        /* Flags, set 3 */
 
 	
 	s16b next_o_idx;	/* Next object in stack (if any) */
@@ -632,8 +712,6 @@ struct alloc_entry
 	byte prob1;		/* Probability, pass 1 */
 	byte prob2;		/* Probability, pass 2 */
 	byte prob3;		/* Probability, pass 3 */
-
-	u16b total;		/* Unused for now */
 };
 
 
@@ -672,6 +750,29 @@ struct option_type
 };
 
 
+/*
+ * Structure to specify how some options can override other options.
+ */
+typedef struct force_type force_type;
+
+struct force_type
+{
+	bool *forcing_opt;
+	bool forcing_value;
+	bool *forced_opt;
+};
+
+
+/*
+ * Structure for monster memory colour map.
+ */
+typedef struct moncol_type moncol_type;
+
+struct moncol_type
+{
+	cptr	name;
+	byte	attr;
+};
 
 /*
  * Structure for the "quests"
@@ -686,6 +787,7 @@ struct quest
 	byte dungeon; /* Dungeon containing quest */
 
 	int cur_num;	/* Number killed */
+	int cur_num_known;	/* Number known by the player to have been killed */
 	int max_num;	/* Number required */
 };
 
@@ -712,8 +814,6 @@ struct owner_type
 	byte insult_max;	/* Insult limit */
 
 	byte owner_race;	/* Owner race */
-
-	byte unused;		/* Unused */
 };
 
 
@@ -734,7 +834,6 @@ struct store_type
 	byte type;               /* Type of store */ 
 	byte bought;             /* Flag for player purchase (only used on houses) */
 	byte owner;			  /* Owner index */
-	byte extra;				/* Unused for now */
 
 	s16b insult_cur;		/* Insult counter */
 
@@ -742,8 +841,6 @@ struct store_type
 	s16b bad_buy;			/* Number of "bad" buys */
 
 	s32b store_open;		/* Closed until this turn */
-
-	s32b store_wrap;		/* Unused for now */
 
 	s16b table_num;			/* Table -- Number of entries */
 	s16b table_size;		/* Table -- Total Size of Array */
@@ -757,11 +854,6 @@ struct store_type
 
 
 
-
-/*
- * The "name" of spell 'N' is stored as spell_names[X][N],
- * where X is 0 for mage-spells and 1 for priest-spells.
- */
 
 typedef struct magic_type magic_type;
 
@@ -791,6 +883,20 @@ struct cantrip_type
 	byte sfail; /* Base chance of failure */
 };
 
+
+/*
+ * Structure for the display windows.
+ */
+typedef struct window_type window_type;
+struct window_type
+{
+	term *term;	/* The window in question */
+	char name[16]; /* Name of the window */
+	byte pri[32]; /* Priority of the specified display type for this window. */
+	byte rep[32]; /* Maximum priority of display which this display type can replace. */
+	byte current; /* Current display for this window */
+	u32b mask;
+};
 
 /*
  * Information about the player's "magic"
@@ -830,7 +936,7 @@ struct player_race
 {
 	cptr title;			/* Type of race */
 
-	s16b r_adj[6];		/* Racial stat bonuses */
+	s16b r_adj[A_MAX];		/* Racial stat bonuses */
 
 	byte disarm_bonus;			/* disarming */
 	byte device_bonus;			/* magic devices */
@@ -860,6 +966,7 @@ struct player_race
 	byte infra;			/* Infra-vision	range */
 
     u16b choice;        /* Legal template choices */
+	byte chart;		/* Initial chart for get_history() */
 /*    byte choice_xtra;   */
 };
 
@@ -889,7 +996,12 @@ struct player_template
 {
 	cptr title;			/* Type of template */
 
-	s16b c_adj[6];		/* Template stat modifier */
+	int choices;		/* Number of choices for hermetic skills */
+
+	s16b c_adj[A_MAX];		/* Template stat modifier */
+
+	s16b skill[19];		/* Skill improvements */
+
 };
 
 
@@ -915,7 +1027,6 @@ struct player_type
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
 	byte ptemplate;		/* Template index */
-	byte oops;			/* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
     u16b expfact;       /* Experience factor
@@ -953,8 +1064,8 @@ struct player_type
 
 	s16b max_dlv[MAX_CAVES];		/* Max levels explored */
 
-	s16b stat_max[6];	/* Current "maximal" stat values */
-	s16b stat_cur[6];	/* Current "natural" stat values */
+	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
+	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -1042,11 +1153,11 @@ struct player_type
 	u32b redraw;		/* Normal Redraws (bit flags) */
 	u32b window;		/* Window Redraws (bit flags) */
 
-	s16b stat_use[6];	/* Current modified stats */
-	s16b stat_top[6];	/* Maximal modified stats */
+	s16b stat_use[A_MAX];	/* Current modified stats */
+	s16b stat_top[A_MAX];	/* Maximal modified stats */
 
-	s16b stat_add[6];	/* Modifiers to stat values */
-	s16b stat_ind[6];	/* Indexes into stat tables */
+	s16b stat_add[A_MAX];	/* Modifiers to stat values */
+	s16b stat_ind[A_MAX];	/* Indexes into stat tables */
 
 	bool immune_acid;	/* Immunity to acid */
 	bool immune_elec;	/* Immunity to lightning */
@@ -1175,6 +1286,18 @@ struct spirit_type {
 	byte sphere; /* sphere of influence */
 	byte minskill; /* Minimum skill to form a pact (= min skill of easiest favour) */
 };
+
+/* Stat defaults */
+typedef struct stat_default_type stat_default_type;
+struct stat_default_type {
+	byte	sex;	/* Sex */
+	byte	race;	/* Race */
+	byte	template;	/* Template */
+	bool	maximise;	/* Whether maximise mode is used in this stat set */
+	byte	stat[A_MAX];	/* The stats used */
+	s16b	name;	/* The quark containing the name */
+};
+
 /* Towns */
 
 typedef struct town_type town_type;
@@ -1221,4 +1344,124 @@ struct wild_type {
 		byte road_map; /* Flags for road generation */
 		s16b dun_min; /* Minimum depth to have caves */
 		s16b dun_max; /* Maximum depth to have caves */
+};
+
+/*
+ * The various types of event used by death_event_type events below.
+ */
+
+/* Items of all kinds. */
+typedef struct make_item_type make_item_type;
+struct make_item_type {
+	u16b	name;	/* Name (offset) */
+	byte	flags;	/* EI_* flags */
+	s16b	k_idx;	/* k_idx of item */
+	byte	x_idx;	/* Artefact or ego number where appropriate. */
+	byte	min;	/* Minimum number which can be created. */
+	byte	max;	/* Maximum number which can be created. */
+};
+
+/* Monsters */
+typedef struct make_monster_type make_monster_type;
+struct make_monster_type {
+	s16b	num;	/* r_idx of monster. */
+	byte	min;	/* Minimum number which can be created. */
+	byte	max;	/* Maximum number which can be created. */
+	byte	radius;	/* Distance between the dead monster and the resulting ones */
+	bool	strict;	/* Only place monsters within radius, rather than merely preferring to. */
+};
+
+/* Explosions centred on the deceased monster. */
+typedef struct make_explosion_type make_explosion_type;
+struct make_explosion_type {
+	byte	dice;	/* Number of die rolls to be summed for damage. */
+	byte	sides;	/* Number of sides the above "dice" should have. */
+	byte	method;	/* Type of explosion to be attempted. */
+	s16b	radius;	/* Radius of explosion*/
+};
+
+/* Coins (amounts handled by the normal flags as you can't get 1d3 from
+ * Bernoulli trials) */
+typedef struct make_coin_type make_coin_type;
+struct make_coin_type {
+	s16b	metal; /* Coin_type. */
+};
+
+/* Keep the parameters within death_event_type to simplify things. */
+typedef union de_par de_par;
+union de_par {
+	make_item_type item;
+	make_monster_type monster;
+	make_explosion_type explosion;
+	make_coin_type coin;
+};
+
+/* Control interraction between events and control the structure. */
+typedef struct death_event_type death_event_type;
+struct death_event_type {
+	u16b	text;	/* Text (offset) */
+	s16b	r_idx;	/* The number of the monster responsible for the event. */
+	u16b	num;	/* The numerator in the probability of causing the event */
+	u16b	denom;	/* The denominator in the probability of causing the event */
+	byte	flags;	/* EF_* flags */
+	byte	type;	/* event type */
+	de_par	par;	/* The parameters for this event type (see above) */
+};
+
+typedef struct tval_ammo_type tval_ammo_type;
+struct tval_ammo_type {
+	byte	bow_sval;	/* sval of the bow being used. */
+	byte	ammo_tval;	/* tval of the ammunition it uses. */
+};
+
+
+
+/* Hack - provide a structure for things about an object which may be unknown,
+ * but are needed by various functions. */
+typedef struct object_extra object_extra;
+
+#if 0 /* Only currently used in object1.c, so defined there for now. */
+struct object_extra {
+};
+#endif
+
+/*
+ * Semi-Portable High Score List Entry (128 bytes) -- BEN
+ *
+ * All fields listed below are null terminated ascii strings.
+ *
+ * In addition, the "number" fields are right justified, and
+ * space padded, to the full available length (minus the "null").
+ *
+ * Note that "string comparisons" are thus valid on "pts".
+ */
+
+typedef struct high_score high_score;
+
+struct high_score
+{
+	char what[8];		/* Version info (string) */
+
+	char pts[10];		/* Total Score (number) */
+
+	char gold[10];		/* Total Gold (number) */
+
+	char turns[10];		/* Turns Taken (number) */
+
+	char day[10];		/* Time stamp (string) */
+
+	char who[16];		/* Player Name (string) */
+
+	char uid[8];		/* Player UID (number) */
+
+	char sex[2];		/* Player Sex (string) */
+	char p_r[3];		/* Player Race (number) */
+	char p_c[3];		/* Player Template (number) */
+
+	char cur_lev[4];		/* Current Player Level (number) */
+	char cur_dun[4];		/* Current Dungeon Level (number) */
+	char max_lev[4];		/* Max Player Level (number) */
+	char max_dun[4];		/* Max Dungeon Level (number) */
+
+	char how[32];		/* Method of death (string) */
 };

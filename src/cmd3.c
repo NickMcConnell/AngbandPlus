@@ -1,3 +1,4 @@
+#define CMD3_C
 /* File: cmd3.c */
 
 /* Purpose: Inventory commands */
@@ -141,11 +142,10 @@ static bool item_tester_hook_wear(object_type *o_ptr)
 	return (FALSE);
 }
 
-
 /*
  * Wield or wear a single item from the pack or floor
  */
-void do_cmd_wield(void)
+static void do_cmd_wield_aux(char *o_name)
 {
 	int item, slot;
 
@@ -155,8 +155,6 @@ void do_cmd_wield(void)
 	object_type *o_ptr;
 
 	cptr act;
-
-	char o_name[80];
 
 
 	/* Restrict the choices */
@@ -202,7 +200,7 @@ void do_cmd_wield(void)
 
 
     if ((cursed_p(o_ptr)) && (wear_confirm)
-        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
+        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE_CURSED))))
     {
         char dummy[512];
 
@@ -213,10 +211,22 @@ void do_cmd_wield(void)
         if (!(get_check(dummy)))
             return;
     }
+	/* confirm_wear_all is triggered whenever something may be cursed.
+	 * Slots are excluded because items to be placed in them are always
+	 * created uncursed. */
+	else if (confirm_wear_all && ~o_ptr->ident & IDENT_SENSE_CURSED && wield_slot(o_ptr) >= INVEN_WIELD && wield_slot(o_ptr) <= INVEN_FEET)
+	{
+		char dummy[512];
 
+		/* Describe it */
+		object_desc(o_name, o_ptr, FALSE, 3);
+		
+		sprintf(dummy, "Really use the %s? ", o_name);
+		if (!(get_check(dummy))) return;
+	}
 
 	/* Take a turn */
-	energy_use = 100;
+	energy_use = extract_energy[p_ptr->pspeed];
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -288,15 +298,34 @@ void do_cmd_wield(void)
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
+	/* Auto-curse */
+	{
+		u32b f1, f2, f3;
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (f3 & TR3_AUTO_CURSE)
+	{
+			curse(o_ptr);
+		}
+	}
+
 	/* Cursed! */
 	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
 
-		/* Note the curse */
-		o_ptr->ident |= (IDENT_SENSE);
+		/* Make a note of it (only useful for rings and amulets). */
+		k_info[o_ptr->k_idx].tried = TRUE;
 	}
+
+	/* Display the object if required */
+	object_track(o_ptr);
+
+	/* Note whether it is cursed or not. */
+	o_ptr->ident |= (IDENT_SENSE_CURSED);
+
+	/* Note that it has been tried. */
+	o_ptr->ident |= (IDENT_TRIED);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -311,6 +340,16 @@ void do_cmd_wield(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+}
+
+/*
+ * A wrapper to give o_name function scope above.
+ */
+void do_cmd_wield(void)
+{
+	C_TNEW(o_name, ONAME_MAX, char);
+	do_cmd_wield_aux(o_name);
+	TFREE(o_name);
 }
 
 
@@ -357,7 +396,7 @@ void do_cmd_takeoff(void)
 
 
 	/* Take a turn */
-	energy_use = 100;
+	energy_use = extract_energy[p_ptr->pspeed];
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
@@ -418,7 +457,7 @@ void do_cmd_drop(void)
 
 
 	/* Take a partial turn */
-	energy_use = 50;
+	energy_use = (extract_energy[p_ptr->pspeed]+1)/2;
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
@@ -426,7 +465,7 @@ void do_cmd_drop(void)
     p_ptr->redraw |= (PR_EQUIPPY);
 }
 
-
+#if 0
 static bool high_level_book(object_type * o_ptr)
 {
     if ((o_ptr->tval == TV_SORCERY_BOOK) || (o_ptr->tval == TV_THAUMATURGY_BOOK) ||
@@ -437,12 +476,12 @@ static bool high_level_book(object_type * o_ptr)
         }
         return FALSE;
 }
-
+#endif
 
 /*
  * Destroy an item
  */
-void do_cmd_destroy(void)
+static void do_cmd_destroy_aux(char *o_name)
 {
 	int			item, amt = 1;
 	int			old_number;
@@ -451,17 +490,17 @@ void do_cmd_destroy(void)
 
 	object_type		*o_ptr;
 
-	char		o_name[80];
-
 	char		out_val[160];
 
 
 	/* Hack -- force destruction */
 	if (command_arg > 0) force = TRUE;
 
+	/* Restrict the choices */
+	item_tester_hook = item_tester_hook_destroy;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Destroy which item? ", FALSE, TRUE, TRUE))
+	/* Get an item (from equip or inven or floor) */
+	if (!get_item(&item, "Destroy which item? ", TRUE, TRUE, TRUE))
 	{
 		if (item == -2) msg_print("You have nothing to destroy.");
 		return;
@@ -509,26 +548,22 @@ void do_cmd_destroy(void)
 	}
 
 	/* Take a turn */
-	energy_use = 100;
+	energy_use = extract_energy[p_ptr->pspeed];
 
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	if (allart_p(o_ptr))
 	{
-		cptr feel = "special";
 
         energy_use = 0;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
+		/* We know how valuable it might be. */
+		o_ptr->ident |= (IDENT_SENSE_VALUE);
 
-		/* Hack -- inscribe the artifact */
-		o_ptr->note = quark_add(feel);
-
-		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
+		/* We know that it's extraordinary. */
+		o_ptr->ident |= (IDENT_SENSE_HEAVY);
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
@@ -562,6 +597,16 @@ void do_cmd_destroy(void)
 	}
 }
 
+
+/*
+ * A wrapper to give o_name function scope above.
+ */
+void do_cmd_destroy(void)
+{
+	C_TNEW(o_name, ONAME_MAX, char);
+	do_cmd_destroy_aux(o_name);
+	TFREE(o_name);
+}
 
 /*
  * Destroy whole pack (and equip)
@@ -606,8 +651,6 @@ void do_cmd_observe(void)
 
 	object_type		*o_ptr;
 
-	char		o_name[80];
-
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Examine which item? ", TRUE, TRUE, TRUE))
@@ -629,22 +672,21 @@ void do_cmd_observe(void)
 	}
 
 
-	/* Require full knowledge */
-	if (!(o_ptr->ident & (IDENT_MENTAL)))
 	{
-		msg_print("You have no special knowledge about that item.");
-		return;
+		C_TNEW(o_name, ONAME_MAX, char);
+	
+		/* Description */
+		object_desc(o_name, o_ptr, TRUE, 3);
+
+
+		/* Describe */
+		msg_format("Examining %s...", o_name);
+
+		TFREE(o_name);
 	}
 
-
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
-
-	/* Describe */
-	msg_format("Examining %s...", o_name);
-
 	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+	if (!identify_fully_aux(o_ptr, FALSE)) msg_print("You see nothing special.");
 }
 
 
@@ -709,7 +751,7 @@ void do_cmd_inscribe(void)
 
 	object_type		*o_ptr;
 
-	char		o_name[80];
+	C_TNEW(o_name, ONAME_MAX, char);
 
 	char		out_val[80];
 
@@ -718,6 +760,7 @@ void do_cmd_inscribe(void)
 	if (!get_item(&item, "Inscribe which item? ", TRUE, TRUE, TRUE))
 	{
 		if (item == -2) msg_print("You have nothing to inscribe.");
+		TFREE(o_name);
 		return;
 	}
 
@@ -740,15 +783,8 @@ void do_cmd_inscribe(void)
 	msg_format("Inscribing %s.", o_name);
 	msg_print(NULL);
 
-	/* Start with nothing */
-	strcpy(out_val, "");
-
-	/* Use old inscription */
-	if (o_ptr->note)
-	{
 		/* Start with the old inscription */
-		strcpy(out_val, quark_str(o_ptr->note));
-	}
+	strcpy(out_val, quark_str(o_ptr->note));
 
 	/* Get a new inscription (possibly empty) */
 	if (get_string("Inscription: ", out_val, 80))
@@ -762,6 +798,11 @@ void do_cmd_inscribe(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
+
+		/* Make a note of the change. */
+	message_add(format("Inscribed %s as %s.", o_name, quark_str(o_ptr->note)));
+
+	TFREE(o_name);
 }
 
 
@@ -829,7 +870,7 @@ static void do_cmd_refill_lamp(int item)
 	item_tester_hook = 0;
 
 	/* Take a partial turn */
-	energy_use = 50;
+	energy_use = (extract_energy[p_ptr->pspeed]+1)/2;
 
 	/* Access the lantern */
 	j_ptr = &inventory[INVEN_LITE];
@@ -929,7 +970,7 @@ static void do_cmd_refill_torch(int item)
 	item_tester_hook = 0;
 
 	/* Take a partial turn */
-	energy_use = 50;
+	energy_use = (extract_energy[p_ptr->pspeed]+1)/2;
 
 	/* Access the primary torch */
 	j_ptr = &inventory[INVEN_LITE];
@@ -1120,7 +1161,7 @@ void do_cmd_locate(void)
 		else if (x2 < 0) x2 = 0;
 
 		/* Handle "changes" */
-		if ((y2 != panel_row) || (x2 != panel_col))
+		if ((y2 != panel_row) || (x2 != panel_col) || centre_view)
 		{
 			/* Save the new panel info */
 			panel_row = y2;
@@ -1201,7 +1242,7 @@ static cptr ident_info[] =
 	">:A down staircase",
 	"?:A scroll",
 	"@:You",
-	/*A:Unused*/
+	"A:Golem",
 	"B:Bird",
 	"C:Canine",
 	"D:Ancient Dragon/Wyrm",
@@ -1239,7 +1280,7 @@ static cptr ident_info[] =
 	"d:Dragon",
 	"e:Floating Eye",
 	"f:Feline",
-	"g:Golem",
+	"g:Ghoul",
 	"h:Hobbit/Elf/Dwarf",
 	"i:Icky Thing",
 	"j:Jelly",
@@ -1429,7 +1470,7 @@ static void roff_top(int r_idx)
  *
  * Note that the player ghosts are ignored. XXX XXX XXX
  */
-void do_cmd_query_symbol(void)
+static void do_cmd_query_symbol_aux(u16b *who)
 {
 	int		i, n, r_idx;
 	char	sym, query;
@@ -1442,7 +1483,6 @@ void do_cmd_query_symbol(void)
 	bool	recall = FALSE;
 
 	u16b	why = 0;
-	u16b	who[MAX_R_IDX];
 
 
 	/* Get a character, or abort */
@@ -1489,7 +1529,7 @@ void do_cmd_query_symbol(void)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Nothing to recall */
-		if (!cheat_know && !r_ptr->r_sights) continue;
+		if (!spoil_mon && !r_ptr->r_sights) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
@@ -1628,6 +1668,17 @@ void do_cmd_query_symbol(void)
 	prt(buf, 0, 0);
 }
 
+/*
+ * A wrapper around do_cmd_query_symbol_aux() to allocate the who array.
+ */
+void do_cmd_query_symbol(void)
+{
+	C_TNEW(who, MAX_R_IDX, u16b);
+	do_cmd_query_symbol_aux(who);
+	TFREE(who);
+}
+
+
 /* 'Handle' an object, doing whatever seems the sensible thing to it... */
 void do_cmd_handle(void)
 {
@@ -1702,11 +1753,15 @@ void do_cmd_handle(void)
 	case TV_THAUMATURGY_BOOK:
 	case TV_CONJURATION_BOOK:
 	case TV_NECROMANCY_BOOK:
-	case TV_CHARM:
 		{
 			do_cmd_browse(item);
 			break;
 		}
+	case TV_CHARM:
+	{
+		get_cantrip(&item, o_ptr->sval);
+		break;
+	}
 	default:
 		{
 			item_tester_hook=item_tester_hook_wear;

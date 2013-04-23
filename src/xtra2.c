@@ -1,3 +1,4 @@
+#define XTRA2_C
 /* File: effects.c */
 
 /* Purpose: effects of various "objects" */
@@ -15,13 +16,235 @@
 #define REWARD_CHANCE 10
 
 
-extern void do_poly_self();
-extern void do_poly_wounds();
-extern bool curse_weapon();
-extern bool curse_armor();
-extern void random_resistance(object_type * q_ptr, bool is_scroll, int specific);
+#define MAX_NUM 2147483647
+
+ /*
+ * Find the lowest common multiple of two s32bs
+  */
+static s32b find_lcm(s32b ua, s32b ub)
+{
+	s32b a = ua, b = ub;
+	/* Avoid problems from incorrect input. */
+	if (a < 1 || b < 1) return 0;
+	while (a && b)
+	{
+		if (a < b)
+			b -= b/a*a;
+		else
+			a -= a/b*b;
+	}
+	a += b;
+	/* Avoid overflow */
+	if (MAX_NUM/ua < ub/a) return 0;
+	else return ua/a*ub;
+}
+
+/*
+ * The rolling routine for drop_special().
+ */
+static bool death_event_roll(death_event_type *d_ptr, bool *one_dropped, s32b *total_num, s32b *total_denom)
+{
+	s32b num = d_ptr->num;
+	s32b denom = d_ptr->denom;
+	s32b lcm;
+
+	/* Wizards always get everything */
+	if (cheat_wzrd) return TRUE;
+
+	/* It's easy without ONLY_ONE. */
+	if (!(d_ptr->flags & EF_ONLY_ONE)) return (num > rand_int(denom));
+
+	/* No more drops possible */
+	if (*one_dropped) return FALSE;
+
+	/* Now arrange things so that denom = total_denom */
+	
+	/* Try to represent the fraction exactly. */
+	if ((lcm = find_lcm(*total_denom, denom)))
+{
+		num *= (lcm/denom);
+		*total_num *= (lcm/(*total_denom));
+		*total_denom = lcm;
+	}
+	/* But use the largest available denominator if impossible. */
+	else
+	{
+		num *= MAX_NUM/denom;
+		*total_num *= MAX_NUM/(*total_denom);
+		*total_denom = MAX_NUM;
+	}
+
+	/* Ensure that the total probability so far is sensible. */
+	if (*total_num < num)
+	{
+		msg_format("Incoherent probabilities for event %d.\n", (d_ptr-death_event));
+		*one_dropped = TRUE;
+		return FALSE;
+	}
+
+	/* Ensure that the next roll uses a correct number. */
+	*total_num -= num;
+
+	/* Finally, roll a number. */
+	if (num > rand_int(*total_denom))
+	{
+		/* Don't try again */
+		*one_dropped = TRUE;
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
 
 
+/*
+ * Create something at the point of death.
+ * There are many things 
+ */
+static void drop_special(monster_type *m_ptr)
+{
+	s32b total_num = 1;
+	s32b total_denom = 1;
+	u16b i;
+	bool one_dropped = FALSE;
+	
+	for (i = 0; i < MAX_DEATH_EVENTS; ++i)
+	{
+		death_event_type *d_ptr = &death_event[i];
+
+		/* Ignore incorrect entries */
+		if (d_ptr->r_idx > m_ptr->r_idx) break;
+		if (!d_ptr->r_idx) break;
+		if (d_ptr->r_idx < m_ptr->r_idx) continue;
+
+		/* Decide whether to drop correct ones. */
+		if (!death_event_roll(d_ptr, &one_dropped, &total_num, &total_denom)) continue;
+
+		/* Give some feedback to wizards. */
+		if (cheat_wzrd) msg_format("Processing death event %d", i);
+
+		/* Actually carry out event
+		 * Note that illegal events and default values are dealt with
+		 * in init1.c, not here.
+		 */
+		switch (d_ptr->type)
+		{
+			/* Drop some or fewer objects. */
+			case DEATH_OBJECT:
+			{
+				make_item_type *i_ptr = &d_ptr->par.item;
+				object_type o_ptr[1];
+				object_prep(o_ptr, i_ptr->k_idx);
+#ifdef ALLOW_EGO_DROP
+/* I can neither check that the ego item is plausible nor prevent apply_magic
+ *  from over-writing it without effort, and nothing currently uses the flag. */
+				if (i_ptr->flags & EI_EGO)
+					o_ptr->name2 = i_ptr->x_idx;
+#endif
+				if (i_ptr->flags & EI_ART)
+					o_ptr->name1 = i_ptr->x_idx;
+				if ((i_ptr->flags & (EI_ART | EI_RAND)) == (EI_ART | EI_RAND))
+				{
+					/* Make a random artefact (which automatically names it). */
+					create_artifact(o_ptr, FALSE);
+
+					/* Use a name if specified */
+					if (i_ptr->name) 
+ 					{
+						o_ptr->art_name = quark_add(event_name+i_ptr->name);
+					}
+				}
+				o_ptr->number = rand_range(i_ptr->min, i_ptr->max);
+				apply_magic(o_ptr, object_level, FALSE, FALSE, FALSE);
+				if (d_ptr->text) msg_print(event_text+d_ptr->text);
+				drop_near(o_ptr, -1, m_ptr->fy, m_ptr->fx);
+				d_ptr->flags |= EF_KNOWN;
+				break;
+			}
+			/* Create a monster nearby. */
+			case DEATH_MONSTER:
+			{
+				make_monster_type *i_ptr = &d_ptr->par.monster;
+				byte i,num = rand_range(i_ptr->min, i_ptr->max);
+				bool seen = FALSE;
+				for (i = 0; i < num; i++)
+				{
+					int wy,wx;
+					byte j;
+					/* Try to place within the given distance, but do accept greater distances if allowed. */
+					for (j = 0; j < 100; j++)
+					{
+						int d = i_ptr->radius;
+						if (!i_ptr->strict) d+= j/10;
+						scatter(&wy, &wx, m_ptr->fy, m_ptr->fx, d, 0);
+						if (in_bounds(wy,wx) && cave_floor_bold(wy,wx)) break;
+					}
+
+					/* Give up if there's nowhere appropriate */
+					if (j == 100) break;
+
+					/* As creating the monster can give a message, give this message first. */
+					if (player_can_see_bold(wy, wx) && !seen)
+					{
+						if (d_ptr->text) msg_format(event_text+d_ptr->text);
+						seen = TRUE;
+						d_ptr->flags |= EF_KNOWN;
+					}
+					/* Actually place the monster (which should not fail) */
+					(void)place_monster_one(wy, wx, i_ptr->num, FALSE, !!(m_ptr->smart & SM_ALLY), FALSE);
+				}
+				/* Only let the player know anything happened if it happened in LOS. */
+				break;
+			}
+			/* Cause an explosion centred on the monster */
+			case DEATH_EXPLODE:
+			{
+				/* Set up the parameters. */
+				make_explosion_type *i_ptr = &d_ptr->par.explosion;
+				byte typ = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+				int damage = damroll(i_ptr->dice, i_ptr->sides);
+
+				/* Print any specified text. */
+				if (d_ptr->text) msg_print(event_text+d_ptr->text);
+
+				/* Give the wizards a basic explanation. */
+				if (cheat_wzrd) msg_format("Explosion of radius %d, power %d and type %d triggered.", i_ptr->radius, damage, typ);
+
+				/* Then cause an explosion. */
+				(void)project((m_ptr - m_list), i_ptr->radius, m_ptr->fy, m_ptr->fx, damage, i_ptr->method, typ);
+				d_ptr->flags |= EF_KNOWN;
+				break;
+			}
+			/* Hack - force the coin drop (later) to be of a specific type. 
+			 * This does not actually do anything itself, so a drop of (for instance) 20 pieces of
+			 * silver would be best achieved via a coin artefact with a pval of 20.
+			 */
+			case DEATH_COIN:
+			{
+				make_coin_type *i_ptr = &d_ptr->par.coin;
+				coin_type = i_ptr->metal;
+				if (d_ptr->text) msg_print(event_text+d_ptr->text);
+				d_ptr->flags |= EF_KNOWN;
+				break;
+			}
+
+			/* Do nothing, except tell the player what you've done. */
+			case DEATH_NOTHING:
+			{
+				if (d_ptr->text) msg_print(event_text+d_ptr->text);
+				d_ptr->flags |= EF_KNOWN;
+				break;
+			}
+			/* Just in case... */
+			default:
+			{
+				msg_format("What strange action is %d?", d_ptr->type);
+			}
+		}
+	}
+}
 /*
  * Set "p_ptr->blind", notice observable changes
  *
@@ -340,7 +563,7 @@ bool set_image(int v)
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_VISIBLE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1049,6 +1272,10 @@ bool set_oppose_acid(int v)
 		}
 	}
 
+	/* Opposition to elements uses the PR_STUDY block. */
+	if (OPPOSE_COL(v) != OPPOSE_COL(p_ptr->oppose_acid))
+		p_ptr->redraw |= PR_STUDY;
+
 	/* Use the value */
 	p_ptr->oppose_acid = v;
 
@@ -1095,6 +1322,10 @@ bool set_oppose_elec(int v)
 			notice = TRUE;
 		}
 	}
+
+	/* Opposition to elements uses the PR_STUDY block. */
+	if (OPPOSE_COL(v) != OPPOSE_COL(p_ptr->oppose_elec))
+		p_ptr->redraw |= PR_STUDY;
 
 	/* Use the value */
 	p_ptr->oppose_elec = v;
@@ -1143,6 +1374,10 @@ bool set_oppose_fire(int v)
 		}
 	}
 
+	/* Opposition to elements uses the PR_STUDY block. */
+	if (OPPOSE_COL(v) != OPPOSE_COL(p_ptr->oppose_fire))
+		p_ptr->redraw |= PR_STUDY;
+
 	/* Use the value */
 	p_ptr->oppose_fire = v;
 
@@ -1190,6 +1425,10 @@ bool set_oppose_cold(int v)
 		}
 	}
 
+	/* Opposition to elements uses the PR_STUDY block. */
+	if (OPPOSE_COL(v) != OPPOSE_COL(p_ptr->oppose_cold))
+		p_ptr->redraw |= PR_STUDY;
+
 	/* Use the value */
 	p_ptr->oppose_cold = v;
 
@@ -1236,6 +1475,10 @@ bool set_oppose_pois(int v)
 			notice = TRUE;
 		}
 	}
+
+	/* Opposition to elements uses the PR_STUDY block. */
+	if (OPPOSE_COL(v) != OPPOSE_COL(p_ptr->oppose_pois))
+		p_ptr->redraw |= PR_STUDY;
 
 	/* Use the value */
 	p_ptr->oppose_pois = v;
@@ -1621,6 +1864,36 @@ bool set_cut(int v)
 	return (TRUE);
 }
 
+/*
+ * Spread the contents of a now ineligible square to the surrounding squares.
+ */
+static void scatter_objects(int y, int x)
+{
+	cave_type *c_ptr;
+	s16b o_idx;
+
+	/* Refuse "illegal" locations */
+	if (!in_bounds(y, x)) return;
+
+	/* Grid */
+	c_ptr = &cave[y][x];
+
+	/* Scan all objects in the grid */
+	for (o_idx = c_ptr->o_idx; o_idx;)
+	{
+		/* Acquire object */
+		object_type *o_ptr = &o_list[o_idx];
+
+		/* Hopefully find somewhere appropriate for object */
+		(void)drop_near(o_ptr, -1, y, x);
+
+		/* Acquire next object */
+		o_idx = o_ptr->next_o_idx;
+	}
+
+	/* Remove objects from original square. */
+	c_ptr->o_idx = 0;
+}
 
 /*
  * Set "p_ptr->food", notice observable changes
@@ -1879,47 +2152,55 @@ void lose_skills(s32b amount)
 		if (lost[i] > 0)
 		{
 			msg_format("Your %s skill has been lost (%d%%->%d%%)",skill_set[i].name,skill_set[i].value+lost[i],skill_set[i].value);
+
+			/* Window stuff */
+			p_ptr->window |= PW_PLAYER_SKILLS;
 		}
 	}
 	/* Re-calculate some things */
-	calc_hitpoints(); /* The hit-points might have changed */
-	calc_mana(); /* As might mana */
-	calc_spells(); /* And spells */
+	{
+		/* Hack - prevent the update of arbitrary things (I haven't checked
+		 * that this is necessary, but it may be). */
+		u32b hack_update = p_ptr->update;
+
+		/* Recalculate hit points, mana and spells, but nothing else. */
+		p_ptr->update = PU_HP | PU_MANA | PU_SPELLS;
+		update_stuff();
+
+		p_ptr->update = hack_update;
+	}
+
+	/* Redraw spirits, as a reduction may render some inaccessible. */
+	if (lost[SKILL_SHAMAN])
+	{
+		for (i = 0; i < MAX_SPIRITS; i++)
+		{
+			spirit_type *s_ptr = &spirits[i];
+			if (s_ptr->pact && s_ptr->minskill > skill_set[SKILL_SHAMAN].value)
+				p_ptr->redraw |= PR_SPIRIT;
+		}
+	}
+
+	/* Redraw if required. */
+	redraw_stuff();
 }
 
 
 
-
 /*
- * Hack -- Return the "automatic coin type" of a monster race
- * Used to allocate proper treasure when "Creeping coins" die
- *
- * XXX XXX XXX Note the use of actual "monster names"
+ * Alters the number of a type of monster which have been killed.
  */
-static int get_coin_type(monster_race *r_ptr)
+static void note_monster_death(monster_race *r_ptr, s16b deaths)
 {
-	cptr name = (r_name + r_ptr->name);
+	s16b max = MAX_SHORT-deaths;
+	/* Count kills this life */
+	if (r_ptr->r_pkills < max) r_ptr->r_pkills += deaths;
 
-	/* Analyze "coin" monsters */
-	if (r_ptr->d_char == '$')
-	{
-		/* Look for textual clues */
-		if (strstr(name, " copper ")) return (2);
-		if (strstr(name, " silver ")) return (5);
-		if (strstr(name, " gold ")) return (10);
-		if (strstr(name, " mithril ")) return (16);
-		if (strstr(name, " adamantite ")) return (17);
+	/* Count kills in all lives */
+	if (r_ptr->r_tkills < max) r_ptr->r_tkills += deaths;
 
-		/* Look for textual clues */
-		if (strstr(name, "Copper ")) return (2);
-		if (strstr(name, "Silver ")) return (5);
-		if (strstr(name, "Gold ")) return (10);
-		if (strstr(name, "Mithril ")) return (16);
-		if (strstr(name, "Adamantite ")) return (17);
-	}
-
-	/* Assume nothing */
-	return (0);
+	/* Hack -- Auto-recall */
+	monster_race_track(r_ptr-r_info);
 }
 
 
@@ -1967,8 +2248,6 @@ void monster_death(int m_idx)
 
     bool cloned = FALSE;
 
-	int force_coin = get_coin_type(r_ptr);
-
 	object_type forge;
 	object_type *q_ptr;
 
@@ -2010,187 +2289,8 @@ void monster_death(int m_idx)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 
-    /* Mega^2-hack -- destroying the Stormbringer gives it us! */
-    if (strstr((r_name + r_ptr->name),"Stormbringer"))
-	{
-		/* Get local object */
-		q_ptr = &forge;
-
-        /* Prepare to make the Stormbringer */
-        object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
-
-        /* Mega-Hack -- Name the sword  */
-
-        q_ptr->art_name = quark_add("'Stormbringer'");
-        q_ptr->to_h = 16;
-        q_ptr->to_d = 16;
-        q_ptr->ds = 6;
-        q_ptr->dd = 6;
-        q_ptr->pval = 2;
-
-        q_ptr->art_flags1 |= ( TR1_VAMPIRIC | TR1_STR | TR1_CON );
-        q_ptr->art_flags2 |= ( TR2_FREE_ACT | TR2_HOLD_LIFE |
-                               TR2_RES_NEXUS | TR2_RES_CHAOS | TR2_RES_NETHER |
-                               TR2_RES_CONF ); /* No longer resist_disen */
-        q_ptr->art_flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-                            TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
-                            /* Just to be sure */
-
-        q_ptr->art_flags3 |= TR3_NO_TELE; /* How's that for a downside? */
-
-        /* For game balance... */
-        q_ptr->art_flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
-        q_ptr->ident |= IDENT_CURSED;
-
-        if (randint(2)==1) q_ptr->art_flags3 |= (TR3_DRAIN_EXP);
-        q_ptr->art_flags3 |= (TR3_AGGRAVATE);
-
-		/* Drop it in the dungeon */
-        drop_near(q_ptr, -1, y, x);
-
-    }
-
-    /* Mega^3-hack: killing an 'Avatar of Nyarlathotep' is likely to
-       spawn another in the fallen one's place! */
-    else if (strstr((r_name + r_ptr->name),"Avatar of Nyarlathotep"))
-    {
-        if (!(randint(15)==13))
-        {
-            int wy = py, wx = px;
-            int attempts = 100;
-
-            do {
-                scatter(&wy, &wx, py, px, 20, 0);
-                }
-                while (!(in_bounds(wy,wx) && cave_floor_bold(wy,wx)) && (cave[wy][wx].feat != FEAT_WATER) &&
-                       --attempts);
-
-            if (attempts > 0)
-            {
-             if (m_ptr->smart & SM_ALLY)
-             {
-                 if (summon_specific_friendly(wy, wx, 100, SUMMON_AVATAR, FALSE))
-                 {
-                    if (player_can_see_bold(wy, wx))
-                         msg_print ("Nyarlathotep creates a new avatar!");
-                 }
-             }
-             else
-             {
-                 if (summon_specific(wy, wx, 100, SUMMON_AVATAR))
-                 {
-                     if (player_can_see_bold(wy, wx))
-                         msg_print ("Nyarlathotep creates a new avatar!");
-                 }
-             }
-            }
-        }
-        
-    }
-
-    /* One more ultra-hack: An Unmaker goes out with a big bang! */
-    else if (strstr((r_name + r_ptr->name),"Unmaker"))
-    {
-    int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-    (void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
-    }
-
-	/* Mega-Hack -- drop "winner" treasures */
-    else if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
-	{
-        if (strstr((r_name + r_ptr->name),"Azathoth"))
-        {
-
-            /* Get local object */
-            q_ptr = &forge;
-
-            /* Mega-Hack -- Prepare to make "Mighty Hammer of Worlds" */
-            object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_WORLDS));
-
-            /* Mega-Hack -- Mark this item as "Mighty Hammer of Worlds" */
-            q_ptr->name1 = ART_WORLDS;
-
-            /* Mega-Hack -- Actually create "Mighty Hammer of Worlds" */
-            apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
-
-            /* Drop it in the dungeon */
-            drop_near(q_ptr, -1, y, x);
-
-
-            /* Get local object */
-            q_ptr = &forge;
-
-            /* Mega-Hack -- Prepare to make "Crown of the Universe" */
-            object_prep(q_ptr, lookup_kind(TV_CROWN, SV_UNIVERSE));
-
-            /* Mega-Hack -- Mark this item as "Crown of the Universe" */
-            q_ptr->name1 = ART_UNIVERSE;
-
-            /* Mega-Hack -- Actually create "Crown of the Universe" */
-            apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
-
-            /* Drop it in the dungeon */
-            drop_near(q_ptr, -1, y, x);
-        }
-        else
-        {
-            byte a_idx = 0;
-            int chance = 0;
-            int I_kind = 0;
-
-            if (strstr((r_name + r_ptr->name),"Groo"))
-            {
-                a_idx = ART_GROO;
-                chance = 75;
-            }
-
-            if ((a_idx > 0) && ((randint(99)<chance) || (cheat_wzrd)))
-            {
-                if (a_info[a_idx].cur_num == 0)
-                {
-                   artifact_type *a_ptr = &a_info[a_idx];
-
-                   /* Get local object */
-                   q_ptr = &forge;
-
-                   /* Wipe the object */
-                   object_wipe(q_ptr);
-
-                   /* Acquire the "kind" index */
-                   I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-                   /* Create the artifact */
-                   object_prep(q_ptr, I_kind);
-
-                   /* Save the name */
-                   q_ptr->name1 = a_idx;
-
-                   /* Extract the fields */
-                   q_ptr->pval = a_ptr->pval;
-                   q_ptr->ac = a_ptr->ac;
-                   q_ptr->dd = a_ptr->dd;
-                   q_ptr->ds = a_ptr->ds;
-                   q_ptr->to_a = a_ptr->to_a;
-                   q_ptr->to_h = a_ptr->to_h;
-                   q_ptr->to_d = a_ptr->to_d;
-                   q_ptr->weight = a_ptr->weight;
-
-                    /* Hack -- acquire "cursed" flag */
-                    if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
-
-                    random_artifact_resistance(q_ptr);
-
-                    a_info[a_idx].cur_num = 1;
-
-                   /* Drop the artifact from heaven */
-                   drop_near(q_ptr, -1, y, x);
-                    
-
-                }
-            }
-        }
-	}
-
+	/* Do special things when appropriate. */
+	drop_special(m_ptr);
 
 	/* Determine how much we can drop */
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
@@ -2205,9 +2305,13 @@ void monster_death(int m_idx)
 	{
 		q_idx = get_quest_number ();
 		q_list[q_idx].cur_num++;
+		if (visible) q_list[q_idx].cur_num_known++;
 
 		if (q_list[q_idx].cur_num == q_list[q_idx].max_num)
 		{
+			/* The quest monsters must have all died. */
+			note_monster_death(r_ptr, q_list[q_idx].cur_num-q_list[q_idx].cur_num_known);
+			
 			/* Drop at least 2 items (the stair will probably destroy one */
 			number += 2;
 			quest = TRUE;
@@ -2218,11 +2322,8 @@ void monster_death(int m_idx)
 
 
 
-	/* Hack -- handle creeping coins */
-	coin_type = force_coin;
-
 	/* Average dungeon and monster levels */
-	object_level = ((dun_level+dun_offset) + r_ptr->level) / 2;
+	object_level = ((dun_depth) + r_ptr->level) / 2;
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -2266,7 +2367,7 @@ void monster_death(int m_idx)
 	}
 
 	/* Reset the object level */
-	object_level = (dun_level+dun_offset);
+	object_level = (dun_depth);
 
 	/* Reset "coin" type */
 	coin_type = 0;
@@ -2285,9 +2386,6 @@ void monster_death(int m_idx)
 
 	/* Check if quest is complete (Heino Vander Sanden) */
 	if (q_list[q_idx].cur_num != q_list[q_idx].max_num) return;
-
-	/* No longer quest monster (Heino Vander Sanden) */
-	r_ptr->flags1 ^= (RF1_GUARDIAN);
 
 	/* Count incomplete quests (Heino Vander Sanden) */
 	for (i = 0; i < MAX_Q_IDX; i++)
@@ -2315,9 +2413,6 @@ void monster_death(int m_idx)
 				y = ny; x = nx;
 			}
 
-			/* XXX XXX XXX */
-			delete_object(y, x);
-
 			/* Explain the stairway */
 			msg_print("A magical stairway appears...");
 
@@ -2331,6 +2426,9 @@ void monster_death(int m_idx)
 				/* Create stairs down */
 				cave_set_feat(y, x, FEAT_MORE);
 			}
+
+			/* Clear the stairs */
+			scatter_objects(y, x);
 
 			/* Remember to update everything */
 			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
@@ -2408,10 +2506,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* It is dead now */
 	if (m_ptr->hp < 0)
 	{
-		char m_name[80];
+		C_TNEW(m_name, MNAME_MAX, char);
 
 		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0);
+		monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
        if ((r_ptr->flags3 & (RF3_GREAT_OLD_ONE)) && (randint(2)==1))
        {
@@ -2541,7 +2639,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			r_ptr->max_num = 1;
 
 			/* Delete the bones file */
-			sprintf(tmp, "%s%sbone.%03d", ANGBAND_DIR_BONE, PATH_SEP, dun_level + dun_offset);
+			sprintf(tmp, "%s%sbone.%03d", ANGBAND_DIR_BONE, PATH_SEP, dun_depth);
 			
 			fd_kill(tmp);
 		}
@@ -2549,21 +2647,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
-			/* Count kills this life */
-			if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;
-
-			/* Count kills in all lives */
-			if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
-
-			/* Hack -- Auto-recall */
-			monster_race_track(m_ptr->r_idx);
+			note_monster_death(r_ptr, 1);
 		}
 
 		/* Delete the monster */
 		delete_monster_idx(m_idx,TRUE);
 
+		/* Update window */
+		p_ptr->window |= PW_VISIBLE;
+
 		/* Not afraid */
 		(*fear) = FALSE;
+
+		TFREE(m_name);
 
 		/* Monster is dead */
 		return (TRUE);
@@ -2622,11 +2718,53 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 #endif
 
-
 	/* Not dead yet */
 	return (FALSE);
 }
 
+
+
+/*
+ * Calculate which square to print at the top-left corner of the map.
+ */
+static void panel_bounds_prt(void)
+{
+	s16b panel_row_centre = ((panel_row_min + panel_row_max+1) / 2);
+	s16b panel_col_centre = ((panel_col_min + panel_col_max+1) / 2);
+
+	panel_row_prt = (panel_row_centre - (Term->hgt-PRT_MINY)/2);
+	panel_col_prt = (panel_col_centre - (Term->wid-PRT_MINX)/2);
+
+	/* Blank space is always fine with scroll_edge. */
+	if (scroll_edge) return;
+
+	/* Blank space is fine if the dungeon doesn't fill the screen. */
+	if (PRT_MAXY-PRT_MINY > cur_hgt);
+
+	/* Kill space above the map. */
+	else if (panel_row_prt < 0)
+	{
+		panel_row_prt = 0;
+	}
+	/* Kill space below the map. */
+	else if (panel_row_prt > cur_hgt - (PRT_MAXY-PRT_MINY))
+	{
+		panel_row_prt = cur_hgt - (PRT_MAXY-PRT_MINY);
+	}
+
+	if (PRT_MAXX-PRT_MINX > cur_wid);
+
+	/* Kill space to the left of the map. */
+	else if (panel_col_prt < 0)
+	{
+		panel_col_prt = 0;
+	}
+	/* Kill space to the right of the map. */
+	else if (panel_col_prt > cur_wid - (PRT_MAXX-PRT_MINX))
+	{
+		panel_col_prt = cur_wid - (PRT_MAXX-PRT_MINX);
+	}
+}
 
 
 /*
@@ -2637,20 +2775,22 @@ void panel_bounds(void)
 {
 	panel_row_min = panel_row * (SCREEN_HGT / 2);
 	panel_row_max = panel_row_min + SCREEN_HGT - 1;
-	panel_row_prt = panel_row_min - 1;
 	panel_col_min = panel_col * (SCREEN_WID / 2);
 	panel_col_max = panel_col_min + SCREEN_WID - 1;
-	panel_col_prt = panel_col_min - 13;
+
+	/* Calculate the printed area. */
+	panel_bounds_prt();
 }
 
 void panel_bounds_center(void)
 {
 	panel_row = panel_row_min / (SCREEN_HGT / 2);
 	panel_row_max = panel_row_min + SCREEN_HGT - 1;
-	panel_row_prt = panel_row_min - 1;
 	panel_col = panel_col_min / (SCREEN_WID / 2);
 	panel_col_max = panel_col_min + SCREEN_WID - 1;
-	panel_col_prt = panel_col_min - 13;
+
+	/* Calculate the printed area. */
+	panel_bounds_prt();
 }
 
 
@@ -2742,12 +2882,46 @@ void verify_panel(void)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
+/*
+ * Map resizing whenever the main term changes size
+ */
+void resize_map(void)
+{
+	/* Only if the dungeon exists */
+	if (!character_dungeon) return;
+
+	/* Recalculate the map size. */
+	panel_bounds_prt();
+
+	/* Redraw everything (even the left-hand bar, which is unchanged). */
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+
+	/* Hack -- update */
+	redraw_stuff();
+
+	/* Place the cursor on the player */
+	move_cursor_relative(px, py);
+
+	/* Refresh */
+	Term_fresh();
+}
+
+
+/*
+ * Try to add an unusual keypress to the "queue".
+ *
+ * As this is the "end keymap" key, it will not be interpreted by keymaps.
+ */
+void resize_inkey(void)
+{
+	(void)Term_keypress(RESIZE_INKEY_KEY);
+}
 
 
 /*
  * Monster health description
  */
-cptr look_mon_desc(int m_idx)
+static cptr look_mon_desc(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -2803,7 +2977,7 @@ cptr look_mon_desc(int m_idx)
  * function hooks to interact with the data, which is given as
  * two pointers, and which may have any user-defined form.
  */
-void ang_sort_aux(vptr u, vptr v, int p, int q)
+static void ang_sort_aux(vptr u, vptr v, int p, int q)
 {
 	int z, a, b;
 
@@ -2879,7 +3053,7 @@ void ang_sort(vptr u, vptr v, int n)
  * Future versions may restrict the ability to target "trappers"
  * and "mimics", but the semantics is a little bit weird.
  */
-bool target_able(int m_idx)
+static bool target_able(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
@@ -3188,6 +3362,21 @@ static void target_set_prepare(int mode)
 
 
 /*
+ * Track the first known object in the same stack as o_ptr, if any.
+ */
+static void try_object_track(object_type *o_ptr)
+{
+	for (; o_ptr != o_list; o_ptr = o_list+o_ptr->next_o_idx)
+	{
+		if (o_ptr->marked)
+		{
+			object_track(o_ptr);
+			return;
+		}
+	}
+}
+
+/*
  * Examine a grid, return a keypress.
  *
  * The "mode" argument contains the "TARGET_LOOK" bit flag, which
@@ -3280,13 +3469,13 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			{
 				bool recall = FALSE;
 
-				char m_name[80];
+				C_TNEW(m_name, MNAME_MAX, char);
 
 				/* Not boring */
 				boring = FALSE;
 
 				/* Get the monster name ("a kobold") */
-				monster_desc(m_name, m_ptr, 0x08);
+				monster_desc(m_name, m_ptr, 0x08, MNAME_MAX);
 
 				/* Hack -- track this monster race */
 				monster_race_track(m_ptr->r_idx);
@@ -3344,6 +3533,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					recall = !recall;
 				}
 
+				TFREE(m_name);
+
 				/* Always stop at "normal" keys */
 				if ((query != '\r') && (query != '\n') && (query != ' ')) break;
 
@@ -3363,7 +3554,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				/* Scan all objects being carried */
 				for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 				{
-					char o_name[80];
+					C_TNEW(o_name, ONAME_MAX, char);
 
 					object_type *o_ptr;
 				
@@ -3381,6 +3572,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
+
+					TFREE(o_name);
 
 					/* Always stop at "normal" keys */
 					if ((query != '\r') && (query != '\n') && (query != ' ')) break;
@@ -3401,6 +3594,9 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		}
 
 
+		/* Hack - track the first object in the square, if any. */
+		if (c_ptr->o_idx) try_object_track(&o_list[c_ptr->o_idx]);
+
 		/* Scan all objects in the grid */
 		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 		{
@@ -3415,7 +3611,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			/* Describe it */
 			if (o_ptr->marked)
 			{
-				char o_name[80];
+				C_TNEW(o_name, ONAME_MAX, char);
 
 				/* Not boring */
 				boring = FALSE;
@@ -3428,6 +3624,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				prt(out_val, 0, 0);
 				move_cursor_relative(y, x);
 				query = inkey();
+
+				TFREE(o_name);
 
 				/* Always stop at "normal" keys */
 				if ((query != '\r') && (query != '\n') && (query != ' ')) break;
@@ -3502,6 +3700,373 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 
 
+/*
+ * Hack - uniques flash violet in target mode.
+ * The violet_uniques variable gives uniques a special colour when
+ * violet_uniques == 2 Setting it to 0 disables the effect, making it act like
+ * a boolean when not within target_set().
+ */
+static void do_violet_uniques(bool swap)
+{
+	int i;
+	switch (violet_uniques)
+	{
+		case 1: if (swap) violet_uniques = 2; break;
+		case 2: violet_uniques = 1; break;
+	}
+
+	/* Redraw all visible monsters. */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		/* Ignore unseen monsters */
+		if (!m_ptr->ml) continue;
+
+		/* Ignore colour-changing uniques half of the time unless hallucinating. */
+		if (r_ptr->flags1 & RF1_UNIQUE && r_ptr->flags1 & RF1_ATTR_MULTI && !p_ptr->image && violet_uniques == 2) continue;
+
+		/* Redraw everything else. */		
+		lite_spot(m_ptr->fy, m_ptr->fx);
+	}
+}
+
+
+/*
+ * Convert a "location" (Y,X) into a "grid" (G)
+ */
+#define GRID(Y,X) \
+    (256 * (Y) + (X))
+
+/*
+ * Convert a "grid" (G) into a "location" (Y)
+ */
+#define GRID_Y(G) \
+    ((int)((G) / 256U))
+
+/*
+ * Convert a "grid" (G) into a "location" (X)
+ */
+#define GRID_X(G) \
+    ((int)((G) % 256U))
+
+/*
+ * A simplified version of "project_path()" which places the co-ordinates
+ * of a path in gp[]. The only restriction used in this version is that of
+ * the range of the beam.
+ */
+static sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2)
+{
+    int y, x;
+
+    int n = 0;
+    int k = 0;
+
+    /* Absolute */
+    int ay, ax;
+
+    /* Offsets */
+    int sy, sx;
+
+    /* Fractions */
+    int frac;
+
+    /* Scale factors */
+    int full, half;
+
+    /* Slope */
+    int m;
+
+
+    /* No path necessary (or allowed) */
+    if ((x1 == x2) && (y1 == y2)) return (0);
+
+
+    /* Analyze "dy" */
+    if (y2 < y1)
+    {
+        ay = (y1 - y2);
+        sy = -1;
+    }
+    else
+    {
+        ay = (y2 - y1);
+        sy = 1;
+    }
+
+    /* Analyze "dx" */
+    if (x2 < x1)
+    {
+        ax = (x1 - x2);
+        sx = -1;
+    }
+    else
+    {
+        ax = (x2 - x1);
+        sx = 1;
+    }
+
+
+    /* Number of "units" in one "half" grid */
+    half = (ay * ax);
+
+    /* Number of "units" in one "full" grid */
+    full = half << 1;
+
+
+    /* Vertical */
+    if (ay > ax)
+    {
+        /* Start at tile edge */
+        frac = ax * ax;
+
+        /* Let m = ((dx/dy) * full) = (dx * dx * 2) = (frac * 2) */
+        m = frac << 1;
+
+        /* Start */
+        y = y1 + sy;
+        x = x1;
+
+        /* Create the projection path */
+        while (1)
+        {
+            /* Save grid */
+            gp[n++] = GRID(y,x);
+
+            /* Hack -- Check maximum range */
+            if ((n + (k >> 1)) >= range) break;
+
+            /* Slant */
+            if (m)
+            {
+                /* Advance (X) part 1 */
+                frac += m;
+
+                /* Horizontal change */
+                if (frac >= half)
+                {
+                    /* Advance (X) part 2 */
+                    x += sx;
+
+                    /* Advance (X) part 3 */
+                    frac -= full;
+
+                    /* Track distance */
+                    k++;
+                }
+            }
+
+            /* Advance (Y) */
+            y += sy;
+        }
+    }
+
+    /* Horizontal */
+    else if (ax > ay)
+    {
+        /* Start at tile edge */
+        frac = ay * ay;
+
+        /* Let m = ((dy/dx) * full) = (dy * dy * 2) = (frac * 2) */
+        m = frac << 1;
+
+        /* Start */
+        y = y1;
+        x = x1 + sx;
+
+        /* Create the projection path */
+        while (1)
+        {
+            /* Save grid */
+            gp[n++] = GRID(y,x);
+
+            /* Hack -- Check maximum range */
+            if ((n + (k >> 1)) >= range) break;
+
+            /* Slant */
+            if (m)
+            {
+                /* Advance (Y) part 1 */
+                frac += m;
+
+                /* Vertical change */
+                if (frac >= half)
+                {
+                    /* Advance (Y) part 2 */
+                    y += sy;
+
+                    /* Advance (Y) part 3 */
+                    frac -= full;
+
+                    /* Track distance */
+                    k++;
+                }
+            }
+
+            /* Advance (X) */
+            x += sx;
+        }
+    }
+
+    /* Diagonal */
+    else
+    {
+        /* Start */
+        y = y1 + sy;
+        x = x1 + sx;
+
+        /* Create the projection path */
+        while (1)
+        {
+            /* Save grid */
+            gp[n++] = GRID(y,x);
+
+            /* Hack -- Check maximum range */
+            if ((n + (n >> 1)) >= range) break;
+
+            /* Advance (Y) */
+            y += sy;
+
+            /* Advance (X) */
+            x += sx;
+        }
+    }
+
+
+    /* Length */
+    return (n);
+}
+
+/*
+ * Draw a visible path over the squares between (x1,y1) and (x2,y2).
+ * The path consists of "*", which are white except where there is a
+ * monster, object or feature in the grid.
+ *
+ * This routine has (at least) three weaknesses:
+ * - remembered objects/walls which are no longer present are not shown,
+ * - squares which (e.g.) the player has walked through in the dark are
+ *   treated as unknown space.
+ * - walls which appear strange due to hallucination aren't treated correctly.
+ *
+ * The first two result from information being lost from the dungeon arrays,
+ * which requires changes elsewhere 
+ */
+static sint draw_path(u16b *path, char *c, byte *a, int y1, int x1, int y2, int x2)
+{
+	int i;
+	sint max;
+	bool on_screen;
+
+	/* Find the path. */
+	max = project_path(path, MAX_RANGE, y1, x1, y2, x2);
+
+	/* No path, so do nothing. */
+	if (!max) return max;
+
+	/* The starting square is never drawn, but notice if it is being
+	 * displayed. In theory, it could be the last such square. */
+	on_screen = panel_contains(y1, x1);
+
+	/* Draw the path. */
+	for (i = 0; i < max; i++)
+	{
+		byte colour;
+
+		/* Find the co-ordinates on the level. */
+		int y = GRID_Y(path[i]);
+		int x = GRID_X(path[i]);
+		
+		cave_type *c_ptr = &cave[y][x];
+
+		/*
+		 * As path[] is a straight line and the screen is oblong,
+		 * there is only section of path[] on-screen.
+		 * If the square being drawn is visible, this is part of it.
+		 * If none of it has been drawn, continue until some of it
+		 * is found or the last square is reached.
+		 * If some of it has been drawn, finish now as there are no
+		 * more visible squares to draw.
+		 *
+		 * 
+		 */
+		if (panel_contains(y,x))
+			on_screen = TRUE;
+		else if (on_screen)
+			break;
+		else
+			continue;
+
+		/* Find the position on-screen */
+		move_cursor_relative(y,x);
+
+		/* This square is being overwritten, so save the original. */
+		Term_what(Term->scr->cx, Term->scr->cy, a+i, c+i);
+
+		/* Choose a colour. */
+
+		/* Visible monsters are red. */
+		if (c_ptr->m_idx && m_list[c_ptr->m_idx].ml)
+		{
+			colour = TERM_L_RED;
+		}
+		/* Known objects are yellow. */
+		else if (c_ptr->o_idx && o_list[c_ptr->o_idx].marked)
+		{
+			colour = TERM_YELLOW;
+		}
+		/* Known walls are blue. */
+		else if (!cave_floor_bold(y,x) && (c_ptr->info & CAVE_MARK || player_can_see_bold(y,x)))
+		{
+			/* Hallucination sometimes alters the player's
+			 * perception. */
+			if (a[i] != f_info[f_info[c_ptr->feat].mimic].x_attr ||
+				c[i] != f_info[f_info[c_ptr->feat].mimic].x_char)
+			{
+				switch (GRID(a[i], c[i]) % 3)
+				{
+					case 0: colour = TERM_L_RED; break;
+					case 1: colour = TERM_YELLOW; break;
+					default: colour = TERM_BLUE; break;
+				}
+			}
+			else
+			{
+				colour = TERM_BLUE;
+			}
+		}
+		/* Unknown squares are grey. */
+		else if (!(c_ptr->info & (CAVE_MARK)) && !player_can_see_bold(y,x))
+		{
+			colour = TERM_L_DARK;
+		}
+		/* Unoccupied squares are white. */
+		else
+		{
+			colour = TERM_WHITE;
+		}
+
+		/* Draw the path segment */
+		(void)Term_addch(colour, '*');
+	}
+	return i;
+}
+
+/*
+ * Load the attr/char at each point along "path" which is on screen from
+ * "a" and "c". This was saved in draw_path().
+ */
+static void load_path(sint max, u16b *path, char *c, byte *a)
+{
+	int i;
+	for (i = 0; i < max; i++)
+	{
+		if (!panel_contains(GRID_Y(path[i]), GRID_X(path[i]))) continue;
+		move_cursor_relative(GRID_Y(path[i]), GRID_X(path[i]));
+		(void)Term_addch(a[i], c[i]);
+	}
+	Term_fresh();
+}
+
 
 /*
  * Handle "target" and "look".
@@ -3561,6 +4126,8 @@ bool target_set(int mode)
 	
 	cave_type		*c_ptr;
 
+	/* Enter targetting mode */
+	current_function = FUNC_TARGET_SET;
 
 	/* Cancel target */
 	target_who = 0;
@@ -3579,6 +4146,14 @@ bool target_set(int mode)
 	/* Interact */
 	while (!done)
 	{
+		u16b path[MAX_RANGE];
+		char path_char[MAX_RANGE];
+		byte path_attr[MAX_RANGE];
+		sint max = 0;
+
+		/* Hack - uniques flash violet in target mode */
+		do_violet_uniques(TRUE);
+
 		/* Interesting grids */
 		if (flag && temp_n)
 		{
@@ -3600,8 +4175,15 @@ bool target_set(int mode)
 				strcpy(info, "q,p,o,+,-,<dir>");
 			}
 
+			/* Draw the path in "target" mode, if there is one. */
+			if (mode & TARGET_KILL)
+				max = draw_path(path, path_char, path_attr, py, px, y, x);
+
 			/* Describe and Prompt */
 			query = target_set_aux(y, x, mode, info);
+
+			/* Remove the path. */
+			if (max) load_path(max, path, path_char, path_attr);
 
 			/* Cancel tracking */
 			/* health_track(0); */
@@ -3706,8 +4288,15 @@ bool target_set(int mode)
 			/* Default prompt */
 			strcpy(info, "q,t,p,m,+,-,<dir>");
 
+			/* Draw the path, if there is one. */
+			if (mode & TARGET_KILL)
+				max = draw_path(path, path_char, path_attr, py, px, y, x);
+
 			/* Describe and Prompt (enable "TARGET_LOOK") */
 			query = target_set_aux(y, x, mode | TARGET_LOOK, info);
+
+			/* Remove the path. */
+			if (max) load_path(max, path, path_char, path_attr);
 
 			/* Cancel tracking */
 			/* health_track(0); */
@@ -3777,12 +4366,12 @@ bool target_set(int mode)
 				y += ddy[d];
 
 				/* Hack -- Verify x */
-				if ((x>=cur_wid-1) || (x>panel_col_max)) x--;
-				else if ((x<=0) || (x<panel_col_min)) x++;
+				if ((x>=cur_wid) || (x>panel_col_max)) x--;
+				else if ((x<0) || (x<panel_col_min)) x++;
 
 				/* Hack -- Verify y */
-				if ((y>=cur_hgt-1) || (y>panel_row_max)) y--;
-				else if ((y<=0) || (y<panel_row_min)) y++;
+				if ((y>=cur_hgt) || (y>panel_row_max)) y--;
+				else if ((y<0) || (y<panel_row_min)) y++;
 			}
 		}
 	}
@@ -3792,6 +4381,12 @@ bool target_set(int mode)
 
 	/* Clear the top line */
 	prt("", 0, 0);
+
+	/* Don't show violet uniques in normal play */
+	do_violet_uniques(FALSE);
+
+	/* Leave targetting mode */
+	current_function = 0;
 
 	/* Failure to set target */
 	if (!target_who) return (FALSE);
@@ -3821,7 +4416,7 @@ bool get_aim_dir(int *dp)
 
 	cptr	p;
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
  	if (repeat_pull(dp)) {
  	
@@ -3919,7 +4514,7 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      repeat_push(dir);
  
@@ -3952,7 +4547,7 @@ bool get_rep_dir(int *dp)
 {
 	int dir;
 
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      if (repeat_pull(dp)) {
          return (TRUE);
@@ -4012,7 +4607,7 @@ bool get_rep_dir(int *dp)
 	(*dp) = dir;
 
  
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      repeat_push(dir);
  
@@ -4023,10 +4618,12 @@ bool get_rep_dir(int *dp)
 }
 
 
-int get_chaos_patron()
+#if 0
+static int get_chaos_patron(void)
 {
     return (((p_ptr->age)+(p_ptr->sc)+(p_ptr->birthday))%MAX_PATRON);
 }
+#endif
 
 void gain_level_reward(int chosen_reward)
 {
@@ -4156,7 +4753,7 @@ void gain_level_reward(int chosen_reward)
                             dummy2 = SV_LONG_SWORD;
                             break;
                             case 24: case 25: case 26:
-                            dummy2 = dummy2 = SV_SCIMITAR;
+                            dummy2 = SV_SCIMITAR;
                             break;
                             case 27:
                             dummy2 = SV_KATANA;
@@ -4175,8 +4772,8 @@ void gain_level_reward(int chosen_reward)
                         }
 
                 object_prep(q_ptr, lookup_kind(dummy, dummy2));
-                q_ptr->to_h = 3 + (randint((dun_level+dun_offset)))%10;
-                q_ptr->to_d = 3 + (randint((dun_level+dun_offset)))%10;
+                q_ptr->to_h = 3 + (randint((dun_depth)))%10;
+                q_ptr->to_d = 3 + (randint((dun_depth)))%10;
                 random_resistance(q_ptr, FALSE, ((randint(34))+4));
                 q_ptr->name2 = EGO_CHAOTIC;
                 /* Drop it in the dungeon */
@@ -4206,7 +4803,7 @@ void gain_level_reward(int chosen_reward)
             msg_print("'My pets, destroy the arrogant mortal!'");
             for (dummy = 0; dummy < randint(5) + 1; dummy++)
             {
-                (void) summon_specific(py, px, (dun_level+dun_offset), 0);
+                (void) summon_specific(py, px, (dun_depth), 0);
             }
             break;
         case REW_H_SUMMON:
@@ -4365,17 +4962,17 @@ void gain_level_reward(int chosen_reward)
             break;
         case REW_SER_DEMO:
             msg_format("%s rewards you with a demonic servant!",chaos_patron_shorts[p_ptr->chaos_patron]);
-            if (!(summon_specific_friendly(py, px, (dun_level+dun_offset), SUMMON_DEMON, FALSE)))
+            if (!(summon_specific_friendly(py, px, (dun_depth), SUMMON_DEMON, FALSE)))
             msg_print("Nobody ever turns up...");
             break;
         case REW_SER_MONS:
             msg_format("%s rewards you with a servant!",chaos_patron_shorts[p_ptr->chaos_patron]);
-            if (!(summon_specific_friendly(py, px, (dun_level+dun_offset), SUMMON_NO_UNIQUES, FALSE)))
+            if (!(summon_specific_friendly(py, px, (dun_depth), SUMMON_NO_UNIQUES, FALSE)))
             msg_print("Nobody ever turns up...");
             break;
         case REW_SER_UNDE:
             msg_format("%s rewards you with an undead servant!",chaos_patron_shorts[p_ptr->chaos_patron]);
-            if (!(summon_specific_friendly(py, px, (dun_level+dun_offset), SUMMON_UNDEAD, FALSE)))
+            if (!(summon_specific_friendly(py, px, (dun_depth), SUMMON_UNDEAD, FALSE)))
             msg_print("Nobody ever turns up...");
             break;
         default:
@@ -5758,7 +6355,7 @@ bool get_hack_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
  
- #ifdef ALLOW_REPEAT /* TNB */
+ #ifdef ALLOW_REPEAT
  
      repeat_push(dir);
  

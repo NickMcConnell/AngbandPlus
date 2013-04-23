@@ -1,3 +1,4 @@
+#define CMD6_C
 /* File: cmd6.c */
 
 /* Purpose: Object commands */
@@ -12,7 +13,6 @@
 
 #include "angband.h"
 
-extern void do_cmd_rerate(void);
 static bool activate_random_artifact(object_type * o_ptr);
 
 
@@ -111,7 +111,7 @@ void do_cmd_eat_food(int item)
 
 
 	/* Take a turn */
-	energy_use = 100;
+	energy_use = extract_energy[p_ptr->pspeed];
 
 	/* Identity not known yet */
 	ident = FALSE;
@@ -460,10 +460,10 @@ void do_cmd_quaff_potion(int item)
 	/* Take a turn */
 	if (item < INVEN_POUCH_1)
 	{
-		energy_use = 100;
+		energy_use = extract_energy[p_ptr->pspeed];
 	} else {
 		/* Potions in a pouch are immediately accessible */
-		energy_use = 10;
+		energy_use = TURN_ENERGY/10;
 	}
 
 	/* Not identified yet */
@@ -928,6 +928,7 @@ void do_cmd_quaff_potion(int item)
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
 			(void)detect_traps();
+			mark_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
 			(void)detect_treasure();
@@ -950,12 +951,9 @@ void do_cmd_quaff_potion(int item)
 
 		case SV_POTION_EXPERIENCE:
 		{
-			if (p_ptr->exp < PY_MAX_EXP)
-			{
 				msg_print("You feel more experienced.");
 				gain_skills(200);
 				ident = TRUE;
-			}
 			break;
 		}
 
@@ -1057,21 +1055,25 @@ bool curse_armor(void)
 {
 	object_type *o_ptr;
 
-	char o_name[80];
+	C_TNEW(o_name, ONAME_MAX, char);
 
 
 	/* Curse the body armor */
 	o_ptr = &inventory[INVEN_BODY];
 
 	/* Nothing to curse */
-	if (!o_ptr->k_idx) return (FALSE);
+	if (!o_ptr->k_idx)
+	{
+		TFREE(o_name);
+		return (FALSE);
+	}
 
 
 	/* Describe */
 	object_desc(o_name, o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw for artifacts */
-    if (((o_ptr->art_name) || artifact_p(o_ptr)) && (rand_int(100) < 50))
+    if (allart_p(o_ptr) && (rand_int(100) < 50))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
@@ -1093,15 +1095,19 @@ bool curse_armor(void)
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
-        o_ptr->art_flags1 = 0;
-        o_ptr->art_flags2 = 0;
-        o_ptr->art_flags3 = 0;
+        o_ptr->flags1 = 0;
+        o_ptr->flags2 = 0;
+        o_ptr->flags3 = 0;
+		o_ptr->art_name = 0;
 
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
 
 		/* Break it */
 		o_ptr->ident |= (IDENT_BROKEN);
+
+		/* Tell the player the bad news */
+		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -1112,6 +1118,8 @@ bool curse_armor(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	}
+
+	TFREE(o_name);
 
 	return (TRUE);
 }
@@ -1124,21 +1132,25 @@ bool curse_weapon(void)
 {
 	object_type *o_ptr;
 
-	char o_name[80];
+	C_TNEW(o_name, ONAME_MAX, char);
 
 
 	/* Curse the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Nothing to curse */
-	if (!o_ptr->k_idx) return (FALSE);
+	if (!o_ptr->k_idx)
+	{
+		TFREE(o_name);
+		return (FALSE);
+	}
 
 
 	/* Describe */
 	object_desc(o_name, o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw */
-    if ((artifact_p(o_ptr) || o_ptr->art_name) && (rand_int(100) < 50))
+    if (allart_p(o_ptr) && (rand_int(100) < 50))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
@@ -1160,9 +1172,10 @@ bool curse_weapon(void)
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
-        o_ptr->art_flags1 = 0;
-        o_ptr->art_flags2 = 0;
-        o_ptr->art_flags3 = 0;
+        o_ptr->flags1 = 0;
+        o_ptr->flags2 = 0;
+        o_ptr->flags3 = 0;
+		o_ptr->art_name = 0;
 
 
 		/* Curse it */
@@ -1171,6 +1184,9 @@ bool curse_weapon(void)
 		/* Break it */
 		o_ptr->ident |= (IDENT_BROKEN);
 
+		/* Tell the player the bad news */
+		o_ptr->ident |= (IDENT_SENSE);
+		
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -1180,6 +1196,8 @@ bool curse_weapon(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	}
+
+	TFREE(o_name);
 
 	/* Notice */
 	return (TRUE);
@@ -1257,10 +1275,10 @@ void do_cmd_read_scroll(int item)
 	/* Take a turn */
 	if (item < INVEN_POUCH_1)
 	{
-		energy_use = 100;
+		energy_use = extract_energy[p_ptr->pspeed];
 	} else {
 		/* Scrolls in a pouch are immediately accessible */
-		energy_use = 10;
+		energy_use = TURN_ENERGY/10;
 	}
 
 	/* Not identified yet */
@@ -1307,9 +1325,16 @@ void do_cmd_read_scroll(int item)
 
 		case SV_SCROLL_SUMMON_MONSTER:
 		{
-			for (k = 0; k < randint(3); k++)
+			switch (rand_int(9))
 			{
-				if (summon_specific(py, px, (dun_level+dun_offset), 0))
+				case 0: case 1: case 2: k = 1; break;
+				case 3: case 4: case 5: case 6: k = 2; break;
+				default: k = 3;
+			}
+
+			for (; k; k--)
+			{
+				if (summon_specific(py, px, (dun_depth), 0))
 				{
 					ident = TRUE;
 				}
@@ -1319,9 +1344,16 @@ void do_cmd_read_scroll(int item)
 
 		case SV_SCROLL_SUMMON_UNDEAD:
 		{
-			for (k = 0; k < randint(3); k++)
+			switch (rand_int(9))
 			{
-				if (summon_specific(py, px, (dun_level+dun_offset), SUMMON_UNDEAD))
+				case 0: case 1: case 2: k = 1; break;
+				case 3: case 4: case 5: case 6: k = 2; break;
+				default: k = 3;
+			}
+
+			for (; k; k--)
+			{
+				if (summon_specific(py, px, (dun_depth), SUMMON_UNDEAD))
 				{
 					ident = TRUE;
 				}
@@ -1489,6 +1521,7 @@ void do_cmd_read_scroll(int item)
 		case SV_SCROLL_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
+			if (object_aware_p(o_ptr) || ident) mark_traps();
 			break;
 		}
 
@@ -1772,7 +1805,7 @@ void do_cmd_use_staff(int item)
 
 
 	/* Take a turn */
-	energy_use = 100;
+	energy_use = extract_energy[p_ptr->pspeed];
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1845,9 +1878,20 @@ void do_cmd_use_staff(int item)
 
 		case SV_STAFF_SUMMONING:
 		{
-			for (k = 0; k < randint(4); k++)
+			switch (rand_int(32))
 			{
-				if (summon_specific(py, px, (dun_level+dun_offset), 0))
+				case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+					k = 1; break;
+				case 20: case 21: case 22: case 23: case 24: case 25: case 26:
+				case 27: case 28:
+					k = 3; break;
+				case 29: case 30: case 31:
+					k = 4; break;
+				default: k = 2; break;
+			}
+			for (; k; k--)
+			{
+				if (summon_specific(py, px, (dun_depth), 0))
 				{
 					ident = TRUE;
 				}
@@ -1922,6 +1966,7 @@ void do_cmd_use_staff(int item)
 		case SV_STAFF_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
+			if (object_aware_p(o_ptr) || ident) mark_traps();
 			break;
 		}
 
@@ -2219,10 +2264,10 @@ void do_cmd_aim_wand(int item)
 	/* Take a turn */
 	if (item < INVEN_POUCH_1)
 	{
-		energy_use = 100;
+		energy_use = extract_energy[p_ptr->pspeed];
 	} else {
 		/* Wands in a pouch are immediately accessible */
-		energy_use = 10;
+		energy_use = TURN_ENERGY/10;
 	}
 
 	/* Not identified yet */
@@ -2643,7 +2688,7 @@ void do_cmd_zap_rod(int item)
 
 
 	/* Take a turn */
-	energy_use = 100;
+	energy_use = extract_energy[p_ptr->pspeed];
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2696,6 +2741,7 @@ void do_cmd_zap_rod(int item)
 		case SV_ROD_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
+			if (object_aware_p(o_ptr) || ident) mark_traps();
             o_ptr->pval = (10 + (randint(10)));
 			break;
 		}
@@ -3109,7 +3155,7 @@ static bool brand_bolts(void)
 		if (o_ptr->tval != TV_BOLT) continue;
 
 		/* Skip artifacts and ego-items */
-        if (o_ptr->art_name || artifact_p(o_ptr) || ego_item_p(o_ptr))
+        if (allart_p(o_ptr) || ego_item_p(o_ptr))
             continue;
 
 		/* Skip cursed/broken items */
@@ -3198,7 +3244,7 @@ void do_cmd_activate(int item)
 	item_tester_hook = 0;
 
 	/* Take a turn */
-	energy_use = 10;
+	energy_use = TURN_ENERGY/10;
 
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
@@ -3243,10 +3289,6 @@ void do_cmd_activate(int item)
 	/* Sound */
 	sound(SOUND_ZAP);
 
-	/* Gain exp */
-	skill_exp(SKILL_DEVICE);
-
-
     if (o_ptr->art_name)
     {
         (void) activate_random_artifact(o_ptr);
@@ -3288,6 +3330,7 @@ void do_cmd_activate(int item)
                 msg_print("The gemstone drains your vitality...");
                 take_hit(damroll(3,8), "the Gemstone 'Trapezohedron'");
 				(void)detect_traps();
+				mark_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
                 if (get_check("Activate recall? "))
@@ -3689,16 +3732,7 @@ void do_cmd_activate(int item)
                     default:
                         if(get_check("Leave this level? "))
                         {
-                            if (autosave_l)
-                            {
-                            is_autosave = TRUE;
-                            msg_print("Autosaving the game...");
-                            do_cmd_save_game();
-                            is_autosave = FALSE;
-                            }
-                            
-                            new_level_flag = TRUE;
-							came_from=START_RANDOM;
+				change_level(dun_level, START_RANDOM);
                         }
                 }
                 o_ptr->timeout = 35;
@@ -3717,7 +3751,7 @@ void do_cmd_activate(int item)
             case ART_DAWN:
             {
                 msg_print("Your sword flickers black for a moment...");
-                (void)summon_specific_friendly(py, px, (dun_level+dun_offset), SUMMON_REAVER, TRUE);
+                (void)summon_specific_friendly(py, px, (dun_depth), SUMMON_REAVER, TRUE);
                 o_ptr->timeout = 500 + randint(500);
                 break;
             }
@@ -3887,6 +3921,11 @@ void do_cmd_activate(int item)
 				break;
 			}
 		}
+
+	/* Gain experience if the activation took place. */
+	if (o_ptr->timeout)
+		skill_exp(SKILL_DEVICE);
+
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -4107,7 +4146,7 @@ void do_cmd_activate(int item)
 static bool activate_random_artifact(object_type * o_ptr)
 {
     int plev = skill_set[SKILL_DEVICE].value/2;
-    int ii = 0, ij = 0, k, dir, dummy = 0;
+    int k, dir, dummy = 0;
 
 	if (plev == 0) plev++;
 
@@ -4491,7 +4530,7 @@ static bool activate_random_artifact(object_type * o_ptr)
             case ACT_SUMMON_PHANTOM:
             {
                 msg_print("You summon a phantasmal servant.");
-                (void)summon_specific_friendly(py, px, (dun_level+dun_offset), SUMMON_PHANTOM, TRUE);
+                (void)summon_specific_friendly(py, px, (dun_depth), SUMMON_PHANTOM, TRUE);
                 o_ptr->timeout = 200 + randint(200);
                 break;
             }
@@ -4831,19 +4870,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 
             case ACT_DIM_DOOR:
            {
-                 msg_print("You open a dimensional gate. Choose a destination.");
-                 if (!tgt_pt(&ii,&ij)) return FALSE;
-                 p_ptr->energy -= 60 - plev;
-                 if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) || (cave[ij][ii].feat == FEAT_WATER) ||
-                 (distance(ij,ii,py,px) > plev + 2) ||
-                 (!rand_int(plev * plev / 2)))
-                 {
-                     msg_print("You fail to exit the astral plane correctly!");
-                     p_ptr->energy -= 100;
-                     teleport_player(10);
-                 }
-                 else teleport_player_to(ij,ii);
-                 o_ptr->timeout = 100;
+				if (!dimension_door(plev, 10)) return FALSE;
                  break;
             }
 

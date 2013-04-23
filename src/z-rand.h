@@ -1,3 +1,4 @@
+#define Z_RAND_H
 /* File: z-rand.h */
 
 #ifndef INCLUDED_Z_RAND_H
@@ -20,15 +21,6 @@
 
 
 /**** Available macros ****/
-
-
-/*
- * Generates a random long integer X where O<=X<M.
- * The integer X falls along a uniform distribution.
- * For example, if M is 100, you get "percentile dice"
- */
-#define rand_int(M) \
- 	((rand_unbiased) ? ((s32b)(Rand_num(M))) : ((s32b)(Rand_div(M))))
 
 /*
  * Generates a random long integer X where A<=X<=B
@@ -60,33 +52,6 @@
  */
 #define magik(P) \
 	(rand_int(100) < (P))
-
-
-
-
-/**** Available Variables ****/
-
-
-extern bool rand_unbiased;
-extern bool Rand_quick;
-extern u32b Rand_value;
-extern u16b Rand_place;
-extern u32b Rand_state[RAND_DEG];
-
-
-/**** Available Functions ****/
-
-
-extern int Rand_bit(void);
-extern u32b Rand_u32b(void);
-extern u32b Rand_num(u32b m);
-extern void Rand_state_init(u32b seed);
-extern s32b Rand_mod(s32b m);
-extern s32b Rand_div(s32b m);
-extern s16b randnor(int mean, int stand);
-extern s16b damroll(int num, int sides);
-extern s16b maxroll(int num, int sides);
-
 
 #endif
 

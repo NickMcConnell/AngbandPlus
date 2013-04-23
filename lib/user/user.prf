@@ -1,0 +1,181 @@
+# File: user.prf
+
+#
+# This file defines "override" actions of various kinds
+#
+# This file includes, if appropriate, various "sub-files"
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+
+
+##### System Specific Subfiles #####
+
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]
+%:user-x11.prf
+
+?:[EQU $SYS gcu]
+%:user-gcu.prf
+
+?:[EQU $SYS ami]
+%:user-ami.prf
+
+?:[EQU $SYS mac]
+%:user-mac.prf
+
+?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
+%:user-win.prf
+
+?:[EQU $SYS emx]
+%:user-emx.prf
+
+?:[EQU $SYS acn]
+%:user-acn.prf
+
+?:1
+
+##### Player-specific subfile #####
+
+%:user-loc.prf
+
+##### Race-specific subfiles #####
+
+?:[EQU $RACE Barbarian]
+%:Barbarian.prf
+%:Barbaria.prf
+
+?:[EQU $RACE Broo]
+%:Broo.prf
+
+?:[EQU $RACE Cyclops]
+%:Cyclops.prf
+
+?:[EQU $RACE Dark-Elf]
+%:Dark-Elf.prf
+
+?:[EQU $RACE Draconian]
+%:Draconian.prf
+%:Draconia.prf
+
+?:[EQU $RACE Dwarf]
+%:Dwarf.prf
+
+?:[EQU $RACE Elf]
+%:Elf.prf
+
+?:[EQU $RACE Gnome]
+%:Gnome.prf
+
+?:[EQU $RACE Golem]
+%:Golem.prf
+
+?:[EQU $RACE Great-One]
+%:Great-One.prf
+%:Great-On.prf
+
+?:[EQU $RACE Half-Elf]
+%:Half-Elf.prf
+
+?:[EQU $RACE Half-Giant]
+%:Half-Giant.prf
+%:H-Giant.prf
+
+?:[EQU $RACE Half-Ogre]
+%:Half-Ogre.prf
+%:H-Ogre.prf
+
+?:[EQU $RACE Half-Orc]
+%:Half-Orc.prf
+
+?:[EQU $RACE Half-Titan]
+%:Half-Titan.prf
+%:H-Titan.prf
+
+?:[EQU $RACE Half-Troll]
+%:Half-Troll.prf
+%:H-Troll.prf
+
+?:[EQU $RACE High-Elf]
+%:High-Elf.prf
+
+?:[EQU $RACE Hobbit]
+%:Hobbit.prf
+
+?:[EQU $RACE Human]
+%:Human.prf
+
+?:[EQU $RACE Imp]
+%:Imp.prf
+
+?:[EQU $RACE Klackon]
+%:Klackon.prf
+
+?:[EQU $RACE Kobold]
+%:Kobold.prf
+
+?:[EQU $RACE Mind-Flayer]
+%:Mind-Flayer.prf
+%:M-Flayer.prf
+
+?:[EQU $RACE Nibelung]
+%:Nibelung.prf
+
+?:[EQU $RACE Skeleton]
+%:Skeleton.prf
+
+?:[EQU $RACE Spectre]
+%:Spectre.prf
+
+?:[EQU $RACE Sprite]
+%:Sprite.prf
+
+?:[EQU $RACE Vampire]
+%:Vampire.prf
+
+?:[EQU $RACE Yeek]
+%:Yeek.prf
+
+?:[EQU $RACE Zombie]
+%:Zombie.prf
+
+
+##### Template-specific subfiles #####
+
+?:[EQU $TEMPLATE Adventurer]
+%:Adventurer.prf
+
+?:[EQU $TEMPLATE Swashbuckler]
+%:Swashbuckler.prf
+
+?:[EQU $TEMPLATE Gladiator]
+%:Gladiator.prf
+
+?:[EQU $TEMPLATE Warrior-Monk]
+%:Warrior-Monk.prf
+
+?:[EQU $TEMPLATE Zen-Monk]
+%:Zen-Monk.prf
+
+?:[EQU $TEMPLATE Assassin]
+%:Assassin.prf
+
+?:[EQU $TEMPLATE Ranger]
+%:Ranger.prf
+
+?:[EQU $TEMPLATE Shaman]
+%:Shaman.prf
+
+?:[EQU $TEMPLATE Mindcrafter]
+%:Mindcrafter.prf
+
+?:[EQU $TEMPLATE Wizard]
+%:Wizard.prf
+
+?:[EQU $TEMPLATE Warlock]
+%:Warlock.prf
+
+?:[EQU $TEMPLATE Powerweaver]
+%:Powerweaver.prf
+
+?:[EQU $TEMPLATE Tourist]
+%:Tourist.prf

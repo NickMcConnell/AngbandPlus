@@ -1,3 +1,4 @@
+#define Z_VIRT_H
 /* File: z-virt.h */
 
 #ifndef INCLUDED_Z_VIRT_H
@@ -9,7 +10,7 @@
  * Memory management routines.
  *
  * Set ralloc_aux to modify the memory allocation routine.
- * Set rnfree_aux to modify the memory de-allocation routine.
+ * Set _aux to modify the memory de-allocation routine.
  * Set rpanic_aux to let the program react to memory failures.
  *
  * These routines will not work as well if the program calls malloc/free.
@@ -35,39 +36,6 @@
  */
 
 
-
-/**** Available variables ****/
-
-/* Replacement hook for "rnfree()" */
-extern errr (*rnfree_aux)(vptr, huge);
-
-/* Replacement hook for "rpanic()" */
-extern vptr (*rpanic_aux)(huge);
-
-/* Replacement hook for "ralloc()" */
-extern vptr (*ralloc_aux)(huge);
-
-
-/**** Available Routines ****/
-
-/* De-allocate a given amount of memory */
-extern errr rnfree(vptr p, huge len);
-
-/* Panic, attempt to Allocate 'len' bytes */
-extern vptr rpanic(huge len);
-
-/* Allocate (and return) 'len', or dump core */
-extern vptr ralloc(huge len);
-
-/* Create a "dynamic string" */
-extern cptr string_make(cptr str);
-
-/* Free a string allocated with "string_make()" */
-extern errr string_free(cptr str);
-
-
-
-
 /**** Memory Macros ****/
 
 
@@ -82,12 +50,27 @@ extern errr string_free(cptr str);
 
 /* Bool: True when P1 and P2 both point to N T's, which have same contents */
 #define C_SAME(P1,P2,N,T) \
-        (!memcmp((char*)(P1),(char*)(P2),C_SIZE(N,T)))
+        (!memcmp((const char*)(P1),(const char*)(P2),C_SIZE(N,T)))
 
 /* Bool: True when P1 and P2 both point to T's, and they have same contents */
 #define SAME(P1,P2,T) \
-        (!memcmp((char*)(P1),(char*)(P2),SIZE(T)))
+		(C_SAME(P1,P2,1,T))
 
+/* Compare two arrays of type T[N], at locations P1 and P2 */
+#define C_DIFF(P1,P2,N,T) \
+	(!C_SAME(P1,P2,N,T))
+
+/* Compare two things of type T, at locations P1 and P2 */
+#define DIFF(P1,P2,T) \
+	(!SAME(P1,P2,T))
+
+/* Set every byte in an array of type T[N], at location P, to V, and return P */
+#define C_BSET(P,V,N,T) \
+	(T*)(memset((char*)(P),(V),C_SIZE(N,T)))
+
+/* Set every byte in a thing of type T, at location P, to V, and return P */
+#define BSET(P,V,T) \
+	(T*)(memset((char*)(P),(V),SIZE(T)))
 
 /* Wipe an array of N things of type T at location P, return T */
 #define C_WIPE(P,N,T) \
@@ -106,15 +89,6 @@ extern errr string_free(cptr str);
 #define COPY(P1,P2,T) \
         memcpy((char*)(P1),(char*)(P2),SIZE(T))
 
-
-
-/* Free an array of N things of type T at P, return ??? */
-#define C_FREE(P,N,T) \
-        (rnfree(P,C_SIZE(N,T)))
-
-/* Free one thing of type T at P, return ??? */
-#define FREE(P,T) \
-        (rnfree(P,SIZE(T)))
 
 
 /* Allocate and return an array of N things of type T */
@@ -137,31 +111,57 @@ extern errr string_free(cptr str);
 
 /* Allocate a wiped array of N things of type T, let P point at them */
 #define C_MAKE(P,N,T) \
-        (P)=C_ZNEW(N,T)
+        ((P)=C_ZNEW(N,T))
 
 /* Allocate a wiped thing of type T, let P point at it */
 #define MAKE(P,T) \
-        (P)=ZNEW(T)
+       ((P)=ZNEW(T))
+
+/* Free something at P, return NULL */
+#define FREE(P) \
+		(rnfree((vptr)P))
 
 
-/* Free an array of N things of type T at P, and reset P to NULL */
-#define C_KILL(P,N,T) \
-        (C_FREE(P,N,T), (P)=(T*)NULL)
 
-/* Free a single thing of type T at P, and reset P to NULL */
-#define KILL(P,T) \
-        (FREE(P,T), (P)=(T*)NULL)
+/* Free a thing at location P and set P to NULL */
+#define KILL(P) \
+	((P)=FREE(P))
 
+/*
+ * C_TNEW() and TKILL() declare an array which is only used in the local
+ * scope. If the compiler is known to support it, this is represented as an
+ * array with a variable size for efficiency.
+ *
+ * (insert constraints on P here...)
+ */
 
+#ifdef VARIABLE_ARRAYS
+
+/* Allocate and declare a local array of N things of type T at P. */
+#define C_TNEW(P,N,T) \
+	T P[N]
+
+/* Free a local array at P (automatic). */
+#define TFREE(P)
+
+#else /* VARIABLE_ARRAYS */
+
+/* Allocate and declare a local array of N things of type T at P. */
+#define C_TNEW(P, N, T) \
+	T *P = C_NEW(N, T)
+
+/* Free a local array at P. */
+#define TFREE(P) \
+	FREE(P)
+
+#endif /* VARIABLE_ARRAYS */
 
 /* Mega-Hack -- Cleanly "grow" 'P' from N1 T's to N2 T's */
 #define GROW(P,N1,N2,T) \
         (C_MAKE(vptr_tmp,N2,T), C_COPY(vptr_tmp,P,MIN(N1,N2),T), \
-         C_FREE(P,N1,T), (P)=vptr_tmp)
+         FREE(P), (P)=vptr_tmp)
 
 
 
 #endif
-
-
 

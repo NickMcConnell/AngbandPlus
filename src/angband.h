@@ -1,3 +1,4 @@
+#define ANGBAND_H
 /* File: angband.h */
 
 /* Main "Angband" header file */
@@ -25,9 +26,7 @@
 /*
  * Then, include the header files for the low-level code
  */
-#include "z-util.h"
 #include "z-virt.h"
-#include "z-form.h"
 #include "z-rand.h"
 #include "z-term.h"
 
@@ -43,7 +42,9 @@
  */
 #include "defines.h"
 #include "types.h"
+#ifndef DELAY_EXTERNS_H
 #include "externs.h"
+#endif
 
 
 

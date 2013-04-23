@@ -1,9 +1,33 @@
+#define SAVE_C
 /* File: save.c */
 
 /* Purpose: interact with savefiles */
 
 #include "angband.h"
+#include "loadsave.h"
 
+
+/*
+ * Don't use hard-coded values for the version, so that the game can create
+ * a save file as if it was an older version if desired.
+ */
+/*
+ * Savefile version
+ */
+byte sf_major;			/* Savefile's "version_major" */
+byte sf_minor;			/* Savefile's "version_minor" */
+byte sf_patch;			/* Savefile's "version_patch" */
+byte sf_extra;			/* Savefile's "version_extra" */
+
+u16b sf_flags;			/* Savefile's "version flags" */
+
+/*
+ * Savefile information
+ */
+u32b sf_xtra;			/* Operating system info */
+u32b sf_when;			/* Time when savefile created */
+u16b sf_lives;			/* Number of past "lives" with this file */
+u16b sf_saves;			/* Number of "saves" during this life */
 
 #ifdef FUTURE_SAVEFILES
 
@@ -201,95 +225,6 @@ static void put_string(char *str)
 }
 
 
-
-/*
- * Write a savefile for Angband 2.8.0
- */
-static errr wr_savefile(void)
-{
-	int             i;
-
-	u32b    now;
-
-	byte    tmp8u;
-	u16b    tmp16u;
-
-	errr    err;
-
-	byte    fake[4];
-
-
-	/*** Hack -- extract some data ***/
-
-	/* Hack -- Acquire the current time */
-	now = time((time_t*)(NULL));
-
-	/* Note the operating system */
-	sf_xtra = 0L;
-
-	/* Note when the file was saved */
-	sf_when = now;
-
-	/* Note the number of saves */
-	sf_saves++;
-
-
-	/*** Actually write the file ***/
-
-	/* Open the file XXX XXX XXX */
-	data_fd = -1;
-
-	/* Dump the version */
-    fake[0] = (byte)(VERSION_MAJOR);
-    fake[1] = (byte)(VERSION_MINOR);
-    fake[2] = (byte)(VERSION_PATCH);
-	fake[3] = (byte)(VERSION_EXTRA);
-
-	/* Dump the data */
-	err = fd_write(data_fd, (char*)&fake, 4);
-
-
-	/* Make array XXX XXX XXX */
-	C_MAKE(data_head, 65535, byte);
-
-	/* Hack -- reset */
-	data_next = data_head;
-
-
-
-	/* Dump the "options" */
-    put_options();
-
-	/* Set the type */
-	data_type = TYPE_OPTIONS;
-
-	/* Set the "options" size */
-	data_size = (data_next - data_head);
-
-	/* Write the block */
-	wr_block();
-
-	/* XXX XXX XXX */
-
-	/* Dump the "final" marker XXX XXX XXX */
-	/* Type zero, Size zero, Contents zero, etc */
-
-
-	/* XXX XXX XXX Check for errors */
-
-
-	/* Kill array XXX XXX XXX */
-	C_KILL(data_head, 65535, byte);
-
-
-	/* Success */
-	return (0);
-}
-
-
-
-
-
 /*
  * Hack -- read the next "block" from the savefile
  */
@@ -445,7 +380,7 @@ static errr rd_savefile(void)
 
 
 	/* Kill array XXX XXX XXX */
-	C_KILL(data_head, 65535, byte);
+	KILL(data_head);
 
 
 	/* Success */
@@ -561,13 +496,25 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
 
+#ifdef SF_16_IDENT
+	if (!has_flag(SF_16_IDENT))
+	{
+		byte temp = (o_ptr->ident & 0xFE) | (0x01 * ((o_ptr->ident & IDENT_SENSE) == IDENT_SENSE));
+		wr_byte(temp);
+	}
+	else
+	{
+		wr_u16b(o_ptr->ident);
+	}
+#else
 	wr_byte(o_ptr->ident);
+#endif
 
 	wr_byte(o_ptr->marked);
 
-    wr_u32b(o_ptr->art_flags1);
-    wr_u32b(o_ptr->art_flags2);
-    wr_u32b(o_ptr->art_flags3);
+    wr_u32b(o_ptr->flags1);
+    wr_u32b(o_ptr->flags2);
+    wr_u32b(o_ptr->flags3);
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
@@ -577,25 +524,10 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->xtra2);
 
 	/* Save the inscription (if any) */
-	if (o_ptr->note)
-	{
-		wr_string(quark_str(o_ptr->note));
-	}
-	else
-	{
-		wr_string("");
-	}
+	wr_string(quark_str(o_ptr->note));
 	
-	/* If it is a "new" named artifact, save the name */        
-	if (o_ptr->art_name)
-	{
-        wr_string(quark_str(o_ptr->art_name));
-	}
-	else
-	{
-		wr_string("");
-	}
-
+	/* Save the randart name, if any. */
+	wr_string(quark_str(o_ptr->art_name));
 }
 
 
@@ -639,8 +571,12 @@ static void wr_lore(int r_idx)
 	wr_byte(r_ptr->r_ignore);
 
 	/* Extra stuff */
+#if 0
 	wr_byte(r_ptr->r_xtra1);
 	wr_byte(r_ptr->r_xtra2);
+#else
+	wr_u16b(0);
+#endif
 
 	/* Count drops */
 	wr_byte(r_ptr->r_drop_gold);
@@ -674,6 +610,35 @@ static void wr_lore(int r_idx)
 	wr_byte(0);
 }
 
+#ifdef SF_DEATHEVENTTEXT
+
+/*
+ * Write a "death event" record
+ */
+static void wr_death(void)
+{
+	uint i;
+	u16b tmp16u = UNREAD_VALUE;
+		for (i = 0; i < MAX_DEATH_EVENTS; i++)
+		{
+			death_event_type *d_ptr = &death_event[i];
+			if (!d_ptr->r_idx) break;
+			if (i%15 == 0)
+			{
+				if (i) wr_u16b(tmp16u);
+				tmp16u = 0;
+			}
+			if (d_ptr->flags & EF_KNOWN)
+			{
+				tmp16u |= 1<<(i%15);
+			}
+		}
+		/* Terminate by setting the 16th bit. */
+		tmp16u |= 1<<15;
+		wr_u16b(tmp16u);
+}
+
+#endif
 
 /*
  * Write an "xtra" record
@@ -789,7 +754,6 @@ static void wr_options(void)
 	if (cheat_hear) c |= 0x0200;
 	if (cheat_room) c |= 0x0400;
 	if (cheat_xtra) c |= 0x0800;
-	if (cheat_know) c |= 0x1000;
 	if (cheat_live) c |= 0x2000;
 	if (cheat_skll) c |= 0x4000;
 
@@ -797,6 +761,9 @@ static void wr_options(void)
 
     /* Autosave info */
     wr_byte(autosave_l);
+#ifdef SF_Q_SAVE
+	if (has_flag(SF_Q_SAVE) && autosave_q) autosave_t |= 2;
+#endif
     wr_byte(autosave_t);
     wr_s16b(autosave_freq);
 
@@ -839,11 +806,35 @@ static void wr_options(void)
 
 	/*** Window options ***/
 
+#ifdef SF_3D_WINPRI
+	/* Dump the flags */
+	for (i = 0; i < 8; i++)
+	{
+		if (has_flag(SF_3D_WINPRI))
+		{
+			for (c = 0; c < 32; c++)
+			{
+				byte pri = (windows[i].pri[c])%16;
+				pri += 16*((windows[i].rep[c])%16);
+				wr_byte(pri);
+			}
+		}
+		else
+		{
+			/* The current display should be as good as any. */
+			wr_u32b(1<<(windows[i].current));
+		}
+	}
+
+	/* Dump the masks */
+	for (i = 0; i < 8; i++) wr_u32b(windows[i].mask);
+#else
 	/* Dump the flags */
 	for (i = 0; i < 8; i++) wr_u32b(window_flag[i]);
 
 	/* Dump the masks */
 	for (i = 0; i < 8; i++) wr_u32b(window_mask[i]);
+#endif
 }
 
 
@@ -882,7 +873,11 @@ static void wr_ghost(void)
 	wr_s32b(r_ptr->mexp);
 
 	/* Extra */
+#if 0
 	wr_s16b(r_ptr->extra);
+#else
+	wr_s16b(0);
+#endif
 
 	/* Frequency */
 	wr_byte(r_ptr->freq_inate);
@@ -951,12 +946,33 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->exp);
 	wr_u16b(p_ptr->exp_frac);
 
-	for (i=0;i<MAX_SKILLS;i++)
+#ifdef SF_SAVE_MAX_SKILLS
+
+	if (has_flag(SF_SAVE_MAX_SKILLS))
+	{
+		j = MAX_SKILLS;
+		wr_byte(j);
+	}
+	else
+
+#endif /* SF_SAVE_MAX_SKILLS */
+
+	/* Without SAVE_MAX_SKILLS, there are assumed to be 27 skills. */
+	{
+		j = 27;
+	}
+	
+	for (i=0; i<j; i++)
 	{
 		wr_byte(skill_set[i].value);
 		wr_byte(skill_set[i].max_value);
-		wr_byte(skill_set[i].base);
-		wr_byte(skill_set[i].ceiling);
+#ifdef SF_SKILL_BASE
+		if (has_flag(SF_SKILL_BASE))
+		{
+			wr_byte(skill_set[i].base);
+			wr_byte(skill_set[i].ceiling);
+		}
+#endif
 		wr_u16b(skill_set[i].exp_to_raise);
 		wr_u16b(skill_set[i].experience);
 	}
@@ -1080,6 +1096,11 @@ static void wr_extra(void)
 
 	/* Current turn */
 	wr_s32b(turn);
+
+#ifdef SF_CURSE
+	if (has_flag(SF_CURSE))
+		wr_s32b(curse_turn);
+#endif
 }
 
 
@@ -1092,9 +1113,10 @@ static void wr_dungeon(void)
 	int i, y, x;
 
 	byte tmp8u;
+	u16b tmp16u;
 
 	byte count;
-	byte prev_char;
+	u16b prev_char;
 
 	cave_type *c_ptr;
 
@@ -1134,15 +1156,24 @@ static void wr_dungeon(void)
 			/* Get the cave */
 			c_ptr = &cave[y][x];
 
-			/* Extract a byte */
-			tmp8u = c_ptr->info;
+			/* Extract the cave flags */
+			tmp16u = c_ptr->info;
+#ifdef SF_16_CAVE_FLAG
+			if (!has_flag(SF_16_CAVE_FLAG)) tmp16u &= 0x00FF;
+#endif
 			
 			/* If the run is broken, or too full, flush it */
-			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			if ((tmp16u != prev_char) || (count == MAX_UCHAR))
 			{
 				wr_byte((byte)count);
+#ifdef SF_16_CAVE_FLAG
+				if (has_flag(SF_16_CAVE_FLAG))
+					wr_u16b(prev_char);
+				else
+#endif
 				wr_byte((byte)prev_char);
-				prev_char = tmp8u;
+
+				prev_char = tmp16u;
 				count = 1;
 			}
 
@@ -1158,8 +1189,14 @@ static void wr_dungeon(void)
 	if (count)
 	{
 		wr_byte((byte)count);
+#ifdef SF_16_CAVE_FLAG
+		if (has_flag(SF_16_CAVE_FLAG))
+			wr_u16b(prev_char);
+		else
+#endif
 		wr_byte((byte)prev_char);
 	}
+func_false();
 
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
@@ -1275,11 +1312,11 @@ static bool wr_savefile_new(void)
 
     /* Dump the file header */
 	xor_byte = 0;
-    wr_byte(VERSION_MAJOR);
+	    wr_byte(sf_major);
 	xor_byte = 0;
-    wr_byte(VERSION_MINOR);
+	    wr_byte(sf_minor);
 	xor_byte = 0;
-    wr_byte(VERSION_PATCH);
+	wr_byte(sf_patch);
 	xor_byte = 0;
 
 	tmp8u = (byte)(rand_int(256));
@@ -1335,6 +1372,10 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
+#ifdef SF_DEATHEVENTTEXT
+	/* Dump the death event lore */
+	if (has_flag(SF_DEATHEVENTTEXT)) wr_death();
+#endif
 
 	/* Dump the object memory */
 	tmp16u = MAX_K_IDX;
@@ -1352,6 +1393,9 @@ static bool wr_savefile_new(void)
 		wr_byte((byte)(q_list[i].dungeon));
 		wr_byte((byte)(q_list[i].cur_num));
 		wr_byte((byte)(q_list[i].max_num));
+#ifdef SF_QUEST_UNKNOWN
+		if (has_flag(SF_QUEST_UNKNOWN)) wr_byte((byte)(q_list[i].cur_num_known));
+#endif
 	}
 
 	/* Hack -- Dump the artifacts */
@@ -1519,14 +1563,72 @@ static bool save_player_aux(char *name)
 
 
 /*
- * Attempt to save the player in a savefile
+ * Determine the current version number based on compile-time options.
  */
-bool save_player(void)
+static void current_version(u16b *flags, byte *major, byte *minor, byte *patch)
 {
+	(*flags) = 0x00000000
+#ifdef SF_SKILL_BASE
+	| SF_SKILL_BASE
+#endif
+#ifdef SF_16_IDENT
+	| SF_16_IDENT
+#endif
+#ifdef SF_CURSE
+	| SF_CURSE
+#endif
+#ifdef SF_Q_SAVE
+	| SF_Q_SAVE
+#endif
+#ifdef SF_DEATHEVENTTEXT
+	| SF_DEATHEVENTTEXT
+#endif
+#ifdef SF_QUEST_UNKNOWN
+	| SF_QUEST_UNKNOWN
+#endif
+#ifdef SF_3D_WINPRI
+	| SF_3D_WINPRI
+#endif
+#ifdef SF_16_CAVE_FLAG
+	| SF_16_CAVE_FLAG
+#endif
+#ifdef SF_SAVE_MAX_SKILLS
+	| SF_SAVE_MAX_SKILLS
+#endif
+	;
+
+	(*major) = SFM_SPECIAL;
+	(*minor) = (*flags)/256;
+	(*patch) = (*flags)%256;
+}
+
+/*
+ * Attempt to save the player in a savefile
+ *
+ * This routine is only capable of creating a save file for the current version
+ * and for 4.1.0, but the rest of the file should cope with any desired save
+ * file.
+ */
+bool save_player(bool as_4_1_0)
+{
+
 	int             result = FALSE;
 
 	char    safe[1024];
 
+	/* Find the current version. */
+	current_version(&sf_flags, &sf_major, &sf_minor, &sf_patch);
+
+#ifdef SF_SKILL_BASE
+	/* If a 4.1.0 savefile is required, provide one. */
+	if (as_4_1_0)
+	{
+		sf_flags = SF_SKILL_BASE;
+		sf_major = 4;
+		sf_minor = 1;
+		sf_patch = 0;
+	}
+#endif
 
 #ifdef SET_UID
 
@@ -1809,10 +1911,13 @@ bool load_player(void)
 	/* Okay */
 	if (!err)
 	{
+		u16b cur_flags;
+		byte cur[3];
+		current_version(&cur_flags, cur, cur+1, cur+2);
 		/* Give a conversion warning */
-        if ((VERSION_MAJOR != sf_major) ||
-            (VERSION_MINOR != sf_minor) ||
-            (VERSION_PATCH != sf_patch))
+        if ((cur[0] != sf_major) ||
+            (cur[1] != sf_minor) ||
+            (cur[2] != sf_patch))
 		{
 			/* Message */
             msg_format("Converted a %d.%d.%d savefile.",

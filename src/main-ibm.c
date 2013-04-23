@@ -1,3 +1,5 @@
+#define DELAY_EXTERNS_H
+#define MAIN_IBM_C
 /* File: main-ibm.c */
 
 /*
@@ -8,7 +10,7 @@
  * are included in all such copies.
  */
 
-/* Purpose: Visual Display Support for "term.c", for the IBM */
+/* Purpose: Visual Display Support for "z-term.c", for the IBM */
 
 
 /*
@@ -54,6 +56,7 @@
 
 #ifdef USE_IBM
 
+/* #include "main.h" */
 
 /*
  * Use a "virtual" screen to "buffer" screen writes.
@@ -378,7 +381,7 @@ static void activate_color_complex(void)
 
 #endif /* 1 */
 
-};
+}
 
 
 /*
@@ -871,16 +874,16 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
  *
  * The given parameters are "valid".
  */
-#ifdef USE_TRANSPARENCY
-static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
+static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp,
+                          const byte *tap, const char *tcp)
 {
 	register int i;
 	register byte attr;
 	register byte *dest;
 
+	/* Unused parameters */
+	(void)tap;
+	(void)tcp;
 
 #ifdef USE_CONIO
 
@@ -950,6 +953,9 @@ static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
  */
 static void Term_init_ibm(term *t)
 {
+	/* Unused parameter */
+	(void)t;
+
 	/* XXX Nothing */
 }
 
@@ -959,7 +965,6 @@ static void Term_init_ibm(term *t)
  */
 static void Term_nuke_ibm(term *t)
 {
-
 #ifdef USE_WAT
 
 	/* Nothing */
@@ -969,6 +974,9 @@ static void Term_nuke_ibm(term *t)
 	union REGS r;
 
 #endif /* USE_WAT */
+
+	/* Unused parameter */
+	(void)t;
 
 	/* Move the cursor to the bottom of the screen */
 	Term_curs_ibm(0, rows-1);
@@ -1123,6 +1131,7 @@ extern void _farnspokeb(unsigned long offset, unsigned char value);
 #include <dpmi.h>
 #include <go32.h>
 #include <sys/farptr.h>
+#include "externs.h"
 
 #endif /* USE_WAT */
 
@@ -1140,7 +1149,8 @@ void enable_graphic_font(const char *font)
 {
 	__dpmi_regs dblock = {{0}};
 
-	unsigned seg, sel, i;
+	unsigned int seg, i;
+	int sel;
 
 	/*
 	 * Allocate a block of memory 4096 bytes big in `low memory' so a real
@@ -1176,12 +1186,14 @@ void enable_graphic_font(const char *font)
 
 	/* We're done with the low memory, free it */
 	__dpmi_free_dos_memory(sel);
-};
+}
 
 #endif /* USE_286 */
 
 #endif /* ALLOW_GRAPH */
 
+
+const char help_ibm[] = "IBM Visual Display Support";
 
 
 /*
@@ -1194,7 +1206,7 @@ void enable_graphic_font(const char *font)
  * into an 8 bit value, without losing much precision, by using the 2
  * most significant bits as the least significant bits in the new value.
  */
-errr init_ibm(void)
+errr init_ibm(int argc, char **argv)
 {
 	int i;
 	int mode;
@@ -1202,6 +1214,10 @@ errr init_ibm(void)
 	term *t = &term_screen_body;
 
 	union REGS r;
+
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	/* Check for "Windows" */
 	if (getenv("windir"))

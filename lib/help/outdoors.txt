@@ -123,14 +123,14 @@ Khufu's Tomb:  Goes to 1050', and counts as 200' deeper.  It is guarded by
 the Disembodied Hand and by Khufu, and the area outside is populated by
 undead.
 
-The Collector's Cave:  Goes to 1000', and counts as 2000' deeper.  It is
+The Collector's Cave:  Goes to 1000', and counts as 1500' deeper.  It is
 guarded by the Collector, and there is no particular sort of creature
 that will be found in its vicinity.
 
 The Vault of the Sword:  Goes to 1500', and counts as 500' deeper.  It is
 guarded by Stormbringer.
 
-The Dragons' Lair:  Goes to 1750', and counts as 250' deeper.  It is guarded
+The Dragons' Lair:  Goes to 1750', and counts as 750' deeper.  It is guarded
 by Glaurung and Ancalagon the Black, and the area outside swarms with
 dragons.
 

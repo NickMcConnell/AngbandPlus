@@ -1,0 +1,15 @@
+#
+# record.txt
+#
+# This is a list in chronological order of previous games of Cthangband,
+# provided for statistical purposes (e.g. do I survive longer in the orc tower
+# or the sword vault?).
+# The game never reads from it, so it can be safely imported to all future
+# versions.
+#
+# Its format is (on one line):
+# V:version UI:UID Ti:Time and date Sc:Score Tu:Turns HP:Max hit points at death
+# Ki:Killed by... Dp:Depth Du:Dungeon Sx:Sex Ra:Race Tm:Template Na:Name
+#
+# On single user systems, the UI field is omitted.
+

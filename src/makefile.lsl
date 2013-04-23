@@ -31,7 +31,7 @@ OBJS = \
 CC = gcc
 
 CFLAGS = -Wall -O6 -D"USE_LSL"
-LIBS = -lvgagl -lvga
+LIBS = -lz -lvgagl -lvga
 
 # Build the program
 

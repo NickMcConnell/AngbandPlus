@@ -1,0 +1,785 @@
+# File: macros.txt
+
+
+# This file is used to initialize the "lib/data/macros.raw" file, which is
+# used to initialize the "text file macros" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/macros.raw" file.
+
+# "lib/data/macros.raw" can be safely deleted if ALLOW_TEMPLATES is undefined.
+
+# === Understanding macros.txt ===
+
+# The purpose of this file is to provide a convenient way of replacing
+# an arbitrary string in a text file with another arbitrary string.
+
+# Macros are applied to a line in a file in order from the last one to
+# the first. This is to enable macros to be defined for macros.txt itself.
+
+# The format of macros.txt is as follows:
+
+# X:name
+# Y:definition
+# A:definition
+# B:definition
+# S:keyword
+# M:number,number,number,number
+# F:file:character:field
+
+# 'X' indicates the beginning of an entry, and gives the name which
+# Angband will look for when parsing later parts of this text file,
+# or other text files in this directory.
+
+# 'Y' gives a text string which will be substituted for the name wherever
+# it is found. This can be empty if it is desired that a string disappear.
+
+# 'A' gives a text string which, if X is found, will be parsed as a line
+# after the line in which X is found.
+
+# 'B' gives a text string which, if X is found, will be parsed as a line
+# before the line in which X is found.
+
+# 'S' gives the name of a flag which causes a more complex hard-coded
+# macro to be run if the name specified is matched.
+# The only macro defined at present is "move to front", which causes
+# the string matched to be placed at the beginning of the field which
+# contains it.
+
+# There must be exactly one "name" and one "definition" in a macro
+
+# If present, 'F' restricts the scope of a macro as follows:
+
+# If there is a file entry, substitutions will only be made in the specified
+# file. 
+
+# If there is a character entry, substitutions will only be made in lines
+# which begin with the specified character.
+
+# Each line is divided into field. The first field starts at the first
+# character, and each successive field starts at successive :s following it.
+# E.g. in "::egg:", ":egg" is the second field. In "g::egg:", it is the third.
+
+# If there are multiple 'F' lines, lines in info files which meet any one of
+# them are changed by the given macro.
+
+# The 'F' line(s) should generally be at the end of the entry.
+
+# Version stamp (required)
+
+V:1.0.4
+
+# There are several macros which apply to all files used by object_desc().
+# To simplify things, these macros create them with a single line.
+
+X:#:object_desc() names
+A:F:r_event:E
+F:macros:#
+
+X:#:object_desc() names
+A:F:k_info:N:3
+F:macros:#
+
+X:#:object_desc() names
+A:F:u_info:N:2
+F:macros:#
+
+X:#:object_desc() names
+A:F:e_info:N:3
+F:macros:#
+
+X:#:object_desc() names
+A:F:a_info:N:3
+F:macros:#
+
+X:#:object_desc() names
+A:F:o_base:N:3
+F:macros:#
+
+# % masking (part 2)
+
+X:%%*
+Y:%
+#:object_desc() names
+
+# Object name macros (required)
+
+# As the input expected by the program can't be directly read from
+# a file, macros are needed to turn a text string (such as one of
+# the ones below) into the expected low ASCII characters.
+
+X:%=F
+M:2
+#:object_desc() names
+
+X:%+F
+M:10
+#:object_desc() names
+
+X:%-F
+M:18
+#:object_desc() names
+
+X:%f
+M:26
+#:object_desc() names
+
+X:%=K
+M:3
+#:object_desc() names
+
+X:%+K
+M:11
+#:object_desc() names
+
+X:%-K
+M:19
+#:object_desc() names
+
+X:%k
+M:27
+#:object_desc() names
+
+X:%=P
+M:4
+#:object_desc() names
+
+X:%+P
+M:12
+#:object_desc() names
+
+X:%-P
+M:20
+#:object_desc() names
+
+X:%p
+M:28
+#:object_desc() names
+
+X:%=E
+M:5
+#:object_desc() names
+
+X:%+E
+M:13
+#:object_desc() names
+
+X:%-E
+M:21
+#:object_desc() names
+
+X:%e
+M:29
+#:object_desc() names
+
+X:%=A
+M:6
+#:object_desc() names
+
+X:%+A
+M:14
+#:object_desc() names
+
+X:%-A
+M:22
+#:object_desc() names
+
+X:%a
+M:30
+#:object_desc() names
+
+X:%&
+M:8
+#:object_desc() names
+
+X:%b
+M:24
+#:object_desc() names
+
+# %Base flags are always at the beginning to make searching for them
+# more efficient.
+
+X:%Base 
+M:16
+#:object_desc() names
+
+X:%Base 
+S:move to front
+#:object_desc() names
+
+# % masking (part 1)
+
+X:%%
+Y:%%*
+#:object_desc() names
+
+# Object name macros (optional)
+
+X:& 
+Y:%&
+#:object_desc() names
+
+X:# 
+Y:%+F%f %=F
+#:object_desc() names
+
+# Foo
+
+X: !
+Y:%+K of %k%=K%+E %e%=E%+A %a%=A
+#:object_desc() names
+
+# Boo
+
+X: ^
+Y:%+K %k%=K%+E %e%=E%+A %a%=A
+#:object_desc() names
+
+X:~
+Y:%+P%p%=P
+#:object_desc() names
+
+X:%Scroll 
+M:127
+F:u_info:N:2
+
+X:%Scroll 
+S:move to front
+F:u_info:N:2
+
+# Unidentified scroll names.
+
+X:s
+Y:G:?:w:200
+F:u_info:s
+
+X:s
+B:N:%Scroll ---length 16---
+F:u_info:s
+
+# Ensure that tvals are expressed as numbers.
+
+X:Skeleton
+Y:1
+F:k_info:I:2
+
+X:Bottle
+Y:2
+F:k_info:I:2
+
+X:Junk
+Y:3
+F:k_info:I:2
+
+X:Spike
+Y:5
+F:k_info:I:2
+
+X:Chest
+Y:7
+F:k_info:I:2
+
+X:Shot
+Y:16
+F:k_info:I:2
+
+X:Arrow
+Y:17
+F:k_info:I:2
+
+X:Bolt
+Y:18
+F:k_info:I:2
+
+X:Bow
+Y:19
+F:k_info:I:2
+
+X:Digging
+Y:20
+F:k_info:I:2
+
+X:Hafted
+Y:21
+F:k_info:I:2
+
+X:Polearm
+Y:22
+F:k_info:I:2
+
+X:Sword
+Y:23
+F:k_info:I:2
+
+X:Boots
+Y:30
+F:k_info:I:2
+
+X:Gloves
+Y:31
+F:k_info:I:2
+
+X:Helmet
+Y:32
+F:k_info:I:2
+
+X:Crown
+Y:33
+F:k_info:I:2
+
+X:Shield
+Y:34
+F:k_info:I:2
+
+X:Cloak
+Y:35
+F:k_info:I:2
+
+X:S-Armour
+Y:36
+F:k_info:I:2
+
+X:H-Armour
+Y:37
+F:k_info:I:2
+
+X:D-Armour
+Y:38
+F:k_info:I:2
+
+X:Light
+Y:39
+F:k_info:I:2
+
+X:Amulet
+Y:40
+F:k_info:I:2
+
+X:Ring
+Y:45
+F:k_info:I:2
+
+X:Staff
+Y:55
+F:k_info:I:2
+
+X:Wand
+Y:65
+F:k_info:I:2
+
+X:Rod
+Y:66
+F:k_info:I:2
+
+X:Scroll
+Y:70
+F:k_info:I:2
+
+X:Potion
+Y:75
+F:k_info:I:2
+
+X:Flask
+Y:77
+F:k_info:I:2
+
+X:Food
+Y:80
+F:k_info:I:2
+
+X:Sorcery
+Y:90
+F:k_info:I:2
+
+X:Thaumaturgy
+Y:91
+F:k_info:I:2
+
+X:Conjuration
+Y:92
+F:k_info:I:2
+
+X:Necromancy
+Y:93
+F:k_info:I:2
+
+X:Charm
+Y:94
+F:k_info:I:2
+
+X:Gold
+Y:100
+F:k_info:I:2
+
+X:Unknown
+Y:255
+F:k_info:I:2
+
+# Add IGNORE_* as appropriate, and SHOW_ARMOUR to armour
+
+X:I:Skeleton
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Bottle
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Junk
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Spike
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Chest
+A:F:IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Shot
+A:F:SHOW_MODS|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Arrow
+A:F:SHOW_MODS|IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Bolt
+A:F:SHOW_MODS|IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Bow
+A:F:SHOW_MODS|IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Digging
+A:F:SHOW_MODS|TUNNEL|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Hafted
+A:F:SHOW_MODS|IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Polearm
+A:F:SHOW_MODS|IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Sword
+A:F:SHOW_MODS|IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Boots
+A:F:IGNORE_COLD|IGNORE_ELEC|SHOW_ARMOUR
+F:k_info:I:1
+
+X:I:Gloves
+A:F:IGNORE_COLD|IGNORE_ELEC|SHOW_ARMOUR
+F:k_info:I:1
+
+X:I:Helmet
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC|SHOW_ARMOUR
+F:k_info:I:1
+
+X:I:Crown
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC|SHOW_ARMOUR
+F:k_info:I:1
+
+X:I:Shield
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC|SHOW_ARMOUR
+F:k_info:I:1
+
+X:I:Cloak
+A:F:IGNORE_COLD|IGNORE_ELEC|SHOW_ARMOUR
+F:k_info:I:1
+
+X:I:S-Armour
+A:F:IGNORE_COLD|IGNORE_ELEC|SHOW_ARMOUR
+F:k_info:I:1
+
+X:I:H-Armour
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ELEC|SHOW_ARMOUR
+F:k_info:I:1
+
+X:I:D-Armour
+A:F:IGNORE_ACID|IGNORE_ELEC|IGNORE_COLD|IGNORE_FIRE|ACTIVATE|SHOW_ARMOUR
+F:k_info:I:1
+
+X:I:Light
+A:F:IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Amulet
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Ring
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID
+F:k_info:I:1
+
+X:I:Staff
+A:F:IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Wand
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID
+F:k_info:I:1
+
+X:I:Rod
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Scroll
+A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Potion
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Flask
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_ACID|IGNORE_ELEC|EASY_KNOW
+F:k_info:I:1
+
+X:I:Food
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Sorcery
+A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Thaumaturgy
+A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Conjuration
+A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Necromancy
+A:F:EASY_KNOW|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Charm
+A:F:EASY_KNOW|IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+X:I:Gold
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:k_info:I:1
+
+# All artefacts ignore the elements
+
+X:N
+A:F:IGNORE_FIRE|IGNORE_COLD|IGNORE_ACID|IGNORE_ELEC
+F:a_info:N:1
+
+# Ensure that tvals are expressed as words for the above macros.
+# Must be reverse of above set.
+
+X:1
+Y:Skeleton
+F:k_info:I:2
+
+X:2
+Y:Bottle
+F:k_info:I:2
+
+X:3
+Y:Junk
+F:k_info:I:2
+
+X:5
+Y:Spike
+F:k_info:I:2
+
+X:7
+Y:Chest
+F:k_info:I:2
+
+X:16
+Y:Shot
+F:k_info:I:2
+
+X:17
+Y:Arrow
+F:k_info:I:2
+
+X:18
+Y:Bolt
+F:k_info:I:2
+
+X:19
+Y:Bow
+F:k_info:I:2
+
+X:20
+Y:Digging
+F:k_info:I:2
+
+X:21
+Y:Hafted
+F:k_info:I:2
+
+X:22
+Y:Polearm
+F:k_info:I:2
+
+X:23
+Y:Sword
+F:k_info:I:2
+
+X:30
+Y:Boots
+F:k_info:I:2
+
+X:31
+Y:Gloves
+F:k_info:I:2
+
+X:32
+Y:Helmet
+F:k_info:I:2
+
+X:33
+Y:Crown
+F:k_info:I:2
+
+X:34
+Y:Shield
+F:k_info:I:2
+
+X:35
+Y:Cloak
+F:k_info:I:2
+
+X:36
+Y:S-Armour
+F:k_info:I:2
+
+X:37
+Y:H-Armour
+F:k_info:I:2
+
+X:38
+Y:D-Armour
+F:k_info:I:2
+
+X:39
+Y:Light
+F:k_info:I:2
+
+X:40
+Y:Amulet
+F:k_info:I:2
+
+X:45
+Y:Ring
+F:k_info:I:2
+
+X:55
+Y:Staff
+F:k_info:I:2
+
+X:65
+Y:Wand
+F:k_info:I:2
+
+X:66
+Y:Rod
+F:k_info:I:2
+
+X:70
+Y:Scroll
+F:k_info:I:2
+
+X:75
+Y:Potion
+F:k_info:I:2
+
+X:77
+Y:Flask
+F:k_info:I:2
+
+X:80
+Y:Food
+F:k_info:I:2
+
+X:90
+Y:Sorcery
+F:k_info:I:2
+
+X:91
+Y:Thaumaturgy
+F:k_info:I:2
+
+X:92
+Y:Conjuration
+F:k_info:I:2
+
+X:93
+Y:Necromancy
+F:k_info:I:2
+
+X:94
+Y:Charm
+F:k_info:I:2
+
+X:100
+Y:Gold
+F:k_info:I:2
+
+X:255
+Y:Unknown
+F:k_info:I:2
+
+# Vault types
+
+X:Lesser
+Y:7
+F:v_info:X:2
+
+X:Greater
+Y:8
+F:v_info:X:2
+
+X:x
+Y::
+F:v_info:X:4
+
+# r_info.txt generates two raw files in two separate functions.
+# This masks the unused ones with #.
+
+X:E
+Y:#E
+F:r_info:E:1
+
+X:D
+Y:#D
+F:r_event:D:1
+
+X:G
+Y:#G
+F:r_event:G:1
+
+X:I
+Y:#I
+F:r_event:I:1
+
+X:W
+Y:#W
+F:r_event:W:1
+
+X:B
+Y:#B
+F:r_event:B:1
+
+X:F
+Y:#F
+F:r_event:F:1
+
+X:S
+Y:#S
+F:r_event:S:1

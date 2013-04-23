@@ -1,0 +1,3734 @@
+# File: k_info.txt
+
+
+# This file is used to initialize the "lib/raw/k_info.raw" file, which is
+# used to initialize the "object kind" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/k_info.raw" file.
+
+# Available slots (?):
+#   29, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
+#   268, 270, 293, 299, 350, 351, 399, 413, 414, 423-479
+
+# XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
+
+# The old "MULTI_HUED" objects are now "violet", and no other object
+# is violet, so all six violet objects can be made "multi-hued", though
+# this would be a heinous hack.  XXX XXX
+
+# Note that object zero is used for the "stack" picture (unused).
+
+# Version stamp (required)
+
+V:1.0.4
+
+
+##### Something special #####
+# This must have no description string.
+
+N:0:(nothing)
+G:&:w:0
+F:EASY_KNOW
+
+
+##### Mushrooms #####
+
+# You can't cook it, you can't freeze it, and it's unaffected by
+# your stomach acids. Suddenly I don't feel so hungry.
+
+N:1:Blindness
+G: :d:1
+I:80:1:500
+W:5:0:1:0
+A:5/1
+D:It blinds you when you eat it.
+
+N:2:Paranoia
+G: :d:1
+I:80:2:500
+W:5:0:1:0
+A:5/1
+D:It scares you when you eat it.
+
+N:3:Confusion
+G: :d:1
+I:80:3:500
+W:5:0:1:0
+A:5/1
+D:It confuses you when you eat it.
+
+N:4:Hallucination
+G: :d:1
+I:80:4:500
+W:10:0:1:0
+A:10/1
+D:It causes hallucinations when you eat it.
+
+N:5:Cure Poison
+G: :d:1
+I:80:12:500
+W:10:0:1:60
+A:10/1
+D:It cures poison when you eat it.
+
+N:6:Cure Blindness
+G: :d:1
+I:80:13:500
+W:10:0:1:50
+A:10/1
+D:It cures blindness when you eat it.
+
+N:7:Cure Paranoia
+G: :d:1
+I:80:14:500
+W:10:0:1:25
+A:10/1
+D:It removes fear when you eat it.
+
+N:8:Cure Confusion
+G: :d:1
+I:80:15:500
+W:10:0:1:50
+A:10/1
+D:It cures confusion when you eat it.
+
+N:9:Weakness
+G: :d:1
+I:80:6:500
+W:10:0:1:0
+A:10/1
+P:0:5d5:0:0:0
+D:It causes you 6d6 damage and decreases your strength when you eat it.
+
+N:10:Unhealth
+G: :d:1
+I:80:10:500
+W:15:0:1:50
+A:15/1
+P:0:10d10:0:0:0
+D:It causes you 10d10 damage and decreases your constitution when you eat it.
+
+N:11:Restore Constitution
+G: :d:1
+I:80:18:500
+W:20:0:1:350
+A:20/1
+D:It restores your constitution when you eat it.
+
+N:12:Restoring
+G: :d:1
+I:80:19:500
+W:20:0:1:1000
+A:20/8:30/4:40/1
+D:It restores all of your stats when you eat it.
+
+N:13:Stupidity
+G: :d:1
+I:80:8:500
+W:15:0:1:0
+A:15/1
+D:It causes you 8d8 damage and decreases your intelligence when you eat it.
+
+N:14:Naivety
+G: :d:1
+I:80:9:500
+W:15:0:1:0
+A:15/1
+D:It causes you 8d8 damage and decreases your wisdom when you eat it.
+
+N:15:Poison
+G: :d:1
+I:80:0:500
+W:5:0:1:0
+A:5/1:5/1
+P:0:4d4:0:0:0
+D:It poisons you when you eat it.
+
+N:16:Sickness
+G: :d:1
+I:80:7:500
+W:10:0:1:0
+A:10/1
+P:0:4d4:0:0:0
+D:It causes you 6d6 damage and decreases your constitution when you eat it.
+
+N:17:Paralysis
+G: :d:1
+I:80:5:500
+W:20:0:1:0
+A:20/1
+D:It paralyzes you when you eat it.
+
+N:18:Restore Strength
+G: :d:1
+I:80:17:500
+W:20:0:1:350
+A:20/1
+D:It restores your strength when you eat it.
+
+N:19:Disease
+G: :d:1
+I:80:11:500
+W:20:0:1:50
+A:20/1
+P:0:10d10:0:0:0
+D:You take 10d10 damage and it decreases your strength when you eat it.
+
+N:20:Cure Serious Wounds
+G: :d:1
+I:80:16:500
+W:15:0:2:75
+A:15/1
+D:It heals you 4d8 when you eat it.
+
+##### Normal Food #####
+
+N:21:& Ration~ of Food
+G:,:U:0
+I:80:35:5000
+W:0:0:10:3
+A:0/1:5/1:10/1
+D:Also known as Cram or Waybread, this nutritious but fairly bland food is 
+D:familiar to anyone contemplating long journeys.
+
+N:22:& Hard Biscuit~
+G:,:U:0
+I:80:32:500
+W:0:0:2:1
+D:Twice-cooked for good keeping qualities, this lump of bread is as hard as a 
+D:rock and about as tasty.
+
+N:23:& Strip~ of Venison
+G:,:u:0
+I:80:33:1500
+W:0:0:2:2
+D:A strip of jerked beef that seems never to spoil.
+
+N:24:& Slime Mold~
+G:,:g:0
+I:80:36:3000
+W:1:0:5:2
+A:1/1
+D:An utterly hideous fungal growth.  It is strangely appealing...
+
+N:25:& Piece~ of Elvish Waybread
+G:,:B:0
+I:80:37:7500
+W:5:0:3:10
+A:5/1:10/1:20/1
+D:A very filling meal, which cures 4d8 and any lingering poisons.
+
+N:26:& Pint~ of Fine Ale
+G:,:y:0
+I:80:38:500
+W:0:0:5:1
+D:The best in the Six Kingdoms according to the shopkeeper.
+
+N:27:& Bottle~ of Fine Wine
+G:,:r:0
+I:80:39:1000
+W:0:0:10:2
+D:Moon wine obtained from the Zoogs according to the shopkeeper.
+
+## XXX 28 XXX ##
+
+# There needs to be at least one empty object kind for unknown objects.
+
+## XXX 29 XXX ##
+
+##### Edged Weapons #####
+
+N:30:& Broken Dagger~
+G:|:D:0
+I:23:1:0
+W:0:0:5:1
+A:0/1
+P:0:1d1:-2:-4:0
+
+N:31:& Bastard Sword~
+G:|:W:0
+I:23:21:0
+W:15:0:140:350
+A:15/1
+P:0:3d4:0:0:0
+
+N:32:& Scimitar~
+G:|:W:0
+I:23:18:0
+W:10:0:130:250
+A:10/1
+P:0:2d5:0:0:0
+
+N:33:& Tulwar~
+G:|:W:0
+I:23:15:0
+W:5:0:100:200
+A:5/1
+P:0:2d4:0:0:0
+
+N:34:& Broad Sword~
+G:|:W:0
+I:23:16:0
+W:10:0:150:255
+A:10/1:15/1
+P:0:2d5:0:0:0
+
+N:35:& Short Sword~
+G:|:W:0
+I:23:10:0
+W:5:0:80:90
+A:5/1
+P:0:1d7:0:0:0
+
+N:36:& Blade~ of Chaos
+G:|:v:0
+I:23:30:0
+W:70:0:180:4000
+A:70/8
+P:0:6d5:0:0:0
+F:RES_CHAOS
+
+N:37:& Two-Handed Sword~
+G:|:W:0
+I:23:25:0
+W:30:0:200:775
+A:30/1:40/1
+P:0:3d6:0:0:0
+
+N:38:& Main Gauche~
+G:|:W:0
+I:23:5:0
+W:3:0:30:25
+A:3/1
+P:0:1d5:0:0:0
+
+N:39:& Cutlass~
+G:|:W:0
+I:23:12:0
+W:5:0:110:85
+A:5/1
+P:0:1d7:0:0:0
+
+N:40:& Executioner's Sword~
+G:|:r:0
+I:23:28:0
+W:40:0:260:850
+A:40/1
+P:0:4d5:0:0:0
+
+N:41:& Katana~
+G:|:W:13
+I:23:20:0
+W:20:0:120:400
+A:20/1
+P:0:3d4:0:0:0
+
+N:42:& Long Sword~
+G:|:W:0
+I:23:17:0
+W:10:0:130:300
+A:10/1:20/1
+P:0:2d5:0:0:0
+
+N:43:& Dagger~
+G:|:W:0
+I:23:4:0
+W:0:0:12:10
+A:0/1:5/1:10/1:20/1
+P:0:1d4:0:0:0
+
+N:44:& Rapier~
+G:|:W:0
+I:23:7:0
+W:5:0:40:42
+A:5/1
+P:0:1d6:0:0:0
+
+N:45:& Sabre~
+G:|:W:0
+I:23:11:0
+W:5:0:50:50
+A:5/1
+P:0:1d7:0:0:0
+
+N:46:& Small Sword~
+G:|:W:0
+I:23:8:0
+W:5:0:75:48
+A:5/1
+P:0:1d6:0:0:0
+
+N:47:& Broken Sword~
+G:|:D:0
+I:23:2:0
+W:0:0:30:2
+A:0/1
+P:0:1d2:-2:-4:0
+
+##### Hafted Weapons #####
+
+N:48:& Ball-and-Chain~
+G:\:D:0
+I:21:6:0
+W:20:0:150:200
+A:20/1
+P:0:2d4:0:0:0
+
+N:49:& Whip~
+G:\:D:0
+I:21:2:0
+W:3:0:30:30
+A:3/1
+P:0:1d6:0:0:0
+
+N:50:& Flail~
+G:\:D:0
+I:21:13:0
+W:10:0:150:353
+A:10/1
+P:0:2d6:0:0:0
+
+N:51:& Two-Handed Flail~
+G:\:y:0
+I:21:18:0
+W:45:0:280:590
+A:45/1
+P:0:3d6:0:0:0
+
+N:52:& Morning Star~
+G:\:D:0
+I:21:12:0
+W:10:0:150:396
+A:10/1
+P:0:2d6:0:0:0
+
+N:53:& Mace~
+G:\:D:0
+I:21:5:0
+W:5:0:120:130
+A:5/1
+P:0:2d4:0:0:0
+
+N:54:& Quarterstaff~
+G:\:U:0
+I:21:3:0
+W:10:0:150:200
+A:10/1
+P:0:1d9:0:0:0
+
+N:55:& War Hammer~
+G:\:D:0
+I:21:8:0
+W:5:0:120:225
+A:5/1
+P:0:3d3:0:0:0
+
+N:56:& Lead-Filled Mace~
+G:\:D:0
+I:21:15:0
+W:15:0:180:502
+A:15/1
+P:0:3d4:0:0:0
+
+N:57:& Mace~ of Disruption
+G:\:v:0
+I:21:20:0
+W:80:0:400:4300
+A:80/8
+P:0:5d8:0:0:0
+F:SLAY_UNDEAD
+
+N:58:& Lucerne Hammer~
+G:\:B:0
+I:21:10:0
+W:10:0:120:376
+A:10/1
+P:0:2d5:0:0:0
+
+##### Polearms #####
+
+N:59:& Beaked Axe~
+G:/:s:0
+I:22:10:0
+W:15:0:180:408
+A:15/1
+P:0:2d6:0:0:0
+
+N:60:& Glaive~
+G:/:s:0
+I:22:13:0
+W:20:0:190:363
+A:20/1
+P:0:2d6:0:0:0
+
+N:61:& Halberd~
+G:/:s:0
+I:22:15:0
+W:25:0:190:430
+A:25/1
+P:0:3d5:0:0:0
+
+N:62:& Awl-Pike~
+G:/:s:0
+I:22:4:0
+W:10:0:160:340
+A:10/1
+P:0:1d8:0:0:0
+
+N:63:& Pike~
+G:/:s:0
+I:22:8:0
+W:15:0:160:358
+A:15/1
+P:0:2d5:0:0:0
+
+N:64:& Spear~
+G:/:s:0
+I:22:2:0
+W:5:0:50:36
+A:5/1
+P:0:1d6:0:0:0
+
+N:65:& Trident~
+G:/:y:0
+I:22:5:0
+W:5:0:70:120
+A:5/1
+P:0:1d8:0:0:0
+
+N:66:& Lance~
+G:/:s:0
+I:22:20:0
+W:10:0:300:230
+A:10/1
+P:0:2d8:0:0:0
+
+N:67:& Great Axe~
+G:/:s:0
+I:22:25:0
+W:40:0:230:500
+A:40/1
+P:0:4d4:0:0:0
+
+N:68:& Battle Axe~
+G:/:s:0
+I:22:22:0
+W:15:0:170:334
+A:15/1
+P:0:2d8:0:0:0
+
+N:69:& Lochaber Axe~
+G:/:D:0
+I:22:28:0
+W:45:0:250:750
+A:45/1
+P:0:3d8:0:0:0
+
+N:70:& Broad Axe~
+G:/:s:0
+I:22:11:0
+W:15:0:160:304
+A:15/1
+P:0:2d6:0:0:0
+
+N:71:& Scythe~
+G:/:s:0
+I:22:17:0
+W:45:0:250:800
+A:45/1
+P:0:5d3:0:0:0
+
+N:72:& Scythe~ of Slicing
+G:/:r:0
+I:22:30:0
+W:60:0:250:3500
+A:60/4
+P:0:8d4:0:0:0
+
+##### Bows, Crossbows, Slings #####
+
+N:73:& Short Bow~
+G:}:U:0
+I:19:12:0
+W:3:0:30:50
+A:3/1
+
+N:74:& Long Bow~
+G:}:U:0
+I:19:13:0
+W:10:0:40:120
+A:10/1
+
+N:75:& Light Crossbow~
+G:}:s:0
+I:19:23:0
+W:15:0:110:140
+A:15/1
+
+N:76:& Heavy Crossbow~
+G:}:s:0
+I:19:24:0
+W:30:0:200:300
+A:30/1
+
+N:77:& Sling~
+G:}:u:0
+I:19:2:0
+W:1:0:5:5
+A:1/1
+
+##### Missiles #####
+
+N:78:& Arrow~
+G:{:U:0
+I:17:1:0
+W:3:0:2:1
+A:3/1:15/1
+P:0:1d4:0:0:0
+
+N:79:& Seeker Arrow~
+G:{:G:0
+I:17:2:0
+W:55:0:2:20
+A:55/2
+P:0:4d4:0:0:0
+
+N:80:& Bolt~
+G:{:s:0
+I:18:1:0
+W:3:0:3:2
+A:3/1:25/1
+P:0:1d5:0:0:0
+
+N:81:& Seeker Bolt~
+G:{:B:0
+I:18:2:0
+W:65:0:3:25
+A:65/4
+P:0:4d5:0:0:0
+
+N:82:& Rounded Pebble~
+G:{:s:0
+I:16:0:0
+W:0:0:4:1
+A:0/1
+P:0:1d2:0:0:0
+
+N:83:& Iron Shot~
+G:{:s:0
+I:16:1:0
+W:3:0:5:2
+A:3/1
+P:0:1d3:0:0:0
+
+##### Shovels and Picks #####
+
+N:84:& Shovel~
+G:\:s:0
+I:20:1:1
+W:1:0:60:10
+A:5/16
+P:0:1d2:0:0:0
+
+N:85:& Gnomish Shovel~
+G:\:G:0
+I:20:2:2
+W:20:0:60:100
+A:20/4
+P:0:1d2:0:0:0
+
+N:86:& Dwarven Shovel~
+G:\:B:0
+I:20:3:3
+W:40:0:120:200
+A:40/1
+P:0:1d3:0:0:0
+
+N:87:& Pick~
+G:\:s:0
+I:20:4:1
+W:5:0:150:50
+A:10/16
+P:0:1d3:0:0:0
+
+N:88:& Orcish Pick~
+G:\:g:0
+I:20:5:2
+W:30:0:150:300
+A:30/4
+P:0:1d3:0:0:0
+
+N:89:& Dwarven Pick~
+G:\:b:0
+I:20:6:3
+W:50:0:200:600
+A:50/1
+P:0:1d4:0:0:0
+
+##### Armor #####
+
+N:90:& Elven Cloak~
+G:(:G:0
+I:35:2:0
+W:30:0:5:1500
+A:30/4
+P:4:0d0:0:0:4
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
+F:STEALTH | SEARCH
+
+N:91:& Pair~ of Soft Leather Boots
+G:]:U:0
+I:30:2:0
+W:3:0:20:7
+A:3/1
+P:2:1d1:0:0:0
+
+N:92:& Pair~ of Hard Leather Boots
+G:]:U:0
+I:30:3:0
+W:5:0:40:12
+A:5/1
+P:3:1d1:0:0:0
+
+N:93:& Pair~ of Metal Shod Boots
+G:]:s:0
+I:30:6:0
+W:20:0:80:50
+A:20/1
+P:6:1d1:0:0:0
+
+N:94:& Hard Leather Cap~
+G:]:u:0
+I:32:2:0
+W:3:0:15:12
+A:3/1
+P:2:0d0:0:0:0
+
+N:95:& Metal Cap~
+G:]:s:0
+I:32:3:0
+W:10:0:20:30
+A:10/1
+P:3:1d1:0:0:0
+
+N:96:& Iron Helm~
+G:]:s:0
+I:32:5:0
+W:20:0:75:75
+A:20/1
+P:5:1d3:0:0:0
+
+N:97:& Steel Helm~
+G:]:W:0
+I:32:6:0
+W:40:0:60:200
+A:40/1
+P:6:1d3:0:0:0
+
+N:98:& Iron Crown~
+G:]:s:0
+I:33:10:0
+W:45:0:20:500
+A:45/1
+P:0:1d1:0:0:0
+
+N:99:& Golden Crown~
+G:]:y:0
+I:33:11:0
+W:45:0:30:1000
+A:45/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID
+
+N:100:& Jewel Encrusted Crown~
+G:]:v:0
+I:33:12:0
+W:50:0:40:2000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID
+
+N:101:& Robe~
+G:(:b:0
+I:36:2:0
+W:1:0:20:4
+A:1/1:50/1
+P:2:0d0:0:0:0
+
+N:102:& Filthy Rag~
+G:(:D:0
+I:36:1:0
+W:0:0:20:1
+A:0/1
+P:1:0d0:0:0:-1
+
+N:103:Soft Leather Armour~
+G:(:U:0
+I:36:4:0
+W:3:0:80:18
+A:3/1
+P:4:0d0:0:0:0
+
+N:104:Soft Studded Leather~
+G:(:U:0
+I:36:5:0
+W:3:0:90:35
+A:3/1
+P:5:1d1:0:0:0
+
+N:105:Hard Leather Armour~
+G:(:U:0
+I:36:6:0
+W:5:0:100:150
+A:5/1
+P:6:1d1:-1:0:0
+
+N:106:Hard Studded Leather~
+G:(:U:0
+I:36:7:0
+W:10:0:110:200
+A:10/1
+P:7:1d2:-1:0:0
+
+N:107:Leather Scale Mail~
+G:(:U:0
+I:36:11:0
+W:15:0:140:450
+A:15/1
+P:11:1d1:-1:0:0
+
+N:108:Metal Scale Mail~
+G:[:s:0
+I:37:3:0
+W:25:0:250:550
+A:25/1
+P:13:1d4:-2:0:0
+
+N:109:Chain Mail~
+G:[:s:0
+I:37:4:0
+W:25:0:220:750
+A:25/1
+P:14:1d4:-2:0:0
+
+N:110:Rusty Chain Mail~
+G:[:r:0
+I:37:1:0
+W:25:0:200:550
+A:25/1
+P:14:1d4:-5:0:-8
+
+N:111:Augmented Chain Mail~
+G:[:s:0
+I:37:6:0
+W:30:0:270:900
+A:30/1
+P:16:1d4:-2:0:0
+
+N:112:Bar Chain Mail~
+G:[:s:0
+I:37:8:0
+W:35:0:280:950
+A:35/1
+P:18:1d4:-2:0:0
+
+N:113:Metal Brigandine Armour~
+G:[:s:0
+I:37:9:0
+W:35:0:290:1100
+A:35/1
+P:19:1d4:-3:0:0
+
+N:114:Partial Plate Armour~
+G:[:W:0
+I:37:12:0
+W:45:0:260:1200
+A:45/1
+P:22:1d6:-3:0:0
+
+N:115:Metal Lamellar Armour~
+G:[:W:0
+I:37:13:0
+W:45:0:340:1250
+A:45/1
+P:23:1d6:-3:0:0
+
+N:116:Full Plate Armour~
+G:[:W:0
+I:37:15:0
+W:45:0:380:1350
+A:45/1
+P:25:2d4:-3:0:0
+
+N:117:Ribbed Plate Armour~
+G:[:W:0
+I:37:18:0
+W:50:0:380:1500
+A:50/1
+P:28:2d4:-3:0:0
+
+N:118:Adamantite Plate Mail~
+G:[:G:0
+I:37:30:0
+W:75:0:420:20000
+A:75/8
+P:40:2d4:-4:0:0
+F:IGNORE_ACID
+
+N:119:Mithril Plate Mail~
+G:[:B:0
+I:37:25:0
+W:60:0:300:15000
+A:60/4
+P:35:2d4:-3:0:0
+F:IGNORE_ACID
+
+N:120:Mithril Chain Mail~
+G:[:B:0
+I:37:20:0
+W:55:0:150:7000
+A:55/4
+P:28:1d4:-1:0:0
+F:IGNORE_ACID
+
+N:121:Double Chain Mail~
+G:[:s:0
+I:37:7:0
+W:30:0:250:850
+A:30/1
+P:16:1d4:-2:0:0
+
+
+# This shield does not belong here
+
+N:122:& Shield~ of Deflection
+G:[:B:0
+I:34:10:0
+W:70:0:100:10000
+A:70/8
+P:10:1d1:0:0:10
+F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC | IGNORE_ACID
+
+
+### The Cloaks ###
+
+N:123:& Cloak~
+G:(:g:0
+I:35:1:0
+W:1:0:10:3
+A:1/1:20/1
+P:1:0d0:0:0:0
+
+N:124:& Shadow Cloak~
+G:(:D:0
+I:35:6:0
+W:60:0:5:7500
+A:75/5
+P:6:0d0:0:0:4
+F:RES_DARK | RES_LITE
+
+
+### The Gloves ###
+
+N:125:& Set~ of Leather Gloves
+G:]:U:0
+I:31:1:0
+W:1:0:5:3
+A:1/1
+P:1:0d0:0:0:0
+
+N:126:& Set~ of Gauntlets
+G:]:U:0
+I:31:2:0
+W:10:0:25:35
+A:10/1
+P:2:1d1:0:0:0
+
+N:127:& Set~ of Cesti
+G:]:W:0
+I:31:5:0
+W:50:0:40:100
+A:50/1
+P:5:1d1:0:0:0
+
+
+### The shields ###
+
+N:128:& Small Leather Shield~
+G:):U:0
+I:34:2:0
+W:3:0:50:30
+A:3/1
+P:2:1d1:0:0:0
+
+N:129:& Large Leather Shield~
+G:):U:0
+I:34:4:0
+W:15:0:100:120
+A:15/1
+P:4:1d2:0:0:0
+
+N:130:& Small Metal Shield~
+G:):s:0
+I:34:3:0
+W:10:0:65:50
+A:10/1
+P:3:1d2:0:0:0
+
+N:131:& Large Metal Shield~
+G:):s:0
+I:34:5:0
+W:30:0:120:200
+A:30/1
+P:5:1d3:0:0:0
+
+
+##### Rings #####
+
+N:132:Strength
+G: :d:2
+I:45:24:0
+W:30:0:2:500
+A:30/1
+F:STR | HIDE_TYPE
+
+N:133:Dexterity
+G: :d:2
+I:45:26:0
+W:30:0:2:500
+A:30/1
+F:DEX | HIDE_TYPE
+
+N:134:Constitution
+G: :d:2
+I:45:27:0
+W:30:0:2:500
+A:30/1
+F:CON | HIDE_TYPE
+
+N:135:Intelligence
+G: :d:2
+I:45:25:0
+W:30:0:2:500
+A:30/1
+F:INT | HIDE_TYPE
+
+N:136:Speed
+G: :d:2
+I:45:31:0
+W:80:0:2:100000
+A:80/1
+F:SPEED | HIDE_TYPE
+
+N:137:Searching
+G: :d:2
+I:45:23:0
+W:5:0:2:250
+A:5/1
+F:SEARCH | HIDE_TYPE
+
+N:138:Teleportation
+G: :d:2
+I:45:4:0
+W:5:0:2:250
+A:5/1
+F:CURSED | TELEPORT | EASY_KNOW
+
+N:139:Slow Digestion
+G: :d:2
+I:45:6:0
+W:5:0:2:250
+A:5/1
+F:SLOW_DIGEST | EASY_KNOW
+
+N:140:Resist Fire
+G: :d:2
+I:45:8:0
+W:10:0:2:250
+A:10/1
+F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
+
+N:141:Resist Cold
+G: :d:2
+I:45:9:0
+W:10:0:2:250
+A:10/1
+F:RES_COLD | IGNORE_COLD | EASY_KNOW
+
+N:142:Levitation
+G: :d:2
+I:45:7:0
+W:5:0:2:200
+A:5/1
+F:FEATHER | EASY_KNOW
+
+N:143:Poison Resistance
+G: :d:2
+I:45:20:0
+W:60:0:2:16000
+A:60/2
+F:RES_POIS | EASY_KNOW
+
+N:144:Free Action
+G: :d:2
+I:45:21:0
+W:20:0:2:1500
+A:20/1
+F:FREE_ACT | EASY_KNOW
+
+N:145:Weakness
+G: :d:2
+I:45:2:-5
+W:5:0:2:0
+A:5/1
+F:CURSED | STR | HIDE_TYPE
+
+N:146:Flames
+G: :d:2
+I:45:18:0
+W:50:0:2:3000
+A:50/1
+P:0:0d0:0:0:15
+F:RES_FIRE | IGNORE_FIRE | ACTIVATE
+
+N:147:Acid
+G: :d:2
+I:45:17:0
+W:50:0:2:3000
+A:50/1
+P:0:0d0:0:0:15
+F:RES_ACID | IGNORE_ACID | ACTIVATE
+
+N:148:Ice
+G: :d:2
+I:45:19:0
+W:50:0:2:3000
+A:50/1
+P:0:0d0:0:0:15
+F:RES_COLD | IGNORE_COLD | ACTIVATE
+
+N:149:Woe
+G: :d:2
+I:45:0:-5
+W:50:0:2:0
+A:50/1
+F:CURSED | TELEPORT | WIS | CHR
+
+N:150:Stupidity
+G: :d:2
+I:45:3:-5
+W:5:0:2:0
+A:5/1
+F:CURSED | INT | HIDE_TYPE
+
+N:151:Damage
+G: :d:2
+I:45:29:0
+W:20:0:2:500
+A:20/1
+
+N:152:Accuracy
+G: :d:2
+I:45:28:0
+W:20:0:2:500
+A:20/1
+
+N:153:Protection
+G: :d:2
+I:45:16:0
+W:10:0:2:500
+A:10/1
+
+N:154:Aggravate Monster
+G: :d:2
+I:45:1:0
+W:5:0:2:0
+A:5/1
+F:CURSED | AGGRAVATE | EASY_KNOW
+
+N:155:See Invisible
+G: :d:2
+I:45:22:0
+W:30:0:2:340
+A:30/1
+F:SEE_INVIS | EASY_KNOW
+
+N:156:Sustain Strength
+G: :d:2
+I:45:10:0
+W:30:0:2:750
+A:30/1
+F:SUST_STR | EASY_KNOW
+
+N:157:Sustain Intelligence
+G: :d:2
+I:45:11:0
+W:30:0:2:600
+A:30/1
+F:SUST_INT | EASY_KNOW
+
+N:158:Sustain Wisdom
+G: :d:2
+I:45:12:0
+W:30:0:2:600
+A:30/1
+F:SUST_WIS | EASY_KNOW
+
+N:159:Sustain Constitution
+G: :d:2
+I:45:13:0
+W:30:0:2:750
+A:30/1
+F:SUST_CON | EASY_KNOW
+
+N:160:Sustain Dexterity
+G: :d:2
+I:45:14:0
+W:30:0:2:750
+A:30/1
+F:SUST_DEX | EASY_KNOW
+
+N:161:Sustain Charisma
+G: :d:2
+I:45:15:0
+W:30:0:2:500
+A:30/1
+F:SUST_CHR | EASY_KNOW
+
+N:162:Slaying
+G: :d:2
+I:45:30:0
+W:40:0:2:1000
+A:40/1
+F:SHOW_MODS
+
+##### Amulets #####
+
+N:163:Brilliance
+G: :d:3
+I:40:6:0
+W:20:0:3:500
+A:20/1
+F:INT | WIS
+
+N:164:Charisma
+G: :d:3
+I:40:7:0
+W:20:0:3:500
+A:20/1
+F:CHR | HIDE_TYPE
+
+N:165:Searching
+G: :d:3
+I:40:5:0
+W:30:0:3:600
+A:30/4
+F:SEARCH | HIDE_TYPE
+
+N:166:Teleportation
+G: :d:3
+I:40:1:0
+W:15:0:3:250
+A:15/1
+F:CURSED | TELEPORT | EASY_KNOW
+
+N:167:Slow Digestion
+G: :d:3
+I:40:3:0
+W:15:0:3:200
+A:15/1
+F:SLOW_DIGEST | EASY_KNOW
+
+N:168:Resist Acid
+G: :d:3
+I:40:4:0
+W:20:0:3:300
+A:20/1
+F:RES_ACID | IGNORE_ACID | EASY_KNOW
+
+N:169:Adornment
+G: :d:3
+I:40:2:0
+W:15:0:3:20
+A:15/1
+F:EASY_KNOW
+
+## XXX 170 XXX ##
+
+N:171:the Magi
+G: :d:3
+I:40:8:0
+W:50:0:3:30000
+A:50/4:80/3
+P:0:0d0:0:0:3
+F:FREE_ACT | SEE_INVIS | SEARCH |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:172:DOOM
+G: :d:3
+I:40:0:-5
+W:50:0:3:0
+A:50/1
+F:CURSED | STR | INT | WIS | DEX | CON | CHR
+
+
+##### Scrolls #####
+
+N:173:Enchant Weapon To-Hit
+G: :d:200
+I:70:17:0
+W:15:0:5:125
+A:15/1
+D:It may increase a weapon's to-hit bonus when you read it.
+
+N:174:Enchant Weapon To-Dam
+G: :d:200
+I:70:18:0
+W:15:0:5:125
+A:15/1
+D:It may increase a weapon's to-dam bonus when you read it.
+
+N:175:Enchant Armor
+G: :d:200
+I:70:16:0
+W:15:0:5:125
+A:15/1
+D:It increases an armour's AC bonus when you read it.
+
+N:176:Identify
+G: :d:200
+I:70:12:0
+W:1:0:5:50
+A:1/1:5/1:10/1:30/1
+D:It identifies an item when you read it.
+
+N:177:*Identify*
+G: :d:200
+I:70:13:0
+W:30:0:5:1000
+A:30/1:50/2:80/1:100/1
+D:It reveals all information about an item when you read it.
+
+N:178:Rumour
+G: :d:200
+I:70:51:0
+W:1:0:5:10
+A:1/1
+D:It gives you a hint, which may even be true.
+
+N:179:Chaos
+G: :d:200
+I:70:50:0
+W:100:0:5:10000
+A:100/8
+F:IGNORE_FIRE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC
+D:It produces a ball of chaos with a radius of 4 and damage at centre of 
+D:222, and causes 111+d111 damage if you have no chaos resistance.
+
+N:180:Remove Curse
+G: :d:200
+I:70:14:0
+W:10:0:5:100
+A:10/1:20/2:40/2
+D:It removes normal curses from equipped items when you read it.
+
+N:181:Light
+G: :d:200
+I:70:24:0
+W:0:0:5:15
+A:0/1:3/1:10/1
+D:It lights up nearby area or current room permanently when you use it, 
+D:causing 2d8 damage to vulnerable monsters within a radius of 2.
+
+N:182:Fire
+G: :d:200
+I:70:48:0
+W:50:0:5:1000
+A:50/4
+F:IGNORE_FIRE
+D:It produces a ball of fire with a radius of 4 and damage at centre of 
+D:150, and causes 50+d50 damage if you have no fire resistance.
+
+N:183:Ice
+G: :d:200
+I:70:49:0
+W:75:0:5:5000
+A:75/6
+F:IGNORE_COLD
+D:It produces a ball of ice with a radius of 4 and damage at centre of 
+D:175, and causes 100+d100 damage if you have no cold resistance.
+
+N:184:Summon Monster
+G: :d:200
+I:70:4:0
+W:1:0:5:0
+A:1/1
+D:It summons several hostile monsters when you read it.
+
+N:185:Phase Door
+G: :d:200
+I:70:8:0
+W:1:0:5:15
+A:1/1
+D:It teleports you about 10 squares away when you read it.
+
+N:186:Teleportation
+G: :d:200
+I:70:9:0
+W:10:0:5:40
+A:10/1
+D:It teleports you about 100 squares away when you read it.
+
+N:187:Teleport Level
+G: :d:200
+I:70:10:0
+W:20:0:5:50
+A:20/1
+D:It teleports you one dungeon level up or down when you read it.
+
+N:188:Monster Confusion
+G: :d:200
+I:70:36:0
+W:5:0:5:30
+A:5/1
+D:It allows you to confuse a monster as you hit it after you read it.
+
+N:189:Magic Mapping
+G: :d:200
+I:70:25:0
+W:5:0:5:40
+A:5/1
+D:It maps your surroundings when you read it.
+
+N:190:Rune of Protection
+G: :d:200
+I:70:38:0
+W:50:0:5:500
+A:50/2:90/4
+D:It create a glyph on the floor you stand when you read it.
+
+N:191:*Remove Curse*
+G: :d:200
+I:70:15:0
+W:50:0:5:8000
+A:50/2:75/2:85/2:95/1
+D:It removes normal and heavy curses from equipped items when you read it.
+
+N:192:Treasure Detection
+G: :d:200
+I:70:26:0
+W:0:0:5:15
+A:0/1
+D:It detects all nearby treasure when you read it.
+
+N:193:Object Detection
+G: :d:200
+I:70:27:0
+W:0:0:5:15
+A:0/1
+D:It detects all nearby items when you read it.
+
+N:194:Trap Detection
+G: :d:200
+I:70:28:0
+W:5:0:5:35
+A:5/1:10/1
+D:It detects all nearby traps when you read it.
+
+## XXX 195 XXX ##
+
+## XXX 196 XXX ##
+
+N:197:Door/Stair Location
+G: :d:200
+I:70:29:0
+W:5:0:5:35
+A:5/1:10/1:15/1
+D:It detects all nearby doors and stairs when you read it.
+
+N:198:Acquirement
+G: :d:200
+I:70:46:0
+W:20:0:5:100000
+A:20/8
+D:It creates an ego item or artefact when you read it.
+
+N:199:*Acquirement*
+G: :d:200
+I:70:47:0
+W:60:0:5:200000
+A:60/16
+D:It creates 1-3 ego items or artefacts when you read it.
+
+N:200:Mass Genocide
+G: :d:200
+I:70:45:0
+W:50:0:5:1000
+A:50/4:100/4
+D:It removes all nearby monsters which do not resist it from the level when you 
+D:read it.
+
+N:201:Detect Invisible
+G: :d:200
+I:70:30:0
+W:1:0:5:15
+A:1/1
+D:It detects all nearby invisible monsters when you read it.
+
+N:202:Aggravate Monster
+G: :d:200
+I:70:1:0
+W:5:0:5:0
+A:5/1
+D:It angers friendly monsters, wakes up nearby monsters and speeds up monsters 
+D:you can see as you read it.
+
+N:203:Trap Creation
+G: :d:200
+I:70:7:0
+W:10:0:5:0
+A:10/1
+D:It creates traps on the floor next to you when you read it.
+
+N:204:Trap/Door Destruction
+G: :d:200
+I:70:39:0
+W:10:0:5:50
+A:10/1
+D:It destroys traps on the floor next to you when you read it.
+
+N:205:Artifact Creation
+G: :d:200
+I:70:52:0
+W:70:0:5:200000
+A:70/16
+D:It transforms a weapon or piece of armour into an artefact when you read it. 
+D:Extra copies of the item are destroyed.
+
+N:206:Recharging
+G: :d:200
+I:70:22:0
+W:40:0:5:200
+A:40/1
+D:It tries to recharge wands, staffs or rods when you read it.
+
+N:207:Genocide
+G: :d:200
+I:70:44:0
+W:40:0:5:750
+A:40/4:80/4
+D:It removes all nearby monsters which have the given default symbol from the 
+D:current level (except for those which resist) as you read it.
+
+N:208:Darkness
+G: :d:200
+I:70:0:0
+W:1:0:5:0
+A:1/1
+D:It darkens nearby area or current room and blinds you when you read it.
+
+N:209:Protection from Evil
+G: :d:200
+I:70:37:0
+W:30:0:5:250
+A:30/1
+D:It gives protection from evil creature less powerful than your saving throw 
+D:for a time based on your device skill when you read it.
+
+N:210:Satisfy Hunger
+G: :d:200
+I:70:32:0
+W:5:0:5:10
+A:5/1:20/1:50/1:75/1
+D:It makes you as full as possible without problem, but no more than that, 
+D:when you read it.
+
+N:211:Dispel Undead
+G: :d:200
+I:70:42:0
+W:40:0:5:200
+A:40/1
+D:It does 60 damage to all undead monsters you can see when you read it.
+
+N:212:*Enchant Weapon*
+G: :d:200
+I:70:21:0
+W:50:0:5:500
+A:50/1
+D:It tries to increase a weapon's to-hit and to-dam 1-3 times each when you 
+D:read it.
+
+N:213:Curse Weapon
+G: :d:200
+I:70:3:0
+W:50:0:5:0
+A:50/1
+D:It tries to shatter your weapon when you read it.
+
+N:214:*Enchant Armor*
+G: :d:200
+I:70:20:0
+W:50:0:5:500
+A:50/1:50/1
+D:It tries to increase an armour's AC bonus 3-5 times when you read it.
+
+N:215:Curse Armor
+G: :d:200
+I:70:2:0
+W:50:0:5:0
+A:50/1
+D:It tries to blast your body armour when you read it.
+
+N:216:Summon Undead
+G: :d:200
+I:70:5:0
+W:15:0:5:0
+A:15/1
+D:It summons several undead monsters as enemy when you read it.
+
+N:217:Blessing
+G: :d:200
+I:70:33:0
+W:1:0:5:15
+A:1/1
+D:It blesses you for 7-18 turns when you read it.
+
+N:218:Holy Chant
+G: :d:200
+I:70:34:0
+W:10:0:5:40
+A:10/1
+D:It blesses you for 13-36 turns when you read it.
+
+N:219:Holy Prayer
+G: :d:200
+I:70:35:0
+W:25:0:5:80
+A:25/1
+D:It blesses you for 25-72 when you read it.
+
+N:220:Word of Recall
+G: :d:200
+I:70:11:0
+W:5:0:5:150
+A:5/1
+D:It causes you to be recalled to or from a dungeon 16-35 turns after you 
+D:read it.
+
+N:221:*Destruction*
+G: :d:200
+I:70:41:0
+W:40:0:5:250
+A:40/1
+D:It destroys everything except for artefacts in a 15 square radius when you 
+D:read it.
+
+##### Potions #####
+
+N:222:Slime Mold Juice
+G: :d:6
+I:75:2:400
+W:0:0:4:2
+A:0/1
+P:0:1d1:0:0:0
+D:It tastes weird.
+
+N:223:Apple Juice
+G: :d:5
+I:75:1:250
+W:0:0:4:1
+A:0/1
+P:0:1d1:0:0:0
+D:It tastes sweet.
+
+N:224:Water
+G: :d:4
+I:75:0:200
+W:0:0:4:1
+A:0/1
+P:0:1d1:0:0:0
+D:It is just water.
+
+N:225:Strength
+G: :d:8
+I:75:48:0
+W:20:0:4:8000
+A:20/6:25/3:30/1
+P:0:1d1:0:0:0
+D:It increases your strength (if possible) when you drink it.
+
+N:226:Weakness
+G: :d:8
+I:75:16:0
+W:3:0:4:0
+A:3/1
+P:0:3d12:0:0:0
+D:It decreases your strength (if possible) when you drink it.
+
+N:227:Restore Strength
+G: :d:8
+I:75:42:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+D:It restores your strength (if drained) when you drink it.
+
+N:228:Intelligence
+G: :d:8
+I:75:49:0
+W:20:0:4:8000
+A:20/6:25/3:30/1
+P:0:1d1:0:0:0
+D:It increases your intellingence (if possible) when you drink it.
+
+N:229:Stupidity
+G: :d:8
+I:75:17:0
+W:20:0:4:0
+A:20/1
+P:0:1d1:0:0:0
+D:It decreases your intelligence (if possible) when you drink it.
+
+N:230:Restore Intelligence
+G: :d:8
+I:75:43:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+D:It restores your intelligence (if drained) when you drink it.
+
+N:231:Wisdom
+G: :d:8
+I:75:50:0
+W:20:0:4:8000
+A:20/6:25/3:30/1
+P:0:1d1:0:0:0
+D:It increases your wisdom (if possible) when you drink it.
+
+N:232:Naivety
+G: :d:8
+I:75:18:0
+W:20:0:4:0
+A:20/1
+P:0:1d1:0:0:0
+D:It decreases your wisdom (if possible) when you drink it.
+
+N:233:Restore Wisdom
+G: :d:8
+I:75:44:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+D:It restores your wisdom (if drained) when you drink it.
+
+N:234:Charisma
+G: :d:8
+I:75:53:0
+W:20:0:4:8000
+A:20/1:25/1
+P:0:1d1:0:0:0
+D:It increases your charisma (if possible) when you drink it.
+
+N:235:Ugliness
+G: :d:8
+I:75:21:0
+W:20:0:4:0
+A:20/1
+P:0:1d1:0:0:0
+D:It decreases your charisma (if possible) when you drink it.
+
+N:236:Restore Charisma
+G: :d:8
+I:75:47:0
+W:20:0:4:300
+A:20/1
+P:0:1d1:0:0:0
+D:It restores your charisma (if drained) when you drink it.
+
+N:237:Curing
+G: :d:8
+I:75:61:100
+W:18:0:4:250
+A:18/1,40/1
+P:0:1d1:0:0:0
+D:It heals you by 50 points and cures blindness, poison, confusion, stunning, 
+D:cuts and hallucination when you drink it.
+
+# Note! Invulnerability decreases your food...
+
+N:238:Invulnerability
+G: :d:8
+I:75:62:-2500
+W:90:0:4:100000
+A:90/9
+P:0:1d1:0:0:0
+D:You become invulnerable against 12/13 of attacks for 8-14 turns after you 
+D:drink it.
+
+N:239:New Life
+G: :d:8
+I:75:63:100
+W:50:0:4:750000
+A:50/20:100/10:120/5
+P:0:1d1:0:0:0
+D:It shuffles the hit points gained with each point of skill and removes 
+D:your chaos features.
+
+N:240:Cure Serious Wounds
+G: :d:8
+I:75:35:100
+W:3:0:4:40
+A:3/1
+P:0:1d1:0:0:0
+D:It heals you by 4d8 points, cures blindness and confusion and lessens the 
+D:severity of cuts when you drink it.
+
+N:241:Cure Critical Wounds
+G: :d:8
+I:75:36:100
+W:5:0:4:100
+A:5/1
+P:0:1d1:0:0:0
+D:It heals you by 6d8 points and cures blindness, confusion, poison, stunning 
+D:and cuts when you drink it.
+
+N:242:Healing
+G: :d:8
+I:75:37:200
+W:15:0:4:300
+A:15/1:30/1:60/1
+P:0:1d1:0:0:0
+D:It heals you by 300 points and cures blindness, confusion, poison, stunning 
+D:and cuts when you drink it.
+
+N:243:Constitution
+G: :d:8
+I:75:52:0
+W:20:0:4:8000
+A:20/6:25/3:30/1
+P:0:1d1:0:0:0
+D:It increases your constitution (if possible) when you drink it.
+
+N:244:Experience
+G: :d:8
+I:75:59:0
+W:65:0:4:25000
+A:65/1
+P:0:1d1:0:0:0
+D:It attempts to improve a random skill 200 times when you drink it.
+
+N:245:Sleep
+G: :d:8
+I:75:11:100
+W:0:0:4:0
+A:0/1
+P:0:1d1:0:0:0
+D:It tries to paralyse you for 5-8 turns when you drink it.
+
+N:246:Blindness
+G: :d:8
+I:75:7:0
+W:0:0:4:0
+A:0/1
+P:0:1d1:0:0:0
+D:It tries to blind you for 101-200 turns when you drink it.
+
+N:247:Booze
+G: :d:8
+I:75:9:50
+W:0:0:4:0
+A:0/1
+P:0:1d1:0:0:0
+D:It tries to confuse you and sometimes also to make you hallucinate or forget 
+D:things, and teleport you.
+
+N:248:Poison
+G: :d:8
+I:75:6:0
+W:3:0:4:0
+A:3/1
+P:0:1d1:0:0:0
+D:It tries to poison you for 11-25 turns when you drink it.
+
+N:249:Speed
+G: :d:8
+I:75:29:0
+W:1:0:4:75
+A:1/1:40/1:60/1
+P:0:1d1:0:0:0
+D:It speeds you up for 16-40 turns (or another 5 turns if already hasted) when 
+D:you drink it.
+
+N:250:Slowness
+G: :d:8
+I:75:4:50
+W:1:0:4:0
+A:1/1
+P:0:1d1:0:0:0
+D:It slows you down for 16-40 turns when you drink it.
+
+N:251:Dexterity
+G: :d:8
+I:75:51:0
+W:20:0:4:8000
+A:20/6:25/3:30/1
+P:0:1d1:0:0:0
+D:It increases your dexterity (if possible) when you drink it.
+
+N:252:Restore Dexterity
+G: :d:8
+I:75:45:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+D:It restores your dexterity (if drained) when you drink it.
+
+N:253:Restore Constitution
+G: :d:8
+I:75:46:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+D:It restores your constitution (if drained) when you drink it.
+
+N:254:Lose Memories
+G: :d:8
+I:75:13:0
+W:10:0:4:0
+A:10/1
+P:0:1d1:0:0:0
+D:It tries to decrease your skills 10 times when you drink it.
+
+N:255:Salt Water
+G: :d:8
+I:75:5:0
+W:0:0:4:0
+A:0/1
+P:0:1d1:0:0:0
+D:It makes you starve and paralyses you, but removes any poisons from your 
+D:system when you drink it.
+
+N:256:Enlightenment
+G: :d:8
+I:75:56:0
+W:25:0:4:800
+A:25/1:50/1:100/1
+P:0:1d1:0:0:0
+D:It maps, lights permanently and detects all items on the entire level when 
+D:you drink it.
+
+N:257:Heroism
+G: :d:8
+I:75:32:0
+W:1:0:4:35
+A:1/1
+P:0:1d1:0:0:0
+D:It makes you immune to fear and better at hitting things by 12, and gives 
+D:you 10 extra hit points for 26-50 turns as you drink it.
+
+N:258:Berserk Strength
+G: :d:8
+I:75:33:0
+W:3:0:4:100
+A:3/1
+P:0:1d1:0:0:0
+D:It makes you immune to fear and better at hitting things by 24 (but decreases 
+D:your armour by 10) and gives you 30 extra hit points for 26-50 turns as you 
+D:drink it.
+
+N:259:Boldness
+G: :d:8
+I:75:28:0
+W:1:0:4:10
+A:1/1
+P:0:1d1:0:0:0
+D:It removes fear when you drink it.
+
+N:260:Restore Life Levels
+G: :d:8
+I:75:41:0
+W:40:0:4:400
+A:40/1
+P:0:1d1:0:0:0
+D:It restores your skills when you drink it.
+
+N:261:Resist Heat
+G: :d:8
+I:75:30:0
+W:1:0:4:30
+A:1/1
+P:0:1d1:0:0:0
+D:It gives you extra heat resistance for 11-20 turns after you drink it.
+
+N:262:Resist Cold
+G: :d:8
+I:75:31:0
+W:1:0:4:30
+A:1/1
+P:0:1d1:0:0:0
+D:It gives you extra cold resistance for 11-20 turns after you drink it.
+
+N:263:Detect Invisible
+G: :d:8
+I:75:25:0
+W:3:0:4:50
+A:3/1
+P:0:1d1:0:0:0
+D:It allows you to see invisible monsters for 13-24 turns after you drink it.
+
+N:264:Slow Poison
+G: :d:8
+I:75:26:0
+W:1:0:4:25
+A:1/1
+P:0:1d1:0:0:0
+D:It reduces the effects of poison when you drink it.
+
+N:265:Neutralize Poison
+G: :d:8
+I:75:27:0
+W:5:0:4:75
+A:5/1
+P:0:1d1:0:0:0
+D:It cures poison when you drink it.
+
+N:266:Restore Mana
+G: :d:8
+I:75:40:0
+W:25:0:4:350
+A:25/1
+P:0:1d1:0:0:0
+D:It restores mana and chi to full when you drink it.
+
+N:267:Infra-vision
+G: :d:8
+I:75:24:0
+W:3:0:4:20
+A:3/1
+P:0:1d1:0:0:0
+D:It gives you 10' of extra infravision for 13-24 turns after you drink it.
+
+N:268:Resistance
+G: :d:8
+I:75:60:100
+W:20:0:4:250
+A:20/1:45/1:80/1:100/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:It gives you extra resistance to acid, electricity, fire, cold and poison 
+D:for 21-40 turns after you drink it.
+
+
+##### Wands #####
+# Note : some of the old wands have been taken higher (low level characters
+# really need them and they used to be higher in earlier versions...)
+
+N:269:Light
+G: :d:9
+I:65:7:0
+W:3:0:10:200
+A:3/1
+P:0:1d1:0:0:0
+D:It fires a line of light (causing 6d8 damage to vulnerable monsters) when 
+D:you use it.
+
+N:270:Tame Monster
+G: :d:9
+I:65:17:0
+W:30:0:10:1500
+A:30/2
+P:0:1d1:0:0:0
+D:It tries to turn a monster into your pet when you use it.
+
+N:271:Frost Bolts
+G: :d:9
+I:65:19:0
+W:20:0:10:800
+A:20/1
+P:0:1d1:0:0:0
+D:It fires a bolt or beam of cold for 3d8 damage when you use it.
+
+N:272:Fire Bolts
+G: :d:9
+I:65:18:0
+W:30:0:10:1000
+A:30/1
+P:0:1d1:0:0:0
+D:It fires a bolt or beam of fire for 6d8 damage when you use it.
+
+# More common now...
+N:273:Stone to Mud
+G: :d:9
+I:65:6:0
+W:10:0:10:300
+A:10/1:40/1:80/1
+P:0:1d1:0:0:0
+D:It turns a door, rock or wall square to mud when you use it.
+
+N:274:Polymorph
+G: :d:9
+I:65:13:0
+W:20:0:10:400
+A:20/1
+P:0:1d1:0:0:0
+D:It tries to change a monster into another when you use it.
+
+N:275:Heal Monster
+G: :d:9
+I:65:0:0
+W:2:0:10:0
+A:2/1
+P:0:1d1:0:0:0
+D:It heals a monster (if possible) when you use it.
+
+N:276:Haste Monster
+G: :d:9
+I:65:1:0
+W:2:0:10:0
+A:2/1
+P:0:1d1:0:0:0
+D:It speeds a monster up (if not already hasted) when you use it.
+
+N:277:Slow Monster
+G: :d:9
+I:65:9:0
+W:5:0:10:500
+A:2/1
+P:0:1d1:0:0:0
+D:It tries to slow a monster down when you use it.
+
+N:278:Confuse Monster
+G: :d:9
+I:65:10:0
+W:5:0:10:500
+A:3/1
+P:0:1d1:0:0:0
+D:It tries to confuse a monster when you use it.
+
+N:279:Sleep Monster
+G: :d:9
+I:65:8:0
+W:5:0:10:500
+A:5/1
+P:0:1d1:0:0:0
+D:It tries to send a monster to sleep when you use it.
+
+N:280:Drain Life
+G: :d:9
+I:65:12:0
+W:50:0:10:1200
+A:50/1
+P:0:1d1:0:0:0
+D:It causes 75 points of damage to living monsters when you use it.
+
+N:281:Trap/Door Destruction
+G: :d:9
+I:65:5:0
+W:10:0:10:100
+A:10/1
+P:0:1d1:0:0:0
+D:It destroys every trap and door in a line when you use it.
+
+N:282:Magic Missile
+G: :d:9
+I:65:15:0
+W:2:0:10:200
+A:2/1
+P:0:1d1:0:0:0
+D:It fires a bolt or beam which causes 2d6 damage when you use it.
+
+N:283:Clone Monster
+G: :d:9
+I:65:2:0
+W:15:0:10:0
+A:15/1:50/1
+P:0:1d1:0:0:0
+D:It heals and hastes a monster, and tries to clone it when you use it. Unique 
+D:monsters cannot be cloned.
+
+N:284:Scare Monster
+G: :d:9
+I:65:11:0
+W:10:0:10:500
+A:10/4
+P:0:1d1:0:0:0
+D:It tries to scare a monster when you use it.
+
+N:285:Teleport Other
+G: :d:9
+I:65:3:0
+W:20:0:10:350
+A:20/1
+P:0:1d1:0:0:0
+D:It tries to teleport all monsters on a line when you use it.
+
+N:286:Disarming
+G: :d:9
+I:65:4:0
+W:20:0:10:700
+A:20/1
+P:0:1d1:0:0:0
+D:It destroys all traps on a line when you use it.
+
+N:287:Lightning Balls
+G: :d:9
+I:65:21:0
+W:35:0:10:1200
+A:35/1
+P:0:1d1:0:0:0
+F:IGNORE_ELEC
+D:It fires a ball of lightning with a radius of 2 and damage at centre of 32.
+
+N:288:Cold Balls
+G: :d:9
+I:65:23:0
+W:40:0:10:1500
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_COLD
+D:It fires a ball of cold with a radius of 2 and damage at centre of 48.
+
+N:289:Fire Balls
+G: :d:9
+I:65:22:0
+W:50:0:10:1800
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_FIRE
+D:It fires a ball of fire with a radius of 2 and damage at centre of 72.
+
+N:290:Stinking Cloud
+G: :d:9
+I:65:14:0
+W:5:0:10:400
+A:5/1
+P:0:1d1:0:0:0
+D:It fires a ball of poison with a radius of 2 and damage at centre of 12.
+
+N:291:Acid Balls
+G: :d:9
+I:65:20:0
+W:50:0:10:1650
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID
+D:It fires a ball of acid with a radius of 2 and damage at centre of 60.
+
+N:292:Wonder
+G: :d:9
+I:65:24:0
+W:3:0:10:250
+A:3/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:It will cause a random wand effect when you use it.
+
+# XXX 293 XXX
+
+N:294:Acid Bolts
+G: :d:9
+I:65:16:0
+W:30:0:10:950
+A:30/1
+P:0:1d1:0:0:0
+D:It fires a bolt or beam of acid causing 6d8 damage when you use it.
+
+N:295:Dragon's Flame
+G: :d:9
+I:65:26:0
+W:50:0:10:2400
+A:50/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:It fires a ball of fire with a radius of 3 and damage at centre of 100 when 
+D:used.
+
+N:296:Dragon's Frost
+G: :d:9
+I:65:27:0
+W:50:0:10:2400
+A:50/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:It fires a ball of fire with a radius of 3 and damage at centre of 80 when 
+D:used.
+
+N:297:Dragon's Breath
+G: :d:9
+I:65:28:0
+W:60:0:10:2400
+A:60/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:It fires a breath of either fire or acid (100 damage), cold or electricity 
+D:(80 damage) or poison (60 damage) with width 3 when used.
+
+N:298:Annihilation
+G: :d:9
+I:65:25:0
+W:60:0:10:3000
+A:60/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:It causes 125 points of damage to living monsters when you use it.
+
+N:299:Shard Balls
+G: :d:9
+I:65:29:0
+W:75:0:10:95000
+A:75/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:It fires a ball of shards with radius 2 and damage at centre of 76-125 when 
+D:you use it.
+
+
+
+##### Staffs #####
+
+N:300:Trap Location
+G: :d:10
+I:55:12:0
+W:10:0:50:350
+A:10/1
+P:0:1d2:0:0:0
+D:It detects all nearby traps when you use it.
+
+N:301:Treasure Location
+G: :d:10
+I:55:10:0
+W:5:0:50:200
+A:5/1
+P:0:1d2:0:0:0
+D:It detects all nearby treasure when you use it.
+
+N:302:Object Location
+G: :d:10
+I:55:11:0
+W:5:0:50:200
+A:5/1
+P:0:1d2:0:0:0
+D:It detects all nearby objects when you use it.
+
+N:303:Teleportation
+G: :d:10
+I:55:4:0
+W:20:0:50:2000
+A:20/1
+P:0:1d2:0:0:0
+D:It teleports you about 100 squares away when you use it.
+
+N:304:Earthquakes
+G: :d:10
+I:55:28:0
+W:40:0:50:350
+A:40/1
+P:0:1d2:0:0:0
+D:It causes an earthquake with radius 10 around you.
+
+N:305:Summoning
+G: :d:10
+I:55:3:0
+W:10:0:50:0
+A:10/1:50/1
+P:0:1d2:0:0:0
+D:It summons several monsters as enemy when you use it.
+
+N:306:Light
+G: :d:10
+I:55:8:0
+W:5:0:50:250
+A:5/1
+P:0:1d2:0:0:0
+D:It lights up nearby area or current room permanently when you use it, 
+D:causing 2d8 damage to vulnerable monsters within a radius of 2.
+
+N:307:*Destruction*
+G: :d:10
+I:55:29:0
+W:50:0:50:2500
+A:50/1:70/1
+P:0:1d2:0:0:0
+D:It destroys everything except for artefacts in a 15 square radius when you 
+D:use it.
+
+N:308:Starlight
+G: :d:10
+I:55:7:0
+W:20:0:50:800
+A:20/1
+P:0:1d2:0:0:0
+D:It fires a line of light in every direction around you when you use it.
+
+N:309:Haste Monsters
+G: :d:10
+I:55:2:0
+W:10:0:50:0
+A:10/1
+P:0:1d2:0:0:0
+D:It speeds up all unhasted monsters you can see when you use it.
+
+N:310:Slow Monsters
+G: :d:10
+I:55:21:0
+W:10:0:50:800
+A:10/1
+P:0:1d2:0:0:0
+D:It tries to slow all monsters you can see down when you use it.
+
+N:311:Sleep Monsters
+G: :d:10
+I:55:20:0
+W:10:0:50:700
+A:10/1
+P:0:1d2:0:0:0
+D:It tries to send all monsters you can see to sleep when you use it.
+
+N:312:Cure Light Wounds
+G: :d:10
+I:55:16:0
+W:5:0:50:350
+A:5/1
+P:0:1d2:0:0:0
+D:It heals you by 2d8 points when you use it.
+
+N:313:Detect Invisible
+G: :d:10
+I:55:14:0
+W:5:0:50:200
+A:5/1
+P:0:1d2:0:0:0
+D:It detects all nearby invisible monsters when you use it.
+
+N:314:Speed
+G: :d:10
+I:55:22:0
+W:40:0:50:1000
+A:40/1
+P:0:1d2:0:0:0
+D:It speeds you up for 16-45 turns (or another 5 turns if already hasted) when 
+D:you drink it.
+
+N:315:Slowness
+G: :d:10
+I:55:1:0
+W:40:0:50:0
+A:40/1
+P:0:1d2:0:0:0
+D:It slows you down for 16-45 turns when you drink it.
+
+N:316:Door/Stair Location
+G: :d:10
+I:55:13:0
+W:10:0:50:350
+A:10/1
+P:0:1d2:0:0:0
+D:It detects all nearby doors and stairs when you use it.
+
+N:317:Remove Curse
+G: :d:10
+I:55:6:0
+W:40:0:50:500
+A:40/1
+P:0:1d2:0:0:0
+D:It removes normal curses from equipped items when you use it.
+
+N:318:Detect Evil
+G: :d:10
+I:55:15:0
+W:20:0:50:350
+A:20/1
+P:0:1d2:0:0:0
+D:It detects all nearby evil monsters when you use it.
+
+N:319:Curing
+G: :d:10
+I:55:17:0
+W:25:0:50:1000
+A:25/1
+P:0:1d2:0:0:0
+D:It cures blindness, poison, confusion, stunning, cuts and hallucination when 
+D:you use it.
+
+N:320:Dispel Evil
+G: :d:10
+I:55:24:0
+W:50:0:50:1200
+A:50/1
+P:0:1d2:0:0:0
+D:It does 60 damage to every evil monster you can see when you use it.
+
+N:321:Probing
+G: :d:10
+I:55:23:0
+W:30:0:50:2000
+A:30/1
+P:0:1d2:0:0:0
+D:It probes every monster's HP, AC, speed, resistances, drop, etc., when you 
+D:use it.
+
+N:322:Darkness
+G: :d:10
+I:55:0:0
+W:5:0:50:0
+A:5/1:50/1
+P:0:1d2:0:0:0
+D:It darkens nearby area or current room and blinds you for 4-8 turns when you 
+D:use it.
+
+N:323:Genocide
+G: :d:10
+I:55:27:0
+W:70:0:50:3500
+A:70/4
+P:0:1d2:0:0:0
+D:It removes all nearby monsters which have the given default symbol from the 
+D:current level (except for those which resist) when you use it.
+
+N:324:Power
+G: :d:10
+I:55:25:0
+W:70:0:50:4000
+A:70/2
+P:0:1d2:0:0:0
+D:It causes 120 points of damage to all monsters you can see when you use it.
+
+N:325:the Magi
+G: :d:10
+I:55:19:0
+W:70:0:50:4500
+A:70/2
+P:0:1d2:0:0:0
+D:It restores your intelligence, spell points and chi when you use it.
+
+N:326:Perception
+G: :d:10
+I:55:5:0
+W:10:0:50:400
+A:10/1
+P:0:1d2:0:0:0
+D:It identifies an item when you use it.
+
+N:327:Holiness
+G: :d:10
+I:55:26:0
+W:70:0:50:4500
+A:70/2
+P:0:1d2:0:0:0
+D:It causes 120 points of damage to all evil monsters in sight, gives temporary 
+D:protection from evil creature less powerful than your saving throw, and cures 
+D:poison, stunning, cuts and fear and heals you by 50 points when you use it.
+
+N:328:Enlightenment
+G: :d:10
+I:55:9:0
+W:20:0:50:750
+A:20/1
+P:0:1d2:0:0:0
+D:It maps your surroundings when you use it.
+
+N:329:Healing
+G: :d:10
+I:55:18:0
+W:70:0:50:5000
+A:70/2
+P:0:1d2:0:0:0
+D:It heals you 300 and cures cuts and stunning when you use it.
+
+
+##### Sorcery Books #####
+
+N:334:[Beginner's Handbook]
+G:?:B:201
+I:90:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:335:[Master Sorcerer's Handbook]
+G:?:B:201
+I:90:1:0
+W:20:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:336:[R'Lyeh Text]
+G:?:b:201
+I:90:2:0
+W:40:0:30:25000
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:337:[Unausprechlichen Kulten]
+G:?:b:201
+I:90:3:0
+W:90:0:30:100000
+A:90/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+##### Chests #####
+
+N:338:& Small wooden chest~
+G:~:s:0
+I:7:1:0
+W:5:0:250:20
+A:5/1
+P:0:2d3:0:0:0
+
+N:339:& Large wooden chest~
+G:~:s:0
+I:7:5:0
+W:15:0:500:60
+A:15/1
+P:0:2d5:0:0:0
+
+N:340:& Small iron chest~
+G:~:s:0
+I:7:2:0
+W:25:0:300:100
+A:25/1
+P:0:2d4:0:0:0
+
+N:341:& Large iron chest~
+G:~:s:0
+I:7:6:0
+W:35:0:1000:150
+A:35/1
+P:0:2d6:0:0:0
+
+N:342:& Small steel chest~
+G:~:s:0
+I:7:3:0
+W:45:0:500:200
+A:45/1
+P:0:2d4:0:0:0
+
+N:343:& Large steel chest~
+G:~:s:0
+I:7:7:0
+W:55:0:1000:250
+A:55/1
+P:0:2d6:0:0:0
+
+N:344:& Ruined chest~
+G:~:s:0
+I:7:0:0
+W:0:0:250:0
+A:75/1
+
+
+##### Various Stuff #####
+
+N:345:& Iron Spike~
+G:~:W:0
+I:5:0:0
+W:1:0:10:1
+A:1/1
+P:0:1d1:0:0:0
+
+N:346:& Wooden Torch~
+G:~:u:0
+I:39:0:4000
+W:1:0:30:2
+A:1/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:347:& Brass Lantern~
+G:~:U:0
+I:39:1:7500
+W:3:0:50:35
+A:3/1
+P:0:1d1:0:0:0
+F:EASY_KNOW | IGNORE_FIRE
+
+N:348:& Flask~ of oil
+G:!:y:0
+I:77:0:7500
+W:1:0:10:3
+A:1/1
+P:0:2d6:0:0:0
+
+N:349:& Empty Bottle~
+G:!:w:0
+I:2:1:0
+W:0:0:2:1
+A:0/1
+P:0:1d1:0:0:0
+
+
+
+
+##### Here are the Rods #####
+
+N:350:Havoc
+G: :d:11
+I:66:28:0
+W:95:0:15:150000
+A:100/16
+P:0:1d1:0:0:0
+D:It fires randomly in random directions when you zap it.
+
+N:351:Door/Stair Location
+G: :d:11
+I:66:1:0
+W:15:0:15:1000
+A:15/1
+P:0:1d1:0:0:0
+D:It detects all nearby doors and stairs when you zap it.
+
+N:352:Trap Location
+G: :d:11
+I:66:0:0
+W:5:0:15:100
+A:5/1
+P:0:1d1:0:0:0
+D:It detects all nearby traps when you zap it.
+
+N:353:Probing
+G: :d:11
+I:66:7:0
+W:40:0:15:4000
+A:40/4
+P:0:1d1:0:0:0
+D:It probes a monster's HP, AC, speed, resistances, drop, etc., when you zap 
+D:it.
+
+N:354:Recall
+G: :d:11
+I:66:3:0
+W:30:0:15:4000
+A:30/4
+P:0:1d1:0:0:0
+D:It causes you to be recalled to or from a dungeon 16-35 turns after you 
+D:zap it.
+
+N:355:Illumination
+G: :d:11
+I:66:4:0
+W:20:0:15:1000
+A:20/1
+P:0:1d1:0:0:0
+D:It confuses you when you eat it.
+
+N:356:Light
+G: :d:11
+I:66:15:0
+W:10:0:15:500
+A:10/1
+P:0:1d1:0:0:0
+D:It fires a line of light (causing 6d8 damage to vulnerable monsters) when 
+D:you zap it.
+
+N:357:Lightning Bolts
+G: :d:11
+I:66:21:0
+W:20:0:15:2000
+A:20/1
+P:0:1d1:0:0:0
+D:It fires a bolt or beam of lightning for 3d8 damage when you zap it.
+
+N:358:Frost Bolts
+G: :d:11
+I:66:23:0
+W:25:0:15:2500
+A:25/1
+P:0:1d1:0:0:0
+D:It fires a bolt or beam of cold for 5d8 damage when you zap it.
+
+N:359:Fire Bolts
+G: :d:11
+I:66:22:0
+W:30:0:15:3000
+A:30/1
+P:0:1d1:0:0:0
+D:It fires a bolt or beam of fire for 8d8 damage when you zap it.
+
+N:360:Polymorph
+G: :d:11
+I:66:19:0
+W:35:0:15:1200
+A:35/1
+P:0:1d1:0:0:0
+D:It tries to change a monster into another when you zap it.
+
+N:361:Slow Monster
+G: :d:11
+I:66:17:0
+W:30:0:15:1500
+A:30/1
+P:0:1d1:0:0:0
+D:It tries to slow a monster down when you zap it.
+
+N:362:Sleep Monster
+G: :d:11
+I:66:16:0
+W:30:0:15:1500
+A:30/1
+P:0:1d1:0:0:0
+D:It tries to send a monster to sleep when you zap it.
+
+N:363:Drain Life
+G: :d:11
+I:66:18:0
+W:75:0:15:3600
+A:75/4
+P:0:1d1:0:0:0
+D:It causes 75 points of damage to living monsters when you use it.
+
+N:364:Teleport Other
+G: :d:11
+I:66:13:0
+W:45:0:15:1400
+A:45/2
+P:0:1d1:0:0:0
+D:It tries to teleport all monsters on a line when you use it.
+
+N:365:Disarming
+G: :d:11
+I:66:14:0
+W:35:0:15:2100
+A:35/1
+P:0:1d1:0:0:0
+D:It destroys all traps on a line when you zap it.
+
+N:366:Lightning Balls
+G: :d:11
+I:66:25:0
+W:55:0:15:4000
+A:55/1
+P:0:1d1:0:0:0
+D:It fires a ball of electricity with a radius of 2 and damage at centre of 32.
+
+N:367:Cold Balls
+G: :d:11
+I:66:27:0
+W:60:0:15:4500
+A:60/1
+P:0:1d1:0:0:0
+D:It fires a ball of cold with a radius of 2 and damage at centre of 48.
+
+N:368:Fire Balls
+G: :d:11
+I:66:26:0
+W:75:0:15:5000
+A:75/1
+P:0:1d1:0:0:0
+D:It fires a ball of fire with a radius of 2 and damage at centre of 72.
+
+N:369:Acid Balls
+G: :d:11
+I:66:24:0
+W:70:0:15:5500
+A:70/1
+P:0:1d1:0:0:0
+D:It fires a ball of acid with a radius of 2 and damage at centre of 60.
+
+N:370:Acid Bolts
+G: :d:11
+I:66:20:0
+W:40:0:15:3500
+A:40/1
+P:0:1d1:0:0:0
+D:It fires a bolt or beam of acid (damage: (6+level/7)d8) when you zap it.
+
+N:371:Enlightenment
+G: :d:11
+I:66:5:0
+W:65:0:15:10000
+A:65/4
+P:0:1d1:0:0:0
+D:It maps your surroundings when you zap it.
+
+N:372:Perception
+G: :d:11
+I:66:2:0
+W:50:0:15:13000
+A:50/8,100/8
+P:0:1d1:0:0:0
+D:It identifies an item when you zap it.
+
+N:373:Curing
+G: :d:11
+I:66:8:0
+W:65:0:15:15000
+A:65/8
+P:0:1d1:0:0:0
+D:It cures blindness, poison, confusion, stunning, cuts and hallucination when 
+D:you zap it.
+
+N:374:Healing
+G: :d:11
+I:66:9:0
+W:80:0:15:20000
+A:80/8
+P:0:1d1:0:0:0
+D:It heals you 500 and cures stunning and cuts when you zap it.
+
+N:375:Detection
+G: :d:11
+I:66:6:0
+W:30:0:15:5000
+A:30/8
+P:0:1d1:0:0:0
+D:It detects all nearby traps, doors, stairs, treasures, items and monsters 
+D:when you zap it.
+
+N:376:Restoration
+G: :d:11
+I:66:10:0
+W:80:0:15:25000
+A:80/16
+P:0:1d1:0:0:0
+D:It restores your skills and stats when you zap it.
+
+N:377:Speed
+G: :d:11
+I:66:11:0
+W:95:0:15:50000
+A:95/16
+P:0:1d1:0:0:0
+D:It speeds you up for 16-40 turns (or another 5 turns if already hasted) when 
+D:you zap it.
+
+##### Charms #####
+
+N:378:& Lump~ of Sulphur
+G:*:y:0
+I:94:0:0
+W:10:0:02:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:379:& Hemlock Twig~
+G:-:u:0
+I:94:1:0
+W:10:0:02:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:380:& Silver Unicorn Horn~
+G:-:s:0
+I:94:2:0
+W:10:0:02:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:381:& Crystal~
+G:*:w:0
+I:94:3:0
+W:10:0:02:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:382:& Fly Agaric Toadstool~
+G:,:R:0
+I:94:4:0
+W:10:0:02:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:383:& Clove~ of Garlic
+G:,:s:0
+I:94:5:0
+W:10:0:02:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:384:& Geode~
+G:*:u:0
+I:94:6:0
+W:10:0:02:100
+A:10/1
+P:0:1d1:0:0:0
+
+##### Thaumaturgy Spellbooks #####
+
+N:385:[Sign of Chaos]
+G:?:R:202
+I:91:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:386:[Chaos Mastery]
+G:?:R:202
+I:91:1:0
+W:20:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:387:[The King in Yellow]
+G:?:r:202
+I:91:2:0
+W:50:0:30:25000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:388:[Revelations of Glaaki]
+G:?:r:202
+I:91:3:0
+W:100:0:30:100000
+A:100/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+##### Junk #####
+
+N:389:& Shard~ of Pottery
+G:~:r:0
+I:3:3:0
+W:0:0:5:0
+A:0/1
+P:0:1d1:0:0:0
+
+N:390:& Broken Stick~
+G:~:r:0
+I:3:6:0
+W:0:0:3:0
+A:0/1
+P:0:1d1:0:0:0
+
+
+##### Skeletons #####
+
+N:391:& Broken Skull~
+G:~:w:0
+I:1:1:0
+W:0:0:1:0
+A:0/1
+P:0:1d1:0:0:0
+
+N:392:& Broken Bone~
+G:~:w:0
+I:1:2:0
+W:0:0:2:0
+A:0/1
+P:0:1d1:0:0:0
+
+N:393:& Canine Skeleton~
+G:~:w:0
+I:1:4:0
+W:1:0:10:0
+A:1/1
+P:0:1d1:0:0:0
+
+N:394:& Rodent Skeleton~
+G:~:w:0
+I:1:3:0
+W:1:0:10:0
+A:1/1
+P:0:1d1:0:0:0
+
+N:395:& Human Skeleton~
+G:~:w:0
+I:1:8:0
+W:5:0:60:0
+A:5/1
+P:0:1d2:0:0:0
+
+N:396:& Dwarf Skeleton~
+G:~:w:0
+I:1:7:0
+W:5:0:50:0
+A:5/1
+P:0:1d2:0:0:0
+
+N:397:& Elf Skeleton~
+G:~:w:0
+I:1:6:0
+W:5:0:40:0
+A:5/1
+P:0:1d2:0:0:0
+
+N:398:& Gnome Skeleton~
+G:~:w:0
+I:1:5:0
+W:5:0:30:0
+A:5/1
+P:0:1d2:0:0:0
+
+## XXX 399 XXX ##
+
+
+##### Dragon Scale Mail #####
+
+N:400:Black Dragon Scale Mail~
+G:[:s:0
+I:38:1:0
+W:60:0:200:30000
+A:60/8
+P:30:2d4:-2:0:10
+F:RES_ACID |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:401:Blue Dragon Scale Mail~
+G:[:b:0
+I:38:2:0
+W:40:0:200:35000
+A:40/8
+P:30:2d4:-2:0:10
+F:RES_ELEC |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:402:White Dragon Scale Mail~
+G:[:w:0
+I:38:3:0
+W:50:0:200:40000
+A:50/8
+P:30:2d4:-2:0:10
+F:RES_COLD |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:403:Red Dragon Scale Mail~
+G:[:r:0
+I:38:4:0
+W:80:0:200:100000
+A:80/8
+P:30:2d4:-2:0:10
+F:RES_FIRE |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:404:Green Dragon Scale Mail~
+G:[:g:0
+I:38:5:0
+W:70:0:200:80000
+A:70/8
+P:30:2d4:-2:0:10
+F:RES_POIS |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:405:Multi-Hued Dragon Scale Mail~
+G:[:v:0
+I:38:6:0
+W:100:0:200:150000
+A:100/16
+P:30:2d4:-2:0:10
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:406:Pseudo Dragon Scale Mail~
+G:[:v:0
+I:38:10:0
+W:65:0:200:60000
+A:65/16
+P:30:2d4:-2:0:10
+F:RES_LITE | RES_DARK |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:407:Law Dragon Scale Mail~
+G:[:B:0
+I:38:12:0
+W:80:0:200:80000
+A:80/16
+P:30:2d4:-2:0:10
+F:RES_SOUND | RES_SHARDS |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:408:Bronze Dragon Scale Mail~
+G:[:U:0
+I:38:14:0
+W:55:0:200:30000
+A:55/8
+P:30:2d4:-2:0:10
+F:RES_CONF |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:409:Gold Dragon Scale Mail~
+G:[:y:0
+I:38:16:0
+W:65:0:200:40000
+A:65/8
+P:30:2d4:-2:0:10
+F:RES_SOUND |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:410:Chaos Dragon Scale Mail~
+G:[:v:0
+I:38:18:0
+W:75:0:200:70000
+A:75/16
+P:30:2d4:-2:0:10
+F:RES_CHAOS | RES_DISEN |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:411:Balance Dragon Scale Mail~
+G:[:v:0
+I:38:20:0
+W:90:0:200:100000
+A:90/16
+P:30:2d4:-2:0:10
+F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:412:Power Dragon Scale Mail~
+G:[:v:0
+I:38:30:0
+W:110:0:250:350000
+A:110/64
+P:40:2d4:-3:0:15
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
+F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
+F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+## PDSM has been restored to (almost) its former glory in Zangband
+
+N:413:& Dragon Helm~
+G:]:G:0
+I:32:7:0
+W:45:0:50:10000
+A:80/4
+P:8:1d3:0:0:10
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+
+N:414:& Dragon Shield~
+G:[:G:0
+I:34:6:0
+W:70:0:100:10000
+A:80/4
+P:8:1d3:0:0:10
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+
+##### Extra potions #####
+
+N:415:Iocaine
+G: :d:8
+I:75:23:0
+W:55:0:4:0
+A:55/4
+P:0:20d20:0:0:0
+D:It causes 5000 points of damage when you drink it.
+
+N:416:Ruination
+G: :d:8
+I:75:15:0
+W:40:0:4:0
+A:40/8
+P:0:20d20:0:0:0
+D:It causes you 10d10 damage and decreases your stats permanently when you 
+D:drink it.
+
+N:417:Detonations
+G: :d:8
+I:75:22:0
+W:60:0:4:10000
+A:60/8
+P:0:25d25:0:0:0
+D:It causes 50d20 damage and stuns and cuts you when you drink it.
+
+N:418:Augmentation
+G: :d:8
+I:75:55:0
+W:40:0:4:60000
+A:40/16
+P:0:1d1:0:0:0
+D:It increases all your stats (where possible) when you drink it.
+
+N:419:*Healing*
+G: :d:8
+I:75:38:0
+W:40:0:4:1500
+A:40/4:60/2:80/1
+P:0:1d1:0:0:0
+D:It heals you by 1200 points and cures blindness, confusion, poison, stunning 
+D:and cuts when you drink it.
+
+N:420:Life
+G: :d:8
+I:75:39:0
+W:60:0:4:5000
+A:60/4:100/2
+P:0:1d1:0:0:0
+D:It heals you by 5000 points, restores your skills and stats, and cures 
+D:poison, blindness, confusion, poison, stunning and hallucination 
+D:when you drink it.
+
+N:421:Self Knowledge
+G: :d:8
+I:75:58:0
+W:40:0:4:2000
+A:40/1
+P:0:1d1:0:0:0
+D:It gives information about yourself when you drink it.
+
+N:422:*Enlightenment*
+G: :d:8
+I:75:57:0
+W:70:0:4:80000
+A:70/4
+P:0:1d1:0:0:0
+D:It maps, lights permanently and detects all items on the entire level, 
+D:increases your intelligence and wisdom, detects all nearby traps, doors, 
+D:stairs, treasure and items, identifies all items in your pack and gives 
+D:information about yourself when you drink it.
+
+N:425:Fear Resistance
+G: :d:2
+I:45:38:0
+W:10:0:2:300 
+A:10/2
+F:RES_FEAR | EASY_KNOW
+
+N:426:Light and Darkness Resistance
+G: :d:2
+I:45:39:0
+W:30:0:2:3000
+A:30/2
+F:RES_LITE | RES_DARK | EASY_KNOW
+
+N:427:Nether Resistance
+G: :d:2
+I:45:40:0
+W:34:0:2:14500
+A:34/2
+F:RES_NETHER | HOLD_LIFE | EASY_KNOW
+
+N:428:Nexus Resistance
+G: :d:2
+I:45:41:0
+W:24:0:2:3000
+A:24/2
+F:RES_NEXUS | EASY_KNOW
+
+N:429:Sound Resistance
+G: :d:2
+I:45:42:0
+W:26:0:2:3000
+A:26/2
+F:RES_SOUND | EASY_KNOW
+
+N:430:Confusion Resistance
+G: :d:2
+I:45:43:0
+W:22:0:2:3000
+A:22/2
+F:RES_CONF | EASY_KNOW
+
+N:431:Shard Resistance
+G: :d:2
+I:45:44:0
+W:25:0:2:3000
+A:25/2
+F:RES_SHARDS | EASY_KNOW
+
+N:432:Disenchantment Resistance
+G: :d:2
+I:45:45:0
+W:90:0:2:15000
+A:90/10
+F:RES_DISEN | EASY_KNOW
+
+N:433:Chaos Resistance
+G: :d:2
+I:45:46:0
+W:50:0:2:13000
+A:50/2
+F:RES_CHAOS | RES_CONF | EASY_KNOW
+
+N:434:Blindness Resistance
+G: :d:2
+I:45:47:0
+W:60:0:2:7500
+A:60/2
+F:RES_BLIND | EASY_KNOW
+
+N:435:Lordly Protection
+G: :d:2
+I:45:48:0
+W:100:0:2:100000
+A:100/5
+F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT | RAND_RESIST
+
+N:436:Extra Attacks
+G: :d:2
+I:45:49:0
+W:50:0:2:100000
+A:50/2
+F:BLOWS
+
+N:437:Cure Light Wounds
+G: :d:8
+I:75:34:50
+W:0:0:4:15
+A:0/1:1/1:3/1
+P:0:1d1:0:0:0
+D:It heals you 2d8, cures blindness and lessens the severity of cuts 
+D:when you drink it.
+
+N:438:Clumsiness
+G: :d:8
+I:75:19:0
+W:5:0:4:0
+A:5/1
+P:0:1d1:0:0:0
+D:It decreases your dexterity (if possible) when you drink it.
+
+N:439:Sickliness
+G: :d:8
+I:75:20:0
+W:10:0:4:0
+A:10/1
+P:0:1d1:0:0:0
+D:It decreases your constitution (if possible) when you drink it.
+
+##### And here starts the gold/gems #####
+
+N:480:copper
+G:$:u:0
+I:100:1:0
+W:1:0:0:3
+
+N:481:copper
+G:$:u:0
+I:100:2:0
+W:1:0:0:4
+
+N:482:copper
+G:$:u:0
+I:100:3:0
+W:1:0:0:5
+
+N:483:silver
+G:$:s:0
+I:100:4:0
+W:1:0:0:6
+
+N:484:silver
+G:$:s:0
+I:100:5:0
+W:1:0:0:7
+
+N:485:silver
+G:$:s:0
+I:100:6:0
+W:1:0:0:8
+
+N:486:garnets
+G:$:r:0
+I:100:7:0
+W:1:0:0:9
+
+N:487:garnets
+G:$:r:0
+I:100:8:0
+W:1:0:0:10
+
+N:488:gold
+G:$:y:0
+I:100:9:0
+W:1:0:0:12
+
+N:489:gold
+G:$:y:0
+I:100:10:0
+W:1:0:0:14
+
+N:490:gold
+G:$:y:0
+I:100:11:0
+W:1:0:0:16
+
+N:491:opals
+G:$:W:0
+I:100:12:0
+W:1:0:0:18
+
+N:492:sapphires
+G:$:b:0
+I:100:13:0
+W:1:0:0:20
+
+N:493:rubies
+G:$:r:0
+I:100:14:0
+W:1:0:0:24
+
+N:494:diamonds
+G:$:w:0
+I:100:15:0
+W:1:0:0:28
+
+N:495:emeralds
+G:$:g:0
+I:100:16:0
+W:1:0:0:32
+
+N:496:mithril
+G:$:B:0
+I:100:17:0
+W:1:0:0:40
+
+N:497:adamantite
+G:$:G:0
+I:100:18:0
+W:1:0:0:80
+
+
+##### Objects 498 and 499 are the "Morgoth Artifacts" #####
+
+# These objects, like objects 500 to 511, are never created
+# without being turned into artifacts.  This simplifies the
+# code for "killing the winner monster".
+
+N:498:& Mighty Hammer~
+G:\:D:0
+I:21:50:0
+W:15:0:200:1000
+P:0:3d9:0:0:0
+F:SHOW_MODS | INSTA_ART
+
+N:499:& Lead Crown~
+G:]:D:0
+I:33:50:0
+W:44:0:20:1000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+
+##### Objects 500 to 511 are the "Special Artifacts" #####
+
+# These objects do not specify "full names" because the artifact name
+# is added in "obj-desc.c" based on the artifact index ("i_ptr->name1").
+#
+# These objects do specify a "base name", which is used when the object
+# is "aware" (always true for lites)
+#
+# Note that ALL artifacts are given "IGNORE_ACID/ELEC/FIRE/COLD",
+# so we do not need to specify that here.
+#
+# Note that the "INSTA_ART" flag is used to prevent these objects from
+# being created without also turning them into artifacts.  This flag
+# must be specified both here and in the artifact template.
+#
+# The only reason for having six different "ring" templates and three
+# different "amulet" templates is to allow each "special artifact" to
+# have a different "color" and "flavor", and also to allow the use of
+# special "base names" (such as "Necklace").
+
+
+# The Star Essence of Polaris -- see artifact list
+
+N:500:& Star Essence~
+G:*:y:0
+I:39:4:0
+W:1:0:10:10000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+# The Star Essence of Xoth -- see artifact list
+
+N:501:& Star Essence~
+G:*:y:0
+I:39:5:0
+W:30:0:5:10000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+# The Arkenstone of Thrain -- replaced with Jewel of Judgement
+
+N:502:& Gemstone~
+G:*:R:0
+I:39:6:0
+W:60:0:5:60000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+
+# The Amulet of Carlammas -- see artifact list
+
+N:503:& Amulet~
+G: :d:3
+I:40:10:0
+W:50:0:3:60000
+F:INSTA_ART
+
+# The Amulet of Ingwe -- see artifact list
+
+N:504:& Amulet~
+G: :d:3
+I:40:11:0
+W:60:0:3:90000
+F:INSTA_ART
+
+# The Necklace of the Dwarves -- see artifact list
+
+N:505:& Necklace~
+G: :d:3
+I:40:12:0
+W:70:0:3:75000
+F:INSTA_ART
+
+
+# The Ring of Barahir -- see artifact list
+
+N:506:& Ring~
+G: :d:2
+I:45:32:0
+W:50:0:2:65000
+F:INSTA_ART
+
+# The Ring of Tulkas -- see artifact list
+
+N:507:& Ring~
+G: :d:2
+I:45:33:0
+W:90:0:2:150000
+F:INSTA_ART
+
+# The Ring of Power (Narya) -- see artifact list
+
+N:508:& Ring~
+G: :d:2
+I:45:34:0
+W:80:0:2:100000
+F:INSTA_ART
+
+# The Ring of Power (Nenya) -- see artifact list
+
+N:509:& Ring~
+G: :d:2
+I:45:35:0
+W:90:0:2:200000
+F:INSTA_ART
+
+# The Ring of Power (Vilya) -- see artifact list
+
+N:510:& Ring~
+G: :d:2
+I:45:36:0
+W:100:0:2:300000
+F:INSTA_ART
+
+# The Ring of Power (The One Ring) -- see artifact list
+
+N:511:& Ring~
+G: :d:12
+I:45:37:0
+W:110:0:2:5000000
+F:INSTA_ART
+
+
+### Room for new objects added after 511 (Zangband 2.1.0): 512-575
+
+# Conjuration Spellbooks
+
+N:512:[Minor Conjurings]
+G:?:U:203
+I:92:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:513:[Conjuring Mastery]
+G:?:U:203
+I:92:1:0
+W:20:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:514:[Book of Eibon]
+G:?:o:203
+I:92:2:0
+W:40:0:30:25000
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:515:[Liber Ivonis]
+G:?:o:203
+I:92:3:0
+W:90:0:30:100000
+A:90/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+# Necromancy Spellbooks
+
+N:516:[Black Prayers]
+G:?:D:204
+I:93:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:517:[Black Mass]
+G:?:D:204
+I:93:1:0
+W:20:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:518:[Necronomicon]
+G:?:v:204
+I:93:2:0
+W:50:0:30:25000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:519:[Kitab Al Azif]
+G:?:v:204
+I:93:3:0
+W:90:0:30:100000
+A:90/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:520:Reflection
+G: :d:3
+I:40:9:0
+W:60:0:3:30000
+A:60/4
+F:REFLECT | EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#521 and 522 cannot have EASY_KNOW because they may be cursed
+
+N:521:Anti-Magic
+G: :d:3
+I:40:13:0
+W:40:0:3:30000
+A:40/4
+F:NO_MAGIC
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:522:Anti-Teleportation
+G: :d:3
+I:40:14:0
+W:30:0:3:15000
+A:30/4
+F:NO_TELE
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#523 cannot have EASY_KNOW because it can get random resistances
+
+N:523:Resistance
+G: :d:3
+I:40:15:0
+W:50:0:3:25000
+A:50/4
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RAND_RESIST
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+# Stormbringer -- see artifact list
+
+N:524:& Runesword~
+G:|:D:0
+I:23:31:0
+W:1:0:180:4000
+P:0:6d5:0:0:0
+F:INSTA_ART | SHOW_MODS
+
+# Hack - 10 000 AU item for price comparison in shops.
+
+N:525:No tea
+G:t:w:0
+I:90:90:0
+W:0:0:0:10000

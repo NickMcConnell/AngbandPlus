@@ -1,0 +1,94 @@
+=== Debug Command Descriptions ===
+
+This is a list of commands provided to enable efficient testing of various
+aspects of the game.
+
+***** <cmd=\\xE1?>
+? = Display wizard command help.
+
+***** <cmd=\\xE1a>
+a = Cure all ailments.
+
+***** <cmd=\\xE1e>
+e = Edit stats/skills.
+
+***** <cmd=\\xE1h>
+h = Reroll hitpoints.
+
+***** <cmd=\\xE1k>
+k = Self knowledge.
+
+***** <cmd=\\xE1M>
+M = Gain random/specified chaos feature (use 0 to select).
+
+***** <cmd=\\xE1r>
+r = Gain level reward.
+
+***** <cmd=\\xE1x>
+x = Practice skills (if in dungeon).
+
+***** <cmd=\\xE1b>
+b = Teleport to target (use * to select).
+
+***** <cmd=\\xE1j>
+j = Teleport to another level.
+
+***** <cmd=\\xE1p>
+p = Phase door.
+
+***** <cmd=\\xE1t>
+t = Teleport.
+
+***** <cmd=\\xE1s>
+s = Summon random monster.
+
+***** <cmd=\\xE1n>
+n = Summon particular monster (use 0 to select).
+
+***** <cmd=\\xE1N>
+N = Summon particular friendly monster (use 0 to select).
+
+***** <cmd=\\xE1H>
+H = Summon random horde.
+
+***** <cmd=\\xE1z>
+z = Delete monsters within 20 squares.
+
+***** <cmd=\\xE1Z>
+Z = Delete specific monster.
+
+***** <cmd=\\xE1">
+" = Generate spoilers.
+
+***** <cmd=\\xE1d>
+d = Detect all (as rod of detection).
+
+***** <cmd=\\xE1m>
+m = Map area (as scroll of magic mapping).
+
+***** <cmd=\\xE1w>
+w = Wizard light (as potion of enlightenment).
+
+***** <cmd=\\xE1c>
+c = Create specific item.
+
+***** <cmd=\\xE1C>
+C = Create specific artefact (use 0 to select).
+
+***** <cmd=\\xE1f>
+f = Identify a specific object fully.
+
+***** <cmd=\\xE1g>
+g = Create a random good object.
+
+***** <cmd=\\xE1i>
+i = Identify pack.
+
+***** <cmd=\\xE1l>
+l = Become aware of lots of objects (use 0 to set a maximum depth).
+
+***** <cmd=\\xE1o>
+o = Edit specific object.
+
+***** <cmd=\\xE1v>
+v = Create a random very good object.

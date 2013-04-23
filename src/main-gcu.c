@@ -1,13 +1,22 @@
+#define DELAY_EXTERNS_H
+#define MAIN_GCU_C
 /* File: main-gcu.c */
 
-/* Purpose: Allow use of Unix "curses" with Angband -BEN- */
+/*
+ * Copyright (c) 1997 Ben Harrison, and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
 
 
 /*
+ * This file helps Angband run on Unix/Curses machines.
+ *
+ *
  * To use this file, you must define "USE_GCU" in the Makefile.
  *
- * Hack -- note that "angband.h" is included AFTER the #ifdef test.
- * This was necessary because of annoying "curses.h" silliness.
  *
  * Note that this file is not "intended" to support non-Unix machines,
  * nor is it intended to support VMS or other bizarre setups.
@@ -22,29 +31,35 @@
  * and uses the "termcap" information directly, or even bypasses the
  * "termcap" information and sends direct vt100 escape sequences.
  *
- * XXX XXX XXX This file provides only a single "term" window.
+ * This file provides up to 4 term windows.
  *
- * The "init" and "nuke" hooks are built so that only the first init and
- * the last nuke actually do anything, but the other functions are not
- * "correct" for multiple windows.  Minor changes would also be needed
- * to allow the system to handle the "locations" of the various windows.
+ * This file will attempt to redefine the screen colors to conform to
+ * standard Angband colors.  It will only do so if the terminal type
+ * indicates that it can do so.  See the page:
  *
- * But in theory, it should be possible to allow a 50 line screen to be
- * split into two sub-screens (i.e. "term_screen" and "term_mirror").
+ *     http://www.umr.edu/~keldon/ang-patch/ncurses_color.html
  *
- * XXX XXX XXX Consider the use of "savetty()" and "resetty()".
+ * for information on this.
+ *
+ * Consider the use of "savetty()" and "resetty()".  XXX XXX XXX
  */
+
 
 #include "angband.h"
 
 
 #ifdef USE_GCU
 
+/* #include "main.h" */
+#include "externs.h"
 
 /*
- * Hack -- play games with "bool"
+ * Hack -- play games with "bool" and "term"
  */
 #undef bool
+
+/* Avoid 'struct term' name conflict with <curses.h> (via <term.h>) on AIX */
+#define term System_term
 
 /*
  * Include the proper "header" file
@@ -55,6 +70,12 @@
 # include <curses.h>
 #endif
 
+#undef term
+
+/*
+ * Try redefining the colors at startup.
+ */
+#define REDEFINE_COLORS
 
 
 /*
@@ -98,7 +119,7 @@
 #endif
 
 /*
- * One version needs this file
+ * One version needs these files
  */
 #ifdef USE_TERMIO
 # include <sys/ioctl.h>
@@ -106,7 +127,7 @@
 #endif
 
 /*
- * The other needs this file
+ * The other needs these files
  */
 #ifdef USE_TCHARS
 # include <sys/ioctl.h>
@@ -176,18 +197,29 @@ static int            game_local_chars;
 
 #endif
 
+/*
+ * Information about a term
+ */
+typedef struct term_data term_data;
+
+struct term_data
+{
+	term t;                 /* All term info */
+
+	WINDOW *win;            /* Pointer to the curses window */
+};
+
+/* Max number of windows on screen */
+#define MAX_TERM_DATA 4
+
+/* Information about our windows */
+static term_data data[MAX_TERM_DATA];
 
 
 /*
  * Hack -- Number of initialized "term" structures
  */
 static int active = 0;
-
-
-/*
- * The main screen information
- */
-static term term_screen_body;
 
 
 #ifdef A_COLOR
@@ -370,6 +402,18 @@ static void keymap_game_prepare(void)
 	game_termio.c_cc[VEOF] = (char)-1;
 	game_termio.c_cc[VEOL] = (char)-1;
 
+#if 0
+	/* Disable the non-posix control characters */
+	game_termio.c_cc[VEOL2] = (char)-1;
+	game_termio.c_cc[VSWTCH] = (char)-1;
+	game_termio.c_cc[VDSUSP] = (char)-1;
+	game_termio.c_cc[VREPRINT] = (char)-1;
+	game_termio.c_cc[VDISCARD] = (char)-1;
+	game_termio.c_cc[VWERASE] = (char)-1;
+	game_termio.c_cc[VLNEXT] = (char)-1;
+	game_termio.c_cc[VSTATUS] = (char)-1;
+#endif
+
 	/* Normally, block until a character is read */
 	game_termio.c_cc[VMIN] = 1;
 	game_termio.c_cc[VTIME] = 0;
@@ -418,6 +462,9 @@ static void keymap_game_prepare(void)
  */
 static errr Term_xtra_gcu_alive(int v)
 {
+	int x, y;
+
+
 	/* Suspend */
 	if (!v)
 	{
@@ -435,13 +482,11 @@ static errr Term_xtra_gcu_alive(int v)
 		/* Flush the curses buffer */
 		(void)refresh();
 
-#ifdef SPECIAL_BSD
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+		/* Get current cursor position */
+		getyx(curscr, y, x);
+
+		/* Move the cursor to bottom right corner */
+		mvcur(y, x, LINES - 1, 0);
 
 		/* Exit curses */
 		endwin();
@@ -471,6 +516,11 @@ static errr Term_xtra_gcu_alive(int v)
 }
 
 
+#ifdef USE_NCURSES
+const char help_gcu[] = "NCurses, for terminal console, subopts -b(ig screen)";
+#else /* USE_NCURSES */
+const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen)";
+#endif /* USE_NCURSES */
 
 
 /*
@@ -478,17 +528,19 @@ static errr Term_xtra_gcu_alive(int v)
  */
 static void Term_init_gcu(term *t)
 {
+	term_data *td = (term_data *)(t->data);
+
 	/* Count init's, handle first */
 	if (active++ != 0) return;
 
-	/* Erase the screen */
-	(void)clear();
+	/* Erase the window */
+	(void)wclear(td->win);
 
 	/* Reset the cursor */
-	(void)move(0, 0);
+	(void)wmove(td->win, 0, 0);
 
 	/* Flush changes */
-	(void)refresh();
+	(void)wrefresh(td->win);
 
 	/* Game keymap */
 	keymap_game();
@@ -500,19 +552,28 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
+	int x, y;
+	term_data *td = (term_data *)(t->data);
+
+	/* Delete this window */
+	delwin(td->win);
+
 	/* Count nuke's, handle last */
 	if (--active != 0) return;
 
 	/* Hack -- make sure the cursor is visible */
 	Term_xtra(TERM_XTRA_SHAPE, 1);
 
-#ifdef SPECIAL_BSD
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
+#ifdef A_COLOR
+	/* Reset colors to defaults */
+	start_color();
 #endif
+
+	/* Get current cursor position */
+	getyx(curscr, y, x);
+
+	/* Move the cursor to bottom right corner */
+	mvcur(y, x, LINES - 1, 0);
 
 	/* Flush the curses buffer */
 	(void)refresh();
@@ -632,19 +693,50 @@ static errr Term_xtra_gcu_event(int v)
 
 #endif	/* USE_GETCH */
 
+/*
+ * React to changes
+ */
+static errr Term_xtra_gcu_react(void)
+{
+
+#ifdef A_COLOR
+
+	int i;
+
+	/* Cannot handle color redefinition */
+	if (!can_fix_color) return (0);
+
+	/* Set the colors */
+	for (i = 0; i < 16; i++)
+	{
+		/* Set one color (note scaling) */
+		init_color(i,
+                           angband_color_table[i][1] * 1000 / 255,
+		           angband_color_table[i][2] * 1000 / 255,
+		           angband_color_table[i][3] * 1000 / 255);
+	}
+
+#endif
+
+	/* Success */
+	return (0);
+}
+
 
 /*
  * Handle a "special request"
  */
 static errr Term_xtra_gcu(int n, int v)
 {
+	term_data *td = (term_data *)(Term->data);
+
 	/* Analyze the request */
 	switch (n)
 	{
 		/* Clear screen */
 		case TERM_XTRA_CLEAR:
-		touchwin(stdscr);
-		(void)clear();
+		touchwin(td->win);
+		(void)wclear(td->win);
 		return (0);
 
 		/* Make a noise */
@@ -654,7 +746,7 @@ static errr Term_xtra_gcu(int n, int v)
 
 		/* Flush the Curses buffer */
 		case TERM_XTRA_FRESH:
-		(void)refresh();
+		(void)wrefresh(td->win);
 		return (0);
 
 #ifdef USE_CURS_SET
@@ -683,6 +775,11 @@ static errr Term_xtra_gcu(int n, int v)
 		case TERM_XTRA_DELAY:
 		usleep(1000 * v);
 		return (0);
+
+		/* React to events */
+		case TERM_XTRA_REACT:
+		Term_xtra_gcu_react();
+		return (0);
 	}
 
 	/* Unknown */
@@ -695,8 +792,10 @@ static errr Term_xtra_gcu(int n, int v)
  */
 static errr Term_curs_gcu(int x, int y)
 {
+	term_data *td = (term_data *)(Term->data);
+
 	/* Literally move the cursor */
-	move(y, x);
+	wmove(td->win, y, x);
 
 	/* Success */
 	return (0);
@@ -709,28 +808,26 @@ static errr Term_curs_gcu(int x, int y)
  */
 static errr Term_wipe_gcu(int x, int y, int n)
 {
+	term_data *td = (term_data *)(Term->data);
+
 	/* Place cursor */
-	move(y, x);
+	wmove(td->win, y, x);
 
 	/* Clear to end of line */
-	if (x + n >= 80)
+	if (x + n >= td->t.wid)
 	{
-		clrtoeol();
+		wclrtoeol(td->win);
 	}
 
 	/* Clear some characters */
 	else
 	{
-		while (n-- > 0) addch(' ');
+		while (n-- > 0) waddch(td->win, ' ');
 	}
 
 	/* Success */
 	return (0);
 }
-
-
-
-
 
 
 /*
@@ -738,63 +835,179 @@ static errr Term_wipe_gcu(int x, int y, int n)
  */
 static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
-	int i;
+	term_data *td = (term_data *)(Term->data);
 
-	char text[81];
-
-	/* Obtain a copy of the text */
-	for (i = 0; i < n; i++) text[i] = s[i];
-	text[n] = 0;
-
-	/* Move the cursor and dump the string */
-	move(y, x);
+	int i, pic;
 
 #ifdef A_COLOR
 	/* Set the color */
-	if (can_use_color) attrset(colortable[a & 0x0F]);
+	if (can_use_color) wattrset(td->win, colortable[a & 0x0F]);
 #endif
 
-	/* Add the text */
-	addstr(text);
+	/* Move the cursor */
+	wmove(td->win, y, x);
+
+	/* Draw each character */
+	for (i = 0; i < n; i++)
+	{
+#ifdef USE_GRAPHICS
+		/* Special character */
+		if (use_graphics && (s[i] & 0x80))
+		{
+			/* Determine picture to use */
+			switch (s[i] & 0x7F)
+			{
+
+#ifdef ACS_CKBOARD
+				/* Wall */
+				case '#':
+					pic = ACS_CKBOARD;
+					break;
+#endif /* ACS_CKBOARD */
+
+#ifdef ACS_BOARD
+				/* Mineral vein */
+				case '%':
+					pic = ACS_BOARD;
+					break;
+#endif /* ACS_BOARD */
+
+				/* XXX */
+				default:
+					pic = '?';
+					break;
+			}
+
+			/* Draw the picture */
+			waddch(td->win, pic);
+
+			/* Next character */
+			continue;
+		}
+#endif
+
+		/* Draw a normal character */
+		waddch(td->win, (byte)s[i]);
+	}
 
 	/* Success */
 	return (0);
 }
 
 
+/*
+ * Create a window for the given "term_data" argument.
+ *
+ * Assumes legal arguments.
+ */
+static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
+{
+	term *t = &td->t;
+
+	/* Create new window */
+	td->win = newwin(rows, cols, y, x);
+
+	/* Check for failure */
+	if (!td->win)
+	{
+		/* Error */
+		quit("Failed to setup curses window.");
+	}
+
+	/* Initialize the term */
+	term_init(t, cols, rows, 256);
+
+	/* Avoid bottom right corner */
+	t->icky_corner = TRUE;
+
+	/* Erase with "white space" */
+	t->attr_blank = TERM_WHITE;
+	t->char_blank = ' ';
+
+	/* Set some hooks */
+	t->init_hook = Term_init_gcu;
+	t->nuke_hook = Term_nuke_gcu;
+
+	/* Set some more hooks */
+	t->text_hook = Term_text_gcu;
+	t->wipe_hook = Term_wipe_gcu;
+	t->curs_hook = Term_curs_gcu;
+	t->xtra_hook = Term_xtra_gcu;
+
+	/* Save the data */
+	t->data = td;
+
+	/* Activate it */
+	Term_activate(t);
+
+	/* Success */
+	return (0);
+}
+
+
+static void hook_quit(cptr str)
+{
+	/* Unused */
+	(void)str;
+
+	/* Exit curses */
+	endwin();
+}
 
 
 /*
- * Prepare "curses" for use by the file "term.c"
+ * Prepare "curses" for use by the file "z-term.c"
  *
  * Installs the "hook" functions defined above, and then activates
  * the main screen "term", which clears the screen and such things.
  *
  * Someone should really check the semantics of "initscr()"
  */
-errr init_gcu(void)
+errr init_gcu(int argc, char **argv)
 {
 	int i;
 
-	term *t = &term_screen_body;
+	int num_term = MAX_TERM_DATA, next_win = 0;
+
+	bool use_big_screen = FALSE;
+
+	
+	/* Parse args */
+	for (i = 1; i < argc; i++)
+	{
+		if (prefix(argv[i], "-b"))
+		{
+			use_big_screen = TRUE;
+			continue;
+		}
+
+		plog_fmt("Ignoring option: %s", argv[i]);
+	}
 
 
 	/* Extract the normal keymap */
 	keymap_norm_prepare();
 
-
-#if defined(USG)
-	/* Initialize for USG Unix */
+	/* Initialize */
 	if (initscr() == NULL) return (-1);
-#else
-	/* Initialize for others systems */
-	if (initscr() == (WINDOW*)ERR) return (-1);
+
+	/* Activate hooks */
+	quit_aux = hook_quit;
+	core_aux = hook_quit;
+
+	/* Require standard size screen */
+	if ((LINES < 24) || (COLS < 80))
+	{
+		quit("Angband needs at least an 80x24 'curses' screen");
+	}
+
+
+#ifdef USE_GRAPHICS
+
+	/* Set graphics flag */
+	use_graphics = arg_graphics;
+
 #endif
-
-
-	/* Hack -- Require large screen, or Quit with message */
-	i = ((LINES < 24) || (COLS < 80));
-	if (i) quit("Angband needs an 80x24 'curses' screen");
 
 #ifdef A_COLOR
 
@@ -805,43 +1018,34 @@ errr init_gcu(void)
 	                 (COLORS >= 8) && (COLOR_PAIRS >= 8));
 
 #ifdef REDEFINE_COLORS
+
 	/* Can we change colors? */
 	can_fix_color = (can_use_color && can_change_color() &&
-	                 (COLOR_PAIRS >= 16));
+	                 (COLORS >= 16) && (COLOR_PAIRS > 8));
+
 #endif
 
 	/* Attempt to use customized colors */
 	if (can_fix_color)
 	{
 		/* Prepare the color pairs */
-		for (i = 0; i < 16; i++)
+		for (i = 1; i <= 8; i++)
 		{
 			/* Reset the color */
-			init_pair(i, i, i);
+			if (init_pair(i, i - 1, 0) == ERR)
+			{
+				quit("Color pair init failed");
+			}
 
-			/* Reset the color data */
-			colortable[i] = (COLOR_PAIR(i) | A_NORMAL);
+			/* Set up the colormap */
+			colortable[i - 1] = (COLOR_PAIR(i) | A_NORMAL);
+			colortable[i + 7] = (COLOR_PAIR(i) | A_BRIGHT);
 		}
 
-		/* XXX XXX XXX Take account of "gamma correction" */
+		/* Take account of "gamma correction" XXX XXX XXX */
 
 		/* Prepare the "Angband Colors" */
-		init_color(0,     0,    0,    0);	/* Black */
-		init_color(1,  1000, 1000, 1000);	/* White */
-		init_color(2,   500,  500,  500);	/* Grey */
-		init_color(3,  1000,  500,    0);	/* Orange */
-		init_color(4,   750,    0,    0);	/* Red */
-		init_color(5,     0,  500,  250);	/* Green */
-		init_color(6,     0,    0, 1000);	/* Blue */
-		init_color(7,   500,  250,    0);	/* Brown */
-		init_color(8,   250,  250,  250);	/* Dark-grey */
-		init_color(9,   750,  750,  750);	/* Light-grey */
-		init_color(10, 1000,    0, 1000);	/* Purple */
-		init_color(11, 1000, 1000,    0);	/* Yellow */
-		init_color(12, 1000,    0,    0);	/* Light Red */
-		init_color(13,    0, 1000,    0);	/* Light Green */
-		init_color(14,    0, 1000, 1000);	/* Light Blue */
-		init_color(15,  750,  500,  250);	/* Light Brown */
+		Term_xtra_gcu_react();
 	}
 
 	/* Attempt to use colors */
@@ -898,34 +1102,95 @@ errr init_gcu(void)
 	keymap_game_prepare();
 
 
-	/*** Now prepare the term ***/
+	/*** Now prepare the term(s) ***/
 
-	/* Initialize the term */
-	term_init(t, 80, 24, 256);
+	/* Big screen -- one big term */
+	if (use_big_screen)
+	{
+		/* Create a term */
+		term_data_init_gcu(&data[0], LINES, COLS, 0, 0);
 
-	/* Avoid the bottom right corner */
-	t->icky_corner = TRUE;
+		/* Remember the term */
+		windows[0].term = &data[0].t;
+	}
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
-	t->char_blank = ' ';
+	/* No big screen -- create as many term windows as possible */
+	else
+	{
+		/* Create several terms */
+		for (i = 0; i < num_term; i++)
+		{
+			int rows, cols, y, x;
 
-	/* Set some hooks */
-	t->init_hook = Term_init_gcu;
-	t->nuke_hook = Term_nuke_gcu;
+			/* Decide on size and position */
+			switch (i)
+			{
+				/* Upper left */
+				case 0:
+				{
+					rows = 24;
+					cols = 80;
+					y = x = 0;
+					break;
+				}
 
-	/* Set some more hooks */
-	t->text_hook = Term_text_gcu;
-	t->wipe_hook = Term_wipe_gcu;
-	t->curs_hook = Term_curs_gcu;
-	t->xtra_hook = Term_xtra_gcu;
+				/* Lower left */
+				case 1:
+				{
+					rows = LINES - 25;
+					cols = 80;
+					y = 25;
+					x = 0;
+					break;
+				}
 
-	/* Save the term */
-	term_screen = t;
+				/* Upper right */
+				case 2:
+				{
+					rows = 24;
+					cols = COLS - 81;
+					y = 0;
+					x = 81;
+					break;
+				}
 
-	/* Activate it */
-	Term_activate(term_screen);
+				/* Lower right */
+				case 3:
+				{
+					rows = LINES - 25;
+					cols = COLS - 81;
+					y = 25;
+					x = 81;
+					break;
+				}
 
+				/* XXX */
+				default:
+				{
+					rows = cols = y = x = 0;
+					break;
+				}
+			}
+
+			/* Skip non-existant windows */
+			if (rows <= 0 || cols <= 0) continue;
+
+			/* Create a term */
+			term_data_init_gcu(&data[next_win], rows, cols, y, x);
+
+			/* Remember the term */
+			windows[next_win].term = &data[next_win].t;
+
+			/* One more window */
+			next_win++;
+		}
+	}
+
+	/* Activate the "Angband" window screen */
+	Term_activate(&data[0].t);
+
+	/* Remember the active screen */
+	term_screen = &data[0].t;
 
 	/* Success */
 	return (0);
@@ -933,5 +1198,3 @@ errr init_gcu(void)
 
 
 #endif /* USE_GCU */
-
-

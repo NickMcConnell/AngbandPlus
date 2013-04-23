@@ -334,7 +334,7 @@ A Shaman gains power from the spirits he or she talks to.
 Mindcrafter
 A Mindcrafter has studied the power of the mind and gained some experience.
 
-Mage
+Wizard
 A Mage is a student of hermetic magic.
 
 Warlock

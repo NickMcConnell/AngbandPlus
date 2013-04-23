@@ -1,10 +1,11 @@
-/* File: readbits.c */
+#define READDIB_C
+/* File: readdib.c */
 
 /*
  * This package provides a routine to read a DIB file and set up the
  * device dependent version of the image.
  *
- * This file has been modified for use with "Angband 2.8.2"
+ * This file has been modified for use with "Angband 2.9.2"
  *
  * COPYRIGHT:
  *
@@ -31,12 +32,12 @@
 # endif
 #endif
 
+
 /*
- * Make sure "huge" is legal XXX XXX XXX
+ * Needed for lcc-win32
  */
-#undef huge
-#ifdef WIN32
-# define huge /* oops */
+#ifndef SEEK_SET
+#define SEEK_SET 0
 #endif
 
 
@@ -52,10 +53,10 @@
  *
  * Returns number of bytes requested, or zero if something went wrong.
  */
-static DWORD PASCAL lread(int fh, VOID far *pv, DWORD ul)
+static DWORD PASCAL lread(HFILE fh, VOID FAR *pv, DWORD ul)
 {
 	DWORD ulT = ul;
-	BYTE huge *hp = pv;
+	BYTE *hp = pv;
 
 	while (ul > (DWORD)MAXREAD)
 	{
@@ -77,10 +78,10 @@ static DWORD PASCAL lread(int fh, VOID far *pv, DWORD ul)
  */
 static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 {
-	NPLOGPALETTE npPal;
-	RGBQUAD far *lpRGB;
-	HPALETTE hLogPal; 
-	WORD i;
+	PLOGPALETTE npPal;
+	RGBQUAD FAR *lpRGB;
+	HPALETTE hLogPal;
+	DWORD i;
 
 	/*
 	 * since biClrUsed field was filled during the loading of the DIB,
@@ -88,10 +89,10 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 	 */
 	if (lpInfo->biClrUsed)
 	{
-		npPal = (NPLOGPALETTE)LocalAlloc(LMEM_FIXED, sizeof(LOGPALETTE) + 
+		npPal = (PLOGPALETTE)LocalAlloc(LMEM_FIXED, sizeof(LOGPALETTE) +
 		                                 (WORD)lpInfo->biClrUsed * sizeof(PALETTEENTRY));
 		if (!npPal)
-			return(FALSE);
+			return (FALSE);
 
 		npPal->palVersion = 0x300;
 		npPal->palNumEntries = (WORD)lpInfo->biClrUsed;
@@ -110,7 +111,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 
 		hLogPal = CreatePalette((LPLOGPALETTE)npPal);
 		LocalFree((HANDLE)npPal);
-		return(hLogPal);
+		return (hLogPal);
 	}
 
 	/*
@@ -120,7 +121,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 	 */
 	else
 	{
-		return(GetStockObject(DEFAULT_PALETTE));
+		return (GetStockObject(DEFAULT_PALETTE));
 	}
 }
 
@@ -133,7 +134,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
  * handles.  Caller is responsible for freeing objects) and FALSE on failure
  * (unable to create objects, both pointer are invalid).
  */
-static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB, 
+static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
                                              HPALETTE * phPal, HBITMAP * phBitmap)
 {
 	LPBITMAPINFOHEADER lpInfo;
@@ -149,9 +150,9 @@ static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
 		hOldPal = SelectPalette(hDC, hPalette, TRUE);
 		RealizePalette(hDC);
 
-		lpBits = ((LPSTR)lpInfo + (WORD)lpInfo->biSize + 
+		lpBits = ((LPSTR)lpInfo + (WORD)lpInfo->biSize +
 		          (WORD)lpInfo->biClrUsed * sizeof(RGBQUAD));
-		hBitmap = CreateDIBitmap(hDC, lpInfo, CBM_INIT, lpBits, 
+		hBitmap = CreateDIBitmap(hDC, lpInfo, CBM_INIT, lpBits,
 		                         (LPBITMAPINFO)lpInfo, DIB_RGB_COLORS);
 
 		SelectPalette(hDC, hOldPal, TRUE);
@@ -168,7 +169,7 @@ static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
 			result = TRUE;
 		}
 	}
-	return(result);
+	return (result);
 }
 
 
@@ -184,27 +185,22 @@ static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
  */
 BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 {
-	unsigned fh;
+	HFILE fh;
 	LPBITMAPINFOHEADER lpbi;
 	OFSTRUCT of;
 	BITMAPFILEHEADER bf;
 	WORD nNumColors;
 	BOOL result = FALSE;
-	char str[128];
-	WORD offBits;
+	DWORD offBits;
 	HDC hDC;
 	BOOL bCoreHead = FALSE;
 
 	/* Open the file and get a handle to it's BITMAPINFO */
 	fh = OpenFile(lpFileName, &of, OF_READ);
 	if (fh == -1)
-	{
-		wsprintf(str, "Can't open file '%ls'", (LPSTR)lpFileName);
-		MessageBox(NULL, str, "Error", MB_ICONSTOP | MB_OK);
 		return (FALSE);
-	}
 
-	pInfo->hDIB = GlobalAlloc(GHND, (DWORD)(sizeof(BITMAPINFOHEADER) + 
+	pInfo->hDIB = GlobalAlloc(GHND, (DWORD)(sizeof(BITMAPINFOHEADER) +
 	                          256 * sizeof(RGBQUAD)));
 
 	if (!pInfo->hDIB)
@@ -300,7 +296,7 @@ BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 	}
 
 	/* offset to the bits from start of DIB header */
-	offBits = (WORD)lpbi->biSize + nNumColors * sizeof(RGBQUAD);
+	offBits = lpbi->biSize + nNumColors * sizeof(RGBQUAD);
 
 	if (bf.bfOffBits != 0L)
 	{
@@ -313,8 +309,8 @@ BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 		GlobalUnlock(pInfo->hDIB);
 
 		hDC = GetDC(hWnd);
-		if (!MakeBitmapAndPalette(hDC, pInfo->hDIB, &(HPALETTE)(pInfo->hPalette), 
-		                          &(HBITMAP)(pInfo->hBitmap)))
+		if (!MakeBitmapAndPalette(hDC, pInfo->hDIB, &(pInfo->hPalette),
+		                          &(pInfo->hBitmap)))
 		{
 			ReleaseDC(hWnd,hDC);
 			goto ErrExit2;
@@ -334,6 +330,5 @@ ErrExit2:
 	}
 
 	_lclose(fh);
-	return(result);
+	return (result);
 }
-

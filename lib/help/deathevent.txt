@@ -1,0 +1,90 @@
+Instructions for describing death events
+
+To cause a specific action to happen on death, there needs to be a line
+beginning with 'E:'. On the same line, there must be one of the flags listed
+below, usually together with a number of symbols as described.
+
+The flags are as follows:
+
+Flag      ARTEFACT
+Keywords: n<num>*
+Effect:   Creates artefact number <num> (see a_info.txt for list).
+Default:  Does nothing.
+
+Flag      OBJECT
+Keywords: t<tval>* s<sval>* e<ego type>* (<min no.>-<max no.>)
+Effect:   Creates between <min no.> and <max no.> objects (see k_info.txt for
+          tval and sval numbers and e_info.txt for ego types).
+          The game does not check that the given combination is reasonable.
+Default:  Creates 1 object which is not an ego item.
+          The <tval> and <sval> (or their textual replacement) must point to a
+          real object.
+
+Flag      NONSTER
+Keywords: n<number>* s<distance> (<min no.>-<max-no.>)
+Effect:   Creates between <min no.> and <max no.> monsters of type <number>
+          (see r_info.txt for list), at a distance of around <distance>
+          from the original monster.
+Default:  Creates 1 monster, preferably within one square of the original.
+          The <number> must point to a monster.
+
+Flag      EXPLODE
+Keywords: r<radius> (<dice>d<sides>) <effect>
+Effect:   Causes an explosion of radius <radius> causing <dice>d<sides> damage
+          to the monsters in its path.
+Default:  Causes an explosion of MISSILE type which does 1 point of damage to
+          everything 1 square away from the monster.
+
+<effect> can be any one of the following (not all of which are sensible):
+"ELEC",  "POIS", "ACID", "COLD", "FIRE", "MISSILE", "ARROW", "PLASMA", "WATER",
+"LITE", "DARK", "LITE_WEAK", "DARK_WEAK", "SHARDS", "SOUND", "CONFUSION",
+"FORCE", "INERTIA", "MANA", "METEOR", "ICE", "CHAOS", "NETHER", "DISENCHANT",
+"NEXUS", "TIME", "GRAVITY", "KILL_WALL", "KILL_DOOR", "KILL_TRAP", "MAKE_WALL",
+"MAKE_DOOR", "MAKE_TRAP", "OLD_CLONE", "OLD_POLY", "OLD_HEAL", "OLD_SPEED",
+"OLD_SLOW", "OLD_CONF", "OLD_SLEEP", "OLD_DRAIN", "AWAY_UNDEAD", "AWAY_EVIL",
+"AWAY_ALL", "TURN_UNDEAD", "TURN_EVIL", "TURN_ALL", "DISP_UNDEAD", "DISP_EVIL",
+"DISP_ALL", "DISP_DEMON", "DISP_LIVING", "SHARD", "NUKE", "MAKE_GLYPH",
+"STASIS", "STONE_WALL", "DEATH_RAY", "STUN", "HOLY_FIRE", "HELL_FIRE",
+"DISINTEGRATE", "CHARM", "CONTROL_UNDEAD", "CONTROL_ANIMAL", "PSI",
+"PSI_DRAIN", "TELEKINESIS", "JAM_DOOR", "DOMINATION", "DISP_GOOD"
+
+Flag:     COIN
+Keywords: <type>
+Effect:   Causes the coins which the given monster drops to be of a specific
+          type. This replaces the previous creeping coin code, but can be
+          applied to anything. Unlike other types, this does not drop anything
+          itself, but only changes how gold drops are interpreted.
+
+<type> can be any of: "COPPER", "SILVER", "GOLD", "MITHRIL", or "ADAMANTIUM".
+
+Flag:     NOTHING
+Keywords: none
+Effects:  This is has no effects in itself, but can be used to enable a monster
+          to use the "text" flag below without needing to do anything else.
+
+There may also be a number of flags which are valid for all events. They are:
+
+Keyword:  p<num>/<denom>.
+Effect:   Causes the event to have a <num> in <denom> chance of happening
+         when the monster dies.
+Default:  p1/1
+
+Keyword:  "<text>"
+Effect:   Causes <text> to be printed on the screen when this event happens.
+         This is slightly modified for the DEATH_MONSTER type in that it only
+         happens when the player sees the new monster appear.
+Default:  no text
+
+Flag:     ONLY_ONE
+Effect:   Only one of the events with this flag will be generated when a monster
+          dies. The probability of each happening will, however, be as stated.
+
+Note that symbols which require numbers as arguments require them to be
+immediately after the number as this is what the parser expects.
+
+The keywords marked with * can be replaced by an appropriate text string from
+an info file. This must be the name as given in the N: line of the relevant
+file, strange formatting and all.
+
+Also note that putting an argument which is not associated with the given flag
+will not result in an error, but simply not be parsed.

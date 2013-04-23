@@ -1,0 +1,7 @@
+The above options allow the player to gain many powers which are not normally
+available for the purposes of testing aspects of the game. As this can allow
+you to make the game far easier than is intended, setting any of these options
+in a standard copy of this game automatically prevents this character from
+being entered into the high score table.
+
+You have been warned.

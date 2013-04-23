@@ -1,0 +1,1276 @@
+# File: u_info.txt
+
+# This file is used to initialize the "lib/raw/u_info.raw" file, which is
+# used to initialize the "unidentified object" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/u_info.raw" file.
+
+# The fields are as follows:
+# N:name
+# G:char:colour:p_id:s_id
+
+# M:Base:old p_id:new p_id 
+# or
+# M:Item:p_id:s_id:copies
+
+# 'N'
+
+# name is the full name of the entry, containing various information.
+# There are a number of flags starting with % which can be used in this:
+
+# %+X precedes a string which is only printed if the string has quality x.
+# %-X precedes a string which is only printed if the string does not have ality x.
+# %X precedes a string which is ambivalent about quality x (the default).
+# %x prints a string specified by quality x. This must be preceded by %+X
+# to avoid requesting a string which may not exist.
+
+# x can be one of:
+# f: flavour - inserts the flavour string for this item.
+# k: k_name - inserts the name string for this object in k_info.txt.
+# p: plural - inserts a simple plural.
+
+# In addition, there are flags which do not share this format. They are:
+
+# %&: causes item description to start with "a" or "an" where appropriate.
+
+# %Base : causes description to start from this string rather than the
+# base one. Has no effect if used in a base string.
+
+# 'G'
+
+# char is the default character for the item when unidentified[1].
+
+# colour is the default colour of this item when unidentified[1].
+
+# Note that items which are coloured dark in k_info.txt derive their colour
+# and symbol from this file rather than actually being dark. This can, of
+# course be changed by the user.
+
+# p_id is the index of this type of object. This unidentified description
+# may be used for any object with the same index, and any number between 0
+# and 255 may be used as an index (although an index without a corresponding
+# k_info entry will never appear in the game).
+
+# s_id is the secondary index of this object. It is used with p_id in
+# preference files to specify the object, and every entry should have
+# a unique combination of p_id and s_id.
+
+# [1] These can be overridden by the user. Although these colours do not,
+# in general, affect identified objects, objects which the user has set
+# to be black will use the colour and character of the unidentified
+# version even if identified.
+
+
+# Version stamp (required)
+
+V:1.0.4
+
+##### Mushrooms #####
+
+N:Black
+G:,:D:1:1
+
+N:Black Spotted
+G:,:D:1:2
+
+N:Blue
+G:,:b:1:3
+
+N:Brown
+G:,:u:1:4
+
+N:Dark Blue
+G:,:b:1:5
+
+N:Dark Green
+G:,:g:1:6
+
+N:Dark Red
+G:,:r:1:7
+
+N:Furry
+G:,:W:1:8
+
+N:Golden
+G:,:y:1:9
+
+N:Green
+G:,:G:1:10
+
+N:Green Spotted
+G:,:G:1:11
+
+N:Green
+G:,:g:1:12
+
+N:Grey Spotted
+G:,:s:1:13
+
+N:Grey
+G:,:s:1:14
+
+N:Light Blue
+G:,:B:1:15
+
+N:Light Green
+G:,:G:1:16
+
+N:Orange Spotted
+G:,:o:1:17
+
+N:Orange
+G:,:o:1:18
+
+N:Pink
+G:,:R:1:19
+
+N:Purple
+G:,:v:1:20
+
+N:Red
+G:,:R:1:21
+
+N:Red Spotted
+G:,:r:1:22
+
+N:Slimy
+G:,:s:1:23
+
+N:Tan
+G:,:U:1:24
+
+N:Violet
+G:,:v:1:25
+
+N:White Spotted
+G:,:w:1:26
+
+N:White
+G:,:w:1:27
+
+N:Wrinkled
+G:,:u:1:28
+
+N:Yellow
+G:,:y:1:29
+
+##### Rings #####
+
+N:Adamantite
+G:=:G:2:1
+
+N:Adamantite
+G:=:v:2:2
+
+N:Alexandrite
+G:=:g:2:3
+
+N:Amethyst
+G:=:v:2:4
+
+N:Aquamarine
+G:=:B:2:5
+
+N:Azurite
+G:=:B:2:6
+
+N:Beryl
+G:=:G:2:7
+
+N:Bloodstone
+G:=:r:2:8
+
+N:Bone
+G:=:w:2:9
+
+N:Brass
+G:=:o:2:10
+
+N:Bronze
+G:=:U:2:11
+
+N:Calcite
+G:=:w:2:12
+
+N:Carnelian
+G:=:r:2:13
+
+N:Copper
+G:=:u:2:14
+
+N:Corundum
+G:=:s:2:15
+
+N:Diamond
+G:=:b:2:16
+
+N:Diamond
+G:=:w:2:17
+
+N:Dilithium
+G:=:W:2:18
+
+N:Double
+G:=:o:2:19
+
+N:Dull Gray
+G:=:W:2:20
+
+N:Emerald
+G:=:g:2:21
+
+N:Engagement
+G:=:y:2:22
+
+N:Fluorite
+G:=:G:2:23
+
+N:Garnet
+G:=:r:2:24
+
+N:Glowing
+G:=:D:2:25
+
+N:Gold
+G:=:y:2:26
+
+N:Granite
+G:=:D:2:27
+
+N:Granite
+G:=:W:2:28
+
+N:Grayish
+G:=:G:2:29
+
+N:Greenish
+G:=:g:2:30
+
+N:Iron
+G:=:b:2:31
+
+N:Iron
+G:=:s:2:32
+
+N:Jade
+G:=:G:2:33
+
+N:Jagged
+G:=:W:2:34
+
+N:Jasper
+G:=:u:2:35
+
+N:Jet
+G:=:D:2:36
+
+N:Lapis Lazuli
+G:=:b:2:37
+
+N:Malachite
+G:=:g:2:38
+
+N:Marble
+G:=:w:2:39
+
+N:Mithril
+G:=:B:2:40
+
+N:Moonstone
+G:=:W:2:41
+
+N:Obsidian
+G:=:D:2:42
+
+N:Onyx
+G:=:R:2:43
+
+N:Opal
+G:=:W:2:44
+
+N:Pearl
+G:=:w:2:45
+
+N:Plain
+G:=:y:2:46
+
+N:Platinum
+G:=:w:2:47
+
+N:Quartz
+G:=:W:2:48
+
+N:Quartzite
+G:=:W:2:49
+
+N:Radiant
+G:=:y:2:50
+
+N:Reddish
+G:=:r:2:51
+
+N:Rhodonite
+G:=:R:2:52
+
+N:Ruby
+G:=:r:2:53
+
+N:Rusty
+G:=:r:2:54
+
+N:Sapphire
+G:=:b:2:55
+
+N:Scarab
+G:=:G:2:56
+
+N:Serpent
+G:=:g:2:57
+
+N:Shining
+G:=:y:2:58
+
+N:Shiny Blue
+G:=:b:2:59
+
+N:Shiny Red
+G:=:r:2:60
+
+N:Shiny
+G:=:w:2:61
+
+N:Silver
+G:=:W:2:62
+
+N:Soapstone
+G:=:W:2:63
+
+N:Spikard
+G:=:b:2:64
+
+N:Star Sapphire
+G:=:b:2:65
+
+N:Steel
+G:=:w:2:66
+
+N:Tanzanite
+G:=:v:2:67
+
+N:Tiger Eye
+G:=:y:2:68
+
+N:Topaz
+G:=:y:2:69
+
+N:Tortoise Shell
+G:=:g:2:70
+
+N:Transparent
+G:=:w:2:71
+
+N:Turquoise
+G:=:B:2:72
+
+N:Twisted
+G:=:B:2:73
+
+N:Wedding
+G:=:y:2:74
+
+N:Wire
+G:=:u:2:75
+
+N:Wooden
+G:=:u:2:76
+
+N:Zircon
+G:=:U:2:77
+
+##### The One Ring #####
+
+N:Plain Gold
+G:=:y:12:1
+
+##### Amulets #####
+
+N:Agate
+G:":W:3:1
+
+N:Aluminum
+G:":B:3:2
+
+N:Amber
+G:":y:3:3
+
+N:Azure
+G:":B:3:4
+
+N:Bone
+G:":w:3:5
+
+N:Brass
+G:":U:3:6
+
+N:Bronze
+G:":U:3:7
+
+N:Carved Oak
+G:":U:3:8
+
+N:Copper
+G:":U:3:9
+
+N:Coral
+G:":w:3:10
+
+N:Crystal
+G:":B:3:11
+
+N:Crystal
+G:":w:3:12
+
+N:Dragontooth
+G:":w:3:13
+
+N:Driftwood
+G:":U:3:14
+
+N:Flint
+G:":s:3:15
+
+N:Golden
+G:":y:3:16
+
+N:Inlaid
+G:":w:3:17
+
+N:Ivory
+G:":w:3:18
+
+N:Marble
+G:":W:3:19
+
+N:Mithril
+G:":W:3:20
+
+N:Obsidian
+G:":D:3:21
+
+N:Pewter
+G:":s:3:22
+
+N:Platinum
+G:":w:3:23
+
+N:Rosetted
+G:":v:3:24
+
+N:Ruby
+G:":r:3:25
+
+N:Sapphire
+G:":b:3:26
+
+N:Shadowy
+G:":U:3:27
+
+N:Silver
+G:":W:3:28
+
+N:Smoky
+G:":D:3:29
+
+N:Spotted
+G:":y:3:30
+
+N:Swastika
+G:":v:3:31
+
+N:Tortoise Shell
+G:":u:3:32
+
+N:Translucent
+G:":y:3:33
+
+N:Transparent
+G:":U:3:34
+
+N:White Gold
+G:":w:3:35
+
+##### Fixed Potions #####
+
+N:Clear
+G:!:w:4:1
+
+N:Light Brown
+G:!:U:5:1
+
+N:Icky Green
+G:!:g:6:1
+
+N:xxx
+G:!:o:7:1
+
+##### Random Potions #####
+
+N:Acidic Orange
+G:!:o:8:1
+
+N:Azure
+G:!:B:8:2
+
+N:Black
+G:!:D:8:3
+
+N:Blood-Red
+G:!:r:8:4
+
+N:Blue Speckled
+G:!:b:8:5
+
+N:Blue
+G:!:b:8:6
+
+N:Bluish-Purple
+G:!:v:8:7
+
+N:Boiling Clear
+G:!:w:8:8
+
+N:Bright Red
+G:!:R:8:9
+
+N:Brown Speckled
+G:!:u:8:10
+
+N:Brown
+G:!:u:8:11
+
+N:Bubbling
+G:!:W:8:12
+
+N:Bubbly
+G:!:w:8:13
+
+N:Chartreuse
+G:!:G:8:14
+
+N:Chunky
+G:!:D:8:15
+
+N:Clotted Blue
+G:!:b:8:16
+
+N:Clotted Orange
+G:!:o:8:17
+
+N:Clotted Red
+G:!:r:8:18
+
+N:Clotted Silver
+G:!:s:8:19
+
+N:Cloudy
+G:!:w:8:20
+
+N:Coagulated Crimson
+G:!:r:8:21
+
+N:Copper Speckled
+G:!:U:8:22
+
+N:Crimson
+G:!:r:8:23
+
+N:Cyan
+G:!:B:8:24
+
+N:Dark Blue
+G:!:b:8:25
+
+N:Dark Green
+G:!:g:8:26
+
+N:Dark Red
+G:!:r:8:27
+
+N:Dirty Brown
+G:!:u:8:28
+
+N:Disgusting Yellow
+G:!:y:8:29
+
+N:Fibrous
+G:!:U:8:30
+
+N:Foaming
+G:!:w:8:31
+
+N:Fuming Green
+G:!:G:8:32
+
+N:Gelatinous Brown
+G:!:u:8:33
+
+N:Gloopy Green
+G:!:g:8:34
+
+N:Gloppy Purple
+G:!:v:8:35
+
+N:Gold Speckled
+G:!:y:8:36
+
+N:Gold
+G:!:y:8:37
+
+N:Grainy
+G:!:s:8:38
+
+N:Green Speckled
+G:!:g:8:39
+
+N:Green
+G:!:g:8:40
+
+N:Grey Speckled
+G:!:s:8:41
+
+N:Grey
+G:!:s:8:42
+
+N:Hazy
+G:!:W:8:43
+
+N:Ichor
+G:!:r:8:44
+
+N:Indigo
+G:!:v:8:45
+
+N:Ivory White
+G:!:w:8:46
+
+N:Lavender
+G:!:v:8:47
+
+N:Light Blue
+G:!:B:8:48
+
+N:Light Green
+G:!:G:8:49
+
+N:Luminescent
+G:!:y:8:50
+
+N:Magenta
+G:!:r:8:51
+
+N:Manly
+G:!:U:8:52
+
+N:Metallic Blue
+G:!:b:8:53
+
+N:Metallic Green
+G:!:g:8:54
+
+N:Metallic Grey
+G:!:s:8:55
+
+N:Metallic Purple
+G:!:v:8:56
+
+N:Metallic Red
+G:!:r:8:57
+
+N:Metallic
+G:!:s:8:58
+
+N:Misty
+G:!:W:8:59
+
+N:Oily Black
+G:!:D:8:60
+
+N:Oily Yellow
+G:!:y:8:61
+
+N:Opaque Red
+G:!:r:8:62
+
+N:Opaque Silver
+G:!:s:8:63
+
+N:Orange Speckled
+G:!:o:8:64
+
+N:Orange
+G:!:o:8:65
+
+N:Pink
+G:!:R:8:66
+
+N:Pink Speckled
+G:!:R:8:67
+
+N:Puce
+G:!:v:8:68
+
+N:Pungent Purple
+G:!:v:8:69
+
+N:Pungent
+G:!:R:8:70
+
+N:Purple Speckled
+G:!:v:8:71
+
+N:Purple
+G:!:v:8:72
+
+N:Red Speckled
+G:!:r:8:73
+
+N:Red
+G:!:r:8:74
+
+N:Sea-Green
+G:!:G:8:75
+
+N:Shimmering
+G:!:v:8:76
+
+N:Silver Speckled
+G:!:W:8:77
+
+N:Sky Blue
+G:!:B:8:78
+
+N:Smelly
+G:!:g:8:79
+
+N:Smoky
+G:!:D:8:80
+
+N:Sparkling Clear
+G:!:w:8:81
+
+N:Stinking
+G:!:u:8:82
+
+N:Strangely Phosphorescent
+G:!:v:8:83
+
+N:Swirling Grey
+G:!:s:8:84
+
+N:Swirling
+G:!:v:8:85
+
+N:Tangerine
+G:!:o:8:86
+
+N:Totally Black
+G:!:D:8:87
+
+N:Totally Clear
+G:!:w:8:88
+
+N:Vermilion
+G:!:r:8:89
+
+N:Violet Speckled
+G:!:v:8:90
+
+N:Violet
+G:!:v:8:91
+
+N:Viscous Pink
+G:!:R:8:92
+
+N:Viscous White
+G:!:w:8:93
+
+N:White
+G:!:w:8:94
+
+N:Yellow Speckled
+G:!:y:8:95
+
+N:Yellow
+G:!:y:8:96
+
+##### Wands #####
+
+N:Adamantite
+G:-:v:9:1
+
+N:Aluminum
+G:-:B:9:2
+
+N:Aluminum-Plated
+G:-:B:9:3
+
+N:Bent
+G:-:W:9:4
+
+N:Brass
+G:-:U:9:5
+
+N:Bronze
+G:-:U:9:6
+
+N:Carved
+G:-:U:9:7
+
+N:Cast Iron
+G:-:D:9:8
+
+N:Chromium
+G:-:w:9:9
+
+N:Copper
+G:-:U:9:10
+
+N:Copper-Plated
+G:-:U:9:11
+
+N:Glass-Plated
+G:-:y:9:12
+
+N:Gold
+G:-:y:9:13
+
+N:Gold-Plated
+G:-:y:9:14
+
+N:Hexagonal
+G:-:r:9:15
+
+N:Inlaid
+G:-:U:9:16
+
+N:Iron
+G:-:s:9:17
+
+N:Iron-Plated
+G:-:s:9:18
+
+N:Ivory
+G:-:w:9:19
+
+N:Lead
+G:-:s:9:20
+
+N:Lead-Plated
+G:-:s:9:21
+
+N:Long
+G:-:B:9:22
+
+N:Magnesium
+G:-:W:9:23
+
+N:Mithril
+G:-:B:9:24
+
+N:Mithril-Plated
+G:-:B:9:25
+
+N:Molybdenum
+G:-:W:9:26
+
+N:Nickel
+G:-:U:9:27
+
+N:Nickel-Plated
+G:-:U:9:28
+
+N:Pewter
+G:-:s:9:29
+
+N:Platinum
+G:-:w:9:30
+
+N:Runed
+G:-:u:9:31
+
+N:Rusty
+G:-:r:9:32
+
+N:Short
+G:-:b:9:33
+
+N:Silver
+G:-:W:9:34
+
+N:Silver-Plated
+G:-:W:9:35
+
+N:Steel
+G:-:W:9:36
+
+N:Steel-Plated
+G:-:W:9:37
+
+N:Tin
+G:-:W:9:38
+
+N:Tin-Plated
+G:-:W:9:39
+
+N:Titanium
+G:-:w:9:40
+
+N:Tungsten
+G:-:w:9:41
+
+N:Twisted
+G:-:B:9:42
+
+N:Uridium
+G:-:R:9:43
+
+N:Wood-Plated
+G:-:W:9:44
+
+N:Zinc
+G:-:W:9:45
+
+N:Zinc-Plated
+G:-:W:9:46
+
+N:Zirconium
+G:-:W:9:47
+
+##### Staffs #####
+
+N:Ashen
+G:_:s:10:1
+
+N:Aspen
+G:_:U:10:2
+
+N:Balsa
+G:_:U:10:3
+
+N:Bamboo
+G:_:U:10:4
+
+N:Banyan
+G:_:U:10:5
+
+N:Birch
+G:_:U:10:6
+
+N:Cedar
+G:_:U:10:7
+
+N:Cottonwood
+G:_:U:10:8
+
+N:Cypress
+G:_:U:10:9
+
+N:Dogwood
+G:_:U:10:10
+
+N:Elm
+G:_:U:10:11
+
+N:Eucalyptus
+G:_:U:10:12
+
+N:Gnarled
+G:_:u:10:13
+
+N:Golden
+G:_:y:10:14
+
+N:Hawthorn
+G:_:U:10:15
+
+N:Hemlock
+G:_:U:10:16
+
+N:Hickory
+G:_:U:10:17
+
+N:Ironwood
+G:_:u:10:18
+
+N:Ivory
+G:_:w:10:19
+
+N:Locust
+G:_:U:10:20
+
+N:Mahogany
+G:_:u:10:21
+
+N:Maple
+G:_:U:10:22
+
+N:Mistletoe
+G:_:g:10:23
+
+N:Mulberry
+G:_:U:10:24
+
+N:Oak
+G:_:U:10:25
+
+N:Pine
+G:_:U:10:26
+
+N:Redwood
+G:_:r:10:27
+
+N:Rosewood
+G:_:r:10:28
+
+N:Runed
+G:_:u:10:29
+
+N:Silver
+G:_:W:10:30
+
+N:Spruce
+G:_:U:10:31
+
+N:Sycamore
+G:_:U:10:32
+
+N:Teak
+G:_:U:10:33
+
+N:Walnut
+G:_:u:10:34
+
+N:Willow
+G:_:U:10:35
+
+##### Rods #####
+
+N:Adamantite
+G:-:v:11:1
+
+N:Aluminum
+G:-:B:11:2
+
+N:Aluminum-Plated
+G:-:B:11:3
+
+N:Bent
+G:-:W:11:4
+
+N:Brass
+G:-:U:11:5
+
+N:Bronze
+G:-:U:11:6
+
+N:Carved
+G:-:U:11:7
+
+N:Cast Iron
+G:-:D:11:8
+
+N:Chromium
+G:-:w:11:9
+
+N:Copper
+G:-:U:11:10
+
+N:Copper-Plated
+G:-:U:11:11
+
+N:Glass-Plated
+G:-:y:11:12
+
+N:Gold
+G:-:y:11:13
+
+N:Gold-Plated
+G:-:y:11:14
+
+N:Hexagonal
+G:-:r:11:15
+
+N:Inlaid
+G:-:U:11:16
+
+N:Iron
+G:-:s:11:17
+
+N:Iron-Plated
+G:-:s:11:18
+
+N:Ivory
+G:-:w:11:19
+
+N:Lead
+G:-:s:11:20
+
+N:Lead-Plated
+G:-:s:11:21
+
+N:Long
+G:-:B:11:22
+
+N:Magnesium
+G:-:W:11:23
+
+N:Mithril
+G:-:B:11:24
+
+N:Mithril-Plated
+G:-:B:11:25
+
+N:Molybdenum
+G:-:W:11:26
+
+N:Nickel
+G:-:U:11:27
+
+N:Nickel-Plated
+G:-:U:11:28
+
+N:Pewter
+G:-:s:11:29
+
+N:Platinum
+G:-:w:11:30
+
+N:Runed
+G:-:u:11:31
+
+N:Rusty
+G:-:r:11:32
+
+N:Short
+G:-:b:11:33
+
+N:Silver
+G:-:W:11:34
+
+N:Silver-Plated
+G:-:W:11:35
+
+N:Steel
+G:-:W:11:36
+
+N:Steel-Plated
+G:-:W:11:37
+
+N:Tin
+G:-:W:11:38
+
+N:Tin-Plated
+G:-:W:11:39
+
+N:Titanium
+G:-:w:11:40
+
+N:Tungsten
+G:-:w:11:41
+
+N:Twisted
+G:-:B:11:42
+
+N:Uridium
+G:-:R:11:43
+
+N:Wood-Plated
+G:-:W:11:44
+
+N:Zinc
+G:-:W:11:45
+
+N:Zinc-Plated
+G:-:W:11:46
+
+N:Zirconium
+G:-:W:11:47
+
+##### Weapons #####
+
+# Just an example...
+
+N:& Samurai Sword~
+G:|:W:13:1
+
+##### Scrolls #####
+
+# Names generated by the in-game name-mangler, so only a default is needed.
+
+# A default scroll. The length defines the maximum length of the name
+# it eventually has, and the SCROLL flag forces the game to randomise it.
+
+# N:%Scroll ---length 16---
+# G:?:w:200:x
+
+# The following makes 49 copies of the item below, where x goes from
+# 1 to 49. It is actually defined in macros.txt.
+
+s:1
+s:2
+s:3
+s:4
+s:5
+s:6
+s:7
+s:8
+s:9
+s:10
+s:11
+s:12
+s:13
+s:14
+s:15
+s:16
+s:17
+s:18
+s:19
+s:20
+s:21
+s:22
+s:23
+s:24
+s:25
+s:26
+s:27
+s:28
+s:29
+s:30
+s:31
+s:32
+s:33
+s:34
+s:35
+s:36
+s:37
+s:38
+s:39
+s:40
+s:41
+s:42
+s:43
+s:44
+s:45
+s:46
+s:47
+s:48
+s:49
+
+# And this makes a scroll which does not use the usual scheme to generate
+# its name.
+
+N:%Base & Crumpled Scroll~ !
+G:?:w:200:50

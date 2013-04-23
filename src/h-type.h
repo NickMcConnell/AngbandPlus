@@ -1,3 +1,4 @@
+#define H_TYPE_H
 /* File: h-type.h */
 
 #ifndef INCLUDED_H_TYPE_H
@@ -50,8 +51,10 @@ typedef void *vptr;
 typedef const char *cptr;
 
 
+#ifdef USE_FLOAT
 /* Since float's are silly, hard code real numbers as doubles */
 typedef double real;
+#endif /* USE_FLOAT */
 
 
 /* Error codes for function return values */
@@ -130,7 +133,9 @@ typedef unsigned long u32b;
 
 /*** Pointers to all the basic types defined above ***/
 
+#ifdef USE_FLOAT
 typedef real *real_ptr;
+#endif /* USE_FLOAT */
 typedef errr *errr_ptr;
 typedef char *char_ptr;
 typedef byte *byte_ptr;
@@ -150,6 +155,8 @@ typedef cptr *cptr_ptr;
 
 /*** Pointers to Functions with simple return types and any args ***/
 
+/* These are not prototypes, and they're never used, so I'm leaving them out. */
+#if 0
 typedef void	(*func_void)();
 typedef errr	(*func_errr)();
 typedef char	(*func_char)();
@@ -160,6 +167,7 @@ typedef uint	(*func_uint)();
 typedef real	(*func_real)();
 typedef vptr	(*func_vptr)();
 typedef cptr	(*func_cptr)();
+#endif
 
 
 

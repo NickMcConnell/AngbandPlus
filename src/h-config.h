@@ -1,3 +1,4 @@
+#define H_CONFIG_H
 /* File: h-config.h */
 
 #ifndef INCLUDED_H_CONFIG_H
@@ -304,7 +305,7 @@
  */
 #ifdef SET_UID
 # if !defined(HPUX) && !defined(ULTRIX) && !defined(SOLARIS) && \
-     !defined(SGI) && !defined(ISC)
+     !defined(SGI) && !defined(ISC) && !defined(__STRICT_ANSI__)
 #  define HAS_USLEEP
 # endif
 #endif

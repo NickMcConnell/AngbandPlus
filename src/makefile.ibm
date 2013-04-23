@@ -1,11 +1,9 @@
-# File: Makefile.dos
-
-# Purpose: Makefile support for "main-dos.c" and "main-ibm.c"
+# File: Makefile.ibm
 
 #
-# Note: Rename to "Makefile" before using
+# Makefile support for "main-ibm.c"
 #
-# Allegro support by rr9@angband.org (Robert Ruehlmann)
+# See "main-ibm.c" for more information.
 #
 
 
@@ -30,10 +28,11 @@ CC = gcc
 
 # Compiler flags
 CFLAGS = -O2 -s -DUSE_IBM \
-# -DANGBAND_2_8_1 -DHAS_USLEEP
+# -DHAS_USLEEP
 
 # Libraries
 LIBS = -lpc
+
 
 #
 # Targets

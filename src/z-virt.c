@@ -1,59 +1,36 @@
+#define Z_VIRT_C
 /* File: z-virt.c */
 
 /* Purpose: Memory management routines -BEN- */
 
 #include "z-virt.h"
-
-#include "z-util.h"
-
+#include "externs.h"
 
 /*
  * Allow debugging messages to track memory usage.
  */
-#ifdef VERBOSE_RALLOC
-static long virt_make = 0;
-static long virt_kill = 0;
-static long virt_size = 0;
-#endif
-
 
 /*
  * Optional auxiliary "rnfree" function
  */
-errr (*rnfree_aux)(vptr, huge) = NULL;
+vptr (*rnfree_aux)(vptr) = NULL;
 
 /*
- * Free some memory (that was allocated by ralloc).
+ * Free some memory (allocated by ralloc), return NULL
  */
-errr rnfree(vptr p, huge len)
+vptr rnfree(vptr p)
 {
-	/* Easy to free zero bytes */
-	if (len == 0) return (0);
-
-#ifdef VERBOSE_RALLOC
-
-	/* Decrease memory count */
-	virt_kill += len;
-
-	/* Message */
-	if (len > virt_size)
-	{
-		char buf[80];
-		sprintf(buf, "Kill (%ld): %ld - %ld = %ld.",
-		        len, virt_make, virt_kill, virt_make - virt_kill);
-		plog(buf);
-	}
-
-#endif
+	/* Easy to free nothing */
+	if (!p) return (NULL);
 
 	/* Use the "aux" function */
-	if (rnfree_aux) return ((*rnfree_aux)(p, len));
+	if (rnfree_aux) return ((*rnfree_aux)(p));
 
-	/* Or just use "free" */
-	else free ((char*)(p));
+	/* Use "free" */
+	free((char*)(p));
 
-	/* Success */
-	return (0);
+	/* Done */
+	return (NULL);
 }
 
 
@@ -68,7 +45,7 @@ vptr (*rpanic_aux)(huge) = NULL;
  * or if not, it can be used to save things, clean up, and exit.
  * By default, this function simply crashes the computer.
  */
-vptr rpanic(huge len)
+static vptr rpanic(huge len)
 {
 	/* Hopefully, we have a real "panic" function */
 	if (rpanic_aux) return ((*rpanic_aux)(len));
@@ -96,22 +73,6 @@ vptr ralloc(huge len)
 
 	/* Allow allocation of "zero bytes" */
 	if (len == 0) return ((vptr)(NULL));
-
-#ifdef VERBOSE_RALLOC
-
-	/* Count allocated memory */
-	virt_make += len;
-
-	/* Log important allocations */
-	if (len > virt_size)
-	{
-		char buf[80];
-		sprintf(buf, "Make (%ld): %ld - %ld = %ld.",
-		        len, virt_make, virt_kill, virt_make - virt_kill);
-		plog(buf);
-	}
-
-#endif
 
 	/* Use the aux function if set */
 	if (ralloc_aux) mem = (*ralloc_aux)(len);
@@ -161,16 +122,11 @@ cptr string_make(cptr str)
  */
 errr string_free(cptr str)
 {
-	huge len = 0;
-
 	/* Succeed on non-strings */
 	if (!str) return (0);
 
-	/* Count the number of chars in 'str' plus the terminator */
-	while (str[len++]) /* loop */;
-
 	/* Kill the buffer of chars we must have allocated above */
-	rnfree((vptr)(str), len);
+	rnfree((vptr)(str));
 
 	/* Success */
 	return (0);

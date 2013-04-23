@@ -1,3 +1,4 @@
+#define MELEE1_C
 /* File: melee1.c */
 
 /* Purpose: Monster attacks */
@@ -143,9 +144,9 @@ bool make_attack_normal(int m_idx)
 
 	object_type		*o_ptr;
 
-	char		o_name[80];
+	C_TNEW(o_name, ONAME_MAX, char);
 
-	char		m_name[80];
+	C_TNEW(m_name, MNAME_MAX, char);
 
 	char		ddesc[80];
 
@@ -166,10 +167,15 @@ bool make_attack_normal(int m_idx)
 		int d_side;
 
 	/* Not allowed to attack */
-	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
+	if (r_ptr->flags1 & (RF1_NEVER_BLOW) ||
 
-         /* ...nor if friendly */
-         if (m_ptr->smart & SM_ALLY)  return FALSE;
+	/* ...nor if friendly */
+	m_ptr->smart & SM_ALLY)
+	{
+		TFREE(m_name);
+		TFREE(o_name);
+		return FALSE;
+	}
 
 
 	/* Total armor */
@@ -180,10 +186,10 @@ bool make_attack_normal(int m_idx)
 
 
 	/* Get the monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, MNAME_MAX);
 
 	/* Get the "died from" information (i.e. "a kobold") */
-	monster_desc(ddesc, m_ptr, 0x88);
+	monster_desc(ddesc, m_ptr, 0x88, MNAME_MAX);
 
 
 	/* Assume no blink */
@@ -205,7 +211,7 @@ bool make_attack_normal(int m_idx)
 	/* Give back movement energy */	
 	m_ptr->energy += extract_energy[m_ptr->mspeed];
 	/* And take some attack energy instead */
-	m_ptr->energy -= (100/r_ptr->num_blows);
+	m_ptr->energy -= (TURN_ENERGY/r_ptr->num_blows);
 
 	/* Select an attack at random */
 	ap_cnt=rand_range(0,blow_types-1);
@@ -682,7 +688,7 @@ bool make_attack_normal(int m_idx)
 						if (!o_ptr->k_idx) continue;
 
 						/* Skip artifacts */
-                        if (artifact_p(o_ptr) || o_ptr->art_name) continue;
+                        if (allart_p(o_ptr)) continue;
 
 						/* Get a description */
 						object_desc(o_name, o_ptr, FALSE, 3);
@@ -833,7 +839,7 @@ bool make_attack_normal(int m_idx)
 					o_ptr = &inventory[INVEN_LITE];
 
 					/* Drain fuel */
-					if ((o_ptr->pval > 0) && (!artifact_p(o_ptr)))
+					if ((o_ptr->pval > 0) && (!allart_p(o_ptr)))
 					{
 						/* Reduce fuel */
 						o_ptr->pval -= (250 + randint(250));
@@ -1140,7 +1146,6 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
@@ -1169,7 +1174,6 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(20, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
@@ -1198,7 +1202,6 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(40, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
@@ -1227,7 +1230,6 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(80, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
@@ -1351,6 +1353,13 @@ bool make_attack_normal(int m_idx)
                 }
                 touched = FALSE;
             }
+
+            if (r_ptr->flags2 & RF2_RUN_AWAY)
+		{
+                              r_ptr->r_flags2 |= (RF2_RUN_AWAY);
+			msg_format("%^s runs away.", m_name);
+			delete_monster(m_ptr->fy, m_ptr->fx);
+		}
         }
 
 		/* Monster missed player */
@@ -1422,6 +1431,8 @@ bool make_attack_normal(int m_idx)
         msg_format("%^s flees in terror!", m_name);
     }
 
+	TFREE(m_name);
+	TFREE(o_name);
 
 	/* Assume we attacked */
 	return (TRUE);

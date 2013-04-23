@@ -1,3 +1,4 @@
+#define CONFIG_H
 /* File: config.h */
 
 /* Purpose: Angband specific configuration stuff */
@@ -257,12 +258,6 @@
 #define DELAY_LOAD_E_TEXT
 
 /*
- * OPTION: Delay the loading of the "r_text" array until it is actually
- * needed, saving ~60K, but "simplifying" the "monster" descriptions.
- */
-/* #define DELAY_LOAD_R_TEXT */
-
-/*
  * OPTION: Delay the loading of the "v_text" array until it is actually
  * needed, saving ~1K, but "destroying" the "vault" generation.
  */
@@ -285,6 +280,11 @@
  */
 /* #define SCORE_CHEATERS */
 
+
+/*
+ * Register score if the player quits.
+ */
+/*#define SCORE_QUITTERS*/
 
 
 /*
@@ -463,16 +463,16 @@
 /*
  * OPTION: Default font (when using X11).
  */
-#define DEFAULT_X11_FONT		"9x15"
+#define DEFAULT_X11_FONT		"5x8"
 
-/*
- * OPTION: Default fonts (when using X11)
- */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
-
+#define DEFAULT_X11_FONT_0            "9x15"
+#define DEFAULT_X11_FONT_1            "6x12"
+#define DEFAULT_X11_FONT_2            "6x12"
+#define DEFAULT_X11_FONT_3            "6x12"
+#define DEFAULT_X11_FONT_4            "5x8"
+#define DEFAULT_X11_FONT_5            "5x8"
+#define DEFAULT_X11_FONT_6            "5x8"
+#define DEFAULT_X11_FONT_7            "5x8"
 
 
 /*
@@ -580,4 +580,17 @@
  * Check the modification time of *_info.raw files
  * (by Keldon Jones)
  */
-/* #define CHECK_MODIFICATION_TIME */
+#define CHECK_MODIFICATION_TIME
+
+/*
+ * Allows the game to be saved in a form compatible with 4.1.0b,
+ * generating an extra [y/n] prompt to do so.
+ */
+/* #define ALLOW_410_SAVES */
+
+/*
+ * Display the time at which the program was compiled in do_cmd_version().
+ * This should work everywhere, but it is disabled by default as it relies
+ * on cmd4.c being recompiled whenever the game is compiled.
+ */
+/* #define SHOW_COMPILE_TIME */

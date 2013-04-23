@@ -45,6 +45,19 @@ example, it doesn't matter how good you are at 'Close Combat' - it will
 not help your 'Mindcrafting' skill. The only way to increase your
 'Mindcrafting' skill is to practice mindcrafting.
 
+On the character skill list (normally reached by pressing Chh from the
+dungeon screen), these skills are displayed in colours which indicate how
+each skill can be increased.
+White: Cannot be increased on this level.
+Grey: Can be increased with a potion of restore life levels.
+Yellow: Can be increased by using it as detailed below.
+Orange: Can be increased by either of the above methods.
+
+Skills which this character has never used are always displayed in white.
+
+Grey and orange skills only appear if they are drained, for instance by a
+special monster attack. 
+
 Skill Descriptions
 ==================
 
@@ -85,10 +98,9 @@ hit points are directly related to your score in this skill.
 
 Devices (Checked every use)
 
-This skill indicates your knowledge of magical devices. As well as
-determining your chance of being able to successfully use an item, it
-also determines your chance of recognising the worth of an item after
-carrying it for a while.
+This skill indicates your knowledge of magical devices, and determines
+your chance of being able to successfully use a rod, wand or staff, as
+well as many other objects.
 
 Resistance (Checked every use)
 
@@ -107,6 +119,12 @@ Searching (Checked every use)
 This skill determines your chances of finding secret doors and traps
 while actively searching for them (in 'Sneak' mode). It also determines
 your chances in the spontaneous 'Perception' checks.
+
+Item Sensing (Checked every use)
+
+This skill indicates how easily you recognise the value of a magical
+weapon or armour you are carrying, and how detailed the knowledge so
+gained is.
 
 Disarming (Checked every use)
 

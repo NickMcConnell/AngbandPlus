@@ -56,34 +56,38 @@ Moving one square while 'Fast (+70)' or faster .....................20%
 (Note that the movement costs are on a scale, so speeds between those
 shown will have costs between those shown.)
 
+Several other actions have take the same amount of time, and some more
+take half as much, so this amount is indicated below as "Movement Cost"
+or "1/2 Movement Cost".
+
 Making a melee attack .............................(100/(Blows/Round))%
 Making a missile attack ...........................(100/(Shots/Round))%
 Making a 'Natural' attack ..........................................10%
-Throwing an item ..................................................100%
+Throwing an item .........................................Movement Cost
 
-Opening a chest or door ...........................................100%
-Closing a door ....................................................100%
-Disarming a chest or trap .........................................100%
-Tunneling .........................................................100%
-Spiking a door closed .............................................100%
+Opening a chest or door ..................................Movement Cost
+Closing a door ...........................................Movement Cost
+Disarming a chest or trap ................................Movement Cost
+Tunneling ................................................Movement Cost
+Spiking a door closed ....................................Movement Cost
 
-Standing still ....................................................100%
-Resting ...........................................................100%
-Searching .........................................................100%
+Standing still ...........................................Movement Cost
+Resting ..................................................Movement Cost
+Searching ................................................Movement Cost
 
-Wield/wear an item ................................................100%
-Take off an item ..................................................100%
-Drop an item .......................................................50%
-Destroy an item ...................................................100%
-Refill a lamp/torch ................................................50%
-Eat some food .....................................................100%
+Wield/wear an item .......................................Movement Cost
+Take off an item .........................................Movement Cost
+Drop an item .........................................1/2 Movement Cost
+Destroy an item ..........................................Movement Cost
+Refill a lamp/torch ..................................1/2 Movement Cost
+Eat some food ............................................Movement Cost
 
-Quaff a potion ....................................................100%
-Read a scroll .....................................................100%
-Use a staff .......................................................100%
-Zap a wand ........................................................100%
-Use a rod .........................................................100%
-Cast a cantrip from a charm .......................................100%
+Quaff a potion ...........................................Movement Cost
+Read a scroll ............................................Movement Cost
+Use a staff ..............................................Movement Cost
+Zap a wand ...............................................Movement Cost
+Use a rod ................................................Movement Cost
+Cast a cantrip from a charm ..............................Movement Cost
 Activate an artifact ...............................................10%
 
 (Note that if a potion, scroll, wand or charm is in a belt pouch then it
