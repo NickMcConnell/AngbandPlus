@@ -105,74 +105,74 @@
 /*
  * Dungeon generation values
  */
-#define DUN_ROOMS	50	/* Number of rooms to attempt */
-#define DUN_UNUSUAL	200	/* Level/chance of unusual room */
-#define DUN_DEST	15	/* 1/chance of having a destroyed level */
+#define DUN_ROOMS       50      /* Number of rooms to attempt */
+#define DUN_UNUSUAL     200     /* Level/chance of unusual room */
+#define DUN_DEST        15      /* 1/chance of having a destroyed level */
 
 /*
  * Dungeon tunnel generation values
  */
-#define DUN_TUN_RND	10	/* Chance of random direction */
-#define DUN_TUN_CHG	30	/* Chance of changing direction */
-#define DUN_TUN_CON	15	/* Chance of extra tunneling */
-#define DUN_TUN_PEN	25	/* Chance of doors at room entrances */
-#define DUN_TUN_JCT	90	/* Chance of doors at tunnel junctions */
+#define DUN_TUN_RND     10      /* Chance of random direction */
+#define DUN_TUN_CHG     30      /* Chance of changing direction */
+#define DUN_TUN_CON     15      /* Chance of extra tunneling */
+#define DUN_TUN_PEN     25      /* Chance of doors at room entrances */
+#define DUN_TUN_JCT     90      /* Chance of doors at tunnel junctions */
 
 /*
  * Dungeon streamer generation values
  */
-#define DUN_STR_DEN	5	/* Density of streamers */
-#define DUN_STR_RNG	2	/* Width of streamers */
-#define DUN_STR_MAG	3	/* Number of magma streamers */
-#define DUN_STR_MC	90	/* 1/chance of treasure per magma */
-#define DUN_STR_QUA	2	/* Number of quartz streamers */
-#define DUN_STR_QC	40	/* 1/chance of treasure per quartz */
+#define DUN_STR_DEN     5       /* Density of streamers */
+#define DUN_STR_RNG     2       /* Width of streamers */
+#define DUN_STR_MAG     3       /* Number of magma streamers */
+#define DUN_STR_MC      90      /* 1/chance of treasure per magma */
+#define DUN_STR_QUA     2       /* Number of quartz streamers */
+#define DUN_STR_QC      40      /* 1/chance of treasure per quartz */
 
 /*
  * Dungeon treausre allocation values
  */
-#define DUN_AMT_ROOM	9	/* Amount of objects for rooms */
-#define DUN_AMT_ITEM	3	/* Amount of objects for rooms/corridors */
-#define DUN_AMT_GOLD	3	/* Amount of treasure for rooms/corridors */
+#define DUN_AMT_ROOM    9       /* Amount of objects for rooms */
+#define DUN_AMT_ITEM    3       /* Amount of objects for rooms/corridors */
+#define DUN_AMT_GOLD    3       /* Amount of treasure for rooms/corridors */
 
 /*
  * Hack -- Dungeon allocation "places"
  */
-#define ALLOC_SET_CORR		1	/* Hallway */
-#define ALLOC_SET_ROOM		2	/* Room */
-#define ALLOC_SET_BOTH		3	/* Anywhere */
+#define ALLOC_SET_CORR          1       /* Hallway */
+#define ALLOC_SET_ROOM          2       /* Room */
+#define ALLOC_SET_BOTH          3       /* Anywhere */
 
 /*
  * Hack -- Dungeon allocation "types"
  */
-#define ALLOC_TYP_RUBBLE	1	/* Rubble */
-#define ALLOC_TYP_TRAP		3	/* Trap */
-#define ALLOC_TYP_GOLD		4	/* Gold */
-#define ALLOC_TYP_OBJECT	5	/* Object */
+#define ALLOC_TYP_RUBBLE        1       /* Rubble */
+#define ALLOC_TYP_TRAP          3       /* Trap */
+#define ALLOC_TYP_GOLD          4       /* Gold */
+#define ALLOC_TYP_OBJECT        5       /* Object */
 
 
 
 /*
  * Maximum numbers of rooms along each axis (currently 6x18)
  */
-#define MAX_ROOMS_ROW	(DUNGEON_HGT / BLOCK_HGT)
-#define MAX_ROOMS_COL	(DUNGEON_WID / BLOCK_WID)
+#define MAX_ROOMS_ROW   (DUNGEON_HGT / BLOCK_HGT)
+#define MAX_ROOMS_COL   (DUNGEON_WID / BLOCK_WID)
 
 
 /*
  * Bounds on some arrays used in the "dun_data" structure.
  * These bounds are checked, though usually this is a formality.
  */
-#define CENT_MAX	100
-#define DOOR_MAX	200
-#define WALL_MAX	500
-#define TUNN_MAX	900
+#define CENT_MAX        100
+#define DOOR_MAX        200
+#define WALL_MAX        500
+#define TUNN_MAX        900
 
 
 /*
  * Maximal number of room types
  */
-#define ROOM_MAX	9
+#define ROOM_MAX        9
 
 
 
@@ -252,15 +252,15 @@ static dun_data *dun;
  */
 static room_data room[ROOM_MAX] =
 {
-	{ 0, 0, 0, 0, 0 },		/* 0 = Nothing */
-	{ 0, 0, -1, 1, 1 },		/* 1 = Simple (33x11) */
-	{ 0, 0, -1, 1, 1 },		/* 2 = Overlapping (33x11) */
-	{ 0, 0, -1, 1, 3 },		/* 3 = Crossed (33x11) */
-	{ 0, 0, -1, 1, 3 },		/* 4 = Large (33x11) */
-	{ 0, 0, -1, 1, 5 },		/* 5 = Monster nest (33x11) */
-	{ 0, 0, -1, 1, 5 },		/* 6 = Monster pit (33x11) */
-	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (33x22) */
-	{ -1, 2, -2, 3, 10 }	/* 8 = Greater vault (66x44) */
+	{ 0, 0, 0, 0, 0 },              /* 0 = Nothing */
+	{ 0, 0, -1, 1, 1 },             /* 1 = Simple (33x11) */
+	{ 0, 0, -1, 1, 1 },             /* 2 = Overlapping (33x11) */
+	{ 0, 0, -1, 1, 3 },             /* 3 = Crossed (33x11) */
+	{ 0, 0, -1, 1, 3 },             /* 4 = Large (33x11) */
+	{ 0, 0, -1, 1, 5 },             /* 5 = Monster nest (33x11) */
+	{ 0, 0, -1, 1, 5 },             /* 6 = Monster pit (33x11) */
+	{ 0, 1, -1, 1, 5 },             /* 7 = Lesser vault (33x22) */
+	{ -1, 2, -2, 3, 10 }    /* 8 = Greater vault (66x44) */
 };
 
 
@@ -310,7 +310,7 @@ static void rand_dir(int *rdir, int *cdir)
  */
 static void new_player_spot()
 {
-	int y, x, y_corner, x_corner;	/* -KRP */
+	int y, x, y_corner, x_corner;   /* -KRP */
 
 	/* Ideally, this will locate the upper left corner of the block
 	 * that the start room is in. -KRP
@@ -324,17 +324,17 @@ static void new_player_spot()
 		/* Pick a legal spot */
 /* We need to reduce the range to just the block where the start room
  * is generated.
- *		y = rand_range(1, DUNGEON_HGT - 2);
- *		x = rand_range(1, DUNGEON_WID - 2);
+ *              y = rand_range(1, DUNGEON_HGT - 2);
+ *              x = rand_range(1, DUNGEON_WID - 2);
  * -KRP
- */		
+ */             
 		y = rand_range(y_corner, y_corner + BLOCK_HGT);
 		x = rand_range(x_corner, x_corner + BLOCK_WID);
 
 		/* Must not have a character in it already!
 		 * I would have used a for-loop, but I'm not sure if
 		 * 'continue' would work properly then.  -KRP
-		 */	
+		 */     
 		if ((team[0].py == y) && (team[0].px == x)) continue;
 		if ((team[1].py == y) && (team[1].px == x)) continue;
 		if ((team[2].py == y) && (team[2].px == x)) continue;
@@ -1322,11 +1322,11 @@ static void build_type3(int y0, int x0)
  * Type 4 -- Large room with an inner room
  *
  * Possible sub-types:
- *	1 - An inner room
- *	2 - An inner room with a small inner room
- *	3 - An inner room with a pillar or pillars
- *	4 - An inner room with a checkerboard
- *	5 - An inner room with four compartments
+ *      1 - An inner room
+ *      2 - An inner room with a small inner room
+ *      3 - An inner room with a pillar or pillars
+ *      4 - An inner room with a checkerboard
+ *      5 - An inner room with four compartments
  */
 static void build_type4(int y0, int x0)
 {
@@ -1883,11 +1883,11 @@ static void build_type5(int y0, int x0)
  * a "collection" of monsters of a given type organized in the room.
  *
  * Monster types in the pit
- *   orc pit	(Dungeon Level 5 and deeper)
- *   troll pit	(Dungeon Level 20 and deeper)
- *   giant pit	(Dungeon Level 40 and deeper)
- *   dragon pit	(Dungeon Level 60 and deeper)
- *   demon pit	(Dungeon Level 80 and deeper)
+ *   orc pit    (Dungeon Level 5 and deeper)
+ *   troll pit  (Dungeon Level 20 and deeper)
+ *   giant pit  (Dungeon Level 40 and deeper)
+ *   dragon pit (Dungeon Level 60 and deeper)
+ *   demon pit  (Dungeon Level 80 and deeper)
  *
  * The inside room in a monster pit appears as shown below, where the
  * actual monsters in each location depend on the type of the pit
@@ -2074,8 +2074,8 @@ static void build_type6(int y0, int x0)
 
 				/* Restrict dragon breath type */
 				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
-				                          RF4_BR_FIRE | RF4_BR_COLD |
-				                          RF4_BR_POIS);
+							  RF4_BR_FIRE | RF4_BR_COLD |
+							  RF4_BR_POIS);
 
 				/* Done */
 				break;
@@ -2960,7 +2960,7 @@ static void cave_gen(void)
 	 */
 	by = dun->row_rooms / 2;
 	bx = dun->col_rooms / 2;
-	room_build(by, bx, 1);	/* This had better not fail! -KRP */
+	room_build(by, bx, 1);  /* This had better not fail! -KRP */
 	
 	/* Now we place the characters.  We randomly choose locations
 	 * in this block to drop the characters in; eventually, it should
@@ -3152,7 +3152,7 @@ static void cave_gen(void)
 	/* Determine the character location */
 /* As it happens, we've already done this above, so no need
  * to redo.  -KRP
- *	new_player_spot();
+ *      new_player_spot();
  */
 
 
@@ -3341,15 +3341,15 @@ static void town_gen_hack(void)
 	/* Place the stairs */
 /* Sorry, random stair placement is temporarily gone; we're sticking this
  * in the dead center of the town! -KRP
- *	while (TRUE)
- *	{
- */		/* Pick a location at least "three" from the outer walls*/
-/*		y = qy + rand_range(3, SCREEN_HGT - 4);
- *		x = qx + rand_range(3, SCREEN_WID - 4);
+ *      while (TRUE)
+ *      {
+ */             /* Pick a location at least "three" from the outer walls*/
+/*              y = qy + rand_range(3, SCREEN_HGT - 4);
+ *              x = qx + rand_range(3, SCREEN_WID - 4);
  *
- */		/* Require a "naked" floor grid */
-/*		if (cave_naked_bold(y, x)) break;
- *	}
+ */             /* Require a "naked" floor grid */
+/*              if (cave_naked_bold(y, x)) break;
+ *      }
  */
 	y = qy + (SCREEN_HGT / 2);
 	x = qx + (SCREEN_WID / 2);
@@ -3358,7 +3358,7 @@ static void town_gen_hack(void)
 	cave_set_feat(y, x, FEAT_MORE);
 
 
-	/* Place the player */	
+	/* Place the player */  
 	/* Place all four players, in the center of town. -KRP */
 	p_ptr = team;
 	player_place(y - 1, x, -1);
@@ -3526,7 +3526,7 @@ void generate_cave(void)
 
 
 		/* Mega-Hack -- no player yet */
-		/* No *players* yet! -KRP
+		/* No *players* yet! -KRP */
 		FOR_EACH_CHAR
 		(
 			p_ptr->px = p_ptr->py = 0;
@@ -3545,7 +3545,7 @@ void generate_cave(void)
 
 		/* The following lines are ok only because
 		 * FOR_EACH_CHAR resets p_ptr.  -KRP
-		 */	
+		 */     
 
 		/* Reset the monster generation level */
 		monster_level = p_ptr->depth;
@@ -3569,7 +3569,7 @@ void generate_cave(void)
 		/* Build a real level */
 		else
 		{
- 			/* Make a dungeon */
+			/* Make a dungeon */
 			cave_gen();
 		}
 

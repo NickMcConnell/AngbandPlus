@@ -2653,10 +2653,17 @@ void target_set_monster(int m_idx)
 	else
 	{
 		/* Reset target info */
-		p_ptr->target_set = FALSE;
-		p_ptr->target_who = 0;
-		p_ptr->target_row = 0;
-		p_ptr->target_col = 0;
+		/* We need to clear the target info for everyone, or
+		 * else 'following' players will try to hunt a
+		 * non-existent target. -KRP
+		 */
+		FOR_EACH_CHAR
+		(
+			p_ptr->target_set = FALSE;
+			p_ptr->target_who = 0;
+			p_ptr->target_row = 0;
+			p_ptr->target_col = 0;
+		)
 	}
 }
 

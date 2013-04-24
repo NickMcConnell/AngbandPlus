@@ -416,11 +416,12 @@
  */
 #ifndef DEFAULT_PATH
 /* This is my default path -KRP */
-# define DEFAULT_PATH "/usr/games/angband/tangband/lib/"
+/* # define DEFAULT_PATH "/usr/games/angband/tangband/lib/" */
 /* This is the original default path
- # define DEFAULT_PATH "./lib/"
+ * # define DEFAULT_PATH "./lib/"
  * -KRP
  */
+#define DEFAULT_PATH "./lib/"
 #endif
 
 
@@ -455,21 +456,21 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@phial.com"
+#define MAINTAINER      "benh@phial.com"
 
 
 /*
  * OPTION: Default font (when using X11).
  */
-#define DEFAULT_X11_FONT		"9x15"
+#define DEFAULT_X11_FONT                "9x15"
 
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_SCREEN         DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_MIRROR         DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_RECALL         DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_CHOICE         DEFAULT_X11_FONT
 
 
 

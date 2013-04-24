@@ -531,7 +531,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 
 	char f = ' ';
 
-	update_xp_ptrs();	/* xp_ptr hack -KRP */
+	update_xp_ptrs();       /* xp_ptr hack -KRP */
 
 	/* Initial */
 	s = (*sp);
@@ -1201,7 +1201,7 @@ static void display_player_xtra_info(void)
 	/* Maximize */
 	Term_putstr(col, 7, -1, TERM_WHITE, "Maximize");
 	Term_putstr(col+12, 7, -1, TERM_L_BLUE, maximize ? "Y" : "N");
-	/* 'maximize' hack -KRP
+	/* 'maximize' hack -KRP */
 
 	/* Preserve */
 	Term_putstr(col, 8, -1, TERM_WHITE, "Preserve");
@@ -1217,12 +1217,12 @@ static void display_player_xtra_info(void)
 	if (p_ptr->lev >= p_ptr->max_lev)
 	{
 		Term_putstr(col+8, 10, -1, TERM_L_GREEN,
-		            format("%10d", p_ptr->lev));
+			    format("%10d", p_ptr->lev));
 	}
 	else
 	{
 		Term_putstr(col+8, 10, -1, TERM_YELLOW,
-		            format("%10d", p_ptr->lev));
+			    format("%10d", p_ptr->lev));
 	}
 
 
@@ -1231,19 +1231,19 @@ static void display_player_xtra_info(void)
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
 		Term_putstr(col+8, 11, -1, TERM_L_GREEN,
-		            format("%10ld", p_ptr->exp));
+			    format("%10ld", p_ptr->exp));
 	}
 	else
 	{
 		Term_putstr(col+8, 11, -1, TERM_YELLOW,
-		            format("%10ld", p_ptr->exp));
+			    format("%10ld", p_ptr->exp));
 	}
 
 
 	/* Maximum Experience */
 	Term_putstr(col, 12, -1, TERM_WHITE, "Max Exp");
 	Term_putstr(col+8, 12, -1, TERM_L_GREEN,
-	            format("%10ld", p_ptr->max_exp));
+		    format("%10ld", p_ptr->max_exp));
 
 
 	/* Advance Experience */
@@ -1251,30 +1251,30 @@ static void display_player_xtra_info(void)
 	if (p_ptr->lev < PY_MAX_LEVEL)
 	{
 		s32b advance = (player_exp[p_ptr->lev - 1] *
-		                p_ptr->expfact / 100L);
+				p_ptr->expfact / 100L);
 		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
-		            format("%10ld", advance));
+			    format("%10ld", advance));
 	}
 	else
 	{
 		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
-		            format("%10s", "********"));
+			    format("%10s", "********"));
 	}
 
 
 	/* Gold */
 	Term_putstr(col, 15, -1, TERM_WHITE, "Gold");
 	Term_putstr(col+8, 15, -1, TERM_L_GREEN,
-	            format("%10ld", p_ptr->au));
+		    format("%10ld", p_ptr->au));
 
 
 	/* Burden */
 	sprintf(buf, "%d.%d lbs",
-	        p_ptr->total_weight / 10,
-	        p_ptr->total_weight % 10);
+		p_ptr->total_weight / 10,
+		p_ptr->total_weight % 10);
 	Term_putstr(col, 17, -1, TERM_WHITE, "Burden");
 	Term_putstr(col+8, 17, -1, TERM_L_GREEN,
-	            format("%10s", buf));
+		    format("%10s", buf));
 
 
 	/* Middle */
@@ -1516,47 +1516,47 @@ static u32b display_player_flag_head[4] =
 static cptr display_player_flag_names[4][8] =
 {
 	{
-		" Acid:",	/* TR2_RES_ACID */
-		" Elec:",	/* TR2_RES_ELEC */
-		" Fire:",	/* TR2_RES_FIRE */
-		" Cold:",	/* TR2_RES_COLD */
-		" Pois:",	/* TR2_RES_POIS */
-		" Fear:",	/* TR2_RES_FEAR */
-		" Lite:",	/* TR2_RES_LITE */
-		" Dark:"	/* TR2_RES_DARK */
+		" Acid:",       /* TR2_RES_ACID */
+		" Elec:",       /* TR2_RES_ELEC */
+		" Fire:",       /* TR2_RES_FIRE */
+		" Cold:",       /* TR2_RES_COLD */
+		" Pois:",       /* TR2_RES_POIS */
+		" Fear:",       /* TR2_RES_FEAR */
+		" Lite:",       /* TR2_RES_LITE */
+		" Dark:"        /* TR2_RES_DARK */
 	},
 
 	{
-		"Blind:",	/* TR2_RES_BLIND */
-		"Confu:",	/* TR2_RES_CONFU */
-		"Sound:",	/* TR2_RES_SOUND */
-		"Shard:",	/* TR2_RES_SHARD */
-		"Nexus:",	/* TR2_RES_NEXUS */
-		"Nethr:",	/* TR2_RES_NETHR */
-		"Chaos:",	/* TR2_RES_CHAOS */
-		"Disen:"	/* TR2_RES_DISEN */
+		"Blind:",       /* TR2_RES_BLIND */
+		"Confu:",       /* TR2_RES_CONFU */
+		"Sound:",       /* TR2_RES_SOUND */
+		"Shard:",       /* TR2_RES_SHARD */
+		"Nexus:",       /* TR2_RES_NEXUS */
+		"Nethr:",       /* TR2_RES_NETHR */
+		"Chaos:",       /* TR2_RES_CHAOS */
+		"Disen:"        /* TR2_RES_DISEN */
 	},
 
 	{
-		"S.Dig:",	/* TR3_SLOW_DIGEST */
-		"Feath:",	/* TR3_FEATHER */
-		"PLite:",	/* TR3_LITE */
-		"Regen:",	/* TR3_REGEN */
-		"Telep:",	/* TR3_TELEPATHY */
-		"Invis:",	/* TR3_SEE_INVIS */
-		"FrAct:",	/* TR3_FREE_ACT */
-		"HLife:"	/* TR3_HOLD_LIFE */
+		"S.Dig:",       /* TR3_SLOW_DIGEST */
+		"Feath:",       /* TR3_FEATHER */
+		"PLite:",       /* TR3_LITE */
+		"Regen:",       /* TR3_REGEN */
+		"Telep:",       /* TR3_TELEPATHY */
+		"Invis:",       /* TR3_SEE_INVIS */
+		"FrAct:",       /* TR3_FREE_ACT */
+		"HLife:"        /* TR3_HOLD_LIFE */
 	},
 
 	{
-		"Stea.:",	/* TR1_STEALTH */
-		"Sear.:",	/* TR1_SEARCH */
-		"Infra:",	/* TR1_INFRA */
-		"Tunn.:",	/* TR1_TUNNEL */
-		"Speed:",	/* TR1_SPEED */
-		"Blows:",	/* TR1_BLOWS */
-		"Shots:",	/* TR1_SHOTS */
-		"Might:"	/* TR1_MIGHT */
+		"Stea.:",       /* TR1_STEALTH */
+		"Sear.:",       /* TR1_SEARCH */
+		"Infra:",       /* TR1_INFRA */
+		"Tunn.:",       /* TR1_TUNNEL */
+		"Speed:",       /* TR1_SPEED */
+		"Blows:",       /* TR1_BLOWS */
+		"Shots:",       /* TR1_SHOTS */
+		"Might:"        /* TR1_MIGHT */
 	}
 };
 
@@ -1663,7 +1663,7 @@ static void display_player_misc_info(void)
 
 	char buf[80];
 
-	update_xp_ptrs();	/* xp_ptr hack -KRP */
+	update_xp_ptrs();       /* xp_ptr hack -KRP */
 
 	/* Name */
 	put_str("Name", 2, 1);
@@ -1729,7 +1729,7 @@ static void display_player_stat_info(void)
 
 	char buf[80];
 
-	update_xp_ptrs();	/* xp_ptr hack -KRP */
+	update_xp_ptrs();       /* xp_ptr hack -KRP */
 
 	/* Row */
 	row = 3;
@@ -2049,7 +2049,7 @@ errr file_character(cptr name, bool full)
 
 	/* Begin dump */
 	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 
 	/* Display player */
@@ -2090,7 +2090,7 @@ errr file_character(cptr name, bool full)
 		{
 			object_desc(o_name, &inventory[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n",
-			        index_to_label(i), paren, o_name);
+				index_to_label(i), paren, o_name);
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -2101,7 +2101,7 @@ errr file_character(cptr name, bool full)
 	{
 		object_desc(o_name, &inventory[i], TRUE, 3);
 		fprintf(fff, "%c%s %s\n",
-		        index_to_label(i), paren, o_name);
+			index_to_label(i), paren, o_name);
 	}
 	fprintf(fff, "\n\n");
 
@@ -2387,8 +2387,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 		/* Show a general "title" */
 		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
-		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
-		           caption, line, size), 0, 0);
+			   VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
+			   caption, line, size), 0, 0);
 
 
 		/* Prompt -- menu screen */
@@ -3101,30 +3101,30 @@ typedef struct high_score high_score;
 
 struct high_score
 {
-	char what[8];		/* Version info (string) */
+	char what[8];           /* Version info (string) */
 
-	char pts[10];		/* Total Score (number) */
+	char pts[10];           /* Total Score (number) */
 
-	char gold[10];		/* Total Gold (number) */
+	char gold[10];          /* Total Gold (number) */
 
-	char turns[10];		/* Turns Taken (number) */
+	char turns[10];         /* Turns Taken (number) */
 
-	char day[10];		/* Time stamp (string) */
+	char day[10];           /* Time stamp (string) */
 
-	char who[16];		/* Player Name (string) */
+	char who[16];           /* Player Name (string) */
 
-	char uid[8];		/* Player UID (number) */
+	char uid[8];            /* Player UID (number) */
 
-	char sex[2];		/* Player Sex (string) */
-	char p_r[3];		/* Player Race (number) */
-	char p_c[3];		/* Player Class (number) */
+	char sex[2];            /* Player Sex (string) */
+	char p_r[3];            /* Player Race (number) */
+	char p_c[3];            /* Player Class (number) */
 
-	char cur_lev[4];		/* Current Player Level (number) */
-	char cur_dun[4];		/* Current Dungeon Level (number) */
-	char max_lev[4];		/* Max Player Level (number) */
-	char max_dun[4];		/* Max Dungeon Level (number) */
+	char cur_lev[4];                /* Current Player Level (number) */
+	char cur_dun[4];                /* Current Dungeon Level (number) */
+	char max_lev[4];                /* Max Player Level (number) */
+	char max_dun[4];                /* Max Dungeon Level (number) */
 
-	char how[32];		/* Method of death (string) */
+	char how[32];           /* Method of death (string) */
 };
 
 
@@ -3347,9 +3347,9 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
-			        place, the_score.pts, the_score.who,
-			        race_info[pr].title, class_info[pc].title,
-			        clev);
+				place, the_score.pts, the_score.who,
+				race_info[pr].title, class_info[pc].title,
+				clev);
 
 			/* Append a "maximum level" */
 			if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
@@ -3359,13 +3359,13 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Another line of info */
 			sprintf(out_val, "               Killed by %s on %s %d",
-			        the_score.how, "Dungeon Level", cdun);
+				the_score.how, "Dungeon Level", cdun);
 
 			/* Hack -- some people die in the town */
 			if (!cdun)
 			{
 				sprintf(out_val, "               Killed by %s in the Town",
-				        the_score.how);
+					the_score.how);
 			}
 
 			/* Append a "maximum level" */
@@ -3376,8 +3376,8 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* And still another line of info */
 			sprintf(out_val,
-			        "               (User %s, Date %s, Gold %s, Turn %s).",
-			        user, when, gold, aged);
+				"               (User %s, Date %s, Gold %s, Turn %s).",
+				user, when, gold, aged);
 			c_put_str(attr, out_val, n*4 + 4, 0);
 		}
 
@@ -3518,7 +3518,7 @@ static errr top_twenty(void)
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -3609,7 +3609,7 @@ static errr predict_score(void)
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -4019,7 +4019,7 @@ static void handle_signal_abort(int sig)
 
 	/* Give a warning */
 	Term_putstr(0, 23, -1, TERM_RED,
-	            "A gruesome software bug LEAPS out at you!");
+		    "A gruesome software bug LEAPS out at you!");
 
 	/* Message */
 	Term_putstr(45, 23, -1, TERM_RED, "Panic save...");
@@ -4167,7 +4167,7 @@ void signals_init(void)
 }
 
 
-#else	/* HANDLE_SIGNALS */
+#else   /* HANDLE_SIGNALS */
 
 
 /*
@@ -4192,6 +4192,6 @@ void signals_init(void)
 }
 
 
-#endif	/* HANDLE_SIGNALS */
+#endif  /* HANDLE_SIGNALS */
 
 
