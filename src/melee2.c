@@ -2190,10 +2190,14 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
  * Choose "logical" directions for monster movement
  *
  * We store the directions in a special "mm" array
+ *
+ * Used to choose the direction of characters following the 'leader'.
+ * Why the heck was this declared as a 'static'?
+ * -KRP
  */
-static void get_moves(int m_idx, int mm[5])
+void get_moves(int m_idx, int mm[5])
 {
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr;
 
 	int y, ay, x, ax, 
 		i, min_dist;	/* -KRP */
@@ -2202,93 +2206,113 @@ static void get_moves(int m_idx, int mm[5])
 
 	int y2, x2;
 
-	/* It appears the very first thing we need to do is to
-	 * decide which player we're going to go after.
-	 * Attacking and movement is conducted the same way...
-	 * We need to find the "best" character for the monster
-	 * to move towards.  First it should use a visible character,
-	 * and failing that, go towards the closest invisible one.
-	 * So we need to make an array of distances, and a test
-	 * array. -KRP
-	 */
+	if (m_idx >= 0)		/* Monster hunting a player -KRP */
+	{
+		/* It appears the very first thing we need to do is to
+		 * decide which player we're going to go after.
+		 * Attacking and movement is conducted the same way...
+		 * We need to find the "best" character for the monster
+		 * to move towards.  First it should use a visible character,
+		 * and failing that, go towards the closest invisible one.
+		 * So we need to make an array of distances, and a test
+		 * array. -KRP
+		 */
 
-	int distances[4];
-	bool visible[5];
+		int distances[4];
+		bool visible[5];
 
-	/* Nobody known to be visible yet -KRP */
-	visible[4] = FALSE;
-	/* In the interests of efficiency, we shall only use one loop
-	 * to test visibility and determine distance. -KRP
-	 */
-	FOR_EACH_CHAR
-	(
-		visible[iterator] =
-			(projectable(m_ptr->fy, m_ptr->fx,
+		/* Set the monster -KRP */
+		m_ptr = &m_list[m_idx];
+
+		/* Nobody known to be visible yet -KRP */
+		visible[4] = FALSE;
+
+		/* In the interests of efficiency, we shall only use one loop
+		 * to test visibility and determine distance. -KRP
+		 */
+		FOR_EACH_CHAR
+		(
+			visible[iterator] =
+				(projectable(m_ptr->fy, m_ptr->fx,
 					p_ptr->py, p_ptr->px));
-		if (visible[iterator])
-			visible[4] = TRUE;
+			if (visible[iterator])
+				visible[4] = TRUE;
 
-		distances[iterator] = 
-			distance(m_ptr->fy, m_ptr->fx,
-				p_ptr->py, p_ptr->px);
-	)
+			distances[iterator] = 
+				distance(m_ptr->fy, m_ptr->fx,
+					p_ptr->py, p_ptr->px);
+		)
 
-	/* The logic here is somewhat convoluted.  We cycle through
-	 * each character, seeing if he is closer than those who came
-	 * before (obviously, the first must be).  Then, if someone is
-	 * visible, we check to see if he is before picking him;
-	 * otherwise, we just pick him.
-	 * Note that if two characters are equally close, we pick the
-	 * first.  -KRP
- 	 */
+		/* The logic here is somewhat convoluted.  We cycle through
+		 * each character, seeing if he is closer than those who came
+		 * before (obviously, the first must be).  Then, if someone is
+		 * visible, we check to see if he is before picking him;
+		 * otherwise, we just pick him.
+		 * Note that if two characters are equally close, we pick the
+		 * first.  -KRP
+ 		 */
 
-	min_dist = 10000;	/* Arbitrary large value -KRP */
-	for (i = 0; i < 4 ; i++)
-	{	/* I shouldn't need these, but just to be safe... -KRP */
-		if (distances[i] < min_dist)
-		{
-			if (visible[4])
+		min_dist = 10000;	/* Arbitrary large value -KRP */
+		for (i = 0; i < 4 ; i++)
+		{	/* I shouldn't need these, but just to be safe... -KRP */
+			if (distances[i] < min_dist)
 			{
-				if (visible[i])
+				if (visible[4])
+				{
+					if (visible[i])
+					{
+						min_dist = distances[i];
+						p_ptr = &team[i];
+					}
+				}
+				else
 				{
 					min_dist = distances[i];
 					p_ptr = &team[i];
 				}
 			}
-			else
-			{
-				min_dist = distances[i];
-				p_ptr = &team[i];
-			}
 		}
-	}
 
-	y2 = p_ptr->py;
-	x2 = p_ptr->px;
+		y2 = p_ptr->py;
+		x2 = p_ptr->px;
 
 /* This isn't currently defined. -KRP */
 #ifdef MONSTER_FLOW
-	/* Flow towards the player */
-	if (flow_by_sound)
-	{
 		/* Flow towards the player */
-		(void)get_moves_aux(m_idx, &y2, &x2);
-	}
+		if (flow_by_sound)
+		{
+			/* Flow towards the player */
+			(void)get_moves_aux(m_idx, &y2, &x2);
+		}
 #endif
 
-	/* Extract the "pseudo-direction" */
-	y = m_ptr->fy - y2;
-	x = m_ptr->fx - x2;
+		/* Extract the "pseudo-direction" */
+		y = m_ptr->fy - y2;
+		x = m_ptr->fx - x2;
 
 
-	/* Apply fear */
-	if (mon_will_run(m_idx))
-	{
-		/* This is not a very "smart" method XXX XXX */
-		y = (-y);
-		x = (-x);
+		/* Apply fear */
+		if (mon_will_run(m_idx))
+		{
+			/* This is not a very "smart" method XXX XXX */
+			y = (-y);
+			x = (-x);
+		}
 	}
-
+	else	/* Player following player -KRP */
+	{
+		if (p_ptr->target_set) /* Attack a monster */
+		{
+			m_ptr = &m_list[p_ptr->target_who];
+			y = p_ptr->py - m_ptr->fy;
+			x = p_ptr->px - m_ptr->fx;
+		}
+		else /* Follow leader */
+		{
+			y = p_ptr->py - team[leader].py;
+			x = p_ptr->px - team[leader].px;
+		}
+	}
 
 	/* Extract the "absolute distances" */
 	ax = ABS(x);

@@ -249,7 +249,7 @@ extern bool (*get_obj_num_hook)(int k_idx);
  */
 
 /* birth.c */
-extern void player_birth(int whoami);	/* -KRP */
+extern void player_birth(s16b whoami);	/* -KRP */
 /* Decide how to start the game -KRP */
 extern byte get_quick(void);
 /* update xp_ptrs as needed -KRP */
@@ -426,6 +426,8 @@ extern bool make_attack_normal(int m_idx);
 
 /* melee2.c */
 extern bool make_attack_spell(int m_idx);
+/* We need get_moves now for the leader function. -KRP */
+extern void get_moves(int m_idx, int *mm);
 extern void process_monsters(void);
 
 /* monster1.c */
@@ -448,7 +450,7 @@ extern void update_monsters(bool full);
 extern s16b monster_carry(int m_idx, object_type *j_ptr);
 extern void monster_swap(int y1, int x1, int y2, int x2);
 /* player_place now needs to know *which* player gets dumped! -KRP */
-extern s16b player_place(int y, int x, int which_player);
+extern s16b player_place(int y, int x, s16b which_player);
 extern s16b monster_place(int y, int x, monster_type *n_ptr);
 extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp);
 extern bool place_monster(int y, int x, bool slp, bool grp);

@@ -775,10 +775,18 @@ static void prt_frame_basic(void)
 {
 	int i;
 
+	char stemp[8] = "CHAR# ";
+
 	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Race and Class */
-	prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+/* Race replaced by ID -KRP
+ *	prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+ */
+	stemp[6] = '1' + (char) p_ptr->whoami;
+	stemp[7] = NULL;
+
+	prt_field(stemp, ROW_ID, COL_ID);
 	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 
 	/* Title */
@@ -2735,8 +2743,16 @@ void redraw_stuff(void)
 
 	if (p_ptr->redraw & (PR_MISC))
 	{
+		char stemp[8] = "CHAR# ";
+
 		p_ptr->redraw &= ~(PR_MISC);
-		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+/* Race replaced by ID -KRP 
+ *		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+ */
+		stemp[6] = '1' + (char) p_ptr->whoami;
+		stemp[7] = NULL;		
+
+		prt_field(stemp, ROW_ID, COL_ID);
 		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 	}
 

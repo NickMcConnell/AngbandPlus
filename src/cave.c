@@ -3762,6 +3762,11 @@ void disturb(int stop_search, int unused_flag)
 		p_ptr->redraw |= (PR_STATE);
 	}
 
+	/* Cancel following */
+	/* Hack: use stop_search for stop_follow -KRP */
+	if (stop_search)
+		p_ptr->following = FALSE;
+
 	/* Flush the input if requested */
 	if (flush_disturb) flush();
 }

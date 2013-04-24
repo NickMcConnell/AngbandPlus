@@ -13,6 +13,21 @@
 #include "angband.h"
 
 /*
+ * In changing angband to tangband, certain variables needed modification.
+ * sp_ptr, rp_ptr, cp_ptr, and mp_ptr can no longer be treated as
+ * constants, yet that's how the code treats them.  Hence, any block of
+ * code which uses them must first update their values, using this
+ * function. -KRP
+ */
+void update_xp_ptrs(void)
+{
+	sp_ptr = &sex_info[p_ptr->psex];
+	rp_ptr = &race_info[p_ptr->prace];
+	cp_ptr = &class_info[p_ptr->pclass];
+	mp_ptr = &magic_info[p_ptr->pclass];
+}
+
+/*
  * Save and restore the p_ptr, op_ptr, inventory, and other pointers.
  * Note that the call to "update_xp_ptrs" technically isn't a 'restore',
  * but who cares?  It's still good to do.
@@ -2324,7 +2339,10 @@ void verify_panel(void)
 	}
 
 	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_WID;
+	if (!p_ptr->depth) 
+	{
+		i = SCREEN_WID;
+	}
 
 	/* New panel col */
 	if (p_ptr->wx != i)
@@ -2620,10 +2638,15 @@ void target_set_monster(int m_idx)
 		monster_type *m_ptr = &m_list[m_idx];
 
 		/* Save target info */
-		p_ptr->target_set = TRUE;
-		p_ptr->target_who = m_idx;
-		p_ptr->target_row = m_ptr->fy;
-		p_ptr->target_col = m_ptr->fx;
+		/* For now, all chars get the same target. -KRP */
+		/* But only when a monster is targetted. */
+		FOR_EACH_CHAR
+		(
+			p_ptr->target_set = TRUE;
+			p_ptr->target_who = m_idx;
+			p_ptr->target_row = m_ptr->fy;
+			p_ptr->target_col = m_ptr->fx;
+		)
 	}
 
 	/* Clear target */

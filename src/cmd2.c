@@ -12,6 +12,73 @@
 
 #include "angband.h"
 
+/*
+ * Tell characters to follow current character -KRP
+ */
+void do_cmd_leader(void)
+{
+	/* Wake everyone up */
+	FOR_EACH_CHAR
+	(
+		disturb(1, 0);
+	)
+
+	if (leader == NOT_LEADING)
+	{
+		/* Set leader */
+		leader = p_ptr->whoami;
+		msg_print("OK guys, follow me! ");
+		FOR_EACH_CHAR
+		(
+			if (p_ptr->whoami != leader)
+				p_ptr->following = TRUE;
+		)
+	}
+	else if (leader == p_ptr->whoami)
+	{
+		/* Exit leader mode */
+		leader = NOT_LEADING;
+		msg_print("Quit following me, already! ");
+		FOR_EACH_CHAR
+		(
+			p_ptr->following = FALSE;
+		)
+	}
+	else
+		msg_print("You're not the leader. ");
+}
+
+/*
+ * Tell everyone to take a nap -KRP
+ */
+void do_cmd_nap(void)
+{
+	leader = p_ptr->whoami;
+	FOR_EACH_CHAR
+	(
+		if (p_ptr->whoami != leader)
+			p_ptr->resting = 1024;
+	)
+	msg_print("Take a break, guys. ");
+}
+
+/*
+ * Try again to start following the leader -KRP
+ */
+void do_cmd_tagalong(void)
+{
+	if (leader == NOT_LEADING)
+		msg_print("There's no leader. ");
+	else if (leader == p_ptr->whoami)
+		msg_print("But you're the leader! ");
+	else
+	{
+		p_ptr->following = TRUE;
+		follow_leader();
+	}
+}
+
+
 
 /*
  * Go up one level
@@ -1839,8 +1906,10 @@ void do_cmd_spike(void)
 
 /*
  * Determine if a given grid may be "walked"
+ *
+ * "static" removed; it seems that externs.h entry not required??? -KRP
  */
-static bool do_cmd_walk_test(int y, int x)
+bool do_cmd_walk_test(int y, int x)
 {
 	/* Hack -- walking obtains knowledge XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
@@ -1848,25 +1917,28 @@ static bool do_cmd_walk_test(int y, int x)
 	/* Require open space */
 	if (!cave_floor_bold(y, x))
 	{
-		/* Rubble */
-		if (cave_feat[y][x] == FEAT_RUBBLE)
+		if (!p_ptr->following)
 		{
-			/* Message */
-			msg_print("There is a pile of rubble in the way!");
-		}
+			/* Rubble */
+			if (cave_feat[y][x] == FEAT_RUBBLE)
+			{
+	/* Message */
+	msg_print("There is a pile of rubble in the way!");
+			}
 
-		/* Door */
-		else if (cave_feat[y][x] < FEAT_SECRET)
-		{
-			/* Message */
-			msg_print("There is a door in the way!");
-		}
+			/* Door */
+			else if (cave_feat[y][x] < FEAT_SECRET)
+			{
+				/* Message */
+				msg_print("There is a door in the way!");
+			}
 
-		/* Wall */
-		else
-		{
-			/* Message */
-			msg_print("There is a wall in the way!");
+			/* Wall */
+			else
+			{
+				/* Message */
+				msg_print("There is a wall in the way!");
+			}
 		}
 
 		/* Nope */

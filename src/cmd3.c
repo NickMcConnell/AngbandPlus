@@ -15,13 +15,14 @@
 /*** Team functions
  *	This seems to be the proper file for these sorts of handling
  *	functions -KRP
+ *
+ *	Well, actually, two of them are in cmd2.c instead... oh well.
  */
 
 /*
  * Disturb all team members
  * -KRP
  */
-
 void do_cmd_disturb_all(void)
 {
 	FOR_EACH_CHAR
@@ -30,6 +31,7 @@ void do_cmd_disturb_all(void)
 	)
 	msg_print("Everybody, wake up! ");
 	msg_print("Here comes trouble! ");
+	leader = NOT_LEADING;
 }
 
 

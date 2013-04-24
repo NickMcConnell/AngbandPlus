@@ -342,7 +342,11 @@
 #define PY_REGEN_HPBASE		1442	/* Min amount hp regen*2^16 */
 #define PY_REGEN_MNBASE		524		/* Min amount mana regen*2^16 */
 
-
+/*
+ * Leader variable constants -KRP
+ */
+#define NO_LEADER 255
+#define NOT_LEADING 128
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -433,8 +437,12 @@
  * That leaves a "border" around the "stat" values.
  */
 
-#define ROW_RACE		1
-#define COL_RACE		0	/* <race name> */
+/* Race has been removed from the standard display, and replaced
+ * by id#.  "CHAR# " -KRP
+ * #define ROW_RACE		1
+ * #define COL_RACE		0	*//* <race name> */
+#define ROW_ID			1
+#define COL_ID			0
 
 #define ROW_CLASS		2
 #define COL_CLASS		0	/* <class name> */
@@ -2758,6 +2766,6 @@ extern int PlayerUID;
 #endif
 
 
-/* values for the "manage_ptrs" function */
+/* values for the "manage_ptrs" function -KRP */
 #define SAVE_PTRS 0
 #define RESTORE_PTRS 1

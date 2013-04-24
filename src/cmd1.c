@@ -10,7 +10,42 @@
 
 #include "angband.h"
 
+/*
+ * Have player follow another player -KRP
+ */
+void follow_leader(void)
+{
+	int mm[5];
+	int i, d, ny, nx;
+	bool do_move = FALSE;
 
+	/* Find out which way(s) to go */
+	get_moves((-1) - p_ptr->whoami, mm);
+
+	for (i = 0; (i < 5) && (do_move == FALSE); i++)
+	{
+		d = mm[i];
+		ny = p_ptr->py + ddy[d];
+		nx = p_ptr->px + ddx[d];
+
+/*		msg_print("Trying %d,%d to %d,%d. ",
+ *			p_ptr->px, p_ptr->py, nx, ny);
+ */
+		if (do_cmd_walk_test(ny, nx))
+		{
+			do_move = TRUE;		/* We can move */
+			p_ptr->command_dir = d; /* Go this way */
+		}
+	}
+
+	if (do_move)
+		do_cmd_walk();	/* Move player */
+	else
+/*		disturb(1, 0);		*//* Player can't follow */
+		/* Disturbing is making a mess. -KRP */
+		msg_print("Which way do I go? ");
+
+}
 
 /*
  * Determine if the player "hits" a monster (normal combat).
@@ -1074,6 +1109,18 @@ void move_player(int dir, int do_pickup)
 	{
 		/* Attack */
 		py_attack(y, x);
+	}
+
+	/* Avoid walking into other characters. -KRP */
+	else if (cave_m_idx[y][x] < 0)
+	{
+		/* Characters in follow mode don't complain. */
+		if (!p_ptr->following)
+		{
+			/* Complain */
+			msg_print("Hey, watch where you're going! ");
+			disturb(0, 0);
+		}
 	}
 
 	/* Player can not walk through "walls" */

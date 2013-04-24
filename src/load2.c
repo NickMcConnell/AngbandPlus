@@ -2190,13 +2190,16 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
  * Note that the size of the dungeon is now hard-coded to
  * DUNGEON_HGT by DUNGEON_WID, and any dungeon with another
  * size will be silently discarded by this routine.
+ *
+ * Note that thanks to being half asleep, I obliterated this function,
+ * instead of copying it and creating a tangband version.  Ewww. -KRP
  */
 static errr rd_dungeon(void)
 {
 	int i, y, x;
 
 	s16b depth;
-	s16b py, px;
+	s16b py[4], px[4];
 	s16b ymax, xmax;
 
 	byte count;
@@ -2209,12 +2212,16 @@ static errr rd_dungeon(void)
 	/*** Basic info ***/
 
 	/* Header info */
-	rd_s16b(&depth);
+	rd_u16b(&depth);
 	rd_u16b(&tmp16u);
-	rd_s16b(&py);
-	rd_s16b(&px);
-	rd_s16b(&ymax);
-	rd_s16b(&xmax);
+	/* Read player locations -KRP */
+	for (i = 0; i < 4; i++)
+	{
+		rd_u16b(&py[i]);
+		rd_u16b(&px[i]);
+	}
+	rd_u16b(&ymax);
+	rd_u16b(&xmax);
 	rd_u16b(&tmp16u);
 	rd_u16b(&tmp16u);
 
@@ -2235,18 +2242,24 @@ static errr rd_dungeon(void)
 	}
 
 	/* Ignore illegal dungeons */
-	if ((px < 0) || (px >= DUNGEON_WID) ||
-	    (py < 0) || (py >= DUNGEON_HGT))
-	{
-		note(format("Ignoring illegal player location (%d,%d).", px, py));
-		return (1);
-	}
-
+	/* Test each player location. -KRP */
+	FOR_EACH_CHAR
+	(
+		if ((px[iterator] < 0) || (px[iterator] >= DUNGEON_WID) ||
+		    (py[iterator] < 0) || (py[iterator] >= DUNGEON_HGT))
+		{
+			note(format(
+	"Ignoring illegal player location (%d,%d).", 
+	px[iterator], py[iterator]));
+			return (1);
+		}
+	)
 
 	/* Old method */
+	/* I'm too tired to put this together properly. -KRP */
 	if (older_than(2,8,0))
 	{
-		return (rd_dungeon_aux(depth, py, px));
+		return (rd_dungeon_aux(depth, py[0], px[0]));
 	}
 
 
@@ -2309,16 +2322,26 @@ static errr rd_dungeon(void)
 	/*** Player ***/
 
 	/* Save depth */
-	p_ptr->depth = depth;
+	/* All players are on the same level. -KRP */
+	FOR_EACH_CHAR
+	(
+		p_ptr->depth = depth;
+	)
 
 	/* Place player in dungeon */
 	/* Note the ugly hack to indicate cave_m_idx ID -KRP */
-	if (!player_place(py, px, (-1) - p_ptr->whoami))
-	{
-		note(format("Cannot place player (%d,%d)!", py, px));
-		return (162);
-	}
-
+	/* Dump the *characters* in the dungeon. */
+	FOR_EACH_CHAR
+	(
+		if (!player_place(	py[iterator], 
+					px[iterator], 
+					(-1) - p_ptr->whoami))
+		{
+			note(format("Cannot place player (%d,%d)!", 
+				py[iterator], px[iterator]));
+			return (162);
+		}
+	)
 
 	/*** Objects ***/
 
@@ -2709,6 +2732,311 @@ static errr rd_savefile_new_aux(void)
 
 
 /*
+ * Read the Tangband savefile.
+ * Note that this is almost entirely copied from rd_savefile_new_aux.
+ * -KRP
+ */
+static errr rd_savefile_tang_aux(void)
+{
+	int i;
+
+	byte tmp8u;
+	u16b tmp16u;
+	u32b tmp32u;
+
+
+#ifdef VERIFY_CHECKSUMS
+	u32b n_x_check, n_v_check;
+	u32b o_x_check, o_v_check;
+#endif
+
+
+	/* Mention the savefile version */
+	note(format("Loading a %d.%d.%d savefile...",
+	            sf_major, sf_minor, sf_patch));
+
+
+	/* Hack -- Warn about "obsolete" versions */
+	if (older_than(2, 7, 4))
+	{
+		note("Warning -- converting obsolete save file.");
+	}
+
+
+	/* Strip the version bytes */
+	strip_bytes(4);
+
+	/* Hack -- decrypt */
+	xor_byte = sf_extra;
+
+
+	/* Clear the checksums */
+	v_check = 0L;
+	x_check = 0L;
+
+
+	/* Operating system info */
+	rd_u32b(&sf_xtra);
+
+	/* Time of savefile creation */
+	rd_u32b(&sf_when);
+
+	/* Number of resurrections */
+	rd_u16b(&sf_lives);
+
+	/* Number of times played */
+	rd_u16b(&sf_saves);
+
+
+	/* Later use (always zero) */
+	rd_u32b(&tmp32u);
+
+	/* Later use (always zero) */
+	rd_u32b(&tmp32u);
+
+
+	/* Read RNG state */
+	rd_randomizer();
+	if (arg_fiddle) note("Loaded Randomizer Info");
+
+	/* Load some flags. -KRP */
+	rd_byte(&maximize);
+	rd_byte(&preserve);
+	rd_byte(&leader);
+
+	/* Then the options */
+	/* For each character -KRP */
+	FOR_EACH_CHAR
+	(
+		rd_options();
+	)
+	if (arg_fiddle) note("Loaded Option Flags");
+
+
+	/* Then the "messages" */
+	rd_messages();
+	if (arg_fiddle) note("Loaded Messages");
+
+
+	/* Monster Memory */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > MAX_R_IDX)
+	{
+		note(format("Too many (%u) monster races!", tmp16u));
+		return (21);
+	}
+
+	/* Read the available records */
+	for (i = 0; i < tmp16u; i++)
+	{
+		monster_race *r_ptr;
+
+		/* Read the lore */
+		rd_lore(i);
+
+		/* Access that monster */
+		r_ptr = &r_info[i];
+
+		/* XXX XXX Hack -- repair old savefiles */
+		if (older_than(2, 7, 6))
+		{
+			/* Assume no kills */
+			r_ptr->r_pkills = 0;
+
+			/* Hack -- no previous lives */
+			if (sf_lives == 0)
+			{
+				/* All kills by this life */
+				r_ptr->r_pkills = r_ptr->r_tkills;
+			}
+
+			/* Hack -- handle uniques */
+			if (r_ptr->flags1 & (RF1_UNIQUE))
+			{
+				/* Assume no kills */
+				r_ptr->r_pkills = 0;
+
+				/* Handle dead uniques */
+				if (r_ptr->max_num == 0) r_ptr->r_pkills = 1;
+			}
+		}
+	}
+	if (arg_fiddle) note("Loaded Monster Memory");
+
+
+	/* Object Memory */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > MAX_K_IDX)
+	{
+		note(format("Too many (%u) object kinds!", tmp16u));
+		return (22);
+	}
+
+	/* Read the object memory */
+	for (i = 0; i < tmp16u; i++)
+	{
+		byte tmp8u;
+
+		object_kind *k_ptr = &k_info[i];
+
+		rd_byte(&tmp8u);
+
+		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
+		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+	}
+	if (arg_fiddle) note("Loaded Object Memory");
+
+
+	/* Load the Quests */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > 4)
+	{
+		note(format("Too many (%u) quests!", tmp16u));
+		return (23);
+	}
+
+	/* Load the Quests */
+	for (i = 0; i < tmp16u; i++)
+	{
+		rd_byte(&tmp8u);
+		q_list[i].level = tmp8u;
+		rd_byte(&tmp8u);
+		rd_byte(&tmp8u);
+		rd_byte(&tmp8u);
+	}
+	if (arg_fiddle) note("Loaded Quests");
+
+
+	/* Load the Artifacts */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > MAX_A_IDX)
+	{
+		note(format("Too many (%u) artifacts!", tmp16u));
+		return (24);
+	}
+
+	/* Read the artifact flags */
+	for (i = 0; i < tmp16u; i++)
+	{
+		rd_byte(&tmp8u);
+		a_info[i].cur_num = tmp8u;
+		rd_byte(&tmp8u);
+		rd_byte(&tmp8u);
+		rd_byte(&tmp8u);
+	}
+	if (arg_fiddle) note("Loaded Artifacts");
+
+
+	/*** Load character info here.  -KRP ***/
+	FOR_EACH_CHAR
+	(
+		/* Load identity -KRP */
+		rd_s16b(&(p_ptr->whoami));	/* Will this work? -KRP */
+
+		/* Read the extra stuff */
+		if (rd_extra()) return (25);
+		if (arg_fiddle) note("Loaded extra information");
+
+		/* These actually don't matter, but don't hurt
+		 * either.  -KRP
+		 */
+
+		/* Important -- Initialize the sex */
+		sp_ptr = &sex_info[p_ptr->psex];
+
+		/* Important -- Initialize the race/class */
+		rp_ptr = &race_info[p_ptr->prace];
+		cp_ptr = &class_info[p_ptr->pclass];
+
+		/* Important -- Initialize the magic */
+		mp_ptr = &magic_info[p_ptr->pclass];
+
+
+		/* Read the inventory */
+		if (rd_inventory())
+		{
+			note("Unable to read inventory");
+			return (21);
+		}
+	)
+	/*** end read character info :: Hopefully this worked! -KRP ***/
+
+	/* Read the stores */
+	rd_u16b(&tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		if (rd_store(i)) return (22);
+	}
+
+
+	/* I'm not dead yet... */
+	if (!p_ptr->is_dead)
+	{
+		/* Dead players have no dungeon */
+		note("Restoring Dungeon...");
+		if (rd_dungeon())
+		{
+			note("Error reading dungeon data");
+			return (34);
+		}
+
+		/* Read the ghost info */
+		rd_ghost();
+	}
+
+
+#ifdef VERIFY_CHECKSUMS
+
+	/* Recent version */
+	if (!older_than(2,8,2))
+	{
+		/* Save the checksum */
+		n_v_check = v_check;
+
+		/* Read the old checksum */
+		rd_u32b(&o_v_check);
+
+		/* Verify */
+		if (o_v_check != n_v_check)
+		{
+			note("Invalid checksum");
+			return (11);
+		}
+
+		/* Save the encoded checksum */
+		n_x_check = x_check;
+
+		/* Read the checksum */
+		rd_u32b(&o_x_check);
+
+		/* Verify */
+		if (o_x_check != n_x_check)
+		{
+			note("Invalid encoded checksum");
+			return (11);
+		}
+	}
+
+#endif
+
+
+	/* Hack -- no ghosts */
+	r_info[MAX_R_IDX-1].max_num = 0;
+
+
+	/* Success */
+	return (0);
+}
+
+/*
  * Actually read the savefile
  */
 errr rd_savefile_new(void)
@@ -2722,7 +3050,9 @@ errr rd_savefile_new(void)
 	if (!fff) return (-1);
 
 	/* Call the sub-function */
-	err = rd_savefile_new_aux();
+/* Wrong version; we're playing Tangband! -KRP */
+/* 	err = rd_savefile_new_aux();*/
+ 	err = rd_savefile_tang_aux();
 
 	/* Check for errors */
 	if (ferror(fff)) err = -1;

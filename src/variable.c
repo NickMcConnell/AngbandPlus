@@ -467,8 +467,8 @@ byte maximize;
 byte preserve;
 
 /* 
- * This variable determines if the team leader has been created or not.
- * -KRP
+ * This variable determines if there is yet a team leader, and, if he
+ * is active, which character he is. -KRP
  */
 byte leader;
 

@@ -1321,7 +1321,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
  * This now takes a variable for *which* player gets dumped, with values
  * 	from -1 to -4. -KRP
  */
-s16b player_place(int y, int x, int which_player)
+s16b player_place(int y, int x, s16b which_player)
 {
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] != 0) return (0);

@@ -1180,8 +1180,12 @@ static void wr_dungeon(void)
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
 	wr_u16b(0);
-	wr_u16b(p_ptr->py);
-	wr_u16b(p_ptr->px);
+	/* Save location of each character -KRP */
+	FOR_EACH_CHAR
+	(
+		wr_u16b(p_ptr->py);
+		wr_u16b(p_ptr->px);
+	)
 	wr_u16b(DUNGEON_HGT);
 	wr_u16b(DUNGEON_WID);
 	wr_u16b(0);
@@ -1379,7 +1383,6 @@ static bool wr_savefile_new(void)
 	/* Write the boolean "options" */
 	wr_options();
 
-
 	/* Dump the number of "messages" */
 	tmp16u = message_num();
 	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
@@ -1511,6 +1514,218 @@ static bool wr_savefile_new(void)
 
 
 /*
+ * Write a Tangband savefile.
+ * Note that this is mostly copied straight from wr_savefile_new().
+ * -KRP
+ */
+static bool wr_savefile_tang(void)
+{
+	int i;
+
+	u32b now;
+
+	byte tmp8u;
+	u16b tmp16u;
+
+
+	/* Guess at the current time */
+	now = time((time_t *)0);
+
+	/* Note the operating system */
+	sf_xtra = 0L;
+
+	/* Note when the file was saved */
+	sf_when = now;
+
+	/* Note the number of saves */
+	sf_saves++;
+
+
+	/*** Actually write the file ***/
+
+	/* Dump the file header */
+	xor_byte = 0;
+	wr_byte(VERSION_MAJOR);
+	xor_byte = 0;
+	wr_byte(VERSION_MINOR);
+	xor_byte = 0;
+	wr_byte(VERSION_PATCH);
+	xor_byte = 0;
+	tmp8u = rand_int(256);
+	wr_byte(tmp8u);
+
+	/* Reset the checksum */
+	v_stamp = 0L;
+	x_stamp = 0L;
+
+	/* Operating system */
+	wr_u32b(sf_xtra);
+
+	/* Time file last saved */
+	wr_u32b(sf_when);
+
+	/* Number of past lives */
+	wr_u16b(sf_lives);
+
+	/* Number of times saved */
+	wr_u16b(sf_saves);
+
+
+	/* Space */
+	wr_u32b(0L);
+	wr_u32b(0L);
+
+
+	/* Write the RNG state */
+	wr_randomizer();
+
+	/* Write some flags. -KRP */
+	wr_byte(maximize);
+	wr_byte(preserve);
+	wr_byte(leader);
+
+	/* Write the boolean "options" */
+	/* For each character -KRP */
+	FOR_EACH_CHAR
+	(
+		wr_options();
+	)
+
+	/* Dump the number of "messages" */
+	tmp16u = message_num();
+	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
+	wr_u16b(tmp16u);
+
+	/* Dump the messages (oldest first!) */
+	for (i = tmp16u - 1; i >= 0; i--)
+	{
+		wr_string(message_str(i));
+	}
+
+
+	/* Dump the monster lore */
+	tmp16u = MAX_R_IDX;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++) wr_lore(i);
+
+
+	/* Dump the object memory */
+	tmp16u = MAX_K_IDX;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++) wr_xtra(i);
+
+
+	/* Hack -- Dump the quests */
+	tmp16u = MAX_Q_IDX;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		wr_byte(q_list[i].level);
+		wr_byte(0);
+		wr_byte(0);
+		wr_byte(0);
+	}
+
+	/* Hack -- Dump the artifacts */
+	tmp16u = MAX_A_IDX;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+		wr_byte(a_ptr->cur_num);
+		wr_byte(0);
+		wr_byte(0);
+		wr_byte(0);
+	}
+
+	/*** Write the rest of the player info here. -KRP ***/
+	FOR_EACH_CHAR
+	(
+		/* Start with the character's ID -KRP */
+		wr_s16b(p_ptr->whoami);
+
+		/* Write the "extra" information */
+		wr_extra();
+ 
+
+		/* Dump the "player hp" entries */
+		tmp16u = PY_MAX_LEVEL;
+ 		wr_u16b(tmp16u);
+ 		for (i = 0; i < tmp16u; i++)
+ 		{
+ 			wr_s16b(p_ptr->player_hp[i]);
+ 		}
+ 
+
+		/* Write spell data */
+		wr_u32b(p_ptr->spell_learned1);
+		wr_u32b(p_ptr->spell_learned2);
+		wr_u32b(p_ptr->spell_worked1);
+		wr_u32b(p_ptr->spell_worked2);
+		wr_u32b(p_ptr->spell_forgotten1);
+		wr_u32b(p_ptr->spell_forgotten2);
+
+		/* Dump the ordered spells */
+		for (i = 0; i < 64; i++)
+		{
+			wr_byte(p_ptr->spell_order[i]);
+		}
+
+		/* Write the inventory */
+		for (i = 0; i < INVEN_TOTAL; i++)
+ 		{
+ 			object_type *o_ptr = &inventory[i];
+ 
+ 			/* Skip non-objects */
+			if (!o_ptr->k_idx) continue;
+ 
+ 			/* Dump index */
+			wr_u16b(i);
+ 
+ 			/* Dump object */
+			wr_item(o_ptr);
+ 		}
+ 
+ 		/* Add a sentinel */
+		wr_u16b(0xFFFF);
+ 	)
+	/*** Player info complete -KRP ***/
+
+	/* Note the stores */
+	tmp16u = MAX_STORES;
+	wr_u16b(tmp16u);
+
+	/* Dump the stores */
+	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
+
+
+	/* Player is not dead, write the dungeon */
+	if (!p_ptr->is_dead)
+	{
+		/* Dump the dungeon */
+		wr_dungeon();
+
+		/* Dump the ghost */
+		wr_ghost();
+	}
+
+
+	/* Write the "value check-sum" */
+	wr_u32b(v_stamp);
+
+	/* Write the "encoded checksum" */
+	wr_u32b(x_stamp);
+
+
+	/* Error in save */
+	if (ferror(fff) || (fflush(fff) == EOF)) return FALSE;
+
+	/* Successful save */
+	return TRUE;
+}
+
+
+/*
  * Medium level player saver
  *
  * XXX XXX XXX Angband 2.8.0 will use "fd" instead of "fff" if possible
@@ -1548,7 +1763,10 @@ static bool save_player_aux(char *name)
 		if (fff)
 		{
 			/* Write the savefile */
-			if (wr_savefile_new()) ok = TRUE;
+/* 			if (wr_savefile_new()) ok = TRUE; */
+
+			/* Write a Tangband savefile -KRP */
+			if (wr_savefile_tang()) ok = TRUE;
 
 			/* Attempt to close it */
 			if (my_fclose(fff)) ok = FALSE;
@@ -1560,7 +1778,7 @@ static bool save_player_aux(char *name)
 
 
 	/* Failure */
-	if (!ok) return (FALSE);
+ 	if (!ok) return (FALSE);
 
 	/* Successful save */
 	character_saved = TRUE;

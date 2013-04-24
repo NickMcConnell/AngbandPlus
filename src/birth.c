@@ -272,21 +272,6 @@ static s32b auto_round;
 static s32b last_round;
 
 
-/*
- * In changing angband to tangband, certain variables needed modification.
- * sp_ptr, rp_ptr, cp_ptr, and mp_ptr can no longer be treated as
- * constants, yet that's how the code treats them.  Hence, any block of
- * code which uses them must first update their values, using this
- * function. -KRP
- */
-void update_xp_ptrs(void)
-{
-	sp_ptr = &sex_info[p_ptr->psex];
-	rp_ptr = &race_info[p_ptr->prace];
-	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
-}
-
 /* Find out whether to start quickly or normally -KRP */
 byte get_quick(void)
 {
@@ -1075,7 +1060,7 @@ static void player_outfit(void)
 
 
 /* Make a character quickly -KRP */
-void quick_player_birth(int whoami)
+void quick_player_birth(s16b whoami)
 {
 	int i;
 	char buf[16] = "...............";
@@ -1318,8 +1303,10 @@ static bool player_birth_aux()
 
 	/*** Maximize mode ***/
 
-	if (leader == FALSE)	/* Only ask for maximize/perserve from
-				 * leader character! -KRP */
+	if (leader == NO_LEADER)	/* Only ask for maximize/perserve
+					 * if no characters created yet
+					 * -KRP
+					 */
 	{
 		/* Extra info */
 		Term_putstr(5, 15, -1, TERM_WHITE,
@@ -1735,7 +1722,7 @@ static bool player_birth_aux()
  * Note that we may be called with "junk" leftover in the various
  * fields, so we must be sure to clear them first.
  */
-void player_birth(int whoami)
+void player_birth(s16b whoami)
 {
 	int i, n;
 
@@ -1776,7 +1763,7 @@ void player_birth(int whoami)
 
 
 	/* Shops */
-	if (leader == FALSE)	/* Only generate shops once! -KRP */
+	if (leader == NO_LEADER)  /* Only generate shops once! -KRP */
 	{
 		for (n = 0; n < MAX_STORES; n++)
 		{
@@ -1791,6 +1778,7 @@ void player_birth(int whoami)
 		}
 	}
 
-	leader = TRUE;	/* By now, there's certainly a leader.  -KRP */
+	/* By now, there's certainly a leader. -KRP */
+	leader = NOT_LEADING;	
 
 }

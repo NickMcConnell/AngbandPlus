@@ -1313,15 +1313,25 @@ static void process_command(void)
 		/* Enter '^L'eader (pet) mode -KRP */
 		case KTRL('L'):
 		{
-		msg_print("The ^Leader function is not yet implemented");
-		break;
+			do_cmd_leader();
+			break;
 		}
 
 		/* Have the teammates take a '^N'ap -KRP */
 		case KTRL('N'):
 		{
-		msg_print("The ^Nap function is not yet implemented");
-		break;
+			do_cmd_nap();
+			msg_print(
+		"Characters will awake in Follow mode. ");
+			break;
+		}
+
+		/* Begin following the leader again. -KRP */
+		/* 'T'agalong */
+		case KTRL('T'):
+		{
+			do_cmd_tagalong();
+			break;
 		}
 
 		/* Hack -- Unknown command */
@@ -2155,6 +2165,13 @@ static void process_player(void)
 			process_command();
 		}
 
+		/* Follow the leader -KRP */
+		else if ((p_ptr->following) &&
+			(leader != p_ptr->whoami))
+		{
+			follow_leader();			
+		}
+
 		/* Normal command */
 		else
 		{
@@ -2682,6 +2699,10 @@ void play_game(bool new_game)
 	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
 
+	/* Paranoia; wipe player data to avoid stray 'following'
+	 * value. -KRP
+	 */
+	C_WIPE(team, 4, player_type);
 
 	/* Attempt to load */
 	if (!load_player())
@@ -2695,7 +2716,7 @@ void play_game(bool new_game)
 	{
 		/* Make new player */
 		new_game = TRUE;
-		leader = FALSE;		/* No leader yet! -KRP */
+		leader = NO_LEADER;		/* No leader yet! -KRP */
 
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;

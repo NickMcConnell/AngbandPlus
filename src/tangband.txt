@@ -1,0 +1,91 @@
+A brief introduction to Tangband:
+
+Team Angband takes the vanilla angband we all know and love and sends it
+into a new and exciting direction, that of the adventuring "party"
+crawling through dungeons instead of individual heroes.  While controlling
+a single character in the Pits of Angband is certainly fun, controlling
+multiple characters will greatly add to the gaming experience.
+
+Tangband 0.5.0 is fairly stable, although I would not be surprised if
+there were awful bugs floating around in it somewhere.  There
+certainly are plenty of annoying ones floating around.  Savefiles
+are now implemented, so significant exploration in the dungeon is now
+possible.  The introduction of rudimentary team-handling functions
+(^Nap, ^Leader, and ^Tagalong) should assist this significantly, although
+the player will still often feel like he's hearding four goats through
+a supermarket ;->
+
+Using Tangband 0.5.0 is fairly simple.  Firstly, download it, stick it
+in a directory, and compile it.  Note that unlike 0.3.0, Tangband
+0.5.0 will dump itself in an intelligent directory, and not in lala
+land (sorry about that! :)  No libraries are included; you should edit
+config.h to point to whatever libraries you normally use.  It shouldn't do
+anything to mangle them, but backing them up might not be a bad idea
+anyway.  Backing up your savefile is required; tangband will not yet read
+a standard angband savefile.
+
+When you start without a savefile, you'll be prompted to make
+4 characters.  You can either make them by hand the old fashioned way,
+or you can choose "quick-start" which will roll up four random
+characters for you.  I recommend the quick start, simply for the
+challenge of playing with Half-troll mages and Gnome Warriors :)
+
+Now you're in the game.  You'll notice that your control cycles from
+player to player.  When this gets annoying, try out the team functions.
+^N will put all other characters to sleep, letting you focus on the
+current character.  ^L will tell all other characters to follow you
+(as described above), and ^T will help reign in those that get lost.
+To turn off these functions, ^D should work well.  Oh, ^L acts as a
+toggle; when your leader character is done leading, have him ^L to
+stop leading.
+
+Now go down into the dungeon, and have some fun ganging up on poor
+helpless monsters.  Beware, though; the death of any one character
+will terminate the game and mangle your savefile beyond repair.  (Don't
+worry; *real* versions of Tangband won't do this to you :)  Note that the
+monsters are somewhat smart: they will go after the character nearest
+them, rather than doing something stupid like always chasing character #1.
+However, flow_by_smell is disabled, so don't expect any brilliance from
+the monsters... at least, not yet ;->
+
+Anyway, give it a whirl, see what sorts of bugs you can find, and let
+me know what you think.  You can email me at u1006057@warwick.net ;
+krpeters@warwick.net might work too :)
+
+Oh, right, I wanted to let you all know what the future for Tangband
+holds:
+
+1) An adventurer's guild, where new characters can be hired to replace
+	dead or retired (sucky) characters
+2) 'L'eader and 'N'ap functions, which massively improve the team handling
+	interface:  In 'L'eader mode, the other characters will turn into
+	docile pets that can be lead around easily until danger arrives;
+	in 'N'ap mode, the other characters will go to sleep while the
+	focus character takes care of some business.
+3) Improved monster intelligence, capable of hunting out weaker players,
+	teaming up to avoid getting slaughtered, and other nastiness
+4) Improved mage and priest spellcasting, allowing spellcasters to cast
+	defensive and other helpful magics upon the other team members:
+	Yes, that means Warriors walking around with Globe of
+	Invulnerability ;->
+5) Difficulty levels:  Obviously, having four characters instead of one
+	makes the game a lot easier.  Future versions will allow you
+	to choose how to counter this imbalance, such as through greatly
+	increasing the number of monsters per level, increasing their HP's
+	and other stats, or decreasing the depth which nasty buggers
+	appear.
+6) Active and inactive characters:  Why limit yourself to four characters?
+	Instead, you'll be able to have 24 or so stashed away in an inn,
+	which you can pick and choose among to outfit any particular
+	exploration into the dungeon.  I may even implement a method
+	to allow players to email their teammembers to one another,
+	allowing you to give or trade characters to/with one another.
+7) Increased class differentiation:  Since mages will no longer have to
+	march into hand-to-hand combat, there's no reason to give them
+	nastier magic attacks, while simultaneously crippling their
+	physical combat abilities even further...
+
+And that's just the ideas I've come up with so far :)
+
+	Karl
+		<marX>

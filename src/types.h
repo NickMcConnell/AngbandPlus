@@ -824,26 +824,23 @@ struct player_other
  */
 struct player_type
 {
-	int  whoami;		/* Player identity #, ranging from 0 to 3;
+	s16b whoami;		/* Player identity #, ranging from 0 to 3;
 				 * cave_m_idx entry based on this. -KRP
 				 */
+	/* Array of objects in player's inventory -KRP */
+	object_type player_items[INVEN_TOTAL];
+
+
 	s16b py;			/* Player location */
 	s16b px;			/* Player location */
 
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
-	byte pclass;		/* Class index */
+	byte pclass;			/* Class index */
 	byte oops;			/* Unused */
 
-	byte hitdie;		/* Hit dice (sides) */
-	byte expfact;		/* Experience factor */
-
-/* These have to be external to the character!!!
- * I will make them global variables. -KRP
- *	byte maximize;*/		
-		/* Maximize stats */
-/*	byte preserve;*/
-		/* Preserve artifacts */
+	byte hitdie;			/* Hit dice (sides) */
+	byte expfact;			/* Experience factor */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -852,75 +849,75 @@ struct player_type
 
 	s32b au;			/* Current Gold */
 
-	s16b max_depth;		/* Max depth */
+	s16b max_depth;			/* Max depth */
 	s16b depth;			/* Cur depth */
 
-	s16b max_lev;		/* Max level */
+	s16b max_lev;			/* Max level */
 	s16b lev;			/* Cur level */
 
-	s32b max_exp;		/* Max experience */
+	s32b max_exp;			/* Max experience */
 	s32b exp;			/* Cur experience */
-	u16b exp_frac;		/* Cur exp frac (times 2^16) */
+	u16b exp_frac;			/* Cur exp frac (times 2^16) */
 
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
-	u16b chp_frac;		/* Cur hit frac (times 2^16) */
+	u16b chp_frac;			/* Cur hit frac (times 2^16) */
 
 	s16b msp;			/* Max mana pts */
 	s16b csp;			/* Cur mana pts */
-	u16b csp_frac;		/* Cur mana frac (times 2^16) */
+	u16b csp_frac;			/* Cur mana frac (times 2^16) */
 
-	s16b stat_max[6];	/* Current "maximal" stat values */
-	s16b stat_cur[6];	/* Current "natural" stat values */
+	s16b stat_max[6];		/* Current "maximal" stat values */
+	s16b stat_cur[6];		/* Current "natural" stat values */
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
 	s16b blind;			/* Timed -- Blindness */
-	s16b paralyzed;		/* Timed -- Paralysis */
-	s16b confused;		/* Timed -- Confusion */
-	s16b afraid;		/* Timed -- Fear */
+	s16b paralyzed;			/* Timed -- Paralysis */
+	s16b confused;			/* Timed -- Confusion */
+	s16b afraid;			/* Timed -- Fear */
 	s16b image;			/* Timed -- Hallucination */
-	s16b poisoned;		/* Timed -- Poisoned */
+	s16b poisoned;			/* Timed -- Poisoned */
 	s16b cut;			/* Timed -- Cut */
 	s16b stun;			/* Timed -- Stun */
 
-	s16b protevil;		/* Timed -- Protection */
-	s16b invuln;		/* Timed -- Invulnerable */
+	s16b protevil;			/* Timed -- Protection */
+	s16b invuln;			/* Timed -- Invulnerable */
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
-	s16b shield;		/* Timed -- Shield Spell */
-	s16b blessed;		/* Timed -- Blessed */
-	s16b tim_invis;		/* Timed -- See Invisible */
-	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b shield;			/* Timed -- Shield Spell */
+	s16b blessed;			/* Timed -- Blessed */
+	s16b tim_invis;			/* Timed -- See Invisible */
+	s16b tim_infra;			/* Timed -- Infra Vision */
 
-	s16b oppose_acid;	/* Timed -- oppose acid */
-	s16b oppose_elec;	/* Timed -- oppose lightning */
-	s16b oppose_fire;	/* Timed -- oppose heat */
-	s16b oppose_cold;	/* Timed -- oppose cold */
-	s16b oppose_pois;	/* Timed -- oppose poison */
+	s16b oppose_acid;		/* Timed -- oppose acid */
+	s16b oppose_elec;		/* Timed -- oppose lightning */
+	s16b oppose_fire;		/* Timed -- oppose heat */
+	s16b oppose_cold;		/* Timed -- oppose cold */
+	s16b oppose_pois;		/* Timed -- oppose poison */
 
-	s16b word_recall;	/* Word of recall counter */
+	s16b word_recall;		/* Word of recall counter */
 
-	s16b energy;		/* Current energy */
+	s16b energy;			/* Current energy */
 
 	s16b food;			/* Current nutrition */
 
-	byte confusing;		/* Glowing hands */
-	byte searching;		/* Currently searching */
+	byte confusing;			/* Glowing hands */
+	byte searching;			/* Currently searching */
 
-	u32b spell_learned1;	/* Spell flags */
-	u32b spell_learned2;	/* Spell flags */
+	u32b spell_learned1;		/* Spell flags */
+	u32b spell_learned2;		/* Spell flags */
 	u32b spell_worked1;		/* Spell flags */
 	u32b spell_worked2;		/* Spell flags */
-	u32b spell_forgotten1;	/* Spell flags */
-	u32b spell_forgotten2;	/* Spell flags */
+	u32b spell_forgotten1;		/* Spell flags */
+	u32b spell_forgotten2;		/* Spell flags */
 
-	byte spell_order[64];	/* Spell order */
+	byte spell_order[64];		/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
-	char history[4][60];	/* Initial history */
+	char history[4][60];		/* Initial history */
 
 	u16b total_winner;		/* Total winner */
 	u16b panic_save;		/* Panic save */
@@ -931,19 +928,19 @@ struct player_type
 
 	bool wizard;			/* Player is in wizard mode */
 
-	bool cheat[CHEAT_MAX];	/* Cheating options */
+	bool cheat[CHEAT_MAX];		/* Cheating options */
 
 	/*** Temporary fields ***/
 
 	bool playing;			/* True if player is playing */
-
 	bool leaving;			/* True if player is leaving */
+	bool following;		/* True if player is following -KRP */
 
 	bool create_up_stair;	/* Create up stair on next level */
 	bool create_down_stair;	/* Create down stair on next level */
 
-	s16b wy;				/* Dungeon panel */
-	s16b wx;				/* Dungeon panel */
+	s16b wy;			/* Dungeon panel */
+	s16b wx;			/* Dungeon panel */
 
 	s16b total_weight;		/* Total weight being carried */
 
@@ -957,9 +954,9 @@ struct player_type
 
 	s16b health_who;		/* Health bar trackee */
 
-	s16b monster_race_idx;	/* Monster race trackee */
+	s16b monster_race_idx;		/* Monster race trackee */
 
-	s16b object_kind_idx;	/* Object kind trackee */
+	s16b object_kind_idx;		/* Object kind trackee */
 
 	s16b energy_use;		/* Energy use this turn */
 
@@ -970,8 +967,8 @@ struct player_type
 	s16b run_old_dir;		/* Direction we came from */
 	bool run_unused;		/* Unused (padding field) */
 	bool run_open_area;		/* Looking for an open area */
-	bool run_break_right;	/* Looking for a break (right) */
-	bool run_break_left;	/* Looking for a break (left) */
+	bool run_break_right;		/* Looking for a break (right) */
+	bool run_break_left;		/* Looking for a break (left) */
 
 	s16b command_cmd;		/* Gives identity of current command */
 	s16b command_arg;		/* Gives argument of current command */
@@ -993,83 +990,83 @@ struct player_type
 	bool old_heavy_shoot;
 	bool old_icky_wield;
 
-	s16b old_lite;		/* Old radius of lite (if any) */
-	s16b old_view;		/* Old radius of view (if any) */
+	s16b old_lite;			/* Old radius of lite (if any) */
+	s16b old_view;			/* Old radius of view (if any) */
 
-	s16b old_food_aux;	/* Old value of food */
+	s16b old_food_aux;		/* Old value of food */
 
-	bool cumber_armor;	/* Mana draining armor */
-	bool cumber_glove;	/* Mana draining gloves */
-	bool heavy_wield;	/* Heavy weapon */
-	bool heavy_shoot;	/* Heavy shooter */
-	bool icky_wield;	/* Icky weapon */
+	bool cumber_armor;		/* Mana draining armor */
+	bool cumber_glove;		/* Mana draining gloves */
+	bool heavy_wield;		/* Heavy weapon */
+	bool heavy_shoot;		/* Heavy shooter */
+	bool icky_wield;		/* Icky weapon */
 
-	s16b cur_lite;		/* Radius of lite (if any) */
+	s16b cur_lite;			/* Radius of lite (if any) */
 
-	u32b notice;		/* Special Updates (bit flags) */
-	u32b update;		/* Pending Updates (bit flags) */
-	u32b redraw;		/* Normal Redraws (bit flags) */
-	u32b window;		/* Window Redraws (bit flags) */
+	u32b notice;			/* Special Updates (bit flags) */
+	u32b update;			/* Pending Updates (bit flags) */
+	u32b redraw;			/* Normal Redraws (bit flags) */
+	u32b window;			/* Window Redraws (bit flags) */
 
-	s16b stat_use[6];	/* Current modified stats */
-	s16b stat_top[6];	/* Maximal modified stats */
+	s16b stat_use[6];		/* Current modified stats */
+	s16b stat_top[6];		/* Maximal modified stats */
 
 	/*** Extracted fields ***/
 
-	s16b stat_add[6];	/* Equipment stat bonuses */
-	s16b stat_ind[6];	/* Indexes into stat tables */
+	s16b stat_add[6];		/* Equipment stat bonuses */
+	s16b stat_ind[6];		/* Indexes into stat tables */
 
-	bool immune_acid;	/* Immunity to acid */
-	bool immune_elec;	/* Immunity to lightning */
-	bool immune_fire;	/* Immunity to fire */
-	bool immune_cold;	/* Immunity to cold */
+	bool immune_acid;		/* Immunity to acid */
+	bool immune_elec;		/* Immunity to lightning */
+	bool immune_fire;		/* Immunity to fire */
+	bool immune_cold;		/* Immunity to cold */
 
-	bool resist_acid;	/* Resist acid */
-	bool resist_elec;	/* Resist lightning */
-	bool resist_fire;	/* Resist fire */
-	bool resist_cold;	/* Resist cold */
-	bool resist_pois;	/* Resist poison */
+	bool resist_acid;		/* Resist acid */
+	bool resist_elec;		/* Resist lightning */
+	bool resist_fire;		/* Resist fire */
+	bool resist_cold;		/* Resist cold */
+	bool resist_pois;		/* Resist poison */
 
-	bool resist_fear;	/* Resist fear */
-	bool resist_lite;	/* Resist light */
-	bool resist_dark;	/* Resist darkness */
-	bool resist_blind;	/* Resist blindness */
-	bool resist_confu;	/* Resist confusion */
-	bool resist_sound;	/* Resist sound */
-	bool resist_shard;	/* Resist shards */
-	bool resist_nexus;	/* Resist nexus */
-	bool resist_nethr;	/* Resist nether */
-	bool resist_chaos;	/* Resist chaos */
-	bool resist_disen;	/* Resist disenchant */
+	bool resist_fear;		/* Resist fear */
+	bool resist_lite;		/* Resist light */
+	bool resist_dark;		/* Resist darkness */
+	bool resist_blind;		/* Resist blindness */
+	bool resist_confu;		/* Resist confusion */
+	bool resist_sound;		/* Resist sound */
+	bool resist_shard;		/* Resist shards */
+	bool resist_nexus;		/* Resist nexus */
+	bool resist_nethr;		/* Resist nether */
+	bool resist_chaos;		/* Resist chaos */
+	bool resist_disen;		/* Resist disenchant */
 
-	bool sustain_str;	/* Keep strength */
-	bool sustain_int;	/* Keep intelligence */
-	bool sustain_wis;	/* Keep wisdom */
-	bool sustain_dex;	/* Keep dexterity */
-	bool sustain_con;	/* Keep constitution */
-	bool sustain_chr;	/* Keep charisma */
+	bool sustain_str;		/* Keep strength */
+	bool sustain_int;		/* Keep intelligence */
+	bool sustain_wis;		/* Keep wisdom */
+	bool sustain_dex;		/* Keep dexterity */
+	bool sustain_con;		/* Keep constitution */
+	bool sustain_chr;		/* Keep charisma */
 
-	bool slow_digest;	/* Slower digestion */
+	bool slow_digest;		/* Slower digestion */
 	bool ffall;			/* Feather falling */
 	bool lite;			/* Permanent light */
-	bool regenerate;	/* Regeneration */
-	bool telepathy;		/* Telepathy */
-	bool see_inv;		/* See invisible */
-	bool free_act;		/* Free action */
-	bool hold_life;		/* Hold life */
+	bool regenerate;		/* Regeneration */
+	bool telepathy;			/* Telepathy */
+	bool see_inv;			/* See invisible */
+	bool free_act;			/* Free action */
+	bool hold_life;			/* Hold life */
 
-	bool impact;		/* Earthquake blows */
-	bool aggravate;		/* Aggravate monsters */
-	bool teleport;		/* Random teleporting */
-	bool exp_drain;		/* Experience draining */
+	bool impact;			/* Earthquake blows */
+	bool aggravate;			/* Aggravate monsters */
+	bool teleport;			/* Random teleporting */
+	bool exp_drain;			/* Experience draining */
 
-	bool bless_blade;	/* Blessed blade */
+	bool bless_blade;		/* Blessed blade */
 
-	s16b dis_to_h;		/* Known bonus to hit */
-	s16b dis_to_d;		/* Known bonus to dam */
-	s16b dis_to_a;		/* Known bonus to ac */
+	s16b dis_to_h;			/* Known bonus to hit */
+	s16b dis_to_d;			/* Known bonus to dam */
+	s16b dis_to_a;			/* Known bonus to ac */
 
-	s16b dis_ac;		/* Known base ac */
+	s16b dis_ac;			/* Known base ac */
 
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to dam */
@@ -1077,32 +1074,29 @@ struct player_type
 
 	s16b ac;			/* Base ac */
 
-	s16b see_infra;		/* Infravision range */
+	s16b see_infra;			/* Infravision range */
 
-	s16b skill_dis;		/* Skill: Disarming */
-	s16b skill_dev;		/* Skill: Magic Devices */
-	s16b skill_sav;		/* Skill: Saving throw */
-	s16b skill_stl;		/* Skill: Stealth factor */
-	s16b skill_srh;		/* Skill: Searching ability */
-	s16b skill_fos;		/* Skill: Searching frequency */
-	s16b skill_thn;		/* Skill: To hit (normal) */
-	s16b skill_thb;		/* Skill: To hit (shooting) */
-	s16b skill_tht;		/* Skill: To hit (throwing) */
-	s16b skill_dig;		/* Skill: Digging */
+	s16b skill_dis;			/* Skill: Disarming */
+	s16b skill_dev;			/* Skill: Magic Devices */
+	s16b skill_sav;			/* Skill: Saving throw */
+	s16b skill_stl;			/* Skill: Stealth factor */
+	s16b skill_srh;			/* Skill: Searching ability */
+	s16b skill_fos;			/* Skill: Searching frequency */
+	s16b skill_thn;			/* Skill: To hit (normal) */
+	s16b skill_thb;			/* Skill: To hit (shooting) */
+	s16b skill_tht;			/* Skill: To hit (throwing) */
+	s16b skill_dig;			/* Skill: Digging */
 
 	u32b noise;			/* Derived from stealth */
 
-	s16b num_blow;		/* Number of blows */
-	s16b num_fire;		/* Number of shots */
+	s16b num_blow;			/* Number of blows */
+	s16b num_fire;			/* Number of shots */
 
-	byte ammo_mult;		/* Ammo multiplier */
+	byte ammo_mult;			/* Ammo multiplier */
 
-	byte ammo_tval;		/* Ammo variety */
+	byte ammo_tval;			/* Ammo variety */
 
-	s16b pspeed;		/* Current speed */
-	
-	/* Array of objects in player's inventory -KRP */
-	object_type player_items[INVEN_TOTAL];
+	s16b pspeed;			/* Current speed */
 };
 
 
