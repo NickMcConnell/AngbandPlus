@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -168,6 +170,8 @@ void compact_monsters(int size)
 
 	int cur_lev, cur_dis, chance;
 
+	bool test_chars[5];	/* Testing array -KRP */
+
 
 	/* Message (only if compacting) */
 	if (size) msg_print("Compacting monsters...");
@@ -196,7 +200,16 @@ void compact_monsters(int size)
 			if (r_ptr->level > cur_lev) continue;
 
 			/* Ignore nearby monsters */
-			if ((cur_dis > 0) && (m_ptr->cdis < cur_dis)) continue;
+			/* Check distance to all characters -KRP */
+			test_chars[4] = FALSE;
+			FOR_EACH_CHAR
+			(
+				test_chars[iterator] = 
+					(m_ptr->cdis[iterator] < cur_dis);
+				if (test_chars[iterator])
+					test_chars[4] = TRUE;
+			)
+			if ((cur_dis > 0) && (test_chars[4])) continue;
 
 			/* Saving throw chance */
 			chance = 90;
@@ -850,6 +863,9 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * "disturb_near" (monster which is "easily" viewable moves in some
  * way).  Note that "moves" includes "appears" and "disappears".
  */
+/* We assume that p_ptr is set appropriately before this function
+ * is called. -KRP
+ */
 void update_mon(int m_idx, bool full)
 {
 	monster_type *m_ptr = &m_list[m_idx];
@@ -868,32 +884,51 @@ void update_mon(int m_idx, bool full)
 	/* Seen by vision */
 	bool easy = FALSE;
 
+	/* We declare px, py, dx, and dy out here because my macro doesn't
+	 * seem to like declarations inside.  -KRP
+	 */
+	int py, px, dy, dx;
+
+	/* Array of which characters (if any) can see the monster. */
+	bool can_see[4]={FALSE, FALSE, FALSE, FALSE}; 
 
 	/* Compute distance */
-	if (full)
+/*	if (full)
+ */
+	if (TRUE)	/* For now, we always compute distances -KRP */
 	{
-		int py = p_ptr->py;
-		int px = p_ptr->px;
+		/* Mega-hack time!  This must be done for each
+		 * character.  Note that FOR_EACH no longer obliterates
+		 * the ptrs. -KRP
+		 */
+		FOR_EACH_CHAR
+		(
+			py = p_ptr->py;
+			px = p_ptr->px;
 
-		/* Distance components */
-		int dy = (py > fy) ? (py - fy) : (fy - py);
-		int dx = (px > fx) ? (px - fx) : (fx - px);
+			/* Distance components */
+			dy = (py > fy) ? (py - fy) : (fy - py);
+			dx = (px > fx) ? (px - fx) : (fx - px);
 
-		/* Approximate distance */
-		d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+			/* Approximate distance */
+			d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
 
-		/* Restrict distance */
-		if (d > 255) d = 255;
+			/* Restrict distance */
+			if (d > 255) d = 255;
 
-		/* Save the distance */
-		m_ptr->cdis = d;
+			/* Save the distance */
+			m_ptr->cdis[p_ptr->whoami] = d;
+		)
 	}
 
 	/* Extract distance */
+	/* Extract *which* distance, ehe?  For now, to whichever character
+	 * happens to be the current one  -KRP
+	 */
 	else
 	{
 		/* Extract the distance */
-		d = m_ptr->cdis;
+		d = m_ptr->cdis[p_ptr->whoami];
 	}
 
 
@@ -902,110 +937,121 @@ void update_mon(int m_idx, bool full)
 
 
 	/* Nearby */
-	if (d <= MAX_SIGHT)
-	{
-		/* Basic telepathy */
-		if (p_ptr->telepathy)
+	/* We're going to do this for every character. -KRP */
+	FOR_EACH_CHAR
+	(
+/*	if (d <= MAX_SIGHT) */
+		if (m_ptr->cdis[p_ptr->whoami] <= MAX_SIGHT)
 		{
-			/* Empty mind, no telepathy */
-			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
+			/* Basic telepathy */
+			if (p_ptr->telepathy)
 			{
-				/* Memorize flags */
-				r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
-			}
-
-			/* Weird mind, occasional telepathy */
-			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
-			{
-				/* One in ten individuals are detectable */
-				if ((m_idx % 10) == 5)
+				/* Empty mind, no telepathy */
+				if (r_ptr->flags2 & (RF2_EMPTY_MIND))
 				{
-					/* Detectable */
-					flag = TRUE;
-
 					/* Memorize flags */
-					r_ptr->r_flags2 |= (RF2_WEIRD_MIND);
-
-					/* Hack -- Memorize mental flags */
-					if (r_ptr->flags2 & (RF2_SMART)) r_ptr->r_flags2 |= (RF2_SMART);
-					if (r_ptr->flags2 & (RF2_STUPID)) r_ptr->r_flags2 |= (RF2_STUPID);
+					r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
 				}
-			}
 
-			/* Normal mind, allow telepathy */
-			else
-			{
-				/* Detectable */
-				flag = TRUE;
-
-				/* Hack -- Memorize mental flags */
-				if (r_ptr->flags2 & (RF2_SMART)) r_ptr->r_flags2 |= (RF2_SMART);
-				if (r_ptr->flags2 & (RF2_STUPID)) r_ptr->r_flags2 |= (RF2_STUPID);
-			}
-		}
-
-		/* Normal line of sight, and not blind */
-		if (player_has_los_bold(fy, fx) && !p_ptr->blind)
-		{
-			bool do_invisible = FALSE;
-			bool do_cold_blood = FALSE;
-
-			/* Use "infravision" */
-			if (d <= p_ptr->see_infra)
-			{
-				/* Handle "cold blooded" monsters */
-				if (r_ptr->flags2 & (RF2_COLD_BLOOD))
+				/* Weird mind, occasional telepathy */
+				else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
 				{
-					/* Take note */
-					do_cold_blood = TRUE;
+	/* One in ten individuals are detectable */
+	if ((m_idx % 10) == 5)
+	{
+		/* Detectable */
+		can_see[p_ptr->whoami] = TRUE;
+		flag = TRUE;
+
+		/* Memorize flags */
+		r_ptr->r_flags2 |= (RF2_WEIRD_MIND);
+
+		/* Hack -- Memorize mental flags */
+		if (r_ptr->flags2 & (RF2_SMART)) r_ptr->r_flags2 |= (RF2_SMART);
+		if (r_ptr->flags2 & (RF2_STUPID)) r_ptr->r_flags2 |= (RF2_STUPID);
+	}
 				}
 
-				/* Handle "warm blooded" monsters */
+				/* Normal mind, allow telepathy */
 				else
 				{
-					/* Easy to see */
-					easy = flag = TRUE;
+	/* Detectable */
+	can_see[p_ptr->whoami] = TRUE;
+	flag = TRUE;
+
+	/* Hack -- Memorize mental flags */
+	if (r_ptr->flags2 & (RF2_SMART)) r_ptr->r_flags2 |= (RF2_SMART);
+	if (r_ptr->flags2 & (RF2_STUPID)) r_ptr->r_flags2 |= (RF2_STUPID);
 				}
 			}
 
-			/* Use "illumination" */
-			if (player_can_see_bold(fy, fx))
+			/* Normal line of sight, and not blind */
+			if (player_has_los_bold(fy, fx) && !p_ptr->blind)
 			{
-				/* Handle "invisible" monsters */
-				if (r_ptr->flags2 & (RF2_INVISIBLE))
-				{
-					/* Take note */
-					do_invisible = TRUE;
+				bool do_invisible = FALSE;
+				bool do_cold_blood = FALSE;
 
-					/* See invisible */
-					if (p_ptr->see_inv)
+				/* Use "infravision" */
+				if (d <= p_ptr->see_infra)
+				{
+					/* Handle "cold blooded" monsters */
+					if (r_ptr->flags2 & (RF2_COLD_BLOOD))
 					{
-						/* Easy to see */
-						easy = flag = TRUE;
+						/* Take note */
+						do_cold_blood = TRUE;
+					}
+
+					/* Handle "warm blooded" monsters */
+					else
+					{
+		/* Easy to see */
+		can_see[p_ptr->whoami] = TRUE;
+		easy = flag = TRUE;
 					}
 				}
 
-				/* Handle "normal" monsters */
-				else
+				/* Use "illumination" */
+				if (player_can_see_bold(fy, fx))
 				{
-					/* Easy to see */
-					easy = flag = TRUE;
+					/* Handle "invisible" monsters */
+					if (r_ptr->flags2 & (RF2_INVISIBLE))
+					{
+						/* Take note */
+						do_invisible = TRUE;
+
+						/* See invisible */
+						if (p_ptr->see_inv)
+						{
+			/* Easy to see */
+			can_see[p_ptr->whoami] = TRUE;
+			easy = flag = TRUE;
+						}
+					}
+
+					/* Handle "normal" monsters */
+					else
+					{
+			/* Easy to see */
+			can_see[p_ptr->whoami] = TRUE;
+			easy = flag = TRUE;
+					}
+				}
+
+				/* Visible */
+				if (flag)
+				{
+	/* Memorize flags */
+	if (do_invisible) r_ptr->r_flags2 |= (RF2_INVISIBLE);
+	if (do_cold_blood) r_ptr->r_flags2 |= (RF2_COLD_BLOOD);
 				}
 			}
-
-			/* Visible */
-			if (flag)
-			{
-				/* Memorize flags */
-				if (do_invisible) r_ptr->r_flags2 |= (RF2_INVISIBLE);
-				if (do_cold_blood) r_ptr->r_flags2 |= (RF2_COLD_BLOOD);
-			}
 		}
-	}
-
+	)
 
 	/* The monster is now visible */
-	if (flag)
+	if (flag)	/* If *any* player can see it, this will
+			 * be true. -KRP
+			 */
 	{
 		/* It was previously unseen */
 		if (!m_ptr->ml)
@@ -1272,8 +1318,10 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 /*
  * Place the player in the dungeon XXX XXX
+ * This now takes a variable for *which* player gets dumped, with values
+ * 	from -1 to -4. -KRP
  */
-s16b player_place(int y, int x)
+s16b player_place(int y, int x, int which_player)
 {
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] != 0) return (0);
@@ -1284,7 +1332,7 @@ s16b player_place(int y, int x)
 	p_ptr->px = x;
 
 	/* Mark cave grid */
-	cave_m_idx[y][x] = -1;
+	cave_m_idx[y][x] = which_player;
 
 	/* Success */
 	return (-1);

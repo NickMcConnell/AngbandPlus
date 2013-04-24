@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -303,17 +305,40 @@ static void rand_dir(int *rdir, int *cdir)
 
 /*
  * Returns random co-ordinates for player/monster/object
+ *
+ * Presumes that p_ptr has already been set properly! -KRP
  */
-static void new_player_spot(void)
+static void new_player_spot()
 {
-	int y, x;
+	int y, x, y_corner, x_corner;	/* -KRP */
+
+	/* Ideally, this will locate the upper left corner of the block
+	 * that the start room is in. -KRP
+	 */
+	y_corner = ((DUNGEON_HGT / BLOCK_HGT) / 2) * BLOCK_HGT;
+	x_corner = ((DUNGEON_WID / BLOCK_WID) / 2) * BLOCK_HGT;
 
 	/* Place the player */
 	while (1)
 	{
 		/* Pick a legal spot */
-		y = rand_range(1, DUNGEON_HGT - 2);
-		x = rand_range(1, DUNGEON_WID - 2);
+/* We need to reduce the range to just the block where the start room
+ * is generated.
+ *		y = rand_range(1, DUNGEON_HGT - 2);
+ *		x = rand_range(1, DUNGEON_WID - 2);
+ * -KRP
+ */		
+		y = rand_range(y_corner, y_corner + BLOCK_HGT);
+		x = rand_range(x_corner, x_corner + BLOCK_WID);
+
+		/* Must not have a character in it already!
+		 * I would have used a for-loop, but I'm not sure if
+		 * 'continue' would work properly then.  -KRP
+		 */	
+		if ((team[0].py == y) && (team[0].px == x)) continue;
+		if ((team[1].py == y) && (team[1].px == x)) continue;
+		if ((team[2].py == y) && (team[2].px == x)) continue;
+		if ((team[3].py == y) && (team[3].px == x)) continue;
 
 		/* Must be a "naked" floor grid */
 		if (!cave_naked_bold(y, x)) continue;
@@ -326,7 +351,10 @@ static void new_player_spot(void)
 	}
 
 	/* Place the player */
-	player_place(y, x);
+	/* Note we need to mark *which* player is placed, by an ugly
+	 * hack. -KRP
+	 */
+	player_place(y, x, (-1) - p_ptr->whoami);
 }
 
 
@@ -2925,6 +2953,31 @@ static void cave_gen(void)
 	/* No rooms yet */
 	dun->cent_n = 0;
 
+	/* We have to create the team entry room before the other rooms
+	 * are generated.  We always place it in the dead center of the
+	 * level, and make it into an ordinary room.  Then we have to
+	 * somehow make sure the characters wind up *here*. -KRP
+	 */
+	by = dun->row_rooms / 2;
+	bx = dun->col_rooms / 2;
+	room_build(by, bx, 1);	/* This had better not fail! -KRP */
+	
+	/* Now we place the characters.  We randomly choose locations
+	 * in this block to drop the characters in; eventually, it should
+	 * work, no?  We have to be careful not to drop two characters
+	 * on the same square. 
+	 *
+	 * Note that new_player_spot has been modified to drop characters
+	 * in this manner.
+	 *
+	 * -KRP
+	 */
+
+	FOR_EACH_CHAR
+	(
+		new_player_spot();
+	)
+
 	/* Build some rooms */
 	for (i = 0; i < DUN_ROOMS; i++)
 	{
@@ -3097,7 +3150,11 @@ static void cave_gen(void)
 
 
 	/* Determine the character location */
-	new_player_spot();
+/* As it happens, we've already done this above, so no need
+ * to redo.  -KRP
+ *	new_player_spot();
+ */
+
 
 
 	/* Basic "amount" */
@@ -3282,22 +3339,42 @@ static void town_gen_hack(void)
 
 
 	/* Place the stairs */
-	while (TRUE)
-	{
-		/* Pick a location at least "three" from the outer walls */
-		y = qy + rand_range(3, SCREEN_HGT - 4);
-		x = qx + rand_range(3, SCREEN_WID - 4);
-
-		/* Require a "naked" floor grid */
-		if (cave_naked_bold(y, x)) break;
-	}
+/* Sorry, random stair placement is temporarily gone; we're sticking this
+ * in the dead center of the town! -KRP
+ *	while (TRUE)
+ *	{
+ */		/* Pick a location at least "three" from the outer walls*/
+/*		y = qy + rand_range(3, SCREEN_HGT - 4);
+ *		x = qx + rand_range(3, SCREEN_WID - 4);
+ *
+ */		/* Require a "naked" floor grid */
+/*		if (cave_naked_bold(y, x)) break;
+ *	}
+ */
+	y = qy + (SCREEN_HGT / 2);
+	x = qx + (SCREEN_WID / 2);
 
 	/* Clear previous contents, add down stairs */
 	cave_set_feat(y, x, FEAT_MORE);
 
 
-	/* Place the player */
-	player_place(y, x);
+	/* Place the player */	
+	/* Place all four players, in the center of town. -KRP */
+	p_ptr = team;
+	player_place(y - 1, x, -1);
+	p_ptr++;
+	player_place(y, x - 1, -2);
+	p_ptr++;
+	player_place(y, x + 1, -3);
+	p_ptr++;
+	player_place(y + 1, x, -4);
+
+	/* Like, dude, we have to bring p_ptr back to its original value!
+	 * DUH!!! -KRP
+	 */
+	p_ptr = team;
+	op_ptr = team_info;
+	inventory = p_ptr->player_items;
 
 
 	/* Hack -- use the "complex" RNG */
@@ -3449,13 +3526,26 @@ void generate_cave(void)
 
 
 		/* Mega-Hack -- no player yet */
-		p_ptr->px = p_ptr->py = 0;
-
+		/* No *players* yet! -KRP
+		FOR_EACH_CHAR
+		(
+			p_ptr->px = p_ptr->py = 0;
+		)
 
 		/* Hack -- illegal panel */
-		p_ptr->wy = DUNGEON_HGT;
-		p_ptr->wx = DUNGEON_WID;
+		/* I have no idea what this does, but best to do it
+		 * to all characters. -KRP
+		 */
+		FOR_EACH_CHAR
+		(
+			p_ptr->wy = DUNGEON_HGT;
+			p_ptr->wx = DUNGEON_WID;
+		)
 
+
+		/* The following lines are ok only because
+		 * FOR_EACH_CHAR resets p_ptr.  -KRP
+		 */	
 
 		/* Reset the monster generation level */
 		monster_level = p_ptr->depth;
@@ -3469,7 +3559,6 @@ void generate_cave(void)
 		/* Nothing good here yet */
 		rating = 0;
 
-
 		/* Build the town */
 		if (!p_ptr->depth)
 		{
@@ -3480,7 +3569,7 @@ void generate_cave(void)
 		/* Build a real level */
 		else
 		{
-			/* Make a dungeon */
+ 			/* Make a dungeon */
 			cave_gen();
 		}
 
@@ -3497,7 +3586,8 @@ void generate_cave(void)
 		else feeling = 10;
 
 		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !p_ptr->preserve) feeling = 1;
+		if (good_item_flag && !preserve) feeling = 1;
+		/* 'preserve' hack -KRP */
 
 		/* It takes 1000 game turns for "feelings" to recharge */
 		if ((turn - old_turn) < 1000) feeling = 0;

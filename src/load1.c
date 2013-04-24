@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, and others
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -2130,7 +2132,8 @@ static errr rd_dungeon_old(void)
 	p_ptr->depth = depth;
 
 	/* Place player in dungeon */
-	if (!player_place(py, px))
+	/* Note the ugly hack to mark cave_m_idx ID.  -KRP */
+	if (!player_place(py, px, (-1) - p_ptr->whoami))
 	{
 		note(format("Cannot place player (%d,%d)!", py, px));
 		return (162);
@@ -2590,7 +2593,6 @@ static errr rd_savefile_old_aux(void)
 	u16b tmp16u;
 	u32b tmp32u;
 
-
 	/* Mention the savefile version */
 	note(format("Loading a %d.%d.%d savefile...",
 	            sf_major, sf_minor, sf_patch));
@@ -2857,7 +2859,7 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Hack -- maximize mode */
-	if (arg_crappy) p_ptr->maximize = TRUE;
+	if (arg_crappy) maximize = TRUE; /* 'maximize' hack -KRP */
 
 
 	/* Assume success */

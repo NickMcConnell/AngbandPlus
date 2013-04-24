@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -287,10 +289,12 @@ static void prt_sp(void)
 	char tmp[32];
 	byte color;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Do not show mana unless it matters */
-	if (!mp_ptr->spell_book) return;
-
+/* Alas, we must show mana always, to erase previous displays! -KRP
+ *	if (!mp_ptr->spell_book) return;
+ */
 
 	put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
 
@@ -771,6 +775,8 @@ static void prt_frame_basic(void)
 {
 	int i;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
+
 	/* Race and Class */
 	prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
 	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
@@ -1144,7 +1150,11 @@ static void calc_spells(void)
 
 	magic_type *s_ptr;
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p;		/* definition of p -KRP */
+
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
+
+	p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 
 	/* Hack -- must be literate */
@@ -1407,6 +1417,8 @@ static void calc_mana(void)
 	object_type *o_ptr;
 
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
+	
 	/* Hack -- Must be literate */
 	if (!mp_ptr->spell_book) return;
 
@@ -1696,6 +1708,7 @@ static void calc_bonuses(void)
 
 	u32b f1, f2, f3;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/*** Memorize ***/
 
@@ -1993,7 +2006,7 @@ static void calc_bonuses(void)
 		add = p_ptr->stat_add[i];
 
 		/* Maximize mode */
-		if (p_ptr->maximize)
+		if (maximize) /* 'maximize' hack -KRP */
 		{
 			/* Modify the stats for race/class */
 			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
@@ -2688,6 +2701,8 @@ void update_stuff(void)
  */
 void redraw_stuff(void)
 {
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
+
 	/* Redraw stuff */
 	if (!p_ptr->redraw) return;
 

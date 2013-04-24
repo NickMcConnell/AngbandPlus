@@ -1260,7 +1260,7 @@ static void do_cmd_wiz_zap(int d)
 		if (!m_ptr->r_idx) continue;
 
 		/* Skip distant monsters */
-		if (m_ptr->cdis > d) continue;
+		if (m_ptr->cdis[p_ptr->whoami] > d) continue;
 
 		/* Delete the monster */
 		delete_monster_idx(i);
@@ -1284,7 +1284,7 @@ static void do_cmd_wiz_unhide(int d)
 		if (!m_ptr->r_idx) continue;
 
 		/* Skip distant monsters */
-		if (m_ptr->cdis > d) continue;
+		if (m_ptr->cdis[p_ptr->whoami] > d) continue;
 
 		/* Optimize -- Repair flags */
 		repair_mflag_mark = repair_mflag_show = TRUE;

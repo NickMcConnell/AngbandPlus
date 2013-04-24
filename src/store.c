@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -876,6 +878,7 @@ static int home_carry(object_type *o_ptr)
 	s32b value, j_value;
 	object_type *j_ptr;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Check each existing object (try to combine) */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)

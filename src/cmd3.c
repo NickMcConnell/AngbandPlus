@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -10,9 +12,25 @@
 
 #include "angband.h"
 
+/*** Team functions
+ *	This seems to be the proper file for these sorts of handling
+ *	functions -KRP
+ */
 
+/*
+ * Disturb all team members
+ * -KRP
+ */
 
-
+void do_cmd_disturb_all(void)
+{
+	FOR_EACH_CHAR
+	(
+		disturb(1,0);
+	)
+	msg_print("Everybody, wake up! ");
+	msg_print("Here comes trouble! ");
+}
 
 
 /*

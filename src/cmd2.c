@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -36,8 +38,10 @@ void do_cmd_go_up(void)
 	p_ptr->create_down_stair = TRUE;
 
 	/* New depth */
-	p_ptr->depth--;
-
+	FOR_EACH_CHAR 				/* -KRP */
+	(
+		p_ptr->depth--;
+	)
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 }
@@ -68,7 +72,10 @@ void do_cmd_go_down(void)
 	p_ptr->create_up_stair = TRUE;
 
 	/* New level */
-	p_ptr->depth++;
+	FOR_EACH_CHAR			/* -KRP */
+	(
+		p_ptr->depth++;
+	)
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;

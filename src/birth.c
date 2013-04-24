@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -270,6 +272,42 @@ static s32b auto_round;
 static s32b last_round;
 
 
+/*
+ * In changing angband to tangband, certain variables needed modification.
+ * sp_ptr, rp_ptr, cp_ptr, and mp_ptr can no longer be treated as
+ * constants, yet that's how the code treats them.  Hence, any block of
+ * code which uses them must first update their values, using this
+ * function. -KRP
+ */
+void update_xp_ptrs(void)
+{
+	sp_ptr = &sex_info[p_ptr->psex];
+	rp_ptr = &race_info[p_ptr->prace];
+	cp_ptr = &class_info[p_ptr->pclass];
+	mp_ptr = &magic_info[p_ptr->pclass];
+}
+
+/* Find out whether to start quickly or normally -KRP */
+byte get_quick(void)
+{
+	char c=' ';
+
+	Term_clear();
+		
+	Term_putstr(5, 10, -1, TERM_WHITE, "Start quickly? (y/n)");
+
+	while( (c != 'y') && (c != 'n') )
+		c = inkey();
+
+	Term_clear();
+		
+	if (c == 'y')
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
 
 /*
  * Save the current data for later
@@ -425,7 +463,7 @@ static int adjust_stat(int value, s16b amount, int auto_roll)
 			{
 				value++;
 			}
-			else if (p_ptr->maximize)
+			else if (maximize) /* 'maximize' hack -KRP */
 			{
 				value += 10;
 			}
@@ -464,6 +502,7 @@ static void get_stats(void)
 
 	int dice[18];
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Roll and verify some stats */
 	while (TRUE)
@@ -495,7 +534,7 @@ static void get_stats(void)
 		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
 		/* Variable stat maxes */
-		if (p_ptr->maximize)
+		if (maximize) /* 'maximize' hack -KRP */
 		{
 			/* Start fully healed */
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
@@ -524,6 +563,7 @@ static void get_extra(void)
 {
 	int i, j, min_value, max_value;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Level one */
 	p_ptr->max_lev = p_ptr->lev = 1;
@@ -738,6 +778,8 @@ static void get_history(void)
  */
 static void get_ahw(void)
 {
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
+
 	/* Calculate the age */
 	p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
 
@@ -847,11 +889,16 @@ static void player_wipe(void)
 
 
 	/* Clear the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_wipe(&inventory[i]);
-	}
-
+/* 
+ * Having just wiped the player, this is no longer necessary!
+ * However, we do need to initialize the inventory pointer.
+ * -KRP
+ *	for (i = 0; i < INVEN_TOTAL; i++)
+ *	{
+ *		object_wipe(&inventory[i]);
+ *	}
+ */
+	inventory=p_ptr->player_items;
 
 	/* Start with no artifacts made yet */
 	for (i = 0; i < MAX_A_IDX; i++)
@@ -1027,6 +1074,65 @@ static void player_outfit(void)
 }
 
 
+/* Make a character quickly -KRP */
+void quick_player_birth(int whoami)
+{
+	int i;
+	char buf[16] = "...............";
+
+	player_wipe();
+
+	/* Give player his ID */
+	p_ptr->whoami = whoami;
+
+	/* Randomly assign sex, race, and class. -KRP */
+	/* Note: use rand_int for values from 0 to MAX-1 */
+	p_ptr->psex = rand_int(MAX_SEXES);
+	sp_ptr = &sex_info[p_ptr->psex];
+
+	p_ptr->prace = rand_int(MAX_RACES);
+	rp_ptr = &race_info[p_ptr->prace];	
+
+	p_ptr->pclass = rand_int(MAX_CLASS);
+	cp_ptr = &class_info[p_ptr->pclass];
+	mp_ptr = &magic_info[p_ptr->pclass];
+
+
+	/* Set variables -KRP */
+	maximize = TRUE;
+	preserve = TRUE;
+
+	/* Set options (this is ugly!) -KRP */
+	for (i=0 ; i < OPT_MAX ; i++)
+		op_ptr->opt[i] = option_quick[i];
+
+
+	/* Get basic player info -KRP */
+	get_stats(); get_extra(); get_ahw(); get_history(); get_money();
+
+
+	/* Update info according to race/class -KRP */
+	p_ptr->update |= ( PU_BONUS | PU_HP );
+	update_stuff();
+	p_ptr->chp = p_ptr->mhp;
+	p_ptr->csp = p_ptr->msp;
+
+	/* Create a pseudo-name -KRP */
+	buf[0] = (char) ('A' + p_ptr->whoami);
+	buf[1] = '-';
+	for (i = 0; i < 6; i++)
+		buf[i+2] = (char) ('0' + (p_ptr->stat_top[i]%10));
+	buf[8] = ':';
+	buf[9] = 0; /* Terminate string */
+
+	strcpy(op_ptr->full_name, buf);
+
+	/* Finish up -KRP */
+	display_player(0);
+	get_name();
+}
+
+
 /*
  * Helper function for 'player_birth()'
  *
@@ -1179,7 +1285,7 @@ static bool player_birth_aux()
 		str = cp_ptr->title;
 
 		/* Verify legality */
-		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
+		if (!(rp_ptr->choice & (1L << n))) mod = "(*)";
 
 		/* Display */
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
@@ -1212,59 +1318,62 @@ static bool player_birth_aux()
 
 	/*** Maximize mode ***/
 
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'maximize' mode makes the game harder at the start,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"but often makes it easier to win.");
-
-	/* Ask about "maximize" mode */
-	while (1)
+	if (leader == FALSE)	/* Only ask for maximize/perserve from
+				 * leader character! -KRP */
 	{
-		put_str("Use 'maximize' mode? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell("Illegal maximize flag!");
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+"Using 'maximize' mode makes the game harder at the start,");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"but often makes it easier to win.");
+
+		/* Ask about "maximize" mode */
+		while (1)
+		{
+			put_str("Use 'maximize' mode? (y/n) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal maximize flag!");
+		}
+	
+		/* Set "maximize" mode */
+		maximize = (c == 'y'); /* 'maximize' hack -KRP */
+
+		/* Clear */
+		clear_from(15);
+	
+
+		/*** Preserve mode ***/
+
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+"Using 'preserve' mode makes it difficult to 'lose' artifacts,");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+"but eliminates the 'special' feelings about some levels.");
+
+		/* Ask about "preserve" mode */
+		while (1)
+		{
+			put_str("Use 'preserve' mode? (y/n) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal preserve flag!");
+		}
+	
+		/* Set "preserve" mode */
+		preserve = (c == 'y'); /* 'preserve' hack -KRP */
+
+		/* Clear */
+		clear_from(20);
 	}
-
-	/* Set "maximize" mode */
-	p_ptr->maximize = (c == 'y');
-
-	/* Clear */
-	clear_from(15);
-
-
-	/*** Preserve mode ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'preserve' mode makes it difficult to 'lose' artifacts,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"but eliminates the 'special' feelings about some levels.");
-
-	/* Ask about "preserve" mode */
-	while (1)
-	{
-		put_str("Use 'preserve' mode? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell("Illegal preserve flag!");
-	}
-
-	/* Set "preserve" mode */
-	p_ptr->preserve = (c == 'y');
-
-	/* Clear */
-	clear_from(20);
-
 
 #ifdef ALLOW_AUTOROLLER
 
@@ -1595,7 +1704,6 @@ static bool player_birth_aux()
 	/* Clear prompt */
 	clear_from(23);
 
-
 	/*** Finish up ***/
 
 	/* Get a name, prepare savefile */
@@ -1627,21 +1735,33 @@ static bool player_birth_aux()
  * Note that we may be called with "junk" leftover in the various
  * fields, so we must be sure to clear them first.
  */
-void player_birth(void)
+void player_birth(int whoami)
 {
 	int i, n;
 
 
+	/* Something in here is wiping messages, so we're going to
+	 * flush them first. -KRP
+	 */
+	msg_print(NULL);
+
 	/* Create a new character */
-	while (1)
+	if (quickstart)				/* Quick creation -KRP */
+		quick_player_birth(whoami);
+	else
 	{
-		/* Wipe the player */
-		player_wipe();
+		while (1)
+		{
+			/* Wipe the player */
+			player_wipe();
 
-		/* Roll up a new character */
-		if (player_birth_aux()) break;
+			/* Give him his ID back -KRP */
+			p_ptr->whoami = whoami;
+
+			/* Roll up a new character */
+			if (player_birth_aux()) break;
+		}
 	}
-
 
 	/* Note player birth in the message recall */
 	message_add(" ");
@@ -1656,18 +1776,21 @@ void player_birth(void)
 
 
 	/* Shops */
-	for (n = 0; n < MAX_STORES; n++)
+	if (leader == FALSE)	/* Only generate shops once! -KRP */
 	{
-		/* Initialize */
-		store_init(n);
+		for (n = 0; n < MAX_STORES; n++)
+		{
+			/* Initialize */
+			store_init(n);
 
-		/* Ignore home */
-		if (n == MAX_STORES - 1) continue;
+			/* Ignore home */
+			if (n == MAX_STORES - 1) continue;
 
-		/* Maintain the shop (ten times) */
-		for (i = 0; i < 10; i++) store_maint(n);
+			/* Maintain the shop (ten times) */
+			for (i = 0; i < 10; i++) store_maint(n);
+		}
 	}
+
+	leader = TRUE;	/* By now, there's certainly a leader.  -KRP */
+
 }
-
-
-

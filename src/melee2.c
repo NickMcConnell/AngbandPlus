@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -46,7 +48,43 @@
  * Both of them have the same effect on the "choose spell" routine.
  */
 
+/*
+ * Choose a player randomly, according to a criteria list.
+ *
+ * This function assumes test_chars is an array of five bools,
+ * with the first four indicating if each of the four players
+ * satisfies the test condition.  It then uses an awful hack to
+ * pick one of these at random.
+ *
+ * WARNING: if test_chars[4] is FALSE, this function should not
+ * be called; it will return NULL to avoid getting caught in an
+ * endless loop searching for character.  An error check will be
+ * needed after this to avoid crashing the program!
+ *
+ * Note: hopefully I am using pointer arithmatic properly;
+ * "*(test_chars + 4)" had better be equal to test_chars[4].
+ * -KRP
+ */
+player_type *random_char(bool *test_chars)
+{
+	int try_num;
 
+	/* Check to see if the test works for any character! */
+	if ( !( *(test_chars + 4)))
+		return NULL;
+
+	/* Pick a character to try first */
+	try_num = rand_int(4);
+	
+	while(1)	/* We shouldn't have to stop. */
+	{
+		if ( *(test_chars + try_num))
+			return &team[try_num];
+
+		/* Cycle through players. */
+		try_num = (try_num + 1) % 4;
+	}
+}
 
 
 /*
@@ -414,8 +452,15 @@ static void breath(int m_idx, int typ, int dam_hp)
  */
 bool make_attack_spell(int m_idx)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	/* We need a test array -KRP */
+	bool test_chars[5];
+
+/* Ewwww, this is no good;
+ *	int py = p_ptr->py;
+ *	int px = p_ptr->px;
+ * Let's try this instead:	-KRP
+ */
+	int py, px;
 
 	int k, chance, thrown_spell, rlev;
 
@@ -433,27 +478,30 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Target player */
-	int x = px;
-	int y = py;
-
+/* No, let's target the player a little later. -KRP
+ *	int x = px;
+ *	int y = py;
+ */
+	int x,y;
 
 	/* Summon count */
 	int count = 0;
 
-
+/* Do all of these later, too.  -KRP */
 	/* Extract the blind-ness */
-	bool blind = (p_ptr->blind ? TRUE : FALSE);
-
+/*	bool blind = (p_ptr->blind ? TRUE : FALSE);
+ */
 	/* Extract the "see-able-ness" */
-	bool seen = (!blind && m_ptr->ml);
-
+/*	bool seen = (!blind && m_ptr->ml);
+ */
+	bool blind, seen;
 
 	/* Assume "normal" target */
-	bool normal = TRUE;
-
+ 	bool normal = TRUE;
+ 
 	/* Assume "projectable" */
 	bool direct = TRUE;
-
+ 
 
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
@@ -472,15 +520,41 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Hack -- require projectable player */
+	/* How odd; this is always true.  -KRP */
 	if (normal)
 	{
-		/* Check range */
-		if (m_ptr->cdis > MAX_RANGE) return (FALSE);
-
-		/* Check path */
-		if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
+		/* Check to see if in-range and if path exists */
+		/* Heavy modifications here to allow for all players
+		 * *and* to use a single, inverted check. -KRP
+		 */
+		test_chars[4] = FALSE;
+		FOR_EACH_CHAR
+		(
+			test_chars[iterator] =
+			(
+				(m_ptr->cdis[p_ptr->whoami] <= MAX_RANGE) &&
+				(projectable(
+			m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px
+						)
+				)
+			);
+			if (test_chars[iterator])
+				test_chars[4] = TRUE;
+		)
+		if (!test_chars[4]) return (FALSE);
 	}
 
+	/* Choose a player to attack. -KRP */
+	p_ptr = random_char(test_chars);
+
+	/* Set some variables; most of these are unneccessary. -KRP */
+	py = p_ptr->py;
+	px = p_ptr->px;
+	x = px;
+	y = py;
+	blind = (p_ptr->blind ? TRUE : FALSE);
+	/* This variable is broken; fix later  -KRPXXX */
+	seen = (!blind && m_ptr->ml);
 
 	/* Extract the monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
@@ -559,6 +633,9 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Cast the spell. */
+	/* Note: since p_ptr is set above, the spell should smack the
+	 * correct player.  -KRP
+	 */
 	switch (thrown_spell)
 	{
 		/* RF4_SHRIEK */
@@ -1959,16 +2036,21 @@ static int mon_will_run(int m_idx)
 
 #endif
 
-	/* Keep monsters from running too far away */
-	if (m_ptr->cdis > MAX_SIGHT + 5) return (FALSE);
+	/* Keep monsters from running too far away
+	 * p_ptr should already be pointing to the player from
+	 * which the monster is running. -KRP
+	 */	
+	if (m_ptr->cdis[p_ptr->whoami] > MAX_SIGHT + 5) return (FALSE);
 
 	/* All "afraid" monsters will run away */
 	if (m_ptr->monfear) return (TRUE);
 
 #ifdef ALLOW_TERROR
 
-	/* Nearby monsters will not become terrified */
-	if (m_ptr->cdis <= 5) return (FALSE);
+	/* Nearby monsters will not become terrified
+	 * p_ptr is presumably set. -KRP
+	 */
+	if (m_ptr->cdis[p_ptr->whoami] <= 5) return (FALSE);
 
 	/* Examine player power (level) */
 	p_lev = p_ptr->lev;
@@ -2111,19 +2193,80 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
  */
 static void get_moves(int m_idx, int mm[5])
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	monster_type *m_ptr = &m_list[m_idx];
 
-	int y, ay, x, ax;
+	int y, ay, x, ax, 
+		i, min_dist;	/* -KRP */
 
 	int move_val = 0;
 
-	int y2 = py;
-	int x2 = px;
+	int y2, x2;
 
+	/* It appears the very first thing we need to do is to
+	 * decide which player we're going to go after.
+	 * Attacking and movement is conducted the same way...
+	 * We need to find the "best" character for the monster
+	 * to move towards.  First it should use a visible character,
+	 * and failing that, go towards the closest invisible one.
+	 * So we need to make an array of distances, and a test
+	 * array. -KRP
+	 */
 
+	int distances[4];
+	bool visible[5];
+
+	/* Nobody known to be visible yet -KRP */
+	visible[4] = FALSE;
+	/* In the interests of efficiency, we shall only use one loop
+	 * to test visibility and determine distance. -KRP
+	 */
+	FOR_EACH_CHAR
+	(
+		visible[iterator] =
+			(projectable(m_ptr->fy, m_ptr->fx,
+					p_ptr->py, p_ptr->px));
+		if (visible[iterator])
+			visible[4] = TRUE;
+
+		distances[iterator] = 
+			distance(m_ptr->fy, m_ptr->fx,
+				p_ptr->py, p_ptr->px);
+	)
+
+	/* The logic here is somewhat convoluted.  We cycle through
+	 * each character, seeing if he is closer than those who came
+	 * before (obviously, the first must be).  Then, if someone is
+	 * visible, we check to see if he is before picking him;
+	 * otherwise, we just pick him.
+	 * Note that if two characters are equally close, we pick the
+	 * first.  -KRP
+ 	 */
+
+	min_dist = 10000;	/* Arbitrary large value -KRP */
+	for (i = 0; i < 4 ; i++)
+	{	/* I shouldn't need these, but just to be safe... -KRP */
+		if (distances[i] < min_dist)
+		{
+			if (visible[4])
+			{
+				if (visible[i])
+				{
+					min_dist = distances[i];
+					p_ptr = &team[i];
+				}
+			}
+			else
+			{
+				min_dist = distances[i];
+				p_ptr = &team[i];
+			}
+		}
+	}
+
+	y2 = p_ptr->py;
+	x2 = p_ptr->px;
+
+/* This isn't currently defined. -KRP */
 #ifdef MONSTER_FLOW
 	/* Flow towards the player */
 	if (flow_by_sound)
@@ -2389,8 +2532,18 @@ static int compare_monsters(monster_type *m_ptr, monster_type *n_ptr)
  * Technically, need to check for monster in the way combined
  * with that monster being in a wall (or door?) XXX
  */
+
+/* Lots of nasty stuff has to happen in here to allow the monster to
+ * respond to the character*s*, instead of a single character.  Ewww!
+ * -KRP
+ */
 static void process_monster(int m_idx)
 {
+	/* Array to see if something is true for the characters; fifth
+	 * element is true if *any* of the prior four are. -KRP
+	 */
+	bool test_chars[5];	
+
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -2420,12 +2573,24 @@ static void process_monster(int m_idx)
 		u32b notice;
 
 		/* Aggravation */
-		if (p_ptr->aggravate)
+		/* If *any* player has this... -KRP */
+
+		test_chars[4] = FALSE;
+		/* This seems like a *lot* of overhead -KRP */
+		FOR_EACH_CHAR
+		(
+			test_chars[iterator] = (p_ptr->aggravate);
+			if (test_chars[iterator]) 
+				test_chars[4] = TRUE;
+		)
+
+		if (test_chars[4])
 		{
 			/* Reset sleep counter */
 			m_ptr->csleep = 0;
 
 			/* Notice the "waking up" */
+			/* Uncritical; fix later -KRPXXX */
 			if (m_ptr->ml)
 			{
 				char m_name[80];
@@ -2444,13 +2609,38 @@ static void process_monster(int m_idx)
 		/* Anti-stealth */
 		notice = rand_int(1024);
 
-		/* Hack -- See if monster "notices" player */
-		if ((notice * notice * notice) <= p_ptr->noise)
-		{
-			int d = 1;
+		/* Hack -- See if monster "notices" player
+		 * Check to see if any player is noticed; if so,
+		 * randomly choose one to notice. -KRP
+		 */
+		test_chars[4] = FALSE;
+		FOR_EACH_CHAR
+		(
+			test_chars[iterator] =
+				((notice * notice * notice) <=
+					p_ptr->noise);
+			if (test_chars[iterator])
+				test_chars[4] = TRUE;
+		)
 
-			/* Wake up faster near the player */
-			if (m_ptr->cdis < 50) d = (100 / m_ptr->cdis);
+		if (test_chars[4])
+		{
+			int d = 1; /* local d variable! -KRP */
+			/* Pick a character to notice. -KRP */
+			p_ptr = random_char(test_chars);
+
+			/* I hope we found a character! -KRP */
+			if (p_ptr == NULL)
+			{
+				msg_print("No character found!!! ");
+				return;
+			}
+
+			/* Wake up faster near the player.
+			 * p_ptr had better be set. -KRP
+			 */
+			if (m_ptr->cdis[p_ptr->whoami] < 50) 
+				d = (100 / m_ptr->cdis[p_ptr->whoami]);
 
 			/* Still asleep */
 			if (m_ptr->csleep > d)
@@ -2459,6 +2649,10 @@ static void process_monster(int m_idx)
 				m_ptr->csleep -= d;
 
 				/* Notice the "not waking up" */
+				/* This adjusts what info will show up
+				 * when you ID monsters.; for now, it is
+				 * not worth fixing. -KRPXXX
+				 */
 				if (m_ptr->ml)
 				{
 					/* Hack -- Count the ignores */
@@ -2476,6 +2670,10 @@ static void process_monster(int m_idx)
 				m_ptr->csleep = 0;
 
 				/* Notice the "waking up" */
+				/* This needs to be fixed at some point,
+				 * but at present the wakeup messages are
+				 * not vital. -KRPXXX
+				 */
 				if (m_ptr->ml)
 				{
 					char m_name[80];
@@ -2526,6 +2724,9 @@ static void process_monster(int m_idx)
 			m_ptr->stunned = 0;
 
 			/* Message if visible */
+			/* Again, messages are not presently vital.
+			 * -KRPXXX
+			 */
 			if (m_ptr->ml)
 			{
 				char m_name[80];
@@ -2562,6 +2763,7 @@ static void process_monster(int m_idx)
 			m_ptr->confused = 0;
 
 			/* Message if visible */
+			/* Fix this later -KRPXXX */
 			if (m_ptr->ml)
 			{
 				char m_name[80];
@@ -2596,6 +2798,7 @@ static void process_monster(int m_idx)
 			m_ptr->monfear = 0;
 
 			/* Visual note */
+			/* Fix this later -KRPXXX */
 			if (m_ptr->ml)
 			{
 				char m_name[80];
@@ -2636,9 +2839,11 @@ static void process_monster(int m_idx)
 		if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
 		{
 			/* Try to multiply */
+			/* I'm too laze to investigate this now -KRPXXX */
 			if (multiply_monster(m_idx))
 			{
 				/* Take note if visible */
+				/* update this later -KRPXXX */
 				if (m_ptr->ml)
 				{
 					r_ptr->r_flags2 |= (RF2_MULTIPLY);
@@ -2652,6 +2857,7 @@ static void process_monster(int m_idx)
 
 
 	/* Attempt to cast a spell */
+	/* This function has been adjusted for multi-char. -KRP */
 	if (make_attack_spell(m_idx)) return;
 
 
@@ -2675,6 +2881,7 @@ static void process_monster(int m_idx)
 			if (rand_int(100) < 25)
 			{
 				/* Memorize flags */
+				/* Needs fixing -KRPXXX */
 				if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_25);
 
 				/* Stagger */
@@ -2689,6 +2896,7 @@ static void process_monster(int m_idx)
 			if (rand_int(100) < 50)
 			{
 				/* Memorize flags */
+				/* Needs fixing -KRPXXX */
 				if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
 
 				/* Stagger */
@@ -2703,6 +2911,7 @@ static void process_monster(int m_idx)
 			if (rand_int(100) < 75)
 			{
 				/* Memorize flags */
+				/* Needs fixing -KRPXXX */
 				if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50 | RF1_RAND_25);
 
 				/* Stagger */
@@ -2715,6 +2924,7 @@ static void process_monster(int m_idx)
 	if (!stagger)
 	{
 		/* Logical moves */
+		/* Updated for multichar -KRP */
 		get_moves(m_idx, mm);
 	}
 
@@ -2932,6 +3142,12 @@ static void process_monster(int m_idx)
 		/* The player is in the way.  Attack him. */
 		if (do_move && (cave_m_idx[ny][nx] < 0))
 		{
+			/* Set p_ptr; while get_move() ordinarily handles
+			 * this fine, random wanderers didn't get a chance
+			 * to use this.  -KRP
+			 */
+			p_ptr = &team[(-1) - cave_m_idx[ny][nx]];
+
 			/* Do the attack */
 			(void)make_attack_normal(m_idx);
 
@@ -3155,6 +3371,7 @@ static void process_monster(int m_idx)
 
 
 	/* Learn things from observable monster */
+	/* This needs fixing someday. -KRP */
 	if (m_ptr->ml)
 	{
 		/* Monster opened a door */
@@ -3244,6 +3461,8 @@ void process_monsters(void)
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
+	/* Testing array -KRP */
+	bool test_chars[5];
 
 	/* Repair "born" flags */
 	if (repair_mflag_born)
@@ -3305,8 +3524,18 @@ void process_monsters(void)
 		/* Access the race */
 		r_ptr = &r_info[m_ptr->r_idx];
 
-		/* Monsters can "sense" the player */
-		if (m_ptr->cdis <= r_ptr->aaf)
+		/* Monsters can "sense" the player.
+		 * Check for all characters.  -KRP
+		 */
+		test_chars[4]=FALSE;
+		FOR_EACH_CHAR
+		(
+			test_chars[iterator] =
+				(m_ptr->cdis[iterator] <= r_ptr->aaf);
+			if (test_chars[iterator])
+				test_chars[4] = TRUE;
+		)
+		if (test_chars[4])
 		{
 			/* Process the monster */
 			process_monster(i);
@@ -3320,8 +3549,19 @@ void process_monsters(void)
 		fx = m_ptr->fx;
 		fy = m_ptr->fy;
 
-		/* Monsters can "see" the player (backwards) XXX XXX */
-		if (player_has_los_bold(fy, fx))
+		/* Monsters can "see" the player (backwards) XXX XXX
+		 * Check for all characters.  -KRP
+		 */
+		test_chars[4]=FALSE;
+		FOR_EACH_CHAR
+		(
+			test_chars[iterator] =
+				(player_has_los_bold(fy,fx));
+			if (test_chars[iterator])
+				test_chars[4] = TRUE;
+		)
+
+		if (test_chars[4])
 		{
 			/* Process the monster */
 			process_monster(i);

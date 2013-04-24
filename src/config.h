@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -296,7 +298,8 @@
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
  * software options, which enable "monster flowing".
  */
-#define MONSTER_FLOW
+/* Removed for now; requires significant work -KRP */
+/* #define MONSTER_FLOW */
 
 
 /*
@@ -307,8 +310,9 @@
 
 /*
  * OPTION: Support multiple "player" grids in "map_info()"
+ * (how odd) -KRP
  */
-/* #define MAP_INFO_MULTIPLE_PLAYERS */
+#define MAP_INFO_MULTIPLE_PLAYERS
 
 
 /*
@@ -411,7 +415,12 @@
  * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
  */
 #ifndef DEFAULT_PATH
-# define DEFAULT_PATH "./lib/"
+/* This is my default path -KRP */
+# define DEFAULT_PATH "/usr/games/angband/tangband/lib/"
+/* This is the original default path
+ # define DEFAULT_PATH "./lib/"
+ * -KRP
+ */
 #endif
 
 

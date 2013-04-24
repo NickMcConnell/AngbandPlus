@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -431,7 +433,8 @@ void wipe_o_list(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Mega-Hack -- preserve artifacts */
-		if (!character_dungeon || p_ptr->preserve)
+		if (!character_dungeon || preserve) 
+		/* 'preserve' hack -KRP */
 		{
 			/* Hack -- Preserve unknown artifacts */
 			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
@@ -4231,6 +4234,7 @@ s16b inven_carry(object_type *o_ptr)
 
 	object_type *j_ptr;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Check for combining */
 	for (j = 0; j < INVEN_PACK; j++)
@@ -4621,6 +4625,7 @@ void reorder_pack(void)
 
 	bool flag = FALSE;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Re-order the pack (forwards) */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -4717,6 +4722,7 @@ s16b spell_chance(int spell)
 
 	magic_type *s_ptr;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Paranoia -- must be literate */
 	if (!mp_ptr->spell_book) return (100);
@@ -4779,6 +4785,8 @@ bool spell_okay(int spell, bool known)
 {
 	magic_type *s_ptr;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
+
 	/* Access the spell */
 	s_ptr = &mp_ptr->info[spell];
 
@@ -4819,6 +4827,8 @@ bool spell_okay(int spell, bool known)
  */
 void spell_info(char *p, int spell)
 {
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
+
 	/* Default */
 	strcpy(p, "");
 
@@ -4916,6 +4926,7 @@ void print_spells(byte *spells, int num, int y, int x)
 
 	char out_val[160];
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Title the list */
 	prt("", y, x);
@@ -4994,6 +5005,7 @@ void display_koff(int k_idx)
 
 	char o_name[80];
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Erase the window */
 	for (y = 0; y < Term->hgt; y++)

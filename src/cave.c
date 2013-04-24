@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -901,7 +903,31 @@ void map_info(int y, int x, byte *ap, char *cp)
 		monster_race *r_ptr = &r_info[0];
 
 		/* Get the "player" attr */
-		a = r_ptr->x_attr;
+/* Actually, we want to use different values, depending on which player
+ * we're looking at. -KRP
+ *		a = r_ptr->x_attr;
+ */
+		switch (m_idx)
+		{
+			case -1:
+			{	
+				a = TERM_L_GREEN; break;
+			}
+			case -2:
+			{
+				a =  TERM_YELLOW; break;
+			}
+			case -3:
+			{
+				a = TERM_ORANGE; break;
+			}
+			case -4:
+			{
+				a = TERM_VIOLET; break;
+			}
+			default:
+				a = TERM_WHITE;
+		}
 
 		/* Get the "player" char */
 		c = r_ptr->x_char;

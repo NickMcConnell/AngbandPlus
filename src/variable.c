@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -14,9 +16,11 @@
 /*
  * Hack -- Link a copyright message into the executable
  */
-cptr copyright[5] =
+cptr copyright[7] =
 {
 	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
+	"",
+	"Copyright (c) 1999 Karl R. Peters",
 	"",
 	"This software may be copied and distributed for educational, research,",
 	"and not for profit purposes provided that this copyright and statement",
@@ -366,9 +370,11 @@ quest *q_list;
 store_type *store;
 
 /*
- * Array[INVEN_TOTAL] of objects in the player's inventory
+ * This is now just a pointer to the part of the player-structure
+ * containing the player's inventory! -KRP
  */
 object_type *inventory;
+
 
 
 /*
@@ -425,6 +431,8 @@ cptr keymap_act[KEYMAP_MODES][256];
 
 /*
  * Pointer to the player tables (sex, race, class, magic)
+ * These will eventually be removed from the code, but for now, they
+ * remain. -KRP
  */
 player_sex *sp_ptr;
 player_race *rp_ptr;
@@ -432,25 +440,40 @@ player_class *cp_ptr;
 player_magic *mp_ptr;
 
 /*
- * The player other record (static)
+ * The table of data for the characters
+ * 	Defined *un*statically because trying to do this as a static
+ * 	would seriously hurt.  -KRP
  */
-static player_other player_other_body;
+player_type team[4];
 
 /*
- * Pointer to the player other record
+ * The table of extra-info for the characters
+ * 	Again, defined unstatically -KRP
  */
-player_other *op_ptr = &player_other_body;
+player_other team_info[4];
 
 /*
- * The player info record (static)
+ * The variable pointers to point to a particular character's
+ * player-object or extra-info. -KRP
  */
-static player_type player_type_body;
+player_type *p_ptr = team;
+player_other *op_ptr = team_info;
 
 /*
- * Pointer to the player info record
+ * These global variables track the Maximize and Preserve settings of the
+ * game. -KRP
  */
-player_type *p_ptr = &player_type_body;
+byte maximize;
+byte preserve;
 
+/* 
+ * This variable determines if the team leader has been created or not.
+ * -KRP
+ */
+byte leader;
+
+/* Decide whether normal or quick start -KRP */
+byte quickstart;
 
 /*
  * The vault generation arrays

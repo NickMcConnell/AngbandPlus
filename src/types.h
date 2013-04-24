@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -532,11 +534,17 @@ struct monster_type
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
 
-	byte cdis;			/* Current dis from player */
+	byte cdis[4];		/* Current dis from player */
+				/* From *each* player, that is -KRP */
 
-	byte mflag;			/* Extra monster flags */
+	byte mflag;		/* Extra monster flags */
 
-	bool ml;			/* Monster is "visible" */
+	bool ml;		/* Monster is "visible" */
+				/* We need to be especially careful to
+				 * update this whenever the monster may
+				 * be visible to a different character.
+				 * -KRP
+				 */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
@@ -816,6 +824,9 @@ struct player_other
  */
 struct player_type
 {
+	int  whoami;		/* Player identity #, ranging from 0 to 3;
+				 * cave_m_idx entry based on this. -KRP
+				 */
 	s16b py;			/* Player location */
 	s16b px;			/* Player location */
 
@@ -827,8 +838,12 @@ struct player_type
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
 
-	byte maximize;		/* Maximize stats */
-	byte preserve;		/* Preserve artifacts */
+/* These have to be external to the character!!!
+ * I will make them global variables. -KRP
+ *	byte maximize;*/		
+		/* Maximize stats */
+/*	byte preserve;*/
+		/* Preserve artifacts */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -1085,6 +1100,9 @@ struct player_type
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
+	
+	/* Array of objects in player's inventory -KRP */
+	object_type player_items[INVEN_TOTAL];
 };
 
 

@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -41,7 +43,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.8.3"
+#define VERSION_STRING	"0.3.0"
 
 /*
  * Current version numbers
@@ -2397,6 +2399,41 @@
 
 /*** Macro Definitions ***/
 
+/*
+ * MegaHack -- this macro causes the next line using "p_ptr" to apply
+ * 	not to one character, but to the entire team!
+ * After the application of this macro, both p_ptr and op_ptr are pointing
+ * 	to the leader character.
+ * I wish I knew of some other way of doing this besides a godawful
+ *	macro!
+ * -KRP
+ */
+#define FOR_EACH_CHAR(do_this) 						\
+	{								\
+		int iterator; 						\
+		/* Save pointers */					\
+		manage_ptrs(SAVE_PTRS);					\
+		for (		iterator = 0,				\
+				p_ptr = team,				\
+				op_ptr = team_info;			\
+			iterator < 4 ; 					\
+			iterator++ , p_ptr++, op_ptr++)			\
+		{							\
+			inventory = p_ptr->player_items;		\
+			update_xp_ptrs();				\
+			do_this						\
+ 		}							\
+		manage_ptrs(RESTORE_PTRS);				\
+		msg_print(NULL);					\
+	}
+
+/* PRINT_PLAYER prints the pseudo-id (x-STR-INT) of whatever character
+ * p_ptr is currently pointing to. -KRP
+ */
+#define PRINT_PLAYER \
+	msg_format("p_ptr is pointing at x-%d-%d :: ", \
+		p_ptr->stat_max[0], p_ptr->stat_max[1]); \
+	msg_print(NULL);
 
 /*
  * Hack -- The main "screen"
@@ -2721,3 +2758,6 @@ extern int PlayerUID;
 #endif
 
 
+/* values for the "manage_ptrs" function */
+#define SAVE_PTRS 0
+#define RESTORE_PTRS 1

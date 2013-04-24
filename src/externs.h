@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.
@@ -66,10 +68,12 @@ extern cptr window_flag_desc[32];
 extern cptr option_text[OPT_MAX];
 extern cptr option_desc[OPT_MAX];
 extern bool option_norm[OPT_MAX];
+/* automatic quickstart options -KRP */
+extern bool option_quick[OPT_MAX];
 extern byte option_page[4][16];
 
 /* variable.c */
-extern cptr copyright[5];
+extern cptr copyright[7];
 extern byte version_major;
 extern byte version_minor;
 extern byte version_patch;
@@ -170,12 +174,31 @@ extern char misc_to_char[256];
 extern byte tval_to_attr[128];
 extern char macro_buffer[1024];
 extern cptr keymap_act[KEYMAP_MODES][256];
+
+/* Due to their widespread use in the files, these have to stay!
+ * They're now variable pointers, though.  -KRP
+ */
 extern player_sex *sp_ptr;
 extern player_race *rp_ptr;
 extern player_class *cp_ptr;
 extern player_magic *mp_ptr;
+
 extern player_other *op_ptr;
 extern player_type *p_ptr;
+
+/* Ooops - we need to declare our 'team' objects! -KRP */
+extern player_type team[];
+extern player_other team_info[];
+
+/* Maximize and Preserve settings -KRP */
+extern byte maximize;
+extern byte preserve;
+
+/* Is there a leader yet? -KRP */
+extern byte leader;
+/* Normal or Quick start -KRP */
+extern byte quickstart;
+
 extern header *v_head;
 extern vault_type *v_info;
 extern char *v_name;
@@ -226,7 +249,11 @@ extern bool (*get_obj_num_hook)(int k_idx);
  */
 
 /* birth.c */
-extern void player_birth(void);
+extern void player_birth(int whoami);	/* -KRP */
+/* Decide how to start the game -KRP */
+extern byte get_quick(void);
+/* update xp_ptrs as needed -KRP */
+extern void update_xp_ptrs(void);
 
 /* cave.c */
 extern sint distance(int y1, int x1, int y2, int x2);
@@ -296,6 +323,7 @@ extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);
 
 /* cmd3.c */
+extern void do_cmd_disturb_all(void);	/* -KRP */
 extern void do_cmd_inven(void);
 extern void do_cmd_equip(void);
 extern void do_cmd_wield(void);
@@ -419,7 +447,8 @@ extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
 extern s16b monster_carry(int m_idx, object_type *j_ptr);
 extern void monster_swap(int y1, int x1, int y2, int x2);
-extern s16b player_place(int y, int x);
+/* player_place now needs to know *which* player gets dumped! -KRP */
+extern s16b player_place(int y, int x, int which_player);
 extern s16b monster_place(int y, int x, monster_type *n_ptr);
 extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp);
 extern bool place_monster(int y, int x, bool slp, bool grp);
@@ -667,6 +696,8 @@ extern void window_stuff(void);
 extern void handle_stuff(void);
 
 /* xtra2.c */
+/* Help keep the pointers straight -KRP */
+extern void manage_ptrs(int which);	
 extern bool set_blind(int v);
 extern bool set_confused(int v);
 extern bool set_poisoned(int v);

@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -40,7 +42,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	char out_val[160];
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p;		/* definition of p -KRP */
+
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
+
+	/* p is now defined above. -KRP */
+	p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 
 	/* Extract spells */
@@ -229,6 +236,7 @@ void do_cmd_browse(void)
 
 	cptr q, s;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Warriors are illiterate */
 	if (!mp_ptr->spell_book)
@@ -336,11 +344,15 @@ void do_cmd_study(void)
 
 	int spell = -1;
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
-	cptr q, s;
+	cptr q, s, p; /* p now included here -KRP */
 
 	object_type *o_ptr;
+
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
+
+	/* p is defined above -KRP */
+	p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 
 	if (!mp_ptr->spell_book)
@@ -517,6 +529,7 @@ void do_cmd_cast(void)
 
 	cptr q, s;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Require spell ability */
 	if (mp_ptr->spell_book != TV_MAGIC_BOOK)
@@ -1169,6 +1182,7 @@ void do_cmd_pray(void)
 
 	cptr q, s;
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Must use prayer books */
 	if (mp_ptr->spell_book != TV_PRAYER_BOOK)

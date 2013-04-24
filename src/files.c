@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -528,6 +530,8 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 	char b2 = ']';
 
 	char f = ' ';
+
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Initial */
 	s = (*sp);
@@ -1196,12 +1200,13 @@ static void display_player_xtra_info(void)
 
 	/* Maximize */
 	Term_putstr(col, 7, -1, TERM_WHITE, "Maximize");
-	Term_putstr(col+12, 7, -1, TERM_L_BLUE, p_ptr->maximize ? "Y" : "N");
+	Term_putstr(col+12, 7, -1, TERM_L_BLUE, maximize ? "Y" : "N");
+	/* 'maximize' hack -KRP
 
 	/* Preserve */
 	Term_putstr(col, 8, -1, TERM_WHITE, "Preserve");
-	Term_putstr(col+12, 8, -1, TERM_L_BLUE, p_ptr->preserve ? "Y" : "N");
-
+	Term_putstr(col+12, 8, -1, TERM_L_BLUE, preserve ? "Y" : "N");
+	/* 'preserve' hack -KRP */
 
 	/* Left */
 	col = 1;
@@ -1658,6 +1663,7 @@ static void display_player_misc_info(void)
 
 	char buf[80];
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Name */
 	put_str("Name", 2, 1);
@@ -1668,16 +1674,13 @@ static void display_player_misc_info(void)
 	put_str("Sex", 3, 1);
 	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 8);
 
-
 	/* Race */
 	put_str("Race", 4, 1);
 	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 8);
 
-
 	/* Class */
 	put_str("Class", 5, 1);
 	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
-
 
 	/* Title */
 	put_str("Title", 6, 1);
@@ -1726,6 +1729,7 @@ static void display_player_stat_info(void)
 
 	char buf[80];
 
+	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Row */
 	row = 3;
@@ -2682,7 +2686,11 @@ void do_cmd_suicide(void)
 void do_cmd_save_game(void)
 {
 	/* Disturb the player */
-	disturb(1, 0);
+	/* This seems like a good time to disturb everyone -KRP */
+	FOR_EACH_CHAR
+	(
+		disturb(1, 0);
+	)
 
 	/* Clear messages */
 	msg_print(NULL);
@@ -3703,7 +3711,7 @@ static void kingly(void)
 	/* Display a message */
 	put_str("Veni, Vidi, Vici!", 15, 26);
 	put_str("I came, I saw, I conquered!", 16, 21);
-	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), 17, 22);
+	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), 17, 22); 
 
 	/* Flush input */
 	flush();
@@ -3832,7 +3840,11 @@ void exit_game_panic(void)
 	prt("", 0, 0);
 
 	/* Hack -- turn off some things */
-	disturb(1, 0);
+	/* For everyone -KRP */
+	FOR_EACH_CHAR
+	(
+		disturb(1, 0);
+	)
 
 	/* Hack -- Delay death XXX XXX XXX */
 	if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;

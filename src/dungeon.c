@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -447,7 +449,11 @@ static void process_world(void)
 			if (closing_flag <= 2)
 			{
 				/* Disturb */
-				disturb(0, 0);
+				/* Disturb everyone -KRP */
+				FOR_EACH_CHAR
+				(
+					disturb(0, 0);
+				)
 
 				/* Count warnings */
 				closing_flag++;
@@ -554,428 +560,14 @@ static void process_world(void)
 	/* Hack -- Check for creature regeneration */
 	if (!(turn % 100)) regen_monsters();
 
-
-	/*** Damage over Time ***/
-
-	/* Take damage from poison */
-	if (p_ptr->poisoned)
-	{
-		/* Take damage */
-		take_hit(1, "poison");
-	}
-
-	/* Take damage from cuts */
-	if (p_ptr->cut)
-	{
-		/* Mortal wound or Deep Gash */
-		if (p_ptr->cut > 200)
-		{
-			i = 3;
-		}
-
-		/* Severe cut */
-		else if (p_ptr->cut > 100)
-		{
-			i = 2;
-		}
-
-		/* Other cuts */
-		else
-		{
-			i = 1;
-		}
-
-		/* Take damage */
-		take_hit(i, "a fatal wound");
-	}
-
-
-	/*** Check the Food, and Regenerate ***/
-
-	/* Digest normally */
-	if (p_ptr->food < PY_FOOD_MAX)
-	{
-		/* Every 100 game turns */
-		if (!(turn % 100))
-		{
-			/* Basic digestion rate based on speed */
-			i = extract_energy[p_ptr->pspeed] * 2;
-
-			/* Regeneration takes more food */
-			if (p_ptr->regenerate) i += 30;
-
-			/* Slow digestion takes less food */
-			if (p_ptr->slow_digest) i -= 10;
-
-			/* Minimal digestion */
-			if (i < 1) i = 1;
-
-			/* Digest some food */
-			(void)set_food(p_ptr->food - i);
-		}
-	}
-
-	/* Digest quickly when gorged */
-	else
-	{
-		/* Digest a lot of food */
-		(void)set_food(p_ptr->food - 100);
-	}
-
-	/* Starve to death (slowly) */
-	if (p_ptr->food < PY_FOOD_STARVE)
-	{
-		/* Calculate damage */
-		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
-
-		/* Take damage */
-		take_hit(i, "starvation");
-	}
-
-	/* Default regeneration */
-	regen_amount = PY_REGEN_NORMAL;
-
-	/* Getting Weak */
-	if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		/* Lower regeneration */
-		if (p_ptr->food < PY_FOOD_STARVE)
-		{
-			regen_amount = 0;
-		}
-		else if (p_ptr->food < PY_FOOD_FAINT)
-		{
-			regen_amount = PY_REGEN_FAINT;
-		}
-		else
-		{
-			regen_amount = PY_REGEN_WEAK;
-		}
-
-		/* Getting Faint */
-		if (p_ptr->food < PY_FOOD_FAINT)
-		{
-			/* Faint occasionally */
-			if (!p_ptr->paralyzed && (rand_int(100) < 10))
-			{
-				/* Message */
-				msg_print("You faint from the lack of food.");
-				disturb(1, 0);
-
-				/* Hack -- faint (bypass free action) */
-				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
-			}
-		}
-	}
-
-	/* Regeneration ability */
-	if (p_ptr->regenerate)
-	{
-		regen_amount = regen_amount * 2;
-	}
-
-	/* Searching or Resting */
-	if (p_ptr->searching || p_ptr->resting)
-	{
-		regen_amount = regen_amount * 2;
-	}
-
-	/* Regenerate the mana */
-	if (p_ptr->csp < p_ptr->msp)
-	{
-		regenmana(regen_amount);
-	}
-
-	/* Various things interfere with healing */
-	if (p_ptr->paralyzed) regen_amount = 0;
-	if (p_ptr->poisoned) regen_amount = 0;
-	if (p_ptr->stun) regen_amount = 0;
-	if (p_ptr->cut) regen_amount = 0;
-
-	/* Regenerate Hit Points if needed */
-	if (p_ptr->chp < p_ptr->mhp)
-	{
-		regenhp(regen_amount);
-	}
-
-
-	/*** Timeout Various Things ***/
-
-	/* Hack -- Hallucinating */
-	if (p_ptr->image)
-	{
-		(void)set_image(p_ptr->image - 1);
-	}
-
-	/* Blindness */
-	if (p_ptr->blind)
-	{
-		(void)set_blind(p_ptr->blind - 1);
-	}
-
-	/* Times see-invisible */
-	if (p_ptr->tim_invis)
-	{
-		(void)set_tim_invis(p_ptr->tim_invis - 1);
-	}
-
-	/* Timed infra-vision */
-	if (p_ptr->tim_infra)
-	{
-		(void)set_tim_infra(p_ptr->tim_infra - 1);
-	}
-
-	/* Paralysis */
-	if (p_ptr->paralyzed)
-	{
-		(void)set_paralyzed(p_ptr->paralyzed - 1);
-	}
-
-	/* Confusion */
-	if (p_ptr->confused)
-	{
-		(void)set_confused(p_ptr->confused - 1);
-	}
-
-	/* Afraid */
-	if (p_ptr->afraid)
-	{
-		(void)set_afraid(p_ptr->afraid - 1);
-	}
-
-	/* Fast */
-	if (p_ptr->fast)
-	{
-		(void)set_fast(p_ptr->fast - 1);
-	}
-
-	/* Slow */
-	if (p_ptr->slow)
-	{
-		(void)set_slow(p_ptr->slow - 1);
-	}
-
-	/* Protection from evil */
-	if (p_ptr->protevil)
-	{
-		(void)set_protevil(p_ptr->protevil - 1);
-	}
-
-	/* Invulnerability */
-	if (p_ptr->invuln)
-	{
-		(void)set_invuln(p_ptr->invuln - 1);
-	}
-
-	/* Heroism */
-	if (p_ptr->hero)
-	{
-		(void)set_hero(p_ptr->hero - 1);
-	}
-
-	/* Super Heroism */
-	if (p_ptr->shero)
-	{
-		(void)set_shero(p_ptr->shero - 1);
-	}
-
-	/* Blessed */
-	if (p_ptr->blessed)
-	{
-		(void)set_blessed(p_ptr->blessed - 1);
-	}
-
-	/* Shield */
-	if (p_ptr->shield)
-	{
-		(void)set_shield(p_ptr->shield - 1);
-	}
-
-	/* Oppose Acid */
-	if (p_ptr->oppose_acid)
-	{
-		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
-	}
-
-	/* Oppose Lightning */
-	if (p_ptr->oppose_elec)
-	{
-		(void)set_oppose_elec(p_ptr->oppose_elec - 1);
-	}
-
-	/* Oppose Fire */
-	if (p_ptr->oppose_fire)
-	{
-		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
-	}
-
-	/* Oppose Cold */
-	if (p_ptr->oppose_cold)
-	{
-		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
-	}
-
-	/* Oppose Poison */
-	if (p_ptr->oppose_pois)
-	{
-		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
-	}
-
-
-	/*** Poison and Stun and Cut ***/
-
-	/* Poison */
-	if (p_ptr->poisoned)
-	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
-
-		/* Apply some healing */
-		(void)set_poisoned(p_ptr->poisoned - adjust);
-	}
-
-	/* Stun */
-	if (p_ptr->stun)
-	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
-
-		/* Apply some healing */
-		(void)set_stun(p_ptr->stun - adjust);
-	}
-
-	/* Cut */
-	if (p_ptr->cut)
-	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
-
-		/* Hack -- Truly "mortal" wound */
-		if (p_ptr->cut > 1000) adjust = 0;
-
-		/* Apply some healing */
-		(void)set_cut(p_ptr->cut - adjust);
-	}
-
-
-
-	/*** Process Light ***/
-
-	/* Check for light being wielded */
-	o_ptr = &inventory[INVEN_LITE];
-
-	/* Burn some fuel in the current lite */
-	if (o_ptr->tval == TV_LITE)
-	{
-		/* Hack -- Use some fuel (except on artifacts) */
-		if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
-		{
-			/* Decrease life-span */
-			o_ptr->pval--;
-
-			/* Hack -- notice interesting fuel steps */
-			if ((o_ptr->pval < 100) || (!(o_ptr->pval % 100)))
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_EQUIP);
-			}
-
-			/* Hack -- Special treatment when blind */
-			if (p_ptr->blind)
-			{
-				/* Hack -- save some light for later */
-				if (o_ptr->pval == 0) o_ptr->pval++;
-			}
-
-			/* The light is now out */
-			else if (o_ptr->pval == 0)
-			{
-				disturb(0, 0);
-				msg_print("Your light has gone out!");
-			}
-
-			/* The light is getting dim */
-			else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
-			{
-				if (disturb_minor) disturb(0, 0);
-				msg_print("Your light is growing faint.");
-			}
-		}
-	}
-
-	/* Calculate torch radius */
-	p_ptr->update |= (PU_TORCH);
-
-
-	/*** Process Inventory ***/
-
-	/* Handle experience draining */
-	if (p_ptr->exp_drain)
-	{
-		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
-		{
-			p_ptr->exp--;
-			p_ptr->max_exp--;
-			check_experience();
-		}
-	}
-
-	/* Process equipment */
-	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-		/* Get the object */
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Recharge activatable objects */
-		if (o_ptr->timeout > 0)
-		{
-			/* Recharge */
-			o_ptr->timeout--;
-
-			/* Notice changes */
-			if (!(o_ptr->timeout)) j++;
-		}
-	}
-
-	/* Notice changes */
-	if (j)
-	{
-		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP);
-	}
-
-	/* Recharge rods */
-	for (j = 0, i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Examine all charging rods */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
-		{
-			/* Charge it */
-			o_ptr->pval--;
-
-			/* Notice changes */
-			if (!(o_ptr->pval)) j++;
-		}
-	}
-
-	/* Notice changes */
-	if (j)
-	{
-		/* Combine pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
-	}
-
-	/* Feel the inventory */
-	sense_inventory();
-
+	/* All of the rest of the code has been pushed into
+	 * process_player, as it is extremely player dependent.
+	 * Remember to first check "turn%10". -KRP
+	 */
+
+	/* Except for *this* code, which has now been returned to
+	 * process_world.  -KRP
+	 */
 
 	/*** Process Objects ***/
 
@@ -993,54 +585,6 @@ static void process_world(void)
 	}
 
 
-	/*** Involuntary Movement ***/
-
-	/* Mega-Hack -- Random teleportation XXX XXX XXX */
-	if ((p_ptr->teleport) && (rand_int(100) < 1))
-	{
-		/* Teleport player */
-		teleport_player(40);
-	}
-
-	/* Delayed Word-of-Recall */
-	if (p_ptr->word_recall)
-	{
-		/* Count down towards recall */
-		p_ptr->word_recall--;
-
-		/* Activate the recall */
-		if (!p_ptr->word_recall)
-		{
-			/* Disturbing! */
-			disturb(0, 0);
-
-			/* Determine the level */
-			if (p_ptr->depth)
-			{
-				msg_print("You feel yourself yanked upwards!");
-
-				/* New depth */
-				p_ptr->depth = 0;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-			else
-			{
-				msg_print("You feel yourself yanked downwards!");
-
-				/* New depth */
-				p_ptr->depth = p_ptr->max_depth;
-				if (p_ptr->depth < 1) p_ptr->depth = 1;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-
-			/* Sound */
-			sound(SOUND_TPLEVEL);
-		}
-	}
 }
 
 
@@ -1189,13 +733,21 @@ static void process_command(void)
 		{
 			if (p_ptr->wizard)
 			{
-				p_ptr->wizard = FALSE;
-				msg_print("Wizard mode off.");
+				/* Affects all characters -KRP */
+				FOR_EACH_CHAR
+				(
+					p_ptr->wizard = FALSE;
+					msg_print("Wizard mode off.");
+				)
 			}
 			else if (enter_wizard_mode())
 			{
-				p_ptr->wizard = TRUE;
-				msg_print("Wizard mode on.");
+				/* Affects all characters -KRP */
+				FOR_EACH_CHAR
+				(
+					p_ptr->wizard = TRUE;
+					msg_print("Wizard mode on.");
+				)
 			}
 
 			/* Update monsters */
@@ -1708,12 +1260,15 @@ static void process_command(void)
 		/* Save and quit */
 		case KTRL('X'):
 		{
-			/* Stop playing */
-			p_ptr->playing = FALSE;
+			/* Every character has to save at once! -KRP */
+			FOR_EACH_CHAR
+			(
+				/* Stop playing */
+				p_ptr->playing = FALSE;
 
-			/* Leaving */
-			p_ptr->leaving = TRUE;
-
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+			)
 			break;
 		}
 
@@ -1744,6 +1299,29 @@ static void process_command(void)
 		{
 			do_cmd_save_screen();
 			break;
+		}
+
+		/*** Multiplayer commands! -KRP ***/
+
+		/* Disturb the entire team */
+		case KTRL('D'):		/* Will this be a problem? */
+		{
+			do_cmd_disturb_all();
+			break;
+		}
+
+		/* Enter '^L'eader (pet) mode -KRP */
+		case KTRL('L'):
+		{
+		msg_print("The ^Leader function is not yet implemented");
+		break;
+		}
+
+		/* Have the teammates take a '^N'ap -KRP */
+		case KTRL('N'):
+		{
+		msg_print("The ^Nap function is not yet implemented");
+		break;
 		}
 
 		/* Hack -- Unknown command */
@@ -1857,7 +1435,510 @@ static void process_player_aux(void)
  */
 static void process_player(void)
 {
-	int i;
+	/* The items extracted from process_world need 'j' and
+	 * 'regen_amount' in order to work. -KRP
+	 */
+	int i, j, regen_amount;	
+
+	/* They also need an o_ptr. -KRP */
+	object_type *o_ptr;
+
+	/* Everything below here was taken out of process_world and
+	 * inserted into process_player.  I hope this works. -KRP
+	 */
+
+	/* Do this only once every ten turns -KRP */	
+	if (!(turn % 10))
+	{
+		/*** Damage over Time ***/
+
+		/* Take damage from poison */
+		if (p_ptr->poisoned)
+		{
+			/* Take damage */
+			take_hit(1, "poison");
+		}
+
+		/* Take damage from cuts */
+		if (p_ptr->cut)
+		{
+			/* Mortal wound or Deep Gash */
+			if (p_ptr->cut > 200)
+			{
+				i = 3;
+			}
+
+			/* Severe cut */
+			else if (p_ptr->cut > 100)
+			{
+				i = 2;
+			}
+
+			/* Other cuts */
+			else
+			{
+				i = 1;
+			}
+
+			/* Take damage */
+			take_hit(i, "a fatal wound");
+		}
+
+
+		/*** Check the Food, and Regenerate ***/
+
+		/* Digest normally */
+		if (p_ptr->food < PY_FOOD_MAX)
+		{
+			/* Every 100 game turns */
+			if (!(turn % 100))
+			{
+				/* Basic digestion rate based on speed */
+				i = extract_energy[p_ptr->pspeed] * 2;
+
+				/* Regeneration takes more food */
+				if (p_ptr->regenerate) i += 30;
+
+				/* Slow digestion takes less food */
+				if (p_ptr->slow_digest) i -= 10;
+
+				/* Minimal digestion */
+				if (i < 1) i = 1;
+
+				/* Digest some food */
+				(void)set_food(p_ptr->food - i);
+			}
+		}
+
+		/* Digest quickly when gorged */
+		else
+		{
+			/* Digest a lot of food */
+			(void)set_food(p_ptr->food - 100);
+		}
+
+		/* Starve to death (slowly) */
+		if (p_ptr->food < PY_FOOD_STARVE)
+		{
+			/* Calculate damage */
+			i = (PY_FOOD_STARVE - p_ptr->food) / 10;
+
+			/* Take damage */
+			take_hit(i, "starvation");
+		}
+
+		/* Default regeneration */
+		regen_amount = PY_REGEN_NORMAL;
+
+		/* Getting Weak */
+		if (p_ptr->food < PY_FOOD_WEAK)
+		{
+			/* Lower regeneration */
+			if (p_ptr->food < PY_FOOD_STARVE)
+			{
+				regen_amount = 0;
+			}
+			else if (p_ptr->food < PY_FOOD_FAINT)
+			{
+				regen_amount = PY_REGEN_FAINT;
+			}
+			else
+			{
+				regen_amount = PY_REGEN_WEAK;
+			}
+
+			/* Getting Faint */
+			if (p_ptr->food < PY_FOOD_FAINT)
+			{
+	/* Faint occasionally */
+	if (!p_ptr->paralyzed && (rand_int(100) < 10))
+	{
+		/* Message */
+		msg_print("You faint from the lack of food.");
+		disturb(1, 0);
+
+		/* Hack -- faint (bypass free action) */
+		(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
+	}
+			}
+		}
+
+		/* Regeneration ability */
+		if (p_ptr->regenerate)
+		{
+			regen_amount = regen_amount * 2;
+		}
+
+		/* Searching or Resting */
+		if (p_ptr->searching || p_ptr->resting)
+		{
+			regen_amount = regen_amount * 2;
+		}
+
+		/* Regenerate the mana */
+		if (p_ptr->csp < p_ptr->msp)
+		{
+			regenmana(regen_amount);
+		}
+
+		/* Various things interfere with healing */
+		if (p_ptr->paralyzed) regen_amount = 0;
+		if (p_ptr->poisoned) regen_amount = 0;
+		if (p_ptr->stun) regen_amount = 0;
+		if (p_ptr->cut) regen_amount = 0;
+
+		/* Regenerate Hit Points if needed */
+		if (p_ptr->chp < p_ptr->mhp)
+		{
+			regenhp(regen_amount);
+		}
+
+
+		/*** Timeout Various Things ***/
+
+		/* Hack -- Hallucinating */
+		if (p_ptr->image)
+		{
+			(void)set_image(p_ptr->image - 1);
+		}
+
+		/* Blindness */
+		if (p_ptr->blind)
+		{
+			(void)set_blind(p_ptr->blind - 1);
+		}
+
+		/* Times see-invisible */
+		if (p_ptr->tim_invis)
+		{
+			(void)set_tim_invis(p_ptr->tim_invis - 1);
+		}
+
+		/* Timed infra-vision */
+		if (p_ptr->tim_infra)
+		{
+			(void)set_tim_infra(p_ptr->tim_infra - 1);
+		}
+
+		/* Paralysis */
+		if (p_ptr->paralyzed)
+		{
+			(void)set_paralyzed(p_ptr->paralyzed - 1);
+		}
+
+		/* Confusion */
+		if (p_ptr->confused)
+		{
+			(void)set_confused(p_ptr->confused - 1);
+		}
+
+		/* Afraid */
+		if (p_ptr->afraid)
+		{
+			(void)set_afraid(p_ptr->afraid - 1);
+		}
+
+		/* Fast */
+		if (p_ptr->fast)
+		{
+			(void)set_fast(p_ptr->fast - 1);
+		}
+
+		/* Slow */
+		if (p_ptr->slow)
+		{
+			(void)set_slow(p_ptr->slow - 1);
+		}
+
+		/* Protection from evil */
+		if (p_ptr->protevil)
+		{
+			(void)set_protevil(p_ptr->protevil - 1);
+		}
+
+		/* Invulnerability */
+		if (p_ptr->invuln)
+		{
+			(void)set_invuln(p_ptr->invuln - 1);
+		}
+
+		/* Heroism */
+		if (p_ptr->hero)
+		{
+			(void)set_hero(p_ptr->hero - 1);
+		}
+
+		/* Super Heroism */
+		if (p_ptr->shero)
+		{
+			(void)set_shero(p_ptr->shero - 1);
+		}
+
+		/* Blessed */
+		if (p_ptr->blessed)
+		{
+			(void)set_blessed(p_ptr->blessed - 1);
+		}
+
+		/* Shield */
+		if (p_ptr->shield)
+		{
+			(void)set_shield(p_ptr->shield - 1);
+		}
+
+		/* Oppose Acid */
+		if (p_ptr->oppose_acid)
+		{
+			(void)set_oppose_acid(p_ptr->oppose_acid - 1);
+		}
+
+		/* Oppose Lightning */
+		if (p_ptr->oppose_elec)
+		{
+			(void)set_oppose_elec(p_ptr->oppose_elec - 1);
+		}
+
+		/* Oppose Fire */
+		if (p_ptr->oppose_fire)
+		{
+			(void)set_oppose_fire(p_ptr->oppose_fire - 1);
+		}
+
+		/* Oppose Cold */
+		if (p_ptr->oppose_cold)
+		{
+			(void)set_oppose_cold(p_ptr->oppose_cold - 1);
+		}
+
+		/* Oppose Poison */
+		if (p_ptr->oppose_pois)
+		{
+			(void)set_oppose_pois(p_ptr->oppose_pois - 1);
+		}
+
+
+		/*** Poison and Stun and Cut ***/
+
+		/* Poison */
+		if (p_ptr->poisoned)
+		{
+	int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+
+	/* Apply some healing */
+	(void)set_poisoned(p_ptr->poisoned - adjust);
+		}
+
+		/* Stun */
+		if (p_ptr->stun)
+		{
+	int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+
+	/* Apply some healing */
+	(void)set_stun(p_ptr->stun - adjust);
+		}
+
+		/* Cut */
+		if (p_ptr->cut)
+		{
+	int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+
+	/* Hack -- Truly "mortal" wound */
+	if (p_ptr->cut > 1000) adjust = 0;
+
+	/* Apply some healing */
+	(void)set_cut(p_ptr->cut - adjust);
+		}
+
+
+
+		/*** Process Light ***/
+
+		/* Check for light being wielded */
+		o_ptr = &inventory[INVEN_LITE];
+
+		/* Burn some fuel in the current lite */
+		if (o_ptr->tval == TV_LITE)
+		{
+			/* Hack -- Use some fuel (except on artifacts) */
+			if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+			{
+	/* Decrease life-span */
+	o_ptr->pval--;
+
+	/* Hack -- notice interesting fuel steps */
+	if ((o_ptr->pval < 100) || (!(o_ptr->pval % 100)))
+	{
+		/* Window stuff */
+		p_ptr->window |= (PW_EQUIP);
+	}
+
+	/* Hack -- Special treatment when blind */
+	if (p_ptr->blind)
+	{
+		/* Hack -- save some light for later */
+		if (o_ptr->pval == 0) o_ptr->pval++;
+	}
+
+	/* The light is now out */
+	else if (o_ptr->pval == 0)
+	{
+		disturb(0, 0);
+		msg_print("Your light has gone out!");
+	}
+
+	/* The light is getting dim */
+	else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
+	{
+		if (disturb_minor) disturb(0, 0);
+		msg_print("Your light is growing faint.");
+	}
+			}
+		}
+
+		/* Calculate torch radius */
+		p_ptr->update |= (PU_TORCH);
+
+
+		/*** Process Inventory ***/
+
+		/* Handle experience draining */
+		if (p_ptr->exp_drain)
+		{
+			if ((rand_int(100) < 10) && (p_ptr->exp > 0))
+			{
+				p_ptr->exp--;
+				p_ptr->max_exp--;
+				check_experience();
+			}
+		}
+
+		/* Process equipment */
+		for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+		{
+			/* Get the object */
+			o_ptr = &inventory[i];
+
+			/* Skip non-objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* Recharge activatable objects */
+			if (o_ptr->timeout > 0)
+			{
+				/* Recharge */
+				o_ptr->timeout--;
+
+				/* Notice changes */
+				if (!(o_ptr->timeout)) j++;
+			}
+		}
+
+		/* Notice changes */
+		if (j)
+		{
+			/* Window stuff */
+			p_ptr->window |= (PW_EQUIP);
+		}
+
+		/* Recharge rods */
+		for (j = 0, i = 0; i < INVEN_PACK; i++)
+		{
+			o_ptr = &inventory[i];
+
+			/* Skip non-objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* Examine all charging rods */
+			if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
+			{
+				/* Charge it */
+				o_ptr->pval--;
+
+				/* Notice changes */
+				if (!(o_ptr->pval)) j++;
+			}
+		}
+
+		/* Notice changes */
+		if (j)
+		{
+			/* Combine pack */
+			p_ptr->notice |= (PN_COMBINE);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN);
+		}
+
+		/* Feel the inventory */
+		sense_inventory();
+
+		/* The object section here was stripped out, and returned
+		 * to process_world. -KRP
+		 */
+
+		/*** Involuntary Movement ***/
+
+		/* Mega-Hack -- Random teleportation XXX XXX XXX */
+		if ((p_ptr->teleport) && (rand_int(100) < 1))
+		{
+			/* Teleport player */
+			teleport_player(40);
+		}
+
+		/* Delayed Word-of-Recall */
+		if (p_ptr->word_recall)
+		{
+			/* Count down towards recall */
+			p_ptr->word_recall--;
+
+			/* Activate the recall */
+			if (!p_ptr->word_recall)
+			{
+				/* Disturbing! */
+				/* Disturb everyone -KRP */
+				FOR_EACH_CHAR
+				(
+					disturb(0, 0);
+				)
+
+				/* Determine the level */
+				if (p_ptr->depth)
+				{
+	msg_print("You feel yourself yanked upwards!");
+
+	/* New depth */
+	FOR_EACH_CHAR		/* -KRP */
+	(
+		p_ptr->depth = 0;
+
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+	)
+				}
+				else
+				{
+	msg_print("You feel yourself yanked downwards!");
+
+	/* New depth */
+	FOR_EACH_CHAR		/* -KRP */
+	(
+		p_ptr->depth = p_ptr->max_depth;
+		if (p_ptr->depth < 1) p_ptr->depth = 1;
+
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+	)
+				}
+
+				/* Sound */
+				sound(SOUND_TPLEVEL);
+			}
+		}
+	}
+
+	/* Did the player die or leave while we were doing all of this?
+	 * -KRP 
+	 */
+	if (p_ptr->leaving) return;
 
 
 	/*** Apply energy ***/
@@ -1931,6 +2012,18 @@ static void process_player(void)
 
 	/*** Handle actual user input ***/
 
+	/* This looks like a damn fine time to actually do the
+	 * updates! -KRP
+	 */
+
+	/* Avoid player-cycle updates if possible. -KRP */
+	if ((!p_ptr->running) && (!p_ptr->resting))
+	{
+		p_ptr->update |= PU_DISTANCE | PU_UPDATE_VIEW | 
+			PU_MONSTERS;
+		p_ptr->redraw |= PR_EXTRA | PR_BASIC | PR_MAP;
+	}
+
 	/* Repeat until out of energy */
 	while (p_ptr->energy >= 100)
 	{
@@ -1961,8 +2054,9 @@ static void process_player(void)
 
 			char o_name[80];
 
-			object_type *o_ptr;
-
+/* Thanks to the process_world migration, this is already defined. -KRP
+ * 			object_type *o_ptr;
+ */
 			/* Access the slot to be dropped */
 			o_ptr = &inventory[item];
 
@@ -2069,7 +2163,7 @@ static void process_player(void)
 
 			/* Place the cursor on the player */
 			move_cursor_relative(p_ptr->py, p_ptr->px);
-
+			
 			/* Get a command (normal) */
 			request_command(FALSE);
 
@@ -2211,6 +2305,9 @@ static void process_player(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 	}
+
+
+
 }
 
 
@@ -2223,26 +2320,37 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	/* These initializations will have to be fuddled at some point
+	 * -KRP
+	 */
+/*	int py = p_ptr->py;
+ *	int px = p_ptr->px;
+ */
+	int py, px;
+
+	/* Major initializations -KRP */
+	FOR_EACH_CHAR
+	(
+		/* Hack -- enforce illegal panel */
+		p_ptr->wy = DUNGEON_HGT;
+		p_ptr->wx = DUNGEON_WID;
 
 
-	/* Hack -- enforce illegal panel */
-	p_ptr->wy = DUNGEON_HGT;
-	p_ptr->wx = DUNGEON_WID;
+		/* Not leaving */
+		p_ptr->leaving = FALSE;
 
 
-	/* Not leaving */
-	p_ptr->leaving = FALSE;
+		/* Reset the "command" vars */
+		p_ptr->command_cmd = 0;
+		p_ptr->command_new = 0;
+		p_ptr->command_rep = 0;
+		p_ptr->command_arg = 0;
+		p_ptr->command_dir = 0;
+	)
 
-
-	/* Reset the "command" vars */
-	p_ptr->command_cmd = 0;
-	p_ptr->command_new = 0;
-	p_ptr->command_rep = 0;
-	p_ptr->command_arg = 0;
-	p_ptr->command_dir = 0;
-
+	/* Now let's set px and py -KRP */
+	px = p_ptr->px;
+	py = p_ptr->py;
 
 	/* Cancel the target */
 	target_set_monster(0);
@@ -2263,7 +2371,11 @@ static void dungeon(void)
 
 
 	/* Disturb */
-	disturb(1, 0);
+	/* Disturb everyone! -KRP */
+	FOR_EACH_CHAR
+	(
+		disturb(1, 0);
+	)
 
 
 	/* Track maximum player level */
@@ -2318,8 +2430,11 @@ static void dungeon(void)
 
 
 	/* Choose panel */
-	verify_panel();
-
+	/* Everybody needs a panel -KRP */
+	FOR_EACH_CHAR
+	(
+		verify_panel();
+	)
 
 	/* Flush messages */
 	msg_print(NULL);
@@ -2333,73 +2448,78 @@ static void dungeon(void)
 	Term_clear();
 
 
-	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	/* I suppose it would be nice to update *everyone*'s info -KRP */
+	FOR_EACH_CHAR
+	(
+		/* Update stuff */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
-	/* Calculate torch radius */
-	p_ptr->update |= (PU_TORCH);
+		/* Calculate torch radius */
+		p_ptr->update |= (PU_TORCH);
 
-	/* Update stuff */
-	update_stuff();
+		/* Update stuff */
+		update_stuff();
 
 
-	/* Fully update the visuals (and monster distances) */
+		/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
 
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+		/* Fully update the flow */
+		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
-	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+		/* Redraw dungeon */
+		p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 
-	/* Window stuff */
+		/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+		/* Window stuff */
+		p_ptr->window |= (PW_MONSTER);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
 
-	/* Update stuff */
-	update_stuff();
+		/* Update stuff */
+		update_stuff();
 
-	/* Redraw stuff */
-	redraw_stuff();
+		/* Redraw stuff */
+		redraw_stuff();
 
-	/* Redraw stuff */
-	window_stuff();
-
+		/* Redraw stuff */
+		window_stuff();
+	)
 
 	/* Hack -- Decrease "xtra" depth */
 	character_xtra--;
 
+	/* Didn't we already do this??? -KRP */
+	FOR_EACH_CHAR
+	(
+		/* Update stuff */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
-	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		/* Combine / Reorder the pack */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	/* Combine / Reorder the pack */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		/* Notice stuff */
+		notice_stuff();
 
-	/* Notice stuff */
-	notice_stuff();
+		/* Update stuff */
+		update_stuff();
 
-	/* Update stuff */
-	update_stuff();
+		/* Redraw stuff */
+		redraw_stuff();
 
-	/* Redraw stuff */
-	redraw_stuff();
+		/* Window stuff */
+		window_stuff();
 
-	/* Window stuff */
-	window_stuff();
-
-	/* Refresh */
-	Term_fresh();
+		/* Refresh */
+		Term_fresh();
 
 
-	/* Handle delayed death */
-	if (p_ptr->is_dead) return;
-
+		/* Handle delayed death */
+		if (p_ptr->is_dead) return;
+	)
 
 	/* Announce (or repeat) the feeling */
 	if (p_ptr->depth) do_cmd_feeling();
@@ -2429,81 +2549,73 @@ static void dungeon(void)
 		/* Hack -- Compress the object list occasionally */
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
+		/* The players need to go first, to avoid giving monsters
+		 * an extra turn upon reloading a save.
+		 *
+		 * All updates now occur whenever the player gets a turn!
+		 * (I don't *think* the player needs to see what's going
+		 * on while he's sleeping... I'm hoping that the update
+		 * functions don't handle spellcasting pictures and such.)
+		 * -KRP
+		 */
 
-		/* Process the player */
-		process_player();
+		/*
+		 * 	Player loop
+		 *
+		 * All of the updating now occurs *within* process_player,
+		 * for what good is an update if the player doesn't have a
+		 * a turn with which to do something? -KRP
+		 */
+		FOR_EACH_CHAR
+		(
+			/* Clear message buffer -KRP */
+			msg_print(NULL);
+		
+			/* Process the player -KRP */
+			process_player();
 
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
+			/* We need to perform updates now to take note
+			 * of any changes that might have happened as
+			 * a result of player activity. -KRP
+			 */
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
+			/* Notice stuff (if needed) */
+			if (p_ptr->notice) notice_stuff();
 
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
+			/* Update stuff (if needed) */
+			if (p_ptr->update) update_stuff();
 
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
+			/* Redraw stuff (if needed) */
+			if (p_ptr->redraw) redraw_stuff();
 
-		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
+			/* Redraw stuff (if needed) */
+			if (p_ptr->window) window_stuff();
 
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
+
+			/* Flush the message buffer */
+			msg_print(NULL);
+
+			/* If he exits the level, we want to terminate
+			 * everyone else too. -KRP
+			 */
+			if (p_ptr->leaving) break;
+		)
 
 		/* Handle "leaving" */
+		/* Is this now redundant? -KRP */
 		if (p_ptr->leaving) break;
-
-
-		/* Process all of the monsters */
-		process_monsters();
-
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
-
-		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
-
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
-
-		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
-
 
 		/* Process the world */
 		process_world();
 
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
-
-		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
-
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
-
-		/* Handle "leaving" */
+		/* The player might have left the board already. -KRP */
 		if (p_ptr->leaving) break;
 
+		/* Process all of the monsters */
+		process_monsters();
+
+		/* The player might have died already. -KRP */
+		if (p_ptr->leaving) break;
 
 		/* Count game turns */
 		turn++;
@@ -2583,6 +2695,7 @@ void play_game(bool new_game)
 	{
 		/* Make new player */
 		new_game = TRUE;
+		leader = FALSE;		/* No leader yet! -KRP */
 
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;
@@ -2622,7 +2735,11 @@ void play_game(bool new_game)
 		character_dungeon = FALSE;
 
 		/* Start in town */
-		p_ptr->depth = 0;
+		/* using my hideous macro! -KRP */
+		FOR_EACH_CHAR
+		(
+			p_ptr->depth = 0;
+		)
 
 		/* Hack -- seed for flavors */
 		seed_flavor = rand_int(0x10000000);
@@ -2630,8 +2747,24 @@ void play_game(bool new_game)
 		/* Hack -- seed for town layout */
 		seed_town = rand_int(0x10000000);
 
+		/* Quick start or normal start? */
+		quickstart = get_quick();
+
 		/* Roll up a new character */
-		player_birth();
+		/* Roll up all *four* new characters! -KRP */
+		FOR_EACH_CHAR
+		( 
+			/* first our character needs an ID -KRP */
+			player_birth(iterator); 
+		)
+
+		/* Did the players actually get names? -KRP */
+		FOR_EACH_CHAR
+		(
+			msg_format("Char %d has name %s. ", iterator,
+				op_ptr->full_name);
+			msg_print(NULL);
+		)
 
 		/* Hack -- enter the world */
 		turn = 1;
@@ -2703,10 +2836,17 @@ void play_game(bool new_game)
 
 
 	/* Start playing */
-	p_ptr->playing = TRUE;
+	FOR_EACH_CHAR		/* This may not be needed -KRP */
+	(
+		p_ptr->playing = TRUE;
+	)
 
 	/* Hack -- Enforce "delayed death" */
-	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
+	/* Note that we need to work on death more.  -KRP */
+	FOR_EACH_CHAR
+	(
+		if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
+	)
 
 	/* Process */
 	while (TRUE)

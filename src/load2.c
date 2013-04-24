@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, and others
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -1354,8 +1356,13 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&p_ptr->searching);
-	rd_byte(&p_ptr->maximize);
-	rd_byte(&p_ptr->preserve);
+/*
+ * These two variables have been axed from the player structure;
+ * they will need to be read elsewhere. -KRP
+ *
+ *	rd_byte(&p_ptr->maximize); 
+ *	rd_byte(&p_ptr->preserve);
+ */
 	rd_byte(&tmp8u);
 
 	/* Future use */
@@ -1764,7 +1771,8 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	p_ptr->depth = depth;
 
 	/* Place player in dungeon */
-	if (!player_place(py, px))
+	/* Note the ugly hack to indicate cave_m_idx ID. -KRP */
+	if (!player_place(py, px, (-1) - p_ptr->whoami))
 	{
 		note(format("Cannot place player (%d,%d)!", py, px));
 		return (162);
@@ -2304,7 +2312,8 @@ static errr rd_dungeon(void)
 	p_ptr->depth = depth;
 
 	/* Place player in dungeon */
-	if (!player_place(py, px))
+	/* Note the ugly hack to indicate cave_m_idx ID -KRP */
+	if (!player_place(py, px, (-1) - p_ptr->whoami))
 	{
 		note(format("Cannot place player (%d,%d)!", py, px));
 		return (162);

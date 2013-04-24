@@ -2261,7 +2261,7 @@ void aggravate_monsters(int who)
 		if (i == who) continue;
 
 		/* Wake up nearby sleeping monsters */
-		if (m_ptr->cdis < MAX_SIGHT * 2)
+		if (m_ptr->cdis[p_ptr->whoami] < MAX_SIGHT * 2)
 		{
 			/* Wake up */
 			if (m_ptr->csleep)
@@ -2359,7 +2359,7 @@ bool mass_genocide(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 		/* Skip distant monsters */
-		if (m_ptr->cdis > MAX_SIGHT) continue;
+		if (m_ptr->cdis[p_ptr->whoami] > MAX_SIGHT) continue;
 
 		/* Delete the monster */
 		delete_monster_idx(i);

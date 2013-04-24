@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, and others
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -1110,8 +1112,13 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
 	wr_byte(p_ptr->searching);
-	wr_byte(p_ptr->maximize);
-	wr_byte(p_ptr->preserve);
+/*
+ * These two variables have been axed from the player structure;
+ * they will have to be written elsewhere. -KRP
+ *
+ *	wr_byte(p_ptr->maximize);
+ *	wr_byte(p_ptr->preserve);
+ */
 	wr_byte(0);
 
 	/* Future use */

@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -2065,9 +2067,11 @@ static errr init_other(void)
 	C_MAKE(cave_m_idx, DUNGEON_HGT, s16b_wid);
 
 	/* Flow arrays */
+/* This is sad; someone forgot to place an #ifdef here. -KRP */
+#ifdef MONSTER_FLOW
 	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
 	C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
-
+#endif /* MONSTER_FLOW */
 
 	/*** Prepare "vinfo" array ***/
 
@@ -2092,9 +2096,12 @@ static errr init_other(void)
 
 	/*** Prepare the inventory ***/
 
+	/* This is no longer necessary; inventory is now part of the
+	 * player object! -KRP
+	 */
 	/* Allocate it */
-	C_MAKE(inventory, INVEN_TOTAL, object_type);
-
+/*	C_MAKE(inventory, INVEN_TOTAL, object_type);
+ */
 
 	/*** Prepare the stores ***/
 
@@ -2425,6 +2432,8 @@ static void init_angband_aux(cptr why)
 
 	/* Explain */
 	plog("See the 'README' file for more information.");
+
+	plog(why); /* Again, the scroll error */
 
 	/* Quit with error */
 	quit("Fatal Error.");

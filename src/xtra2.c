@@ -3,6 +3,8 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
+ * Copyright (c) 1999 Karl R. Peters
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -10,6 +12,30 @@
 
 #include "angband.h"
 
+/*
+ * Save and restore the p_ptr, op_ptr, inventory, and other pointers.
+ * Note that the call to "update_xp_ptrs" technically isn't a 'restore',
+ * but who cares?  It's still good to do.
+ * Call with SAVE_PTRS to save, RESTORE_PTRS to restore. -KRP
+ */
+void manage_ptrs(int which)
+{
+	static player_type *temp_p_ptr;
+	static player_other *temp_op_ptr;
+
+	if (which == SAVE_PTRS)
+	{
+		temp_p_ptr = p_ptr;
+		temp_op_ptr = op_ptr;
+	}
+	else /* RESTORE_PTRS */
+	{
+		p_ptr = temp_p_ptr;
+		op_ptr = temp_op_ptr;
+		inventory = p_ptr->player_items;
+		update_xp_ptrs();
+	}
+}
 
 
 /*
