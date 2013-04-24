@@ -91,8 +91,9 @@
  *
  * This will handle "gids" correctly once the permissions are set right.
  */
+/* Per MPW file
 #define SAFE_SETUID
-
+*/
 
 /*
  * This flag enables the "POSIX" methods for "SAFE_SETUID".
@@ -246,29 +247,30 @@
 #define ALLOW_EASY_FLOOR
 
 
-/*
+/* per MPW files
  * OPTION: Delay the loading of the "f_text" array until it is actually
  * needed, saving ~1K, since "feature" descriptions are unused.
  */
-#define DELAY_LOAD_F_TEXT
+/* #define DELAY_LOAD_F_TEXT */
 
 /*
  * OPTION: Delay the loading of the "k_text" array until it is actually
  * needed, saving ~1K, since "object" descriptions are unused.
  */
-#define DELAY_LOAD_K_TEXT
+/* #define DELAY_LOAD_K_TEXT */
 
 /*
  * OPTION: Delay the loading of the "a_text" array until it is actually
  * needed, saving ~1K, since "artifact" descriptions are unused.
  */
-#define DELAY_LOAD_A_TEXT
+/* #define DELAY_LOAD_A_TEXT */
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually
  * needed, saving ~1K, since "ego-item" descriptions are unused.
  */
-#define DELAY_LOAD_E_TEXT
+/* #define DELAY_LOAD_E_TEXT */
+
 
 /*
  * OPTION: Delay the loading of the "r_text" array until it is actually
@@ -350,8 +352,9 @@
 /*
  * OPTION: Check the modification time of *_info.raw files
  */
+/*
 #define CHECK_MODIFICATION_TIME
-
+*/
 
 /*
  * OPTION: Enable the "smart_learn" and "smart_cheat" options.
@@ -489,25 +492,27 @@
  * OPTION: Capitalize the "user_name" (for "default" player name)
  * This option is only relevant on SET_UID machines.
  */
-#define CAPITALIZE_USER_NAME
+/* #define CAPITALIZE_USER_NAME */
 
 
 
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"ccc02@uark.edu"
 
 
 /*
  * OPTION: Default font (when using X11).
  */
+/*
 #define DEFAULT_X11_FONT		"9x15"
-
+*/
 
 /*
  * OPTION: Default fonts (when using X11)
  */
+/*
 #define DEFAULT_X11_FONT_0		"10x20"
 #define DEFAULT_X11_FONT_1		"9x15"
 #define DEFAULT_X11_FONT_2		"9x15"
@@ -516,27 +521,34 @@
 #define DEFAULT_X11_FONT_5		"5x8"
 #define DEFAULT_X11_FONT_6		"5x8"
 #define DEFAULT_X11_FONT_7		"5x8"
-
+*/
 
 /*
  * Hack -- Special "ancient machine" versions
  */
+/*
 #if defined(USE_286) || defined(ANGBAND_LITE_MAC)
 # ifndef ANGBAND_LITE
 #  define ANGBAND_LITE
 # endif
 #endif
+*/
 
 /*
  * OPTION: Attempt to minimize the size of the game
  */
+/*
 #ifndef ANGBAND_LITE
+*/
 /* #define ANGBAND_LITE */
+/*
 #endif
+*/
 
 /*
  * Hack -- React to the "ANGBAND_LITE" flag
  */
+/*
 #ifdef ANGBAND_LITE
 # undef ALLOW_COLORS
 # undef ALLOW_VISUALS
@@ -554,7 +566,7 @@
 # undef DELAY_LOAD_R_TEXT
 # define DELAY_LOAD_R_TEXT
 #endif
-
+*/
 
 
 /*

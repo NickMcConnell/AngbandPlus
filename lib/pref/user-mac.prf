@@ -47,6 +47,21 @@ P:^_S43\r
 A:\e\eAf\e\e
 P:^_41\r
 
+#
+# Arrow keys
+#
+
+A:8
+P:^_62\n
+
+A:4
+P:^_59\n
+
+A:6
+P:^_60\n
+
+A:2
+P:^_61\n
 
 
 ##### Mage/Ranger/Rogue Macros #####

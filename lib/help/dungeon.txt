@@ -65,9 +65,9 @@ something you are more comfortable with.
                              Monsters
  
             $   Creeping Coins      ,   Mushroom Patch
-            a   Giant Ant           A   Angelic being
-            b   Giant Bat           B   Bird
-            c   Giant Centipede     C   Canine (Dog)
+            a   An Automata         A   Aliens
+            b   Giant Bat           B   Beastman
+            c   Giant Centipede     C   Construct
             d   Dragon              D   Ancient Dragon
             e   Floating Eye        E   Elemental
             f   Feline (Cat)        F   Dragon Fly
@@ -77,7 +77,7 @@ something you are more comfortable with.
             j   Jelly               J   Snake
             k   Kobold              K   Killer Beetle
             l   Giant Louse         L   Lich
-            m   Mold                M   Multi-Headed Hydra
+            m   Mold                M   Monkey
             n   Naga                N   (unused)
             o   Orc                 O   Ogre
             p   Human "person"      P   Giant "person"
@@ -90,7 +90,7 @@ something you are more comfortable with.
             w   Worm or Worm Mass   W   Wight/Wraith
             x   (unused)            X   Xorn/Xaren
             y   Yeek                Y   Yeti
-            z   Zombie/Mummy        Z   Zephyr Hound
+            z   Zombie/Mummy        Z   Zephyr Hound (Dog)
 
 
 
@@ -174,22 +174,18 @@ The General Store ("1")
      oil, shovels, picks, and spikes.  All of these items and some others
      can be sold back to the General store for money.
 
-The Armoury ("2")
-     The Armoury is where the town's armour is fashioned.  All sorts of
-     protective gear may be bought and sold here, though the owner will not 
-     stock anything better than bar chain mail unless it is sold to him
-     by the player.
+The Clothing Store ("2")
+     The Clothing store is where the town's armour is fashioned.  All sorts of
+     protective gear may be bought and sold here.
 
-The Weaponsmith's Shop ("3")
-     The Weaponsmith's Shop is where the town's weapons are fashioned.  Hand
-     and missile weapons may be purchased and sold here, along with arrows,
-     bolts, and shots. As with the armoury, not all weapon types will be 
+The Gun Shop ("3")
+     The Gun Shop is where the town's weapons are fashioned.  Hand
+     and missile weapons may be purchased and sold here, along with different
+     types of ammo. As with the Clothing Store, not all weapon types will be 
      stocked here, unless they are sold to the shop by the player first.
 
-The Temple ("4")
-     The Temple deals in healing and restoration potions, as well as bless
-     scrolls, word of recall scrolls, some approved priestly weapons, as
-     well as prayer books.
+The Machine Store ("4")
+     The Machine Store deals in different types of mechanical equipment.
 
 The Alchemy shop ("5")
      The Alchemy Shop deals in all types of potions and scrolls.
@@ -233,7 +229,7 @@ about and take it safely back to the town to sell.
 There are two sources for light once inside the dungeon.  Permanent light
 which has been magically placed within rooms, and a light source carried by
 the player.  If neither is present, the character will be unable to see.
-This will affect searching, picking locks, disarming traps, reading scrolls,
+This will affect searching, picking locks, disarming traps, rigging mechanisms,
 casting spells, browsing books, etc.  So be very careful not to run out of
 light!
 
@@ -291,7 +287,7 @@ It acts in two manners, depending upon  your current location.  If read
 within the dungeon, it will teleport you back to town.  If read in town, it
 will teleport you back down to the deepest level of the dungeon which your
 character has previously been on.  This makes the scroll very useful for
-getting back to the deeper levels of Angband.  Once the scroll has been
+getting back to the deeper levels of Steamband.  Once the scroll has been
 read it takes a while for the spell to act, so don't expect it to save you
 in a crisis.  Reading a second scroll before the first has had a chance to
 take effect will cancel both scrolls.
@@ -420,22 +416,10 @@ For historical reasons, secret doors are never locked.
 
 === Winning The Game ===
 
-Once your character has killed Sauron, who lives on level 99 (4950') in the 
-dungeon, a magical staircase will appear that will allow you to finally reach
-level 100.  Morgoth lurks on this level of his dungeon, and you will not be
-able to go below his level until you have killed him.  Try to avoid wandering
-around on level 100 unless you are ready for him, since he has a habit of
-coming at you across the dungeon, the Mighty Hammer 'Grond' in hand, to slay
-you for your impudence.
-
-Morgoth cannot be killed by some of the easier methods used on normal
-creatures.  Morgoth, like all other "Unique" monsters, will simply teleport
-away to another region of the level if you attempt to use a spell such as
-destruction is upon him.  Morgoth, like some other monsters, cannot be
-polymorphed, slept, charmed, or genocided.  Magical spells like Mana Storm 
-and Orb of Draining are effective against him, as are some of the more
-powerful weapons, but he is difficult to kill and if allowed to escape for
-a time he will heal himself rapidly.
+Once your character has killed the tool of evil, who lives on level 99 (4950') 
+in the dungeon, a magical staircase will appear that will allow you to finally reach
+level 100.  An untold evil lurks on this level of his dungeon, and you will not be
+able to go below his level until you have killed him. 
 
 If you should actually survive the attempt of killing Morgoth, you will
 receive the status of WINNER.  You may continue to explore, and may even

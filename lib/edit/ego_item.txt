@@ -60,40 +60,66 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.1.0
 
 
 ### Body Armor ###
+### Alter some of these so that they fall on 'proper' armor.
 
-N:4:of Resist Acid
+N:1:of the Machine
+X:30:10:1
+C:5:5:10:2
+W:0:3:0:2500
+T:36:0:99
+T:37:0:99
+F:STR | CON | REGEN 
+
+### Add activation for the etheric equipment (Phase door / teleport)
+N:2:(*Etheric*)
+X:30:20:2
+C:0:0:25:3
+W:0:10:0:12000
+T:36:0:99
+T:37:0:99
+F:RES_NEXUS | SUST_CON | SUST_DEX | SUST_WIS | SPEED
+
+N:3:(Etheric)
+X:30:15:1
+C:0:0:10:0
+W:0:2:0:1500
+T:36:0:99
+T:37:0:99
+F:RES_NEXUS
+
+N:4:of Inviolability to Acid
 X:30:16:0
 W:0:1:0:1000
 T:36:0:99
 T:37:0:99
 F:RES_ACID | IGNORE_ACID
 
-N:5:of Resist Lightning
+N:5:of Inviolability to Lightning
 X:30:10:0
 W:0:1:0:400
 T:36:0:99
 T:37:0:99
 F:RES_ELEC | IGNORE_ELEC
 
-N:6:of Resist Fire
+N:6:of Inviolability to Fire
 X:30:14:0
 W:0:1:0:800
 T:36:0:99
 T:37:0:99
 F:RES_FIRE | IGNORE_FIRE
 
-N:7:of Resist Cold
+N:7:of Inviolability to Cold
 X:30:12:0
 W:0:1:0:600
 T:36:0:99
 T:37:0:99
 F:RES_COLD | IGNORE_COLD
 
-N:8:of Resistance
+N:8:of Inviolability to the Elements
 X:30:20:0
 W:0:2:0:12500
 C:0:0:10:0
@@ -102,9 +128,7 @@ T:37:0:99
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# OnePower
-
-N:9:of Elvenkind
+N:9:of the Daoine Sidhe
 X:30:25:2
 W:0:4:0:15000
 C:0:0:10:3
@@ -114,9 +138,15 @@ F:STEALTH |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 10 (unused)
-
-# OnePower
+N:10:of the Mercurial Engine
+X:30:10:1
+C:0:0:25:5
+W:0:15:0:120000
+T:36:0:99
+T:37:0:99
+F:INFRA | STR | CON | DEX | SPEED | RES_DARK | RES_SHARD | RES_DISEN |
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD 
+F:HOLD_LIFE | AGGRAVATE | 
 
 N:11:of Permanence
 X:30:30:2
@@ -127,7 +157,12 @@ F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR |
 F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 12 (unused)
+N:12:(Martian)
+X:30:30:2
+W:0:10:0:30000
+C:0:0:20:2
+T:37:1:1
+F:CON | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
 
 # 13 (unused)
 
@@ -141,31 +176,31 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # Note that the most common shields (lightning, cold) have a ratity of 2.
 # That is to keep close to original Angband rarities.
 
-N:16:of Resist Acid
+N:16:of Inviolability to Acid
 X:32:16:0
 W:0:6:0:1000
 T:34:0:99
 F:RES_ACID | IGNORE_ACID
 
-N:17:of Resist Lightning
+N:17:of Inviolability to Lightning
 X:32:10:0
 W:0:2:0:400
 T:34:0:99
 F:RES_ELEC | IGNORE_ELEC
 
-N:18:of Resist Fire
+N:18:of Inviolability to Resist Fire
 X:32:14:0
 W:0:3:0:800
 T:34:0:99
 F:RES_FIRE | IGNORE_FIRE
 
-N:19:of Resist Cold
+N:19:of Inviolability to Cold
 X:32:12:0
 W:0:2:0:600
 T:34:0:99
 F:RES_COLD | IGNORE_COLD
 
-N:20:of Resistance
+N:20:of Inviolability to the Elements
 X:32:20:0
 W:0:6:0:12500
 C:0:0:10:0
@@ -173,23 +208,33 @@ T:34:0:99
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 21 (unused)
+N:21:(Martian)
+X:32:30:2
+W:0:10:0:30000
+C:0:0:18:2
+T:34:0:99
+F:CON | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
 
 # 22 (unused)
 
-# 23 (unused)
 
 
 ### Crowns and Helms ###
+N:23:(Martian)
+X:33:30:2
+W:0:10:0:30000
+C:0:0:20:2
+T:32:2:3
+F:CON | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
 
-N:24:of Intelligence
+N:24:of Intellect
 X:33:13:0
 C:0:0:0:2
 W:0:2:0:500
 T:32:0:99
 F:INT | SUST_INT
 
-N:25:of Wisdom
+N:25:of Insight
 X:33:13:0
 W:0:2:0:500
 C:0:0:0:2
@@ -203,9 +248,7 @@ C:0:0:0:4
 T:32:0:99
 F:CHR | SUST_CHR
 
-# OneAbility
-
-N:27:of the Magi
+N:27:of the Order
 X:33:15:3
 W:0:4:0:7500
 C:0:0:0:3
@@ -317,8 +360,6 @@ C:0:0:0:3
 T:35:0:99
 F:STEALTH
 
-# OnePower
-
 N:42:of Aman
 X:31:20:2
 W:0:7:0:4000
@@ -327,7 +368,12 @@ T:35:0:99
 F:STEALTH | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 43 (unused)
+N:43:(Etheric)
+X:31:15:1
+C:0:0:10:0
+W:0:0:0:1500
+T:35:0:99
+F:RES_NEXUS
 
 N:44:of Enveloping
 X:31:0:0
@@ -350,7 +396,15 @@ C:15:15:0:0
 T:35:0:99
 F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 
-# 47 (unused)
+N:47:(*Etheric*)
+X:31:20:2
+C:0:0:25:3
+W:0:15:0:12000
+T:36:0:99
+T:37:0:99
+F:RES_NEXUS | SUST_CON | SUST_DEX | SUST_WIS | SPEED |
+F:RES_COLD | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS
+
 
 
 ### Gloves ###
@@ -384,9 +438,20 @@ C:5:5:0:5
 T:31:0:99
 F:STR | SHOW_MODS | HIDE_TYPE
 
-# 52 (unused)
+N:52:(Etheric)
+X:34:10:1
+C:3:1:10:0
+W:0:4:0:1500
+T:31:0:99
+F:RES_NEXUS | SUST_DEX
 
-# 53 (unused)
+N:53:(*Etheric*)
+X:34:20:2
+C:10:3:25:3
+W:0:15:0:15000
+T:31:0:99
+F:RES_NEXUS | SUST_CON | SUST_DEX | SUST_WIS | SPEED | DEX |
+F:RES_COLD | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS
 
 N:54:of Weakness
 X:34:0:0
@@ -433,7 +498,13 @@ C:0:0:0:10
 T:30:0:99
 F:SPEED | HIDE_TYPE
 
-# 60 (unused)
+N:60:(*Etheric*)
+X:34:20:2
+C:10:3:25:3
+W:0:15:0:15000
+T:31:0:99
+F:RES_NEXUS | SUST_CON | SUST_DEX | SUST_WIS | SPEED |
+F:RES_COLD | RES_FIRE | RES_COLD | RES_ELEC | FEATHER | RES_DISEN 
 
 N:61:of Noise
 X:35:0:0
@@ -458,9 +529,7 @@ F:SPEED | AGGRAVATE | LIGHT_CURSE
 
 ### Weapons ###
 
-# OneSustain
-
-N:64:(Holy Avenger)
+N:64:(Holy)
 X:24:30:1
 W:0:10:0:20000
 C:6:6:4:4
@@ -471,7 +540,6 @@ F:WIS |
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
 F:SEE_INVIS | BLESSED
 
-# OneSustain
 
 N:65:(Defender)
 X:24:25:1
@@ -485,7 +553,6 @@ F:FREE_ACT | SEE_INVIS | FEATHER | REGEN |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# OneAbility
 
 N:66:(Blessed)
 X:24:20:3
@@ -497,9 +564,16 @@ T:23:0:99
 F:WIS | 
 F:BLESSED
 
-# 67 (unused)
+N:67:(Martian)
+X:24:30:2
+W:0:15:0:30000
+C:10:10:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:CON | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
 
-N:68:of Westernesse
+N:68:of Exigency
 X:24:20:0
 W:0:10:0:20000
 C:5:5:0:2
@@ -507,7 +581,7 @@ T:21:0:99
 T:22:0:99
 T:23:0:99
 F:STR | DEX | CON | 
-F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
+F:SLAY_TROLL | SLAY_GIANT | 
 F:FREE_ACT | SEE_INVIS
 
 N:69:of Extra Attacks
@@ -599,13 +673,13 @@ T:22:0:99
 T:23:0:99
 F:SLAY_DEMON
 
-N:84:of Slay Orc
+N:84:of Slay Automata
 X:24:10:0
 W:0:6:0:2500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_ORC
+F:SLAY_AUTOMATA
 
 N:85:of Slay Troll
 X:24:10:0
@@ -669,14 +743,14 @@ T:22:0:99
 T:23:0:99
 F:INT | SLAY_DEMON
 
-N:92:of *Slay* Orc
+N:92:of *Slay* Automata
 X:24:14:0
 W:0:25:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:DEX | SLAY_ORC
+F:DEX | SLAY_AUTOMATA
 
 N:93:of *Slay* Troll
 X:24:14:0
@@ -705,13 +779,41 @@ T:22:0:99
 T:23:0:99
 F:CON | SLAY_DRAGON | KILL_DRAGON
 
-# 96 (unused)
+N:96:of Slay Alien
+X:24:24:0
+W:0:25:0:6000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_ALIEN
 
-# 97 (unused)
+N:97:of Slay Beastman
+X:24:24:0
+W:0:25:0:6000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_BEASTMAN
 
-# 98 (unused)
+N:98:of *Slay* Alien
+X:24:24:0
+W:0:25:0:6000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:INT | SLAY_ALIEN
 
-# 99 (unused)
+N:99:of *Slay* Beastman
+X:24:24:0
+W:0:25:0:6000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:CON | SLAY_BEASTMAN
 
 N:100:of Digging
 X:24:4:0
@@ -808,13 +910,13 @@ T:17:0:99
 T:18:0:99
 F:SLAY_DEMON
 
-N:116:of Hurt Orc
+N:116:of Hurt Automata
 X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_ORC
+F:SLAY_AUTOMATA
 
 N:117:of Hurt Troll
 X:23:10:0
@@ -840,9 +942,21 @@ T:17:0:99
 T:18:0:99
 F:SLAY_DRAGON
 
-# 120 (unused)
+N:120:of Hurt Alien
+X:23:10:0
+W:0:50:0:35
+T:16:0:99
+T:17:0:99
+T:18:0:99
+F:SLAY_ALIEN
 
-# 121 (unused)
+N:121:of Hurt Beastman
+X:23:10:0
+W:0:50:0:35
+T:16:0:99
+T:17:0:99
+T:18:0:99
+F:SLAY_BEASTMAN
 
 N:122:of Flame
 X:23:10:0
@@ -894,4 +1008,28 @@ N:127:(Blasted)
 X:30:0:0
 W:0:0:0:0
 C:0:0:10:0
+
+#boots
+N:128:(Martian)
+X:35:30:2
+W:0:15:0:30000
+C:0:0:10:2
+T:30:6:6
+F:DEX | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
+
+#cloak
+N:129:(Martian)
+X:31:30:2
+W:0:15:0:30000
+C:0:0:10:2
+T:35:0:99
+F:CHR | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
+
+#gloves
+N:130:(Martian)
+X:34:30:2
+W:0:15:0:30000
+C:0:0:10:2
+T:31:0:99
+F:STR | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
 

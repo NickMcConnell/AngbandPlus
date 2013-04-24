@@ -709,7 +709,7 @@ struct player_race
 
 	byte infra;			/* Infra-vision	range */
 
-	byte choice;		/* Legal class choices */
+	u32b choice;		/* Legal class choices */
 
 	s16b hist;			/* Starting history index */
 
@@ -849,6 +849,9 @@ struct player_type
 	s16b sc;			/* Social Class */
 
 	s32b au;			/* Current Gold */
+	/* Generation fields (for quick start) */
+	s32b au_birth;			/* Current Gold */
+	byte stat_birth[A_MAX];	/* Current "natural" stat values */
 
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
@@ -896,6 +899,8 @@ struct player_type
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
+	
+	s16b tim_esp;	     /* Timed ESP */
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -1097,6 +1102,8 @@ struct player_type
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
+	
+
 };
 
 
@@ -1139,4 +1146,20 @@ struct high_score
 	char max_dun[4];		/* Max Dungeon Level (number) */
 
 	char how[32];		/* Method of death (string) */
+};
+
+/* class craft */
+typedef struct mind_type mind_type;
+struct mind_type
+{
+	int     min_lev;
+	int     mana_cost;
+	int     fail;
+	cptr    name;
+};
+
+typedef struct mind_power mind_power;
+struct mind_power
+{
+	mind_type info[MAX_CLASS_POWERS];
 };

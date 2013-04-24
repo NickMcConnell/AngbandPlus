@@ -1273,84 +1273,84 @@ const u32b spell_flags[2][9][2] =
 {
 	{
 		/*** Mage spell books ***/
-		BOOK(SPELL_MAGIC_MISSILE,
-		     SPELL_DETECT_MONSTERS,
-		     SPELL_PHASE_DOOR,
-		     SPELL_LIGHT_AREA,
-		     SPELL_TREASURE_DETECTION,
+		BOOK(SPELL_AIM_OF_THE_WILL,
+		     SPELL_SENSE_WILL,
+		     SPELL_TRANSPORT_SELF,
+		     SPELL_INNER_LIGHT,
 		     SPELL_CURE_LIGHT_WOUNDS,
 		     SPELL_OBJECT_DETECTION,
 		     SPELL_FIND_TRAPS_DOORS,
-		     SPELL_STINKING_CLOUD),
-		BOOK(SPELL_CONFUSE_MONSTER,
-		     SPELL_LIGHTNING_BOLT,
-		     SPELL_TRAP_DOOR_DESTRUCTION,
-		     SPELL_SLEEP_I,
-		     SPELL_CURE_POISON,
-		     SPELL_TELEPORT_SELF,
-		     SPELL_SPEAR_OF_LIGHT,
-		     SPELL_FROST_BOLT,
-			 SPELL_TURN_STONE_TO_MUD),
-		BOOK(SPELL_SATISFY_HUNGER,
-		     SPELL_RECHARGE_ITEM_I,
-		     SPELL_SLEEP_II,
-		     SPELL_POLYMORPH_OTHER,
-		     SPELL_IDENTIFY,
-		     SPELL_SLEEP_III,
-		     SPELL_FIRE_BOLT,
-		     SPELL_SLOW_MONSTER,
+		     SPELL_PLAUGE_WILL,
 		     -1),
-		BOOK(SPELL_FROST_BALL,
-		     SPELL_RECHARGE_ITEM_II,
+		BOOK(SPELL_CHANT,
+		     SPELL_SANCTUARY,
+		     SPELL_SATISFY_HUNGER,
+		     SPELL_CURE_CRITICAL_WOUNDS,
+		     SPELL_PROTECTION_FROM_EVIL,
+		     SPELL_CURE_MORTAL_WOUNDS,
+		     SPELL_REMOVE_CURSE,
+		     SPELL_TURN_UNDEAD,
+			 SPELL_HEAL),
+		BOOK(SPELL_RECHARGE_ITEM_I,
+		     SPELL_SLEEP_II,
+		     SPELL_IDENTIFY,
+		     SPELL_FIRE_BOLT,
+		     SPELL_FROST_BOLT,
 		     SPELL_TELEPORT_OTHER,
-		     SPELL_HASTE_SELF,
+		     SPELL_HASTE,
 		     SPELL_FIRE_BALL,
-		     SPELL_WORD_OF_DESTRUCTION,
-		     SPELL_GENOCIDE,
+		     SPELL_GENOCIDE),
+		BOOK(SPELL_PORTAL,
+		     SPELL_SENSE_INVISIBLE,
+		     SPELL_SENSE_SURROUNDINGS,
+		     SPELL_PRAYER,
+		     SPELL_DISPEL_EVIL,
+		     SPELL_IDENTIFY2,
+		     SPELL_HOLY_WORD,
+		     SPELL_HEALING,
+		     SPELL_RESTORATION),
+		BOOK(SPELL_ACID_BOLT,
+		     SPELL_CLOUD_KILL,
+		     SPELL_ICE_STORM,
+		     SPELL_FIRE_STORM,
+		     SPELL_METEOR_SWARM,
+		     SPELL_ELEMENTAL_BALL,
+		     SPELL_MANA_STORM,
 		     -1,
 		     -1),
-		BOOK(SPELL_RESIST_FIRE,
-		     SPELL_RESIST_COLD,
-		     SPELL_RESIST_ACID,
-		     SPELL_RESIST_POISON,
+		BOOK(SPELL_DISPEL_CURSE,
+		     SPELL_BANISHMENT,
+		     SPELL_RECHARGE_ITEM_II,
+		     SPELL_DISPEL_EVIL_II,
+		     SPELL_WORD_OF_RECALL,
 		     SPELL_RESISTANCE,
 		     -1,
 		     -1,
-		     -1,
 		     -1),
-		BOOK(SPELL_DOOR_CREATION,
-		     SPELL_STAIR_CREATION,
-		     SPELL_TELEPORT_LEVEL,
+		BOOK(SPELL_RECHARGE_ITEM_III,
 		     SPELL_EARTHQUAKE,
-		     SPELL_WORD_OF_RECALL,
-		     -1,
-		     -1,
-		     -1,
-		     -1),
-		BOOK(SPELL_DETECT_EVIL,
-		     SPELL_DETECT_ENCHANTMENT,
-		     SPELL_RECHARGE_ITEM_III,
-		     SPELL_GENOCIDE2,
+		     SPELL_WORD_OF_RECALL_II,
+		     SPELL_MIND_OF_THE_WORM,
 		     SPELL_MASS_GENOCIDE,
 		     -1,
 		     -1,
 		     -1,
 		     -1),
-		BOOK(SPELL_HEROISM,
-		     SPELL_SHIELD,
-		     SPELL_BERSERKER,
-		     SPELL_ESSENCE_OF_SPEED,
-		     SPELL_GLOBE_OF_INVULNERABILITY,
+		BOOK(-1,
+		     -1,
+		     -1,
+		     -1,
+		     -1,
 		     -1,
 		     -1,
 		     -1,
 		     -1),
-		BOOK(SPELL_ACID_BOLT,
-		     SPELL_CLOUD_KILL,
-		     SPELL_ACID_BALL,
-		     SPELL_ICE_STORM,
-		     SPELL_METEOR_SWARM,
-		     SPELL_MANA_STORM,
+		BOOK(-1,
+		     -1,
+		     -1,
+		     -1,
+		     -1,
+		     -1,
 		     -1,
 		     -1,
 		     -1)
@@ -1358,87 +1358,166 @@ const u32b spell_flags[2][9][2] =
 
 	{
 		/*** Priest spell books ***/
-		BOOK(PRAYER_DETECT_EVIL,
-			 PRAYER_CURE_LIGHT_WOUNDS,
-			 PRAYER_BLESS,
+		/* BOOK(PRAYER_DETECT_EVIL,
+		 *	 PRAYER_CURE_LIGHT_WOUNDS,
+		 *	 PRAYER_BLESS,
+		 *	 PRAYER_REMOVE_FEAR,
+		 *	 PRAYER_CALL_LIGHT,
+		 *	 PRAYER_FIND_TRAPS,
+		 *	 PRAYER_DETECT_DOORS_STAIRS,
+		 *	 PRAYER_SLOW_POISON,
+		 *	 -1), 
+		 */
+		BOOK(PRAYER_CALL_LIGHT,
 			 PRAYER_REMOVE_FEAR,
-			 PRAYER_CALL_LIGHT,
-			 PRAYER_FIND_TRAPS,
+			 PRAYER_CURE_LIGHT_WOUNDS,
 			 PRAYER_DETECT_DOORS_STAIRS,
+			 PRAYER_FIND_TRAPS,
 			 PRAYER_SLOW_POISON,
-			 -1),
-		BOOK(PRAYER_SCARE_MONSTER,
-			 PRAYER_PORTAL,
-			 PRAYER_CURE_SERIOUS_WOUNDS,
-			 PRAYER_CHANT,
-			 PRAYER_SANCTUARY,
+			 PRAYER_SPRING_BLADE,
 			 PRAYER_SATISFY_HUNGER,
-			 PRAYER_REMOVE_CURSE,
-			 PRAYER_RESIST_HEAT_COLD,
+			 PRAYER_OBJECT_ANALYSIS), 
+		/*
+		 *BOOK(PRAYER_SCARE_MONSTER,
+		 *	 PRAYER_PORTAL,
+		 *	 PRAYER_CURE_SERIOUS_WOUNDS,
+		 *	 PRAYER_CHANT,
+		 *	 PRAYER_SANCTUARY,
+		 *	 PRAYER_SATISFY_HUNGER2,
+		 *	 PRAYER_REMOVE_CURSE,
+		 *	 PRAYER_RESIST_HEAT_COLD,
+		 *	 -1),
+		 */
+		BOOK(PRAYER_DETECT_MONSTERS,
+			 PRAYER_FIND_TRAPS_DOORS,
+			 PRAYER_TREASURE_DETECTION,
+			 PRAYER_DETECT_ENCHANTMENT,
+			 PRAYER_DETECTION,
+			 PRAYER_PERCEPTION,
+			 PRAYER_PROBING,
+			 PRAYER_CLAIRVOYANCE,
 			 -1),
-		BOOK(PRAYER_NEUTRALIZE_POISON,
-			 PRAYER_ORB_OF_DRAINING,
+		/* BOOK(PRAYER_NEUTRALIZE_POISON,
+		 *	 PRAYER_ORB_OF_DRAINING,
+		 *	 PRAYER_CURE_CRITICAL_WOUNDS,
+		 *	 PRAYER_SENSE_INVISIBLE,
+		 *	 PRAYER_PROTECTION_FROM_EVIL,
+		 *	 PRAYER_EARTHQUAKE,
+		 *	 PRAYER_SENSE_SURROUNDINGS,
+		 *	 PRAYER_CURE_MORTAL_WOUNDS,
+		 *	 PRAYER_TURN_UNDEAD),
+		 */
+		BOOK(PRAYER_SPEAR_OF_LIGHT,
+			 PRAYER_ETHERIC_JUMP,
+			 PRAYER_DEFENSIVE_ARRAY,
+			 PRAYER_NEUTRALIZE_POISON,
+			 PRAYER_GUNS,
 			 PRAYER_CURE_CRITICAL_WOUNDS,
-			 PRAYER_SENSE_INVISIBLE,
-			 PRAYER_PROTECTION_FROM_EVIL,
+			 PRAYER_TURN_STONE_TO_MUD,
 			 PRAYER_EARTHQUAKE,
-			 PRAYER_SENSE_SURROUNDINGS,
-			 PRAYER_CURE_MORTAL_WOUNDS,
-			 PRAYER_TURN_UNDEAD),
-		BOOK(PRAYER_PRAYER,
-			 PRAYER_DISPEL_UNDEAD,
-			 PRAYER_HEAL,
-			 PRAYER_DISPEL_EVIL,
-			 PRAYER_GLYPH_OF_WARDING,
-			 PRAYER_HOLY_WORD,
+			 PRAYER_MISSLE),
+		/* BOOK(PRAYER_PRAYER,
+		 *	 PRAYER_DISPEL_UNDEAD,
+		 *	 PRAYER_HEAL,
+		 *	 PRAYER_DISPEL_EVIL,
+		 *	 PRAYER_GLYPH_OF_WARDING,
+		 *	 PRAYER_HOLY_WORD,
+		 *	 -1,
+		 *	 -1,
+		 *	 -1),
+		 */
+		BOOK(PRAYER_LEAD_SLUGS,
+			 PRAYER_LIGHTNING_RAY,
+			 PRAYER_FROST_RAY,
+			 PRAYER_HEAT_RAY,
+			 PRAYER_GRAVITY_RAY,
+			 PRAYER_TELEPORT_OTHER,
 			 -1,
 			 -1,
 			 -1),
 		BOOK(PRAYER_BLINK,
 			 PRAYER_TELEPORT_SELF,
-			 PRAYER_TELEPORT_OTHER,
+			 PRAYER_TELEPORT_OTHER2,
 			 PRAYER_TELEPORT_LEVEL,
 			 PRAYER_WORD_OF_RECALL,
-			 PRAYER_ALTER_REALITY,
-			 -1,
-			 -1,
-			 -1),
-		BOOK(PRAYER_DETECT_MONSTERS,
-			 PRAYER_DETECTION,
-			 PRAYER_PERCEPTION,
-			 PRAYER_PROBING,
-			 PRAYER_CLAIRVOYANCE,
 			 -1,
 			 -1,
 			 -1,
 			 -1),
-		BOOK(PRAYER_CURE_SERIOUS_WOUNDS2,
-			 PRAYER_CURE_MORTAL_WOUNDS2,
+		/* BOOK(PRAYER_DETECT_MONSTERS2,
+		 *	 PRAYER_DETECTION2,
+		 *	 PRAYER_PERCEPTION2,
+		 *	 PRAYER_PROBING2,
+		 *	 PRAYER_CLAIRVOYANCE2,
+		 *	 -1,
+		 *	 -1,
+		 *	 -1,
+		 *	 -1),
+		 */
+		BOOK(PRAYER_CURE_MORTAL_WOUNDS,
+			 PRAYER_BIOLOGICAL_ENHANCE,
+			 PRAYER_POLYMORPH_OTHER,
+			 PRAYER_RECHARGE_ITEM,
+			 PRAYER_DOOR_CREATION,
+			 PRAYER_STAIR_CREATION,
+			 PRAYER_BIOLOGICAL_ENHANCE_II,
 			 PRAYER_HEALING,
-			 PRAYER_RESTORATION,
-			 PRAYER_REMEMBRANCE,
+			 PRAYER_ALTER_REALITY),
+		BOOK(-1,
+			 -1,
+			 -1,
+			 -1,
+			 -1,
+			 -1,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(-1,
+			 -1,
+			 -1,
+			 -1,
+			 -1,
 			 -1,
 			 -1,
 			 -1,
 			 -1),
-		BOOK(PRAYER_UNBARRING_WAYS,
-			 PRAYER_RECHARGING,
-			 PRAYER_DISPEL_CURSE,
-			 PRAYER_ENCHANT_WEAPON,
-			 PRAYER_ENCHANT_ARMOUR,
-			 PRAYER_ELEMENTAL_BRAND,
+		BOOK(-1,
 			 -1,
 			 -1,
-			 -1),
-		BOOK(PRAYER_DISPEL_UNDEAD2,
-			 PRAYER_DISPEL_EVIL2,
-			 PRAYER_BANISHMENT,
-			 PRAYER_WORD_OF_DESTRUCTION,
-			 PRAYER_ANNIHILATION,
+			 -1,
+			 -1,
 			 -1,
 			 -1,
 			 -1,
 			 -1)
+		/*BOOK(PRAYER_CURE_SERIOUS_WOUNDS2,
+		 *	 PRAYER_CURE_MORTAL_WOUNDS2,
+		 *	 PRAYER_HEALING,
+		 *	 PRAYER_RESTORATION,
+		 *	 PRAYER_REMEMBRANCE,
+		 *	 -1,
+		 *	 -1,
+		 *	 -1,
+		 *	 -1),
+		 *BOOK(PRAYER_UNBARRING_WAYS,
+		 *	 PRAYER_RECHARGING,
+		 *	 PRAYER_DISPEL_CURSE,
+		 *	 PRAYER_ENCHANT_WEAPON,
+		 *	 PRAYER_ENCHANT_ARMOUR,
+		 *	 PRAYER_ELEMENTAL_BRAND,
+		 *	 -1,
+		 *	 -1,
+		 *	 -1),
+		 *BOOK(PRAYER_DISPEL_UNDEAD2,
+		 *	 PRAYER_DISPEL_EVIL2,
+		 *	 PRAYER_BANISHMENT,
+		 *	 PRAYER_WORD_OF_DESTRUCTION,
+		 *	 PRAYER_ANNIHILATION,
+		 *	 -1,
+		 *	 -1,
+		 *	 -1,
+		 *	 -1)
+		 */
 	}
 };
 
@@ -1451,8 +1530,78 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 	/*** Mage Spells ***/
 
 	{
+		/* Liber AL vel Legis (sval 0) */
+		"Aim of the Will",
+		"Sense Will",
+		"Transportation of the Will",
+		"Inner Radiance",
+		"Healing of the Will",
+		"Location of Things Without Spirit",
+		"Locating Safe Passage of the Will",
+		"Plagueing the Will",
+		
+		/* Treatise on the Resurrection (sval 1) */
+		"Holy Protection Chant",
+		"Protection of the Lord",
+		"Creation of Loaves and Fishes",
+		"Healing of the Body",
+		"Protection from Evil",
+		"Greater Healing of the Body",
+		"Remove Foul Curses",
+		"Purity of the living",
+		"Purification of the Body",
+		
+		/* The Zohar (Book of Splendor) (sval 2) */
+		"Transfering Will to Objects",
+		"Supression of the Will",
+		"Knowledge of Secular Objects",
+		"Spectacle of Fire",
+		"Spectacle of Ice",
+		"Movement of the Will of Others",
+		"Focus of the Will",
+		"Sphere of Flame",
+		"Solitude of the Will",
+		
+		/* Odes of Solomon (sval 3) */
+		"Ballad of the Holy Gate",
+		"Hymn: Pierce the Spectral Barrier",
+		"Hymn: Secular Surroundings",
+		"Holy Prayer",
+		"Prayer to Dispel Evil",
+		"Lore",
+		"Holy Word",
+		"Healing of the Spirit",
+		"Healing of the Body",
+		
+		/* Sepher Yetzirah (Book of Formation) (sval 4) */
+		"Spectacle of Acid",
+		"Purge the Toxins of the Will",
+		"Storm of Ice",
+		"Storm of Fire",
+		"Swarm of Meteors",
+		"Sphere of the elements",
+		"Soulstorm",
+		
+		/* The Pnakotic Manuscripts (sval 5) */
+		"Holy Cleansing of Objects",
+		"Word of Banishment",
+		"Holy Infusion of Power",
+		"Exorcism of Evil",
+		"Godly Passage",
+		"Holy Resistance",
+		
+		/* De Vermis Mysteriis (Mysteries of the Worm) (sval 6) */
+		"Power of the Worm",
+		"Force of the Worm",
+		"Path of the Worm",
+		"Mind of the Worm",
+		"Death of the Worm",
+		/* The Necronomicon (sval 7) */
+		/* The Holy Books of Thelema (sval 8) */
+		
+		
 		/* Magic for Beginners (sval 0) */
-		"Magic Missile",
+	/*	"Magic Missile",
 		"Detect Monsters",
 		"Phase Door",
 		"Light Area",
@@ -1461,9 +1610,9 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Object Detection",
 		"Find Hidden Traps/Doors",
 		"Stinking Cloud",
-
+	*/
 		/* Conjurings and Tricks (sval 1) */
-		"Confuse Monster",
+	/*	"Confuse Monster",
 		"Lightning Bolt",
 		"Trap/Door Destruction",
 		"Sleep I",
@@ -1472,9 +1621,9 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Spear of Light",
 		"Frost Bolt",
 		"Turn Stone to Mud",
-
+	*/
 		/* Incantations and Illusions (sval 2) */
-		"Satisfy Hunger",
+	/*	"Satisfy Hunger",
 		"Recharge Item I",
 		"Sleep II",
 		"Polymorph Other",
@@ -1482,52 +1631,58 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Sleep III",
 		"Fire Bolt",
 		"Slow Monster",
-
+	*/
 		/* Sorcery and Evocations (sval 3) */
-		"Frost Ball",
+	/*	"Frost Ball",
 		"Recharge Item II",
 		"Teleport Other",
 		"Haste Self",
 		"Fire Ball",
 		"Word of Destruction",
 		"Genocide",
-
+	*/
 		/* Mordenkainen's Escapes (sval 5) */
-		"Door Creation",
+	/*	"Door Creation",
 		"Stair Creation",
 		"Teleport Level",
 		"Earthquake",
 		"Word of Recall",
-
+	*/
 		/* Raal's Tome of Destruction (sval 8) */
-		"Acid Bolt",
+	/*	"Acid Bolt",
 		"Cloud Kill",
 		"Acid Ball",
 		"Ice Storm",
 		"Meteor Swarm",
 		"Mana Storm",
-
+	*/
 		/* Kelek's Grimoire of Power (sval 6) */
-		"Detect Evil",
+	/*	"Detect Evil",
 		"Detect Enchantment",
 		"Recharge Item III",
 		"Genocide",
 		"Mass Genocide",
-
+	*/
 		/* Resistance of Scarabtarices (sval 4) */
-		"Resist Fire",
+	/*	"Resist Fire",
 		"Resist Cold",
 		"Resist Acid",
 		"Resist Poison",
 		"Resistance",
-
+	*/
 		/* Tenser's transformations... (sval 7) */
-		"Heroism",
+	/*	"Heroism",
 		"Shield",
 		"Berserker",
 		"Essence of Speed",
 		"Globe of Invulnerability",
-
+	*/
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
 		"(blank)",
 		"(blank)",
 		"(blank)",
@@ -1539,88 +1694,178 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 	/*** Priest Spells ***/
 
 	{
-		/* Beginners Handbook (sval 0) */
-		"Detect Evil",
-		"Cure Light Wounds",
-		"Bless",
-		"Remove Fear",
-		"Call Light",
-		"Find Traps",
-		"Detect Doors/Stairs",
-		"Slow Poison",
-
-		/* Words of Wisdom (sval 1) */
-		"Scare Monster",
-		"Portal",
-		"Cure Serious Wounds",
-		"Chant",
-		"Sanctuary",
-		"Satisfy Hunger",
-		"Remove Curse",
-		"Resist Heat and Cold",
-
+		/* Old Beginners Handbook (sval 0) */
+		/* "Detect Evil",
+		 * "Cure Light Wounds",
+		 * "Bless",
+		 * "Remove Fear",
+		 * "Call Light",
+		 * "Find Traps",
+		 * "Detect Doors/Stairs",
+		 * "Slow Poison",
+		 */
+		/* Utility knife (sval 0) */
+		"Gaslight",
+		"Harmonic Fortitude Restorer",
+		"Physiological Robustness Aid",
+		"Egress & Portal Locator",
+		"Physical Danger Warning System",
+		"Toxin Inhibitor",
+		"Spring Blade",
+		"Nourishment Support System",
+		"Object Analysis",
+		
+		/* Old Words of Wisdom (sval 1) */
+		/* "Scare Monster",
+		 *"Portal",
+		 *"Cure Serious Wounds",
+		 *"Chant",
+		 *"Sanctuary",
+		 *"Satisfy Hunger",
+		 *"Remove Curse",
+		 *"Resist Heat and Cold",
+		 */
+		
+		/* Detective's Kit  (sval 1)*/
+		"Hostile Lifeform Detection",
+		"Danger and Escape Route Locator",
+		"Valuable Mineral Detector",
+		"Pseudonatural Harmonizer",
+		"Sherlock Holmes Analytic System",
+		"Object Property Analyzer",
+		"Biological Scanner",
+		"Autopneumatic etheric data collector",
+		
 		/* Chants and Blessings (sval 2) */
-		"Neutralize Poison",
-		"Orb of Draining",
-		"Cure Critical Wounds",
-		"Sense Invisible",
-		"Protection from Evil",
-		"Earthquake",
-		"Sense Surroundings",
-		"Cure Mortal Wounds",
-		"Turn Undead",
+		/*
+		 *"Neutralize Poison",
+		 *"Orb of Draining",
+		 *"Cure Critical Wounds",
+		 *"Sense Invisible",
+		 *"Protection from Evil",
+		 *"Earthquake",
+		 *"Sense Surroundings",
+		 *"Cure Mortal Wounds",
+		 *"Turn Undead",
+		 */
 
+		/* Clockwork Chassis (sval 2)*/
+		"Photic Beam",
+		"Etheric Jump",
+		"Defensive Array",
+		"Toxin Elimination System",
+		"Forward Cannons",
+		"Advanced Physiological Aid",
+		"Pneumatic Tunneling Device",
+		"Sonic Unharmonizer",
+		"Shoulder Rocket",
+		
 		/* Exorcism and Dispelling (sval 3) */
-		"Prayer",
-		"Dispel Undead",
-		"Heal",
-		"Dispel Evil",
-		"Glyph of Warding",
-		"Holy Word",
-
+		/*
+		 *"Prayer",
+		 *"Dispel Undead",
+		 *"Heal",
+		 *"Dispel Evil",
+		 *"Glyph of Warding",
+		 *"Holy Word",
+		 */
+		
+		/* Clockwork carbine (sval 3) */
+		 
+		 "Fire Lead Slugs",
+		 "Fire Lightning Ray",
+		 "Fire Frost Ray",
+		 "Fire Heat Ray",
+		 "Fire Graviton Ray",
+		 "Fire Dimensional Ray",
+		   
 		/* Godly Insights... (sval 5) */
-		"Detect Monsters",
-		"Detection",
-		"Perception",
-		"Probing",
-		"Clairvoyance",
-
+		/*
+		 *"Detect Monsters",
+		 *"Detection",
+		 *"Perception",
+		 *"Probing",
+		 *"Clairvoyance",
+		 */
+		 
+		/* Velocipede (sval 4) */
+		
+		 "Etheric Step",
+		 "Etheric Travel",
+		 "Etheric Strike",
+		 "Etheric Flight",
+		 "Etheric Return",
+		
+		 
 		/* Purifications and Healing (sval 6) */
-		"Cure Serious Wounds",
-		"Cure Mortal Wounds",
-		"Healing",
-		"Restoration",
-		"Remembrance",
+		/*
+		 *"Cure Serious Wounds",
+		 *"Cure Mortal Wounds",
+		 *"Healing",
+		 *"Restoration",
+		 *"Remembrance",
+		 */
+		/* The Analytic Engine (sval 5) */
+		 "Superior Physiological Aid",
+		 "Biological Enhancment Routine",
+		 "Specimen Mutating Utility",
+		 "Object Power Restorer",
+		 "Egress Synthesizer",
+		 "Passage Synthesizer",
+		 "Improved Biological Enhancement",
+		 "Total Physiological Aid",
+		 "Emergency Environment Alteration",
+		
 
 		/* Wrath of God (sval 8) */
-		"Dispel Undead",
-		"Dispel Evil",
-		"Banishment",
-		"Word of Destruction",
-		"Annihilation",
+		/* 
+		 *"Dispel Undead",
+		 *"Dispel Evil",
+		 *"Banishment",
+		 *"Word of Destruction",
+		 *"Annihilation",
+		 */
+		
+		
 
 		/* Holy Infusions (sval 7) */
-		"Unbarring Ways",
-		"Recharging",
-		"Dispel Curse",
-		"Enchant Weapon",
-		"Enchant Armour",
-		"Elemental Brand",
-
+		/*
+		 * "Unbarring Ways",
+		 * "Recharging",
+		 * "Dispel Curse",
+		 * "Enchant Weapon",
+		 * "Enchant Armour",
+		 * "Elemental Brand",
+		 */ 
+		 
 		/* Ethereal openings (sval 4) */
-		"Blink",
-		"Teleport Self",
-		"Teleport Other",
-		"Teleport Level",
-		"Word of Recall",
-		"Alter Reality",
-
+		/*
+		 *"Blink",
+		 *"Teleport Self",
+		 *"Teleport Other",
+		 *"Teleport Level",
+		 *"Word of Recall",
+		 *"Alter Reality",
+		 */
+		 
 		"(blank)",
 		"(blank)",
 		"(blank)",
 		"(blank)",
 		"(blank)",
-		"(blank)"
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
 	}
 };
 
@@ -2327,7 +2572,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
-	FALSE,		/* OPT_always_repeat */
+	TRUE,		/* OPT_always_repeat */
 	FALSE,		/* OPT_depth_in_feet */
 	FALSE,		/* OPT_stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
@@ -2347,29 +2592,29 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_state */
 	TRUE,		/* OPT_disturb_minor */
 	TRUE,		/* OPT_disturb_other */
-	FALSE,		/* OPT_alert_hitpoint */
+	TRUE,		/* OPT_alert_hitpoint */
 	FALSE,		/* OPT_alert_failure */
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_auto_haggle */
-	FALSE,		/* OPT_auto_scum */
+	TRUE,		/* OPT_auto_scum */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_expand_look */
 	TRUE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
-	FALSE,		/* OPT_view_torch_grids */
+	TRUE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
-	FALSE,		/* OPT_flow_by_sound */
-	FALSE,		/* OPT_flow_by_smell */
+	TRUE,		/* OPT_flow_by_sound */
+	TRUE,		/* OPT_flow_by_smell */
 	FALSE,		/* xxx track_follow */
 	FALSE,		/* xxx track_target */
-	FALSE,		/* OPT_smart_learn */
-	FALSE,		/* OPT_smart_cheat */
-	FALSE,		/* OPT_view_reduce_lite */
+	TRUE,		/* OPT_smart_learn */
+	TRUE,		/* OPT_smart_cheat */
+	TRUE,		/* OPT_view_reduce_lite */
 	FALSE,		/* OPT_hidden_player */
 	FALSE,		/* OPT_avoid_abort */
 	FALSE,		/* OPT_avoid_other */
@@ -2380,21 +2625,21 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_fresh_after */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_compress_savefile */
-	FALSE,		/* OPT_hilite_player */
-	FALSE,		/* OPT_view_yellow_lite */
-	FALSE,		/* OPT_view_bright_lite */
-	FALSE,		/* OPT_view_granite_lite */
-	FALSE,		/* OPT_view_special_lite */
-	FALSE,		/* OPT_easy_open */
-	FALSE,		/* OPT_easy_alter */
+	TRUE,		/* OPT_hilite_player */
+	TRUE,		/* OPT_view_yellow_lite */
+	TRUE,		/* OPT_view_bright_lite */
+	TRUE,		/* OPT_view_granite_lite */
+	TRUE,		/* OPT_view_special_lite */
+	TRUE,		/* OPT_easy_open */
+	TRUE,		/* OPT_easy_alter */
 	FALSE,		/* OPT_easy_floor */
 	FALSE,		/* OPT_show_piles */
 	FALSE,		/* OPT_center_player */
 	FALSE,		/* OPT_run_avoid_center */
 	FALSE,		/* OPT_scroll_target */
 	FALSE,		/* OPT_auto_more */
-	FALSE,		/* OPT_smart_monsters */
-	FALSE,		/* OPT_smart_packs */
+	TRUE,		/* OPT_smart_monsters */
+	TRUE,		/* OPT_smart_packs */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */

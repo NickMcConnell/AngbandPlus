@@ -786,20 +786,20 @@ static s32b object_value_base(const object_type *o_ptr)
 		/* Un-aware Food */
 		case TV_FOOD: return (5L);
 
-		/* Un-aware Potions */
-		case TV_POTION: return (20L);
+		/* Un-aware tonics */
+		case TV_TONIC: return (20L);
 
 		/* Un-aware Scrolls */
-		case TV_SCROLL: return (20L);
+		case TV_MECHANISM: return (20L);
 
-		/* Un-aware Staffs */
-		case TV_STAFF: return (70L);
+		/* Un-aware tools */
+		case TV_TOOL: return (70L);
 
 		/* Un-aware Wands */
-		case TV_WAND: return (50L);
+		case TV_RAY: return (50L);
 
 		/* Un-aware Rods */
-		case TV_ROD: return (90L);
+		case TV_APPARATUS: return (90L);
 
 		/* Un-aware Rings */
 		case TV_RING: return (45L);
@@ -816,7 +816,7 @@ static s32b object_value_base(const object_type *o_ptr)
 /*
  * Return the "real" price of a "known" item, not including discounts.
  *
- * Wand and staffs get cost for each charge.
+ * Wand and tools get cost for each charge.
  *
  * Armor is worth an extra 100 gold per bonus point to armor class.
  *
@@ -881,10 +881,10 @@ static s32b object_value_real(const object_type *o_ptr)
 	/* Analyze pval bonus */
 	switch (o_ptr->tval)
 	{
+		case TV_AMMO:
+		case TV_BULLET:
 		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
+		case TV_GUN:
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -901,6 +901,10 @@ static s32b object_value_real(const object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+		case TV_MECHA_TORSO:
+		case TV_MECHA_HEAD:
+		case TV_MECHA_ARMS:
+		case TV_MECHA_FEET:
 		{
 			/* Hack -- Negative "pval" is always bad */
 			if (o_ptr->pval < 0) return (0L);
@@ -938,9 +942,9 @@ static s32b object_value_real(const object_type *o_ptr)
 	/* Analyze the item */
 	switch (o_ptr->tval)
 	{
-		/* Wands/Staffs */
-		case TV_WAND:
-		case TV_STAFF:
+		/* Wands/tools */
+		case TV_RAY:
+		case TV_TOOL:
 		{
 			/* Pay extra for charges */
 			value += ((value / 20) * o_ptr->pval);
@@ -975,6 +979,11 @@ static s32b object_value_real(const object_type *o_ptr)
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_MECHA_TORSO:
+		case TV_MECHA_HEAD:
+		case TV_MECHA_ARMS:
+		case TV_MECHA_FEET:
+
 		{
 			/* Give credit for hit bonus */
 			value += ((o_ptr->to_h - k_ptr->to_h) * 100L);
@@ -989,8 +998,8 @@ static s32b object_value_real(const object_type *o_ptr)
 			break;
 		}
 
-		/* Bows/Weapons */
-		case TV_BOW:
+		/* Guns/Weapons */
+		case TV_GUN:
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_SWORD:
@@ -1013,9 +1022,9 @@ static s32b object_value_real(const object_type *o_ptr)
 		}
 
 		/* Ammo */
+		case TV_AMMO:
+		case TV_BULLET:
 		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
 		{
 			/* Hack -- negative hit/damage bonuses */
 			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
@@ -1104,7 +1113,7 @@ s32b object_value(const object_type *o_ptr)
  *
  * See "object_absorb()" for the actual "absorption" code.
  *
- * If permitted, we allow wands/staffs (if they are known to have equal
+ * If permitted, we allow wands/tools (if they are known to have equal
  * charges) and rods (if fully charged) to combine.  They will unstack
  * (if necessary) when they are used.
  *
@@ -1113,7 +1122,7 @@ s32b object_value(const object_type *o_ptr)
  * Missiles will combine if both stacks have the same "known" status.
  * This is done to make unidentified stacks of missiles useful.
  *
- * Food, potions, scrolls, and "easy know" items always stack.
+ * Food, tonics, scrolls, and "easy know" items always stack.
  *
  * Chests, and activatable items, never stack (for various reasons).
  */
@@ -1136,18 +1145,19 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			return (0);
 		}
 
-		/* Food and Potions and Scrolls */
+		/* Food and tonics and Scrolls */
 		case TV_FOOD:
-		case TV_POTION:
-		case TV_SCROLL:
+		case TV_TONIC:
+		case TV_TEXT:
+		case TV_MECHANISM:
 		{
 			/* Assume okay */
 			break;
 		}
 
-		/* Staffs and Wands */
-		case TV_STAFF:
-		case TV_WAND:
+		/* tools and Ray guns */
+		case TV_TOOL:
+		case TV_RAY:
 		{
 			/* Require knowledge */
 			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
@@ -1155,8 +1165,8 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Fall through */
 		}
 
-		/* Staffs and Wands and Rods */
-		case TV_ROD:
+		/* tools and Ray guns and appartuses */
+		case TV_APPARATUS:
 		{
 			/* Require identical charges */
 			if (o_ptr->pval != j_ptr->pval) return (0);
@@ -1166,7 +1176,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		}
 
 		/* Weapons and Armor */
-		case TV_BOW:
+		case TV_GUN:
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -1180,6 +1190,11 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_MECHA_TORSO:
+		case TV_MECHA_HEAD:
+		case TV_MECHA_ARMS:
+		case TV_MECHA_FEET:
+
 		{
 			/* Fall through */
 		}
@@ -1196,9 +1211,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		}
 
 		/* Missiles */
-		case TV_BOLT:
-		case TV_ARROW:
 		case TV_SHOT:
+		case TV_BULLET:
+		case TV_AMMO:
 		{
 			/* Require identical knowledge of both items */
 			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
@@ -1798,81 +1813,81 @@ static bool make_artifact(object_type *o_ptr)
 /*
  * Charge a new wand.
  */
-static void charge_wand(object_type *o_ptr)
+static void charge_ray(object_type *o_ptr)
 {
 	switch (o_ptr->sval)
 	{
-		case SV_WAND_HEAL_MONSTER:		o_ptr->pval = randint(20) + 8; break;
-		case SV_WAND_HASTE_MONSTER:		o_ptr->pval = randint(20) + 8; break;
-		case SV_WAND_CLONE_MONSTER:		o_ptr->pval = randint(5)  + 3; break;
-		case SV_WAND_TELEPORT_AWAY:		o_ptr->pval = randint(5)  + 6; break;
-		case SV_WAND_DISARMING:			o_ptr->pval = randint(5)  + 4; break;
-		case SV_WAND_TRAP_DOOR_DEST:	o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_STONE_TO_MUD:		o_ptr->pval = randint(4)  + 3; break;
-		case SV_WAND_LITE:				o_ptr->pval = randint(10) + 6; break;
-		case SV_WAND_SLEEP_MONSTER:		o_ptr->pval = randint(15) + 8; break;
-		case SV_WAND_SLOW_MONSTER:		o_ptr->pval = randint(10) + 6; break;
-		case SV_WAND_CONFUSE_MONSTER:	o_ptr->pval = randint(12) + 6; break;
-		case SV_WAND_FEAR_MONSTER:		o_ptr->pval = randint(5)  + 3; break;
-		case SV_WAND_DRAIN_LIFE:		o_ptr->pval = randint(3)  + 3; break;
-		case SV_WAND_POLYMORPH:			o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_STINKING_CLOUD:	o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_MAGIC_MISSILE:		o_ptr->pval = randint(10) + 6; break;
-		case SV_WAND_ACID_BOLT:			o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_ELEC_BOLT:			o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_FIRE_BOLT:			o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_COLD_BOLT:			o_ptr->pval = randint(5)  + 6; break;
-		case SV_WAND_ACID_BALL:			o_ptr->pval = randint(5)  + 2; break;
-		case SV_WAND_ELEC_BALL:			o_ptr->pval = randint(8)  + 4; break;
-		case SV_WAND_FIRE_BALL:			o_ptr->pval = randint(4)  + 2; break;
-		case SV_WAND_COLD_BALL:			o_ptr->pval = randint(6)  + 2; break;
-		case SV_WAND_WONDER:			o_ptr->pval = randint(15) + 8; break;
-		case SV_WAND_ANNIHILATION:		o_ptr->pval = randint(2)  + 1; break;
-		case SV_WAND_DRAGON_FIRE:		o_ptr->pval = randint(3)  + 1; break;
-		case SV_WAND_DRAGON_COLD:		o_ptr->pval = randint(3)  + 1; break;
-		case SV_WAND_DRAGON_BREATH:		o_ptr->pval = randint(3)  + 1; break;
+		case SV_RAY_HEAL_MONSTER:		o_ptr->pval = randint(20) + 8; break;
+		case SV_RAY_HASTE_MONSTER:		o_ptr->pval = randint(20) + 8; break;
+		case SV_RAY_CLONE_MONSTER:		o_ptr->pval = randint(5)  + 3; break;
+		case SV_RAY_TELEPORT_AWAY:		o_ptr->pval = randint(5)  + 6; break;
+		case SV_RAY_DISARMING:			o_ptr->pval = randint(5)  + 4; break;
+		case SV_RAY_TRAP_DOOR_DEST:	o_ptr->pval = randint(8)  + 6; break;
+		case SV_RAY_STONE_TO_MUD:		o_ptr->pval = randint(4)  + 3; break;
+		case SV_RAY_LITE:				o_ptr->pval = randint(10) + 6; break;
+		case SV_RAY_SLEEP_MONSTER:		o_ptr->pval = randint(15) + 8; break;
+		case SV_RAY_SLOW_MONSTER:		o_ptr->pval = randint(10) + 6; break;
+		case SV_RAY_CONFUSE_MONSTER:	o_ptr->pval = randint(12) + 6; break;
+		case SV_RAY_FEAR_MONSTER:		o_ptr->pval = randint(5)  + 3; break;
+		case SV_RAY_DRAIN_LIFE:		o_ptr->pval = randint(3)  + 3; break;
+		case SV_RAY_POLYMORPH:			o_ptr->pval = randint(8)  + 6; break;
+		case SV_RAY_STINKING_CLOUD:	o_ptr->pval = randint(8)  + 6; break;
+		case SV_RAY_MAGIC_MISSILE:		o_ptr->pval = randint(10) + 6; break;
+		case SV_RAY_ACID_BOLT:			o_ptr->pval = randint(8)  + 6; break;
+		case SV_RAY_ELEC_BOLT:			o_ptr->pval = randint(8)  + 6; break;
+		case SV_RAY_FIRE_BOLT:			o_ptr->pval = randint(8)  + 6; break;
+		case SV_RAY_COLD_BOLT:			o_ptr->pval = randint(5)  + 6; break;
+		case SV_RAY_ACID_BALL:			o_ptr->pval = randint(5)  + 2; break;
+		case SV_RAY_ELEC_BALL:			o_ptr->pval = randint(8)  + 4; break;
+		case SV_RAY_FIRE_BALL:			o_ptr->pval = randint(4)  + 2; break;
+		case SV_RAY_COLD_BALL:			o_ptr->pval = randint(6)  + 2; break;
+		case SV_RAY_WONDER:			o_ptr->pval = randint(15) + 8; break;
+		case SV_RAY_ANNIHILATION:		o_ptr->pval = randint(2)  + 1; break;
+		case SV_RAY_DRAGON_FIRE:		o_ptr->pval = randint(3)  + 1; break;
+		case SV_RAY_DRAGON_COLD:		o_ptr->pval = randint(3)  + 1; break;
+		case SV_RAY_DRAGON_BREATH:		o_ptr->pval = randint(3)  + 1; break;
 	}
 }
 
 
 
 /*
- * Charge a new staff.
+ * Charge a new tool.
  */
-static void charge_staff(object_type *o_ptr)
+static void charge_tool(object_type *o_ptr)
 {
 	switch (o_ptr->sval)
 	{
-		case SV_STAFF_DARKNESS:			o_ptr->pval = randint(8)  + 8; break;
-		case SV_STAFF_SLOWNESS:			o_ptr->pval = randint(8)  + 8; break;
-		case SV_STAFF_HASTE_MONSTERS:	o_ptr->pval = randint(8)  + 8; break;
-		case SV_STAFF_SUMMONING:		o_ptr->pval = randint(3)  + 1; break;
-		case SV_STAFF_TELEPORTATION:	o_ptr->pval = randint(4)  + 5; break;
-		case SV_STAFF_IDENTIFY:			o_ptr->pval = randint(15) + 5; break;
-		case SV_STAFF_REMOVE_CURSE:		o_ptr->pval = randint(3)  + 4; break;
-		case SV_STAFF_STARLITE:			o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_LITE:				o_ptr->pval = randint(20) + 8; break;
-		case SV_STAFF_MAPPING:			o_ptr->pval = randint(5)  + 5; break;
-		case SV_STAFF_DETECT_GOLD:		o_ptr->pval = randint(20) + 8; break;
-		case SV_STAFF_DETECT_ITEM:		o_ptr->pval = randint(15) + 6; break;
-		case SV_STAFF_DETECT_TRAP:		o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_DETECT_DOOR:		o_ptr->pval = randint(8)  + 6; break;
-		case SV_STAFF_DETECT_INVIS:		o_ptr->pval = randint(15) + 8; break;
-		case SV_STAFF_DETECT_EVIL:		o_ptr->pval = randint(15) + 8; break;
-		case SV_STAFF_CURE_LIGHT:		o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_CURING:			o_ptr->pval = randint(3)  + 4; break;
-		case SV_STAFF_HEALING:			o_ptr->pval = randint(2)  + 1; break;
-		case SV_STAFF_THE_MAGI:			o_ptr->pval = randint(2)  + 2; break;
-		case SV_STAFF_SLEEP_MONSTERS:	o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_SLOW_MONSTERS:	o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_SPEED:			o_ptr->pval = randint(3)  + 4; break;
-		case SV_STAFF_PROBING:			o_ptr->pval = randint(6)  + 2; break;
-		case SV_STAFF_DISPEL_EVIL:		o_ptr->pval = randint(3)  + 4; break;
-		case SV_STAFF_POWER:			o_ptr->pval = randint(3)  + 1; break;
-		case SV_STAFF_HOLINESS:			o_ptr->pval = randint(2)  + 2; break;
-		case SV_STAFF_GENOCIDE:			o_ptr->pval = randint(2)  + 1; break;
-		case SV_STAFF_EARTHQUAKES:		o_ptr->pval = randint(5)  + 3; break;
-		case SV_STAFF_DESTRUCTION:		o_ptr->pval = randint(3)  + 1; break;
+		case SV_TOOL_DARKNESS:			o_ptr->pval = randint(8)  + 8; break;
+		case SV_TOOL_SLOWNESS:			o_ptr->pval = randint(8)  + 8; break;
+		case SV_TOOL_HASTE_MONSTERS:	o_ptr->pval = randint(8)  + 8; break;
+		case SV_TOOL_SUMMONING:		o_ptr->pval = randint(3)  + 1; break;
+		case SV_TOOL_TELEPORTATION:	o_ptr->pval = randint(4)  + 5; break;
+		case SV_TOOL_IDENTIFY:			o_ptr->pval = randint(15) + 5; break;
+		case SV_TOOL_REMOVE_CURSE:		o_ptr->pval = randint(3)  + 4; break;
+		case SV_TOOL_STARLITE:			o_ptr->pval = randint(5)  + 6; break;
+		case SV_TOOL_LITE:				o_ptr->pval = randint(20) + 8; break;
+		case SV_TOOL_MAPPING:			o_ptr->pval = randint(5)  + 5; break;
+		case SV_TOOL_DETECT_GOLD:		o_ptr->pval = randint(20) + 8; break;
+		case SV_TOOL_DETECT_ITEM:		o_ptr->pval = randint(15) + 6; break;
+		case SV_TOOL_DETECT_TRAP:		o_ptr->pval = randint(5)  + 6; break;
+		case SV_TOOL_DETECT_DOOR:		o_ptr->pval = randint(8)  + 6; break;
+		case SV_TOOL_DETECT_INVIS:		o_ptr->pval = randint(15) + 8; break;
+		case SV_TOOL_DETECT_EVIL:		o_ptr->pval = randint(15) + 8; break;
+		case SV_TOOL_CURE_LIGHT:		o_ptr->pval = randint(5)  + 6; break;
+		case SV_TOOL_CURING:			o_ptr->pval = randint(3)  + 4; break;
+		case SV_TOOL_HEALING:			o_ptr->pval = randint(2)  + 1; break;
+		case SV_TOOL_THE_MAGI:			o_ptr->pval = randint(2)  + 2; break;
+		case SV_TOOL_SLEEP_MONSTERS:	o_ptr->pval = randint(5)  + 6; break;
+		case SV_TOOL_SLOW_MONSTERS:	o_ptr->pval = randint(5)  + 6; break;
+		case SV_TOOL_SPEED:			o_ptr->pval = randint(3)  + 4; break;
+		case SV_TOOL_PROBING:			o_ptr->pval = randint(6)  + 2; break;
+		case SV_TOOL_DISPEL_EVIL:		o_ptr->pval = randint(3)  + 4; break;
+		case SV_TOOL_POWER:			o_ptr->pval = randint(3)  + 1; break;
+		case SV_TOOL_HOLINESS:			o_ptr->pval = randint(2)  + 2; break;
+		case SV_TOOL_GENOCIDE:			o_ptr->pval = randint(2)  + 1; break;
+		case SV_TOOL_EARTHQUAKES:		o_ptr->pval = randint(5)  + 3; break;
+		case SV_TOOL_DESTRUCTION:		o_ptr->pval = randint(3)  + 1; break;
 	}
 }
 
@@ -1982,9 +1997,9 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		}
 
 
-		case TV_BOLT:
-		case TV_ARROW:
 		case TV_SHOT:
+		case TV_BULLET:
+		case TV_AMMO:
 		{
 			/* Very good */
 			if (power > 1)
@@ -2420,18 +2435,18 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			break;
 		}
 
-		case TV_WAND:
+		case TV_RAY:
 		{
-			/* Hack -- charge wands */
-			charge_wand(o_ptr);
+			/* Hack -- charge ray guns */
+			charge_ray(o_ptr);
 
 			break;
 		}
 
-		case TV_STAFF:
+		case TV_TOOL:
 		{
-			/* Hack -- charge staffs */
-			charge_staff(o_ptr);
+			/* Hack -- charge tools */
+			charge_tool(o_ptr);
 
 			break;
 		}
@@ -2459,7 +2474,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
  *
  * This includes not only rolling for random bonuses, but also putting the
  * finishing touches on ego-items and artifacts, giving charges to wands and
- * staffs, giving fuel to lites, and placing traps on chests.
+ * tools, giving fuel to lites, and placing traps on chests.
  *
  * In particular, note that "Instant Artifacts", if "created" by an external
  * routine, must pass through this function to complete the actual creation.
@@ -2598,10 +2613,10 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
-		case TV_BOW:
+		case TV_GUN:
+		case TV_AMMO:
+		case TV_BULLET:
 		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
 		{
 			if ((power > 1) || (power < -1))
 			{
@@ -2620,6 +2635,10 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
+		case TV_MECHA_TORSO:
+		case TV_MECHA_HEAD:
+		case TV_MECHA_ARMS:
+		case TV_MECHA_FEET:
 		case TV_SHIELD:
 		case TV_HELM:
 		case TV_CROWN:
@@ -2769,13 +2788,18 @@ static bool kind_is_good(int k_idx)
 		case TV_GLOVES:
 		case TV_HELM:
 		case TV_CROWN:
+		case TV_MECHA_TORSO:
+		case TV_MECHA_HEAD:
+		case TV_MECHA_ARMS:
+		case TV_MECHA_FEET:
+
 		{
 			if (k_ptr->to_a < 0) return (FALSE);
 			return (TRUE);
 		}
 
 		/* Weapons -- Good unless damaged */
-		case TV_BOW:
+		case TV_GUN:
 		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -2787,15 +2811,15 @@ static bool kind_is_good(int k_idx)
 		}
 
 		/* Ammo -- Arrows/Bolts are good */
-		case TV_BOLT:
-		case TV_ARROW:
+		case TV_SHOT:
+		case TV_BULLET:
 		{
 			return (TRUE);
 		}
 
 		/* Books -- High level books are good */
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
+		case TV_DEVICE_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -2885,9 +2909,9 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	switch (j_ptr->tval)
 	{
 		case TV_SPIKE:
+		case TV_AMMO:
+		case TV_BULLET:
 		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
 		{
 			j_ptr->number = damroll(6, 7);
 		}
@@ -3490,8 +3514,8 @@ void inven_item_charges(int item)
 {
 	object_type *o_ptr = &inventory[item];
 
-	/* Require staff/wand */
-	if ((o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return;
+	/* Require tool/ray gun */
+	if ((o_ptr->tval != TV_TOOL) && (o_ptr->tval != TV_RAY)) return;
 
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
@@ -3637,8 +3661,8 @@ void floor_item_charges(int item)
 {
 	object_type *o_ptr = &o_list[item];
 
-	/* Require staff/wand */
-	if ((o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return;
+	/* Require tool/Ray gun */
+	if ((o_ptr->tval != TV_TOOL) && (o_ptr->tval != TV_RAY)) return;
 
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
@@ -3847,14 +3871,14 @@ s16b inven_carry(object_type *o_ptr)
 			if (!object_known_p(j_ptr)) break;
 
 			/* Rods sort by increasing recharge time */
-			if (o_ptr->tval == TV_ROD)
+			if (o_ptr->tval == TV_APPARATUS)
 			{
 				if (o_ptr->pval < j_ptr->pval) break;
 				if (o_ptr->pval > j_ptr->pval) continue;
 			}
 
-			/* Wands/Staffs sort by decreasing charges */
-			if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
+			/* Wands/tools sort by decreasing charges */
+			if ((o_ptr->tval == TV_RAY) || (o_ptr->tval == TV_TOOL))
 			{
 				if (o_ptr->pval > j_ptr->pval) break;
 				if (o_ptr->pval < j_ptr->pval) continue;
@@ -3979,8 +4003,8 @@ s16b inven_takeoff(int item, int amt)
 		act = "You were wielding";
 	}
 
-	/* Took off bow */
-	else if (item == INVEN_BOW)
+	/* Took off gun */
+	else if (item == INVEN_GUN)
 	{
 		act = "You were holding";
 	}
@@ -4214,14 +4238,14 @@ void reorder_pack(void)
 			if (!object_known_p(j_ptr)) break;
 
 			/* Rods sort by increasing recharge time */
-			if (o_ptr->tval == TV_ROD)
+			if (o_ptr->tval == TV_APPARATUS)
 			{
 				if (o_ptr->pval < j_ptr->pval) break;
 				if (o_ptr->pval > j_ptr->pval) continue;
 			}
 
-			/* Wands/Staffs sort by decreasing charges */
-			if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
+			/* Wands/tools sort by decreasing charges */
+			if ((o_ptr->tval == TV_RAY) || (o_ptr->tval == TV_TOOL))
 			{
 				if (o_ptr->pval > j_ptr->pval) break;
 				if (o_ptr->pval < j_ptr->pval) continue;
@@ -4396,61 +4420,98 @@ void spell_info(char *p, int spell)
 		/* Analyze the spell */
 		switch (spell)
 		{
-			case SPELL_MAGIC_MISSILE:
+			case SPELL_AIM_OF_THE_WILL:
 				sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5));
 				break;
-			case SPELL_PHASE_DOOR:
+			case SPELL_TRANSPORT_SELF:
 				strcpy(p, " range 10");
 				break;
 			case SPELL_CURE_LIGHT_WOUNDS:
 				strcpy(p, " heal 2d8");
 				break;
-			case SPELL_STINKING_CLOUD:
-				sprintf(p, " dam %d", 10 + (plev / 2));
+			case SPELL_PLAUGE_WILL:
+				sprintf(p, " dam %dd4", (10 + ((plev - 1) / 4)));
 				break;
-			case SPELL_LIGHTNING_BOLT:
-				sprintf(p, " dam %dd8", (3 + ((plev - 5) / 4)));
+			case SPELL_CHANT:
+				strcpy(p, " dur 24+24");
 				break;
-			case SPELL_TELEPORT_SELF:
-				sprintf(p, " range %d", plev * 10);
-				break;
-			case SPELL_SPEAR_OF_LIGHT:
-				strcpy(p, " dam 6d8");
+			case SPELL_CURE_CRITICAL_WOUNDS:
+				strcpy(p, " heal 6d10");
+				break;	
+			case SPELL_PROTECTION_FROM_EVIL:
+				sprintf(p, " dur %d+d25", 3 * plev);
+				break;	
+			case SPELL_CURE_MORTAL_WOUNDS:
+				strcpy(p, " heal 8d10");
+				break;	
+			case SPELL_HEAL:
+				strcpy(p, " heal 300");
+				break;	
+			case SPELL_FIRE_BOLT:
+				sprintf(p, " dam %dd12", (10 + ((plev - 4) / 3)));
 				break;
 			case SPELL_FROST_BOLT:
-				sprintf(p, " dam %dd8", (5 + ((plev - 5) / 4)));
+				sprintf(p, " dam %dd12", (10 + ((plev - 4) / 3)));
 				break;
-			case SPELL_FIRE_BOLT:
-				sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4)));
-				break;
-			case SPELL_FROST_BALL:
-				sprintf(p, " dam %d", 30 + plev);
-				break;
-			case SPELL_HASTE_SELF:
+			case SPELL_HASTE:
 				sprintf(p, " dur %d+d20", plev);
 				break;
 			case SPELL_FIRE_BALL:
-				sprintf(p, " dam %d", 55 + plev);
+				sprintf(p, " dam %dd4", 55 + plev);
 				break;
+			case SPELL_PORTAL:
+				sprintf(p, " range %d", (plev * 3));
+				break;
+			case SPELL_SENSE_INVISIBLE:
+				strcpy(p, " dur 24+24");
+				break;
+			case SPELL_PRAYER:
+				strcpy(p, " dur 48+48");
+				break;
+			/*case SPELL_TELEPORT_SELF:
+			 *	sprintf(p, " range %d", plev * 10);
+			 *	break;
+			 *
+			 *case SPELL_SPEAR_OF_LIGHT:
+			 *	strcpy(p, " dam 6d8");
+			 *	break;
+			 */
+			/*case SPELL_FROST_BALL:
+			 *	sprintf(p, " dam %d", 30 + plev);
+			 *	break;
+			 */
+			case SPELL_HOLY_WORD:
+				strcpy(p, " heal 1000");
+				break;
+			case SPELL_DISPEL_EVIL:
+				sprintf(p, " dam d%d", 3 * plev);
+				break;
+			case SPELL_HEALING:
+				strcpy(p, " heal 2000");
+				break;	
 			case SPELL_ACID_BOLT:
 				sprintf(p, " dam %dd8", (6 + ((plev - 5) / 4)));
 				break;
 			case SPELL_CLOUD_KILL:
-				sprintf(p, " dam %d", 40 + plev / 2);
+				sprintf(p, " dam %dd3", 20 + plev / 2);
 				break;
-			case SPELL_ACID_BALL:
-				sprintf(p, " dam %d", 40 + plev);
-				break;
+			/*case SPELL_ACID_BALL:
+			 *	sprintf(p, " dam %d", 40 + plev);
+			 *	break;
+			 */
 			case SPELL_ICE_STORM:
-				sprintf(p, " dam %d", 70 + plev);
+				sprintf(p, " dam %dd3", 70 + plev);
 				break;
+			case SPELL_FIRE_STORM:
+				sprintf(p, " dam %dd3", 70 + plev);
+				break;	
 			case SPELL_METEOR_SWARM:
-				sprintf(p, " dam %d", 65 + plev);
+				sprintf(p, " dam %dd3", 65 + plev);
 				break;
 			case SPELL_MANA_STORM:
 				sprintf(p, " dam %d", 300 + plev * 2);
 				break;
-			case SPELL_RESIST_FIRE:
+			/*case SPELL_RESIST_FIRE:
 				strcpy(p, " dur 20+d20");
 				break;
 			case SPELL_RESIST_COLD:
@@ -4462,10 +4523,11 @@ void spell_info(char *p, int spell)
 			case SPELL_RESIST_POISON:
 				strcpy(p, " dur 20+d20");
 				break;
+			*/
 			case SPELL_RESISTANCE:
 				strcpy(p, " dur 20+d20");
 				break;
-			case SPELL_HEROISM:
+			/*case SPELL_HEROISM:
 				strcpy(p, " dur 25+d25");
 				break;
 			case SPELL_SHIELD:
@@ -4480,11 +4542,12 @@ void spell_info(char *p, int spell)
 			case SPELL_GLOBE_OF_INVULNERABILITY:
 				strcpy(p, " dur 8+d8");
 				break;
+			*/	
 		}
 	}
 
 	/* Priest spells */
-	if (cp_ptr->spell_book == TV_PRAYER_BOOK)
+	if (cp_ptr->spell_book == TV_DEVICE_BOOK)
 	{
 		int plev = p_ptr->lev;
 
@@ -4494,7 +4557,46 @@ void spell_info(char *p, int spell)
 			case PRAYER_CURE_LIGHT_WOUNDS:
 				strcpy(p, " heal 2d10");
 				break;
-			case PRAYER_BLESS:
+			case PRAYER_SPRING_BLADE:
+				sprintf(p, " %dd3", (3 +((plev - 1) / 5)));
+				break;
+			case PRAYER_GUNS:
+				sprintf(p, " %dd15", (1+((plev-5)/3)));
+				break;
+			case PRAYER_CURE_CRITICAL_WOUNDS:
+				strcpy(p, " heal 6d10");
+				break;
+			case PRAYER_MISSLE:
+				sprintf(p, "%d2", (60 + plev));
+				break;
+			case PRAYER_LEAD_SLUGS:
+				sprintf(p, " %dd15", (3+((plev-5)/3)));
+				break;
+			case PRAYER_LIGHTNING_RAY:
+				sprintf(p, " %dd10", (3+((plev-5)/3)));
+				break;
+			case PRAYER_FROST_RAY:
+				sprintf(p, " %dd10", (5+((plev-5)/3)));
+				break;
+			case PRAYER_HEAT_RAY:
+				sprintf(p, " %dd10", (8+((plev-5)/3)));
+				break;
+			case PRAYER_GRAVITY_RAY:
+				sprintf(p, " %dd10", (10+((plev-5)/3)));
+				break;
+			case PRAYER_BLINK:
+				strcpy(p, " range 10");
+				break;
+			case PRAYER_TELEPORT_SELF:
+				sprintf(p, " range %d", (plev * 8));
+				break;
+			case PRAYER_CURE_MORTAL_WOUNDS:
+				strcpy(p, " heal 8d10");
+				break;
+			case PRAYER_HEALING:
+				strcpy(p, " heal 2000");
+				break;
+			/*case PRAYER_BLESS:
 				strcpy(p, " dur 12+d12");
 				break;
 			case PRAYER_PORTAL:
@@ -4564,6 +4666,7 @@ void spell_info(char *p, int spell)
 			case PRAYER_TELEPORT_SELF:
 				sprintf(p, " range %d", 8 * plev);
 				break;
+			*/	
 		}
 	}
 }
@@ -4589,7 +4692,7 @@ void print_spells(const byte *spells, int num, int y, int x)
 	/* Title the list */
 	prt("", y, x);
 	put_str("Name", y, x + 5);
-	put_str("Lv Mana Fail Info", y, x + 35);
+	put_str("Lv Mana Fail Info", y, x + 40);
 
 	/* Dump the spells */
 	for (i = 0; i < num; i++)
@@ -4649,7 +4752,7 @@ void print_spells(const byte *spells, int num, int y, int x)
 		}
 
 		/* Dump the spell --(-- */
-		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
+		sprintf(out_val, "  %c) %-35s%2d %4d %3d%%%s",
 		        I2A(i), spell_names[cp_ptr->spell_type][spell],
 		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
 		c_prt(line_attr, out_val, y + i + 1, x);

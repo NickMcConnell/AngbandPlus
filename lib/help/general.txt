@@ -21,60 +21,42 @@ Please continue to press Space to view the rest of this file...
 
 === General Information ===
 
-Angband is basically a complex single player dungeon simulation.  A player
+Steamband is basically a complex single player dungeon simulation.  A player
 creates a character, choosing from a variety of sexes, races and classes,
 and then "runs" that character over a period of days, weeks, even months.
 
 The player will begin his adventure on the town level where he may acquire
 supplies, weapons, armor, and magical devices by bartering with various shop
-owners.  Then the player can descend into the Pits of Angband, where he will
+owners.  Then the player can descend into the Pits of steamband, where he will
 explore the many levels of the dungeon, gaining experience by killing fierce
 creatures, collecting powerful objects and valuable treasure, and returning
 to town occasionally to barter for new supplies.  Eventually, as the player
 grows more experienced, he may attempt to win the game by defeating Morgoth,
 the Lord of Darkness, who resides far below the surface.
 
-Note that Angband is a very complex game, and it may be difficult to grasp
+Note that steamband is a very complex game, and it may be difficult to grasp
 everything at first, especially if you have never played a "roguelike" game
 before.  You should probably browse through all of the "online help files",
 especially this one, before beginning any serious adventuring...
 
 === A Note from the Maintainer ===
 
-Welcome to Angband 2.8.X.
+Welcome to Steamband 0.1.0
 
-My name is Ben Harrison, and I have been the maintainer of Angband since
-November 1994.  I have been responsible for many improvements to the game
-over the past few years, and I have many more planned for the future.
+My name is Courtney Campbell, and I have been the maintainer of steamband since
+Januaray 2003.  
 
-Angband 2.8.X is available for almost every known system (including Unix,
-Macintosh, Amiga, Windows, DOS, OS/2, etc).  It is written entirely in C,
+steamband 0.1.0 is available for PPC Macintosh, with a x86 compile that
+will be available soon.  It is written entirely in C,
 and the source code is freely available.  Creating a version for a new
 platform involves writing as few as 100 lines of code and recompiling.
 
-Angband 2.7.8 was the most recent official "stable" version.  However,
-it contained a few minor (non-fatal) bugs (see the web page).  You can
-give Angband 2.7.8 to your friends while they wait for Angband 2.8.2.
-
-Angband 2.8.3 will be the next official "stable" version.  A whole lot of
-changes have been made since Angband 2.7.8 was released, and there is now
-a web page listing all of the changes made in each version since that one.
-Angband 2.7.9v1, 2.7.9v2, 2.7.9v3, 2.7.9v4, 2.7.9v5, 2.7.9v6, 2.8.0, 2.8.1,
-and 2.8.2, are basically "transition" versions leading up to Angband 2.8.3,
-and they are all still available (for now) at the ftp sites.  Angband 2.8.3
-is based on all previous versions, and incorporates bug fixes in addition to
-new features.
-
-See the Official Angband Home Page ("http://thangorodrim.angband.org/") for
-up to date information about the latest version of Angband, including a
-complete list of recent modifications and known bugs.
-
-You can obtain the latest source and pre-compiled executables from various
-places, try "ftp://ftp.cis.ksu.edu/pub/Games/Angband/Angband-2.7.x" and
-the developer site at "ftp://clockwork.dementia.org/angband/".
+steamband 0.1.0 is the most recent version.  It, I am sure contains 
+many and varied bugs. Please write "ccc02@uark.edu" with any bugs that you 
+find. 
 
 You can email compliments, complaints, suggestions, bug reports, and patches
-to me ("rr9@angband.org"), and you can post interesting experiences and
+to me ("ccc02@uark.edu"), and you can post interesting experiences and
 basic questions to the newsgroup ("rec.games.roguelike.angband").
 
 You may freely distribute the game, and its source, though you are bound
@@ -95,17 +77,17 @@ obtain them from various places as with the source and executables.  New
 spoiler files may be placed into the "lib/info" directory, or into a user
 specified external directory, to allow access via the "online help" system.
 
-Remember to tell all your friends about how much you like Angband...
+Remember to tell all your friends about how much you like steamband...
 
 
 
 === A quick demonstration ===
 
-Angband is, as mentioned above, a very complex game, so you may want to
+Steamband is, as mentioned above, a very complex game, so you may want to
 try the following quick demonstration.  The following instructions are
 for demonstration purposes only, and so they are intentionally boring.
 
-For this demo, I will assume that you have never played Angband before,
+For this demo, I will assume that you have never played steamband before,
 that you have not requested any special "sub-windows", that you have not
 requested any special "graphics" modes, that you have a "numeric keypad"
 on your computer, and that you are using the default options, including,
@@ -132,7 +114,7 @@ escape three times and your character will be placed into the "town".
 
 You should now be looking at the basic dungeon interaction screen.  To the
 left is some information about your character.  To the right is an overhead
-view of the town.  Nothing happens in Angband while the game is waiting for
+view of the town.  Nothing happens in steamband while the game is waiting for
 you to specify a command, so take a good look at the town.  You will see a
 variety of symbols on the screen.  Each symbol normally represents a terrain
 feature, an object, or a monster.  The "@" symbol is special, it represents
@@ -233,7 +215,7 @@ To make matters worse, as you get used to the difference between the player
 and the character, it becomes so "obvious" that you start to ignore it.  At
 that point, you find yourself merging the player and the character in your
 mind, and you find yourself saying things like "So yesterday, I was at my
-friend's house, and I stayed up late playing Angband, and I was attacked by
+friend's house, and I stayed up late playing steamband, and I was attacked by
 some wild dogs, and I got killed by a demon, but I made it to the high score
 list", in which the pronoun changes back and forth from the real world to
 the virtual one several times in the same sentence.  So, from this point on
@@ -319,7 +301,7 @@ directly to the east, press "v" + "b" + "6" to throw a flask of oil at the
 monster.  To drop an item from your inventory, press "d" plus the index of
 that item.  You can use the "^X" key to quit and save the game.
 
-You now know enough to play a quick game of Angband.  There is a lot more for
+You now know enough to play a quick game of steamband.  There is a lot more for
 you to learn, including how to interpret information about your character, how
 to create different kinds of characters, how to determine which equipment to
 wield/wear, how to use various kinds of objects, and how to use the more than

@@ -118,10 +118,10 @@ static bool wearable_p(const object_type *o_ptr)
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
 	{
+		case TV_AMMO:
+		case TV_BULLET:
 		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
+		case TV_GUN:
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -138,6 +138,10 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+		case TV_MECHA_TORSO:
+		case TV_MECHA_HEAD:
+		case TV_MECHA_ARMS:
+		case TV_MECHA_FEET:
 		{
 			return (TRUE);
 		}
@@ -371,7 +375,7 @@ static const byte convert_ego_item[128] =
 	EGO_VELOCITY,		/* 64 = EGO_VELOCITY */
 	EGO_ACCURACY,		/* 65 = EGO_ACCURACY */
 	0,					/* 66 */
-	EGO_SLAY_ORC,		/* 67 = EGO_SLAY_ORC */
+	EGO_SLAY_AUTOMATA,		/* 67 = EGO_SLAY_AUTOMATA */
 	EGO_POWER,			/* 68 = EGO_POWER */
 	0,					/* 69 */
 	0,					/* 70 */
@@ -486,7 +490,7 @@ static errr rd_item(object_type *o_ptr)
 	rd_s16b(&o_ptr->pval);
 
 	/* Old method */
-	if (older_than(2, 7, 8))
+	if (older_than(0, 0, 0))
 	{
 		rd_byte(&o_ptr->name1);
 		rd_byte(&o_ptr->name2);
@@ -542,7 +546,7 @@ static errr rd_item(object_type *o_ptr)
 	strip_bytes(12);
 
 	/* Old version */
-	if (older_than(2,8,0))
+	if (older_than(0,0,0))
 	{
 		/* Old something */
 		strip_bytes(2);
@@ -555,7 +559,7 @@ static errr rd_item(object_type *o_ptr)
 		rd_s16b(&o_ptr->held_m_idx);
 	}
 
-	if (older_than(2,8,2))
+	if (older_than(0,0,0))
 	{
 		/* Old special powers */
 		strip_bytes(2);
@@ -592,7 +596,7 @@ static errr rd_item(object_type *o_ptr)
 
 
 	/* Hack -- the "gold" values changed in 2.7.8 */
-	if (older_than(2, 7, 8) && (o_ptr->tval == TV_GOLD))
+	if (older_than(0, 0, 0) && (o_ptr->tval == TV_GOLD))
 	{
 		/* Extract the value */
 		o_ptr->pval = (s16b)old_cost;
@@ -630,7 +634,7 @@ static errr rd_item(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* The ego item indexes changed in 2.7.9 */
-	if (older_than(2, 7, 9) && o_ptr->name2)
+	if (older_than(0, 0, 0) && o_ptr->name2)
 	{
 		/* Paranoia */
 		if (o_ptr->name2 >= 128) return (-1);
@@ -639,9 +643,9 @@ static errr rd_item(object_type *o_ptr)
 		o_ptr->name2 = convert_ego_item[o_ptr->name2];
 
 		/* Hack -- fix some "Ammo" */
-		if ((o_ptr->tval == TV_BOLT) ||
-		    (o_ptr->tval == TV_ARROW) ||
-		    (o_ptr->tval == TV_SHOT))
+		if ((o_ptr->tval == TV_SHOT) ||
+		    (o_ptr->tval == TV_BULLET) ||
+		    (o_ptr->tval == TV_AMMO))
 		{
 			/* Special ego-item indexes */
 			if (o_ptr->name2 == EGO_BRAND_FIRE)
@@ -667,7 +671,7 @@ static errr rd_item(object_type *o_ptr)
 		}
 
 		/* Hack -- fix some "Bows" */
-		if (o_ptr->tval == TV_BOW)
+		if (o_ptr->tval == TV_GUN)
 		{
 			/* Special ego-item indexes */
 			if (o_ptr->name2 == EGO_MIGHT)
@@ -732,7 +736,7 @@ static errr rd_item(object_type *o_ptr)
 	}
 
 	/* Hack -- the "searching" bonuses changed in 2.7.6 */
-	if (older_than(2, 7, 6))
+	if (older_than(0, 0, 0))
 	{
 		/* Reduce the "pval" bonus on "search" */
 		if (f1 & (TR1_SEARCH))
@@ -809,7 +813,7 @@ static errr rd_item(object_type *o_ptr)
 		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- assume "curse" */
-		if (older_than(2, 7, 9))
+		if (older_than(0, 0, 0))
 		{
 			/* Hack -- assume cursed */
 			if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
@@ -835,7 +839,7 @@ static errr rd_item(object_type *o_ptr)
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- assume "curse" */
-		if (older_than(2, 7, 9))
+		if (older_than(0, 0, 0))
 		{
 			/* Hack -- assume cursed */
 			if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
@@ -851,7 +855,7 @@ static errr rd_item(object_type *o_ptr)
 
 
 	/* Hack -- assume "cursed" items */
-	if (older_than(2, 7, 9))
+	if (older_than(0, 0, 0))
 	{
 		/* Hack -- assume cursed */
 		if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
@@ -907,7 +911,7 @@ static void rd_lore(int r_idx)
 
 
 	/* Pre-2.7.7 */
-	if (older_than(2, 7, 7))
+	if (older_than(0, 0, 0))
 	{
 		/* Strip old flags */
 		strip_bytes(20);
@@ -1029,7 +1033,7 @@ static errr rd_store(int n)
 	rd_s16b(&st_ptr->bad_buy);
 
 	/* Extract the owner (see above) */
-	if (older_than(2, 7, 8))
+	if (older_than(0, 0, 0))
 	{
 		/* Paranoia */
 		if (own >= 24)
@@ -1072,7 +1076,7 @@ static errr rd_store(int n)
 		}
 
 		/* Not marked XXX XXX */
-		if (older_than(2, 8, 2))
+		if (older_than(0, 0, 0))
 		{
 			i_ptr->marked = FALSE;
 		}
@@ -1103,7 +1107,7 @@ static void rd_randomizer(void)
 	u16b tmp16u;
 
 	/* Old version */
-	if (older_than(2, 8, 0)) return;
+	if (older_than(0, 0, 0)) return;
 
 	/* Tmp */
 	rd_u16b(&tmp16u);
@@ -1169,7 +1173,7 @@ static void rd_options(void)
 	rd_u16b(&tmp16u);
 
 	/* Pre-2.8.0 savefiles are done */
-	if (older_than(2, 8, 0)) return;
+	if (older_than(0, 0, 0)) return;
 
 
 	/*** Normal Options ***/
@@ -1265,7 +1269,7 @@ static void rd_ghost(void)
 	rd_string(buf, 64);
 
 	/* Older ghosts */
-	if (older_than(2, 7, 7))
+	if (older_than(0, 0, 0))
 	{
 		/* Strip old data */
 		strip_bytes(52);
@@ -1280,7 +1284,7 @@ static void rd_ghost(void)
 }
 
 
-static u32b randart_version;
+/* static u32b randart_version; */
 
 
 /*
@@ -1343,10 +1347,13 @@ static errr rd_extra(void)
 	/* Read the stat info */
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
-
+	for (i = 0; i < A_MAX; i++) rd_byte(&p_ptr->stat_birth[i]);
+	
 	strip_bytes(24);	/* oops */
 
 	rd_s32b(&p_ptr->au);
+	/* starting gold */
+	rd_s32b(&p_ptr->au_birth);
 
 	rd_s32b(&p_ptr->max_exp);
 	rd_s32b(&p_ptr->exp);
@@ -1384,7 +1391,7 @@ static errr rd_extra(void)
 	strip_bytes(2);
 
 	/* Ignore old redundant info */
-	if (older_than(2, 7, 7)) strip_bytes(24);
+	if (older_than(0, 0, 0)) strip_bytes(24);
 
 	/* Read the flags */
 	strip_bytes(2);	/* Old "rest" */
@@ -1416,9 +1423,10 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->tim_esp);
 
 	/* Old redundant flags */
-	if (older_than(2, 7, 7)) strip_bytes(34);
+	if (older_than(0, 0, 0)) strip_bytes(34);
 
 	rd_byte(&p_ptr->confusing);
 	rd_byte(&tmp8u);	/* oops */
@@ -1426,20 +1434,20 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&p_ptr->searching);
 	rd_byte(&tmp8u);	/* oops */
-	if (older_than(2, 8, 5)) adult_maximize = tmp8u;
+	if (older_than(0, 0, 0)) adult_maximize = tmp8u;
 	rd_byte(&tmp8u);	/* oops */
-	if (older_than(2, 8, 5)) adult_preserve = tmp8u;
+	if (older_than(0, 0, 0)) adult_preserve = tmp8u;
 	rd_byte(&tmp8u);
-	if (older_than(2, 8, 5)) adult_rand_artifacts = tmp8u;
+	if (older_than(0, 0, 0)) adult_rand_artifacts = tmp8u;
 
 	/* Future use */
 	strip_bytes(40);
 
 	/* Read the randart version */
-	rd_u32b(&randart_version);
+	/* rd_u32b(&randart_version);*/
 
 	/* Read the randart seed */
-	rd_u32b(&seed_randart);
+	/* rd_u32b(&seed_randart);*/
 
 	/* Skip the flags */
 	strip_bytes(12);
@@ -1508,7 +1516,7 @@ static errr rd_extra(void)
 /*
  * Read the random artifacts
  */
-static errr rd_randarts(void)
+/*static errr rd_randarts(void)
 {
 
 #ifdef GJW_RANDART
@@ -1522,8 +1530,8 @@ static errr rd_randarts(void)
 	u32b tmp32u;
 
 
-	if (older_than(2, 9, 3))
-	{
+	if (older_than(0, 0, 0))
+	{*/
 		/*
 		 * XXX XXX XXX
 		 * Importing old savefiles with random artifacts is dangerous
@@ -1535,41 +1543,41 @@ static errr rd_randarts(void)
 		 */
 
 		/* Check for incompatible randart version */
-		if (randart_version != RANDART_VERSION)
+/*		if (randart_version != RANDART_VERSION)
 		{
 			note(format("Incompatible random artifacts version!"));
 			return (-1);
 		}
-
+*/
 		/* Initialize randarts */
-		do_randart(seed_randart, TRUE);
+/*		do_randart(seed_randart, TRUE);
 	}
 	else
-	{
+	{*/
 		/* Read the number of artifacts */
-		rd_u16b(&artifact_count);
+/*		rd_u16b(&artifact_count); */
 
 		/* Alive or cheating death */
-		if (!p_ptr->is_dead || arg_wizard)
-		{
+/*		if (!p_ptr->is_dead || arg_wizard)
+		{*/
 			/* Incompatible save files */
-			if (artifact_count > z_info->a_max)
+/*			if (artifact_count > z_info->a_max)
 			{
 				note(format("Too many (%u) random artifacts!", artifact_count));
 				return (-1);
 			}
-
+*/
 			/* Mark the old artifacts as "empty" */
-			for (i = 0; i < z_info->a_max; i++)
+/*			for (i = 0; i < z_info->a_max; i++)
 			{
 				artifact_type *a_ptr = &a_info[i];
 				a_ptr->name = 0;
 				a_ptr->tval = 0;
 				a_ptr->sval = 0;
 			}
-
+*/
 			/* Read the artifacts */
-			for (i = 0; i < artifact_count; i++)
+/*			for (i = 0; i < artifact_count; i++)
 			{
 				artifact_type *a_ptr = &a_info[i];
 
@@ -1603,53 +1611,53 @@ static errr rd_randarts(void)
 		}
 		else
 		{
-			/* Read the artifacts */
-			for (i = 0; i < artifact_count; i++)
-			{
-				rd_byte(&tmp8u); /* a_ptr->tval */
-				rd_byte(&tmp8u); /* a_ptr->sval */
-				rd_s16b(&tmp16s); /* a_ptr->pval */
+	*/		/* Read the artifacts */
+		/*	for (i = 0; i < artifact_count; i++)
+			{*/
+			/*	rd_byte(&tmp8u);  a_ptr->tval */
+			/* 	rd_byte(&tmp8u); a_ptr->sval */
+			/*	rd_s16b(&tmp16s);  a_ptr->pval */
 
-				rd_s16b(&tmp16s); /* a_ptr->to_h */
-				rd_s16b(&tmp16s); /* a_ptr->to_d */
-				rd_s16b(&tmp16s); /* a_ptr->to_a */
-				rd_s16b(&tmp16s); /* a_ptr->ac */
+			/*	rd_s16b(&tmp16s); a_ptr->to_h */
+			/*	rd_s16b(&tmp16s);  a_ptr->to_d */
+			/*	rd_s16b(&tmp16s);  a_ptr->to_a */
+			/*	rd_s16b(&tmp16s);  a_ptr->ac */
 
-				rd_byte(&tmp8u); /* a_ptr->dd */
-				rd_byte(&tmp8u); /* a_ptr->ds */
+			/*	rd_byte(&tmp8u);  a_ptr->dd */
+			/*	rd_byte(&tmp8u);  a_ptr->ds */
 
-				rd_s16b(&tmp16s); /* a_ptr->weight */
+			/*	rd_s16b(&tmp16s);  a_ptr->weight */
 
-				rd_s32b(&tmp32s); /* a_ptr->cost */
+			/*	rd_s32b(&tmp32s);  a_ptr->cost */
 
-				rd_u32b(&tmp32u); /* a_ptr->flags1 */
-				rd_u32b(&tmp32u); /* a_ptr->flags2 */
-				rd_u32b(&tmp32u); /* a_ptr->flags3 */
+			/*	rd_u32b(&tmp32u);  a_ptr->flags1 */
+			/*	rd_u32b(&tmp32u);  a_ptr->flags2 */
+			/*	rd_u32b(&tmp32u);  a_ptr->flags3 */
 
-				rd_byte(&tmp8u); /* a_ptr->level */
-				rd_byte(&tmp8u); /* a_ptr->rarity */
+			/*	rd_byte(&tmp8u); a_ptr->level */
+			/*	rd_byte(&tmp8u); a_ptr->rarity */
 
-				rd_byte(&tmp8u); /* a_ptr->activation */
-				rd_u16b(&tmp16u); /* a_ptr->time */
-				rd_u16b(&tmp16u); /* a_ptr->randtime */
-			}
+			/*	rd_byte(&tmp8u); a_ptr->activation */
+			/*	rd_u16b(&tmp16u);  a_ptr->time */
+			/*	rd_u16b(&tmp16u);  a_ptr->randtime */
+		/*	}
 		}
 
-		/* Initialize only the randart names */
+		
 		do_randart(seed_randart, FALSE);
 	}
 
 	return (0);
 
-#else /* GJW_RANDART */
+#else*/ /* GJW_RANDART */
 
-	note("Random artifacts are disabled in this binary.");
+/*	note("Random artifacts are disabled in this binary.");
 	return (-1);
 
-#endif /* GJW_RANDART */
-
+#endif*/ /* GJW_RANDART */
+/*
 }
-
+*/
 
 
 
@@ -1696,7 +1704,7 @@ static errr rd_inventory(void)
 		}
 
 		/* Not marked XXX XXX */
-		if (older_than(2, 8, 2))
+		if (older_than(0, 0, 0))
 		{
 			i_ptr->marked = FALSE;
 		}
@@ -1705,7 +1713,7 @@ static errr rd_inventory(void)
 		if (!i_ptr->k_idx) return (-1);
 
 		/* Hack -- convert old slot numbers */
-		if (older_than(2, 7, 4)) n = convert_slot(n);
+		/* if (older_than(0, 0, 0)) n = convert_slot(n); */
 
 		/* Verify slot */
 		if (n >= INVEN_TOTAL) return (-1);
@@ -1777,7 +1785,7 @@ static void rd_messages(void)
 		rd_string(buf, 128);
 
 		/* Read the message type */
-		if (!older_than(2, 9, 1))
+		if (!older_than(0, 0, 0))
 			rd_u16b(&tmp16u);
 		else
 			tmp16u = MSG_GENERIC;
@@ -1845,7 +1853,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 			byte feat = FEAT_FLOOR;
 
 			/* Old method */
-			if (older_than(2, 7, 5))
+			if (older_than(0, 0, 0))
 			{
 				/* Extract the old "info" flags */
 				if ((tmp8u >> 4) & 0x1) info |= (CAVE_ROOM);
@@ -2362,7 +2370,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	/*** Monsters ***/
 
 	/* Extract index of first monster */
-	start = (older_than(2, 7, 7) ? 2 : 1);
+	start = (older_than(0, 0, 0) ? 2 : 1);
 
 	/* Read the monster count */
 	rd_u16b(&limit);
@@ -2487,7 +2495,7 @@ static errr rd_dungeon(void)
 
 
 	/* Old method */
-	if (older_than(2,8,0))
+	if (older_than(0,0,0))
 	{
 		return (rd_dungeon_aux(depth, py, px));
 	}
@@ -2736,7 +2744,7 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Hack -- Warn about "obsolete" versions */
-	if (older_than(2, 7, 4))
+	if (older_than(0, 0, 0))
 	{
 		note("Warning -- converting obsolete save file.");
 	}
@@ -2813,7 +2821,7 @@ static errr rd_savefile_new_aux(void)
 		l_ptr = &l_list[i];
 
 		/* XXX XXX Hack -- repair old savefiles */
-		if (older_than(2, 7, 6))
+		if (older_than(0, 0, 0))
 		{
 			/* Assume no kills */
 			l_ptr->r_pkills = 0;
@@ -2914,12 +2922,12 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Read random artifacts */
-	if (adult_rand_artifacts)
+/*	if (adult_rand_artifacts)
 	{
 		if (rd_randarts()) return (-1);
 		if (arg_fiddle) note("Loaded Random Artifacts");
 	}
-
+*/
 
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
@@ -2967,7 +2975,7 @@ static errr rd_savefile_new_aux(void)
 #ifdef VERIFY_CHECKSUMS
 
 	/* Recent version */
-	if (!older_than(2,8,2))
+	if (!older_than(0,1,0))
 	{
 		/* Save the checksum */
 		n_v_check = v_check;

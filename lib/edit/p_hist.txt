@@ -10,7 +10,7 @@
 
 # Background information (see below)
 
-# Chart progression by race:
+# Chart progression by race:,
 #   Human/Dunadan -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Elf/High-Elf  -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
@@ -20,6 +20,31 @@
 #   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
 
+#		h_ptr->chart = prv; Current
+#		h_ptr->next = nxt;  Next
+#		h_ptr->roll = prc;  Percentage Chance
+#		h_ptr->bonus = soc; Bonus to soc.
+# You are 1(Birth Order and status) of 2(person). 3(Describe You). 4(Eyes), 5(Hair Style)6(haircolor, and 7(Complexion)
+# _OR_ Your (parent) was a (race) (job/status). (eyes), (Hairstyple) (haircolor), and (Color)(skin)
+# NEW Chart progression by race
+#	British/French/
+#	Spaniards/German/
+#	Finnish/Americans		-->1-->2-->3-->4-->5-->6-->7
+#	Asiatic					-->8-->9-->10-->11-->12-->13-->14
+#	African					-->15-->16-->17-->18-->19-->20-->21
+#	Russian					-->22-->23-->24-->25-->26-->27-->28
+#	Arabic					-->29-->30-->31-->32-->33-->34-->35
+#	Dwarf/brownie/
+#   Daoine Sidhe/
+#	Seelie/Unseelie Fae		-->36-->37-->38-->39-->40-->41
+#	Automata/Steam-Mecha	-->42-->43-->44-->45-->46-->47
+#	Djinn/Rakshasa			-->48-->49-->50-->51
+#	Giant/Ogre/Troll		-->52-->53-->54-->55-->56-->57-->58
+#	Ghost					-->59-->60-->61-->62-->63-->64
+#	Goblin					-->65-->66-->67-->68-->69-->70-->71
+#	Old Ones				-->72-->73-->74-->75-->76-->77-->78
+
+
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
 # Note that the "spacing" in the "description" lines is very important!
@@ -27,297 +52,865 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.1.0
+#	British/French/
+#	Spaniards/German/
+#	Finnish	
 
-
-N:1:2:10:25
+N:1:2:10:15
 D:You are the illegitimate and unacknowledged child 
+N:1:2:15:25
+D:You are the illegitimate and acknowledged child 
 N:1:2:20:35
-D:You are the illegitimate but acknowledged child 
+D:You are the Youngest of several children 
+N:1:2:30:40
+D:You are one of several children 
 N:1:2:95:45
-D:You are one of several children 
-N:1:2:100:50
 D:You are the first child 
-
-N:2:3:40:65
-D:of a Serf.  
-N:2:3:65:80
-D:of a Yeoman.  
-N:2:3:80:90
-D:of a Townsman.  
-N:2:3:90:105
-D:of a Guildsman.  
-N:2:3:96:120
-D:of a Landed Knight.  
-N:2:3:99:130
-D:of a Titled Noble.  
-N:2:3:100:140
-D:of a Royal Blood Line.  
-
-N:3:50:20:20
-D:You are the black sheep of the family.  
-N:3:50:80:55
-D:You are a credit to the family.  
-N:3:50:100:60
-D:You are a well liked child.  
-
-N:4:1:40:50
-D:Your mother was of the Teleri.  
-N:4:1:75:55
-D:Your father was of the Teleri.  
-N:4:1:90:55
-D:Your mother was of the Noldor.  
-N:4:1:95:60
-D:Your father was of the Noldor.  
-N:4:1:98:65
-D:Your mother was of the Vanyar.  
-N:4:1:100:70
-D:Your father was of the Vanyar.  
-
-N:7:8:60:50
-D:You are one of several children 
-N:7:8:100:55
+N:1:2:100:50
 D:You are the only child 
 
-N:8:9:75:50
-D:of a Teleri 
-N:8:9:95:55
-D:of a Noldor 
-N:8:9:100:60
-D:of a Vanyar 
+N:2:3:10:40
+D:of a Beggar. 
+N:2:3:20:45
+D:of a Thug. 
+N:2:3:30:50
+D:of a Dockwoker. 
+N:2:3:50:55
+D:of a Laborer. 
+N:2:3:70:60
+D:of a Clerk. 
+N:2:3:80:70
+D:of a Businessman. 
+N:2:3:85:90
+D:of a Merchant. 
+N:2:3:90:100
+D:of a Ship Captian. 
+N:2:3:92:115
+D:of a Member of Government. 
+N:2:3:94:120
+D:of a Noble. 
+N:2:3:96:125
+D:of a Baron. 
+N:2:3:98:130
+D:of a Duke. 
+N:2:3:99:135
+D:of a Member of Royality. 
+N:2:3:100:140
+D:of a Royal Blood Line. 
 
-N:9:54:40:80
-D:Ranger.  
-N:9:54:70:90
-D:Archer.  
-N:9:54:87:110
-D:Warrior.  
-N:9:54:95:125
-D:Mage.  
-N:9:54:99:140
-D:Prince.  
-N:9:54:100:145
-D:King.  
-
-N:10:11:85:45
-D:You are one of several children of a Hobbit 
-N:10:11:100:55
-D:You are the only child of a Hobbit 
-
-N:11:3:20:55
-D:Bum.  
-N:11:3:30:80
-D:Tavern Owner.  
-N:11:3:40:90
-D:Miller.  
-N:11:3:50:100
-D:Home Owner.  
-N:11:3:80:110
-D:Burglar.  
-N:11:3:95:115
-D:Warrior.  
-N:11:3:99:125
-D:Mage.  
-N:11:3:100:140
-D:Clan Elder.  
-
-N:13:14:85:45
-D:You are one of several children of a Gnome 
-N:13:14:100:55
-D:You are the only child of a Gnome 
-
-N:14:3:20:55
-D:Beggar.  
-N:14:3:50:70
-D:Braggart.  
-N:14:3:75:85
-D:Prankster.  
-N:14:3:95:100
-D:Warrior.  
-N:14:3:100:125
-D:Mage.  
-
-N:16:17:25:40
-D:You are one of two children of a Dwarven 
-N:16:17:100:50
-D:You are the only child of a Dwarven 
-
-N:17:18:10:60
-D:Thief.  
-N:17:18:25:75
-D:Prison Guard.  
-N:17:18:75:90
-D:Miner.  
-N:17:18:90:110
-D:Warrior.  
-N:17:18:99:130
-D:Priest.  
-N:17:18:100:150
-D:King.  
-
-N:18:57:15:10
-D:You are the black sheep of the family.  
-N:18:57:85:50
-D:You are a credit to the family.  
-N:18:57:100:55
+N:3:4:20:20
+D:You are the black sheep of the family. 
+N:3:4:80:55
+D:You are a credit to the family. 
+N:3:4:100:60
 D:You are a well liked child.  
 
-N:19:20:25:25
-D:Your mother was an Orc, but it is unacknowledged.  
-N:19:20:100:25
-D:Your father was an Orc, but it is unacknowledged.  
-
-N:20:2:100:50
-D:You are the adopted child 
-
-N:22:23:30:20
-D:Your mother was a Cave-Troll 
-N:22:23:60:25
-D:Your father was a Cave-Troll 
-N:22:23:75:30
-D:Your mother was a Hill-Troll 
-N:22:23:90:35
-D:Your father was a Hill-Troll 
-N:22:23:95:40
-D:Your mother was a Water-Troll 
-N:22:23:100:45
-D:Your father was a Water-Troll 
-
-N:23:62:5:60
-D:Cook.  
-N:23:62:95:55
-D:Warrior.  
-N:23:62:99:65
-D:Shaman.  
-N:23:62:100:80
-D:Clan Chief.  
-
-N:50:51:20:50
+N:4:5:5:50
 D:You have dark brown eyes, 
-N:50:51:60:50
+N:4:5:15:50
 D:You have brown eyes, 
-N:50:51:70:50
+N:4:5:40:50
 D:You have hazel eyes, 
-N:50:51:80:50
+N:4:5:55:50
+D:You have green eyes, 
+N:4:5:90:50
+D:You have blue eyes, 
+N:4:5:100:50
+D:You have blue-gray eyes, 
+
+N:5:6:60:50
+D:straight 
+N:5:6:75:50
+D:wavy 
+N:5:6:90:50
+D:curly 
+N:5:6:100:50
+D:long 
+
+N:6:7:10:50
+D:black hair, 
+N:6:7:50:50
+D:brown hair, 
+N:6:7:60:50
+D:auburn hair, 
+N:6:7:65:50
+D:red hair, 
+N:6:7:100:50
+D:blond hair, 
+
+N:7:0:10:50
+D:and a very dark complexion. 
+N:7:0:15:50
+D:and a dark complexion. 
+N:7:0:50:50
+D:and an average complexion. 
+N:7:0:80:50
+D:and a fair complexion. 
+N:7:0:100:50
+D:and a very fair complexion. 
+
+#	Asiatic
+N:8:9:15:15
+D:You are the illegitimate and unacknowledged child 
+N:8:9:10:25
+D:You are the illegitimate and acknowledged child 
+N:8:9:15:35
+D:You are the Youngest of several children 
+N:8:9:20:40
+D:You are one of several children 
+N:8:9:99:45
+D:You are the first child 
+N:8:9:100:50
+D:You are the only child 
+
+N:9:10:10:40
+D:of a Beggar. 
+N:9:10:20:45
+D:of a Thug. 
+N:9:10:30:50
+D:of a Dockwoker. 
+N:9:10:50:55
+D:of a Laborer. 
+N:9:10:70:60
+D:of a Clerk. 
+N:9:10:80:70
+D:of a Businessman. 
+N:9:10:85:90
+D:of a Merchant. 
+N:9:10:90:100
+D:of a Ship Captian. 
+N:9:10:92:115
+D:of a Member of Government. 
+N:9:10:94:120
+D:of a Noble. 
+N:9:10:96:125
+D:of a Baron. 
+N:9:10:98:130
+D:of a Duke. 
+N:9:10:99:135
+D:of a Member of Royality. 
+N:9:10:100:140
+D:of a Royal Blood Line. 
+
+N:10:11:20:20
+D:You are the black sheep of the family. 
+N:10:11:80:55
+D:You are a credit to the family. 
+N:10:11:100:60
+D:You are a well liked child.  
+
+N:11:12:35:50
+D:You have dark brown eyes, 
+N:11:12:95:50
+D:You have brown eyes, 
+N:11:12:97:50
+D:You have hazel eyes, 
+N:11:12:98:50
+D:You have green eyes, 
+N:11:12:99:50
+D:You have blue eyes, 
+N:11:12:100:50
+D:You have blue-gray eyes, 
+
+N:12:13:80:50
+D:straight 
+N:12:13:85:50
+D:wavy 
+N:12:13:90:50
+D:curly 
+N:12:13:100:50
+D:long 
+
+N:13:14:80:50
+D:black hair, 
+N:13:14:90:50
+D:brown hair, 
+N:13:14:98:50
+D:auburn hair, 
+N:13:14:99:50
+D:red hair, 
+N:13:14:100:50
+D:blond hair, 
+
+N:14:0:20:50
+D:and a very dark complexion. 
+N:14:0:75:50
+D:and a dark complexion. 
+N:14:0:80:50
+D:and an average complexion. 
+N:14:0:99:50
+D:and a fair complexion. 
+N:14:0:100:50
+D:and a very fair complexion. 
+
+#	African
+N:15:16:15:15
+D:You are the illegitimate and unacknowledged child 
+N:15:16:10:25
+D:You are the illegitimate and acknowledged child 
+N:15:16:15:35
+D:You are the Youngest of several children 
+N:15:16:20:40
+D:You are one of several children 
+N:15:16:80:45
+D:You are the first child 
+N:15:16:100:50
+D:You are the only child 
+
+N:16:17:10:40
+D:of a Wanderer. 
+N:16:17:20:45
+D:of a Hermit. 
+N:16:17:30:50
+D:of a Tribesman. 
+N:16:17:85:55
+D:of a Medicine Man. 
+N:16:17:90:60
+D:of a Warrior. 
+N:16:17:100:70
+D:of a Tribal chief. 
+
+N:17:18:20:20
+D:You are the black sheep of the family. 
+N:17:18:80:55
+D:You are a credit to the family. 
+N:17:18:100:60
+D:You are a well liked child.  
+
+N:18:19:35:50
+D:You have dark brown eyes, 
+N:18:19:100:50
+D:You have brown eyes, 
+
+N:19:20:10:50
+D:straight 
+N:19:20:85:50
+D:wavy 
+N:19:20:90:50
+D:curly 
+N:19:20:100:50
+D:long 
+
+N:20:21:80:50
+D:black hair, 
+N:20:21:100:50
+D:brown hair, 
+
+N:21:0:20:50
+D:and a very dark complexion. 
+N:21:0:75:50
+D:and a dark complexion. 
+N:21:0:100:50
+D:and an coca colored complexion. 
+
+# Russian
+N:22:23:10:15
+D:You are the illegitimate and unacknowledged child 
+N:22:23:15:25
+D:You are the illegitimate and acknowledged child 
+N:22:23:20:35
+D:You are the Youngest of several children 
+N:22:23:30:40
+D:You are one of several children 
+N:22:23:95:45
+D:You are the first child 
+N:22:23:100:50
+D:You are the only child 
+
+N:23:24:10:40
+D:of a Beggar. 
+N:23:24:20:45
+D:of a Thug. 
+N:23:24:30:50
+D:of a Dockwoker. 
+N:23:24:50:55
+D:of a Laborer. 
+N:23:24:70:60
+D:of a Clerk. 
+N:23:24:80:70
+D:of a Businessman. 
+N:23:24:85:90
+D:of a Merchant. 
+N:23:24:90:100
+D:of a Ship Captian. 
+N:23:24:92:115
+D:of a Member of Government. 
+N:23:24:94:120
+D:of a Noble. 
+N:23:24:96:125
+D:of a Baron. 
+N:23:24:98:130
+D:of a Duke. 
+N:23:24:99:135
+D:of a Member of Royality. 
+N:23:24:100:140
+D:of a Czar. 
+
+N:24:25:20:20
+D:You are the black sheep of the family. 
+N:24:25:80:55
+D:You are a credit to the family. 
+N:24:25:100:60
+D:You are a well liked child.  
+
+N:25:26:5:50
+D:You have dark brown eyes, 
+N:25:26:15:50
+D:You have brown eyes, 
+N:25:26:40:50
+D:You have hazel eyes, 
+N:25:26:55:50
+D:You have green eyes, 
+N:25:26:90:50
+D:You have blue eyes, 
+N:25:26:100:50
+D:You have blue-gray eyes, 
+
+N:26:27:60:50
+D:straight 
+N:26:27:75:50
+D:wavy 
+N:26:27:90:50
+D:curly 
+N:26:27:100:50
+D:long 
+
+N:27:28:10:50
+D:black hair, 
+N:27:28:50:50
+D:brown hair, 
+N:27:28:60:50
+D:auburn hair, 
+N:27:28:65:50
+D:red hair, 
+N:27:28:100:50
+D:blond hair, 
+
+N:28:29:10:50
+D:and a very dark complexion. 
+N:28:29:15:50
+D:and a dark complexion. 
+N:28:29:50:50
+D:and an average complexion. 
+N:28:29:80:50
+D:and a fair complexion. 
+N:28:29:100:50
+D:and a very fair complexion. 
+
+# Arabic
+N:29:30:10:15
+D:You are the illegitimate and unacknowledged child 
+N:29:30:15:25
+D:You are the illegitimate and acknowledged child 
+N:29:30:20:35
+D:You are the Youngest of several children 
+N:29:30:30:40
+D:You are one of several children 
+N:29:30:95:45
+D:You are the first child 
+N:29:30:100:50
+D:You are the only child 
+
+N:30:31:10:40
+D:of a Beggar. 
+N:30:31:20:45
+D:of a Thug. 
+N:30:31:30:50
+D:of a Dockwoker. 
+N:30:31:50:55
+D:of a Laborer. 
+N:30:31:70:60
+D:of a Clerk. 
+N:30:31:80:70
+D:of a Businessman. 
+N:30:31:85:90
+D:of a Merchant. 
+N:30:31:90:100
+D:of a Ship Captian. 
+N:30:31:100:140
+D:of a Caliph. 
+
+N:31:32:20:20
+D:You are the black sheep of the family. 
+N:31:32:80:55
+D:You are a credit to the family. 
+N:31:32:100:60
+D:You are a well liked child.  
+
+N:32:33:5:50
+D:You have dark brown eyes, 
+N:32:33:15:50
+D:You have brown eyes, 
+N:32:33:40:50
+D:You have hazel eyes, 
+N:32:33:55:50
+D:You have green eyes, 
+N:32:33:90:50
+D:You have blue eyes, 
+N:32:33:100:50
+D:You have blue-gray eyes, 
+
+N:33:34:60:50
+D:straight 
+N:33:34:75:50
+D:wavy 
+N:33:34:90:50
+D:curly 
+N:33:34:100:50
+D:long 
+
+N:34:35:80:50
+D:black hair, 
+N:34:35:90:50
+D:brown hair, 
+N:34:35:100:50
+D:auburn hair, 
+
+
+N:35:0:10:50
+D:and a very dark complexion. 
+N:35:0:15:50
+D:and a dark complexion. 
+N:35:0:90:50
+D:and an average complexion. 
+N:35:0:99:50
+D:and a fair complexion. 
+N:35:0:100:50
+D:and a very fair complexion. 
+
+#	Dwarf/brownie/
+#   Daoine Sidhe/
+#	Seelie/Unseelie Fae	
+
+N:36:37:10:15
+D:You were born from the sea. 
+N:36:37:15:25
+D:You were born from a flower. 
+N:36:37:50:35
+D:You were born from the forest. 
+N:36:37:80:40
+D:You were born in a hearth. 
+N:36:37:95:45
+D:You were born in a fairy ring. 
+N:36:37:100:50
+D:You were created by the Lord of the Fae. 
+
+N:37:38:20:20
+D:You are unimaginative Fae. 
+N:37:38:80:55
+D:You are a creative Fae. 
+N:37:38:100:60
+D:You are a node of glamour.  
+
+N:38:5:10:50
+D:You have dark brown eyes, 
+N:38:39:20:50
+D:You have brown eyes, 
+N:38:39:30:50
+D:You have hazel eyes, 
+N:38:39:40:50
+D:You have green eyes, 
+N:38:39:50:50
+D:You have blue eyes, 
+N:38:39:60:50
+D:You have blue-gray eyes, 
+N:38:39:70:50
+D:You have red eyes, 
+N:38:39:80:50
+D:You have orange eyes, 
+N:38:39:98:50
+D:You have violet eyes, 
+N:38:39:100:50
+D:You have gold eyes, 
+
+
+
+N:39:40:60:50
+D:straight 
+N:39:40:75:50
+D:wavy 
+N:39:40:90:50
+D:curly 
+N:39:40:100:50
+D:long 
+
+N:40:41:10:50
+D:black hair, 
+N:40:41:25:50
+D:brown hair, 
+N:40:41:40:50
+D:auburn hair, 
+N:40:41:45:50
+D:red hair, 
+N:40:41:90:50
+D:white hair, 
+N:40:41:100:50
+D:blond hair, 
+
+
+N:41:0:5:50
+D:and a very dark complexion. 
+N:41:0:10:50
+D:and a dark complexion. 
+N:41:0:20:50
+D:and an average complexion. 
+N:41:0:30:50
+D:and a fair complexion. 
+N:41:0:100:50
+D:and a very fair complexion. 
+
+#Automata/Steam-mecha
+
+N:42:43:100:50
+D:You are a robot. 
+
+N:43:31:10:40
+D:You are made from tin. 
+N:43:44:20:45
+D:You are made from copper. 
+N:43:44:30:50
+D:You are made from bronze. 
+N:43:44:50:55
+D:You are made from steel. 
+N:43:44:70:60
+D:You are made from iron. 
+N:43:44:80:70
+D:You are made from silver. 
+N:43:44:85:90
+D:You are made from platinum. 
+N:43:44:90:100
+D:You are made from Mirthil. 
+N:43:44:100:140
+D:You are made from Etheric Mirthil. 
+
+N:44:45:20:20
+D:You were given intelligence by your creator. 
+N:44:45:80:55
+D:You became intelligent gradually. 
+N:44:45:100:60
+D:You were once a man.  
+
+N:45:46:30:50
+D:You have silver disks for eyes, 
+N:45:46:35:50
+D:You have glowing red gems for eyes, 
+N:45:46:40:50
+D:You have two empty sockets for eyes, 
+N:45:46:80:50
+D:You have glass circles for eyes, 
+N:45:46:90:50
+D:You have glowing sapphires for eyes, 
+N:45:46:100:50
+D:You have diamonds for eyes, 
+
+N:46:47:60:50
+D:a blocky torso, 
+N:46:47:75:50
+D:a cylindrical torso, 
+N:46:47:90:50
+D:an angular torso, 
+N:46:47:100:50
+D:a sphericle torso, 
+
+N:47:0:10:50
+D:and a round head. 
+N:47:0:15:50
+D:and a square head. 
+N:47:0:90:50
+D:and an cylindrical head. 
+N:47:0:99:50
+D:and a pointed head. 
+N:47:0:100:50
+D:and a humanlike head. 
+
+# Djinn/Rakshasa
+
+N:48:49:100:50
+D:You come from across the veil.  
+
+N:49:50:20:20
+D:You have a bad reputation. 
+N:49:50:80:55
+D:You are unknown. 
+N:49:50:100:60
+D:You are known and feared.  
+
+N:50:51:5:50
+D:You have dark brown eyes, 
+N:50:51:15:50
+D:You have brown eyes, 
+N:50:51:40:50
+D:You have hazel eyes, 
+N:50:51:55:50
 D:You have green eyes, 
 N:50:51:90:50
 D:You have blue eyes, 
 N:50:51:100:50
 D:You have blue-gray eyes, 
 
-N:51:52:70:50
-D:straight 
-N:51:52:90:50
-D:wavy 
-N:51:52:100:50
-D:curly 
+N:51:0:10:50
+D:and a very dark complexion. 
+N:51:0:15:50
+D:and a dark complexion. 
+N:51:0:90:50
+D:and an average complexion. 
+N:51:0:99:50
+D:and a fair complexion. 
+N:51:0:100:50
+D:and a very fair complexion. 
 
-N:52:53:30:50
-D:black hair, 
-N:52:53:70:50
-D:brown hair, 
-N:52:53:80:50
-D:auburn hair, 
-N:52:53:90:50
-D:red hair, 
+#Giant/Ogre/Troll
+
+N:52:53:15:25
+D:You are the illegitimate child 
+N:52:53:20:35
+D:You are the Youngest of several children 
+N:52:53:30:40
+D:You are one of several children 
+N:52:53:95:45
+D:You are the first child 
 N:52:53:100:50
-D:blond hair, 
+D:You are the only child 
 
-N:53:0:10:50
-D:and a very dark complexion.
-N:53:0:30:50
-D:and a dark complexion.
-N:53:0:80:50
-D:and an average complexion.
-N:53:0:90:50
-D:and a fair complexion.
-N:53:0:100:50
-D:and a very fair complexion.
+N:53:54:30:40
+D:of a Cook. 
+N:53:54:80:45
+D:of a Warrior. 
+N:53:54:90:50
+D:of a Shaman. 
+N:53:54:100:55
+D:of a Clan Chief. 
 
-N:54:55:85:50
-D:You have light grey eyes, 
-N:54:55:95:50
-D:You have light blue eyes, 
-N:54:55:100:50
-D:You have light green eyes, 
-
-N:55:56:75:50
-D:straight 
-N:55:56:100:50
-D:wavy 
-
-N:56:0:75:50
-D:black hair, and a fair complexion.
-N:56:0:85:50
-D:brown hair, and a fair complexion.
-N:56:0:95:50
-D:blond hair, and a fair complexion.
-N:56:0:100:50
-D:silver hair, and a fair complexion.
-
-N:57:58:99:50
-D:You have dark brown eyes, 
-N:57:58:100:60
-D:You have glowing red eyes, 
-
-N:58:59:90:50
-D:straight 
-N:58:59:100:50
-D:wavy 
-
-N:59:60:75:50
-D:black hair, 
-N:59:60:100:50
-D:brown hair, 
-
-N:60:61:25:50
-D:a one foot beard, 
-N:60:61:60:51
-D:a two foot beard, 
-N:60:61:90:53
-D:a three foot beard, 
-N:60:61:100:55
-D:a four foot beard, 
-
-N:61:0:100:50
-D:and a dark complexion.
-
-N:62:63:60:50
+N:54:55:60:50
 D:You have slime green eyes, 
-N:62:63:85:50
+N:54:55:85:50
 D:You have puke yellow eyes, 
-N:62:63:99:50
+N:54:55:99:50
 D:You have blue-bloodshot eyes, 
-N:62:63:100:55
+N:54:55:100:55
 D:You have glowing red eyes, 
 
-N:63:64:33:50
+N:55:56:33:50
 D:dirty 
-N:63:64:66:50
+N:55:56:66:50
 D:mangy 
-N:63:64:100:50
+N:55:56:100:50
 D:oily 
 
-N:64:65:33:50
+N:56:57:33:50
 D:sea-weed green hair, 
-N:64:65:66:50
+N:56:57:66:50
 D:bright red hair, 
-N:64:65:100:50
+N:56:57:100:50
 D:dark purple hair, 
 
-N:65:66:25:50
+N:57:58:25:50
 D:and green 
-N:65:66:50:50
+N:57:58:50:50
 D:and blue 
-N:65:66:75:50
+N:57:58:75:50
 D:and white 
-N:65:66:100:50
+N:57:58:100:50
 D:and black 
 
-N:66:0:33:50
-D:ulcerous skin.
-N:66:0:66:50
-D:scabby skin.
-N:66:0:100:50
-D:leprous skin.
+N:58:0:33:50
+D:ulcerous skin. 
+N:58:0:66:50
+D:scabby skin. 
+N:58:0:100:50
+D:leprous skin. 
 
+#Ghost
+
+N:59:60:100:25
+D:You are the Ghost of a 
+
+N:60:61:10:40
+D:of a Beggar. 
+N:60:61:20:45
+D:of a Thug. 
+N:60:61:30:50
+D:of a Dockwoker. 
+N:60:61:50:55
+D:of a Laborer. 
+N:60:61:55:60
+D:of a Clerk. 
+N:60:61:60:70
+D:of a Businessman. 
+N:60:61:65:90
+D:of a Merchant. 
+N:60:61:70:90
+D:of a Warrior. 
+N:60:61:75:90
+D:of a Engineer. 
+N:60:61:80:90
+D:of a Quablist. 
+N:60:61:85:90
+D:of a Rogue. 
+N:60:61:90:100
+D:of a Ship Captian. 
+N:60:61:92:115
+D:of a Member of Government. 
+N:60:61:94:120
+D:of a Noble. 
+N:60:61:96:125
+D:of a Baron. 
+N:60:61:98:130
+D:of a Duke. 
+N:60:61:99:135
+D:of a Member of Royality. 
+N:60:61:100:140
+D:of a Royal Blood Line. 
+
+
+N:61:62:60:50
+D:You have hollow eyes, 
+N:61:62:85:50
+D:You have haunting eyes, 
+N:61:62:99:50
+D:You have blinded eyes, 
+N:61:62:100:55
+D:You have glowing eyes, 
+
+N:62:63:33:50
+D:dirty 
+N:62:63:66:50
+D:tattered 
+N:62:63:100:50
+D:shredded 
+
+N:63:64:33:50
+D:rags, 
+N:63:64:66:50
+D:clothes, 
+N:63:64:100:50
+D:finery, 
+
+N:64:0:100:50
+D:and pale skin. 
+
+#Goblin
+N:65:66:20:40
+D:You are the runt of 
+N:65:66:80:50
+D:You come from 
+N:65:66:100:55
+D:You are the largest of 
+
+N:66:67:15:45
+D:a litter of 3 pups. 
+N:66:67:40:45
+D:a litter of 4 pups. 
+N:66:67:70:50
+D:a litter of 5 pups. 
+N:66:67:85:50
+D:a litter of 6 pups. 
+N:66:67:95:55
+D:a litter of 7 pups. 
+N:66:67:100:55
+D:a litter of 8 pups. 
+
+N:67:68:25:40
+D:Your father was a fungus farmer, 
+N:67:68:50:45
+D:Your father was a hunter, 
+N:67:68:75:50
+D:Your father was a warrior, 
+N:67:68:95:55
+D:Your father was a shaman, 
+N:67:68:100:60
+D:Your father was the tribal chief, 
+
+N:68:69:20:45
+D:and your mother was a prisoner of war. 
+N:68:69:95:50
+D:and your mother was a cook. 
+N:68:69:100:55
+D:and your mother was one of the Chief's harem. 
+
+N:69:70:10:50
+D:You have black eyes, 
+N:69:70:40:50
+D:You have dark brown eyes, 
+N:69:70:80:50
+D:You have brown eyes, 
+N:69:70:99:50
+D:You have light brown eyes, 
+N:69:70:100:50
+D:You have glowing red eyes, 
+
+N:70:71:40:50
+D:a dark brown hide, 
+N:70:71:60:50
+D:a reddish-brown hide, 
+N:70:71:95:50
+D:an olive green hide, 
+N:70:71:100:50
+D:a deep blue hide, 
+
+N:71:0:10:50
+D:and large, flat teeth. 
+N:71:0:90:50
+D:and small, sharp teeth. 
+N:71:0:100:50
+D:and large, sharp teeth. 
+
+#old ones
+
+N:72:78:100:15
+D:You are an ancient Old One, come to reclaim 
+
+N:73:74:20:20
+D:You are a terrible being. 
+N:73:74:80:55
+D:You are a horrific monstrocity. 
+N:73:74:100:60
+D:You are cause the minds of people to turn to mush.  
+
+N:74:75:5:50
+D:You have 12 yellow eyes, 
+N:74:75:15:50
+D:You have 4 orange eyes, 
+N:74:75:40:50
+D:You have 5 holes oozing puss for eyes, 
+N:74:75:55:50
+D:You have 82 black beady eyes, 
+N:74:75:90:50
+D:You have 9 purple eyes, 
+N:74:75:100:50
+D:You have 13 red glowing eyes, 
+
+N:75:76:60:50
+D:twelve 
+N:75:76:75:50
+D:six 
+N:75:76:90:50
+D:four 
+N:75:76:100:50
+D:eight 
+
+N:76:77:10:50
+D:tentacles, 
+N:76:77:50:50
+D:protrusions, 
+N:76:77:60:50
+D:oozing sores, 
+N:76:77:65:50
+D:twisted limbs, 
+N:76:77:100:50
+D:faces comeing out of your flesh, 
+
+N:77:0:10:50
+D:and a rubbery complexion. 
+N:77:0:15:50
+D:and a oozeing complexion. 
+N:77:0:50:50
+D:and an disgusting complexion. 
+N:77:0:80:50
+D:and a bumpy complexion. 
+N:77:0:100:50
+D:and a glistening complexion. 
+
+N:78:73:100:15
+D:the earthly plane as your own. 

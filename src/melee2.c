@@ -919,7 +919,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
-			else msg_format("%^s fires an arrow.", m_name);
+			else msg_format("%^s fires an gun.", m_name);
 			bolt(m_idx, GF_ARROW, damroll(1, 6));
 			break;
 		}
@@ -929,7 +929,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
-			else msg_format("%^s fires an arrow!", m_name);
+			else msg_format("%^s fires an gun!", m_name);
 			bolt(m_idx, GF_ARROW, damroll(3, 6));
 			break;
 		}
@@ -939,7 +939,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
-			else msg_format("%^s fires a missile.", m_name);
+			else msg_format("%^s fires a gun.", m_name);
 			bolt(m_idx, GF_ARROW, damroll(5, 6));
 			break;
 		}
@@ -949,7 +949,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
-			else msg_format("%^s fires a missile!", m_name);
+			else msg_format("%^s fires a gun!", m_name);
 			bolt(m_idx, GF_ARROW, damroll(7, 6));
 			break;
 		}
@@ -1565,9 +1565,14 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF5_BO_POIS */
+		/* Adding this in. Must remember to add smart monster info */
 		case RF5_OFFSET+20:
 		{
-			/* XXX XXX XXX */
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s casts a poison bolt.", m_name);
+			bolt(m_idx, GF_POIS,
+			     damroll(6, 8) + (rlev / 3));
 			break;
 		}
 
@@ -3981,11 +3986,14 @@ static void process_monster(int m_idx)
 					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
 					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
 					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
-					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
+					if (f1 & (TR1_SLAY_AUTOMATA)) flg3 |= (RF3_AUTOMATA);
 					if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
 					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
 					if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
+					if (f1 & (TR1_SLAY_ALIEN)) flg3 |= (RF3_ALIEN);
+					if (f1 & (TR1_SLAY_BEASTMAN)) flg3 |= (RF3_BEASTMAN);
+
 
 					/* The object cannot be picked up by the monster */
 					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3))

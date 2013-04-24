@@ -1,8 +1,8 @@
 
 
-              **************************************************
-              **   Angband 2.9.3   **   The Pits of Angband   **
-              **************************************************
+  ************************************************************************
+  **   Steamband 0.1.0   **   The Journey from the Ceter of the Earth   **
+  ************************************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
@@ -15,18 +15,47 @@
 
                  Angband 2.9.0 - 2.9.3 by Robert Ruehlmann
 
-        Send comments, bug reports, and patches, to "rr9@angband.org"
+				Steamband 0.1.0  by Courtney C. Campbell
+				
+        Send comments, bug reports, and patches, to "ccc02@uark.edu"
        Visit the Angband Home Page at "http://thangorodrim.angband.org/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
+      				Visit the #angband channel on World IRC!
     Read the online help files, especially "general.txt" and "version.txt"
    Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
 
+=== Message from the Maintainer ===
+
+Hello everyone!
+
+Ok, first things first. This program has bugs. I am _not_ a coder by nature
+and have only recently begun teaching myself to code. So if you find any bugs,
+(and I'm sure there are a bunch of them) please e-mail me.
+
+You can also join the steamband mailing list! You do this by sending an
+e-mail to Steamband-subscribe@yahoogroups.com . This will keep you 
+up to date on all the latest steamband developments.
+
+Please, _Please_ take note that this is a 0.1.0 version. Steamband 
+will not be what I want it to be until version 1.0.0. There are many
+_many_ changes planned. Mutations will be added, a new leveling system
+I want to impliment, and more artifacts and monsters that are in theme,
+are just a _few_ of the many improvements planned. I'm mainly releasing 
+now for feedback, and so that everyone can have a say in what they want!
+
+I plan on adding back in randarts, and an autosquelch, but those are 
+things that will take a while to get to. 
+
+Oh! and I hope everyone enjoys playing! Make sure you remember that
+'a' no longer stands for ant, and watch out! Buy yourself a gun if
+you want to survive!
+-Campbell (VALIS)
 
 === General Info ===
 
-This is the README file for Angband 2.9.3 (8th July 2000).
+This is the README file for Steamband 0.1.0 (10th January 2003).
 
-Angband is a "graphical" dungeon adventure game using textual characters
+Steamband is a "graphical" dungeon adventure game using textual characters
 to represent the walls and floors of a dungeon and the inhabitants therein,
 in the vein of "rogue", "hack", "nethack", and "moria".
 
@@ -38,11 +67,11 @@ a list (mostly complete) of what has changed in each recent version.
 See the various Angband ftp sites (including "clockwork.dementia.org" and
 "ftp.cis.ksu.edu") for the latest files, patches, and executables.
 
-Contact Robert Ruehlmann < rr9@angband.org > to report bugs. Use the
+Contact Courtney Campbell < ccc02@uark.edu > to report bugs. Use the
 newsgroup "rec.games.roguelike.angband" to ask general questions about the
 game, including compilation questions.
 
-This version of Angband will run on Macintosh, Windows, Unix (X11/Curses), 
+This version of Steamband will run on Macintosh, Windows, Unix (X11/Curses), 
 Linux (X11/Curses), Acorn, Amiga, various DOS machines, and many others...
 
 See compile.txt, the Makefiles, h-config.h, and config.h for details on

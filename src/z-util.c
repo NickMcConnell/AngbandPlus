@@ -21,6 +21,10 @@ cptr argv0 = NULL;
 
 
 
+/* From 283 for mpw */
+errr errr_tmp = 0;
+
+
 /*
  * Determine if string "a" is equal to string "b"
  */

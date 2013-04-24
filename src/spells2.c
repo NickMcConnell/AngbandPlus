@@ -224,7 +224,7 @@ bool do_inc_stat(int stat)
 
 /*
  * Identify everything being carried.
- * Done by a potion of "self knowledge".
+ * Done by a tonic of "self knowledge".
  */
 void identify_pack(void)
 {
@@ -503,7 +503,7 @@ void self_knowledge(void)
 	}
 	if (p_ptr->new_spells)
 	{
-		info[i++] = "You can learn some spells/prayers.";
+		info[i++] = "You can learn some spells/activations.";
 	}
 	if (p_ptr->word_recall)
 	{
@@ -783,9 +783,9 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
 		}
-		if (f1 & (TR1_SLAY_ORC))
+		if (f1 & (TR1_SLAY_AUTOMATA))
 		{
-			info[i++] = "Your weapon is especially deadly against orcs.";
+			info[i++] = "Your weapon is especially deadly against automata.";
 		}
 		if (f1 & (TR1_SLAY_TROLL))
 		{
@@ -798,6 +798,14 @@ void self_knowledge(void)
 		if (f1 & (TR1_SLAY_DRAGON))
 		{
 			info[i++] = "Your weapon is especially deadly against dragons.";
+		}
+		if (f1 & (TR1_SLAY_ALIEN))
+		{
+			info[i++] = "Your weapon is especially deadly against aliens.";
+		}
+		if (f1 & (TR1_SLAY_BEASTMAN))
+		{
+			info[i++] = "Your weapon is especially deadly against beastman.";
 		}
 
 		/* Special "kill" flags */
@@ -1250,7 +1258,7 @@ bool detect_objects_normal(void)
  * Detect all "magic" objects on the current panel.
  *
  * This will light up all spaces with "magic" items, including artifacts,
- * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
+ * ego-items, tonics, scrolls, books, rods, wands, staves, amulets, rings,
  * and "enchanted" items of the "good" variety.
  *
  * It can probably be argued that this function is now too powerful.
@@ -1286,9 +1294,9 @@ bool detect_objects_magic(void)
 		/* Artifacts, misc magic items, or enchanted wearables */
 		if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
-		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
-		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+		    (tv == TV_TOOL) || (tv == TV_RAY) || (tv == TV_APPARATUS) ||
+		    (tv == TV_MECHANISM) || (tv == TV_TONIC) ||
+		    (tv == TV_MAGIC_BOOK) || (tv == TV_DEVICE_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1576,10 +1584,10 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_DIGGING:
-		case TV_BOW:
-		case TV_BOLT:
-		case TV_ARROW:
+		case TV_GUN:
 		case TV_SHOT:
+		case TV_BULLET:
+		case TV_AMMO:
 		{
 			return (TRUE);
 		}
@@ -1665,9 +1673,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	prob = o_ptr->number * 100;
 
 	/* Missiles are easy to enchant */
-	if ((o_ptr->tval == TV_BOLT) ||
-	    (o_ptr->tval == TV_ARROW) ||
-	    (o_ptr->tval == TV_SHOT))
+	if ((o_ptr->tval == TV_SHOT) ||
+	    (o_ptr->tval == TV_BULLET) ||
+	    (o_ptr->tval == TV_AMMO))
 	{
 		prob = prob / 20;
 	}
@@ -2018,13 +2026,13 @@ bool identify_fully(void)
 static bool item_tester_hook_recharge(const object_type *o_ptr)
 {
 	/* Recharge staffs */
-	if (o_ptr->tval == TV_STAFF) return (TRUE);
+	if (o_ptr->tval == TV_TOOL) return (TRUE);
 
 	/* Recharge wands */
-	if (o_ptr->tval == TV_WAND) return (TRUE);
+	if (o_ptr->tval == TV_RAY) return (TRUE);
 
 	/* Hack -- Recharge rods */
-	if (o_ptr->tval == TV_ROD) return (TRUE);
+	if (o_ptr->tval == TV_APPARATUS) return (TRUE);
 
 	/* Nope */
 	return (FALSE);
@@ -2092,7 +2100,7 @@ bool recharge(int num)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Recharge a rod */
-	if (o_ptr->tval == TV_ROD)
+	if (o_ptr->tval == TV_APPARATUS)
 	{
 		/* Extract a recharge power */
 		i = (100 - lev + num) / 5;
@@ -2101,7 +2109,7 @@ bool recharge(int num)
 		if ((i <= 1) || (rand_int(i) == 0))
 		{
 			/* Hack -- backfire */
-			msg_print("The recharge backfires, draining the rod further!");
+			msg_print("The recharge backfires, draining the apparatus further!");
 
 			/* Hack -- decharge the rod */
 			if (o_ptr->pval < 10000) o_ptr->pval = (o_ptr->pval + 100) * 2;

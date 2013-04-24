@@ -18,15 +18,17 @@
  * OPTION: Compile on a Macintosh machine
  */
 #ifndef MACINTOSH
-/* #define MACINTOSH */
+# define MACINTOSH 
 #endif
 
 /*
  * OPTION: Compile on a Windows machine
  */
+
 #ifndef WINDOWS
 /* #define WINDOWS */
 #endif
+
 
 /*
  * OPTION: Compile on an MSDOS machine
@@ -86,10 +88,10 @@
 #endif
 
 
-
 /*
  * Extract the "SUNOS" flag from the compiler
  */
+
 #if defined(sun)
 # ifndef SUNOS
 #   define SUNOS
@@ -151,6 +153,20 @@
 #  define WINDOWS
 # endif
 #endif
+
+
+/*
+ * Extract the "MAC_MPW" flag from the compiler
+ */
+#if defined(__SC__) || defined(__MRC__)
+# ifndef MACINTOSH
+#  define MACINTOSH
+# endif
+# ifndef MAC_MPW
+#  define MAC_MPW
+# endif
+#endif
+
 
 /*
  * Remove the MSDOS flag when using WINDOWS

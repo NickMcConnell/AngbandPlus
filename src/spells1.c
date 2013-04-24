@@ -366,6 +366,7 @@ static byte spell_color(int type)
 		case GF_PLASMA:		return (TERM_RED);
 		case GF_METEOR:		return (TERM_RED);
 		case GF_ICE:		return (TERM_WHITE);
+		case GF_PSI: 		return (TERM_VIOLET);
 	}
 
 	/* Standard "color" */
@@ -509,9 +510,9 @@ static bool hates_acid(const object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 		/* Wearable items */
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
+		case TV_BULLET:
+		case TV_SHOT:
+		case TV_GUN:
 		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -529,8 +530,9 @@ static bool hates_acid(const object_type *o_ptr)
 		}
 
 		/* Staffs/Scrolls are wood/paper */
-		case TV_STAFF:
-		case TV_SCROLL:
+		case TV_TOOL:
+		case TV_TEXT:
+		case TV_MECHANISM:
 		{
 			return (TRUE);
 		}
@@ -562,7 +564,7 @@ static bool hates_elec(const object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 		case TV_RING:
-		case TV_WAND:
+		case TV_RAY:
 		{
 			return (TRUE);
 		}
@@ -584,8 +586,8 @@ static bool hates_fire(const object_type *o_ptr)
 	{
 		/* Wearable */
 		case TV_LITE:
-		case TV_ARROW:
-		case TV_BOW:
+		case TV_BULLET:
+		case TV_GUN:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_BOOTS:
@@ -598,7 +600,7 @@ static bool hates_fire(const object_type *o_ptr)
 
 		/* Books */
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
+		case TV_DEVICE_BOOK:
 		{
 			return (TRUE);
 		}
@@ -610,8 +612,9 @@ static bool hates_fire(const object_type *o_ptr)
 		}
 
 		/* Staffs/Scrolls burn */
-		case TV_STAFF:
-		case TV_SCROLL:
+		case TV_TOOL:
+		case TV_TEXT:
+		case TV_MECHANISM:
 		{
 			return (TRUE);
 		}
@@ -628,7 +631,7 @@ static bool hates_cold(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
-		case TV_POTION:
+		case TV_TONIC:
 		case TV_FLASK:
 		case TV_BOTTLE:
 		{
@@ -940,7 +943,7 @@ void cold_dam(int dam, cptr kb_str)
  * Increase a stat by one randomized level
  *
  * Most code will "restore" a stat before calling this function,
- * in particular, stat potions will always restore the stat and
+ * in particular, stat tonics will always restore the stat and
  * then increase the fully restored value.
  */
 bool inc_stat(int stat)
@@ -1171,7 +1174,7 @@ bool apply_disenchant(int mode)
 	switch (randint(8))
 	{
 		case 1: t = INVEN_WIELD; break;
-		case 2: t = INVEN_BOW; break;
+		case 2: t = INVEN_GUN; break;
 		case 3: t = INVEN_BODY; break;
 		case 4: t = INVEN_OUTER; break;
 		case 5: t = INVEN_ARM; break;
@@ -1364,6 +1367,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_SOUND:
 		case GF_MANA:
 		case GF_HOLY_ORB:
+		case GF_PSI:
 		{
 			break;
 		}
@@ -1768,7 +1772,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 
-			/* Cold -- potions and flasks */
+			/* Cold -- tonics and flasks */
 			case GF_COLD:
 			{
 				if (hates_cold(o_ptr))
@@ -1818,7 +1822,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 
-			/* Hack -- break potions and such */
+			/* Hack -- break tonicss and such */
 			case GF_ICE:
 			case GF_SHARD:
 			case GF_FORCE:
@@ -2070,6 +2074,15 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Analyze the damage type */
 	switch (typ)
 	{
+
+		case GF_STUN:
+		{
+			if (seen) obvious = TRUE;
+			do_stun = dam;
+			dam /= 9;
+			
+			break;
+		}
 		/* Magic Missile -- pure damage */
 		case GF_MISSILE:
 		{
@@ -2911,6 +2924,78 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			break;
 		}
+		case GF_PSI:
+		{
+			if (seen) obvious = TRUE;
+
+			/* Attempt a saving throw */
+			if ((r_ptr->flags1 & RF1_UNIQUE) ||
+				(r_ptr->flags1 & RF1_QUESTOR) ||
+				(r_ptr->flags3 & RF3_NO_CONF) ||
+				(r_ptr->level > randint(dam * 3)))
+			{
+				/*
+				 * Powerful demons & undead can turn a mindcrafter's
+				 * attacks back on them
+				 */
+				if (((r_ptr->flags3 & RF3_UNDEAD) ||
+					 (r_ptr->flags3 & RF3_DEMON)) &&
+					(r_ptr->level > p_ptr->lev) && (2 < randint(5)))
+				{
+					note = NULL;
+					msg_format("%^s%s corrupted mind backlashes your attack!",
+							   m_name, (seen ? "'s" : "s"));
+					/* Saving throw */
+					if (randint(100) < p_ptr->skill_sav)
+					{
+						msg_print("You resist the effects!");
+					}
+					else
+					{
+						/* Confuse, stun, terrify */
+						switch (randint(4))
+						{
+							case 1:
+								(void)set_stun(p_ptr->stun + dam / 2);
+								break;
+							case 2:
+								(void)set_confused(p_ptr->confused + dam / 2);
+								break;
+							default:
+							{
+								if (r_ptr->flags3 & RF3_NO_FEAR)
+									note = " is unaffected.";
+								else
+									(void)set_afraid(p_ptr->afraid + dam);
+							}
+						}
+					}
+				}
+				else
+				{
+					/* No obvious effect */
+					note = " is unaffected!";
+					obvious = FALSE;
+				}
+			}
+			else
+			{
+				switch (randint(4))
+				{
+					case 1:
+						do_stun = dam / 2;
+						break;
+					case 2:
+						do_conf = dam / 2;
+						break;
+					default:
+						do_fear = dam;
+				}
+				
+			}
+
+			break;
+		}
 
 
 		/* Default */
@@ -2918,9 +3003,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* Irrelevant */
 			skipped = TRUE;
-
-			/* No damage */
-			dam = 0;
 
 			break;
 		}
@@ -3614,6 +3696,16 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		}
 
 		/* Pure damage */
+		case GF_STUN:
+		{
+			if (fuzzy) msg_print("You are hit by something!");
+			if (!p_ptr->resist_sound)
+			{
+				(void)set_stun(p_ptr->stun + dam);
+			}
+			
+			break;
+		}
 		case GF_MANA:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
@@ -3644,8 +3736,27 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			break;
 		}
+		case GF_PSI:
+		{
+			if (fuzzy) msg_print("You feel something invade your mind!");
+			switch (randint(4))				
+			{
+				case 1:
+					(void)set_stun(p_ptr->stun + (dam / 2));
+					take_hit(dam, killer);
+					break;
+				case 2:
+					(void)set_confused(p_ptr->confused + (dam / 2));
+					take_hit(dam, killer);
+					break;
+				default:
+					(void)set_afraid(p_ptr->afraid + dam);
+					take_hit(dam, killer);
+			}
 
-
+			break;
+		}
+		
 		/* Default */
 		default:
 		{

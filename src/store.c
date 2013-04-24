@@ -443,8 +443,8 @@ static void mass_produce(object_type *o_ptr)
 			break;
 		}
 
-		case TV_POTION:
-		case TV_SCROLL:
+		case TV_TONIC:
+		case TV_MECHANISM:
 		{
 			if (cost <= 60L) size += mass_roll(3, 5);
 			if (cost <= 240L) size += mass_roll(1, 5);
@@ -452,7 +452,7 @@ static void mass_produce(object_type *o_ptr)
 		}
 
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
+		case TV_DEVICE_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -471,7 +471,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_POLEARM:
 		case TV_HAFTED:
 		case TV_DIGGING:
-		case TV_BOW:
+		case TV_GUN:
 		{
 			if (o_ptr->name2) break;
 			if (cost <= 10L) size += mass_roll(3, 5);
@@ -480,9 +480,9 @@ static void mass_produce(object_type *o_ptr)
 		}
 
 		case TV_SPIKE:
+		case TV_AMMO:
+		case TV_BULLET:
 		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
 		{
 			if (cost <= 5L) size += mass_roll(5, 5);
 			if (cost <= 50L) size += mass_roll(5, 5);
@@ -712,9 +712,9 @@ static bool store_will_buy(const object_type *o_ptr)
 				case TV_LITE:
 				case TV_FLASK:
 				case TV_SPIKE:
+				case TV_AMMO:
+				case TV_BULLET:
 				case TV_SHOT:
-				case TV_ARROW:
-				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
 				break;
@@ -725,7 +725,7 @@ static bool store_will_buy(const object_type *o_ptr)
 		}
 
 		/* Armoury */
-		case STORE_ARMOR:
+		case STORE_CLOTHING:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -747,15 +747,15 @@ static bool store_will_buy(const object_type *o_ptr)
 		}
 
 		/* Weapon Shop */
-		case STORE_WEAPON:
+		case STORE_GUN:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
+				case TV_AMMO:
 				case TV_SHOT:
-				case TV_BOLT:
-				case TV_ARROW:
-				case TV_BOW:
+				case TV_BULLET:
+				case TV_GUN:
 				case TV_DIGGING:
 				case TV_HAFTED:
 				case TV_POLEARM:
@@ -768,22 +768,18 @@ static bool store_will_buy(const object_type *o_ptr)
 		}
 
 		/* Temple */
-		case STORE_TEMPLE:
+		case STORE_MACHINE:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_PRAYER_BOOK:
-				case TV_SCROLL:
-				case TV_POTION:
-				case TV_HAFTED:
+				case TV_DEVICE_BOOK:
+				case TV_MECHANISM:
+				case TV_MECHA_TORSO:
+				case TV_MECHA_HEAD:
+				case TV_MECHA_ARMS:
+				case TV_MECHA_FEET:
 				break;
-				case TV_POLEARM:
-				case TV_SWORD:
-				{
-					/* Known blessed blades are accepted too */
-					if (is_blessed(o_ptr) && object_known_p(o_ptr)) break;
-				}
 				default:
 				return (FALSE);
 			}
@@ -796,8 +792,9 @@ static bool store_will_buy(const object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_SCROLL:
-				case TV_POTION:
+				case TV_FOOD:
+				case TV_MECHANISM:
+				case TV_TONIC:
 				break;
 				default:
 				return (FALSE);
@@ -814,11 +811,11 @@ static bool store_will_buy(const object_type *o_ptr)
 				case TV_MAGIC_BOOK:
 				case TV_AMULET:
 				case TV_RING:
-				case TV_STAFF:
-				case TV_WAND:
-				case TV_ROD:
-				case TV_SCROLL:
-				case TV_POTION:
+				case TV_TOOL:
+				case TV_RAY:
+				case TV_APPARATUS:
+				case TV_MECHANISM:
+				case TV_TONIC:
 				break;
 				default:
 				return (FALSE);

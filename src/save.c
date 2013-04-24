@@ -1033,11 +1033,14 @@ static void wr_extra(void)
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
-
+	for (i = 0; i < A_MAX; ++i) wr_byte(p_ptr->stat_birth[i]);
+	
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
 
-	wr_u32b(p_ptr->au);
+	wr_s32b(p_ptr->au);
+	/* Starting Gold */
+	wr_s32b(p_ptr->au_birth);
 
 	wr_u32b(p_ptr->max_exp);
 	wr_u32b(p_ptr->exp);
@@ -1094,7 +1097,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
-
+	wr_s16b(p_ptr->tim_esp);
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
@@ -1109,10 +1112,10 @@ static void wr_extra(void)
 
 
 	/* Random artifact version */
-	wr_u32b(RANDART_VERSION);
+	/* wr_u32b(RANDART_VERSION); */
 
 	/* Random artifact seed */
-	wr_u32b(seed_randart);
+	/* wr_u32b(seed_randart); */
 
 
 	/* Ignore some flags */
@@ -1149,7 +1152,7 @@ static void wr_extra(void)
 /*
  * Dump the random artifacts
  */
-static void wr_randarts(void)
+/* static void wr_randarts(void)
 {
 	int i;
 
@@ -1187,7 +1190,7 @@ static void wr_randarts(void)
 		wr_u16b(a_ptr->randtime);
 	}
 }
-
+*/
 
 /*
  * The cave grid flags that get saved in the savefile
@@ -1489,11 +1492,11 @@ static bool wr_savefile_new(void)
 
 
 	/* Write randart information */
-	if (adult_rand_artifacts)
+/*	if (adult_rand_artifacts)
 	{
 		wr_randarts();
 	}
-
+*/
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1926,38 +1929,11 @@ bool load_player(void)
 		sf_patch = vvv[2];
 		sf_extra = vvv[3];
 
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
-
-		/* Clear screen */
+		
+		
 		Term_clear();
 
-		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "new" savefiles */
-		else if (sf_major == 2)
+		if (sf_major == 0)
 		{
 			/* Attempt to load */
 			err = rd_savefile_new();
@@ -2037,6 +2013,9 @@ bool load_player(void)
 
 			/* Forget turns */
 			turn = old_turn = 0;
+			
+			/* A character once existed on this savefile */
+			character_existed = TRUE;
 
 			/* Done */
 			return (TRUE);
@@ -2091,3 +2070,48 @@ bool load_player(void)
 }
 
 
+/* Very old savefiles 
+	Since I'm starting at 0.1.0 I'm commenting this out
+	I also moved them from line 1929 to see what I'm missing 
+		(Expression error) */
+		
+		/*
+		if ((sf_major == 5) && (sf_minor == 2))
+		{
+			sf_major = 2;
+			sf_minor = 5;
+		}
+		*/
+		
+		/* Extremely old savefiles */
+		/*
+		if (sf_major > 2)
+		{
+			sf_major = 1;
+		}
+		*/
+
+		/* Clear screen */
+		
+		/* Parse "ancient" savefiles */
+		/*
+		if (sf_major < 2)
+		{
+			err = rd_savefile_old();
+		}
+		*/
+		
+		/* Parse "old" savefiles */
+		/*
+		else if ((sf_major == 2) && (sf_minor < 7))
+		*/
+		/*
+		{
+		*/
+			/* Attempt to load */
+		/*
+			err = rd_savefile_old();
+		}
+		*/
+
+		/* Parse "new" savefiles */

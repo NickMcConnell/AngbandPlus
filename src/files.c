@@ -1316,7 +1316,7 @@ static void display_player_xtra_info(void)
 	            format("%10ld", p_ptr->max_exp));
 
 
-	/* Advance Experience */
+	/* Advance Experience -> next level * expfact / 100L */
 	Term_putstr(col, 13, -1, TERM_WHITE, "Adv Exp");
 	if (p_ptr->lev < PY_MAX_LEVEL)
 	{
@@ -1389,7 +1389,7 @@ static void display_player_xtra_info(void)
 
 
 	/* Range weapon */
-	o_ptr = &inventory[INVEN_BOW];
+	o_ptr = &inventory[INVEN_GUN];
 
 	/* Base skill */
 	hit = p_ptr->dis_to_h;
@@ -1432,8 +1432,8 @@ static void display_player_xtra_info(void)
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthn = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
 
-	/* Shooting Skill (with current bow) */
-	o_ptr = &inventory[INVEN_BOW];
+	/* Shooting Skill (with current gun) */
+	o_ptr = &inventory[INVEN_GUN];
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 

@@ -88,6 +88,7 @@ extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
 extern bool character_saved;
+extern bool character_existed;
 extern s16b character_icky;
 extern s16b character_xtra;
 extern u32b seed_randart;
@@ -347,15 +348,24 @@ extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
+extern void brand_weapon(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
-extern void do_cmd_quaff_potion(void);
-extern void do_cmd_read_scroll(void);
-extern void do_cmd_use_staff(void);
-extern void do_cmd_aim_wand(void);
+extern void do_cmd_quaff_tonic(void);
+extern void show_book_number(int num);
+extern void do_cmd_rig_mechanism(void);
+extern void do_cmd_use_tool(void);
+extern void do_cmd_aim_ray(void);
 extern void do_cmd_zap_rod(void);
 extern void do_cmd_activate(void);
+
+/* classpowers.c */
+extern mind_power mind_powers[9];
+extern void mindcraft_info(char *p, int use_mind, int power);
+extern void do_cmd_mind(void);
+/* extern void do_cmd_mind_browse(void); */
+
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -398,8 +408,9 @@ extern void init_angband(void);
 extern void cleanup_angband(void);
 
 /* load1.c */
+/*
 extern errr rd_savefile_old(void);
-
+ */
 /* load2.c */
 extern errr rd_savefile_new(void);
 
@@ -609,6 +620,8 @@ extern bool trap_creation(void);
 extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
 
+/* spells3.c */
+
 /* store.c */
 extern void do_cmd_store(void);
 extern void store_shuffle(int which);
@@ -676,6 +689,7 @@ extern s16b get_quantity(cptr prompt, int max);
 extern bool get_check(cptr prompt);
 extern bool get_com(cptr prompt, char *command);
 extern void pause_line(int row);
+extern int get_keymap_dir(char ch);
 extern void request_command(bool shopping);
 extern uint damroll(uint num, uint sides);
 extern uint maxroll(uint num, uint sides);
@@ -711,6 +725,7 @@ extern bool set_hero(int v);
 extern bool set_shero(int v);
 extern bool set_protevil(int v);
 extern bool set_invuln(int v);
+extern bool set_tim_esp(int v);
 extern bool set_tim_invis(int v);
 extern bool set_tim_infra(int v);
 extern bool set_oppose_acid(int v);
@@ -776,3 +791,11 @@ extern void show_floor(const int *floor_list, int floor_num);
 /* randart.c */
 extern errr do_randart(u32b randart_seed, bool full);
 #endif /* GJW_RANDART */
+
+#if defined(MAC_MPW)
+	/* Globals needed */
+extern	u32b _ftype;
+extern	u32b _fcreator;
+extern	FILE *tempfff;
+#endif
+

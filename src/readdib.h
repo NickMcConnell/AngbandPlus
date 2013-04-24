@@ -9,6 +9,7 @@
 /*
  * Information about a bitmap
  */
+/*
 typedef struct {
 	HANDLE   hDIB;
 	HBITMAP  hBitmap;
@@ -16,6 +17,6 @@ typedef struct {
 	BYTE     CellWidth;
 	BYTE     CellHeight;
 } DIBINIT;
-
+*/
 /* Read a DIB from a file */
 BOOL ReadDIB(HWND, LPSTR, DIBINIT *);

@@ -16,12 +16,12 @@
  */
 #define MAX_ROCKS      42       /* Used with rings (min 38) */
 #define MAX_AMULETS    16       /* Used with amulets (min 13) */
-#define MAX_WOODS      32       /* Used with staffs (min 30) */
-#define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     60       /* Used with potions (min 60) */
-#define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     50       /* Used with scrolls (min 48) */
-#define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
+#define MAX_WOODS      32       /* Used with tools (min 30) */
+#define MAX_METALS     32       /* Used with rayguns/apparatuses (min 29/28) */
+#define MAX_COLORS     60       /* Used with tonics (min 60) */
+#define MAX_SHROOM     26       /* Used with anodyne (min 26) */
+#define MAX_TITLES     50       /* Used with mechanism (min 48) */
+#define MAX_SYLLABLES 158       /* Used with mechanism (see below) */
 
 
 /*
@@ -77,10 +77,10 @@ static byte amulet_col[MAX_AMULETS] =
 
 
 /*
- * Staffs (adjectives and colors).
+ * tools (adjectives and colors).
  */
 
-static cptr staff_adj[MAX_WOODS] =
+static cptr tool_adj[MAX_WOODS] =
 {
 	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
 	"Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
@@ -91,7 +91,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
 };
 
-static byte staff_col[MAX_WOODS] =
+static byte tool_col[MAX_WOODS] =
 {
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
@@ -104,10 +104,10 @@ static byte staff_col[MAX_WOODS] =
 
 
 /*
- * Wands (adjectives and colors).
+ * ray guns (adjectives and colors).
  */
 
-static cptr wand_adj[MAX_METALS] =
+static cptr ray_adj[MAX_METALS] =
 {
 	"Aluminum", "Cast Iron", "Chromium", "Copper", "Gold",
 	"Iron", "Magnesium", "Molybdenum", "Nickel", "Rusty",
@@ -118,7 +118,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Platinum", "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
 };
 
-static byte wand_col[MAX_METALS] =
+static byte ray_col[MAX_METALS] =
 {
 	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_UMBER, TERM_RED,
@@ -133,12 +133,12 @@ static byte wand_col[MAX_METALS] =
 /*
  * Rods (adjectives and colors).
  *
- * Efficiency -- copied from wand arrays.
+ * Efficiency -- copied from ray gun arrays.
  */
 
-static cptr rod_adj[MAX_METALS];
+static cptr apparatus_adj[MAX_METALS];
 
-static byte rod_col[MAX_METALS];
+static byte apparatus_col[MAX_METALS];
 
 
 /*
@@ -151,6 +151,7 @@ static cptr food_adj[MAX_SHROOM] =
 	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
 	"Grey", "Light Blue", "Light Green", "Violet", "Red",
 	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
+	"Flowering", "Crispy", "Smooth", "Dank", "Round"
 };
 
 static byte food_col[MAX_SHROOM] =
@@ -158,18 +159,19 @@ static byte food_col[MAX_SHROOM] =
 	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
 	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
 	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
+	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
+	TERM_GREEN, TERM_UMBER, TERM_WHITE, TERM_L_DARK, TERM_VIOLET
 };
 
 
 /*
- * Color adjectives and colors, for potions.
+ * Color adjectives and colors, for tonics.
  *
  * Hack -- The first four entries (water, apple juice, slime mold juice,
  * and undefined) are hard-coded.
  */
 
-static cptr potion_adj[MAX_COLORS] =
+static cptr tonic_adj[MAX_COLORS] =
 {
 	"Clear", "Light Brown", "Icky Green", "xxx",
 	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
@@ -185,7 +187,7 @@ static cptr potion_adj[MAX_COLORS] =
 	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold"
 };
 
-static byte potion_col[MAX_COLORS] =
+static byte tonic_col[MAX_COLORS] =
 {
 	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
 	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
@@ -203,7 +205,7 @@ static byte potion_col[MAX_COLORS] =
 
 
 /*
- * Syllables for scrolls (must be 1-4 letters each).
+ * Syllables for mechanisms (must be 1-4 letters each).
  */
 
 static cptr syllables[MAX_SYLLABLES] =
@@ -232,14 +234,14 @@ static cptr syllables[MAX_SYLLABLES] =
 
 
 /*
- * Hold the titles of scrolls, 6 to 14 characters each.
+ * Hold the titles of mechanisms, 6 to 14 characters each.
  *
- * Also keep an array of scroll colors (always WHITE for now).
+ * Also keep an array of mechanism colors (always WHITE for now).
  */
 
-static char scroll_adj[MAX_TITLES][16];
+static char mechanism_adj[MAX_TITLES][16];
 
-static byte scroll_col[MAX_TITLES];
+static byte mechanism_col[MAX_TITLES];
 
 
 
@@ -268,29 +270,29 @@ static bool object_flavor(int k_idx)
 			return (0x90 + ring_col[k_ptr->sval]);
 		}
 
-		case TV_STAFF:
+		case TV_TOOL:
 		{
-			return (0xA0 + staff_col[k_ptr->sval]);
+			return (0xA0 + tool_col[k_ptr->sval]);
 		}
 
-		case TV_WAND:
+		case TV_RAY:
 		{
-			return (0xB0 + wand_col[k_ptr->sval]);
+			return (0xB0 + ray_col[k_ptr->sval]);
 		}
 
-		case TV_ROD:
+		case TV_APPARATUS:
 		{
-			return (0xC0 + rod_col[k_ptr->sval]);
+			return (0xC0 + apparatus_col[k_ptr->sval]);
 		}
 
-		case TV_SCROLL:
+		case TV_MECHANISM:
 		{
-			return (0xD0 + scroll_col[k_ptr->sval]);
+			return (0xD0 + mechanism_col[k_ptr->sval]);
 		}
 
-		case TV_POTION:
+		case TV_TONIC:
 		{
-			return (0xE0 + potion_col[k_ptr->sval]);
+			return (0xE0 + tonic_col[k_ptr->sval]);
 		}
 
 		case TV_FOOD:
@@ -316,20 +318,20 @@ static bool object_flavor(int k_idx)
  * For the most part, flavors are assigned randomly each game.
  *
  * Initialize descriptions for the "colored" objects, including:
- * Rings, Amulets, Staffs, Wands, Rods, Food, Potions, Scrolls.
+ * Rings, Amulets, tools, ray guns, apparatuses, Food, tonics, mechanisms.
  *
- * The first 4 entries for potions are fixed (Water, Apple Juice,
- * Slime Mold Juice, Unused Potion).
+ * The first 4 entries for tonics are fixed (Water, Apple Juice,
+ * Slime Mold Juice, Unused tonic).
  *
- * Scroll titles are always between 6 and 14 letters long.  This is
+ * mechanism titles are always between 6 and 14 letters long.  This is
  * ensured because every title is composed of whole words, where every
  * word is from 1 to 8 letters long (one or two syllables of 1 to 4
- * letters each), and that no scroll is finished until it attempts to
+ * letters each), and that no mechanism is finished until it attempts to
  * grow beyond 15 letters.  The first time this can happen is when the
  * current title has 6 letters and the new word has 8 letters, which
- * would result in a 6 letter scroll title.
+ * would result in a 6 letter mechanism title.
  *
- * Duplicate titles are avoided by requiring that no two scrolls share
+ * Duplicate titles are avoided by requiring that no two mechanisms share
  * the same first four letters (not the most efficient method, and not
  * the least efficient method, but it will always work).
  *
@@ -354,11 +356,11 @@ void flavor_init(void)
 	Rand_value = seed_flavor;
 
 
-	/* Efficiency -- Rods/Wands share initial array */
+	/* Efficiency -- apparatuses/ray guns share initial array */
 	for (i = 0; i < MAX_METALS; i++)
 	{
-		rod_adj[i] = wand_adj[i];
-		rod_col[i] = wand_col[i];
+		apparatus_adj[i] = ray_adj[i];
+		apparatus_col[i] = ray_col[i];
 	}
 
 
@@ -386,40 +388,40 @@ void flavor_init(void)
 		amulet_col[j] = temp_col;
 	}
 
-	/* Staffs */
+	/* tools */
 	for (i = 0; i < MAX_WOODS; i++)
 	{
 		j = rand_int(MAX_WOODS);
-		temp_adj = staff_adj[i];
-		staff_adj[i] = staff_adj[j];
-		staff_adj[j] = temp_adj;
-		temp_col = staff_col[i];
-		staff_col[i] = staff_col[j];
-		staff_col[j] = temp_col;
+		temp_adj = tool_adj[i];
+		tool_adj[i] = tool_adj[j];
+		tool_adj[j] = temp_adj;
+		temp_col = tool_col[i];
+		tool_col[i] = tool_col[j];
+		tool_col[j] = temp_col;
 	}
 
-	/* Wands */
+	/* ray guns */
 	for (i = 0; i < MAX_METALS; i++)
 	{
 		j = rand_int(MAX_METALS);
-		temp_adj = wand_adj[i];
-		wand_adj[i] = wand_adj[j];
-		wand_adj[j] = temp_adj;
-		temp_col = wand_col[i];
-		wand_col[i] = wand_col[j];
-		wand_col[j] = temp_col;
+		temp_adj = ray_adj[i];
+		ray_adj[i] = ray_adj[j];
+		ray_adj[j] = temp_adj;
+		temp_col = ray_col[i];
+		ray_col[i] = ray_col[j];
+		ray_col[j] = temp_col;
 	}
 
-	/* Rods */
+	/* apparatuses */
 	for (i = 0; i < MAX_METALS; i++)
 	{
 		j = rand_int(MAX_METALS);
-		temp_adj = rod_adj[i];
-		rod_adj[i] = rod_adj[j];
-		rod_adj[j] = temp_adj;
-		temp_col = rod_col[i];
-		rod_col[i] = rod_col[j];
-		rod_col[j] = temp_col;
+		temp_adj = apparatus_adj[i];
+		apparatus_adj[i] = apparatus_adj[j];
+		apparatus_adj[j] = temp_adj;
+		temp_col = apparatus_col[i];
+		apparatus_col[i] = apparatus_col[j];
+		apparatus_col[j] = temp_col;
 	}
 
 	/* Foods (Mushrooms) */
@@ -434,19 +436,19 @@ void flavor_init(void)
 		food_col[j] = temp_col;
 	}
 
-	/* Potions */
+	/* tonics */
 	for (i = 4; i < MAX_COLORS; i++)
 	{
 		j = rand_int(MAX_COLORS - 4) + 4;
-		temp_adj = potion_adj[i];
-		potion_adj[i] = potion_adj[j];
-		potion_adj[j] = temp_adj;
-		temp_col = potion_col[i];
-		potion_col[i] = potion_col[j];
-		potion_col[j] = temp_col;
+		temp_adj = tonic_adj[i];
+		tonic_adj[i] = tonic_adj[j];
+		tonic_adj[j] = temp_adj;
+		temp_col = tonic_col[i];
+		tonic_col[i] = tonic_col[j];
+		tonic_col[j] = temp_col;
 	}
 
-	/* Scrolls (random titles, always white) */
+	/* Mechanisms (random titles, always white) */
 	for (i = 0; i < MAX_TITLES; i++)
 	{
 		/* Get a new title */
@@ -490,16 +492,16 @@ void flavor_init(void)
 			}
 
 			/* Save the title */
-			strcpy(scroll_adj[i], buf+1);
+			strcpy(mechanism_adj[i], buf+1);
 
 			/* Assume okay */
 			okay = TRUE;
 
-			/* Check for "duplicate" scroll titles */
+			/* Check for "duplicate" mechanism titles */
 			for (j = 0; j < i; j++)
 			{
-				cptr hack1 = scroll_adj[j];
-				cptr hack2 = scroll_adj[i];
+				cptr hack1 = mechanism_adj[j];
+				cptr hack2 = mechanism_adj[i];
 
 				/* Compare first four characters */
 				if (*hack1++ != *hack2++) continue;
@@ -518,8 +520,8 @@ void flavor_init(void)
 			if (okay) break;
 		}
 
-		/* All scrolls are white */
-		scroll_col[i] = TERM_WHITE;
+		/* All mechanisms are white */
+		mechanism_col[i] = TERM_WHITE;
 	}
 
 
@@ -1024,15 +1026,16 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_SPIKE:
 		case TV_FLASK:
 		case TV_CHEST:
+		case TV_TEXT:
 		{
 			break;
 		}
 
 		/* Missiles/Bows/Weapons */
+		case TV_AMMO:
 		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_BOW:
+		case TV_BULLET:
+		case TV_GUN:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
@@ -1052,6 +1055,10 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_MECHA_TORSO:
+		case TV_MECHA_HEAD:
+		case TV_MECHA_ARMS:
+		case TV_MECHA_FEET:
 		{
 			show_armour = TRUE;
 			break;
@@ -1089,70 +1096,72 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			basenm = (flavor ? "& # Ring~" : "& Ring~");
 
 			/* Mega-Hack -- The One Ring */
-			if (!aware && (o_ptr->sval == SV_RING_POWER))
-			{
-				modstr = "Plain Gold";
-			}
+			/*if (!aware && (o_ptr->sval == SV_RING_POWER))
+			 *{
+			 *	modstr = "Plain Gold";
+			 *}
+			 */
+			break;
+		}
+
+		/* tools */
+		case TV_TOOL:
+		{
+			/* Color the object */
+			modstr = tool_adj[o_ptr->sval];
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Tool~" : "& Tool~");
 
 			break;
 		}
 
-		/* Staffs */
-		case TV_STAFF:
+		/* ray guns */
+		case TV_RAY:
 		{
 			/* Color the object */
-			modstr = staff_adj[o_ptr->sval];
+			modstr = ray_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Staff~" : "& Staff~");
+			basenm = (flavor ? "& # Ray Gun~" : "& Ray Gun~");
 
 			break;
 		}
 
-		/* Wands */
-		case TV_WAND:
+		/* apparatuses */
+		case TV_APPARATUS:
 		{
 			/* Color the object */
-			modstr = wand_adj[o_ptr->sval];
+			modstr = apparatus_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Wand~" : "& Wand~");
+			basenm = (flavor ? "& # Apparatus~" : "& Apparatus~");
 
 			break;
 		}
 
-		/* Rods */
-		case TV_ROD:
+		/* Mechanism */
+		case TV_MECHANISM:
 		{
 			/* Color the object */
-			modstr = rod_adj[o_ptr->sval];
+			modstr = mechanism_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Rod~" : "& Rod~");
+			basenm = (flavor ? "& \"#\" Mechanism~" : "& Mechanism~");
 
 			break;
 		}
+		
 
-		/* Scrolls */
-		case TV_SCROLL:
+		/* Tonics */
+		case TV_TONIC:
 		{
 			/* Color the object */
-			modstr = scroll_adj[o_ptr->sval];
+			modstr = tonic_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
-
-			break;
-		}
-
-		/* Potions */
-		case TV_POTION:
-		{
-			/* Color the object */
-			modstr = potion_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Potion~" : "& Potion~");
+			basenm = (flavor ? "& # Tonic~" : "& Tonic~");
 
 			break;
 		}
 
 		/* Food */
+		/* Anodynes are drugs, something that sooths pain */
 		case TV_FOOD:
 		{
 			/* Ordinary food is "boring" */
@@ -1161,7 +1170,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = food_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
+			basenm = (flavor ? "& # Anodyne~" : "& Anodyne~");
 
 			break;
 		}
@@ -1170,15 +1179,15 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_MAGIC_BOOK:
 		{
 			modstr = basenm;
-			basenm = "& Book~ of Magic Spells #";
+			basenm = "& Book~ of Arcane Incantations #";
 			break;
 		}
 
 		/* Prayer Books */
-		case TV_PRAYER_BOOK:
+		case TV_DEVICE_BOOK:
 		{
 			modstr = basenm;
-			basenm = "& Holy Book~ of Prayers #";
+			basenm = "& Enigmatic Device~ #";
 			break;
 		}
 
@@ -1458,9 +1467,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	switch (o_ptr->tval)
 	{
 		/* Missiles */
+		case TV_AMMO:
 		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
+		case TV_BULLET:
 		{
 			/* Fall through */
 		}
@@ -1483,8 +1492,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-		/* Bows */
-		case TV_BOW:
+		/* Guns */
+		case TV_GUN:
 		{
 			/* Hack -- Extract the "base power" */
 			power = (o_ptr->sval % 10);
@@ -1574,10 +1583,10 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	if (mode < 2) goto object_desc_done;
 
 
-	/* Hack -- Wands and Staffs have charges */
+	/* Hack -- ray guns and tools have charges */
 	if (known &&
-	    ((o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND)))
+	    ((o_ptr->tval == TV_TOOL) ||
+	     (o_ptr->tval == TV_RAY)))
 	{
 		/* Dump " (N charges)" */
 		object_desc_chr_macro(t, ' ');
@@ -1591,13 +1600,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		object_desc_chr_macro(t, p2);
 	}
 
-	/* Hack -- Rods have a "charging" indicator */
-	else if (known && (o_ptr->tval == TV_ROD))
+	/* Hack -- apparatuses have a "charging" indicator */
+	else if (known && (o_ptr->tval == TV_APPARATUS))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		if (o_ptr->pval)
 		{
-			object_desc_str_macro(t, " (charging)");
+			object_desc_str_macro(t, " (recharging)");
 		}
 	}
 
@@ -1741,7 +1750,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		v = "cursed";
 	}
 
-	/* Hack -- Use "empty" for empty wands/staffs */
+	/* Hack -- Use "empty" for empty ray guns/tools */
 	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
 	{
 		v = "empty";
@@ -2157,9 +2166,9 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	{
 		info[i++] = "It strikes at demons with holy wrath.";
 	}
-	if (f1 & (TR1_SLAY_ORC))
+	if (f1 & (TR1_SLAY_AUTOMATA))
 	{
-		info[i++] = "It is especially deadly against orcs.";
+		info[i++] = "It is especially deadly against Automatas.";
 	}
 	if (f1 & (TR1_SLAY_TROLL))
 	{
@@ -2172,6 +2181,14 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	if (f1 & (TR1_SLAY_DRAGON))
 	{
 		info[i++] = "It is especially deadly against dragons.";
+	}
+	if (f1 & (TR1_SLAY_ALIEN))
+	{
+		info[i++] = "It is especially deadly against aliens.";
+	}
+	if (f1 & (TR1_SLAY_BEASTMAN))
+	{
+		info[i++] = "It is especially deadly against beastmen.";
 	}
 
 	if (f1 & (TR1_KILL_DRAGON))
@@ -2582,6 +2599,9 @@ s16b label_to_equip(int c)
  */
 s16b wield_slot(const object_type *o_ptr)
 {
+	u32b f1, f2, f3;
+	player_flags(&f1, &f2, &f3);
+	
 	/* Slot for equipment */
 	switch (o_ptr->tval)
 	{
@@ -2593,9 +2613,9 @@ s16b wield_slot(const object_type *o_ptr)
 			return (INVEN_WIELD);
 		}
 
-		case TV_BOW:
+		case TV_GUN:
 		{
-			return (INVEN_BOW);
+			return (INVEN_GUN);
 		}
 
 		case TV_RING:
@@ -2621,7 +2641,11 @@ s16b wield_slot(const object_type *o_ptr)
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		{
-			return (INVEN_BODY);
+			if (f3 & (TR3_AUTOMATA))
+			{
+				return (NULL);
+			}
+			else return (INVEN_BODY);
 		}
 
 		case TV_CLOAK:
@@ -2637,16 +2661,60 @@ s16b wield_slot(const object_type *o_ptr)
 		case TV_CROWN:
 		case TV_HELM:
 		{
+			if (f3 & (TR3_AUTOMATA))
+			{
+				return (NULL);
+			}
 			return (INVEN_HEAD);
 		}
 
 		case TV_GLOVES:
 		{
+			if (f3 & (TR3_AUTOMATA))
+			{
+				return (NULL);
+			}
 			return (INVEN_HANDS);
 		}
 
 		case TV_BOOTS:
 		{
+			if (f3 & (TR3_AUTOMATA))
+			{
+				return (NULL);
+			}
+			return (INVEN_FEET);
+		}
+		case TV_MECHA_TORSO:
+		{
+			if (!f3 & (TR3_AUTOMATA))
+			{
+				return (NULL);
+			}
+			return (INVEN_BODY);
+		}
+		case TV_MECHA_HEAD:
+		{
+			if (!f3 & (TR3_AUTOMATA))
+			{
+				return (NULL);
+			}
+			return (INVEN_HEAD);
+		}
+		case TV_MECHA_ARMS:
+		{
+			if (!f3 & (TR3_AUTOMATA))
+			{
+				return (NULL);
+			}
+			return (INVEN_HANDS);
+		}
+		case TV_MECHA_FEET:
+		{
+			if (!f3 & (TR3_AUTOMATA))
+			{
+				return (NULL);
+			}
 			return (INVEN_FEET);
 		}
 	}
@@ -2667,7 +2735,7 @@ cptr mention_use(int i)
 	switch (i)
 	{
 		case INVEN_WIELD: p = "Wielding"; break;
-		case INVEN_BOW:   p = "Shooting"; break;
+		case INVEN_GUN:   p = "Shooting"; break;
 		case INVEN_LEFT:  p = "On left hand"; break;
 		case INVEN_RIGHT: p = "On right hand"; break;
 		case INVEN_NECK:  p = "Around neck"; break;
@@ -2693,7 +2761,7 @@ cptr mention_use(int i)
 	}
 
 	/* Hack -- Heavy bow */
-	if (i == INVEN_BOW)
+	if (i == INVEN_GUN)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
@@ -2719,7 +2787,7 @@ cptr describe_use(int i)
 	switch (i)
 	{
 		case INVEN_WIELD: p = "attacking monsters with"; break;
-		case INVEN_BOW:   p = "shooting missiles with"; break;
+		case INVEN_GUN:   p = "shooting bullets with"; break;
 		case INVEN_LEFT:  p = "wearing on your left hand"; break;
 		case INVEN_RIGHT: p = "wearing on your right hand"; break;
 		case INVEN_NECK:  p = "wearing around your neck"; break;
@@ -2744,8 +2812,8 @@ cptr describe_use(int i)
 		}
 	}
 
-	/* Hack -- Heavy bow */
-	if (i == INVEN_BOW)
+	/* Hack -- Heavy gun */
+	if (i == INVEN_GUN)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
@@ -2782,7 +2850,7 @@ bool item_tester_okay(const object_type *o_ptr)
 	{
 		if (!(item_tester_tval == o_ptr->tval)) return (FALSE);
 	}
-
+	
 	/* Check the hook */
 	if (item_tester_hook)
 	{

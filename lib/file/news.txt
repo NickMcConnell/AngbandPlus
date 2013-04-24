@@ -1,23 +1,23 @@
 
-
-              **************************************************
-              **   Angband 2.9.3   **   The Pits of Angband   **
-              **************************************************
+   ************************************************************************
+   **   Steamband 0.1.0   **   The Journey from the Ceter of the Earth   **
+   ************************************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
 
-                       Angband 2.0 - 2.4 - 2.6.2 by:
-                   Alex Cutler, Andy Astrand, Sean Marsh,
-                 Geoff Hill, Charles Teague, Charles Swiger
-
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
-
                  Angband 2.9.0 - 2.9.3 by Robert Ruehlmann
 
-        Send comments, bug reports, and patches, to "rr9@angband.org"
+                    Steamband 0.1.0  By Courtney Campbell
+
+                        Visit #angband on WorldIRC!
+                            Dedicated to Seula
+                        
+        Send comments, bug reports, and patches, to "ccc02@uark.edu"
        Visit the Angband Home Page at "http://thangorodrim.angband.org/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
+     Post your Steamband Character Dumps at "http://angband.oook.cz/"
     Read the online help files, especially "general.txt" and "version.txt"
    Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
 

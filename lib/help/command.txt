@@ -273,16 +273,16 @@ Cast a spell (m)
         spell from a book, you cannot be blind or confused while casting,
         and there must be some light present.  This command takes some energy.
 
-Pray a prayer (p)
-        To pray effectively, you must have previously learned the prayer
-        and must have in your inventory a book from which the prayer can
-        be read.  Each prayer has a chance of being ignored which starts
+Mani'p'ulate a device (p)
+        To use devices, you must have previously learned an activation
+        and must have in your inventory a device from which the activation can
+        be read.  Each activation has a chance of not working which starts
         out fairly large but decreases as you gain levels.  If you don't
-        have enough mana to cast a spell, you will be prompted for
+        have enough mana to activate a device, you will be prompted for
         confirmation.  If you decide to go ahead, the chance of failure
         is greatly increased, and you may lose a point of constitution.
-        Since you must read the prayer from a book, you cannot be blind
-        or confused while praying, and there must be some light present.
+        Since you must use the activation from a device, you cannot be blind
+        or confused while activating, and there must be some light present.
         This command takes some energy.
 
 --- Object Manipulation Commands ---
@@ -304,17 +304,17 @@ Fuel your lantern/torch (F)
         fuel a lantern and two torches will fully fuel a torch.  This command
         takes some energy.
 
-Quaff a potion (q)
-        Use this command to drink a potion.  Potions affect the player in
+Quaff a tonic (q)
+        Use this command to drink a tonic.  Tonics affect the player in
         various ways, but the effects are not always immediately obvious. 
         This command takes some energy.
 
-Read a scroll (r)
-        Use this command to read a scroll.  Scroll spells usually have an
+Rig a mechanism (r)
+        Use this command to rig a mechanism.  mechanism spells usually have an
         area effect, except for a few cases where they act on other objects.
-        Reading a scroll causes the parchment to disintegrate as the scroll
-        takes effect.  Most scrolls which prompt for more information can be
-        aborted (by pressing escape), which will stop reading the scroll
+        Rigging a mechanism causes the mechanism to disintegrate as the mechanism
+        takes effect.  Most mechanism which prompt for more information can be
+        aborted (by pressing escape), which will stop rigging a mechanism
         before it disintegrates.  This command takes some energy.
  
 Inscribe an object ({) 
@@ -327,7 +327,7 @@ Inscribe an object ({)
         appropriate.  These "fake" inscriptions remain all the time, even if 
         the player chooses to add a "real" inscription on top of it later.
 
-        In addition, Angband will occasionally place a "real" inscription on
+        In addition, Steamband will occasionally place a "real" inscription on
         an object for you, normally as the result of your character getting
         a "feeling" about the item.  All characters will get "feelings" about
         weapons and armor after carrying them for a while.  Warriors (who 
@@ -365,7 +365,7 @@ Activate an artifact (A)
         ability.  Special abilities can only be used if you are wearing or
         wielding the item.  This command takes some energy.
 
-Aim a wand (a) or Zap a wand (z)
+Aim a Ray Gun (a) or Zap a Ray Gun (z)
         Wands must be aimed in a direction to be used.  Wands are magical
         devices, and therefore there is a chance you will not be able to
         figure out how to use them if you aren't good with magical
@@ -376,14 +376,14 @@ Aim a wand (a) or Zap a wand (z)
         farther.  This command requires a direction and can use a target.
         This command takes some energy.
 
-Use a staff (u) or Zap a staff (Z)
+Use a tool (u) or Zap a tool (Z)
         This command will use a staff.  A staff is normally very similar
         to a scroll, in that they normally either have an area effect or
         affect a specific object.  Staves are magical devices, and there
         is a chance you will not be able to figure out how to use them.
         This command takes some energy.
  
-Zap a rod (z) or Activate a rod (a)
+Zap an apparatus (z) or Activate a apparatus (a)
         Rods are extremely powerful magical items, which cannot be burnt
         or shattered, and which can have either staff-like or wand-like
         effects, but unlike staves and wands, they don't have charges.

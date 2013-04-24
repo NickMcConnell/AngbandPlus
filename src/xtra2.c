@@ -731,6 +731,56 @@ bool set_invuln(int v)
 
 
 /*
+ * Set "p_ptr->tim_esp", notice observable changes
+ */
+bool set_tim_esp(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_esp)
+		{
+			msg_print("You feel your consciousness expand!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_esp)
+		{
+			msg_print("Your consciousness contracts again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_esp = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
  * Set "p_ptr->tim_invis", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because
@@ -1938,35 +1988,35 @@ void monster_death(int m_idx)
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
 		/* Get local object */
-		i_ptr = &object_type_body;
+		/*i_ptr = &object_type_body;*/
 
 		/* Mega-Hack -- Prepare to make "Grond" */
-		object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
+		/*object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));*/
 
 		/* Mega-Hack -- Mark this item as "Grond" */
-		i_ptr->name1 = ART_GROND;
+		/*i_ptr->name1 = ART_GROND;*/
 
 		/* Mega-Hack -- Actually create "Grond" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+		/*apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);*/
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		/*drop_near(i_ptr, -1, y, x);*/
 
 
 		/* Get local object */
-		i_ptr = &object_type_body;
+		/*i_ptr = &object_type_body;*/
 
 		/* Mega-Hack -- Prepare to make "Morgoth" */
-		object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
+		/* object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH)); */
 
 		/* Mega-Hack -- Mark this item as "Morgoth" */
-		i_ptr->name1 = ART_MORGOTH;
+		/*i_ptr->name1 = ART_MORGOTH;*/
 
 		/* Mega-Hack -- Actually create "Morgoth" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+		/*apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);*/
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		/*drop_near(i_ptr, -1, y, x);*/
 	}
 
 

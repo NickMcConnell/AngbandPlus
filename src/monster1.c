@@ -237,7 +237,7 @@ static void roff_aux(int r_idx)
 	if (l_ptr->r_tkills)
 	{
 		/* Know "race" flags */
-		if (r_ptr->flags3 & (RF3_ORC)) flags3 |= (RF3_ORC);
+		if (r_ptr->flags3 & (RF3_AUTOMATA)) flags3 |= (RF3_AUTOMATA);
 		if (r_ptr->flags3 & (RF3_TROLL)) flags3 |= (RF3_TROLL);
 		if (r_ptr->flags3 & (RF3_GIANT)) flags3 |= (RF3_GIANT);
 		if (r_ptr->flags3 & (RF3_DRAGON)) flags3 |= (RF3_DRAGON);
@@ -549,7 +549,9 @@ static void roff_aux(int r_idx)
 		else if (flags3 & (RF3_DEMON)) roff(" demon");
 		else if (flags3 & (RF3_GIANT)) roff(" giant");
 		else if (flags3 & (RF3_TROLL)) roff(" troll");
-		else if (flags3 & (RF3_ORC)) roff(" orc");
+		else if (flags3 & (RF3_AUTOMATA)) roff(" Automata");
+		else if (flags3 & (RF3_ALIEN)) roff(" Alien");
+		else if (flags3 & (RF3_BEASTMAN)) roff(" Beastman");
 		else roff(" creature");
 
 		/* calculate the integer exp part */
@@ -1208,11 +1210,11 @@ static void roff_aux(int r_idx)
 			case RBM_CLAW:	p = "claw"; break;
 			case RBM_BITE:	p = "bite"; break;
 			case RBM_STING:	p = "sting"; break;
-			case RBM_XXX1:	break;
+			case RBM_SEDUCE:	p = "seduce";	break;
 			case RBM_BUTT:	p = "butt"; break;
 			case RBM_CRUSH:	p = "crush"; break;
 			case RBM_ENGULF:	p = "engulf"; break;
-			case RBM_XXX2:	break;
+			case RBM_SHOCK:	p = "shock"; break;
 			case RBM_CRAWL:	p = "crawl on you"; break;
 			case RBM_DROOL:	p = "drool on you"; break;
 			case RBM_SPIT:	p = "spit"; break;

@@ -23,6 +23,9 @@
 
 /**** Available variables ****/
 
+/* From 283 for mpw */
+extern errr errr_tmp;
+
 /* A cptr to the name of the program */
 extern cptr argv0;
 

@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.1.0
 
 
 # 0x00 --> <darkness>
@@ -87,17 +87,17 @@ G:1:U
 
 # 0x09 --> shop -- armoury (perm)
 
-N:9:Armoury
+N:9:Clothing store
 G:2:s
 
 # 0x0A --> shop -- weapon shop (perm)
 
-N:10:Weapon Smiths
+N:10:Gun shop
 G:3:w
 
 # 0x0B --> shop -- temple (perm)
 
-N:11:Temple
+N:11:Machineist shop
 G:4:g
 
 # 0x0C --> shop -- alchemist (perm)

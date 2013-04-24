@@ -1521,17 +1521,17 @@ static bool vault_aux_undead(int r_idx)
 
 
 /*
- * Helper function for "monster pit (orc)"
+ * Helper function for "monster pit (alien)"
  */
-static bool vault_aux_orc(int r_idx)
+static bool vault_aux_alien(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "o" monsters */
-	if (!strchr("o", r_ptr->d_char)) return (FALSE);
+	/* Hack -- Require "A" monsters */
+	if (!strchr("A", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1871,14 +1871,14 @@ static void build_type6(int y0, int x0)
 	/* Choose a pit type */
 	tmp = randint(p_ptr->depth);
 
-	/* Orc pit */
+	/* Alien pit */
 	if (tmp < 20)
 	{
 		/* Message */
-		name = "orc";
+		name = "alien";
 
 		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_orc;
+		get_mon_num_hook = vault_aux_alien;
 	}
 
 	/* Troll pit */

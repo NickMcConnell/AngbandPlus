@@ -346,6 +346,15 @@ FILE *my_fopen(cptr file, cptr mode)
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (NULL);
 
+#if defined(MACINTOSH) && defined(MAC_MPW)
+
+	/* setting file type/creator -- AR */
+	tempfff = fopen(buf, mode);
+	fsetfileinfo(file, _fcreator, _ftype);
+	fclose(tempfff);	
+
+#endif
+
 	/* Attempt to fopen the file anyway */
 	return (fopen(buf, mode));
 }
@@ -583,8 +592,19 @@ int fd_make(cptr file, int mode)
 
 #if defined(MACINTOSH)
 
+# if defined(MACINTOSH) && defined(MAC_MPW)
+
+	/* setting file type and creator -- AR */
+	errr_tmp = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY);
+	fsetfileinfo(file, _fcreator, _ftype);
+	return(errr_tmp);
+	
+# else
+
 	/* Create the file, fail if exists, write-only, binary */
 	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
+
+# endif
 
 #else
 
@@ -862,6 +882,8 @@ static int dehex(char c)
 	if (isalpha(c)) return (A2I(tolower(c)) + 10);
 	return (0);
 }
+
+
 
 
 /*
@@ -3628,6 +3650,47 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 
 
 #endif
+
+/*
+ * GH
+ * Called from cmd4.c and a few other places. Just extracts
+ * a direction from the keymap for ch (the last direction,
+ * in fact) byte or char here? I'm thinking that keymaps should
+ * generally only apply to single keys, which makes it no more
+ * than 128, so a char should suffice... but keymap_act is 256...
+ */
+int get_keymap_dir(char ch)
+{
+	cptr act, s;
+	int d = 0;
+
+	if (isdigit(ch))
+	{
+		d = D2I(ch);
+	}
+	else
+	{
+		if (rogue_like_commands)
+		{
+			act = keymap_act[KEYMAP_MODE_ROGUE][(byte)ch];
+		}
+		else
+		{
+			act = keymap_act[KEYMAP_MODE_ORIG][(byte)ch];
+		}
+
+		if (act)
+		{
+			/* Convert to a direction */
+			for (s = act; *s; ++s)
+			{
+				/* Use any digits in keymap */
+				if (isdigit(*s)) d = D2I(*s);
+			}
+		}
+	}
+	return d;
+}
 
 
 #ifdef ALLOW_REPEAT

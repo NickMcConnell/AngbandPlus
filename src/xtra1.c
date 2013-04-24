@@ -605,7 +605,20 @@ static void prt_speed(void)
 
 static void prt_study(void)
 {
-	if (p_ptr->new_spells)
+	if	(		  ((cp_ptr->flags) & CF_OFFICER) ||
+				  ((cp_ptr->flags) & CF_AESTHETE) ||
+				  ((cp_ptr->flags) & CF_EXPLORER) ||
+				  ((cp_ptr->flags) & CF_MEDIUM) ||
+				  ((cp_ptr->flags) & CF_RECKONER) ||
+				  ((cp_ptr->flags) & CF_TOURIST) ||
+				  ((cp_ptr->flags) & CF_HUSSAR) ||
+				  ((cp_ptr->flags) & CF_NATURE) ||
+				  ((cp_ptr->flags) & CF_NINJA)
+		) 
+	{
+		put_str("     ", ROW_STUDY, COL_STUDY);
+	}	
+	else if (p_ptr->new_spells)
 	{
 		put_str("Study", ROW_STUDY, COL_STUDY);
 	}
@@ -1145,8 +1158,9 @@ static void calc_spells(void)
 	int num_allowed, num_known;
 
 	const magic_type *s_ptr;
-
-	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	
+	/* This code appears to use the correct grammer for spell or prayer */
+	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "activation");
 
 
 	/* Hack -- must be literate */
@@ -1381,10 +1395,25 @@ static void calc_spells(void)
 		/* Message if needed */
 		if (p_ptr->new_spells)
 		{
-			/* Message */
-			msg_format("You can learn %d more %s%s.",
-			           p_ptr->new_spells, p,
-			           (p_ptr->new_spells != 1) ? "s" : "");
+			if	(		  ((cp_ptr->flags) & CF_OFFICER) ||
+						  ((cp_ptr->flags) & CF_AESTHETE) ||
+						  ((cp_ptr->flags) & CF_EXPLORER) ||
+						  ((cp_ptr->flags) & CF_MEDIUM) ||
+						  ((cp_ptr->flags) & CF_RECKONER) ||
+						  ((cp_ptr->flags) & CF_TOURIST) ||
+						  ((cp_ptr->flags) & CF_HUSSAR) ||
+						  ((cp_ptr->flags) & CF_NATURE) ||
+						  ((cp_ptr->flags) & CF_NINJA)
+				) 
+				{
+				msg_format("");
+				}	
+			else {
+						/* Message */
+						msg_format("You can learn %d more %s%s.",
+			   		        p_ptr->new_spells, p,
+			          		(p_ptr->new_spells != 1) ? "s" : "");
+				 }
 		}
 
 		/* Save the new_spells value */
@@ -1999,7 +2028,7 @@ static void calc_bonuses(void)
 		if (i == INVEN_WIELD) continue;
 
 		/* Hack -- do not apply "bow" bonuses */
-		if (i == INVEN_BOW) continue;
+		if (i == INVEN_GUN) continue;
 
 		/* Apply the bonuses to hit/damage */
 		p_ptr->to_h += o_ptr->to_h;
@@ -2243,7 +2272,7 @@ static void calc_bonuses(void)
 	/*** Analyze current bow ***/
 
 	/* Examine the "current bow" */
-	o_ptr = &inventory[INVEN_BOW];
+	o_ptr = &inventory[INVEN_GUN];
 
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
@@ -2268,42 +2297,53 @@ static void calc_bonuses(void)
 		/* Analyze the launcher */
 		switch (o_ptr->sval)
 		{
-			/* Sling and ammo */
-			case SV_SLING:
+			/* Pistol */
+			case SV_DERRINGER:
+			case SV_32_REVOLVER:
+			case SV_38_REVOLVER:
+			case SV_41_REVOLVER:
+			case SV_45_REVOLVER:
+			
+			{
+				p_ptr->ammo_tval = TV_AMMO;
+				p_ptr->ammo_mult = 2;
+				break;
+			}
+			/* Light Rifle */
+			case SV_22_BOLT_ACTION:
+			
+			{
+				p_ptr->ammo_tval = TV_BULLET;
+				p_ptr->ammo_mult = 2;
+				break;
+			}
+
+			/* Heavy Rifle */
+			case SV_30_LEVER_ACTION:
+			case SV_45_MARTINI_HENRY:
+			case SV_COL_MORAN:
+			case SV_303_LEE_ENFIELD:
+			case SV_ELEPHANT_GUN:
+			{
+				p_ptr->ammo_tval = TV_BULLET;
+				p_ptr->ammo_mult = 3;
+				break;
+			}
+
+			/* Light Shotgun */
+			case SV_20_GAGUE:
 			{
 				p_ptr->ammo_tval = TV_SHOT;
-				p_ptr->ammo_mult = 2;
-				break;
-			}
-
-			/* Short Bow and Arrow */
-			case SV_SHORT_BOW:
-			{
-				p_ptr->ammo_tval = TV_ARROW;
-				p_ptr->ammo_mult = 2;
-				break;
-			}
-
-			/* Long Bow and Arrow */
-			case SV_LONG_BOW:
-			{
-				p_ptr->ammo_tval = TV_ARROW;
 				p_ptr->ammo_mult = 3;
 				break;
 			}
 
-			/* Light Crossbow and Bolt */
-			case SV_LIGHT_XBOW:
+			/* Heavy Shotgun */
+			case SV_16_GAGUE:
+			case SV_12_GAGUE:
+			case SV_10_GAGUE:
 			{
-				p_ptr->ammo_tval = TV_BOLT;
-				p_ptr->ammo_mult = 3;
-				break;
-			}
-
-			/* Heavy Crossbow and Bolt */
-			case SV_HEAVY_XBOW:
-			{
-				p_ptr->ammo_tval = TV_BOLT;
+				p_ptr->ammo_tval = TV_SHOT;
 				p_ptr->ammo_mult = 4;
 				break;
 			}
@@ -2320,7 +2360,11 @@ static void calc_bonuses(void)
 
 			/* Hack -- Rangers love Bows */
 			if ((cp_ptr->flags & CF_EXTRA_SHOT) &&
-			    (p_ptr->ammo_tval == TV_ARROW))
+			    (
+			    (p_ptr->ammo_tval == TV_BULLET) ||
+			    (p_ptr->ammo_tval == TV_AMMO) ||
+			    (p_ptr->ammo_tval == TV_SHOT)
+			    ))
 			{
 				/* Extra shot at level 20 */
 				if (p_ptr->lev >= 20) p_ptr->num_fire++;
@@ -2500,21 +2544,21 @@ static void calc_bonuses(void)
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
-	/* Take note when "heavy bow" changes */
+	/* Take note when "heavy gun" changes */
 	if (p_ptr->old_heavy_shoot != p_ptr->heavy_shoot)
 	{
 		/* Message */
 		if (p_ptr->heavy_shoot)
 		{
-			msg_print("You have trouble wielding such a heavy bow.");
+			msg_print("You have trouble wielding such a heavy gun.");
 		}
-		else if (inventory[INVEN_BOW].k_idx)
+		else if (inventory[INVEN_GUN].k_idx)
 		{
-			msg_print("You have no trouble wielding your bow.");
+			msg_print("You have no trouble wielding your gun.");
 		}
 		else
 		{
-			msg_print("You feel relieved to put down your heavy bow.");
+			msg_print("You feel relieved to put down your heavy gun.");
 		}
 
 		/* Save it */

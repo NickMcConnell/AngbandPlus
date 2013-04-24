@@ -132,10 +132,10 @@ static void sense_inventory(void)
 		/* Valid "tval" codes */
 		switch (o_ptr->tval)
 		{
+			case TV_AMMO:
+			case TV_BULLET:
 			case TV_SHOT:
-			case TV_ARROW:
-			case TV_BOLT:
-			case TV_BOW:
+			case TV_GUN:
 			case TV_DIGGING:
 			case TV_HAFTED:
 			case TV_POLEARM:
@@ -149,6 +149,10 @@ static void sense_inventory(void)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
+			case TV_MECHA_TORSO:
+			case TV_MECHA_HEAD:
+			case TV_MECHA_ARMS:
+			case TV_MECHA_FEET:
 			{
 				okay = TRUE;
 				break;
@@ -667,7 +671,11 @@ static void process_world(void)
 	{
 		(void)set_blind(p_ptr->blind - 1);
 	}
-
+	/* Timed esp */
+	if (p_ptr->tim_esp) 
+	{
+		(void)set_tim_esp(p_ptr->tim_esp - 1);
+	}
 	/* Times see-invisible */
 	if (p_ptr->tim_invis)
 	{
@@ -899,7 +907,7 @@ static void process_world(void)
 		p_ptr->window |= (PW_EQUIP);
 	}
 
-	/* Recharge rods */
+	/* Recharge apparatuses */
 	for (j = 0, i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
@@ -907,8 +915,8 @@ static void process_world(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Examine all charging rods */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
+		/* Examine all charging apparatuses */
+		if ((o_ptr->tval == TV_APPARATUS) && (o_ptr->pval))
 		{
 			/* Charge it */
 			o_ptr->pval--;
@@ -943,8 +951,8 @@ static void process_world(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Recharge rods on the ground */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval)) o_ptr->pval--;
+		/* Recharge apparatuses on the ground */
+		if ((o_ptr->tval == TV_APPARATUS) && (o_ptr->pval)) o_ptr->pval--;
 	}
 
 
@@ -1395,14 +1403,29 @@ static void process_command(void)
 		/* Browse a book */
 		case 'b':
 		{
-			do_cmd_browse();
+				do_cmd_browse();
 			break;
 		}
 
 		/* Cast a spell */
 		case 'm':
 		{
-			do_cmd_cast();
+			if 	( ((cp_ptr->flags) & CF_OFFICER) ||
+				  ((cp_ptr->flags) & CF_AESTHETE) ||
+				  ((cp_ptr->flags) & CF_EXPLORER) ||
+				  ((cp_ptr->flags) & CF_MEDIUM) ||
+				  ((cp_ptr->flags) & CF_RECKONER) ||
+				  ((cp_ptr->flags) & CF_TOURIST) ||
+				  ((cp_ptr->flags) & CF_HUSSAR) ||
+				  ((cp_ptr->flags) & CF_NATURE) ||
+				  ((cp_ptr->flags) & CF_NINJA)
+				) 
+				{
+				do_cmd_mind();
+				}
+			else { 
+				do_cmd_cast();
+				 }
 			break;
 		}
 
@@ -1465,38 +1488,38 @@ static void process_command(void)
 			break;
 		}
 
-		/* Aim a wand */
+		/* Aim a ray gun */
 		case 'a':
 		{
-			do_cmd_aim_wand();
+			do_cmd_aim_ray();
 			break;
 		}
 
-		/* Zap a rod */
+		/* Zap a apparatus */
 		case 'z':
 		{
-			do_cmd_zap_rod();
+			do_cmd_zap_apparatus();
 			break;
 		}
 
-		/* Quaff a potion */
+		/* Quaff a tonic */
 		case 'q':
 		{
-			do_cmd_quaff_potion();
+			do_cmd_quaff_tonic();
 			break;
 		}
 
-		/* Read a scroll */
+		/* Rig a mechanism */
 		case 'r':
 		{
-			do_cmd_read_scroll();
+			do_cmd_rig_mechanism();
 			break;
 		}
 
-		/* Use a staff */
+		/* Use a tool */
 		case 'u':
 		{
-			do_cmd_use_staff();
+			do_cmd_use_tool();
 			break;
 		}
 
@@ -2625,30 +2648,30 @@ void play_game(bool new_game)
 		/* Hack -- seed for town layout */
 		seed_town = rand_int(0x10000000);
 
-#ifdef GJW_RANDART
+/* #ifdef GJW_RANDART */
 
 		/* Hack -- seed for random artifacts */
-		seed_randart = rand_int(0x10000000);
+/*		seed_randart = rand_int(0x10000000); */
 
-#endif /* GJW_RANDART */
+/* #endif  GJW_RANDART */
 
 		/* Roll up a new character */
 		player_birth();
 
-#ifdef GJW_RANDART
+/* #ifdef GJW_RANDART */
 
 		/* Randomize the artifacts */
-		if (adult_rand_artifacts)
+/*		if (adult_rand_artifacts)
 		{
 			do_randart(seed_randart, TRUE);
 		}
-
-#else /* GJW_RANDART */
+*/
+/* #else  GJW_RANDART */
 
 		/* Make sure random artifacts are turned off if not available */
 		adult_rand_artifacts = FALSE;
 
-#endif /* GJW_RANDART */
+/* #endif  GJW_RANDART */
 
 		/* Hack -- enter the world */
 		turn = 1;

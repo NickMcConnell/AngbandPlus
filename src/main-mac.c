@@ -162,30 +162,46 @@
 #include <Sound.h>
 
 
+/*!!!!!!!!!!!!!!!!
+ * Globals for MPW compilation
+ */
+#if defined(MAC_MPW)
+	/* Globals needed */
+	QDGlobals qd;
+	u32b _ftype;
+	u32b _fcreator;
+	FILE *tempfff;
+#endif
+
+
+
 /*
  * Use "malloc()" instead of "NewPtr()"
  */
 /* #define USE_MALLOC */
 
 
-#if defined(powerc) || defined(__powerc)
 
 /*
  * Disable "LITE" version
  */
-# undef ANGBAND_LITE_MAC
+
+#undef ANGBAND_LITE_MAC
 
 #endif
 
-
+/*
 #ifndef ANGBAND_LITE_MAC
-
+*/
 /*
  * Activate some special code
  */
+/*
 # define USE_SFL_CODE
 
-#endif /* ANGBAND_LITE_MAC */
+#endif 
+*/
+/* ANGBAND_LITE_MAC */
 
 
 
@@ -2240,7 +2256,7 @@ static void init_windows(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "Angband Preferences");
+			strcat(foo, "Steamband Preferences");
 
 			/* Open the preference file */
 			fff = fopen(foo, "r");
@@ -2263,8 +2279,8 @@ static void init_windows(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the file */
-		fff = fopen(":Preferences:Angband Preferences", "r");
-		if (!fff) fff = fopen(":Angband Preferences", "r");
+		fff = fopen(":Preferences:Steamband Preferences", "r");
+		if (!fff) fff = fopen(":Steamband Preferences", "r");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -2354,7 +2370,7 @@ static void save_pref_file(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "Angband Preferences");
+			strcat(foo, "Steamband Preferences");
 
 			/* Open the preference file */
 			fff = fopen(foo, "w");
@@ -2377,8 +2393,8 @@ static void save_pref_file(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the preference file */
-		fff = fopen(":Preferences:Angband Preferences", "w");
-		if (!fff) fff = fopen(":Angband Preferences", "w");
+		fff = fopen(":Preferences:Steamband Preferences", "w");
+		if (!fff) fff = fopen(":Steamband Preferences", "w");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -4586,16 +4602,12 @@ int main(void)
 	/* Find the current application */
 	SetupAppDir();
 
-
-#if defined(MACINTOSH) && !defined(applec)
-
 	/* Mark ourself as the file creator */
-	_fcreator = 'A271';
+	_fcreator = 'SCCC';
 
 	/* Default to saving a "text" file */
 	_ftype = 'TEXT';
 
-#endif
 
 
 #if defined(__MWERKS__)
@@ -4687,4 +4699,3 @@ int main(void)
 	while (TRUE) CheckEvents(TRUE);
 }
 
-#endif /* MACINTOSH */

@@ -1,7 +1,7 @@
 === Creating a Character ===
 
-Angband is a roleplaying game, in which you, the player, control a character
-in the world of Angband.  Perhaps the most important thing you control is the
+Steamband is a roleplaying game, in which you, the player, control a character
+in the world of Steamband.  Perhaps the most important thing you control is the
 birth of your character, in which you choose or allow to be chosen various
 attributes that will affect the future life of your character.
 
@@ -112,115 +112,45 @@ maximum.  Spell points may be regained by resting, or by magical means.
 Warriors never have any spell points.
 
 
-=== Races ===
+=== Races (needs to be updated) ===
 
-There are ten different races that you can choose from in Angband.  Some
+There are ten different races that you can choose from in Steamband.  Some
 races are restricted as to what profession they may be, and each race has
 its own adjustments to a character's stats and abilities. Most races also
 have intrinsic abilities.
  
-          Human
-               The human is the base character.  All other races are com-
-               pared to them.  Humans can choose any class and are average
-               at everything.  Humans tend to go up levels faster than any
-               other race because of their shorter life spans.  No racial
-               adjustments or intrinsics occur to characters choosing human.
- 
-          Half-Elf
-               Half-elves tend to be smarter and faster than a  human,  but
-               not as strong.  Half-elves are slightly better at searching,
-               disarming, saving throws, stealth, bows, and magic, but they
-               are not as good at hand weapons.  Half-elves may choose any
-               class and do not receive any intrinsic abilities.
- 
-          Elf
-               Elves are better magicians then humans, but not as good at
-               fighting.  They tend to be smarter and faster than either
-               humans or half-elves and also have better wisdom.  Elves
-               are better at searching, disarming, perception, stealth, bows,
-               and magic, but they are not as good at hand weapons.  Elves 
-               are creatures more of magic than religion, and may thus not 
-               be priests or paladins: and they are resistant to attacks 
-               involving bright light.
- 
-          Hobbits
-               Hobbits, or Halflings, are very good at bows, throwing,  and
-               have good saving throws.  They also are very good at search-
-               ing, disarming, perception, and stealth; so they make excel-
-               lent rogues, but prefer to be called burglars.  They will be
-               much weaker than humans, and no good at melee fighting.
-               Halflings have fair infravision, so they can detect warm
-               creatures at a distance.  Hobbits may be warriors, rogues or
-               mages.
- 
-          Gnome
-               Gnomes are smaller than dwarves but larger than halflings.
-               They, like  the halflings, live in the earth in burrow-like
-               homes.  Gnomes make excellent mages, and have very good saving
-               throws.  They are good at searching, disarming, perception,
-               and stealth.  They have lower strength than humans so they
-               are not very good at fighting with hand weapons.  Gnomes have
-               fair infra-vision, so they can detect warm-blooded creatures
-               at a distance.  A gnome may choose between being a warrior,
-               mage, priest, or rogue.  Gnomes are intrinsically protected
-               against paralysis and some slowing effects.
- 
-          Dwarf
-               Dwarves are the headstrong miners and fighters of legend.
-               Since dungeons are the natural home of a dwarf, they are
-               excellent choices for a warrior or priest - or indeed, that
-               combination of the two, the paladin.  Dwarves tend to be
-               stronger and tougher but slower and less intelligent than
-               humans.  Because they are so headstrong and are somewhat wise,
-               they resist spells which are cast on them.  Dwarves also have
-               very good infra-vision because they live underground.  They
-               do have one big drawback, though.  Dwarves are loudmouthed and
-               proud, singing in loud voices, arguing with themselves for no
-               good reason, screaming out challenges at imagined foes.  In
-               other words, dwarves have a miserable stealth.  They can never
-               be blinded. 
- 
-          Half-Orc
-               Half-Orcs make excellent warriors and decent priests, but
-               are terrible at magic.  They are as bad as dwarves at stealth,
-               and horrible at searching, disarming, and perception.
-               Half-Orcs are, let's face it, ugly.  They tend to pay more for
-               goods in town.  Half-Orcs do make good warriors and rogues,
-               for the simple reason that Half-Orcs tend to have great
-               constitutions and lots of hit points.  Because of their
-               preference to living underground to on the surface, half-orcs
-               resist darkness attacks.
- 
-          Half-Troll
-               Half-Trolls are incredibly strong, and have more hit points
-               than any other character race.  They are also very stupid and
-               slow.  They will make great warriors and iffy priests.  They
-               are bad at searching, disarming, perception, and stealth.
-               They are so ugly that a Half-Orc grimaces in their presence.
-               They also happen to be fun to run...  Half-trolls always have
-               their strength sustained.
- 
-          Dunadan
-               Dunedain are a race of hardy men from the West.  This elder
-               race surpasses human abilities in every field, especially
-               constitution.  However, being men of the world, very little is
-               new to them, and levels are very hard to gain...  They can
-               play all classes.  Their constitution cannot be reduced.
- 
-          High-Elf
-               High-Elves are descended from those among the Elves who heard 
-               and answered the call from the gods at the very beginning of 
-               time, before the sun and moon were made, and lived in the 
-               Blessed Realm for many thousands of years before returning to 
-               mortal lands. Because of this, they are far superior in terms 
-               of abilities when compared to their lesser Elven kindred, and 
-               are able to be priests as well as all the other classes that 
-               normal Elves can be. They can also see into the invisible
-               world of ghosts and wraiths. However, they find new experience
-               even harder to come by than Dunedain: and their wisdom is 
-               still a little suspect. And like normal Elves, they resist
-               attacks involving bright light.
-
+			British
+			French
+			Spaniards
+			German
+			Finnish
+			Americans		
+			Asiatic					
+			African					
+			Russian					
+			Arabic					
+			Dwarf
+			Brownie
+		    Daoine Sidhe
+		    	Basically a High Elf
+			Seelie
+				Good fae
+			Unseelie Fae
+				Bad fae		
+			Automata
+				Metal-man - wears body parts instead of armor
+			Steam-Mecha
+				Metal-man - wears body parts instead of armor	
+			Djinn
+			Rakshasa			
+			Giant
+			Ogre
+			Troll		
+			Ghost					
+			Goblin					
+			Old Ones
+				
+	
 === Classes (outdated) ===
  
  
@@ -231,77 +161,48 @@ have intrinsic abilities.
           generally requires a more experienced  player  that  is  familiar
           with survival techniques.
  
-          Warrior
-               A Warrior is a hack-and-slash character, who solves most  of
-               his  problems  by cutting them to pieces, but will occasion-
-               ally fall back  on the help of a magical device.  His  prime
-               stats  are  Strength  and Constitution, and a good Dexterity
-               can really help at times.  A Warrior will be good at  Fight-
-               ing and Throwing/Bows, but bad at most other skills.
- 
-          Mage
-               A Mage must live by his wits.  He cannot hope to simply hack
-               his  way  through the dungeon, and so must therefore use his
-               magic to defeat,  deceive, confuse, and escape.  A  mage  is
-               not really complete without an assortment of magical devices
-               to use in addition to his spells.  He can master the  higher
-               level  magical  devices far easier than anyone else, and has
-               the best saving throw to resist effects of  spells  cast  at
-               him.  Intelligence  and   Dexterity  are  his primary stats.
-               There is no rule that says  a  mage  cannot  become  a  good
-               fighter, but spells are his true realm.
- 
-          Priest
-               A Priest is a character of holy devotion.  They explore  the
-               dungeon  only  to destroy the evil that lurks within, and if
-               treasure just happens to fall into  their  packs,  well,  so
-               much  more  to  the  glory of their church!  Priests receive
-               their spells from a deity, and therefore do not choose which
-               spells they will learn.  They are familiar with magical dev-
-               ices, preferring to call them instruments of  god,  but  are
-               not  as good as a mage in their use.  Priests have good sav-
-               ing throws,  and  make  decent  fighters,  preferring  blunt
-               weapons  over  edged  ones.  Wisdom  and  Charisma  are  the
-               priest's primary stats.
- 
-          Rogue
-               A Rogue is a character that prefers to live by his  cunning,
-               but  is capable of fighting his way out of a tight spot.  He
-               is the master of traps and locks, no device being impossible
-               for  him  to  overcome.  A rogue has a high stealth allowing
-               him to sneak around many creatures without having to  fight,
-               or sneak up and get the first blow.  A rogue's perception is
-               higher than any other class, and many times he will notice a
-               trap  or  secret  door  before having to search.  A rogue is
-               better than warriors or paladins with magical  devices,  but
-               still  can  not  rely on their performance.  Rogues can also
-               learn a few spells, but not the  powerful  offensive  spells
-               magi  can use.  A rogue's primary stats are Intelligence and
-               Dexterity.
- 
-          Ranger
-               A Ranger is a warrior/mage.  He is a good fighter,  and  the
-               best  of  the  classes  with a missile weapon such as a bow.
-               The ranger learns spells much more slowly than a  mage,  but
-               is  capable  of  learning all  but the most powerful spells.
-               Because a ranger is really  a  dual  class  character,  more
-               experience  is  required for him to advance.  A ranger has a
-               good stealth, good perception, good searching, a good saving
-               throw,  and is good with magical devices.  His primary stats
-               are Intelligence and Dexterity.
- 
-          Paladin
-               A Paladin is a warrior/priest.  He is a very  good  fighter,
-               second  only to the warrior class, but not very good at mis-
-               sile weapons.  He receives prayers at a slower pace then the
-               priest,  but  can even  receive the most  powerful  prayers.
-               Because a paladin is  really  a  dual  class  character,  it
-               requires  more  experience  to advance him.  A paladin lacks
-               much in the way of abilities.  He is poor at  stealth,  per-
-               ception,  searching,  and  magical devices.  He has a decent
-               saving throw due to his divine alliance.  His primary  stats
-               are Strength and Charisma,  although Wisdom is necessary for 
-               his spells.
+
+
+			Officer
+				NOT FUNCTIONING
+			Aesthete
+				Master of money and commerce
+			Detective
+				Use detectives kit
+			Engineer
+				Uses Devices
+			Explorer
+				Basic Fighter
+			Medium
+				Mentalist
+			Reckoner
+				Reality hacker
+			Tourist
+				Master of travel
+			Sportsman
+				Great with a gun
+			Adventurer
+				General powers
+			Anarchist
+				Master of chaos (NOT FUNCTIONING)
+			Dashing Hussar
+				Supreme combat fighter (NOT FUNCTIONING)
+			Gentleman/Lady
+				A challenge
+			Rogue
+				Use some books
+			Steam Engineer
+				Use Devices
+			Naturalist
+				NOT FUNCTIONING
+			Quabalist
+				Use some books
+			Oculus Dei
+				Use some books
+			Ninja
+				NOT FUNCTIONING
+			Weapon Master
+				NOT FUNCTIONING
  
 
 === Stats ===
@@ -431,18 +332,6 @@ have intrinsic abilities.
 
 === Combinations of Race and Class (not enforced) ===
 
-                      Warrior   Mage    Priest    Rogue   Ranger   Paladin
-
-          Human         Yes      Yes      Yes      Yes      Yes      Yes
-          Half-Elf      Yes      Yes      Yes      Yes      Yes      Yes
-          Elf           Yes      Yes      No       Yes      Yes      No
-          Hobbit        Yes      Yes      No       Yes      No       No
-          Gnome         Yes      Yes      Yes      Yes      No       No
-          Dwarf         Yes      No       Yes      No       No       Yes
-          Half-Orc      Yes      No       Yes      Yes      No       No
-          Half-Troll    Yes      No       Yes      No       No       No
-          Dunadan       Yes      Yes      Yes      Yes      Yes      Yes
-          High-Elf      Yes      Yes      Yes      Yes      Yes      No 
 
 
 === Miscellaneous (outdated) ===
@@ -454,7 +343,7 @@ have intrinsic abilities.
                the player to see walls and objects.  Infra-vision will allow
                a  character  to see any warm-blooded creatures up to a cer-
                tain distance.  This ability works equally well with or with
-               out a light source.  However, many of Angband's creatures are
+               out a light source.  However, many of Steamband's creatures are
                cold-blooded, and will not be detected unless lit  up  by  a
                light  source.  All non human races have innate  infra-vision
                ability.  Humans can gain infra-vision only if it is magically
@@ -465,53 +354,6 @@ have intrinsic abilities.
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
- 
-                       STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
-           Human        0    0    0    0    0    0      10          +0%
-           Half-Elf    -1   +1    0   +1   -1   +1       9         +10%
-           Elf         -1   +2   +1   +1   -2   +1       8         +20%
-           Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
-           Gnome       -1   +2    0   +2   +1   -2       8         +25%
-           Dwarf       +2   -3   +2   -2   +2   -3      11         +20%
-           Half-Orc    +2   -1    0    0   +1   -4      10         +10%
-           Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
-           Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
-           High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
 
-                         STR     INT     WIS     DEX     CON     CHR
-           Warrior       +5      -2      -2      +2      +2      -1
-           Mage          -5      +3       0      +1      -2      +1
-           Priest        -1      -3      +3      -1       0      +2
-           Rogue         +2      +1      -2      +3      +1      -1
-           Ranger        +2      +2       0      +1      +1      +1
-           Paladin       +3      -3      +1       0      +2      +2
- 
- 
- 
 === Ability Tables (outdated) ===
-
- 
-                      Disarm Search Stealth Percep Fight Bows Save Infra
- 
-           Human         5      5      5       5     5     5    5  None
-           Half-Elf      6      7      7       6     4     6    6  20 feet
-           Elf           8      9      7       7     3     9    7  30 feet
-           Hobbit       10     10     10      10     1    10   10  40 feet
-           Gnome         9      7      9       9     2     8    9  40 feet
-           Dwarf         6      8      3       5     9     5    8  50 feet
-           Half-Orc      3      5      3       2     8     3    3  30 feet
-           Half-Troll    1      1      1       1    10     1    1  30 feet
-           Dunadan       9      8      7       8     7     8    7  None
-           High-Elf      9      8      8       9     7    10   10  40 feet
- 
-
-                             Save  Stea-        Magic                 Extra
-                  Fight Bows Throw  lth  Disarm Device Percep Search Exp/lev
- 
-          Warrior  10     6    3     2      4      3      2      2       +0%
-          Mage      2     1   10     5      6     10      8      5      +30%
-          Priest    4     3    6     5      3      8      4      4      +20%
-          Rogue     8     9    7    10     10      6     10     10      +25%
-          Ranger    6    10    8     7      6      7      6      6      +30%
-          Paladin   9     5    4     2      2      4      2      2      +35%
 

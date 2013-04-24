@@ -107,9 +107,9 @@ static cptr desc_insult[MAX_DESC_INSULT] =
 static cptr desc_moan[MAX_DESC_MOAN] =
 {
 	"seems sad about something.",
-	"asks if you have seen his dogs.",
-	"tells you to get off his land.",
-	"mumbles something about mushrooms."
+	"asks you \"Do you know how I got here?\"",
+	"becomes wild-eyed and lunges towards you.",
+	"shrieks \"Get away from me! I can't control myself!\""
 };
 
 
@@ -308,9 +308,9 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX1:
+				case RBM_SEDUCE:
 				{
-					act = "XXX1's you.";
+					act = "caresses you.";
 					break;
 				}
 
@@ -334,9 +334,9 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX2:
+				case RBM_SHOCK:
 				{
-					act = "XXX2's you.";
+					act = "Shocks you.";
 					break;
 				}
 
@@ -507,8 +507,8 @@ bool make_attack_normal(int m_idx)
 						if (!o_ptr->k_idx) continue;
 
 						/* Drain charged wands/staffs */
-						if (((o_ptr->tval == TV_STAFF) ||
-						     (o_ptr->tval == TV_WAND)) &&
+						if (((o_ptr->tval == TV_TOOL) ||
+						     (o_ptr->tval == TV_RAY)) &&
 						    (o_ptr->pval > 0))
 						{
 							/* Message */
@@ -1218,11 +1218,11 @@ bool make_attack_normal(int m_idx)
 				case RBM_CLAW:
 				case RBM_BITE:
 				case RBM_STING:
-				case RBM_XXX1:
+				case RBM_SEDUCE:
 				case RBM_BUTT:
 				case RBM_CRUSH:
 				case RBM_ENGULF:
-				case RBM_XXX2:
+				case RBM_SHOCK:
 
 				/* Visible monsters */
 				if (m_ptr->ml)

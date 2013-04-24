@@ -73,11 +73,11 @@ typedef struct
  */
 static const grouper group_item[] =
 {
-	{ TV_SHOT,		"Ammo" },
-	{ TV_ARROW,		  NULL },
-	{ TV_BOLT,		  NULL },
+	{ TV_AMMO,		"Ammo" },
+	{ TV_BULLET,		  NULL },
+	{ TV_SHOT,		  NULL },
 
-	{ TV_BOW,		"Bows" },
+	{ TV_GUN,		"Guns" },
 
 	{ TV_SWORD,		"Weapons" },
 	{ TV_POLEARM,	  NULL },
@@ -98,16 +98,17 @@ static const grouper group_item[] =
 	{ TV_AMULET,	"Amulets" },
 	{ TV_RING,		"Rings" },
 
-	{ TV_SCROLL,	"Scrolls" },
-	{ TV_POTION,	"Potions" },
+	{ TV_MECHANISM,	"Mechanisms" },
+	{ TV_TEXT,		"Parchments" },
+	{ TV_TONIC,	"tonics" },
 	{ TV_FOOD,		"Food" },
 
-	{ TV_ROD,		"Rods" },
-	{ TV_WAND,		"Wands" },
-	{ TV_STAFF,		"Staffs" },
+	{ TV_APPARATUS,		"Apparatuses" },
+	{ TV_RAY,		"Ray guns" },
+	{ TV_TOOL,		"Tools" },
 
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_DEVICE_BOOK,	"Books (Priest)" },
 
 	{ TV_CHEST,		"Chests" },
 
@@ -176,16 +177,16 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	/* Damage */
 	switch (i_ptr->tval)
 	{
-		/* Bows */
-		case TV_BOW:
+		/* Guns */
+		case TV_GUN:
 		{
 			break;
 		}
 
 		/* Ammo */
+		case TV_AMMO:
 		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
+		case TV_BULLET:
 		{
 			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
 			break;
@@ -387,7 +388,7 @@ static const grouper group_artifact[] =
 	{ TV_SWORD,		"Edged Weapons" },
 	{ TV_POLEARM,	"Polearms" },
 	{ TV_HAFTED,	"Hafted Weapons" },
-	{ TV_BOW,		"Bows" },
+	{ TV_GUN,		"Guns" },
 	{ TV_DIGGING,	"Diggers" },
 
 	{ TV_SOFT_ARMOR,	"Body Armor" },
@@ -472,11 +473,13 @@ static const flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_EVIL,          "Evil" },
 	{ TR1_SLAY_UNDEAD,        "Undead" },
 	{ TR1_SLAY_DEMON,         "Demon" },
-	{ TR1_SLAY_ORC,           "Orc" },
+	{ TR1_SLAY_AUTOMATA,           "Automata" },
 	{ TR1_SLAY_TROLL,         "Troll" },
 	{ TR1_SLAY_GIANT,         "Giant" },
 	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" }
+	{ TR1_KILL_DRAGON,        "Xdragon" },
+	{ TR1_SLAY_ALIEN,        "Alien" },
+	{ TR1_SLAY_BEASTMAN,        "Beastman" }
 };
 
 /*
@@ -1666,7 +1669,10 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
-		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
+		else if (flags3 & (RF3_AUTOMATA)) spoil_out(" automata");
+		else if (flags3 & (RF3_ALIEN)) spoil_out(" alien");
+		else if (flags3 & (RF3_BEASTMAN)) spoil_out(" beastman");
+
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -2134,11 +2140,11 @@ static void spoil_mon_info(cptr fname)
 				case RBM_CLAW:	p = "claw"; break;
 				case RBM_BITE:	p = "bite"; break;
 				case RBM_STING:	p = "sting"; break;
-				case RBM_XXX1:	break;
+				case RBM_SEDUCE:	p = "seduce";	break;
 				case RBM_BUTT:	p = "butt"; break;
 				case RBM_CRUSH:	p = "crush"; break;
 				case RBM_ENGULF:	p = "engulf"; break;
-				case RBM_XXX2:	break;
+				case RBM_SHOCK:	p = "shock";break;
 				case RBM_CRAWL:	p = "crawl on you"; break;
 				case RBM_DROOL:	p = "drool on you"; break;
 				case RBM_SPIT:	p = "spit"; break;
