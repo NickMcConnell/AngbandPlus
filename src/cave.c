@@ -3343,6 +3343,59 @@ void wiz_dark(void)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
+/*
+ * Calculate "incremental motion". Used by project() and shoot().
+ * Assumes that (*y,*x) lies on the path from (y1,x1) to (y2,x2).
+ */
+void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
+{
+	int dy, dx, dist, shift;
+
+	/* Extract the distance travelled */
+	dy = (*y < y1) ? y1 - *y : *y - y1;
+	dx = (*x < x1) ? x1 - *x : *x - x1;
+
+	/* Number of steps */
+	dist = (dy > dx) ? dy : dx;
+
+	/* We are calculating the next location */
+	dist++;
+
+
+	/* Calculate the total distance along each axis */
+	dy = (y2 < y1) ? (y1 - y2) : (y2 - y1);
+	dx = (x2 < x1) ? (x1 - x2) : (x2 - x1);
+
+	/* Paranoia -- Hack -- no motion */
+	if (!dy && !dx) return;
+
+
+	/* Move mostly vertically */
+	if (dy > dx)
+	{
+		/* Extract a shift factor */
+		shift = (dist * dx + (dy-1) / 2) / dy;
+
+		/* Sometimes move along the minor axis */
+		(*x) = (x2 < x1) ? (x1 - shift) : (x1 + shift);
+
+		/* Always move along major axis */
+		(*y) = (y2 < y1) ? (y1 - dist) : (y1 + dist);
+	}
+
+	/* Move mostly horizontally */
+	else
+	{
+		/* Extract a shift factor */
+		shift = (dist * dy + (dx-1) / 2) / dx;
+
+		/* Sometimes move along the minor axis */
+		(*y) = (y2 < y1) ? (y1 - shift) : (y1 + shift);
+
+		/* Always move along major axis */
+		(*x) = (x2 < x1) ? (x1 - dist) : (x1 + dist);
+	}
+}
 
 
 /*
@@ -3736,6 +3789,9 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 	/* Length */
 	return (n);
 }
+
+
+
 
 
 /*

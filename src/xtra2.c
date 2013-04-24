@@ -678,6 +678,79 @@ bool set_protevil(int v)
 	/* Result */
 	return (TRUE);
 }
+/*
+ * Set "p_ptr->set_shadow", notice observable changes
+ */
+bool set_shadow(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_wraith)
+		{
+			msg_print("You leave the physical world!");
+			notice = TRUE;
+
+			{
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP);
+
+				/* Update monsters */
+				p_ptr->update |= (PU_MONSTERS);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD);
+			}
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_wraith)
+		{
+			msg_print("You feel opaque.");
+			notice = TRUE;
+
+			{
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP);
+
+				/* Update monsters */
+				p_ptr->update |= (PU_MONSTERS);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD);
+			}
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_wraith = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 
 /*
@@ -1701,6 +1774,9 @@ bool set_food(int v)
  */
 void check_experience(void)
 {
+	int pre_lgain;
+	int post_lgain;
+	
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
 
@@ -1754,8 +1830,22 @@ void check_experience(void)
 		/* Gain a level */
 		p_ptr->lev++;
 
+		/* Get the value of max_lev */
+		pre_lgain = p_ptr->max_lev;
+
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
+		
+		/* Get the value of max_lev post checking to see if it increases */
+		post_lgain = p_ptr->max_lev;
+		
+		/* Do stuff on level gain. If max_lev went up - then run level reward */
+		/* I attempted to put this in the next loop, but . . . It never triggered */
+		/* I should probably look into a better way to do this. */
+		if (pre_lgain < post_lgain) 
+		{
+		level_reward();
+		}
 
 		/* Message */
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
@@ -1778,9 +1868,11 @@ void check_experience(void)
 	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
 	                           p_ptr->expfact / 100L)))
 	{
-		/* Gain max level */
-		p_ptr->max_lev++;
 
+		/* Gain max level */
+		p_ptr->max_lev++;		
+		
+		
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
@@ -2453,13 +2545,13 @@ void verify_panel(void)
 /*
  * Monster health description
  */
-static void look_mon_desc(char *buf, int m_idx)
+cptr look_mon_desc(char *buf, int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool living = TRUE;
-
+	int perc;
 
 	/* Determine if the monster is "living" (vs "undead") */
 	if (r_ptr->flags3 & (RF3_UNDEAD)) living = FALSE;
@@ -2476,7 +2568,7 @@ static void look_mon_desc(char *buf, int m_idx)
 	else
 	{
 		/* Calculate a health "percentage" */
-		int perc = 100L * m_ptr->hp / m_ptr->maxhp;
+		perc = 100L * m_ptr->hp / m_ptr->maxhp;
 
 		if (perc >= 60)
 			strcpy(buf, (living ? "somewhat wounded" : "somewhat damaged"));
@@ -2492,6 +2584,8 @@ static void look_mon_desc(char *buf, int m_idx)
 	if (m_ptr->confused) strcat(buf, ", confused");
 	if (m_ptr->monfear) strcat(buf, ", afraid");
 	if (m_ptr->stunned) strcat(buf, ", stunned");
+	
+	return buf;
 }
 
 
@@ -3174,7 +3268,17 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Normal */
 					else
 					{
+						cptr attitude;
 						char buf[80];
+						
+						if (is_pet(m_ptr))
+							attitude = " (pet) ";
+						else if (is_friendly(m_ptr))
+							attitude = " (friendly) ";
+						else
+							attitude = " ";
+
+						
 
 						/* Describe the monster */
 						look_mon_desc(buf, cave_m_idx[y][x]);
@@ -3187,8 +3291,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 						}
 						else
 						{
-							sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
-							        s1, s2, s3, m_name, buf, info);
+							sprintf(out_val, "%s%s%s%s (%s) %s[r,%s]",
+							        s1, s2, s3, m_name, buf, attitude, info);
 						}
 
 						prt(out_val, 0, 0);
@@ -3987,6 +4091,102 @@ bool get_aim_dir(int *dp)
 	return (TRUE);
 }
 
+/* I'm not sure exactly what kind of direction this gets, but it looks ok-ccc */
+bool get_hack_dir(int *dp)
+{
+	int		dir, command_dir;
+    cptr    p;
+    char command;
+
+
+	/* Initialize */
+	(*dp) = 0;
+
+	/* Global direction */
+    dir = 0;
+
+    /* (No auto-targetting */
+
+     /* Ask until satisfied */
+	while (!dir)
+	{
+		/* Choose a prompt */
+		if (!target_okay())
+		{
+			p = "Direction ('*' to choose a target, Escape to cancel)? ";
+		}
+		else
+		{
+			p = "Direction ('5' for target, '*' to re-target, Escape to cancel)? ";
+		}
+
+		/* Get a command (or Cancel) */
+		if (!get_com(p, &command)) break;
+
+		/* Convert various keys to "standard" keys */
+		switch (command)
+		{
+			/* Use current target */
+			case 'T':
+			case 't':
+			case '.':
+			case '5':
+			case '0':
+			{
+				dir = 5;
+				break;
+			}
+
+			/* Set new target */
+			case '*':
+			{
+				if (target_set_interactive(TARGET_KILL)) dir = 5;
+				break;
+			}
+
+			default:
+			{
+				/* Look up the direction */
+				dir = get_keymap_dir(command);
+
+				break;
+			}
+		}
+
+		/* Verify requested targets */
+		if ((dir == 5) && !target_okay()) dir = 0;
+
+		/* Error */
+		if (!dir) bell("No Direction!");
+	}
+
+	/* No direction */
+	if (!dir) return (FALSE);
+
+	/* Save the direction */
+	command_dir = dir;
+
+	/* Check for confusion */
+	if (p_ptr->confused)
+	{
+		/* XXX XXX XXX */
+		/* Random direction */
+		dir = ddd[rand_int(8)];
+	}
+
+	/* Notice confusion */
+	if (command_dir != dir)
+	{
+		/* Warn the user */
+		msg_print("You are confused.");
+	}
+
+	/* Save direction */
+	(*dp) = dir;
+
+	/* A "valid" direction was entered */
+	return (TRUE);
+}
 
 
 /*

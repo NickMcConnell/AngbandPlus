@@ -1116,7 +1116,7 @@ static cptr ident_info[] =
 	"^:A trap",
 	"_:A tool",
 	/* "`:unused", */
-	"a:Automata",
+	"a:Automaton",
 	"b:Bat",
 	"c:Centipede",
 	"d:Dragon",
@@ -1126,7 +1126,7 @@ static cptr ident_info[] =
 	"h:Small humanoid",
 	"i:Icky Thing",
 	"j:Jelly",
-	"k:Kobold",
+	"k:Chicken",
 	"l:Louse",
 	"m:Mold",
 	"n:Naga",

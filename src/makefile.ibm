@@ -1,0 +1,62 @@
+# File: Makefile.ibm
+
+# Purpose: Makefile support for "main-ibm.c" and Gnu C
+
+# Note: Rename to "Makefile" before using
+# Added extra targets: mrmarcel@eos.ncsu.edu (Mike Marcelais)
+
+OBJS = \
+     birth.o cave.o classpower.o cmd-attk.o cmd-book.o \
+     cmd-item.o cmd-know.o cmd-misc.o cmd-util.o dungeon.o \
+     files.o generate.o init1.o init2.o level.o \
+     load2.o melee1.o melee2.o monster1.o monster2.o \
+     mspells1.o mutation.o object1.o object2.o pet.o \
+     save.o spells1.o spells2.o spells3.o store.o \
+     tables.o util.o variable.o wizard1.o wizard2.o \
+     xtra1.o xtra2.o z-form.o z-rand.o z-term.o z-util.o z-virt.o \
+     main-ibm.o main.o
+
+
+# Compiler
+
+CC = gcc
+
+# Compiler flags
+
+#CFLAGS = -W -Wall -pedantic -O2 -DUSE_IBM
+CFLAGS = -W -Wall -pedantic -g -DUSE_IBM
+
+# Libraries
+
+LIBS = -lpc
+GLIBS= -lgrx20
+
+# Name of Program
+
+PROGRAM = steamband.exe
+
+default: steamband.exe
+	copy steamband.exe ..
+	del steamband.exe
+	del steamband.bin
+
+install: steamband.exe
+	copy steamband.exe ..
+
+all: $(PROGRAM)
+
+# Generate binary file
+
+steamband.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o steamband.bin $(OBJS) $(LIBS)
+
+# Compile source files
+
+.c.o:
+	$(CC) $(CFLAGS) -c $*.c
+
+
+# Clean up
+
+clean:
+	del *.o $(PROGRAM) *.bin

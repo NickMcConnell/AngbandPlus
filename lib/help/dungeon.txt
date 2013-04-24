@@ -31,9 +31,9 @@ something you are more comfortable with.
                 Features that do not block line of sight
  
   .   A floor space                   1   Entrance to General Store
-  .   A trap (hidden)                 2   Entrance to Armoury
-  ^   A trap (known)                  3   Entrance to Weapon Smith
-  ;   A glyph of warding              4   Entrance to Temple
+  .   A trap (hidden)                 2   Entrance to Clothing Store
+  ^   A trap (known)                  3   Entrance to Gun Smith
+  ;   A glyph of warding              4   Entrance to Machinist
   '   An open door                    5   Entrance to Alchemy Shop
   '   A broken door                   6   Entrance to Magic Shop
   <   A staircase up                  7   Entrance to the Black Market
@@ -65,21 +65,21 @@ something you are more comfortable with.
                              Monsters
  
             $   Creeping Coins      ,   Mushroom Patch
-            a   An Automata         A   Aliens
+            a   An Automata         A   Alien
             b   Giant Bat           B   Beastman
             c   Giant Centipede     C   Construct
-            d   Dragon              D   Ancient Dragon
+            d   Dragon              D   Mechanical Dome
             e   Floating Eye        E   Elemental
             f   Feline (Cat)        F   Dragon Fly
             g   Golem               G   Ghost
             h   Humanoids           H   Hybrid
             i   Icky-Thing          I   Insect
             j   Jelly               J   Snake
-            k   Kobold              K   Killer Beetle
+            k   (unused)            K   Killer Beetle
             l   Giant Louse         L   Lich
             m   Mold                M   Monkey
-            n   Naga                N   (unused)
-            o   Orc                 O   Ogre
+            n   (unused)            N   (unused)
+            o   (unused)            O   Ogre
             p   Human "person"      P   Giant "person"
             q   Quadruped           Q   Quylthulg (Pulsing Flesh Mound)
             r   Rodent              R   Reptile/Amphibian

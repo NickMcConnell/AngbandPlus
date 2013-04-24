@@ -312,7 +312,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("You are enveloped in a cloud of smoke!");
 		for (i = 0; i < num; i++)
 		{
-			(void)summon_specific(y, x, p_ptr->depth, 0);
+			(void)summon_specific(y, x, p_ptr->depth, 0, FALSE, FALSE);
 		}
 	}
 
@@ -1749,7 +1749,8 @@ void do_cmd_bash(void)
 void do_cmd_alter(void)
 {
 	int y, x, dir;
-
+	int px = p_ptr->px;
+	int py = p_ptr->py;
 	int feat;
 
 	bool more = FALSE;
@@ -1759,8 +1760,8 @@ void do_cmd_alter(void)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = p_ptr->py + ddy[dir];
-	x = p_ptr->px + ddx[dir];
+	y = py + ddy[dir];
+	x = px + ddx[dir];
 
 
 	/* Original feature */
@@ -1777,8 +1778,8 @@ void do_cmd_alter(void)
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = p_ptr->py + ddy[dir];
-		x = p_ptr->px + ddx[dir];
+		y = py + ddy[dir];
+		x = px + ddx[dir];
 	}
 
 
@@ -2011,7 +2012,7 @@ static bool do_cmd_walk_test(int y, int x)
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
 	/* Require open space */
-	if (!cave_floor_bold(y, x))
+	if ((!cave_floor_bold(y, x)) && (!p_ptr->tim_wraith) && (!p_ptr->wraith_form))
 	{
 		/* Rubble */
 		if (cave_feat[y][x] == FEAT_RUBBLE)
@@ -2045,6 +2046,7 @@ static bool do_cmd_walk_test(int y, int x)
 		/* Nope */
 		return (FALSE);
 	}
+	
 
 	/* Okay */
 	return (TRUE);
@@ -2501,7 +2503,8 @@ void do_cmd_fire(void)
 	/* Boost the damage */
 	tdam *= tmul;
 
-	/* Base range XXX XXX */
+	/* Base / default range */
+	tdis = 5;
 	/* Gotten based off the sval of the weapon. */
 	switch (j_ptr->sval)
 	{

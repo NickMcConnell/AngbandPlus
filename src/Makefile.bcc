@@ -59,7 +59,7 @@ OBJ = \
 	spells2.obj spells3.obj store.obj tables.obj util.obj \
 	variable.obj wizard1.obj wizard2.obj xtra1.obj \
 	xtra2.obj z-form.obj z-rand.obj z-term.obj \
-	z-util.obj z-virt.obj
+	z-util.obj z-virt.obj pet.obj mspells1.obj mutation.obj
 
 all : $(EXE_FILE)
 

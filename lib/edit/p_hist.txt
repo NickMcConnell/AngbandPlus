@@ -29,10 +29,10 @@
 # NEW Chart progression by race
 #	British/French/
 #	Spaniards/German/
-#	Finnish/Americans		-->1-->2-->3-->4-->5-->6-->7
+#	Americans				-->1-->2-->3-->4-->5-->6-->7
 #	Asiatic					-->8-->9-->10-->11-->12-->13-->14
 #	African					-->15-->16-->17-->18-->19-->20-->21
-#	Russian					-->22-->23-->24-->25-->26-->27-->28
+#	Finnish/Russian			-->22-->23-->24-->25-->26-->27-->28
 #	Arabic					-->29-->30-->31-->32-->33-->34-->35
 #	Dwarf/brownie/
 #   Daoine Sidhe/
@@ -52,7 +52,7 @@
 
 # Version stamp (required)
 
-V:0.1.1
+V:0.2.2
 #	British/French/
 #	Spaniards/German/
 #	Finnish	
@@ -387,15 +387,15 @@ D:red hair,
 N:27:28:100:50
 D:blond hair, 
 
-N:28:29:10:50
+N:28:0:10:50
 D:and a very dark complexion. 
-N:28:29:15:50
+N:28:0:15:50
 D:and a dark complexion. 
-N:28:29:50:50
+N:28:0:50:50
 D:and an average complexion. 
-N:28:29:80:50
+N:28:0:80:50
 D:and a fair complexion. 
-N:28:29:100:50
+N:28:0:100:50
 D:and a very fair complexion. 
 
 # Arabic
@@ -858,59 +858,59 @@ D:and large, sharp teeth.
 
 #old ones
 
-N:72:78:100:15
-D:You are an ancient Old One, come to reclaim 
+N:72:73:100:15
+D:You are an ancient Old One, come to 
 
-N:73:74:20:20
+N:73:74:100:0
+D:reclaim the earthly plane as your own. 
+
+N:74:75:20:20
 D:You are a terrible being. 
-N:73:74:80:55
+N:74:75:80:55
 D:You are a horrific monstrocity. 
-N:73:74:100:60
-D:You are cause the minds of people to turn to mush.  
+N:74:75:100:60
+D:You turn the minds of people to mush.  
 
-N:74:75:5:50
+N:75:76:5:50
 D:You have 12 yellow eyes, 
-N:74:75:15:50
+N:75:76:15:50
 D:You have 4 orange eyes, 
-N:74:75:40:50
+N:75:76:40:50
 D:You have 5 holes oozing puss for eyes, 
-N:74:75:55:50
+N:75:76:55:50
 D:You have 82 black beady eyes, 
-N:74:75:90:50
+N:75:76:90:50
 D:You have 9 purple eyes, 
-N:74:75:100:50
+N:75:76:100:50
 D:You have 13 red glowing eyes, 
 
-N:75:76:60:50
+N:76:77:60:50
 D:twelve 
-N:75:76:75:50
+N:76:77:75:50
 D:six 
-N:75:76:90:50
+N:76:77:90:50
 D:four 
-N:75:76:100:50
+N:76:77:100:50
 D:eight 
 
-N:76:77:10:50
+N:77:78:10:50
 D:tentacles, 
-N:76:77:50:50
+N:77:78:50:50
 D:protrusions, 
-N:76:77:60:50
+N:77:78:60:50
 D:oozing sores, 
-N:76:77:65:50
+N:77:78:65:50
 D:twisted limbs, 
-N:76:77:100:50
+N:77:78:100:50
 D:faces comeing out of your flesh, 
 
-N:77:0:10:50
+N:78:0:10:50
 D:and a rubbery complexion. 
-N:77:0:15:50
+N:78:0:15:50
 D:and a oozeing complexion. 
-N:77:0:50:50
+N:78:0:50:50
 D:and an disgusting complexion. 
-N:77:0:80:50
+N:78:0:80:50
 D:and a bumpy complexion. 
-N:77:0:100:50
+N:78:0:100:50
 D:and a glistening complexion. 
-
-N:78:73:100:15
-D:the earthly plane as your own. 

@@ -274,10 +274,12 @@ static const byte convert_owner[24] =
 /*
  * Analyze pre-2.7.4 inventory slots
  */
+/*
 static s16b convert_slot(int old)
 {
+*/
 	/* Move slots */
-	switch (old)
+/*	switch (old)
 	{
 		case OLD_INVEN_WIELD: return (INVEN_WIELD);
 		case OLD_INVEN_HEAD: return (INVEN_HEAD);
@@ -290,15 +292,15 @@ static s16b convert_slot(int old)
 		case OLD_INVEN_FEET: return (INVEN_FEET);
 		case OLD_INVEN_OUTER: return (INVEN_OUTER);
 		case OLD_INVEN_LITE: return (INVEN_LITE);
-
+*/
 		/* Hack -- "hold" old aux items */
-		case OLD_INVEN_AUX: return (INVEN_WIELD - 1);
+/*		case OLD_INVEN_AUX: return (INVEN_WIELD - 1);
 	}
-
+*/
 	/* Default */
-	return (old);
+/*	return (old);
 }
-
+*/
 
 
 
@@ -892,6 +894,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
+	rd_u32b(&m_ptr->smart);
 	rd_byte(&tmp8u);
 }
 
@@ -989,6 +992,7 @@ static void rd_lore(int r_idx)
 		rd_u32b(&l_ptr->r_flags4);
 		rd_u32b(&l_ptr->r_flags5);
 		rd_u32b(&l_ptr->r_flags6);
+		rd_u32b(&l_ptr->r_flags7);
 
 
 		/* Read the "Racial" monster limit per level */
@@ -1007,6 +1011,7 @@ static void rd_lore(int r_idx)
 	l_ptr->r_flags4 &= r_ptr->flags4;
 	l_ptr->r_flags5 &= r_ptr->flags5;
 	l_ptr->r_flags6 &= r_ptr->flags6;
+	l_ptr->r_flags7 &= r_ptr->flags7;
 }
 
 
@@ -1423,23 +1428,26 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->tim_wraith);
 	rd_s16b(&p_ptr->tim_esp);
-
-	/* Old redundant flags */
-	if (older_than(0, 0, 0)) strip_bytes(34);
-
 	rd_byte(&p_ptr->confusing);
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&p_ptr->searching);
 	rd_byte(&tmp8u);	/* oops */
-	if (older_than(0, 0, 0)) adult_maximize = tmp8u;
 	rd_byte(&tmp8u);	/* oops */
-	if (older_than(0, 0, 0)) adult_preserve = tmp8u;
 	rd_byte(&tmp8u);
-	if (older_than(0, 0, 0)) adult_rand_artifacts = tmp8u;
 
+	/* Mutations */	
+	rd_u32b(&p_ptr->muta1);
+	rd_u32b(&p_ptr->muta2);
+	rd_u32b(&p_ptr->muta3);
+	rd_u32b(&p_ptr->muta4);
+	rd_u32b(&p_ptr->muta5);
+	rd_u32b(&p_ptr->muta6);
+
+	
 	/* Future use */
 	strip_bytes(40);
 
@@ -2730,6 +2738,8 @@ static errr rd_savefile_new_aux(void)
 	byte tmp8u;
 	u16b tmp16u;
 	u32b tmp32u;
+	byte pod; 
+	byte ppi;
 
 
 #ifdef VERIFY_CHECKSUMS
@@ -2954,6 +2964,16 @@ static errr rd_savefile_new_aux(void)
 	{
 		if (rd_store(i)) return (-1);
 	}
+
+	/* I had a problem with my compiler trying to put an unsigned char */
+	/* for the byte, so I'm defineing this explicitly -ccc */
+	ppi = p_ptr->pet_pickup_items;
+	pod = p_ptr->pet_open_doors; 
+
+	/* Read the pet command settings */
+	rd_s16b(&p_ptr->pet_follow_distance);
+	rd_byte(&pod); /* Opening doors pet_open_doors */
+	rd_byte(&ppi); /* Picking up items pet_pickup_items */
 
 
 	/* I'm not dead yet... */

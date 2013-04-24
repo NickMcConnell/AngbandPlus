@@ -28,14 +28,18 @@ SRCS = \
 	generate.c \
 	init1.c \
 	init2.c \
+	level.c \
 	load2.c \
 	main-win.c \
 	melee1.c \
 	melee2.c \
 	monster1.c \
 	monster2.c \
+	mspells1.c \
+	mutation.c \
 	object1.c \
 	object2.c \
+	pet.c \
 	readdib.c \
 	save.c \
 	spells1.c \
@@ -56,7 +60,6 @@ SRCS = \
 	z-virt.c 
 
 
-
 EXOBJS = \
 	angband.res \
 	birth.o \
@@ -73,14 +76,18 @@ EXOBJS = \
 	generate.o \
 	init1.o \
 	init2.o \
+	level.o \
 	load2.o \
 	main-win.o \
 	melee1.o \
 	melee2.o \
 	monster1.o \
 	monster2.o \
+	mspells1.o \
+	mutation.o \
 	object1.o \
 	object2.o \
+	pet.o \
 	readdib.o \
 	save.o \
 	spells1.o \
@@ -173,22 +180,25 @@ birth.o: birth.c $(INCS)
 cave.o: cave.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd1.o: cmd1.c $(INCS)
+classpower.o: classpower.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd2.o: cmd2.c $(INCS)
+cmd-attk.o: cmd-attk.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd3.o: cmd3.c $(INCS)
+cmd-book.o: cmd-book.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd4.o: cmd4.c $(INCS)
+cmd-item.o: cmd-item.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd5.o: cmd5.c $(INCS)
+cmd-know.o: cmd-know.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd6.o: cmd6.c $(INCS)
+cmd-misc.o: cmd-misc.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+cmd-util.o: cmd-util.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 dungeon.o: dungeon.c $(INCS)
@@ -206,7 +216,7 @@ init1.o: init1.c $(INCS) init.h
 init2.o: init2.c $(INCS) init.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-load1.o: load1.c $(INCS)
+level.o: level.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 load2.o: load2.c $(INCS)
@@ -215,10 +225,10 @@ load2.o: load2.c $(INCS)
 main.o: main.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-melee1.o: melee1.c $(INCS)
+main-win.o: main-win.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-main-win.o: main-win.c $(INCS)
+melee1.o: melee1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 melee2.o: melee2.c $(INCS)
@@ -230,13 +240,19 @@ monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
+mspells1.o: mspells1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+mutation.o: mutation.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
 object1.o: object1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 object2.o: object2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-randart.o: randart.c $(INCS)
+pet.o: pet.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 #
@@ -254,6 +270,9 @@ spells1.o: spells1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 spells2.o: spells2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+spells3.o: spells3.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 store.o: store.c $(INCS)

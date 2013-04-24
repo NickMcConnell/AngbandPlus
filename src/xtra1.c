@@ -1783,6 +1783,7 @@ static void calc_bonuses(void)
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
+	p_ptr->wraith_form = FALSE;
 	p_ptr->bless_blade = FALSE;
 	p_ptr->impact = FALSE;
 	p_ptr->see_inv = FALSE;
@@ -1791,6 +1792,9 @@ static void calc_bonuses(void)
 	p_ptr->regenerate = FALSE;
 	p_ptr->ffall = FALSE;
 	p_ptr->hold_life = FALSE;
+	p_ptr->sh_fire = FALSE;
+	p_ptr->sh_elec = FALSE;
+	p_ptr->sh_spine = FALSE;
 	p_ptr->telepathy = FALSE;
 	p_ptr->lite = FALSE;
 	p_ptr->sustain_str = FALSE;
@@ -1870,9 +1874,11 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+	
 
 	/* Weird flags */
 	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+	if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = TRUE;
 
 	/* Bad flags */
 	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
@@ -1912,6 +1918,12 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
 	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
+
+	/* Calculate effects of mutations on stats (see mutation.c) - G */
+        if (p_ptr->muta5 || p_ptr->muta6)
+        {
+		calc_mutations();
+		}
 
 	/*** Analyze equipment ***/
 
@@ -1970,9 +1982,14 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+		if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
+		if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
+		if (f3 & (TR3_SPINES)) p_ptr->sh_spine = TRUE;
+
 
 		/* Weird flags */
 		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+		if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = TRUE;
 
 		/* Bad flags */
 		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
@@ -2108,6 +2125,14 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a += 100;
 	}
 
+	/* wraith_form */
+	if (p_ptr->wraith_form)
+	{
+		p_ptr->to_a += 50;
+		p_ptr->dis_to_a += 50;
+	}
+
+
 	/* Temporary blessing */
 	if (p_ptr->blessed)
 	{
@@ -2156,6 +2181,12 @@ static void calc_bonuses(void)
 	if (p_ptr->tim_invis)
 	{
 		p_ptr->see_inv = TRUE;
+	}
+	
+	if (p_ptr->tim_wraith)
+	{
+		p_ptr->to_a += 50;
+		p_ptr->dis_to_a += 50;
 	}
 
 	/* Temporary infravision boost */

@@ -226,7 +226,11 @@ extern bool (*get_mon_num_hook)(int r_idx);
 extern bool (*get_obj_num_hook)(int k_idx);
 extern int highscore_fd;
 extern bool use_transparency;
+extern bool hack_mutation;
 extern bool can_save;
+extern int total_friends;
+extern s32b total_friend_levels;
+extern bool skip_msgs;
 
 
 /*
@@ -262,6 +266,7 @@ extern void update_flow(void);
 extern void map_area(void);
 extern void wiz_lite(void);
 extern void wiz_dark(void);
+extern void mmove2(int *y, int *x, int y1, int x1, int y2, int x2);
 extern void town_illuminate(bool daytime);
 extern void cave_set_feat(int y, int x, int feat);
 extern sint project_path(u16b *gp, int range, \
@@ -357,7 +362,7 @@ extern void show_book_number(int num);
 extern void do_cmd_rig_mechanism(void);
 extern void do_cmd_use_tool(void);
 extern void do_cmd_aim_ray(void);
-extern void do_cmd_zap_rod(void);
+extern void do_cmd_zap_apparatus(void);
 extern void do_cmd_activate(void);
 
 /* classpowers.c */
@@ -411,6 +416,10 @@ extern void cleanup_angband(void);
 /*
 extern errr rd_savefile_old(void);
  */
+ 
+/* level.c */
+extern void level_reward(void);
+ 
 /* load2.c */
 extern errr rd_savefile_new(void);
 
@@ -420,6 +429,9 @@ extern bool make_attack_normal(int m_idx);
 /* melee2.c */
 extern bool make_attack_spell(int m_idx);
 extern void process_monsters(byte minimum_energy);
+extern bool clean_shot(int y1, int x1, int y2, int x2, bool friend);
+extern void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note);
+
 
 /* monster1.c */
 extern void screen_roff(int r_idx);
@@ -433,7 +445,7 @@ extern void wipe_m_list(void);
 extern s16b m_pop(void);
 extern errr get_mon_num_prep(void);
 extern s16b get_mon_num(int level);
-extern void monster_desc(char *desc, const monster_type *m_ptr, int mode);
+extern void monster_desc(char *desc, monster_type *m_ptr, int mode);
 extern void lore_do_probe(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon(int m_idx, bool full);
@@ -442,13 +454,27 @@ extern s16b monster_carry(int m_idx, object_type *j_ptr);
 extern void monster_swap(int y1, int x1, int y2, int x2);
 extern s16b player_place(int y, int x);
 extern s16b monster_place(int y, int x, monster_type *n_ptr);
-extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp);
+extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendly, bool pet);
 extern bool place_monster(int y, int x, bool slp, bool grp);
 extern bool alloc_monster(int dis, bool slp);
-extern bool summon_specific(int y1, int x1, int lev, int type);
-extern bool multiply_monster(int m_idx);
+extern bool summon_specific(int y1, int x1, int lev, int type, bool friendly, bool pet);
+extern bool multiply_monster(int m_idx, bool friendly, bool pet);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
+
+/* mspells1.c */
+extern bool monst_spell_monst(int m_idx);
+
+/* mutation.c */
+extern bool gain_random_mutation(int choose_mut);
+extern bool lose_mutation(int choose_mut);
+extern void dump_mutations(FILE *OutFile);
+extern void do_cmd_knowledge_mutations(void);
+extern void mutation_power_aux(u32b power);
+extern bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty);
+extern void do_cmd_racial_power(void);
+extern void process_mutations(void);
+extern void calc_mutations(void);
 
 /* object1.c */
 extern void flavor_init(void);
@@ -528,6 +554,21 @@ extern void spell_info(char *p, int spell);
 extern void print_spells(const byte *spells, int num, int y, int x);
 extern void display_koff(int k_idx);
 
+
+/* pet.c */
+extern void do_cmd_pet(void);
+extern bool is_friendly(monster_type *m_ptr);
+extern void set_friendly(monster_type *m_ptr);
+extern bool is_pet(monster_type *m_ptr);
+extern void set_pet(monster_type *m_ptr);
+extern bool is_hostile(monster_type *m_ptr);
+extern void set_hostile(monster_type *m_ptr);
+extern void anger_monster(monster_type *m_ptr);
+extern bool are_enemies(monster_type *m_ptr1, monster_type *m_ptr2);
+extern bool monster_living(monster_race *r_ptr);
+extern void monster_drop_carried_objects(monster_type *m_ptr);
+
+
 /* save.c */
 extern bool save_player(void);
 extern bool load_player(void);
@@ -538,6 +579,7 @@ extern void teleport_away(int m_idx, int dis);
 extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_player_level(void);
+extern void steam_mecha_drill_level(void);
 extern void take_hit(int dam, cptr kb_str);
 extern void acid_dam(int dam, cptr kb_str);
 extern void elec_dam(int dam, cptr kb_str);
@@ -599,8 +641,9 @@ extern bool lite_area(int dam, int rad);
 extern bool unlite_area(int dam, int rad);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
-extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
+extern bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev);
+extern bool fire_barrage(int typ, int dir, int dd, int ds, int num, int dev);
 extern bool lite_line(int dir);
 extern bool drain_life(int dir, int dam);
 extern bool wall_to_mud(int dir);
@@ -619,8 +662,19 @@ extern bool door_creation(void);
 extern bool trap_creation(void);
 extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
+extern bool stun_monsters(int dam);
+extern bool confuse_monsters(int dam);
+extern bool turn_monsters(int dam);
+extern bool charm_monsters(int dam);
+extern bool charm_monster(int dir, int plev);
 
 /* spells3.c */
+extern bool alchemy(void);
+extern void do_poly_wounds();
+extern void fetch(int dir, int wgt, bool require_los);
+extern void do_poly_self(void);
+extern void mutate_player(void);
+extern void do_cmd_rerate(void);
 
 /* store.c */
 extern void do_cmd_store(void);
@@ -725,6 +779,7 @@ extern bool set_hero(int v);
 extern bool set_shero(int v);
 extern bool set_protevil(int v);
 extern bool set_invuln(int v);
+extern bool set_shadow(int v);
 extern bool set_tim_esp(int v);
 extern bool set_tim_invis(int v);
 extern bool set_tim_infra(int v);
@@ -755,9 +810,16 @@ extern void target_set_monster(int m_idx);
 extern void target_set_location(int y, int x);
 extern bool target_set_interactive(int mode);
 extern bool get_aim_dir(int *dp);
+extern bool get_hack_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
+extern cptr look_mon_desc(char *buf, int m_idx);
 
+
+
+/* wizard2.c */
+/* nope */
+/*  */
 
 /*
  * Hack -- conditional (or "bizarre") externs
@@ -792,10 +854,21 @@ extern void show_floor(const int *floor_list, int floor_num);
 extern errr do_randart(u32b randart_seed, bool full);
 #endif /* GJW_RANDART */
 
-#if defined(MAC_MPW)
-	/* Globals needed */
-extern	u32b _ftype;
-extern	u32b _fcreator;
-extern	FILE *tempfff;
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+/* main-mac.c, or it's carbonised derivation */
+extern u32b _fcreator;
+extern u32b _ftype;
+
+# ifdef MACH_O_CARBON
+/*
+ * gcc -  You have to write it by yourself... or File-Open and double-clicking
+ * on savefiles will never work.
+ */
+extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype)
+# endif
+# if defined(MAC_MPW) && defined(CARBON)    
+/* MPW - they chose to do something very brain-dead for pathnames :( */
+extern void convert_pathname(char *path);
+# endif
 #endif
 

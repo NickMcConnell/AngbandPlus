@@ -376,10 +376,8 @@ static void process_world(void)
 	int i, j;
 
 	int regen_amount;
-
+	int upkeep_factor = 0;
 	object_type *o_ptr;
-
-
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -523,6 +521,29 @@ static void process_world(void)
 		take_hit(1, "poison");
 	}
 
+	if (!cave_floor_bold(p_ptr->py, p_ptr->px))
+	{
+		if ((!(p_ptr->tim_wraith) && ((p_ptr->chp) > ((p_ptr->lev)/5))) || 
+		(p_ptr->wraith_form))
+		{
+			cptr dam_desc;
+
+			if ((p_ptr->prace == RACE_GHOST))
+			{
+				msg_print("Your molecules feel disrupted!");
+				dam_desc = "density";
+			}
+			else
+			{
+				msg_print("You are being crushed!");
+				dam_desc = "solid rock";
+			}
+
+			take_hit(1 + ((p_ptr->lev)/10), dam_desc);
+		}
+	}
+
+
 	/* Take damage from cuts */
 	if (p_ptr->cut)
 	{
@@ -636,13 +657,30 @@ static void process_world(void)
 	/* Searching or Resting */
 	if (p_ptr->searching || p_ptr->resting)
 	{
-		regen_amount = regen_amount * 2;
+			regen_amount = regen_amount * 2;
 	}
+	if (total_friends > 1 + (p_ptr->lev / cp_ptr->pet_upkeep_div))
+	{
+		upkeep_factor = total_friend_levels;
+
+		if (upkeep_factor > 100) upkeep_factor = 100;
+		else if (upkeep_factor < 10) upkeep_factor = 10;
+	}
+
+
 
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
-	{
-		regenmana(regen_amount);
+	{		
+		if (upkeep_factor)
+		{
+			s16b upkeep_regen = (((100 - upkeep_factor) * regen_amount) / 100);
+			regenmana(upkeep_regen);
+		}
+		else
+		{
+			regenmana(regen_amount);
+		}
 	}
 
 	/* Various things interfere with healing */
@@ -728,6 +766,17 @@ static void process_world(void)
 	if (p_ptr->invuln)
 	{
 		(void)set_invuln(p_ptr->invuln - 1);
+	}
+
+	/* Wraith form */
+	/* OK, This here is working. However, it is counting down to zero */
+	/* when a weapon with wraithform is weilded - which it shouldn't */
+	/* be doing. . . Even if what I'm doing works, I should clean it up */
+	/* later. -CCC Great, Now I'm really confused.*/
+	
+	if (p_ptr->tim_wraith)
+	{
+		(void)set_shadow(p_ptr->tim_wraith - 1);
 	}
 
 	/* Heroism */
@@ -865,6 +914,18 @@ static void process_world(void)
 
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
+
+	/*
+	 * Process the effects of mutations (in mutation.c), if you have any
+	 * that might need to be checked -- Gumby
+	 *
+	 * heh. Doubled the number of available mutations.
+	 * Doubled! -ccc
+	 */
+	if (p_ptr->muta3 || p_ptr->muta4)
+	{
+		process_mutations();
+	}
 
 
 	/*** Process Inventory ***/
@@ -1435,7 +1496,13 @@ static void process_command(void)
 			do_cmd_pray();
 			break;
 		}
-
+		
+		/* Activate Pets */
+		case 'P':
+		{
+			do_cmd_pet();
+			break;
+		}
 
 		/*** Use various objects ***/
 
@@ -1520,6 +1587,13 @@ static void process_command(void)
 		case 'u':
 		{
 			do_cmd_use_tool();
+			break;
+		}
+
+		/* Activate a racial power */
+		case 'U':
+		{
+			do_cmd_racial_power();
 			break;
 		}
 
@@ -1748,6 +1822,7 @@ static void process_player_aux(void)
 	static u32b	old_r_flags4 = 0L;
 	static u32b	old_r_flags5 = 0L;
 	static u32b	old_r_flags6 = 0L;
+	static u32b old_r_flags7 = 0L;
 
 	static byte	old_r_blows0 = 0;
 	static byte	old_r_blows1 = 0;
@@ -1772,6 +1847,7 @@ static void process_player_aux(void)
 		    (old_r_flags4 != l_ptr->r_flags4) ||
 		    (old_r_flags5 != l_ptr->r_flags5) ||
 		    (old_r_flags6 != l_ptr->r_flags6) ||
+		    (old_r_flags7 != l_ptr->r_flags7) ||
 		    (old_r_blows0 != l_ptr->r_blows[0]) ||
 		    (old_r_blows1 != l_ptr->r_blows[1]) ||
 		    (old_r_blows2 != l_ptr->r_blows[2]) ||
@@ -1789,6 +1865,7 @@ static void process_player_aux(void)
 			old_r_flags4 = l_ptr->r_flags4;
 			old_r_flags5 = l_ptr->r_flags5;
 			old_r_flags6 = l_ptr->r_flags6;
+			old_r_flags7 = l_ptr->r_flags7;
 
 			/* Memorize blows */
 			old_r_blows0 = l_ptr->r_blows[0];
@@ -1831,6 +1908,14 @@ static void process_player_aux(void)
 static void process_player(void)
 {
 	int i;
+
+
+	if (hack_mutation)
+	{
+		msg_print("You feel different!");
+		(void)gain_random_mutation(0);
+		hack_mutation = FALSE;
+	}
 
 
 	/*** Check for interrupts ***/
@@ -2455,6 +2540,8 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
+		total_friends = 0;
+		total_friend_levels = 0;
 
 		/* Process all of the monsters */
 		process_monsters(100);
@@ -2561,6 +2648,9 @@ static void process_some_user_pref_files(void)
  */
 void play_game(bool new_game)
 {
+	/* I hope I don't have to figure out what this does -ccc */
+	hack_mutation = FALSE;
+
 	/* Hack -- Increase "icky" depth */
 	character_icky++;
 

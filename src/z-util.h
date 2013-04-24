@@ -53,6 +53,10 @@ extern void quit(cptr str);
 /* Dump core, with optional message */
 extern void core(cptr str);
 
+/* Copy a string */
+extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
+
+
 
 
 #endif

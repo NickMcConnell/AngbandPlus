@@ -164,7 +164,7 @@ have intrinsic abilities.
 
 
 			Officer
-				NOT FUNCTIONING
+				Commands those in the dungeon to do his bidding.
 			Aesthete
 				Master of money and commerce
 			Detective
@@ -184,7 +184,7 @@ have intrinsic abilities.
 			Adventurer
 				General powers
 			Anarchist
-				Master of chaos (NOT FUNCTIONING)
+				Master of chaos. Tends to mutate.
 			Dashing Hussar
 				Supreme combat fighter (NOT FUNCTIONING)
 			Gentleman/Lady
@@ -194,11 +194,20 @@ have intrinsic abilities.
 			Steam Engineer
 				Use Devices
 			Naturalist
-				NOT FUNCTIONING
+				In tune with nature
 			Quabalist
-				Use some books
+				Use some books (only the tomes of power). They can use the 
+				other books, however their fail rate is high.
+				Liber AL vel Legis
+				The Zohar (Book of Splendor)
+				Sepher Yetzirah (Book of Formation)
+				De Vermis Mysteriis (Mysteries of the Worm)
 			Oculus Dei
-				Use some books
+				Use some books (only the religous works). They can use the 
+				other books, however their fail rate is high.
+				Treatise on the Resurrection
+				Odes of Solomon
+				Pnakotic Manuscripts
 			Ninja
 				NOT FUNCTIONING
 			Weapon Master

@@ -340,6 +340,7 @@ struct monster_race
 	u32b flags4;			/* Flags 4 (inate/breath) */
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
+	u32b flags7;			/* Flags 7 (other) */
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
@@ -394,6 +395,7 @@ struct monster_lore
 	u32b r_flags4;			/* Observed racial flags */
 	u32b r_flags5;			/* Observed racial flags */
 	u32b r_flags6;			/* Observed racial flags */
+	u32b r_flags7;			/* Observed racial flags */
 };
 
 
@@ -697,10 +699,10 @@ struct player_race
 	byte b_age;			/* base age */
 	byte m_age;			/* mod age */
 
-	byte m_b_ht;		/* base height (males) */
-	byte m_m_ht;		/* mod height (males) */
-	byte m_b_wt;		/* base weight (males) */
-	byte m_m_wt;		/* mod weight (males) */
+	s16b m_b_ht;		/* base height (males) */
+	s16b m_m_ht;		/* mod height (males) */
+	s16b m_b_wt;		/* base weight (males) */
+	s16b m_m_wt;		/* mod weight (males) */
 
 	byte f_b_ht;		/* base height (females) */
 	byte f_m_ht;		/* mod height (females) */
@@ -726,6 +728,7 @@ struct start_item
 {
 	byte tval;	/* Item's tval */
 	byte sval;	/* Item's sval */
+	s16b pval;  /* Item's pval */
 	byte min;	/* Minimum starting amount */
 	byte max;	/* Maximum starting amount */
 };
@@ -777,6 +780,7 @@ struct player_class
 
 	u32b sense_base;	/* Base pseudo-id value */
 	u16b sense_div;		/* Pseudo-id divisor */
+	byte pet_upkeep_div; /* Pet upkeep divider */
 
 	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 
@@ -893,6 +897,8 @@ struct player_type
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b tim_wraith;	/* Timed -- Wraith Form */
+	s16b tim_esp;	    /* Timed ESP */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -900,7 +906,13 @@ struct player_type
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
 	
-	s16b tim_esp;	     /* Timed ESP */
+
+	u32b muta1;			/* Mutation flags 1 */
+	u32b muta2;			/* Mutation flags 2 */
+	u32b muta3;			/* Mutation flags 3 */
+	u32b muta4;			/* Mutation flags 4 */
+	u32b muta5;			/* Mutation flags 5 */
+	u32b muta6;			/* Mutation flags 6 */
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -1059,7 +1071,12 @@ struct player_type
 	bool see_inv;		/* See invisible */
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
+	bool wraith_form;	/* Wraithform */
 
+	bool sh_fire;		/* Fiery 'immolation' effect */
+	bool sh_elec;		/* Electric 'immolation' effect */
+	bool sh_spine;		/* Spiny Skin */
+	
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */
@@ -1103,6 +1120,10 @@ struct player_type
 
 	s16b pspeed;		/* Current speed */
 	
+	/*** Pet commands ***/
+	s16b pet_follow_distance; /* Length of the imaginary "leash" for pets */
+	bool pet_open_doors;      /* flag - allow pets to open doors */
+	bool pet_pickup_items;    /* flag - allow pets to pickup items */
 
 };
 

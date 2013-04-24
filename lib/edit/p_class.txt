@@ -15,7 +15,7 @@
 # S:str:int:wis:dex:con:chr
 # C:dis:dev:sav:stl:srh:fos:thn:thb
 # X:dis:dev:sav:stl:srh:fos:thn:thb
-# I:mhp:exp:sense_base:sense_div
+# I:mhp:exp:sense_base:sense_div:pet_upkeep_div
 # A:max_attacks:min_weight:att_multiply
 # M:spellbook tval:spell-stat:spell-type:first-level:max weight
 # B:spell number:level:mana:fail:exp
@@ -65,20 +65,20 @@
 
 # Version stamp (required)
 
-V:0.1.1
+V:0.2.2
 
 
 N:0:Officer
 S:5:-1:-1:2:2:0
 C:25:18:18:1:14:2:70:65
 X:10:7:10:0:0:0:45:45
-I:10:30:9000:40
+I:10:30:9000:40:5
 A:6:30:5
 M:92:5:0:1:550
-E:75:33:1:1
-E:23:11:1:1
-E:37:1:1:1
-E:19:2:1:1
+E:75:33:0:1:1
+E:23:11:0:1:1
+E:37:1:0:1:1
+E:19:2:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | OFFICER | ZERO_FAIL
 T:2nd Lt.
 T:1st Lt.
@@ -96,18 +96,18 @@ N:1:Aesthete
 S:-2:2:0:1:-1:4
 C:5:20:4:15:10:2:20:25
 X:10:10:10:10:10:10:15:15
-I:5:0:5000:30
+I:5:0:5000:30:20
 A:4:35:2
 M:92:5:0:1:200
-E:35:2:1:3
-E:40:9:3:6
-E:36:5:1:3
-E:32:6:1:3
+E:35:2:0:1:3
+E:40:9:0:3:6
+E:36:5:1:1:3
+E:32:6:0:1:3
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | AESTHETE | ZERO_FAIL 
 T:Intellectual
 T:Dilettante
 T:Heir
-T:Philanthropist
+T:Philanthrop.
 T:Investor
 T:Capitalist
 T:Producer
@@ -120,7 +120,7 @@ N:2:Detective
 S:-1:4:2:2:-2:2
 C:20:20:8:10:40:20:20:35
 X:10:10:10:3:25:10:15:15
-I:7:10:2000:40
+I:7:10:2000:40:10
 A:5:35:3
 M:91:1:1:1:500
 # Utility Bandolier
@@ -190,19 +190,19 @@ B:60:99:0:0:0
 B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
-E:75:25:1:1
-E:23:4:1:1
-E:36:7:1:1
+E:75:25:0:1:1
+E:23:4:0:1:1
+E:36:7:0:1:1
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV 
 T:Constable
 T:Sergeant
 T:Inspector
-T:Chief Inspector
-T:Superintendent
-T:Chief Superintendent
+T:Ch. Inspector
+T:Superintend.
+T:Ch. Superint.
 T:Commander
-T:Asst. Commissioner
-T:Dpty. Commissioner
+T:Asst. Commish
+T:Dpty. Commish
 T:Commissioner
 # use some devices
 
@@ -210,7 +210,7 @@ N:3:Engineer
 S:1:2:2:2:1:-1
 C:25:25:18:0:2:2:30:35
 X:10:10:10:3:3:3:15:15
-I:6:40:3000:40
+I:6:40:3000:40:15
 A:4:35:4
 M:91:1:1:1:250
 # Utility Bandolier
@@ -283,42 +283,42 @@ B:60:99:0:0:0
 B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
-E:66:4:1:1
-E:70:8:1:1
-E:91:0:1:1
+E:66:4:0:1:1
+E:70:8:0:1:1
+E:91:0:0:1:1
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL | BEAM | CHOOSE_SPELLS
 T:Jr. Engineer
 T:Engineer
 T:Sr. Engineer
-T:Chief Engineer
-T:Warrant Officer
+T:Ch. Engineer
+T:Warrant Off.
 T:Chief WO-1
 T:Chief WO-2
 T:Chief WO-3
 T:Chief WO-4
-T:Master Warrant Officer
+T:Master WO
 # Use all devices
 
 N:4:Explorer
 S:3:0:3:0:3:1
 C:20:18:28:6:14:5:50:65
 X:10:7:10:0:0:0:45:45
-I:8:0:7000:800
+I:8:0:7000:800:10
 A:6:30:5
-M:92:4:0:1:0
-E:19:2:1:1
-E:80:35:8:15
-E:30:3:1:1
+M:92:4:0:1:400
+E:19:2:0:1:1
+E:80:35:0:8:15
+E:30:3:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | EXPLORER | ZERO_FAIL 
 T:Hiker
 T:Outdoorsman
-T:Rugged Outdoorsman
+T:Rugged ODman
 T:Frontiersman
 T:Trailblazer
 T:Green Explorer
 T:Explorer
-T:Veteran Explorer
-T:Master Explorer
+T:Vet. Explorer
+T:Mstr Explorer
 T:Lord Explorer
 # Needs some innate powers and benifits
 
@@ -326,12 +326,12 @@ N:5:Medium
 S:-2:0:1:0:1:2
 C:0:15:10:1:15:2:20:35
 X:5:15:5:2:2:2:5:15
-I:4:35:20000:40
+I:4:35:20000:40:10
 A:6:30:5
 M:92:5:0:1:150
-E:75:36:1:1
-E:23:4:1:1
-E:36:2:1:1
+E:75:36:0:1:1
+E:23:4:0:1:1
+E:36:2:0:1:1
 F:ZERO_FAIL | MEDIUM
 T:Touched
 T:Shining
@@ -349,18 +349,18 @@ N:6:Reckoner
 S:-2:5:0:4:0:-4
 C:20:28:10:0:0:2:40:55
 X:10:7:10:1:1:1:45:45
-I:5:0:3000:350
+I:5:0:3000:350:20
 A:4:30:4
-M:92:1:0:1:0
-E:55:5:1:1
-E:65:13:1:1
-E:70:11:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | RECKONER | ZERO_FAIL
+M:92:1:0:1:200
+E:55:5:20:1:1
+E:65:13:20:1:1
+E:70:11:0:1:1
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | RECKONER | ZERO_FAIL | MUTABLE
 T:Neophyte
 T:User
 T:Adv. User
 T:Programmer
-T:Adv. Programmer
+T:Adv. Progrmr
 T:Cracker
 T:Hacker
 T:Elite Hacker
@@ -373,12 +373,12 @@ N:7:Tourist
 S:-3:-3:-3:-3:-3:-3
 C:0:0:0:0:0:0:0:0
 X:2:2:2:2:2:2:5:5
-I:3:0:29000:40
+I:3:0:29000:40:10
 A:3:40:2
 M:92:1:0:1:0
-E:80:40:10:15
-E:23:4:1:1
-E:36:4:1:1
+E:80:40:0:10:15
+E:23:4:0:1:1
+E:36:4:0:1:1
 F:TOURIST | ZERO_FAIL
 T:Rambler
 T:Sightseer
@@ -396,12 +396,12 @@ N:8:Sportsman
 S:2:-2:-1:5:4:2
 C:10:10:52:10:14:2:60:85
 X:10:7:20:10:3:3:35:45
-I:12:45:15000:40
+I:12:45:15000:40:25
 A:6:30:5
 M:0:0:0:0:0
-E:19:12:1:1
-E:23:11:1:1
-E:37:3:1:1
+E:19:12:0:1:1
+E:23:11:0:1:1
+E:37:3:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | EXTRA_SHOT
 T:Spectator
 T:Trainee
@@ -419,12 +419,12 @@ N:9:Adventurer
 S:4:0:1:4:5:1
 C:28:28:28:15:10:10:95:60
 X:10:10:10:5:5:5:45:35
-I:15:35:9000:40
+I:15:35:9000:40:15
 A:6:30:5
 M:0:0:0:0:0
-E:75:33:1:1
-E:23:16:1:1
-E:37:4:1:1
+E:75:33:0:1:1
+E:23:16:0:1:1
+E:37:4:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
 T:Rookie
 T:Soldier
@@ -442,23 +442,23 @@ N:10:Anarchist
 S:1:2:-2:2:2:-2
 C:10:10:20:0:0:0:50:50
 X:5:10:10:0:2:2:25:25
-I:7:0:9000:40
+I:7:0:9000:40:25
 A:5:30:4
 M:0:0:0:0:0
-E:75:33:1:1
-E:23:16:1:1
-E:37:4:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
+E:75:33:0:1:1
+E:23:16:0:1:1
+E:37:4:0:1:1
+F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ANARCHIST
 T:Rebel
 T:Anarch
 T:Frondeur
 T:Insurgent
-T:Insurrectionist
+T:Chaosite
 T:Malcontent
 T:Mutineer
 T:Revolter
 T:Anarchist
-T:Master Anarchist
+T:Master Anarch
 #some devices and books, hmmm? possible? 
 
 
@@ -466,12 +466,12 @@ N:11:Dashing Hussar
 S:5:2:2:5:5:1
 C:10:10:10:10:10:0:80:70
 X:10:5:5:5:5:5:50:50
-I:12:0:9000:40
+I:12:0:9000:40:20
 A:7:25:5
 M:92:0:0:1:0
-E:75:33:1:1
-E:23:16:1:1
-E:37:4:1:1
+E:75:33:0:1:1
+E:23:16:0:1:1
+E:37:4:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | EXTRA_SHOT | HUSSAR | ZERO_FAIL
 T:2nd Lt.
 T:1st Lt.
@@ -479,7 +479,7 @@ T:Captain
 T:Major
 T:Lt. Colonel
 T:Colonel
-T:Brigadier General
+T:Brig. General
 T:Major General
 T:Lt. General
 T:General
@@ -490,12 +490,12 @@ N:12:Gentleman/Lady
 S:-3:2:2:0:-2:6
 C:0:0:0:0:0:0:10:25
 X:5:5:5:5:5:5:15:15
-I:6:0:9000:40
+I:6:0:9000:40:10
 A:5:35:4
 M:0:0:0:0:0
-E:35:2:1:1
-E:36:5:1:1
-E:31:2:1:1
+E:35:2:0:1:1
+E:36:5:1:1:1
+E:31:2:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
 T:Boy
 T:Bloke
@@ -513,7 +513,7 @@ N:13:Rogue
 S:2:1:-2:3:1:-1
 C:45:32:28:80:32:24:40:46
 X:15:10:10:35:20:20:20:30
-I:6:25:20000:40
+I:6:25:20000:40:15
 A:5:30:3
 M:91:3:1:5:250
 # Utility Bandolier
@@ -583,9 +583,9 @@ B:60:99:0:0:0
 B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
-E:19:2:1:1
-E:23:4:1:1
-E:36:4:1:1
+E:19:2:0:1:1
+E:23:4:0:1:1
+E:36:4:0:1:1
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | 
 T:Vagabond
 T:Cutpurse
@@ -603,7 +603,7 @@ N:14:Steam Engineer
 S:0:5:-1:2:3:-2
 C:25:20:15:0:2:2:20:50
 X:13:12:10:0:2:2:15:25
-I:8:50:9000:40
+I:8:50:9000:40:20
 A:4:30:3
 M:91:1:1:1:900
 # Utility Bandolier
@@ -676,20 +676,20 @@ B:60:99:0:0:0
 B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
-E:66:4:1:1
-E:70:8:1:1
-E:91:0:1:1
+E:66:4:0:1:1
+E:70:8:0:1:1
+E:91:0:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL | CHOOSE_SPELLS
 T:Jr. Engineer
 T:Engineer
 T:Sr. Engineer
-T:Chief Engineer
-T:Warrant Officer
+T:Ch. Engineer
+T:Warrant Off.
 T:Chief WO-1
 T:Chief WO-2
 T:Chief WO-3
 T:Chief WO-4
-T:Master Warrant Officer
+T:Master WO
 # Some devices
 
 
@@ -697,20 +697,20 @@ N:15:Naturalist
 S:-3:2:3:0:1:-1
 C:30:36:30:2:16:20:34:20
 X:7:13:9:0:0:0:15:15
-I:0:30:240000:5
+I:0:30:240000:5:5
 A:4:40:2
 M:92:2:0:1:0
-E:30:2:1:1
-E:35:1:1:1
-E:36:2:1:1
-F:ZERO_FAIL | NATURE
+E:30:2:0:1:1
+E:35:1:0:1:1
+E:36:2:0:1:1
+F:ZERO_FAIL | NATURE | MUTABLE
 T:Acolyte
 T:Farmer
 T:Grower
 T:Naturalist
-T:Superb Naturalist
+T:Sup. Natur.
 T:Ecologist
-T:Master Ecologist
+T:Mstr. Ecolog.
 T:Druid
 T:Master Druid
 T:Arch-Druid
@@ -720,7 +720,7 @@ N:16:Quabalist
 S:-4:2:5:1:-2:-1
 C:30:36:30:2:16:20:34:20
 X:7:13:9:0:0:0:15:15
-I:1:30:240000:5
+I:1:30:240000:5:10
 A:4:40:2
 M:90:2:0:1:150
 # Liber AL vel Legis
@@ -795,9 +795,9 @@ B:60:99:0:0:0
 B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
-E:90:0:1:1
-E:23:4:1:1
-E:70:11:1:1
+E:90:0:0:1:1
+E:23:4:0:1:1
+E:70:11:0:1:1
 F:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
 T:Novice
 T:Apprentice
@@ -815,7 +815,7 @@ N:17:Oculus Dei
 S:-2:2:3:0:0:-1
 C:25:18:18:1:14:2:70:55
 X:10:7:10:0:0:0:45:45
-I:9:30:9000:40
+I:9:30:9000:40:10
 A:6:30:5
 M:90:2:0:1:350
 # Liber AL vel Legis
@@ -890,9 +890,9 @@ B:60:99:0:0:0
 B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
-E:90:0:1:1
-E:23:4:1:1
-E:70:11:1:1
+E:90:0:0:1:1
+E:23:4:0:1:1
+E:70:11:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL | CHOOSE_SPELLS
 T:Believer
 T:Acolyte
@@ -910,12 +910,12 @@ N:18:Ninja
 S:5:-2:-2:2:2:-1
 C:25:18:18:1:14:2:70:55
 X:10:7:10:0:0:0:45:45
-I:9:0:9000:40
+I:9:0:9000:40:20
 A:6:30:5
 M:92:3:0:1:0
-E:23:4:1:1
-E:23:4:1:1
-E:36:2:1:1
+E:23:4:0:1:1
+E:23:4:0:1:1
+E:36:2:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | NINJA
 T:Trainee
 T:Myrmidon
@@ -933,12 +933,12 @@ N:19:Weapon Master
 S:5:-2:-2:2:2:-1
 C:25:18:18:1:14:2:70:55
 X:10:7:10:0:0:0:45:45
-I:9:0:9000:40
+I:9:0:9000:40:20
 A:6:30:5
 M:0:0:0:0:0
-E:75:33:1:1
-E:23:16:1:1
-E:37:4:1:1
+E:75:33:0:1:1
+E:23:16:0:1:1
+E:37:4:0:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
 T:Rookie
 T:Soldier

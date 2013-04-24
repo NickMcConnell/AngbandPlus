@@ -286,7 +286,7 @@ void do_cmd_eat_food(void)
 		
 			break;
 		}
-			case SV_FOOD_MARIJUANA:
+		case SV_FOOD_MARIJUANA:
 		{
 			(void)set_food(PY_FOOD_ALERT);
 			if (!p_ptr->resist_fear)
@@ -526,7 +526,18 @@ void do_cmd_quaff_tonic(void)
 			}
 			break;
 		}
-
+		case SV_TONIC_MUTAGEN:
+		{
+			if(randint(50) < 45)
+			{
+			gain_random_mutation(0);
+			}
+			else
+			{
+			lose_mutation(0);
+			}
+			break;
+		}
 		case SV_TONIC_CONFUSION:
 		{
 			if (!p_ptr->resist_confu)
@@ -538,7 +549,18 @@ void do_cmd_quaff_tonic(void)
 			}
 			break;
 		}
-
+		case SV_TONIC_MUTAGEN_ANTIDOTE:
+		{
+			if(randint(50) < 45)
+			{
+			lose_mutation(0);
+			}
+			else
+			{
+			gain_random_mutation(0);
+			}
+			break;
+		}
 		case SV_TONIC_SLEEP:
 		{
 			if (!p_ptr->free_act)
@@ -1261,7 +1283,7 @@ void do_cmd_rig_mechanism(void)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, p_ptr->depth, 0, FALSE, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1273,7 +1295,7 @@ void do_cmd_rig_mechanism(void)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
+				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD, FALSE, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1703,7 +1725,7 @@ void do_cmd_use_tool(void)
 		{
 			for (k = 0; k < randint(4); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, p_ptr->depth, 0, FALSE, FALSE))
 				{
 					ident = TRUE;
 				}

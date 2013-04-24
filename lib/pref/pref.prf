@@ -210,6 +210,13 @@ C:1:X
 A:^V
 C:1:'
 
+# Pets -- Pets
+A:P
+C:1:O
+
+# Mutations -- Mutations
+A:U
+C:1:X
 
 # Message colors
 %:message.prf

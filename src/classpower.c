@@ -26,13 +26,13 @@
   {
     {
       /* Level gained,  cost,  %fail,  name */
-      { 1,  99,  99, "not implimented 'til pets"},
-      { 1,  99,  99, "but, hey, they make a pretty decent warrior"},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
+      { 5,   2,  10, "Inspire Fear"},
+      { 10,  4,  20, "Command"},
+      { 13,  10,  35 , "Enlist"},
+      { 20,  20,  55, "Stiff Upper Lip"},
+      { 25,  5,   30, "Sense Recruits"},
+      { 30,  50,  99, "Defensive Techniques"},
+      { 40,  30,  99, "Mass Enlistment"},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -123,11 +123,11 @@
 		{11, 7, 30, "Spirit Blast"},
 		{13, 12, 50, "Character Armour"},
 		{15, 12, 60, "Psychometry"},
+		{16, 15, 50, "Domination"},
 		{18, 10, 45, "Soul Purge"},
 		{23, 15, 50, "Drawing upon the Sprits"},
 		{25, 10, 40, "Psychic Drain"},
 		{28, 20, 45, "Entropic blast"},
-		{ 99,  0,   0, ""},
         { 99,  0,   0, ""},
         { 99,  0,   0, ""},
         { 99,  0,   0, ""},
@@ -229,31 +229,31 @@
     }
   },
   /* Naturlist powers */
-  /* ack! No idea!*/
+  /* ack! No idea! Stole Z's Druid! */
   {
     {
       /* Level gained,  cost,  %fail,  name */
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
+      { 1,  1,   10, "Detect Creatures"},
+      { 4,  3,   15, "First Aid"},
+      { 6,  3,   20, "Detect Doors + Traps"},
+      { 7,  5,   25, "Produce Food"},
+      { 8,  6,   30, "Daylight"},
+      { 10,  10, 45, "Animal Taming"},
+      { 12,  11, 40, "Resist Environment"},
+      { 14,  14, 50, "Natural Healing"},
+      { 16,  15, 55, "Stone to Mud"},
+      { 18,  7,  55, "Lightning Bolt"},
+      { 20,  4,  33, "Ray of Sunlight"},
+      { 22,  17, 43, "Entangle"},
+      { 24,  20, 60, "Stoneskin"},
+      { 26,  20, 65, "Resistance true"},
+      { 30,  30, 95, "Stone Tell"},
+      { 35,  35, 90, "Earthquake"},
+      { 37,  14, 85, "Blizzard"},
+      { 39,  18, 85, "Lightning Storm"},
+      { 40,  20, 85, "Whirlpool"},
+      { 42,  10, 80, "Call Sunlight"},
+      { 45,  50, 98, "Nature's Wrath"},
       
     }
   },
@@ -291,9 +291,6 @@
 
 void mindcraft_info(char *p, int use_mind, int power)
 {
-	cptr s_dam = "dam ";
-	cptr s_dur = "dur ";
-	cptr s_range = "range ";
 
 	int plev = p_ptr->lev;
 
@@ -307,9 +304,9 @@ void mindcraft_info(char *p, int use_mind, int power)
 				case 0:  break;
 				case 1:  break;
 				case 2:  break;
-				case 3:  break;
+				case 3:  sprintf(p, " heal %dd%d", plev / 2, plev * 2); break;
 				case 4:  break;
-				case 5:  break;
+				case 5:  sprintf(p, " invuln %d + 1d2", (plev / 20)); break;
 				case 6:  break;
 				case 7:  break;
 				case 8:  break;
@@ -359,8 +356,8 @@ void mindcraft_info(char *p, int use_mind, int power)
 	    	{
 		    	case 0:  break;
 				case 1:  break;
-				case 2:  break;
-				case 3:  sprintf(p, " range %d", plev); break;
+				case 2:  sprintf(p, " range %d", plev); break;
+				case 3:   break;
 				case 4:  break;
 				case 5:  break;
 				case 6:  break;
@@ -391,11 +388,11 @@ void mindcraft_info(char *p, int use_mind, int power)
 				case 5:  sprintf(p, " dam %dd8", 8 + ((plev - 5) / 4));break;
 				case 6:  sprintf(p, " dur %d", plev);break;
 				case 7:  break;
-				case 8:  sprintf(p, " dam %dd4", plev); break;
-				case 9:  sprintf(p, " dur 11-%d", ((plev * 3)/ 2) + 10); break;
-				case 10: sprintf(p, " dam %dd3 Stun", plev * 2); break;
-				case 11: sprintf(p, " dam %d", plev * (plev > 39 ? 4 : 3)); break;
-				case 12: break;
+				case 8:  break;
+				case 9:  sprintf(p, " dam %dd4", plev); break;
+				case 10:  sprintf(p, " dur 11-%d", ((plev * 3)/ 2) + 10); break;
+				case 11: sprintf(p, " dam %dd3 Stun", plev * 2); break;
+				case 12: sprintf(p, " dam %d", plev * (plev > 39 ? 4 : 3)); break;
 				case 13: break;
 				case 14: break;
 			    case 15: break;
@@ -489,26 +486,28 @@ void mindcraft_info(char *p, int use_mind, int power)
 		switch (power)
 	    	{
     			case 0:  break;
-				case 1:  break;
+				case 1:  strcpy(p, " heal 2d8"); break;
 				case 2:  break;
 				case 3:  break;
-				case 4:  break;
+				case 4:  sprintf(p, "damage 2d%d", plev/2); break;
 				case 5:  break;
 				case 6:  break;
-				case 7:  break;
+				case 7:  sprintf(p, "heal %dd8", plev); break;
 				case 8:  break;
-				case 9:  break;
+				case 9:  sprintf(p, "damage %dd8", (3 + ((plev-5) / 4))); break;
 				case 10: break;
 				case 11: break;
-				case 12: break;
-				case 13: break;
+				case 12: strcpy(p, "dur 1d20 + 30"); break;
+				case 13: strcpy(p, "dur 1d20 + 20"); break;
 				case 14: break;
 			    case 15: break;
-			    case 16: break;
-			    case 17: break;
-			    case 18: break;
-			    case 19: break;
+			    case 16: sprintf(p, "damage %dd%d", (70 + plev), ((plev/12) +1 )); break;
+			    case 17: sprintf(p, "damage %dd%d", (90 + plev), ((plev/12) +1 )); break;
+			    case 18: sprintf(p, "damage %dd%d", (100 + plev), ((plev/12) +1 )); break;
+			    case 19: strcpy(p, " 150d8"); break;
 			    case 20: break;
+			    sprintf(p, " range %d", ((plev * 3)));
+			    sprintf(p, " heal %dd%d", (plev / 3), plev); break;
 			}	
 		break;
 		case MIND_NINJA: 	
@@ -566,6 +565,7 @@ void mindcraft_info(char *p, int use_mind, int power)
       int   plev = p_ptr->lev;
       int   chance;
       int   ask;
+      int   use_mind;
       char  choice;
       char  out_val[160];
       char  comment[80];
@@ -574,7 +574,7 @@ void mindcraft_info(char *p, int use_mind, int power)
       mind_type  spell;
       mind_power *mind_ptr;
       bool       flag, redraw;
-      int        use_mind;
+
       
     /* Insert if /if else statement here for classflag. */
     
@@ -685,13 +685,6 @@ void mindcraft_info(char *p, int use_mind, int power)
 
 				/* Save the screen */
 				screen_save();
-
-				/* Display a list of spells */
-				/* Commeneted out the z code, reinserting the h code.
-				 * prt("", x, y);
-				 * put_str("Name", (x + 5), y);
-				 * put_str("Lv Mana Fail Info", (x + 35), y);
-				 */
 				
 				prt("", y, x);
 				put_str("Name", y, x + 5);
@@ -740,13 +733,6 @@ void mindcraft_info(char *p, int use_mind, int power)
 					
 					sprintf(psi_desc, "  %c) ",I2A(i));
 					
-					/* Dump the spell --(-- */
-					/* Commenting out the z code and putting in the heng code
-					 * sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
-					 *	   I2A(i), spell.name, 
-					 *	   spell.min_lev, mana_cost, chance, comment);
-					 * prt(psi_desc, x, y + i + 1);
-					 */
 					 strcat(psi_desc,
 					       format("%-30s%2d %4d %3d%%%s",
 						      spell.name, spell.min_lev, spell.mana_cost,
@@ -842,19 +828,57 @@ void mindcraft_info(char *p, int use_mind, int power)
 static bool cast_officer_spell(int spell)
 {
 	/* this will vary based on the spells, and what they depend on */
-	int             b = 0;
 	int             plev = p_ptr->lev;
-
+	int				dir;
+	int 			time = randint(20) + 20;
+	
 	/* spell code */
 	switch (spell)
 	{
-    			case 0:  break;
-				case 1:  break;
-				case 2:  break;
-				case 3:  break;
-				case 4:  break;
-				case 5:  break;
-				case 6:  break;
+    			case 0:  if (!get_aim_dir(&dir)) return FALSE;
+							(void)fear_monster(dir, plev);
+						 break;
+				case 1:  if (!get_aim_dir(&dir)) return FALSE;
+							(void)fire_bolt(GF_STUN, dir,
+							damroll(plev, 5));
+						 break;
+				case 2:  if (!get_aim_dir(&dir)) return FALSE; 
+						 	(void)fire_bolt(GF_CHARM, dir,
+						 	damroll(plev, plev));
+						 break;
+				case 3:  (void)hp_player(damroll((plev / 2), (plev * 2)));
+						 (void)set_afraid(0);
+						 (void)set_stun(0);
+						 (void)set_cut(0);
+						 (void)do_res_stat(A_STR);
+				 		 (void)do_res_stat(A_INT);
+				 		 (void)do_res_stat(A_WIS);
+				 		 (void)do_res_stat(A_DEX);
+				 		 (void)do_res_stat(A_CON);
+				 		 (void)do_res_stat(A_CHR);
+						 break;
+				case 4:  (void)detect_monsters_normal();
+						 break;
+				case 5:  (void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
+						 if (!p_ptr->fast)
+						{
+							(void)set_fast(randint(20) + plev);
+						}
+						else
+						{
+							(void)set_fast(p_ptr->fast + randint(5));
+						}
+						(void)set_oppose_acid(p_ptr->oppose_acid + time);
+						(void)set_oppose_elec(p_ptr->oppose_elec + time);
+						(void)set_oppose_fire(p_ptr->oppose_fire + time);
+						(void)set_oppose_cold(p_ptr->oppose_cold + time);
+						(void)set_oppose_pois(p_ptr->oppose_pois + time);
+						(void)set_invuln(p_ptr->invuln + ((plev / 20) + randint(2)));
+						break;
+				case 6:  if (!get_aim_dir(&dir)) return FALSE;
+							fire_ball(GF_CHARM, dir,
+				        				  (plev * 4), (plev / 8));
+						 break;
 				case 7:  break;
 				case 8:  break;
 				case 9:  break;
@@ -863,8 +887,8 @@ static bool cast_officer_spell(int spell)
 				case 12: break;
 				case 13: break;
 				case 14: break;
-			    case 15: break;
-			    case 16: break;
+				case 15: break;
+				case 16: break;
 			    case 17: break;
 			    case 18: break;
 			    case 19: break;
@@ -881,7 +905,6 @@ static bool cast_officer_spell(int spell)
 static bool cast_aesthete_spell(int spell)
 {
 	/* this will vary based on the spells, and what they depend on */
-	int b = 0;
 	int plev = p_ptr->lev;
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -890,7 +913,7 @@ static bool cast_aesthete_spell(int spell)
 	/* spell code */
 	switch (spell)
 	{
-    	   		case 0:  
+    			case 0:  
     			/* Arrogant Laugh (almost bad) */
     			if ((plev * 2) > (randint(130) + 4))
     			{
@@ -1110,7 +1133,7 @@ static bool cast_medium_spell(int spell)
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			if (randint(100) < plev * 2)
-				(void)fire_beam(GF_PSI, dir,
+				(void)fire_bolt_or_beam(100, GF_PSI, dir,
 								damroll(3 + ((plev - 1) / 4), (3 + plev / 15)));
 			else
 				(void)fire_ball(GF_PSI, dir,
@@ -1177,15 +1200,21 @@ static bool cast_medium_spell(int spell)
 			if (plev > 34) (void)set_oppose_pois(p_ptr->oppose_pois + plev);
 			break;
 		case 7:
-			return ident_spell();
+			ident_spell();
+			break;
 		case 8:
+			if (!get_aim_dir(&dir)) return FALSE; 
+			(void)fire_bolt(GF_DOMINATION, dir,
+					damroll((plev / 2), (3 + plev / 3)));
+			break;
+		case 9:
 			/* Soul Purge */
 			msg_print("The anguish of the dead emanates from your brain!");
 			
 			(void)project(-1, 2 + plev / 10, p_ptr->py, p_ptr->px,
 						  damroll(plev, 4), GF_PSI, PROJECT_KILL);
 			break;
-		case 9:
+		case 10:
 			/* Adrenaline */
 			(void)set_afraid(0);
 			(void)set_stun(0);
@@ -1215,7 +1244,7 @@ static bool cast_medium_spell(int spell)
 				(void)set_fast(p_ptr->fast + b);
 			}
 			break;
-		case 10:
+		case 11:
 			/* Psychic Drain Turned into MEGA-STUN*/
 			if (!get_aim_dir(&dir)) return FALSE;
 
@@ -1225,7 +1254,7 @@ static bool cast_medium_spell(int spell)
 			if (fire_ball(GF_STUN, dir, b, 0))
 			p_ptr->energy -= randint(150);
 			break;
-		case 11:
+		case 12:
 			/* Entropic Blast */
 			msg_print
 				("A wave of pure entropic force blasts out from your spirit!");
@@ -1417,8 +1446,6 @@ static bool cast_tourist_spell(int spell)
 static bool cast_hussar_spell(int spell)
 {
 	/* this will vary based on the spells, and what they depend on */
-	int             b = 0;
-	int             plev = p_ptr->lev;
 
 	/* spell code */
 	switch (spell)
@@ -1456,33 +1483,103 @@ static bool cast_hussar_spell(int spell)
 static bool cast_nature_spell(int spell)
 {
 	/* this will vary based on the spells, and what they depend on */
-	int             b = 0;
 	int             plev = p_ptr->lev;
-
+	int 			dir;
+	int 			px = p_ptr->px;
+	int				py = p_ptr->py;
+	
 	/* spell code */
 	switch (spell)
 	{
-    			case 0:  break;
-				case 1:  break;
-				case 2:  break;
-				case 3:  break;
-				case 4:  break;
-				case 5:  break;
-				case 6:  break;
-				case 7:  break;
-				case 8:  break;
-				case 9:  break;
-				case 10: break;
-				case 11: break;
-				case 12: break;
-				case 13: break;
-				case 14: break;
-			    case 15: break;
-			    case 16: break;
-			    case 17: break;
-			    case 18: break;
-			    case 19: break;
-			    case 20: break;
+	case 0: /* Detect Creatures */
+		(void)detect_monsters_normal();
+		break;
+	case 1: /* First Aid */
+		(void)hp_player(damroll(2, 8));
+		(void)set_cut(p_ptr->cut - 15);
+		break;
+	case 2: /* Detect Doors + Traps */
+		(void)detect_traps();
+		(void)detect_doors();
+		(void)detect_stairs();
+		break;
+	case 3: /* Produce Food */
+		(void)set_food(PY_FOOD_MAX - 1);
+		break;
+	case 4: /* Daylight */
+		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+		break;
+	case 5: /* Animal Taming */
+		if (!get_aim_dir(&dir)) return FALSE;
+		(void)charm_animal(dir, plev);
+		break;
+	case 6: /* Resist Environment */
+		(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+		(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+		(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+		break;
+	case 7: /* Cure Wounds + Poison */
+		(void)hp_player(damroll(plev, 8));
+		(void)set_cut(0);
+		(void)set_poisoned(0);
+		break;
+	case 8: /* Stone to Mud */
+		if (!get_aim_dir(&dir)) return FALSE;
+		(void)wall_to_mud(dir);
+		break;
+	case 9: /* Lightning Bolt */
+		if (!get_aim_dir(&dir)) return FALSE;
+		fire_bolt_or_beam(100, GF_ELEC, dir,
+			damroll(3 + ((plev - 5) / 4), 8));
+		break;
+	case 10: /* Ray of Sunlight */
+		if (!get_aim_dir(&dir)) return FALSE;
+		msg_print("A line of sunlight appears.");
+		(void)lite_line(dir);
+		break;
+	case 11: /* Entangle */
+		slow_monsters();
+		break;
+	case 12: /* Stone Skin */
+		(void)set_shield(p_ptr->shield + randint(20) + 30);
+		break;
+	case 13: /* Resistance True */
+		(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+		(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+		(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+		(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+		(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+		break;
+	case 14: /* Stone Tell */
+		return identify_fully();
+	case 15: /* Earthquake */
+		earthquake(py, px, 10);
+		break;
+	case 16: /* Blizzard */
+		if (!get_aim_dir(&dir)) return FALSE;
+		fire_ball(GF_COLD, dir, 70 + plev, (plev / 12) + 1);
+		break;
+	case 17: /* Lightning Storm */
+		if (!get_aim_dir(&dir)) return FALSE;
+		fire_ball(GF_ELEC, dir, 90 + plev, (plev / 12) + 1);
+		break;
+	case 18: /* Whirlpool */
+		if (!get_aim_dir(&dir)) return FALSE;
+		fire_ball(GF_WATER, dir, 100 + plev, (plev / 12) + 1);
+		break;
+	case 19: /* Call Sunlight */
+		fire_ball(GF_LITE, 0, 150, 8);
+		wiz_lite();
+		break;
+	case 20: /* Nature's Wrath */
+		(void)dispel_monsters(plev * 4);
+		earthquake(py, px, 20 + (plev / 2));
+		project(0, 1 + plev / 12, py, px,
+			100 + plev, GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM);
+		break;
+	default:
+		msg_format("You cast an unknown Nature spell: %d.", spell);
+		msg_print(NULL);
 	}
 
 	return TRUE;
@@ -1529,7 +1626,6 @@ static bool cast_ninja_spell(int spell)
  void do_cmd_mind(void)
 {
 	int             n = 0;
-	int				b = 0;
 	int             chance;
 	int             minfail = 0;
 	int             plev = p_ptr->lev;

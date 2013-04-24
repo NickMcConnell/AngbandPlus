@@ -1510,7 +1510,7 @@ static void spoil_mon_info(cptr fname)
 	bool breath, magic, sin;
 	cptr p, q;
 	cptr vp[64];
-	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7;
 	u16b why = 2;
 	s16b *who;
 	int count = 0;
@@ -1572,6 +1572,7 @@ static void spoil_mon_info(cptr fname)
 		flags4 = r_ptr->flags4;
 		flags5 = r_ptr->flags5;
 		flags6 = r_ptr->flags6;
+		flags7 = r_ptr->flags7;
 		breath = FALSE;
 		magic = FALSE;
 
@@ -1777,8 +1778,8 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "plasma";
 		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
 		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
-		if (flags4 & (RF4_XXX5)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX6)) vp[vn++] = "something";
+		if (flags4 & (RF4_BR_NUKE)) vp[vn++] = "radiation";
+		if (flags4 & (RF4_BO_NUKE)) vp[vn++] = "radiation";
 		if (flags4 & (RF4_XXX7)) vp[vn++] = "something";
 		if (flags4 & (RF4_XXX8)) vp[vn++] = "something";
 
@@ -1850,11 +1851,11 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demons";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
-		if (flags6 & (RF6_S_ANT))             vp[vn++] = "summon ants";
+		if (flags6 & (RF6_S_AUTOMATA))             vp[vn++] = "summon automata";
 		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
 		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
-		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
-		if (flags6 & (RF6_S_ANGEL))           vp[vn++] = "summon an angel";
+		if (flags6 & (RF6_S_MONKEY))           vp[vn++] = "summon monkeys";
+		if (flags6 & (RF6_S_ALIEN))           vp[vn++] = "summon an alien";
 		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
 		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "summon a dragon";
@@ -2156,7 +2157,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_BEG:	p = "beg"; break;
 				case RBM_INSULT:	p = "insult"; break;
 				case RBM_MOAN:	p = "moan"; break;
-				case RBM_XXX5:	break;
+				case RBM_SPEAK:	p = "speak"; break;
 			}
 
 

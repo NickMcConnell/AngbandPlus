@@ -111,8 +111,13 @@ void do_cmd_change_name(void)
 	/* Forever */
 	while (1)
 	{
+		if (mode == 3)
+		{
+			mode = 0;
+		}
 		/* Display the player */
 		display_player(mode);
+
 
 		/* Prompt */
 		Term_putstr(2, 23, -1, TERM_WHITE, p);
@@ -155,7 +160,7 @@ void do_cmd_change_name(void)
 		/* Toggle mode */
 		else if (ch == 'h')
 		{
-			mode = !mode;
+			mode++;
 		}
 
 		/* Oops */
@@ -2863,6 +2868,70 @@ static void do_cmd_knowledge_objects(void)
 	/* Remove the file */
 	fd_kill(file_name);
 }
+/*
+ * Display current pets
+ */
+static void do_cmd_knowledge_pets(void)
+{
+	int             i;
+	FILE            *fff;
+	monster_type    *m_ptr;
+	int             t_friends = 0;
+	int             t_levels = 0;
+	int             show_upkeep = 0;
+	char            file_name[1024];
+
+	/* Temporary file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	/* Failure */
+	if (!fff) return;
+
+	/* Process the monsters (backwards) */
+	for (i = m_max - 1; i >= 1; i--)
+	{
+		/* Access the monster */
+		m_ptr = &m_list[i];
+
+		/* Ignore "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Calculate "upkeep" for pets */
+		if (is_pet(m_ptr))
+		{	
+			char buf[80];
+			char pet_name[80];
+			t_friends++;
+			t_levels += r_info[m_ptr->r_idx].level;
+			monster_desc(pet_name, m_ptr, 0x88);
+			fprintf(fff, "%s (%s)\n", pet_name, look_mon_desc(buf, i));
+		}
+	}
+
+	if (t_friends > 1 + (p_ptr->lev / (cp_ptr->pet_upkeep_div)))
+	{
+		show_upkeep = t_levels;
+
+		if (show_upkeep > 100) show_upkeep = 100;
+		else if (show_upkeep < 10) show_upkeep = 10;
+	}
+
+
+	fprintf(fff, "----------------------------------------------\n");
+	fprintf(fff, "   Total: %d pet%s.\n",
+	        t_friends, (t_friends == 1 ? "" : "s"));
+	fprintf(fff, "   Upkeep: %d%% mana.\n", show_upkeep);
+
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Current Pets", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
 
 
 /*
@@ -2894,9 +2963,13 @@ void do_cmd_knowledge(void)
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
-
+		/* Mutations are in mutation.c */
+		prt("(4) Display known mutations", 7, 5);
+		/* Pets are in pets.c */
+		prt("(5) Display pets", 8, 5);
+		
 		/* Prompt */
-		prt("Command: ", 8, 0);
+		prt("Command: ", 10, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -2923,6 +2996,18 @@ void do_cmd_knowledge(void)
 		{
 			/* Spawn */
 			do_cmd_knowledge_objects();
+		}
+		/* Mutations */
+		else if (ch == '4')
+		{
+			/* Spawn */
+			do_cmd_knowledge_mutations();
+		}
+		/* Pets */
+		else if (ch == '5')
+		{
+			/* Spawn */
+			do_cmd_knowledge_pets();
 		}
 
 		/* Unknown option */

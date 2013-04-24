@@ -352,9 +352,9 @@
 /*
  * OPTION: Check the modification time of *_info.raw files
  */
-/*
+
 #define CHECK_MODIFICATION_TIME
-*/
+
 
 /*
  * OPTION: Enable the "smart_learn" and "smart_cheat" options.
@@ -374,7 +374,7 @@
 /*
  * OPTION: Allow the use of random artifacts (see "randart.c").
  */
-#define GJW_RANDART
+/* #define GJW_RANDART */
 
 
 /*
@@ -499,20 +499,20 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"ccc02@uark.edu"
+#define MAINTAINER	"campbell@oook.cz"
 
 
 /*
  * OPTION: Default font (when using X11).
  */
-/*
+
 #define DEFAULT_X11_FONT		"9x15"
-*/
+
 
 /*
  * OPTION: Default fonts (when using X11)
  */
-/*
+
 #define DEFAULT_X11_FONT_0		"10x20"
 #define DEFAULT_X11_FONT_1		"9x15"
 #define DEFAULT_X11_FONT_2		"9x15"
@@ -521,18 +521,18 @@
 #define DEFAULT_X11_FONT_5		"5x8"
 #define DEFAULT_X11_FONT_6		"5x8"
 #define DEFAULT_X11_FONT_7		"5x8"
-*/
+
 
 /*
  * Hack -- Special "ancient machine" versions
  */
-/*
+
 #if defined(USE_286) || defined(ANGBAND_LITE_MAC)
 # ifndef ANGBAND_LITE
 #  define ANGBAND_LITE
 # endif
 #endif
-*/
+
 
 /*
  * OPTION: Attempt to minimize the size of the game

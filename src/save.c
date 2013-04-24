@@ -758,6 +758,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+	wr_u32b(m_ptr->smart);
 	wr_byte(0);
 }
 
@@ -805,6 +806,7 @@ static void wr_lore(int r_idx)
 	wr_u32b(l_ptr->r_flags4);
 	wr_u32b(l_ptr->r_flags5);
 	wr_u32b(l_ptr->r_flags6);
+	wr_u32b(l_ptr->r_flags7);
 
 
 	/* Monster limit per level */
@@ -1097,6 +1099,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->tim_wraith);
 	wr_s16b(p_ptr->tim_esp);
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */
@@ -1106,6 +1109,14 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
 	wr_byte(0);
+
+	/* Mutations */
+	wr_u32b(p_ptr->muta1);
+	wr_u32b(p_ptr->muta2);
+    wr_u32b(p_ptr->muta3);
+    wr_u32b(p_ptr->muta4);
+    wr_u32b(p_ptr->muta5);
+    wr_u32b(p_ptr->muta6);
 
 	/* Future use */
 	for (i = 0; i < 10; i++) wr_u32b(0L);
@@ -1524,6 +1535,10 @@ static bool wr_savefile_new(void)
 	/* Dump the stores */
 	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
 
+	/* Write the pet command settings */
+	wr_s16b(p_ptr->pet_follow_distance);
+	wr_byte(p_ptr->pet_open_doors);
+	wr_byte(p_ptr->pet_pickup_items);
 
 	/* Player is not dead, write the dungeon */
 	if (!p_ptr->is_dead)

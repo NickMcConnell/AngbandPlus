@@ -241,22 +241,27 @@ errr path_parse(char *buf, int max, cptr file)
 
 #else /* SET_UID */
 
-
 /*
  * Extract a "parsed" path from an initial filename
- *
+ * 
  * This requires no special processing on simple machines,
  * except for verifying the size of the filename.
- */
+ */   
 errr path_parse(char *buf, int max, cptr file)
 {
-	/* Accept the filename */
-	strnfmt(buf, max, "%s", file);
+    /* Accept the filename */
+    strnfmt(buf, max, "%s", file);
 
-	/* Success */
-	return (0);
+#if defined(MAC_MPW) && defined(CARBON)    
+
+    /* Need to convert pathname according to operating system version :( */
+    convert_pathname(buf);
+
+#endif /* MAC_MPW && CARBON */
+
+    /* Success */
+    return (0);
 }
-
 
 #endif /* SET_UID */
 
@@ -343,20 +348,23 @@ FILE *my_fopen(cptr file, cptr mode)
 {
 	char buf[1024];
 
+	FILE *fff;
+	
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (NULL);
 
-#if defined(MACINTOSH) && defined(MAC_MPW)
+	fff = fopen(buf, mode);
+	
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
 
-	/* setting file type/creator -- AR */
-	tempfff = fopen(buf, mode);
-	fsetfileinfo(file, _fcreator, _ftype);
-	fclose(tempfff);	
+    /* Set file creator and type if fopen (for writing) was successful */
+    if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
 
-#endif
+#endif /* MAC_MPW || MACH_O_CARBON */
 
-	/* Attempt to fopen the file anyway */
-	return (fopen(buf, mode));
+
+    /* Return open file or NULL */
+    return (fff);
 }
 
 
@@ -411,64 +419,118 @@ FILE *my_fopen_temp(char *buf, int max)
 #endif /* HAVE_MKSTEMP */
 
 
+
 /*
- * Hack -- replacement for "fgets()"
+ * A more flexible my_fgets() replacement.
+ * It accepts EOF terminated last line often found on DOS/Windows as well as
+ * understands two different end-of-line characters currently in use for
+ * the Macintosh.
  *
- * Read a string, without a newline, to a file
- *
- * Process tabs, strip internal non-printables
+ * huge -> size_t in 3.0.1 or greater.
  */
 errr my_fgets(FILE *fff, char *buf, huge n)
 {
-	huge i = 0;
+    int i = 0;
+    int len;
+    char *s = buf;
 
-	char *s;
 
-	char tmp[1024];
+    /* Paranoia */
+    if (n <= 0) return (1);
 
-	/* Read a line */
-	if (fgets(tmp, 1024, fff))
-	{
-		/* Convert weirdness */
-		for (s = tmp; *s; s++)
-		{
-			/* Handle newline */
-			if (*s == '\n')
-			{
-				/* Terminate */
-				buf[i] = '\0';
+    /* Enforce historical upper bound */
+    if (n > 1024) n = 1024;
 
-				/* Success */
-				return (0);
-			}
+    /* Leave a byte for terminating null */
+    len = n - 1;
 
-			/* Handle tabs */
-			else if (*s == '\t')
-			{
-				/* Hack -- require room */
-				if (i + 8 >= n) break;
+    /* While there's room left in the buffer */
+    while (i < len)
+    {
+        int c;
 
-				/* Append 1-8 spaces */
-				do { buf[i++] = ' '; } while (i % 8);
-			}
+        /*
+         * Read next character - stdio buffers I/O, so there's no
+         * need for buffering it again using fgets.
+         */
+        c = fgetc(fff);
 
-			/* Handle printables */
-			else if (isprint(*s))
-			{
-				/* Copy */
-				buf[i++] = *s;
+        /* End of file */
+        if (c == EOF)
+        {
+            /* No characters read -- signal error */
+            if (i == 0) break;
 
-				/* Check length */
-				if (i >= n) break;
-			}
-		}
-	}
+            /*
+             * Be nice to DOS/Windows, where a last line of a file isn't
+             * always \n terminated.
+             */
+            *s = '\0';
 
-	/* Nothing */
-	buf[0] = '\0';
+            /* Success */
+            return (0);
+        }
 
-	/* Failure */
-	return (1);
+#if defined(MACINTOSH) || defined(MACH_O_CARBON)
+
+        /*
+         * Be nice to the Macintosh, where a file can have Mac or Unix
+
+         * end of line, especially since the introduction of OS X.
+         * MPW tools were also very tolerant to the Unix EOL.
+         */
+        if (c == '\r') c = '\n';
+
+#endif /* MACINTOSH || MACH_O_CARBON */
+
+        /* End of line */
+        if (c == '\n')
+        {
+            /* Null terminate */
+            *s = '\0';
+
+            /* Success */
+            return (0);
+        }
+
+        /* Expand a tab into spaces */
+        if (c == '\t')
+        {
+            int tabstop;
+
+            /* Next tab stop */
+            tabstop = ((i + TAB_COLUMNS) / TAB_COLUMNS) * TAB_COLUMNS;
+
+            /* Bounds check */
+            if (tabstop >= len) break;
+
+            /* Convert it to spaces */
+            while (i < tabstop)
+            {
+                /* Store space */
+                *s++ = ' ';
+
+                /* Count */
+                i++;
+            }
+        }
+
+        /* Ignore non-printables */
+        else if (isprint(c))
+        {
+            /* Store character in the buffer */
+            *s++ = c;
+
+            /* Count number of characters in the buffer */
+            i++;
+        }
+    }
+
+    /* Buffer overflow or EOF - return an empty string */
+    buf[0] = '\0';
+
+    /* Error */
+    return (1);
 }
 
 
@@ -585,34 +647,37 @@ errr fd_copy(cptr file, cptr what)
  */
 int fd_make(cptr file, int mode)
 {
-	char buf[1024];
+    char buf[1024];
 
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+    int fd;
+
+
+    /* Hack -- Try to parse the path */
+    if (path_parse(buf, 1024, file)) return (-1);
 
 #if defined(MACINTOSH)
 
-# if defined(MACINTOSH) && defined(MAC_MPW)
-
-	/* setting file type and creator -- AR */
-	errr_tmp = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY);
-	fsetfileinfo(file, _fcreator, _ftype);
-	return(errr_tmp);
-	
-# else
-
-	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
-
-# endif
+    /* Create the file, fail if exists, write-only, binary */
+    fd = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY);
 
 #else
 
-	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+    /* Create the file, fail if exists, write-only, binary */
+    fd = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
 
 #endif
 
+
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+
+    /* Set file creator and type if the file is created successfully */
+    if (fd >= 0) fsetfileinfo(buf, _fcreator, _ftype);
+
+#endif /* MAC_MPW || MACH_O_CARBON */
+
+
+    /* Return the descriptor */
+    return (fd);
 }
 
 
@@ -629,15 +694,15 @@ int fd_open(cptr file, int flags)
 	if (path_parse(buf, 1024, file)) return (-1);
 
 #if defined(MACINTOSH) || defined(WINDOWS)
-
-	/* Attempt to open the file */
-	return (open(buf, flags | O_BINARY));
-
+ 
+ 	/* Attempt to open the file */
+ 	return (open(buf, flags | O_BINARY));
+ 
 #else
-
-	/* Attempt to open the file */
-	return (open(buf, flags | O_BINARY, 0));
-
+ 
+ 	/* Attempt to open the file */
+ 	return (open(buf, flags | O_BINARY, 0));
+ 
 #endif
 
 }
@@ -815,7 +880,8 @@ errr fd_close(int fd)
 }
 
 
-#ifdef CHECK_MODIFICATION_TIME
+#if defined(CHECK_MODIFICATION_TIME) && !defined(MAC_MPW)
+
 # ifdef MACINTOSH
 #  include <stat.h>
 # else
@@ -827,11 +893,11 @@ errr fd_close(int fd)
 errr check_modification_date(int fd, cptr template_file)
 {
 	char buf[1024];
-
+	
 	struct stat txt_stat, raw_stat;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, template_file);
 
 	/* Access stats on text file */
 	if (stat(buf, &txt_stat))
@@ -852,11 +918,10 @@ errr check_modification_date(int fd, cptr template_file)
 		/* Reprocess text file */
 		return (-1);
 	}
-
-	return (0);
+    return (0);
 }
 
-#endif /* CHECK_MODIFICATION_TIME */
+#endif /* CHECK_MODIFICATION_TIME && !MAC_MPW */
 
 #endif /* ACORN */
 
@@ -2021,6 +2086,11 @@ static char *message__buf;
  */
 static u16b *message__type;
 
+/*
+ * The array[MESSAGE_MAX] of u16b for the count of messages
+ */
+static u16b *message__count;
+
 
 /*
  * Table of colors associated to message-types
@@ -2029,12 +2099,21 @@ static byte message__color[MSG_MAX];
 
 
 /*
+ * Calculate the index of a message
+ */
+static s16b message_age2idx(int age)
+{
+	return ((message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX);
+}
+
+
+/*
  * How many messages are "available"?
  */
 s16b message_num(void)
 {
 	/* Determine how many messages are "available" */
-	return (message__next + MESSAGE_MAX - message__last) % MESSAGE_MAX;
+	return (message_age2idx(message__last - 1));
 }
 
 
@@ -2044,21 +2123,29 @@ s16b message_num(void)
  */
 cptr message_str(s16b age)
 {
+	static char buf[1024];
 	s16b x;
-	s16b o;
+	u16b o;
 	cptr s;
 
 	/* Forgotten messages have no text */
 	if ((age < 0) || (age >= message_num())) return ("");
 
 	/* Get the "logical" index */
-	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
+	x = message_age2idx(age);
 
 	/* Get the "offset" for the message */
 	o = message__ptr[x];
 
 	/* Get the message text */
 	s = &message__buf[o];
+
+	/* HACK - Handle repeated messages */
+	if (message__count[x] > 1)
+	{
+		strnfmt(buf, sizeof(buf), "%s <%dx>", s, message__count[x]);
+		s = buf;
+	}
 
 	/* Return the message text */
 	return (s);
@@ -2072,14 +2159,30 @@ u16b message_type(s16b age)
 {
 	s16b x;
 
-	/* Forgotten messages have no special color */
-	if ((age < 0) || (age >= message_num())) return (TERM_WHITE);
+	/* Paranoia */
+	if (!message__type) return (MSG_GENERIC);
+
+	/* Forgotten messages are generic */
+	if ((age < 0) || (age >= message_num())) return (MSG_GENERIC);
 
 	/* Get the "logical" index */
-	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
+	x = message_age2idx(age);
 
 	/* Return the message type */
 	return (message__type[x]);
+}
+
+
+/*
+ * Recall the "color" of a message type
+ */
+static byte message_type_color(u16b type)
+{
+	byte color = message__color[type];
+
+	if (color == TERM_DARK) color = TERM_WHITE;
+
+	return (color);
 }
 
 
@@ -2088,7 +2191,7 @@ u16b message_type(s16b age)
  */
 byte message_color(s16b age)
 {
-	return message__color[message_type(age)];
+	return message_type_color(message_type(age));
 }
 
 
@@ -2121,10 +2224,11 @@ errr message_color_define(u16b type, byte color)
  */
 void message_add(cptr str, u16b type)
 {
-	int n, k, i, x, o;
+	int k, i, x, o;
+	size_t n;
 
 	cptr s;
-	cptr t;
+
 	cptr u;
 	char *v;
 
@@ -2142,6 +2246,27 @@ void message_add(cptr str, u16b type)
 
 
 	/*** Step 2 -- Attempt to optimize ***/
+
+	/* Get the "logical" last index */
+	x = message_age2idx(0);
+
+	/* Get the "offset" for the last message */
+	o = message__ptr[x];
+
+	/* Get the message text */
+	s = &message__buf[o];
+
+	/* Last message repeated? */
+	if (streq(str, s))
+	{
+		/* Increase the message count */
+		message__count[x]++;
+
+		/* Success */
+		return;
+	}
+
+	/*** Step 3 -- Attempt to optimize ***/
 
 	/* Limit number of messages to check */
 	k = message_num() / 4;
@@ -2177,11 +2302,8 @@ void message_add(cptr str, u16b type)
 		/* Get the old string */
 		old = &message__buf[o];
 
-		/* Inline 'streq(str, old)' */
-		for (s = str, t = old; (*s == *t) && *s; ++s, ++t) /* loop */ ;
-
 		/* Continue if not equal */
-		if (*s) continue;
+		if (!streq(str, old)) continue;
 
 		/* Get the next available message index */
 		x = message__next;
@@ -2202,12 +2324,14 @@ void message_add(cptr str, u16b type)
 		/* Store the message type */
 		message__type[x] = type;
 
+		/* Store the message count */
+		message__count[x] = 1;
+
 		/* Success */
 		return;
 	}
 
-
-	/*** Step 3 -- Ensure space before end of buffer ***/
+	/*** Step 4 -- Ensure space before end of buffer ***/
 
 	/* Kill messages, and wrap, if needed */
 	if (message__head + (n + 1) >= MESSAGE_BUF)
@@ -2240,7 +2364,7 @@ void message_add(cptr str, u16b type)
 	}
 
 
-	/*** Step 4 -- Ensure space for actual characters ***/
+	/*** Step 5 -- Ensure space for actual characters ***/
 
 	/* Kill messages, if needed */
 	if (message__head + (n + 1) > message__tail)
@@ -2270,7 +2394,7 @@ void message_add(cptr str, u16b type)
 	}
 
 
-	/*** Step 5 -- Grab a new message index ***/
+	/*** Step 6 -- Grab a new message index ***/
 
 	/* Get the next available message index */
 	x = message__next;
@@ -2286,7 +2410,7 @@ void message_add(cptr str, u16b type)
 	}
 
 
-	/*** Step 6 -- Insert the message text ***/
+	/*** Step 7 -- Insert the message text ***/
 
 	/* Assign the starting address */
 	message__ptr[x] = message__head;
@@ -2301,6 +2425,9 @@ void message_add(cptr str, u16b type)
 
 	/* Store the message type */
 	message__type[x] = type;
+
+	/* Store the message count */
+	message__count[x] = 1;
 }
 
 
@@ -2313,6 +2440,7 @@ errr messages_init(void)
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
 	C_MAKE(message__type, MESSAGE_MAX, u16b);
+	C_MAKE(message__count, MESSAGE_MAX, u16b);
 
 	/* Init the message colors to white */
 	(void)C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
@@ -2334,6 +2462,7 @@ void messages_free(void)
 	C_FREE(message__ptr, MESSAGE_MAX, u16b);
 	C_FREE(message__buf, MESSAGE_BUF, char);
 	C_FREE(message__type, MESSAGE_MAX, u16b);
+	C_FREE(message__count, MESSAGE_MAX, u16b);
 }
 
 
@@ -2399,21 +2528,29 @@ void move_cursor(int row, int col)
 static void msg_flush(int x)
 {
 	byte a = TERM_L_BLUE;
-
-	/* Pause for response */
-	Term_putstr(x, 0, -1, a, "-more-");
-
-	/* Get an acceptable keypress */
-	while (1)
+	
+	if ((skip_msgs == FALSE))
 	{
-		char ch;
-		ch = inkey();
-		if (quick_messages) break;
-		if ((ch == ESCAPE) || (ch == ' ')) break;
-		if ((ch == '\n') || (ch == '\r')) break;
-		bell("Illegal response to a 'more' prompt!");
-	}
+		/* Pause for response */
+		Term_putstr(x, 0, -1, a, "-more-");
 
+		/* Get an acceptable keypress */
+		while (1)
+		{
+			char ch;
+			ch = inkey();
+			if (ch == ESCAPE)
+			{
+				/* Skip all the prompts until player's turn */
+				skip_msgs = TRUE;
+				break;
+			}
+			if (ch == ' ') break;
+			if ((ch == '\n') || (ch == '\r')) break;
+			if (quick_messages) break;
+			bell("Illegal response to a 'more' prompt!");
+		}
+	}	
 	/* Clear the line */
 	Term_erase(0, 0, 255);
 }
@@ -2452,8 +2589,12 @@ static void msg_print_aux(u16b type, cptr msg)
 	int n;
 	char *t;
 	char buf[1024];
-	byte color = TERM_WHITE;
+	byte color;
+	int w, h;
 
+
+	/* Obtain the size */
+	(void)Term_get_size(&w, &h);
 
 	/* Hack -- Reset */
 	if (!msg_flag) message_column = 0;
@@ -2462,7 +2603,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	n = (msg ? strlen(msg) : 0);
 
 	/* Hack -- flush when requested or needed */
-	if (message_column && (!msg || ((message_column + n) > 72)))
+	if (message_column && (!msg || ((message_column + n) > (w - 8))))
 	{
 		/* Flush */
 		msg_flush(message_column);
@@ -2502,30 +2643,26 @@ static void msg_print_aux(u16b type, cptr msg)
 
 
 	/* Copy it */
-	strcpy(buf, msg);
+	my_strcpy(buf, msg, sizeof(buf));
 
 	/* Analyze the buffer */
 	t = buf;
 
-	/* Get the color of the message (if legal) */
-	if (message__color)
-		color = message__color[type];
-
-	/* HACK -- no "black" messages */
-	if (color == TERM_DARK) color = TERM_WHITE;
+	/* Get the color of the message */
+	color = message_type_color(type);
 
 	/* Split message */
-	while (n > 72)
+	while (n > (w - 8))
 	{
 		char oops;
 
 		int check, split;
 
 		/* Default split */
-		split = 72;
+		split = (w - 8);
 
 		/* Find the "best" split point */
-		for (check = 40; check < 72; check++)
+		for (check = (w / 2); check < (w - 8); check++)
 		{
 			/* Found a valid split point */
 			if (t[check] == ' ') split = check;
@@ -2564,6 +2701,7 @@ static void msg_print_aux(u16b type, cptr msg)
 
 	/* Optional refresh */
 	if (fresh_after) Term_fresh();
+	
 }
 
 
@@ -2589,7 +2727,7 @@ void msg_format(cptr fmt, ...)
 	va_start(vp, fmt);
 
 	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, fmt, vp);
+	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
 
 	/* End the Varargs Stuff */
 	va_end(vp);
@@ -2631,7 +2769,7 @@ void message_format(u16b message_type, s16b extra, cptr fmt, ...)
 	va_start(vp, fmt);
 
 	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, fmt, vp);
+	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
 
 	/* End the Varargs Stuff */
 	va_end(vp);
@@ -2753,8 +2891,6 @@ void prt(cptr str, int row, int col)
 	/* Spawn */
 	c_prt(TERM_WHITE, str, row, col);
 }
-
-
 
 
 /*
@@ -3281,6 +3417,9 @@ void request_command(bool shopping)
 		{
 			/* Hack -- no flush needed */
 			msg_flag = FALSE;
+
+			/* Hack -- Reset command skip */
+			skip_msgs = FALSE;
 
 			/* Activate "command mode" */
 			inkey_flag = TRUE;

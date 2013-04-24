@@ -243,7 +243,7 @@ Alter (+)
 
 --- Spell and Prayer Commands ---
 
-Browse a book (b) or Peruse a book (P)
+Browse a book (b)
         Only mages, rogues, and rangers can read magic books, and only
         priests and paladins can read prayer books.  Warriors cannot read
         any books.  When this command is used, all of the spells or prayers
@@ -251,7 +251,7 @@ Browse a book (b) or Peruse a book (P)
         such as their level, the amount of mana required to cast them, and
         whether or not you know the spell or prayer.
 
-Gain new spells or prayers (G)
+Gain new spells or mani'p'ulations (G)
         Use this command to actually learn new spells or prayers.  When you
         are able to learn new spells or prayers, the word "Study" will appear
         on the status line at the bottom of the screen.  If you have a book
@@ -284,6 +284,23 @@ Mani'p'ulate a device (p)
         Since you must use the activation from a device, you cannot be blind
         or confused while activating, and there must be some light present.
         This command takes some energy.
+        
+Use a Racial power, or Mutation (U)
+		Your race may have certain special powers, or possibly during the 
+		course of the game you may be struck with a mutation. If this is 
+		the case you can access some of the activateable abilities by 
+		hitting the U key. Racial powers and Mutations use Mana - possibly 
+		hp depending on your class.
+
+Command your Pets (P)
+		This command gives you access to your pet commands. Through certain 
+		methods, or perhaps through your commanding presence (if you happen 
+		to be an officer) you may acquire pets. These are monsters that 
+		do your bidding. When they kill creatures you will recieve experience, 
+		and the more pets you have the slower your mana regenerates. Pets 
+		do *not* transfer from level to level in the dungeon. They also cannot
+		kill uniques (They can hurt them, just not do the last point of 
+		damage).
 
 --- Object Manipulation Commands ---
 

@@ -3352,6 +3352,7 @@ bool fire_beam(int typ, int dir, int dam)
 	return (project_hook(typ, dir, dam, flg));
 }
 
+
 /*
  * Cast a bolt spell, or rarely, a beam spell
  */
@@ -3365,6 +3366,170 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 	{
 		return (fire_bolt(typ, dir, dam));
 	}
+}
+
+/*
+ * Why the fuck isn't this working!?!
+ *								-ccc
+ * Keee-rist. Well it looks like it _is_ working. At freaking long
+ * ranges. .. 
+ *
+ * I fixed this. There were several problems, most of which were 
+ * solved by simplying checking the code. This whole piece of code
+ * was a strange occurance, what with the flickering endpoints. Made
+ * me think of trying to add artillery-ccc
+ *
+ * Cast a volley of bolt spells
+ * Scatter "bolts" around the target or first obstacle reached.
+ * Affect grids, objects, and monsters
+ *
+ * dd - bolt damage dice
+ * ds - bolt damage sides
+ * num - number of bolts in volley
+ * dev - maximum distance to spread
+ */
+bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev)
+{
+	int ly, lx, ld;
+	int ty, tx, y, x, dist;
+	int i;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int flg = PROJECT_THRU | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID;
+
+	/* Assume okay */
+	bool result = TRUE;
+
+	/* Use the given direction */
+	ly = ty = py + 20 * ddy[dir];
+	lx = tx = px + 20 * ddx[dir];
+	ld = 20;
+
+	y = py;
+	x = px;
+
+	/* Hack -- Use an actual "target" */
+	if (dir == 5)
+	{
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
+
+		lx = 20 * (tx - px) + px;
+		ly = 20 * (ty - py) + py;
+		ld = distance(py, px, ly, lx);
+	}
+
+	if ((dir != 5) || !target_okay())
+	{
+		/* Find the REAL target :) */
+		for (dist = 0; dist <= MAX_RANGE; dist++)
+		{
+			/* Never pass through walls */
+			if (dist && !cave_floor_bold(y, x)) break;
+
+			/* Never pass through monsters */
+			if (dist && cave_m_idx[y][x]) break;
+			/* Check for arrival at "final target" */
+			if ((x == tx) && (y == ty)) break;
+
+			/* Calculate the new location */
+			mmove2(&y, &x, py, px, ty, tx);
+		}
+	}
+
+	/* Blast */
+	for (i = 0; i < num; i++)
+	{
+		while (1)
+		{
+			/* Get targets for some bolts */
+			y = rand_spread(ly, ld * dev / 20);
+			x = rand_spread(lx, ld * dev / 20);
+
+			if (distance(ly, lx, y, x) <= ld * dev / 20) break;
+		}
+
+		/* Analyze the "dir" and the "target". */
+		if (!project(-1, 0, y, x, damroll(dd, ds), typ, flg))
+		{
+			result = FALSE;
+		}
+	}
+
+	return (result);
+}
+
+bool fire_barrage(int typ, int dir, int dd, int ds, int num, int dev)
+{
+	int ly, lx, ld;
+	int ty, tx, y, x, dist;
+	int i;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int flg = PROJECT_THRU | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID;
+
+	/* Assume okay */
+	bool result = TRUE;
+
+	/* Use the given direction */
+	ly = ty = py + 20 * ddy[dir];
+	lx = tx = px + 20 * ddx[dir];
+	ld = 20;
+
+	y = py;
+	x = px;
+
+	/* Hack -- Use an actual "target" */
+	if (dir == 5)
+	{
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
+
+		lx = 20 * (tx - px) + px;
+		ly = 20 * (ty - py) + py;
+		ld = distance(py, px, ly, lx);
+	}
+
+	if ((dir != 5) || !target_okay())
+	{
+		/* Find the REAL target :) */
+		for (dist = 0; dist <= MAX_RANGE; dist++)
+		{
+			/* Never pass through walls */
+			if (dist && !cave_floor_bold(y, x)) break;
+
+			/* Never pass through monsters */
+			if (dist && cave_m_idx[y][x]) break;
+			/* Check for arrival at "final target" */
+			if ((x == tx) && (y == ty)) break;
+
+			/* Calculate the new location */
+			mmove2(&y, &x, py, px, ty, tx);
+		}
+	}
+
+	/* Blast */
+	for (i = 0; i < num; i++)
+	{
+		while (1)
+		{
+			/* Get targets for some bolts */
+			y = rand_spread(ly, ld * dev / 20);
+			x = rand_spread(lx, ld * dev / 20);
+
+			if (distance(ly, lx, y, x) <= ld * dev / 20) break;
+		}
+
+		/* Analyze the "dir" and the "target". */
+		if (!project(-1, 3, y, x, damroll(dd, ds), typ, flg))
+		{
+			result = FALSE;
+		}
+	}
+
+	return (result);
 }
 
 
@@ -3456,6 +3621,20 @@ bool teleport_monster(int dir)
 	return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
 }
 
+bool charm_monster(int dir, int plev)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_CHARM, dir, plev, flg));
+}
+
+
+bool charm_animal(int dir, int plev)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_CONTROL_ANIMAL, dir, plev, flg));
+}
+
+
 
 
 /*
@@ -3497,3 +3676,46 @@ bool sleep_monsters_touch(void)
 	int flg = PROJECT_KILL | PROJECT_HIDE;
 	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
 }
+
+/*
+ * Stun monsters
+ */
+bool stun_monsters(int dam)
+{
+	return (project_hack(GF_STUN, dam));
+}
+
+/*
+ * Confuse monsters
+ */
+bool confuse_monsters(int dam)
+{
+	return (project_hack(GF_OLD_CONF, dam));
+}
+
+/*
+ * Turn everyone
+ */
+bool turn_monsters(int dam)
+{
+	return (project_hack(GF_TURN_ALL, dam));
+}
+
+/*
+ * Charm monsters
+ */
+bool charm_monsters(int dam)
+{
+	return (project_hack(GF_CHARM, dam));
+}
+
+
+/*
+ * Charm animals
+ */
+bool charm_animals(int dam)
+{
+	return (project_hack(GF_CONTROL_ANIMAL, dam));
+}
+
+

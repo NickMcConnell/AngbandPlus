@@ -1,7 +1,7 @@
 
 
   ************************************************************************
-  **   Steamband 0.1.0   **   The Journey from the Ceter of the Earth   **
+  **   Steamband 0.2.2   **   The Journey from the Ceter of the Earth   **
   ************************************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -15,10 +15,10 @@
 
                  Angband 2.9.0 - 2.9.3 by Robert Ruehlmann
 
-				Steamband 0.1.0  by Courtney C. Campbell
+				Steamband 0.2.2  by Courtney C. Campbell
 				
-        Send comments, bug reports, and patches, to "ccc02@uark.edu"
-       Visit the Angband Home Page at "http://thangorodrim.angband.org/"
+        Send comments, bug reports, and patches, to "campbell@oook.cz"
+       Visit the Angband Home Page at "http://www.thangorodrim.net/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
       				Visit the #angband channel on World IRC!
     Read the online help files, especially "general.txt" and "version.txt"
@@ -30,17 +30,19 @@ Hello everyone!
 
 Ok, first things first. This program has bugs. I am _not_ a coder by nature
 and have only recently begun teaching myself to code. So if you find any bugs,
-(and I'm sure there are a bunch of them) please e-mail me.
+(and I'm sure there are a bunch of them) please e-mail me. However, version 
+0.2.2 is much more stable than previous version, so it is HIGHLY RECOMMENDED
+that you update.
 
 You can also join the steamband mailing list! You do this by sending an
 e-mail to Steamband-subscribe@yahoogroups.com . This will keep you 
 up to date on all the latest steamband developments.
 
-Please, _Please_ take note that this is a 0.1.0 version. Steamband 
+Please, _Please_ take note that this is a 0.2.2 version. Steamband 
 will not be what I want it to be until version 1.0.0. There are many
-_many_ changes planned. Mutations will be added, a new leveling system
-I want to impliment, and more artifacts and monsters that are in theme,
-are just a _few_ of the many improvements planned. I'm mainly releasing 
+_many_ changes planned. A new leveling system I want to impliment,
+and more artifacts and monsters that are in theme, are just a _few_
+of the many improvements planned. I'm mainly releasing 
 now for feedback, and so that everyone can have a say in what they want!
 
 I plan on adding back in randarts, and an autosquelch, but those are 
@@ -53,7 +55,7 @@ you want to survive!
 
 === General Info ===
 
-This is the README file for Steamband 0.1.0 (10th January 2003).
+This is the README file for Steamband 0.2.2 (26th Feb 2003).
 
 Steamband is a "graphical" dungeon adventure game using textual characters
 to represent the walls and floors of a dungeon and the inhabitants therein,
@@ -61,13 +63,13 @@ in the vein of "rogue", "hack", "nethack", and "moria".
 
 There are some ascii "on line help" files in the "lib/help" directory.
 
-See the Official Angband Home Page "http://thangorodrim.angband.org/" for
+See the Official Angband Home Page "http://www.thangorodrim.net/" for
 a list (mostly complete) of what has changed in each recent version.
 
 See the various Angband ftp sites (including "clockwork.dementia.org" and
 "ftp.cis.ksu.edu") for the latest files, patches, and executables.
 
-Contact Courtney Campbell < ccc02@uark.edu > to report bugs. Use the
+Contact Courtney Campbell < campbell@oook.cz > to report bugs. Use the
 newsgroup "rec.games.roguelike.angband" to ask general questions about the
 game, including compilation questions.
 

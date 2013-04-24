@@ -86,7 +86,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  d  Drop an item                         D  Disarm a trap
  e  Equipment list                       E  Eat some food
  f  Fire an item                         F  Fuel your lantern/torch
- g  Stay still (flip pickup)             G  Gain new spells/prayers
+ g  Stay still (flip pickup)             G  Gain new spells/mani'p'ulations
  h  (unused)                             H  (unused)
  i  Inventory list                       I  Observe an item
  j  Jam a door                           J  (unused)
@@ -95,12 +95,12 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  m  Cast a spell                         M  Full dungeon map
  n  (unused)                             N  (unused)
  o  Open a door or chest                 O  (unused)
- p  Pray a prayer                        P  (unused)
+ p  Pray a prayer                        P  Command your pets
  q  Quaff a tonic                        Q  Quit (commit suicide)
  r  Rig an mechanism                     R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode
  t  Take off equipment                   T  Dig a tunnel
- u  Use a tool                           U  (unused)
+ u  Use a tool                           U  Use a mutation/racial power
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
  x  (unused)                             X  (unused)
@@ -154,7 +154,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  l  (walk - east)                        L  (run - east)
  m  Cast a spell                         M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
- o  Open a door or chest                 O  (unused)
+ o  Open a door or chest                 O  C'o'mmand your pets
  p  Pray a prayer                        P  Browse a book
  q  Quaff a tonic                        Q  Quit (commit suicide)
  r  Rig a mechanism                      R  Rest for a period
@@ -163,7 +163,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  Locate player on map (Where)
- x  Look around                          X  (unused)
+ x  Look around                          X  Use a Mutation / Racial power
  y  (walk - north west)                  Y  (run - north west)
  z  Aim a wand (Zap)                     Z  Use a staff (Zap)
  !  Interact with system                ^A  (special - debug command)

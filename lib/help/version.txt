@@ -1,10 +1,14 @@
 === Version Information ===
 
-This file was last updated for Angband 2.9.2.
+This file was last updated for Steamband 0.2.0
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://thangorodrim.angband.org") for the
-most up to date information about Angband.
+most up to date information about Angband. Also visit #angband on WorldIRC 
+to talk with the developer. 
+
+Steamband is based off of Vanilla Angband 2.9.3. It will soon be diffed 
+to the current version of Angband (minus Lua).
 
 Angband 2.9.2 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time
@@ -441,6 +445,8 @@ Angband Version 2.8   : 01/01/1997 Ben Harrison
 Angband Version 2.9   : 10th April 2000 Robert Ruehlmann
 
 Steamband Version 0.1.0 : 10th January 2003 Courtney C. Campbell
+
+Steamband Version 0.2.0 : 24th January 2003 Courtney C. Campbell
 
 Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
 

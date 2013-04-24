@@ -60,7 +60,7 @@
 
 # Version stamp (required)
 
-V:0.1.1
+V:0.2.2
 
 
 ### Body Armor ###
@@ -72,7 +72,7 @@ C:5:5:10:2
 W:0:3:0:2500
 T:36:0:99
 T:37:0:99
-F:STR | CON | REGEN 
+F:STR | CON | REGEN | SPINES
 
 ### Add activation for the etheric equipment (Phase door / teleport)
 N:2:(*Etheric*)
@@ -145,7 +145,8 @@ W:0:15:0:120000
 T:36:0:99
 T:37:0:99
 F:INFRA | STR | CON | DEX | SPEED | RES_DARK | RES_SHARD | RES_DISEN |
-F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD 
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | RES_ACID | RES_ELEC | 
+F:RES_FIRE | RES_COLD |
 F:HOLD_LIFE | AGGRAVATE | 
 
 N:11:of Permanence
@@ -188,7 +189,7 @@ W:0:2:0:400
 T:34:0:99
 F:RES_ELEC | IGNORE_ELEC
 
-N:18:of Inviolability to Resist Fire
+N:18:of Inviolability to Fire
 X:32:14:0
 W:0:3:0:800
 T:34:0:99
@@ -613,7 +614,7 @@ W:0:10:0:4500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
+F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC | SH_ELEC
 
 N:74:of Burning
 X:24:20:0
@@ -621,7 +622,7 @@ W:0:10:0:3000
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE
+F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | SH_FIRE
 
 N:75:of Freezing
 X:24:15:0
@@ -825,7 +826,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 101 (unused)
 
-N:102:of Morgul
+N:102:of the Leper
 X:24:0:0
 W:5:20:0:0
 C:20:20:10:0

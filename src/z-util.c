@@ -145,6 +145,34 @@ void core(cptr str)
 	quit("core() failed");
 }
 
+/*
+ * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
+ * to 'buf' and NUL-terminates the result.  The 'buf' and 'src' strings may
+ * not overlap.
+ *
+ * my_strcpy() returns strlen(src).  This makes checking for truncation
+ * easy.  Example: if (my_strcpy(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcpy() function in BSD.
+ */
+size_t my_strcpy(char *buf, const char *src, size_t bufsize)
+{
+	size_t len = strlen(src);
+	size_t ret = len;
+
+	/* Paranoia */
+	if (bufsize == 0) return ret;
+
+	/* Truncate */
+	if (len >= bufsize) len = bufsize - 1;
+
+	/* Copy the string and terminate it */
+	(void)memcpy(buf, src, len);
+	buf[len] = '\0';
+
+	/* Return strlen(src) */
+	return ret;
+}
 
 
 

@@ -563,11 +563,19 @@ static void player_wipe(void)
 		r_ptr->max_num = 100;
 
 		/* Hack -- Reset the max counter */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
-
+		if (r_ptr->flags1 & (RF1_UNIQUE)) 
+		{
+		r_ptr->max_num = 1;
+		}
+		
 		/* Clear player kills */
 		l_ptr->r_pkills = 0;
 	}
+
+	/* Default pet command settings */
+	p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
+	p_ptr->pet_open_doors = FALSE;
+	p_ptr->pet_pickup_items = FALSE;
 
 
 	/* Hack -- no ghosts */
@@ -639,6 +647,9 @@ static void player_outfit(void)
 
 			/* Prepare the item */
 			object_prep(i_ptr, k_idx);
+			
+			/* Give the object charges ? */
+			i_ptr->pval = e_ptr->pval;
 			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
 
 			object_aware(i_ptr);
@@ -691,6 +702,7 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 	bool done = FALSE;
 	int hgt;
 	byte attr;
+	
 
 	/* Autoselect if able */
 	if (num == 1) done = TRUE;
@@ -908,7 +920,7 @@ static void race_aux_hook(birth_menu r_str)
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
 	sprintf(s, "Experience: %d%% ", p_info[race].r_exp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-	sprintf(s, "Infravision: %d ft ", p_info[race].infra * 10);
+	sprintf(s, "Infravision: %d ft  ", p_info[race].infra * 10);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 }
 
@@ -1087,7 +1099,6 @@ static bool get_player_sex(void)
 static bool player_birth_aux_1(void)
 {
 	/*** Instructions ***/
-
 	/* Clear screen */
 	Term_clear();
 
@@ -1231,7 +1242,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Gold is inversely proportional to cost */
-		p_ptr->au_birth = p_ptr->au = (100 * (48 - cost)) + 100;
+		p_ptr->au_birth = p_ptr->au = (100 * (POINTS - cost)) + 100;
 		
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);

@@ -964,7 +964,7 @@ void hit_trap(int y, int x)
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
 			{
-				(void)summon_specific(y, x, p_ptr->depth, 0);
+				(void)summon_specific(y, x, p_ptr->depth, 0, FALSE, FALSE);
 			}
 			break;
 		}
@@ -1098,6 +1098,232 @@ void hit_trap(int y, int x)
 	}
 }
 
+void touch_zap_player(monster_type *m_ptr)
+{
+	int aura_damage = 0;
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	if (r_ptr->flags2 & RF2_AURA_FIRE)
+	{
+		if (!p_ptr->immune_fire)
+		{
+			char aura_dam[80];
+
+			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+			/* Hack -- Get the "died from" name */
+			monster_desc(aura_dam, m_ptr, 0x88);
+
+			msg_print("You are suddenly very hot!");
+
+			if (p_ptr->oppose_fire) aura_damage = (aura_damage + 2) / 3;
+			if (p_ptr->resist_fire) aura_damage = (aura_damage + 2) / 3;
+
+			take_hit(aura_damage, aura_dam);
+			r_ptr->flags2 |= RF2_AURA_FIRE;
+			handle_stuff();
+		}
+	}
+
+	if (r_ptr->flags2 & RF2_AURA_COLD)
+	{
+		if (!p_ptr->immune_cold)
+		{
+			char aura_dam[80];
+
+			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+			/* Hack -- Get the "died from" name */
+			monster_desc(aura_dam, m_ptr, 0x88);
+
+			msg_print("You are suddenly very cold!");
+
+			if (p_ptr->oppose_cold) aura_damage = (aura_damage + 2) / 3;
+			if (p_ptr->resist_cold) aura_damage = (aura_damage + 2) / 3;
+
+			take_hit(aura_damage, aura_dam);
+			r_ptr->flags3 |= RF2_AURA_COLD;
+			handle_stuff();
+		}
+	}
+
+	if (r_ptr->flags2 & RF2_AURA_ELEC)
+	{
+		if (!p_ptr->immune_elec)
+		{
+			char aura_dam[80];
+
+			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+			/* Hack -- Get the "died from" name */
+			monster_desc(aura_dam, m_ptr, 0x88);
+
+			if (p_ptr->oppose_elec) aura_damage = (aura_damage + 2) / 3;
+			if (p_ptr->resist_elec) aura_damage = (aura_damage + 2) / 3;
+
+			msg_print("You get zapped!");
+			take_hit(aura_damage, aura_dam);
+			r_ptr->flags2 |= RF2_AURA_ELEC;
+			handle_stuff();
+		}
+	}
+}
+
+
+static void natural_attack(s16b m_idx, int attack, bool *fear)
+{
+	int         k, bonus, chance;
+	int         n_weight = 0;
+	
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	monster_lore *l_ptr;
+	
+
+	char       	m_name[80];
+	int        	dss, ddd;
+	char       	*atk_desc;
+
+	switch (attack)
+	{
+		case MUT3_SCOR_TAIL:
+			dss = 3;
+			ddd = 7;
+			n_weight = 5;
+			atk_desc = "tail";
+			break;
+		case MUT3_HORNS:
+			dss = 2;
+			ddd = 6;
+			n_weight = 15;
+			atk_desc = "horns";
+			break;
+		case MUT3_BEAK:
+			dss = 2;
+			ddd = 4;
+			n_weight = 5;
+			atk_desc = "beak";
+			break;
+		case MUT3_TUSKS:
+			dss = 2;
+			ddd = 6;
+			n_weight = 30;
+			atk_desc = "tusks";
+			break;
+		case MUT3_CLAWS:
+			dss = 2;
+			ddd = 3;
+			n_weight = 5;
+			atk_desc = "claws";
+			break;
+		case MUT3_TENTACLES:
+			dss = 3;
+			ddd = 3;
+			n_weight = 20;
+			atk_desc = "tentacles";
+			break;
+		default:
+			dss = ddd = n_weight = 1;
+			atk_desc = "undefined body part";
+	}
+
+
+	/* Get the monster */
+	m_ptr = &m_list[m_idx];
+	r_ptr = &r_info[m_ptr->r_idx];
+	l_ptr = &l_list[m_ptr->r_idx];
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+
+	/* Calculate the "attack quality" */
+	bonus = p_ptr->to_h;
+	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+
+	/* Test for hit */
+	if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+	{
+		/* Sound */
+		sound(SOUND_HIT);
+
+		msg_format("You hit %s with your %s.", m_name, atk_desc);
+
+		k = damroll(ddd, dss);
+		k = critical_norm(n_weight, p_ptr->to_h, k);
+
+		/* Apply the player damage bonuses */
+		k += p_ptr->to_d;   
+
+		/* No negative damage */
+		if (k < 0) k = 0;
+
+		/* Unusual damage */
+		if (p_ptr->muta5 & MUT5_TWISTED)
+		{
+			if (turn % 2) k *= 2;
+			else k /= 2;
+		}
+
+		/* Complex message */
+		if (p_ptr->wizard)
+		{
+			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+		}
+
+		/* Damage, check for fear and mdeath */
+		switch (attack)
+		{
+			case MUT3_SCOR_TAIL:
+			{
+				project(0, 0, m_ptr->fx, m_ptr->fy, k, GF_POIS, PROJECT_KILL);
+				break;
+			}
+			case MUT3_HORNS:
+			{
+				mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			}
+			case MUT3_BEAK:
+			{
+				mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			}
+			case MUT3_TUSKS:
+			{
+				mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			}
+			case MUT3_CLAWS:
+			{
+				mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			}
+			case MUT3_TENTACLES:
+			{
+				project(0, 0, m_ptr->fx, m_ptr->fy, k, GF_INERTIA, PROJECT_KILL);
+				break;
+			}
+			default:
+			{
+				mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			}
+		}
+	
+		touch_zap_player(m_ptr);
+	
+	}
+	/* Player misses */
+	else
+	{
+		/* Sound */
+		sound(SOUND_MISS);
+
+		/* Message */
+		message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+	
+	}
+}
 
 
 /*
@@ -1112,15 +1338,13 @@ void py_attack(int y, int x)
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 	monster_lore *l_ptr;
-
 	object_type *o_ptr;
 
 	char m_name[80];
 
-	bool fear = FALSE;
-
+	bool fear = FALSE;	
 	bool do_quake = FALSE;
-
+	bool no_extra = FALSE;
 
 	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
@@ -1203,6 +1427,12 @@ void py_attack(int y, int x)
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
 
+			/* Anger the monster */
+			if (k > 0) anger_monster(m_ptr);
+
+			/* Damage the player from aura */
+			touch_zap_player(m_ptr);
+
 			/* Confusion attack */
 			if (p_ptr->confusing)
 			{
@@ -1242,6 +1472,22 @@ void py_attack(int y, int x)
 		}
 	}
 
+	/* Mutations which yield extra 'natural' attacks */
+	if (!no_extra)
+	{
+		if ((p_ptr->muta3 & MUT3_HORNS) && (m_ptr->hp > 0))
+			natural_attack(cave_m_idx[y][x], MUT3_HORNS, &fear);
+		if ((p_ptr->muta3 & MUT3_CLAWS) && (m_ptr->hp > 0))
+			natural_attack(cave_m_idx[y][x], MUT3_CLAWS, &fear);
+		if ((p_ptr->muta3 & MUT3_BEAK) && (m_ptr->hp > 0))
+			natural_attack(cave_m_idx[y][x], MUT3_BEAK, &fear);
+		if ((p_ptr->muta3 & MUT3_SCOR_TAIL) && (m_ptr->hp > 0))
+			natural_attack(cave_m_idx[y][x], MUT3_SCOR_TAIL, &fear);
+		if ((p_ptr->muta3 & MUT3_TUSKS) && (m_ptr->hp > 0))
+			natural_attack(cave_m_idx[y][x], MUT3_TUSKS, &fear);
+		if ((p_ptr->muta3 & MUT3_TENTACLES) && (m_ptr->hp > 0))
+			natural_attack(cave_m_idx[y][x], MUT3_TENTACLES, &fear);
+	}
 
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
@@ -1273,16 +1519,39 @@ void move_player(int dir, int jumping)
 	int px = p_ptr->px;
 
 	int y, x;
-
+	bool p_can_pass_walls = FALSE;
+	bool wall_is_perma = FALSE;
 
 	/* Find the result of moving */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+	/* Player can not walk through "walls"... */
+	/* unless in Shadow Form */
+	if ((p_ptr->wraith_form) || (p_ptr->tim_wraith))
+		p_can_pass_walls = TRUE;
+
+	if (((cave_feat[y][x]) >= FEAT_PERM_EXTRA) &&
+	    ((cave_feat[y][x]) <= FEAT_PERM_SOLID))
+	{
+		wall_is_perma = TRUE;
+		p_can_pass_walls = FALSE;
+	}
 
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
+		monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+		char m_name[80];
+		monster_desc(m_name, m_ptr, 0);
+		/* careful here, just checking for pet, not friendly */
+		if(is_pet(m_ptr))
+		{
+			msg_format("You push past %s.", m_name);
+			monster_swap(py, px, y, x);
+			update_mon(cave_m_idx[y][x], TRUE);
+		}
+		else
 		/* Attack */
 		py_attack(y, x);
 	}
@@ -1316,7 +1585,7 @@ void move_player(int dir, int jumping)
 #endif /* ALLOW_EASY_ALTER */
 
 	/* Player can not walk through "walls" */
-	else if (!cave_floor_bold(y, x))
+	else if ((!cave_floor_bold(y, x)) && (!p_can_pass_walls))
 	{
 		/* Disturb the player */
 		disturb(0, 0);
@@ -2173,7 +2442,7 @@ void run_step(int dir)
 	/* Take time */
 	p_ptr->energy_use = 100;
 
-	/* Move the player */
+   Move the player */
 	move_player(p_ptr->run_cur_dir, FALSE);
 }
 

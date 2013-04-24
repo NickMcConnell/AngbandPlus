@@ -78,7 +78,7 @@ static cptr r_info_blow_method[] =
 	"BEG",
 	"INSULT",
 	"MOAN",
-	"XXX5",
+	"SPEAK",
 	NULL
 };
 
@@ -178,9 +178,9 @@ static cptr r_info_flags2[] =
 	"XXX3X2",
 	"XXX4X2",
 	"POWERFUL",
-	"XXX5X2",
-	"XXX7X2",
-	"XXX6X2",
+	"AURA_FIRE",
+	"AURA_COLD",
+	"AURA_ELEC",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -214,7 +214,7 @@ static cptr r_info_flags3[] =
 	"ANIMAL",
 	"ALIEN",
 	"BEASTMAN",
-	"XXX3X3",
+	"HOSTILE",
 	"XXX4X3",
 	"HURT_LITE",
 	"HURT_ROCK",
@@ -271,8 +271,8 @@ static cptr r_info_flags4[] =
 	"BR_PLAS",
 	"BR_WALL",
 	"BR_MANA",
-	"XXX5X4",
-	"XXX6X4",
+	"BR_NUKE",
+	"BO_NUKE",
 	"XXX7X4",
 	"XXX8X4"
 };
@@ -341,11 +341,11 @@ static cptr r_info_flags6[] =
 	"S_HI_DEMON",
 	"S_MONSTER",
 	"S_MONSTERS",
-	"S_ANT",
+	"S_AUTOMATA",
 	"S_SPIDER",
 	"S_HOUND",
-	"S_HYDRA",
-	"S_ANGEL",
+	"S_MONKEY",
+	"S_ALIEN",
 	"S_DEMON",
 	"S_UNDEAD",
 	"S_DRAGON",
@@ -353,6 +353,45 @@ static cptr r_info_flags6[] =
 	"S_HI_DRAGON",
 	"S_WRAITH",
 	"S_UNIQUE"
+};
+
+/*
+ * Monster race flags
+ */
+static cptr r_info_flags7[] =
+{
+	"FRIENDLY",
+	"XXX7X2",
+	"XXX7X3",
+	"XXX7X4",
+	"XXX7X5",
+	"XXX7X6",
+	"XXX7X7",
+	"XXX7X8",
+	"XXX7X9",
+	"XXX7X10",
+	"XXX7X11",
+	"XXX7X12",
+	"XXX7X13",
+	"XXX7X14",
+	"XXX7X15",
+	"XXX7X16",
+	"XXX7X17",
+	"XXX7X18",
+	"XXX7X19",
+	"XXX7X20",
+	"XXX7X21",
+	"XXX7X22",
+	"XXX7X23",
+	"XXX7X24",
+	"XXX7X25",
+	"XXX7X26",
+	"XXX7X27",
+	"XXX7X28",
+	"XXX7X29",
+	"XXX7X30",
+	"XXX7X31",
+	"XXX7X32"
 };
 
 
@@ -447,9 +486,9 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-	"XXX1",
-	"XXX2",
-	"XXX3",
+	"SH_FIRE",
+	"SH_ELEC",
+	"SPINES",
 	"AUTOMATA",
 	"IMPACT",
 	"TELEPORT",
@@ -459,8 +498,8 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
-	"XXX6",
+	"WRAITH",
+	"MUTABLE",
 	"BLESSED",
 	"ACTIVATE",
 	"INSTA_ART",
@@ -554,8 +593,8 @@ static cptr c_info_flags[] =
 	"HUSSAR",
 	"NATURE",
 	"NINJA",
-	"XXX21",
-	"XXX22",
+	"ANARCHIST",
+	"MUTABLE",
 	"XXX23",
 	"XXX24",
 	"XXX25",
@@ -711,6 +750,7 @@ static u32b add_name(header *head, cptr buf)
 
 /*
  * Initialize the "z_info" structure, by parsing an ascii "template" file
+ * This is the limits info array
  */
 errr parse_z_info(char *buf, header *head)
 {
@@ -904,7 +944,8 @@ errr parse_z_info(char *buf, header *head)
 
 
 /*
- * Initialize the "v_info" array, by parsing an ascii "template" file
+ * Initialize the "v_info" array, by parsing an ascii "template" file 
+ * This is the Vault Information array CCC
  */
 errr parse_v_info(char *buf, header *head)
 {
@@ -997,6 +1038,7 @@ errr parse_v_info(char *buf, header *head)
 
 /*
  * Initialize the "f_info" array, by parsing an ascii "template" file
+ * This is the terrain info array (where the hell did they get f_info?)
  */
 errr parse_f_info(char *buf, header *head)
 {
@@ -1142,6 +1184,7 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 
 /*
  * Initialize the "k_info" array, by parsing an ascii "template" file
+ * This is the object info array
  */
 errr parse_k_info(char *buf, header *head)
 {
@@ -1396,6 +1439,7 @@ static errr grab_one_activation(artifact_type *a_ptr, cptr what)
 
 /*
  * Initialize the "a_info" array, by parsing an ascii "template" file
+ * This is the artifact info array 
  */
 errr parse_a_info(char *buf, header *head)
 {
@@ -1598,6 +1642,7 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 
 /*
  * Initialize the "e_info" array, by parsing an ascii "template" file
+ * This is the ego item info array 
  */
 errr parse_e_info(char *buf, header *head)
 {
@@ -1779,6 +1824,9 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 
 	if (grab_one_flag(&r_ptr->flags3, r_info_flags3, what) == 0)
 		return (0);
+	
+	if (grab_one_flag(&r_ptr->flags7, r_info_flags7, what) == 0)
+		return (0);
 
 	/* Oops */
 	msg_format("Unknown monster flag '%s'.", what);
@@ -1814,6 +1862,7 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 
 /*
  * Initialize the "r_info" array, by parsing an ascii "template" file
+ * This is the monster race info array
  */
 errr parse_r_info(char *buf, header *head)
 {
@@ -2146,6 +2195,7 @@ static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
 
 /*
  * Initialize the "p_info" array, by parsing an ascii "template" file
+ * This is the player_race info array
  */
 errr parse_p_info(char *buf, header *head)
 {
@@ -2403,6 +2453,7 @@ static errr grab_one_class_flag(player_class *pc_ptr, cptr what)
 
 /*
  * Initialize the "c_info" array, by parsing an ascii "template" file
+ * This is the player class info array
  */
 errr parse_c_info(char *buf, header *head)
 {
@@ -2541,15 +2592,15 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int mhp, exp, sense_div;
+		int mhp, exp, sense_div, pet_upkeep_div;
 		long sense_base;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%ld:%d",
-			            &mhp, &exp, &sense_base, &sense_div))
+		if (5 != sscanf(buf+2, "%d:%d:%ld:%d:%d",
+			            &mhp, &exp, &sense_base, &sense_div, &pet_upkeep_div))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -2557,6 +2608,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_exp = exp;
 		pc_ptr->sense_base = sense_base;
 		pc_ptr->sense_div = sense_div;
+		pc_ptr->pet_upkeep_div = pet_upkeep_div;
 	}
 
 	/* Process 'A' for "Attack Info" (one line only) */
@@ -2653,7 +2705,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'E' for "Starting Equipment" */
 	else if (buf[0] == 'E')
 	{
-		int tval, sval, min, max;
+		int tval, sval, pval, min, max;
 
 		start_item *e_ptr;
 
@@ -2664,8 +2716,8 @@ errr parse_c_info(char *buf, header *head)
 		e_ptr = &pc_ptr->start_items[cur_equip];
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &tval, &sval, &min, &max)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &tval, &sval, &pval, &min, &max)) return (PARSE_ERROR_GENERIC);
 
 		if ((min < 0) || (max < 0) || (min > 99) || (max > 99))
 			return (PARSE_ERROR_INVALID_ITEM_NUMBER);
@@ -2673,6 +2725,7 @@ errr parse_c_info(char *buf, header *head)
 		/* Save the values */
 		e_ptr->tval = tval;
 		e_ptr->sval = sval;
+		e_ptr->pval = pval;
 		e_ptr->min = min;
 		e_ptr->max = max;
 
@@ -2725,6 +2778,7 @@ errr parse_c_info(char *buf, header *head)
 
 /*
  * Initialize the "h_info" array, by parsing an ascii "template" file
+ * This is the player history info array
  */
 errr parse_h_info(char *buf, header *head)
 {
@@ -2795,6 +2849,7 @@ errr parse_h_info(char *buf, header *head)
 
 /*
  * Initialize the "b_info" array, by parsing an ascii "template" file
+ * This is the shop owner info array
  */
 errr parse_b_info(char *buf, header *head)
 {
@@ -2894,6 +2949,7 @@ errr parse_b_info(char *buf, header *head)
 
 /*
  * Initialize the "g_info" array, by parsing an ascii "template" file
+ * This is the cost adjust info array
  */
 errr parse_g_info(char *buf, header *head)
 {

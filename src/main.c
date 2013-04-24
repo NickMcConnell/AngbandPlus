@@ -762,5 +762,35 @@ int main(int argc, char *argv[])
 	return (0);
 }
 
+
 #endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) */
+static SInt32 mac_os_version;
+{
+    (void)Gestalt(gestaltSystemVersion, &mac_os_version);
+}
+
+void convert_pathname(char *path)
+{
+    char buf[1024];
+
+
+    /* Nothing has to be done for CarbonLib on Classic */
+    if (mac_os_version >= 0x1000)
+    {
+        /* Convert to POSIX style pathname */
+        ConvertHFSPathToUnixPath(path, buf);
+
+        /*
+         * If you are using main-mac-carbon.c, I think you have
+         * to do the reverse, i.e. calling ConvertUnixPathToHFSPath
+         * when mac_os_version is less than 0x1000
+         */
+
+        /* Copy the result back */
+        strcpy(path, buf);
+    }
+
+    /* Done */
+    return;
+}
 

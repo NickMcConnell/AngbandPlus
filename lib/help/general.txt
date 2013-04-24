@@ -27,36 +27,36 @@ and then "runs" that character over a period of days, weeks, even months.
 
 The player will begin his adventure on the town level where he may acquire
 supplies, weapons, armor, and magical devices by bartering with various shop
-owners.  Then the player can descend into the Pits of steamband, where he will
-explore the many levels of the dungeon, gaining experience by killing fierce
-creatures, collecting powerful objects and valuable treasure, and returning
-to town occasionally to barter for new supplies.  Eventually, as the player
-grows more experienced, he may attempt to win the game by defeating Morgoth,
-the Lord of Darkness, who resides far below the surface.
+owners.  Then the player can descend into the Underworld of Steamband, where 
+he will explore the many levels of the dungeon, gaining experience by killing 
+fierce creatures, collecting powerful objects and valuable treasure, and 
+returning to town occasionally to barter for new supplies.  Eventually, as 
+the player grows more experienced, he may attempt to win the game by defeating 
+The final enemy and returning to the surface of the world.
 
-Note that steamband is a very complex game, and it may be difficult to grasp
+Note that Steamband is a very complex game, and it may be difficult to grasp
 everything at first, especially if you have never played a "roguelike" game
 before.  You should probably browse through all of the "online help files",
 especially this one, before beginning any serious adventuring...
 
 === A Note from the Maintainer ===
 
-Welcome to Steamband 0.1.0
+Welcome to Steamband 0.2.0
 
 My name is Courtney Campbell, and I have been the maintainer of steamband since
 Januaray 2003.  
 
-steamband 0.1.0 is available for PPC Macintosh, with a x86 compile that
+steamband 0.2.0 is available for PPC Macintosh, with a x86 compile that
 will be available soon.  It is written entirely in C,
 and the source code is freely available.  Creating a version for a new
 platform involves writing as few as 100 lines of code and recompiling.
 
-steamband 0.1.0 is the most recent version.  It, I am sure contains 
-many and varied bugs. Please write "ccc02@uark.edu" with any bugs that you 
+steamband 0.2.0 is the most recent version.  It, I am sure contains 
+many and varied bugs. Please write "campbell@oook.cz" with any bugs that you 
 find. 
 
 You can email compliments, complaints, suggestions, bug reports, and patches
-to me ("ccc02@uark.edu"), and you can post interesting experiences and
+to me ("campbell@oook.cz"), and you can post interesting experiences and
 basic questions to the newsgroup ("rec.games.roguelike.angband").
 
 You may freely distribute the game, and its source, though you are bound
@@ -77,7 +77,7 @@ obtain them from various places as with the source and executables.  New
 spoiler files may be placed into the "lib/info" directory, or into a user
 specified external directory, to allow access via the "online help" system.
 
-Remember to tell all your friends about how much you like steamband...
+Remember to tell all your friends about how much you like Steamband...
 
 
 
@@ -87,7 +87,7 @@ Steamband is, as mentioned above, a very complex game, so you may want to
 try the following quick demonstration.  The following instructions are
 for demonstration purposes only, and so they are intentionally boring.
 
-For this demo, I will assume that you have never played steamband before,
+For this demo, I will assume that you have never played Steamband before,
 that you have not requested any special "sub-windows", that you have not
 requested any special "graphics" modes, that you have a "numeric keypad"
 on your computer, and that you are using the default options, including,
@@ -301,7 +301,7 @@ directly to the east, press "v" + "b" + "6" to throw a flask of oil at the
 monster.  To drop an item from your inventory, press "d" plus the index of
 that item.  You can use the "^X" key to quit and save the game.
 
-You now know enough to play a quick game of steamband.  There is a lot more for
+You now know enough to play a quick game of Steamband.  There is a lot more for
 you to learn, including how to interpret information about your character, how
 to create different kinds of characters, how to determine which equipment to
 wield/wear, how to use various kinds of objects, and how to use the more than

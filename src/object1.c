@@ -18,11 +18,14 @@
 #define MAX_AMULETS    16       /* Used with amulets (min 13) */
 #define MAX_WOODS      32       /* Used with tools (min 30) */
 #define MAX_METALS     32       /* Used with rayguns/apparatuses (min 29/28) */
-#define MAX_COLORS     60       /* Used with tonics (min 60) */
+#define MAX_COLORS     62       /* Used with tonics (min 60) */
 #define MAX_SHROOM     26       /* Used with anodyne (min 26) */
 #define MAX_TITLES     50       /* Used with mechanism (min 48) */
-#define MAX_SYLLABLES 158       /* Used with mechanism (see below) */
-
+/* old scroll syllables */
+/* #define MAX_SYLLABLES 158    */   /* Used with mechanism (see below) */
+#define MAX_MECH_ADJ	49			
+#define MAX_MECH_NOUN1	18
+#define MAX_MECH_NOUN2	12
 
 /*
  * Rings (adjectives and colors).
@@ -151,7 +154,7 @@ static cptr food_adj[MAX_SHROOM] =
 	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
 	"Grey", "Light Blue", "Light Green", "Violet", "Red",
 	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
-	"Flowering", "Crispy", "Smooth", "Dank", "Round"
+	"Flowering", "Crispy", "Smooth", "Dank", "Round", "Silky"
 };
 
 static byte food_col[MAX_SHROOM] =
@@ -160,7 +163,7 @@ static byte food_col[MAX_SHROOM] =
 	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
 	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
 	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
-	TERM_GREEN, TERM_UMBER, TERM_WHITE, TERM_L_DARK, TERM_VIOLET
+	TERM_GREEN, TERM_UMBER, TERM_WHITE, TERM_L_DARK, TERM_VIOLET, TERM_VIOLET,
 };
 
 
@@ -174,17 +177,30 @@ static byte food_col[MAX_SHROOM] =
 static cptr tonic_adj[MAX_COLORS] =
 {
 	"Clear", "Light Brown", "Icky Green", "xxx",
-	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
-	"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
-	"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
-	"Green Speckled", "Grey", "Grey Speckled", "Hazy", "Indigo",
-	"Light Blue", "Light Green", "Magenta", "Metallic Blue", "Metallic Red",
-	"Metallic Green", "Metallic Purple", "Misty", "Orange", "Orange Speckled",
-	"Pink", "Pink Speckled", "Puce", "Purple", "Purple Speckled",
-	"Red", "Red Speckled", "Silver Speckled", "Smoky", "Tangerine",
-	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled",
-	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
-	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold"
+	"Addington's Phos Ferrone Iron", "Althrop's Constitutional",
+	"Ambrecht's Coca Wine", "Angelica Bitter Tonic", "Dr. A. Armistead's Fameous Ague",
+	"Baldwin's Celery Pepsin & Dandelion", "Balyeat's Fig", 
+	"Bear Brand Wild Cherry", "Dr. Beard's Alterative", "Betula Beer",
+	"A. M. Bininger & Co. Wheat", "Bitter Apple",
+	"Dr. Blendigo's Celery", "Bock's Restorative",
+	"Brother Benjamin Great Herbalo", "Dr. Brooks' Antimalarial",
+	"Burk's Iron", "Cardui, The Women's", "S.S. Clark's Diamond Family",
+	"Cla-wood Malt", "Colden's Liquid Beef", "Corona Distemper Tonic",
+	"Dalton's Sarsaparilla and Nerve", "Davis's Morning Noon & Night",
+	"The Imperial King of all", "Eureka Pepsin - A Never Failing",
+	"Ferro China Milano", "Fletcher's Vege", "Goging's Wild Cherry",
+	"Gray's Sparkling Spray", "Happy Home Blood Purifier and Health",
+	"Highland's Bitters and Scotch", "Iowna Brain & Nerve", 
+	"W.M. Johnson's Pure Herb", "Ka No Blood & Nerve", 
+	"Keck's Lung & Liver", "Kress Fever",
+	"Dr Kurnitzki's Aromatic Wire Grass", "Leonardi's Chill Remedy & Iron", 
+	"Liebig's Malt", "Magors 1000 - Phosphor", "Malto Iron",
+	"Mexican Herb", "Morrison's Sure Cure", "Mull's Grape", 
+	"Old Sachem Bitters & Wigwam", "Owbridge's Lung",
+	"Parker's best", "C.G. Pendleton's", "Pepper's Quinine & Iron", 
+	"Primley's Iron & Wahoo", "Psychine", "Quin's Chill Tonic", 
+	"Ramon's Pepsin Chill", "Royal Pepsin", "Sano Rheumatic Cure & System",
+	"Vin-O-Sula Cuban", "Walt's Wild Cherry"
 };
 
 static byte tonic_col[MAX_COLORS] =
@@ -200,38 +216,34 @@ static byte tonic_col[MAX_COLORS] =
 	TERM_RED, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
 	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
 	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW
+	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW, TERM_L_BLUE, 
+	TERM_L_BLUE
 };
 
-
-/*
- * Syllables for mechanisms (must be 1-4 letters each).
- */
-
-static cptr syllables[MAX_SYLLABLES] =
+static cptr mech_adj[MAX_MECH_ADJ] =
 {
-	"a", "ab", "ag", "aks", "ala", "an", "ankh", "app",
-	"arg", "arze", "ash", "aus", "ban", "bar", "bat", "bek",
-	"bie", "bin", "bit", "bjor", "blu", "bot", "bu",
-	"byt", "comp", "con", "cos", "cre", "dalf", "dan",
-	"den", "der", "doe", "dok", "eep", "el", "eng", "er", "ere", "erk",
-	"esh", "evs", "fa", "fid", "flit", "for", "fri", "fu", "gan",
-	"gar", "glen", "gop", "gre", "ha", "he", "hyd", "i",
-	"ing", "ion", "ip", "ish", "it", "ite", "iv", "jo",
-	"kho", "kli", "klis", "la", "lech", "man", "mar",
-	"me", "mi", "mic", "mik", "mon", "mung", "mur", "nag", "nej",
-	"nelg", "nep", "ner", "nes", "nis", "nih", "nin", "o",
-	"od", "ood", "org", "orn", "ox", "oxy", "pay", "pet",
-	"ple", "plu", "po", "pot", "prok", "re", "rea", "rhov",
-	"ri", "ro", "rog", "rok", "rol", "sa", "san", "sat",
-	"see", "sef", "seh", "shu", "ski", "sna", "sne", "snik",
-	"sno", "so", "sol", "sri", "sta", "sun", "ta", "tab",
-	"tem", "ther", "ti", "tox", "trol", "tue", "turs", "u",
-	"ulk", "um", "un", "uni", "ur", "val", "viv", "vly",
-	"vom", "wah", "wed", "werg", "wex", "whon", "wun", "x",
-	"yerg", "yp", "zun", "tri", "blaa"
+	"Martian ", "Venusian ", "Alien ", "Analog ", "Electric ",
+	"Clockwork ", "Mechanical ", "Steam-driven ", "Aluminum ", 
+	"Cast Iron ", "Chromium ", "Copper ", "Gold ", "Iron ", "Magnesium ", 
+	"Molybdenum ", "Nickel ", "Rusty ", "Silver ", "Steel ", "Tin ", 
+	"Titanium ", "Tungsten ", "Zirconium ", "Zinc ", "Aluminum-Plated ", 
+	"Copper-Plated ", "Gold-Plated ", "Nickel-Plated ", "Silver-Plated ", 
+	"Steel-Plated ", "Tin-Plated ", "Zinc-Plated ", "Mithril-Plated ", 
+	"Mithril ", "Runed ", "Bronze ", "Brass ", "Platinum ", "Lead ",
+	"Cavorite ", "Whirring ", "Clanking ", "Clicking ", "Bouncing ",
+	"Ringing ", "Whizzing ", "Moaning ", "Humming "
 };
-
+static cptr mech_noun1[MAX_MECH_NOUN1] =
+{
+	"Aether", "Anemo", "Astro", "Geo", "Gyro", "Helio", "Hydro",
+	"Micro", "Phono", "Photo", "Seismo", "Tele", "Macro", "Radio",
+	"Stereo", "Quadra", "Synchro", "Aero"
+};
+static cptr mech_noun2[MAX_MECH_NOUN2] =
+{
+	"graph", "meter", "phone", "scope", "ton", "pan", "com", "net",
+	"cid", "phonic", "dyne", "copter"
+};
 
 /*
  * Hold the titles of mechanisms, 6 to 14 characters each.
@@ -239,7 +251,7 @@ static cptr syllables[MAX_SYLLABLES] =
  * Also keep an array of mechanism colors (always WHITE for now).
  */
 
-static char mechanism_adj[MAX_TITLES][16];
+static char mechanism_adj[MAX_TITLES][42];
 
 static byte mechanism_col[MAX_TITLES];
 
@@ -459,62 +471,25 @@ void flavor_init(void)
 			bool okay;
 
 			/* Start a new title */
-			buf[0] = '\0';
-
-			/* Collect words until done */
-			while (1)
-			{
-				int q, s;
-
-				char tmp[80];
-
-				/* Start a new word */
-				tmp[0] = '\0';
-
-				/* Choose one or two syllables */
-				s = ((rand_int(100) < 30) ? 1 : 2);
-
-				/* Add a one or two syllable word */
-				for (q = 0; q < s; q++)
-				{
-					/* Add the syllable */
-					strcat(tmp, syllables[rand_int(MAX_SYLLABLES)]);
-				}
-
-				/* Stop before getting too long */
-				if (strlen(buf) + 1 + strlen(tmp) > 15) break;
-
-				/* Add a space */
-				strcat(buf, " ");
-
-				/* Add the word */
-				strcat(buf, tmp);
-			}
-
+			buf[0] = '\0';			
+			
+			/* Add the Adjective */
+			strcat(buf, mech_adj[rand_int(MAX_MECH_ADJ)]);
+			
+			/* Add the first noun */
+			strcat(buf, mech_noun1[rand_int(MAX_MECH_NOUN1)]);
+			
+			/* Add the second noun */
+			strcat(buf, mech_noun2[rand_int(MAX_MECH_NOUN2)]);
+						
 			/* Save the title */
-			strcpy(mechanism_adj[i], buf+1);
+			strcpy(mechanism_adj[i], buf);
 
 			/* Assume okay */
 			okay = TRUE;
 
-			/* Check for "duplicate" mechanism titles */
-			for (j = 0; j < i; j++)
-			{
-				cptr hack1 = mechanism_adj[j];
-				cptr hack2 = mechanism_adj[i];
-
-				/* Compare first four characters */
-				if (*hack1++ != *hack2++) continue;
-				if (*hack1++ != *hack2++) continue;
-				if (*hack1++ != *hack2++) continue;
-				if (*hack1++ != *hack2++) continue;
-
-				/* Not okay */
-				okay = FALSE;
-
-				/* Stop looking */
-				break;
-			}
+			/* I'll have to figure out a different way to */
+			/*   check for "duplicate" mechanism titles */
 
 			/* Break when done */
 			if (okay) break;
@@ -2298,6 +2273,11 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		info[i++] = "It provides resistance to dark.";
 	}
 
+	if (f3 & (TR3_WRAITH))
+	{
+		info[i++] = "It renders you incorporeal.";
+	}
+
 	if (f2 & (TR2_RES_BLIND))
 	{
 		info[i++] = "It provides resistance to blindness.";
@@ -2376,6 +2356,21 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	if (f3 & (TR3_HOLD_LIFE))
 	{
 		info[i++] = "It provides resistance to life draining.";
+	}
+
+	if (f3 & (TR3_SH_FIRE))
+	{
+		info[i++] = "It produces a fiery sheath.";
+	}
+
+	if (f3 & (TR3_SH_ELEC))
+	{
+		info[i++] = "It produces an electric sheath.";
+	}
+
+	if (f3 & (TR3_SPINES))
+	{
+		info[i++] = "It is covered with spines.";
 	}
 
 	if (f3 & (TR3_IMPACT))
@@ -2687,7 +2682,7 @@ s16b wield_slot(const object_type *o_ptr)
 		}
 		case TV_MECHA_TORSO:
 		{
-			if (!f3 & (TR3_AUTOMATA))
+			if (!(f3 & (TR3_AUTOMATA)))
 			{
 				return (0);
 			}
@@ -2695,7 +2690,7 @@ s16b wield_slot(const object_type *o_ptr)
 		}
 		case TV_MECHA_HEAD:
 		{
-			if (!f3 & (TR3_AUTOMATA))
+			if (!(f3 & (TR3_AUTOMATA)))
 			{
 				return (0);
 			}
@@ -2703,7 +2698,7 @@ s16b wield_slot(const object_type *o_ptr)
 		}
 		case TV_MECHA_ARMS:
 		{
-			if (!f3 & (TR3_AUTOMATA))
+			if (!(f3 & (TR3_AUTOMATA)))
 			{
 				return (0);
 			}
@@ -2711,7 +2706,7 @@ s16b wield_slot(const object_type *o_ptr)
 		}
 		case TV_MECHA_FEET:
 		{
-			if (!f3 & (TR3_AUTOMATA))
+			if (!(f3 & (TR3_AUTOMATA)))
 			{
 				return (0);
 			}
