@@ -48,7 +48,7 @@ CPPFLAGS= $(CCOPTS) $(DBGOPT)
 ######################## Targets ##################################
 
 OBJ = \
-	main-win.obj readdib.obj \
+	main-win.obj readdib.obj level.obj skills.obj \
 	birth.obj cave.obj classpower.obj \
 	cmd-attk.obj cmd-book.obj cmd-item.obj \
 	cmd-know.obj cmd-misc.obj cmd-util.obj \

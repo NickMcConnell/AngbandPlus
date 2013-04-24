@@ -20,6 +20,13 @@
  */
 void do_cmd_inven(void)
 {
+	/* added to make equipment weight display properly */
+	int i;
+	int statval = p_ptr->stat_use[A_MUS];
+	char prompt[80];
+	if (statval < 160) statval = 160;
+	i = (((statval / 20) * 100) / 2);
+
 	/* Hack -- Start in "inventory" mode */
 	p_ptr->command_wrk = (USE_INVEN);
 
@@ -36,7 +43,15 @@ void do_cmd_inven(void)
 	item_tester_full = FALSE;
 
 	/* Prompt for a command */
-	prt("(Inventory) Command: ", 0, 0);
+	/*	prt("(Inventory) Command: ", 0, 0); */
+	/* Build a prompt */
+	sprintf(prompt,
+		"(Inventory) burden %d.%d lb (%d%% of capacity). Command: ",
+		p_ptr->total_weight / 10, p_ptr->total_weight % 10,
+		(p_ptr->total_weight * 100) / i);
+
+	/* print the prompt */
+	prt(prompt, 0, 0);
 
 	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
@@ -891,6 +906,12 @@ void do_cmd_refill(void)
 		do_cmd_refill_torch();
 	}
 
+	/* It's a candle or taper */
+	else if ((o_ptr->sval == SV_LITE_TAPER) || (o_ptr->sval == SV_LITE_CANDLE))
+	{
+		msg_print("Your light source can't be refilled.");
+	}
+
 	/* No torch to refill */
 	else
 	{
@@ -1060,7 +1081,7 @@ static cptr ident_info[] =
 	/* "&:unused", */
 	"':An open door",
 	"(:Soft armor",
-	"):A shield",
+	"):An item of clothing for the legs",
 	"*:A vein with treasure",
 	"+:A closed door",
 	",:Food (or mushroom patch)",

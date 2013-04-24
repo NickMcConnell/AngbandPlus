@@ -1,7 +1,7 @@
 
 
   ************************************************************************
-  **   Steamband 0.2.2   **   The Journey from the Ceter of the Earth   **
+  **   Steamband 0.3.1   **   The Journey from the Ceter of the Earth   **
   ************************************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -15,7 +15,7 @@
 
                  Angband 2.9.0 - 2.9.3 by Robert Ruehlmann
 
-				Steamband 0.2.2  by Courtney C. Campbell
+				Steamband 0.3.1  by Courtney C. Campbell
 				
         Send comments, bug reports, and patches, to "campbell@oook.cz"
        Visit the Angband Home Page at "http://www.thangorodrim.net/"
@@ -31,14 +31,14 @@ Hello everyone!
 Ok, first things first. This program has bugs. I am _not_ a coder by nature
 and have only recently begun teaching myself to code. So if you find any bugs,
 (and I'm sure there are a bunch of them) please e-mail me. However, version 
-0.2.2 is much more stable than previous version, so it is HIGHLY RECOMMENDED
+0.3.1 is much more stable than previous version, so it is HIGHLY RECOMMENDED
 that you update.
 
 You can also join the steamband mailing list! You do this by sending an
 e-mail to Steamband-subscribe@yahoogroups.com . This will keep you 
 up to date on all the latest steamband developments.
 
-Please, _Please_ take note that this is a 0.2.2 version. Steamband 
+Please, _Please_ take note that this is a 0.3.1 version. Steamband 
 will not be what I want it to be until version 1.0.0. There are many
 _many_ changes planned. A new leveling system I want to impliment,
 and more artifacts and monsters that are in theme, are just a _few_
@@ -52,6 +52,11 @@ Oh! and I hope everyone enjoys playing! Make sure you remember that
 'a' no longer stands for ant, and watch out! Buy yourself a gun if
 you want to survive!
 -Campbell (VALIS)
+
+Some quick notes for new users. The FAQ can be found at 
+http://angband.oook.cz/steamband/FAQ.html
+It answers some general questions. You should know that you 
+raise stats, and gain skills by pushing the 'G' key.
 
 === General Info ===
 

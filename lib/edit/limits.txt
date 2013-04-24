@@ -11,14 +11,14 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.3.1
 
 
 # Maximum number of feature types
-M:F:64
+M:F:128
 
 # Maximum number of object kinds
-M:K:1024
+M:K:1976
 
 # Maximum number of artifacts
 M:A:256
@@ -30,7 +30,7 @@ M:E:1131
 M:R:1024
 
 # Maximum number of vaults
-M:V:55
+M:V:128§
 
 # Maximum number of player races
 M:P:25
@@ -44,8 +44,9 @@ M:H:512
 # Maximum number of owners per store
 M:B:4
 
+#NOT USED!!!
 # Maximum number of objects
-M:O:256
+M:O:1976
 
 # Maximum number of monsters
 M:M:2048

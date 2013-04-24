@@ -158,7 +158,21 @@ bool make_attack_normal(int m_idx)
 	
 	bool touched = FALSE;
 	bool fear = FALSE;
-
+	bool alive = TRUE;
+	
+	int savethgood, savethnorm, savethpoor;
+	int save;
+	
+	/* Get the "save" factor */
+	savethgood = p_ptr->skills[SK_SAVETH_GOOD].skill_rank;
+	savethnorm = p_ptr->skills[SK_SAVETH_NORM].skill_rank;
+	savethpoor = p_ptr->skills[SK_SAVETH_POOR].skill_rank;
+	
+	/* Insure good values */
+	/* Note the room for another skill to increase disarming */
+	if (savethgood >= 0) save = savethgood * 4;
+	if (savethnorm >= 0) save = savethnorm * 3;
+	if (savethpoor >= 0) save = savethpoor * 2;
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
@@ -202,6 +216,8 @@ bool make_attack_normal(int m_idx)
 		/* Hack -- no more attacks */
 		if (!method) break;
 
+		/* Stop if monster is dead or gone */
+		if (!alive) break;
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
@@ -231,11 +247,11 @@ bool make_attack_normal(int m_idx)
 			case RBE_CONFUSE:	power = 10; break;
 			case RBE_TERRIFY:	power = 10; break;
 			case RBE_PARALYZE:	power =  2; break;
-			case RBE_LOSE_STR:	power =  0; break;
-			case RBE_LOSE_DEX:	power =  0; break;
-			case RBE_LOSE_CON:	power =  0; break;
-			case RBE_LOSE_INT:	power =  0; break;
-			case RBE_LOSE_WIS:	power =  0; break;
+			case RBE_LOSE_MUS:	power =  0; break;
+			case RBE_LOSE_AGI:	power =  0; break;
+			case RBE_LOSE_VIG:	power =  0; break;
+			case RBE_LOSE_SCH:	power =  0; break;
+			case RBE_LOSE_EGO:	power =  0; break;
 			case RBE_LOSE_CHR:	power =  0; break;
 			case RBE_LOSE_ALL:	power =  2; break;
 			case RBE_SHATTER:	power = 60; break;
@@ -585,9 +601,9 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
+					/* @STAT@ */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					    (rand_int(140) < (p_ptr->stat_use[A_AGI] / 9) + p_ptr->lev))
 					{
 						/* Saving throw message */
 						msg_print("You quickly protect your money pouch!");
@@ -638,9 +654,9 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Saving throw (unless paralyzed) based on dex and level */
+					/* @STAT@ */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					    (rand_int(140) < (p_ptr->stat_use[A_AGI] / 9) + p_ptr->lev))
 					{
 						/* Saving throw message */
 						msg_print("You grab hold of your backpack!");
@@ -900,7 +916,7 @@ bool make_attack_normal(int m_idx)
 						msg_print("You stand your ground!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+					else if (rand_int(100) < save)
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -933,7 +949,7 @@ bool make_attack_normal(int m_idx)
 						msg_print("You are unaffected!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+					else if (rand_int(100) < save)
 					{
 						msg_print("You resist the effects!");
 						obvious = TRUE;
@@ -952,57 +968,57 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBE_LOSE_STR:
+				case RBE_LOSE_MUS:
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
+					if (do_dec_stat(A_MUS)) obvious = TRUE;
 
 					break;
 				}
 
-				case RBE_LOSE_INT:
+				case RBE_LOSE_SCH:
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_INT)) obvious = TRUE;
+					if (do_dec_stat(A_SCH)) obvious = TRUE;
 
 					break;
 				}
 
-				case RBE_LOSE_WIS:
+				case RBE_LOSE_EGO:
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
+					if (do_dec_stat(A_EGO)) obvious = TRUE;
 
 					break;
 				}
 
-				case RBE_LOSE_DEX:
+				case RBE_LOSE_AGI:
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
+					if (do_dec_stat(A_AGI)) obvious = TRUE;
 
 					break;
 				}
 
-				case RBE_LOSE_CON:
+				case RBE_LOSE_VIG:
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CON)) obvious = TRUE;
+					if (do_dec_stat(A_VIG)) obvious = TRUE;
 
 					break;
 				}
@@ -1024,11 +1040,11 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stats) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
-					if (do_dec_stat(A_CON)) obvious = TRUE;
-					if (do_dec_stat(A_INT)) obvious = TRUE;
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
+					if (do_dec_stat(A_MUS)) obvious = TRUE;
+					if (do_dec_stat(A_AGI)) obvious = TRUE;
+					if (do_dec_stat(A_VIG)) obvious = TRUE;
+					if (do_dec_stat(A_SCH)) obvious = TRUE;
+					if (do_dec_stat(A_EGO)) obvious = TRUE;
 					if (do_dec_stat(A_CHR)) obvious = TRUE;
 
 					break;
@@ -1239,82 +1255,79 @@ bool make_attack_normal(int m_idx)
 			}
 			if (touched)
 			{
-				if (p_ptr->sh_fire && !(p_ptr->leaving))
+				if (p_ptr->sh_fire && !(p_ptr->leaving) && alive)
 				{
-					if (m_ptr->ml)
+					if (!(r_ptr->flags3 & RF3_IM_FIRE))
 					{
-						if (!(r_ptr->flags3 & RF3_IM_FIRE))
+						if(r_ptr->flags3 & RF3_HURT_FIRE)
 						{
-							if(r_ptr->flags3 & RF3_HURT_FIRE)
+							msg_format("%^s is suddenly extremely hot!", m_name);
+							mon_take_hit(m_idx, damroll(6,5), &fear,
+							" turns into a tiny pile of ash.");
+							if (m_ptr->ml)
 							{
-								msg_format("%^s is suddenly extremely hot!", m_name);
-								mon_take_hit(m_idx, damroll(6,5), &fear,
-								" turns into a tiny pile of ash.");
-								if (m_ptr->ml)
-								{
-									r_ptr->flags3 |= RF3_HURT_FIRE;
-								}
+								r_ptr->flags3 |= RF3_HURT_FIRE;
 							}
-							else
-							{
-								msg_format("%^s is suddenly very hot!", m_name);
-								mon_take_hit(m_idx, damroll(4,5), &fear,
-								" turns into a pile of ash.");
-							}
-							if (!(m_ptr->hp > 0)) break;
 						}
 						else
 						{
-							if (m_ptr->ml)
+							msg_format("%^s is suddenly very hot!", m_name);
+							if (mon_take_hit(m_idx, damroll(4,5), &fear,
+							" turns into a pile of ash."))
 							{
-								r_ptr->flags3 |= RF3_IM_FIRE;
+								blinked = FALSE;
+								alive = FALSE;
 							}
-						}
 					}
-				}
-
-				if (p_ptr->sh_elec && !(p_ptr->leaving))
-				{
-					if (m_ptr->ml)
+					}
+					else
 					{
-						if (!(r_ptr->flags3 & RF3_IM_ELEC))
+						if (m_ptr->ml)
 						{
-							msg_format("%^s gets zapped!", m_name);
-							mon_take_hit(m_idx, damroll(4,5), &fear,
-							" turns into a pile of cinder.");
-							if (!(m_ptr->hp > 0)) break;
-						}
-						else
-						{
-							if (m_ptr->ml)
-							{
-								r_ptr->flags3 |= RF3_IM_ELEC;
-							}
+							r_ptr->flags3 |= RF3_IM_FIRE;
 						}
 					}
 				}
-
-				if (p_ptr->sh_spine && !(p_ptr->leaving))
+				if (p_ptr->sh_elec && !(p_ptr->leaving) && alive)
 				{
-					if (m_ptr->ml)
+					if (!(r_ptr->flags3 & RF3_IM_ELEC))
 					{
-						if (!(r_ptr->flags3 & RF3_NO_STUN))
+						msg_format("%^s gets zapped!", m_name);
+						if (mon_take_hit(m_idx, damroll(4,5), &fear,
+						" turns into a pile of cinder."))
 						{
-							msg_format("%^s is pierced!", m_name);
-							mon_take_hit(m_idx, damroll(4,5), &fear,
-							" crumples lifelessly to the ground.");
-							if (!(m_ptr->hp > 0)) break;
+							blinked = FALSE;
+							alive = FALSE;
 						}
-						else
+					}
+					else
+					{
+						if (m_ptr->ml)
 						{
-							if (m_ptr->ml)
-							{
-								r_ptr->flags3 |= RF3_NO_STUN;
-							}
+							r_ptr->flags3 |= RF3_IM_ELEC;
 						}
 					}
 				}
-
+				if (p_ptr->sh_spine && !(p_ptr->leaving) && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_NO_STUN))
+					{
+						msg_format("%^s is pierced!", m_name);
+						if (mon_take_hit(m_idx, damroll(4,5), &fear,
+						" crumples lifelessly to the ground."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (m_ptr->ml)
+						{
+							r_ptr->flags3 |= RF3_NO_STUN;
+						}
+					}
+				}
 				touched = FALSE;
 			}
 		}

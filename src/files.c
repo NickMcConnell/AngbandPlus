@@ -1168,6 +1168,8 @@ static cptr likert(int x, int y)
 	switch ((x / y))
 	{
 		case 0:
+			likert_color = TERM_RED;
+			return ("Abyssal");
 		case 1:
 		{
 			likert_color = TERM_RED;
@@ -1179,6 +1181,8 @@ static cptr likert(int x, int y)
 			return ("Poor");
 		}
 		case 3:
+			likert_color = TERM_YELLOW;
+			return ("Tolerable");
 		case 4:
 		{
 			likert_color = TERM_YELLOW;
@@ -1192,17 +1196,25 @@ static cptr likert(int x, int y)
 		case 6:
 		{
 			likert_color = TERM_YELLOW;
-			return ("Very Good");
+			return ("Favorable");
 		}
 		case 7:
+			likert_color = TERM_YELLOW;
+			return ("Very Good");
 		case 8:
 		{
 			likert_color = TERM_L_GREEN;
 			return ("Excellent");
 		}
 		case 9:
+			likert_color = TERM_L_GREEN;
+			return ("Champion");
 		case 10:
 		case 11:
+		{
+			likert_color = TERM_L_GREEN;
+			return ("First-rate");
+		}
 		case 12:
 		case 13:
 		{
@@ -1211,16 +1223,44 @@ static cptr likert(int x, int y)
 		}
 		case 14:
 		case 15:
-		case 16:
-		case 17:
 		{
 			likert_color = TERM_L_GREEN;
 			return ("Heroic");
 		}
-		default:
+		case 16:
 		{
 			likert_color = TERM_L_GREEN;
 			return ("Legendary");
+		}
+		case 17:
+		{
+			likert_color = TERM_L_GREEN;
+			return ("Legendary[1]");
+		}
+		case 18:
+		{
+			likert_color = TERM_L_GREEN;
+			return ("Legendary[2]");
+		}
+		case 19:
+		{
+			likert_color = TERM_L_GREEN;
+			return ("Legendary[3]");
+		}
+		case 20:
+		{
+			likert_color = TERM_L_GREEN;
+			return ("Legendary[4]");
+		}
+		case 21:
+		{
+			likert_color = TERM_L_GREEN;
+			return ("Legendary[5]");
+		}
+		default:
+		{
+			likert_color = TERM_L_GREEN;
+			return ("Legendary[5+]");
 		}
 	}
 }
@@ -1277,9 +1317,9 @@ static void display_player_xtra_info(void)
 	Term_putstr(col, 6, -1, TERM_WHITE, "Status");
 	Term_putstr(col+9, 6, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
 
-	/* Maximize */
-	Term_putstr(col, 7, -1, TERM_WHITE, "Maximize");
-	Term_putstr(col+12, 7, -1, TERM_L_BLUE, adult_maximize ? "Y" : "N");
+	/* Maximize mode has been removed with the stat revision*/
+/*	Term_putstr(col, 7, -1, TERM_WHITE, "Maximize"); */
+/*	Term_putstr(col+12, 7, -1, TERM_L_BLUE, adult_maximize ? "Y" : "N"); */
 
 	/* Preserve */
 	Term_putstr(col, 8, -1, TERM_WHITE, "Preserve");
@@ -1389,6 +1429,8 @@ static void display_player_xtra_info(void)
 	/* Apply weapon bonuses */
 	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if (p_ptr->skills[SK_ACC_STRIKE].skill_max > -2) hit += p_ptr->skills[SK_ACC_STRIKE].skill_rank;
+	if (p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > -2) dam += p_ptr->skills[SK_VICIOUS_STRIKE].skill_rank;
 
 	/* Melee attacks */
 	sprintf(buf, "(%+d,%+d)", hit, dam);
@@ -1406,6 +1448,9 @@ static void display_player_xtra_info(void)
 	/* Apply weapon bonuses */
 	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	/* Skills that affect display flags */
+	if (p_ptr->skills[SK_ACC_SHOT].skill_max > -2) hit += p_ptr->skills[SK_ACC_SHOT].skill_rank;
+	if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > -2) dam += p_ptr->skills[SK_VICIOUS_SHOT].skill_rank;
 
 	/* Range attacks */
 	sprintf(buf, "(%+d,%+d)", hit, dam);
@@ -1441,54 +1486,189 @@ static void display_player_xtra_info(void)
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
-	tmp = p_ptr->to_h + o_ptr->to_h;
-	xthn = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
+	if (p_ptr->skills[SK_ACC_STRIKE].skill_rank > 0)
+	{
+		tmp = p_ptr->to_h + o_ptr->to_h + (p_ptr->skills[SK_ACC_STRIKE].skill_rank);
+	}
+	else tmp = p_ptr->to_h + o_ptr->to_h;
+	if (tmp < 0)  tmp = 0;
+	
+	xthn = (p_ptr->skills[SK_TOHIT].skill_rank * 5) + (tmp * BTH_PLUS_ADJ);
+	if (p_ptr->skills[SK_INTER_COMBAT].skill_rank > 0)
+	{
+		xthn += p_ptr->skills[SK_INTER_COMBAT].skill_rank * 4;
+	}
+	if(p_ptr->skills[SK_ADV_COMBAT].skill_rank > 0)
+	{
+		xthn += p_ptr->skills[SK_ADV_COMBAT].skill_rank * 3;
+	}
+	if(p_ptr->skills[SK_MASTER_COMBAT].skill_rank > 0)
+	{
+		xthn += p_ptr->skills[SK_MASTER_COMBAT].skill_rank * 2;
+	}
+	if (p_ptr->skills[SK_AXE].skill_rank > 0 && o_ptr->tval == TV_POLEARM)
+	{
+		xthn += p_ptr->skills[SK_AXE].skill_rank *  4;
+	}
+	if (p_ptr->skills[SK_BLUNT].skill_rank > 0 && o_ptr->tval == TV_HAFTED)
+	{
+		xthn += p_ptr->skills[SK_BLUNT].skill_rank * 4;
+	}
+	if (p_ptr->skills[SK_SWORD].skill_rank > 0 && o_ptr->tval == TV_SWORD)
+	{
+		xthn += p_ptr->skills[SK_SWORD].skill_rank * 4;
+	}
+
 
 	/* Shooting Skill (with current gun) */
 	o_ptr = &inventory[INVEN_GUN];
 	tmp = p_ptr->to_h + o_ptr->to_h;
-	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
+	
+	/* add in the accurate shot skill to the bonus */
+	if (p_ptr->skills[SK_ACC_SHOT].skill_rank > 0)
+	{
+		tmp += p_ptr->skills[SK_ACC_SHOT].skill_rank;
+	}
+
+	xthb = (p_ptr->skills[SK_TOHIT_SHOOTING].skill_rank * 5) + (tmp * BTH_PLUS_ADJ);
+	
+	/* add in the relevant combat skills */
+	if (p_ptr->skills[SK_INTER_SHOOTING].skill_rank > 0)
+	{
+		xthb += p_ptr->skills[SK_INTER_SHOOTING].skill_rank *4;
+	}
+	if(p_ptr->skills[SK_ADV_SHOOTING].skill_rank > 0)
+	{
+		xthb += p_ptr->skills[SK_ADV_SHOOTING].skill_rank * 3;
+	}
+	if(p_ptr->skills[SK_MASTER_SHOOTING].skill_rank > 0)
+	{
+		xthb += p_ptr->skills[SK_MASTER_SHOOTING].skill_rank * 2;
+	}
 
 	/* Basic abilities */
-	xdis = p_ptr->skill_dis;
-	xdev = p_ptr->skill_dev;
-	xsav = p_ptr->skill_sav;
-	xstl = p_ptr->skill_stl;
-	xsrh = p_ptr->skill_srh;
-	xfos = p_ptr->skill_fos;
+	/* Disarming */
+	if (p_ptr->skills[SK_DISARM_GOOD].skill_max >= 0) 
+	{
+		xdis = (4 * p_ptr->skills[SK_DISARM_GOOD].skill_rank);
+	}
+	else if (p_ptr->skills[SK_DISARM_NORM].skill_max >= 0) 
+	{
+		xdis = (3 * p_ptr->skills[SK_DISARM_NORM].skill_rank);
+	}
+	else if (p_ptr->skills[SK_DISARM_POOR].skill_max >= 0) 
+	{
+		xdis = (2 * p_ptr->skills[SK_DISARM_POOR].skill_rank);
+	}
+	else xdis = 1;
+	
+	/* Devices */
+	if (p_ptr->skills[SK_DEVICE_GOOD].skill_max >= 0) 
+	{
+		xdev = (3 * p_ptr->skills[SK_DEVICE_GOOD].skill_rank);
+	}
+	else if (p_ptr->skills[SK_DEVICE_NORM].skill_max >= 0) 
+	{
+		xdev = (2 * p_ptr->skills[SK_DEVICE_NORM].skill_rank);
+	}
+	else if (p_ptr->skills[SK_DEVICE_POOR].skill_max >= 0) 
+	{
+		xdev = (p_ptr->skills[SK_DEVICE_POOR].skill_rank);
+	}
+	else xdev = 1;
+	
+	/* Saving throw */
+	if (p_ptr->skills[SK_SAVETH_GOOD].skill_max >= 0) 
+	{
+		xsav = (4 * p_ptr->skills[SK_SAVETH_GOOD].skill_rank);
+	}
+	else if (p_ptr->skills[SK_SAVETH_NORM].skill_max >= 0) 
+	{
+		xsav = (3 * p_ptr->skills[SK_SAVETH_NORM].skill_rank);
+	}
+	else if (p_ptr->skills[SK_SAVETH_POOR].skill_max >= 0) 
+	{
+		xsav = (2 * p_ptr->skills[SK_SAVETH_POOR].skill_rank);
+	}
+	else xsav = 1;
 
+	/* Stealth */
+	if (p_ptr->skills[SK_STEALTH_GOOD].skill_max >= 0) 
+	{
+		xstl = (3 * p_ptr->skills[SK_STEALTH_GOOD].skill_rank / 2);
+	}
+	else if (p_ptr->skills[SK_STEALTH_NORM].skill_max >= 0) 
+	{
+		xstl = (p_ptr->skills[SK_STEALTH_NORM].skill_rank);
+	}
+	else if (p_ptr->skills[SK_STEALTH_POOR].skill_max >= 0) 
+	{
+		xstl = (p_ptr->skills[SK_STEALTH_POOR].skill_rank / 2);
+	}
+	else xstl = 1;
+
+	/* Searching Ability */
+	if (p_ptr->skills[SK_SEARCHING_GOOD].skill_max >= 0) 
+	{
+		xsrh = (5 * p_ptr->skills[SK_SEARCHING_GOOD].skill_rank);
+	}
+	else if (p_ptr->skills[SK_SEARCHING_NORM].skill_max >= 0) 
+	{
+		xsrh = (3 * p_ptr->skills[SK_SEARCHING_NORM].skill_rank);
+	}
+	else if (p_ptr->skills[SK_SEARCHING_POOR].skill_max >= 0) 
+	{
+		xsrh = (p_ptr->skills[SK_SEARCHING_POOR].skill_rank);
+	}
+	else xsrh = 1;
+
+	/* Searching Frequency */
+	if (p_ptr->skills[SK_SEARCHING_GOOD].skill_max >= 0) 
+	{
+		xfos = (3 * p_ptr->skills[SK_SEARCHING_GOOD].skill_rank);
+	}
+	else if (p_ptr->skills[SK_SEARCHING_NORM].skill_max >= 0) 
+	{
+		xfos = (2 * p_ptr->skills[SK_SEARCHING_NORM].skill_rank);
+	}
+	else if (p_ptr->skills[SK_SEARCHING_POOR].skill_max >= 0) 
+	{
+		xfos = (p_ptr->skills[SK_SEARCHING_POOR].skill_rank);
+	}
+	else xfos = 1;
+	
 
 	put_str("Saving Throw", 10, col);
 	desc = likert(xsav, 6);
-	c_put_str(likert_color, format("%9s", desc), 10, col+14);
+	c_put_str(likert_color, format("%13s", desc), 10, col+14);
 
 	put_str("Stealth", 11, col);
 	desc = likert(xstl, 1);
-	c_put_str(likert_color, format("%9s", desc), 11, col+14);
+	c_put_str(likert_color, format("%13s", desc), 11, col+14);
 
 	put_str("Fighting", 12, col);
 	desc = likert(xthn, 12);
-	c_put_str(likert_color, format("%9s", desc), 12, col+14);
+	c_put_str(likert_color, format("%13s", desc), 12, col+14);
 
 	put_str("Shooting", 13, col);
 	desc = likert(xthb, 12);
-	c_put_str(likert_color, format("%9s", desc), 13, col+14);
+	c_put_str(likert_color, format("%13s", desc), 13, col+14);
 
 	put_str("Disarming", 14, col);
 	desc = likert(xdis, 8);
-	c_put_str(likert_color, format("%9s", desc), 14, col+14);
+	c_put_str(likert_color, format("%13s", desc), 14, col+14);
 
 	put_str("Magic Device", 15, col);
 	desc = likert(xdev, 6);
-	c_put_str(likert_color, format("%9s", desc), 15, col+14);
+	c_put_str(likert_color, format("%13s", desc), 15, col+14);
 
 	put_str("Perception", 16, col);
 	desc = likert(xfos, 6);
-	c_put_str(likert_color, format("%9s", desc), 16, col+14);
+	c_put_str(likert_color, format("%13s", desc), 16, col+14);
 
 	put_str("Searching", 17, col);
 	desc = likert(xsrh, 6);
-	c_put_str(likert_color, format("%9s", desc), 17, col+14);
+	c_put_str(likert_color, format("%13s", desc), 17, col+14);
 
 
 	/* Bottom */
@@ -1510,6 +1690,16 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 {
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
+
+	/* Add Astral flags */
+	if (p_ptr->astral)
+	{
+		(*f1) |= (TR1_SPEED);
+		(*f3) |= (TR3_LITE);
+		(*f3) |= (TR3_SEE_INVIS);
+		(*f3) |= (TR3_TELEPATHY);
+		(*f3) |= (TR3_SLOW_DIGEST);
+	}
 
 	/* Add racial flags */
 	(*f1) |= rp_ptr->flags1;
@@ -1744,7 +1934,7 @@ static void display_player_flag_info(void)
 /*
  * Special display, part 2a
  */
-static void display_player_misc_info(void)
+extern void display_player_misc_info(void)
 {
 	cptr p;
 
@@ -1787,9 +1977,14 @@ static void display_player_misc_info(void)
 	}
 
 	/* Normal */
+	/* Display Proper "Genderized" Class Titles */
+	else if (p_ptr->psex == SEX_FEMALE)
+	{
+		p = c_text + cp_ptr->ftitle[(p_ptr->lev - 1) / 5];
+	}
 	else
 	{
-		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+		p = c_text + cp_ptr->mtitle[(p_ptr->lev - 1) / 5];
 	}
 
 	/* Dump it */
@@ -1812,7 +2007,7 @@ static void display_player_misc_info(void)
 /*
  * Special display, part 2b
  */
-static void display_player_stat_info(void)
+extern void display_player_stat_info(void)
 {
 	int i, row, col;
 
@@ -1827,10 +2022,11 @@ static void display_player_stat_info(void)
 
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "  Self", row-1, col+5);
-	c_put_str(TERM_WHITE, " RB", row-1, col+12);
-	c_put_str(TERM_WHITE, " CB", row-1, col+16);
-	c_put_str(TERM_WHITE, " EB", row-1, col+20);
-	c_put_str(TERM_WHITE, "  Best", row-1, col+24);
+	c_put_str(TERM_WHITE, " EB", row-1, col+12);
+	c_put_str(TERM_WHITE, "   Best", row-1, col+16);
+	
+	/* c_put_str(TERM_WHITE, " EB", row-1, col+20);    */
+	/* c_put_str(TERM_WHITE, "  Best", row-1, col+24); */
 
 	/* Display the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -1850,7 +2046,7 @@ static void display_player_stat_info(void)
 		}
 
 		/* Indicate natural maximum */
-		if (p_ptr->stat_max[i] == 18+100)
+		if (p_ptr->stat_max[i] == 999)
 		{
 			put_str("!", row+i, col+3);
 		}
@@ -1860,26 +2056,26 @@ static void display_player_stat_info(void)
 		c_put_str(TERM_L_GREEN, buf, row+i, col+5);
 
 		/* Race Bonus */
-		sprintf(buf, "%+3d", rp_ptr->r_adj[i]);
-		c_put_str(TERM_L_BLUE, buf, row+i, col+12);
+/*		sprintf(buf, "%+3d", rp_ptr->r_adj[i]);		*/
+/*		c_put_str(TERM_L_BLUE, buf, row+i, col+12);	*/
 
 		/* Class Bonus */
-		sprintf(buf, "%+3d", cp_ptr->c_adj[i]);
-		c_put_str(TERM_L_BLUE, buf, row+i, col+16);
+/*		sprintf(buf, "%+3d", cp_ptr->c_adj[i]); 	*/
+/*		c_put_str(TERM_L_BLUE, buf, row+i, col+16);	*/
 
 		/* Equipment Bonus */
 		sprintf(buf, "%+3d", p_ptr->stat_add[i]);
-		c_put_str(TERM_L_BLUE, buf, row+i, col+20);
+		c_put_str(TERM_L_BLUE, buf, row+i, col+12);
 
 		/* Resulting "modified" maximum value */
-		cnv_stat(p_ptr->stat_top[i], buf);
-		c_put_str(TERM_L_GREEN, buf, row+i, col+24);
+		cnv_stat(p_ptr->stat_top[i], buf);    
+		c_put_str(TERM_L_GREEN, buf, row+i, col+16);
 
 		/* Only display stat_use if not maximal */
 		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
 		{
-			cnv_stat(p_ptr->stat_use[i], buf);
-			c_put_str(TERM_YELLOW, buf, row+i, col+31);
+			cnv_stat(p_ptr->stat_use[i], buf);	
+			c_put_str(TERM_YELLOW, buf, row+i, col+16);
 		}
 	}
 }
@@ -2014,6 +2210,12 @@ static void display_player_sust_info(void)
 }
 
 
+/* Displays player skills */
+void display_player_skills(void)
+{
+/* haven't written anything yet */
+}
+
 /*
  * Display the character on the screen (two different modes)
  *
@@ -2021,7 +2223,8 @@ static void display_player_sust_info(void)
  *
  * Mode 0 = standard display with skills/history
  * Mode 1 = special display with equipment flags
- * Mode 2 = mutations
+ * Mode 2 = mutations <- THIS MODE DOESN'T WORK
+ * Now it works, but it's ugly.
  */
 void display_player(int mode)
 {
@@ -2035,7 +2238,7 @@ void display_player(int mode)
 	display_player_stat_info();
 
 	/* Special */
-	if (mode)
+	if (mode == 1)
 	{
 		/* Hack -- Level */
 		put_str("Level", 9, 1);
@@ -2048,6 +2251,10 @@ void display_player(int mode)
 		display_player_flag_info();
 	}
 
+	else if (mode == 2)
+	{
+	 do_cmd_knowledge_mutations();
+	}
 	/* Standard */
 	else
 	{
@@ -2067,7 +2274,7 @@ void display_player(int mode)
  */
 errr file_character(cptr name, bool full)
 {
-	int i, x, y;
+	int i, x, y, z;
 
 	byte a;
 	char c;
@@ -2151,6 +2358,18 @@ errr file_character(cptr name, bool full)
 
 		/* End the row */
 		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+	
+	/* Dump the Skills */
+	for(z = 0; z < N_SKILLS; z++)
+	{
+		if (p_ptr->skills[z].skill_rank > 0)
+		{
+		fprintf(fff, "%18s %2d\n", skills[z].name, p_ptr->skills[z].skill_max);
+		}
 	}
 
 	/* Skip some lines */
@@ -3126,9 +3345,14 @@ static void print_tomb(void)
 	}
 
 	/* Normal */
+	/* Display Proper "Genderized" Title */
+	else if (p_ptr->psex == SEX_FEMALE)
+	{
+		p = c_text + cp_ptr->ftitle[(p_ptr->lev - 1) / 5];
+	}
 	else
 	{
-		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+		p = c_text + cp_ptr->mtitle[(p_ptr->lev - 1) / 5];
 	}
 
 	center_string(buf, op_ptr->full_name);

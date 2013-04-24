@@ -15,6 +15,10 @@
 
 #include "angband.h"
 
+/* I'm going to have to change this function so that it's 'called'
+ * every time a key is pressed, and it only does something each time 
+ * the character gains a level. Until this happens consider it broken -CCC
+ */
 
 void level_reward(void)
 {
@@ -22,7 +26,6 @@ void level_reward(void)
 	/* This returns 1 for odd levels, and 0 for even */
 	int even_level	= (p_ptr->max_lev % 2);
 	int b 			= randint(100);
-	int choice;
 	
 	u32b f1, f2, f3;
 	player_flags(&f1, &f2, &f3);
@@ -70,77 +73,157 @@ void level_reward(void)
 			
 		} 
 	}
-	
-	/* Next we increase a stat on level gain. */
-	/* every level. o_o */
-	/* Hmmmmm. . . Two winners in less than two weeks. Not ever level do */
-	/* we get a choice. */
-	screen_save();
-	if (f3 & (TR3_AUTOMATA))
-	{
-	/* Do nothing */
-	}
-	else if (!(p_ptr->max_lev % 3))
-	{
-		while(1)
-		{
-			char tmp[32];
-			
-			/* Display the stats on screen */
-				   prt("  Which stat do you want to raise?", 2, 10);
-				   prt(" ___________________________________", 3, 14);
-				   prt(" |{{{{{{{{{** STAT GAIN **}}}}}}}}}|", 4, 14);
-				   prt(" ____~~~~~~~~~~~~~~~~~~~~~~~~~~~____", 5, 14);
-			cnv_stat(p_ptr->stat_max[0], tmp);
-			prt(format(" |^^|    a) Str (cur %s)    |^^|", tmp), 6, 14);
-			cnv_stat(p_ptr->stat_max[1], tmp);
-			prt(format(" ||||    b) Int (cur %s)    ||||", tmp), 7, 14);
-			cnv_stat(p_ptr->stat_max[2], tmp);
-			prt(format(" ||||    c) Wis (cur %s)    ||||", tmp), 8, 14);
-			cnv_stat(p_ptr->stat_max[3], tmp);
-			prt(format(" ||||    d) Dex (cur %s)    ||||", tmp), 9, 14);
-			cnv_stat(p_ptr->stat_max[4], tmp);
-			prt(format(" ||||    e) Con (cur %s)    ||||", tmp), 10, 14);
-			cnv_stat(p_ptr->stat_max[5], tmp);
-			prt(format(" |^^|    f) Chr (cur %s)    |^^|", tmp), 11, 14);
-				   prt(" ___________________________________", 12, 14);
-				   prt(" _+++++++++++++++++++++++++++++++++_", 13, 14);
-				   prt(" ___________________________________", 14, 14);
-			prt("", 15, 14);
-			
-			/* Loop to insure proper input from the ID10T interface */
-			while(1)
-			{	
-				/* Get the choice */
-				choice = inkey();
-				/* if the choice has the proper value then we can leave */
-				/*this loop. If not Well we'll just stay here forever */
-				if ((choice >= 'a') && (choice <= 'f')) break;
-			}
-	
-			/* 
-			 * Uhhhhhhh - I didn't understand what was happening 
-			 * with the original code. (which is commented out   
-			 * below), so I just typed out the options 
-			 * for(n = 0; n < 6; n++)
-			 *	if (n != choice - 'a')
-			 *  prt("",n+2,14);
-			 */
-			if (get_check("Are you sure? ")) break;
-			
-		}
-		if (choice == 'a') do_inc_stat(A_STR); 
-		if (choice == 'b') do_inc_stat(A_INT);
-		if (choice == 'c') do_inc_stat(A_WIS); 
-		if (choice == 'd') do_inc_stat(A_DEX);
-		if (choice == 'e') do_inc_stat(A_CON);
-		if (choice == 'f') do_inc_stat(A_CHR);
-	
-	
-	}	
-	else 
-	{
-	do_inc_stat(rand_int(6));
-	}
-	screen_load();
 }
+
+/* This screen handles gaining stats, and adding points to skills */
+void do_cmd_gain_level(void)
+{
+	char ch;
+	int i;
+	cptr p;
+	char buf[80];
+	int selected;
+
+	/* Prompt */
+	p = "['g' to gain stats, arrow keys to select stats, +/= to raise or ESC]";
+
+	screen_save();
+
+	/* Erase screen */
+	clear_from(0);
+
+	/* reset selected */
+	selected = 0;
+	
+	while (p_ptr->skills[selected].skill_max == -2){selected++;}
+	
+	while (1)
+	{
+
+		/* Misc Info */
+		display_player_misc_info();
+
+		/* Stat info */
+		display_player_stat_info();
+
+		/* This function doesn't exist- does now */
+		print_all_skills(selected);
+
+		/* Prompt */
+		Term_putstr(2, 23, -1, TERM_WHITE, p);
+		
+		put_str("Stat Growth:", 3, 22);
+		sprintf(buf, "%2d", p_ptr->free_sgain);
+		c_put_str(TERM_L_BLUE, buf, 3, 36);
+		
+		put_str("Skill Points:", 4, 22);
+		sprintf(buf, "%2d", p_ptr->free_skpts);
+		c_put_str(TERM_L_BLUE, buf, 4, 36);
+		/* Hack -- hide the cursor  XXX XXX */
+		Term_gotoxy(0, 26);
+
+		/* Query */
+		ch = inkey();
+
+		/* Exit */
+		if (ch == ESCAPE) break;
+
+		/* Gain stats */
+		if (ch == 'g')
+		{
+			screen_save();
+			/* if stat growth is available */
+			if (p_ptr->free_sgain > 0)
+			{
+				/* Raise the stats */
+				for (i = 0; i < A_MAX; i++)
+				{
+					do_inc_stat(i);
+			 	}
+			 	/* reduce the amount of stat gains by one */
+			 	p_ptr->free_sgain -= 1;
+			}
+			screen_load();
+		}
+		
+		/* Prev skill */
+		if (ch == '8')
+		{
+		 	if (p_ptr->skills[selected].skill_index == 1)
+		 	{
+		 		continue;
+		 	}
+		 	/* if it's an active skill - go down once */
+		 	if (selected > 0 && p_ptr->skills[selected].skill_max > -2)
+		 	{
+		 		/* go down */
+		 		selected--;		 		
+		 	}
+			/* if it's inactive - Keep going down */
+			/* until the next active skill is reached */
+			while (p_ptr->skills[selected].skill_index == 0)
+			{
+		  		/* go down */
+		  		selected--;
+			}
+		 	continue;
+		}
+
+		/* Next skill */
+		if (ch == '2')
+		{
+		 	if (p_ptr->skills[selected].skill_index == skill_count)
+		 	{
+		 		continue;
+		 	}
+			/* if it's an active skill - go up once */
+			if (p_ptr->skills[selected].skill_max > -2) 
+ 			{
+ 				selected++;
+			}
+			/* if it's inactive - keep going down */
+			/* until the next active skill is reached */
+			while (p_ptr->skills[selected].skill_max == -2 
+					&& selected < N_SKILLS)
+			{
+		  		selected++;
+			}
+		}
+		/* Move left a col */
+		/* I don't even know if this is possible! */
+		if (ch == '4')
+		{
+		}
+		/* Move right a col */
+		if (ch == '6')
+		{
+		}
+
+		if ((ch == '+') || (ch == '='))
+		{
+			/* skill is raised - Once a skill is raised it's permanant*/
+			skill_up(selected); 
+		}
+		if ((ch == '-') || (ch == '_'))
+		{
+		/* decrement skill - this doesn't ever actually happen */
+		}
+
+		else{}
+		
+		
+
+	}
+	/* Load screen */
+	screen_load();	
+	
+	/* Redraw Level status */
+	p_ptr->redraw |= (PR_LEVEL);
+
+	
+	/* Update stuff */
+	update_stuff();
+
+
+}	
+

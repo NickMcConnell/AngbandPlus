@@ -1,4 +1,4 @@
-=== Version Information ===
+=== Version Information === (OUTDATED)
 
 This file was last updated for Steamband 0.2.0
 

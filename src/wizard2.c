@@ -151,7 +151,7 @@ static void do_cmd_wiz_change_aux(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
-		sprintf(ppp, "%s (3-118): ", stat_names[i]);
+		sprintf(ppp, "%s (1-999): ", stat_names[i]);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
@@ -163,7 +163,7 @@ static void do_cmd_wiz_change_aux(void)
 		tmp_int = atoi(tmp_val);
 
 		/* Verify */
-		if (tmp_int > 18+100) tmp_int = 18+100;
+		if (tmp_int > 999) tmp_int = 999;
 		else if (tmp_int < 3) tmp_int = 3;
 
 		/* Save it */
@@ -330,9 +330,9 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT..........SLAY.......BRAND", 11, j);
 	prt("                ae      x  paefc", 12, j);
-	prt("siwdcc  ssidsasmnvudotgdd  oclio", 13, j);
-	prt("tnieoh  trnipthgiinmrrnrr  iierl", 14, j);
-	prt("rtsxna..lcfgdkttmldncltgg..sdced", 15, j);
+	prt("mavsec  ssidsasmnvudotgdd  oclio", 13, j);
+	prt("ugicgh  trnipthgiinmrrnrr  iierl", 14, j);
+	prt("sighor..lcfgdkttmldncltgg..sdced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
@@ -377,7 +377,7 @@ static const tval_desc tvals[] =
 	{ TV_BULLET,            "Rifle Bullets"        },
 	{ TV_SHOT,              "Shotgun Shot"         },
 	{ TV_AMMO,              "Pistol Bullets"       },
-	{ TV_SHIELD,            "Shield"               },
+	{ TV_LEG,	        "Pants"	               },
 	{ TV_CROWN,             "Crown"                },
 	{ TV_HELM,              "Helm"                 },
 	{ TV_GLOVES,            "Gloves"               },
@@ -395,7 +395,6 @@ static const tval_desc tvals[] =
 	{ TV_RAY,               "Ray gun"              },
 	{ TV_TOOL,              "Tool"                 },
 	{ TV_APPARATUS,         "Apparatus"            },
-	{ TV_DEVICE_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
@@ -793,7 +792,7 @@ static void wiz_statistics(object_type *o_ptr)
 			object_wipe(i_ptr);
 
 			/* Create an object */
-			make_object(i_ptr, good, great);
+			make_object(i_ptr, good, great, FALSE);
 
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
@@ -1099,6 +1098,7 @@ static void wiz_create_artifact(int a_idx)
 	/* Extract the fields */
 	i_ptr->pval = a_ptr->pval;
 	i_ptr->ac = a_ptr->ac;
+	i_ptr->force = a_ptr->force;
 	i_ptr->dd = a_ptr->dd;
 	i_ptr->ds = a_ptr->ds;
 	i_ptr->to_a = a_ptr->to_a;
@@ -1123,11 +1123,11 @@ static void do_cmd_wiz_cure_all(void)
 	(void)remove_all_curse();
 
 	/* Restore stats */
-	(void)res_stat(A_STR);
-	(void)res_stat(A_INT);
-	(void)res_stat(A_WIS);
-	(void)res_stat(A_CON);
-	(void)res_stat(A_DEX);
+	(void)res_stat(A_MUS);
+	(void)res_stat(A_SCH);
+	(void)res_stat(A_EGO);
+	(void)res_stat(A_VIG);
+	(void)res_stat(A_AGI);
 	(void)res_stat(A_CHR);
 
 	/* Restore the level */

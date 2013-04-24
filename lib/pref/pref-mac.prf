@@ -9,37 +9,90 @@
 
 ##### Simple Macros #####
 
+##### Simple Macros #####
+
+
+#
+# Keypad -- (/,*,7,8,9,-,4,5,6,+,1,2,3,0,.)
+#
+
+A:/
+P:^_K/\n
+
+A:*
+P:^_K*\n
+
+A:7
+P:^_K7\n
+
+A:8
+P:^_K8\n
+
+A:9
+P:^_K9\n
+
+A:-
+P:^_K-\n
+
+A:4
+P:^_K4\n
+
+A:5
+P:^_K5\n
+
+A:6
+P:^_K6\n
+
+A:+
+P:^_K+\n
+
+A:1
+P:^_K1\n
+
+A:2
+P:^_K2\n
+
+A:3
+P:^_K3\n
+
+A:0
+P:^_K0\n
+
+A:.
+P:^_K.\n
+
+
 
 #
 # Shift-Keypad -- Directed running
 #
 
 A:\a\\.1
-P:^_S19\r
+P:^_S19\n
 
 A:\a\\.2
-P:^_S20\r
+P:^_S20\n
 
 A:\a\\.3
-P:^_S21\r
+P:^_S21\n
 
 A:\a\\.4
-P:^_S22\r
+P:^_S22\n
 
 A:\a\\.5
-P:^_S23\r
+P:^_S23\n
 
 A:\a\\.6
-P:^_S24\r
+P:^_S24\n
 
 A:\a\\.7
-P:^_S25\r
+P:^_S25\n
 
 A:\a\\.8
-P:^_S27\r
+P:^_S27\n
 
 A:\a\\.9
-P:^_S28\r
+P:^_S28\n
 
 
 #
@@ -47,31 +100,31 @@ P:^_S28\r
 #
 
 A:\a\\+1
-P:^_C19\r
+P:^_C19\n
 
 A:\a\\+2
-P:^_C20\r
+P:^_C20\n
 
 A:\a\\+3
-P:^_C21\r
+P:^_C21\n
 
 A:\a\\+4
-P:^_C22\r
+P:^_C22\n
 
 A:\a\\+5
-P:^_C23\r
+P:^_C23\n
 
 A:\a\\+6
-P:^_C24\r
+P:^_C24\n
 
 A:\a\\+7
-P:^_C25\r
+P:^_C25\n
 
 A:\a\\+8
-P:^_C27\r
+P:^_C27\n
 
 A:\a\\+9
-P:^_C28\r
+P:^_C28\n
 
 
 
@@ -80,31 +133,31 @@ P:^_C28\r
 #
 
 A:\aw0\s\s\\+1
-P:^_CO19\r
+P:^_CO19\n
 
 A:\aw0\s\s\\+2
-P:^_CO20\r
+P:^_CO20\n
 
 A:\aw0\s\s\\+3
-P:^_CO21\r
+P:^_CO21\n
 
 A:\aw0\s\s\\+4
-P:^_CO22\r
+P:^_CO22\n
 
 A:\aw0\s\s\\+5
-P:^_CO23\r
+P:^_CO23\n
 
 A:\aw0\s\s\\+6
-P:^_CO24\r
+P:^_CO24\n
 
 A:\aw0\s\s\\+7
-P:^_CO25\r
+P:^_CO25\n
 
 A:\aw0\s\s\\+8
-P:^_CO27\r
+P:^_CO27\n
 
 A:\aw0\s\s\\+9
-P:^_CO28\r
+P:^_CO28\n
 
 
 #
@@ -112,7 +165,7 @@ P:^_CO28\r
 #
 
 A:\aw0\s
-P:^_CO18\r
+P:^_CO18\n
 
 
 

@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.3.1
 
 
 # 0x00 --> <darkness>
@@ -70,15 +70,15 @@ G:':U
 N:5:broken door
 G:':U
 
-# 0x06 --> up stairs (perm)
+# 0x06 --> down (old up) stairs (perm)
 
-N:6:up staircase
-G:<:w
-
-# 0x07 --> down stairs (perm)
-
-N:7:down staircase
+N:6:down staircase
 G:>:w
+
+# 0x07 --> up (old down) stairs (perm)
+
+N:7:up staircase
+G:<:w
 
 # 0x08 --> shop -- general store (perm)
 
@@ -97,7 +97,7 @@ G:3:w
 
 # 0x0B --> shop -- temple (perm)
 
-N:11:Machineist shop
+N:11:Machinist shop
 G:4:g
 
 # 0x0C --> shop -- alchemist (perm)
@@ -385,3 +385,12 @@ N:63:permanent wall
 G:#:w
 M:60
 
+
+N:64:Library
+G:9:v
+
+N:65:Garden
+G:+:U
+
+N:66:Wetware
+G:+:b

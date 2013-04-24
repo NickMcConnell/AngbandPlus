@@ -1751,7 +1751,7 @@ static void rd_extra_old(void)
 		rd_s16b(&p_ptr->stat_max[i]);
 
 		/* Paranoia -- Make sure the stat is legal */
-		if (p_ptr->stat_max[i] > 18+100) p_ptr->stat_max[i] = 18+100;
+		if (p_ptr->stat_max[i] > 999) p_ptr->stat_max[i] = 999;
 
 		/* Fully restore the stat */
 		p_ptr->stat_cur[i] = p_ptr->stat_max[i];

@@ -52,7 +52,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.3.1
 #	British/French/
 #	Spaniards/German/
 #	Finnish	
@@ -75,7 +75,7 @@ D:of a Beggar.
 N:2:3:20:45
 D:of a Thug. 
 N:2:3:30:50
-D:of a Dockwoker. 
+D:of a Dock worker. 
 N:2:3:50:55
 D:of a Laborer. 
 N:2:3:70:60
@@ -85,7 +85,7 @@ D:of a Businessman.
 N:2:3:85:90
 D:of a Merchant. 
 N:2:3:90:100
-D:of a Ship Captian. 
+D:of a Ship Captain. 
 N:2:3:92:115
 D:of a Member of Government. 
 N:2:3:94:120
@@ -95,7 +95,7 @@ D:of a Baron.
 N:2:3:98:130
 D:of a Duke. 
 N:2:3:99:135
-D:of a Member of Royality. 
+D:of a Member of Royalty. 
 N:2:3:100:140
 D:of a Royal Blood Line. 
 
@@ -169,7 +169,7 @@ D:of a Beggar.
 N:9:10:20:45
 D:of a Thug. 
 N:9:10:30:50
-D:of a Dockwoker. 
+D:of a Dock worker. 
 N:9:10:50:55
 D:of a Laborer. 
 N:9:10:70:60
@@ -179,7 +179,7 @@ D:of a Businessman.
 N:9:10:85:90
 D:of a Merchant. 
 N:9:10:90:100
-D:of a Ship Captian. 
+D:of a Ship Captain. 
 N:9:10:92:115
 D:of a Member of Government. 
 N:9:10:94:120
@@ -189,7 +189,7 @@ D:of a Baron.
 N:9:10:98:130
 D:of a Duke. 
 N:9:10:99:135
-D:of a Member of Royality. 
+D:of a Member of Royalty. 
 N:9:10:100:140
 D:of a Royal Blood Line. 
 
@@ -323,7 +323,7 @@ D:of a Beggar.
 N:23:24:20:45
 D:of a Thug. 
 N:23:24:30:50
-D:of a Dockwoker. 
+D:of a Dock worker. 
 N:23:24:50:55
 D:of a Laborer. 
 N:23:24:70:60
@@ -333,7 +333,7 @@ D:of a Businessman.
 N:23:24:85:90
 D:of a Merchant. 
 N:23:24:90:100
-D:of a Ship Captian. 
+D:of a Ship Captain. 
 N:23:24:92:115
 D:of a Member of Government. 
 N:23:24:94:120
@@ -343,7 +343,7 @@ D:of a Baron.
 N:23:24:98:130
 D:of a Duke. 
 N:23:24:99:135
-D:of a Member of Royality. 
+D:of a Member of Royalty. 
 N:23:24:100:140
 D:of a Czar. 
 
@@ -417,7 +417,7 @@ D:of a Beggar.
 N:30:31:20:45
 D:of a Thug. 
 N:30:31:30:50
-D:of a Dockwoker. 
+D:of a Dock worker. 
 N:30:31:50:55
 D:of a Laborer. 
 N:30:31:70:60
@@ -427,7 +427,7 @@ D:of a Businessman.
 N:30:31:85:90
 D:of a Merchant. 
 N:30:31:90:100
-D:of a Ship Captian. 
+D:of a Ship Captain. 
 N:30:31:100:140
 D:of a Caliph. 
 
@@ -611,7 +611,7 @@ D:a cylindrical torso,
 N:46:47:90:50
 D:an angular torso, 
 N:46:47:100:50
-D:a sphericle torso, 
+D:a spherical torso, 
 
 N:47:0:10:50
 D:and a round head. 
@@ -731,7 +731,7 @@ D:of a Beggar.
 N:60:61:20:45
 D:of a Thug. 
 N:60:61:30:50
-D:of a Dockwoker. 
+D:of a Dock worker. 
 N:60:61:50:55
 D:of a Laborer. 
 N:60:61:55:60
@@ -745,11 +745,11 @@ D:of a Warrior.
 N:60:61:75:90
 D:of a Engineer. 
 N:60:61:80:90
-D:of a Quablist. 
+D:of a Qablist. 
 N:60:61:85:90
 D:of a Rogue. 
 N:60:61:90:100
-D:of a Ship Captian. 
+D:of a Ship Captain. 
 N:60:61:92:115
 D:of a Member of Government. 
 N:60:61:94:120
@@ -759,7 +759,7 @@ D:of a Baron.
 N:60:61:98:130
 D:of a Duke. 
 N:60:61:99:135
-D:of a Member of Royality. 
+D:of a Member of Royalty. 
 N:60:61:100:140
 D:of a Royal Blood Line. 
 
@@ -867,7 +867,7 @@ D:reclaim the earthly plane as your own.
 N:74:75:20:20
 D:You are a terrible being. 
 N:74:75:80:55
-D:You are a horrific monstrocity. 
+D:You are a horrific monstrosity. 
 N:74:75:100:60
 D:You turn the minds of people to mush.  
 
@@ -902,12 +902,12 @@ D:oozing sores,
 N:77:78:65:50
 D:twisted limbs, 
 N:77:78:100:50
-D:faces comeing out of your flesh, 
+D:faces coming out of your flesh, 
 
 N:78:0:10:50
 D:and a rubbery complexion. 
 N:78:0:15:50
-D:and a oozeing complexion. 
+D:and a oozing complexion. 
 N:78:0:50:50
 D:and an disgusting complexion. 
 N:78:0:80:50

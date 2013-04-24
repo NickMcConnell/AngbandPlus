@@ -1468,35 +1468,35 @@ void dump_mutations(FILE *OutFile)
         {
 			if (p_ptr->muta5 & MUT5_HYPER_STR)
           	{
-                  fprintf(OutFile, " You are superhumanly strong (+4 STR).\n");
+                  fprintf(OutFile, " You are superhumanly strong (+4 MUS).\n");
           	}
           	if (p_ptr->muta5 & MUT5_PUNY)
           	{
-                  fprintf(OutFile, " You are puny (-4 STR).\n");
+                  fprintf(OutFile, " You are puny (-4 MUS).\n");
           	}
           	if (p_ptr->muta5 & MUT5_HYPER_INT)
           	{
-                  fprintf(OutFile, " Your brain is a living computer (+4 INT/WIS).\n");
+                  fprintf(OutFile, " Your brain is a living computer (+4 SCH/EGO).\n");
           	}
           	if (p_ptr->muta5 & MUT5_MORONIC)
           	{
-                  fprintf(OutFile, " You are moronic (-4 INT/WIS).\n");
+                  fprintf(OutFile, " You are moronic (-4 SCH/EGO).\n");
           	}
           	if (p_ptr->muta5 & MUT5_RESILIENT)
           	{
-                  fprintf(OutFile, " You are very tough (+4 CON).\n");
+                  fprintf(OutFile, " You are very tough (+4 VIG).\n");
           	}
           	if (p_ptr->muta5 & MUT5_XTRA_FAT)
           	{
-                  fprintf(OutFile, " You are extremely fat (+2 CON, -2 speed).\n");
+                  fprintf(OutFile, " You are extremely fat (+2 VIG, -2 speed).\n");
           	}
           	if (p_ptr->muta5 & MUT5_ALBINO)
           	{
-                  fprintf(OutFile, " You are albino (-4 CON).\n");
+                  fprintf(OutFile, " You are albino (-4 VIG).\n");
           	}
           	if (p_ptr->muta5 & MUT5_FLESH_ROT)
           	{
-                  fprintf(OutFile, " Your flesh is rotting (-2 CON, -1 CHR).\n");
+                  fprintf(OutFile, " Your flesh is rotting (-2 VIG, -1 CHR).\n");
           	}
           	if (p_ptr->muta5 & MUT5_SILLY_VOI)
           	{
@@ -1556,7 +1556,7 @@ void dump_mutations(FILE *OutFile)
           	}
           	if (p_ptr->muta5 & MUT5_IRON_SKIN)
           	{
-                  fprintf(OutFile, " Your skin is made of iron (-1 DEX, +25 AC).\n");
+                  fprintf(OutFile, " Your skin is made of iron (-1 AGI, +25 AC).\n");
           	}
           	if (p_ptr->muta5 & MUT5_WINGS)
           	{
@@ -1580,11 +1580,11 @@ void dump_mutations(FILE *OutFile)
 			}
 			if (p_ptr->muta5 & MUT5_LIMBER)
 			{
-				  fprintf(OutFile, " Your body is very limber (+3 DEX).\n");
+				  fprintf(OutFile, " Your body is very limber (+3 AGI).\n");
 			}
 			if (p_ptr->muta5 & MUT5_ARTHRITIS)
 			{
-				  fprintf(OutFile, " Your joints ache constantly (-3 DEX).\n");
+				  fprintf(OutFile, " Your joints ache constantly (-3 AGI).\n");
 			}
 			if (p_ptr->muta5 & MUT5_VULN_ELEM)
 			{
@@ -1640,7 +1640,7 @@ void mutation_power_aux(u32b power)
 	switch (power)
 	{
 		case MUT1_SPIT_ACID:
-			if (racial_aux(9, 9, A_DEX, 15))
+			if (racial_aux(9, 9, A_AGI, 15))
 			{
 				msg_print("You spit acid...");
 				if (get_aim_dir(&dir))
@@ -1649,7 +1649,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_BR_FIRE:
-			if (racial_aux(20, p_ptr->lev, A_CON, 18))
+			if (racial_aux(20, p_ptr->lev, A_VIG, 18))
 			{
 				msg_print("You breathe fire...");
 				if (get_aim_dir(&dir))
@@ -1668,7 +1668,7 @@ void mutation_power_aux(u32b power)
 			break;
 			
 		case MUT1_APPORTATION:
-			if (racial_aux(9, 9, A_WIS, 14))
+			if (racial_aux(9, 9, A_EGO, 14))
 			{
 				msg_print("You concentrate...");
 				if (get_aim_dir(&dir))
@@ -1677,7 +1677,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_VTELEPORT:
-			if (racial_aux(7, 7, A_WIS, 15))
+			if (racial_aux(7, 7, A_EGO, 15))
 			{
 				msg_print("Blink!");
 				teleport_player(10 + (p_ptr->lev));
@@ -1685,7 +1685,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_MIND_BLST:
-			if (racial_aux(5, 3, A_WIS, 15))
+			if (racial_aux(5, 3, A_EGO, 15))
 			{
 				msg_print("You concentrate...");
 				if (!get_aim_dir(&dir)) return;
@@ -1694,7 +1694,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_RADIATION:
-			if (racial_aux(15, 15, A_CON, 14))
+			if (racial_aux(15, 15, A_VIG, 14))
 			{
 				msg_print("Radiation flows from your body!");
 				fire_ball(GF_FIRE, 0, (p_ptr->lev * 3), 3 + (p_ptr->lev / 20));
@@ -1702,7 +1702,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_VAMPIRISM:
-			if (racial_aux(13, p_ptr->lev, A_CON, 14))
+			if (racial_aux(13, p_ptr->lev, A_VIG, 14))
 			{
 				if (!get_aim_dir(&dir)) return;
 				if (drain_life(dir, (p_ptr->lev * 2)))
@@ -1711,21 +1711,21 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_SUMMON_M:
-			if (racial_aux(10, p_ptr->lev / 2, A_CON, 10))
+			if (racial_aux(10, p_ptr->lev / 2, A_VIG, 10))
 			{
 				summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0, FALSE, TRUE);
 			}
 			break;
 
 		case MUT1_BLINK:
-			if (racial_aux(3, 3, A_WIS, 12))
+			if (racial_aux(3, 3, A_EGO, 12))
 			{
 				teleport_player(10);
 			}
 			break;
 
 		case MUT1_EAT_ROCK:
-			if (racial_aux(8, 12, A_CON, 18))
+			if (racial_aux(8, 12, A_VIG, 18))
 			{
 				int x, y, ox, oy, py, px;
 				byte feat;
@@ -1793,7 +1793,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_SHRIEK:
-			if (racial_aux(20, 14, A_CON, 16))
+			if (racial_aux(20, 14, A_VIG, 16))
 			{
 				(void)fire_ball(GF_SOUND, 0, 3 * lvl, 8);
 				(void)aggravate_monsters(-1);
@@ -1801,14 +1801,14 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_ILLUMINE:
-			if (racial_aux(3, 2, A_INT, 10))
+			if (racial_aux(3, 2, A_SCH, 10))
 			{
 				(void)lite_area(damroll(2, (lvl / 2)), (lvl / 10) + 1);
 			}
 			break;
 
 		case MUT1_DET_CURSE:
-			if (racial_aux(7, 14, A_WIS, 14))
+			if (racial_aux(7, 14, A_EGO, 14))
 			{
 				int i;
 
@@ -1825,7 +1825,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_BERSERK:
-			if (racial_aux(8, 8, A_STR, 14))
+			if (racial_aux(8, 8, A_MUS, 14))
 			{
 				(void)set_shero(p_ptr->shero + randint(25) + 25);
 				(void)hp_player(30);
@@ -1834,28 +1834,28 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_POLYMORPH:
-			if (racial_aux(18, 20, A_CON, 18))
+			if (racial_aux(18, 20, A_VIG, 18))
 			{
 				do_poly_self();
 			}
 			break;
 
 		case MUT1_MIDAS_TCH:
-			if (racial_aux(20, 15, A_INT, 12))
+			if (racial_aux(20, 15, A_SCH, 12))
 			{
 				(void)alchemy();
 			}
 			break;
 
 		case MUT1_GROW_MOLD:
-			if (racial_aux(1, 6, A_CON, 14))
+			if (racial_aux(1, 6, A_VIG, 14))
 			{
 				summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_ALIEN, FALSE, TRUE);
 			}
 			break;
 
 		case MUT1_RESIST:
-			if (racial_aux(10, 12, A_CON, 12))
+			if (racial_aux(10, 12, A_VIG, 12))
 			{
 				int num = lvl / 10;
 				int dur = randint(20) + 20;
@@ -1889,7 +1889,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_EARTHQUAKE:
-			if (racial_aux(12, 12, A_STR, 16))
+			if (racial_aux(12, 12, A_MUS, 16))
 			{
 				msg_print("You put your foot down... Hard!");
 				earthquake(p_ptr->py, p_ptr->px, 10);
@@ -1907,7 +1907,7 @@ void mutation_power_aux(u32b power)
 
 		case MUT1_RECALL:
 			
-			if (racial_aux(17, 50, A_INT, 16))
+			if (racial_aux(17, 50, A_SCH, 16))
 			{
 				if (p_ptr->depth && (p_ptr->max_depth > p_ptr->depth))
 				{
@@ -1928,7 +1928,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_BANISH:
-			if (racial_aux(25, 25, A_WIS, 18))
+			if (racial_aux(25, 25, A_EGO, 18))
 			{
 				int x,y;
 				monster_type *m_ptr;
@@ -1961,7 +1961,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_COLD_TOUCH:
-			if (racial_aux(2, 2, A_CON, 11))
+			if (racial_aux(2, 2, A_VIG, 11))
 			{
 				int x,y;
 
@@ -1979,7 +1979,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_MISSILE:
-			if (racial_aux(1, 1, A_CON, 5))
+			if (racial_aux(1, 1, A_VIG, 5))
 			{
 				msg_print("You cast a magic missile...");
 				if (get_aim_dir(&dir))
@@ -1988,7 +1988,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_SHARD_BOLT:
-			if (racial_aux(3, 2, A_CON, 7))
+			if (racial_aux(3, 2, A_VIG, 7))
 			{
 				msg_print("You cast a stinging shard...");
 				if (get_aim_dir(&dir))
@@ -1997,7 +1997,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_SHARD_BLAST:
-			if (racial_aux(7, 4, A_CON, 10))
+			if (racial_aux(7, 4, A_VIG, 10))
 			{
 				msg_print("You cast a volley of shards...");
 				if (get_aim_dir(&dir))
@@ -2006,7 +2006,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_DSHARD_BLAST:
-			if (racial_aux(14, 8, A_CON, 12))
+			if (racial_aux(14, 8, A_VIG, 12))
 			{
 				msg_print("You cast a volley of shards...");
 				if (get_aim_dir(&dir))
@@ -2015,7 +2015,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_CHAIN_SHARDS:
-			if (racial_aux(17, 10, A_STR, 16))
+			if (racial_aux(17, 10, A_MUS, 16))
 			{
 				msg_print("You launch a barrage of shards...");
 				if (get_aim_dir(&dir))
@@ -2024,7 +2024,7 @@ void mutation_power_aux(u32b power)
 			break;
 		
 		case MUT1_GRAV_BEAM:
-			if (racial_aux(30, 20, A_CON, 18))
+			if (racial_aux(30, 20, A_VIG, 18))
 			{
 				if (get_aim_dir(&dir))
 				{
@@ -2035,7 +2035,7 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_ROCKET:
-			if (racial_aux(21, 15, A_STR, 18))
+			if (racial_aux(21, 15, A_MUS, 18))
 			{
 				msg_print("You fire a rocket...");
 				if (get_aim_dir(&dir))
@@ -2054,6 +2054,7 @@ void mutation_power_aux(u32b power)
 /*
  * Returns the chance to activate a racial power/mutation
  * Wheeee! I stole this directly from Z! :-) -ccc
+ * I need to do something about the fact that this is still based off of level. . . -ccc
  */
 	
 static int racial_chance(s16b min_level, int use_stat, int difficulty)
@@ -2061,7 +2062,7 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 	int i;
 	int val;
 	int sum = 0;
-	int stat = p_ptr->stat_cur[use_stat];
+	int stat = p_ptr->stat_use[use_stat];
 
 	/* No chance for success */
 	if ((p_ptr->lev < min_level) || p_ptr->confused)
@@ -2077,10 +2078,11 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 	else if (p_ptr->lev > min_level)
 	{
 		int lev_adj = ((p_ptr->lev - min_level) / 3);
-		if (lev_adj > 10) lev_adj = 10;
+		if (lev_adj > 15) lev_adj = 15;
 		difficulty -= lev_adj;
 	}
 
+	/* apparently fail rates can't drop too low */
 	if (difficulty < 5) difficulty = 5;
 
 	/* We only need halfs of the difficulty */
@@ -2099,6 +2101,52 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 		return (((sum * 100) / difficulty) / stat);
 }
 
+/* this returns the chance of success for the skill based racial powers. */
+static int racial_race_chance(int skill_rate, int use_stat, int difficulty, int skill)
+{
+	int i;
+	int val;
+	int sum = 0;
+	int stat = p_ptr->stat_use[use_stat] / 9;
+
+	/* No chance for success */
+	if ((p_ptr->skills[skill].skill_rank < skill_rate) || p_ptr->confused)
+	{
+		return (0);
+	}
+
+	/* Calculate difficulty */
+	if (p_ptr->stun)
+	{
+		difficulty += p_ptr->stun;
+	}
+	else if (p_ptr->skills[skill].skill_rank > skill_rate)
+	{
+		int skill_adj = ((p_ptr->skills[skill].skill_rank - skill_rate));
+		/* if (skill_adj > 10) skill_adj = 10; */
+		skill_adj = p_ptr->skills[skill].skill_rank * 2;
+		difficulty -= skill_adj;
+	}
+
+	/* racial powers can have 0% fail */
+	if (difficulty < 0) difficulty = 0;
+
+	/* We only need halfs of the difficulty */
+	difficulty = difficulty / 2;
+
+	/* I hope this is correct */
+	for (i = 1; i <= stat; i++)
+	{
+		val = i - difficulty;
+		if (val > 0)
+			sum += (val <= difficulty) ? val : difficulty;
+	}
+
+	if (difficulty == 0)
+		return (100);
+	else
+		return (((sum * 100) / difficulty) / stat);
+}
 
 /* Here's the racial & mutation activations, moved from cmd2.c */
 
@@ -2174,7 +2222,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 
 
 	/* Success? */
-	if (randint(p_ptr->stat_cur[use_stat]) >=
+	if (randint(p_ptr->stat_use[use_stat]) >=
 	    ((difficulty / 2) + randint(difficulty / 2)))
 	{
 	return TRUE;
@@ -2184,256 +2232,616 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	return FALSE;
 }
 
+/* 
+ * This function is similar to the function above, except for the special case 
+ * Racial skills that affect racial powers. int skill_rate is the skill level 
+ * required to use the power, and int skill is the appropriate skill
+ */
+bool racial_race_aux(int skill_rate, int cost, int use_stat, int difficulty, int skill)
+{
+	bool use_hp = FALSE;
+
+	/* Use hit points when you don't have enough spell points */
+	if (p_ptr->csp < cost) use_hp = TRUE;
+
+	if (p_ptr->skills[skill].skill_rank < skill_rate)
+	{
+		msg_format("You need a %s skill rank of %d to use this power.", skills[skill].name, skill_rate);
+		p_ptr->energy_use = 0;
+		return FALSE;
+	}
+
+	else if (p_ptr->confused)
+	{
+		msg_print("You are too confused to use this power.");
+		p_ptr->energy_use = 0;
+		return FALSE;
+	}
+
+	else if (use_hp && (p_ptr->chp < cost))
+	{
+		if (!(get_check("Really use the power in your weakened state? ")))
+		{
+			p_ptr->energy_use = 0;
+			return FALSE;
+		}
+	}
+
+	/* Else attempt to do it! */
+
+	if (p_ptr->stun)
+	{
+		difficulty += p_ptr->stun;
+	}
+	else if (p_ptr->skills[skill].skill_rank > skill_rate)
+	{
+		int skill_adj = ((p_ptr->skills[skill].skill_rank - skill_rate));
+		/* if (skill_adj > 10) skill_adj = 10; */
+		skill_adj = p_ptr->skills[skill].skill_rank * 2;
+		difficulty -= skill_adj;
+	}
+
+	/* racial powers can achieve difficulties of 0 */
+	if (difficulty < 0) difficulty = 0;
+
+	/* take time and pay the price */
+	p_ptr->energy_use = 100;
+
+	if (use_hp)
+	{
+		take_hit((cost / 2) + randint(cost / 2),
+			"concentrating too hard");
+	}
+	else
+	{
+		p_ptr->csp -= (cost / 2) + randint(cost / 2);
+	}
+	
+	/* Redraw Hit Points */
+	p_ptr->redraw |= (PR_HP);
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_OVERHEAD);
+
+
+	/* Success? */
+	if (randint(p_ptr->stat_use[use_stat] / 9) >=
+	    ((difficulty / 2) + randint(difficulty / 2)))
+	{
+	return TRUE;
+	}
+	
+	msg_print("You've failed to concentrate hard enough.");
+	return FALSE;
+}
+
+
+
 static void cmd_racial_power_aux(s32b command)
 {
 	s16b 		plev = p_ptr->lev;
 	int 		dir = 0;
     
 	switch(p_ptr->prace)
-	/* s16b min_level, int cost, int use_stat, int difficulty */
+	/* int skill-rate, int cost, int use_stat, int difficulty int skill */
 	/* The order of racial aux */
 	{
 		case RACE_BRITISH: 
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_ASIATIC:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_AMERICAN:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_AFRICAN:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_FRENCH:
-			if (racial_aux(5, 1, A_WIS, 10))
+			if (racial_race_aux(3, 2, A_EGO, 10, SK_CUISINE))
 			{
-				msg_print("Ze cuisine iz ze very good, no?");
-				(void)set_food(PY_FOOD_MAX - 1);
+				if (p_ptr->skills[SK_CUISINE].skill_rank < 10)
+				{
+					msg_print("Ze cuisine iz ze very good, no?");
+					(void)set_food(p_ptr->food + (50 * p_ptr->skills[SK_CUISINE].skill_rank));
+				}
+				else if (p_ptr->skills[SK_CUISINE].skill_rank < 15)
+				{
+					msg_print("Zis meal iz fantastique!");
+					(void)set_food(p_ptr->food + (100 * p_ptr->skills[SK_CUISINE].skill_rank));
+					(void)hp_player(damroll((p_ptr->skills[SK_CUISINE].skill_rank / 3), (p_ptr->skills[SK_CUISINE].skill_rank / 2)));
+				}
+				else
+				{
+					msg_print("Zis is the ultimate meal!");
+					(void)set_food(PY_FOOD_MAX - 1);
+					(void)hp_player(damroll((p_ptr->skills[SK_CUISINE].skill_rank * 2), (p_ptr->skills[SK_CUISINE].skill_rank)));
+					(void)set_poisoned(p_ptr->poisoned / 2);
+				}
 			}
 			break;
 			
 		case RACE_SPANISH:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_GERMAN:
-			if (racial_aux(5, 2, A_WIS, 10))
+			if (command == -1)
 			{
-			(void)detect_objects_gold();
-			(void)detect_objects_normal();
-			(void)detect_objects_magic();
+				if (racial_race_aux(3, 2, A_EGO, 10, SK_RANSACK))
+				{
+					if (p_ptr->skills[SK_RANSACK].skill_rank < 10)
+					{
+						(void)detect_objects_gold();
+						(void)detect_treasure();
+					}
+					else if (p_ptr->skills[SK_RANSACK].skill_rank < 15)		
+					{
+						(void)detect_objects_gold();
+						(void)detect_treasure();
+						(void)detect_objects_normal();
+					}
+					else 
+					{
+						(void)detect_objects_gold();
+						(void)detect_treasure();
+						(void)detect_objects_normal();
+						(void)detect_objects_magic();
+					}
+				}
+			}
+			if (command == -2)
+			{
+				if (racial_race_aux(18, 20, A_EGO, 25, SK_RANSACK))
+				{
+					(void)alchemy();
+				} 
 			}
 			break;
 			
 		case RACE_RUSSIAN:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_FINNISH:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_ARABIC:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_DWARF:
-			if (racial_aux(5, 5, A_WIS, 12))
+		if (command == -1)
+			if (racial_race_aux(1, 5, A_EGO, 12, SK_STONELORE))
 			{
 				msg_print("You examine your surroundings.");
-				if (p_ptr->lev >= 35) (void)map_area();
-				(void)detect_traps();
-				(void)detect_stairs();
-				(void)detect_doors();
+				if (p_ptr->skills[SK_STONELORE].skill_rank < 5)
+				{
+					(void)detect_stairs();
+				}
+				else if (p_ptr->skills[SK_STONELORE].skill_rank < 10)
+				{
+					(void)detect_stairs();
+					(void)detect_doors();
+				}
+				else if (p_ptr->skills[SK_STONELORE].skill_rank < 15)
+				{
+					(void)detect_traps();
+					(void)detect_stairs();
+					(void)detect_doors();
+				}
+				else
+				{
+					(void)map_area();
+					(void)detect_traps();
+					(void)detect_stairs();
+					(void)detect_doors();
+				}
+				
+			}
+			if (command == -2)
+			{
+				if (racial_race_aux(20, 40, A_EGO, 45, SK_STONELORE))
+				{
+					msg_print("You have discovered a secret passage to another area!");
+					p_ptr->leaving = TRUE;
+				}
 			}
 			break;
 			
 		case RACE_BROWNIE:
-			if (racial_aux(5, (5+(plev/5)), A_INT, 12))
+			if (racial_race_aux(1, (5 + (p_ptr->skills[SK_FAE_PATH].skill_rank / 2)), A_EGO, 12, SK_FAE_PATH))
 			{
 				msg_print("Blink!");
-				teleport_player(10 + (plev));
+				teleport_player(10 + (p_ptr->skills[SK_FAE_PATH].skill_rank));
 			}
 			break;
-			
+
 		case RACE_DAOINE_SIDHE:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_SEELIE_FAE:
-			if (racial_aux(5, (5+(plev/5)), A_INT, 12))
+			if (racial_race_aux(1, (5 + (p_ptr->skills[SK_FAE_PATH].skill_rank / 2)), A_SCH, 12, SK_FAE_PATH))
 			{
 				msg_print("Blink!");
-				teleport_player(10 + (plev));
+				teleport_player(10 + (p_ptr->skills[SK_FAE_PATH].skill_rank));
 			}
 			break;
 			
 		case RACE_UNSEELIE_FAE:
-			if (racial_aux(5, (5+(plev/5)), A_INT, 12))
+			if (racial_race_aux(1, (5 + (p_ptr->skills[SK_FAE_PATH].skill_rank / 2)), A_SCH, 12, SK_FAE_PATH))
 			{
 				msg_print("Blink!");
-				teleport_player(10 + (plev));
+				teleport_player(10 + (p_ptr->skills[SK_FAE_PATH].skill_rank));
 			}
 			break;
 			
 		case RACE_AUTOMATA:
-			if (racial_aux(15, 20, A_CON, 20))
+			/* Utility Cypher */
+			if (command == -1)
 			{
-				if (!p_ptr->fast)
+				if (racial_race_aux(1, 2, A_SCH, 20, SK_UTILITY_CYPHER))
 				{
-					(void)set_fast(randint(30) + 30 + plev);
+					if (p_ptr->skills[SK_UTILITY_CYPHER].skill_rank < 4)
+					{
+						(void)detect_stairs();
+						(void)detect_doors();
+					}
+					else if (p_ptr->skills[SK_UTILITY_CYPHER].skill_rank < 8)
+					{
+						(void)detect_stairs();
+						(void)detect_doors();
+						(void)detect_traps();
+					}
+					else if (p_ptr->skills[SK_UTILITY_CYPHER].skill_rank < 12)
+					{
+						(void)detect_stairs();
+						(void)detect_doors();
+						(void)detect_traps();
+						(void)detect_monsters_normal();
+					}
+					else if (p_ptr->skills[SK_UTILITY_CYPHER].skill_rank < 16)
+					{
+						(void)detect_stairs();
+						(void)detect_doors();
+						(void)detect_traps();
+						(void)detect_monsters_normal();
+						(void)detect_monsters_invis();
+					}
+					else
+					{
+						(void)detect_stairs();
+						(void)detect_doors();
+						(void)detect_traps();
+						(void)detect_monsters_normal();
+						(void)detect_monsters_invis();
+						(void)detect_treasure();
+						(void)detect_objects_gold();
+						(void)detect_objects_normal();
+						(void)detect_objects_magic();
+					}
 				}
-				else
-				{
-					(void)set_fast(p_ptr->fast + randint(10));
-				}
-				break;
-
 			}
+			
+			if (command == -2)
+			{
+				if (racial_race_aux(18, 35, A_SCH, 55, SK_UTILITY_CYPHER))
+				{
+					(void)ident_spell();
+				}
+			}
+			
+			/* Systems Cypher */
+			if (command == -3)
+			{
+				if (racial_race_aux(1, 20, A_VIG, 35, SK_SYSTEMS_CYPHER))
+				{
+					if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank < 5)
+					{
+						if (!p_ptr->fast)
+						{
+							(void)set_fast(randint(30) + 30 + p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank);
+						}
+						else
+						{
+							(void)set_fast(p_ptr->fast + randint(10));
+						}
+					}
+					if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank < 10)
+					{
+						(void)hp_player(damroll(p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank / 4, p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank));
+						if (!p_ptr->fast)
+						{
+							(void)set_fast(randint(30) + 30 + p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank);
+						}
+						else
+						{
+							(void)set_fast(p_ptr->fast + randint(10));
+						}
+					}
+					if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank < 15)
+					{
+						(void)set_shero(p_ptr->shero + (randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank)));
+						(void)hp_player(damroll((p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank / 2), (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank * 2)));
+						if (!p_ptr->fast)
+						{
+							(void)set_fast(randint(30) + 30 + p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank);
+						}
+						else
+						{
+							(void)set_fast(p_ptr->fast + randint(10));
+						}
+					}
+					else
+					{
+						int time = randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank * 2);
+						(void)set_shero(p_ptr->shero + (randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank)));
+						(void)hp_player(400);
+						(void)set_oppose_acid(p_ptr->oppose_acid + time);
+						(void)set_oppose_elec(p_ptr->oppose_elec + time);
+						(void)set_oppose_fire(p_ptr->oppose_fire + time);
+						(void)set_oppose_cold(p_ptr->oppose_cold + time);
+						(void)set_oppose_pois(p_ptr->oppose_pois + time);
+						if (!p_ptr->fast)
+						{
+							(void)set_fast(randint(30) + 30 + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank * 3));
+						}
+						else
+						{
+							(void)set_fast(p_ptr->fast + randint(10));
+						}
+					}
+					break;
+	
+				}
+			}	
 			break;
 			
 		case RACE_STEAM_MECHA:
 			if (command == -1)
-				if (racial_aux(5, 2, A_CON, 10))
+				if (racial_race_aux(4, 2, A_VIG, 10, SK_ONSLAUGHT_CYPHER))
 				{
 					/* Guns */
 					msg_print ("*THOOM* *THOOM* *THOOM*");
 					if (!get_aim_dir(&dir)) return; 
-						fire_bolt(GF_SHARD, dir, damroll(3 + (plev / 5), 5));
+						fire_bolt(GF_SHARD, dir, damroll(3 + (p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_rank / 2), 5));
 				}
 			if (command == -2)
-				if (racial_aux(15, 20, A_CON, 30))
+				if (racial_race_aux(10, 20, A_VIG, 30, SK_ONSLAUGHT_CYPHER))
 				{
 					/* Rocket */
 					msg_print ("You fire a rocket!");
 					if (!get_aim_dir(&dir)) return;
-						fire_ball(GF_SHARD, dir, damroll(3 + (plev / 3), 12), ((plev / 10) + 1));
+					if (p_ptr->skills[SK_ROCKETRY].skill_rank > 0)
+					{
+						fire_ball(GF_SHARD, dir, damroll(3 + (p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_rank + (p_ptr->skills[SK_ROCKETRY].skill_rank * 3 / 2)), 12), ((p_ptr->skills[SK_ROCKETRY].skill_rank / 4) + 3));
+					}
+					else 
+					{
+						fire_ball(GF_SHARD, dir, damroll(3 + (p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_rank), 12), ((p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_rank / 5) + 1));
+					}
 				}
 			if (command == -3)
-				if (racial_aux(20, 25, A_STR, 35))
+				if (racial_race_aux(14, 25, A_MUS, 35, SK_ONSLAUGHT_CYPHER))
 				{
 					/* Drill */
 					msg_print ("WHIRRRRRRR*tink*BZZZZZZZZZZZ");
 					steam_mecha_drill_level();
 				}
 			if (command == -4)
-				if (racial_aux(40, 50, A_CON, 50))
+				if (racial_race_aux(20, 50, A_VIG, 20, SK_ONSLAUGHT_CYPHER))
 				{
 					/* High Yeild Devestation */
-					msg_print ("You unleash the fires of hell upon your opponents!");
 					if (!get_aim_dir(&dir)) return; 
-					(void)fire_barrage(GF_SHARD, dir,
-							 	(plev / 5), (plev / 2), (plev / 7), 2);
+					msg_print ("You unleash the fires of hell upon your opponents!");
+					if (p_ptr->skills[SK_ROCKETRY].skill_rank > 0)
+					{
+						(void)fire_barrage(GF_SHARD, dir,
+							 	(p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_rank + p_ptr->skills[SK_ROCKETRY].skill_rank / 3), 
+							 	(((p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_rank * 2) / 3) + (p_ptr->skills[SK_ROCKETRY].skill_rank * 2)), 
+							 	(((p_ptr->skills[SK_ROCKETRY].skill_rank) / 4) + 3), 2, 3);
+						
+					}
+					else
+					{
+						(void)fire_barrage(GF_SHARD, dir,
+							 	(p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_rank / 2), 
+							 	(p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_rank), 
+							 	((p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_rank) / 5), 2, 3);
+					}
 				}
+			if (command == -5)
+			{
+				if (racial_race_aux(1, 20, A_VIG, 45, SK_SYSTEMS_CYPHER))
+				{
+					if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank < 5)
+					{
+						if (!p_ptr->fast)
+						{
+							(void)set_fast(randint(30) + 30 + p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank);
+						}
+						else
+						{
+							(void)set_fast(p_ptr->fast + randint(10));
+						}
+					}
+					if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank < 10)
+					{
+						(void)hp_player(damroll(p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank / 4, p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank));
+						if (!p_ptr->fast)
+						{
+							(void)set_fast(randint(30) + 30 + p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank);
+						}
+						else
+						{
+							(void)set_fast(p_ptr->fast + randint(10));
+						}
+					}
+					if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank < 15)
+					{
+						(void)set_shero(p_ptr->shero + (randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank)));
+						(void)hp_player(damroll((p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank / 2), (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank * 2)));
+						if (!p_ptr->fast)
+						{
+							(void)set_fast(randint(30) + 30 + p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank);
+						}
+						else
+						{
+							(void)set_fast(p_ptr->fast + randint(10));
+						}
+					}
+					else
+					{
+						(void)set_shero(p_ptr->shero + (randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank)));
+						(void)hp_player(400);
+						if (!p_ptr->fast)
+						{
+							(void)set_fast(randint(20) + 10 + p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank * 2);
+						}
+						else
+						{
+							(void)set_fast(p_ptr->fast + randint(10));
+						}
+					}
+					break;
+	
+				}
+				
+			}
+			if (command == -6)
+			{
+				if(racial_race_aux(1, 30, A_MUS, 45, SK_AEGIS_CYPHER))
+				{
+					if (p_ptr->skills[SK_AEGIS_CYPHER].skill_rank < 10)
+					{
+						(void)set_tim_harding(20 + randint((p_ptr->skills[SK_AEGIS_CYPHER].skill_rank * 4)));
+					}
+					else
+					{
+						int time = randint(20) + (p_ptr->skills[SK_AEGIS_CYPHER].skill_rank * 4);
+						(void)set_tim_harding(p_ptr->tim_harding + time);
+						(void)set_oppose_acid(p_ptr->oppose_acid + time);
+						(void)set_oppose_elec(p_ptr->oppose_elec + time);
+						(void)set_oppose_fire(p_ptr->oppose_fire + time);
+						(void)set_oppose_cold(p_ptr->oppose_cold + time);
+						(void)set_oppose_pois(p_ptr->oppose_pois + time);
+					}
+				}
+			}	
+
 			break;
 			
 		case RACE_DJINN:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_RAKSHASA:
 			if (command == -1)
-				if (racial_aux(1, 2, A_CHR, 10))
+				if (racial_race_aux(4, 2, A_CHR, 10, SK_DEMON_ATTUNE))
 				{
 					/* Fear + Confusion*/
 					if (!get_aim_dir(&dir)) return; 
-					(void)fear_monster(dir, plev);
-					(void)confuse_monster(dir, plev);
+					(void)fear_monster(dir, (p_ptr->skills[SK_DEMON_ATTUNE].skill_rank * 3));
+					(void)confuse_monster(dir, (p_ptr->skills[SK_DEMON_ATTUNE].skill_rank * 3));
 				}
 			if (command == -2)
-				if (racial_aux(15, 20, A_CON, 30))
+				if (racial_race_aux(14, 20, A_VIG, 30, SK_DEMON_ATTUNE))
 				{
 					/* Chaos Sphere */
 					msg_print ("A wave of dark chaotic forces blasts out from your spirit!");
-					(void)project(-1, 1 + plev / 10, p_ptr->py, p_ptr->px,
-							  damroll(plev / 2, plev), GF_CHAOS,
+					(void)project(-1, 1 + p_ptr->skills[SK_DEMON_ATTUNE].skill_rank / 4, p_ptr->py, p_ptr->px,
+							  damroll((p_ptr->skills[SK_DEMON_ATTUNE].skill_rank / 2), p_ptr->skills[SK_DEMON_ATTUNE].skill_rank * 2), GF_CHAOS,
 							  PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID);
 				}
 			if (command == -3)
-				if (racial_aux(30, 40, A_CHR, 50))
+				if (racial_race_aux(10, 50, A_CHR, 50, SK_DARK_CHARM))
 				{
 					/* Dark Charm */
 					if (!get_aim_dir(&dir)) return; 
 					(void)fire_bolt(GF_DOMINATION, dir,
-							 	damroll((plev / 5), plev));
+							 	damroll((p_ptr->skills[SK_DARK_CHARM].skill_rank / 2), p_ptr->skills[SK_DARK_CHARM].skill_rank * 2));
 				}
 			break;
 			
 		case RACE_GIANT:
-			if (racial_aux(10, 10, A_STR, 10))
+			if (racial_race_aux(1, 10, A_MUS, 10, SK_ROCK_TOSS))
 			{
 					/* Big Rock */
 					if (!get_aim_dir(&dir)) return; 
+					/* This should be 1-10 d12, with a radius of 1-2 */
 					(void)fire_ball(GF_SHARD, dir,
-							 	damroll(((plev / 5) + 10), 12), (1+ (plev / 25)));
-
+							 	damroll(((p_ptr->skills[SK_ROCK_TOSS].skill_rank / 2) + 10), 12), (1+ (p_ptr->skills[SK_ROCK_TOSS].skill_rank / 10)));
 			}
 			break;
 			
 		case RACE_OGRE:
-			if (racial_aux(10, 12, A_WIS, 12))
+			if (racial_race_aux(1, 12, A_VIG, 12, SK_BZRK_STR))
 			{
-				msg_print("RAAAGH!");
+				int b = randint(100);
+				if (b < 60) msg_print("RAAAAARRRGGGGGGGGH!");
+				else if (b < 80) msg_print("grrrrRRRRRROOOOOOOAAAAARRRRR");
+				else if (b < 95) msg_print("DIIIEEEEEEEEEARRRRRRGGGGGGGGGGGGGHHHHHHHH!");
+				else msg_print("You're making me angry. You won't like me when I'm angry");
 				(void)set_afraid(0);
-
-				(void)set_shero(p_ptr->shero + 10 + randint(plev));
-				(void)hp_player(30);
+				(void)set_shero(p_ptr->shero + 10 + randint(p_ptr->skills[SK_BZRK_STR].skill_rank));
+				(void)hp_player(p_ptr->skills[SK_BZRK_STR].skill_rank * 5);
 			}
 			break;
 			
 		case RACE_TROLL:
-			if (racial_aux(10, 12, A_WIS, 12))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
-				msg_print("RAAAGH!");
-				(void)set_afraid(0);
-
-				(void)set_shero(p_ptr->shero + 10 + randint(plev));
-				(void)hp_player(30);
 			}
 			break;
 			
 		case RACE_GHOST:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
 			
 		case RACE_GOBLIN:
-			if (racial_aux(1, 2, A_CON, 5))
+			if (racial_race_aux(1, 2, A_VIG, 5, SK_COWARDICE))
 			{
 				msg_print("You flee in terror!");
-				set_afraid(randint(10)+5);
-				set_fast(randint(10)+5);
+				set_afraid(randint(p_ptr->skills[SK_COWARDICE].skill_rank)+ 2);
+				set_fast(randint(p_ptr->skills[SK_COWARDICE].skill_rank)+ 2);
 			}
 			break;
 			
 		case RACE_OLD_ONE:
-			if (racial_aux(10, 10, A_WIS, 10))
+			if (racial_race_aux(10, 10, A_EGO, 10, SK_DEFAULT))
 			{
 			}
 			break;
@@ -2471,7 +2879,7 @@ void do_cmd_racial_power(void)
 	bool            has_racial = FALSE;
 	char            choice;
 	char            out_val[160];
-
+	
 	for (num = 0; num < 36; num++)
 	{
 		strcpy(power_desc[num].name, "");
@@ -2499,18 +2907,24 @@ void do_cmd_racial_power(void)
 			break;
 		case RACE_FRENCH:
 			strcpy(power_desc[0].name, "Connoisseur");
-			power_desc[0].level = 5;
-			power_desc[0].cost = 1;
-			power_desc[0].fail = 100 - racial_chance(5, A_WIS, 10);
+			power_desc[0].level = 3;
+			power_desc[0].cost = 2;
+			power_desc[0].fail = 100 - racial_race_chance(3, A_EGO, 10, SK_CUISINE);
 			has_racial = TRUE;
 			break;
 		case RACE_SPANISH:
 			break;
 		case RACE_GERMAN:
 			strcpy(power_desc[0].name, "Visigoth's Plunder");
-			power_desc[0].level = 5;
+			power_desc[0].level = 3;
 			power_desc[0].cost = 2;
-			power_desc[0].fail = 100 - racial_chance(5, A_WIS, 10);
+			power_desc[0].fail = 100 - racial_race_chance(3, A_EGO, 10, SK_RANSACK);
+			strcpy(power_desc[1].name, "Visigoth's Coin");
+			power_desc[1].level = 18;
+			power_desc[1].cost = 20;
+			power_desc[1].fail = 100 - racial_race_chance(18, A_EGO, 25, SK_RANSACK);
+			power_desc[1].number = -2;
+			num++;
 			has_racial = TRUE;
 			break;
 		case RACE_RUSSIAN:
@@ -2520,62 +2934,93 @@ void do_cmd_racial_power(void)
 		case RACE_ARABIC:
 			break;
 		case RACE_DWARF:
-			strcpy(power_desc[0].name, "Sense Surroundings");
-			power_desc[0].level = 5;
+			strcpy(power_desc[0].name, "Stonelore");
+			power_desc[0].level = 1;
 			power_desc[0].cost = 5;
-			power_desc[0].fail = 100 - racial_chance(5, A_WIS, 12);
+			power_desc[0].fail = 100 - racial_race_chance(1, A_EGO, 12, SK_STONELORE);
+			strcpy(power_desc[1].name, "Stonepath");
+			power_desc[1].level = 20;
+			power_desc[1].cost = 40;
+			power_desc[1].fail = 100 - racial_race_chance(20, A_EGO, 45, SK_STONELORE);
+			power_desc[1].number = -2;
+			num++;
 			has_racial = TRUE;
 			break;
 		case RACE_BROWNIE:
 			strcpy(power_desc[0].name, "Fae Pathways");
-			power_desc[0].level = 5;
-			power_desc[0].cost = 5;
-			power_desc[0].fail = 100 - racial_chance(5, A_WIS, 12);
+			power_desc[0].level = 1;
+			power_desc[0].cost = (5 + (p_ptr->skills[SK_FAE_PATH].skill_rank / 2));
+			power_desc[0].fail = 100 - racial_race_chance(1, A_EGO, 12, SK_FAE_PATH);
 			has_racial = TRUE;
 			break;
 		case RACE_DAOINE_SIDHE:
 			break;
 		case RACE_SEELIE_FAE:
 			strcpy(power_desc[0].name, "Fae Pathways");
-			power_desc[0].level = 5;
-			power_desc[0].cost = 5;
-			power_desc[0].fail = 100 - racial_chance(5, A_INT, 12);
+			power_desc[0].level = 1;
+			power_desc[0].cost = (5 + (p_ptr->skills[SK_FAE_PATH].skill_rank / 2));
+			power_desc[0].fail = 100 - racial_race_chance(1, A_SCH, 12, SK_FAE_PATH);
 			has_racial = TRUE;
 			break;
 		case RACE_UNSEELIE_FAE:
 			strcpy(power_desc[0].name, "Fae Pathways");
-			power_desc[0].level = 5;
-			power_desc[0].cost = 5;
-			power_desc[0].fail = 100 - racial_chance(5, A_INT, 12);
+			power_desc[0].level = 1;
+			power_desc[0].cost = (5 + (p_ptr->skills[SK_FAE_PATH].skill_rank / 2));
+			power_desc[0].fail = 100 - racial_race_chance(1, A_SCH, 12, SK_FAE_PATH);
 			has_racial = TRUE;
 			break;
 		case RACE_AUTOMATA:
-			strcpy(power_desc[0].name, "Systems Overdrive");
-			power_desc[0].level = 15;
-			power_desc[0].cost = 20;
-			power_desc[0].fail = 100 - racial_chance(15, A_CON, 20);
+			/* remember the systems cypher, needs points in utility cypher to activate */
+			strcpy(power_desc[0].name, "Sensor Array");
+			power_desc[0].level = 1;
+			power_desc[0].cost = 2;
+			power_desc[0].fail = 100 - racial_race_chance(1, A_SCH, 20, SK_UTILITY_CYPHER);
+			strcpy(power_desc[1].name, "Object Analysis");
+			power_desc[1].level = 18;
+			power_desc[1].cost = 35;
+			power_desc[1].fail = 100 - racial_race_chance(18, A_SCH, 55, SK_UTILITY_CYPHER);
+			power_desc[1].number = -2;
+			strcpy(power_desc[2].name, "Systems Cypher");
+			power_desc[2].level = 1;
+			power_desc[2].cost = 20;
+			power_desc[2].fail = 100 - racial_race_chance(1, A_VIG, 35, SK_SYSTEMS_CYPHER);
+			power_desc[2].number = -3;
+			num++;			
+			num++;			
 			has_racial = TRUE;
 			break;
 		case RACE_STEAM_MECHA:
 			strcpy(power_desc[0].name, "Vulcan Cannons");
-			power_desc[0].level = 5;
+			power_desc[0].level = 4;
 			power_desc[0].cost = 2;
-			power_desc[0].fail = 100 - racial_chance(5, A_CON, 10);
+			power_desc[0].fail = 100 - racial_race_chance(4, A_VIG, 10, SK_ONSLAUGHT_CYPHER);
 			strcpy(power_desc[1].name, "Fire 'Fulgurator'");
-			power_desc[1].level = 15;
+			power_desc[1].level = 10;
 			power_desc[1].cost = 20;
-			power_desc[1].fail = 100 - racial_chance(15, A_CON, 30);
+			power_desc[1].fail = 100 - racial_race_chance(10, A_VIG, 30, SK_ONSLAUGHT_CYPHER);
 			power_desc[1].number = -2;
 			strcpy(power_desc[2].name, "Steam Drill");
-			power_desc[2].level = 20;
+			power_desc[2].level = 14;
 			power_desc[2].cost = 25;
-			power_desc[2].fail = 100 - racial_chance(20, A_STR, 35);
+			power_desc[2].fail = 100 - racial_race_chance(14, A_MUS, 35, SK_ONSLAUGHT_CYPHER);
 			power_desc[2].number = -3;			
-			strcpy(power_desc[3].name, "High Yeild Devestation");
-			power_desc[3].level = 40;
+			strcpy(power_desc[3].name, "High Yield Devastation");
+			power_desc[3].level = 20;
 			power_desc[3].cost = 50;
-			power_desc[3].fail = 100 - racial_chance(40, A_CON, 50);
+			power_desc[3].fail = 100 - racial_race_chance(20, A_VIG, 20, SK_ONSLAUGHT_CYPHER);
 			power_desc[3].number = -4;
+			strcpy(power_desc[4].name, "Systems Cypher");
+			power_desc[4].level = 1;
+			power_desc[4].cost = 20;
+			power_desc[4].fail = 100 - racial_race_chance(1, A_VIG, 45, SK_SYSTEMS_CYPHER);
+			power_desc[4].number = -5;
+			strcpy(power_desc[5].name, "Defensive Array");
+			power_desc[5].level = 1;
+			power_desc[5].cost = 30;
+			power_desc[5].fail = 100 - racial_race_chance(1, A_VIG, 45, SK_AEGIS_CYPHER);
+			power_desc[5].number = -6;
+			num++;
+			num++;
 			num++;
 			num++;
 			num++;
@@ -2585,43 +3030,38 @@ void do_cmd_racial_power(void)
 			break;
 		case RACE_RAKSHASA:
 			strcpy(power_desc[0].name, "Demonic Visage");
-			power_desc[0].level = 1;
+			power_desc[0].level = 4;
 			power_desc[0].cost = 2;
-			power_desc[0].fail = 100 - racial_chance(1, A_CHR, 10);
+			power_desc[0].fail = 100 - racial_race_chance(1, A_CHR, 10, SK_DEMON_ATTUNE);
 			strcpy(power_desc[1].name, "Dark Nexus sphere");
-			power_desc[1].level = 15;
+			power_desc[1].level = 14;
 			power_desc[1].cost = 20;
-			power_desc[1].fail = 100 - racial_chance(15, A_CON, 30);
+			power_desc[1].fail = 100 - racial_race_chance(15, A_VIG, 30, SK_DEMON_ATTUNE);
 			power_desc[1].number = -2;
 			strcpy(power_desc[2].name, "Dark Charm");
-			power_desc[2].level = 30;
+			power_desc[2].level = 10;
 			power_desc[2].cost = 50;
-			power_desc[2].fail = 100 - racial_chance(30, A_CHR, 50);
+			power_desc[2].fail = 100 - racial_race_chance(10, A_CHR, 50, SK_DARK_CHARM);
 			power_desc[2].number = -3;
 			num++;
 			num++;
 			has_racial = TRUE;
 			break;
 		case RACE_GIANT:
-			strcpy(power_desc[0].name, "Throw a Boulder");
-			power_desc[0].level = 10;
+			strcpy(power_desc[0].name, "Toss a Rock!");
+			power_desc[0].level = 1;
 			power_desc[0].cost = 10;
-			power_desc[0].fail = 100 - racial_chance(10, A_STR, 10);
+			power_desc[0].fail = 100 - racial_race_chance(1, A_MUS, 10, SK_ROCK_TOSS);
 			has_racial = TRUE;
 			break;
 		case RACE_OGRE:
 			strcpy(power_desc[0].name, "Fierce Strength");
-			power_desc[0].level = 10;
+			power_desc[0].level = 1;
 			power_desc[0].cost = 12;
-			power_desc[0].fail = 100 - racial_chance(10, A_WIS, 10);
+			power_desc[0].fail = 100 - racial_race_chance(1, A_VIG, 12, SK_BZRK_STR);
 			has_racial = TRUE;
 			break;
 		case RACE_TROLL:
-			strcpy(power_desc[0].name, "Fierce Strength");
-			power_desc[0].level = 10;
-			power_desc[0].cost = 12;
-			power_desc[0].fail = 100 - racial_chance(10, A_WIS, 10);
-			has_racial = TRUE;
 			break;
 		case RACE_GHOST:
 			break;
@@ -2629,7 +3069,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[0].name, "Flee in Terror!");
 			power_desc[0].level = 1;
 			power_desc[0].cost = 2;
-			power_desc[0].fail = 100 - racial_chance(1, A_CON, 5);
+			power_desc[0].fail = 100 - racial_race_chance(1, A_VIG, 5, SK_COWARDICE);
 			has_racial = TRUE;
 			break;
 		case RACE_OLD_ONE:
@@ -2657,7 +3097,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "spit acid");
 			power_desc[num].level = 9;
 			power_desc[num].cost = 9;
-			power_desc[num].fail = 100 - racial_chance(9, A_DEX, 15);
+			power_desc[num].fail = 100 - racial_chance(9, A_AGI, 15);
 			power_desc[num++].number = MUT1_SPIT_ACID;
 		}
 
@@ -2666,7 +3106,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "fire breath");
 			power_desc[num].level = 20;
 			power_desc[num].cost = lvl;
-			power_desc[num].fail = 100 - racial_chance(20, A_CON, 18);
+			power_desc[num].fail = 100 - racial_chance(20, A_VIG, 18);
 			power_desc[num++].number = MUT1_BR_FIRE;
 		}
 
@@ -2684,7 +3124,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "apportation");
 			power_desc[num].level = 9;
 			power_desc[num].cost = 9;
-			power_desc[num].fail = 100 - racial_chance(9, A_WIS, 14);
+			power_desc[num].fail = 100 - racial_chance(9, A_EGO, 14);
 			power_desc[num++].number = MUT1_APPORTATION;
 		}
 
@@ -2693,7 +3133,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "teleport");
 			power_desc[num].level = 7;
 			power_desc[num].cost = 7;
-			power_desc[num].fail = 100 - racial_chance(7, A_WIS, 15);
+			power_desc[num].fail = 100 - racial_chance(7, A_EGO, 15);
 			power_desc[num++].number = MUT1_VTELEPORT;
 		}
 
@@ -2702,7 +3142,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "mind blast");
 			power_desc[num].level = 5;
 			power_desc[num].cost = 3;
-			power_desc[num].fail = 100 - racial_chance(5, A_WIS, 15);
+			power_desc[num].fail = 100 - racial_chance(5, A_EGO, 15);
 			power_desc[num++].number = MUT1_MIND_BLST;
 		}
 
@@ -2711,7 +3151,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "emit radiation");
 			power_desc[num].level = 15;
 			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(15, A_CON, 14);
+			power_desc[num].fail = 100 - racial_chance(15, A_VIG, 14);
 			power_desc[num++].number = MUT1_RADIATION;
 		}
 
@@ -2720,7 +3160,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "vampiric drain");
 			power_desc[num].level = 2;
 			power_desc[num].cost = (1 + (lvl / 3));
-			power_desc[num].fail = 100 - racial_chance(2, A_CON, 9);
+			power_desc[num].fail = 100 - racial_chance(2, A_VIG, 9);
 			power_desc[num++].number = MUT1_VAMPIRISM;
 		}
 
@@ -2729,7 +3169,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "summon monsters");
 			power_desc[num].level = 10;
 			power_desc[num].cost = (lvl / 2);
-			power_desc[num].fail = 100 - racial_chance(10, A_CON, 10);
+			power_desc[num].fail = 100 - racial_chance(10, A_VIG, 10);
 			power_desc[num++].number = MUT1_SUMMON_M;
 		}
 
@@ -2738,7 +3178,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "blink");
 			power_desc[num].level = 3;
 			power_desc[num].cost = 3;
-			power_desc[num].fail = 100 - racial_chance(3, A_WIS, 12);
+			power_desc[num].fail = 100 - racial_chance(3, A_EGO, 12);
 			power_desc[num++].number = MUT1_BLINK;
 		}
 
@@ -2747,7 +3187,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "eat rock");
 			power_desc[num].level = 8;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(8, A_CON, 18);
+			power_desc[num].fail = 100 - racial_chance(8, A_VIG, 18);
 			power_desc[num++].number = MUT1_EAT_ROCK;
 		}
 
@@ -2756,7 +3196,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "shriek");
 			power_desc[num].level = 20;
 			power_desc[num].cost = 14;
-			power_desc[num].fail = 100 - racial_chance(20, A_CON, 16);
+			power_desc[num].fail = 100 - racial_chance(20, A_VIG, 16);
 			power_desc[num++].number = MUT1_SHRIEK;
 		}
 
@@ -2765,7 +3205,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "illuminate");
 			power_desc[num].level = 3;
 			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(3, A_INT, 10);
+			power_desc[num].fail = 100 - racial_chance(3, A_SCH, 10);
 			power_desc[num++].number = MUT1_ILLUMINE;
 		}
 
@@ -2774,7 +3214,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "detect curses");
 			power_desc[num].level = 7;
 			power_desc[num].cost = 14;
-			power_desc[num].fail = 100 - racial_chance(7, A_WIS, 14);
+			power_desc[num].fail = 100 - racial_chance(7, A_EGO, 14);
 			power_desc[num++].number = MUT1_DET_CURSE;
 		}
 
@@ -2783,7 +3223,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "berserk");
 			power_desc[num].level = 8;
 			power_desc[num].cost = 8;
-			power_desc[num].fail = 100 - racial_chance(8, A_STR, 14);
+			power_desc[num].fail = 100 - racial_chance(8, A_MUS, 14);
 			power_desc[num++].number = MUT1_BERSERK;
 		}
 
@@ -2792,7 +3232,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "polymorph");
 			power_desc[num].level = 18;
 			power_desc[num].cost = 20;
-			power_desc[num].fail = 100 - racial_chance(18, A_CON, 18);
+			power_desc[num].fail = 100 - racial_chance(18, A_VIG, 18);
 			power_desc[num++].number = MUT1_POLYMORPH;
 		}
 
@@ -2801,7 +3241,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "midas touch");
 			power_desc[num].level = 10;
 			power_desc[num].cost = 5;
-			power_desc[num].fail = 100 - racial_chance(10, A_INT, 12);
+			power_desc[num].fail = 100 - racial_chance(10, A_SCH, 12);
 			power_desc[num++].number = MUT1_MIDAS_TCH;
 		}
 
@@ -2810,7 +3250,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "grow mold");
 			power_desc[num].level = 1;
 			power_desc[num].cost = 6;
-			power_desc[num].fail = 100 - racial_chance(1, A_CON, 14);
+			power_desc[num].fail = 100 - racial_chance(1, A_VIG, 14);
 			power_desc[num++].number = MUT1_GROW_MOLD;
 		}
 
@@ -2819,7 +3259,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "resist elements");
 			power_desc[num].level = 10;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(10, A_CON, 12);
+			power_desc[num].fail = 100 - racial_chance(10, A_VIG, 12);
 			power_desc[num++].number = MUT1_RESIST;
 		}
 
@@ -2828,7 +3268,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "earthquake");
 			power_desc[num].level = 12;
 			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(12, A_STR, 16);
+			power_desc[num].fail = 100 - racial_chance(12, A_MUS, 16);
 			power_desc[num++].number = MUT1_EARTHQUAKE;
 		}
 
@@ -2846,7 +3286,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "recall");
 			power_desc[num].level = 17;
 			power_desc[num].cost = 50;
-			power_desc[num].fail = 100 - racial_chance(17, A_INT, 16);
+			power_desc[num].fail = 100 - racial_chance(17, A_SCH, 16);
 			power_desc[num++].number = MUT1_RECALL;
 		}
 
@@ -2855,7 +3295,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "banish evil");
 			power_desc[num].level = 25;
 			power_desc[num].cost = 25;
-			power_desc[num].fail = 100 - racial_chance(25, A_WIS, 18);
+			power_desc[num].fail = 100 - racial_chance(25, A_EGO, 18);
 			power_desc[num++].number = MUT1_BANISH;
 		}
 
@@ -2864,7 +3304,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "cold touch");
 			power_desc[num].level = 2;
 			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(2, A_CON, 11);
+			power_desc[num].fail = 100 - racial_chance(2, A_VIG, 11);
 			power_desc[num++].number = MUT1_COLD_TOUCH;
 		}
 
@@ -2873,7 +3313,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "magic missle");
 			power_desc[num].level = 1;
 			power_desc[num].cost = 1;
-			power_desc[num].fail = 100 - racial_chance(1, A_CON, 5);
+			power_desc[num].fail = 100 - racial_chance(1, A_VIG, 5);
 			power_desc[num++].number = MUT1_MISSILE;
 		}
 
@@ -2882,7 +3322,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "shard bolt");
 			power_desc[num].level = 3;
 			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(3, A_CON, 7);
+			power_desc[num].fail = 100 - racial_chance(3, A_VIG, 7);
 			power_desc[num++].number = MUT1_SHARD_BOLT;
 		}
 
@@ -2891,7 +3331,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "shard blast");
 			power_desc[num].level = 7;
 			power_desc[num].cost = 4;
-			power_desc[num].fail = 100 - racial_chance(4, A_STR, 10);
+			power_desc[num].fail = 100 - racial_chance(4, A_MUS, 10);
 			power_desc[num++].number = MUT1_SHARD_BLAST;
 		}
 
@@ -2900,7 +3340,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "large shard blast");
 			power_desc[num].level = 14;
 			power_desc[num].cost = 8;
-			power_desc[num].fail = 100 - racial_chance(14, A_CON, 12);
+			power_desc[num].fail = 100 - racial_chance(14, A_VIG, 12);
 			power_desc[num++].number = MUT1_DSHARD_BLAST;
 		}
 
@@ -2909,7 +3349,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "rapid shards");
 			power_desc[num].level = 17;
 			power_desc[num].cost = 10;
-			power_desc[num].fail = 100 - racial_chance(17, A_STR, 16);
+			power_desc[num].fail = 100 - racial_chance(17, A_MUS, 16);
 			power_desc[num++].number = MUT1_CHAIN_SHARDS;
 		}
 
@@ -2918,7 +3358,7 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "rocket");
 			power_desc[num].level = 21;
 			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(21, A_STR, 18);
+			power_desc[num].fail = 100 - racial_chance(21, A_MUS, 18);
 			power_desc[num++].number = MUT1_ROCKET;
 		}
 		if (p_ptr->muta1 & MUT1_GRAV_BEAM)
@@ -2926,11 +3366,12 @@ void do_cmd_racial_power(void)
 			strcpy(power_desc[num].name, "gravity beam");
 			power_desc[num].level = 30;
 			power_desc[num].cost = 20;
-			power_desc[num].fail = 100 - racial_chance(30, A_CON, 18);
+			power_desc[num].fail = 100 - racial_chance(30, A_VIG, 18);
 			power_desc[num++].number = MUT1_GRAV_BEAM;
 		}
 
-	}
+	}	
+
 	
 
 	/* Nothing chosen yet */
@@ -2942,6 +3383,10 @@ void do_cmd_racial_power(void)
 	/* Build a prompt (accept all spells) */
 	strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) Use which power? ",
 	    I2A(0), (num <= 26) ? I2A(num - 1) : '0' + num - 27);
+
+#ifdef ALLOW_REPEAT
+if (!repeat_pull(&i) || i<0 || i>=num) {
+#endif /* ALLOW_REPEAT */
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
@@ -3057,6 +3502,10 @@ void do_cmd_racial_power(void)
 		p_ptr->energy_use = 0;
 		return;
 	}
+#ifdef ALLOW_REPEAT
+	repeat_push(i);
+	} /*if (!repeat_pull(&i) || ...)*/
+#endif /* ALLOW_REPEAT */
 
 	if (power_desc[i].number < 0)
 	{
@@ -3066,7 +3515,6 @@ void do_cmd_racial_power(void)
 	{
 		mutation_power_aux(power_desc[i].number);
 	}
-
 
 	/* Success */
 	return;
@@ -3245,7 +3693,7 @@ void process_mutations(void)
 		}
 		else
 		{
-			d_summon = summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_AUTOMATA, FALSE, FALSE);
+			d_summon = summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_ANIMAL, FALSE, FALSE);
 		}
 
 		if (d_summon)
@@ -3284,11 +3732,11 @@ void process_mutations(void)
 
 		switch (which_stat)
 		{
-			case A_STR: if (p_ptr->sustain_str) sustained = TRUE; break;
-			case A_INT: if (p_ptr->sustain_int) sustained = TRUE; break;
-			case A_WIS: if (p_ptr->sustain_wis) sustained = TRUE; break;
-			case A_DEX: if (p_ptr->sustain_dex) sustained = TRUE; break;
-			case A_CON: if (p_ptr->sustain_con) sustained = TRUE; break;
+			case A_MUS: if (p_ptr->sustain_mus) sustained = TRUE; break;
+			case A_AGI: if (p_ptr->sustain_agi) sustained = TRUE; break;
+			case A_VIG: if (p_ptr->sustain_vig) sustained = TRUE; break;
+			case A_SCH: if (p_ptr->sustain_sch) sustained = TRUE; break;
+			case A_EGO: if (p_ptr->sustain_ego) sustained = TRUE; break;
 			case A_CHR: if (p_ptr->sustain_chr) sustained = TRUE; break;
 			default:
 				msg_print("Invalid stat chosen!");
@@ -3431,34 +3879,34 @@ void process_mutations(void)
  */
 void calc_mutations(void)
 {
-	if (p_ptr->muta5 & MUT5_HYPER_STR)	p_ptr->stat_add[A_STR] += 4;
-	if (p_ptr->muta5 & MUT5_PUNY)		p_ptr->stat_add[A_STR] -= 4;
+	if (p_ptr->muta5 & MUT5_HYPER_STR)	p_ptr->stat_add[A_MUS] += 4;
+	if (p_ptr->muta5 & MUT5_PUNY)		p_ptr->stat_add[A_MUS] -= 4;
 
 	if (p_ptr->muta5 & MUT5_HYPER_INT)
 	{
-		p_ptr->stat_add[A_INT] += 4;
-		p_ptr->stat_add[A_WIS] += 4;
+		p_ptr->stat_add[A_SCH] += 4;
+		p_ptr->stat_add[A_EGO] += 4;
 	}
 
 	if (p_ptr->muta5 & MUT5_MORONIC)
 	{
-		p_ptr->stat_add[A_INT] -= 4;
-		p_ptr->stat_add[A_WIS] -= 4;
+		p_ptr->stat_add[A_SCH] -= 4;
+		p_ptr->stat_add[A_EGO] -= 4;
 	}
 
-	if (p_ptr->muta5 & MUT5_RESILIENT)	p_ptr->stat_add[A_CON] += 4;
+	if (p_ptr->muta5 & MUT5_RESILIENT)	p_ptr->stat_add[A_VIG] += 4;
 
 	if (p_ptr->muta5 & MUT5_XTRA_FAT)
 	{
-		p_ptr->stat_add[A_CON] += 2;
+		p_ptr->stat_add[A_VIG] += 2;
 		p_ptr->pspeed -= 2;
 	}
 
-	if (p_ptr->muta5 & MUT5_ALBINO)		p_ptr->stat_add[A_CON] -= 4;
+	if (p_ptr->muta5 & MUT5_ALBINO)		p_ptr->stat_add[A_VIG] -= 4;
 
 	if (p_ptr->muta5 & MUT5_FLESH_ROT)
 	{
-		p_ptr->stat_add[A_CON] -= 2;
+		p_ptr->stat_add[A_VIG] -= 2;
 		p_ptr->stat_add[A_CHR] -= 1;
 		p_ptr->regenerate = FALSE;
 	}
@@ -3466,9 +3914,47 @@ void calc_mutations(void)
 	if (p_ptr->muta5 & MUT5_SILLY_VOI)	p_ptr->stat_add[A_CHR] -= 4;
 	if (p_ptr->muta5 & MUT5_BLANK_FAC)	p_ptr->stat_add[A_CHR] -= 1;
 	if (p_ptr->muta5 & MUT5_ILL_NORM)	p_ptr->stat_add[A_CHR] = 0;
-	if (p_ptr->muta5 & MUT5_XTRA_EYES)	p_ptr->skill_fos *= 2;
-	if (p_ptr->muta5 & MUT5_MAGIC_RES)	p_ptr->skill_sav += (15+(p_ptr->lev/5));
-	if (p_ptr->muta5 & MUT5_XTRA_NOIS)	p_ptr->skill_stl -= 3;
+	
+	/* More fun! */
+	if ((p_ptr->muta5 & MUT5_XTRA_EYES) && (p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 0))
+	{
+		p_ptr->skills[SK_SEARCHING_GOOD].skill_rank = 2*(p_ptr->skills[SK_SEARCHING_GOOD].skill_rank);
+	}
+	if ((p_ptr->muta5 & MUT5_XTRA_EYES) && (p_ptr->skills[SK_SEARCHING_NORM].skill_max > 0))
+	{
+		p_ptr->skills[SK_SEARCHING_NORM].skill_rank = 2*(p_ptr->skills[SK_SEARCHING_NORM].skill_rank);
+	}
+	if ((p_ptr->muta5 & MUT5_XTRA_EYES) && (p_ptr->skills[SK_SEARCHING_POOR].skill_max > 0))
+	{
+		p_ptr->skills[SK_SEARCHING_POOR].skill_rank = 2*(p_ptr->skills[SK_SEARCHING_POOR].skill_rank);
+	}
+	
+	/* fun fun ! */
+	if ((p_ptr->muta5 & MUT5_MAGIC_RES) && (p_ptr->skills[SK_SAVETH_GOOD].skill_max > 0))
+	{
+		p_ptr->skills[SK_SAVETH_GOOD].skill_rank += (2+(p_ptr->skills[SK_SAVETH_GOOD].skill_rank/4));
+	}
+	if ((p_ptr->muta5 & MUT5_MAGIC_RES) && (p_ptr->skills[SK_SAVETH_NORM].skill_max > 0))
+	{
+		p_ptr->skills[SK_SAVETH_NORM].skill_rank += (2+(p_ptr->skills[SK_SAVETH_NORM].skill_rank/4));
+	}
+	if ((p_ptr->muta5 & MUT5_MAGIC_RES) && (p_ptr->skills[SK_SAVETH_POOR].skill_max > 0))
+	{
+		p_ptr->skills[SK_SAVETH_POOR].skill_rank += (2+(p_ptr->skills[SK_SAVETH_POOR].skill_rank/4));
+	}
+
+	if ((p_ptr->muta5 & MUT5_XTRA_NOIS) && (p_ptr->skills[SK_STEALTH_GOOD].skill_max > 0))
+	{
+		p_ptr->skills[SK_STEALTH_GOOD].skill_rank -= 3;
+	}
+	if ((p_ptr->muta5 & MUT5_XTRA_NOIS) && (p_ptr->skills[SK_STEALTH_NORM].skill_max > 0))
+	{
+		p_ptr->skills[SK_STEALTH_NORM].skill_rank -= 3;
+	}
+	if ((p_ptr->muta5 & MUT5_XTRA_NOIS) && (p_ptr->skills[SK_STEALTH_POOR].skill_max > 0))
+	{
+		p_ptr->skills[SK_STEALTH_POOR].skill_rank -= 3;
+	}
 	if (p_ptr->muta5 & MUT5_INFRAVIS)	p_ptr->see_infra += 3;
 	if (p_ptr->muta5 & MUT5_XTRA_LEGS)	p_ptr->pspeed += 3;
 	if (p_ptr->muta5 & MUT5_SHORT_LEG)	p_ptr->pspeed -= 3;
@@ -3504,7 +3990,7 @@ void calc_mutations(void)
 
 	if (p_ptr->muta5 & MUT5_IRON_SKIN)
 	{
-		p_ptr->stat_add[A_DEX] -= 1;
+		p_ptr->stat_add[A_AGI] -= 1;
 		p_ptr->to_a += 25;
 		p_ptr->dis_to_a += 25;
 	}
@@ -3515,8 +4001,8 @@ void calc_mutations(void)
 	if (p_ptr->muta5 & MUT5_ESP)		p_ptr->telepathy =TRUE;
 	if (p_ptr->muta5 & MUT5_TWISTED)	p_ptr->stat_add[A_CHR] -= 3;
 	if (p_ptr->muta5 & MUT5_SPINES)		p_ptr->sh_spine = TRUE;
-	if (p_ptr->muta5 & MUT5_LIMBER)		p_ptr->stat_add[A_DEX] += 3;
-	if (p_ptr->muta5 & MUT5_ARTHRITIS)	p_ptr->stat_add[A_DEX] -= 3;
+	if (p_ptr->muta5 & MUT5_LIMBER)		p_ptr->stat_add[A_AGI] += 3;
+	if (p_ptr->muta5 & MUT5_ARTHRITIS)	p_ptr->stat_add[A_AGI] -= 3;
 
 	if (p_ptr->muta5 & MUT5_GLOW)
 	{

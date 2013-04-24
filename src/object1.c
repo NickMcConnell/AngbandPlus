@@ -18,7 +18,7 @@
 #define MAX_AMULETS    16       /* Used with amulets (min 13) */
 #define MAX_WOODS      32       /* Used with tools (min 30) */
 #define MAX_METALS     32       /* Used with rayguns/apparatuses (min 29/28) */
-#define MAX_COLORS     62       /* Used with tonics (min 60) */
+#define MAX_COLORS     63       /* Used with tonics (min 60) */
 #define MAX_SHROOM     26       /* Used with anodyne (min 26) */
 #define MAX_TITLES     50       /* Used with mechanism (min 48) */
 /* old scroll syllables */
@@ -200,7 +200,7 @@ static cptr tonic_adj[MAX_COLORS] =
 	"Parker's best", "C.G. Pendleton's", "Pepper's Quinine & Iron", 
 	"Primley's Iron & Wahoo", "Psychine", "Quin's Chill Tonic", 
 	"Ramon's Pepsin Chill", "Royal Pepsin", "Sano Rheumatic Cure & System",
-	"Vin-O-Sula Cuban", "Walt's Wild Cherry"
+	"Vin-O-Sula Cuban", "Walt's Wild Cherry", "Mickey's Magical Brew"
 };
 
 static byte tonic_col[MAX_COLORS] =
@@ -217,7 +217,7 @@ static byte tonic_col[MAX_COLORS] =
 	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
 	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
 	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW, TERM_L_BLUE, 
-	TERM_L_BLUE
+	TERM_L_BLUE, TERM_UMBER
 };
 
 static cptr mech_adj[MAX_MECH_ADJ] =
@@ -1026,7 +1026,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_CLOAK:
 		case TV_CROWN:
 		case TV_HELM:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
@@ -1154,18 +1154,33 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_MAGIC_BOOK:
 		{
 			modstr = basenm;
-			basenm = "& Book~ of Arcane Incantations #";
+			switch (books[o_ptr->sval].flags & SBF_TYPE_MASK)
+			{
+				case SBF_MAGIC:
+				{
+					basenm = "& Book~ of Arcane Incantations #";
+					break;
+				}
+	
+				case SBF_PRAYER:
+				{
+					basenm = "& Holy Book~ of Prayers #";
+					break;
+				}
+
+				case SBF_DEVICE:
+				{
+					basenm = "& Enigmatic Device~ #";
+					break;
+				}
+				default:
+				{
+					/* special books are here */
+					break;
+				}
+			}
 			break;
 		}
-
-		/* Prayer Books */
-		case TV_DEVICE_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Enigmatic Device~ #";
-			break;
-		}
-
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
 		{
@@ -1385,12 +1400,12 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 					tail = " (Locked)";
 					break;
 				}
-				case CHEST_LOSE_STR:
+				case CHEST_LOSE_MUS:
 				{
 					tail = " (Poison Needle)";
 					break;
 				}
-				case CHEST_LOSE_CON:
+				case CHEST_LOSE_VIG:
 				{
 					tail = " (Poison Needle)";
 					break;
@@ -2067,25 +2082,25 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 
 	/* And then describe it fully */
 
-	if (f1 & (TR1_STR))
+	if (f1 & (TR1_MUS))
 	{
-		info[i++] = "It affects your strength.";
+		info[i++] = "It affects your muscle.";
 	}
-	if (f1 & (TR1_INT))
+	if (f1 & (TR1_AGI))
 	{
-		info[i++] = "It affects your intelligence.";
+		info[i++] = "It affects your agility.";
 	}
-	if (f1 & (TR1_WIS))
+	if (f1 & (TR1_VIG))
 	{
-		info[i++] = "It affects your wisdom.";
+		info[i++] = "It affects your vigor.";
 	}
-	if (f1 & (TR1_DEX))
+	if (f1 & (TR1_SCH))
 	{
-		info[i++] = "It affects your dexterity.";
+		info[i++] = "It affects your schooling.";
 	}
-	if (f1 & (TR1_CON))
+	if (f1 & (TR1_EGO))
 	{
-		info[i++] = "It affects your constitution.";
+		info[i++] = "It affects your ego.";
 	}
 	if (f1 & (TR1_CHR))
 	{
@@ -2192,30 +2207,36 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		info[i++] = "It does extra damage from poison.";
 	}
 
-	if (f2 & (TR2_SUST_STR))
+	if (f2 & (TR2_SUST_MUS))
 	{
-		info[i++] = "It sustains your strength.";
+		info[i++] = "It sustains your muscle.";
 	}
-	if (f2 & (TR2_SUST_INT))
+	if (f2 & (TR2_SUST_AGI))
 	{
-		info[i++] = "It sustains your intelligence.";
+		info[i++] = "It sustains your agility.";
 	}
-	if (f2 & (TR2_SUST_WIS))
+	if (f2 & (TR2_SUST_VIG))
 	{
-		info[i++] = "It sustains your wisdom.";
+		info[i++] = "It sustains your vigor.";
 	}
-	if (f2 & (TR2_SUST_DEX))
+	if (f2 & (TR2_SUST_SCH))
 	{
-		info[i++] = "It sustains your dexterity.";
+		info[i++] = "It sustains your schooling.";
 	}
-	if (f2 & (TR2_SUST_CON))
+	if (f2 & (TR2_SUST_EGO))
 	{
-		info[i++] = "It sustains your constitution.";
+		info[i++] = "It sustains your ego.";
 	}
 	if (f2 & (TR2_SUST_CHR))
 	{
 		info[i++] = "It sustains your charisma.";
 	}
+	
+	if (f2 & (TR2_RETURN))
+	{
+		info[i++] = "It returns when thrown.";
+	}
+
 
 	if (f2 & (TR2_IM_ACID))
 	{
@@ -2361,6 +2382,11 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	if (f3 & (TR3_SH_FIRE))
 	{
 		info[i++] = "It produces a fiery sheath.";
+	}
+
+	if (f3 & (TR3_THROW))
+	{
+		info[i++] = "It is designed for throwing.";
 	}
 
 	if (f3 & (TR3_SH_ELEC))
@@ -2648,9 +2674,9 @@ s16b wield_slot(const object_type *o_ptr)
 			return (INVEN_OUTER);
 		}
 
-		case TV_SHIELD:
+		case TV_LEG:
 		{
-			return (INVEN_ARM);
+			return (INVEN_LEG);
 		}
 
 		case TV_CROWN:
@@ -2737,7 +2763,7 @@ cptr mention_use(int i)
 		case INVEN_LITE:  p = "Light source"; break;
 		case INVEN_BODY:  p = "On body"; break;
 		case INVEN_OUTER: p = "About body"; break;
-		case INVEN_ARM:   p = "On arm"; break;
+		case INVEN_LEG:   p = "On legs"; break;
 		case INVEN_HEAD:  p = "On head"; break;
 		case INVEN_HANDS: p = "On hands"; break;
 		case INVEN_FEET:  p = "On feet"; break;
@@ -2749,7 +2775,8 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		/* @STAT@ */
+		if ((p_ptr->stat_use[A_MUS] / 9 + 5) < o_ptr->weight / 10)
 		{
 			p = "Just lifting";
 		}
@@ -2760,7 +2787,8 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		/* @STAT@ */
+		if ((p_ptr->stat_use[A_MUS] / 9 + 5) < o_ptr->weight / 10)
 		{
 			p = "Just holding";
 		}
@@ -2789,7 +2817,7 @@ cptr describe_use(int i)
 		case INVEN_LITE:  p = "using to light the way"; break;
 		case INVEN_BODY:  p = "wearing on your body"; break;
 		case INVEN_OUTER: p = "wearing on your back"; break;
-		case INVEN_ARM:   p = "wearing on your arm"; break;
+		case INVEN_LEG:   p = "wearing on your legs"; break;
 		case INVEN_HEAD:  p = "wearing on your head"; break;
 		case INVEN_HANDS: p = "wearing on your hands"; break;
 		case INVEN_FEET:  p = "wearing on your feet"; break;
@@ -2801,7 +2829,8 @@ cptr describe_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		/* @STAT@ */
+		if ((p_ptr->stat_use[A_MUS] / 9 + 5) < o_ptr->weight / 10)
 		{
 			p = "just lifting";
 		}
@@ -2812,7 +2841,8 @@ cptr describe_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		/* @STAT@ */
+		if ((p_ptr->stat_use[A_MUS] / 9 + 5) < o_ptr->weight / 10)
 		{
 			p = "just holding";
 		}
@@ -2967,7 +2997,12 @@ void display_inven(void)
 		n = strlen(o_name);
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].d_attr;
+			else attr = TERM_L_DARK;
+		}
 
 		/* Display the entry itself */
 		Term_putstr(3, i, n, attr, o_name);
@@ -3133,7 +3168,12 @@ void show_inven(void)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) out_color[k] = k_info[o_ptr->k_idx].d_attr;
+			else out_color[k] = TERM_L_DARK;
+		}
 
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);

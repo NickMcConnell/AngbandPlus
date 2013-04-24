@@ -144,7 +144,7 @@ static void sense_inventory(void)
 			case TV_GLOVES:
 			case TV_HELM:
 			case TV_CROWN:
-			case TV_SHIELD:
+			case TV_LEG:
 			case TV_CLOAK:
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
@@ -383,6 +383,18 @@ static void process_world(void)
 	if (turn % 10) return;
 
 
+	/*Stop being astral once in the town! -- from Gumband */
+	if (p_ptr->astral && !p_ptr->depth)
+	{
+		msg_print("Ahhhh! You have finally reached the town!");
+	
+		p_ptr->astral = FALSE;
+		p_ptr->was_astral = TRUE;
+		p_ptr->max_depth = p_ptr->depth;
+		msg_print("Unfortunately, that means you'll have to walk back out again...");
+	}
+
+
 	/*** Check the Time and Load ***/
 
 	if (!(turn % 1000))
@@ -521,9 +533,11 @@ static void process_world(void)
 		take_hit(1, "poison");
 	}
 
+	/* if the player is in wraithform, take damage */
 	if (!cave_floor_bold(p_ptr->py, p_ptr->px))
 	{
-		if ((!(p_ptr->tim_wraith) && ((p_ptr->chp) > ((p_ptr->lev)/5))) || 
+		/* The wraith doesn't die from wraithform */
+		if ((!(p_ptr->tim_wraith) && ((p_ptr->chp) > ((p_ptr->lev)/10))) || 
 		(p_ptr->wraith_form))
 		{
 			cptr dam_desc;
@@ -538,8 +552,19 @@ static void process_world(void)
 				msg_print("You are being crushed!");
 				dam_desc = "solid rock";
 			}
-
-			take_hit(1 + ((p_ptr->lev)/10), dam_desc);
+			if (p_ptr->prace == RACE_GHOST)
+			{
+				if (p_ptr->chp > (10 + skills[SK_ETHERIC_ATTUNE].skill_rank))
+				{
+					/* Taking damage from wraithform */
+					take_hit((2 + ((p_ptr->lev)/5)) - skills[SK_ETHERIC_ATTUNE].skill_rank, dam_desc);
+				}
+			}
+			else
+			{
+				/* Taking damage from wraithform */
+				take_hit(2 + ((p_ptr->lev)/5), dam_desc);
+			}
 		}
 	}
 
@@ -659,6 +684,8 @@ static void process_world(void)
 	{
 			regen_amount = regen_amount * 2;
 	}
+	
+	/* Setting upkeep factor for pets */
 	if (total_friends > 1 + (p_ptr->lev / cp_ptr->pet_upkeep_div))
 	{
 		upkeep_factor = total_friend_levels;
@@ -725,7 +752,13 @@ static void process_world(void)
 	{
 		(void)set_tim_infra(p_ptr->tim_infra - 1);
 	}
-
+	
+	/* Steam-Mecha Armor */
+	if (p_ptr->tim_harding)
+	{
+		(void)set_tim_harding(p_ptr->tim_harding - 1);
+	}
+	
 	/* Paralysis */
 	if (p_ptr->paralyzed)
 	{
@@ -839,7 +872,8 @@ static void process_world(void)
 	/* Poison */
 	if (p_ptr->poisoned)
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		/* @STAT@ */
+		int adjust = ((p_ptr->stat_use[A_VIG] / 80) + 1);
 
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
@@ -848,7 +882,8 @@ static void process_world(void)
 	/* Stun */
 	if (p_ptr->stun)
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		/* @STAT@ */
+		int adjust = ((p_ptr->stat_use[A_VIG] / 80) + 1);
 
 		/* Apply some healing */
 		(void)set_stun(p_ptr->stun - adjust);
@@ -857,7 +892,8 @@ static void process_world(void)
 	/* Cut */
 	if (p_ptr->cut)
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		/* @STAT@ */
+		int adjust = ((p_ptr->stat_use[A_VIG] / 80) + 1);
 
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
@@ -902,7 +938,42 @@ static void process_world(void)
 				disturb(0, 0);
 				msg_print("Your light has gone out!");
 			}
-
+			/* Candle starts going out */
+			else if ((o_ptr->sval == SV_LITE_CANDLE) && ((o_ptr->pval > 0) && (o_ptr->pval == FUEL_CANDLE_ONE)))
+			{
+				disturb(0, 0);
+				msg_print("Your light dims a little.");
+			}
+			/* Torch dims a little */
+			else if ((o_ptr->sval == SV_LITE_TORCH) && ((o_ptr->pval == FUEL_TORCH_TWO)))
+			{
+				disturb(0, 0);
+				msg_print("Your light dims a little.");
+			}
+			/* Torch dims more */
+			else if ((o_ptr->sval == SV_LITE_TORCH) && ((o_ptr->pval > 0)) && (o_ptr->pval == FUEL_TORCH_ONE))
+			{
+				disturb(0, 0);
+				msg_print("Your light dims some more.");
+			}
+			/* Lantern dims a litte */
+			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval == FUEL_LAMP_THREE))
+			{
+				disturb(0, 0);
+				msg_print("Your light dims a little.");
+			}
+			/* Latern dims a bit more */
+			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval == FUEL_LAMP_TWO))
+			{
+				disturb(0, 0);
+				msg_print("Your light dims a bit more.");
+			}
+			/* Lantern on its way out */
+			if ((o_ptr->sval == SV_LITE_LANTERN) && ((o_ptr->pval > 0)) && (o_ptr->pval == FUEL_LAMP_ONE))
+			{
+				disturb(0, 0);
+				msg_print("Your light dims some more.");
+			}
 			/* The light is getting dim */
 			else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
 			{
@@ -1402,15 +1473,17 @@ static void process_command(void)
 			break;
 		}
 
+		/* This is confusing - see command-misc for the explination */
 		/* Go up staircase */
-		case '<':
+		case '>':
 		{
 			do_cmd_go_up();
 			break;
 		}
 
+		/* This is confusing - see command-misc for the explination */
 		/* Go down staircase */
-		case '>':
+		case '<':
 		{
 			do_cmd_go_down();
 			break;
@@ -1455,9 +1528,14 @@ static void process_command(void)
 		/*** Magic and Prayers ***/
 
 		/* Gain new spells/prayers */
+		/* 
+		 * This will be changed to 'gain a level' b/c skills will determine
+		 * what spells you get from objects (books + spells)
+		 */
 		case 'G':
 		{
-			do_cmd_study();
+			/* do_cmd_study(); */
+			do_cmd_gain_level();
 			break;
 		}
 
@@ -1468,32 +1546,17 @@ static void process_command(void)
 			break;
 		}
 
-		/* Cast a spell */
+		/* Cast a spell, use a device */
 		case 'm':
 		{
-			if 	( ((cp_ptr->flags) & CF_OFFICER) ||
-				  ((cp_ptr->flags) & CF_AESTHETE) ||
-				  ((cp_ptr->flags) & CF_EXPLORER) ||
-				  ((cp_ptr->flags) & CF_MEDIUM) ||
-				  ((cp_ptr->flags) & CF_RECKONER) ||
-				  ((cp_ptr->flags) & CF_TOURIST) ||
-				  ((cp_ptr->flags) & CF_HUSSAR) ||
-				  ((cp_ptr->flags) & CF_NATURE) ||
-				  ((cp_ptr->flags) & CF_NINJA)
-				) 
-				{
-				do_cmd_mind();
-				}
-			else { 
-				do_cmd_cast();
-				 }
+			do_cmd_magic();
 			break;
 		}
 
-		/* Pray a prayer */
+		/* Use a class 'p'ower */
 		case 'p':
 		{
-			do_cmd_pray();
+			do_cmd_mind();
 			break;
 		}
 		
@@ -2333,8 +2396,8 @@ static void dungeon(void)
 	}
 
 
-	/* No stairs down from Quest */
-	if (is_quest(p_ptr->depth))
+	/* No stairs down from Quest or Astral Mode */
+	if ((is_quest(p_ptr->depth)) || ((p_ptr->astral) && (p_ptr->depth == 98)))
 	{
 		p_ptr->create_down_stair = FALSE;
 	}
@@ -2355,7 +2418,11 @@ static void dungeon(void)
 			delete_object(py, px);
 
 			/* Make stairs */
-			if (p_ptr->create_down_stair)
+			if ((p_ptr->create_down_stair) && ((p_ptr->astral) && (p_ptr->depth == 98)))
+			{
+				cave_set_feat(py, px, FEAT_LESS);
+			}
+			else if (p_ptr->create_down_stair)
 			{
 				cave_set_feat(py, px, FEAT_MORE);
 			}
@@ -2382,6 +2449,7 @@ static void dungeon(void)
 
 
 	/* Hack -- Increase "xtra" depth */
+	/* WTF?!? -CCC */
 	character_xtra++;
 
 
@@ -2428,6 +2496,7 @@ static void dungeon(void)
 
 
 	/* Hack -- Decrease "xtra" depth */
+	/* RE:wtf!?! -CCC */
 	character_xtra--;
 
 
@@ -2938,8 +3007,12 @@ void play_game(bool new_game)
 				/* Note cause of death XXX XXX XXX */
 				strcpy(p_ptr->died_from, "Cheating death");
 
-				/* New depth */
-				p_ptr->depth = 0;
+				/* Check astral status for new depth */
+				if (p_ptr->astral)
+					p_ptr->depth = 98;
+				else
+					p_ptr->depth = 0;
+
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;

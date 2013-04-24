@@ -282,7 +282,7 @@ void teleport_player_level(void)
 
 	if (!p_ptr->depth)
 	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
+		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
 		/* New depth */
 		p_ptr->depth++;
@@ -293,7 +293,7 @@ void teleport_player_level(void)
 
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+		message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
 		/* New depth */
 		p_ptr->depth--;
@@ -304,7 +304,7 @@ void teleport_player_level(void)
 
 	else if (rand_int(100) < 50)
 	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+		message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
 		/* New depth */
 		p_ptr->depth--;
@@ -315,7 +315,7 @@ void teleport_player_level(void)
 
 	else
 	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
+		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
 		/* New depth */
 		p_ptr->depth++;
@@ -337,7 +337,7 @@ void steam_mecha_drill_level(void)
 
 	if (!p_ptr->depth)
 	{
-		message(MSG_TPLEVEL, 0, "You drill down through the floor.");
+		message(MSG_TPLEVEL, 0, "You drill up through the ceiling.");
 
 		/* New depth */
 		p_ptr->depth++;
@@ -348,7 +348,7 @@ void steam_mecha_drill_level(void)
 
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
-		message(MSG_TPLEVEL, 0, "You drill up through the ceiling!");
+		message(MSG_TPLEVEL, 0, "You drill down through the floor!");
 
 		/* New depth */
 		p_ptr->depth--;
@@ -359,7 +359,7 @@ void steam_mecha_drill_level(void)
 
 	else if (rand_int(100) < 10)
 	{
-		message(MSG_TPLEVEL, 0, "You drill up through the ceiling!");
+		message(MSG_TPLEVEL, 0, "You drill down through the floor!");
 
 		/* New depth */
 		p_ptr->depth--;
@@ -370,7 +370,7 @@ void steam_mecha_drill_level(void)
 
 	else
 	{
-		message(MSG_TPLEVEL, 0, "You drill down through the floor.");
+		message(MSG_TPLEVEL, 0, "You drill up through the ceiling.");
 
 		/* New depth */
 		p_ptr->depth++;
@@ -424,6 +424,7 @@ static byte spell_color(int type)
 		case GF_CONTROL_ANIMAL: return (TERM_L_RED);
 		case GF_DOMINATION:		return (TERM_VIOLET);
 		case GF_NUKE:			return (TERM_GREEN);
+		case GF_EMP:			return (TERM_L_WHITE);
 	}
 
 	/* Standard "color" */
@@ -575,7 +576,7 @@ static bool hates_acid(const object_type *o_ptr)
 		case TV_POLEARM:
 		case TV_HELM:
 		case TV_CROWN:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
@@ -657,7 +658,6 @@ static bool hates_fire(const object_type *o_ptr)
 
 		/* Books */
 		case TV_MAGIC_BOOK:
-		case TV_DEVICE_BOOK:
 		{
 			return (TRUE);
 		}
@@ -855,7 +855,7 @@ static int minus_ac(void)
 	switch (randint(6))
 	{
 		case 1: o_ptr = &inventory[INVEN_BODY]; break;
-		case 2: o_ptr = &inventory[INVEN_ARM]; break;
+		case 2: o_ptr = &inventory[INVEN_LEG]; break;
 		case 3: o_ptr = &inventory[INVEN_OUTER]; break;
 		case 4: o_ptr = &inventory[INVEN_HANDS]; break;
 		case 5: o_ptr = &inventory[INVEN_HEAD]; break;
@@ -1003,61 +1003,55 @@ void cold_dam(int dam, cptr kb_str)
  * in particular, stat tonics will always restore the stat and
  * then increase the fully restored value.
  */
+ /* Have to fix this for the new stat system -CCC */
 bool inc_stat(int stat)
 {
 	int value, gain;
+	int raceside, classside; 
+ 	int totalside;
 
 	/* Then augment the current/max stat */
 	value = p_ptr->stat_cur[stat];
 
-	/* Cannot go above 18/100 */
-	if (value < 18+100)
+	if (value < 700)
 	{
-		/* Gain one (sometimes two) points */
-		if (value < 18)
+	 	/* assign the first number(racial dice sides) to raceside */
+	 	raceside = rp_ptr->r_adj[stat];
+	 		
+	 	/* assign the second number (class die sides) to classside */
+	 	classside = cp_ptr->c_adj[stat];
+	 		
+	 	/* total them */
+	 	totalside = raceside + classside;	
+		
+		/* assign a random value of the sides to gain */
+		/* possibly give chance for higher bonuses (tied in with a skill?)*/
+		gain = (randint(totalside) + randint(totalside))  / 2;
+		
+		/* raise the value by that much */
+		value += gain;
+		
+		if (value > 700)
 		{
-			gain = ((rand_int(100) < 75) ? 1 : 2);
-			value += gain;
-		}
-
-		/* Gain 1/6 to 1/3 of distance to 18/100 */
-		else if (value < 18+98)
-		{
-			/* Approximate gain value */
-			gain = (((18+100) - value) / 2 + 3) / 2;
-
-			/* Paranoia */
-			if (gain < 1) gain = 1;
-
-			/* Apply the bonus */
-			value += randint(gain) + gain / 2;
-
-			/* Maximal value */
-			if (value > 18+99) value = 18 + 99;
-		}
-
-		/* Gain one point at a time */
-		else
-		{
-			value++;
-		}
-
+			value = 700;
+		}	
+		
 		/* Save the new value */
 		p_ptr->stat_cur[stat] = value;
-
+	
 		/* Bring up the maximum too */
 		if (value > p_ptr->stat_max[stat])
 		{
 			p_ptr->stat_max[stat] = value;
 		}
-
+	
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
-
+	
 		/* Success */
-		return (TRUE);
+		return (TRUE);	
 	}
-
+	
 	/* Nothing to gain */
 	return (FALSE);
 }
@@ -1073,9 +1067,11 @@ bool inc_stat(int stat)
  * if your stat is already drained, the "max" value will not drop all
  * the way down to the "cur" value.
  */
+ /* also have to make sure that I correct this for the new system -CCC */
 bool dec_stat(int stat, int amount, int permanent)
 {
-	int cur, max, loss, same, res = FALSE;
+	int cur, max, same, res = FALSE;
+	int statdam;
 
 
 	/* Get the current value */
@@ -1086,78 +1082,24 @@ bool dec_stat(int stat, int amount, int permanent)
 	same = (cur == max);
 
 	/* Damage "current" value */
-	if (cur > 3)
+	if (!permanent)
 	{
-		/* Handle "low" values */
-		if (cur <= 18)
-		{
-			if (amount > 90) cur--;
-			if (amount > 50) cur--;
-			if (amount > 20) cur--;
-			cur--;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((cur-18) / 2 + 1) / 2 + 1);
-
-			/* Paranoia */
-			if (loss < 1) loss = 1;
-
-			/* Randomize the loss */
-			loss = ((randint(loss) + loss) * amount) / 100;
-
-			/* Maximal loss */
-			if (loss < amount/2) loss = amount/2;
-
-			/* Lose some points */
-			cur = cur - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (cur < 18) cur = (amount <= 20) ? 18 : 17;
-		}
-
-		/* Prevent illegal values */
-		if (cur < 3) cur = 3;
-
+		statdam = randint(amount);
+		cur -= statdam;
+		
+		if (cur < 1) cur = 1;
+		
 		/* Something happened */
 		if (cur != p_ptr->stat_cur[stat]) res = TRUE;
 	}
 
 	/* Damage "max" value */
-	if (permanent && (max > 3))
+	if (permanent)
 	{
-		/* Handle "low" values */
-		if (max <= 18)
-		{
-			if (amount > 90) max--;
-			if (amount > 50) max--;
-			if (amount > 20) max--;
-			max--;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((max-18) / 2 + 1) / 2 + 1);
-			if (loss < 1) loss = 1;
-			loss = ((randint(loss) + loss) * amount) / 100;
-			if (loss < amount/2) loss = amount/2;
-
-			/* Lose some points */
-			max = max - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (max < 18) max = (amount <= 20) ? 18 : 17;
-		}
-
+		statdam = randint(amount);
+		max -= statdam;
+		if (max < 1) max = 1;
+		
 		/* Hack -- keep it clean */
 		if (same || (max < cur)) max = cur;
 
@@ -1234,7 +1176,7 @@ bool apply_disenchant(int mode)
 		case 2: t = INVEN_GUN; break;
 		case 3: t = INVEN_BODY; break;
 		case 4: t = INVEN_OUTER; break;
-		case 5: t = INVEN_ARM; break;
+		case 5: t = INVEN_LEG; break;
 		case 6: t = INVEN_HEAD; break;
 		case 7: t = INVEN_HANDS; break;
 		case 8: t = INVEN_FEET; break;
@@ -1306,6 +1248,20 @@ bool apply_disenchant(int mode)
 static void apply_nexus(const monster_type *m_ptr)
 {
 	int max1, cur1, max2, cur2, ii, jj;
+	int savethgood, savethnorm, savethpoor;
+	int save;
+	
+	/* Get the "save" factor */
+	savethgood = p_ptr->skills[SK_SAVETH_GOOD].skill_rank;
+	savethnorm = p_ptr->skills[SK_SAVETH_NORM].skill_rank;
+	savethpoor = p_ptr->skills[SK_SAVETH_POOR].skill_rank;
+	
+	/* Insure good values */
+	/* Note the room for another skill to increase disarming */
+	if (savethgood >= 0) save = savethgood * 4;
+	if (savethnorm >= 0) save = savethnorm * 3;
+	if (savethpoor >= 0) save = savethpoor * 2;
+
 
 	switch (randint(7))
 	{
@@ -1323,7 +1279,7 @@ static void apply_nexus(const monster_type *m_ptr)
 
 		case 6:
 		{
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 				break;
@@ -1336,7 +1292,7 @@ static void apply_nexus(const monster_type *m_ptr)
 
 		case 7:
 		{
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 				break;
@@ -1428,6 +1384,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_CHARM:
 		case GF_DOMINATION:
 		case GF_NUKE:
+		case GF_EMP:
 		{
 			break;
 		}
@@ -2210,6 +2167,21 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* Assume a default death */
 	cptr note_dies = " dies.";
+	
+	int savethgood, savethnorm, savethpoor;
+	int save;
+	
+	/* Get the "save" factor */
+	savethgood = p_ptr->skills[SK_SAVETH_GOOD].skill_rank;
+	savethnorm = p_ptr->skills[SK_SAVETH_NORM].skill_rank;
+	savethpoor = p_ptr->skills[SK_SAVETH_POOR].skill_rank;
+	
+	/* Insure good values */
+	/* Note the room for another skill to increase disarming */
+	if (savethgood >= 0) save = savethgood * 4;
+	if (savethnorm >= 0) save = savethnorm * 3;
+	if (savethpoor >= 0) save = savethpoor * 2;
+
 
 
 	/* Walls protect monsters */
@@ -2344,7 +2316,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* This step increased damage using chrasima as the stat */
 			/* and using the constituion stat table) */
-			/*dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);*/
+			dam += p_ptr->stat_use[A_CHR] / 80;
 
 			if (seen) obvious = TRUE;
 
@@ -2438,6 +2410,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 
 		/* Water (acid) damage -- Water spirits/elementals are immune */
+		/* This should be fixed for real. how crappy */
 		case GF_WATER:
 		{
 			if (seen) obvious = TRUE;
@@ -2934,7 +2907,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_KILL_WALL:
 		{
 			/* Hurt by rock remover */
-			if (r_ptr->flags3 & (RF3_HURT_ROCK))
+			if (r_ptr->flags3 & (RF3_HURT_ROCK) ||
+				r_ptr->flags3 & (RF3_AUTOMATA))
 			{
 				/* Notice effect */
 				if (seen) obvious = TRUE;
@@ -2956,7 +2930,26 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			break;
 		}
-
+		
+		case GF_EMP:
+		{
+			/* Is a machine */
+			if (r_ptr->flags3 & (RF3_AUTOMATA))
+			{
+				if (seen) obvious = TRUE;
+				note = " Shuts down!";
+				note_dies = " Explodes!";
+				do_sleep = dam;
+				/* Take some damage from the EMP blast */
+				dam = dam / 4;
+			}
+			else
+			{
+				/* No damage */
+				dam = 0;
+			}
+			break;
+		}
 
 		/* Teleport undead (Use "dam" as "power") */
 		case GF_AWAY_UNDEAD:
@@ -3202,53 +3195,56 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & RF1_UNIQUE) ||
-				(r_ptr->flags1 & RF1_QUESTOR) ||
+			if ((r_ptr->flags2 & RF2_EMPTY_MIND) ||
+				(r_ptr->flags3 & RF3_AUTOMATA) ||
 				(r_ptr->flags3 & RF3_NO_CONF) ||
+				(r_ptr->flags3 & RF3_NO_STUN) ||
 				(r_ptr->level > randint(dam * 3)))
 			{
-				/*
-				 * Powerful demons & undead can turn a mindcrafter's
-				 * attacks back on them
-				 */
-				if (((r_ptr->flags3 & RF3_UNDEAD) ||
-					 (r_ptr->flags3 & RF3_DEMON)) &&
-					(r_ptr->level > p_ptr->lev) && (2 < randint(5)))
+				/* No obvious effect */
+				note = " is unaffected!";
+				obvious = FALSE;
+				/* no effect */
+				dam = 0;
+			}
+
+			/*
+			 * Powerful demons & undead can turn a mindcrafter's
+			 * attacks back on them
+			 */
+			else if (((r_ptr->flags3 & RF3_UNDEAD) ||
+					(r_ptr->flags3 & RF3_DEMON) ||
+					(r_ptr->flags2 & RF2_WEIRD_MIND))
+					&&
+					((r_ptr->level > p_ptr->lev) && (2 < randint(5))))
+			{
+				note = NULL;
+				msg_format("%^s%s corrupted mind backlashes your attack!",
+						   m_name, (seen ? "'s" : "s"));
+				/* Saving throw */
+				if (randint(100) < save)
 				{
-					note = NULL;
-					msg_format("%^s%s corrupted mind backlashes your attack!",
-							   m_name, (seen ? "'s" : "s"));
-					/* Saving throw */
-					if (randint(100) < p_ptr->skill_sav)
-					{
-						msg_print("You resist the effects!");
-					}
-					else
-					{
-						/* Confuse, stun, terrify */
-						switch (randint(4))
-						{
-							case 1:
-								(void)set_stun(p_ptr->stun + dam / 2);
-								break;
-							case 2:
-								(void)set_confused(p_ptr->confused + dam / 2);
-								break;
-							default:
-							{
-								if (r_ptr->flags3 & RF3_NO_FEAR)
-									note = " is unaffected.";
-								else
-									(void)set_afraid(p_ptr->afraid + dam);
-							}
-						}
-					}
+					msg_print("You resist the effects!");
 				}
 				else
 				{
-					/* No obvious effect */
-					note = " is unaffected!";
-					obvious = FALSE;
+					/* Confuse, stun, terrify */
+					switch (randint(4))
+					{
+						case 1:
+							(void)set_stun(p_ptr->stun + dam / 2);
+							break;
+						case 2:
+							(void)set_confused(p_ptr->confused + dam / 2);
+							break;
+						default:
+						{
+							if (r_ptr->flags3 & RF3_NO_FEAR)
+								note = " is unaffected.";
+							else
+								(void)set_afraid(p_ptr->afraid + dam);
+						}
+					}
 				}
 			}
 			else
@@ -3267,7 +3263,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				
 			}
 
-			break;
+		break;
 		}
 
 		case GF_DOMINATION:
@@ -3302,7 +3298,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 					msg_format("%^s%s corrupted mind backlashes your attack!",
 					    m_name, (seen ? "'s" : "s"));
 					/* Saving throw */
-					if (rand_int(100) < p_ptr->skill_sav)
+					if (rand_int(100) < save)
 					{
 						msg_print("You resist the effects!");
 					}
@@ -4110,11 +4106,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				{
 					switch (randint(6))
 					{
-						case 1: k = A_STR; act = "strong"; break;
-						case 2: k = A_INT; act = "bright"; break;
-						case 3: k = A_WIS; act = "wise"; break;
-						case 4: k = A_DEX; act = "agile"; break;
-						case 5: k = A_CON; act = "hale"; break;
+						case 1: k = A_MUS; act = "strong"; break;
+						case 2: k = A_SCH; act = "bright"; break;
+						case 3: k = A_EGO; act = "wise"; break;
+						case 4: k = A_AGI; act = "agile"; break;
+						case 5: k = A_VIG; act = "hale"; break;
 						case 6: k = A_CHR; act = "beautiful"; break;
 					}
 

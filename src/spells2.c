@@ -97,14 +97,15 @@ void warding_glyph(void)
 /*
  * Array of stat "descriptions"
  */
+ /* must change the order of these */
 static cptr desc_stat_pos[] =
 {
 	"strong",
-	"smart",
-	"wise",
-	"dextrous",
-	"healthy",
-	"cute"
+	"agile",
+	"hearty",
+	"learned",
+	"willful",
+	"persuasive"
 };
 
 
@@ -114,11 +115,11 @@ static cptr desc_stat_pos[] =
 static cptr desc_stat_neg[] =
 {
 	"weak",
-	"stupid",
-	"naive",
 	"clumsy",
 	"sickly",
-	"ugly"
+	"ignorant",
+	"weak-willed",
+	"repulsive"
 };
 
 
@@ -132,11 +133,11 @@ bool do_dec_stat(int stat)
 	/* Get the "sustain" */
 	switch (stat)
 	{
-		case A_STR: if (p_ptr->sustain_str) sust = TRUE; break;
-		case A_INT: if (p_ptr->sustain_int) sust = TRUE; break;
-		case A_WIS: if (p_ptr->sustain_wis) sust = TRUE; break;
-		case A_DEX: if (p_ptr->sustain_dex) sust = TRUE; break;
-		case A_CON: if (p_ptr->sustain_con) sust = TRUE; break;
+		case A_MUS: if (p_ptr->sustain_mus) sust = TRUE; break;
+		case A_AGI: if (p_ptr->sustain_agi) sust = TRUE; break;
+		case A_VIG: if (p_ptr->sustain_vig) sust = TRUE; break;
+		case A_SCH: if (p_ptr->sustain_sch) sust = TRUE; break;
+		case A_EGO: if (p_ptr->sustain_ego) sust = TRUE; break;
 		case A_CHR: if (p_ptr->sustain_chr) sust = TRUE; break;
 	}
 
@@ -654,54 +655,54 @@ void self_knowledge(void)
 		info[i++] = "You are resistant to disenchantment.";
 	}
 
-	if (p_ptr->sustain_str)
+	if (p_ptr->sustain_mus)
 	{
-		info[i++] = "Your strength is sustained.";
+		info[i++] = "Your muscle is sustained.";
 	}
-	if (p_ptr->sustain_int)
+	if (p_ptr->sustain_agi)
 	{
-		info[i++] = "Your intelligence is sustained.";
+		info[i++] = "Your agility is sustained.";
 	}
-	if (p_ptr->sustain_wis)
+	if (p_ptr->sustain_vig)
 	{
-		info[i++] = "Your wisdom is sustained.";
+		info[i++] = "Your vigor is sustained.";
 	}
-	if (p_ptr->sustain_con)
+	if (p_ptr->sustain_sch)
 	{
-		info[i++] = "Your constitution is sustained.";
+		info[i++] = "Your schooling is sustained.";
 	}
-	if (p_ptr->sustain_dex)
+	if (p_ptr->sustain_ego)
 	{
-		info[i++] = "Your dexterity is sustained.";
+		info[i++] = "Your ego is sustained.";
 	}
 	if (p_ptr->sustain_chr)
 	{
-		info[i++] = "Your charisma is sustained.";
+		info[i++] = "Your charm is sustained.";
 	}
 
-	if (f1 & (TR1_STR))
+	if (f1 & (TR1_MUS))
 	{
-		info[i++] = "Your strength is affected by your equipment.";
+		info[i++] = "Your muscle is affected by your equipment.";
 	}
-	if (f1 & (TR1_INT))
+	if (f1 & (TR1_AGI))
 	{
-		info[i++] = "Your intelligence is affected by your equipment.";
+		info[i++] = "Your agility is affected by your equipment.";
 	}
-	if (f1 & (TR1_WIS))
+	if (f1 & (TR1_VIG))
 	{
-		info[i++] = "Your wisdom is affected by your equipment.";
+		info[i++] = "Your vigor is affected by your equipment.";
 	}
-	if (f1 & (TR1_DEX))
+	if (f1 & (TR1_SCH))
 	{
-		info[i++] = "Your dexterity is affected by your equipment.";
+		info[i++] = "Your schooling is affected by your equipment.";
 	}
-	if (f1 & (TR1_CON))
+	if (f1 & (TR1_EGO))
 	{
-		info[i++] = "Your constitution is affected by your equipment.";
+		info[i++] = "Your ego is affected by your equipment.";
 	}
 	if (f1 & (TR1_CHR))
 	{
-		info[i++] = "Your charisma is affected by your equipment.";
+		info[i++] = "Your charm is affected by your equipment.";
 	}
 
 	if (f1 & (TR1_STEALTH))
@@ -1296,7 +1297,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
 		    (tv == TV_TOOL) || (tv == TV_RAY) || (tv == TV_APPARATUS) ||
 		    (tv == TV_MECHANISM) || (tv == TV_TONIC) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_DEVICE_BOOK) ||
+		    (tv == TV_MAGIC_BOOK) || 
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1560,7 +1561,7 @@ void stair_creation(void)
 	{
 		cave_set_feat(py, px, FEAT_LESS);
 	}
-	else if (rand_int(100) < 50)
+	else if ((rand_int(100) < 50) && (!p_ptr->astral))
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}
@@ -1571,7 +1572,23 @@ void stair_creation(void)
 }
 
 
+/*
+ * Hook to specify "book"
+ */
+/*
+static bool item_tester_hook_book(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_MAGIC_BOOK:
+		{
+			return (TRUE);
+		}
+	}
 
+	return (FALSE);
+}
+*/
 
 /*
  * Hook to specify "weapon"
@@ -1607,7 +1624,7 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_CLOAK:
 		case TV_CROWN:
 		case TV_HELM:
@@ -2144,24 +2161,32 @@ bool recharge(int num)
 		/* Back-fire XXX XXX XXX */
 		if ((i <= 1) || (rand_int(i) == 0))
 		{
-			/* Dangerous Hack -- Destroy the item */
-			msg_print("There is a bright flash of light.");
-
-			/* Reduce and describe inventory */
-			if (item >= 0)
+			/* Adding a power cell to an item should be much */
+			/* less risky */
+			if (randint(100) < 1)
 			{
-				inven_item_increase(item, -999);
-				inven_item_describe(item);
-				inven_item_optimize(item);
+				/* Dangerous Hack -- Destroy the item */
+				msg_print("There is a bright flash of light.");
+	
+				/* Reduce and describe inventory */
+				if (item >= 0)
+				{
+					inven_item_increase(item, -999);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}
+	
+				/* Reduce and describe floor item */
+				else
+				{
+					floor_item_increase(0 - item, -999);
+					floor_item_describe(0 - item);
+					floor_item_optimize(0 - item);
+				}
 			}
-
-			/* Reduce and describe floor item */
 			else
-			{
-				floor_item_increase(0 - item, -999);
-				floor_item_describe(0 - item);
-				floor_item_optimize(0 - item);
-			}
+				/* Useless */
+				msg_print("This power cell has no effect.");
 		}
 
 		/* Recharge */
@@ -3460,7 +3485,7 @@ bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev)
 	return (result);
 }
 
-bool fire_barrage(int typ, int dir, int dd, int ds, int num, int dev)
+bool fire_barrage(int typ, int dir, int dd, int ds, int num, int dev, int rad)
 {
 	int ly, lx, ld;
 	int ty, tx, y, x, dist;
@@ -3523,7 +3548,7 @@ bool fire_barrage(int typ, int dir, int dd, int ds, int num, int dev)
 		}
 
 		/* Analyze the "dir" and the "target". */
-		if (!project(-1, 3, y, x, damroll(dd, ds), typ, flg))
+		if (!project(-1, rad, y, x, damroll(dd, ds), typ, flg))
 		{
 			result = FALSE;
 		}

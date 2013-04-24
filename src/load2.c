@@ -130,7 +130,7 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_GLOVES:
 		case TV_HELM:
 		case TV_CROWN:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
@@ -262,7 +262,7 @@ static const byte convert_owner[24] =
 #define OLD_INVEN_HEAD      23
 #define OLD_INVEN_NECK      24
 #define OLD_INVEN_BODY      25
-#define OLD_INVEN_ARM       26
+#define OLD_INVEN_LEG       26
 #define OLD_INVEN_HANDS     27
 #define OLD_INVEN_RIGHT     28
 #define OLD_INVEN_LEFT      29
@@ -530,6 +530,7 @@ static errr rd_item(object_type *o_ptr)
 
 		rd_s16b(&o_ptr->timeout);
 
+		rd_s16b(&o_ptr->force);
 		rd_s16b(&o_ptr->to_h);
 		rd_s16b(&o_ptr->to_d);
 		rd_s16b(&o_ptr->to_a);
@@ -620,6 +621,7 @@ static errr rd_item(object_type *o_ptr)
 		o_ptr->ac = k_ptr->ac;
 		o_ptr->dd = k_ptr->dd;
 		o_ptr->ds = k_ptr->ds;
+		o_ptr->force = k_ptr->force;
 
 		/* Get the correct weight */
 		o_ptr->weight = k_ptr->weight;
@@ -706,8 +708,8 @@ static errr rd_item(object_type *o_ptr)
 			}
 		}
 
-		/* Hack -- fix some "Shields" */
-		if (o_ptr->tval == TV_SHIELD)
+		/* Hack -- fix some "Legs" (formerly Shields) */
+		if (o_ptr->tval == TV_LEG)
 		{
 			/* Special ego-item indexes */
 			if (o_ptr->name2 == EGO_RESIST_ACID)
@@ -784,6 +786,8 @@ static errr rd_item(object_type *o_ptr)
 	o_ptr->ac = k_ptr->ac;
 	o_ptr->dd = k_ptr->dd;
 	o_ptr->ds = k_ptr->ds;
+	o_ptr->force = k_ptr->force;
+
 
 	/* Get the standard weight */
 	o_ptr->weight = k_ptr->weight;
@@ -807,6 +811,7 @@ static errr rd_item(object_type *o_ptr)
 		o_ptr->ac = a_ptr->ac;
 		o_ptr->dd = a_ptr->dd;
 		o_ptr->ds = a_ptr->ds;
+		o_ptr->force = a_ptr->force;
 
 		/* Get the new artifact weight */
 		o_ptr->weight = a_ptr->weight;
@@ -1339,11 +1344,14 @@ static errr rd_extra(void)
 	if (p_ptr->psex > MAX_SEXES - 1) p_ptr->psex = MAX_SEXES - 1;
 
 	strip_bytes(1);
-
+	
+	
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
 	rd_byte(&p_ptr->expfact);
 
+
+	
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
 	rd_s16b(&p_ptr->ht);
@@ -1352,8 +1360,11 @@ static errr rd_extra(void)
 	/* Read the stat info */
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
-	for (i = 0; i < A_MAX; i++) rd_byte(&p_ptr->stat_birth[i]);
-	
+	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_birth[i]);
+	/* read skills */
+	for (i = 0; i < N_SKILLS; i++) rd_s16b(&p_ptr->skills[i].skill_rank);
+	for (i = 0; i < N_SKILLS; i++) rd_s16b(&p_ptr->skills[i].skill_max);
+
 	strip_bytes(24);	/* oops */
 
 	rd_s32b(&p_ptr->au);
@@ -1363,6 +1374,9 @@ static errr rd_extra(void)
 	rd_s32b(&p_ptr->max_exp);
 	rd_s32b(&p_ptr->exp);
 	rd_u16b(&p_ptr->exp_frac);
+	rd_s16b(&p_ptr->free_skpts);
+	rd_s16b(&p_ptr->free_sgain);
+
 
 	rd_s16b(&p_ptr->lev);
 
@@ -1423,6 +1437,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->word_recall);
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
+	rd_s16b(&p_ptr->tim_harding);
 	rd_s16b(&p_ptr->oppose_fire);
 	rd_s16b(&p_ptr->oppose_cold);
 	rd_s16b(&p_ptr->oppose_acid);
@@ -1431,6 +1446,10 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->tim_wraith);
 	rd_s16b(&p_ptr->tim_esp);
 	rd_byte(&p_ptr->confusing);
+		/* Ghostly status -- from Gumband */
+	rd_byte(&p_ptr->astral);
+	rd_byte(&p_ptr->was_astral);
+	rd_byte(&p_ptr->astral_start);
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
@@ -1505,7 +1524,7 @@ static errr rd_extra(void)
 
 
 	/* Read spell info */
-	rd_u32b(&p_ptr->spell_learned1);
+/*	rd_u32b(&p_ptr->spell_learned1);
 	rd_u32b(&p_ptr->spell_learned2);
 	rd_u32b(&p_ptr->spell_worked1);
 	rd_u32b(&p_ptr->spell_worked2);
@@ -1516,7 +1535,7 @@ static errr rd_extra(void)
 	{
 		rd_byte(&p_ptr->spell_order[i]);
 	}
-
+*/
 	return (0);
 }
 
@@ -2947,8 +2966,8 @@ static errr rd_savefile_new_aux(void)
 	cp_ptr = &c_info[p_ptr->pclass];
 
 	/* Important -- Initialize the magic */
-	mp_ptr = &cp_ptr->spells;
-
+/*	mp_ptr = &cp_ptr->spells;
+*/
 
 	/* Read the inventory */
 	if (rd_inventory())

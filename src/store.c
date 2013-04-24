@@ -342,6 +342,7 @@ static owner_type *ot_ptr = NULL;
  * to adjust (by 200) to extract a usable multiplier.  Note that the
  * "greed" value is always something (?).
  */
+ /* the values above are not correct. */
 static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 {
 	int factor;
@@ -360,8 +361,10 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 	factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
 
 	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	/* @STAT@ */
+	factor += (280 - (p_ptr->stat_use[A_CHR] / 5));
 
+	if (factor > 180) factor = 180;
 
 	/* Shop is buying */
 	if (flip)
@@ -452,7 +455,6 @@ static void mass_produce(object_type *o_ptr)
 		}
 
 		case TV_MAGIC_BOOK:
-		case TV_DEVICE_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -461,7 +463,7 @@ static void mass_produce(object_type *o_ptr)
 
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_GLOVES:
 		case TV_BOOTS:
 		case TV_CLOAK:
@@ -734,7 +736,7 @@ static bool store_will_buy(const object_type *o_ptr)
 				case TV_GLOVES:
 				case TV_CROWN:
 				case TV_HELM:
-				case TV_SHIELD:
+				case TV_LEG:
 				case TV_CLOAK:
 				case TV_SOFT_ARMOR:
 				case TV_HARD_ARMOR:
@@ -773,7 +775,6 @@ static bool store_will_buy(const object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_DEVICE_BOOK:
 				case TV_MECHANISM:
 				case TV_MECHA_TORSO:
 				case TV_MECHA_HEAD:
@@ -879,12 +880,6 @@ static int home_carry(object_type *o_ptr)
 	{
 		/* Get that object */
 		j_ptr = &st_ptr->stock[slot];
-
-		/* Hack -- readable books always come first */
-		if ((o_ptr->tval == cp_ptr->spell_book) &&
-		    (j_ptr->tval != cp_ptr->spell_book)) break;
-		if ((j_ptr->tval == cp_ptr->spell_book) &&
-		    (o_ptr->tval != cp_ptr->spell_book)) continue;
 
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
@@ -1205,6 +1200,8 @@ static void store_create(void)
 		{
 			if (i_ptr->sval == SV_LITE_TORCH) i_ptr->pval = FUEL_TORCH / 2;
 			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->pval = FUEL_LAMP / 2;
+			if (i_ptr->sval == SV_LITE_TAPER) i_ptr->pval = FUEL_TAPER;
+			if (i_ptr->sval == SV_LITE_CANDLE) i_ptr->pval = FUEL_CANDLE;
 		}
 
 
@@ -1347,7 +1344,12 @@ static void display_entry(int item)
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].d_attr;
+			else attr = TERM_L_DARK;
+		}
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
@@ -1378,7 +1380,12 @@ static void display_entry(int item)
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].d_attr;
+			else attr = TERM_L_DARK;
+		}
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);

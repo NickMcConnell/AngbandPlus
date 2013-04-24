@@ -1,4 +1,4 @@
-=== Attacking and Being Attacked ===
+=== Attacking and Being Attacked === (OUTDATED)
  
 Attacking is simple in Angband.  If you move into a creature, you attack him.
 You can attack from a distance by firing a missile or by magical means (such

@@ -402,3 +402,47 @@ void do_cmd_rerate(void)
 	msg_format("You feel your life force changing!");
 }
 
+/*
+ * Brand the current weapon
+ */
+void brand_weapon(void)
+{
+	object_type *o_ptr;
+
+	o_ptr = &inventory[INVEN_WIELD];
+
+	/* you can never modify artifacts / ego-items */
+	/* you can never modify broken / cursed items */
+	if ((o_ptr->k_idx) &&
+	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+	    (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
+	{
+		cptr act;
+
+		char o_name[80];
+
+		if (rand_int(100) < 25)
+		{
+			act = "is covered in a fiery shield!";
+			o_ptr->name2 = EGO_BRAND_FIRE;
+		}
+		else
+		{
+			act = "glows deep, icy blue!";
+			o_ptr->name2 = EGO_BRAND_COLD;
+		}
+
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		msg_format("Your %s %s", o_name, act);
+
+		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+	}
+
+	else
+	{
+		if (flush_failure) flush();
+		msg_print("The Branding failed.");
+	}
+}
+

@@ -893,7 +893,7 @@ static s32b object_value_real(const object_type *o_ptr)
 		case TV_GLOVES:
 		case TV_HELM:
 		case TV_CROWN:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
@@ -913,11 +913,11 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (!o_ptr->pval) break;
 
 			/* Give credit for stat bonuses */
-			if (f1 & (TR1_STR)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_INT)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_WIS)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_DEX)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_CON)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_MUS)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_AGI)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_VIG)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_SCH)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_EGO)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 200L);
 
 			/* Give credit for stealth and searching */
@@ -975,7 +975,7 @@ static s32b object_value_real(const object_type *o_ptr)
 		case TV_CLOAK:
 		case TV_CROWN:
 		case TV_HELM:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
@@ -1185,7 +1185,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_GLOVES:
 		case TV_HELM:
 		case TV_CROWN:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
@@ -1435,6 +1435,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 	o_ptr->to_a = k_ptr->to_a;
 
 	/* Default power */
+	o_ptr->force = k_ptr->force;
 	o_ptr->ac = k_ptr->ac;
 	o_ptr->dd = k_ptr->dd;
 	o_ptr->ds = k_ptr->ds;
@@ -2103,10 +2104,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			switch (o_ptr->sval)
 			{
 				/* Strength, Constitution, Dexterity, Intelligence */
-				case SV_RING_STR:
-				case SV_RING_CON:
-				case SV_RING_DEX:
-				case SV_RING_INT:
+				case SV_RING_MUS:
+				case SV_RING_VIG:
+				case SV_RING_AGI:
+				case SV_RING_SCH:
 				{
 					/* Stat bonus */
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -2431,6 +2432,16 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			{
 				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
 			}
+			/* Hack -- Tapers -- random fuel */
+			else if (o_ptr->sval == SV_LITE_TAPER)
+			{
+				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
+			}
+			/* Hack -- Candles -- random fuel */
+			else if (o_ptr->sval == SV_LITE_CANDLE)
+			{
+				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
+			}
 
 			break;
 		}
@@ -2578,6 +2589,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		o_ptr->ac = a_ptr->ac;
 		o_ptr->dd = a_ptr->dd;
 		o_ptr->ds = a_ptr->ds;
+		o_ptr->force = a_ptr->force;
 		o_ptr->to_a = a_ptr->to_a;
 		o_ptr->to_h = a_ptr->to_h;
 		o_ptr->to_d = a_ptr->to_d;
@@ -2639,7 +2651,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_MECHA_HEAD:
 		case TV_MECHA_ARMS:
 		case TV_MECHA_FEET:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_HELM:
 		case TV_CROWN:
 		case TV_CLOAK:
@@ -2782,7 +2794,7 @@ static bool kind_is_good(int k_idx)
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		case TV_DRAG_ARMOR:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_CLOAK:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -2818,8 +2830,8 @@ static bool kind_is_good(int k_idx)
 		}
 
 		/* Books -- High level books are good */
+		/* need to fix this */
 		case TV_MAGIC_BOOK:
-		case TV_DEVICE_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -2844,6 +2856,19 @@ static bool kind_is_good(int k_idx)
 	return (FALSE);
 }
 
+/*
+ * Hack -- determine if a template is the right kind of object. -LM-
+ */
+static bool kind_is_right_kind(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* We are only looking for non-worthless items of the tval asked for. */
+	if ((k_ptr->tval == required_tval) && (k_ptr->cost > 0)) return (TRUE);
+	else return (FALSE);
+}
+
+
 
 
 /*
@@ -2855,10 +2880,13 @@ static bool kind_is_good(int k_idx)
  *
  * We assume that the given object has been "wiped".
  */
-bool make_object(object_type *j_ptr, bool good, bool great)
+bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 {
 	int prob, base;
+	u32b f1, f2, f3;
 
+	/* Extract some flags */
+	object_flags(j_ptr, &f1, &f2, &f3);
 
 	/* Chance of "special object" */
 	prob = (good ? 10 : 1000);
@@ -2877,6 +2905,19 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		{
 			/* Activate restriction */
 			get_obj_num_hook = kind_is_good;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+		}
+
+		/* Objects with a particular tval.  Only activate if there is a 
+		 * valid tval to restrict to. */
+		if (exact_kind && required_tval)
+		{
+			/* Activate restriction */
+			/* XXX There may be a bug here by not resetting */
+			/* get_obj_num_hook */
+			get_obj_num_hook = kind_is_right_kind;
 
 			/* Prepare allocation table */
 			get_obj_num_prep();
@@ -2916,6 +2957,11 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 			j_ptr->number = damroll(6, 7);
 		}
 	}
+	
+	if ((f3 & (TR3_THROW)) && ((j_ptr->tval == TV_POLEARM) || (j_ptr->tval == TV_SWORD) || (j_ptr->tval == TV_HAFTED)))
+	{
+		j_ptr->number = damroll(6, 7);
+	}
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
@@ -2937,7 +2983,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 /*
  * XXX XXX XXX Do not use these hard-coded values.
  */
-#define OBJ_GOLD_LIST	480	/* First "gold" entry */
+#define OBJ_GOLD_LIST	1950	/* First "gold" entry */
 #define MAX_GOLD	18	/* Number of "gold" entries */
 
 /*
@@ -3294,7 +3340,7 @@ void acquirement(int y1, int x1, int num, bool great)
 		object_wipe(i_ptr);
 
 		/* Make a good (or great) object (if possible) */
-		if (!make_object(i_ptr, TRUE, great)) continue;
+		if (!make_object(i_ptr, TRUE, great, FALSE)) continue;
 
 		/* Drop the object */
 		drop_near(i_ptr, -1, y1, x1);
@@ -3323,7 +3369,7 @@ void place_object(int y, int x, bool good, bool great)
 	object_wipe(i_ptr);
 
 	/* Make an object (if possible) */
-	if (make_object(i_ptr, good, great))
+	if (make_object(i_ptr, good, great, FALSE))
 	{
 		/* Give it to the floor */
 		if (!floor_carry(y, x, i_ptr))
@@ -3848,12 +3894,6 @@ s16b inven_carry(object_type *o_ptr)
 			/* Use empty slots */
 			if (!j_ptr->k_idx) break;
 
-			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == cp_ptr->spell_book) &&
-			    (j_ptr->tval != cp_ptr->spell_book)) break;
-			if ((j_ptr->tval == cp_ptr->spell_book) &&
-			    (o_ptr->tval != cp_ptr->spell_book)) continue;
-
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
 			if (o_ptr->tval < j_ptr->tval) continue;
@@ -4215,12 +4255,6 @@ void reorder_pack(void)
 			/* Use empty slots */
 			if (!j_ptr->k_idx) break;
 
-			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == cp_ptr->spell_book) &&
-			    (j_ptr->tval != cp_ptr->spell_book)) break;
-			if ((j_ptr->tval == cp_ptr->spell_book) &&
-			    (o_ptr->tval != cp_ptr->spell_book)) continue;
-
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
 			if (o_ptr->tval < j_ptr->tval) continue;
@@ -4298,6 +4332,12 @@ void reorder_pack(void)
 
 
 
+
+
+
+
+#if 0
+
 /*
  * Returns chance of failure for a spell
  */
@@ -4321,7 +4361,8 @@ s16b spell_chance(int spell)
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
+	/* @STAT@ */
+	chance -= 3 * ((p_ptr->stat_use[cp_ptr->spell_stat] / 40) - 1);
 
 	/* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
@@ -4330,7 +4371,8 @@ s16b spell_chance(int spell)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
+	/* @STAT@ */
+	minfail = (100 - (p_ptr->stat_use[cp_ptr->spell_stat] / 10));
 
 	/* Non mage/priest characters never get better than 5 percent */
 	if (!(cp_ptr->flags & CF_ZERO_FAIL))
@@ -4762,7 +4804,7 @@ void print_spells(const byte *spells, int num, int y, int x)
 	prt("", y + i + 1, x);
 }
 
-
+#endif
 
 /*
  * Hack -- display an object kind in the current window
@@ -4806,38 +4848,5 @@ void display_koff(int k_idx)
 	/* Mention the object name */
 	Term_putstr(0, 0, -1, TERM_WHITE, o_name);
 
-
-	/* Warriors are illiterate */
-	if (!cp_ptr->spell_book) return;
-
-	/* Display spells in readible books */
-	if (i_ptr->tval == cp_ptr->spell_book)
-	{
-		int sval;
-
-		int spell;
-		int num = 0;
-
-		byte spells[PY_MAX_SPELLS];
-
-
-		/* Get the item's sval */
-		sval = i_ptr->sval;
-
-		/* Extract spells */
-		for (spell = 0; spell < PY_MAX_SPELLS; spell++)
-		{
-			/* Check for this spell */
-			if ((spell < 32) ?
-			    (spell_flags[cp_ptr->spell_type][sval][0] & (1L << spell)) :
-			    (spell_flags[cp_ptr->spell_type][sval][1] & (1L << (spell - 32))))
-			{
-				/* Collect this spell */
-				spells[num++] = spell;
-			}
-		}
-
-		/* Print spells */
-		print_spells(spells, num, 2, 0);
-	}
 }
+

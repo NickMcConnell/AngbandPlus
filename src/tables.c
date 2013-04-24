@@ -46,11 +46,19 @@ const char hexsym[16] =
 {
 	'0', '1', '2', '3', '4', '5', '6', '7',
 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-};
+}; 
 
+
+/* all of these tables will be pulled */
+/* New stats are acessed by */
+/* p_ptr->stat_cur[A_MUS] etc. */
 
 /*
  * Stat Table (INT/WIS) -- Number of half-spells per level
+ */
+/* 
+ * Replacement Suggestions
+ * range 0-5, divide by 100, divide by 2.
  */
 const byte adj_mag_study[] =
 {
@@ -98,6 +106,11 @@ const byte adj_mag_study[] =
 /*
  * Stat Table (INT/WIS) -- extra half-mana-points per level
  */
+/* 
+ * Replacement Suggestions
+ * 0-16. Divide by 50. (for a total of 20)
+ */
+
 const byte adj_mag_mana[] =
 {
 	0	/* 3 */,
@@ -144,6 +157,14 @@ const byte adj_mag_mana[] =
 /*
  * Stat Table (INT/WIS) -- Minimum failure rate (percentage)
  */
+ /* 
+ * Replacement Suggestions
+ *  99 - 0. hmmmmm, take 999 - stat, and divide the result by 10
+ * I.E. Stat 444 ->  999-444 = 555 / 10 = 55% chance of failure
+ *      Stat 888 ->  999-888 = 111 / 10 = 11% chance of failure.
+ *  Must have relevant skill to make this work working. . .
+ */
+
 const byte adj_mag_fail[] =
 {
 	99	/* 3 */,
@@ -189,6 +210,7 @@ const byte adj_mag_fail[] =
 
 /*
  * Stat Table (INT/WIS) -- Various things
+ * Divide by 50?
  */
 const byte adj_mag_stat[] =
 {
@@ -236,6 +258,11 @@ const byte adj_mag_stat[] =
 /*
  * Stat Table (CHR) -- payment percentages
  */
+ /* 
+ * Replacement Suggestions
+ * Expand the range from 200 - 50. Then figure something out on that.
+ */
+
 const byte adj_chr_gold[] =
 {
 	130	/* 3 */,
@@ -282,6 +309,11 @@ const byte adj_chr_gold[] =
 /*
  * Stat Table (INT) -- Magic devices
  */
+ /* 
+ * Replacement Suggestions
+ * Divide by 50?
+ */
+
 const byte adj_int_dev[] =
 {
 	0	/* 3 */,
@@ -328,6 +360,11 @@ const byte adj_int_dev[] =
 /*
  * Stat Table (WIS) -- Saving throw
  */
+ /* 
+ * Replacement Suggestions
+ *	Divide by 50?
+ */
+
 const byte adj_wis_sav[] =
 {
 	0	/* 3 */,
@@ -372,8 +409,13 @@ const byte adj_wis_sav[] =
 
 
 /*
- * Stat Table (DEX) -- disarming
+ * Stat Table (AGI) -- disarming
  */
+ /* 
+ * Replacement Suggestions
+ * DIvide by 100?
+ */
+
 const byte adj_dex_dis[] =
 {
 	0	/* 3 */,
@@ -420,6 +462,11 @@ const byte adj_dex_dis[] =
 /*
  * Stat Table (INT) -- disarming
  */
+ /* 
+ * Replacement Suggestions
+ * looks like, oh lets see, yep! Divide by 50
+ */
+
 const byte adj_int_dis[] =
 {
 	0	/* 3 */,
@@ -464,8 +511,13 @@ const byte adj_int_dis[] =
 
 
 /*
- * Stat Table (DEX) -- bonus to ac (plus 128)
+ * Stat Table (AGI) -- bonus to ac (plus 128)
  */
+ /* 
+ * Replacement Suggestions
+ * wtf, this is going to get more comoplicated.
+ */
+
 const byte adj_dex_ta[] =
 {
 	128 + -4	/* 3 */,
@@ -510,8 +562,13 @@ const byte adj_dex_ta[] =
 
 
 /*
- * Stat Table (STR) -- bonus to dam (plus 128)
+ * Stat Table (MUS) -- bonus to dam (plus 128)
  */
+ /* 
+ * Replacement Suggestions
+ * This too.
+ */
+
 const byte adj_str_td[] =
 {
 	128 + -2	/* 3 */,
@@ -556,8 +613,13 @@ const byte adj_str_td[] =
 
 
 /*
- * Stat Table (DEX) -- bonus to hit (plus 128)
+ * Stat Table (AGI) -- bonus to hit (plus 128)
  */
+ /* 
+ * Replacement Suggestions
+ *this three!
+ */
+
 const byte adj_dex_th[] =
 {
 	128 + -3	/* 3 */,
@@ -602,8 +664,13 @@ const byte adj_dex_th[] =
 
 
 /*
- * Stat Table (STR) -- bonus to hit (plus 128)
+ * Stat Table (MUS) -- bonus to hit (plus 128)
  */
+ /* 
+ * Replacement Suggestions
+ * THis four
+ */
+
 const byte adj_str_th[] =
 {
 	128 + -3	/* 3 */,
@@ -648,8 +715,13 @@ const byte adj_str_th[] =
 
 
 /*
- * Stat Table (STR) -- weight limit in deca-pounds
+ * Stat Table (MUS) -- weight limit in deca-pounds
  */
+ /* 
+ * Replacement Suggestions
+ * Divide by 40?
+ */
+
 const byte adj_str_wgt[] =
 {
 	5	/* 3 */,
@@ -694,8 +766,13 @@ const byte adj_str_wgt[] =
 
 
 /*
- * Stat Table (STR) -- weapon weight limit in pounds
+ * Stat Table (MUS) -- weapon weight limit in pounds
  */
+ /* 
+ * Replacement Suggestions
+ * Divide by 10.
+ */
+
 const byte adj_str_hold[] =
 {
 	4	/* 3 */,
@@ -740,8 +817,13 @@ const byte adj_str_hold[] =
 
 
 /*
- * Stat Table (STR) -- digging value
+ * Stat Table (MUS) -- digging value
  */
+ /* 
+ * Replacement Suggestions
+ * Divide by 10?
+ */
+
 const byte adj_str_dig[] =
 {
 	0	/* 3 */,
@@ -786,8 +868,13 @@ const byte adj_str_dig[] =
 
 
 /*
- * Stat Table (STR) -- help index into the "blow" table
+ * Stat Table (MUS) -- help index into the "blow" table
  */
+ /* 
+ * Replacement Suggestions
+ * Check out the blow table.
+ */
+
 const byte adj_str_blow[] =
 {
 	3	/* 3 */,
@@ -832,8 +919,13 @@ const byte adj_str_blow[] =
 
 
 /*
- * Stat Table (DEX) -- index into the "blow" table
+ * Stat Table (AGI) -- index into the "blow" table
  */
+ /* 
+ * Replacement Suggestions
+ * Check out the blow table.
+ */
+
 const byte adj_dex_blow[] =
 {
 	0	/* 3 */,
@@ -878,7 +970,7 @@ const byte adj_dex_blow[] =
 
 
 /*
- * Stat Table (DEX) -- chance of avoiding "theft" and "falling"
+ * Stat Table (AGI) -- chance of avoiding "theft" and "falling"
  */
 const byte adj_dex_safe[] =
 {
@@ -926,6 +1018,11 @@ const byte adj_dex_safe[] =
 /*
  * Stat Table (CON) -- base regeneration rate
  */
+ /* 
+ * Replacement Suggestions
+ * Looks like divided by 100
+ */
+
 const byte adj_con_fix[] =
 {
 	0	/* 3 */,
@@ -972,6 +1069,7 @@ const byte adj_con_fix[] =
 /*
  * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
  */
+ /* think of later */
 const byte adj_con_mhp[] =
 {
 	128 + -5	/* 3 */,
@@ -1042,6 +1140,10 @@ const byte adj_con_mhp[] =
  * The player gets "blows_table[P][D]" blows/round, as shown below,
  * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
+ /*
+  * I need a new blows system besides this sucky table. Or I keep the sucky table.
+  *
+  */
 const byte blows_table[12][12] =
 {
 	/* P/D */
@@ -1081,7 +1183,7 @@ const byte blows_table[12][12] =
 	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6 },
 
 	/* 11+ */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   6,   6,   6,   6 },
+	{  3,   3,   4,   4,   4,   4,   5,   5,   6,   6,   6,   7 },
 };
 
 
@@ -1192,57 +1294,57 @@ const byte extract_energy[200] =
  * Base experience levels, may be adjusted up for race and/or class
  */
 const s32b player_exp[PY_MAX_LEVEL] =
-{
-	10,
-	25,
-	45,
-	70,
-	100,
-	140,
-	200,
-	280,
-	380,
-	500,
-	650,
-	850,
-	1100,
-	1400,
-	1800,
-	2300,
-	2900,
-	3600,
-	4400,
-	5400,
-	6800,
-	8400,
-	10200,
-	12500,
-	17500,
+{				/* difference */
+	20,			/* XX */
+	50,			/* XX */
+	100,		/* XX */
+	180,		/* XX */
+	280,		/* XX */
+	400,		/* XX */
+	540,		/* XX */
+	700,		/* XX */
+	900,		/* XXX */
+	1200,		/* XXX */
+	1600,		/* XXX */
+	2000,		/* XXX */
+	2800,		/* XXX */
+	3600,		/* XXX */
+	4600,		/* XXX */
+	5600,		/* XXX */
+	6800,		/* XXX */
+	8000,		/* XXX */
+	9400,		/* XXX */
+	10800,		/* XXX */
+	13600,		/* XXX */
+	16800,
+	20400,
 	25000,
 	35000L,
 	50000L,
-	75000L,
+	70000L,
 	100000L,
 	150000L,
 	200000L,
-	275000L,
-	350000L,
-	450000L,
+	300000L,
+	400000L,
 	550000L,
 	700000L,
-	850000L,
-	1000000L,
-	1250000L,
-	1500000L,
-	1800000L,
-	2100000L,
-	2400000L,
-	2700000L,
+	900000L,
+	1100000L,
+	1400000L,
+	1700000L,
+	2000000L,
+	2500000L,
 	3000000L,
-	3500000L,
-	4000000L,
-	4500000L,
-	5000000L
+	3600000L,
+	4200000L,
+	4800000L,
+	5400000L,
+	6000000L,
+	7000000L,
+	8000000L,
+	9000000L,
+	10000000L
 };
 
 
@@ -1266,610 +1368,487 @@ const player_sex sex_info[MAX_SEXES] =
 };
 
 
-/*
- * Spells in each book (mage spells then priest spells)
- */
-const u32b spell_flags[2][9][2] =
+spell_book books[SV_BOOK_MAX] =
 {
 	{
-		/*** Mage spell books ***/
-		BOOK(SPELL_AIM_OF_THE_WILL,
-		     SPELL_SENSE_WILL,
-		     SPELL_TRANSPORT_SELF,
-		     SPELL_INNER_LIGHT,
-		     SPELL_CURE_LIGHT_WOUNDS,
-		     SPELL_OBJECT_DETECTION,
-		     SPELL_FIND_TRAPS_DOORS,
-		     SPELL_PLAUGE_WILL,
-		     -1),
-		BOOK(SPELL_CHANT,
-		     SPELL_SANCTUARY,
-		     SPELL_SATISFY_HUNGER,
-		     SPELL_CURE_CRITICAL_WOUNDS,
-		     SPELL_PROTECTION_FROM_EVIL,
-		     SPELL_CURE_MORTAL_WOUNDS,
-		     SPELL_REMOVE_CURSE,
-		     SPELL_TURN_UNDEAD,
-			 SPELL_HEAL),
-		BOOK(SPELL_RECHARGE_ITEM_I,
-		     SPELL_SLEEP_II,
-		     SPELL_IDENTIFY,
-		     SPELL_FIRE_BOLT,
-		     SPELL_FROST_BOLT,
-		     SPELL_TELEPORT_OTHER,
-		     SPELL_HASTE,
-		     SPELL_FIRE_BALL,
-		     SPELL_GENOCIDE),
-		BOOK(SPELL_PORTAL,
-		     SPELL_SENSE_INVISIBLE,
-		     SPELL_SENSE_SURROUNDINGS,
-		     SPELL_PRAYER,
-		     SPELL_DISPEL_EVIL,
-		     SPELL_IDENTIFY2,
-		     SPELL_HOLY_WORD,
-		     SPELL_HEALING,
-		     SPELL_RESTORATION),
-		BOOK(SPELL_ACID_BOLT,
-		     SPELL_CLOUD_KILL,
-		     SPELL_ICE_STORM,
-		     SPELL_FIRE_STORM,
-		     SPELL_METEOR_SWARM,
-		     SPELL_ELEMENTAL_BALL,
-		     SPELL_MANA_STORM,
-		     -1,
-		     -1),
-		BOOK(SPELL_DISPEL_CURSE,
-		     SPELL_BANISHMENT,
-		     SPELL_RECHARGE_ITEM_II,
-		     SPELL_DISPEL_EVIL_II,
-		     SPELL_WORD_OF_RECALL,
-		     SPELL_RESISTANCE,
-		     -1,
-		     -1,
-		     -1),
-		BOOK(SPELL_RECHARGE_ITEM_III,
-		     SPELL_EARTHQUAKE,
-		     SPELL_WORD_OF_RECALL_II,
-		     SPELL_MIND_OF_THE_WORM,
-		     SPELL_MASS_GENOCIDE,
-		     -1,
-		     -1,
-		     -1,
-		     -1),
-		BOOK(-1,
-		     -1,
-		     -1,
-		     -1,
-		     -1,
-		     -1,
-		     -1,
-		     -1,
-		     -1),
-		BOOK(-1,
-		     -1,
-		     -1,
-		     -1,
-		     -1,
-		     -1,
-		     -1,
-		     -1,
-		     -1)
+		/* Liber Al Vel Legis (sval 0) */
+		SBF_MAGIC,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_AIM_OF_THE_WILL, "Aim of the Will", 3, 1, 23 },
+			{ POW_SENSE_WILL, "Sense Will", 4, 2, 22 },
+			{ POW_TRANSPORT_WILL, "Transportation of the Will", 8, 5, 44 },
+			{ POW_INNER_RAD, "Inner Radiance", 9, 3, 33 },
+			{ POW_HEALING_I, "Healing of the Will", 11, 10, 42 },
+			{ POW_LO_OBJECT, "Location of Things without Spirit", 13, 8, 32 },
+			{ POW_LO_TRAPS, "Locating Safe Passage of the Will", 15, 8, 32 },
+			{ POW_PLAGUE_WILL, "Plagueing the Will", 20, 7, 42 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
 	},
-
 	{
-		/*** Priest spell books ***/
-		/* BOOK(PRAYER_DETECT_EVIL,
-		 *	 PRAYER_CURE_LIGHT_WOUNDS,
-		 *	 PRAYER_BLESS,
-		 *	 PRAYER_REMOVE_FEAR,
-		 *	 PRAYER_CALL_LIGHT,
-		 *	 PRAYER_FIND_TRAPS,
-		 *	 PRAYER_DETECT_DOORS_STAIRS,
-		 *	 PRAYER_SLOW_POISON,
-		 *	 -1), 
-		 */
-		BOOK(PRAYER_CALL_LIGHT,
-			 PRAYER_REMOVE_FEAR,
-			 PRAYER_CURE_LIGHT_WOUNDS,
-			 PRAYER_DETECT_DOORS_STAIRS,
-			 PRAYER_FIND_TRAPS,
-			 PRAYER_SLOW_POISON,
-			 PRAYER_SPRING_BLADE,
-			 PRAYER_SATISFY_HUNGER,
-			 PRAYER_OBJECT_ANALYSIS), 
-		/*
-		 *BOOK(PRAYER_SCARE_MONSTER,
-		 *	 PRAYER_PORTAL,
-		 *	 PRAYER_CURE_SERIOUS_WOUNDS,
-		 *	 PRAYER_CHANT,
-		 *	 PRAYER_SANCTUARY,
-		 *	 PRAYER_SATISFY_HUNGER2,
-		 *	 PRAYER_REMOVE_CURSE,
-		 *	 PRAYER_RESIST_HEAT_COLD,
-		 *	 -1),
-		 */
-		BOOK(PRAYER_DETECT_MONSTERS,
-			 PRAYER_FIND_TRAPS_DOORS,
-			 PRAYER_TREASURE_DETECTION,
-			 PRAYER_DETECT_ENCHANTMENT,
-			 PRAYER_DETECTION,
-			 PRAYER_PERCEPTION,
-			 PRAYER_PROBING,
-			 PRAYER_CLAIRVOYANCE,
-			 -1),
-		/* BOOK(PRAYER_NEUTRALIZE_POISON,
-		 *	 PRAYER_ORB_OF_DRAINING,
-		 *	 PRAYER_CURE_CRITICAL_WOUNDS,
-		 *	 PRAYER_SENSE_INVISIBLE,
-		 *	 PRAYER_PROTECTION_FROM_EVIL,
-		 *	 PRAYER_EARTHQUAKE,
-		 *	 PRAYER_SENSE_SURROUNDINGS,
-		 *	 PRAYER_CURE_MORTAL_WOUNDS,
-		 *	 PRAYER_TURN_UNDEAD),
-		 */
-		BOOK(PRAYER_SPEAR_OF_LIGHT,
-			 PRAYER_ETHERIC_JUMP,
-			 PRAYER_DEFENSIVE_ARRAY,
-			 PRAYER_NEUTRALIZE_POISON,
-			 PRAYER_GUNS,
-			 PRAYER_CURE_CRITICAL_WOUNDS,
-			 PRAYER_TURN_STONE_TO_MUD,
-			 PRAYER_EARTHQUAKE,
-			 PRAYER_MISSLE),
-		/* BOOK(PRAYER_PRAYER,
-		 *	 PRAYER_DISPEL_UNDEAD,
-		 *	 PRAYER_HEAL,
-		 *	 PRAYER_DISPEL_EVIL,
-		 *	 PRAYER_GLYPH_OF_WARDING,
-		 *	 PRAYER_HOLY_WORD,
-		 *	 -1,
-		 *	 -1,
-		 *	 -1),
-		 */
-		BOOK(PRAYER_LEAD_SLUGS,
-			 PRAYER_LIGHTNING_RAY,
-			 PRAYER_FROST_RAY,
-			 PRAYER_HEAT_RAY,
-			 PRAYER_GRAVITY_RAY,
-			 PRAYER_TELEPORT_OTHER,
-			 -1,
-			 -1,
-			 -1),
-		BOOK(PRAYER_BLINK,
-			 PRAYER_TELEPORT_SELF,
-			 PRAYER_TELEPORT_OTHER2,
-			 PRAYER_TELEPORT_LEVEL,
-			 PRAYER_WORD_OF_RECALL,
-			 -1,
-			 -1,
-			 -1,
-			 -1),
-		/* BOOK(PRAYER_DETECT_MONSTERS2,
-		 *	 PRAYER_DETECTION2,
-		 *	 PRAYER_PERCEPTION2,
-		 *	 PRAYER_PROBING2,
-		 *	 PRAYER_CLAIRVOYANCE2,
-		 *	 -1,
-		 *	 -1,
-		 *	 -1,
-		 *	 -1),
-		 */
-		BOOK(PRAYER_CURE_MORTAL_WOUNDS,
-			 PRAYER_BIOLOGICAL_ENHANCE,
-			 PRAYER_POLYMORPH_OTHER,
-			 PRAYER_RECHARGE_ITEM,
-			 PRAYER_DOOR_CREATION,
-			 PRAYER_STAIR_CREATION,
-			 PRAYER_BIOLOGICAL_ENHANCE_II,
-			 PRAYER_HEALING,
-			 PRAYER_ALTER_REALITY),
-		BOOK(-1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1),
-		BOOK(-1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1),
-		BOOK(-1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1,
-			 -1)
-		/*BOOK(PRAYER_CURE_SERIOUS_WOUNDS2,
-		 *	 PRAYER_CURE_MORTAL_WOUNDS2,
-		 *	 PRAYER_HEALING,
-		 *	 PRAYER_RESTORATION,
-		 *	 PRAYER_REMEMBRANCE,
-		 *	 -1,
-		 *	 -1,
-		 *	 -1,
-		 *	 -1),
-		 *BOOK(PRAYER_UNBARRING_WAYS,
-		 *	 PRAYER_RECHARGING,
-		 *	 PRAYER_DISPEL_CURSE,
-		 *	 PRAYER_ENCHANT_WEAPON,
-		 *	 PRAYER_ENCHANT_ARMOUR,
-		 *	 PRAYER_ELEMENTAL_BRAND,
-		 *	 -1,
-		 *	 -1,
-		 *	 -1),
-		 *BOOK(PRAYER_DISPEL_UNDEAD2,
-		 *	 PRAYER_DISPEL_EVIL2,
-		 *	 PRAYER_BANISHMENT,
-		 *	 PRAYER_WORD_OF_DESTRUCTION,
-		 *	 PRAYER_ANNIHILATION,
-		 *	 -1,
-		 *	 -1,
-		 *	 -1,
-		 *	 -1)
-		 */
-	}
-};
-
-
-/*
- * Names of the spells (mage spells then priest spells)
- */
-cptr spell_names[2][PY_MAX_SPELLS] =
-{
-	/*** Mage Spells ***/
-
-	{
-		/* Liber AL vel Legis (sval 0) */
-		"Aim of the Will",
-		"Sense Will",
-		"Transportation of the Will",
-		"Inner Radiance",
-		"Healing of the Will",
-		"Location of Things Without Spirit",
-		"Locating Safe Passage of the Will",
-		"Plagueing the Will",
-		
-		/* Treatise on the Resurrection (sval 1) */
-		"Holy Protection Chant",
-		"Protection of the Lord",
-		"Creation of Loaves and Fishes",
-		"Healing of the Body",
-		"Protection from Evil",
-		"Greater Healing of the Body",
-		"Remove Foul Curses",
-		"Purity of the living",
-		"Purification of the Body",
-		
-		/* The Zohar (Book of Splendor) (sval 2) */
-		"Transfering Will to Objects",
-		"Supression of the Will",
-		"Knowledge of Secular Objects",
-		"Spectacle of Fire",
-		"Spectacle of Ice",
-		"Movement of the Will of Others",
-		"Focus of the Will",
-		"Sphere of Flame",
-		"Solitude of the Will",
-		
-		/* Odes of Solomon (sval 3) */
-		"Ballad of the Holy Gate",
-		"Hymn: Pierce the Spectral Barrier",
-		"Hymn: Secular Surroundings",
-		"Holy Prayer",
-		"Prayer to Dispel Evil",
-		"Lore",
-		"Holy Word",
-		"Healing of the Spirit",
-		"Healing of the Body",
-		
-		/* Sepher Yetzirah (Book of Formation) (sval 4) */
-		"Spectacle of Acid",
-		"Purge the Toxins of the Will",
-		"Storm of Ice",
-		"Storm of Fire",
-		"Swarm of Meteors",
-		"Sphere of the elements",
-		"Soulstorm",
-		
-		/* The Pnakotic Manuscripts (sval 5) */
-		"Holy Cleansing of Objects",
-		"Word of Banishment",
-		"Holy Infusion of Power",
-		"Exorcism of Evil",
-		"Godly Passage",
-		"Holy Resistance",
-		
-		/* De Vermis Mysteriis (Mysteries of the Worm) (sval 6) */
-		"Power of the Worm",
-		"Force of the Worm",
-		"Path of the Worm",
-		"Mind of the Worm",
-		"Death of the Worm",
-		/* The Necronomicon (sval 7) */
-		/* The Holy Books of Thelema (sval 8) */
-		
-		
-		/* Magic for Beginners (sval 0) */
-	/*	"Magic Missile",
-		"Detect Monsters",
-		"Phase Door",
-		"Light Area",
-		"Treasure Detection",
-		"Cure Light Wounds",
-		"Object Detection",
-		"Find Hidden Traps/Doors",
-		"Stinking Cloud",
-	*/
-		/* Conjurings and Tricks (sval 1) */
-	/*	"Confuse Monster",
-		"Lightning Bolt",
-		"Trap/Door Destruction",
-		"Sleep I",
-		"Cure Poison",
-		"Teleport Self",
-		"Spear of Light",
-		"Frost Bolt",
-		"Turn Stone to Mud",
-	*/
-		/* Incantations and Illusions (sval 2) */
-	/*	"Satisfy Hunger",
-		"Recharge Item I",
-		"Sleep II",
-		"Polymorph Other",
-		"Identify",
-		"Sleep III",
-		"Fire Bolt",
-		"Slow Monster",
-	*/
-		/* Sorcery and Evocations (sval 3) */
-	/*	"Frost Ball",
-		"Recharge Item II",
-		"Teleport Other",
-		"Haste Self",
-		"Fire Ball",
-		"Word of Destruction",
-		"Genocide",
-	*/
-		/* Mordenkainen's Escapes (sval 5) */
-	/*	"Door Creation",
-		"Stair Creation",
-		"Teleport Level",
-		"Earthquake",
-		"Word of Recall",
-	*/
-		/* Raal's Tome of Destruction (sval 8) */
-	/*	"Acid Bolt",
-		"Cloud Kill",
-		"Acid Ball",
-		"Ice Storm",
-		"Meteor Swarm",
-		"Mana Storm",
-	*/
-		/* Kelek's Grimoire of Power (sval 6) */
-	/*	"Detect Evil",
-		"Detect Enchantment",
-		"Recharge Item III",
-		"Genocide",
-		"Mass Genocide",
-	*/
-		/* Resistance of Scarabtarices (sval 4) */
-	/*	"Resist Fire",
-		"Resist Cold",
-		"Resist Acid",
-		"Resist Poison",
-		"Resistance",
-	*/
-		/* Tenser's transformations... (sval 7) */
-	/*	"Heroism",
-		"Shield",
-		"Berserker",
-		"Essence of Speed",
-		"Globe of Invulnerability",
-	*/
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
+		/* The Zohar (Book of Splendor) (sval 1) */
+		SBF_MAGIC,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_RECHARGE, "Transfering Will to Objects", 23, 30, 45 },
+			{ POW_SUPPRESSION_WILL, "Supression of the Will", 15, 3, 20 },
+			{ POW_IDENTIFY, "Knowledge of Secular Objects", 20, 15, 35 },
+			{ POW_FIRE_BOLT, "Spectacle of Fire", 25, 9, 45},
+			{ POW_FROST_BOLT, "Spectacle of Ice", 25, 9, 45 },
+			{ POW_TELEPORT_OTHER_I, "Movement of the Will of Others", 30, 18, 50 },
+			{ POW_HASTE, "Focus of the Will", 26, 10, 30 },
+			{ POW_FIREBALL, "Sphere of Flame", 32, 18, 50 },
+			{ POW_GENOCIDE, "Solitude of the Will", 45, 40, 70 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
 	},
-
-
-	/*** Priest Spells ***/
-
 	{
-		/* Old Beginners Handbook (sval 0) */
-		/* "Detect Evil",
-		 * "Cure Light Wounds",
-		 * "Bless",
-		 * "Remove Fear",
-		 * "Call Light",
-		 * "Find Traps",
-		 * "Detect Doors/Stairs",
-		 * "Slow Poison",
-		 */
-		/* Utility knife (sval 0) */
-		"Gaslight",
-		"Harmonic Fortitude Restorer",
-		"Physiological Robustness Aid",
-		"Egress & Portal Locator",
-		"Physical Danger Warning System",
-		"Toxin Inhibitor",
-		"Spring Blade",
-		"Nourishment Support System",
-		"Object Analysis",
-		
-		/* Old Words of Wisdom (sval 1) */
-		/* "Scare Monster",
-		 *"Portal",
-		 *"Cure Serious Wounds",
-		 *"Chant",
-		 *"Sanctuary",
-		 *"Satisfy Hunger",
-		 *"Remove Curse",
-		 *"Resist Heat and Cold",
-		 */
-		
-		/* Detective's Kit  (sval 1)*/
-		"Hostile Lifeform Detection",
-		"Danger and Escape Route Locator",
-		"Valuable Mineral Detector",
-		"Pseudonatural Harmonizer",
-		"Sherlock Holmes Analytic System",
-		"Object Property Analyzer",
-		"Biological Scanner",
-		"Autopneumatic etheric data collector",
-		
-		/* Chants and Blessings (sval 2) */
-		/*
-		 *"Neutralize Poison",
-		 *"Orb of Draining",
-		 *"Cure Critical Wounds",
-		 *"Sense Invisible",
-		 *"Protection from Evil",
-		 *"Earthquake",
-		 *"Sense Surroundings",
-		 *"Cure Mortal Wounds",
-		 *"Turn Undead",
-		 */
-
-		/* Clockwork Chassis (sval 2)*/
-		"Photic Beam",
-		"Etheric Jump",
-		"Defensive Array",
-		"Toxin Elimination System",
-		"Forward Cannons",
-		"Advanced Physiological Aid",
-		"Pneumatic Tunneling Device",
-		"Sonic Unharmonizer",
-		"Shoulder Rocket",
-		
-		/* Exorcism and Dispelling (sval 3) */
-		/*
-		 *"Prayer",
-		 *"Dispel Undead",
-		 *"Heal",
-		 *"Dispel Evil",
-		 *"Glyph of Warding",
-		 *"Holy Word",
-		 */
-		
-		/* Clockwork carbine (sval 3) */
-		 
-		 "Fire Lead Slugs",
-		 "Fire Lightning Ray",
-		 "Fire Frost Ray",
-		 "Fire Heat Ray",
-		 "Fire Graviton Ray",
-		 "Fire Dimensional Ray",
-		   
-		/* Godly Insights... (sval 5) */
-		/*
-		 *"Detect Monsters",
-		 *"Detection",
-		 *"Perception",
-		 *"Probing",
-		 *"Clairvoyance",
-		 */
-		 
-		/* Velocipede (sval 4) */
-		
-		 "Etheric Step",
-		 "Etheric Travel",
-		 "Etheric Strike",
-		 "Etheric Flight",
-		 "Etheric Return",
-		
-		 
-		/* Purifications and Healing (sval 6) */
-		/*
-		 *"Cure Serious Wounds",
-		 *"Cure Mortal Wounds",
-		 *"Healing",
-		 *"Restoration",
-		 *"Remembrance",
-		 */
-		/* The Analytic Engine (sval 5) */
-		 "Superior Physiological Aid",
-		 "Biological Enhancment Routine",
-		 "Specimen Mutating Utility",
-		 "Object Power Restorer",
-		 "Egress Synthesizer",
-		 "Passage Synthesizer",
-		 "Improved Biological Enhancement",
-		 "Total Physiological Aid",
-		 "Emergency Environment Alteration",
-		
-
-		/* Wrath of God (sval 8) */
-		/* 
-		 *"Dispel Undead",
-		 *"Dispel Evil",
-		 *"Banishment",
-		 *"Word of Destruction",
-		 *"Annihilation",
-		 */
-		
-		
-
-		/* Holy Infusions (sval 7) */
-		/*
-		 * "Unbarring Ways",
-		 * "Recharging",
-		 * "Dispel Curse",
-		 * "Enchant Weapon",
-		 * "Enchant Armour",
-		 * "Elemental Brand",
-		 */ 
-		 
-		/* Ethereal openings (sval 4) */
-		/*
-		 *"Blink",
-		 *"Teleport Self",
-		 *"Teleport Other",
-		 *"Teleport Level",
-		 *"Word of Recall",
-		 *"Alter Reality",
-		 */
-		 
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-	}
+		/* Sepher Yetzirah (Book of Formation) (sval 2) */
+		SBF_MAGIC,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_ACID_BOLT, "Spectacle of Acid", 26, 11, 50 },
+			{ POW_LIGHTNING_BOLT, "Spectacle of Lightning", 26, 11, 50 },
+			{ POW_CLOUD_KILL, "Purge the Toxins of the Will", 33, 23, 45 },
+			{ POW_ICE_STORM, "Storm of Ice", 36, 22, 54 },
+			{ POW_FIRE_STORM, "Storm of Fire", 36, 22, 54 },
+			{ POW_METEOR_STORM, "Swarm of Meteors", 43, 30, 55 },
+			{ POW_ELEMENTAL_BALL, "Sphere of the elements", 47, 40, 55 },
+			{ POW_SOUL_STORM, "Soulstorm", 50, 50, 50 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* De Vermis Mysteriis (Mysteries of the Worm) (sval 3) */
+		SBF_MAGIC,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_RECHARGE_II, "Power of the Worm", 44, 20, 45 },
+			{ POW_EARTHQUAKE_I, "Force of the Worm", 46, 28, 40 },
+			{ POW_WORD_OF_RECALL_I, "Path of the Worm", 30, 10, 24 },
+			{ POW_MIND_OF_WORM, "Mind of the Worm", 51, 19, 60 },
+			{ POW_MASS_GENOCIDE, "Death of the Worm", 53, 65, 70 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 4) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 5) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 6) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 7) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 8) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 9) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Treatise on the Resurrection (sval 10) */
+		SBF_PRAYER,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_CHANT, "Holy Protection Chant", 1, 1, 10 },
+			{ POW_SANCTUARY, "Protection of the Lord", 3, 2, 15 },
+			{ POW_HOLY_BOLT, "Holy Flame", 5, 2, 15 },
+			{ POW_HEALING_II, "Healing of the Body", 5, 3, 20 },
+			{ POW_PROTECTION_FROM_EVIL, "Protection from Evil", 9, 3, 20 },
+			{ POW_HEALING_III, "Greater Healing of the Body", 11, 3, 22 },
+			{ POW_REMOVE_CURSE, "Remove Foul Curses", 13, 8, 22 },
+			{ POW_TURN_UNDEAD, "Purity of the living", 15, 4, 22 },
+			{ POW_HEALING_IV, "Purification of the Body", 18, 5, 23 },
+			{ POW_DESTROY_MACHINE, "Reckoning of Metal", 20, 2, 11 }
+			
+		}
+	},
+	{
+		/* Odes of Solomon (sval 11) */
+		SBF_PRAYER,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_PORTAL, "Ballad of the Holy Gate", 6, 3, 15 },
+			{ POW_SENSE_INVISIBLE, "Hymn: Pierce the Spectral Barrier", 11, 4, 28 },
+			{ POW_SENSE_SURROUNDINGS, "Hymn: Secular Surroundings", 12, 18, 65 },
+			{ POW_SATISFY_HUNGER, "Last Supper", 13, 5, 30 },
+			{ POW_PRAYER, "Holy Prayer", 14, 8, 33 },
+			{ POW_DISPEL_EVIL, "Prayer to Dispel Evil", 18, 15, 33 },
+			{ POW_IDENTIFY_II, "Lore", 22, 25, 85 },
+			{ POW_HOLY_WORD, "Holy Word", 30, 15, 70 },
+			{ POW_HEALING_V, "Healing of the Spirit", 40, 17, 70 },
+			{ POW_RESTORATION, "Healing of the Body", 45, 30, 80 }
+			
+			
+		}
+	},
+	{
+		/* The Pnakotic Manuscripts (sval 12) */
+		SBF_PRAYER,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_DISPEL_CURSE, "Holy Cleansing of Objects", 25, 30, 75 },
+			{ POW_BANISHMENT, "Word of Banishment", 28, 35, 45 },
+			{ POW_RECHARGE_III, "Holy Infusion of Power", 31, 50, 90 },
+			{ POW_DISPEL_EVIL_II, "Exorcism of Evil", 34, 40, 55 },
+			{ POW_WORD_OF_RECALL_II, "Godly Passage", 36, 80, 80 },
+			{ POW_RESISTANCE, "Holy Resistance", 50, 80, 70 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 13) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 14) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 15) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 16) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 17) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Utility bandolier (sval 18) */
+		SBF_DEVICE,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_CALL_LIGHT, "Gaslight", 1, 1, 10 },
+			{ POW_REMOVE_FEAR, "Harmonic Fortitude Restorer", 2, 2, 15 },
+			{ POW_HEALING_VI, "Physiological Robustness Aid", 4, 3, 15 },
+			{ POW_DETECT_DOOR_STAIR, "Egress & Portal Locator", 8, 5, 20 },
+			{ POW_DETECT_TRAPS, "Physical Danger Warning System", 10, 2, 20 },
+			{ POW_SLOW_POISON, "Toxin Inhibitor", 7, 8, 30 },
+			{ POW_SPRING_BLADE, "Spring Blade", 3, 2, 10 },
+			{ POW_NOURISHMENT, "Nourishment Support System", 18, 6, 35 },
+			{ POW_OBJECT_ANALYSIS, "Object Analysis", 32, 30, 40 },
+			{ POW_FETCH, "Object Grappling Hook", 40, 20, 20 }
+			
+		}
+	},
+	{
+		/* Detective's Kit  (sval 19) */
+		SBF_DEVICE,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_DETECT_HOSTILE, "Hostile Lifeform Detection", 2, 1, 10 },
+			{ POW_DETECT_TRAPS_DOORS, "Danger and Escape Route Locator", 8, 2, 12 },
+			{ POW_TREASURE_DETECTION, "Valuable Mineral Detector", 6, 2, 14 },
+			{ POW_DETECT_ENCHANTMENT, "Pseudonatural Harmonizer", 17, 3, 16 },
+			{ POW_DETECTION, "Sherlock Holmes Analytic System", 26, 10, 18 },
+			{ POW_PERCEPTION, "Object Property Analyzer", 20, 12, 20 },
+			{ POW_PROBEING, "Biological Scanner", 28, 15, 22 },
+			{ POW_CLARIVOYANCE, "Autopneumatic Etheric Data Collector", 35, 20, 24 },
+			{ POW_IDENTIFY_III, "Complete Object Analysis", 40, 40, 18 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Clockwork Chassis (sval 20)*/
+		SBF_DEVICE,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_SPEAR_OF_LIGHT, "Photic Beam", 2, 4, 20 },
+			{ POW_ETHERIC_JUMP, "Etheric Jump", 8, 5, 30 },
+			{ POW_DEFENSIVE_ARRAY, "Defensive Array", 15, 10, 40 },
+			{ POW_NEUTRALIZE_POISON, "Toxin Elimination System", 11, 15, 50 },
+			{ POW_GUNS, "Forward Cannons", 16, 8, 45 },
+			{ POW_HEALING_VII, "Advanced Physiological Aid", 20, 12, 45 },
+			{ POW_TURN_STONE_TO_MUD, "Pneumatic Tunneling Device", 22, 15, 50 },
+			{ POW_EARTHQUAKE_II, "Sonic Unharmonizer", 30, 25, 55 },
+			{ POW_MISSILE, "Shoulder Rocket", 35, 15, 60 },
+			{ POW_EMP, "Electro-magnetic Pulse", 40, 20, 10 }
+			
+		}
+	},
+	{
+		/* Clockwork carbine (sval 21) */
+		SBF_DEVICE,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_LEAD_SLUGS, "Fire Lead Slugs", 3, 5, 35 },
+			{ POW_LIGHTNING_RAY, "Fire Lightning Ray", 8, 6, 40 },
+			{ POW_FROST_RAY, "Fire Frost Ray", 12, 7, 50 },
+			{ POW_HEAT_RAY, "Fire Heat Ray", 15, 8, 52 },
+			{ POW_GRAVITY_RAY, "Fire Graviton Ray", 25, 9, 54 },
+			{ POW_TELEPORT_OTHER_II, "Fire Dimensional Ray", 30, 10, 56 },
+			/* need some cool powers here. :-/ */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Velocipede (sval 22) */
+		SBF_DEVICE,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_BLINK, "Etheric Step", 5, 10, 20 },
+			{ POW_TELEPORT_SELF, "Etheric Travel", 10, 15, 25 },
+			{ POW_TELEPORT_OTHER_III, "Etheric Strike", 15, 20, 30 },
+			{ POW_TELEPORT_LEVEL, "Etheric Flight", 18, 22, 32 },
+			{ POW_WORD_OF_RECALL_III, "Etheric Return", 20, 30, 40 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* The Analytic Engine (sval 23) */
+		SBF_DEVICE,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_HEALING_VIII, "Superior Physiological Aid", 16, 30, 40 },
+			{ POW_BIOLOGICAL_ENHANCE, "Biological Enhancment Routine", 18, 35, 55 },
+			{ POW_POLYMORPH_OTHER, "Specimen Mutating Utility", 20, 20, 30 },
+			{ POW_RECHARGE_IV, "Object Power Restorer", 22, 75, 55 },
+			{ POW_DOOR_CREATION, "Egress Synthesizer", 15, 30, 40 },
+			{ POW_STAIR_CREATION, "Passage Synthesizer", 17, 30, 40 },
+			{ POW_BIOLOGICAL_ENHANCE_II, "Improved Biological Enhancement", 30, 80, 65 },
+			{ POW_HEALING_IX, "Total Physiological Aid", 35, 80, 77 },
+			{ POW_ALTER_REALITY, "Emergency Environment Alteration", 40, 100, 40 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 24) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 25) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 26) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Book name (sval 27) */
+		0,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	}	
 };
-
-
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -1878,38 +1857,38 @@ cptr spell_names[2][PY_MAX_SPELLS] =
  * The "pval" of a chest determines the quality of its treasure
  * Note that disarming a trap on a chest also removes the lock.
  */
-const byte chest_traps[64] =
+const byte chest_traps[100] =
 {
 	0,					/* 0 == empty */
 	(CHEST_POISON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),			/* 5 == best small wooden */
+	(CHEST_LOSE_MUS),
+	(CHEST_LOSE_VIG),
+	(CHEST_LOSE_MUS),
+	(CHEST_LOSE_VIG),			/* 5 == best small wooden */
 	0,
 	(CHEST_POISON),
 	(CHEST_POISON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
+	(CHEST_LOSE_MUS),
+	(CHEST_LOSE_VIG),
 	(CHEST_POISON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
+	(CHEST_LOSE_MUS | CHEST_LOSE_VIG),
+	(CHEST_LOSE_MUS | CHEST_LOSE_VIG),
+	(CHEST_LOSE_MUS | CHEST_LOSE_VIG),
 	(CHEST_SUMMON),			/* 15 == best large wooden */
 	0,
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
+	(CHEST_LOSE_MUS),
+	(CHEST_LOSE_VIG),
 	(CHEST_PARALYZE),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
+	(CHEST_LOSE_MUS | CHEST_LOSE_VIG),
 	(CHEST_SUMMON),
 	(CHEST_PARALYZE),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
+	(CHEST_LOSE_MUS),
+	(CHEST_LOSE_VIG),
 	(CHEST_EXPLODE),			/* 25 == best small iron */
 	0,
-	(CHEST_POISON | CHEST_LOSE_STR),
-	(CHEST_POISON | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
+	(CHEST_POISON | CHEST_LOSE_MUS),
+	(CHEST_POISON | CHEST_LOSE_VIG),
+	(CHEST_LOSE_MUS | CHEST_LOSE_VIG),
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_PARALYZE),
 	(CHEST_POISON | CHEST_SUMMON),
@@ -1927,13 +1906,13 @@ const byte chest_traps[64] =
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_POISON | CHEST_PARALYZE),	/* 45 == best small steel */
 	0,
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR | CHEST_LOSE_CON),
+	(CHEST_LOSE_MUS | CHEST_LOSE_VIG),
+	(CHEST_LOSE_MUS | CHEST_LOSE_VIG),
+	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_MUS),
+	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_VIG),
+	(CHEST_POISON | CHEST_LOSE_MUS | CHEST_LOSE_VIG),
+	(CHEST_POISON | CHEST_LOSE_MUS | CHEST_LOSE_VIG),
+	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_MUS | CHEST_LOSE_VIG),
 	(CHEST_POISON | CHEST_PARALYZE),
 	(CHEST_POISON | CHEST_PARALYZE),	/* 55 == best large steel */
 	(CHEST_EXPLODE | CHEST_SUMMON),
@@ -1944,6 +1923,42 @@ const byte chest_traps[64] =
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_EXPLODE | CHEST_SUMMON),
+	0,
+	0, /* 65 */
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
 };
 
 
@@ -1971,20 +1986,42 @@ cptr color_names[16] =
 };
 
 
+
+/* Both of these stat name abbreviations need to be changed. */
 /*
  * Abbreviations of healthy stats
  */
+/* Old stat names */
+/*cptr stat_names[A_MAX] =
+ *{
+ *	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
+ *};
+ */
+ 
+/* New stat names. 
+ *
+ * Please take note that the new stat names are reorganized,
+ * all the physical stats are up front, and all the mental
+ * stats are at the end 
+ */ 
 cptr stat_names[A_MAX] =
 {
-	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
+	"MUS: ", "AGI: ", "VIG: ", "SCH: ", "EGO: ", "CHR: "
 };
 
 /*
  * Abbreviations of damaged stats
  */
-cptr stat_names_reduced[A_MAX] =
+/* Old damaged stats */
+/*cptr stat_names_reduced[A_MAX] =
+ *{
+ *	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
+ *};
+ */
+/* NEW damaged stats. Note the new order */ 
+ cptr stat_names_reduced[A_MAX] =
 {
-	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
+	"Mus: ", "Agi: ", "Vig: ", "Sch: ", "Ego: ", "Chr: "
 };
 
 
@@ -2166,14 +2203,14 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
-	"birth_point_based",		/* OPT_birth_point_based */
-	"birth_auto_roller",		/* OPT_birth_auto_roller */
-	"birth_maximize",			/* OPT_birth_maximize */
 	"birth_preserve",			/* OPT_birth_preserve */
 	"birth_ironman",			/* OPT_birth_ironman */
 	"birth_no_stores",			/* OPT_birth_no_stores */
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
+	NULL,		/* OPT_birth_point_based */
+	NULL,		/* OPT_birth_auto_roller */
+	NULL,			/* OPT_birth_maximize */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2230,14 +2267,14 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
-	"adult_point_based",		/* OPT_adult_point_based */
-	"adult_auto_roller",		/* OPT_adult_auto_roller */
-	"adult_maximize",			/* OPT_adult_maximize */
 	"adult_preserve",			/* OPT_adult_preserve */
 	"adult_ironman",			/* OPT_adult_ironman */
 	"adult_no_stores",			/* OPT_adult_no_stores */
 	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
+	NULL,						/* OLD OPT_adult_point_based */
+	NULL,						/* OLD OPT_adult_auto_roller */
+	NULL,						/* OLD OPT_adult_maximize */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2430,14 +2467,14 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
-	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
-	"Birth: Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
 	"Birth: Preserve artifacts when leaving level",	/* OPT_birth_preserve */
 	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
+	NULL,	/* OPT_birth_point_based */
+	NULL,	/* OPT_birth_auto_roller */
+	NULL,	/* OPT_birth_maximize */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2494,14 +2531,14 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	"Adult: Allow purchase of stats using points",	/* OPT_adult_point_based */
-	"Adult: Allow specification of minimal stats",	/* OPT_adult_auto_roller */
-	"Adult: Maximize effect of race/class bonuses",	/* OPT_adult_maximize */
 	"Adult: Preserve artifacts when leaving level",	/* OPT_adult_preserve */
 	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
 	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize some of the artifacts (beta)",	/* OPT_adult_rand_artifacts */
+	NULL,	/* OPT_adult_point_based */
+	NULL,	/* OPT_adult_auto_roller */
+	NULL,	/* OPT_adult_maximize */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2694,14 +2731,14 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
-	FALSE,		/* OPT_birth_point_based */
-	FALSE,		/* OPT_birth_auto_roller */
-	TRUE,		/* OPT_birth_maximize */
 	TRUE,		/* OPT_birth_preserve */
 	FALSE,		/* OPT_birth_ironman */
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
+	FALSE,		/* OPT_birth_point_based */
+	FALSE,		/* OPT_birth_auto_roller */
+	FALSE,		/* OPT_birth_maximize */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2758,14 +2795,14 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
-	FALSE,		/* OPT_adult_point_based */
-	FALSE,		/* OPT_adult_auto_roller */
-	TRUE,		/* OPT_adult_maximize */
 	TRUE,		/* OPT_adult_preserve */
 	FALSE,		/* OPT_adult_ironman */
 	FALSE,		/* OPT_adult_no_stores */
 	FALSE,		/* OPT_adult_no_artifacts */
 	FALSE,		/* OPT_adult_rand_artifacts */
+	FALSE,		/* OPT_adult_point_based */
+	FALSE,		/* OPT_adult_auto_roller */
+	FALSE,		/* OPT_adult_maximize */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2935,14 +2972,14 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Birth ***/
 
 	{
-		OPT_birth_point_based,
-		OPT_birth_auto_roller,
-		OPT_birth_maximize,
 		OPT_birth_preserve,
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
+		255,
+		255,
+		255,
 		255,
 		255,
 		255,

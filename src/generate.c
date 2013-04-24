@@ -391,13 +391,17 @@ static void place_down_stairs(int y, int x)
  */
 static void place_random_stairs(int y, int x)
 {
-	/* Paranoia */
-	if (!cave_clean_bold(y, x)) return;
+        /* Paranoia */
+        if (!cave_clean_bold(y, x)) return;
 
-	/* Choose a staircase */
-	if (!p_ptr->depth)
+        /* Choose a staircase */
+        if (p_ptr->astral)
 	{
-		place_down_stairs(y, x);
+		place_up_stairs(y, x);
+	}
+	else if (!p_ptr->depth)
+	{
+	       place_down_stairs(y, x);
 	}
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
@@ -3024,8 +3028,11 @@ static void cave_gen(void)
 
 
 	/* Place 3 or 4 down stairs near some walls */
-	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
-
+	if (!p_ptr->astral)
+	{
+		alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
+	}
+	
 	/* Place 1 or 2 up stairs near some walls */
 	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
 
@@ -3043,6 +3050,13 @@ static void cave_gen(void)
 
 	/* Determine the character location */
 	new_player_spot();
+
+	if (p_ptr->astral && p_ptr->astral_start)
+	{
+		place_random_stairs(y, x);
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
+		p_ptr->astral_start = FALSE;
+	}
 
 	/* Pick a base number of monsters */
 	i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -3431,9 +3445,13 @@ void generate_cave(void)
 		/* Nothing good here yet */
 		rating = 0;
 
+		/* Set Astral Depth Level */
+		if (p_ptr->astral_start)
+			p_ptr->depth = 98;
 
-		/* Build the town */
-		if (!p_ptr->depth)
+
+		/* Build the town if not Astral */
+		if (!p_ptr->depth) 
 		{
 			/* Make a town */
 			town_gen();
@@ -3531,6 +3549,13 @@ void generate_cave(void)
 
 	/* Remember when this level was "created" */
 	old_turn = turn;
+
+	/* 'Ghosts' automatically know the level -- from Gumband*/
+	if (p_ptr->astral)
+	{
+		msg_print("You can sense the space around you!");
+		wiz_lite();
+	}
 }
 
 

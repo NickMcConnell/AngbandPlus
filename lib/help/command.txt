@@ -1,4 +1,4 @@
-=== Command Descriptions ===
+=== Command Descriptions === (OUTDATED)
 
         The following command descriptions are listed as the command name
 plus the "underlying command" key.  This is followed by the command name
@@ -529,6 +529,10 @@ View previous messages (^P)
 Take notes (:)
         This command allows you to take notes, which will then appear in
         your message list (prefixed with "Note:").
+
+Skip all messages (esc)
+        This command allows you to skip all messages until you get a turn
+        again.
 
 --- Game Status Commands ---
 

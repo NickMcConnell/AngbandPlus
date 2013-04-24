@@ -2870,6 +2870,124 @@ void put_str(cptr str, int row, int col)
 
 
 /*
+ * Print some (colored) text to the screen at the current cursor position,
+ * automatically "wrapping" existing text (at spaces) when necessary to
+ * avoid placing any text into the last column, and clearing every line
+ * before placing any text in that line.  Also, allow "newline" to force
+ * a "wrap" to the next line.  Advance the cursor as needed so sequential
+ * calls to this function will work correctly.
+ *
+ * Once this function has been called, the cursor should not be moved
+ * until all the related "text_out()" calls to the window are complete.
+ *
+ * This function will correctly handle any width up to the maximum legal
+ * value of 256, though it works best for a standard 80 character width.
+ */
+void text_out_to_screen(byte a, cptr str)
+{
+	int x, y;
+
+	int w, h;
+
+	cptr s;
+
+
+	/* Obtain the size */
+	(void)Term_get_size(&w, &h);
+
+	/* Obtain the cursor */
+	(void)Term_locate(&x, &y);
+
+	/* Process the string */
+	for (s = str; *s; s++)
+	{
+		char ch;
+
+		/* Force wrap */
+		if (*s == '\n')
+		{
+			/* Wrap */
+			x = 0;
+			y++;
+
+			/* Clear line, move cursor */
+			Term_erase(x, y, 255);
+
+			continue;
+		}
+
+		/* Clean up the char */
+		ch = (isprint(*s) ? *s : ' ');
+
+		/* Wrap words as needed */
+		if ((x >= w - 1) && (ch != ' '))
+		{
+			int i, n = 0;
+
+			byte av[256];
+			char cv[256];
+
+			/* Wrap word */
+			if (x < w)
+			{
+				/* Scan existing text */
+				for (i = w - 2; i >= 0; i--)
+				{
+					/* Grab existing attr/char */
+					Term_what(i, y, &av[i], &cv[i]);
+
+					/* Break on space */
+					if (cv[i] == ' ') break;
+
+					/* Track current word */
+					n = i;
+				}
+			}
+
+			/* Special case */
+			if (n == 0) n = w;
+
+			/* Clear line */
+			Term_erase(n, y, 255);
+
+			/* Wrap */
+			x = 0;
+			y++;
+
+			/* Clear line, move cursor */
+			Term_erase(x, y, 255);
+
+			/* Wrap the word (if any) */
+			for (i = n; i < w - 1; i++)
+			{
+				/* Dump */
+				Term_addch(av[i], cv[i]);
+
+				/* Advance (no wrap) */
+				if (++x > w) x = w;
+			}
+		}
+
+		/* Dump */
+		Term_addch(a, ch);
+
+		/* Advance */
+		if (++x > w) x = w;
+	}
+}
+
+/*
+ * Output text to the screen (in color) or to a file depending on the
+ * selected hook.
+ */
+void text_out_c(byte a, cptr str)
+{
+	text_out_hook(a, str);
+}
+
+
+
+/*
  * Display a string on the screen using an attribute, and clear
  * to the end of the line.
  */

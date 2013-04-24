@@ -42,31 +42,26 @@ affects social class, which affects the starting money. (Not a lot, in the case
 of some races: for instance, Half-Trolls are always going to be the scum of 
 society, even if their father was the Clan Chief.) 
 
-Each character also has six primary "stats", strength, intelligence, wisdom,
-dexterity, constitution, and charisma, which modify the abilities of the
+Each character also has six primary "stats", Muscle, Agility, Vigor,
+Schooling, Ego, and Charm, which modify the abilities of the
 character in a variety of ways.  Every stat has a numerical value, ranging
-from a minimum of 3, up to a normal maximum of 18, and even higher, into
-the "percentile" range, represented as "18/01" through "18/100": this is the
-maximum that can be achieved intrinsically, for any given stat. If the 
-character is started with the option of "maximize effect of race/class 
-bonuses" (from the Birth Options menu, and this is set as "on" by default), 
-the maximum figure of 18/100 is further adjusted by the adjustments for 
-race and class - for instance, a Half-Troll Warrior will max out at 18/190 
-strength, but only 18/40 intelligence, whereas a Hobbit Mage will be able 
-to reach 18/150 intelligence but only 18/30 strength. Equipment may add 
-bonuses or penalties to this, and raise the player's stats beyond the normal
-intrinsic limits: the stats may go as high as they like, with the right choice
-of equipment, but the effects of having higher stats largely stop at 18/200.
+from a minimum of 1, up to a normal maximum of 700, and even higher, all
+the way up to 999: 700 is the maximum that can be achieved intrinsically, 
+for any given stat. Equipment may add bonuses or penalties to this, 
+and raise the player's stats beyond the normal intrinsic limits: the stats may
+go as high as they like, with the right choice of equipment, up to 999.
 
-Each character also has several primary "skills", disarming, magic devices,
-saving throws, stealth, searching ability, searching frequency, fighting skill,
-and shooting skill, which are derived from the character's race, class, level,
-stats, and current equipment.  These skills have rather obvious effects, but
-will be described more completely below.
+Each character also has a large selection of "skills", including such skills 
+as disarming, magic devices, saving throws, stealth, searching, fighting skill,
+and shooting skill. which skills you start with are derived from the character's 
+race & class.  These skills have rather obvious effects, but will be described 
+more completely below. What skills eventually become available to a character 
+is determined by his / her class.
 
 Each character may have one or more "racially intrinsic skills", based on
 the race of the character.  These may include special resistances, or even
-abilities such as infravision.
+abilities such as infravision, or something more combat oriented such as
+power strike.
 
 Each character has experience, which increases as the character becomes more
 experienced, and a level, which is based on experience, and also on race and
@@ -83,7 +78,7 @@ Each character has some gold, which can be used to buy items from the shops
 in the town, and which can be obtained not only from selling items to the
 shops, but also by taking it from dead monsters and by finding it hidden in
 the dungeon.  Each character starts out with some gold, the amount of which
-is based on the characters social class (higher is better), charisma (higher
+is based on the characters social class (higher is better), charm (higher
 is better), and other stats (less powerful characters start with more gold).  
 Each character also starts out with a few useful items, which may be kept, 
 or sold to a shop-keeper for more gold. However, especially valuable items
@@ -112,159 +107,651 @@ maximum.  Spell points may be regained by resting, or by magical means.
 Warriors never have any spell points.
 
 
-=== Races (needs to be updated) ===
+=== Races ===
 
-There are ten different races that you can choose from in Steamband.  Some
-races are restricted as to what profession they may be, and each race has
-its own adjustments to a character's stats and abilities. Most races also
-have intrinsic abilities.
+There are twenty-five different races that you can choose from in Steamband.  
+Each race has its own adjustments to a character's stats and abilities. 
+Most races also have intrinsic abilities.
  
-			British
-			French
-			Spaniards
-			German
-			Finnish
-			Americans		
-			Asiatic					
-			African					
-			Russian					
-			Arabic					
-			Dwarf
-			Brownie
-		    Daoine Sidhe
-		    	Basically a High Elf
-			Seelie
-				Good fae
-			Unseelie Fae
-				Bad fae		
-			Automata
-				Metal-man - wears body parts instead of armor
-			Steam-Mecha
-				Metal-man - wears body parts instead of armor	
-			Djinn
-			Rakshasa			
-			Giant
-			Ogre
-			Troll		
-			Ghost					
-			Goblin					
-			Old Ones
-				
-	
-=== Classes (outdated) ===
+          British
+               Hailing from the grand isle of Britain, little can stop 
+               their powerful imperialist drive. Stout and afraid of 
+               nothing, the British expand throughout the world sharing 
+               their superior way of life to those not fortunate enough 
+               to be born under the rule of Queen Victoria. They are the 
+               standard by which the rest of the world is judged. Growing
+               up under the British culture you will find yourself well 
+               prepared for whatever endeavours you may perchance to take. 
+               Because of their faith in the unsurpassable power 
+               of the British Empire and the belief of their culture's 
+               supremacy, the British do not know fear.
+               Resistant to Fear
+               Mus:6 Agi:6 Vig:6 Sch:7 Ego:6 Chr:6
+
+          Asiatic
+               Coming from the mystical eastern Asia, these people have 
+               grown up in a very different culture from the Western point
+               of view. Their emphasis on joint control of body and mind, 
+               Ying and Yang, gives them a fantastic discipline. Eastern 
+               culture has not given them a very good understanding of 
+               science and also their manners might be considered odd by 
+               westerners. They are also poor at disarming traps, using 
+               devices and digging. Asiatic people have a limited mystical 
+               ability to sense their immediate surroundings in dark.
+               Infravision 10'
+               Mus:6 Agi:8 Vig:6 Sch:5 Ego:7 Chr:5
+
+          American
+               Americans came from the young democratic republic of the 
+               new continent. Their country is recovering from the 
+               devastating civil war and adventurous sprits are high. 
+               Americans aren't generally very strong on willpower or 
+               mystical aspects, but they are personable and driven 
+               in their own way. Americans are poor at disarming 
+               traps, saving throws and stealth.
+               Mus:7 Agi:7 Vig:7 Sch:7 Ego:4 Chr:8
+
+          African
+               Africans, or Negroes as westerners call them, are used 
+               to living in very harsh conditions of the darkest Africa. 
+               Coming from the uncharted savage areas of the World they 
+               are very strong, they have excellent endurance and agility 
+               but they lack the knowledge and manners brought by Western 
+               education. Africans are poor at disarming traps, 
+               using devices and stealth.
+               Mus:9 Agi:8 Vig:7 Sch:3 Ego:6 Chr:4
+
+          French
+               The French came from the great nation of France. They 
+               speak one of the most refined languages, which is used 
+               in many high societies in Europe - even in the Russian 
+               Tsar's court! They still remember and admire the times 
+               of the Louie XIV making them very charming in their 
+               behaviour and manners. The French are poor at disarming 
+               traps, using devices and stealth.
+               Mus:6 Agi:6 Vig:6 Sch:6 Ego:6 Chr:9
+          
+          Spanish
+               The Spanish are the original adventurers and 
+               conquistadors. The Spanish heyday is long gone 
+               now, but the conqueror spirit lives on. Unlike 
+               many other European gentlemen, the Spanish do not 
+               neglect their physical exercises, namely agility. 
+               The Spanish are poor at disarming traps, 
+               using devices, digging and stealth.
+               Mus:6 Agi:9 Vig:6 Sch:6 Ego:6 Chr:6
+               
+          German
+               The Germans are known for their industrious sprit and 
+               excellent knowledge of machinery and engineering. 
+               Laborious nature and the Prussian sense of physical 
+               disciplines gives them some physical strength. The 
+               Germans are also very self-knowledgeable and strong 
+               on will, which gives them an edge with mystical aspects. 
+               The Germans are poor at disarming 
+               traps, stealth and digging.
+               Mus:8 Agi:6 Vig:6 Sch:8 Ego:8 Chr:6
+               
+          Russian
+               The vast Russian empire is perhaps the strongest 
+               European power reaching from the Baltic and Barents Sea 
+               to the Pacific Ocean and having twice the population of 
+               any other European power. Living under the Tsar's absolute 
+               rule, hot summers and cold winters is not easy, but the 
+               Russians are used to it giving them good physical health. 
+               Most of the Russian population, who unlike most other 
+               Europeans follow the teachings of the Orthodox Church, are 
+               illiterate peasants. The Russians are poor at using 
+               devices, searching and digging.
+               Mus:6 Agi:6 Vig:9 Sch:6 Ego:6 Chr:6
+               
+          Scandinavians
+               Scandinavians are hardy men from the North. They are 
+               still very much in touch with the nature and its spirits 
+               - civilized people could even consider them as a sort 
+               of pagans even though they namely are Christians. This 
+               gives the Scandinavians better magical abilities, but 
+               makes them a bit less charming and presentable. The 
+               Scandinavians are poor at all skills.
+               Mus:6 Agi:6 Vig:6 Sch:6 Ego:8 Chr:5
+               
+          Arabic
+               The Arabs are the noble men of Northern Africa and 
+               Middle East. Their old Arabic civilization carried on 
+               the knowledge and heritage of the Ancient Greek and 
+               Rome when Europe fell to the dark Middle Ages. Their 
+               mystical culture gives them better understanding of 
+               magic and living in dry desert areas of the world 
+               gives them Slow Digestion and some agility. The 
+               Arabic people are poor at the rest of the skills.
+               Slow Digestion
+               Mus:6 Agi:7 Vig:6 Sch:6 Ego:8 Chr:7
+               
+          Dwarf
+               Dwarves, industrious folks of the underground, are 
+               rarely seen by ordinary people. Living underground 
+               and mining huge and sophisticated tunnel networks 
+               (some scientists say that the Earth is actually 
+               hollow) make them very strong and healthy. 
+               Their scientific achievements are much more advanced 
+               than those of humans. Their short growth makes them 
+               less agile and not so pleasant to look at. They are 
+               also resistant to poisons. Dwarves are good at disarming 
+               traps and of course digging. But they are poor at the rest.
+               Resist poison
+               Mus:10 Agi:4 Vig:10 Sch:9 Ego:3 Chr:2
+               
+          Brownie
+               Brownies, industrious folks of surface, are very rarely 
+               seen by ordinary people. They are small on size and 
+               their bodies are fragile. When people fall asleep, 
+               brownies perform their labour for them but they also 
+               torment the lazy. They are extremely good at science 
+               and machinery even much more so than their underground 
+               counterparts, the Dwarves. Their small and fragile frame 
+               makes them physically less able. Brownies 
+               cannot be paralysed. They are good at using devices and 
+               saving throw. They are poor at the rest.
+               Free action
+               Mus:5 Agi:5 Vig:4 Sch:12 Ego:5 Chr:5
+               
+          Daoine Sidhe
+               Daoine Sidhe are the divine folks living in hollow mounds 
+               in Ireland. They are the faerie kings and queens. They 
+               sometimes came out from their mounds to hunt and steal 
+               children from humans. They are superior to humans in 
+               almost all aspects and they are quite fond of fighting 
+               and competitions. Daoine Sidhe have resist light and 
+               they see invisible beings. Daoine Sidhe are good at 
+               saving throw and stealth. They are poor at the rest.
+               Resist Light, See Invis
+               Mus:7 Agi:10 Vig:8 Sch:9 Ego:5 Chr:10
+               
+          Seelie Fae
+               Seelie Fae, or properly called Seelie Court, are the 
+               benevolent faeries of the British Islands. There are 
+               many different kinds of these friendly natured faeries 
+               but they commonly are pleasant to look but they are 
+               fragile in nature and thus not very strong. They are 
+               very agile and have good knowledge of both science and 
+               magic. They all have resist light and their magical 
+               abilities allow them to float preventing them from 
+               falling. Their experience cannot be drained. Seelie 
+               Fae are good at saving throw and stealth. They can 
+               also learn the skill Fae Pathways, which allows them 
+               to teleport short distances.
+               Resist lite, Hold life, Feather fall.
+               Mus:4 Agi:12 Vig:2 Sch:8 Ego:8 Chr:12
+               
+          Unseelie Fae
+               Unseelie Fae, or Unseelie Court, are the evil and 
+               malevolent faeries of the British Isles. They take 
+               pleasure in stealing from and tormenting people. 
+               They are not very bright, and if you realize that 
+               such fairy is tormenting you, you can usually 
+               fairly easily out-think it. They are generally 
+               best at physical efforts being even stronger than 
+               dwarves. They can see invisible beings, they resist 
+               darkness and nether and their magical abilities allow 
+               them to float preventing them from falling. 
+               They also gain strange mutations during time. Unseelie 
+               Fae are good at saving throw and stealth. Like Seelie 
+               Fae, they can also learn the skill Fae Pathways, which 
+               allows them to teleport short distances.
+               See invis, Res dark, res nethr, feather, mutable
+               Mus:12 Agi:8 Vig:12 Sch:2 Ego:4 Chr:8
+               
+          Automata
+               Automata are mechanical men. They do not evolve 
+               or develop in the same sense as living things, 
+               but their fine constructed bodies give them 
+               endurance and strength over that of humans. 
+               They can also use different mechanical body 
+               parts giving them new characteristics. Their 
+               statistics cannot be reduced, their experience 
+               cannot be drained (much) and they cannot be 
+               poisoned. Automata themselves are poor at all 
+               skills, but they can have some skills depending 
+               of their designed use (i.e. class). They start 
+               with skill Utility Cypher, which allows them to 
+               detect things, and eventuallyidentify objects, 
+               and can get Systems Cypher later. 
+               Sustain all, Hold life, automata, resist poison
+               resist blindness
+               Mus:45 Agi:30 Vig:60 Sch:30 Ego:10 Chr:20
+               (NOTE: this is actually not applicable because 
+               there is no way for automata to 'raise' their stats 
+               beyond wielding equipment. Also note that there will 
+               soon be other 'upgrade' options for automata - they 
+               will have a slightly modified way of gaining stats)
+               
+          Steam-Mecha
+               Steam mecha are great and powerful war machines. 
+               They are bigger, harder and meaner than automata 
+               making them truly horrible fighting monstrosities. 
+               These steam-powered machines are very, very difficult 
+               not to notice as they hum, clack, rattle and blow 
+               steam as they make their way through the dungeon. 
+               This noise will alarm any monster from a distance. 
+               They can use mechanical body parts just as automata 
+               and their statistics cannot be reduced, their 
+               experience cannot be drained and they cannot be 
+               poisoned. Steam mecha are good at digging, but 
+               they are poor at all other skills. They start with 
+               Onslaught Cypher skill, which enhances their 
+               weaponary and get Aegis Cypher and Systems 
+               Cypher later.
+               Sustain all, Hold life, automata, resist poison, Aggravation
+               resist blindness
+               Mus:65 Agi:45 Vig:70 Sch:30 Ego:10 Chr:10
+               (See above)
+               
+          Djinn
+               Djinns are Arabic spirits that may or may not 
+               serve Allah. They may be good or evil but they 
+               all enjoy punishing people who have mistreated 
+               them. They are composed of the elements and can 
+               assume human form. They are strongest in magical 
+               aspects and science, but are also superior to 
+               humans in physical attributes. Djinns resist fire, 
+               their ego can't be drained and their magical abilities 
+               allow them to float preventing them from falling. 
+               Djinns are good at saving throw and poor at digging.
+               Sustain ego, Resist fire, Feather Fall
+               Mus:8 Agi:10 Vig:8 Sch:10 Ego:12 Chr:8
+               
+          Rakshasa
+               Rakshasa are the ancient sprits of India. They 
+               are malevolent evil spirits who eat human flesh. 
+               They can posses the bodies of some poor humans 
+               to enter physical world. In this form they are 
+               much stronger and agile than ordinary humans 
+               although their hands are mirrored from human 
+               point of view, their thumbs being inside when 
+               their palms are up. They are also very beautiful 
+               and have some knowledge in science. They have 
+               their agility sustained, they resist chaos and 
+               nexus. The Rakshasa may gain strange mutations. 
+               The Rakshasa are good at using devices, saving 
+               throw and stealth. They are poor at disarming 
+               traps. They start with Demon Attune, which allows 
+               them to mystify and charm opponents and they also 
+               get Dark Charm early on.
+               sustain agi, resist chaos, nexus, mutable
+               Mus:10 Agi:12 Vig:8 Sch:8 Ego:6 Chr:12
+               
+          Giant
+               Giants are huge, stupid and ugly humanoids. They are 
+               said to be the builders of many ancient rock formations 
+               and stone-age stone rings. Roaming the impenetrable 
+               forests and wildernesses, these creatures rely on their 
+               size and strength but they are somewhat clumsy and quite 
+               stupid. Giants are experts in throwing rocks. Giants are 
+               good at digging and poor at all the rest skills. They 
+               gain access to the Power attack skill from the start.
+               Mus:15 Agi:4 Vig:12 Sch:3 Ego:4 Chr:2
+               
+          Ogre
+               Ogres are like giant's smaller brothers. They stand 
+               twice as tall as humans and are built very strong and 
+               heavy. They are not as strong as giants but they are 
+               neither quite as clumsy, stupid and ugly. Ogres are 
+               poor at all the other skills than digging. They also 
+               gain access to the power strike skill.
+               Mus:13 Agi:6 Vig:10 Sch:4 Ego:4 Chr:4
+               
+          Troll
+               Trolls are evil, ugly and hairy humanoids living in 
+               dark forests and caves. They roam the wilderness 
+               assembling their armies and waiting for the time to 
+               wipe the Christianity from the face of the earth. 
+               They are smaller than ogres but they are very healthy 
+               and durable and they are able to regenerate 
+               wounds. Trolls are not particularly smart. They are 
+               poor at all skills.
+               regenerate
+               Mus:10 Agi:6 Vig:15 Sch:4 Ego:5 Chr:3
+               
+          Ghost
+               Ghosts are the spirits of dead people, who are not 
+               yet ready to leave this world. They don't have bodies, 
+               making them able to pass through walls, though 
+               it hurts them. Other benefits of sprit form are 
+               resistance to cold, dark and nether. Ghosts also 
+               float through air making them unable to fall and they 
+               are telepathic being able to sense other intelligent 
+               beings nearby. The draw side of sprit form is that 
+               their ability to operate physically is limited. 
+               Ghosts are very agile and very good at magic. 
+               They are good at stealth but poor at disarming 
+               traps and using devices.
+               resist cold, dark, nether, Feather Fall, telepathy, wraithform
+               Mus:4 Agi:13 Vig:4 Sch:8 Ego:13 Chr:8
+               
+          Goblin
+               Goblins are small little beings, something like a 
+               miniature troll. They live around humans though hidden 
+               from their eyes and do all kinds of small nuisances 
+               like abruptly moving furniture or souring milk. 
+               They are very weak in all aspects, including skills.
+               Mus:2 Agi:2 Vig:2 Sch:2 Ego:2 Chr:2
+               
+          Old Ones
+               Old Ones are hideous beings out of our universe. 
+               They represent the chaos and disorder that do not 
+               belong to this universe thus being inconceivable 
+               for most humans. Their presence is so disrupting 
+               to reality that they are always sensed by others. 
+               They are superior to any other being from our 
+               universe in all aspects. They also have all stats 
+               sustained; they are immunity to acid, fire and cold. 
+               They do not know fear, regenerate and are 
+               telepathic. They drain the strength of others and 
+               their experience is constantly drained as their form 
+               shifts. Their presence in this universe 
+               causes strange mutations to their physical form.
+               sust all, im acid, fire, cold, aggravating, 
+               hold life, regen, telepathy, resist 
+               fear, drain xp, mutable
+               Mus:15 Agi:15 Vig:15 Sch:15 Ego:15 Chr:15
+                              
+          
+=== Classes ===
  
  
           Once a race has been chosen, you will need to pick a class.  Some
-          classes  will  not be available to certain races, for instance, a
-          Half-Troll cannot become a Paladin.  For the first few adventures
+          classes   will  not  be  available  because  they  have yet to be 
+          completed.     For      the      first      few        adventures
           it  is  suggested that you run a warrior or rogue.  Spell casting
           generally requires a more experienced  player  that  is  familiar
           with survival techniques.
  
 
+          Officer
+               There are many opportunities for valour - one of the 
+               quickest in the fast paced mobile world of the 19th century 
+               was to enlist in the armed forces of your homeland. In addition 
+               to a broad background in various fighting techniques and 
+               hours of practice on the firing range, Officers learn the 
+               ability of command and leadership. These skills allow them 
+               to strike fear into the hearts of their enemies, drive their 
+               ranks into confusion, and even dominate them into following 
+               orders. Officers have very good physical attributes and 
+               uniform makes them look good as well. Senior officers are 
+               known to be fearless.
+               Quote: "Those nasty savages wonât pass me, my dear Lady. 
+               Put your mind at rest."
+               resist fear @ 30th level
+               Mus:12 Agi:10 Vig:10 Sch:4 Ego:4 Chr:10
 
-			Officer
-				Commands those in the dungeon to do his bidding.
-			Aesthete
-				Master of money and commerce
-			Detective
-				Use detectives kit
-			Engineer
-				Uses Devices
-			Explorer
-				Basic Fighter
-			Medium
-				Mentalist
-			Reckoner
-				Reality hacker
-			Tourist
-				Master of travel
-			Sportsman
-				Great with a gun
-			Adventurer
-				General powers
-			Anarchist
-				Master of chaos. Tends to mutate.
-			Dashing Hussar
-				Supreme combat fighter (NOT FUNCTIONING)
-			Gentleman/Lady
-				A challenge
-			Rogue
-				Use some books
-			Steam Engineer
-				Use Devices
-			Naturalist
-				In tune with nature
-			Quabalist
-				Use some books (only the tomes of power). They can use the 
-				other books, however their fail rate is high.
-				Liber AL vel Legis
-				The Zohar (Book of Splendor)
-				Sepher Yetzirah (Book of Formation)
-				De Vermis Mysteriis (Mysteries of the Worm)
-			Oculus Dei
-				Use some books (only the religous works). They can use the 
-				other books, however their fail rate is high.
-				Treatise on the Resurrection
-				Odes of Solomon
-				Pnakotic Manuscripts
-			Ninja
-				NOT FUNCTIONING
-			Weapon Master
-				NOT FUNCTIONING
+          Aesthete
+               Aesthetes are upper class connoisseurs of art who have 
+               great eye for beauty and for, well, aesthetics. They are 
+               masters in getting their money's worth since they know the 
+               value of things. They are not physically very strong, but 
+               they have had a profound education in science. Their eye 
+               for beauty also applies to their clothing making them very 
+               nice to look at.
+               Quote: "Beautiful, my darling! Absolutely beautiful! I hope you 
+               didn't pay too much for it."
+               Mus:4 Agi:8 Vig:6 Sch:10 Ego:8 Chr:12
+               
+          Detective
+               Detectives are masters of logical thinking and piecing 
+               separate observations together. They can find and analyse 
+               clues with great accuracy. Every good detective has a 
+               "Detective's Kit" which helps them to perform their 
+               investigations. They are quite swift but not otherwise 
+               physically impressive. Their education in science and 
+               engineering is profound. They are also very self-conscious 
+               and usually very good in manners.
+               Quote: "Well, if you noticed, the butler had some dust from 
+               red gravel on his leg. It means that he actually did it OR 
+               the one who did it wore those pants!"
+               Mus:6 Agi:10 Vig:4 Sch:12 Ego:10 Chr:10
+
+          Engineer
+               Engineers are the hardy workers and experts in applied science. 
+               They are at home with different devices and can activate them 
+               for different effects. Their strength lies in these devices and 
+               their use and they should avoid hand-to-hand combat.
+               They have gone through long schooling making them experts with 
+               science and they have quite good willpower as well. Engineers 
+               in general are not viewed as very attractive.
+               Quote: "Give me the monkey-wrench there. No, you idiot! 
+               That's a set wrench!"
+               Mus:8 Agi:8 Vig:8 Sch:12 Ego:10 Chr:4
+
+          Explorer
+               Explorers are the trailblazers of the unknown corners of the 
+               world. With their wits and physical abilities they can get away 
+               from any number of tight spots unharmed. They are the jacks-of-
+               all-trades being adequate at general powers.
+               Explorers are physically very able and not too bad in other 
+               qualities either.
+               Quote: "Aaargh! Stop that arguing! I will go first, you cowards! 
+               Give me my sabre and that torch."
+               Mus:12 Agi:10 Vig:8 Sch:6 Ego:10 Chr:8
+
+          Medium
+               Medium acts as a middleman between spiritual and our world. 
+               Some of the so-called mediums are just swindlers who are after 
+               your money, but there are some real ones, who can really connect 
+               with the other world. They are very good in utilizing their 
+               mental powers and exploiting the spiritual world.
+               Mediums are not good in physical attributes, but they are very 
+               strong in mental area.
+               Quote: "I'm getting something here! I'm getting something here!"
+               Mus:6 Agi:6 Vig:6 Sch:10 Ego:12 Chr:10
+
+          Reckoner
+               Reckoners are twisted scientists or engineers, who are specialized 
+               in distorting reality to suit their own ends, whatever they might 
+               be, with punch card operated analytical machines and other 
+               interesting gadgets. They are in modern terms "reality programmers" 
+               who use their knowledge of science, different kind of strange 
+               devices and power of the Ether to change the reality to support 
+               their needs, weather it is to open a gateway to another dimension 
+               or to invoke death and destruction, intentionally or not.
+               Reconers have good agility, but are not otherwise impressive 
+               physically. Their knowledge in science is phenomenal. Their 
+               experiments may cause them to gain strange mutations.
+               Quote: "Trust me, I know what I am doing."
+               Mus:4 Agi:10 Vig:6 Sch:12 Ego:8 Chr:4
+
+          Tourist
+               Tourists are good in travelling and finding their way from 
+               place A to place B. They also want to do this travelling 
+               in a safe manner. Tourists are quite poor in all characteristics.
+               Quote: "Now, Let me see the map, According to this map and 
+               my orienteering, we are on top of that hill over there."
+               Mus:4 Agi:4 Vig:4 Sch:4 Ego:4 Chr:4
+
+          Sportsman
+               Sportsman is a manifestation of the Great White Hunter. 
+               They are always going for the big game, whether it is a 
+               rhino in Africa or a tiger in Asia. They are masters with 
+               guns and have good physical attributes too. Even though 
+               they could survive a tough melee combat; their best asset 
+               is shooting. Their tactic is shoot first or become 
+               eaten.
+               Quote: "Luck didn't have anything to do with it. I've made harder 
+               shots from greater distance back in Africa."
+               Mus:10 Agi:14 Vig:10 Sch:6 Ego:8 Chr:10
+
+          Adventurer
+               Adventurers are in it for the thrill. They are not necessarily 
+               after money, but it of course helps. Adventurers are the 
+               all-around fighter type. Their physical attributes are better 
+               than mental ones and they are certainly not the type which 
+               stays indoors at school studying. Their hand-to-hand fighting 
+               skills are better than any other class.
+               Quote: "Of course I'm in!"
+               Mus:14 Agi:12 Vig:10 Sch:4 Ego:8 Chr:8
+               
+          Anarchist
+               Anarchists are an underground force in Europe. They rebel 
+               against the ruling authorities setting up bombs and making 
+               all kind of conspiracies. Although they strive for a regime 
+               change according to the teachings of Karl Marx, they are not 
+               true communists, since they have no respect for authorities 
+               what so ever. They are somewhat strong and have some strange 
+               affinity with magical world. They are the masters of chaos, 
+               which causes them to mutate strangely.
+               Quote: "Oh, they'll remember the Red Front of London Underground 
+               after this baby goes off. Oh they sure will know us!"
+               Mus:10 Agi:8 Vig:4 Sch:8 Ego:12 Chr:12
+               
+          Dashing Hussar
+               Hussars are the noble warriors of Poland. Many poor noble 
+               men made an astonishing career as these flamboyant warriors. 
+               They saved the city of Vienna, and thus the whole Austria - 
+               from the Turkish siege in 1683. Their fighting tradition 
+               goes back to the Middle Ages so they have had plenty of 
+               time to master hand-to-hand combat. They continue to be a 
+               fearsome opponent even at the time of firearms.
+               They are unparalleled fighters, they have excellent 
+               physical attributes and their noble upbringing gives them 
+               good education.
+               DASHING HUSSAR CLASS POWERS NOT FUNCTIONING.
+               Quote: "Hah! Those are not a match even for pesky Turkish 
+               bashi-bazouks! Charge!"
+               Mus:14 Agi:12 Vig:14 Sch:10 Ego:10 Chr:10
+               
+          Gentleman/Lady
+               Gentlemen are a product of their time. They are good at 
+               nothing, even in keeping their money, since they have a 
+               tendency to lead an extravagant live they cannot afford. 
+               They have neglected their physical exercises and are not 
+               particularly well educated in science either. They are 
+               the real challenge to play.
+               Quote: "Now listen to me, my dear fellow. I'm most 
+               certainly not going to degrade myself to doing that 
+               bloody thing!"
+               Mus:2 Agi:4 Vig:4 Sch:10 Ego:8 Chr:10
+               
+          Rogue
+               Rogues are professional thieves and cutpurses. They range 
+               from a filthy street urchin to a sophisticated gentleman 
+               burglar like Arsene Lupin. They all have common that they 
+               are very agile and stealthy and they can use some 
+               devices to aid them in their unsavoury endeavours.
+               Quote: "Dear sir, if you are going to stay this dagger away 
+               from your precious intestines, you give me your money. 
+               And that pocket watch."
+               Mus:6 Agi:12 Vig:8 Sch:10 Ego:8 Chr:10
+               
+          Steam Engineer
+               Steam engineers differ from ãplainä engineers by being very 
+               sophisticated in the use of the new power, steam. Whereas 
+               normal engineers build bridges and use little gadgets to all 
+               kinds of things, steam engineers build huge steam-operated 
+               machines. Although they can use the same devices as 
+               engineers, they tend to be more aggressive in nature than 
+               old-school engineers. Steam engineers are a bit more physically 
+               fit and better educated than their layman counterparts.
+               Quote: "Steam! Now that is the power source of the future! Steam!"
+               Mus:8 Agi:9 Vig:10 Sch:14 Ego:6 Chr:4
+               
+          Naturalist
+               The modern view of man as a master over nature has some 
+               opponents. These naturalists claim that humans are dependant 
+               on nature and they want to preserve the nature from being 
+               destroyed and polluted by modern machinery and advances. 
+               They are very tuned-in with the nature. Due to their 
+               well-planned diet they are healthy, tough not otherwise 
+               physically fit. Their best strengths lie in their knowledge 
+               of mystical aspects of nature.
+               Quote: "Mmmm, This tree is very nice to hug"
+               Mus:4 Agi:6 Vig:10 Sch:10 Ego:12 Chr:8
+               
+          Qabalist
+               Qabalist are the Jewish mystics. They use magical ancient 
+               scripts and mystical secret knowledge dated beyond the 
+               times of King Solomon. Qabalist are fragile, but rather 
+               nimble and powerful magically.
+               Quote: "Kaspar, Kelei, Emar or Bleiteisar, the master and 
+               I adjure you with a second adjuratioin, that you tell me 
+               that thing or who has committed that theft."
+               QABALIST'S CLASS POWERS NOT FUNCTIONING.
+               Mus:3 Agi:10 Vig:4 Sch:10 Ego:14 Chr:6
+               
+          Oculus Dei
+               Oculus Dei, "Eye of God" as a direct translation, are 
+               fervent Christian believers who follow God and put their 
+               faith in him when the tight spot comes. They have many 
+               mystical beliefs and they can use religious books to 
+               get help from angels and holy spirits. They can use 
+               other books too, but not nearly as well.
+               They are not physically impressive, but they have good 
+               education and their faith gives them spiritual power.
+               Quote: "Michael, Midiel and Muriel, Chief and Captains of 
+               the Celestial Army be a defence and protection about us, 
+               allow no adverse forces to interfere with our work."
+               Mus:5 Agi:6 Vig:8 Sch:10 Ego:13 Chr:6
+               
+          Ninja
+               Ninjas are the secret assassins from the Orient. 
+               Coming mainly from Japan, these agile assassins are 
+               the masters of conjuring tricks, stealth and 
+               hiding. They are also good in combat, but do not 
+               match some other warriors in open duel.
+               NOT FUNCTIONING
+               NINJA'S CLASS POWERS NOT COMPLETE
+               Mus:11 Agi:11 Vig:11 Sch:6 Ego:6 Chr:6
+               
+          Weapon Master
+               NOT FUNCTIONING
+               Mus:14 Agi:12 Vig:10 Sch:4 Ego:6 Chr:6
  
 
 === Stats ===
 
-          Strength
-               Strength is important in fighting with weapons and in melee
-               combat.  A high strength can improve your chances of hitting
+          Muscle
+               Muscle is important in fighting with weapons and in melee
+               combat.  A high muscle can improve your chances of hitting
                as well as the amount of damage done with each hit.  Char-
-               acters with low strengths may receive penalties.  Strength
+               acters with low muscle may receive penalties.  Muscle
                is also useful in tunnelling and in carrying heavy items.
  
-          Intelligence
-               Intelligence affects the spellcasting abilities of mage-like
-               spellcasters, mages, rangers, and rogues.  Intelligence
-               will affect the number of spells you may learn each level as
-               well as the number of spell points you receive.  A high
-               intelligence may also improve your chances of successfully
-               casting a spell.  You cannot learn spells if your intelligence
-               is 7 or lower.  A good intelligence can also help with using
-               magic devices, picking locks, and disarming traps.
+          Schooling
+               Schooling affects the spellcasting abilities of mage-like
+               spellcasters.  Schooling will affect the number of spells 
+               you may learn each level as well as the number of spell 
+               points you receive.  A high schooling may also improve 
+               your chances of successfully casting a spell. A good 
+               schooling can also help with using magic devices, picking 
+               locks, and disarming traps.
  
-          Wisdom
-               The primary function of wisdom is to determine the ability
-               of a priest or paladin to use prayers, just like intelligence
-               affects spellcasting.  Again, high wisdom will increase the
-               number of spell points you have and increase the number of
-               prayers you can learn each level, while improving the chance
-               that a prayer will be successful.  A good wisdom can also
+          Ego
+               The primary function of Ego is to determine the force
+               of will.  Again, high Ego will increase the number of 
+               spell points you have.  A good Ego can also
                help to improve your chances of resisting magical spells cast
                upon you by monsters.
  
-          Dexterity
-               Dexterity is a combination of agility and quickness.  A high
-               dexterity may allow a character to get multiple blows with
+          Agility
+               Agility is a combination of dexterity and quickness.  A high
+               Agility may allow a character to get multiple blows with
                lighter weapons, thus greatly increasing his kill power, and
                will increase his chances of hitting with any weapon and
-               dodging blows from enemies.  Dexterity is also useful in
+               dodging blows from enemies.  Agility is also useful in
                picking locks, disarming traps, and protecting yourself from
                some of the thieves that inhabit the dungeons. Indeed, if 
-               the character has a high enough dexterity, thieves will
+               the character has a high enough Agility, thieves will
                never be successful in stealing from the player.
  
-          Constitution
-               Constitution is a character's ability to resist damage to his
+          Vigor
+               Vigor is a character's ability to resist damage to his
                body, and to recover from damage received.  Therefore a
-               character with a high constitution will receive more hit
+               character with a high Vigor will receive more hit
                points and also recover them faster while resting.
  
-          Charisma
-               Charisma represents a character's personality and physical
-               appearance.  A character with a high charisma will receive
+          Charm
+               Charm represents a character's personality and physical
+               appearance.  A character with a high Charm will receive
                better prices from store owners, whereas a character with a
-               very low charisma may be robbed blind. 
+               very low Charm may be robbed blind. 
  
 
 === Abilities (outdated) ===
@@ -323,12 +810,6 @@ have intrinsic abilities.
                priests are therefore much better at using a magical  device
                than say a warrior.  This skill is modified by intelligence,
                and increases with the level of the character.
-
-          Searching Frequency (Perception)
-               Perception  is  the  ability  to  notice  something  without
-               actively  seeking it out.  This skill is based entirely upon
-               race and class, and  will  never  improve  unless  magically
-               enhanced.
 
           Searching Ability (Searching)
                To search is to actively look for secret doors, floor traps,

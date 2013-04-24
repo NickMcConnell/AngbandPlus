@@ -871,7 +871,20 @@ bool make_attack_spell(int m_idx)
 
 	/* Assume "projectable" */
 	bool direct = TRUE;
-
+	
+	int savethgood, savethnorm, savethpoor;
+	int save;
+	
+	/* Get the "save" factor */
+	savethgood = p_ptr->skills[SK_SAVETH_GOOD].skill_rank;
+	savethnorm = p_ptr->skills[SK_SAVETH_NORM].skill_rank;
+	savethpoor = p_ptr->skills[SK_SAVETH_POOR].skill_rank;
+	
+	/* Insure good values */
+	/* Note the room for another skill to increase disarming */
+	if (savethgood >= 0) save = savethgood * 4;
+	if (savethnorm >= 0) save = savethnorm * 3;
+	if (savethpoor >= 0) save = savethpoor * 2;
 
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
@@ -1564,7 +1577,7 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s gazes deep into your eyes.", m_name);
 			}
 
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1593,7 +1606,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_format("%^s looks deep into your eyes.", m_name);
 			}
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1625,7 +1638,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses.", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1643,7 +1656,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses horribly.", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1661,7 +1674,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles loudly.", m_name);
 			else msg_format("%^s points at you, incanting terribly!", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1679,7 +1692,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s screams the word 'DIE!'", m_name);
 			else msg_format("%^s points at you, screaming the word DIE!", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1830,7 +1843,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You refuse to be frightened.");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < save)
 			{
 				msg_print("You refuse to be frightened.");
 			}
@@ -1853,7 +1866,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1876,7 +1889,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You disbelieve the feeble hologram.");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < save)
 			{
 				msg_print("You disbelieve the feeble hologram.");
 			}
@@ -1898,7 +1911,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1921,7 +1934,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < save)
 			{
 				msg_format("You resist the effects!");
 			}
@@ -2103,7 +2116,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -2150,7 +2163,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			msg_format("%^s tries to blank your mind.", m_name);
 
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < save)
 			{
 				msg_print("You resist the effects!");
 			}
@@ -3757,11 +3770,11 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		case RBE_CONFUSE:       power = 10; break;
 		case RBE_TERRIFY:       power = 10; break;
 		case RBE_PARALYZE:      power =  2; break;
-		case RBE_LOSE_STR:      power =  0; break;
-		case RBE_LOSE_DEX:      power =  0; break;
-		case RBE_LOSE_CON:      power =  0; break;
-		case RBE_LOSE_INT:      power =  0; break;
-		case RBE_LOSE_WIS:      power =  0; break;
+		case RBE_LOSE_MUS:      power =  0; break;
+		case RBE_LOSE_AGI:      power =  0; break;
+		case RBE_LOSE_VIG:      power =  0; break;
+		case RBE_LOSE_SCH:      power =  0; break;
+		case RBE_LOSE_EGO:      power =  0; break;
 		case RBE_LOSE_CHR:      power =  0; break;
 		case RBE_LOSE_ALL:      power =  2; break;
 		case RBE_SHATTER:       power = 60; break;
@@ -4055,11 +4068,11 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 					break;
 				}
 
-			case RBE_LOSE_STR:
-			case RBE_LOSE_INT:
-			case RBE_LOSE_WIS:
-			case RBE_LOSE_DEX:
-			case RBE_LOSE_CON:
+			case RBE_LOSE_MUS:
+			case RBE_LOSE_AGI:
+			case RBE_LOSE_VIG:
+			case RBE_LOSE_SCH:
+			case RBE_LOSE_EGO:
 			case RBE_LOSE_CHR:
 			case RBE_LOSE_ALL:
 				{

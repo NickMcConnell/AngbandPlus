@@ -47,15 +47,15 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.2.2"
+#define VERSION_STRING	"0.3.1"
 
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
-#define VERSION_MINOR	2
-#define VERSION_PATCH	2
+#define VERSION_MINOR	3
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -163,6 +163,14 @@
  * Hack -- Tab Columns for util.c
  */
 #define TAB_COLUMNS   8
+
+
+/*
+ * Maximum spells per book.
+ */
+
+#define MAX_BOOK_SPELLS	10
+
 
 /* Mutations */
 
@@ -467,10 +475,334 @@
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
 #define USE_DEVICE      3		/* x> Harder devices x< Easier devices */
 
+/*
+ * Skill constants
+ */
+
+/*
+ * Skill display constants 
+ */
+#define SKILL_ROW_START		10
+#define SKILL_ROW_END		21
+/* Guesses */
+#define COL_ONE				1
+#define COL_TWO				27
+#define COL_THREE			53
+
+
+/*
+ * Number of skills
+ */
+#define N_SKILLS 225
+
+/*
+ * Max rank of each skill
+ */
+#define SK_MAX_POWER 20
+
+/*
+ * Skills
+ */
+
+#define SK_DISARM_GOOD				0
+#define SK_DISARM_NORM				1
+#define SK_DISARM_POOR				2
+#define SK_DEVICE_GOOD				3
+#define SK_DEVICE_NORM				4
+
+#define SK_DEVICE_POOR				5
+#define SK_SAVETH_GOOD				6
+#define SK_SAVETH_NORM				7
+#define SK_SAVETH_POOR				8
+#define SK_STEALTH_GOOD				9
+
+#define SK_STEALTH_NORM				10
+#define SK_STEALTH_POOR				11
+#define SK_SEARCHING_GOOD			12
+#define SK_SEARCHING_NORM			13
+#define SK_SEARCHING_POOR			14
+
+#define SK_YYY1						15
+#define SK_YYY2						16
+#define SK_YYY3						17
+#define SK_XXX1						18
+#define SK_XXX2						19
+
+#define SK_XXX3						20
+#define SK_DIGGING_GOOD				21
+#define SK_DIGGING_NORM				22
+#define SK_DIGGING_POOR				23
+#define SK_DEFAULT					24
+/* end of block one */
+
+/* Racial Skills! */
+/* Start of block 2 */
+#define SK_BRITISH					25
+#define SK_BRITISH2					26
+#define SK_ASIATIC					27
+#define SK_ASIATIC2					28
+#define SK_AMERICAN					29
+
+#define SK_AMERICAN2				30
+#define SK_AFRICAN					31
+#define SK_AFRICAN2					32
+#define SK_CUISINE					33
+#define SK_FRENCH2					34
+
+#define SK_SPANISH					35
+#define SK_SPANISH2					36
+#define SK_RANSACK					37
+#define SK_GERMAN2					38
+#define SK_RUSSIAN					39
+
+#define SK_RUSSIAN2 				40
+#define SK_FINNISH					41
+#define SK_FINNISH2					42
+#define SK_ARABIC					43
+#define SK_ARABIC2					44
+
+#define SK_STONELORE				45
+#define SK_DWARF2					46
+#define SK_FAE_PATH					47
+#define SK_BROWNIE2					48
+#define SK_DAOINESIDHE1				49
+/* end of block 2 */
+/* Start of block 3 */
+#define SK_DAOINESIDHE2				50
+#define SK_SEELIEFAE1				51
+#define SK_SEELIEFAE2				52
+#define SK_UNSEELIEFAE1				53
+#define SK_UNSEELIEFAE2				54
+
+#define SK_SYSTEMS_CYPHER			55
+#define SK_ONSLAUGHT_CYPHER 		56
+#define SK_AEGIS_CYPHER				57
+#define SK_UTILITY_CYPHER			58
+#define SK_ROCKETRY					59
+
+#define SK_DJINN1					60
+#define SK_DJINN2					61
+#define SK_DJINN3					62
+#define SK_DEMON_ATTUNE				63
+#define SK_DARK_CHARM				64
+
+#define SK_RAKSHASA3				65
+#define SK_ROCK_TOSS				66
+#define SK_BZRK_STR					67
+#define SK_TROLL					68
+#define SK_ETHERIC_ATTUNE			69
+
+#define SK_GHOST2					70
+#define SK_COWARDICE				71
+#define SK_OLD1						72
+#define SK_OLD12					73
+#define SK_OLD13					74
+/* end of block three */
+/* Combat Skills! */
+/* start of block four */
+#define SK_TOHIT					75
+#define SK_INTER_COMBAT				76
+#define SK_ADV_COMBAT				77
+#define SK_MASTER_COMBAT			78
+#define SK_AXE						79
+
+#define SK_BLUNT					80
+#define SK_SWORD					81
+#define SK_POWER_STRIKE				82
+#define SK_CRIT_STRIKE				83
+#define SK_ACC_STRIKE				84
+
+#define SK_VICIOUS_STRIKE			85
+#define SK_SWIFT_BLOW				86
+#define SK_WEAPON_FINESSE			87
+#define SK_TOHIT_SHOOTING			88
+#define SK_INTER_SHOOTING			89
+
+#define SK_ADV_SHOOTING				90
+#define SK_MASTER_SHOOTING			91
+#define SK_PISTOL					92
+#define SK_RIFLE					93
+#define SK_SHOTGUN					94
+
+#define SK_CRIT_SHOT				95
+#define SK_ACC_SHOT					96
+#define SK_VICIOUS_SHOT				97
+#define SK_SWIFT_SHOT				98
+#define SK_TOHIT_THROWING			99
+/* end of block four */
+
+/* start of block five */
+#define SK_ADV_THROWING				100
+#define SK_MASTER_THROWING			101
+#define SK_POWER_THROW				102
+#define SK_CRIT_THROW				103
+#define SK_ACC_THROW				104
+
+#define SK_XXX5						105
+#define SK_XXX6						106
+#define SK_XXX7						107
+#define SK_XXX8						108
+#define SK_XXX9						109
+
+#define SK_XXX10					110
+#define SK_XXX11					111
+#define SK_XXX12					112
+#define SK_XXX13					113
+#define SK_XXX14					114
+
+#define SK_XXX15					115
+#define SK_XXX16					116
+#define SK_XXX17					117
+#define SK_XXX18					118
+#define SK_XXX19					119
+
+#define SK_XXX20					120
+#define SK_XXX21					121
+#define SK_XXX22					122
+#define SK_XXX23					123
+#define SK_XXX24					124
+/* End of block five */
+
+/* Class powers and spells */
+/* Start block six - Class Powers */
+#define SK_OFFICER					125
+#define SK_AESTHETE					126
+#define SK_EXPLORER					127
+#define SK_MEDIUM					128
+#define SK_RECKONER					129
+
+#define SK_TOURIST					130
+#define SK_HUSSAR					131
+#define SK_NATURE					132
+#define SK_NINJA					133
+#define SK_PRESENCE					134
+
+#define SK_MESMERIC_WILL			135
+/* Quabalists */
+#define SK_HEBREW					136
+#define SK_QABALA	 				137
+#define SK_GEMATRIA					138
+#define SK_XXX28					139
+
+#define SK_XXX29					140
+#define SK_XXX30					141
+#define SK_XXX31					142
+#define SK_XXX32					143
+#define SK_XXX33					144
+
+#define SK_XXX34					145
+#define SK_XXX35					146
+#define SK_XXX36					147
+#define SK_XXX37					148
+#define SK_XXX38					149
+
+/* Spells and lore - block seven */
+/* allow use of spells */
+/* Key skill - occult / ritual magic */ 
+/* spirituality / lesser ward / will */
+#define SK_LATIN					150 /**/
+#define SK_OCCULT					151 /**/
+#define SK_ADV_OCCULT				152
+#define SK_CTHULHU_MYTHOS			153
+#define SK_RITUAL_MAGIC				154 /**/
+
+/* Things that decrease the difficulty */
+#define SK_THAUMIC_ENERGY			155
+#define SK_ADV_THAUMIC_ENERGY		156
+#define SK_THELMA					157
+/* Divine spells - Uses Latin */
+/* allows use */
+#define SK_SPIRITUALITY				158 /**/
+#define SK_PRAYER					159
+
+#define SK_DEVOTION					160
+/* Things that decrease the difficulty */
+#define SK_LESSER_WARD				161
+#define SK_GREATER_WARD				162
+/* Things that decrease the difficulty - increase saftey for both */
+#define SK_TMPR_WILL				163
+#define SK_HARD_WILL				164
+
+#define SK_IRON_WILL				165
+#define SK_FAST_CAST				166
+/* specific skills that increase powers? */
+#define SK_XXX40					167
+#define SK_XXX41					168
+#define SK_XXX42					169
+
+#define SK_XXX43					170
+#define SK_XXX44					171
+#define SK_XXX45					172
+#define SK_XXX46					173
+#define SK_XXX47					174
+/* End of Block 7 */
+
+/* Start of Block 8 */
+/* Devices and their skills */
+#define SK_GADGETEER				175
+#define SK_UTILITY_BANDOLIER		176
+#define SK_DETECTIVES_KIT			177
+#define SK_CLOCKWORK_CHASSIS		178
+#define SK_CLOCKWORK_CARBINE		179
+/* Maybe I have general skills that increase */
+/* The effectiveness of certain tasks */
+#define SK_VELOCIPEDE				180
+#define SK_ANALYTIC_ENGINE			181
+#define SK_XXX48					182
+#define SK_XXX49					183
+#define SK_XXX50					184
+
+#define SK_XXX51					185
+#define SK_XXX52					186
+#define SK_XXX53					187
+#define SK_XXX54					188
+#define SK_XXX55					189
+
+#define SK_ADV_DEVICE				190 /* Increases success rate / allows new skills */
+#define SK_SPEED_DEVICE				191 /* Allows faster use (< energy) */
+#define SK_EFF_DEVICE				192 /* reduces Recharge time */
+#define SK_POW_DEVICE				193 /* Increases Damage of device */
+#define SK_POW2_DEVICE				194 /* Further Damage increase */
+
+#define SK_HEAL_DEVICE				195 /* Increases positive effect of device */
+#define SK_XXX62					196
+#define SK_XXX63					197
+#define SK_XXX64					198
+#define SK_XXX65					199
+/* end of block 8 */
+
+/* Defensive, and other skill oddities */
+#define SK_XXX66					200
+#define SK_XXX67					201
+#define SK_XXX68					202
+#define SK_XXX69					203
+#define SK_XXX70					204
+
+#define SK_XXX71					205
+#define SK_XXX72					206
+#define SK_XXX73					207
+#define SK_XXX74					208
+#define SK_XXX75					209
+
+#define SK_XXX76					210
+#define SK_XXX77					211
+#define SK_XXX78					212
+#define SK_XXX79					213
+#define SK_XXX80					214
+
+#define SK_XXX81					215
+#define SK_XXX82					216
+#define SK_XXX83					217
+#define SK_XXX84					218
+#define SK_XXX85					219
+
+#define SK_XXX86					220
+#define SK_XXX87					221
+#define SK_XXX88					222
+#define SK_XXX89					223
+#define SK_XXX90					224
 
 /*** Pet constants ***/
-
-
 /*
  * Commands
  */
@@ -526,8 +858,16 @@
 /*
  * Refueling constants
  */
-#define FUEL_TORCH	5000	/* Maximum amount of fuel in a torch */
+#define FUEL_TAPER	1000   /* Maximum amount of fuel in a taper */
+#define FUEL_CANDLE	4000   /* Maximum amount of fuel in a candle */
+#define FUEL_CANDLE_ONE	1000   /* Turns when lite radius cuts down for candles */
+#define FUEL_TORCH	8000	/* Maximum amount of fuel in a torch */
+#define FUEL_TORCH_TWO	4000	/* Turns when lite radius goes down to 2 for torch */
+#define FUEL_TORCH_ONE	1000	/* Turns when lite radis goes down to 1 for torch  */
 #define FUEL_LAMP	15000   /* Maximum amount of fuel in a lantern */
+#define FUEL_LAMP_THREE	8000   /* Turns when lite radius goes down to 3 for lamp */
+#define FUEL_LAMP_TWO	4000   /* Turns when lite radius goes down to 2 for lamp */
+#define FUEL_LAMP_ONE	1000   /* Turns when lite radius goes down to 1 for lamp */
 
 
 /*
@@ -600,312 +940,6 @@
  */
 #define PY_MAX_SPELLS 64
 
-/* Magic for Beginners */
-/*#define SPELL_MAGIC_MISSILE             0
- *#define SPELL_DETECT_MONSTERS           1
- *#define SPELL_PHASE_DOOR                2
- *#define SPELL_LIGHT_AREA                3
- *#define SPELL_TREASURE_DETECTION        4
- *#define SPELL_CURE_LIGHT_WOUNDS         5
- *#define SPELL_OBJECT_DETECTION          6
- *#define SPELL_FIND_TRAPS_DOORS          7
- *#define SPELL_STINKING_CLOUD            8
- */
- 
-/* Liber AL vel Legis (sval 0) */
-#define SPELL_AIM_OF_THE_WILL			  0
-#define SPELL_SENSE_WILL				  1
-#define SPELL_TRANSPORT_SELF			  2
-#define SPELL_INNER_LIGHT				  3
-#define SPELL_CURE_LIGHT_WOUNDS			  4
-#define SPELL_OBJECT_DETECTION			  5
-#define SPELL_FIND_TRAPS_DOORS			  6
-#define SPELL_PLAUGE_WILL				  7
-
-/* Treatise on the Resurrection (sval 1) */
-#define SPELL_CHANT						  8
-#define SPELL_SANCTUARY					  9
-#define SPELL_SATISFY_HUNGER			 10
-#define SPELL_CURE_CRITICAL_WOUNDS		 11
-#define SPELL_PROTECTION_FROM_EVIL		 12
-#define SPELL_CURE_MORTAL_WOUNDS		 13
-#define SPELL_REMOVE_CURSE				 14
-#define SPELL_TURN_UNDEAD				 15
-#define SPELL_HEAL						 16
-
-/* The Zohar (Book of Splendor) (sval 2) */
-#define SPELL_RECHARGE_ITEM_I			 17
-#define SPELL_SLEEP_II					 18
-#define SPELL_IDENTIFY					 19
-#define SPELL_FIRE_BOLT					 20
-#define SPELL_FROST_BOLT				 21
-#define SPELL_TELEPORT_OTHER			 22
-#define SPELL_HASTE						 23
-#define SPELL_FIRE_BALL					 24
-#define SPELL_GENOCIDE					 25
-
-/* Odes of Solomon (sval 3) */
-#define SPELL_PORTAL					 26
-#define SPELL_SENSE_INVISIBLE			 27
-#define SPELL_SENSE_SURROUNDINGS		 28
-#define SPELL_PRAYER					 29
-#define SPELL_DISPEL_EVIL				 30
-#define SPELL_IDENTIFY2					 31
-#define SPELL_HOLY_WORD					 32
-#define SPELL_HEALING					 33
-#define SPELL_RESTORATION				 34
-
-/* Sepher Yetzirah (Book of Formation) (sval 4) */
-#define SPELL_ACID_BOLT					 35
-#define SPELL_CLOUD_KILL				 36
-#define SPELL_ICE_STORM					 37
-#define SPELL_FIRE_STORM				 38
-#define SPELL_METEOR_SWARM				 39
-#define SPELL_ELEMENTAL_BALL			 40
-#define SPELL_MANA_STORM				 41
-
-/* The Pnakotic Manuscripts (sval 5) */
-#define SPELL_DISPEL_CURSE				 42
-#define SPELL_BANISHMENT				 43
-#define SPELL_RECHARGE_ITEM_II			 44
-#define SPELL_DISPEL_EVIL_II			 45
-#define SPELL_WORD_OF_RECALL			 46
-#define SPELL_RESISTANCE				 47
-
-/* De Vermis Mysteriis (Mysteries of the Worm) (sval 6) */
-#define SPELL_RECHARGE_ITEM_III			 48
-#define SPELL_EARTHQUAKE				 49
-#define SPELL_WORD_OF_RECALL_II			 50
-#define SPELL_MIND_OF_THE_WORM			 51
-#define SPELL_MASS_GENOCIDE				 52
-
-
-/* Conjurings and Tricks */
-/*#define SPELL_CONFUSE_MONSTER           9
- *#define SPELL_LIGHTNING_BOLT           10
- *#define SPELL_TRAP_DOOR_DESTRUCTION    11
- *#define SPELL_SLEEP_I                  12
- *#define SPELL_CURE_POISON              13
- *#define SPELL_TELEPORT_SELF            14
- *#define SPELL_SPEAR_OF_LIGHT           15
- *#define SPELL_FROST_BOLT               16
- *#define SPELL_TURN_STONE_TO_MUD        17
- */
- 
-/* Incantations and Illusions */
-/*#define SPELL_SATISFY_HUNGER           18
- *#define SPELL_RECHARGE_ITEM_I          19
- *#define SPELL_SLEEP_II                 20
- *#define SPELL_POLYMORPH_OTHER          21
- *#define SPELL_IDENTIFY                 22
- *#define SPELL_SLEEP_III                23
- *#define SPELL_FIRE_BOLT                24
- *#define SPELL_SLOW_MONSTER             25
- */
- 
-/* Sorcery and Evocations */
-/*#define SPELL_FROST_BALL               26
- *#define SPELL_RECHARGE_ITEM_II         27
- *#define SPELL_TELEPORT_OTHER           28
- *#define SPELL_HASTE_SELF               29
- *#define SPELL_FIRE_BALL                30
- *#define SPELL_WORD_OF_DESTRUCTION      31
- *#define SPELL_GENOCIDE                 32
- */
- 
-/* Mordenkainen's Escapes */
-/*#define SPELL_DOOR_CREATION            33
- *#define SPELL_STAIR_CREATION           34
- *#define SPELL_TELEPORT_LEVEL           35
- *#define SPELL_EARTHQUAKE               36
- *#define SPELL_WORD_OF_RECALL           37
- */
- 
-/* Raal's Tome of Destruction */
-/*#define SPELL_ACID_BOLT                38
- *#define SPELL_CLOUD_KILL               39
- *#define SPELL_ACID_BALL                40
- *#define SPELL_ICE_STORM                41
- *#define SPELL_METEOR_SWARM             42
- *#define SPELL_MANA_STORM               43
- */
- 
-/* Kelek's Grimoire of Power */
-/*#define SPELL_DETECT_EVIL              44
- *#define SPELL_DETECT_ENCHANTMENT       45
- *#define SPELL_RECHARGE_ITEM_III        46
- *#define SPELL_GENOCIDE2                47
- *#define SPELL_MASS_GENOCIDE            48
- */
- 
-/* Resistance of Scarabtarices */
-/*#define SPELL_RESIST_FIRE              49
- *#define SPELL_RESIST_COLD              50
- *#define SPELL_RESIST_ACID              51
- *#define SPELL_RESIST_POISON            52
- *#define SPELL_RESISTANCE               53
- */
- 
-/* Tenser's transformations */
-/*#define SPELL_HEROISM                  54
- *#define SPELL_SHIELD                   55
- *#define SPELL_BERSERKER                56
- *#define SPELL_ESSENCE_OF_SPEED         57
- *#define SPELL_GLOBE_OF_INVULNERABILITY 58
- */
- 
-/* Old Beginners Handbook */
-/*  #define PRAYER_DETECT_EVIL          0
- *	#define PRAYER_CURE_LIGHT_WOUNDS    1
- *	#define PRAYER_BLESS                2
- *	#define PRAYER_REMOVE_FEAR          3
- *	#define PRAYER_CALL_LIGHT           4
- *	#define PRAYER_FIND_TRAPS           5
- *	#define PRAYER_DETECT_DOORS_STAIRS  6
- *	#define PRAYER_SLOW_POISON          7
- */
-
-/* Utility Bandolier */
-#define PRAYER_CALL_LIGHT				0 
-#define PRAYER_REMOVE_FEAR				1
-#define PRAYER_CURE_LIGHT_WOUNDS		2
-#define PRAYER_DETECT_DOORS_STAIRS		3
-#define PRAYER_FIND_TRAPS				4
-#define PRAYER_SLOW_POISON				5
-#define PRAYER_SPRING_BLADE				6
-#define PRAYER_SATISFY_HUNGER			7
-#define PRAYER_OBJECT_ANALYSIS			8
-
-/* Old Words of Wisdom */
-/*#define PRAYER_SCARE_MONSTER          9
- *#define PRAYER_PORTAL                10
- *#define PRAYER_CURE_SERIOUS_WOUNDS   11
- *#define PRAYER_CHANT                 12
- *#define PRAYER_SANCTUARY             13
- *#define PRAYER_SATISFY_HUNGER2       14
- *#define PRAYER_REMOVE_CURSE          15
- *#define PRAYER_RESIST_HEAT_COLD      16
- */
-
-/* Detectives Kit */
-#define PRAYER_DETECT_MONSTERS			9
-#define PRAYER_FIND_TRAPS_DOORS		   10
-#define PRAYER_TREASURE_DETECTION	   11
-#define PRAYER_DETECT_ENCHANTMENT	   12
-#define PRAYER_DETECTION			   13
-#define PRAYER_PERCEPTION			   14
-#define PRAYER_PROBING				   15
-#define PRAYER_CLAIRVOYANCE			   16
-
-/* Old Chants and Blessings */
-/*#define PRAYER_NEUTRALIZE_POISON     17
- *#define PRAYER_ORB_OF_DRAINING       18
- *#define PRAYER_CURE_CRITICAL_WOUNDS  19
- *#define PRAYER_SENSE_INVISIBLE       20
- *#define PRAYER_PROTECTION_FROM_EVIL  21
- *#define PRAYER_EARTHQUAKE            22
- *#define PRAYER_SENSE_SURROUNDINGS    23
- *#define PRAYER_CURE_MORTAL_WOUNDS    24
- *#define PRAYER_TURN_UNDEAD           25
- */
-
-/* Clockwork Chassis */
-#define PRAYER_SPEAR_OF_LIGHT		   17
-#define PRAYER_ETHERIC_JUMP			   18
-#define PRAYER_DEFENSIVE_ARRAY		   19
-#define PRAYER_NEUTRALIZE_POISON	   20
-#define PRAYER_GUNS					   21
-#define PRAYER_CURE_CRITICAL_WOUNDS	   22
-#define PRAYER_TURN_STONE_TO_MUD	   23
-#define PRAYER_EARTHQUAKE			   24
-#define PRAYER_MISSLE				   25
-
-/* Exorcism and Dispelling */
-/*#define PRAYER_PRAYER                26
- *#define PRAYER_DISPEL_UNDEAD         27
- *#define PRAYER_HEAL                  28
- *#define PRAYER_DISPEL_EVIL           29
- *#define PRAYER_GLYPH_OF_WARDING      30
- *#define PRAYER_HOLY_WORD             31
- */
-
-/* Clockwork Carbine */
-#define PRAYER_LEAD_SLUGS		       26
-#define PRAYER_LIGHTNING_RAY	       27
-#define PRAYER_FROST_RAY			   28
-#define PRAYER_HEAT_RAY				   29
-#define PRAYER_GRAVITY_RAY			   30
-#define PRAYER_TELEPORT_OTHER		   31
-
-/* Godly Insights */
-/*#define PRAYER_DETECT_MONSTERS2        32
- *#define PRAYER_DETECTION2              33
- *#define PRAYER_PERCEPTION2             34
- *#define PRAYER_PROBING2                35
- *#define PRAYER_CLAIRVOYANCE2           36
- */
-
-/* Velocipede */
-#define PRAYER_BLINK				   32
-#define PRAYER_TELEPORT_SELF		   33
-#define PRAYER_TELEPORT_OTHER2		   34
-#define PRAYER_TELEPORT_LEVEL		   35
-#define PRAYER_WORD_OF_RECALL		   36
-
-/* Purifications and Healing */
-/*#define PRAYER_CURE_SERIOUS_WOUNDS2    37
- *#define PRAYER_CURE_MORTAL_WOUNDS2     38
- *#define PRAYER_HEALING                 39
- *#define PRAYER_RESTORATION             40
- *#define PRAYER_REMEMBRANCE             41
- */
- 
-/* The Analytic Engine */
-#define PRAYER_CURE_MORTAL_WOUNDS      37
-#define PRAYER_BIOLOGICAL_ENHANCE	   38
-#define PRAYER_POLYMORPH_OTHER		   39
-#define PRAYER_RECHARGE_ITEM		   40
-#define PRAYER_DOOR_CREATION		   41
-#define PRAYER_STAIR_CREATION		   42
-#define PRAYER_BIOLOGICAL_ENHANCE_II   43
-#define PRAYER_HEALING				   44
-#define PRAYER_ALTER_REALITY 		   45
-
-/* Wrath of God */
-/*#define PRAYER_DISPEL_UNDEAD2          46
- *#define PRAYER_DISPEL_EVIL2            47
- *#define PRAYER_BANISHMENT              48
- *#define PRAYER_WORD_OF_DESTRUCTION     49
- *#define PRAYER_ANNIHILATION            50
- */
-/* Holy Infusions */
-/*#define PRAYER_UNBARRING_WAYS          51
- *#define PRAYER_RECHARGING              52
- *#define PRAYER_DISPEL_CURSE            53
- *#define PRAYER_ENCHANT_WEAPON          54
- *#define PRAYER_ENCHANT_ARMOUR          55
- *#define PRAYER_ELEMENTAL_BRAND         56
- */
-/* Ethereal openings */
-/*#define PRAYER_BLINK                   53
- *#define PRAYER_TELEPORT_SELF           54
- *#define PRAYER_TELEPORT_OTHER2         55
- *#define PRAYER_TELEPORT_LEVEL          56
- *#define PRAYER_WORD_OF_RECALL          57
- *#define PRAYER_ALTER_REALITY           58
- */
-
-#define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
-#define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))
-
-#define BOOK(a, b, c, d, e, f, g, h, i) \
-{ \
-	(BOOK1(a) | BOOK1(b) | BOOK1(c) | BOOK1(d) | BOOK1(e) | \
-	 BOOK1(f) | BOOK1(g) | BOOK1(h) | BOOK1(i)), \
-	(BOOK2(a) | BOOK2(b) | BOOK2(c) | BOOK2(d) | BOOK2(e) | \
-	 BOOK2(f) | BOOK2(g) | BOOK2(h) | BOOK2(i)) \
-}
-
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -928,7 +962,7 @@
 #define INVEN_LITE      29
 #define INVEN_BODY      30
 #define INVEN_OUTER     31
-#define INVEN_ARM       32
+#define INVEN_LEG       32
 #define INVEN_HEAD      33
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
@@ -948,12 +982,13 @@
 
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
+ * Old order is Str, Int, Wis, Dex, Con, Chr
  */
-#define A_STR	0
-#define A_INT	1
-#define A_WIS	2
-#define A_DEX	3
-#define A_CON	4
+#define A_MUS	0
+#define A_AGI	1
+#define A_VIG	2
+#define A_SCH	3
+#define A_EGO	4
 #define A_CHR	5
 
 /*
@@ -997,6 +1032,28 @@
 #define RACE_GHOST			22
 #define RACE_GOBLIN			23
 #define RACE_OLD_ONE		24
+
+#define CLASS_OFFICER		0
+#define CLASS_AESTHETE		1
+#define CLASS_DETECTIVE		2
+#define CLASS_ENGINEER		3
+#define CLASS_EXPLORER		4
+#define CLASS_MEDIUM		5
+#define CLASS_RECKONER		6
+#define CLASS_TOURIST		7
+#define CLASS_SPORTSMAN		8
+#define CLASS_ADVENTURER	9
+#define CLASS_ANARCHIST		10
+#define CLASS_DASHING_H		11
+#define CLASS_GENTLEMAN		12
+#define CLASS_ROGUE			13
+#define CLASS_STEAM_ENG		14
+#define CLASS_NATURAL		15
+#define CLASS_QABALIST		16
+#define CLASS_OCULUS_DEI	17
+#define CLASS_NINJA			18
+#define CLASS_WEAPON		19
+/* Need a new *general* spellcaster? */
 
 /*** Screen Locations ***/
 
@@ -1072,8 +1129,8 @@
 #define ROW_SPEED		23
 #define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
 
-#define ROW_STUDY		23
-#define COL_STUDY		64	/* "Study" */
+#define ROW_LEVEL_G		23
+#define COL_LEVEL_G		64	/* "Level gain" */
 
 #define ROW_DEPTH		23
 #define COL_DEPTH		70	/* "Lev NNN" / "NNNN ft" */
@@ -1097,11 +1154,11 @@
 #define SUMMON_DEMON		16
 #define SUMMON_UNDEAD		17
 #define SUMMON_DRAGON		18
-/* #define SUMMON_BEASTMAN		19 */
+#define SUMMON_ANIMAL		19
+#define SUMMON_BEASTMAN		20
 #define SUMMON_HI_DEMON		26
 #define SUMMON_HI_UNDEAD	27
 #define SUMMON_HI_DRAGON	28
-/*#define SUMMON_ALIEN		29 */
 #define SUMMON_WRAITH		31
 #define SUMMON_UNIQUE		32
 #define SUMMON_KIN			33
@@ -1169,6 +1226,7 @@
 #define GF_OLD_SLEEP		57
 #define GF_OLD_DRAIN		58
 #define GF_PSI		    	59
+#define GF_EMP				60
 
 
 /*
@@ -1299,7 +1357,7 @@
 #define ART_COAL_SUIT_VOLTICA	27
 #define ART_COAL_SUIT_ANEMO		28
 
-/* Shields */
+/* Pants (formerly Shields) */
 /*#define ART_THORIN			30
  *#define ART_CELEGORM			31
  *#define ART_ANARION			32
@@ -1331,6 +1389,7 @@
 #define ART_FOGG_SILK_GLOVES	97
 #define ART_SHADOW_GLOVES		98
 #define ART_GEOPHONIC_GLOVES	99
+#define ART_HOUDINI_GLOVES	   100
 
 /* Boots */
 #define ART_EDISON_BOOTS	   110
@@ -1398,13 +1457,13 @@
 /* xxx */
 /* xxx */
 
-/* Shields */
+/* Pants (formerly Shields) */
 #define EGO_ENDURE_ACID		16
 #define EGO_ENDURE_ELEC		17
 #define EGO_ENDURE_FIRE		18
 #define EGO_ENDURE_COLD		19
 #define EGO_ENDURANCE		20
-#define EGO_MARTIAN_SHIELD	21
+#define EGO_MARTIAN_PANTS	21
 /* xxx */
 /* xxx */
 /* Crowns and Helms */
@@ -1564,7 +1623,7 @@
 #define TV_GLOVES       31	/* Gloves */
 #define TV_HELM         32	/* Helms */
 #define TV_CROWN        33	/* Crowns */
-#define TV_SHIELD       34	/* Shields */
+#define TV_LEG		34	/* Pant (formerly Shields) */
 #define TV_CLOAK        35	/* Cloaks */
 #define TV_SOFT_ARMOR   36	/* Soft Armor */
 #define TV_HARD_ARMOR   37	/* Hard Armor */
@@ -1585,8 +1644,6 @@
 #define TV_FLASK        77
 #define TV_FOOD         80
 #define TV_MAGIC_BOOK   90
-#define TV_DEVICE_BOOK  91
-#define TV_MENTAL_BOOK  92 /* Not a real item */
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
@@ -1655,6 +1712,7 @@
 #define SV_GREAT_AXE			25	/* 4d4 */
 /* xxx Old Lochaber Axe xxx 	28		   */
 #define SV_SCYTHE_OF_SLICING	30	/* 8d4 */
+#define SV_THROWING_HATCHET		32		
 
 /* The "sval" codes for TV_SWORD */
 #define SV_BROKEN_DAGGER		1	/* 1d1 */
@@ -1680,13 +1738,14 @@
 #define SV_BLADE_OF_CHAOS		30	/* 6d5 */
 #define SV_PNEUMATIC_SWORD		32  /* 8d5 */
 #define SV_PNEUMATIC_DAGGER		34	/* 8d3 */
+#define SV_THROWING_DAGGER		36  /* 2d4 */
 
-/* The "sval" codes for TV_SHIELD */
-#define SV_SMALL_LEATHER_SHIELD		2
-#define SV_SMALL_METAL_SHIELD		3
-#define SV_LARGE_LEATHER_SHIELD		4
-#define SV_LARGE_METAL_SHIELD		5
-#define SV_SHIELD_OF_DEFLECTION		10
+/* The "sval" codes for TV_LEG */
+#define SV_HOSE				2
+#define SV_BREECHES			3
+#define SV_PANTS			4
+#define SV_PANTALOONS			5
+#define SV_PETTICOATS			10
 
 /* The "sval" codes for TV_HELM */
 #define SV_MASK					1
@@ -1764,6 +1823,8 @@
 /* The sval codes for TV_LITE */
 #define SV_LITE_TORCH		0
 #define SV_LITE_LANTERN		1
+#define SV_LITE_TAPER		2
+#define SV_LITE_CANDLE		3
 #define SV_LITE_HOLMES		4
 #define SV_LITE_EDISON		5
 #define SV_LITE_TESLA		6
@@ -1789,16 +1850,16 @@
 #define SV_RING_WEAKNESS			2
 #define SV_RING_STUPIDITY			3
 #define SV_RING_TELEPORTATION		4
-/* xxx */
+#define SV_RING_BEWILDERMENT		5
 #define SV_RING_SLOW_DIGESTION		6
 #define SV_RING_FEATHER_FALL		7
 #define SV_RING_RESIST_FIRE			8
 #define SV_RING_RESIST_COLD			9
-#define SV_RING_SUSTAIN_STR			10
-#define SV_RING_SUSTAIN_INT			11
-#define SV_RING_SUSTAIN_WIS			12
-#define SV_RING_SUSTAIN_DEX			13
-#define SV_RING_SUSTAIN_CON			14
+#define SV_RING_SUSTAIN_MUS			10
+#define SV_RING_SUSTAIN_SCH			11
+#define SV_RING_SUSTAIN_EGO			12
+#define SV_RING_SUSTAIN_AGI			13
+#define SV_RING_SUSTAIN_VIG			14
 #define SV_RING_SUSTAIN_CHR			15
 #define SV_RING_PROTECTION			16
 #define SV_RING_ACID				17
@@ -1808,10 +1869,10 @@
 #define SV_RING_FREE_ACTION			21
 #define SV_RING_SEE_INVIS			22
 #define SV_RING_SEARCHING			23
-#define SV_RING_STR					24
-#define SV_RING_INT					25
-#define SV_RING_DEX					26
-#define SV_RING_CON					27
+#define SV_RING_MUS					24
+#define SV_RING_SCH					25
+#define SV_RING_AGI					26
+#define SV_RING_VIG					27
 #define SV_RING_ACCURACY			28
 #define SV_RING_DAMAGE				29
 #define SV_RING_SLAYING				30
@@ -1823,6 +1884,7 @@
 /*#define SV_RING_VILYA				36
  *#define SV_RING_POWER				37
  */
+#define SV_RING_CONF_RES			36
  
 /* The "sval" codes for TV_MECHA_TORSO Tval 46 */
 #define SV_MECHA_TORSO_TIN		2
@@ -2035,11 +2097,11 @@
 #define SV_TONIC_LOSE_MEMORIES		13
 /* xxx */
 #define SV_TONIC_RUINATION			15
-#define SV_TONIC_DEC_STR			16
-#define SV_TONIC_DEC_INT			17
-#define SV_TONIC_DEC_WIS			18
-#define SV_TONIC_DEC_DEX			19
-#define SV_TONIC_DEC_CON			20
+#define SV_TONIC_DEC_MUS			16
+#define SV_TONIC_DEC_SCH			17
+#define SV_TONIC_DEC_EGO			18
+#define SV_TONIC_DEC_AGI			19
+#define SV_TONIC_DEC_VIG			20
 #define SV_TONIC_DEC_CHR			21
 #define SV_TONIC_DETONATIONS		22
 #define SV_TONIC_DEATH				23
@@ -2061,17 +2123,17 @@
 #define SV_TONIC_LIFE				39
 #define SV_TONIC_RESTORE_MANA		40
 #define SV_TONIC_RESTORE_EXP		41
-#define SV_TONIC_RES_STR			42
-#define SV_TONIC_RES_INT			43
-#define SV_TONIC_RES_WIS			44
-#define SV_TONIC_RES_DEX			45
-#define SV_TONIC_RES_CON			46
+#define SV_TONIC_RES_MUS			42
+#define SV_TONIC_RES_SCH			43
+#define SV_TONIC_RES_EGO			44
+#define SV_TONIC_RES_AGI			45
+#define SV_TONIC_RES_VIG			46
 #define SV_TONIC_RES_CHR			47
-#define SV_TONIC_INC_STR			48
-#define SV_TONIC_INC_INT			49
-#define SV_TONIC_INC_WIS			50
-#define SV_TONIC_INC_DEX			51
-#define SV_TONIC_INC_CON			52
+#define SV_TONIC_INC_MUS			48
+#define SV_TONIC_INC_SCH			49
+#define SV_TONIC_INC_EGO			50
+#define SV_TONIC_INC_AGI			51
+#define SV_TONIC_INC_VIG			52
 #define SV_TONIC_INC_CHR			53
 /* xxx */
 #define SV_TONIC_AUGMENTATION			55
@@ -2098,8 +2160,8 @@
 #define SV_FOOD_CURE_PARANOIA	14
 #define SV_FOOD_CURE_CONFUSION	15
 #define SV_FOOD_CURE_SERIOUS	16
-#define SV_FOOD_RESTORE_STR		17
-#define SV_FOOD_RESTORE_CON		18
+#define SV_FOOD_RESTORE_MUS		17
+#define SV_FOOD_RESTORE_VIG		18
 #define SV_FOOD_RESTORING		19
 #define SV_FOOD_LIGHT_HEALING	20
 #define SV_FOOD_MARIJUANA		21
@@ -2118,7 +2180,82 @@
 #define SV_FOOD_MUTTON			40
 #define SV_FOOD_ONION			41
 #define SV_FOOD_POTATO			42
+/* New food types added by DH */
+#define SV_FOOD_CHEESE			43
+#define SV_FOOD_SAUSAGE_ROLL		44
+#define SV_FOOD_CRUMPET			45
+#define SV_FOOD_MEAT_PIE		46
+#define SV_FOOD_SAVELOY			47
+#define SV_FOOD_FRIED_FISH		48
+#define SV_FOOD_KIDNEY_PUDDING	49
+#define SV_FOOD_TURNIPS			50
+#define SV_FOOD_PIGEON_PIE		51
+#define SV_FOOD_BONBON			52
+#define SV_FOOD_HADDOCKS		53
+#define SV_FOOD_LEMONADE		54
+#define SV_FOOD_TEA			55
+#define SV_FOOD_PINT_ERDE_WINE	56
+#define SV_FOOD_PINT_MINT_WATER	57
 
+
+/* The "sval" codes for TV_MAGIC_BOOK */
+#define SV_BOOK_MAGE1			 0
+#define SV_BOOK_MAGE2			 1
+#define SV_BOOK_MAGE3			 2
+#define SV_BOOK_MAGE4			 3
+#define SV_BOOK_MAGE5			 4
+#define SV_BOOK_MAGE6			 5
+#define SV_BOOK_MAGE7			 6
+#define SV_BOOK_MAGE8			 7
+#define SV_BOOK_MAGE9			 8
+#define SV_BOOK_MAGE10			 9
+#define SV_BOOK_PRIEST1			10
+#define SV_BOOK_PRIEST2			11
+#define SV_BOOK_PRIEST3			12
+#define SV_BOOK_PRIEST4			13
+#define SV_BOOK_PRIEST5			14
+#define SV_BOOK_PRIEST6			15
+#define SV_BOOK_PRIEST7			16
+#define SV_BOOK_PRIEST8			17
+#define SV_BOOK_DEVICE1			18
+#define SV_BOOK_DEVICE2			19
+#define SV_BOOK_DEVICE3			20
+#define SV_BOOK_DEVICE4			21
+#define SV_BOOK_DEVICE5			22
+#define SV_BOOK_DEVICE6			23
+#define SV_BOOK_DEVICE7			24
+#define SV_BOOK_DEVICE8			25
+#define SV_BOOK_DEVICE9			26
+#define SV_BOOK_DEVICE10		27
+/* xxx */
+#define SV_BOOK_XXX1			29
+#define SV_BOOK_XXX2			30
+#define SV_BOOK_NECRONOMICON	31
+#define SV_BOOK_XXX3			32
+
+
+/* "Sval" limit - maximum amount of spellbooks */
+#define SV_BOOK_MAX				42
+
+/*
+ * maximum magic knowledge skill
+ */
+ 
+#define MAX_SPELL_SKILL		80
+
+/*
+ * Bit flags for spellbooks
+ */
+#define SBF_MAGIC		0x01
+#define SBF_PRAYER		0x02
+#define SBF_DEVICE		0x04
+#define SBF_XXX1		0x08
+#define SBF_XXX2		0x10
+#define SBF_GOOD		0x20
+#define SBF_ARTIFACT	0x40
+
+#define SBF_TYPE_MASK \
+			(SBF_MAGIC | SBF_PRAYER | SBF_DEVICE | SBF_XXX1 | SBF_XXX2)
 
 /*
  * Special "sval" limit -- first "normal" food
@@ -2133,7 +2270,23 @@
 /*
  * Special "sval" limit -- first "large" chest
  */
-#define SV_CHEST_MIN_LARGE	4
+#define SV_CHEST_MIN_LARGE	6
+
+/*
+ * Chest Svals 
+ */
+#define SV_RN_CHEST 0 		/* Ruined Chest */
+#define SV_TB_CHEST 1		/* Travelling bag */
+#define SV_DB_CHEST 2		/* Doctor's bag */
+#define SV_LB_CHEST 3		/* Lockbox */
+#define SV_BB_CHEST 4		/* Bandbox */
+#define SV_HB_CHEST 5		/* Hat box */
+#define SV_GB_CHEST 6		/* Gladstone Bag */
+#define SV_CT_CHEST 7		/* Cabin Trunk */
+#define SV_ST_CHEST 8		/* Steamer Trunk */
+#define SV_CS_CHEST 9		/* Combination Safe */
+#define SV_BC_CHEST 10		/* Briefcase */
+#define SV_JB_CHEST 11		/* Jewelery Box */
 
 /*
  * Special "sval" limit -- first "good" magic/prayer book
@@ -2193,11 +2346,11 @@
 #define RBE_CONFUSE		14
 #define RBE_TERRIFY		15
 #define RBE_PARALYZE	16
-#define RBE_LOSE_STR	17
-#define RBE_LOSE_INT	18
-#define RBE_LOSE_WIS	19
-#define RBE_LOSE_DEX	20
-#define RBE_LOSE_CON	21
+#define RBE_LOSE_MUS	17
+#define RBE_LOSE_AGI	18
+#define RBE_LOSE_VIG	19
+#define RBE_LOSE_SCH	20
+#define RBE_LOSE_EGO	21
 #define RBE_LOSE_CHR	22
 #define RBE_LOSE_ALL	23
 #define RBE_SHATTER		24
@@ -2335,7 +2488,7 @@
 #define PR_POISONED		0x00080000L	/* Display Extra (Poisoned) */
 #define PR_STATE		0x00100000L	/* Display Extra (State) */
 #define PR_SPEED		0x00200000L	/* Display Extra (Speed) */
-#define PR_STUDY		0x00400000L	/* Display Extra (Study) */
+#define PR_LEVEL		0x00400000L	/* Display Extra (Levelgain) */
 /* xxx */
 #define PR_EXTRA		0x01000000L	/* Display Extra Info */
 #define PR_BASIC		0x02000000L	/* Display Basic Info */
@@ -2387,12 +2540,17 @@
 /*
  * Chest trap flags (see "tables.c")
  */
-#define CHEST_LOSE_STR	0x01
-#define CHEST_LOSE_CON	0x02
-#define CHEST_POISON	0x04
-#define CHEST_PARALYZE	0x08
-#define CHEST_EXPLODE	0x10
-#define CHEST_SUMMON	0x20
+#define CHEST_LOSE_MUS		0x0001
+#define CHEST_LOSE_VIG		0x0002
+#define CHEST_POISON		0x0004
+#define CHEST_PARALYZE		0x0008
+#define CHEST_EXPLODE		0x0010
+#define CHEST_SUMMON		0x0020
+#define CHEST_XXX1		0x0040
+#define CHEST_XXX2		0x0080
+#define CHEST_XXX3		0x0100
+#define CHEST_XXX4		0x0200
+#define CHEST_XXX5		0x0400
 
 
 /*
@@ -2486,11 +2644,11 @@
  * flags, and three cursed flags).
  */
 
-#define TR1_STR				0x00000001L	/* STR += "pval" */
-#define TR1_INT				0x00000002L	/* INT += "pval" */
-#define TR1_WIS				0x00000004L	/* WIS += "pval" */
-#define TR1_DEX				0x00000008L	/* DEX += "pval" */
-#define TR1_CON				0x00000010L	/* CON += "pval" */
+#define TR1_MUS				0x00000001L	/* MUS += "pval" */
+#define TR1_AGI				0x00000002L	/* AGI += "pval" */
+#define TR1_VIG				0x00000004L	/* VIG += "pval" */
+#define TR1_SCH				0x00000008L	/* SCH += "pval" */
+#define TR1_EGO				0x00000010L	/* EGO += "pval" */
 #define TR1_CHR				0x00000020L	/* CHR += "pval" */
 #define TR1_XXX1			0x00000040L	/* (reserved) */
 #define TR1_XXX2			0x00000080L	/* (reserved) */
@@ -2522,13 +2680,13 @@
 Alien
 Beast-men
 */
-#define TR2_SUST_STR		0x00000001L	/* Sustain STR */
-#define TR2_SUST_INT		0x00000002L	/* Sustain INT */
-#define TR2_SUST_WIS		0x00000004L	/* Sustain WIS */
-#define TR2_SUST_DEX		0x00000008L	/* Sustain DEX */
-#define TR2_SUST_CON		0x00000010L	/* Sustain CON */
+#define TR2_SUST_MUS		0x00000001L	/* Sustain MUS */
+#define TR2_SUST_AGI		0x00000002L	/* Sustain AGI */
+#define TR2_SUST_VIG		0x00000004L	/* Sustain VIG */
+#define TR2_SUST_SCH		0x00000008L	/* Sustain SCH */
+#define TR2_SUST_EGO		0x00000010L	/* Sustain EGO */
 #define TR2_SUST_CHR		0x00000020L	/* Sustain CHR */
-#define TR2_XXX1			0x00000040L	/* (reserved) */
+#define TR2_RETURN			0x00000040L	/* (reserved) */
 #define TR2_XXX2			0x00000080L	/* (reserved) */
 #define TR2_XXX3			0x00000100L	/* (reserved) */
 #define TR2_XXX4			0x00000200L	/* (reserved) */
@@ -2583,7 +2741,7 @@ Beast-men
 #define TR3_EASY_KNOW		0x02000000L	/* Item is known if aware */
 #define TR3_HIDE_TYPE		0x04000000L	/* Item hides description */
 #define TR3_SHOW_MODS		0x08000000L	/* Item shows Tohit/Todam */
-#define TR3_XXX7			0x10000000L	/* (reserved) */
+#define TR3_THROW			0x10000000L	/* (reserved) */
 #define TR3_LIGHT_CURSE		0x20000000L	/* Item has Light Curse */
 #define TR3_HEAVY_CURSE		0x40000000L	/* Item has Heavy Curse */
 #define TR3_PERMA_CURSE		0x80000000L	/* Item has Perma Curse */
@@ -2594,8 +2752,8 @@ Beast-men
  * Note that all "pval" dependant flags must be in "flags1".
  */
 #define TR1_PVAL_MASK \
-	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
-	 TR1_CON | TR1_CHR | TR1_XXX1 | TR1_XXX2 | \
+	(TR1_MUS | TR1_AGI | TR1_VIG | TR1_SCH | \
+	 TR1_EGO | TR1_CHR | TR1_XXX1 | TR1_XXX2 | \
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
 
@@ -2624,7 +2782,7 @@ Beast-men
 /*
  * Hack -- special "xtra" object flag info (base flag value)
  */
-#define OBJECT_XTRA_BASE_SUSTAIN	TR2_SUST_STR
+#define OBJECT_XTRA_BASE_SUSTAIN	TR2_SUST_MUS
 #define OBJECT_XTRA_BASE_RESIST		TR2_RES_POIS
 #define OBJECT_XTRA_BASE_POWER		TR3_SLOW_DIGEST
 
@@ -2649,15 +2807,15 @@ Beast-men
 #define CF_PSEUDO_ID_IMPROV	0x00000100L /* Pseudo-id improves quicker with player-level */
 #define CF_ARCANE			0x00000200L /* Use Spellbooks */
 #define CF_SECULAR			0x00000400L /* Use Devices */
-#define CF_OFFICER			0x00000800L /* Use Military powers */
-#define CF_AESTHETE			0x00001000L /* Use Financial powers */
-#define CF_EXPLORER			0x00002000L /* Use Explorer abilities */
-#define CF_MEDIUM			0x00004000L /* Use Mental powers */
-#define CF_RECKONER			0x00008000L /* Use reality bending abilites */
-#define CF_TOURIST			0x00010000L /* Use safe travel abilities */
-#define CF_HUSSAR			0x00020000L /* Use special combat techniques */
-#define CF_NATURE			0x00040000L /* use Nature powers */
-#define CF_NINJA			0x00080000L /* Use Ninjitsu */
+#define CF_POWER			0x00000800L /* spells powerful */
+#define CF_XXX15			0x00001000L /* Use Financial powers */
+#define CF_XXX16			0x00002000L /* Use Explorer abilities */
+#define CF_XXX17			0x00004000L /* Use Mental powers */
+#define CF_XXX18			0x00008000L /* Use reality bending abilites */
+#define CF_XXX19			0x00010000L /* Use safe travel abilities */
+#define CF_XXX20			0x00020000L /* Use special combat techniques */
+#define CF_XXX21			0x00040000L /* use Nature powers */
+#define CF_XXX22			0x00080000L /* Use Ninjitsu */
 #define CF_ANARCHIST		0x00100000L /* Mutate on Level gain */
 #define CF_MUTABLE			0x00200000L /* Mutate less often */
 #define CF_XXX23			0x00400000L
@@ -3216,14 +3374,11 @@ Beast-men
 /* xxx */
 /* xxx */
 /* xxx xxx */
-#define OPT_birth_point_based		(OPT_BIRTH+0)
-#define OPT_birth_auto_roller		(OPT_BIRTH+1)
-#define OPT_birth_maximize			(OPT_BIRTH+2)
-#define OPT_birth_preserve			(OPT_BIRTH+3)
-#define OPT_birth_ironman			(OPT_BIRTH+4)
-#define OPT_birth_no_stores			(OPT_BIRTH+5)
-#define OPT_birth_no_artifacts		(OPT_BIRTH+6)
-#define OPT_birth_rand_artifacts	(OPT_BIRTH+7)
+#define OPT_birth_preserve			(OPT_BIRTH+0)
+#define OPT_birth_ironman			(OPT_BIRTH+1)
+#define OPT_birth_no_stores			(OPT_BIRTH+2)
+#define OPT_birth_no_artifacts		(OPT_BIRTH+3)
+#define OPT_birth_rand_artifacts	(OPT_BIRTH+4)
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)
@@ -3232,14 +3387,11 @@ Beast-men
 #define OPT_cheat_know				(OPT_CHEAT+4)
 #define OPT_cheat_live				(OPT_CHEAT+5)
 /* xxx xxx */
-#define OPT_adult_point_based		(OPT_ADULT+0)
-#define OPT_adult_auto_roller		(OPT_ADULT+1)
-#define OPT_adult_maximize			(OPT_ADULT+2)
-#define OPT_adult_preserve			(OPT_ADULT+3)
-#define OPT_adult_ironman			(OPT_ADULT+4)
-#define OPT_adult_no_stores			(OPT_ADULT+5)
-#define OPT_adult_no_artifacts		(OPT_ADULT+6)
-#define OPT_adult_rand_artifacts	(OPT_ADULT+7)
+#define OPT_adult_preserve			(OPT_ADULT+0)
+#define OPT_adult_ironman			(OPT_ADULT+1)
+#define OPT_adult_no_stores			(OPT_ADULT+2)
+#define OPT_adult_no_artifacts		(OPT_ADULT+3)
+#define OPT_adult_rand_artifacts	(OPT_ADULT+4)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -3334,9 +3486,6 @@ Beast-men
 /* xxx */
 /* xxx */
 /* xxx xxx */
-#define birth_point_based		op_ptr->opt[OPT_birth_point_based]
-#define birth_auto_roller		op_ptr->opt[OPT_birth_auto_roller]
-#define birth_maximize			op_ptr->opt[OPT_birth_maximize]
 #define birth_preserve			op_ptr->opt[OPT_birth_preserve]
 #define birth_ironman			op_ptr->opt[OPT_birth_ironman]
 #define birth_no_stores			op_ptr->opt[OPT_birth_no_stores]
@@ -3350,9 +3499,6 @@ Beast-men
 #define cheat_know				op_ptr->opt[OPT_cheat_know]
 #define cheat_live				op_ptr->opt[OPT_cheat_live]
 /* xxx xxx */
-#define adult_point_based		op_ptr->opt[OPT_adult_point_based]
-#define adult_auto_roller		op_ptr->opt[OPT_adult_auto_roller]
-#define adult_maximize			op_ptr->opt[OPT_adult_maximize]
 #define adult_preserve			op_ptr->opt[OPT_adult_preserve]
 #define adult_ironman			op_ptr->opt[OPT_adult_ironman]
 #define adult_no_stores			op_ptr->opt[OPT_adult_no_stores]
@@ -3430,8 +3576,6 @@ Beast-men
 	 (k_info[(T)->k_idx].x_char))
 
 
-
-
 /*
  * Artifacts use the "name1" field
  */
@@ -3484,7 +3628,7 @@ Beast-men
 	(256 * (Y) + (X))
 
 /*
- * Convert a "grid" (G) into a "location" (Y)
+ * Convert a "grid into a "location" (Y)
  */
 #define GRID_Y(G) \
 	((int)((G) / 256U))
@@ -3807,3 +3951,311 @@ extern int PlayerUID;
  * HACK - define if the source contains the cleanup_angband() function.
  */
 #define HAS_CLEANUP
+
+
+/*
+ * Indexes for various spells 
+ */
+/* Liber Al Vel Legis (sval 0) */ 
+#define POW_AIM_OF_THE_WILL				1
+#define POW_SENSE_WILL					2
+#define POW_TRANSPORT_WILL				3
+#define POW_INNER_RAD					4
+#define POW_HEALING_I					5
+#define POW_LO_OBJECT		 			6
+#define POW_LO_TRAPS					7
+#define POW_PLAGUE_WILL					8
+/* The Zohar (Book of Splendor) (sval 1) */
+#define POW_RECHARGE					9
+#define POW_SUPPRESSION_WILL			10
+#define POW_IDENTIFY					11
+#define POW_FIRE_BOLT					12
+#define POW_FROST_BOLT					13
+#define POW_TELEPORT_OTHER_I			14
+#define POW_HASTE						15
+#define POW_FIREBALL					16
+#define POW_GENOCIDE					17
+/* Sepher Yetzirah (Book of Formation) (sval 2) */
+#define POW_ACID_BOLT					18
+#define POW_LIGHTNING_BOLT				271
+#define POW_CLOUD_KILL					19
+#define POW_ICE_STORM					20
+#define POW_FIRE_STORM					21
+#define POW_METEOR_STORM				22
+#define POW_ELEMENTAL_BALL				23
+#define POW_SOUL_STORM					24
+/* De Vermis Mysteriis (Mysteries of the Worm) (sval 3) */
+#define POW_RECHARGE_II					25
+#define POW_EARTHQUAKE_I				26
+#define POW_WORD_OF_RECALL_I			27
+#define POW_MIND_OF_WORM				28
+#define POW_MASS_GENOCIDE				29
+/* Book name (sval 4) */
+/* Book name (sval 5) */
+/* Book name (sval 6) */
+/* Book name (sval 7) */
+/* Book name (sval 8) */
+/* Book name (sval 9) */
+/* Treatise on the Resurrection (sval 10) */
+#define POW_CHANT						30
+#define POW_SANCTUARY					31
+#define POW_HOLY_BOLT 					32
+#define POW_HEALING_II					33
+#define POW_PROTECTION_FROM_EVIL		34
+#define POW_HEALING_III					35
+#define POW_REMOVE_CURSE				36
+#define POW_TURN_UNDEAD					37
+#define POW_HEALING_IV					38
+#define POW_DESTROY_MACHINE				272
+/* Odes of Solomon (sval 11) */
+#define POW_PORTAL						39
+#define POW_SENSE_INVISIBLE				40
+#define POW_SENSE_SURROUNDINGS			41
+#define POW_SATISFY_HUNGER				42
+#define POW_PRAYER						43
+#define POW_DISPEL_EVIL					44
+#define POW_IDENTIFY_II					45
+#define POW_HOLY_WORD					46
+#define POW_HEALING_V					47
+#define POW_RESTORATION					48
+/* The Pnakotic Manuscripts (sval 12) */
+#define POW_DISPEL_CURSE				49
+#define POW_BANISHMENT					50
+#define POW_RECHARGE_III				51
+#define POW_DISPEL_EVIL_II				52
+#define POW_WORD_OF_RECALL_II			53
+#define POW_RESISTANCE					54
+/* Book name (sval 13) */
+/* Book name (sval 14) */
+/* Book name (sval 15) */
+/* Book name (sval 16) */
+/* Book name (sval 17) */
+/* Utility knife (sval 18) */
+#define POW_CALL_LIGHT					55
+#define POW_REMOVE_FEAR					56
+#define POW_HEALING_VI					57
+#define POW_DETECT_DOOR_STAIR			58
+#define POW_DETECT_TRAPS				59
+#define POW_SLOW_POISON					60
+#define POW_SPRING_BLADE				61
+#define POW_NOURISHMENT					62
+#define POW_OBJECT_ANALYSIS				63
+#define POW_FETCH						273
+/* Detective's Kit  (sval 19) */
+#define POW_DETECT_HOSTILE				64
+#define POW_DETECT_TRAPS_DOORS			65
+#define POW_TREASURE_DETECTION			66
+#define POW_DETECT_ENCHANTMENT			67
+#define POW_DETECTION					68
+#define POW_PERCEPTION					69
+#define POW_PROBEING					70
+#define POW_CLARIVOYANCE				71
+#define POW_IDENTIFY_III				274				
+/* Clockwork Chassis (sval 20)*/
+#define POW_SPEAR_OF_LIGHT				72
+#define POW_ETHERIC_JUMP				73
+#define POW_DEFENSIVE_ARRAY				74
+#define POW_NEUTRALIZE_POISON			75
+#define POW_GUNS						76
+#define POW_HEALING_VII					77
+#define POW_TURN_STONE_TO_MUD			78
+#define POW_EARTHQUAKE_II				79
+#define POW_MISSILE						80
+#define POW_EMP							275
+/* Clockwork carbine (sval 21) */
+#define POW_LEAD_SLUGS					81
+#define POW_LIGHTNING_RAY				82
+#define POW_FROST_RAY					83
+#define POW_HEAT_RAY					84
+#define POW_GRAVITY_RAY					85
+#define POW_TELEPORT_OTHER_II			86
+/* Velocipede (sval 22) */
+#define POW_BLINK						87
+#define POW_TELEPORT_SELF				88
+#define POW_TELEPORT_OTHER_III			89
+#define POW_TELEPORT_LEVEL				90
+#define POW_WORD_OF_RECALL_III			91
+/* The Analytic Engine (sval 23) */
+#define POW_HEALING_VIII				92
+#define POW_BIOLOGICAL_ENHANCE			93
+#define POW_POLYMORPH_OTHER				94
+#define POW_RECHARGE_IV					95
+#define POW_DOOR_CREATION				96
+#define POW_STAIR_CREATION				97
+#define POW_BIOLOGICAL_ENHANCE_II		98
+#define POW_HEALING_IX					99
+#define POW_ALTER_REALITY				100
+/* Book name (sval 24) */
+#define POW_DRAIN_LIFE_3		101
+#define POW_DISPEL_ALL			102
+#define POW_DISPEL_UNDEAD_1		103
+#define POW_DISPEL_UNDEAD_2		104
+#define POW_DISPEL_NON_EVIL		105
+#define POW_DISPEL_EVIL_3		106
+#define POW_DISPEL_EVIL_4		107
+#define POW_DISPEL_EVIL_5		108
+#define POW_HOLY_1				109
+#define POW_HOLY_2				110
+#define POW_GENOCIDE_I			111
+#define POW_MASS_GENOCIDE_I		112
+#define POW_EARTHQUAKE_III			113
+#define POW_DESTRUCTION			114
+#define POW_LIGHT_AREA			115
+#define POW_DARK_AREA			116
+#define POW_DETECT_MONSTERS		117
+#define POW_DETECT_EVIL			118
+#define POW_DETECT_INVIS		119
+#define POW_DETECT_TRAP			120
+#define POW_DETECT_TREASURE		121
+#define POW_DETECT_DOOR_STAIR_X	122
+#define POW_DETECT_TRAP_DOOR	123
+#define POW_DETECT_ITEM			124
+#define POW_DETECT_ENCHANT		125
+#define POW_DETECT_ALL			126
+#define POW_ABSORB_HIT			127
+#define POW_BLESS_1				128
+#define POW_BLESS_2				129
+#define POW_BLESS_3				130
+#define POW_HEROISM				131
+#define POW_STABILITY			132
+#define POW_RAGE_1				133
+#define POW_RAGE_2				134
+#define POW_RAGE_BLESS_RESIST	135
+#define POW_SHIELD				136
+#define POW_INVIS_1				137
+#define POW_INVIS_2				138
+#define POW_RESILIENCE			139
+#define POW_INFRAVISION			140
+#define POW_STEALTH				141
+#define POW_SEE_INVIS			142
+#define POW_PROT_EVIL			143
+#define POW_HASTE_SELF_1		144
+#define POW_HASTE_SELF_2		145
+#define POW_HASTE_SELF_3		146
+#define POW_DISARM				147
+#define POW_DEST_TRAP_DOOR_1	148
+#define POW_DEST_TRAP_DOOR_2	149
+#define POW_STONE_TO_MUD		150
+#define POW_CREATE_WALL			151
+#define POW_CREATE_DOOR			152
+#define POW_CREATE_STAIR		153
+#define POW_CREATE_TRAP			154
+#define POW_MAGIC_LOCK			155
+#define POW_ACQUIRE_1			156
+#define POW_ACQUIRE_2			157
+#define POW_AGGRAVATE			158
+#define POW_AGGRAVATE_SAFE		159
+#define POW_CONFUSE_MONSTER		160
+#define POW_CONFUSE_ALL			161
+#define POW_SLEEP_MONSTER		162
+#define POW_SLEEP_ADJACENT		163
+#define POW_SLEEP_ALL			164
+#define POW_SLOW_MONSTER		165
+#define POW_SLOW_ALL			166
+#define POW_CALM_MONSTER		167
+#define POW_CALM_ANIMALS		168
+#define POW_CALM_NON_EVIL		169
+#define POW_CALM_NON_CHAOS		170
+#define POW_CALM_ALL			171
+#define POW_BLIND_MONSTER		172
+#define POW_SCARE_MONSTER		173
+#define POW_SCARE_UNDEAD		174
+#define POW_SCARE_ALL			175
+#define POW_CALL_MONSTER		176
+#define POW_POLY_MONSTER		177
+#define POW_HEAL_MONSTER		178
+#define POW_HASTE_MONSTER		179
+#define POW_CLONE_MONSTER		180
+#define POW_SATISFY_HUNGER_X		181
+#define POW_RECHARGE_1			182
+#define POW_RECHARGE_2			183
+#define POW_RECHARGE_3			184
+#define POW_RECHARGE_4			185
+#define POW_IDENTIFY_X			186
+#define POW_IDENTIFY_PACK		187
+#define POW_IDENTIFY_FULL		188
+#define POW_RES_ACID			189
+#define POW_RES_ELEC			190
+#define POW_RES_FIRE			191
+#define POW_RES_COLD			192
+#define POW_RES_ACID_ELEC		193
+#define POW_RES_FIRE_COLD		194
+#define POW_RES_POISON			195
+#define POW_RES_DISEASE			196
+#define POW_RES_SOUND			197
+#define POW_RES_LITE_DARK		198
+#define POW_RES_CHAOS_NEXUS		199
+#define POW_RES_ELEMENTS		200
+#define POW_RES_GREATER			201
+#define POW_RESISTANCE_X			202
+#define POW_GLYPH_WARDING		203
+#define POW_GLYPH_LESSER		204
+#define POW_GLYPH_HOLY			205
+#define POW_REMOVE_CURSE_1		206
+#define POW_REMOVE_CURSE_2		207
+#define POW_MAP_1				208
+#define POW_MAP_2				209
+#define POW_MAP_3				210
+#define POW_PROBE_MONSTER		211
+#define POW_PROBE_ALL			212
+#define POW_KNOW_ALL			213
+#define POW_ENCHANT_WEAPON_HIT	214
+#define POW_ENCHANT_WEAPON_DAM	215
+#define POW_ENCHANT_WEAPON		216
+#define POW_ENCHANT_ARMOR_1		217
+#define POW_ENCHANT_ARMOR_2		218
+#define POW_BRAND_WEAPON_ELMNT	219
+#define POW_BRAND_ARROW_ANML	220
+#define POW_BRAND_ARROW_WOUND	221
+#define POW_BRAND_ARROW_ELMNT	222
+#define POW_BRAND_BOLT_FIRE		223
+#define POW_BRAND_BOLT_LITE		224
+#define POW_BRAND_SHOT_POIS		225
+#define POW_BRAND_SHOT_HOLY		226
+#define POW_BIZZARE				227
+#define POW_CURSE_EQUIP_1		228
+#define POW_CURSE_EQUIP_2		229
+#define POW_SUM_MONSTER			230
+#define POW_SUM_UNDEAD			231
+#define POW_SUM_DRAGON			232
+#define POW_NAUSEA				233
+#define POW_POISON_SELF			234
+#define POW_BLIND_SELF			235
+#define POW_CONFUSE_SELF		236
+#define POW_SCARE_SELF			237
+#define POW_SLOW_SELF			238
+#define POW_PARALYZE			239
+#define POW_HALLUCINATE			240
+#define POW_DISEASE				241
+#define POW_DEFORM				242
+#define POW_LOSE_STR			243
+#define POW_LOSE_INT			244
+#define POW_LOSE_WIS			245
+#define POW_LOSE_DEX			246
+#define POW_LOSE_CON			247
+#define POW_LOSE_CHR			248
+#define POW_LOSE_EXP			249
+#define POW_RUINATION			250
+#define POW_DETONATE			251
+#define POW_KILL_SELF			252
+#define POW_DRAGON_BLACK		253
+#define POW_DRAGON_BLUE			254
+#define POW_DRAGON_WHITE		255
+#define POW_DRAGON_RED			256
+#define POW_DRAGON_GREEN		257
+#define POW_DRAGON_BRONZE		258
+#define POW_DRAGON_GOLD			259
+#define POW_DRAGON_SILVER		260
+#define POW_DRAGON_MH			261
+#define POW_DRAGON_SPIRIT		262
+#define POW_DRAGON_SHADOW		263
+#define POW_DRAGON_ETHER		264
+#define POW_DRAGON_CHAOS		265
+#define POW_DRAGON_TIME			266
+#define POW_DRAGON_POWER		267
+#define POW_RISK_HACK			268
+#define POW_WONDER_HACK			269
+#define POW_DRAIN_LIFE_2		270
+
+/* Total number of powers in the game + 1 */
+#define POW_MAX					280

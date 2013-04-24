@@ -1928,6 +1928,19 @@ static bool summon_specific_okay(int r_idx)
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
+		case SUMMON_BEASTMAN:
+		{
+			okay = ((r_ptr->d_char == 'B') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_ANIMAL:
+		{
+			okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
 		case SUMMON_AUTOMATA:
 		{
 			okay = ((r_ptr->d_char == 'a') &&
@@ -1944,7 +1957,7 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_HOUND:
 		{
-			okay = (((r_ptr->d_char == 'Z') || (r_ptr->d_char == 'Z')) &&
+			okay = ((r_ptr->d_char == 'Z') &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}

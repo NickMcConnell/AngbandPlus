@@ -706,10 +706,11 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->name2);
 
 	wr_s16b(o_ptr->timeout);
-
+	wr_s16b(o_ptr->force);
 	wr_s16b(o_ptr->to_h);
 	wr_s16b(o_ptr->to_d);
 	wr_s16b(o_ptr->to_a);
+	
 	wr_s16b(o_ptr->ac);
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
@@ -1028,15 +1029,20 @@ static void wr_extra(void)
 	wr_byte(p_ptr->hitdie);
 	wr_byte(p_ptr->expfact);
 
+	
+
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
 	wr_s16b(p_ptr->wt);
 
-	/* Dump the stats (maximum and current) */
+	/* Dump the stats  (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
-	for (i = 0; i < A_MAX; ++i) wr_byte(p_ptr->stat_birth[i]);
-	
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_birth[i]);
+	/* Write skills */
+	for (i = 0; i < N_SKILLS; ++i) wr_s16b(p_ptr->skills[i].skill_rank);
+	for (i = 0; i < N_SKILLS; ++i) wr_s16b(p_ptr->skills[i].skill_max);
+
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
 
@@ -1047,6 +1053,9 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->max_exp);
 	wr_u32b(p_ptr->exp);
 	wr_u16b(p_ptr->exp_frac);
+	wr_s16b(p_ptr->free_skpts);
+	wr_s16b(p_ptr->free_sgain);
+	
 	wr_s16b(p_ptr->lev);
 
 	wr_s16b(p_ptr->mhp);
@@ -1094,6 +1103,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
+	wr_s16b(p_ptr->tim_harding);
 	wr_s16b(p_ptr->oppose_fire);
 	wr_s16b(p_ptr->oppose_cold);
 	wr_s16b(p_ptr->oppose_acid);
@@ -1102,6 +1112,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_wraith);
 	wr_s16b(p_ptr->tim_esp);
 	wr_byte(p_ptr->confusing);
+		/* Ghostly status -- from Gumband */
+	wr_byte(p_ptr->astral);
+	wr_byte(p_ptr->was_astral);
+	wr_byte(p_ptr->astral_start);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
@@ -1488,19 +1502,19 @@ static bool wr_savefile_new(void)
 
 
 	/* Write spell data */
-	wr_u32b(p_ptr->spell_learned1);
+/*	wr_u32b(p_ptr->spell_learned1);
 	wr_u32b(p_ptr->spell_learned2);
 	wr_u32b(p_ptr->spell_worked1);
 	wr_u32b(p_ptr->spell_worked2);
 	wr_u32b(p_ptr->spell_forgotten1);
 	wr_u32b(p_ptr->spell_forgotten2);
-
+*/
 	/* Dump the ordered spells */
-	for (i = 0; i < PY_MAX_SPELLS; i++)
+/*	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		wr_byte(p_ptr->spell_order[i]);
 	}
-
+*/
 
 	/* Write randart information */
 /*	if (adult_rand_artifacts)

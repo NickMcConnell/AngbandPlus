@@ -57,12 +57,13 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.3.1
 
 #British are the average. Oh, and they're chipper so they resist fear
 N:0:British
-S:0:0:0:0:0:0
-R:0:0:0:0:0:10:0:0
+#S:0:0:0:0:0:0
+S:6:6:6:7:6:6
+#R:0:0:0:0:0:10:0:0
 X:10:100:0
 I:1:15:6
 H:72:6:66:4
@@ -74,8 +75,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 # They also tend to be more aware of their surrroundings giving them a +1 to
 # infravision
 N:1:Asiatic
-S:0:-1:+1:+2:0:0
-R:0:0:2:5:2:12:5:5
+#S:0:-1:+1:+2:0:0
+S:6:8:6:5:7:5
+#R:0:0:2:5:2:12:5:5
 X:9:100:1
 I:8:15:6
 H:66:6:62:6
@@ -85,8 +87,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 # Americans are bright, Very hardy, and very charasmatic. However, they are not 
 # too wise. :-)
 N:2:American
-S:0:2:-3:1:2:2
-R:0:5:5:-5:0:10:5:5
+#S:0:2:-3:1:2:2
+S:7:7:7:7:4:8
+#R:0:5:5:-5:0:10:5:5
 X:12:110:0
 I:1:75:75
 H:74:4:64:4
@@ -97,19 +100,21 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 # the upper classes, they have a penalty charisma. Also due to their (probable) 
 # lack of education They suffer a penalty to intelligence.
 N:3:African
-S:2:-2:0:2:3:-2
-R:0:-5:0:3:0:10:8:2
+#S:2:-2:0:2:3:-2
+S:9:8:7:3:6:4
+#R:0:-5:0:3:0:10:8:2
 X:12:110:0
 I:15:21:12
 H:74:4:64:4
 W:180:30:110:12
-F:SUST_CON
+F:SUST_VIG
 C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Ahhh, the French. Second only to the british and challenging them at every turn
 N:4:French
-S:0:0:0:0:0:2
-R:0:0:0:0:0:10:0:0
+#S:0:0:0:0:0:2
+S:6:6:6:6:6:9
+#R:0:0:0:0:0:10:0:0
 X:9:90:0
 I:1:50:40
 H:72:6:66:4
@@ -119,8 +124,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Spaniards are a power in decline. However as individuals they tend to do ok. . .
 N:5:Spanish
-S:0:0:0:2:0:0
-R:2:0:2:4:0:10:5:0
+#S:0:0:0:2:0:0
+S:6:9:6:6:6:6
+#R:2:0:2:4:0:10:5:0
 X:10:100:0
 I:1:35:15
 H:72:6:66:4
@@ -130,8 +136,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 # Germany is the leader of science and industry. They are also fond of military might
 # making them an all around powerful character.
 N:6:German
-S:2:2:0:0:2:0
-R:0:0:0:-2:0:0:3:10
+#S:2:2:0:0:2:0
+S:8:6:6:8:8:6
+#R:0:0:0:-2:0:0:3:10
 X:10:110:0
 I:1:11:4
 H:72:6:66:4
@@ -141,8 +148,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Russians are the power to the east.
 N:7:Russian
-S:0:0:0:0:2:0
-R:0:0:2:0:0:10:2:2
+#S:0:0:0:0:2:0
+S:6:6:9:6:6:6
+#R:0:0:2:0:0:10:2:2
 X:10:100:0
 I:22:20:10
 H:72:6:66:4
@@ -151,9 +159,10 @@ F:RES_CONFU
 C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # The finnish are smart enough to leave well enough alone. . .
-N:8:Finnish
-S:0:0:2:0:0:-1
-R:0:0:0:0:0:10:0:0
+N:8:Scandinavian
+#S:0:0:2:0:0:-1
+S:6:6:6:6:8:5
+#R:0:0:0:0:0:10:0:0
 X:10:95:0
 I:22:50:20
 H:72:6:66:4
@@ -163,8 +172,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 # Hailing from the mighty and mysterious middle east, they know ancient and
 # Forbidden arts. . .
 N:9:Arabic
-S:0:2:2:0:0:1
-R:0:5:5:5:0:10:5:0
+#S:0:2:2:0:0:1
+S:6:7:6:6:8:7
+#R:0:5:5:5:0:10:5:0
 X:10:110:0
 I:29:100:30
 H:72:6:66:4
@@ -174,8 +184,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Dwarf
 N:10:Dwarf
-S:2:-3:2:-2:2:-3
-R:2:9:9:-1:7:10:15:0
+#S:2:-3:2:-2:2:-3
+S:10:4:10:9:3:2
+#R:2:9:9:-1:7:10:15:0
 X:16:120:5
 I:36:35:15
 H:48:3:46:3
@@ -185,8 +196,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Brownies are the very spirit of victorian industrialism
 N:11:Brownie
-S:-1:3:0:3:0:1
-R:3:8:1:-2:-6:7:-2:-2
+#S:-1:3:0:3:0:1
+S:5:5:4:12:5:5
+#R:3:8:1:-2:-6:7:-2:-2
 X:5:130:0
 I:36:100:30
 H:30:4:26:5
@@ -196,8 +208,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 #High-elf with a fancy name.
 N:12:Daoine Sidhe
-S:1:3:-1:3:1:5
-R:4:20:20:3:3:14:10:25
+#S:1:3:-1:3:1:5
+S:7:10:8:9:5:10
+#R:4:20:20:3:3:14:10:25
 X:10:200:4
 I:36:100:30
 H:90:10:82:10
@@ -207,8 +220,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Good Faries
 N:13:Seelie Fae
-S:-1:1:2:2:0:3
-R:-5:5:10:0:10:15:2:8
+#S:-1:1:2:2:0:3
+S:4:12:2:8:8:12
+#R:-5:5:10:0:10:15:2:8
 X:7:140:6
 I:36:120:30
 H:30:70:26:65
@@ -218,8 +232,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 #Bad Faries
 N:14:Unseelie Fae
-S:1:-1:-2:2:3:0
-R:5:-5:10:15:10:15:8:2
+#S:1:-1:-2:2:3:0
+S:12:8:12:2:4:8
+#R:5:-5:10:15:10:15:8:2
 X:8:140:10
 I:36:120:30
 H:30:70:26:65
@@ -241,52 +256,57 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Mechnical men.
 N:15:Automata
-S:2:2:0:-2:5:-2
-R:-5:-10:15:-20:-10:3:5:5
+#S:2:2:0:-2:5:-2
+S:45:30:60:30:10:20
+#R:-5:-10:15:-20:-10:3:5:5
 X:12:140:0
 I:42:100:30
 H:90:10:82:10
 W:220:80:200:50
-F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | HOLD_LIFE | AUTOMATA | RES_POIS
+F:SUST_MUS | SUST_SCH | SUST_EGO | SUST_AGI | SUST_VIG | SUST_CHR | HOLD_LIFE | AUTOMATA | RES_POIS | RES_BLIND
 C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # The giant machines of war!
 N:16:Steam-Mecha
-S:15:-7:-7:5:10:-5
-R:-10:-10:20:-25:-5:0:25:25
+#S:15:-7:-7:5:10:-5
+S:65:45:70:30:10:10
+#R:-10:-10:20:-25:-5:0:25:25
 X:25:200:4
 I:42:100:30
 H:90:50:82:40
 W:300:120:280:115
-F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | AGGRAVATE | HOLD_LIFE | AUTOMATA | RES_POIS
+F:SUST_MUS | SUST_SCH | SUST_EGO | SUST_AGI | SUST_VIG | SUST_CHR | AGGRAVATE | HOLD_LIFE | AUTOMATA | RES_POIS | RES_BLIND
 C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Arabic spirits of mystery!
 N:17:Djinn
-S:2:5:1:3:1:2
-R:4:6:4:2:13:10:-2:5
+#S:2:5:1:3:1:2
+S:8:10:8:10:12:8
+#R:4:6:4:2:13:10:-2:5
 X:15:200:0
 I:48:100:30
 H:90:10:82:10
 W:190:20:180:15
-F:SUST_INT | RES_FIRE | FEATHER
+F:SUST_EGO | RES_FIRE | FEATHER
 C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Ancient indian spirits of corruption and trickery
 N:18:Rakshasa
-S:3:1:-1:5:1:0
-R:10:9:-2:13:-3:13:10:12
+#S:3:1:-1:5:1:0
+S:10:12:8:8:6:12
+#R:10:9:-2:13:-3:13:10:12
 X:12:200:4
 I:48:100:30
 H:90:10:82:10
 W:190:20:180:15
-F:SUST_DEX | RES_CHAOS | RES_NEXUS | MUTABLE
+F:SUST_AGI | RES_CHAOS | RES_NEXUS | MUTABLE
 C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Giant humanoids
 N:19:Giant
-S:10:-3:-1:-2:8:-3
-R:-5:-10:4:-11:-2:4:20:-13
+#S:10:-3:-1:-2:8:-3
+S:15:4:12:3:4:2
+#R:-5:-10:4:-11:-2:4:20:-13
 X:18:200:0
 I:52:100:30
 H:90:10:82:10
@@ -295,8 +315,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Less large than giants, but not quite as dumb.
 N:20:Ogre
-S:6:-1:0:0:4:-1
-R:-3:-7:2:-8:0:5:16:-8
+#S:6:-1:0:0:4:-1
+S:13:6:10:4:4:4
+#R:-3:-7:2:-8:0:5:16:-8
 X:13:150:0
 I:52:100:30
 H:90:10:82:10
@@ -305,8 +326,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Ancient trolls (regenerate!)
 N:21:Troll
-S:2:-1:-3:1:8:-2
-R:-3:-4:11:-4:0:7:18:-13
+#S:2:-1:-3:1:8:-2
+S:10:6:15:4:5:3
+#R:-3:-4:11:-4:0:7:18:-13
 X:14:190:4
 I:52:100:30
 H:90:10:82:10
@@ -316,8 +338,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 #insubstantical spirits 
 N:22:Ghost
-S:-1:3:3:3:-2:0
-R:0:0:0:0:0:0:0:0
+#S:-1:3:3:3:-2:0
+S:4:13:4:8:13:8
+#R:0:0:0:0:0:0:0:0
 X:7:150:6
 I:59:100:30
 H:90:10:82:10
@@ -327,8 +350,9 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Michieveous little weaklings
 N:23:Goblin
-S:-5:-5:-5:-5:-5:-5
-R:-10:-10:-10:-10:-10:2:-10:-10
+#S:-5:-5:-5:-5:-5:-5
+S:2:2:2:2:2:2
+#R:-10:-10:-10:-10:-10:2:-10:-10
 X:4:60:2
 I:65:100:30
 H:35:10:32:10
@@ -337,11 +361,12 @@ C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17
 
 # Ancient evil from the dark recesses of the universe.
 N:24:Old One
-S:12:12:12:12:12:-15
-R:-20:-10:25:-30:10:11:25:25
+#S:12:12:12:12:12:-15
+S:15:15:15:15:15:15
+#R:-20:-10:25:-30:10:11:25:25
 X:20:200:10
 I:72:100:30
 H:90:10:82:10
 W:190:20:180:15
-F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | IM_ACID | IM_FIRE | IM_COLD | AGGRAVATE | HOLD_LIFE | REGEN | TELEPATHY | RES_FEAR | DRAIN_EXP | MUTABLE
+F:SUST_MUS | SUST_SCH | SUST_EGO | SUST_AGI | SUST_VIG | SUST_CHR | IM_ACID | IM_FIRE | IM_COLD | AGGRAVATE | HOLD_LIFE | REGEN | TELEPATHY | RES_FEAR | DRAIN_EXP | MUTABLE
 C:0|1|2|3|4|5|6|7|8|9|10|12|13|14|15|16|17

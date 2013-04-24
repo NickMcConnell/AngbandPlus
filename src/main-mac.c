@@ -367,15 +367,7 @@ u32b _fcreator;
 /*
  * Forward declare -- see below
  */
-static bool CheckEvents(int wait);
-
-
-/*
- * Available values for 'wait'
- */
-#define CHECK_EVENTS_NO_WAIT	FALSE
-#define CHECK_EVENTS_WAIT		TRUE
-#define CHECK_EVENTS_DRAIN		(-1)
+static bool CheckEvents(bool wait);
 
 
 /*
@@ -448,6 +440,8 @@ AEEventHandlerUPP AEH_Start_UPP;
 AEEventHandlerUPP AEH_Quit_UPP;
 AEEventHandlerUPP AEH_Print_UPP;
 AEEventHandlerUPP AEH_Open_UPP;
+AEEventHandlerUPP AEH_Reopen_UPP;
+
 
 #endif
 
@@ -1465,7 +1459,7 @@ static void play_sound(int num, int vol)
 	if ((num <= 0) || (num >= SOUND_MAX)) return;
 
 	/* Prepare volume command */
-	volume_cmd.param2 = (SInt16)((vol << 4) | vol);
+	volume_cmd.param2 = ((SInt32)vol << 16) | vol;
 
 	/* Channel to use (round robin) */
 	chan = channels[next_chan];
@@ -1946,7 +1940,7 @@ static errr Term_xtra_mac(int n, int v)
 		case TERM_XTRA_BORED:
 		{
 			/* Process an event */
-			(void)CheckEvents(CHECK_EVENTS_NO_WAIT);
+			(void)CheckEvents(FALSE);
 
 			/* Success */
 			return (0);
@@ -1966,7 +1960,7 @@ static errr Term_xtra_mac(int n, int v)
 		case TERM_XTRA_FLUSH:
 		{
 			/* Hack -- flush all events */
-			while (CheckEvents(CHECK_EVENTS_DRAIN)) /* loop */;
+			while (CheckEvents(TRUE)) /* loop */;
 
 			/* Success */
 			return (0);
@@ -4612,7 +4606,7 @@ static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
 /*
  * Apple Event Handler -- Open Application
  */
-static OSErr AEH_Start(const AppleEvent *theAppleEvent,
+static pascal OSErr AEH_Start(const AppleEvent *theAppleEvent,
 			      AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
@@ -4624,7 +4618,7 @@ static OSErr AEH_Start(const AppleEvent *theAppleEvent,
 /*
  * Apple Event Handler -- Quit Application
  */
-static OSErr AEH_Quit(const AppleEvent *theAppleEvent,
+static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
 			     AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
@@ -4640,7 +4634,7 @@ static OSErr AEH_Quit(const AppleEvent *theAppleEvent,
 /*
  * Apple Event Handler -- Print Documents
  */
-static OSErr AEH_Print(const AppleEvent *theAppleEvent,
+static pascal OSErr AEH_Print(const AppleEvent *theAppleEvent,
 			      AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(theAppleEvent, reply, handlerRefCon)
@@ -4663,7 +4657,7 @@ static OSErr AEH_Print(const AppleEvent *theAppleEvent,
  * snippet from Think Reference 2.0.  (The prior sentence could read
  * "shamelessly swiped & hacked")
  */
-static OSErr AEH_Open(AppleEvent *theAppleEvent,
+static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
 			     AppleEvent* reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
@@ -4717,6 +4711,62 @@ static OSErr AEH_Open(AppleEvent *theAppleEvent,
 
 	/* Success */
 	return noErr;
+}
+
+/*
+ * Apple Event Handler -- Re-open Application
+ *
+ * If no windows are currently open, show the Angband window.
+ * This required AppleEvent was introduced by System 8 -- pelpel
+ */
+static pascal OSErr AEH_Reopen(const AppleEvent *theAppleEvent,
+			     AppleEvent* reply, long handlerRefCon)
+{
+#pragma unused(theAppleEvent, reply, handlerRefCon)
+
+	int i, cnt;
+	term_data *td = NULL;
+
+	/* Reset count */
+	cnt = 0;
+
+	/* Check all windows */
+	for (i = 0; i < MAX_TERM_DATA; i++)
+	{
+		/* Skip dead windows */
+		if(!data[i].t) continue;
+
+		/* Count visible windows */
+		if (data[i].mapped) cnt++;
+	}
+
+	/* No open windows */
+	if (0 == cnt)
+	{
+		/* Obtain the Angband window */
+		td= &data[0];
+
+		/* Mapped */
+		td->mapped = TRUE;
+
+		/* Link */
+		term_data_link(i);
+
+		/* Mapped (?) */
+		td->t->mapped_flag = TRUE;
+
+		/* Show the window */
+		ShowWindow(td->w);
+
+		/* Bring to the front */
+		SelectWindow(td->w);
+
+		/* Make it active */
+		activate(td->w);
+	}
+
+	/* Event handled */
+	return (noErr);
 }
 
 
@@ -4850,7 +4900,7 @@ static void unload_segments(void)
  *
  * Hack -- Handle AppleEvents if appropriate (ignore result code).
  */
-static bool CheckEvents(int wait)
+static bool CheckEvents(bool wait)
 {
 	EventRecord event;
 
@@ -4897,9 +4947,11 @@ static bool CheckEvents(int wait)
 #endif /* UNLOAD_SEGMENTS */
 
 
-#ifdef ANGBAND_LITE_MAC
-
-	/* System 6 sans MultiFinder */
+	/*
+	 * These are *very* legacy APIs (deprecated by the time of System 6),
+	 * but some players are whinning about delays :(  Okay, so they prefer
+	 * the game running faster to overall system performance... -- pelpel
+	 */
 
 	/* Let the "system" run */
 	SystemTask();
@@ -4907,20 +4959,6 @@ static bool CheckEvents(int wait)
 	/* Get an event (or null) */
 	GetNextEvent(everyEvent, &event);
 
-#else
-
-	/* System 7.0-- */
-
-	/* Blocking call to WaitNextEvent */
-	if (wait > 0) sleep = 0x7FFFFFFFL;
-
-	/* Non-blocking call */
-	sleep = 0L;
-
-	/* Get an event (or null) XXX XXX XXX should block when appropriate */
-	WaitNextEvent(everyEvent, &event, sleep, NULL);
-
-#endif /* ANGBAND_LITE_MAC */
 
 	/* Hack -- Nothing is ready yet */
 	if (event.what == nullEvent) return (FALSE);
@@ -5025,11 +5063,11 @@ static bool CheckEvents(int wait)
 				/* Send the "keypad" modifier */
 				Term_keypress('K');
 
-				/* Send the "ascii" keypress */
-				Term_keypress(ch);
-
 				/* Terminate the trigger */
 				Term_keypress(13);
+
+				/* Send the "ascii" keypress */
+				Term_keypress(ch);
 			}
 
 			/* Bizarre key -> encoded keypress */
@@ -5382,7 +5420,7 @@ static void *hook_rpanic(size_t size)
 		mac_warning("Running out of Memory!\rAbort this process now!");
 
 		/* Mega-Hack -- Never leave this function */
-		while (TRUE) CheckEvents(CHECK_EVENTS_WAIT);
+		while (TRUE) CheckEvents(TRUE);
 	}
 
 	/* Mega-Hack -- Crash */
@@ -5763,94 +5801,84 @@ int main(void)
 	/* Flush events */
 	FlushEvents(everyEvent, 0);
 
-	/* Flush events some more (?) */
-	if (EventAvail(everyEvent, &tempEvent)) FlushEvents(everyEvent, 0);
-
-
 #ifdef ANGBAND_LITE_MAC
 
 	/* Nothing */
 
 #else /* ANGBAND_LITE_MAC */
 
-# if defined(powerc) || defined(__powerc)
-
-	/* Assume System 7 */
-
-	/* Assume Color Quickdraw */
-
-# else
+	/*
+	* Gestalt has been available since System 6.0.4 and development
+	* tools still supporting 68K code generation are able to produce
+	* stubs to emulate it -- pelpel
+	*/
 
 	/* Block */
-	if (TRUE)
 	{
 		OSErr err;
-		long versionNumber;
+		long system_version;
+		long qd_version;
 
-		/* Check the Gestalt */
-		err = Gestalt(gestaltSystemVersion, &versionNumber);
 
-		/* Check the version */
-		if ((err != noErr) || (versionNumber < 0x0700))
-		{
-			quit("You must have System 7 to use this program.");
-		}
-	}
+		/* Check the Gestalt for System Software version */
+		err = Gestalt(gestaltSystemVersion, &system_version);
 
-	/* Block */
-	if (TRUE)
-	{
-		SysEnvRec env;
-
-		/* Check the environs */
-		if (SysEnvirons(1, &env) != noErr)
-		{
-			quit("The SysEnvirons call failed!");
-		}
-
-		/* Check for System Seven Stuff */
-		if (env.systemVersion < 0x0700)
+		/*
+		* Verify System 7 (1991) -- GWorld, Sound Manager, StandardFile
+		* without "working directory", WNE and AppleEvent.
+		* Gestalt is also 7-ish.
+		*/
+		if ((err != noErr) || (system_version <0x0700))
 		{
 			quit("You must have System 7 to use this program.");
 		}
 
-		/* Check for Color Quickdraw */
-		if (!env.hasColorQD)
+		/* Check the Gestalt for QuickDraw version */
+		err = Gestalt(gestaltQuickdrawVersion, &qd_version);
+
+		/* Lower 16 bits hold QuickDraw version */
+		qd_version &=0x0000FFFFL;
+
+		/*
+		* Verify presence of Colour QuickDraw --
+		*  0x00xx - Original B&W QD
+		*  0x01xx and 0x02xx - Colour QD
+		*  0x03xx - OS X QD
+		*/
+		if ((err != noErr) || (qd_version < 0x100))
 		{
 			quit("You must have Color Quickdraw to use this program.");
 		}
+
+
+		/** Install required AppleEvent handlers, ignoring errors **/
+
+		/* Install Open Application event handler */
+		(void)AEInstallEventHandler(kCoreEventClass, kAEOpenApplication,
+			NewAEEventHandlerProc(AEH_Start), 0L, FALSE);
+
+		/* Install Quit Application event handler */
+		(void)AEInstallEventHandler(kCoreEventClass, kAEQuitApplication,
+			NewAEEventHandlerProc(AEH_Quit), 0L, FALSE);
+
+		/* Install Print Documents event handler */
+		(void)AEInstallEventHandler(kCoreEventClass, kAEPrintDocuments,
+			NewAEEventHandlerProc(AEH_Print), 0L, FALSE);
+
+		/* Install Open Documents event handler */
+		(void)AEInstallEventHandler(kCoreEventClass, kAEOpenDocuments,
+			NewAEEventHandlerProc(AEH_Open), 0L, FALSE);
+
+		/*
+		* Install Re-open Application event handler.  OS 8 (the second
+		*half of 1997) or greater.
+		*/
+		if (system_version >= 0x800)
+		{
+			(void)AEInstallEventHandler(kCoreEventClass, kAEReopenApplication,
+				NewAEEventHandlerProc(AEH_Reopen), 0L, FALSE);
+		}
 	}
-
-# endif
-
-
-	/* Obtain a "Universal Procedure Pointer" */
-	AEH_Start_UPP = NewAEEventHandlerProc(AEH_Start);
-
-	/* Install the hook (ignore error codes) */
-	AEInstallEventHandler(kCoreEventClass, kAEOpenApplication, AEH_Start_UPP,
-			      0L, FALSE);
-
-	/* Obtain a "Universal Procedure Pointer" */
-	AEH_Quit_UPP = NewAEEventHandlerProc(AEH_Quit);
-
-	/* Install the hook (ignore error codes) */
-	AEInstallEventHandler(kCoreEventClass, kAEQuitApplication, AEH_Quit_UPP,
-			      0L, FALSE);
-
-	/* Obtain a "Universal Procedure Pointer" */
-	AEH_Print_UPP = NewAEEventHandlerProc(AEH_Print);
-
-	/* Install the hook (ignore error codes) */
-	AEInstallEventHandler(kCoreEventClass, kAEPrintDocuments, AEH_Print_UPP,
-			      0L, FALSE);
-
-	/* Obtain a "Universal Procedure Pointer" */
-	AEH_Open_UPP = NewAEEventHandlerProc(AEH_Open);
-
-	/* Install the hook (ignore error codes) */
-	AEInstallEventHandler(kCoreEventClass, kAEOpenDocuments, AEH_Open_UPP,
-			      0L, FALSE);
 
 #endif /* ANGBAND_LITE_MAC */
 
@@ -5916,7 +5944,7 @@ int main(void)
 	init_windows();
 
 	/* Hack -- process all events */
-	while (CheckEvents(CHECK_EVENTS_DRAIN)) /* loop */;
+	while (CheckEvents(TRUE)) /* loop */;
 
 	/* Reset the cursor */
 	SetCursor(&qd.arrow);
@@ -5937,7 +5965,7 @@ int main(void)
 
 
 	/* Hack -- process all events */
-	while (CheckEvents(CHECK_EVENTS_DRAIN)) /* loop */;
+	while (CheckEvents(TRUE)) /* loop */;
 
 
 	/* We are now initialized */
@@ -5955,7 +5983,7 @@ int main(void)
 	Term_fresh();
 
 	/* Hack -- Process Events Forever */
-	while (TRUE) CheckEvents(CHECK_EVENTS_WAIT);
+	while (TRUE) CheckEvents(TRUE);
 }
 
 #endif /* MACINTOSH */

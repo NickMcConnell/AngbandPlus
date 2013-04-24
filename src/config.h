@@ -499,7 +499,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"campbell@oook.cz"
+#define MAINTAINER	"valis@oook.cz"
 
 
 /*

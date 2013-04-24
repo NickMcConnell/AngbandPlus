@@ -1,4 +1,4 @@
-=== Playing the Game ===
+=== Playing the Game === (OUTDATED)
 
     Most of your interaction with Steamband will take the form of "commands".
 Every steamband command consists of an "underlying command" plus a variety of
@@ -135,7 +135,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  \  (special - bypass keymap)            |  (unused)
  `  (special - escape)                   ~  Check knowledge
  /  Identify symbol                      ?  Help
-
+esc skip all messages
 
 
 === Roguelike Keyset Command Summary ===
@@ -195,7 +195,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  \  (special - bypass keymap)            |  (unused)
  `  (special - escape)                   ~  Check knowledge
  /  Identify symbol                      ?  Help
-
+esc skip all messages
 
 
 === Special Keys ===

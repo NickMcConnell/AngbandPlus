@@ -105,11 +105,11 @@ static cptr r_info_blow_effect[] =
 	"CONFUSE",
 	"TERRIFY",
 	"PARALYZE",
-	"LOSE_STR",
-	"LOSE_INT",
-	"LOSE_WIS",
-	"LOSE_DEX",
-	"LOSE_CON",
+	"LOSE_MUS",
+	"LOSE_AGI",
+	"LOSE_VIG",
+	"LOSE_SCH",
+	"LOSE_EGO",
 	"LOSE_CHR",
 	"LOSE_ALL",
 	"SHATTER",
@@ -400,11 +400,11 @@ static cptr r_info_flags7[] =
  */
 static cptr k_info_flags1[] =
 {
-	"STR",
-	"INT",
-	"WIS",
-	"DEX",
-	"CON",
+	"MUS",
+	"AGI",
+	"VIG",
+	"SCH",
+	"EGO",
 	"CHR",
 	"XXX1",
 	"XXX2",
@@ -439,13 +439,13 @@ static cptr k_info_flags1[] =
  */
 static cptr k_info_flags2[] =
 {
-	"SUST_STR",
-	"SUST_INT",
-	"SUST_WIS",
-	"SUST_DEX",
-	"SUST_CON",
+	"SUST_MUS",
+	"SUST_AGI",
+	"SUST_VIG",
+	"SUST_SCH",
+	"SUST_EGO",
 	"SUST_CHR",
-	"XXX1",
+	"RETURN",
 	"XXX2",
 	"XXX3",
 	"XXX4",
@@ -506,7 +506,7 @@ static cptr k_info_flags3[] =
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"XXX7",
+	"THROW",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
@@ -1335,14 +1335,14 @@ errr parse_k_info(char *buf, header *head)
 	/* Hack -- Process 'P' for "power" and such */
 	else if (buf[0] == 'P')
 	{
-		int ac, hd1, hd2, th, td, ta;
+		int ac, hd1, hd2, th, td, ta, force;
 
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &ac, &hd1, &hd2, &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
+		if (7 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d",
+			           &ac, &hd1, &hd2, &th, &td, &ta, &force)) return (PARSE_ERROR_GENERIC);
 
 		k_ptr->ac = ac;
 		k_ptr->dd = hd1;
@@ -1350,6 +1350,7 @@ errr parse_k_info(char *buf, header *head)
 		k_ptr->to_h = th;
 		k_ptr->to_d = td;
 		k_ptr->to_a =  ta;
+		k_ptr->force = force;
 	}
 
 	/* Hack -- Process 'F' for flags */
@@ -1530,14 +1531,14 @@ errr parse_a_info(char *buf, header *head)
 	/* Process 'P' for "power" and such */
 	else if (buf[0] == 'P')
 	{
-		int ac, hd1, hd2, th, td, ta;
+		int ac, hd1, hd2, th, td, ta, force;
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &ac, &hd1, &hd2, &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
+		if (7 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d",
+			            &ac, &hd1, &hd2, &th, &td, &ta, &force)) return (PARSE_ERROR_GENERIC);
 
 		a_ptr->ac = ac;
 		a_ptr->dd = hd1;
@@ -1545,6 +1546,7 @@ errr parse_a_info(char *buf, header *head)
 		a_ptr->to_h = th;
 		a_ptr->to_d = td;
 		a_ptr->to_a = ta;
+		a_ptr->force = force;
 	}
 
 	/* Process 'F' for flags */
@@ -2275,7 +2277,7 @@ errr parse_p_info(char *buf, header *head)
 			continue;
 		}
 	}
-
+#if 0
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
@@ -2299,7 +2301,7 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_thn = thn;
 		pr_ptr->r_thb = thb;
 	}
-
+#endif
 	/* Process 'X' for "Extra Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
@@ -2464,7 +2466,8 @@ errr parse_c_info(char *buf, header *head)
 	/* Current entry */
 	static player_class *pc_ptr = NULL;
 
-	static int cur_title = 0;
+	static int cur_mtitle = 0;
+	static int cur_ftitle = 0;
 	static int cur_equip = 0;
 
 
@@ -2503,7 +2506,8 @@ errr parse_c_info(char *buf, header *head)
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* No titles and equipment yet */
-		cur_title = 0;
+		cur_mtitle = 0;
+		cur_ftitle = 0;
 		cur_equip = 0;
 	}
 
@@ -2540,7 +2544,7 @@ errr parse_c_info(char *buf, header *head)
 			continue;
 		}
 	}
-
+#if 0
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
@@ -2588,7 +2592,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->x_thn = thn;
 		pc_ptr->x_thb = thb;
 	}
-
+#endif
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
@@ -2633,57 +2637,44 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'M' for "Magic Info" (one line only) */
 	else if (buf[0] == 'M')
 	{
-		int spell_book, spell_stat, spell_type, spell_first, spell_weight;
+		int spell_stat, sstat1, sstat2, dist;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-		                &spell_book, &spell_stat, &spell_type,
-		                &spell_first, &spell_weight))
+		if (2 != sscanf(buf+2, "%d:%d",
+		                &spell_stat, &dist))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		pc_ptr->spell_book = spell_book;
 		pc_ptr->spell_stat = spell_stat;
-		pc_ptr->spell_type = spell_type;
-		pc_ptr->spell_first = spell_first;
-		pc_ptr->spell_weight = spell_weight;
+		pc_ptr->spell_weight = dist;
 	}
 
 	/* Process 'B' for "Spell/Prayer book info" */
 	else if (buf[0] == 'B')
 	{
-		int spell, level, mana, fail, exp;
-		player_magic *mp_ptr;
-		magic_type *spell_ptr;
+		int book_index, handicap;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
+	
 		/* Scan for the values */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-		                &spell, &level, &mana, &fail, &exp))
+		if (2 != sscanf(buf+2, "%d:%d", &book_index, &handicap))
 			return (PARSE_ERROR_GENERIC);
 
-		/* Validate the spell index */
-		if ((spell >= PY_MAX_SPELLS) || (spell < 0))
-			return (PARSE_ERROR_OUT_OF_BOUNDS);
+		if (book_index >= SV_BOOK_MAX) return (PARSE_ERROR_OUT_OF_BOUNDS);
 
-		mp_ptr = &pc_ptr->spells;
-		spell_ptr = &mp_ptr->info[spell];
+		pc_ptr->spell_book[book_index] = TRUE;
+		pc_ptr->spell_handicap[book_index] = handicap;
 
-		/* Save the values */
-		spell_ptr->slevel = level;
-		spell_ptr->smana = mana;
-		spell_ptr->sfail = fail;
-		spell_ptr->sexp = exp;
 	}
 
-	/* Process 'T' for "Titles" */
+	/* Process 'T' for " Male Titles" */
 	else if (buf[0] == 'T')
 	{
+
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
@@ -2691,14 +2682,35 @@ errr parse_c_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Store the text */
-		if (!add_text(&pc_ptr->title[cur_title], head, s))
+		if (!add_text(&pc_ptr->mtitle[cur_mtitle], head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 		
 		/* Next title */
-		cur_title++;
+		cur_mtitle++;
 
 		/* Limit number of titles */
-		if (cur_title > PY_MAX_LEVEL / 5)
+		if (cur_mtitle > PY_MAX_LEVEL / 5)
+			return (PARSE_ERROR_TOO_MANY_ARGUMENTS);
+	}
+	/* Process 'Z' for "Female Titles" */
+	else if (buf[0] == 'Z')
+	{
+
+		/* There better be a current pc_ptr */
+		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&pc_ptr->ftitle[cur_ftitle], head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		
+		/* Next title */
+		cur_ftitle++;
+
+		/* Limit number of titles */
+		if (cur_ftitle > PY_MAX_LEVEL / 5)
 			return (PARSE_ERROR_TOO_MANY_ARGUMENTS);
 	}
 

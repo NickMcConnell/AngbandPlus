@@ -89,7 +89,7 @@ static const grouper group_item[] =
 	{ TV_DRAG_ARMOR,	  NULL },
 
 	{ TV_CLOAK,		"Armour (Misc)" },
-	{ TV_SHIELD,	  NULL },
+	{ TV_LEG,		  NULL },
 	{ TV_HELM,		  NULL },
 	{ TV_CROWN,		  NULL },
 	{ TV_GLOVES,	  NULL },
@@ -107,8 +107,7 @@ static const grouper group_item[] =
 	{ TV_RAY,		"Ray guns" },
 	{ TV_TOOL,		"Tools" },
 
-	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_DEVICE_BOOK,	"Books (Priest)" },
+	{ TV_MAGIC_BOOK,	"Powers" },
 
 	{ TV_CHEST,		"Chests" },
 
@@ -208,7 +207,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_CLOAK:
 		case TV_CROWN:
 		case TV_HELM:
-		case TV_SHIELD:
+		case TV_LEG:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
@@ -396,7 +395,7 @@ static const grouper group_artifact[] =
 	{ TV_DRAG_ARMOR,	  NULL },
 
 	{ TV_CLOAK,		"Cloaks" },
-	{ TV_SHIELD,	"Shields" },
+	{ TV_LEG,	"Pants (formerly Shields)" },
 	{ TV_HELM,		"Helms/Crowns" },
 	{ TV_CROWN,		  NULL },
 	{ TV_GLOVES,	"Gloves" },
@@ -438,11 +437,11 @@ struct flag_desc
 
 static const flag_desc stat_flags_desc[] =
 {
-	{ TR1_STR,        "STR" },
-	{ TR1_INT,        "INT" },
-	{ TR1_WIS,        "WIS" },
-	{ TR1_DEX,        "DEX" },
-	{ TR1_CON,        "CON" },
+	{ TR1_MUS,        "MUS" },
+	{ TR1_AGI,        "AGI" },
+	{ TR1_VIG,        "VIG" },
+	{ TR1_SCH,        "SCH" },
+	{ TR1_EGO,        "EGO" },
 	{ TR1_CHR,        "CHR" }
 };
 
@@ -536,11 +535,11 @@ static const flag_desc immune_flags_desc[] =
  */
 static const flag_desc sustain_flags_desc[] =
 {
-	{ TR2_SUST_STR,   "STR" },
-	{ TR2_SUST_INT,   "INT" },
-	{ TR2_SUST_WIS,   "WIS" },
-	{ TR2_SUST_DEX,   "DEX" },
-	{ TR2_SUST_CON,   "CON" },
+	{ TR2_SUST_MUS,   "MUS" },
+	{ TR2_SUST_AGI,   "AGI" },
+	{ TR2_SUST_VIG,   "VIG" },
+	{ TR2_SUST_SCH,   "SCH" },
+	{ TR2_SUST_EGO,   "EGO" },
 	{ TR2_SUST_CHR,   "CHR" },
 };
 
@@ -717,8 +716,8 @@ static void analyze_general(const object_type *o_ptr, char *desc_x_ptr)
  */
 static void analyze_pval(const object_type *o_ptr, pval_info_type *pval_x_ptr)
 {
-	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
-	                        TR1_DEX | TR1_CON | TR1_CHR);
+	const u32b all_stats = (TR1_MUS | TR1_AGI | TR1_VIG |
+	                        TR1_SCH | TR1_EGO | TR1_CHR);
 
 	u32b f1, f2, f3;
 
@@ -838,8 +837,8 @@ static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
  */
 static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
 {
-	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
-	                           TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
+	const u32b all_sustains = (TR2_SUST_MUS | TR2_SUST_AGI | TR2_SUST_VIG |
+	                           TR2_SUST_SCH | TR2_SUST_EGO | TR2_SUST_CHR);
 
 	u32b f1, f2, f3;
 
@@ -1167,6 +1166,7 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
 	o_ptr->ac = a_ptr->ac;
+	o_ptr->force = a_ptr->force;
 	o_ptr->dd = a_ptr->dd;
 	o_ptr->ds = a_ptr->ds;
 	o_ptr->to_a = a_ptr->to_a;
@@ -2183,12 +2183,12 @@ static void spoil_mon_info(cptr fname)
 				case RBE_CONFUSE:	q = "confuse"; break;
 				case RBE_TERRIFY:	q = "terrify"; break;
 				case RBE_PARALYZE:	q = "paralyze"; break;
-				case RBE_LOSE_STR:	q = "reduce strength"; break;
-				case RBE_LOSE_INT:	q = "reduce intelligence"; break;
-				case RBE_LOSE_WIS:	q = "reduce wisdom"; break;
-				case RBE_LOSE_DEX:	q = "reduce dexterity"; break;
-				case RBE_LOSE_CON:	q = "reduce constitution"; break;
-				case RBE_LOSE_CHR:	q = "reduce charisma"; break;
+				case RBE_LOSE_MUS:	q = "reduce muscle"; break;
+				case RBE_LOSE_AGI:	q = "reduce agility"; break;
+				case RBE_LOSE_VIG:	q = "reduce vigor"; break;
+				case RBE_LOSE_SCH:	q = "reduce schooling"; break;
+				case RBE_LOSE_EGO:	q = "reduce ego"; break;
+				case RBE_LOSE_CHR:	q = "reduce charm"; break;
 				case RBE_LOSE_ALL:	q = "reduce all stats"; break;
 				case RBE_SHATTER:	q = "shatter"; break;
 				case RBE_EXP_10:	q = "lower experience"; break;

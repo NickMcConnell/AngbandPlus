@@ -67,14 +67,31 @@ void do_cmd_eat_food(void)
 	object_type *o_ptr;
 
 	cptr q, s;
+	u32b f1, f2, f3;
+	player_flags(&f1, &f2, &f3);
 
 
 	/* Restrict choices to food */
-	item_tester_tval = TV_FOOD;
+	if (f3 & (TR3_AUTOMATA))
+	{
+		item_tester_tval = TV_FLASK;
+	}
+	else 
+	{
+		item_tester_tval = TV_FOOD;
+	}
+	
 
 	/* Get an item */
 	q = "Eat which item? ";
-	s = "You have nothing to eat.";
+	if (f3 & (TR3_AUTOMATA))
+	{
+		s = "You have no oil!";
+	}
+	else 
+	{
+		s = "You have nothing to eat.";
+	}
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -103,278 +120,284 @@ void do_cmd_eat_food(void)
 	/* Object level */
 	lev = k_info[o_ptr->k_idx].level;
 
-	/* Analyze the food */
-	switch (o_ptr->sval)
+	if (f3 & (TR3_AUTOMATA))
 	{
-		case SV_FOOD_POISON:
+		/* nothing */
+	}
+	/* Analyze the food */
+	else
+	{
+		switch (o_ptr->sval)
 		{
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			case SV_FOOD_POISON:
 			{
-				if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
+				if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_FOOD_BLINDNESS:
-		{
-			if (!p_ptr->resist_blind)
-			{
-				if (set_blind(p_ptr->blind + rand_int(200) + 200))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_FOOD_PARANOIA:
-		{
-			if (!p_ptr->resist_fear)
-			{
-				if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_FOOD_CONFUSION:
-		{
-			if (!p_ptr->resist_confu)
-			{
-				if (set_confused(p_ptr->confused + rand_int(10) + 10))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_FOOD_HALLUCINATION:
-		{
-			if (!p_ptr->resist_chaos)
-			{
-				if (set_image(p_ptr->image + rand_int(250) + 250))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_FOOD_PARALYSIS:
-		{
-			if (!p_ptr->free_act)
-			{
-				if (set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_FOOD_WEAKNESS:
-		{
-			take_hit(damroll(6, 6), "poisonous food");
-			(void)do_dec_stat(A_STR);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_SICKNESS:
-		{
-			take_hit(damroll(6, 6), "poisonous food");
-			(void)do_dec_stat(A_CON);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_STUPIDITY:
-		{
-			take_hit(damroll(8, 8), "poisonous food");
-			(void)do_dec_stat(A_INT);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_NAIVETY:
-		{
-			take_hit(damroll(8, 8), "poisonous food");
-			(void)do_dec_stat(A_WIS);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_UNHEALTH:
-		{
-			take_hit(damroll(10, 10), "poisonous food");
-			(void)do_dec_stat(A_CON);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_DISEASE:
-		{
-			take_hit(damroll(10, 10), "poisonous food");
-			(void)do_dec_stat(A_STR);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_CURE_POISON:
-		{
-			if (set_poisoned(0)) ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_CURE_BLINDNESS:
-		{
-			if (set_blind(0)) ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_CURE_PARANOIA:
-		{
-			if (set_afraid(0)) ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_CURE_CONFUSION:
-		{
-			if (set_confused(0)) ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_CURE_SERIOUS:
-		{
-			if (hp_player(damroll(4, 8))) ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_RESTORE_STR:
-		{
-			if (do_res_stat(A_STR)) ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_RESTORE_CON:
-		{
-			if (do_res_stat(A_CON)) ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_RESTORING:
-		{
-			if (do_res_stat(A_STR)) ident = TRUE;
-			if (do_res_stat(A_INT)) ident = TRUE;
-			if (do_res_stat(A_WIS)) ident = TRUE;
-			if (do_res_stat(A_DEX)) ident = TRUE;
-			if (do_res_stat(A_CON)) ident = TRUE;
-			if (do_res_stat(A_CHR)) ident = TRUE;
-			break;
-		}
-		case SV_FOOD_LIGHT_HEALING:
-		{
-			if (hp_player(damroll(2, 8))) ident = TRUE;
-			if (set_blind(0)) ident = TRUE;
-			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
-		
-			break;
-		}
-		case SV_FOOD_MARIJUANA:
-		{
-			(void)set_food(PY_FOOD_ALERT);
-			if (!p_ptr->resist_fear)
-			{
-				set_afraid(p_ptr->afraid + rand_int(10) + 10);		
-			}
-			/* eventually restore sanity */
-			(void)set_protevil(p_ptr->protevil + randint(25) + 25);
-			remove_curse();
-			(void)hp_player(damroll(2,10));
-			ident = TRUE;
-			break;
-		}
-		case SV_FOOD_OPIUM:
-		{
-				if (!p_ptr->free_act)
-				{
-					if (set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10))
+					if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
 					{
-						(void)do_dec_stat(A_CON);
 						ident = TRUE;
 					}
 				}
 				break;
-		}
-		case SV_FOOD_MUSHROOMS:
-		{
-			if (!p_ptr->resist_chaos)
-			{
-				set_image(p_ptr->image + rand_int(250) + 250);
 			}
-			msg_print("The shrooms make you vomit!");
-			(void)set_food(PY_FOOD_STARVE - 1);
-			(void)set_poisoned(0);
-			(void)set_paralyzed(p_ptr->paralyzed + 4);
-			ident = TRUE;
-			break;
-		}
-		case SV_FOOD_COCAINE:
-		{
-		if (!p_ptr->fast)
+	
+			case SV_FOOD_BLINDNESS:
+			{
+				if (!p_ptr->resist_blind)
 				{
-					(void)set_fast(randint(20) + 20);
+					if (set_blind(p_ptr->blind + rand_int(200) + 200))
+					{
+						ident = TRUE;
+					}
 				}
-				else
+				break;
+			}
+	
+			case SV_FOOD_PARANOIA:
+			{
+				if (!p_ptr->resist_fear)
 				{
-					(void)set_fast(p_ptr->fast + randint(5));
+					if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
+					{
+						ident = TRUE;
+					}
 				}
+				break;
+			}
+	
+			case SV_FOOD_CONFUSION:
+			{
+				if (!p_ptr->resist_confu)
+				{
+					if (set_confused(p_ptr->confused + rand_int(10) + 10))
+					{
+						ident = TRUE;
+					}
+				}
+				break;
+			}
+	
+			case SV_FOOD_HALLUCINATION:
+			{
+				if (!p_ptr->resist_chaos)
+				{
+					if (set_image(p_ptr->image + rand_int(250) + 250))
+					{
+						ident = TRUE;
+					}
+				}
+				break;
+			}
+	
+			case SV_FOOD_PARALYSIS:
+			{
+				if (!p_ptr->free_act)
+				{
+					if (set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10))
+					{
+						ident = TRUE;
+					}
+				}
+				break;
+			}
+	
+			case SV_FOOD_WEAKNESS:
+			{
+				take_hit(damroll(6, 6), "poisonous food");
+				(void)do_dec_stat(A_MUS);
 				ident = TRUE;
 				break;
-		}
-		case SV_FOOD_TOBACCOS:
-		{
+			}
+	
+			case SV_FOOD_SICKNESS:
+			{
+				take_hit(damroll(6, 6), "poisonous food");
+				(void)do_dec_stat(A_VIG);
 				ident = TRUE;
 				break;
+			}
+	
+			case SV_FOOD_STUPIDITY:
+			{
+				take_hit(damroll(8, 8), "poisonous food");
+				(void)do_dec_stat(A_SCH);
+				ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_NAIVETY:
+			{
+				take_hit(damroll(8, 8), "poisonous food");
+				(void)do_dec_stat(A_EGO);
+				ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_UNHEALTH:
+			{
+				take_hit(damroll(10, 10), "poisonous food");
+				(void)do_dec_stat(A_VIG);
+				ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_DISEASE:
+			{
+				take_hit(damroll(10, 10), "poisonous food");
+				(void)do_dec_stat(A_MUS);
+				ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_CURE_POISON:
+			{
+				if (set_poisoned(0)) ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_CURE_BLINDNESS:
+			{
+				if (set_blind(0)) ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_CURE_PARANOIA:
+			{
+				if (set_afraid(0)) ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_CURE_CONFUSION:
+			{
+				if (set_confused(0)) ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_CURE_SERIOUS:
+			{
+				if (hp_player(damroll(4, 8))) ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_RESTORE_MUS:
+			{
+				if (do_res_stat(A_MUS)) ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_RESTORE_VIG:
+			{
+				if (do_res_stat(A_VIG)) ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_RESTORING:
+			{
+				if (do_res_stat(A_MUS)) ident = TRUE;
+				if (do_res_stat(A_AGI)) ident = TRUE;
+				if (do_res_stat(A_VIG)) ident = TRUE;
+				if (do_res_stat(A_SCH)) ident = TRUE;
+				if (do_res_stat(A_EGO)) ident = TRUE;
+				if (do_res_stat(A_CHR)) ident = TRUE;
+				break;
+			}
+			case SV_FOOD_LIGHT_HEALING:
+			{
+				if (hp_player(damroll(2, 8))) ident = TRUE;
+				if (set_blind(0)) ident = TRUE;
+				if (set_cut(p_ptr->cut - 10)) ident = TRUE;
+			
+				break;
+			}
+			case SV_FOOD_MARIJUANA:
+			{
+				(void)set_food(PY_FOOD_ALERT);
+				if (!p_ptr->resist_fear)
+				{
+					set_afraid(p_ptr->afraid + rand_int(10) + 10);		
+				}
+				/* eventually restore sanity */
+				(void)set_protevil(p_ptr->protevil + randint(25) + 25);
+				(void)remove_curse();
+				(void)hp_player(damroll(2,10));
+				ident = TRUE;
+				break;
+			}
+			case SV_FOOD_OPIUM:
+			{
+					if (!p_ptr->free_act)
+					{
+						if (set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10))
+						{
+							(void)do_dec_stat(A_VIG);
+							ident = TRUE;
+						}
+					}
+					break;
+			}
+			case SV_FOOD_MUSHROOMS:
+			{
+				if (!p_ptr->resist_chaos)
+				{
+					set_image(p_ptr->image + rand_int(250) + 250);
+				}
+				msg_print("The shrooms make you vomit!");
+				(void)set_food(PY_FOOD_STARVE - 1);
+				(void)set_poisoned(0);
+				(void)set_paralyzed(p_ptr->paralyzed + 4);
+				ident = TRUE;
+				break;
+			}
+			case SV_FOOD_COCAINE:
+			{
+			if (!p_ptr->fast)
+					{
+						(void)set_fast(randint(20) + 20);
+					}
+					else
+					{
+						(void)set_fast(p_ptr->fast + randint(5));
+					}
+					ident = TRUE;
+					break;
+			}
+			case SV_FOOD_TOBACCOS:
+			{
+					ident = TRUE;
+					break;
+			}
+			case SV_FOOD_RATION:
+			case SV_FOOD_BISCUIT:
+			case SV_FOOD_JERKY:
+			case SV_FOOD_MUTTON:
+			case SV_FOOD_ONION:
+			case SV_FOOD_POTATO:
+			case SV_FOOD_SLIME_MOLD:
+			{
+				msg_print("That tastes good.");
+				ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_WAYBREAD:
+			{
+				msg_print("That tastes good.");
+				(void)set_poisoned(0);
+				(void)hp_player(damroll(4, 8));
+				ident = TRUE;
+				break;
+			}
+	
+			case SV_FOOD_PINT_OF_ALE:
+			case SV_FOOD_PINT_OF_WINE:
+			{
+				msg_print("That tastes good.");
+				ident = TRUE;
+				break;
+			}
+			
 		}
-		case SV_FOOD_RATION:
-		case SV_FOOD_BISCUIT:
-		case SV_FOOD_JERKY:
-		case SV_FOOD_MUTTON:
-		case SV_FOOD_ONION:
-		case SV_FOOD_POTATO:
-		case SV_FOOD_SLIME_MOLD:
-		{
-			msg_print("That tastes good.");
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_WAYBREAD:
-		{
-			msg_print("That tastes good.");
-			(void)set_poisoned(0);
-			(void)hp_player(damroll(4, 8));
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_PINT_OF_ALE:
-		case SV_FOOD_PINT_OF_WINE:
-		{
-			msg_print("That tastes good.");
-			ident = TRUE;
-			break;
-		}
-		
 	}
-
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -394,7 +417,15 @@ void do_cmd_eat_food(void)
 
 
 	/* Food can feed the player */
-	(void)set_food(p_ptr->food + o_ptr->pval);
+	/* Restrict choices to food */
+	if (f3 & (TR3_AUTOMATA))
+	{
+		(void)set_food(p_ptr->food + (o_ptr->pval / 2));
+	}
+	else 
+	{
+		(void)set_food(p_ptr->food + o_ptr->pval);
+	}
 
 
 	/* Destroy a food in the pack */
@@ -588,43 +619,43 @@ void do_cmd_quaff_tonic(void)
 		{
 			msg_print("Your nerves and muscles feel weak and lifeless!");
 			take_hit(damroll(10, 10), "a tonic of Ruination");
-			(void)dec_stat(A_DEX, 25, TRUE);
-			(void)dec_stat(A_WIS, 25, TRUE);
-			(void)dec_stat(A_CON, 25, TRUE);
-			(void)dec_stat(A_STR, 25, TRUE);
+			(void)dec_stat(A_MUS, 25, TRUE);
+			(void)dec_stat(A_AGI, 25, TRUE);
+			(void)dec_stat(A_VIG, 25, TRUE);
+			(void)dec_stat(A_SCH, 25, TRUE);
+			(void)dec_stat(A_EGO, 25, TRUE);
 			(void)dec_stat(A_CHR, 25, TRUE);
-			(void)dec_stat(A_INT, 25, TRUE);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_DEC_STR:
+		case SV_TONIC_DEC_MUS:
 		{
-			if (do_dec_stat(A_STR)) ident = TRUE;
+			if (do_dec_stat(A_MUS)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_DEC_INT:
+		case SV_TONIC_DEC_SCH:
 		{
-			if (do_dec_stat(A_INT)) ident = TRUE;
+			if (do_dec_stat(A_SCH)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_DEC_WIS:
+		case SV_TONIC_DEC_EGO:
 		{
-			if (do_dec_stat(A_WIS)) ident = TRUE;
+			if (do_dec_stat(A_EGO)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_DEC_DEX:
+		case SV_TONIC_DEC_AGI:
 		{
-			if (do_dec_stat(A_DEX)) ident = TRUE;
+			if (do_dec_stat(A_AGI)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_DEC_CON:
+		case SV_TONIC_DEC_VIG:
 		{
-			if (do_dec_stat(A_CON)) ident = TRUE;
+			if (do_dec_stat(A_VIG)) ident = TRUE;
 			break;
 		}
 
@@ -795,11 +826,11 @@ void do_cmd_quaff_tonic(void)
 			(void)set_image(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
-			(void)do_res_stat(A_STR);
-			(void)do_res_stat(A_CON);
-			(void)do_res_stat(A_DEX);
-			(void)do_res_stat(A_WIS);
-			(void)do_res_stat(A_INT);
+			(void)do_res_stat(A_MUS);
+			(void)do_res_stat(A_AGI);
+			(void)do_res_stat(A_VIG);
+			(void)do_res_stat(A_SCH);
+			(void)do_res_stat(A_EGO);
 			(void)do_res_stat(A_CHR);
 
 			/* Recalculate max. hitpoints */
@@ -831,33 +862,33 @@ void do_cmd_quaff_tonic(void)
 			break;
 		}
 
-		case SV_TONIC_RES_STR:
+		case SV_TONIC_RES_MUS:
 		{
-			if (do_res_stat(A_STR)) ident = TRUE;
+			if (do_res_stat(A_MUS)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_RES_INT:
+		case SV_TONIC_RES_SCH:
 		{
-			if (do_res_stat(A_INT)) ident = TRUE;
+			if (do_res_stat(A_SCH)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_RES_WIS:
+		case SV_TONIC_RES_EGO:
 		{
-			if (do_res_stat(A_WIS)) ident = TRUE;
+			if (do_res_stat(A_EGO)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_RES_DEX:
+		case SV_TONIC_RES_AGI:
 		{
-			if (do_res_stat(A_DEX)) ident = TRUE;
+			if (do_res_stat(A_AGI)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_RES_CON:
+		case SV_TONIC_RES_VIG:
 		{
-			if (do_res_stat(A_CON)) ident = TRUE;
+			if (do_res_stat(A_VIG)) ident = TRUE;
 			break;
 		}
 
@@ -867,33 +898,33 @@ void do_cmd_quaff_tonic(void)
 			break;
 		}
 
-		case SV_TONIC_INC_STR:
+		case SV_TONIC_INC_MUS:
 		{
-			if (do_inc_stat(A_STR)) ident = TRUE;
+			if (do_inc_stat(A_MUS)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_INC_INT:
+		case SV_TONIC_INC_SCH:
 		{
-			if (do_inc_stat(A_INT)) ident = TRUE;
+			if (do_inc_stat(A_SCH)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_INC_WIS:
+		case SV_TONIC_INC_EGO:
 		{
-			if (do_inc_stat(A_WIS)) ident = TRUE;
+			if (do_inc_stat(A_EGO)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_INC_DEX:
+		case SV_TONIC_INC_AGI:
 		{
-			if (do_inc_stat(A_DEX)) ident = TRUE;
+			if (do_inc_stat(A_AGI)) ident = TRUE;
 			break;
 		}
 
-		case SV_TONIC_INC_CON:
+		case SV_TONIC_INC_VIG:
 		{
-			if (do_inc_stat(A_CON)) ident = TRUE;
+			if (do_inc_stat(A_VIG)) ident = TRUE;
 			break;
 		}
 
@@ -905,11 +936,11 @@ void do_cmd_quaff_tonic(void)
 
 		case SV_TONIC_AUGMENTATION:
 		{
-			if (do_inc_stat(A_STR)) ident = TRUE;
-			if (do_inc_stat(A_INT)) ident = TRUE;
-			if (do_inc_stat(A_WIS)) ident = TRUE;
-			if (do_inc_stat(A_DEX)) ident = TRUE;
-			if (do_inc_stat(A_CON)) ident = TRUE;
+			if (do_inc_stat(A_MUS)) ident = TRUE;
+			if (do_inc_stat(A_AGI)) ident = TRUE;
+			if (do_inc_stat(A_VIG)) ident = TRUE;
+			if (do_inc_stat(A_SCH)) ident = TRUE;
+			if (do_inc_stat(A_EGO)) ident = TRUE;
 			if (do_inc_stat(A_CHR)) ident = TRUE;
 			break;
 		}
@@ -927,8 +958,8 @@ void do_cmd_quaff_tonic(void)
 			msg_print("You begin to feel more enlightened...");
 			message_flush();
 			wiz_lite();
-			(void)do_inc_stat(A_INT);
-			(void)do_inc_stat(A_WIS);
+			(void)do_inc_stat(A_SCH);
+			(void)do_inc_stat(A_EGO);
 			(void)detect_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
@@ -1148,7 +1179,7 @@ void show_book_number(int num)
 }
 	
 /*
- * An "item_tester_hook" for refilling torches
+ * An "item_tester_hook" for refilling torches ????
  */
 static bool item_tester_readable(const object_type *o_ptr)
 {
@@ -1608,6 +1639,7 @@ void do_cmd_use_tool(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int devicegood, devicenorm, devicepoor;
 
 	int item, ident, chance, k, lev;
 
@@ -1617,7 +1649,9 @@ void do_cmd_use_tool(void)
 	bool use_charge = TRUE;
 
 	cptr q, s;
-
+	int power1 = p_ptr->skills[SK_POW_DEVICE].skill_rank;
+	int power2 = p_ptr->skills[SK_POW2_DEVICE].skill_rank;
+	int healfac = p_ptr->skills[SK_HEAL_DEVICE].skill_rank;
 
 	/* Restrict choices to staves */
 	item_tester_tval = TV_TOOL;
@@ -1649,17 +1683,36 @@ void do_cmd_use_tool(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
-
+	if (p_ptr->skills[SK_SPEED_DEVICE].skill_max > 0)
+	{
+		p_ptr->energy_use = (100 - (p_ptr->skills[SK_SPEED_DEVICE].skill_rank * 4));
+	}
+	else
+	{
+		p_ptr->energy_use = 100;
+	}
+	
 	/* Not identified yet */
 	ident = FALSE;
 
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
 
+	/* Get the device factor */
+	devicegood = p_ptr->skills[SK_DEVICE_GOOD].skill_rank;
+	devicenorm = p_ptr->skills[SK_DEVICE_NORM].skill_rank;
+	devicepoor = p_ptr->skills[SK_DEVICE_POOR].skill_rank;
+	
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
+	if (devicegood > 0) chance = (3 * devicegood);
+	if (devicenorm > 0) chance = (2 * devicenorm);
+	if (devicepoor > 0) chance = devicepoor;
+	
+	if (p_ptr->skills[SK_ADV_DEVICE].skill_rank > 0)
+	{
+		chance += (p_ptr->skills[SK_ADV_DEVICE].skill_rank * 2);
+	}
+	
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
@@ -1773,7 +1826,7 @@ void do_cmd_use_tool(void)
 
 		case SV_TOOL_LITE:
 		{
-			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
+			if (lite_area(damroll(3 + (power2 / 2), 8 + power1), 2)) ident = TRUE;
 			break;
 		}
 
@@ -1824,7 +1877,7 @@ void do_cmd_use_tool(void)
 
 		case SV_TOOL_CURE_LIGHT:
 		{
-			if (hp_player(randint(8))) ident = TRUE;
+			if (hp_player(randint(8 + healfac))) ident = TRUE;
 			break;
 		}
 
@@ -1840,7 +1893,7 @@ void do_cmd_use_tool(void)
 
 		case SV_TOOL_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+			if (hp_player(300 + (healfac * 5))) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -1848,7 +1901,7 @@ void do_cmd_use_tool(void)
 
 		case SV_TOOL_THE_MAGI:
 		{
-			if (do_res_stat(A_INT)) ident = TRUE;
+			if (do_res_stat(A_SCH)) ident = TRUE;
 			if (p_ptr->csp < p_ptr->msp)
 			{
 				p_ptr->csp = p_ptr->msp;
@@ -1895,24 +1948,24 @@ void do_cmd_use_tool(void)
 
 		case SV_TOOL_DISPEL_EVIL:
 		{
-			if (dispel_evil(60)) ident = TRUE;
+			if (dispel_evil(60 + power1 + power2)) ident = TRUE;
 			break;
 		}
 
 		case SV_TOOL_POWER:
 		{
-			if (dispel_monsters(120)) ident = TRUE;
+			if (dispel_monsters(120 + (power1 * 2) + (power2 * 2))) ident = TRUE;
 			break;
 		}
 
 		case SV_TOOL_HOLINESS:
 		{
-			if (dispel_evil(120)) ident = TRUE;
-			k = 3 * p_ptr->lev;
+			if (dispel_evil(120 + (power1 * 2) + (power2 * 2))) ident = TRUE;
+			k = 6 * healfac;
 			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
-			if (hp_player(50)) ident = TRUE;
+			if (hp_player(10 + (healfac * 5))) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -2029,11 +2082,15 @@ void do_cmd_use_tool(void)
 void do_cmd_aim_ray(void)
 {
 	int item, lev, ident, chance, dir, sval;
+	int devicegood, devicenorm, devicepoor;
 
 	object_type *o_ptr;
 
 	cptr q, s;
 
+	int power1 = p_ptr->skills[SK_POW_DEVICE].skill_rank;
+	int power2 = p_ptr->skills[SK_POW2_DEVICE].skill_rank;
+	int healfac = p_ptr->skills[SK_HEAL_DEVICE].skill_rank;
 
 	/* Restrict choices to ray guns */
 	item_tester_tval = TV_RAY;
@@ -2069,16 +2126,35 @@ void do_cmd_aim_ray(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	if (p_ptr->skills[SK_SPEED_DEVICE].skill_max > 0)
+	{
+		p_ptr->energy_use = (100 - (p_ptr->skills[SK_SPEED_DEVICE].skill_rank * 4));
+	}
+	else
+	{
+		p_ptr->energy_use = 100;
+	}
 
 	/* Not identified yet */
 	ident = FALSE;
 
 	/* Get the level */
 	lev = k_info[o_ptr->k_idx].level;
-
+	
+	/* Get the device factor */
+	devicegood = p_ptr->skills[SK_DEVICE_GOOD].skill_rank;
+	devicenorm = p_ptr->skills[SK_DEVICE_NORM].skill_rank;
+	devicepoor = p_ptr->skills[SK_DEVICE_POOR].skill_rank;
+	
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	if (devicegood > 0) chance = (3 * devicegood);
+	if (devicenorm > 0) chance = (2 * devicenorm);
+	if (devicepoor > 0) chance = devicepoor;
+
+	if (p_ptr->skills[SK_ADV_DEVICE].skill_rank > 0)
+	{
+		chance += (p_ptr->skills[SK_ADV_DEVICE].skill_rank * 2);
+	}
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -2189,19 +2265,19 @@ void do_cmd_aim_ray(void)
 
 		case SV_RAY_CONFUSE_MONSTER:
 		{
-			if (confuse_monster(dir, 10)) ident = TRUE;
+			if (confuse_monster(dir, 10 + power1 + power2)) ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_FEAR_MONSTER:
 		{
-			if (fear_monster(dir, 10)) ident = TRUE;
+			if (fear_monster(dir, 10 + power1 + power2)) ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 75 + power1 + power2)) ident = TRUE;
 			break;
 		}
 
@@ -2213,70 +2289,70 @@ void do_cmd_aim_ray(void)
 
 		case SV_RAY_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 12, 2);
+			fire_ball(GF_POIS, dir, 13 + (power2 / 2), 3 + power1);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(3 + (power2 / 2), 6 + power1));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(6 + (power2 / 2), 8 + power1));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(4 + (power2 / 2), 8 + power1));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(7 + (power2 / 2), 8 + power1));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(4 + (power2 / 2), 8 + power1));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 60 + ((power1 + power2) * 5), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 60 + ((power1 + power2) * 5), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 60 + ((power1 + power2) * 5), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 60 + ((power1 + power2) * 5), 2);
 			ident = TRUE;
 			break;
 		}
@@ -2289,14 +2365,14 @@ void do_cmd_aim_ray(void)
 
 		case SV_RAY_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 100, 3);
+			fire_ball(GF_FIRE, dir, 100 + ((power1 + power2) * 5), 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_RAY_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 80, 3);
+			fire_ball(GF_COLD, dir, 80 + ((power1 + power2) * 5), 3);
 			ident = TRUE;
 			break;
 		}
@@ -2307,31 +2383,31 @@ void do_cmd_aim_ray(void)
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 100, 3);
+					fire_ball(GF_ACID, dir, 100 + ((power1 + power2) * 5), 3);
 					break;
 				}
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 80, 3);
+					fire_ball(GF_ELEC, dir, 80 + ((power1 + power2) * 5), 3);
 					break;
 				}
 
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 100, 3);
+					fire_ball(GF_FIRE, dir, 100 + ((power1 + power2) * 5), 3);
 					break;
 				}
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 80, 3);
+					fire_ball(GF_COLD, dir, 80 + ((power1 + power2) * 5), 3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 60, 3);
+					fire_ball(GF_POIS, dir, 60 + ((power1 + power2) * 5), 3);
 					break;
 				}
 			}
@@ -2342,7 +2418,7 @@ void do_cmd_aim_ray(void)
 
 		case SV_RAY_ANNIHILATION:
 		{
-			if (drain_life(dir, 125)) ident = TRUE;
+			if (drain_life(dir, 125 + ((power1 + power2) * 5))) ident = TRUE;
 			break;
 		}
 	}
@@ -2423,6 +2499,7 @@ void do_cmd_aim_ray(void)
 void do_cmd_zap_apparatus(void)
 {
 	int item, ident, chance, dir, lev;
+	int devicegood, devicenorm, devicepoor;
 
 	object_type *o_ptr;
 
@@ -2431,6 +2508,9 @@ void do_cmd_zap_apparatus(void)
 
 	cptr q, s;
 
+	int power1 = p_ptr->skills[SK_POW_DEVICE].skill_rank;
+	int power2 = p_ptr->skills[SK_POW2_DEVICE].skill_rank;
+	int healfac = p_ptr->skills[SK_HEAL_DEVICE].skill_rank;
 
 	/* Restrict choices to apparatuses */
 	item_tester_tval = TV_APPARATUS;
@@ -2478,8 +2558,20 @@ void do_cmd_zap_apparatus(void)
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
 
+	/* Get the device factor */
+	devicegood = p_ptr->skills[SK_DEVICE_GOOD].skill_rank;
+	devicenorm = p_ptr->skills[SK_DEVICE_NORM].skill_rank;
+	devicepoor = p_ptr->skills[SK_DEVICE_POOR].skill_rank;
+	
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	if (devicegood > 0) chance = (3 * devicegood);
+	if (devicenorm > 0) chance = (2 * devicenorm);
+	if (devicepoor > 0) chance = devicepoor;
+
+	if (p_ptr->skills[SK_ADV_DEVICE].skill_rank > 0)
+	{
+		chance += (p_ptr->skills[SK_ADV_DEVICE].skill_rank * 2);
+	}
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -2520,7 +2612,7 @@ void do_cmd_zap_apparatus(void)
 		case SV_APPARATUS_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
-			o_ptr->pval = 50;
+			o_ptr->pval = 50 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 2);
 			break;
 		}
 
@@ -2528,7 +2620,7 @@ void do_cmd_zap_apparatus(void)
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
-			o_ptr->pval = 70;
+			o_ptr->pval = 70 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 3);
 			break;
 		}
 
@@ -2536,7 +2628,7 @@ void do_cmd_zap_apparatus(void)
 		{
 			ident = TRUE;
 			if (!ident_spell()) use_charge = FALSE;
-			o_ptr->pval = 10;
+			o_ptr->pval = 10 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank / 3);
 			break;
 		}
 
@@ -2544,14 +2636,14 @@ void do_cmd_zap_apparatus(void)
 		{
 			set_recall();
 			ident = TRUE;
-			o_ptr->pval = 60;
+			o_ptr->pval = 60 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 2);
 			break;
 		}
 
 		case SV_APPARATUS_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
-			o_ptr->pval = 30;
+			o_ptr->pval = 30 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank);
 			break;
 		}
 
@@ -2559,7 +2651,7 @@ void do_cmd_zap_apparatus(void)
 		{
 			map_area();
 			ident = TRUE;
-			o_ptr->pval = 99;
+			o_ptr->pval = 99 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 4);
 			break;
 		}
 
@@ -2567,7 +2659,7 @@ void do_cmd_zap_apparatus(void)
 		{
 			detect_all();
 			ident = TRUE;
-			o_ptr->pval = 99;
+			o_ptr->pval = 99 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 4);
 			break;
 		}
 
@@ -2575,7 +2667,7 @@ void do_cmd_zap_apparatus(void)
 		{
 			probing();
 			ident = TRUE;
-			o_ptr->pval = 50;
+			o_ptr->pval = 50 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 2);
 			break;
 		}
 
@@ -2586,7 +2678,7 @@ void do_cmd_zap_apparatus(void)
 			if (set_confused(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
+			o_ptr->pval = 999 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 40);
 			break;
 		}
 
@@ -2595,20 +2687,20 @@ void do_cmd_zap_apparatus(void)
 			if (hp_player(500)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
+			o_ptr->pval = 999 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 40);
 			break;
 		}
 
 		case SV_APPARATUS_RESTORATION:
 		{
 			if (restore_level()) ident = TRUE;
-			if (do_res_stat(A_STR)) ident = TRUE;
-			if (do_res_stat(A_INT)) ident = TRUE;
-			if (do_res_stat(A_WIS)) ident = TRUE;
-			if (do_res_stat(A_DEX)) ident = TRUE;
-			if (do_res_stat(A_CON)) ident = TRUE;
+			if (do_res_stat(A_MUS)) ident = TRUE;
+			if (do_res_stat(A_AGI)) ident = TRUE;
+			if (do_res_stat(A_VIG)) ident = TRUE;
+			if (do_res_stat(A_SCH)) ident = TRUE;
+			if (do_res_stat(A_EGO)) ident = TRUE;
 			if (do_res_stat(A_CHR)) ident = TRUE;
-			o_ptr->pval = 999;
+			o_ptr->pval = 999 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 40);
 			break;
 		}
 
@@ -2622,21 +2714,21 @@ void do_cmd_zap_apparatus(void)
 			{
 				(void)set_fast(p_ptr->fast + 5);
 			}
-			o_ptr->pval = 99;
+			o_ptr->pval = 99 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank * 4);
 			break;
 		}
 
 		case SV_APPARATUS_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
+			o_ptr->pval = 25 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank);
 			break;
 		}
 
 		case SV_APPARATUS_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
-			o_ptr->pval = 30;
+			o_ptr->pval = 30 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank);
 			break;
 		}
 
@@ -2645,99 +2737,99 @@ void do_cmd_zap_apparatus(void)
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
 			ident = TRUE;
-			o_ptr->pval = 9;
+			o_ptr->pval = 9 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank / 3);
 			break;
 		}
 
 		case SV_APPARATUS_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir)) ident = TRUE;
-			o_ptr->pval = 18;
+			o_ptr->pval = 18 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank / 2);
 			break;
 		}
 
 		case SV_APPARATUS_SLOW_MONSTER:
 		{
 			if (slow_monster(dir)) ident = TRUE;
-			o_ptr->pval = 20;
+			o_ptr->pval = 20 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank / 2);
 			break;
 		}
 
 		case SV_APPARATUS_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
-			o_ptr->pval = 23;
+			if (drain_life(dir, 75 + (power1 + power2))) ident = TRUE;
+			o_ptr->pval = 23 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank);
 			break;
 		}
 
 		case SV_APPARATUS_POLYMORPH:
 		{
 			if (poly_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
+			o_ptr->pval = 25 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank);
 			break;
 		}
 
 		case SV_APPARATUS_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, damroll(7 + (power2 / 2), 8 + power1));
 			ident = TRUE;
-			o_ptr->pval = 12;
+			o_ptr->pval = 12 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank / 2);
 			break;
 		}
 
 		case SV_APPARATUS_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(4 + (power2 / 2), 8 + power1));
 			ident = TRUE;
-			o_ptr->pval = 11;
+			o_ptr->pval = 11 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank / 2);
 			break;
 		}
 
 		case SV_APPARATUS_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(9 + (power2 / 2), 8 + power1));
 			ident = TRUE;
-			o_ptr->pval = 15;
+			o_ptr->pval = 15 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank / 2);
 			break;
 		}
 
 		case SV_APPARATUS_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, damroll(6 + (power2 / 2), 8 + power1));
 			ident = TRUE;
-			o_ptr->pval = 13;
+			o_ptr->pval = 13 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank / 2);
 			break;
 		}
 
 		case SV_APPARATUS_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 60 + ((power1 + power2) * 5), 2);
 			ident = TRUE;
-			o_ptr->pval = 27;
+			o_ptr->pval = 27 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank);
 			break;
 		}
 
 		case SV_APPARATUS_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 60 + ((power1 + power2) * 5), 2);
 			ident = TRUE;
-			o_ptr->pval = 23;
+			o_ptr->pval = 23 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank);
 			break;
 		}
 
 		case SV_APPARATUS_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 60 + ((power1 + power2) * 5), 2);
 			ident = TRUE;
-			o_ptr->pval = 30;
+			o_ptr->pval = 30 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank);
 			break;
 		}
 
 		case SV_APPARATUS_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 60 + ((power1 + power2) * 5), 2);
 			ident = TRUE;
-			o_ptr->pval = 25;
+			o_ptr->pval = 25 - (p_ptr->skills[SK_EFF_DEVICE].skill_rank);
 			break;
 		}
 	}
@@ -2835,11 +2927,11 @@ static void ring_of_power(int dir)
 			msg_print("You are surrounded by a malignant aura.");
 
 			/* Decrease all stats (permanently) */
-			(void)dec_stat(A_STR, 50, TRUE);
-			(void)dec_stat(A_INT, 50, TRUE);
-			(void)dec_stat(A_WIS, 50, TRUE);
-			(void)dec_stat(A_DEX, 50, TRUE);
-			(void)dec_stat(A_CON, 50, TRUE);
+			(void)dec_stat(A_MUS, 50, TRUE);
+			(void)dec_stat(A_AGI, 50, TRUE);
+			(void)dec_stat(A_VIG, 50, TRUE);
+			(void)dec_stat(A_SCH, 50, TRUE);
+			(void)dec_stat(A_EGO, 50, TRUE);
 			(void)dec_stat(A_CHR, 50, TRUE);
 
 			/* Lose some experience (permanently) */
@@ -2958,6 +3050,7 @@ static bool brand_bolts(void)
 void do_cmd_activate(void)
 {
 	int item, i, k, dir, lev, chance;
+	int devicegood, devicenorm, devicepoor;
 
 	object_type *o_ptr;
 
@@ -2993,9 +3086,21 @@ void do_cmd_activate(void)
 
 	/* Hack -- use artifact level instead */
 	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
-
+	
+	/* Get the device factor */
+	devicegood = p_ptr->skills[SK_DEVICE_GOOD].skill_rank;
+	devicenorm = p_ptr->skills[SK_DEVICE_NORM].skill_rank;
+	devicepoor = p_ptr->skills[SK_DEVICE_POOR].skill_rank;
+	
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	if (devicegood > 0) chance = (3 * devicegood);
+	if (devicenorm > 0) chance = (2 * devicenorm);
+	if (devicepoor > 0) chance = devicepoor;
+
+	if (p_ptr->skills[SK_ADV_DEVICE].skill_rank > 0)
+	{
+		chance += (p_ptr->skills[SK_ADV_DEVICE].skill_rank * 2);
+	}
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;

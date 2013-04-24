@@ -963,8 +963,54 @@ bool set_tim_infra(int v)
 	/* Result */
 	return (TRUE);
 }
+/*
+ * Set "p_ptr->tim_harding", notice observable changes
+ * Steam-Mecha only
+ */
+bool set_tim_harding(int v)
+{
+	bool notice = FALSE;
+	
+	/* hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (v)
+	{
+		if (!p_ptr->tim_harding)
+		{
+			msg_print("Voltaic-Magneto shielding activated!");
+			notice = TRUE;
+		}
+	}
 
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_harding)
+		{
+			msg_print("Voltaic-Magneto shielding shutting down.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_harding = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+	
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 /*
  * Set "p_ptr->oppose_acid", notice observable changes
  */
@@ -1573,8 +1619,11 @@ bool set_cut(int v)
 bool set_food(int v)
 {
 	int old_aux, new_aux;
-
+	u32b f1, f2, f3;
 	bool notice = FALSE;
+	
+	player_flags(&f1, &f2, &f3);
+
 
 	/* Hack -- Force good values */
 	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
@@ -1667,28 +1716,44 @@ bool set_food(int v)
 			/* Hungry */
 			case 2:
 			{
-				msg_print("You are still hungry.");
+				if (f3 & (TR3_AUTOMATA))
+				{
+					msg_print("You are still in need of oil.");
+				}
+				else msg_print("You are still hungry.");
 				break;
 			}
 
 			/* Normal */
 			case 3:
 			{
-				msg_print("You are no longer hungry.");
+				if (f3 & (TR3_AUTOMATA))
+				{
+					msg_print("Your engine is has sufficient lubricant.");
+				}
+				else msg_print("You are no longer hungry.");
 				break;
 			}
 
 			/* Full */
 			case 4:
 			{
-				msg_print("You are full!");
+				if (f3 & (TR3_AUTOMATA))
+				{
+					msg_print("Your engine is in tip-top shape!");
+				}
+				else msg_print("You are full!");
 				break;
 			}
 
 			/* Bloated */
 			case 5:
 			{
-				msg_print("You have gorged yourself!");
+				if (f3 & (TR3_AUTOMATA))
+				{
+					msg_print("You are coated in oil making it difficult to move!");
+				}
+				else msg_print("You have gorged yourself!");
 				break;
 			}
 		}
@@ -1706,35 +1771,55 @@ bool set_food(int v)
 			/* Fainting / Starving */
 			case 0:
 			{
-				msg_print("You are getting faint from hunger!");
+				if (f3 & (TR3_AUTOMATA))
+				{
+					msg_print("You engine is going to seize up!");
+				}
+				else msg_print("You are getting faint from hunger!");
 				break;
 			}
 
 			/* Weak */
 			case 1:
 			{
-				msg_print("You are getting weak from hunger!");
+				if (f3 & (TR3_AUTOMATA))
+				{
+					msg_print("Your engine begins to grind!");
+				}
+				else msg_print("You are getting weak from hunger!");
 				break;
 			}
 
 			/* Hungry */
 			case 2:
 			{
-				msg_print("You are getting hungry.");
+				if (f3 & (TR3_AUTOMATA))
+				{
+					msg_print("Your engine needs some oil.");
+				}
+				else  msg_print("You are getting hungry.");
 				break;
 			}
 
 			/* Normal */
 			case 3:
 			{
-				msg_print("You are no longer full.");
+				if (f3 & (TR3_AUTOMATA))
+				{
+					msg_print("Your engine warms up.");
+				}
+				else msg_print("You are no longer full.");
 				break;
 			}
 
 			/* Full */
 			case 4:
 			{
-				msg_print("You are no longer gorged.");
+				if (f3 & (TR3_AUTOMATA))
+				{
+					msg_print("The excess oil wears off.");
+				}
+				else msg_print("You are no longer gorged.");
 				break;
 			}
 		}
@@ -1776,6 +1861,10 @@ void check_experience(void)
 {
 	int pre_lgain;
 	int post_lgain;
+	int bonus_skillpts;
+	u32b f1, f2, f3;
+	player_flags(&f1, &f2, &f3);
+
 	
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -1829,6 +1918,11 @@ void check_experience(void)
 	{
 		/* Gain a level */
 		p_ptr->lev++;
+		
+		/* determine bonus skill points */
+		bonus_skillpts = rand_int(2);
+		
+		bonus_skillpts += (50 - p_ptr->lev) / 10;
 
 		/* Get the value of max_lev */
 		pre_lgain = p_ptr->max_lev;
@@ -1843,9 +1937,30 @@ void check_experience(void)
 		/* I attempted to put this in the next loop, but . . . It never triggered */
 		/* I should probably look into a better way to do this. */
 		if (pre_lgain < post_lgain) 
-		{
-		level_reward();
-		}
+			{
+				if (f3 & (TR3_AUTOMATA))
+				{
+					/* Do nothing */
+				}
+				else 
+				{
+					/* mostly you get one free stat gain a level */
+					/* sometimes you get 0-3 (should a skill affect this?)*/
+					if (randint(100) < 95)
+					{
+						p_ptr->free_sgain += 1;
+					}
+					else 
+					{
+						/* Note the possiblity of 0 */
+						p_ptr->free_sgain += rand_int(3);
+					}
+				}
+			/* gain 3-5 skill points per level */
+			p_ptr->free_skpts += (3 + bonus_skillpts);
+			/* handle mutations, and 'other' indeterminte effects on level gain */
+			level_reward();
+			}
 
 		/* Message */
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
@@ -1858,6 +1973,9 @@ void check_experience(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		
+		/* Redraw Level status */
+		p_ptr->redraw |= (PR_LEVEL);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -1871,7 +1989,6 @@ void check_experience(void)
 
 		/* Gain max level */
 		p_ptr->max_lev++;		
-		
 		
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2149,7 +2266,7 @@ void monster_death(int m_idx)
 		else
 		{
 			/* Make an object */
-			if (!make_object(i_ptr, good, great)) continue;
+			if (!make_object(i_ptr, good, great, FALSE)) continue;
 
 			/* Assume seen XXX XXX XXX */
 			dump_item++;
@@ -2278,7 +2395,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		else if ((r_ptr->flags3 & (RF3_DEMON)) ||
 		         (r_ptr->flags3 & (RF3_UNDEAD)) ||
 		         (r_ptr->flags2 & (RF2_STUPID)) ||
-		         (strchr("Evg", r_ptr->d_char)))
+		         (strchr("EvgaC", r_ptr->d_char)))
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}

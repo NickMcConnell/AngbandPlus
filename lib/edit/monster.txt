@@ -117,12 +117,12 @@
 
 # N: serial number : monster name
 # G: symbol : color
-# I: speed : hit points : vision : armor class : alertness
+# I: speed : hit points : vision(10's of feet) : armor class : (0 is high, 255 low) alertness
 # W: depth : rarity : unused (always 0) : experience for kill
 # B: attack method : attack effect : damage
 # S: spell frequency |
 # S: spell type | spell type | etc
-# F: flag | flag | etc
+# F: flag | flag | etc 
 # D: Description
 
 # Automata flagset
@@ -166,8 +166,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
-
+V:0.3.1
 
 ##### Non-race (contains the "player" picture) #####
 
@@ -198,8 +197,8 @@ B:CLAW:HURT:1d1
 F:RAND_25 | 
 F:ANIMAL
 D:A skinny little furball with sharp claws and a menacing look. 
-D:Another small natural creature that eeks out an existance 
-D:in this pit of dispair.
+D:Another small natural creature that eeks out an existence 
+D:in this pit of despair.
 
 N:3:Scruffy little dog
 G:Z:U
@@ -282,7 +281,7 @@ F:MALE |
 F:RAND_25 | 
 F:TAKE_ITEM | OPEN_DOOR
 D:You feel it isn't safe to touch him. With his disease 
-D:it might not be a bad idea if he just 'dissapeared'.
+D:it might not be a bad idea if he just 'disappeared'.
 
 N:10:Squint eyed rogue
 G:t:b
@@ -299,7 +298,7 @@ D:You've been seen.
 
 N:11:Singing, happy drunk
 G:t:y
-I:110:2d3:10:1:0
+I:110:2d3:10:1:10
 W:0:1:0:0
 B:BEG
 F:MALE | 
@@ -311,19 +310,19 @@ D:drunk. He looks like he plans to get in your way.
 
 N:12:Demimondaine
 G:t:R
-I:110:3d3:10:1:255
+I:110:3d3:10:1:155
 W:0:1:0:0
 B:SEDUCE:EAT_GOLD
 F:FEMALE | 
 F:ONLY_GOLD | DROP_90 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:A strking beauty strides toward you. Her long pettycoats swirl 
+D:A striking beauty strides toward you. Her long petticoats swirl 
 D:around her long delicate legs. She giggles as she moves towards 
 D:you. She is quite attractive. . .
 
 N:13:Mean looking mercenary
 G:t:r
-I:110:5d8:10:20:250
+I:110:5d8:10:15:250
 W:0:1:0:0
 B:HIT:HURT:1d10
 F:MALE | 
@@ -334,7 +333,7 @@ D:No job is too low for him.
 
 N:14:Battle scarred veteran
 G:t:B
-I:110:7d8:10:30:250
+I:110:7d8:10:22:250
 W:0:1:0:0
 B:HIT:HURT:2d6
 F:MALE | 
@@ -372,7 +371,7 @@ D:Yum!  It looks quite tasty.
 
 N:17:Giant yellow centipede
 G:c:y
-I:120:2d3:8:12:30
+I:110:2d3:8:6:40
 W:1:1:0:3
 B:BITE:HURT:1d3
 B:STING:HURT:1d3
@@ -384,7 +383,7 @@ D:them.
 
 N:18:Giant white centipede
 G:c:w
-I:120:3d5:7:10:40
+I:110:3d5:7:5:60
 W:1:1:0:3
 B:BITE:HURT:1d2
 B:STING:HURT:1d2
@@ -397,7 +396,7 @@ D:the size of a large dog. You hope you can penetrate it's armor.
 
 N:19:White icky thing
 G:i:w
-I:110:3d5:12:7:10
+I:110:3d5:5:5:110
 W:1:1:0:2
 B:TOUCH:HURT:1d2
 F:RAND_50 | RAND_25 | 
@@ -405,18 +404,7 @@ F:EMPTY_MIND
 D:It is a smallish, slimy, icky creature. It's shape is very difficult to describe. 
 D:It's looks like a twitching vicious half-melted candle, spasming towards you.
 
-N:20:Clear icky thing
-G:i:w
-I:110:2d5:12:6:10
-W:1:1:0:1
-B:TOUCH:HURT:1d2
-F:ATTR_CLEAR | 
-F:RAND_50 | RAND_25 | 
-F:INVISIBLE | EMPTY_MIND
-D:It is a smallish, slimy, icky, blobby creature. You only see it as your torchlight 
-D:glints off it's skin. 
-
-N:21:Giant white cave mouse
+N:20:Giant white cave mouse
 G:r:w
 I:110:1d3:8:4:20
 W:1:1:0:1
@@ -427,9 +415,9 @@ F:ANIMAL
 D:It is about three feet long with large teeth. It's 
 D:disgusting - and more keep appearing. . .
 
-N:22:Large brown snake
+N:21:Large brown snake
 G:J:u
-I:100:4d6:4:35:99
+I:100:4d6:5:14:99
 W:1:1:0:3
 B:BITE:HURT:1d3
 B:CRUSH:HURT:1d4
@@ -438,9 +426,9 @@ F:BASH_DOOR |
 F:ANIMAL
 D:It is about eight feet long. It looks lazy. And dangerous.
 
-N:23:Large white snake
+N:22:Large white snake
 G:J:w
-I:100:3d6:4:30:99
+I:100:3d6:4:12:99
 W:1:1:0:2
 B:BITE:HURT:1d1
 B:CRUSH:HURT:1d1
@@ -449,26 +437,24 @@ F:BASH_DOOR |
 F:ANIMAL
 D:It is about eight feet long with sharp pink eyes.
 
-N:24:Small Dog-man
+N:23:Small Dog-man
 G:B:y
-I:110:3d5:20:16:10
+I:110:3d5:20:12:50
 W:1:1:0:5
 B:BITE:HURT:1d6
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | BEASTMAN
-D:A bizzare scientific combination of dog and man shambles towards you. 
+D:A bizarre scientific combination of dog and man shambles towards you. 
 D:Some scientist must have surgically concocted him in a lab. His wild 
-D:eyes lock on yours, the skin pulling back from his teeth. A low growl
+D:eyes lock on yours, the skin pulling back from his teeth. A low growl 
 D:issues from his throat.
 
-N:25:Dog-Man
+N:24:Dog-Man
 G:B:G
-I:120:5d5:20:16:10
-W:1:1:0:7
-B:BITE:HURT:1d6
-B:CLAW:HURT:1d2
-B:CLAW:HURT:1d2
+I:112:4d6:20:14:10
+W:1:2:0:8
+B:BITE:HURT:1d8
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | BEASTMAN
@@ -476,7 +462,7 @@ D:It is a small, dog-headed humanoid, a larger version of the ones you
 D:saw earlier. He however walks more upright, and moves towards you much
 D:more quickly than his smaller cousin.
 
-N:26:White worm mass
+N:25:White worm mass
 G:w:w
 I:100:4d4:7:1:10
 W:1:1:0:2
@@ -488,7 +474,7 @@ D:It is a large slimy mass of worms that keeps growing and growing, right
 D:before your eyes. As they begin to fill the space beyond you wonder about 
 D:your odds for survival.
 
-N:27:Strange terminal
+N:26:Strange terminal
 G:e:W
 I:110:3d6:2:6:10
 W:1:1:0:3
@@ -500,7 +486,7 @@ D:A strange terminal with wires running in and through it. Every so
 D:often a burst of steam shoots out. It looks like it might have something 
 D:inside of it.
 
-N:28:Rock lizard
+N:27:Rock lizard
 G:R:U
 I:110:3d1:20:7:15
 W:1:1:0:3
@@ -509,7 +495,7 @@ F:ANIMAL
 D:It is a small prehistoric lizard with a hardened hide. It is about a half-
 D:foot long, and wants to fill it's small stomach with your hand. It looks hungry.
 
-N:29:Jackal
+N:28:Jackal
 G:Z:U
 I:110:1d4:10:3:10
 W:1:1:0:1
@@ -518,7 +504,7 @@ F:FRIENDS |
 F:ANIMAL
 D:It is a yapping snarling dog, dangerous when in a pack.
 
-N:30:Alien spore
+N:29:Alien spore
 G:A:W
 I:100:5d2:10:3:10
 W:1:1:0:2
@@ -526,12 +512,12 @@ B:SPORE:HURT:1d3
 F:EMPTY_MIND | NEVER_MOVE | MULTIPLY |
 F:ALIEN | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:As you appoach you see a strange alien spore is growing here. 
+D:As you approach you see a strange alien spore is growing here. 
 D:Your light falls on it and it begins to grow towards you.
 
-N:31:Maintance automaton - Type I
+N:30:Maintance automaton - Type I
 G:a:w
-I:120:1d3:3:7:10
+I:110:1d3:3:3:10
 W:1:2:0:1
 B:BITE:HURT:1d1
 F:MULTIPLY
@@ -541,25 +527,58 @@ D:in its way down to it's component elements. As you approach you see it
 D:constructing another automata to help it remove a large rock. You begin 
 D:to pray that it will pay no attention to you.
 
-N:32:Chicken
+N:31:Chicken
 G:k:w
-I:110:1d2:1:1:1
+I:110:1d2:1:1:255
 W:1:1:0:1
 B:BITE:HURT:1d1
 F:FRIENDS | RAND_50 | HOSTILE | EMPTY_MIND | ANIMAL 
 D:Oh, God. Chickens. 
 
-N:33:The White Rabbit
-G:r:w
-I:140:10d50:40:45:0
-W:1:10:0:150
-B:SPEAK
-F:UNIQUE | FORCE_MAXHP | DROP_3D2 | DROP_GOOD | DROP_GREAT |
-F:SMART | REGENERATE | OPEN_DOOR | ANIMAL | NO_STUN | NO_CONF | NO_SLEEP | 
-S:1_IN_3 |
-S:HASTE | HEAL | BLINK | TPORT | 
-D:A small white rabbit, wearing a waistcoat and vest runs in front of you carrying a 
-D:pocket watch. He seems to be in a hurry.
+N:32:Chicken Little
+G:k:r
+I:115:5d4:3:2:200
+W:1:1:0:4
+B:BITE:HURT:3d1
+F:ESCORTS | RAND_25 | HOSTILE | EMPTY_MIND | ANIMAL |
+F:UNIQUE | FORCE_MAXHP | FEMALE
+S:1_IN_5 |
+S:SHRIEK 
+D:One day Chicken Little was walking in the woods when *KERPLUNK* 
+D:an acorn fell on her head. "Oh my goodness!" said Chicken Little, 
+D:"The sky is falling! I must go and tell the king." On her way to the 
+D:king's palace, Chicken Little met Cocky Locky, who said, "I'm going 
+D:into the woods." "Oh no, don't go!" said Chicken Little. "The 
+D:sky is falling! Come with me to tell the king." So Cocky 
+D:Locky joined Chicken Little and they went along as fast as they could. 
+D:Then who should appear on the path but sly old Foxy Woxy. 
+D:"Where are you going, my fine feathered friends?" asked 
+D:Foxy Woxy. "The sky is falling!" cried Chicken Little. 
+D:"We must tell the king." "I know a shortcut to the palace," said Foxy 
+D: woxy sweetly. "Come and follow me." He led them right up to the 
+D:entrance of his foxhole. Once they were inside, Foxy Woxy was 
+D:planning to gobble them up! Suddenly they heard a strange sound and stopped. 
+D:It was the king's hunting dogs! How Foxy Woxy ran, across 
+D:the meadows and through the forests, with the hounds close behind. He ran 
+D:until he was far, far away and never dared to come back again. After that 
+D:day, Chicken Little always carried an umbrella with her when she walked in the 
+D:woods. The umbrella was a present from the king. And if *KERPLUNK* 
+D:an acorn fell, Chicken Little didn't mind a bit. In fact, 
+D:she didn't notice it at all.
+
+# REMOVING: I need to wait until I can apply a 'fraid tag to the
+# AI so that the rabbit will run away.
+#N:33:The White Rabbit
+#G:r:w
+#I:140:10d50:40:45:0
+#W:1:10:0:150
+#B:SPEAK
+#F:UNIQUE | FORCE_MAXHP | DROP_3D2 | DROP_GOOD | DROP_GREAT |
+#F:SMART | REGENERATE | OPEN_DOOR | ANIMAL | NO_STUN | NO_CONF | NO_SLEEP | 
+#S:1_IN_2 |
+#S:TPORT | HASTE | HEAL |  
+#D:A small white rabbit, wearing a waistcoat and vest runs in front of you carrying a 
+#D:pocket watch. He seems to be in a hurry.
 
 ### 34-35 Unused ###
 ##########################
@@ -584,14 +603,14 @@ W:2:1:0:8
 B:CRAWL:POISON:1d4
 B:CRAWL:EAT_FOOD
 F:RAND_50 | DROP_90 | 
-F:EMPTY_MIND | TAKE_ITEM | KILL_BODY | 
+F:EMPTY_MIND | KILL_BODY | 
 F:IM_POIS
 D:It is a smallish, slimy, icky, hungry creature. It's skin makes 
 D:a flapping sound as gasses leak out from it's interior.
 
 N:38:Metallic green centipede
 G:c:g
-I:120:4d4:5:4:10
+I:110:4d4:5:4:10
 W:2:1:0:3
 B:CRAWL:HURT:2d1
 F:RAND_50 | 
@@ -602,7 +621,7 @@ D:down it's back. It looks dangerous.
 
 N:39:Novice officer
 G:p:u
-I:110:9d4:20:16:5
+I:110:9d4:20:14:5
 W:2:1:0:6
 B:HIT:HURT:1d7
 B:HIT:HURT:1d6
@@ -614,7 +633,7 @@ D:him to lose his mind. He moves towards you swinging his saber.
 
 N:40:Novice rogue
 G:p:b
-I:110:8d4:20:12:5
+I:110:8d4:20:10:5
 W:2:1:0:6
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
@@ -625,9 +644,9 @@ F:EVIL
 D:A rather shifty individual. He looks to be the type to take advantage of wary 
 D:travelers.
 
-N:41:Novice Quabalist
+N:41:Novice Qabalist
 G:p:g
-I:110:7d4:20:10:10
+I:110:7d4:20:6:10
 W:2:1:0:7
 B:HIT:HURT:1d5
 F:MALE | 
@@ -641,7 +660,7 @@ D:He appears vengeful. Beware.
 
 N:42:Novice wizard
 G:p:r
-I:110:6d4:20:6:5
+I:110:6d4:20:4:5
 W:2:1:0:7
 B:HIT:HURT:1d4
 F:MALE | 
@@ -650,7 +669,7 @@ F:DROP_60 |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
 S:BLINK | BLIND | CONF | MISSILE
-D:A student of the arcane apparoaches. His eyes begin to glow and he begins 
+D:A student of the arcane approaches. His eyes begin to glow and he begins 
 D:muttering under his breath.
 
 N:43:Yellow mushroom patch
@@ -666,7 +685,7 @@ D:Yum!  It looks quite tasty. And a little frightening.
 
 N:44:White jelly
 G:j:w
-I:120:8d8:2:1:99
+I:110:8d8:2:1:99
 W:2:1:0:10
 B:TOUCH:POISON:1d2
 F:NEVER_MOVE | 
@@ -687,7 +706,7 @@ D:It is as big as a wolf. Much uglier of course.
 
 N:46:Alien Flower
 G:A:v
-I:110:2d3:8:20:80
+I:110:2d3:8:10:80
 W:2:1:0:1
 B:SPORE:HURT:1d4
 F:EMPTY_MIND | MULTIPLY |
@@ -698,8 +717,8 @@ D:up from the ground, weird painful purple flowers.
 
 N:47:Ancient fire lizard
 G:R:o
-I:110:4d6:8:20:80
-W:2:1:0:10
+I:110:4d6:8:18:80
+W:2:2:0:10
 B:BITE:FIRE:1d3
 F:RAND_25 | 
 F:ANIMAL | IM_FIRE
@@ -708,7 +727,7 @@ D:no telling what a lizard that spits fire could do to them.
 
 N:48:Albino bird-woman
 G:B:w
-I:120:4d6:16:17:10
+I:115:4d6:16:15:10
 W:2:1:0:7
 B:CLAW:HURT:1d2
 B:CLAW:HURT:1d2
@@ -721,7 +740,7 @@ D:A flying, screeching bird with a woman's face.
 
 N:49:Maintenance automaton - Type II
 G:a:w
-I:120:3d4:5:8:10
+I:110:3d4:5:8:10
 W:2:2:0:2
 B:HIT:HURT:2d2
 F:MULTIPLY
@@ -731,25 +750,8 @@ D:in its way down to it's component elements. As you approach you see it
 D:constructing another automata to help it remove a large rock. You begin 
 D:to pray that it will pay no attention to you.
 
-N:50:White Fang
-G:Z:w
-I:120:7d6:30:30:0
-W:2:2:0:40
-B:CLAW:HURT:1d2
-B:CLAW:HURT:1d2
-B:BITE:HURT:2d4
-F:UNIQUE | 
-F:FORCE_MAXHP | MALE | 
-F:BASH_DOOR | 
-F:ANIMAL | NO_CONF | NO_SLEEP | SMART
-D:Half-dog, half-wolf. With large white fangs, this beast moves 
-D:intelligently towards you. He sees you approach, and seems 
-D:to prepare. He bristled and showed his teeth, his eyes 
-D:vigilant, his whole body wary and prepared for anything.
-D:You remember reading a serial about this creature 
-D:in "The Outing Magazine" (1906)
 
-N:51:Green worm mass
+N:50:Green worm mass
 G:w:g
 I:100:6d4:7:3:10
 W:2:1:0:3
@@ -761,9 +763,9 @@ F:HURT_LITE | NO_FEAR
 D:It is a large slimy mass of worms. This worms carray a sickly green sheen, and leave 
 D:their scum on all the surfaces they cover. The mass begins growing uncontrollably.
 
-N:52:Large yellow snake
+N:51:Large yellow snake
 G:J:y
-I:100:4d8:5:38:75
+I:100:4d8:5:30:75
 W:2:1:0:9
 B:BITE:HURT:1d4
 B:CRUSH:HURT:1d6
@@ -772,9 +774,9 @@ F:BASH_DOOR |
 F:ANIMAL
 D:It is about ten feet long, and moves with vicious intent.
 
-N:53:Cave spider
+N:52:Cave spider
 G:S:D
-I:120:2d6:8:16:80
+I:110:2d6:8:14:80
 W:2:1:0:7
 B:BITE:HURT:1d4
 F:FRIENDS | 
@@ -782,7 +784,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is a disgusting black spider that moves in fits and starts.
 
-N:54:Wild cat
+N:53:Wild cat
 G:f:U
 I:120:3d5:40:12:0
 W:2:2:0:8
@@ -793,23 +795,23 @@ F:ANIMAL
 D:A larger than normal feline, hissing loudly.  Its velvet claws conceal a 
 D:fistful of claws.
 
-N:55:Capuchin Monkey
+N:54:Capuchin Monkey
 G:M:U
-I:120:4d5:40:10:30
+I:115:4d5:40:10:30
 W:2:2:0:10
 B:CLAW:HURT:1d2
 B:CLAW:HURT:1d2
 B:BITE:HURT:2d4
 B:BUTT:HURT:1d3
-S:1_IN_3 |
+S:1_IN_8 |
 S:SHRIEK
-F:FRIEND | ANIMAL | OPEN_DOOR | TAKE_ITEM
+F:ANIMAL | OPEN_DOOR | TAKE_ITEM
 D:A small vicious furry shape flies towards you. Be quick 
 D:in defending yourself.
 
-N:56:Rat-Man
+N:55:Rat-Man
 G:B:U
-I:120:6d8:20:16:10
+I:110:6d8:20:16:10
 W:2:2:0:9
 B:BITE:HURT:1d7
 B:CLAW:HURT:1d4
@@ -821,45 +823,48 @@ D:It is a small, rat-headed humanoid. It looks filthy
 D:He walks semi-upright, and moves towards you with
 D:vengance gleaming in his dull red eyes.
 
-### 57-60 ####
+N:56:Clear icky thing
+G:i:w
+I:110:2d5:12:6:10
+W:2:2:0:1
+B:TOUCH:HURT:1d2
+F:ATTR_CLEAR | 
+F:RAND_50 | RAND_25 | 
+F:INVISIBLE | EMPTY_MIND
+D:It is a smallish, slimy, icky, blobby creature. You only see it as your torchlight 
+D:glints off it's skin. 
+
+N:57:Cocky Locky
+G:k:r
+I:115:8d5:3:5:200
+W:2:2:0:6
+B:BITE:HURT:5d1
+F:ESCORTS | RAND_25 | HOSTILE | EMPTY_MIND | ANIMAL |
+F:UNIQUE | FORCE_MAXHP | 
+D:Cocky Locky, the close friend of chicken little who goes to visit the 
+D:king to tell him of the danger from the sky falling to earth.
+
+### 58-61 ####
 ##########################
 ##### Level 3 (150') #####
 ##########################
-# maybe needs escorts?
-N:61:Alden's white-haired monkey captain
-G:M:w
-I:120:8d8:30:30:0
-W:3:1:0:40
-B:HIT:HURT:1d4
-B:PUNCH:HURT:1d6
-B:BITE:HURT:1d4
-F:UNIQUE | 
-F:FORCE_MAXHP | MALE | ESCORTS |
-F:BASH_DOOR | OPEN_DOOR | DROP_60 | DROP_GOOD | TAKE_ITEM |
-F:ANIMAL 
-D:You see an old, white-haired monkey, all alone by himself, that you take to 
-D:be the captain of a ship, based on his dress. He appears a great sight too 
-D:dignified to be seen watching you. you remember reading a piece by William L. Alden 
-D:called "A Darwinian Schooner," which appeared in the August 1893 issue of 
-D:Pall Mall Magazine. Betrayed by the crew of the "Jane G. Mather" he seeks vengance 
-D:against all men. He carries a jagged knife.
 
 N:62:The Invisible Man
 G:h:b
-I:130:5d5:20:12:5
+I:120:5d5:20:10:5
 W:3:2:0:16
 B:HIT:HURT:1d4
 B:TOUCH:EAT_GOLD
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP |  
-F:ONLY_ITEM | DROP_1D2 | DROP_GREAT
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:INVISIBLE | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
 D:You hear Jack Griffin, the notorious Invisible man. He sounds angry.
 
 N:63:Green ooze
 G:j:g
-I:120:3d4:8:16:80
+I:110:3d4:8:16:80
 W:3:2:0:4
 B:CRAWL:ACID:1d3
 F:RAND_50 | RAND_25 | DROP_90 | 
@@ -870,9 +875,10 @@ D:It's green and it's oozing.
 
 N:64:Metallic blue centipede
 G:c:b
-I:120:4d5:6:6:15
+I:110:4d5:6:6:15
 W:3:1:0:7
-B:CRAWL:HURT:1d2
+B:CRAWL:HURT:2d2
+B:CRAWL:COLD:1d2
 F:RAND_50 | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
@@ -880,7 +886,7 @@ D:It is about four feet long and carnivorous.
 
 N:65:Giant white louse
 G:l:w
-I:120:1d1:6:5:10
+I:110:1d1:6:5:10
 W:3:1:0:1
 B:BITE:HURT:1d1
 F:RAND_50 | RAND_25 | 
@@ -890,7 +896,7 @@ D:It is six inches long. Hordes of them begin to fill the room.
 
 N:66:Obsidian Snake-woman
 G:B:D
-I:110:10d8:16:40:120
+I:110:10d8:16:34:120
 W:3:1:0:30
 B:CRUSH:HURT:1d8
 B:CLAW:HURT:1d3
@@ -917,7 +923,7 @@ D:Yum!  It looks quite tasty.
 
 N:68:Silver jelly
 G:j:W
-I:120:10d8:2:1:99
+I:110:10d8:2:1:99
 W:3:2:0:12
 B:TOUCH:EAT_LITE:1d3
 B:TOUCH:EAT_LITE:1d3
@@ -932,7 +938,7 @@ D:surroundings.
 
 N:69:Yellow jelly
 G:j:y
-I:120:10d8:2:1:99
+I:110:10d8:2:1:99
 W:3:1:0:12
 B:TOUCH:POISON:1d3
 F:NEVER_MOVE | 
@@ -969,7 +975,7 @@ D:It is a strange growth on the dungeon floor.
 
 N:72:Metallic red centipede
 G:c:r
-I:120:4d8:8:9:20
+I:110:4d8:8:9:20
 W:3:1:0:12
 B:BITE:HURT:1d2
 B:BITE:HURT:1d1
@@ -985,7 +991,7 @@ N:73:Yellow worm mass
 G:w:y
 I:100:4d8:7:4:10
 W:3:2:0:4
-B:CRAWL:LOSE_DEX:1d3
+B:CRAWL:LOSE_AGI:1d3
 F:RAND_50 | RAND_25 | 
 F:STUPID | WEIRD_MIND | MULTIPLY | 
 F:ANIMAL | HURT_LITE | NO_FEAR
@@ -1011,18 +1017,18 @@ N:75:Luminary terminal
 G:e:R
 I:110:4d6:2:6:10
 W:3:1:0:7
-B:SHOCK:LOSE_STR:1d6
+B:SHOCK:LOSE_MUS:1d6
 B:SHOCK:ELEC:1d3
 F:NEVER_MOVE | DROP_60 |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_11 | 
 S:DRAIN_MANA
-D:A strange terminal glowing red. It appears to be emmitting a strange energy. It could 
+D:A strange terminal glowing red. It appears to be emitting a strange energy. It could 
 D:have been tampered with, and may contain an object.
 
 N:76:Maintenance automaton - Type III
 G:a:w
-I:120:4d8:5:14:10
+I:110:4d8:5:14:10
 W:3:2:0:3
 B:HIT:HURT:3d3
 F:MULTIPLY | RAND_25 |
@@ -1043,6 +1049,22 @@ D:This horse sized alien slug thrashes back and forth on the floor
 D:causing great amounts of destruction. It would be wise to keep your 
 D:distance.
 
+N:78:Mi-Go, the Fungi from Yuggoth
+G:u:g
+I:110:4d5:8:20:60
+W:3:2:0:12
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+S:1_IN_4 |
+S:DRAIN_MANA 
+F:RAND_25 | WEIRD_MIND | REGENERATE | DEMON | ATTR_MULTI
+D:"They were pinkish things about five feet long; with crustaceous bodies 
+D:bearing vast pairs of dorsal fins or membranous wings and several sets of 
+D:articulate limbs, and with a sort of convoluted ellipsoid, covered with 
+D:multitudes of very short antenna, where a head would ordinarily be. . . .
+D: Sometimes [they] walked on all their legs and sometimes on the hindmost 
+D:pair only. - H. P. Lovecraft, "The Whisperer in Darkness"
+
 ## 78-85 Unused ##
 ##########################
 ##### Level 4 (200') #####
@@ -1054,11 +1076,11 @@ I:110:3d6:8:16:80
 W:4:1:0:8
 B:BITE:HURT:1d6
 F:ANIMAL
-D:It is an ancient armoured lizard with a powerful bite.
+D:It is an ancient armored lizard with a powerful bite.
 
 N:87:Novice adventurer
 G:p:W
-I:110:6d8:20:6:5
+I:110:6d8:20:16:5
 W:4:1:0:18
 B:HIT:HURT:2d4
 B:HIT:HURT:1d5
@@ -1070,7 +1092,7 @@ D:An agile hunter, ready and relaxed.
 
 N:88:Novice dashing hussar
 G:p:w
-I:110:8d8:20:16:5
+I:110:8d8:20:22:5
 W:4:1:0:20
 B:HIT:HURT:2d7
 B:HIT:HURT:1d6
@@ -1120,7 +1142,7 @@ D:chill begins to get to your bones. . .
 
 N:92:Large grey snake
 G:J:s
-I:100:6d8:6:41:50
+I:100:6d8:6:38:50
 W:4:1:0:14
 B:BITE:HURT:1d5
 B:CRUSH:HURT:1d8
@@ -1131,7 +1153,7 @@ D:It is about ten feet long, and it looks very angry.
 
 N:93:Spider Monkey
 G:M:D
-I:120:3d8:10:10:10
+I:110:3d8:10:10:10
 W:4:2:0:7
 B:CLAW:HURT:1d6
 B:CLAW:HURT:1d6
@@ -1140,26 +1162,43 @@ S:1_IN_3 |
 S:SHRIEK
 D:These small lanky monkeys look territorial. 
 
+
+N:94:The Unknown Chicken
+G:k:b
+I:120:8d8:2:2:10
+W:4:2:0:10
+B:HIT:HURT:2d1
+B:HIT:HURT:2d1
+B:HIT:HURT:2d1
+F:FRIENDS | RAND_25 | HOSTILE | EMPTY_MIND | ANIMAL |
+F:UNIQUE | FORCE_MAXHP | 
+D:This is the brave chicken that so often in the past has made the 
+D:desperate journey across the fabled road. No one can say why 
+D:a creature would make such a dangerous journ - Hey! it sure is 
+D:moving quickly - ack!
 ## 94-100 Unused ###
 
 ##########################
 ##### Level 5 (250') #####
 ##########################
 
-N:101:Phineas T. Barnum
-G:p:b
-I:120:7d10:16:8:10
-W:5:3:0:110
-B:HIT:HURT:1d6
-B:TOUCH:EAT_ITEM
-B:TOUCH:EAT_GOLD
-B:TOUCH:CONFUSE
-F:UNIQUE | MALE
-F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | 
-F:OPEN_DOOR | BASH_DOOR | REGENERATE | NO_CONF	
-D:The greatest showman alive! He is mumbleing "There's a sucker born every minute, 
-D:here comes one now." He looks frustrating.
+N:101:Alden's white-haired monkey captain
+G:M:w
+I:120:8d8:6:30:200
+W:5:3:0:40
+B:HIT:HURT:1d4
+B:PUNCH:HURT:1d6
+B:BITE:HURT:1d4
+F:UNIQUE | 
+F:FORCE_MAXHP | MALE | ESCORTS |
+F:BASH_DOOR | OPEN_DOOR | DROP_60 | DROP_GOOD | TAKE_ITEM |
+F:ANIMAL 
+D:You see an old, white-haired monkey, all alone by himself, that you take to 
+D:be the captain of a ship, based on his dress. He appears a great sight too 
+D:dignified to be seen watching you. you remember reading a piece by William L. Alden 
+D:called "A Darwinian Schooner," which appeared in the August 1893 issue of 
+D:Pall Mall Magazine. Betrayed by the crew of the "Jane G. Mather" he seeks vengance 
+D:against all men. He carries a jagged knife.
 
 N:102:Novice wizard
 G:p:r
@@ -1172,7 +1211,7 @@ F:FRIENDS | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
 S:BLINK | BLIND | CONF | MISSILE
-D:A student of the arcane apparoaches. His eyes begin to glow and he begins 
+D:A student of the arcane approaches. His eyes begin to glow and he begins 
 D:muttering under his breath.
 
 N:103:Green snake-woman
@@ -1185,7 +1224,7 @@ F:FEMALE |
 F:RAND_25 | TAKE_ITEM | DROP_60 | 
 F:BASH_DOOR | 
 F:EVIL | IM_ACID | BEASTMAN
-D:Another sensous woman approaches out of the darkness. Her beautiful red-hair, and 
+D:Another sensuous woman approaches out of the darkness. Her beautiful red-hair, and 
 D:bright green eyes enchant you. Your eyes travel down her torso, lingering on her 
 D:ponderous breasts, only to grimace in chagrin as you see the glistening green scales 
 D:that make up her lower body.
@@ -1203,7 +1242,7 @@ D:It's blue and it's oozing.
 
 N:105:Green jelly
 G:j:g
-I:120:22d8:2:1:99
+I:110:22d8:2:1:99
 W:5:1:0:18
 B:TOUCH:ACID:1d2
 F:NEVER_MOVE | 
@@ -1214,8 +1253,8 @@ D:It is a large pile of pulsing green flesh.
 
 N:106:Large dog-man
 G:B:b
-I:140:13d9:20:32:30
-W:5:1:0:28
+I:120:13d9:20:28:30
+W:5:2:0:28
 B:HIT:HURT:1d10
 B:HIT:HURT:1d4
 F:DROP_90 | 
@@ -1226,7 +1265,7 @@ D:and rushes forward to catch it's dinner. I believe you have other plans.
 
 N:107:Skeleton dog-man
 G:s:w
-I:110:5d8:20:26:40
+I:110:5d8:20:26:140
 W:5:1:0:12
 B:HIT:HURT:1d6
 F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
@@ -1287,14 +1326,14 @@ D:It has a copper head and sharp venomous fangs.
 
 N:112:Maintenance automaton - Type IV
 G:a:w
-I:120:8d10:5:18:10
+I:110:8d10:5:16:10
 W:5:2:0:6
 B:HIT:HURT:5d3
 F:MULTIPLY |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP |  EMPTY_MIND
 D:This Maintenance drone is over 8 feet high, and almost as wide as a 
 D:corridor. A scoop gathers junk from the floor around it and 
-D:shovels it into the furnace sitting in the center, Ocassionally 
+D:shovels it into the furnace sitting in the center, Occasionally 
 D:another one is produced from the back. You can't imagine they could
 D:get much bigger than this. 
 
@@ -1312,37 +1351,52 @@ D:that if it even recognizes you as life, It wouldn't much care.
 
 N:114:Large rat-man
 G:B:u
-I:140:13d9:20:32:30
-W:5:1:0:28
+I:120:13d9:20:32:30
+W:5:2:0:28
 B:HIT:HURT:1d8
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 F:DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | BEASTMAN
-D:It appears like a giant humaniod rat is barreling 
+D:It appears like a giant humanoid rat is barreling 
 D:towards you. It extends it's teeth and claws
 D:and rushes forward to catch it's dinner. This is one 
 D:invitation that will be difficult to turn down.
 
-### 115 - 120 Unused ###
+### 115 - 118 Unused ###
 
 ##########################
 ##### Level 6 (300') #####
 ##########################
+N:119:Phineas T. Barnum
+G:p:b
+I:120:10d10:16:8:10
+W:6:3:0:110
+B:HIT:HURT:1d6
+B:TOUCH:EAT_ITEM
+B:TOUCH:EAT_GOLD
+B:TOUCH:CONFUSE
+F:UNIQUE | MALE
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT | 
+F:OPEN_DOOR | BASH_DOOR | REGENERATE | NO_CONF	
+D:The greatest showman alive! He is mumbling "There's a sucker born every minute, 
+D:here comes one now." He looks frustrating.
+
 N:120:Purple mushroom patch
 G:,:v
 I:110:1d1:2:1:0
 W:6:2:0:15
-B:SPORE:LOSE_CON:1d2
-B:SPORE:LOSE_CON:1d2
-B:SPORE:LOSE_CON:1d2
+B:SPORE:LOSE_VIG:1d2
+B:SPORE:LOSE_VIG:1d2
+B:SPORE:LOSE_VIG:1d2
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:Yum!  It looks quite tasty.
 
-N:121:Novice Quabalist
+N:121:Novice Qabalist
 G:p:g
 I:110:7d4:20:10:5
 W:6:2:0:7
@@ -1394,7 +1448,7 @@ D:A strange brown growth on the dungeon floor.
 
 N:125:Giant brown bat
 G:b:u
-I:130:3d8:10:15:30
+I:120:3d8:10:15:30
 W:6:1:0:10
 B:BITE:HURT:1d3
 F:RAND_50 | 
@@ -1403,7 +1457,7 @@ D:It screeches as it attacks.
 
 N:126:Novice adventurer
 G:p:W
-I:120:6d8:20:10:5
+I:110:6d8:20:10:5
 W:6:2:0:18
 B:HIT:HURT:2d4
 B:HIT:HURT:1d5
@@ -1436,7 +1490,19 @@ F:ANIMAL | IM_POIS
 D:It is recognized by the hard-scaled end of its body that is often rattled 
 D:to frighten its prey.
 
-#129 Not used
+N:129:Bori
+G:u:W
+I:110:3d8:8:18:80
+W:6:1:0:18
+B:CLAW:LOSE_MUS:1d3
+B:CLAW:LOSE_AGI:1d3
+B:CLAW:LOSE_VIG:1d3
+F:CHAR_MULTI | FRIEND | OPEN_DOOR | DEMON
+S:1_IN_10 |
+S:HEAL
+D:The shape-shifting bori haunts the forest villages of primitive peoples. 
+D:It is an amorphous mass of constantly changeing features, sprouting arms 
+D:and faces here and there that vanish back into loops of dark flesh. 
 
 N:130:Patrol Automaton Type I
 G:a:R
@@ -1447,17 +1513,36 @@ F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP |  EMPTY_MIND
 S:1_IN_3 |
 S:ARROW_4 | BO_ELEC
 D:A strange wheeled contraption painted a bright red moving towards you.  
-D:The words covert assertation device are painted in bright yellow along 
-D:the side. A bolt of electricty arcs out of the device.
+D:The words covert assertion device are painted in bright yellow along 
+D:the side. A bolt of electricity arcs out of the device.
 
+N:131:White Fang
+G:Z:w
+I:120:7d6:30:30:0
+W:6:3:0:40
+B:CLAW:HURT:1d2
+B:CLAW:HURT:1d2
+B:BITE:HURT:2d4
+F:UNIQUE | 
+F:FORCE_MAXHP | MALE | 
+F:BASH_DOOR | 
+F:ANIMAL | NO_SLEEP | SMART
+D:A large Half-dog, half-wolf moves towards you.
+D: With prominent white fangs, this beast moves 
+D:intelligently towards you.
+D:He bristles and bares his teeth, his eyes 
+D:vigilant, his whole body wary and prepared for anything.
+D:You remember reading a serial about this creature 
+D:in "The Outing Magazine" (1906)
 ### 131-140 Unused ###
+
 ##########################
 ##### Level 7 (350') #####
 ##########################
 
 N:141:Man-bat
 G:B:G
-I:140:7d9:20:32:30
+I:110:7d9:20:32:30
 W:7:1:0:20
 B:HIT:HURT:2d8
 F:MALE | 
@@ -1493,12 +1578,12 @@ G:B:R
 I:110:11d8:20:40:120
 W:7:2:0:40
 B:CRUSH:HURT:1d10
-B:BITE:LOSE_STR:1d4
+B:BITE:LOSE_MUS:1d4
 F:FEMALE | 
 F:RAND_25 | DROP_60 | 
 F:TAKE_ITEM | BASH_DOOR | 
 F:EVIL
-D:Beauty you have never been privvy to before appoaches. You die a thousand 
+D:Beauty you have never been privy to before approaches. You die a thousand 
 D:deaths just to look upon it, only to have your desire thwarted as she
 D:wraps her tail around you.
 
@@ -1506,7 +1591,7 @@ N:145:Pink jelly
 G:j:R
 I:110:26d8:2:1:99
 W:7:1:0:26
-B:TOUCH:LOSE_STR:1d5
+B:TOUCH:LOSE_MUS:1d5
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:HURT_LITE | 
@@ -1547,8 +1632,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_10 | 
 S:HASTE | ARROW_1
-D:A strange clockwork man apporaches with evil intent. He looks 
-D:extermely dangerous.
+D:A strange clockwork man approaches with evil intent. He looks 
+D:extremely dangerous.
 
 N:149:Night lizard
 G:R:D
@@ -1561,7 +1646,7 @@ D:It is a black lizard with overlapping scales and a powerful jaw. A
 D:black lizard of the night.
 
 N:150:Signor Niccolo Davelli
-G:A:b
+G:A:G
 I:100:16d10:20:20:20
 W:7:3:0:110
 B:HIT:HURT:2d10
@@ -1574,10 +1659,10 @@ F:OPEN_DOOR | BASH_DOOR | KILL_BODY |
 F:EVIL | IM_POIS | WEIRD_MIND | NO_FEAR | ALIEN | ESCORTS
 S:1_IN_3 | 
 S:BO_POIS
-D:A shapeshifting martian from outer space. You've heard of these martians 
+D:A shapeshifting Martian from outer space. You've heard of these Martians 
 D:in The Germ Growers (1892), which was written by Robert Potter, 
-D:an Australian clergyman. He and his martian cohorts are planning on invading 
-D:the earth!  Six years before Wells' martians invaded, these creatures attempted it; 
+D:an Australian clergyman. He and his Martian cohorts are planning on invading 
+D:the earth!  Six years before Wells' Martians invaded, these creatures attempted it; 
 D:they are "Evil incarnate". His plan is to destroy the planet with 
 D:plague germs, which are grown in ordinary gardens and are 
 D:large enough to be picked and sorted by hand. Stop him!
@@ -1623,10 +1708,10 @@ B:CLAW:HURT:1d2
 B:CLAW:EAT_ITEM
 B:BITE:HURT:2d4
 B:BUTT:HURT:1d3
-S:1_IN_3 |
+S:1_IN_8 |
 S:SHRIEK
 F:FRIENDS | ANIMAL | OPEN_DOOR | TAKE_ITEM
-D:A dozen or so of the small monkies from earlier stands in 
+D:A dozen or so of the small monkeys from earlier stands in 
 D:front of you. You feel outnumbered.
 
 ### 155-160 Unused ###
@@ -1644,7 +1729,7 @@ B:HIT:HURT:5d4
 B:WAIL:TERRIFY:3d3
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | KILL_BODY |
-F:ONLY_ITEM | DROP_1D2 | DROP_GREAT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | 
 F:BASH_DOOR | NO_FEAR | NO_STUN | WEIRD_MIND |
 F:EVIL | NO_CONF | NO_SLEEP | COLD_BLOOD | UNDEAD | DEMON |
 F:IM_ELEC | IM_COLD | IM_POIS | REGENERATE
@@ -1653,6 +1738,7 @@ D:No. 249.  Mr. Bellingham, a olive-skinned evil man uses the mummy to kill peop
 D:he's in disagreement with. The Mummy has inhuman speed and strength and a 
 D:very malicious and bloodthirsty nature.
 
+#needs to be moved down.
 N:162:Doctor Materialismus
 G:p:o
 I:110:19d10:20:32:30
@@ -1662,18 +1748,18 @@ B:KICK:HURT:1d1
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
 F:ESCORT |
-F:ONLY_ITEM | DROP_1D2 | DROP_GREAT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | KILL_BODY
 S:1_IN_2 |
 S:MIND_BLAST | CAUSE_2 | SCARE | BLIND | CONF | SLOW | DARKNESS
-D:A German professor, scientist, socialist...practising hypnotism, magnetism, 
+D:A German professor, scientist, socialist...practicing hypnotism, magnetism, 
 D:mesmerism, and mysticism; giving lectures on Hegel, believing in Hartmann, 
 D:and in the indestructibility of matter and the destructibility of the soul; 
 D:and his soul was a damned one, and he cared not for the loss of it. You 
 D:recognize him from Frederic Jesup Stimson's "Dr. Materialismus," 
 D:which first appeared in the November 1890 issue of Scribner's. He is followed 
-D:by many slovering servants.
+D:by many slovenly servants.
 
 N:163:Novice sportsman
 G:p:W
@@ -1746,22 +1832,10 @@ F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP |  EMPTY_MIND
 S:1_IN_3 |
 S:ARROW_4 | BO_ELEC
 D:A strange wheeled contraption painted red moving towards you.  
-D:The words covert assertation device are painted in brown along 
-D:the side. A bolt of electricty arcs out of the drone. 
+D:The words covert assertion device are painted in brown along 
+D:the side. A bolt of electricity arcs out of the drone. 
 
-N:169:Giant Mole Man
-G:B:W
-I:110:14d14:20:32:30
-W:8:2:0:40
-B:CLAW:HURT:4d8
-B:CLAW:HURT:4d8
-F:MALE | 
-F:FRIENDS | DROP_60 | BEASTMAN |
-F:OPEN_DOOR | BASH_DOOR | KILL_WALL |
-F:EVIL | HURT_LITE 
-D:A *HUGE* mole the size of a small shed with a twisted 
-D:human visage lumbers towards you. His giant claws look 
-D:exceedingly dangerous.
+#169
 
 N:170:Morlock
 G:h:D
@@ -1771,11 +1845,24 @@ B:HIT:HURT:2d4
 B:HIT:HURT:2d4
 F:FRIEND | OPEN_DOOR | EVIL | HURT_LITE
 D:A large-eyed nocturnal being walks toward you. As it 
-D:cringes from your torchlight, you see that it is a Morlock!
+D:cringes from your torchlight, you see that it is a Morlock! 
 D:You've heard of Morlocks from a book written by H.G. Wells called 
 D:"The Time Machine".
 
-## 171-180 Unused ##
+N:171:Bunyip
+G:u:b
+I:110:8d8:30:25:10
+W:8:1:0:40
+B:BITE:HURT:4d6
+F:WEIRD_MIND | DEMON | EVIL | HOSTILE
+S:1_IN_15 |
+S:SHRIEK | SCARE 
+D:An ancient Aboriginal demon stands in front of you. The size 
+D:of a large bull - Each one you see seems different from the others.
+D:Some look aquatic, some have parts of various land animals.
+D:It moves towards you uttering a chilling howl.
+
+## 172-180 Unused ##
 
 ##########################
 ##### Level 9 (450') #####
@@ -1846,7 +1933,7 @@ D:he loves. Solarion tells Stafford about Cecilia.  Unfortunately, Solarion, com
 D:love Cecilia, and refuses to give Stafford any information about her. Stafford 
 D:is outraged at this, and pained by Cecilia's spurning goes to Cecilia's house. 
 D:He confronts Solarion and orders him home, but Solarion refuses. Now after disfiguring 
-D:his master he seeks the world looking for vengance an meaning. (Edgar Fawcett (1847-1904) 
+D:his master he seeks the world looking for vengeance an meaning. (Edgar Fawcett (1847-1904) 
 D:in the September 1889 issue of Lippincott's Magazine, and in Solarion: A Romance (1889))
 
 N:186:King cobra
@@ -1862,7 +1949,7 @@ D:It is a large snake with a hooded face.
 
 N:187:Large Man-bat
 G:B:G
-I:140:10d15:20:32:30
+I:110:10d15:20:32:30
 W:9:1:0:40
 B:HIT:HURT:3d12
 F:MALE | 
@@ -1875,7 +1962,7 @@ N:188:Buzzing Terminal
 G:e:G
 I:110:8d8:2:6:10
 W:9:3:0:15
-B:SHOCK:LOSE_CON:2d8
+B:SHOCK:LOSE_VIG:2d8
 F:NEVER_MOVE | DROP_60 |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_7 | 
@@ -1907,8 +1994,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_7 | 
 S:HASTE | ARROW_2 | BO_ELEC 
-D:A large bizzare clockwork man has blood dripping from his 
-D:claw-like hands. He looks extermely dangerous.
+D:A large bizarre clockwork man has blood dripping from his 
+D:claw-like hands. He looks extremely dangerous.
 
 N:191:Seeker Automaton - Type II
 G:a:b
@@ -1920,7 +2007,7 @@ B:SHOCK:BLIND
 B:SHOCK:CONFUSE
 F:RAND_25 | DROP_1D2 |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
-D:This is a larger more jagged disc bounceing back and forth along the corridor 
+D:This is a larger more jagged disc bouncing back and forth along the corridor 
 D:banging into the walls. This model looks like it has something different 
 D:about it. Small wings, or fins on the side. If that were developed any more 
 D:it might not move so randomly.
@@ -1938,7 +2025,7 @@ D:you to think about steak.
 
 N:193:Chimpanzee
 G:M:U
-I:120:6d8:40:10:30
+I:110:6d8:40:10:30
 W:9:2:0:12
 B:CLAW:HURT:2d8
 B:CLAW:BLIND
@@ -1949,19 +2036,6 @@ D:A chimpanzee is standing in the hallway looking at you like
 D:you were a banana. Someday you'll be somewhere everyone doesn't look 
 D:at you like dinner. Or at least that's what you keep saying to yourself.
 
-N:194:M-A Production Unit Mark V
-G:a:o
-I:120:12d10:5:18:10
-W:9:3:0:130
-B:HIT:HURT:5d5
-F:NEVER_MOVE | UNIQUE | FORCE_MAXHP |
-F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
-S:1_IN_3 |
-S:S_KIN | SHRIEK
-D:A giant machine in the center of the room is producing large numbers 
-D:of Maintenance automata! It looks large and dangerous, this 
-D:must be where Maintenance automata are coming from. Hopefully once 
-D:destroyed this will help the situation.
 
 ##194-200 Unused ##
 ###########################
@@ -1986,21 +2060,21 @@ I:120:12d10:18:20:10
 W:10:3:0:80
 B:SEDUCE:EAT_GOLD
 B:HIT:HURT:2d16
-B:TOUCH:LOSE_WIS:1d1
-B:TOUCH:LOSE_STR:1d1
+B:TOUCH:LOSE_EGO:1d1
+B:TOUCH:LOSE_MUS:1d1
 F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:You've heard of this russian temptress before! She's a thief, pickpocket, 
+D:You've heard of this Russian temptress before! She's a thief, pickpocket, 
 D:murderess, bootlegger, adventuress, and one who's not afraid to use her 
-D:body to help her get what she wants. Vlas Doroshevich, a Russian jounalist, 
+D:body to help her get what she wants. Vlas Doroshevich, a Russian journalist, 
 D:brought her stories to the people.
 
 N:202:Clear mushroom patch
 G:,:w
-I:120:1d1:4:1:0
+I:110:1d1:4:1:0
 W:10:2:0:3
 B:SPORE:HURT:1d1
 F:ATTR_CLEAR | 
@@ -2024,10 +2098,10 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | DEMON | WEIRD_MIND | KILL_BODY
 S:1_IN_4 |
 S:BLINK | BR_FIRE
-D:wearing a skin-tight glossy crimson suit, with bat-style wings, 
-D:lion's mane, devil's horns, talon hands, cloven hoofs and a 
-D:sulphurous-breathing mouth from which fire issues. He shouts 
-D:"Hold, monsters in the form of men!" while jumping about and breathing 
+D:A . . . *THING* wearing a skin-tight glossy crimson suit, with bat-style wings, 
+D:a lion's mane, devil's horns, talon hands, cloven hoofs and a 
+D:sulphurous-breathing mouth from which fire issues jumpes out in front of you! 
+D:He shouts "Hold, monsters in the form of men!" while jumping about and breathing 
 D:fire.
 
 N:204:Hairy mold
@@ -2056,7 +2130,7 @@ D:It is a strange glowing growth on the dungeon floor.
 
 N:206:Wolf
 G:Z:u
-I:120:6d6:30:30:20
+I:110:6d6:30:30:20
 W:10:1:0:30
 B:BITE:HURT:1d6
 F:RAND_25 | 
@@ -2097,17 +2171,17 @@ F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP |  EMPTY_MIND
 S:1_IN_3 |
 S:ARROW_4 | BO_ELEC
 D:A strange wheeled chromed contraption moving towards you.  
-D:The words covert assertation device are painted in black along 
-D:the side. A bolt of electricty arcs out of the device. This design 
+D:The words covert assertion device are painted in black along 
+D:the side. A bolt of electricity arcs out of the device. This design 
 D:seems more effective.
 
 N:210:Intrusion Preventative Automaton - Type I
 G:a:v
-I:130:20d20:50:70:30
+I:120:20d20:50:70:30
 W:10:4:0:70
 B:SHOCK:BLIND:2d4
-B:SHOCK:LOSE_STR:2d4
-B:SHOCK:LOSE_CON:2d4
+B:SHOCK:LOSE_MUS:2d4
+B:SHOCK:LOSE_VIG:2d4
 B:CRUSH:HURT:3d8
 F:DROP_2D2 | BASH_DOOR | KILL_WALL | KILL_BODY | MOVE_BODY |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP |  EMPTY_MIND
@@ -2173,7 +2247,7 @@ N:228:Flailing Terminal
 G:e:D
 I:110:10d10:2:6:10
 W:11:3:0:40
-B:SHOCK:LOSE_WIS:4d8
+B:SHOCK:LOSE_EGO:4d8
 F:NEVER_MOVE | DROP_60 |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_7 | 
@@ -2194,7 +2268,7 @@ S:1_IN_7 |
 S:HASTE | ARROW_2 | BO_ELEC 
 D:A clockwork being has a cubic torso, with two powerful arms. 
 D:It's arms are covered with sharp spikes, covered in 
-D:dried blood. You begin preperations to keep your blood 
+D:dried blood. You begin preparations to keep your blood 
 D:being used as paint.
 
 N:230:Seeker Automaton - Type III
@@ -2209,7 +2283,7 @@ F:RAND_50 | DROP_1D2 |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 D:A cubic platform with many devices of pain and misery attached 
 D:to it floats down the hall towards you. It looks extremely dangerous, and 
-D:much more aware of anything it deams an intruder. Which you suppose 
+D:much more aware of anything it deems an intruder. Which you suppose 
 D:includes anything but itself. 
 
 N:231:Giant Cow Man
@@ -2220,7 +2294,7 @@ B:HIT:HURT:2d10
 B:HIT:HURT:2d9
 F:BEASTMAN | OPEN_DOOR | BASH_DOOR | EVIL
 D:This thing lumbers towards you, an even bigger cow in the 
-D:shape of a man. It's stare is even more unsettleing than 
+D:shape of a man. It's stare is even more unsettling than 
 D:kind you faced earlier.  
 
 N:232:Orangutan
@@ -2238,13 +2312,18 @@ D:violent and hungry, but what else is new?
 N:233:Gremlin
 G:E:b
 I:120:5d5:30:4:40
-W:11:1:0:20
-B:HIT:BLIND:2d2
-B:HIT:CONFUSE:2d2
-F:RAND_25 | DROP_60 | WEIRD_MIND | SMART | 
+W:11:3:0:20
+B:HIT:BLIND:1d1
+B:HIT:CONFUSE:1d1
+F:RAND_25 | DROP_60 | WEIRD_MIND | FRIEND
 F:HOSTILE | NO_CONF | NO_FEAR | NO_STUN | NO_SLEEP |
-S:1_IN_2 |
-S:BO_NETH | BLIND | CONF | S_KIN | TPORT | BLINK | HEAL | HASTE
+S:1_IN_4 |
+S:BLIND | CONF | TPORT | BLINK | HEAL | HASTE
+D:This little mischievous creature loves to climb inside mechanical equipment 
+D:and cause it to break down. It loves nothing more than to stop machinery from
+D:working. These elemental beings of entropy love to do nothing more than
+D:cause people grief.
+
 
 ## 233-250 Unused
 
@@ -2321,7 +2400,7 @@ D:sign of tremendous energy, bushy eyebrows drawn sharply together.
 D:Assuredly he possessed a constitution of iron, splendid health, 
 D:and warm red blood beneath his sun burned skin.
 
-N:256:Quabalist
+N:256:Qabalist
 G:p:g
 I:110:12d8:20:22:40
 W:12:1:0:36
@@ -2334,9 +2413,9 @@ F:SMART | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 S:1_IN_3 | 
 S:HEAL | SCARE | CAUSE_2 | S_MONSTER
-D:A dedicated robed Quabalist.
+D:A dedicated robed Qabalist.
 
-N:257:Unseelie fae Quabalist
+N:257:Unseelie fae Qabalist
 G:h:g
 I:120:7d10:20:30:30
 W:12:1:0:50
@@ -2392,7 +2471,7 @@ G:G:u
 I:120:5d8:14:20:10
 W:12:2:0:44
 B:WAIL:TERRIFY
-B:TOUCH:LOSE_DEX:1d8
+B:TOUCH:LOSE_AGI:1d8
 F:FORCE_SLEEP | RAND_25 | 
 F:DROP_60 | DROP_90 | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
@@ -2421,7 +2500,7 @@ B:BITE:HURT:2d4
 B:STING:HURT:2d4
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
-D:It is a vast armoured centipede with massive mandibles and a spiked tail.
+D:It is a vast armored centipede with massive mandibles and a spiked tail.
 
 N:264:Spotted jelly
 G:j:o
@@ -2446,8 +2525,8 @@ S:1_IN_3 |
 S:ARROW_4 | BO_ELEC
 D:Several improvements have been made over the previous model. 
 D:This model is sleek, and painted a bright blue. The words 
-D:covert assertation device are painted in black along 
-D:the side. A bolt of electricty arcs out of the device. This design 
+D:covert assertion device are painted in black along 
+D:the side. A bolt of electricity arcs out of the device. This design 
 D:seems more effective than the previous models you've encountered.
 
 N:266:Intrusion Preventative Automaton - Type II
@@ -2455,8 +2534,8 @@ G:a:v
 I:130:20d20:50:70:30
 W:12:4:0:90
 B:SHOCK:BLIND:2d6
-B:SHOCK:LOSE_STR:2d6
-B:SHOCK:LOSE_CON:2d6
+B:SHOCK:LOSE_MUS:2d6
+B:SHOCK:LOSE_VIG:2d6
 B:CRUSH:HURT:4d8
 F:FRIEND | DROP_2D2 | BASH_DOOR | KILL_WALL | KILL_BODY | MOVE_BODY |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP |  EMPTY_MIND
@@ -2551,7 +2630,7 @@ B:TOUCH:ACID:1d10
 B:TOUCH:ACID:2d6
 B:TOUCH:ACID:2d6
 F:STUPID | EMPTY_MIND | COLD_BLOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:KILL_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A fast moving highly acidic jelly thing, that is eating away the floor it 
@@ -2583,11 +2662,24 @@ B:SHOCK:BLIND
 B:SHOCK:CONFUSE
 F:RAND_50 | DROP_1D2 |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
-D:This device acomplishes it's task with errie efficency. Namely 
+D:This device accomplishes it's task with errie efficiency. Namely 
 D:seeking out anything which goes outside the bounds of acceptable 
 D:presence. This, near as you can figure out, includes everything that 
 D:isn't it.
 
+N:279:M-A Production Unit Mark V
+G:a:o
+I:120:12d10:5:18:10
+W:13:3:0:330
+B:HIT:HURT:5d5
+F:NEVER_MOVE | UNIQUE | FORCE_MAXHP |
+F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
+S:1_IN_3 |
+S:S_KIN | SHRIEK
+D:A giant machine in the center of the room is producing large numbers 
+D:of Maintenance automata! It looks large and dangerous, this 
+D:must be where Maintenance automata are coming from. Hopefully once 
+D:destroyed this will help the situation.
 
 
 # 279-280
@@ -2614,7 +2706,7 @@ B:BITE:FIRE:9d3
 B:STING:POISON:2d22
 F:UNIQUE | FEMALE | 
 F:FORCE_MAXHP |  
-F:ONLY_ITEM | DROP_1D2 | DROP_GREAT | HURT_ROCK |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | HURT_ROCK |
 F:OPEN_DOOR | BASH_DOOR | KILL_BODY | KILL_ITEM |
 F:EVIL | IM_COLD | IM_POIS | IM_ACID |
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
@@ -2708,8 +2800,8 @@ G:a:v
 I:130:22d20:50:70:30
 W:14:4:0:120
 B:SHOCK:BLIND:3d6
-B:SHOCK:LOSE_STR:3d6
-B:SHOCK:LOSE_CON:3d6
+B:SHOCK:LOSE_MUS:3d6
+B:SHOCK:LOSE_VIG:3d6
 B:CRUSH:HURT:3d8
 F:FRIEND | DROP_2D2 | BASH_DOOR | KILL_WALL | KILL_BODY | MOVE_BODY |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP |  EMPTY_MIND
@@ -2759,7 +2851,7 @@ F:FEMALE |
 F:RAND_25 | DROP_60 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:'tis a shame someone destoryed such beauty as she could have been.
+D:'tis a shame someone destroyed such beauty as she could have been.
 
 N:296:Giant tarantula
 G:S:o
@@ -2853,7 +2945,7 @@ B:SHOCK:BLIND
 B:SHOCK:CONFUSE
 F:RAND_50 | DROP_1D2 |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
-D:This device acomplishes it's task with errie efficency. Namely 
+D:This device accomplishes it's task with errie efficiency. Namely 
 D:seeking out anything which goes outside the bounds of acceptable 
 D:presence. This, near as you can figure out, includes everything that 
 D:isn't it.
@@ -2866,7 +2958,7 @@ B:HIT:HURT:6d8
 B:HIT:HURT:6d8
 F:DROP_90 | EVIL | BEASTMAN | COLD_BLOOD | BASH_DOOR | IM_POIS 
 D:This malformed being has a crocodile head, and lumbers towards you. 
-D:It looks extermely tough, and it's arms look big enough to crush rock.
+D:It looks extremely tough, and it's arms look big enough to crush rock.
 
 N:304:Giant Nubian Pig-man
 G:B:D
@@ -2880,28 +2972,32 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | HURT_LITE
 D:He is a giant pig-man with powerful arms and deep black skin. He looks frightening.
 
-N:305:Quabalist
+N:305:Qabalist
 G:p:g
 I:110:12d8:20:22:40
-W:12:1:0:36
+W:15:1:0:36
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
 F:MALE | FORCE_SLEEP | DROP_1D2 | FRIENDS | 
 F:SMART | OPEN_DOOR | BASH_DOOR | EVIL
 S:1_IN_3 | 
 S:HEAL | SCARE | CAUSE_2 | S_MONSTER
-D:A dedicated robed Quabalist.
+D:A dedicated robed Qabalist.
 
 N:306:Gremlin
 G:E:b
 I:120:5d5:30:4:40
-W:11:1:0:20
-B:HIT:BLIND:2d2
-B:HIT:CONFUSE:2d2
-F:RAND_25 | DROP_60 | WEIRD_MIND | SMART | FRIENDS | 
+W:15:3:0:20
+B:HIT:BLIND:1d1
+B:HIT:CONFUSE:1d1
+F:RAND_25 | DROP_60 | WEIRD_MIND | FRIENDS | 
 F:HOSTILE | NO_CONF | NO_FEAR | NO_STUN | NO_SLEEP |
-S:1_IN_2 |
-S:BO_NETH | BLIND | CONF | S_KIN | TPORT | BLINK | HEAL | HASTE
+S:1_IN_4 |
+S:BLIND | CONF | TPORT | BLINK | HEAL | HASTE
+D:This little mischievous creature loves to climb inside mechanical equipment 
+D:and cause it to break down. It loves nothing more than to stop machinery from
+D:working. These elemental beings of entropy love to do nothing more than
+D:cause people grief.
 
 #307-310
 ############################
@@ -2961,8 +3057,8 @@ F:FORCE_MAXHP |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:He is a scientific minded criminal. So good at it, not only 
-D:has he has never been caught, he's never even been suspected.
+D:He is a scientific minded criminal. He is so good at it, not only 
+D:has he has never been caught, he's never even been suspected. 
 D:Careful, he never loses an engagement.
 
 N:315:Automaton - Type VI
@@ -2990,8 +3086,21 @@ B:SHOCK:BLIND
 B:SHOCK:CONFUSE
 F:RAND_50 | DROP_1D2 |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
-D:Another life removeing system to disable.
+D:Another life removing system to disable.
 
+N:317:Giant Mole Man
+G:B:W
+I:110:14d14:20:32:30
+W:8:2:0:40
+B:CLAW:HURT:4d8
+B:CLAW:HURT:4d8
+F:MALE | 
+F:FRIENDS | DROP_60 | BEASTMAN |
+F:OPEN_DOOR | BASH_DOOR | KILL_WALL |
+F:EVIL | HURT_LITE 
+D:A *HUGE* mole the size of a small shed with a twisted 
+D:human visage lumbers towards you. His giant claws look 
+D:exceedingly dangerous.
 
 # 317 - 320
 ############################
@@ -3025,7 +3134,7 @@ D:on the shoulders-all these went to make up an effect at once pleasing
 D:to the eye and impressive to the imagination of the beholder. 
 D:Yet it was not these, or any one of these, that arrested the 
 D:immediate attention of the most casual observer. It was the air 
-D:of command that seemed inalienably associated with Ozmar’s presence. 
+D:of command that seemed inalienably associated with Ozmar's presence. 
 D:Emeric Hulme-Beaman's "Ozmar the Mystic (1896)".
 
 
@@ -3034,7 +3143,7 @@ G:S:R
 I:110:11d8:12:44:20
 W:17:1:0:62
 B:BITE:HURT:2d4
-B:STING:LOSE_STR:1d7
+B:STING:LOSE_MUS:1d7
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
 D:It is fast and poisonous.
@@ -3044,8 +3153,8 @@ G:a:v
 I:130:24d20:50:70:30
 W:17:4:0:140
 B:SHOCK:BLIND:4d6
-B:SHOCK:LOSE_STR:4d6
-B:SHOCK:LOSE_CON:4d6
+B:SHOCK:LOSE_MUS:4d6
+B:SHOCK:LOSE_VIG:4d6
 B:CRUSH:HURT:4d8
 F:FRIEND | DROP_2D2 | BASH_DOOR | KILL_WALL | KILL_BODY | MOVE_BODY | DROP_GOOD |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP |  EMPTY_MIND
@@ -3072,7 +3181,7 @@ B:HIT:HURT:6d8
 B:HIT:HURT:6d8
 F:DROP_90 | EVIL | BEASTMAN | COLD_BLOOD | BASH_DOOR | IM_POIS | FRIENDS
 D:This malformed being has a crocodile head, and lumbers towards you. 
-D:It looks extermely tough, and it's arms look big enough to crush rock.
+D:It looks extremely tough, and it's arms look big enough to crush rock.
 
 N:326:Cheeta Man
 G:B:o
@@ -3082,17 +3191,17 @@ B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:HIT:HURT:1d3
 F:DROP_90 | EVIL | BEASTMAN | BASH_DOOR 
-D:A anthropamorphic cheeta springs towards you. He does not appear 
+D:A anthropomorphic cheetah springs towards you. He does not appear 
 D:to want to talk.
 
 ## Monster Suggested by  Giants - (Janne Keskinarkaus) ##
 N:327:Lynch Mob Member
 G:t:v
-I:110:10d8:60:14:10
-W:17:1:0:40
-B:HIT:HURT:2d4
-B:HIT:HURT:2d8
-F:DROP_60 | HOSTILE | OPEN_DOOR | FRIENDS | RAND_25 | 
+I:115:12d8:60:34:10
+W:17:1:0:30
+B:HIT:HURT:3d4
+B:HIT:HURT:3d8
+F:DROP_60 | HOSTILE | OPEN_DOOR | RAND_25 | MULTIPLY | ATTR_MULTI
 D:This group of angry villagers have mobilized themselves to hunt down and 
 D:lynch a local scientist. They are armed with torches, hayforks, shovels and 
 D:haypoles. They see no scientist, but you will do!
@@ -3340,7 +3449,7 @@ D:devoid of light and even of life. He wore a heavy fur coat,
 D:and...he disdained the customary headgear of polite society, 
 D:and had substituted for it a curious description of cap...he 
 D:walked feebly, supporting himself with a stick, upon which 
-D:his thin yellow fist was clutched  till the knuckles stood 
+D:his thin yellow fist was clutched  till the knuckles stood 
 D:out and shone like billiard balls in the moonlight."
 D:Pharos the Egyptian (1899) by Guy Boothby.
 
@@ -3356,7 +3465,7 @@ B:BITE:HURT:1d10
 F:BASH_DOOR | 
 F:ANIMAL
 D:A fierce and dangerous cat, its huge tusks and sharp claws would lacerate 
-D:even the strongest armour.
+D:even the strongest armor.
 
 N:348:Sasquatch
 G:Y:g
@@ -3377,7 +3486,7 @@ B:BITE:HURT:1d6
 B:BITE:HURT:1d6
 B:BITE:HURT:1d10
 F:RAND_25 | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:KILL_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | EVIL
 D:It is a huge wolf with eyes that glow with manly intelligence.
 
@@ -3394,7 +3503,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | HURT_LITE
 S:1_IN_5 | 
 S:HASTE | BLIND | CONF | DARKNESS | BO_FIRE | BO_COLD
-D:A dark fae figure in armour and radiating evil power.
+D:A dark fae figure in armor and radiating evil power.
 
 N:351:Pinocchio
 G:A:U
@@ -3426,7 +3535,7 @@ B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:HIT:HURT:1d3
 F:DROP_90 | EVIL | BEASTMAN | BASH_DOOR | FRIENDS
-D:A anthropamorphic cheeta springs towards you. He does not appear 
+D:A anthropomorphic cheetah springs towards you. He does not appear 
 D:to want to talk.
 
 N:353:Giant Croc-Man
@@ -3437,7 +3546,7 @@ B:HIT:HURT:10d8
 B:HIT:HURT:10d8
 F:DROP_90 | EVIL | BEASTMAN | COLD_BLOOD | BASH_DOOR | IM_POIS 
 D:This huge malformed being has a crocodile head, and lumbers towards you. 
-D:It looks extermely tough, and it's arms look big enough to crush rock.
+D:It looks extremely tough, and it's arms look big enough to crush rock.
 
 #352-355
 ############################
@@ -3492,12 +3601,12 @@ G:a:v
 I:130:40d20:50:70:30
 W:21:2:0:140
 B:SHOCK:BLIND:5d6
-B:SHOCK:LOSE_STR:5d6
-B:SHOCK:LOSE_CON:5d6
+B:SHOCK:LOSE_MUS:5d6
+B:SHOCK:LOSE_VIG:5d6
 B:CRUSH:HURT:5d8
 F:FRIEND | DROP_2D2 | BASH_DOOR | KILL_WALL | KILL_BODY | MOVE_BODY | DROP_GOOD |
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP |  EMPTY_MIND
-D:That rumbleing in the walls sounds familiar.
+D:That rumbling in the walls sounds familiar.
 
 # 360 - 363
 ############################
@@ -3546,7 +3655,7 @@ B:HIT:HURT:10d8
 B:HIT:HURT:10d8
 F:DROP_90 | EVIL | BEASTMAN | COLD_BLOOD | BASH_DOOR | IM_POIS | FRIENDS
 D:This huge malformed being has a crocodile head, and lumbers towards you. 
-D:It looks extermely tough, and it's arms look big enough to crush rock.
+D:It looks extremely tough, and it's arms look big enough to crush rock.
 
 N:368:Hulking Automaton - Type II
 G:a:W
@@ -3561,7 +3670,7 @@ F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_4 | 
 S:HASTE | ARROW_3 | BO_ELEC | BO_FIRE | HEAL
 D:This is a large man-sized mound of pipes and gears. It moves like a 
-D:twitching worm towards you occasionally spouting steam, electricty, 
+D:twitching worm towards you occasionally spouting steam, electricity, 
 D:or flame. You see smaller coin sized robots roaming over it's surface.
 
 # 369-371
@@ -3575,7 +3684,7 @@ W:23:1:0:7
 B:TOUCH:ACID:2d6
 F:RAND_50 | DROP_60 | 
 F:STUPID | EMPTY_MIND | MULTIPLY | 
-F:TAKE_ITEM | KILL_BODY | OPEN_DOOR | BASH_DOOR | 
+F:KILL_ITEM | KILL_BODY | OPEN_DOOR | BASH_DOOR | 
 F:IM_POIS | NO_FEAR
 S:1_IN_11 | 
 S:DRAIN_MANA
@@ -3620,7 +3729,7 @@ D:It is looking for prey.
 
 N:376:Red Weed
 G:A:r
-I:140:2d1:1:1:1:
+I:140:2d1:1:1:1
 W:23:1:0:1
 F:NEVER_BLOW | NEVER_MOVE | FRIENDS | MULTIPLY | EMPTY_MIND | ALIEN | COLD_BLOOD
 D:"Apparently the vegetable kingdom in Mars, instead of having green for a 
@@ -3641,7 +3750,7 @@ B:HIT:EAT_GOLD:2d4
 B:HIT:EAT_ITEM:2d4
 F:BEASTMAN | EVIL | DROP_90 | OPEN_DOOR | TAKE_ITEM
 D:This disgusting creature scurries towards you. He looks 
-D:like a theif. A giant man sized ferret theif, but a theif
+D:like a thief. A giant man sized ferret thief, but a thief
 D:nonetheless.
 
 N:378:Steam Sphere
@@ -3702,7 +3811,7 @@ B:WAIL:TERRIFY
 B:TOUCH:EXP_20
 F:FEMALE | 
 F:RAND_50 | DROP_1D2 | 
-F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_15 | 
 S:TPORT | DRAIN_MANA
@@ -3788,7 +3897,7 @@ B:BITE:HURT:1d10
 B:BITE:POISON:1d6
 F:BASH_DOOR | 
 F:ANIMAL | IM_ACID
-D:A huge wormlike shape dripping acid, twisted by evil sorcery into a foul 
+D:A huge worm-like shape dripping acid, twisted by evil sorcery into a foul 
 D:monster that breeds on death.
 
 N:393:Carrion crawler
@@ -3807,7 +3916,7 @@ N:394:Killer pink beetle
 G:K:R
 I:110:20d8:14:50:30
 W:25:2:0:85
-B:BITE:LOSE_STR:4d4
+B:BITE:LOSE_MUS:4d4
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
@@ -3817,8 +3926,8 @@ N:395:Martian
 G:A:R
 I:110:20d10:10:72:30
 W:25:1:0:230
-B:PUNCH:LOSE_STR:5d5
-B:PUNCH:LOSE_STR:5d5
+B:PUNCH:LOSE_MUS:5d5
+B:PUNCH:LOSE_MUS:5d5
 F:ALIEN | DROP_2D2 | DROP_GOOD | POWERFUL | REGENERATE | WEIRD_MIND | COLD_BLOOD
 F:OPEN_DOOR | EVIL | IM_POIS | 
 S:1_IN_2 |
@@ -3845,11 +3954,11 @@ D:nonetheless.
 
 N:397:Lynch Mob Member
 G:t:v
-I:110:10d8:60:14:10
-W:17:1:0:40
-B:HIT:HURT:2d4
-B:HIT:HURT:2d8
-F:DROP_60 | HOSTILE | OPEN_DOOR | FRIENDS | RAND_25 | MULTIPLY 
+I:115:12d8:60:24:10
+W:25:1:0:30
+B:HIT:HURT:3d4
+B:HIT:HURT:3d8
+F:DROP_60 | HOSTILE | OPEN_DOOR | FRIENDS | RAND_25 | MULTIPLY | ATTR_MULTI
 D:This group of angry villagers have mobilized themselves to hunt down and 
 D:lynch a local scientist. They are armed with torches, hayforks, shovels and 
 D:haypoles. They see no scientist, but you will do!
@@ -3943,7 +4052,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | FRIENDS |
 F:EVIL
 D:A thief of great power and shifty speed.
 
-N:408:Master Quabalist
+N:408:Master Qabalist
 G:p:g
 I:110:15d8:20:22:40
 W:23:1:0:36
@@ -3956,7 +4065,7 @@ F:SMART | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 S:1_IN_3 | 
 S:HEAL | SCARE | CAUSE_3 | S_MONSTER | HASTE | SLOW | CONF | HOLD | TPORT 
-D:A Advanced Quabalist. His control over his will 
+D:A Advanced Qabalist. His control over his will 
 D:is very advanced.
 
 N:409:Howler Monkey
@@ -4073,14 +4182,14 @@ N:417:Martian
 G:A:R
 I:110:20d10:10:72:30
 W:27:1:0:230
-B:PUNCH:LOSE_STR:5d5
-B:PUNCH:LOSE_STR:5d5
+B:PUNCH:LOSE_MUS:5d5
+B:PUNCH:LOSE_MUS:5d5
 F:ALIEN | DROP_2D2 | DROP_GOOD | POWERFUL | REGENERATE | WEIRD_MIND |
 F:COLD_BLOOD |
 F:OPEN_DOOR | EVIL | IM_POIS | FRIENDS
 S:1_IN_2 |
 S:BR_FIRE | ARROW_4
-D:This bizzare alien came from the red planet Mars. Wells wrote 
+D:This bizarre alien came from the red planet Mars. Wells wrote 
 D:about them in the "War of the Worlds". They in ages past may 
 D:have looked like humans, but over time they have changed 
 D:the essential nature of themselves until their bodies are 
@@ -4101,7 +4210,7 @@ F:COLD_BLOOD |
 F:OPEN_DOOR | EVIL | IM_POIS | 
 S:1_IN_3 |
 S:BR_FIRE 
-D:This bizzare alien came from the red planet Mars. Wells wrote 
+D:This bizarre alien came from the red planet Mars. Wells wrote 
 D:about them in the "War of the Worlds". They in ages past may 
 D:have looked like humans, but over time they have changed 
 D:the essential nature of themselves until their bodies are 
@@ -4169,8 +4278,8 @@ N:424:Illithid
 G:h:R
 I:110:15d10:20:60:10
 W:28:1:0:200
-B:GAZE:LOSE_INT:2d6
-B:GAZE:LOSE_INT:2d6
+B:GAZE:LOSE_SCH:2d6
+B:GAZE:LOSE_SCH:2d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_60 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
@@ -4191,7 +4300,7 @@ B:BITE:HURT:2d12
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
-D:An evil reptile that preys on unsuspecting travellers.  Its eyes stare 
+D:An evil reptile that preys on unsuspecting travelers.  Its eyes stare 
 D:deeply at you and your soul starts to wilt!
 
 N:426:Howler Monkey
@@ -4332,11 +4441,11 @@ D:Great bandit (1794). His real name is Neapolitan Count Rosalvo,
 D:whe desires to rid Venice of all assassins, thugs, and conspirators 
 D:He takes two different identies to accomplish this task. Flodoardo 
 D:virtuous and handsome - and Aballino, a gigantic terrifying outlaw 
-D:with a horrifying visiage. Aballino is told to kill Rosabella, 
-D:his love, the neice of the Doge, to prove his worth to a 
+D:with a horrifying visage. Aballino is told to kill Rosabella, 
+D:his love, the niece of the Doge, to prove his worth to a 
 D:underworld gang of thugs. Instead of killing her he kisses her. 
 D:The Doge then hires Flodardo with the promise that he can have 
-D:Rosabellas hand in marrarige if he captures Aballino.
+D:Rosabellas hand in marriage if he captures Aballino.
 D:The Count does so. He calls all the outlaws together, and allows 
 D:himself to be captured along with all of them - only to reveal himself 
 D:as Flodardo.
@@ -4368,7 +4477,7 @@ B:BITE:COLD:1d6
 B:BITE:COLD:1d6
 F:FORCE_SLEEP | RAND_25 | 
 F:ONLY_ITEM | DROP_2D2 | 
-F:TAKE_ITEM | INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:KILL_ITEM | INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | EVIL | DRAGON | IM_COLD
 S:1_IN_6 | 
 S:HASTE | SLOW | CONF | SCARE | DARKNESS
@@ -4461,8 +4570,8 @@ I:120:13d8:20:30:10
 W:31:1:0:350
 B:WAIL:TERRIFY
 B:TOUCH:EXP_20
-B:CLAW:LOSE_INT:1d6
-B:CLAW:LOSE_WIS:1d6
+B:CLAW:LOSE_SCH:1d6
+B:CLAW:LOSE_EGO:1d6
 F:FORCE_SLEEP | RAND_25 | DROP_60 | DROP_1D2 | 
 F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
 F:EVIL | UNDEAD | IM_COLD | 
@@ -4515,25 +4624,25 @@ B:CRUSH:HURT:20d5
 F:UNIQUE | FORCE_MAXHP | FORCE_SLEEP | RAND_25 | 
 F:DROP_2D2 | DROP_GOOD | SMART | WEIRD_MIND | 
 F:AURA_COLD | BASH_DOOR | MOVE_BODY | KILL_BODY | 
-F:TAKE_ITEM | KILL_ITEM | HOSTILE | HURT_FIRE |
+F:KILL_ITEM | TAKE_ITEM | HOSTILE | HURT_FIRE |
 F:IM_ACID | IM_COLD | IM_POIS | IM_ELEC | RES_NETH |
 F:RES_WATE | RES_PLAS | RES_NEXU | RES_DISE | NO_FEAR |
 F:NO_STUN | NO_CONF | NO_SLEEP | 
 D:Mary Shelley wrote about Victor and his monster(1818). The book 
-D:takes place on an expidition to the North Pole where Robert 
+D:takes place on an expedition to the North Pole where Robert 
 D:Walton wanted to visit "a part of the world never before visited, 
 D:and ...tread a land never before imprinted by the foot of man" 
 D:(Letters, I, 116). When he runs into Victor Frankenstein, and 
-D:hears a morbid tale about his terrifying experiement with the 
+D:hears a morbid tale about his terrifying experiment with the 
 D:unknown. After creating a hideous monster in his lab, he is 
 D:so overcome with remorse that he flees leaving the monster 
 D:to fend for himself. While relating his story to Robert, 
 D:the monster approaches and demands an audience. Eloquent, and 
-D:well educated, he demands tha Victor make him a bride to give 
+D:well educated, he demands that Victor make him a bride to give 
 D:him a place in the world, or he will kill everyone that Victor 
 D:knows. Victor returns and attempts this, but is overcome with 
-D:guilt with evil that he has already commited, and cannot finish. 
-D:He destroys this new monstrosity, and flees to meet his fiance. 
+D:guilt with evil that he has already committed, and cannot finish. 
+D:He destroys this new monstrosity, and flees to meet his fiancee. 
 D:On his way he hears her dying scream as the monster kills her.
 
 N:454:Hulking Automaton - Type III
@@ -4549,7 +4658,7 @@ F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_4 | 
 S:HASTE | ARROW_3 | BO_ELEC | BO_FIRE | HEAL
 D:This is a large horse-sized mound of pipes and gears. It flings itself 
-D:twitching and writhing towards you occasionally spouting steam, electricty, 
+D:twitching and writhing towards you occasionally spouting steam, electricity, 
 D:or flame. You see smaller coin sized robots roaming over it's surface.
 
 
@@ -4563,8 +4672,8 @@ G:p:y
 I:120:13d12:20:60:10
 W:32:2:0:300
 B:HIT:POISON:3d4
-B:HIT:LOSE_STR:3d4
-B:HIT:LOSE_STR:3d4
+B:HIT:LOSE_MUS:3d4
+B:HIT:LOSE_MUS:3d4
 F:MALE | 
 F:DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
@@ -4603,8 +4712,8 @@ W:32:1:0:100
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
 B:BITE:EXP_40:1d3
-B:BITE:LOSE_STR:1d3
-F:FRIENDS | RAND_25 | DROP_60 | DROP_GREAT | COLD_BLOOD | WEIRD_MIND |
+B:BITE:LOSE_MUS:1d3
+F:FRIENDS | RAND_25 | DROP_60 | DROP_GOOD | DROP_GREAT | COLD_BLOOD | WEIRD_MIND |
 F:DEMON | EVIL | NO_FEAR 
 D:"There flapped rhythmically a horde of tame, trained, hybrid winged 
 D:things. . . not altogether crows, nor moles, nor buzzards, nor ants, 
@@ -4618,7 +4727,7 @@ W:32:1:0:50
 B:BITE:HURT:18d2
 F:FRIENDS | RAND_50 | HOSTILE | EMPTY_MIND | ANIMAL 
 D:This chicken is the size of an ostrich. The ground trembles as their 
-D:giant claws impact the ground. Their horrible clucking rings in your ears 
+D:giant claws impact the floor. Their horrible clucking rings in your ears 
 D:as they mistake you for chicken feed.
 
 N:463:Bomb-Carrying Ornithopter Automaton - Type I
@@ -4676,7 +4785,7 @@ I:120:14d20:20:30:10
 W:33:3:0:350
 B:WAIL:TERRIFY
 B:TOUCH:EXP_40
-B:CLAW:LOSE_INT:1d10
+B:CLAW:LOSE_SCH:1d10
 F:FORCE_SLEEP | RAND_25 | 
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
 F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
@@ -4693,7 +4802,7 @@ I:120:14d20:20:30:10
 W:33:3:0:350
 B:WAIL:TERRIFY
 B:TOUCH:EXP_40
-B:CLAW:LOSE_WIS:5d5
+B:CLAW:LOSE_EGO:5d5
 F:FORCE_SLEEP | RAND_25 | 
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
 F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
@@ -4797,8 +4906,8 @@ I:110:30d10:20:60:60
 W:34:3:0:800
 B:TOUCH:EXP_40
 B:TOUCH:UN_POWER
-B:TOUCH:LOSE_DEX:2d8
-B:TOUCH:LOSE_DEX:2d8
+B:TOUCH:LOSE_AGI:2d8
+B:TOUCH:LOSE_AGI:2d8
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_1D2 | 
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | 
@@ -4920,8 +5029,8 @@ G:p:y
 I:120:13d25:20:70:10
 W:35:4:0:500
 B:HIT:POISON:3d4
-B:HIT:LOSE_STR:3d4
-B:HIT:LOSE_STR:3d4
+B:HIT:LOSE_MUS:3d4
+B:HIT:LOSE_MUS:3d4
 B:HIT:POISON:3d4
 F:MALE | 
 F:DROP_1D2 | 
@@ -4937,7 +5046,7 @@ B:TOUCH:ACID:1d10
 B:TOUCH:ACID:1d10
 B:TOUCH:ACID:1d10
 B:TOUCH:ACID:1d10
-F:FORCE_MAXHP | TAKE_ITEM | COLD_BLOOD | 
+F:FORCE_MAXHP | KILL_ITEM | COLD_BLOOD | 
 F:DROP_1D2 | DROP_4D2 | 
 F:STUPID | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
@@ -4950,7 +5059,7 @@ I:120:25d20:20:30:10
 W:35:2:0:600
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
-B:HIT:LOSE_STR:3d4
+B:HIT:LOSE_MUS:3d4
 F:FORCE_SLEEP | RAND_25 | 
 F:ONLY_ITEM | DROP_60 | DROP_2D2 | 
 F:TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL | 
@@ -5024,15 +5133,15 @@ G:a:B
 I:120:10d8:20:25:30
 W:35:1:0:150
 B:SHOCK:ELEC:2d2
-B:SHOCK:LOSE_INT
-B:SHOCK:LOSE_WIS
+B:SHOCK:LOSE_SCH
+B:SHOCK:LOSE_EGO
 B:SHOCK:TERRIFY:2d2
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 F:DROP_60 | SMART | AURA_COLD |
 S:1_IN_3 |
 S:SCARE | BR_CHAO | BR_NEXU | BO_NUKE
 D:A small spherical object floats in the air surrounded by a strange green glow. 
-D:Small luminscent wisps of green gas trail out from behind it, or less often 
+D:Small luminescent wisps of green gas trail out from behind it, or less often 
 D:they trail from the direction it's about to move. Strange - It spins 
 D:and twirls randomly, and in the center you can see some kind of strange 
 D:etheric light. This automaton was built to access other dimensions. 
@@ -5050,8 +5159,8 @@ I:120:10d20:30:30:20
 W:36:3:0:400
 B:TOUCH:EXP_80
 B:TOUCH:EXP_40
-B:CLAW:LOSE_INT:1d10
-B:CLAW:LOSE_WIS:1d10
+B:CLAW:LOSE_SCH:1d10
+B:CLAW:LOSE_EGO:1d10
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
@@ -5068,8 +5177,8 @@ I:120:20d25:30:30:20
 W:36:3:0:400
 B:TOUCH:EXP_80
 B:TOUCH:EXP_40
-B:CLAW:LOSE_INT:1d10
-B:CLAW:LOSE_WIS:1d10
+B:CLAW:LOSE_SCH:1d10
+B:CLAW:LOSE_EGO:1d10
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
@@ -5229,7 +5338,7 @@ F:FORCE_MAXHP |
 F:FRIENDS | 
 F:DROP_60 | DROP_90 | DROP_1D2 | 
 F:STUPID | EMPTY_MIND | COLD_BLOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:KILL_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A lump of rotting black flesh that slurrrrrrrps across the dungeon floor.
@@ -5489,8 +5598,8 @@ G:a:B
 I:120:20d10:10:45:40
 W:40:1:0:850
 B:SHOCK:ELEC:8d2
-B:SHOCK:LOSE_INT
-B:SHOCK:LOSE_WIS
+B:SHOCK:LOSE_SCH
+B:SHOCK:LOSE_EGO
 B:SHOCK:TERRIFY:8d2
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 F:DROP_60 | SMART | AURA_COLD |
@@ -5524,7 +5633,8 @@ F:EVIL | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | DARKNESS | 
 S:BO_ACID | BA_FIRE | BA_COLD | 
-S:S_MONSTER | S_UNDEAD | S_DEMON
+S:S_MONSTER | S_UNDEAD | 
+S:S_DEMON
 D:A dark elven figure, dressed in deepest black.  Power seems to crackle 
 D:from his slender frame.
 
@@ -5534,8 +5644,8 @@ I:120:18d100:20:80:50
 W:41:2:0:10000
 B:TOUCH:EXP_80
 B:TOUCH:UN_POWER
-B:TOUCH:LOSE_DEX:2d12
-B:TOUCH:LOSE_DEX:2d12
+B:TOUCH:LOSE_AGI:2d12
+B:TOUCH:LOSE_AGI:2d12
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
@@ -5559,7 +5669,7 @@ I:120:25d20:20:30:10
 W:42:1:0:600
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
-B:HIT:LOSE_STR:3d4
+B:HIT:LOSE_MUS:3d4
 F:FORCE_SLEEP | 
 F:RAND_25 | FRIENDS | 
 F:ONLY_ITEM | DROP_60 | 
@@ -5628,8 +5738,8 @@ I:120:12d100:20:100:10
 W:44:2:0:8000
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
-B:HIT:LOSE_STR:3d4
-B:HIT:LOSE_STR:3d4
+B:HIT:LOSE_MUS:3d4
+B:HIT:LOSE_MUS:3d4
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | 
 F:SMART | TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL | 
@@ -5670,8 +5780,8 @@ G:a:B
 I:120:40d20:5:65:50
 W:45:1:0:850
 B:SHOCK:ELEC:12d2
-B:SHOCK:LOSE_INT
-B:SHOCK:LOSE_WIS
+B:SHOCK:LOSE_SCH
+B:SHOCK:LOSE_EGO
 B:SHOCK:TERRIFY:12d2
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 F:DROP_60 | SMART | AURA_COLD |
@@ -5849,8 +5959,8 @@ N:715:Nightcrawler
 G:W:D
 I:120:80d60:20:160:10
 W:54:4:0:8000
-B:STING:LOSE_CON:8d8
-B:STING:LOSE_CON:8d8
+B:STING:LOSE_VIG:8d8
+B:STING:LOSE_VIG:8d8
 B:BITE:ACID:10d10
 B:BITE:ACID:10d10
 F:FORCE_SLEEP | SMART | 
@@ -5930,8 +6040,8 @@ I:130:14d100:20:120:10
 W:55:4:0:25000
 B:BITE:EXP_80:4d4
 B:BITE:PARALYZE:4d4
-B:BITE:LOSE_INT:4d4
-B:BITE:LOSE_WIS:4d4
+B:BITE:LOSE_SCH:4d4
+B:BITE:LOSE_EGO:4d4
 F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | 
 F:SMART | COLD_BLOOD | 
 F:EVIL | UNDEAD | 
@@ -5983,7 +6093,7 @@ I:120:80d10:25:60:80
 W:55:4:0:3000
 B:HIT:HURT:4d10
 B:HIT:HURT:4d10
-B:HIT:LOSE_CON:10d2
+B:HIT:LOSE_VIG:10d2
 B:STING:POISON:5d5
 F:FORCE_SLEEP | FORCE_MAXHP | FRIENDS
 F:ONLY_ITEM | DROP_1D2
@@ -6028,8 +6138,8 @@ G:a:B
 I:120:80d20:5:75:50
 W:57:1:0:2250
 B:SHOCK:ELEC:24d2
-B:SHOCK:LOSE_INT
-B:SHOCK:LOSE_WIS
+B:SHOCK:LOSE_SCH
+B:SHOCK:LOSE_EGO
 B:SHOCK:EXP_10:24d2
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 F:DROP_60 | SMART | AURA_COLD |
@@ -6125,8 +6235,8 @@ I:120:30d100:20:150:10
 W:62:2:0:20000
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
-B:HIT:LOSE_STR:4d6
-B:HIT:LOSE_STR:4d6
+B:HIT:LOSE_MUS:4d6
+B:HIT:LOSE_MUS:4d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:RAND_25 | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
@@ -6238,7 +6348,7 @@ W:65:2:0:13000
 B:HIT:LOSE_CHR:6d6
 B:HIT:LOSE_CHR:6d6
 B:BITE:POISON:8d8
-B:STING:LOSE_STR:5d5
+B:STING:LOSE_MUS:5d5
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_3D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY
@@ -6327,8 +6437,8 @@ I:120:35d100:20:170:50
 W:68:3:0:23000
 B:HIT:UN_BONUS:8d8
 B:HIT:UN_BONUS:8d8
-B:HIT:LOSE_STR:6d6
-B:HIT:LOSE_STR:6d6
+B:HIT:LOSE_MUS:6d6
+B:HIT:LOSE_MUS:6d6
 F:FORCE_SLEEP | FORCE_MAXHP | EMPTY_MIND
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR
 F:UNDEAD | IM_COLD | IM_POIS | IM_FIRE | IM_ELEC
@@ -6393,7 +6503,7 @@ G:U:s
 I:110:20d100:20:40:10
 W:70:1:0:10000
 B:STING:EXP_10:8d6
-B:STING:LOSE_STR:8d6
+B:STING:LOSE_MUS:8d6
 B:CRUSH:HURT:20d20
 B:CRUSH:SHATTER:8d10
 F:DROP_60 | WEIRD_MIND | REGENERATE | BASH_DOOR | KILL_WALL |
@@ -6500,8 +6610,8 @@ I:120:45d100:20:170:50
 W:74:3:0:23000
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_BONUS:6d8
-B:HIT:LOSE_STR:4d6
-B:HIT:LOSE_STR:4d6
+B:HIT:LOSE_MUS:4d6
+B:HIT:LOSE_MUS:4d6
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 F:FORCE_SLEEP | FORCE_MAXHP | SMART |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD |
@@ -6591,7 +6701,7 @@ N:834:Pit fiend
 G:U:o
 I:130:40d90:30:120:75
 W:76:2:0:22000
-B:BITE:LOSE_CON:5d10
+B:BITE:LOSE_VIG:5d10
 B:BITE:POISON:5d10
 B:CLAW:FIRE:6d10
 B:CLAW:FIRE:6d10
@@ -6611,8 +6721,8 @@ G:a:B
 I:120:100d20:5:95:60
 W:57:1:0:8250
 B:SHOCK:ELEC:48d2
-B:SHOCK:LOSE_INT
-B:SHOCK:LOSE_WIS
+B:SHOCK:LOSE_SCH
+B:SHOCK:LOSE_EGO
 B:SHOCK:EXP_10:48d2
 F:AUTOMATA | IM_POIS | NO_FEAR | COLD_BLOOD | NO_CONF | NO_SLEEP | EMPTY_MIND
 F:DROP_60 | SMART | AURA_COLD |
@@ -6875,7 +6985,7 @@ G:U:v
 I:130:66d99:100:100:20
 W:90:3:0:45000
 B:TOUCH:HURT:40d5
-B:TOUCH:LOSE_CON:16d2
+B:TOUCH:LOSE_VIG:16d2
 F:UNIQUE | SMART | 
 F:PASS_WALL | FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | ATTR_MULTI | 
@@ -6894,10 +7004,10 @@ N:883:Shub-Niggurath, Black Goat of the Woods
 G:U:D
 I:130:65d99:100:100:20
 W:91:3:0:5500
-B:CRUSH:LOSE_WIS:20d5
-B:CRUSH:LOSE_INT:20d5
-B:BITE:LOSE_STR:10d2
-B:BITE:LOSE_CON:10d2
+B:CRUSH:LOSE_EGO:20d5
+B:CRUSH:LOSE_SCH:20d5
+B:BITE:LOSE_MUS:10d2
+B:BITE:LOSE_VIG:10d2
 F:UNIQUE | FEMALE | 
 F:ATTR_MULTI | FORCE_SLEEP | FORCE_MAXHP | PASS_WALL |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_90 | 
@@ -6924,10 +7034,10 @@ N:887:Abhoth, Source of Uncleanness
 G:U:s
 I:130:90d99:100:100:20
 W:93:3:0:6000
-B:CRUSH:LOSE_CON:30d4
-B:HIT:LOSE_STR:30d4
-B:TOUCH:LOSE_INT:1d50
-B:CRAWL:LOSE_WIS:1d50
+B:CRUSH:LOSE_VIG:30d4
+B:HIT:LOSE_MUS:30d4
+B:TOUCH:LOSE_SCH:1d50
+B:CRAWL:LOSE_EGO:1d50
 F:UNIQUE | 
 F:FORCE_SLEEP | FORCE_MAXHP | PASS_WALL | DEMON | RES_NEXU |
 F:ATTR_MULTI | MALE | 
@@ -7081,6 +7191,7 @@ D:the Empire State Building. 1933 King Kong by Merian C. Cooper and
 D:Ernest B. Schoedsack
 
 N:898:The Babbage Analytical Engine - Final Model
+G:a:B
 I:140:100d130:2:130:30
 W:98:1:0:50000
 F:UNIQUE | FORCE_MAXHP | NEVER_BLOW | NEVER_MOVE | DROP_4D2 | DROP_3D2 |
@@ -7128,8 +7239,8 @@ S:S_HI_DEMON
 D:"'The Moreau Horrors!' The phrase drifted loose in my 
 D:mind for a moment, and then I saw it in red lettering on 
 D:a little buff-coloured pamphlet, to read which made one 
-D:shiver and creep. . . .  
-D:  Was this the same Moreau? He had published some very astonishing 
+D:shiver and creep. . . .  
+D:  Was this the same Moreau? He had published some very astonishing 
 D:facts in connection with the transfusion of blood, and in addition 
 D:was known to be doing valuable work on morbid growths. Then suddenly 
 D:his career was closed. A journalist obtained 
@@ -7137,10 +7248,10 @@ D:access to his laboratory in the capacity of laboratory-assistant, with
 D:the deliberate intention of making sensational exposures; and by the help 
 D:of a shocking accident (if it was an accident), his gruesome pamphlet became 
 D:notorious. On the day of its publication a wretched dog, flayed and otherwise 
-D:mutilated, escaped from Moreau’s house. . . It was not the first time that 
+D:mutilated, escaped from Moreau's house. . . It was not the first time that 
 D:conscience has turned against the methods of research. The doctor was 
 D:simply howled out of the country. . . . 
-D:Yet some of his experiments, by the journalist’s account, were wantonly 
+D:Yet some of his experiments, by the journalist's account, were wantonly 
 D:cruel. He might perhaps have purchased his social peace by abandoning his 
 D:investigations; but he apparently preferred the latter, as most men would 
 D:who have once fallen under the overmastering spell of research. He was 

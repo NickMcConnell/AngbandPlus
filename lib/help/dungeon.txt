@@ -1,4 +1,4 @@
-=== The Dungeon ===
+=== The Dungeon === (OUTDATED)
 
 
 After you have created your character, you will begin your Angband adventure.

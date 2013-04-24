@@ -63,6 +63,7 @@ typedef s16b s16b_wid[DUNGEON_WID];
 
 
 typedef struct maxima maxima;
+typedef struct info_entry info_entry;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
@@ -78,7 +79,7 @@ typedef struct quest quest;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
-typedef struct player_magic player_magic;
+typedef struct spell_book spell_book;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
 typedef struct player_class player_class;
@@ -86,7 +87,10 @@ typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
 typedef struct start_item start_item;
-
+typedef struct player_skills player_skills;
+typedef struct high_score high_score;
+typedef struct mind_type mind_type;
+typedef struct mind_power mind_power;
 
 
 /**** Available structs ****/
@@ -114,6 +118,15 @@ struct maxima
 
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "m_list[]" */
+};
+
+/*
+ * Entries for spell/activation descriptions
+ */
+struct info_entry
+{
+	u16b	index;
+	cptr	desc;
 };
 
 
@@ -159,6 +172,7 @@ struct object_kind
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
+	s16b force;			/* Weapon Force */
 
 	s16b ac;			/* Base armor */
 
@@ -217,6 +231,8 @@ struct artifact_type
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
+	s16b force;			/* Weapon Force */
+
 
 	s16b ac;			/* Base armor */
 
@@ -472,6 +488,7 @@ struct object_type
 	s16b to_h;			/* Plusses to hit */
 	s16b to_d;			/* Plusses to damage */
 	s16b to_a;			/* Plusses to AC */
+	s16b force;			/* force */
 
 	s16b ac;			/* Normal AC */
 
@@ -636,7 +653,34 @@ struct store_type
 
 
 
+/*
+ * The "name" of spell 'N' is stored as spell_names[X][N],
+ * where X is 0 for mage-spells and 1 for priest-spells.
+ */
+struct magic_type
+{
+	u16b index;			/* The internal spell index. */
+	cptr sname;			/* The name of the spell in the spellbook */
+	byte slevel;		/* Required level (to learn) */
+	s16b smana;			/* Required mana (to cast) */
+	byte sfail;			/* Minimum chance of failure */
+};
 
+
+
+/* 
+ * Information about a spell book's contents
+ */
+struct spell_book
+{
+	byte flags;		/* Spellbook Flags */
+
+	magic_type contents[MAX_BOOK_SPELLS];
+};
+
+
+#if 0
+/* old spell code */
 
 /*
  * The "name" of spell 'N' is stored as spell_names[X][N],
@@ -661,7 +705,7 @@ struct player_magic
 	magic_type info[PY_MAX_SPELLS];	/* The available spells */
 };
 
-
+#endif
 
 /*
  * Player sex info
@@ -683,7 +727,7 @@ struct player_race
 	u32b text;			/* Text (offset) */
 
 	s16b r_adj[A_MAX];	/* Racial stat bonuses */
-
+#if 0
 	s16b r_dis;			/* disarming */
 	s16b r_dev;			/* magic devices */
 	s16b r_sav;			/* saving throw */
@@ -692,7 +736,7 @@ struct player_race
 	s16b r_fos;			/* search frequency */
 	s16b r_thn;			/* combat (normal) */
 	s16b r_thb;			/* combat (shooting) */
-
+#endif
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
 
@@ -734,6 +778,13 @@ struct start_item
 };
 
 
+struct player_skills{
+	char *name;			/* Name of the skill */
+	s16b skill_rank;	/* current modified rank of skill */
+	s16b skill_max;		/* maximum internal (character) rank of skill */
+	s16b skill_index;	/* Index of skill */
+};
+
 /*
  * Player class info
  */
@@ -741,10 +792,11 @@ struct player_class
 {
 	u32b name;			/* Name (offset) */
 
-	u32b title[10];		/* Titles - offset */
+	u32b mtitle[10];		/* Titles - offset */
+	u32b ftitle[10];		/* Titles - offset */
 
 	s16b c_adj[A_MAX];	/* Class stat modifier */
-
+#if 0
 	s16b c_dis;			/* class disarming */
 	s16b c_dev;			/* class magic devices */
 	s16b c_sav;			/* class saving throws */
@@ -762,7 +814,7 @@ struct player_class
 	s16b x_fos;			/* extra searching frequency */
 	s16b x_thn;			/* extra to hit (normal) */
 	s16b x_thb;			/* extra to hit (bows) */
-
+#endif
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
 
@@ -772,19 +824,20 @@ struct player_class
 	u16b min_weight;	/* Minimum weapon weight for calculations */
 	u16b att_multiply;	/* Multiplier for attack calculations */
 
-	byte spell_book;	/* Tval of spell books (if any) */
-	u16b spell_stat;	/* Stat for spells (if any) */
-	byte spell_type;	/* Spell type (mage/priest) */
-	u16b spell_first;	/* Level of first spell */
-	u16b spell_weight;	/* Weight that hurts spells */
+	u16b spell_stat;
+	s16b spell_weight;						/* Weight that hurts spells */
+	bool spell_book[SV_BOOK_MAX];			/* The list of legal books */
+	s16b spell_handicap[SV_BOOK_MAX];		/* Spell handicap per realm */
 
 	u32b sense_base;	/* Base pseudo-id value */
 	u16b sense_div;		/* Pseudo-id divisor */
 	byte pet_upkeep_div; /* Pet upkeep divider */
 
+	
+
 	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 
-	player_magic spells; /* Magic spells */
+/*	player_magic spells;  Magic spells */
 };
 
 
@@ -853,9 +906,10 @@ struct player_type
 	s16b sc;			/* Social Class */
 
 	s32b au;			/* Current Gold */
+	
 	/* Generation fields (for quick start) */
 	s32b au_birth;			/* Current Gold */
-	byte stat_birth[A_MAX];	/* Current "natural" stat values */
+	s16b stat_birth[A_MAX];	/* Current "natural" stat values */
 
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
@@ -866,6 +920,9 @@ struct player_type
 	s32b max_exp;		/* Max experience */
 	s32b exp;			/* Cur experience */
 	u16b exp_frac;		/* Cur exp frac (times 2^16) */
+	s16b free_skpts;	/* Skill points remaining to spend */
+	s16b free_sgain;	/* Number of Statgains remaining */
+	player_skills skills[N_SKILLS]; /* Player Skills */
 
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
@@ -899,6 +956,7 @@ struct player_type
 	s16b tim_infra;		/* Timed -- Infra Vision */
 	s16b tim_wraith;	/* Timed -- Wraith Form */
 	s16b tim_esp;	    /* Timed ESP */
+	s16b tim_harding;	/* Timed Automata Armor */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -922,7 +980,8 @@ struct player_type
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
-
+/* removing spell code */
+#if 0
 	u32b spell_learned1;	/* Spell flags */
 	u32b spell_learned2;	/* Spell flags */
 	u32b spell_worked1;		/* Spell flags */
@@ -931,7 +990,7 @@ struct player_type
 	u32b spell_forgotten2;	/* Spell flags */
 
 	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
-
+#endif
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
@@ -1031,7 +1090,6 @@ struct player_type
 	/*** Extracted fields ***/
 
 	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
-	s16b stat_ind[A_MAX];	/* Indexes into stat tables */
 
 	bool immune_acid;	/* Immunity to acid */
 	bool immune_elec;	/* Immunity to lightning */
@@ -1056,11 +1114,11 @@ struct player_type
 	bool resist_chaos;	/* Resist chaos */
 	bool resist_disen;	/* Resist disenchant */
 
-	bool sustain_str;	/* Keep strength */
-	bool sustain_int;	/* Keep intelligence */
-	bool sustain_wis;	/* Keep wisdom */
-	bool sustain_dex;	/* Keep dexterity */
-	bool sustain_con;	/* Keep constitution */
+	bool sustain_mus;	/* Keep strength */
+	bool sustain_agi;	/* Keep dexterity */
+	bool sustain_vig;	/* Keep constitution */
+	bool sustain_sch;	/* Keep intelligence */
+	bool sustain_ego;	/* Keep wisdom */
 	bool sustain_chr;	/* Keep charisma */
 
 	bool slow_digest;	/* Slower digestion */
@@ -1098,16 +1156,16 @@ struct player_type
 
 	s16b see_infra;		/* Infravision range */
 
-	s16b skill_dis;		/* Skill: Disarming */
-	s16b skill_dev;		/* Skill: Magic Devices */
-	s16b skill_sav;		/* Skill: Saving throw */
-	s16b skill_stl;		/* Skill: Stealth factor */
-	s16b skill_srh;		/* Skill: Searching ability */
-	s16b skill_fos;		/* Skill: Searching frequency */
-	s16b skill_thn;		/* Skill: To hit (normal) */
-	s16b skill_thb;		/* Skill: To hit (shooting) */
-	s16b skill_tht;		/* Skill: To hit (throwing) */
-	s16b skill_dig;		/* Skill: Digging */
+	/*s16b skill_dis;		 Skill: Disarming */
+	/*s16b skill_dev;		 Skill: Magic Devices */
+	/*s16b skill_sav;		 Skill: Saving throw */
+	/*s16b skill_stl;		 Skill: Stealth factor */
+	/*s16b skill_srh;		 Skill: Searching ability */
+	/*s16b skill_fos;		 Skill: Searching frequency */
+	/*s16b skill_thn;		 Skill: To hit (normal) */
+	/*s16b skill_thb;		 Skill: To hit (shooting) */
+	/*s16b skill_tht;		 Skill: To hit (throwing) */
+	/*s16b skill_dig;		 Skill: Digging */
 
 	u32b noise;			/* Derived from stealth */
 
@@ -1125,6 +1183,10 @@ struct player_type
 	bool pet_open_doors;      /* flag - allow pets to open doors */
 	bool pet_pickup_items;    /* flag - allow pets to pickup items */
 
+	byte astral;		/* You're a ghost if true -- Gumband */
+	byte was_astral;	/* You used to be a ghost -- Gumband */
+	byte astral_start;	/* For generating the starting stairs - Gumband */
+
 };
 
 
@@ -1139,7 +1201,6 @@ struct player_type
  * Note that "string comparisons" are thus valid on "pts".
  */
 
-typedef struct high_score high_score;
 
 struct high_score
 {
@@ -1170,7 +1231,6 @@ struct high_score
 };
 
 /* class craft */
-typedef struct mind_type mind_type;
 struct mind_type
 {
 	int     min_lev;
@@ -1179,7 +1239,6 @@ struct mind_type
 	cptr    name;
 };
 
-typedef struct mind_power mind_power;
 struct mind_power
 {
 	mind_type info[MAX_CLASS_POWERS];

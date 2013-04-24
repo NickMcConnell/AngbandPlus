@@ -764,6 +764,9 @@ int main(int argc, char *argv[])
 
 
 #endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) */
+
+#if defined(MACINTOSH) || defined(MACH_O_CARBON)
+
 static SInt32 mac_os_version;
 {
     (void)Gestalt(gestaltSystemVersion, &mac_os_version);
@@ -793,4 +796,4 @@ void convert_pathname(char *path)
     /* Done */
     return;
 }
-
+#endif

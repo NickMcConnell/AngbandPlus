@@ -68,6 +68,7 @@ static void save_prev_data(void)
 	prev.au = p_ptr->au;
 
 	/* Save the stats */
+	/* This doesn't appear to need changing for the new stat system */
 	for (i = 0; i < A_MAX; i++)
 	{
 		prev.stat[i] = p_ptr->stat_max[i];
@@ -101,6 +102,7 @@ static void load_prev_data(void)
 	temp.au = p_ptr->au;
 
 	/* Save the stats */
+	/* This stat exchange also doesn't appear to need changing. */
 	for (i = 0; i < A_MAX; i++)
 	{
 		temp.stat[i] = p_ptr->stat_max[i];
@@ -162,123 +164,102 @@ static void load_prev_data(void)
 
 
 
-/*
- * Adjust a stat by an amount.
- *
- * This just uses "modify_stat_value()" unless "maximize" mode is false,
- * and a positive bonus is being applied, in which case, a special hack
- * is used, with the "auto_roll" flag affecting the result.
- *
- * The "auto_roll" flag selects "maximal" changes for use with the
- * auto-roller initialization code.  Otherwise, if "maximize" mode
- * is being used, the changes are fixed.  Otherwise, semi-random
- * changes will occur, with larger changes at lower values.
- */
-static int adjust_stat(int value, int amount, int auto_roll)
-{
-	/* Negative amounts or maximize mode */
-	if ((amount < 0) || adult_maximize)
-	{
-		return (modify_stat_value(value, amount));
-	}
-
-	/* Special hack */
-	else
-	{
-		int i;
-
-		/* Apply reward */
-		for (i = 0; i < amount; i++)
-		{
-			if (value < 18)
-			{
-				value++;
-			}
-			else if (value < 18+70)
-			{
-				value += ((auto_roll ? 15 : randint(15)) + 5);
-			}
-			else if (value < 18+90)
-			{
-				value += ((auto_roll ? 6 : randint(6)) + 2);
-			}
-			else if (value < 18+100)
-			{
-				value++;
-			}
-		}
-	}
-
-	/* Return the result */
-	return (value);
-}
-
-
-
-
-/* Roll for a characters stats
- * For efficiency, we include a chunk of "calc_bonuses()".
- */
+/* This is the rewritten 'get_stats' function for the new stat system */
+/* rp_ptr->r_adj[i] + cp_ptr->c_adj[i];*/
 static void get_stats(void)
 {
-	int i; 
-	int j = 0;
+ 	int i; 
+ 	int raceside, classside; 
+ 	int totalside;
+ 	int statroll;
+ 	int roll1, roll2, roll3;
+ 	
+ 	/* hmmmm. This should do it */
+ 	for (i = 0; i < A_MAX; i++)
+ 	{
+ 		/* assign the first number(racial dice sides) to raceside */
+ 		raceside = rp_ptr->r_adj[i];
+ 		
+ 		/* assign the second number (class die sides) to classside */
+ 		classside = cp_ptr->c_adj[i];
+ 		
+ 		/* total them */
+ 		totalside = raceside + classside;	
 
-	int bonus;
+		/* reduce variance */
+		roll1 = (randint(totalside) + randint(totalside)) / 2;
 
-	int dice[18];
+		/* reduce variance */
+		roll2 = (randint(totalside) + randint(totalside)) / 2;
 
-
-	/* Roll and verify some stats */
-	while (TRUE)
-	{
-		/* Roll some dice */
-		for (j = i = 0; i < 18; i++)
-		{
-			/* Roll the dice */
-			dice[i] = randint(3 + i % 3);
-
-			/* Collect the maximum */
-			j += dice[i];
-		}
-
-		/* Verify totals */
-		if ((j > 42) && (j < 54)) break;
-	}
-
-	/* Roll the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
-
-		/* Save that value */
-		p_ptr->stat_max[i] = j;
-
-		/* Obtain a "bonus" for "race" and "class" */
-		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-		/* ================ Variable stat maxes ======================*/
-		if (adult_maximize)
-		{
-			/* Start fully healed */
-			p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i];
-
-			/* Efficiency -- Apply the racial/class bonuses */
-			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus);
-		}
-
-		/* Fixed stat maxes */
-		else
-		{
-			/* Apply the bonus to the stat (somewhat randomly) */
-			stat_use[i] = adjust_stat(p_ptr->stat_max[i], bonus, FALSE);
-
-			/* Save the resulting stat maximum */
-			p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
-		}
+		/* reduce variance */
+		roll3 = (randint(totalside) + randint(totalside)) / 2;
+ 		
+ 		/* Get a random integer between those two numbers three times */
+ 		statroll = (roll1 + roll2 + roll3) + (roll1 * 2) + (roll2 * 2) + (roll3 * 2);
+ 		statroll *= 14;
+ 		statroll /= 8;
+ 		
+ 		if (statroll > 700) statroll = 700;
+ 		
+ 		/* save that value */
+ 		p_ptr->stat_max[i] = statroll;
+ 		
+ 		/* Start fully healed */
+ 		stat_use[i] = p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i];
 	}
 }
+
+/* Astral / Wonderland mode added by DH - stolen from gum*/
+/* Darren Hart is awesome  */
+static void astral_mode(void)
+{
+	char c;
+
+	/*** Ghostly Status -- from Gumband ***/
+	/* Extra info */
+	Term_putstr(5, 13, -1, TERM_WHITE,
+		"Starting in wonderland mode makes you begin the game on");
+	Term_putstr(5, 14, -1, TERM_WHITE,
+		"just below the surface.  You must make your way from there to the");
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"town on foot, where you will finally regain your corporeal");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"form.  You will then have to make your way back up to confront");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"the source of evil to win the game.");
+
+	while (1)
+	{
+		put_str("Start in Wonderland mode? (y/n) ", 20, 2);
+		c = inkey();
+		/*if (c == 'Q') quit(NULL);*/
+		/*if (c == 'S') return (FALSE);*/
+		if (c == ESCAPE) break;
+		if ((c == 'y') || (c == 'n')) break;
+		/*if (c == '?') do_cmd_help("help.hlp");*/
+	}
+
+	/* Set "ghost" mode */
+	if (c == 'y')
+	{
+		p_ptr->astral = TRUE;
+		p_ptr->was_astral = FALSE;
+		p_ptr->astral_start = TRUE;
+	}
+	else
+	{
+		p_ptr->astral = FALSE;
+		p_ptr->was_astral = FALSE;
+		p_ptr->astral_start = FALSE;
+	}
+
+	/* Clear */
+	clear_from(13);
+}
+
+
+
 
 
 /*
@@ -471,22 +452,10 @@ static void get_ahw(void)
  */
 static void get_money(void)
 {
-	int i;
-
 	int gold;
 
 	/* Social Class determines starting gold */
 	gold = (p_ptr->sc * 6) + randint(100) + 300;
-
-	/* Process the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Mega-Hack -- reduce gold for high stats */
-		if (stat_use[i] >= 18+50) gold -= 300;
-		else if (stat_use[i] >= 18+20) gold -= 200;
-		else if (stat_use[i] > 18) gold -= 150;
-		else gold -= (stat_use[i] - 8) * 10;
-	}
 
 	/* Minimum 100 gold */
 	if (gold < 100) gold = 100;
@@ -577,17 +546,26 @@ static void player_wipe(void)
 	p_ptr->pet_open_doors = FALSE;
 	p_ptr->pet_pickup_items = FALSE;
 
-
+	/* set skills to default */
+	for (i = 0; i < N_SKILLS; i++)
+	{
+	p_ptr->skills[i].skill_rank = -2;
+	p_ptr->skills[i].skill_max = -2;
+	p_ptr->skills[i].skill_index = 0;
+	}
+	
 	/* Hack -- no ghosts */
 	r_info[z_info->r_max-1].max_num = 0;
 
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
-
+	
+	/* Hack -- Give the player some inital skill points */
+	p_ptr->free_skpts = rand_range(18, 22);
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
+/*	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99; */
 }
 
 
@@ -600,33 +578,219 @@ static void player_wipe(void)
 static void player_outfit(void)
 {
 	int i;
+	int social_class_type;
+
 	const start_item *e_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	/* Hack-Check Social Status to see if scum ,lower class, middle class, upper clas, noblity */
+	/* scum start with -2 items, lower class -1 item, middle no change, upper class has +1 item */
+	/* and nobility start with +2 items - -2 to +2 also affects start type & qty of food and torches */
+	/* SOC 1: Scum = type 1 */
+	/* SOC 2-10: Lower Class = type 2 */
+	/* SOC 11-25: "upper" Lower Class = type 3 */
+	/* SOC 26-75: Middle Class = type 4*/
+	/* SOC 76-89: Lower Upper Class = type 5*/
+	/* SOC 90-99: Upper Class = type 6*/
+	/* SOC 100: Noblity = type 7*/
+
+	social_class_type = 4; /* Set Middle Class as default type */
+
+	if (p_ptr->sc < 2) social_class_type = 1; 
+	else if ((p_ptr->sc > 1) && (p_ptr->sc < 11)) social_class_type = 2;
+	else if ((p_ptr->sc > 10) && (p_ptr->sc < 26)) social_class_type = 3;
+	/* note the missing social class type here */
+	else if ((p_ptr->sc > 75) && (p_ptr->sc < 90)) social_class_type = 5;
+	else if ((p_ptr->sc > 89) && (p_ptr->sc < 100)) social_class_type = 6;
+	else if (p_ptr->sc > 99) social_class_type = 7;
+	else social_class_type = 4;
+
+	/* Astral (wonderland) Mode treats social_class_type as "middle" (type 4) */
+	if (p_ptr->astral) social_class_type = 4;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Hack -- Give the player some food */
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = (byte)rand_range(3, 7);
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
+	/* social class affect qty and type of food */
+	switch (social_class_type)
+	{
+		case 1:
+			if ((p_ptr->prace == RACE_AUTOMATA) || (p_ptr->prace == RACE_STEAM_MECHA))
+			{
+				object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
+			}
+			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_ONION));
+			i_ptr->number = (byte)rand_range(1, 5);
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+			break; 
+		case 2:
+			if ((p_ptr->prace == RACE_AUTOMATA) || (p_ptr->prace == RACE_STEAM_MECHA))
+			{
+				object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
+			}
+			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_POTATO));
+			i_ptr->number = (byte)rand_range(2, 5);
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+			break;
+		case 3:
+			if ((p_ptr->prace == RACE_AUTOMATA) || (p_ptr->prace == RACE_STEAM_MECHA))
+			{
+				object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
+			}
+			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_HADDOCKS));
+			i_ptr->number = (byte)rand_range(2, 6);
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+			break;
+		case 5:
+			if ((p_ptr->prace == RACE_AUTOMATA) || (p_ptr->prace == RACE_STEAM_MECHA))
+			{
+				object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
+			}
+			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_CHEESE));
+			i_ptr->number = (byte)rand_range(3, 7);
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+			break;
+		case 6:
+			if ((p_ptr->prace == RACE_AUTOMATA) || (p_ptr->prace == RACE_STEAM_MECHA))
+			{
+				object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
+			}
+			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_MEAT_PIE));
+			i_ptr->number = (byte)rand_range(4, 7);
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+			break;
+		case 7:
+			if ((p_ptr->prace == RACE_AUTOMATA) || (p_ptr->prace == RACE_STEAM_MECHA))
+			{
+				object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
+			}
+			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_PIGEON_PIE));
+			i_ptr->number = (byte)rand_range(4, 8);
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+			break;
+		default: /*"Middle Class" type 4 is default */
+			if ((p_ptr->prace == RACE_AUTOMATA) || (p_ptr->prace == RACE_STEAM_MECHA))
+			{
+				object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
+			}
+			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+			i_ptr->number = (byte)rand_range(3, 6);
+			if (p_ptr->astral) i_ptr->number += 5;
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+	}
+
+	/* Start off with lots of ID scrolls if a ghost from gumband*/
+	if (p_ptr->astral)
+	{
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		object_prep(i_ptr, lookup_kind(TV_MECHANISM, SV_MECHANISM_IDENTIFY));
+		i_ptr->number = 70;
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		(void)inven_carry(i_ptr);
+	}
 
 
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Hack -- Give the player some torches */
-	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	i_ptr->number = (byte)rand_range(3, 7);
-	i_ptr->pval = rand_range(3, 7) * 500;
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
+	/* social class affects qty and length of torches */
+	/* astral characters don't need torches-they wiz lite */
+	if (!p_ptr->astral)
+	{ 	
+		switch (social_class_type)
+		{ 
+			/*start switch */
+			case 1:
+				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TAPER));
+				i_ptr->number = (byte)rand_range(1, 5);
+				i_ptr->pval = rand_range(1,6) * 150;
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				(void)inven_carry(i_ptr);
+				break; 
+			case 2:
+				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_CANDLE));
+				i_ptr->number = (byte)rand_range(2, 5);
+				i_ptr->pval = rand_range(1,6) * 300;
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				(void)inven_carry(i_ptr);
+				break;
+			case 3:
+				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_CANDLE));
+				i_ptr->number = (byte)rand_range(2, 6);
+				i_ptr->pval = rand_range(2,7) * 400;
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				(void)inven_carry(i_ptr);
+				break;
+			case 5:
+				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+				i_ptr->number = (byte)rand_range(3, 7);
+				i_ptr->pval = rand_range(3,7) * 500;
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				(void)inven_carry(i_ptr);
+				break;
+			case 6:
+				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
+				i_ptr->number = 1;
+				i_ptr->pval = rand_range(1,7) * 400;
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				(void)inven_carry(i_ptr);
+				break;
+			case 7:
+				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
+				i_ptr->number = 1;
+				i_ptr->pval = rand_range(4,8) * 600;
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				(void)inven_carry(i_ptr);
+				break;
+			default: /*type 4 - Middle Class is default */
+				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+				i_ptr->number = (byte)rand_range(3, 6);
+				i_ptr->pval = rand_range(3,7) * 500;
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				(void)inven_carry(i_ptr);
+				break;
+		} 
+		/*end switch */
+	}
 
+	/* Hack -- Force Automata and Steam Meca to equip torsos (from Animeband) -DH */
+	if ((p_ptr->prace == RACE_AUTOMATA) || (p_ptr->prace == RACE_STEAM_MECHA))
+	{
+		object_prep(i_ptr, lookup_kind(TV_MECHA_TORSO, SV_MECHA_TORSO_TIN));
+		i_ptr->number = 1;
+		i_ptr->pval = 1;
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		object_copy(&inventory[INVEN_BODY], i_ptr);
+	}
+	
 	/* Hack -- Give the player his equipment */
 	for (i = 0; i < MAX_START_ITEMS; i++)
 	{
@@ -645,9 +809,19 @@ static void player_outfit(void)
 			/* Valid item? */
 			if (!k_idx) continue;
 
-			/* Prepare the item */
-			object_prep(i_ptr, k_idx);
-			
+			/* Hack-check for Automata status and tonics */
+			/* if true, replace tonics with Mechanicsm? */
+			/* Automata's can't use tonics */
+			if (((p_ptr->prace == RACE_AUTOMATA) || (p_ptr->prace == RACE_STEAM_MECHA)) && (e_ptr->tval == 75))
+			{
+				object_prep(i_ptr, lookup_kind(TV_MECHANISM, SV_MECHANISM_IDENTIFY));
+			}
+			else
+			{
+				/* Prepare the item */
+				object_prep(i_ptr, k_idx);
+			}
+
 			/* Give the object charges ? */
 			i_ptr->pval = e_ptr->pval;
 			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
@@ -911,7 +1085,10 @@ static void race_aux_hook(birth_menu r_str)
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
 	{
-		sprintf(s, "%s%+d  ", stat_names_reduced[i],
+		/* This is the name string, the code for the '+' sign, */
+		/* and the adjustment for each stat. This will stay the same */
+		/* except for it will be a dx. -CCC*/
+		sprintf(s, "%s d%d   ", stat_names_reduced[i],
 		p_info[race].r_adj[i]);
 		Term_putstr(RACE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
@@ -938,6 +1115,8 @@ static bool get_player_race()
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
 		"Your 'race' determines various intrinsic factors and bonuses.");
+	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_YELLOW,
+		"Your combined dx stat value for race and class determines your stat growth.");
 
 	/* Tabulate races */
 	for (i = 0; i < z_info->p_max; i++)
@@ -985,8 +1164,11 @@ static void class_aux_hook(birth_menu c_str)
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
 	{
-		sprintf(s, "%s%+d", stat_names_reduced[i],
-		c_info[class_idx].c_adj[i]);
+		/* See relevant section for race above, this should */
+		/* For the most part remain unchanged */
+		/* NOTE: NEED TO FIX THE ALIGNMENT OF STATGROWTH -FIXED */
+		sprintf(s, "%s d%2d %sd%d   ", stat_names_reduced[i],
+		c_info[class_idx].c_adj[i], "Statgrowth:", (c_info[class_idx].c_adj[i] + p_info[p_ptr->prace].r_adj[i]));
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 
@@ -1044,7 +1226,7 @@ static bool get_player_class(void)
 	cp_ptr = &c_info[p_ptr->pclass];
 	
 	/* Initialize the magic */
-	mp_ptr = &cp_ptr->spells;
+/*	mp_ptr = &cp_ptr->spells; */
 
 	C_FREE(classes, z_info->c_max, birth_menu);
 
@@ -1110,7 +1292,7 @@ static bool player_birth_aux_1(void)
 	Term_putstr(QUESTION_COL, INSTRUCT_ROW + 1, -1, TERM_WHITE,
 	            "menu item, '*' for a random menu item, 'ESC' to restart the character");
 	Term_putstr(QUESTION_COL, INSTRUCT_ROW + 2, -1, TERM_WHITE,
-	            "selection, '=' for the birth options, '?' for help, or 'Ctrl-X' to quit.");
+	            "selection, '=' for (birth) options, '?' for help, or 'Ctrl-X' to quit.");
 
 	/* Hack - highlight the key names */
 	Term_putstr(QUESTION_COL + 8, INSTRUCT_ROW, - 1, TERM_L_GREEN, "movement keys");
@@ -1118,8 +1300,8 @@ static bool player_birth_aux_1(void)
 	Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 1, - 1, TERM_L_GREEN, "*");
 	Term_putstr(QUESTION_COL + 40, INSTRUCT_ROW + 1, - 1, TERM_L_GREEN, "ESC");
 	Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "=");
-	Term_putstr(QUESTION_COL + 39, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "?");
-	Term_putstr(QUESTION_COL + 56, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "Ctrl-X");
+	Term_putstr(QUESTION_COL + 37, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "?");
+	Term_putstr(QUESTION_COL + 54, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "Ctrl-X");
 
 	/* Choose the player's sex */
 	if (!get_player_sex()) return (FALSE);
@@ -1144,181 +1326,6 @@ static bool player_birth_aux_1(void)
 }
 
 /*
- * Initial stat costs (initial stats always range from 10 to 18 inclusive).
- */
-
-static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
-
-/*
- * Helper function for 'player_birth()'.
- *
- * This function handles "point-based" character creation.
- *
- * The player selects, for each stat, a value from 6 to 15 (inclusive),
- * each costing a certain amount of points (as above), from a pool of 50
- * available points, to which race/class modifiers are then applied.
- *
- * Each unused point is converted into 50 gold pieces.
- */
-#define POINTS		52
-#define BASE_STAT	10
-
-static bool player_birth_aux_2(void)
-{
-	int i;
-
-	int row = 2;
-	int col = 42;
-
-	byte stat = 0;
-
-	byte stats[A_MAX];
-
-	int cost;
-
-	char ch;
-
-	char buf[80];
-
-	/* Initialize stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Initial stats */
-		stats[i] = BASE_STAT;
-	}
-
-	/* Roll for base hitpoints */
-	get_extra();
-
-	/* Roll for age/height/weight */
-	get_ahw();
-
-	/* Roll for social class */
-	get_history();
-
-	/* Interact */
-	while (TRUE)
-	{
-		/* Reset cost */
-		cost = 0;
-
-		/* Process stats */
-		for (i = 0; i < A_MAX; i++)
-		{
-			/* Variable stat maxes */
-			if (adult_maximize)
-			{
-				/* Reset stats */
-				p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
-
-			}
-
-			/* Fixed stat maxes */
-			else
-			{
-				/* Obtain a "bonus" for "race" and "class" */
-				int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-				/* Apply the racial/class bonuses */
-				p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
-					modify_stat_value(stats[i], bonus);
-			}
-
-			/* Total cost */
-			cost += birth_stat_costs[stats[i] - BASE_STAT];
-		}
-
-		/* Restrict cost */
-		if (cost > POINTS)
-		{
-			/* Warning */
-			bell("Excessive stats!");
-
-			/* Reduce stat */
-			stats[stat]--;
-
-			/* Recompute costs */
-			continue;
-		}
-
-		/* Gold is inversely proportional to cost */
-		p_ptr->au_birth = p_ptr->au = (100 * (POINTS - cost)) + 100;
-		
-		/* Calculate the bonuses and hitpoints */
-		p_ptr->update |= (PU_BONUS | PU_HP);
-
-		/* Update stuff */
-		update_stuff();
-
-		/* Fully healed */
-		p_ptr->chp = p_ptr->mhp;
-
-		/* Fully rested */
-		p_ptr->csp = p_ptr->msp;
-
-		/* Display the player */
-		display_player(99);
-
-		/* Display the costs header */
-		put_str("Cost", row, col + 32);
-
-		/* Display the costs */
-		for (i = 0; i < A_MAX; i++)
-		{
-			/* Display cost */
-			sprintf(buf, "%4d", birth_stat_costs[stats[i] - BASE_STAT]);
-			put_str(buf, row + i + 1, col + 32);
-		}
-
-		/* Prompt XXX XXX XXX */
-		sprintf(buf, "Total Cost %2d/%d.  Use 2/8 to move, 4/6 to modify, Enter to accept.", cost,POINTS);
-		prt(buf, 0, 0);
-
-		/* Place cursor just after cost of current stat */
-		Term_gotoxy(col + 36, row + stat + 1);
-
-		/* Get key */
-		ch = inkey();
-
-		/* Quit */
-		if (ch == KTRL('X')) quit(NULL);
-
-		/* Start over */
-		if (ch == ESCAPE) return (FALSE);
-
-		/* Done */
-		if ((ch == '\r') || (ch == '\n')) break;
-
-		/* Prev stat */
-		if (ch == '8')
-		{
-			stat = (stat + A_MAX - 1) % A_MAX;;
-		}
-
-		/* Next stat */
-		if (ch == '2')
-		{
-			stat = (stat + 1) % A_MAX;
-		}
-
-		/* Decrease stat */
-		if ((ch == '4') && (stats[stat] > BASE_STAT))
-		{
-			stats[stat]--;
-		}
-
-		/* Increase stat */
-		if ((ch == '6') && (stats[stat] < 18))
-		{
-			stats[stat]++;
-		}
-	}
-
-	/* Done */
-	return (TRUE);
-}
-
-/*
  * Helper function for 'player_birth()'.
  *
  * This function handles "auto-rolling" and "random-rolling".
@@ -1329,9 +1336,7 @@ static bool player_birth_aux_2(void)
  */
 static bool player_birth_aux_3(void)
 {
-	int i, m, j, v;
 
-	bool flag;
 	bool prev = FALSE;
 
 	char ch;
@@ -1339,250 +1344,26 @@ static bool player_birth_aux_3(void)
 	char b1 = '[';
 	char b2 = ']';
 
-	char buf[80];
-	
-	byte stat_limit[A_MAX];
-
-	s32b stat_match[A_MAX];
-
-	s32b auto_round = 0L;
-
-	s32b last_round;
-
-	/*** Autoroll ***/
-
-	/* Initialize */
-	if (adult_auto_roller)
-	{
-		byte mval[A_MAX];
-
-		char inp[80];
-
-
-		/* Extra info */
-		Term_putstr(5, 10, -1, TERM_WHITE,
-		            "The auto-roller will automatically ignore characters which do");
-		Term_putstr(5, 11, -1, TERM_WHITE,
-		            "not meet the minimum values for any stats specified below.");
-		Term_putstr(5, 12, -1, TERM_WHITE,
-		            "Note that stats are not independant, so it is not possible to");
-		Term_putstr(5, 13, -1, TERM_WHITE,
-		            "get perfect (or even high) values for all your stats.");
-
-		/* Prompt for the minimum stats */
-		put_str("Enter minimum value for: ", 15, 2);
-
-		/* Output the maximum stats */
-		for (i = 0; i < A_MAX; i++)
-		{
-			/* Reset the "success" counter */
-			stat_match[i] = 0;
-
-			/* Calculate race bonus */
-			/* m = modify_stat_value(14, rp_ptr->r_adj[i] + cp_ptr->c_adj[i]); */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-			/* Obtain the "maximal" stat */
-			m = adjust_stat(17, j, TRUE);
-
-			/* Save the maximum */
-			mval[i] = m;
-
-			/* Extract a textual format */
-			/* Above 18 */
-			if (m > 18)
-			{
-				sprintf(inp, "(Max of 18/%02d):", (m - 18));
-			}
-
-			/* From 3 to 18 */
-			else
-			{
-				sprintf(inp, "(Max of %2d):", m);
-			}
-
-			/* Prepare a prompt */
-			sprintf(buf, "%-5s%-20s", stat_names[i], inp);
-
-			/* Dump the prompt */
-			put_str(buf, 16 + i, 5);
-		}
-
-		/* Input the minimum stats */
-		for (i = 0; i < A_MAX; i++)
-		{
-			/* Get a minimum stat */
-			while (TRUE)
-			{
-				char *s;
-				
-				/* Move the cursor */
-				put_str("", 16 + i, 30);
-
-				/* Default */
-				strcpy(inp, "");
-
-				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 9)) inp[0] = '\0';
-
-				/* Hack -- add a fake slash */
-				strcat(inp, "/");
-
-				/* Hack -- look for the "slash" */
-				s = strchr(inp, '/');
-
-				/* Hack -- Nuke the slash */
-				*s++ = '\0';
-
-
-				/* Hack -- Extract an input */
-				v = atoi(inp) + atoi(s);
-
-				/* Break on valid input */
-				if (v <= mval[i]) break;
-			}
-
-			/* Save the minimum stat - the stat as selected minus the race bonus*/
-			/* stat_limit[i] = (v > 0) ? modify_stat_value((byte)v, -(rp_ptr->r_adj[i])) : 0; */
-			/* Save the minimum stat */
-			stat_limit[i] = (v > 0) ? v : 0;
-
-		}
-	}
-
-	/* Clean up */
-	clear_from(10);
-
-
 	/*** Generate ***/
+
+	/* do Astral Mode */
+	astral_mode();
+
+	/* Hack -- prepare the skills */
+	skill_raceinit();
+	skill_classinit();
+	
+	/* MEGA Hack -- Condense extra skills */
+	skill_cleanup();
 
 	/* Roll */
 	while (TRUE)
 	{
 		int col = 42;
-
-		/* Feedback */
-		if (adult_auto_roller)
-		{
-			Term_clear();
-
-			/* Label */
-			put_str(" Limit", 2, col+5);
-
-			/* Label */
-			put_str("  Freq", 2, col+13);
-
-			/* Label */
-			put_str("  Roll", 2, col+24);
-
-			/* Put the minimal stats */
-			for (i = 0; i < A_MAX; i++)
-			{
-				/* Label stats */
-				put_str(stat_names[i], 3+i, col);
-
-				/* Put the stat */
-				sprintf(buf, "%2d", stat_limit[i]);
-				c_put_str(TERM_L_BLUE, buf, 3+i, col+9);
-			}
-
-			/* Note when we started */
-			last_round = auto_round;
-
-			/* Label count */
-			put_str("Round:", 10, col+13);
-
-			/* Indicate the state */
-			put_str("(Hit any key to stop)", 12, col+13);
-
-			/* Auto-roll */
-			while (TRUE)
-			{
-				bool accept = TRUE;
-
-				/* Get a new character */
-				get_stats();
-
-				/* Advance the round */
-				auto_round++;
-
-				/* Hack -- Prevent overflow */
-				if (auto_round >= 1000000L) break;
-
-				/* Check and count acceptable stats */
-				for (i = 0; i < A_MAX; i++)
-				{
-					/* This stat is okay */
-					if (stat_use[i] >= stat_limit[i])
-					{
-						stat_match[i]++;
-					}
-
-					/* This stat is not okay */
-					else
-					{
-						accept = FALSE;
-					}
-				}
-
-				/* Break if "happy" */
-				if (accept) break;
-
-				/* Take note every 25 rolls */
-				flag = (!(auto_round % 25L));
-
-				/* Update display occasionally */
-				if (flag || (auto_round < last_round + 100))
-				{
-					/* Put the stats (and percents) */
-					for (i = 0; i < A_MAX; i++)
-					{
-						/* Put the stat */
-						/* sprintf(buf, "%2d", stat_use[i]); */
-						cnv_stat(stat_use[i], buf);
-						c_put_str(TERM_L_GREEN, buf, 3+i, col+28);
-
-						/* Put the percent */
-						if (stat_match[i])
-						{
-							int p = 1000L * stat_match[i] / auto_round;
-							byte attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
-							sprintf(buf, "%3d.%d%%", p/10, p%10);
-							c_put_str(attr, buf, 3+i, col+13);
-						}
-
-						/* Never happened */
-						else
-						{
-							c_put_str(TERM_RED, "(NONE)", 3+i, col+13);
-						}
-					}
-
-					/* Dump round */
-					put_str(format("%10ld", auto_round), 10, col+20);
-
-					/* Make sure they see everything */
-					Term_fresh();
-
-					/* Delay 1/10 second */
-					if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
-
-					/* Do not wait for a key */
-					inkey_scan = TRUE;
-
-					/* Check for a keypress */
-					if (inkey()) break;
-				}
-			}
-		}
-
-		/* Otherwise just get a character */
-		else
-		{
-			/* Get a new character */
-			get_stats();
-		}
-
+		
+		/* Get a new character */
+		get_stats();
+		
 		/* Flush input */
 		flush();
 
@@ -1694,18 +1475,18 @@ static bool player_birth_full(void)
 	if (!player_birth_aux_1()) return (FALSE);
 
 	/* Point-based */
-	if (adult_point_based)
-	{
-		/* Point based */
-		if (!player_birth_aux_2()) return (FALSE);
-	}
-
-	/* Random */
-	else
-	{
-		/* Auto-roll */
-		if (!player_birth_aux_3()) return (FALSE);
-	}
+/*	if (adult_point_based)
+ *	{
+ */		/* Point based */
+/*		if (!player_birth_aux_2()) return (FALSE);
+ *	}
+ *
+ */	/* Random */
+/*	else
+ *	{
+ */		/* Auto-roll */
+/*	}  */
+	if (!player_birth_aux_3()) return (FALSE);
 
 	/* Get a name, prepare savefile */
 	get_name();
@@ -1821,6 +1602,22 @@ static bool player_birth_quick(void)
 
 	/* Fully rested */
 	p_ptr->csp = p_ptr->msp;
+	
+	/* Hack -- Give the player some inital skill points */
+	p_ptr->free_skpts = rand_range(14, 18);
+	
+	/* Hack -- prepare the skills */
+	skill_raceinit();
+	skill_classinit();
+	
+	/* MEGA Hack -- Condense extra skills */
+	skill_cleanup();
+
+	/* Roll for gold */
+	get_money();
+	
+	/* do Astral Mode */
+	astral_mode();
 
 	/* Display the player */
 	display_player(99);
@@ -1856,7 +1653,7 @@ void player_birth(void)
 	bool do_full = TRUE;
 	char buf[80];
 	char ch;
-
+	
 	if (character_existed) while (TRUE)
 	{
 		/* Verify birth options */
@@ -1912,8 +1709,12 @@ void player_birth(void)
 	message_add(" ", MSG_GENERIC);
 	
 	/* Hack -- outfit the player */
-	player_outfit();
-
+	/* Hack -- if race is Old One, skip starting equipment DH*/
+	if (p_ptr->prace != RACE_OLD_ONE)
+	{
+		player_outfit();
+	}
+		
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
 	{

@@ -1,4 +1,4 @@
-=== Using the Online Help ===
+=== Using the Online Help === (OUTDATED)
 
 You can press Escape (ESC) at any time to leave the online help.
 

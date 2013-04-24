@@ -117,6 +117,8 @@ s16b m_cnt = 0;			/* Number of live monsters */
 int total_friends = 0;
 s32b total_friend_levels = 0;
 
+int skill_count = 0;
+
 bool skip_msgs = FALSE; /* for the ESC key to skip -more- prompts. */
 
 
@@ -426,7 +428,6 @@ cptr keymap_act[KEYMAP_MODES][256];
 const player_sex *sp_ptr;
 const player_race *rp_ptr;
 const player_class *cp_ptr;
-const player_magic *mp_ptr;
 
 /*
  * The player other record (static)
@@ -650,6 +651,12 @@ bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
  */
 void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 
+/*
+ * Hack -- function hook to output (colored) text to the
+ * screen or to a file.
+ */
+void (*text_out_hook)(byte a, cptr str);
+
 
 
 /*
@@ -670,6 +677,10 @@ bool (*get_obj_num_hook)(int k_idx);
  */
 int highscore_fd = -1;
 
+/*
+ * The type of object the item generator should make, if specified. -LM-
+ */
+byte required_tval = 0;
 
 /*
  * Use transparent tiles

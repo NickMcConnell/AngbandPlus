@@ -5471,6 +5471,64 @@ static pascal OSErr AEH_Open(const AppleEvent *theAppleEvent, AppleEvent* reply,
 
 
 /*
+ * Apple Event Handler -- Re-open Application
+ *
+ * If no windows are currently open, show the Angband window.
+ * This required AppleEvent was introduced by System 8 -- pelpel
+ */
+static pascal OSErr AEH_Reopen(const AppleEvent *theAppleEvent,
+			     AppleEvent* reply, long handlerRefCon)
+{
+#pragma unused(theAppleEvent, reply, handlerRefCon)
+
+	int i, cnt;
+	term_data *td = NULL;
+
+	/* Reset count */
+	cnt = 0;
+
+	/* Check all windows */
+	for (i = 0; i < MAX_TERM_DATA; i++)
+	{
+		/* Skip dead windows */
+		if(!data[i].t) continue;
+
+		/* Count visible windows */
+		if (data[i].mapped) cnt++;
+	}
+
+	/* No open windows */
+	if (0 == cnt)
+	{
+		/* Obtain the Angband window */
+		td= &data[0];
+
+		/* Mapped */
+		td->mapped = TRUE;
+
+		/* Link */
+		term_data_link(i);
+
+		/* Mapped (?) */
+		td->t->mapped_flag = TRUE;
+
+		/* Show the window */
+		ShowWindow(td->w);
+
+		/* Bring to the front */
+		SelectWindow(td->w);
+
+		/* Make it active */
+		activate(td->w);
+	}
+
+	/* Event handled */
+	return (noErr);
+}
+
+
+
+/*
  * Handle quit_when_ready, by Peter Ammon,
  * slightly modified to check inkey_flag.
  */
@@ -6364,6 +6422,14 @@ int main(void)
 		kAEOpenDocuments,
 		NewAEEventHandlerUPP(AEH_Open),
 		0L,
+		FALSE);
+	
+	/* Install the reopen event hook (ignore error codes) */
+	AEInstallEventHandler(
+		kCoreEventClass, 
+		kAEReopenApplication,
+		NewAEEventHandlerUPP(AEH_Reopen), 
+		0L, 
 		FALSE);
 
 
