@@ -143,7 +143,7 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
  */
 void do_cmd_wield(void)
 {
-	int item, slot;
+	int item, slot, num, percent;
 
 	object_type *o_ptr;
 
@@ -156,6 +156,7 @@ void do_cmd_wield(void)
 
 	char o_name[80];
 
+	bool reload = FALSE;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -181,20 +182,45 @@ void do_cmd_wield(void)
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
+	/* Ask for ring to replace */
+	if ((o_ptr->tval == TV_RING) &&
+		inventory[INVEN_LEFT].k_idx &&
+		inventory[INVEN_RIGHT].k_idx)
+	{
+		/* Restrict the choices */
+		item_tester_tval = TV_RING;
+	
+		/* Choose a ring from the equipment only */
+		q = "Replace which ring? ";
+		s = "Oops.";
+		if (!get_item(&slot, q, s, USE_EQUIP)) return;
+	}
+
 	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&inventory[slot]))
+	if (slot < INVEN_LOADEDGUN && cursed_p(&inventory[slot]))
 	{
 		/* Describe it */
 		object_desc(o_name, &inventory[slot], FALSE, 0);
 
 		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
-		           o_name, describe_use(slot));
+			o_name, describe_use(slot));
 
 		/* Cancel the command */
 		return;
 	}
+	if ((slot == INVEN_LOADEDGUN || slot == INVEN_GUN) && cursed_p(&inventory[INVEN_LOADEDGUN]))
+	{
+		/* Describe it */
+		object_desc(o_name, &inventory[INVEN_LOADEDGUN], FALSE, 0);
 
+		/* Message */
+		msg_format("%s%s you have %s appear%s to be cursed.",
+			o_name, (o_ptr->number > 1)?"s":"",describe_use(INVEN_LOADEDGUN), (o_ptr->number > 1)?"":"s");
+
+		/* Cancel the command */
+		return;
+	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -205,35 +231,104 @@ void do_cmd_wield(void)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
+	/* Usually, we wear or wield only one item. */
+	num = 1;
+
+	/* Ammo goes in quiver slots, which have special rules. */
+	if (slot == INVEN_LOADEDGUN)
+	{
+		/* initialisation */
+		int number = 0, ammo_num = 0, swiftshot = 0;
+
+		object_type *ammo_ptr = &inventory[INVEN_LOADEDGUN];
+		object_type *gun_ptr = &inventory[INVEN_GUN];
+
+		if (!gun_ptr->k_idx)
+		{
+			msg_print("You aren't wielding a firearm.");
+			return;			
+		}
+		
+		if (!(p_ptr->ammo_tval == o_ptr->tval))
+		{
+			msg_print("You can't load a gun with the wrong ammunition.");
+			return;			
+		}
+
+		/* swiftshot is used to calculate how much energy is used for loading */
+		if (p_ptr->skills[SK_SWIFT_SHOT].skill_max > 0)
+			swiftshot = p_ptr->skills[SK_SWIFT_SHOT].skill_rank;
+		
+		if (object_similar(o_ptr, ammo_ptr))
+		{
+			reload = TRUE;
+			/* reloading is applicable only when objects are similar is all aspects */
+			number =  (p_ptr->num_fire - ammo_ptr->number > o_ptr->number) ? o_ptr->number:  p_ptr->num_fire - ammo_ptr->number;
+			/* paranoia - no negative amount ammo loading */
+			if (number < 0) number = 0;
+		}
+		else
+		{
+			/* We are changing ammunition from one type to another */
+			number = ((o_ptr->number < p_ptr->num_fire) ? o_ptr->number : p_ptr->num_fire);
+		}
+
+		num = number;
+		
+		/* no need to reload - Cancel */
+		if (!num) return;
+
+		/* paranoia */
+		percent = 100;
+		
+		/* determine how many bullets we load */
+		percent = (number * 100) / p_ptr->num_fire;
+		
+		/* Take some time to reload, modified by the number of bullets you are loading */
+		p_ptr->energy_use += ((200 * percent)/100) + randint(100) - (swiftshot * 6);
+
+		/* How long did it take? */
+		if (p_ptr->wizard) msg_format("You used %d energy to load the firearm! percent=%d swiftshot=%d", p_ptr->energy_use, percent, swiftshot);
+
+		/* Quiver will be reorganized (again) later. */
+		p_ptr->notice |= (PN_COMBINE);
+	}
+
 	/* Modify quantity */
-	i_ptr->number = 1;
+	i_ptr->number = num;  
 
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
-		inven_item_increase(item, -1);
+		inven_item_increase(item, -num);
 		inven_item_optimize(item);
 	}
-
 	/* Decrease the item (from the floor) */
 	else
 	{
-		floor_item_increase(0 - item, -1);
+		floor_item_increase(0 - item, -num);
 		floor_item_optimize(0 - item);
 	}
 
-	/* Get the wield slot */
-	o_ptr = &inventory[slot];
-
-	/* Take off existing item */
-	if (o_ptr->k_idx)
+	if (reload)
 	{
-		/* Take off existing item */
-		(void)inven_takeoff(slot, 255);
+		inven_item_increase(INVEN_LOADEDGUN, num);
 	}
+	else
+	{
+		/* Get the wield slot */
+		o_ptr = &inventory[slot];
 
-	/* Wear the new stuff */
-	object_copy(o_ptr, i_ptr);
+		/* Take off existing item */
+		if (o_ptr->k_idx)
+		{
+			/* Take off existing item */
+			(void)inven_takeoff(slot, 255);
+		}
+
+		/* Wear the new stuff */
+		object_copy(o_ptr, i_ptr);
+	}
 
 	if ((i_ptr->tval == TV_MECHA_TORSO) ||
 	 	(i_ptr->tval == TV_MECHA_HEAD) ||
@@ -262,13 +357,24 @@ void do_cmd_wield(void)
 	{
 		act = "Your light source is";
 	}
+	else if (slot == INVEN_LOADEDGUN)
+	{
+		act = "You have loaded";
+	}
 	else
 	{
 		act = "You are wearing";
 	}
 
-	/* Describe the result */
-	object_desc(o_name, o_ptr, TRUE, 3);
+		/* Describe the result */
+	if (reload)
+	{
+		object_desc(o_name, i_ptr, TRUE, 3);
+	}
+	else
+	{
+		object_desc(o_name, o_ptr, TRUE, 3);
+	}
 
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
@@ -330,18 +436,19 @@ void do_cmd_takeoff(void)
 		o_ptr = &inventory[item];
 	}
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
 	/* Item is cursed */
 	if (cursed_p(o_ptr))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
+
+		/* Nope */
+		return;
+	}
+	if ((item == INVEN_GUN) && cursed_p(&inventory[INVEN_LOADEDGUN]))
+	{
+		/* Oops */
+		msg_print("Hmmm, your ammo seems to be cursed.");
 
 		/* Nope */
 		return;
@@ -414,9 +521,9 @@ void do_cmd_drop(void)
 /*
  * Destroy an item
  */
-void do_cmd_destroy(void)
+void do_cmd_destroy(int item)
 {
-	int item, amt;
+		int amt;
 	int old_number;
 
 	object_type *o_ptr;
@@ -427,11 +534,13 @@ void do_cmd_destroy(void)
 
 	cptr q, s;
 
-
-	/* Get an item */
-	q = "Destroy which item? ";
-	s = "You have nothing to destroy.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!item)
+	{
+		/* Get an item */
+		q = "Destroy which item? ";
+		s = "You have nothing to destroy.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	}
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1303,10 +1412,10 @@ static cptr ident_info[] =
 	"-:A ray gun (or apparatus)",
 	".:Floor",
 	"/:A polearm (Axe/Pike/etc)",
-	"0:Entrance to Steamware",
+	"0:Entrance to Steamware Vendor",
 	"1:Entrance to General Store", /* Must correct these */
 	"2:Entrance to Clothing Store",
-	"3:Entrance to Gun Shop",
+	"3:Entrance to Gun Smith",
 	"4:Entrance to Machinist",
 	"5:Entrance to Alchemy shop",
 	"6:Entrance to Magic store",
@@ -1366,7 +1475,7 @@ static cptr ident_info[] =
 	"l:Louse",									/* Animal */
 	"m:Mold",									/* Plant */
 	"n:Plant",									/* Plant */
-	/* "o: Unused (old orc)", */
+	"o:Object",							    /* Object */
 	"p:Person/Human",							/* Humanoid */
 	"q:Quadruped",								/* Animal */
 	"r:Rodent",									/* Animal */
@@ -1793,18 +1902,32 @@ void do_cmd_query_symbol(void)
 				/* Save screen */
 				screen_save();
 
-				/* Recall on screen */
-				screen_roff(who[i]);
+				while (TRUE)
+				{
+					/* Recall on screen */
+					screen_roff(who[i], p_ptr->monster_mem_fmt);
 
-				/* Hack -- Complete the prompt (again) */
-				Term_addstr(-1, TERM_WHITE, "[un(r)ecall, ESC]");
-				prt(format("(#%d of %d)", i + 1, n), 0 , 65);
+					/* Hack -- Complete the prompt (again) */
+					Term_addstr(-1, TERM_WHITE, "[un(r)ecall, ESC]");
+					prt(format("(#%d of %d)", i + 1, n), 0 , 65);
+					/* Command */
+					query = inkey();
 
+					/* Switch display mode */
+					if (query == '\t') {
+						if (p_ptr->monster_mem_fmt == FALSE) p_ptr->monster_mem_fmt = TRUE;
+						else p_ptr->monster_mem_fmt = FALSE;
+						/* Update recall window */
+						p_ptr->window |= (PW_MONSTER);
+					}
+					else break;
+
+				}
+			} else {
+				/* Command */
+				query = inkey();
 			}
-
-			/* Command */
-			query = inkey();
-
+			
 			/* Unrecall */
 			if (recall)
 			{

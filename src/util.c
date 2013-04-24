@@ -25,19 +25,6 @@ int usleep(huge usecs)
 {
 	struct timeval      Timer;
 
-	int nfds = 0;
-
-#ifdef FD_SET
-	fd_set *no_fds = NULL;
-#else
-	int *no_fds = NULL;
-#endif
-
-
-	/* Was: int readfds, writefds, exceptfds; */
-	/* Was: readfds = writefds = exceptfds = 0; */
-
-
 	/* Paranoia -- No excessive sleeping */
 	if (usecs > 4000000L) core("Illegal usleep() call");
 
@@ -47,7 +34,7 @@ int usleep(huge usecs)
 	Timer.tv_usec = (usecs % 1000000L);
 
 	/* Wait for it */
-	if (select(nfds, no_fds, no_fds, no_fds, &Timer) < 0)
+	if (select(0, NULL, NULL, NULL, &Timer) < 0)
 	{
 		/* Hack -- ignore interrupts */
 		if (errno != EINTR) return -1;
@@ -3414,6 +3401,8 @@ bool get_check(cptr prompt)
 		if (quick_messages) break;
 		if (ch == ESCAPE) break;
 		if (strchr("YyNn", ch)) break;
+		if (ch == '\r') break;
+/* 		if (ch == '\n') break; */
 		bell("Illegal response to a 'yes/no' question!");
 	}
 
@@ -3421,12 +3410,58 @@ bool get_check(cptr prompt)
 	prt("", 0, 0);
 
 	/* Normal negation */
-	if ((ch != 'Y') && (ch != 'y')) return (FALSE);
+	if ((ch != 'Y') && (ch != 'y') && (ch != '\r') && (ch != '\n')) return (FALSE);
 
 	/* Success */
 	return (TRUE);
 }
 
+/*
+ * Verify something with the user
+ *
+ * The "prompt" should take the form "Query? "
+ *
+ * Return value type changed to char possible values should only 
+ * be yYnNkK or ESC value 
+ *
+ * Note that "[y/n/k]" is appended to the prompt.
+ */
+extern char get_pickup_check(cptr prompt)
+{
+	char ch;
+
+	char buf[80];
+
+	/* Paranoia XXX XXX XXX */
+	message_flush();
+
+	/* Hack -- Build a "useful" prompt */
+	strnfmt(buf, 78, "%.70s[y/n/k] ", prompt);
+
+	/* Prompt for it */
+	prt(buf, 0, 0);
+
+	/* Get an acceptable answer */
+	while (TRUE)
+	{
+		ch = inkey();
+		// if (quick_messages) break;
+		if (ch == '\r') ch = 'y';
+		if (ch == '\n') ch = 'y';
+		if (ch == ESCAPE) break;
+		if (strchr("YyNnKk ", ch)) break;
+		bell("Illegal response to a 'yes/no' question!");
+	}
+
+	/* Erase the prompt */
+	prt("", 0, 0);
+
+	/* Normal negation */
+//	if ((ch != 'Y') && (ch != 'y')) return (FALSE);
+
+	/* Success */
+	return ch;
+}
 
 /*
  * Prompts for a keypress
@@ -3824,7 +3859,10 @@ void request_command(bool shopping)
 			/* Get a command */
 			ch = inkey();
 			
-			if (!shopping && ((ch == '\r') || (ch == '\n'))) ch = inkey_from_menu();			
+			if (menu_allowed)
+			{	
+					if (!shopping && ((ch == '\r') || (ch == '\n'))) ch = inkey_from_menu();			
+			}
 		}
 
 		/* Clear top line */
@@ -3973,7 +4011,7 @@ void request_command(bool shopping)
 	}
 
 	/* Hack -- Auto-repeat certain commands */
-	if (always_repeat && (p_ptr->command_arg <= 0))
+	if (p_ptr->command_arg <= 0)
 	{
 		/* Hack -- auto repeat certain commands */
 		if (strchr(AUTO_REPEAT_COMMANDS, p_ptr->command_cmd))

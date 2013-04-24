@@ -62,7 +62,7 @@ static cptr r_info_blow_method[] =
 	"SLASH",
 	"PIERCE",
 	"BLUNT",
-	"XXX1",
+	"LURE",
 	"XXX2",
 	"HOWL",
 	"CLAW",
@@ -191,7 +191,7 @@ static cptr r_info_flags2[] =
 	"XXX1",
 	"XXX2",
 	"XXX3",
-	"XXX4",
+	"GASEOUS",
 	"TRACKER",
 	"IMPENT",
 	"POWERFUL",
@@ -324,7 +324,7 @@ static cptr r_info_flags5[] =
 	"BO_SOUND",
 	"BO_NETHER",
 	"BO_GRAVITY",
-	"XXX2X5",
+	"BO_DARK",
 	"XXX3X5",
 	"XXX4X5"
 };
@@ -362,7 +362,7 @@ static cptr r_info_flags6[] =
 	"SLOW",
 	"HOLD",
 	"DRAIN_MANA",
-	"XXX3X6",
+	"CHARGE",
 	"XXX4X6",
 	"XXX5X6",
 	"MIRROR_IMAGE"
@@ -375,7 +375,7 @@ static cptr r_info_flags7[] =
 {
 	"BE_FIRE",
 	"BE_ELEC",
-	"XXX7X3",
+	"BE_WATER",
 	"XXX7X4",
 	"XXX7X5",
 	"XXX7X6",
@@ -387,8 +387,8 @@ static cptr r_info_flags7[] =
 	"XXX7X12",
 	"XXX7X13",
 	"XXX7X14",
-	"XXX7X15",
-	"XXX7X16",
+	"S_CUTTENCLIP",
+	"S_BEASTMEN",
 	"S_PLANTS",
 	"S_KIN",
 	"S_HI_DEMON",
@@ -442,7 +442,7 @@ static cptr r_info_flags8[] =
 	"XXX8X28",
 	"XXX8X29",
 	"XXX8X30",
-	"XXX8X31",
+	"CUTTENCLIP",
 	"CLOUD_SURROUND"
 };
 
@@ -1468,6 +1468,27 @@ errr parse_k_info(char *buf, header *head)
 		k_ptr->gen_mult_prob = prob;
 		k_ptr->gen_dice = dice;
 		k_ptr->gen_side = side;
+	}
+
+	/* Hack -- Process 'R' for "Ranged" */
+	else if (buf[0] == 'R')
+	{
+		int ammo_tval, ammo_mult, num_fire, range;
+		int degree;
+
+		/* There better be a current k_ptr */
+		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+				&ammo_tval, &ammo_mult, &num_fire, &range, &degree)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		k_ptr->ammo_tval = ammo_tval;
+		k_ptr->ammo_mult = ammo_mult;
+		k_ptr->num_fire = num_fire;
+		k_ptr->range = range;
+		k_ptr->degree = degree;
 	}
 
 	/* Hack -- Process 'F' for flags */

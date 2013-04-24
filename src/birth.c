@@ -633,6 +633,8 @@ static void player_wipe(void)
 	p_ptr->plate_level = 0;
 	p_ptr->core_research = 0;
 	p_ptr->core_level = 0;
+	p_ptr->spur_research = 0;
+	p_ptr->spur_level = 0;
 		
 	/* Hack -- no ghosts */
 	r_info[z_info->r_max-1].max_num = 0;
@@ -678,67 +680,48 @@ static void player_outfit(void)
 
 	/* Get local object */
 	i_ptr = &object_type_body;
+	object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
 
 	/* Hack -- Give the player some food based on Social Class*/
 	switch (social_class_type)
 	{
 		case 1:
-			if (automata) object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
-			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_ONION));
+			if (!automata) object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_ONION));
 			i_ptr->number = (byte)rand_range(1, 5);
-			object_aware(i_ptr);
-			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
 			break; 
 		case 2: case 3:
-			if (automata) object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
-			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_POTATO));
+			if (!automata) object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_POTATO));
 			i_ptr->number = (byte)rand_range(2, 5);
-			object_aware(i_ptr);
-			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
 			break;
 		case 4: case 5: case 6: case 7:
-			if (automata) object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
-			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_HADDOCKS));
+			if (!automata) object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_HADDOCKS));
 			i_ptr->number = (byte)rand_range(2, 6);
-			object_aware(i_ptr);
-			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
 			break;
 		case 17: case 16: case 15: case 14:
-			if (automata) object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
-			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_CHEESE));
+			if (!automata) object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_CHEESE));
 			i_ptr->number = (byte)rand_range(8, 12);
-			object_aware(i_ptr);
-			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
 			break;
 		case 19: case 18:
-			if (automata) object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
-			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_PIGEON_PIE));
+			if (!automata) object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_PIGEON_PIE));
 			i_ptr->number = (byte)rand_range(6, 9);
-			object_aware(i_ptr);
-			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
 			break;
 		case 20:
-			if (automata) object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
-			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_MEAT_PIE));
+			if (!automata) object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_MEAT_PIE));
 			i_ptr->number = (byte)rand_range(4, 8);
-			object_aware(i_ptr);
-			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
 			break;
 		default: /*"Middle Class" type 8-13 is default */
-			if (automata) object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
-			else object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_MEAT_PIE));
+			if (!automata) object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_MEAT_PIE));
 			i_ptr->number = (byte)rand_range(3, 6);
-			if (p_ptr->wonderland) i_ptr->number += 5;
-			object_aware(i_ptr);
-			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
+			break;
 	}
+
+	/* RMG - increase the number of food items character gets for wonderland*/
+	if (p_ptr->wonderland) 
+		i_ptr->number += 5;
+
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	(void)inven_carry(i_ptr);
 
 	/* Start off with lots of ID scrolls if wonderland*/
 	if (p_ptr->wonderland)
@@ -767,67 +750,50 @@ static void player_outfit(void)
 				apply_magic(i_ptr, 0, FALSE, FALSE, FALSE);
 				i_ptr->number = (byte)rand_range(1, 5);
 				i_ptr->pval = rand_range(1, 6) * 150;
-				object_aware(i_ptr);
-				object_known(i_ptr);
-				(void)inven_carry(i_ptr);
 				break; 
 			case 2: case 3:
 				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_CANDLE_TALLOW));
 				apply_magic(i_ptr, 0, FALSE, FALSE, FALSE);
 				i_ptr->number = (byte)rand_range(2, 5);
 				i_ptr->pval = rand_range(1, 6) * 300;
-				object_aware(i_ptr);
-				object_known(i_ptr);
-				(void)inven_carry(i_ptr);
 				break;
 			case 4: case 5: case 6: case 7:
 				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_CANDLE_WAX));
 				apply_magic(i_ptr, 0, FALSE, FALSE, FALSE);
 				i_ptr->number = (byte)rand_range(2, 6);
 				i_ptr->pval = rand_range(2, 7) * 400;
-				object_aware(i_ptr);
-				object_known(i_ptr);
-				(void)inven_carry(i_ptr);
 				break;
 			case 17: case 16: case 15: case 14:
 				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 				apply_magic(i_ptr, 0, FALSE, FALSE, FALSE);
 				i_ptr->number = (byte)rand_range(3, 7);
 				i_ptr->pval = rand_range(6, 9) * 500;
-				object_aware(i_ptr);
-				object_known(i_ptr);
-				(void)inven_carry(i_ptr);
 				break;
 			case 19: case 18:
 				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
 				apply_magic(i_ptr, 0, FALSE, FALSE, FALSE);
 				i_ptr->number = 1;
 				i_ptr->pval = rand_range(1, 7) * 400;
-				object_aware(i_ptr);
-				object_known(i_ptr);
-				(void)inven_carry(i_ptr);
 				break;
 			case 20:
 				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
 				apply_magic(i_ptr, 0, FALSE, FALSE, FALSE);
 				i_ptr->number = 1;
 				i_ptr->pval = rand_range(4,8) * 600;
-				object_aware(i_ptr);
-				object_known(i_ptr);
-				(void)inven_carry(i_ptr);
 				break;
 			default: /*type 8-13 - Middle Class is default */
 				object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 				apply_magic(i_ptr, 0, FALSE, FALSE, FALSE);
 				i_ptr->number = (byte)rand_range(3, 6);
 				i_ptr->pval = rand_range(5, 8) * 500;
-				object_aware(i_ptr);
-				object_known(i_ptr);
-				(void)inven_carry(i_ptr);
 				break;
 		} 
 		/*end switch */
 	}
+
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	(void)inven_carry(i_ptr);
 	
 	/* Hack -- Force Automata and Steam Mecha to equip */
 	/* torsos (from Animeband) -DH */
@@ -905,6 +871,33 @@ static void player_outfit(void)
 			object_aware(i_ptr);
 			object_known(i_ptr);
 			(void)inven_carry(i_ptr);
+
+			/* RMG - give some ammo for the gun */
+			if (e_ptr->tval == TV_GUN)
+			{
+				if (i_ptr->ammo_tval == TV_AMMO)
+				{
+					object_prep(i_ptr, lookup_kind(TV_AMMO, SV_AMMO_LIGHT));
+					i_ptr->number = (byte)rand_range(18, 20);
+				}
+				if (i_ptr->ammo_tval == TV_BULLET)
+				{
+					object_prep(i_ptr, lookup_kind(TV_BULLET, SV_AMMO_NORMAL));
+					i_ptr->number = (byte)rand_range(16, 18);
+				}
+				if (i_ptr->ammo_tval == TV_SHOT)
+				{
+					object_prep(i_ptr, lookup_kind(TV_SHOT, SV_AMMO_BSHOT));
+					i_ptr->number = (byte)rand_range(14, 16);
+				}
+				/* evil me, this ammo can't be sold, only used */
+				/* TODO: actually there is a problem with this (and generated ammo) and memory loss */
+				i_ptr->ident |= (IDENT_BROKEN);
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				(void)inven_carry(i_ptr);
+			}
+
 		}
 	}
 	/* Hack -- Prevent allocation of mech items for non mecha characters. */
@@ -1781,9 +1774,9 @@ void player_birth(void)
 	message_add(" ", MSG_GENERIC);
 	message_add("You awake to find yourself in a strange dank place. Unsure", MSG_GENERIC);
 	message_add("of your location, you cannot recall how you came", MSG_GENERIC);
-	message_add("to find yourself in this nightmareish place.", MSG_GENERIC);
-	message_add("   There are several buildings nearby in the cavern and", MSG_GENERIC);
-	message_add("there appear to be people milling about. Best to equip", MSG_GENERIC);
+	message_add("to find yourself in this nightmareish cavern.", MSG_GENERIC);
+	message_add("   There are several buildings nearby and there", MSG_GENERIC);
+	message_add("appear to be people milling about. Best to equip", MSG_GENERIC);
 	message_add("yourself and look for a way out of this prison.", MSG_GENERIC);
 	message_add("	As you step forward, a memory comes flashing back;", MSG_GENERIC);
 	message_add("A memory of long, magnetic eyes with a true cat-green ", MSG_GENERIC);

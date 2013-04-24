@@ -1,4 +1,6 @@
+============================
 === Command Descriptions === 
+============================
 
         The following command descriptions are listed as the command name
 plus the "underlying command" key.  This is followed by the command name
@@ -15,7 +17,8 @@ count is given and the "always_repeat" option is set.
         Most commands take no "energy" to perform, while most other commands
 only take energy when they cause the world to change in some way.
 
---- Inventory Commands ---
+=== Inventory Commands
+=========================
 
 Inventory list (i)
         Displays a list of objects being carried but not equipped.  You
@@ -72,7 +75,8 @@ Take off equipment (t) or Take off equipment (T)
         and you will drop the item after taking it off.  This command takes
         some energy.
 
---- Movement Commands ---
+=== Movement Commands
+=======================
 
 Walk (with pickup) (;)
         Moves one step in the given direction.  The square you are moving
@@ -120,7 +124,8 @@ Go down staircase (>)
         town which has only one.  See "Go Up Staircase" for more info.
         This command takes some energy.
 
---- Resting Commands ---
+== Resting Commands
+=====================
 
 Stay still (with pickup) (,) or Stay still (with pickup) (.)
         Stays in the same square for one move.  If you normally pick up
@@ -149,7 +154,8 @@ Rest (R)
         worsen. Having full hit points will make it less likely that your
         wounds will worsen.
 
---- Searching Commands ---
+== Searching Commands
+=======================
 
 Search (s)
         This command can be used to locate hidden traps and secret doors
@@ -171,7 +177,8 @@ Toggle search mode (S) or Toggle search mode (#)
         are disturbed.  You may also turn off search mode by entering the
         Search Mode command again.
 
---- Alter Commands ---
+== Alter Commands
+===================
 
 Tunnel (T) or Tunnel (^T)
         Tunnelling or mining is a very useful art.  There are many kinds of
@@ -240,7 +247,8 @@ Alter (+)
         command may take a count, is affected by the "always_repeat" option,
         requires a direction, and takes some energy.
 
---- Spell and Prayer Commands ---
+== Spell and Prayer Commands
+==============================
 
 Browse a book/device (b)
         Any character can browse books.  When this command is used, all 
@@ -280,7 +288,7 @@ Use Class 'p'owers (p)
         powers can be accessed by this command. This command takes some
         energy.
         
-Use a Racial power, Skill, or Mutation (U)
+Use a Racial power, Skill, or Mutation (U) or (^O)
         Your race may have certain special powers, you may develop a skill
         which gives you a special ability, or possibly during the 
         course of the game you may be struck with a mutation. If this is 
@@ -297,7 +305,8 @@ Command your Pets (P)
         kill uniques (They can hurt them, just not do the last point of 
         damage).
 
---- Object Manipulation Commands ---
+== Object Manipulation Commands
+=================================
 
 Eat some food (E)
         You must eat regularly to prevent starvation.  As you grow hungry,
@@ -367,7 +376,8 @@ Uninscribe an object (})
         This command removes the inscription on an object.  This command will
         have no effect on "fake" inscriptions added by the game itself.
 
---- Magical Object Commands ---
+== Magical Object Commands
+============================
 
 Activate an artifact (A)
         You have heard rumors of special weapons and armor deep in the
@@ -406,7 +416,8 @@ Zap an apparatus (z) or Activate a apparatus (a)
         on the type of apparatus, and whether you are aware of its type) 
         and can use a target. This command takes some energy.
 
---- Throwing and Missile Weapons ---
+== Throwing and Missile Weapons 
+=================================
 
 Fire an item (f) or Fire an item (t)
         You may throw any object carried by your character.  Depending on
@@ -475,7 +486,8 @@ Targeting Mode (*)
         can often improve the effects of that attack, since ball attacks are
         not stopped by interposed monsters if the ball is launched at a target.
         
---- Looking Commands ---
+== Looking Commands
+=====================
 
 Full screen map (M)
         This command will show a map of the entire dungeon, reduced by a
@@ -510,7 +522,8 @@ Observe an item (I)
         This command lets you observe a previously identified item.
         This will tell you things about the special powers of the object.
 
---- Message Commands ---
+== Message Commands
+======================
 
 Repeat level feeling (^F)
         Repeats the feeling about the dungeon level that you got when you
@@ -528,7 +541,8 @@ Skip all messages (esc)
         This command allows you to skip all messages until you get a turn
         again.
 
---- Game Status Commands ---
+== Game Status Commands 
+=========================
 
 Character Description (C)
         Brings up a full description of your character, including your
@@ -557,7 +571,8 @@ Interact with the system (!)
         Allow the user to interact with the underlying visual system.
         This command is currently unused.
  
---- Saving and Exiting Commands ---
+== Saving and Exiting Commands
+================================
 
 Save and Quit (Ctrl-X)
         To save your game so that you can return to it later, use this
@@ -575,7 +590,8 @@ Quit (commit suicide) (Q)
         make sure you really want to do this, and then asked to verify
         that choice.  Note that dead characters are dead forever.
 
---- User pref file commands ---
+== User pref file commands
+============================
 
 Interact with options (=)
         Allow you to interact with options.  Note that using the "cheat"
@@ -603,7 +619,8 @@ Interact with colors (&)
         Allow the user to interact with colors.  This command only
         works on some systems.
  
---- Help ---
+== Help
+==========
 
 Help (?)
         Brings up the Angband on-line help system.  Note that the help
@@ -641,7 +658,8 @@ Game Version (V)
         For more information, see the "version.txt" help file.
 
 
---- Extra Commands ---
+== Extra Commands
+====================
 
 Toggle Choice Window (^E) 
         Toggles the display in any sub-windows (if available) which are

@@ -1116,8 +1116,8 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 			if (j == 11) strcat(buf, format(" %d%% nether", (object_resist(o_ptr, RS_NTH))));
 			if (j == 12) strcat(buf, format(" %d%% light", (object_resist(o_ptr, RS_LIT))));
 			if (j == 13) strcat(buf, format(" %d%% dark", (object_resist(o_ptr, RS_DRK))));
-			if (j == 14) strcat(buf, format(" %d%% psionic", (object_resist(o_ptr, RS_PSI))));
-			if (j == 15) strcat(buf, format(" %d%% telekinetic", (object_resist(o_ptr, RS_TLK))));
+			if (j == 14) strcat(buf, format(" %d%% mental", (object_resist(o_ptr, RS_PSI))));
+			if (j == 15) strcat(buf, format(" %d%% forces", (object_resist(o_ptr, RS_TLK))));
 			if (j == 16) strcat(buf, format(" %d%% spirit", (object_resist(o_ptr, RS_SPI))));
 		}
 
@@ -2049,7 +2049,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_ADD_MANA))              vp[vn++] = "do something";
 		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
 		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
-		if (flags6 & (RF6_XXX3))              vp[vn++] = "do something";
+		if (flags6 & (RF6_CHARGE))              vp[vn++] = "CHARGE";
 		if (flags6 & (RF6_XXX4))              vp[vn++] = "do something";
 		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "teleport to";
 		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "teleport away";

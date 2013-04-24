@@ -62,7 +62,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 ## Keeping this class
 N:0:Officer
@@ -93,7 +93,7 @@ E:75:33:0:1:1
 E:23:11:0:1:1
 E:37:1:0:1:1
 E:19:2:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID3
+F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID2
 T:2nd Lt.
 T:1st Lt.
 T:Captain
@@ -200,9 +200,9 @@ B:21:1
 B:22:1
 B:23:1
 E:66:4:0:1:1
-E:70:8:0:1:1
+E:19:53:0:1:1
 E:90:18:0:1:1
-F:ZERO_FAIL | BEAM | PSEUDO_ID_HEAVY | PSEUDO_ID2
+F:ZERO_FAIL | BEAM | PSEUDO_ID_HEAVY | PSEUDO_ID3
 T:Jr. Engineer
 T:Engineer
 T:Sr. Engineer
@@ -253,7 +253,7 @@ B:17:2
 E:75:36:0:1:1
 E:23:5:0:1:1
 E:36:2:0:1:1
-F:ZERO_FAIL | BEAM | PSEUDO_ID2 
+F:ZERO_FAIL | BEAM | PSEUDO_ID1 
 T:Touched
 T:Shining
 T:Psychic
@@ -304,7 +304,7 @@ B:17:3
 E:75:33:0:1:1
 E:23:16:0:1:1
 E:37:4:0:1:1
-F:BRAVERY_30 | PSEUDO_ID4 
+F:BRAVERY_30 | PSEUDO_ID3 
 T:Rookie
 T:Soldier
 T:Mercenary
@@ -321,7 +321,7 @@ Z:Mercenary
 Z:Veteran
 Z:Swordsman
 Z:Champion
-Z:Heroins
+Z:Heroine
 Z:Baroness
 Z:Duchess
 Z:Lady
@@ -354,7 +354,7 @@ B:17:5
 E:75:33:0:1:1
 E:23:16:0:1:1
 E:37:4:0:1:1
-F:BRAVERY_30 | PSEUDO_ID3 | PSEUDO_ID_HEAVY
+F:BRAVERY_30 | PSEUDO_ID1 | PSEUDO_ID_HEAVY
 T:2nd Lt.
 T:1st Lt.
 T:Captain
@@ -379,7 +379,7 @@ Z:General
 
 #keeping
 N:6:Gentleman/Lady
-S:2:4:4:10:10:10
+S:4:4:4:10:10:10
 I:4:0:9000:40:10
 A:5:35:4
 M:3:350
@@ -458,7 +458,7 @@ B:23:4
 E:19:2:0:1:1
 E:24:8:0:8:12
 E:36:4:0:1:1
-F:PSEUDO_ID4 | PSEUDO_ID_HEAVY
+F:PSEUDO_ID4 | PSEUDO_ID_HEAVY | ZERO_FAIL 
 T:Vagabond
 T:Cutpurse
 T:Footpad
@@ -511,7 +511,7 @@ B:17:2
 E:26:12:0:1:1
 E:35:2:0:1:1
 E:75:36:0:3:6
-F:ZERO_FAIL | PSEUDO_ID3
+F:ZERO_FAIL | PSEUDO_ID1
 T:Acolyte
 T:Farmer
 T:Grower

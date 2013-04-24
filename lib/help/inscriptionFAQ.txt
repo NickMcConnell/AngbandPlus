@@ -1,0 +1,75 @@
+
+A Really Quick Guide to Magic Inscriptions
+
+There are a number of special things you can inscribe (with the '{'
+command) on your equipment and inventory to make playing Angband more
+convenient.
+
+
+        Definitions
+
+'n' is a number from 0-9
+
+'c' is a command from the underlying command set. (Almost, but not
+completely, like the orginial command set, which uses some keymaps so
+you don't need to know that ';' is the walk command, and such. See the
+help file command.txt for these.)
+
+
+        Inscriptions
+
+'!c' - Ask for confirmation when you select this item to use with
+command 'c'.
+
+'!*' - Ask for confirmation when you select this item to use with any
+command.
+
+'@n' - When you type 'n' at a what object? prompt for any command, use
+this item. (If more than one item has this inscription, it uses the
+first one.)
+
+'@cn' - As above, but only when selecting objects for command 'c'.
+
+For both of these, if the first matching inscription in your inventory
+is an illegal choice, it will stop there, not go on to a legal one.
+
+These two are especially useful in macros, since they allow you to make
+a macro to use rod '2', for instance, and not have to worry about what
+inventory slot it is currently in. Or, for making macros of spells, it
+causes the macro to fail if all your copies of the appropriate book are
+destroyed, moving a different book into the same slot.
+
+'^c' - While this item is equipped, ask for confirmation of command 'c'.
+
+'=g' - Pick this item up when you step on it.
+
+
+        Examples
+
+@q1
+    Use this as item '1' when quaffing a potion. 
+@m1!d!k!v
+    Use this as item '1' when casting a spell. Ask for confirmation
+    before dropping, destroying, or throwing the item. This is probably
+    your first spellbook. 
+@m1@b1@G1!d!k!v
+    As above, but it is also item '1' when browsing your spellbooks or
+    gaining new spells. 
+@w0^;^.
+    Use this as item '0' when weilding. Ask for confirmation before
+    walking (';') or running ('.') with this item equipped. This is
+    probably your shovel or pick. (The game attaches the command 'w0' to
+    the 'X' key by default, so you can swap between your shovel and
+    weapon by inscribing both with '@w0'.) 
+@z0!*
+    Use this as item '0' when zapping a rod. Ask for confirmation before
+    doing anything with this item, including zapping it. This is
+    probably your Rod of Recall. 
+!*!*!*!*!*
+    Ask for confirmation five times before doing anything with this
+    item. I don't know what this is, but you're worried about accidents. 
+
+------------------------------------------------------------------------
+Julian Lighton jl8e@fragment.com <mailto:jl8e@fragment.com>
+
+Last modified: Tue Oct 2 22:44:49 2001

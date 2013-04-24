@@ -70,7 +70,7 @@
 	speak one of the most refined languages, which is used 
 	in many high societies in Europe - even in the Russian 
 	Tsar's court! They still remember and admire the times 
-	of the Louie XIV making them very charming in their 
+	of the Louis XIV making them very charming in their 
 	behaviour and manners. The French are poor at disarming 
 	traps, using devices and stealth.
 	
@@ -300,10 +300,10 @@
 	
 	Mus:40 Agi:25 Vig:55 Sch:25 Ego:5 Chr:15
 	(NOTE: These numbers are actually only for starting
-	stats. is no way for automata to raise their stats 
-	beyond wielding equipment. Also note that there will 
-	soon be other 'upgrade' options for automata - they 
-	will have a slightly modified way of gaining stats.)
+	stats. There are no ways for automata to raise their
+	stats beyond wielding equipment. Also note that there
+	will soon be other 'upgrade' options for automata -
+	they will have a slightly modified way of gaining stats.)
                
 ***** <Steam-Mecha>
  Steam-Mecha
@@ -317,7 +317,7 @@
 	They can use mechanical body parts just as automata 
 	and their statistics cannot be reduced, their 
 	experience cannot be drained and they cannot be 
-	poisoned. Steam mecha are poor at all skills. 
+	poisoned. Steam-mecha are poor at all skills. 
 	
 	Steam-Mecha start with the Onslaught Cypher skill, which
 	enhances their weaponry and get Aegis Cypher and Systems
@@ -394,8 +394,8 @@
 	Giants start with access to the rock tossing skill.
 	
 	Giants also start with access to the Power Strike skill,
-	as well as with acess to the Vicious Strike skill. Giants
-	can also specalize in blunt weapons regardless of their class.
+	as well as with access to the Vicious Strike skill. Giants
+	can also specialize in blunt weapons regardless of their class.
 
 	Mus:14 Agi:3 Vig:11 Sch:2 Ego:3 Chr:1
 	180% experience modifier

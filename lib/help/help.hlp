@@ -1,18 +1,18 @@
 Welcome to the Steamband Online Help System.
 
-Please choose one of the following online help files:
+If you've never played before, at the least read (1). (hit '1')
 
-    (1) General Information        (general.txt)
-    (2) Creating a Character       (birth.txt)
-    (3) Exploring the Dungeon      (dungeon.txt)
-    (4) Attacking Monsters         (attack.txt)
-    (5) Playing the Game           (playing.txt)
-    (6) Command Descriptions       (command.txt)
-    (7) Option Descriptions        (option.txt)
-    (8) Version Information        (version.txt)
-    (9) FAQ's                      (FAQ.hlp)
+   (1) What the? What is this?  (General/Beginner information)(general.txt)
+   (2) I'm a what now?!         (Character/Skill information)   (birth.txt)
+   (3) I'm standing where?      (Floor / Town symbols)        (dungeon.txt)
+   (4) Killing the alphabet?    (Attacking)                    (attack.txt)
+   (5) How do I . . .?          (List of all Commands)        (playing.txt)
+   (6) What does it do again?   (Description of Commands)     (command.txt)
+   (7) What can I change?       (List of Options)              (option.txt)
+   (8) This came from where?    (History)                     (version.txt)
+   (9) I still have a Question. (FAQ's)                           (FAQ.hlp)
 
-Browser/help commands:
+How help works (Browser/help commands):
   #     go to line         %  go to file         ?  go to last file/main menu
   SPACE advance 1 page     -  back up 1 page     /  search for text
   RET   advance 1 line     =  back up 1 line     &  show (highlight) some text

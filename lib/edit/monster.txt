@@ -79,7 +79,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 
 ######### The Player #########
@@ -275,7 +275,7 @@ G:d:v
 I:110:2:20:1:5
 W:1:2:0:1
 B:CLAW:HURT:1d2
-F:DINOSAUR | ANIMAL
+F:DINOSAUR | ANIMAL | COLD_BLOOD
 D:In 1868, Thomas Henry Huxley interpreted the Archaeopteryx
 D: fossil to be a transitional bird having many reptilian features.
 D: Using the fossils of Archaeopteryx and Compsognathus, a bird-sized
@@ -307,7 +307,7 @@ D: which we used to hear so much." - H.G.Wells: "The Time Machine"
 N:29:Two of Clubs
 G:c:s
 I:110:3:5:3:190
-W:1:4:0:1
+W:1:6:0:1
 B:BLUNT:HURT:2d4
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -318,7 +318,7 @@ D: to have any thought processes at all.
 N:30:Two of Diamonds
 G:c:r
 I:110:3:5:3:190
-W:1:4:0:1
+W:1:6:0:1
 B:SLASH:HURT:2d4
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -329,7 +329,7 @@ D: to have any thought processes at all.
 N:31:Two of Spades
 G:c:s
 I:110:3:5:3:190
-W:1:4:0:2
+W:1:6:0:2
 B:BLUNT:HURT:2d5
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -340,7 +340,7 @@ D: to have any thought processes at all.
 N:32:Two of Hearts
 G:c:r
 I:110:3:5:3:190
-W:1:4:0:2
+W:1:6:0:2
 B:SLASH:HURT:2d5
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -348,31 +348,31 @@ D: From behind they all look the same, only the faces let you
 D: tell them apart. The lowliest of all, the Twos barely seem
 D: to have any thought processes at all.
 
-N:33:Maiasaura
+N:33:Hadrosaurus
 G:d:y
 I:115:5:3:2:220
 W:1:2:0:3
 B:BUTT:HURT:3d4
 B:CLAW:HURT:1d2
-F:DINOSAUR | ANIMAL | FRIEND
-D:(pronounced MY-yah-SAWR-ah) Maiasaura (meaning "good mother
-D: lizard") is a duck-billed dinosaur (a hadrosaur) that cares
-D: for its young. This plant-eater lived in herds during the
-D: late Cretaceous period, about 77 to 73 million years ago.
-D: Maiasauras are the first dinosaurs to be found alongside
-D: their young, eggs, and nests. This suggests that they
-D: nurtured their young. It has a flat skull and small
-D: crests in front of the eyes. This plant-eater had a
-D: toothless beak, cheek pouches, and many self-sharpening
-D: cheek teeth. The hands each had four fingers and the
-D: feet had hoof-like claws.
+F:DINOSAUR | ANIMAL | FRIEND | COLD_BLOOD
+D:(pronounced HAD-roh-SAWR-us) Hadrosaurus (meaning "bulky
+D: lizard" ) was a duck-billed dinosaur, a 23 to 32 feet (7 to
+D: 10 m) long ornithischian from the late Cretaceous period.
+D: Hadrosaurus was discovered by W. P. Foulke and excavated and
+D: named by anatomist J. Leidy in 1858 from a skull-less skeleton
+D: and hundreds of teeth found in New Jersey. It was the first
+D: American dinosaur to be described and the first nearly-complete
+D: dinosaur skeleton. Although the Hadrosaurids are named for this
+D: genus, Hadrosaurus is a doubtful genus because there is so little
+D: fossil information about it (including no skull). The type species
+D: is H. foulkii; it was named by paleontologist J. Leidy in 1858.
 
 N:34:Compsognathus
 G:d:s
 I:115:2:6:2:200
 W:1:2:0:2
 B:BITE:HURT:2d4
-F:DINOSAUR | ANIMAL
+F:DINOSAUR | ANIMAL | COLD_BLOOD
 D:A small and agile dinosaur, the largest of which reach approximately
 D: 3' from nose to tail. It mainly lives on insects and small reptiles.
 
@@ -391,11 +391,19 @@ I:110:5:2:6:10
 W:1:1:0:3
 B:ZAP:PARALYZE
 B:ZAP:STEAM:1d1
-F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP |
+F:CONSTRUCT | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP |
 F:NEVER_MOVE | EMPTY_MIND | DROP_40 | DROP_20 | 
 D:A strange terminal with wires running in and through it. Every so
 D: often a burst of steam shoots out. It looks like it might have something
 D: inside of it.
+
+N:37:Pheasant
+G:i:r
+I:110:2:6:2:0
+W:1:2:0:3
+B:PECK:HURT:2d1
+F:FRIENDS | LOW_MANA_RUN | STUPID | RAND_25 | ANIMAL
+D:A delicious game bird.
 
 N:80:Chicken Little
 G:k:R
@@ -520,7 +528,7 @@ G:d:o
 I:115:4:6:2:200
 W:2:2:0:4
 B:BITE:HURT:3d5
-F:DINOSAUR | ANIMAL
+F:DINOSAUR | ANIMAL | COLD_BLOOD
 D:A small, slight dinosaur with a beak and three different kinds of
 D: teeth (from which it gets its name). It had clawed, five-fingered
 D: hands, and three-toed feet. Its back legs were longer than its front
@@ -652,7 +660,7 @@ D: and faces here and there that vanish back into loops of dark flesh.
 N:144:Three of Clubs
 G:c:s
 I:110:30:5:8:180
-W:3:4:0:12
+W:3:6:0:12
 B:BLUNT:HURT:3d6
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -663,7 +671,7 @@ D: unwilling to act without threats from the Queen.
 N:145:Three of Diamonds
 G:c:r
 I:110:30:5:8:180
-W:3:4:0:12
+W:3:6:0:12
 B:SLASH:HURT:3d6
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -674,7 +682,7 @@ D: unwilling to act without threats from the Queen.
 N:146:Three of Spades
 G:c:s
 I:110:30:5:9:180
-W:3:4:0:15
+W:3:6:0:15
 B:BLUNT:HURT:3d8
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -685,7 +693,7 @@ D: unwilling to act without threats from the Queen.
 N:147:Three of Hearts
 G:c:r
 I:110:30:5:9:180
-W:3:4:0:15
+W:3:6:0:15
 B:SLASH:HURT:3d8
 F:STUPID | COLD_BLOOD  | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -701,8 +709,8 @@ B:WAIL:HURT:3d4
 S:1_IN_4 | POW_1
 S:BO_AIR
 F:INVISIBLE | 
-F:EVIL | STUPID | ELEMENTAL | IM_AIR | EMPTY_MIND | TAKE_ITEM
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RAND_50 | IM_EDGED | IM_PIERCE
+F:EVIL | STUPID | ELEMENTAL | IM_AIR | EMPTY_MIND | TAKE_ITEM | GASEOUS
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RAND_50 
 D:At first glance this appears to be a simple dust devil sweeping about the
 D: cavern picking up debris. It appears to have some intelligence as it veers
 D: away from you as you approach. When you persist in examining it, it begins
@@ -727,12 +735,20 @@ W:3:2:0:7
 B:ZAP:LOSE_MUS:1D6
 B:ZAP:ELEC:1D3
 F:NEVER_MOVE | DROP_40 | DROP_20 |
-F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:CONSTRUCT | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_4 | POW_4
 S:CLOUD_RAD
 D:This is a strange terminal softly casting a red glow. It appears
 D: to be emitting a strange energy. It could have been tampered
 D: with, and may contain an object.
+
+N:151:Peacock
+G:i:v
+I:115:35:4:4:50
+W:3:3:0:12
+B:PECK:HURT:4d2
+F:FRIEND | LOW_MANA_RUN | STUPID | RAND_25
+D:A myriad of plumage eyes follow you wherever you go.
 
 N:210:White Fang
 G:Z:w
@@ -769,7 +785,22 @@ D: is moving towards you.  The words covert assertion device are painted
 D: in bright yellow along the side. A bolt of electricity arcs out
 D: of the device.
 
-#### 212 free
+###########################
+# Credited: R. Dan Henry  #
+###########################
+N:212:Insect Swarm
+G:I:W
+I:110:14:20:35:30
+W:4:2:0:5
+B:STING:LOSE_VIG:1d4
+F:RAND_25 | STUPID | COLD_BLOOD | EMPTY_MIND | GASEOUS | ANIMAL |
+F:NO_FEAR | FRIENDS | VUN_SOUND
+D:"The place was horribly haunted by clouds of mosquitoes and every
+D: form of flying pest, so we were glad to find solid ground again
+D: and to make a circuit among the trees, which enabled us to
+D: outflank this pestilent morass, which droned like an organ in
+D: the distance, so loud was it with insect life."\n -- _The Lost
+D: World_ by Sir Arthur Conan Doyle
 
 N:213:Water Sprite
 G:E:b
@@ -852,7 +883,7 @@ D:It is an ancient armored lizard with a powerful bite.
 
 N:258:The Unknown Chicken
 G:k:b
-I:120:64:2:2:10
+I:120:84:2:2:10
 W:4:2:0:10
 B:PECK:HURT:12D1
 F:ESCORTS | RAND_25 | EMPTY_MIND | ANIMAL | UNIQUE | FIXED_HPS | ATTR_MULTI
@@ -864,7 +895,7 @@ D: moving quickly - ack!
 
 N:259:Hound of the Baskervilles
 G:Z:w
-I:105:65:10:15:10
+I:105:185:10:15:10
 W:4:4:0:20
 B:BITE:HURT:3d8
 B:WAIL:TERRIFY
@@ -879,7 +910,7 @@ D: Conan Doyle: "The Hound of the Baskervilles"
 
 N:260:Hound of the Baskervilles
 G:Z:w
-I:105:45:10:15:10
+I:105:165:10:15:10
 W:4:4:0:20
 B:BITE:EXP_10:3d5
 B:WAIL:LOSE_VIG
@@ -927,7 +958,7 @@ I:105:70:30:13:70
 W:5:2:0:32
 B:CLAW:HURT:2d3
 B:CLAW:HURT:2d3
-F:DINOSAUR | ANIMAL | BASH_DOOR | STUPID
+F:DINOSAUR | ANIMAL | BASH_DOOR | STUPID | COLD_BLOOD
 D:Kentrosaurus measures up to 17 feet long (5 m) and
 D: weighs about 2 tons, but its small brain is the size
 D: of a walnut. Its skull is long and narrow, with a toothless
@@ -960,14 +991,14 @@ D: them coming.
 ###########################
 # Credited: Bridger Flynn #
 ###########################
-N:265:Steam Powered Arrow Sentry
+N:265:Steam-Powered Arrow Sentry
 G:C:r
 I:110:20:20:15:50
 W:5:2:5:15
 S:1_IN_5 | POW_6
 S:ARROW | SHRIEK
 F:STUPID | HOSTILE | EMPTY_MIND | NEVER_MOVE | NEVER_BLOW | DROP_20 |
-F:ARCHER | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
+F:ARCHER | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | CONSTRUCT
 D:The nearly inaudible hissing you heard as you approached
 D: erupts into a cacophony of lights and whistles. A composite
 D: wooden crossbow mounted to the top of a steel tripod swivels
@@ -1002,7 +1033,7 @@ D: and rushes forward to catch its dinner. I believe you have other plans.
 N:268:Four of Clubs
 G:c:s
 I:110:80:5:14:170
-W:5:4:0:16
+W:5:6:0:16
 B:BLUNT:HURT:4d6
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1013,7 +1044,7 @@ D: unfortunately they are no less stupid.
 N:269:Four of Diamonds
 G:c:r
 I:110:80:5:14:170
-W:5:4:0:16
+W:5:6:0:16
 B:SLASH:HURT:4d6
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1024,7 +1055,7 @@ D: unfortunately they are no less stupid.
 N:270:Four of Spades
 G:c:s
 I:110:80:5:16:170
-W:5:4:0:20
+W:5:6:0:20
 B:BLUNT:HURT:4d8
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1035,7 +1066,7 @@ D: unfortunately they are no less stupid.
 N:271:Four of Hearts
 G:c:r
 I:110:80:5:16:170
-W:5:4:0:20
+W:5:6:0:20
 B:SLASH:HURT:4d8
 F:STUPID | COLD_BLOOD | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1112,9 +1143,19 @@ D:A huge man-bat stumbles towards you! He extends his teeth
 D: and rushes forward to catch his dinner. This is one
 D: invitation that will be difficult to turn down.
 
+N:277:Swan
+G:i:w
+I:120:80:4:12:50
+W:7:2:0:50
+B:PECK:HURT:4d2
+B:BITE:HURT:6d8
+F:FRIENDS | STUPID | HOSTILE
+D:Vicious beasts. Very pretty from a distance though. They
+D: are often found roaming the grounds of the well-to-do.
+
 N:300:Alden's White-haired Monkey Captain
 G:M:w
-I:120:90:6:30:200
+I:120:390:6:30:200
 W:5:3:0:40
 B:HIT:HURT:2d4
 B:PUNCH:HURT:2d6
@@ -1243,7 +1284,7 @@ W:6:2:0:20
 B:ZAP:UN_BONUS
 B:ZAP:HURT:2D3
 F:NEVER_MOVE | DROP_40 | DROP_20 | DROP_80
-F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:CONSTRUCT | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_9 | POW_8
 S:CLOUD_RAD 
 D:This terminal pulses with ever shifting lights. As you approach
@@ -1283,10 +1324,35 @@ D:The bloated corpse of a child whose lips have not decayed crawls
 D: towards you. In Germany the Wends called this creature doppelsauger,
 D: a German name which literally means "double-sucker".
 
+N:313:Spitting Lizard
+G:R:v
+I:11:30:12:3:20
+W:6:1:0:5
+B:BITE:POISON:1d4
+F:FRIEND | STUPID | TRACKER | DINOSAUR | ANIMAL 
+F:IM_PIERCE | NO_FEAR | IM_POIS | COLD_BLOOD
+S:1_IN_2 | POW_0
+S:BR_POISON
+D:A purple and yellow lizard dripping venom from it's mouth on the floor.
+
+N:314:Clanking Chains
+G:o:G
+I:107:50:12:30:20
+W:6:5:20:40
+B:ENGULF:PARALYZE
+F:COLD_BLOOD | IMPENT | OPEN_DOOR | CONSTRUCT | UNDEAD
+F:IM_FIRE | IM_AIR | IM_ICE | IM_POIS | IM_SOUND | IM_NETHER
+F:IM_PIERCE | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:1_IN_3 | POW_2
+S:FEAR | ECTOPLASM
+D:A restless spirit without the strength to manifest as a full ghostly
+D: materialization has elected to inhabit some discarded chains. The
+D: clink and clank of these floating metal links is disconcerting. It
+D: would be wisest not to become ensnared in the chains.
 
 N:340:Phineas T. Barnum
 G:p:b
-I:120:100:16:8:10
+I:120:300:16:8:10
 W:6:2:0:110
 B:HIT:HURT:1d6
 B:TOUCH:EAT_ITEM
@@ -1311,7 +1377,7 @@ G:d:y
 I:110:82:4:15:255
 W:7:5:0:30
 B:CLAW:HURT:3d4
-F:DINOSAUR | ANIMAL
+F:DINOSAUR | ANIMAL | COLD_BLOOD
 D:It only weighs about a ton. It could not be more than 18
 D: feet long, and stands but eleven feet high. It is bipedal,
 D: walks upright, and displays many bird-like characteristics-
@@ -1328,7 +1394,7 @@ B:ENGULF:HURT:5d10
 S:1_IN_2 | POW_2
 S:BA_ACID | BLIND
 F:EVIL | STUPID | ELEMENTAL | IM_ACID | EMPTY_MIND | COLD_BLOOD
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_BLUNT
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_BLUNT | GASEOUS
 D:You look about for the source of the refreshing tangy smell that
 D: pervades the cavern. A small but dense cloud seems to be the
 D: source of the smell. Your thoughts are confirmed as a puff of
@@ -1373,7 +1439,7 @@ D: It moves towards you uttering a chilling howl.
 N:346:Five of Clubs
 G:c:s
 I:115:160:5:20:160
-W:7:4:0:30
+W:7:6:0:30
 B:BLUNT:HURT:5d6
 F:COLD_BLOOD | FRIEND | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1384,7 +1450,7 @@ D: and have enough sense to travel with a friend.
 N:347:Five of Diamonds
 G:c:r
 I:115:160:5:20:160
-W:7:4:0:30
+W:7:6:0:30
 B:SLASH:HURT:5d6
 F:COLD_BLOOD | FRIEND | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1395,7 +1461,7 @@ D: and have enough sense to travel with a friend.
 N:348:Five of Spades
 G:c:s
 I:115:160:5:22:160
-W:7:4:0:35
+W:7:6:0:35
 B:BLUNT:HURT:5d6
 F:COLD_BLOOD | FRIEND | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1406,7 +1472,7 @@ D: and have enough sense to travel with a friend.
 N:349:Five of Hearts
 G:c:r
 I:115:160:5:22:160
-W:7:4:0:35
+W:7:6:0:35
 B:SLASH:HURT:5d6
 F:COLD_BLOOD | FRIEND | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1479,9 +1545,23 @@ F:IM_ICE | IM_EARTH | IM_POIS | NO_SLEEP
 D:In Scandinavian folklore, Mylings are the phantasmal incarnations 
 D: of the souls of unbaptized or murdered children.
 
+N:356:Spooky Portrait
+G:o:R
+I:110:80:40:15:12
+W:7:5:45:30
+F:NEVER_BLOW | NEVER_MOVE | COLD_BLOOD | CONSTRUCT | UNDEAD
+F:IM_WATER | IM_ACID | IM_POIS | IM_NETHER | IM_TIME | IM_ETHER
+F:IM_SOUND | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP | VUN_FIRE
+S:1_IN_2 | POW_10
+S:FEAR | S_UNDEAD | BLIND | SLOW
+D:This portrait is artfully painted, but there is something
+D: strange about it. The eyes seem to follow you. Out of the
+D: corner of your eye, you seem to catch sinister details that
+D: vanish when you look at it directly.
+
 N:380:Light-Fingered Sonya
 G:p:R
-I:120:150:18:20:10
+I:120:450:18:20:10
 W:7:1:0:80
 B:SEDUCE:EAT_GOLD
 B:HIT:HURT:2d16
@@ -1522,19 +1602,19 @@ D:A strange violent upright mole the size of a man. Ewwww.
 
 N:383:Alien Plasomorph
 G:A:g
-I:110:40:8:8:8
-W:8:1:30:80
+I:110:120:8:8:8
+W:8:1:50:95
 B:HIT:HURT:1d2
-F:ALIEN | WEIRD_MIND | REGENERATE
-S:1_IN_3 | POW_10
-S:CONFUSION | SLOW | BLINK | S_KIN
+F:ALIEN | WEIRD_MIND | REGENERATE | LOW_MANA_RUN
+S:1_IN_2 | POW_10
+S:CONFUSION | SLOW | BLINK | S_KIN | ADD_MANA
 D:A strange globular being crawls towards you,
 D: flailing its many limbs.
 
 N:384:Troglodyte Beastlord
 G:b:r
 I:120:150:12:25:130
-W:8:1:20:80
+W:8:1:20:105
 B:CLAW:HURT:6d3
 B:CLAW:HURT:6d3
 B:SPIT:POISON:1d20
@@ -1579,23 +1659,23 @@ D: at you like dinner. At least that's what you keep saying to yourself.
 #################
 N:387:Small Stone Troll
 G:P:g
-I:100:180:4:35:200
+I:100:180:4:40:200
 W:8:2:0:90
-B:PUNCH:HURT:3d5
-B:BLUNT:HURT:5d3
-F:BASH_DOOR | IMPENT
+B:BLUNT:HURT:20d5
+B:BITE:HURT:8d4
+F:BASH_DOOR | IMPENT | IM_EDGED | IM_PIERCE 
 D:Small, for a Stone Troll, is about six feet tall and three
 D: hundred pounds, wielding a club that weighs a mere fifty pounds.
 
 N:388:Squall Spirit
 G:E:B
-I:100:110:14:16:140
+I:100:90:14:16:140
 W:8:3:20:40
 B:WAIL:HURT:2d6
-F:EVIL | STUPID | ELEMENTAL | IM_AIR | EMPTY_MIND | TAKE_ITEM
+F:EVIL | STUPID | ELEMENTAL | IM_AIR | EMPTY_MIND | TAKE_ITEM | GASEOUS
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RAND_50 | ARCHER |
 F:INVISIBLE | IM_EDGED | IM_PIERCE
-S:1_IN_4 | POW_6
+S:1_IN_4 | POW_10
 S:BO_AIR | BA_AIR
 D:Howling winds blast you with a bone-chilling cold as you approach this medium
 D: sized whirlwind. You occasionally glimpse random items flying around the
@@ -1606,12 +1686,12 @@ D: Was that a breadbox?!?
 N:389:Morlock Savant
 G:h:s
 I:110:100:10:20:50
-W:8:3:20:45
+W:8:3:40:45
 B:CLAW:HURT:2d3
 B:CLAW:HURT:2d3
 F:EVIL | WEIRD_MIND | HURT_LIGHT | FRIEND | MALE | OPEN_DOOR
-S:1_IN_5 | POW_6 |
-S:BLINK | CURE | FEAR | S_KIN
+S:1_IN_3 | POW_6 |
+S:BLINK | FEAR | S_KIN | BO_DARK
 D:This elderly morlock looks like some kind of priest or shaman.
 D: His body looks old and frail, but he is nonetheless clothed
 D: in much better quality garments than the other morlocks you
@@ -1626,8 +1706,8 @@ I:100:110:8:16:110
 W:8:3:20:36
 B:ENGULF:HURT:12d5
 F:EVIL | STUPID | ELEMENTAL | IM_POIS | EMPTY_MIND
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | VUN_AIR
-S:1_IN_4 | POW_7
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | GASEOUS |
+S:1_IN_4 | POW_11
 S:SLOW | CLOUD_POISON
 D:A terrible-smelling cloud filled with moist green spores forms in
 D: front of you. A wave of nausea hits as it rushes forward to
@@ -1663,12 +1743,12 @@ D: a slow graceful stride.  It feigns disinterest in you until it pounces.
 ###########################
 N:393:Freemason Worthy Advisor
 G:p:g
-I:110:150:65:30:65
+I:110:120:65:30:65
 W:8:2:30:30
-B:BLUNT:HURT:3D12
-B:BLUNT:HURT:3D12
-S:1_IN_3 | POW_8
-S:BO_WATER | BLINK
+B:BLUNT:HURT:3d12
+B:BLUNT:HURT:3d12
+S:1_IN_3 | POW_10
+S:BO_WATER | BO_ACID | BLINK
 F:OPEN_DOOR | RAND_25 | MALE
 D:Freemasons are men of charity and good works. They remain
 D: unchallenged as the "world's greatest philanthropy".  This one is of
@@ -1679,28 +1759,28 @@ D: of philanthropy differs from yours.
 N:394:Intrusion Preventative Automaton
 G:a:v
 I:120:300:50:70:30
-W:8:4:0:70
+W:8:4:0:110
 B:ZAP:BLIND:2d4
 B:ZAP:LOSE_MUS:2d4
 B:ZAP:LOSE_VIG:2d4
 F:DROP_80 | BASH_DOOR 
 F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
-D:It looks like a large ball with metal bars coming out of its' sides. 
+D:It looks like a large ball with metal bars coming out of its sides. 
 D: Suddenly it swerves toward you flashing brutal death.
 D: You prepare to die.
 
 
 N:420:Signor Niccolo Davelli
 G:A:G
-I:100:260:20:20:20
-W:8:3:20:90
-B:HIT:HURT:2d10
-B:HIT:HURT:2d10
+I:110:520:20:48:20
+W:8:3:30:140
+B:HIT:HURT:3d10
+B:HIT:HURT:3d10
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | ESCORTS | 
-F:OPEN_DOOR | BASH_DOOR | KILL_BODY | DROP_40 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR | DROP_80 | ONLY_ITEM | DROP_GOOD |
 F:EVIL | IM_POIS | WEIRD_MIND | NO_FEAR | ALIEN | 
-S:1_IN_3 | POW_10
-S:BO_POISON
+S:1_IN_3 | POW_16
+S:BO_POISON | HASTE
 D:A shapeshifting Martian from outer space. You've heard of these Martians
 D: in The Germ Growers (1892), which was written by Robert Potter,
 D: an Australian clergyman. He and his Martian cohorts are planning on invading
@@ -1721,7 +1801,7 @@ I:110:165:10:17:120
 W:9:3:20:40
 B:SPIT:HURT:2d37
 S:1_IN_3 | POW_6
-S:BA_WATER | BA_WATER
+S:BO_WATER | BA_WATER
 F:EVIL | ELEMENTAL | IM_WATER | EMPTY_MIND |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RAND_25
 D:Another half-sphere of water is scouring around. This sphere is
@@ -1735,11 +1815,11 @@ D: this underground environment.
 #######################
 N:422:Burning Buckyball
 G:E:r
-I:115:128:3:10:192
+I:115:128:3:30:192
 W:9:8:0:35
 B:CRUSH:HURT:8d5
 B:CRUSH:FIRE:10d8
-F:STUPID | EMPTY_MIND | RAND_50
+F:STUPID | EMPTY_MIND | RAND_50 | VUN_ICE | IM_FIRE
 D:A truncated icosahedron several metres high, it has 32 faces, of
 D: which 20 are regular hexagons and 12 are regular pentagons. These
 D: faces come together at 60 points, or vertices. A grossly oversized
@@ -1754,7 +1834,7 @@ D: University).
 N:423:Six of Clubs
 G:c:s
 I:115:270:5:26:150
-W:9:4:0:40
+W:9:6:0:40
 B:BLUNT:HURT:7d6
 F:COLD_BLOOD | FRIEND | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1766,9 +1846,9 @@ D: still disappointed to be left out of many poker evenings.
 N:424:Six of Diamonds
 G:c:r
 I:115:270:5:26:150
-W:9:4:0:40
+W:9:6:0:40
 B:SLASH:HURT:7d6
-F:COLD_BLOOD | FRIEND | VUN_EDGED |
+F:COLD_BLOOD | VUN_EDGED | FRIEND
 D:Oblong and flat, with their hands and feet at the corners.
 D: From behind they all look the same, only the faces let you
 D: tell them apart. The Sixes sit in the middle of the court
@@ -1778,7 +1858,7 @@ D: still disappointed to be left out of many poker evenings.
 N:425:Six of Spades
 G:c:s
 I:115:280:5:28:150
-W:9:4:0:42
+W:9:6:0:42
 B:BLUNT:HURT:7d8
 F:COLD_BLOOD | FRIEND | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1790,7 +1870,7 @@ D: still disappointed to be left out of many poker evenings.
 N:426:Six of Hearts
 G:c:r
 I:115:280:5:28:150
-W:9:4:0:42
+W:9:6:0:42
 B:SLASH:HURT:7d8
 F:COLD_BLOOD | FRIEND | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -1819,13 +1899,13 @@ N:428:Yaksas
 G:u:y
 I:110:210:100:22:30
 W:9:2:30:110
-B:CLAW:BLIND:2d3
+B:CLAW:BLIND:8d3
 S:1_IN_3 | POW_6
 S:BE_ELEC | HASTE | BLINK | TELE_TO | TELE_SELF_TO |
 F:RAND_25 | DROP_20 | OPEN_DOOR | 
 F:DEMON | EVIL | IM_AIR | IM_EARTH | IM_WATER | IM_ELEC |
-F:IM_ICE | IM_POIS | NO_FEAR | NO_STUN | 
-D:This Nepalese demon looks like a monsterous ape
+F:IM_ICE | IM_POIS | NO_FEAR | NO_STUN | IM_BLUNT
+D:This Nepalese demon looks like a monstrous ape
 D: with talons instead of paws.
 
 N:429:Automaton
@@ -1844,14 +1924,14 @@ D: with sharp spikes, drenched in drying blood.
 D: You begin preparations to keep your blood from being used as paint.
 
 N:430:Gremlin
-G:p:b
+G:h:b
 I:120:20:80:4:40
-W:9:3:0:20
+W:9:3:80:20
 B:HIT:CONFUSE:1d1
 F:RAND_25 | DROP_5 | WEIRD_MIND | NO_CONF | NO_FEAR | NO_STUN
-F:NO_SLEEP | FRIEND
-S:1_IN_4 | POW_12
-S:BLIND | CONFUSION | TPORT | BLINK | HEAL | HASTE
+F:NO_SLEEP | FRIEND | LOW_MANA_RUN
+S:1_IN_2 | POW_12
+S:BLIND | CONFUSION | TPORT | BLINK | HEAL | HASTE | BO_ACID
 D:This little mischievous creature loves to climb inside
 D: mechanical equipment and cause it to break down. It
 D: lives for nothing more than to stop machinery from working.
@@ -1873,17 +1953,32 @@ W:9:2:0:80
 B:CLAW:HURT:4d12
 B:CLAW:HURT:8d10
 F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | NO_FEAR | NO_SLEEP
-F:IM_ICE | IM_EARTH | IM_POIS
-D:A terrible and dangerous arabic spirit of a murdered man who
+F:IM_ICE | IM_EARTH | IM_POIS | GASEOUS | IM_EDGED
+D:A terrible and dangerous Arabic spirit of a murdered man who
 D: seeks to avenge his death approaches. The spirit moves towards
 D: you like smoke. 
 
+N:433:Haunted Teapot
+G:o:w
+I:110:80:15:40:10
+W:9:5:0:70
+B:SPIT:STEAM:6d6
+F:OPEN_DOOR | CONSTRUCT | UNDEAD | IM_FIRE | IM_AIR | IM_WATER
+F:IM_ACID | IM_POIS | IM_NETHER | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+S:1_IN_4 | POW_0
+S:BR_WATER
+D:A well-polished silver teapot, steaming with a hot cuppa. Sadly,
+D: this charming family heirloom is gripped not by a buxom
+D: maid-servant or gracious auntie, but by some unhappy representative
+D: of the dearly departed.
+
 N:457:Renfield
 G:h:g
-I:110:200:3:33:100
+I:110:400:3:33:100
 W:9:2:0:80
-B:DROOL:TERRIFY
-B:DROOL:CONFUSE
+B:DROOL:TERRIFY:2d6
+B:DROOL:CONFUSE:2d6
 F:MALE | UNIQUE | ATTR_MULTI | FIXED_HPS
 F:OPEN_DOOR | RAND_25 | RAND_50 | EVIL
 D:"There is certainly something to ponder over in this man's state.
@@ -1904,7 +1999,7 @@ D: of terror afoot!" - "Dracula" Bram Stoker (1897)
 
 N:458:Spring-Heeled Jack, the Terror of London
 G:p:B
-I:110:290:20:20:20
+I:110:400:20:20:20
 W:9:3:0:130
 B:HIT:HURT:1d12
 B:HIT:HURT:1d10
@@ -1923,11 +2018,11 @@ D: fire.
 
 N:459:Solarion, the beautiful
 G:Z:o
-I:110:240:20:25:20
+I:120:640:50:35:20
 W:9:2:0:100
-B:BITE:HURT:6d8
+B:BITE:HURT:8d8
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS |
-F:SMART | ANIMAL | BASH_DOOR
+F:SMART | ANIMAL | BASH_DOOR | TRACKER
 D:Rodney Stafford, a brilliant American scientist is given the life work of
 D: one Conrad Klotz, who was studying "experimental evolution," that is,
 D: the enhancement of intelligence by electrical means. After Klotz's death Stafford
@@ -1943,7 +2038,7 @@ D: in the September 1889 issue of Lippincott's Magazine, and in Solarion: A Roma
 
 N:460:Lot No. 249
 G:p:U
-I:120:288:20:30:20
+I:120:888:20:30:20
 W:9:1:0:170
 B:PUNCH:HURT:5d4
 B:HIT:HURT:5d4
@@ -1975,15 +2070,18 @@ F:FRIEND | ANIMAL | OPEN_DOOR | TAKE_ITEM | DROP_20
 D:An Orangutan stands in the hall in front of you. It looks
 D: violent and hungry, but what else is new?
 
+##################
+# Credited: Otie #
+##################
 N:462:Feral Morlock
 G:h:D
-I:110:260:120:35:10
-W:10:2:0:120
-B:CLAW:HURT:3d4
-B:CLAW:HURT:3d4
-B:BITE:HURT:6d4
+I:110:320:120:35:10
+W:10:1:0:120
+B:CLAW:HURT:4d4
+B:CLAW:HURT:4d4
+B:BITE:HURT:8d4
 F:EVIL | WEIRD_MIND | HURT_LIGHT | BASH_DOOR | STUPID
-F:NO_FEAR | NO_SLEEP | IM_POIS
+F:NO_FEAR | NO_SLEEP | IM_POIS | FRIEND
 D:This morlock is very big and tough compared to those living
 D: closer to the Center. It's probably from a line of the creatures
 D: that has adapted to physically rough circumstances. There is
@@ -1991,16 +2089,15 @@ D: no sign of intelligence in its dark, beady eyes. This creature
 D: resembles a wild, rabid gorilla with sharp teeth and claws and
 D: it's clearly hunting for anything to eat!
 
-
 ###########################
 # Credited: Bridger Flynn #
 ###########################
-N:463:Steam Powered Pistol Sentry
+N:463:Steam-Powered Pistol Sentry
 G:C:r
 I:110:100:20:30:40
 W:10:2:5:46
 F:STUPID | HOSTILE | EMPTY_MIND | NEVER_MOVE | NEVER_BLOW | 
-F:ARCHER | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
+F:ARCHER | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | CONSTRUCT
 S:1_IN_2 | POW_10
 S:GUN | SHRIEK
 D:An obvious upgrade of the arrow sentries you encountered
@@ -2013,14 +2110,13 @@ D: bullets and reloading the pistol between shots.
 ###########################
 # Credited: Bridger Flynn #
 ###########################
-N:464:Tunneling worm
+N:464:Tunneling Worm
 G:w:g
 I:100:300:8:30:120
 W:10:1:0:50
-B:BITE:HURT:5d4
-B:ENGULF:HURT:5d4
+B:ENGULF:HURT:15d4
 F:STUPID | BASH_DOOR | NO_FEAR | KILL_WALL | RAND_25
-F:WEIRD_MIND | ANIMAL | IM_EARTH | IM_EDGED
+F:WEIRD_MIND | ANIMAL | IM_EARTH | IM_EDGED | IM_BLUNT
 D:A segmented green worm with a maw large enough to swallow
 D: a man whole. The worm seems content enough to tunnel its
 D: way about the depths, but it seems that it has decided
@@ -2050,9 +2146,8 @@ S:1_IN_3: POW_15
 S:SHRIEK | BLINK | BA_ETHER
 F:EVIL | ELEMENTAL | IM_ETHER 
 F:PASS_WALL | LOW_MANA_RUN | WEIRD_MIND | INVISIBLE
-F:IM_BLUNT | IM_EDGED | IM_PIERCE | NO_CONF | NO_SLEEP | NO_FEAR
-F:NO_STUN 
-D:A cloud of gray vapour with charcoal coloured eyes floats in your path.
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | GASEOUS
+D:A cloud of gray vapour with charcoal-coloured eyes floats in your path.
 D: The beast flails vaporous tendrils to keep you at bay as it hurls
 D: powerful spells at you.
 
@@ -2062,13 +2157,13 @@ D: powerful spells at you.
 
 N:467:Battery Hen
 G:K:B
-I:110:180:20:40:10
+I:120:180:20:40:10
 W:10:3:0:50
 B:PECK:HURT:1d3
 B:PECK:ELEC:1d3
 B:PECK:ELEC:1d3
-S:1_IN_8 | POW_12
-S:BR_ELEC
+S:1_IN_5 | POW_12
+S:BR_ELEC 
 F:IM_POIS | EMPTY_MIND | FEMALE | IM_ELEC | IM_EDGED |
 F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
 D:You see a chicken surrounded by an eerie blue glow. The
@@ -2083,13 +2178,13 @@ D: synthetic hate.
 ###########################
 N:468:Freemason Councillor
 G:p:s
-I:110:100:60:55:60
+I:110:200:60:55:60
 W:10:2:40:40
-B:BLUNT:HURT:3D15
-B:BLUNT:HURT:3D15
+B:BLUNT:HURT:3d15
+B:BLUNT:HURT:3d15
 S:1_IN_3 | POW_7
 S:BO_ELEC | TELE_SELF_TO
-F:OPEN_DOOR | RAND_25 | MALE
+F:OPEN_DOOR | RAND_25 | MALE | SMART
 D:Secret societies are generally defined as organizations which are
 D: unknown to the public and whose existence is denied.  No one denies
 D: Freemasonry.  However, in the Grand Lodge there are many secrets.
@@ -2102,7 +2197,8 @@ N:469:Tiger
 G:f:o
 I:120:120:40:40:0
 W:12:2:0:40
-B:CLAW:HURT:6d8
+B:CLAW:HURT:5d8
+B:CLAW:HURT:5d8
 B:BITE:HURT:20d2
 F:BASH_DOOR | ANIMAL | TRACKER
 D:One of the largest of its species, a sleek orange and black shape
@@ -2126,7 +2222,7 @@ D: keres which pollute and disfigure them." - Plato
 
 N:497:The Beetle
 G:I:D
-I:110:320:20:50:20
+I:110:620:20:50:10
 W:10:3:30:300
 B:CLAW:ACID:10d3
 B:BITE:FIRE:9d3
@@ -2134,7 +2230,7 @@ B:STING:POISON:22d2
 F:UNIQUE | ATTR_MULTI | FEMALE | FIXED_HPS
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | HURT_ROCK
 F:OPEN_DOOR | BASH_DOOR | KILL_BODY | KILL_ITEM | EVIL
-F:IM_ICE | IM_POIS | IM_ACID | IM_FIRE
+F:IM_ICE | IM_POIS | IM_ACID | IM_FIRE | SMART
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 S:1_IN_6 | POW_7
 S:DRAIN_MANA | PSI | CONFUSION | BLINK | HEAL | FORGET
@@ -2145,16 +2241,15 @@ D: she gained her magical powers by way of human sacrifice.
 D: She has strong hypnotic powers and can seem to read minds
 D: as well as control them.
 
-
 N:498:Robur, the Conqueror
 G:p:W
-I:110:300:20:60:20
+I:110:1100:20:60:20
 W:10:1:40:230
 B:PUNCH:HURT:3d12
 B:PUNCH:HURT:3d12
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | ONLY_ITEM
 F:OPEN_DOOR | BASH_DOOR | EVIL | DROP_80 | DROP_GOOD 
-S:1_IN_4 | POW_18 |
+S:1_IN_3 | POW_18 |
 S:RIFLE | BA_ELEC | BO_ELEC | BLINK
 D:A mad rogue scientist-engineer. Jules Verne wrote about him in
 D: The Clipper of the Clouds (1887) and its sequel, The Master of the World (1904)
@@ -2166,19 +2261,22 @@ D: sign of tremendous energy, bushy eyebrows drawn sharply together.
 D: Assuredly he possessed a constitution of iron, splendid health,
 D: and warm red blood beneath his sunburnt skin.
 
+##################
+# Credited: Otie #
+##################
 N:499:Troglodyte Queen
 G:b:w
-I:100:225:10:35:140
-W:10:3:20:120
+I:110:1325:10:35:140
+W:10:3:120:320
 B:CLAW:HURT:7d3
 B:CLAW:HURT:7d3
 B:GRAB:HURT:5d3
 B:BITE:POISON:2d10
 F:EVIL | OPEN_DOOR | BEASTMAN | IM_POIS | HURT_LIGHT | IM_EARTH | 
 F:ESCORTS | FEMALE | SMART | NO_CONF | NO_STUN | UNIQUE | ATTR_MULTI |
-F:DROP_1D2 | DROP_GOOD | NEVER_MOVE
-S:1_IN_6 | POW_10
-S:BR_POISON | BA_POISON | DARKNESS | S_KIN 
+F:DROP_1D2 | DROP_GOOD | DROP_GREAT | NEVER_MOVE
+S:1_IN_1 | POW_10
+S:BA_POISON | DARKNESS | S_KIN | ADD_MANA
 D:This vile-smelling albino female troglodyte is huge. She's pregnant
 D: with more of the evil creatures even now -- you can see the things
 D: crawling under her disgustingly pale skin. She needs to eat a lot
@@ -2187,13 +2285,13 @@ D: feel you look more and more like a tasty snack. What a predicament!
 
 N:500:Doctor Materialismus
 G:p:o
-I:110:190:20:32:30
+I:110:590:20:32:30
 W:10:2:100:80
 B:PUNCH:HURT:2d1
 B:KICK:HURT:3d1
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | ESCORT | ONLY_ITEM
-F:OPEN_DOOR | BASH_DOOR | EVIL | KILL_BODY | DROP_40 | DROP_GOOD
-S:1_IN_2 | POW_20
+F:OPEN_DOOR | BASH_DOOR | EVIL | DROP_80 | DROP_GOOD | LOW_MANA_RUN
+S:1_IN_2 | POW_60
 S:PSI | STUN | FEAR | BLIND | CONFUSION | SLOW | ADD_MANA | DARKNESS
 D:A German professor, scientist, socialist. . . practicing hypnotism, magnetism,
 D: Mesmerism, and mysticism; giving lectures on Hegel, believing in Hartmann,
@@ -2212,7 +2310,7 @@ D: by many slovenly servants.
 N:501:Seven of Clubs
 G:c:s
 I:115:400:5:32:140
-W:11:4:0:65
+W:11:6:0:65
 B:BLUNT:HURT:10d6
 F:COLD_BLOOD | FRIENDS | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -2223,7 +2321,7 @@ D: and can provide an unpleasant surprise for the incautious.
 N:502:Seven of Diamonds
 G:c:r
 I:115:400:5:32:140
-W:11:4:0:65
+W:11:6:0:65
 B:SLASH:HURT:10d6
 F:COLD_BLOOD | FRIENDS | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -2234,7 +2332,7 @@ D: and can provide an unpleasant surprise for the incautious.
 N:503:Seven of Spades
 G:c:s
 I:115:420:5:35:140
-W:11:4:0:70
+W:11:6:0:70
 B:BLUNT:HURT:10d8
 F:COLD_BLOOD | FRIENDS | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -2245,7 +2343,7 @@ D: and can provide an unpleasant surprise for the incautious.
 N:504:Seven of Hearts
 G:c:r
 I:115:420:5:35:140
-W:11:4:0:70
+W:11:6:0:70
 B:SLASH:HURT:10d8
 F:COLD_BLOOD | FRIENDS | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -2268,8 +2366,8 @@ D: of sparks erupts from the point of impact.
 
 N:506:Brown Bear
 G:q:u
-I:120:350:10:2:40
-W:11:2:0:100
+I:120:650:10:30:40
+W:11:2:0:200
 B:CLAW:HURT:8d8
 B:BITE:HURT:4d12
 F:ANIMAL | HOSTILE | IM_ICE | IM_BLUNT | NO_FEAR | VUN_PIERCE
@@ -2282,13 +2380,15 @@ D: which gives strength to the forelimbs for digging. Their heads are large
 D: and round with a concave facial profile. In spite of their size, they can
 D: run at speeds of up to 56 km/h (35 mph).
 
-N:507:Wood Wives
+N:507:Wood Wife
 G:u:g
-I:110:10:80:24:40
-W:11:2:0:6
+I:110:50:80:24:40
+W:11:2:20:6
 B:CLAW:HURT:5d3
 F:FEMALE | FRIENDS | RAND_25 | DROP_5 | ONLY_GOLD
 F:DEMON | IM_AIR | NO_FEAR
+S:1_IN_5 | POW_10
+S:TELE_TO | TELE_AWAY | TELE_SELF_TO
 D:This german demon serves as a protector of wilderness areas.
 D: What they are doing here is a mystery. 
 
@@ -2301,13 +2401,13 @@ B:HIT:HURT:8d8
 F:DROP_5 | EVIL | BEASTMAN | COLD_BLOOD | BASH_DOOR | IM_POIS
 F:IM_FIRE |
 D:This malformed being has a crocodile head, and lumbers towards you.
-D: It looks extremely tough, and it's arms look big enough to crush rock.
+D: It looks extremely tough, and its arms look big enough to crush rock.
 
 N:509:Lynch Mob Member
 G:t:v
-I:115:80:60:34:10
+I:115:80:60:20:10
 W:17:1:0:6
-B:HIT:HURT:8d6
+B:HIT:FIRE:8d6
 F:DROP_5 | OPEN_DOOR | RAND_25 | FRIENDS | ATTR_MULTI | FRIEND
 D:This group of angry villagers have mobilized themselves to hunt
 D: down and lynch a local scientist. They are armed with torches,
@@ -2316,12 +2416,13 @@ D: you will do!
 
 N:510:Jiangshi
 G:z:u
-I:95:500:4:2:200
+I:105:500:4:2:200
 W:11:3:0:190
-B:HIT:HURT:200d1
-B:HIT:HURT:200d1
+B:TOUCH:HURT:250d4
+B:TOUCH:HURT:250d4
 F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | IM_BLUNT | NO_FEAR 
 F:IM_ICE | IM_EARTH | IM_POIS | FRIEND | RAND_25 | HURT_LIGHT
+F:DROP_80 | DROP_GOOD
 D:Pinyin: Jiangshi, literally "stiff corpses" are corpses whose
 D: touch can kill a living person instantly. It is often called
 D: a hopping corpse.
@@ -2340,14 +2441,14 @@ D: of deer hooves striking upon the ground.
 
 N:539:Ozmar the Mystic
 G:p:y
-I:110:350:25:70:25
+I:110:750:25:70:25
 W:11:2:0:250
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | FORCE_SLEEP | 
 F:OPEN_DOOR | BASH_DOOR | DROP_80 | DROP_20 | ONLY_ITEM | DROP_GOOD
-F:IM_FIRE | IM_ICE | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_6 | POW_20
+F:IM_FIRE | IM_ICE | IM_POIS | NO_CONF | NO_SLEEP | SMART
+S:1_IN_2 | POW_40
 S:HEAL | BLIND | CONFUSION | STUN | PSI | BLINK
 D:The lofty breadth of forehead, calm and unwrinkled,
 D: surmounting a face of singular dignity and power;
@@ -2368,13 +2469,13 @@ D: Emeric Hulme-Beaman's "Ozmar the Mystic (1896)".
 
 N:540:Godahl, the Infallible
 G:p:U
-I:110:340:20:40:40
+I:110:840:20:40:40
 W:11:3:0:150
 B:PUNCH:HURT:4d5
-B:KICK:BLIND:4d5
+B:KICK:HURT:4d5
 B:PUNCH:CONFUSE:3d5
 B:KICK:TERRIFY:3d5
-F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | EVIL | DROP_1D2 | 
+F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | DROP_1D2 | 
 F:DROP_GOOD | DROP_GREAT | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 D:He is a scientifically-minded criminal. He is so good at it, not only
 D: has he has never been caught, he's never even been suspected.
@@ -2386,12 +2487,15 @@ D: Careful -- he never loses an engagement.
 ########### Numbered 540 - 580 ############
 ###########################################
 
+###########################
+# Credited: Bridger Flynn #
+###########################
 N:541:Raging Blaze
 G:E:r
 I:120:300:12:25:100
 W:12:3:30:75
-B:ENGULF:HURT:10d10
-S:1_IN_7 | POW_10
+B:ENGULF:FIRE:10d10
+S:1_IN_4 | POW_10
 S:BO_FIRE | BA_FIRE
 F:EVIL | ELEMENTAL | IM_FIRE | WEIRD_MIND | VUN_WATER |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RAND_25 | IM_PIERCE | 
@@ -2404,18 +2508,21 @@ D: of gleaming yellow eyes that fixate on you. It appears that this
 D: elemental is not simply a mindless force of destruction but that it
 D: has a malevolent will of its own.
 
+###########################
+# Credited: Bridger Flynn #
+###########################
 N:542:Drunken Master
 G:p:o
-I:110:200:10:50:200
+I:120:350:10:70:200
 W:12:2:5:70
-B:PUNCH:HURT:1d20
-B:KICK:HURT:1d20
-B:GRAB:HURT:1d20
-B:BUTT:CONFUSE:1d40
+B:PUNCH:HURT:20d2
+B:KICK:HURT:20d2
+B:GRAB:HURT:20d2
+B:BUTT:CONFUSE:40d2
 S:1_IN_10 | POW_5
 S:BLINK | CONFUSION
 F:RAND_25 | TAKE_ITEM | WEIRD_MIND | MALE
-F:IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP
+F:IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | DROP_10 | DROP_GOOD
 D:A slobbering drunk dressed in gaudy robes sings to himself as he
 D: shakily advances towards you. There is a hypnotizing grace in his
 D: jerky movements that leads you to believe that this is no ordinary sot.
@@ -2432,26 +2539,32 @@ D: you for the past few hours and has chosen this as his moment to strike.
 D: You scan the murk for the source of the shot, but he is so well camouflaged
 D: you only see the muzzle flash as another deadly shot flies your way.
 
-N:544:Red Weed
-G:A:r
-I:140:2:1:1:1
-W:12:1:0:1
-F:NEVER_BLOW | NEVER_MOVE | FRIENDS | MULTIPLY | EMPTY_MIND | ALIEN | 
-F:PLANT | COLD_BLOOD | NO_FEAR
-D:"Apparently the vegetable kingdom in Mars, instead of having green for a
-D: dominant colour, is of a vivid blood-red tint. At any rate, the seeds
-D: which the Martians (intentionally or accidentally) brought with them
-D: gave rise in all cases to red-coloured growths. Only that known
-D: popularly as the red weed, however, gained any footing in competition
-D: with terrestrial forms. The red creeper was quite a transitory growth,
-D: and few people have seen it growing. For a time, however, the red weed grew
-D: with astonishing vigour and luxuriance... especially wherever
-D: there was a stream of water." - H. G. Wells
+###########################
+# Credited: R. Dan Henry  #
+###########################
+N:544:Jaracaca
+G:J:s
+I:110:100:30:45:5
+W:12:5:0:70
+B:BITE:POISON:25d3
+F:FRIENDS | COLD_BLOOD | ANIMAL | IM_POIS | IM_WATER
+D:"To make matters worse, the place seemed to be a favorite
+D: breeding-place of the Jaracaca snake, the most venomous and
+D: aggressive snake in South America. Again and again these
+D: horrible creatures came writhing and springing towards us
+D: across the surface of this putrid bog, and it was only by
+D: keeping our shot-guns forever ready that we could feel safe
+D: from them.... it is a peculiarity of the Jaracaca that he
+D: will always attack man at first sight."\n -- _The Lost World_
+D: by Sir Arthur Conan Doyle
 
+###########################
+# Credited: Bridger Flynn #
+###########################
 N:545:Pawn of Living Stone
 G:E:u
 I:100:484:10:36:160
-W:12:3:30:83
+W:12:3:30:123
 B:CRUSH:HURT:80d2
 S:1_IN_5 | POW_10
 S:STUN | BO_EARTH | BA_EARTH
@@ -2463,30 +2576,33 @@ D: around a polished limestone boulder. This earth elemental has eyes of
 D: polished onyx. The floor seems to adhere to the stumps of its legs as
 D: it moves. Each step is accompanied by a seismic shock and a tearing sound.
 
+###########################
+# Credited: Bridger Flynn #
+###########################
 N:546:Noxious Fume
 G:E:g
 I:100:240:8:24:100
 W:12:3:20:83
 B:ENGULF:POISON:18d5
-F:EVIL | STUPID | ELEMENTAL | IM_POIS | EMPTY_MIND
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | VUN_AIR | CLOUD_SURROUND
+F:EVIL | STUPID | ELEMENTAL | IM_POIS | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | GASEOUS | CLOUD_SURROUND
 S:1_IN_4 | POW_11
 S:SLOW | CLOUD_POISON
 D:A glowing green mist that makes you retch with its stench is floating
 D: in the cavern ahead. The sickly sweet smell of rot and garbage
 D: preceeds the vaporous claws trying to scratch at your throat.
 
+###########################
+# Credited: Bridger Flynn #
+###########################
 N:547:Mooncalf
-G:A:w
-I:90:400:8:24:220
+G:A:s
+I:90:500:8:24:220
 W:12:1:0:50
 B:BUTT:HURT:2d10
-B:CRUSH:HURT:2d10 
 F:ALIEN | STUPID | FRIENDS | EMPTY_MIND
-F:IM_BLUNT | HURT_LIGHT | IM_ICE |  
-D:"Of course it is hard for me now to say how much I saw at that
-D: time, because my impressions were corrected by subsequent
-D: observation. First of all impressions was its enormous size; the
+F:HURT_LIGHT | IM_ICE |  
+D:"First of all impressions was its enormous size; the
 D: girth of its body was some fourscore feet, its length perhaps two
 D: hundred. Its sides rose and fell with its laboured breathing. I
 D: perceived that its gigantic, flabby body lay along the ground, and
@@ -2501,10 +2617,13 @@ D: had a breath from the pit, and then the monster heeled over like
 D: a ship, dragged forward along the ground, creasing all its leathery
 D: skin, rolled again, and so wallowed past us, smashing a path amidst
 D: the scrub, and was speedily hidden from our eyes by the dense
-D: interlacings beyond." (H.G. Wells, The First Men in the Moon)
+D: interlacings beyond." -H.G. Wells, "The First Men in the Moon"
 
+###########################
+# Credited: Bridger Flynn #
+###########################
 N:548:Selenite Herder
-G:A:s
+G:A:b
 I:100:250:14:24:80
 W:12:1:20:100
 B:PIERCE:HURT:3d10
@@ -2514,33 +2633,29 @@ S:SHRIEK | HEAL | SLOW
 F:ALIEN | WEIRD_MIND | HURT_LIGHT | IM_ICE 
 D:"By contrast with the mooncalves he seemed a trivial being, a mere
 D: ant, scarcely five feet high. He was, wearing garments of some
-D: leathery substance, so that no portion of his actual body appeared,
-D: but of this, of course, we were entirely ignorant. He presented himself,
-D: therefore, as a compact, bristling creature, having much of the quality
-D: of a complicated insect, with whip-like tentacles and a clanging arm
-D: projecting from his shining cylindrical body case. The form of his head
-D: was hidden by his enormous many-spiked helmet - we discovered
-D: afterwards that he used the spikes for prodding refractory mooncalves
-D: - and a pair of goggles of darkened glass, set very much at the side,
+D: leathery substance, so that no portion of his actual body appeared
+D: . . . He presented himself, therefore, as a compact, bristling creature,
+D: having much of the quality of a complicated insect, with whip-like
+D: tentacles and a clanging arm projecting from his shining cylindrical
+D: body case. The form of his head was hidden by his enormous many-spiked
+D: helmet . . . and a pair of goggles of darkened glass, set very much at the side,
 D: gave a bird-like quality to the metallic apparatus that covered his face.
 D: His arms did not project beyond his body case, and he carried himself
-D: upon short legs that, wrapped though they were in warm coverings,
-D: seemed to our terrestrial eyes inordinately flimsy. They had very short
-D: thighs, very long shanks, and little feet."
-D: (H.G. Wells, The First Men in the Moon)
+D: upon short legs . . . . They had very short thighs, very long shanks, and
+D: little feet." - H.G. Wells, "The First Men in the Moon"
 
 ###########################
 # Credited: Steve Latour  #
 ###########################
 N:549:Freemason Provincial Grand Master
 G:p:b
-I:110:350:55:60:55
+I:110:450:55:60:55
 W:12:2:50:70
-B:BLUNT:HURT:3D20
-B:BLUNT:HURT:3D20
-S:1_IN_3 | POW_12
-S:BO_ACID | FEAR | HOLD
-F:OPEN_DOOR | RAND_25 | MALE
+B:BLUNT:HURT:3d20
+B:BLUNT:HURT:3d20
+S:1_IN_3 | POW_18
+S:BO_ACID | FEAR | HOLD | HEAL | BLINK | CURE | BA_ICE | TK | PSI
+F:OPEN_DOOR | MALE | SMART | DROP_40 | DROP_GOOD | DROP_GREAT
 D: He is of the Order of the Eastern Star Sister.  Freemasonry's
 D: bonds of friendship, compassion, and brotherly love have survived
 D: even the most divisive political, military and religious conflicts
@@ -2552,37 +2667,40 @@ D: questions...
 
 N:550:Hulking Automaton
 G:a:W
-I:100:600:20:36:20
+I:110:600:20:36:20
 W:12:2:40:115
-B:HIT:HURT:6d4
-B:ZAP:ELEC:5d2
-F:DROP_80 | OPEN_DOOR | BASH_DOOR
+B:HIT:HURT:8d6
+B:ZAP:ELEC:8d4
+F:DROP_80 | OPEN_DOOR | BASH_DOOR | IMPENT | IM_EDGED
 F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_4 | POW_12
 S:HASTE | BO_ELEC | BO_FIRE | BO_WATER | HEAL
 D:This is a man-sized mound of pipes and gears. It moves like a 
-D:twitching worm towards you occasionally spouting steam, electricty, 
-D:or flame. You see smaller coin sized robots roaming over it's surface.
+D:twitching worm towards you occasionally spouting steam, electricity, 
+D:or flame. You see smaller coin sized robots roaming over its surface.
 
-N:551:Steam Ball
+N:551:Mechanical Steam-Powered Ball
 G:C:w
 I:130:80:6:8:15
 W:12:2:0:72
 B:BUTT:HURT:4d4
 B:ZAP:BLIND:1d3
-F:DROP_80 | BASH_DOOR | FRIEND
-F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
-D:a small ball flying though the air using bursts of steam flies
-D: towards you.
+F:DROP_80 | BASH_DOOR | FRIEND | IM_PIERCE | IM_BLUNT | IM_EDGED
+F:CONSTRUCT | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:VUN_AIR | VUN_ELEC
+D:A spherical device approaches you, utilizing directed bursts of 
+D: steam to fly with astounding rapidity.
 
 N:552:Zombie
 G:z:g
-I:100:300:3:4:220
+I:105:300:3:4:220
 W:12:2:0:40
 B:CLAW:LOSE_VIG:4d2
 B:CLAW:LOSE_VIG:6d2
-F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | IM_BLUNT | IM_PIERCE 
-F:FRIENDS | IM_ICE | IM_EARTH | IM_POIS | NO_FEAR
+B:BITE:TERRIFY:3d2
+F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | IM_BLUNT | IM_PIERCE | IMPENT
+F:FRIENDS | IM_ICE | IM_EARTH | IM_POIS | NO_FEAR | TRACKER | NO_CONF
+F:IM_AIR | IM_TIME | IM_SOUND | IM_WATER
 D:According to the tenets of Vodun (voodoo), a dead person can
 D: be revived by a houngan or mambo. After resurrection it
 D: has no will of its own. Such resurrected dead are "zombies".
@@ -2597,15 +2715,61 @@ F:IM_ICE | IM_EARTH | IM_POIS | TRACKER
 D:An unliving eater of life, who takes the form of a wolf
 D: which barks or howls at night. 
 
+N:554:Large Cockroach
+G:I:u
+I:120:10:4:60:0
+W:12:4:0:3
+B:TOUCH:LOSE_SCH
+B:TOUCH:LOSE_EGO
+B:TOUCH:LOSE_CHR
+B:BITE:EAT_FOOD:1d1
+F:IM_BLUNT | MULTIPLY | IMPENT | ANIMAL | RAND_25
+F:IM_POIS | WEIRD_MIND
+D:They have come to replace you as the crown of creation and drive
+D: you mad. "Aaargh! Bugs! They're everywhere! Die! Die! Die!"
+
+N:555:Graviton Sphere
+G:a:b
+I:110:45:8:8:120
+W:12:2:40:75
+F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:DROP_40 | STUPID | ARCHER | IM_SOUND | IM_AIR | IM_EDGED
+S:1_IN_4 | POW_6
+S:BA_GRAVITY
+D:A small silver sphere circled in glowing blue lines floats down the
+D: hallway. It makes a quiet humming sound.
+
+N:556:Grinder
+G:a:g
+I:120:100:5:40:200
+W:12:2:0:90
+B:CRUSH:HURT:8d8
+F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:DROP_80 | IM_BLUNT | IM_PIERCE | IM_EDGED
+D:Giant spinning blades and a roller on spikes rushes toward you.
+D: Obviously a cleaning mechanism out of control, if what you have
+D: to clean up needs to be shredded, pierced, and smashed.
+
+N:557:Black Spider
+G:S:D
+I:120:125:15:25:4
+W:12:3:0:60
+B:BITE:POISON:4d4
+B:BITE:POISON:4d4
+F:FRIENDS | COLD_BLOOD | BASH_DOOR | IM_POIS | ANIMAL | VUN_BLUNT
+D:"And we must not forget my black spiders, with their diamond
+D: eyes--my spiders, that sit in the dark and watch--then leap!"
+D: - Sax Rohmer, "The Insidious Dr. Fu Manchu"
+
 N:578:Axel
 G:p:U
-I:120:190:18:24:10
-W:12:1:0:200
-B:HIT:HURT:5d9
-B:HIT:HURT:5d9
+I:120:1290:18:24:10
+W:12:1:90:200
+B:HIT:HURT:8d9
+B:HIT:HURT:8d9
 F:UNIQUE | ATTR_MULTI | MALE | FORCE_SLEEP | FIXED_HPS |
-F:SMART | OPEN_DOOR | BASH_DOOR | EVIL | DROP_40 | DROP_GOOD | DROP_GREAT |
-S:1_IN_3 | POW_20
+F:SMART | OPEN_DOOR | BASH_DOOR | DROP_40 | DROP_GOOD | DROP_GREAT |
+S:1_IN_6 | POW_20
 S:RIFLE | DRAIN_MANA | HASTE | TELE_TO | SLOW
 D:He appears to be at least a century old, and possibly immortal,
 D: He is a self-appointed exile, an isolationist and visionary with a
@@ -2618,12 +2782,12 @@ D: l'Isle Adam (1838-1889), who wrote about him in the play Axel.
 
 N:579:M'ling, Montgomery's attendant
 G:B:B
-I:110:420:20:60:20
+I:110:1220:20:60:20
 W:12:2:0:225
-B:HIT:HURT:3d12
-B:HIT:HURT:3d12
-B:HIT:HURT:3d10
-B:HIT:HURT:3d10
+B:HIT:HURT:4d12
+B:HIT:HURT:4d12
+B:HIT:HURT:4d10
+B:HIT:HURT:4d10
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | DROP_40 | 
 F:OPEN_DOOR | BASH_DOOR | ANIMAL | IM_POIS
 D:"A man stood awaiting us at the water's edge. I fancied
@@ -2643,12 +2807,12 @@ D:The Island of Dr Moreau by H. G. Wells 1896
 #add beasts as escorts
 N:580:Montgomery, Dr Moreau's assistant
 G:p:g
-I:110:400:20:60:20
-W:12:3:0:225
+I:110:600:20:60:20
+W:12:3:30:225
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
-S:1_IN_3 | POW_4
-S:SHOTGUN
+S:1_IN_3 | POW_4 
+S:SHOTGUN | S_BEASTMEN
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | DROP_80 | DROP_40 | 
 F:DROP_GOOD | DROP_GREAT | OPEN_DOOR | BASH_DOOR | EVIL |
 D:"A youngish man with flaxen hair, a bristly straw-coloured
@@ -2671,13 +2835,13 @@ D:--'How do you feel now?'" The Island of Dr. Moreau by H. G. Wells 1896
 #######################
 N:581:Flaming Buckyball
 G:E:R
-I:115:350:3:10:192
+I:120:350:3:30:90
 W:13:8:0:70
 B:CRUSH:HURT:6d5
 B:CRUSH:FIRE:8d8
 B:CRUSH:FIRE:6d10
 B:CRUSH:FIRE:6d10
-F:STUPID | EMPTY_MIND | RAND_50
+F:STUPID | EMPTY_MIND | RAND_25 | IM_FIRE
 D:A truncated icosahedron several metres high, it has 32 faces, of
 D: which 20 are regular hexagons and 12 are regular pentagons. These
 D: faces come together at 60 points, or vertices. A grossly oversized
@@ -2689,14 +2853,29 @@ D: Robert F. Curl, Jr. (Rice University), Professor Sir Harold W. Kroto
 D: (University of Sussex), and Professor Richard E. Smalley, (Rice
 D: University).
 
-### 582 free
+N:582:Morbid Mirror
+G:o:W
+I:110:300:20:10:0
+W:13:7:50:100
+F:NEVER_BLOW | STUPID | COLD_BLOOD | CONSTRUCT | UNDEAD
+F:IM_FIRE | IM_WATER | IM_ACID | IM_POIS | IM_NETHER
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP | VUN_BLUNT
+S:1_IN_1 | POW_10
+S:ADD_MANA | FORGET | FEAR | PSI | STUN | CONFUSION | HOLD
+D:A large mirror with an intricately decorated frame stands before
+D: you. It does not reflect its surroundings, but shifts from one
+D: scene to another, at one moment revealing breath-taking beauty,
+D: at another displaying macabre tragedy. It seems to be reflecting
+D: the dark recesses of your own mind, as you watch it play out your
+D: deep-buried fears, unspeakable fantasies, and forbidden thoughts.
+
 
 N:583:Frost Beast
 G:E:w
-I:90:450:10:52:200
+I:100:450:10:52:200
 W:13:3:20:100
-B:CRUSH:COLD:40d4
-S:1_IN_5 | POW_8
+B:CRUSH:COLD:50d4
+S:1_IN_5 | POW_10
 S:BA_ICE | BO_ICE | SLOW
 F:EVIL | STUPID | ELEMENTAL | IM_ICE | EMPTY_MIND | COLD_BLOOD
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN  | KILL_ITEM
@@ -2705,32 +2884,10 @@ D:Rough blocks of ice that look to have been hewn from an ancient
 D: glacier make up the beast lumbering towards you. A horrible grating
 D: sound sends shivers up your spine as it moves.
 
-N:584:Martian Slave
-G:A:w
-I:120:32:80:10:80
-W:13:1:30:55
-B:HIT:HURT:2d4
-B:HIT:HURT:2d4
-F:ALIEN | DROP_20 | EVIL | WEIRD_MIND
-S:1_IN_8 | POW_22
-S:BO_FIRE
-D:"Their (Martians) undeniable preference for men as their source
-D: of nourishment is partly explained by the nature of the
-D: remains of the victims they had brought with them as provisions
-D: from Mars. These creatures, to judge from the shrivelled remains
-D: that have fallen into human hands, were bipeds with flimsy,
-D: siliceous skeletons (almost like those of the siliceous sponges)
-D: and feeble musculature, standing about six feet high and having
-D: round, erect heads, and large eyes in flinty sockets. Two
-D: or three of these seem to have been brought in each cylinder,
-D: and all were killed before earth was reached. It was just as
-D: well for them, for the mere attempt to stand upright upon our
-D: planet would have broken every bone in their bodies."- H. G. Wells
-
 N:585:Eight of Clubs
 G:c:s
 I:115:550:7:38:130
-W:13:4:0:100
+W:13:6:0:100
 B:BLUNT:HURT:15d6
 F:COLD_BLOOD | FRIENDS | NO_CONF | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -2741,7 +2898,7 @@ D: confused as their more dim-witted cousins.
 N:586:Eight of Diamonds
 G:c:r
 I:115:550:7:38:130
-W:13:4:0:100
+W:13:6:0:100
 B:SLASH:HURT:15d6
 F:COLD_BLOOD | FRIENDS | NO_CONF | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -2752,7 +2909,7 @@ D: confused as their more dim-witted cousins.
 N:587:Eight of Spades
 G:c:s
 I:115:575:7:42:130
-W:13:4:0:110
+W:13:6:0:110
 B:BLUNT:HURT:15d8
 F:COLD_BLOOD | FRIENDS | NO_CONF | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -2763,7 +2920,7 @@ D: confused as their more dim-witted cousins.
 N:588:Eight of Hearts
 G:c:r
 I:115:575:7:42:130
-W:13:4:0:110
+W:13:6:0:110
 B:SLASH:HURT:15d8
 F:COLD_BLOOD | FRIENDS | NO_CONF | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -2780,7 +2937,7 @@ S:1_IN_4 | POW_10
 S:BO_AIR | BA_AIR
 F:EVIL | ELEMENTAL | IM_AIR | WEIRD_MIND | TAKE_ITEM
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RAND_25 | ARCHER
-F:INVISIBLE | IM_EDGED | IM_PIERCE | CLOUD_SURROUND
+F:INVISIBLE | IM_EDGED | IM_PIERCE | CLOUD_SURROUND | GASEOUS
 D:Gusts of wind toss your hair and pull at your clothes. Apparently another
 D: malevolent air spirit is about. In the distance you can see a tall cone of
 D: wind, dust, and debris. This elemental is larger than those you have
@@ -2789,7 +2946,7 @@ D: of odds and ends to hurl at you.
 
 N:590:Selenite Butcher
 G:A:r
-I:100:400:10:26:150
+I:105:400:10:26:150
 W:13:1:0:100
 B:SLASH:HURT:9d10
 B:SLASH:HURT:9d10 
@@ -2803,7 +2960,7 @@ D: the mooncalf herds - were scattered up the slope in a way that was
 D: eloquent of indecision." (H.G. Wells, The First Men in the Moon)
 
 N:591:Selenite Service Droid
-G:a:u
+G:C:u
 I:100:300:10:20:180
 W:13:1:20:75
 B:SLASH:HURT:4d10
@@ -2812,16 +2969,16 @@ B:SLASH:HURT:4d10
 B:SLASH:HURT:4d10
 S:1_IN_5 | POW_7
 S:GUN | BO_ELEC 
-F:AUTOMATA | COLD_BLOOD | EMPTY_MIND | BASH_DOOR
+F:CONSTRUCT | COLD_BLOOD | EMPTY_MIND | BASH_DOOR
 F:TAKE_ITEM | IM_ELEC | IM_ICE | NO_FEAR
 F:NO_STUN | NO_SLEEP | NO_CONF | KILL_WALL
-D:An automaton of obvious alien design is approaching.  Its many armed
+D:An construct of obvious alien design is approaching.  Its many-armed
 D: design is quite ingenious.  The rapidly whirring blades at the ends of each
 D: arm appear to be made for cutting rock, or flesh if necessary. 
 
-N:592:Sabre-tooth tiger
+N:594:Sabre-tooth Tiger
 G:f:y
-I:120:240:40:50:0
+I:120:440:40:50:0
 W:13:2:0:120
 B:CLAW:HURT:10d2
 B:BITE:HURT:10d2
@@ -2829,41 +2986,68 @@ F:BASH_DOOR | TRACKER | ANIMAL
 D:A fierce and dangerous cat, its huge tusks and sharp claws would
 D: lacerate even the strongest armor.
 
-N:593:Draug
+N:595:Draug
 G:z:b
-I:110:400:3:2:200
+I:110:450:3:2:200
 W:13:2:0:180
-B:CLAW:HURT:20d8
+B:CLAW:COLD:20d8
+B:CLAW:PARALYZE:20d8
 F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | IM_BLUNT | IM_EDGED 
 F:IM_ICE | IM_EARTH | IM_POIS | IM_WATER | NO_FEAR
-D:A sea-water bloated corpse that drags it's body towards you dripping
-D: water on the dungeon floor. Had this corpse recieved a proper burial
+D:A sea-water bloated corpse that drags its body towards you dripping
+D: water on the dungeon floor. Had this corpse received a proper burial
 D: this monster might never have appeared.
 
-N:594:Nautilus Crewman
+N:596:Nautilus Crewman
 G:p:U
 I:110:200:50:25:100
 W:13:2:20:80
 B:HIT:HURT:4d15
 S:1_IN_5 | POW_7
 S:GUN
-F:OPEN_DOOR | TAKE_ITEM | IM_ELEC | IM_ICE
+F:OPEN_DOOR | TAKE_ITEM | IM_ELEC | IM_ICE | FRIEND
 D:"In the meantime, a number of the sailors of the Nautilus, all
 D: strong and healthy men, had come up onto the deck... These sailors
 D: were evidently of different nations, although the European type was
-D: recognzied in all." -Jules Verne "20,000 Leagues Under the Sea."
+D: recognized in all." -Jules Verne "20,000 Leagues Under the Sea."
+
+N:597:Arcane Automata
+G:a:R
+I:110:150:40:11:40
+W:13:2:50:110
+F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:DROP_40 | STUPID | IMPENT | LOW_MANA_RUN | ARCHER | IM_FIRE | IM_PIERCE
+S:1_IN_3 | POW_14
+S:BO_FIRE | BO_ELEC | BO_ACID | BE_FIRE | BE_ELEC
+D:A strange armored boxlike automata rolls towards you. Strange symbols
+D: and runes cover its surface. Machines can't use magic, can they? What
+D: sounds like a voice comes from a strange box mounted on it's chest as
+D: its appendages begin to move in very percise ways.
+
+N:598:Gatling Automata
+G:a:U
+I:110:220:20:33:60
+W:13:2:0:120
+F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:DROP_40 | STUPID | ARCHER | IM_ELEC | IM_WATER | IM_BLUNT
+S:1_IN_2 | POW_10
+S:RIFLE
+D:It has three legs, and appears to have five rifles bound together on some
+D: sort of spinning cylinder. Each time a rifle fires, the cylinder rotates
+D: and a new rifle is brought to bear.
+
 
 N:619:Pharos, the Egyptian
 G:z:r
-I:110:500:20:50:20
+I:110:1100:20:50:20
 W:13:2:80:800
 B:HIT:HURT:3d12
 B:HIT:HURT:3d12
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | ESCORT | 
-F:OPEN_DOOR | BASH_DOOR | KILL_BODY | KILL_ITEM | 
+F:OPEN_DOOR | BASH_DOOR | KILL_ITEM | SMART
 F:EVIL | IM_POIS | COLD_BLOOD | REGENERATE | UNDEAD |
 F:NO_FEAR | NO_STUN | NO_CONF | DROP_80 | DROP_GOOD
-S:1_IN_3 | POW_10
+S:1_IN_2 | POW_80
 S:DRAIN_MANA | PSI | FEAR | HOLD | FORGET
 D:"His height was considerably below the average, his
 D: skull was as small as his shoulders were broad. But
@@ -2889,12 +3073,11 @@ D: "Pharos the Egyptian" (1899)
 
 N:620:M-A Production Unit Mark V
 G:a:o
-I:120:120:5:18:10
+I:120:1120:5:18:10
 W:13:2:150:330
-B:HIT:HURT:5d5
-F:NEVER_MOVE | UNIQUE | ATTR_MULTI | FIXED_HPS | IM_PIERCE | IM_EDGED | 
+F:NEVER_MOVE | NEVER_BLOW | UNIQUE | ATTR_MULTI | FIXED_HPS | IM_PIERCE | IM_EDGED | 
 F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
-S:1_IN_3 | POW_0
+S:1_IN_1 | POW_0
 S:S_KIN | SHRIEK
 D:A giant machine in the center of the room is producing large numbers
 D: of maintenance automata! It looks large and dangerous. This
@@ -2912,11 +3095,11 @@ D: destruction will help the situation.
 #################
 N:621:Stone Troll
 G:P:g
-I:90:270:4:55:200
+I:90:2270:4:55:200
 W:14:2:0:225
-B:PUNCH:HURT:2d10
-B:BLUNT:HURT:10d2
-F:BASH_DOOR | IMPENT
+B:PUNCH:HURT:2d20
+B:BLUNT:HURT:20d2
+F:BASH_DOOR | IMPENT | IM_EDGED | IM_PIERCE
 D:A magically animated lump of stone, eight feet tall, five hundred pounds
 D: and wielding a club about as big as a man.
 
@@ -2924,12 +3107,12 @@ N:622:Water Watcher
 G:E:b
 I:110:407:10:27:120
 W:14:3:30:108
-B:SPIT:HURT:2d60
+B:CRUSH:STEAM:2d60
 S:1_IN_3 | POW_10
 S:BO_WATER | BA_WATER
 F:EVIL | ELEMENTAL | IM_WATER | WEIRD_MIND | CLOUD_SURROUND
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | SMART | VUN_FIRE | 
-D:A menacing half-sphere of water flows toward you while hurling bolts
+D:A menacing hemisphere of water flows toward you while hurling bolts
 D: of water at you. This water elemental is approximately the same volume
 D: as a man, and 1 foot diameter pseudopods have erupted from the core of
 D: the sphere to flail at you.
@@ -2938,10 +3121,8 @@ N:623:Howler Monkey
 G:M:y
 I:120:80:20:18:20
 W:14:1:8:36
-B:CLAW:HURT:2d3
-B:CLAW:HURT:2d3
+B:CLAW:HURT:4d3
 B:BITE:HURT:4d3
-B:CRUSH:HURT:1d3
 F:OPEN_DOOR | TAKE_ITEM | ANIMAL | DROP_20 | DROP_10 
 S:1_IN_2 | POW_0
 S:SHRIEK
@@ -2956,11 +3137,11 @@ N:624:Freemason High Priestess
 G:p:r
 I:110:566:50:65:50
 W:14:3:50:110
-B:GAZE:HURT:3D15
+B:CLAW:HURT:3d15
 F:INVISIBLE | FEMALE | SMART | OPEN_DOOR
 F:NO_CONF | NO_SLEEP | ESCORTS
 S:1_IN_3 | POW_12
-S:BO_ICE | HASTE | FORGET | S_KIN |
+S:BO_ICE | HASTE | FORGET | S_KIN | BO_ACID | BA_ICE 
 D:She is of the Cauldron of Daughters of Mokona.  She has embraced
 D: the teachings of Plato and understands and applies Pythagorean
 D: relationships. Just as there is a beauty of harmony credited to
@@ -2972,7 +3153,7 @@ D: destroy you.
 
 N:625:Vorkolak
 G:G:v
-I:110:100:8:65:40
+I:120:200:8:65:40
 W:14:2:0:200
 B:GRAB:EXP_20:10d4
 F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | IM_BLUNT | 
@@ -2983,15 +3164,126 @@ D: or in the forest, or along a country road, and whose corpse
 D: was eaten by crows, wolves, or some other such scavengers.
 D: This soul cannot enter heaven or hell, and so it remains on earth.
 
+#########################
+# Credited: Evan James  #
+#########################
+N:626:Charger
+G:a:y
+I:120:250:20:30:40
+W:14:1:0:100
+B:KICK:ELEC:2d20
+B:BUTT:ELEC:5d4
+B:ZAP:ELEC:1d12
+F:IM_POIS | EMPTY_MIND | BASH_DOOR | IM_ELEC 
+F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
+D:Live wires protrude in all directions from
+D: this mechanical horse, and sparks arc from
+D: every impact of its steam-piston legs as
+D: it gallops straight towards you.
+
+#########################
+# Credited: Evan James  #
+#########################
+N:627:Rusting Hulk
+G:a:s
+I:105:800:20:10:200
+W:14:2:40:100
+B:CRUSH:HURT:12d3
+B:SLASH:HURT:5d8
+B:BLUNT:HURT:8d4
+F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:RAND_50 | VUN_BLUNT | DROP_40
+S:1_IN_3 | POW_15
+S:BA_ELEC | BA_WATER | BA_FIRE | RIFLE
+D:An impressive battlewagon - or it would be, if it were
+D: properly maintained.  Rusting weapons hang from
+D: ill-fitting joints, and the giant contraption creaks
+D: and shudders as it clatters across the floor.
+D: The whole thing might collapse at a blow.
+
+#########################
+# Credited: Evan James  #
+#########################
+N:628:Trapper Cart
+G:a:B
+I:120:80:20:25:40
+W:14:2:20:30
+B:ZAP:FIRE:3d8
+B:ZAP:FIRE:3d8
+F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:ARCHER | LOW_MANA_RUN | RAND_25 
+S:1_IN_2 | POW_10
+S:BO_FIRE | TRAPS | BLINK
+D:A low-slung, wheeled steel box that sometimes emits
+D: odd noises or puffs of black smoke.  When it stops,
+D: an unseen device seems to drop something from
+D: the box's bottom.
+
+#########################
+# Credited: Evan James  #
+#########################
+
+## Possible random spell target flag?
+N:629:Ventilation Tower
+G:e:w
+I:110:80:20:40:0
+W:14:3:80:40
+F:CONSTRUCT | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:ARCHER | NEVER_MOVE | NEVER_BLOW | IM_AIR
+S:1_IN_5 | POW_10
+S:BO_AIR | ADD_MANA
+D:A jumbled stack of rotating fans and blowing vents.
+D: A constant roar of moving air surrounds the thing,
+D: and blasts of wind whip in every direction.
+D: Hold on to your hat!
+
+###################
+# Credited: Otie  #
+###################
+N:630:Tiny Troll
+G:p:U
+I:115:450:10:20:100
+W:14:4:25:125
+B:BITE:HURT:5d10
+B:CLAW:POISON:3d10
+S:1_IN_4 | POW_12
+S:HASTE | DARKNESS | FEAR
+F:HURT_LIGHT | VUN_FIRE | IM_ICE
+D:A creature lurks in shadows. It's about the size and shape of
+D: a human child, but it has a face not even a mother could love. It
+D: smells like it's been eating corpses. Around its neck, it carries a
+D: necklace made out of human ears and fingers.
+
+###########################
+# Credited: R. Dan Henry  #
+###########################
+N:631:Phororachus
+G:i:W
+I:115:500:25:30:20
+W:14:4:0:88
+B:BITE:HURT:60d2
+F:ANIMAL
+D:"I will tell also of the huge bird which chased Challenger to the
+D: shelter of the rocks one day--a great running bird, far taller than
+D: an ostrich, with a vulture-like neck and cruel head which made it a
+D: walking death. As Challenger climbed to safety one dart of that
+D: savage curving beak shore off the heel of his boot as if it had been
+D: cut with a chisel. This time at least modern weapons prevailed and
+D: the great creature, twelve feet from head to foot--phororachus is its
+D: name, according to our panting but exultant Professor--went down
+D: before Lord Roxton's rifle in a flurry of waving feathers and kicking
+D: limbs, with two remorseless yellow eyes glaring up from the midst of
+D: it."\n -- _The Lost World_ by Sir Arthur Conan Doyle
+
 N:659:Pinocchio
 G:C:U
-I:110:640:20:90:20
+I:120:1240:20:90:20
 W:14:1:0:550
 B:PUNCH:HURT:3d12
 B:PUNCH:HURT:3d12
 B:KICK:HURT:3d10
 B:KICK:HURT:3d10
-F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS |
+F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | CONSTRUCT
 F:OPEN_DOOR | BASH_DOOR | COLD_BLOOD | WEIRD_MIND |
 F:IM_POIS | IM_ELEC | IM_ICE | DROP_20 |
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
@@ -2999,20 +3291,20 @@ D:His pain will become yours. Made a wooden child by his creator,
 D: he experiences misery due to his desire to be human. After
 D: slaying Jiminy Cricket by throwing a mallet on him and having
 D: his feet burned off by assassins, in a rage he bites off one of the
-D: assassins's hands. After, he is almost choked to death by being hung
+D: assassins' hands. After, he is almost choked to death by being hanged
 D: for his crime. He seeks an outlet for his rage. You.
 D: -The Adventures of Pinocchio (1881) Carlo Lorenzini (1826-1890)
 
 N:660:Arnold Paole
 G:V:B
-I:90:500:40:50:100
-W:14:10:0:150
+I:120:1800:40:50:100
+W:14:5:0:150
 B:BITE:EXP_40:4d5
 B:BITE:LOSE_ALL:5d4
 B:WAIL:TERRIFY
 F:UNDEAD | FORCE_SLEEP | MALE | UNIQUE | ATTR_MULTI |
 F:EVIL | COLD_BLOOD | WEIRD_MIND | DROP_40 | 
-F:IM_NETHER | IM_ICE | IM_TIME |
+F:IM_NETHER | IM_ICE | IM_TIME | RAND_25
 F:NO_FEAR | NO_SLEEP
 D:"...Arnold Paole, an old Serbian soldier who once escaped a
 D: vampire's curse by eating the dirt upon the vampire's grave and
@@ -3037,11 +3329,12 @@ D: some new hair and nails, and looks extraordinarily well preserved.
 ###########################################
 N:662:Snakeman
 G:B:g
-I:105:300:10:35:130
+I:110:500:10:35:130
 W:15:1:0:110
 B:CRUSH:HURT:15d2
 B:BITE:POISON:10d4
 F:FRIENDS | EVIL | BASH_DOOR | BEASTMAN | IM_POIS | COLD_BLOOD | MALE
+F:OPEN_DOOR
 D:A humanoid head and torso sit atop a great snake's body. The
 D: features of the face are somewhat humanoid, but the overall
 D: impression is reptilian. Their powerfully muscled arms end
@@ -3052,14 +3345,14 @@ D: snakes with the intelligence and adaptability of a humanoid.
 
 N:663:Luddite
 G:p:W
-I:100:700:10:40:100
-W:15:8:10:500
+I:100:200:10:40:100
+W:15:8:10:160
 B:PUNCH:HURT:1d15
 B:KICK:HURT:1d15
 B:BUTT:HURT:1d15
 B:CRUSH:HURT:1d15
-F:FRIENDS | STUPID | BASH_DOOR | NO_FEAR | KILL_ITEM
-S:1_IN_8 | POW_5
+F:FRIEND | STUPID | BASH_DOOR | NO_FEAR | KILL_ITEM
+S:1_IN_6 | POW_5
 S:BA_EMP
 D:A dishevelled labourer screams obscenities as he tears apart
 D: what you can only guess used to be an automaton. As the
@@ -3069,24 +3362,23 @@ D: turns on you when he sees the look of disgust in your eyes.
 
 N:664:Acetic Acid Cloud
 G:E:G
-I:90:375:8:30:100
+I:100:375:8:30:100
 W:15:3:20:130
 B:ENGULF:ACID:12d10
 S:1_IN_5 | POW_8
 S:BA_ACID | BO_ACID | BLIND
-F:EVIL | STUPID | ELEMENTAL | IM_ACID | EMPTY_MIND | COLD_BLOOD
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_BLUNT 
-F:VUN_AIR | CLOUD_SURROUND
+F:EVIL | STUPID | ELEMENTAL | IM_ACID | EMPTY_MIND | COLD_BLOOD | STUPID
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_BLUNT | BASH_DOOR
+F:GASEOUS | CLOUD_SURROUND | RAND_25 | VUN_AIR | KILL_BODY | KILL_ITEM
 D:The terrible smell of vinegar announces the presence of another
 D: acid elemental. Another cloud of noxious vapour is floating about
 D: the caverns slowly corroding everything it touches.
 
 N:665:Nine of Clubs
 G:c:s
-I:120:740:7:44:120
-W:15:4:0:130
-B:BLUNT:HURT:15d6
-B:BLUNT:HURT:15d6
+I:120:640:7:44:120
+W:15:6:0:130
+B:BLUNT:HURT:17d6
 F:COLD_BLOOD | FRIENDS | NO_STUN | IM_ICE | VUN_EDGED |
 F:NO_SLEEP | NO_FEAR | NO_CONF | SMART | OPEN_DOOR
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3095,10 +3387,9 @@ D: tell them apart. The Nines are fast and deadly.
 
 N:666:Nine of Diamonds
 G:c:r
-I:120:740:7:44:120
-W:15:4:0:130
-B:SLASH:HURT:15d6
-B:SLASH:HURT:15d6
+I:120:640:7:44:120
+W:15:6:0:130
+B:SLASH:HURT:17d6
 F:COLD_BLOOD | FRIENDS | NO_STUN | IM_ICE | VUN_EDGED |
 F:NO_SLEEP | NO_FEAR | NO_CONF | SMART | OPEN_DOOR
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3107,10 +3398,9 @@ D: tell them apart. The Nines are fast and deadly.
 
 N:667:Nine of Spades
 G:c:s
-I:120:740:7:44:120
-W:15:4:0:130
-B:BLUNT:HURT:15d6
-B:BLUNT:HURT:15d6
+I:120:640:7:44:120
+W:15:6:0:130
+B:BLUNT:HURT:17d6
 F:COLD_BLOOD | FRIENDS | NO_STUN | IM_ICE | VUN_EDGED |
 F:NO_SLEEP | NO_FEAR | NO_CONF | SMART | OPEN_DOOR
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3119,10 +3409,9 @@ D: tell them apart. The Nines are fast and deadly.
 
 N:668:Nine of Hearts
 G:c:r
-I:120:740:7:44:120
-W:15:4:0:130
-B:SLASH:HURT:15d8
-B:SLASH:HURT:15d8
+I:120:640:7:44:120
+W:15:6:0:130
+B:SLASH:HURT:17d8
 F:COLD_BLOOD | FRIENDS | NO_STUN | IM_ICE | VUN_EDGED |
 F:NO_SLEEP | NO_FEAR | NO_CONF | SMART | OPEN_DOOR
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3131,12 +3420,12 @@ D: tell them apart. The Nines are fast and deadly.
 
 N:670:Selenite Soldier
 G:A:o
-I:110:400:10:30:150
+I:110:300:10:30:150
 W:15:1:20:100
 B:PIERCE:HURT:4d10
 B:PIERCE:COLD:4d10
 S:1_IN_3 | POW_12
-S:GUN | HASTE | DARKNESS | 
+S:GUN | HASTE | 
 F:ALIEN | WEIRD_MIND | HURT_LIGHT | IM_ICE
 F:FRIENDS | OPEN_DOOR | NO_FEAR | NO_CONF 
 D:"My thoughts were concentrated, I think, upon my chains and the
@@ -3166,43 +3455,39 @@ D: stones and ore revealed by its digging.
 
 N:672:Will o' the Wisp
 G:v:y
-I:130:20:30:320:0
+I:130:120:30:320:0
 W:15:2:0:500
-F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | IM_BLUNT | IM_EDGED 
-F:NO_FEAR | NO_SLEEP | IM_POIS | IM_PIERCE
+B:LURE:CONFUSE
+B:LURE:CONFUSE
+F:COLD_BLOOD | WEIRD_MIND | EVIL |
+F:NO_FEAR | NO_SLEEP | IM_POIS | GASEOUS | IM_ICE |
 D:This a ghostly, pale light, hovering and sliding around.
 
 N:673:Nautilus Coxswain
 G:p:D
-I:110:250:45:35:90
+I:110:350:45:35:90
 W:15:2:25:90
 B:HIT:HURT:4d18
-S:1_IN_5 | POW_8
+S:1_IN_5 | POW_10
 S:FEAR | GUN
-F:OPEN_DOOR | TAKE_ITEM | IM_ELEC | IM_ICE
+F:OPEN_DOOR | TAKE_ITEM | IM_ELEC | IM_ICE | FRIEND
 D:"Only among themselves did they use that odd language, the origin
 D: of which I could not guess, neither could I question them... 'Nautron
 D: Respoc Lorni Virch.'" -Jules Verne "20,000 Leagues Under the Sea."
 
-N:700:The Marquis de la Tour
-G:p:r
-I:130:1550:20:50:20
-W:15:3:20:350
-B:HIT:HURT:6d6
-F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | 
-F:SMART | WEIRD_MIND | REGENERATE | OPEN_DOOR | 
-F:TAKE_ITEM | EVIL | IM_ACID | IM_FIRE | IM_ELEC | IM_ICE |
-F:IM_POIS | NO_SLEEP | NO_CONF | DROP_1D2 | DROP_GOOD | DROP_GREAT
-S:1_IN_2 | POW_15
-S:SHOTGUN | HEAL | BLINK | TPORT
-D:Seemingly out of nowhere, a gentleman steps towards you.
-D: He is wearing a fine suit covered by a dark cloak. He
-D: tips his top hat towards you. "Good evening", he says
-D: with a smile. Suddenly he pulls a shotgun from under
-D: his cloak and points it towards you. His form seems
-D: to blur for a second and then resolidifies in the form
-D: of a humanoid tiger: a Rakshasa! "A good evening
-D: indeed," he growls, "A pity you will not live to enjoy it!".
+N:674:Automated Blast Furnace
+G:e:r
+I:110:180:20:4:0
+W:15:3:80:40
+F:CONSTRUCT | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:ARCHER | NEVER_MOVE | NEVER_BLOW | IM_FIRE
+S:1_IN_5 | POW_12
+S:BA_FIRE
+D:Searing heat rolls in waves across a soot-blackened floor
+D: around this furnace.  Flames sufficient to melt metal rage
+D: in its centre and rush out whenever the furnace's heavy,
+D: clanking armatures open the hatch.
+
 
 
 ###########################################
@@ -3213,7 +3498,7 @@ D: indeed," he growls, "A pity you will not live to enjoy it!".
 
 N:701:Snakeman Hunter
 G:B:B
-I:115:400:12:40:80
+I:110:400:12:40:80
 W:16:1:0:150
 B:CRUSH:HURT:15d2
 B:BITE:POISON:10d4
@@ -3221,7 +3506,7 @@ S:1_IN_2 | POW_20
 S:ARROW
 F:FRIENDS | EVIL | BASH_DOOR | BEASTMAN | IM_POIS | COLD_BLOOD | ARCHER | MALE 
 D:A snakeman, carrying a giant composite bow made of bone and sinew, pulls
-D: an arrow out of a crude quiver. Its clumsy hands fumble to nock an arrow,
+D: an arrow out of a crude quiver. His clumsy hands fumble to nock an arrow,
 D: but once the arrow is in place the powerfully muscled arms bend the mighty
 D: bow with ease. A low hissing alerts you to the presence of several other
 D: Snakemen aiming at you from the shadows.
@@ -3263,21 +3548,19 @@ D: brain of man, imperiously insisting 'thus far and no farther' to all his
 D: possibilities." -H.G. Wells, "The First Men in the Moon"
 
 N:704:Selenite Sustenance Engine
-G:a:B
-I:90:1000:10:50:200
+G:C:B
+I:100:1000:10:50:200
 W:16:2:20:150
 B:CRUSH:HURT:50d2
-F:AUTOMATA | COLD_BLOOD | EMPTY_MIND | BASH_DOOR
-F:IM_ELEC | IM_ICE | IM_ETHER | NO_FEAR
+F:CONSTRUCT | COLD_BLOOD | EMPTY_MIND | BASH_DOOR
+F:IM_ELEC | IM_ICE | IM_ETHER | NO_FEAR | NEVER_MOVE
 F:NO_STUN | NO_CONF | NO_SLEEP | REGENERATE
 S:1_IN_2 | POW_15
 S:HEAL | CURE | BO_ELEC | BO_ETHER
 S:ADD_MANA | S_ALIEN
-D:"It became apparent that the source of much, at least, of the tumult of
-D: sounds which had filled our ears ever since we had recovered from the
-D: stupefaction of the fungus was a vast mass of machinery in active movement,
-D: whose flying and whirling parts were visible indistinctly over the heads and
-D: between the bodies of the Selenites who walked about us. And not only did the
+D:"It became apparent that the source . . . of the tumult of
+D: sounds which had filled our ears . . .was a vast mass of
+D: machinery in active movement. . . .And not only did the
 D: web of sounds that filled the air proceed from this mechanism, but also the
 D: peculiar blue light that irradiated the whole place. . .
 D: The meaning and structure of this huge apparatus we saw I cannot explain,
@@ -3297,7 +3580,7 @@ D: -H.G. Wells, "The First Men in the Moon"
 
 N:705:Rapha
 G:A:D
-I:100:300:8:25:80
+I:110:300:8:25:80
 W:16:2:0:80
 B:CRAWL:HURT:20d3
 B:CRAWL:ACID:5d5 
@@ -3315,7 +3598,7 @@ D: inside the moon." -H.G. Wells, "The First Men in the Moon"
 
 N:706:Cheetah Man
 G:B:y
-I:120:800:15:32:80
+I:130:800:15:32:80
 W:16:1:0:200
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
@@ -3332,8 +3615,8 @@ N:707:Freemason Grand Chancellor
 G:p:u
 I:110:750:45:70:45
 W:16:2:65:135
-B:PUNCH:HURT:40D2
-B:KICK:HURT:10D1
+B:PUNCH:HURT:40d2
+B:KICK:HURT:15d1
 S:1_IN_3 | POW_13
 S:BA_FIRE | BLINK
 F:OPEN_DOOR | SMART | NO_CONF | NO_SLEEP | LOW_MANA_RUN | MALE
@@ -3341,7 +3624,7 @@ D:He is of the Past Commanders Association.  He is trained in the
 D: ways used during Inquisition in 1229, the Saint Bartholomew's Eve
 D: Massacre of 1572, and the revocation of the Edict of Nantes in 1685.
 D: During these times, the Masons left behind their hammers and adapted
-D: the ancient greek unarmed combat method know as Pancration.  He
+D: the ancient Greek unarmed combat method known as Pancration.  He
 D: assumes a fighting stance unfamiliar to you, and then invites you to
 D: join him for a light sparring session.
 
@@ -3371,13 +3654,13 @@ D:A large spectral death omen demon dog is before you. Black Shuck,
 D: also called Old Shuck, derives its name from the Anglo-Saxon
 D: term scucca or sceocca, old Anglo-Saxon terms for "demon" or
 D: "satan". Black Shuck is all black and is huge, about the
-D: size of a calf. he has large eyes that glow yellow, red,
-D: or green as if on fire. Often, he is headless, yet his
-D: eyes -where eyes should be- glow in the dark.
+D: size of a calf. He has large eyes that glow yellow, red,
+D: or green as if on fire. Often, this dog appear in headless
+D: form, yet where his eyes would be, twin lights glow in the dark.
 
 N:710:Bhut
 G:W:U
-I:110:400:6:70:70
+I:110:400:6:70:0
 W:16:2:0:300
 B:BITE:POISON:30d4
 B:GAZE:TERRIFY
@@ -3385,7 +3668,7 @@ F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | NO_FEAR
 F:IM_EDGED | PASS_WALL | INVISIBLE | NO_SLEEP
 F:IM_ICE | IM_EARTH | IM_POIS
 D:An evil Indian ghost of the dead. It has no shadow.
-D: It is never known to rest on the earth, Its saliva is
+D: It is never known to rest on the earth. Its saliva is
 D: poisonous, and to see it usually results in death by fright.
 
 N:711:Airi
@@ -3402,6 +3685,45 @@ S:S_HOUND
 D:An evil Indian ghost of the dead killed during a hunt.
 D: It travels with a pack of spectral dogs. Its saliva is
 D: poisonous, and to see it usually results in death by fright.
+
+N:712:Ice Spider
+G:S:w
+I:110:320:30:110:40
+W:16:2:30:420
+B:BITE:COLD:10d2
+F:COLD_BLOOD | WEIRD_MIND | VUN_BLUNT | IM_ICE | IM_POIS |
+F:FRIEND | RAND_25 | DROP_5 | ELEMENTAL | ANIMAL | IM_EDGED
+F:NO_STUN | VUN_FIRE
+S:1_IN_4 | POW_8
+S:BR_ICE | SLOW | HOLD
+D:A silk spinner made entirely of ice. Frost covers the ground
+D: where its spindly icicle legs touch.
+
+###########################
+# Credited: R. Dan Henry  #
+###########################
+N:713:Doda
+G:M:r
+I:110:500:40:110:10
+W:16:3:0:350
+B:GAZE:PARALYZE
+B:HIT:HURT:8d3
+B:HIT:HURT:8d3
+F:MALE | FRIENDS | OPEN_DOOR | BASH_DOOR | EVIL | ANIMAL
+D:"A face was gazing into mine--at the distance of only a foot or
+D: two.... It was a human face--or at least it was far more human than
+D: any monkey's that I have ever seen. It was long, whitish, and
+D: blotched with pimples, the nose flattened, and the lower jaw
+D: projecting, with a bristle of coarse whiskers round the chin. The
+D: eyes, which were under thick and heavy brows, were bestial and
+D: ferocious, and as it opened its mouth to snarl what sounded like
+D: a curse at me I observed that it had curved, sharp canine teeth.
+D: For an instant I read hatred and menace in the evil eyes. Then, as
+D: quick as a flash, came an expression of overpowering fear. There
+D: was a crash of broken boughs as it dived wildly down into the tangle
+D: of green. I caught a glimpse of a hairy body like that of a reddish
+D: pig, and then it was gone amid a swirl of leaves and branches."\n
+D: -- _The Lost World_ by Sir Arthur Conan Doyle
 
 N:738:Tsi-puff, Selenite Professor
 G:A:v
@@ -3425,9 +3747,9 @@ D:(H.G. Wells, The First Men in the Moon)
 N:739:The Knave of Hearts
 G:c:u
 I:120:1000:6:45:100
-W:16:1:0:300
-B:SLASH:HURT:20d10
-B:SLASH:HURT:20d10
+W:16:2:0:300
+B:SLASH:EAT_FOOD:20d10
+B:SLASH:EAT_FOOD:20d10
 F:COLD_BLOOD | NO_STUN | IM_ICE
 F:NO_SLEEP | NO_FEAR | NO_CONF | SMART | OPEN_DOOR | VUN_EDGED |
 F:ESCORTS | UNIQUE | ATTR_MULTI | FIXED_HPS
@@ -3440,8 +3762,8 @@ D:  And took them quite away!'
 
 N:740:The Black Dwarf
 G:p:D
-I:110:500:40:80:40
-W:16:1:0:430
+I:120:1200:40:80:40
+W:16:2:0:430
 B:HIT:HURT:30d10
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | FORCE_SLEEP |
 F:REGENERATE | HURT_LIGHT | IM_ICE | IM_NETHER | 
@@ -3449,15 +3771,16 @@ F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP |
 D:Sir Walter Scott wrote about this strange person in 1816.
 D: Scott is the creator of a genre of historical fiction.
 D: The Black Dwarf is about Sir Edward Manley (or Mauley).
-D: He is an honored British nobleman. Sadly he is terribly
-D: deformed. A hideously ugly four foot dwarf. He is, because
-D: of his condition, stripped of everything that is his right.
-D: He flees to Northumbria, and when the opportunity occurs tries
-D: to help people. They of course do not trust him. "Canny Elshie
-D: the Black Dwarf," a terrible figure of nightmare.
-D: His true nature is that of a poet who longs to belong, but
-D: fate has dealt him a bad hand. He appears to have lost his mind.
-D: He stumbles towards you with a look of madness on his face.
+D: He is an honored British nobleman. Sadly, he is a terribly
+D: deformed dwarf, hideous to see and only four feet tall.
+D: He is, because of his condition, stripped of everything
+D: that is his right. He flees to Northumbria, and when the
+D: opportunity occurs tries to help people.They do not trust
+D: him, believing him to be 'Canny Elshie the Black Dwarf,'
+D: a terrible figure of nightmare.  His true nature is that
+D: of a poet who longs to belong, but fate has dealt him a
+D: bad hand. He appears to have lost his mind. He stumbles
+D: towards you with a look of madness on his face.
 
 ###########################################
 ############   Level 34(17)    ############
@@ -3477,10 +3800,10 @@ F:EVIL | BASH_DOOR | BEASTMAN | IM_POIS | COLD_BLOOD
 F:REGENERATE | IM_EARTH | NO_FEAR | NO_SLEEP | MALE
 D:A Snakeman of incredible size. The serpent aspect of the Snakeman hybrid
 D: is much more prevalent in this specimen. Strange eruptions have sprung
-D: up along the back of its arms and along its tail. The torso and arm
-D: musculature is much more pronounced, but its head is essentially a giant
-D: snake head devoid of human features. It flexes its massive arms and puffs
-D: out its chest in a show of strength before it comes to crush the life
+D: up along the back of his arms and along his tail. The torso and arm
+D: musculature is much more pronounced, but his head is essentially a giant
+D: snake head devoid of human features. he flexes his massive arms and puffs
+D: out its chest in a show of strength before he comes to crush the life
 D: out of you.
 
 N:742:Snakewoman Priestess
@@ -3491,7 +3814,7 @@ B:CRUSH:HURT:15d2
 B:BITE:POISON:10d4
 F:SMART | EVIL | OPEN_DOOR | BEASTMAN | IM_POIS | COLD_BLOOD | FEMALE
 F:IM_ACID | IM_ICE | NO_CONF | NO_SLEEP | IM_EARTH | IM_WATER
-S:1_IN_2 | POW_35
+S:1_IN_2 | POW_30
 S:BO_POISON | BO_ACID | CURE | S_KIN | STUN | CONFUSION
 D:She is much more slender than the previous Snakewomen you have seen,
 D: and her humanoid features are more defined.
@@ -3517,16 +3840,16 @@ D: beneath the beast.
 
 N:744:Timekeeper
 G:E:v
-I:110:300:10:36:70
+I:110:333:10:36:70
 W:17:2:30:325
 B:GAZE:HURT:48d2
-S:1_IN_3 | POW_18
+S:1_IN_2 | POW_18
 S:BA_TIME | BO_TIME
-S:HOLD | SLOW | HASTE | ADD_MANA | TELE_SELF_TO | BLINK
+S:HOLD | SLOW | HASTE | ADD_MANA | TELE_SELF_TO 
 F:EVIL | STUPID | ELEMENTAL | IM_TIME | WEIRD_MIND 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | KILL_ITEM
 D:An ancient man with an emaciated frame and pure white hair
-D: checks his pocketwatch as you approach. You begin to ask
+D: checks his pocket watch as you approach. You begin to ask
 D: him what he is doing in the caverns when you notice that he
 D: isn't there anymore. He is standing immediately in front of
 D: you and fiddling with his timepiece again. You aren't sure
@@ -3536,7 +3859,7 @@ D: defend yourself.
 
 N:745:Deadly Frost
 G:E:w
-I:90:800:12:68:175
+I:90:1100:12:68:175
 W:17:3:30:200
 B:CRUSH:COLD:60d4
 S:1_IN_5 | POW_10
@@ -3550,10 +3873,9 @@ D: deep blue ice to crush you.
 
 N:746:Ten of Clubs
 G:c:s
-I:120:950:7:50:110
-W:17:4:0:170
-B:BLUNT:HURT:20d6
-B:BLUNT:HURT:20d6
+I:120:750:7:50:110
+W:17:6:0:170
+B:BLUNT:HURT:22d6
 F:COLD_BLOOD | FRIENDS | NO_STUN | SMART | IM_ICE
 F:NO_SLEEP | NO_FEAR | NO_CONF | OPEN_DOOR | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3563,10 +3885,9 @@ D: vigilant for enemies of the Queen.
 
 N:747:Ten of Diamonds
 G:c:r
-I:120:950:7:50:110
-W:17:4:0:170
-B:SLASH:HURT:20d6
-B:SLASH:HURT:20d6
+I:120:750:7:50:110
+W:17:6:0:170
+B:SLASH:HURT:22d6
 F:COLD_BLOOD | FRIENDS | NO_STUN | SMART | IM_ICE
 F:NO_SLEEP | NO_FEAR | NO_CONF | OPEN_DOOR | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3576,10 +3897,9 @@ D: vigilant for enemies of the Queen.
 
 N:748:Ten of Spades
 G:c:s
-I:120:970:7:55:110
-W:17:4:0:180
-B:BLUNT:HURT:20d8
-B:BLUNT:HURT:20d8
+I:120:770:7:55:110
+W:17:6:0:180
+B:BLUNT:HURT:22d8
 F:COLD_BLOOD | FRIENDS | NO_STUN | SMART | IM_ICE
 F:NO_SLEEP | NO_FEAR | NO_CONF | OPEN_DOOR | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3589,10 +3909,9 @@ D: vigilant for enemies of the Queen.
 
 N:749:Ten of Hearts
 G:c:r
-I:120:970:7:55:110
-W:17:4:0:180
-B:SLASH:HURT:20d8
-B:SLASH:HURT:20d8
+I:120:770:7:55:110
+W:17:6:0:180
+B:SLASH:HURT:22d8
 F:COLD_BLOOD | FRIENDS | NO_STUN | SMART | IM_ICE
 F:NO_SLEEP | NO_FEAR | NO_CONF | OPEN_DOOR | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3601,7 +3920,7 @@ D: tell them apart. The Tens have amazing resilience and are
 D: vigilant for enemies of the Queen.
 
 N:750:Snakeman Outcast
-G:B:v
+G:B:r
 I:120:600:14:45:70
 W:17:2:20:300
 B:CRUSH:HURT:15d2
@@ -3622,13 +3941,12 @@ N:751:Ether Cloud
 G:E:s
 I:110:475:12:34:90
 W:17:2:40:175
-B:TOUCH:ETHER:1d150
+B:TOUCH:ETHER:1d75
 S:1_IN_3:25
-S:SHRIEK | BLINK | BA_ETHER | BO_ETHER
+S:BLINK | BA_ETHER | BO_ETHER
 F:EVIL | ELEMENTAL | IM_ETHER
 F:PASS_WALL | LOW_MANA_RUN | WEIRD_MIND | INVISIBLE
-F:IM_BLUNT | IM_PIERCE | IM_EDGED | NO_CONF | NO_SLEEP | NO_FEAR
-F:NO_STUN | VUN_AIR | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | GASEOUS | STUPID
 D:Dense clouds of ether bar your path. Powerful forces attuned to
 D: the lifeblood of the universe do not want you to continue your journey.
 
@@ -3649,7 +3967,7 @@ D: administrators.
 
 N:753:Tzee
 G:A:B
-I:115:750:16:20:50
+I:115:650:16:20:50
 W:17:2:20:250
 B:PIERCE:POISON:30d2
 B:CLAW:HURT:6d6
@@ -3670,7 +3988,7 @@ F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_4 | POW_20
 S:BA_FIRE
 D:This looks like a small black bird flying towards you.
-D: Suddenly something shoots out towards you! A bomb!
+D: Suddenly something is tossed towards you! A bomb!
 
 N:755:Nautilus Officer
 G:p:D
@@ -3679,12 +3997,54 @@ W:17:2:30:100
 B:HIT:HURT:4d20
 S:1_IN_5 |POW_10
 S:GUN | S_KIN
-F:OPEN_DOOR | IM_ELEC | IM_ICE | FRIENDS
+F:OPEN_DOOR | IM_ELEC | IM_ICE 
 D:"The two strangers, wearing caps made from the fur of the sea
 D: otter, and shod with sea boots of seal's skin, were dressed in
 D: clothes of a special material, which allowed great freedom of
 D: movement." -Jules Verne "20,000 Leagues Under the Sea."
 
+###########################
+# Credited: Bridger Flynn #
+###########################
+N:756:Spider Globe
+G:S:W
+I:100:200:10:20:200
+W:17:2:26:150
+B:TOUCH:ACID:4d20
+B:TOUCH:TERRIFY
+F:RAND_25 | FRIEND | WEIRD_MIND | PLANT
+F:IM_AIR | IM_BLUNT | VUN_FIRE | NO_FEAR 
+S:1_IN_2 | POW_20
+S:S_SPIDER
+D:And then he saw first one and then a second great white ball,
+D: a great shining white ball like a gigantic head of thistle-down,
+D: that drove before the wind athwart the path. These balls soared
+D: high in the air, and dropped and rose again and caught for a
+D: moment, and hurried on and passed, but at the sight of them the
+D: restlessness of the horses increased. - H.G. Wells
+D: "The Valley of the Spiders"
+
+###########################
+# Credited: Bridger Flynn #
+###########################
+N:757:Grey Spider
+G:S:s
+I:120:400:120:30:80
+W:20:1:0:200
+B:BITE:POISON:12d8
+B:CRAWL:TERRIFY
+B:CRAWL:TERRIFY
+F:ANIMAL | IM_POIS | IM_ACID | VUN_BLUNT
+F:NO_FEAR | FRIENDS  | COLD_BLOOD
+D:A long and clinging thread fell across his face, a grey streamer
+D: dropped about his bridle-arm, some big, active thing with many
+D: legs ran down the back of his head. He looked up to discover one
+D: of those grey masses anchored as it were above him by these things
+D: and flapping out ends as a sail flaps when a boat comes, about
+D: but noiselessly.  He had an impression of many eyes, of a dense crew
+D: of squat bodies, of long, many-jointed limbs hauling at their mooring
+D: ropes to bring the thing down upon him. -H.G. Wells
+D: "The Valley of the Spiders"
 
 ###########################
 # Credited: Steve Latour  #
@@ -3693,15 +4053,15 @@ N:779:The Mason
 G:p:D
 I:110:950:40:75:40
 W:17:1:75:400
-B:BLUNT:HURT:15D15
-B:BLUNT:HURT:15D15
+B:BLUNT:HURT:15d15
+B:BLUNT:HURT:15d15
 S:1_IN_3 | POW_30
 S:BO_GRAVITY | BLINK | HEAL
 F:OPEN_DOOR | SMART | NO_CONF | NO_STUN | NO_SLEEP | MALE
 F:UNIQUE | ESCORTS | UNIQUE | ATTR_MULTI | FIXED_HPS | LOW_MANA_RUN 
 D:Before you stands a small man in robes holding an ancient tattered
 D: book.  Although small in size, his level of confidence is supreme.
-D: Rumor has it that the ultimate secret teachings of Freemasons allow
+D: Rumor has it that the ultimate secret teachings of Freemasonry allow
 D: one to withstand the ravages of time itself.  Could this man be the
 D: founder of the order?
 
@@ -3715,7 +4075,7 @@ F:ALIEN | WEIRD_MIND | HURT_LIGHT | IM_ICE
 F:IM_AIR | IM_EARTH | UNIQUE | ATTR_MULTI | FIXED_HPS
 F:IM_POIS | ESCORTS | SMART | NO_FEAR
 F:NO_STUN | NO_CONF | NO_SLEEP | LOW_MANA_RUN
-S:1_IN_2 | POW_30
+S:1_IN_2 | POW_50
 S:PSI | DOMINATION | STUN | TK
 S:BLINK | TPORT | ADD_MANA | S_KIN
 D:"Phi-oo, he says, was about 5 ft. high; he had small slender legs
@@ -3732,7 +4092,7 @@ D: reduced to the size of a large flat nose-flap. On either side are
 D: the little eyes. The rest of the head is distended into a huge
 D: globe and the chitinous leathery cuticle of the mooncalf herds
 D: thins out to a mere membrane, through which the pulsating
-D: brain movements are distinctly visible. He in is a creature,
+D: brain movements are distinctly visible. Here in is a creature,
 D: indeed, with a tremendously hypertrophied brain, and with the
 D: rest of his organism both relatively and absolutely dwarfed."
 D:-H.G. Wells, "The First Men in the Moon"
@@ -3751,8 +4111,8 @@ G:C:y
 I:100:1000:8:60:100
 W:18:2:0:150
 B:CRUSH:HURT:50d4
-F:STUPID | BASH_DOOR | NO_FEAR | HOSTILE | KILL_ITEM
-F:EMPTY_MIND | AUTOMATA | IM_FIRE | IM_WATER | IM_AIR |
+F:STUPID | BASH_DOOR | NO_FEAR | HOSTILE | KILL_ITEM | KILL_WALL
+F:EMPTY_MIND | CONSTRUCT | IM_FIRE | IM_WATER | IM_AIR |
 F:IM_POIS | IM_NETHER | IM_EDGED | IM_BLUNT | VUN_PIERCE
 F:NO_STUN | NO_CONF | NO_SLEEP | IM_EARTH | DROP_1D2 | ONLY_GOLD |
 D:A small but powerful steam motor drives what appears to be
@@ -3763,27 +4123,27 @@ D: crawling your way.
 
 N:782:Large Stone Troll
 G:P:g
-I:80:1000:4:80:200
+I:80:1800:4:80:200
 W:18:4:0:240
-B:PUNCH:HURT:1d50
-B:BLUNT:HURT:25d2
-F:STUPID | BASH_DOOR | IMPENT 
+B:PUNCH:HURT:2d50
+B:BLUNT:HURT:25d4
+F:STUPID | BASH_DOOR | IMPENT | IM_EARTH
 D:Ten feet tall, weighing in at eight hundred pounds, and wielding a club
 D: of the same stone from which he comes, this bully of a magically
 D: animated cliff-face is not going to fall lightly.
 
 N:783:Snakeman Chieftain
-G:B:y
+G:B:o
 I:115:1000:12:60:120
 W:18:2:20:550
 B:CRUSH:HURT:15d4
 B:CRUSH:HURT:15d4
-B:BITE:POISON:20d4
-B:BITE:POISON:20d4
+B:BITE:POISON:20d2
+B:BITE:POISON:20d2
 F:EVIL | ESCORTS | BASH_DOOR | BEASTMAN | IM_POIS | COLD_BLOOD 
 F:REGENERATE | IM_EARTH | NO_FEAR | NO_SLEEP | MALE | DROP_1D2 | DROP_GOOD |
-S:1_IN_6 | POW_30
-S:SHRIEK | HASTE | BO_POISON | BO_WATER | TELE_SELF_TO | DOMINATION | S_KIN
+S:1_IN_6 | POW_27
+S:SHRIEK | HASTE | BO_POISON | BO_WATER | DOMINATION | S_KIN
 D:He is obviously a great leader of the Snakemen and, therefore, a leader of a
 D: great horde of beastmen that he cows into submission using his great
 D: strength and powerful shamanistic magic. His size and power are unmatched,
@@ -3802,8 +4162,8 @@ B:CLAW:HURT:7d5
 B:CLAW:HURT:7d5
 B:SLASH:BLIND:1d20
 B:GRAB:PARALYZE:30d2 
-F:DINOSAUR | IM_EARTH | IM_POIS | NO_FEAR
-F:COLD_BLOOD | BASH_DOOR 
+F:DINOSAUR | ANIMAL | IM_EARTH | IM_POIS | NO_FEAR
+F:BASH_DOOR | COLD_BLOOD
 D:[Gr. terrible claw], swift bipedal carnivorous dinosaur
 D: of the early Cretaceous period, approximately 119-93 million years ago.
 D: Adults were around 10 ft (2.5 m) from head to tail and 11 ft (3 m) high.
@@ -3816,10 +4176,10 @@ N:785:Churel
 G:W:r
 I:115:600:10:80:20
 W:18:2:12:700
-B:GRAB:PARALYZE
+B:GRAB:PARALYZE:2d2
 F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | NO_FEAR 
 F:IM_EDGED | IM_PIERCE | IM_BLUNT | PASS_WALL | INVISIBLE | NO_SLEEP
-F:IM_ICE | IM_EARTH | IM_POIS
+F:IM_ICE | IM_EARTH | IM_POIS | FEMALE
 S:1_IN_4 | POW_12
 S:HOLD
 D:The evil indian ghost of a woman who died in childbirth or
@@ -3832,7 +4192,7 @@ I:100:200:0:1:255
 W:18:4:0:1
 B:WAIL
 F:NEVER_MOVE | COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | NO_FEAR
-F:INVISIBLE | NO_SLEEP | IM_ICE | IM_EARTH | IM_POIS
+F:INVISIBLE | NO_SLEEP | IM_ICE | IM_EARTH | IM_POIS | FEMALE
 D:It is a lady in mourning with no face.
 
 N:787:Giant Ant
@@ -3840,36 +4200,46 @@ G:I:D
 I:110:500:8:30:100
 W:18:2:0:150
 B:BITE:HURT:15d5
-F:ANIMAL | FRIENDS | WEIRD_MIND | IM_EARTH
+F:ANIMAL | FRIEND | WEIRD_MIND | IM_EARTH
 F:IM_EDGED | VUN_WATER | KILL_WALL
-D:Man sized ants are tunneling through the cavern walls.
+D:Man-sized ants are tunneling through the cavern walls.
 D: Their mandibles look like they could cut a man in half.
 
+N:788:Abyss Fly
+G:I:v
+I:110:80:9:90:20
+W:18:2:0:200
+B:STING:HURT:1d2
+F:ANIMAL | FRIENDS | WEIRD_MIND | IM_NETHER | IM_PIERCE | IM_EDGED
+F:VUN_AIR
+S:1_IN_3 | POW_0
+S:BR_NETHER
+D:A black cloud of dark buzzing insects flies towards you.
 
 N:817:Selenite Central Command Unit
 G:a:G
 I:100:1200:12:50:150
-W:18:2:50:400
+W:18:2:50:500
 B:BLUNT:HURT:4d10
 B:BLUNT:HURT:4d10
 B:ZAP:ELEC:3d20
 B:ZAP:ELEC:3d20
 F:UNIQUE | ATTR_MULTI | AUTOMATA | COLD_BLOOD | EMPTY_MIND
 F:IM_ELEC | IM_ICE | NO_FEAR | NO_STUN | ESCORT | FIXED_HPS
-F:NO_CONF | NO_SLEEP | NEVER_MOVE | SMART
+F:NO_CONF | NO_SLEEP | NEVER_MOVE | SMART | IM_POIS
 S:1_IN_2 | POW_25
 S:BO_ELEC | BO_ICE | BA_GRAVITY | S_KIN
 S:S_ALIEN | BE_ELEC | ADD_MANA
 D:The pinnacle of Selenite technology.  This fantastic machine micromanages 
-D:much of the day to day activity of the Selenites.  It allows the upper
-D:echelons of Selenite society to devote less time interfacing with the worker
-D:castes and more time devoted to thought and introspection.  It appears to
-D:have created a vanguard of automata to protect itself. 
+D: much of the day to day activity of the Selenites.  It allows the upper
+D: echelons of Selenite society to devote less time interfacing with the worker
+D: castes and more time devoted to thought and introspection.  It appears to
+D: have created a vanguard of automata to protect itself. 
 
 N:818:The Grand Lunar
 G:A:D
-I:110:1000:14:36:80
-W:18:3:60:600
+I:110:850:14:36:80
+W:18:3:60:800
 B:TOUCH:COLD:4d10
 B:TOUCH:CONFUSE:4d10
 B:TOUCH:PARALYZE:4d10
@@ -3891,12 +4261,12 @@ D: than these two staring little eyes, and then below I distinguished the
 D: little dwarfed body and its insect-jointed limbs shrivelled and white.
 D: The eyes stared down at me with a strange intensity, and the lower
 D: part of the swollen globe was wrinkled. Ineffectual-looking little
-D: hand-tentacles steadied this shape on the throne. ... It was great. It
-D: was pitiful. . . It seemed to me that this darkly glowing brain case 
+D: hand-tentacles steadied this shape on the throne....It was great. It
+D: was pitiful... It seemed to me that this darkly glowing brain case 
 D: above us spread over me, and took more and more of the whole effect
-D: into itself as I drew nearer. . . I saw that shadowy attendants 
+D: into itself as I drew nearer... I saw that shadowy attendants 
 D: were busy spraying that great brain with a cooling spray, and patting 
-D: and sustaining it. . . And at last, as I reached a little landing that
+D: and sustaining it... And at last, as I reached a little landing that
 D: was separated only by ten steps or so from the supreme seat, 
 D: the woven splendour of the music reached a climax and ceased, 
 D: and I was left naked, as it were, in that vastness, beneath the still 
@@ -3906,12 +4276,12 @@ D: he had ever seen." -H.G. Wells, "The First Men in the Moon"
 N:819:The King of Hearts
 G:c:o
 I:120:1020:6:50:100
-W:18:1:0:350
-B:SLASH:HURT:25d10
-B:SLASH:HURT:25d10
-F:COLD_BLOOD | NO_STUN | IM_ICE | VUN_EDGED | 
-F:NO_SLEEP | NO_FEAR | NO_CONF | SMART | OPEN_DOOR
-F:ESCORTS | UNIQUE | ATTR_MULTI | FIXED_HPS
+W:18:2:0:350
+B:SLASH:HURT:22d8
+B:SLASH:HURT:22d8
+F:COLD_BLOOD | NO_STUN | IM_ICE | VUN_EDGED
+F:NO_SLEEP |  | NO_CONF | SMART | OPEN_DOOR
+F:ESCORTS | UNIQUE | ATTR_MULTI | FIXED_HPS | MALE
 D:Though nominally the head of the Court, the King of Hearts
 D: is very much under the Queen's thumb. He is a timid
 D: card, but with his wife's backing can find some small
@@ -3919,16 +4289,16 @@ D: measure of backbone.
 
 N:820:Aballino
 G:p:b
-I:110:800:50:85:90
-W:18:1:0:550
-B:HIT:HURT:8d4
-B:HIT:HURT:8d4
+I:120:800:50:85:90
+W:18:2:0:550
+B:HIT:TERRIFY:8d4
+B:HIT:EAT_ITEM:8d4
 F:MALE | UNIQUE | ATTR_MULTI | FIXED_HPS | FORCE_SLEEP |
 F:SMART | OPEN_DOOR | TAKE_ITEM | REGENERATE | HOSTILE |
 F:IM_FIRE | IM_ICE | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP |
-S:1_IN_8 | POW_30
+S:1_IN_6 | POW_30
 S:HEAL | TRAPS
-D:A man named Aballino storms towards you. He was created by
+D:A man named Aballino storms towards you. He is a literary creation of
 D: Heinrich Daniel Zschokke, and he is known as Aballino the
 D: Great Bandit (1794). His real name is Neapolitan Count Rosalvo,
 D: who desires to rid Venice of all assassins, thugs, and conspirators.
@@ -3952,14 +4322,14 @@ D: as Flodardo.
 
 N:821:Nitric Acid Cloud
 G:E:G
-I:90:550:8:37:90
+I:100:550:8:37:90
 W:19:3:30:200
 B:ENGULF:ACID:15d10
 S:1_IN_5 | POW_10
 S:BA_ACID | BO_ACID | BLIND
 F:EVIL | STUPID | ELEMENTAL | IM_ACID | EMPTY_MIND | COLD_BLOOD
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_BLUNT
-F:VUN_AIR | CLOUD_SURROUND
+F:GASEOUS | CLOUD_SURROUND
 D:An annoying hissing and popping sound alerts you to the presence
 D: of another acid elemental. This elemental is about twice the size
 D: of the last one you encountered and it is slowly eating away at
@@ -3967,10 +4337,9 @@ D: the walls of the cavern where the cloud touches the wall.
 
 N:822:Ace of Clubs
 G:c:s
-I:120:1150:7:55:100
-W:19:4:0:210
-B:BLUNT:HURT:25d6
-B:BLUNT:HURT:25d6
+I:120:950:7:55:100
+W:19:6:0:210
+B:BLUNT:HURT:30d6
 F:COLD_BLOOD | FRIENDS | NO_STUN | SMART | IM_ICE
 F:NO_SLEEP | NO_FEAR | NO_CONF | OPEN_DOOR | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3980,10 +4349,9 @@ D: and dream of one day being promoted to the nobility.
 
 N:823:Ace of Diamonds
 G:c:r
-I:120:1150:7:55:100
-W:19:4:0:210
-B:SLASH:HURT:25d6
-B:SLASH:HURT:25d6
+I:120:950:7:55:100
+W:19:6:0:210
+B:SLASH:HURT:30d6
 F:COLD_BLOOD | FRIENDS | NO_STUN | SMART | IM_ICE
 F:NO_SLEEP | NO_FEAR | NO_CONF | OPEN_DOOR | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -3993,10 +4361,9 @@ D: and dream of one day being promoted to the nobility.
 
 N:824:Ace of Spades
 G:c:s
-I:120:1170:7:60:100
-W:19:4:0:220
-B:BLUNT:HURT:25d8
-B:BLUNT:HURT:25d8
+I:120:970:7:60:100
+W:19:6:0:220
+B:BLUNT:HURT:30d8
 F:COLD_BLOOD | FRIENDS | NO_STUN | SMART | IM_ICE
 F:NO_SLEEP | NO_FEAR | NO_CONF | OPEN_DOOR | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -4006,10 +4373,9 @@ D: and dream of one day being promoted to the nobility.
 
 N:825:Ace of Hearts
 G:c:r
-I:120:1170:7:60:100
-W:19:4:0:220
-B:SLASH:HURT:25d8
-B:SLASH:HURT:25d8
+I:120:970:7:60:100
+W:19:6:0:220
+B:SLASH:HURT:30d8
 F:COLD_BLOOD | FRIENDS | NO_STUN | SMART | IM_ICE
 F:NO_SLEEP | NO_FEAR | NO_CONF | OPEN_DOOR | VUN_EDGED |
 D:Oblong and flat, with their hands and feet at the corners.
@@ -4017,26 +4383,26 @@ D: From behind they all look the same, only the faces let you
 D: tell them apart. Aces are the first rank below the Royal Court,
 D: and dream of one day being promoted to the nobility.
 
-N:826:Dimensional Etheric Automaton
+N:826:Dimensional Access Automaton
 G:a:B
 I:120:1640:20:25:30
-W:19:2:0:250
+W:19:2:12:250
 B:ZAP:LOSE_SCH:50d3
 B:ZAP:LOSE_EGO:20d3
 F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
 F:DROP_40 | SMART | RAND_50 | RAND_25
-S:1_IN_3 | POW_30
+S:1_IN_3 | POW_24
 S:BA_RAD | CLOUD_RAD | BO_ETHER
-D:A small spherical object floats in the air surrounded by a strange
+D:A small spherical object floats in the air surrounded by a d
 D: green glow. Small luminescent wisps of green gas trail out from
 D: behind it, or less often they trail from the direction it's about
-D: to move. Strange - It spins and twirls randomly, and in the center
-D: you can see some kind of strange etheric light. This automaton
-D: was built to access other dimensions. You move forward with caution.
+D: to move. Strangely, it spins and twirls randomly, and in the center
+D: you can see an otherworldly etheric light. This automaton
+D: was built to access other dimensions.
 
 N:827:White Butterfly
 G:I:w
-I:110:100:10:15:40
+I:110:100:10:115:40
 W:19:2:25:150
 B:TOUCH:CONFUSE:10d1
 B:TOUCH:PARALYZE:10d1
@@ -4050,21 +4416,21 @@ D: into the sky and, circling, disappear over some low hillocks
 D: beyond.  The sound of its voice was so dismal that I shivered. . ."
 D: -H.G. Wells "The Time Machine"
 
-N:828:Nautilus Steerman
+N:828:Nautilus Steersman
 G:p:B
-I:115:350:75:60:80
+I:115:450:75:60:80
 W:19:2:35:150
-B:SPEAK:CONFUSE
+B:HIT:CONFUSE:5d8
 S:1_IN_3 | POW_12
 S:GUN | BA_WATER | TPORT | TRAPS
-F:SMART | NO_CONF | NO_SLEEP
+F:SMART | NO_CONF | NO_SLEEP | OPEN_DOOR
 D:"The steersman is placed in a glass cage that is projected from the
 D: highest part of the hull of the Nautilus, and strengthened with
 D: lenticular glasses." Jules Verne "20,000 Leagues Under the Sea."
 
 N:829:Nautilus Neer-do-well
 G:p:b
-I:120:300:50:50:90
+I:120:450:50:50:90
 W:19:2:30:110
 B:TOUCH:EAT_GOLD:5d5
 B:TOUCH:EAT_ITEM:5d5
@@ -4074,6 +4440,61 @@ F:SMART | OPEN_DOOR | IM_ELEC | IM_ICE
 D:"'My opinion is formed,' replied Ned Land, sharply.  'They are
 D: rascals.'  'Good! And from what country?'  'From the land of
 D: rogues!'" -Jules Verne "20,000 Leagues Under the Sea."
+
+N:830:Rogue Elephant
+G:q:s
+I:115:2500:20:55:35
+W:19:4:7:350
+B:CRUSH:HURT:25d12
+B:CRUSH:HURT:25d12
+F:MALE | HOSTILE | OPEN_DOOR | BASH_DOOR | ANIMAL | IM_AIR
+F:IM_WATER | IM_EDGED | IM_BLUNT
+S:1_IN_8 | POW_20
+S:BO_WATER
+D:"Dashed peculiar, that!" interrupted Sir Whig-Nottle. "That elephant
+D: over there appears to be crushing those poor villagers to death. Most
+D: unusual behavior, what?" \n
+D:"Him rogue elephant," our guide replied, in the broken English he
+D: insisted on using, though we bloody well knew he could speak
+D: properly. "Him all alone. Not in elephant herd. Go quite mad. Cause
+D: much destruction. I think because he not with any girl elephants, if
+D: you understand." \n
+D:"I say!" I said. \n
+D: -- G. W. Hunter, Spicy Hunting Stories
+
+N:831:Fire Spider
+G:S:R
+I:115:420:30:110:40
+W:19:2:30:420
+B:BITE:FIRE:13d3
+F:WEIRD_MIND | VUN_BLUNT | IM_FIRE | IM_POIS |
+F:FRIEND | DROP_5 | ELEMENTAL | ANIMAL | IM_EDGED
+F:NO_STUN | VUN_ICE
+S:1_IN_4 | POW_12
+S:BR_FIRE | HASTE
+D:A silk spinner made entirely of fire. Flame licks along the ground
+D: where its spindly molten legs touch.
+
+
+N:860:The Marquis de la Tour
+G:p:r
+I:130:1550:20:50:20
+W:19:3:20:350
+B:HIT:HURT:6d6
+F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | 
+F:SMART | WEIRD_MIND | REGENERATE | OPEN_DOOR | 
+F:TAKE_ITEM | EVIL | IM_ACID | IM_FIRE | IM_ELEC | IM_ICE |
+F:IM_POIS | NO_SLEEP | NO_CONF | DROP_1D2 | DROP_GOOD | DROP_GREAT
+S:1_IN_2 | POW_15
+S:SHOTGUN | HEAL | BLINK | TPORT
+D:Seemingly out of nowhere, a gentleman steps towards you.
+D: He is wearing a fine suit covered by a dark cloak. He
+D: tips his top hat towards you. "Good evening", he says
+D: with a smile. Suddenly he pulls a shotgun from under
+D: his cloak and points it towards you. His form seems
+D: to blur for a second and then resolidifies in the form
+D: of a humanoid tiger: a Rakshasa! "A good evening
+D: indeed," he growls, "A pity you will not live to enjoy it!".
 
 ###########################################
 ############   Level 31(20)    ############
@@ -4085,10 +4506,10 @@ N:861:Rot Monster
 G:E:g
 I:110:650:9:39:90
 W:20:3:30:230
-B:STING:POISON:29d5
+B:STING:POISON:33d8
 F:EVIL | STUPID | ELEMENTAL | IM_POIS | EMPTY_MIND
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | CLOUD_SURROUND
-S:1_IN_4 | POW_17
+S:1_IN_4 | POW_20
 S:CLOUD_POISON | HOLD
 D:Piles of diseased flesh have been animated by an otherworldly presence
 D: into a killing machine. Many gangrenous limbs claw along the floor to
@@ -4098,7 +4519,7 @@ D: towards any movement.
 ###########################
 # Credited: Bridger Flynn #
 ###########################
-N:862:Steam Powered Rifle Sentry
+N:862:Steam-Powered Rifle Sentry
 G:C:r
 I:110:400:20:60:30
 W:20:2:5:223
@@ -4106,7 +4527,7 @@ S:1_IN_2 | POW_20
 S:RIFLE | SHRIEK
 F:STUPID | HOSTILE | EMPTY_MIND | NEVER_MOVE | 
 F:NEVER_BLOW | ARCHER | 
-F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
+F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | CONSTRUCT
 D:This sentry is even more sophisticated than the last.
 D: A long barreled rifle points at you unerringly. This
 D: sentry has such a long range that the bullet arrives
@@ -4136,71 +4557,27 @@ D: cluck and races into battle.
 ###########################
 N:864:One-Eyed Jack
 G:c:o
-I:120:1300:8:50:200
-W:20:2:40:300
+I:120:1000:8:50:200
+W:20:4:40:300
 B:BLUNT:BLIND:25d10
 B:SLASH:BLIND:25d10
 F:COLD_BLOOD | SMART | IM_ICE | ESCORT
 F:NO_STUN | NO_FEAR | NO_CONF | NO_SLEEP
 F:VUN_EDGED | VUN_FIRE | IM_POIS | OPEN_DOOR
 F:TAKE_ITEM | REGENERATE | IM_BLUNT
-S:1_IN_3 | POW_20
-S:BLIND | DARKNESS | CURE
-S:ADD_MANA | BR_DARK
+S:1_IN_3 | POW_0
+S:BR_DARK
 D:Oblong and flat, with their hands and feet at the corners.
 D: From behind they all look the same, only the faces let you
 D: tell them apart.  The One-Eyed jack was blinded in battle,
 D: and now he tries to hide his weakness by turning in profile.
 
-###########################
-# Credited: Bridger Flynn #
-###########################
-N:865:Spider Globe
-G:S:w
-I:90:200:10:20:200
-W:20:2:56:150
-B:TOUCH:ACID:4d20
-B:TOUCH:TERRIFY
-F:RAND_25 | FRIENDS | WEIRD_MIND | PLANT
-F:IM_AIR | IM_BLUNT | VUN_FIRE | NO_FEAR 
-S:1_IN_2 | POW_20
-S:S_SPIDER
-D:And then he saw first one and then a second great white ball,
-D: a great shining white ball like a gigantic head of thistle-down,
-D: that drove before the wind athwart the path. These balls soared
-D: high in the air, and dropped and rose again and caught for a
-D: moment, and hurried on and passed, but at the sight of them the
-D: restlessness of the horses increased. - H.G. Wells
-D: "The Valley of the Spiders"
-
-###########################
-# Credited: Bridger Flynn #
-###########################
-N:866:Grey Spider
-G:S:s
-I:120:400:120:30:80
-W:20:1:0:200
-B:BITE:POISON:12d10
-B:CRAWL:TERRIFY
-B:CRAWL:TERRIFY
-F:ANIMAL | IM_POIS | IM_ACID | VUN_BLUNT
-F:NO_FEAR | FRIENDS  
-D:A long and clinging thread fell across his face, a grey streamer
-D: dropped about his bridle-arm, some big, active thing with many
-D: legs ran down the back of his head. He looked up to discover one
-D: of those grey masses anchored as it were above him by these things
-D: and flapping out ends as a sail flaps when a boat comes, about
-D: but noiselessly.  He had an impression of many eyes, of a dense crew
-D: of squat bodies, of long, many-jointed limbs hauling at their mooring
-D: ropes to bring the thing down upon him. -H.G. Wells
-D: "The Valley of the Spiders"
-
 N:867:K'uei
 G:V:b
-I:110:1200:12:76:40
+I:110:900:12:76:40
 W:20:2:40:600
-B:CLAW:EXP_40:4d30
-B:BITE:LOSE_MUS:12d40
+B:CLAW:EXP_40:4d18
+B:BITE:LOSE_MUS:8d20
 F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | NO_FEAR | NO_SLEEP
 F:IM_EDGED | DROP_80 | SMART | IM_ICE | IM_EARTH | IM_POIS
 S:1_IN_6 | POW_30
@@ -4216,8 +4593,8 @@ N:899:The Queen of Hearts
 G:c:v
 I:130:1500:8:60:100
 W:20:1:0:400
-B:SLASH:HURT:30d10
-B:SLASH:HURT:30d10
+B:BLUNT:HURT:30d10
+B:BLUNT:HURT:30d10
 S:1_IN_6 | POW_0
 S:BR_FIRE
 F:COLD_BLOOD | NO_STUN | IM_ICE | VUN_EDGED
@@ -4234,15 +4611,15 @@ D: She is rarely found without a croquet mallet in hand.
 ###########################
 N:900:The Terrible Old Man
 G:p:U
-I:105:800:8:60:100
+I:110:1300:8:60:100
 W:20:1:20:670
 B:SLASH:HURT:30d2
 B:SLASH:HURT:30d2
 B:CRUSH:HURT:2d30
 B:CRUSH:HURT:2d30
 F:SMART | OPEN_DOOR | REGENERATE | UNIQUE | ATTR_MULTI | MALE |
-F:IM_EARTH | IM_AIR | IM_WATER | NO_FEAR | NO_CONF |
-S:1_IN_4 | POW_20
+F:IM_EARTH | IM_AIR | IM_WATER | NO_FEAR | NO_CONF | ARCHER
+S:1_IN_4 | POW_25
 S:BA_WATER | BO_WATER | BO_TIME | BA_EARTH | HASTE | SLOW
 D:   "Little things make considerable excitement in little
 D: towns, which is the reason that Kingsport people talked all
@@ -4271,14 +4648,14 @@ G:E:v
 I:115:485:12:46:60
 W:21:2:45:653
 B:GAZE:HURT:62d2
-S:1_IN_3 | POW_24
+S:1_IN_3 | POW_18
 S:BA_TIME | BO_TIME
 S:HOLD | SLOW | HASTE | ADD_MANA | TELE_SELF_TO | BLINK
 F:EVIL | STUPID | ELEMENTAL | IM_TIME | WEIRD_MIND 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | KILL_ITEM 
 D:A beautifully crafted wall clock is floating through the cavern.
 D: As you admire the craftsmanship you notice an unblinking eye
-D: set in the center of the clock face. The pupil of the eye is
+D: set into the center of the clock face. The pupil of the eye is
 D: in the familiar form of an hourglass.
 
 ###########################
@@ -4286,15 +4663,15 @@ D: in the familiar form of an hourglass.
 ###########################
 N:902:Black Mariah
 G:c:s
-I:120:600:15:42:80
+I:115:500:15:42:80
 W:21:2:60:350
-B:BLUNT:LOSE_ALL:15d10
-B:BLUNT:EXP_20:15d10
+B:BLUNT:LOSE_ALL:15d6
+B:BLUNT:EXP_20:15d6
 F:COLD_BLOOD | SMART | IM_ICE | ESCORT
 F:NO_STUN | NO_FEAR | NO_CONF | NO_SLEEP
 F:VUN_EDGED | IM_POIS  | KILL_ITEM | ESCORTS
 F:OPEN_DOOR | LOW_MANA_RUN | EVIL | IM_NETHER
-S:1_IN_2 | POW_40
+S:1_IN_2 | POW_35
 S:BR_NETHER | BO_NETHER | SPIRIT | BLINK
 S:TPORT | TELE_AWAY | ADD_MANA
 D:Oblong and flat, with their hands and feet at the corners.
@@ -4309,7 +4686,7 @@ D: the number 13 is scrawled in blood across her face.
 N:903:Wild Card
 G:c:G
 I:115:1400:8:42:180
-W:21:2:50:340
+W:21:4:50:340
 B:PUNCH:HURT:5d20
 B:KICK:HURT:5d20
 B:SPIT:BLIND:5d1
@@ -4335,13 +4712,14 @@ F:IM_EARTH | NO_FEAR | NO_STUN | NO_SLEEP
 S:1_IN_1 | POW_1
 S:BLINK | TPORT | S_MONSTER 
 D:A large dimensional portal twists and turns before you. Something, or 
-D: someone looks like they are about to step through.
+D: someone, looks like they are about to step through.
 
 N:905:Nautilus Engineer
 G:p:u
-I:120:320:45:50:95
+I:120:520:45:50:95
 W:21:2:40:120
-B:GAZE:CONFUSE:5d5
+B:GAZE:CONFUSE:8d15
+B:HIT:HURT:10d5
 S:1_IN_2 | POW_12
 S:GUN | S_KIN | BA_ELEC | BO_ELEC
 F:SMART | OPEN_DOOR | IM_ELEC | IM_ICE
@@ -4351,6 +4729,17 @@ D: done by means of it.  It lights the ship, warms it, and is the soul
 D: of all of my machineries.  This is electricity." -Jules
 D: Verne  "20,000 Leagues Under the Sea."
 
+N:906:Shadow Fly
+G:I:D
+I:115:110:9:140:20
+W:21:2:0:350
+B:STING:HURT:2d3
+F:ANIMAL | FRIENDS | WEIRD_MIND | IM_NETHER | IM_PIERCE | IM_EDGED
+F:VUN_AIR | HURT_LIGHT
+S:1_IN_3 | POW_0
+S:BR_DARK
+D:A black cloud of inky darkness flies towards you. You hear an
+D: ominous buzzing.
 
 ###########################################
 ############   Level 29(22)    ############
@@ -4366,7 +4755,7 @@ B:CLAW:HURT:2d6
 B:BITE:EXP_40:1d3
 B:BITE:LOSE_MUS:1d3
 F:FRIENDS | RAND_25 | COLD_BLOOD | WEIRD_MIND |
-F:DEMON | EVIL | NO_FEAR 
+F:DEMON | EVIL | NO_FEAR | IM_ICE | IM_ETHER
 D:"There flapped rhythmically a horde of tame, trained, hybrid winged
 D: things. . . not altogether crows, nor moles, nor buzzards, nor ants,
 D: nor decomposed human beings, but something I cannot and must not
@@ -4374,8 +4763,9 @@ D: recall." - H.P. Lovecraft, "The Festival"
 
 N:942:Enhanced Chicken
 G:k:w
-I:110:390:40:25:40
+I:115:390:40:25:40
 W:22:1:0:50
+B:PECK:HURT:18d2
 B:PECK:HURT:18d2
 F:FRIENDS | RAND_50 | EMPTY_MIND | ANIMAL 
 D:This chicken is the size of an ostrich. The ground trembles as its
@@ -4384,7 +4774,7 @@ D: as it mistakes you for chicken feed.
 
 N:943:Living Bonfire
 G:E:r
-I:120:1200:12:50:90
+I:120:1800:12:50:90
 W:22:3:40:450
 B:ENGULF:FIRE:14d14
 S:1_IN_4 | POW_25
@@ -4399,14 +4789,16 @@ D: wall begin to ooze out, because the heat is so intense.
 
 N:944:Migmatite Horror
 G:E:u
-I:100:1592:10:66:150
+I:110:1592:10:66:150
 W:22:3:40:420
-B:CRUSH:HURT:2d146
+B:CRUSH:HURT:75d3
+B:CRUSH:HURT:75d3
+B:CRUSH:HURT:75d3
 S:1_IN_5 | POW_25
 S:TK | BO_EARTH | BA_EARTH | 
 F:EVIL | ELEMENTAL | IM_EARTH | WEIRD_MIND | IMPENT
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | CLOUD_SURROUND
-F:PASS_WALL | IM_EDGED | IM_AIR | IM_POIS | VUN_BLUNT
+F:PASS_WALL | IM_EDGED | IM_AIR | IM_POIS | IM_FIRE
 D:Angular planes of slate are animated by some malevolent spirit into an
 D: approximation of a giant humanoid. Massive gleaming green emeralds are
 D: shining from the elemental's head. This elemental is so powerfully
@@ -4421,7 +4813,7 @@ W:22:2:0:700
 B:CLAW:HURT:40d3
 B:BITE:HURT:20d6
 F:ANIMAL | IM_ICE | IM_BLUNT | NO_FEAR | IM_WATER | 
-F:VUN_PIERCE
+F:VUN_FIRE | IM_AIR | BASH_DOOR
 D:The polar bear (Thalarctos maritimus or Ursus maritimus) is a large mammal
 D: of the order Carnivora, family Ursidae. It is a circumpolar species found
 D: in and around the Arctic Ocean. It is the world's largest known land
@@ -4435,7 +4827,7 @@ D: in summer.
 N:946:Suicide King
 G:c:r
 I:130:400:15:1:60
-W:22:3:30:300
+W:22:5:30:300
 B:SLASH:HURT:75d2
 B:SLASH:HURT:75d2
 S:1_IN_4 | POW_20
@@ -4461,23 +4853,22 @@ B:GAZE:CONFUSE:10d1
 B:SLASH:EAT_GOLD:12d8
 B:BLUNT:EAT_ITEM:12d8
 S:1_IN_4 | POW_20
-S:BLINK | CONFUSION | SLOW | HOLD
-S:HASTE | TPORT
+S:BLINK | HASTE | TPORT
 F:COLD_BLOOD | SMART | IM_ICE | WEIRD_MIND
 F:NO_STUN | NO_FEAR | NO_CONF | NO_SLEEP
 F:VUN_EDGED | OPEN_DOOR | TAKE_ITEM
 D:Oblong and flat, with their hands and feet at the corners.
 D: From behind they all look the same, only the faces let you
-D: tell them apart.  The trickster of the deck.  It is cavorting
+D: tell them apart.  Here is the trickster of the deck, cavorting
 D: about and spouting obscure jokes and obscenities as it tries
-D: to distract you while cutting your pursestrings.
+D: to distract you while cutting your purse strings.
 
 N:948:Obour
 G:V:W
-I:120:1200:8:80:50
+I:120:800:8:80:50
 W:22:2:2:900
-B:PUNCH:HURT:80d4
-B:PUNCH:HURT:120d4
+B:PUNCH:HURT:40d4
+B:PUNCH:HURT:60d4
 F:COLD_BLOOD | WEIRD_MIND | UNDEAD | EVIL | NO_FEAR | NO_SLEEP
 F:IM_EDGED | IM_BLUNT | IM_ICE | IM_EARTH | IM_POIS | BASH_DOOR
 S:1_IN_5 | POW_0
@@ -4505,7 +4896,7 @@ I:120:1200:12:50:50
 W:23:4:25:500
 B:ZAP:PARALYZE:20d4
 B:ZAP:LOSE_AGI:20d4
-F:SMART | OPEN_DOOR | IM_FIRE | NO_SLEEP | NO_CONF | DROP_1D2 |
+F:SMART | OPEN_DOOR | IM_TIME | NO_SLEEP | NO_CONF | DROP_1D2 |
 S:1_IN_4 | POW_25 |
 S:TPORT | TELE_TO | TELE_SELF_TO | TELE_AWAY | BLINK |
 S:BA_TIME | BO_TIME | BA_EMP | HOLD | HASTE | SLOW 
@@ -4513,7 +4904,7 @@ D:This person looks oddly out of place. He is strangely attired,
 D: and he is carrying an elaborate device consisting of multiple rings
 D: spinning at cross-axes to each other. He seems to be in a tremendous
 D: hurry, but when he notices you, he stops contemplating the device
-D: and levels a oddly shaped pistol at you.
+D: and levels an oddly-shaped pistol at you.
 
 N:982:Chain Lightning
 G:E:y
@@ -4524,19 +4915,20 @@ S:1_IN_1 | POW_25
 S:BO_ELEC | BA_ELEC | BE_ELEC | BLINK | ADD_MANA
 F:EVIL | STUPID | ELEMENTAL | IM_ELEC | EMPTY_MIND | REGENERATE
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RAND_25 | CLOUD_SURROUND
-D:Your hair stands on end, and you smell ozone. In the distance you see
-D: crackling bolts of electricity repeatedly striking the corpse of this
+D:Your hair stands on end; you smell ozone.
+D: Crackling bolts of electricity repeatedly strike the corpse of this
 D: elemental's last victim. Apparently, lightning strikes twice on occasion.
 
 N:983:Screaming Twister
 G:E:B
-I:120:900:14:46:120
+I:130:900:14:46:120
 W:23:3:40:800
-B:WAIL:HURT:8d12
+B:WAIL:HURT:8d24
 S:1_IN_4 | POW_25
 S:BO_AIR | BA_AIR | 
 F:EVIL | ELEMENTAL | IM_AIR | WEIRD_MIND | TAKE_ITEM | CLOUD_SURROUND
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RAND_25 | ARCHER | INVISIBLE
+F:GASEOUS
 D:The violent tornado before you is spinning at an incredible speed. The
 D: cavern floor and walls that it touches are polished to a dull sheen after
 D: being pelted with thousands of fine particles. It picks up any loose
@@ -4549,7 +4941,7 @@ D: objects in its path to fling at you.
 N:985:Trump
 G:c:w
 I:120:1500:12:80:100
-W:23:2:30:900
+W:23:4:30:900
 B:SLASH:HURT:15d6
 B:SLASH:UN_BONUS:15d6
 B:BLUNT:HURT:15d6
@@ -4589,23 +4981,43 @@ W:23:2:0:100
 B:HIT:HURT:4d20
 B:HIT:HURT:4d20
 F:OPEN_DOOR | IM_ELEC | IM_ICE
-D:"Meanwhile, the steward-dumb, perhaps deaf-had arranged the table,
+D:"Meanwhile, the steward -- dumb, perhaps deaf-had arranged the table,
 D: and laid three plates.  'This is something like,' said
 D: Conseil.  "Bah' said the rancourous harpooner, 'what do you suppose
-D: they eat here?  Tortiose liver, filleted shark, and beefsteaks from
+D: they eat here?  Tortoise liver, filleted shark, and beefsteaks from
 D: sea-dogs.'" -Jules Verne "20,000 Leagues Under the Sea."
+###########################
+# Credited: R. Dan Henry  #
+###########################
+N:988:Cape Buffalo
+G:q:u
+I:120:2200:25:75:40
+W:23:2:0:700
+B:BUTT:HURT:20d8
+B:KICK:HURT:25d8
+F:IMPENT | BASH_DOOR | ANIMAL | IM_WATER | IM_PIERCE | IM_EDGED
+F:IM_BLUNT | NO_FEAR | NO_STUN
+D:Sir Whig-Nottle's bullet had surely struck the beast squarely between
+D: the eyes, yet it seemed hardly to even notice. \n
+D:"By thunder!" Whig-Nottle reacted. "That thing's more difficult to
+D: find a way to penetrate than your maiden aunt, Alice." \n
+D:"That is why we brought the nitro, old chap," I responded. \n
+D: -- G. W. Hunter, Spicy Hunting Stories
 
+###########################
+# Credited: R. Dan Henry  #
+###########################
 N:1020:General Zaroff
 G:p:w
 I:125:1650:70:75:0
 W:23:3:66:1200
 B:SLASH:HURT:6d20
 B:PIERCE:HURT:20d5
-S:1_IN_3 | POW_15
-S:RIFLE | BLINK | HASTE | TRAPS | FEAR | S_HOUND
+S:1_IN_3 | POW_30
+S:GUN | BLINK | HASTE | TRAPS | FEAR | S_HOUND
 F:UNIQUE | ATTR_MULTI | MALE | SMART | FIXED_HPS | ARCHER | DROP_1D2 | DROP_40 |
 F:DROP_GOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | NO_FEAR | NO_STUN |
-F:NO_CONF | NO_SLEEP
+F:NO_CONF | NO_SLEEP | TRACKER
 D: "Rainsford's first impression was that the man was singularly
 D: handsome; his second was that there was an original, almost bizarre
 D: quality about the general's face. He was a tall man past middle
@@ -4632,29 +5044,30 @@ N:1021:Sea Spirit
 G:E:b
 I:110:1209:12:47:90
 W:24:3:40:926
-B:SPIT:HURT:2d104
+B:SPIT:STEAM:2d104
 S:1_IN_3 | POW_25
 S:BO_WATER | BA_WATER | 
 F:EVIL | ELEMENTAL | IM_WATER | WEIRD_MIND | CLOUD_SURROUND
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | SMART | VUN_FIRE
+F:COLD_BLOOD
 D:The scent of brine and a fine mist remind you of trips to some sunny beach
 D: in your past, but a spear of water flying in your direction jolts you from
-D: your pleasant memory. This water elemental is about 6 feet in diameter at
+D: your pleasant memory. This water elemental is about six feet in diameter at
 D: the base and is made up of foaming sea water. The magical power and
 D: effusive intelligence of this elemental are almost tangible.
 
 N:1022:Jaguar Man
 G:B:v
-I:120:1800:15:48:60
+I:120:1800:15:48:10
 W:24:1:30:1200
 B:CLAW:HURT:6d8
 B:CLAW:HURT:6d8
-B:BITE:POISON:12d12
+B:BITE:HURT:12d12
 S:1_IN_4 | POW_20
 S:HASTE | BLINK | DARKNESS | FEAR
 F:BEASTMAN | OPEN_DOOR | NO_FEAR | NO_SLEEP
-D:This beastman brandishes evil looking claws and a mouthful of shining
-D: teeth as it advances purposefully.  Its green eyes seem to glow in the
+D:This beastman brandishes evil-looking claws and a mouthful of shining
+D: teeth as it advances purposefully.  Green eyes seem to glow in the
 D: darkness.
 
 N:1023:Anger
@@ -4664,11 +5077,11 @@ W:24:2:20:700
 B:CLAW:FIRE:3d10
 B:CRUSH:FIRE:3d10
 S:1_IN_4 | POW_15
-S:HASTE | S_KIN
+S:HASTE | SHRIEK | TELE_SELF_TO
 F:FRIEND | DROP_10 | HOSTILE | BASH_DOOR
 F:DEMON | EVIL | IM_FIRE | IM_ELEC | IM_POIS | NO_FEAR
-F:VUN_ICE
-D:All encompassing rage has a source. A horay demonic form
+F:VUN_ICE | NO_SLEEP
+D:All-encompassing rage has a source. A hoary demonic form
 D: rises against you made from hatred and anger. The deadly
 D: sin of anger stands before you.
 
@@ -4676,12 +5089,12 @@ N:1024:Red Crab
 G:I:r
 I:90:1800:6:50:200
 W:24:2:0:1400
-B:GRAB:POISON:5d10
-B:GRAB:POISON:5d10
-B:CRUSH:HURT:20d5
-B:CRUSH:HURT:20d5
+B:CLAW:POISON:5d10
+B:CLAW:POISON:5d10
+B:CRUSH:HURT:40d5
 F:ANIMAL | IM_ICE | IM_TIME | IM_SOUND
 F:IM_POIS | IM_BLUNT | IM_EARTH | NO_FEAR 
+F:IM_WATER | COLD_BLOOD | BASH_DOOR | IMPENT
 D: "Looking around me again, I saw that, quite near, what I
 D: had taken to be a reddish mass of rock was moving slowly
 D: towards me.  Then I saw the thing was really a monstrous
@@ -4695,6 +5108,19 @@ D: blotched it here and there.  I could see the many palps of its
 D: complicated mouth flickering and feeling as it moved."
 D: -H.G. Wells "The Time Machine" 
 
+N:1025:Shadow Spider
+G:S:D
+I:120:520:30:160:40
+W:24:2:30:420
+B:BITE:BLIND:15d3
+F:WEIRD_MIND | VUN_BLUNT | IM_POIS |
+F:FRIEND | DROP_5 | ELEMENTAL | ANIMAL | IM_EDGED
+F:NO_STUN | HURT_LIGHT
+S:1_IN_4 | POW_12
+S:BR_DARK | DARKNESS
+D:Inky blackness scuttles towards you. Darkness seeps along the ground
+D: where its spindly legs touch.
+
 ###########################################
 ############   Level 26(25)    ############
 ##############     1300'     ##############
@@ -4703,18 +5129,20 @@ D: -H.G. Wells "The Time Machine"
 
 N:1061:Avarice
 G:u:g
-I:110:1300:200:45:20
+I:110:1700:200:45:20
 W:25:2:80:1100
-B:GRAB:EAT_GOLD:1d10
-B:GRAB:EAT_ITEM:1d10
+B:GRAB:EAT_GOLD:2d5
+B:GRAB:EAT_ITEM:2d5
+B:GRAB:EAT_FOOD:2d5
+B:GRAB:EAT_LITE:2d5
 S:1_IN_3 | POW_25
-S:BO_TIME | BLINK
-F:FRIEND | ESCORT | DROP_80 | OPEN_DOOR | TAKE_ITEM
+S:BO_TIME | BLINK | DRAIN_MANA
+F:DROP_80 | OPEN_DOOR | TAKE_ITEM
 F:DEMON | EVIL | IM_FIRE | IM_ELEC | IM_POIS | NO_FEAR
 F:VUN_ICE | LOW_MANA_RUN
 D:Greed consumes more than men. Thought, time, and energy
-D: also fall under it's sway. A twisting globular demonic form
-D: rises against you made from desire. The deadly
+D: also fall under its sway. A twisting, globular, demonic form
+D: of pure desire rises against you. The deadly
 D: sin of avarice hovers before you.
 
 ###########################
@@ -4738,6 +5166,44 @@ D: appears to be chemical in nature, as strangely coloured
 D: vapors rise from it at intervals. A small gun barrel can
 D: just be made out on its chest.
 
+N:1063:Red Weed
+G:A:r
+I:140:2:1:1:1
+W:25:1:0:1
+F:NEVER_BLOW | NEVER_MOVE | FRIENDS | MULTIPLY | EMPTY_MIND | ALIEN | 
+F:PLANT | COLD_BLOOD | NO_FEAR
+D:"Apparently the vegetable kingdom in Mars, instead of having green for a
+D: dominant colour, is of a vivid blood-red tint. At any rate, the seeds
+D: which the Martians (intentionally or accidentally) brought with them
+D: gave rise in all cases to red-coloured growths. Only that known
+D: popularly as the red weed, however, gained any footing in competition
+D: with terrestrial forms. The red creeper was quite a transitory growth,
+D: and few people have seen it growing. For a time, however, the red weed grew
+D: with astonishing vigour and luxuriance... especially wherever
+D: there was a stream of water." - H. G. Wells
+
+N:1064:Martian Slave
+G:A:w
+I:120:32:80:10:80
+W:25:1:30:55
+B:HIT:HURT:8d4
+B:HIT:HURT:8d4
+F:ALIEN | DROP_20 | EVIL | WEIRD_MIND | NEVER_MOVE
+S:1_IN_4 | POW_44
+S:BO_FIRE
+D:"Their (Martians) undeniable preference for men as their source
+D: of nourishment is partly explained by the nature of the
+D: remains of the victims they had brought with them as provisions
+D: from Mars. These creatures, to judge from the shrivelled remains
+D: that have fallen into human hands, were bipeds with flimsy,
+D: siliceous skeletons (almost like those of the siliceous sponges)
+D: and feeble musculature, standing about six feet high and having
+D: round, erect heads, and large eyes in flinty sockets. Two
+D: or three of these seem to have been brought in each cylinder,
+D: and all were killed before earth was reached. It was just as
+D: well for them, for the mere attempt to stand upright upon our
+D: planet would have broken every bone in their bodies."- H. G. Wells
+
 ###########################################
 ############   Level 25(26)    ############
 ##############     1250'     ##############
@@ -4751,8 +5217,8 @@ B:ENGULF:ACID:21d10
 S:1_IN_5 | POW_25
 S:BA_ACID | BO_ACID | BLIND
 F:EVIL | STUPID | ELEMENTAL | IM_ACID | EMPTY_MIND | COLD_BLOOD
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_BLUNT
-F:VUN_AIR | CLOUD_SURROUND
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_BLUNT | KILL_ITEM
+F:GASEOUS | CLOUD_SURROUND | VUN_WATER
 D:Your nose stings and your eyes burn as another acid elemental
 D: approaches. You blink away tears as you try to defend yourself.
 
@@ -4772,13 +5238,13 @@ D: physically possible for this beast to move without shattering itself.
 
 N:1103:Envy
 G:u:G
-I:110:1800:200:65:20
+I:110:2200:200:65:20
 W:26:2:50:1800
-B:GRAB:POISON:2d10
+B:GAZE:LOSE_CHR:2d10
 B:GRAB:POISON:2d10
 S:1_IN_4 | POW_25
 S:BO_POISON | BR_POISON
-F:FRIEND | ESCORT | DROP_5 | OPEN_DOOR | TAKE_ITEM
+F:DROP_5 | OPEN_DOOR | KILL_ITEM
 F:DEMON | EVIL | IM_FIRE | IM_EARTH | IM_ELEC | IM_ICE | IM_POIS | NO_FEAR
 F:NO_CONF | VUN_AIR | VUN_WATER
 D:It yearns for that which others have and it does not, no matter
@@ -4794,19 +5260,14 @@ G:D:G
 I:100:2100:8:100:160
 W:26:1:0:1900
 B:CRUSH:HURT:25d10
-F:DINOSAUR | COLD_BLOOD | STUPID
+F:DINOSAUR | ANIMAL | COLD_BLOOD | STUPID
 F:IM_BLUNT | IM_EARTH | IM_POIS | IM_FIRE
 F:VUN_ICE
-D:[Gr. roof lizard] Quadriped ornithischian dinosaur of the
-D: late Jurassic period. About 29 ft 6 in (9 m) long, it had short forelegs, four
-D: long bony spikes on a flexible tail, and two rows of upright triangular
-D: bony plates running along the back, which gave it a serrated profile. The
-D: function of the plates is debated. They may have acted as deterrents to
-D: predatory dinosaurs. Another theory is that they helped regulate body
-D: temperature by dissipating heat or absorbing solar rays. The head of
-D: Stegosaurus was small, and the brain weighed about 2.5 oz (71 grams).
-D: The front of the mouth was beak-shaped; there were small leaf-shaped
-D: teeth in the cheek area. - (Columbia Encyclopedia)
+D:"The head was like that of a fowl, the body that of a bloated lizard,
+D: the trailing tail was furnished with upward-turned spikes, and the
+D: curved back was edged with a high serrated fringe, which looked like
+D: a dozen cocks' wattles placed behind each other."\n -- _The Lost
+D: World_ by Sir Arthur Conan Doyle
 
 N:1105:Greater Dimensional Portal
 G:v:y
@@ -4843,12 +5304,12 @@ D: - H.G. Wells "The War of the Worlds"
 
 N:1107:Martian Cylinder
 G:C:D
-I:90:1000:5:100:255
+I:90:1000:5:60:255
 W:26:2:40:2500
 S:1_IN_1 | POW_20
 S:S_ALIEN | S_AUTOMATA | ADD_MANA
-F:AUTOMATA | NEVER_BLOW | NEVER_MOVE | SMART
-F:COLD_BLOOD | EMPTY_MIND | IMPENT | HURT_ROCK
+F:CONSTRUCT | NEVER_BLOW | NEVER_MOVE | SMART
+F:COLD_BLOOD | IMPENT | HURT_ROCK | ALIEN
 F:VUN_ELEC | IM_FIRE | IM_EDGED | IM_BLUNT
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 D:"The Thing itself lay almost entirely buried in sand amidst
@@ -4862,7 +5323,7 @@ N:1108:Martian Service Robot
 G:a:B
 I:110:1500:9:75:130
 W:26:2:0:1400
-B:CRAWL:HURT:20d5
+B:GRAB:HURT:20d5
 B:CRAWL:HURT:20d5 
 F:AUTOMATA | STUPID | COLD_BLOOD | EMPTY_MIND
 F:IM_FIRE | VUN_ELEC | NO_FEAR | NO_STUN
@@ -4875,23 +5336,23 @@ D: H.G. Wells "The War of the Worlds"
 
 N:1109:Giant Termite
 G:I:w
-I:100:1500:8:50:200
+I:100:350:8:50:200
 W:26:2:0:1500
-B:BITE:ACID:15d10
-F:ANIMAL | FRIENDS | WEIRD_MIND | IM_ACID
+B:BITE:ACID:6d10
+F:ANIMAL | FRIENDS | WEIRD_MIND | IM_ACID | MULTIPLY
 F:NO_FEAR
 D: A nauseatingly sweet scent draws your attention to a
 D: group of massive termites.  The smell must be from the
 D: powerful digestive juices dripping from their scythelike
 D: jaws.
 
-N:1110:Mammoth
+N:1110:Mastodon 
 G:q:w
 I:120:1200:30:60:75
 W:26:2:0:1500
 B:CRUSH:HURT:20d6
 B:CRUSH:HURT:20d6
-F:ANIMAL | IM_ICE | IM_BLUNT | FRIENDS
+F:ANIMAL | IM_ICE | IM_BLUNT | FRIENDS | BASH_DOOR
 D:I thought I saw-no, I really did see with my own eyes-immense,
 D: gigantic animals moving about under the mighty trees.  Yes, they were
 D: truly gigantic animals, a whole herd of mastodons, not fossils, but
@@ -4905,11 +5366,12 @@ I:110:1000:40:40:70
 W:26:2:0:1200
 B:HIT:HURT:20d4
 B:HIT:HURT:20d4
-F:SMART | BASH_DOOR | TAKE_ITEM |IM_EARTH
+F:SMART | BASH_DOOR | TAKE_ITEM | IM_EARTH
 D:"His height was about twelve feet.  His head, as big as the head of
 D: a buffalo, was lost in a mane of matted hair...  In his hand was a
 D: branch of a tree, which served as a crook for this antediluvian
 D: shepherd."  Jules Verne "A Journey to the Centre of the Earth."
+
 
 ###########################################
 ############   Level 24(27)    ############
@@ -4927,7 +5389,7 @@ S:HOLD | SLOW | HASTE | ADD_MANA | TELE_SELF_TO | BLINK
 F:EVIL | STUPID | ELEMENTAL | IM_TIME | WEIRD_MIND
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | KILL_ITEM
 D:A clockwork golem with a head made out of the face of a broken
-D: clock guards the cavern ahead. Everything around the beast seems
+D: clock stands before you. Everything around the beast seems
 D: to be in stasis, and the guardian moves frighteningly quickly
 D: towards you.
 
@@ -4948,22 +5410,20 @@ N:1143:Gluttony
 G:u:u
 I:110:2300:200:65:160
 W:27:2:18:2100
-B:BITE:HURT:10d5
-B:BITE:HURT:10d5
-S:1_IN_6 | POW_15
-S:S_KIN 
-F:FRIEND | ESCORT | DROP_10 | BASH_DOOR | TAKE_ITEM
+B:BITE:EAT_FOOD:10d5
+B:BITE:EAT_FOOD:10d5
+F:DROP_10 | BASH_DOOR | KILL_ITEM | KILL_WALL | KILL_BODY |
 F:DEMON | EVIL | IM_FIRE | IM_EARTH | IM_ELEC | IM_ICE | IM_POIS | NO_FEAR
 F:NO_CONF | VUN_WATER | IM_ACID
 D:Overindulgence gone overboard.  A grotesque obese demonic form
-D: rises against you made from purest excees. The deadly
+D: rises against you made from purest excess. The deadly
 D: sin of gluttony sits before you.
 
 N:1144:Ape Gigans
 G:M:D
 I:120:2000:200:50:50
 W:27:2:0:1000
-B:PUNCH:HURT:10d5     
+B:PUNCH:HURT:10d5
 B:PUNCH:HURT:10d5
 B:BITE:HURT:5d5
 F:BASH_DOOR | ANIMAL | NO_FEAR | IM_EARTH
@@ -4974,6 +5434,25 @@ D: body, while its legs were prodigious.  It had thick, long, and
 D: sharply pointed teeth-like a mammoth saw." Jules Verne "A Journey to
 D: the Centre of the Earth"
 
+###########################
+# Credited: R. Dan Henry  #
+###########################
+N:1145:Pterodactyl
+G:R:s
+I:120:900:40:60:15
+W:27:4:0:2000
+B:PECK:LOSE_VIG:2d22
+B:BITE:LOSE_VIG:15d3
+B:HIT:HURT:4d5
+F:STUPID | COLD_BLOOD | ANIMAL | IM_AIR | IM_BLUNT
+D:"Well, suddenly out of the darkness, out of the night, there
+D: swooped something with a swish like an aeroplane. The whole group
+D: of us were covered for an instant by a canopy of leathery wings
+D: and I had a momentary vision of a long snake-like neck, a fierce,
+D: red, greedy eye, and a great snapping beak, filled, to my
+D: amazement, with little, gleaming teeth."\n -- _The Lost World_
+D: by Sir Arthur Conan Doyle
+
 ###########################################
 ############   Level 23(28)    ############
 ##############     1150'     ##############
@@ -4983,13 +5462,13 @@ D: the Centre of the Earth"
 N:1181:Lust
 G:u:v
 I:120:2000:200:15:60
-W:28:2:80:2500
-B:KISS:CONFUSE:6d10
-B:KISS:EXP_20:3d15
-S:1_IN_6 | POW_25
-S:S_KIN | HOLD | SLOW | TELE_TO | TELE_SELF_TO | ADD_MANA |
-S:FORGET
-F:FRIEND | ESCORT | DROP_10 | BASH_DOOR | TAKE_ITEM
+W:28:2:140:2500
+B:GRAB:CONFUSE:6d10
+B:KISS:LOSE_SCH:3d15
+B:SEDUCE:LOSE_VIG:3d15
+S:1_IN_3 | POW_25
+S:S_KIN | SLOW | ADD_MANA |
+F:FRIEND | ESCORT | DROP_10 | OPEN_DOOR | TAKE_ITEM
 F:DEMON | EVIL | IM_FIRE | IM_EARTH | IM_ELEC | IM_POIS | NO_FEAR
 F:NO_CONF | IM_ACID | VUN_ICE
 D:Sexual desire wells up inside of you.  A sexy taut demonic form
@@ -5000,9 +5479,9 @@ N:1182:Martian Walker
 G:A:r
 I:100:2500:12:100:100
 W:28:1:60:4000
-B:GRAB:HURT:4d30
-B:CRUSH:HURT:40d2
-S:1_IN_2 | POW_65
+B:GRAB:HURT:4d20
+B:CRUSH:HURT:30d2
+S:1_IN_2 | POW_55
 S:BE_FIRE 
 F:ALIEN | AUTOMATA | IM_FIRE | IM_ICE
 F:BASH_DOOR | KILL_ITEM | VUN_POIS | VUN_ELEC 
@@ -5044,21 +5523,20 @@ I:100:2600:8:80:190
 W:28:1:0:3000
 B:PUNCH:HURT:7d5
 B:PUNCH:HURT:7d5
-B:BITE:POISON:40d2 
-F:DINOSAUR | FRIEND | IM_EARTH | IM_POIS
+B:CRUSH:HURT:40d2 
+F:DINOSAUR | ANIMAL | FRIEND | IM_EARTH | IM_POIS
 F:BASH_DOOR | COLD_BLOOD | STUPID
-D:[Gr. iguana tooth], herbivorousornithiscian dinosaur, 
-D: characterized by teeth similar to those of the iguana, a horny beak, spikelike
-D: thumbs, and a powerful tail. It may have been capable of walking on either
-D: two or four feet. Fossils remains of the 30-ft-long (9-m) reptile have been
-D: found in Europe, Asia, Africa, and the W United States in strata of the early
-D: Cretaceous period, approximately 135-110 million years ago. It possessed
-D: characteristic spikelike thumbs. Iguanodon, the second dinosaur to be
-D: formally named, was first described by Gideon Mantell, an English
-D: physician and geologist. He credited his wife, Mary Ann Woodhouse
-D: Mantell, with the discovery. An impressive find by miners in a Belgian
-D: coal mine in 1878 turned up more than 20 nearly complete fossil skeletons.
-D: - (Columbia Encyclopedia)
+D:"In size they were enormous. Even the babies were as big as elephants,
+D: while the two large ones were far beyond all creatures I have ever
+D: seen. They had slate-colored skin, which was scaled like a lizard's
+D: and shimmered where the sun shone upon it. All five were sitting up,
+D: balancing themselves upon their broad, powerful tails and their huge
+D: three-toed hind-feet, while with their small five-fingered front-feet
+D: they pulled down the branches upon which they browsed. I do not know
+D: that I can bring their appearance home to you better than by saying
+D: that they looked like monstrous kangaroos, twenty feet in length, and
+D: with skins like black crocodiles."\n -- _The Lost World_ by Sir
+D: Arthur Conan Doyle
 
 N:1220:Victor Frankenstein's Monster
 G:C:g
@@ -5068,11 +5546,11 @@ B:HIT:HURT:1d24
 B:HIT:HURT:1d24
 B:CRUSH:HURT:5d5
 F:UNIQUE | ATTR_MULTI | FIXED_HPS | FORCE_SLEEP | RAND_25 | 
-F:SMART | WEIRD_MIND | BASH_DOOR | KILL_BODY |
+F:SMART | WEIRD_MIND | OPEN_DOOR | 
 F:KILL_ITEM | TAKE_ITEM | HOSTILE | 
 F:IM_ACID | IM_ICE | IM_POIS | IM_ELEC | IM_NETHER |
 F:IM_WATER | IM_FIRE | IM_ETHER | NO_FEAR |
-F:NO_STUN | NO_SLEEP 
+F:NO_STUN | NO_SLEEP | CONSTRUCT
 D:Mary Shelley wrote about Victor and his monster (1818). "His limbs were
 D: in proportion and I had selected his features as beautiful.
 D: Beautiful!--Great God! His yellow skin scarcely covered the work
@@ -5096,47 +5574,47 @@ D: On his way he hears her dying scream as the monster kills her.
 
 N:1221:Ball Lightning
 G:E:y
-I:130:664:18:58:30
+I:130:964:18:58:30
 W:29:3:40:3800
 B:ZAP:ELEC:24d10
 S:1_IN_1 | POW_40
 S:BO_ELEC | BA_ELEC | BE_ELEC | BR_ELEC | BLINK | TELE_SELF_TO | ADD_MANA
-F:EVIL | ELEMENTAL | IM_ELEC | WEIRD_MIND | REGENERATE |
+F:EVIL | ELEMENTAL | IM_ELEC | WEIRD_MIND | RAND_25 | VUN_EARTH
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | CLOUD_SURROUND
 D:A glowing sphere of lightning about the size of a motorcoach shrieks along
 D: the passageway, frequently bouncing off the floor and ceiling. Scientists
 D: have theorized that ball lightning was a possible natural phenomenon, and
-D: before you is the proof that it is in fact an unnatural phenomenon.
+D: before you is the proof that it is in fact an un-natural phenomenon.
 
 N:1222:Pride
 G:u:b
 I:120:2000:200:65:60
 W:29:2:50:5500
-B:GAZE:LOSE_EGO:6d12
-B:BUTT:LOSE_EGO:6d12
+B:GAZE:COLD:6d12
+B:BUTT:COLD:6d12
 S:1_IN_6 | POW_30
-S:S_KIN | S_DEMON | HEAL | HASTE | TELE_SELF_TO |
-F:FRIEND | ESCORT | DROP_10 | BASH_DOOR | TAKE_ITEM
+S:HEAL | HASTE | TELE_SELF_TO | BLIND | TRAPS
+F:FRIENDS | ESCORTS | DROP_10 | OPEN_DOOR | TAKE_ITEM
 F:DEMON | EVIL | IM_FIRE | IM_EARTH | IM_ELEC | IM_POIS | NO_FEAR
-F:NO_CONF | IM_ACID | VUN_ICE
+F:NO_CONF | IM_ACID | VUN_ICE | IM_SOUND
 D:Confidence to arrogance, pride is the downfall of purity.
-D: A inflated sensitive demonic form rises against you made
-D: from purest essence of superiority. The deadly
+D: A inflated, sensitive demonic form rises against you. It is
+D: made from the purest essence of superiority. The deadly
 D: sin of pride stands before you.
 
 N:1223:Sloth
 G:U:b
 I:120:2000:200:75:60
 W:29:2:80:5500
-B:ENGULF:HURT:4d20
 S:1_IN_1 | POW_30
-S:S_KIN | S_DEMON | HEAL | ADD_MANA
+S:S_KIN | S_DEMON | DRAIN_MANA | ADD_MANA
 F:ESCORTS | DROP_10 | BASH_DOOR | TAKE_ITEM
 F:DEMON | EVIL | IM_FIRE | IM_EARTH | IM_ELEC | IM_POIS | NO_FEAR
 F:NO_CONF | IM_AIR | IM_WATER | IM_ICE |IM_ACID | NEVER_MOVE | NEVER_BLOW
 D:Laziness is the destruction of the human spirit.
-D: A ponderous and flabby demonic form rises against you made
-D: from purest fatigue. The deadly sin of sloth stands before you.
+D: A ponderous and flabby demonic form almost imperceptibly 
+D: rises against you made from purest fatigue. The deadly sin
+D: of sloth stands before you.
 
 
 N:1260:Countess Bathory
@@ -5173,13 +5651,13 @@ D: drawing your blood that she may bathe in it.
 ###########################
 # Credited: Bridger Flynn #
 ###########################
-N:1261:Steam Powered Shotgun Sentry
+N:1261:Steam-Powered Shotgun Sentry
 G:C:r
 I:100:1500:20:90:20
 W:30:2:5:4000
 F:STUPID | HOSTILE | EMPTY_MIND | NEVER_MOVE | 
 F:NEVER_BLOW | ARCHER | 
-F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
+F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | CONSTRUCT
 S:1_IN_5 | POW_30
 S:SHOTGUN | SHRIEK
 D:A robust sentry turret levels two shotgun barrels at you.
@@ -5211,13 +5689,13 @@ D: heat from its mighty engine.
 
 N:1264:Martian Missile Walker
 G:A:o
-I:100:2750:14:100:90
+I:115:2750:14:100:90
 W:30:2:40:5000
 B:GRAB:HURT:5d20
 B:CRUSH:HURT:30d5
-S:1_IN_2 | POW_30
+S:1_IN_5 | POW_18
 S:MISSILE  
-F:ALIEN | AUTOMATA | ARCHER | IM_FIRE
+F:ALIEN | AUTOMATA | IM_FIRE
 F:IM_ICE | BASH_DOOR | KILL_ITEM | VUN_POIS
 F:VUN_ELEC
 D: ". . . the Martian beside us raised his tube on high and discharged
@@ -5231,13 +5709,13 @@ W:30:3:25:5000
 B:CRUSH:HURT:5d20
 B:SPEAK:CONFUSE:2d18
 F:DEMON | EVIL | BASH_DOOR | IM_FIRE
-F:INVISIBLE | IMPENT | PASS_WALL
+F:INVISIBLE | IMPENT | PASS_WALL | FRIEND
 S:1_IN_3 | POW_60
 S:BLINK | HASTE | TPORT
 D: "I do not like to mention the Agwas, but they are a part of this
 D: history, and can not be ignored.  They were neither mortals nor
 D: immortals, but stood midway between these classes of beings.  The
-D: Agwas were invivible to ordinary people, but not to immortals.  They
+D: Agwas were invisible to ordinary people, but not to immortals.  They
 D: could pass swiftly through the air from one part of the world to
 D: another, and had the power of influencing the minds of human beings
 D: to do their wicked will. " - L Frank Baum, The Life and Adventures of
@@ -5248,22 +5726,22 @@ D: Santa Claus.
 ###########################
 N:1299:The Lord of the Dynamos
 G:a:y
-I:110:4000:15:60:120
-W:30:2:60:5000
+I:125:6000:15:60:120
+W:30:2:160:5000
 B:ZAP:ELEC:2d150
 B:ZAP:PARALYZE
 S:1_IN_2 | POW_40
-S:BO_ELEC | BE_ELEC | ADD_MANA | STUN
+S:BO_ELEC | BE_ELEC | ADD_MANA | HEAL | STUN
 F:UNIQUE | ATTR_MULTI | NEVER_MOVE | STUPID
 F:EMPTY_MIND | REGENERATE | AUTOMATA | IM_FIRE
 F:IM_ELEC | IM_EDGED | VUN_WATER | VUN_BLUNT
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
-D:O the large one he privately christened the Lord of the Dynamos.
+D:"O the large one he privately christened the Lord of the Dynamos.
 D: O the big dynamo was steady. How great it was! How serene and
 D: easy in its working! Greater and calmer even than the Buddhas he
 D: had seen at Rangoon, and yet not motionless, but living! The great
 D: black coils spun, spun, spun, the rings ran round under the brushes,
-D: and the deep note of its coil steadied the whole.
+D: and the deep note of its coil steadied the whole."  \n
 D: H.G. Wells- "The Lord of the Dynamos"
 
 ###########################
@@ -5271,7 +5749,7 @@ D: H.G. Wells- "The Lord of the Dynamos"
 ###########################
 N:1300:Dr. Munoz
 G:W:B
-I:110:2940:10:60:100
+I:120:4940:10:60:100
 W:30:2:40:10000
 B:PUNCH:HURT:1d40
 B:PUNCH:HURT:1d40
@@ -5280,7 +5758,7 @@ B:CRUSH:COLD:4d40
 F:SMART | COLD_BLOOD | OPEN_DOOR | UNDEAD | UNIQUE | ATTR_MULTI | MALE
 F:IM_ICE | IM_POIS | IM_TIME | IM_NETHER | NO_FEAR | NO_CONF
 S:1_IN_2 | POW_60
-S:BA_ICE | BO_ICE | BR_ICE | TPORT | HEAL | SLOW
+S:BA_ICE | BO_ICE | BR_ICE | TPORT | HEAL 
 D:"The figure before me was short but exquisitely proportioned,
 D: and clad in somewhat formal dress of perfect fit and cut.
 D: A high-bred face of masterful though not arrogant expression
@@ -5310,7 +5788,7 @@ D: -H.P. Lovecraft "Cool Air"
 ###########################################
 N:1301:Polar Beast
 G:E:w
-I:100:2800:14:122:125
+I:110:2800:14:122:125
 W:31:3:40:4500
 B:CRUSH:COLD:100d4
 S:1_IN_5 | POW_40
@@ -5322,7 +5800,7 @@ D:A great ice beast in the approximate shape of a polar bear crushes
 D: everything in its way as it lumbers toward you. The beast's massive body
 D: radiates a cold more powerful than any you have ever felt.
 
-N:1302:Sulfuric Acid Cloud
+N:1302:Sulphuric Acid Cloud
 G:E:G
 I:100:1550:10:62:80
 W:31:3:40:4700
@@ -5330,26 +5808,26 @@ B:ENGULF:ACID:25d10
 S:1_IN_5 | POW_40
 S:BA_ACID | BO_ACID | BR_ACID | BLIND
 F:EVIL | ELEMENTAL | IM_ACID | EMPTY_MIND | COLD_BLOOD | CLOUD_SURROUND
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_BLUNT | KILL_WALL
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_BLUNT | KILL_WALL | GASEOUS
 D:An acid cloud is eating away the corpse of its last victim. The
 D: decomposition process is amazing, and you are momentarily distracted
 D: from defending yourself as you watch the spectacle. The acid elemental
-D: somehow senses your hesistation and visciously attacks.
+D: somehow senses your hesitation and viciously attacks.
 
 N:1303:Cave Bear
 G:q:s
-I:110:2800:20:40:30
+I:115:2200:20:40:30
 W:31:3:0:6200
-B:CLAW:HURT:50d2
-B:BITE:HURT:50d4
-F:ANIMAL | IMPENT | BASH_DOOR |
-F:IM_FIRE | IM_EARTH | IM_AIR | IM_WATER | IM_ICE | IM_POIS |
-F:IM_PIERCE | IM_EDGED | IM_BLUNT |
+B:CLAW:HURT:40d2
+B:BITE:HURT:40d4
+F:ANIMAL | IMPENT | BASH_DOOR 
+F:IM_EARTH | IM_AIR | IM_WATER | IM_ICE | IM_POIS 
+F:IM_PIERCE | IM_EDGED | IM_BLUNT 
 D:The Cave Bear (Ursus spelaeus) was a species of bear which lived in
 D: Europe during the Pleistocene and became extinct at the end of the last
 D: ice age about 10,000 years ago. Both the name Cave Bear and the scientific
 D: name spelaeus derive from the fact that fossils of this species were mostly
-D: found in caves, indicating that this species spent more time in caves then
+D: found in caves, indicating that this species spent more time in caves than
 D: the Brown Bear which only uses caves for hibernation. Being about 30% bigger
 D: than the Brown Bear, the most notable difference between the two species is
 D: the steeper forehead of the cave bear. It was an omnivore, eating herbs, grass,
@@ -5359,11 +5837,11 @@ N:1304:Great Dome of Perplexity
 G:C:U
 I:120:2500:30:150:180
 W:31:4:0:20000
-B:ZAP:CONFUSE:20d20
-B:ZAP:LOSE_ALL:20d20
+B:ZAP:CONFUSE:12d12
+B:ZAP:LOSE_ALL:12d12
 F:FORCE_SLEEP | ONLY_ITEM | DROP_5 | DROP_10 | DROP_20 | DROP_40 
 F:DROP_80 | DROP_1D2 | DROP_GOOD | SMART | POWERFUL | NEVER_MOVE
-F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
+F:CONSTRUCT | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
 F:EVIL | ARCHER | IM_FIRE | IM_AIR | IM_ICE | IM_TIME | IM_ETHER | IM_NETHER
 F:IM_EDGED | IM_BLUNT
 S:1_IN_2 | POW_50
@@ -5374,12 +5852,12 @@ D:mind on the job of fighting for your life.
 
 N:1305:Martian Canister Walker
 G:A:g
-I:100:3000:12:100:100
+I:120:3000:12:100:100
 W:31:2:25:5500
 B:GRAB:HURT:5d20
 B:CRUSH:HURT:30d5
 S:1_IN_3 | POW_60
-S:BA_POISON | FEAR | HOLD
+S:BA_POISON
 F:ALIEN | AUTOMATA | IM_FIRE | IM_ICE
 F:BASH_DOOR | KILL_ITEM | VUN_POIS | VUN_ELEC 
 D:". . . then the dull resonance of the shots the Martians fired, and
@@ -5417,14 +5895,14 @@ S:1_IN_3 | POW_20
 S:SHRIEK | S_KIN | BR_POISON | BLINK
 F:ANIMAL | ESCORTS | SMART | IM_POIS
 F:IM_AIR | NO_FEAR | NO_CONF | VUN_BLUNT
-D:Bigger still than the other massive wasps, and her abdomen
+D:Bigger still than the other massive wasps, her abdomen
 D: is distended and pulsating.  A piercing shriek calls her brood
 D: to destroy you.
 
 N:1308:Mountain Awgwa
 G:U:u
-I:110:1800:110:110:110    
-W:31:5:30:5100     
+I:110:1800:110:110:110
+W:31:5:30:5100
 B:CRUSH:HURT:5d21
 B:CRUSH:HURT:5d21
 F:DEMON | EVIL | BASH_DOOR | IM_EARTH | IM_FIRE
@@ -5443,7 +5921,7 @@ D: Frank Baum, The Life and Adventures of Santa Claus
 ########### Numbered 1341 - 1380 ##########
 ###########################################
 
-N:1341:Violent Inferno
+N:1341:Inferno
 G:E:r
 I:120:2000:12:80:90
 W:32:3:40:5000
@@ -5454,7 +5932,7 @@ F:EVIL | ELEMENTAL | IM_FIRE | WEIRD_MIND | SMART
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | VUN_ICE |
 F:VUN_WATER | CLOUD_SURROUND
 D:The familiar form of a fire elemental is immolating everything in
-D: its path. This column of fire is approximately 6 feet in diamter
+D: its path. This column of fire is approximately 6 feet in diameter
 D: and stretches all the way to the cavern ceiling. Where the cavern
 D: ceiling restricts the column height, the heat is so intense that the
 D: roof is instantaneously transformed into molten rock to accommodate
@@ -5462,14 +5940,14 @@ D: the massive elemental.
 
 N:1342:Guardian of the Mountains
 G:E:u
-I:100:3340:12:96:140
+I:110:3340:12:96:140
 W:32:3:40:5166
-B:CRUSH:HURT:2d213
+B:CRUSH:SHATTER:2d213
 S:1_IN_5 | POW_40
-S:TK | BO_EARTH | BA_EARTH | BR_EARTH
+S:TK | BR_EARTH
 F:EVIL | ELEMENTAL | IM_EARTH | WEIRD_MIND | IMPENT | CLOUD_SURROUND
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | PASS_WALL | VUN_BLUNT
-D:A giant construct made of granite boulders is here to halt your progress.
+D:A giant living mass of granite boulders is here to halt your progress.
 D: Two shining rubies atop its head glint with malefic intent as you approach.
 D: The entire cavern rumbles with small earthquakes as it strides slowly
 D: toward you.
@@ -5484,9 +5962,9 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN
 S:1_IN_3 | POW_28
 S:BA_POISON | BO_POISON | BR_POISON | CLOUD_POISON | TELE_TO
 D:Rotting body parts from several different species are being held together
-D: into a hulking humanoid form by a powerful unknown intelligence.
+D: in a hulking humanoid form by a powerful unknown intelligence.
 D: The belly of this abomination pulses rhythmically and a green froth
-D: collects around the beast's eyes, nose, and mouth. Deadly looking spores
+D: collects around the beast's eyes, nose, and mouth. Deadly-looking spores
 D: erupt from pores in the elemental's skin as it reaches for you.
 
 N:1344:Panther Man
@@ -5497,29 +5975,11 @@ B:CLAW:HURT:8d8
 B:CLAW:HURT:8d8
 B:BITE:LOSE_VIG:14d12
 S:1_IN_3 | POW_20
-S:HASTE | CONFUSION | TELE_TO |
+S:HASTE | CHARGE |
 F:BEASTMAN | OPEN_DOOR | NO_FEAR | NO_CONF
 F:SMART | 
 D:A terrifying crossbreed of a human and a panther, this beastman
 D: assassin prowls the shadows and strikes with blazing speed.
-
-
-N:1345:Rock Awgwa
-G:U:D
-I:110:1850:120:100:100
-W:32:6:20:5200     
-B:CRUSH:HURT:5d22
-B:CRUSH:HURT:5d22
-B:ENGULF:CONFUSE:3d10     
-F:DEMON | EVIL | BASH_DOOR | IM_EARTH | IM_FIRE
-F:IM_ICE | INVISIBLE | KILL_ITEM | HURT_ROCK
-F:IM_EDGED | IMPENT
-S:1_IN_5 |POW_50
-S:BLINK | HASTE | TPORT
-D:"Sometimes these creatures lived to become a hundred years old,
-D: but usually they fought so fiercely among themselves that many were
-D: destroyed in combat, and when they died that was the end of them." -L
-D: Frank Baum, The Life and Adventures of Santa Claus.
 
 N:1380:Jabberwock
 G:H:v
@@ -5528,7 +5988,7 @@ W:32:1:0:19000
 B:CLAW:HURT:12d10
 B:CLAW:HURT:12d10
 B:BITE:HURT:12d10
-B:BITE:HURT:12d10
+B:GAZE:FIRE:12d10
 F:ATTR_MULTI | UNIQUE | ATTR_MULTI |
 F:FORCE_SLEEP | FIXED_HPS | BASH_DOOR | ANIMAL
 D:'Twas brillig and the slithy toves /
@@ -5568,7 +6028,7 @@ D: And the mome raths outgrabe. \n
 
 N:1381:Aggravated Hurricane
 G:E:B
-I:120:1800:14:66:110
+I:125:1800:14:66:110
 W:33:3:40:6000
 B:WAIL:HURT:15d20
 S:1_IN_4 | POW_40
@@ -5587,7 +6047,7 @@ I:120:1185:14:73:40
 W:33:2:60:11265
 B:GAZE:HURT:97d2
 S:1_IN_2 | POW_36
-S:BA_TIME | BO_TIME | BR_TIME
+S:BA_TIME | BO_TIME 
 S:HOLD | SLOW | HASTE | ADD_MANA | TELE_SELF_TO | BLINK
 F:EVIL | ELEMENTAL | IM_TIME | SMART | WEIRD_MIND | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | KILL_ITEM
@@ -5620,22 +6080,45 @@ F:IM_ACID | IM_ELEC | IM_FIRE | IM_ICE | IM_POIS | IM_NETHER | IM_WATER
 F:IM_EARTH | NO_FEAR | NO_STUN | NO_SLEEP
 S:1_IN_1 | POW_1
 S:BLINK | TPORT | S_DEMON | S_HI_DEMON
-D:A massive portal of entropic energy stands before you.  A disgusting
+D:A massive portal of demonic energy stands before you.  A disgusting
 D: stench fills the air as it throbs and writhes.
 
 N:1385:Dragon Awgwa
 G:U:R
-I:110:1900:115:100:100    
+I:110:1900:115:100:100
 W:33:6:35:5300
 B:CLAW:HURT:4d15
 B:BITE:FIRE:5d20
 F:SMART | DEMON | EVIL | IM_FIRE
-F:INVISIBLE | NO_SLEEP
+F:INVISIBLE | NO_SLEEP | FRIEND
 S:1_IN_3 | POW_50
-S:BR_FIRE | BA_FIRE |  HEAL
+S:BR_FIRE | BA_FIRE | HEAL
 D: "There were three hundred Asiatic Dragons, breathing fire that
 D:consumed everything it touched.  These hated manking and all good
-D:spirits" -L Frank Baum, The Life and Adventures of Santa Claus.
+D:spirits." -L Frank Baum, The Life and Adventures of Santa Claus.
+
+N:1386:Chela of Ghoolab Shah
+G:p:o
+I:125:1000:25:50:5
+W:45:2:200:10000
+B:TOUCH:TERRIFY:1d10
+B:PUNCH:HURT:4d10
+B:KICK:HURT:4d10
+F:EVIL | IM_POIS | MALE | KILL_ITEM | FRIEND | HOSTILE
+F:IM_PIERCE | IM_EDGED | IM_BLUNT
+F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP
+S:1_IN_4 | POW_30
+S:BLINK | ADD_MANA | HEAL | BO_GRAVITY
+D:"It was therefore ordained that in all such cases the
+D: retribution should be left in the hands of the _chelas_,
+D: or immediate disciples of the holy man, with power to
+D: extend or shorten it at their will, exacting it either at the
+D: time or at any future anniversary of the day when the
+D: crime was committed.
+D: - The Mystery of Cloomber, Arthur Conan Doyle (1888)\n
+D: You're not sure what your crime is, but these monks have
+D: found you guilty and they are going to bring you punishment.
+
 
 ####################
 # Credited: Otie   #
@@ -5646,7 +6129,7 @@ I:117:3800:100:49:240
 W:33:2:10:5678
 B:SLASH:HURT:7d30
 B:SLASH:HURT:7d30
-S:1_IN_5 | POW_26
+S:1_IN_5 | POW_46
 S:TRAPS | RIFLE
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | HOSTILE | SMART | OPEN_DOOR | NO_SLEEP
 D:"The only hypothesis, however, which the bucolic mind could evolve,
@@ -5655,11 +6138,6 @@ D: that the old general and his family were one and all afflicted with
 D: madness, or, as an alternative conclusion, that he had committed some
 D: heinous offence and was endeavouring to escape the consequences of his
 D: misdeeds." - Arthur Conan Doyle: "The Mystery of Cloomber" (1888)
-D: Major-General John Berthier Heatherstone was an accomplished soldier
-D: in India in his younger days, but something happened there
-D: that made him afraid for his life. He and his family have travelled
-D: all over to find a safe hiding place from his relentless fate.
-D: A mysterious sound keeps reminding the general of what is to come...
 
 ###########################################
 ############   Level 17(34)    ############
@@ -5669,7 +6147,7 @@ D: A mysterious sound keeps reminding the general of what is to come...
 
 N:1421:Raging Torrent
 G:E:b
-I:110:2439:12:67:90
+I:120:3439:12:67:90
 W:34:3:40:5866
 B:SPIT:HURT:2d146
 F:EVIL | ELEMENTAL | IM_WATER | WEIRD_MIND | CLOUD_SURROUND
@@ -5692,8 +6170,8 @@ F:PASS_WALL | LOW_MANA_RUN | WEIRD_MIND | INVISIBLE
 F:SMART | REGENERATE | IM_BLUNT | IM_PIERCE | IM_EDGED | NO_CONF
 F:NO_SLEEP | NO_FEAR | NO_STUN
 S:1_IN_2 | POW_50 |
-S:BLINK | BA_ETHER | BO_ETHER | BR_ETHER 
-D:Waves of power resonate off the walls as a this elemental speeds towards
+S:BLINK | BA_ETHER | BO_ETHER 
+D:Waves of power resonate off the walls as this elemental speeds towards
 D: you. Nothing can stop the progress of the ether stalker. Anything foolish
 D: or slow enough to get in the way is swept aside before its might.
 
@@ -5712,10 +6190,10 @@ D: The Life and Adventures of Santa Claus
 
 N:1460:Lucy Westenra
 G:V:w
-I:120:3000:18:100:60
+I:120:6000:18:100:60
 W:34:1:0:18000
 B:CLAW:TERRIFY:8d10
-B:CLAW:PARALYZE:8d10
+B:CLAW:LOSE_ALL:8d10
 B:KISS:EXP_40:8d10
 F:UNIQUE | ATTR_MULTI | FEMALE | FORCE_SLEEP | FIXED_HPS | 
 F:DROP_40 | DROP_80 | DROP_GOOD | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
@@ -5750,9 +6228,9 @@ B:BLUNT:FIRE:2d20
 B:GAZE:PARALYZE:10d5
 B:GAZE:CONFUSE:10d5
 S:1_IN_2 | POW_60
-S:BA_FIRE | BO_FIRE | HEAL | HASTE | SLOW | BLINK
-S:S_KIN | STUN | SPIRIT | BLIND | HOLD
-F:SMART | OPEN_DOOR | IM_FIRE | NO_FEAR | NO_CONF | 
+S:BO_FIRE | HEAL | HASTE | BLINK
+S:S_KIN | SPIRIT | PSI 
+F:SMART | OPEN_DOOR | IM_FIRE | NO_FEAR | NO_CONF | FRIEND
 D:A clergyman draped in blood red robes glares at you from
 D: beneath hooded lids. His holy mission is to eliminate the
 D: heretics from the church by any means necessary. His will
@@ -5774,7 +6252,7 @@ F:IM_POIS | EMPTY_MIND | FIXED_HPS | BASH_DOOR |
 F:IM_FIRE | IM_AIR | IM_EARTH | IM_WATER | IM_ELEC |
 F:IM_BLUNT | IM_EDGED | IM_PIERCE |
 F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
-S:1_IN_3 | POW_25
+S:1_IN_3 | POW_30
 S:GUN | RIFLE | SHOTGUN | ROCKET | BE_FIRE | BE_ELEC
 D:A great mechanical chicken (from which its name is
 D: contracted), it stands taller than a man, equipped
@@ -5783,11 +6261,11 @@ D: are built into its design with great cunning and
 D: it is clear that this is the work of a brilliant,
 D: dedicated, and monomaniacally chicken-obsessed mind.
 
-N:1463:Demon Awgwa
+N:1463:Black Demon Awgwa
 G:U:D
-I:110:2000:125:80:100
+I:120:2000:125:80:100
 W:35:6:30:5300
-B:HIT:TERRIFY:6d15
+B:HIT:TERRIFY:9d25
 F:DEMON | EVIL | IM_FIRE | IM_AIR 
 F:INVISIBLE | BASH_DOOR | REGENERATE | IM_EDGED
 F:IMPENT
@@ -5803,12 +6281,12 @@ N:1499:Rimmon - Prince of Lightning
 G:E:y
 I:130:5998:18:70:30
 W:35:5:86:26700
-B:ZAP:ELEC:40d70
+B:ZAP:ELEC:20d50
 F:EVIL | ELEMENTAL | IM_ELEC | WEIRD_MIND | REGENERATE | SMART | 
 F:UNIQUE | FIXED_HPS | ATTR_MULTI | MALE
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | POWERFUL | CLOUD_SURROUND
 S:1_IN_5 | POW_85
-S:BO_ELEC | BA_ELEC | BE_ELEC | BR_ELEC | BLINK | S_KIN | TELE_SELF_TO
+S:BO_ELEC | BA_ELEC | BE_ELEC | BR_ELEC | BLINK | TELE_SELF_TO
 D:A gigantic form made from pure energy thunders as giant bolts of energy
 D: splash to and from the creature before you. The atmosphere is ionized,
 D: and the few cavern dwellers that have been foolish enough to approach
@@ -5824,7 +6302,7 @@ B:TOUCH:LOSE_ALL:100d4
 F:UNIQUE | ATTR_MULTI | HOSTILE | UNDEAD | EVIL | PASS_WALL
 F:IM_ICE | IM_POIS | IM_NETHER | NO_FEAR | NO_CONF | NO_SLEEP
 S:1_IN_5 | POW_25
-S:BR_POISON | BR_DARK | S_UNDEAD | FEAR | BLIND | SLOW | HOLD
+S:BR_POISON | BR_DARK | S_UNDEAD 
 D:"...but the figure in question had out-Heroded Herod, and gone beyond
 D: the bounds of even the prince's indefinite decorum. There are chords
 D: in the hearts of the most reckless which cannot be touched without
@@ -5850,7 +6328,7 @@ D: "The Masque of the Red Death"
 #################
 # Credited: Luc #
 #################
-N:1501:Steam Powered Mechanical Dragon
+N:1501:Steam-Powered Mechanical Dragon
 G:C:D
 I:125:4200:80:120:100
 W:36:6:0:7100
@@ -5858,15 +6336,15 @@ B:CLAW:HURT:8d8
 B:CLAW:HURT:8d8
 B:BITE:STEAM:12d12
 B:DROOL:STEAM:2d2
-F:AUTOMATA | IM_POIS | NO_FEAR |
+F:CONSTRUCT | IM_POIS | NO_FEAR |
 F:NO_CONF | NO_SLEEP | EMPTY_MIND |
 F:BASH_DOOR | POWERFUL | HOSTILE | 
 F:DROP_5 | DROP_10 | DROP_20 | DROP_40 | DROP_80 | DROP_1D2 | 
 F:DROP_GOOD | DROP_GREAT | IMPENT
-F:IM_FIRE | IM_EARTH | IM_AIR | IM_WATER | IM_ELEC | IM_ICE | IM_ACID | KILL_WALL 
+F:IM_FIRE | IM_EARTH | IM_AIR | IM_WATER | IM_ELEC | IM_ACID | KILL_WALL 
 F:IM_TIME | IM_ETHER | IM_SOUND | IM_NETHER | IM_PIERCE | IM_EDGED | IM_BLUNT
 S:1_IN_6 | POW_100 |
-S:BR_WATER | BR_FIRE | SHRIEK |
+S:BR_WATER | BR_FIRE |
 D:Before you stands a huge automated guardian of the depths made
 D: to look like a dragon. It idly bites a large chunk of the wall, the better
 D: to power its hellish furnace; you can feel the heat from here. You consider
@@ -5884,8 +6362,8 @@ B:PIERCE:HURT:1d60
 B:PIERCE:HURT:1d60
 B:PIERCE:HURT:1d60
 S:1_IN_2 | POW_32
-S:TELE_SELF_TO
-F:DINOSAUR | COLD_BLOOD | IM_EARTH | IM_POIS
+S:CHARGE
+F:DINOSAUR | ANIMAL | COLD_BLOOD | IM_EARTH | IM_POIS
 F:NO_FEAR | BASH_DOOR | IM_EDGED 
 D:[Gr. three-horn face], genus of ornithischian quadruped
 D: dinosaurs of the late Cretaceous period. Because of some variations in
@@ -5902,9 +6380,9 @@ D: - (Columbia Encyclopedia)
 
 N:1503:Goblin Awgwa
 G:U:g
-I:120:2000:120:50:120  
-W:36:7:0:5350
-B:CLAW:HURT:4d15     
+I:120:2000:120:50:120
+W:36:4:0:5350
+B:CLAW:HURT:4d15
 B:CLAW:HURT:4d15
 B:CLAW:HURT:4d15
 F:DEMON | EVIL | IM_FIRE | INVISIBLE
@@ -5913,23 +6391,79 @@ D:"And joined to these were the Goozle-Goblins, with long talons as
 D: sharp as swords, with which they clawed the flesh from their foes." -
 D: L. Frank Baum "The Life and Adventures of Santa Claus"
 
+N:1504:Cuttenclip Soldier
+G:o:b
+I:120:400:80:12:220
+W:36:3:0:20
+B:PIERCE:HURT:8d8
+B:SLASH:HURT:8d8
+F:COLD_BLOOD | OPEN_DOOR | FRIENDS | RAND_25 | WEIRD_MIND | MULTIPLY
+F:CONSTRUCT | VUN_FIRE | VUN_AIR | IM_EARTH | IM_POIS | VUN_EDGED | 
+F:VUN_BLUNT | CUTTENCLIP
+S:1_IN_6 | POW_20
+S:RIFLE
+D:"Just before the entrance was drawn up a line of tiny soldiers, with
+D: uniforms brightly painted and paper guns upon their shoulders. They
+D: were exactly alike, from one end of the line to the other, and all
+D: were cut out of paper and joined together in the centers of their
+D: bodies." - L. Frank Baum "The Emerald City of Oz"
+
+N:1505:Flathead
+G:h:B
+I:120:4000:5:100:200
+W:36:6:0:100
+B:PUNCH:HURT:8d30
+F:FRIENDS | RAND_50 | RAND_25 | STUPID | EMPTY_MIND | BASH_DOOR |
+F:KILL_ITEM | NO_FEAR | NO_CONF 
+D:"'I don't blame you for thinking that,' he said. 'Once the Flatheads
+D: had no brains because, as you say, there is no upper part to their
+D: heads, to hold brains. But long, long ago a band of fairies flew
+D: over this country and made it all a fairyland, and when they came
+D: to the Flatheads the fairies were sorry to find them all very stupid
+D: and quite unable to think. So, as there was no good place in their
+D: bodies in which to put brains the Fairy Queen gave each one of us
+D: a nice can of brains to carry in his pocket and that made us just
+D: as intelligent as other people. See,' he continued, 'here is one
+D: of the cans of brains the fairies gave us.' He took from a pocket
+D: a bright tin can having a pretty red label on it which said:
+D: 'Concentrated Brains, Extra Quality.'"- L. Frank Baum "Glinda of Oz"
+
+N:1538:Su-Dic
+G:h:b
+I:130:9000:5:100:200
+W:36:8:0:100
+B:PUNCH:HURT:12d30
+F:UNIQUE | MALE | FIXED_HPS | RAND_25 | STUPID | EMPTY_MIND |
+F:KILL_ITEM | NO_FEAR | NO_CONF | BASH_DOOR 
+D:"'Everybody here is a dictator of something or other. They're all office
+D: holders. That's what keeps them contented. But I'm the Supreme Dictator
+D: of all, and I'm elected once a year. This is a democracy, you know, where
+D: the people are allowed to vote for their rulers. A good many others would
+D: like to be Supreme Dictator, but as I made a law that I am always to count
+D: the votes myself, I am always elected.' \n
+D:'What is your name?' asked Ozma.\n
+D:'I am called the Su-dic, which is short for Supreme Dictator. I sent that
+D: man away because the moment you mentioned Ozma of Oz, and the Emerald City,
+D: I knew who you are. I suppose I'm the only Flathead that ever heard of you,
+D: but that's because I have more brains than the rest.'" - L. Frank Baum
+D: "Glinda of Oz"
 
 N:1539:Dracula
 G:V:D
 I:130:5000:20:145:10
-W:36:3:0:20400
+W:36:3:200:20400
 B:BITE:HURT:5d18
 B:BITE:EXP_80:6d16
-B:HIT:CONFUSE:6d16
-B:HIT:CONFUSE:6d16
+B:GAZE:CONFUSE:6d16
+B:GAZE:CONFUSE:6d16
 F:UNIQUE | ATTR_MULTI | MALE | FORCE_SLEEP | FIXED_HPS | SMART | DROP_1D2 |
 F:DROP_10 | DROP_20 | DROP_5 | DROP_40 | DROP_80 | DROP_GOOD | DROP_GREAT |
-F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | VUN_FIRE
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | VUN_FIRE |
 F:EVIL | UNDEAD | IM_ICE | IM_POIS | HURT_LIGHT | NO_CONF | NO_SLEEP
 S:1_IN_3 | POW_70
 S:BLIND | HOLD | FEAR | TK | FORCE | DRAIN_MANA | HEAL |
 S:DOMINATION | BA_NETHER | S_KIN | TELE_SELF_TO | 
-D:Within, stood a tall old man, clean shaven save for a
+D:Within stood a tall old man, clean-shaven save for a
 D: long white moustache, and clad in black from head to foot,
 D: without a single speck of colour about him anywhere. He
 D: held in his hand an antique silver lamp, in which the flame
@@ -5944,7 +6478,7 @@ D: instant, however, that I had stepped over the threshold, he moved
 D: impulsively forward, and holding out his hand grasped mine with a
 D: strength which made me wince, an effect which was not lessened
 D: by the fact that it seemed cold as ice, more like the hand of a
-D: dead than a living man. -Bram Stoker "Dracula" (1897)
+D: dead than a living man. - Bram Stoker "Dracula" (1897)
 
 
 #######################
@@ -5956,8 +6490,8 @@ I:130:3800:20:120:0
 W:36:3:0:6666
 B:HIT:HURT:14d40
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | ARCHER | DROP_20 | 
-F:DROP_10 | DROP_GOOD | DROP_GREAT | NO_CONF | EVIL
-F:OPEN_DOOR | NO_FEAR | NO_SLEEP | 
+F:DROP_10 | DROP_GOOD | DROP_GREAT | NO_CONF | EVIL |
+F:OPEN_DOOR | NO_FEAR | NO_SLEEP | BASH_DOOR
 S:1_IN_3 | POW_40
 S:RIFLE
 D:He handed over the book, and I read:\n
@@ -5991,15 +6525,66 @@ F:IM_EDGED | PASS_WALL | INVISIBLE | NO_SLEEP
 F:IM_ICE | IM_EARTH | IM_POIS | FRIEND
 D:It is a tall, haggard figure with long white hair. It drives a
 D: spectral cart, accompanied by two ghostly figures on foot. \n
-D:In the Celtic folklore of Brittany, a death omen that comes to
-D: collect the souls of the dead. The ankou is the last person
-D: to die in a parish during a year. For the following year,
-D: he or she assumes the duty of calling for the dead. 
+D:In the Celtic folklore of Brittany, the ankou is a death omen
+D: that comes to collect the souls of the dead. The ankou is the
+D: last person to die in a parish during a year. For the following
+D: year, he or she assumes the duty of calling for the dead. 
+
+N:1542:Cuttenclip Lieutenant
+G:o:B
+I:120:1200:80:12:220
+W:37:3:0:1200
+B:PIERCE:HURT:12d8
+B:SLASH:HURT:12d8
+F:COLD_BLOOD | OPEN_DOOR | ESCORT | WEIRD_MIND |
+F:CONSTRUCT | VUN_FIRE | VUN_AIR | IM_EARTH | IM_POIS | VUN_EDGED | 
+F:VUN_BLUNT | CUTTENCLIP
+S:1_IN_6 | POW_40
+S:RIFLE
+D:"Dorothy carefully stood up the line of soldiers, who first dusted
+D: their painted clothes and then saluted the visitors with their paper
+D: muskets. From the end it was easy to see that the entire line had
+D: been cut out of paper, although from the front the soldiers looked
+D: rather solid and imposing." - L. Frank Baum "The Emerald City of Oz"
+
+N:1543:Black Ants of Timothy Thummel
+G:I:D
+I:120:1100:100:230:20
+W:37:2:0:900
+B:BITE:HURT:20d5
+F:FRIENDS | FRIEND | COLD_BLOOD | WEIRD_MIND | TRACKER |
+F:BASH_DOOR | ANIMAL | IM_EARTH | IM_EDGED | 
+D:These superhumanly intelligent ants hail from a gigantic
+D: primeval forest in Africa between the tributaries Aruwimi and Uelle.
+D: They are engaged in a gigantic ant world war with the brown and
+D: red ants. The long history of their war is covered by Timothy Thummel
+D: in the book "The Ants of Timothy Thummel" by Arpad Ferenczy.
+
+
+N:1578:Miss Cuttenclip
+G:p:R
+I:130:2000:110:170:30
+W:37:8:200:6000
+B:SLASH:HURT:50d5
+F:UNIQUE | FIXED_HPS | OPEN_DOOR | SMART | NO_SLEEP |
+F:FEMALE | REGENERATE | DROP_GOOD | DROP_80
+S:1_IN_3 | POW_0
+S:SHRIEK | S_CUTTENCLIP
+D:"All the party seemed relieved to find that here was
+D: a real girl, of flesh and blood. She was very dainty
+D: and pretty as she stood there welcoming them. Her hair
+D: was a golden blonde and her eyes turquoise blue. She
+D: had rosy cheeks and lovely white teeth. Over her simple
+D: white lawn dress she wore an apron with pink and white
+D: checks, and in one hand she held a pair of scissors.\n
+D:'May we see Miss Cuttenclip, please?' asked Dorothy.\n
+D:'I am Miss Cuttenclip,' was the reply. 'Won't you come in?'"\n
+D: The Emerald City of Oz - L. Frank Baum "The Emerald City of Oz"
 
 N:1579:The King of the Awgwas
 G:U:w
 I:125:2250:110:125:35
-W:37:10:25:7000     
+W:37:8:25:7000
 B:HIT:HURT:5d25
 B:HIT:HURT:5d25
 B:BITE:FIRE:4d30
@@ -6011,18 +6596,18 @@ S:1_IN_3 | POW_65
 S:S_KIN | BR_FIRE
 D:"The most horrible of their number that could always think of the
 D: wickedest thing to do was always elected the King Awgwa, and the race
-D: obeyed his orders." -L Frank Baum, the Life and Adventures of Santa
+D: obeyed his orders." - L. Frank Baum, the Life and Adventures of Santa
 D: Claus.
 
 
 ##########################################
 # All Elementals Credited: Bridger Flynn #
 ##########################################
-N:1580:Racemicron - Prince of Acid and Melting
+N:1580:Racemicron, Prince of Acid and Melting
 G:E:G
 I:130:5200:10:74:80
 W:37:5:60:18500
-B:ENGULF:ACID:30d80
+B:ENGULF:ACID:30d60
 F:EVIL | ELEMENTAL | IM_ACID | EMPTY_MIND | COLD_BLOOD
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | KILL_ITEM
 F:IM_BLUNT | KILL_WALL | POWERFUL | CLOUD_SURROUND
@@ -6030,10 +6615,10 @@ F:UNIQUE | ATTR_MULTI | FIXED_HPS | MALE
 S:1_IN_5 | POW_65
 S:BA_ACID | BO_ACID | BR_ACID | S_KIN | BLIND
 D:A terrible burning sensation assaults you as an animated cloud of
-D: the most dangerous acid know to man is flowing through the hallways
-D: towards you. You remember from your chemistry studies that HF acid
-D: has an affinity for the calcium in your bones. The calcium in your
-D: bones will be small sustenance for a Racemicron - Prince of Acid, but
+D: the most dangerous acid known to man flows through the hallways
+D: towards you. You remember from your chemistry studies that hydrofluoric
+D: acid has an affinity for the calcium in your bones. The calcium in your
+D: bones will be small sustenance for Racemicron, but
 D: then again, a meal is a meal.
 
 ###########################################
@@ -6071,7 +6656,7 @@ D: rides forth to the scene of battle in nightly quest of his head;
 D: and that the rushing speed with which he sometimes passes along
 D: the Hollow, like a midnight blast, is owing to his being belated,
 D: and in a hurry to get back to the church-yard before daybreak."
-D: -Washington Irving "The Legend of Sleepy Hollow" 
+D: - Washington Irving "The Legend of Sleepy Hollow" 
 
 ###########################################
 ############   Level 12(39)    ############
@@ -6079,7 +6664,20 @@ D: -Washington Irving "The Legend of Sleepy Hollow"
 ########### Numbered 1621 - 1660 ##########
 ###########################################
 
-N:1660:Agrat-bat-mahlaht - Princess of Ice
+N:1621:Brown Ants of Timothy Thummel
+G:I:U
+I:120:1500:60:250:20
+W:37:5:0:1100
+B:BITE:ACID:20d6
+F:FRIENDS | FRIEND | COLD_BLOOD | WEIRD_MIND | TRACKER 
+F:BASH_DOOR | ANIMAL | IM_EARTH | IM_EDGED | KILL_WALL
+D:These superhumanly intelligent ants hail from a gigantic
+D: primeval forest in Africa between the tributaries Aruwimi and Uelle.
+D: They are engaged in a gigantic ant world war with the black and
+D: red ants. The long history of their war is covered by Timothy Thummel
+D: in the book "The Ants of Timothy Thummel" by Arpad Ferenczy.
+
+N:1660:Agrat-bat-mahlaht, Princess of Ice
 G:E:w
 I:130:4500:14:156:125
 W:39:5:60:18500
@@ -6089,12 +6687,12 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | KILL_ITEM | POWERFUL
 F:VUN_FIRE | VUN_BLUNT | CLOUD_SURROUND | UNIQUE | FIXED_HPS
 F:ATTR_MULTI | FEMALE
 S:1_IN_5 | POW_85
-S:BA_ICE | BO_ICE |  SLOW | BR_ICE | TK | S_KIN
-D:Waves of brain numbing cold fill the cavern as Agrat-bat-mahlaht creeps
-D: through on a terrible rampage. Frozen corpses of lesser beings are encased
-D: in her terrible body with looks of horror still frozen on their faces.
-D: She lets loose a reverberating roar that shatters your eardrums and resonates
-D: within the cavern calling for her brethren to pulverize you.
+S:BA_ICE | BO_ICE | SLOW | BR_ICE | TK | S_KIN
+D:Waves of brain-numbing cold fill the cavern as Agrat-bat-mahlaht creeps
+D: through on a terrible rampage. Encased in her terrible body
+D: are the frozen corpses of lesser beings, looks of horror still frozen on
+D: their faces. She lets loose a reverberating roar that shatters your eardrums
+D: and resonates within the cavern calling for her brethren to pulverize you.
 
 ###########################################
 ############   Level 11(40)    ############
@@ -6118,25 +6716,25 @@ F:IM_FIRE | IM_ELEC | IM_ACID | IM_ICE | IM_POIS | NO_FEAR | NO_CONF
 S:1_IN_5 | POW_40
 S:RIFLE | HASTE | BLINK | TPORT | TELE_SELF_TO | DARKNESS
 D:You have heard rumours among the nobility of a man
-D: that sells his deadly services to the highest bidder.
-D: A cold man that can accomplish any task, for a price.
+D: who sells his deadly services to the highest bidder,
+D: a cold man who can accomplish any task, for a price.
 D: The royal assassin prefers to work in complete anonymity,
 D: and now that you know of his existence, you are a liability
-D: that must be eliminated. The black clad assassin's eyes
+D: that must be eliminated. The black-clad assassin's eyes
 D: glint murderously as he reaches for the implements of
 D: your destruction.
 
 ###########################
 # Credited: Bridger Flynn #
 ###########################
-N:1662:Steam Powered Rocket Sentry
+N:1662:Steam-Powered Rocket Sentry
 G:C:r
-I:100:2000:20:120:10
+I:120:2000:20:120:10
 W:40:2:5:8666
 F:STUPID | HOSTILE | EMPTY_MIND | NEVER_MOVE | NEVER_BLOW | 
-F:ARCHER | NO_FEAR | NO_CONF | 
-F:NO_STUN | NO_SLEEP | AUTOMATA
-S:1_IN_3 | POW_35
+F:NO_FEAR | NO_CONF | 
+F:NO_STUN | NO_SLEEP | CONSTRUCT
+S:1_IN_5 | POW_15
 S:ROCKET | SHRIEK
 D:A massive armature sits atop a mass of tubing and
 D: gears holding a huge rocket. As you step into view
@@ -6151,13 +6749,14 @@ W:40:1:40:8000
 B:CLAW:BLIND:12d8
 B:CLAW:BLIND:12d8
 B:BITE:LOSE_MUS:12d12
-F:BEASTMAN | OPEN_DOOR | NO_FEAR | NO_STUN
-F:NO_CONF | NO_SLEEP | ESCORT | REGENERATE
+F:BEASTMAN | OPEN_DOOR | NO_FEAR | NO_STUN | BASH_DOOR |
+F:NO_CONF | NO_SLEEP | ESCORT | TRACKER | REGENERATE
 S:1_IN_4 | POW_30
 S:SLOW | FEAR | DOMINATION | STUN
-D:A powerfully muscled beastman stands before you.  Its bright orange
-D: coat is interrupted by occasional black stripes.  Its gaze seems to pierce
-D: your very soul as you fight off a wave of terror.
+D:A powerfully muscled beastman stands before you.  Black stripes on orange
+D: fur ripple over the powerful muscles of this large beastman. His feline
+D: eyes pierce the depths of your soul and you shudder with the realization
+D: that his spirit is a ferocious as his form suggests.
 
 ###########################
 # Credited: R. Dan Henry  #
@@ -6175,8 +6774,8 @@ F:VUN_TIME | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
 S:1_IN_3 | POW_25
 S:RIFLE
 D:At a distance, it can be mistaken for a beast-man
-D: with a poultry lineage, but the wind-up soldier
-D: looks from close-up leave no doubt that this is
+D: with a poultry lineage, but from close-up the wind-up
+D: soldier looks leave no doubt that this is
 D: a mechanism, designed for war in cruel parody of
 D: a child's toy; rendered absolutely macabre by the
 D: use of a chicken's head design in place of a human
@@ -6184,19 +6783,19 @@ D: scheme and silk feathers emerging from sleeves and
 D: trouser cuffs. It carries a rifle that looks like
 D: a toy, but probably isn't.
 
-N:1665:Phaseic Annihilation Automata - Type IIX
+N:1665:Phasic Annihilation Automata (Type IX)
 G:a:r
 I:120:800:30:160:180
 W:40:3:120:12000
-B:ZAP:UN_BONUS:20d20
-B:ZAP:UN_BONUS:30d30
+B:ZAP:UN_BONUS:20d15
+B:ZAP:UN_BONUS:30d15
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | SMART
 F:OPEN_DOOR | BASH_DOOR | HURT_LIGHT
 F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
 F:IM_FIRE | IM_AIR | IM_ICE | IM_ACID | IM_PIERCE | IM_EDGED | IM_BLUNT
-S:1_IN_4 | POW_50
+S:1_IN_4 | POW_30
 S:BE_ELEC | CONFUSION | BLINK | BO_GRAVITY | BO_SOUND | BA_RAD | ROCKET
-D:A huge giant humanoid machine garbed in black and red, more massive
+D:A giant humanoid machine garbed in black and red, more massive
 D: than a factory and stronger than a locomotive.  With terrible blows,
 D: it breaks your armour from your back, leaving you defenseless
 D: against its evil wrath.  It can smell your fear, and you in
@@ -6212,9 +6811,9 @@ F:IM_EDGED | IM_BLUNT | IM_ICE | IM_EARTH | IM_POIS | DROP_80
 F:DROP_GOOD | DROP_GREAT | NEVER_BLOW | REGENERATE | OPEN_DOOR
 S:1_IN_1 | POW_70
 S:BA_AIR | BA_WATER | BLINK | ADD_MANA
-D:This is the the vampiric spirit of an infant who was born
+D:This is the vampiric spirit of an infant who was born
 D: illegitimately and then murdered by his own parents before
-D: being baptized. Such a spirits has no need to ever return
+D: being baptized. Such spirits have no need to ever return
 D: to their corpses or graves. They dwell instead in the sky.
 
 ###########################
@@ -6233,7 +6832,7 @@ F:HOSTILE | MALE | IM_FIRE | IM_EARTH | IM_AIR | IM_WATER | NO_FEAR |
 F:NO_CONF | DROP_1D2 | DROP_80 | DROP_40 | DROP_GOOD | DROP_GREAT
 S:1_IN_2 | POW_80
 S:BA_FIRE | BO_FIRE | HEAL | HASTE | SLOW | TPORT | BLINK
-S:S_KIN | S_MONSTERS | STUN | SPIRIT | BLIND | HOLD | ADD_MANA
+S:S_KIN | S_MONSTERS | STUN | SPIRIT | BLIND | FEAR | ADD_MANA
 D:"... and at that moment the cardinal himself, the Grand Inquisitor,
 D: passes by the cathedral. He is an old man, almost ninety, tall and
 D: erect, with a withered face and sunken eyes, in which there is
@@ -6252,7 +6851,7 @@ D: makes way for the guards, and in the midst of deathlike silence they
 D: lay hands on Him and lead Him away. The crowd instantly bows down to
 D: the earth, like one man, before the old Inquisitor. He blesses the
 D: people in silence and passes on."
-D: -Fyodor Dostoevsky "The Brothers Karamasov"
+D: - Fyodor Dostoevsky "The Brothers Karamasov"
 
 
 ###########################################
@@ -6263,15 +6862,30 @@ D: -Fyodor Dostoevsky "The Brothers Karamasov"
 
 N:1701:Steam Drill
 G:C:W
-I:130:2000:90:90:130
-W:41:2:0:6500
+I:130:2000:30:90:130
+W:41:4:0:6500
 B:PIERCE:HURT:6d10
 F:DROP_20 | STUPID | HOSTILE | IMPENT | BASH_DOOR | KILL_WALL |
 F:KILL_BODY | KILL_ITEM | RAND_25 | IM_EDGED | VUN_PIERCE
 F:CONSTRUCT | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
 D:A giant mechanical steam drill is moving about putting holes in
-D: all of the walls. Best to stop it now before it unearths something
-D: really dangerous.
+D: all of the walls. It would be best to stop it now before it
+D: unearths something really dangerous.
+
+N:1702:Hammerhead
+G:h:U
+I:120:1500:50:110:60
+W:41:2:0:1100
+B:BUTT:HURT:10d15
+F:FRIENDS | DROP_5 | ONLY_GOLD | STUPID | TRACKER
+F:BASH_DOOR | NO_FEAR
+D:"'But--goodness me!--the Quadling Country is full of dangers,'
+D: declared Jack. 'I've never been there myself, but--' \n
+D:'I have,' said the Scarecrow. 'I've faced the dreadful Hammerheads,
+D: which have no arms and butt you like a goat; and I've faced the
+D: Fighting Trees, which bend down their branches to pound and whip
+D: you, and had many other adventures there.'" - L. Frank Baum
+D: "The Patchwork Girl of Oz"
 
 ###########################################
 ############   Level 9(42)    #############
@@ -6279,7 +6893,7 @@ D: really dangerous.
 ########### Numbered 1741 - 1780 ##########
 ###########################################
 
-N:1741:Nazi Secret Service
+N:1741:Nazi SS Agent
 G:p:D
 I:120:2000:140:60:10
 W:42:1:0:7000
@@ -6289,14 +6903,15 @@ F:TAKE_ITEM | EVIL | NO_FEAR | NO_STUN |
 F:NO_CONF 
 S:1_IN_5 | POW_30
 S:RIFLE
-D:In 1925 Adolf Hitler formed his own personal bodyguard
-D: called the Schutzstaffel (SS). Four years later Hitler
+D:In 1925, Adolf Hitler created his own personal bodyguard
+D: called the Schutzstaffel (SS). Four years later, Hitler
 D: appointed Heinrich Himmler as the leader of the SS.
-D: By the time of Himmler's appointment the SS had only
+D: By the time of Himmler's appointment, the SS had only
 D: 280 members. They wore the same uniform as the SA except
-D: for a black cap with a silver death's head badge and a black tie. 
+D: for a black tie and a black cap with a silver death's head
+D: badge. 
 
-N:1778:YHVH Tzaboath - Prince of Fire
+N:1778:YHVH Tzaboath, Prince of Fire
 G:E:r
 I:130:6000:12:100:80
 W:42:5:50:20000
@@ -6310,11 +6925,11 @@ S:BO_FIRE | BA_FIRE | BE_FIRE | BR_FIRE | S_KIN
 D:The largest fire you have ever encountered is consuming everything
 D: in its path to fuel its insatiable furnace. The metal pieces of equipment
 D: you carry heat up and seem to warp as you approach. A multitude of flaming
-D: eyes peer out in all directions guiding living flame tentacles looking for
-D: combustible materials. Small servant elementals are passing through a
+D: eyes peer out in all directions, guiding tentacles of living flame as they seek
+D: combustible materialss. Small servant elementals are passing through a
 D: conduit that YHVH Tzaboath has ripped between here and someplace unknown.
 
-N:1779:Adonai ha Aretz - Prince of Earth
+N:1779:Adonai ha Aretz, Prince of Earth
 G:E:u
 I:120:6500:12:126:130
 W:42:5:50:19833
@@ -6325,13 +6940,13 @@ F:UNIQUE | FIXED_HPS | ATTR_MULTI | CLOUD_SURROUND | DROP_1D2 |
 F:DROP_80 | ONLY_GOLD | DROP_GOOD | DROP_GREAT | MALE
 S:1_IN_5 | POW_85
 S:FORCE | BO_EARTH | BA_EARTH | BR_EARTH | S_KIN |
-D: Adonai ha Aretz is constructed of thousands of shards of obsidian 
-D: in the shape of a titan. Eyes made of pure white diamonds the size
-D: of your head are fixated on you. No barrier of earth can stop
+D: Adonai ha Aretz consists of thousands of shards of obsidian 
+D: the size of of a titan. Eyes made of pure white diamonds the size
+D: of your head fixate on you. No barrier of earth can stop
 D: this juggernaut, and its commitment to its destructive mission
 D: is terrifyingly single-minded.
 
-N:1780:Eheieh AGLA - Prince of Void
+N:1780:Eheieh AGLA, Prince of Void
 G:E:s
 I:130:7500:12:84:60
 W:42:5:60:22000
@@ -6372,10 +6987,10 @@ G:V:r
 I:130:5000:20:200:0
 W:43:3:80:28000
 B:CLAW:EXP_40:8d30
-B:BITE:LOSE_MUS:30d20
+B:BITE:LOSE_MUS:30d10
 F:SMART | DROP_1D2 | DROP_40 | DROP_80 | DROP_GOOD | DROP_GREAT |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | IMPENT |
-F:EVIL | UNDEAD | IM_ICE | IM_POIS | HURT_LIGHT | NO_CONF | NO_SLEEP
+F:EVIL | UNDEAD | IM_ICE | IM_POIS | NO_CONF | NO_SLEEP
 F:IM_BLUNT | IM_EDGED | IM_PIERCE
 S:1_IN_3 | POW_80
 S:BLIND | HOLD | FEAR | FORCE | DRAIN_MANA | HEAL |
@@ -6389,18 +7004,18 @@ D: the blood of living people and other corpses.
 N:1783:Giant Cockroach
 G:I:u
 I:110:3000:8:120:180
-W:43:2:10:20000
+W:43:3:10:20000
 B:CRAWL:TERRIFY:10d50
 S:1_IN_4 | POW_40
-S:BR_POISON | TELE_SELF_TO
+S:BR_POISON | CHARGE
 F:ANIMAL | WEIRD_MIND | REGENERATE
-F:IM_EDGED | IM_EARTH | IM_POIS | IM_ACID
+F:IM_EDGED | IM_EARTH | IM_POIS | IM_ACID | VUN_ICE |
 F:NO_FEAR | NO_STUN | HURT_LIGHT | BASH_DOOR
 D:Gross!
 
-N:1817:Merihim - Prince of Pestilence and Disease
+N:1817:Merihim, Prince of Pestilence
 G:E:g
-I:130:7500:12:86:60
+I:120:7500:12:86:60
 W:43:5:60:20500
 B:SPORE:POISON:63d5
 F:EVIL | ELEMENTAL | IM_POIS | SMART | 
@@ -6408,40 +7023,39 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | CLOUD_SURROUND
 F:POWERFUL | MALE | FIXED_HPS | UNIQUE | ATTR_MULTI
 S:1_IN_3 | POW_88
 S:BA_POISON | BO_POISON | BR_POISON | S_KIN | TELE_TO 
-D:Merihm exists for only one purpose, to spread contagion
+D:Merihim exists for only one purpose, to spread contagion
 D: and disease. His torso is a terrifyingly efficient factory for breeding
 D: toxins, bacteria, and viruses. Clouds of disease spores float around the
 D: beast's hands and head. Dead white eyes seem to stare at you as
-D: Merihm - Prince of Pestilence and Disease shrieks and shuffles
-D: quickly your way.
+D: Merihm shrieks and shuffles quickly your way.
 
-N:1818:Rhotomago - Prince of Time
+N:1818:Rhotomago, Prince of Time
 G:E:v
-I:120:7250:14:94:30
+I:125:7250:14:94:30
 W:43:5:80:30135
-B:GAZE:HURT:125d2
-S:HOLD | SLOW | HASTE | ADD_MANA | TELE_SELF_TO | BLINK
+B:GAZE:EXP_80:125d2
 F:EVIL | ELEMENTAL | IM_TIME | SMART | WEIRD_MIND | POWERFUL
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | KILL_ITEM | 
 F:UNIQUE | FIXED_HPS | ATTR_MULTI | MALE
 S:1_IN_2 | POW_86
 S:BA_TIME | BO_TIME | BR_TIME | S_KIN
+S:HOLD | SLOW | HASTE | ADD_MANA | TELE_SELF_TO | BLINK
 D:The laws of thermodynamics are being broken by this horror from
 D: beyond. A strange mechanism made up of broken
 D: timepieces seems to move faster and faster with no apparent power
 D: source. It would probably be best to eliminate Rhotomago before
 D: things really get out of hand.
 
-N:1819:Shaddai El Chai - Prince of Air
+N:1819:Shaddai El Chai, Prince of Air
 G:E:B
 I:130:7500:14:100:100
 W:43:5:86:21000
-B:WAIL:HURT:20d80
+B:HOWL:HURT:8d60
 F:EVIL | ELEMENTAL | IM_AIR | WEIRD_MIND | SMART | KILL_ITEM
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RAND_25 | ARCHER
 F:ATTR_MULTI | UNIQUE | FIXED_HPS | MALE | CLOUD_SURROUND | POWERFUL
-F:UNIQUE | FIXED_HPS | ATTR_MULTI | MALE
-S:1_IN_4 | POW_85
+F:UNIQUE | FIXED_HPS | ATTR_MULTI | MALE | GASEOUS
+S:1_IN_3 | POW_85
 S:BO_AIR | BA_AIR | BR_AIR | S_KIN | TK
 D:Winds of furious velocity threaten to lift you off your feet and suck the
 D: air from your lungs as you stare at the most fierce windstorm you have ever
@@ -6464,7 +7078,7 @@ F:STUPID | HOSTILE | REGENERATE | IMPENT
 F:BASH_DOOR | KILL_WALL | KILL_ITEM | ANIMAL |
 F:IM_EDGED | IM_BLUNT
 S:1_IN_10 | POW_10
-S:HASTE | TELE_SELF_TO
+S:HASTE | CHARGE
 D:"arrROOOOOOOOOOOOOOOOOOOOOOOOOGaaaaa" - The Frumious Bandersnatch
 
 ###########################################
@@ -6473,33 +7087,33 @@ D:"arrROOOOOOOOOOOOOOOOOOOOOOOOOGaaaaa" - The Frumious Bandersnatch
 ########### Numbered 1821 - 1860 ##########
 ###########################################
 
-N:1821:Elohim Tzabaoth - Prince of Tempests and the Sea
-G:E:b
-I:130:7833:14:87:90
-W:44:5:60:20533
-B:SPIT:HURT:2d193
-F:EVIL | ELEMENTAL | IM_WATER | WEIRD_MIND | CLOUD_SURROUND
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | SMART | POWERFUL | VUN_FIRE
-F:UNIQUE | FIXED_HPS | ATTR_MULTI | MALE
-S:1_IN_3 | POW_85
-S:BO_WATER | BA_WATER | BR_WATER | S_KIN
-D:The water is a deep blue, almost black, and it
-D: radiates a numbing cold. His moves are silent, and you get no sense of
-D: motion when you look at the glass perfect surface. Still, the elemental
-D: advances towards you occasionally lashing at you with columns of water or
-D: spraying forceful blasts of water at you.
+N:1821:Kalidah
+G:q:o
+I:120:4400:60:90:10
+W:44:3:0:9000
+B:CLAW:HURT:60d2
+B:BITE:HURT:60d4
+F:ANIMAL | IMPENT | BASH_DOOR
+F:IM_EARTH | IM_AIR | IM_WATER | IM_ICE | IM_POIS
+F:IM_PIERCE | IM_EDGED | IM_BLUNT
+D:"They are monstrous beasts with bodies like bears and heads
+D: like tigers," replied the Lion, "and with claws so long and
+D: sharp that they could tear me in two as easily as I could
+D: kill Toto. I'm terribly afraid of the Kalidahs." - L. Frank
+D: Baum, "The Wonderful Wizard of Oz"
 
-N:1822:Mobile Replicating Machine Gun Automata - Type XI
+N:1822:Mobile Replicating Machine Gun Automata (Type XI)
 G:a:D
 I:120:200:80:5:60
-W:44:1:0:2000
+W:44:2:0:2000
 F:FORCE_SLEEP | NEVER_BLOW | DROP_5 |
 F:STUPID | MULTIPLY | ARCHER | 
 F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND
 S:1_IN_3 | POW_30
 S:RIFLE
-D:Mobile sentries that construct more of themselves as they attack.
-D: Easy to take out if you're careful - but dangerous all the same.
+D:These mobile sentries construct more of themselves while they continue
+D: to attack.With care, they can be almost easy to take out, but you ignore
+D: them at your peril.
 
 N:1823:Acheri
 G:G:g
@@ -6511,8 +7125,49 @@ F:IM_EDGED | IM_PIERCE | IM_BLUNT | PASS_WALL | INVISIBLE | NO_SLEEP
 F:IM_ICE | IM_EARTH | IM_POIS | CLOUD_SURROUND
 S:1_IN_4 | POW_100
 S:BR_POISON | BA_POISON 
-D:The indian ghost of a little girl who brings disease,
-D: especially to children. 
+D:The ghost of a little girl who brings disease,
+D: especially to children in India. 
+
+###########################
+# Credited: R. Dan Henry  #
+###########################
+N:1824:Stoa
+G:D:v
+I:120:2100:50:180:60
+W:44:2:0:10000
+B:BITE:HURT:20d20
+B:CRUSH:HURT:30d15
+F:STUPID | HOSTILE | COLD_BLOOD | TRACKER | IMPENT | BASH_DOOR |
+F:KILL_BODY | DINOSAUR | ANIMAL | IM_PIERCE | NO_STUN
+D:"A great dark shadow disengaged itself and hopped out into the clear
+D: moonlight. I say 'hopped' advisedly, for the beast moved like a
+D: kangaroo, springing along in an erect position upon its powerful
+D: hind-legs, while its front ones were held bent in front of it. It
+D: was of enormous size and power, like an erect elephant, but its
+D: movements, in spite of its bulk, were exceedingly alert....
+D: [T]his beast had a broad, squat toad-like face like that which
+D: had alarmed us in our camp. His ferocious cry and the horrible
+D: energy of his pursuit both assured me that this was surely one
+D: of the great flesh-eating dinosaurs, the most terrible beasts
+D: which have ever walked this earth."\n -- _The Lost World_ by Sir
+D: Arthur Conan Doyle \nThis species of predatory dinosaur was
+D: first discovered when Prof. Challenger led the famous expedition
+D: to Maple White Land in South America.
+
+N:1859:Elohim Tzabaoth, Sea Prince of Tempests
+G:E:b
+I:130:7833:14:87:90
+W:44:5:60:20533
+B:ENGULF:COLD:4d193
+F:EVIL | ELEMENTAL | IM_WATER | WEIRD_MIND | CLOUD_SURROUND
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | SMART | POWERFUL | VUN_FIRE
+F:UNIQUE | FIXED_HPS | ATTR_MULTI | MALE
+S:1_IN_3 | POW_85
+S:BO_WATER | BA_WATER | BR_WATER | S_KIN
+D:The water is a deep blue, almost black, and it radiates a numbing cold.
+D: His moves are silent, and you get no sense of motion when you look at the
+D: glass perfect surface. As it advances towards you columns of water lash out
+D: to engulf you leaving the untouched surface undisturbed. 
 
 N:1860:Jubjub Bird
 G:i:b
@@ -6541,16 +7196,16 @@ D: too dangerous, but something warns you to be careful. . .
 ###########################
 # Credited: Bridger Flynn #
 ###########################
-N:1861:Steam Powered Missile Sentry
+N:1861:Steam-Powered Missile Sentry
 G:C:r
-I:100:3000:20:150:0
+I:120:3000:20:150:0
 W:45:2:5:11000
 F:STUPID | HOSTILE | EMPTY_MIND | NEVER_MOVE | NEVER_BLOW | 
-F:ARCHER | NO_FEAR | NO_CONF | NO_STUN | 
-F:NO_SLEEP | AUTOMATA
-S:1_IN_2 | POW_40
+F:NO_FEAR | NO_CONF | NO_STUN | 
+F:NO_SLEEP | CONSTRUCT
+S:1_IN_5 | POW_20
 S:MISSILE | SHRIEK
-D:The pinnacle of sentry gun technology. Alarms and
+D:Here stands the pinnacle of sentry gun technology. Alarms and
 D: whistles howl as a missile turret swivels about locking
 D: on to any movement. Each time a rocket fires, a horde of
 D: tiny automatons scurry about gathering bits and pieces
@@ -6560,7 +7215,6 @@ D: of the next missile.
 ###########################
 # Credited: R. Dan Henry  #
 ###########################
-
 N:1862:Iron Cock
 G:K:y
 I:120:3000:25:75:20
@@ -6572,9 +7226,9 @@ F:IMPENT | BASH_DOOR | KILL_ITEM |
 F:IM_FIRE | IM_EARTH | IM_AIR | IM_WATER | IM_ICE |
 F:IM_PIERCE | IM_EDGED | IM_BLUNT |
 F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
-S:1_IN_4 | POW_30
+S:1_IN_4 | POW_20
 S:RIFLE | SHOTGUN | ROCKET | MISSILE | BR_RAD
-D:A huge war machine in the shape of a gargantuan
+D:This huge war machine in the shape of a gargantuan
 D: rooster. Mighty steam-powered cockcrows announce
 D: the presence of this powerful device. Clearly the
 D: work of an engineering genius, the Iron Cock also
@@ -6589,18 +7243,32 @@ G:V:D
 I:140:4000:30:400:0
 W:45:4:200:33000
 B:CLAW:EXP_40:4d30
-B:BITE:LOSE_ALL:50d50
+B:BITE:LOSE_ALL:25d30
 F:SMART | DROP_1D2 | DROP_40 | DROP_80 | DROP_GOOD | DROP_GREAT |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | IMPENT | INVISIBLE |
 F:EVIL | UNDEAD | IM_ICE | IM_POIS | HURT_LIGHT | NO_CONF | NO_SLEEP
 F:IM_BLUNT | IM_EDGED | IM_PIERCE
-S:1_IN_3 | POW_80
+S:1_IN_5 | POW_80
 S:BLIND | HOLD | FEAR | FORCE | DRAIN_MANA | HEAL |
 S:DOMINATION | BA_NETHER | BLINK | DARKNESS 
 D:Strigoi is the name most frequently used for the kind of
 D: undead vampire that periodically returns to its grave.
 D: Often, this was a person born with a caul or with a small tail
 D: at the base of the spine.
+
+N:1864:Nazi Rocketeer
+G:p:b
+I:125:5500:20:350:10
+W:45:3:0:18000
+B:PUNCH:HURT:55d4
+B:TOUCH:ELEC:100d2
+F:FRIEND | DROP_80 | IMPENT | OPEN_DOOR | EVIL | 
+F:IM_FIRE | IM_EARTH | IM_AIR | IM_ELEC | IM_ICE | 
+F:IM_ACID | IM_POIS | IM_EDGED | IM_BLUNT | NO_FEAR |
+S:1_IN_3 | POW_60
+S:BLINK | RIFLE | BE_FIRE | TELE_SELF_TO
+D:This fascist bastard flies about thanks to a personal rocket pack. He
+D: is eating a baby.
 
 
 ###########################
@@ -6618,7 +7286,7 @@ F:SMART | IMPENT | BASH_DOOR | KILL_ITEM |
 F:IM_FIRE | IM_EARTH | IM_AIR | IM_WATER | IM_ICE |
 F:IM_PIERCE | IM_EDGED | IM_BLUNT |
 F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | AUTOMATA
-S:1_IN_3 | POW_40
+S:1_IN_3 | POW_30
 S:RIFLE | SHOTGUN | ROCKET | MISSILE | BR_RAD | BR_ETHER
 D:More than just another giant mechanical rooster with
 D: armoured feathers and deadly armaments, Rooster Cogs
@@ -6635,10 +7303,10 @@ N:1900:Jack the Ripper
 G:p:D
 I:140:8000:100:120:20
 W:45:1:30:33700
-B:HIT:HURT:20d15
-B:HIT:TERRIFY:20d15
-B:HIT:LOSE_ALL:20d15
-B:HIT:LOSE_ALL:20d15
+B:HIT:HURT:15d10
+B:HIT:TERRIFY:15d10
+B:HIT:LOSE_ALL:15d10
+B:HIT:LOSE_ALL:15d10
 F:UNIQUE | ATTR_MULTI | MALE | EVIL | FORCE_SLEEP | FIXED_HPS
 F:SMART | REGENERATE | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | IM_ACID | 
 F:DROP_10 | DROP_20 | DROP_5 | DROP_40 | DROP_80 | DROP_GOOD | DROP_GREAT |
@@ -6660,8 +7328,8 @@ I:130:2200:200:55:60
 W:46:1:0:12000
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-B:BITE:HURT:50d17
-F:FRIEND | STUPID | TRACKER | BASH_DOOR |
+B:BITE:HURT:45d17
+F:FRIEND | STUPID | TRACKER | BASH_DOOR | COLD_BLOOD
 F:DINOSAUR | ANIMAL | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 D:This Tyrannosaurus rex is a fierce predator that walks on two powerful
 D: legs. This meat-eater has a huge head with large, pointed, replaceable
@@ -6695,6 +7363,23 @@ D:This is a giant man, 20 feet tall, with the face of an
 D: oriental dragon. A great katana rests at his side. He
 D: dances forth and taunts you.
 
+N:1922:Red Ants of Timothy Thummel
+G:I:r
+I:130:1300:100:220:20
+W:37:2:0:1200
+B:BITE:FIRE:30d5
+B:SPIT:FIRE:30d5
+F:FRIENDS | FRIEND | WEIRD_MIND | TRACKER 
+F:BASH_DOOR | ANIMAL | IM_EARTH | IM_EDGED | POWERFUL
+S:1_IN_5 | POW_0
+S:BR_FIRE
+D:These superhumanly intelligent ants hail from a gigantic
+D: primeval forest in Africa between the tributaries Aruwimi and Uelle.
+D: They are engaged in a gigantic ant world war with the black and
+D: brown ants. The long history of their war is covered by Timothy Thummel
+D: in the book "The Ants of Timothy Thummel" by Arpad Ferenczy.
+
+
 N:1939:Captain Nemo
 G:p:b
 I:130:8000:100:140:100
@@ -6709,13 +7394,13 @@ F:DROP_10 | DROP_20 | DROP_5 | DROP_40 | DROP_80 | DROP_GOOD | DROP_GREAT |
 F:IM_ELEC | IM_ICE | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP |
 S:1_IN_10 | POW_90
 S:RIFLE | BE_ELEC
-D:The legendary captain of the Nautilus spreading death to all
-D: that oppose him.
+D:The legendary captain of the Nautilus is here to spread death to all
+D: who oppose him.
 
-N:1940:Dr. Moriarty
+N:1940:Professor Moriarty
 G:p:r
 I:130:5500:95:100:95
-W:47:1:0:36500
+W:47:1:200:36500
 B:HIT:HURT:2d6
 B:HIT:HURT:2d6
 B:HIT:HURT:4d6
@@ -6742,12 +7427,12 @@ D: -Arthur Conan Doyle "The Final Problem" (1893)
 ###########################################
 N:1941:Nazi Panther Tank
 G:C:o
-I:120:8000:80:200:140
-W:48:1:0:20000
-F:FRIEND | NEVER_BLOW | DROP_80 | DROP_1D2 | NO_STUN
+I:110:8000:80:200:140
+W:48:6:0:20000
+F:NEVER_BLOW | DROP_80 | DROP_1D2 | NO_STUN
 F:SMART | HOSTILE | IMPENT | BASH_DOOR | ARCHER |
 F:CONSTRUCT | EVIL | IM_EDGED | IM_BLUNT | NO_FEAR |
-S:1_IN_3 | POW_70
+S:1_IN_5 | POW_45
 S:ROCKET | RIFLE | BE_FIRE
 D:Because of its many advanced and innovative features,
 D: the World War II German Panzerkampfkanonewagen V (Panzer 5),
@@ -6787,16 +7472,16 @@ W:48:1:50:12500
 B:CLAW:HURT:14d8
 B:CLAW:HURT:14d8
 B:BITE:LOSE_ALL:12d12
-F:BEASTMAN  | ESCORTS | OPEN_DOOR
+F:BEASTMAN | ESCORTS | OPEN_DOOR
 F:IMPENT | SMART | IM_FIRE | IM_EARTH
 F:IM_AIR | IM_WATER | POWERFUL | NO_FEAR
 F:NO_STUN | NO_CONF
 S:1_IN_3 | POW_38
 S:BR_SOUND | SLOW | HOLD | PSI |
-S:TELE_TO | HEAL | ADD_MANA
+S:CHARGE | HEAL | ADD_MANA
 D:A hybrid of a mighty lion and a man, this giant of a beastman strides
 D: about with an aura of nobility.  His might and intelligence are
-D: unmatched.  An earth shaking roar erupts from the beast as it
+D: unmatched.  An earth-shaking roar erupts from the beast as it
 D: commands its minions to destroy you.
 
 N:1944:Supreme Dimensional Vortex
@@ -6808,21 +7493,21 @@ F:IM_ACID | IM_ELEC | IM_FIRE | IM_ICE | IM_POIS | IM_NETHER | IM_WATER
 F:IM_EARTH | NO_FEAR | NO_STUN | NO_SLEEP
 S:1_IN_1 | POW_1
 S:BLINK | TPORT | S_MONSTERS | S_HI_DEMON | S_AUTOMATA | S_HI_UNDEAD
-D:A giant gaping portal is ripped open in the fabric of reality. 
-D: Strange beings keep on popping through.
+D: Strange beings pop out of a ripple in the fabric of reality.
+D: This strange portal writhes and pulsates like a living thing.
 
 N:1959:King Kong
 G:M:U
 I:120:10000:100:100:140
 W:48:1:0:39300
-B:PUNCH:HURT:30d20
-B:PUNCH:HURT:30d20
+B:PUNCH:HURT:25d10
+B:PUNCH:HURT:25d10
 B:BUTT:TERRIFY:12d20
-B:CRUSH:SHATTER:40d30
+B:CRUSH:SHATTER:40d15
 F:UNIQUE | ATTR_MULTI | MALE | FIXED_HPS | FORCE_SLEEP | ESCORTS |
-F:SMART | REGENERATE | BASH_DOOR | KILL_BODY | KILL_ITEM | KILL_WALL |
+F:SMART | REGENERATE | BASH_DOOR | KILL_BODY | KILL_ITEM |
 F:ANIMAL | HOSTILE | IM_ACID | IM_ELEC | IM_FIRE | IM_ICE | IM_POIS |
-F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP 
+F:NO_FEAR | NO_STUN |  
 D:This terrible 20' gorilla storms towards you. You recognize him
 D: as Kong. A group of film makers traveled to an unknown island,
 D: where they planned to make a motion picture using a mysterious
@@ -6831,7 +7516,7 @@ D: The explorers captured Kong and brought him to New York as a public
 D: exhibit. He escaped his captors in New York, and doesn't look happy...
 D: 1933 King Kong by Merian C. Cooper and Ernest B. Schoedsack
 
-N:1960:The Babbage Analytical Engine - Final Model
+N:1960:The Babbage Analytical Engine
 G:a:B
 I:140:10000:2:130:30
 W:48:1:200:39300
@@ -6861,7 +7546,7 @@ I:120:3800:100:220:255
 W:49:1:0:18000
 F:FRIENDS | NEVER_BLOW | NEVER_MOVE | COLD_BLOOD | EMPTY_MIND | MULTIPLY
 F:REGENERATE | IMPENT | PLANT | IM_FIRE | IM_EARTH | IM_AIR |
-F:IM_WATER | IM_POIS | IM_NETHER | IM_PIERCE | IM_EDGED | IM_BLUNT |
+F:IM_POIS | IM_NETHER | IM_PIERCE | IM_EDGED | IM_BLUNT |
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 D:With strange types of rays its only source of energy, this long thorny
 D: weed is grown from living iron. You can see it grow and shift right
@@ -6889,11 +7574,54 @@ D: twisting, mutating vegetation stands before you. You can see the bones
 D: of its former victims stripped of all their flesh, being crushed into fine
 D: powder by the writhing hideous mass. 
 
+N:1963:Rock Awgwa
+G:U:D
+I:120:8850:120:100:100
+W:32:6:20:5200
+B:CRUSH:HURT:7d44
+B:CRUSH:HURT:7d44
+B:ENGULF:CONFUSE:3d10
+F:DEMON | EVIL | BASH_DOOR | IM_EARTH | IM_FIRE
+F:IM_ICE | INVISIBLE | KILL_ITEM | HURT_ROCK
+F:IM_EDGED | IMPENT
+S:1_IN_5 | POW_50
+S:BLINK | HASTE | TPORT
+D:"Sometimes these creatures lived to become a hundred years old,
+D: but usually they fought so fiercely among themselves that many were
+D: destroyed in combat, and when they died that was the end of them." -L
+D: Frank Baum, The Life and Adventures of Santa Claus.
+
+N:1964:Fierce Kalidah
+G:q:r
+I:120:6400:60:90:10
+W:49:3:0:11000
+B:CLAW:HURT:80d2
+B:BITE:HURT:80d4
+F:ANIMAL | IMPENT | BASH_DOOR
+F:IM_EARTH | IM_AIR | IM_WATER | IM_ICE | IM_POIS
+F:IM_PIERCE | IM_EDGED | IM_BLUNT | HOSTILE
+D:"The most powerful and ferocious beasts in all Oz. This
+D: forest is their especial home, and so there are few other
+D: beasts to be found except monkeys. The monkeys are spry
+D: enough to keep out of the way of the fierce Kalidahs,
+D: which attack all other animals and often fight among
+D: themselves. - L. Frank Baum "The Magic of Oz"
+
+N:1965:Evolved Gorilla
+G:B:s
+I:130:6000:20:80:10
+W:49:2:0:10000
+B:HIT:HURT:45d5
+B:HIT:HURT:45d5
+B:BITE:HURT:60d6
+F:FRIEND | BASH_DOOR | BEASTMAN | IM_AIR | IM_WATER | IM_ICE | IM_BLUNT
+D:A gorilla, standing upright and with a human cast to his features, rushes you.
+
 # Dr. Moreau is the basic "Quest" (thus the QUESTOR flag).
 # You must kill him to gain access to Fu Manchu's level.
 N:1980:Dr. Moreau
 G:P:D
-I:130:10250:100:150:0
+I:130:12250:100:150:0
 W:49:1:250:40000
 B:HIT:SHATTER:30d10
 B:HIT:SHATTER:30d10
@@ -6907,7 +7635,7 @@ F:DROP_10 | DROP_20 | DROP_5 | DROP_40 | DROP_80 | DROP_GOOD | DROP_GREAT |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | IM_EDGED | IM_BLUNT |
 S:1_IN_3 | POW_80
 S:PSI | BA_GRAVITY | BA_ACID | BA_POISON |
-S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_HI_ELEMENTAL 
+S:S_MONSTERS | S_BEASTMEN
 D:"'The Moreau Horrors!' The phrase drifted loose in my
 D: mind for a moment, and then I saw it in red lettering on
 D: a little buff-coloured pamphlet, to read which made one
@@ -6947,14 +7675,14 @@ F:AUTOMATA | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | EMPTY_MIND |
 F:IM_FIRE | IM_EARTH | IM_AIR | IM_WATER | IM_ELEC | IM_ICE |
 F:IM_POIS | IM_TIME | IM_ETHER | IM_SOUND | IM_NETHER | 
 F:IM_PIERCE | IM_EDGED | IM_BLUNT | INVISIBLE
-S:1_IN_3 | POW_100
+S:1_IN_3 | POW_80
 S:MISSILE | BA_ELEC | BO_ACID | BO_ETHER | BO_TIME | BLINK
 S:TPORT | TELE_TO | TELE_SELF_TO 
 D:There was once a universe where a brilliant scientist lived. Greater
 D: than any man of science had ever been, his inventions were countless
-D: and grander than any race's inventions had a right to be. However hubris
+D: and grander than any race's inventions had a right to be. However, hubris
 D: is not just a human concept. One day, believing himself to 
-D: be infallible he invented the Etheric Dimensional Phase Automaton.
+D: be infallible, he invented the Etheric Dimensional Phase Automaton.
 D: It promptly killed him and began exterminating life anywhere it could
 D: find it; since it can travel to any place and to any time, that 
 D: is quite a bit of life indeed.
@@ -6962,9 +7690,9 @@ D: is quite a bit of life indeed.
 
 # Fu Manchu is the final "Quest" (thus the QUESTOR flag).
 # You must kill him to complete the final quest, and win the game.
-N:2000:Fu Manchu, The Yellow peril
+N:2000:Fu Manchu, The Yellow Peril
 G:p:y
-I:140:7000:100:160:0
+I:140:14000:100:160:0
 W:50:1:250:60000
 B:HIT:CONFUSE:10d12
 B:HIT:BLIND:10d12

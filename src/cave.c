@@ -2182,7 +2182,7 @@ void do_cmd_view_map(void)
 	display_map(&cy, &cx);
 
 	/* Wait for it */
-	put_str("Hit any key to continue", 23, 23);
+	put_str("Hit any key to continue", Term->hgt - 1, 23);
 
 	/* Hilite the player */
 	Term_gotoxy(cx, cy);
@@ -3928,9 +3928,9 @@ void town_illuminate(bool daytime)
 
 
 	/* Apply light or darkness */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < TOWN_HGT; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < TOWN_WID; x++)
 		{
 			/* Interesting grids */
 			if (cave_feat[y][x] > FEAT_INVIS)
@@ -3972,9 +3972,9 @@ void town_illuminate(bool daytime)
 
 
 	/* Handle shop doorways */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < TOWN_HGT; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < TOWN_WID; x++)
 		{
 			/* Track shop doorways */
 			if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&

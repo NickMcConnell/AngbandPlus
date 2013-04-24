@@ -479,6 +479,13 @@ static void do_cmd_pref_file_hack(int row)
 	}
 }
 
+/*
+ * Toggle the autosave frequency
+ */
+static s16b autosave_freq_table[] =
+{
+	0, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, -1
+};
 
 
 /*
@@ -897,9 +904,12 @@ void do_cmd_options(void)
 		/* Window flags */
 		prt("(W) Window flags", 11, 5);
 
+		/* Autosave */
+		prt("(A) Autosave Frequency", 12, 5);
+		
 		/* Load and Append */
 		prt("(L) Load a user pref file", 13, 5);
-		prt("(A) Append options to a file", 14, 5);
+		prt("(S) Save options to a file", 14, 5);
 
 		/* Special choices */
 		prt("(D) Base Delay Factor", 16, 5);
@@ -963,8 +973,8 @@ void do_cmd_options(void)
 			do_cmd_pref_file_hack(19);
 		}
 
-		/* Append options to a file */
-		else if ((ch == 'A') || (ch == 'a'))
+		/* Save options to a file */
+		else if ((ch == 'S') || (ch == 's'))
 		{
 			char ftmp[80];
 
@@ -1035,13 +1045,76 @@ void do_cmd_options(void)
 				else bell("Illegal hitpoint warning!");
 			}
 		}
+		else if ((ch == 'a') || (ch == 'A'))
+		{
+			int i;
+			
+			/* Remember old value of autosave frequency */
+			int old_autosave_freq = autosave_freq;
+
+			/* Get the current autosave_freq table location */
+			for (i = 0; autosave_freq_table[i] >= 0; i++)
+			{
+				if (autosave_freq_table[i] == autosave_freq) break;
+			}
+
+			/* Illegal autosave frequency -- cancel autosave */
+			if (autosave_freq_table[i] < 0)
+			{
+				i = autosave_freq = 0;
+			}
+
+			/* Prompt */
+			prt("Command: Autosave", 19, 0);
+
+			/* Get a new value */
+			while (TRUE)
+			{
+				char cx;
+
+				if (!autosave_freq)
+				{
+					prt("Current autosave frequency:  Never", 21, 0);
+				}
+				else
+				{
+					prt(format("Current autosave frequency: every %d turns",
+						autosave_freq), 21, 0);
+				}
+				prt("New autosave frequency (-/2 to lower, +/8 to raise, or ESC): ", 22, 0);
+
+				cx = inkey();
+				if (cx == ESCAPE) break;
+
+				/* Go backwards */
+				if (strchr("_-42jhJH", cx))
+				{
+					/* Go to the beginning of the table */
+					if (i > 0)
+					{
+						/* Save the new value */
+						autosave_freq = autosave_freq_table[--i];
+					}
+				}
+
+				/* Go forwards */
+				else
+				{
+					/* Go to the end of the table, stop when necessary */
+					if (autosave_freq_table[++i] < 0) i--;
+
+					/* Save the new value */
+					autosave_freq = autosave_freq_table[i];
+				}
+			}
+		}
 
 		/* Unknown option */
 		else
 		{
 			/* Oops */
 			bell("Illegal command for options!");
-		}
+		} 
 
 		/* Flush messages */
 		message_flush();
@@ -2445,6 +2518,22 @@ void do_cmd_quest(void)
 			}
 		}
 	}
+	/* fixed quests */
+	else if  (quest_check(p_ptr->depth) == QUEST_FIXED ||
+		quest_check(p_ptr->depth) == QUEST_FIXED_U )
+	{
+			q_out = describe_quest(p_ptr->depth, 4);
+
+			/* Break into two lines if necessary */
+			if (strlen(q_out) < 70) msg_print(q_out);
+			else
+			{
+				q_out = describe_quest(p_ptr->depth, 1);
+				msg_format(q_out);
+				q_out = describe_quest(p_ptr->depth, 2);
+				msg_format(q_out);
+			}
+	}
 	/* No quest at all */
 	else msg_print("You are not currently undertaking a quest.");
 }
@@ -2552,6 +2641,25 @@ void do_cmd_load_screen(void)
 
 	/* Load screen */
 	screen_load();
+}
+
+/*
+* Hack -- load a screen dump from a file
+* Hint: put shit in the 'file' directory using ANGBAND_DIR_FILE,
+*/
+void do_cmd_special_message(cptr path, cptr file)
+{
+
+	char buf[1024];
+	
+	path_build(buf, 1024, path, file);
+	
+	screen_save();
+	
+	show_file(buf, "Special Message", 0, 0);
+	
+	screen_load();
+
 }
 
 
@@ -2674,7 +2782,7 @@ static cptr monster_group_text[] =
 	"Ghosts",						/*'G'*/
 	"Humanoids",					/*'h'*/
 	"Hybrids",						/*'H'*/
-	/*Unused*/						/*'i'*/
+	"Birds",						/*'i'*/
 	"Insects",						/*'I'*/
 	/*Unused*/						/*'j'*/
 	"Snakes",						/*'J'*/
@@ -2686,7 +2794,7 @@ static cptr monster_group_text[] =
 	"Monkeys",						/*'M'*/
 	"Plants",						/*'n'*/
 	/*Unused*/						/*'N'*/
-	/*Unused*/						/*'o'*/
+	"Objects",						/*'o'*/
 	"Oz Residents",					/*'O'*/
 	"People/Humans",				/*'p'*/
 	"Giant Humanoids",				/*'P'*/
@@ -2738,7 +2846,7 @@ static cptr monster_group_char[] =
 	"G",
 	"h",
 	"H",
-	/*"i",Unused*/
+	"i",
 	"I",
 	/*"j",Unused*/
 	"J",
@@ -2750,7 +2858,7 @@ static cptr monster_group_char[] =
 	"M",
 	"n",
 	/*"N",  Unused*/
-	/*"o",  Unused*/
+	"o",
 	"O",
 	"p",
 	"P",
@@ -2805,7 +2913,7 @@ static mon_struct monster_group[] =
 	{ "p",  "humans" },
 	{ "h",  "humanoids" },
 	{ "H",  "hybrids" },
-	{ "i",  "---" },
+	{ "i",  "bird" },
 	{ "I",  "insects" },
 	{ "j",  "---" },
 	{ "K",  "mechanical chickens" },
@@ -2820,7 +2928,7 @@ static mon_struct monster_group[] =
 	{ "n",  "plants" },
 	{ "@",  "non-player characters" },
 	{ "O",  "oz residents" },
-	{ "o",  "---" },
+	{ "o",  "objects" },
 	{ "q",  "quadrupeds" },
 	{ "Q",  "---" },
 	{ "R",  "reptiles" },
@@ -2928,6 +3036,7 @@ static cptr object_group_text[] =
 	"Ray Guns",
 	"Apparatuses",
 	"Mechanisms",
+	"Novels",
 	"Books",
 	"Tonics",
 	"Food",
@@ -2970,6 +3079,7 @@ static byte object_group_tval[] =
 	TV_RAY,
 	TV_APPARATUS,
 	TV_MECHANISM,
+	TV_TEXT,
 	TV_BOOK,
 	TV_TONIC,
 	TV_FOOD,
@@ -3893,7 +4003,7 @@ static void do_cmd_knowledge_monsters(void)
 		display_monster_list(max + 3, 6, BROWSER_ROWS, mon_idx, mon_cur, mon_top, grp_cur);
 
 		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
+		prt("<dir>, 'r' to recall, '<tab>' to switch format, ESC", 23, 0);
 
 		/* Hack -- handle stuff */
 		handle_stuff();
@@ -3923,9 +4033,20 @@ static void do_cmd_knowledge_monsters(void)
 				/* Recall on screen */
 				if (mon_idx[mon_cur].r_idx)
 				{
-					screen_roff(mon_idx[mon_cur].r_idx);
+					while (TRUE) {
+						char ch2;
+						screen_roff(mon_idx[mon_cur].r_idx, p_ptr->monster_mem_fmt);
 
-					(void) inkey();
+						ch2 = inkey();
+						if (ch2 == '\t') {
+							if (p_ptr->monster_mem_fmt == FALSE) p_ptr->monster_mem_fmt = TRUE;
+							else p_ptr->monster_mem_fmt = FALSE;
+							/* Update recall window */
+							p_ptr->window |= (PW_MONSTER);
+						}
+						else break;
+
+					}
 
 					redraw = TRUE;
 				}

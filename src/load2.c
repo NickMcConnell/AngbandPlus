@@ -266,6 +266,10 @@ static errr rd_item(object_type *o_ptr)
 	rd_s16b(&o_ptr->pval3);
 	rd_u32b(&o_ptr->flags_pval3);
 
+	rd_u32b(&o_ptr->flags1);
+	rd_u32b(&o_ptr->flags2);
+	rd_u32b(&o_ptr->flags3);
+
 	rd_byte(&o_ptr->discount);
 
 	rd_byte(&o_ptr->number);
@@ -354,6 +358,12 @@ static errr rd_item(object_type *o_ptr)
 	o_ptr->ds = k_ptr->ds;
 	o_ptr->force = k_ptr->force;
 #endif
+	/* Get the ranged fields */
+	o_ptr->ammo_tval = k_ptr->ammo_tval;
+	o_ptr->ammo_mult = k_ptr->ammo_mult;
+	o_ptr->num_fire = k_ptr->num_fire;
+	o_ptr->range = k_ptr->range;
+	o_ptr->degree = k_ptr->degree;
 
 	/* Get the standard weight */
 	o_ptr->weight = k_ptr->weight;
@@ -657,6 +667,9 @@ static void rd_options(void)
 
 	/* Old cheating options */
 	rd_u16b(&tmp16u);
+	
+	/* Read "autosave frequency" */
+	rd_s16b(&autosave_freq);
 
 
 	/*** Normal Options ***/

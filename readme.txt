@@ -1,28 +1,26 @@
 
 
-  ************************************************************************
-  **   Steamband 0.4.0   **   The Journey from the Ceter of the Earth   **
-  ************************************************************************
+   ************************************************************************
+   **  Steamband 0.4.1f  **   The Journey from the Centre of the Earth   **
+   ************************************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
-
-                       Angband 2.0 - 2.4 - 2.6.2 by:
-                   Alex Cutler, Andy Astrand, Sean Marsh,
-                 Geoff Hill, Charles Teague, Charles Swiger
-
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
-
                  Angband 2.9.0 - 2.9.3 by Robert Ruehlmann
+                   4GAI by Leon Marrick and Bahman Rabii
+                   Steamband 0.4.1  By Courtney Campbell
+                            Dedicated to Seula
 
-				Steamband 0.4.0  by Courtney C. Campbell
-				
-        Send comments, bug reports, and patches, to "campbell@oook.cz"
-       Visit the Angband Home Page at "http://www.thangorodrim.net/"
+                      Hit '?' to access detailed help! 
+                Seriously! Help is totally useful and updated!
+
+        Send comments, bug reports, and patches, to "valis@oook.cz"
+       Post your Steamband Character Dumps at "http://angband.oook.cz/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
-      				Visit the #angband channel on World IRC!
-    Read the online help files, especially "general.txt" and "version.txt"
-   Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
+                      Visit the Steamband Home Page at 
+              "http://angband.oook.cz/steamband/steamband.html"
+ 
 
 === Message from the Maintainer ===
 
@@ -48,7 +46,7 @@ up to date on all the latest steamband developments.
 
 === General Info ===
 
-This is the README file for Steamband 0.4.0 (14th Feb 2005).
+This is the README file for Steamband 0.4.1 (24th Dec 2007).
 
 Steamband is a "graphical" dungeon adventure game using textual characters
 to represent the walls and floors of a dungeon and the inhabitants therein,
@@ -56,11 +54,12 @@ in the vein of "rogue", "hack", "nethack", and "moria".
 
 There are some ascii "on line help" files in the "lib/help" directory.
 
-See the Official Angband Home Page "http://www.thangorodrim.net/" for
+See the Official Angband Home Page "http://rephial.org/" for
 a list (mostly complete) of what has changed in each recent version.
 
-See the various Angband ftp sites (including "clockwork.dementia.org" and
-"ftp.cis.ksu.edu") for the latest files, patches, and executables.
+See the various Angband ftp sites (including 
+"ftp://ftp.thangorodrim.net/pub/angband/") for the latest files, patches, 
+and executables.
 
 Contact Courtney Campbell < campbell@oook.cz > to report bugs. Use the
 newsgroup "rec.games.roguelike.angband" to ask general questions about the

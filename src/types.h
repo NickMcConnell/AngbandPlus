@@ -225,6 +225,14 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+
+	/* Gun data -CJN- */
+	byte ammo_tval;        /* Ammunition TVAL */
+	byte ammo_mult;        /* Gun multiplier */
+	byte num_fire;         /* Magazine size */
+	byte range;            /* Range */
+	int degree;            /* Spread of the gun */
+
 };
 
 
@@ -607,6 +615,15 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+
+	/* Gun data -CJN- */
+	byte ammo_tval;        /* Ammunition TVAL */
+	byte ammo_mult;        /* Gun multiplier */
+	byte num_fire;         /* Magazine size */
+	byte range;            /* Range */
+	int degree;            /* Spread of the gun */
+
+
 };
 
 
@@ -1046,13 +1063,6 @@ struct player_type
 	s16b tim_evade;			/* Timed -- evasion */
 				
 	s16b tim_res[RS_MAX];/* Timed resistancs */
-#if 0
-	s16b oppose_acid;	/* Timed -- oppose acid */
-	s16b oppose_elec;	/* Timed -- oppose lightning */
-	s16b oppose_fire;	/* Timed -- oppose heat */
-	s16b oppose_cold;	/* Timed -- oppose cold */
-	s16b oppose_pois;	/* Timed -- oppose poison */
-#endif	
 
 	u32b muta1;			/* Mutation flags 1 */
 	u32b muta2;			/* Mutation flags 2 */
@@ -1137,10 +1147,6 @@ struct player_type
 
 	s16b command_new;		/* Hack -- command chaining XXX XXX */
 
-	s16b new_spells;		/* Number of spells available */
-
-	s16b old_spells;
-
 	bool old_cumber_armor;
 	bool old_cumber_glove;
 	bool old_heavy_wield;
@@ -1177,27 +1183,6 @@ struct player_type
 	s16b res[RS_MAX];	/* Percentile Resistances */
 	s16b dis_res[RS_MAX];	/* Percentile Resistances (display)*/
 
-#if 0
-	bool immune_acid;	/* Immunity to acid */
-	bool immune_elec;	/* Immunity to lightning */
-	bool immune_fire;	/* Immunity to fire */
-	bool immune_cold;	/* Immunity to cold */
-
-	bool resist_acid;	/* Resist acid */
-	bool resist_elec;	/* Resist lightning */
-	bool resist_fire;	/* Resist fire */
-	bool resist_cold;	/* Resist cold */
-	bool resist_pois;	/* Resist poison */
-
-	bool resist_lite;	/* Resist light */
-	bool resist_dark;	/* Resist darkness */
-	bool resist_sound;	/* Resist sound */
-	bool resist_shard;	/* Resist shards */
-	bool resist_nexus;	/* Resist nexus */
-	bool resist_nethr;	/* Resist nether */
-	bool resist_chaos;	/* Resist chaos */
-	bool resist_disen;	/* Resist disenchant */
-#endif
 	bool wormsense;		/* Tremorsense */
 	
 	bool resist_fear;	/* Resist fear */
@@ -1263,15 +1248,6 @@ struct player_type
 	s16b skill_sav;			/* Skill: Saving throw */
 	s16b skill_stl;			/* Skill: Stealth factor */
 	s16b skill_dig;			/* Skill: Digging */
-	/*s16b skill_dis;		 Skill: Disarming */
-	/*s16b skill_dev;		 Skill: Magic Devices */
-	/*s16b skill_srh;		 Skill: Searching ability */
-	/*s16b skill_fos;		 Skill: Searching frequency */
-	/*s16b skill_thn;		 Skill: To hit (normal) */
-	/*s16b skill_thb;		 Skill: To hit (shooting) */
-	/*s16b skill_tht;		 Skill: To hit (throwing) */
-
-	/*u32b noise;			 Derived from stealth */
 
 	s16b num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
@@ -1309,6 +1285,8 @@ struct player_type
 	u16b cur_quest;		/* Current quest */
 
 	u16b max_seen_r_idx;	/* Most powerful monster visible */
+
+	bool monster_mem_fmt; /* Monster memory format, TRUE = table */
 };
 
 

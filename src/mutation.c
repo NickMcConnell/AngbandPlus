@@ -1662,19 +1662,19 @@ void dump_mutations(FILE *OutFile)
             }
             if (p_ptr->muta6 & MUT6_ALPHA_REFLEX)
             {
-                fprintf(OutFile, " You have alpha level wired reflexes (+ 3 speed).\n");
+                fprintf(OutFile, " You have alpha level wired reflexes (+2 speed).\n");
             }
             if (p_ptr->muta6 & MUT6_BETA_REFLEX)
             {
-                fprintf(OutFile, " You have beta level wired reflexes (+6 speed, +20 Agi).\n");
+                fprintf(OutFile, " You have beta level wired reflexes (+3 speed, +20 Agi).\n");
             }
             if (p_ptr->muta6 & MUT6_GAMMA_REFLEX)
             {
-                fprintf(OutFile, " You have gamma level wired reflexes (+9 speed, +60 Agi).\n");
+                fprintf(OutFile, " You have gamma level wired reflexes (+4 speed, +60 Agi).\n");
             }
             if (p_ptr->muta6 & MUT6_DELTA_REFLEX)
             {
-                fprintf(OutFile, " You have delta level wired reflexes (+12 speed, +100 Agi).\n");
+                fprintf(OutFile, " You have delta level wired reflexes (+5 speed, +100 Agi).\n");
             }
             if (p_ptr->muta6 & MUT6_ALPHA_PLATING)
             {
@@ -2619,7 +2619,7 @@ static void cmd_racial_power_aux(s32b command)
 					else if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank < 15)
 					{
 						(void)set_afraid(0);
-						(void)set_shero(p_ptr->shero + (randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank)));
+						(void)set_hero(p_ptr->hero + (randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank)));
 						(void)hp_player(damroll((p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank / 2), (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank * 2)));
 						if (!p_ptr->fast)
 						{
@@ -2671,7 +2671,7 @@ static void cmd_racial_power_aux(s32b command)
 				rocketry = p_ptr->skills[SK_ROCKETRY].skill_rank;
 
 			if (command == -1)
-				if (racial_race_aux(4, 2, A_VIG, 10, SK_ONSLAUGHT_CYPHER))
+				if (racial_race_aux(5, 2, A_VIG, 10, SK_ONSLAUGHT_CYPHER))
 				{
 					/* Guns */
 					msg_print ("*THOOM* *THOOM* *THOOM*");
@@ -2694,7 +2694,7 @@ static void cmd_racial_power_aux(s32b command)
 					}
 				}
 			if (command == -3)
-				if (racial_race_aux(14, 25, A_MUS, 35, SK_ONSLAUGHT_CYPHER))
+				if (racial_race_aux(15, 25, A_MUS, 35, SK_ONSLAUGHT_CYPHER))
 				{
 					/* Drill */
 					msg_print ("WHIRRRRRRR*tink*BZZZZZZZZZZZ");
@@ -2747,7 +2747,7 @@ static void cmd_racial_power_aux(s32b command)
 					else if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank < 15)
 					{
 						(void)set_afraid(0);
-						(void)set_shero(p_ptr->shero + (randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank)));
+						(void)set_hero(p_ptr->hero + (randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank)));
 						(void)hp_player(damroll((p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank / 2), (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank * 2)));
 						if (!p_ptr->fast)
 						{
@@ -2760,6 +2760,7 @@ static void cmd_racial_power_aux(s32b command)
 					}
 					else
 					{
+						(void)set_afraid(0);
 						(void)set_shero(p_ptr->shero + (randint(20) + (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank)));
 						(void)hp_player(400);
 						if (!p_ptr->fast)
@@ -2991,7 +2992,7 @@ void do_cmd_racial_power(void)
 		case RACE_BROWNIE:
 			strcpy(power_desc[0].name, "Fae Pathways");
 			power_desc[0].level = 1;
-			power_desc[0].cost = (2);
+			power_desc[0].cost = (5 + (p_ptr->skills[SK_FAE_PATH].skill_rank / 2));
 			power_desc[0].fail = 100 - racial_race_chance(1, A_EGO, 12, SK_FAE_PATH);
 			has_racial = TRUE;
 			break;
@@ -3033,7 +3034,7 @@ void do_cmd_racial_power(void)
 			break;
 		case RACE_STEAM_MECHA:
 			strcpy(power_desc[0].name, "Vulcan Cannons");
-			power_desc[0].level = 4;
+			power_desc[0].level = 5;
 			power_desc[0].cost = 2;
 			power_desc[0].fail = 100 - racial_race_chance(4, A_VIG, 10, SK_ONSLAUGHT_CYPHER);
 			strcpy(power_desc[1].name, "Fire 'Fulgurator'");
@@ -3042,7 +3043,7 @@ void do_cmd_racial_power(void)
 			power_desc[1].fail = 100 - racial_race_chance(10, A_VIG, 30, SK_ONSLAUGHT_CYPHER);
 			power_desc[1].number = -2;
 			strcpy(power_desc[2].name, "Steam Drill");
-			power_desc[2].level = 14;
+			power_desc[2].level = 15;
 			power_desc[2].cost = 25;
 			power_desc[2].fail = 100 - racial_race_chance(14, A_MUS, 35, SK_ONSLAUGHT_CYPHER);
 			power_desc[2].number = -3;			
@@ -3469,7 +3470,7 @@ void process_mutations(void)
 
 		if (d_summon)
 		{
-			msg_print("You have attracted an automata");
+			msg_print("You have attracted an animal");
 			disturb(0, 0);
 		}
 	}
@@ -3782,20 +3783,20 @@ void calc_mutations(void)
 			p_ptr->skills[SK_SEARCHING_POOR].skill_rank = 2*(p_ptr->skills[SK_SEARCHING_POOR].skill_rank);
 		}
 	}
-	if (p_ptr->muta6 & MUT6_ALPHA_REFLEX) p_ptr->pspeed += 3;
+	if (p_ptr->muta6 & MUT6_ALPHA_REFLEX) p_ptr->pspeed += 2;
 	if (p_ptr->muta6 & MUT6_BETA_REFLEX)
 	{
-		p_ptr->pspeed += 6;
+		p_ptr->pspeed += 3;
 		p_ptr->stat_add[A_AGI] += 2;
 	}
 	if (p_ptr->muta6 & MUT6_GAMMA_REFLEX)
 	{
-		p_ptr->pspeed += 9;
+		p_ptr->pspeed += 4;
 		p_ptr->stat_add[A_AGI] += 6;
 	}
 	if (p_ptr->muta6 & MUT6_DELTA_REFLEX)
 	{
-		p_ptr->pspeed += 12;
+		p_ptr->pspeed += 5;
 		p_ptr->stat_add[A_AGI] += 10;
 		p_ptr->to_a += 10;
 		p_ptr->dis_to_a += 10;

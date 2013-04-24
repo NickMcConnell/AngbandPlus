@@ -22,8 +22,10 @@
 ## I: tval : sval 
 ## W: depth : rarity : weight : cost
 ## P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac : force
+## Y: Pval 1: Pval 2: Pval 3
+## 1:,2:,3:, pval based flag
 ## F: flag | flag | etc
-## O: fire:earth:air:water:elec:ice:acid:poison:time:ether:sound:nether:light:dark:psi:tk:spirit
+## O: fire:earth:air:water:elec:ice:acid:poison:time:ether:sound:nether:light:dark:mental:forces:spirit
 ## A: recharge time : recharge time dice
 #
 ## 'N' indicates the beginning of an entry. The serial number must
@@ -72,7 +74,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 ##########################
 ###   Lights & Phials  ###
@@ -82,7 +84,7 @@ V:0.4.0
 ## Activation of illuminate/minor blind/fear cure
 N:1:of Edison
 I:39:5
-W:12:12:15:10000
+W:12:18:15:10000
 P:0:1d1:0:0:0:0
 Y:3
 1:LIGHT
@@ -106,9 +108,9 @@ D:1879. Thomas A. Edison, - Patent Number 00223898
 # Activation detect all / Map area.
 N:2:of Sherlock Holmes
 I:39:6
-W:16:20:10:30000
+W:18:26:10:30000
 P:0:1d1:0:0:0:0
-O:7:7:7:7:4:4:4:4:3:3:3:3:35:35:12:12:12
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:8:4
 1:SCH 
 2:LIGHT | SEARCH
@@ -131,9 +133,9 @@ D:- Sir Arthur Conan Doyle "The Sign Of Four"
 # Activation Lightning beam attack(200-400 damage per beam).
 N:3:of Tesla
 I:39:7
-W:30:30:5:50000
+W:30:45:5:50000
 P:0:1d1:0:0:0:0
-O:-5:5:5:5:-75:15:15:15:7:-45:7:7:25:25:13:13:13
+O:45:45:45:45:-100:0:0:0:0:-45:0:0:30:30:0:0:0
 Y:5:18:-10
 1:SPEED | LIGHT
 2:SCH | EGO
@@ -160,11 +162,11 @@ D:- B.A. Behrend, AIEE annual meeting, New York City, May 18, 1917.
 ## Activates for evil eye (GF_PSI beam)
 N:4:of Arbaces
 I:40:24
-W:25:20:3:160000
+W:20:24:3:160000
 Y:10:3:8
 1:SCH 
-2:MAGIC_MASTER
-3:MANA | CHR
+2:MAGIC_MASTER | MANA 
+3:CHR
 F:ACTIVATE | RES_FEAR | 
 F:SUST_SCH | SUST_EGO | INSTA_ART | HIDE_TYPE | 
 A:25:175
@@ -182,12 +184,12 @@ D:Pompeii" (1834)
 ### Currently activates for summon servant
 N:5:of John Dee
 I:40:25
-W:32:40:3:120000
-O:20:20:20:20:0:0:0:0:0:0:0:0:0:0:10:10:10
-Y:10:4:6
-1:EGO | SPEED
+W:32:45:3:120000
+O:0:10:0:10:0:0:0:0:0:0:0:-30:0:0:10:-30:10
+Y:10:6:2
+1:EGO 
 2:MAGIC_MASTER | MANA
-3:SAVE
+3:SAVE | SPEED
 F:INSTA_ART | HOLD_LIFE | FREE_ACT | SEE_INVIS | ACTIVATE
 A:100:500
 D:"You will henceforth acknowledge and respect my power...were it my pleasure, 
@@ -203,12 +205,12 @@ D:(1805-1882) "Guy Fawkes" (1841)
 N:6:of Captain Nemo
 I:40:26
 W:38:60:3:75000
-O:10:10:10:10:10:10:10:10:10:10:10:10:10:10:10:10:10
-Y:12:7:2
+O:10:10:10:10:10:10:10:10:10:10:10:10:10:10:0:0:0
+Y:12:5:2
 1:VIG | AGI
 2:SPEED | HEALTH
 3:BLOWS
-F:SUST_MUS | SUST_AGI | SUST_VIG
+F:SUST_MUS | SUST_AGI | SUST_VIG | PIERCE
 F:INSTA_ART | SH_ELEC | RES_CONFU | RES_FEAR
 F:NO_MAGIC | ACTIVATE
 A:50:80
@@ -229,8 +231,8 @@ D:Under The Sea, 1869-1870)
 ### Activates for LOS fear
 N:7:of Dr. Materialismus
 I:45:41
-W:35:20:2:35000
-O:-10:-10:-10:-10:-10:-10:-10:-10:65:65:-10:65:-10:-10:80:80:80
+W:35:25:2:35000
+O:-10:-10:-10:-10:-10:-10:-10:-10:45:45:-10:45:-10:-10:45:0:0
 Y:8:5
 1:SCH | EGO
 2:SEARCH | SPEED | SAVE
@@ -254,7 +256,7 @@ D:"Dr. Materialismus"
 N:8:of Edison
 I:45:42
 W:28:50:2:150000
-O:9:9:9:9:15:15:15:15:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:0:30:30:30:30:0:0:0:0:0
 Y:8
 1:SPEED | SCH 
 F:ACTIVATE | HIDE_TYPE
@@ -268,8 +270,8 @@ D:to do doesn't mean it's useless" --Thomas Edison
 N:9:of Tesla
 I:45:43
 W:38:60:2:200000
-O:-5:5:5:5:-55:7:7:7:5:-25:5:5:15:15:6:6:6
-Y:12
+O:-10:45:45:45:-30:0:0:0:0:-10:0:0:0:0:0:0:0
+Y:25
 1:SPEED
 F:INSTA_ART | ACTIVATE
 F:SUST_MUS | SUST_AGI | SUST_VIG | SUST_SCH | SUST_EGO |
@@ -290,8 +292,8 @@ D:that "no one has ever dreamed about," - NY Times, 1940
 N:10:of Field Generation
 I:45:44
 W:38:45:2:200000
-O:100:10:10:10:100:40:40:40:0:0:0:0:0:0:0:0:0
-Y:6:20
+O:100:0:0:0:100:30:30:30:0:0:0:0:0:0:0:0:0
+Y:6:10
 1:SAVE | HEALTH | MANA
 2:SPEED
 F:INSTA_ART
@@ -307,12 +309,11 @@ D:energy to power itself.
 ### Activates for detect letter^H^H^H^H^H^H^HItem and magic
 N:11:of Auguste Dupin
 I:32:16
-W:12:14:15:50000
-O:0:0:0:0:0:0:0:0:0:0:0:0:10:10:15:15:15
-P:8:1d2:0:0:8:0
-Y:8:4
+W:10:28:15:50000
+O:0:0:0:0:0:0:0:0:0:0:0:0:10:10:0:0:0
+P:8:1d2:0:0:1:0
+Y:8
 1:SEARCH 
-2:SPEED
 F:INSTA_ART
 F:ACTIVATE | SEE_INVIS | RES_CONFU | RES_BLIND | 
 A:4:8
@@ -326,11 +327,11 @@ D: Edgar Allan Poe - "The Purloined Letter"
 ### Activates for super hero
 N:12:'Le Loup Blanc'
 I:32:14
-W:15:16:20:22000
-P:0:1d1:0:0:12:0
+W:20:16:20:22000
+P:0:1d1:0:0:4:0
 Y:12:5:1
 1:MUS | AGI
-2:SPEED | HEALTH
+2:HEALTH
 3:BLOWS
 F:INSTA_ART |
 F:ACTIVATE | RES_FEAR | 
@@ -343,11 +344,12 @@ D: against the evil Herve de Vaunoy.
 N:13:of Isis
 I:32:18
 W:22:30:15:25000
-P:0:0d0:0:0:35:0
-O:0:0:0:25:0:20:0:0:0:15:0:15:0:25:0:0:15
-Y:10:5
-1:EGO | SCH | MANA
-2:MAGIC_MASTER | HEALTH
+P:0:0d0:0:0:9:0
+O:0:0:0:30:0:10:0:-30:0:10:0:10:0:30:0:0:0
+Y:8:5:1
+1:EGO | SCH 
+2:MAGIC_MASTER 
+3:MANA | HEALTH
 F:RES_CONFU | RES_BLIND | HOLD_LIFE | SUST_EGO | SUST_SCH
 F:ACTIVATE | INSTA_ART
 A:400:600
@@ -361,10 +363,10 @@ D: and lasted for hundreds of years.
 ### The Bull's Tail
 N:14:of the Pharoahs
 I:34:16
-W:22:12:15:25000
-P:5:0d0:5:10:40:0
-O:10:10:10:10:10:10:0:0:5:0:0:0:0:0:0:0:0
-Y:12:5:1
+W:38:48:15:25000
+P:5:0d0:5:10:6:0
+O:30:0:0:-30:0:-30:30:10:30:-30:0:30:0:0:0:0:0
+Y:12:4:1
 1:MUS | VIG
 2:HEALTH
 3:BLOWS
@@ -381,13 +383,13 @@ D: imbued with the powers of the bull.
 ### The eye of ra
 N:15:of Ra
 I:32:20
-W:15:12:5:25000
-P:0:0d0:0:0:32:0
-O:10:10:10:10:0:10:0:10:0:0:0:15:100:0:0:0:50
-Y:10:3
+W:14:28:5:25000
+P:0:0d0:0:0:8:0
+O:30:0:30:-30:0:-30:0:-30:0:-30:0:30:100:0:10:10:10
+Y:4:3
 1:HEALTH | MANA
 2:LIGHT
-F:SEE_INVIS | RES_BLIND
+F:SEE_INVIS | RES_BLIND | NO_FUEL
 F:ACTIVATE
 A:50:75
 D:Re the sun god. Often depicted as a cobra worn
@@ -398,9 +400,9 @@ D: the Sun.
 ### The Pectoral of the Kheper (Scarab)
 N:16:of the Kheper (Scarab)
 I:40:27
-W:12:15:4:45000
-P:0:0d0:0:0:22:0
-O:35:35:35:35:0:0:0:0:0:0:0:0:0:0:0:0:0
+W:33:35:4:45000
+P:0:0d0:0:0:12:0
+O:30:30:30:30:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:5
 1:MUS | AGI | VIG | EGO | SCH | CHR
 F:HOLD_LIFE | ACTIVATE
@@ -411,7 +413,7 @@ D: power. You feel as if it can protect you.
 ### The Locket of Madame Defarge
 N:17:of Madame Defarge
 I:40:28
-W:19:30:3:60000
+W:16:20:3:60000
 P:0:0d0:0:0:0:0
 Y:8:2:-4
 1:VIG | EGO | SAVE
@@ -422,6 +424,15 @@ D:"Then tell wind and fire where to stop, but don't tell me."
 D: - Madame Defarge "A Tale of Two Cities" Charles Dickens
 
 
+### The Ruby Red Slippers of Dorthy
+N:18:of Dorthy
+I:30:1
+W:4:50:5:1200
+P:0:1d1:0:0:0:0
+F:ACTIVATE
+A:25:50
+D:"There's no place like home"
+
 
 ### 17-18 free.
 
@@ -431,7 +442,7 @@ D: - Madame Defarge "A Tale of Two Cities" Charles Dickens
 ###########################
 N:20:[War of the Worlds]
 I:73:0
-W:1:1:5:1
+W:1:2:5:1
 F:INSTA_ART
 D:"No one would have believed in the last years of the nineteenth
 D: century that this world was being watched keenly and closely
@@ -443,7 +454,7 @@ D: that swarm and multiply in a drop of water." - H. G. Wells
 
 N:21:[The Time Machine]
 I:73:0
-W:1:2:5:2
+W:1:4:5:1
 F:INSTA_ART
 D:"THE TIME TRAVELLER (for so it will be convenient to speak of him)
 D: was expounding a recondite matter to us. His grey eyes shone and
@@ -461,7 +472,7 @@ D: - H. G. Wells
 
 N:22:[20,000 Leagues Under the Sea]
 I:73:0
-W:2:1:5:2
+W:2:2:5:1
 F:INSTA_ART
 D:"The year 1866 was signalised by a remarkable incident, a mysterious
 D: and puzzling phenomenon, which doubtless no one has yet forgotten.
@@ -478,7 +489,7 @@ D: - Jules Verne
 
 N:23:[Journey to the Centre of the Earth]
 I:73:0
-W:2:2:5:2
+W:2:4:5:1
 F:INSTA_ART
 D:"Looking back to all that has occurred to me since that eventful day,
 D: I am scarcely able to believe in the reality of my adventures. They
@@ -496,7 +507,7 @@ D: - Jules Verne
 
 N:24:[Dracula]
 I:73:0
-W:2:4:5:4
+W:2:8:5:2
 F:INSTA_ART
 D:"Jonathan Harker's Journal \n \n "3 May. Bistritz.--Left Munich at 8:35 P.M.,
 D: on 1st May, arriving at Vienna early next morning; should have arrived at
@@ -507,7 +518,7 @@ D: arrived late and would start as near the correct time as possible." - Bram St
 
 N:25:[Treasure Island]
 I:73:0
-W:3:1:5:2
+W:3:2:5:1
 F:INSTA_ART
 D:"Squire Trelawney, Dr. Livesey, and the rest of these
 D: gentlemen having asked me to write down the whole
@@ -521,7 +532,7 @@ D: first took up his lodging under our roof." - Robert Louis Stevenson
 
 N:26:[Robinson Crusoe]
 I:73:0
-W:3:2:5:3
+W:3:4:5:2
 F:INSTA_ART
 D:"I was born in the Year 1632, in the City of York, of a good Family, tho' not of
 D: that Country, my Father being a Foreigner of Bremen, who settled first at Hull:
@@ -534,7 +545,7 @@ D: - Daniel Defoe
 
 N:27:[The Strange Case of Dr. Jekyll & Mr. Hyde]
 I:73:0
-W:4:1:5:2
+W:4:2:5:1
 F:INSTA_ART
 D:"Mr. Utterson the lawyer was a man of a rugged countenance, that was
 D: never lighted by a smile; cold, scanty and embarrassed in
@@ -553,14 +564,14 @@ D: to help rather than to reprove." - Robert Louis Stevenson
 
 N:28:[The Woman in White]
 I:73:0
-W:4:2:5:2
+W:4:4:5:1
 F:INSTA_ART
 D:"This is the story of what a Woman's patience can endure, and what
 D: a Man's resolution can achieve." - Wilkie Collins
 
 N:29:[The Moonstone]
 I:73:0
-W:4:4:5:4
+W:4:8:5:2
 F:INSTA_ART
 D:"In the first part of ROBINSON CRUSOE, at page one hundred and twenty-nine,
 D: you will find it thus written: \n \n
@@ -570,7 +581,7 @@ D: through with it.'" - Wilkie Collins
 
 N:30:[Les Miserables]
 I:73:0
-W:5:2:5:2
+W:5:4:5:1
 F:INSTA_ART
 D:"So long as there shall exist, by virtue of law and custom, decrees of
 D: damnation pronounced by society, artificially creating hells amid
@@ -586,7 +597,7 @@ D: - Victor Hugo
 
 N:31:[Hunchback of Notre Dame]
 I:73:0
-W:5:3:5:3
+W:5:6:5:2
 F:INSTA_ART
 D:"Three hundred and forty-eight years, six months, and nineteen
 D: days ago to-day, the Parisians awoke to the sound of all
@@ -595,7 +606,7 @@ D: the town ringing a full peal." - Victor Hugo
 
 N:32:[The Count of Monte Cristo]
 I:73:0
-W:6:1:5:2
+W:6:2:5:1
 F:INSTA_ART
 D:"On the 24th of February, 1815, the look-out at Notre-Dame de
 D: la Garde signalled the three-master, the Pharaon from
@@ -603,7 +614,7 @@ D: Smyrna, Trieste, and Naples." - Alexandre Dumas
 
 N:33:[The Three Musketeers]
 I:73:0
-W:6:2:5:2
+W:6:4:5:1
 F:INSTA_ART
 D:"On the first Monday of the month of April, 1625, the market town
 D: of Meung, in which the author of ROMANCE OF THE ROSE was born,
@@ -618,7 +629,7 @@ D: minute, a compact group, vociferous and full of curiosity. - Alexandre Dumas
 
 N:34:[Frankenstein]
 I:73:0
-W:6:4:5:4
+W:6:8:5:2
 F:INSTA_ART
 D:"To Mrs. Saville, England \n \n
 D:"St. Petersburgh, Dec. 11th, 17- \n \n
@@ -630,7 +641,7 @@ D: of my undertaking." - Mary Shelley
 
 N:35:[The Invisible Man]
 I:73:0
-W:7:1:5:2
+W:7:2:5:1
 F:INSTA_ART
 D:"The stranger came early in February one wintry day, through a biting
 D: wind and a driving snow, the last snowfall of the year, over the down,
@@ -649,7 +660,7 @@ D: quarters in the inn." - H. G. Wells
 
 N:36:[Around the World in 80 Days]
 I:73:0
-W:7:2:5:2
+W:7:4:5:1
 F:INSTA_ART
 D:"Mr. Phileas Fogg lived, in 1872, at No. 7, Saville Row, Burlington
 D: Gardens, the house in which Sheridan died in 1814.  He was one of
@@ -662,7 +673,7 @@ D: who might live on a thousand years without growing old." - Jules Verne
 
 N:37:[Jane Eyre]
 I:73:0
-W:8:1:5:2
+W:8:2:5:1
 F:INSTA_ART
 D:"There was no possibility of taking a walk that day. We had been wandering,
 D: indeed, in the leafless shrubbery an hour in the morning; but since dinner
@@ -672,7 +683,7 @@ D: out-door exercise was now out of the question." - Charlotte Bronte
 
 N:38:[Wuthering Heights]
 I:73:0
-W:8:2:5:2
+W:8:4:5:1
 F:INSTA_ART
 D:"1801. - I have just returned from a visit to my landlord - the solitary
 D: neighbour that I shall be troubled with. This is certainly a beautiful
@@ -687,7 +698,7 @@ D: in his waistcoat, as I announced my name." - Emily Bronte
 
 N:39:[The Adventures of Sherlock Holmes]
 I:73:0
-W:9:1:5:4
+W:9:2:5:2
 F:INSTA_ART
 D:"To Sherlock Holmes she is always the woman. I have seldom heard him
 D: mention her under any other name. In his eyes she eclipses and predominates
@@ -708,7 +719,7 @@ D: of dubious and questionable memory." - Sir Authur Conan Doyle
 
 N:40:[The Hound of the Baskervilles]
 I:73:0
-W:9:2:5:2
+W:9:4:5:1
 F:INSTA_ART
 D:"Mr. Sherlock Holmes, who was usually very late in the mornings,
 D: save upon those not infrequent occasions when he was up all night,
@@ -724,7 +735,7 @@ D: and reassuring." - Sir Authur Conan Doyle
 
 N:41:[The Return of Sherlock Holmes]
 I:73:0
-W:10:3:5:3
+W:10:6:5:2
 F:INSTA_ART
 D:"It was in the spring of the year 1894 that all London was interested,
 D: and the fashionable world dismayed, by the murder of the Honourable
@@ -751,7 +762,7 @@ D: withdrawn upon the third of last month." - Sir Authur Conan Doyle
 
 N:42:[The Lost World]
 I:73:0
-W:10:1:5:2
+W:10:2:5:1
 F:INSTA_ART
 D:"Mr. Hungerton, her father, really was the most tactless person
 D: upon earth,--a fluffy, feathery, untidy cockatoo of a man,
@@ -766,7 +777,7 @@ D: - Sir Authur Conan Doyle
 
 N:43:[The Sign of the Four]
 I:73:0
-W:11:1:5:2
+W:11:4:5:1
 F:INSTA_ART
 D:"Sherlock Holmes took his bottle from the corner of the mantel-
 D: piece and his hypodermic syringe from its neat morocco case. 
@@ -780,7 +791,7 @@ D: sigh of satisfaction." - Sir Authur Conan Doyle
 
 N:44:[A Christmas Carol]
 I:73:0
-W:11:2:5:2
+W:11:8:5:1
 F:INSTA_ART
 D:"Marley was dead: to begin with. There is no doubt
 D: whatever about that. The register of his burial was
@@ -792,7 +803,7 @@ D: door-nail." - Charles Dickens
 
 N:45:[Great Expectations]
 I:73:0
-W:12:1:5:2
+W:12:4:5:1
 F:INSTA_ART
 D:"My father's family name being Pirrip, and my Christian name Philip,
 D: my infant tongue could make of both names nothing longer or more
@@ -801,7 +812,7 @@ D: Pip." - Charles Dickens
 
 N:46:[A Tale of Two Cities]
 I:73:0
-W:12:2:5:2
+W:12:8:5:1
 F:INSTA_ART
 D:"It was the best of times, it was the worst of times,
 D: it was the age of wisdom, it was the age of foolishness,
@@ -817,7 +828,7 @@ D: of comparison only." - Charles Dickens
 
 N:47:[Little Women]
 I:73:0
-W:13:1:5:2
+W:13:4:5:1
 F:INSTA_ART
 D:"'Christmas won't be Christmas without any presents,' grumbled
 D: Jo, lying on the rug. \n \n
@@ -831,7 +842,7 @@ D: contentedly from her corner." - Louisa May Alcott
 
 N:48:[Alice's Adventures in Wonderland]
 I:73:0
-W:13:2:5:3
+W:13:8:5:2
 F:INSTA_ART
 D:"Alice was beginning to get very tired of sitting by her sister
 D: on the bank, and of having nothing to do:  once or twice she had
@@ -841,7 +852,7 @@ D: thought Alice 'without pictures or conversation?'" - Lewis Carroll
 
 N:49:[Through the Looking Glass]
 I:73:0
-W:13:10:5:8
+W:13:20:5:4
 F:INSTA_ART
 D:"One thing was certain, that the WHITE kitten had had nothing to
 D: do with it:--it was the black kitten's fault entirely.  For the
@@ -852,7 +863,7 @@ D: the mischief." - Lewis Carroll
 
 N:50:[Moby Dick]
 I:73:0
-W:14:1:5:2
+W:14:4:5:1
 F:INSTA_ART
 D:"Call me Ishmael.  Some years ago--never mind how long
 D: precisely--having little or no money in my purse, and nothing
@@ -874,7 +885,7 @@ D: very nearly the same feelings towards the ocean with me." - Herman Melville
 
 N:51:[The Adventures of Huckleberry Finn]
 I:73:0
-W:14:2:5:2
+W:14:8:5:1
 F:INSTA_ART
 D:"You don't know about me without you have read a book by the name of The
 D: Adventures of Tom Sawyer; but that ain't no matter.  That book was made
@@ -887,7 +898,7 @@ D: mostly a true book, with some stretchers, as I said before." - Mark Twain
 
 N:52:[The Adventures of Tom Sawyer]
 I:73:0
-W:15:1:5:2
+W:15:4:5:1
 F:INSTA_ART
 D:"'TOM!' \n
 D: "No answer. \n
@@ -906,7 +917,7 @@ D: "'Well, I lay if I get hold of you I'll--'" - by Mark Twain
 
 N:53:[A Connecticut Yankee in King Arthur's Court]
 I:73:0
-W:15:2:5:2
+W:15:8:5:1
 F:INSTA_ART
 D:"It was in Warwick Castle that I came across the curious stranger
 D: whom I am going to talk about.  He attracted me by three things:
@@ -932,7 +943,7 @@ D: transposition of epochs--and bodies?'" - Mark Twain
 
 N:54:[The Prince and the Pauper]
 I:73:0
-W:16:1:5:2
+W:16:4:5:1
 F:INSTA_ART
 D:"In the ancient city of London, on a certain autumn day in the second
 D: quarter of the sixteenth century, a boy was born to a poor family of the
@@ -957,7 +968,7 @@ D: with his presence." - Mark Twain
 
 N:55:[Pudd'nhead Wilson]
 I:73:0
-W:16:2:5:2
+W:16:8:5:1
 F:INSTA_ART
 D:"The scene of this chronicle is the town of Dawson's Landing,
 D: on the Missouri side of the Mississippi, half a day's journey,
@@ -982,7 +993,7 @@ D: may be a perfect home, perhaps, but how can it prove title?" - Mark Twain
 
 N:56:[Life on the Mississippi]
 I:73:0
-W:17:1:5:2
+W:17:4:5:1
 F:INSTA_ART
 D:"The Mississippi is well worth reading about.  It is not a commonplace
 D: river, but on the contrary is in all ways remarkable. Considering the
@@ -1005,9 +1016,9 @@ D: Scotland, Ireland, France, Spain, Portugal, Germany, Austria, Italy, and
 D: Turkey; and almost all this wide region is fertile; the Mississippi
 D: valley, proper, is exceptionally so." - Mark Twain
 
-N:57:[On the Origin of the Species]
+N:57:[On the Origin of Species]
 I:73:0
-W:17:4:5:4
+W:17:8:5:2
 F:INSTA_ART
 D:"When on board H.M.S. 'Beagle,' as naturalist, I was much struck with
 D: certain facts in the distribution of the inhabitants of South America,
@@ -1027,7 +1038,7 @@ D: have not been hasty in coming to a decision." - Charles Darwin
 
 N:58:[Tenant of Wildfell Hall]
 I:73:0
-W:18:1:5:2
+W:18:4:5:1
 F:INSTA_ART
 D:"You must go back with me to the autumn of 1827.\n
 D: "My father, as you know, was a sort of gentleman farmer in -shire;
@@ -1049,7 +1060,7 @@ D: flourishing a condition as he left them to me." - Anne Bronte
 
 N:59:[Sense and Sensibility]
 I:73:0
-W:18:2:5:2
+W:18:8:5:1
 F:INSTA_ART
 D:"The family of Dashwood had long been settled in Sussex.
 D: Their estate was large, and their residence was at Norland Park,
@@ -1075,9 +1086,9 @@ D: of the children added a relish to his existence." - Jane Austin
 
 
 
-N:60:[Pride and Predjudice]
+N:60:[Pride and Prejudice]
 I:73:0
-W:19:1:5:2
+W:19:4:5:1
 F:INSTA_ART
 D:"It is a truth universally acknowledged, that a single man in
 D: possession of a good fortune, must be in want of a wife.\n \n
@@ -1088,7 +1099,7 @@ D: the rightful property of some one or other of their daughters." - Jane Austin
 
 N:61:[Emma]
 I:73:0
-W:19:2:5:2
+W:19:8:5:1
 F:INSTA_ART
 D:"Emma Woodhouse, handsome, clever, and rich, with a comfortable home
 D: and happy disposition, seemed to unite some of the best blessings
@@ -1097,7 +1108,7 @@ D: with very little to distress or vex her." - Jane Austin
 
 N:62:[Northanger Abbey]
 I:73:0
-W:20:1:5:2
+W:20:4:5:1
 F:INSTA_ART
 D:"No one who had ever seen Catherine Morland in her infancy would
 D: have supposed her born to be an heroine.  Her situation in life, the
@@ -1123,7 +1134,7 @@ D: less unpropitious for heroism seemed her mind. - Jane Austin
 
 N:63:[Persuasion]
 I:73:0
-W:20:2:5:2
+W:20:8:5:1
 F:INSTA_ART
 D:"Sir Walter Elliot, of Kellynch Hall, in Somersetshire, was a man who,
 D: for his own amusement, never took up any book but the Baronetage;
@@ -1145,7 +1156,7 @@ D: November 5, 1789; Mary, born November 20, 1791.'" - Jane Austin
 
 N:64:[Confessions of an English Opium Eater]
 I:73:0
-W:21:1:5:2
+W:21:4:5:1
 F:INSTA_ART
 D:"I here present you, courteous reader, with the record of a
 D: remarkable period in my life:  according to my application of it, I
@@ -1168,7 +1179,7 @@ D: spurious and defective sensibility of the French." - Thomas de Quincey
 
 N:65:[The System of the Heavens as Revealed by Lord Rosse's Telescope]
 I:73:0
-W:21:2:5:2
+W:21:8:5:1
 F:INSTA_ART
 D:"Some years ago, some person or other, [in fact I believe it was
 D: myself,] published a paper from the German of Kant, on a very
@@ -1187,7 +1198,7 @@ D: questions to a _lady_ planet,)--still what would it amount to?" - Thomas de Q
 
 N:66:[On Murder Considered as One of the Fine Arts]
 I:73:0
-W:22:1:5:2
+W:22:4:5:1
 F:INSTA_ART
 D:"Sir.--We have all heard of a Society for the Promotion of Vice, of the
 D: Hell-Fire Club, &c. At Brighton, I think it was, that a Society was formed
@@ -1213,13 +1224,13 @@ D: - Thomas de Quincey
 
 N:67:[The Arts of Cheating, Swindling and Murder]
 I:73:0
-W:22:2:5:2
+W:22:8:5:1
 F:INSTA_ART
 D:This book was written by Thomas de Quincey
 
 N:68:[Lord Jim]
 I:73:0
-W:23:2:5:2
+W:23:4:5:1
 F:INSTA_ART
 D:"He was an inch, perhaps two, under six feet, powerfully built, and
 D: he advanced straight at you with a slight stoop of the shoulders,
@@ -1233,7 +1244,7 @@ D: his living as ship-chandler's water-clerk he was very popular." - Joseph Conr
 
 N:69:[The Man Who Would Be King]
 I:73:0
-W:23:1:5:2
+W:23:4:5:1
 F:INSTA_ART
 D:"'Brother to a Prince and fellow to a beggar if he
 D: be found worthy.'\n
@@ -1253,13 +1264,13 @@ D: I must go and hunt it for myself." - Rudyard Kipling
 
 N:70:[The Mark of the Beast and Other Horror Tales]
 I:73:0
-W:24:3:5:3
+W:24:12:5:2
 F:INSTA_ART
 D:This book was written by Rudyard Kipling
 
 N:71:[Captains Courageous]
 I:73:0
-W:24:4:5:4
+W:24:16:5:2
 F:INSTA_ART
 D:"The weather door of the smoking-room had been left open to the
 D: North Atlantic fog, as the big liner rolled and lifted, whistling
@@ -1273,7 +1284,7 @@ D: you should imbort ropes' ends free under your dariff.'" - Rudyard Kipling
 
 N:72:[The Hunting of the Snark]
 I:73:0
-W:24:1:5:1
+W:24:4:5:1
 F:INSTA_ART
 D:"'Just the place for a Snark!' the Bellman cried, \n
 D:     As he landed his crew with care;\n
@@ -1286,7 +1297,7 @@ D:     What i tell you three times is true.'" - Lewis Carroll
 
 N:73:[The Picture of Dorian Gray]
 I:73:0
-W:25:2:5:2
+W:25:8:5:1
 F:INSTA_ART
 D:"The studio was filled with the rich odour of roses, and when
 D: the light summer wind stirred amidst the trees of the garden,
@@ -1312,7 +1323,7 @@ D: excitement and gave rise to so many strange conjectures." - Oscar WIlde
 
 N:74:[Faust I]
 I:73:0
-W:25:1:5:1
+W:25:4:5:1
 F:INSTA_ART
 D:"A high vaulted narrow Gothic chamber.\n
 D: FAUST, restless, seated at his desk.\n\n
@@ -1327,13 +1338,13 @@ D: -Johann Wolfgang von Goethe
 
 N:75:[Faust II]
 I:73:0
-W:26:2:5:2
+W:26:8:5:2
 F:INSTA_ART
 D:This book was written by Johann Wolfgang von Goethe
 
 N:76:[The Turn of the Screw]
 I:73:0
-W:26:3:5:3
+W:26:4:5:2
 F:INSTA_ART
 D:"The story had held us, round the fire, sufficiently breathless,
 D: but except the obvious remark that it was gruesome, as, on Christmas
@@ -1358,7 +1369,7 @@ D: - Henry James
 
 N:77:[Ivanhoe]
 I:73:0
-W:27:1:5:2
+W:27:4:5:1
 F:INSTA_ART
 D:"In that pleasant district of merry England which is watered by
 D: the river Don, there extended in ancient times a large forest,
@@ -1374,7 +1385,7 @@ D: rendered so popular in English song." - SIr Walter Scott
 
 N:78:[Rob Roy]
 I:73:0
-W:27:4:5:4
+W:27:8:5:2
 F:INSTA_ART
 D:"For why? Because the good old rule\n
 D:     Sufficeth them; the simple plan,\n
@@ -1385,7 +1396,7 @@ D:- Sir Walter Scott
 
 N:79:[She]
 I:73:0
-W:28:2:5:2
+W:28:4:5:1
 F:INSTA_ART
 D:"There are some events of which each circumstance and surrounding
 D: detail seems to be graven on the memory in such fashion that we cannot
@@ -1395,7 +1406,7 @@ D: happened but yesterday." - H. Rider Haggard
 
 N:80:[Colonel Chabert]
 I:73:0
-W:28:3:5:2
+W:28:12:5:1
 F:INSTA_ART
 D:"'HULLO! There is that old Box-coat again!'
 D: "This exclamation was made by a lawyer's clerk of the class called in
@@ -1410,7 +1421,7 @@ D: attorney-at-law." - Honore de Balzac
 
 N:81:[King Solomon's Mines]
 I:73:0
-W:29:1:5:2
+W:29:4:5:1
 F:INSTA_ART
 D:"It is a curious thing that at my age--fifty-five last birthday--I
 D: should find myself taking up a pen to try to write a history. I wonder
@@ -1432,7 +1443,7 @@ D: see if I have any." - H. Rider Haggard
 
 N:82:[Allan Quartermain]
 I:73:0
-W:29:4:5:4
+W:29:16:5:2
 F:INSTA_ART
 D:"A week had passed since the funeral of my poor boy Harry, and
 D: one evening I was in my room walking up and down and thinking,
@@ -1446,7 +1457,7 @@ D: a remark; 'it must have been heavy walking in the snow.'" - H. Rider Haggard
 
 N:83:[Legend of Sleepy Hollow]
 I:73:0
-W:30:3:5:2
+W:30:12:5:1
 F:INSTA_ART
 D:"In the bosom of one of those spacious coves which indent the
 D: eastern shore of the Hudson, at that broad expansion of the river
@@ -1470,13 +1481,13 @@ D: uniform tranquillity." - Washington Irving
 
 N:84:[Rip Van Winkle]
 I:73:0
-W:30:1:5:1
+W:30:4:5:1
 F:INSTA_ART
 D:This book was written by Washington Irving
 
 N:85:[Crime and Punishment]
 I:73:0
-W:31:1:5:2
+W:31:4:5:1
 F:INSTA_ART
 D:"On an exceptionally hot evening early in July a young man came out of
 D: the garret in which he lodged in S. Place and walked slowly, as though
@@ -1493,13 +1504,13 @@ D:  - Fyodor Dostoevsky
 
 N:86:[Brothers Karamazov]
 I:73:0
-W:31:2:5:2
+W:31:8:5:1
 F:INSTA_ART
 D:This book was written by Fyodor Dostoevsky
 
 N:87:[Last of the Mohicans]
 I:73:0
-W:32:3:5:3
+W:32:12:5:2
 F:INSTA_ART
 D:"It is believed that the scene of this tale, and most of the
 D: information necessary to understand its allusions, are
@@ -1511,86 +1522,86 @@ D: useful." - James Fenimore Cooper
 
 N:88:[From the Earth to the Moon]
 I:73:0
-W:32:1:5:3
+W:32:4:5:2
 F:INSTA_ART
 D:This book was written by Jules Verne
 
 N:89:[Round the Moon]
 I:73:0
-W:33:1:5:3
+W:33:4:5:2
 F:INSTA_ART
 D:This book was written by Jules Verne
 
 N:90:[War and Peace]
 I:73:0
-W:33:3:5:3
+W:30:12:5:2
 F:INSTA_ART
 D:This book was written by Leo Tolstoy
 
 N:91:[Anna Karenina]
 I:73:0
-W:33:1:5:6
+W:33:4:5:3
 F:INSTA_ART
 D:This book was written by Leo Tolstoy
 
 N:92:[The Man in the Iron Mask]
 I:73:0
-W:34:1:5:2
+W:34:4:5:1
 F:INSTA_ART
 D:This book was written by Dumas
 
 N:93:[The Jungle Book]
 I:73:0
-W:34:2:5:2
+W:34:8:5:1
 F:INSTA_ART
 D:This book was written by Rudyard Kipling
 
 N:94:[Gunga Din]
 I:73:0
-W:35:2:5:2
+W:35:8:5:1
 F:INSTA_ART
 D:This book was written by Rudyard Kipling
 
 N:95:[Principles of Political Economy]
 I:73:0
-W:35:4:5:3
+W:35:16:5:2
 F:INSTA_ART
 D:This book was written by John Stuart Mill
 
 N:96:[The Narrative of Arthur Gordon Pym]
 I:73:0
-W:36:1:5:2
+W:36:4:5:1
 F:INSTA_ART
 D:This book was written by Edgar Allen Poe
 
 N:97:[Tales of the Grotesque and Arabesque]
 I:73:0
-W:36:3:5:3
+W:36:12:5:2
 F:INSTA_ART
 D:This book was written by Edgar Allen Poe
 
 N:98:[The Tomb and Other Tales]
 I:73:0
-W:37:3:5:3
+W:37:12:5:2
 F:INSTA_ART
 D:This book was written by H.P. Lovecraft
 
 N:99:[Dagon and Other Macabre Tales]
 I:73:0
-W:37:4:5:3
+W:37:16:5:2
 F:INSTA_ART
 D:This book was written by H.P. Lovecraft
 
 N:100:[The Dream-Quest of the Unknown Kadath]
 I:73:0
-W:38:5:5:5
+W:38:20:5:3
 F:INSTA_ART
 D:This book was written by H.P. Lovecraft
 
 ###Books by Professor Pierre Arronax###
 N:101:[Mysteries of the Depths of the Seas Volumes I & II]
 I:73:0
-W:38:2:5:2
+W:38:8:5:1
 F:INSTA_ART
 D:"For a short time I walked from the saloon to the library.  My
 D: companions were silent.  I soon threw myself on an ottoman, and took
@@ -1605,7 +1616,7 @@ D: returned to my walk." -Jules Verne "20,000 Leagues Under the Sea."
 ###The Small Scrap of Parchment of Arne Saknussemm.###
 N:102:[Small Scrap of Parchment]
 I:73:0
-W:39:5:5:6
+W:39:20:5:6
 F:INSTA_ART
 D:"I was about to venture upon some misplaced joke on the subject, when
 D: a small scrap of parchment fell out of the leaves.  Like a hungry man
@@ -1620,7 +1631,7 @@ D: Arne Saknussemm."
 ###Artifact Book###
 N:103:[The Life and Adventures of Santa Claus]
 I:73:0
-W:39:3:5:2
+W:39:12:5:1
 F:INSTA_ART
 D: "When all had assembled the Master Woodsman of the World stood up
 D: to address them, since he himself had summoned them to the council.
@@ -1646,11 +1657,11 @@ D: Claus"
 N:151:of Sherlock Holmes
 I:37:4
 W:13:18:300:300000
-P:30:2d4:-1:0:35:0
-O:15:0:15:0:100:15:15:0:0:0:0:0:15:15:0:0:0
+P:30:2d4:-1:0:18:0
+O:30:0:30:0:100:30:30:0:0:0:0:0:10:10:0:0:0
 Y:4
 1:SCH
-F:ACTIVATE | SEE_INVIS
+F:ACTIVATE 
 A:2:8
 D:On entering his room, I found Holmes in animated
 D: conversation with two men, one of whom I recognised
@@ -1668,7 +1679,7 @@ N:152:of Gideon Barr
 I:36:4
 W:6:8:200:300000
 P:20:2d4:0:0:25:0
-O:15:15:15:15:7:7:0:0:0:0:0:0:0:0:0:0:0
+O:30:30:30:30:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:2
 1:MUS | AGI | VIG | SCH
 D:The waistcoat of Gideon Barr is a sturdy waistcoat. Standard
@@ -1681,7 +1692,7 @@ N:153:of John Bell
 I:36:8
 W:10:10:300:30000
 P:10:2d4:-1:0:14:0
-O:0:0:0:0:0:0:0:0:0:5:5:10:7:7:100:80:100
+O:0:0:0:0:0:0:0:0:30:30:0:30:0:30:0:0:0
 Y:6
 1:EGO | SEARCH
 F:ACTIVATE | SEE_INVIS | RES_CONFU | RES_FEAR
@@ -1700,8 +1711,8 @@ D: -John Bell, Skeptic Detective
 N:154:of Sexton Blake
 I:36:12
 W:18:10:420:200000
-P:11:2d4:0:0:30:0
-O:0:3:25:10:0:25:0:0:0:0:0:0:0:0:0:0:0
+P:11:2d4:0:0:16:0
+O:0:0:30:30:0:30:0:0:0:0:0:0:0:0:0:0:0
 Y:4:2
 1:VIG | SPEED
 2:SAVE
@@ -1723,9 +1734,9 @@ D: - Jess Nevins "The Sexton Blake page"
 ### Activates for mid range teleport
 N:155:of Tom Sawyer
 I:36:4
-W:3:20:80:8000
+W:3:11:80:8000
 P:4:2d4:0:0:8:0
-O:15:25:15:25:-10:-10:0:15:0:0:25:0:5:5:0:0:0
+O:10:30:10:30:-10:-30:-10:10:0:0:30:0:0:0:0:0:0
 Y:2
 1:AGI | SPEED
 F:SUST_AGI | SUST_CHR | SLOW_DIGEST | FREE_ACT | ACTIVATE
@@ -1746,9 +1757,9 @@ D: you look. This time."
 ### activates for resistance
 N:156:of Alfred Nobel
 I:37:8
-W:30:15:100:22000
+W:28:15:100:22000
 P:18:1d4:0:0:38:0
-O:15:15:0:0:0:0:15:15:0:15:15:7:0:0:0:0:0
+O:45:45:0:0:0:0:45:45:0:30:45:0:0:0:0:0:0
 F:ACTIVATE
 A:30:100
 D:"If I have a thousand ideas and only one turns out to
@@ -1757,10 +1768,10 @@ D: be good, I am satisfied." - Alfred Nobel
 ### The leather waistcoat and vest of Jonathan Harker
 N:157:of Jonathan Harker
 I:36:6
-W:6:8:35:2200
+W:2:6:35:2200
 P:5:1d1:0:0:9:0
 F:RES_FEAR
-O:0:0:0:0:0:0:0:0:0:0:0:0:20:0:30:0:30
+O:0:0:0:0:0:0:0:0:0:0:0:30:30:30:30:0:0
 D:But just then the moon, sailing through the black clouds,
 D: appeared behind the jagged crest of a beetling, pine-clad
 D: rock, and by its light I saw around us a ring of wolves,
@@ -1774,10 +1785,10 @@ D: understand their true import.
 ### The Fancy Silk Vest of Jack Rackham
 N:158:of Jack Rackham
 I:36:5
-W:18:18:30:18000
+W:9:15:30:18000
 P:3:0d0:0:0:18:0
-O:15:-10:10:40:5:15:0:-10:-20:0:10:0:-10:10:0:0:0
-Y:8:2
+O:30:-30:0:30:0:0:0:0:0:0:30:0:0:10:0:0:0
+Y:12:4
 1:CHR
 2:SPEED
 F:SUST_CHR
@@ -1790,9 +1801,9 @@ D:- attributed to Anne Bonny (c. 1700-?)
 ### The Robe of Emma the Djinn Princess
 N:159:of Emma the Djinn Princess
 I:36:2
-W:33:14:20:28000
+W:48:90:20:28000
 P:2:0d0:0:0:23:0
-O:55:55:55:55:45:45:45:45:15:15:15:15:10:10:0:0:0
+O:45:45:45:45:30:30:30:30:10:10:10:10:10:10:0:0:0
 Y:6:2:1
 1:SAVE
 2:SPEED
@@ -1807,8 +1818,8 @@ N:160:of Freud
 I:37:6
 W:5:5:90:9000
 P:16:1d4:0:0:9:0
-O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:100:0:0
-Y:2
+O:0:0:0:0:0:0:0:0:45:0:0:0:0:0:100:0:0
+Y:8
 1:SAVE | SCH
 F:SUST_EGO | RES_FEAR | ACTIVATE
 A:10:600
@@ -1822,7 +1833,7 @@ N:161:of Victor Frankenstein
 I:36:3
 W:5:35:20:3800
 P:2:0d0:0:0:6:0
-O:0:0:0:0:45:45:0:0:0:0:0:0:0:0:0:0:0
+O:-30:0:0:0:45:45:0:0:0:0:0:0:0:0:0:0:0
 Y:2
 1:SCH
 F:ACTIVATE
@@ -1833,7 +1844,7 @@ D: fingers, the tremendous secrets of the human frame." -Victor
 ### The waistcoat of Hercule Poirot
 N:162:of Hercule Poirot
 I:36:4
-W:7:15:30:6700
+W:6:12:30:6700
 P:4:0d0:0:0:11:0
 Y:16
 1:SCH
@@ -1841,6 +1852,46 @@ F:ACTIVATE | SUST_SCH
 A:15:90
 D:"Mon cher, practically speaking, I know everything!" 
 D: -Death in the Clouds, Hercule Poirot to Norman Gale 
+
+### The leather harness of Carrion Caves
+N:163:of Carrion Caves
+I:36:11
+W:10:4:50:45000
+P:6:1d4:0:0:15:0
+Y:4
+1:STEALTH
+O:30:30:0:0:30:30:30:30:0:0:0:30:30:30:0:0:0
+D:"And ever since that long-gone day have the dead of this
+D: fabled land been carried to the Carrion Caves, that in
+D: death and decay they might serve their country and warn
+D: away invading enemies. Here, too, is brought, so the fable
+D: runs, all the waste stuff of the nation--everything that
+D: is subject to rot, and that can add to the foul stench
+D: that assails our nostrils."
+
+
+## The Leather Waistcoat and Vest of the Phantom Detective
+N:164:of the Phantom Detective
+I:36:6
+W:13:4:60:35000
+P:4:1d1:0:0:31:0
+Y:3
+1:AGI
+F:RES_CONFU
+O:0:30:0:30:30:0:30:30:0:0:0:0:0:0:0:0:0
+D:The waistcoat of Richard Curtis Van Loan, idle playboy turned
+D: detective.
+
+# The Heavy Jacket of Dr. Yen Sin
+
+N:165:of Dr. Yen Sin
+I:36:8
+W:13:6:80:35000
+P:6:1d1:-1:0:15:0
+O:0:0:30:0:0:0:0:30:0:30:0:30:0:30:30:0:0
+F:RES_CONFU
+D:The Heavy Jacket of the evil Dr. Yen Sin.
+
 
 ###########################
 ####  	Pants 	  	    ###
@@ -1854,12 +1905,12 @@ D: -Death in the Clouds, Hercule Poirot to Norman Gale
 ###Activates for Panic (as Goblin)###
 N:191:of Harry Hardwigg
 I:34:3
-W:10:45:5:7500
-P:2:0d0:0:0:15:0
-Y:5
+W:10:25:5:7500
+P:2:0d0:0:0:3:0
+Y:3
 1:SPEED
 F:ACTIVATE | FREE_ACT
-O:10:5:0:-5:-10:0:5:0:5:0:0:0:15:15:0:0:0
+O:30:0:0:0:-30:0:30:0:30:-30:0:0:0:10:0:0:0
 A:15:125
 D:"But next minute, with a wild cry, I darted away into the interior
 D: of the cavern, leaving my unhappy comrades to their fate!" Jules
@@ -1871,12 +1922,13 @@ D: Verne "A Journey to the Centre of the Earth."
 N:192:of Dr. Livingstone
 I:34:3
 W:20:30:15:22000
-P:2:1d1:0:0:21:0
-O:18:22:4:22:0:12:0:40:0:0:0:0:0:0:0:0:0
-Y:10:8
-1:HEALTH | VIG
+P:2:1d1:0:0:11:0
+O:10:30:10:30:-30:10:-30:30:0:0:0:0:0:0:0:0:0
+Y:10:8:2
+1:VIG
 2:SCH | EGO
-F:SUST_VIG | REGEN_50
+3:HEALTH
+F:SUST_VIG 
 F:ACTIVATE
 A:10:15
 D:Famous for his missionary work in
@@ -1888,10 +1940,10 @@ D: discover the source of the Nile.
 ### The Petticoats of Mina Harker
 N:193:of Mina Harker
 I:34:10
-W:12:8:30:8000
+W:12:6:30:8000
 P:5:1d1:0:0:8:0
-O:-10:10:0:0:0:0:0:0:0:0:0:20:-20:20:-20:0:0
-Y:6:2:-3
+O:-30:30:0:0:0:0:0:0:0:0:0:45:-45:45:-45:0:0
+Y:6:4:-3
 1:CHR | STEALTH
 2:SPEED | SAVE
 3:HEALTH
@@ -1914,11 +1966,11 @@ N:194:of Rosa Coote
 I:34:10
 W:8:15:30:12000
 P:5:1d1:0:0:14:0
-O:-20:-20:-20:-20:-10:-10:-10:-10:-10:-10:-10:-10:-10:-10:-10:-10:-10
-Y:10:4
+O:-30:-30:-30:-30:-10:-10:-10:-10:-10:-10:-10:-10:-10:-10:-10:-10:-10
+Y:16:12
 1:HEALTH
 2:VIG
-F:REGEN_25 | RES_FEAR
+F:REGEN_50 | REGEN_75 | RES_FEAR
 D:"I know I have long promised you an account of the reason of my penchant
 D: for the rod, which, in my estimation, is one of the most voluptuous
 D: and delicious institutions of private life. . .
@@ -1930,6 +1982,22 @@ D: at commencing is the hope that I shall warm to the subject as it progresses,
 D: in my endeavour to depict, for your gratification, some of the luscious
 D: episodes of my early days." - Rosa Belinda Coote "Letters to a Lady Friend"
 
+### The petticoats of Alice
+N:195:of Alice
+I:34:10
+W:12:18:30:14000
+P:5:1d1:0:0:12:0
+O:0:0:30:0:0:0:0:0:30:30:0:30:0:0:0:0:0
+Y:1:2:3
+1:MUS | VIG | SCH | EGO
+2:SPEED | SAVE
+3:INFRA | SEARCH | STEALTH
+F:FEATHER
+D:[Alice] tipped over the jury-box with the edge of her skirt, upsetting all the
+D: jurymen on to the heads of the crowd below, and there they lay sprawling about,
+D: reminding her very much of a globe of goldfish she had accidentally upset the
+D: week before. -Lewis Carroll "Alice's Adventures in Wonderland"
+
 ##########################
 ####  	 Hats          ###
 ####   Entries 211-240 ###
@@ -1939,9 +2007,9 @@ D: episodes of my early days." - Rosa Belinda Coote "Letters to a Lady Friend"
 ### Activates for protevil
 N:211:of Sexton Blake
 I:32:10
-W:8:10:15:8000
+W:12:10:15:8000
 P:6:0d0:0:5:10:0
-O:10:10:10:10:5:5:5:5:0:0:0:0:0:0:-10:-10:-10
+O:10:10:10:10:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:2:5
 1:SAVE
 2:MUS | VIG | HEALTH
@@ -1956,11 +2024,10 @@ D: - Jess Nevins "The Sexton Blake page"
 ### Activates for teleport away
 N:212:of Inspector Bucket
 I:32:10
-W:15:10:15:12000
+W:5:6:15:12000
 P:4:0d0:0:0:10:0
-Y:6:2
+Y:6
 1:STEALTH | AGI
-2:SPEED
 F:ACTIVATE | SUST_AGI
 A:50:80
 D:"Mr. Snagsby is dismayed to see, standing with an
@@ -1977,11 +2044,11 @@ D: - Charles Dickens "Bleak House"
 ### Activates for probing
 N:213:of Sherlock Holmes
 I:32:8
-W:20:10:15:30000
-P:8:1d2:0:0:20:0
+W:8:10:15:30000
+P:8:1d2:0:0:7:0
 Y:8:4
 1:SEARCH
-2:SPEED | SCH
+2:SCH
 F:ACTIVATE | SUST_SCH
 A:10:20
 D:"when you have excluded the impossible, whatever 
@@ -1993,11 +2060,10 @@ D:- Sherlock Holmes
 N:215:of Edison
 I:32:6
 W:25:20:200:28000
-P:6:1d3:0:0:24:0
-Y:8:4:2
+P:6:1d3:0:0:8:0
+Y:8:4
 1:SCH | EGO
 2:MANA
-3:SPEED
 F:ACTIVATE | SUST_EGO | RES_CONFU
 A:15:50
 D:"From his neck down a man is worth a couple of
@@ -2009,13 +2075,12 @@ D: - Thomas A. Edison
 ### Activates for detect objects
 N:216:of Carl Gauss
 I:32:2
-W:8:18:15:6400
+W:28:18:15:6400
 P:2:0d0:0:0:8:0
-O:0:0:0:0:0:0:0:0:0:0:0:0:15:15:0:0:0
-Y:2:8:1
+O:0:0:0:0:45:0:0:0:0:0:0:0:10:10:0:0:0
+Y:2:12
 1:EGO | SEARCH 
 2:SCH
-3:SPEED
 F:RES_CONFU | RES_BLIND | SEE_INVIS | SUST_EGO | SUST_SCH
 F:ACTIVATE
 A:20:30
@@ -2034,7 +2099,6 @@ Y:5:3:-5
 2:LIGHT
 3:EGO
 F:ACTIVATE | SEE_INVIS | NO_FUEL
-O:15:5:0:-5:-10:0:0:0:5:0:0:0:10:10:0:0:0
 A:10:100
 D:"My Uncle was fifty years old; tall, thin, and wiry.  Large
 D: spectacles hid, to a certain extent, his vast, round and goggle eyes,
@@ -2050,7 +2114,7 @@ D: Verne, "A Journey to the Centre of the Earth."
 ### Activates for resist all
 N:241:of Aleriel
 I:35:1
-W:8:45:10:10000
+W:8:35:10:10000
 P:5:0d0:0:0:15:0
 O:10:10:10:10:10:10:10:10:10:10:10:10:0:0:0:0:0
 F:ACTIVATE | FREE_ACT
@@ -2070,13 +2134,13 @@ D: neither mustache nor beard, and scarcely looked above twenty.
 ### The Cloak of Captain Nemo ##
 N:242:of Captain Nemo
 I:35:1
-W:20:45:10:13000
+W:40:25:10:13000
 P:1:0d0:10:10:18:0
 Y:12:8:2
 1:VIG 
 2:HEALTH | AGI 
 3:BLOWS | SPEED 
-F:SEE_INVIS | ACTIVATE | FREE_ACT | REGEN_50 | RES_CONFU
+F:SEE_INVIS | FREE_ACT | REGEN_50 | RES_CONFU
 F:RES_FEAR | NO_TELEPORT | DISRUPT_SPELL
 D:But what has become of the Nautilus? Did it resist the
 D: pressure of the maelstrom? Does Captain Nemo still
@@ -2094,7 +2158,7 @@ N:243:of Dracula
 I:35:6
 W:25:30:10:820000
 P:6:0d0:0:0:30:0
-O:-90:50:50:-40:40:80:30:80:60:60:60:60:-120:80:40:40:40
+O:-100:-100:45:-45:30:100:30:100:45:45:45:45:-200:100:30:30:0
 Y:20:14
 1:MUS | AGI | VIG | HEALTH | SAVE
 2:SPEED | INFRA | SEARCH | STEALTH
@@ -2113,9 +2177,9 @@ D: Bram Stoker "Dracula"
 ### The Fur Cloak of the Hearth ##
 N:244:of the Hearth
 I:35:2
-W:8:20:50:9800
+W:8:18:50:9800
 P:4:0d0:0:0:6:0
-O:0:0:0:10:10:120:10:10:0:0:10:0:0:0:0:0:0
+O:0:0:0:10:10:100:10:10:0:0:10:0:0:0:0:0:0
 Y:2
 1:HEALTH
 F:SUST_VIG | RES_FEAR
@@ -2147,7 +2211,7 @@ N:246:"Immunity" of Ignaz Semmelweis
 I:35:1
 W:15:35:10:10000
 P:1:0d0:0:0:18:0
-O:0:0:80:80:0:0:40:120:0:20:0:40:40:40:10:10:10
+O:0:0:100:100:0:0:10:100:0:10:0:10:0:0:0:0:0
 F:REGEN_75 | ACTIVATE
 A:25:50
 D:"Everything was in question; everything seemed inexplicable;
@@ -2159,7 +2223,7 @@ D: Etiology, Concept and Phophylaxis of Childbed Fever"
 N:247:of Mycroft Holmes
 I:35:8
 W:30:30:6:85000
-O:0:0:33:0:0:0:0:35:40:27:40:33:45:45:55:55:55
+O:0:0:10:0:0:0:0:10:10:10:10:10:0:0:30:30:0
 P:1:2d2:8:8:32:0
 Y:10:4:-12
 1:STEALTH | SAVE | MANA | INFRA |
@@ -2181,12 +2245,12 @@ D: as "a very massive driver in a dark Mantle." - Willis G. Frick et al.
 ###Activates for Invulnerability###
 N:248:Of Immortality
 I:35:1
-W:50:90:10:800000
+W:52:90:10:800000
 P:12:0d0:0:0:30:0
 Y:10
+O:30:30:30:30:30:30:30:30:30:30:30:30:0:0:45:45:0
 1:HEALTH | SAVE
 F:SUST_VIG | HOLD_LIFE | PERMA_CURSE | ACTIVATE
-O:80:80:80:80:80:80:80:80:100:50:50:50:75:75:50:50:50
 A:1000:2000
 D: "...In a place midway between the Earth and the Sky was suspended
 D: a gleaming crypt of gold and platinum, aglow with soft lights shed
@@ -2206,7 +2270,7 @@ D: Adventures of Santa Claus.
 ### Activates for haste. naturally ##
 N:266:of Phileas Fogg
 I:31:2
-W:10:20:25:15000
+W:15:33:25:15000
 P:2:1d1:2:3:5:0
 Y:6:2
 1:SCH | AGI  
@@ -2228,12 +2292,12 @@ D: -Jules Verne "Around the world in 80 days"
 ### Activates for invisiblity
 N:267:of The Shadow
 I:31:4
-W:20:20:25:13000
+W:36:20:25:13000
 P:2:1d1:0:0:18:0
 Y:6:4
 1:AGI
 2:STEALTH
-F:ACTIVATE | WRAITH 
+F:ACTIVATE 
 A:80:100
 D:Lamont Cranston, "wealthy young man about
 D: town who, years ago in the Orient, learned
@@ -2244,9 +2308,9 @@ D: they could not see him."
 ### Activates for throwing dynamite.
 N:268:of Alfred Nobel
 I:31:8
-W:10:11:5:11000
-P:2:0d0:0:0:12:0
-O:35:35:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+W:12:11:5:11000
+P:2:0d0:0:0:6:0
+O:10:10:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:4
 1:AGI
 F:FREE_ACT | ACTIVATE
@@ -2258,9 +2322,8 @@ D: Nobel Prize." - George Bernard Shaw
 ### The set of gloves of puck
 N:269:of Puck
 I:31:2
-W:5:8:5:2300
+W:8:8:5:2300
 P:8:0d0:7:9:4:0
-O:5:5:5:5:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:6
 1:MUS | VIG
 F:RES_CONFU | ACTIVATE
@@ -2273,9 +2336,9 @@ D: While these visions did appear.\n
 ### The Set of Leather gloves of Houdini
 N:270:of Houdini
 I:31:4
-W:6:12:5:3800
+W:10:12:5:3800
 P:2:0d0:12:0:14:0
-O:0:0:35:35:0:0:0:10:0:0:0:0:0:0:0:0:0
+O:0:0:10:10:0:0:0:10:0:0:0:0:0:0:0:0:0
 Y:6
 1:AGI | SCH
 F:FREE_ACT | ACTIVATE
@@ -2291,14 +2354,11 @@ D:"My brain is the key that sets me free." -- Harry Houdini
 ###Activates for heroism###
 N:291:of Hans Bjelke
 I:30:12
-W:20:25:60:10000
+W:10:25:60:10000
 P:5:0d0:0:0:20:0
-Y:10:5:1
-1:MUS | AGI | VIG
-2:STEALTH
-3:HEALTH
+Y:1
+1:HEALTH
 F:ACTIVATE | RES_FEAR | RES_CONFU
-O:5:5:5:5:5:10:5:5:0:0:0:0:5:5:0:0:0
 A:20:120
 D:"Everything in this man's manner revealed a calm and phlegmatic
 D: temperament.  There was nothing indolent about him, but his
@@ -2316,14 +2376,15 @@ D:These magical boots allow the wearer to take giant leaps, crossing
 D: vast distances in a single stride.
 
 ### The Boots of Nils Nordenskiold
+### activates for recall
 N:293:of Nils Adolf Erik Nordenskiold
 I:30:14
-W:13:17:50:12000
+W:23:17:50:12000
 P:6:1d1:0:0:4:0
-O:0:0:0:35:0:45:0:0:10:0:0:0:20:20:0:0:0
+O:0:0:0:10:0:30:0:0:10:0:0:0:0:0:0:0:0
 Y:2
 1:SPEED | HEALTH | VIG
-F:SUST_MUS | SUST_VIG | REGEN_25 | ACTIVATE
+F:SUST_MUS | SUST_VIG | ACTIVATE
 A:100:110
 D:Between 1875 and 1876, he made two expeditions to the Kara Sea
 D: and the mouth of the Yenisei. Between 1878 and 1879 he was the
@@ -2348,7 +2409,7 @@ P:0:12d3:8:23:0:3
 Y:15:6
 1:TUNNEL | MUS
 2:SPEED
-F:SUST_MUS | SUST_VIG | SLAY_CONSTRUCT | FREE_ACT | SLAY_AUTOMATA
+F:SUST_MUS | SUST_VIG | SLAY_CONSTRUCT | FREE_ACT | SLAY_AUTOMATA | BLUNT
 D:Now John Henry said to his captain, \n
 D:He said, "A man ain't nothin' but a man. \n
 D:But before I let that steam drill beat me down \n
@@ -2359,13 +2420,13 @@ D:I'll die with my hammer in my hand."
 ### Activates for statis(!) bolt
 N:317:of Captain Nemo
 I:23:12
-W:25:50:110:51000
+W:35:50:110:51000
 P:0:1d11:24:26:0:7
 Y:8:4
 1:SPEED | MUS
 2:BLOWS | HEALTH | SAVE
 F:SUST_MUS | SLAY_EVIL | SLAY_AUTOMATA | SLAY_CONSTRUCT
-F:BRAND_ELEC | CRITICAL | FREE_ACT | RES_CONFU
+F:BRAND_ELEC | CRITICAL | FREE_ACT | RES_CONFU | EDGED
 F:RES_FEAR | SHOW_MODS | ACTIVATE 
 A:80:120
 D:"Captain Nemo had left his stateroom.
@@ -2384,7 +2445,7 @@ P:0:1d3:14:30:0:4
 Y:5
 1:HEALTH
 F:SUST_MUS | SUST_VIG | HOLD_LIFE | REGEN_50 | RES_FEAR
-F:SHOW_MODS | ACTIVATE 
+F:SHOW_MODS | ACTIVATE | BLUNT
 A:800:1000
 D:His friends were those of his own blood or those
 D: whom he had known the longest; his affections,
@@ -2396,12 +2457,13 @@ D: "The Strange Case of Dr. Jekyll and Mr. Hyde"
 ### Activates for magic mapping
 N:319:of Allan Quatermain
 I:21:2
-W:8:40:12:15000
+W:8:30:12:15000
 P:0:2d4:8:18:3:2
+O:30:0:0:30:0:30:30:30:0:0:30:0:0:30:0:0:0
 Y:5:2
 1:HEALTH | SPEED | SEARCH
 2:STEALTH
-F:SHOW_MODS | FREE_ACT | 
+F:SHOW_MODS | FREE_ACT | BLUNT
 F:ACTIVATE
 A:15:25
 D:Men and women, empires and cities, thrones,
@@ -2416,13 +2478,13 @@ N:320:of Aleister Crowley
 I:26:12
 W:30:40:100:45000
 P:9:0d0:0:0:20:0
-O:7:7:7:7:7:7:7:7:15:15:15:20:40:40:40:40:40
+O:10:10:10:10:10:10:10:10:30:30:30:30:45:45:45:45:0
 Y:12:6:-8
 1:EGO
 2:MANA | MAGIC_MASTER | CHR
 3:STEALTH
-F:SUST_SCH | SUST_EGO | SUST_CHR |
-F:TELEPATHY | FREE_ACT | SEE_INVIS | RES_CONFU | RES_BLIND |
+F:SHOW_MODS | SUST_SCH | SUST_EGO | SUST_CHR |
+F:TELEPATHY | FREE_ACT | SEE_INVIS | RES_CONFU | RES_BLIND | BLUNT
 F:MUTABLE | NEVER_BLOW | DRAIN_ITEM | LIGHT_CURSE | HEAVY_CURSE | ACTIVATE
 A:200:800
 D:"I may be a black magician but I'm bloody great one." -Aleister Crowley
@@ -2430,12 +2492,12 @@ D:"I may be a black magician but I'm bloody great one." -Aleister Crowley
 ### The Pick of Brunel
 N:321:of Brunel
 I:20:4
-W:5:20:150:10000
+W:5:16:150:10000
 P:0:2d3:8:5:0:5
-O:0:0:0:0:0:40:40:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:30:30:0:0:0:0:0:0:0:0:0:0
 Y:5
 1:MUS | TUNNEL
-F:BRAND_ACID
+F:SHOW_MODS | BRAND_ACID | PIERCE
 D:'...of all the wonderful feats I have performed,
 D: since I have been in this part of the world, I
 D: think yesterday I performed the most wonderful.
@@ -2448,11 +2510,12 @@ D: Suspension Bridge of the Avon Gorge
 ###The Scythe "reaper" of Cyrus McCormack
 N:322:"Reaper" of Cyrus McCormack
 I:23:14
-W:30:30:250:28000
+W:19:30:250:28000
 P:0:8d3:17:22:0:7
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:8
 1:MUS | VIG | SPEED
-F:REGEN_25
+F:SHOW_MODS | REGEN_25 | EDGED
 D:"One man can do the work of five, if you don't
 D: believe me, try'er out!" - Cyrus McCormack
 
@@ -2461,14 +2524,14 @@ N:323:of Van Helsing
 I:21:3
 W:18:30:100:23000
 P:0:5d3:12:18:0:3
-O:0:0:0:0:0:0:0:0:10:10:0:60:0:60:20:20:20
+O:0:0:0:0:0:0:0:0:30:30:0:45:0:45:30:0:0
 Y:1:3:5
 1:LIGHT | SEARCH 
 2:MANA | HEALTH | SPEED
 3:SCH | EGO 
 F:BRAND_FIRE | IMPACT | CRITICAL | SLAY_EVIL | SLAY_UNDEAD 
 F:SEE_INVIS | FREE_ACT | BLESSED | HOLD_LIFE | REGEN_25
-F:RES_FEAR | NO_FUEL
+F:SHOW_MODS | RES_FEAR | BLUNT | NO_FUEL
 D:"He is a philosopher and a metaphysician, and one of the most advanced
 D: scientists of his day, and he has, I believe, an absolutely open
 D: mind.  This, with an iron nerve, a temper of the ice-brook, and
@@ -2488,8 +2551,8 @@ Y:8:6:3
 1:MUS | VIG | AGI
 2:HEALTH
 3:SPEED
-F:RES_FEAR | BRAND_FORCE | IMPACT
-F:FREE_ACT | RES_CONFU | CRITICAL | ACTIVATE
+F:SHOW_MODS | RES_FEAR | BRAND_FORCE | IMPACT
+F:FREE_ACT | RES_CONFU | CRITICAL | ACTIVATE | BLUNT
 A:100:150
 D:The most famouse and popular of the ancient pharoahs
 D: Ramses was a man of war.  The preferred weapon
@@ -2507,9 +2570,9 @@ Y:15:2:-5
 1:MUS | VIG | AGI
 2:BLOWS | SPEED
 3:SCH | EGO
-O:0:0:0:0:0:0:0:75:0:0:0:0:0:0:0:0:0
-F:RES_FEAR | BRAND_FORCE | IMPACT | BRAND_POISON
-F:FREE_ACT | RES_CONFU | CRITICAL | ACTIVATE
+O:0:0:0:0:0:0:0:45:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | RES_FEAR | BRAND_FORCE | IMPACT | BRAND_POISON
+F:FREE_ACT | RES_CONFU | CRITICAL | ACTIVATE | BLUNT
 A:20:50
 D:From the earliest known writings of the
 D: ancient Egyptians comes the knowledge of the
@@ -2525,8 +2588,8 @@ W:5:8:30:5000
 P:0:1d2:10:10:5:2
 Y:5
 1:TUNNEL
-F:ACTIVATE | FREE_ACT | RES_FEAR | PIERCE
-O:25:25:25:25:25:25:10:5:0:0:0:0:15:15:0:0:0
+F:SHOW_MODS | ACTIVATE | FREE_ACT | RES_FEAR | PIERCE
+O:30:30:30:30:30:30:10:10:0:0:0:0:10:10:0:0:0
 A:10:20
 D:"Calm yourself, my dear boy, and endeavor to use your reason.  This
 D: weapon, upon which we have fallen so unexpectedly, is a true dague,
@@ -2545,7 +2608,7 @@ Y:5:10
 1:SEARCH
 2:SCH
 F:ACTIVATE | SLAY_ANIMAL | BLUNT | PIERCE
-O:-10:0:0:50:25:15:0:5:0:0:0:0:0:15:0:0:0
+O:-10:0:0:45:30:10:0:10:0:0:0:0:0:10:0:0:0
 A:10:50
 D:"An iron pointed stick was put into my hand, and soon we set foot
 D: on the bottom of the Atlantic, at a depth of 150 fathoms." -Jules
@@ -2560,7 +2623,7 @@ Y:5:1
 1:MUS | AGI | SEARCH
 2:BLOWS
 F:SUST_MUS | SUST_AGI | EDGED
-O:-5:0:0:15:10:5:0:5:0:0:0:0:0:5:0:0:0
+O:-30:0:0:45:30:30:0:30:0:0:0:0:0:10:0:0:0
 D:"The crew fought with their axes.  The Canadian, Conseil and I,
 D: buried our weapons in the fleshy masses.  A strong smell of musk
 D: penetrated the atomsphere.  It was horrible!" -Jules Verne "20,000
@@ -2584,12 +2647,12 @@ D: Under the Sea."
 ###The Broad Axe of Nelko###
 N:330:of Nelko
 I:25:4
-W:3:5:260:5000
+W:7:5:260:5000
 P:0:2d7:10:12:0:4
 Y:1
 1:VIG
-F:REGEN_25
-O:15:15:15:15:15:5:5:0:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | REGEN_25 | EDGED
+O:-45:45:0:45:30:0:0:0:0:0:0:0:0:0:0:0:0
 D: "...Old Nelko, the servant of the Master Woodsman.  Nelko bore an
 D: ax, strong and broad, with blade that gleamed like burnished silver.
 D: This he placed in the young man's hand, then disappeared without a
@@ -2603,8 +2666,7 @@ P:0:3d8:25:30:0:5
 Y:5:1
 1:MUS | VIG |SPEED
 2:BLOWS | SAVE
-F:SEE_INVIS | REGEN_50 | RES_FEAR | RES_CONFU
-O:15:15:15:15:15:15:15:10:7:5:5:5:20:20:30:30:30
+F:SHOW_MODS | SEE_INVIS | REGEN_50 | RES_FEAR | RES_CONFU | EDGED
 D: "His ignorance cost him his existance, for one flash of the ax
 D: borne by the Master Woodsman of the World cleft the wicked King in
 D: twain and rid the earth of the vilest creature it contained." -L
@@ -2613,12 +2675,388 @@ D: Frank Baum "The Life and Adventures of Santa Claus"
 ### Mallet of the Queen of Hearts
 N:332:of the Queen of Hearts
 I:21:5
-W:2:15:110:1100
+W:2:13:110:1100
 P:0:6d3:2:5:0:3
-F:SLAY_CARDS | EDGED
+F:SHOW_MODS | SLAY_CARDS | EDGED | BLUNT
 D:"OFF WITH HER HEAD!"- The Queen of Hearts
 
+### The Shovel of Frank Calvert
+### Activates for Detect Objects
+N:333:of Frank Calvert
+I:20:1
+W:5:15:70:8000
+P:0:1d6:12:17:0:1
+Y:8
+1:SCH | TUNNEL | SEARCH
+F:SHOW_MODS | CRITICAL | FREE_ACT | ACTIVATE | PIERCE
+A:200:500
+D:Frank Calvert was a careful researcher who purchased half a mound
+D: called Hisarlik, correctly guessing it to be the site of Troy. Unable
+D: to fully fund excavation, his claim as discoverer of Troy was long
+D: eclipsed by the self-promoting liar and thief, Heinrich Schliemann."
 
+### The Pneumatic Shovel of Heinrich Schliemann 
+### Activates for fetch item (tele item to player)
+N:334:of Heinrich Schliemann
+I:20:2
+W:43:19:115:27000
+P:0:1d4:11:12:0:2
+Y:12:5
+1:TUNNEL | CHR
+2:EGO
+F:SHOW_MODS | SUST_EGO | SUST_CHR | ACTIVATE | PIERCE
+A:50:250
+D:Heinrich Schliemann was a success in the business world and amateur
+D: archeologist. He was also something of a huckster. His fascination
+D: with the Homeric world was genuine, even obsessive. Fact and fancy
+D: probably blurred in his own mind. While his methods were horrendous by
+D: today's standards and his scruples almost non-existent, he did unearth
+D: Troy and helped push archeology on to its destiny as a scientific
+D: discipline.
+
+### The Pick of Guy Fawkes 
+N:335:of Guy Fawkes
+I:20:4
+W:7:12:130:4900
+P:0:2d4:13:13:0:2
+O:45:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:10:1
+1:TUNNEL
+2:SAVE | BLOWS
+F:SHOW_MODS | SUST_EGO | BRAND_FIRE | REGEN_25 | ACTIVATE | PIERCE
+A:15:30
+D:Guy Fawkes is England's most notorious traitor and folk villain.
+D: Captured attempting to blow up Parliament and the King, he is still
+D: annually burned in effigy.
+
+
+### The Rapier of the Scarlet Pimpernel
+N:336:of the Scarlet Pimpernel
+I:23:7
+W:14:15:30:9900
+P:0:4d2:21:4:0:1
+O:0:0:30:0:0:30:0:30:0:0:0:0:0:0:0:0:0
+Y:12:4
+1:AGI
+2:STEALTH | SAVE | SPEED
+F:SHOW_MODS | SLAY_EVIL | CRITICAL | BLESSED | PIERCE
+D:"We seek him here, we seek him there \n
+D:Those Frenchies seek him everywhere. \n
+D:Is he in Heaven? Is he in Hell? \n
+D:That demmed elusive Pimpernel!" 
+
+
+### The Saber of Henry Morgan
+N:337:of Henry Morgan
+I:23:11
+W:14:15:70:9900
+P:0:1d7:4:17:0:2
+O:0:30:0:30:0:0:30:0:0:0:0:0:0:0:0:0:0
+Y:12:4
+1:MUS
+2:HEALTH | SAVE
+F:SHOW_MODS | SLAY_BEASTMAN | SLAY_ANIMAL | BRAND_ACID | VORPAL | EDGED
+D:"Ho! Henry Morgan sails today \n
+D:To harry the Spanish Main, \n
+D:With a pretty bill for the Dons to pay \n
+D:Ere he comes back again. \n \n
+D:"Him cheat him friend of his last guinea, \n
+D:Him kill both friar and priest - O dear! \n
+D:Him cut de t'roat of piccaninny, \n
+D:Bloody, bloody buccaneer."
+
+### The Bowie Knife of MacHeath
+N:338:of MacHeath
+I:24:14:0
+W:10:20:20:6700
+P:0:4d3:3:9:0:3
+Y:6
+1:MUS | STEALTH
+F:SHOW_MODS | BRAND_FORCE | BRAND_FIRE | PIERCE
+D:Oh, the shark, has pretty teeth, dear \n
+D:and he shows them pearly white \n
+D:Just a jackknife has MacHeath, babe \n
+D:and he keeps it, out of sight \n
+D:When that shark bites with his teeth, dear \n
+D:scarlet billows start to spread \n
+D:Just a gloved hand, has MacHeath, babe \n
+D:and he never shows a single drop of red
+
+### The Sabre of Clubs
+N:339:of Clubs
+I:23:11:0
+W:5:5:50:13000
+P:0:1d7:8:5:0:1
+O:0:0:0:0:0:0:45:0:0:0:0:0:0:0:0:0:0
+Y:1
+1:BLOWS
+F:SHOW_MODS | EDGED | BRAND_ACID | ACTIVATE 
+A:4:8
+D:A sabre with the etching of a club in the pommel; the blade is
+D: covered in clear deadly acid.
+
+### The Sabre of Spades
+N:340:of Spades
+I:23:11:0
+W:3:5:50:13000
+P:0:1d7:8:5:0:1
+O:0:0:0:0:0:45:0:0:0:0:0:0:0:0:0:0:0
+Y:1
+1:BLOWS
+F:SHOW_MODS | EDGED | BRAND_ICE | ACTIVATE
+A:6:10
+D:A sabre with the etching of a spade in the pommel; the blade is
+D: covered with frost. It seems to suck the very heat from the air
+D: around it.
+
+### The Sabre of Hearts
+N:341:of Hearts
+I:23:11:0
+W:2:5:50:13000
+P:0:1d7:8:5:0:1
+O:45:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:1
+1:BLOWS
+F:SHOW_MODS | EDGED | BRAND_FIRE | ACTIVATE
+A:8:12
+D:A sabre with the etching of a heart in the pommel; the blade glows
+D: red with fire.
+
+### The Sabre of Diamonds
+N:342:of Diamonds
+I:23:11:0
+W:4:5:50:13000
+P:0:1d7:8:5:0:1
+O:0:0:0:0:45:0:0:0:0:0:0:0:0:0:0:0:0
+Y:1
+1:BLOWS
+F:SHOW_MODS | EDGED | BRAND_ELEC | ACTIVATE
+A:7:11
+D:A sabre with the etching of a diamond in the pommel; the blade
+D: crackles with electricity.
+
+### The Sabre of Cups
+N:343:of Cups
+I:23:11:0
+W:6:5:50:13000
+P:0:1d7:8:5:0:1
+O:0:0:0:0:0:0:0:45:0:0:0:0:0:0:0:0:0
+Y:1
+1:BLOWS
+F:SHOW_MODS | EDGED | BRAND_POISON | ACTIVATE
+A:2:6
+D:A sabre with the etching of a cup in the pommel; the blade
+D: drips with deadly poison.
+
+### The Club of Heracles ###
+N:344:of Heracles
+I:26:10
+W:5:50:250:50000
+P:0:3d6:15:15:0:6
+Y:12:4:-2
+1:MUS
+2:VIG | AGI | HEALTH
+3:STEALTH | SCH
+F:SHOW_MODS | BLUNT
+F:SUST_MUS | SLAY_ANIMAL | BRAND_FORCE | CRITICAL | DISRUPT_SPELL
+D: This club appears fairly ordinary. Perhaps rather larger and
+D: heavier than the usual, but only considerable scholarship
+D: would allow one to note the signs that this was the personal
+D: weapon of the mighty son of Zeus. Yet when one grasps this weapon
+D: it is clear to the wielder that it bears some fraction of its
+D: former master's power.
+
+###Spear of Saint George, Patron Saint of Chivalry and of England###
+N:345:of Saint George
+I:22:4
+W:15:70:100:500000
+P:0:2d11:35:25:0:5
+Y:8
+1:CHR
+F:SLAY_EVIL | SLAY_DEMON | SLAY_DINOSAUR | CRITICAL | BLESSED | RES_FEAR
+F:SHOW_MODS | PIERCE | ACTIVATE
+O:40:40:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0
+A:200:350
+D: The shaft of this spear was replaced sometime in the 13th or 14th
+D: Century, but it still bears the head of the weapons borne by the
+D: greatest warrior-hero of Christendom.
+
+### Rapier of Barsoom - Carter of Mars
+N:346:of Barsoom
+I:23:7
+W:19:28:20:90000
+P:0:3d6:18:3:0:1
+Y:10:1
+1:VIG
+2:HEALTH
+F:SHOW_MODS | PIERCE | SLAY_EVIL | SLAY_DEMON | SLAY_DINOSAUR | SLAY_ALIEN
+O:30:0:0:0:0:0:0:30:30:30:0:0:0:0:0:0:0
+D:A sword from the desert planet Barsoom. Sand weathered and made of a
+D: strange cross between concrete and steel, it rests heavy in your hand.
+
+### Saber of Kadabra
+N:347:of Kadabra
+I:23:11
+W:19:26:50:50000
+P:0:2d7:20:12:0:1
+Y:8
+1:AGI
+F:SUST_AGI | SLAY_ALIEN | SLAY_BEASTMAN | BRAND_ICE | FREE_ACT
+F:SHOW_MODS | EDGED | FEATHER | SLOW_DIGEST
+O:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0
+D:A saber from Kadabra city on Mars. ". . . the walled and
+D: glass-roofed city of Kadabra. It lies in a low depression near
+D: the pole, surrounded by rocky, snow-clad hills. ... Its crystal
+D: domes sparkled in the brilliant sunlight gleaming above the
+D: frost-covered outer wall that circles the entire one hundred
+D: miles of its circumference."
+
+### Broad Sword of Aquilonia
+N:348:of Aquilonia
+I:23:16
+W:13:15:140:40000
+P:0:2d5:10:15:0:3
+Y:1
+1:SEARCH | LIGHT 
+F:BRAND_FIRE | SLAY_EVIL | SLAY_BEASTMAN | VORPAL | SLOW_DIGEST | NO_FUEL
+F:SHOW_MODS | EDGED
+O:30:0:0:0:0:0:0:0:0:0:0:0:30:0:0:0:0
+D:A sword from the great empire of Aquilonia. Flames lick up and
+D: down the blade.
+
+### The War Hammer of Snæfellsjökull
+
+N:349:of Snaefellsjokull
+I:21:6
+W:17:30:220:45000
+P:0:3d5:12:16:0:7
+Y:1
+1:SEARCH | LIGHT
+F:BRAND_ELEC | SLAY_EVIL | SLAY_DINOSAUR | VORPAL | RES_CONFU |
+F:SHOW_MODS | BLUNT | SLOW_DIGEST | NO_FUEL
+O:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0
+D:"In Sneffels Joculis craterem quem delibat Umbra Scartaris 
+D: Julii intra calendas descende, Audax viator, et terrestre 
+D: centrum attinges. Quod feci, Arne Saknussemm"
+
+##Translation
+## "Descend, bold traveler, into the crater of the jokul of
+## Sneffels, which the shadow of Scartaris touches before the
+## calendas of July, and you will attain the centre of the
+## earth; I have done this, Arne Saknussemm"
+
+## The Dirk 'Red Nail'
+N:350:'Red Nail'
+I:24:11
+W:7:15:80:40000
+P:0:1d7:10:15:0:2
+Y:3
+1:STEALTH
+F:BRAND_ICE | SLAY_EVIL | SLAY_BEASTMAN | VORPAL | SLOW_DIGEST | 
+F:SHOW_MODS | PIERCE |
+O:0:0:0:0:0:30:0:0:0:0:30:0:0:0:0:0:0
+D:"She was tall, full-bosomed, and large-limbed, with compact
+D: shoulders. Her whole figure reflected an unusual strength,
+D: without detracting from the femininity of her appearance. . .
+D: Instead of a skirt she wore short, wide-legged silk breeches,
+D: which ceased a hand's breadth short of her knees, and were
+D: upheld by a wide silken sash worn as a girdle. Flaring-topped
+D: boots of soft leather came almost to her knees, and a
+D: low-necked, wide-collared, wide-sleeved silk shirt completed
+D: her costume. On one shapely hip she wore a straight
+D: double-edged sword, and on the other a long dirk. Her unruly
+D: golden hair, cut square at her shoulders, was confined by a
+D: band of crimson satin."
+
+## The Bastard Sword of Valeria
+N:351:of Valeria
+I:23:21
+W:25:50:140:130000
+P:0:3d5:16:21:0:4
+Y:8:4:1
+1:MUS
+2:STEALTH
+3:INFRA | SPEED
+F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON |
+F:SHOW_MODS | EDGED | SLAY_DINOSAUR | VORPAL | REGEN_25
+O:30:0:0:0:30:0:30:30:0:0:0:0:0:0:0:0:0:
+D:"She was tall, full-bosomed, and large-limbed, with compact
+D: shoulders. Her whole figure reflected an unusual strength,
+D: without detracting from the femininity of her appearance. . .
+D: Instead of a skirt she wore short, wide-legged silk breeches,
+D: which ceased a hand's breadth short of her knees, and were
+D: upheld by a wide silken sash worn as a girdle. Flaring-topped
+D: boots of soft leather came almost to her knees, and a
+D: low-necked, wide-collared, wide-sleeved silk shirt completed
+D: her costume. On one shapely hip she wore a straight
+D: double-edged sword, and on the other a long dirk. Her unruly
+D: golden hair, cut square at her shoulders, was confined by a
+D: band of crimson satin."
+
+### The Cutlass of Korad 
+### From Burroughs, Carter of Mars
+
+N:352:of Korad
+I:23:12
+W:5:12:110:20000
+P:0:1d11:10:12:0:2
+Y:6:2
+1:AGI
+2:STEALTH
+F:SHOW_MODS | EDGED | BRAND_ACID | FEATHER | SEE_INVIS | REGEN_25 | 
+O:30:0:0:0:30:30:30:30:0:0:0:0:0:0:0:0:0
+D:"Dejah Thoris related many interesting facts and legends concerning
+D: this lost race of noble and kindly people. She said that the
+D: city in which we were camping was supposed to have been a
+D: center of commerce and culture known as Korad."
+
+### The Pneumatic Sword of Toonol
+### From Burroughs, Carter of Mars
+
+N:353:of Toonol
+I:23:32
+W:25:13:250:100000
+P:0:8d5:18:19:0:0
+F:SLAY_AUTOMATA | SLAY_EVIL | SLAY_UNDEAD | SLAY_CONSTRUCT | SLAY_ELEMENTAL | 
+F:SHOW_MODS | EDGED | SEE_INVIS | 
+D:A sword from the city Toonol. East of the Toonolian Marshes; continually at war
+D: with Phundahl. 
+
+### The Great Axe of Kull
+### Activates for Superheroism
+N:354:of Kull
+I:25:8
+W:40:45:400:100000
+P:0:4d8:14:17:10:14
+Y:12:4:1
+1:MUS
+2:HEALTH | VIG
+3:BLOWS
+F:SLAY_EVIL | BRAND_FIRE | SLAY_ANIMAL | SLAY_BEASTMAN | SLAY_DEMON | VORPAL | 
+F:SHOW_MODS | EDGED | SUST_AGI | SEE_INVIS | FREE_ACT | ACTIVATE
+O:45:30:0:0:0:30:30:0:0:30:0:30:0:0:0:0:0
+A:200:350
+D:"What do I know of cultured ways, the gilt, the craft, and the lie?\n
+D:I, who was born in a naked land and bred in the open sky.\n
+D:The subtle tongue, the sophist guile, they fail when the broadswords sing;\n
+D:Rush in and die, dogs--I was a man before I was a king.
+
+# The Battle Axe of Brak Man Morn
+
+N:355:of Brak Mak Morn
+I:25:6
+W:15:24:75:40000
+P:0:2d8:15:16:0:10
+Y:4:1
+1:MUS | VIG
+2:HEALTH | SAVE
+F:SHOW_MODS | EDGED | SLAY_EVIL | BRAND_ACID | SLAY_DEMON | FREE_ACT | SEE_INVIS
+O:0:0:0:0:30:30:0:30:0:0:0:0:45:45:0:0:0
+D:"The image of Bran Mak Morn, carved in his likeness by a master-hand while
+D: the great king yet lived, and to which each worshipper of Bran makes a
+D: pilgrimage once in his or her lifetime." -  "The Children of the Night"
+
+##
 ###########################
 ####  	    Guns        ###
 ####  Entries 401-512   ###
@@ -2674,7 +3112,7 @@ P:0:0d0:-33:-25:0:0
 Y:12
 1:CHR
 F:REGEN_25 | SEE_INVIS | SLOW_DIGEST
-O:25:25:25:25:25:25:25:25:25:25:25:25:25:25:25:25:25
+O:10:10:10:10:10:10:10:10:10:10:10:10:10:10:10:10:10
 D:This tiny inaccurate derringer not only has a pearl handle
 D: but set in the pearl and along the barrel are 10,000 
 D: rich gems and jewels. It would not surprise you if the 
@@ -2714,7 +3152,7 @@ D:The letters "N E D" are carved on the handle.
 N:406:of Mauser
 I:19:12
 W:22:20:80:22000
-O:0:0:0:0:0:0:0:0:0:0:0:0:40:40:0:0:0
+O:0:0:0:0:0:0:0:0:0:0:0:0:30:30:0:0:0
 P:0:0d0:20:20:0:0
 Y:2
 1:SHOTS
@@ -2752,7 +3190,7 @@ Y:5:2
 1:STEALTH | AGI | SEARCH
 2:MIGHT | SHOTS |INFRA
 F:ACTIVATE | SEE_INVIS | SUST_AGI | MUTABLE
-O:15:15:15:15:15:15:15:10:5:3:3:3:5:5:3:3:3
+O:10:10:10:10:10:10:10:10:0:0:0:0:0:0:0:0:0
 A:8:22
 D:"The creation of this singular weapon required the efforts of no
 D: less that two master weaponsmiths, an enigmatic yogi who claimed to

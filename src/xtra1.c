@@ -1357,7 +1357,7 @@ static void fix_visible(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1723,7 +1723,7 @@ static void calc_torch(void)
 #endif
 	/* Examine all wielded objects, use the brightest */
 	/* Possibly allow a flag to add light? */
-	for (light = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (light = 0, i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++)
 	{
 		object_type *o_ptr = &inventory[i];
 
@@ -2029,11 +2029,12 @@ static void calc_bonuses(void)
 		p_ptr->res[RS_ICE] = p_ptr->dis_res[RS_ICE] += p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_rank / 2;
 		p_ptr->res[RS_ACD] = p_ptr->dis_res[RS_ACD] += p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_rank / 2;
 		p_ptr->res[RS_PSN] = p_ptr->dis_res[RS_PSN] += p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_rank / 2;
+		p_ptr->res[RS_TLK] = p_ptr->dis_res[RS_TLK] += p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_rank / 3;
 	}
 	if (p_ptr->skills[SK_MENTAL_RESISTANCE].skill_max > 0)
 	{
 		p_ptr->res[RS_PSI] = p_ptr->dis_res[RS_PSI] += (p_ptr->skills[SK_MENTAL_RESISTANCE].skill_rank) * 3;
-		p_ptr->res[RS_TLK] = p_ptr->dis_res[RS_TLK] += (p_ptr->skills[SK_MENTAL_RESISTANCE].skill_rank) * 3;
+	/*	p_ptr->res[RS_TLK] = p_ptr->dis_res[RS_TLK] += (p_ptr->skills[SK_MENTAL_RESISTANCE].skill_rank) * 3; */
 		p_ptr->res[RS_SPI] = p_ptr->dis_res[RS_SPI] += (p_ptr->skills[SK_MENTAL_RESISTANCE].skill_rank) * 3;
 		p_ptr->res[RS_TIM] = p_ptr->dis_res[RS_TIM] += p_ptr->skills[SK_MENTAL_RESISTANCE].skill_rank / 2;
 		p_ptr->res[RS_ETH] = p_ptr->dis_res[RS_ETH] += p_ptr->skills[SK_MENTAL_RESISTANCE].skill_rank / 2;
@@ -2221,7 +2222,7 @@ static void calc_bonuses(void)
 	/*** Analyze equipment ***/
 
 	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -2264,7 +2265,7 @@ static void calc_bonuses(void)
 
 		/* Affect Magic ability */
 		p_ptr->skills[SK_LATIN].skill_rank += get_object_pval(o_ptr, TR_PVAL_MAGIC_MASTER) * 2;
-
+		p_ptr->skills[SK_TMPR_WILL].skill_rank += get_object_pval(o_ptr, TR_PVAL_MAGIC_MASTER) * 2;
 		if (p_ptr->skills[SK_THAUMIC_ENERGY].skill_max > 0)
 		{
 		 	p_ptr->skills[SK_THAUMIC_ENERGY].skill_rank += get_object_pval(o_ptr, TR_PVAL_MAGIC_MASTER) * 2;
@@ -2432,17 +2433,17 @@ static void calc_bonuses(void)
 	/* Temporary blessing */
 	if (p_ptr->blessed)
 	{
-		p_ptr->to_a += 5;
-		p_ptr->dis_to_a += 5;
-		p_ptr->to_h += 10;
-		p_ptr->dis_to_h += 10;
+		p_ptr->to_a += 10;
+		p_ptr->dis_to_a += 10;
+		p_ptr->to_h += 5;
+		p_ptr->dis_to_h += 5;
 	}
 
 	/* Temprory shield */
 	if (p_ptr->shield)
 	{
-		p_ptr->to_a += 50;
-		p_ptr->dis_to_a += 50;
+		p_ptr->to_a += 40;
+		p_ptr->dis_to_a += 40;
 	}
 
 	/* Temporary "Hero" */
@@ -2450,6 +2451,8 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_h += 12;
 		p_ptr->dis_to_h += 12;
+		p_ptr->to_d += 5;
+		p_ptr->dis_to_d += 5;
 	}
 
 	/* Temporary "Berserk" */
@@ -2782,61 +2785,13 @@ static void calc_bonuses(void)
 		p_ptr->num_fire = 1;
 
 		/* Analyze the launcher */
-		switch (o_ptr->sval)
+		if (o_ptr->sval)
 		{
-			/* Pistol */
-			case SV_DERRINGER:
-			case SV_32_REVOLVER:
-			case SV_38_REVOLVER:
-			case SV_41_REVOLVER:
-			case SV_45_REVOLVER:
-			
-			{
-				p_ptr->ammo_tval = TV_AMMO;
-				p_ptr->ammo_mult = 2;
-				break;
-			}
-			/* Light Rifle */
-			case SV_22_BOLT_ACTION:
-			
-			{
-				p_ptr->ammo_tval = TV_BULLET;
-				p_ptr->ammo_mult = 2;
-				break;
-			}
-
-			/* Heavy Rifle */
-			case SV_30_LEVER_ACTION:
-			case SV_45_MARTINI_HENRY:
-			case SV_COL_MORAN:
-			case SV_303_LEE_ENFIELD:
-			case SV_ELEPHANT_GUN:
-			{
-				p_ptr->ammo_tval = TV_BULLET;
-				p_ptr->ammo_mult = 3;
-				break;
-			}
-
-			/* Light Shotgun */
-			case SV_20_GAGUE:
-			case SV_SAWED_OFF:
-			{
-				p_ptr->ammo_tval = TV_SHOT;
-				p_ptr->ammo_mult = 3;
-				break;
-			}
-
-			/* Heavy Shotgun */
-			case SV_16_GAGUE:
-			case SV_12_GAGUE:
-			case SV_10_GAGUE:
-			{
-				p_ptr->ammo_tval = TV_SHOT;
-				p_ptr->ammo_mult = 4;
-				break;
-			}
+			/* Get basic data */
+			p_ptr->ammo_tval = o_ptr->ammo_tval;
+			p_ptr->ammo_mult = o_ptr->ammo_mult;
+			p_ptr->num_fire = o_ptr->num_fire;
 		}
-
 		/* Apply special flags */
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
@@ -2846,6 +2801,7 @@ static void calc_bonuses(void)
 			/* Extra might */
 			p_ptr->ammo_mult += extra_might;
 
+#if 0
 			/* Hack -- Rangers love Bows */
 			if ((
 			    (p_ptr->ammo_tval == TV_BULLET) ||
@@ -2868,6 +2824,7 @@ static void calc_bonuses(void)
 					/* Extra shot at level 20 */
 					if (p_ptr->skills[SK_SWIFT_SHOT].skill_rank >= 20) p_ptr->num_fire++;
 				}
+#endif
 		}
 
 		/* Require at least one shot */
@@ -2928,30 +2885,36 @@ static void calc_bonuses(void)
 	if (o_ptr->k_idx && !p_ptr->heavy_wield)
 	{
 		int str_index, dex_index;
+		int muscle_value, agility_value;
 
 		int div;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
 		div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
 
-		/* Get the strength vs weight */
-		str_index = ((p_ptr->stat_use[A_MUS] / 6) * cp_ptr->att_multiply / div);
+		/* Stat value */
+		muscle_value = p_ptr->stat_use[A_MUS];
 
 		if (p_ptr->skills[SK_WEAPON_FINESSE].skill_rank > 0)
 		{
-			str_index += p_ptr->skills[SK_WEAPON_FINESSE].skill_rank / 3;
+			muscle_value += (p_ptr->skills[SK_WEAPON_FINESSE].skill_rank * 20);
 		}
-		
+
+		str_index = ((muscle_value / 14) * cp_ptr->att_multiply / div);
+
 		/* Maximal value */
 		if (str_index > 11) str_index = 11;
 
-		/* Index by dexterity */
-		dex_index = p_ptr->stat_use[A_AGI] / 160;
-
+		/* Stat value */
+		agility_value = p_ptr->stat_use[A_AGI];
+		
 		if (p_ptr->skills[SK_SWIFT_BLOW].skill_rank > 0)
 		{
-			dex_index += p_ptr->skills[SK_SWIFT_BLOW].skill_rank / 3;
+			agility_value += (p_ptr->skills[SK_SWIFT_BLOW].skill_rank *20);
 		}
+
+		/* Index by dexterity */
+		dex_index = agility_value / 120;
 
 		/* Maximal value */
 		if (dex_index > 11) dex_index = 11;
@@ -3028,7 +2991,12 @@ static void calc_bonuses(void)
 				p_ptr->update |= (PU_HP);
 			}
 
-			/* Change in INT may affect Mana/Spells */
+			/* Change in a stat may affect Mana */
+			if (cp_ptr->spell_stat == i)
+			{
+				p_ptr->update |= (PU_MANA);
+			}
+#if 0
 			else if (i == A_SCH)
 			{
 				if (cp_ptr->spell_stat == A_SCH)
@@ -3045,6 +3013,7 @@ static void calc_bonuses(void)
 					p_ptr->update |= (PU_MANA | PU_SPELLS);
 				}
 			}
+#endif
 		}
 	}
 
@@ -3327,6 +3296,12 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_TITLE);
 		prt_title();
+	}
+
+	if (p_ptr->redraw & PR_CLASS)
+	{
+		p_ptr->redraw &= ~PR_CLASS;
+		prt_class();
 	}
 
 	if (p_ptr->redraw & (PR_LEV))

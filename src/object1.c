@@ -1751,8 +1751,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
 			object_desc_int_macro(t, o_ptr->to_h);
-			object_desc_chr_macro(t, ',');
-			object_desc_int_macro(t, o_ptr->to_d);
 			object_desc_chr_macro(t, p2);
 		}
 
@@ -1761,8 +1759,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
-			object_desc_int_macro(t, o_ptr->to_h);
-			object_desc_chr_macro(t, ',');
 			object_desc_int_macro(t, o_ptr->to_d);
 			object_desc_chr_macro(t, p2);
 		}
@@ -1784,13 +1780,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		}
 
 		/* effect of player */
-		db += p_ptr->dis_to_d;
+		/* db += p_ptr->dis_to_d; */
 
 		if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > 0) 
 				db += p_ptr->skills[SK_VICIOUS_SHOT].skill_rank;
-
-		if (p_ptr->skills[SK_PYROKINETICS].skill_max > 0) 
-				db += p_ptr->skills[SK_PYROKINETICS].skill_rank/2;
+		
 
 		/* effect of ammo */
 		if (known) db += o_ptr->to_d;
@@ -1811,10 +1805,14 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		/* launcher multiplier */
 		avgdam *= tmul;
 
+		/* no longer using this - it's like a brand now */
+		/* if (p_ptr->skills[SK_PYROKINETICS].skill_max > 0) 
+				avgdam += (p_ptr->skills[SK_PYROKINETICS].skill_rank * 3); */
+
 		/* display (shot damage/ avg damage) */
 		object_desc_chr_macro(t, ' ');
 		object_desc_chr_macro(t, p1);
-		object_desc_num_macro(t, avgdam);
+		object_desc_int_macro(t, avgdam);
 		object_desc_chr_macro(t, '/');
 
 		tmul = p_ptr->num_fire;
@@ -2246,6 +2244,9 @@ char index_to_label(int i)
 	/* Indexes for "inven" are easy */
 	if (i < INVEN_WIELD) return (I2A(i));
 
+	/* Indexes for "inven" are easy */
+	/* if (i == INVEN_LOADEDGUN) return (I2A(A2I('0')) + i - INVEN_LOADEDGUN); */
+	
 	/* Indexes for "equip" are offset */
 	return (I2A(i - INVEN_WIELD));
 }
@@ -2283,7 +2284,17 @@ s16b label_to_equip(int c)
 {
 	int i;
 
+	/* Hack -- handle quiver slots. */
+#if 0
+	if (isdigit(c)) i = (D2I(c) + INVEN_LOADEDGUN);
+
 	/* Convert */
+	else 
+	{
+		i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
+	}
+#endif
+		
 	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
 
 	/* Verify the index */
@@ -2425,6 +2436,12 @@ s16b wield_slot(const object_type *o_ptr)
 			}
 			return (INVEN_FEET);
 		}
+		case TV_AMMO:
+		case TV_BULLET:
+		case TV_SHOT:
+		{
+			return (INVEN_LOADEDGUN);
+		}
 	}
 
 	/* No slot available */
@@ -2487,6 +2504,10 @@ cptr mention_use(int i)
 			}
 			else p = "On feet"; break;
 		}
+		case INVEN_LOADEDGUN:
+		{
+			p = "in gun"; break;
+		}
 		default:          p = "In pack"; break;
 	}
 
@@ -2541,6 +2562,7 @@ cptr describe_use(int i)
 		case INVEN_HEAD:  p = "wearing on your head"; break;
 		case INVEN_HANDS: p = "wearing on your hands"; break;
 		case INVEN_FEET:  p = "wearing on your feet"; break;
+		case INVEN_LOADEDGUN: p = "loaded in your gun"; break;
 		default:          p = "carrying in your pack"; break;
 	}
 
@@ -2769,6 +2791,22 @@ void display_equip(void)
 		/* Examine the item */
 		o_ptr = &inventory[i];
 
+		/* Hack -- never show empty quiver slots. */
+		if ((!o_ptr->k_idx) && (i == INVEN_LOADEDGUN))
+		{
+			/* Clear the line, skip to next slot */
+			Term_erase(0, i - INVEN_WIELD, 255);
+			continue;
+		}
+
+		/* Hack -- never show the "blank" slot. */
+		if (i == INVEN_BLANK)
+		{
+			/* Clear the line, skip to next slot */
+			Term_erase(0, i - INVEN_WIELD, 255);
+			continue;
+		}
+
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
 
@@ -2989,6 +3027,21 @@ void show_equip(void)
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
+
+		/* Hack -- never show empty quiver slots. */
+		if ((!o_ptr->k_idx) && (i == INVEN_LOADEDGUN))
+		{
+			/* Clear the line, skip to next slot */
+			Term_erase(0, i - INVEN_WIELD, 255);
+			continue;
+		}
+		/* Hack -- never show the "blank" slot. */
+		if (i == INVEN_BLANK)
+		{
+			/* Clear the line, skip to next slot */
+			Term_erase(0, i - INVEN_WIELD, 255);
+			continue;
+		}
 
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
@@ -4207,44 +4260,8 @@ void object_info(char *buf, object_type *o_ptr)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-#ifdef DELAY_LOAD_A_TEXT
-
-		int fd;
-
-		/* Build the filename */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "artifact.raw");
-
-		/* Open the "raw" file */
-		fd = fd_open(buf, O_RDONLY);
-
-		/* Use file */
-		if (fd >= 0)
-		{
-			huge pos;
-
-			/* Starting position */
-			pos = a_ptr->text;
-
-			/* Additional offsets */
-			pos += a_head->head_size;
-			pos += a_head->info_size;
-			pos += a_head->name_size;
-
-			/* Seek */
-			fd_seek(fd, pos);
-
-			/* Read a chunk of data */
-			fd_read(fd, buf, sizeof(buf));
-
-			/* Close it */
-			fd_close(fd);
-		}
-
-#else
 		/* If already in memory, simple to access */
 		my_strcpy(buf, a_text + a_ptr->text, 2048);
-
-#endif
 
 		/* Return the description, if any. */
 		return;
@@ -4254,45 +4271,8 @@ void object_info(char *buf, object_type *o_ptr)
 	else
 	{
 
-#ifdef DELAY_LOAD_K_TEXT
-
-		int fd;
-
-		/* Build the filename */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "object.raw");
-
-		/* Open the "raw" file */
-		fd = fd_open(buf, O_RDONLY);
-
-		/* Use file */
-		if (fd >= 0)
-		{
-			huge pos;
-
-			/* Starting position */
-			pos = k_ptr->text;
-
-			/* Additional offsets */
-			pos += k_head->head_size;
-			pos += k_head->info_size;
-			pos += k_head->name_size;
-
-			/* Seek */
-			fd_seek(fd, pos);
-
-			/* Read a chunk of data */
-			fd_read(fd, buf, sizeof(buf));
-
-			/* Close it */
-			fd_close(fd);
-		}
-
-#else
-
 		/* If already in memory, simple to access */
 		strcpy(buf, k_text + k_ptr->text);
-
-#endif
 
 		/* No object description, so return failure. */
 		if (!buf[0]) return;
@@ -4376,45 +4356,9 @@ void object_info(char *buf, object_type *o_ptr)
 			/* First, find the information in memory, or get it from
 			 * the binary file.
 			 */
-#ifdef DELAY_LOAD_E_TEXT
-
-			int fd;
-
-			/* Build the filename */
-			path_build(ebuf, sizeof(ebuf), ANGBAND_DIR_DATA, "ego_item.raw");
-
-			/* Open the "raw" file */
-			fd = fd_open(ebuf, O_RDONLY);
-
-			/* Use file */
-			if (fd >= 0)
-			{
-				huge pos;
-
-				/* Starting position */
-				pos = e_ptr->text;
-
-				/* Additional offsets */
-				pos += e_head->head_size;
-				pos += e_head->info_size;
-				pos += e_head->name_size;
-
-				/* Seek */
-				fd_seek(fd, pos);
-
-				/* Read a chunk of data */
-				fd_read(fd, ebuf, sizeof(ebuf));
-
-				/* Close it */
-				fd_close(fd);
-			}
-
-#else
 
 			/* If already in memory, simple to access */
 			strcpy(ebuf, e_text + e_ptr->text);
-
-#endif
 
 			/* Point to the ego-item information. */
 			egoinfo = ebuf;
@@ -4579,7 +4523,7 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 	int attr_listed = 0;
 	int attr_num = 0;
 
-
+	int num_fire = 0;
 
 	/* Object is not known -- jump straight to the basic information */
 	if (!known) goto basic_info;
@@ -4624,38 +4568,15 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 	/* From do_cmd_fire */
 	if (o_ptr->tval == TV_GUN)
 	{
-		if (o_ptr->sval == SV_DERRINGER) 
-			c_roff(TERM_UMBER, "This pistol has an accurate range of 2 squares.\n");
-		if (o_ptr->sval == SV_32_REVOLVER) 
-			c_roff(TERM_UMBER, "This pistol has an accurate range of 6 squares.\n");
-		if (o_ptr->sval == SV_38_REVOLVER) 
-			c_roff(TERM_UMBER, "This pistol has an accurate range of 6 squares.\n");
-		if (o_ptr->sval == SV_41_REVOLVER) 
-			c_roff(TERM_UMBER, "This pistol has an accurate range of 6 squares.\n");
-		if (o_ptr->sval == SV_45_REVOLVER) 
-			c_roff(TERM_UMBER, "This pistol has an accurate range of 6 squares.\n");
-		if (o_ptr->sval == SV_22_BOLT_ACTION) 
-			c_roff(TERM_UMBER, "This rifle has an accurate range of 10 squares.\n");
-		if (o_ptr->sval == SV_30_LEVER_ACTION) 
-			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
-		if (o_ptr->sval == SV_45_MARTINI_HENRY) 
-			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
-		if (o_ptr->sval == SV_COL_MORAN) 
-			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
-		if (o_ptr->sval == SV_303_LEE_ENFIELD) 
-			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
-		if (o_ptr->sval == SV_ELEPHANT_GUN) 
-			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
-		if (o_ptr->sval == SV_20_GAGUE) 
-			c_roff(TERM_UMBER, "This shotgun has an accurate range of 10 squares.\n");
-		if (o_ptr->sval == SV_SAWED_OFF) 
-			c_roff(TERM_UMBER, "This shotgun has an accurate range of 6 squares.\n");
-		if (o_ptr->sval == SV_16_GAGUE) 
-			c_roff(TERM_UMBER, "This shotgun has an accurate range of 8 squares.\n");
-		if (o_ptr->sval == SV_12_GAGUE) 
-			c_roff(TERM_UMBER, "This shotgun has an accurate range of 6 squares.\n");
-		if (o_ptr->sval == SV_10_GAGUE) 
-			c_roff(TERM_UMBER, "This shotgun has an accurate range of 4 squares.\n");
+		num_fire = o_ptr->num_fire; 
+		num_fire += get_object_pval(o_ptr, TR_PVAL_SHOTS);
+
+		if (o_ptr->ammo_tval == TV_AMMO)
+ 			c_roff(TERM_UMBER, format("This pistol has an accurate range of %d squares and holds %d bullets.\n", o_ptr->range, num_fire));
+		if (o_ptr->ammo_tval == TV_BULLET)
+ 			c_roff(TERM_UMBER, format("This rifle has an accurate range of %d squares and holds %d bullets.\n", o_ptr->range, num_fire));
+		if (o_ptr->ammo_tval == TV_SHOT)
+			c_roff(TERM_UMBER, format("This shotgun has an accurate range of %d squares and holds %d shells.\n", o_ptr->range, num_fire));
 	}
 	
 	/* Magical devices can be damaged  XXX XXX */
@@ -5132,7 +5053,7 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 				if (j == 12) roff(format(" %d%% light", (object_resist(o_ptr, RS_LIT))));
 				if (j == 13) roff(format(" %d%% dark", (object_resist(o_ptr, RS_DRK))));
 				if (j == 14) roff(format(" %d%% psionic", (object_resist(o_ptr, RS_PSI))));
-				if (j == 15) roff(format(" %d%% telekinetic", (object_resist(o_ptr, RS_TLK))));
+				if (j == 15) roff(format(" %d%% forces", (object_resist(o_ptr, RS_TLK))));
 				if (j == 16) roff(format(" %d%% spirit", (object_resist(o_ptr, RS_SPI))));
 			}
 

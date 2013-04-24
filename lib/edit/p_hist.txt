@@ -46,7 +46,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 #	British/French/
 #	Spaniards/German/

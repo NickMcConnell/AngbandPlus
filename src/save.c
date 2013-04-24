@@ -559,6 +559,10 @@ static void wr_item(const object_type *o_ptr)
 	wr_s16b(o_ptr->pval3);
 	wr_u32b(o_ptr->flags_pval3);
 
+	wr_u32b(o_ptr->flags1);
+	wr_u32b(o_ptr->flags2);
+	wr_u32b(o_ptr->flags3);
+	
 	wr_byte(o_ptr->discount);
 
 	wr_byte(o_ptr->number);
@@ -793,6 +797,9 @@ static void wr_options(void)
 	wr_byte(op_ptr->hitpoint_warn);
 
 	wr_u16b(0);	/* oops */
+	
+	/* Write "autosave frequency" */
+	wr_s16b(autosave_freq);
 
 
 	/*** Normal options ***/

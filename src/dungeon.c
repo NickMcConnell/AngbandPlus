@@ -127,175 +127,171 @@ static void sense_inventory(void)
 	if (p_ptr->confused) return;
 
 	if (cp_ptr->flags & CF_PSEUDO_ID1) 
-			delay1 = 150000L / (p_ptr->lev + 5);
+			delay1 = 100000L / (p_ptr->lev + 10);
 	if (cp_ptr->flags & CF_PSEUDO_ID2) 
-			delay1 = 80000L / (p_ptr->lev + 5);
+			delay1 = 60000L / (p_ptr->lev + 10);
 	if (cp_ptr->flags & CF_PSEUDO_ID3) 
 			delay1 = 80000L / ((p_ptr->lev * p_ptr->lev) + 50);
 	if (cp_ptr->flags & CF_PSEUDO_ID4) 
 			delay1 = 10000L / ((p_ptr->lev * p_ptr->lev) + 50);
 
-	delay2 = delay1 / 25;
+	delay2 = delay1 / 40;
 
 	if (delay1 < 5) delay1 = 5;
 	if (delay2 < 3) delay2 = 3;
 
-
 	/* Check to see if detected anything worn */
-	if (rand_int(delay2)) return;
-	
-	/*** Sense your wielded slots ***/
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-		okay = FALSE;
-
-		o_ptr = &inventory[i];
-
-		/* Skip empty slots */
-		if (!o_ptr->k_idx) continue;
-
-		/* Valid "tval" codes */
-		switch (o_ptr->tval)
+	if (!(rand_int(delay2)))
+	{	
+		/*** Sense your wielded slots ***/
+		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
-			case TV_GUN:
-			case TV_DIGGING:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_DAGGER:
-			case TV_AXES:
-			case TV_BLUNT:			
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HELM:
-			case TV_CROWN:
-			case TV_LEG:
-			case TV_CLOAK:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			case TV_MECHA_TORSO:
-			case TV_MECHA_HEAD:
-			case TV_MECHA_ARMS:
-			case TV_MECHA_FEET:
+			okay = FALSE;
+	
+			o_ptr = &inventory[i];
+	
+			/* Skip empty slots */
+			if (!o_ptr->k_idx) continue;
+	
+			/* Valid "tval" codes */
+			switch (o_ptr->tval)
 			{
-				okay = TRUE;
-				break;
-			}
-			case TV_RING:
-			case TV_AMULET:
-			case TV_LITE:
-			{
-				/* It has already been sensed, do not sense it again */
-				if (o_ptr->ident & (IDENT_SENSE))
+				case TV_GUN:
+				case TV_DIGGING:
+				case TV_HAFTED:
+				case TV_POLEARM:
+				case TV_SWORD:
+				case TV_DAGGER:
+				case TV_AXES:
+				case TV_BLUNT:			
+				case TV_BOOTS:
+				case TV_GLOVES:
+				case TV_HELM:
+				case TV_CROWN:
+				case TV_LEG:
+				case TV_CLOAK:
+				case TV_SOFT_ARMOR:
+				case TV_HARD_ARMOR:
+				case TV_DRAG_ARMOR:
+				case TV_MECHA_TORSO:
+				case TV_MECHA_HEAD:
+				case TV_MECHA_ARMS:
+				case TV_MECHA_FEET:
 				{
-					/* Small chance of fully learning the item's abilities */
-					if ((!o_ptr->name1) && !(object_known_p(o_ptr)))
+					okay = TRUE;
+					break;
+				}
+				case TV_RING:
+				case TV_AMULET:
+				case TV_LITE:
+				{
+					/* It has already been sensed, do not sense it again */
+					if (o_ptr->ident & (IDENT_SENSE))
 					{
-						if(!rand_int(1000)) 
+						/* Small chance of fully learning the item's abilities */
+						if ((!o_ptr->name1) && !(object_known_p(o_ptr)))
 						{
-							object_aware(o_ptr);
-							object_known(o_ptr);
-												
-							/* Recalculate bonuses */
-							p_ptr->update |= (PU_BONUS);
-
-							/* Combine / Reorder the pack (later) */
-							p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-					
-							/* Window stuff */
-							p_ptr->window |= (PW_INVEN | PW_EQUIP);
-							/* Description */
-							object_desc(o_name, o_ptr, TRUE, 3);
+							if(!rand_int(delay2)) 
+							{
+								object_aware(o_ptr);
+								object_known(o_ptr);
+													
+								/* Recalculate bonuses */
+								p_ptr->update |= (PU_BONUS);
+	
+								/* Combine / Reorder the pack (later) */
+								p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 						
-							/* Describe - Must be wielded.*/
-							msg_format("%^s: %s (%c).",
-								           describe_use(i), o_name, index_to_label(i));
+								/* Window stuff */
+								p_ptr->window |= (PW_INVEN | PW_EQUIP);
+								/* Description */
+								object_desc(o_name, o_ptr, TRUE, 3);
+							
+								/* Describe - Must be wielded.*/
+								msg_format("%^s: %s (%c).",
+									           describe_use(i), o_name, index_to_label(i));
+							}
 						}
 					}
+					else (o_ptr->ident |= (IDENT_SENSE));				
+					continue;
 				}
-				else (o_ptr->ident |= (IDENT_SENSE));				
+			}
+	
+			/* Skip irrelevant items*/
+			if (!okay) continue;
+	
+			/* It has already been sensed, do not sense it again */
+			if (o_ptr->ident & (IDENT_SENSE)) 
+			{
+				/* Small chance of fully learning the item's abilities */
+				if ((!o_ptr->name1) && !(object_known_p(o_ptr)))
+				{
+					if(!rand_int(delay2)) 
+					{
+						object_aware(o_ptr);
+						object_known(o_ptr);
+											
+						/* Recalculate bonuses */
+						p_ptr->update |= (PU_BONUS);
+	
+						/* Combine / Reorder the pack (later) */
+						p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+				
+						/* Window stuff */
+						p_ptr->window |= (PW_INVEN | PW_EQUIP);
+						/* Description */
+						object_desc(o_name, o_ptr, TRUE, 3);
+					
+						/* Describe - Must be wielded.*/
+						msg_format("%^s: %s (%c).",
+							           describe_use(i), o_name, index_to_label(i));
+					}
+				}
 				continue;
 			}
-		}
-
-		/* Skip non-sense machines */
-		if (!okay) continue;
-
-		/* It already has a discount or special inscription */
-		if ((o_ptr->discount > 0) &&
-		    (o_ptr->discount != INSCRIP_INDESTRUCTIBLE)) continue;
-
-		/* It has already been sensed, do not sense it again */
-		if (o_ptr->ident & (IDENT_SENSE)) 
-		{
-			/* Small chance of fully learning the item's abilities */
-			if ((!o_ptr->name1) && !(object_known_p(o_ptr)))
-			{
-				if(!rand_int(1000)) 
-				{
-					object_aware(o_ptr);
-					object_known(o_ptr);
-										
-					/* Recalculate bonuses */
-					p_ptr->update |= (PU_BONUS);
-
-					/* Combine / Reorder the pack (later) */
-					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-			
-					/* Window stuff */
-					p_ptr->window |= (PW_INVEN | PW_EQUIP);
-					/* Description */
-					object_desc(o_name, o_ptr, TRUE, 3);
-				
-					/* Describe - Must be wielded.*/
-					msg_format("%^s: %s (%c).",
-						           describe_use(i), o_name, index_to_label(i));
-				}
-			}
-			continue;
-		}
-
-
-		/* It is fully known, no information needed */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Indestructible objects are either excellent or terrible */
-		if (o_ptr->discount == INSCRIP_INDESTRUCTIBLE)
-			heavy = TRUE;
-
-		/* Check for a feeling */
-		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
-
-		/* Skip non-feelings */
-		if (!feel) continue;
-
-		/* Stop everything */
-		if (disturb_minor) disturb(0, 0);
-
-		/* Get an object description */
-		object_desc(o_name, o_ptr, FALSE, 0);
-
-		msg_format("You feel the %s (%c) you are %s %s %s...",
-			           o_name, index_to_label(i), describe_use(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
-
-
-		/* Sense the object */
-		o_ptr->discount = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-	}
 	
+			/* It already has a discount or special inscription, except "indestructible" */
+			if ((o_ptr->discount > 0) && !(o_ptr->discount == INSCRIP_INDESTRUCTIBLE)) continue;
+	
+			/* It is fully known, no information needed */
+			if (object_known_p(o_ptr)) continue;
+	
+			/* Indestructible objects are either excellent or terrible */
+			if (o_ptr->discount == INSCRIP_INDESTRUCTIBLE)
+				heavy = TRUE;
+	
+			/* Check for a feeling */
+			feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+	
+			/* Skip non-feelings */
+			if (!feel) continue;
+	
+			/* Get an object description */
+			object_desc(o_name, o_ptr, FALSE, 0);
+	
+			/* The object has been "sensed" */
+			o_ptr->ident |= (IDENT_SENSE);
+	
+			/* Sense the object */
+			o_ptr->discount = feel;
+	
+			msg_format("You feel the %s (%c) you are %s %s %s...",
+				           o_name, index_to_label(i), describe_use(i),
+				           ((o_ptr->number == 1) ? "is" : "are"),
+				           inscrip_text[feel - INSCRIP_NULL]);
+	
+	
+			/* Stop everything */
+			if (disturb_minor) disturb(0, 0);
+	
+			/* Combine / Reorder the pack (later) */
+			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		}
+	}
 	
 	/* Check to see if detected anything in the pack */
 	if (rand_int(delay1)) return;
@@ -343,12 +339,11 @@ static void sense_inventory(void)
 			}
 		}
 
-		/* Skip non-sense machines */
+		/* Skip irrelevant items */
 		if (!okay) continue;
 
-		/* It already has a discount or special inscription */
-		if ((o_ptr->discount > 0) &&
-		    (o_ptr->discount != INSCRIP_INDESTRUCTIBLE)) continue;
+		/* It already has a discount or special inscription, except "indestructible" */
+		if ((o_ptr->discount > 0) && !(o_ptr->discount == INSCRIP_INDESTRUCTIBLE)) continue;
 
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
@@ -369,22 +364,22 @@ static void sense_inventory(void)
 		/* Skip non-feelings */
 		if (!feel) continue;
 
-		/* Stop everything */
-		if (disturb_minor) disturb(0, 0);
-
 		/* Get an object description */
 		object_desc(o_name, o_ptr, FALSE, 0);
-
-		msg_format("You feel the %s (%c) in your pack %s %s...",
-					o_name, index_to_label(i),
-					((o_ptr->number == 1) ? "is" : "are"),
-					inscrip_text[feel - INSCRIP_NULL]);
 
 		/* Sense the object */
 		o_ptr->discount = feel;
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
+
+		msg_format("You feel the %s (%c) in your pack %s %s...",
+					o_name, index_to_label(i),
+					((o_ptr->number == 1) ? "is" : "are"),
+					inscrip_text[feel - INSCRIP_NULL]);
+
+		/* Stop everything */
+		if (disturb_minor) disturb(0, 0);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -457,7 +452,7 @@ static void regenwp(int percent)
 	int old_cwp = p_ptr->cwp;
 
 	/* Multiply max HP by "amount", then add the base regeneration */
-	temp = ((long)p_ptr->mwp) * percent + PY_REGEN_HPBASE;
+	temp = ((long)p_ptr->mwp) * percent + PY_REGEN_WPBASE;
 	
 	/* Add stored fractional regeneration */
 	temp += p_ptr->cwp_frac;
@@ -547,6 +542,19 @@ static void regenmana(int percent)
  * hit point percentage. (if you're at 3/10 wound points, and fullhps, your 
  * fate will likely be at below 0. (40-30-50)
  *
+ * Because I'm a dick (and other factors) the fate roll now has values
+ * from 0-120 (possibly higher or lower) with numbers weighted at 60,
+ * producing numbers 40-80 70% (66%) of the time. It still has the 
+ * percents subtrated from it. The reason this change was made is
+ * that it was damaging a percentage of *total* hit points, instead
+ * of a percentage of *current* points. It's now likely to be less
+ * total damage, but now it will happen ever slighly more often. 12/3/07
+ *
+ * Notes on standard deivation. Values within 1 standard deivation
+ * occur 66% of the time. Values within 2 standard deivations occur
+ * 95% of the time. Values within 3 standard deivations occur 99.7%
+ * of the time. Any values of s16b are possible.
+ * 
  */
  
 static void wheel_of_pain(void)
@@ -555,10 +563,22 @@ static void wheel_of_pain(void)
 	
 	int pain_tolerance = 0;
 	
+	bool automata;
+	
 	if (p_ptr->skills[SK_PAIN_TOLERANCE].skill_max > 0)
 	{
 		pain_tolerance = p_ptr->skills[SK_PAIN_TOLERANCE].skill_rank;
 	}
+
+	
+	/* determine living state */
+	if ((p_ptr->prace == RACE_AUTOMATA) || 
+		(p_ptr->prace == RACE_STEAM_MECHA))
+	{
+		automata = TRUE;
+	}
+	else automata = FALSE;
+
 	
 	/* Percent is the % of remaining wound points */
 	percent = 100 * p_ptr->cwp / p_ptr->mwp;
@@ -578,7 +598,7 @@ static void wheel_of_pain(void)
 		{
 	
 			/* Get a fate roll */
-			fate = Rand_normal(60, 15) - percent - (hp_percent/2) - (pain_tolerance * 2);
+			fate = Rand_normal(60, 20) - percent - (hp_percent/2) - (pain_tolerance * 2);
 
 
 			if (fate < 0)
@@ -593,7 +613,7 @@ static void wheel_of_pain(void)
 				message(MSG_BELL, 0, "Your wounds ache.");
 		
 				/* find out the damage */
-				dam = p_ptr->mhp / 10;
+				dam = (p_ptr->chp * 10 / 100) + 1;
 				
 				take_hit(dam, "your wounds", FALSE);	
 			}
@@ -603,7 +623,7 @@ static void wheel_of_pain(void)
 				disturb(1, 0);
 	
 				/* find out the damage */
-				dam = p_ptr->mhp / 10;
+				dam = (p_ptr->chp * 10 / 100) + 2;
 	
 				message(MSG_BELL, 0, "You start bleeding from your wounds.");
 				(void)set_cut(p_ptr->cut + (dam) + 2);
@@ -615,9 +635,15 @@ static void wheel_of_pain(void)
 
 				message(MSG_BELL, 0, "Your wounds sap your strength.");
 
-				dec_stat(A_VIG, rand_range(20, 40), FALSE);
-				dec_stat(A_MUS, rand_range(10, 20), FALSE);
-				
+				if (automata)
+				{
+						automata_equipment_decay(randint(2));
+				}
+				else
+				{
+						dec_stat(A_VIG, rand_range(20, 40), FALSE);
+						dec_stat(A_MUS, rand_range(10, 20), FALSE);
+				}		
 			}
 			else if (fate < 40)
 			{
@@ -627,7 +653,7 @@ static void wheel_of_pain(void)
 				message(MSG_BELL, 0, "Your wounds hurt.");
 
 				/* find out the damage */
-				dam = p_ptr->mhp / 30;
+				dam = (p_ptr->chp * 30 / 100) + 5;
 				
 				take_hit(dam, "your wounds", TRUE);
 			}
@@ -636,10 +662,18 @@ static void wheel_of_pain(void)
 				/* Disturb */
 				disturb(1, 0);
 				
-				message(MSG_BELL, 0, "Your wounds sap your strength.");
-				dec_stat(A_VIG, rand_range(40, 80), FALSE);
-				dec_stat(A_MUS, rand_range(20, 40), FALSE);
+
+				if (automata)
+				{
+						automata_equipment_decay(2 + randint(2));
+				}
+				else
+				{
+						message(MSG_BELL, 0, "Your wounds sap your strength.");
 				
+						dec_stat(A_VIG, rand_range(40, 80), FALSE);
+						dec_stat(A_MUS, rand_range(20, 40), FALSE);
+				}						
 			}
 			else if (fate < 70)
 			{
@@ -649,7 +683,7 @@ static void wheel_of_pain(void)
 				message(MSG_BELL, 0, "Your wounds hurt!");
 	
 				/* find out the damage */
-				dam = p_ptr->mhp / 50;
+				dam = (p_ptr->chp * 50 / 100) + 10;
 				
 				take_hit(dam, "your wounds", TRUE);
 			}
@@ -658,10 +692,18 @@ static void wheel_of_pain(void)
 				/* Disturb */
 				disturb(1, 0);
 				
-				message(MSG_BELL, 0, "Your wounds sap your strength.");
+				
+				if (automata)
+				{
+						automata_equipment_decay(4 + randint(4));
+				}
+				else
+				{
+						message(MSG_BELL, 0, "Your wounds sap your strength.");
 
-				dec_stat(A_VIG, rand_range(80, 120), FALSE);
-				dec_stat(A_MUS, rand_range(40, 80), FALSE);
+						dec_stat(A_VIG, rand_range(80, 120), FALSE);
+						dec_stat(A_MUS, rand_range(40, 80), FALSE);
+				}						
 			}
 			else
 			{
@@ -669,9 +711,9 @@ static void wheel_of_pain(void)
 				disturb(1, 0);
 	
 				/* find out the damage */
-				dam = p_ptr->mhp / 40;
+				dam = (p_ptr->chp * 40 / 100) + 5;
 	
-				message(MSG_BELL, 0, "You start bleeding from your wounds.");
+				message(MSG_BELL, 0, "Your wounds break open and start bleeding!");
 
 				(void)set_cut(p_ptr->cut + (dam * 2));
 			}
@@ -687,10 +729,11 @@ static void process_world(void)
 	int i, j;
 	u32b f1, f2, f3;
 	u32b p1, p2, p3;
-
+	int k = 0;
 
 	int regen_amount, mutiplier;
 	int upkeep_factor = 0;
+	int monster_creation_chance = MAX_M_ALLOC_CHANCE;
 	object_type *o_ptr;
 
 	player_flags(&p1, &p2, &p3);
@@ -753,6 +796,14 @@ static void process_world(void)
 		}
 	}
 
+	/*** Attempt timed autosave.  From Zangband. ***/
+	if (autosave_freq)
+	{
+		if (!(turn % (autosave_freq * 10L)))
+		{
+			do_cmd_save_game(TRUE);
+		}
+	}
 
 	/*** Update quests ***/
 	if ((p_ptr->cur_quest) && !(turn % (10L * QUEST_TURNS)))
@@ -826,9 +877,24 @@ static void process_world(void)
 
 
 	/*** Process the monsters ***/
+	/*** Vary Monster Intensity between three states ***/
+	if (turn % 1000)
+	{
+			k++;
+			if (k = 1) monster_creation_chance = MAX_M_ALLOC_CHANCE + 50;
+			else if (k = 2) monster_creation_chance = MAX_M_ALLOC_CHANCE;
+			else if (k = 3) monster_creation_chance = MAX_M_ALLOC_CHANCE - 50;
+			else if (k = 4) monster_creation_chance = MAX_M_ALLOC_CHANCE + 75;
+			else if (k = 5) monster_creation_chance = MAX_M_ALLOC_CHANCE;
+			else 
+			{
+					monster_creation_chance = MAX_M_ALLOC_CHANCE - 75;
+					k = 0;
+			}
+	}	
 
 	/* Check for creature generation */
-	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
+	if (rand_int(monster_creation_chance) == 0)
 	{
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
@@ -942,7 +1008,8 @@ static void process_world(void)
 			if (i > 150) i = 150;
 			
 			/* What's a stomach? */
-			if (p_ptr->prace == RACE_OLD_ONE) i = 0;
+			if (p_ptr->prace == RACE_OLD_ONE) 
+				(void)set_food(PY_FOOD_FULL - 1);
 			
 			/* Digest some food */
 			(void)set_food(p_ptr->food - i);
@@ -1011,34 +1078,37 @@ static void process_world(void)
 	/* Regeneration ability */
 	if (p_ptr->regenerate_25)
 	{
-		mutiplier += 5;
+		mutiplier += 2;
 	}
 	if (p_ptr->regenerate_50)
 	{
-		mutiplier += 10;
+		mutiplier += 4;
 	}
 	if (p_ptr->regenerate_75)
 	{
-		mutiplier += 15;
+		mutiplier += 6;
 	}
 	if (p_ptr->skills[SK_SPIRIT_HEALING].skill_max > 0)
 	{
-		mutiplier += (p_ptr->skills[SK_SPIRIT_HEALING].skill_rank / 2) + 1;
+		mutiplier += (((p_ptr->skills[SK_SPIRIT_HEALING].skill_rank / 5) + 1));
 	}
 	if (p_ptr->skills[SK_WATER_LORE].skill_max > 1)
 	{
-		mutiplier += (p_ptr->skills[SK_WATER_LORE].skill_rank + 1 / 3);
+		mutiplier += (((p_ptr->skills[SK_WATER_LORE].skill_rank + 4) / 6));
 	}
 	if (p_ptr->skills[SK_WATER_MASTERY].skill_max > 1)
 	{
-		mutiplier += (p_ptr->skills[SK_WATER_MASTERY].skill_rank / 2);
+		mutiplier += ((p_ptr->skills[SK_WATER_MASTERY].skill_rank / 5));
 	}
 	if (p_ptr->skills[SK_BATTLE_ENDURANCE].skill_max > 1)
 	{
-		mutiplier += (p_ptr->skills[SK_BATTLE_ENDURANCE].skill_rank / 2);
+		mutiplier += ((p_ptr->skills[SK_BATTLE_ENDURANCE].skill_rank / 5));
 	}
 	
-	regen_amount = regen_amount * mutiplier;
+	/* You're going to get a number for a mutiplier between 1-20 or so */
+	/* Take regen amount (currently 66) and add between 20-200% of that number */
+	/* to itself, regen rate then = 66-198 or thereabouts, or the in-town regen # */
+	if (mutiplier > 1) regen_amount = regen_amount + ((regen_amount * mutiplier) / 100);
 	
 	/* Searching or Resting */
 	if (p_ptr->searching || p_ptr->resting)
@@ -1824,7 +1894,7 @@ static void process_command(void)
 		/* Destroy an item */
 		case 'k':
 		{
-			do_cmd_destroy();
+			do_cmd_destroy(0);
 			break;
 		}
 
@@ -2291,7 +2361,7 @@ static void process_command(void)
 		/* Hack -- Save and don't quit */
 		case KTRL('S'):
 		{
-			do_cmd_save_game();
+			do_cmd_save_game(FALSE);
 			break;
 		}
 
@@ -2338,6 +2408,18 @@ static void process_command(void)
 			break;
 		}
 
+ #if 0
+ 		/* Switch monster memory format */
+		case '\t':
+		{
+			if (p_ptr->monster_mem_fmt == FALSE)
+				p_ptr->monster_mem_fmt = TRUE;
+			else
+				p_ptr->monster_mem_fmt = FALSE;
+			p_ptr->window |= (PW_MONSTER);
+			break;
+		}
+#endif
 		/* Hack -- Unknown command */
 		default:
 		{
@@ -3291,7 +3373,7 @@ void play_game(bool new_game)
 	}
 
 	/* Forbid resizing */
-	Term->fixed_shape = TRUE;
+	/* Term->fixed_shape = TRUE; */
 
 
 	/* Hack -- Turn off the cursor */

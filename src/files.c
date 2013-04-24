@@ -1156,22 +1156,22 @@ static cptr likert(int x, int y)
 			return ("Very Good");
 		case 8:
 		{
-			likert_color = TERM_L_GREEN;
+			likert_color = TERM_WHITE;
 			return ("Excellent");
 		}
 		case 9:
-			likert_color = TERM_L_GREEN;
+			likert_color = TERM_WHITE;
 			return ("Champion");
 		case 10:
 		case 11:
 		{
-			likert_color = TERM_L_GREEN;
+			likert_color = TERM_WHITE;
 			return ("First-rate");
 		}
 		case 12:
 		case 13:
 		{
-			likert_color = TERM_L_GREEN;
+			likert_color = TERM_WHITE;
 			return ("Superb");
 		}
 		case 14:
@@ -1237,6 +1237,7 @@ static void display_player_xtra_info(void)
 	int muta_att = 0;
 
 	object_type *o_ptr;
+	object_type *j_ptr;
 
 	cptr desc;
 
@@ -1254,10 +1255,9 @@ static void display_player_xtra_info(void)
 	if (p_ptr->muta4 & MUT4_TUSKS) muta_att++;
 	if (p_ptr->muta4 & MUT4_CLAWS) muta_att++;
 	if (p_ptr->muta4 & MUT4_TENTACLES) muta_att++;
-	if (p_ptr->muta4 & MUT4_ALPHA_SPURS) muta_att++;
-	if (p_ptr->muta4 & MUT4_BETA_SPURS) muta_att++;
-	if (p_ptr->muta4 & MUT4_GAMMA_SPURS) muta_att++;
-	if (p_ptr->muta4 & MUT4_DELTA_SPURS) muta_att++;
+	// these exclude eachother
+	if (p_ptr->muta4 & MUT4_ALPHA_SPURS || p_ptr->muta4 & MUT4_BETA_SPURS || 
+		p_ptr->muta4 & MUT4_GAMMA_SPURS || p_ptr->muta4 & MUT4_DELTA_SPURS) muta_att++;
 	
 
 	/* Upper middle */
@@ -1371,8 +1371,8 @@ static void display_player_xtra_info(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = p_ptr->dis_to_d;
+	hit = wphit = p_ptr->dis_to_h;
+	dam = wpdam = p_ptr->dis_to_d;
 	sthit = ((int)((p_ptr->stat_use[A_AGI] / 60) - 3));
 	sthit += ((int)((p_ptr->stat_use[A_MUS] / 60) - 3));
 	stdam = ((int)((p_ptr->stat_use[A_MUS] / 40) - 3));
@@ -1380,12 +1380,15 @@ static void display_player_xtra_info(void)
 		skhit = p_ptr->skills[SK_ACC_STRIKE].skill_rank;
 	if ((p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > 0) && (o_ptr->k_idx > 0)) 
 		skdam = p_ptr->skills[SK_VICIOUS_STRIKE].skill_rank;
-	if ((p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0) && (o_ptr->k_idx > 0)) 
-		skdam += p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank;		
-	else if (p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0)
-		skdam += (p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank * 2);		
+	if (p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0)
+		skdam += (p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank);		
 	if (object_known_p(o_ptr)) wphit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) wpdam += o_ptr->to_d;	
+	
+	/* Hack -- subtract out stat bonuses to get total affect from equipment */
+	wphit -= ((int)((p_ptr->stat_use[A_AGI] / 60) - 3));
+	wphit -= ((int)((p_ptr->stat_use[A_MUS] / 60) - 3));
+	wpdam -= ((int)((p_ptr->stat_use[A_MUS] / 40) - 3));
 	
 	/* Apply weapon bonuses */
 	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
@@ -1394,10 +1397,8 @@ static void display_player_xtra_info(void)
 			hit += p_ptr->skills[SK_ACC_STRIKE].skill_rank;
 	if ((p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > 0) && (o_ptr->k_idx > 0)) 
 			dam += p_ptr->skills[SK_VICIOUS_STRIKE].skill_rank;
-	if ((p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0) && (o_ptr->k_idx > 0)) 
-		dam += p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank;		
-	else if (p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0)
-		dam += (p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank * 2);		
+  if (p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0)
+		dam += (p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank);		
 	
 
 	/* Melee attacks */
@@ -1408,7 +1409,7 @@ static void display_player_xtra_info(void)
 	Term_putstr(col, 16, -1, TERM_WHITE, "Melee");
 	Term_putstr(col+9, 15, -1, TERM_WHITE, "Stat");	
 	Term_putstr(col+18, 15, -1, TERM_WHITE, "Skill");
-	Term_putstr(col+28, 15, -1, TERM_WHITE, "Weap.");
+	Term_putstr(col+28, 15, -1, TERM_WHITE, "Equip.");
 	Term_putstr(col+38, 15, -1, TERM_WHITE, "Total");				
 	Term_putstr(col+5, 16, -1, TERM_L_BLUE, format("%10s", stbuf)); 
 	Term_putstr(col+15, 16, -1, TERM_L_BLUE, format("%10s", skbuf)); 
@@ -1418,35 +1419,51 @@ static void display_player_xtra_info(void)
 
 	/* Range weapon */
 	o_ptr = &inventory[INVEN_GUN];
+	/* Range weapon ammo*/
+	j_ptr = &inventory[INVEN_LOADEDGUN];
 
 	/* Clear the calculated values */
-	skhit = skdam = sthit = stdam = wphit = wpdam = 0;
+	hit = dam = skhit = skdam = sthit = stdam = wphit = wpdam = 0;
 
 	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = 0;
+	hit = wphit = p_ptr->dis_to_h;
+	/* dam = wpdam = p_ptr->dis_to_d; */
 	sthit = ((int)((p_ptr->stat_use[A_AGI] / 60) - 3));
 	sthit += ((int)((p_ptr->stat_use[A_MUS] / 60) - 3));
+		
 	stdam = 0;
 	if (p_ptr->skills[SK_ACC_SHOT].skill_max > 0) skhit = p_ptr->skills[SK_ACC_SHOT].skill_rank;
-	if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > 0) skdam = p_ptr->skills[SK_VICIOUS_SHOT].skill_rank;
-	if (p_ptr->skills[SK_PYROKINETICS].skill_max > 0) skdam = p_ptr->skills[SK_PYROKINETICS].skill_rank/2;
+	if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > 0) skdam += p_ptr->skills[SK_VICIOUS_SHOT].skill_rank;
+	if (p_ptr->skills[SK_PYROKINETICS].skill_max > 0) skdam += p_ptr->skills[SK_PYROKINETICS].skill_rank * 3;
 	if (object_known_p(o_ptr)) wphit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) wpdam += o_ptr->to_d;	
+	if (object_known_p(j_ptr)) wphit += j_ptr->to_h;
+	if (object_known_p(j_ptr)) wpdam += j_ptr->to_d;	
 
 	/* Apply weapon bonuses */
 	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if (object_known_p(j_ptr)) hit += j_ptr->to_h;
+	if (object_known_p(j_ptr)) dam += j_ptr->to_d;	
+
 	/* Skills that affect display flags */
 	if (p_ptr->skills[SK_ACC_SHOT].skill_max > 0) hit += p_ptr->skills[SK_ACC_SHOT].skill_rank;
 	if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > 0) dam += p_ptr->skills[SK_VICIOUS_SHOT].skill_rank;
-	if (p_ptr->skills[SK_PYROKINETICS].skill_max > 0) dam += p_ptr->skills[SK_PYROKINETICS].skill_rank/2;
+	if (p_ptr->skills[SK_PYROKINETICS].skill_max > 0) dam += p_ptr->skills[SK_PYROKINETICS].skill_rank * 3;
+
+	/* Hack -- subtract out stat bonuses to get total affect from equipment */
+	wphit -= ((int)((p_ptr->stat_use[A_AGI] / 60) - 3));
+	wphit -= ((int)((p_ptr->stat_use[A_MUS] / 60) - 3));
+#if 0
+	wpdam -= ((int)((p_ptr->stat_use[A_MUS] / 40) - 3));
+	dam -= ((int)((p_ptr->stat_use[A_MUS] / 40) - 3));
+#endif
 
 	/* Range attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
 	sprintf(stbuf, "(%+d,%+d)", sthit, stdam);
 	sprintf(skbuf, "(%+d,%+d)", skhit, skdam);
 	sprintf(wpbuf, "(%+d,%+d)", wphit, wpdam);
+	sprintf(buf, "(%+d,%+d)", hit, dam);
 	Term_putstr(col,    17, -1, TERM_WHITE, "Shoot");
 	Term_putstr(col+5,  17, -1, TERM_L_BLUE, format("%10s", stbuf)); 
 	Term_putstr(col+15, 17, -1, TERM_L_BLUE, format("%10s", skbuf)); 
@@ -1637,11 +1654,13 @@ static void display_player_xtra_info(void)
 	
 	/* Saving throw */
 	xsav = p_ptr->skill_sav;
+#if 0
+	/*this is actually already included into the p_ptr->skill_sav*/
 	if (p_ptr->skills[SK_SAVETH_BNUS].skill_max > 0) 
 	{
 		xsav += p_ptr->skills[SK_SAVETH_BNUS].skill_rank;
 	}
-
+#endif
 	/* Stealth */
 	if (p_ptr->skills[SK_STEALTH_GOOD].skill_max > 0) 
 	{
@@ -1766,6 +1785,7 @@ static void display_player_xtra_info(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
+
 void player_flags(u32b *f1, u32b *f2, u32b *f3)
 {
 	/* Clear */
@@ -1784,10 +1804,25 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	(*f2) |= rp_ptr->flags2;
 	(*f3) |= rp_ptr->flags3;
 
+	/* Add class flags */
 	if (cp_ptr->flags & CF_BRAVERY_30)
 	{
 		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
 	}
+	
+	/* add mutation flags */
+	
+	/* XCCCX I should do this */
+	
+	/* add steamware flags */
+	if (p_ptr->muta6 & MUT6_DELTA_EYES)
+	{
+		(*f2) |= (TR2_SEE_INVIS);
+		(*f2) |= (TR2_RES_BLIND);
+	} 
+	
+	
+	
 }
 
 
@@ -1805,7 +1840,7 @@ static void display_player_equippy(int y, int x)
 
 
 	/* Dump equippy chars */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	for (i = INVEN_WIELD; i < INVEN_SUBTOTAL; ++i)
 	{
 		/* Object */
 		o_ptr = &inventory[i];
@@ -1936,7 +1971,7 @@ static void display_player_flag_info(void)
 			if (flag_list[x][y].set > 0)
 			{
 				/* Check equipment */
-				for (n = 10, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
+				for (n = 10, i = INVEN_WIELD; i < INVEN_SUBTOTAL; ++i, ++n)
 				{
 					attr1 = TERM_SLATE;
 					attr2 = TERM_WHITE;
@@ -2010,6 +2045,8 @@ static void display_player_resists_info(void)
 	int row, col;
 	object_type *o_ptr;
 
+	u32b f1, f2, f3;
+
 	byte attr1, attr2;
 
 	c_put_str(TERM_WHITE, "Resistances:", 13, 2);
@@ -2022,11 +2059,11 @@ static void display_player_resists_info(void)
 
 		/* Display */
 		if (p_ptr->dis_res[i])
-		{
+ 		{ 
 			prt(format("%s:", resist_names_short[i]), row + (j % ((RS_MAX + 2) / 3)), col);
 
 			/* Check equipment */
-			for (n = 10, k = INVEN_WIELD; k < INVEN_TOTAL; ++k, ++n)
+			for (n = 10, k = INVEN_WIELD; k < INVEN_SUBTOTAL; ++k, ++n)
 			{
 				attr1 = TERM_SLATE;
 				attr2 = TERM_WHITE;
@@ -2034,8 +2071,15 @@ static void display_player_resists_info(void)
 				/* Object */
 				o_ptr = &inventory[k];
 
+				/* Get object attributes */
+				object_flags(o_ptr, &f1, &f2, &f3);
+
 				/* different colour for unlit lanterns */
-				if ((o_ptr->tval == TV_LITE) && (!o_ptr->timeout)) attr2 = TERM_SLATE;
+				/* Take into account light scources not */
+				/* needing fuel. -CJN- */
+				if ((o_ptr->tval == TV_LITE) && (!o_ptr->timeout)
+				    && (!(f3 & (TR3_NO_FUEL)))) 
+					attr2 = TERM_SLATE;
 
 				/* Color columns by parity */
 				if (k % 2) attr1 = TERM_L_WHITE;
@@ -2120,7 +2164,16 @@ static void display_player_resists_info(void)
 			{
 				if (i == RS_WTR) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
 			}
-
+			if (p_ptr->muta6 & MUT6_GAMMA_EYES)
+			{
+				if (i == RS_LIT) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);			
+				if (i == RS_DRK) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+			}
+			else if (p_ptr->muta6 & MUT6_DELTA_EYES)
+			{
+				if (i == RS_LIT) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);			
+				if (i == RS_DRK) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+			}
 			n++;
 
 			/* Temporary Resist */
@@ -2299,7 +2352,7 @@ extern void display_player_stat_info(void)
 	}
 
 	/* Process equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	for (i = INVEN_WIELD; i < INVEN_SUBTOTAL; ++i)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
@@ -2745,6 +2798,10 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "%s\n", buf);
 	}
 
+	if (p_ptr->wonderland || p_ptr->was_wonderland)
+	{
+		fprintf(fff, "You started the game in wonderland.\n\n");
+	}
 	
 	/* If dead, dump last messages -- Prfnoff */
 	if (p_ptr->is_dead)
@@ -3545,10 +3602,10 @@ void do_cmd_suicide(void)
 /*
  * Save the game
  */
-void do_cmd_save_game(void)
+void do_cmd_save_game(bool is_autosave)
 {
 	/* Disturb the player */
-	disturb(1, 0);
+	if (!is_autosave) disturb(1, 0);
 
 	/* Clear messages */
 	message_flush();
@@ -3557,7 +3614,8 @@ void do_cmd_save_game(void)
 	handle_stuff();
 
 	/* Message */
-	prt("Saving game...", 0, 0);
+	if (!is_autosave) prt("Saving game...", 0, 0);
+	else							prt("Autosaving the game...", 0, 0);
 
 	/* Refresh */
 	Term_fresh();
@@ -3568,6 +3626,9 @@ void do_cmd_save_game(void)
 	/* Forbid suspend */
 	signals_ignore_tstp();
 
+	/* Hack -- temporarily advance the turn count XXX */
+	if (is_autosave) turn++;
+	
 	/* Save the player */
 	if (save_player())
 	{
@@ -3579,6 +3640,9 @@ void do_cmd_save_game(void)
 	{
 		prt("Saving game... failed!", 0, 0);
 	}
+	
+	/* Hack -- restore the turn count XXX */
+	if (is_autosave) turn--;
 
 	/* Allow suspend again */
 	signals_handle_tstp();
@@ -3779,7 +3843,8 @@ static void print_tomb(void)
 	center_string(buf, tmp);
 	put_str(buf, 13, 11);
 
-	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
+	if (depth_in_feet) sprintf(tmp, "Killed on Level %d", 2550-(p_ptr->depth * 50));
+	else sprintf(tmp, "Killed on Level %d", 51-(p_ptr->depth));
 	center_string(buf, tmp);
 	put_str(buf, 14, 11);
 
@@ -4219,8 +4284,8 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			sprintf(out_val, "               Killed by %s on %s %d",
 			        the_score.how, "Dungeon Level", 50-cdun);
 
-			/* Hack -- some people die in the town */
-			if (!cdun)
+			/* Hack -- some people die in the town - which is now level 51*/
+			if (cdun > 50)
 			{
 				sprintf(out_val, "               Killed by %s in the Town",
 				        the_score.how);
@@ -4415,9 +4480,9 @@ static errr enter_score(void)
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
+	sprintf(the_score.cur_dun, "%3d", 51-p_ptr->depth);
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
+	sprintf(the_score.max_dun, "%3d", 51-p_ptr->max_depth);
 
 	/* Save the cause of death (31 chars) */
 	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
@@ -4539,9 +4604,9 @@ errr predict_score(void)
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", 50-p_ptr->depth);
+	sprintf(the_score.cur_dun, "%3d", 51-p_ptr->depth);
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
-	sprintf(the_score.max_dun, "%3d", 50-p_ptr->max_depth);
+	sprintf(the_score.max_dun, "%3d", 51-p_ptr->max_depth);
 
 	/* Hack -- no cause of death */
 	strcpy(the_score.how, "nobody (yet!)");
@@ -4857,7 +4922,7 @@ void close_game(void)
 	else
 	{
 		/* Save the game */
-		do_cmd_save_game();
+		do_cmd_save_game(FALSE);
 
 		/* Prompt for scores XXX XXX XXX */
 		prt("Press Return (or Escape).", 0, 40);

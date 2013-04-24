@@ -70,8 +70,9 @@
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
  * Hack -- This option will not work on most BSD machines
+ * But it *will* work on Linux, which is not System V. -uav 
  */
-#ifdef SYS_V
+#if defined (SYS_V) || defined(linux)
 # define USE_CURS_SET
 #endif
 
@@ -194,20 +195,9 @@
 
 
 /*
- * OPTION: Allow characteres to be "auto-rolled"
- */
-#define ALLOW_AUTOROLLER
-
-
-/*
  * OPTION: Allow monsters to "flee" when hit hard
  */
 #define ALLOW_FEAR
-
-/*
- * OPTION: Allow monsters to "flee" from strong players
- */
-#define ALLOW_TERROR
 
 
 /*
@@ -216,13 +206,6 @@
  * It should be usually be defined anyway to allow easy "updating".
  */
 #define ALLOW_TEMPLATES
-
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
 
 
 /*
@@ -245,44 +228,6 @@
  * OPTION: Make floor stacks easy.
  */
 #define ALLOW_EASY_FLOOR
-
-
-/* per MPW files
- * OPTION: Delay the loading of the "f_text" array until it is actually
- * needed, saving ~1K, since "feature" descriptions are unused.
- */
-/* #define DELAY_LOAD_F_TEXT */
-
-/*
- * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ~1K, since "object" descriptions are unused.
- */
-/* #define DELAY_LOAD_K_TEXT */
-
-/*
- * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ~1K, since "artifact" descriptions are unused.
- */
-/* #define DELAY_LOAD_A_TEXT */
-
-/*
- * OPTION: Delay the loading of the "e_text" array until it is actually
- * needed, saving ~1K, since "ego-item" descriptions are unused.
- */
-/* #define DELAY_LOAD_E_TEXT */
-
-
-/*
- * OPTION: Delay the loading of the "r_text" array until it is actually
- * needed, saving ~60K, but "simplifying" the "monster" descriptions.
- */
-/* #define DELAY_LOAD_R_TEXT */
-
-/*
- * OPTION: Delay the loading of the "v_text" array until it is actually
- * needed, saving ~1K, but "destroying" the "vault" generation.
- */
-/* #define DELAY_LOAD_V_TEXT */
 
 
 /*
@@ -322,28 +267,6 @@
 
 
 /*
- * OPTION: Allow use of the "smart_monsters" and "smart_packs"
- * software options, which attempt to make monsters smarter.
- *
- * AI code by Keldon Jones (keldon@umr.edu), modified by Julian
- * Lighton (jl8e@fragment.com).
- */
-#define MONSTER_AI
-
-
-/*
- * OPTION: Support multiple "player" grids in "map_info()"
- */
-/* #define MAP_INFO_MULTIPLE_PLAYERS */
-
-
-/*
- * OPTION: Use the "complex" wall illumination code
- */
-/* #define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
-
-
-/*
  * OPTION: Gamma correct colours (with X11)
  */
 #define SUPPORT_GAMMA
@@ -354,21 +277,6 @@
  */
 
 #define CHECK_MODIFICATION_TIME
-
-
-/*
- * OPTION: Enable the "smart_learn" and "smart_cheat" options.
- * They let monsters make more "intelligent" choices about attacks
- * (including spell attacks) based on their observations of the
- * player's reactions to previous attacks.  The "smart_cheat" option
- * lets the monster know how the player would react to an attack
- * without actually needing to make the attack.  The "smart_learn"
- * option requires that a monster make a "failed" attack before
- * learning that the player is not harmed by that attack.
- *
- * This adds about 3K to the memory and about 5K to the executable.
- */
-#define DRS_SMART_OPTIONS
 
 
 /*
@@ -554,17 +462,11 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
-# undef ALLOW_TERROR
-# undef DRS_SMART_OPTIONS
 # undef GJW_RANDART
-# undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
-# undef MONSTER_AI
-# undef DELAY_LOAD_R_TEXT
-# define DELAY_LOAD_R_TEXT
 #endif
 */
 

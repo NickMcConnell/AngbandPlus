@@ -310,7 +310,7 @@ static errr Term_xtra_sla(int n, int v)
 /*
  * Actually MOVE the hardware cursor
  */
-static errr Term_curs_sla(int x, int y, int z)
+static errr Term_curs_sla(int x, int y)
 {
 	/* Literally move the cursor */
 	SLsmg_gotorc(y, x);
@@ -363,7 +363,7 @@ static errr Term_text_sla(int x, int y, int n, byte a, cptr s)
  */
 errr init_sla(void)
 {
-	int i, err;
+	int err;
 
 	term *t = &term_screen_body;
 
@@ -378,7 +378,7 @@ errr init_sla(void)
 	SLtt_get_terminfo();
 
 	/* Initialize some more */
-	if (SLsmg_init_smg() == 0)
+	if (SLsmg_init_smg() != 0)
 	{
 		quit("Could not get virtual display memory");
 	}

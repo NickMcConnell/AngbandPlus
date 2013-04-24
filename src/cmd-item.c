@@ -427,7 +427,11 @@ void use_object(int tval)
 	(void)do_object(OBJECT_USE, o_ptr);
 
 	/* We have tried it */
-	object_tried(o_ptr);
+	/* RMG: currently there are only "normal" food items with no side effects so no "trying" them */
+	if (o_ptr->tval != TV_FOOD)
+	{
+		object_tried(o_ptr);
+	}
 
 	/* Always have some chance to learn about the object */
 	if (!obj_ident)
@@ -458,7 +462,7 @@ void use_object(int tval)
 			object_aware(o_ptr); 
 
 			/* Gain a significant amount of exp */
-			gain_exp(2 * (k_ptr->level * k_ptr->level));
+			gain_exp(3 * (k_ptr->level * k_ptr->level) + 1);
 
 			/* Learning something always takes time */
 			p_ptr->energy_use = 100;
@@ -761,7 +765,7 @@ void use_device(int tval)
 		if (!object_aware_p(o_ptr))
 		{
 			object_aware(o_ptr);
-			gain_exp(2 * (lev * lev));
+			gain_exp(3 * (lev * lev) + 1);
 		}
 
 	}
@@ -797,8 +801,31 @@ void use_device(int tval)
 	/* Use a rod - Recharging must take place in activation */
 	else if (o_ptr->tval == TV_APPARATUS)
 	{
-		/* Increase the timeout by the rod kind's pval. */
-		/* o_ptr->timeout += k_ptr->pval; */
+		/* Empty lanterns rather than destroy them */
+		if ((o_ptr->sval == SV_APPARATUS_PISTOL_AMMO) ||
+			(o_ptr->sval == SV_APPARATUS_RIFLE_AMMO) ||
+			(o_ptr->sval == SV_APPARATUS_SHOTGUN_AMMO)) 
+		{
+			if ((one_in_(8)))
+			{
+				msg_format("The %s falls apart!", p);				
+				/* Reduce food in the pack */
+				if (item >= 0)
+				{
+					inven_item_increase(item, -1);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}
+	
+				/* Reduce food on the floor */
+				else
+				{
+					floor_item_increase(0 - item, -1);
+					floor_item_describe(0 - item);
+					floor_item_optimize(0 - item);
+				}
+			}
+		}
 	}
 }
 
@@ -1035,10 +1062,13 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (!(resist_effect(RS_PSN)))
 			{
-				if (set_poisoned(p_ptr->poisoned + rand_range(10, 35)))
+				if (!aware)
 				{
-					obj_ident = TRUE;
+						msg_print("This tonic must have been diluted!");
+						set_poisoned(p_ptr->poisoned + rand_range(2, 4));
+						obj_ident = TRUE;
 				}
+				else set_poisoned(p_ptr->poisoned + rand_range(10, 35));
 			}
 			break;
 		}
@@ -1220,6 +1250,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (heal_player(10, 20)) obj_ident = TRUE;
 			if (set_blind(p_ptr->blind - 5)) obj_ident = TRUE;
+			if (set_stun(p_ptr->stun - 3)) obj_ident = TRUE;
 			if (set_confused(p_ptr->confused - 3)) obj_ident = TRUE;
 			if (set_poisoned(p_ptr->poisoned - 3)) obj_ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) obj_ident = TRUE;
@@ -1234,6 +1265,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (heal_player(15, 30)) obj_ident = TRUE;
 			if (set_blind(p_ptr->blind / 2 - 5)) obj_ident = TRUE;
+			if (set_stun(2 * p_ptr->stun / 3 - 3)) obj_ident = TRUE;
 			if (set_confused(2 * p_ptr->confused / 3 - 3)) obj_ident = TRUE;
 			if (set_poisoned(3 * p_ptr->poisoned / 4 - 3)) obj_ident = TRUE;
 			if (set_cut(2 * p_ptr->cut / 3 - 10)) obj_ident = TRUE;
@@ -1248,6 +1280,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (heal_player(25, 40)) obj_ident = TRUE;
 			if (set_blind(p_ptr->blind / 2 - 25)) obj_ident = TRUE;
+			if (set_stun(2 * p_ptr->stun / 3 - 10)) obj_ident = TRUE;
 			if (set_confused(2 * p_ptr->confused / 3 - 10)) obj_ident = TRUE;
 			if (set_poisoned(3 * p_ptr->poisoned / 4 - 15)) obj_ident = TRUE;
 			if (set_cut(2 * p_ptr->cut / 3 - 50)) obj_ident = TRUE;
@@ -1262,6 +1295,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (heal_player(40, 50)) obj_ident = TRUE;
 			if (set_blind((p_ptr->blind / 3))) obj_ident = TRUE;
+			if (set_stun((p_ptr->stun / 3) - 40)) obj_ident = TRUE;
 			if (set_confused((p_ptr->confused / 3) - 40)) obj_ident = TRUE;
 			if (set_poisoned((p_ptr->poisoned / 2) - 40)) obj_ident = TRUE;
 			if (set_cut((p_ptr->cut / 3) - 200)) obj_ident = TRUE;
@@ -1276,6 +1310,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (heal_player(80, 300)) obj_ident = TRUE;
 			if (set_blind(0)) obj_ident = TRUE;
+			if (set_stun(0)) obj_ident = TRUE;
 			if (set_confused(0)) obj_ident = TRUE;
 			if (set_poisoned(0)) obj_ident = TRUE;
 			if (set_cut(0)) obj_ident = TRUE;
@@ -1290,6 +1325,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (heal_player(100, 300)) obj_ident = TRUE;
 			if (set_blind(0)) obj_ident = TRUE;
+			if (set_stun(0)) obj_ident = TRUE;
 			if (set_confused(0)) obj_ident = TRUE;
 			if (set_poisoned(0)) obj_ident = TRUE;
 			if (set_cut(0)) obj_ident = TRUE;
@@ -1433,7 +1469,8 @@ cptr do_object(int mode, object_type *o_ptr)
 			/* Restore and increase all stats by one */
 			for (i = 0; i < A_MAX; i++)
 			{
-				if ((res_stat(i)) || (inc_stat(i))) obj_ident = TRUE;
+				res_stat(i);
+				if (inc_stat(i)) obj_ident = TRUE;
 			}
 
 			/* Message -- if we gained anything */
@@ -1921,7 +1958,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	else             chance = 10 + rsqrt((skill - lev) * 405);
 
 	power1 = p_ptr->skills[SK_POW_DEVICE].skill_rank;
-	power2 = p_ptr->skills[SK_POW2_DEVICE].skill_rank;
+	power2 = (p_ptr->skills[SK_POW2_DEVICE].skill_rank + 1 / 2);
 	healfac = p_ptr->skills[SK_HEAL_DEVICE].skill_rank;
 	efficiency = p_ptr->skills[SK_EFF_DEVICE].skill_rank;
 	
@@ -2201,7 +2238,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	do_ray:
 
 	dice = 1 + power1;
-	sides = 8 + power2;
+	sides = 6 + power2;
 	beam = (power1 * 2) + (power2 * 3);
 
 	/* Analyze the wand */
@@ -2619,11 +2656,11 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				(void)set_tim_no_tele(p_ptr->tim_no_tele + randint(100) + 50);
+				*ident = TRUE;
 				o_ptr->pval = 200 - (efficiency * 5);
 			}
 			break;			
 		}
-
 	}
 
 
@@ -3068,6 +3105,17 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			break;
 		}
 		/* case ART_LOCKET_DEFARGE: NO ACTIVATION */
+		case ART_SLIPPERS_DORTHY:
+		{
+			if (info) return (format("returns home every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				msg_print("Click! Click! Click!");
+				set_recall();
+				break;		
+			}
+		}
+		
 		/* END INSTA_ARTS */
 		case ART_HOLMES_PEA:
 		{
@@ -3346,7 +3394,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("BOOM!");
 				if (!get_aim_dir(&dir)) return ("");
-				fire_ball(GF_SHARDS, dir, damroll(10, 12), 4);
+				fire_ball_special(GF_ROCKET, dir, damroll(22, 25), 4, PROJECT_WALL, 0L);
 				break;
 			}
 			break;
@@ -3569,7 +3617,135 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		/* case ART_AXE_NELKO: NO ACTIVATION */
 		/* case ART_AXE_AK: NO ACTIVATION */
 		/* case ART_MALLET_QUEEN_HEART: NO ACTIVATION */
-
+		case ART_SHOVEL_FRANK_CALVERT:
+		{
+			if (info) return (format("detect objects every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				detect_objects_normal(TRUE);
+				break;
+			}
+		}
+		case ART_SHOVEL_HEINRICH_SCHLIEMANN:
+		{
+			if (info) return (format("fetch objects every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				if (!get_hack_dir(&dir)) return ("");
+				fetch(dir, 1000, FALSE);
+				break;
+			}
+		}
+		case ART_PICK_GUY_FAWKES:
+		{
+			if (info) return (format("cause an explosion every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				if (!get_aim_dir(&dir)) return ("");
+				fire_orb(GF_FORCE, dir, damroll(12, 32), 4);
+				break;
+			}
+		}
+		case ART_SABRE_CLUBS:
+		{
+			if (info) return (format("shoot a bolt of acid every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				if (!get_aim_dir(&dir)) return ("");
+				fire_bolt(GF_LIQUESCE, dir, damroll(6, 8));
+				break;
+			}
+		}
+		case ART_SABRE_SPADES:
+		{
+			if (info) return (format("shoot a bolt of ice every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				if (!get_aim_dir(&dir)) return ("");
+				fire_bolt(GF_GLACIAL, dir, damroll(7, 8));
+				break;
+			}
+		}
+		case ART_SABRE_HEARTS:
+		{
+			if (info) return (format("shoot a bolt of fire every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				if (!get_aim_dir(&dir)) return ("");
+				fire_bolt(GF_PLASMA, dir, damroll(9, 8));
+				break;
+			}
+		}
+		case ART_SABRE_DIAMONDS:
+		{
+			if (info) return (format("shoot a bolt of lightning every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				if (!get_aim_dir(&dir)) return ("");
+				fire_bolt(GF_VOLT, dir, damroll(8, 8));
+				break;
+			}
+		}
+		case ART_SABRE_CUPS:	
+		{
+			if (info) return (format("shoot a bolt of poison every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				if (!get_aim_dir(&dir)) return ("");
+				fire_bolt(GF_CONTAGION, dir, damroll(5, 8));
+				break;
+			}
+		}
+		/* case ART_CLUB_HERC: NO ACTIVATION */
+		case ART_SPEAR_GEORGE:
+        {
+			if (info) return (format("become a patriot every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				int time1 = 25 + randint(25);
+				int time2 = 20 + randint(20);
+				int time3 = 12 + randint(30);
+				if (p_ptr->prace == RACE_BRITISH) 
+				{
+					time1 *= 3;
+					time2 *= 3;
+					time3 *= 3;
+					msg_print("For England!");
+				}				
+				if (!p_ptr->protevil) (void)set_protevil(time1);
+				else (void)set_protevil(p_ptr->protevil + randint(5));
+				if (!p_ptr->shero) (void)set_shero(time2);
+				else (void)set_shero(p_ptr->shero + randint(5));
+				if (!p_ptr->blessed) (void)set_blessed(time2);
+				else (void)set_blessed(p_ptr->blessed + randint(5));
+				if (!p_ptr->shield) (void)set_shield(time2);
+				else (void)set_shield(p_ptr->shield + randint(5));
+				if (!p_ptr->tim_vigor) (void)set_tim_vigor(time3);
+				else (void)set_tim_vigor(p_ptr->tim_vigor + randint(5));
+				if (!p_ptr->tim_muscle) (void)set_tim_muscle(time3);
+				else (void)set_tim_muscle(p_ptr->tim_muscle + randint(5));
+				break;
+			}
+		}
+		/* case ART_RAPIER_BARSOOM: NO ACTIVATION  	*/		
+		/* case ART_SABER_KADABRA: NO ACTIVATION 	*/
+		/* case ART_BROAD_AQUILONIA: NO ACTIVATION 	*/
+		/* case ART_HAMMER_SNAEFELLSJOKULL: NO ACTIVATION  */
+		/* case ART_DIRK_RED_NAIL: NO ACTIVATION  */
+		/* case ART_BASTARD_VALERIA: NO ACTIVATION */
+		/* case ART_CUTLASS_KORAD: NO ACTIVATION */
+		/* case ART_PNEUMATIC_TOONOL: NO ACTIVATION */
+		case ART_GREAT_AXE_KULL:
+		{
+			if (info) return (format("rage every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				msg_print("By this axe, I RULE!");
+				(void)set_afraid(0);
+				(void)set_shero(p_ptr->shero + 100 + randint(50));
+			}
+			break;
+		}	
 		/* case ART_CARTER_PISTOL: NO ACTIVATION */
 		/* case ART_PISTOL_QUATERMAIN: NO ACTIVATION */
 		/* case ART_PISTOL_STYLE: NO ACTIVATION */
@@ -3586,9 +3762,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				teleport_player(20);
 				break;		
 			}
-		}
-		
-		
+		}		
 		default:
 		{
 			if (info) return ("This artifact cannot be activated");

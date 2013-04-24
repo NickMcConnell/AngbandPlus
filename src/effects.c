@@ -86,53 +86,53 @@ static bool do_effect_grid(int x_idx, int y, int x, bool for_real)
 				case GF_FIRE: 
 				case GF_HEAT: 
 				case GF_PLASMA:  
-					msg_print("You are enveloped in fire!");  break;
+					/* msg_print("You are enveloped in fire!");  */ break;
 				case GF_ROCK: 
 				case GF_EARTH: 
 				case GF_SHARDS:
-					  msg_print("You are surrounded by rocks!");  break;
+					/*  msg_print("You are surrounded by rocks!");*/  break;
 				case GF_GUST: 
 				case GF_WIND: 
 				case GF_GALE: 
-					 msg_print("You are enveloped in winds!");  break;
+					/*  msg_print("You are enveloped in winds!");*/  break;
 				case GF_RUST: 
 				case GF_STEAM: 
 				case GF_STORM: 
-					 msg_print("You are enveloped in water!");  break;
+					/*  msg_print("You are enveloped in water!");*/  break;
 				case GF_SHOCK: 
 				case GF_ELEC: 
 				case GF_VOLT:
-					  msg_print("You are covered lightning!");  break;
+					/*   msg_print("You are covered lightning!");*/  break;
 				case GF_CHILL: 
 				case GF_ICE: 
 				case GF_GLACIAL:
-					  msg_print("You are sheathed in frost!");  break;
+					/*   msg_print("You are sheathed in frost!");*/  break;
 				case GF_CORROSIVE: 
 				case GF_ACID: 
 				case GF_LIQUESCE:
-					  msg_print("You are surrounded by acid!");  break;
+					/*   msg_print("You are surrounded by acid!");*/  break;
 				case GF_CAUSTIC: 
 				case GF_POISON: 
 				case GF_CONTAGION:
-					  msg_print("You are surrounded by poison!");  break;
+					/*   msg_print("You are surrounded by poison!");*/  break;
 				case GF_AGE: 
 				case GF_TIME: 
 				case GF_CHRONOS:
-					  msg_print("You are enveloped in a taychon field!");  break;
+					/*   msg_print("You are enveloped in a taychon field!");*/  break;
 				case GF_VAPOR: 
 				case GF_ETHER: 
 				case GF_NEXUS:
-					  msg_print("You are enveloped by ether!");  break;
+					/*   msg_print("You are enveloped by ether!");*/  break;
 				case GF_VIBE: 
 				case GF_SOUND: 
 				case GF_SONIC:
-					  msg_print("You are enveloped in a sonic field!");  break;
+					/*   msg_print("You are enveloped in a sonic field!");*/  break;
 				case GF_UNHOLY: 
 				case GF_NETHER: 
 				case GF_ABYSS:
-					  msg_print("You are surrounded by dark forces!");  break;
-				case GF_SPIRIT: msg_print("You feel spirits pass through you!");  break;
-				default:  msg_print("You are hit!");  break;
+					/*   msg_print("You are surrounded by dark forces!");*/  break;
+				case GF_SPIRIT: /* msg_print("You feel spirits pass through you!"); */ break;
+				default:  /* msg_print("You are hit!");*/  break;
 			}
 		}
 

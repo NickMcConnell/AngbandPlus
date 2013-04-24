@@ -4084,7 +4084,7 @@ static void menu(long mc)
 
 					/* Hack -- Save the game */
 #ifndef ZANG_AUTO_SAVE
-					do_cmd_save_game();
+					do_cmd_save_game(FALSE);
 #else
 					do_cmd_save_game(FALSE);
 #endif /* !ZANG_AUTO_SAVE */
@@ -4213,7 +4213,7 @@ static void menu(long mc)
 
 						/* Save the game */
 #ifndef ZANG_AUTO_SAVE
-						do_cmd_save_game();
+						do_cmd_save_game(FALSE);
 #else
 						do_cmd_save_game(FALSE);
 #endif /* !ZANG_AUTO_SAVE */

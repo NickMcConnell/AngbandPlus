@@ -58,6 +58,12 @@
 # with ego and artifact resistances.
 # O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
+# 'R' is for ranged.
+# ammo_tval determines the ammo type used, ammo_mult is the multipiler
+# num_fire is the magazine size, range in the range of the gun.
+# degree is the spread of the gun.
+
+
 # 'F' is for flags. These are fairly self-explanatory. As many F:
 # lines may be used as are needed to specify all the flags and flags
 # are separated by the '|' symbol.
@@ -68,7 +74,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -201,7 +207,7 @@ N:16:& Quest chest~
 G:~:s
 I:7:12:0
 W:300:100:250:0:0
-A:300/100
+A:300/1
 F:IMMUNE
 
 
@@ -217,8 +223,8 @@ N:20:& Pistol bullet~
 G:{:s
 I:16:0:0
 W:0:0:1:4
-A:0/130:10/150:50/110
-P:0:1d11:0:0:0:0
+A:0/110:10/130:50/90
+P:0:2d11:0:0:0:0
 M:100:10d8
 F:SHOW_MODS
 D:A standard pistol bullet.
@@ -227,8 +233,8 @@ N:21:& Hollow-point pistol bullet~
 G:{:s
 I:16:1:0
 W:5:0:1:10
-A:5/10:30/60:50/30
-P:0:2d13:0:0:0:0
+A:5/10:30/40:50/20
+P:0:4d11:0:0:0:0
 M:100:7d12
 F:SHOW_MODS
 D:A hollow-point pistol bullet that, when it strikes its target,
@@ -239,7 +245,7 @@ G:{:s
 I:16:2:0
 W:30:0:1:30
 A:30/5:50/15
-P:0:1d11:0:0:0:0
+P:0:2d11:0:0:0:0
 M:100:2d7
 F:SHOW_MODS | SLAY_UNDEAD
 D:A pistol bullet made from silver. Silver is often said
@@ -257,8 +263,8 @@ N:30:& Rifle bullet~
 G:{:U
 I:17:1:0
 W:0:0:1:10
-A:0/5:5/50:30/150
-P:0:2d11:0:0:0:0
+A:0/5:5/30:30/120
+P:0:4d11:0:0:0:0
 M:100:10d8
 F:SHOW_MODS
 D:A standard rifle bullet.
@@ -267,8 +273,8 @@ N:31:& Hollow-point rifle bullet~
 G:{:G
 I:17:2:0
 W:20:0:1:40
-A:20/20:50/60
-P:0:2d33:0:0:0:0
+A:20/10:50/30
+P:0:4d33:0:0:0:0
 M:100:7d12
 F:SHOW_MODS
 D:A hollow-point rifle bullet that, when it strikes its target, 
@@ -286,32 +292,31 @@ N:40:& Shotgun slug~
 G:{:s
 I:18:0:0
 W:0:0:2:20
-A:0/5:10/60:40/180
-P:0:4d11:0:0:0:0
+A:0/5:10/40:40/140
+P:0:8d11:0:0:0:0
 M:100:12d5
 F:SHOW_MODS
 D:A shotgun slug.
 
-N:41:& Shotgun buckshot
-G:{:s
-I:18:1:0
-W:0:0:2:20
-A:0/5:10/50:40/150
-P:0:1d12:0:0:0:0
-M:100:12d5
-F:SHOW_MODS
-D:A load of shotgun buckshot.
-
-N:42:& Steel shotgun slug~
+N:41:& Steel shotgun slug~
 G:{:B
 I:18:2:0
 W:10:0:2:250
-A:30/40
-P:0:4d22:0:0:0:0
+A:30/30
+P:0:8d22:0:0:0:0
 M:100:4d5
 F:SHOW_MODS
 D:A steel shotgun slug that does massive damage when it strikes a target.
 
+N:42:& Shotgun buckshot
+G:{:s
+I:18:4:0
+W:0:0:2:20
+A:0/5:10/40:40/130
+P:0:3d12:0:0:0:0
+M:100:12d5
+F:SHOW_MODS
+D:A load of shotgun buckshot.
 
 ########################
 # N:42 - N:44 Unused #
@@ -326,14 +331,16 @@ G:}:s
 I:19:2:0
 W:2:0:35:150
 A:2/50:15/5
+R:16:2:2:2:0
 F:SHOW_MODS
-D:A small single-shot pistol, easily concealed within a pocket or handbag.
+D:A small two-shot pistol, easily concealed within a pocket or handbag.
 
 N:46:& .32 Revolver~
 G:}:s
 I:19:12:0
 W:4:0:50:250
 A:5/50:20/5
+R:16:2:5:6:0
 F:SHOW_MODS
 D:A five-shot pocket revolver.
 
@@ -342,8 +349,9 @@ G:}:s
 I:19:22:0
 W:5:0:50:350
 A:5/50:20/5
+R:16:2:8:6:0
 F:SHOW_MODS
-D:A single-shot breech loader, crude but effective.
+D:A pistol with an eight round chamber, crude but effective.
 
 N:48:& .41 Revolver~
 G:}:s
@@ -351,6 +359,7 @@ I:19:32:0
 W:15:0:50:950
 P:0:1d1:0:5:0:0
 A:15/30:35/5
+R:16:2:6:6:0
 F:SHOW_MODS
 D:An average six-shot revolver, smaller calibre than those 
 D:favoured in the Americas, but enough to put a man down when necessary.
@@ -361,6 +370,7 @@ I:19:42:0
 W:20:0:50:1950
 P:0:1d1:0:15:0:0
 A:20/30:40/5
+R:16:2:6:6:0
 F:SHOW_MODS
 D:A pearl-handled six-shooter, of the kind favoured by 
 D:the cowboys of the Wild West.
@@ -368,8 +378,9 @@ D:the cowboys of the Wild West.
 N:50:& .22 Bolt Action Rifle~
 G:}:U
 I:19:52:0
-W:4:0:150:200
+W:4:0:90:200
 A:4/10:10/40:40/5
+R:17:2:5:10:0
 F:SHOW_MODS
 D:A soldier's rifle, readied by a spring-loaded bolt.  Usually 
 D:holds a clip of 3, 5, or 6 cartridges.
@@ -377,8 +388,9 @@ D:holds a clip of 3, 5, or 6 cartridges.
 N:51:& .30 Lever-Action Carbine~
 G:}:u
 I:19:3:0
-W:8:0:180:300
+W:8:0:120:300
 A:8/10:15/50:50/5
+R:17:3:4:14:0
 F:SHOW_MODS
 D:A weapon popular with cavalrymen, but met with disdain by the general 
 D:infantryman due to its inability to support a bayonet.  One of the first 
@@ -387,9 +399,10 @@ D:weapons to use cordite ammunition.
 N:52:& .45 Martini-Henry Rifle~
 G:}:u
 I:19:13:0
-W:10:0:160:500
+W:10:0:100:500
 P:0:1d1:1:0:0:0
 A:10/10:20/50:50/5
+R:17:3:4:14:0
 F:SHOW_MODS
 D:A breech-loading rifle that saw much service during the Zulu 
 D:wars.  It is self-cocking, with no external hammer.
@@ -397,30 +410,36 @@ D:wars.  It is self-cocking, with no external hammer.
 N:53:& Col. Moran's Air Rifle~
 G:}:u
 I:19:23:0
-W:20:0:170:1100
+W:20:0:110:1100
 P:0:1d1:5:0:0:0
 A:20/10:30/50:50/5
+R:17:3:4:14:0
 F:SHOW_MODS
 D:A cunningly disguised air-gun, concealed within a 
 D:walking-stick.  An attempt was once made on the great 
 D:Sherlock Holmes' life with a weapon like this.
 
+# I know this rifle supports a 10 round magazine, but
+#having it fire 10 shots a round is unbalanced.
 N:54:& .303 Lee-Enfield~
 G:}:u
 I:19:33:0
-W:25:0:180:1500
+W:25:0:120:1500
 P:0:1d1:10:3:0:0
 A:25/10:35/50:50/5
+R:17:3:4:14:0
 F:SHOW_MODS
 D:The standard rifle for British infantry.  Simple yet 
-D:sturdy, and supporting a 10-round magazine.
+D:sturdy.
+
 
 N:55:& Elephant Gun~
 G:}:u
 I:19:43:0
-W:30:0:250:2300
+W:30:0:190:2300
 P:0:1d1:5:25:0:0
 A:30/10:40/40:50/5
+R:17:3:4:14:0
 F:SHOW_MODS
 D:As an 8-gauge gun, this is probably the heaviest 
 D:bore you will handle.  You can't hunt rabbits with it though.
@@ -428,8 +447,9 @@ D:bore you will handle.  You can't hunt rabbits with it though.
 N:56:& 20 Gauge Shotgun~
 G:}:D
 I:19:53:0
-W:15:0:190:450
+W:15:0:90:450
 A:15/8:30/40:40/5
+R:18:3:2:10:10
 F:SHOW_MODS
 D:An over-and-under style gun, with a double trigger.  Good 
 D:for hunting birds.
@@ -437,8 +457,9 @@ D:for hunting birds.
 N:57:& Sawed-Off Shotgun~
 G:}:U
 I:19:63:0
-W:15:0:110:500
+W:15:0:80:500
 A:15/8:30/40:40/5
+R:18:3:2:6:45
 F:SHOW_MODS
 D:Although it reduces the effectiveness somewhat, shortening the
 D: barrels of a shotgun makes it more convenient to carry, especially
@@ -447,29 +468,32 @@ D: as a concealed weapon.
 N:58:& 16 Gauge Shotgun~
 G:}:D
 I:19:4:0
-W:25:0:200:800
+W:25:0:140:800
 A:25/10:35/40:50/10
+R:18:4:1:8:15
 F:SHOW_MODS
 D:A shotgun popular with women and youths, this model has a single barrel.
 
 N:59:& 12 Gauge Shotgun~
 G:}:u
 I:19:14:0
-W:35:0:220:800
+W:35:0:160:800
 P:0:1d1:0:10:0:0
 A:35/10:42/30:50/10
+R:18:4:1:6:25
 F:SHOW_MODS
 D:A pump-action, single-barrelled shotgun.
 
 N:60:& 10 Gauge Shotgun~
 G:}:u
 I:19:24:0
-W:45:0:280:800
+W:45:0:220:800
 P:0:1d1:5:25:0:0
 A:40/10:50/30
+R:18:4:1:4:35
 F:SHOW_MODS
 D:The largest gauge shotgun that you are ever likely 
-D:to see. Two barrels, .770 inch bore.
+D:to see. One barrel, .770 inch bore.
 
 
 ########################
@@ -481,7 +505,7 @@ G:\:s
 I:20:1:5
 W:1:0:60:10
 A:1/8:30/0
-P:0:1d2:0:0:0:1
+P:0:1d2:0:0:0:0
 F:SHOW_MODS | TUNNEL | PIERCE
 D:A compact and sturdy spade.
 
@@ -490,7 +514,7 @@ G:\:B
 I:20:2:10
 W:15:0:60:100
 A:15/12:50/0
-P:0:1d2:0:0:0:1
+P:0:1d2:0:0:0:0
 F:SHOW_MODS | TUNNEL | PIERCE
 D:A small shovel shaped head at the end of a strange pneumatic system. 
 D:It appears very useful for digging in magma and quartz.
@@ -500,7 +524,7 @@ G:\:s
 I:20:4:15
 W:5:0:150:50
 A:5/10:50/0
-P:0:1d3:0:0:0:2
+P:0:1d3:0:0:0:1
 F:SHOW_MODS | TUNNEL | PIERCE
 D:A heavy mining tool with a long, slightly curved head that tapers 
 D:to chisel points on both ends.
@@ -548,7 +572,7 @@ G:\:D
 I:21:4:0
 W:5:0:80:130
 A:5/70:25/30:50/20
-P:0:2d4:0:0:0:2
+P:0:2d4:0:0:0:1
 F:SHOW_MODS | BLUNT
 D:A war club with an iron head, usually flanged or spiked. It is
 D: a hafted weapon.
@@ -556,8 +580,8 @@ D: a hafted weapon.
 N:83:& Mallet~
 G:\:D
 I:21:5:0
-W:8:0:80:55
-A:8/10:23/30:50/20
+W:3:0:60:55
+A:3/20:23/30:50/20
 P:0:3d2:0:0:0:1
 F:SHOW_MODS | BLUNT
 D:This is a hammer with a large barrel-shaped head, often
@@ -568,7 +592,7 @@ G:\:D
 I:21:6:0
 W:15:0:220:225
 A:15/60:50/20
-P:0:3d3:0:0:0:3
+P:0:3d3:0:0:0:7
 F:SHOW_MODS | BLUNT
 D:A mallet with a tapered head and a long handle. It is a hafted
 D: weapon.
@@ -578,7 +602,7 @@ G:\:D
 I:21:8:0
 W:25:0:320:502
 A:25/50:50/20
-P:0:3d4:0:0:0:4
+P:0:3d4:0:0:0:10
 F:SHOW_MODS | BLUNT
 D:A heavy war club topped with a mass of lead-filled steel, capable of
 D: landing crushing blows. It is a hafted weapon.
@@ -655,7 +679,7 @@ G:/:s
 I:22:8:0
 W:15:0:160:358
 A:15/50:50/10
-P:6:2d5:0:0:0:2
+P:6:2d5:0:0:0:4
 F:PIERCE | SHOW_MODS
 D:A long, heavy spear with an iron head and reinforced shaft. It
 D: is a polearm.
@@ -665,7 +689,7 @@ G:/:s
 I:22:13:0
 W:20:0:190:363
 A:20/40:50/30
-P:8:2d6:0:0:0:3
+P:8:2d6:0:0:0:5
 F:PIERCE | SHOW_MODS
 D:A reinforced wooden pole eight feet long, topped by a massive knife blade
 D: that can be used to thrust or chop. It is a polearm.
@@ -675,7 +699,7 @@ G:/:s
 I:22:15:0
 W:25:0:200:430
 A:25/30:50/20
-P:10:3d5:0:0:0:4
+P:10:3d5:0:0:0:6
 F:PIERCE | SHOW_MODS
 D:The most successful of the polearms, the halberd has a long haft
 D: mounted with a heavy axe blade and opposing spike, and topped by
@@ -716,7 +740,7 @@ I:23:7:0
 W:5:0:40:42
 A:5/40:20/20:50/10
 P:0:1d6:0:0:0:0
-F:EDGED | SHOW_MODS
+F:PIERCE | SHOW_MODS
 D:A long, thin thrusting blade, mainly used in duels.
 
 N:103:& Small Sword~
@@ -790,7 +814,7 @@ G:|:W
 I:23:21:0
 W:15:0:140:350
 A:15/40
-P:0:3d4:0:0:0:2
+P:0:3d4:0:0:0:3
 F:EDGED | SHOW_MODS
 D:Also known as the hand-and-a-half blade.  A larger-than-normal
 D: straight-sided sword with two cutting edges.
@@ -800,7 +824,7 @@ G:|:W
 I:23:25:0
 W:30:0:100:275
 A:30/30
-P:0:1d6:0:0:0:3
+P:0:3d6:0:0:0:2
 F:EDGED | SHOW_MODS
 D:A heavy, somewhat curved blade; familiar to horseman and duellists
 D: alike.
@@ -810,7 +834,7 @@ G:|:u
 I:23:28:0
 W:40:0:160:850
 A:30/30
-P:0:2d5:0:0:0:3
+P:0:4d5:0:0:0:3
 F:EDGED | SHOW_MODS
 D:It has the appearance of a normal cane, but in an instant a blade
 D: can be drawn from a sheath and used to strike.
@@ -885,7 +909,18 @@ F:PIERCE | SHOW_MODS
 D:A short thrusting sword. It uses your skill with daggers
 D: rather than swords.
 
-N:125:& Bowie Knife~
+N:125:& Dirk~
+G:|:W
+I:24:11:0
+W:15:0:40:120
+P:0:1d7:0:0:0:2
+A:15/10:35/30
+F:PIERCE | SHOW_MODS
+D:A long dagger of Scotland. Sometimes a cut-down sword blade mounted
+D: on a dagger hilt, rather than a knife blade.
+
+
+N:126:& Bowie Knife~
 G:|:W
 I:24:14:0
 W:10:0:20:100
@@ -897,7 +932,7 @@ D: inches wide and one quarter inch thick. The back of the
 D: blade has a soft metal inlay designed to catch an opponents
 D: blade. A brass quillon is attached to protect the hand.
 
-N:126:& Pneumatic Dagger~
+N:127:& Pneumatic Dagger~
 G:|:b
 I:24:18:0
 W:35:2:15:300
@@ -929,7 +964,7 @@ G:/:s
 I:25:2:0
 W:8:0:280:408
 A:8/45:40/5
-P:0:2d6:0:0:0:3
+P:0:2d6:0:0:0:6
 F:EDGED | SHOW_MODS
 D:A narrow axe head opposed by a crow's beak, mounted on an
 D: oaken shaft.
@@ -939,7 +974,7 @@ G:/:s
 I:25:4:0
 W:15:0:260:304
 A:15/25:40/15
-P:0:2d6:0:0:0:4
+P:0:2d6:0:0:0:6
 F:EDGED | SHOW_MODS
 D:A simple, single-bladed war axe capable of chopping though
 D: limbs or armour.
@@ -949,7 +984,7 @@ G:/:s
 I:25:6:0
 W:20:0:360:334
 A:20/25:40/35
-P:0:2d8:0:0:0:5
+P:0:2d8:0:0:0:10
 F:EDGED | SHOW_MODS
 D:A double-bladed axe. 
 
@@ -958,7 +993,7 @@ G:/:s
 I:25:8:0
 W:40:0:400:500
 A:40/15
-P:0:4d4:0:0:0:6
+P:0:4d4:0:0:0:14
 F:EDGED | SHOW_MODS
 D:An enormous two-handed battle axe.
 
@@ -967,7 +1002,7 @@ G:/:D
 I:25:10:0
 W:45:1:600:2750
 A:45/15
-P:0:3d8:0:0:0:7
+P:0:3d8:0:0:0:18
 F:EDGED | SHOW_MODS
 D:A giant pneumatic contraption with an axe head that strikes powerful 
 D:blows against your enemies. 
@@ -985,7 +1020,7 @@ G:|:D
 I:26:2:0
 W:5:0:20:50
 A:5/10:10/40:20/0
-P:0:1d3:0:0:0:1
+P:0:1d3:0:0:0:0
 F:BLUNT | SHOW_MODS
 D:A billy club used by bobbies. It is a blunt weapon.
 
@@ -1004,7 +1039,7 @@ G:|:u
 I:26:6:0
 W:1:0:20:50
 A:1/10:3/40:5/0
-P:0:1d3:0:0:0:1
+P:0:1d3:0:0:0:0
 F:BLUNT | SHOW_MODS
 D:A stout walking stick. It can be used as a blunt weapon.
 
@@ -1013,7 +1048,7 @@ G:|:D
 I:26:8:0
 W:5:0:20:150
 A:10/10:15/40:25/0
-P:0:1d3:0:0:0:1
+P:0:1d3:0:0:0:0
 F:BLUNT | SHOW_MODS
 D:A high-quality black cane that can be used as a makeshift bludgen.
 
@@ -1022,7 +1057,7 @@ G:\:U
 I:26:10:0
 W:0:0:130:5
 A:0/50:12/10:15/0
-P:2:1d6:0:0:0:2
+P:2:1d6:0:0:0:4
 F:BLUNT | SHOW_MODS
 D:A club made from the branch of a tree.  It can be used
 D: as a blunt weapon.
@@ -1032,7 +1067,7 @@ G:\:U
 I:26:12:0
 W:10:0:150:40
 A:10/20:30/50:50/30
-P:9:1d9:0:0:0:3
+P:9:1d9:0:0:0:5
 F:BLUNT | SHOW_MODS
 D:Six feet of oak which can be wielded in both hands to give a
 D: drubbing or block one.
@@ -1042,7 +1077,7 @@ G:\:D
 I:26:14:0
 W:8:0:200:60
 A:8/40:30/0
-P:4:2d7:0:0:0:4
+P:4:2d7:0:0:0:6
 F:BLUNT | SHOW_MODS
 D:A homemade wooden staff, with a great knobbed head and iron spikes.
 D: The classic brigand's weapon.
@@ -1056,47 +1091,54 @@ D: The classic brigand's weapon.
 ### Shoes ###
 #############
 
-N:160:& Pair~ of Pointed Toe Shoes
+N:160:& Pair~ of Ruby Red Slippers
+G:[:r
+I:30:1:0
+W:4:0:5:300
+P:0:1d1:0:0:0:0
+F:INSTA_ART
+
+N:161:& Pair~ of Pointed Toe Shoes
 G:[:U
 I:30:2:0
 W:1:0:10:10
 A:1/35:20/5
-P:2:1d2:0:0:0:0
+P:1:1d2:0:0:0:0
 D:These shoes were favored in fashion during the 1850-60's,
 D: and again in the 1890's. A leather sole and elastic
 D: at the sides insure a comfortable fit. 
 
-N:161:& Pair~ of Ankle Boots
+N:162:& Pair~ of Ankle Boots
 G:]:D
 I:30:4:0
 W:2:0:20:40
 A:2/35:25/5
-P:3:1d1:0:0:0:0
+P:2:1d1:0:0:0:0
 D:This boot was quite popular until the 1890's when laced
 D: boots became more popular. They are often worn with spats. (Shin/ankle
 D: coverings that were buttoned at the sides and fastened under
 D: the foot with a buckled strap.)
 
-N:162:& Pair~ of Square Toe Shoes
+N:163:& Pair~ of Square Toe Shoes
 G:]:u
 I:30:6:0
 W:4:0:30:80
 A:4/35:27/5
-P:4:1d1:0:0:0:0
+P:3:1d1:0:0:0:0
 D:These shoes were favored in fashion during the 1880's,
 D: A leather sole and elastic at the sides insure a
 D: comfortable fit. 
 
-N:163:& Pair~ of Half-boots
+N:164:& Pair~ of Half-boots
 G:]:D
 I:30:8:0
 W:7:0:40:12
 A:7/20:30/5
-P:4:1d1:0:0:0:0
+P:3:1d1:0:0:0:0
 D:These knee-length boots are now rare, and used almost
 D: exclusively for riding.
 
-N:164:& Pair~ of Laced Shoes
+N:165:& Pair~ of Laced Shoes
 G:]:u
 I:30:10:0
 W:10:0:20:3
@@ -1105,26 +1147,26 @@ P:1:1d1:0:0:0:0
 D:These shoes have rubber soles and are covered in canvas. They
 D: are often useful for athletic activities.
 
-N:165:& Pair~ of Buttoned Boots
+N:166:& Pair~ of Buttoned Boots
 G:]:s
 I:30:12:0
 W:4:0:60:50
 A:20/30:50/50
-P:5:1d1:0:0:0:0
+P:4:1d1:0:0:0:0
 D:These boots climb up to mid-calf, and often have cloth
 D: tops.  
 
-N:166:& Pair~ of Laced Boots
+N:167:& Pair~ of Laced Boots
 G:]:w
 I:30:14:0
 W:5:0:50:225
 A:5/1:25/30:50/50
-P:6:1d1:0:0:0:0
+P:5:1d1:0:0:0:0
 D:These knee-high white leather boots are laced up the front
 D: all the way to the top. 
 
 ########################
-# N:167 - N:169 Unused #
+# N:168 - N:169 Unused #
 ########################
 
 N:170:& Set~ of Gloves
@@ -1156,7 +1198,7 @@ G:]:U
 I:31:8:0
 W:15:0:5:10
 A:15/20
-P:4:0d0:0:0:0:0
+P:3:0d0:0:0:0:0
 D:A pair of durable work gloves.
 
 ########################
@@ -1168,92 +1210,101 @@ D:A pair of durable work gloves.
 ##########  Hats  ###########
 #############################
 
-N:180:& Hard Leather Cap~
+N:180:& Gas Mask~
+G:]:g
+I:32:1:0
+W:2:0:15:42
+A:3/40:10/5
+P:0:0d0:0:0:0:0
+O:0:0:0:0:0:0:0:45:0:0:0:0:0:0:0:0:0
+D:A full head covering used to protect you from poisonous attacks.
+
+N:181:& Hard Leather Cap~
 G:]:u
 I:32:2:0
 W:1:0:15:12
 A:1/20:40/0
-P:2:0d0:0:0:0:0
+P:1:0d0:0:0:0:0
 D:A padded skullcap of boiled leather.
 
-N:181:& Woolen Beanie~
+N:182:& Woolen Beanie~
 G:]:u
 I:32:4:0
 W:4:0:10:14
 A:4/20:45/0
-P:3:0d0:0:0:0:0
+P:2:0d0:0:0:0:0
 D:This is a pullover head covering made of wool.
 
-N:182:& Top Hat~
+N:183:& Top Hat~
 G:]:D
 I:32:6:0
 W:10:0:30:60
 A:10/30:50/5
-P:4:1d3:0:0:0:0
+P:3:1d3:0:0:0:0
 D:This hat is 8-10 inches high, made of either black silk 
 D:or felt. There were several different designs from the Abe 
 D:Lincoln, the Beau, or even the Uncle Sam.
 
-N:183:& Deerstalker~
+N:184:& Deerstalker~
 G:]:u
 I:32:8:0
 W:15:2:20:55
 A:15/10:30/40
-P:5:1d2:0:0:0:0
+P:4:1d2:0:0:0:0
 D:This is a hat with a black(or brown)-and-white "houndstooth" pattern. 
 D:It is double billed and has ear flaps with a tie at the top.
 
-N:184:& Bowler~
+N:185:& Bowler~
 G:]:b
 I:32:10:0
 W:13:3:15:90
 A:20/10:40/40
-P:6:1d2:0:0:0:0
+P:5:1d2:0:0:0:0
 D:The classic felt or wool bowler. With a curved brim and a
 D:rounded top it is a stylish addition to any outfit.
 
-N:185:& Fez~
+N:186:& Fez~
 G:]:u
 I:32:12:0
 W:18:0:75:100
 A:18/20
-P:7:0d0:0:0:0:0
+P:6:0d0:0:0:0:0
 D:This is a Turkish heavy wool hat with a tassel.
 
-N:186:& Pair~ of Spectacles
+N:187:& Pair~ of Spectacles
 G:]:w
 I:32:13:0
 W:10:0:5:300
 P:0:0d0:1:0:0:0
 D:A thick pair of glasses.
 
-N:187:& Mask~
+N:188:& Mask~
 G:]:w
 I:32:14:0
-W:8:0:15:48
+W:20:0:15:48
 P:0:1d0:0:0:0:0
 F:INSTA_ART
 
-N:188:& Green-tinted Glasses
+N:189:& Green-tinted Glasses
 G:]:g
 I:32:16:0
 W:10:0:20:175
 P:0:1d3:0:0:0:0
 F:INSTA_ART
 
-N:189:& Crown~
+N:190:& Crown~
 G:]:y
 I:32:18:0
-W:35:0:30:1000
+W:22:0:30:1000
 P:0:1d3:0:0:0:0
 F:INSTA_ART
 
 ## The Eye of Ra
 
-N:190:& Eye~
+N:191:& Eye~
 G:":w
 I:32:20:0
-W:12:0:3:20000
+W:14:0:3:20000
 F:INSTA_ART
 
 
@@ -1311,7 +1362,7 @@ D:A dainty set of petticoats.
 N:205:& Bull's Tail
 G:[:U
 I:34:16:0
-W:20:0:30:1400
+W:38:0:30:1400
 P:5:1d1:0:0:10:0
 F:INSTA_ART
 
@@ -1336,7 +1387,7 @@ G:(:D
 I:35:6:0
 W:28:0:5:4000
 A:28/18
-P:6:0d0:0:0:4:0
+P:5:0d0:0:0:4:0
 D:A midnight-hued cloak that wreathes the wearer in folds of shadow. 
 
 N:212:& Fur Cloak~
@@ -1353,7 +1404,7 @@ G:(:r
 I:35:8:0
 W:10:0:15:300
 P:4:0d0:0:0:0:0
-O:5:0:0:0:0:5:0:0:0:0:0:0:0:0:0:0:0
+O:10:0:0:0:0:10:0:0:0:0:0:0:0:0:0:0:0
 D:A piece of clothing, similar to a robe but open on the front side.
 
 ########################
@@ -1376,7 +1427,7 @@ G:(:b
 I:36:2:0
 W:1:0:20:4
 A:1/50
-P:2:0d0:0:0:0:0
+P:1:0d0:0:0:0:0
 D:A practical garment of thick wool or velvet, draping from neck to heels.
 
 N:217:& Satin Smoking Jacket~
@@ -1394,7 +1445,7 @@ G:(:U
 I:36:4:0
 W:3:0:30:18
 A:3/30:40/10
-P:4:0d0:0:0:0:0
+P:3:0d0:0:0:0:0
 D:A simple leather waistcoat. As coats, trousers and waistcoats in 
 D:matching cloth became more popular the fashion for patterned or 
 D:embroidered silk waistcoats declined, though checked, striped 
@@ -1413,7 +1464,7 @@ G:(:U
 I:36:6:0
 W:5:0:35:35
 A:5/30:30/10
-P:5:1d1:0:0:0:0
+P:4:1d1:0:0:0:0
 D:A normal leather waistcoat, but with an interior woollen vest 
 D:and undershirt.
 
@@ -1422,7 +1473,7 @@ G:[:u
 I:36:7:0
 W:15:0:60:250
 A:15/40:40/20
-P:6:2d4:-1:0:0:0
+P:5:2d4:-1:0:0:0
 D:This overcoat is made of a sturdy wool, though it is not very warm. 
 
 N:222:& Heavy Jacket~
@@ -1438,7 +1489,7 @@ G:[:w
 I:36:9:0
 W:25:0:15:700
 A:25/15
-P:6:0d0:0:0:0:0
+P:4:0d0:0:0:0:0
 D:This is a high class French percale shirt.
 
 N:224:& Heavy Trenchcoat~
@@ -1449,16 +1500,25 @@ A:10/30
 P:7:1d2:-1:0:0:0
 D:A heavy ankle-length trenchcoat
 
-N:225:& Tweed Jacket~
+N:225:& Leather Harness~
+G:[:u
+I:36:11:0
+W:20:0:50:175
+A:20/5:45/10
+P:4:1d4:0:0:0:0
+D:This is a patchwork of hide and leather fitted into a rough harness
+D: providing minimal protection.
+
+N:226:& Tweed Jacket~
 G:(:U
 I:36:12:0
 W:15:0:30:450
 A:15/30
-P:11:1d1:0:0:0:0
+P:9:1d1:0:0:0:0
 D:This is a sharp looking jacket with a woolen tweed pattern.
 
 ########################
-# N:225 - N:229 Unused #
+# N:227 - N:229 Unused #
 ########################
 
 #### Medium Armours ####
@@ -1468,7 +1528,7 @@ G:[:s
 I:37:1:0
 W:20:0:100:550
 A:25/15
-P:13:1d2:0:0:0:0
+P:11:1d2:0:0:0:0
 D:An officer's uniform. It provides a good deal of mobility and 
 D:protection.
 
@@ -1495,7 +1555,7 @@ G:[:u
 I:37:6:0
 W:20:0:90:900
 A:20/20
-P:16:1d4:-1:0:0:0
+P:15:1d4:-1:0:0:0
 D:This is a classy suit with a tweed pattern. It may restrict 
 D:your movement a little, but it provides above average protection.
 
@@ -1504,7 +1564,7 @@ G:[:U
 I:37:8:0
 W:30:0:100:1100
 A:30/15
-P:18:1d4:-3:0:0:0
+P:16:1d4:-3:0:0:0
 D:This is a high-class professional suit. It is quite restricting 
 D:but provides a good defense by intimidating those you come across 
 D:making it more difficult for them to hit you.
@@ -1514,7 +1574,7 @@ G:[:W
 I:37:10:0
 W:35:0:110:900
 A:35/25
-P:20:1d6:-4:0:0:0
+P:18:1d6:-4:0:0:0
 D:This nice suit is made from a smooth compact yarn using 
 D:long wool fibers often used especially for firm napless fabrics, 
 D:carpeting, or knitting. As such it provides a lot of protection 
@@ -1537,7 +1597,7 @@ I:37:16:0
 W:42:0:320:1950
 A:42/10
 P:30:1d4:-4:0:0:0
-O:8:8:8:8:0:10:5:5:0:0:0:0:0:0:0:0:0
+O:10:10:10:10:0:10:10:10:0:0:0:0:0:0:0:30:0
 D:This coal suit provides some protection from the elements.
 
 N:238:& Prince Albert Suit~
@@ -1545,7 +1605,7 @@ G:[:b
 I:37:20:0
 W:35:0:120:1950
 A:35/10:50/30
-P:24:1d4:-2:0:0:0
+P:22:1d4:-2:0:0:0
 D:A dashing Prince Albert suit.
 
 
@@ -1767,33 +1827,33 @@ D:that increases your saving throw.
 N:275:Shadow
 G:":d
 I:40:16:0
-W:30:0:3:22600
-A:30/10:40/20
+W:44:0:3:22600
+A:44/10:50/20
 F:STEALTH | WRAITH | HIDE_TYPE
 D:that renders your form insubstantial.
 
 N:276:Regeneration
 G:":d
 I:40:17:0
-W:5:0:3:600
-A:5/10:20/30:30/0
+W:15:0:3:600
+A:15/10:30/30:45/0
 F:REGEN_25 | HIDE_TYPE | EASY_KNOW
 D:that increases your regeneration.
 
 N:277:*Regeneration*
 G:":d
 I:40:20:0
-W:20:0:3:1200
-A:20/5:35/10:45/0
-F:REGEN_25 | REGEN_75 | HIDE_TYPE | EASY_KNOW
+W:35:0:3:1200
+A:35/5:45/10:50/0
+F:REGEN_50 | HIDE_TYPE | EASY_KNOW
 D:that greatly increases your regeneration.
 
 N:278:**Regeneration**
 G:":d
 I:40:22:0
-W:40:0:3:3600
-A:40/3:45/5:50/0
-F:REGEN_25 | REGEN_75 | REGEN_50 | HIDE_TYPE | EASY_KNOW
+W:45:0:3:3600
+A:45/3:49/5:50/0
+F:REGEN_75 | HIDE_TYPE | EASY_KNOW
 D:that greatly increases your regeneration.
 
 N:279:the Magi
@@ -1812,7 +1872,7 @@ D:of mind and eye against even the most powerful of dark magics.
 N:280:& Amulet~
 G:":d
 I:40:24:0
-W:25:10:3:160000
+W:20:10:3:160000
 F:INSTA_ART
 
 ## The Amulet of John Dee -- see artifact list
@@ -1835,14 +1895,14 @@ F:INSTA_ART
 N:283:& Pectoral~
 G:":d
 I:40:27:0
-W:12:0:3:40000
+W:33:0:3:40000
 F:INSTA_ART
 
 ## The Locket of Madame Defarge
 N:284:& Locket~
 G:":d
 I:40:28:0
-W:19:0:3:14000
+W:16:0:3:14000
 F:INSTA_ART
 
 ########################
@@ -1952,7 +2012,7 @@ G:=:d
 I:45:13:0
 W:1:0:2:500
 A:1/30
-O:8:8:8:8:5:5:5:5:0:0:0:0:10:10:0:0:0
+O:10:10:10:10:10:10:10:10:0:0:0:0:0:0:0:0:0
 F:HIDE_TYPE 
 D:that provides protection from blows and minor resistance 
 D:to many different elements.
@@ -1962,7 +2022,7 @@ G:=:d
 I:45:14:0
 W:1:0:2:250
 A:1/60:10/0
-O:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:HIDE_TYPE | EASY_KNOW
 D:that provides resistance to fire.
 
@@ -1971,7 +2031,7 @@ G:=:d
 I:45:15:0
 W:3:0:2:250
 A:3/60:12/0
-O:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:HIDE_TYPE | EASY_KNOW
 D:that provides resistance to earth.
 
@@ -1980,7 +2040,7 @@ G:=:d
 I:45:16:0
 W:5:0:2:250
 A:5/60:14/0
-O:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:HIDE_TYPE | EASY_KNOW
 D:that provides resistance to air.
 
@@ -1989,7 +2049,7 @@ G:=:d
 I:45:17:0
 W:7:0:2:250
 A:7/60:16/0
-O:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:HIDE_TYPE | EASY_KNOW
 D:that provides resistance to water.
 
@@ -1998,7 +2058,7 @@ G:=:d
 I:45:18:0
 W:9:0:2:250
 A:9/60:18/0
-O:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0
 F:HIDE_TYPE | EASY_KNOW
 D:that provides resistance to electricty.
 
@@ -2007,7 +2067,7 @@ G:=:d
 I:45:19:0
 W:11:0:2:250
 A:11/60:20/0
-O:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0
 F:HIDE_TYPE | EASY_KNOW
 D:that provides resistance to ice.
 
@@ -2016,16 +2076,16 @@ G:=:d
 I:45:20:0
 W:13:0:2:250
 A:13/60:22/0
-O:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0
 F:HIDE_TYPE | EASY_KNOW
 D:that provides resistance to acid.
 
 N:320:Resist Poison
 G:=:d
 I:45:21:0
-W:15:0:2:250
-A:15/60:24/0
-O:0:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0
+W:55:0:2:250
+A:5/60:24/0
+O:0:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0
 F:HIDE_TYPE | EASY_KNOW
 D:that provides resistance to poison.
 
@@ -2057,7 +2117,7 @@ N:324:See Invisible
 G:=:d
 I:45:25:0
 W:20:0:2:340
-A:10/5:20/40:35/0
+A:5/5:20/50:35/0
 F:SEE_INVIS | HIDE_TYPE | EASY_KNOW
 D:that allows you to see invisible creatures.
 
@@ -2069,9 +2129,14 @@ A:1/5:9/100:18/0
 F:RES_CONFU | HIDE_TYPE | EASY_KNOW
 D:that prevents you from being confused.
 
-#####
-##### N:xxx sval 27 open #####
-##############################
+N:326:Resist Nether
+G:=:d
+I:45:20:0
+W:13:0:2:250
+A:13/60:22/0
+O:0:0:0:0:0:0:0:0:0:0:0:30:0:0:0:0:0
+F:HIDE_TYPE | EASY_KNOW
+D:that provides resistance to nether.
 
 N:327:Stealth
 G:=:d
@@ -3197,8 +3262,8 @@ D: connected to a carbonic gas lantern.Ê
 N:502:& Pistol Ammunition Generator~
 G:-:d
 I:66:2:0
-W:10:0:20:1300
-A:10/5:20/30
+W:30:0:20:1300
+A:5/5:20/30
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:that generates pistol ammo.
@@ -3206,8 +3271,8 @@ D:that generates pistol ammo.
 N:503:& Rifle Ammunition Generator~
 G:-:d
 I:66:3:0
-W:10:0:20:1300
-A:20/5:30/30
+W:30:0:20:1300
+A:10/5:30/30
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:that generates rifle ammo.
@@ -3215,8 +3280,8 @@ D:that generates rifle ammo.
 N:504:& Shotgun Ammunition Generator~
 G:-:d
 I:66:4:0
-W:10:0:20:1300
-A:30/5:40/30
+W:40:0:20:1300
+A:15/5:30/15
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
 D:that generates shotgun ammo.
@@ -3367,8 +3432,8 @@ N:562:Object Analysis
 G:?:d
 I:70:12:0
 W:1:0:5:50
-A:1/100
-M:90:3d4
+A:1/60
+M:90:2d4
 F:EASY_KNOW
 D:that reveals the name and obvious powers of an object.
 
@@ -3386,7 +3451,7 @@ N:564:Remove Curse
 G:?:d
 I:70:14:0
 W:10:0:5:100
-A:5/60:25/10
+A:5/80:25/30
 F:EASY_KNOW
 D:that frees you from the grip of a lightly cursed item.
 
@@ -3394,7 +3459,7 @@ N:565:*Remove Curse*
 G:?:d
 I:70:15:0
 W:50:0:5:8000
-A:25/40
+A:19/40
 F:EASY_KNOW
 D:that frees you from the grip of a heavily cursed item.
 
@@ -4477,7 +4542,7 @@ N:819:& Meat Pie~
 G:,:U
 I:80:46:7500
 W:0:0:18:4
-A:0/20
+A:20/20:50/40
 M:80:2d4
 F:EASY_KNOW
 
@@ -4517,7 +4582,7 @@ N:824:& Pigeon Pie~
 G:,:U
 I:80:51:4000
 W:0:0:10:5
-A:0/20
+A:20/20:50/40
 M:80:2d4
 F:EASY_KNOW
 
@@ -4549,7 +4614,7 @@ N:828:& Pint~ of Peppermint Water
 G:,:g
 I:80:57:500
 W:0:0:5:20
-A:0/20
+A:0/20:30/40
 M:80:2d4
 F:EASY_KNOW
 
@@ -4557,7 +4622,7 @@ N:829:& Pint~ of Erde Wine
 G:,:y
 I:80:56:500
 W:0:0:5:30
-A:0/20
+A:20/20:50/40
 M:80:2d4
 F:EASY_KNOW
 
@@ -4804,8 +4869,8 @@ D: effects.
 N:869:[Velocipede]
 G:?:u
 I:90:22:0
-W:40:0:30:5000
-A:40/20
+W:30:0:30:5000
+A:30/20
 P:0:1d1:0:0:0:0
 F:EASY_KNOW | IMMUNE
 D:A device that has the power to move you.
@@ -4813,8 +4878,8 @@ D:A device that has the power to move you.
 N:870:[Analytic Engine]
 G:?:u
 I:90:23:0
-W:50:0:30:10000
-A:50/40
+W:40:0:30:10000
+A:40/40
 P:0:1d1:0:0:0:0
 F:EASY_KNOW | IMMUNE
 D:An analytic engine without equal.

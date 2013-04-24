@@ -1953,7 +1953,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool pet, bool 
 /*
  * Maximum size of a group of monsters
  */
-#define GROUP_MAX	12
+#define GROUP_MAX	8
 
 
 /*
@@ -2089,7 +2089,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 
 
 	/* Calculate the number of escorts we want. */
-	if (r_ptr->flags1 & (RF1_ESCORTS)) escort_size = rand_range(12, 18);
+	if (r_ptr->flags1 & (RF1_ESCORTS)) escort_size = rand_range(6, 8);
 	else escort_size = rand_range(4, 6);
 
 	/* Can never have more escorts than maximum group size */
@@ -2209,7 +2209,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool pet, bo
 	if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
 		/* Attempt to place a large group */
-		(void)place_monster_group(y, x, r_idx, slp, (s16b)rand_range(6, 10));
+		(void)place_monster_group(y, x, r_idx, slp, (s16b)rand_range(4, 8));
 	}
 
 	else if (r_ptr->flags1 & (RF1_FRIEND))
@@ -2383,9 +2383,16 @@ static bool summon_specific_okay(int r_idx)
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
+		case SUMMON_CUTTENCLIP:
+		{
+			okay = ((r_ptr->flags8 & (RF8_CUTTENCLIP)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}			
 		case SUMMON_BEASTMAN:
 		{
-			okay = ((r_ptr->d_char == 'B') &&
+			okay = (((r_ptr->d_char == 'B') ||
+					 (r_ptr->d_char == 'b')) &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}

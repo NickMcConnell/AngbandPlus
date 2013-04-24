@@ -456,7 +456,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_TURN_UNDEAD, "Purity of the living", 15, 4, 22 },
 			{ POW_HEALING_III, "Purification of the Body", 18, 5, 23 },
 			{ POW_DESTROY_MACHINE, "Reckoning of Metal", 20, 2, 11 },
-			{ 0, NULL, 99, 0, 0 }
+			{ POW_HOLY_BOLT, "Holy Bolt", 20, 2, 9 }
 			
 		}
 	},
@@ -520,7 +520,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_DIVINE_FAVOR, "Divine Favor", 12, 18, 33 },
 			{ POW_FLAMING_WRATH, "Flaming Wrath", 20, 12, 35 },
 			{ POW_ANTI_MAGIC, "Anti-magic Shell", 40, 50, 60 },
-			{ 0, NULL, 99, 0, 0 },
+			{ POW_HOLY_STRIKE, "Holy Strike", 45, 20, 36},
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
@@ -622,12 +622,12 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_ETHERIC_JUMP, "Etheric Jump", 8, 5, 30 },
 			{ POW_DEFENSIVE_ARRAY, "Defensive Array", 15, 10, 40 },
 			{ POW_NEUTRALIZE_POISON, "Toxin Elimination System", 11, 15, 50 },
-			{ POW_GUNS, "Forward Cannons", 16, 8, 45 },
+			{ POW_GUNS, "Forward Cannons", 16, 27, 45 },
 			{ POW_HEALING_VII, "Advanced Physiological Aid", 20, 12, 45 },
 			{ POW_TURN_STONE_TO_MUD, "Pneumatic Tunneling Device", 22, 15, 50 },
 			{ POW_EARTHQUAKE_II, "Sonic Unharmonizer", 30, 25, 35 },
-			{ POW_MISSILE, "Shoulder Rocket", 35, 15, 40 },
-			{ POW_EMP, "Electro-magnetic Pulse", 40, 20, 10 }
+			{ POW_MISSILE, "Shoulder Rocket", 35, 40, 40 },
+			{ POW_EMP, "Electro-magnetic Pulse", 40, 40, 10 }
 			
 		}
 	},
@@ -637,7 +637,7 @@ spell_book books[SV_BOOK_MAX] =
 		{	/* Index, Spell name, level of skill, mana, failure */
 			{ POW_LEAD_SLUGS, "Fire Lead Slugs", 3, 5, 35 },
 			{ POW_LIGHTNING_RAY, "Fire Lightning Ray", 8, 6, 40 },
-			{ POW_FROST_RAY, "Fire Frost Beam", 12, 7, 40 },
+			{ POW_FROST_RAY, "Fire Frost Beam", 12, 8, 40 },
 			{ POW_HEAT_RAY, "Fire Flamethrower", 15, 8, 42 },
 			{ POW_GRAVITY_RAY, "Fire Graviton Ray", 25, 9, 44 },
 			{ POW_TELEPORT_OTHER_II, "Fire Dimensional Ray", 30, 10, 46 },
@@ -773,10 +773,10 @@ steamware wares[MAX_STEAMWARE_PARTS] =
 	{
 		SW_WIRED_REFLEX,
 		{
-			{"Alpha wired reflexes",	40000,		8000, 	7000},
-			{"Beta wired reflexes", 	120000,		24000, 	60000},
-			{"Gamma wired reflexes",	240000,		80000,	150000},
-			{"Delta wired reflexes",	1600000,	300000,	400000},
+			{"Alpha wired reflexes",	40000,		8000, 	5000},
+			{"Beta wired reflexes", 	120000,		24000, 	12000},
+			{"Gamma wired reflexes",	240000,		80000,	22000},
+			{"Delta wired reflexes",	1600000,	300000,	50000},
 			{ "Research Completed",	0,	0,	0}			
 		}
 	},
@@ -784,29 +784,29 @@ steamware wares[MAX_STEAMWARE_PARTS] =
 		SW_DERMAL_PLATE,
 		{
 			{"Alpha dermal plating",	8000,	1200, 	3000},
-			{"Beta dermal plating", 	16000,	4000, 	12000},
-			{"Gamma dermal plating",	32000,	12000,	33000},
-			{"Delta dermal plating",	64000,	24000,	67000},
+			{"Beta dermal plating", 	16000,	4000, 	9000},
+			{"Gamma dermal plating",	32000,	12000,	20000},
+			{"Delta dermal plating",	64000,	24000,	45000},
 			{ "Research Completed",	0,	0,	0}			
 		}
 	},
 	{
 		SW_FURNACE_CORE,
 		{
-			{"Alpha core furnace",	50000,		20000, 	24000},
-			{"Beta core furnace", 	100000,		40000, 	49000},
-			{"Gamma core furnace",	500000,		80000,	99000},
-			{"Delta core furnace",	1000000,	400000,	199000},
+			{"Alpha core furnace",	50000,		20000, 	10000},
+			{"Beta core furnace", 	100000,		40000, 	20000},
+			{"Gamma core furnace",	500000,		80000,	40000},
+			{"Delta core furnace",	1000000,	400000,	60000},
 			{ "Research Completed",	0,	0,	0}			
 		}
 	},
 	{
 		SW_SPURS,
 		{
-			{"Alpha spurs",	12000,		1000, 	49000},
-			{"Beta spurs", 	10000,		2000, 	19000},
-			{"Gamma spurs",	20000,		4000,	39000},
-			{"Delta spurs",	40000,		8000,	79000},
+			{"Alpha spurs",	12000,		1000, 	40000},
+			{"Beta spurs", 	10000,		2000, 	10000},
+			{"Gamma spurs",	20000,		4000,	29000},
+			{"Delta spurs",	40000,		8000,	39000},
 			{ "Research Completed",	0,	0,	0}			
 		}
 	}
@@ -832,9 +832,9 @@ cptr resist_names[RS_MAX] =
 	"nether",
 	"light",
 	"dark",
-	"psi",
-	"telekinetic",
-	"spirit",
+	"mental",
+	"force",
+	"spirit"
 };
 
 /*
@@ -856,33 +856,34 @@ cptr resist_names_short[RS_MAX] =
 	"Nethr",
 	"Light",
 	"Dark ",
-	"Psi  ",
-	"Tk   ",
-	"Spirt"
+	"Mind ",
+	"Force",
+	"Sprt "
 };
 
 /*
  * Resistance maximums
+ * Normal resistance, cap with temporary resist
  */
 res_cap resist_caps[RS_MAX] =
 {
-	{55, 88},
-	{55, 88},
-	{55, 88},
-	{55, 88},
-	{50, 88},
-	{50, 88},
-	{50, 88},
-	{50, 88},
-	{40, 66},
-	{40, 66},
-	{40, 66},
-	{40, 66},
-	{60, 90},
-	{60, 90},
-	{40, 50},
-	{40, 50},
-	{40, 50}
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88},
+	{88, 88}
 };
 
 /*
@@ -1094,14 +1095,14 @@ cptr option_text[OPT_MAX] =
 {
 	"rogue_like_commands",		/* OPT_rogue_like_commands */
 	"quick_messages",			/* OPT_quick_messages */
+	"use_old_target",			/* OPT_use_old_target */
 	"floor_query_flag",			/* OPT_floor_query_flag */
 	"carry_query_flag",			/* OPT_carry_query_flag */
-	"use_old_target",			/* OPT_use_old_target */
 	"always_pickup",			/* OPT_always_pickup */
-	"always_repeat",			/* OPT_always_repeat */
+	NULL,			/* old always_repeat */
 	"depth_in_feet",			/* OPT_depth_in_feet */
-	"stack_force_notes",		/* OPT_stack_force_notes */
-	"stack_force_costs",		/* OPT_stack_force_costs */
+	NULL,		/* old stack_force_notes */
+	NULL,		/* old stack_force_costs */
 	"show_labels",				/* OPT_show_labels */
 	"show_weights",				/* OPT_show_weights */
 	"show_choices",				/* OPT_show_choices */
@@ -1125,8 +1126,8 @@ cptr option_text[OPT_MAX] =
 	"allow_quantity",			/* OPT_allow_quantity */
 	"spell_book_select",		/* OPT_spell_book_select */
 	"auto_haggle",				/* OPT_auto_haggle */
-	"auto_scum",				/* OPT_auto_scum */
-	NULL,						/* xxx testing_stack */
+	NULL,				/* OPT_auto_scum */
+	"menu_allowed",						/* OPT_menu_allowed */
 	NULL,						/* xxx testing_carry */
 	"expand_look",				/* OPT_expand_look */
 	"expand_list",				/* OPT_expand_list */
@@ -1134,11 +1135,11 @@ cptr option_text[OPT_MAX] =
 	"view_torch_grids",			/* OPT_view_torch_grids */
 	"dungeon_align",			/* OPT_dungeon_align */
 	"dungeon_stair",			/* OPT_dungeon_stair */
-	"flow_by_sound",			/* OPT_flow_by_sound */
-	"flow_by_smell",			/* OPT_flow_by_smell */
+	NULL,			/* xxx */
+	NULL,			/* xxx */
 	NULL,						/* xxx track_follow */
 	NULL,						/* xxx track_target */
-	"smart_learn",				/* OPT_smart_learn */
+	NULL,				/* xxx */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
 	"hidden_player",			/* OPT_hidden_player */
@@ -1164,8 +1165,8 @@ cptr option_text[OPT_MAX] =
 	"run_avoid_center",			/* OPT_run_avoid_center */
 	"scroll_target",			/* OPT_scroll_target */
 	"auto_more",				/* OPT_auto_more */
-	"smart_monsters",			/* OPT_smart_monsters */
-	"smart_packs",				/* OPT_smart_packs */
+	NULL,			/* xxx */
+	NULL,				/* xxx */
 	"exp_need",					/* OPT_exp_need */
 	"verify_leave_quests",		/* OPT_verify_leave_quest */
 	NULL,						/* xxx */
@@ -1224,7 +1225,7 @@ cptr option_text[OPT_MAX] =
 	"birth_ironman",			/* OPT_birth_ironman */
 	"birth_no_stores",			/* OPT_birth_no_stores */
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
-	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
+	NULL,			/* OPT_birth_rand_artifacts */
 	NULL,		/* OPT_birth_point_based */
 	NULL,		/* OPT_birth_auto_roller */
 	NULL,			/* OPT_birth_maximize */
@@ -1358,14 +1359,14 @@ cptr option_desc[OPT_MAX] =
 {
 	"Rogue-like commands",						/* OPT_rogue_like_commands */
 	"Activate quick messages",					/* OPT_quick_messages */
+	"Use old target by default",				/* OPT_use_old_target */
 	"Prompt for floor item selection",			/* OPT_floor_query_flag */
 	"Prompt before picking things up",			/* OPT_carry_query_flag */
-	"Use old target by default",				/* OPT_use_old_target */
 	"Pick things up by default",				/* OPT_always_pickup */
-	"Repeat obvious commands",					/* OPT_always_repeat */
+	NULL,					/* old always_repeat */
 	"Show dungeon level in feet",				/* OPT_depth_in_feet */
-	"Merge inscriptions when stacking",			/* OPT_stack_force_notes */
-	"Merge discounts when stacking",			/* OPT_stack_force_costs */
+	NULL,			/* old stack_force_notes */
+	NULL,			/* old stack_force_costs */
 	"Show labels in equipment listings",		/* OPT_show_labels */
 	"Show weights in all object listings",		/* OPT_show_weights */
 	"Show choices in inven/equip windows",		/* OPT_show_choices */
@@ -1389,8 +1390,8 @@ cptr option_desc[OPT_MAX] =
 	"Allow quantity specification",				/* OPT_allow_quantity */
 	"Toggle inven/equip spellbook select",		/* OPT_spell_book_select */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
-	"Auto-scum for good levels",				/* OPT_auto_scum */
-	NULL,										/* xxx testing_stack */
+	NULL,				/* xxx auto_scum */
+	"Allow the menu (enter key)",										/* OPT_menu_allowed */
 	NULL,										/* xxx testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
 	"Expand the power of the list commands",	/* OPT_expand_list */
@@ -1398,11 +1399,11 @@ cptr option_desc[OPT_MAX] =
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
 	"Generate dungeons with aligned rooms",		/* OPT_dungeon_align */
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
-	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
-	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
+	NULL,	/* xxx */
+	NULL,	/* xxx */
 	NULL,										/* xxx track_follow */
 	NULL,										/* xxx track_target */
-	"Monsters learn from their mistakes",		/* OPT_smart_learn */
+	NULL,		/* xxx */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
 	"Hide player symbol when running",			/* OPT_hidden_player */
@@ -1428,8 +1429,8 @@ cptr option_desc[OPT_MAX] =
 	"Avoid centering while running",			/* OPT_run_avoid_center */
 	"Scroll map while targetting",				/* OPT_scroll_target */
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
-	"Monsters behave more intelligently",		/* OPT_smart_monsters */
-	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
+	NULL,		/* xxx */
+	NULL,	/* xxx */
 	"Display experience needed for next level",	/* OPT_exp_need */
 	"Verify before descending from quest level",/* OPT_verify_leave_quest */
 	NULL,										/* xxx */
@@ -1488,7 +1489,7 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
-	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
+	NULL, /* OPT_birth_rand_artifacts */
 	NULL,	/* OPT_birth_point_based */
 	NULL,	/* OPT_birth_auto_roller */
 	NULL,	/* OPT_birth_maximize */
@@ -1622,13 +1623,13 @@ const bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
 	TRUE,		/* OPT_quick_messages */
+	FALSE,		/* OPT_use_old_target */
 	FALSE,		/* OPT_floor_query_flag */
 	TRUE,		/* OPT_carry_query_flag */
-	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
-	TRUE,		/* OPT_always_repeat */
+	FALSE,		/* xxx old always_repeat */
 	FALSE,		/* OPT_depth_in_feet */
-	FALSE,		/* OPT_stack_force_notes */
+	FALSE,		/* xxx old stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
 	TRUE,		/* OPT_show_weights */
@@ -1653,8 +1654,8 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_allow_quantity */
 	TRUE,		/* OPT_spell_book_select */
 	TRUE,		/* OPT_auto_haggle */
-	TRUE,		/* OPT_auto_scum */
-	FALSE,		/* xxx */
+	FALSE,		/* xxx auto_scum */
+	TRUE,		/* OPT_menu_allowed */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_expand_look */
 	TRUE,		/* OPT_expand_list */
@@ -1662,11 +1663,11 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
-	TRUE,		/* OPT_flow_by_sound */
-	TRUE,		/* OPT_flow_by_smell */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
 	FALSE,		/* xxx track_follow */
 	FALSE,		/* xxx track_target */
-	TRUE,		/* OPT_smart_learn */
+	FALSE,		/* xxx */
 	TRUE,		/* OPT_smart_cheat */
 	TRUE,		/* OPT_view_reduce_lite */
 	FALSE,		/* OPT_hidden_player */
@@ -1692,8 +1693,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_run_avoid_center */
 	FALSE,		/* OPT_scroll_target */
 	FALSE,		/* OPT_auto_more */
-	TRUE,		/* OPT_smart_monsters */
-	TRUE,		/* OPT_smart_packs */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
 	TRUE,		/* OPT_exp_need */
 	TRUE,		/* OPT_verify_leave_quest */
 	FALSE,		/* xxx */
@@ -1891,23 +1892,23 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_rogue_like_commands,
 		OPT_quick_messages,
+		OPT_use_old_target,
 		OPT_floor_query_flag,
 		OPT_carry_query_flag,
-		OPT_use_old_target,
 		OPT_always_pickup,
-		OPT_always_repeat,
+		255,
 		OPT_depth_in_feet,
 		OPT_exp_need,
 		OPT_verify_leave_quest,
-		OPT_stack_force_notes,
-		OPT_stack_force_costs,
+		255,
+		255,
 		OPT_show_labels,
 		OPT_show_weights,
 		OPT_show_choices,
 		OPT_show_details,
 		OPT_show_flavors,
 		OPT_ring_bell,
-		255,
+		OPT_menu_allowed,
 		255
 	},
 
@@ -1940,18 +1941,18 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 
 	{
 		OPT_auto_haggle,
-		OPT_auto_scum,
+		255,
 		OPT_expand_look,
 		OPT_expand_list,
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
 		OPT_dungeon_align,
 		OPT_dungeon_stair,
-		OPT_flow_by_sound,
-		OPT_flow_by_smell,
-		OPT_smart_monsters,
-		OPT_smart_packs,
-		OPT_smart_learn,
+		255,
+		255,
+		255,
+		255,
+		255,
 		OPT_smart_cheat,
 		OPT_easy_open,
 		OPT_easy_alter,
@@ -1993,7 +1994,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
-		OPT_birth_rand_artifacts,
+		255,
 		255,
 		255,
 		255,
@@ -2124,7 +2125,7 @@ byte mana_cost_RF5[32]=
 	5, 			/* RF5_BO_SOUND */
 	5, 			/* RF5_BO_NETHER */
 	5, 			/* RF5_BO_GRAVITY */
-	0, 			/* RF5_XXX2 */
+	3, 			/* RF5_BO_DARK */
 	0, 			/* RF5_XXX3 */
 	0  			/* RF5_XXX4 */
 };
@@ -2159,7 +2160,7 @@ byte mana_cost_RF6[32]=
 	5, 			/* RF6_SLOW */
 	6, 			/* RF6_HOLD */
 	0, 			/* RF6_DRAIN_MANA */
-	0, 			/* RF6_XXX3 */
+	0, 			/* RF6_CHARGE */
 	0, 			/* RF6_XXX4 */
 	0, 			/* RF6_XXX5 */
 	60  		/* RF6_MIRROR_IMAGE */
@@ -2169,7 +2170,7 @@ byte mana_cost_RF7[32]=
 {
 	3,			/* RF7_BE_FIRE */
 	3, 			/* RF7_BE_ELEC */
-	0, 			/* RF7_XXX2 */
+	3, 			/* RF7_BE_WATER */
 	0,			/* RF7_XXX1 */
 	0,			/* RF7_XXX1 */
 	0,			/* RF7_XXX3 */
@@ -2181,9 +2182,9 @@ byte mana_cost_RF7[32]=
 	0,			/* RF7_XXX1 */
 	0, 			/* RF7_XXX6 */
 	0, 			/* RF7_XXX7 */
-	0,			/* RF7_XXX1 */
-	0, 			/* RF7_XXX1 */
-	10, 			/* RF7_S_PLANTS */
+	4,			/* RF7_S_CUTTENCLIP */
+	13, 		/* RF7_S_BEASTMEN */
+	10, 		/* RF7_S_PLANTS */
 	12,			/* RF7_S_KIN */
 	16,			/* RF7_S_HI_DEMON */
 	8, 			/* RF7_S_MONSTER */
@@ -2289,7 +2290,7 @@ byte spell_desire_RF5[32][8] =
 	{ 35,  0,   0,   0,	0,   0,	LRN_SOUND ,  100}, /* RF5_BO_SOUND	*/
 	{ 35,  0,   0,   0,	0,   0, LRN_NETHER,  100}, /* RF5_BO_NETHER */
 	{ 25,  0,   0,   0,	0,   0,    0      ,  100}, /* RF5_BO_GRAVITY*/
-	{ 0,   0,   0,   0,	0,   0,    0      ,  100}, /* RF5_XXX2		*/
+	{ 45,  0,   0,   0,	0,   0,    0      ,  100}, /* RF5_BO_DARK	*/
 	{ 0,   0,   0,   0,	0,   0,    0      ,  100}, /* RF5_XXX3		*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}  /* RF5_XXX4 		*/
 };
@@ -2326,7 +2327,7 @@ byte spell_desire_RF6[32][8] =
 	{ 30,  0,   0,   0,	0,   0,	LRN_SAVE  ,  	100}, /* RF6_SLOW			*/
 	{ 40,  0,   0,   0,	0,   0,	LRN_FREE_SAVE,  100}, /* RF6_HOLD			*/
 	{ 25,  0,  15,   0,	0,   0, LRN_MANA  ,     100}, /* RF6_DRAIN_MANA		*/
-	{ 0,   0,   0,   0,	0,   0,    0      ,	    100}, /* RF6_XXX3			*/
+	{ 25,   0,   0,   0,	0,   10,    0      ,	    0}, /* RF6_CHARGE			*/
 	{ 0,   0,   0,   0,	0,   0,    0      ,	    100}, /* RF6_XXX4			*/
 	{ 0,   0,   0,   0,	0,   0,    0      ,	    100}, /* RF6_XXX5			*/
 	{ 20,  5,  18,   0,	0,   0,    0      ,	    100}  /* RF6_MIRROR_IMAGE	*/
@@ -2338,7 +2339,7 @@ byte spell_desire_RF7[32][8] =
 /*	     d_summ	d_mana	  d_tact	   d_range		    */
 	{ 50,  0,   0,   0,	0,   0,	LRN_FIRE  ,  80}, /* RF7_BE_FIRE		*/
 	{ 50,  0,   0,   0,	0,   0,	LRN_ELEC  ,  80}, /* RF7_BE_ELEC		*/
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X3		*/
+	{ 50,  0,   0,   0,	0,   0,	LRN_WATER ,  80}, /* RF7_BE_WATER		*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X4		*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X5		*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X6		*/
@@ -2350,8 +2351,8 @@ byte spell_desire_RF7[32][8] =
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X12		*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X13		*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X14		*/
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X15		*/
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X16		*/
+	{ 0,   30,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_CUTTENCLIP		*/
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_BEASTMEN	*/
 	{ 0,   10,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_PLANTS		*/
 	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_KIN			*/
 	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_DEMON	*/
@@ -2391,7 +2392,7 @@ byte spell_range_RF5[32] =
 
 byte spell_range_RF6[32] =
 {
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0
 };
 
 byte spell_range_RF7[32] =

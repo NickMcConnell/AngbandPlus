@@ -886,6 +886,12 @@ bool set_tim_invis(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (p_ptr->see_inv)
+	{
+		p_ptr->tim_invis = 0;
+		return FALSE;
+	}
+
 	/* Open */
 	if (v)
 	{
@@ -931,10 +937,10 @@ bool set_tim_invis(int v)
 }
 
 /*
- * Set "p_ptr->tim_invis", notice observable changes
+ * Set "p_ptr->tim_light", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because
- * "p_ptr->tim_image" affects monster visibility.
+ * "p_ptr->tim_light" affects monster visibility.
  */
 bool set_tim_light(int v)
 {
@@ -986,10 +992,10 @@ bool set_tim_light(int v)
 }
 
 /*
- * Set "p_ptr->tim_invis", notice observable changes
+ * Set "p_ptr->tim_demonspell", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because
- * "p_ptr->tim_image" affects monster visibility.
+ * "p_ptr->tim_demonspell" affects monster visibility.
  */
 bool set_tim_demonspell(int v)
 {
@@ -1014,7 +1020,11 @@ bool set_tim_demonspell(int v)
 		if (p_ptr->tim_demonspell)
 		{
 			msg_print("You feel energy leave you.");
+			
+			/* set mana to 0; */
+			p_ptr->csp = 0;
 			notice = TRUE;
+			
 		}
 	}
 
@@ -2644,7 +2654,7 @@ void check_experience(void)
 {
 	int pre_lgain;
 	int post_lgain;
-	int bonus_skillpts;
+	int bonus_skillpts, bskilllevel_factor;
 	int i;
 	u32b f1, f2, f3;
 	player_flags(&f1, &f2, &f3);
@@ -2703,10 +2713,17 @@ void check_experience(void)
 		/* Gain a level */
 		p_ptr->lev++;
 		
-		/* determine bonus skill points */
-		bonus_skillpts = rand_int(4);
+		/* Get bonus skilpoints - lower levels give more */
+		bskilllevel_factor = (40 - p_ptr->lev) / 10;
 		
-		bonus_skillpts += (50 - p_ptr->lev) / 10;
+		/* Paranoia */
+		if (bskilllevel_factor < 0) bskilllevel_factor = 0;
+			
+		/* determine bonus skill points */
+		bonus_skillpts = rand_int(2) + 1;
+		
+		bonus_skillpts += bskilllevel_factor;
+		/* bonus_skillpts += (50 - p_ptr->lev) / 10; */
 
 		/* Get the value of max_lev */
 		pre_lgain = p_ptr->max_lev;
@@ -2818,13 +2835,16 @@ void gain_exp(s32b amount)
 	/* Gain some experience */
 	p_ptr->exp += amount;
 
+/* HACK!! XCCCX */
+/* commented out because level gain doesn't trigger correctly */
+#if 0
 	/* Slowly recover from experience drainage */
 	if (p_ptr->exp < p_ptr->max_exp)
 	{
 		/* Gain max experience (10%) */
 		p_ptr->max_exp += amount / 10;
 	}
-
+#endif
 	/* Check Experience */
 	check_experience();
 }
@@ -3437,12 +3457,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 bool modify_panel(int wy, int wx)
 {
 	/* Verify wy, adjust if needed */
-	if (p_ptr->depth == 0) wy = SCREEN_HGT;
+	if (p_ptr->depth == 0) wy = 0;
 	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
 	else if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (p_ptr->depth == 0) wx = SCREEN_WID;
+	if (p_ptr->depth == 0) wx = 0;
 	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
 	else if (wx < 0) wx = 0;
 
@@ -4285,14 +4305,27 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 						/* Save screen */
 						screen_save();
 
-						/* Recall on screen */
-						screen_roff(m_ptr->r_idx);
+						while (TRUE)
+						{
 
-						/* Hack -- Complete the prompt (again) */
-						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+							/* Recall on screen */
+							screen_roff(m_ptr->r_idx, p_ptr->monster_mem_fmt);
 
-						/* Command */
-						query = inkey();
+							/* Hack -- Complete the prompt (again) */
+							Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+
+							/* Command */
+							query = inkey();
+							
+							/* Switch display mode */
+							if (query == '\t') {
+								if (p_ptr->monster_mem_fmt == FALSE) p_ptr->monster_mem_fmt = TRUE;
+								else p_ptr->monster_mem_fmt = FALSE;
+								/* Update recall window */
+								p_ptr->window |= (PW_MONSTER);
+							}
+							else break;
+						}
 
 						/* Load screen */
 						screen_load();
@@ -4319,8 +4352,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 						/* Describe, and prompt for recall */
 						if (p_ptr->wizard)
 						{
-							sprintf(out_val, "%s%s%s%s (%s) [r,%s] (%d:%d)",
-						            s1, s2, s3, m_name, buf, info, y, x);
+							sprintf(out_val, "%s%s%s%s (%s)%s[r,%s] (%d:%d)",
+						            s1, s2, s3, m_name, buf, attitude, info, y, x);
 						}
 						else
 						{

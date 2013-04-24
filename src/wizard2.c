@@ -94,6 +94,12 @@ static void do_cmd_clear_quests(void)
 	p_ptr->cur_quest = 0;
 }
 
+static void do_cmd_reset_recall(void)
+{
+		/* No current depth */
+		p_ptr->max_depth = 0;
+}
+
 /*
  * Output a long int in binary format.
  */
@@ -1115,6 +1121,27 @@ static void wiz_create_artifact(int a_idx)
 	i_ptr->to_d = a_ptr->to_d;
 	i_ptr->weight = a_ptr->weight;
 
+	/* Extract pvals and related flags */
+	i_ptr->pval = a_ptr->pval1;
+	i_ptr->flags_pval1 = a_ptr->flags_pval1;
+	i_ptr->pval2 = a_ptr->pval2;
+	i_ptr->flags_pval2 = a_ptr->flags_pval2;
+	i_ptr->pval3 = a_ptr->pval3;
+	i_ptr->flags_pval3 = a_ptr->flags_pval3;
+
+	i_ptr->flags1 = a_ptr->flags1;
+	i_ptr->flags2 = a_ptr->flags2;
+	i_ptr->flags3 = a_ptr->flags3;
+
+	/* Hack -- extract the "broken" flag */
+	if (!a_ptr->cost) i_ptr->ident |= (IDENT_BROKEN);
+
+	/* Hack -- extract the "cursed" flag */
+	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) i_ptr->ident |= (IDENT_CURSED);
+
+	/* Cheat -- peek at the item */
+	if (cheat_peek) object_mention(i_ptr);
+	
 	/* Drop the artifact from heaven */
 	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
 
@@ -1716,6 +1743,13 @@ void do_cmd_debug(void)
 		case 'r':
 		{
 			do_cmd_clear_quests();
+			break;
+		}
+		
+		/* Reset recall depth */
+		case 'R':
+		{
+			do_cmd_reset_recall();
 			break;
 		}
 		/* Summon Random Monster(s) */

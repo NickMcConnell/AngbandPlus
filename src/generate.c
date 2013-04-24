@@ -2536,10 +2536,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Nasty monster and treasure */
 				case '8':
 				{
-					monster_level = p_ptr->depth + 20;
+					monster_level = p_ptr->depth + 12;
 					place_monster(y, x, TRUE, TRUE, FALSE);
 					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 10;
+					object_level = p_ptr->depth + 8;
 					place_object(y, x, TRUE, TRUE);
 					object_level = p_ptr->depth;
 					break;
@@ -2563,7 +2563,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					}
 					if (rand_int(100) < 50)
 					{
-						object_level = p_ptr->depth + 7;
+						object_level = p_ptr->depth + 3;
 						place_object(y, x, FALSE, FALSE);
 						object_level = p_ptr->depth;
 					}
@@ -3469,13 +3469,14 @@ static void build_store(int n, int yy, int xx)
 {
 	int y, x, y0, x0, y1, x1, y2, x2, tmp;
 
+#if 0
 	int qy = SCREEN_HGT;
 	int qx = SCREEN_WID;
-
+#endif
 
 	/* Find the "center" of the store */
-	y0 = qy + yy * 9 + 6;
-	x0 = qx + xx * 12 + 8;
+	y0 = yy * 9 + 6;
+	x0 = xx * 12 + 8;
 
 	/* Determine the store boundaries */
 	y1 = y0 - randint((yy == 0) ? 3 : 2);
@@ -3560,8 +3561,10 @@ static void town_gen_hack(void)
 {
 	int y, x, k, n;
 
+#if 0
 	int qy = SCREEN_HGT;
 	int qx = SCREEN_WID;
+#endif
 
 	int rooms[MAX_STORES];
 
@@ -3598,8 +3601,8 @@ static void town_gen_hack(void)
 	while (TRUE)
 	{
 		/* Pick a location at least "three" from the outer walls */
-		y = qy + rand_range(3, SCREEN_HGT - 4);
-		x = qx + rand_range(3, SCREEN_WID - 4);
+		y = rand_range(3, TOWN_HGT - 4);
+		x = rand_range(3, TOWN_WID - 4);
 
 		/* Require a "naked" floor grid */
 		if (cave_naked_bold(y, x)) break;
@@ -3642,8 +3645,10 @@ static void town_gen(void)
 
 	int residents;
 
+#if 0
 	int qy = SCREEN_HGT;
 	int qx = SCREEN_WID;
+#endif
 
 	bool daytime;
 
@@ -3679,9 +3684,9 @@ static void town_gen(void)
 	}
 
 	/* Then place some floors */
-	for (y = qy+1; y < qy+SCREEN_HGT-1; y++)
+	for (y = 1; y < TOWN_HGT - 1; y++)
 	{
-		for (x = qx+1; x < qx+SCREEN_WID-1; x++)
+		for (x = 1; x < TOWN_WID - 1; x++)
 		{
 			/* Create empty floor */
 			cave_set_feat(y, x, FEAT_FLOOR);
@@ -3844,7 +3849,7 @@ void generate_cave(void)
 		}
 
 		/* Levels should be interesting */
-		if ((num < 100))
+		if ((num < 10))
 		{
 			/* Require "goodness" */
 			if ((feeling > 9) ||
@@ -3866,6 +3871,8 @@ void generate_cave(void)
 			}
 		}
 
+/* removing autoscum */
+#if 0
 		/* Mega-Hack -- "auto-scum" */
 		if (auto_scum && (num < 1000))
 		{
@@ -3888,7 +3895,7 @@ void generate_cave(void)
 				okay = FALSE;
 			}
 		}
-
+#endif
 		/* Accept */
 		if (okay) break;
 

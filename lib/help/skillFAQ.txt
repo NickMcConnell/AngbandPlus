@@ -23,7 +23,24 @@ devices - if you get them, it's gadgeteering + the specific device skill.
 Q:I added a skill point where I didn't want it to go! How do I get it
 back?
 
-A:Sorry. You can't. Skill increases are permanant.
+A:Sorry. You can't. Skill increases are permanant. Perhaps someday 
+I'll create a temp system like sangband.
+
+
+Q:How do I increase my saving throw? I added points to priest skills
+and that didn't help.
+
+A: Raising your level, your saving throw skill, equipping objects that
+raise your saving throw, and raising your ego and agility stats will
+all increase your saving throw. (For that extra bit of spoiler,
+every 60 points to your stat and every two levels improves your
+saving throw by one. It's a one to one increase for the skill.)
+
+
+Q:Does the Device Power Amp skill increase my damage from enigmatic
+devices, like the clockwork carbine, and clockwork chassis?
+
+A: No, that skill only affects tools, ray guns, and apparatuses.
 
 
 Q:I added points in a skill and some skills dissappeared!
@@ -94,6 +111,7 @@ the effective limit of that skill??
 A: I believe the answer to the above question takes care of this. 
 There is no need for a message, because there is no effective 
 limit of skills. 20 is the max, and every point does something useful.
+
 
 Q:I put a lot of points into advanced combat, and my to hit and 
 damage didn't go up. What gives?

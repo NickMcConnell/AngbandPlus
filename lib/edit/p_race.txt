@@ -57,7 +57,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 #British are the average. Oh, and they're chipper so they resist fear
 N:0:British

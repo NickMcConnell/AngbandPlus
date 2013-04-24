@@ -1025,10 +1025,17 @@ static s32b object_value_real(const object_type *o_ptr)
 	{
 		/* Wands/tools */
 		case TV_RAY:
-		case TV_TOOL:
 		{
 			/* Pay extra for charges */
 			value += ((value / 20) * o_ptr->pval / o_ptr->number);
+
+			/* Done */
+			break;
+		}
+		case TV_TOOL:
+		{
+			/* Pay extra for charges */
+			value += ((value / 20) * o_ptr->pval);// / o_ptr->number);
 
 			/* Done */
 			break;
@@ -1448,18 +1455,19 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	if (((o_ptr->ident & (IDENT_CURSED)) != (j_ptr->ident & (IDENT_CURSED))) ||
 	    ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))))
 	{
-		return (0);
+		return (FALSE);
 	}
 
 
 	/* Hack -- Require compatible inscriptions */
 	if (o_ptr->note != j_ptr->note)
 	{
+		/* Always force notes */
 		/* Normally require matching inscriptions */
-		if (!stack_force_notes) return (0);
+		/* if (!stack_force_notes) return (FALSE); */
 
 		/* Never combine different inscriptions */
-		if (o_ptr->note && j_ptr->note) return (0);
+		if (o_ptr->note && j_ptr->note) return (FALSE);
 	}
 
 
@@ -1471,31 +1479,34 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		    (j_ptr->discount >= INSCRIP_NULL))
 		{
 			/* Normally require matching inscriptions */
-			return (0);
+			return (FALSE);
 		}
 
 		/* One is a special inscription, one is a discount or nothing */
 		else if ((o_ptr->discount >= INSCRIP_NULL) ||
 		         (j_ptr->discount >= INSCRIP_NULL))
 		{
-			/* Normally require matching inscriptions */
-			if (!stack_force_notes) return (0);
+  	  /* Always force notes */
+		  /* Normally require matching inscriptions */
+		  /* if (!stack_force_notes) return (FALSE); */
 
 			/* Hack -- Never merge a special inscription with a discount */
-			if ((o_ptr->discount > 0) && (j_ptr->discount > 0)) return (0);
+			if ((o_ptr->discount > 0) && (j_ptr->discount > 0)) return (FALSE);
 		}
 
+#if 0 /* removing force costs */
 		/* One is a discount, one is a (different) discount or nothing */
 		else
 		{
 			/* Normally require matching discounts */
-			if (!stack_force_costs) return (0);
+			if (!stack_force_costs) return (FALSE);
 		}
+#endif
 	}
 
 
 	/* Maximal "stacking" limit */
-	if (total >= MAX_STACK_SIZE) return (0);
+	if (total >= MAX_STACK_SIZE) return (FALSE);
 
 
 	/* They match, so they must be similar */
@@ -1649,6 +1660,13 @@ void object_prep(object_type *o_ptr, int k_idx)
 	o_ptr->dd = k_ptr->dd;
 	o_ptr->ds = k_ptr->ds;
 
+	/* Default ranged */
+	o_ptr->ammo_tval = k_ptr->ammo_tval;
+	o_ptr->ammo_mult = k_ptr->ammo_mult;
+	o_ptr->num_fire = k_ptr->num_fire;
+	o_ptr->range = k_ptr->range;
+	o_ptr->degree = k_ptr->degree;
+
 	/* Hack -- worthless items are always "broken" */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
@@ -1735,7 +1753,7 @@ static s16b m_bonus(int max, int level, int max_level)
 /*
  * Cheat -- describe a created object for the user
  */
-static void object_mention(const object_type *o_ptr)
+void object_mention(const object_type *o_ptr)
 {
 	char o_name[80];
 
@@ -2076,11 +2094,11 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 	int tohit1 = randint(5) + m_bonus(5, level, MAX_ITEM_GEN_DEPTH);
 	int todam1 = randint(5) + m_bonus(5, level, MAX_ITEM_GEN_DEPTH);
-	int toac1  = randint(5) + m_bonus(5, level, MAX_ITEM_GEN_DEPTH);
+	/* int toac1  = randint(5) + m_bonus(5, level, MAX_ITEM_GEN_DEPTH); */
 
 	int tohit2 = m_bonus(10, level, MAX_ITEM_GEN_DEPTH);
 	int todam2 = m_bonus(10, level, MAX_ITEM_GEN_DEPTH);
-	int toac2  = m_bonus(10, level, MAX_ITEM_GEN_DEPTH);
+	/* int toac2  = m_bonus(10, level, MAX_ITEM_GEN_DEPTH); */
 	
 	/*
 	 * Weapon is an ego-item.  We alter values in the same direction as
@@ -2285,9 +2303,9 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
  */
 static void a_m_aux_2(object_type *o_ptr, int level, int power)
 {
-	int toac1 = randint(5) + m_bonus(5, level, MAX_ITEM_GEN_DEPTH);
+	int toac1 = randint(3) + m_bonus(3, level, MAX_ITEM_GEN_DEPTH);
 
-	int toac2 = m_bonus(10, level, MAX_ITEM_GEN_DEPTH);
+	int toac2 = m_bonus(8, level, MAX_ITEM_GEN_DEPTH);
 
 	/* Armour is an ego-item. */
 	if (o_ptr->name2)
@@ -3624,14 +3642,40 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Handle normal "breakage" */
 	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
 	{
-		/* Message */
-		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		/* Potions shatter */
+		if (j_ptr->tval == TV_TONIC)
+		{
+			/* Message */
+			msg_format("The %s shatter%s!", o_name, (plural ? "" : "s"));
 
+			/* Smash the potion -- do not learn anything  XXX XXX */
+			item_smash_effect(-1, y, x, j_ptr);
+		}
+
+		/* Some objects are "shattered" */
+		else if ((j_ptr->tval == TV_BOTTLE) || (j_ptr->tval == TV_FLASK))
+		{
+			msg_format("The %s shatter%s.", o_name, (plural ? "" : "s"));
+		}
+
+		/* Some objects are "ruined" */
+		else if ((j_ptr->tval == TV_MECHANISM) || (j_ptr->tval == TV_CHEST) ||
+		         (j_ptr->tval == TV_FOOD) ||
+		         (j_ptr->tval == TV_MAGIC_BOOK))
+		{
+			msg_format("The %s %s ruined.", o_name, (plural ? "are" : "is"));
+		}
+
+		/* Other objects "break" */
+		else
+		{
+			/* Message */
+			msg_format("The %s break%s.", o_name, (plural ? "" : "s"));
+		}
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (breakage).");
 
-		/* Failure */
+		/* Return */
 		return;
 	}
 
@@ -3820,7 +3864,11 @@ void acquirement(int y1, int x1, int num, bool great)
 		object_wipe(i_ptr);
 
 		/* Make a good (or great) object (if possible) */
-		if (!make_object(i_ptr, TRUE, great, FALSE)) continue;
+		if (!make_object(i_ptr, TRUE, great, FALSE))
+		{
+			num++;
+			continue;
+		}
 
 		/* Drop the object */
 		drop_near(i_ptr, -1, y1, x1);
@@ -4531,8 +4579,7 @@ s16b inven_takeoff(int item, int amt)
 	cptr act;
 
 	char o_name[80];
-
-
+	
 	/* Get the item to take off */
 	o_ptr = &inventory[item];
 
@@ -4554,6 +4601,9 @@ s16b inven_takeoff(int item, int amt)
 	/* Describe the object */
 	object_desc(o_name, i_ptr, TRUE, 3);
 
+	/* If no bullets weilded */
+	if (!o_ptr->k_idx) return (-1);
+
 	/* Took off weapon */
 	if (item == INVEN_WIELD)
 	{
@@ -4564,12 +4614,18 @@ s16b inven_takeoff(int item, int amt)
 	else if (item == INVEN_GUN)
 	{
 		act = "You were holding";
+		(void)inven_takeoff(INVEN_LOADEDGUN, 255);
 	}
 
 	/* Took off light */
 	else if (item == INVEN_LITE)
 	{
 		act = "You were holding";
+	}
+
+	else if (item == INVEN_LOADEDGUN)
+	{
+		act = "You unloaded";
 	}
 
 	/* Took off something */

@@ -1,16 +1,19 @@
+====================================
 === Attacking and Being Attacked === 
- 
-Attacking is simple in Steamband.  If you move into a creature, you attack him.
-You can attack from a distance by firing a gun or by magical means (such
-as aiming a ray gun).  Creatures attack in the same way.  If they move into you,
-they attack you.  Some creatures can also cast spells from a distance, and
-others can use various breath weapons (such as fire) on you from a distance.
+====================================
 
-Creatures in walls can not be attacked by wands or other magic attacks
-normally stopped by walls, nor can they be shot at with guns and bullets.
-Tunnelling into the wall (using the "tunnel" or "alter" command) will allow 
-you to attack any creature in the wall. This applies to creatures which 
-"pass through" walls: if they "bore through" walls, the wall is no longer
+Attacking is simple in Steamband.  If you move into a creature, you attack it.
+You can attack from a distance by firing a gun, by magical means, or by 
+technological means (such as aiming a ray gun).  Creatures attack in the same
+way.  If they move into you, they attack you.  Some creatures can also cast
+spells from a distance, and others can use various breath weapons (such as 
+fire) on you from a distance.
+
+Creatures (or players) in walls can not be attacked by wands or other magic 
+attacks normally stopped by walls, nor can they be shot at with guns and 
+bullets. Tunnelling into the wall (using the "tunnel" or "alter" command) 
+will allow  you to attack any creature in the wall. This applies to creatures 
+which 'pass through' walls: if they 'bore through' walls, the wall is no longer
 there, and the creature can be targetted normally. If you have easy alter
 set, you may simply move towards the monster to attack it.
 
@@ -18,9 +21,9 @@ If you are wielding a weapon, the damage for the weapon is used when you hit
 a creature.  Otherwise you get a martial attack which does damage based off
 of your skill.
 
-You may "w"ield one weapon for melee combat, and also one missile launcher
+You may 'w'ield one weapon for melee combat, and also one firearm
 (pistol, rifle or shotgun.) You may also wear one amulet (around the one and 
-only neck of the character), two rings (on the two "ring" fingers, i.e. the
+only neck of the character), two rings (on the two 'ring' fingers, i.e. the
 third finger of each hand: a magic ring does not function when worn on any
 other finger, nor may two be worn on the same finger), one light source, 
 and a full set of armor - body armor, trousers, helmet, gloves, boots and a
@@ -29,9 +32,9 @@ terms of bonuses to-hit, to-damage, to-armor class, or to other stats (in
 the latter case, a single numerical bonus applies to all affected stats.)
  
 Firing a gun (while wielding the appropriate launcher) is the only way to
-get the "full" power out of the missile.  You may of course throw an bullet at
+get the full power out of the missile.  You may of course throw an bullet at
 a monster without shooting it, but you will find the effects will not be what
-you had hoped.
+you had hoped. You must load guns before firing them by 'w'ielding the bullets.
 
 Hits and misses are determined by ability to hit versus armor class.  A hit
 is a strike that does some damage; a miss may in fact reach a target, but
@@ -40,7 +43,9 @@ and so lead to more misses; they also reduce the damage from a strike that
 actually occurs.
  
 
+========================
 === Monster Memories ===
+========================
 
 There are hundreds of different creatures in the pits of Steamband, many of
 which have the same letter symbol and color on the screen.  The exact species
@@ -63,7 +68,9 @@ existing save file" of the dead character for this to happen: using the
 "start new character" option will not give access to any monster memory.)
  
 
+===================
 === Your Weapon ===
+===================
 
 Carrying a weapon in your backpack does you no good.  You must wield a weapon 
 before it can be used in a fight.  A secondary weapon can be kept by keeping
@@ -94,12 +101,11 @@ high agility and muscle and low weapon weight are the main factors.
 Your blows are also affected by some skills, as well as whether or not
 you are wielding a weapon. 
 
-Missile booster weapons, such as guns, have their characteristics added to
-those of the missile used, if the proper weapon/missile combination is used,
-and the the launcher multiplier is applied to the total damage, making
-missile weapons very powerful given the proper missiles, especially if they
-are enchanted. If a gun has any slays, they are passed to the bullets fired
-from it.
+Guns, have their characteristics added to those of the missile used, if the
+proper weapon/missile combination is used, and the the firearm multiplier 
+is applied to the total damage, making firearms very powerful given 
+the proper bullets, especially if they are enchanted. If a gun has any slays,
+they are passed to the bullets fired from it.
 
 Although you receive any magical bonuses an unidentified weapon may possess
 when you wield it, those bonuses will not be added in to the displayed
@@ -176,8 +182,8 @@ Firearms of Ferocity.
     high to-hit number, and they increase your muscle
 
 Launchers of Extra Shots.
-    These launchers allow the wielder to shoot more times per round than 
-    normal.
+    These launchers have extra chambers in the weapon allowing you to load
+    additional bullets.
 
 Launchers of Extra Might.
     These launchers have a higher base damage than normally made launchers 
@@ -372,7 +378,7 @@ There are rumors of unique "artifact" items in the dungeon - weapons and
 armor of all types. Many of these are more powerful than even the greatest 
 ego-items: some are weak and have little more than a name to recommend them. 
 In all cases, and indeed if the player desires to find out the powers of an 
-ego-item with random powers, use of a scroll of *Identify* will reveal all 
+ego-item with random powers, use of a mechinism of *Identify* will reveal all 
 the powers of any given item.
 
 === Non-melee attacks and resistances ===
@@ -425,7 +431,7 @@ resistance to a player attack of this kind it will take almost no damage.
 If the player has one or more permanent sources of resistance, he will have
 the damage reduced by the % of resistance that the character currently has.
 if the player has a temporary source of resistance (whether from potion, 
-spell or artifact), this will reduce the damage to 1/3 of its normal level,
+spell or artifact), this will reduce the damage by 1/3 of its normal level,
 allowing the character to take even less damage if he has both permanent 
 and temporary resistance.
 

@@ -277,15 +277,15 @@ player_skills skills[N_SKILLS] = {
 		"Dragon claw arts is your ability to greatly increase the damage you can cause with your bare hands.\
 		It allows the possiblity of very deadly blows and holds."},
 	{"Neophyte Firearms", -2, -2, -2, 0, 2, 
-		"Neophyte firearms is your basic ranged weapon combat abilitie.\
+		"Neophyte firearms is your basic ranged weapon combat ability.\
 		It affects your accuracy with guns."},
 	{"Standard Firearms", -2, -2, -2, 0, 2, 
-		"Standard firearms is your standard ranged weapon combat abilitie.\
+		"Standard firearms is your standard ranged weapon combat ability.\
 		It further affects your accuracy with guns."},
 
 	/* 90 */
 	{"Advanced Firearms", -2, -2, -2, 0, 2, 
-		"Advanced firearms is your advanced ranged weapon combat abilitie.\
+		"Advanced firearms is your advanced ranged weapon combat ability.\
 		It still further increases your accuracy with guns."},
 	{"Master Firearms", -2, -2, -2, 0, 2, 
 		"Master firearms is your mastery of ranged weapons."},
@@ -450,61 +450,61 @@ player_skills skills[N_SKILLS] = {
 	/* 150-154 */	
 	/* Note: Have to be very careful that the r/c descrptions match */
 	/* what skills are available- Should add a check in cmd-book.c */
-	{"Latin", -2, -2, -2, 0, 3, 
+	{"Latin {*}", -2, -2, -2, 0, 3, 
 		"Latin is your ability to read Latin.\
 		It is very helpful in decyphering old mystic works."},
-	{"Occult Lore", -2, -2, -2, 0, 3, 
+	{"Occult Lore {O}", -2, -2, -2, 0, 3, 
 		"Occult Lore is your understanding of the occult.\
 		It allows comprehension of basic occult works. "},
-	{"Adv. Occult Lore", -2, -2, -2, 0, 3, 
+	{"Adv. Occult Lore {O}", -2, -2, -2, 0, 3, 
 		"Advanced Occult Lore is your advanced understanding of occult topics and lore.\
 		It allows comprehension of advanced occult works."},
-	{"Cthulhu Mythos", -2, -2, -2, 0, 3, 
+	{"Cthulhu Mythos {O}", -2, -2, -2, 0, 3, 
 		"Cthulhu mythos is your understanding of dark and forbidden cthulhu lore.\
 		It allows understanding of the most powerful and dark occult works."},
-	{"Ritual Magic", -2, -2, -2, 0, 3, 
+	{"Ritual Magic {O}", -2, -2, -2, 0, 3, 
 		"Ritual magic is your understanding of the techniques and processes of ritual magic.\
 		It increases the potency and power of your occult spells."},
 
 	/* 155-159 */	
-	{"Thaumic Energy", -2, -2, -2, 0, 3, 
+	{"Thaumic Energy {O}", -2, -2, -2, 0, 3, 
 		"Thaumic energy is your understanding of magical thaumic energy.\
 		Raising this skill increases the safety of your arcane spells."},
-	{"Thaumaturgy", -2, -2, -2, 0, 3, 
+	{"Thaumaturgy {O}", -2, -2, -2, 0, 3, 
 		"Thaumaturgy further increases your understanding of magical thaumic energy.\
 		Raising this skill further increases the safety of your arcane spells."},
-	{"Thelma", -2, -2, -2, 0, 3, 
+	{"Thelma {O}", -2, -2, -2, 0, 3, 
 		"Thelma is your unity with the all.\
 		It phenomenally increases the power of your spells."},
-	{"Spirituality", -2, -2, -2, 0, 3, 
+	{"Spirituality {S}", -2, -2, -2, 0, 3, 
 		"Spirituality is your level of being in touch with the divine.\
 		It allows you to learn basic prayers."},
-	{"Prayer", -2, -2, -2, 0, 3, 
+	{"Prayer {S}", -2, -2, -2, 0, 3, 
 		"Prayer is your skill at prayer.\
 		It allows you to learn advanced prayers."},
 
 	/* 160-164 */	
-	{"Devotion", -2, -2, -2, 0, 3, 
+	{"Devotion {S}", -2, -2, -2, 0, 3, 
 		"Devotion is your level of devotion to god.\
 		It allows you to learn the most powerful prayers."},
-	{"Lesser Warding", -2, -2, -2, 0, 3, 
+	{"Lesser Warding {S}", -2, -2, -2, 0, 3, 
 		"Lesser warding is your knowledge of lesser wards.\
 		It increases the saftey of your prayers."},
-	{"Greater Warding", -2, -2, -2, 0, 3, 
+	{"Greater Warding {S}", -2, -2, -2, 0, 3, 
 		"Greater warding is your knowledge of greater wards.\
 		It increases the saftey of your prayers."},
-	{"Tempered Will", -2, -2, -2, 0, 3, 
+	{"Tempered Will {*}", -2, -2, -2, 0, 3, 
 		"Tempered will is the strength of your will.\
 		It increases the power of all your incantations."},
-	{"Hardened Will", -2, -2, -2, 0, 3, 
+	{"Hardened Will {*}", -2, -2, -2, 0, 3, 
 		"Hardened will is the force of your will.\
 		It increases the power of all your spells."},
 
 	/* 165-169 */	
-	{"Iron Will", -2, -2, -2, 0, 3, 
+	{"Iron Will {*}", -2, -2, -2, 0, 3, 
 		"Iron will is the center of your will.\
 		It increases the power of all your spells."},
-	{"Spell Quickening", -2, -2, -2, 0, 3, 
+	{"Spell Quickening {*}", -2, -2, -2, 0, 3, 
 		"Spell quickening is your ability to call up and discharge magic quickly and with ease.\
 		It reduces the amount of time it takes to cast a spell."},
 	{"Spiritual Infusion", -2, -2, -2, 0, 3, 
@@ -580,7 +580,7 @@ player_skills skills[N_SKILLS] = {
 	{"Advanced Power Amp", -2, -2, -2, 0, 1, 
 		"Advanced power amplifier further increases the amount of damage you can cause with devices."},
 	{"Device Bio Amp", -2, -2, -2, 0, 1, 
-		"Device Biological Amplifier increases the effect devices have upon living matter."},
+		"Device Biological Amplifier increases the healing effect of devices."},
 	{"", -2, -2, -2, 0, 3, "nothing"},
 
 	/* 200-204 */	
@@ -618,7 +618,7 @@ player_skills skills[N_SKILLS] = {
 	/* 210-214 */	
 	{"Toughness", -2, -2, -2, 0, 2, 
 		"Toughness raises your wound points."},
-	{"Mental toughness", -2, -2, -2, 0, 3, 
+	{"Mental Toughness", -2, -2, -2, 0, 3, 
 		"Mental toughness raises your wound points."},
 	{"Fortitude", -2, -2, -2, 0, 2, 
 		"Fortitude raises your wound points."},
@@ -666,6 +666,8 @@ player_skills skills[N_SKILLS] = {
  * There is almost certainly a better way to be doing this, but I'm learning on my own, and
  * well, hell this works!
  */
+ 
+#if 0 
 const s16b race_skills[25][N_SKILLS] =
 {
 	/* British Skills */
@@ -833,7 +835,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0},
 
-	 /* Africian Skills */
+	 /* African Skills */
 	{0,0,1,0,0,
 	 0,0,0,0,1,
 	 0,0,0,0,1,
@@ -2545,6 +2547,821 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0}
 };
+#endif
+
+#define RACE_SKILL_MAX 15      /* Number of max starting skills/race */
+#define CLASS_SKILL_MAX 25     /* Number of max starting skills/class */
+/* Feel free to increase if needed, just remember to add array members below */
+
+/*
+ * New race skills table.
+ * Every race should have one disarm skill, one stealth skill,
+ * one searching skill and one device skill.
+ * I hope I got every skill right.
+ * -CJN-
+ */
+const s16b race_skills_new[RACE_MAX][RACE_SKILL_MAX] = 
+{
+	/* British Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_NORM,
+		SK_DEVICE_POOR,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Asiatic skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_NORM,
+		SK_SEARCHING_NORM,
+		SK_DEVICE_POOR,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* American Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_NORM,
+		SK_DEVICE_NORM,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* African Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_NORM,
+		SK_SEARCHING_POOR,
+		SK_DEVICE_POOR,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* French Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_NORM,
+		SK_CUISINE,
+		SK_DEVICE_POOR,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Spanish Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_POOR,
+		SK_SWORD,
+		SK_DEVICE_POOR,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* German Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_NORM,
+		SK_RANSACK,
+		SK_DEVICE_NORM,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Russian Skills */
+	{
+		SK_DISARM_NORM,
+		SK_STEALTH_NORM,
+		SK_SEARCHING_POOR,
+		SK_DEVICE_POOR,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Scandinavian Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_POOR,
+		SK_DEVICE_POOR,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Arabic Skills */
+	{
+		SK_DISARM_NORM,
+		SK_STEALTH_NORM,
+		SK_SEARCHING_POOR,
+		SK_DEVICE_POOR,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Dwarf Skills */
+	{
+		SK_DISARM_GOOD,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_NORM,
+		SK_STONELORE,
+		SK_POWER_STRIKE,
+
+		SK_AXES,
+		SK_DEVICE_GOOD,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Brownie Skills */
+	{
+		SK_DISARM_NORM,
+		SK_STEALTH_NORM,
+		SK_SEARCHING_POOR,
+		SK_FAE_PATH,
+		SK_DEVICE_GOOD,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Daoine Sidhe Skills */
+	{
+		SK_DISARM_NORM,
+		SK_STEALTH_GOOD,
+		SK_SEARCHING_GOOD,
+		SK_DEVICE_NORM,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Seelie Fae Skills */
+	{
+		SK_DISARM_NORM,
+		SK_STEALTH_GOOD,
+		SK_SEARCHING_NORM,
+		SK_FAE_PATH,
+		SK_DEVICE_NORM,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Unseelie Fae Skills */
+	{
+		SK_DISARM_NORM,
+		SK_STEALTH_GOOD,
+		SK_SEARCHING_NORM,
+		SK_FAE_PATH,
+		SK_DEVICE_NORM,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Automata Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_POOR,
+		SK_UTILITY_CYPHER,
+		SK_ACC_STRIKE,
+
+		SK_ACC_SHOT,
+		SK_DEVICE_POOR,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Steam-Mecha Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_POOR,
+		SK_ONSLAUGHT_CYPHER,
+		SK_AEGIS_CYPHER,
+
+		SK_ACC_STRIKE,
+		SK_VICIOUS_STRIKE,
+		SK_CRIT_SHOT,
+		SK_ACC_SHOT,
+		SK_DEVICE_POOR,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Djinn Skills */
+	{
+		SK_DISARM_NORM,
+		SK_STEALTH_GOOD,
+		SK_SEARCHING_NORM,
+		SK_DEVICE_NORM,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Rakshasa Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_GOOD,
+		SK_SEARCHING_NORM,
+		SK_DEMON_ATTUNE,
+		SK_WEAPON_FINESSE,
+
+		SK_CRIT_THROW,
+		SK_DEVICE_GOOD,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Giant Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_POOR,
+		SK_ROCK_TOSS,
+		SK_POWER_STRIKE,
+
+		SK_VICIOUS_STRIKE,
+		SK_BLUNT,
+		SK_DEVICE_POOR,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Ogre Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_POOR,
+		SK_BZRK_STR,
+		SK_VICIOUS_STRIKE,
+
+		SK_BLUNT,
+		SK_DEVICE_POOR,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Troll Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_POOR,
+		SK_VICIOUS_STRIKE,
+		SK_DEVICE_POOR,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Ghost Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_GOOD,
+		SK_SEARCHING_NORM,
+		SK_ETHERIC_ATTUNE,
+		SK_DEVICE_POOR,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Goblin Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_POOR,
+		SK_COWARDICE,
+		SK_DEVICE_POOR,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Old One Skills */
+	{
+		SK_DISARM_POOR,
+		SK_STEALTH_POOR,
+		SK_SEARCHING_POOR,
+		SK_DEVICE_POOR,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	}
+};
+
+
+/*
+ * New class skills table.
+ * I hope I got every skill right.
+ * -CJN-
+ */
+const s16b class_skills_new[CLASS_MAX][CLASS_SKILL_MAX] =
+{
+	/* Officer Skills */
+	{
+		SK_SEARCHING_NORM,
+		SK_TOHIT,
+		SK_TOHIT_MARTIAL,
+		SK_TOHIT_SHOOTING,
+		SK_PISTOL,
+
+		SK_TOHIT_THROWING,
+		SK_SWORD,
+		SK_OFFICER,
+		SK_OFFICER2,
+		SK_LATIN,
+
+		SK_OCCULT,
+		SK_RITUAL_MAGIC,
+		SK_SPIRITUALITY,
+		SK_TMPR_WILL,
+		SK_UTILITY_BANDOLIER,
+
+		SK_DEVICE_NORM,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Aesthete Skills */
+	{
+		SK_STEALTH_NORM,
+		SK_TOHIT,
+		SK_TOHIT_MARTIAL,
+		SK_TOHIT_SHOOTING,
+		SK_TOHIT_THROWING,
+
+		SK_AESTHETE,
+		SK_AESTHETE2,
+		SK_LATIN,
+		SK_OCCULT,
+		SK_RITUAL_MAGIC,
+
+		SK_SPIRITUALITY,
+		SK_TMPR_WILL,
+		SK_GADGETEER,
+		SK_DEVICE_GOOD,
+		SK_DISARM_NORM,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Engineer Skills */
+	{
+		SK_DISARM_NORM,
+		SK_TOHIT,
+		SK_TOHIT_MARTIAL,
+		SK_TOHIT_SHOOTING,
+		SK_TOHIT_THROWING,
+
+		SK_LATIN,
+		SK_OCCULT,
+		SK_RITUAL_MAGIC,
+		SK_SPIRITUALITY,
+		SK_TMPR_WILL,
+
+		SK_GADGETEER,
+		SK_UTILITY_BANDOLIER,
+		SK_CLOCKWORK_CHASSIS,
+		SK_CLOCKWORK_CARBINE,
+		SK_VELOCIPEDE,
+
+		SK_ANALYTIC_ENGINE,
+		SK_DEVICE_GOOD,
+		SK_SEARCHING_NORM,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Medium Skills */
+	{
+		SK_STEALTH_NORM,
+		SK_TOHIT,
+		SK_TOHIT_MARTIAL,
+		SK_TOHIT_SHOOTING,
+		SK_TOHIT_THROWING,
+
+		SK_TELEPATHY,
+		SK_CLAIRSENTIENCE,
+		SK_PSYCHOMETABOLISM,
+		SK_LATIN,
+		SK_OCCULT,
+
+		SK_RITUAL_MAGIC,
+		SK_SPIRITUALITY,
+		SK_TMPR_WILL,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Adventurer Skills */
+	{
+		SK_TOHIT,
+		SK_TOHIT_MARTIAL,
+		SK_TOHIT_SHOOTING,
+		SK_PISTOL,
+		SK_RIFLE,
+
+		SK_SHOTGUN,
+		SK_TOHIT_THROWING,
+		SK_HAFTED,
+		SK_POLEARM,
+		SK_SWORD,
+
+		SK_DAGGER,
+		SK_AXES,
+		SK_BLUNT,
+		SK_LATIN,
+		SK_OCCULT,
+
+		SK_RITUAL_MAGIC,
+		SK_SPIRITUALITY,
+		SK_TMPR_WILL,
+		SK_SEARCHING_NORM,
+		SK_STEALTH_NORM,
+
+		SK_DISARM_NORM,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Dashing Hussar */
+	{
+		SK_TOHIT,
+		SK_TOHIT_MARTIAL,
+		SK_TOHIT_SHOOTING,
+		SK_RIFLE,
+		SK_TOHIT_THROWING,
+
+		SK_POLEARM,
+		SK_SWORD,
+		SK_DAGGER,
+		SK_COMBATTECHNIQUES,
+		SK_LATIN,
+
+		SK_OCCULT,
+		SK_RITUAL_MAGIC,
+		SK_SPIRITUALITY,
+		SK_TMPR_WILL,
+		SK_DRAGON_HEART,
+
+		SK_SEARCHING_NORM,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Gentleman / Lady */
+	{
+		SK_TOHIT,
+		SK_TOHIT_MARTIAL,
+		SK_TOHIT_SHOOTING,
+		SK_PISTOL,
+		SK_TOHIT_THROWING,
+
+		SK_LATIN,
+		SK_OCCULT,
+		SK_RITUAL_MAGIC,
+		SK_SPIRITUALITY,
+		SK_TMPR_WILL,
+
+		SK_GADGETEER,
+		SK_DETECTIVES_KIT,
+		SK_VELOCIPEDE,
+		SK_ANALYTIC_ENGINE,
+		SK_SEARCHING_NORM,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	},
+	/* Rogue */
+	{
+		SK_DISARM_GOOD,
+		SK_STEALTH_GOOD,
+		SK_SEARCHING_GOOD,
+		SK_TOHIT,
+		SK_SWIFT_BLOW,
+
+		SK_TOHIT_MARTIAL,
+		SK_TOHIT_SHOOTING,
+		SK_CRIT_SHOT,
+		SK_TOHIT_THROWING,
+		SK_CRIT_THROW,
+
+		SK_ACC_THROW,
+		SK_SWORD,
+		SK_DAGGER,
+		SK_LATIN,
+		SK_OCCULT,
+
+		SK_RITUAL_MAGIC,
+		SK_SPIRITUALITY,
+		SK_TMPR_WILL,
+		SK_GADGETEER,
+		SK_UTILITY_BANDOLIER,
+
+		SK_VELOCIPEDE,
+		SK_ANALYTIC_ENGINE,
+		SK_DEVICE_GOOD,
+		-1,
+		-1
+	},
+	/* Naturalist */
+	{
+		SK_STEALTH_NORM,
+		SK_TOHIT,
+		SK_TOHIT_MARTIAL,
+		SK_TOHIT_SHOOTING,
+		SK_TOHIT_THROWING,
+
+		SK_HAFTED,
+		SK_BLUNT,
+		SK_FLORAL,
+		SK_FAUNA,
+		SK_ELEMENTAL,
+
+		SK_LATIN,
+		SK_OCCULT,
+		SK_RITUAL_MAGIC,
+		SK_SPIRITUALITY,
+		SK_TMPR_WILL,
+
+		SK_FIRE_LORE,
+		SK_WIND_LORE,
+		SK_WATER_LORE,
+		SK_EARTH_LORE,
+		-1,
+
+		-1,
+		-1,
+		-1,
+		-1,
+		-1
+	}
+};
+
 
 /*
  * Determines if the skill has reached it's max rank.
@@ -2589,19 +3406,22 @@ bool can_raise_skill(int skill)
  *
  * This is only called at the end of character creation. -CCC
  *
+ * Updated to use the new arrays with SK_ constants to initialize skills. -CJN-
  */
 void skill_raceinit(void)
 {
 	int	race = p_ptr->prace;
-	int i;
-	/* loop through all the skills */
-	for (i = 0; i < N_SKILLS; i++)
+	int i, j;
+
+	/* check all elements of new race skill table */
+	for (i = 0; i < RACE_SKILL_MAX; i++)
 	{
-		/* if the value in the race_skills array is > 0 */
-		if (race_skills[race][i] > 0)
+		/* Get next skill in table */
+		j = race_skills_new[race][i];
+		if (j >= 0) /* Valid skill? */
 		{
 			 /* Then set skill_rank, and skill_max to one */
-			 p_ptr->skills[i].skill_rank = p_ptr->skills[i].skill_max = p_ptr->skills[i].skill_raise = 1;		 
+			 p_ptr->skills[j].skill_rank = p_ptr->skills[j].skill_max = p_ptr->skills[j].skill_raise = 1;		 
 		}
 	}
 	return;
@@ -2612,24 +3432,50 @@ void skill_raceinit(void)
  * class recieves at the start with a value of 1
  *
  * This is only called at the end of character creation. -CCC
+ *
+ * Updated to use the new arrays with SK_constants to initialize skills. -CJN-
  */
 void skill_classinit(void)
 {
 	int class = p_ptr->pclass;
-	int i;
+	int i, j;
 
-	/* check all values in class skill table */
-	for (i = 0; i < N_SKILLS; i++)
+	/* check all elements of new class skill table */
+	for (i = 0; i < CLASS_SKILL_MAX; i ++)
 	{
-		/* if the value in the class_skills array > 0 */
-		if (class_skills[class][i] > 0)
+		/* Get next skill in table */
+		j = class_skills_new[class][i];
+		if (j >= 0) /* Valid skill? */
 		{
 			/* set skill_rank, and skill_max to one */
-			 p_ptr->skills[i].skill_rank = p_ptr->skills[i].skill_max = p_ptr->skills[i].skill_raise = 1;		 
+			 p_ptr->skills[j].skill_rank = p_ptr->skills[j].skill_max = p_ptr->skills[j].skill_raise = 1;		 
 		}
 	}
-	return;
 }
+
+/*
+ * Enables a disabled skill.
+ * A helper function I added to make skill_link more readable.
+ * -CJN-
+ */
+static void enable_skill(int skill)
+{
+	if (p_ptr->skills[skill].skill_max == -2)
+	{
+		p_ptr->skills[skill].skill_rank = p_ptr->skills[skill].skill_max = p_ptr->skills[skill].skill_raise = 1;
+	}
+}
+
+/*
+ * Disbles a skill.
+ * A helper function for skill_cleanup & skill_link.
+ * -CJN-
+ */
+static void disable_skill(int skill)
+{
+	p_ptr->skills[skill].skill_rank = p_ptr->skills[skill].skill_max = p_ptr->skills[skill].skill_raise = -2;
+}
+
 
 /* 
  * This will parse the skill list to check and make sure no skills are duplicated. 
@@ -2645,47 +3491,48 @@ void skill_cleanup()
 	 /* disarm */
 	 if (p_ptr->skills[SK_DISARM_GOOD].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_DISARM_NORM].skill_rank = p_ptr->skills[SK_DISARM_NORM].skill_max = p_ptr->skills[SK_DISARM_NORM].skill_raise = -2;
-	 	p_ptr->skills[SK_DISARM_POOR].skill_rank = p_ptr->skills[SK_DISARM_POOR].skill_max = p_ptr->skills[SK_DISARM_POOR].skill_raise = -2;
+		 disable_skill(SK_DISARM_NORM);
+		 disable_skill(SK_DISARM_POOR);
 	 }
 	 else if(p_ptr->skills[SK_DISARM_NORM].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_DISARM_POOR].skill_rank = p_ptr->skills[SK_DISARM_POOR].skill_max = p_ptr->skills[SK_DISARM_POOR].skill_raise = -2;
+		 disable_skill(SK_DISARM_POOR);
 	 }
 	
 	 /* Magic Device */
 	 if (p_ptr->skills[SK_DEVICE_GOOD].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_DEVICE_NORM].skill_rank = p_ptr->skills[SK_DEVICE_NORM].skill_max =  p_ptr->skills[SK_DEVICE_NORM].skill_raise = -2;
-	 	p_ptr->skills[SK_DEVICE_POOR].skill_rank = p_ptr->skills[SK_DEVICE_POOR].skill_max =  p_ptr->skills[SK_DEVICE_POOR].skill_raise = -2;
+		 disable_skill(SK_DEVICE_NORM);
+		 disable_skill(SK_DEVICE_POOR);
 	 }
 	 else if(p_ptr->skills[SK_DEVICE_NORM].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_DEVICE_POOR].skill_rank = p_ptr->skills[SK_DEVICE_POOR].skill_max =  p_ptr->skills[SK_DEVICE_POOR].skill_raise = -2;
+		 disable_skill(SK_DEVICE_POOR);
 	 }
 	 	 
 	 /* Stealth */
 	 if (p_ptr->skills[SK_STEALTH_GOOD].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_STEALTH_NORM].skill_rank = p_ptr->skills[SK_STEALTH_NORM].skill_max =  p_ptr->skills[SK_STEALTH_NORM].skill_raise = -2;
-	 	p_ptr->skills[SK_STEALTH_POOR].skill_rank = p_ptr->skills[SK_STEALTH_POOR].skill_max =  p_ptr->skills[SK_STEALTH_POOR].skill_raise = -2;
+		 disable_skill(SK_STEALTH_NORM);
+		 disable_skill(SK_STEALTH_POOR);
 	 }
 	 else if(p_ptr->skills[SK_STEALTH_NORM].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_STEALTH_POOR].skill_rank = p_ptr->skills[SK_STEALTH_POOR].skill_max =  p_ptr->skills[SK_STEALTH_POOR].skill_raise = -2;
+		 disable_skill(SK_STEALTH_POOR);
 	 }
 	 
 	 /* Searching Ability */
 	 if (p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_SEARCHING_NORM].skill_rank = p_ptr->skills[SK_SEARCHING_NORM].skill_max =  p_ptr->skills[SK_SEARCHING_NORM].skill_raise = -2;
-	 	p_ptr->skills[SK_SEARCHING_POOR].skill_rank = p_ptr->skills[SK_SEARCHING_POOR].skill_max =  p_ptr->skills[SK_SEARCHING_POOR].skill_raise = -2;
+		 disable_skill(SK_SEARCHING_NORM);
+		 disable_skill(SK_SEARCHING_POOR);
 	 }
 	 else if(p_ptr->skills[SK_SEARCHING_NORM].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_SEARCHING_POOR].skill_rank = p_ptr->skills[SK_SEARCHING_POOR].skill_max =  p_ptr->skills[SK_SEARCHING_POOR].skill_raise = -2;
+		 disable_skill(SK_SEARCHING_POOR);
 	 }
 }
+
 
 /* 
  * A function perhaps to determine whether or not another skill meets 
@@ -2702,40 +3549,25 @@ void skill_link(void)
 	/* Racial skills */
 	if (p_ptr->skills[SK_UTILITY_CYPHER].skill_max > 9)
 	{
-		if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max == -2)
-		{
-			p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_raise = 1;
-		}
+		enable_skill(SK_SYSTEMS_CYPHER);
 	}
 	if (p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_max > 3 && p_ptr->skills[SK_AEGIS_CYPHER].skill_max > 5)
 	{
-		if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max == -2)
-		{		
-			p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_raise = 1;
-		}
+		enable_skill(SK_SYSTEMS_CYPHER);
 	}
 	if (p_ptr->skills[SK_DEMON_ATTUNE].skill_max > 3)
 	{
-		if (p_ptr->skills[SK_DARK_CHARM].skill_max == -2)
-		{
-			p_ptr->skills[SK_DARK_CHARM].skill_rank = p_ptr->skills[SK_DARK_CHARM].skill_max = p_ptr->skills[SK_DARK_CHARM].skill_raise = 1;
-		}
+		enable_skill(SK_DARK_CHARM);
 	}
 	if (p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_max > 14)
 	{
-		if (p_ptr->skills[SK_ROCKETRY].skill_max == -2)
-		{
-			p_ptr->skills[SK_ROCKETRY].skill_rank = p_ptr->skills[SK_ROCKETRY].skill_max = p_ptr->skills[SK_ROCKETRY].skill_raise = 1;
-		}
+		enable_skill(SK_ROCKETRY);
 	}
 	if (((p_ptr->skills[SK_INTER_COMBAT].skill_max > 9) ||
 		(p_ptr->skills[SK_INTER_MARTIAL].skill_max > 9)) &&
 		(!(p_ptr->prace == RACE_GHOST)))
 	{
-		if (p_ptr->skills[SK_TOUGHNESS].skill_max == -2)
-		{
-			p_ptr->skills[SK_TOUGHNESS].skill_rank = p_ptr->skills[SK_TOUGHNESS].skill_max = p_ptr->skills[SK_TOUGHNESS].skill_raise = 1;
-		}
+		enable_skill(SK_TOUGHNESS);
 	}
 	if ((p_ptr->skills[SK_TOUGHNESS].skill_max > 19) &&
 		(
@@ -2744,10 +3576,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_FORTITUDE].skill_max == -2)
-		{
-			p_ptr->skills[SK_FORTITUDE].skill_rank = p_ptr->skills[SK_FORTITUDE].skill_max = p_ptr->skills[SK_FORTITUDE].skill_raise = 1;
-		}
+		enable_skill(SK_FORTITUDE);
 	}
 	if ((p_ptr->skills[SK_TOUGHNESS].skill_max > 9) &&
 		(
@@ -2757,10 +3586,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_PAIN_TOLERANCE].skill_max == -2)
-		{
-			p_ptr->skills[SK_PAIN_TOLERANCE].skill_rank = p_ptr->skills[SK_PAIN_TOLERANCE].skill_max = p_ptr->skills[SK_PAIN_TOLERANCE].skill_raise = 1;
-		}
+		enable_skill(SK_PAIN_TOLERANCE);
 	}
 	if ((p_ptr->skills[SK_TOUGHNESS].skill_max > 4) &&
 		(
@@ -2770,10 +3596,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_ATHLETICS].skill_max == -2)
-		{
-			p_ptr->skills[SK_ATHLETICS].skill_rank = p_ptr->skills[SK_ATHLETICS].skill_max = p_ptr->skills[SK_ATHLETICS].skill_raise = 1;
-		}
+		enable_skill(SK_ATHLETICS);
 	}
 	if ((p_ptr->skills[SK_FORTITUDE].skill_max > 19) &&
 		(
@@ -2781,10 +3604,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_IRON_BODY].skill_max == -2)
-		{
-			p_ptr->skills[SK_IRON_BODY].skill_rank = p_ptr->skills[SK_IRON_BODY].skill_max = p_ptr->skills[SK_IRON_BODY].skill_raise = 1;
-		}
+		enable_skill(SK_IRON_BODY);
 	}
 	if 	(
 		(p_ptr->skills[SK_TOHIT].skill_max > 4) &&
@@ -2801,10 +3621,7 @@ void skill_link(void)
 		)	
 		)
 	{
-		if (p_ptr->skills[SK_INTER_COMBAT].skill_max == -2)
-		{
-			p_ptr->skills[SK_INTER_COMBAT].skill_rank = p_ptr->skills[SK_INTER_COMBAT].skill_max = p_ptr->skills[SK_INTER_COMBAT].skill_raise = 1;
-		}
+		enable_skill(SK_INTER_COMBAT);
 	}
 	if 	(
 		(p_ptr->skills[SK_INTER_COMBAT].skill_max > 14) &&
@@ -2818,10 +3635,7 @@ void skill_link(void)
 		)	
 		)
 	{
-		if (p_ptr->skills[SK_ADV_COMBAT].skill_max == -2)
-		{
-			p_ptr->skills[SK_ADV_COMBAT].skill_rank = p_ptr->skills[SK_ADV_COMBAT].skill_max = p_ptr->skills[SK_ADV_COMBAT].skill_raise = 1;
-		}
+		enable_skill(SK_ADV_COMBAT);
 	}	
 	if 	(
 		(p_ptr->skills[SK_ADV_COMBAT].skill_max > 14) &&
@@ -2832,10 +3646,7 @@ void skill_link(void)
 		)	
 		)
 	{
-		if (p_ptr->skills[SK_MASTER_COMBAT].skill_max == -2)
-		{
-			p_ptr->skills[SK_MASTER_COMBAT].skill_rank = p_ptr->skills[SK_MASTER_COMBAT].skill_max = p_ptr->skills[SK_MASTER_COMBAT].skill_raise = 1;
-		}
+		enable_skill(SK_MASTER_COMBAT);
 	}
 	if 	(
 		(p_ptr->skills[SK_TOHIT_SHOOTING].skill_max > 14) &&
@@ -2852,10 +3663,7 @@ void skill_link(void)
 		)	
 		)
 	{
-		if (p_ptr->skills[SK_INTER_SHOOTING].skill_max == -2)
-		{
-			p_ptr->skills[SK_INTER_SHOOTING].skill_rank = p_ptr->skills[SK_INTER_SHOOTING].skill_max = p_ptr->skills[SK_INTER_SHOOTING].skill_raise = 1;
-		}
+		enable_skill(SK_INTER_SHOOTING);
 	}
 	if 	(
 		(p_ptr->skills[SK_INTER_SHOOTING].skill_max > 14) &&
@@ -2871,10 +3679,7 @@ void skill_link(void)
 		)	
 		)
 	{
-		if (p_ptr->skills[SK_ADV_SHOOTING].skill_max == -2)
-		{
-			p_ptr->skills[SK_ADV_SHOOTING].skill_rank = p_ptr->skills[SK_ADV_SHOOTING].skill_max = p_ptr->skills[SK_ADV_SHOOTING].skill_raise = 1;
-		}
+		enable_skill(SK_ADV_SHOOTING);
 	}
 	if 	(
 		(p_ptr->skills[SK_ADV_SHOOTING].skill_max > 14) &&
@@ -2885,10 +3690,7 @@ void skill_link(void)
 		)	
 		)
 	{
-		if (p_ptr->skills[SK_MASTER_SHOOTING].skill_max == -2)
-		{
-			p_ptr->skills[SK_MASTER_SHOOTING].skill_rank = p_ptr->skills[SK_MASTER_SHOOTING].skill_max = p_ptr->skills[SK_MASTER_SHOOTING].skill_raise = 1;
-		}
+		enable_skill(SK_MASTER_SHOOTING);
 	}
 	if 	(
 		(p_ptr->skills[SK_TOHIT_THROWING].skill_max > 14) &&
@@ -2904,10 +3706,7 @@ void skill_link(void)
 		)	
 		)
 	{
-		if (p_ptr->skills[SK_ADV_THROWING].skill_max == -2)
-		{
-			p_ptr->skills[SK_ADV_THROWING].skill_rank = p_ptr->skills[SK_ADV_THROWING].skill_max =  p_ptr->skills[SK_ADV_THROWING].skill_raise = 1;
-		}
+		enable_skill(SK_ADV_THROWING);
 	}
 	if 	(
 		(p_ptr->skills[SK_ADV_THROWING].skill_max > 14) &&
@@ -2920,10 +3719,7 @@ void skill_link(void)
 		)	
 		)
 	{
-		if (p_ptr->skills[SK_MASTER_THROWING].skill_max == -2)
-		{
-			p_ptr->skills[SK_MASTER_THROWING].skill_rank = p_ptr->skills[SK_MASTER_THROWING].skill_max = p_ptr->skills[SK_MASTER_THROWING].skill_raise = 1;
-		}
+		enable_skill(SK_MASTER_THROWING);
 	}
 	if  (
 		(p_ptr->skills[SK_TOHIT_MARTIAL].skill_max > 14) &&
@@ -2932,14 +3728,12 @@ void skill_link(void)
 		(p_ptr->pclass == CLASS_ROGUE) ||
 		(p_ptr->pclass == CLASS_GENTLEMAN) ||
 		(p_ptr->pclass == CLASS_NATURAL) ||
+		(p_ptr->pclass == CLASS_DASHING_H) ||
 		(p_ptr->prace == RACE_ASIATIC)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_INTER_MARTIAL].skill_max == -2)
-		{
-			p_ptr->skills[SK_INTER_MARTIAL].skill_rank = p_ptr->skills[SK_INTER_MARTIAL].skill_max = p_ptr->skills[SK_INTER_MARTIAL].skill_raise = 1;
-		}
+		enable_skill(SK_INTER_MARTIAL);
 	}
 	if  (
 		(p_ptr->skills[SK_TOHIT_MARTIAL].skill_max > 4) &&
@@ -2950,10 +3744,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_ACROBATICS].skill_max == -2)
-		{
-			p_ptr->skills[SK_ACROBATICS].skill_rank = p_ptr->skills[SK_ACROBATICS].skill_max = p_ptr->skills[SK_ACROBATICS].skill_raise = 1;
-		}
+		enable_skill(SK_ACROBATICS);
 	}
 	if  (
 		(p_ptr->skills[SK_INTER_MARTIAL].skill_max > 14) &&
@@ -2966,103 +3757,66 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_ADV_MARTIAL].skill_max == -2)
-		{
-			p_ptr->skills[SK_ADV_MARTIAL].skill_rank = p_ptr->skills[SK_ADV_MARTIAL].skill_max = p_ptr->skills[SK_ADV_MARTIAL].skill_raise = 1;
-		}
+		enable_skill(SK_ADV_MARTIAL);
 	}
 	if (p_ptr->skills[SK_INTER_COMBAT].skill_max > 7)
 	{
-		if (p_ptr->skills[SK_VICIOUS_STRIKE].skill_max == -2)
-		{
-			p_ptr->skills[SK_VICIOUS_STRIKE].skill_rank = p_ptr->skills[SK_VICIOUS_STRIKE].skill_max = p_ptr->skills[SK_VICIOUS_STRIKE].skill_raise = 1;
-		}
-		if (p_ptr->skills[SK_ACC_STRIKE].skill_max == -2)
-		{
-			p_ptr->skills[SK_ACC_STRIKE].skill_rank = p_ptr->skills[SK_ACC_STRIKE].skill_max = p_ptr->skills[SK_ACC_STRIKE].skill_raise = 1;
-		}
+		enable_skill(SK_VICIOUS_STRIKE);
+		enable_skill(SK_ACC_STRIKE);
 	}
-	if (p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > 9 && p_ptr->skills[SK_ADV_COMBAT].skill_max > 0)
+	if (p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > 9 && p_ptr->skills[SK_ADV_COMBAT].skill_max > 0 && p_ptr->skills[SK_CRIT_STRIKE].skill_max < 2)
 	{
-		if (p_ptr->skills[SK_POWER_STRIKE].skill_max == -2)
-		{
-			p_ptr->skills[SK_POWER_STRIKE].skill_rank = p_ptr->skills[SK_POWER_STRIKE].skill_max = p_ptr->skills[SK_POWER_STRIKE].skill_raise = 1;
-		}
+		enable_skill(SK_POWER_STRIKE);
 	}
 	if (p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > 9)
 	{
-		if (p_ptr->skills[SK_WEAPON_FINESSE].skill_max == -2)
-		{
-			p_ptr->skills[SK_WEAPON_FINESSE].skill_rank = p_ptr->skills[SK_WEAPON_FINESSE].skill_max = p_ptr->skills[SK_WEAPON_FINESSE].skill_raise = 1;
-		}
+		enable_skill(SK_WEAPON_FINESSE);
 	}
-	if (p_ptr->skills[SK_ACC_STRIKE].skill_max > 9  && p_ptr->skills[SK_ADV_COMBAT].skill_max > 0)
+	if (p_ptr->skills[SK_ACC_STRIKE].skill_max > 9  && p_ptr->skills[SK_ADV_COMBAT].skill_max > 0 && p_ptr->skills[SK_POWER_STRIKE].skill_max < 2)
 	{
-		if (p_ptr->skills[SK_CRIT_STRIKE].skill_max == -2)
-		{
-			p_ptr->skills[SK_CRIT_STRIKE].skill_rank = p_ptr->skills[SK_CRIT_STRIKE].skill_max = p_ptr->skills[SK_CRIT_STRIKE].skill_raise = 1;
-		}
+		enable_skill(SK_CRIT_STRIKE);
 	}
 	if (p_ptr->skills[SK_ACC_STRIKE].skill_max > 9)
 	{
-		if (p_ptr->skills[SK_SWIFT_BLOW].skill_max == -2)
-		{
-			p_ptr->skills[SK_SWIFT_BLOW].skill_rank = p_ptr->skills[SK_SWIFT_BLOW].skill_max = p_ptr->skills[SK_SWIFT_BLOW].skill_raise = 1;
-		}
+		enable_skill(SK_SWIFT_BLOW);
+	}
+	if (p_ptr->skills[SK_CRIT_STRIKE].skill_max > 1)
+	{
+		disable_skill(SK_POWER_STRIKE);
+	}
+	if (p_ptr->skills[SK_POWER_STRIKE].skill_max > 1)
+	{
+		disable_skill(SK_CRIT_STRIKE);
 	}
 	if (p_ptr->skills[SK_INTER_SHOOTING].skill_max > 7)
 	{
-		if (p_ptr->skills[SK_ACC_SHOT].skill_max == -2)
-		{
-			p_ptr->skills[SK_ACC_SHOT].skill_rank = p_ptr->skills[SK_ACC_SHOT].skill_max = p_ptr->skills[SK_ACC_SHOT].skill_raise = 1;
-		}
-		if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max == -2)
-		{
-			p_ptr->skills[SK_VICIOUS_SHOT].skill_rank = p_ptr->skills[SK_VICIOUS_SHOT].skill_max = p_ptr->skills[SK_VICIOUS_SHOT].skill_raise = 1;
-		}
+		enable_skill(SK_ACC_SHOT);
+		enable_skill(SK_VICIOUS_SHOT);
 	}
 	if (p_ptr->skills[SK_ACC_SHOT].skill_max > 9  && p_ptr->skills[SK_ADV_SHOOTING].skill_max > 0)
 	{
-		if (p_ptr->skills[SK_CRIT_SHOT].skill_max == -2)
-		{
-			p_ptr->skills[SK_CRIT_SHOT].skill_rank = p_ptr->skills[SK_CRIT_SHOT].skill_max = p_ptr->skills[SK_CRIT_SHOT].skill_raise = 1;
-		}
+		enable_skill(SK_CRIT_SHOT);
 	}
-	if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > 9  && p_ptr->skills[SK_ADV_SHOOTING].skill_max > 0)
+	if (p_ptr->skills[SK_TOHIT_SHOOTING].skill_max > 9)
 	{
-		if (p_ptr->skills[SK_SWIFT_SHOT].skill_max == -2)
-		{
-			p_ptr->skills[SK_SWIFT_SHOT].skill_rank = p_ptr->skills[SK_SWIFT_SHOT].skill_max = p_ptr->skills[SK_SWIFT_SHOT].skill_raise = 1;
-		}
+		enable_skill(SK_SWIFT_SHOT);
 	}
 	if (p_ptr->skills[SK_ADV_THROWING].skill_max > 9)
 	{
-		if (p_ptr->skills[SK_ACC_THROW].skill_max == -2)
-		{
-			p_ptr->skills[SK_ACC_THROW].skill_rank = p_ptr->skills[SK_ACC_THROW].skill_max = p_ptr->skills[SK_ACC_THROW].skill_raise = 1;
-		}
+		enable_skill(SK_ACC_THROW);
 	} 
 	if (p_ptr->skills[SK_ACC_THROW].skill_max > 9)
 	{
-		if (p_ptr->skills[SK_CRIT_THROW].skill_max == -2)
-		{
-			p_ptr->skills[SK_CRIT_THROW].skill_rank = p_ptr->skills[SK_CRIT_THROW].skill_max = p_ptr->skills[SK_CRIT_THROW].skill_raise = 1;
-		}
+		enable_skill(SK_CRIT_THROW);
 	} 
 	if (p_ptr->skills[SK_ACC_THROW].skill_max > 3 && p_ptr->skills[SK_MASTER_THROWING].skill_max > 0)		
 	{
-		if (p_ptr->skills[SK_POWER_THROW].skill_max == -2)
-		{
-			p_ptr->skills[SK_POWER_THROW].skill_rank = p_ptr->skills[SK_POWER_THROW].skill_max = p_ptr->skills[SK_POWER_THROW].skill_raise = 1;
-		}
+		enable_skill(SK_POWER_THROW);
 	}
 	if 	((p_ptr->pclass == CLASS_ROGUE) &&
 		((p_ptr->skills[SK_MASTER_THROWING].skill_max > 9)))
 	{
-		if (p_ptr->skills[SK_FAST_THROW].skill_max == -2)
-		{
-			p_ptr->skills[SK_FAST_THROW].skill_rank = p_ptr->skills[SK_FAST_THROW].skill_max = p_ptr->skills[SK_FAST_THROW].skill_raise = 1;
-		}
+		enable_skill(SK_FAST_THROW);
 	}
 	if  (
 		(p_ptr->skills[SK_INTER_MARTIAL].skill_max > 7) &&
@@ -3075,10 +3829,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_MARTIAL_DEFENSE].skill_max == -2)
-		{
-			p_ptr->skills[SK_MARTIAL_DEFENSE].skill_rank = p_ptr->skills[SK_MARTIAL_DEFENSE].skill_max = p_ptr->skills[SK_MARTIAL_DEFENSE].skill_raise = 1;
-		}
+		enable_skill(SK_MARTIAL_DEFENSE);
 	} 
 #if 0
 	if  (
@@ -3088,10 +3839,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_JUMPING].skill_max == -2)
-		{
-			p_ptr->skills[SK_JUMPING].skill_rank = p_ptr->skills[SK_JUMPING].skill_max = p_ptr->skills[SK_JUMPING].skill_raise = 1;
-		}
+		enable_skill(SK_JUMPING);
 	} 
 #endif
 	if  (
@@ -3103,10 +3851,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_max == -2)
-		{
-			p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_rank = p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_max = p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_raise = 1;
-		}
+		enable_skill(SK_MARTIAL_DEFENSE_II);
 	} 
 	if  (
 		(p_ptr->skills[SK_ADV_MARTIAL].skill_max > 9) &&
@@ -3118,153 +3863,116 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_MARTIAL_SPEED].skill_max == -2)
-		{
-			p_ptr->skills[SK_MARTIAL_SPEED].skill_rank = p_ptr->skills[SK_MARTIAL_SPEED].skill_max = p_ptr->skills[SK_MARTIAL_SPEED].skill_raise = 1;
-		}
+		enable_skill(SK_MARTIAL_SPEED);
 	} 
 	if (p_ptr->skills[SK_HAFTED].skill_max > 1)
 	{
-		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
-		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
-		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
-		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
-		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
-
+		disable_skill(SK_POLEARM);
+		disable_skill(SK_SWORD);
+		disable_skill(SK_DAGGER);
+		disable_skill(SK_AXES);
+		disable_skill(SK_BLUNT);
 	}
 	if (p_ptr->skills[SK_BLUNT].skill_max > 1)
 	{
-		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
-		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
-		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
-		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
-		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
-
+		disable_skill(SK_POLEARM);
+		disable_skill(SK_SWORD);
+		disable_skill(SK_DAGGER);
+		disable_skill(SK_AXES);
+		disable_skill(SK_HAFTED);
 	}
 	if (p_ptr->skills[SK_AXES].skill_max > 1)
 	{
-		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
-		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
-		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
-		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
-		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
-
+		disable_skill(SK_POLEARM);
+		disable_skill(SK_SWORD);
+		disable_skill(SK_DAGGER);
+		disable_skill(SK_HAFTED);
+		disable_skill(SK_BLUNT);
 	}
 	if (p_ptr->skills[SK_DAGGER].skill_max > 1)
 	{
-		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
-		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
-		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
-		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
-		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
-
+		disable_skill(SK_POLEARM);
+		disable_skill(SK_SWORD);
+		disable_skill(SK_HAFTED);
+		disable_skill(SK_AXES);
+		disable_skill(SK_BLUNT);
 	}
 	if (p_ptr->skills[SK_SWORD].skill_max > 1)
 	{
-		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
-		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
-		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
-		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
-		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
-
+		disable_skill(SK_POLEARM);
+		disable_skill(SK_HAFTED);
+		disable_skill(SK_DAGGER);
+		disable_skill(SK_AXES);
+		disable_skill(SK_BLUNT);
 	}
 	if (p_ptr->skills[SK_POLEARM].skill_max > 1)
 	{
-		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
-		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
-		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
-		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
-		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
-
+		disable_skill(SK_HAFTED);
+		disable_skill(SK_SWORD);
+		disable_skill(SK_DAGGER);
+		disable_skill(SK_AXES);
+		disable_skill(SK_BLUNT);
 	}
 	if (p_ptr->skills[SK_PISTOL].skill_max > 1)
 	{
-		p_ptr->skills[SK_RIFLE].skill_rank = p_ptr->skills[SK_RIFLE].skill_max = p_ptr->skills[SK_RIFLE].skill_raise = -2;
-		p_ptr->skills[SK_SHOTGUN].skill_rank = p_ptr->skills[SK_SHOTGUN].skill_max = p_ptr->skills[SK_SHOTGUN].skill_raise = -2;
+		disable_skill(SK_RIFLE);
+		disable_skill(SK_SHOTGUN);
 	}
 	if (p_ptr->skills[SK_RIFLE].skill_max > 1)
 	{
-		p_ptr->skills[SK_PISTOL].skill_rank = p_ptr->skills[SK_PISTOL].skill_max = p_ptr->skills[SK_PISTOL].skill_raise = -2;
-		p_ptr->skills[SK_SHOTGUN].skill_rank = p_ptr->skills[SK_SHOTGUN].skill_max = p_ptr->skills[SK_SHOTGUN].skill_raise = -2;
+		disable_skill(SK_PISTOL);
+		disable_skill(SK_SHOTGUN);
 	}
 	if (p_ptr->skills[SK_SHOTGUN].skill_max > 1)
 	{
-		p_ptr->skills[SK_PISTOL].skill_rank = p_ptr->skills[SK_PISTOL].skill_max = p_ptr->skills[SK_PISTOL].skill_raise = -2;
-		p_ptr->skills[SK_RIFLE].skill_rank = p_ptr->skills[SK_RIFLE].skill_max = p_ptr->skills[SK_RIFLE].skill_raise = -2;
+		disable_skill(SK_PISTOL);
+		disable_skill(SK_RIFLE);
 	}
 	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
 		(p_ptr->skills[SK_HAFTED].skill_max > 19))
 	{
-		if (p_ptr->skills[SK_HAFTED_MASTER].skill_max == -2)
-		{
-			p_ptr->skills[SK_HAFTED_MASTER].skill_rank = p_ptr->skills[SK_HAFTED_MASTER].skill_max = p_ptr->skills[SK_HAFTED_MASTER].skill_raise = 1;
-		}
+		enable_skill(SK_HAFTED_MASTER);
 	}
 	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
 	 	(p_ptr->skills[SK_POLEARM].skill_max > 19))
 	{
-		if (p_ptr->skills[SK_POLEARM_MASTER].skill_max == -2)
-		{
-			p_ptr->skills[SK_POLEARM_MASTER].skill_rank = p_ptr->skills[SK_POLEARM_MASTER].skill_max = p_ptr->skills[SK_POLEARM_MASTER].skill_raise = 1;
-		}
+		enable_skill(SK_POLEARM_MASTER);
 	}
 	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
 		(p_ptr->skills[SK_SWORD].skill_max > 19))
 	{
-		if (p_ptr->skills[SK_SWORD_MASTER].skill_max == -2)
-		{
-			p_ptr->skills[SK_SWORD_MASTER].skill_rank = p_ptr->skills[SK_SWORD_MASTER].skill_max = p_ptr->skills[SK_SWORD_MASTER].skill_raise = 1;
-		}
+		enable_skill(SK_SWORD_MASTER);
 	}
 	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
 		(p_ptr->skills[SK_DAGGER].skill_max > 19))
 	{
-		if (p_ptr->skills[SK_DAGGER_MASTER].skill_max == -2)
-		{
-			p_ptr->skills[SK_DAGGER_MASTER].skill_rank = p_ptr->skills[SK_DAGGER_MASTER].skill_max = p_ptr->skills[SK_DAGGER_MASTER].skill_raise = 1;
-		}
+		enable_skill(SK_DAGGER_MASTER);
 	}
 	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
 		(p_ptr->skills[SK_AXES].skill_max > 19))
 	{
-		if (p_ptr->skills[SK_AXES_MASTER].skill_max == -2)
-		{
-			p_ptr->skills[SK_AXES_MASTER].skill_rank = p_ptr->skills[SK_AXES_MASTER].skill_max = p_ptr->skills[SK_AXES_MASTER].skill_raise = 1;
-		}
+		enable_skill(SK_AXES_MASTER);
 	}
 	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
 		(p_ptr->skills[SK_BLUNT].skill_max > 19))
 	{
-		if (p_ptr->skills[SK_BLUNT_MASTER].skill_max == -2)
-		{
-			p_ptr->skills[SK_BLUNT_MASTER].skill_rank = p_ptr->skills[SK_BLUNT_MASTER].skill_max = p_ptr->skills[SK_BLUNT_MASTER].skill_raise = 1;
-		}
+		enable_skill(SK_BLUNT_MASTER);
 	}
 	if ((p_ptr->pclass == CLASS_ADVENTURER) && 
 		((p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 4) ||
 		 (p_ptr->skills[SK_SEARCHING_NORM].skill_max > 4) ||
 		 (p_ptr->skills[SK_SEARCHING_POOR].skill_max > 4)))
 	{
-		if (p_ptr->skills[SK_TRAILBLAZER].skill_max == -2)
-		{
-			p_ptr->skills[SK_TRAILBLAZER].skill_rank = p_ptr->skills[SK_TRAILBLAZER].skill_max = p_ptr->skills[SK_TRAILBLAZER].skill_raise = 1;
-		}
+		enable_skill(SK_TRAILBLAZER);
 	}
 	if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 14)
 	{
-		if (p_ptr->skills[SK_EXPLORER].skill_max == -2)
-		{
-			p_ptr->skills[SK_EXPLORER].skill_rank = p_ptr->skills[SK_EXPLORER].skill_max = p_ptr->skills[SK_EXPLORER].skill_raise = 1;
-		}
+		enable_skill(SK_EXPLORER);
 	}
 	if ((p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 4) ||
-		(p_ptr->skills[SK_SEARCHING_NORM].skill_max > 4) ||
-		(p_ptr->skills[SK_SEARCHING_POOR].skill_max > 4))
+	    (p_ptr->skills[SK_SEARCHING_NORM].skill_max > 4))
 	{
-		if (p_ptr->skills[SK_KEEN_EYES].skill_max == -2)
-		{
-			p_ptr->skills[SK_KEEN_EYES].skill_rank = p_ptr->skills[SK_KEEN_EYES].skill_max = p_ptr->skills[SK_KEEN_EYES].skill_raise = 1;
-		}
+		enable_skill(SK_KEEN_EYES);
 	}
 	
 	if ( ((p_ptr->pclass == CLASS_ADVENTURER) || 
@@ -3275,10 +3983,7 @@ void skill_link(void)
 		 (p_ptr->skills[SK_SEARCHING_NORM].skill_max > 14) ||
 		 (p_ptr->skills[SK_SEARCHING_POOR].skill_max > 14)))
 	{
-		if (p_ptr->skills[SK_SPOT_WEAKNESS].skill_max == -2)
-		{
-			p_ptr->skills[SK_SPOT_WEAKNESS].skill_rank = p_ptr->skills[SK_SPOT_WEAKNESS].skill_max = p_ptr->skills[SK_SPOT_WEAKNESS].skill_raise = 1;
-		}
+		enable_skill(SK_SPOT_WEAKNESS);
 	}
 	
 	if ((p_ptr->pclass == CLASS_ADVENTURER) && (p_ptr->skills[SK_FORTITUDE].skill_max > 4) &&
@@ -3286,10 +3991,7 @@ void skill_link(void)
 		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 9) ||
 		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 9)))
 	{
-		if (p_ptr->skills[SK_BASIC_SURVIVAL].skill_max == -2)
-		{
-			p_ptr->skills[SK_BASIC_SURVIVAL].skill_rank = p_ptr->skills[SK_BASIC_SURVIVAL].skill_max = p_ptr->skills[SK_BASIC_SURVIVAL].skill_raise = 1;
-		}
+		enable_skill(SK_BASIC_SURVIVAL);
 	}
 	if (((p_ptr->pclass == CLASS_ADVENTURER) || 
 		 (p_ptr->pclass == CLASS_ENGINEER) || 
@@ -3298,51 +4000,33 @@ void skill_link(void)
 		 (p_ptr->skills[SK_DISARM_NORM].skill_max > 9) ||
 		 (p_ptr->skills[SK_DISARM_POOR].skill_max > 9)))
 	{
-		if (p_ptr->skills[SK_DISABLE_MACHINE].skill_max == -2)
-		{
-			p_ptr->skills[SK_DISABLE_MACHINE].skill_rank = p_ptr->skills[SK_DISABLE_MACHINE].skill_max = p_ptr->skills[SK_DISABLE_MACHINE].skill_raise = 1;
-		}
+		enable_skill(SK_DISABLE_MACHINE);
 	}
 	if ((p_ptr->pclass == CLASS_ROGUE) && (p_ptr->skills[SK_ADV_MARTIAL].skill_max > 0) &&
 		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 19) ||
 		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 19) ||
 		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 19)))
 	{
-		if (p_ptr->skills[SK_NINJASTEALTH].skill_max == -2)
-		{
-			p_ptr->skills[SK_NINJASTEALTH].skill_rank = p_ptr->skills[SK_NINJASTEALTH].skill_max = p_ptr->skills[SK_NINJASTEALTH].skill_raise = 1;
-		}
-		if (p_ptr->skills[SK_NINJUTSU].skill_max == -2)
-		{
-			p_ptr->skills[SK_NINJUTSU].skill_rank = p_ptr->skills[SK_NINJUTSU].skill_max = p_ptr->skills[SK_NINJUTSU].skill_raise = 1;
-		}
+		enable_skill(SK_NINJASTEALTH);
+		enable_skill(SK_NINJUTSU);
 	}
 	if 	((p_ptr->skills[SK_NINJASTEALTH].skill_max > 4) ||
 		(p_ptr->skills[SK_NINJUTSU].skill_max > 4))
 	{
-		if (p_ptr->skills[SK_NINJAMAGIC].skill_max == -2)
-		{
-			p_ptr->skills[SK_NINJAMAGIC].skill_rank = p_ptr->skills[SK_NINJAMAGIC].skill_max = p_ptr->skills[SK_NINJAMAGIC].skill_raise = 1;
-		}
+		enable_skill(SK_NINJAMAGIC);
 	}
 	if 	((p_ptr->pclass == CLASS_ROGUE) &&
 		((p_ptr->skills[SK_TOHIT].skill_max > 4) ||
 		(p_ptr->skills[SK_TOHIT_MARTIAL].skill_max > 4)))
 	{
-		if (p_ptr->skills[SK_DIRTY_FIGHTING].skill_max == -2)
-		{
-			p_ptr->skills[SK_DIRTY_FIGHTING].skill_rank = p_ptr->skills[SK_DIRTY_FIGHTING].skill_max = p_ptr->skills[SK_DIRTY_FIGHTING].skill_raise = 1;
-		}
+		enable_skill(SK_DIRTY_FIGHTING);
 	}
 	if 	(((p_ptr->pclass == CLASS_ROGUE) || 
 		  (p_ptr->pclass == CLASS_ENGINEER) ||
  		  (p_ptr->pclass == CLASS_OFFICER)) &&
 		((p_ptr->skills[SK_LATIN].skill_max > 9)))
 	{
-		if (p_ptr->skills[SK_ANATOMY].skill_max == -2)
-		{
-			p_ptr->skills[SK_ANATOMY].skill_rank = p_ptr->skills[SK_ANATOMY].skill_max = p_ptr->skills[SK_ANATOMY].skill_raise = 1;
-		}
+		enable_skill(SK_ANATOMY);
 	}
 
 	if 	((((p_ptr->pclass == CLASS_GENTLEMAN) || 
@@ -3352,10 +4036,7 @@ void skill_link(void)
 		(!(p_ptr->prace == RACE_STEAM_MECHA)) &&
 		(!(p_ptr->prace == RACE_AUTOMATA)))
 	{
-		if (p_ptr->skills[SK_ERUDITE].skill_max == -2)
-		{
-			p_ptr->skills[SK_ERUDITE].skill_rank = p_ptr->skills[SK_ERUDITE].skill_max = p_ptr->skills[SK_ERUDITE].skill_raise = 1;
-		}
+		enable_skill(SK_ERUDITE);
 	}
 	if (((p_ptr->pclass == CLASS_ROGUE) || 
 		 (p_ptr->pclass == CLASS_ENGINEER) || 
@@ -3364,151 +4045,98 @@ void skill_link(void)
 		 (p_ptr->skills[SK_DISARM_NORM].skill_max > 9) ||
 		 (p_ptr->skills[SK_DISARM_POOR].skill_max > 9)))
 	{
-		if (p_ptr->skills[SK_SABOTAGE].skill_max == -2)
-		{
-			p_ptr->skills[SK_SABOTAGE].skill_rank = p_ptr->skills[SK_SABOTAGE].skill_max = p_ptr->skills[SK_SABOTAGE].skill_raise = 1;
-		}
+		enable_skill(SK_SABOTAGE);
 	}
 	if ((p_ptr->pclass == CLASS_ROGUE) &&
 		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 9) ||
 		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 9) ||
 		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 9)))
 	{
-		if (p_ptr->skills[SK_ASSASSINATION].skill_max == -2)
-		{
-			p_ptr->skills[SK_ASSASSINATION].skill_rank = p_ptr->skills[SK_ASSASSINATION].skill_max = p_ptr->skills[SK_ASSASSINATION].skill_raise = 1;
-		}
+		enable_skill(SK_ASSASSINATION);
 	}
 	if ((p_ptr->pclass == CLASS_ROGUE) &&
 		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 14) ||
 		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 14) ||
 		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 14)))
 	{
-		if (p_ptr->skills[SK_THEFT].skill_max == -2)
-		{
-			p_ptr->skills[SK_THEFT].skill_rank = p_ptr->skills[SK_THEFT].skill_max = p_ptr->skills[SK_THEFT].skill_raise = 1;
-		}
+		enable_skill(SK_THEFT);
 	}
 	if (p_ptr->skills[SK_THEFT].skill_max > 19)
 	{
-		if (p_ptr->skills[SK_MASTER_THEFT].skill_max == -2)
-		{
-			p_ptr->skills[SK_MASTER_THEFT].skill_rank = p_ptr->skills[SK_MASTER_THEFT].skill_max = p_ptr->skills[SK_MASTER_THEFT].skill_raise = 1;
-		}
+		enable_skill(SK_MASTER_THEFT);
 	}
 	if ((p_ptr->pclass == CLASS_ROGUE) &&
 		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 19) ||
 		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 19) ||
 		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 19)))
 	{
-		if (p_ptr->skills[SK_SUPERSTEALTH].skill_max == -2)
-		{
-			p_ptr->skills[SK_SUPERSTEALTH].skill_rank = p_ptr->skills[SK_SUPERSTEALTH].skill_max = p_ptr->skills[SK_SUPERSTEALTH].skill_raise = 1;
-		}
+		enable_skill(SK_SUPERSTEALTH);
 	}
 	if (p_ptr->skills[SK_OFFICER].skill_max > 4)
 	{
-		if (p_ptr->skills[SK_PRESENCE].skill_max == -2)
-		{
-			p_ptr->skills[SK_PRESENCE].skill_rank = p_ptr->skills[SK_PRESENCE].skill_max = p_ptr->skills[SK_PRESENCE].skill_raise = 1;
-		}
+		enable_skill(SK_PRESENCE);
 	}
 	if ((p_ptr->pclass == CLASS_OFFICER) && (p_ptr->skills[SK_INTER_COMBAT].skill_max > 4))
 	{
-		if (p_ptr->skills[SK_HOLD_THE_LINE].skill_max == -2)
-		{
-			p_ptr->skills[SK_HOLD_THE_LINE].skill_rank = p_ptr->skills[SK_HOLD_THE_LINE].skill_max = p_ptr->skills[SK_HOLD_THE_LINE].skill_raise = 1;
-		}
+		enable_skill(SK_HOLD_THE_LINE);
 	}
 	if ((p_ptr->pclass == CLASS_OFFICER) && (p_ptr->skills[SK_ADV_COMBAT].skill_max > 9))
 	{
-		if (p_ptr->skills[SK_KNOCK_DOWN].skill_max == -2)
-		{
-			p_ptr->skills[SK_KNOCK_DOWN].skill_rank = p_ptr->skills[SK_KNOCK_DOWN].skill_max = p_ptr->skills[SK_KNOCK_DOWN].skill_raise = 1;
-		}
+		enable_skill(SK_KNOCK_DOWN);
 	}
 	if 	((p_ptr->skills[SK_HOLD_THE_LINE].skill_max > 14) &&
 		(p_ptr->skills[SK_ADV_COMBAT].skill_max > 14))
 	{
-		if (p_ptr->skills[SK_BATTLE_ENDURANCE].skill_max == -2)
-		{
-			p_ptr->skills[SK_BATTLE_ENDURANCE].skill_rank = p_ptr->skills[SK_BATTLE_ENDURANCE].skill_max = p_ptr->skills[SK_BATTLE_ENDURANCE].skill_raise = 1;
-		}
+		enable_skill(SK_BATTLE_ENDURANCE);
 	}
 	if (p_ptr->skills[SK_TELEPATHY].skill_max > 4 ||
 		p_ptr->skills[SK_CLAIRSENTIENCE].skill_max > 4 ||
 		p_ptr->skills[SK_PSYCHOMETABOLISM].skill_max > 4)
 	{
-		if (p_ptr->skills[SK_MESMERIC_WILL].skill_max == -2)
-		{
-			p_ptr->skills[SK_MESMERIC_WILL].skill_rank = p_ptr->skills[SK_MESMERIC_WILL].skill_max = p_ptr->skills[SK_MESMERIC_WILL].skill_raise = 1;
-		}
+		enable_skill(SK_MESMERIC_WILL);
 	}
 	if (p_ptr->skills[SK_FLORAL].skill_max > 4 ||
 		p_ptr->skills[SK_FAUNA].skill_max > 4 ||
 		p_ptr->skills[SK_ELEMENTAL].skill_max > 4)
 	{
-		if (p_ptr->skills[SK_EARTH_HEARTH].skill_max == -2)
-		{
-			p_ptr->skills[SK_EARTH_HEARTH].skill_rank = p_ptr->skills[SK_EARTH_HEARTH].skill_max = p_ptr->skills[SK_EARTH_HEARTH].skill_raise = 1;
-		}
+		enable_skill(SK_EARTH_HEARTH);
 	}
 	if (p_ptr->skills[SK_MESMERIC_WILL].skill_max > 4)
 	{
-		if (p_ptr->skills[SK_SPIRIT_BATTERY].skill_max == -2)
-		{
-			p_ptr->skills[SK_SPIRIT_BATTERY].skill_rank = p_ptr->skills[SK_SPIRIT_BATTERY].skill_max = p_ptr->skills[SK_SPIRIT_BATTERY].skill_raise = 1;
-		}
+		enable_skill(SK_SPIRIT_BATTERY);
 	}
 	if (p_ptr->skills[SK_COMBATTECHNIQUES].skill_max > 14 )
 	{
-		if (p_ptr->skills[SK_ELITEMANEUVERS].skill_max == -2)
-		{
-			p_ptr->skills[SK_ELITEMANEUVERS].skill_rank = p_ptr->skills[SK_ELITEMANEUVERS].skill_max = p_ptr->skills[SK_ELITEMANEUVERS].skill_raise = 1;
-		}
+		enable_skill(SK_ELITEMANEUVERS);
 	}
 
 	if (p_ptr->skills[SK_HEBREW].skill_max > 14 && p_ptr->skills[SK_QABALA].skill_max > 14)
 	{
-		if (p_ptr->skills[SK_GEMATRIA].skill_max == -2)
-		{
-			p_ptr->skills[SK_GEMATRIA].skill_rank = p_ptr->skills[SK_GEMATRIA].skill_max = p_ptr->skills[SK_GEMATRIA].skill_raise = 1;
-		}
+		enable_skill(SK_GEMATRIA);
 	}
 	if ((p_ptr->pclass == CLASS_AESTHETE) && (p_ptr->skills[SK_LATIN].skill_max > 4))
 	{
-		if (p_ptr->skills[SK_ART_APPRECIATION].skill_max == -2)
-		{
-			p_ptr->skills[SK_ART_APPRECIATION].skill_rank = p_ptr->skills[SK_ART_APPRECIATION].skill_max = p_ptr->skills[SK_ART_APPRECIATION].skill_raise = 1;
-		}
+		enable_skill(SK_ART_APPRECIATION);
 	}
 	if ((p_ptr->pclass == CLASS_AESTHETE) &&
 		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 4) ||
 		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 4) ||
 		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 4)))
 	{
-		if (p_ptr->skills[SK_BRIBERY].skill_max == -2)
-		{
-			p_ptr->skills[SK_BRIBERY].skill_rank = p_ptr->skills[SK_BRIBERY].skill_max = p_ptr->skills[SK_BRIBERY].skill_raise = 1;
+		if (!(p_ptr->muta1 & MUT1_BRIBERY))
 			gain_random_mutation(109);
-		}
+		enable_skill(SK_BRIBERY);
 	}
 	/* spells */
 	/* Everyone gets latin, and access to books */
 	/* then there is the occult chain. */
 	if (p_ptr->skills[SK_GADGETEER].skill_max > 4)
 	{
-		if (p_ptr->skills[SK_PYROKINETICS].skill_max == -2)
-		{
-			p_ptr->skills[SK_PYROKINETICS].skill_rank = p_ptr->skills[SK_PYROKINETICS].skill_max = p_ptr->skills[SK_PYROKINETICS].skill_raise = 1;
-		}
+		enable_skill(SK_PYROKINETICS);
 	}
 	if ((p_ptr->pclass == CLASS_GENTLEMAN) && (p_ptr->skills[SK_LATIN].skill_max > 4))
 	{
-		if (p_ptr->skills[SK_PERILOUS_SORCERY].skill_max == -2)
-		{
-			p_ptr->skills[SK_PERILOUS_SORCERY].skill_rank = p_ptr->skills[SK_PERILOUS_SORCERY].skill_max = p_ptr->skills[SK_PERILOUS_SORCERY].skill_raise = 1;
-		}
+		enable_skill(SK_PERILOUS_SORCERY);
 	}
 	if 	(
 		(p_ptr->skills[SK_OCCULT].skill_max > 14) &&
@@ -3522,10 +4150,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_ADV_OCCULT].skill_max == -2)
-		{
-			p_ptr->skills[SK_ADV_OCCULT].skill_rank = p_ptr->skills[SK_ADV_OCCULT].skill_max = p_ptr->skills[SK_ADV_OCCULT].skill_raise = 1;
-		}
+		enable_skill(SK_ADV_OCCULT);
 	}
 	if 	(
 		(p_ptr->skills[SK_ADV_OCCULT].skill_max > 14) &&
@@ -3535,10 +4160,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_CTHULHU_MYTHOS].skill_max == -2)
-		{
-			p_ptr->skills[SK_CTHULHU_MYTHOS].skill_rank = p_ptr->skills[SK_CTHULHU_MYTHOS].skill_max = p_ptr->skills[SK_CTHULHU_MYTHOS].skill_raise = 1;
-		}
+		enable_skill(SK_CTHULHU_MYTHOS);
 	}
 	if 	(
 		(p_ptr->skills[SK_RITUAL_MAGIC].skill_max > 2) &&
@@ -3552,10 +4174,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_THAUMIC_ENERGY].skill_max == -2)
-		{
-			p_ptr->skills[SK_THAUMIC_ENERGY].skill_rank = p_ptr->skills[SK_THAUMIC_ENERGY].skill_max = p_ptr->skills[SK_THAUMIC_ENERGY].skill_raise = 1;
-		}
+		enable_skill(SK_THAUMIC_ENERGY);
 	}
 	if 	(
 		(p_ptr->skills[SK_THAUMIC_ENERGY].skill_max > 14) &&
@@ -3567,10 +4186,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_max == -2)
-		{
-			p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_rank = p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_max = p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_raise = 1;
-		}
+		enable_skill(SK_ADV_THAUMIC_ENERGY);
 	}
 	if 	(
 		(p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_max > 14) &&
@@ -3579,10 +4195,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_THELMA].skill_max == -2)
-		{
-			p_ptr->skills[SK_THELMA].skill_rank = p_ptr->skills[SK_THELMA].skill_max = p_ptr->skills[SK_THELMA].skill_raise = 1;
-		}
+		enable_skill(SK_THELMA);
 	}
 	if 	(
 		(p_ptr->skills[SK_SPIRITUALITY].skill_max > 14) &&
@@ -3599,10 +4212,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_PRAYER].skill_max == -2)
-		{
-			p_ptr->skills[SK_PRAYER].skill_rank = p_ptr->skills[SK_PRAYER].skill_max = p_ptr->skills[SK_PRAYER].skill_raise = 1;
-		}
+		enable_skill(SK_PRAYER);
 	}
 	if 	(
 		(p_ptr->skills[SK_PRAYER].skill_max > 14) &&
@@ -3614,10 +4224,7 @@ void skill_link(void)
 		)
 		
 	{
-		if (p_ptr->skills[SK_DEVOTION].skill_max == -2)
-		{
-			p_ptr->skills[SK_DEVOTION].skill_rank = p_ptr->skills[SK_DEVOTION].skill_max = p_ptr->skills[SK_DEVOTION].skill_raise = 1;
-		}
+		enable_skill(SK_DEVOTION);
 	}
 	if 	(
 		(p_ptr->skills[SK_SPIRITUALITY].skill_max > 2) &&
@@ -3634,10 +4241,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_LESSER_WARD].skill_max == -2)
-		{
-			p_ptr->skills[SK_LESSER_WARD].skill_rank = p_ptr->skills[SK_LESSER_WARD].skill_max = p_ptr->skills[SK_LESSER_WARD].skill_raise = 1;
-		}
+		enable_skill(SK_LESSER_WARD);
 	}
 	if 	(
 		(p_ptr->skills[SK_LESSER_WARD].skill_max > 14) &&
@@ -3650,73 +4254,46 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_GREATER_WARD].skill_max == -2)
-		{
-			p_ptr->skills[SK_GREATER_WARD].skill_rank = p_ptr->skills[SK_GREATER_WARD].skill_max = p_ptr->skills[SK_GREATER_WARD].skill_raise = 1;
-		}
+		enable_skill(SK_GREATER_WARD);
 	}
 	if (
 	   (p_ptr->skills[SK_GREATER_WARD].skill_max > 9 && p_ptr->skills[SK_DEVOTION].skill_max > 4) ||
 	   (p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_max > 9 && p_ptr->skills[SK_CTHULHU_MYTHOS].skill_max > 4) 
 	   )
 	{
-		if (p_ptr->skills[SK_FAST_CAST].skill_max == -2)
-		{
-			p_ptr->skills[SK_FAST_CAST].skill_rank = p_ptr->skills[SK_FAST_CAST].skill_max = p_ptr->skills[SK_FAST_CAST].skill_raise = 1;
-		}		
+		enable_skill(SK_FAST_CAST);
 	}	   
 	   
 	if (p_ptr->skills[SK_TMPR_WILL].skill_max > 14)
 	{
-		if (p_ptr->skills[SK_HARD_WILL].skill_max == -2)
-		{
-			p_ptr->skills[SK_HARD_WILL].skill_rank = p_ptr->skills[SK_HARD_WILL].skill_max = p_ptr->skills[SK_HARD_WILL].skill_raise = 1;
-		}
+		enable_skill(SK_HARD_WILL);
 	}
 	if (p_ptr->skills[SK_HARD_WILL].skill_max > 14)
 	{
-		if (p_ptr->skills[SK_IRON_WILL].skill_max == -2)
-		{
-			p_ptr->skills[SK_IRON_WILL].skill_rank = p_ptr->skills[SK_IRON_WILL].skill_max = p_ptr->skills[SK_IRON_WILL].skill_raise = 1;
-		}
+		enable_skill(SK_IRON_WILL);
 	}
 	if (p_ptr->skills[SK_DEVICE_GOOD].skill_max > 4)
 	{
-		if (p_ptr->skills[SK_ADV_DEVICE].skill_max == -2)
-		{
-			p_ptr->skills[SK_ADV_DEVICE].skill_rank = p_ptr->skills[SK_ADV_DEVICE].skill_max = p_ptr->skills[SK_ADV_DEVICE].skill_raise = 1;
-		}
+		enable_skill(SK_ADV_DEVICE);
 	}
 	if (p_ptr->skills[SK_DEVICE_NORM].skill_max > 9)
 	{
-		if (p_ptr->skills[SK_ADV_DEVICE].skill_max == -2)
-		{
-			p_ptr->skills[SK_ADV_DEVICE].skill_rank = p_ptr->skills[SK_ADV_DEVICE].skill_max = p_ptr->skills[SK_ADV_DEVICE].skill_raise = 1;
-		}
+		enable_skill(SK_ADV_DEVICE);
 	}
 	if (p_ptr->skills[SK_DEVICE_POOR].skill_max > 14)
 	{
-		if (p_ptr->skills[SK_ADV_DEVICE].skill_max == -2)
-		{
-			p_ptr->skills[SK_ADV_DEVICE].skill_rank = p_ptr->skills[SK_ADV_DEVICE].skill_max = p_ptr->skills[SK_ADV_DEVICE].skill_raise = 1;
-		}
+		enable_skill(SK_ADV_DEVICE);
 	}
 	if (
 		(p_ptr->skills[SK_ADV_DEVICE].skill_max > 14) && 
 		(p_ptr->skills[SK_EFF_DEVICE].skill_max > 9)
 	   )
 	{
-		if (p_ptr->skills[SK_SPEED_DEVICE].skill_max == -2)
-		{
-			p_ptr->skills[SK_SPEED_DEVICE].skill_rank = p_ptr->skills[SK_SPEED_DEVICE].skill_max = p_ptr->skills[SK_SPEED_DEVICE].skill_raise = 1;
-		}
+		enable_skill(SK_SPEED_DEVICE);
 	}
 	if (p_ptr->skills[SK_ADV_DEVICE].skill_max > 9)
 	{
-		if (p_ptr->skills[SK_EFF_DEVICE].skill_max == -2)
-		{
-			p_ptr->skills[SK_EFF_DEVICE].skill_rank = p_ptr->skills[SK_EFF_DEVICE].skill_max = p_ptr->skills[SK_EFF_DEVICE].skill_raise = 1;
-		}
+		enable_skill(SK_EFF_DEVICE);
 	}
 	if 	(
 		 (p_ptr->skills[SK_DEVICE_POOR].skill_max > 14) ||
@@ -3724,24 +4301,15 @@ void skill_link(void)
 		 (p_ptr->skills[SK_DEVICE_NORM].skill_max > 9)
 		)
 	{
-		if (p_ptr->skills[SK_POW_DEVICE].skill_max == -2)
-		{
-			p_ptr->skills[SK_POW_DEVICE].skill_rank = p_ptr->skills[SK_POW_DEVICE].skill_max = p_ptr->skills[SK_POW_DEVICE].skill_raise = 1;
-		}
+		enable_skill(SK_POW_DEVICE);
 	}
 	if (p_ptr->skills[SK_POW_DEVICE].skill_max > 14)
 	{
-		if (p_ptr->skills[SK_POW2_DEVICE].skill_max == -2)
-		{
-			p_ptr->skills[SK_POW2_DEVICE].skill_rank = p_ptr->skills[SK_POW2_DEVICE].skill_max = p_ptr->skills[SK_POW2_DEVICE].skill_raise = 1;
-		}
+		enable_skill(SK_POW2_DEVICE);
 	}
 	if (p_ptr->skills[SK_ADV_DEVICE].skill_max > 4)
 	{
-		if (p_ptr->skills[SK_HEAL_DEVICE].skill_max == -2)
-		{
-			p_ptr->skills[SK_HEAL_DEVICE].skill_rank = p_ptr->skills[SK_HEAL_DEVICE].skill_max = p_ptr->skills[SK_HEAL_DEVICE].skill_raise = 1;
-		}
+		enable_skill(SK_HEAL_DEVICE);
 	}
 	if 	(
 		(p_ptr->skills[SK_HARD_WILL].skill_max > 4) &&
@@ -3750,10 +4318,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_MENTAL_RESISTANCE].skill_max == -2)
-		{
-			p_ptr->skills[SK_MENTAL_RESISTANCE].skill_rank = p_ptr->skills[SK_MENTAL_RESISTANCE].skill_max = p_ptr->skills[SK_MENTAL_RESISTANCE].skill_raise = 1;
-		}
+		enable_skill(SK_MENTAL_RESISTANCE);
 	}
 	if 	(
 		(p_ptr->skills[SK_HARD_WILL].skill_max > 14) &&
@@ -3762,10 +4327,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_TOUGHNESS_WILL].skill_max == -2)
-		{
-			p_ptr->skills[SK_TOUGHNESS_WILL].skill_rank = p_ptr->skills[SK_TOUGHNESS_WILL].skill_max = p_ptr->skills[SK_TOUGHNESS_WILL].skill_raise = 1;
-		}
+		enable_skill(SK_TOUGHNESS_WILL);
 	}
 	if 	(
 		(p_ptr->skills[SK_SPIRITUALITY].skill_max > 9) &&
@@ -3774,10 +4336,7 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_SPIRIT_INFUSION].skill_max == -2)
-		{
-			p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank = p_ptr->skills[SK_SPIRIT_INFUSION].skill_max = p_ptr->skills[SK_SPIRIT_INFUSION].skill_raise = 1;
-		}
+		enable_skill(SK_SPIRIT_INFUSION);
 	}
 	if 	(
 		(p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 4) &&
@@ -3786,80 +4345,55 @@ void skill_link(void)
 		)
 		)
 	{
-		if (p_ptr->skills[SK_SPIRIT_SHIELD].skill_max == -2)
-		{
-			p_ptr->skills[SK_SPIRIT_SHIELD].skill_rank = p_ptr->skills[SK_SPIRIT_SHIELD].skill_max = p_ptr->skills[SK_SPIRIT_SHIELD].skill_raise = 1;
-		}
-		if (p_ptr->skills[SK_SPIRIT_HEALING].skill_max == -2)
-		{
-			p_ptr->skills[SK_SPIRIT_HEALING].skill_rank = p_ptr->skills[SK_SPIRIT_HEALING].skill_max = p_ptr->skills[SK_SPIRIT_HEALING].skill_raise = 1;
-		}
+		enable_skill(SK_SPIRIT_SHIELD);
+		enable_skill(SK_SPIRIT_HEALING);
 	}
 	if 	(
 		(p_ptr->skills[SK_SPIRIT_SHIELD].skill_max > 14) ||
 		(p_ptr->skills[SK_SPIRIT_HEALING].skill_max > 14)
 		)
 	{
-		if (p_ptr->skills[SK_SPIRIT_SPEED].skill_max == -2)
-		{
-			p_ptr->skills[SK_SPIRIT_SPEED].skill_rank = p_ptr->skills[SK_SPIRIT_SPEED].skill_max = p_ptr->skills[SK_SPIRIT_SPEED].skill_raise = 1;
-		}	
+		enable_skill(SK_SPIRIT_SPEED);
 	}	
 	if (p_ptr->skills[SK_FIRE_LORE].skill_max > 1)
 	{
-		p_ptr->skills[SK_WIND_LORE].skill_rank = p_ptr->skills[SK_WIND_LORE].skill_max = p_ptr->skills[SK_WIND_LORE].skill_raise = -2;
-		p_ptr->skills[SK_WATER_LORE].skill_rank = p_ptr->skills[SK_WATER_LORE].skill_max = p_ptr->skills[SK_WATER_LORE].skill_raise = -2;
-		p_ptr->skills[SK_EARTH_LORE].skill_rank = p_ptr->skills[SK_EARTH_LORE].skill_max = p_ptr->skills[SK_EARTH_LORE].skill_raise = -2;
-
+		disable_skill(SK_WIND_LORE);
+		disable_skill(SK_WATER_LORE);
+		disable_skill(SK_EARTH_LORE);
 	}
 	if (p_ptr->skills[SK_WIND_LORE].skill_max > 1)
 	{
-		p_ptr->skills[SK_FIRE_LORE].skill_rank = p_ptr->skills[SK_FIRE_LORE].skill_max = p_ptr->skills[SK_FIRE_LORE].skill_raise = -2;
-		p_ptr->skills[SK_WATER_LORE].skill_rank = p_ptr->skills[SK_WATER_LORE].skill_max = p_ptr->skills[SK_WATER_LORE].skill_raise = -2;
-		p_ptr->skills[SK_EARTH_LORE].skill_rank = p_ptr->skills[SK_EARTH_LORE].skill_max = p_ptr->skills[SK_EARTH_LORE].skill_raise = -2;
-
+		disable_skill(SK_FIRE_LORE);
+		disable_skill(SK_WATER_LORE);
+		disable_skill(SK_EARTH_LORE);
 	}
 	if (p_ptr->skills[SK_WATER_LORE].skill_max > 1)
 	{
-		p_ptr->skills[SK_WIND_LORE].skill_rank = p_ptr->skills[SK_WIND_LORE].skill_max = p_ptr->skills[SK_WIND_LORE].skill_raise = -2;
-		p_ptr->skills[SK_FIRE_LORE].skill_rank = p_ptr->skills[SK_FIRE_LORE].skill_max = p_ptr->skills[SK_FIRE_LORE].skill_raise = -2;
-		p_ptr->skills[SK_EARTH_LORE].skill_rank = p_ptr->skills[SK_EARTH_LORE].skill_max = p_ptr->skills[SK_EARTH_LORE].skill_raise = -2;
-
+		disable_skill(SK_WIND_LORE);
+		disable_skill(SK_FIRE_LORE);
+		disable_skill(SK_EARTH_LORE);
 	}
 	if (p_ptr->skills[SK_EARTH_LORE].skill_max > 1)
 	{
-		p_ptr->skills[SK_WIND_LORE].skill_rank = p_ptr->skills[SK_WIND_LORE].skill_max = p_ptr->skills[SK_WIND_LORE].skill_raise = -2;
-		p_ptr->skills[SK_WATER_LORE].skill_rank = p_ptr->skills[SK_WATER_LORE].skill_max = p_ptr->skills[SK_WATER_LORE].skill_raise = -2;
-		p_ptr->skills[SK_FIRE_LORE].skill_rank = p_ptr->skills[SK_FIRE_LORE].skill_max = p_ptr->skills[SK_FIRE_LORE].skill_raise = -2;
-
+		disable_skill(SK_WIND_LORE);
+		disable_skill(SK_WATER_LORE);
+		disable_skill(SK_FIRE_LORE);
 	}
 	if (p_ptr->skills[SK_FIRE_LORE].skill_max > 19)
 	{
-		if (p_ptr->skills[SK_FIRE_MASTERY].skill_max == -2)
-		{
-			p_ptr->skills[SK_FIRE_MASTERY].skill_rank = p_ptr->skills[SK_FIRE_MASTERY].skill_max = p_ptr->skills[SK_FIRE_MASTERY].skill_raise = 1;
-		}
+		enable_skill(SK_FIRE_MASTERY);
 	}
 	if (p_ptr->skills[SK_WIND_LORE].skill_max > 19)
 	{
-		if (p_ptr->skills[SK_WIND_MASTERY].skill_max == -2)
-		{
-			p_ptr->skills[SK_WIND_MASTERY].skill_rank = p_ptr->skills[SK_WIND_MASTERY].skill_max = p_ptr->skills[SK_WIND_MASTERY].skill_raise = 1;
-		}
+		enable_skill(SK_WIND_MASTERY);
 	}
 	if (p_ptr->skills[SK_WATER_LORE].skill_max > 19)
 	{
-		if (p_ptr->skills[SK_WATER_MASTERY].skill_max == -2)
-		{
-			p_ptr->skills[SK_WATER_MASTERY].skill_rank = p_ptr->skills[SK_WATER_MASTERY].skill_max = p_ptr->skills[SK_WATER_MASTERY].skill_raise = 1;
-		}
+		enable_skill(SK_WATER_MASTERY);
 	}
 	if (p_ptr->skills[SK_EARTH_LORE].skill_max > 19)
 	{
-		if (p_ptr->skills[SK_EARTH_MASTERY].skill_max == -2)
-		{
-			p_ptr->skills[SK_EARTH_MASTERY].skill_rank = p_ptr->skills[SK_EARTH_MASTERY].skill_max = p_ptr->skills[SK_EARTH_MASTERY].skill_raise = 1;
-		}
+		enable_skill(SK_EARTH_MASTERY);
 	}
 
 	if ((p_ptr->skills[SK_EARTH_LORE].skill_max > 14) ||
@@ -3867,40 +4401,36 @@ void skill_link(void)
 		(p_ptr->skills[SK_WATER_LORE].skill_max > 14) ||
 		(p_ptr->skills[SK_FIRE_LORE].skill_max > 14))
 	{
-		if (p_ptr->skills[SK_ELEMENTAL_RESISTANCE].skill_max == -2)
-		{
-			p_ptr->skills[SK_ELEMENTAL_RESISTANCE].skill_rank = p_ptr->skills[SK_ELEMENTAL_RESISTANCE].skill_max = p_ptr->skills[SK_ELEMENTAL_RESISTANCE].skill_raise = 1;
-		}		
+		enable_skill(SK_ELEMENTAL_RESISTANCE);
 	}
 
 	if (p_ptr->skills[SK_DETECTIVES_KIT].skill_max > 1)
 	{
-		p_ptr->skills[SK_UTILITY_BANDOLIER].skill_rank = p_ptr->skills[SK_UTILITY_BANDOLIER].skill_max = p_ptr->skills[SK_UTILITY_BANDOLIER].skill_raise = -2;
-		p_ptr->skills[SK_CLOCKWORK_CHASSIS].skill_rank = p_ptr->skills[SK_CLOCKWORK_CHASSIS].skill_max = p_ptr->skills[SK_CLOCKWORK_CHASSIS].skill_raise = -2;
-		p_ptr->skills[SK_CLOCKWORK_CARBINE].skill_rank = p_ptr->skills[SK_CLOCKWORK_CARBINE].skill_max = p_ptr->skills[SK_CLOCKWORK_CARBINE].skill_raise = -2;
-		p_ptr->skills[SK_VELOCIPEDE].skill_rank = p_ptr->skills[SK_VELOCIPEDE].skill_max = p_ptr->skills[SK_VELOCIPEDE].skill_raise = -2;
-		p_ptr->skills[SK_ANALYTIC_ENGINE].skill_rank = p_ptr->skills[SK_ANALYTIC_ENGINE].skill_max = p_ptr->skills[SK_ANALYTIC_ENGINE].skill_raise = -2;
-
+		disable_skill(SK_UTILITY_BANDOLIER);
+		disable_skill(SK_CLOCKWORK_CHASSIS);
+		disable_skill(SK_CLOCKWORK_CARBINE);
+		disable_skill(SK_VELOCIPEDE);
+		disable_skill(SK_ANALYTIC_ENGINE);
 	}
 	if (p_ptr->skills[SK_UTILITY_BANDOLIER].skill_max > 1)
 	{
-		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+		disable_skill(SK_DETECTIVES_KIT);
 	}
 	if (p_ptr->skills[SK_CLOCKWORK_CHASSIS].skill_max > 1)
 	{
-		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+		disable_skill(SK_DETECTIVES_KIT);
 	}
 	if (p_ptr->skills[SK_CLOCKWORK_CARBINE].skill_max > 1)
 	{
-		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+		disable_skill(SK_DETECTIVES_KIT);
 	}
 	if (p_ptr->skills[SK_VELOCIPEDE].skill_max > 1)
 	{
-		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+		disable_skill(SK_DETECTIVES_KIT);
 	}
 	if (p_ptr->skills[SK_ANALYTIC_ENGINE].skill_max > 1)
 	{
-		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+		disable_skill(SK_DETECTIVES_KIT);
 	}
 
 	/* Trigger Mutations from skills */

@@ -70,7 +70,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 
 ### Body Armor ###
@@ -82,7 +82,7 @@ W:0:1:0:800
 T:34:0:99
 T:36:0:99
 T:37:0:99
-O:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to fire.
 
 N:2:of Inviolability to Earth
@@ -91,7 +91,7 @@ W:0:1:0:800
 T:34:0:99
 T:36:0:99
 T:37:0:99
-O:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to earth.
 
 N:3:of Inviolability to Air
@@ -100,7 +100,7 @@ W:0:1:0:800
 T:34:0:99
 T:36:0:99
 T:37:0:99
-O:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to air.
 
 N:4:of Inviolability to Water
@@ -109,7 +109,7 @@ W:0:1:0:900
 T:34:0:99
 T:36:0:99
 T:37:0:99
-O:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to water.
 
 N:5:of Inviolability to Electricity
@@ -118,7 +118,7 @@ W:0:1:0:1000
 T:34:0:99
 T:36:0:99
 T:37:0:99
-O:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to electricity.
 
 N:6:of Inviolability to Ice
@@ -127,7 +127,7 @@ W:0:1:0:1000
 T:34:0:99
 T:36:0:99
 T:37:0:99
-O:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to ice.
 
 N:7:of Inviolability to Acid
@@ -136,7 +136,7 @@ W:0:1:0:1000
 T:34:0:99
 T:36:0:99
 T:37:0:99
-O:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to acid.
 
 N:8:of Inviolability to Poison
@@ -145,28 +145,27 @@ W:0:1:0:1000
 T:34:0:99
 T:36:0:99
 T:37:0:99
-O:0:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0
 D:It grants resistance to poison.
 
 N:9:of Inviolability to the Elements
 X:0:20:0
-W:0:4:0:6500
+W:0:8:0:8500
 C:0:0:10
 T:36:0:99
 T:37:0:99
-O:35:35:35:35:15:15:15:15:0:0:0:0:0:0:0:0:0
+O:30:30:30:30:10:10:10:10:0:0:0:0:0:0:0:0:0
 D:It grants resistance to all of the basic elements, and it also 
 D:protects you somewhat from the mid elements.
 
 N:10:of *Inviolability* to the Elements
 X:0:20:0
-W:0:10:0:15000
+W:0:18:0:15000
 C:0:0:10
 T:36:0:99
 T:37:0:99
-O:45:45:45:45:35:35:35:35:0:0:0:0:0:0:0:0:0
-D:It grants great resistance to all of the basic elements, and it also 
-D:protects you well from the mid elements.
+O:30:30:30:30:30:30:30:30:0:0:0:0:0:0:0:0:0
+D:It grants resistance to all of the basic and mid elements.
 
 N:11:of the Daoine Sidhe
 X:30:25:0
@@ -174,7 +173,7 @@ W:0:4:0:11000
 C:0:0:18
 T:36:0:99
 T:37:0:99
-O:0:0:10:0:0:0:30:30:10:10:10:8:30:30:0:0:0
+O:0:0:10:0:0:0:30:30:10:10:10:10:30:30:0:0:0
 Y:3
 1:STEALTH 
 F:SUST_EGO | RES_CONFU 
@@ -200,10 +199,10 @@ D:very wearable.
 
 N:13:of Permanence
 X:0:30:0
-W:0:5:0:30000
+W:0:15:0:30000
 C:0:0:10
 T:36:2:2
-O:35:35:35:35:20:20:20:20:5:5:5:5:10:10:0:0:0
+O:30:30:30:30:10:10:10:10:0:0:0:0:10:10:0:0:0
 F:SUST_MUS | SUST_AGI | SUST_VIG | SUST_SCH | SUST_EGO | SUST_CHR | HOLD_LIFE
 D:The great scientists of your time spend countless hours seeking to prefect
 D: fabrics and weaves combining new miracles in technology with ancient sorceries.
@@ -216,7 +215,7 @@ X:0:30:0
 W:0:4:0:6000
 C:0:0:20
 T:37:0:2
-O:50:0:-10:0:10:-10:30:-30:0:25:30:0:30:30:10:10:10
+O:45:0:-10:0:10:-10:30:-30:0:30:30:0:30:30:0:0:0
 Y:-2:4
 1:STEALTH
 2:HEALTH | SAVE | MUS
@@ -232,7 +231,7 @@ C:0:0:10
 W:0:2:0:1500
 T:36:0:99
 T:37:0:99
-O:0:0:0:0:8:8:8:8:0:50:0:0:0:0:0:0:0
+O:0:0:0:0:10:10:10:10:0:45:0:0:0:0:0:0:0
 Y:3
 1:MANA | SPEED 
 F:SUST_AGI | SUST_EGO | SUST_SCH | FREE_ACT | RES_CONFU | TELEPORT
@@ -257,8 +256,8 @@ C:0:0:8
 T:35:0:99
 T:34:0:99
 T:36:0:99
-O:15:15:15:15:0:0:45:45:0:0:0:0:0:0:0:0:0
-Y:10:-2
+O:10:10:10:10:0:0:30:30:0:0:0:0:0:0:0:0:0
+Y:8:-2
 1:SCH
 2:SPEED
 F:SLOW_DIGEST | RES_CONFU
@@ -270,8 +269,8 @@ W:0:2:0:3000
 C:0:0:10
 T:35:0:99
 T:36:0:99
-O:0:0:35:0:35:15:15:0:0:0:0:0:0:0:0:0:0
-Y:5
+O:0:0:30:0:30:10:10:0:0:0:0:0:0:0:0:0:0
+Y:4
 1:EGO | AGI
 F:FEATHER
 D:A piece of clothing made of some strange material from space. 
@@ -282,7 +281,7 @@ W:0:10:0:35000
 C:0:0:20
 T:36:0:99
 T:37:0:99
-O:15:15:15:15:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:10:10:10:10:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:2:5
 1:LIGHT
 2:CHR
@@ -308,13 +307,24 @@ W:0:15:0:80000
 C:0:0:32
 T:36:0:99
 T:37:0:99
-O:40:0:0:0:40:40:40:0:0:0:40:40:0:40:0:0:0
+O:30:0:0:0:30:30:30:0:0:0:30:30:0:30:0:0:0
 Y:8:3
 1:MUS | VIG | AGI
 2:INFRA | SPEED
 F:HOLD_LIFE | DRAIN_SP
 D:In the fires of mercury this abyssal thing was forged.
 D: it is recognizeable as clothing only by it's shape. 
+
+N:22:of Chronoscope Transduction
+X:0:8:0
+W:0:2:0:1800
+C:0:0:8
+T:36:0:99
+O:0:0:0:0:0:0:0:0:30:30:0:30:0:0:0:0:0
+Y:3
+1:SPEED
+D:A shimmering light outfit.
+
 
 #N:2:(*Etheric*)
 
@@ -329,7 +339,7 @@ X:0:5:0
 W:0:2:0:3000
 C:0:0:5
 T:34:0:99
-Y:8:2
+Y:4:2
 1:AGI
 2:MUS
 F:SUST_MUS | SUST_AGI | SUST_AGI | FREE_ACT
@@ -337,7 +347,7 @@ D:This is mighty legware!
 
 N:31:of Swiftness
 X:0:25:0
-W:0:80:0:150000
+W:0:70:0:150000
 C:0:0:2
 T:34:0:99
 Y:8
@@ -351,23 +361,25 @@ X:0:3:0
 W:0:2:0:2800
 C:0:0:12
 T:34:0:99
-O:18:22:4:22:0:12:0:0:0:0:0:0:0:0:0:0:0
+O:10:30:10:30:0:10:0:0:0:0:0:0:0:0:0:0:0
 D:These sturdy pants look well-worn, but seem made
 D: for wearing on journeys of long distances.
 
 N:33:of the Forest of Burzee
 X:0:5:3
-W:0:10:0:20000
+W:0:22:0:20000
 C:0:0:20
 T:34:0:99
-Y:2:5
+Y:2:4
 1:VIG | SPEED
 2:STEALTH
 F:SUST_VIG
-O:5:5:5:5:5:3:3:3:40:10:6:6:20:0:0:0:0
+O:0:0:0:0:0:0:0:0:30:10:0:0:10:0:0:0:0
 D:"Have you ever heard of the great Forest of Burzee?  Nurse used to
 D: sing of it  when I was a child." -L Frank Baum "The Life and
 D: Adventures of Santa Claus"
+
+
 
 
 ##############################
@@ -415,11 +427,11 @@ W:0:10:0:14500
 C:0:0:0
 T:33:0:16
 T:32:0:99
-Y:8:3
+Y:6:2
 1:SCH | EGO
 2:MANA | MAGIC_MASTER
 F:SUST_SCH | SUST_EGO | SEE_INVIS | 
-O:15:15:15:15:5:5:5:5:5:5:5:5:0:0:0:0:0
+O:10:10:10:10:10:10:10:10:10:10:10:10:0:0:0:0:0
 D:The hat of a powerful magic order. It makes you both more knowledgeable and
 D: stronger of will, as well as giving you more power to meddle in dark forces.
 
@@ -429,7 +441,7 @@ W:0:6:0:8000
 C:0:0:0
 T:32:0:99
 T:33:0:13
-Y:8
+Y:6
 1:MUS | AGI | VIG 
 F:SUST_MUS | SUST_AGI | SUST_VIG | FREE_ACT
 D:This hat of the hunter increases your physical attributes makeing it easier 
@@ -441,8 +453,9 @@ W:0:4:0:4000
 C:0:0:0
 T:33:0:99
 T:32:0:99
-Y:8
-1:EGO | CHR | HEALTH | 
+Y:6:2
+1:EGO | CHR 
+2:HEALTH  
 F:SUST_EGO | SUST_CHR | SLOW_DIGEST | RES_CONFU
 D:This is a royal piece of headgear made from the best quality materials, 
 D:enchanted by mystical powers it contains the spirits of great rulers.
@@ -453,7 +466,7 @@ T:33:0:99
 W:0:2:0:1000
 C:0:0:0
 T:32:0:99
-O:0:0:0:0:0:0:0:0:0:0:0:0:40:40:0:0:0
+O:0:0:0:0:0:0:0:0:0:0:0:0:30:30:0:0:0
 Y:3
 1:SEARCH | 
 F:RES_BLIND | SEE_INVIS
@@ -535,19 +548,18 @@ W:0:2:0:22000
 C:0:0:0
 T:32:0:99
 T:33:0:99
-O:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-Y:5:10
+O:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:3:8
 1:VIG | MUS
 2:CHR
 D:A helm studded with gems.
 
 N:50:(Plumed)
-X:33:0:0
+X:30:0:0
 W:3:2:0:2400
 C:0:0:0
 T:32:0:13
 T:33:0:99
-O:3:3:3:3:2:2:2:2:1:1:1:1:0:0:0:0:0
 Y:6:2
 1:CHR
 2:VIG
@@ -564,7 +576,7 @@ Y:3:2
 1:VIG
 2:SEARCH
 F:SUST_MUS
-O:0:0:5:15:10:15:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:10:10:10:10:0:0:0:0:0:0:0:0:0:0:0
 D:A hat made of the finest Sea Otter fur, made to withstand the harsh
 D: temperature extremes of the open sea.
 
@@ -581,7 +593,7 @@ X:0:10:0
 W:0:2:0:500
 C:0:0:10
 T:35:0:99
-O:8:8:8:8:5:5:5:5:3:3:3:3:10:10:2:2:2
+O:10:10:10:10:10:10:10:10:10:10:10:10:0:0:0:0:0
 D:It offers enhanced ordinary protection.
 
 N:62:of Stealth
@@ -600,7 +612,7 @@ X:0:15:0
 C:0:0:10
 W:0:5:0:1500
 T:35:0:99
-O:0:0:0:0:8:8:8:8:0:50:0:0:0:0:0:0:0
+O:0:0:0:0:10:10:10:10:0:45:0:0:0:0:0:0:0
 Y:3
 1:MANA | SPEED 
 F:SUST_AGI | SUST_EGO | SUST_SCH | FREE_ACT | RES_CONFU | TELEPORT
@@ -622,8 +634,8 @@ W:0:1:0:0
 C:0:0:-35
 T:35:0:99
 F:AGGRAVATE | LIGHT_CURSE
-D:You feel horribly naked and defenceless, and wonder how you'll get 
-D:this acursed clock off your back.
+D:You feel horribly naked and defenseless and wonder how you'll get 
+D:this acursed cloak off your back.
 
 N:66:of Invisibility
 X:0:25:0
@@ -632,18 +644,18 @@ C:0:0:0
 T:35:0:99
 F:INVISIBLE | DRAIN_SP
 D:This powerful cloak renders you invisible to all monsters around you.
-D: While worn it drains your spirit to power it's powerful magic.
+D: While worn it drains your spirit to fuel it's powerful magic.
 
 N:67:of the Order
 X:0:13:0
 W:0:10:0:22000
 C:0:0:5
 T:35:0:99
-Y:8:3
+Y:6:3
 1:SCH | EGO
 2:MANA | MAGIC_MASTER
 F:SUST_SCH | SUST_EGO | SEE_INVIS | 
-O:5:5:5:5:0:0:0:0:0:0:0:0:10:10:0:0:0
+O:10:10:10:10:0:0:0:0:0:0:0:0:10:10:0:0:0
 D:The cloak of a powerful magic order. It makes you both more knowledgeable and 
 D:stronger of will, as well as giving you more power to meddle in dark forces. 
 
@@ -651,56 +663,56 @@ N:68:of Inviolability to Fire
 X:0:10:0
 W:0:1:0:800
 T:35:0:99
-O:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to fire.
 
 N:69:of Inviolability to Earth
 X:0:10:0
 W:0:1:0:800
 T:35:0:99
-O:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to earth.
 
 N:70:of Inviolability to Air
 X:0:10:0
 W:0:1:0:800
 T:35:0:99
-O:0:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to air.
 
 N:71:of Inviolability to Water
 X:0:12:0
 W:0:1:0:900
 T:35:0:99
-O:0:0:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to water.
 
 N:72:of Inviolability to Electricity
 X:0:16:0
 W:0:1:0:1000
 T:35:0:99
-O:0:0:0:0:15:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to electricity.
 
 N:73:of Inviolability to Ice
 X:0:16:0
 W:0:1:0:1000
 T:35:0:99
-O:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to ice.
 
 N:74:of Inviolability to Acid
 X:0:16:0
 W:0:1:0:1000
 T:35:0:99
-O:0:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0
 D:It grants resistance to acid.
 
 N:75:of Inviolability to Poison
 X:0:16:0
 W:0:1:0:1000
 T:35:0:99
-O:0:0:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0
 D:It grants resistance to poison.
 
 N:76:of Regeneration
@@ -714,12 +726,22 @@ N:77:of the Night
 X:0:5:0
 W:0:2:0:3500
 T:35:0:99
-O:0:0:0:0:0:0:0:0:0:0:0:0:35:35:0:0:0
+O:0:0:0:0:0:0:0:0:0:0:0:0:30:30:0:0:0
 Y:5
 1:STEALTH | INFRA
 F:RES_BLIND
 D:This cloak of inky night provides protection from light and dark, while
 D: dampening your footfalls.
+
+N:78:of Chronoscope Transduction
+X:0:6:0
+W:0:2:0:1800
+C:0:0:8
+T:35:0:99
+O:0:0:0:0:0:0:0:0:30:30:0:30:0:0:0:0:0
+Y:3
+1:STEALTH | SAVE
+D:A shimmering light outfit.
 
 ########################
 ### Gloves (90 - 120 ###
@@ -735,7 +757,7 @@ D:They protect from paralyzation and certain slowing attacks.
 
 N:91:of Slaying
 X:0:17:0
-W:0:4:0:1500
+W:0:8:0:1500
 C:8:8:0
 T:31:0:99
 F:SHOW_MODS
@@ -809,7 +831,7 @@ X:0:4:0
 W:0:6:0:12000
 C:0:0:0
 T:31:0:99
-O:50:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:45:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:5:1
 1:MUS
 2:LIGHT
@@ -879,7 +901,7 @@ T:30:0:99
 Y:2
 1:STEALTH | AGI
 F:SUST_AGI
-O:-5:3:3:5:10:10:10:3:3:0:0:0:0:0:0:0:0
+O:-5:0:0:0:10:10:10:0:0:0:0:0:0:0:0:0:0
 D:Boots made from the skin of seals from the polar clime.  Warm,
 D: soft, and quite comfortable.
 
@@ -908,7 +930,7 @@ C:4:4:15
 T:21:0:99
 T:23:0:99
 T:26:0:99
-O:20:20:20:20:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:30:30:30:30:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:4
 1:STEALTH
 D:Strong friend in peril, this weapon enhances stealth, resists all four 
@@ -930,7 +952,7 @@ C:10:10:0
 T:22:0:99
 T:23:0:99
 T:24:0:99
-O:50:0:-10:0:10:-10:30:-30:0:25:30:0:30:30:10:10:10
+O:45:0:-10:0:10:-10:30:-30:0:30:30:0:30:30:0:0:0
 Y:-3:4
 1:STEALTH
 2:HEALTH | SAVE | MUS
@@ -987,7 +1009,7 @@ W:0:10:0:8000
 T:23:0:99
 T:24:0:99
 T:25:0:99
-O:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0
 F:BRAND_ACID 
 D:This weapon smokes and sizzles with noxious black corrosions.  It 
 D:grants resistance to acid and cannot be harmed by that element.
@@ -998,7 +1020,7 @@ W:0:10:0:4500
 T:23:0:99
 T:24:0:99
 T:25:0:99
-O:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0
 F:BRAND_ELEC 
 D:Sparks form tiny coronas upon its surface from top to bottom and it 
 D:grants resistance to electricity.
@@ -1009,7 +1031,7 @@ W:0:10:0:3000
 T:23:0:99
 T:24:0:99
 T:25:0:99
-O:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:BRAND_FIRE 
 D:Flames dance merrily up and down it.  It grants resistance to fire, and 
 D:cannot be harmed by that element.
@@ -1020,7 +1042,7 @@ W:0:10:0:2500
 T:23:0:99
 T:24:0:99
 T:25:0:99
-O:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0
 F:BRAND_ICE 
 D:Crystals of coldly gleaming ice form upon its surface, and it grants 
 D:resistance to frost.
@@ -1031,7 +1053,7 @@ W:0:10:0:2500
 T:23:0:99
 T:24:0:99
 T:25:0:99
-O:0:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0
 F:BRAND_POISON 
 D:It gleams a sickly green, and you dare not hold it above the handle.
 
@@ -1218,8 +1240,8 @@ F:SLAY_BEASTMAN
 D:This weapon is especially deadly against beastmen.
 
 N:182:(Deckcutter)
-X:0:18:0
-W:0:18:0:3500
+X:0:9:0
+W:0:14:0:2500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -1227,8 +1249,8 @@ F:SLAY_CARDS
 D:This weapon is especially against cards.
 
 N:183:(Deckcutter)
-X:24:18:0
-W:0:18:0:3500
+X:24:9:0
+W:0:14:0:2500
 T:24:0:99
 T:25:0:99
 T:26:0:99
@@ -1243,8 +1265,8 @@ X:0:20:0:
 W:0:14:0:12000
 C:0:18:0
 T:22:0:99
-O:0:0:0:0:0:35:0:0:0:0:0:0:0:40:0:0:0
-Y:8:2
+O:0:0:0:0:0:30:0:0:0:0:0:0:0:30:0:0:0
+Y:6:2
 1:MUS | VIG
 2:INFRA
 F:RES_BLIND | FREE_ACT | FEATHER 
@@ -1257,7 +1279,7 @@ W:0:12:0:6000
 C:0:0:0
 T:22:0:99
 T:24:0:99
-O:0:0:0:0:0:0:0:0:45:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0
 Y:5:4
 1:SPEED
 2:EGO | SCH
@@ -1284,7 +1306,7 @@ C:10:10:0
 T:21:0:99
 T:22:0:99
 T:26:0:99
-O:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:5:2
 1:MUS
 2:LIGHT
@@ -1299,7 +1321,7 @@ C:10:10:0
 T:21:0:99
 T:22:0:99
 T:26:0:99
-O:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0
 Y:5:2
 1:AGI
 F:BRAND_ELEC | FREE_ACT
@@ -1313,7 +1335,7 @@ C:10:10:20
 T:21:0:99
 T:22:0:99
 T:26:0:99
-O:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 Y:5
 1:VIG
 F:BRAND_FORCE 
@@ -1327,7 +1349,7 @@ C:10:10:0
 T:21:0:99
 T:22:0:99
 T:26:0:99
-O:0:0:25:0:0:0:0:25:0:0:0:0:0:0:0:0:0
+O:0:0:30:0:0:0:0:30:0:0:0:0:0:0:0:0:0
 Y:5
 1:SPEED
 F:BRAND_POISON
@@ -1341,7 +1363,7 @@ C:10:17:0
 T:21:0:99
 T:22:0:99
 T:26:0:99
-O:0:0:0:25:0:25:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:30:0:30:0:0:0:0:0:0:0:0:0:0:0
 Y:5
 1:EGO | SCH
 F:BRAND_ICE
@@ -1355,7 +1377,7 @@ C:10:10:0
 T:21:0:99
 T:22:0:99
 T:26:0:99
-O:0:0:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0
 Y:5
 1:VIG
 F:BRAND_ACID
@@ -1388,6 +1410,7 @@ D: anything, much less perform any delicate actions.
 
 N:241:of Weakness
 X:0:0:0
+W:0:1:0:0
 C:0:-12:0
 T:22:0:99
 T:23:0:99
@@ -1406,7 +1429,7 @@ T:24:2:8
 Y:3
 1:AGI | STEALTH
 F:CRITICAL | SLAY_EVIL | FEATHER
-O:10:10:10:10:10:5:5:5:0:0:0:0:25:25:0:0:0
+#O:10:10:10:10:10:5:5:5:0:0:0:0:25:25:0:0:0
 D:"Woe came upon the sharp-taloned goblins when the thorns of the
 D: Ryls reached their savage hearts and let their life-blood sprinkle
 D: all the plain.  And afterward from every drop a thistle grew." - L
@@ -1418,7 +1441,7 @@ X:0:10:1
 W:15:10:0:5000
 C:15:15:0
 T:22:1:99
-O:10:15:7:7:7:7:15:3:0:0:0:-20:20:0:0:0:0
+#O:10:15:7:7:7:7:15:3:0:0:0:-20:20:0:0:0:0
 Y:2
 1:MUS
 F:SLAY_ANIMAL | SLAY_DEMON
@@ -1434,7 +1457,7 @@ X:0:10:2
 W:20:15:0:7500
 C:18:18:0
 T:26:2:14
-O:0:40:0:0:0:0:5:0:0:0:0:25:0:0:0:0:0
+O:0:30:0:0:0:0:10:0:0:0:0:30:0:0:0:0:0
 Y:3
 1:AGI | LIGHT
 F:SLAY_CONSTRUCT | FREE_ACT | BRAND_FORCE
@@ -1554,7 +1577,7 @@ X:23:10:0
 W:0:25:0:25
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_ANIMAL
 D:They slay natural creatures.
 
@@ -1563,7 +1586,7 @@ X:23:10:0
 W:0:25:0:25
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_EVIL
 D:They do extra damage to evil creatures.
 
@@ -1572,7 +1595,7 @@ X:23:10:0
 W:0:50:0:25
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_UNDEAD
 D:They do extra damage to the undead.
 
@@ -1581,7 +1604,7 @@ X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_DEMON
 D:They smite demonic foes.
 
@@ -1590,7 +1613,7 @@ X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_AUTOMATA
 D:They do extra damage to automata.
 
@@ -1599,7 +1622,7 @@ X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_DINOSAUR
 D:They do extra damage to dinosaurs.
 
@@ -1608,7 +1631,7 @@ X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_CONSTRUCT
 D:They do extra damage to constructs.
 
@@ -1617,7 +1640,7 @@ X:23:10:0
 W:0:50:0:35
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_ELEMENTAL
 D:They do extra damage to elementals.
 
@@ -1626,7 +1649,7 @@ X:23:10:0
 W:0:50:0:35
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_ALIEN
 D:They do extra damage to aliens.
 
@@ -1635,7 +1658,7 @@ X:23:10:0
 W:0:50:0:35
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:SLAY_BEASTMAN
 D:They do extra damage to Beastmen.
 
@@ -1644,7 +1667,7 @@ X:0:10:0
 W:0:50:0:25
 T:16:0:99
 T:17:0:99
-T:18:0:99
+T:18:0:3
 F:BRAND_ELEC
 D:"Prince Flash bore a lightning bolt in his right hand, and a horn
 D: of gunpowder in his right, and his bright eyes roved constantly
@@ -1916,7 +1939,7 @@ D:A masterfully painted head.  Not just a tool, but an objet d'art.
 
 N:446:(Polished)
 X:0:0:0
-W:0:3:0:1200
+W:0:3:0:2200
 C:0:0:0
 T:47:0:10
 T:47:12:99
@@ -1938,7 +1961,7 @@ D:Special sensors built into this head increase the accuracy of your attacks.
 
 N:448:of Computation
 X:0:0:0
-W:0:5:0:3000
+W:0:5:0:1200
 C:0:0:0
 T:47:0:16
 O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0

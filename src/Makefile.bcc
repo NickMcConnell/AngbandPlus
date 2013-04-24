@@ -23,7 +23,7 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = angband.exe
+EXE_FILE = steamband.exe
 
 
 ###################################################################

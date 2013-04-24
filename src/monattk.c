@@ -445,6 +445,8 @@ bool make_attack_normal(monster_type *m_ptr)
 	bool blinked;
 	bool martial;
 	
+	bool notice = FALSE;
+	
 	save = p_ptr->skill_sav;
 
 	martial = FALSE;
@@ -607,9 +609,9 @@ bool make_attack_normal(monster_type *m_ptr)
 					break;
 				}
 
-				case RBM_XXX1:
+				case RBM_LURE:
 				{
-					act = "XXX1s you";
+					act = "lures you";
 					break;
 				}
 				case RBM_XXX2:
@@ -875,12 +877,14 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Message */
-					msg_print("You are hit with poison!");
-
 					/* Take damage (special) - Perhaps vary the GF_FIRE */
 					/* based off monster something? */
-					poison_dam(dam, GF_POISON, ddesc);
+					notice = poison_dam(dam, GF_POISON, ddesc);
+
+					/* Message, only in case there is actual damage */
+					if (notice)
+					msg_print("You are hit with poison!");
+
 					break;
 				}
 
@@ -1159,12 +1163,14 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Message */
-					msg_print("You are enveloped in flames!");
-
 					/* Take damage (special) - Perhaps vary the GF_FIRE */
 					/* based off monster something? */
-					fire_dam(dam, GF_FIRE, ddesc);
+					notice = fire_dam(dam, GF_FIRE, ddesc);
+
+					/* Message */
+					if (notice)
+					msg_print("You are enveloped in flames!");
+
 					break;
 				}
 
@@ -1173,11 +1179,13 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Obvious */
 					obvious = TRUE;
 
+					/* Special damage */
+					notice = acid_dam(dam, GF_ACID, ddesc);
+
 					/* Message */
+					if (notice)
 					msg_print("You are covered in acid!");
 
-					/* Special damage */
-					acid_dam(dam, GF_ACID, ddesc);
 					break;
 				}
 
@@ -1186,11 +1194,13 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Obvious */
 					obvious = TRUE;
 
+					/* Take damage (special) */
+					notice = elec_dam(dam, GF_ELEC, ddesc);
+
 					/* Message */
+					if (notice)
 					msg_print("You are struck by electricity!");
 
-					/* Take damage (special) */
-					elec_dam(dam, GF_ELEC, ddesc);
 					break;
 				}
 
@@ -1199,11 +1209,13 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Message */
-					msg_print("You are covered with frost!");
-
 					/* Take damage (special) */
 					ice_dam(dam, GF_ICE, ddesc);
+
+					/* Message */
+					if (notice)
+					msg_print("You are covered with frost!");
+
 					break;
 				}
 
@@ -1212,11 +1224,13 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Obvious */
 					obvious = TRUE;
 
+					/* Take damage (special) */
+					notice = water_dam(dam, GF_STEAM, ddesc);
+
 					/* Message */
+					if (notice)
 					msg_print("You are blasted with steam!");
 
-					/* Take damage (special) */
-					water_dam(dam, GF_STEAM, ddesc);
 					break;
 				}
 
@@ -1748,7 +1762,7 @@ bool make_attack_normal(monster_type *m_ptr)
 			{
 				msg_format("%^s is pierced!", m_name);
 				if (mon_take_hit(m_idx, damroll(4,5), &fear,
-				" crumples lifelessly to the ground."))
+				" crumples to the ground."))
 				{
 					blinked = FALSE;
 					alive = FALSE;
@@ -1802,6 +1816,8 @@ bool make_attack_normal(monster_type *m_ptr)
 		l_ptr->r_deaths++;
 	}
 
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
 
 	/* Assume we attacked */
 	return (TRUE);
@@ -1861,7 +1877,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 	/* Is the monster organic? */
 	bool automata = (monster_automata(r_ptr));
 	bool elemental = (monster_elemental(r_ptr));
-
+  bool nonliving = (monster_nonliving(r_ptr));
+	
 	int save;
 	
 	save = p_ptr->skill_sav;
@@ -2867,6 +2884,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			{
 				if (blind) msg_format("%^s makes noise.", m_name);
 				else if (automata) msg_format("%^s shoots a blast of steam.", m_name);
+				else if (strchr("q", r_ptr->d_char)) msg_format("%^s sprays a blast of water.", m_name);
 				else msg_format("%^s casts a steam bolt.", m_name);
 				typ = GF_STEAM;
 			}
@@ -3081,9 +3099,26 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF5_XXX2 */
+		/* RF5_BO_DARK */
 		case RF5_OFFSET+29:
 		{
+			int typ;
+			disturb(1, 0);
+			if (spower < 50)
+			{
+				if (blind) msg_format("%^s makes noise.", m_name);
+				else if (automata) msg_format("%^s shoots beam of anti-photons.", m_name);
+				else msg_format("%^s casts a bolt of darkness.", m_name);
+				typ = GF_DARK;
+			}
+			else
+			{
+				if (blind) msg_format("%^s makes a lot of noise.", m_name);
+				else if (automata) msg_format("%^s shoots beam of photic annihilators.", m_name);
+				else msg_format("%^s casts a bolt of tenebrous nightdark.", m_name);
+				typ = GF_TENEBROUS;
+			}
+			bolt(m_idx, typ, get_dam(5 * spower, 6));
 			break;
 		}
 
@@ -3177,6 +3212,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			if (m_ptr->ml)
 			{
 				if (blind) msg_format("%^s makes noise.", m_name);
+				else if (automata) msg_format("%^s spends a moment processing.", m_name);
 				else msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
 			}
 
@@ -3204,7 +3240,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				/* Message */
 				if (m_ptr->ml)
 				{
-					if (seen) msg_format("%^s looks very healthy!",  m_name);
+					if (seen && automata) msg_format("%^s looks fully repaired!",  m_name);
+					else if (seen) msg_format("%^s looks very healthy!",  m_name);
 					else      msg_format("%^s sounds very healthy!", m_name);
 				}
 			}
@@ -3215,7 +3252,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				/* Message */
 				if (m_ptr->ml)
 				{
-					if (seen) msg_format("%^s looks healthier.",  m_name);
+					if (seen && automata) msg_format("%^s looks repaired.",  m_name);
+					else if (seen) msg_format("%^s looks healthier.",  m_name);
 					else      msg_format("%^s sounds healthier.", m_name);
 				}
 			}
@@ -3248,6 +3286,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			if (m_ptr->ml)
 			{
 				if (blind) msg_format("%^s makes noise.", m_name);
+				else if (automata) msg_format("%^s spends a moment charging up.", m_name);
 				else msg_format("%^s gathers %s power.", m_name, m_poss);
 			}
 			/* Increase current mana.  Do not exceed maximum. */
@@ -3357,7 +3396,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			int old_cdis = m_ptr->cdis;
 
 			/* Move monster near player (also updates "m_ptr->ml"). */
-			teleport_towards(m_ptr->fy, m_ptr->fx, py, px);
+			teleport_towards(m_ptr->fy, m_ptr->fx, py, px, FALSE);
 
 			/* Monster is now visible, but wasn't before. */
 			if ((!seen) && (m_ptr->ml))
@@ -3400,7 +3439,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		case RF6_OFFSET+12:
 		{
 			disturb(1, 0);
-			if (blind) msg_format("%^s makes nosie.", m_name);
+			if (blind) msg_format("%^s makes noise.", m_name);
 			else if (automata) msg_format("%^s absorbs photons.", m_name);
 			else msg_format("%^s gestures in shadow.", m_name);
 			(void)unlite_area(0, 3);
@@ -3520,6 +3559,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			{
 				msg_print("You feel invisible force smash into you.");
 			}
+			/* These need to be fixed, the Air elementals aren't gazing XCCCX */
 			else if (elemental)
 			{
 				msg_format("%^s blasts you with rocks!", m_name);
@@ -3760,11 +3800,62 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF6_XXX3 */
+		/* RF6_CHARGE */
 		case RF6_OFFSET+28:
 		{
+			int old_cdis = m_ptr->cdis;
+
+			/* Move monster near player (also updates "m_ptr->ml"). */
+			teleport_towards(m_ptr->fy, m_ptr->fx, py, px, TRUE);
+
+			/* Monster is now visible, but wasn't before. */
+			if ((!seen) && (m_ptr->ml))
+			{
+				/* Get the name (using "A"/"An") again. */
+				monster_desc(ddesc, m_ptr, 0x08);
+
+				/* Message */
+				msg_format("%^s charges you.", ddesc);
+			}
+
+			/* Monster was visible before, but isn't now. */
+			else if ((seen) && (!m_ptr->ml))
+			{
+				/* Message */
+				msg_format("%^s charges you and vanishes.", m_name);
+			}
+
+			/* Monster is visible both before and after. */
+			else if ((seen) && (m_ptr->ml))
+			{
+				if (distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) <
+				    old_cdis - 1)
+				{
+					msg_format("%^s charges toward you.", m_name);
+				}
+				else
+				{
+					msg_format("%^s charges.", m_name);
+				}
+			}
+
+			/* Have we seen them at any point?  If so, we will learn about the spell. */
+			if (m_ptr->ml) seen = TRUE;
+			
+			/* HACK - this is the only other place monster attacks are called */
+			if (m_ptr->cdis < 2) 
+			{
+						/* Prevent this attack (paranoia) if it is a pet */
+						/* Attack if possible */
+						if (!(r_ptr->flags1 & (RF1_NEVER_BLOW)) && !(is_pet(m_ptr)))
+						{
+								(void)make_attack_normal(m_ptr);
+						}
+
+			}
 			break;
 		}
+
 
 		/* RF6_XXX4 */
 		case RF6_OFFSET+29:
@@ -3843,9 +3934,26 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 		
-		/* RF7_XXX7X3 */
+		/* RF7_BE_WATER */
 		case RF7_OFFSET+2:
 		{
+			int typ;
+			disturb(1, 0);
+			if (spower < 50)
+			{
+				if (blind) msg_format("%^s makes noise.", m_name);
+				if (automata) msg_format("%^s fires a spray of water at you.", m_name);
+				else msg_format("%^s casts an geyser.", m_name);
+				typ = GF_RUST;
+			}
+			else
+			{
+				if (blind) msg_format("%^s makes a lot of noise.", m_name);
+				if (automata) msg_format("%^s fires a scalding spray at you.", m_name);
+				else msg_format("%^s casts an volcanic geyser.", m_name);
+				typ = GF_STEAM;
+			}
+			beam(m_idx, typ, get_dam(5 * spower, 6), 12);
 			break;
 		}
 		/* RF7_XXX7X4 */
@@ -3903,14 +4011,30 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		{
 			break;
 		}
-		/* RF7_XXX7X15 */
+		/* RF7_S_CUTTENCLIP */
 		case RF7_OFFSET+14:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s makes Cuttenclip troops!", m_name);
+			for (k = 0; k < 4; k++)
+			{
+				count += summon_specific(m_ptr->fy, m_ptr->fx, summon_lev, SUMMON_CUTTENCLIP, FALSE);
+			}
+			if (blind && count) msg_print("You hear many things appear nearby.");
 			break;
 		}
-		/* RF7_XXX7X16 */
+		/* RF7_S_BEASTMEN */
 		case RF7_OFFSET+15:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons beastmen!", m_name);
+			for (k = 0; k < 3; k++)
+			{
+				count += summon_specific(m_ptr->fy, m_ptr->fx, summon_lev, SUMMON_BEASTMAN, FALSE);
+			}
+			if (blind && count) msg_print("You hear many things appear nearby.");
 			break;
 		}
 		/* RF7_S_PLANTS */
@@ -4234,7 +4358,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
  * Hack, based on mon_take_hit... perhaps all monster attacks on
  * other monsters should use this? mon_take_hit is in xtra2.c
  */
-void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
+void mon_take_hit_mon(int m_idx, int dam, cptr note)
 {
 	monster_type	*m_ptr = &m_list[m_idx];
 
@@ -4302,15 +4426,13 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 			/* Delete the monster */
 			delete_monster_idx(m_idx);
 
-			/* Not afraid */
-			(*fear) = FALSE;
-
 			/* Monster is dead */
 			return;
 		}
 	}
 
-#ifdef ALLOW_FEAR
+/* NOT USED IN MONSTER TO MONSTER FUNCTION */
+#if 0
 
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
@@ -4380,6 +4502,8 @@ bool monst_attack_monst(int m_idx, int t_idx)
 
 	int             ap_cnt;
 	int             ac, rlev, pt;
+  int							blow_selection = 0;
+  int             blowcount = 0;
 	char            m_name[80], t_name[80];
 	char            ddesc[80], temp[80];
 	bool            blinked = FALSE, touched = FALSE;
@@ -4428,8 +4552,26 @@ bool monst_attack_monst(int m_idx, int t_idx)
 		msg_print("You hear noise.");
 	}
 
-	/* Scan through all four blows */
+	/* Scan through all the blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+	{
+			/* If there is no blow method, break out of the loop */
+			if (!r_ptr->blow[ap_cnt].method) break;
+				
+			/* Increase the count of the number of blows */	
+			blowcount++;		
+	}
+	
+	/* Randomly select an attack to use */
+	blow_selection = rand_int(blowcount);
+
+	/* paranoia */
+	if ((blow_selection < 0) || (blow_selection > 3)) 
+	{
+		return FALSE;
+	}
+	/* We don't attack four times to avoid message glut */
+	else
 	{
 		bool obvious = FALSE;
 
@@ -4439,21 +4581,19 @@ bool monst_attack_monst(int m_idx, int t_idx)
 		cptr act = NULL;
 
 		/* Extract the attack infomation */
-		int effect = r_ptr->blow[ap_cnt].effect;
-		int method = r_ptr->blow[ap_cnt].method;
-		int d_dice = r_ptr->blow[ap_cnt].d_dice;
-		int d_side = r_ptr->blow[ap_cnt].d_side;
+		int effect = r_ptr->blow[blow_selection].effect;
+		int method = r_ptr->blow[blow_selection].method;
+		int d_dice = r_ptr->blow[blow_selection].d_dice;
+		int d_side = r_ptr->blow[blow_selection].d_side;
 
+		/* This is redundant */
 		/* Stop attacking if the target dies! */
-		if (t_ptr->fx != x_saver || t_ptr->fy != y_saver)
-			break;
+		if (t_ptr->fx != x_saver || t_ptr->fy != y_saver) return FALSE;
 
-		/* Hack -- no more attacks */
-		if (!method) break;
-
+		/* This is redundant */
 		if (blinked) /* Stop! */
 		{
-			 break;
+			 return FALSE;
 		}
 
 		/* Extract the attack "power" */
@@ -4549,9 +4689,9 @@ bool monst_attack_monst(int m_idx, int t_idx)
 					break;
 				}
 
-				case RBM_XXX1:
+				case RBM_LURE:
 				{
-					act = "XXX1s %s.";
+					act = "lures %s.";
 					break;
 				}
 				case RBM_XXX2:
@@ -4747,9 +4887,11 @@ bool monst_attack_monst(int m_idx, int t_idx)
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
 
-			/* Roll out the damage */
-			damage = damroll(d_dice, d_side);
-
+			/* Triple the damage */
+			/* this makes pets and monster fighting faster and more effective */
+			damage = (3 * damroll(d_dice, d_side));
+		
+			
 			/* Assume no healing effect */
 			heal_effect = FALSE;
 
@@ -4905,10 +5047,18 @@ bool monst_attack_monst(int m_idx, int t_idx)
 				/* Sanity Check */
 				if (damage < 0) damage = 0;
 				
-				/* Do damage if not exploding */
-				project(m_idx, 0, m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx,
-				(pt == GF_SLEEP ? r_ptr->level : damage), pt, flg, 0, 0);
-
+				/* Use the monster hit function if no special effects */
+				if (pt == GF_HURT) 
+				{
+						mon_take_hit_mon(t_idx, damage, NULL);
+				}
+				/* Do damage if not exploding */				
+				else
+				{	
+						project(m_idx, 0, m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx,
+						(pt == GF_SLEEP ? r_ptr->level : damage), pt, flg, 0, 0);
+				}
+				
 				if (heal_effect)
 				{
 					if ((monster_living(tr_ptr)) && (damage > 2))

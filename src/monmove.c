@@ -619,7 +619,7 @@ void remove_useless_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *f7p
 	if (!(m_ptr->cdis > m_ptr->best_range) && require_los)
 		f6 &= ~(RF6_TELE_SELF_TO);
 	if (m_ptr->min_range > 5) f6 &= ~(RF6_TELE_SELF_TO);
-
+	
 	/* Modify the spell list. */
 	(*f4p) = f4;
 	(*f5p) = f5;
@@ -733,7 +733,7 @@ static int choose_attack_spell_fast(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, 
  *
  *-BR-
  */
-int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, bool archery_only)
+int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, bool archery_only, bool pet)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -754,6 +754,7 @@ int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, bool archery_only)
 
 	int i, py = p_ptr->py, px = p_ptr->px;
 	int breath_hp, breath_maxhp, path, spaces;
+	int bx, by;
 
 	int want_hps=0, want_escape=0, want_mana=0, want_summon=0;
 	int want_tactic=0, cur_range=0;
@@ -770,11 +771,17 @@ int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, bool archery_only)
 	f7 = r_ptr->flags7;
 
 	/*default: target the player*/
-	*tar_y = p_ptr->py;
-	*tar_x = p_ptr->px;
-
+	if (!pet)
+	{
+		*tar_y = p_ptr->py;
+		*tar_x = p_ptr->px;
+	}
+	
+	bx = *tar_x;
+	by = *tar_y;	
+	
 	/* Check what kinds of spells can hit player */
-	path=projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px, PROJECT_CHCK);
+	path=projectable(m_ptr->fy, m_ptr->fx, by, bx, PROJECT_CHCK);
 
 	/* do we have the player in sight at all? */
 	if (path==PROJECT_NO)
@@ -798,8 +805,8 @@ int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, bool archery_only)
 			/* Check for impassable terrain */
 			for (i = 0; i < 8; i++)
 			{
-				alt_y = p_ptr->py + ddy_ddd[i];
-				alt_x = p_ptr->px + ddx_ddd[i];
+				alt_y = by + ddy_ddd[i];
+				alt_x = bx + ddx_ddd[i];
 
 				alt_path = projectable(m_ptr->fy, m_ptr->fx, alt_y, alt_x, PROJECT_CHCK);
 
@@ -1426,9 +1433,9 @@ static void get_town_target(monster_type *m_ptr)
 		i = FEAT_SHOP_HEAD + rand_int(MAX_STORES);
 
 		/* Try to find the store XXX XXX */
-		for (y = SCREEN_HGT + 1; y < SCREEN_HGT * 2 - 1; y++)
+		for (y = 1; y < TOWN_HGT - 1; y++)
 		{
-			for (x = SCREEN_WID + 1; x < SCREEN_WID * 2 - 1; x++)
+			for (x = 1; x < TOWN_WID - 1; x++)
 			{
 				feat = cave_feat[y][x];
 
@@ -1457,24 +1464,24 @@ static void get_town_target(monster_type *m_ptr)
 				if (one_in_(2))
 				{
 					/* Pick a random location along the N/S walls */
-					x = rand_range(SCREEN_WID + 1, SCREEN_WID * 2 - 2);
+					x = rand_range(1, TOWN_WID - 1);
 
-					if (one_in_(2)) y = SCREEN_HGT + 1;
-					else            y = SCREEN_HGT * 2 - 2;
+					if (one_in_(2)) y = TOWN_HGT - 2;
+					else            y = 2;
 				}
 				else
 				{
 					/* Pick a random location along the E/W walls */
-					y = rand_range(SCREEN_HGT + 1, SCREEN_HGT * 2 - 2);
+					y = rand_range(1, TOWN_HGT - 1);
 
-					if (one_in_(2)) x = SCREEN_WID + 1;
-					else            x = SCREEN_WID * 2 - 2;
+					if (one_in_(2)) x = TOWN_WID - 2;
+					else            x = 2;
 				}
 			}
 			else
 			{
-				y = rand_range(SCREEN_HGT + 1, SCREEN_HGT * 2 - 2);
-				x = rand_range(SCREEN_WID + 1, SCREEN_WID * 2 - 2);
+				y = rand_range(1, TOWN_HGT - 2);
+				x = rand_range(1, TOWN_WID - 2);
 			}
 
 			/* Require "empty" floor grids */
@@ -4111,14 +4118,14 @@ static void process_monster(monster_type *m_ptr)
 	/* No one wants to be your friend if you're aggravating */
 	if (!is_hostile(m_ptr) && p_ptr->aggravate)
 		gets_angry = TRUE;
-#if 0		
+
 	/* Demons sometimes become hostile. Sorry. 'dems the breaks */
 	if (!is_hostile(m_ptr) && (r_ptr->flags3 & RF3_DEMON))
 	{
-		if (randint(r_ptr->level) > (randint(100) + p_ptr->skills[SK_RITUAL_MAGIC].skill_rank))
+		if (randint(r_ptr->level) > (randint(100) + (p_ptr->skills[SK_RITUAL_MAGIC].skill_rank * 3 / 2)))
 			gets_angry = TRUE; 
 	}
-#endif
+
 	/* Paranoia... no pet uniques outside wizard mode -- TY */
 	if (is_pet(m_ptr) && (r_ptr->flags1 & RF1_UNIQUE)) gets_angry = TRUE;
 
@@ -4178,6 +4185,9 @@ static void process_monster(monster_type *m_ptr)
 	if (r_ptr->freq_ranged)
 	{
 		int tar_y, tar_x;
+		/* Testing, these are not necessary for the funtion */
+		char m_name[80];
+		monster_desc(m_name, m_ptr, 0);
 
 		/* Extract the ranged attack probability. */
 		chance = r_ptr->freq_ranged;
@@ -4202,7 +4212,7 @@ static void process_monster(monster_type *m_ptr)
 		if ((chance) && (rand_int(100) < chance) && (is_hostile(m_ptr)))
 		{
 			/* Pick a ranged attack */
-			choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx], &tar_y, &tar_x, FALSE);
+			choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx], &tar_y, &tar_x, FALSE, FALSE);
 		}
 	
 		/* Roll to use ranged attacks failed, but monster is an archer. */
@@ -4213,7 +4223,7 @@ static void process_monster(monster_type *m_ptr)
 		{
 			/* Pick an archery attack (usually) */
 			if ((!one_in_(5)) && (m_ptr->cdis > 1))
-				choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx], &tar_y, &tar_x, TRUE);
+				choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx], &tar_y, &tar_x, TRUE, FALSE);
 		}
 	
 		/* For pets, check to make a ranged attack, slighty lower chance of casting a */
@@ -4227,7 +4237,7 @@ static void process_monster(monster_type *m_ptr)
 	
 		if ((choice == 0) && (r_ptr->flags2 & (RF2_ARCHER)) && (!is_hostile(m_ptr)) && (chance))
 		{
-			if (monst_spell_monst(cave_m_idx[m_ptr->fy][m_ptr->fx])) return;
+				if (monst_spell_monst(cave_m_idx[m_ptr->fy][m_ptr->fx])) return;
 		}
 
 		/* Selected a ranged attack? */
@@ -4705,7 +4715,7 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 	if (m_ptr->stasis)
 	{
 		/* Random recovery from fear */
-		int d = randint(div_round(r_ptr->level, 5) + 1);
+		int d = randint(div_round(r_ptr->level, 4) + 1);
 		
 		/* Still held */
 		if (m_ptr->stasis > d)

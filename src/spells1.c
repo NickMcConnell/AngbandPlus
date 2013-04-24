@@ -39,11 +39,14 @@ static int resist_steps[11] = {0,0,0,25,50,100,200,300,400,600,1000};
 bool resist_effect(s16b res)
 {
 	int i, j;
+	/* All of the resist_caps are 88 */
 	int step = resist_caps[res].normal;
 	int chance = 0;
 
-	/* Full resistance, immune to the effect */
+	/* Full resistance, immune to the effect*/
 	/* !!! The higher level powers have a lower cap!!! */
+	/* Well, the higher level powers now have the same cap. What's happening */
+	/* here is that if your resistance is higher than 88 you are resistant to the effect */
 	if (p_ptr->res[res] >= step) return TRUE;
 
 	/* Nearest lower whole step */
@@ -52,6 +55,8 @@ bool resist_effect(s16b res)
 	/* Fraction of the next step (j/step) */
 	j = (p_ptr->res[res]*10) % step;
 
+	/* I'm not sure this works - gets a chance to resist effect */
+	/* unlikely for values under 33% */
 	chance = resist_steps[i] + 
 		(((100 * j ) / step) * (resist_steps[i + 1] - resist_steps[i])) / 100;
 	
@@ -308,6 +313,21 @@ static byte light_color(void)
 	return (TERM_WHITE);
 }
 
+static byte holy_color(void)
+{
+	switch (rand_int(6))
+	{
+		case 0: case 1: return (TERM_YELLOW);
+		case 2: return (TERM_RED);
+		case 3: return (TERM_ORANGE);
+		case 4: case 5: return (TERM_VIOLET);
+		case 6: return (TERM_WHITE);
+	}
+
+	return (TERM_WHITE);
+}
+
+
 /*
  * Return a color to use for the bolt/ball spells
  */
@@ -355,6 +375,8 @@ byte spell_color(int type)
 		case GF_UNHOLY:			return (TERM_VIOLET);
 		case GF_NETHER:			return (nether_color());
 		case GF_ABYSS:			return (nether_color());
+		case GF_DISP_EVIL:		return (light_color());
+		case GF_HOLY_FIRE:		return (holy_color());
 		
 		case GF_EMP:			return (forces_color());
 		case GF_MAGNETIC:		return (forces_color());
@@ -383,6 +405,7 @@ byte spell_color(int type)
 		case GF_ARROW:			return (TERM_UMBER);
 		case GF_BULLET:			return (TERM_UMBER);
 		case GF_SHOT:			return (TERM_UMBER);
+		case GF_PYRO_SHOT:		return (fire_color());		
 		case GF_ROCKET:			return (TERM_UMBER);
 		case GF_MISSILE:		return (TERM_UMBER);
 
@@ -523,12 +546,6 @@ void take_hit(int dam, cptr kb_str, bool wounding)
 
 	/* Hurt the player */
 	p_ptr->chp -= dam;
-	if (p_ptr->chp < 0) 
-	{
-		/* if you have no hit points, get an extra 2-4 wounds */
-		p_ptr->cwp -= rand_range(2, 4);
-		p_ptr->chp = 0;
-	}
 	
 	/* This is Luc's formula - basically it uses a ratio of damage to chp. */
 	/* Using only this seems to rarely cause wounds, because most damage is */
@@ -537,7 +554,28 @@ void take_hit(int dam, cptr kb_str, bool wounding)
 	if ((rand_int(100) < damage_chance) || 
 		(randint(102) > health_chance) ||
 		one_in_(20)) 
-		p_ptr->cwp -= wound_dam;
+	{
+		/* prevent insta-death if damage is greater than wp maximum */
+		if (wound_dam >= p_ptr->mwp)
+		{
+				if (p_ptr->cwp < 2) p_ptr->cwp -= wound_dam;
+				else
+				{			
+					message(MSG_HITPOINT_WARN, 0, "You take a *mortal* wound!");
+					p_ptr->chp = 0;
+					p_ptr->cwp = 1;
+				}
+		}
+		else p_ptr->cwp -= wound_dam;
+	
+	}
+
+	if (p_ptr->chp < 0) 
+	{
+		/* if you have no hit points, get an extra 2-4 wounds */
+		p_ptr->cwp -= (short)rand_range(2, 4);
+		p_ptr->chp = 0;
+	}
 	
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
@@ -579,7 +617,7 @@ void take_hit(int dam, cptr kb_str, bool wounding)
 		else 
 		{
 			/* Message */
-			message(MSG_HITPOINT_WARN, 0, "* low hitpoint warning! *");
+			msg_format("* low hitpoint warning! %d/%d *", p_ptr->chp, p_ptr->mhp);
 		}
 		message_flush();
 	}
@@ -593,8 +631,9 @@ void take_hit(int dam, cptr kb_str, bool wounding)
 		}
 		else 
 		{
+		
 			/* Message */
-			message(MSG_HITPOINT_WARN, 0, "*** LOW WOUNDPOINT WARNING! ***");
+			msg_format("*** LOW WOUNDPOINT WARNING! %d/%d ***", p_ptr->cwp, p_ptr->mwp);
 		}
 		message_flush();
 	}
@@ -610,9 +649,6 @@ static bool hates_fire(const object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 		case TV_CHEST:
-		case TV_AMMO:
-		case TV_BULLET:
-		case TV_SHOT:
 		case TV_GUN:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -980,7 +1016,7 @@ static int inven_damage(inven_func typ, int perc)
  *
  * If any armor is damaged (or resists), the player takes less damage.
  */
-static int minus_ac(void)
+static bool minus_ac(void)
 {
 	object_type *o_ptr = NULL;
 
@@ -1001,10 +1037,10 @@ static int minus_ac(void)
 	}
 
 	/* Nothing to damage */
-	if (!o_ptr->k_idx) return (FALSE);
+	if (!o_ptr->k_idx) return FALSE;
 
 	/* No damage left to be done */
-	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
+	if (o_ptr->ac + o_ptr->to_a <= 0) return FALSE;
 
 
 	/* Describe */
@@ -1018,14 +1054,14 @@ static int minus_ac(void)
 	{
 		msg_format("Your %s is unaffected!", o_name);
 
-		return (TRUE);
+		return TRUE;
 	}
 	
 	if (ignores_damage_p(o_ptr, RS_ACD))
 	{
 		msg_format("Your %s is unaffected!", o_name);
 
-		return (TRUE);
+		return TRUE;
 	}
 	/* Message */
 	msg_format("Your %s is damaged!", o_name);
@@ -1040,13 +1076,13 @@ static int minus_ac(void)
 	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Item was damaged */
-	return (TRUE);
+	return TRUE;
 }
 
 /*
  * Hurt the player with Fire
  */
-void fire_dam(int dam, int typ, cptr kb_str)
+bool fire_dam(int dam, int typ, cptr kb_str)
 {
 	/* Set up a percent chance for inventory reduction */
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
@@ -1059,19 +1095,22 @@ void fire_dam(int dam, int typ, cptr kb_str)
 	/* Apply resistance */
 	dam = apply_resistance(dam, p_ptr->res[RS_FIR]);
 	
-	if (dam <= 0) return;
+	if (dam <= 0) return FALSE;
 	
 	/* Take damage */
 	take_hit(dam, kb_str, TRUE);
 
 	/* Inventory damage */
-	inven_damage(set_fire_destroy, inv);
+	if (!resist_effect(RS_FIR))
+		inven_damage(set_fire_destroy, inv);
+
+	return TRUE;
 }
 
 /*
  * Hurt the player with earth
  */
-void earth_dam(int dam, int typ, cptr kb_str)
+bool earth_dam(int dam, int typ, cptr kb_str)
 {
 	cptr p;
 	int max_stun = 0;
@@ -1079,14 +1118,9 @@ void earth_dam(int dam, int typ, cptr kb_str)
 	/* Player blind-ness */
 	bool blind = (p_ptr->blind ? TRUE : FALSE);
 
-	/* Player needs a "description" (he is blind) */
-	bool fuzzy = FALSE;
-	
 	/* Set up a percent chance for inventory reduction */
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	if (blind) fuzzy = TRUE;
-	
 	/* adjust for damage type */
 	if (typ == GF_ROCK) inv -= 1; p = "rocks"; max_stun = 10;
 	if (typ == GF_EARTH) p = "stones"; max_stun = 20;
@@ -1100,34 +1134,30 @@ void earth_dam(int dam, int typ, cptr kb_str)
 	/* Apply resistance */
 	dam = apply_resistance(dam, p_ptr->res[RS_EAR]);	
 	
-	if (dam <= 0) return;
+	if (dam <= 0) return FALSE;
 	
 	/* Take damage */
 	take_hit(dam, kb_str, TRUE);
 	
 	if (resist_effect(RS_EAR))
 	{
-		/* nothing */
-	}
-	else if (dam)
-	{
-		if (randint(5) <= inv)
-		{
-			if (fuzzy) msg_format("You are crushed by some %s!", p);
-			else msg_format("You are crushed!");
-			/* Be careful not to knock out the player immediately. */
-			(void)set_stun(p_ptr->stun + ((dam / 2 > max_stun) ? max_stun : dam / 2));			
-		}
-	}
+		if (!blind) 
+			msg_format("You are crushed by some %s!", p);
+		else 
+			msg_format("You are crushed!");
+		/* Be careful not to knock out the player immediately. */
+		(void)set_stun(p_ptr->stun + ((dam / 2 > max_stun) ? max_stun : dam / 2));			
 
-	/* Inventory damage */
-	inven_damage(set_earth_destroy, inv);
+		/* Inventory damage */
+		inven_damage(set_earth_destroy, inv);
+	}
+	return TRUE;
 }
 
 /*
  * Hurt the player with air
  */
-void air_dam(int dam, int typ, cptr kb_str)
+bool air_dam(int dam, int typ, cptr kb_str)
 {
 	/* Set up a percent chance for inventory reduction */
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 3 : 8;
@@ -1140,30 +1170,30 @@ void air_dam(int dam, int typ, cptr kb_str)
 	/* Apply resistance */
 	dam = apply_resistance(dam, p_ptr->res[RS_AIR]);
 	
-	if (dam <= 0) return;
-	if (resist_effect(RS_AIR)) return;
-	else if (dam > randint(200))
+	if (dam <= 0) return FALSE;
+
+	/* Take damage */
+	take_hit(dam, kb_str, TRUE);
+
+	if (!resist_effect(RS_AIR)) 
 	{
+		/* RMG - following comment is about second randint() check  */
 		/* Should probably split this out between the three wind skills */
-		if ((!p_ptr->resist_confu) && (randint(6) < 2))
+		if (dam > randint(200) && !p_ptr->resist_confu && (randint(6) < 2))
 		{
 			msg_print("You are spun until dizzy!");
 			(void)set_confused(p_ptr->confused + rand_range(2, 3));
 		}
+		/* Inventory damage */
+		inven_damage(set_air_destroy, inv);
 	}
-
-	
-	/* Take damage */
-	take_hit(dam, kb_str, TRUE);
-
-	/* Inventory damage */
-	inven_damage(set_air_destroy, inv);
+	return TRUE;	
 }
 
 /*
  * Hurt the player with water
  */
-void water_dam(int dam, int typ, cptr kb_str)
+bool water_dam(int dam, int typ, cptr kb_str)
 {
 	/* Set up a percent chance for inventory reduction */
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
@@ -1178,27 +1208,30 @@ void water_dam(int dam, int typ, cptr kb_str)
 	/* Apply resistance */
 	dam = apply_resistance(dam, p_ptr->res[RS_WTR]);
 	
-	if (dam <= 0) return;
-	/* Sometimes, confuse the player. */
-
-	if (resist_effect(RS_WTR)) return;
-	if ((randint(x) > 2) && (!p_ptr->resist_confu))
-	{
-		(void)set_confused(p_ptr->confused + rand_int(x + 6));
-	}	
+	if (dam <= 0) return FALSE;
 
 	/* Take damage */
 	take_hit(dam, kb_str, TRUE);
 
-	/* Inventory damage */
-	inven_damage(set_water_destroy, inv);
+	/* Sometimes, confuse the player. */
+	if (!resist_effect(RS_WTR)) 
+	{
+		if ((randint(x) > 2) && (!p_ptr->resist_confu))
+		{
+			(void)set_confused(p_ptr->confused + rand_int(x + 6));
+		}	
+
+		/* Inventory damage */
+		inven_damage(set_water_destroy, inv);
+	}
+	return TRUE;
 }
 
 
 /*
  * Hurt the player with electricty
  */
-void elec_dam(int dam, int typ, cptr kb_str)
+bool elec_dam(int dam, int typ, cptr kb_str)
 {
 	/* Set up a percent chance for inventory reduction */
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
@@ -1211,19 +1244,23 @@ void elec_dam(int dam, int typ, cptr kb_str)
 	/* Apply resistance */
 	dam = apply_resistance(dam, p_ptr->res[RS_ELC]);
 	
-	if (dam <= 0) return;
+	if (dam <= 0) return FALSE;
 	
 	/* Take damage */
 	take_hit(dam, kb_str, TRUE);
 
-	/* Inventory damage */
-	inven_damage(set_elec_destroy, inv);
+	if (!resist_effect(RS_ELC)) 
+	{
+		/* Inventory damage */
+		inven_damage(set_elec_destroy, inv);
+	}
+	return TRUE;
 }
 
 /*
  * Hurt the player with ice
  */
-void ice_dam(int dam, int typ, cptr kb_str)
+bool ice_dam(int dam, int typ, cptr kb_str)
 {
 	/* Set up a percent chance for inventory reduction */
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
@@ -1236,19 +1273,23 @@ void ice_dam(int dam, int typ, cptr kb_str)
 	/* Apply resistance */
 	dam = apply_resistance(dam, p_ptr->res[RS_ICE]);
 	
-	if (dam <= 0) return;
+	if (dam <= 0) return FALSE;
 	
 	/* Take damage */
 	take_hit(dam, kb_str, TRUE);
 
-	/* Inventory damage */
-	inven_damage(set_ice_destroy, inv);
+	if (!resist_effect(RS_ICE)) 
+	{
+		/* Inventory damage */
+		inven_damage(set_ice_destroy, inv);
+	}
+	return TRUE;
 }
 
 /*
  * Hurt the player with acid
  */
-void acid_dam(int dam, int typ, cptr kb_str)
+bool acid_dam(int dam, int typ, cptr kb_str)
 {
 	/* Set up a percent chance for inventory reduction */
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
@@ -1261,7 +1302,7 @@ void acid_dam(int dam, int typ, cptr kb_str)
 	/* Apply resistance */
 	dam = apply_resistance(dam, p_ptr->res[RS_ACD]);
 	
-	if (dam <= 0) return;
+	if (dam <= 0) return FALSE;
 	
 	/* If any armor gets hit, defend the player */
 	/* XCCCX -- Need to extend this function */
@@ -1270,14 +1311,18 @@ void acid_dam(int dam, int typ, cptr kb_str)
 	/* Take damage */
 	take_hit(dam, kb_str, TRUE);
 
-	/* Inventory damage */
-	inven_damage(set_acid_destroy, inv);
+	if (!resist_effect(RS_ACD))
+	{
+		/* Inventory damage */
+		inven_damage(set_acid_destroy, inv);
+	}
+	return TRUE;
 }
 
 /*
  * Hurt the player with poison
  */
-void poison_dam(int dam, int typ, cptr kb_str)
+bool poison_dam(int dam, int typ, cptr kb_str)
 {
 	/* Set up a percent chance for inventory reduction */
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
@@ -1288,22 +1333,23 @@ void poison_dam(int dam, int typ, cptr kb_str)
 	if (inv < 1) inv = 1;
 	
 	/* Apply resistance */
-	dam = apply_resistance(dam, p_ptr->res[RS_PSN]);
+	dam = apply_resistance(dam, p_ptr->res[RS_PSN]) / 8;
 	
-	if (dam <= 0) return;
+	if (dam <= 0) return FALSE;
 	
 	/* Take damage */
 	take_hit(dam, kb_str, TRUE);
 	
-	/* Poison the player. */
-	if (resist_effect(RS_PSN)) return;
-	else
+	if (!resist_effect(RS_PSN)) ;
 	{
-		(void)set_poisoned(p_ptr->poisoned + randint(dam));
+		/* Poison the player. */
+		set_poisoned(p_ptr->poisoned + randint(dam));
+
+		/* Inventory damage */
+		inven_damage(set_poison_destroy, inv);
 	}
 
-	/* Inventory damage */
-	inven_damage(set_poison_destroy, inv);
+	return TRUE;
 }
 
 /*
@@ -1316,12 +1362,29 @@ void time_dam(int dam, int typ, cptr kb_str)
 
 	int severity, k;
 	cptr act = NULL;
+	bool automata;
 
 	severity = k = 0;
+
+	/* determine living state */
+	if ((p_ptr->prace == RACE_AUTOMATA) || 
+		(p_ptr->prace == RACE_STEAM_MECHA))
+	{
+		automata = TRUE;
+	}
+	else automata = FALSE;
 
 	if (typ == GF_AGE) severity = randint(6);
 	if (typ == GF_TIME) severity = randint(9);
 	if (typ == GF_CHRONOS) severity = 3 + randint(10);
+
+	/* Apply resistance */
+	dam = apply_resistance(dam, p_ptr->res[RS_TIM]);
+	
+	if (dam <= 0) return;
+	
+	/* Take damage */
+	take_hit(dam, kb_str, TRUE);
 
 	if (resist_effect(RS_TIM)) return;
 	else 
@@ -1338,47 +1401,220 @@ void time_dam(int dam, int typ, cptr kb_str)
 	
 			case 6: case 7: case 8: case 9:
 			{
-				switch (randint(A_MAX))
+
+				if (automata)
 				{
-					case 1: k = A_MUS; act = "strong"; break;
-					case 2: k = A_SCH; act = "bright"; break;
-					case 3: k = A_EGO; act = "wise"; break;
-					case 4: k = A_AGI; act = "agile"; break;
-					case 5: k = A_VIG; act = "hale"; break;
-					case 6: k = A_CHR; act = "beautiful"; break;
+						automata_equipment_decay(1);
 				}
-	
-				msg_format("You're not as %s as you used to be...", act);
-	
-				p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
-				if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
-				p_ptr->update |= (PU_BONUS);
-				break;
+				else
+				{
+						switch (randint(A_MAX))
+						{
+							case 1: k = A_MUS; act = "strong"; break;
+							case 2: k = A_SCH; act = "bright"; break;
+							case 3: k = A_EGO; act = "wise"; break;
+							case 4: k = A_AGI; act = "agile"; break;
+							case 5: k = A_VIG; act = "hale"; break;
+							case 6: k = A_CHR; act = "beautiful"; break;
+						}
+			
+						msg_format("You're not as %s as you used to be...", act);
+			
+						p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
+						if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+						p_ptr->update |= (PU_BONUS);
+						break;
+				}
 			}
 	
 			default:
 			{
 				msg_print("You're not as powerful as you used to be...");
 	
-				/* Drain all stats */
-				for (k = 0; k < A_MAX; k++)
+				if (automata) 
 				{
-					p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
-					if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+						automata_equipment_decay(randint(8));
 				}
-				p_ptr->update |= (PU_BONUS);
+				else 
+				{
+						/* Drain all stats */
+						for (k = 0; k < A_MAX; k++)
+						{
+							p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
+							if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+						}
+						p_ptr->update |= (PU_BONUS);
+				}
 				break;
 	
 			}
 		}
 	}
-	/* Apply resistance */
-	dam = apply_resistance(dam, p_ptr->res[RS_TIM]);
+}
+
+
+/*
+ * This function damages automata equipment in lieu of stat
+ * loss.
+ * 
+ * Automata and steam mecha have difficulty with stat drain 
+ * and so in order to have wounds damage automata (and other
+ * stat drain effects that they may be subject to) we instead
+ * damage their equipment. Badly. There is no way in game to 
+ * restore pval of the equpiment.
+ *
+ * Consider adding a flag to the higher ego items to resist
+ * or make them immune to this kind of destruction. XCCCX
+ * 
+ * The correct way to handle the below selection of traits on
+ * items is to build a dynamic array which you fill with 
+ * valid data items. You then select one of those items and
+ * damage it. This is currently beyond my ability. So we have
+ * the ever popular "I IS A REATARDED FOR LOOPZ, MAYBE I CAN
+ * HAS A VALID RESULTS?"
+ */
+void automata_equipment_decay(int power)
+{
+	int i;
+	int choice = 0;
+	object_type *o_ptr = NULL;
+
+	u32b f1, f2, f3;
+
+	char o_name[80];
 	
-	if (dam <= 0) return;
+	bool ruin = FALSE;
 	
-	/* Take damage */
-	take_hit(dam, kb_str, TRUE);
+	/* Pick a (possibly empty) automata body part slot */
+	switch (randint(4))
+	{
+		case 1: o_ptr = &inventory[INVEN_BODY]; break;
+		case 2: o_ptr = &inventory[INVEN_HEAD]; break;
+		case 3: o_ptr = &inventory[INVEN_HANDS]; break;
+		case 4: o_ptr = &inventory[INVEN_FEET]; break;
+	}
+
+	/* Nothing to damage */
+	if (!o_ptr->k_idx) return;
+
+	/* Describe */
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* select the type of damage */
+	for (i = 0; i < 10; i++)
+	{ 
+		switch (randint(4))
+		{
+   		case 1: 
+   		{
+   			/* this is the armor class choice */
+   			/* It will always be valid */
+   			choice = 1; 
+   			break;
+   		}
+   		case 2:
+   		{
+   			if (o_ptr->pval) choice = 2;
+   			break;
+   		}
+   		case 3:
+   		{
+   			if (o_ptr->pval2) choice = 3;
+   			break;
+   		}
+   		case 4:
+   		{
+   			if (o_ptr->pval3) choice = 4;
+   			break;
+   		}
+   		default: choice = 0;
+		}
+		/* We have a valid damage type */				
+		if (choice) break;			
+	}
+	
+	/* Paranoia */
+	if (!choice) return;
+	
+	switch (choice)
+	{
+		case 1:
+		{	
+			/* No damage left to be done */
+			if (o_ptr->ac + o_ptr->to_a <= 0) break;
+
+			/* double power */
+			o_ptr->to_a -= (power * 2);
+			
+			/* Did we damage the armor? */
+			ruin = TRUE;
+			
+		  /* need to insure that there is no to_a value */
+		  if (o_ptr->to_a < 0)
+		  {
+		  	if (ABS(o_ptr->to_a) > o_ptr->ac)
+		  	o_ptr->to_a = 0;
+		  	o_ptr->to_a -= o_ptr->ac;
+			}
+		}	
+	 	case 2:
+		{	
+			/* have a reasonable lower bound */
+			if (o_ptr->pval <= -10) break;
+			
+			/* damage the item */
+			o_ptr->pval -= power;
+
+			/* Did we damage the armor? */
+			ruin = TRUE;
+
+			/* Paranoia */
+			if (o_ptr->pval < -10) o_ptr->pval = -10;
+
+		}	
+	 	case 3:
+		{	
+			/* have a reasonable lower bound */
+			if (o_ptr->pval2 <= -10) break;
+			
+			/* damage the item */
+			o_ptr->pval2 -= power;
+
+			/* Did we damage the armor? */
+			ruin = TRUE;
+
+			/* Paranoia */
+			if (o_ptr->pval2 < -10) o_ptr->pval2 = -10;
+		}	
+	 	case 4:
+		{	
+			/* have a reasonable lower bound */
+			if (o_ptr->pval3 <= -10) break;
+			
+			/* damage the item */
+			o_ptr->pval3 -= power;
+
+			/* Did we damage the armor? */
+			ruin = TRUE;
+
+			/* Paranoia */
+			if (o_ptr->pval3 < -10) o_ptr->pval3 = -10;
+		}	
+		default: {}
+		/* Nothing */
+	}
+
+	if (ruin)	message_format(MSG_BELL, 0, "Your %^s breaks!", o_name);	
+
+	/* Calculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
 }
 
 /*
@@ -1482,7 +1718,10 @@ static void apply_nexus(const monster_type *m_ptr)
 {
 	int max1, cur1, max2, cur2, ii, jj;
 	int save, number;
-	
+
+	number = 6;
+
+#if 0	
 	/* Make automata safe from stat switching */
 	if ((p_ptr->prace == RACE_AUTOMATA) || 
 		(p_ptr->prace == RACE_STEAM_MECHA))
@@ -1493,6 +1732,7 @@ static void apply_nexus(const monster_type *m_ptr)
 	{
 		number = 7;
 	}
+#endif
 	
 	/* Get the "save" factor */
 	save = p_ptr->skill_sav;
@@ -1505,13 +1745,13 @@ static void apply_nexus(const monster_type *m_ptr)
 			break;
 		}
 
-		case 4: case 5:
+		case 4: case 5: case 6:
 		{
 			teleport_player_to(m_ptr->fy, m_ptr->fx);
 			break;
 		}
 
-		case 6:
+	  case 7:
 		{
 			if (rand_int(100) < save)
 			{
@@ -1524,6 +1764,7 @@ static void apply_nexus(const monster_type *m_ptr)
 			break;
 		}
 
+#if 0
 		case 7:
 		{
 			if (rand_int(100) < save)
@@ -1552,6 +1793,7 @@ static void apply_nexus(const monster_type *m_ptr)
 
 			break;
 		}
+#endif		
 	}
 }
 
@@ -1771,6 +2013,8 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		case GF_CONFUSION:
 		case GF_SPIRIT:
 		case GF_ECTOPLASM:
+		case GF_DISP_EVIL:
+		case GF_HOLY_FIRE:
 		{
 			/* These will most likely never affect terrain */
 			break;
@@ -1780,6 +2024,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		case GF_ARROW:
 		case GF_BULLET:
 		case GF_SHOT:
+		case GF_PYRO_SHOT:
 		{
 			/* Only rocket and missle should affect terrain */
 			break;
@@ -2242,7 +2487,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 				if (hates_earth(o_ptr) && (dam > rand_int(100) + 50))
 				{
 					do_kill = TRUE;
-					note_kill = (plural ? " crushed!" : " crushed!");
+					note_kill = (plural ? " are crushed!" : " is crushed!");
 					if (ignores_damage_p(o_ptr, RS_EAR)) ignore = TRUE;
 					if (f2 & (TR2_IMMUNE)) ignore = TRUE;
 				}
@@ -2254,7 +2499,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 				if (hates_earth(o_ptr) && (dam > rand_int(40)))
 				{
 					do_kill = TRUE;
-					note_kill = (plural ? " crushed!" : " crushed!");
+					note_kill = (plural ? " are crushed!" : " is crushed!");
 					if (ignores_damage_p(o_ptr, RS_EAR)) ignore = TRUE;
 					if (f2 & (TR2_IMMUNE)) ignore = TRUE;
 				}
@@ -2266,7 +2511,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 				if (hates_earth(o_ptr))
 				{
 					do_kill = TRUE;
-					note_kill = (plural ? " crushed!" : " crushed!");
+					note_kill = (plural ? " are crushed!" : " is crushed!");
 					if (ignores_damage_p(o_ptr, RS_EAR)) ignore = TRUE;
 					if (f2 & (TR2_IMMUNE)) ignore = TRUE;
 				}
@@ -2323,7 +2568,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 				if (hates_water(o_ptr) && dam > rand_int(30))
 				{
 					do_kill = TRUE;
-					note_kill = (plural ? " rust!" : " rusts!");
+					note_kill = (plural ? " is ruined by water!" : " are ruined by water!");
 					if (ignores_damage_p(o_ptr, RS_WTR)) ignore = TRUE;
 					if (f2 & (TR2_IMMUNE)) ignore = TRUE;
 				}
@@ -2335,7 +2580,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 				if (hates_water(o_ptr) && dam > rand_int(70) + 30)
 				{
 					do_kill = TRUE;
-					note_kill = (plural ? " rust!" : " rusts!");
+					note_kill = (plural ? " is ruined by water!" : " are ruined by water!");
 					if (ignores_damage_p(o_ptr, RS_WTR)) ignore = TRUE;
 					if (f2 & (TR2_IMMUNE)) ignore = TRUE;
 				}
@@ -2347,12 +2592,12 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 				if (hates_water(o_ptr) && dam > rand_int(100) + 50)
 				{
 					do_kill = TRUE;
-					note_kill = (plural ? " rust!" : " rusts!");
+					note_kill = (plural ? " is ruined by water!" : " are ruined by water!");
 					if (ignores_damage_p(o_ptr, RS_WTR)) ignore = TRUE;
 					if (f2 & (TR2_IMMUNE)) ignore = TRUE;
 				}
 				/* Can blow light objects around */
-				if (o_ptr->weight <= (dam / 2))
+				else if (o_ptr->weight <= (dam / 2))
 				{
 					nx = 0;
 					ny = 0;
@@ -2843,7 +3088,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 	/* Adjustment to damage caused by terrain, if applicable. */
 	int terrain_adjustment = 0;
-
+	
+	/* variable to control spam from spur 'stun' attacks */
+	int melee_message_saver = 0;
+	
 	/* Is the monster "seen"? */
 	bool seen = FALSE;
 	bool fully_seen = FALSE;
@@ -2979,26 +3227,32 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	}
 
 	/* Some monsters are great at not getting hurt!  -EZ- */
-	if ((r_ptr->flags2 & (RF2_IMPENT)) && (!m_ptr->csleep) &&
-	    (!m_ptr->confused))
+	if (
+		((r_ptr->flags2 & (RF2_IMPENT)) ||
+		 (r_ptr->flags2 & (RF2_GASEOUS))) &&
+		(!m_ptr->csleep) &&
+	    (!m_ptr->confused)
+	    )
 	{
 		/* Area-effect and jumping spells cannot be dodged */
 		if (!(flg & (PROJECT_ARC | PROJECT_STAR | PROJECT_JUMP |
 		             PROJECT_BOOM)))
 		{
 			/* Allow dodging */
-			if ((rand_int(5 + m_ptr->cdis) >= (2 + m_ptr->stunned / 10)) &&
-				((typ == GF_ARROW) || (typ == GF_BULLET) || (typ == GF_SHOT)))
+			if ((rand_int(5 + m_ptr->cdis) >= 2) &&
+				((typ == GF_ARROW) || (typ == GF_BULLET)  || (typ == GF_SHOT)))
 			{
 				if (fully_seen)
 				{
 					/* Get the monster name */
 					monster_desc(m_name, m_ptr, 0);
 
-					msg_format("The missile bounces off %^s!", name);
-
+					if (r_ptr->flags2 & (RF2_IMPENT)) msg_format("The missile bounces off %^s!", name);
+					else msg_format("The missile passes right through %^s!", name);
+	
 					/* Learn that monster is bad-ass */
-					l_ptr->r_flags2 |= (RF2_IMPENT);
+					if (r_ptr->flags2 & (RF2_IMPENT)) l_ptr->r_flags2 |= (RF2_IMPENT);
+					else if (r_ptr->flags2 & (RF2_GASEOUS)) l_ptr->r_flags2 |= (RF2_GASEOUS);
 				}
 
 				/* Missed! */
@@ -3064,7 +3318,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 					l_ptr->r_flags3 |= (RF3_IM_FIRE);
 				}
 			}
-			if (r_ptr->flags8 & (RF8_VUN_FIRE))
+			else if (r_ptr->flags8 & (RF8_VUN_FIRE))
 			{
 				note = " is blasted!";
 				dam *= 3;
@@ -3152,16 +3406,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			/* We don't hurt creatures immune to earth, 	*/
 			/* ones with earth auras (spines) or creatures	*/
 			/* that can passwall (they are insubstantial)   */
-			if ((r_ptr->flags3 & (RF3_IM_EARTH)) ||
-				(r_ptr->flags2 & (RF2_PASS_WALL)))
-			{
-				note = " is immune!";
-				dam = div_round(dam, 9);
-				if (fully_seen && (r_ptr->flags3 & (RF3_IM_EARTH))) 
-				{
-					l_ptr->r_flags3 |= (RF3_IM_EARTH);
-				}
-			}
 			/* Some creatures are tough */
 			if ((r_ptr->flags2 & (RF2_IMPENT)) &&
 					 (one_in_(2)))
@@ -3171,6 +3415,16 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				if (fully_seen && (r_ptr->flags2 & (RF2_IMPENT))) 
 				{
 					l_ptr->r_flags3 |= (RF2_IMPENT);
+				}
+			}
+			else if ((r_ptr->flags3 & (RF3_IM_EARTH)) ||
+				(r_ptr->flags2 & (RF2_PASS_WALL)))
+			{
+				note = " is immune!";
+				dam = div_round(dam, 9);
+				if (fully_seen && (r_ptr->flags3 & (RF3_IM_EARTH))) 
+				{
+					l_ptr->r_flags3 |= (RF3_IM_EARTH);
 				}
 			}
 			else if (r_ptr->flags2 & (RF2_IMPENT))
@@ -3201,16 +3455,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		}
 		case GF_EARTH:
 		{
-			if ((r_ptr->flags3 & (RF3_IM_EARTH)) ||
-				(r_ptr->flags2 & (RF2_PASS_WALL)))
-			{
-				note = " resists a lot.";
-				dam = div_round(dam, 7);
-				if (fully_seen && (r_ptr->flags3 & (RF3_IM_EARTH))) 
-				{
-					l_ptr->r_flags3 |= (RF3_IM_EARTH);
-				}
-			}
 			/* Some creatures are tough. */			
 			if ((r_ptr->flags2 & (RF2_IMPENT)) &&
 					 (one_in_(3)))
@@ -3220,6 +3464,16 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				if (fully_seen && (r_ptr->flags2 & (RF2_IMPENT))) 
 				{
 					l_ptr->r_flags3 |= (RF2_IMPENT);
+				}
+			}
+			else if ((r_ptr->flags3 & (RF3_IM_EARTH)) ||
+				(r_ptr->flags2 & (RF2_PASS_WALL)))
+			{
+				note = " resists a lot.";
+				dam = div_round(dam, 7);
+				if (fully_seen && (r_ptr->flags3 & (RF3_IM_EARTH))) 
+				{
+					l_ptr->r_flags3 |= (RF3_IM_EARTH);
 				}
 			}
 			else if (r_ptr->flags2 & (RF2_IMPENT))
@@ -3250,17 +3504,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		}
 		case GF_SHARDS:
 		{
-			if ((r_ptr->flags3 & (RF3_IM_EARTH)) ||
-				(r_ptr->flags2 & (RF2_PASS_WALL)))
-			{
-				note = " resists.";
-				/* No one resists shards well */
-				dam = div_round(dam, 4);
-				if (fully_seen && (r_ptr->flags3 & (RF3_IM_EARTH))) 
-				{
-					l_ptr->r_flags3 |= (RF3_IM_EARTH);
-				}
-			}
 			/* Some creatures are tough. */			
 			if ((r_ptr->flags2 & (RF2_IMPENT)) &&
 					 (one_in_(5)))
@@ -3270,6 +3513,17 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				if (fully_seen && (r_ptr->flags2 & (RF2_IMPENT))) 
 				{
 					l_ptr->r_flags3 |= (RF2_IMPENT);
+				}
+			}
+			else if ((r_ptr->flags3 & (RF3_IM_EARTH)) ||
+				(r_ptr->flags2 & (RF2_PASS_WALL)))
+			{
+				note = " resists.";
+				/* No one resists shards well */
+				dam = div_round(dam, 4);
+				if (fully_seen && (r_ptr->flags3 & (RF3_IM_EARTH))) 
+				{
+					l_ptr->r_flags3 |= (RF3_IM_EARTH);
 				}
 			}
 			else if (r_ptr->flags2 & (RF2_IMPENT))
@@ -3316,14 +3570,20 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				{
 					l_ptr->r_flags3 |= (RF3_IM_AIR);
 				}
-				break;
 			}
-
+			
 			if (r_ptr->flags8 & (RF8_VUN_AIR))
 			{
 				note = " is blasted!";
 				dam *= 3;
 				if (fully_seen) l_ptr->r_flags8 |= (RF8_VUN_AIR);
+			}
+			
+			if (r_ptr->flags2 & (RF2_GASEOUS))
+			{
+				note = " is blasted!";
+				dam *= 3;
+				if (fully_seen) l_ptr->r_flags2 |= (RF2_GASEOUS);
 			}
 
 			/* Mark grid for later processing if not resisted. */
@@ -3358,6 +3618,13 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				note = " is blasted!";
 				dam *= 6;
 				if (fully_seen) l_ptr->r_flags8 |= (RF8_VUN_AIR);
+			}
+
+			if (r_ptr->flags2 & (RF2_GASEOUS))
+			{
+				note = " is blasted!";
+				dam *= 6;
+				if (fully_seen) l_ptr->r_flags2 |= (RF2_GASEOUS);
 			}
 			
 			/* Mark grid for later processing if not resisted. */
@@ -3394,6 +3661,13 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				if (fully_seen) l_ptr->r_flags8 |= (RF8_VUN_AIR);
 			}
 
+			if (r_ptr->flags2 & (RF2_GASEOUS))
+			{
+				note = " is blasted!";
+				dam *= 9;
+				if (fully_seen) l_ptr->r_flags2 |= (RF2_GASEOUS);
+			}
+
 			/* Mark grid for later processing if not resisted. */
 			cave_temp_mark(y, x, FALSE);
 
@@ -3407,6 +3681,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			/* Water resistors and plants are immune to rust */
 			/* (weak water damage) */
 			if (seen) obvious = TRUE;
+
 			if ((r_ptr->flags3 & (RF3_IM_WATER)) ||
 				(r_ptr->flags3 & (RF3_PLANT)))
 			{
@@ -3419,7 +3694,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			}
 			
 			/* Non mechanical monsters have damaged reduced */
-			if (!(r_ptr->flags3 & (RF3_AUTOMATA)))
+			else if (!(r_ptr->flags3 & (RF3_AUTOMATA)))
 			{
 				note = " is practically unharmed.";
 				dam = div_round(dam, 15);
@@ -3454,7 +3729,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			}
 			
 			/* Non mechanical monsters have damaged reduced */
-			if (!(r_ptr->flags3 & (RF3_AUTOMATA)))
+			else if (!(r_ptr->flags3 & (RF3_AUTOMATA)))
 			{
 				note = " is hit by scalding steam.";
 				dam = div_round(dam, 2);
@@ -3487,6 +3762,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 					l_ptr->r_flags3 |= (RF3_IM_WATER);
 				}
 			}
+			
 			/* Rainstorms are bad for equipment */
 			if (r_ptr->flags3 & (RF3_AUTOMATA))
 			{
@@ -3827,7 +4103,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				dam = div_round(dam, 9);
 				if (fully_seen) l_ptr->r_flags3 |= (RF3_IM_POIS);
 			}
-			if (r_ptr->flags3 & (RF3_ALIEN))
+			else if (r_ptr->flags3 & (RF3_ALIEN))
 			{
 				note = " is hit hard!";
 				dam += dam/6;
@@ -3868,7 +4144,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				dam = div_round(dam, 6);
 				if (fully_seen) l_ptr->r_flags3 |= (RF3_IM_POIS);
 			}
-			if (r_ptr->flags3 & (RF3_ALIEN))
+			else if (r_ptr->flags3 & (RF3_ALIEN))
 			{
 				note = " is hit hard!";
 				dam += dam/4;
@@ -3909,7 +4185,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				dam = div_round(dam, 3);
 				if (fully_seen) l_ptr->r_flags3 |= (RF3_IM_POIS);
 			}
-			if (r_ptr->flags3 & (RF3_ALIEN))
+			else if (r_ptr->flags3 & (RF3_ALIEN))
 			{
 				note = " is hit hard!";
 				dam += dam/3;
@@ -4368,14 +4644,17 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				tmp = r_ptr->level + 5;
 
 			/* Attempt a saving throw */
-			if (tmp > dam)               note = " is unaffected!";
-			else if (tmp > randint(dam)) note = " resists!";
+			if (!dam)				note = NULL;
+			else if (tmp > dam)               note = " is unaffected!";
+			else if (tmp > randint(dam)) note = " resists confusion!";
 
 			/* If it fails, become confused. */
 			else do_conf = rand_range(20, 20 + (dam > 80 ? 20 : dam / 4));
 
 			/* Notice resistance only if character is the caster */
-			if (who >= 0) note = NULL;
+			if (who >= 0) 
+				note = NULL;
+
 			break;
 		}
 		case GF_DARK:
@@ -4402,14 +4681,17 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				tmp = r_ptr->level + 5;
 
 			/* Attempt a saving throw */
-			if (tmp > dam)               note = " is unaffected!";
-			else if (tmp > randint(dam)) note = " resists!";
+			if (!dam)				note = NULL;
+			else if (tmp > dam)               note = " is unaffected!";
+			else if (tmp > randint(dam)) note = " resists confusion!";
 
 			/* If it fails, become confused. */
 			else do_conf = rand_range(20, 20 + (dam > 80 ? 20 : dam / 4));
 
 			/* Notice resistance only if character is the caster */
-			if (who >= 0) note = NULL;
+			if (who >= 0) 
+				note = NULL;
+
 			break;
 		}
 		case GF_TENEBROUS:
@@ -4437,14 +4719,17 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				tmp = r_ptr->level + 5;
 
 			/* Attempt a saving throw */
-			if (tmp > dam)               note = " is unaffected!";
-			else if (tmp > randint(dam)) note = " resists!";
+			if (!dam)				note = NULL;
+			else if (tmp > dam)               note = " is unaffected!";
+			else if (tmp > randint(dam)) note = " resists confusion!";
 
 			/* If it fails, become confused. */
 			else do_conf = rand_range(20, 20 + (dam > 80 ? 20 : dam / 4));
 
 			/* Notice resistance only if character is the caster */
-			if (who >= 0) note = NULL;
+			if (who >= 0) 
+				note = NULL;
+
 			break;
 		}
 		case GF_FEAR:
@@ -4462,7 +4747,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			    (r_ptr->flags3 & (RF3_AUTOMATA)) ||
 			    (r_ptr->flags3 & (RF3_CONSTRUCT)) ||
 			    (r_ptr->flags3 & (RF3_PLANT)) ||
-			    ((r_ptr->level * 2) > randint(MIN(1, dam))))
+			    ((r_ptr->level * 2) > randint(dam)))
 			{
 				/* No obvious effect */
 				note = " is unaffected!";
@@ -4630,6 +4915,24 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		{
 			if (seen) obvious = TRUE;
 
+			if (r_ptr->flags3 & RF3_NO_STUN) 
+			{
+				/* This is being special cased -- since GF_STUN against monsters  */
+				/* is most often called from the Spur steamware enhancement this  */
+				/* produces an awful lot of message spam. Therefore, if we know   */
+				/* the monster is immune to stunning, we just neglect to mention  */
+				/* it. The only place this may (currently) become a problem is    */
+				/* with the officer spell that attempts to stun a monster         */
+				if (l_ptr->r_flags3 & (RF3_NO_STUN)) note = NULL;
+				else note = " is immune to stunning!";
+				
+				/* Note resistance */
+				if (fully_seen) l_ptr->r_flags3 |= (RF3_NO_STUN);
+
+				dam = 0;
+				break;
+			}
+
 			/* Sometimes super-charge the spell. -- why? */
 			/* if (randint(5) < 2) dam += dam / 2; */
 
@@ -4642,11 +4945,12 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			else if (r_ptr->flags3 & (RF3_AUTOMATA)) tmp = r_ptr->level;
 			else tmp = r_ptr->level + 5;
 
-			if (who == -1) dam += willpower; 
+			/* this is a physical stun */
+			/* if (who == -1) dam += willpower; */
 			
 			/* Attempt a saving throw */
 			if (tmp > dam)               note = " is unaffected!";
-			else if (tmp > randint(dam)) note = " resists!";
+			else if (tmp > randint(dam)) note = " resists stunning!";
 
 			/* If it fails, become stunned. */
 			else do_stun = rand_spread(dam / 2, dam / 4);
@@ -4667,6 +4971,13 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 			if (seen) obvious = TRUE;
 
+			if (r_ptr->flags3 & RF3_NO_STUN)
+			{
+				note = " is immune to stunning!";
+				dam = 0;
+				break;
+			}
+
 			/* Determine monster's power to resist. */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = (2 * r_ptr->level) + 35;
 			else if (r_ptr->flags3 & (RF3_ELEMENTAL)) tmp = (2 * r_ptr->level) + 25;
@@ -4679,7 +4990,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			
 			/* Attempt a saving throw */
 			if (tmp > dam)               note = " is unaffected!";
-			else if (tmp > randint(dam)) note = " resists!";
+			else if (tmp > randint(dam)) note = " resists stunning!";
 
 			/* If it fails, become stunned. */
 			else do_stun = rand_spread(dam / 2, dam / 4);
@@ -4701,6 +5012,13 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 			if (seen) obvious = TRUE;
 
+			if (r_ptr->flags3 & RF3_NO_STUN) 
+			{
+				note = " is immune to stunning!";
+				dam = 0;
+				break;
+			}
+
 			/* Determine monster's power to resist. */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = (2 * r_ptr->level) + 35;
 			else if (r_ptr->flags3 & (RF3_ELEMENTAL)) tmp = (2 * r_ptr->level) + 25;
@@ -4713,7 +5031,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			
 			/* Attempt a saving throw */
 			if (tmp > dam)               note = " is unaffected!";
-			else if (tmp > randint(dam)) note = " resists!";
+			else if (tmp > randint(dam)) note = " resists stunning!";
 
 			/* If it fails, become stunned. */
 			else do_stun = rand_spread(dam / 2, dam / 4);
@@ -4829,17 +5147,122 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		
 		/* Assume Damage */
 		case GF_WHIP:
+		{
+			if (seen) obvious = TRUE;
+			break;			
+		}
 		case GF_ARROW:
+		{
+			/* Affected by terrain. -- not yet.*/
+			/* dam += terrain_adjustment; */
+			
+			/* Some creatures are tough. */			
+			if ((r_ptr->flags2 & (RF2_IMPENT)) ||
+				(r_ptr->flags2 & (RF2_GASEOUS)))
+			{
+				note = " resists.";
+				dam = div_round(dam, 10);
+			}
+			
+			if (seen) obvious = TRUE;
+			break;
+		}
 		case GF_BULLET:
 		case GF_SHOT:
+		{
+			/* Affected by terrain. -- not yet.*/
+			/* dam += terrain_adjustment; */
+			
+			/* Some creatures are tough. */			
+			if ((r_ptr->flags2 & (RF2_IMPENT)) &&
+					 (one_in_(3)))
+			{
+				note = " is unaffected!";
+				dam = 0;
+				if (fully_seen && (r_ptr->flags2 & (RF2_IMPENT))) 
+				{
+					l_ptr->r_flags3 |= (RF2_IMPENT);
+				}
+			}
+			else if ((r_ptr->flags2 & (RF2_IMPENT)) ||
+				(r_ptr->flags2 & (RF2_GASEOUS)))
+			{
+				note = " resists.";
+				dam = div_round(dam, 4);
+			}
+			
+			if (seen) obvious = TRUE;
+			break;
+		}
 		case GF_ROCKET:
 		case GF_MISSILE:
 		{
 			/* Affected by terrain. -- not yet.*/
 			/* dam += terrain_adjustment; */
 			
+			/* Some creatures are tough. */			
+			if ((r_ptr->flags2 & (RF2_IMPENT)) &&
+					 (one_in_(6)))
+			{
+				note = " is unaffected!";
+				dam = 0;
+				if (fully_seen && (r_ptr->flags2 & (RF2_IMPENT))) 
+				{
+					l_ptr->r_flags3 |= (RF2_IMPENT);
+				}
+			}
+			else if (r_ptr->flags2 & (RF2_IMPENT))
+			{
+				note = " resists.";
+				dam = div_round(dam, 3);
+			}
+			
 			if (seen) obvious = TRUE;
 			break;
+		}
+		case GF_PYRO_SHOT:
+		{
+			if (seen) obvious = TRUE;
+
+			/* HACK Increase the damage from fire XCCCX */
+			/* This can't be called w/o pyrokinetics, but is unsafe */
+			dam += (p_ptr->skills[SK_PYROKINETICS].skill_rank * 3);
+
+			if (r_ptr->flags2 & (RF2_IMPENT))
+			{
+				note = " resists.";
+				dam = div_round(dam, 2);
+			}
+			
+			if ((r_ptr->flags3 & (RF3_IM_FIRE)))
+			{
+				note = " resists a lot.";
+				dam = div_round(dam, 2);
+				if (fully_seen && (r_ptr->flags3 & (RF3_IM_FIRE))) 
+				{
+					l_ptr->r_flags3 |= (RF3_IM_FIRE);
+				}
+			}
+			else if ((r_ptr->flags3 & (RF3_PLANT)) ||
+					 (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				dam += (dam / 4);
+				/*if (fully_seen) know nothing */
+				/* Plants and undead just take extra damage from fire */
+			}
+
+			if (r_ptr->flags8 & (RF8_VUN_FIRE))
+			{
+				note = " is blasted!";
+				dam *= 4;
+				if (fully_seen) l_ptr->r_flags8 |= (RF8_VUN_FIRE);
+			}
+			
+			/* Notice resistance only if character is the caster */
+			if (who >= 0) note = NULL;
+
+			break;
+			
 		}
 
 		/* Monsters don't do charm */		
@@ -5189,7 +5612,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 			/* Attempt a saving throw */
 			if (tmp > dam)               note = " is unaffected!";
-			else if (tmp > randint(dam)) note = " resists!";
+			else if (tmp > randint(dam)) note = " resists slowing!";
 
 			/* If it fails, slow down */
 			else do_slow = TRUE;
@@ -5264,7 +5687,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			else tmp = r_ptr->level + 5;
 
 			/* Attempt a saving throw */
-			if (randint(tmp) > dam) note = " resists!";
+			if (randint(tmp) > dam) note = " resists stasis!";
 			else do_stasis = dam;
 			
 			/* Notice resistance only if character is the caster */
@@ -5308,7 +5731,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 				/* Attempt a saving throw */
 				if (tmp > dam)               note = " is unaffected!";
-				else if (tmp > randint(dam)) note = " resists!";
+				else if (tmp > randint(dam)) note = " resists sleep!";
 
 				/* If it fails, (usually) hit the hay. */
 				else do_sleep = rand_range(30, 50);
@@ -5321,7 +5744,230 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			dam = 0;
 			break;
 		}
+		
+		case GF_FORGET:
+		{
+			if (m_ptr->smart)
+			{
+				/* Erase monster memory of player */
+				m_ptr->smart = 0L;
 
+				/* Notice -- if fully visible */
+				if (mon_fully_visible(m_ptr))
+				{
+					char m_poss[32];
+
+					/* Get monster pronoun */
+					monster_desc(m_poss, m_ptr, 0x22);
+
+					obvious = TRUE;
+					msg_format("%^s forgets all %s knows about you!", m_name, m_poss);
+				}
+			}
+			break;
+		}
+			
+		case GF_CURSE:
+		{
+			int curse = rand_int(5);
+
+			/* Determine monster's power to resist. */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
+			else                              tmp = r_ptr->level + 5;
+
+			if (r_ptr->flags3 & (RF3_UNDEAD)) tmp += 10;
+
+			/* Attempt a saving throw. */
+			if (tmp > randint(dam))
+			{
+				strcpy(note, " resists the curse!");
+				obvious = FALSE;
+				dam = 0;
+
+				break;
+			}
+
+			/* Effect 0 -- slow */
+			if (curse == 0)
+			{
+					do_slow = TRUE;
+			}
+
+			/* Effect 1 -- confusion */
+			if (curse == 1)
+			{
+					/* Obvious */
+					if (seen) obvious = TRUE;
+
+    			if ((r_ptr->flags2 & RF2_EMPTY_MIND) ||
+    				(r_ptr->flags3 & RF3_PLANT) ||
+    				(r_ptr->flags3 & RF3_AUTOMATA) ||
+    				(r_ptr->flags3 & RF3_CONSTRUCT))
+    			{
+    				note = " is unaffected!";
+    				dam = 0;
+    			}
+    			else if (r_ptr->flags3 & (RF3_NO_CONF))
+    			{
+    				note = " resists a lot!";
+    				dam = div_round(dam, 7);
+    			}
+    			else
+    			{
+    				do_conf = rand_range(20, 20 + (dam > 300 ? 30 : dam / 10));
+    			}
+    
+    			/* doesn't do full damage */
+    			dam = dam / 3;
+    
+    			/* Notice resistance only if character is the caster */
+    			if (who >= 0) note = NULL;
+    
+    			break;
+			}
+
+			/* Effect 2 -- panic */
+			if (curse == 2)
+			{
+    			/* Obvious */
+    			if (seen) obvious = TRUE;
+    
+    			/* Apply some fear */
+    			/* Why all the fucked up math everywhere? */
+    			do_fear = damroll(3, (dam / 2)) + 1;
+    
+    			/* Attempt a saving throw */
+    			/* This is _normal_ fear - doesn't affect some things. */
+    			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+    			    (r_ptr->flags3 & (RF3_AUTOMATA)) ||
+    			    (r_ptr->flags3 & (RF3_CONSTRUCT)) ||
+    			    (r_ptr->flags3 & (RF3_PLANT)) ||
+    			    ((r_ptr->level * 2) > randint(dam)))
+    			{
+    				/* No obvious effect */
+    				note = " is unaffected!";
+    				obvious = FALSE;
+    				do_fear = 0;
+    			}
+    			
+    			/* Notice resistance only if character is the caster */
+    			if (who >= 0) note = NULL;
+    
+    			/* No "real" damage */
+    			dam = 0;
+    			break;
+			}
+
+			/* Effect 3 -- stun */
+			if (curse == 3)
+			{
+    			if (seen) obvious = TRUE;
+    
+    			if (r_ptr->flags3 & RF3_NO_STUN) 
+    			{
+    				note = " is immune to stunning!";
+    				dam = 0;
+    				break;
+    			}
+    
+    			/* Sometimes super-charge the spell. -- why? */
+    			/* if (randint(5) < 2) dam += dam / 2; */
+    
+    			/* Determine monster's power to resist. */
+    			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = (2 * r_ptr->level) + 35;
+    			else if (r_ptr->flags3 & (RF3_ELEMENTAL)) tmp = (2 * r_ptr->level) + 25;
+    			else if (r_ptr->flags3 & (RF3_UNDEAD)) tmp = (2 * r_ptr->level) + 15;
+    
+    			/* Automata are particularly affected by smashing */
+    			else if (r_ptr->flags3 & (RF3_AUTOMATA)) tmp = r_ptr->level;
+    			else tmp = r_ptr->level + 5;
+    
+    			if (who == -1) dam += willpower; 
+    			
+    			/* Attempt a saving throw */
+    			if (tmp > dam)               note = " is unaffected!";
+    			else if (tmp > randint(dam)) note = " resists stunning!";
+    
+    			/* If it fails, become stunned. */
+    			else do_stun = rand_spread(dam / 2, dam / 4);
+    
+    			/* Notice resistance only if character is the caster */
+    			if (who >= 0) note = NULL;
+    
+    			/* No physical damage. */
+    			dam = 0;
+    			break;
+			}
+
+			/* Strip away bonuses */
+			if (curse == 4)
+			{
+				if (m_ptr->hp > m_ptr->maxhp)
+				{
+					m_ptr->hp = m_ptr->maxhp;
+					strcpy(note, " is cut down to size!");
+				}
+				else if (m_ptr->mspeed >= r_ptr->speed)
+				{
+					/* No longer hasted */
+					m_ptr->mspeed = r_ptr->speed;
+
+					strcpy(note, " is no longer hasted.");
+				}
+			}
+
+			/* No physical damage */
+			dam = 0;
+
+			break;
+		}
+		case GF_GAIN_LEVEL:
+		{
+			/* Gain *maximum* hps */
+			long new_hps = ((long)m_ptr->maxhp * 5 / 4);
+			if ((new_hps <= 32000L) && (new_hps >= m_ptr->maxhp))
+				m_ptr->maxhp = (s16b)new_hps;
+
+			/* Heal */
+			m_ptr->hp += dam;
+
+			/* No overflow */
+			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+			/* Redraw (later) if needed */
+			if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
+
+			/* Message */
+			strcpy(note, " looks more powerful!");
+
+			if (seen) obvious = TRUE;
+
+			/* No physical damage */
+			dam = 0;
+
+			break;
+		}			
+		case GF_ENLIGHTENMENT:
+		{
+			int i;
+			int m_idx = cave_m_idx[y][x];
+
+			/* Learn lots of things */
+			for (i = 0; i < LRN_MAX; i++)
+			{
+				if (one_in_(2))
+					update_smart_learn(m_idx, i);
+			}
+
+			if (seen) obvious = TRUE;
+
+			/* No physical damage */
+			dam = 0;
+
+			break;
+		}
+		
+		
 		/* Stone to Mud */
 		case GF_KILL_WALL:
 		{
@@ -5850,6 +6496,87 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			break;
 		}
 
+		/* Holy Fire */
+		case GF_HOLY_FIRE:
+		{
+			int holy = dam / 2;
+			int fire = dam / 2;
+			/* Only affect evil */
+			if (r_ptr->flags3 & (RF3_EVIL))
+			{
+				/* Learn about type */
+				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " writhes.";
+				note_dies = " incinerates!";
+  
+  			if ((r_ptr->flags3 & (RF3_IM_FIRE)))
+  			{
+  				note = " resists a lot.";
+  				dam = div_round(fire, 7);
+  				if (fully_seen && (r_ptr->flags3 & (RF3_IM_FIRE))) 
+  				{
+  					l_ptr->r_flags3 |= (RF3_IM_FIRE);
+  				}
+  			}
+  			else if ((r_ptr->flags3 & (RF3_PLANT)) ||
+  					 (r_ptr->flags3 & (RF3_UNDEAD)))
+  			{
+  				dam += (fire / 4);
+  				/*if (fully_seen) know nothing */
+  				/* Plants and undead just take extra damage from fire */
+  			}
+  
+  			if (r_ptr->flags8 & (RF8_VUN_FIRE))
+  			{
+  				note = " is blasted!";
+  				fire *= 6;
+  				if (fully_seen) l_ptr->r_flags8 |= (RF8_VUN_FIRE);
+  			}		
+
+  			/* Notice resistance only if character is the caster */
+  			if (who >= 0) note = NULL;
+  			dam = fire + holy;
+			}
+
+			/* Others take half damage in fire */
+			else
+			{ 
+    			if ((r_ptr->flags3 & (RF3_IM_FIRE)))
+    			{
+    				note = " resists a lot.";
+    				dam = div_round(fire, 7);
+    				if (fully_seen && (r_ptr->flags3 & (RF3_IM_FIRE))) 
+    				{
+    					l_ptr->r_flags3 |= (RF3_IM_FIRE);
+    				}
+    			}
+    			else if ((r_ptr->flags3 & (RF3_PLANT)) ||
+    					 (r_ptr->flags3 & (RF3_UNDEAD)))
+    			{
+    				dam += (fire / 4);
+    				/*if (fully_seen) know nothing */
+    				/* Plants and undead just take extra damage from fire */
+    			}
+    
+    			if (r_ptr->flags8 & (RF8_VUN_FIRE))
+    			{
+    				note = " is blasted!";
+    				fire *= 6;
+    				if (fully_seen) l_ptr->r_flags8 |= (RF8_VUN_FIRE);
+    			}		
+					
+					dam = fire;
+					
+    			/* Notice resistance only if character is the caster */
+    			if (who >= 0) note = NULL;
+			}
+			break;
+		}
 		/* Dispel evil */
 		case GF_DISP_DEMON:
 		{
@@ -5902,7 +6629,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				else tmp = r_ptr->level / 2;
 
 				/* Attempt a saving throw */
-				if (randint(tmp) > dam) note = " resists!";
+				if (randint(tmp) > dam) note = " resists drain!";
 				else mp_drain = dam;
 			
 				/* Notice resistance only if character is the caster */
@@ -6028,6 +6755,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	if (typ == GF_STORM) add_wakeup_chance = 3000;
 	if (typ == GF_BULLET) add_wakeup_chance = 2000;
 	if (typ == GF_SHOT) add_wakeup_chance = 3000;
+	if (typ == GF_PYRO_SHOT) add_wakeup_chance = 8000;
 	if (typ == GF_ROCKET) add_wakeup_chance = 5000;
 	if (typ == GF_MISSILE) add_wakeup_chance = 8000;
 
@@ -6036,7 +6764,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	 * of causing damage, and the player was the source of the spell,
 	 * make noise. -LM-
 	 */
-	else if ((project_m_n == 1) && (who <= 0) && (dam))
+	if ((project_m_n == 1) && (who <= 0) && (dam))
 	{
 		add_wakeup_chance += p_ptr->base_wakeup_chance / 2 + 1000;
 	}
@@ -6082,7 +6810,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		/* Allow a saving throw */
 		if (randint(100) < r_ptr->level + 50)
 		{
-			if (!dam && !note) note = " resists!";
+			if (!dam) note = " resists polymorph!";
 			do_poly = FALSE;
 			obvious = FALSE;
 		}
@@ -6164,12 +6892,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		/* Check for mana to drain */
 		if (m_ptr->mana > 0)
 		{
-			int magicdamage = randint(dam);
+			int magicdamage = randint(mp_drain);
 			
 			if (magicdamage > m_ptr->mana) m_ptr->mana = 0;
 
 			/* Drain the mana */
 			else m_ptr->mana -= magicdamage;
+
+			if (!note) note = " is drained.";
 		}
 	}
 
@@ -6178,13 +6908,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	if ((do_stun) && ((!m_ptr->stunned) || (one_in_(3))))
 	{
 		/* Sound and Impact breathers never stun */
-		if ((r_ptr->flags3 & (RF3_NO_STUN)))
+		if (r_ptr->flags3 & RF3_NO_STUN)
 		{
+			/* Note resistance */
+			if (fully_seen) l_ptr->r_flags3 |= (RF3_NO_STUN);
 			if (!dam) note = " is immune to stunning!";
 		}
-
 		/* Non-living monsters are harder to stun */
-		else if ((monster_nonliving(r_ptr)) && (randint(2) < 2))
+		if ((monster_nonliving(r_ptr)) && (randint(2) < 2))
 		{
 			if (!dam && !note && !m_ptr->stunned)
 			{
@@ -6342,6 +7073,12 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	if (dam > 0)
 	{
 		bool can_hear = FALSE;
+
+		/* Complex message */
+		if ((p_ptr->wizard) && (who <= 0))
+		{
+			msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
+		}
 
 		/* Different (or no) death messages when not seen */
 		if (!seen)
@@ -6531,6 +7268,9 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 	/* Monster name (for damage) */
 	char killer[80];
 
+	/* Player notices the attack effect */ 
+	bool notice = FALSE;
+
 	/* Hack -- messages */
 	cptr act = NULL;
 	cptr msg = NULL;
@@ -6661,8 +7401,8 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			/* Affected by terrain. */
 			dam += terrain_adjustment;
 
-			if (fuzzy) msg_print("You are hit by fire!");
-			fire_dam(dam, typ, killer);
+			notice = fire_dam(dam, typ, killer);
+			if (fuzzy && notice) msg_print("You are hit by fire!");
 			break;
 		}
 
@@ -6673,8 +7413,8 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			/* Affected by terrain */
 			dam += terrain_adjustment;
 			
-			if (fuzzy) msg_print("You are hit by rocks!");
-			earth_dam(dam, typ, killer);
+			notice = earth_dam(dam, typ, killer);
+			if (fuzzy && notice) msg_print("You are hit by rocks!");
 			break;
 		}
 
@@ -6753,11 +7493,12 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		case GF_POISON:
 		case GF_CONTAGION:
 		{
+				
 			/* Affected by terrain. */
 			dam += terrain_adjustment;
 
-			if (fuzzy) msg_print("You are hit by poison!");
-			poison_dam(dam, typ, killer);
+			notice = poison_dam(dam, typ, killer);
+			if (fuzzy && notice) msg_print("You are hit by poison!");
 
 			break;
 		}
@@ -6983,13 +7724,14 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			int i;
 			/* Affected by terrain. */
 			dam += terrain_adjustment;
+			dam = apply_resistance(dam, p_ptr->res[RS_PSI]);
 			if (fuzzy) msg_format("%^s makes scary noises.", m_name);
 
 			if (p_ptr->resist_fear)
 			{
 				msg_print("You refuse to be frightened.");
 			}
-			else if (rand_int(100) < save)
+			else if ((rand_int(100) < save) || (resist_effect(RS_PSI)))
 			{
 				msg_print("You resist the effects!");
 			}
@@ -7018,6 +7760,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 
 			/* Hack -- limit damages */
 			if (dam > 150) dam = 150;
+			dam = apply_resistance(dam, p_ptr->res[RS_PSI]);
 
 			if (fuzzy) msg_print("Your mind is hit by mental energy!");
 			
@@ -7026,6 +7769,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			if (f3 & (TR3_AUTOMATA)) psi_resists += 100;
 			if (p_ptr->resist_confu) psi_resists += 10;
 			if (save > randint(100)) psi_resists += 3;
+			if (p_ptr->res[RS_PSI]) psi_resists += (p_ptr->res[RS_PSI] / 10);
 			if (p_ptr->confused) psi_resists--;
 			if (p_ptr->image) psi_resists--;
 			if (p_ptr->stun) psi_resists--;
@@ -7108,6 +7852,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 
 			/* Hack -- limit damages */
 			if (dam > 400) dam = 400;
+			dam = apply_resistance(dam, p_ptr->res[RS_PSI]);
 
 			if (fuzzy) msg_print("Your mind is overwhelmed by mental energy!");
 			
@@ -7116,6 +7861,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			if (f3 & (TR3_AUTOMATA)) psi_resists += 200;
 			if (p_ptr->resist_confu) psi_resists += 10;
 			if (save > randint(100)) psi_resists += 3;
+			if (p_ptr->res[RS_PSI]) psi_resists += (p_ptr->res[RS_PSI] / 10);
 			if (p_ptr->confused) psi_resists--;
 			if (p_ptr->image) psi_resists--;
 			if (p_ptr->stun) psi_resists--;
@@ -7185,34 +7931,56 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		}
 		case GF_STUN:
 		{
+			/* get special stun damge */
+			int stundam;
+
 			if (fuzzy) msg_print("You are hit by something!");
-			if (rand_int(100) < save)
+			if ((rand_int(100) < save) || (resist_effect(RS_TLK)))
 			{
 				msg_print("You resist the effects!");
 				dam = dam / 5;
 			}
 			else 
 			{
-				(void)set_stun(p_ptr->stun + randint(dam));
+  			/* Fix damage to avoid insta-kill */
+  			stundam = dam;
+  			
+  			/* Limit stun damage */
+  			if (stundam > 99) stundam = 99;
+
+  			/* set stun */	
+				(void)set_stun(p_ptr->stun + randint(stundam));
 			}
+			dam = apply_resistance(dam, p_ptr->res[RS_TLK]);			
 			take_hit(dam, killer, TRUE);
 			break;
 		}
 		case GF_TK:
 		{
+			/* get special stun damge */
+			int stundam;
+			
 			/* Affected by terrain. */
 			dam += terrain_adjustment;
-
+			
 			if (fuzzy) msg_print("You are hit by a shock wave!");
-			if (rand_int(100) < save)
+			if ((rand_int(100) < save) || (resist_effect(RS_TLK)))
 			{
 				msg_print("You resist the effects!");
 				dam = dam / 5;
 			}
 			else 
 			{
-				(void)set_stun(p_ptr->stun + randint(dam));
+  			/* Fix damage to avoid insta-kill */
+  			stundam = dam;
+  			
+  			/* Limit stun damage */
+  			if (stundam > 99) stundam = 99;
+  				
+  			/* set stun */	
+				(void)set_stun(p_ptr->stun + randint(stundam));
 			}
+			dam = apply_resistance(dam, p_ptr->res[RS_TLK]);			
 			take_hit(dam, killer, TRUE);
 
 			/* Mark grid for later processing. */
@@ -7222,19 +7990,30 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		}
 		case GF_FORCE:
 		{
+			/* get special stun damge */
+			int stundam;
+
 			/* Affected by terrain. */
 			dam += terrain_adjustment;
 
 			if (fuzzy) msg_print("You are hit by a shock wave!");
-			if (rand_int(100) < save)
+			if ((rand_int(100) < save) || (resist_effect(RS_TLK)))
 			{
 				msg_print("You resist the effects!");
 				dam = dam / 5;
 			}
 			else 
 			{
-				(void)set_stun(p_ptr->stun + randint(dam));
+  			/* Fix damage to avoid insta-kill */
+  			stundam = dam;
+  			
+  			/* Limit stun damage */
+  			if (stundam > 99) stundam = 99;
+  				
+  			/* set stun */	
+				(void)set_stun(p_ptr->stun + randint(stundam));
 			}
+			dam = apply_resistance(dam, p_ptr->res[RS_TLK]);			
 			take_hit(dam, killer, TRUE);
 
 			/* Mark grid for later processing. */
@@ -7248,7 +8027,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something confusing!");
-			if (rand_int(100) < save)
+			if ((rand_int(100) < save) || (resist_effect(RS_PSI)))
 			{
 				msg_print("You resist the effects!");
 				dam = dam / 5;
@@ -7261,6 +8040,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			{
 				(void)set_confused(p_ptr->confused + rand_range(dam / 2, dam));
 			}
+			dam = apply_resistance(dam, p_ptr->res[RS_PSI]);			
 			take_hit(dam / 4, killer, TRUE);
 			break;
 		}
@@ -7270,7 +8050,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something confusing!");
-			if (rand_int(100) < save)
+			if ((rand_int(100) < save) || (resist_effect(RS_PSI)))
 			{
 				msg_print("You resist the effects!");
 				dam = dam / 5;
@@ -7283,6 +8063,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			{
 				(void)set_confused(p_ptr->confused + rand_range(dam / 2, dam));
 			}
+			dam = apply_resistance(dam, p_ptr->res[RS_PSI]);			
 			take_hit(dam / 2, killer, TRUE);
 			break;
 		}
@@ -7292,7 +8073,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something confusing!");
-			if (rand_int(100) < save)
+			if ((rand_int(100) < save) || (resist_effect(RS_PSI)))
 			{
 				msg_print("You resist the effects!");
 				dam = dam / 5;
@@ -7305,6 +8086,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			{
 				(void)set_confused(p_ptr->confused + rand_range(dam / 2, dam));
 			}
+			dam = apply_resistance(dam, p_ptr->res[RS_PSI]);			
 			take_hit(dam, killer, TRUE);
 			break;
 		}
@@ -7317,9 +8099,11 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		case GF_SHOT:
 		case GF_ROCKET:
 		case GF_MISSILE:
+		case GF_PYRO_SHOT:
 		{
 			/* Nothing special yet  XXX */
 
+			dam = apply_resistance(dam, p_ptr->res[RS_TLK]);			
 			/* No resists, adjusts, etc. */
 			take_hit(dam, killer, TRUE);
 
@@ -7331,7 +8115,8 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		{
 			/* No damage */
 			dam = 0;
-
+			return FALSE;
+			
 			break;
 		}
 	}
@@ -7709,7 +8494,7 @@ static void calc_starburst(int height, int width, byte *arc_first,
 		dist = ((height * vert_factor) + (width * (90 - vert_factor))) / 90;
 
 		/* Randomize distance (should never be greater than radius) */
-		arc_dist[i] = rand_range(dist / 4, dist / 2);
+		arc_dist[i] = (unsigned char)(rand_range(dist / 4, dist / 2));
 
 		/* Keep variability under control (except in special cases). */
 		if ((dist != 0) && (i != 0))
@@ -8179,13 +8964,19 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 				monster_type *m_ptr = &m_list[who];
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+				/* paranoia */
+				int player_ac = p_ptr->ac +  p_ptr->to_a;
+				
 				/* Take reaction time into account */
 				int diff = 300 / (m_ptr->cdis + 2);
 				if (!m_ptr->ml) diff += 100;
 				if (diff < 21) diff = 21;
 
+				/* Paranoia */
+				if (player_ac < 1) player_ac = 1;
+				
 				/* Hack -- characters can sometimes dodge */
-				if ((randint(p_ptr->ac +  p_ptr->to_a) + (etheric * 2)) > 
+				if ((randint(player_ac) + (etheric * 2)) > 
 					 (35 + rand_range(diff - 20, diff + 20) + r_ptr->level))
 				{
 					/* Missile whizzes right past the character */

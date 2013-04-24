@@ -515,16 +515,16 @@ void Term_queue_char(int x, int y, byte a, char c)
 	byte *scr_aa = Term->scr->a[y];
 	char *scr_cc = Term->scr->c[y];
 
-	int oa = scr_aa[x];
-	int oc = scr_cc[x];
+	byte oa = scr_aa[x];
+	char oc = scr_cc[x];
 
 #ifdef USE_TRANSPARENCY
 
 	byte *scr_taa = Term->scr->ta[y];
 	char *scr_tcc = Term->scr->tc[y];
 
-	int ota = scr_taa[x];
-	int otc = scr_tcc[x];
+	byte ota = scr_taa[x];
+	char otc = scr_tcc[x];
 
 	/* Don't change is the terrain value is 0 */
 	if (!ta) ta = ota;
@@ -586,13 +586,13 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 	/* Queue the attr/chars */
 	for ( ; n; x++, s++, n--)
 	{
-		int oa = scr_aa[x];
-		int oc = scr_cc[x];
+		byte oa = scr_aa[x];
+		char oc = scr_cc[x];
 
 #ifdef USE_TRANSPARENCY
 
-		int ota = scr_taa[x];
-		int otc = scr_tcc[x];
+		byte ota = scr_taa[x];
+		char otc = scr_tcc[x];
 
 		/* Hack -- Ignore non-changes */
 		if ((oa == a) && (oc == *s) && (ota == 0) && (otc == 0)) continue;
@@ -2249,14 +2249,11 @@ errr Term_resize(int w, int h)
 	term_win *hold_mem;
 	term_win *hold_tmp;
 
-
 	/* Resizing is forbidden */
 	if (Term->fixed_shape) return (-1);
 
-
 	/* Ignore illegal changes */
 	if ((w < 1) || (h < 1)) return (-1);
-
 
 	/* Ignore non-changes */
 	if ((Term->wid == w) && (Term->hgt == h)) return (1);
@@ -2400,7 +2397,6 @@ errr Term_resize(int w, int h)
 	/* Assume change */
 	Term->y1 = 0;
 	Term->y2 = h - 1;
-
 
 	/* Success */
 	return (0);

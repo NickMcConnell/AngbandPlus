@@ -229,7 +229,7 @@ bool monst_spell_monst(int m_idx)
 			if (!projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, PROJECT_CHCK)) continue;
 			if (!clean_shot(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, pet)) continue;
 		}
-
+		
 		/* OK -- we've got a target */
 		y = t_ptr->fy;
 		x = t_ptr->fx;
@@ -274,7 +274,7 @@ bool monst_spell_monst(int m_idx)
 
 		/* Monsters attacking other monsters are no longer dumb */
 		/* due to anti-magic */
-		thrown_spell = choose_ranged_attack(m_idx, &y, &x, FALSE);
+		thrown_spell = choose_ranged_attack(m_idx, &y, &x, FALSE, TRUE);
 		
 		see_t = t_ptr->ml;
 		see_either = (see_m || see_t);

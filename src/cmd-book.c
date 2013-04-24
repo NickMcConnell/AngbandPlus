@@ -598,7 +598,7 @@ static void spell_info(char *p, int spell_index)
 		case POW_SENSE_WILL:
 			strcpy(p, " sense life"); break;
 		case POW_ASTRAL_GATE:
-			sprintf(p, " range %d", 10 + willpower); break;
+			sprintf(p, " range %d", 10 + willpower / 2); break;
 		case POW_INNER_RAD:
 			sprintf(p, " damage 2d%d", magepower); break;
 		case POW_DEMONIC_WILL:
@@ -608,7 +608,7 @@ static void spell_info(char *p, int spell_index)
 		case POW_LO_TRAPS: 
 			strcpy(p, " locate traps"); break;
 		case POW_PLAGUE_WILL:
-			sprintf(p, " damage %dd%d", 2 + (magepower / 4), 1 + (willpower / 20)); break;
+			sprintf(p, " damage %dd%d", 4 + (magepower / 4), 6 + (willpower / 20)); break;
 		case POW_RECHARGE:
 			sprintf(p, " %d charges", magepower); break;
 		case POW_SUPPRESSION_WILL: 
@@ -624,7 +624,7 @@ static void spell_info(char *p, int spell_index)
 		case POW_TELEPORT_OTHER_I: 
 			strcpy(p, " teleport other"); break;
 		case POW_FIREBALL:
-			sprintf(p, " damage %dd4", 25 + (magepower + willpower)); break;
+			sprintf(p, " damage %dd4", 5 + ((magepower + willpower) / 2)); break;
 		case POW_GENOCIDE: 
 			strcpy(p, " genocide"); break;
 		case POW_ACID_BOLT:
@@ -636,13 +636,13 @@ static void spell_info(char *p, int spell_index)
 		case POW_ICE_STORM:
 			sprintf(p, " damage %dd3", (1 + (((magepower / 5) + (willpower / 10)) / 2))); break;
 		case POW_FIRE_STORM:
-			sprintf(p, " damage %dd4", ((magepower / 2 + willpower / 2)/ 2)); break;
+			sprintf(p, " damage %dd4", (10 + (magepower / 2 + willpower / 2)/ 2)); break;
 		case POW_METEOR_STORM:
-			sprintf(p, " %d * damage %dd2", (magepower + willpower) / 10, 75 + ((magepower + willpower)/ 2)); break;
+			sprintf(p, " %d * damage %dd2", (magepower + willpower) / 10, 25 + ((magepower + willpower)/ 3)); break;
 		case POW_ELEMENTAL_BALL:
 			sprintf(p, " damage 4 * %dd2", 33 + ((magepower + willpower)/ 2)); break;
 		case POW_SOUL_STORM:
-			sprintf(p, " damage ~%d+%dd%d", willpower * 3 / 2, 1 + (magepower), magepower / 3); break;
+			sprintf(p, " damage ~%d+%dd%d", willpower * 3 / 2, 1 + (magepower / 2), magepower / 3); break;
 		case POW_RECHARGE_II: 
 			strcpy(p, " recharge"); break;
 		case POW_EARTHQUAKE_I: 
@@ -700,13 +700,15 @@ static void spell_info(char *p, int spell_index)
 		case POW_SANCTUARY: 
 			strcpy(p, " barrier"); break;
 		case POW_HEALING_I:
-			sprintf(p, " heal 6d10 + %d", willpower); break;
+			sprintf(p, " heal 8d12 + %d", willpower); break;
 		case POW_PROTECTION_FROM_EVIL: 
 			strcpy(p, " prot. evil"); break;
 		case POW_HEALING_II:			
 			sprintf(p, " heal 8d10 + %d", willpower); break;
 		case POW_DESTROY_MACHINE:
-			sprintf(p, " dam %dd10", 1 + willpower); break;
+			sprintf(p, " dam %dd3", 1 + willpower / 4); break;
+		case POW_HOLY_BOLT:
+			sprintf(p, " damn %dd%d", 2 + (willpower / 2), 4 + (willpower / 4)); break;
 		case POW_REMOVE_CURSE: 
 			strcpy(p, " remove curse"); break;
 		case POW_TURN_UNDEAD: 
@@ -722,7 +724,7 @@ static void spell_info(char *p, int spell_index)
 		case POW_SATISFY_HUNGER:
 			strcpy(p, " hunger"); break;
 		case POW_PRAYER: 
-			strcpy(p, " blessing"); break;
+			strcpy(p, " heroism"); break;
 		case POW_DISPEL_EVIL: 
 			strcpy(p, " dispel evil"); break;
 		case POW_IDENTIFY_II: 
@@ -766,15 +768,27 @@ static void spell_info(char *p, int spell_index)
 		case POW_DIVINE_FAVOR:
 			sprintf(p, " dur %d-%d", willpower/6, 20 + willpower/6); break;
 		case POW_FLAMING_WRATH:
-			strcpy(p, " dam 20d5"); break;
+			sprintf(p, " dam %dd5", (20 + (willpower / 3))); break;
 		case POW_ANTI_MAGIC:
 			strcpy(p, " dur 1-12"); break;
+		case POW_HOLY_STRIKE:
+			sprintf(p, " fire/holy dam %dd8", willpower); break;
+		case POW_DANCING_LIGHTS:
+			strcpy(p, " moving lights"); break;
+		case POW_SACRED_SERMON:
+			strcpy(p, " charms monsters"); break;
+		case POW_MANIFEST_GOD:
+			strcpy(p, " divine intervention"); break;
+		case POW_THOUGHT_SENSE:
+			strcpy(p, " detect minds"); break;
+		case POW_KEY:
+			strcpy(p, " unlock the universe"); break;
 		case POW_CALL_LIGHT: 
 			strcpy(p, " light"); break;
 		case POW_REMOVE_FEAR: 
 			strcpy(p, " remove fear"); break;
 		case POW_HEALING_VI: 
-			sprintf(p, " heal 2d10+%d", gearhead); break;
+			sprintf(p, " heal %dd10+d", 2 + gearhead, gearhead); break;
 		case POW_DETECT_DOOR_STAIR: 
 			strcpy(p, " detect stair"); break;
 		case POW_DETECT_TRAPS: 
@@ -782,7 +796,7 @@ static void spell_info(char *p, int spell_index)
 		case POW_SLOW_POISON: 
 			strcpy(p, " slow poison"); break;
 		case POW_SPRING_BLADE:			
-			sprintf(p, " damage %dd3", 3 + (willpower / 6)); break;
+			sprintf(p, " damage %dd3", 3 + (gearhead / 6)); break;
 		case POW_NOURISHMENT: 
 			strcpy(p, " food"); break;
 		case POW_OBJECT_ANALYSIS: 
@@ -814,21 +828,23 @@ static void spell_info(char *p, int spell_index)
 		case POW_NEUTRALIZE_POISON: 
 			strcpy(p, " cure poison"); break;
 		case POW_GUNS:
-			sprintf(p, " damage %dd15",3 + gearhead); break;
+			sprintf(p, " damage %dd20", (4 + (gearhead / 3))); break;
 		case POW_HEALING_VII: 
-			sprintf(p, " heal 6d10+%d", gearhead); break;
+			sprintf(p, " heal %dd10+%d", 6 + gearhead, gearhead); break;
 		case POW_TURN_STONE_TO_MUD: 
 			strcpy(p, " stone to mud"); break;
 		case POW_EARTHQUAKE_II: 
 			strcpy(p, " earthquake"); break;
 		case POW_MISSILE:
-			sprintf(p, " damage %dd%d", 60 + (gearhead * 2), 2); break;
+			sprintf(p, " damage %dd%d", 140, 4); break;
+		case POW_EMP: 
+			strcpy(p, " EM blast"); break;			
 		case POW_LEAD_SLUGS:
-			sprintf(p, " damage %dd%d", 3 + (gearhead / 2), 15); break;
+			sprintf(p, " damage %dd%d", 3 + (gearhead / 4), 8); break;
 		case POW_LIGHTNING_RAY:
 			sprintf(p, " damage %dd%d", 3 + gearhead, 12); break;
 		case POW_FROST_RAY:
-			sprintf(p, " damage %dd%d", 5 + (gearhead / 2), 10); break;
+			sprintf(p, " damage %dd%d", 5 + (gearhead / 5), 10); break;
 		case POW_HEAT_RAY:
 			sprintf(p, " damage %dd%d", 8 + gearhead, 12); break;
 		case POW_GRAVITY_RAY:
@@ -846,7 +862,7 @@ static void spell_info(char *p, int spell_index)
 		case POW_WORD_OF_RECALL_III: 
 			strcpy(p, " recall"); break;
 		case POW_HEALING_VIII: 
-			sprintf(p, " heal 8d10+%d", gearhead); break;
+			sprintf(p, " heal %dd10+%d", 8+ gearhead, gearhead); break;
 		case POW_BIOLOGICAL_ENHANCE: 
 			strcpy(p, " shielding"); break;
 		case POW_POLYMORPH_OTHER: 
@@ -1642,6 +1658,8 @@ static void do_cast(int book)
 				/* If they haven't put any points into the first skill, the total is still neg */
 				/* this means that not knowing anything about energy hurts your saftey */
 				protect = p_ptr->skills[SK_THAUMIC_ENERGY].skill_rank + p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_rank;
+				if (p_ptr->skills[SK_PERILOUS_SORCERY].skill_rank > 2) protect += p_ptr->skills[SK_PERILOUS_SORCERY].skill_rank / 3;
+			
 
 				/* increse protect  by 50%, can't mutiply for screwing negative values */
 				if (protect > 0) protect += (protect / 2);
@@ -1837,6 +1855,7 @@ static void do_cast(int book)
 				/* If they haven't put any points into the first skill, the total is still neg */
 				/* this means that not knowing anything about energy hurts your saftey */
 				protect = p_ptr->skills[SK_LESSER_WARD].skill_rank + p_ptr->skills[SK_GREATER_WARD].skill_rank;
+				if (p_ptr->skills[SK_PERILOUS_SORCERY].skill_rank > 2) protect += p_ptr->skills[SK_PERILOUS_SORCERY].skill_rank / 3;
 
 				/* doubles protect, can't mutiply for screwing negative values */
 				if (protect > 0) protect += protect;
@@ -1960,8 +1979,6 @@ static void do_cast(int book)
 	if (p_ptr->skills[SK_FAST_CAST].skill_rank > 0)
 	{
 		fastcast = p_ptr->skills[SK_FAST_CAST].skill_rank;
-		/* This makes fastcast a number from 4-80. */
-		fastcast *= 4;
 	}
 
 	p_ptr->energy_use = 100 - fastcast;
@@ -2015,6 +2032,8 @@ void do_cmd_magic(void)
 {
 	int item;
 
+	cptr q, s;
+
 	/* Can use instruments, can't use books */
 	int flg;
 
@@ -2045,13 +2064,12 @@ void do_cmd_magic(void)
 		/* p_ptr->command_see = TRUE; */
 		p_ptr->command_wrk = (USE_EQUIP);
 	}
-	else p_ptr->command_wrk = (USE_INVEN);
-	
-	flg = (USE_EQUIP | USE_INVEN);
+	else p_ptr->command_wrk = (USE_INVEN);	
 
 	/* Can read books, can't use instruments */
-	if (!get_item(&item, "Use which? ", "You have nothing that you can use.", 
-	flg)) return;
+	q = "Use which? ";
+	s = "You have nothing that you can use.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
 
 	/* Get the item (in the pack) */
@@ -2234,15 +2252,15 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 			x_list[k].time_delay = 20;
 
 			/* Does damage, has a large radius, */
-			/* Max damage 12d4 */
-			x_list[k].power =  damroll(2 + (magepower / 4), 1 + (willpower / 20));
+			/* Max damage 14d9 */
+			x_list[k].power =  damroll(4 + (magepower / 4), 6 + (willpower / 20));
 			/* max radius 7 */
 			x_list[k].power2 = 1 + (willpower / 10);
 
 			/* And lasts for about 21 max attacks */
 			x_list[k].lifespan = (1 + (magepower / 2));
 
-			dec_stat(A_VIG, randmlash + 10, FALSE);
+			dec_stat(A_VIG, randmlash, FALSE);
 			take_hit(magiclash, "Mystic energy", FALSE);
 			break;
 		}
@@ -2341,8 +2359,8 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 			x_list[k].time_delay = 5;
 
 			/* Does damage, has a large radius, */
-			/* Max damage of 10 + 40 + 60d4 or 110d4 Max dam 440 */
-			x_list[k].power =  damroll(10 + (magepower + willpower), 4);
+			/* Max damage of 5 + 20 + 30d4 or 55d4 Max dam 440 */
+			x_list[k].power =  damroll(5 + ((magepower + willpower) / 2), 4);
 			/* Radius of 1, 2, or 3 */
 			x_list[k].power2 = 1 + (willpower / 30);
 
@@ -2619,8 +2637,8 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		case POW_METEOR_STORM:
 		{
 			if (!get_aim_dir(&dir)) return(FALSE);
-			/* 75 + (40 + 60)/2 d 2 125d2, 250 max, 10 max meteor's, radius of 1-2 */
-			fire_barrage(GF_EARTH, dir, 75 + ((magepower + willpower)/ 2), 2, 
+			/* 25 + (40 + 60)/3 d 2 58d2, 116 max, 10 max meteor's, radius of 1-2 */
+			fire_barrage(GF_EARTH, dir, 25 + ((magepower + willpower)/ 3), 2, 
 			           (magepower + willpower) / 10, 2, (magepower + willpower) / 40);
 			take_hit(magiclash, "Mystic energy", FALSE);
 			break;
@@ -2666,7 +2684,7 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 
 				 /* Does damage, 60-120 + 41d13 */
 				 x_list[k].power = rand_range(willpower, willpower * 2) + 
-						damroll(1 + (magepower), magepower / 3);
+						damroll(1 + (magepower / 2), magepower / 3);
 
 				 /* And lasts for a certain period of time. */
 				 x_list[k].lifespan = magepower / 2;
@@ -2710,10 +2728,10 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		{
 			/* Increase senses */
 			(void)set_tim_wormsense(willpower * ((magepower / 10) + 1));
-			dec_stat(A_SCH, randmlash * 2, FALSE);
-			dec_stat(A_EGO, randmlash * 2, FALSE);
+			dec_stat(A_SCH, randmlash + 5, FALSE);
+			dec_stat(A_EGO, randmlash + 5, FALSE);
 			dec_stat(A_CHR, randmlash * 2 + 30, FALSE);
-			dec_stat(A_VIG, randmlash * 2, FALSE);
+			dec_stat(A_VIG, randmlash, FALSE);
 			break;
 		}
 		/* Death of the Worm */
@@ -2732,7 +2750,7 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		case POW_SUMMON_DEMON:
 		{
 			summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_LO_DEMON, TRUE);
-			dec_stat(A_AGI, randmlash * 2 + 30, FALSE);
+			dec_stat(A_AGI, randmlash + 20, FALSE);
 			break;
 		}
 		/* Voorish Sign */
@@ -2816,9 +2834,9 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		case POW_SUMMON_DEMON_II:
 		{
 			summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_HI_DEMON, TRUE);
-			dec_stat(A_AGI, randmlash * 2 + 50, FALSE);
-			dec_stat(A_MUS, randmlash * 2 + 10, FALSE);
-			dec_stat(A_VIG, randmlash * 2 + 10, FALSE);
+			dec_stat(A_AGI, randmlash + 50, FALSE);
+			dec_stat(A_MUS, randmlash + 10, FALSE);
+			dec_stat(A_VIG, randmlash + 10, FALSE);
 			break;
 		}	
 		/* Lamp of Alhazred */
@@ -2835,7 +2853,7 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		case POW_CONTACT_YITHIAN:	
 		{
 			detect_objects_magic(TRUE);
-			dec_stat(A_EGO, randmlash * 2 + 30, FALSE);
+			dec_stat(A_EGO, randmlash, FALSE);
 			break;
 		}
 		/* Incantation of Mi-go */
@@ -2914,7 +2932,7 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		{
 			if (p_ptr->tim_invisiblity) set_tim_invisiblity(p_ptr->tim_invisiblity + 1);
 			else set_tim_invisiblity(p_ptr->tim_invisiblity + willpower / 6);
-			dec_stat(A_EGO, randmlash * 2 + 60, FALSE);
+			dec_stat(A_EGO, randmlash * 2 + 30, FALSE);
 			break;
 		}
 		/* Gate */
@@ -2923,7 +2941,7 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 			msg_print("Choose a location to teleport to.");
 			message_flush();
 			dimen_door(willpower + magepower, magiclash);
-			dec_stat(A_VIG, randmlash * 2 + 40, FALSE);
+			dec_stat(A_VIG, randmlash * 2 + 10, FALSE);
 			break;
 		}
 		/* Effigy of Hate */
@@ -2999,16 +3017,9 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 				if (k < 0) break;
 
 				/* Use the given direction */
-				if (willpower < 30)
-				{
-					ty = py + ddy_cdd[(b * 2) % 8];
-					tx = px + ddx_cdd[(b * 2) % 8];
-				}
-				else 
-				{
-					ty = py + ddy_cdddouble[(b * 2) % 8];
-					tx = px + ddx_cdddouble[(b * 2) % 8];
-				}
+				ty = py + ddy_cdd[(b * 2) % 8];
+				tx = px + ddx_cdd[(b * 2) % 8];
+
 				/* We want an advancing wall, */
 				x_list[k].index = EFFECT_STATIC_WALL;
 
@@ -3054,6 +3065,7 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		}
 		case POW_REMOVE_CURSE:
 		{
+			msg_print("You feel as if someone is watching over you.");
 			remove_curse();
 			break;
 		}
@@ -3072,7 +3084,13 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		case POW_DESTROY_MACHINE:
 		{
 			if (!get_aim_dir(&dir)) return(FALSE);
-			fire_bolt(GF_EMP, dir, damroll(1 + willpower / 3, 10));
+			fire_bolt(GF_EMP, dir, damroll(1 + willpower / 4, 3));
+			break;
+		}
+		case POW_HOLY_BOLT:
+		{
+			if (!get_aim_dir(&dir)) return(FALSE);
+			fire_bolt(GF_DISP_EVIL, dir, damroll(2 + (willpower / 2), (4 + willpower / 4)));
 			break;
 		}
 		case POW_PORTAL:
@@ -3097,7 +3115,7 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		}
 		case POW_PRAYER:
 		{
-			(void)set_blessed(p_ptr->blessed + randint(48) + willpower);
+			(void)set_hero(p_ptr->hero + randint(48) + willpower);
 			break;
 		}
 		case POW_DISPEL_EVIL:
@@ -3250,6 +3268,51 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 			(void)set_tim_anti_magic(p_ptr->tim_anti_magic + randint(12));
 			break;
 		}
+		case POW_HOLY_STRIKE:
+		{
+			/* Get a new effect index */
+			k = effect_prep();
+
+			/* Note failure XXX */
+			if (k < 0) break;
+
+			/* Get a direction */
+			if (!get_hack_dir(&dir)) return FALSE;
+
+			/* Use the given direction */
+			ty = py + ddy[dir];
+			tx = px + ddx[dir];
+			
+			/* Hack -- Use an actual "target" */
+			if ((dir == 5) && target_okay())
+			{
+				ty = p_ptr->target_row;
+				tx = p_ptr->target_col;
+			}
+
+			/* We want an lingering cloud, */
+			x_list[k].index = EFFECT_SPHERE;
+
+			/* Of poison */
+			x_list[k].type = GF_HOLY_FIRE;
+
+			/* That starts at the monster location. */
+			x_list[k].y0 = x_list[k].y1 = ty;
+			x_list[k].x0 = x_list[k].x1 = tx;
+
+			/* It attacks every 8 -> 5 game turns, */
+			x_list[k].time_delay = 5;
+
+			/* Does damage, has a large radius, */
+			/* Max damage of 60d8 Max dam 480 * 3 = 1440  */
+			x_list[k].power =  damroll((willpower), 8);
+			/* Radius of 0, 1, or 2 */
+			x_list[k].power2 = 0 + (willpower / 30);
+
+			/* And lasts for about 3 attacks */
+			x_list[k].lifespan = 3;
+			break;
+		}
 		case POW_DANCING_LIGHTS:
 		{
 			for (b = 0; b < ((willpower / 5) + 1); b++)
@@ -3274,10 +3337,10 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 				x_list[k].time_delay = 1;
 
 				/* Does damage, 1 + 9 + 6 / 2 d 3 or 8d3 */
-				x_list[k].power = damroll(1 + (((magepower / 5) + (willpower / 10)) / 2), 3);
+				x_list[k].power = damroll((6 + (willpower / 5)), 3);
 
 				/* And lasts for a certain period of time. */
-				x_list[k].lifespan = magepower;
+				x_list[k].lifespan = willpower + 10;
 			}
 			break;
 		}
@@ -3461,8 +3524,8 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		case POW_GUNS:
 		{
 		if (!get_aim_dir(&dir)) return(FALSE);
-			fire_blast(GF_BULLET, dir, (3 + gearhead), 
-								15, 1 + gearhead / 5, 2, FALSE);
+			fire_blast(GF_BULLET, dir, (4 + (gearhead / 3)), 
+								20, 1 + gearhead / 5, 2, FALSE);
 			break;
 		}
 		case POW_HEALING_VII:
@@ -3486,20 +3549,20 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		case POW_MISSILE:
 		{
 			if (!get_aim_dir(&dir)) return(FALSE);
-			fire_ball(GF_SHARDS, dir,
-							damroll(60 + (gearhead * 2), 2), 2);
+			fire_ball(GF_MISSILE, dir,
+							damroll(140, 4), 2);
 			break;
 		}
 		case POW_EMP:
 		{
-			project_ball(-1, 9, py, px, py, px, 1200, GF_EMP, 0L, 0);
+			project_ball(-1, 4, py, px, py, px, 300, GF_EMP, 0L, 0);
 			break;
 		}
 		case POW_LEAD_SLUGS:
 		{
 			if (!get_aim_dir(&dir)) return(FALSE);
-			fire_blast(GF_BULLET, dir, (3 + (gearhead / 2)), 
-								15, rand_range(1, 1 + gearhead / 5), 2, FALSE);
+			fire_blast(GF_BULLET, dir, (3 + (gearhead / 4)), 
+								8, rand_range(1, 1 + gearhead / 5), 2, FALSE);
 			break;
 		}
 		case POW_LIGHTNING_RAY:
@@ -3511,7 +3574,7 @@ bool do_power(int book, int idx, int dir, int beam, bool *obvious, int magepower
 		case POW_FROST_RAY:
 		{
 			if (!get_aim_dir(&dir)) return(FALSE);
-			fire_blast(GF_ICE, dir, (5 + (gearhead / 2)), 10, 
+			fire_blast(GF_ICE, dir, (5 + (gearhead / 5)), 10, 
 						rand_range(1, 1 + (gearhead / 5)), 1, TRUE);
 			break;
 		}
@@ -3661,10 +3724,10 @@ info_entry power_info[POW_MAX] =
 	{POW_SENSE_WILL,		"detects the will of nearby creatures"},
 	{POW_ASTRAL_GATE,		"transports your physical self a short distance (Vigor damage)"},
 	{POW_INNER_RAD,			"lights rooms with the radiance of your soul"},
-	{POW_DEMONIC_WILL,		"Raises your spellcasting skill (Vig, Mus damage, cuts)"},	
+	{POW_DEMONIC_WILL,		"Raises your spellcasting skill (Vigor, Muscle damage, cuts)"},	
 	{POW_LO_OBJECT,			"detects objects nearby"},	
 	{POW_LO_TRAPS,			"detects nearby traps, doors, and stairs"},	
-	{POW_PLAGUE_WILL,		"attempts to poison another's soul (HP damage)"},	
+	{POW_PLAGUE_WILL,		"attempts to poison another's soul (HP, Vigor damage)"},	
 	/* The Zohar (Book of Splendor) (sval 1) */
 	{POW_RECHARGE, 			"transmutes will into energy for devices (Vigor damage)"},
 	{POW_SUPPRESSION_WILL, 	"puts a monster you touch to sleep"},
@@ -3685,29 +3748,29 @@ info_entry power_info[POW_MAX] =
 	{POW_ELEMENTAL_BALL, 	"fires a ball of the 4 elements at your enemies (HP damage)"},
 	{POW_SOUL_STORM, 		"creates a storm of the dead! (HP damage)"},
 	/* De Vermis Mysteriis (Mysteries of the Worm) (sval 3) */
-	{POW_RECHARGE_II, 		"transmutes will into energy for devices (Vig, Mus, Sch, & Ego damage)"},
-	{POW_EARTHQUAKE_I, 		"calls upon the great worm to rock the earth! (Charm, Mus, Vig, & Agi damage)"},
+	{POW_RECHARGE_II, 		"transmutes will into energy for devices (Vigor, Muscle, Schooling, & Ego damage)"},
+	{POW_EARTHQUAKE_I, 		"a great worm to shake the earth! (Charm, Muscle, Vigor, & Agility damage)"},
 	{POW_WORD_OF_RECALL_I, 	"transports you quickly back to the surface (Vigor and Ego damage)"},
 	{POW_MIND_OF_WORM, 		"gain the powerful worm's mighty senses! (Schooling, Ego, Charm, and Vigor damage)"},
 	{POW_MASS_GENOCIDE, 	"removes all creatures from your presence! (HP + All stat damage)"},
 	/* Cthaat Aquadingen (sval 4) */
-	{POW_SUMMON_DEMON, 	"summons a minor demon to serve you! (agi damage)"},
-	{POW_VOORISH_SIGN, "increases the power of your spells (vig, mus damage)"},
-	{POW_BYAKHEE_WINDS, "fires a cone of air (hp damage)"},
-	{POW_FAUGN_BARRIER, "sends out a wave of fear (hp damage)"},
-	{POW_BANISH_DEMON, "banishes a single demon"},
-	{POW_SUMMON_DEMON_II, 	"summons a major demon to serve you! (agi, mus, and vig damage)"},
-	{POW_LAMP_ALHAZRED, "enlightens you."},	
+	{POW_SUMMON_DEMON, 	"summons a minor demon to serve you! (Agility damage)"},
+	{POW_VOORISH_SIGN, "increases the power of your spells (Vigor, Muscle damage)"},
+	{POW_BYAKHEE_WINDS, "fires a cone of air (HP damage)"},
+	{POW_FAUGN_BARRIER, "sends out a wave of fear (HP damage)"},
+	{POW_BANISH_DEMON, "banishes a single demon (HP damage"},
+	{POW_SUMMON_DEMON_II, 	"summons a major demon servant! (Agility, Muscle, & Vigor damage)"},
+	{POW_LAMP_ALHAZRED, "enlightens you. (Charm, Ego & Schooling damage"},	
 	/* Othuum Omnicia  (sval 5) */
-	{POW_CONTACT_YITHIAN, "detects magic items"},
-	{POW_INCANT_MI_GO, "creates a windmill of drain" },
-	{POW_CONSUME_FLESH, "use your flesh to refresh your spellpoints"},
+	{POW_CONTACT_YITHIAN, "detects magic items (Ego damage)"},
+	{POW_INCANT_MI_GO, "creates a windmill of drain (HP damage)" },
+	{POW_CONSUME_FLESH, "use your flesh to refresh your spellpoints (Consumes HP)"},
 	{POW_MELT_STONE, "eliminates walls"},
-	{POW_CHIME_TEZCH, "protective wall"},
-	{POW_MIRROR_ATEP, "protects you from detection"},
-	{POW_GATE, "instant transport"},
-	{POW_EFFIGY_HATE, "rage of hell"},
-	{POW_CONTACT_NYAR, "gain information about an item"},
+	{POW_CHIME_TEZCH, "surrounding protective wall forces monsters back (Muscle Damage)"},
+	{POW_MIRROR_ATEP, "turns you invisible (Ego damage)"},
+	{POW_GATE, "instant controlled transport (Vigor damage)"},
+	{POW_EFFIGY_HATE, "rage of hell (Schooling & Ego damage)"},
+	{POW_CONTACT_NYAR, "gain all information about an item (Ego & Agility Damage)"},
 	/* Revelations of Glaaki (sval 6) */
 	{POW_DEMON_COURAGE, "gives you demonic courage"},
 	{POW_DEMON_FURY, 	"allows you to fight with demonic fury (Schooling damage)"},
@@ -3721,23 +3784,24 @@ info_entry power_info[POW_MAX] =
 	{POW_CHANT, 			"the power of god blesses you! (+ to ac, and to hit)"},
 	{POW_SANCTUARY, 		"surrounds you with a protective wall"},
 	{POW_HEALING_I, 		"heals a small amount of damage"},
-	{POW_PROTECTION_FROM_EVIL, "spiritual power will protect you from evil creatures!"},
+	{POW_PROTECTION_FROM_EVIL, "spiritual power will protect you from evil creatures"},
 	{POW_HEALING_II, 		"heals some damage and wounds"},
 	{POW_REMOVE_CURSE, 		"removes most curses from your equipment"},
 	{POW_TURN_UNDEAD, 		"causes nearby undead to flee"},
 	{POW_HEALING_III, 		"cures poison + cuts"},
-	{POW_DESTROY_MACHINE, 	"destroys machines"},
+	{POW_DESTROY_MACHINE, 	"blasts machines"},
+	{POW_HOLY_BOLT, "strikes at the heart of evil"},
 	/* Odes of Solomon (sval 11) */
 	{POW_PORTAL, 			"moves you a short distance"},
 	{POW_SENSE_INVISIBLE,   "allows you to detect invisable creatures for a short time"},
 	{POW_SENSE_SURROUNDINGS, "detects the dungeon around you"},
 	{POW_SATISFY_HUNGER, 	"fills your stomach"},
-	{POW_PRAYER, 			"calls upon the power of god to protect you (+ to ac, and to hit)"},
+	{POW_PRAYER, 			"calls upon the power of god to protect you (+ to hit)"},
 	{POW_DISPEL_EVIL, 		"attempts to destory evil creatures in your sight"},
 	{POW_IDENTIFY_II, 		"provides knowledge about an item"},
-	{POW_HOLY_WORD, 		"heals you a great deal, and dispels evil creatures."},
+	{POW_HOLY_WORD, 		"heals you a great deal, and dispels evil creatures"},
 	{POW_HEALING_IV, 		"greatly heals your hit points and wounds"},
-	{POW_RESTORATION, 		"causes all your stats to be restored."},
+	{POW_RESTORATION, 		"causes all your stats to be restored"},
 	/* The Pnakotic Manuscripts (sval 12) */
 	{POW_DISPEL_CURSE, 		"removes almost all curses"},
 	{POW_BANISHMENT, 		"banishes evil from your sight"},
@@ -3759,6 +3823,7 @@ info_entry power_info[POW_MAX] =
 	{POW_DIVINE_FAVOR, 		"gives your fighting ability the favor of your god"},
 	{POW_FLAMING_WRATH, 	"calls down a column of fire"},
 	{POW_ANTI_MAGIC, 		"prevents the casting of magical spells"},
+	{POW_HOLY_STRIKE,  "Calls down holy fire to deal damage to enemies"},
 	/* The Corpus Hermeticum (sval 15) */
 	{POW_DANCING_LIGHTS, 	"surrounds you with dancing lights"},
 	{POW_SACRED_SERMON,		"attempts to convert all monsters around you"},
@@ -3802,7 +3867,7 @@ info_entry power_info[POW_MAX] =
 	/* Clockwork carbine (sval 21) */
 	{POW_LEAD_SLUGS, 		"activates vulcan cannons"},
 	{POW_LIGHTNING_RAY, 	"emits a lightning ray"},
-	{POW_FROST_RAY, 		"shoots out a beam of cold"},
+	{POW_FROST_RAY, 		"shoots out beams of freezing cold"},
 	{POW_HEAT_RAY, 			"creates a blistering ray of heat"},
 	{POW_GRAVITY_RAY, 		"causes a linear gravity distortion"},
 	{POW_TELEPORT_OTHER_II, "fires an etheric ray that transports others away"},
@@ -3813,14 +3878,14 @@ info_entry power_info[POW_MAX] =
 	{POW_TELEPORT_LEVEL, 	 "changes your locality"},
 	{POW_WORD_OF_RECALL_III, "returns you back to town"},
 	/* The Analytic Engine (sval 23) */
-	{POW_HEALING_VIII, 		"fixes moderate damage to your body. Heals stunning and cuts."},
+	{POW_HEALING_VIII, 		"fixes moderate damage to your body. Heals stunning and cuts"},
 	{POW_BIOLOGICAL_ENHANCE, "opposes all elements, and raises AC"},
 	{POW_POLYMORPH_OTHER, "transforms your opponents into different monsters"},
 	{POW_RECHARGE_IV, 		"recharges power cells"},
 	{POW_DOOR_CREATION, 	"creates doors"},
 	{POW_STAIR_CREATION, 	"creates stairs"},
 	{POW_BIOLOGICAL_ENHANCE_II, "as biological enhance, but also + to hit, and speed"},
-	{POW_HEALING_IX, 		"powerful full healing."},
+	{POW_HEALING_IX, 		"powerful full healing"},
 	{POW_ALTER_REALITY, 	"recreates reality"},
 	/* Book name (sval 24) */
 	{0, NULL},

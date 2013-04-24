@@ -80,9 +80,18 @@ void plural_aux(char *name, size_t max)
 	else if ((strstr(name, "Manes")) ||(strstr(name, "Yaksas")) ||(strstr(name, "Bori")) ||
 		(name[name_len-1] == 'u') || (strstr(name, "Yeti")) ||
 		(streq(&(name[name_len-2]), "ua")) || (streq(&(name[name_len-2]), "es")) || 
-		(streq(&(name[name_len-3]), "nee")) || (streq(&(name[name_len-4]), "idhe")))
+		(streq(&(name[name_len-3]), "nee")) || (streq(&(name[name_len-6]), "Steeds")) ||
+		(streq(&(name[name_len-4]), "idhe")))
 	{
 		return;
+	}
+	else if (streq(&(name[name_len - 2]), "fe"))
+	{
+		strcpy (&(name[name_len - 2]), "ves");
+	}
+	else if (streq(&(name[name_len - 3]), "Rex"))
+	{
+		strcpy (&(name[name_len - 3]), "Rexes");
 	}
 	else if (streq(&(name[name_len - 4]), "nkey"))
 	{
@@ -139,10 +148,6 @@ void plural_aux(char *name, size_t max)
 	else if (streq(&(name[name_len - 4]), "lman"))
 	{
 		strcpy (&(name[name_len - 4]), "lmen");
-	}
-	else if (streq(&(name[name_len - 2]), "Rex"))
-	{
-		strcpy (&(name[name_len - 2]), "Rexes");
 	}
 	else if (streq(&(name[name_len - 2]), "ex"))
 	{
@@ -288,7 +293,7 @@ static void grant_reward(byte type)
 	if (type == REWARD_GOLD)
 	{
 		/*base amount of gold on fame*/
-		repeats = p_ptr->fame / 4;
+		repeats = p_ptr->fame;
 
 		/*but put in a minimum*/
 		if (repeats < 3) repeats = 3;
@@ -335,10 +340,10 @@ static void grant_reward(byte type)
 		int sk = 0;
 		
 		/*base amount of gold on fame*/
-		repeats = p_ptr->fame / 3;
+		repeats = p_ptr->fame / 5;
 
 		/*but put in a minimum*/
-		if (repeats < 3) repeats = 3;
+		if (repeats < 2) repeats = 2;
 
 		/* Give a good gold type for the level */
 		for (i = 0; i < repeats; i++)
@@ -579,17 +584,44 @@ static void grant_reward(byte type)
 				/* Pick a theme  */
 				switch (i)
 				{
+
 					case INVEN_WIELD:
 					{
-						int choice = rand_int(5);
-						switch (choice)
+
+						/* First tailor the weapon for */
+						/* specialists. -CJN- */
+						if (p_ptr->skills[SK_HAFTED].skill_max > 1)
 						{
+							required_tval = TV_HAFTED;						}
+						else if (p_ptr->skills[SK_POLEARM].skill_max > 1)
+						{
+							required_tval = TV_POLEARM;						}
+						else if (p_ptr->skills[SK_SWORD].skill_max > 1)
+						{
+							required_tval = TV_SWORD;						}
+						else if (p_ptr->skills[SK_DAGGER].skill_max > 1)
+						{
+							required_tval = TV_DAGGER;						}
+						else if (p_ptr->skills[SK_AXES].skill_max > 1)
+						{
+							required_tval = TV_AXES;						}
+						else if (p_ptr->skills[SK_BLUNT].skill_max > 1)
+						{
+							required_tval = TV_BLUNT;						}
+						else
+						{
+							/* Non specialists gets */
+							/* random type. */
+							int choice = rand_int(5);
+							switch (choice)
+							{
 							case 0: required_tval = TV_HAFTED; break;
 							case 1: required_tval = TV_POLEARM; break;
 							case 2: required_tval = TV_SWORD; break;
 							case 3: required_tval = TV_DAGGER; break;
 							case 4: required_tval = TV_AXES; break;
 							case 5: required_tval = TV_BLUNT; break;
+							}
 						}
 						break;
 					}
@@ -1449,8 +1481,8 @@ void guild_purchase(void)
 	if (item == -1) return;
 
 	/* Get level for quest - if never been in dungeon at 100', otherwise 1-2 levels deeper */
-	if (!p_ptr->max_depth) qlev = 1;
-	else qlev = p_ptr->max_depth + 1 + randint(2);
+	if (!p_ptr->max_depth) qlev = 1 + randint(3);
+	else qlev = p_ptr->max_depth + 2 + rand_int(2);
 
 	/*nowhere to quest*/
 	if (qlev >= 51)

@@ -1318,11 +1318,24 @@ static void store_create(void)
 		}
 
 
+		/* stores don't generate mecha items either*/
+		if ((p_ptr->prace != RACE_AUTOMATA) && 
+		(p_ptr->prace != RACE_STEAM_MECHA))
+		{
+			object_kind *k_ptr = &k_info[k_idx];
+			if (k_ptr->flags3 & TR3_MECHA_GEN)
+			{
+				tries--;
+				continue;
+			}
+		}
+
 		/* Get local object */
 		i_ptr = &object_type_body;
 
 		/* Create a new object of the chosen kind */
 		object_prep(i_ptr, k_idx);
+
 
 		/* Apply some "low-level" magic (no artifacts) */
 		apply_magic(i_ptr, level, FALSE, FALSE, FALSE);
@@ -2660,8 +2673,10 @@ static void steamware_research(void)
 static void steamware_install(void)
 {
 
-	int i, j, x, y;
-	int level, selection;
+	int i, x, y;
+	int level, selection; 
+	int sel_count = 0;
+	byte sel_items[5] = {0,0,0,0,0};
 
 	part_data *s_ptr;
 
@@ -2692,56 +2707,94 @@ static void steamware_install(void)
 
 	x = 1;
 	y = 5;
-	j = 0;
+//	j = 0;
 
-	put_str("I can only install the most advanced part avaiable!", 3, 3);
+	put_str("I can only install the most advanced part available!", 3, 3);
 
 	put_str("Name", 5, 5);
 	put_str("Install Price", 5, 34);
 
 	for (i = 0; i < MAX_STEAMWARE_PARTS; i++)
 	{
-		j++;
+//		j++;
 		
 		/* ugh. this is ugly. Must be a better way */
 		if (i == SW_EYES) 
 		{
 			level = p_ptr->eyes_level - 1;
+			if ((level == 0 && p_ptr->muta6 & MUT6_ALPHA_EYES) ||
+				(level == 1 && p_ptr->muta6 & MUT6_BETA_EYES) ||
+				(level == 2 && p_ptr->muta6 & MUT6_GAMMA_EYES) ||
+				(level == 3 && p_ptr->muta6 & MUT6_DELTA_EYES))
+				level = -1;
 		}
 		else if (i == SW_WIRED_REFLEX) 
 		{
 			level = p_ptr->reflex_level - 1;
+			if ((level == 0 && p_ptr->muta6 & MUT6_ALPHA_REFLEX) ||
+				(level == 1 && p_ptr->muta6 & MUT6_BETA_REFLEX) ||
+				(level == 2 && p_ptr->muta6 & MUT6_GAMMA_REFLEX) ||
+				(level == 3 && p_ptr->muta6 & MUT6_DELTA_REFLEX))
+				level = -1;
 		}
 		else if (i == SW_DERMAL_PLATE)
 		{
 			level = p_ptr->plate_level - 1;
+			if ((level == 0 && p_ptr->muta6 & MUT6_ALPHA_PLATING) ||
+				(level == 1 && p_ptr->muta6 & MUT6_BETA_PLATING) ||
+				(level == 2 && p_ptr->muta6 & MUT6_GAMMA_PLATING) ||
+				(level == 3 && p_ptr->muta6 & MUT6_DELTA_PLATING))
+				level = -1;
 		}
 		else if (i == SW_FURNACE_CORE)
 		{
 			level = p_ptr->core_level - 1;
+			if ((level == 0 && p_ptr->muta6 & MUT6_ALPHA_CORE) ||
+				(level == 1 && p_ptr->muta6 & MUT6_BETA_CORE) ||
+				(level == 2 && p_ptr->muta6 & MUT6_GAMMA_CORE) ||
+				(level == 3 && p_ptr->muta6 & MUT6_DELTA_CORE))
+				level = -1;
 		}
 		else if (i == SW_SPURS)
 		{
 			level = p_ptr->spur_level - 1;
+			if ((level == 0 && p_ptr->muta4 & MUT4_ALPHA_SPURS) ||
+				(level == 1 && p_ptr->muta4 & MUT4_BETA_SPURS) ||
+				(level == 2 && p_ptr->muta4 & MUT4_GAMMA_SPURS) ||
+				(level == 3 && p_ptr->muta4 & MUT4_DELTA_SPURS))
+				level = -1;
 		}
 		
-		if (level < 0)
+/*		if (level < 0)
 		{
-			prt("I have researched nothing to install!", y + j + 1, x);
+			prt("I have nothing to install!", y + j + 1, x);
+		}
+		else if (level > 4)
+		{
+			prt("Max level already installed!", y + j + 1, x);
 		}
 		else 
+*/		if (level >= 0)
 		{
 			s_ptr = &wares[i].data[level];
 
-			prt("", y + j + 1, x);
-			put_str(format("  %c) ", I2A(i)), y + j + 1, x);
-			put_str(format("%-27s", s_ptr->name), y + j + 1, x + 5);
-			put_str(format("%6d", s_ptr->install_price), y + j + 1, x + 32);
+			sel_items[sel_count] = i;
+			sel_count++;
+			prt("", y + sel_count + 1, x);
+			put_str(format("  %c) ", I2A(sel_count-1)), y + sel_count + 1, x);
+			put_str(format("%-27s", s_ptr->name), y + sel_count + 1, x + 5);
+			put_str(format("%6d", s_ptr->install_price), y + sel_count + 1, x + 32);
 		}
 	}
+	if (!sel_count)
+	{
+		msg_print("Nothing to install.");
+		return;
+	}
+
 	/* build a prompt */
 	sprintf(buf, "(Select desired installation %c-%c, ESC to exit)",
-	        store_to_label(0), store_to_label(MAX_STEAMWARE_PARTS - 1));
+	        store_to_label(0), store_to_label(sel_count-1)); //store_to_label(MAX_STEAMWARE_PARTS - 1));
 
 	while (TRUE)
 	{
@@ -2765,13 +2818,16 @@ static void steamware_install(void)
 		selection = (islower(which) ? A2I(which) : -1);
 
 		/* Oops */
-		if ((selection < 0) || (selection > (MAX_STEAMWARE_PARTS-1)))
+		if ((selection < 0) || (selection > sel_count)) //(MAX_STEAMWARE_PARTS-1)))
 		{
 			/* Oops */
 			msg_print("Illegal store object choice!");
 
 			continue;
 		}
+
+		selection = sel_items[selection];
+
 		if (selection == SW_EYES) 
 		{
 			level = p_ptr->eyes_level;
@@ -2793,265 +2849,116 @@ static void steamware_install(void)
 			level = p_ptr->spur_level;
 		}
 
-		if (!level)
-		{
-			/* Oops */
-			msg_print("I have researched nothing to install!");
-			clear_from(4);
-			return;
-		}
-
 		s_ptr = &wares[selection].data[level - 1];
 		break;
 	}
 	if (p_ptr->au >= s_ptr->install_price)
 	{
-		if (selection == SW_EYES) 
+		switch (selection)
 		{
-			if (level == 1) 
+		case SW_EYES:
+		{
+			if (p_ptr->eyes_level == 1) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_ALPHA_EYES))
-								gain_random_mutation(200);
-				else 
-				{
-					msg_print("You already have them!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(200);
 			}
-			if (level == 2) 
+			if (p_ptr->eyes_level == 2) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_BETA_EYES))
-								gain_random_mutation(201);
-				else 
-				{
-					msg_print("You already have them!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(201);
 			}
-			if (level == 3) 
+			if (p_ptr->eyes_level == 3) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_GAMMA_EYES))
-								gain_random_mutation(202);
-				else 
-				{
-					msg_print("You already have them!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(202);
 			}
-			if (level == 4) 
+			if (p_ptr->eyes_level == 4) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_DELTA_EYES))
-								gain_random_mutation(203);
-				else 
-				{
-					msg_print("You already have them!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(203);
 			}
 		}
-		else if (selection == SW_WIRED_REFLEX) 
+		break;
+		case SW_WIRED_REFLEX:
 		{
-			if (level == 1) 
+			if (p_ptr->reflex_level == 1) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_ALPHA_REFLEX))
-								gain_random_mutation(204);
-				else 
-				{
-					msg_print("You already have them!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(204);
 			}
-			if (level == 2) 
+			if (p_ptr->reflex_level == 2) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_BETA_REFLEX))
-								gain_random_mutation(205);
-				else 
-				{
-					msg_print("You already have them!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(205);
 			}
-			if (level == 3) 
+			if (p_ptr->reflex_level == 3) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_GAMMA_REFLEX))
-								gain_random_mutation(206);
-				else 
-				{
-					msg_print("You already have them!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(206);
 			}
-			if (level == 4) 
+			if (p_ptr->reflex_level == 4) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_DELTA_REFLEX))
-								gain_random_mutation(207);
-				else 
-				{
-					msg_print("You already have them!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(207);
 			}
 		}
-		else if (selection == SW_DERMAL_PLATE) 
+		break;
+		case SW_DERMAL_PLATE: 
 		{
-			if (level == 1) 
+			if (p_ptr->plate_level == 1) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_ALPHA_PLATING))
-								gain_random_mutation(208);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(208);
 			}
-			if (level == 2) 
+			if (p_ptr->plate_level == 2) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_BETA_PLATING))
-								gain_random_mutation(209);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(209);
 			}
-			if (level == 3) 
+			if (p_ptr->plate_level == 3) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_GAMMA_PLATING))
-								gain_random_mutation(210);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(210);
 			}
-			if (level == 4) 
+			if (p_ptr->plate_level == 4) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_DELTA_PLATING))
-								gain_random_mutation(211);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(211);
 			}
 		}
-		else if (selection == SW_FURNACE_CORE) 
+		break;
+		case SW_FURNACE_CORE:
 		{
-			if (level == 1) 
+			if (p_ptr->core_level == 1) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_ALPHA_CORE))
-								gain_random_mutation(212);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(212);
 			}
-			if (level == 2) 
+			if (p_ptr->core_level == 2) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_BETA_CORE))
-								gain_random_mutation(213);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(213);
 			}
-			if (level == 3) 
+			if (p_ptr->core_level == 3) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_GAMMA_CORE))
-								gain_random_mutation(214);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(214);
 			}
-			if (level == 4) 
+			if (p_ptr->core_level == 4) 
 			{
-			 	if (!(p_ptr->muta6 & MUT6_DELTA_CORE))
-								gain_random_mutation(215);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(215);
 			}
 		}
-		else if (selection == SW_SPURS) 
+		break;
+		case SW_SPURS:
 		{
-			if (level == 1) 
+			if (p_ptr->spur_level == 1) 
 			{
-			 	if (!(p_ptr->muta4 & MUT4_ALPHA_SPURS))
-								gain_random_mutation(216);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(216);
 			}
-			if (level == 2) 
+			if (p_ptr->spur_level == 2) 
 			{
-			 	if (!(p_ptr->muta4 & MUT4_BETA_SPURS))
-								gain_random_mutation(217);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
+				gain_random_mutation(217);
 			}
-			if (level == 3) 
+			if (p_ptr->spur_level == 3) 
 			{
-			 	if (!(p_ptr->muta4 & MUT4_GAMMA_SPURS))
-								gain_random_mutation(218);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(218);
 			}
-			if (level == 4) 
+			if (p_ptr->spur_level == 4) 
 			{
-			 	if (!(p_ptr->muta4 & MUT4_DELTA_SPURS))
-								gain_random_mutation(219);
-				else 
-				{
-					msg_print("You already have it!"); 
-					clear_from(4);
-					return;
-				}
-				
+				gain_random_mutation(219);
 			}
 		}
-		
+		break;
+		default: 
+			return;
+		}
 		p_ptr->au -= s_ptr->install_price;
 
 		/* Update the display */
@@ -3063,12 +2970,13 @@ static void steamware_install(void)
 		/* Ouch */
 		p_ptr->chp = 0;
 		take_hit(randint(randint(p_ptr->lev)), "surgery", TRUE);
+		clear_from(3);
 	}
 	else
 	{
 		/* Oops */
 		msg_print("You lack the gold!");
-		clear_from(4);
+		clear_from(3);
 	}
 
 }
@@ -3412,6 +3320,7 @@ static void store_sell(void)
 	p_ptr->command_wrk = (USE_INVEN);
 	
 	/* Get an item */
+	/* There's a bug with selling worn equipment */
 	s = "You have nothing that I want.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
 
@@ -3584,7 +3493,14 @@ static void store_sell(void)
 						
 			/* Analyze the prices (and comment verbally) */
 			purchase_analyze(price, value, dummy);
-
+#if 0
+		if (item >= INVEN_WIELD)
+		{
+				inven_takeoff(item, 255);
+		}
+		else
+		{
+#endif			
 			/* Take the object from the player */
 			inven_item_increase(item, -amt);
 			inven_item_describe(item);
@@ -3616,17 +3532,23 @@ static void store_sell(void)
 		/* Distribute charges of wands/rods */
 		distribute_charges(o_ptr, i_ptr, amt);
 
-		/* Describe */
-		msg_format("You drop %s (%c).", o_name, index_to_label(item));
+		if (item >= INVEN_WIELD)
+		{
+				inven_takeoff(item, 255);
+		}
+		else
+		{
+			/* Describe */
+			msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
-		/* Take it from the players inventory */
-		inven_item_increase(item, -amt);
-		inven_item_describe(item);
-		inven_item_optimize(item);
+			/* Take it from the players inventory */
+			inven_item_increase(item, -amt);
+			inven_item_describe(item);
+			inven_item_optimize(item);
 
-		/* Handle stuff */
-		handle_stuff();
-
+			/* Handle stuff */
+			handle_stuff();
+		}
 #if 0
 		/* Take note if we add a new item */
 		n = st_ptr->stock_num;
@@ -3844,7 +3766,7 @@ static void store_process_command(void)
 		/* Destroy an item */
 		case 'k':
 		{
-			do_cmd_destroy();
+			do_cmd_destroy(0);
 			break;
 		}
 

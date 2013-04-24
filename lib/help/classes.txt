@@ -147,7 +147,7 @@
 			certainly not going to degrade myself to doing that 
 			bloody thing!"
 
-	Mus:2 Agi:4 Vig:4 Sch:10 Ego:10 Chr:10
+	Mus:4 Agi:4 Vig:4 Sch:10 Ego:10 Chr:10
 	0% experience modifier
 	Hit die:4
                

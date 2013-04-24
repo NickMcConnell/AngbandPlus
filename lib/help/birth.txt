@@ -1,120 +1,115 @@
+============================
 === Creating a Character ===
+============================
 
-Steamband is a roguelike game, in which you, the player, control a character
-in the world of Steamband.  Perhaps the most important thing you control is the
-birth of your character, in which you choose or allow to be chosen various
-attributes that will affect the future life of your character.
+Welcome to character creation! Would you like to be a British Officer,
+an Asiatic Medium, or perhaps even an Automaton Rogue!
 
-Character creation, or birth, is controlled through a variety of choices
-which define the type of character you shall play, followed by
-a series of random calculations to generate ("roll up") a random character
-matching the appropriate constraints.
+You'll have to name your new adventurer, otherwise deeds of his records
+could not be kept.
 
-Once your character has been generated, you will be given the choice to
-generate a new character obeying the same constraints, and once you have
-generated more than one character, you can switch back and forth between
-the two most recent characters, until you are presented with statistics
-that you feel comfortable with.
+Pressing the Question mark ('?') on a race or class during character 
+creation will give you detailed information on that choice.
 
-You may start the entire process over at any time. And you probably 
-accidentally will, at least once.
-
-Once you have accepted a character you will asked to provide a name for the
-character.  In general, the actual choice of a name is not important, but do
-keep in mind that it may have some effect on the game itself.  For example,
-on some machines, the character name determines the filename that will be
-used to save the character to disk.  On others, the character name specifies
-special "pref" files.  And the character name is used on the high score list.
-
-
+=================================
 === Character Characteristics ===
+=================================
 
-******************
-==IMPORTANT NOTE==
-******************
-*** One of the most difficult parts of Steamband for new players is 
-*** understanding skills. Please take a moment to review the skills 
-*** section at a bare minimum before playing Steamband, *especially*
-*** if you are familiar with Angband and its variants!
-==END IMPORTANT NOTE==
+Steamband is a skill based variant. Be sure to review the FAQ if you're 
+familiar with Angband and other variants.
 
-Each character has three primary attributes (sex, race, and class) that
-are chosen before the character is generated, and which will stay fixed
-for the entire life of that character.  These attributes have many effects,
-which will be mentioned as they come up.
+You select your gender, race, and class. These determine the skills you
+have avaiable upon creation, which skills you can unlock, your innate
+powers, your  inborn natural statistics, and a great many other things 
+besides.
 
-Each character has a few secondary attributes (height, weight, social class,
-and background history) which are randomly determined, but which are affected
-by the sex and race of the character.  In general, these attributes are only
-used to provide "flavor" to the character, to assist in the role playing, but
-they do have a few minor effects on the game.  For example, background history
-affects social class, which affects the starting money and light source.
+Each character has a few secondary attributes (height, weight, social
+class, and background history) of which social class is the most important.
+The extra money the rich and privledged have give a big advantage to 
+starting characters. In fact, compared with the inital variance in starting
+inborn natural statistics, social class has a much larger impact on an 
+early character's survival. This is really the only random factor which 
+matters in character creation. It determines the value of the starting
+equipment as well as how much money you have to purchase more. The better
+outfitted you are on your first trip into the depths the better off you 
+will be.
 
 Each character also has six primary statistics or "stats", Muscle (MUS),
 Agility (AGI), Vigor (VIG), Schooling (SCH), Ego (EGO), and Charm (CHR), 
-which modify the abilities of the character in a variety of ways.  
-Each stat has a numerical value from 1 to 999. The value is limited
-to 700 for intrinsic value (i.e., not counting equipment bonuses).
-Equipment bonuses and penalties may modify the score, including
-raising it above 700. Calculation of statistics is discussed below.
+which modify the abilities of the character in a variety of ways.  Each 
+stat has a numerical value from 1 to 999. The value is limited to 700 for
+intrinsic value (i.e., not counting equipment bonuses). Equipment bonuses
+and penalties may modify the score, including raising it above 700. 
+Calculation of statistics is discussed below.
 
-Each character also has a large selection of "skills", including such skills 
-as disarming, magic devices, saving throws, stealth, searching, fighting skill,
-and shooting skill. Which skills you start with are derived from the character's 
-race & class.  These skills have rather obvious effects, but will be described 
-more completely below. What skills eventually become available to a character 
-is determined by his/her class and how you choose to allocate that character's
-skill points. Skill increases in the game are activated by the 'G' key. 
-You may allocate skill points when starting a character and any time the 
-character gains any skill points or stat gains. A small indicator "(G) lv"
-will be shown on the main screen in the lower right hand corner when
-you have points to distribute.
+========================
+== A Matter of Skills ==
+========================
+
+Each character also has a large selection of "skills", including [Disarming
+Traps], [Using Devices], [Stealth], [Searching], [Neophyte Combat], 
+[Neophyte Firearms], and [Latin]. Which skills you start with are derived 
+from the character's race & class.  
+
+To access the skills screen from within the game hit the 'G' key ('G') to 
+'G'ain skills. To find out information about these skills hit the Question 
+mark key ('?') while the skill is selected on the skills screen. What 
+skills eventually become available to a character is determined by his/her
+class and how you choose to allocate that character's skill points. You may
+allocate skill points when starting a character and any time the character
+gains any skill points or stat gains. A small indicator "(G) lv" will be
+shown on the main screen in the lower right hand corner when you have
+points to distribute.
 
 By raising certain skills to certain levels, new skills become available.
-These skills are often more specific than the skill that made them available
-and often give the character access to more powers and abilities. All skills
-are limited to a maximum value of 3 + 1 for every level you gain while the skill
-has been available. Thus, it is in your best interests to open up skills as soon
-as possible. The maximum level of all skills is 20.
+These skills are often more specific than the skill that made them
+available and often give the character access to more powers and abilities. 
+All skills are limited to a maximum value of 3 + 1 for every level you gain 
+while the skill has been available. Thus, it is in your best interests to 
+open up skills as soon as possible. The maximum level of all skills is 20.
 
 Each character may have one or more "racially intrinsic skills", based on
-the race of the character.  These skills are increased the same way as normal
-skills and may be used by pressing the 'U' key to use racial abilities. 
-Sometimes your race may give you early access to a skill you could not otherwise
-get at the start.
+the race of the character.  These skills are increased the same way as 
+normal skills and may be used by pressing the U key ('U') to use racial 
+abilities. Sometimes your race may give you early access to a skill you 
+could not otherwise get at the start.
 
-Certain races may also have intrinsic abilities such as the ability to sustain
-a statistic such as muscle (e.g. sustain muscle), infravision, or even the 
-ability to pass through walls. These do not require skill points added to them 
-to function, though some of them may be made more effective by the allocation 
-of skill points to improve them. As a special note, statistic sustains do not 
-affect drain from spellcasting.
+Certain races may also have intrinsic abilities such as the ability to 
+sustaina statistic such as muscle (e.g. sustain muscle), infravision, or 
+even the ability to pass through walls. These do not require skill points 
+added to them to function, though some of them may be made more effective 
+by the allocation of skill points to improve them. As a special note, 
+statistic sustains do not affect drain from spellcasting.
 
-Each character has experience, which increases as the character kills monsters 
-or a few other actions, and a level, based on experience, race and class.  
-As the experience rises, so does the level, and as the level  rises, certain 
-other abilities rise, and you gain more skill points to distribute as well 
-as statistic gain points which raise all your statistics. Again, these
-can be distributed by using the 'G' key. 
+===============================================
+== A Primer on Self-Improvement (Experience) ==
+===============================================
+
+Each character has experience, which increases as the character kills 
+monsters 'q'uaffs unidentified tonics, uses unidentified items, or a few 
+other actions.
+
+Each character also has a level, based on experience, race and class.  
+As the experience rises, so does the level, and as the level  rises, 
+certain other abilities rise, and you gain more skill points to distribute 
+as well as statistic gain points which raise all your statistics. Again, 
+these can be distributed by using the 'G' key. 
 
 IMPORTANT NOTE: unlike other Angband variants very little depends on your
 level -- most increases in power come from your allocation of skill points.
 
-Deep down inside, the real objective of the game is to increase your
-experience, and certain other characteristics, and also to collect useful
-items, to give you a decent chance against the final enemy.  Certain monsters
-can "drain" your experience, and thus your level, which will cause you to lose
-some of the effects of the higher level.  Luckily, you can restore drained
-experience through magical means, or by simply regaining the experience all
-over again.
+By default the display for experience shows how many points you need to 
+gain to reach your next level.
 
-By default the display for experience shows how many points you need to gain
-to reach your next level.
+=========================================
+== A Bit on the Value of Goods (Money) ==
+=========================================
 
 Each character has some gold, which can be used to buy items from the shops
 in the town, and which can be obtained not only from selling items to the
 shops, but also by taking it from dead monsters and by finding it hidden in
 the dungeon.  Each character starts out with some gold. Gold has no weight.
+The amount of gold you start with is determined by your social class.
   
 Each character also starts out with a few useful items, which may be kept, 
 or sold to a shopkeeper for more gold. However, especially valuable items
@@ -123,32 +118,261 @@ he is prepared to pay for any item. The more generous shopkeepers may buy
 your items for up to 30,000 gold pieces: but some are really stingy, and 
 will pay no more than 5,000.
 
+========================================
+== Vigerous Exercises (AC, HP/WP, SP) ==
+========================================
+
 Each character has an armor class, representing how well the character can
-avoid damage.  The armor class is affected by agility and the equipped items. 
-Armor class on equipment is always denoted in [square brackets], usually as 
-a figure of [X,+Y] where X is the intrinsic AC of the armor in question, and
-+Y is the magical bonus to armor class provided by that item.
+avoid damage.  The armor class is affected by agility and the equipped 
+items. Armor class on equipment is always denoted in [square brackets], 
+usually as a figure of [X,+Y] where X is the intrinsic AC of the armor in 
+question, and +Y is the magical bonus to armor class provided by that item. 
+Armor class both affects wether or not you get hit, and also reduces 
+damage.
 
 Each character has hit points, representing the general condition of the 
-character and how well he is able to resist taking damage.  The maximum number
-of hit points is derived from your race, class, level, and vigor, and
-you can never have more hit points than the maximum.  Hit points may be 
+character and how well he is able to resist taking damage.  The maximum 
+number of hit points is derived from your race, class, level, and vigor, 
+and you can never have more hit points than the maximum.  Hit points may be 
 regained by resting, or by a variety of magical means.
 
 Each character has wound points, representing his actual physical health.
-When the character reaches below 0 wound points he dies. The maximum number of 
-wound points is a combination of vigor, character level, and various skills.
-Wound points may be regained by resting if you are in the town or have the
-innate ability to regenerate. If not, they will not heal while in the dungeon.
-You can also regain wound points through various spells and tonics.
+When the character reaches below 0 wound points he dies. The maximum number 
+of wound points is a combination of vigor, character level, and various 
+skills. Wound points may be regained by resting if you are in the town or 
+have the innate ability to regenerate. If not, they will not heal while in 
+the dungeon. You can also regain wound points through various spells and 
+tonics.
 
-Each character has spell points, or mana, which represents how many spells,
+Each character has spell points, which represents how many spells,
 prayers, or abilities a character can use.  The maximum number of spell
 points is derived from a statistic (the specific statistic is based on your 
-class), and your level. You can never have more spell points than the maximum.  
-Spell points may be regained by resting, or by magical means. You can determine 
-which statistic your spellpoints are based off of because it is highlighted in
-light blue during the character creation process.
+class), and your level. You can never have more spell points than the 
+maximum.  Spell points may be regained by resting, or by magical means. You 
+can determine which statistic your spellpoints are based off of because it 
+is highlighted in light blue during the character creation process.
+
+==============
+=== Skills ===
+==============
+
+Skills are a *crucial* part of Steamband. The number one problem most
+new players face is understanding the Steamband skill system. In 
+Steamband, the level of your character is almost irrelevant in 
+determining what your character can do -- all of your character's 
+abilities are based off of her skills. Please take a minute below 
+to review the skills system before playing Steamband for the first 
+time.
+
+You can gain access to the skills screen by pushing the G key ('G') 
+anytime you are in town or in the dungeon. You can hop between 
+the three skill 'groupings' by pushing the h key ('h'). You can navigate
+around the list by pushing either the up arrow/'8' key ('8') or the down 
+arrow/'2' key ('2'). You can increase your skills by pushing the '+' 
+key ('+'). Skill increases are permanent -- once a point is added to a 
+skill, it can never be removed. You may press the 'g' key while on the 
+skills screen to "spend" your stat gain points to raise all of your stats 
+once.
+
+Again, for easy reference: 
+You can gain access to the skills screen by pushing the 'G' key ('G') 
+anytime you are in town or in the dungeon.
+
+You can tell when you have available skill points to spend because in the 
+lower right hand corner of the main screen there will be a green indicator 
+when you have statgains or skill points left that says '(G) lv'
+
+Each skill has a maximum value of 3 + 1 for every level you gain 
+while the skill is available or 20, whichever is less. Thus, it 
+is to your advantage to gain access to skills as soon as possible.
+
+Sometimes when you raise a skill, new skills become available. For 
+example, if you are playing a Rogue when your [Stealth] skill becomes 
+15, you will gain access to a new skill called [Theft]. It will 
+suddenly appear on the screen with a value of one. The maximum 
+for this new skill is three. If you gain a level, that skill's 
+maximum now becomes four. 
+
+When the [Theft] skill reaches 20, you will gain access to the 
+skill [Master Theft], which will appear on the screen just as 
+theft did with a value of one, and a maximum of three. Just as 
+with the [Theft] skill, when you gain a level the maximum of 
+[Master Theft] increases by one. Note that even when you gain 
+this level, you could not increase the original [Theft] skill 
+because the maximum value for any and all skills is 20.
+
+Note that the skill that opens up ([Theft]) does not necessarily 
+affect the  original skill, i.e. raising [Theft] does *not* 
+affect your [Stealth], it gives you a totally new ability.
+
+To take another example, when [Neophyte Combat] reaches 5, a 
+new skill opens up called [Standard Combat]. If you wished, 
+you could never again put a point into [Neophyte Combat], 
+and over time as you gained enough levels (17 more levels) 
+you could raise [Standard Combat] all the way to 20 while leaving
+[Neophyte Combat] at 5.
+
+In this case, where both skills affect the same thing, how do 
+you decide what skill to increase? Well, it's a matter of personal 
+choice. In the example above, [Neophyte Combat] has more of an 
+effect, and increases *both* your hand-to-hand and weapon combat, 
+but [Standard Combat] opens up new skills.
+
+Skills are *never* detrimental to other skills, i.e. you can have 
+maxed combat and spellcasting and they would not affect each other 
+negatively.
+
+There is a description of each skill printed at the bottom of the 
+screen when it is selected. You may press the Question mark key ('?') 
+to get more information about your skills.
+
+The skills you start with, and what skills you can gain access 
+to is determined by both your race and class.
+
+Sometimes special abilities are given via skills, or due to race. 
+You can 'U'se the special abilities by pushing the 'U' key while 
+in town or in the dungeon.
+
+Sometimes when you put points into a skill, you may notice some 
+other skills disappearing. This is true of weapon specialization 
+for instance. Basically this is a group of skills, of which you 
+can only have one. You should *never* lose a skill that you have 
+already put points into, if you do, it is a bug and you should 
+contact valis@oook.cz with a bug report. i.e. if you put a point
+into [Rifles], making it 2, your access to [Pistols] and [Shotguns] 
+should vanish.
+
+Specific skill 'Trees' (a base skill that opens up many other skills) 
+are found below. Certain race and class combinations may not gain 
+access to all the skills in the tree. Hit Question mark ('?') on the skill
+or see http://angband.oook.cz/steamband/steamband.html for spoilers.
+ 
+Melee Fighting
+	Fighting is the ability to hit and do damage with weapons. The
+	base skill in this tree is [Neophyte Combat]. Upon reaching 5,
+	[Standard Combat] becomes available which allows access to the
+	rest of the skills in the tree. Each progressive 'combat' skill
+	(i.e. [Advanced Combat], [Master Combat]) provides less and less
+	of an increase in your combat skill (though all additions are 
+	cumulative). Taking the [Standard Combat] Skill to 10 gives you
+	access to the [Toughness]->[Fortitude]->[Iron Body] chain of skills
+	which increase your wound points. [Vicious Strike] and [Accurate
+	Strike] increase your + to hit and damage. [Advanced Combat] is 
+	necessary to access [Power Strike] (increases the force of your blows)
+	and [Critical Strike] (increases the power and frequency of your
+	criticals.)
+
+Martial Arts
+	Martial arts is the ability to hit and do damage when you are 
+	not wielding *anything* in your hands. Each successive blow you
+	strike in sequence with martial arts does more damage, and the
+	higher your skill in the main path, the more often you will 
+	strike devastating criticals. Several special skills open up 
+	off of this path including [The Gentle Way] which allows 
+	counter-attacks when you are struck. As with the melee weapons 
+	tree, earlier skills are more effective but later skills open 
+	up new skills.
+ 
+Firearms
+	Firearms is your ability to hit and do damage with guns. If 
+	you are using a shotgun and buckshot, you don't have to hit 
+	the monsters (it fires an arc of buckshot) so you can bypass 
+	putting points into this skill if you wish. As with the melee 
+	weapons, earlier skills are more effective, but later skills 
+	open up new skills. (e.g. you must have [Master Firearms] to 
+	access [Swift Shot] which decreases the amount of time it takes
+	to reload your firearm.)
+ 
+Throwing
+	Throwing is your ability to hit and do damage with any object 
+	you can throw. It goes very well with martial arts, since you 
+	you can throw items much faster if nothing is wielded in your 
+	hands. It can be a very fast and powerful damage dealer. You
+	may throw dangerous tonics to damage monsters.
+
+Devices
+	Devices is your ability to successfully activate ray guns, 
+	tools, and artifacts. As you raise your device skill you 
+	get access to powers that increase the damage and effect 
+	of the items you use, as well as being able to use these 
+	devices much faster than normal. Do not overlook this skill, 
+	for it is quite possible to cause *huge* amounts of damage 
+	with nothing but ray guns alone if you invest the time in 
+	[Device Power Amp] and [Advanced Power Amp]. And if you 
+	raise your [Fast Device Use] you can pump out a lot of 
+	that damage every turn. It is *very* safe to recharge
+	devices using power cells, and for just a couple thousand 
+	gold and some points here, you can devastate the dungeon 
+	and its inhabitants around you.
+
+Prayer Magic (Spirituality)
+	This is is a collection of skills that affect your ability 
+	to use 'Divine' or green book 'm'agic. The [Spirituality] 
+	chain ([Latin] + [Spirituality]-->[Prayer]-->[Devotion]) determines 
+	what 'level' of prayer you can cast from a green book.
+	Prayers can be *very* dangerous if they fail, so [Spirituality] 
+	gives you access to [Lesser Warding] which gives you access 
+	to [Greater Warding]. These warding skills can *greatly* 
+	increase the safety of your prayers. Dangerous prayers are 
+	shown in violet, and risky ones in yellow. Safe prayers
+	are shown in the color of the book. 
+	
+Will Magic (Occult)
+	There is nearly *always* a cost to using the powerful 'Arcane' 
+	or red book 'm'agic. Successfully casting spells can often 
+	damage your mind and body. But the eventual power these books 
+	let you wield include the ability to find out everything about 
+	powerful objects, remove yourself from sight, move to the spot
+	of your choosing, infuse your body with powerful demonic combat 
+	abilities, and even to cannibalize your own flesh for spiritual 
+	strength.
+	
+	The 'Occult' chain ([Latin] + [Occult]-->[Advanced Occult]-->
+	[Cthulhu Mythos]) determines the 'level' of the spell you can cast 
+	from a red book. Spells can be *very* dangerous, so [Ritual Magic] 
+	which increases the power of your spells, gives you access to 
+	[Thaumic Energy] which gives you access to [Advanced Thaumic Energy]. 
+	These Thaumic energy skills can *greatly* increase the safety of 
+	your spells, though they can never remove the cost from many of 
+	them completely. Dangerous spells are shown in violet, and risky 
+	ones in yellow. Relatively safe spells are shown in the color of 
+	the book.
+
+Willpower
+	The willpower skills greatly boost the power of both Prayers and 
+	Will magic. It is also useful in a variety of other ways, sometimes 
+	providing access to skills, and sometimes affecting your ability 
+	to use certain attacks (e.g. mental attacks, or charm effects).
+	
+Enigmatic Device skills and Gadgeteering
+	Certain powerful devices have the ability to create a variety 
+	of effects. If you have [Gadgeteering] you can use any of these, 
+	or if you have the specific device skill, you can use that device. 
+	[Gadgeteering] is added to the specific device skill to determine 
+	which of these effects you can cast. Enigmatic devices are always 
+	safe to use, the only danger is that sometimes you may fail to 
+	produce the desired effect. Enigmatic devices are such things
+	as the [Utility Bandoleer] or the [Clockwork Carbine].
+	
+Miscellaneous
+	Each of these skills has no tree of its own, but depending 
+	on your class may open up a variety of useful abilities. 
+	
+	Latin: Increases the amount of 'm'agic you can use, can also 
+	open up skills depending on knowledge, such as [Anatomy] 
+	(cause criticals) or [Art Appreciation] (raise sale price/lower 
+	buy price) based off your class.
+	
+	Search: Allows you to discover traps and items hidden in the 
+	dungeon. Always allows access to the [Keen Eyes] skill which 
+	increases the range of your guns by one for every 4 points.
+	
+	Disarm Traps: Allows you to disarm traps. Can also give access 
+	to skills such as [Disable Construct] depending on class.
+	
+	Stealth: Allows you to avoid waking monsters up and reduces 
+	the amount of noise you make. Can open up a variety of special 
+	skills depending on your class.
 
 
 === Races === 
@@ -630,8 +854,10 @@ with the 'U' key.
 	causes strange mutations to their physical form.
 
 	???? (Unknown!)                              
-          
+
+===============          
 === Classes ===
+===============
 
 Descriptions were provided by Janne "Giants" Keskinarkaus
  
@@ -781,7 +1007,7 @@ players familiar with survival techniques.
 			certainly not going to degrade myself to doing that 
 			bloody thing!"
 
-	Mus:2 Agi:4 Vig:4 Sch:10 Ego:10 Chr:10
+	Mus:4 Agi:4 Vig:4 Sch:10 Ego:10 Chr:10
 	0% experience modifier
 	Hit die:4
                
@@ -879,7 +1105,7 @@ stat, and all characters have a maximum internal stat of 700.
 	Schooling affects the abilities of characters using enigmatic
 	devices, and has some effect on divine spellcasting.
 	A high schooling may also improve your chances of successfully 
-	using an engimatic device or casting a divine spell. A good 
+	using an enigmatic device or casting a divine spell. A good 
 	schooling can also help with using magic devices, picking 
 	locks, and disarming traps.
  
@@ -897,228 +1123,9 @@ stat, and all characters have a maximum internal stat of 700.
 	better prices from store owners, whereas a character with a
 	very low Charm may be robbed blind. 
  
-
-=== Skills ===
-
-Skills are a *crucial* part of Steamband. The number one problem most
-new players face is understanding the Steamband skill system. In 
-Steamband, the level of your character is almost irrelevant in 
-determining what your character can do -- all of your character's 
-abilities are based off of her skills. Please take a minute below 
-to review the skills system before playing Steamband for the first 
-time.
-
-You can gain access to the skills screen by pushing the 'G' key 
-anytime you are in town or in the dungeon. You can switch between 
-the three skill 'groupings' by pushing the 'h' key. You can navigate
-around the list by pushing either the up arrow/'8' key or the down 
-arrow/'2' key. You can increase your skills by pushing the '+' key. 
-Skill increases are permanent -- once a point is added to a skill, 
-it can never be removed. You may press the 'g' key while on the 
-skills screen to "spend" your stat gain points to raise all of your 
-stats once.
-
-Again, for easy reference: 
-You can gain access to the skills screen by pushing the 'G' key 
-anytime you are in town or in the dungeon.
-
-You can tell when you have available skill points to spend because 
-in the  lower right hand corner of the main screen there will be 
-a green indicator when you have statgains or skill points left 
-that says "(G) lv"
-
-Each skill has a maximum value of 3 + 1 for every level you gain 
-while the skill is available or 20, whichever is less. Thus, it 
-is to your advantage to gain access to skills as soon as possible.
-
-Sometimes when you raise a skill, new skills become available. For 
-example, if you are playing a Rogue when your "Stealth" skill becomes 
-15, you will gain access to a new skill called "Theft". It will 
-suddenly appear on the screen with a value of one. The maximum 
-for this new skill is three. If you gain a level, that skill's 
-maximum now becomes four. 
-
-When the "Theft" skill reaches 20, you will gain access to the 
-skill "Master Theft", which will appear on the screen just as 
-theft did with a value of one, and a maximum of three. Just as 
-with the "Theft" skill, when you gain a level the maximum of 
-"Master Theft" increases by one. Note that even when you gain 
-this level, you could not increase the original "Theft" skill 
-because the maximum value for any and all skills is 20.
-
-Note that the skill that opens up ("Theft") does not necessarily 
-affect the  original skill, i.e. raising "Theft" does *not* 
-affect your stealth, it gives you a totally new ability.
-
-To take another example, when "Neophyte Combat" reaches 5, a 
-new skill opens up called "Standard Combat". If you wished, 
-you could never again put a point into "Neophyte Combat", 
-and over time as you gained enough levels (17 more levels) 
-you could raise "Standard Combat" all the way to 20 while leaving
-"Neophyte Combat" at 5.
-
-In this case, where both skills affect the same thing, how do 
-you decide what skill to increase? Well, it's a matter of personal 
-choice. In the example above, "Neophyte Combat" has more of an 
-effect, and increases *both* your hand-to-hand and weapon combat, 
-but "Standard Combat" opens up new skills.
-
-Skills are *never* detrimental to other skills, i.e. you can have 
-maxed combat and spellcasting and they would not affect each other 
-negatively.
-
-There is a description of each skill printed at the bottom of the 
-screen when it is selected.
-
-The skills you start with, and what skills you can gain access 
-to is determined by both your race and class.
-
-Sometimes special abilities are given via skills, or due to race. 
-You can 'U'se the special abilities by pushing the 'U' key while 
-in town or in the dungeon.
-
-Sometimes when you put points into a skill, you may notice some 
-other skills disappearing. This is true of weapon specialization 
-for instance. Basically this is a group of skills, of which you 
-can only have one. You should *never* lose a skill that you have 
-already put points into, if you do, it is a bug and you should 
-contact valis@oook.cz with a bug report. i.e. if you put a point
-into "Rifles", making it 2, your access to "pistols" and "shotguns" 
-should vanish.
-
-Specific skill 'Trees' (a base skill that opens up many other skills) 
-are found below. Certain race and class combinations may not gain 
-access to all the skills in the tree. 
-See http://angband.oook.cz/steamband for spoilers.
- 
-Melee Fighting
-	Fighting is the ability to hit and do damage with weapons. The
-	base skill in this tree is "Neophyte Combat". Upon reaching 5,
-	"Standard Combat" becomes available which allows access to the
-	rest of the skills in the tree. Each progressive 'combat' skill
-	(i.e. "Advanced Combat", "Master Combat") provides less and less
-	of an increase in your combat skill (though all additions are 
-	cumulative). Taking the "Standard Combat" Skill to 10 gives you
-	access to the "Toughness"->"Fortitude"->"Iron Body" chain of skills
-	which increase your wound points. "Vicious Strike" and "Accurate
-	Strike" increase your + to hit and damage. "Advanced Combat" is 
-	necessary to access "Power Strike" (increases the force of your blows)
-	and "Critical Strike" (increases the power and frequency of your
-	criticals.)
-
-Martial Arts
-	Martial arts is the ability to hit and do damage when you are 
-	not wielding *anything* in your hands. Each successive blow you
-	strike in sequence with martial arts does more damage, and the
-	higher your skill in the main path, the more often you will 
-	strike devastating criticals. Several special skills open up 
-	off of this path including "The Gentle Way" which allows 
-	counter-attacks when you are struck. As with the melee weapons 
-	tree, earlier skills are more effective but later skills open 
-	up new skills.
- 
-Firearms
-	Firearms is your ability to hit and do damage with guns. If 
-	you are using a shotgun and buckshot, you don't have to hit 
-	the monsters (it fires an arc of buckshot) so you can bypass 
-	putting points into this skill if you wish. As with the melee 
-	weapons, earlier skills are more effective, but later skills 
-	open up new skills. (e.g. you must have "Master Firearms" to 
-	access "Swift Shot" which increase the number of times
-	you may fire your gun per round.)
- 
-Throwing
-	Throwing is your ability to hit and do damage with any object 
-	you can throw. It goes very well with martial arts, since you 
-	you can throw items much faster if nothing is wielded in your 
-	hands. It can be a very fast and powerful damage dealer.
-
-Devices
-	Devices is your ability to successfully activate ray guns, 
-	tools, and artifacts. As you raise your device skill you 
-	get access to powers that increase the damage and effect 
-	of the items you use, as well as being able to use these 
-	devices much faster than normal. Do not overlook this skill, 
-	for it is quite possible to cause *huge* amounts of damage 
-	with nothing but ray guns alone if you invest the time in 
-	"Device Power Amp" and "Advanced Power Amp". And if you 
-	raise your "Fast Device Use" you can pump out a lot of 
-	that damage every turn. It is *very* safe to recharge
-	devices using power cells, and for just a couple thousand 
-	gold and some points here, you can devastate the dungeon 
-	and its inhabitants around you.
-
-Prayer Magic (Spirituality)
-	This is is a collection of skills that affect your ability 
-	to use "Divine" or green book 'm'agic. The "Spirituality" 
-	chain (Latin + Spirituality-->Prayer-->Devotion) determines 
-	what 'level' of prayer you can cast from a green book.
-	Prayers can be *very* dangerous if they fail, so "Spirituality" 
-	gives you access to "Lesser Warding" which gives you access 
-	to "Greater Warding". These warding skills can *greatly* 
-	increase the safety of your prayers. Dangerous prayers are 
-	shown in violet, and risky ones in yellow. Safe prayers
-	are shown in the color of the book. 
-	
-Will Magic (Occult)
-	There is nearly *always* a cost to using the powerful "Arcane" 
-	or red book 'm'agic. Successfully casting spells can often 
-	damage your mind and body. But the eventual power these books 
-	let you wield include the ability to find out everything about 
-	powerful objects, remove yourself from sight, move to the spot
-	of your choosing, infuse your body with powerful demonic combat 
-	abilities, and even to cannibalize your own flesh for spiritual 
-	strength.
-	
-	The "Occult" chain (Latin + Occult-->Advanced Occult-->
-	Cthulhu Mythos) determines the 'level' of the spell you can cast 
-	from a red book. Spells can be *very* dangerous, so "Ritual Magic" 
-	which increases the power of your spells, gives you access to 
-	"Thaumic Energy" which gives you access to "Advanced Thaumic Energy". 
-	These Thaumic energy skills can *greatly* increase the safety of 
-	your spells, though they can never remove the cost from many of 
-	them completely. Dangerous spells are shown in violet, and risky 
-	ones in yellow. Relatively safe spells are shown in the color of 
-	the book.
-
-Willpower
-	The willpower skills greatly boost the power of both Prayers and 
-	Will magic. It is also useful in a variety of other ways, sometimes 
-	providing access to skills, and sometimes affecting your ability 
-	to use certain attacks (e.g. mental attacks, or charm effects).
-	
-Enigmatic Device skills and Gadgeteering
-	Certain powerful devices have the ability to create a variety 
-	of effects. If you have "Gadgeteering" you can use any of these, 
-	or if you have the specific device skill, you can use that device. 
-	"Gadgeteering" is added to the specific device skill to determine 
-	which of these effects you can cast. Enigmatic devices are always 
-	safe to use, the only danger is that sometimes you may fail to 
-	produce the desired effect. Enigmatic devices are such things
-	as the "Utility Bandoleer" or the "Clockwork Carbine".
-	
-Miscellaneous
-	Each of these skills has no tree of its own, but depending 
-	on your class may open up a variety of useful abilities. 
-	
-	Latin: Increases the amount of 'm'agic you can use, can also 
-	open up skills depending on knowledge, such as "Anatomy" 
-	(cause criticals) or "Art Appreciation" (raise sale price/lower 
-	buy price) based off your class.
-	
-	Search: Allows you to discover traps and items hidden in the 
-	dungeon. Always allows access to the "Keen Eyes" skill which 
-	increases the range of your guns by one for every 4 points.
-	
-	Disarm Traps: Allows you to disarm traps. Can also give access 
-	to skills such as "Disable Construct" depending on class.
-	
-	Stealth: Allows you to avoid waking monsters up and reduces 
-	the amount of noise you make. Can open up a variety of special 
-	skills depending on your class.
-
-
+======================================
 === Combinations of Race and Class ===
+======================================
 
 Interesting classes to try are a Giant or Troll Adventurer, or 
 a Ghost Medium. There are many examples of British Gentlemen, 

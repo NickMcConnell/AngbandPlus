@@ -68,7 +68,7 @@ void do_cmd_gain_level(bool train)
 	int mode;
 
 	/* Prompt */
-	prompt = "['g' statgain, 'h' for mode, '2' down, '8' up, +/= to raise or ESC]";
+	prompt = "['g' stat+, 'h' next tab, '2' down, '8' up, + to raise, '?' spoilers or ESC]";
 	
 	/* Menu bars */
 	barg1= "  -------------------------";
@@ -199,21 +199,26 @@ void do_cmd_gain_level(bool train)
 					put_str("!", row+i, col+3);
 				}
 		
-				/* Internal "natural" maximum value */
-				cnv_stat(p_ptr->stat_max[i], buf);
-				c_put_str(TERM_L_GREEN, buf, row+i, col+12);
+				/* 
+					'Old' value - works like this, without storing as stat_use[] values are only modified, 
+					when this screen is exited - show the currnet not the maximum value as the current value is
+					increased also 
+				*/
+				cnv_stat(((p_ptr->stat_use[i])-(p_ptr->stat_add[i] * 10)), buf);    
+				if (p_ptr->stat_use[i] != p_ptr->stat_top[i])
+					c_put_str(TERM_YELLOW, buf, row+(i%3), col+4);
+				else
+					c_put_str(TERM_L_GREEN, buf, row+(i%3), col+4);
 		
-				/* Resulting "modified" maximum value */
-				/* HACK */
-				cnv_stat(((p_ptr->stat_top[i])-(p_ptr->stat_add[i] * 10)), buf);    
-				c_put_str(TERM_L_GREEN, buf, row+i, col+4);
-		
-				/* Only display stat_use if not maximal */
-				if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
-				{
-					cnv_stat(p_ptr->stat_use[i], buf);	
-					c_put_str(TERM_YELLOW, buf, row+i, col+12);
-				}
+				/* 
+					'New' value stat_cur[] is increased when do_raise_stats() is called so this is the 
+					new actual value 
+				*/
+				cnv_stat(p_ptr->stat_cur[i], buf);	
+				if (p_ptr->stat_use[i] != p_ptr->stat_top[i])
+					c_put_str(TERM_YELLOW, buf, row+(i%3), col+12);
+				else
+					c_put_str(TERM_L_GREEN, buf, row+(i%3), col+12);
 			}
 	
 			row = 4;
@@ -246,21 +251,25 @@ void do_cmd_gain_level(bool train)
 					put_str("!", row+(i%3), col+3);
 				}
 		
-				/* Internal "natural" maximum value */
-				cnv_stat(p_ptr->stat_max[i], buf);
-				c_put_str(TERM_L_GREEN, buf, row+(i%3), col+12);
-		
-				/* Resulting "modified" maximum value */
-				/* HACK */
-				cnv_stat(((p_ptr->stat_top[i])-(p_ptr->stat_add[i] * 10)), buf);    
+				/* 
+					'Old' value - works like this, without storing as stat_use[] values are only modified, 
+					when this screen is exited - show the currnet not the maximum value as the current value is
+					increased also 
+				*/
+				cnv_stat(((p_ptr->stat_use[i])-(p_ptr->stat_add[i] * 10)), buf);    
+				if (p_ptr->stat_use[i] != p_ptr->stat_top[i])
+					c_put_str(TERM_YELLOW, buf, row+(i%3), col+4);
+				else
 				c_put_str(TERM_L_GREEN, buf, row+(i%3), col+4);
-		
-				/* Only display stat_use if not maximal */
-				if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
-				{
-					cnv_stat(p_ptr->stat_use[i], buf);	
+				/* 
+					'New' value stat_cur[] is increased when do_raise_stats() is called so this is the 
+					new actual value 
+				*/
+				cnv_stat(p_ptr->stat_cur[i], buf);	
+				if (p_ptr->stat_use[i] != p_ptr->stat_top[i])
 					c_put_str(TERM_YELLOW, buf, row+(i%3), col+12);
-				}
+				else
+					c_put_str(TERM_L_GREEN, buf, row+(i%3), col+12);
 			}
 		}
 		
@@ -411,6 +420,17 @@ void do_cmd_gain_level(bool train)
 		if ((ch == '-') || (ch == '_'))
 		{
 			/* decrement skill - this doesn't ever actually happen */
+		}
+
+		/* This is the code from birth.txt to shoot to a helpfile for skills p_ptr->skills[selected].name*/
+	  if (ch == '?')
+		{
+			strnfmt(buf, sizeof(buf), "%s#%d", "skills.txt", selected);
+
+			screen_save();
+			(void)show_file(buf, NULL, 0, 0);
+			clear_from(0);
+			screen_load();
 		}
 
 		else{}

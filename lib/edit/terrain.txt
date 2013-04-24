@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 
 # 0x00 --> <darkness>
@@ -83,7 +83,7 @@ G:<:w
 
 # 0x10 --> visible trap -- trap door
 
-N:16:Springboard
+N:16:springboard
 G:^:w
 
 # 0x11 --> visible trap -- open pit

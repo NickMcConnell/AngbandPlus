@@ -1504,7 +1504,7 @@ void self_knowledge(void)
 
 
 	/* Get item flags from equipment */
-	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	for (k = INVEN_WIELD; k < INVEN_SUBTOTAL; k++)
 	{
 		u32b t1, t2, t3;
 
@@ -1598,10 +1598,6 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are looking around very carefully.";
 	}
-	if (p_ptr->new_spells)
-	{
-		info[i++] = "You can learn some spells/activations.";
-	}
 	if (p_ptr->word_recall)
 	{
 		info[i++] = "You will soon be recalled.";
@@ -1627,7 +1623,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You have ESP.";
 	}
-	if (p_ptr->see_inv)
+	if (p_ptr->see_inv || p_ptr->tim_invis)
 	{
 		info[i++] = "You can see invisible creatures.";
 	}
@@ -1735,6 +1731,10 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon is especially deadly against beastman.";
 		}
+		if (f1 & (TR1_SLAY_CARDS))
+		{
+			info[i++] = "Your weapon is especially deadly against cards.";
+		}
 	}
 
 
@@ -1840,7 +1840,7 @@ bool lose_all_info(void)
 void set_recall(void)
 {
 	/* Ironman */
-	if (adult_ironman && !p_ptr->total_winner)
+	if ((adult_ironman && !p_ptr->total_winner) || p_ptr->wonderland)
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -3182,7 +3182,7 @@ bool recharge(int num)
 			if (t > 0) o_ptr->pval += 2 + randint(t);
 
 			/* Hack -- we no longer "know" the item */
-			o_ptr->ident &= ~(IDENT_KNOWN);
+			// o_ptr->ident &= ~(IDENT_KNOWN);
 
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->ident &= ~(IDENT_EMPTY);
@@ -3194,13 +3194,20 @@ bool recharge(int num)
 			object_desc(o_name, o_ptr, FALSE, 0);
 
 			/* Identify it */
-			object_known(o_ptr);
+			// object_known(o_ptr);
 
 			/* Message */
+			if (o_ptr->ident & IDENT_KNOWN)
+			{
 			msg_format("You sense %s %s %s %d charges%s.",
 				(item >= 0 ? "your" : "the"),
 				o_name, (plural ? "have" : "has"), o_ptr->pval,
 				((o_ptr->tval == TV_TOOL && plural) ? " each" : ""));
+			}
+			else
+			{
+				msg_format("Your %s has been recharged.", o_name);
+			}
 		}
 	}
 

@@ -69,8 +69,8 @@ void do_cmd_go_up(void)
 		return;
 	}
 
-	/* Hack -- take a turn */
-	p_ptr->energy_use = 100;
+	/* Hack -- take a (partial) turn */
+	p_ptr->energy_use = 25;
 
 	/* Success */
 	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
@@ -117,8 +117,11 @@ void do_cmd_go_down(void)
 			if (!get_check(out_val)) return;
 		}
 
-	/* Hack -- take a turn */
-	p_ptr->energy_use = 100;
+	/* This only works as long as there is no reset recall */
+	if (!p_ptr->max_depth) do_cmd_special_message(ANGBAND_DIR_FILE, "entrance.txt");
+		
+	/* Hack -- take a partial turn */
+	p_ptr->energy_use = 25;
 
 	/* Success */
 	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
@@ -1725,7 +1728,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* XXX XXX XXX Variable power? */
 	/* What's up here??? -CCC */
 	/* Extract trap "power" */
-	power = 5;
+	power = p_ptr->depth / 2;
 
 	/* Extract the difficulty */
 	j = i - power;
@@ -2710,7 +2713,7 @@ void move_player(int dir, int jumping)
 	int y, x;
 	bool p_can_pass_walls = FALSE;
 	bool wall_is_perma = FALSE;
-
+	
 	/* Paranoia */
 	searchfrqchance = 0;
 
@@ -2756,6 +2759,38 @@ void move_player(int dir, int jumping)
 			msg_format("You push past %s.", m_name);
 			monster_swap(py, px, y, x);
 			update_mon(cave_m_idx[y][x], TRUE, FALSE);
+			
+			/* No searching */
+			/* Handle "objects" */
+			py_pickup(jumping != always_pickup);
+			
+			/* Discover invisible traps */
+			if (cave_feat[y][x] == FEAT_INVIS)
+			{
+					/* Disturb */
+					disturb(0, 0);
+
+					/* Message */
+					msg_print("You found a trap!");
+
+					/* Pick a trap */
+					pick_trap(y, x);
+
+					/* Hit the trap */
+					hit_trap(y, x);
+			}
+
+			/* Set off an visible trap */
+			else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		  	       (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+			{
+					/* Disturb */
+					disturb(0, 0);
+
+					/* Hit the trap */
+					hit_trap(y, x);
+			}
+
 		}
 		else
 		/* Attack */
@@ -2770,18 +2805,14 @@ void move_player(int dir, int jumping)
 	         (cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 	         (cave_feat[y][x] <= FEAT_DOOR_TAIL))
 	{
-		/* Not already repeating */
-		if (!p_ptr->command_rep)
+		/* Auto-repeat if not already repeating */
+		if (!p_ptr->command_rep && (p_ptr->command_arg <= 0))
 		{
-			/* Hack -- Optional auto-repeat */
-			if (always_repeat && (p_ptr->command_arg <= 0))
-			{
-				/* Repeat 99 times */
-				p_ptr->command_rep = 99;
+			/* Repeat 99 times */
+			p_ptr->command_rep = 99;
 
-				/* Reset the command count */
-				p_ptr->command_arg = 0;
-			}
+			/* Reset the command count */
+			p_ptr->command_arg = 0;
 		}
 
 		/* Alter */
@@ -2858,7 +2889,8 @@ void move_player(int dir, int jumping)
 
 		/* If you didn't attack, take a turn. */
 		/* This turn was moved from do cmd walk run. */
-		p_ptr->energy_use = 100;
+		/* Why the hell did I move this? */
+		/* p_ptr->energy_use = 100; */
 
 		/* New location */
 		y = py = p_ptr->py;
@@ -3078,12 +3110,12 @@ static void py_pickup_aux(int o_idx)
 	/* Get the object kind. */
 	k_ptr = &k_info[o_ptr->k_idx];
 
-	/* Carry the object */
-	slot = inven_carry(o_ptr);
-
 	/* Make us aware of objects *when we look at them* instead of at generation */
 	/* Unless they are 'hidden' objects with a flavor */
 	if (!k_ptr->flavor) k_ptr->aware = TRUE;
+
+	/* Carry the object */
+	slot = inven_carry(o_ptr);
 
 	/* Get the object again */
 	o_ptr = &inventory[slot];
@@ -3106,6 +3138,8 @@ static void py_pickup_aux(int o_idx)
  */
 void py_pickup(int pickup)
 {
+	char action;
+
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
@@ -3238,11 +3272,33 @@ void py_pickup(int pickup)
 		{
 			char out_val[160];
 			sprintf(out_val, "Pick up %s? ", o_name);
-			if (!get_check(out_val)) continue;
+			/* RMG: new function returning y, n, k or ESC */
+			action = get_pickup_check(out_val);
+		}
+		/* Testing -> currently can't pick up if query flag is off */
+		else py_pickup_aux(this_o_idx);
+
+		if (action == 'y' || action == 'Y')
+		{
+			/* Pick up the object */
+			py_pickup_aux(this_o_idx);
+		}
+		else if (action == 'k' || action == 'K')
+		{
+			/* RMG: item desctruction without item query - destroy query is still asked when verify_destroy is TRUE */
+			do_cmd_destroy(0 - this_o_idx);
+		}
+		else if (action == 'n' || action == 'N' || action == ' ')
+		{
+			/* continue with next item, current item will stay on the ground */
+			continue;
+		}
+		else
+		{
+			/* RMG: ESC will exit loop and stop pickup */
+			break;
 		}
 
-		/* Pick up the object */
-		py_pickup_aux(this_o_idx);
 	}
 
 #ifdef ALLOW_EASY_FLOOR

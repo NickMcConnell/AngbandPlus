@@ -124,6 +124,7 @@ extern s16b monster_level;
 extern char summon_kin_type;
 extern s32b turn;
 extern s32b old_turn;
+extern s16b autosave_freq;
 extern bool use_sound;
 extern bool use_graphics;
 extern s16b image_count;
@@ -361,7 +362,7 @@ extern void do_cmd_equip(void);
 extern void do_cmd_wield(void);
 extern void do_cmd_takeoff(void);
 extern void do_cmd_drop(void);
-extern void do_cmd_destroy(void);
+extern void do_cmd_destroy(int item);
 extern void do_cmd_observe(object_type *o_ptr, bool in_store);
 extern void do_cmd_uninscribe(void);
 extern void do_cmd_inscribe(void);
@@ -388,6 +389,7 @@ extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);
 extern void do_cmd_quest(void);
 extern void do_cmd_load_screen(void);
+extern void do_cmd_special_message(cptr path, cptr file);
 extern void do_cmd_save_screen(void);
 extern void do_cmd_knowledge(void);
 
@@ -446,7 +448,7 @@ extern void do_cmd_help(void);
 extern void process_player_name(bool sf);
 extern void get_name(void);
 extern void do_cmd_suicide(void);
-extern void do_cmd_save_game(void);
+extern void do_cmd_save_game(bool is_autosave);
 extern long total_points(void);
 extern void display_scores(int from, int to);
 extern errr predict_score(void);
@@ -477,7 +479,7 @@ extern errr rd_savefile_new(void);
 /* monattk.c */
 extern bool make_attack_normal(monster_type *m_ptr);
 extern bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px);
-extern void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note);
+extern void mon_take_hit_mon(int m_idx, int dam, cptr note);
 extern bool monst_attack_monst(int m_idx, int t_idx);
 extern s16b get_dam(int av_dam, int control);
 extern void cloud_surround(int r_idx, int *typ, int *dam, int *rad);
@@ -487,7 +489,7 @@ extern void cloud(int m_idx, int typ, int dam, int rad);
 /* monmove.c */
 extern int get_scent(int y, int x);
 extern void remove_expensive_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *f7p);
-extern int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, bool archery_only);
+extern int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, bool archery_only, bool pet);
 extern void remove_useless_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *f7p, bool require_los);
 extern bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok, bool can_dig);
 extern void process_monsters(byte minimum_energy);
@@ -495,7 +497,7 @@ extern bool clean_shot(int y1, int x1, int y2, int x2, bool friend);
 extern void reset_monsters(void);
 
 /* monster1.c */
-extern void screen_roff(int r_idx);
+extern void screen_roff(int r_idx, bool table);
 extern void display_roff(int r_idx);
 extern void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
    bool require_visible);
@@ -630,7 +632,7 @@ extern void combine_pack(void);
 extern void reorder_pack(void);
 extern void display_koff(int k_idx);
 extern void reduce_charges(object_type *o_ptr, int amt);
-
+extern void object_mention(const object_type *o_ptr);
 
 /* pet.c */
 extern void do_cmd_pet(void);
@@ -673,15 +675,16 @@ extern void skill_up(int skill);
 /* spells1.c */
 /* extern s16b poly_r_idx(int r_idx); */
 extern void take_hit(int dam, cptr kb_str, bool wounding);
-extern void fire_dam(int dam, int typ, cptr kb_str);
-extern void earth_dam(int dam, int typ, cptr kb_str);
-extern void air_dam(int dam, int typ, cptr kb_str);
-extern void water_dam(int dam, int typ, cptr kb_str);
-extern void elec_dam(int dam, int typ, cptr kb_str);
-extern void ice_dam(int dam, int typ, cptr kb_str);
-extern void acid_dam(int dam, int typ, cptr kb_str);
-extern void poison_dam(int dam, int typ, cptr kb_str);
+extern bool fire_dam(int dam, int typ, cptr kb_str);
+extern bool earth_dam(int dam, int typ, cptr kb_str);
+extern bool air_dam(int dam, int typ, cptr kb_str);
+extern bool water_dam(int dam, int typ, cptr kb_str);
+extern bool elec_dam(int dam, int typ, cptr kb_str);
+extern bool ice_dam(int dam, int typ, cptr kb_str);
+extern bool acid_dam(int dam, int typ, cptr kb_str);
+extern bool poison_dam(int dam, int typ, cptr kb_str);
 extern void time_dam(int dam, int typ, cptr kb_str);
+extern void automata_equipment_decay(int power);
 extern byte spell_color(int type);
 extern bool apply_disenchant(int mode);
 extern bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
@@ -819,7 +822,7 @@ extern bool device_use_effect(int who, int power, int y, int x,
 extern void teleport_away(int m_idx, int dis);
 extern void thrust_away(int who, int t_y, int t_x, int grids_away);
 extern void teleport_player(int dis);
-extern void teleport_towards(int oy, int ox, int ny, int nx);
+extern void teleport_towards(int oy, int ox, int ny, int nx, bool charge);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_player_level(bool voluntary);
 extern void steam_mecha_drill_level(void);
@@ -907,7 +910,9 @@ extern void clear_from(int row);
 extern bool askfor_aux(char *buf, int len);
 extern bool get_string(cptr prompt, char *buf, int len);
 extern s16b get_quantity(cptr prompt, int max);
-extern bool get_check(cptr prompt);
+extern s16b get_reload(cptr prompt, int max);
+extern char get_check(cptr prompt);
+extern bool get_pickup_check(cptr prompt);
 extern bool get_com(cptr prompt, char *command);
 extern void pause_line(int row);
 extern int get_keymap_dir(char ch);

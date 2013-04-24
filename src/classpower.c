@@ -285,7 +285,7 @@ mind_power mind_powers[10] =
 			{ 4,   4,  45, "Lightning Bolt"},
 			{ 7,   24, 65, "Blizzard"},
 			{ 10,  35, 70, "Earthquake"},
-			{ 13,  60, 65, "Lightning Storm"},
+			{ 13,  85, 65, "Lightning Storm"},
 			{ 15,  80, 65, "Whirlpool"},
 			{ 17,  60, 70, "Lord of the Forest"},
 			{ 20,  50, 70, "Nature's Wrath"},
@@ -407,8 +407,8 @@ void mindcraft_info(char *p, int use_mind, int power)
 				case 6:  break;
 				/* As so. . . */
 				case 7:  strcpy(p, " hit with added stun"); break;
-				case 8:  sprintf(p, " heal %dd%d", officer2, 
-									(officer2 * 4)); break;
+				case 8:  sprintf(p, " heal %dd%d", officer2 / 2, 
+									(officer2 + (p_ptr->lev / 3))); break;
 				case 9:  strcpy(p, " hit attackers"); break;
 				case 10: sprintf(p, " prot. %d + 1d25", 
 									(6 * officer2));  break;
@@ -896,7 +896,7 @@ static int get_class_power(int *sn, int *chnc)
 				prt("", y, x);
 				put_str("Name", y, x + 4);
 
-				put_str(format("Rank   MP Fail Info"), y, x + 34);
+				put_str(format("Rank   SP Fail Info"), y, x + 34);
 			
 				j = 0;
 				for (i = 0; i < MAX_CLASS_POWERS; i++)
@@ -1057,7 +1057,7 @@ static int get_class_power(int *sn, int *chnc)
 static bool cast_officer_spell(int spell)
 {
 	int	dir;
-	int y, x;
+	int y, x, i;
 	int time = randint(20) + 20;
 	int officer, officer2, presense;
 	
@@ -1146,7 +1146,7 @@ static bool cast_officer_spell(int spell)
 		case 8: /* Stiff upper lip */
 				/* Get Healed */
 				(void)hp_player(damroll((officer2 / 2), 
-									(officer2)));
+									(officer2 + (p_ptr->lev / 3))));
 				(void)wp_player(damroll((officer2 / 4) + 1,
 									2));
 
@@ -1161,13 +1161,7 @@ static bool cast_officer_spell(int spell)
 				/* Restore yourself! (powerful!) */
 				if (officer2 > 19)
 				{
-					msg_print("You feel refreshed!");
-					(void)do_res_stat(A_MUS);
-					(void)do_res_stat(A_AGI);
-					(void)do_res_stat(A_VIG);
-					(void)do_res_stat(A_SCH);
-					(void)do_res_stat(A_EGO);
-					(void)do_res_stat(A_CHR);
+					for (i = 0; i < A_MAX; i++) do_res_stat(i);
 				}
 				break;
 				
@@ -2392,12 +2386,15 @@ static bool cast_nature_spell(int spell)
 			x_list[k].time_delay = 0;
 
 			/* Does damage, has a small radius, */
-			x_list[k].power = damroll(4, elemental * 3);
+			x_list[k].power = damroll(4 + (elemental / 5), randint(elemental * 2));
 			if (elemental < 14)  x_list[k].power2 = 2;
 			else x_list[k].power2 = 3;
 
 			/* And lasts for about 10 attacks */
-			x_list[k].lifespan = randint(elemental * 2);
+			/* Sometimes supercharge */
+			if (one_in_(9)) x_list[k].lifespan = 3 + randint(elemental * 2);
+			else x_list[k].lifespan = randint(elemental / 2);
+			
 			break;
 
 	case 18: /* Whirlpool */

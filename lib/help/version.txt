@@ -1,10 +1,51 @@
+=== A Note from the Maintainer ===
+
+Welcome to Steamband 0.4.1
+
+My name is Courtney Campbell, and I have been the maintainer of steamband since
+January 2003.  
+
+Steamband 0.4.0 is available for PPC/68k/OSX Macintosh, with a x86 compile that
+usually is available soon after the Macintosh release.  It is written 
+entirely in C, and the source code is freely available.  Creating a version
+for a new platform involves writing as few as 100 lines of code and recompiling.
+
+steamband 0.4.1 is the most recent version.  It, I am sure, contains 
+many and varied bugs. Please write "valis@oook.cz" with any bugs that you 
+find. Seriously, feel free to contact me at this address with any comments,
+questions, or concerns.
+
+You can email compliments, complaints, suggestions, bug reports, and patches
+to me ("valis@oook.cz"), and you can post interesting experiences and
+basic questions to the newsgroup ("rec.games.roguelike.angband").
+
+You may freely distribute the game, and its source, though you are bound
+not only by the existing copyright notice from 1984, but also whatever
+restrictions may be present on various other pieces of the code, including
+the fact that any source written by me is technically automatically placed
+under copyright and may thus not be used for commercial purposes.  Remember
+to read the "version.txt" help file for some more copyright information.
+
+The basic help files supplied with this game are more or less up to date,
+but when in doubt, you should ask the newsgroup for confirmation.
+
+The documentation is very easy to modify and update, so you may want to
+check in to the ftp site occasionally to see if there are any new help
+files (or spoiler files) for you to acquire.  Note that the spoiler files
+are not distributed with the source since they are so huge, but you can
+obtain them from various places as with the source and executables.  New
+spoiler files may be placed into the "lib/info" directory, or into a user
+specified external directory, to allow access via the "online help" system.
+
+Remember to tell all your friends about how much you like Steamband. . .
+
 === Version Information === 
 
-This file was last updated for Steamband 0.4.0
+This file was last updated for Steamband 0.4.1
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://thangorodrim.angband.org") for the
-most up to date information about Angband. Also visit #angband on WorldIRC 
+most up to date information about Angband. Also visit #music on WorldIRC 
 to talk with the developer. 
 
 Steamband is based off of Vanilla Angband 2.9.3. It will soon be diffed 
@@ -448,6 +489,12 @@ Steamband Version 0.1.0 : 10th January 2003 Courtney C. Campbell
 
 Steamband Version 0.2.0 : 24th January 2003 Courtney C. Campbell
 
+Steamband Version 0.3.0 : 14th June 2003 Courtney C. Campbell
+
+Steamband Version 0.4.0 : 14th February 2005 Courtney C. Campbell
+
+Steamband Version 0.4.1 : 24th December 2007 Courtney C. Campbell
+
 Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
 
 This software may be copied and distributed for educational, research,
@@ -471,5 +518,6 @@ Tom Morton, "Cyric the Mad", Chris Kern, Tim Baker, Jurriaan Kalkman,
 Alexander Wilkins, Mauro Scarpa, John I'anson-Holton, "facade",
 Dennis van Es, Kenneth A. Strom, Wei-Hwa Huang, Nikodemus, Timo Pietilä,
 Greg Wooledge, Keldon Jones, Shayne Steele, Dr. Andrew White, Musus Umbra,
-Jonathan Ellis, Courtney Campbell, Eytan, and "Darkgod"
+Jonathan Ellis, Courtney Campbell, Eytan, RMG, Rob Rowe, R. Dan Henry
+and "Darkgod"
 

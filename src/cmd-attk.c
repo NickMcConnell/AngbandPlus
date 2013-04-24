@@ -26,7 +26,16 @@
 
 #include "angband.h"
 
+/* Order these is in is important, see brands in to_dam_aux */
+#define MODE_MELEE 			 1
+#define MODE_MARTIAL_ARTS 	 2
+#define MODE_SHOOTING 		 3
+#define MODE_THROWING 		 4
 
+/* Three different attack types */
+#define TYPE_EDGED		0
+#define TYPE_BLUNT		1
+#define TYPE_PIERCE		2
 /*
  * Determine if the player "hits" a monster (ranged (firearm) combat).
  *
@@ -102,7 +111,7 @@ sint critical_shot(int weight, int plus, int dam)
 	{
 		punch += p_ptr->skills[SK_MASTER_SHOOTING].skill_rank;
 	}
-	if (p_ptr->skills[SK_CRIT_SHOT].skill_max > 0)
+	if (p_ptr->skills[SK_CRIT_SHOT].skill_max > 1)
 	{
 		punch *= p_ptr->skills[SK_CRIT_SHOT].skill_rank / 2;
 	}
@@ -150,7 +159,7 @@ sint critical_throw(int weight, int plus, int dam)
 	int i, k, punch, critplus, chance;
 	punch = 1;
 	critplus = 1;
-	chance = 5000;
+	chance = 3000;
 
 	if (p_ptr->skills[SK_ADV_THROWING].skill_max > 0)
 	{
@@ -158,9 +167,9 @@ sint critical_throw(int weight, int plus, int dam)
 	}
 	if (p_ptr->skills[SK_MASTER_THROWING].skill_max > 0)
 	{
-		punch += p_ptr->skills[SK_MASTER_THROWING].skill_rank;
+		punch += p_ptr->skills[SK_MASTER_THROWING].skill_rank * 2;
 	}
-	if (p_ptr->skills[SK_CRIT_THROW].skill_max > 0)
+	if (p_ptr->skills[SK_CRIT_THROW].skill_max > 1)
 	{
 		punch *= p_ptr->skills[SK_CRIT_THROW].skill_rank / 2;
 	}
@@ -247,7 +256,7 @@ sint critical_norm(int weight, int plus, int dam, bool martial)
 		}
 		if (p_ptr->skills[SK_CRIT_STRIKE].skill_max > 0)
 		{
-			punch *= p_ptr->skills[SK_CRIT_STRIKE].skill_rank;
+			punch *= (p_ptr->skills[SK_CRIT_STRIKE].skill_rank / 2);
 		}
 		if (p_ptr->skills[SK_CRIT_STRIKE].skill_max > 0)
 		{
@@ -270,27 +279,27 @@ sint critical_norm(int weight, int plus, int dam, bool martial)
 		if (k < 400)
 		{
 		/*	msg_print("It was a good hit!"); */
-			dam = 3 * dam + 15;
+			dam = (2 * dam) + 15;
 		}
-		else if (k < 700)
+		else if (k < 800)
 		{
 		/*	msg_print("It was a great hit!"); */
-			dam = 4 * dam + 20;
+			dam = (3 * dam) + 20;
 		}
-		else if (k < 900)
+		else if (k < 1000)
 		{
 		/*	msg_print("It was a superb hit!"); */
-			dam = 5 * dam + 30;
+			dam = (4 * dam) + 30;
 		}
-		else if (k < 1300)
+		else if (k < 1400)
 		{
 		/*	msg_print("It was a *GREAT* hit!"); */
-			dam = 6 * dam + 40;
+			dam = (5 * dam) + 40;
 		}
 		else
 		{
 		/*	msg_print("It was a *SUPERB* hit!"); */
-			dam = (7 * dam) + 50;
+			dam = (6 * dam) + 50;
 		}
 	}
 
@@ -316,15 +325,16 @@ sint critical_norm(int weight, int plus, int dam, bool martial)
  * sort of a staged step system.
  *
  */
-static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_ptr)
+static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 {
 	int mult = 1;
 	int div = 1;
 	int add = 0;
 	int total;
 	char m_name[80];
-	int pyrokinetics = 0;
-
+	int pyrokinetics, firelore, firemastery;
+	int firebonus = 0;
+	
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
@@ -336,8 +346,19 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
-	if (p_ptr->skills[SK_PYROKINETICS].skill_max > 9)
+	if (p_ptr->skills[SK_PYROKINETICS].skill_max)
 		pyrokinetics = p_ptr->skills[SK_PYROKINETICS].skill_rank;
+	if (p_ptr->skills[SK_FIRE_LORE].skill_max)
+		firelore = p_ptr->skills[SK_FIRE_LORE].skill_rank;
+	if (p_ptr->skills[SK_FIRE_MASTERY].skill_max)
+		firemastery = p_ptr->skills[SK_FIRE_MASTERY].skill_rank;
+
+	if (mode == MODE_MELEE)
+	{
+		if (firelore > 0) firebonus = firelore * 3;
+		if (firemastery > 0) firebonus += firemastery * 2;
+	}
+	else if (mode == MODE_SHOOTING) firebonus = pyrokinetics * 3;
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -363,6 +384,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 35) add = 35;
+				if (mult < 3) mult = 3;
 			}
 
 			/* Slay Evil */
@@ -375,6 +397,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 15) add = 15;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Undead */
@@ -387,6 +410,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 35) add = 35;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Demon */
@@ -399,6 +423,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 35) add = 35;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Automata */
@@ -411,6 +436,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 35) add = 35;
+				if (mult < 3) mult = 3;
 			}
 
 			/* Slay Troll */
@@ -423,6 +449,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 35) add = 35;
+				if (mult < 3) mult = 3;
 			}
 
 			/* Slay Construct */
@@ -435,6 +462,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 35) add = 35;
+				if (mult < 3) mult = 3;
 			}
 
 			/* Slay Dragon */
@@ -447,6 +475,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 35) add = 35;
+				if (mult < 2) mult = 2;
 			}
 			/* Slay Alien */
 			if ((f1 & (TR1_SLAY_ALIEN)) &&
@@ -458,6 +487,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 35) add = 35;
+				if (mult < 2) mult = 2;
 			}
 			/* Slay Beastman */
 			if ((f1 & (TR1_SLAY_BEASTMAN)) &&
@@ -469,18 +499,15 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 				}
 
 				if (add < 35) add = 35;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Beastman */
 			if ((f1 & (TR1_SLAY_CARDS)) &&
 			    (strchr("c", r_ptr->d_char)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags3 |= (RF3_BEASTMAN);
-				}
-
 				if (add < 35) add = 35;
+				if (mult < 2) mult = 2;
 			}
 			/* Brand (Acid) */
 			if (f1 & (TR1_BRAND_ACID))
@@ -501,12 +528,20 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 					{
 						l_ptr->r_flags8 |= (RF8_VUN_ACID);
 					}
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 5) mult = 5;
+					}
 					if (add < 55) add = 55;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 3) mult = 3;
+					}
 					if (add < 35) add = 35;
 				}
 			}
@@ -530,19 +565,26 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 					{
 						l_ptr->r_flags8 |= (RF8_VUN_ELEC);
 					}
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 5) mult = 5;
+					}
 					if (add < 55) add = 55;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 3) mult = 3;
+					}
 					if (add < 35) add = 35;
 				}
 			}
 
 			/* Brand (Fire) */
-			if ((f1 & (TR1_BRAND_FIRE)) ||
-				(pyrokinetics))
+			if (f1 & (TR1_BRAND_FIRE))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
@@ -560,15 +602,21 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 					{
 						l_ptr->r_flags8 |= (RF8_VUN_FIRE);
 					}
-					if ((pyrokinetics) && (add < 55)) add = 55 + pyrokinetics;
-					else if (add < 55) add = 55;
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 5) mult = 5;
+					}
+					if (add < 55) add = 55;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((pyrokinetics) && (add < 35)) add = 35 + pyrokinetics;
-					else if (add < 35) add = 35;
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 3) mult = 3;
+					}
+					if (add < 35) add = 35;
 				}
 			}
 
@@ -591,12 +639,20 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 					{
 						l_ptr->r_flags8 |= (RF8_VUN_ICE);
 					}
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 5) mult = 5;
+					}
 					if (add < 55) add = 55;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 3) mult = 3;
+					}
 					if (add < 35) add = 35;
 				}
 			}
@@ -620,16 +676,53 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 					{
 						l_ptr->r_flags8 |= (RF8_VUN_POIS);
 					}
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 5) mult = 5;
+					}
 					if (add < 55) add = 55;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
+					if (mode >= MODE_SHOOTING) 
+					{
+						if (mult < 3) mult = 3;
+					}
 					if (add < 35) add = 35;
 				}
 			}
 			
+			/* Brand (Fire) */
+			if (firebonus > 0)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_IM_FIRE);
+					}
+				}
+
+				/* Check for vunerablility */
+				else if (r_ptr->flags8 & (RF8_VUN_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags8 |= (RF8_VUN_FIRE);
+					}
+					else if (add < (firebonus * 2)) add = (firebonus * 2);
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (add < firebonus) add = firebonus;
+				}
+			}
+
 			if (r_ptr->flags8 & (RF8_VUN_EDGED))
 			{
 				if (f2 & (TR2_EDGED))
@@ -666,7 +759,8 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
 			break;
 		}
 	}
-	total = tdam + add;
+	total = (tdam + add) * mult;
+	
 	/* Return the total damage */
 	return (total);
 }
@@ -680,7 +774,7 @@ static sint totplus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_
  *
  */
 
-static sint totminus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_ptr, int msg_mode)
+static sint totminus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m_ptr, int msg_mode, int mode)
 {
 	int mult = 1;
 	int div = 1;
@@ -697,52 +791,128 @@ static sint totminus_dam_aux(const object_type *o_ptr, int tdam, monster_type *m
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
-	switch (o_ptr->tval)
+
+	if (mode == MODE_MELEE)
 	{
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DAGGER:
-		case TV_AXES:
-		case TV_BLUNT:
+		switch (o_ptr->tval)
 		{
-			if (r_ptr->flags3 & (RF3_IM_EDGED))
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_DAGGER:
+			case TV_AXES:
+			case TV_BLUNT:
 			{
-				if (f2 & (TR2_EDGED))
+				if (r_ptr->flags3 & (RF3_IM_EDGED))
 				{
-					div = 5;
-					if (msg_mode == 1) msg_format("Your blade glances off %s!", m_name);
-					if (m_ptr->ml)
+					if (f2 & (TR2_EDGED))
 					{
-						l_ptr->r_flags3 |= (RF3_IM_EDGED);
+						if ((f2 & (TR2_PIERCE)) || (f2 & (TR2_BLUNT))) div += 2;
+						else div = 5;
+						if (msg_mode == 1) msg_format("Your blade glances off %s!", m_name);
+						if (m_ptr->ml)
+						{
+							l_ptr->r_flags3 |= (RF3_IM_EDGED);
+						}
 					}
 				}
-			}
-			if (r_ptr->flags3 & (RF3_IM_BLUNT))
-			{
-				if (f2 & (TR2_BLUNT))
+				if (r_ptr->flags3 & (RF3_IM_BLUNT))
 				{
-					div = 5;
-					if (msg_mode == 1) msg_format("Your blow glances off %s!", m_name);
-					if (m_ptr->ml)
+					if (f2 & (TR2_BLUNT))
 					{
-						l_ptr->r_flags3 |= (RF3_IM_BLUNT);
+						if ((f2 & (TR2_PIERCE)) || (f2 & (TR2_EDGED))) div += 2;
+						else div = 5;
+						if (msg_mode == 1) msg_format("Your blow glances off %s!", m_name);
+						if (m_ptr->ml)
+						{
+							l_ptr->r_flags3 |= (RF3_IM_BLUNT);
+						}
 					}
 				}
-			}
-			if (r_ptr->flags3 & (RF3_IM_PIERCE))
-			{
-				if (f2 & (TR2_PIERCE))
+				if (r_ptr->flags3 & (RF3_IM_PIERCE))
 				{
-					div = 5;
-					if (msg_mode == 1) msg_format("Your weapon point glances off %s!", m_name);
-					if (m_ptr->ml)
+					if (f2 & (TR2_PIERCE))
 					{
-						l_ptr->r_flags3 |= (RF3_IM_PIERCE);
+						/* Can we use the weapon a different way? */
+						if ((f2 & (TR2_BLUNT)) || (f2 & (TR2_EDGED))) div = +2;
+						else div = 5;
+						if (msg_mode == 1) msg_format("Your weapon point glances off %s!", m_name);
+						if (m_ptr->ml)
+						{
+							l_ptr->r_flags3 |= (RF3_IM_PIERCE);
+						}
 					}
+				}
+				if (r_ptr->flags2 & (RF2_GASEOUS))
+				{
+						div = 10;
+						if (msg_mode == 1) msg_format("Your blow sweeps through %s!", m_name);
+						if (m_ptr->ml)
+						{
+							l_ptr->r_flags2 |= (RF2_GASEOUS);
+						}
 				}
 			}
 		}
+	}
+	else if (mode == MODE_MARTIAL_ARTS)
+	{
+		if (r_ptr->flags3 & (RF3_IM_BLUNT))
+		{
+				div = 5;
+				if (msg_mode == 1) msg_format("Your blow glances off %s!", m_name);
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags3 |= (RF3_IM_BLUNT);
+					// otherwise this flag will not be noticed 
+					if (r_ptr->flags2 & (RF2_IMPENT))
+						l_ptr->r_flags2 |= (RF2_IMPENT);
+				}
+		}	
+		else if (r_ptr->flags2 & (RF2_IMPENT)) 
+		{
+				div = 5;
+				if (msg_mode == 1) msg_format("Your blow glances off %s!", m_name);
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags2 |= (RF2_IMPENT);
+				}
+		}	
+		if (r_ptr->flags2 & (RF2_GASEOUS))
+		{
+				div = 10;
+				if (msg_mode == 1) msg_format("Your blow sweeps through %s!", m_name);
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags2 |= (RF2_GASEOUS);
+				}
+		}
+
+
+	}
+	else if (mode == MODE_SHOOTING)
+	{
+		if (r_ptr->flags2 & (RF2_IMPENT)) 
+		{
+			div = 5;
+			msg_format("Your shot bounces off %s!", m_name);
+			if (m_ptr->ml)
+			{
+				l_ptr->r_flags2 |= (RF2_IMPENT);
+			}
+		}		
+
+		if (r_ptr->flags2 & (RF2_GASEOUS))
+		{
+				div = 10;
+				if (msg_mode == 1) msg_format("Your blow sweeps through %s!", m_name);
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags2 |= (RF2_GASEOUS);
+				}
+		}
+	
+	
 	}
 	total = tdam / div;
 	/* Return the total damage */
@@ -763,7 +933,7 @@ static int check_hit(int power)
 	/* Percentile dice */
 	k = rand_int(100);
 
-	/* Hack -- 5% hit, 5% miss */
+	/* Hack -- 5% chance of certain hit, 5% chance of certain miss */
 	if (k < 10) return (k < 5);
 
 	/* Total armor */
@@ -803,7 +973,7 @@ void hit_trap(int y, int x)
 			}
 			else
 			{
-				dam = damroll(2, 8);
+				dam = damroll(p_ptr->depth, 8);
 				take_hit(dam, name, TRUE);
 			}
 
@@ -825,7 +995,7 @@ void hit_trap(int y, int x)
 			}
 			else
 			{
-				dam = damroll(2, 6);
+				dam = damroll(p_ptr->depth, 6);
 				take_hit(dam, name, TRUE);
 			}
 			break;
@@ -844,7 +1014,7 @@ void hit_trap(int y, int x)
 			else
 			{
 				/* Base damage */
-				dam = damroll(2, 6);
+				dam = damroll(p_ptr->depth, 6);
 
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
@@ -874,7 +1044,7 @@ void hit_trap(int y, int x)
 			else
 			{
 				/* Base damage */
-				dam = damroll(2, 6);
+				dam = damroll(p_ptr->depth, 6);
 
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
@@ -926,7 +1096,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x06:
 		{
 			msg_print("You are enveloped in flames!");
-			dam = damroll(4, 6);
+			dam = damroll(p_ptr->depth * 2, 6);
 			fire_dam(dam, GF_FIRE, "a fire trap");
 			break;
 		}
@@ -934,14 +1104,14 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x07:
 		{
 			msg_print("You are splashed with acid!");
-			dam = damroll(4, 6);
+			dam = damroll(p_ptr->depth * 2, 6);
 			acid_dam(dam, GF_ACID, "an acid trap");
 			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x08:
 		{
-			if (check_hit(125))
+			if (check_hit(p_ptr->depth * 5))
 			{
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
@@ -957,7 +1127,7 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x09:
 		{
-			if (check_hit(125))
+			if (check_hit(p_ptr->depth * 5))
 			{
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
@@ -973,7 +1143,7 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x0A:
 		{
-			if (check_hit(125))
+			if (check_hit(p_ptr->depth * 5))
 			{
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
@@ -989,7 +1159,7 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x0B:
 		{
-			if (check_hit(125))
+			if (check_hit(p_ptr->depth * 5))
 			{
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
@@ -1046,12 +1216,22 @@ void hit_trap(int y, int x)
 }
 
 
+/*
+	Function performs a natural attack - some of these attacks have side 
+	effects slowing/stunning/poisoning the attacked monster. Natural attacks 
+	have higher chance to hit then melee attacks. Both weapon and martial 
+	skills are used to calculate hit chance and with higher increment values 
+	when in case of melee attacks. 
 
-static void natural_attack(s16b m_idx, int attack, bool *fear)
+	Added return type showing whether the monster was killed by the attack or 
+	not. If the attack type is unknown no attack is made. 
+*/
+bool natural_attack(s16b m_idx, int attack, bool *fear)
 {
 	int         k, bonus, chance;
 	int         n_weight = 0;
-	
+	int					message = 0;
+		
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 	monster_lore *l_ptr;
@@ -1068,74 +1248,75 @@ static void natural_attack(s16b m_idx, int attack, bool *fear)
 			ddd = 7;
 			n_weight = 5;
 			atk_desc = "tail";
-			p_ptr->energy_use = 30;
+			p_ptr->energy_use += 30;
 			break;
 		case MUT4_HORNS:
 			dss = 2;
 			ddd = 6;
 			n_weight = 15;
-			p_ptr->energy_use = 20;
+			p_ptr->energy_use += 20;
 			atk_desc = "horns";
 			break;
 		case MUT4_BEAK:
 			dss = 2;
 			ddd = 4;
 			n_weight = 5;
-			p_ptr->energy_use = 20;
+			p_ptr->energy_use += 20;
 			atk_desc = "beak";
 			break;
 		case MUT4_TUSKS:
 			dss = 2;
 			ddd = 6;
 			n_weight = 30;
-			p_ptr->energy_use = 30;
+			p_ptr->energy_use += 30;
 			atk_desc = "tusks";
 			break;
 		case MUT4_CLAWS:
 			dss = 2;
 			ddd = 3;
 			n_weight = 5;
-			p_ptr->energy_use = 10;
+			p_ptr->energy_use += 10;
 			atk_desc = "claws";
 			break;
 		case MUT4_TENTACLES:
 			dss = 3;
 			ddd = 3;
 			n_weight = 20;
-			p_ptr->energy_use = 40;
+			p_ptr->energy_use += 40;
 			atk_desc = "tentacles";
 			break;
 		case MUT4_ALPHA_SPURS:
 			dss = 3;
 			ddd = 6;
 			n_weight = 20;
-			p_ptr->energy_use = 80;
+			p_ptr->energy_use += 80;
 			atk_desc = "spurs";
 			break;
 		case MUT4_BETA_SPURS:
 			dss = 5;
-			ddd = 9;
+			ddd = 6;
 			n_weight = 80;
-			p_ptr->energy_use = 60;
+			p_ptr->energy_use += 60;
 			atk_desc = "spurs";
 			break;
 		case MUT4_GAMMA_SPURS:
 			dss = 9;
-			ddd = 15;
+			ddd = 6;
 			n_weight = 100;
-			p_ptr->energy_use = 40;
+			p_ptr->energy_use += 40;
 			atk_desc = "spurs";
 			break;
 		case MUT4_DELTA_SPURS:
 			dss = 15;
-			ddd = 30;
+			ddd = 8;
 			n_weight = 400;
-			p_ptr->energy_use = 20;
+			p_ptr->energy_use += 20;
 			atk_desc = "spurs";
 			break;
 		default:
-			dss = ddd = n_weight = 1;
-			atk_desc = "undefined body part";
+			return FALSE;
+/*		dss = ddd = n_weight = 1; */
+/*		atk_desc = "undefined body part"; */	
 	}
 
 
@@ -1179,19 +1360,45 @@ static void natural_attack(s16b m_idx, int attack, bool *fear)
 		chance += p_ptr->skills[SK_ADV_MARTIAL].skill_rank * 4;
 	}
 	
+	/* Some monsters are great at dodging  -EZ- */
+	if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (!m_ptr->csleep) &&
+	    (one_in_(2)) && (r_ptr->d_char == 'G'))
+	{
+			
+			if ((p_ptr->tim_wraith) || (p_ptr->wraith_form) || (p_ptr->blessed))
+			{
+				/* Nothing - Incoperal players can strike at ghosts */
+			}
+			else 
+			{
+				message_format(MSG_MISS, 0, "Your blow passes right through %s!", m_name);
+
+				/* Learn that monster can dodge */
+				l_ptr->r_flags2 |= (RF2_PASS_WALL);
+				return FALSE;
+			}
+	}
+
+	
 	/* Test for hit */
 	if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 	{
 		/* Sound */
 		sound(SOUND_HIT);
 
-		msg_format("You hit %s with your %s.", m_name, atk_desc);
+		/* set the message for the end of the function */
+		/* You hit %s with your %s */
+		message = 0;
+
 
 		k = damroll(ddd, dss);
 		k = critical_norm(n_weight, p_ptr->to_h, k, FALSE);
 
 		/* Apply the player damage bonuses */
 		k += p_ptr->to_d;   
+
+
+
 
 		/* No negative damage */
 		if (k < 1) k = 1;
@@ -1202,12 +1409,38 @@ static void natural_attack(s16b m_idx, int attack, bool *fear)
 			if (turn % 2) k *= 2;
 			else k /= 2;
 		}
+		
+		if (r_ptr->flags3 & (RF3_IM_PIERCE))
+		{
+					
+				k = k/5;
+				message = 1; 
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags3 |= (RF3_IM_PIERCE);
+				}				
+		}
+		
+		if (r_ptr->flags2 & (RF2_GASEOUS))
+		{
+				k = k/10;
+				message = 2; 
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags2 |= (RF2_GASEOUS);
+				}
+		}		
 
 		/* Complex message */
 		if (p_ptr->wizard)
 		{
 			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 		}
+		
+		if (message == 0) msg_format("You hit %s with your %s.", m_name, atk_desc);
+		/* This has subject verb agreement issues. XCCCX */
+		else if (message == 1) msg_format("Your %s glance off %s!", atk_desc, m_name);
+		else if (message == 2) msg_format("Your %s sweep through %s!", atk_desc, m_name);
 
 		/* Damage, check for fear and mdeath */
 		switch (attack)
@@ -1216,57 +1449,40 @@ static void natural_attack(s16b m_idx, int attack, bool *fear)
 			{
 				project(-1, 0, p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx, 
 								k, GF_POISON, PROJECT_KILL, 0, 0);
+				if (m_ptr->hp <= 0)
+					return TRUE;
 				break;
 			}
 			case MUT4_HORNS:
-			{
-				mon_take_hit(m_idx, k, fear, NULL);
-				break;
-			}
 			case MUT4_BEAK:
-			{
-				mon_take_hit(m_idx, k, fear, NULL);
-				break;
-			}
 			case MUT4_TUSKS:
-			{
-				mon_take_hit(m_idx, k, fear, NULL);
-				break;
-			}
 			case MUT4_CLAWS:
+			case MUT4_ALPHA_SPURS:
 			{
-				mon_take_hit(m_idx, k, fear, NULL);
-				break;
+				return mon_take_hit(m_idx, k, fear, NULL);
+				// break;
 			}
 			case MUT4_TENTACLES:
 			{
-				if (mon_take_hit(m_idx, k, fear, NULL)) break;
+				if (mon_take_hit(m_idx, k, fear, NULL)) 
+					return TRUE;
 				project(-1, 0, p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx, 
 									k, GF_SLOW, PROJECT_KILL, 0, 0);
 				break;
 			}
-			case MUT4_ALPHA_SPURS:
-			{
-				mon_take_hit(m_idx, k, fear, NULL);
-				break;
-			}
 			case MUT4_BETA_SPURS:
-			{
-				if (mon_take_hit(m_idx, k, fear, NULL)) break;
-				project(-1, 0, p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx, 
-									k, GF_STUN, PROJECT_KILL, 0, 0);			
-				break;
-			}
 			case MUT4_GAMMA_SPURS:
 			{
-				if (mon_take_hit(m_idx, k, fear, NULL)) break;
+				if (mon_take_hit(m_idx, k, fear, NULL)) 
+					return TRUE;
 				project(-1, 0, p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx, 
 									k, GF_STUN, PROJECT_KILL, 0, 0);			
 				break;
 			}
 			case MUT4_DELTA_SPURS:
 			{
-				if (mon_take_hit(m_idx, k, fear, NULL)) break;
+				if (mon_take_hit(m_idx, k, fear, NULL)) 
+					return TRUE;
 				project(-1, 0, p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx, 
 									k, GF_STUN, PROJECT_KILL, 0, 0);			
 				project(-1, 0, p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx, 
@@ -1275,10 +1491,10 @@ static void natural_attack(s16b m_idx, int attack, bool *fear)
 			}
 			default:
 			{
-				mon_take_hit(m_idx, k, fear, NULL);
-				break;
 			}
 		}
+		// default - it was not the killing blow
+		return FALSE;
 	}
 	/* Player misses */
 	else
@@ -1288,6 +1504,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear)
 
 		/* Message */
 		message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+		return FALSE;
 	}
 }
 
@@ -1304,8 +1521,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear)
  * messages
  */
  
-static void py_attack_msg(char m_name[80], char m_pronoun[80], bool martial, 
-								bool death, bool pierce, int crittrack, 
+static void py_attack_msg(char m_name[80], char m_pronoun[80], bool martial, bool living,
+								bool death, int dam_type, int crittrack, 
 									int forcehits, int blowhits, int damtotal)
 {
 	char damageadj[60]= "";
@@ -1313,112 +1530,16 @@ static void py_attack_msg(char m_name[80], char m_pronoun[80], bool martial,
 	char forceadj[60]= "";
 	char critmsg[60]= "";
 
+	int rand_msg = randint(2);
+
 	/* Message - Perhaps this should be based off of damage */
 	if (blowhits == 0)
 	{
 		/* Message */
 		message_format(MSG_MISS, 0, "You miss %s.", m_name);
 	}
-	else if (martial)
-	{
-		int fha;
-		int rand_msg = randint(3);
-		int rand_strike =  rand_range(-50, 100) + damtotal/10;
-		
-		fha = forcehits / blowhits;
-		if (fha < 1) fha = 1;
-		
-		/* critical tracking */
-		if (crittrack < 50) strcpy(critmsg, "good");
-		else if (crittrack < 100) strcpy(critmsg, "great");
-		else if (crittrack < 150) strcpy(critmsg, "superb");
-		else if (crittrack < 200) strcpy(critmsg, "first-rate");
-		else if (crittrack < 300) strcpy(critmsg, "excellent");		
-		else if (crittrack < 400) strcpy(critmsg, "*GREAT*");
-		else strcpy(critmsg, "*SUPERB*");
-		
-		/* you /forcehits adjective/ /k/ /monstername/ /blowhits adj/ */
-		/* if (death) than above, with 'killing it' */
-		if (fha < 2) 	strcpy(forceadj, " weakly");
-		else if (fha < 3) strcpy(forceadj, "");
-		else if (fha < 4) strcpy(forceadj, " strongly");
-		else if (fha < 5) strcpy(forceadj, " powerfully");
-		else strcpy(forceadj, " devastatingly");
-		
-		if (rand_strike < 31) strcpy(damageadj, "hit");
-		else if (rand_strike < 51) strcpy(damageadj, "punch");
-		else if (rand_strike < 71) strcpy(damageadj, "kick");
-		else if (rand_strike < 91) strcpy(damageadj, "knee strike");
-		else if (rand_strike < 101) strcpy(damageadj, "clobber"); 
-		else if (rand_strike < 151) strcpy(damageadj, "elbow strike");
-		else if (rand_strike < 201) strcpy(damageadj, "jump kick"); 
-		else if (rand_strike < 251) strcpy(damageadj, "circle kick"); 
-		else if (rand_strike < 301) strcpy(damageadj, "Eagle Claw"); 
-		else if (rand_strike < 401) strcpy(damageadj, "flying kick"); 
-		else strcpy(damageadj, "Dragon Fist");
-
-		if (blowhits == 1) strcpy(blowadj, ""); 
-		else if (blowhits == 2 && rand_msg == 2) strcpy(blowadj, "Two"); 
-		else if (blowhits == 2) strcpy(blowadj, " two"); 
-		else if (blowhits == 3 && rand_msg == 2) strcpy(blowadj, "Three"); 
-		else if (blowhits == 3) strcpy(blowadj, " three"); 
-		else if (blowhits == 4 && rand_msg == 2) strcpy(blowadj, "Four"); 
-		else if (blowhits == 4) strcpy(blowadj, " four"); 
-		else if (blowhits == 5 && rand_msg == 2) strcpy(blowadj, "Five"); 
-		else if (blowhits == 5) strcpy(blowadj, " five"); 
-		else if (blowhits == 6 && rand_msg == 2) strcpy(blowadj, "Six"); 
-		else if (blowhits == 6) strcpy(blowadj, " six"); 
-		else if (blowhits == 7 && rand_msg == 2) strcpy(blowadj, "Seven"); 
-		else if (blowhits == 7) strcpy(blowadj, " seven"); 
-		else if (blowhits >= 8 && rand_msg == 2) strcpy(blowadj, "Many"); 
-		else if (blowhits >= 8) strcpy(blowadj, " many"); 
-		
-		/* Note criticals */
-		if (crittrack) message_format(MSG_HIT, 0, "It was a %s %s", 
-							critmsg, ((blowhits == 1) ? "hit." : "sequence of strikes."));
-
-		/* msg type one */
-		if (rand_msg == 1)
-		{
-			/* You strongly bash the chicken five times */
-			if (death) message_format(MSG_HIT, 0, "You%s %s %s%s%s, killing %s.", 
-										forceadj, damageadj, m_name, 
-											blowadj, ((blowhits == 1) ? "" : " times"), m_pronoun);
-			else message_format(MSG_HIT, 0, "You%s %s %s%s%s.",
-								forceadj, damageadj, m_name,
-									 blowadj, ((blowhits == 1) ? "" : " times"));
-		}
-		else if (rand_msg == 2)
-		{
-			if (death)
-			{
-				/* Two blows bash the chicken powerfully, killing it */
-				if (blowhits == 1) message_format(MSG_HIT, 0, "One blow hits %s%s, killing %s.", 
-									m_name, forceadj, m_pronoun);
-				else message_format(MSG_HIT, 0, "%s blows %s %s%s, killing %s.", 
-										blowadj, damageadj, m_name, forceadj, m_pronoun);
-			}
-			else
-			{
-				if (blowhits == 1) message_format(MSG_HIT, 0, "One blow hits %s%s.", 
-									m_name, forceadj);
-				else message_format(MSG_HIT, 0, "%s blows %s %s%s.", 
-										blowadj, damageadj, m_name, forceadj);
-			}
-		}
-		else
-		{
-			/* You *decimate* the chicken */
-			if (death) message_format(MSG_HIT, 0, "You %s %s, killing %s.", 
-									damageadj, m_name, m_pronoun);
-			else message_format(MSG_HIT, 0, "You %s %s.", 
-									damageadj, m_name, m_pronoun);
-		}
-		/* blowhits, forcehits, k, & death */
-	}
 	else 
 	{
-		int rand_msg = randint(3);
 
 		/* critical tracking */
 		if (crittrack < 50) strcpy(critmsg, "good");
@@ -1434,82 +1555,119 @@ static void py_attack_msg(char m_name[80], char m_pronoun[80], bool martial,
 		else if (forcehits < 8) strcpy(forceadj, " strongly");
 		else if (forcehits < 20) strcpy(forceadj, " powerfully");
 		else strcpy(forceadj, " devastatingly");
-		
-		if (damtotal < 21) strcpy(damageadj, "hit");
-		else if (damtotal < 51 && (pierce)) strcpy(damageadj, "poke");
-		else if (damtotal < 51) strcpy(damageadj, "smash");
-		else if (damtotal < 101 && (pierce)) strcpy(damageadj, "stab");
-		else if (damtotal < 101) strcpy(damageadj, "crush");
-		else if (damtotal < 151 && (pierce)) strcpy(damageadj, "pierce");
-		else if (damtotal < 151) strcpy(damageadj, "bash");
-		else if (damtotal < 201 && (pierce)) strcpy(damageadj, "impale");
-		else if (damtotal < 201) strcpy(damageadj, "clobber"); 
-		else if (damtotal < 301 && (pierce)) strcpy(damageadj, "tear");
-		else if (damtotal < 301) strcpy(damageadj, "mangle");
-		else if (damtotal < 501 && (pierce)) strcpy(damageadj, "gouge");
-		else if (damtotal < 501) strcpy(damageadj, "pulverise"); 
-		else if (damtotal < 1001 && (pierce)) strcpy(damageadj, "impale");
-		else if (damtotal < 1001) strcpy(damageadj, "*demolish*"); 
-		else if (damtotal < 4001) strcpy(damageadj, "*decimate*"); 
-		else if (damtotal < 6001) strcpy(damageadj, "*annihilate*"); 
-		else strcpy(damageadj, "atomize");
-
+			
 		if (blowhits == 1) strcpy(blowadj, ""); 
-		else if (blowhits == 2 && rand_msg == 2) strcpy(blowadj, "Two"); 
-		else if (blowhits == 2) strcpy(blowadj, " two"); 
-		else if (blowhits == 3 && rand_msg == 2) strcpy(blowadj, "Three"); 
-		else if (blowhits == 3) strcpy(blowadj, " three"); 
-		else if (blowhits == 4 && rand_msg == 2) strcpy(blowadj, "Four"); 
-		else if (blowhits == 4) strcpy(blowadj, " four"); 
-		else if (blowhits == 5 && rand_msg == 2) strcpy(blowadj, "Five"); 
-		else if (blowhits == 5) strcpy(blowadj, " five"); 
-		else if (blowhits == 6 && rand_msg == 2) strcpy(blowadj, "Six"); 
-		else if (blowhits == 6) strcpy(blowadj, " six"); 
-		else if (blowhits == 7 && rand_msg == 2) strcpy(blowadj, "Seven"); 
-		else if (blowhits == 7) strcpy(blowadj, " seven"); 
-		else if (blowhits >= 8 && rand_msg == 2) strcpy(blowadj, "Many"); 
-		else if (blowhits >= 8) strcpy(blowadj, " many"); 
-		
+		else if (blowhits == 2)(rand_msg == 2)? strcpy(blowadj, "Two"): strcpy(blowadj, " two"); 
+		else if (blowhits == 3)(rand_msg == 2)? strcpy(blowadj, "Three"): strcpy(blowadj, " three"); 
+		else if (blowhits == 4)(rand_msg == 2)? strcpy(blowadj, "Four"): strcpy(blowadj, " four"); 
+		else if (blowhits == 5)(rand_msg == 2)? strcpy(blowadj, "Five"): strcpy(blowadj, " five"); 
+		else if (blowhits == 6)(rand_msg == 2)? strcpy(blowadj, "Six"): strcpy(blowadj, " six"); 
+		else if (blowhits == 7)(rand_msg == 2)? strcpy(blowadj, "Seven"): strcpy(blowadj, " seven"); 
+		else if (blowhits >= 8)(rand_msg == 2)? strcpy(blowadj, "Many"): strcpy(blowadj, " many"); 
+
+		if (martial)
+		{
+//			int fha;
+		//	int rand_msg = randint(3);
+			int rand_strike =  rand_range(-50, 100) + damtotal/10;
+#if 0			
+			fha = forcehits / blowhits;
+			if (fha < 1) fha = 1;
+			/* critical tracking */
+#endif		
+			
+			if (rand_strike < 31) strcpy(damageadj, "hit");
+			else if (rand_strike < 51) strcpy(damageadj, "punch");
+			else if (rand_strike < 71) strcpy(damageadj, "kick");
+			else if (rand_strike < 91) strcpy(damageadj, "knee strike");
+			else if (rand_strike < 101) strcpy(damageadj, "clobber"); 
+			else if (rand_strike < 151) strcpy(damageadj, "elbow strike");
+			else if (rand_strike < 201) strcpy(damageadj, "jump kick"); 
+			else if (rand_strike < 251) strcpy(damageadj, "circle kick"); 
+			else if (rand_strike < 301) strcpy(damageadj, "Eagle Claw"); 
+			else if (rand_strike < 401) strcpy(damageadj, "Flying Kick"); 
+			else strcpy(damageadj, "Dragon Fist");
+
+		}
+		else 
+		{
+			if (damtotal < 21 && dam_type == 2) strcpy(damageadj, "poke");
+			else if (damtotal < 21 && dam_type == 1) strcpy(damageadj, "bash");
+			else if (damtotal < 21) strcpy(damageadj, "scratch");
+			else if (damtotal < 51) strcpy(damageadj, "hit");
+			else if (damtotal < 101 && dam_type == 2) strcpy(damageadj, "stab");
+			else if (damtotal < 101 && dam_type == 1) strcpy(damageadj, "crush");
+			else if (damtotal < 101) strcpy(damageadj, "cut");
+			else if (damtotal < 151 && dam_type == 2) strcpy(damageadj, "jab");
+			else if (damtotal < 151 && dam_type == 1) strcpy(damageadj, "smash");
+			else if (damtotal < 151) strcpy(damageadj, "gash");
+			else if (damtotal < 201 && dam_type == 2) strcpy(damageadj, "pierce");
+			else if (damtotal < 201 && dam_type == 1) strcpy(damageadj, "maul"); 
+			else if (damtotal < 201) strcpy(damageadj, "slash");
+			else if (damtotal < 301 && dam_type == 2) strcpy(damageadj, "tear");
+			else if (damtotal < 301 && dam_type == 1) strcpy(damageadj, "mangle"); 
+			else if (damtotal < 301) strcpy(damageadj, "slice");
+			else if (damtotal < 501 && dam_type == 2) strcpy(damageadj, "gouge");
+			else if (damtotal < 501 && dam_type == 1) strcpy(damageadj, "pulverise"); 
+			else if (damtotal < 501) strcpy(damageadj, "cleave"); 
+			else if (damtotal < 1001 && dam_type == 2) strcpy(damageadj, "*impale*");
+			else if (damtotal < 1001) strcpy(damageadj, "*demolish*"); 
+			else if (damtotal < 3001) strcpy(damageadj, "*eradicate*"); 
+			else if (damtotal < 5001) strcpy(damageadj, "*annihilate*"); 
+			else strcpy(damageadj, "**atomize**");
+		}
 		/* Note criticals */
 		if (crittrack) message_format(MSG_HIT, 0, "It was a %s %s", 
-										critmsg, ((blowhits == 1) ? "hit." : "sequence of hits."));
+			critmsg, ((blowhits == 1) ? "hit." : (martial) ? "sequence of strikes." : "sequence of hits."));
 
 		/* msg type one */
 		if (rand_msg == 1)
 		{
 			/* You strongly bash the chicken five times */
-			if (death) message_format(MSG_HIT, 0, "You%s %s %s%s%s, killing %s.", 
+			if (death) message_format(MSG_HIT, 0, "You%s %s %s%s%s, %s %s.", 
 										forceadj, damageadj, m_name, 
-											blowadj, ((blowhits == 1) ? "" : " times"), m_pronoun);
+										blowadj, ((blowhits == 1) ? "" : " times"), (living)?"killing":"destroying", m_pronoun);
 			else message_format(MSG_HIT, 0, "You%s %s %s%s%s.",
 								forceadj, damageadj, m_name, 
 									blowadj, ((blowhits == 1) ? "" : " times"));
 		}
-		else if (rand_msg == 2)
+		else //if (rand_msg == 2)
 		{
-			if (death)
+			char ending[3] = "";
+			char *location = NULL;
+			// only problematic lines are ending with 'h'-s no 's' ending problems so far
+			if((location = strrchr(damageadj, '*')) != NULL)
 			{
-				/* Two blows bash the chicken powerfully, killing it */
-				if (blowhits == 1) message_format(MSG_HIT, 0, "One blow hits %s%s, killing %s.", 
-									m_name, forceadj, m_pronoun);
-				else message_format(MSG_HIT, 0, "%s blows %s %s%s, killing %s.", 
-										blowadj, damageadj, m_name, forceadj, m_pronoun);
+				strcpy(ending, ""); 
+			}
+			else if ((location = strrchr(damageadj, 'h')) != NULL)
+			{
+				if (strlen(location) == 1)
+				{
+					strcpy(ending, "es"); 
+				}
+				else strcpy(ending, "s"); 
 			}
 			else
 			{
-				if (blowhits == 1) message_format(MSG_HIT, 0, "One blow hits %s%s.", 
-									m_name, forceadj);
+				strcpy(ending, "s"); 
+			}
+
+			if (death)
+			{
+				/* Two blows bash the chicken powerfully, killing it */
+				if (blowhits == 1) message_format(MSG_HIT, 0, "One blow %s%s %s%s, %s %s.", 
+									damageadj, ending, m_name, forceadj, (living)?"killing":"destroying", m_pronoun);
+				else message_format(MSG_HIT, 0, "%s blows %s %s%s, %s %s.", 
+					blowadj, damageadj, m_name, forceadj, (living)?"killing":"destroying", m_pronoun);
+			}
+			else
+			{
+				if (blowhits == 1) message_format(MSG_HIT, 0, "One blow %s%s %s%s.", 
+									damageadj, ending, m_name, forceadj);
 				else message_format(MSG_HIT, 0, "%s blows %s %s%s.", 
 										blowadj, damageadj, m_name, forceadj);
 			}
-		}
-		else
-		{
-			/* You *decimate* the chicken */
-			if (death) message_format(MSG_HIT, 0, "You %s %s, killing %s.", 
-									damageadj, m_name, m_pronoun);
-			else message_format(MSG_HIT, 0, "You %s %s.", 
-									damageadj, m_name, m_pronoun);
 		}
 	}
 }
@@ -1533,8 +1691,9 @@ static void py_attack_msg(char m_name[80], char m_pronoun[80], bool martial,
 void py_attack(int y, int x, int mode)
 {
 	/* Function Variables */
-	int noise, k, bonus, chance, force, forcechance;
+	int noise, k, bonus, chance, force, forcechance, attk_mode;
 	int critplus, weightplus;
+	int nat_attack = 1;
 	/* Skills */
 	int accstrike, tohit, martialtohit, intermartial, advmartial;
 	int intercombat, advcombat, mastercombat;
@@ -1545,7 +1704,7 @@ void py_attack(int y, int x, int mode)
 	int totalmartial, totaltohit, totaltheft;
 	int disable_machine, spirit_infusion;
 	int sabotage, anatomy, theology, assassination;
-	int theft, mastertheft, firelore;
+	int theft, mastertheft;
 	
 	/* Tracking */
 	int dammult = 4;
@@ -1567,11 +1726,12 @@ void py_attack(int y, int x, int mode)
 
 	bool fear = FALSE;	
 	bool do_quake = FALSE;
-	bool no_extra = FALSE;
 	bool martial = FALSE;
 	bool death = FALSE;
-	bool pierce = FALSE;
+	bool living = TRUE;
 	bool sleeper = FALSE;
+	/* Three different damage types - Assume Edged */ 
+	int damage_type = TYPE_EDGED;
 
 	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
@@ -1588,7 +1748,7 @@ void py_attack(int y, int x, int mode)
 	totalmartial = totaltohit = totaltheft = 0;
 	disable_machine = spirit_infusion = 0;
 	sabotage = anatomy = theology = assassination = 0;
-	theft = mastertheft = firelore = 0;
+	theft = mastertheft = 0;
 	critplus = weightplus = 0;
 	
 	/* assign the skill values */
@@ -1656,12 +1816,10 @@ void py_attack(int y, int x, int mode)
 		theft = p_ptr->skills[SK_THEFT].skill_rank;
 	if (p_ptr->skills[SK_MASTER_THEFT].skill_max > 0)
 		mastertheft = p_ptr->skills[SK_MASTER_THEFT].skill_rank;
-	if (p_ptr->skills[SK_FIRE_LORE].skill_max > 1)
-		firelore = p_ptr->skills[SK_FIRE_LORE].skill_rank;
 		
 	/* Total melee, theft, & martial numbers */
 	totalmartial = tohit + martialtohit + intermartial + advmartial;
-	totaltohit = tohit +intercombat + advcombat + mastercombat;
+	totaltohit = tohit + intercombat + advcombat + mastercombat;
 	totaltheft = theft + mastertheft;
 	
 	/* Disturb the player */
@@ -1685,6 +1843,9 @@ void py_attack(int y, int x, int mode)
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 
+	/* Some monsters get "destroyed" */
+	if (monster_nonliving(r_ptr))	living = FALSE;
+
 	/* Handle player fear */
 	if (p_ptr->afraid)
 	{
@@ -1699,7 +1860,12 @@ void py_attack(int y, int x, int mode)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Find out if we're using martial arts */
-	if (!o_ptr->k_idx) martial = TRUE;
+	if (!o_ptr->k_idx) 
+	{
+		martial = TRUE;
+		attk_mode = MODE_MARTIAL_ARTS;
+	}
+	else attk_mode = MODE_MELEE;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -1714,15 +1880,23 @@ void py_attack(int y, int x, int mode)
 		return;
 	}
 	
-	/* Determine piercing for msg code */
-	if (f2 & (TR2_PIERCE)) pierce = TRUE;
+	/* Determine weapon type for attack message code */
+	if (f2 & (TR2_PIERCE)) damage_type = TYPE_PIERCE;
+	else if (f2 & (TR2_BLUNT)) damage_type = TYPE_BLUNT;
 	
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h + o_ptr->to_h;
 
 	/* add in the accurate strike skill to the bonus */
 	if (accstrike && !martial) bonus += accstrike;
-	if (bonus < 0) bonus = 0;
+
+	/* Weapon penalty bonus is allowed to be less than 0 */
+	if (o_ptr->to_h < 0) 
+	{
+			/* nothing */
+	}
+	/* otherwise, reduce frustration */
+	else if (bonus < 0) bonus = 0;
 	
 	/* Calculate the chance to hit */
 	chance = 1;
@@ -1769,7 +1943,7 @@ void py_attack(int y, int x, int mode)
 		    (one_in_(2)) && (r_ptr->d_char == 'G') && (!(f2 & (TR2_BLESSED))))
 		{
 			
-			if ((p_ptr->tim_wraith) || (p_ptr->wraith_form))
+			if ((p_ptr->tim_wraith) || (p_ptr->wraith_form) || (p_ptr->blessed))
 			{
 				/* Nothing - Incoperal players can strike at ghosts */
 			}
@@ -1782,6 +1956,7 @@ void py_attack(int y, int x, int mode)
 				break;
 			}
 		}
+	
 
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
@@ -1802,25 +1977,24 @@ void py_attack(int y, int x, int mode)
 				}
 				if (intermartial)
 				{
-					/* Increase the attack dice  to 11d24 */
-					die1 += intermartial / 4;
-					die2 += intermartial / 2;
+					/* Increase the attack dice  to 6d21 */
+					die1 += intermartial / 5;
+					die2 += (intermartial + 1) / 3;
 				}
 				if (advmartial)
 				{
-					/* Increase the attack dice to 11d44 */
-					die2 += advmartial;
+					/* Increase the attack dice to 6d41 */
+					die2 += 2 + (advmartial / 2);
 				}
 				
 				/* These formulas should take into account MUS and AGI */
-				/* And player weight/size */
-				/* Increase criticals */
-				if (randint(160) < randint(totalmartial)) 
+				/* Possibly increase Criticals */
+				if (randint(640) < randint(totalmartial)) 
 					critplus = randint(totalmartial / 2) * randint(totalmartial / 10);
 				else critplus = 1;
 				
-				/* increase criticals */
-				if (randint(160) < randint(totalmartial))
+				/* Possibly increase weight */
+				if (randint(640) < randint(totalmartial))
 					weightplus = randint(totalmartial / 2) * randint(totalmartial / 8);			
 				else weightplus = 1;
 				
@@ -1828,7 +2002,7 @@ void py_attack(int y, int x, int mode)
 				k = damroll(die1, die2);
 				
 				/* Successive martial hits do more damage */
-				k =  ((k * blowhits) / 2);
+				k =  ((k * (blowhits + 1)) / 3);
 			}
 			
 			/* Handle normal weapon */
@@ -1844,7 +2018,7 @@ void py_attack(int y, int x, int mode)
 				else weightplus = o_ptr->weight;
 	
 				/* vorpal flag increases critical plus */
-				if (f2 & (TR2_VORPAL)) critplus = o_ptr->to_h + rand_range(450, 900);
+				if (f2 & (TR2_VORPAL)) critplus = o_ptr->to_h + rand_range(250, 400);
 				else critplus = o_ptr->to_h;
 				if (haftedmaster && o_ptr->tval == TV_HAFTED) critplus += (10 * haftedmaster);
 				else if (polearmmaster && o_ptr->tval == TV_POLEARM) critplus += (10 * polearmmaster);
@@ -1867,7 +2041,7 @@ void py_attack(int y, int x, int mode)
 				mode = 0;
 				
 				/* check for critical */
-				k = critical_norm(weightplus + 400, critplus + rand_range(450, 900), k * 5, martial);
+				k = critical_norm(weightplus + 400, critplus + rand_range(450, 900), k * 3, martial);
 				
 				/* Track Criticals */
 				if (k > oldk) crittrack += k - oldk;
@@ -1878,21 +2052,19 @@ void py_attack(int y, int x, int mode)
 
 				if ((anatomy) && (!(monster_nonliving(r_ptr))))
 				{
-					if (rand_int(40) < anatomy)
+					if (rand_int(320) < anatomy)
 					{
-						weightplus += 20 * (anatomy);
-						critplus += rand_range(250, 400);
-						if (anatomy > 3) k = k * (anatomy / 4);
+						weightplus += 10 * (randint(anatomy));
+						critplus += rand_range(50, 100);
 					}
 				}				
 
 				if ((sabotage) && (monster_automata(r_ptr)))
 				{
-					if (rand_int(40) < sabotage)
+					if (rand_int(160) < sabotage)
 					{
-						weightplus += 20 * (sabotage);
-						critplus += rand_range(250, 400);
-						if (sabotage > 3) k = k * (sabotage / 4);
+						weightplus += 10 * (randint(sabotage));
+						critplus += rand_range(50, 100);
 					}
 				}				
 				
@@ -1909,25 +2081,16 @@ void py_attack(int y, int x, int mode)
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
 			
-			k = totplus_dam_aux(o_ptr, k, m_ptr);
-			
-			/* Apply the vicious strike bonuses */
-			/* Note does not apply to martial attacks */
-			if (vicious && !martial) k += vicious;
-
-			/* Apply the dirty fighting bonuses */
-			/* Note applies to martial attacks */
-			if (dirty) k += damroll((dirty / 4) + 1, 6);
 			
 			/* handle the force of the weapon */
-			/* if you have a good weapons skill, you can get these (effective) extra blows */
-			if (o_ptr->force > 0)
+			/* if you have a good weapon, you can get these (effective) extra blows */
+			if ((o_ptr->force > 0) || (f1 & (TR1_BRAND_FORCE)) || (p1 & (TR1_BRAND_FORCE)))
 			{
 				int forcevalue = o_ptr->force;
 
 				/* forcechance is raised later */
 				forcechance = chance;
-				dammult = 4;
+				dammult = 3;
 				
 				
 				/* Powerstrike increases force strike*/
@@ -1944,6 +2107,14 @@ void py_attack(int y, int x, int mode)
 					forcechance += 10;
 					dammult +=1;
 				}
+				if ((anatomy > 1) && (!(monster_nonliving(r_ptr))))
+				{
+					dammult += (anatomy / 5);
+				}
+				if ((sabotage > 1) && (monster_automata(r_ptr)))
+				{
+					dammult += (sabotage / 4);
+				}
 				for (force = 0; force < forcevalue; force++)
 				{
 					if (test_hit_norm(forcechance, (r_ptr->ac + (r_ptr->level * 2) + 
@@ -1954,9 +2125,9 @@ void py_attack(int y, int x, int mode)
 						
 						/* Increase the damage mutipler */
 						dammult++;
-						
+					
 						/* this code is to see how often the extra force hits hit */
-						if (p_ptr->wizard)  msg_format("force #%d hits", force);			
+						if (p_ptr->wizard)  msg_format("force #%d hits", forcehits);			
 					}
 				}
 			}
@@ -1967,24 +2138,30 @@ void py_attack(int y, int x, int mode)
 			{
 				dammult += randint(assassination) * randint(4);
 			}
+
+			if (p_ptr->wizard)  msg_format("k: %d", k);			
+			if (p_ptr->wizard)  msg_format("dammult: %d", dammult);			
+
 			/* damnult is 4 and increases by 1 for each force blow */
 			/* Each successful force blow is a 25% increase in damage */
 			k *= dammult;
 
-			/* divide the new k(damage total) by four to increase damage */
+			/* divide the new k(damage total) by three to increase damage */
 			k /= 4;
 
-			if (martial) 
-			{
-				/* nothing -- should put bare hand special situation code here */
-				if (spirit_infusion) k += (spirit_infusion * 2);
-			}
-			/* modify damage */
-			else 
-			{
-				k = totminus_dam_aux(o_ptr, k, m_ptr, blowhits);
-				if (spirit_infusion) k += (spirit_infusion);
-			}
+			k = totplus_dam_aux(o_ptr, k, m_ptr, MODE_MELEE);
+			
+			/* Apply the vicious strike bonuses */
+			/* Note does not apply to martial attacks */
+			if (vicious && !martial) k += vicious;
+
+			/* Apply the dirty fighting bonuses */
+			/* Note applies to martial attacks */
+			if (dirty) k += damroll((dirty / 4) + 1, 6);
+
+			k = totminus_dam_aux(o_ptr, k, m_ptr, blowhits, attk_mode);
+
+			if (spirit_infusion) k += (spirit_infusion);
 			
 			/* No negative damage */
 			if (k < 1) k = 1;
@@ -2014,15 +2191,19 @@ void py_attack(int y, int x, int mode)
 				/* Maybe I should replace this with a log function? */
 				noise += 901 - (p_ptr->skill_stl * 30);
 				
+				if (noise < 0) noise = 0;
+
 				if (martial) noise /= 2;
 	
 				/* Increase the noise level */
 				add_wakeup_chance += noise;
 			}
+			
 					
 			/* This battle message code should be moved to it's own function */
-			if (k > m_ptr->hp) py_attack_msg(m_name, m_pronoun, martial, death, pierce, crittrack, 
-													forcehits, blowhits, damtotal);
+			if (k > m_ptr->hp) py_attack_msg(m_name, m_pronoun, martial, living,
+												TRUE, damage_type, crittrack, 
+												forcehits, blowhits, damtotal);
 
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) 
@@ -2078,20 +2259,13 @@ void py_attack(int y, int x, int mode)
 				GF_STUN, 0L, 0);
 			}
 			
-			if ((!death) && (randint(18) < knockdown))
+			if ((!death) && (randint(30) < knockdown))
 			{
 				/* Stun the monster */
 				project_ball(-1, 0, p_ptr->py, p_ptr->px, y, x, k,
 				GF_STUN, 0L, 0);
 			}
-			
-			if ((!death) && firelore > 1)
-			{
-				int burn = damroll(6, (firelore / 2));
-				project_ball(-1, 0, p_ptr->py, p_ptr->px, y, x, burn,
-						GF_FIRE, PROJECT_HIDE, 0);
-			}
-		
+					
 			if ((!death) && (disable_machine) && 
 				((r_ptr->flags3 & (RF3_AUTOMATA)) || 
 				 (r_ptr->flags3 & (RF3_CONSTRUCT))))
@@ -2127,11 +2301,27 @@ void py_attack(int y, int x, int mode)
 		}
 	}
 	
-	if (!death) py_attack_msg(m_name, m_pronoun, martial, death, pierce, crittrack, 
-													forcehits, blowhits, damtotal);
+	if (!death) py_attack_msg(m_name, m_pronoun, martial, living, 
+								death, damage_type, crittrack, 
+								forcehits, blowhits, damtotal);
 	
 	/* Mutations which yield extra 'natural' attacks */
-	if ((!no_extra) && (!death))
+	if (!death)
+	{
+		for (nat_attack; nat_attack < MUT4_DELTA_SPURS + 1; nat_attack = nat_attack << 1)
+		{
+			if(p_ptr->muta4 & nat_attack)
+			{
+				if (natural_attack(cave_m_idx[y][x], nat_attack, &fear))
+				{
+					death = TRUE;
+					break;
+				}
+			}
+		}
+	}
+/*
+//	if ((!no_extra) && (!death))
 	{
 		if ((p_ptr->muta4 & MUT4_HORNS) && (m_ptr->hp > 0))
 			natural_attack(cave_m_idx[y][x], MUT4_HORNS, &fear);
@@ -2154,7 +2344,6 @@ void py_attack(int y, int x, int mode)
 		if ((p_ptr->muta4 & MUT4_DELTA_SPURS) && (m_ptr->hp > 0))
 			natural_attack(cave_m_idx[y][x], MUT4_DELTA_SPURS, &fear);
 	}
-	
 	if (m_ptr->hp <= 0) death = TRUE;
 
 	/* Knockback effects */
@@ -2317,8 +2506,6 @@ void do_cmd_fire(int gun_kata)
 	int path_n;
 	u16b path_g[256];
 
-	cptr q, s;
-
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor * 2;
 
 	keeneyes = anatomy = sabotage = rifle = pistol = shotgun = 0;
@@ -2367,12 +2554,13 @@ void do_cmd_fire(int gun_kata)
 	}
 
 	/* Require proper missile */
-	item_tester_tval = p_ptr->ammo_tval;
+	/* item_tester_tval = p_ptr->ammo_tval; */
 
+#if 0
 	/* Get an item */
 	q = "Fire which item? ";
 	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR))) return;
 
 	/* Get the object */
 	if (item >= 0)
@@ -2383,7 +2571,22 @@ void do_cmd_fire(int gun_kata)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+#endif
+	item = INVEN_LOADEDGUN;
+	o_ptr = &inventory[item];
+	
+	if (!o_ptr->k_idx) 
+	{
+		msg_print("Your firearm is empty!");
+		return;
+	}
 
+	if (cursed_p(o_ptr))
+	{
+		msg_format("Click! Your gun has jammed.");
+		return;
+	}
+	
 	if (o_ptr->number < gun_kata) 
 	{
 		msg_format("You don't have enough ammo (%d shots).", gun_kata);
@@ -2470,7 +2673,7 @@ void do_cmd_fire(int gun_kata)
 		thits = p_ptr->num_fire;
 	
 		/* Base damage from thrown object plus launcher bonus */
-		tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d + vicious + (pyrokinetics/2); 
+		tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d + vicious; 
 	
 		/* Actually "fire" the object */
 		bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
@@ -2480,6 +2683,14 @@ void do_cmd_fire(int gun_kata)
 		{
 			bonus += accurate;
 		}
+	
+		/* Weapon bonus penalty is allowed to be less than 0 */
+		if ((i_ptr->to_h < 0) || (j_ptr->to_h < 0)) 
+		{
+			/* nothing */
+		}
+		/* Make steam not frustrating */
+		else if (bonus < 0) bonus = 0;
 	
 		chance = ((tohitshoot * 5) + (bonus * BTH_PLUS_ADJ));
 	
@@ -2494,84 +2705,13 @@ void do_cmd_fire(int gun_kata)
 		/* Assume a base multiplier */
 		tmul = p_ptr->ammo_mult;
 	
-		/* Boost the damage */
-		tdam *= tmul;
 	
 		/* Base / default range */
 		tdis = 5;
 	
-		
-		/* Gotten based off the sval of the weapon. */
-		switch (j_ptr->sval)
-		{
-			/* Pistol */
-			case SV_DERRINGER:
-			{
-				tdis = 2;
-				break;
-			}
-			case SV_32_REVOLVER:
-			case SV_38_REVOLVER:
-			case SV_41_REVOLVER:
-			case SV_45_REVOLVER:
-			{
-				tdis = 6;
-				break;
-			}
-			case SV_22_BOLT_ACTION:
-			{
-				tdis = 10;
-				break;
-			}
-			/* Light Rifle */
-			case SV_30_LEVER_ACTION:
-			{
-				tdis = 14;
-				break;
-			}
-			/* Heavy Rifle */
-			case SV_45_MARTINI_HENRY:
-			case SV_COL_MORAN:
-			case SV_303_LEE_ENFIELD:
-			case SV_ELEPHANT_GUN:
-			{
-				tdis = 14;
-				break;
-			}
-			/* Light Shotgun */
-			case SV_20_GAGUE:
-			{
-				tdis = 10;
-				degree = 10;
-				break;
-			}
-			case SV_SAWED_OFF:
-			{
-				tdis = 6;
-				degree = 45;
-				break;
-			}
-			/* Heavy Shotgun */
-			case SV_16_GAGUE:
-			{
-				tdis = 8;
-				degree = 15;
-				break;
-			}
-			case SV_12_GAGUE:
-			{
-				tdis = 6;
-				degree = 25;
-				break;
-			}
-			case SV_10_GAGUE:
-			{
-				tdis = 4;
-				degree = 35;
-				break;
-			}
-			break;	
-		}
+		/* Range & spread of shotguns */
+		tdis = j_ptr->range;
+		degree = j_ptr->degree;		
 		
 		/* add in the keen eyes skill */
 		tdis += keeneyes;
@@ -2590,7 +2730,7 @@ void do_cmd_fire(int gun_kata)
 		else
 		{
 			/* Take a (partial) turn */
-			p_ptr->energy_use = (100 / thits);
+			p_ptr->energy_use = (100 / thits) + randint(25);
 		}
 	
 		
@@ -2611,10 +2751,13 @@ void do_cmd_fire(int gun_kata)
 		add_wakeup_chance += noise;
 		
 		/* Hack -- shotguns go BOOM */
-		if (i_ptr->tval == TV_SHOT && i_ptr->sval == SV_AMMO_NORMAL)
+		if (i_ptr->tval == TV_SHOT && i_ptr->sval == SV_AMMO_BSHOT)
 		{
-			fire_arc(GF_SHOT, dir, tdam, tdis, degree);
-			if (pyrokinetics >= 20) fire_arc(GF_FIRE, dir, 50, tdis, degree);
+			/* Boost the damage (Boosts damage for arcs only) */
+			tdam *= tmul;
+
+			if (pyrokinetics) fire_arc(GF_PYRO_SHOT, dir, tdam, tdis, degree);
+			else fire_arc(GF_SHOT, dir, tdam, tdis, degree);
 			break;
 		}
 		
@@ -2641,15 +2784,6 @@ void do_cmd_fire(int gun_kata)
 				Term_xtra(TERM_XTRA_DELAY, msec);
 				lite_spot(y, x);
 				if (fresh_before) Term_fresh();
-				if (pyrokinetics >= 20)
-				{
-					print_rel(missile_char, TERM_RED, y, x);
-					move_cursor_relative(y, x);
-					if (fresh_before) Term_fresh();
-					Term_xtra(TERM_XTRA_DELAY, msec);
-					lite_spot(y, x);
-					if (fresh_before) Term_fresh();
-				}
 			}
 	
 			/* Delay anyway for consistency */
@@ -2694,10 +2828,7 @@ void do_cmd_fire(int gun_kata)
 					cptr note_dies = " dies.";
 	
 					/* Some monsters get "destroyed" */
-					if ((r_ptr->flags3 & (RF3_DEMON)) ||
-					    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-					    (r_ptr->flags2 & (RF2_STUPID)) ||
-					    (strchr("Evg", r_ptr->d_char)))
+					if (monster_nonliving(r_ptr))
 					{
 						/* Special note at death */
 						note_dies = " is destroyed.";
@@ -2727,35 +2858,37 @@ void do_cmd_fire(int gun_kata)
 					
 					if ((anatomy) && (!(monster_nonliving(r_ptr))))
 					{
-						if (rand_int(40) < anatomy)
+						if (rand_int(320) < anatomy)
 						{
-							weightplus += 40 * (anatomy);
-							critplus += rand_range(450, 900);
-							if (anatomy > 3) tdam = tdam * (anatomy / 4);
+							weightplus += 20 * (randint(anatomy));
+							critplus += rand_range(150, 300);
+							if (anatomy > 9) tmul += (anatomy / 10);
 						}
 					}				
 	
 					if ((sabotage) && (monster_automata(r_ptr)))
 					{
-						if (rand_int(40) < sabotage)
+						if (rand_int(160) < sabotage)
 						{
-							weightplus += 40 * (sabotage);
-							critplus += rand_range(450, 900);
-							if (sabotage > 3) tdam = tdam * (sabotage / 4);
+							weightplus += 20 * (randint(sabotage));
+							critplus += rand_range(150, 300);
+							if (sabotage > 4) tmul += (sabotage / 5);
 						}
 					}				
 					
 	
-					/* Apply special damage  */
-					tdam = totplus_dam_aux(i_ptr, tdam, m_ptr);
+					/* Boost the damage */
+					tdam *= tmul;
+
+					/* Apply special damages */
+					tdam = totplus_dam_aux(i_ptr, tdam, m_ptr, MODE_SHOOTING);
+					tdam = totminus_dam_aux(i_ptr, tdam, m_ptr, 0, MODE_SHOOTING);
 					tdam = critical_shot(i_ptr->weight + weightplus, 
 											i_ptr->to_h + critplus, tdam);
 	
 					/* No negative damage */
 					if (tdam < 0) tdam = 0;
-					
-					if (pyrokinetics >= 20) tdam += 50;
-					
+										
 					/* Complex message */
 					if (p_ptr->wizard)
 					{
@@ -2790,6 +2923,10 @@ void do_cmd_fire(int gun_kata)
 					}
 					
 					
+				}
+				else
+				{
+					msg_format("The %s misses %s.", o_name, (m_ptr->ml)? m_name: "something");
 				}
 				/* Stop looking */
 				break;
@@ -2973,6 +3110,8 @@ void do_cmd_throw(void)
 	{
 		tdam = (damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d) * (powerthrow / 3 + 1);
 	}
+	
+	
 	else tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;	
 	
 	if (f2 & (TR2_THROW))
@@ -2984,7 +3123,7 @@ void do_cmd_throw(void)
 	else
 	{
 		/* Non throwing weapons do a fraction of their damage */
-		tdam = tdam/10;
+		tdam = tdam/2;
 	}
 
 	/* Weapons that aren't throwing weapons don't do a lot of damage */
@@ -3006,7 +3145,7 @@ void do_cmd_throw(void)
 	/* Accuracy is added to the to hit bonuses, and ergo mutiplied by BTH_PLUS_ADJ */
 	if (accthrow)
 	{
-		bonus += accthrow;
+		bonus += (accthrow * 4);
 	}
 
 	/* Base chance to hit */
@@ -3014,7 +3153,7 @@ void do_cmd_throw(void)
 
 	/* Additional chance to hit based off of higher level skills */
 	if (advthrow) chance += advthrow * 6;
-	if (masterthrow) chance += masterthrow * 5;
+	if (masterthrow) chance += masterthrow * 4;
 	if (hafted && o_ptr->tval == TV_HAFTED) chance += hafted * 4;
 	if (haftedmaster && o_ptr->tval == TV_HAFTED) chance += haftedmaster * 6;
 	if (dagger && o_ptr->tval == TV_DAGGER) chance += dagger * 4;
@@ -3031,6 +3170,8 @@ void do_cmd_throw(void)
 	
 	/* If barehanded, gain mutiple throws */
 	if (!j_ptr->k_idx) p_ptr->energy_use = 100 / p_ptr->num_blow;
+	
+	/* Maybe throwing should not be affected if weilding a spellbook */
 
 	/* If weilding a weapon, throwing is slow */
 	else p_ptr->energy_use = 100;
@@ -3172,8 +3313,9 @@ void do_cmd_throw(void)
 					if (f2 & (TR2_PERFECT_BALANCE)) weight = i_ptr->weight * rand_range(2, 12);
 					else weight = i_ptr->weight * 2;
 				}
+				else weight = i_ptr->weight;
 				
-				if (critthrow > 0) weight *= (critthrow/2);
+				if (critthrow > 1) weight *= (critthrow/2);
 
 				/* as with melee hit, weapon masterty skill increases critical hit chance */
 				/* not sure about the multiplier, for now a 5x improvement should suffice */
@@ -3183,8 +3325,8 @@ void do_cmd_throw(void)
 				if (axesmaster && o_ptr->tval == TV_AXES) bonus += axesmaster * 5;
 
 				/* Apply special damage XXX XXX XXX */
-				tdam = totplus_dam_aux(i_ptr, tdam, m_ptr);
-				tdam = critical_throw(i_ptr->weight, bonus, tdam);
+				tdam = totplus_dam_aux(i_ptr, tdam, m_ptr, MODE_THROWING);
+				tdam = critical_throw(weight, bonus, tdam);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -3232,6 +3374,10 @@ void do_cmd_throw(void)
 		noise += 201 - (p_ptr->skill_stl * 10);
 	
 		if (noise < 0) noise = 0;
+
+		/* Increase the noise level */
+		add_wakeup_chance += noise;
+
 		msg_format("The %s returns to your hand.", o_name);
 		inven_carry(i_ptr);
 	}
@@ -3245,6 +3391,7 @@ void do_cmd_throw(void)
 		noise += 201 - (p_ptr->skill_stl * 10);
 	
 		if (noise < 0) noise = 0;
+
 		/* Increase the noise level */
 		add_wakeup_chance += noise;
 
@@ -3267,6 +3414,7 @@ void do_cmd_throw(void)
 
 		/* debugging message */
 		msg_format("The %s smashes to the ground.", o_name);
+
 		/* Chance of breakage (during attacks) */
 		j = (hit_body ? breakage_chance(i_ptr) : 0);
 

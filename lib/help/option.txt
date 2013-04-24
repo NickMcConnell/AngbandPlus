@@ -1,21 +1,12 @@
-=== Option Descriptions === (OUTDATED)
-
+===========================
+=== Option Descriptions ===
+===========================
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.
 
 In the decriptions below, each option is listed as the textual summary
 which is shown on the "options" screen, plus the internal name of the
 option in brackets, followed by a textual description of the option.
-
-Note that the internal name of the option can be used in user pref files
-to force the option to a given setting, see "command.txt" for more info.
-
-Various concepts are mentioned in the descriptions below, including "disturb",
-(cancel any running, resting, or repeated commands, which are in progress),
-"flush" (forget any keypresses waiting in the keypress queue, including any
-macros in progress), "fresh" (dump any pending output to the screen), and
-"sub-windows" (see below).
-
 
 === Option Set 1 -- User Interface ===
 
@@ -633,4 +624,14 @@ for using the color red to display both hitpoints and mana.
 The "delay_factor" value, if non-zero, will slow down the visual effects used
 for missile, bolt, beam, and ball attacks.  The actual time delay is equal to
 "delay_factor" squared, in milliseconds.
+
+Note that the internal name of the option can be used in user pref files
+to force the option to a given setting, see "command.txt" for more info.
+
+Various concepts are mentioned in the descriptions below, including "disturb",
+(cancel any running, resting, or repeated commands, which are in progress),
+"flush" (forget any keypresses waiting in the keypress queue, including any
+macros in progress), "fresh" (dump any pending output to the screen), and
+"sub-windows" (see below).
+
 

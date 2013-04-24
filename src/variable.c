@@ -122,6 +122,11 @@ int skill_count = 0;
 
 bool skip_msgs = FALSE; /* for the ESC key to skip -more- prompts. */
 
+/*
+ * Autosave-related global variable.
+ */
+s16b autosave_freq = 0;
+
 
 /*
  * TRUE if process_command() is a repeated call.

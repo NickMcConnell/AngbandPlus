@@ -38,18 +38,40 @@ bool item_smash_effect(int who, int y, int x, object_type *o_ptr)
 	u32b flg;
 
 	int skill = 0;
+	int sides = 0;
+	int dice = 0;
 
+	/* various throwing skills */
+	int advthrow, masterthrow, powerthrow, accthrow, tohitthrow, critthrow;
 
-	/* Potions are not allowed to smash -- Steam allows chain reactions */
-	/* if (!allow_activate) return (FALSE); */
+	/* combine to produce an item smashing bonus */
+	int throwbonus = 0;
 
-	/* If "who" is -1, use throwing skill for some things. */
-	/* if (who == -1) skill = S_THROWING; */
+	/* Paranoia */
+	advthrow = masterthrow = powerthrow = accthrow = tohitthrow = critthrow = 0;
+	
+	if (p_ptr->skills[SK_TOHIT_THROWING].skill_max > 0)
+		tohitthrow = p_ptr->skills[SK_TOHIT_THROWING].skill_rank;
+	if (p_ptr->skills[SK_ADV_THROWING].skill_max > 0)
+		advthrow = p_ptr->skills[SK_ADV_THROWING].skill_rank;
+	if (p_ptr->skills[SK_MASTER_THROWING].skill_max > 0)
+		masterthrow = p_ptr->skills[SK_MASTER_THROWING].skill_rank;
+	if (p_ptr->skills[SK_POWER_THROW].skill_max > 0)
+		powerthrow = p_ptr->skills[SK_POWER_THROW].skill_rank;
+	if (p_ptr->skills[SK_CRIT_THROW].skill_max > 0)
+		critthrow = p_ptr->skills[SK_CRIT_THROW].skill_rank;
+	if (p_ptr->skills[SK_ACC_THROW].skill_max > 0)
+		accthrow = p_ptr->skills[SK_ACC_THROW].skill_rank;
 
-	/* If "who" is -2, use burglary skill for some things. */
-	/* if (who == -2) skill = S_BURGLARY; */
-	/* NEED TO ADD THROWING STUFF TO THIS FUNCTION */
-
+	throwbonus = (tohitthrow + advthrow + masterthrow) / 6;
+	throwbonus += (powerthrow / 4);
+	throwbonus += (critthrow / 2);
+	throwbonus += (accthrow / 2);
+	
+	/* paranoia */
+	if (throwbonus < 0) throwbonus = 0;
+	if (throwbonus > 35) throwbonus = 35;
+		
 	/* Analyze the item */
 	switch (o_ptr->tval)
 	{
@@ -72,77 +94,217 @@ bool item_smash_effect(int who, int y, int x, object_type *o_ptr)
 			typ = GF_FIRE;
 			dam = damroll(o_ptr->dd, o_ptr->ds) / 2;
 			rad = 1 + div_round(dam, 10);
-		}
-		
+			break;
+		}		
 		case TV_TONIC:
 		{
 			switch (o_ptr->sval)
 			{
 				case SV_TONIC_WATER:
+				case SV_TONIC_APPLE_JUICE:
+				case SV_TONIC_SLIME_MOLD:
+				case SV_TONIC_SALT_WATER:
 				{
-					typ = GF_STEAM;
-					dam = 0;
+					typ = GF_EMP;
+					if (who < 0) dam = 10 + throwbonus;
+					else dam = 10;
+					break;
 				}			
+				case SV_TONIC_SLOWNESS:
+				{
+						typ = GF_SLOW;
+						if (who < 0) dam = 50 + throwbonus * 2;
+						else dam = 50;
+						break;
+				}
 				case SV_TONIC_POISON:
 				{
 					typ = GF_POISON;
-					/* if (who == -1) include huge throw bonus */
-					dam = damroll(3, 3);
+					if (who < 0)
+					{
+						 dam = damroll( 7 + (throwbonus / 10), 5 + (throwbonus / 5));
+					}
+					dam = damroll(7, 5);
 					break;
 				}
+				/* case SV_TONIC_MUTAGEN: */
 				case SV_TONIC_BLINDNESS:
-				{
-					typ = GF_DARK;
-					break;
-				}
-				case SV_TONIC_MUTAGEN:
-				case SV_TONIC_CONFUSION:
+				case SV_TONIC_CONFUSION:				
 				{
 					typ = GF_CONFUSION;
-					dam = 8;
+					if (who < 0) dam = 50 + throwbonus * 2;
+					else dam = 50;
 					break;
 				}
 				case SV_TONIC_SLEEP:
 				{
 					typ = GF_SLEEP;
-					dam = 10;
+					if (who < 0) dam = 50 + throwbonus * 2;
+					else dam = 50;
 					break;
+				}
+				case SV_TONIC_LOSE_MEMORIES:
+				{
+						typ = GF_FORGET;
+						dam = damroll(10, 8);
+						break;
+				}
+				case SV_TONIC_SKILL:
+				{
+						typ = GF_GAIN_LEVEL;
+						dam = 40;
+						break;
+				}
+				case SV_TONIC_DEC_MUS:
+				case SV_TONIC_DEC_AGI:
+				case SV_TONIC_DEC_VIG:
+				case SV_TONIC_DEC_SCH:
+				case SV_TONIC_DEC_EGO:
+				case SV_TONIC_DEC_CHR:
+				{
+						typ = GF_CURSE;
+						dam = 40;
+						break;
+				}	
+				case SV_TONIC_INFRAVISION:
+				case SV_TONIC_DETECT_INVIS:
+				case SV_TONIC_SLOW_POISON:
+				case SV_TONIC_CURE_POISON:
+				case SV_TONIC_BOLDNESS:
+				{
+						/* Nothing */
+						break;
 				}
 				case SV_TONIC_SPEED:
 				{
-					typ = GF_SPEED;
-					break;
+						typ = GF_SPEED;
+						break;
+				}	
+				case SV_TONIC_HEROISM:
+				{
+						typ = GF_GAIN_LEVEL;
+						dam = 10;
+						break;
 				}
-	
+				case SV_TONIC_BERSERK_STRENGTH:
+				{
+						typ = GF_GAIN_LEVEL;
+						dam = 30;
+						break;
+				}
+				case SV_TONIC_XXX1:
+				{
+						/* Nothing (!) */
+						break;
+				}
 				case SV_TONIC_CURE_LIGHT_HP:
-				{
-					typ = GF_HEAL;
-					dam = damroll(2, 8);
-					break;
-				}
+      	{
+      			typ = GF_HEAL;
+      			dam = 100;
+      			break;
+      	}
 				case SV_TONIC_CURE_SERIOUS_HP:
-				{
-					typ = GF_HEAL;
-					dam = damroll(4, 8);
-					break;
-				}
+      	{
+      			typ = GF_HEAL;
+      			dam = 200;
+      			break;
+      	}
 				case SV_TONIC_CURE_CRITICAL_HP:
-				{
-					typ = GF_HEAL;
-					dam = damroll(8, 8);
-					break;
-				}
+      	{
+      			typ = GF_HEAL;
+      			dam = 400;
+      			break;
+      	}
+				case SV_TONIC_CURE_MORTAL_HP:
+      	{
+      			typ = GF_HEAL;
+      			dam = 800;
+      			break;
+      	}
 				case SV_TONIC_HP_HEALING:
-				{
-					typ = GF_HEAL;
-					dam = damroll(10, 30);
-					break;
-				}
+      	{
+      			typ = GF_HEAL;
+      			dam = 1000;
+      			break;
+      	}
 				case SV_TONIC_HP_STAR_HEALING:
+      	{
+      			typ = GF_HEAL;
+      			dam = 10000;
+      			break;
+      	}
+					
+				case SV_TONIC_CURE_MINOR_SP:
+				case SV_TONIC_CURE_LIGHT_SP:
+				case SV_TONIC_CURE_SERIOUS_SP:
+				case SV_TONIC_CURE_CRITICAL_SP:
+				case SV_TONIC_CURE_MORTAL_SP:
+				case SV_TONIC_SP_HEALING:
+				case SV_TONIC_SP_STAR_HEALING:
 				{
-					typ = GF_HEAL;
-					dam = damroll(10, 70);
-					break;
+						/* Nothing (!) */
+						break;
+				}
+				case SV_TONIC_LIFE:
+				{
+						typ = GF_GAIN_LEVEL;
+						dam = 1000;
+						break;
+				}
+				case SV_TONIC_RESTORE_EXP:
+				{
+						typ = GF_GAIN_LEVEL;
+						dam = 1000;
+						break;
+				}
+				case SV_TONIC_RES_MUS:
+				case SV_TONIC_RES_AGI:
+				case SV_TONIC_RES_VIG:
+				case SV_TONIC_RES_SCH:
+				case SV_TONIC_RES_EGO:
+				case SV_TONIC_RES_CHR:
+				{
+						typ = GF_GAIN_LEVEL;
+						dam = 5;
+						break;
+				}
+				case SV_TONIC_INC_MUS:
+				case SV_TONIC_INC_AGI:
+				case SV_TONIC_INC_VIG:
+				case SV_TONIC_INC_SCH:
+				case SV_TONIC_INC_EGO:
+				case SV_TONIC_INC_CHR:
+				{
+						typ = GF_GAIN_LEVEL;
+						dam = 100;
+						break;
+				}
+				case SV_TONIC_AUGMENTATION:
+				{
+						typ = GF_GAIN_LEVEL;
+						dam = 500;
+						break;
+				}
+				case SV_TONIC_ENLIGHTENMENT:
+      	{
+      			typ = GF_ENLIGHTENMENT;
+      			rad = 10;
+      			do_fire_star = TRUE;
+      			break;
+      	}
+				case SV_TONIC_STAR_ENLIGHTENMENT:
+				{
+						typ = GF_ENLIGHTENMENT;
+						rad = 18;
+						do_fire_star = TRUE;
+						break;
+				}
+				case SV_TONIC_SELF_KNOWLEDGE:
+				case SV_TONIC_EXPERIENCE:
+				{
+						typ = GF_GAIN_LEVEL;
+						dam = 500;
+						break;
 				}
 				default:
 				{
@@ -151,15 +313,15 @@ bool item_smash_effect(int who, int y, int x, object_type *o_ptr)
 				}
 				break;
 			}
+			break;
 		}
 		default:
 		{
-			/* No effect, no identify */
+			/* No effect, no identify MAIN*/
 			return (FALSE);
 		}
 	}	
-	
-
+		
 	/* Require a projection type */
 	if (!typ) return (FALSE);
 
@@ -182,6 +344,8 @@ bool item_smash_effect(int who, int y, int x, object_type *o_ptr)
 
 	/* Hack -- Allow differing "characters" */
 	if (who < -1) who = -1;
+
+	if (p_ptr->wizard )msg_format("rad is %d y is %d x is %d dam is %d", rad, y, x, dam);
 
 	/* Cast the projection, notice effects, reset "allow_activate" */
 	return (project(who, rad, y, x, y, x, dam, typ, flg, 0, 0));
@@ -608,7 +772,7 @@ void teleport_player(int dis)
  *
  * This function allows teleporting into vaults.
  */
-void teleport_towards(int oy, int ox, int ny, int nx)
+void teleport_towards(int oy, int ox, int ny, int nx, bool charge)
 {
 	int y, x;
 
@@ -616,9 +780,12 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 	int ctr = 0;
 	int min = 2, max = 4;
 
-	/* Anti-teleport field */
-	if (p_ptr->no_teleport) return;
-
+	/* teleport field only affects teleporting */
+	if (!charge)
+	{
+			/* Anti-teleport field */
+			if (p_ptr->no_teleport) return;
+	}
 	/* Find a usable location */
 	while (TRUE)
 	{
@@ -636,12 +803,21 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 			/* Calculate distance between target and current grid */
 			dist = distance(ny, nx, y, x);
 
-			/* Accept grids that are the right distance away. */
-			if ((dist >= min) && (dist <= max)) break;
+			/* If we're charging, teleport right next to the player */
+			if (charge) 
+			{
+				/* Accept grids that are the right distance away */
+				if (dist < 2) break;
+			}
+			else
+			{
+ 				/* Accept grids that are the right distance away. */
+				if ((dist >= min) && (dist <= max)) break;
+			}
 		}
 
 		/* Occasionally relax the constraints */
-		if (++ctr > 15)
+		if ((++ctr > 15) && (!charge))
 		{
 			ctr = 0;
 
@@ -651,7 +827,7 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 	}
 
 	/* Sound (assumes monster is moving) */
-	sound(SOUND_TPOTHER);
+	if (!charge) sound(SOUND_TPOTHER);
 
 	/* Move monster */
 	monster_swap(oy, ox, y, x);
@@ -1429,8 +1605,8 @@ void do_poly_self(void)
 				{
 					msg_print("You feel as if you almost lost something...");
 				}
-				break;
 #endif
+				break;
 			case 4: case 5:
 				do_poly_wounds();
 				break;
@@ -1455,13 +1631,20 @@ void do_poly_self(void)
 				}
 				/* No break; here! */
 			default:
+			{
+				/* nothing */
+			#if 0
 				mutate_player();
+			#endif
+			}		
 		}
 	}
 }
 
 void mutate_player(void)
 {
+	
+#if 0
 	int max1, cur1, max2, cur2, ii, jj;
 
 	/* Pick a pair of stats */
@@ -1479,6 +1662,7 @@ void mutate_player(void)
 	p_ptr->stat_cur[jj] = cur1;
 
 	p_ptr->update |= (PU_BONUS);
+	#endif
 }
 
 void do_cmd_rerate(void)

@@ -79,7 +79,7 @@ Q:What do you mean heavy weapons are better?
 A: Weapons have a new feature called 'force'. You can tell the force of 
 a weapon by the description of the damage dice. A saber has a damage of 
 (1d7|1). The part after the '|' is the force of the weapons. Larger 
-weapons  do more damage with a higher force. Each time you strike a monster
+weapons do more damage with a higher force. Each time you strike a monster
 Steamband attempts another attack for each force blow on the weapon. Each
 force blow that connects adds to a damage multiplier, doing progressively
 more and more damage. The message that is printed after you attack gives 
@@ -99,7 +99,9 @@ A:Steamband is meant to be played without spoilers regarding what skills
 are available, but if you check the library folder you will see a spoiler 
 folder and it has plain text spoilers as to what skills are available.
 More visual spoilers in the form of pdf files are available from the
-steamband home page, http://angband.oook.cz/steamband/index.html
+steamband home page, http://angband.oook.cz/steamband/index.html.
+Also, you can hit '?' on the skill on the skills screen and it will
+give you a spoiler.
 
 
 Q: Character 'A' from [V]angband gets this power! Why don't I get it 
@@ -122,6 +124,71 @@ comes from 5 or 10 levels deeper than you can be a serious threat. Your
 gameplay will benefit from a high amount of paranoia. :-)
 
 
+Q:I know I have an active quest, but I don't remember on which level. I
+would be nice to have some way to get info on my current quest ingame.
+
+A:Cntrl - Q will give you this information; it is also accessible from 
+the quickmenu, by pushing enter, and selecting information.
+
+
+Q:Melee characters seems very weak compared to gunslingers. I tried to
+play three Brittish officers, they all died rather quickly after I ran
+out of healing. After this I started a German Engineer who is still alive.
+
+A:Well, rest assured that melee characters are not underpowered. Every 
+class has approximately the same capacity for damage from different means.
+(For instance, officers should be leading others into battle.)
+
+
+Q:I can't fire my firearm! It says that it's not loaded. What's going on?
+
+A:You now have to load ammunition into firearms. It takes two turns to 
+load your firearm (~200 energy). This is important, I'm going to repeat it.
+IT TAKES ~2 TURNS TO LOAD YOUR GUN. You can reduce the amount of time it 
+takes to load your firearm by raising your swift shot skill. The number
+of bullets each firearm holds depends on the firearm, and the number
+of bullets each firearm holds is *also* the number of shots you get
+with it per round. 
+
+Q:Um, doesn't this mean--
+
+A:Yes. If you get a pistol, you can have six shots (each one taking 1/6
+of a player turn to fire) but when the firearm is empty you have to 
+reload it. You get the same number of shots in a firearm regardless of 
+your skill or level. Pistols tend to hold the most shots and have short
+range. Rifles hold fewer shots, but have the best range. Shotguns 
+rarely hold more than 1 or 2 bullets. Firearms of extra shots also hold
+extra bullets.
+
+
+Q:I was reloading my firearm and a monster showed up and hit me
+sixteen times and I died!!
+
+A:Yes, it takes 2 turns, or 200 energy to reload your firearm. This
+can be reduced to slightly less than 1 turn (or 100 energy) by 
+maximizing the swift shot skill. Firearm damage has been rasied to 
+compensate. Those that specialize in firearms can do massive damage, 
+as long as they can find somewhere reasonably safe to load their gun.
+
+
+Q:I don't see the swift shot skill. Where is it?
+
+A:It becomes available when you raise Neophyte Firearms to 10.
+
+
+Q:Why no squelching? Could you add squelching to Steamband, please?
+
+A:You may notice that you won't need squelching. I understand you may
+come from a variant where you are used to squelching - but at no point
+in the game does Steamband have a glut of items. You will notice that
+consistently you will find just one or two items more than will fit
+in your pack. You will never be faced with the task of managing two 
+hundred items after a battle. Squelching exists to remove the tedium 
+of identifying and destroying the item glut. Since there *is* no item
+glut in Steamband and hence no tedium to remove, an automated system 
+for removing items is unnecessary.
+
+
 Q:A lot seems changed in this variant.
 
 A:Yes.
@@ -129,13 +196,53 @@ A:Yes.
 
 Q:How long did all this take you?
 
-A:Thousands of hours. On average I've spend about 20 hours a week on it
-over the last 2 years.
+A:Thousands of hours. 
 
 
 Q:Thanks.
 
 A:No problem.
+
+==========
+Steamware
+==========
+
+Q:What's this 'Steamware'?
+
+A:If you are playing certain races, you can pay a research scientist in 
+town to discover how to install certain steam-driven devices into your
+very flesh. These can do things such as raise your speed, grant you extra
+attacks, and increase your armor class.
+
+
+Q:How do I use them?
+
+A:Well, first you have to pay for the research. After the research is 
+completed (you will get a message, and can check the status in the store)
+you can have surgery to install the new part. This is dangerous so be
+sure to rest afterwards. This can be done at the steamware lab, the
+'0' building in town. The store gives you an estimate on the length research
+will take. 
+
+
+Q:Wow, what do they do?
+
+A: Steamware eyes increase your infravision. Later levels of steamware eyes
+increase your searching and your light/dark resistance. The highest level
+will even let you see invisible creatures and resist blindness.
+
+Wired reflexes increase your speed, agility, and at the highest level increase
+your chance to hit.
+
+Dermal plating increase your armor class. Since this involves placing plates
+underneath the beta and gamma levels have a -1 and -2 speed penalty respectively
+You can offset this by researching wired reflexes and installing them.
+
+The core furnace replaces your heart with a coal furnace. It provides huge
+health bonuses.
+
+Spurs provide you with extra attacks. Eventually they stun and even slow
+opponents.
 
 ========================
 Automata and Steam-Mecha

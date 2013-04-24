@@ -3404,7 +3404,7 @@ static void process_menus(WORD wCmd)
 #ifdef ZANGBAND
 				do_cmd_save_game(FALSE);
 #else /* ZANGBAND */
-				do_cmd_save_game();
+				do_cmd_save_game(FALSE);
 #endif /* ZANGBAND */
 			}
 			else
@@ -3492,7 +3492,7 @@ static void process_menus(WORD wCmd)
 #ifdef ZANGBAND
 				do_cmd_save_game(FALSE);
 #else /* ZANGBAND */
-				do_cmd_save_game();
+				do_cmd_save_game(FALSE);
 #endif /* ZANGBAND */
 			}
 			quit(NULL);
@@ -4116,7 +4116,7 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 #ifdef ZANGBAND
 				do_cmd_save_game(FALSE);
 #else /* ZANGBAND */
-				do_cmd_save_game();
+				do_cmd_save_game(FALSE);
 #endif /* ZANGBAND */
 			}
 			quit(NULL);

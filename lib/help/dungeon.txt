@@ -1,76 +1,27 @@
+===================
 === The Dungeon === 
+===================
 
+Welcome to the dark subworld catacombs!
 
-After you have created your character, you will begin your Steamband adventure.
-Symbols appearing on your screen will represent the dungeon's walls, floor,
-objects, features, and creatures lurking about.  In order to direct your
-character through his adventure, you will enter single character commands
-(see "commands.txt").
+There are 50 levels within the steamband dungeon. Symbols on your screen
+represent the dungeon's walls, floor, objects, features, and creatures.
 
-Unlike other *band variants, the dungeon is steamband is 50 levels deep, and
-you begin your journey at the center of the earth, and work your way *up* to
-the surface.
+You will work your way up from the centre of the earth to the surface.
 
-
+===========================
 === Symbols On Your Map ===
+===========================
 
 Symbols on your map can be broken down into three categories: Features of
 the dungeon such as walls, floor, doors, and traps; Objects which can be
-picked up such as treasure, weapons, magical devices, etc; and creatures
+picked up such as treasure, weapons, technological devices, etc; and creatures
 which may or may not move about the dungeon, but are mostly harmful to your
 character's well being.
 
-Some symbols are used to represent more than one type of entity, and some
-symbols are used to represent entities in more than one category.  The "@"
-symbol (by default) is used to represent the character.
-
-It will not be necessary to remember all of the symbols and their meanings.
-The "slash" command ("/") will identify any character appearing on your map
-(see "commands.txt").
-
-Note that you can use a "user pref file" to change any of these symbols to
-something you are more comfortable with.
-   
+                           =Monsters=
  
-                Features that do not block line of sight
- 
-  .   A floor space                   1   Entrance to General Store
-  .   A trap (hidden)                 2   Entrance to Clothing Store
-  ^   A trap (known)                  3   Entrance to Gun Smith
-  ;   A glyph of warding              4   Entrance to Machinist
-  '   An open door                    5   Entrance to Alchemy Shop
-  '   A broken door                   6   Entrance to Magic Shop
-  <   A staircase up                  7   Entrance to the Black Market
-  >   A staircase down                8   Entrance to your Home
-  									  9	  Entrance to the Library
-  									  0	  Entrance to the Steamware Shop
-
-
-                   Features that block line of sight
-
-  #   A secret door                   #   A wall
-  +   A closed door                   %   A mineral vein
-  +   A locked door                   *   A mineral vein with treasure
-  +   A jammed door                   :   A pile of rubble
-
-
-                             Objects
- 
-  !   A tonic (or flask)              /   A pole-arm
-  ?   A mechanism (or book)           |   An edged weapon
-  ,   An anodyne (or food)            \   A hafted weapon
-  -   A ray gun or apparatus          }   A pistol, rifle, or shotgun
-  _   A tool                          {   A bullet, or buckshot
-  =   A ring                          (   Soft armour
-  "   An amulet                       [   Hard armour
-  $   Gold or gems                    ]   Misc. armour
-  ~   Lites, Tools, Chests, etc       )   (unused)
-  ~   Junk, Sticks, Skeletons, etc    &   (unused)
- 
- 
-                             Monsters
- 
-            a   An Automata         A   Alien
+            a   Automaton           A   Alien
             b   Small Beastman      B   Large Beastman
             c   Card                C   Construct
             d   Dinosaur            D   Large Dinosaur
@@ -84,7 +35,7 @@ something you are more comfortable with.
             l   Giant Louse         L   (unused)
             m   Mold                M   Monkey
             n   Plant               N   (unused)
-            o   (unused)            O   Creature from Oz
+            o   (unused)            O   (unused)
             p   Human/person        P   Giant Humanoid
             q   Quadruped           Q   (unused)
             r   Rodent              R   Reptile/Amphibian
@@ -97,16 +48,66 @@ something you are more comfortable with.
             y   (unused)            Y   (Unused)
             z   Zombie/Mummy        Z   Hound or canine
 
+ 
+               =Features that do not block line of sight=
+ 
+  .   A floor space                   1   Entrance to General Store
+  .   A trap (hidden)                 2   Entrance to Clothing Store
+  ^   A trap (known)                  3   Entrance to Gun Smith
+  ;   A force field                   4   Entrance to Machinist
+  '   An open door                    5   Entrance to Alchemy Shop
+  '   A broken door                   6   Entrance to Magic Store
+  <   A staircase up                  7   Entrance to the Black Market
+  >   A staircase down                8   Entrance to your Home
+                                      9   Entrance to the Library
+                                      0   Entrance to the Steamware Vendor
 
 
+                  =Features that block line of sight=
+
+  #   A secret door                   #   A wall
+  +   A closed door                   %   A mineral vein
+  +   A locked door                   *   A mineral vein with treasure
+  +   A jammed door                   :   A pile of rubble
+
+
+                            =Objects=
+ 
+  !   A tonic (or flask)              /   A pole-arm
+  ?   A mechanism (or book)           |   An edged weapon
+  ,   An anodyne (or food)            \   A hafted weapon
+  -   A ray gun or apparatus          }   A pistol, rifle, or shotgun
+  _   A tool                          {   A bullet, or buckshot
+  =   A ring                          (   Soft armour
+  "   An amulet                       [   Hard armour
+  $   Gold or gems                    ]   Misc. armour
+  ~   Lites, Tools, Chests, etc       )   (unused)
+  ~   Junk, Sticks, Skeletons, etc    &   (unused)
+ 
+Some symbols are used to represent more than one type of entity, and some
+symbols are used to represent entities in more than one category.  The "@"
+symbol (by default) is used to represent the character.
+
+It will not be necessary to remember all of the symbols and their meanings.
+The "slash" command ("/") will identify any character appearing on your map
+(see "commands.txt").
+
+Note that you can use a "user pref file" to change any of these symbols to
+something you are more comfortable with.
+   
+
+======================
 === The Town Level ===
+======================
 
 The town level is where you will begin your adventure.  The town consists of
 ten buildings (each with an entrance), some townspeople, and a wall which
 surrounds the town.  The town is always filled with a dim glow.
 
 
+===================
 === Townspeople ===
+===================
 
 The town contains many different kinds of people.  There are the chimney
 sweeps, young children who will mob an adventurer for money, and seem to
@@ -126,7 +127,9 @@ experience is awarded for killing the town inhabitants, though you may
 acquire treasure.
 
 
+======================
 === Town Buildings ===
+======================
 
 Your character will begin his adventure with some basic supplies, and some
 extra gold with which to purchase more supplies at the town stores.
@@ -188,7 +191,7 @@ The Machine Store ("4")
 The Alchemy shop ("5")
      The Alchemy Shop deals in all types of tonics.
 
-The Magic User's Shop ("6")
+The Magic User's Store ("6")
      The Magic User's Shop deals in all sorts of rings, wands, amulets, and
      staves, as well as magic user books.
 
@@ -206,17 +209,19 @@ The Library ("9")
 	points. The library also hands out quests to those wishing to earn
 	extra gold, skills or items.
 
-The Steamware Shop ("0")
+The Steamware Vendor ("0")
 	You can pay the owner to research a variety of enhancements for you
 	and after a set amount of time, he will be able to install these
 	fantastic devices directly within your body.
 
 
+==========================
 === Within The Dungeon ===
+==========================
 
 Once your character is adequately supplied with food, light, armor, and
 weapons, he is ready to enter the dungeon.  Move on top of the `<' symbol
-and use the "Up" command ("<").
+and use the 'Up stairs' command ('<').
 
 Your character will enter a maze of interconnecting staircases and finally
 arrive somewhere on the first level of the dungeon.  Each level of the
@@ -244,13 +249,15 @@ light!
 A character must wield a torch or lamp in order to supply his own light.  A
 torch or lamp burns fuel as it is used, and once it is out of fuel, it stops
 supplying light.  You will be warned as the light approaches this point.
-You may use the "Fuel" command ("F") to refuel your lantern (with flasks of
+You may use the 'F'uel command ('F') to refuel your lantern (with flasks of
 oil) or your torch (with other torches), so it is a good idea to carry extra
 torches or flasks of oil, as appropriate.  There are rumours of objects of
 exceptional power which glow with their own never-ending light.
 
 
+====================================
 === Objects Found In The Dungeon ===
+====================================
 
 The mines are full of objects just waiting to be picked up and used.  How
 did they get there?  Well, the main source for useful items are all the
@@ -280,53 +287,53 @@ if you do not mind being slow.  Your weight "limit" is determined by your
 strength.
 
 Many objects found within the dungeon have special commands for their use.
-Ray guns must be Aimed, tools must be Used, mechanisms must be rigged, and
-tonics must be Quaffed.  You may, in general, not only use items in your 
-pack, but also items on the ground, if you are standing on top of them.
+Ray guns must be 'a'imed, tools must be 'u'sed, mechanisms must be 'r'igged, 
+and tonics must be 'q'uaffed.  You may, in general, not only use items in 
+your pack, but also items on the ground, if you are standing on top of them.
 
 Chests are complex objects, containing traps, locks, and possibly treasure
 or other objects inside them once they are opened.  Many of the commands
 that apply to traps or doors also apply to chests and, like traps and doors,
 these commands do not work if you are carrying the chest.
 
-One item in particular will be discussed here.  The mechanism of "Word of
-Recall" can be found within the dungeon, or bought at the temple in town.
-It acts in two manners, depending upon  your current location.  If read
-within the dungeon, it will teleport you back to town.  If read in town, it
+One item in particular will be discussed here.  The mechanism of 'Returning' 
+can be found within the dungeon, or bought at the machinist shop in town.
+It acts in two manners, depending upon  your current location.  If rigged
+within the dungeon, it will teleport you back to town.  If rigged in town, it
 will teleport you back down to the deepest level of the dungeon which your
-character has previously been on.  This makes the scroll very useful for
-getting back to the deeper levels of Steamband.  Once the scroll has been
-read it takes a while for the spell to act, so don't expect it to save you
-in a crisis.  Reading a second scroll before the first has had a chance to
-take effect will cancel both scrolls.
+character has previously been on.  This makes the mechanism very useful for
+getting back to the deeper levels of Steamband.  Once the mechanism has been
+rigged it takes a while for the mechanism to act, so don't expect it to save 
+you in a crisis.  Rigging a second mechanism before the first has had a chance 
+to take effect will cancel both mechanisms.
 
-You may "inscribe" any object with a textual inscription of your choice.
+You may 'inscribe' any object with a textual inscription of your choice.
 These inscriptions are not limited in length, though you may not be able to
 see the whole inscription on the item.  The game applies special meaning to
-inscriptions containing any text of the form "@#" or "@x#" or "!x" or "!*",
-see "commands.txt".
+inscriptions containing any text of the form '@#' or '@x#' or '!x' or '!*',
+see 'commands.txt'.
 
-The game provides some "fake" inscriptions to help you keep track of your
+The game provides some 'fake' inscriptions to help you keep track of your
 possessions.  Wands and staves which are known to be empty will be inscribed
-with "empty".  Objects which have been tried at least once but haven't been
-identified yet will be inscribed with "tried".  Cursed objects are inscribed
-with "cursed".  Broken objects may be inscribed with "broken".  Also, any
+with 'empty'.  Objects which have been tried at least once but haven't been
+identified yet will be inscribed with 'tried'.  Cursed objects are inscribed
+with 'cursed'.  Broken objects may be inscribed with 'broken'.  Also, any
 item which was purchased at a discount, implying that it is slightly
-"sub-standard", will be inscribed with the appropriate "discount", such as
-"25% off".  Note that these inscriptions are fake, and cannot be removed.
+'sub-standard', will be inscribed with the appropriate 'discount', such as
+'25% off'.  Note that these inscriptions are fake, and cannot be removed.
 
 Also, occasionally you will notice that something in your inventory or
 equipment list seems to be magical.  High level characters are much more
 likely to notice this than beginning characters.  When you do notice this,
-the item in question will be inscribed with "good" or "cursed" as is
+the item in question will be inscribed with 'good' or 'cursed' as is
 relevant. Adventurers, Aesthetes (both well acquainted with weapons and armor)
 and rogues (who have handled many powerful items in their time as stolen
 goods) are more sensitive, and can notice not just that an item is out of
 the ordinary, but just *how* extraordinary it is: they can notice an 
-"excellent" item (ego item), a "worthless" one (cursed ego item), a 
-"special" one (artifact) and a "terrible" one (cursed artifact). All 
-classes will know an item is "special" if it cannot be destroyed with the 
-"k" command (original keyset.)
+'excellent' item (ego item), a 'worthless' one (cursed ego item), a 
+'special' one (artifact) and a 'terrible' one (cursed artifact). All 
+classes will know an item is 'special' if it cannot be destroyed with the 
+'k' command (original keyset.)
 
 It is rumored that items of power and extra rare spell books may be found
 deeper in the dungeon...
@@ -336,7 +343,9 @@ between tasty food and a poisonous mushroom is a fine one, and sometimes
 surprises are to be found. . .
 
 
+======================
 === Cursed Objects ===
+======================
 
 Some objects, mainly armor and weapons, have had curses laid upon them.
 These horrible objects will look like any other normal item, but will
@@ -346,13 +355,15 @@ are so badly cursed that even this will not work, and more potent methods
 are needed.
 
 If you wear or wield a cursed item, you will immediately feel deathly cold,
-and the item will be marked with the fake inscription "cursed".
+and the item will be marked with the fake inscription 'cursed'.
 
 Shopkeepers will refuse to buy any item which is known to be cursed, either 
 by having been identified or by being marked with the fake inscription.
 
 
+==============
 === Mining ===
+==============
 
 Much of the treasure within the dungeon can be found only by mining it out
 of the walls.  Many rich strikes exist within each level, but must be found
@@ -393,7 +404,9 @@ a digging implement or magical means to enter.  The same rumors imply that
 these rooms are guarded by incredibly powerful monsters, so beware!
 
 
+=====================================================
 === Staircases, Secret Doors, Passages, and Rooms ===
+=====================================================
 
 Staircases are the manner in which you get deeper or climb out of the
 dungeon.  The symbols for the up and down staircases are the same as the
@@ -422,7 +435,9 @@ through.
 For historical reasons, secret doors are never locked.
 
 
+========================
 === Winning The Game ===
+========================
 
 Once your character has killed the tool of evil, who lives on level 49 (100') 
 in the dungeon, a magical staircase will appear that will allow you to finally reach
@@ -440,9 +455,11 @@ that until you retire, you can still be killed, so you may want to retire
 before wandering into yet another horde of greater demons.
 
 
+============================
 === Upon Death and Dying ===
+============================
  
-If your character falls below 0 hit points, he has died and cannot be
+If your character falls below 0 wound points, he has died and cannot be
 restored.  A tombstone showing information about your character will be
 displayed.  You are also permitted to get a record of your character, and
 all your equipment (identified) either on the screen or in a file.

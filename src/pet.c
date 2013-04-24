@@ -439,7 +439,7 @@ bool are_enemies(monster_type *m_ptr, monster_type *n_ptr)
 bool monster_living(monster_race *r_ptr)
 {
 	/* Non-living, undead, or demon */
-	if (r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_AUTOMATA))
+	if (r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_AUTOMATA | RF3_CONSTRUCT))
 		return FALSE;
 	else
 		return TRUE;

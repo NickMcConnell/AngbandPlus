@@ -1,0 +1,1955 @@
+== Using your skills ==
+
+Below is a description of each skill, how they function,
+and what skills they unlock. The following information
+is considered spoiler information, so proceed at your
+own discretion. Many skills may be labeled "Not Implimented"
+This is an indication that the skill is a placeholder for
+what may eventually become another ability. In almost all
+cases there is no code written for the skill.
+
+***** <0>
+***** <1>
+***** <2>
+==Disarming Traps 
+
+This is your ability to open locks and disarm traps.
+There are three different 'ratings' of this skill,
+determined by your race and class. You can determine
+which type (good, neutral, or terrible) by the sub
+description below the skill. If you are an Adventurer,
+Engineer, or Rogue, a rank of 10 in this skill will
+unlock the skill "Disable Machine". If you are a Rogue,
+Engineer, or Aesthete, a rank of 10 in this skill will 
+unlock the skill "Sabotage".
+
+This skill is used to disarm traps, to open and disarm
+chests and open doors. It is modified upwards by one
+for every 99 points in schooling and 50 points in ego.
+The good rating of the skill is increased by x4, neutral
+by x3, and poor by x2.
+
+***** <3>
+==Disable Machine
+
+This skill activates when you strike a monster with the
+automata or construct flag, and a random number between
+0 and 20 is lower than your skill. It then drains up to
+skill rank * 6 mana from a machine. After the skill is
+above 5 monsters have a negliable chance to save versus
+the attack.
+
+***** <4>
+==Saving Throw
+
+No one currently gets this skill. It raises your saving
+throw by your rank in the skill.
+
+***** <5>
+==Assassination
+
+This skill allows you to do extra damage to a sleeping
+monster.
+
+If a monster is sleeping, damage is mutiplied
+by randint(skillrank) * randint(4). This gives a minimum
+of 1, and a maximum of 80 if the skill is maxed.
+
+***** <6>
+==Theft
+
+This skill allows you to attempt to steal from a monster.
+If you raise this skill rank to 20, you will unlock 
+"Master Theft".
+
+This skill is combined with "Mastertheft" to get a combined
+theft total. This total is checked versus a random roll of
+1-50. If the total is higher than the roll then some gold is
+stolen. The amount of gold is a random number from 1 to your 
+theft skill rank * a random number from 1 to your theft rank.
+This number is mutiplied by a random number from 1 to your 
+master theft rank. The total is added to your gold.
+
+***** <7>
+==Master Theft
+
+This skill allows you to attempt to steal from a monster.
+
+This skill is combined with "Theft" to get a combined theft
+total. This total is checked versus a random roll of 1-50
+If the total is higher than the roll then some gold is
+stolen. The amount of gold is a random number from 1 to your 
+theft skill rank * a random number from 1 to your theft rank.
+This number is mutiplied by a random number from 1 to your 
+master theft rank. The total is added to your gold.
+
+***** <8>
+***** <9>
+***** <10>
+==Stealth
+
+This is your ability to avoid waking monsters.
+There are three different 'ratings' of this skill,
+determined by your race and class. You can determine
+which type (good, neutral, or terrible) by the sub
+description below the skill. If you are an Adventurer
+and your "Fortitude" is 5 and this skill is 10, you 
+will unlock your class powers "Basic Survival". If you 
+are a Rogue and this skill is 10 you gain access to the
+skill "Assassination". If you are a Rogue and this skill
+ is 15 you gain access to the skill "Theft"  If you are
+a Rogue and have 20 ranks in stealth you will gain access 
+to the skill "Superstealth". If you also have any ranks in 
+"Dragon Claw Arts" you will unlock your class powers of 
+"Ninjitsu" and "Ninja Stealth". If you are an Aesthete and
+this skill is five, you will unlock "Bribery"
+
+This skill gives you a stealth value from 1 to 30. The 
+poor rating is divided by 2 (for a max of 10), the neutral
+rating is the rating of the skill, and the good rating is
+the skill * 3 / 2 for a maximum of 30. This gives the 
+base player stealth value.
+
+
+***** <11>
+==Superstealth
+
+This skill supercharges your stealth.
+
+There is a minimum base wakeup chance for all monsters. 
+This skill allows you to lower that minimum chance from 100
+to as low as 20. The skill is mutilplied by 4.
+
+***** <12>
+***** <13>
+***** <14>
+==Searching
+
+This skill allows you to find traps and secret doors.
+There are three different 'ratings' of this skill,
+determined by your race and class. You can determine
+which type (good, neutral, or terrible) by the sub
+description below the skill.
+
+If you are an Adventurer and this skill is 5 you will unlock
+the skill "Trailblazer". If you have either the normal or good
+rating of this skill at 5 or better you will unlock the skill
+"Keen Eyes". If you are an Adventurer, Engineer, or Officer,
+and this skill is 15 or better and your "Keen Eyes" skill is 10,
+you will unlock the skill "Spot Weakness".
+
+This skill is checked versus a roll of 1-100. If it is lower
+than your skill, you will find something when you search the
+poor skill rank is used. The normal skill rank is tripled, and
+the good skill rank is * 5. You also search at a reduced rate
+when you walk. 
+
+	
+***** <15>
+==Trailblazer
+
+This skill increases your searching and increases your wound 
+points. When this skill reaches 15 you will unlock the
+Adventurer's class powers skill "Explorer"
+
+This skill increases your searching by one point every even
+level and your wound points by one every odd level.
+
+***** <16>
+==Spot Weakness
+
+This skill allows you to exploit monster weak points to increase
+your critical strike.
+
+There is a base chance of 1-5000 that is randomized to determine
+if there is a critical. If your critical chance is above that
+number, then you score a crtical. Every point added to "Spot
+Weakness" lowers that base chance by 50, making it more likely
+that it will be below your critical chance. This skill affects
+melee, throwing, and firearm attacks.
+
+***** <17>
+==Keen Eyes
+
+This skill allows you to extend the range of firearms. If
+you are an Adventurer, Engineer, or Officer, and your "Searching"
+skill is 15 and this skill is 10 you will unlock "Spot Weakness"
+
+Every 4 points in this skill extends the range of your firearms
+by 1.
+
+***** <18>
+==Sense Dungeon
+No one currently gets this skill. It allows you to sense
+things about the dungeon.
+
+no implimentation.
+***** <19>
+==Dungeon Lore
+No one currently gets this skill. It allows you to know
+things about the dungeon.
+
+No implimentation
+		
+***** <20>
+==Pain Tolerance
+
+When you are wounded, there is a chance you will continue to get
+hurt. Pain tolerance reduces those chances.
+
+There is a base 1 in 10 chance of having a wound worsen per turn.
+Every point in "Pain Tolerance" decreases the chance by one. 
+(i.e. at rank 5, you have a 1 in 15 chance). Also, twice your
+rank is subtracted from your fate roll which determines the 
+severity of the wound.
+
+***** <21>
+==Perilous Sorcery
+
+Lowers your elemental and mental resistances, but quickly
+increases the spells accessable.
+
+Every rank in this skill counts as being able to access 2
+levels of spells, worth twice the amount of basic "Latin".
+Every 3 points added to this skill increase your safety
+when casting spells. Every 2 points in this skill, also 
+increase the severity of failed castings. Every rank lowers
+your base resistance and mental resistance by 2.
+
+***** <22>
+==Luck
+
+When you gain a level you have a 1 in 1000 chance of gaining
+the "Luck" skill.
+
+Every rank in this skill gives you a chance to avoid taking 
+damage. Every 1 in 60 times, minus twice your luck score. With
+maxed luck, there would be a 5% chance when you get hit to 
+avoid damage (1 in 20), with half of your luck skill maxed, 
+there would be a 2.5% chance (1 in 40).
+
+Felix ille tamen corvo quoque rarior albo.
+This means: A happy man is rarer than a white crow
+
+***** <23>
+==Erudite
+
+This skill increases your Schooling and Ego at the cost of 
+Muscle.
+
+Every point in this raises your Schooling and Ego by 10 points
+and lowers your Muscle by 10. This ends up being a total +200
+points to Schooling and Ego, and -200 points to Muscle.
+
+
+***** <24>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+/*****************/
+/* racial skills */	
+/*****************/
+
+
+***** <25>
+==British Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <26>
+==British Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <27>
+==Asiatic Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <28>
+==Asiatic Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <29>
+==American Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+
+***** <30>
+==American Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <31>
+==African Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <32>
+==African Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <33>
+==Connoisseur
+
+This skill allows you to prepare meals to give you benefits.
+This is a french racial skill.
+
+It is Ego based, and feeds and heals you. Once it reachs rank
+10 the benefits improve, it begins to heal wound points. At rank
+15 it begins to cure poison also.
+
+
+***** <34>
+==African Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <35>
+==Spanish Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <36>
+==Spanish Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <37>
+==Ransack & Plunder
+
+This skill allows you to locate treasure. It is a German
+racial skill
+
+It is Ego based and allows you to detect gold and treasure
+At rank 10 it also allows you to dectet objects, at rank 15
+it will allow you to detect magical objects.
+
+***** <38>
+==German Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <39>
+==Russian Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <40>
+==Russian Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <41>
+==Finnish Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <42>
+==Finnish Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <43>
+==Arabic Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <44>
+==Arabic Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <45>
+==Stonelore
+
+This skill allows you to find out things about the dungeon. This 
+is a Dwarven racial skill.
+
+This skill is Ego based. and allows you to detect stairs. At rank
+5 it also detects doors. At rank 10 it detects traps. At rank 15
+it also maps the area.
+
+***** <46>
+==Dwarven Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <47>
+==Fae Pathways
+
+This skill allows you to blink. It is a Brownie, Seelie Fae, and
+Unseelie Fae racial skill.
+
+Range is 10 + Skill Rank.
+
+***** <48>
+==Brownie Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <49>
+==Daoine Sidhe Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <50>
+==Daoine Sidhe Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <51>
+==Seelie Fae Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <52>
+==Seelie Fae Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <53>
+==Unseelie Fae Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <54>
+==Unseelie Fae Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <55>
+==Systems Cypher
+
+This skill increases your speed and has other benfits. It is a 
+Automata and Steam-Mecha racial skill. 
+
+This skill increases your speed. It is a Vigor based skill. For
+Steam-Mecha at rank 5 it also heals some hit points. At rank 10 
+it removes fear and gives you heroism, at rank 15, it gives 
+superheroism. For Automata at rank 15 it also gives low and mid
+tempoarary resists. The rank of the skill also helps determine 
+the minimum duration of the effects.
+
+***** <56>
+==Onslaught Cypher
+
+This skill allows you to fire guns, rockets, and drill through the
+floor or ceiling. It is a Steam-Mecha racial skill. If this skill
+is 3 and "Aegis Cypher" is 5, you will unlock "Systems Cypher". When
+this skill is 15, you unlock "Rocketry".
+
+This skill is Vigor and Muscle based. At rank 5 you gain Vulcan 
+Cannons, rank 10 allows you to fire 'Fulgurator' (a rocket),
+rank 15 allows you to teleport level, rank 20 allows "High
+Yield Devestation" fireing a barrage of rockets.
+
+***** <57>
+==Aegis Cypher
+
+This skill increases your defensive capability.  It is a Steam-Mecha
+racial skill. If this skill is rank 5, and "Onslaught Cypher" is rank
+3 you will unlock "Systems Cypher".
+
+This skill is Muscle based, and raises your armor class by its
+rank *5. At Rank 10 it also gives low and mid resistance.
+
+***** <58>
+==Utility Cypher
+
+This skill gives you information about your surroundings. It is an 
+Automata racial skill. If this skill is rank 10, you will unlock 
+"Systems Cypher"
+
+This is a Schooling based skill. It allows you to detect stairs 
+and doors. At rank 5 you can also detect traps. At rank 9 you
+gain the ability to detect monsters, and at rank 13 you can also
+detect invisible monsters. At rank 17 you detect treasure, gold
+and normal and magical objects. At rank 18, you also gain the 
+ability to identify objects.
+
+***** <59>
+==Rocketry Cypher
+
+This skill increases the damage of the "Onslaught Cypher" abilites
+"'Fulgurator'" and "High Yield Devestation" It is a Steam-Mecha
+racial skill.
+
+For "'Fulgurator'" it increase the damage dice by 1 for every 3 
+ranks and the damage dice sides by 1 for every 4 ranks. For
+"High Yield Devestation" It increases the damage dice by 1 
+for every 3 ranks, and increases the number of rockets fired
+by 1 for every 4 ranks. 
+
+***** <60>
+==Djinn Racial Skill One
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <61>
+==Djinn Racial Skill Two
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <62>
+==Djinn Racial Skill Three
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <63>
+==Demonic Attunement
+
+This skill allows you to cast fear and confusion, as well
+as evenutally dominating monsters. When this skill is rank
+4 it unlocks "Dark Charm".
+
+***** <64>
+==Dark Charm
+
+This skill allows you to dominate monsters.
+
+***** <65>
+==Rakshasa Racial Skill Three
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <66>
+==Rock Tossing
+
+This skill allows you to toss a rock missle at enemies.
+It is a Giant racial skill.
+
+It does rank / 2 + 10d12 damage.
+
+***** <67>
+==Bezerk Strength
+
+This skill grants superheroism and heals the player. It is an 
+Orge racial skill.
+
+***** <68>
+==Troll Skill One
+
+No class has access to this skill. This is a Troll racial
+skill.
+
+Not Implimented.
+
+***** <69>
+==Etheric Attunement
+
+This skill reduces the amount of damage ghosts take when they 
+move through walls. This is a Ghost racial skill.
+
+If you are in a wall, you will take damage from the solid granite
+if your hitpoints are greater than 10 + this skill * your level
+divided by 2. You will take damage equal to 2 + your level divided
+by five, minus this skill of course. You will always take one 
+damage minimum, That is if your hitpoints are above the reqirement
+above (10 + Etheric Attument * (your level / 2)).
+
+Monsters can hit you in walls, and target you with spells, but only
+tunnelers can follow you into walls. If you're in a wall, spells
+(currently) won't hurt you. Monsters can hurt you if you are in
+a wall next to them. Otherwise, they can't.
+
+***** <70>
+==Ghost skill Two
+
+No class has access to this skill. This is a Ghost racial
+skill.
+
+Not Implimented.
+
+***** <71>
+==Cowardice	
+
+This skill causes fear, but also gives you a speed boost. It is a
+Goblin racial skill. 
+
+***** <72>
+==Old One skill Owo
+
+No class has access to this skill. This is a Old One racial
+skill.
+
+Not Implimented.
+
+***** <73>
+==Old One skill Two
+
+No class has access to this skill. This is a Old One racial
+skill.
+
+Not Implimented.
+
+***** <74>
+==Old One skill Three
+
+No class has access to this skill. This is a Old One racial
+skill.
+
+Not Implimented.
+
+***** <75>
+== Neophyte Combat
+
+"Neophyte Combat" affects your chance to hit monsters. At rank 5 this 
+skill opens up "Standard Combat". If you are a rogue and  this skill 
+is at 5, and you have five ranks in Martial Arts, you will unlock the 
+skill "Dirty Fighting". This skill affects your chance to hit with both
+weaponless (martial) combat, and weapon combat.
+
+This skill is used to increase your chance to hit. It has the highest
+impact on your to hit chance (each point raises your chance to hit by
+5), but past rank 5 doesn't unlock anything. Weapon skills are also
+used in weapon force calculations. Force can increase the damage large
+weapons do.
+
+***** <76>
+== Standard Combat
+
+"Standard Combat" affects your chance to hit monsters with melee weapons.
+At rank 10, if you are not a Ghost, this skill unlocks Toughness. At 
+rank 15 this skill opens up "Advanced Combat" for Officers, Engineers,
+Adventurers, Dashing Hussars, Naturalists, and Rogues. At rank 8 this 
+skill unlocks the skills "Vicious Strike" and "Accurate Strike". If 
+you are an Officer, and this skill is at rank 5, you will unlock the
+skill "Hold the Line"
+
+This skill is used to increase your chance to hit. It has a good impact
+on your to hit chance (each point raises your chance to hit by 4). It
+also has an impact on your critical chance with weapons. Each point
+slightly increases the chance for a critical (it increases the effective
+weight of the weapon by a tenth of a pound). Weapon skills are also
+used in weapon force calculations. Force can increase the damage large
+weapons do.
+
+***** <77>
+== Advanced Combat
+"Advanced Combat" affects your chance to hit monsters with melee weapons.
+At rank 15 this skill opens up "Master Combat" for Officers, Adventurers,
+and Dashing Hussars. If you have this skill unlocked and the skill "Vicious
+Strike" at 10 (and you don't have the "Critical Strike" skill) you will
+unlock "Power Strike". If you have this skill unlocked and the skill 
+"Accurate Strike" at 10 (and you don't have the "Power Strike" skill)
+you will unlock "Critical Strike". If you have 10 ranks in this skill
+and you are an Officer, you will unlock the skill "Knockdown". If this
+skill has 15 ranks, and "Hold the Line" has 15 ranks, you will unlock
+the skill "Battle Endurance".
+
+This skill is used to increase your chance to hit. It has a fair impact
+on your to hit chance (each point raises your chance to hit by 3). It
+also has an impact on your critical chance with weapons. Each point
+slightly increases the chance for a critical (it increases the effective
+weight of the weapon by a tenth of a pound). Weapon skills are also
+used in weapon force calculations. Force can increase the damage large
+weapons do.
+
+***** <78>
+== Master Combat
+
+"Master Combat" affects your chance to hit monsters with melee weapons.
+
+This skill is used to increase your chance to hit. It has a poor impact
+on your to hit chance (each point raises your chance to hit by 2). It
+also has an impact on your critical chance with weapons. Each point
+slightly increases the chance for a critical (it increases the effective
+weight of the weapon by a tenth of a pound). Weapon skills are also
+used in weapon force calculations. Force can increase the damage large
+weapons do.
+
+***** <79>
+== Power Strike
+
+"Power Strike" affects your chance to hit more powerfully with heavy
+weapons. When you raise this skill, you should lose access to the 
+"Critical Strike" skill.
+
+This skill increases your chance to land a 'forcehit' which increases
+the damage of a weapon. Also, every six points in this skill raises
+the damage mutplier of the strike by one.
+
+***** <80>
+== Critical Strike
+
+"Critical Strike" affects your ability to land critical blows. When
+you raise this skill, you should lose access to the "Power Strike"
+skill.
+
+This skill increases your chance to land a critical strike. Every 2
+ranks increase the 'punch' multiplier by one. 'punch' is the
+amount of critical chance a strike has. Every rank also has an
+opportunity to increase the severity of the critical.
+
+***** <81>
+== Accurate Strike
+
+Accurate Strike increases your chance to hit. If this skill is rank 10
+and you have the "Advanced Combat" skill, you will unlock the "Critical
+Strike" skill. If this skill is 10 you will unlock the "Swift Blow" skill.
+
+This skill acts a a weapon bonus. Each point effectively increases your
+chance to hit by 3.
+
+***** <82>
+== Vicious Strike
+
+"Vicious Strike" increases your chance to seriously damage monsers.
+If this skill is rank 10 and you have the "Advanced Combat" skill you
+will unlock the "Power Strike" skill. If this skill is 10 you will
+unlock the "Weapon Finesse" skill.
+
+Every rank adds a point of damage to your strike.
+
+***** <83>
+==Swift BLow
+
+This helps increase the number of strikes you get with a weapon.
+
+Every point in this skill increases your Agility by 20 for purposes
+of determining how many attacks you get with a weapon.
+
+***** <84>
+== Weapon Finesse
+
+This helps increase the number of strikes you get with a weapon.
+
+Every point in this skill increases your Muscle by 20 for purposes
+of determining how many attacks you get with a weapon.
+
+***** <85>
+== Martial Arts
+
+This skill determines your ability to attack without wielding a weapon.
+If this skill is 15 and your class is a Medium, Rogue, Gentleman, 
+Naturalist, Dashing Hussar, or your race is Asiatic then you will
+unlock "Eagle Strike Arts". If this skill is 5 and your class is
+Engineer, Rogue, or Dashing Hussar then you will unlock the skill
+"Acrobatics". If you are a Rogue, and your "Neophyte Combat" is 5, and
+this skill is 5, you will unlock the skill "Dirty Fighting".
+
+This skill is used to increase your chance to hit if you are not holding
+a weapon. It has a high impact on your hit chance (each point raises your
+chance to hit by 6). It also determines the amount of damage you do when
+you hit. Your base damage is 2d4. Every 2 ranks raise the number of sides
+by 1 to a total of 2d14.
+
+***** <86>
+== Eagle Strike Arts
+
+This skill determines your ability to attack without wielding a weapon.
+If this skill is 10 and your race is not a Ghost you will unlock the skill
+"Toughness". If this skill is 15 and your class is Medium, Rogue, Gentleman, 
+Naturalist, or your race is Asiatic then you will unlock 
+"Dragon Claw Arts". If this skill is 8 and your class is Medium, Rogue,
+Gentleman, Naturalist or your race is Asiatic, then you will unlock
+the skill "Iron Skin".
+
+This skill is used to increase your chance to hit if you are not holding
+a weapon. It has a high impact on your hit chance (each point raises your
+chance to hit by 5). It also determines the amount of damage you do when
+you hit. Your base damage is 2d4. Every 5 ranks raise the number of dice
+by 1, and every three ranks raise the number of sides by one, starting
+at rank 2.
+
+***** <87>
+== Dragon Claw Arts
+
+This skill determines your ability to attack without wielding a weapon.
+If this skill is 10, you have "The Gentle Way" skill and your class is 
+Rogue or Gentleman, or your race is Asiatic, you will unlock "Fleetness".
+If you are a Rogue, your "Stealth" skill is Maxed and you have this skill
+you will unlock "Ninja Stealth" and "Ninjitsu".
+
+This skill is used to increase your chance to hit if you are not holding
+a weapon. It has a fair impact on your hit chance (each point raises your
+chance to hit by 4). It also determines the amount of damage you do when
+you hit. Your base damage is 2d4. Every two ranks raise the number of sides
+by 1.
+
+***** <88>
+== Neophyte Firearms
+
+This skill determines your accuracy with firearms. If this skill is 15 and
+your class is Officer, Aesthete, Engineer, Medium, Adventurer, Dashing
+Hussar, Gentleman, Rogue or Naturalist, you will unlock the skill
+"Standard Firearms". If this skill is 10 you will unlock the skill "Swift
+Shot".
+
+This skill is used to increase your chance to hit with firearms. It has
+a good impact on your hit chance (each point raises your chance to hit
+by 5). 
+
+***** <89>
+== Standard Firearms
+
+This skill determines your accuracy with firearms. IF this skill is 15 and
+your class is Officer, Aesthete, Gentleman, Engineer, Adventurer, Dashing
+Hussar, Rogue or Medium you will unlock the skill "Advanced Firearms". If
+this skill is 8 you will unlock the skills "Vicious Firearms" and 
+"Accurate Firearms".
+
+This skill is used to increase your chance to hit with firearms. It has a
+fair impact on your hit chance (each point raises your chance to hit by 4).
+It also raises your chance at a critical with firearms. Each rank raises
+the 'punch' of the bullet by a 10th of apound.
+
+***** <90>
+== Advanced Firearms
+This skill determines your accuracy with firearms. IF this skill is 15 and
+your class is Officer, Adventurer, or Dashing Hussar, you will unlock the
+skill "Master Firearms". If you have this skill and "Accurate Firearms" is 
+10 or higher you will unlock the skill "Critical Shot" 
+
+This skill is used to increase your chance to hit with firearms. It has a
+fair impact on your hit chance (each point raises your chance to hit by 3).
+It also raises your chance at a critical with firearms. Each rank raises
+the 'punch' of the bullet by a 10th of a pound.
+
+***** <91>
+== Master Firearms
+This skill determines your accuracy with firearms. 
+
+This skill is used to increase your chance to hit with firearms. It has a
+poor impact on your hit chance (each point raises your chance to hit by 2).
+It also raises your chance at a critical with firearms. Each rank raises
+the 'punch' of the bullet by a 10th of a pound.
+
+***** <92>
+== Pistols
+
+This skill determines your accuracy with pistols.
+
+This skill increases your chance to hit with pistols. It has a
+great impact on your hit chance with pistols (each point raises your chance
+to hit by 6). Putting any points in this skill removes the other gun
+specialization skills.
+
+***** <93>
+== Rifles
+
+This skill determines your accuracy with rifles.
+
+This skill increases your chance to hit with rifles. It has a
+great impact on your hit chance with rifles (each point raises your chance
+to hit by 6). Putting any points in this skill removes the other gun
+specialization skills.
+
+***** <94>
+== Shotguns
+
+This skill determines your accuracy with shotguns.
+
+This skill increases your chance to hit with shotguns. It has a
+great impact on your hit chance with shotguns (each point raises your chance
+to hit by 6). Putting any points in this skill removes the other gun
+specialization skills.
+
+***** <95>
+== Critical Shot
+
+This skill increases your critical ability with firearms.
+
+This skill increases your chance to score a critical with a firearm.
+Every 2 ranks increase the 'punch' multiplier by one. 'punch' is the
+amount of critical chance a strike has. Every rank also has an
+opportunity to increase the severity of the critical.
+
+***** <96>
+== Accurate Shot
+
+This skill increases your chance to hit with firearms. If this skill
+is 10 ranks, and you have the skill "Advanced Firearms" you will
+unlock the skill "Critical Shot".
+
+This skill increases your chance to hit with firearms. Each rank
+increases the chance to hit by 3.
+***** <97>
+== Vicious Shot
+
+This skill increases your ability to shoot areas that cause
+a lot of damage on monsters. 
+
+This skill increases your damage with firearms. Each rank adds
+one point to the damage per shot.
+
+***** <98>
+== Swift Shot
+
+This skill decreases the amount of time it takes to load a firearm.
+
+This skill reduces the amount of energy required to reload firearms.
+It normally takes 200 energy to load a firearm. Every point in this 
+skill reduces the energy cost by 6. 
+
+***** <99>
+== Throwing
+
+This skill is your base throwing skill. It determines your chance to
+hit. If this skill is 15 and your class is Medium, Adventurer, Engineer,
+Dashing Hussar, Gentleman, Rogue, Naturalist, or Aesthete you will
+unlock "Advance Throwing"
+
+This skill is your ability to hit with thrown objects. Each rank in 
+this skill increases your chance to hit with throwing objects by 9.
+
+***** <100>
+== Advance Throwing
+
+This skill increases your throwing skill. It determines your chance
+to hit. If this skill is 15 and your class is Adventurer, Engineer,
+Aesthete, Naturalist, and Rogue you will unlock "Master Throwing". If
+this skill is 10 you will unlock "Accurate Throw".
+
+This skill is your ability to hit with thrown objects. Each rank in
+this skill increases your chance to hit with throwing objects by 6.
+Every five ranks in this skill increases your throwing distance by one.
+
+***** <101>
+== Master Throwing
+
+This skill increases your throwing skill. It determines your chance
+to hit. If you have this skill and the skill "Throwing Accuracy" is
+four, you will unlock "Power Throw". If this skill is 10 and you are
+a Rogue, you will unlock the skill "Fast Throw".
+
+This skill is your ability ot hit with thrown objects. Each rank in
+this skill increases your chance to hit with throwing objects by 4.
+Every three ranks in this skill increases your throwing distance by one.
+
+***** <102>
+== Power Throw
+
+This skill increases the damage of thrown objects. 
+
+When you raise this skill to rank 2, throwing damage is doubled.
+The mutiplier applied to this skill increases every three ranks by one.
+
+***** <103>
+== Critical Throw
+
+This skill increases your chances of scoring a critical on a monster
+with a thrown weapon.
+
+This skill increases your chance to score a critical with a thrown
+weapon. Every 2 ranks increase the 'punch' multiplier by one. 'punch' 
+is the amount of critical chance a strike has. Every rank also has an
+opportunity to increase the severity of the critical.
+
+***** <104>
+== Throwing Accuracy
+
+This skill increases your ability to hit with thrown objects. If this
+skill is rank 10 you will unlock "Critical Throw". If this skill is rank
+4 and you have access to "Master Throwing" you will unlock the skill
+"Power Throw".
+
+This skill is your ability to hit with thrown objects. Each rank in
+this skill increases your chance to hit with throwing objects by 4.
+
+***** <105>
+== Hafted Weapons
+
+This skill increases your proficiency with Hafted Weapons. Selecting
+this skill eliminates the other weapon masteries as skill selections.
+Raising this skill to 20 if you are an Adventurer will open the relevant
+mastery skill
+
+This skill affects your ability to hit if you are weilding a Hafted
+Weapon. It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 4.
+
+***** <106>
+== Polearms
+
+This skill increases your proficiency with Polearms. Selecting
+this skill eliminates the other weapon masteries as skill selections.
+Raising this skill to 20 if you are an Adventurer will open the relevant
+mastery skill.
+
+This skill affects your ability to hit if you are weilding a Polearms.
+It affects both throwing weapons and melee attacks. Each point raises
+the chance to hit by 4.
+
+***** <107>
+== Swords
+
+This skill increases your proficiency with Swords. Selecting
+this skill eliminates the other weapon masteries as skill selections.
+Raising this skill to 20 if you are an Adventurer will open the relevant
+mastery skill.
+
+This skill affects your ability to hit if you are weilding a Sword. 
+It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 4.
+
+***** <108>
+== Daggers
+
+This skill increases your proficiency with Daggers. Selecting
+this skill eliminates the other weapon masteries as skill selections.
+Raising this skill to 20 if you are an Adventurer will open the relevant
+mastery skill.
+
+This skill affects your ability to hit if you are weilding a Dagger.
+It affects both throwing weapons and melee attacks. Each point raises 
+the chance to hit by 4.
+
+***** <109>
+== Axes
+
+This skill increases your proficiency with Axes. Selecting
+this skill eliminates the other weapon masteries as skill selections.
+Raising this skill to 20 if you are an Adventurer will open the relevant
+mastery skill.
+
+This skill affects your ability to hit if you are weilding a Axe.
+It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 4.
+
+***** <110>
+== Blunt Weapons
+
+This skill increases your proficiency with Blunt Weapons. Selecting
+this skill eliminates the other weapon masteries as skill selections.
+Raising this skill to 20 if you are an Adventurer will open the relevant
+mastery skill.
+
+This skill affects your ability to hit if you are weilding a Blunt
+Weapon. It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 4.
+
+***** <111>
+== Hafted Mastery
+
+This skill increases your mastery of Hafted Weapons. 
+
+This skill affects your ability to hit if you are weilding a Hafted
+weapon. It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 6. It also greatly affects your ability to 
+score criticals with the weapon. 
+
+***** <112>
+== Polearm Mastery
+
+This skill increases your mastery of Polearm Weapons. 
+
+This skill affects your ability to hit if you are weilding a Polearm
+weapon. It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 6. It also greatly affects your ability to 
+score criticals with the weapon. 
+
+***** <113>
+== Sword Mastery
+
+This skill increases your mastery of Sword Weapons. 
+
+This skill affects your ability to hit if you are weilding a Sword
+weapon. It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 6. It also greatly affects your ability to 
+score criticals with the weapon. 
+
+***** <114>
+== Dagger Mastery
+
+This skill increases your mastery of Dagger Weapons. 
+
+This skill affects your ability to hit if you are weilding a Dagger
+weapon. It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 6. It also greatly affects your ability to 
+score criticals with the weapon. 
+
+***** <115>
+== Axe Mastery
+
+This skill increases your mastery of Axe Weapons. 
+
+This skill affects your ability to hit if you are weilding a Axe
+weapon. It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 6. It also greatly affects your ability to 
+score criticals with the weapon. 
+
+***** <116>
+== Blunt Mastery
+
+This skill increases your mastery of Blunt Weapons. 
+
+This skill affects your ability to hit if you are weilding a Blunt
+weapon. It affects both throwing weapons and melee attacks. Each point
+raises the chance to hit by 6. It also greatly affects your ability to 
+score criticals with the weapon. 
+
+***** <117>
+== Acrobatics
+
+"Acrobatics" increases your defensive abilities, as well as eventually 
+allowing you to evade attacks and move around quickly.
+
+This skill affects your armor class. Every rank raises your armor class
+by one. Also, At rank five this skill gives you the evasion mutation, and
+at rank 20 it gives you the spring mutation. Evade greatly increases your
+armor class and speed, but makes it more difficult to hit. Spring gives you 
+a controlled teleport.
+
+***** <118>
+== Iron Skin
+
+"Iron skin" toughens up your skin making it harder for monsters to 
+successfully hit you. If this skill is 15 and you are a Gentleman, or 
+Rogue, or your races is Asiatic, you will unlock the skill "The Gentle
+Way". 
+
+This skill affects your armor class. Every rank raises your armor class
+by one.
+***** <119>
+== The Gentle Way
+
+This affects your defense in several powerful ways. If you have this 
+skill, and the skill "Dragon Claw Arts" is 10, then you will unlock 
+the skill "Fleetness".
+
+This skill gives you a chance to counterattack monsters when they strike
+you. This skill alternetly raises your low and then mid resists, giveing
+you a final total of +10% resistance to both your low and high resists.
+
+***** <120>
+== Fleetness
+
+This skill raises your speed.
+
+Every two points in this skill raises your speed by one.
+
+***** <121>
+== Double Throw
+
+This skill is non-functioning.
+
+***** <122>
+== Quick Toss
+
+This skill increases the speed at which you can throw objects.
+
+Each rank reduces your energy cost to throw something by one.
+If a random number between 1 and 25 is less than your skill
+you get a great boost to your speed while throwing.
+
+***** <123>
+== Dirty Fighting
+
+This allows you to do extra damage
+
+This lets you do 1d6 extra damage. For every four ranks in this skill
+you will do an extra die of damage.
+
+***** <124>
+== No Skill
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <125>
+== Command Techniques
+
+This is the officer's class powers.
+
+***** <126>
+== Combat Techniques
+
+This is the officer's class powers.
+
+***** <127>
+== Presence
+
+This skill increases the effectivness of the officer's class powers.
+
+***** <128>
+== Debutante Ability
+
+This is the Aesthete's class powers
+
+***** <129>
+== Artificer Ability
+
+This is the Aesthete's class powers.
+
+***** <130>
+== Survival Technique
+
+This is the Adventurer's class powers.
+
+***** <131>
+== Telepathy
+
+This is the Medium's class powers.
+
+***** <132>
+== Clairsentience
+
+This is the Medium's class powers.
+
+***** <133>
+== Psychometabolism
+
+This is the Medium's class powers.
+
+***** <134>
+== Mesmeric Will
+
+"Mesmeric Will" increases the power of the Medium's abilities.
+
+***** <135>
+== Combat Techniques
+
+This is the Dashing Hussar's class powers.
+
+***** <136>
+== Elite Maneuvers
+
+This is the Dashing Hussar's class powers.
+
+***** <137>
+== Flora
+
+This is the Naturalist's class powers. If this skill, and the other
+Naturalist skills are all 5 or higher you will unlock the skill
+"Earth's Hearth"
+
+***** <138>
+== Fauna
+
+This is the Naturalist's class powers. If this skill, and the other
+Naturalist skills are all 5 or higher you will unlock the skill
+"Earth's Hearth"
+
+***** <139>
+== Elemental
+
+This is the Naturalist's class powers. If this skill, and the other
+Naturalist skills are all 5 or higher you will unlock the skill
+"Earth's Hearth"
+
+***** <140>
+== Ninja Mysticism
+
+This is the Rogue's class powers.
+
+***** <141>
+== Ninja Stealth
+
+This is the Rogue's class powers.
+
+***** <142>
+== Ninjutsu
+
+This is the Rogue's class powers.
+
+***** <143>
+== Hebrew
+
+This is the Gentleman's class powers.
+
+They currently don't function.
+
+***** <144>
+== Qabala
+
+This is the Gentleman's class powers.
+
+They currently don't function.
+
+***** <145>
+== Gematria
+
+This skill doesn't function.
+
+***** <146>
+== Bribery
+
+This is the Aesthete's class powers.
+
+***** <147>
+== Art Appreciation
+
+This is the Aesthete's class powers.
+
+***** <148>
+== Battle Endurance
+
+This skill increases your regeneration rate and your wound points.	
+
+***** <149>
+== Earth's Hearth
+
+This skill increases your mana.
+
+***** <150>
+== Latin
+
+This is your basic magic ability. It allows you to understand both
+'green' and 'red' magic books. It helps you decypher the lore but does
+little to keep you safe. If your class is Rogue, Engineer or Officer and
+your "Latin" rank is 10, you will unlock the skill "Anatomy". If you are
+not a Steam-mecha or Automata and your class is Engineer, Gentleman, or 
+Medium and your "Latin" rank is 3, you will unlock the skill "Eurdite".
+If you are an Aesthete and your "Latin" rank is 5, you will unlock the
+skill "Art Appreciation". If your class is Gentleman, and your "Latin"
+rank is 5, you will unlock the skill "Perilous Sorcery".
+
+Every rank in this skill allows you to cast more powerful spells from
+spellbooks.
+
+***** <151>
+== Occult Lore
+
+This skill is your basic 'red' magic book casting ability. If your class
+is Aesthete, Engineer, Gentleman, Rogue, or Medium, and this 
+skill is rank 15, you will unlock the skill "Adv. Occult Lore".
+
+Every rank in this skill allows you to cast more powerful spells from
+'red' spellbooks.
+
+***** <152>
+== Adv. Occult Lore
+
+This skill is your advanced 'red' magic book casting ability. If your class
+is Gentleman or Rogue and this skill is rank 15, you will unlock the skill
+"Cthulhu Mythos".
+
+Every rank in this skill allows you to cast more powerful spells from 'red'
+spellbooks.
+
+***** <153>
+== Cthulhu Mythos
+
+This skill is your master 'red' book casting ability. If this skill is rank
+5, and "Advanced Thaumic Energy" is rank 10, you will unlock the skill 
+"Spell Quickening {*}".
+
+Every rank in this skill allows you to cast more powerful spells from 'red'
+spellbooks.
+
+***** <154>
+== Ritual Magic
+
+This skill is your understanding of 'red' book casting ability. If this skill
+rank is 3, and your class is Medium, Gentleman, Engineer, Rogue, Aesthete, or
+Naturalist, you will unlock the skill "Thaumic Energy"
+
+This skill makes it less likely demons under your control will become hostile
+It also increases the power of your spells, causing more damage, longer duration
+etc.
+
+***** <155>
+== Thaumic Energy
+
+This skill is your understanding of casting 'red' book magic safely. If this
+skill is 15 and your class is a Medium, Engineer, Gentleman, or Naturalist, 
+you will unlock the skill "Thaumaturgy"
+
+This skill increases your safety and removes penalties for casting spells.
+
+***** <156>
+== Thaumaturgy
+
+This skill is your understanding of casting 'red' book magic safely. If this
+skill rank is 15 and your class is Gentleman, you will unlock the skill
+"Thelma". If this skill is 10, and your Cthulhu Mythos skill is 5 you will
+unlock the skill "Spell Quickening {*}".
+
+This skill increases your safety and removes penalties for casting spells.
+
+***** <157>
+== Thelma
+
+This skill allows you to supercharge your 'red' book magic spells.
+
+This skill increases the power of your spells.
+
+***** <158>
+== Spirituality
+
+This skill is your basic 'green' book casting ability. If your class
+is Aesthete, Engineer, Gentleman, Rogue, Medium, Naturalist, 
+Dashing Hussar, Adventurer, or Aesthete and this skill is rank 15,
+you will unlock the skill "Prayer". If you are one of those classes
+and this skill is rank 3 you will unlock the skill "Lesser Warding".
+If this skill is rank 10, and you are a Medium, you will unlock the
+skill "Spirital Infusion".
+
+This skill increases the number of 'green' book spells you can cast.
+
+***** <159>
+== Prayer
+
+This skill is your 'green' book casting ability. If your class is
+Gentleman, Naturalist, or Medium, and your rank in this skill is 
+15, you can unlock the skill "Devotion".
+
+This skill increases the number of 'green' book spells you can cast.
+
+***** <160>
+== Devotion
+
+This skill is your advanced 'green' book casting ability. If this skill
+rank is five, and your "Greater Warding" skill is 10 you will unlock the
+skill "Spell Quickening"
+
+This skill increases the number of 'green' book spells you can cast.
+
+***** <161>
+== Lesser Warding
+
+This skill is your ability to cast 'green' book spells safely. If your 
+class is Naturalist, Medium, Gentleman, Adventurer, or Aesthete and this
+skill rank is 15, you will unlock the skill "Greater Warding"
+
+This skill increases your safety and removes penalties for casting spells.
+
+***** <162>
+== Greater Warding
+
+This skill is your ability to cast 'green' book spells safely. If this skill
+rank is ten, and your "Devotion" skill is 5 you will unlock the
+skill "Spell Quickening".
+
+This skill increases your safety and removes penalties for casting spells.
+
+***** <163>
+== Tempered Will
+
+This skill increases your spellcasting power. If this skill is rank 15
+you will unlock the skill "Hardened Will".
+
+***** <164>
+== Hardened Will
+
+This skill increases your spellcasting power. If this skill is rank 15
+you will unlock the skill "Iron Will". If this skill is rank 5 and your
+class is Medium, you will unlock the skill "Mental Resistance". If it is
+rank 15 and your class is Medium, you will unlock the skill "Mental 
+Toughness".
+
+***** <165>
+== Iron Will
+
+This skill increases your spellcasting power. 
+
+***** <166>
+== Spell Quickening
+
+This spell increases the speed at which you cast spells.
+
+Each point in this skill reduces the energy cost of casting a spell
+by one. When this skill is maxed, it will only cost 80 energy to cast
+a spell.
+
+***** <167>
+== Spiritual Infusion
+
+This skill increases your melee damage. If this skill is rank 5 and your
+class is Medium, you will unlock the skills "Spiritual Shield" and 
+"Spiritual Healing".
+
+This skill adds damage to your melee attacks equal to its skill rank.
+
+***** <168>
+== Mental Resistance
+
+This skill provides resistance.
+
+Every four ranks increase your Wound Points by one. Every rank raises
+your psi/tk/spi resistance by 3, your light/dark resistance by 1, and
+every other rank increases your time/ether/sound/nether resistance
+by one.
+
+***** <169>
+== Spiritual Shield
+
+This skill helps defend you. If this skill, and "Spiritual Healing"
+are both at 15 ranks (or higher) you will unlock the skill "Spiritual
+Speed".
+
+***** <170>
+== Spiritual Healing
+
+This skill increases how quickly you recover from damage. If this skill,
+and "Spiritual Shield" are both at 15 ranks (or higher) you will unlock 
+the skill "Spiritual Speed".
+
+This skill increases your regeneration rate.
+
+***** <171>
+== Spiritual Speed
+
+This skill increases your speed. 
+
+Every other rank increases your speed by 1.
+
+***** <172>
+== Anatomy
+
+This skill increases your critical chance versus living creatures.
+
+It has a chance to greatly increases your criticals, and gives a
+flat bonus to the damage mutiplier against all living creatures. 
+The criticals are increased if a number from 1-320 is less than your 
+skill. Every four ranks adds 25% to the damage. It also affects
+firearms, where the boni are slightly better.
+
+***** <173>
+== Sabotage
+
+This skill increases your critical chance versus non-living creatures.
+
+It has a chance to greatly increases your criticals, and gives a
+flat bonus to the damage mutiplier against all non-living creatures. 
+The criticals are increased if a number from 1-160 is less than your 
+skill. Every three ranks adds 25% to the damage. It also affects
+firearms, where the boni are slightly better.
+
+***** <174>
+== Theology
+
+No class has access to this skill. There is no skill here.
+
+Not Implimented.
+
+***** <175>
+== Gadgeteer
+
+Gadgeteer is your base device skill. It affects your ability
+to use all devices. If Gadgeteer is rank 5, you will unlock
+the skill pyrotechnics.
+
+This increases the number of effects you can get from 
+all devices.
+
+***** <176>
+== Utility Bandolier
+
+This is your skill with the Utility Bandolier.
+
+Every rank in this skill allows you to access more powerful
+effects in the Utility Bandolier.
+
+***** <177>
+== Detectives Kit
+
+This is your skill with the Detectives Kit.
+
+Only Gentlemen get this skill. If they raise it they
+will lose access to other special devices. Every rank in this
+skill allows you to access more powerful effects in the 
+Detectives Kit.
+
+***** <178>
+== Clockwork Chassis
+
+This is your skill with the Clockwork Chassis.
+
+Every rank in this skill allows you to access more powerful
+effects in the Clockwork Chassis.
+
+***** <179>
+== Clockwork Carbine
+
+This is your skill with the Clockwork Carbine.
+
+Every rank in this skill allows you to access more powerful
+effects in the Clockwork Carbine.
+
+***** <180>
+== Velocipede
+
+This is your skill with the Velocipede.
+
+Every rank in this skill allows you to access more powerful
+effects in the Velocipede.
+
+***** <181>
+== Analytic Engine
+
+This is your skill with the Analytic Engine.
+
+Every rank in this skill allows you to access more powerful
+effects in the Analytic Engine.
+
+***** <182>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <183>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <184>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <185>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <186>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <187>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <188>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <189>
+== Pyrokinetics
+
+This skill increases your ranged damage with fire.
+
+It adds fire damage to your ranged attacks.
+
+***** <190>
+***** <191>
+***** <192>
+== Using Devices
+
+This is your ability to use devices. There are three 
+different 'ratings' of this skill, determined by your 
+race and class. You can determine which type (good, 
+neutral, or terrible) by the sub description below 
+the skill. When this skill is rank 5, you will unlock
+the skill "Advanced Devices". If this skill is rank
+5, 10, or 15 (depending on your rating) you will unlock
+the skill "Device Power Amp".
+
+This determines your success at using devices. The 
+higher this is, the more likely you are able to successfully
+use the device.
+
+***** <193>
+== Advanced Devices
+
+This skill further increases your success rate at operating
+devices. If this skill is rank 5, you will unlock the skill
+"Device Bio Amp". If this skill is rank 10, you will unlock the
+skill "Device Efficiency". If this skill is rank 15 and the skill
+"Device Efficiency" is rank 10, you will unlock the skill "Fast
+Device Use"
+
+This skill has a minor effect on device success, but opens up
+the secondary device skills.
+
+***** <194>
+== Fast Device Use
+
+This skill increases the speed at which you can wield devices.
+
+Every rank in this skill reduces the amount of energy required
+to operate a device by 4. If this skill is maxed, it takes only
+20 energy to use a device.
+
+***** <195>
+== Device Efficiency
+
+This skill reduces the recharge time for devices. If this skill
+is rank 10 and the "Advanced Devices" skill is rank 15, then you will
+unlock the "Fast Device Use" skill.
+
+This skill increases the speed at which devices recharge. It affects
+each device individually. 
+
+***** <196>
+== Device Power Amp
+
+This skill increases the damage caused by devices. If this skill is
+rank 15, you will unlock the skill "Advanced Power Amp"
+
+This skill often affects the number of dice rolled for damage.
+
+***** <197>
+== Advanced Power amp
+
+This skill increases the damage caused by devices.
+
+This skill often affects the number of sides on the dice rolled for
+damage.
+
+***** <198>
+== Device Bio Amp
+
+This skill increases the amount that devices heal.
+
+***** <199>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <200>
+== Fire Lore
+
+Fire lore is a Naturalist skill. Raising this skill to 15 unlocks
+the skill "Elemental Defense".
+
+***** <201>
+== Fire Mastery
+
+Fire Mastery is a Naturalist skill.
+
+***** <202>
+== Wind Lore
+
+Wind lore is a Naturalist skill. Raising this skill to 15 unlocks
+the skill "Elemental Defense".
+
+***** <203>
+== Wind Mastery
+
+Wind Mastery is a Naturalist skill.
+
+***** <204>
+== Water Lore
+
+Water Lore is a Naturalist skill. Raising this skill to 15 unlocks
+the skill "Elemental Defense".
+
+***** <205>
+== Water Mastery
+
+Water Mastery is a Naturalist skill.
+
+***** <206>
+== Earth Lore
+
+Earth Lore is a Naturalist skill. Raising this skill to 15 unlocks
+the skill "Elemental Defense".
+
+***** <207>
+== Earth Mastery
+
+Earth Mastery is a Naturalist skill.
+
+***** <208>
+== Elemental Defense
+
+This skill raises your resistance.
+
+Each rank in this skill raises your resistance by 2% for the low
+resists, and 1% for the high resists.
+
+***** <209>
+== Basic Survival
+
+This skill raises your resistance versus the low resists.
+
+Each rank raises your low resist by 2%.
+
+***** <210>
+== Toughness
+
+This skill raises your Wound Points. If this skill has 5 ranks
+and your class is Naturalist, Dashing Hussar, or Gentleman you
+will unlock the skill  "Athletics". If this skill has 10 ranks
+and your class is Adventurer, Dashing Hussar, or Officer you will
+unlock the skill "Pain Tolerance". If this skill has 20 ranks and
+your class is Adventurer or Officer, you will unlock the skill 
+"Fortitude".
+
+Every rank in this skill raises your Wound Points by one.
+
+***** <211>
+== Mental Toughness
+
+This skill raises your Wound Points.
+
+Each rank in this skill raises your Wound Points by one.
+
+***** <212>
+== Fortitude
+
+This skill raises your Wound Points. If this skill has 20 ranks
+and your class is Adventurer, you will unlock "Iron Body". If
+this skill has 5 ranks, and your class is Adventurer, and the
+"Stealth" skill has 10 ranks, you will unlock the skill "Basic
+Survival"
+
+Each rank in this skill raises your Wound Points by one.
+
+***** <213>
+== Iron Body
+
+This skill raises your Wound Points and Armor Class.
+
+Every odd rank in this skill raises your Armor Class, every 
+even rank raises your Wound Points.
+
+***** <214>
+== Spiritual Battery
+
+This skill raises your spellpoints.
+
+Every rank gives you 1.5 extra spellpoints.
+
+***** <215>
+== Hold the Line
+
+This skill increases your armor class. If this skill has 15 ranks
+and the "Advanced Combat" skill has 15 ranks you will unlock the 
+"Battle Endurance" skill.
+
+Each rank in this skill increases your armor class.
+
+***** <216>
+== Knock-down
+
+This skill has a chance to stun monsters.
+
+If a random number from 1-30 is less than the number of ranks in 
+this skill, you will stun a monster with the amount of damage that
+you would have caused (this does not stop you from causing the damage
+to the monster). If a monster is stunned it uses it's level * 4 to 
+hit the player instead of it's level * 6.
+
+***** <217>
+== Dragon's Heart
+
+Increases your stats when being raised.
+
+***** <218>
+== Athletics
+
+This skill increases your Speed, Muscle and Agility.
+
+***** <219>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <220>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <221>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <222>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <223>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+
+***** <224>
+==DEFAULT
+
+No class has access to this skill. There is no skill here.
+
+Not implimented.
+

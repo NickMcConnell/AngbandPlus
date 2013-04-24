@@ -1,317 +1,268 @@
+==========================
+=== A Steamband Primer ===
+==========================
+Hi! 
+
+My name is Courtney Campbell, and I'm going to talk to you about playing
+Steamband!
+
+First of all don't panic. It might also help if you have a towel. A quick
+perusal of this file will make your experience much more pleasant.
+
+Our first topic of disscussion is using the help.
+
+Hint: Commands are given in parenthesies and quotes (''). Don't type 
+anything but the command in the middle. Characters without the parenthesies
+are how they are represented onscreen.
+
+=============================
 === Using the Online Help ===
+=============================
 
-You can press Escape (ESC) at any time to leave the online help.
+Nice topic, eh?
 
-You can press Question Mark (?) to return to the previous help file.
+You can press Escape ('ESC') at any time to leave the online help.
 
-You can press Space to advance one page, Plus (+) to advance one half page,
-or Return to advance one line.  If you reach the end, you will jump to the
-start.  You can press Minus (-) to back up one half page, Underscore (_) to
-back up one page, or Equal (=) to back up one line.  If you reach the start,
-you will stay there.  Advancing by one page is the only efficient method.
+You can press Question Mark ('?') to return to the previous help file.
 
-You can press Pound (#) [or Percent (%)] to go to a specific line [or file].
+You can press Space (' ') to advance one page. Plus ('+') and minus ('-') 
+will move you through the file. You can hit a labeled number key to select 
+the listed help file. (i.e. pressing ('1') on the first help screen brought 
+you here to this file, general.txt)
 
-You can press Slash (/) [or Ampersand (&)] to search for [or hilite] a string
-(case-insensitive by default, (!) toggles to case-sensitive).
-Use "#" + "0" + Return + "/" + Return to restart a search.
+That's bascially all you need to know to navigate the online help. Other 
+functions are described in detail on the main page, which you can reach by 
+typing ('?') from here.
 
 Please continue to press Space to view the rest of this file...
 
-Hit enter at any time during the game for a complete list of commands
+There is one final useful help feature that you can use when you get into a 
+fix. Any time you are looking for a command in the game you can hit ('Enter')
+and you will bring up a menu that allows you to access a complete list of
+commands.
 
-
+===========================
 === General Information ===
+===========================
 
-Steamband is basically a complex single player dungeon simulation.  A player
+Oh, man, you might love Steampunk or the Victorian age, but what the hell is
+this?
+
+Steamband is basically a complex single player dungeon simulation. A player
 creates a character, choosing from a variety of sexes, races and classes,
-and then "runs" that character over a period of days, weeks, even months.
+and then attempts to escape from the centre of the earth.
 
-The player will begin his adventure on the town level where he may acquire
-supplies, weapons, armor, and magical devices by buying from various shop
-owners.  Then the player can ascend into the dungeon of Steamband, where 
-he will explore the many levels of the dungeon, gaining experience by killing 
-fierce creatures, collecting powerful objects and valuable treasure, and 
-returning to town occasionally to buy new supplies.  Eventually, as 
-the player grows more experienced, he may attempt to win the game by defeating 
-The final enemy and returning to the surface of the world.
+How exactly do you do that? Well at the centre of the earth is a town of sorts
+and there are passages that lead to the surface. You can equip weapons and 
+armor, and use skills, items and powers to fight your way to the surface.
 
-Note that Steamband is a very complex game, and it may be difficult to grasp
-everything at first, especially if you have never played a "roguelike" game
-before.  You should probably browse through all of the "online help files",
-especially this one, before beginning any serious adventuring...
+Steamband is a "roguelike" game and these can be very complex. A short
+introduction to the key concepts follows.
 
-=== A Note from the Maintainer ===
+=============================
+=== A Simple Introduction ===
+=============================
 
-Welcome to Steamband 0.4.0
+Any command may be accessed by pressing the enter key ('Enter').
 
-My name is Courtney Campbell, and I have been the maintainer of steamband since
-January 2003.  
+Your character is represented by the '@' symbol! Look, that's you! You see
+a top-down representation of the dungeon around you.
 
-Steamband 0.4.0 is available for PPC/68k/OSX Macintosh, with a x86 compile that
-usually is available soon after the Macintosh release.  It is written 
-entirely in C, and the source code is freely available.  Creating a version
-for a new platform involves writing as few as 100 lines of code and recompiling.
+You use the "numeric keypad" to move. The arrow keys will also work. You 
+are allowed to move diagonally. ('8') moves you up, ('6') moves you right 
+and ('9') moves you diagonally up and right and so on and so forth. If you 
+don't have a numeric keypad, use the arrow keys to move for now. You can 
+use the number row in an emergency (if someone is blocking you into a shop 
+entrance for example).
 
-steamband 0.4.0 is the most recent version.  It, I am sure, contains 
-many and varied bugs. Please write "valis@oook.cz" with any bugs that you 
-find. 
+Messages will appear in the top row. If the messages are too long to fit on 
+the top row, you will see a '-more-' prompt. Any key will clear this prompt 
+and display the rest of the message. You may hit the escape key ('Esc') to 
+clear all the '-more-' prompts remaining until your next action. 
 
-You can email compliments, complaints, suggestions, bug reports, and patches
-to me ("valis@oook.cz"), and you can post interesting experiences and
-basic questions to the newsgroup ("rec.games.roguelike.angband").
+If you need help with character creation please read the birth help file. 
+You can get there from here by pushing ('?') and then ('2') to select the 
+birth.txt help file.
 
-You may freely distribute the game, and its source, though you are bound
-not only by the existing copyright notice from 1984, but also whatever
-restrictions may be present on various other pieces of the code, including
-the fact that any source written by me is technically automatically placed
-under copyright and may thus not be used for commercial purposes.  Remember
-to read the "version.txt" help file for some more copyright information.
+If at any time you have trouble remembering a command for something you 
+can hit the enter key ('Enter') and display a menu containing all the 
+commands for the game!!
 
-The basic help files supplied with this game are more or less up to date,
-but when in doubt, you should ask the newsgroup for confirmation.
+== Information gathering
+==========================
 
-The documentation is very easy to modify and update, so you may want to
-check in to the ftp site occasionally to see if there are any new help
-files (or spoiler files) for you to acquire.  Note that the spoiler files
-are not distributed with the source since they are so huge, but you can
-obtain them from various places as with the source and executables.  New
-spoiler files may be placed into the "lib/info" directory, or into a user
-specified external directory, to allow access via the "online help" system.
+How do we find out what all this stuff is? There are several commands to 
+give you information about your environment.
 
-Remember to tell all your friends about how much you like Steamband...
+You can 'l'ook at things around you by pressing ('l'). If you want to 
+know what a symbol represents you can always use ('/') to identify what 
+something is! ('l') is easy to remember because of look. You can remember 
+('/') because it is on the question mark key. (See, it's giving you help, 
+by telling what symbols represent!)
+
+You can press ('i') to see your 'i'nventory.
+ 
+You may press ('e') to see what you have 'e'quipped.
+
+You may press ('C') to see information about your 'C'haracter.
+
+You may press ('=') to adjust in-game options.
+
+Other ways to gather information include pressing ('?') on the skills 
+screen to get skill spoiler information, and using ('I') to 'I'nspect items. 
+While you are looking at a monster you can press ('r') to 'r'ecall information
+about them. If this doesn't make any sense to you; read on brave adventurer,
+read on!!
+
+== What's all this now?
+=========================
+
+You may be looking at the screen wondering what the heck you're supposed 
+to be looking at. Here is a short introduction to the main parts of the 
+interface.
+
+Down the left side of the screen you see some character information. You'll 
+see values for your six statistics (Muscle, Agility, Vigor, Schooling, Ego, 
+and Charm). To your right, is an overhead view of your surroundings. Nothing 
+will happen while the game waits for a command for you.
+
+The symbols on the screen represent different things! (Hey, someone might 
+not know this -- like aborigines or cave people.) Hash marks '#' or blocks
+represent walls, periods '.' represent lit floors, letters of the alphabet 
+represent monsters, numbers represent the entrances to stores and '@' 
+represents *you*. 
+
+The town in the center of the earth is always lit by a strange glow 
+(convienent, that), so most of the town should consist of stores and 
+illuminated floor grids.
+
+Any "alphabetic" symbols always represent monsters, where the word 
+"monsters" specifies a wide variety of entities, including people, animals, 
+plants, etc. Only a few "races" of monsters normally appear in town, and 
+all of them are "relatively" harmless.  The most common "monsters" in town 
+are small animals (cats and dogs) and townspeople (gentleman, drunkards,
+demimondaines, etc).
+
+== What now? (Steps to survival)
+=================================
+
+So now that you've orientated yourself to the dangerous world of Steamband,
+here are some steps to staying alive.
+
+If you're not wearing or using armor or weapons, they aren't doing you any
+good. Press ('w') to 'w'ear armor and 'w'eild weapons. It will ask you what
+you want to equip. You may press space (' ') or * ('*') to get a list. 
+Select the letter of the item you wish to wear.
+
+Any time you wish you can press ('e') to see your 'e'quipment. You have 
+twelve places for items (plus one for ammo). You can use a weapon, a gun, 
+wear 2 rings an amulet, a light, some clothing, some pants, a cloak, a hat, 
+some gloves, and boots. 
+
+You can 't'ake off equipment using ('t'). It will ask you what you want to 
+remove. You won't survive long naked. You do not have to take off things 
+before wearing or wielding something else in its place.
+
+Monsters can only move after you use a command which takes 'energy' from 
+your character.  Commands that do something, such as changing weapons, 
+moving, or taking off equipment cost you some energy. Commands that gather 
+information are free. 
+
+== A short interlude about skills
+===================================
+
+An important thing you'll need to do is use another free command and press
+('G') to 'G'ain some skills. This will bring up the skills screen. You can
+nagviagte this skills by pushing up or down on the arrow keys (or ('8')/
+('2') on the numeric keypad). You can add skills by pressing the plus key 
+('+') (You can also hit the equals ('=') key without needing to hit shift 
+to make it into a plus).
+
+Be sure to hit '?' on any skill you're curious about.
+
+There are three skill panes which you can switch between by 'h'opping 
+between them ('h'). These are the three groups skills are organized into. 
+You can also 'h'op between the different 'C'haracter information screens.
 
 
+== What's left to do before the killing begins? (AKA shopping)
+================================================================
 
-=== A quick demonstration ===
+You'll need to do some shopping before you enter the dungeon if you expect 
+to survive. You enter a store by walking into one of the numbers ('0'-'9') 
+on the town level. The screen will change into the store interaction screen. 
+A refrence key for store commands is located at the bottom of the screen.
 
-Steamband is, as mentioned above, a very complex game, so you may want to
-try the following quick demonstration.  The following instructions are
-for demonstration purposes only, and so they are intentionally boring.
+Note:
+Your inventory is always kept sorted in a semi-logical order, so the indexes
+(letters) of some of the objects may change as your inventory changes.
 
-For this demo, I will assume that you have never played Steamband before,
-that you have not requested any special "sub-windows", that you have not
-requested any special "graphics" modes, that you have a "numeric keypad"
-on your computer, and that you are using the default options, including,
-in particular, the "original" command set.  If any of these assumptions
-are incorrect, you will need to keep in mind that this demo may not work.
-There are many ways to view this file while playing, in particular, you
-should be able to view it using the "online help" built into the game.
+Visit the various stores and look at their wares. I suggest purchasing in order
+of importance:
 
-Any time you see the "-more-" prompt, read the message and press space.
-This takes precedence over any other instructions.  At any other prompt,
-for example, if you accidentally hit a key, you can normally "cancel" the
-action in progress by pressing escape.
+Some Cure light wounds tonics (You can 'q'uaff these)
+Some mechanisms of phase door (You can 'r'ig these)
+One mechanism of Etheric Travel (For escaping from danger)
+Bullets for your firearm (be sure to 'w'ield these to load your firearm)
+other pieces of clothing. Possibly pants, or shoes. 
 
-When the game starts up, depending on what platform you are using, you may
-be taken directly to the character creation screen, or you may have to ask
-to create a new character.  In either case, you will be shown the character
-information screen, and you will be asked a series of questions.  For this
-demo, press "a" three times to select a "female british officer" character.
-Then press "n" when asked about wonderland mode.  You will now be presented
-with a description of your character.  Look over the description briefly, 
-there is a lot of information here, and most of it will not make any sense.
-Press enter, then type a name and press enter again, and then press enter
-a third time and your character will be placed into the "town".
+Buy as much as you can of what you think you need. When you're ready (armour
+and weapons equipped, firearms loaded, potions and escape means in inventory,
+skills picked, and bravery fortified). Head for the stairs.
 
-You should now be looking at the basic dungeon interaction screen.  To the
-left is some information about your character.  To the right is an overhead
-view of the town.  Nothing happens in steamband while the game is waiting for
-you to specify a command, so take a good look at the town.  You will see a
-variety of symbols on the screen.  Each symbol normally represents a terrain
-feature, an object, or a monster.  The "@" symbol is special, it represents
-your character.  You can use the "/" command to find out what a given symbol
-represents.  Press "/" plus "@" now to verify the meaning of the "@" symbol.
+== The dark and deadly subworld
+=================================
 
-The "#" symbols around the edge of the town represent the walls that surround
-the the town.  The "#" symbols arranged in large rectangles represent stores.
-The "numeric" symbols represent an "entrance" to a store.  The "." symbols
-represent "floor" grids which are "illuminated".  The town in the center of
-the earth is always lit by a strange glow, so most of the town should consist
-of stores and illuminated floor grids.
+The '<' symbol on the map is an upstaircase. Its reverse symbol '>' is a
+downstair case. Move on top of the stairs and press that symbol and you will
+use them.
 
-Any "alphabetic" symbols always represent monsters, where the word "monsters"
-specifies a wide variety of entities, including people, animals, plants, etc.
-Only a few "races" of monsters normally appear in town, and all of them are
-"relatively" harmless.  The most common "monsters" in town are small animals
-(cats and dogs) and townspeople (gentleman, drunkards, demimondaines, etc).
+In the dungeon you will see brown '+' or ''' symbols. These are closed and 
+open doors, respectively. You can 'o'pen ('o') and 'c'lose ('c') doors.
 
-Now use the "l" command to "look" around.  This will cause the cursor to be
-moved onto each "interesting" grid that can be seen by your character, one
-at a time, giving you a description of that grid.  The cursor always starts
-on the grid containing your character.  In this case, you will see a message
-telling you that your character is standing on a staircase.  Keep pressing
-space until the prompt goes away.  Note that your character can only "see"
-a subset of the things which are actually displayed on the screen.
+Oh, did I forget to mention the giant steam powered dragon in the middle of 
+the room? Monsters are represented by alphabetic letters. If you see one, 
+you can 'l'ook at it, and once it is selected 'r'ecall all the information 
+you have about it.
 
-Now press "i", to display your character's "inventory".  All new characters
-start out with some objects to help them survive.  Your character will have
-some food, a potion of healing, a light source of some kind, an officers 
-uniform, a saber, and a .25 caliber derringer.  Press "w" to wield/wear 
-something.  Observe that the inventory listing is reduced to those objects
-which can actually be wielded or worn.  Press "d" to wear the officers 
-uniform, and then press "i" again.  Note that the officers uniform is no longer
-shown in the inventory, and the saber has moved up in the listing.
+To attack a monster, simply move into it and you will strike it with 
+your weapon.
 
-Now press "e" to see your "equipment".  Your character has twelve "slots" for
-equipment, including slots for a weapon, a gun, two rings, an amulet, a light,
-some armor, a cloak, a pair of trousers, a hat, some gloves, and some boots.
-Press "t" to take something off.  Note that the equipment listing is reduced to
-those objects which can actually be taken off.  Press "g" to take off the
-officers uniform, and then press "e" again.  Note that the chain mail is no longer
-shown in the equipment.  Press escape.
+to fire your gun at it, use the 'f'ire command ('f'). Make sure your firearm 
+is loaded. It takes a while to load your firearm so be careful when you choose 
+to load it.
 
-Now press "w" + "d" to wear your armor again.  Note that you do not have to
-look at the inventory before using the "w" command.  Press "w" + "d" to wield
-your sword.  Press "w" + "c" to hold up a lit torch and hold it aloft.
+'M' will bring up a nifty little 'M'ap of the dungeon! If you get tired of 
+having to walk every single step ('.') + a direction will 'run' in that 
+direction.
 
-Monsters can only move after you use a command which takes "energy" from your
-character.  So far, you have used the "w" and "t" commands, which take energy,
-and the "e", "i", "l", and "/" commands, which are "free" commands, and so do
-not take any energy.  In general, the only commands which take energy are the
-ones which require your character to perform some action in the world of the
-game, such as moving around, attacking monsters, and interacting with objects.
+If you get hurt pressing 'R' will allow you to rest to recover your hit 
+points. Caution: resting will *not* cure your wound points. You'll have 
+to rest in town or 'q'uaff a tonic to cure them.
 
-If there were any monsters near your character while you were experimenting
-with the "w" and "t" commands, you may have seen them "move" or even "attack"
-your character.  Although unlikely, it is even possible that your character
-has already been killed.  This is the only way to lose the game.  So if you
-have already lost, simply exit the game and restart this demo.
+If the game gives you a message about hunger, 'E' will allow you to 'E'at 
+rations.
 
-One of the most important things that your character can do is move around.
-Use the numeric keys on the keypad to make your character move around.  The
-"4", "6", "8", and "2" keys move your character west, east, north, and south,
-and the "7", "9", "1" and "3" keys move your character diagonally.  When your
-character first moves, observe the "<" symbol that is left behind.  This is
-the "staircase" that she was standing on earlier in the demo.
+== A word on difficulty
+=========================
 
-Attempting to stay away from monsters, try and move your character towards
-the entrance to the "general store", which is represented as a "1" on the
-screen.  As your character moves around, use the "l" command to look around.
-You can press escape at any time to cancel the looking.  If you die, start
-over.  As you get close to the general store, your character will be able
-to "see" the entrance.  Note that you can see the entrance no matter where
-your character is, but your character cannot see it unless she is close to
-it, and there are no walls between her and the entrance.
+This is all wonderful help, but Steamband is a difficult game and contains 
+a characteristic of all roguelike games -- permadeath. When you die that's 
+it. The save file is deleted, and you must start over from scratch. This 
+way, your choices mean something. If you're new to Steamband, and tired 
+of rolling up new characters every five minutes you can always turn on 
+cheat death to help you learn the game just a little better.
 
-One of the hardest things for people to get used to, when playing games of
-this nature for the first time, is that the character is not the same as the
-player.  The player presses keys, and looks at a computer screen, while the
-character performs complex actions, and interacts with a virtual world.  The
-player decides what the character should do, and tells her to do it, and the
-character then performs the actions.  These actions may induce some changes
-in the virtual world.  Some of these changes may be apparent to the character,
-and information about the changes is then made available to the player by a
-variety of methods, including messages, character state changes, or visual
-changes to the screen.  Some changes may only be apparent to the player.
+You can access the options by hitting the equals key ('='). 
 
-There are also a whole set of things that the player can do that can not even
-be described in the virtual world inhabited by the character, such as resize
-windows, read online help files, modify colormaps, or change options.  Some
-of these things may even affect the character in abstract ways, for example,
-the player can request that from now on all monsters know exactly where the
-character is at all times, or that the character be able to "look" at things
-which are on the other side of walls.  Likewise, there are some things that
-the character does on a regular basis that the player may not even consider,
-such as digesting food, or searching for traps while running down a hallway.
+Option 6 ('6') are the cheat options, and in there is the option to turn 
+on 'cheat death'.
 
-To make matters worse, as you get used to the difference between the player
-and the character, it becomes so "obvious" that you start to ignore it.  At
-that point, you find yourself merging the player and the character in your
-mind, and you find yourself saying things like "So yesterday, I was at my
-friend's house, and I stayed up late playing steamband, and I was attacked by
-some wild dogs, and I got killed by a demon, but I made it to the high score
-list", in which the pronoun changes back and forth from the real world to
-the virtual one several times in the same sentence.  So, from this point on
-you may have to separate the player and the character for yourself.
+If you are having a *lot* of trouble try using one of the easier races, 
+such as Automata, Steam-mecha, or Djinn.
 
-So anyway, keep walking towards the entrance to the general store until you
-actually walk into it.  At this point, the screen should change to the store
-interaction screen.  You will see the name of the shop-keeper, and the name
-of the shop, and a list of objects which are available.  If there are more
-than twelve different objects, you can use the space key to advance to the
-next page of objects.  Hopefully, when you arrive, the general store will
-be selling some flasks of oil.  If so, press the "p" key to purchase some
-oil, and when asked which item you want, press the letter shown to the left
-of the flasks of oil.  If you are asked how many you want, just hit return.
-Any time you are asked a question and there is already something under the
-cursor, pressing return will accept that choice.  You will then see a few
-messages describing the transaction, as always, hit space at each "-more-"
-prompt, and eventually you will be asked to make an offer for the flask of
-oil.  Since flasks of oil are so cheap, you will not be given the chance to
-haggle, but instead will simply be told how much you must pay.  Hit return
-to accept the price.  Many commands work inside the store, for example, use
-the "i" command to see your inventory, with the new flask of oil.  Note that
-your inventory is always kept sorted in a semi-logical order, so the indexes
-of some of the objects may change as your inventory changes.
-
-Purchase another flask of oil, if possible.  Note that this time you were not
-asked to make an offer, because once you purchase something at the "optimal"
-price, it becomes "fixed" at that price, as indicated by the letter "F" after
-the price.  Purchase a few more flasks of oil, if possible, this time, when
-asked how many you want, press "3" plus return to buy three flasks at once.
-Flasks of oil are very important for low level characters, because not only
-can they be used to fuel a lantern (which gives more light than a torch), but
-also, they can be ignited and thrown at monsters from a distance.  So it is
-often a good idea to have a few extra flasks of oil.  Press escape to leave
-the store.  If you want, take time to visit the rest of the stores.  One of
-the buildings, marked with an "8", is your "home", and is not a real store.
-
-Now move to the staircase, represented by the "<" symbol, and press "<", to
-go down the stairs.  At this point, you are in the dungeon.  Use the "l"
-command to look around.  Note that you are standing on a staircase leading
-back to town.  Use the ">" command to take the stairs back to town.  Now use
-the "<" command to go back down the stairs into the dungeon.  You are now in
-a different part of the dungeon than you were in before.  The dungeon is so
-huge, once you leave one part of the dungeon, you will never find it again.
-
-Now look the screen.  Your character may be in a lit room, represented as a
-large rectangle of illuminated floor grids ("."), surrounded by walls ("#").
-If you are not in a lit room, keep going back up to the town and back down
-into the dungeon until you are.  Now look around.  You may see some closed
-doors ("+") or some open doors ("'") or some holes (".") in the walls which
-surround the room.  If you do not, keep playing the stairway game until you
-are in such a room.  This will keep the demo simple.
-
-Now look around using the "l" command.  You may see some monsters and/or some
-objects in the room with you.  You may see some stairs up ("<") or some stairs
-down (">").  If you see any monsters, move up next to the monster, using the
-movement keys, and then try and move into the monster.  This will cause you to
-attack the monster.  Keep moving into the monster until you kill the monster,
-or it runs away, or you die.  If you die, start a new game.  If the monster
-runs away, ignore it, or chase it, but do not leave the room.  Once all the
-monsters in the room are dead or gone, walk on top of any objects in the room.
-This will cause you to pick up the object.  If there are any closed doors ("+")
-in the room walk up next to them and press "o" and then the direction key which
-would move you into the door, which should attempt to "open" the door.
-
-Now use the movement keys to explore the dungeon.  As you leave the room, you
-will probably notice that your character cannot see nearly as far as she could
-in the room.  Also, you will notice that as she moves around, the screen keeps
-displaying some of the grids that your character has seen.  Think of this as a
-kind of "map" superimposed on the world itself, the player can see the entire
-map, but the character can only see those parts of the world which are actually
-nearby.  If the character gets near the edge of the "map" portion of the screen
-the entire map will scroll to show a new portion of the world.  Only about ten
-percent of the dungeon level can be seen by the player at one time, but you
-can use the "L" command to look at other pieces of the map.  Use the "." key,
-plus a direction, to "run" through the dungeon.  Use the "R" key, plus return,
-to force your character to "rest" until she has recovered from any damage she
-incurs while attacking monsters.  Use the "M" key to see the entire dungeon
-level at once, and hit escape when done.  If your food rations are still at
-index "a" in your inventory, press "E" + "a" to eat some food.  If your oil
-is still at index "b" in your inventory, and there is a monster, for example,
-directly to the east, press "v" + "b" + "6" to throw a flask of oil at the
-monster.  To drop an item from your inventory, press "d" plus the index of
-that item.  You can use the "^X" key to quit and save the game.
-
-You now know enough to play a quick game of Steamband.  There is a lot more for
-you to learn, including how to interpret information about your character, how
-to create different kinds of characters, how to determine which equipment to
-wield/wear, how to use various kinds of objects, and how to use the more than
-fifty different commands available to your character.  The best resource for
-learning these things is the online help, which include, among other things,
-a complete list of all commands available to your player, and a list of all
-the symbols which you may encounter in the dungeon, and information about
-creating new characters.
+Some monsters are too tough to melee (fight hand to hand) for first level
+characters. Make sure you have a way to cause some damage at range 
+(devices, spells, or firearms) or run when you see dangerous enemies (such 
+as the small dogman).
 

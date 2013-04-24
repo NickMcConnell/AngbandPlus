@@ -2,11 +2,12 @@ Welcome to the Steamband FAQ list.
 
 Please choose one of the following FAQs:
 
-    (1) General FAQ                (generalFAQ.txt)
-    (2) Statistic FAQ              (statFAQ.txt)
-    (3) Skill FAQ                  (skillFAQ.txt)
-    (4) Magic FAQ                  (magicFAQ.txt)
-    (5) Wound point FAQ            (wpFAQ.txt)
+    (1) General FAQ                     (generalFAQ.txt)
+    (2) Statistic FAQ                   (statFAQ.txt)
+    (3) Skill FAQ                       (skillFAQ.txt)
+    (4) Magic FAQ                       (magicFAQ.txt)
+    (5) Wound point FAQ                 (wpFAQ.txt)
+    (6) Information about Inscriptions  (inscriptionFAQ.txt)
  
 Browser/help commands:
   #     go to line         %  go to file         ?  go to last file/main menu
@@ -19,3 +20,4 @@ Browser/help commands:
 ***** [3] skillFAQ.txt
 ***** [4] magicFAQ.txt
 ***** [5] wpFAQ.txt
+***** [6] inscriptionFAQ.txt
