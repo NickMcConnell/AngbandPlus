@@ -18,7 +18,7 @@
  * OPTION: Compile on a Macintosh machine
  */
 #ifndef MACINTOSH
-# define MACINTOSH 
+/* # define MACINTOSH */
 #endif
 
 /*

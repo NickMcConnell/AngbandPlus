@@ -951,8 +951,8 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_SILK_GLOVES },
-		{ NULL, NULL },
-		{ NULL, NULL }
+		{ 0, 0 },
+		{ 0, 0 }
 	},
 
 	{

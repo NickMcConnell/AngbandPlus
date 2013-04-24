@@ -1,6 +1,6 @@
 
    ************************************************************************
-   **   Steamband 0.1.0   **   The Journey from the Ceter of the Earth   **
+   **   Steamband 0.1.1   **   The Journey from the Center of the Earth  **
    ************************************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -9,7 +9,7 @@
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
                  Angband 2.9.0 - 2.9.3 by Robert Ruehlmann
 
-                    Steamband 0.1.0  By Courtney Campbell
+                    Steamband 0.1.1  By Courtney Campbell
 
                         Visit #angband on WorldIRC!
                             Dedicated to Seula

@@ -2643,7 +2643,7 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			if (f3 & (TR3_AUTOMATA))
 			{
-				return (NULL);
+				return (0);
 			}
 			else return (INVEN_BODY);
 		}
@@ -2663,7 +2663,7 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			if (f3 & (TR3_AUTOMATA))
 			{
-				return (NULL);
+				return (0);
 			}
 			return (INVEN_HEAD);
 		}
@@ -2672,7 +2672,7 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			if (f3 & (TR3_AUTOMATA))
 			{
-				return (NULL);
+				return (0);
 			}
 			return (INVEN_HANDS);
 		}
@@ -2681,7 +2681,7 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			if (f3 & (TR3_AUTOMATA))
 			{
-				return (NULL);
+				return (0);
 			}
 			return (INVEN_FEET);
 		}
@@ -2689,7 +2689,7 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			if (!f3 & (TR3_AUTOMATA))
 			{
-				return (NULL);
+				return (0);
 			}
 			return (INVEN_BODY);
 		}
@@ -2697,7 +2697,7 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			if (!f3 & (TR3_AUTOMATA))
 			{
-				return (NULL);
+				return (0);
 			}
 			return (INVEN_HEAD);
 		}
@@ -2705,7 +2705,7 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			if (!f3 & (TR3_AUTOMATA))
 			{
-				return (NULL);
+				return (0);
 			}
 			return (INVEN_HANDS);
 		}
@@ -2713,7 +2713,7 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			if (!f3 & (TR3_AUTOMATA))
 			{
-				return (NULL);
+				return (0);
 			}
 			return (INVEN_FEET);
 		}

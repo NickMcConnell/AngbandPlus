@@ -57,7 +57,7 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 #British are the average. Oh, and they're chipper so they resist fear
 N:0:British
@@ -251,10 +251,10 @@ C:1|2|3|4|5|6|7|8|9|12|13|14|16|17
 N:16:Steam-Mecha
 S:15:-7:-7:5:10:-5
 R:-10:-10:20:-25:-5:0:25:25
-X:25:240:4
+X:25:200:4
 I:42:100:30
 H:90:50:82:40
-W:500:120:480:115
+W:300:120:280:115
 F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | IM_ACID | IM_FIRE | IM_COLD | AGGRAVATE | HOLD_LIFE | AUTOMATA | RES_POIS
 C:1|2|3|4|5|6|7|8|9|12|13|14|16|17
 

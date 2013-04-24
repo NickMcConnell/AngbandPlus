@@ -16,18 +16,18 @@ SRCS = \
 	angband.rc \
 	birth.c \
 	cave.c \
-	cmd1.c \
-	cmd2.c \
-	cmd3.c \
-	cmd4.c \
-	cmd5.c \
-	cmd6.c \
+	classpower.c \
+	cmd-attk.c \
+	cmd-book.c \
+	cmd-item.c \
+	cmd-know.c \
+	cmd-misc.c \
+	cmd-util.c \
 	dungeon.c \
 	files.c \
 	generate.c \
 	init1.c \
 	init2.c \
-	load1.c \
 	load2.c \
 	main-win.c \
 	melee1.c \
@@ -36,11 +36,11 @@ SRCS = \
 	monster2.c \
 	object1.c \
 	object2.c \
-	randart.c \
 	readdib.c \
 	save.c \
 	spells1.c \
 	spells2.c \
+	spells3.c \
 	store.c \
 	tables.c \
 	util.c \
@@ -56,22 +56,23 @@ SRCS = \
 	z-virt.c 
 
 
+
 EXOBJS = \
 	angband.res \
 	birth.o \
 	cave.o \
-	cmd1.o \
-	cmd2.o \
-	cmd3.o \
-	cmd4.o \
-	cmd5.o \
-	cmd6.o \
+	classpower.o \
+	cmd-attk.o \
+	cmd-book.o \
+	cmd-item.o \
+	cmd-know.o \
+	cmd-misc.o \
+	cmd-util.o \
 	dungeon.o \
 	files.o \
 	generate.o \
 	init1.o \
 	init2.o \
-	load1.o \
 	load2.o \
 	main-win.o \
 	melee1.o \
@@ -80,11 +81,11 @@ EXOBJS = \
 	monster2.o \
 	object1.o \
 	object2.o \
-	randart.o \
 	readdib.o \
 	save.o \
 	spells1.o \
 	spells2.o \
+	spells3.o \
 	store.o \
 	tables.o \
 	util.o \

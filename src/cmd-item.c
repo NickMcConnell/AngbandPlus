@@ -430,15 +430,19 @@ void do_cmd_quaff_tonic(void)
 	u32b f1, f2, f3;
 	player_flags(&f1, &f2, &f3);
 
-	/* Restrict choices to Tonics */
-	item_tester_tval = TV_TONIC;
-
 
 	/* Check to insure that Tonics can be quaffed! */
 	if (f3 & (TR3_AUTOMATA))
 	{
 		msg_print("You cannot drink tonics!");
 		return;
+	}
+
+	/* Behavior if you can drink tonics */
+	else
+	{
+	/* Restrict choices to Tonics */
+	item_tester_tval = TV_TONIC;
 	}
 	/* Get an item */
 	q = "Quaff which tonic? ";

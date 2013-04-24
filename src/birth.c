@@ -1030,6 +1030,9 @@ static bool get_player_class(void)
 
 	/* Set class */
 	cp_ptr = &c_info[p_ptr->pclass];
+	
+	/* Initialize the magic */
+	mp_ptr = &cp_ptr->spells;
 
 	C_FREE(classes, z_info->c_max, birth_menu);
 
@@ -1146,7 +1149,7 @@ static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 }
  *
  * Each unused point is converted into 50 gold pieces.
  */
-#define POINTS		48
+#define POINTS		52
 #define BASE_STAT	10
 
 static bool player_birth_aux_2(void)
@@ -1246,14 +1249,14 @@ static bool player_birth_aux_2(void)
 		display_player(99);
 
 		/* Display the costs header */
-		put_str("Cost", row - 1, col + 32);
+		put_str("Cost", row, col + 32);
 
 		/* Display the costs */
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Display cost */
 			sprintf(buf, "%4d", birth_stat_costs[stats[i] - BASE_STAT]);
-			put_str(buf, row + i, col + 32);
+			put_str(buf, row + i + 1, col + 32);
 		}
 
 		/* Prompt XXX XXX XXX */
@@ -1261,7 +1264,7 @@ static bool player_birth_aux_2(void)
 		prt(buf, 0, 0);
 
 		/* Place cursor just after cost of current stat */
-		Term_gotoxy(col + 36, row + stat);
+		Term_gotoxy(col + 36, row + stat + 1);
 
 		/* Get key */
 		ch = inkey();
@@ -1294,7 +1297,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Increase stat */
-		if ((ch == '6') && (stats[stat] < 15))
+		if ((ch == '6') && (stats[stat] < 18))
 		{
 			stats[stat]++;
 		}
