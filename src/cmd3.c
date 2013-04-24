@@ -12,37 +12,13 @@
 
 #include "angband.h"
 
-/*** Team functions
- *	This seems to be the proper file for these sorts of handling
- *	functions -KRP
- *
- *	Well, actually, two of them are in cmd2.c instead... oh well.
- */
-
-/*
- * Disturb all team members
- * -KRP
- */
-void do_cmd_disturb_all(void)
-{
-	FOR_EACH_CHAR
-	(
-		disturb(1,0);
-	)
-	msg_print("Everybody, wake up! ");
-	msg_print("Here comes trouble! ");
-	leader = NOT_LEADING;
-}
-
-
 /*
  * Display inventory
  */
 void do_cmd_inven(void)
 {
-	/* Note that we are in "inventory" mode */
-	p_ptr->command_wrk = FALSE;
-
+	/* Hack -- Start in "inventory" mode */
+	p_ptr->command_wrk = (USE_INVEN);
 
 	/* Save screen */
 	screen_save();
@@ -87,9 +63,8 @@ void do_cmd_inven(void)
  */
 void do_cmd_equip(void)
 {
-	/* Note that we are in "equipment" mode */
-	p_ptr->command_wrk = TRUE;
-
+	/* Hack -- Start in "equipment" mode */
+	p_ptr->command_wrk = (USE_EQUIP);
 
 	/* Save screen */
 	screen_save();
@@ -154,9 +129,10 @@ void do_cmd_wield(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	cptr act;
+	char act[128];
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 	char o_name[80];
 
@@ -166,7 +142,7 @@ void do_cmd_wield(void)
 
 	/* Get an item */
 	q = "Wear/Wield which item? ";
-	s = "You have nothing you can wear or wield.";
+	sprintf (s, "%s has nothing %s can wear or wield.", op_ptr->full_name, sp_ptr->nom);
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -192,8 +168,8 @@ void do_cmd_wield(void)
 		object_desc(o_name, &inventory[slot], FALSE, 0);
 
 		/* Message */
-		msg_format("The %s you are %s appears to be cursed.",
-		           o_name, describe_use(slot));
+		msg_format("The %s %s is %s appears to be cursed.",
+		           o_name, op_ptr->full_name, describe_use(slot));
 
 		/* Cancel the command */
 		return;
@@ -226,7 +202,7 @@ void do_cmd_wield(void)
 		floor_item_optimize(0 - item);
 	}
 
-	/* Access the wield slot */
+	/* Get the wield slot */
 	o_ptr = &inventory[slot];
 
 	/* Take off existing item */
@@ -248,19 +224,19 @@ void do_cmd_wield(void)
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
 	{
-		act = "You are wielding";
+		sprintf (act, "%s is wielding", op_ptr->full_name);
 	}
 	else if (slot == INVEN_BOW)
 	{
-		act = "You are shooting with";
+		sprintf (act, "%s is shooting with", op_ptr->full_name);
 	}
 	else if (slot == INVEN_LITE)
 	{
-		act = "Your light source is";
+		sprintf (act, "%s's light source is", op_ptr->full_name);
 	}
 	else
 	{
-		act = "You are wearing";
+		sprintf (act, "%s is wearing", op_ptr->full_name);
 	}
 
 	/* Describe the result */
@@ -275,7 +251,13 @@ void do_cmd_wield(void)
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
 
-		/* Note the curse */
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Sense the object if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
+
+		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 	}
 
@@ -303,12 +285,13 @@ void do_cmd_takeoff(void)
 
 	object_type *o_ptr;
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 
 	/* Get an item */
 	q = "Take off which item? ";
-	s = "You are not wearing anything to take off.";
+	sprintf (s, "%s is not wearing anything to take off.", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
@@ -352,12 +335,13 @@ void do_cmd_drop(void)
 
 	object_type *o_ptr;
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 
 	/* Get an item */
 	q = "Drop which item? ";
-	s = "You have nothing to drop.";
+	sprintf (s, "%s has nothing to drop.", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
@@ -411,12 +395,13 @@ void do_cmd_destroy(void)
 
 	char out_val[160];
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 
 	/* Get an item */
 	q = "Destroy which item? ";
-	s = "You have nothing to destroy.";
+	sprintf (s, "%s has nothing to destroy.", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -456,18 +441,21 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
-		cptr feel = "special";
+		int feel = INSCRIP_SPECIAL;
 
 		/* Message */
-		msg_format("You cannot destroy %s.", o_name);
+		msg_format("%s cannot destroy %s.", op_ptr->full_name, o_name);
 
 		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
 
-		/* Hack -- inscribe the artifact */
-		o_ptr->note = quark_add(feel);
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
-		/* We have "felt" it (again) */
+		/* Sense the object if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = feel;
+
+		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Combine the pack */
@@ -481,7 +469,7 @@ void do_cmd_destroy(void)
 	}
 
 	/* Message */
-	msg_format("You destroy %s.", o_name);
+	msg_format("%s destroyes %s.", op_ptr->full_name, o_name);
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -512,12 +500,13 @@ void do_cmd_observe(void)
 
 	char o_name[80];
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 
 	/* Get an item */
 	q = "Examine which item? ";
-	s = "You have nothing to examine.";
+	sprintf (s, "%s has nothing to examine.", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -536,7 +525,7 @@ void do_cmd_observe(void)
 	/* Require full knowledge */
 	if (!(o_ptr->ident & (IDENT_MENTAL)))
 	{
-		msg_print("You have no special knowledge about that item.");
+		msg_format("%s has no special knowledge about that item.", op_ptr->full_name);
 		return;
 	}
 
@@ -548,7 +537,7 @@ void do_cmd_observe(void)
 	msg_format("Examining %s...", o_name);
 
 	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+	if (!identify_fully_aux(o_ptr)) msg_format("%s see nothing special.", op_ptr->full_name);
 }
 
 
@@ -563,12 +552,13 @@ void do_cmd_uninscribe(void)
 
 	object_type *o_ptr;
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 
 	/* Get an item */
 	q = "Un-inscribe which item? ";
-	s = "You have nothing to un-inscribe.";
+	sprintf (s, "%s has nothing to un-inscribe.", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -615,14 +605,15 @@ void do_cmd_inscribe(void)
 
 	char o_name[80];
 
-	char tmp[81];
+	char tmp[80];
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 
 	/* Get an item */
 	q = "Inscribe which item? ";
-	s = "You have nothing to inscribe.";
+	sprintf (s, "%s has nothing to inscribe.", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -651,7 +642,7 @@ void do_cmd_inscribe(void)
 	if (o_ptr->note)
 	{
 		/* Start with the old inscription */
-		strcpy(tmp, quark_str(o_ptr->note));
+		strnfmt(tmp, 80, "%s", quark_str(o_ptr->note));
 	}
 
 	/* Get a new inscription (possibly empty) */
@@ -678,9 +669,13 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
 
-	/* Torches are okay */
+	/* Non-empty lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN)) return (TRUE);
+	    (o_ptr->sval == SV_LITE_LANTERN) &&
+	    (o_ptr->pval > 0))
+	{
+		return (TRUE);
+	}
 
 	/* Assume not okay */
 	return (FALSE);
@@ -697,15 +692,16 @@ static void do_cmd_refill_lamp(void)
 	object_type *o_ptr;
 	object_type *j_ptr;
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_lantern;
 
 	/* Get an item */
-	q = "Refill with which flask? ";
-	s = "You have no flasks of oil.";
+	q = "Refill with which source of oil? ";
+	sprintf (s, "%s has no sources of oil.", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -724,24 +720,37 @@ static void do_cmd_refill_lamp(void)
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
-	/* Access the lantern */
+	/* Get the lantern */
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
 	j_ptr->pval += o_ptr->pval;
 
 	/* Message */
-	msg_print("You fuel your lamp.");
+	msg_format("%s fuels %s lamp.", op_ptr->full_name, sp_ptr->gen);
 
 	/* Comment */
 	if (j_ptr->pval >= FUEL_LAMP)
 	{
 		j_ptr->pval = FUEL_LAMP;
-		msg_print("Your lamp is full.");
+		msg_format("%s's lamp is full.", op_ptr->full_name);
+	}
+
+	/* Use fuel from a lantern */
+	if (o_ptr->sval == SV_LITE_LANTERN)
+	{
+		/* No more fuel */
+		o_ptr->pval = 0;
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN);
 	}
 
 	/* Decrease the item (from the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -758,6 +767,9 @@ static void do_cmd_refill_lamp(void)
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
 }
 
 
@@ -786,7 +798,8 @@ static void do_cmd_refill_torch(void)
 	object_type *o_ptr;
 	object_type *j_ptr;
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 
 	/* Restrict the choices */
@@ -794,7 +807,7 @@ static void do_cmd_refill_torch(void)
 
 	/* Get an item */
 	q = "Refuel with which torch? ";
-	s = "You have no extra torches.";
+	sprintf (s, "%s has no extra torches.", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -813,26 +826,26 @@ static void do_cmd_refill_torch(void)
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
-	/* Access the primary torch */
+	/* Get the primary torch */
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
 	j_ptr->pval += o_ptr->pval + 5;
 
 	/* Message */
-	msg_print("You combine the torches.");
+	msg_format("%s combines the torches.", op_ptr->full_name);
 
 	/* Over-fuel message */
 	if (j_ptr->pval >= FUEL_TORCH)
 	{
 		j_ptr->pval = FUEL_TORCH;
-		msg_print("Your torch is fully fueled.");
+		msg_format("%s's torch is fully fueled.", op_ptr->full_name);
 	}
 
 	/* Refuel message */
 	else
 	{
-		msg_print("Your torch glows more brightly.");
+		msg_format("%s's torch glows more brightly.", op_ptr->full_name);
 	}
 
 	/* Decrease the item (from the pack) */
@@ -853,6 +866,9 @@ static void do_cmd_refill_torch(void)
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
 }
 
 
@@ -871,7 +887,7 @@ void do_cmd_refill(void)
 	/* It is nothing */
 	if (o_ptr->tval != TV_LITE)
 	{
-		msg_print("You are not wielding a light.");
+		msg_format("%s is not wielding a light.", op_ptr->full_name);
 	}
 
 	/* It's a lamp */
@@ -889,7 +905,7 @@ void do_cmd_refill(void)
 	/* No torch to refill */
 	else
 	{
-		msg_print("Your light cannot be refilled.");
+		msg_format("%s's light cannot be refilled.", op_ptr->full_name);
 	}
 }
 
@@ -965,8 +981,17 @@ void do_cmd_locate(void)
 
 		/* Prepare to ask which way to look */
 		sprintf(out_val,
-		        "Map sector [%d,%d], which is%s your sector.  Direction?",
-		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
+		        "Map sector [%d,%d], which is%s %s's sector.  Direction?",
+		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val, op_ptr->full_name);
+
+		/* More detail */
+		if (center_player)
+		{
+			sprintf(out_val,
+		        	"Map sector [%d(%02d),%d(%02d)], which is%s %s sector.  Direction?",
+		        	(y2 / PANEL_HGT), (y2 % PANEL_HGT),
+		        	(x2 / PANEL_WID), (x2 % PANEL_WID), tmp_val, op_ptr->full_name);
+		}
 
 		/* Assume no direction */
 		dir = 0;
@@ -1061,7 +1086,7 @@ static cptr ident_info[] =
 	"5:Entrance to Alchemy shop",
 	"6:Entrance to Magic store",
 	"7:Entrance to Black Market",
-	"8:Entrance to your home",
+	"8:Entrance to home",
 	/* "9:unused", */
 	"::Rubble",
 	";:A glyph of warding",
@@ -1069,7 +1094,7 @@ static cptr ident_info[] =
 	"=:A ring",
 	">:A down staircase",
 	"?:A scroll",
-	"@:You",
+	"@:Adventurer of your team",
 	"A:Angel",
 	"B:Bird",
 	"C:Canine",
@@ -1243,11 +1268,11 @@ static void roff_top(int r_idx)
 	char c1, c2;
 
 
-	/* Access the chars */
+	/* Get the chars */
 	c1 = r_ptr->d_char;
 	c2 = r_ptr->x_char;
 
-	/* Access the attrs */
+	/* Get the attrs */
 	a1 = r_ptr->d_attr;
 	a2 = r_ptr->x_attr;
 

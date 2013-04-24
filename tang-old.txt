@@ -1,0 +1,101 @@
+Revision history of Team Angband:
+
+Date	Version	Comments
+
+1?/8/99	  0.5.1 Some bug-fixes.
+
+10/8/99	  0.5.0 Some "team" functions have been implemented.  ^Nap allows
+		you to deactivate the team while focusing on one player.
+		^Leader tells all other team members to follow the current
+		player like mindless drones, or mindlessly attack the
+		presently (*)targeted monster.  ^Tagalong kicks team
+		members which have dropped out of follow-mode back into
+		follow-mode.
+
+10/7/99	  0.4.0 Save files implemented, minor display changes.
+
+10/5/99	  0.3.0 First playable version!  
+		Players: view code, while still buggy, now allows the
+		four characters to move about the dungeon and see at
+		least what they should.
+		Monsters: monsters now go after the nearest character,
+		and attacks upon him damage him and not the first player.
+
+9/22/99	  0.2.0 The characters can now enter the dungeon.  They all
+		are placed into the same start room.  Also, they can
+		all do things!  (The inventory, walking, fighting, etc. 
+		code seems not to need further modification.) However, the
+		refresh code is buggy as hell; they see what is in one of
+		the *other* character's field of vision.
+
+9/19/99	  0.1.0	The data structures and code are modified so that 4
+		characters can exit simultaneously.  Four characters
+		are created at start.  However, only the first 'leader'
+		character appears, and only he can actually do anything.
+dard angband savefile.
+
+When you start without a savefile, you'll be prompted to make
+4 characters.  You can either make them by hand the old fashioned way,
+or you can choose "quick-start" which will roll up four random
+characters for you.  I recommend the quick start, simply for the
+challenge of playing with Half-troll mages and Gnome Warriors :)
+
+Now you're in the game.  You'll notice that your control cycles from
+player to player.  When this gets annoying, try out the team functions.
+^N will put all other characters to sleep, letting you focus on the
+current character.  ^L will tell all other characters to follow you
+(as described above), and ^T will help reign in those that get lost.
+To turn off these functions, ^D should work well.  Oh, ^L acts as a
+toggle; when your leader character is done leading, have him ^L to
+stop leading.
+
+Now go down into the dungeon, and have some fun ganging up on poor
+helpless monsters.  Beware, though; the death of any one character
+will terminate the game and mangle your savefile beyond repair.  (Don't
+worry; *real* versions of Tangband won't do this to you :)  Note that the
+monsters are somewhat smart: they will go after the character nearest
+them, rather than doing something stupid like always chasing character #1.
+However, flow_by_smell is disabled, so don't expect any brilliance from
+the monsters... at least, not yet ;->
+
+Anyway, give it a whirl, see what sorts of bugs you can find, and let
+me know what you think.  You can email me at u1006057@warwick.net ;
+krpeters@warwick.net might work too :)
+
+Oh, right, I wanted to let you all know what the future for Tangband
+holds:
+
+1) An adventurer's guild, where new characters can be hired to replace
+	dead or retired (sucky) characters
+2) 'L'eader and 'N'ap functions, which massively improve the team handling
+	interface:  In 'L'eader mode, the other characters will turn into
+	docile pets that can be lead around easily until danger arrives;
+	in 'N'ap mode, the other characters will go to sleep while the
+	focus character takes care of some business.
+3) Improved monster intelligence, capable of hunting out weaker players,
+	teaming up to avoid getting slaughtered, and other nastiness
+4) Improved mage and priest spellcasting, allowing spellcasters to cast
+	defensive and other helpful magics upon the other team members:
+	Yes, that means Warriors walking around with Globe of
+	Invulnerability ;->
+5) Difficulty levels:  Obviously, having four characters instead of one
+	makes the game a lot easier.  Future versions will allow you
+	to choose how to counter this imbalance, such as through greatly
+	increasing the number of monsters per level, increasing their HP's
+	and other stats, or decreasing the depth which nasty buggers
+	appear.
+6) Active and inactive characters:  Why limit yourself to four characters?
+	Instead, you'll be able to have 24 or so stashed away in an inn,
+	which you can pick and choose among to outfit any particular
+	exploration into the dungeon.  I may even implement a method
+	to allow players to email their teammembers to one another,
+	allowing you to give or trade characters to/with one another.
+7) Increased class differentiation:  Since mages will no longer have to
+	march into hand-to-hand combat, there's no reason to give them
+	nastier magic attacks, while simultaneously crippling their
+	physical combat abilities even further...
+
+And that's just the ideas I've come up with so far :)
+
+	Karl
+		<marX>

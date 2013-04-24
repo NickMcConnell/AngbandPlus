@@ -19,10 +19,31 @@
 # Note that several "ego-item" types may share the same "textual name",
 # such as with "Armor of Resistance" and "Shield of Resistance".
 
+#   Changes made by Jonathan Ellis...
+
+#   Elemental brands have been renamed to simply Fire, Frost, Lightning and 
+# Acid. 
+#   Bow of "Velocity" renamed to "Power": Velocity means "speed" where I come
+# from, and I don't see any speed bonuses on that particular ego-bow, nor should
+# there be.
+#   Ammo slays are now "Slay" instead of "Hurt": the same flag was used, not 
+# much point in the different name... 
+#   From OAngband: Helmets of Serenity (resist confusion and sound.) Helmets
+# of Infravision have gone to make room (Helmets of Seeing now give 
+# infravision in addition to their original powers.) The order of the ego-items 
+# has been changed to make way for this: as a result, Regeneration helmets will 
+# be as likely as helms of Infravision used to be, and Serenity helms will be as
+# rare as Regeneration helmets used to be.
+#   Cloaks of Protection now give shard resistance. Took this idea from 
+# OAngband where there are Cloaks of Shard Protection.
+#   Ammo of Slay Orc and Slay Troll removed to make room for Acid and Lightning
+# brands: the first two would be entirely useless, the replacements at least
+# have a chance of being useful.
+
 
 # Version stamp (required)
 
-V:2.8.3
+V:2.9.0
 
 
 ### Body Armor ###
@@ -167,28 +188,28 @@ N:30:of Seeing
 X:33:8
 W:0:0:0:1000
 C:0:0:0:5
-F:SEARCH | RES_BLIND | SEE_INVIS
+F:SEARCH | RES_BLIND | SEE_INVIS | INFRA
 
-N:31:of Infravision
+N:31:of Light
 X:33:11
 W:0:0:0:500
 C:0:0:0:5
-F:INFRA | HIDE_TYPE
+F:LITE | RES_LITE
 
-N:32:of Light
+N:32:of Regeneration
 X:33:6
 W:0:0:0:500
-F:LITE | RES_LITE
+F:REGEN
 
 N:33:of Telepathy
 X:33:20
 W:0:0:0:50000
 F:TELEPATHY
 
-N:34:of Regeneration
+N:34:of Serenity
 X:33:10
-W:0:0:0:1500
-F:REGEN
+W:0:0:0:4000
+F:RES_SOUND | RES_CONFU
 
 N:35:of Teleportation
 X:33:0
@@ -226,7 +247,7 @@ N:40:of Protection
 X:31:10
 W:0:0:0:500
 C:0:0:10:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_SHARD
 
 N:41:of Stealth
 X:31:10
@@ -406,22 +427,22 @@ F:BLOWS
 
 # The "Elemental" brands (4)
 
-N:72:of Melting
+N:72:of Acid
 X:24:15
 W:0:0:0:8000
 F:BRAND_ACID | RES_ACID | IGNORE_ACID
 
-N:73:of Shocking
+N:73:of Lightning
 X:24:20
 W:0:0:0:4500
 F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
 
-N:74:of Burning
+N:74:of Flame
 X:24:20
 W:0:0:0:3000
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE
 
-N:75:of Freezing
+N:75:of Frost
 X:24:15
 W:0:0:0:2500
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
@@ -478,49 +499,49 @@ F:SLAY_DRAGON
 
 # The "Kill" brands (8)
 
-N:88:of *Slay* Animal
+N:88:of *Slay Animal*
 X:24:20
 W:0:0:0:6000
 C:0:0:0:2
 F:INT | SLAY_ANIMAL | REGEN
 
-N:89:of *Slay* Evil
+N:89:of *Slay Evil*
 X:24:20
 W:0:0:0:5000
 C:0:0:0:2
 F:WIS | SLAY_EVIL | BLESSED
 
-N:90:of *Slay* Undead
+N:90:of *Slay Undead*
 X:24:24
 W:0:0:0:8000
 C:0:0:0:2
 F:WIS | SLAY_UNDEAD | SEE_INVIS
 
-N:91:of *Slay* Demon
+N:91:of *Slay Demon*
 X:24:16
 W:0:0:0:4000
 C:0:0:0:2
 F:INT | SLAY_DEMON
 
-N:92:of *Slay* Orc
+N:92:of *Slay Orc*
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
 F:DEX | SLAY_ORC
 
-N:93:of *Slay* Troll
+N:93:of *Slay Troll*
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
 F:STR | SLAY_TROLL
 
-N:94:of *Slay* Giant
+N:94:of *Slay Giant*
 X:24:16
 W:0:0:0:4000
 C:0:0:0:2
 F:STR | SLAY_GIANT
 
-N:95:of *Slay* Dragon
+N:95:of *Slay Dragon*
 X:24:24
 W:0:0:0:6000
 C:0:0:0:2
@@ -559,7 +580,7 @@ X:25:10
 W:0:0:0:1000
 C:15:5:0:0
 
-N:105:of Velocity
+N:105:of Power
 X:25:10
 W:0:0:0:1000
 C:5:15:0:0
@@ -587,42 +608,42 @@ F:SHOTS
 
 ### Ammo ###
 
-N:112:of Hurt Animal
+N:112:of Slay Animal
 X:23:10
 W:0:0:0:25
 F:SLAY_ANIMAL
 
-N:113:of Hurt Evil
+N:113:of Slay Evil
 X:23:10
 W:0:0:0:25
 F:SLAY_EVIL
 
-N:114:of Hurt Undead
+N:114:of Slay Undead
 X:23:10
 W:0:0:0:25
 F:SLAY_UNDEAD
 
-N:115:of Hurt Demon
+N:115:of Slay Demon
 X:23:10
 W:0:0:0:15
 F:SLAY_DEMON
 
-N:116:of Hurt Orc
+N:116:of Acid
 X:23:10
-W:0:0:0:15
-F:SLAY_ORC
+W:0:0:0:40
+F:BRAND_ACID | IGNORE_ACID
 
-N:117:of Hurt Troll
+N:117:of Lightning
 X:23:10
-W:0:0:0:15
-F:SLAY_TROLL
+W:0:0:0:35
+F:BRAND_ELEC | IGNORE_ELEC
 
-N:118:of Hurt Giant
+N:118:of Slay Giant
 X:23:10
 W:0:0:0:15
 F:SLAY_GIANT
 
-N:119:of Hurt Dragon
+N:119:of Slay Dragon
 X:23:10
 W:0:0:0:35
 F:SLAY_DRAGON
@@ -666,5 +687,4 @@ N:127:(Blasted)
 X:30:0
 W:0:0:0:0
 C:0:0:10:0
-
 

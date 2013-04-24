@@ -14,13 +14,13 @@
 
 
 /*
- * Global array for looping through the "keypad directions"
+ * Global array for looping through the "keypad directions".
  */
 s16b ddd[9] =
 { 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
 /*
- * Global arrays for converting "keypad direction" into offsets
+ * Global arrays for converting "keypad direction" into "offsets".
  */
 s16b ddx[10] =
 { 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
@@ -29,14 +29,13 @@ s16b ddy[10] =
 { 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
 
 /*
- * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]"
+ * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]".
  */
 s16b ddx_ddd[9] =
 { 0, 0, 1, -1, 1, -1, 1, -1, 0 };
 
 s16b ddy_ddd[9] =
 { 1, -1, 0, 0, 1, 1, -1, -1, 0 };
-
 
 
 /*
@@ -1324,12 +1323,18 @@ player_sex sex_info[MAX_SEXES] =
 {
 	{
 		"Female",
-		"Queen"
+		"Queen",
+		"she",
+		"her",
+		"her"
 	},
 
 	{
 		"Male",
-		"King"
+		"King",
+		"he",
+		"his",
+		"him"
 	}
 };
 
@@ -2604,8 +2609,8 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
-	"testing_stack",			/* OPT_testing_stack */
-	"testing_carry",			/* OPT_testing_carry */
+	NULL,						/* xxx testing_stack */
+	NULL,						/* xxx testing_carry */
 	"expand_look",				/* OPT_expand_look */
 	"expand_list",				/* OPT_expand_list */
 	"view_perma_grids",			/* OPT_view_perma_grids */
@@ -2633,9 +2638,221 @@ cptr option_text[OPT_MAX] =
 	"view_yellow_lite",			/* OPT_view_yellow_lite */
 	"view_bright_lite",			/* OPT_view_bright_lite */
 	"view_granite_lite",		/* OPT_view_granite_lite */
-	"view_special_lite"			/* OPT_view_special_lite */
+	"view_special_lite",		/* OPT_view_special_lite */
+	"easy_open",				/* OPT_easy_open */
+	"easy_alter",				/* OPT_easy_alter */
+	"easy_floor",				/* OPT_easy_floor */
+	"show_piles",				/* OPT_show_piles */
+	"center_player",			/* OPT_center_player */
+	"run_avoid_center",			/* OPT_run_avoid_center */
+	"scroll_target",			/* OPT_scroll_target */
+	"auto_more",				/* OPT_auto_more */
+	"smart_monsters",			/* OPT_smart_monsters */
+	"smart_packs",				/* OPT_smart_packs */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	"birth_point_based",		/* OPT_birth_point_based */
+	"birth_auto_roller",		/* OPT_birth_auto_roller */
+	"birth_maximize",			/* OPT_birth_maximize */
+	"birth_preserve",			/* OPT_birth_preserve */
+	"birth_ironman",			/* OPT_birth_ironman */
+	"birth_no_stores",			/* OPT_birth_no_stores */
+	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
+	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	"cheat_peek",				/* OPT_cheat_peek */
+	"cheat_hear",				/* OPT_cheat_hear */
+	"cheat_room",				/* OPT_cheat_room */
+	"cheat_xtra",				/* OPT_cheat_xtra */
+	"cheat_know",				/* OPT_cheat_know */
+	"cheat_live",				/* OPT_cheat_live */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	"adult_point_based",		/* OPT_adult_point_based */
+	"adult_auto_roller",		/* OPT_adult_auto_roller */
+	"adult_maximize",			/* OPT_adult_maximize */
+	"adult_preserve",			/* OPT_adult_preserve */
+	"adult_ironman",			/* OPT_adult_ironman */
+	"adult_no_stores",			/* OPT_adult_no_stores */
+	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
+	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	"score_peek",				/* OPT_score_peek */
+	"score_hear",				/* OPT_score_hear */
+	"score_room",				/* OPT_score_room */
+	"score_xtra",				/* OPT_score_xtra */
+	"score_know",				/* OPT_score_know */
+	"score_live",				/* OPT_score_live */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL						/* xxx */
 };
 
+/* Options; quickstart values  -KRP */
+bool option_quick[OPT_MAX] = 
+{
+	FALSE, FALSE, FALSE, FALSE,	/* ROGUE, QUICK, QUERY, QUERY */
+	TRUE, FALSE, TRUE, TRUE,	/* TARGET, PICKUP, REPEAT, FEET */
+	TRUE, TRUE, TRUE, TRUE,	/* NOTES, COSTS, LABELS, WEIGHTS */
+	TRUE, TRUE, TRUE, TRUE,	/* CHOICES, DETAILS, BELL, FLAVORS */
+	FALSE, FALSE, FALSE, TRUE,	/* STAIRS, DOORS, CUT, USE */
+	TRUE, TRUE, TRUE, TRUE,	/* MOVE, NEAR, PANEL, STATE */
+	TRUE, TRUE, TRUE, FALSE,	/* MINOR, OTHER, HP, FAILURE */
+	TRUE, TRUE, TRUE, FALSE,	/* DESTROY, SPECIAL, QUANT, XXX */
+	TRUE, FALSE, TRUE, TRUE,	/* HAGGLE, SCUM, STACK, CARRY */
+	TRUE, TRUE, TRUE, TRUE,	/* LOOK, LIST, PERMA, TORCH */
+	TRUE, TRUE, TRUE, TRUE, /* ALIGN, STAIR, SOUND, SMELL */
+	FALSE, FALSE, TRUE, FALSE,	/* XXX, XXX, LEARN, CHEAT */
+	FALSE, FALSE, FALSE, FALSE,	/* REDUCE, HIDDEN, ABORT, OTHER */
+	TRUE, TRUE, FALSE, TRUE,/* FAILURE, DISTURB, XXX, BEFORE */
+	TRUE, FALSE, TRUE, TRUE,	/* AFTER, XXX, COMPRESS, HILITE */
+	TRUE, TRUE, TRUE, TRUE	/* YELLOW, LITE, GRANITE, SPECIAL */
+};
 
 /*
  * Options -- descriptions (where defined)
@@ -2676,8 +2893,8 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
-	"Allow objects to stack on floor",			/* OPT_testing_stack */
-	"Allow monsters to carry objects",			/* OPT_testing_carry */
+	NULL,										/* xxx testing_stack */
+	NULL,										/* xxx testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
 	"Expand the power of the list commands",	/* OPT_expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
@@ -2686,8 +2903,8 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	NULL,										/* xxx track_follow */
+	NULL,										/* xxx track_target */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
@@ -2705,7 +2922,199 @@ cptr option_desc[OPT_MAX] =
 	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
 	"Use special colors for field of view",		/* OPT_view_bright_lite */
 	"Use special colors for wall grids",		/* OPT_view_granite_lite */
-	"Use special colors for floor grids"		/* OPT_view_special_lite */
+	"Use special colors for floor grids",		/* OPT_view_special_lite */
+	"Open/Disarm/Close without direction",		/* OPT_easy_open */
+	"Open/Disarm doors/traps on movement",		/* OPT_easy_alter */
+	"Display floor stacks in a list",   		/* OPT_easy_floor */
+	"Show stacks using special attr/char",		/* OPT_show_piles */
+	"Center map continuously (very slow)",		/* OPT_center_player */
+	"Avoid centering while running",			/* OPT_run_avoid_center */
+	"Scroll map while targetting",				/* OPT_scroll_target */
+	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
+	"Monsters behave more intelligently",		/* OPT_smart_monsters */
+	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
+	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
+	"Birth: Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
+	"Birth: Preserve artifacts when leaving level",	/* OPT_birth_preserve */
+	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
+	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
+	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
+	"Birth: Randomize some of the artifacts",	/* OPT_birth_rand_artifacts */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	"Cheat: Peek into object creation",			/* OPT_cheat_peek */
+	"Cheat: Peek into monster creation",		/* OPT_cheat_hear */
+	"Cheat: Peek into dungeon creation",		/* OPT_cheat_room */
+	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
+	"Cheat: Know complete monster info",		/* OPT_cheat_know */
+	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	"Adult: Allow purchase of stats using points",	/* OPT_adult_point_based */
+	"Adult: Allow specification of minimal stats",	/* OPT_adult_auto_roller */
+	"Adult: Maximize effect of race/class bonuses",	/* OPT_adult_maximize */
+	"Adult: Preserve artifacts when leaving level",	/* OPT_adult_preserve */
+	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
+	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
+	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
+	"Adult: Randomize some of the artifacts",	/* OPT_adult_rand_artifacts */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	"Score: Peek into object creation",			/* OPT_score_peek */
+	"Score: Peek into monster creation",		/* OPT_score_hear */
+	"Score: Peek into dungeon creation",		/* OPT_score_room */
+	"Score: Peek into something else",			/* OPT_score_xtra */
+	"Score: Know complete monster info",		/* OPT_score_know */
+	"Score: Allow player to avoid death",		/* OPT_score_live */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL										/* xxx */
 };
 
 
@@ -2715,9 +3124,9 @@ cptr option_desc[OPT_MAX] =
 bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
-	FALSE,		/* OPT_quick_messages */
-	TRUE,		/* OPT_floor_query_flag */
-	FALSE,		/* OPT_carry_query_flag */
+	TRUE,		/* OPT_quick_messages */
+	FALSE,		/* OPT_floor_query_flag */
+	TRUE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
 	FALSE,		/* OPT_always_repeat */
@@ -2748,18 +3157,18 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
-	FALSE,		/* OPT_testing_stack */
-	FALSE,		/* OPT_testing_carry */
-	FALSE,		/* OPT_expand_look */
-	FALSE,		/* OPT_expand_list */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	TRUE,		/* OPT_expand_look */
+	TRUE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	FALSE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* xxx track_follow */
+	FALSE,		/* xxx track_target */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -2777,34 +3186,208 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_yellow_lite */
 	FALSE,		/* OPT_view_bright_lite */
 	FALSE,		/* OPT_view_granite_lite */
-	FALSE		/* OPT_view_special_lite */
+	FALSE,		/* OPT_view_special_lite */
+	FALSE,		/* OPT_easy_open */
+	FALSE,		/* OPT_easy_alter */
+	FALSE,		/* OPT_easy_floor */
+	FALSE,		/* OPT_show_piles */
+	FALSE,		/* OPT_center_player */
+	FALSE,		/* OPT_run_avoid_center */
+	FALSE,		/* OPT_scroll_target */
+	FALSE,		/* OPT_auto_more */
+	FALSE,		/* OPT_smart_monsters */
+	FALSE,		/* OPT_smart_packs */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_point_based */
+	FALSE,		/* OPT_birth_auto_roller */
+	TRUE,		/* OPT_birth_maximize */
+	TRUE,		/* OPT_birth_preserve */
+	FALSE,		/* OPT_birth_ironman */
+	FALSE,		/* OPT_birth_no_stores */
+	FALSE,		/* OPT_birth_no_artifacts */
+	FALSE,		/* OPT_birth_rand_artifacts */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* OPT_cheat_peek */
+	FALSE,		/* OPT_cheat_hear */
+	FALSE,		/* OPT_cheat_room */
+	FALSE,		/* OPT_cheat_xtra */
+	FALSE,		/* OPT_cheat_know */
+	FALSE,		/* OPT_cheat_live */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_point_based */
+	FALSE,		/* OPT_adult_auto_roller */
+	TRUE,		/* OPT_adult_maximize */
+	TRUE,		/* OPT_adult_preserve */
+	FALSE,		/* OPT_adult_ironman */
+	FALSE,		/* OPT_adult_no_stores */
+	FALSE,		/* OPT_adult_no_artifacts */
+	FALSE,		/* OPT_adult_rand_artifacts */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* OPT_score_peek */
+	FALSE,		/* OPT_score_hear */
+	FALSE,		/* OPT_score_room */
+	FALSE,		/* OPT_score_xtra */
+	FALSE,		/* OPT_score_know */
+	FALSE,		/* OPT_score_live */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE		/* xxx */
 };
 
-/* Options; quickstart values  -KRP */
-bool option_quick[OPT_MAX] = 
-{
-	FALSE, FALSE, FALSE, FALSE,	/* ROGUE, QUICK, QUERY, QUERY */
-	TRUE, FALSE, TRUE, TRUE,	/* TARGET, PICKUP, REPEAT, FEET */
-	TRUE, TRUE, TRUE, TRUE,	/* NOTES, COSTS, LABELS, WEIGHTS */
-	TRUE, TRUE, TRUE, TRUE,	/* CHOICES, DETAILS, BELL, FLAVORS */
-	FALSE, FALSE, FALSE, TRUE,	/* STAIRS, DOORS, CUT, USE */
-	TRUE, TRUE, TRUE, TRUE,	/* MOVE, NEAR, PANEL, STATE */
-	TRUE, TRUE, TRUE, FALSE,	/* MINOR, OTHER, HP, FAILURE */
-	TRUE, TRUE, TRUE, FALSE,	/* DESTROY, SPECIAL, QUANT, XXX */
-	TRUE, FALSE, TRUE, TRUE,	/* HAGGLE, SCUM, STACK, CARRY */
-	TRUE, TRUE, TRUE, TRUE,	/* LOOK, LIST, PERMA, TORCH */
-	TRUE, TRUE, TRUE, TRUE, /* ALIGN, STAIR, SOUND, SMELL */
-	FALSE, FALSE, TRUE, FALSE,	/* XXX, XXX, LEARN, CHEAT */
-	FALSE, FALSE, FALSE, FALSE,	/* REDUCE, HIDDEN, ABORT, OTHER */
-	TRUE, TRUE, FALSE, TRUE,/* FAILURE, DISTURB, XXX, BEFORE */
-	TRUE, FALSE, TRUE, TRUE,	/* AFTER, XXX, COMPRESS, HILITE */
-	TRUE, TRUE, TRUE, TRUE	/* YELLOW, LITE, GRANITE, SPECIAL */
-};
 
 /*
  * Option screen interface
+ *
+ * Note the special significance given to the constant "255".
  */
-byte option_page[4][16] =
+byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 {
 	/*** User-Interface ***/
 
@@ -2824,7 +3407,11 @@ byte option_page[4][16] =
 		OPT_show_choices,
 		OPT_show_details,
 		OPT_show_flavors,
-		OPT_ring_bell
+		OPT_ring_bell,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Disturbance ***/
@@ -2845,6 +3432,10 @@ byte option_page[4][16] =
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
+		OPT_auto_more,
+		255,
+		255,
+		255,
 		255
 	},
 
@@ -2853,8 +3444,6 @@ byte option_page[4][16] =
 	{
 		OPT_auto_haggle,
 		OPT_auto_scum,
-		OPT_testing_stack,
-		OPT_testing_carry,
 		OPT_expand_look,
 		OPT_expand_list,
 		OPT_view_perma_grids,
@@ -2863,8 +3452,14 @@ byte option_page[4][16] =
 		OPT_dungeon_stair,
 		OPT_flow_by_sound,
 		OPT_flow_by_smell,
+		OPT_smart_monsters,
+		OPT_smart_packs,
 		OPT_smart_learn,
 		OPT_smart_cheat,
+		OPT_easy_open,
+		OPT_easy_alter,
+		OPT_easy_floor,
+		OPT_show_piles,
 		255,
 		255
 	},
@@ -2886,9 +3481,77 @@ byte option_page[4][16] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
+ 		OPT_center_player,
+ 		OPT_run_avoid_center,
+		OPT_scroll_target,
+		255,
+		255,
+		255,
+	},
+
+	/*** Birth ***/
+
+	{
+		OPT_birth_point_based,
+		OPT_birth_auto_roller,
+		OPT_birth_maximize,
+		OPT_birth_preserve,
+		OPT_birth_ironman,
+		OPT_birth_no_stores,
+		OPT_birth_no_artifacts,
+		OPT_birth_rand_artifacts,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255
+	},
+
+	/*** Cheat ***/
+
+	{
+		OPT_cheat_peek,
+		OPT_cheat_hear,
+		OPT_cheat_room,
+		OPT_cheat_xtra,
+		OPT_cheat_know,
+		OPT_cheat_live,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255
 	}
 };
 
+
+cptr inscrip_text[MAX_INSCRIP] =
+{
+	NULL,
+	"terrible",
+	"worthless",
+	"cursed",
+	"broken",
+	"average",
+	"good",
+	"excellent",
+	"special",
+	"uncursed"
+};
 

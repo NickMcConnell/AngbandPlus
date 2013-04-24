@@ -8,27 +8,45 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/raw/k_info.raw" file.
 
-# Available slots (?):
+# Available slots (possibly out of date):
 #   29, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
 #   268, 270, 293, 299, 350, 351, 399, 413, 414, 423-479
 
-# XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
+# Add some "IGNORE_XXX" flags to Rings, Amulets, etc.  XXX XXX
 
-# The old "MULTI_HUED" objects are now "violet", and no other object
-# is violet, so all six violet objects can be made "multi-hued", though
-# this would be a heinous hack.  XXX XXX
+# Minor changes as made by Jonathan Ellis: 
 
-# Note that object zero is used for the "stack" picture (unused).
-
+#   Rings of Speed are now level 70 items, and the "special" items with the 
+# INSTA_ART flag have had their level tweaked to match the a_info.txt file. 
+#   Power Dragon Scale Mail is slightly more common, now it's up to
+# half as common as Multi-Hued DSM - which is still pretty rare. It has been 
+# restored to its former glory. It is still *EXTREMELY* unlikely that anybody 
+# will ever see it, I've only ever found even Multi-Hued DSM once in seven
+# wins against various variants. And one PDSM that I never got to pick up...
+#    Shining Dragon Scale Mail renamed Pseudo DSM. Chaos and Balance DSM do 
+# *NOT* give confusion resistance separately from chaos now that confusion 
+# and chaos resistance have been separated.
+#   Amulets of the Magi now give bonuses and sustains to int and wis. They are
+# also much deeper and rarer...
+#   The completely useless Ring of Searching is replaced by a deeper and rarer
+# Ring of Sustaining (sustain all stats.)
+#   Rings and Amulets which add to one stat (only) now sustain that stat as 
+# well, and are deeper and rarer - 40/2 not 30/1.
+#   Ring of Woe and Amulet of Doom are now HEAVY_CURSED!
+#   New item - Palantir (with INSTA_ART flag). Template for the new Palantir
+# Of Westernesse artifact. Out of order in the file (I wasn't sure that I was
+# allowed an object number 512, and number 499 was taken, so I couldn't put it
+# with the other Special Artifacts. It's at number 424, but generates 
+# correctly in debug mode.)
 
 # Version stamp (required)
 
-V:2.8.3
+V:2.9.0
 
 
-##### Something special #####
+##### Non-kind (contains the "pile" picture) #####
 
-N:0:something
+N:0:<pile>
 G:&:w
 
 
@@ -1008,44 +1026,44 @@ P:5:1d3:0:0:0
 N:132:Strength
 G:=:d
 I:45:24:0
-W:30:0:2:500
-A:30/1
-F:STR | HIDE_TYPE
+W:30:0:2:1000
+A:40/2
+F:STR | SUST_STR | HIDE_TYPE
 
 N:133:Dexterity
 G:=:d
 I:45:26:0
-W:30:0:2:500
-A:30/1
-F:DEX | HIDE_TYPE
+W:30:0:2:1000
+A:40/2
+F:DEX | SUST_DEX | HIDE_TYPE
 
 N:134:Constitution
 G:=:d
 I:45:27:0
-W:30:0:2:500
-A:30/1
-F:CON | HIDE_TYPE
+W:30:0:2:1000
+A:40/2
+F:CON | SUST_CON | HIDE_TYPE
 
 N:135:Intelligence
 G:=:d
 I:45:25:0
-W:30:0:2:500
-A:30/1
-F:INT | HIDE_TYPE
+W:30:0:2:1000
+A:40/2
+F:INT | SUST_INT | HIDE_TYPE
 
 N:136:Speed
 G:=:d
 I:45:31:0
-W:80:0:2:100000
-A:80/1
+W:70:0:2:100000
+A:70/1
 F:SPEED | HIDE_TYPE
 
-N:137:Searching
+N:137:Sustaining
 G:=:d
 I:45:23:0
-W:5:0:2:250
-A:5/1
-F:SEARCH | HIDE_TYPE
+W:50:0:2:20000
+A:50/16
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 
 N:138:Teleportation
 G:=:d
@@ -1082,11 +1100,11 @@ W:5:0:2:200
 A:5/1
 F:FEATHER | EASY_KNOW
 
-N:143:Poison Resistance
+N:143:Resist Poison
 G:=:d
 I:45:20:0
-W:60:0:2:16000
-A:60/2
+W:40:0:2:16000
+A:40/2
 F:RES_POIS | EASY_KNOW
 
 N:144:Free Action
@@ -1132,7 +1150,7 @@ G:=:d
 I:45:0:-5
 W:50:0:2:0
 A:50/1
-F:LIGHT_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
+F:HEAVY_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
 
 N:150:Stupidity
 G:=:d
@@ -1227,16 +1245,16 @@ F:SHOW_MODS
 N:163:Wisdom
 G:":d
 I:40:6:0
-W:20:0:3:500
-A:20/1
-F:WIS | HIDE_TYPE
+W:40:0:3:1000
+A:40/2
+F:WIS | SUST_WIS | HIDE_TYPE
 
 N:164:Charisma
 G:":d
 I:40:7:0
-W:20:0:3:500
-A:20/1
-F:CHR | HIDE_TYPE
+W:40:0:3:1000
+A:40/2
+F:CHR | SUST_CHR | HIDE_TYPE
 
 N:165:Searching
 G:":d
@@ -1279,9 +1297,9 @@ N:171:the Magi
 G:":d
 I:40:8:0
 W:50:0:3:30000
-A:50/4
+A:70/8
 P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH |
+F:FREE_ACT | SEE_INVIS | SEARCH | INT | SUST_INT | WIS | SUST_WIS | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:172:DOOM
@@ -1289,7 +1307,7 @@ G:":d
 I:40:0:-5
 W:50:0:3:0
 A:50/1
-F:LIGHT_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
+F:HEAVY_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
 
 
 ##### Scrolls #####
@@ -2881,7 +2899,7 @@ P:30:2d4:-2:0:10
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:406:Shining Dragon Scale Mail~
+N:406:Pseudo Dragon Scale Mail~
 G:[:o
 I:38:10:0
 W:65:0:200:60000
@@ -2939,10 +2957,11 @@ N:412:Power Dragon Scale Mail~
 G:[:v
 I:38:30:0
 W:110:0:200:300000
-A:110/64
+A:100/32
 P:40:2d4:-3:0:15
-F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
-F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
+F:RES_CONFU | RES_DISEN | RES_SOUND | RES_SHARD | RES_BLIND
+F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 413 XXX ##
@@ -3010,7 +3029,14 @@ P:0:1d1:0:0:0
 
 ## XXX 423 XXX ##
 
-## XXX 424 XXX ##
+## Item 424 - a new "special" artifact...!
+# The Palantir of Westernesse -- see artifact list
+N:424:& Palantir~
+G:~:y
+I:39:3:0
+W:75:60:200:100000
+P:0:10d10:0:0:0
+F:INSTA_ART
 
 
 ##### Items 425 to 439 unused #####
@@ -3183,7 +3209,7 @@ F:INSTA_ART
 N:502:& Arkenstone~
 G:~:y
 I:39:6:0
-W:60:0:5:60000
+W:50:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
@@ -3201,7 +3227,7 @@ F:INSTA_ART
 N:504:& Amulet~
 G:":d
 I:40:11:0
-W:60:0:3:90000
+W:65:0:3:90000
 F:INSTA_ART
 
 # The Necklace of the Dwarves -- see artifact list
@@ -3226,31 +3252,31 @@ F:INSTA_ART
 N:507:& Ring~
 G:=:d
 I:45:33:0
-W:90:0:2:150000
+W:70:0:2:150000
 F:INSTA_ART
 
-# The Ring of Power (Narya) -- see artifact list
+# The Ring of Power 'Narya' -- see artifact list
 
 N:508:& Ring~
 G:=:d
 I:45:34:0
-W:80:0:2:100000
+W:70:0:2:100000
 F:INSTA_ART
 
-# The Ring of Power (Nenya) -- see artifact list
+# The Ring of Power 'Nenya' -- see artifact list
 
 N:509:& Ring~
 G:=:d
 I:45:35:0
-W:90:0:2:200000
+W:80:0:2:200000
 F:INSTA_ART
 
-# The Ring of Power (Vilya) -- see artifact list
+# The Ring of Power 'Vilya' -- see artifact list
 
 N:510:& Ring~
 G:=:d
 I:45:36:0
-W:100:0:2:300000
+W:90:0:2:300000
 F:INSTA_ART
 
 # The Ring of Power (The One Ring) -- see artifact list
@@ -3258,6 +3284,6 @@ F:INSTA_ART
 N:511:& Ring~
 G:=:y
 I:45:37:0
-W:110:0:2:5000000
+W:100:0:2:1000000
 F:INSTA_ART
 

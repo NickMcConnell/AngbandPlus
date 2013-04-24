@@ -1,0 +1,96 @@
+
+	Main Feature of Team Angband:
+* More bugs then in any other variant. If I'm wrong, tell me, so I
+can add some more. ;-)
+
+	Send your comments, thoughts, critics, bugs, patches ;) and
+	ideas to Aerton@chat.ru. You can also try find me on othernet
+	#angband IRC channel under nick "Aerton"
+								Ilya Bely
+
+
+		Notes about future versions:
+	Fix redraw and distribution.
+	Mostly, I will follow what Karl Peters had wrote (read team-old.txt),
+but not at a whole.
+	Team of variable size 1-6. Possibility to leave some team members
+at home in town.
+	Something must be done with teleportation. It is no fut at all
+and a lot of headache when team is spread across the dungeon. The only
+troubleless teleportation is Phase Door. May be, when teleportation
+spell is cast, caster will teleport with adjancent characters (he grabs
+them by their shoulders before disappearing). Or, may be, some kind
+of dimension doors is created between the place of caster and teleport
+destination. Like "between" in PernAngband, but last only a short period
+of time. Or all teleoprts performed at a same period of time lead to
+nearby location. Main problem arises with monsters teleporting players
+away. I have no clear idea yet on this subject....
+	Similar problems arise with changing dungeon level...
+	Magic system will be changed. Many spells will be possible to
+cast on another characters. E.g. Orb of Blessing. Some spell will
+gone (Satisfy Hunger, Alter Reality), but most will stay in some form.
+Spells will be separated between spells and prayers (healing spells will
+be for priests and paladins only). High-damage mage's spell will require
+much more time to cast. Other party members needs to protect mage, while
+he is casting such spells. Spells, that affect other players will cost
+more SP, will be of higher level and, in general, less effective, than
+thier versions that affects caster only.
+	Something to be done with XP mechanism. Giving all XP to the
+one, who made fatal blow isn't right. Giving XP for some HP isn't
+tight too. Not only player can hit/heal monster, but, worse, low-level
+character will be able to thow something at sleeping deep monster and
+teleport away, having many XP for a vety little risk. The most right
+way is to store for each creature how many damage does to him every
+player, still it will need a lots of memory. And another situation,
+warrior is fighting in a narrow corridor with some nasty monster, while
+mage casts haste him and confuses monster and priest heals and is casting
+resistances on him. It will not be right to award only warrior with
+XP. So, currently, whole team gains a full XP for each monster they
+kills, no matter who did this. XP for opening doors and casting is given
+to appopriate character only. Full XP (it is not divided by team size),
+is given because TAngband requires more time to play then any other
+variant, due to its nature. And so will it be untill i'll have better
+solution. So far i can see no one.
+	I also have several other ideas on dungeon generation, monster
+spells and AI, team management, but they will wait until bugs will be
+fixed, and interface becomes not so hostile.
+	I used sometimes // - style comments, their ugliness is a sign
+"this code *needs* to be changed" for temporary hacks. If your compiler
+complain on these, simply remove these lines, there are really not many.
+I belive to remove of them in nearest future...
+
+Warning:
+Saves will become unreadable once more. I'll add new info there,
+clean data structuers and change format of savefiles. I will not
+care about old saves while it is a development version.
+
+	Brief history of changes maden by me, see older changes
+	and plans in tang-old.txt
+	
+Date	Version	Comments
+
+ 2jul00  0.6.0  Added new command 'h' to stay for 1/4 time of normal
+            	stay command, no pickup is possible. Usefull when
+		team get stuck. Jumping (command '-') now disables
+		autopickuping of any items, even if they are inscribed
+		as {=g}
+
+23jun00		Implemented artifact_diggers, redraw_recall_windows
+		patches for 2.9.0
+
+22jun00		Fixed(?) one of three most annoying bugs - processing
+		wrong character's info in combat (wrong messages,
+		inventory destructions).
+
+13jun00		Applied easy_floor, gcc_optimizer, poisonous_food patches
+		for Angband 2.9.0 code.
+
+28may00		Removed load1.c - it have no sense here. "You" replaced
+		by character's name in many messages. 0.5.1 saves
+		now unreadable. Team routines moved from cmd?.c to team.c
+		
+27may00		2.8.3 code replaced by 2.9.0 - so have all new features!
+		I *love* diff and patch utilites! Players now can drop
+		gold by	'$' command. New option to synchronize all team
+		members' options. Info files replaced by Jonathan Ellis's
+		"290edits". XP sharing.

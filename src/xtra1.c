@@ -147,7 +147,7 @@ static void prt_stat(int stat)
  */
 static void prt_title(void)
 {
-	cptr p = "";
+	cptr p;
 
 	/* Wizard */
 	if (p_ptr->wizard)
@@ -582,7 +582,7 @@ static void prt_speed(void)
 {
 	int i = p_ptr->pspeed;
 
-	int attr = TERM_WHITE;
+	byte attr = TERM_WHITE;
 	char buf[32] = "";
 
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
@@ -752,6 +752,12 @@ static void health_redraw(void)
 		/* Afraid */
 		if (m_ptr->monfear) attr = TERM_VIOLET;
 
+		/* Confused */
+		if (m_ptr->confused) attr = TERM_UMBER;
+
+		/* Stunned */
+		if (m_ptr->stunned) attr = TERM_L_BLUE;
+
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
 
@@ -784,7 +790,11 @@ static void prt_frame_basic(void)
  *	prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
  */
 	stemp[6] = '1' + (char) p_ptr->whoami;
-	stemp[7] = NULL;
+	
+	strncpy (stemp,op_ptr->full_name,8);	/* I like to see name, */
+						/* not "CHAR# 3" -IB */
+	
+	stemp[7] = 0;
 
 	prt_field(stemp, ROW_ID, COL_ID);
 	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
@@ -797,7 +807,7 @@ static void prt_frame_basic(void)
 	prt_exp();
 
 	/* All Stats */
-	for (i = 0; i < 6; i++) prt_stat(i);
+	for (i = 0; i < A_MAX; i++) prt_stat(i);
 
 	/* Armor */
 	prt_ac();
@@ -1014,7 +1024,7 @@ static void fix_message(void)
 		for (i = 0; i < h; i++)
 		{
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str(i));
+			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str((s16b)i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -1211,7 +1221,7 @@ static void calc_spells(void)
 		/* Efficiency -- all done */
 		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
 
-		/* Access the spell */
+		/* Get the spell */
 		j = p_ptr->spell_order[i];
 
 		/* Skip non-spells */
@@ -1249,7 +1259,8 @@ static void calc_spells(void)
 			}
 
 			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
+			msg_format("%s have forgotten the %s of %s.",
+				   op_ptr->full_name, p,
 			           spell_names[mp_ptr->spell_type][j]);
 
 			/* One more can be learned */
@@ -1299,7 +1310,8 @@ static void calc_spells(void)
 			}
 
 			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
+			msg_format("%s have forgotten the %s of %s.",
+				   op_ptr->full_name, p,
 			           spell_names[mp_ptr->spell_type][j]);
 
 			/* One more can be learned */
@@ -1323,7 +1335,7 @@ static void calc_spells(void)
 		/* Skip unknown spells */
 		if (j >= 99) break;
 
-		/* Access the spell */
+		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
 
 		/* Skip spells we cannot remember */
@@ -1355,8 +1367,9 @@ static void calc_spells(void)
 			}
 
 			/* Message */
-			msg_format("You have remembered the %s of %s.",
-			           p, spell_names[mp_ptr->spell_type][j]);
+			msg_format("%s have remembered the %s of %s.",
+				   op_ptr->full_name, p,
+			           spell_names[mp_ptr->spell_type][j]);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1370,7 +1383,7 @@ static void calc_spells(void)
 	/* Count spells that can be learned */
 	for (j = 0; j < 64; j++)
 	{
-		/* Access the spell */
+		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
 
 		/* Skip spells we cannot remember */
@@ -1398,7 +1411,8 @@ static void calc_spells(void)
 		if (p_ptr->new_spells)
 		{
 			/* Message */
-			msg_format("You can learn %d more %s%s.",
+			msg_format("%s can learn %d more %s%s.",
+				   op_ptr->full_name,
 			           p_ptr->new_spells, p,
 			           (p_ptr->new_spells != 1) ? "s" : "");
 		}
@@ -1408,6 +1422,9 @@ static void calc_spells(void)
 
 		/* Redraw Study Status */
 		p_ptr->redraw |= (PR_STUDY);
+
+		/* Redraw object recall */
+		p_ptr->window |= (PW_OBJECT);
 	}
 }
 
@@ -1532,11 +1549,13 @@ static void calc_mana(void)
 		/* Message */
 		if (p_ptr->cumber_glove)
 		{
-			msg_print("Your covered hands feel unsuitable for spellcasting.");
+			msg_format("%s's covered hands feel unsuitable for spellcasting.",
+				op_ptr->full_name);
 		}
 		else
 		{
-			msg_print("Your hands feel more suitable for spellcasting.");
+			msg_format("%s's hands feel more suitable for spellcasting.",
+				op_ptr->full_name);
 		}
 
 		/* Save it */
@@ -1550,11 +1569,13 @@ static void calc_mana(void)
 		/* Message */
 		if (p_ptr->cumber_armor)
 		{
-			msg_print("The weight of your armor encumbers your movement.");
+			msg_format("The weight of %s's armor encumbers %s movement.",
+				op_ptr->full_name, sp_ptr->gen);
 		}
 		else
 		{
-			msg_print("You feel able to move more freely.");
+			msg_format("%s feels able to move more freely.",
+				op_ptr->full_name);
 		}
 
 		/* Save it */
@@ -1708,9 +1729,9 @@ static void calc_bonuses(void)
 	int extra_shots;
 	int extra_might;
 
-	int old_stat_top[6];
-	int old_stat_use[6];
-	int old_stat_ind[6];
+	int old_stat_top[A_MAX];
+	int old_stat_use[A_MAX];
+	int old_stat_ind[A_MAX];
 
 	object_type *o_ptr;
 
@@ -1732,7 +1753,7 @@ static void calc_bonuses(void)
 	old_dis_to_a = p_ptr->dis_to_a;
 
 	/* Save the old stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		old_stat_top[i] = p_ptr->stat_top[i];
 		old_stat_use[i] = p_ptr->stat_use[i];
@@ -1757,7 +1778,7 @@ static void calc_bonuses(void)
 	extra_might = 0;
 
 	/* Clear the stat modifiers */
-	for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
+	for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] = 0;
 
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = 0;
@@ -2006,7 +2027,7 @@ static void calc_bonuses(void)
 	/*** Handle stats ***/
 
 	/* Calculate stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		int add, top, use, ind;
 
@@ -2014,7 +2035,7 @@ static void calc_bonuses(void)
 		add = p_ptr->stat_add[i];
 
 		/* Maximize mode */
-		if (maximize) /* 'maximize' hack -KRP */
+		if (adult_maximize)
 		{
 			/* Modify the stats for race/class */
 			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
@@ -2130,12 +2151,6 @@ static void calc_bonuses(void)
 
 	/*** Special flags ***/
 
-	/* Hack -- Res chaos -> Res confu */
-	if (p_ptr->resist_chaos)
-	{
-		p_ptr->resist_confu = TRUE;
-	}
-
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
 	{
@@ -2160,6 +2175,9 @@ static void calc_bonuses(void)
 	/* Searching slows the player down */
 	if (p_ptr->searching) p_ptr->pspeed -= 10;
 
+	/* Sanity check on extreme speeds */
+	if (p_ptr->pspeed < 0) p_ptr->pspeed = 0;
+	if (p_ptr->pspeed > 199) p_ptr->pspeed = 199;
 
 	/*** Apply modifier bonuses ***/
 
@@ -2354,7 +2372,8 @@ static void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int num = 0, wgt = 0, mul = 0, div = 0;
+		int num = 0, wgt = 0, mul = 0;
+		int div;
 
 		/* Analyze the class */
 		switch (p_ptr->pclass)
@@ -2381,7 +2400,7 @@ static void calc_bonuses(void)
 		/* Enforce a minimum "weight" (tenth pounds) */
 		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
 
-		/* Access the strength vs weight */
+		/* Get the strength vs weight */
 		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
 
 		/* Maximal value */
@@ -2413,7 +2432,7 @@ static void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((p_ptr->pclass == 2) && (!p_ptr->bless_blade) &&
+	if ((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */
@@ -2432,7 +2451,7 @@ static void calc_bonuses(void)
 	/*** Notice changes ***/
 
 	/* Analyze stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Notice changes */
 		if (p_ptr->stat_top[i] != old_stat_top[i])
@@ -2523,15 +2542,18 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->heavy_shoot)
 		{
-			msg_print("You have trouble wielding such a heavy bow.");
+			msg_format("%s have trouble wielding such a heavy bow.",
+				op_ptr->full_name);
 		}
 		else if (inventory[INVEN_BOW].k_idx)
 		{
-			msg_print("You have no trouble wielding your bow.");
+			msg_format("%s have no trouble wielding your bow.",
+				op_ptr->full_name);
 		}
 		else
 		{
-			msg_print("You feel relieved to put down your heavy bow.");
+			msg_format("%s feel relieved to put down your heavy bow.",
+				op_ptr->full_name);
 		}
 
 		/* Save it */
@@ -2544,15 +2566,18 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->heavy_wield)
 		{
-			msg_print("You have trouble wielding such a heavy weapon.");
+			msg_format("%s have trouble wielding such a heavy weapon.",
+				op_ptr->full_name);
 		}
 		else if (inventory[INVEN_WIELD].k_idx)
 		{
-			msg_print("You have no trouble wielding your weapon.");
+			msg_format("%s have no trouble wielding your weapon.",
+				op_ptr->full_name);
 		}
 		else
 		{
-			msg_print("You feel relieved to put down your heavy weapon.");
+			msg_format("%s feel relieved to put down your heavy weapon.",
+				op_ptr->full_name);
 		}
 
 		/* Save it */
@@ -2565,15 +2590,18 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->icky_wield)
 		{
-			msg_print("You do not feel comfortable with your weapon.");
+			msg_format("%s do not feel comfortable with your weapon.",
+				op_ptr->full_name);
 		}
 		else if (inventory[INVEN_WIELD].k_idx)
 		{
-			msg_print("You feel comfortable with your weapon.");
+			msg_format("%s feel comfortable with your weapon.",
+				op_ptr->full_name);
 		}
 		else
 		{
-			msg_print("You feel more comfortable after removing your weapon.");
+			msg_format("%s feel more comfortable after removing your weapon.",
+				op_ptr->full_name);
 		}
 
 		/* Save it */
@@ -2709,6 +2737,11 @@ void update_stuff(void)
  */
 void redraw_stuff(void)
 {
+
+	/* Hack - don't redraw leading characters, ugly solution -IB */
+//	if ((leader != p_ptr->whoami && leader < 128)) return;
+	if (p_ptr->resting) return;
+
 	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Redraw stuff */
@@ -2724,11 +2757,11 @@ void redraw_stuff(void)
 
 
 
-	if (p_ptr->redraw & (PR_MAP))
-	{
-		p_ptr->redraw &= ~(PR_MAP);
+//	if (p_ptr->redraw & (PR_MAP))
+//	{
+//		p_ptr->redraw &= ~(PR_MAP);
 		prt_map();
-	}
+//	}
 
 
 	if (p_ptr->redraw & (PR_BASIC))
@@ -2750,7 +2783,7 @@ void redraw_stuff(void)
  *		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
  */
 		stemp[6] = '1' + (char) p_ptr->whoami;
-		stemp[7] = NULL;		
+		stemp[7] = 0;
 
 		prt_field(stemp, ROW_ID, COL_ID);
 		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);

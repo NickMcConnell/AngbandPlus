@@ -74,12 +74,16 @@ bool character_saved;		/* The character was just saved to a savefile */
 s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
 
+u32b seed_randart;		/* Hack -- consistent random artifacts */
+
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
+
+char summon_kin_type;		/* Hack -- See summon_specific() */
 
 s32b turn;				/* Current game turn */
 
@@ -117,10 +121,16 @@ s16b m_cnt = 0;			/* Number of live monsters */
 
 
 /*
+ * TRUE if process_command() is a repeated call.
+ */
+bool command_repeating = FALSE;
+
+
+/*
  * Dungeon variables
  */
 
-s16b feeling;			/* Most recent feeling */
+byte feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
 
 bool good_item_flag;	/* True if "Artifact" on this level */
@@ -463,8 +473,8 @@ player_other *op_ptr = team_info;
  * These global variables track the Maximize and Preserve settings of the
  * game. -KRP
  */
-byte maximize;
-byte preserve;
+/*byte maximize;*/
+/*byte preserve;*/
 
 /* 
  * This variable determines if there is yet a team leader, and, if he
@@ -529,6 +539,12 @@ char *r_text;
  * This variable is used to choose an appropriate "pref-xxx" file
  */
 cptr ANGBAND_SYS = "xxx";
+
+/*
+ * Hack -- The special Angband "Graphics Suffix"
+ * This variable is used to choose an appropriate "graf-xxx" file
+ */
+cptr ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory
@@ -645,4 +661,18 @@ bool (*get_mon_num_hook)(int r_idx);
 bool (*get_obj_num_hook)(int k_idx);
 
 
+/*
+ * The "highscore" file descriptor, if available.
+ */
+int highscore_fd = -1;
 
+
+/*
+ * Use transparent tiles
+ */
+bool use_transparency = FALSE;
+
+/*
+ * Game can be saved
+ */
+bool can_save = TRUE;

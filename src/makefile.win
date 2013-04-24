@@ -1,461 +1,205 @@
-#
-# Borland C++ IDE generated makefile
-# Generated 4/12/98 at 9:11:23 PM 
-#
-.AUTODEPEND
+# File: Makefile.win
 
+# For Borland C++ 4.52 Win16 and Win32
 
-#
-# Borland C++ tools
-#
-IMPLIB  = Implib
-BCC32   = Bcc32 +BccW32.cfg 
-BCC32I  = Bcc32i +BccW32.cfg 
-TLINK32 = TLink32
-ILINK32 = Ilink32
-TLIB    = TLib
-BRC32   = Brc32
-TASM32  = Tasm32
-#
-# IDE macros
-#
+.autodepend
 
+# change this to suit your taste
 
-#
-# Options
-#
-IDE_LinkFLAGS32 =  -LD:\BC5\LIB
-IDE_ResFLAGS32 = 
-LinkerLocalOptsAtW32_dcbrangbandbrangbanddexe =  -Tpe -aa -V4.0 -c -LD:\BC5\LIB
-ResLocalOptsAtW32_dcbrangbandbrangbanddexe = 
-BLocalOptsAtW32_dcbrangbandbrangbanddexe = 
-CompInheritOptsAt_dcbrangbandbrangbanddexe = -ID:\BC5\INCLUDE -DSTRICT;_OWLPCH
-LinkerInheritOptsAt_dcbrangbandbrangbanddexe = -x
-LinkerOptsAt_dcbrangbandbrangbanddexe = $(LinkerLocalOptsAtW32_dcbrangbandbrangbanddexe)
-ResOptsAt_dcbrangbandbrangbanddexe = $(ResLocalOptsAtW32_dcbrangbandbrangbanddexe)
-BOptsAt_dcbrangbandbrangbanddexe = $(BLocalOptsAtW32_dcbrangbandbrangbanddexe)
+CC = c:\apps\bc45\bin\bcc.exe +bccw16.cfg
+CC32 = c:\apps\bc45\bin\bcc32.exe +bccw32.cfg
+LINK = c:\apps\bc45\bin\tlink.exe
+LINK32 = c:\apps\bc45\bin\tlink32.exe
+RC = c:\apps\bc45\bin\brc.exe
+RC32 = c:\apps\bc45\bin\brc32.exe
+LIBDIR = c:\apps\bc45\lib
+INCLDIR = c:\apps\bc45\include;c:\angband\ext-win\src
 
-#
-# Dependency List
-#
-Dep_rangband = \
-   d:\rangband\rangband.exe
+# shouldn't need to change anything below
 
-rangband : BccW32.cfg $(Dep_rangband)
-  echo MakeNode
+SRCS = \
+  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+  variable.c tables.c util.c cave.c \
+  object1.c object2.c monster1.c monster2.c \
+  xtra1.c xtra2.c spells1.c spells2.c \
+  melee1.c melee2.c save.c files.c \
+  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
+  store.c birth.c load.c team.c \
+  wizard1.c wizard2.c \
+  generate.c dungeon.c init1.c init2.c init3.c \
+  main-win.c readdib.c itsybits.c
 
-Dep_dcbrangbandbrangbanddexe = \
-   random.obj\
-   angband.res\
-   tables.obj\
-   z-util.obj\
-   z-term.obj\
-   z-rand.obj\
-   z-form.obj\
-   xtra2.obj\
-   xtra1.obj\
-   wizard2.obj\
-   wizard1.obj\
-   variable.obj\
-   util.obj\
-   z-virt.obj\
-   birth.obj\
-   spells2.obj\
-   spells1.obj\
-   save.obj\
-   readdib.obj\
-   object2.obj\
-   object1.obj\
-   monster2.obj\
-   monster1.obj\
-   melee2.obj\
-   melee1.obj\
-   main-xxx.obj\
-   main-xaw.obj\
-   main-x11.obj\
-   main-win.obj\
-   main-vme.obj\
-   main-sla.obj\
-   main-mac.obj\
-   main-ibm.obj\
-   main-gcu.obj\
-   main-emx.obj\
-   main-cap.obj\
-   main-ami.obj\
-   main-acn.obj\
-   main.obj\
-   load.obj\
-   init2.obj\
-   init1.obj\
-   generate.obj\
-   files.obj\
-   dungeon.obj\
-   cmd6.obj\
-   cmd5.obj\
-   cmd4.obj\
-   cmd3.obj\
-   cmd2.obj\
-   cmd1.obj\
-   cave.obj\
-   store.obj
+OBJS = \
+  z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj \
+  variable.obj tables.obj util.obj cave.obj \
+  object1.obj object2.obj monster1.obj monster2.obj \
+  xtra1.obj xtra2.obj spells1.obj spells2.obj \
+  melee1.obj melee2.obj save.obj files.obj \
+  cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
+  store.obj birth.obj load.obj team.obj \
+  wizard1.obj wizard2.obj \
+  generate.obj dungeon.obj init1.obj init2.obj init3.obj \
+  main-win.obj readdib.obj itsybits.obj
 
-d:\rangband\rangband.exe : $(Dep_dcbrangbandbrangbanddexe)
-  $(ILINK32) @&&|
- /v $(IDE_LinkFLAGS32) $(LinkerOptsAt_dcbrangbandbrangbanddexe) $(LinkerInheritOptsAt_dcbrangbandbrangbanddexe) +
-D:\BC5\LIB\c0w32.obj+
-random.obj+
-tables.obj+
-z-util.obj+
-z-term.obj+
-z-rand.obj+
-z-form.obj+
-xtra2.obj+
-xtra1.obj+
-wizard2.obj+
-wizard1.obj+
-variable.obj+
-util.obj+
-z-virt.obj+
-birth.obj+
-spells2.obj+
-spells1.obj+
-save.obj+
-readdib.obj+
-object2.obj+
-object1.obj+
-monster2.obj+
-monster1.obj+
-melee2.obj+
-melee1.obj+
-main-xxx.obj+
-main-xaw.obj+
-main-x11.obj+
-main-win.obj+
-main-vme.obj+
-main-sla.obj+
-main-mac.obj+
-main-ibm.obj+
-main-gcu.obj+
-main-emx.obj+
-main-cap.obj+
-main-ami.obj+
-main-acn.obj+
-main.obj+
-load.obj+
-init2.obj+
-init1.obj+
-generate.obj+
-files.obj+
-dungeon.obj+
-cmd6.obj+
-cmd5.obj+
-cmd4.obj+
-cmd3.obj+
-cmd2.obj+
-cmd1.obj+
-cave.obj+
-store.obj
-$<,$*
-D:\BC5\LIB\owlwf.lib+
-D:\BC5\LIB\bidsf.lib+
-D:\BC5\LIB\import32.lib+
-D:\BC5\LIB\cw32.lib
+OBJS32 = \
+  z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 \
+  variable.o32 tables.o32 util.o32 cave.o32 \
+  object1.o32 object2.o32 monster1.o32 monster2.o32 \
+  xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 \
+  melee1.o32 melee2.o32 save.o32 files.o32 \
+  cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 \
+  store.o32 birth.o32 load.o32 team.o32 \
+  wizard1.o32 wizard2.o32 \
+  generate.o32 dungeon.o32 init1.o32 init2.o32 init3.o32 \
+  main-win.o32 readdib.o32 itsybits.o32
 
-angband.res
+default: bccw16.cfg angband cleanobj bccw32.cfg angband32 cleanobj32
 
-|
-random.obj :  random.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ random.c
-|
+clean:
+	del *.obj
+	del ..\*.map
+	del ..\angband.exe
 
-angband.res :  angband.rc
-  $(BRC32) -R @&&|
- $(IDE_ResFLAGS32) $(ROptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe)  -FO$@ angband.rc
-|
-tables.obj :  tables.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ tables.c
-|
+cleanobj:
+	del *.obj
+	del bccw16.cfg
 
-z-util.obj :  z-util.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ z-util.c
-|
+cleanobj32:
+	del *.o32
+	del bccw32.cfg
 
-z-term.obj :  z-term.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ z-term.c
-|
-
-z-rand.obj :  z-rand.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ z-rand.c
-|
-
-z-form.obj :  z-form.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ z-form.c
-|
-
-xtra2.obj :  xtra2.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ xtra2.c
-|
-
-xtra1.obj :  xtra1.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ xtra1.c
-|
-
-wizard2.obj :  wizard2.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ wizard2.c
-|
-
-wizard1.obj :  wizard1.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ wizard1.c
-|
-
-variable.obj :  variable.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ variable.c
-|
-
-util.obj :  util.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ util.c
-|
-
-z-virt.obj :  z-virt.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ z-virt.c
-|
-
-birth.obj :  birth.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ birth.c
-|
-
-spells2.obj :  spells2.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ spells2.c
-|
-
-spells1.obj :  spells1.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ spells1.c
-|
-
-save.obj :  save.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ save.c
-|
-
-readdib.obj :  readdib.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ readdib.c
-|
-
-object2.obj :  object2.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ object2.c
-|
-
-object1.obj :  object1.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ object1.c
-|
-
-monster2.obj :  monster2.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ monster2.c
-|
-
-monster1.obj :  monster1.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ monster1.c
-|
-
-melee2.obj :  melee2.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ melee2.c
-|
-
-melee1.obj :  melee1.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ melee1.c
-|
-
-main-xxx.obj :  main-xxx.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-xxx.c
-|
-
-main-xaw.obj :  main-xaw.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-xaw.c
-|
-
-main-x11.obj :  main-x11.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-x11.c
-|
-
-main-win.obj :  main-win.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-win.c
-|
-
-main-vme.obj :  main-vme.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-vme.c
-|
-
-main-sla.obj :  main-sla.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-sla.c
-|
-
-main-mac.obj :  main-mac.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-mac.c
-|
-
-main-ibm.obj :  main-ibm.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-ibm.c
-|
-
-main-gcu.obj :  main-gcu.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-gcu.c
-|
-
-main-emx.obj :  main-emx.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-emx.c
-|
-
-main-cap.obj :  main-cap.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-cap.c
-|
-
-main-ami.obj :  main-ami.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-ami.c
-|
-
-main-acn.obj :  main-acn.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main-acn.c
-|
-
-main.obj :  main.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ main.c
-|
-
-load.obj :  load.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ load.c
-|
-
-init2.obj :  init2.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ init2.c
-|
-
-init1.obj :  init1.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ init1.c
-|
-
-generate.obj :  generate.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ generate.c
-|
-
-files.obj :  files.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ files.c
-|
-
-dungeon.obj :  dungeon.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ dungeon.c
-|
-
-cmd6.obj :  cmd6.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ cmd6.c
-|
-
-cmd5.obj :  cmd5.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ cmd5.c
-|
-
-cmd4.obj :  cmd4.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ cmd4.c
-|
-
-cmd3.obj :  cmd3.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ cmd3.c
-|
-
-cmd2.obj :  cmd2.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ cmd2.c
-|
-
-cmd1.obj :  cmd1.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ cmd1.c
-|
-
-cave.obj :  cave.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ cave.c
-|
-
-store.obj :  store.c
-  $(BCC32) -P- -c @&&|
- $(CompOptsAt_dcbrangbandbrangbanddexe) $(CompInheritOptsAt_dcbrangbandbrangbanddexe) -o$@ store.c
-|
-
-# Compiler configuration file
-BccW32.cfg : 
-   Copy &&|
--w
--R
--v
--WM-
--vi
--H
--H=rangband.csm
--W
--H"owl\pch.h"
--O1
--g255
--j255
--w-dup
--w-aus
--f
--ff
+bccw16.cfg: makefile.win
+	if not exist ..\angband.ini copy ..\ext-win\src\angband.ini ..
+	copy &&|
+-I$(INCLDIR)
+-L$(LIBDIR)
+-ml
+-WE
+-x-
+-K
 -y-
--N-
--vi
--He
 -v-
--R-
+-N-
+-f-
+-3
+-dc
+-Ff=8
+-r
+-b-
+-p-
+-Os
+-Oa
+-OW
+-O
+-d
+-Ob
+-Oe
+-Og
+-Ol
+-Om
+-Ot
+-Op
+-Ov
 -k-
--wdpu
--w-pro
-| $@
+-Z
+-w-
+-X
+-D__STDC__=1
+| bccw16.cfg
 
+bccw32.cfg: makefile.win
+	copy &&|
+-I$(INCLDIR)
+-L$(LIBDIR)
+-WE
+-x-
+-K
+-y-
+-v-
+-N-
+-f-
+-5
+-r
+-b-
+-p-
+-Os
+-OW
+-O
+-d
+-Oa
+-Ob
+-Oe
+-Og
+-Ol
+-Om
+-Ot
+-Op
+-Ov
+-k-
+-Z
+-w-
+-X
+-D__STDC__=1
+| bccw32.cfg
+
+.c.obj:
+	$(CC) -c $<
+
+generate.obj: generate.c
+	$(CC) -c generate.c
+
+itsybits.obj: ..\ext-win\src\itsybits.c ..\ext-win\src\itsybits.h
+	$(CC) -c ..\ext-win\src\itsybits.c
+
+readdib.obj: ..\ext-win\src\readdib.c ..\ext-win\src\readdib.h
+	$(CC) -c ..\ext-win\src\readdib.c
+
+angband: $(OBJS) ..\ext-win\src\angband.rc
+	$(LINK) /L$(LIBDIR) @&&|
+-Twe -P -d -x -Gn -Oc -yx4096 +
+c0wl+
+z-util z-virt z-form z-rand z-term +
+variable tables util cave +
+object1 object2 monster1 monster2 +
+xtra1 xtra2 spells1 spells2 +
+melee1 melee2 save files +
+cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 +
+store birth load team +
+wizard1 wizard2 +
+generate dungeon init1 init2 init3 +
+main-win readdib itsybits,+
+..\angband.exe,..\angband.map,import cwl,..\ext-win\src\angband.def
+|
+	$(RC) -31 ..\ext-win\src\angband.rc ..\angband.exe
+
+.c.o32:
+	$(CC32) -c -o$@ $<
+
+# bug in BC4.5 optimizer scrambles town level
+generate.o32: generate.c
+	$(CC32) -c -ogenerate.o32 -O- generate.c
+
+itsybits.o32: ..\ext-win\src\itsybits.c ..\ext-win\src\itsybits.h
+	$(CC32) -c -oitsybits.o32 ..\ext-win\src\itsybits.c
+
+readdib.o32: ..\ext-win\src\readdib.c ..\ext-win\src\readdib.h
+	$(CC32) -c -oreaddib.o32 ..\ext-win\src\readdib.c
+
+angband32: $(OBJS32) ..\ext-win\src\angband.rc
+	$(LINK32) /L$(LIBDIR) @&&|
+-aa -B:0x400000 -S:0x100000 -P -x +
+c0w32 +
+z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 +
+variable.o32 tables.o32 util.o32 cave.o32 +
+object1.o32 object2.o32 monster1.o32 monster2.o32 +
+xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 +
+melee1.o32 melee2.o32 save.o32 files.o32 +
+cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 +
+store.o32 birth.o32 load.o32 team.o32 +
+wizard1.o32 wizard2.o32 +
+generate.o32 dungeon.o32 init1.o32 init2.o32 init3.o32 +
+main-win.o32 readdib.o32 itsybits.o32,+
+..\angband32.exe,..\angband.map,import32 cw32,..\ext-win\src\angband.def
+|
+	$(RC32) -w32 ..\ext-win\src\angband.rc ..\angband32.exe
 

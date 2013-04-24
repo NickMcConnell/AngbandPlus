@@ -33,7 +33,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	byte spells[64];
 
-	int ver;
+	bool verify;
 
 	bool flag, redraw, okay;
 	char choice;
@@ -49,6 +49,20 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 	/* p is now defined above. -KRP */
 	p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
+#ifdef ALLOW_REPEAT
+
+	/* Get the spell, if available */
+	if (repeat_pull(sn))
+	{
+		/* Verify the spell */
+		if (spell_okay(*sn, known))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Extract spells */
 	for (spell = 0; spell < 64; spell++)
@@ -143,7 +157,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 
 		/* Note verify */
-		ver = (isupper(choice));
+		verify = (isupper(choice) ? TRUE : FALSE);
 
 		/* Lowercase */
 		choice = tolower(choice);
@@ -165,16 +179,16 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 		if (!spell_okay(spell, known))
 		{
 			bell("Illegal spell choice!");
-			msg_format("You may not %s that %s.", prompt, p);
+			msg_format("%s may not %s that %s.", op_ptr->full_name, prompt, p);
 			continue;
 		}
 
 		/* Verify it */
-		if (ver)
+		if (verify)
 		{
 			char tmp_val[160];
 
-			/* Access the spell */
+			/* Get the spell */
 			s_ptr = &mp_ptr->info[spell];
 
 			/* Prompt */
@@ -208,6 +222,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 	/* Save the choice */
 	(*sn) = spell;
 
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*sn);
+
+#endif /* ALLOW_REPEAT */
+
 	/* Success */
 	return (TRUE);
 }
@@ -234,14 +254,15 @@ void do_cmd_browse(void)
 
 	object_type *o_ptr;
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Warriors are illiterate */
 	if (!mp_ptr->spell_book)
 	{
-		msg_print("You cannot read books!");
+		msg_format("%s cannot read books!", op_ptr->full_name);
 		return;
 	}
 
@@ -250,14 +271,14 @@ void do_cmd_browse(void)
 	/* No lite */
 	if (p_ptr->blind || no_lite())
 	{
-		msg_print("You cannot see!");
+		msg_format("%s cannot see!", op_ptr->full_name);
 		return;
 	}
 
 	/* Confused */
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		msg_format("%s is too confused!", op_ptr->full_name);
 		return;
 	}
 
@@ -268,7 +289,7 @@ void do_cmd_browse(void)
 
 	/* Get an item */
 	q = "Browse which book? ";
-	s = "You have no books that you can read.";
+	sprintf (s, "%s has no books that %s can read.", op_ptr->full_name, sp_ptr->nom);
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -283,7 +304,7 @@ void do_cmd_browse(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Access the item's sval */
+	/* Get the item's sval */
 	sval = o_ptr->sval;
 
 
@@ -317,8 +338,8 @@ void do_cmd_browse(void)
 	/* Prompt for a command */
 	put_str("(Browsing) Command: ", 0, 0);
 
-        /* Hack -- Get a new command */
-        p_ptr->command_new = inkey();
+	/* Hack -- Get a new command */
+	p_ptr->command_new = inkey();
 
 	/* Load screen */
 	screen_load();
@@ -345,7 +366,8 @@ void do_cmd_study(void)
 	int spell = -1;
 
 
-	cptr q, s, p; /* p now included here -KRP */
+	cptr q, p; /* p now included here -KRP */
+	char s[80];
 
 	object_type *o_ptr;
 
@@ -357,25 +379,25 @@ void do_cmd_study(void)
 
 	if (!mp_ptr->spell_book)
 	{
-		msg_print("You cannot read books!");
+		msg_format("%s cannot read books!", op_ptr->full_name);
 		return;
 	}
 
 	if (p_ptr->blind || no_lite())
 	{
-		msg_print("You cannot see!");
+		msg_format("%s cannot see!", op_ptr->full_name);
 		return;
 	}
 
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		msg_format("%s is too confused!", op_ptr->full_name);
 		return;
 	}
 
 	if (!(p_ptr->new_spells))
 	{
-		msg_format("You cannot learn any new %ss!", p);
+		msg_format("%s cannot learn any new %ss!", op_ptr->full_name, p);
 		return;
 	}
 
@@ -385,7 +407,7 @@ void do_cmd_study(void)
 
 	/* Get an item */
 	q = "Study which book? ";
-	s = "You have no books that you can read.";
+	sprintf (s, "%s has no books that %s can read.", op_ptr->full_name, sp_ptr->nom);
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -400,7 +422,7 @@ void do_cmd_study(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Access the item's sval */
+	/* Get the item's sval */
 	sval = o_ptr->sval;
 
 
@@ -452,7 +474,7 @@ void do_cmd_study(void)
 	if (spell < 0)
 	{
 		/* Message */
-		msg_format("You cannot learn any %ss in that book.", p);
+		msg_format("%s cannot learn any %ss in that book.", op_ptr->full_name, p);
 
 		/* Abort */
 		return;
@@ -483,8 +505,8 @@ void do_cmd_study(void)
 	p_ptr->spell_order[i++] = spell;
 
 	/* Mention the result */
-	msg_format("You have learned the %s of %s.",
-	           p, spell_names[mp_ptr->spell_type][spell]);
+	msg_format("%s has learned the %s of %s.",
+		   op_ptr->full_name, p, spell_names[mp_ptr->spell_type][spell]);
 
 	/* Sound */
 	sound(SOUND_STUDY);
@@ -496,8 +518,8 @@ void do_cmd_study(void)
 	if (p_ptr->new_spells)
 	{
 		/* Message */
-		msg_format("You can learn %d more %s%s.",
-		           p_ptr->new_spells, p,
+		msg_format("%s can learn %d more %s%s.",
+		           op_ptr->full_name, p_ptr->new_spells, p,
 		           (p_ptr->new_spells != 1) ? "s" : "");
 	}
 
@@ -506,6 +528,9 @@ void do_cmd_study(void)
 
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY);
+
+	/* Redraw object recall */
+	p_ptr->window |= (PW_OBJECT);
 }
 
 
@@ -527,28 +552,29 @@ void do_cmd_cast(void)
 
 	magic_type *s_ptr;
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
 	/* Require spell ability */
 	if (mp_ptr->spell_book != TV_MAGIC_BOOK)
 	{
-		msg_print("You cannot cast spells!");
+		msg_format("%s cannot cast spells!", op_ptr->full_name);
 		return;
 	}
 
 	/* Require lite */
 	if (p_ptr->blind || no_lite())
 	{
-		msg_print("You cannot see!");
+		msg_format("%s cannot see!", op_ptr->full_name);
 		return;
 	}
 
 	/* Not when confused */
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		msg_format("%s is too confused!", op_ptr->full_name);
 		return;
 	}
 
@@ -558,7 +584,7 @@ void do_cmd_cast(void)
 
 	/* Get an item */
 	q = "Use which book? ";
-	s = "You have no spell books!";
+	sprintf (s, "%s has no spell books!", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -573,7 +599,7 @@ void do_cmd_cast(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Access the item's sval */
+	/* Get the item's sval */
 	sval = o_ptr->sval;
 
 
@@ -587,12 +613,12 @@ void do_cmd_cast(void)
 	/* Ask for a spell */
 	if (!get_spell(&spell, "cast", sval, TRUE))
 	{
-		if (spell == -2) msg_print("You don't know any spells in that book.");
+		if (spell == -2) msg_format("%s don't know any spells in that book.", op_ptr->full_name);
 		return;
 	}
 
 
-	/* Access the spell */
+	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
 
@@ -600,7 +626,7 @@ void do_cmd_cast(void)
 	if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
-		msg_print("You do not have enough mana to cast this spell.");
+		msg_format("%s do not have enough mana to cast this spell.", op_ptr->full_name);
 
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
@@ -614,14 +640,14 @@ void do_cmd_cast(void)
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to get the spell off!");
+		msg_format("%s failed to get the spell off!", op_ptr->full_name);
 	}
 
 	/* Process spell */
 	else
 	{
 		/* Hack -- chance of "beam" instead of "bolt" */
-		beam = ((p_ptr->pclass == 1) ? plev : (plev / 2));
+		beam = ((p_ptr->pclass == CLASS_MAGE) ? plev : (plev / 2));
 
 		/* Spells.  */
 		switch (spell)
@@ -883,16 +909,7 @@ void do_cmd_cast(void)
 
 			case 37:
 			{
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall();
 				break;
 			}
 
@@ -1069,6 +1086,9 @@ void do_cmd_cast(void)
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
 		}
 	}
 
@@ -1092,7 +1112,7 @@ void do_cmd_cast(void)
 		p_ptr->csp_frac = 0;
 
 		/* Message */
-		msg_print("You faint from the effort!");
+		msg_format("%s faint from the effort!", op_ptr->full_name);
 
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
@@ -1103,7 +1123,7 @@ void do_cmd_cast(void)
 			bool perm = (rand_int(100) < 25);
 
 			/* Message */
-			msg_print("You have damaged your health!");
+			msg_format("%s has damaged %s health!", op_ptr->full_name, sp_ptr->gen);
 
 			/* Reduce constitution */
 			(void)dec_stat(A_CON, 15 + randint(10), perm);
@@ -1151,7 +1171,7 @@ static void brand_weapon(void)
 
 		object_desc(o_name, o_ptr, FALSE, 0);
 
-		msg_format("Your %s %s", o_name, act);
+		msg_format("%s's %s %s", op_ptr->full_name, o_name, act);
 
 		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
 	}
@@ -1180,7 +1200,8 @@ void do_cmd_pray(void)
 
 	magic_type *s_ptr;
 
-	cptr q, s;
+	cptr q;
+	char s[80];
 
 	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
@@ -1194,14 +1215,14 @@ void do_cmd_pray(void)
 	/* Must have lite */
 	if (p_ptr->blind || no_lite())
 	{
-		msg_print("You cannot see!");
+		msg_format("%s cannot see!", op_ptr->full_name);
 		return;
 	}
 
 	/* Must not be confused */
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		msg_format("%s is too confused!", op_ptr->full_name);
 		return;
 	}
 
@@ -1211,7 +1232,7 @@ void do_cmd_pray(void)
 
 	/* Get an item */
 	q = "Use which book? ";
-	s = "You have no prayer books!";
+	sprintf (s, "%s has no prayer books!", op_ptr->full_name);
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -1226,7 +1247,7 @@ void do_cmd_pray(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Access the item's sval */
+	/* Get the item's sval */
 	sval = o_ptr->sval;
 
 
@@ -1240,12 +1261,12 @@ void do_cmd_pray(void)
 	/* Choose a spell */
 	if (!get_spell(&spell, "recite", sval, TRUE))
 	{
-		if (spell == -2) msg_print("You don't know any prayers in that book.");
+		if (spell == -2) msg_format("%s don't know any prayers in that book.", op_ptr->full_name);
 		return;
 	}
 
 
-	/* Access the spell */
+	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
 
@@ -1253,7 +1274,7 @@ void do_cmd_pray(void)
 	if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
-		msg_print("You do not have enough mana to recite this prayer.");
+		msg_format("%s do not have enough mana to recite this prayer.", op_ptr->full_name);
 
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
@@ -1267,7 +1288,7 @@ void do_cmd_pray(void)
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to concentrate hard enough!");
+		msg_format("%s failed to concentrate hard enough!", op_ptr->full_name);
 	}
 
 	/* Success */
@@ -1387,7 +1408,7 @@ void do_cmd_pray(void)
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_HOLY_ORB, dir,
 				          (damroll(3, 6) + plev +
-				           (plev / ((p_ptr->pclass == 2) ? 2 : 4))),
+				           (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4))),
 				          ((plev < 30) ? 2 : 3));
 				break;
 			}
@@ -1647,16 +1668,7 @@ void do_cmd_pray(void)
 
 			case 56:
 			{
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = rand_int(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall();
 				break;
 			}
 
@@ -1690,6 +1702,9 @@ void do_cmd_pray(void)
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
 		}
 	}
 
@@ -1713,7 +1728,7 @@ void do_cmd_pray(void)
 		p_ptr->csp_frac = 0;
 
 		/* Message */
-		msg_print("You faint from the effort!");
+		msg_format("%s faint from the effort!", op_ptr->full_name);
 
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
@@ -1724,7 +1739,7 @@ void do_cmd_pray(void)
 			bool perm = (rand_int(100) < 25);
 
 			/* Message */
-			msg_print("You have damaged your health!");
+			msg_format("%s has damaged %s health!", op_ptr->full_name, sp_ptr->gen);
 
 			/* Reduce constitution */
 			(void)dec_stat(A_CON, 15 + randint(10), perm);

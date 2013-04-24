@@ -78,10 +78,11 @@ but they are also harder to use.  Depending on your strength, dexterity,
 character class, and weapon weight, you may get several attacks per turn.
 
 Missile booster weapons, such as bows, have their characteristics added to
-those of the missile used, if the proper weapon/missile combination is used,
-and the the launcher multiplier is applied to the total damage, making
-missile weapons very powerful given the proper missiles, especially if they
-are enchanted.
+those of the missile used, if the proper weapon/missile combination is used, 
+i.e. rounded pebbles or iron shots from a Sling, arrows or seeker arrows from
+a Short or Long Bow, bolts or seeker bolts from a Light or Heavy Crossbow. If 
+you are wielding the wrong launcher or no launcher, you will find that throwing
+arrows simply doesn't work very well.
 
 Although you receive any magical bonuses an unidentified weapon may possess
 when you wield it, those bonuses will not be added in to the displayed
@@ -135,8 +136,8 @@ Weapon of Extra Attacks.
 Elemental Branded Weapons.
      Each of the four elemental attacks has a corresponding weapon which 
      will do treble damage against creatures not resistant to that element.
-     These weapons are labelled "of Melting", "of Shocking", "of Burning",
-     and "of Freezing", corresponding to acid, lightning, fire, and cold.
+     These weapons are labelled as being of "Acid", "Flame", "Frost" and 
+     "Lightning".
 
 Weapon of Slay Dragon.
      A Slay Dragon weapon is a special purpose weapon whose sole intent is
@@ -188,6 +189,17 @@ Weapon of Slay Demon.
      nature such as the Minor and Major Demons.  Some powerful weapons of 
      this type will boost the wielder's intelligence.
 
+#### It should be noted that the double or treble damage from a weapon with 
+#### an Elemental or Slaying brand applies only to the *base* damage of the 
+#### weapon: the magical bonus is applied after the multiplier. So, a Long 
+#### Sword of Slay Orc (2d5) (+6,+7) does 6d5+7 damage against orcs with 
+#### each hit, not 6d5+21.
+
+#### It should also be noted that only the highest slay/branding bonus 
+#### applies: if you use a weapon with both Slay Evil and Frost Brand
+#### against an evil monster that does not resist cold, only the x3 multiplier
+#### for the Frost Brand applies, and the x2 Slay Evil multiplier does not.
+ 
 Weapon of Morgul.
      These blades are so foully cursed with evil, it is rumored that it is
      impossible to remove them.  BEWARE!
@@ -202,35 +214,59 @@ Launchers of Accuracy.
     These launchers have an unnaturally high to-hit number, making them 
     extremely accurate.
 
-Launchers of Velocity.
+Launchers of Power.
     These launchers do an unnaturally high amount of damage due to their 
-    high to-hit number.
+    high to-damage number.
 
 Launchers of Extra Shots.
     These launchers allow the wielder to shoot more times per round than 
     normal.
 
 Launchers of Extra Might.
-    These launchers have a higher base damage than normally made launchers 
-    of their type.
+    These launchers have a higher damage multiplier than normally made 
+    launchers of their type: the bonus in brackets (+1 or +2) is added 
+    to the multiplier of the weapon. So a Heavy Crossbow of Extra Might
+    (x4)(+1) is actually a Heavy Crossbow (x5). It should be noted here 
+    that the damage multiplier for the bow, unlike any slaying or 
+    elemental brand bonuses or any to-dam bonus, is applied *after* all 
+    the damage has been added together. To clarify, consider this:
 
-Ammo of Hurt Animal.
-    This ammo does double damage against natural denizens of the dungeon.
+       Seeker arrows of Flame (4d4) (+9,+8) fired from a Long Bow of
+       Extra Might (x3)(+11,+12) (+2)...
 
-Ammo of Hurt Evil.
-    This ammo does double damage against evil creatures in the dungeon.
+       Each arrow does 4d4=4-16 points of damage normally, average 10.
+       If fired against a non-fire-resistant monster, triple damage: 
+         12d4=12-48, average 30.
 
-Ammo of Hurt Dragon.
-    This ammo does treble damage against dragons.
+       You have a to-hit bonus adjusted by both the launcher and the
+         missile, to give both +9 and +11 = +20 to-hit, plus any bonus
+         you have from your dexterity. All in all, that's a pretty good
+         chance of hitting...
 
-Ammo of Flame.
-    This ammo does treble damage against creature not resistant to fire.
+       Add the damage bonus of the weapon, and the damage bonus of the 
+         bow - +8 and +12, to give a total of +20. 
+            Running total: 24-36 against fire-resistant, 32-68 against
+            other monsters, average 30 and 50 respectively.
+       Multiply by the bow multiplier: this is (x5) as the normal (x3)
+         has a (+2) bonus,
+            Final total: 120-180 against fire-resistant monsters, 
+            160-340 otherwise, average 150 and 250 respectively, 
+            considering a successful hit.
 
-Ammo of Frost.
-    This ammo does treble damage against creature not resistant to cold.
+       It can be seen that missile weapons can be pretty powerful.
+
+Ammo of Slay Animal, Undead, Dragon, Giant, Demon, Evil.
+    This ammo has the same bonuses as a melee weapon - double damage for 
+    Slay Animal against animals or Slay Evil against evil monsters, treble
+    damage otherwise against the specified type of monster.
+
+Ammo of Flame, Frost, Acid, Lightning
+    This ammo, as with melee weapons, trebles the damage against monsters
+    not resistant to the attack.
 
 Ammo of Wounding.
-    This ammo boosts the to-hit and to-dam numbers of the shooter.
+    This ammo has an unnaturally good chance to hit, and does extra damage
+    even compared to normal magical ammo.
 
 Apart from these there are some very rare and well made blades in the
 dungeon with not necessarily any special abilities. These include Blades
@@ -239,7 +275,7 @@ ego weapons like the ones above.  For example, a Blade of Chaos (Holy
 Avenger) is much more powerful than many artifact weapons!
 
 There are rumors of incredibly rare "artifact" weapons which are even
-more powerful than ego weapons.
+more powerful than ego weapons. Some are, of course, bound to be overrated...
 
 
 === Your Armor Class ===
@@ -300,8 +336,9 @@ of Resistance.
  
 of Elvenkind.
      This is the same as Resistance armour, only generally better enchanted.
-     It will make you more stealthy.  This armor can also possess extra 
-     resistances beyond the four basic elemental ones.
+     It will make you more stealthy.  This armor also possesses one extra 
+     resistance beyond the four basic elemental ones found on armor of 
+     Resistance (i.e. fire, acid, lightning, cold.)
  
 Robes of Permanence.
      These robes are designed especially for wizards.  Just like Elvenkind
@@ -347,10 +384,14 @@ Helm of Seeing.
      This is the great helm of the rogues.  The wearer will be able to see
      even invisible creatures, and will have an increased ability to locate
      traps and secret doors.  It is also rumored that the wearer of such a
-     helm will not be able to be blinded.
+     helm will not be able to be blinded, and can see in the dark by seeing
+     the heat given off by enemies - infravision.
 
-Helm of Infravision.
-     This helm grants the wearer increased infravision, as the name implies.
+Helm of Serenity.
+     This helm grants the wearer the chance to keep his mind clear of all 
+     distractions, noises and confusions of life, whether natural or 
+     magical. In practical terms, this translates into resistance to sound
+     and confusion.
 
 Helm of Light.
      In addition to providing a permanent light source for the wearer, this 
@@ -369,16 +410,16 @@ Ego Cloaks:
 -----------
 Cloak of Protection.
      This finely made cloak will come with an unnaturally high enchantment
-     and is not affected by elemental based attacks.
+     and is not affected by elemental based attacks. It is also fairly well
+     woven and will protect the wearer from blasts of crystal shards.
 
 Cloak of Stealth.
      This cloak will increase the wearer's stealth, making the wearer less
      likely to wake up sleeping monsters.
 
 Cloak of Aman.
-     These exceptionally rare cloaks combine the properties of Cloaks of
-     Protection and Cloaks of Stealth, and are rumored to have properties
-     beyond even those!
+     These exceptionally rare cloaks have an extremely high armor bonus, 
+     a bonus to stealth and provide an extra random resistance!
 
 Ego Gloves:
 -----------
@@ -424,5 +465,4 @@ quality metals they contain.
 
 There are rumors of incredibly rare "artifact" armor which are even
 more powerful than ego armor.
-
 

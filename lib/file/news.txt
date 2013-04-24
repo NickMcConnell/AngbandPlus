@@ -1,24 +1,24 @@
 
+
               **************************************************
-              **   Tangband 0.5.1  **   The Pits of Angband   **
+              **   Tangband 0.6.0  **   The Pits of Angband   **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
 
-     Angband 2.0 - 2.4 - 2.6.2 by: Alex Cutler, Andy Astrand, Sean Marsh,
+                       Angband 2.0 - 2.4 - 2.6.2 by:
+                   Alex Cutler, Andy Astrand, Sean Marsh,
                  Geoff Hill, Charles Teague, Charles Swiger
+                   Angband 2.7.0 - 2.8.5 by Ben Harrison
+                     Angband 2.9.0 by Robert Ruehlmann
 
-               Angband 2.8.3:  Copyright (c) 1997 Ben Harrison
-
-              Tangband 0.5.1: Copyright (c) 1999 Karl R. Peters
-
-      Send comments, bug reports, and patches, to "u1006057@warwick.net"
-        Visit the Angband Home Page at "http://www.phial.com/angband/"
+               Tangband 0.5.1: Copyright (c) 1999 Karl R. Peters
+                          Tangband 0.6.0 by Ilya Bely
+ 
+         Send comments, bug reports, and patches, to "aerton@chat.ru"
+       Visit the Angband Home Page at "http://thangorodrim.angband.org"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
    Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
-
-
-
 

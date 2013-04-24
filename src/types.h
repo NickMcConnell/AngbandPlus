@@ -500,6 +500,8 @@ struct object_type
 
 	u16b note;			/* Inscription index */
 
+	byte inscrip;		/* INSCRIP_XXX constant */
+
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
@@ -547,17 +549,6 @@ struct monster_type
 				 */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
-
-#ifdef WDT_TRACK_OPTIONS
-
-	byte ty;			/* Y location of target */
-	byte tx;			/* X location of target */
-
-	byte t_dur;			/* How long are we tracking */
-
-	byte t_bit;			/* Up to eight bit flags */
-
-#endif
 
 #ifdef DRS_SMART_OPTIONS
 
@@ -608,7 +599,7 @@ struct alloc_entry
  */
 struct quest
 {
-	int level;		/* Dungeon level */
+	byte level;		/* Dungeon level */
 	int r_idx;		/* Monster race */
 
 	int cur_num;	/* Number killed (unused) */
@@ -635,8 +626,6 @@ struct owner_type
 	byte insult_max;	/* Insult limit */
 
 	byte owner_race;	/* Owner race */
-
-	byte unused;		/* Unused */
 };
 
 
@@ -664,7 +653,7 @@ struct store_type
 	s16b table_size;		/* Table -- Total Size of Array */
 	s16b *table;			/* Table -- Legal item kinds */
 
-	s16b stock_num;			/* Stock -- Number of entries */
+	byte stock_num;			/* Stock -- Number of entries */
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
 };
@@ -693,7 +682,7 @@ struct magic_type
  */
 struct player_magic
 {
-	s16b spell_book;		/* Tval of spell books (if any) */
+	byte spell_book;		/* Tval of spell books (if any) */
 	s16b spell_xtra;		/* Something for later */
 
 	s16b spell_stat;		/* Stat for spells (if any)  */
@@ -712,9 +701,13 @@ struct player_magic
  */
 struct player_sex
 {
-	cptr title;			/* Type of sex */
+	cptr title;		/* Type of sex */
 
 	cptr winner;		/* Name of winner */
+	
+	cptr nom, gen, abl;	/* Nominativus, Genetivus, Ablativus.
+				 * I don't know it's name in english :-(
+				 * it is kind of he/his/him	-IB */
 };
 
 
@@ -725,7 +718,7 @@ struct player_race
 {
 	cptr title;			/* Type of race */
 
-	s16b r_adj[6];		/* Racial stat bonuses */
+	s16b r_adj[A_MAX];	/* Racial stat bonuses */
 
 	s16b r_dis;			/* disarming */
 	s16b r_dev;			/* magic devices */
@@ -765,7 +758,7 @@ struct player_class
 {
 	cptr title;			/* Type of class */
 
-	s16b c_adj[6];		/* Class stat modifier */
+	s16b c_adj[A_MAX];	/* Class stat modifier */
 
 	s16b c_dis;			/* class disarming */
 	s16b c_dev;			/* class magic devices */
@@ -803,11 +796,18 @@ struct player_other
 
 	bool opt[OPT_MAX];		/* Options */
 
-	u32b window_flag[8];	/* Window flags */
+	u32b window_flag[8];		/* Window flags */
 
-	s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
+	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
-	s16b delay_factor;		/* Delay factor (0 to 9) */
+	byte delay_factor;		/* Delay factor (0 to 9) */
+	
+		/* Each player looks differently -IB */
+	byte d_attr;			/* Default player attribute */
+	char d_char;			/* Default player character */
+
+	byte x_attr;			/* Desired player attribute */
+	char x_char;			/* Desired player character */
 };
 
 
@@ -867,8 +867,8 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;			/* Cur mana frac (times 2^16) */
 
-	s16b stat_max[6];		/* Current "maximal" stat values */
-	s16b stat_cur[6];		/* Current "natural" stat values */
+	s16b stat_max[A_MAX];		/* Current "maximal" stat values */
+	s16b stat_cur[A_MAX];		/* Current "natural" stat values */
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -928,13 +928,13 @@ struct player_type
 
 	bool wizard;			/* Player is in wizard mode */
 
-	bool cheat[CHEAT_MAX];		/* Cheating options */
+
 
 	/*** Temporary fields ***/
 
 	bool playing;			/* True if player is playing */
 	bool leaving;			/* True if player is leaving */
-	bool following;		/* True if player is following -KRP */
+	bool following;			/* True if player is following -KRP */
 
 	bool create_up_stair;	/* Create up stair on next level */
 	bool create_down_stair;	/* Create down stair on next level */
@@ -1005,68 +1005,68 @@ struct player_type
 
 	u32b notice;			/* Special Updates (bit flags) */
 	u32b update;			/* Pending Updates (bit flags) */
-	u32b redraw;			/* Normal Redraws (bit flags) */
-	u32b window;			/* Window Redraws (bit flags) */
+	u32b redraw;		/* Normal Redraws (bit flags) */
+	u32b window;		/* Window Redraws (bit flags) */
 
-	s16b stat_use[6];		/* Current modified stats */
-	s16b stat_top[6];		/* Maximal modified stats */
+	s16b stat_use[A_MAX];	/* Current modified stats */
+	s16b stat_top[A_MAX];	/* Maximal modified stats */
 
 	/*** Extracted fields ***/
 
-	s16b stat_add[6];		/* Equipment stat bonuses */
-	s16b stat_ind[6];		/* Indexes into stat tables */
+	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
+	s16b stat_ind[A_MAX];	/* Indexes into stat tables */
 
-	bool immune_acid;		/* Immunity to acid */
-	bool immune_elec;		/* Immunity to lightning */
-	bool immune_fire;		/* Immunity to fire */
-	bool immune_cold;		/* Immunity to cold */
+	bool immune_acid;	/* Immunity to acid */
+	bool immune_elec;	/* Immunity to lightning */
+	bool immune_fire;	/* Immunity to fire */
+	bool immune_cold;	/* Immunity to cold */
 
-	bool resist_acid;		/* Resist acid */
-	bool resist_elec;		/* Resist lightning */
-	bool resist_fire;		/* Resist fire */
-	bool resist_cold;		/* Resist cold */
-	bool resist_pois;		/* Resist poison */
+	bool resist_acid;	/* Resist acid */
+	bool resist_elec;	/* Resist lightning */
+	bool resist_fire;	/* Resist fire */
+	bool resist_cold;	/* Resist cold */
+	bool resist_pois;	/* Resist poison */
 
-	bool resist_fear;		/* Resist fear */
-	bool resist_lite;		/* Resist light */
-	bool resist_dark;		/* Resist darkness */
-	bool resist_blind;		/* Resist blindness */
-	bool resist_confu;		/* Resist confusion */
-	bool resist_sound;		/* Resist sound */
-	bool resist_shard;		/* Resist shards */
-	bool resist_nexus;		/* Resist nexus */
-	bool resist_nethr;		/* Resist nether */
-	bool resist_chaos;		/* Resist chaos */
-	bool resist_disen;		/* Resist disenchant */
+	bool resist_fear;	/* Resist fear */
+	bool resist_lite;	/* Resist light */
+	bool resist_dark;	/* Resist darkness */
+	bool resist_blind;	/* Resist blindness */
+	bool resist_confu;	/* Resist confusion */
+	bool resist_sound;	/* Resist sound */
+	bool resist_shard;	/* Resist shards */
+	bool resist_nexus;	/* Resist nexus */
+	bool resist_nethr;	/* Resist nether */
+	bool resist_chaos;	/* Resist chaos */
+	bool resist_disen;	/* Resist disenchant */
 
-	bool sustain_str;		/* Keep strength */
-	bool sustain_int;		/* Keep intelligence */
-	bool sustain_wis;		/* Keep wisdom */
-	bool sustain_dex;		/* Keep dexterity */
-	bool sustain_con;		/* Keep constitution */
-	bool sustain_chr;		/* Keep charisma */
+	bool sustain_str;	/* Keep strength */
+	bool sustain_int;	/* Keep intelligence */
+	bool sustain_wis;	/* Keep wisdom */
+	bool sustain_dex;	/* Keep dexterity */
+	bool sustain_con;	/* Keep constitution */
+	bool sustain_chr;	/* Keep charisma */
 
-	bool slow_digest;		/* Slower digestion */
+	bool slow_digest;	/* Slower digestion */
 	bool ffall;			/* Feather falling */
 	bool lite;			/* Permanent light */
-	bool regenerate;		/* Regeneration */
-	bool telepathy;			/* Telepathy */
-	bool see_inv;			/* See invisible */
-	bool free_act;			/* Free action */
-	bool hold_life;			/* Hold life */
+	bool regenerate;	/* Regeneration */
+	bool telepathy;		/* Telepathy */
+	bool see_inv;		/* See invisible */
+	bool free_act;		/* Free action */
+	bool hold_life;		/* Hold life */
 
-	bool impact;			/* Earthquake blows */
-	bool aggravate;			/* Aggravate monsters */
-	bool teleport;			/* Random teleporting */
-	bool exp_drain;			/* Experience draining */
+	bool impact;		/* Earthquake blows */
+	bool aggravate;		/* Aggravate monsters */
+	bool teleport;		/* Random teleporting */
+	bool exp_drain;		/* Experience draining */
 
-	bool bless_blade;		/* Blessed blade */
+	bool bless_blade;	/* Blessed blade */
 
-	s16b dis_to_h;			/* Known bonus to hit */
-	s16b dis_to_d;			/* Known bonus to dam */
-	s16b dis_to_a;			/* Known bonus to ac */
+	s16b dis_to_h;		/* Known bonus to hit */
+	s16b dis_to_d;		/* Known bonus to dam */
+	s16b dis_to_a;		/* Known bonus to ac */
 
-	s16b dis_ac;			/* Known base ac */
+	s16b dis_ac;		/* Known base ac */
 
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to dam */
@@ -1100,3 +1100,43 @@ struct player_type
 };
 
 
+/*
+ * Semi-Portable High Score List Entry (128 bytes)
+ *
+ * All fields listed below are null terminated ascii strings.
+ *
+ * In addition, the "number" fields are right justified, and
+ * space padded, to the full available length (minus the "null").
+ *
+ * Note that "string comparisons" are thus valid on "pts".
+ */
+
+typedef struct high_score high_score;
+
+struct high_score
+{
+	char what[8];		/* Version info (string) */
+
+	char pts[10];		/* Total Score (number) */
+
+	char gold[10];		/* Total Gold (number) */
+
+	char turns[10];		/* Turns Taken (number) */
+
+	char day[10];		/* Time stamp (string) */
+
+	char who[16];		/* Player Name (string) */
+
+	char uid[8];		/* Player UID (number) */
+
+	char sex[2];		/* Player Sex (string) */
+	char p_r[3];		/* Player Race (number) */
+	char p_c[3];		/* Player Class (number) */
+
+	char cur_lev[4];		/* Current Player Level (number) */
+	char cur_dun[4];		/* Current Dungeon Level (number) */
+	char max_lev[4];		/* Max Player Level (number) */
+	char max_dun[4];		/* Max Dungeon Level (number) */
+
+	char how[32];		/* Method of death (string) */
+};

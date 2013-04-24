@@ -41,10 +41,10 @@ void excise_object_idx(int o_idx)
 		{
 			object_type *o_ptr;
 
-			/* Acquire object */
+			/* Get the object */
 			o_ptr = &o_list[this_o_idx];
 
-			/* Acquire next object */
+			/* Get the next object */
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Done */
@@ -92,10 +92,10 @@ void excise_object_idx(int o_idx)
 		{
 			object_type *o_ptr;
 
-			/* Acquire object */
+			/* Get the object */
 			o_ptr = &o_list[this_o_idx];
 
-			/* Acquire next object */
+			/* Get the next object */
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Done */
@@ -187,10 +187,10 @@ void delete_object(int y, int x)
 	{
 		object_type *o_ptr;
 
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
-		/* Acquire next object */
+		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Wipe the object */
@@ -226,7 +226,7 @@ static void compact_objects_aux(int i1, int i2)
 	/* Repair objects */
 	for (i = 1; i < o_max; i++)
 	{
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[i];
 
 		/* Skip "dead" objects */
@@ -241,7 +241,7 @@ static void compact_objects_aux(int i1, int i2)
 	}
 
 
-	/* Acquire object */
+	/* Get the object */
 	o_ptr = &o_list[i1];
 
 
@@ -250,7 +250,7 @@ static void compact_objects_aux(int i1, int i2)
 	{
 		monster_type *m_ptr;
 
-		/* Acquire monster */
+		/* Get the monster */
 		m_ptr = &m_list[o_ptr->held_m_idx];
 
 		/* Repair monster */
@@ -266,7 +266,7 @@ static void compact_objects_aux(int i1, int i2)
 	{
 		int y, x;
 
-		/* Acquire location */
+		/* Get location */
 		y = o_ptr->iy;
 		x = o_ptr->ix;
 
@@ -350,7 +350,7 @@ void compact_objects(int size)
 			{
 				monster_type *m_ptr;
 
-				/* Acquire monster */
+				/* Get the monster */
 				m_ptr = &m_list[o_ptr->held_m_idx];
 
 				/* Get the location */
@@ -433,8 +433,7 @@ void wipe_o_list(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Mega-Hack -- preserve artifacts */
-		if (!character_dungeon || preserve) 
-		/* 'preserve' hack -KRP */
+		if (!character_dungeon || adult_preserve)
 		{
 			/* Hack -- Preserve unknown artifacts */
 			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
@@ -459,7 +458,7 @@ void wipe_o_list(void)
 		/* Dungeon */
 		else
 		{
-			/* Access location */
+			/* Get the location */
 			int y = o_ptr->iy;
 			int x = o_ptr->ix;
 
@@ -468,7 +467,7 @@ void wipe_o_list(void)
 		}
 
 		/* Wipe the object */
-		WIPE(o_ptr, object_type);
+		(void)WIPE(o_ptr, object_type);
 	}
 
 	/* Reset "o_max" */
@@ -480,7 +479,7 @@ void wipe_o_list(void)
 
 
 /*
- * Acquires and returns the index of a "free" object.
+ * Get and return the index of a "free" object.
  *
  * This routine should almost never fail, but in case it does,
  * we must be sure to handle "failure" of this routine.
@@ -512,7 +511,7 @@ s16b o_pop(void)
 	{
 		object_type *o_ptr;
 
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[i];
 
 		/* Skip live objects */
@@ -620,10 +619,10 @@ s16b get_obj_num(int level)
 		/* Default */
 		table[i].prob3 = 0;
 
-		/* Access the index */
+		/* Get the index */
 		k_idx = table[i].index;
 
-		/* Access the actual kind */
+		/* Get the actual kind */
 		k_ptr = &k_info[k_idx];
 
 		/* Hack -- prevent embedded chests */
@@ -717,7 +716,8 @@ s16b get_obj_num(int level)
 
 /*
  * Known is true when the "attributes" of an object are "known".
- * These include tohit, todam, toac, cost, and pval (charges).
+ *
+ * These attributes include tohit, todam, toac, cost, and pval (charges).
  *
  * Note that "knowing" an object gives you everything that an "awareness"
  * gives you, and much more.  In fact, the player is always "aware" of any
@@ -732,28 +732,10 @@ s16b get_obj_num(int level)
  */
 void object_known(object_type *o_ptr)
 {
-	/* Remove "default inscriptions" */
-	if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
-	{
-		/* Access the inscription */
-		cptr q = quark_str(o_ptr->note);
+	/* Remove special inscription, if any */
+	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
-		/* Hack -- Remove auto-inscriptions */
-		if ((streq(q, "cursed")) ||
-		    (streq(q, "broken")) ||
-		    (streq(q, "good")) ||
-		    (streq(q, "average")) ||
-		    (streq(q, "excellent")) ||
-		    (streq(q, "worthless")) ||
-		    (streq(q, "special")) ||
-		    (streq(q, "terrible")))
-		{
-			/* Forget the inscription */
-			o_ptr->note = 0;
-		}
-	}
-
-	/* Clear the "Felt" info */
+	/* The object is not "sensed" */
 	o_ptr->ident &= ~(IDENT_SENSE);
 
 	/* Clear the "Empty" info */
@@ -797,7 +779,7 @@ static s32b object_value_base(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-	/* Aware item -- use template cost */
+	/* Use template cost for aware objects */
 	if (object_aware_p(o_ptr)) return (k_ptr->cost);
 
 	/* Analyze the type */
@@ -834,9 +816,9 @@ static s32b object_value_base(object_type *o_ptr)
 
 
 /*
- * Return the "real" price of a "known" item, not including discounts
+ * Return the "real" price of a "known" item, not including discounts.
  *
- * Wand and staffs get cost for each charge
+ * Wand and staffs get cost for each charge.
  *
  * Armor is worth an extra 100 gold per bonus point to armor class.
  *
@@ -850,6 +832,7 @@ static s32b object_value_base(object_type *o_ptr)
  * and "brand" and "ignore" variety.
  *
  * Armor with a negative armor bonus is worthless.
+ *
  * Weapons with negative hit+damage bonuses are worthless.
  *
  * Every wearable item with a "pval" bonus is worth extra (see below).
@@ -1059,15 +1042,14 @@ static s32b object_value_real(object_type *o_ptr)
 
 
 /*
- * Return the price of an item including plusses (and charges)
+ * Return the price of an item including plusses (and charges).
  *
- * This function returns the "value" of the given item (qty one)
+ * This function returns the "value" of the given item (qty one).
  *
  * Never notice "unknown" bonuses or properties, including "curses",
  * since that would give the player information he did not have.
  *
- * Note that discounted items stay discounted forever, even if
- * the discount is "forgotten" by the player via memory loss.
+ * Note that discounted items stay discounted forever.
  */
 s32b object_value(object_type *o_ptr)
 {
@@ -1102,7 +1084,10 @@ s32b object_value(object_type *o_ptr)
 
 
 	/* Apply discount (if any) */
-	if (o_ptr->discount) value -= (value * o_ptr->discount / 100L);
+	if (o_ptr->discount > 0 && o_ptr->discount < INSCRIP_NULL)
+	{
+		value -= (value * o_ptr->discount / 100L);
+	}
 
 
 	/* Return the final value */
@@ -1258,21 +1243,54 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	}
 
 
-	/* Hack -- Require identical "cursed" status */
-	if ((o_ptr->ident & (IDENT_CURSED)) != (j_ptr->ident & (IDENT_CURSED))) return (0);
+	/* Hack -- Require identical "cursed" and "broken" status */
+	if (((o_ptr->ident & (IDENT_CURSED)) != (j_ptr->ident & (IDENT_CURSED))) ||
+	    ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))))
+	{
+		return (0);
+	}
 
-	/* Hack -- Require identical "broken" status */
-	if ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))) return (0);
+
+	/* Hack -- Require compatible inscriptions */
+	if (o_ptr->note != j_ptr->note)
+	{
+		/* Normally require matching inscriptions */
+		if (!stack_force_notes) return (0);
+
+		/* Never combine different inscriptions */
+		if (o_ptr->note && j_ptr->note) return (0);
+	}
 
 
-	/* Hack -- require semi-matching "inscriptions" */
-	if (o_ptr->note && j_ptr->note && (o_ptr->note != j_ptr->note)) return (0);
+	/* Hack -- Require compatible "discount" fields */
+	if (o_ptr->discount != j_ptr->discount)
+	{
+		/* Both are (different) special inscriptions */
+		if ((o_ptr->discount >= INSCRIP_NULL) &&
+		    (j_ptr->discount >= INSCRIP_NULL))
+		{
+			/* Normally require matching inscriptions */
+			return (0);
+		}
 
-	/* Hack -- normally require matching "inscriptions" */
-	if (!stack_force_notes && (o_ptr->note != j_ptr->note)) return (0);
+		/* One is a special inscription, one is a discount or nothing */
+		else if ((o_ptr->discount >= INSCRIP_NULL) ||
+		         (j_ptr->discount >= INSCRIP_NULL))
+		{
+			/* Normally require matching inscriptions */
+			if (!stack_force_notes) return (0);
 
-	/* Hack -- normally require matching "discounts" */
-	if (!stack_force_costs && (o_ptr->discount != j_ptr->discount)) return (0);
+			/* Hack -- Never merge a special inscription with a discount */
+			if ((o_ptr->discount > 0) && (j_ptr->discount > 0)) return (0);
+		}
+
+		/* One is a discount, one is a (different) discount or nothing */
+		else
+		{
+			/* Normally require matching discounts */
+			if (!stack_force_costs) return (0);
+		}
+	}
 
 
 	/* Maximal "stacking" limit */
@@ -1285,7 +1303,20 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 
 /*
- * Allow one item to "absorb" another, assuming they are similar
+ * Allow one item to "absorb" another, assuming they are similar.
+ *
+ * The blending of the "note" field assumes that either (1) one has an
+ * inscription and the other does not, or (2) neither has an inscription.
+ * In both these cases, we can simply use the existing note, unless the
+ * blending object has a note, in which case we use that note.
+ *
+ * The blending of the "discount" field assumes that either (1) one is a
+ * special inscription and one is nothing, or (2) one is a discount and
+ * one is a smaller discount, or (3) one is a discount and one is nothing,
+ * or (4) both are nothing.  In all of these cases, we can simply use the
+ * "maximum" of the two "discount" fields.
+ *
+ * These assumptions are enforced by the "object_similar()" code.
  */
 void object_absorb(object_type *o_ptr, object_type *j_ptr)
 {
@@ -1294,20 +1325,19 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	/* Add together the item counts */
 	o_ptr->number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
 
-	/* Hack -- blend "known" status */
+	/* Hack -- Blend "known" status */
 	if (object_known_p(j_ptr)) object_known(o_ptr);
 
-	/* Hack -- blend "rumour" status */
+	/* Hack -- Blend "rumour" status */
 	if (j_ptr->ident & (IDENT_RUMOUR)) o_ptr->ident |= (IDENT_RUMOUR);
 
-	/* Hack -- blend "mental" status */
+	/* Hack -- Blend "mental" status */
 	if (j_ptr->ident & (IDENT_MENTAL)) o_ptr->ident |= (IDENT_MENTAL);
 
-	/* Hack -- blend "inscriptions" */
-	if (j_ptr->note) o_ptr->note = j_ptr->note;
+	/* Hack -- Blend "notes" */
+	if (j_ptr->note != 0) o_ptr->note = j_ptr->note;
 
-	/* Hack -- could average discounts XXX XXX XXX */
-	/* Hack -- save largest discount XXX XXX XXX */
+	/* Mega-Hack -- Blend "discounts" */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
 }
 
@@ -1343,7 +1373,7 @@ s16b lookup_kind(int tval, int sval)
 void object_wipe(object_type *o_ptr)
 {
 	/* Wipe the structure */
-	WIPE(o_ptr, object_type);
+	(void)WIPE(o_ptr, object_type);
 }
 
 
@@ -1365,7 +1395,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Clear the record */
-	WIPE(o_ptr, object_type);
+	(void)WIPE(o_ptr, object_type);
 
 	/* Save the kind index */
 	o_ptr->k_idx = k_idx;
@@ -1521,12 +1551,17 @@ static void object_mention(object_type *o_ptr)
 
 
 /*
- * Mega-Hack -- Attempt to create one of the "Special Objects"
+ * Mega-Hack -- Attempt to create one of the "Special Objects".
  *
  * We are only called from "make_object()", and we assume that
  * "apply_magic()" is called immediately after we return.
  *
- * Note -- see "make_artifact()" and "apply_magic()"
+ * Note -- see "make_artifact()" and "apply_magic()".
+ *
+ * We *prefer* to create the special artifacts in order, but this is
+ * normally outweighed by the "rarity" rolls for those artifacts.  The
+ * only major effect of this logic is that the Phial (with rarity one)
+ * is always the first special artifact created.
  */
 static bool make_artifact_special(object_type *o_ptr)
 {
@@ -1535,11 +1570,14 @@ static bool make_artifact_special(object_type *o_ptr)
 	int k_idx = 0;
 
 
+	/* No artifacts, do nothing */
+	if (adult_no_artifacts) return (FALSE);
+
 	/* No artifacts in the town */
 	if (!p_ptr->depth) return (FALSE);
 
-	/* Check the artifact list (just the "specials") */
-	for (i = 0; i < ART_MIN_NORMAL; i++)
+	/* Check the special artifacts */
+	for (i = 0; i < ART_MIN_NORMAL; ++i)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
@@ -1552,7 +1590,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		/* Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > p_ptr->depth)
 		{
-			/* Acquire the "out-of-depth factor" */
+			/* Get the "out-of-depth factor" */
 			int d = (a_ptr->level - p_ptr->depth) * 2;
 
 			/* Roll for out-of-depth creation */
@@ -1568,7 +1606,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		/* Enforce minimum "object" level (loosely) */
 		if (k_info[k_idx].level > object_level)
 		{
-			/* Acquire the "out-of-depth factor" */
+			/* Get the "out-of-depth factor" */
 			int d = (k_info[k_idx].level - object_level) * 5;
 
 			/* Roll for out-of-depth creation */
@@ -1578,7 +1616,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		/* Assign the template */
 		object_prep(o_ptr, k_idx);
 
-		/* Mega-Hack -- mark the item as an artifact */
+		/* Mark the item as an artifact */
 		o_ptr->name1 = i;
 
 		/* Success */
@@ -1601,6 +1639,9 @@ static bool make_artifact(object_type *o_ptr)
 {
 	int i;
 
+
+	/* No artifacts, do nothing */
+	if (adult_no_artifacts) return (FALSE);
 
 	/* No artifacts in the town */
 	if (!p_ptr->depth) return (FALSE);
@@ -1626,7 +1667,7 @@ static bool make_artifact(object_type *o_ptr)
 		/* XXX XXX Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > p_ptr->depth)
 		{
-			/* Acquire the "out-of-depth factor" */
+			/* Get the "out-of-depth factor" */
 			int d = (a_ptr->level - p_ptr->depth) * 2;
 
 			/* Roll for out-of-depth creation */
@@ -1636,7 +1677,7 @@ static bool make_artifact(object_type *o_ptr)
 		/* We must make the "rarity roll" */
 		if (rand_int(a_ptr->rarity) != 0) continue;
 
-		/* Hack -- mark the item as an artifact */
+		/* Mark the item as an artifact */
 		o_ptr->name1 = i;
 
 		/* Success */
@@ -3000,7 +3041,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			o_ptr->pval = randint(k_info[o_ptr->k_idx].level);
 
 			/* Never exceed "difficulty" of 55 to 59 */
-			if (o_ptr->pval > 55) o_ptr->pval = 55 + rand_int(5);
+			if (o_ptr->pval > 55) o_ptr->pval = (s16b)(55 + rand_int(5));
 
 			break;
 		}
@@ -3037,8 +3078,8 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
  *
  * If "okay" is true, and the object is going to be "great", then there is
  * a chance that an artifact will be created.  This is true even if both the
- * "good" and "great" arguments are false.  As a total hack, if "great" is
- * true, then the item gets 3 extra "attempts" to become an artifact.
+ * "good" and "great" arguments are false.  Objects which are forced "great"
+ * get three extra "attempts" to become an artifact.
  */
 void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 {
@@ -3092,10 +3133,10 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Get one roll if excellent */
 	if (power >= 2) rolls = 1;
 
-	/* Hack -- Get four rolls if forced great */
+	/* Get four rolls if forced great */
 	if (great) rolls = 4;
 
-	/* Hack -- Get no rolls if not allowed */
+	/* Get no rolls if not allowed */
 	if (!okay || o_ptr->name1) rolls = 0;
 
 	/* Roll for artifacts if allowed */
@@ -3205,7 +3246,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			case EGO_DF:
 			{
 				o_ptr->xtra1 = OBJECT_XTRA_TYPE_SUSTAIN;
-				o_ptr->xtra2 = rand_int(OBJECT_XTRA_SIZE_SUSTAIN);
+				o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_SUSTAIN);
 				break;
 			}
 
@@ -3214,7 +3255,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			case EGO_AMAN:
 			{
 				o_ptr->xtra1 = OBJECT_XTRA_TYPE_RESIST;
-				o_ptr->xtra2 = rand_int(OBJECT_XTRA_SIZE_RESIST);
+				o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
 				break;
 			}
 
@@ -3222,7 +3263,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			case EGO_MAGI:
 			{
 				o_ptr->xtra1 = OBJECT_XTRA_TYPE_POWER;
-				o_ptr->xtra2 = rand_int(OBJECT_XTRA_SIZE_POWER);
+				o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
 				break;
 			}
 		}
@@ -3284,7 +3325,12 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 
 /*
- * Hack -- determine if a template is "good"
+ * Hack -- determine if a template is "good".
+ *
+ * Note that this test only applies to the object *kind*, so it is
+ * possible to choose a kind which is "good", and then later cause
+ * the actual object to be cursed.  We do explicitly forbid objects
+ * which are known to be boring or which start out somewhat damaged.
  */
 static bool kind_is_good(int k_idx)
 {
@@ -3377,7 +3423,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	base = (good ? (object_level + 10) : object_level);
 
 
-	/* Generate a special object, or a normal object */
+	/* Generate a special artifact, or a normal object */
 	if ((rand_int(prob) != 0) || !make_artifact_special(j_ptr))
 	{
 		int k_idx;
@@ -3509,10 +3555,10 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 	{
 		object_type *o_ptr;
 
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
-		/* Acquire next object */
+		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Check for combination */
@@ -3530,10 +3576,6 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 	}
 
 
-	/* Option -- allow stacking */
-	if (n && !testing_stack) return (0);
-
-
 	/* Make an object */
 	o_idx = o_pop();
 
@@ -3542,7 +3584,7 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 	{
 		object_type *o_ptr;
 
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[o_idx];
 
 		/* Structure Copy */
@@ -3555,10 +3597,10 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 		/* Forget monster */
 		o_ptr->held_m_idx = 0;
 
-		/* Build a stack */
+		/* Link the object to the pile */
 		o_ptr->next_o_idx = cave_o_idx[y][x];
 
-		/* Place the object */
+		/* Link the floor to the object */
 		cave_o_idx[y][x] = o_idx;
 
 		/* Notice */
@@ -3674,10 +3716,10 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			{
 				object_type *o_ptr;
 
-				/* Acquire object */
+				/* Get the object */
 				o_ptr = &o_list[this_o_idx];
 
-				/* Acquire next object */
+				/* Get the next object */
 				next_o_idx = o_ptr->next_o_idx;
 
 				/* Check for possible combination */
@@ -3689,9 +3731,6 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 			/* Add new object */
 			if (!comb) k++;
-
-			/* Option -- allow stacking */
-			if (!testing_stack && (k > 1)) continue;
 
 			/* Paranoia */
 			if (k > 99) continue;
@@ -3793,7 +3832,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Message when an object falls under the player */
 	if (chance && (cave_m_idx[by][bx] < 0))
 	{
-		msg_print("You feel something roll beneath your feet.");
+		msg_format("%s feels something roll beneath %s feet.", op_ptr->full_name, sp_ptr->gen);
 	}
 }
 
@@ -3946,6 +3985,88 @@ void place_trap(int y, int x)
 }
 
 
+/*
+ * Place a secret door at the given location
+ */
+void place_secret_door(int y, int x)
+{
+	/* Create secret door */
+	cave_set_feat(y, x, FEAT_SECRET);
+}
+
+
+/*
+ * Place a random type of closed door at the given location.
+ */
+void place_closed_door(int y, int x)
+{
+	int tmp;
+
+	/* Choose an object */
+	tmp = rand_int(400);
+
+	/* Closed doors (300/400) */
+	if (tmp < 300)
+	{
+		/* Create closed door */
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+	}
+
+	/* Locked doors (99/400) */
+	else if (tmp < 399)
+	{
+		/* Create locked door */
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
+	}
+
+	/* Stuck doors (1/400) */
+	else
+	{
+		/* Create jammed door */
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(8));
+	}
+}
+
+
+/*
+ * Place a random type of door at the given location.
+ */
+void place_random_door(int y, int x)
+{
+	int tmp;
+
+	/* Choose an object */
+	tmp = rand_int(1000);
+
+	/* Open doors (300/1000) */
+	if (tmp < 300)
+	{
+		/* Create open door */
+		cave_set_feat(y, x, FEAT_OPEN);
+	}
+
+	/* Broken doors (100/1000) */
+	else if (tmp < 400)
+	{
+		/* Create broken door */
+		cave_set_feat(y, x, FEAT_BROKEN);
+	}
+
+	/* Secret doors (200/1000) */
+	else if (tmp < 600)
+	{
+		/* Create secret door */
+		cave_set_feat(y, x, FEAT_SECRET);
+	}
+
+	/* Closed, locked, or stuck doors (400/1000) */
+	else
+	{
+		/* Create closed door */
+		place_closed_door(y, x);
+	}
+}
+
 
 /*
  * Describe the charges on an item in the inventory.
@@ -3964,14 +4085,14 @@ void inven_item_charges(int item)
 	if (o_ptr->pval != 1)
 	{
 		/* Print a message */
-		msg_format("You have %d charges remaining.", o_ptr->pval);
+		msg_format("%s has %d charges remaining.", op_ptr->full_name, o_ptr->pval);
 	}
 
 	/* Single charge */
 	else
 	{
 		/* Print a message */
-		msg_format("You have %d charge remaining.", o_ptr->pval);
+		msg_format("%s has %d charge remaining.", op_ptr->full_name, o_ptr->pval);
 	}
 }
 
@@ -3989,7 +4110,7 @@ void inven_item_describe(int item)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Print a message */
-	msg_format("You have %s (%c).", o_name, index_to_label(item));
+	msg_format("%s has %s (%c).", op_ptr->full_name, o_name, index_to_label(item));
 }
 
 
@@ -4063,7 +4184,7 @@ void inven_item_optimize(int item)
 		}
 
 		/* Hack -- wipe hole */
-		WIPE(&inventory[i], object_type);
+		(void)WIPE(&inventory[i], object_type);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN);
@@ -4136,7 +4257,7 @@ void floor_item_describe(int item)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Print a message */
-	msg_format("You see %s.", o_name);
+	msg_format("%s see %s.", op_ptr->full_name, o_name);
 }
 
 
@@ -4323,6 +4444,27 @@ s16b inven_carry(object_type *o_ptr)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
+			/* Rods sort by increasing recharge time */
+			if (o_ptr->tval == TV_ROD)
+			{
+				if (o_ptr->pval < j_ptr->pval) break;
+				if (o_ptr->pval > j_ptr->pval) continue;
+			}
+
+			/* Wands/Staffs sort by decreasing charges */
+			if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
+			{
+				if (o_ptr->pval > j_ptr->pval) break;
+				if (o_ptr->pval < j_ptr->pval) continue;
+			}
+
+			/* Lites sort by decreasing fuel */
+			if (o_ptr->tval == TV_LITE)
+			{
+				if (o_ptr->pval > j_ptr->pval) break;
+				if (o_ptr->pval < j_ptr->pval) continue;
+			}
+
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
 
@@ -4349,7 +4491,7 @@ s16b inven_carry(object_type *o_ptr)
 	/* Copy the item */
 	object_copy(&inventory[i], o_ptr);
 
-	/* Access new object */
+	/* Get the new object */
 	j_ptr = &inventory[i];
 
 	/* Forget stack */
@@ -4404,7 +4546,7 @@ s16b inven_takeoff(int item, int amt)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	cptr act;
+	char act[80];
 
 	char o_name[80];
 
@@ -4433,25 +4575,25 @@ s16b inven_takeoff(int item, int amt)
 	/* Took off weapon */
 	if (item == INVEN_WIELD)
 	{
-		act = "You were wielding";
+		sprintf (act, "%s was wielding", op_ptr->full_name);
 	}
 
 	/* Took off bow */
 	else if (item == INVEN_BOW)
 	{
-		act = "You were holding";
+		sprintf (act, "%s was holding", op_ptr->full_name);
 	}
 
 	/* Took off light */
 	else if (item == INVEN_LITE)
 	{
-		act = "You were holding";
+		sprintf (act, "%s was holding", op_ptr->full_name);
 	}
 
 	/* Took off something */
 	else
 	{
-		act = "You were wearing";
+		sprintf (act, "%s was wearing", op_ptr->full_name);
 	}
 
 	/* Modify, Optimize */
@@ -4489,7 +4631,7 @@ void inven_drop(int item, int amt)
 	char o_name[80];
 
 
-	/* Access original object */
+	/* Get the original object */
 	o_ptr = &inventory[item];
 
 	/* Error check */
@@ -4505,7 +4647,7 @@ void inven_drop(int item, int amt)
 		/* Take off first */
 		item = inven_takeoff(item, amt);
 
-		/* Access original object */
+		/* Get the original object */
 		o_ptr = &inventory[item];
 	}
 
@@ -4523,7 +4665,7 @@ void inven_drop(int item, int amt)
 	object_desc(o_name, i_ptr, TRUE, 3);
 
 	/* Message */
-	msg_format("You drop %s (%c).", o_name, index_to_label(item));
+	msg_format("%s drops %s (%c).", op_ptr->full_name, o_name, index_to_label(item));
 
 	/* Drop it near the player */
 	drop_near(i_ptr, 0, py, px);
@@ -4601,7 +4743,7 @@ void combine_pack(void)
 	}
 
 	/* Message */
-	if (flag) msg_print("You combine some items in your pack.");
+	if (flag) msg_format("%s combines some items in %s pack.", op_ptr->full_name, sp_ptr->gen);
 }
 
 
@@ -4673,6 +4815,27 @@ void reorder_pack(void)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
+			/* Rods sort by increasing recharge time */
+			if (o_ptr->tval == TV_ROD)
+			{
+				if (o_ptr->pval < j_ptr->pval) break;
+				if (o_ptr->pval > j_ptr->pval) continue;
+			}
+
+			/* Wands/Staffs sort by decreasing charges */
+			if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
+			{
+				if (o_ptr->pval > j_ptr->pval) break;
+				if (o_ptr->pval < j_ptr->pval) continue;
+			}
+
+			/* Lites sort by decreasing fuel */
+			if (o_ptr->tval == TV_LITE)
+			{
+				if (o_ptr->pval > j_ptr->pval) break;
+				if (o_ptr->pval < j_ptr->pval) continue;
+			}
+
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
 
@@ -4708,7 +4871,7 @@ void reorder_pack(void)
 	}
 
 	/* Message */
-	if (flag) msg_print("You reorder some items in your pack.");
+	if (flag) msg_format("%s reorders some items in %s pack.", op_ptr->full_name, sp_ptr->gen);
 }
 
 
@@ -4727,7 +4890,7 @@ s16b spell_chance(int spell)
 	/* Paranoia -- must be literate */
 	if (!mp_ptr->spell_book) return (100);
 
-	/* Access the spell */
+	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
 	/* Extract the base spell failure rate */
@@ -4785,9 +4948,10 @@ bool spell_okay(int spell, bool known)
 {
 	magic_type *s_ptr;
 
+
 	update_xp_ptrs();	/* xp_ptr hack -KRP */
 
-	/* Access the spell */
+	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
 	/* Spell is illegal */
@@ -4912,7 +5076,7 @@ void spell_info(char *p, int spell)
 
 
 /*
- * Print a list of spells (for browsing or casting or viewing)
+ * Print a list of spells (for browsing or casting or viewing).
  */
 void print_spells(byte *spells, int num, int y, int x)
 {
@@ -4926,7 +5090,9 @@ void print_spells(byte *spells, int num, int y, int x)
 
 	char out_val[160];
 
-	update_xp_ptrs();	/* xp_ptr hack -KRP */
+	byte line_attr;
+	
+	update_xp_ptrs();	/* xp_ptr hack -KRP */	
 
 	/* Title the list */
 	prt("", y, x);
@@ -4936,21 +5102,19 @@ void print_spells(byte *spells, int num, int y, int x)
 	/* Dump the spells */
 	for (i = 0; i < num; i++)
 	{
-		/* Access the spell */
+		/* Get the spell index */
 		spell = spells[i];
 
-		/* Access the spell */
+		/* Get the spell info */
 		s_ptr = &mp_ptr->info[spell];
 
 		/* Skip illegible spells */
 		if (s_ptr->slevel >= 99)
 		{
 			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
-			prt(out_val, y + i + 1, x);
+			c_prt(TERM_L_DARK, out_val, y + i + 1, x);
 			continue;
 		}
-
-		/* XXX XXX Could label spells above the players level */
 
 		/* Get extra info */
 		spell_info(info, spell);
@@ -4958,31 +5122,45 @@ void print_spells(byte *spells, int num, int y, int x)
 		/* Use that info */
 		comment = info;
 
+		/* Assume spell is known and tried */
+		line_attr = TERM_WHITE;
+
 		/* Analyze the spell */
 		if ((spell < 32) ?
 		    ((p_ptr->spell_forgotten1 & (1L << spell))) :
 		    ((p_ptr->spell_forgotten2 & (1L << (spell - 32)))))
 		{
 			comment = " forgotten";
+			line_attr = TERM_YELLOW;
 		}
 		else if (!((spell < 32) ?
 		           (p_ptr->spell_learned1 & (1L << spell)) :
 		           (p_ptr->spell_learned2 & (1L << (spell - 32)))))
 		{
-			comment = " unknown";
+			if (s_ptr->slevel <= p_ptr->lev)
+			{
+				comment = " unknown";
+				line_attr = TERM_L_BLUE;
+			}
+			else
+			{
+				comment = " difficult";
+				line_attr = TERM_RED;
+			}
 		}
 		else if (!((spell < 32) ?
 		           (p_ptr->spell_worked1 & (1L << spell)) :
 		           (p_ptr->spell_worked2 & (1L << (spell - 32)))))
 		{
 			comment = " untried";
+			line_attr = TERM_L_GREEN;
 		}
 
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
 		        I2A(i), spell_names[mp_ptr->spell_type][spell],
 		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
-		prt(out_val, y + i + 1, x);
+		c_prt(line_attr, out_val, y + i + 1, x);
 	}
 
 	/* Clear the bottom line */
@@ -5049,7 +5227,7 @@ void display_koff(int k_idx)
 		byte spells[64];
 
 
-		/* Access the item's sval */
+		/* Get the item's sval */
 		sval = i_ptr->sval;
 
 		/* Extract spells */

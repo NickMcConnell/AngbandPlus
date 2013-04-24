@@ -11,40 +11,68 @@
 #include "angband.h"
 
 /*
- * Have player follow another player -KRP
+ * Drop some gold to floor
  */
-void follow_leader(void)
-{
-	int mm[5];
-	int i, d, ny, nx;
-	bool do_move = FALSE;
+void do_cmd_drop_au (void) {
+	u32b		au_to_drop, au_coins;
+	object_type	*i_ptr, object_type_body;
+	char		prompt[80], buf[80];
 
-	/* Find out which way(s) to go */
-	get_moves((-1) - p_ptr->whoami, mm);
+		/* Paranoia */
+	msg_print (NULL);
 
-	for (i = 0; (i < 5) && (do_move == FALSE); i++)
-	{
-		d = mm[i];
-		ny = p_ptr->py + ddy[d];
-		nx = p_ptr->px + ddx[d];
+		/* Create prompt */
+	sprintf (prompt, "How much gold to drop (max %ld)? ", (long)p_ptr->au);
 
-/*		msg_print("Trying %d,%d to %d,%d. ",
- *			p_ptr->px, p_ptr->py, nx, ny);
- */
-		if (do_cmd_walk_test(ny, nx))
-		{
-			do_move = TRUE;		/* We can move */
-			p_ptr->command_dir = d; /* Go this way */
+	do {
+			/* Clean input field */
+		buf[0] = 0;
+
+			/* Get amount */
+		if (!get_string(prompt, buf, 80)) return;
+
+			/* Extract number */
+		au_to_drop = atol (buf);
+
+	} while (au_to_drop <= 0 || au_to_drop > p_ptr->au);
+
+		/* Always drop gold (since 'AU' is writen on char table) */
+	coin_type=10;
+
+	while (au_to_drop) {
+
+			/* Get local object */
+		i_ptr = &object_type_body;
+
+			/* Wipe the object */
+		object_wipe (i_ptr);
+
+		if (make_gold(i_ptr)) {
+
+				/* Player can carry millions, but amout */
+				/* of coins on the floor is limited to 32K, */
+				/* so we drop several piles */
+			au_coins = (au_to_drop < 25000) ? (au_to_drop) : (25000);
+
+				/* Decrease amount left to drop */
+			au_to_drop -= au_coins;
+
+				/* We need exact amount of cash */
+			i_ptr->pval = au_coins;
+
+				/* Put coins on floor */
+			drop_near (i_ptr, -1, p_ptr->py, p_ptr->px);
+
+				/* Lighten player's purse */
+			p_ptr->au -= au_coins;
+
+				/* Redraw gold */
+			p_ptr->redraw |= (PR_GOLD);
+
+				/* Window stuff */
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 		}
 	}
-
-	if (do_move)
-		do_cmd_walk();	/* Move player */
-	else
-/*		disturb(1, 0);		*//* Player can't follow */
-		/* Disturbing is making a mess. -KRP */
-		msg_print("Which way do I go? ");
-
 }
 
 /*
@@ -449,7 +477,7 @@ void search(void)
 					pick_trap(y, x);
 
 					/* Message */
-					msg_print("You have found a trap.");
+					msg_format("%s has found a trap.", op_ptr->full_name);
 
 					/* Disturb */
 					disturb(0, 0);
@@ -459,10 +487,10 @@ void search(void)
 				if (cave_feat[y][x] == FEAT_SECRET)
 				{
 					/* Message */
-					msg_print("You have found a secret door.");
+					msg_format("%s has found a secret door.", op_ptr->full_name);
 
-					/* Pick a door XXX XXX XXX */
-					cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+					/* Pick a door */
+					place_closed_door(y, x);
 
 					/* Disturb */
 					disturb(0, 0);
@@ -473,10 +501,10 @@ void search(void)
 				{
 					object_type *o_ptr;
 
-					/* Acquire object */
+					/* Get the object */
 					o_ptr = &o_list[this_o_idx];
 
-					/* Acquire next object */
+					/* Get the next object */
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Skip non-chests */
@@ -489,7 +517,7 @@ void search(void)
 					if (!object_known_p(o_ptr))
 					{
 						/* Message */
-						msg_print("You have discovered a trap on the chest!");
+						msg_format("%s has discovered a trap on the chest!", op_ptr->full_name);
 
 						/* Know the trap */
 						object_known(o_ptr);
@@ -504,35 +532,109 @@ void search(void)
 }
 
 
+/*
+ * Determine if the object can be picked up, and has "=g" in its inscription.
+ */
+static bool auto_pickup_okay(object_type *o_ptr, int jumping)
+{
+	cptr s;
+
+	/* It can't be carried */
+	if (!inven_carry_okay(o_ptr)) return (FALSE);
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+	
+	/* Do not perform *any* pickup, if player is jumping */
+	if (jumping) return FALSE;
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+		/* Auto-pickup on "=g" */
+		if (s[1] == 'g') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+	/* Don't auto pickup */
+	return (FALSE);
+}
 
 
 /*
- * Make the player carry everything in a grid
+ * Helper routine for py_pickup() and py_pickup_floor().
  *
- * If "pickup" is FALSE then only gold will be picked up
+ * Add the given dungeon object to the character's inventory.
+ *
+ * Delete the object afterwards.
  */
-void py_pickup(int pickup)
+static void py_pickup_aux(int o_idx)
+{
+	int slot;
+
+	char o_name[80];
+	object_type *o_ptr;
+
+	o_ptr = &o_list[o_idx];
+
+	/* Carry the object */
+	slot = inven_carry(o_ptr);
+
+	/* Get the object again */
+	o_ptr = &inventory[slot];
+
+	/* Describe the object */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("%s has %s (%c).", op_ptr->full_name, o_name, index_to_label(slot));
+
+	/* Delete the object */
+	delete_object_idx(o_idx);
+}
+
+
+/*
+ * Make the player carry everything in a grid.
+ *
+ * If "pickup" is FALSE then only gold will be picked up.
+ */
+void py_pickup(int pickup, int jumping)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	s16b this_o_idx, next_o_idx = 0;
 
+	object_type *o_ptr;
+
 	char o_name[80];
+
+#ifdef ALLOW_EASY_FLOOR
+
+	int last_o_idx = 0;
+
+	int can_pickup = 0;
+	int not_pickup = 0;
+
+#endif /* ALLOW_EASY_FLOOR */
 
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
-
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
 
-		/* Acquire next object */
+		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Hack -- disturb */
@@ -542,8 +644,8 @@ void py_pickup(int pickup)
 		if (o_ptr->tval == TV_GOLD)
 		{
 			/* Message */
-			msg_format("You have found %ld gold pieces worth of %s.",
-			           (long)o_ptr->pval, o_name);
+			msg_format("%s has found %ld gold pieces worth of %s.",
+			           op_ptr->full_name, (long)o_ptr->pval, o_name);
 
 			/* Collect the gold */
 			p_ptr->au += o_ptr->pval;
@@ -556,62 +658,175 @@ void py_pickup(int pickup)
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
+
+			/* Check the next object */
+			continue;
+		}
+
+		/* Test for auto-pickup */
+		if (auto_pickup_okay(o_ptr, jumping))
+		{
+			/* Pick up the object */
+			py_pickup_aux(this_o_idx);
+
+			/* Check the next object */
+			continue;
+		}
+
+#ifdef ALLOW_EASY_FLOOR
+
+		/* Easy Floor */
+		if (easy_floor)
+		{
+			/* Pickup if possible */
+			if (pickup && inven_carry_okay(o_ptr))
+			{
+				/* Pick up if allowed */
+				if (!carry_query_flag)
+				{
+					/* Pick up the object */
+					py_pickup_aux(this_o_idx);
+				}
+
+				/* Else count */
+				else
+				{
+					/* Remember */
+					last_o_idx = this_o_idx;
+
+					/* Count */
+					++can_pickup;
+				}
+			}
+
+			/* Else count */
+			else
+			{
+				/* Remember */
+				last_o_idx = this_o_idx;
+
+				/* Count */
+				++not_pickup;
+			}
+
+			/* Check the next object */
+			continue;
+		}
+
+#endif /* ALLOW_EASY_FLOOR */
+
+		/* Describe the object */
+		if (!pickup)
+		{
+			msg_format("%s see %s.", op_ptr->full_name, o_name);
+
+			/* Check the next object */
+			continue;
+		}
+
+		/* Note that the pack is too full */
+		if (!inven_carry_okay(o_ptr))
+		{
+			msg_format("%s has no room for %s.", op_ptr->full_name, o_name);
+
+			/* Check the next object */
+			continue;
+		}
+
+		/* Query before picking up */
+		if (carry_query_flag)
+		{
+			char out_val[160];
+			sprintf(out_val, "Pick up %s? ", o_name);
+			if (!get_check(out_val)) continue;
+		}
+
+		/* Pick up the object */
+		py_pickup_aux(this_o_idx);
+	}
+
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Easy floor, objects left */
+	if (easy_floor && (can_pickup + not_pickup > 0))
+	{
+		/* Not picking up */
+		if (!pickup)
+		{
+			/* One object */
+			if (not_pickup == 1)
+			{
+				/* Get the object */
+				o_ptr = &o_list[last_o_idx];
+
+				/* Describe the object */
+				object_desc(o_name, o_ptr, TRUE, 3);
+
+				/* Message */
+				msg_format("%s see %s.", op_ptr->full_name, o_name);
+			}
+
+			/* Multiple objects */
+			else
+			{
+				/* Message */
+				msg_format("%s see a pile of %d objects.", op_ptr->full_name, not_pickup);
+			}
+
+			/* Done */
+			return;
+		}
+
+		/* No room */
+		if (!can_pickup)
+		{
+			/* One object */
+			if (not_pickup == 1)
+			{
+				/* Get the object */
+				o_ptr = &o_list[last_o_idx];
+
+				/* Describe the object */
+				object_desc(o_name, o_ptr, TRUE, 3);
+
+				/* Message */
+				msg_format("%s has no room for %s.", op_ptr->full_name, o_name);
+			}
+
+			/* Multiple objects */
+			else
+			{
+				/* Message */
+				msg_format("%s has no room for any of the objects on the floor.", op_ptr->full_name);
+			}
+
+			/* Done */
+			return;
 		}
 
 		/* Pick up objects */
-		else
+		while (1)
 		{
-			/* Describe the object */
-			if (!pickup)
-			{
-				msg_format("You see %s.", o_name);
-			}
+			cptr q, s;
 
-			/* Note that the pack is too full */
-			else if (!inven_carry_okay(o_ptr))
-			{
-				msg_format("You have no room for %s.", o_name);
-			}
+			int item;
 
-			/* Pick up the item (if requested and allowed) */
-			else
-			{
-				int okay = TRUE;
+			/* Restrict the choices */
+			item_tester_hook = inven_carry_okay;
 
-				/* Hack -- query every item */
-				if (carry_query_flag)
-				{
-					char out_val[160];
-					sprintf(out_val, "Pick up %s? ", o_name);
-					okay = get_check(out_val);
-				}
+			/* Get an object*/
+			q = "Get which item? ";
+			s = NULL;
+			if (!get_item(&item, q, s, (USE_FLOOR))) break;
 
-				/* Attempt to pick up an object. */
-				if (okay)
-				{
-					int slot;
-
-					/* Carry the item */
-					slot = inven_carry(o_ptr);
-
-					/* Get the item again */
-					o_ptr = &inventory[slot];
-
-					/* Describe the object */
-					object_desc(o_name, o_ptr, TRUE, 3);
-
-					/* Message */
-					msg_format("You have %s (%c).", o_name, index_to_label(slot));
-
-					/* Delete the object */
-					delete_object_idx(this_o_idx);
-				}
-			}
+			/* Pick up the object */
+			py_pickup_aux(0 - item);
 		}
 	}
+
+#endif /* ALLOW_EASY_FLOOR */
+
 }
-
-
 
 
 
@@ -660,10 +875,10 @@ void hit_trap(int y, int x)
 	{
 		case FEAT_TRAP_HEAD + 0x00:
 		{
-			msg_print("You fall through a trap door!");
+			msg_format("%s falls through a trap door!", op_ptr->full_name);
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently down to the next level.");
+				msg_format("%s floats gently down to the next level.", op_ptr->full_name);
 			}
 			else
 			{
@@ -682,10 +897,10 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x01:
 		{
-			msg_print("You fall into a pit!");
+			msg_format("%s falls into a pit!", op_ptr->full_name);
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently to the bottom of the pit.");
+				msg_format("%s floats gently to the bottom of the pit.", op_ptr->full_name);
 			}
 			else
 			{
@@ -697,12 +912,12 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x02:
 		{
-			msg_print("You fall into a spiked pit!");
+			msg_format("%s falls into a spiked pit!", op_ptr->full_name);
 
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently to the floor of the pit.");
-				msg_print("You carefully avoid touching the spikes.");
+				msg_format("%s floats gently to the floor of the pit,", op_ptr->full_name);
+				msg_print("and carefully avoids touching the spikes.");
 			}
 
 			else
@@ -713,7 +928,7 @@ void hit_trap(int y, int x)
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
 				{
-					msg_print("You are impaled!");
+					msg_format("%s is impaled!", op_ptr->full_name);
 
 					dam = dam * 2;
 					(void)set_cut(p_ptr->cut + randint(dam));
@@ -727,12 +942,12 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x03:
 		{
-			msg_print("You fall into a spiked pit!");
+			msg_format("%s falls into a spiked pit!", op_ptr->full_name);
 
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently to the floor of the pit.");
-				msg_print("You carefully avoid touching the spikes.");
+				msg_format("%s floats gently to the floor of the pit,", op_ptr->full_name);
+				msg_print("and carefully avoids touching the spikes.");
 			}
 
 			else
@@ -743,14 +958,14 @@ void hit_trap(int y, int x)
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
 				{
-					msg_print("You are impaled on poisonous spikes!");
+					msg_format("%s are impaled on poisonous spikes!", op_ptr->full_name);
 
 					dam = dam * 2;
 					(void)set_cut(p_ptr->cut + randint(dam));
 
 					if (p_ptr->resist_pois || p_ptr->oppose_pois)
 					{
-						msg_print("The poison does not affect you!");
+						msg_format("The poison does not affect %s!", op_ptr->full_name);
 					}
 
 					else
@@ -769,7 +984,7 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x04:
 		{
-			msg_print("You are enveloped in a cloud of smoke!");
+			msg_format("%s is enveloped in a cloud of smoke!", op_ptr->full_name);
 			cave_info[y][x] &= ~(CAVE_MARK);
 			cave_set_feat(y, x, FEAT_FLOOR);
 			num = 2 + randint(3);
@@ -782,14 +997,14 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x05:
 		{
-			msg_print("You hit a teleport trap!");
+			msg_format("%s hits a teleport trap!", op_ptr->full_name);
 			teleport_player(100);
 			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x06:
 		{
-			msg_print("You are enveloped in flames!");
+			msg_format("%s is enveloped in flames!", op_ptr->full_name);
 			dam = damroll(4, 6);
 			fire_dam(dam, "a fire trap");
 			break;
@@ -797,7 +1012,7 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x07:
 		{
-			msg_print("You are splashed with acid!");
+			msg_format("%s is splashed with acid!", op_ptr->full_name);
 			dam = damroll(4, 6);
 			acid_dam(dam, "an acid trap");
 			break;
@@ -807,14 +1022,14 @@ void hit_trap(int y, int x)
 		{
 			if (check_hit(125))
 			{
-				msg_print("A small dart hits you!");
+				msg_format("A small dart hits %s!", op_ptr->full_name);
 				dam = damroll(1, 4);
 				take_hit(dam, name);
 				(void)set_slow(p_ptr->slow + rand_int(20) + 20);
 			}
 			else
 			{
-				msg_print("A small dart barely misses you.");
+				msg_format("A small dart barely misses %s.", op_ptr->full_name);
 			}
 			break;
 		}
@@ -823,14 +1038,14 @@ void hit_trap(int y, int x)
 		{
 			if (check_hit(125))
 			{
-				msg_print("A small dart hits you!");
+				msg_format("A small dart hits %s!", op_ptr->full_name);
 				dam = damroll(1, 4);
 				take_hit(dam, name);
 				(void)do_dec_stat(A_STR);
 			}
 			else
 			{
-				msg_print("A small dart barely misses you.");
+				msg_format("A small dart barely misses %s.", op_ptr->full_name);
 			}
 			break;
 		}
@@ -839,14 +1054,14 @@ void hit_trap(int y, int x)
 		{
 			if (check_hit(125))
 			{
-				msg_print("A small dart hits you!");
+				msg_format("A small dart hits %s!", op_ptr->full_name);
 				dam = damroll(1, 4);
 				take_hit(dam, name);
 				(void)do_dec_stat(A_DEX);
 			}
 			else
 			{
-				msg_print("A small dart barely misses you.");
+				msg_format("A small dart barely misses %s.", op_ptr->full_name);
 			}
 			break;
 		}
@@ -855,21 +1070,21 @@ void hit_trap(int y, int x)
 		{
 			if (check_hit(125))
 			{
-				msg_print("A small dart hits you!");
+				msg_format("A small dart hits %s!", op_ptr->full_name);
 				dam = damroll(1, 4);
 				take_hit(dam, name);
 				(void)do_dec_stat(A_CON);
 			}
 			else
 			{
-				msg_print("A small dart barely misses you.");
+				msg_format("A small dart barely misses %s.", op_ptr->full_name);
 			}
 			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x0C:
 		{
-			msg_print("You are surrounded by a black gas!");
+			msg_format("%s is surrounded by a black gas!", op_ptr->full_name);
 			if (!p_ptr->resist_blind)
 			{
 				(void)set_blind(p_ptr->blind + rand_int(50) + 25);
@@ -879,7 +1094,7 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x0D:
 		{
-			msg_print("You are surrounded by a gas of scintillating colors!");
+			msg_format("%s is surrounded by a gas of scintillating colors!", op_ptr->full_name);
 			if (!p_ptr->resist_confu)
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
@@ -889,7 +1104,7 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x0E:
 		{
-			msg_print("You are surrounded by a pungent green gas!");
+			msg_format("%s is surrounded by a pungent green gas!", op_ptr->full_name);
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 			{
 				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
@@ -899,7 +1114,7 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x0F:
 		{
-			msg_print("You are surrounded by a strange white mist!");
+			msg_format("%s is surrounded by a strange white mist!", op_ptr->full_name);
 			if (!p_ptr->free_act)
 			{
 				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
@@ -932,7 +1147,7 @@ void py_attack(int y, int x)
 	bool do_quake = FALSE;
 
 
-	/* Access the monster */
+	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 
@@ -960,14 +1175,14 @@ void py_attack(int y, int x)
 	if (p_ptr->afraid)
 	{
 		/* Message */
-		msg_format("You are too afraid to attack %s!", m_name);
+		msg_format("%s is too afraid to attack %s!", op_ptr->full_name, m_name);
 
 		/* Done */
 		return;
 	}
 
 
-	/* Access the weapon */
+	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Calculate the "attack quality" */
@@ -985,7 +1200,7 @@ void py_attack(int y, int x)
 			sound(SOUND_HIT);
 
 			/* Message */
-			msg_format("You hit %s.", m_name);
+			msg_format("%s hits %s.", op_ptr->full_name, m_name);
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
@@ -1009,7 +1224,7 @@ void py_attack(int y, int x)
 			/* Complex message */
 			if (p_ptr->wizard)
 			{
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+				msg_format("%s does %d (out of %d) damage.", op_ptr->full_name, k, m_ptr->hp);
 			}
 
 			/* Damage, check for fear and death */
@@ -1022,7 +1237,7 @@ void py_attack(int y, int x)
 				p_ptr->confusing = FALSE;
 
 				/* Message */
-				msg_print("Your hands stop glowing.");
+				msg_format("%s's hands stop glowing.", op_ptr->full_name);
 
 				/* Confuse the monster */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -1053,7 +1268,7 @@ void py_attack(int y, int x)
 			sound(SOUND_MISS);
 
 			/* Message */
-			msg_format("You miss %s.", m_name);
+			msg_format("%s miss %s.", op_ptr->full_name, m_name);
 		}
 	}
 
@@ -1091,7 +1306,7 @@ void py_attack(int y, int x)
  * Note that this routine handles monsters in the destination grid,
  * and also handles attempting to move into walls/doors/rubble/etc.
  */
-void move_player(int dir, int do_pickup)
+void move_player(int dir, int jumping)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1123,6 +1338,31 @@ void move_player(int dir, int do_pickup)
 		}
 	}
 
+#ifdef ALLOW_EASY_ALTER
+
+	/* Optionally alter known traps/doors on (non-jumping) movement */
+	else if (easy_alter && !jumping &&
+	         (cave_info[y][x] & (CAVE_MARK)) &&
+	         (cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+	         (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+	{
+		/* Not already repeating */
+		if (!p_ptr->command_rep)
+		{
+			/* Hack -- Optional auto-repeat */
+			if (always_repeat && (p_ptr->command_arg <= 0))
+			{
+				/* Repeat 99 times */
+				p_ptr->command_arg = 99;
+			}
+		}
+
+		/* Alter */
+		do_cmd_alter();
+	}
+
+#endif /* ALLOW_EASY_ALTER */
+
 	/* Player can not walk through "walls" */
 	else if (!cave_floor_bold(y, x))
 	{
@@ -1135,7 +1375,8 @@ void move_player(int dir, int do_pickup)
 			/* Rubble */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
-				msg_print("You feel a pile of rubble blocking your way.");
+				msg_format("%s feels a pile of rubble blocking %s way.",
+					op_ptr->full_name, sp_ptr->gen);
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
@@ -1143,7 +1384,8 @@ void move_player(int dir, int do_pickup)
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
-				msg_print("You feel a door blocking your way.");
+				msg_format("%s feels a door blocking %s way.",
+					op_ptr->full_name, sp_ptr->gen);
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
@@ -1151,8 +1393,8 @@ void move_player(int dir, int do_pickup)
 			/* Wall (or secret door) */
 			else
 			{
-				msg_print("You feel a wall blocking your way.");
-				cave_info[y][x] |= (CAVE_MARK);
+				msg_format("%s feels a pile of rubble blocking %s way.",
+					op_ptr->full_name, sp_ptr->gen);				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
 		}
@@ -1163,19 +1405,22 @@ void move_player(int dir, int do_pickup)
 			/* Rubble */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
-				msg_print("There is a pile of rubble blocking your way.");
+				msg_format("There is a pile of rubble blocking %s's way.",
+					op_ptr->full_name);
 			}
 
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
-				msg_print("There is a door blocking your way.");
+				msg_format("There is a door blocking %s's way.",
+					op_ptr->full_name);
 			}
 
 			/* Wall (or secret door) */
 			else
 			{
-				msg_print("There is a wall blocking your way.");
+				msg_format("There is a wall blocking %s's way.",
+					op_ptr->full_name);
 			}
 		}
 
@@ -1211,7 +1456,7 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
-		py_pickup(do_pickup);
+		py_pickup(always_pickup, jumping);
 
 		/* Handle "store doors" */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
@@ -1222,6 +1467,9 @@ void move_player(int dir, int do_pickup)
 
 			/* Hack -- Enter store */
 			p_ptr->command_new = '_';
+
+			/* Free turn XXX XXX XXX */
+			p_ptr->energy_use = 0;
 		}
 
 		/* Discover invisible traps */
@@ -1231,7 +1479,7 @@ void move_player(int dir, int do_pickup)
 			disturb(0, 0);
 
 			/* Message */
-			msg_print("You found a trap!");
+			msg_format("%s founds a trap!", op_ptr->full_name);
 
 			/* Pick a trap */
 			pick_trap(y, x);
@@ -1634,10 +1882,10 @@ static bool run_test(void)
 		{
 			object_type *o_ptr;
 
-			/* Acquire object */
+			/* Get the object */
 			o_ptr = &o_list[this_o_idx];
 
-			/* Acquire next object */
+			/* Get the next object */
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Visible object */
@@ -1981,7 +2229,7 @@ void run_step(int dir)
 	/* Take time */
 	p_ptr->energy_use = 100;
 
-	/* Move the player, using the "pickup" flag */
-	move_player(p_ptr->run_cur_dir, always_pickup);
+	/* Move the player */
+	move_player(p_ptr->run_cur_dir, FALSE);
 }
 
